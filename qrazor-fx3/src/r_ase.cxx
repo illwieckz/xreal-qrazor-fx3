@@ -245,7 +245,7 @@ struct r_ase_model_grammar_t : public boost::spirit::grammar<r_ase_model_grammar
 					boost::spirit::ch_p('\"') >>
 					//boost::spirit::lexeme_d[boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - boost::spirit::ch_p('\"')]][&R_ASE_AddShader] >>
 					boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - boost::spirit::ch_p('\"')][&R_ASE_AddShader] >>
-					skip_restofline
+					boost::spirit::ch_p('\"')
 				;
 				
 			material_map_diffuse
