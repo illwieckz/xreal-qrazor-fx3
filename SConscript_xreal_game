@@ -71,5 +71,5 @@ if sys.platform == 'linux2':
 	xreal_game_env.InstallAs('#install/xreal/game.so', 'libgame.so')
 
 elif sys.platform == 'win32':
-	xreal_game_env.InstallAs('#install/xreal/game.dll', 'libgame.dll')
+	xreal_game_env.InstallAs('#install/xreal/game.dll', 'game.dll')
 
