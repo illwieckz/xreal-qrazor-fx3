@@ -1489,14 +1489,14 @@ static void	R_FindMaterialShaderStageImage(r_shader_c *shader, r_shader_stage_c 
 				if(!image)
 				{
 					ri.Com_Printf("R_FindMaterialShaderStageImage: shader '%s' has no specularmap '%s'\n", shader->getName(), stage->image_name.c_str());
-					image = r_img_white;
+					image = r_img_black;
 				}
 			
 				stage->image = image;
 			}
 			else
 			{
-				stage->image = r_img_white;
+				stage->image = r_img_black;
 			}
 			
 			break;
