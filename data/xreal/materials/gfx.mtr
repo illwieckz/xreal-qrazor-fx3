@@ -37,6 +37,18 @@ fonts/conchars
 	}
 }
 
+fonts/chromechars
+{
+	{	
+		blend blend
+		maskDepth
+		colored
+		nopicmip
+		linear
+		map		fonts/chromechars.tga
+	}
+}
+
 // Tr3B - never touch this shader !!!
 currentRender
 {
@@ -54,17 +66,17 @@ console
 //		linear		// no mip maps
 //		scroll	time * 0.02 , 0
 //	}
-	{
-		map		_currentrender
-	}
 //	{
+//		map		_currentrender
+//	}
+	{
 //		blend		blend
-//		map		textures/black.tga
+		map		textures/black.tga
 //		map		menu/demo/logo_bg.tga
 //		linear		// no mip maps
 //		scroll		time * 0.3 , time * .3
 //		rotate		time * 0.7
-//	}
+	}
 }
 
 splashScreen 
