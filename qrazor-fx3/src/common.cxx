@@ -41,6 +41,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "sha1.h"
 #include "cm.h"
 
+#include "x_bitmessage.h"
+
 
 #define	MAX_PRINT_MSG	4096
 
@@ -297,7 +299,8 @@ static void	Com_EventLoop()
 {
 #ifndef BSPCOMPILER_ONLY
 	netadr_t	adr;
-	message_c	msg(MSG_TYPE_RAWBYTES, MAX_PACKETLEN);
+	bitmessage_c	msg(tobits(MAX_PACKETLEN));	// Tr3B - don't use MAX_MSGLEN, will cause buffer overflow -> exception -> kills server badly
+							// don't ask my for the reason
 #endif
 
 	while(com_event_queue.size())
@@ -324,7 +327,8 @@ static void	Com_EventLoop()
 				memcpy(&adr, event->getData(), sizeof(adr));
 				
 				msg.beginWriting();
-				msg.writeRawData(event->getData() + sizeof(adr), event->getDataSize() - sizeof(adr));
+				msg.writeBytes(event->getData() + sizeof(adr), event->getDataSize() - sizeof(adr));
+				msg.beginReading();
 			
 				SV_PacketEvent(msg, adr);
 				CL_PacketEvent(msg, adr);
@@ -920,6 +924,61 @@ static void	Com_MiscCheck_f()
 	Com_Printf("\n");
 }
 
+static void	Com_MessageCheck_f()
+{
+	bitmessage_c	msg(MAX_PACKETLEN*8);
+	
+	msg.beginWriting();
+	msg.writeByte(37);
+	msg.writeBits(10, 4);
+	msg.writeShort(789);
+	msg.writeLong(125000);
+	msg.writeFloat(3.142f);
+	msg.writeString("This\nis\na\nline\nseparated\nstring.\n");
+	msg.writeFloat(0.0000123f);
+	msg.writeString("This is a non-separated string.");
+//	static byte buf[] = "Hello World. The grass is green. Bob was here.";
+//	msg.writeBytesCompressed(buf, sizeof(buf));
+//	msg.writeBytesCompressed(buf, sizeof(buf));
+//	msg.writeBytesCompressed(buf, sizeof(buf));
+	
+	msg.beginReading();
+	byte b = msg.readByte();
+	Com_Printf("%i\n", b);
+	
+	b = msg.readBits(4);
+	Com_Printf("%i\n", b);
+	
+	short s = msg.readShort();
+	Com_Printf("%i\n", s);
+	
+	int l = msg.readLong();
+	Com_Printf("%i\n", l);
+	
+	float f = msg.readFloat();
+	Com_Printf("%f\n", f);
+	
+	const char *str = msg.readString();
+	Com_Printf("%s\n", str);
+	
+	f = msg.readFloat();
+	Com_Printf("%f\n", f);
+	
+	str = msg.readString();
+	Com_Printf("%s\n", str);
+	
+	//while(msg.getReadCount() < msg.getCurSize())
+//	for(int i=0; i<3; i++)
+//	{
+//		std::vector<byte> v;
+//		msg.readBytesCompressed(v);
+//		str = (const char*)&v[0];
+//		Com_Printf("'%s'\n", str);
+//	}
+	
+	Com_Printf("%i\n", msg.getReadCount() == msg.getCurSize());
+}
+
 void 	Com_Init(int argc, char **argv)
 {
 	Com_Printf("------- Com_Init -------\n");
@@ -962,6 +1021,7 @@ void 	Com_Init(int argc, char **argv)
 	Cmd_AddCommand("cryptocheck", Com_CryptoCheck_f);
 	Cmd_AddCommand("d3maptoq3amap", Com_D3MapToQ3AMap_f);
 	Cmd_AddCommand("misccheck", Com_MiscCheck_f);
+	Cmd_AddCommand("messagecheck", Com_MessageCheck_f);
 	
 	Cmd_AddCommand("benchmatrix", Com_BenchMatrix_f);
 	

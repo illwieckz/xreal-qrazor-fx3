@@ -238,7 +238,7 @@ void 	IN_CenterView();
 //
 // cl_demo.c
 //
-void	CL_WriteDemoMessage(message_c &msg);
+void	CL_WriteDemoMessage(bitmessage_c &msg);
 void	CL_Stop_f();
 void	CL_Record_f();
 
@@ -246,13 +246,8 @@ void	CL_Record_f();
 //
 // cl_parse.c
 //
-extern	char *svc_strings[256];
-
-void	CL_ParseServerMessage(message_c &msg);
-void	CL_ShowNet(message_c &msg, const char *s);
+void	CL_ParseServerMessage(bitmessage_c &msg);
 void	CL_Download_f();
-
-
 
 
 //

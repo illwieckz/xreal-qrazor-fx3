@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /// includes ===================================================================
 // system -------------------------------------------------------------------
+#include <boost/crc.hpp>
+
 // qrazor-fx ----------------------------------------------------------------
 #include "common.h"
 #include "cvar.h"
@@ -1034,8 +1036,10 @@ d_bsp_c*	CM_BeginRegistration(const std::string &name, bool clientload, unsigned
 	length = VFS_FLoad(full_name, (void **)&buf);
 	if (!buf)
 		Com_Error(ERR_DROP, "CM_BeginRegistration: Couldn't load %s", full_name.c_str());
-
-	last_checksum = LittleLong(Com_BlockChecksum (buf, length));
+		
+	boost::crc_32_type crc;
+	crc.process_bytes(buf, length);
+	last_checksum = LittleLong(crc.checksum());
 	*checksum = last_checksum;
 
 	header = *(bsp_dheader_t *)buf;

@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // qrazor-fx ----------------------------------------------------------------
 // shared -------------------------------------------------------------------
 #include "../x_shared.h"
-#include "../x_message.h"
+#include "../x_bitmessage.h"
 
 // xreal --------------------------------------------------------------------
 #include "cg_public.h"
@@ -426,14 +426,14 @@ void	CG_CheckEntityEvents();
 //
 // cg_muzzleflash.cxx
 //
-void 	CG_ParseMuzzleFlash(message_c &msg);
+void 	CG_ParseMuzzleFlash(bitmessage_c &msg);
 
 
 
 //
 // cg_inv.cxx
 //
-void	CG_ParseInventory(message_c &msg);
+void	CG_ParseInventory(bitmessage_c &msg);
 void	CG_KeyInventory(int key);
 void	CG_DrawInventory();
 
@@ -505,7 +505,7 @@ void	CG_InitScreen();
 
 void	CG_SizeUp();
 void	CG_SizeDown();
-void	CG_CenterPrint(char *str);
+void	CG_CenterPrint(const char *str);
 
 void 	CG_CalcVrect();
 void 	CG_TileClear();
@@ -526,7 +526,7 @@ void 	CG_RegisterTEntSounds();
 void 	CG_RegisterTEntModels();
 void 	CG_ClearTEnts();
 
-void 	CG_ParseTEnt(message_c &msg);
+void 	CG_ParseTEnt(bitmessage_c &msg);
 void 	CG_RegisterTEntPics();
 void 	CG_SmokeAndFlash(vec3_t origin);
 

@@ -54,17 +54,14 @@ enum net_port_t
 };
 
 
-
-//==================
-// the svc_strings[] array in cl_parse.c should mirror this
-//==================
-
 //
 // server to client
 //
 enum
 {
-	SVC_BAD,
+	SVC_FIRST,
+	
+	SVC_BAD				= SVC_FIRST,
 
 	// these should be known to the game dll
 	SVC_MUZZLEFLASH,
@@ -76,19 +73,24 @@ enum
 	SVC_NOP,
 	SVC_DISCONNECT,
 	SVC_RECONNECT,
-	SVC_SOUND,				// <see code>
-	SVC_PRINT,				// [byte] id [string] null terminated string
-	SVC_STUFFTEXT,				// [string] stuffed into client's console buffer, should be \n terminated
-	SVC_SERVERDATA,				// [long] protocol ...
-	SVC_CONFIGSTRING,			// [short] [string]
+	SVC_SOUND,					// <see code>
+	SVC_PRINT,					// [byte] id [string] null terminated string
+	SVC_STUFFTEXT,					// [string] stuffed into client's console buffer, should be \n terminated
+	SVC_SERVERDATA,					// [long] protocol ...
+	SVC_CONFIGSTRING,				// [short] [string]
 	SVC_SPAWNBASELINE,		
-	SVC_CENTERPRINT,			// [string] to put in center of the screen
-	SVC_DOWNLOAD,				// [short] size [size bytes]
-	SVC_PLAYERINFO,				// variable
-	SVC_PACKETENTITIES,			// [...]
-	SVC_DELTAPACKETENTITIES,		// [...]
-	SVC_FRAME
+	SVC_CENTERPRINT,				// [string] to put in center of the screen
+	SVC_DOWNLOAD,					// [short] size [size bytes]
+	SVC_PLAYERINFO,					// variable
+	SVC_PACKETENTITIES,				// [...]
+	SVC_DELTAPACKETENTITIES,			// [...]
+	SVC_FRAME,
+	SVC_EOM,					// end of message
+	
+	SVC_LAST			= SVC_EOM
 };
+
+extern const char*	svc_strings[];
 
 
 //
@@ -96,12 +98,19 @@ enum
 //
 enum
 {
-	CLC_BAD,
+	CLC_FIRST,
+
+	CLC_BAD				= CLC_FIRST,
 	CLC_NOP, 		
-	CLC_MOVE,			// [[usercmd_t]
-	CLC_USERINFO,			// [[userinfo string]
-	CLC_STRINGCMD			// [string] message
+	CLC_MOVE,					// [[usercmd_t]
+	CLC_USERINFO,					// [[userinfo string]
+	CLC_STRINGCMD,					// [string] message
+	CLC_EOM,
+	
+	CLC_LAST			= CLC_EOM
 };
+
+extern const char*	clc_strings[];
 
 //==============================================
 

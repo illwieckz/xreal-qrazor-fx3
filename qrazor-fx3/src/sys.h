@@ -80,8 +80,8 @@ void	Sys_Mkdir(const std::string &path);
 void	Sys_InitNet(bool server);
 void	Sys_ShutdownNet();
 
+void	Sys_SendPacket(const bitmessage_c &msg, const netadr_t &to);
 int	Sys_GetPacket(void *data, int length, netadr_t &from);
-void	Sys_SendPacket(const void *data, int length, const netadr_t &to);
 
 bool	Sys_CompareAdr(const netadr_t &a, const netadr_t &b);
 bool	Sys_CompareBaseAdr(const netadr_t &a, const netadr_t &b);

@@ -249,23 +249,23 @@ typedef struct
 	void		(*CG_UpdateConfig)(int index, const std::string &configstring);
 	
 	// misc
-	void		(*CG_ParseLayout)(message_c &msg);
-	void 		(*CG_ParseTEnt)(message_c &msg);
-	void		(*CG_ParseMuzzleFlash)(message_c &msg);
+	void		(*CG_ParseLayout)(bitmessage_c &msg);
+	void 		(*CG_ParseTEnt)(bitmessage_c &msg);
+	void		(*CG_ParseMuzzleFlash)(bitmessage_c &msg);
 	void		(*CG_PrepRefresh)();
 	void 		(*CG_GetEntitySoundOrigin)(int ent, vec3_c &org);
 	
 	void		(*CG_ClearState)();
 	
 	// inventory
-	void		(*CG_ParseInventory)(message_c &msg);
+	void		(*CG_ParseInventory)(bitmessage_c &msg);
 	
 	// helper routines
 	void		(*CG_DrawChar)(int x, int y, int num, const vec4_c &color, int flags);
 	void		(*CG_DrawString)(int x, int y, const vec4_c &color, int flags, const char *s);
 	
 	// screen
-	void		(*CG_CenterPrint)(char *str);
+	void		(*CG_CenterPrint)(const char *str);
 	
 	// client information
 	void		(*CG_ParseClientinfo)(int player);	

@@ -472,7 +472,6 @@ void	CL_SendCmd()
 	int		i;
 	usercmd_t	*cmd, *oldcmd;
 	usercmd_t	nullcmd;
-	int			checksumIndex;
 
 	// build a command even if not connected
 
@@ -490,7 +489,7 @@ void	CL_SendCmd()
 	{
 		// just update reliable	if needed
 		if(cls.netchan.message.getCurSize() || Sys_Milliseconds() - cls.netchan.getLastSent() > 1000)
-			cls.netchan.transmit(NULL, 0);
+			cls.netchan.transmit(bitmessage_c());
 			
 		return;
 	}
@@ -504,14 +503,14 @@ void	CL_SendCmd()
 		cls.netchan.message.writeString(Cvar_Userinfo());
 	}
 
-	message_c msg(MSG_TYPE_RAWBYTES, MAX_PACKETLEN);
+	bitmessage_c msg(MAX_PACKETLEN*8);
 
 	// begin a client move command
 	msg.writeByte(CLC_MOVE);
 
 	// save the position for a checksum byte
-	checksumIndex = msg.getCurSize();
-	msg.writeByte(0);
+//	int checksum_index = msg.getCurSize();
+//	msg.writeLong(0);	// dummy value
 
 	// let the server know what the last frame we
 	// got was, so the next message can be delta compressed
@@ -538,10 +537,13 @@ void	CL_SendCmd()
 	msg.writeDeltaUsercmd(oldcmd, cmd);
 
 	// calculate a checksum over the move commands
-	msg[checksumIndex] = Com_BlockSequenceCRCByte(
-		&msg[checksumIndex + 1], msg.getCurSize() - checksumIndex - 1,
-		cls.netchan.getOutgoingSequence());
+//	msg[checksum_index] = Com_BlockSequenceCRCByte(&msg[checksumIndex + 1], msg.getCurSize() - checksumIndex - 1, cls.netchan.getOutgoingSequence());
 
+//	int checksum = msg.calcCheckSum(8+32);
+//	uint_t size = msg.getCurSize();
+//	msg.setCurSize(checksum_index);
+//	msg.writeLong(checksum);
+//	msg.setCurSize(size);
 	
 	// deliver the message
 	cls.netchan.transmit(msg);

@@ -225,10 +225,11 @@ inline void	operator delete (void *ptr)
 #endif
 
 
+#define MAX_ENTITYNUM_BITS		1+11		// kill bit + 11 bits to present the entity number
 
-#define	MAX_CLIENTS			256		// absolute limit
-#define	MAX_ENTITIES			2048		// must change protocol to increase more
-#define	MAX_PARSE_ENTITIES		2048
+#define	MAX_CLIENTS			256				// absolute limit
+#define	MAX_ENTITIES			(1 << MAX_ENTITYNUM_BITS)	// must change protocol to increase more
+#define	MAX_PARSE_ENTITIES		MAX_ENTITIES
 #define MAX_LIGHTS			4096
 #define	MAX_MODELS			4096		// these are sent over the net as bytes
 #define	MAX_SHADERS			4096
@@ -314,21 +315,23 @@ enum char_height_e
 
 const char*	Com_StripExtension(const std::string &name);
 
-void	Com_StripFileName(const char *path, char *filename);
-void	Com_FilePath(const char *in, char *out);
+void		Com_StripFileName(const char *path, char *filename);
+void		Com_FilePath(const char *in, char *out);
 
 // data is an in/out parm, returns a parsed out token
-char*	Com_Parse(char **data_p, bool allow_next_line = true);
-int	Com_ParseInt(char **data_p, bool allow_next_line = true);
-float	Com_ParseFloat(char **data_p, bool allow_next_line = true);
-vec3_c	Com_ParseVec3(char **data_p);
+char*		Com_Parse(char **data_p, bool allow_next_line = true);
+int		Com_ParseInt(char **data_p, bool allow_next_line = true);
+float		Com_ParseFloat(char **data_p, bool allow_next_line = true);
+vec3_c		Com_ParseVec3(char **data_p);
 
-void 	Com_sprintf(char *dest, int size, char *fmt, ...);
+void 		Com_sprintf(char *dest, int size, char *fmt, ...);
 
 
-void	Com_Printf(const char *fmt, ...);
-void 	Com_DPrintf(const char *fmt, ...);
-void 	Com_Error(err_type_e type, const char *fmt, ...);
+void		Com_Printf(const char *fmt, ...);
+void 		Com_DPrintf(const char *fmt, ...);
+void 		Com_Error(err_type_e type, const char *fmt, ...);
+
+unsigned	Com_BlockChecksum(void *buffer, int length);
 
 
 // Tr3B - delete all slots != NULL
@@ -1298,6 +1301,7 @@ struct entity_state_t
 {
 	friend class g_entity_c;
 	friend class message_c;
+	friend class bitmessage_c;
 	
 //	friend void	message_c::readDeltaEntity(entity_state_t *from, entity_state_t *to, int number);
 

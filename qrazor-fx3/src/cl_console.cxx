@@ -392,7 +392,7 @@ void Con_CenteredPrint (char *text)
 }
 
 
-void	Con_ServerPrint(message_c &msg)
+void	Con_ServerPrint(bitmessage_c &msg)
 {
 	int i = msg.readByte();
 	

@@ -3,10 +3,10 @@ import os, string, sys
 Import('env')
 
 xreal_cgame_src = [
+'src/x_bitmessage.cxx',
 'src/x_endian.cxx',
 'src/x_info.cxx',
 'src/x_math.cxx',
-'src/x_message.cxx',
 'src/x_panim.cxx',
 'src/x_pmove.cxx',
 'src/x_shared.cxx',

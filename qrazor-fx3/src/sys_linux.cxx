@@ -61,7 +61,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <exception>
 
 // shared -------------------------------------------------------------------
-#include "x_message.h"
+#include "x_bitmessage.h"
 #include "x_protocol.h"
 
 // qrazor-fx ----------------------------------------------------------------
@@ -327,7 +327,14 @@ int 	main(int argc, char **argv)
 			time = newtime - oldtime;
 		}while(time < 1);
 		
-		Com_Frame(time);
+		try
+		{
+			Com_Frame(time);
+		}
+		catch(std::exception e)
+		{
+			Com_Error(ERR_FATAL, "exception thrown: '%s'", e.what()); 
+		}
 		
 		oldtime = newtime;
 	}
@@ -565,6 +572,36 @@ bool	Sys_IsLocalAddress(const netadr_t &adr)
 
 
 
+
+
+void 	Sys_SendPacket(const bitmessage_c &msg, const netadr_t &to)
+{
+	int			ret;
+	struct sockaddr_in	addr;
+	int			socket = 0;
+
+	switch(to.type)
+	{
+		case NA_BROADCAST:
+		case NA_IP:
+			socket = ip_socket;
+			if(!socket)
+				return;
+			break;
+		
+		default:
+			Com_Error(ERR_FATAL, "Sys_SendPacket: bad address type");
+	}
+
+	Sys_NetadrToSockadr(to, &addr);
+
+	ret = sendto(socket, &msg._data[0], msg.getCurSizeInBytes(), 0, (struct sockaddr *)&addr, sizeof(addr));
+	if(ret == -1)
+	{
+		Com_Printf("Sys_SendPacket ERROR: '%s' to '%s'\n", Sys_NetErrorString(), Sys_AdrToString(to));
+	}
+}
+
 int	Sys_GetPacket(void *data, int length, netadr_t &net_from)
 {
 	int 	ret;
@@ -611,35 +648,6 @@ int	Sys_GetPacket(void *data, int length, netadr_t &net_from)
 
 	return -1;
 }
-
-void 	Sys_SendPacket(const void *data, int length, const netadr_t &to)
-{
-	int			ret;
-	struct sockaddr_in	addr;
-	int			socket = 0;
-
-	switch(to.type)
-	{
-		case NA_BROADCAST:
-		case NA_IP:
-			socket = ip_socket;
-			if(!socket)
-				return;
-			break;
-		
-		default:
-			Com_Error(ERR_FATAL, "Sys_SendPacket: bad address type");
-	}
-
-	Sys_NetadrToSockadr(to, &addr);
-
-	ret = sendto(socket, data, length, 0, (struct sockaddr *)&addr, sizeof(addr));
-	if(ret == -1)
-	{
-		Com_Printf("Sys_SendPacket ERROR: '%s' to '%s'\n", Sys_NetErrorString(), Sys_AdrToString(to));
-	}
-}
-
 
 static void 	Sys_OpenIP()
 {

@@ -1,7 +1,7 @@
 /// ============================================================================
 /*
 Copyright (C) 1997-2001 Id Software, Inc.
-Copyright (C) 2004 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2005 Robert Beckebans <trebor_7@users.sourceforge.net>
 Please see the file "AUTHORS" for a list of contributors
 
 This program is free software; you can redistribute it and/or
@@ -11,7 +11,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 
 See the GNU General Public License for more details.
 
@@ -24,29 +24,48 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /// includes ===================================================================
 // system -------------------------------------------------------------------
+// shared -------------------------------------------------------------------
 // qrazor-fx ----------------------------------------------------------------
-#include "common.h"
+#include "x_protocol.h"
+
+// xreal --------------------------------------------------------------------
 
 
-// this file can stub out the entire server system
-// for pure net-only clients
-
-void	SV_Init()
+const char*	svc_strings[] =
 {
-	//DO NOTHING
-}
+	"SVC_BAD",
 
-void	SV_Shutdown(char *finalmsg, bool reconnect)
-{
-	//DO NOTHING
-}
+	"SVC_MUZZLEFLASH",
+	"SVC_TEMP_ENTITY",
+	"SVC_LAYOUT",
+	"SVC_INVENTORY",
 
-void	SV_Frame(int msec)
-{
-	//DO NOTHING
-}
+	"SVC_NOP",
+	"SVC_DISCONNECT",
+	"SVC_RECONNECT",
+	"SVC_SOUND",
+	"SVC_PRINT",
+	"SVC_STUFFTEXT",
+	"SVC_SERVERDATA",
+	"SVC_CONFIGSTRING",
+	"SVC_SPAWNBASELINE",
+	"SVC_CENTERPRINT",
+	"SVC_DOWNLOAD",
+	"SVC_PLAYERINFO",
+	"SVC_PACKETENTITIES",
+	"SVC_DELTAPACKETENTITIES",
+	"SVC_FRAME",
+	"SVC_EOM"
+};
 
-void 	SV_PacketEvent(bitmessage_c &msg, const netadr_t &adr)
+const char*	clc_strings[] =
 {
-	//DO NOTHING
-}
+	"CLC_BAD",
+	"CLC_NOP",
+	"CLC_MOVE",
+	"CLC_USERINFO",
+	"CLC_STRINGCMD",
+	"CLC_EOM"
+};
+
+

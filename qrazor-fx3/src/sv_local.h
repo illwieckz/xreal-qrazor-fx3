@@ -37,7 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "xreal/g_public.h"
 
 // shared -------------------------------------------------------------------
-#include "x_message.h"
+#include "x_bitmessage.h"
 #include "x_protocol.h"
 
 
@@ -69,7 +69,7 @@ struct server_t
 		memset(configstrings, 0, sizeof(configstrings));
 		baselines	= std::vector<entity_state_t>(MAX_ENTITIES);
 		
-		multicast	= message_c(MSG_TYPE_RAWBYTES, MAX_PACKETLEN);
+		multicast	= bitmessage_c(MAX_PACKETLEN*8);
 	}
 
 	server_state_t			state;			// precache commands are only valid during load
@@ -87,7 +87,7 @@ struct server_t
 
 	// the multicast buffer is used to send a message to a set of clients
 	// it is only used to marshall data until SV_Multicast is called
-	message_c			multicast;
+	bitmessage_c			multicast;
 };
 
 
@@ -156,6 +156,7 @@ extern netadr_t		master_adr[MAX_MASTERS];	// address of the master server
 extern server_static_t	svs;				// persistant server info
 extern server_t		sv;					// local server
 
+extern cvar_t*		sv_shownet;
 extern cvar_t*		sv_paused;
 extern cvar_t*		maxclients;
 extern cvar_t*		sv_noreload;			// don't reload level state when reentering
