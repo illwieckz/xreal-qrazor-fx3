@@ -126,14 +126,6 @@ public:
 	void*		getData() const				{return dBodyGetData(_id);}
 
 	void		setPosition(const vec3_c &pos)		{dBodySetPosition(_id, pos[0], pos[1], pos[2]);}
-	/*
-	void		setRotation(const vec3_c &angles)	
-	{
-		dMatrix3 R; 
-		dRFromEulerAngles(R, angles[0], angles[1], angles[2]);
-		dBodySetRotation(_id, R);
-	}
-	*/
 	void		setQuaternion(const quaternion_c &q)		{dBodySetQuaternion(_id, q);}
 	void		setLinearVel(const vec3_c &v)			{dBodySetLinearVel(_id, v[0], v[1], v[2]);}
 	void		setLinearVel(vec_t v0, vec_t v1, vec_t v2)	{dBodySetLinearVel(_id, v0, v1, v2);}
@@ -195,7 +187,7 @@ public:
 	void	setAutoDisableLinearThreshold(vec_t threshold)	{dBodySetAutoDisableLinearThreshold(_id, threshold);}
 	vec_t	getAutoDisableLinearThreshold() const		{return dBodyGetAutoDisableLinearThreshold(_id);}
 	
-	void	setAutoDisableAngularThreshold(dReal threshold)	{dBodySetAutoDisableAngularThreshold(_id, threshold);}
+	void	setAutoDisableAngularThreshold(vec_t threshold)	{dBodySetAutoDisableAngularThreshold(_id, threshold);}
 	vec_t	getAutoDisableAngularThreshold() const		{return dBodyGetAutoDisableAngularThreshold(_id);}
 	
 	void	setAutoDisableSteps(int steps)			{dBodySetAutoDisableSteps(_id, steps);}
@@ -763,7 +755,7 @@ public:
 	}
 	
 	void	setParams(vec_t radius, vec_t length)		{dGeomCCylinderSetParams(_id, radius, length);}
-	void	getParams(vec_t *radius, vec_t *length) const	{dGeomCCylinderGetParams(_id, (dReal*)radius, (dReal*)length);}
+	void	getParams(vec_t *radius, vec_t *length) const	{dGeomCCylinderGetParams(_id, (vec_t*)radius, (vec_t*)length);}
 };
 
 
