@@ -2130,14 +2130,6 @@ void	RB_RenderCommands()
 		{
 			if(!cmd->getEntity()->isVisible())
 				continue;
-			
-			/*	
-			if(cmd->hasLightMap())
-				continue;
-				
-			if(cmd->hasLightVertexes())
-				continue;
-			*/
 				
 			cmd->getEntityModel()->draw(cmd, RENDER_TYPE_ZFILL);
 		}
@@ -2176,6 +2168,7 @@ void	RB_RenderCommands()
 			if(r_parallax->getInteger() && r_gloss->getInteger())
 			{
 				RB_EnableShader_lighting_RBHS();
+				
 				for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 				{
 					if(!cmd->getEntity()->isVisible())
@@ -2186,9 +2179,22 @@ void	RB_RenderCommands()
 				
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_RBHS);
 				}
+				
+				for(i=0, cmd = &r_current_scene->cmds_translucent[0]; i<r_current_scene->cmds_translucent_num; i++, cmd++)
+				{
+					if(!cmd->getEntity()->isVisible())
+						continue;
+						
+					if(!cmd->hasLightMap())
+						continue;
+				
+					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_RBHS);
+				}
+				
 				RB_DisableShader_lighting_RBHS();
 				
 				RB_EnableShader_lighting_DBHS_vstatic();
+				
 				for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 				{
 					if(!cmd->getEntity()->isVisible())
@@ -2202,11 +2208,27 @@ void	RB_RenderCommands()
 				
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_DBHS_vstatic);
 				}
+				
+				for(i=0, cmd = &r_current_scene->cmds_translucent[0]; i<r_current_scene->cmds_translucent_num; i++, cmd++)
+				{
+					if(!cmd->getEntity()->isVisible())
+						continue;
+					
+					if(!cmd->hasLightVertexes())
+						continue;
+					
+					if(cmd->hasLightMap())
+						continue;
+				
+					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_DBHS_vstatic);
+				}
+				
 				RB_DisableShader_lighting_DBHS_vstatic();
 			}
 			else if(r_parallax->getInteger())
 			{
 				RB_EnableShader_lighting_RBH();
+				
 				for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 				{
 					if(!cmd->getEntity()->isVisible())
@@ -2217,9 +2239,22 @@ void	RB_RenderCommands()
 							
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_RBH);
 				}
+				
+				for(i=0, cmd = &r_current_scene->cmds_translucent[0]; i<r_current_scene->cmds_translucent_num; i++, cmd++)
+				{
+					if(!cmd->getEntity()->isVisible())
+						continue;
+						
+					if(!cmd->hasLightMap())
+						continue;
+							
+					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_RBH);
+				}
+				
 				RB_DisableShader_lighting_RBH();
 				
 				RB_EnableShader_lighting_DBH_vstatic();
+				
 				for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 				{
 					if(!cmd->getEntity()->isVisible())
@@ -2233,11 +2268,27 @@ void	RB_RenderCommands()
 				
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_DBH_vstatic);
 				}
+				
+				for(i=0, cmd = &r_current_scene->cmds_translucent[0]; i<r_current_scene->cmds_translucent_num; i++, cmd++)
+				{
+					if(!cmd->getEntity()->isVisible())
+						continue;
+					
+					if(!cmd->hasLightVertexes())
+						continue;
+					
+					if(cmd->hasLightMap())
+						continue;
+				
+					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_DBH_vstatic);
+				}
+				
 				RB_DisableShader_lighting_DBH_vstatic();
 			}
 			else if(r_gloss->getInteger())
 			{
 				RB_EnableShader_lighting_RBS();
+				
 				for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 				{
 					if(!cmd->getEntity()->isVisible())
@@ -2248,9 +2299,22 @@ void	RB_RenderCommands()
 				
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_RBS);
 				}
+				
+				for(i=0, cmd = &r_current_scene->cmds_translucent[0]; i<r_current_scene->cmds_translucent_num; i++, cmd++)
+				{
+					if(!cmd->getEntity()->isVisible())
+						continue;
+						
+					if(!cmd->hasLightMap())
+						continue;
+				
+					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_RBS);
+				}
+				
 				RB_DisableShader_lighting_RBS();
 				
 				RB_EnableShader_lighting_DBS_vstatic();
+				
 				for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 				{
 					if(!cmd->getEntity()->isVisible())
@@ -2264,11 +2328,27 @@ void	RB_RenderCommands()
 				
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_DBS_vstatic);
 				}
+				
+				for(i=0, cmd = &r_current_scene->cmds_translucent[0]; i<r_current_scene->cmds_translucent_num; i++, cmd++)
+				{
+					if(!cmd->getEntity()->isVisible())
+						continue;
+					
+					if(!cmd->hasLightVertexes())
+						continue;
+					
+					if(cmd->hasLightMap())
+						continue;
+				
+					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_DBS_vstatic);
+				}
+				
 				RB_DisableShader_lighting_DBS_vstatic();
 			}
 			else
 			{
 				RB_EnableShader_lighting_RB();
+				
 				for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 				{
 					if(!cmd->getEntity()->isVisible())
@@ -2279,9 +2359,22 @@ void	RB_RenderCommands()
 						
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_RB);
 				}
+				
+				for(i=0, cmd = &r_current_scene->cmds_translucent[0]; i<r_current_scene->cmds_translucent_num; i++, cmd++)
+				{
+					if(!cmd->getEntity()->isVisible())
+						continue;
+						
+					if(!cmd->hasLightMap())
+						continue;
+						
+					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_RB);
+				}
+				
 				RB_DisableShader_lighting_RB();
 				
 				RB_EnableShader_lighting_DB_vstatic();
+				
 				for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 				{
 					if(!cmd->getEntity()->isVisible())
@@ -2295,12 +2388,28 @@ void	RB_RenderCommands()
 				
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_DB_vstatic);
 				}
+				
+				for(i=0, cmd = &r_current_scene->cmds_translucent[0]; i<r_current_scene->cmds_translucent_num; i++, cmd++)
+				{
+					if(!cmd->getEntity()->isVisible())
+						continue;
+					
+					if(!cmd->hasLightVertexes())
+						continue;
+					
+					if(cmd->hasLightMap())
+						continue;
+				
+					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_DB_vstatic);
+				}
+				
 				RB_DisableShader_lighting_DB_vstatic();
 			}
 		}
 		else
 		{
 			RB_EnableShader_lighting_R();
+			
 			for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 			{
 				if(!cmd->getEntity()->isVisible())
@@ -2311,9 +2420,22 @@ void	RB_RenderCommands()
 				
 				cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_R);
 			}
+			
+			for(i=0, cmd = &r_current_scene->cmds_translucent[0]; i<r_current_scene->cmds_translucent_num; i++, cmd++)
+			{
+				if(!cmd->getEntity()->isVisible())
+					continue;
+					
+				if(!cmd->hasLightMap())
+					continue;
+				
+				cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_R);
+			}
+			
 			RB_DisableShader_lighting_R();
 			
 			RB_EnableShader_lighting_D_vstatic();
+			
 			for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 			{
 				if(!cmd->getEntity()->isVisible())
@@ -2327,6 +2449,21 @@ void	RB_RenderCommands()
 				
 				cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_D_vstatic);
 			}
+			
+			for(i=0, cmd = &r_current_scene->cmds_translucent[0]; i<r_current_scene->cmds_translucent_num; i++, cmd++)
+			{
+				if(!cmd->getEntity()->isVisible())
+					continue;
+					
+				if(!cmd->hasLightVertexes())
+					continue;
+					
+				if(cmd->hasLightMap())
+					continue;
+				
+				cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_D_vstatic);
+			}
+			
 			RB_DisableShader_lighting_D_vstatic();
 		}
 		
@@ -2888,32 +3025,37 @@ void	RB_AddCommand(	r_entity_c*		entity,
 		
 		r_current_scene->cmds_light_num++;
 	}
-	else if(entity_shader->hasFlags(SHADER_TRANSLUCENT) && !entity_shader->stage_diffusemap)
+	else 
 	{
-		// create translucent command
-		try
-		{		
-			cmd = &r_current_scene->cmds_translucent.at(r_current_scene->cmds_translucent_num);
-		}
-		catch(...)
-		{
-			r_current_scene->cmds_translucent.push_back(r_command_t());
-			cmd = &r_current_scene->cmds_translucent.at(r_current_scene->cmds_translucent_num);
-		}
+		if(entity_shader->hasFlags(SHADER_TRANSLUCENT))
+		{	
+			// create translucent command
+			try
+			{		
+				cmd = &r_current_scene->cmds_translucent.at(r_current_scene->cmds_translucent_num);
+			}
+			catch(...)
+			{
+				r_current_scene->cmds_translucent.push_back(r_command_t());
+				cmd = &r_current_scene->cmds_translucent.at(r_current_scene->cmds_translucent_num);
+			}
 		
-		r_current_scene->cmds_translucent_num++;
-	}
-	else
-	{
-		// create default command that copes with zfill, diffuse lighting and extra special stages
-		try
-		{
-			cmd = &r_current_scene->cmds.at(r_current_scene->cmds_num);
+			r_current_scene->cmds_translucent_num++;
 		}
-		catch(...)
+		else
 		{
-			r_current_scene->cmds.push_back(r_command_t());
-			cmd = &r_current_scene->cmds.at(r_current_scene->cmds_num);
+			// create default command that copes with zfill, diffuse lighting and extra special stages
+			try
+			{
+				cmd = &r_current_scene->cmds.at(r_current_scene->cmds_num);
+			}
+			catch(...)
+			{
+				r_current_scene->cmds.push_back(r_command_t());
+				cmd = &r_current_scene->cmds.at(r_current_scene->cmds_num);
+			}
+			
+			r_current_scene->cmds_num++;
 		}
 			
 		if(entity_shader->stage_lightmap && (infokey >= 0) && !light && r_images_lm.size() && r_lightmap->getInteger())
@@ -2925,8 +3067,6 @@ void	RB_AddCommand(	r_entity_c*		entity,
 			cmd->_light_vertexes = true;
 		else
 			cmd->_light_vertexes = false;
-		
-		r_current_scene->cmds_num++;
 	}
 	
 	/*
