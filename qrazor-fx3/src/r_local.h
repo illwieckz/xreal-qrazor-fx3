@@ -2273,8 +2273,6 @@ struct glconfig_t
 	const char*	version_string;
 	const char*	extensions_string;
 
-	bool		allow_cds;
-	
 	// save here what extensions are currently available
 	bool		arb_multitexture;
 	bool		arb_texture_compression;
@@ -2292,8 +2290,11 @@ struct glstate_t
 
 	int     	prev_mode;
 
-	uint_t		currenttextures[16];
-	uint_t		currenttmu;
+	uint_t		current_textures[16];
+	uint_t		current_tmu;
+	
+	uint_t		current_vbo_array_buffer;
+	uint_t		current_vbo_vertexes_ofs;
 
 	uint_t		maxtexsize;
 	
@@ -2301,7 +2302,6 @@ struct glstate_t
 
 	bool		is2d;
 	bool		hwgamma;
-	bool		lights_on;
 };
 
 extern glconfig_t  gl_config;

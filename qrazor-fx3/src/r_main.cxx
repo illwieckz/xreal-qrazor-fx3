@@ -1140,15 +1140,6 @@ static bool 	R_SetMode()
 	r_serr_e err;
 	bool fullscreen;
 
-	/*
-	if(vid_fullscreen->isModified() && !gl_config.allow_cds)
-	{
-		ri.Com_Printf("R_SetMode: CDS not allowed with this driver\n");
-		ri.Cvar_SetValue("vid_fullscreen", !vid_fullscreen->getValue());
-		vid_fullscreen->isModified(false);
-	}
-	*/
-
 	fullscreen = (bool)vid_fullscreen->getInteger();
 
 	vid_fullscreen->isModified(false);

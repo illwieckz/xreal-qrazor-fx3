@@ -36,8 +36,8 @@ void	r_areaportal_c::adjustFrustum()
 		// build frustum's planes clockwise
 		for(int i=0; i<4; i++)
 		{
-			frustum[i].fromThreePointForm(points[(i+1)&3], r_origin, points[i]);
-			frustum[i]._dist = -frustum[i]._dist;
+			frustum[i].fromThreePointForm(r_origin, points[i], points[(i+1)%3]);
+//			frustum[i]._dist = -frustum[i]._dist;
 			frustum[i]._type = PLANE_ANYZ;
 			frustum[i].setSignBits();
 		}
@@ -47,8 +47,8 @@ void	r_areaportal_c::adjustFrustum()
 		// build frustum's planes counter clockwise
 		for(int i=0; i<4; i++)
 		{
-			frustum[i].fromThreePointForm(points[i], r_origin, points[(i+1)&3]);
-			frustum[i]._dist = -frustum[i]._dist;
+			frustum[i].fromThreePointForm(r_origin, points[i], points[(i+3-1)%3]);
+//			frustum[i]._dist = -frustum[i]._dist;
 			frustum[i]._type = PLANE_ANYZ;
 			frustum[i].setSignBits();
 		}
@@ -393,10 +393,10 @@ void	r_proctree_c::drawArea_r(int areanum, const r_frustum_t frustum, int clipfl
 		{
 			if(r_cullportals->getValue() && !R_CullBBox(frustum, iap->bbox, clipflags))
 			{
-				iap->visframe = r_visframecount;
-			
 				for(int i=0; i<2; i++)
 				{
+					//if(_areas[iap->areas[i]]->_r == r_v)
+				
 					if(iap->areas[i] == areanum)
 						continue;
 		
@@ -406,6 +406,7 @@ void	r_proctree_c::drawArea_r(int areanum, const r_frustum_t frustum, int clipfl
 						
 					iap->adjustFrustum();
 					
+					iap->visframe = r_visframecount;
 					drawArea_r(iap->areas[i], iap->frustum, clipflags);
 				}
 			}

@@ -1,0 +1,35 @@
+import os, string, sys
+
+Import('env')
+
+qrazor_fx_map_src = [
+'src/x_endian.cxx',
+'src/x_info.cxx',
+'src/x_math.cxx',
+'src/x_shared.cxx',
+'src/x_string.cxx',
+'src/cmd.cxx',
+'src/common.cxx',
+'src/cvar.cxx',
+'src/md4.cxx',
+'src/sha1.cxx',
+'src/vfs.cxx',
+'src/unzip.cxx',
+'src/cl_null.cxx',
+'src/sv_null.cxx',
+'src/map_bspfile.cxx',
+'src/map_entity.cxx',
+'src/map_main.cxx',
+'src/map_map.cxx',
+'src/map_winding.cxx' ]
+
+if sys.platform == 'linux2':
+	qrazor_fx_map_src += ['src/sys_linux.cxx','src/glob.cxx']
+
+elif sys.platform == 'win32':
+	qrazor_fx_map_src += ['src/sys_win.cxx']
+
+qrazor_fx_map_env = env.Copy()
+qrazor_fx_map_env.Append(CXXFLAGS = '-DBSPCOMPILER_ONLY')
+qrazor_fx_map_env.Program('qrazor-fx-map', qrazor_fx_map_src, LIBS=['dl', 'z', 'm'])
+qrazor_fx_map_env.Install('#install', 'qrazor-fx-map')

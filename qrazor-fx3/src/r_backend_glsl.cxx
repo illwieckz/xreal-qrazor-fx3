@@ -456,10 +456,24 @@ void	rb_program_c::disable()
 
 void	rb_program_c::setVertexAttribs(const r_command_t *cmd)
 {
-	r_mesh_c*	entity_mesh = cmd->getEntityMesh();
-
+	const r_mesh_c*	entity_mesh = cmd->getEntityMesh();
+	
 	if(gl_config.arb_vertex_buffer_object && entity_mesh->vbo_array_buffer)
 	{
+		/*
+		if(	(gl_state.current_vbo_array_buffer == entity_mesh->vbo_array_buffer) && 
+			(gl_state.current_vbo_vertexes_ofs == entity_mesh->vbo_vertexes_ofs)	)
+		{
+			xglBindBufferARB(GL_ARRAY_BUFFER_ARB, entity_mesh->vbo_array_buffer);	RB_CheckForError();
+			return;
+		}
+		else
+		{
+			gl_state.current_vbo_array_buffer = entity_mesh->vbo_array_buffer;
+			gl_state.current_vbo_vertexes_ofs = entity_mesh->vbo_vertexes_ofs;
+		}
+		*/
+	
 		xglBindBufferARB(GL_ARRAY_BUFFER_ARB, entity_mesh->vbo_array_buffer);	RB_CheckForError();
 		
 		if(_vflags & VATTRIB_VERTEX)
@@ -489,7 +503,12 @@ void	rb_program_c::setVertexAttribs(const r_command_t *cmd)
 	else
 	{
 		if(gl_config.arb_vertex_buffer_object)
+		{
+			gl_state.current_vbo_array_buffer = 0;
+			gl_state.current_vbo_vertexes_ofs = 0;
+			
 			xglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);	RB_CheckForError();
+		}
 		
 		if(_vflags & VATTRIB_VERTEX)
 //			xglVertexAttribPointerARB(0, 3, GL_FLOAT, 0, 0, &(entity_mesh->vertexes[0]));		RB_CheckForError();
