@@ -39,8 +39,9 @@ console
 	{
 		//blend		add
 		map		textures/black.tga
+		//map		menu/demo/logo_bg.tga
 		linear		// no mip maps
-		//scroll	time * 0 , time * .5
+		//scroll		time * 0.3 , time * .3
 	}
 }
 

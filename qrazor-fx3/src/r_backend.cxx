@@ -382,7 +382,8 @@ static void 	RB_SetupFrustum()
 	r_frustum[FRUSTUM_LEFT]._normal[2]	=  m[3][2] + m[0][2];
 	r_frustum[FRUSTUM_LEFT]._dist		=-(m[3][3] + m[0][3]);
 	r_frustum[FRUSTUM_LEFT].normalize();
-	r_frustum[FRUSTUM_LEFT]._type	= PLANE_ANYZ;
+//	r_frustum[FRUSTUM_LEFT]._type	= PLANE_ANYZ;
+	r_frustum[FRUSTUM_LEFT].setType();
 	r_frustum[FRUSTUM_LEFT].setSignBits();
 	
 	// right
@@ -391,7 +392,8 @@ static void 	RB_SetupFrustum()
 	r_frustum[FRUSTUM_RIGHT]._normal[2]	=  m[3][2] - m[0][2];
 	r_frustum[FRUSTUM_RIGHT]._dist		=-(m[3][3] - m[0][3]);
 	r_frustum[FRUSTUM_RIGHT].normalize();
-	r_frustum[FRUSTUM_RIGHT]._type	= PLANE_ANYZ;
+//	r_frustum[FRUSTUM_RIGHT]._type	= PLANE_ANYZ;
+	r_frustum[FRUSTUM_RIGHT].setType();
 	r_frustum[FRUSTUM_RIGHT].setSignBits();
 	
 	// bottom
@@ -400,7 +402,8 @@ static void 	RB_SetupFrustum()
 	r_frustum[FRUSTUM_BOTTOM]._normal[2]	=  m[3][2] + m[1][2];
 	r_frustum[FRUSTUM_BOTTOM]._dist		=-(m[3][3] + m[1][3]);
 	r_frustum[FRUSTUM_BOTTOM].normalize();
-	r_frustum[FRUSTUM_BOTTOM]._type	= PLANE_ANYZ;
+//	r_frustum[FRUSTUM_BOTTOM]._type	= PLANE_ANYZ;
+	r_frustum[FRUSTUM_BOTTOM].setType();
 	r_frustum[FRUSTUM_BOTTOM].setSignBits();
 	
 	// top
@@ -409,7 +412,8 @@ static void 	RB_SetupFrustum()
 	r_frustum[FRUSTUM_TOP]._normal[2]	=  m[3][2] - m[1][2];
 	r_frustum[FRUSTUM_TOP]._dist		=-(m[3][3] - m[1][3]);
 	r_frustum[FRUSTUM_TOP].normalize();
-	r_frustum[FRUSTUM_TOP]._type	= PLANE_ANYZ;
+//	r_frustum[FRUSTUM_TOP]._type	= PLANE_ANYZ;
+	r_frustum[FRUSTUM_TOP].setType();
 	r_frustum[FRUSTUM_TOP].setSignBits();
 	
 	// near
@@ -418,7 +422,8 @@ static void 	RB_SetupFrustum()
 	r_frustum[FRUSTUM_NEAR]._normal[2]	=  m[3][2] + m[2][2];
 	r_frustum[FRUSTUM_NEAR]._dist		=-(m[3][3] + m[2][3]);
 	r_frustum[FRUSTUM_NEAR].normalize();
-	r_frustum[FRUSTUM_NEAR]._type	= PLANE_ANYZ;
+//	r_frustum[FRUSTUM_NEAR]._type	= PLANE_ANYZ;
+	r_frustum[FRUSTUM_NEAR].setType();
 	r_frustum[FRUSTUM_NEAR].setSignBits();
 	
 	// far
@@ -427,7 +432,8 @@ static void 	RB_SetupFrustum()
 	r_frustum[FRUSTUM_FAR]._normal[2]	=  m[3][2] - m[2][2];
 	r_frustum[FRUSTUM_FAR]._dist		=-(m[3][3] - m[2][3]);
 	r_frustum[FRUSTUM_FAR].normalize();
-	r_frustum[FRUSTUM_FAR]._type	= PLANE_ANYZ;
+//	r_frustum[FRUSTUM_FAR]._type	= PLANE_ANYZ;
+	r_frustum[FRUSTUM_FAR].setType();
 	r_frustum[FRUSTUM_FAR].setSignBits();
 }
 

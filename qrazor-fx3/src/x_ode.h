@@ -891,9 +891,9 @@ public:
 	{
 		dGeomBSPAddLeaf(_id, surfaces_first, surfaces_num, brushes_first, brushes_num, cluster, area);
 	}
-	void	addSurface(int face_type, int shader_num, const std::vector<vec3_c> &vertexes, const std::vector<index_t> &indexes)
+	void	addSurface(int face_type, int shader_num, const std::vector<vec3_c> &vertexes, const std::vector<vec3_c> &normals, const std::vector<index_t> &indexes)
 	{
-		dGeomBSPAddSurface(_id, face_type, shader_num, vertexes, indexes);
+		dGeomBSPAddSurface(_id, face_type, shader_num, vertexes, normals, indexes);
 	};
 		void	addLeafSurface(int num)				{dGeomBSPAddLeafSurface(_id, num);}
 };

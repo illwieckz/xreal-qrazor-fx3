@@ -1032,7 +1032,7 @@ g_item_dropable_c::~g_item_dropable_c()
 
 void	g_item_dropable_c::think()
 {
-	if(deathmatch->getInteger() && (level.time >= (getSpawnTime() + 10)))
+	if(deathmatch->getInteger() && (level.time >= (getSpawnTime() + 30)))
 	{
 		remove();
 	}

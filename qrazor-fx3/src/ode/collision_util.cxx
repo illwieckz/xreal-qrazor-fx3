@@ -27,22 +27,333 @@ functions that are defined in the public header files.
 
 */
 
+#include <functional>
+
 #include "common.h"
 #include "odemath.h"
 #include "collision.h"
 #include "collision_util.h"
 
+struct dContactCompare : public std::unary_function<dContact, bool>
+{
+	dContactGeom	_geom;
+	
+	dContactCompare(const dContact &c)
+	{
+		_geom = c.geom;
+	}
+	
+	bool	operator()(const dContact &c) const	{return _geom == c.geom;}
+};
+
 
 bool	dAddContact(const dContact c, std::vector<dContact> &contacts)
 {
-	//FIXME get rid of redundant contacts
-	contacts.push_back(c);
+	std::vector<dContact>::iterator ir = std::find_if(contacts.begin(), contacts.end(), dContactCompare(c));
 	
-	return true;
-	
+	if(ir == contacts.end())
+	{
+		contacts.push_back(c);
+		return true;
+	}
+	else
+		return false;
 }
 
-int	dCollideSpheres(const vec3_c &p1, vec_t r1, const vec3_c &p2, vec_t r2, dContactGeom &c)
+void	dGetContactData(const vec3_c& p, const vec3_c &v0,  const vec3_c &edge0, const vec3_c &edge1, vec_t &dist, float &u, float &v)
+{
+	vec3_c diff = v0 - p;
+
+	float A00 = edge0.dotProduct(edge0);
+	float A01 = edge0.dotProduct(edge1);
+	float A11 = edge1.dotProduct(edge1);
+
+	float B0 = diff.dotProduct(edge0);
+	float B1 = diff.dotProduct(edge1);
+
+	float C = diff.dotProduct(diff);
+
+	float Det = X_fabs(A00 * A11 - A01 * A01);
+	u = A01 * B1 - A11 * B0;
+	v = A01 * B0 - A00 * B1;
+
+	float DistSq;
+
+	if (u + v <= Det)
+	{
+		if(u < REAL(0.0))
+		{
+			if(v < REAL(0.0))
+			{
+				// region 4
+				if(B0 < REAL(0.0))
+				{
+					v = REAL(0.0);
+					
+					if(-B0 >= A00)
+					{
+						u = REAL(1.0);
+						DistSq = A00 + REAL(2.0) * B0 + C;
+					}
+					else
+					{
+						u = -B0 / A00;
+						DistSq = B0 * u + C;
+					}
+				}
+				else
+				{
+					u = REAL(0.0);
+					
+					if(B1 >= REAL(0.0))
+					{
+						v = REAL(0.0);
+						DistSq = C;
+					}
+					else if(-B1 >= A11)
+					{
+						v = REAL(1.0);
+						DistSq = A11 + REAL(2.0) * B1 + C;
+					}
+					else
+					{
+						v = -B1 / A11;
+						DistSq = B1 * v + C;
+					}
+				}
+			}
+			else
+			{
+				// region 3
+				u = REAL(0.0);
+				
+				if(B1 >= REAL(0.0))
+				{
+					v = REAL(0.0);
+					DistSq = C;
+				}
+				else if(-B1 >= A11)
+				{
+					v = REAL(1.0);
+					DistSq = A11 + REAL(2.0) * B1 + C;
+				}
+				else
+				{
+					v = -B1 / A11;
+					DistSq = B1 * v + C;
+				}
+			}
+		}
+		else if(v < REAL(0.0))
+		{
+			// region 5
+			v = REAL(0.0);
+			
+			if(B0 >= REAL(0.0))
+			{
+				u = REAL(0.0);
+				DistSq = C;
+			}
+			else if(-B0 >= A00)
+			{
+				u = REAL(1.0);
+				DistSq = A00 + REAL(2.0) * B0 + C;
+			}
+			else
+			{
+				u = -B0 / A00;
+				DistSq = B0 * u + C;
+			}
+		}
+		else
+		{
+			// region 0
+			// minimum at interior point
+			if(Det == REAL(0.0))
+			{
+				u = REAL(0.0);
+				v = REAL(0.0);
+				DistSq = X_infinity;
+			}
+			else
+			{
+				float InvDet = X_recip(Det);
+				u *= InvDet;
+				v *= InvDet;
+				DistSq = u * (A00 * u + A01 * v + REAL(2.0) * B0) + v * (A01 * u + A11 * v + REAL(2.0) * B1) + C;
+			}
+		}
+	}
+	else
+	{
+		vec_t Tmp0, Tmp1, Numer, Denom;
+
+		if(u < REAL(0.0))
+		{
+			// region 2
+			Tmp0 = A01 + B0;
+			Tmp1 = A11 + B1;
+			if(Tmp1 > Tmp0)
+			{
+				Numer = Tmp1 - Tmp0;
+				Denom = A00 - REAL(2.0) * A01 + A11;
+				
+				if(Numer >= Denom)
+				{
+					u = REAL(1.0);
+					v = REAL(0.0);
+					DistSq = A00 + REAL(2.0) * B0 + C;
+				}
+				else
+				{
+					u = Numer / Denom;
+					v = REAL(1.0) - u;
+					DistSq = u * (A00 * u + A01 * v + REAL(2.0) * B0) + v * (A01 * u + A11 * v + REAL(2.0) * B1) + C;
+				}
+			}
+			else
+			{
+				u = REAL(0.0);
+				
+				if(Tmp1 <= REAL(0.0))
+				{
+					v = REAL(1.0);
+					DistSq = A11 + REAL(2.0) * B1 + C;
+				}
+				else if(B1 >= REAL(0.0))
+				{
+					v = REAL(0.0);
+					DistSq = C;
+				}
+				else
+				{
+					v = -B1 / A11;
+					DistSq = B1 * v + C;
+				}
+			}
+		}
+		else if(v < REAL(0.0))
+		{
+			// region 6
+			Tmp0 = A01 + B1;
+			Tmp1 = A00 + B0;
+			
+			if(Tmp1 > Tmp0)
+			{
+				Numer = Tmp1 - Tmp0;
+				Denom = A00 - REAL(2.0) * A01 + A11;
+				if(Numer >= Denom)
+				{
+					v = REAL(1.0);
+					u = REAL(0.0);
+					DistSq = A11 + REAL(2.0) * B1 + C;
+				}
+				else
+				{
+					v = Numer / Denom;
+					u = REAL(1.0) - v;
+					DistSq =  u * (A00 * u + A01 * v + REAL(2.0) * B0) + v * (A01 * u + A11 * v + REAL(2.0) * B1) + C;
+				}
+			}
+			else
+			{
+				v = REAL(0.0);
+				if(Tmp1 <= REAL(0.0))
+				{
+					u = REAL(1.0);
+					DistSq = A00 + REAL(2.0) * B0 + C;
+				}
+				else if(B0 >= REAL(0.0))
+				{
+					u = REAL(0.0);
+					DistSq = C;
+				}
+				else
+				{
+					u = -B0 / A00;
+					DistSq = B0 * u + C;
+				}
+			}
+		}
+		else
+		{
+			// region 1
+			Numer = A11 + B1 - A01 - B0;
+			if(Numer <= REAL(0.0))
+			{
+				u = REAL(0.0);
+				v = REAL(1.0);
+				DistSq = A11 + REAL(2.0) * B1 + C;
+			}
+			else
+			{
+				Denom = A00 - REAL(2.0) * A01 + A11;
+				if(Numer >= Denom)
+				{
+					u = REAL(1.0);
+					v = REAL(0.0);
+					DistSq = A00 + REAL(2.0) * B0 + C;
+				}
+				else
+				{
+					u = Numer / Denom;
+					v = REAL(1.0) - u;
+					DistSq = u * (A00 * u + A01 * v + REAL(2.0) * B0) + v * (A01 * u + A11 * v + REAL(2.0) * B1) + C;
+				}
+			}
+		}
+	}
+
+	
+	dist = X_sqrt(X_fabs(DistSq));
+}
+
+bool	dPointInTriangle(const vec3_c &p, const vec3_c &v0, const vec3_c &v1, const vec3_c &v2)
+{
+	vec3_c vectors[3];
+	vec_t total_angle = 0.0f;
+
+	//
+	// Create and normalize three vectors that radiate out from the
+	// intersection point towards the triangle's three vertices.
+	//
+	vectors[0] = p - v0;
+	vectors[0].normalize();
+
+	vectors[1] = p - v1;
+	vectors[1].normalize();
+
+	vectors[2] = p - v2;
+	vectors[2].normalize();
+
+	//
+	// We then sum together the angles that exist between each of the vectors.
+	//
+	// Here's how:
+	//
+	// 1. Use dotProduct() to get cosine of the angle between the two vectors.
+	// 2. Use acos() to convert cosine back into an angle.
+	// 3. Add angle to total_angle to keep track of running sum.
+	//
+	total_angle  = RADTODEG(acos(vectors[0].dotProduct(vectors[1])));
+	total_angle += RADTODEG(acos(vectors[1].dotProduct(vectors[2])));
+	total_angle += RADTODEG(acos(vectors[2].dotProduct(vectors[0])));
+
+	//
+	// If we are able to sum together all three angles and get 360.0, the
+	// intersection point is inside the triangle.
+	//
+	// We can check this by taking away 6.28 radians (360 degrees) away from
+	// total_angle and if we're left with 0 (allowing for some tolerance) the
+	// intersection point is definitely inside the triangle.
+	//
+	if(X_fabs(total_angle - REAL(360.0)) < DIST_EPSILON)
+		return true;
+
+	return false;
+}
+
+bool	dCollideSpheres(const vec3_c &p1, vec_t r1, const vec3_c &p2, vec_t r2, dContactGeom &c)
 {
 	// printf ("d=%.2f  (%.2f %.2f %.2f) (%.2f %.2f %.2f) r1=%.2f r2=%.2f\n",
 	//	  d,p1[0],p1[1],p1[2],p2[0],p2[1],p2[2],r1,r2);
@@ -50,7 +361,7 @@ int	dCollideSpheres(const vec3_c &p1, vec_t r1, const vec3_c &p2, vec_t r2, dCon
 	vec_t d = p1.distance(p2);
 	
 	if(d > (r1 + r2))
-		return 0;
+		return false;
 		
 	if(d <= 0)
 	{
@@ -73,7 +384,7 @@ int	dCollideSpheres(const vec3_c &p1, vec_t r1, const vec3_c &p2, vec_t r2, dCon
 		c._depth = r1 + r2 - d;
 	}
 	
-	return 1;
+	return true;
 }
 
 

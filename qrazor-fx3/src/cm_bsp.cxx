@@ -299,6 +299,8 @@ static void	CM_LoadNormals(bsp_lump_t *l)
 	{
 		for(j=0; j<3; j++)
 			cm_normals[i][j] = LittleFloat(in->normal[j]);
+		
+		cm_normals[i].normalize();
 	}
 }
 
@@ -359,10 +361,12 @@ static void	CM_LoadSurfaces(bsp_lump_t *l, d_bsp_c *bsp)
 			int vertexes_num = LittleLong(in->vertexes_num);
 			
 			out.mesh.vertexes = std::vector<vec3_c>(vertexes_num);
+			out.mesh.normals = std::vector<vec3_c>(vertexes_num);
 			
 			for(int j=0; j<vertexes_num; j++)
 			{
 				out.mesh.vertexes[j] = cm_vertexes[vertexes_first + j];
+				out.mesh.normals[j] = cm_normals[vertexes_first + j];
 			}
 			
 			// setup mesh triangle indices
@@ -402,7 +406,7 @@ static void	CM_LoadSurfaces(bsp_lump_t *l, d_bsp_c *bsp)
 		}
 		
 		if(bsp)
-			bsp->addSurface(face_type, out.shader_num, out.mesh.vertexes, out.mesh.indexes);
+			bsp->addSurface(face_type, out.shader_num, out.mesh.vertexes, out.mesh.normals, out.mesh.indexes);
 	}
 }
 
@@ -1659,12 +1663,12 @@ static void	CM_HullCheck_r(int num, float p1f, float p2f, const vec3_c &p1, cons
 	node = &cm_nodes[num];
 	plane = node->plane;
 
-	if(plane->_type < 3)
+	if(plane->getType() < 3)
 	{
-		t1 = p1[plane->_type] - plane->_dist;
-		t2 = p2[plane->_type] - plane->_dist;
+		t1 = p1[plane->getType()] - plane->_dist;
+		t2 = p2[plane->getType()] - plane->_dist;
 		
-		offset = trace_extents[plane->_type];
+		offset = trace_extents[plane->getType()];
 	}
 	else
 	{

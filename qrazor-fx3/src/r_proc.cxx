@@ -89,7 +89,8 @@ void	r_areaportal_c::adjustFrustum(const r_frustum_c &frustum)
 			{
 				//clipEdge(frustum, _vertexes_original[i], _vertexes_original[(i+1)%4], _vertexes[i], _vertexes[(i+1)%4]);
 				_frustum[i].fromThreePointForm(r_origin, _vertexes[i], _vertexes[(i+1)%4]);
-				_frustum[i]._type = PLANE_ANYZ;
+				//_frustum[i]._type = PLANE_ANYZ;
+				_frustum[i].setType();
 				_frustum[i].setSignBits();
 			}
 			
@@ -123,7 +124,8 @@ void	r_areaportal_c::adjustFrustum(const r_frustum_c &frustum)
 			{
 				//clipEdge(frustum, _vertexes_original[i], _vertexes_original[(i+3)%4], _vertexes[i], _vertexes[(i+3)%4]);
 				_frustum[i].fromThreePointForm(r_origin, _vertexes[i], _vertexes[(i+3)%4]);
-				_frustum[i]._type = PLANE_ANYZ;
+				//_frustum[i]._type = PLANE_ANYZ;
+				_frustum[i].setType();
 				_frustum[i].setSignBits();
 			}
 		}
