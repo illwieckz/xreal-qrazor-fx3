@@ -1155,7 +1155,9 @@ public:
 	void	copyTranspose(matrix_c &out) const;
 
 	void	transpose();
-	
+#if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+	void	transposeIntoXMM() const;
+#endif
 	void	setupXRotation(vec_t deg);
 
 	void	setupYRotation(vec_t deg);
