@@ -44,14 +44,15 @@ void	main()
 	// compute refraction ray
 	vec3 T = refract(I, N, u_refraction_index);
 			
-    	// compute fresnel term
+	// compute fresnel term
 	float fresnel = u_fresnel_bias + pow(1.0 - dot(I, N), u_fresnel_power) * u_fresnel_scale;
-	vec3 fresnel_term = vec3(fresnel, fresnel, fresnel);
 
 	vec3 reflect_color = textureCube(u_colormap, R).rgb;
 	vec3 refract_color = textureCube(u_colormap, T).rgb;
 
 	// compute final color
-	gl_FragColor.rgb = lerp(refract_color, reflect_color, fresnel_term);
+	gl_FragColor.r = lerp(refract_color.r, reflect_color.r, fresnel);
+	gl_FragColor.g = lerp(refract_color.g, reflect_color.g, fresnel);
+	gl_FragColor.b = lerp(refract_color.b, reflect_color.b, fresnel);
 	gl_FragColor.a = 1.0;
 }
