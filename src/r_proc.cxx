@@ -386,8 +386,8 @@ void	r_proctree_c::updateArea_r(int areanum, const r_frustum_c &frustum)
 	if(frustum.cull(area->bbox))
 		return;
 		
-	area->visframecount = r_visframecount;
-	area->framecount = r_framecount;
+	area->setVisFrameCount();
+	area->setFrameCount();
 	c_leafs++;
 	
 	// create general renderer commands
@@ -553,7 +553,7 @@ void	r_proctree_c::draw()
 					continue;		// not visible
 			}
 			
-			area->visframecount = r_visframecount;
+			area->setVisFrameCount();
 			c_leafs++;
 		}
 	}

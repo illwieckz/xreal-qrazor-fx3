@@ -592,7 +592,7 @@ static void	CL_ClearClientState()
 
 	cl.frame.clear();				// received from server
 	cl.surpress_count		= 0;		// number of messages rate supressed
-	for(int i=0; i<CMD_BACKUP; i++)
+	for(int i=0; i<UPDATE_BACKUP; i++)
 	{
 		cl.frames[i].clear();
 	}

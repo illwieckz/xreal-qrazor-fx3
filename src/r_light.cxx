@@ -299,7 +299,6 @@ void	r_light_c::addSurface(int areanum, const r_surface_c *surf)
 			indexes.push_back(mesh->indexes[i+2]);
 		}
 #elif 0
-		
 		// triangle vertices interaction test		
 		if(_s.radius_bbox.intersect(v0, v1, v2))
 		{
@@ -319,7 +318,7 @@ void	r_light_c::addSurface(int areanum, const r_surface_c *surf)
 			indexes.push_back(mesh->indexes[i+2]);
 		}
 		
-#elif 1
+#else
 		// triangle planes interaction test
 		cplane_c p;
 		p.fromThreePointForm(v0, v1, v2);
