@@ -357,7 +357,6 @@ typedef struct
 	void		(*VID_NewWindow)(int width, int height);
 	
 	int		(*Sys_Milliseconds)();
-	int		(*Sys_Microseconds)();
 } ref_import_t;
 
 

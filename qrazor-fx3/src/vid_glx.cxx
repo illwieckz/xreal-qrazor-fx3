@@ -146,7 +146,6 @@ void	VID_Init()
 	ri.VID_NewWindow	= VID_NewWindow;
 	
 	ri.Sys_Milliseconds	= Sys_Milliseconds;
-	ri.Sys_Microseconds	= Sys_Microseconds;
 
 	re = GetRefAPI(ri);
 

@@ -250,22 +250,6 @@ int	Sys_Milliseconds()
 	return timeGetTime() - base;
 }
 
-int     Sys_Microseconds()
-{
-	static int              base;
-	static bool     initialized = false;
-
-	if(!initialized)
-	{
-		// let base retain 16 bits of effectively random data
-		base = timeGetTime() & 0xffff0000;
-		initialized = true;
-	}
-
-	 return (timeGetTime() - base) / 1000;
-}
-
-
 void	Sys_Mkdir(const std::string &path)
 {
 	_mkdir(path.c_str());

@@ -1261,19 +1261,19 @@ static void	R_BenchCalcTangentSpaces_f()
 		m.indexes[i] = i % (vertexes_num-1);
 	}
 	
-	start = ri.Sys_Microseconds();
+	start = ri.Sys_Milliseconds();
 	m.calcTangentSpaces();
-	end = ri.Sys_Microseconds();
+	end = ri.Sys_Milliseconds();
 	ri.Com_Printf("calcTangentSpaces: %i\n", end - start);
 	
-	start = ri.Sys_Microseconds();
+	start = ri.Sys_Milliseconds();
 	m.calcTangentSpaces2();
-	end = ri.Sys_Microseconds();
+	end = ri.Sys_Milliseconds();
 	ri.Com_Printf("calcTangentSpaces2: %i\n", end - start);
 	
-//	start = ri.Sys_Microseconds();
+//	start = ri.Sys_Milliseconds();
 //	m.calcTangentSpaces3();
-//	end = ri.Sys_Microseconds();
+//	end = ri.Sys_Milliseconds();
 //	ri.Com_Printf("calcTangentSpaces3: %i\n", end - start);
 }
 

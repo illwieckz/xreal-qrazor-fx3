@@ -657,29 +657,29 @@ static void	Com_BenchMath_f()
 	m_1.setupXRotation(X_frand() * 360.0);
 	m_2.setupYRotation(X_frand() * 360.0);
 	
-	start = Sys_Microseconds();
+	start = Sys_Milliseconds();
 	for(int i=0; i<iterations_num; i++)
 	{
 		v3_2 = m_1 * v3_1;
 	}
-	end = Sys_Microseconds();
-	Com_Printf("matrix_c * vec3_c: %i\n", end - start);
+	end = Sys_Milliseconds();
+	Com_Printf("matrix_c * vec3_c: %i ms\n", end - start);
 	
-	start = Sys_Microseconds();
+	start = Sys_Milliseconds();
 	for(int i=0; i<iterations_num; i++)
 	{
 		v3_2 = m_1 * v4_1;
 	}
-	end = Sys_Microseconds();
-	Com_Printf("matrix_c * vec4_c: %i\n", end - start);
+	end = Sys_Milliseconds();
+	Com_Printf("matrix_c * vec4_c: %i ms\n", end - start);
 		
-	start = Sys_Microseconds();
+	start = Sys_Milliseconds();
 	for(int i=0; i<iterations_num; i++)
 	{
 		m_3 = m_1 * m_2;
 	}
-	end = Sys_Microseconds();
-	Com_Printf("matrix_c * matrix_c: %i\n", end - start);
+	end = Sys_Milliseconds();
+	Com_Printf("matrix_c * matrix_c: %i ms\n", end - start);
 }
 
 void	Com_MathCheck_f()
