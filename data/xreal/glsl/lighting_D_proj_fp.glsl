@@ -22,7 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 uniform sampler2D	u_diffusemap;
 uniform sampler2D	u_attenuationmap_xy;
-uniform sampler2DShadow	u_shadowmap;
+//uniform sampler2DShadow	u_shadowmap;
+uniform sampler2D	u_shadowmap;
 uniform vec3		u_light_origin;
 uniform vec3		u_light_color;
 
@@ -48,13 +49,14 @@ void	main()
 	vec3 attenuation_xy = var_tex_atten_xy_z.w < 0.0 ? vec3(0.0, 0.0, 0.0) : texture2DProj(u_attenuationmap_xy, var_tex_atten_xy_z.xyw).rgb;
 	
 	// compute shadow
-	vec3 shadow = shadow2DProj(u_shadowmap, var_tex_shadow).rgb;
+//	vec3 shadow = shadow2DProj(u_shadowmap, var_tex_shadow).rgb;
 //	vec3 shadow = var_tex_shadow.w < 0.0 ? vec3(0.0, 0.0, 0.0) : texture2DProj(u_shadowmap, var_tex_shadow).rgb;
 //	vec3 shadow = var_tex_shadow.w < 0.0 ? vec3(0.0, 0.0, 0.0) : texture2DProj(u_attenuationmap_xy, var_tex_shadow.xyw).rgb;
 	
 	// compute final color
-	gl_FragColor.a = diffuse.a;
-	gl_FragColor.rgb = vec3(1.0, 1.0, 1.0);
+	gl_FragColor = diffuse;
+//	gl_FragColor.a = diffuse.a;
+//	gl_FragColor.rgb = vec3(1.0, 1.0, 1.0);
 	gl_FragColor.rgb *= attenuation_xy;
 //	gl_FragColor.rgb *= shadow;
 }
