@@ -89,7 +89,7 @@ void SP_info_player_intermission(void)
 */
 
 g_player_c::g_player_c()
-:g_entity_c(true)
+:g_entity_c(false)
 {
 	_s.type = ET_PLAYER;
 	
@@ -204,14 +204,14 @@ g_player_c::g_player_c()
 //	_body->setGravityMode(0);
 	
 	// setup rigid body
-	dMass m;
+//	dMass m;
 //	dMassSetBoxTotal(&m, 30, 32, 32, 56);
- 	dMassSetSphereTotal(&m, 200, 16);
+//	dMassSetSphereTotal(&m, 200, 16);
 //	dMassSetCappedCylinderTotal(&m, 10, 2, 32, 56);
 //	dMassTranslate(&m, 0, 0, -28);
 
-	_body->setMass(&m);
-	_body->disable();
+//	_body->setMass(&m);
+//	_body->disable();
 			
 	// setup ODE collision detection
 	_space = new d_simple_space_c(g_ode_space->getId());
@@ -219,18 +219,22 @@ g_player_c::g_player_c()
 	
 	g_geom_info_c *geom_info = new g_geom_info_c(this, NULL, NULL);
 	
-	d_geom_c *geom;
-	
 //	geom = new d_box_c(g_ode_space->getId(), vec3_c(32, 32, 56));
-	geom = new d_sphere_c(_space->getId(), 16);
 //	geom = new d_ccylinder_c(g_ode_space->getId(), 32, 56);
 
-	geom->setBody(_body->getId());
-	geom->setData(geom_info);
-	geom->setCollideBits(MASK_PLAYERSOLID);
-//	geom->disable();
+	_sphere = new d_sphere_c(_space->getId(), 16);
+// 	_sphere->setBody(_body->getId());
+	_sphere->setData(geom_info);
+	_sphere->setCollideBits(MASK_PLAYERSOLID);
+	_geoms.insert(std::make_pair(_sphere, geom_info));
 	
-	_geoms.insert(std::make_pair(geom, geom_info));
+	/*
+	_ray = new d_ray_c(_space->getId(), vec3_c(0, 0, 0), vec3_c(0, 0, -1), 18);
+	_ray->setBody(_body->getId());
+	_ray->setData(geom_info);
+	_ray->setCollideBits(MASK_PLAYERSOLID);
+	_geoms.insert(std::make_pair(_ray, geom_info));
+	*/
 }
 
 
@@ -245,17 +249,14 @@ void	g_player_c::think()
 #if 0
 	//gi.Com_Printf("g_player_c::think: called\n");
 	
-	vec3_c vel_linear;
-	vec3_c vel_angular;
+	vec3_c vel_linear;// = _body->getLinearVel();
+	vec3_c vel_angular;// = _body->getAngularVel();
 
-	for(std::deque<usercmd_t>::const_iterator ir = _cmds.begin(); ir != _cmds.end(); ir++)
+	for(std::deque<usercmd_t>::const_iterator ir = _cmds.begin(); ir != _cmds.end(); ++ir)
 	{
 		const usercmd_t& cmd = *ir;
 	
 		// set up for pmove
-		pmove_t pm;
-		memset(&pm, 0, sizeof(pm));
-
 		if(_movetype == MOVETYPE_NOCLIP)
 			_r.ps.pmove.pm_type = PM_SPECTATOR;
 		
@@ -269,10 +270,15 @@ void	g_player_c::think()
 			_r.ps.pmove.pm_type = PM_NORMAL;
 
 		_r.ps.pmove.gravity = g_gravity->getValue();
+		
+		pmove_t pm;
+		memset(&pm, 0, sizeof(pm));
+		
 		pm.s = _r.ps.pmove;
 
 		pm.s.origin = _s.origin;
 		pm.s.velocity_linear = _s.velocity_linear;
+		pm.s.velocity_angular = _s.velocity_angular;
 
 		pm.cmd = cmd;
 
@@ -286,8 +292,8 @@ void	g_player_c::think()
 		_r.ps.pmove = pm.s;
 		
 		//_s.origin = pm.s.origin;
-		vel_linear += pm.s.velocity_linear;
-		vel_angular += pm.s.velocity_angular;
+// 		_body->addForce(pm.s.velocity_linear);
+//  		_body->addTorque(pm.s.velocity_angular);
 
 		_r.bbox = pm.bbox;
 
@@ -319,7 +325,6 @@ void	g_player_c::think()
 		_buttons_old = _buttons;
 		_buttons = cmd.buttons;
 		_buttons_latched |= _buttons & ~_buttons_old;
-	
 	
 		// set movement flags
 		_anim_moveflags = 0;
@@ -369,15 +374,27 @@ void	g_player_c::think()
 		}
 	}
 	
-	vel_linear *= (1.0/_cmds.size());
-	vel_angular *= (1.0/_cmds.size());
+// 	vel_linear *= (1.0/_cmds.size());
+// 	vel_angular *= (1.0/_cmds.size());
 	
-	//_body->addForce(vel_linear);
-	//_body->addTorque(vel_angular[ROLL], vel_angular[PITCH], vel_angular[YAW]);
-	
-	//_body->setRotation(pm.viewangles);
-	_body->setLinearVel(vel_linear);
+//	_body->setQuaternion(_v_quat);
+//	_body->addForce(vel_linear);
+//	_body->addTorque(vel_angular);
+
 	_body->setAngularVel(vel_angular);
+	
+	/*
+	if(!(_r.ps.pmove.pm_flags & PMF_ON_GROUND))
+	{
+//  		_body->setLinearVel(vel_linear);
+//		_body->addForce(vel_linear);
+	}
+	else
+	{
+//		_body->setAngularVel(vel_angular);
+		_body->addTorque(vel_angular);
+	}
+	*/
 	
 	_nextthink = level.time + FRAMETIME;
 	
@@ -395,7 +412,7 @@ void	g_player_c::pain(g_entity_c *other, float kick, int damage)
 
 void	g_player_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point)
 {
-	_body->setAngularVel(0, 0, 0);
+// 	_body->setAngularVel(0, 0, 0);
 
 	_takedamage = DAMAGE_YES;
 	_movetype = MOVETYPE_TOSS;
@@ -607,7 +624,7 @@ void	g_player_c::takeDamage(g_entity_c *inflictor, g_entity_c *attacker, vec3_t 
 			else
 				Vector3_Scale(dir, 500.0 * (float)knockback / mass, kvel);
 
-			_body->addForce(kvel);
+			//_body->addForce(kvel);
 		}
 	}
 
@@ -1216,13 +1233,13 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	_r.ps.pmove.gravity = g_gravity->getValue();
 	pm.s = _r.ps.pmove;
 
-//	pm.s.origin = _s.origin;
-//	pm.s.velocity_linear = _s.velocity_linear;
-//	pm.s.velocity_angular = _s.velocity_angular;
+	pm.s.origin = _s.origin;
+	pm.s.velocity_linear = _s.velocity_linear;
+	pm.s.velocity_angular = _s.velocity_angular;
 	
-	pm.s.origin = _body->getPosition();
-	pm.s.velocity_linear = _body->getLinearVel();
-	pm.s.velocity_angular = _body->getAngularVel();
+//	pm.s.origin = _body->getPosition();
+//	pm.s.velocity_linear = _body->getLinearVel();
+//	pm.s.velocity_angular = _body->getAngularVel();
 
 	if(memcmp(&_old_pmove, &pm.s, sizeof(pm.s)))
 	{
@@ -1244,14 +1261,42 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	_old_pmove = pm.s;
 	
 	// update ODE body
-	_body->setRotation(pm.viewangles);
-	_body->setLinearVel(pm.s.velocity_linear);
-	_body->setAngularVel(pm.s.velocity_angular);
+// 	_body->setRotation(pm.viewangles);
+	
+	/*
+	if(!(_r.ps.pmove.pm_flags & PMF_ON_GROUND))
+	{
+  		_body->setLinearVel(pm.s.velocity_linear);
+//		_body->addForce(pm.s.velocity_linear);
+	}
+	else
+	{
+		_body->setAngularVel(pm.s.velocity_angular);
+// 		_body->addTorque(pm.s.velocity_angular);
+	}
+	*/
+
+// 	_body->setLinearVel(pm.s.velocity_linear);
+// 	_body->setAngularVel(pm.s.velocity_angular);
+
+	/*
+	float step_size = cmd.msec * 0.001;
+	
+	if((level.time + step_size) <= ((level.framenum+1) * FRAMETIME))
+	{
+		G_RunDynamics(cmd.msec * step_size);
+		level.time += step_size;
+	}
+	*/
 
 	// update entity network state
-//	_s.origin = pm.s.origin;
-//	_s.velocity_linear = pm.s.velocity_linear;
-//	_s.velocity_angular = pm.s.velocity_angular;
+ 	_s.origin = pm.s.origin;
+ 	_s.velocity_linear = pm.s.velocity_linear;
+ 	_s.velocity_angular = pm.s.velocity_angular;
+
+//	_s.origin = _body->getPosition();
+//	_s.velocity_linear = _body->getLinearVel();
+//	_s.velocity_angular = _body->getAngularVel();
 	
 //	_r.bbox = pm.bbox;
 	
@@ -2117,11 +2162,11 @@ void	g_player_c::putClientInServer()
 		_r.ps.gun_model_index = 0;
 		
 		
-		_body->setPosition(spawn_origin);
-		_body->setLinearVel(0, 0, 0);
-		_body->setAngularVel(0, 0, 0);
-		_body->setGravityMode(0);
-		_body->enable();
+//  		_body->setPosition(spawn_origin);
+//  		_body->setLinearVel(0, 0, 0);
+//  		_body->setAngularVel(0, 0, 0);
+//  		_body->setGravityMode(0);
+//  		_body->enable();
 		
 		_space->disable();
 		
@@ -2129,11 +2174,11 @@ void	g_player_c::putClientInServer()
 	}
 	else
 	{
-		_body->setPosition(spawn_origin);
-		_body->setLinearVel(0, 0, 0);
-		_body->setAngularVel(0, 0, 0);
-		_body->setGravityMode(1);
-		_body->enable();
+//  		_body->setPosition(spawn_origin);
+//  		_body->setLinearVel(0, 0, 0);
+//  		_body->setAngularVel(0, 0, 0);
+//  		_body->setGravityMode(1);
+//  		_body->enable();
 		
 		_space->enable();
 		
@@ -2338,12 +2383,13 @@ void	g_player_c::endServerFrame()
 	// If it wasn't updated here, the view position would lag a frame
 	// behind the body position when pushed -- "sinking into plats"
 	
-	_r.ps.pmove.origin = _body->getPosition();
-	_r.ps.pmove.velocity_linear = _body->getLinearVel();
-	_r.ps.pmove.velocity_angular = _body->getAngularVel();
+//  	_r.ps.pmove.origin = _body->getPosition();
+//  	_r.ps.pmove.velocity_linear = _body->getLinearVel();
+//  	_r.ps.pmove.velocity_angular = _body->getAngularVel();
 	
-//	_r.ps.pmove.origin = _s.origin;
-//	_r.ps.pmove.velocity_linear = _s.velocity_linear;
+	_r.ps.pmove.origin = _s.origin;
+	_r.ps.pmove.velocity_linear = _s.velocity_linear;
+	_r.ps.pmove.velocity_angular = _s.velocity_angular;
 
 	// If the end of unit layout is displayed, don't give
 	// the player any normal movement attributes
@@ -4131,14 +4177,14 @@ void 	g_player_c::noclip_f()
 	if(!_space->isEnabled())
 	{
 		_movetype = MOVETYPE_WALK;
-		_body->setGravityMode(1);
+//  		_body->setGravityMode(1);
 		_space->enable();
 		msg = "noclip OFF\n";
 	}
 	else
 	{
 		_movetype = MOVETYPE_NOCLIP;
-		_body->setGravityMode(0);
+//  		_body->setGravityMode(0);
 		_space->disable();
 		msg = "noclip ON\n";
 	}
