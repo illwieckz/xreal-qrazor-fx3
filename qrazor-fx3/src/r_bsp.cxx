@@ -1758,8 +1758,8 @@ void 	r_bsptree_c::markEntities()
 	r_world_entity.setVisFrameCount();
 	c_entities++;
 
-	if(_viewcluster_old == _viewcluster && r_vis->getInteger() && _viewcluster != -1)
-		return;
+//	if(_viewcluster_old == _viewcluster && r_vis->getInteger() && _viewcluster != -1)
+//		return;
 
 	if(r_lockpvs->getInteger())
 		return;
@@ -1848,7 +1848,7 @@ void	r_bsp_model_c::addModelToList(r_entity_c *ent)
 	{
 		r_surface_c *surf = *ir;
 		
-		if(surf->getFrameCount() == r_framecount)	// already added surface
+		if(surf->isFramed())	// already added surface
 			continue;
 	
 		if(!surf->getMesh())
