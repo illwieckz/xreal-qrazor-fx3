@@ -97,8 +97,17 @@ const char*	Cmd_CompleteCommand(const std::string &partial);
 
 int		Cmd_Argc();
 const char*	Cmd_Argv(int arg);
-int		Cmd_ArgvInt(int arg);
-float		Cmd_ArgvFloat(int arg);
+
+inline int	Cmd_ArgvInt(int arg)
+{
+	return atoi(Cmd_Argv(arg));
+}
+
+inline float	Cmd_ArgvFloat(int arg)
+{
+	return atof(Cmd_Argv(arg));
+}
+
 const char*	Cmd_Args();
 // The functions that execute commands get their parameters with these
 // functions. Cmd_Argv () will return an empty string, not a NULL

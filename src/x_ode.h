@@ -861,7 +861,7 @@ private:
 };
 #endif
 
-#if 0
+#if 1
 class d_bsp_c : public d_geom_c
 {
 	// intentionally undefined, don't use these
@@ -882,7 +882,7 @@ public:
 	
 	void	setLengths(const vec3_c &v)			{dGeomBSPSetLengths(_id, v[0], v[1], v[2]);}
 	
-	void	addPlane(const cplane_c &p)			{dGeomBSPAddPlane(_id, p._normal[0], p._normal[1], p._normal[2], -p._dist);}
+	void	addPlane(const cplane_c &p)			{dGeomBSPAddPlane(_id, p._normal[0], p._normal[1], p._normal[2], p._dist);}
 	void	addBrush(int sides_first, int sides_num)	{dGeomBSPAddBrush(_id, sides_first, sides_num);}
 	void	addBrushSide(int plane_num)			{dGeomBSPAddBrushSide(_id, plane_num);}
 	void	addNode(int plane_num, int child0, int child1)	{dGeomBSPAddNode(_id, plane_num, child0, child1);}

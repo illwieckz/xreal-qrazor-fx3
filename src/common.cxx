@@ -631,7 +631,42 @@ void	Com_Error_f()
 
 
 
-
+static void	Com_BenchMatrix_f()
+{
+	int start, end;
+	
+	if(Cmd_Argc() != 2)
+	{
+		Com_Printf("usage: benchmatrix <iterations number>\n");
+		return;
+	}
+	
+	int iterations_num = Cmd_ArgvInt(1);
+	if(!iterations_num)
+		iterations_num = 1000;
+	
+	matrix_c m1, m2, m3;
+	vec4_c v1(1, 0, 0, 0), v2;
+	
+	m1.setupXRotation(56);
+	m2.setupYRotation(79);
+		
+	start = Sys_Microseconds();
+	for(int i=0; i<iterations_num; i++)
+	{
+		m3 = m1 * m2;
+	}
+	end = Sys_Microseconds();
+	Com_Printf("matrix_c * matrix_c: %i\n", end - start);
+	
+	start = Sys_Microseconds();
+	for(int i=0; i<iterations_num; i++)
+	{
+		v2 = m1 * v1;
+	}
+	end = Sys_Microseconds();
+	Com_Printf("matrix_c * vec4_c: %i\n", end - start);
+}
 
 void	Com_MathCheck_f()
 {
@@ -927,6 +962,8 @@ void 	Com_Init(int argc, char **argv)
 	Cmd_AddCommand("cryptocheck", Com_CryptoCheck_f);
 	Cmd_AddCommand("d3maptoq3amap", Com_D3MapToQ3AMap_f);
 	Cmd_AddCommand("misccheck", Com_MiscCheck_f);
+	
+	Cmd_AddCommand("benchmatrix", Com_BenchMatrix_f);
 	
 
 	com_speeds	= Cvar_Get("com_speeds", "0", 0);

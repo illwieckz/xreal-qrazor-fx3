@@ -1007,14 +1007,14 @@ g_item_dropable_c::g_item_dropable_c(g_player_c *player, g_item_c *item, const v
 	
 	// setup mass
 	dMass m;
-	m.setBoxTotal(3, _r.size[0], _r.size[1], _r.size[2]);
-//	m.setSphereTotal(3, _r.size.length() * 0.5);
+//	m.setBoxTotal(3, _r.size[0], _r.size[1], _r.size[2]);
+	m.setSphereTotal(3, _r.size.length() * 0.5);
 	_body->setMass(&m);
 	
 	// setup collision
-	d_geom_c *geom = new d_box_c(g_ode_space_toplevel->getId(), _r.size);
+//	d_geom_c *geom = new d_box_c(g_ode_space_toplevel->getId(), _r.size);
 //	d_geom_c *geom = new d_trimesh_c(g_ode_space_toplevel->getId(), model->vertexes, model->indexes);
-//	d_geom_c *geom = new d_sphere_c(g_ode_space_toplevel->getId(), _r.size.length());
+	d_geom_c *geom = new d_sphere_c(g_ode_space_toplevel->getId(), _r.size.length() * 0.5);
 	
 	geom->setBody(_body->getId());
 	geom->setData(this);

@@ -53,7 +53,8 @@ typedef vec_t	vec3_t[3];
 typedef vec_t	vec4_t[4];
 typedef vec_t	vec5_t[5];
 
-#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD_BUILTIN)
+/*
+#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_BUILTIN)
 typedef int vec1sf_t		__attribute__((mode(SF)));
 typedef int vec2sf_t		__attribute__((mode(V2SF)));	// vector of two  single floats
 struct      vec3sf_t
@@ -63,6 +64,7 @@ struct      vec3sf_t
 };
 typedef int vec4sf_t		__attribute__((mode(V4SF)));	// vector of four single floats
 #endif
+*/
 
 class vec2_c;
 class vec3_c;
@@ -699,9 +701,16 @@ public:
 	vec3_c&	operator = (const vec_t *v);
 
 private:
-	vec3_t	_v;
-};
-
+#if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+	vec4_t			_v;
+#else
+	vec3_t			_v;
+#endif
+}
+//#if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+//__attribute__((aligned(16)));
+//#endif
+;
 
 inline vec3_c::vec3_c(bool clear)
 {
@@ -719,7 +728,7 @@ inline vec3_c::vec3_c(const vec3_c& v)
 	set(v._v[0], v._v[1], v._v[2]);
 }
 
-vec3_c::vec3_c(const vec_t *v)
+inline vec3_c::vec3_c(const vec_t *v)
 {
 //	assert(false);
 
@@ -1231,19 +1240,11 @@ public:
 	matrix_c&	operator = (const matrix_c &m);
 
 private:
-#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD_BUILTIN)
-	union
-	{
-		vec4_t		_m[4];
-		vec4sf_t	_ms[4];
-	};
-#else
 	vec4_t			_m[4];
-#endif
 }
-#if defined(SIMD_SSE) || defined(SIMD_BUILTIN)
-__attribute__((aligned(16)));
-#endif
+//#if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+//__attribute__((aligned(16)))
+//#endif
 ;
 
 

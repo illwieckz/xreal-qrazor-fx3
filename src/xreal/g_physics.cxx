@@ -990,7 +990,7 @@ void	G_InitDynamics()
 	
 //	g_ode_space_world = new d_simple_space_c(g_ode_space_toplevel->getId());
 
-	g_ode_testplane = new d_plane_c(g_ode_space_toplevel->getId(), vec3_c(0.0, 0.0, 1.0), 0.0);
+//	g_ode_testplane = new d_plane_c(g_ode_space_toplevel->getId(), vec3_c(0.0, 0.0, 1.0), 0.0);
 	
 	g_ode_contact_group = new d_joint_group_c();
 }

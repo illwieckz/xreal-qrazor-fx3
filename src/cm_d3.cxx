@@ -913,7 +913,7 @@ const char*	CM_EntityString()
 }
 
 
-void	CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum)
+d_bsp_c*	CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum, dSpaceID space)
 {
 	char*			buf;
 	char*			buf_p;
@@ -933,7 +933,7 @@ void	CM_BeginRegistration(const std::string &name, bool clientload, unsigned *ch
 			CM_FloodAreaConnections();
 		}
 		
-		return;		// still have the right version
+		return NULL;		// still have the right version
 	}
 
 	//
@@ -1024,6 +1024,8 @@ void	CM_BeginRegistration(const std::string &name, bool clientload, unsigned *ch
 	memset(cm_nullcluster, 255, sizeof(cm_nullcluster));
 	
 	cm_name = name;
+	
+	return NULL;
 }
 
 
@@ -1081,6 +1083,12 @@ int	CM_LeafArea(int leafnum)
 }
 
 
+int	CM_HeadnodeForBox(const cbbox_c & bbox)
+{
+	//TODO
+	return cm_nodes.size();
+}
+
 
 static int	CM_PointAreanum_r(const vec3_c &p, int num)
 {
@@ -1118,14 +1126,10 @@ int	CM_PointAreanum(const vec3_c &p)
 	return CM_PointAreanum_r(p, 0);
 }
 
-
-
-int	CM_BoxLeafnums(const cbbox_c &bbox, int *list, int listsize, int *topnode)
+int	CM_BoxLeafnums(const cbbox_c &bbox, std::deque<int> &list, int headnode)
 {
-	//if(!cm_models.size())
-		return 1;
-	
-	//return CM_BoxLeafnums_headnode(bbox, list, listsize, cm_models[0]->headnode, topnode);
+	//FIXME
+	return 0;
 }
 
 
@@ -1200,6 +1204,122 @@ int	CM_TransformedPointContents(const vec3_c &p, int headnode, const vec3_c &ori
 	return CM_PointContents(p_l, headnode);
 }
 
+
+trace_t	CM_BoxTrace(const vec3_c &start, const vec3_c &end, const cbbox_c &bbox, int headnode, int brushmask)
+{
+	vec3_c	p;
+
+//	cm_checkcount++;		// for multi-check avoidance
+
+	cm_traces++;			// for statistics, may be zeroed
+
+	//
+	// fill in a default trace
+	//
+	memset (&trace_trace, 0, sizeof(trace_trace));
+	trace_trace.fraction = 1;
+	trace_trace.surface = NULL;//&cm_nullshader;
+
+	if(cm_nodes.empty())	// map not loaded
+		return trace_trace;
+
+//	trace_contents = brushmask;
+	trace_start = start;
+	trace_end = end;
+	
+	trace_bbox = bbox;
+	
+	//
+	// build a bounding box of the entire move
+	//
+	trace_bbox_abs.clear();
+	
+	p = start + trace_bbox._mins;
+	trace_bbox_abs.addPoint(p);
+	
+	p = start + trace_bbox._maxs;
+	trace_bbox_abs.addPoint(p);
+	
+	p = end + trace_bbox._mins;
+	trace_bbox_abs.addPoint(p);
+	
+	p = end + trace_bbox._maxs;
+	trace_bbox_abs.addPoint(p);
+	
+	//
+	// check for position test special case
+	//
+	
+	//TODO
+
+	//
+	// check for point special case
+	//
+	
+	//TODO
+
+	//
+	// general sweeping through world
+	//
+	/*
+	CM_HullCheck_r(headnode, 0, 1, start, end);
+
+	if(trace_trace.fraction == 1)
+	{
+		trace_trace.pos = end;
+	}
+	else
+	*/
+	{
+		trace_trace.pos = start + ((end - start) * trace_trace.fraction);
+	}
+	
+	return trace_trace;
+}
+
+trace_t	CM_TransformedBoxTrace(const vec3_c &start, const vec3_c &end,
+						const cbbox_c &bbox,
+						int headnode, int brushmask, 
+						const vec3_c &origin, const quaternion_c &quat)
+{
+	trace_t		trace;
+	vec3_c		start_l(false), end_l(false);
+	bool	rotated = true;
+
+	// subtract origin offset
+	start_l = start - origin;
+	end_l = end - origin;
+
+	// rotate start and end into the models frame of reference
+//	if(headnode != box_headnode && (quat != quat_identity))
+//		rotated = true;
+//	else
+//		rotated = false;
+
+//	if(rotated)
+	{
+		start_l.rotate(quat);
+		end_l.rotate(quat);
+	}
+
+	// sweep the box through the model
+	trace = CM_BoxTrace(start_l, end_l, bbox, headnode, brushmask);
+
+	if(rotated && trace.fraction != 1.0)
+	{
+		// FIXME: figure out how to do this with existing angles
+		//a = angles;
+		//a.negate();
+		//trace.plane.rotate(a);
+		quaternion_c q = quat;
+		q.inverse();
+		trace.plane.rotate(q);
+	}
+	
+	trace.pos = start + ((end - start) * trace_trace.fraction);
+	
+	return trace;
+}
 
 
 byte*	CM_ClusterPVS(int cluster)

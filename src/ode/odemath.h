@@ -219,6 +219,7 @@ int dVertexOnPlaneSide (const dVector4 p, const dVector3 v);
 
 /*
  * given an axis aligned bounding box tell us on which side of the plane it is
+ *
  */
 int dBoxOnPlaneSide (const dVector4 p, const vec_t aabb[6]);
 

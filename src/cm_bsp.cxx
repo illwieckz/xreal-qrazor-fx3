@@ -562,9 +562,7 @@ static void	CM_LoadShaders(bsp_lump_t *l)
 
 static void	CM_LoadNodes(bsp_lump_t *l, d_bsp_c *bsp)
 {
-	bsp_dnode_t	*in;
-	int			child;
-	
+	bsp_dnode_t	*in;	
 	
 	int			i, j, count;
 	
@@ -588,8 +586,7 @@ static void	CM_LoadNodes(bsp_lump_t *l, d_bsp_c *bsp)
 		
 		for(j=0; j<2; j++)
 		{
-			child = LittleLong(in->children[j]);
-			out.children[j] = child;
+			out.children[j] = LittleLong(in->children[j]);
 		}
 		
 		if(bsp)

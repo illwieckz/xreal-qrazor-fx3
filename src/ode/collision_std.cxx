@@ -80,11 +80,21 @@ struct dxRay : public dxGeom {
 };
 
 
-struct dxBSP : public dxGeom {
-  struct dBSPNode {
-    vec_t* plane;		// split plane
-    int	children[2];		// negative numbers are leafs
-  };
+struct dxBSP : public dxGeom
+{
+	struct dBSPNode
+	{
+		dBSPNode()
+		{
+			plane		= NULL;
+		
+			children[0]	= 0;
+			children[1]	= 0;
+		}
+	
+		cplane_c*	plane;		// split plane
+		int 		children[2];	// negative numbers are leafs
+	};
   
   struct dBSPLeaf {
     int brushes_first;
@@ -102,13 +112,13 @@ struct dxBSP : public dxGeom {
   };
   
   struct dBSPBrushSide {
-    vec_t* plane;
+    cplane_c* plane;
   };
 
   dVector3		side;	// side lengths (x,y,z) for AABB
   dArray<dBSPNode>	nodes;
   dArray<dBSPLeaf>	leafs;
-  dArray<dVector4>	planes;
+  dArray<cplane_c>	planes;
   dArray<dBSPBrush>	brushes;
   dArray<dBSPBrushSide> brushsides;
   dArray<int>		leafbrushes;
@@ -130,14 +140,16 @@ dxSphere::dxSphere (dSpaceID space, vec_t _radius) : dxGeom (space,1)
 }
 
 
-void dxSphere::computeAABB()
+void	dxSphere::computeAABB()
 {
-  aabb[0] = pos[0] - radius;
-  aabb[1] = pos[0] + radius;
-  aabb[2] = pos[1] - radius;
-  aabb[3] = pos[1] + radius;
-  aabb[4] = pos[2] - radius;
-  aabb[5] = pos[2] + radius;
+//	Com_Printf("dxSphere::computeAABB:\n");
+	
+	aabb[0] = pos[0] - radius;
+	aabb[1] = pos[0] + radius;
+	aabb[2] = pos[1] - radius;
+	aabb[3] = pos[1] + radius;
+	aabb[4] = pos[2] - radius;
+	aabb[5] = pos[2] + radius;
 }
 
 
@@ -202,21 +214,21 @@ void dxBox::computeAABB()
 }
 
 
-dGeomID dCreateBox (dSpaceID space, vec_t lx, vec_t ly, vec_t lz)
+dGeomID	dCreateBox(dSpaceID space, vec_t lx, vec_t ly, vec_t lz)
 {
-  return new dxBox (space,lx,ly,lz);
+  return new dxBox(space,lx,ly,lz);
 }
 
 
-void dGeomBoxSetLengths (dGeomID g, vec_t lx, vec_t ly, vec_t lz)
+void	dGeomBoxSetLengths(dGeomID g, vec_t lx, vec_t ly, vec_t lz)
 {
-  dUASSERT (g && g->type == dBoxClass,"argument not a box");
-  dAASSERT (lx > 0 && ly > 0 && lz > 0);
-  dxBox *b = (dxBox*) g;
-  b->side[0] = lx;
-  b->side[1] = ly;
-  b->side[2] = lz;
-  dGeomMoved (g);
+	dUASSERT(g && g->type == dBoxClass, "argument not a box");
+	dAASSERT(lx > 0 && ly > 0 && lz > 0);
+	dxBox *b = (dxBox*) g;
+	b->side[0] = lx;
+	b->side[1] = ly;
+	b->side[2] = lz;
+	dGeomMoved(g);
 }
 
 
@@ -613,20 +625,20 @@ int dGeomRayGetClosestHit (dxGeom *g)
 #if 1
 dxBSP::dxBSP (dSpaceID space) : dxGeom (space,1)
 {
-  dDEBUGMSG ("dxBSP");
-
-  type = dBSPClass;
-  side[0] = 0;//X_infinity;
-  side[1] = 0;//X_infinity;
-  side[2] = 0;//X_infinity;
-  
-  checkcount = 0;
+	dDEBUGMSG("dxBSP");
+	
+	type = dBSPClass;
+	side[0] = 0;//X_infinity;
+	side[1] = 0;//X_infinity;
+	side[2] = 0;//X_infinity;
+	
+	checkcount = 0;
 }
 
 void dxBSP::computeAABB()
 {
-	dDEBUGMSG ("");
-	
+	dDEBUGMSG("");
+#if 0	
 	vec_t xrange = REAL(0.5) * (X_fabs((*R)[0][0] * side[0]) + X_fabs((*R)[0][1] * side[1]) + X_fabs((*R)[0][2] * side[2]));
 	vec_t yrange = REAL(0.5) * (X_fabs((*R)[1][0] * side[0]) + X_fabs((*R)[1][1] * side[1]) + X_fabs((*R)[1][2] * side[2]));
 	vec_t zrange = REAL(0.5) * (X_fabs((*R)[2][0] * side[0]) + X_fabs((*R)[2][1] * side[1]) + X_fabs((*R)[2][2] * side[2]));
@@ -637,101 +649,118 @@ void dxBSP::computeAABB()
 	aabb[3] = pos[1] + yrange;
 	aabb[4] = pos[2] - zrange;
 	aabb[5] = pos[2] + zrange;
+#else
+	aabb[0] = -X_infinity;
+	aabb[1] = X_infinity;
+	aabb[2] = -X_infinity;
+	aabb[3] = X_infinity;
+	aabb[4] = -X_infinity;
+	aabb[5] = X_infinity;
+#endif
 }
 
-dGeomID dCreateBSP (dSpaceID space)
+dGeomID	dCreateBSP(dSpaceID space)
 {
-  return new dxBSP (space);
+	return new dxBSP(space);
 }
 
-void dGeomBSPSetLengths (dGeomID g, vec_t lx, vec_t ly, vec_t lz)
+void	dGeomBSPSetLengths(dGeomID g, vec_t lx, vec_t ly, vec_t lz)
 {
-  dUASSERT (g && g->type == dBSPClass,"argument not a BSP");
-  dAASSERT (lx > 0 && ly > 0 && lz > 0);
-  dxBSP *bsp = (dxBSP*) g;
-  bsp->side[0] = lx;
-  bsp->side[1] = ly;
-  bsp->side[2] = lz;
-  dGeomMoved (g);
+	dUASSERT(g && g->type == dBSPClass, "argument not a BSP");
+	dAASSERT(lx > 0 && ly > 0 && lz > 0);
+	dxBSP *bsp = (dxBSP*)g;
+	bsp->side[0] = lx;
+	bsp->side[1] = ly;
+	bsp->side[2] = lz;
+	dGeomMoved(g);
 }
 
-void dGeomBSPAddPlane (dGeomID g, vec_t a, vec_t b, vec_t c, vec_t d)
+void	dGeomBSPAddPlane(dGeomID g, vec_t a, vec_t b, vec_t c, vec_t d)
 {
-  dUASSERT (g && g->type == dBSPClass,"argument not a BSP");
-  dxBSP *bsp = (dxBSP*) g;
-  
-  dVector4 p;
-  p[0] = a;
-  p[1] = b;
-  p[2] = c;
-  p[3] = d;
-  
-  vec_t l = p[0]*p[0] + p[1]*p[1] + p[2]*p[2];
-  if (l > 0) {
-    l = X_recipsqrt(l);
-    p[0] *= l;
-    p[1] *= l;
-    p[2] *= l;
-    p[3] *= l;
-  }
-  
-  bsp->planes.push(p);
+	dUASSERT(g && g->type == dBSPClass, "argument not a BSP");
+	dxBSP *bsp = (dxBSP*)g;
+	
+	/*
+	dVector4 p;
+	p[0] = a;
+	p[1] = b;
+	p[2] = c;
+	p[3] = d;
+	*/
+	
+	/*
+	vec_t l = p[0]*p[0] + p[1]*p[1] + p[2]*p[2];
+	
+	if(l > 0)
+	{
+		l = X_recipsqrt(l);
+		
+		p[0] *= l;
+		p[1] *= l;
+		p[2] *= l;
+		p[3] *= l;
+	}
+	*/
+	
+	cplane_c p; p.set(a, b, c, d);
+	
+	bsp->planes.push(p);
 }
 
-void dGeomBSPAddBrush (dGeomID g, int sides_first, int sides_num)
+void	dGeomBSPAddBrush(dGeomID g, int sides_first, int sides_num)
 {
-  dUASSERT (g && g->type == dBSPClass,"argument not a BSP");
-  dxBSP *bsp = (dxBSP*) g;
-  
-  dxBSP::dBSPBrush b;
-  b.sides_first = sides_first;
-  b.sides_num = sides_num;
-  
-  bsp->brushes.push(b);
+	dUASSERT(g && g->type == dBSPClass, "argument not a BSP");
+	dxBSP *bsp = (dxBSP*)g;
+	
+	dxBSP::dBSPBrush b;
+	b.sides_first = sides_first;
+	b.sides_num = sides_num;
+	
+	bsp->brushes.push(b);
 }
 
-void dGeomBSPAddBrushSide (dGeomID g, int plane_num)
+void	dGeomBSPAddBrushSide(dGeomID g, int plane_num)
 {
-  dUASSERT (g && g->type == dBSPClass,"argument not a BSP");
-  dxBSP *bsp = (dxBSP*) g;
-  
-  dxBSP::dBSPBrushSide s;
-  s.plane = &bsp->planes[plane_num][0];
-   
-  bsp->brushsides.push(s);
+	dUASSERT(g && g->type == dBSPClass, "argument not a BSP");
+	dxBSP *bsp = (dxBSP*)g;
+	
+	dxBSP::dBSPBrushSide s;
+	s.plane = &bsp->planes[plane_num];
+	
+	bsp->brushsides.push(s);
 }
 
-void dGeomBSPAddNode (dGeomID g, int plane_num, int child0, int child1)
+void	dGeomBSPAddNode(dGeomID g, int plane_num, int child0, int child1)
 {
-  dUASSERT (g && g->type == dBSPClass,"argument not a BSP");
-  dxBSP *bsp = (dxBSP*) g;
-  
-  dxBSP::dBSPNode n;
-  n.plane = &bsp->planes[plane_num][0];
-  n.children[0] = child0;
-  n.children[1] = child1;
-  
-  bsp->nodes.push(n);
+	dUASSERT(g && g->type == dBSPClass, "argument not a BSP");
+	dxBSP *bsp = (dxBSP*)g;
+	
+	dxBSP::dBSPNode n;
+	n.plane = &bsp->planes[plane_num];
+	n.children[0] = child0;
+	n.children[1] = child1;
+	
+	bsp->nodes.push(n);
 }
 
-void dGeomBSPAddLeaf (dGeomID g, int brushes_first, int brushes_num)
+void	dGeomBSPAddLeaf(dGeomID g, int brushes_first, int brushes_num)
 {
-  dUASSERT (g && g->type == dBSPClass,"argument not a BSP");
-  dxBSP *bsp = (dxBSP*) g;
-  
-  dxBSP::dBSPLeaf l;
-  l.brushes_first = brushes_first;
-  l.brushes_num = brushes_num;
-  
-  bsp->leafs.push(l);
+	dUASSERT(g && g->type == dBSPClass, "argument not a BSP");
+	dxBSP *bsp = (dxBSP*)g;
+	
+	dxBSP::dBSPLeaf l;
+	l.brushes_first = brushes_first;
+	l.brushes_num = brushes_num;
+	
+	bsp->leafs.push(l);
 }
 
-void dGeomBSPAddLeafBrush (dGeomID g, int num)
+void	dGeomBSPAddLeafBrush(dGeomID g, int num)
 {
-  dUASSERT (g && g->type == dBSPClass,"argument not a BSP");
-  dxBSP *bsp = (dxBSP*) g;
-  
-  bsp->leafbrushes.push(num);
+	dUASSERT(g && g->type == dBSPClass, "argument not a BSP");
+	dxBSP *bsp = (dxBSP*)g;
+	
+	bsp->leafbrushes.push(num);
 }
 #endif
 
@@ -2058,265 +2087,464 @@ int dCollideRayPlane (dxGeom *o1, dxGeom *o2, int flags,
 }
 
 #if 1
-void dBoxLeafnums (dxBSP *bsp, const vec_t aabb[6], dArray<int> &leafs, int nodenum)
+static void	dBoxLeafnums(dxBSP *bsp, const vec_t aabb[6], dArray<int> &leafs, int nodenum)
 {
-  dIASSERT (bsp->type == dBSPClass);
-
-  while(nodenum >= 0) {
-    const dxBSP::dBSPNode& node = bsp->nodes[nodenum];
-    
-    int s = dBoxOnPlaneSide(node.plane, aabb);
-
-    if(s == dPlaneSideFront) {
-      nodenum = node.children[0];
-    }
-    else if(s == dPlaneSideBack) {
-      nodenum = node.children[1];
-    }
-    else {	// go down both
-      dBoxLeafnums(bsp, aabb, leafs, node.children[0]);
-      nodenum = node.children[1];
-    }
-  }
-  
-  leafs.push(-1 - nodenum);
+	dIASSERT(bsp->type == dBSPClass);
+	
+	if(nodenum < 0)
+	{
+		int leafnum = -1 -nodenum;
+		
+		if(leafnum < 0 || leafnum >= (int)bsp->leafs.size())
+		{
+			Com_Error(ERR_DROP, "dBoxLeafnums: bad leafnum %i", leafnum);
+		}
+		
+		//std::vector<int>::iterator ir = find(areas.begin(), areas.end(), areanum);
+		//if(ir == areas.end())
+		//	areas.push_back(areanum);
+		
+		//Com_Printf("%i ", leafnum);
+		
+		leafs.push(leafnum);
+		return;
+	}
+	
+	const dxBSP::dBSPNode& node = bsp->nodes[nodenum];
+		
+	int s = node.plane->onSide(aabb);
+	
+	switch(s)
+	{
+		case SIDE_FRONT:
+		{
+			if(node.children[0])
+				dBoxLeafnums(bsp, aabb, leafs, node.children[0]);
+			break;
+		}
+		
+		case SIDE_BACK:
+		{
+			if(node.children[1])
+				dBoxLeafnums(bsp, aabb, leafs, node.children[1]);
+			break;
+		}
+		
+		case SIDE_CROSS:
+		{
+			// go down both
+			if(node.children[0])
+				dBoxLeafnums(bsp, aabb, leafs, node.children[0]);
+				
+			if(node.children[1])
+				dBoxLeafnums(bsp, aabb, leafs, node.children[1]);
+			break;
+		}
+		
+		default:
+			break;
+	}
 }
 
 
-int dBoxInBrush (dxGeom *o1, dxGeom *o2, int flags,
-		      dContactGeom *contact, int skip, const dxBSP::dBSPBrush &brush)
+int	dSphereInBrush(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip, const dxBSP::dBSPBrush &brush)
 {
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dBSPClass);
-  dIASSERT (o2->type == dBoxClass);
-  dxBSP *bsp = (dxBSP*) o1;
-  dxBox *box = (dxBox*) o2;
-  
-  contact->g1 = o1;
-  contact->g2 = o2;
-  int ret = 0;
+	dIASSERT(skip >= (int)sizeof(dContactGeom));
+	dIASSERT(o1->type == dBSPClass);
+	dIASSERT(o2->type == dSphereClass);
+	dxBSP *bsp = (dxBSP*)o1;
+	dxSphere *sphere = (dxSphere*)o2;
+	
+	int contacts_num = 0;
+	for(int i=0; i<brush.sides_num; i++)
+	{
+		const cplane_c *plane = bsp->brushsides[brush.sides_first + i].plane;
+		
+		CONTACT(contact, skip)->g1 = o1;
+		CONTACT(contact, skip)->g2 = o2;
+		
+		vec_t k = dDOT(o1->pos, plane->_normal);
+		vec_t depth = plane->_dist - k + sphere->radius;
+		
+		if(depth >= 0)
+		{
+			CONTACT(contact, skip)->normal[0] = plane->_normal[0];
+			CONTACT(contact, skip)->normal[1] = plane->_normal[1];
+			CONTACT(contact, skip)->normal[2] = plane->_normal[2];
+			CONTACT(contact, skip)->pos[0] = o1->pos[0] - plane->_normal[0] * sphere->radius;
+			CONTACT(contact, skip)->pos[1] = o1->pos[1] - plane->_normal[1] * sphere->radius;
+			CONTACT(contact, skip)->pos[2] = o1->pos[2] - plane->_normal[2] * sphere->radius;
+			CONTACT(contact, skip)->depth = depth;
+			
+			contacts_num++;
+			return 1;
+		}
+	}
+	
+	return contacts_num;
+}
 
-  //@@@ problem: using 4-vector (plane->p) as 3-vector (normal).
-  const vec_t *R = (vec_t*)*o1->R;		// rotation of box
-  
-  // find number of contacts requested
-  int maxc = flags & NUMC_MASK;
-  if (maxc < 1) maxc = 1;
-  if (maxc > 3) maxc = 3;	// no more than 3 contacts per box allowed
-  
-  for (int i=0; i<brush.sides_num; i++) {
-    int contacts_num = 0;
-    const vec_t *plane = bsp->brushsides[brush.sides_first + i].plane;
-    const vec_t *n = plane;		// normal vector
+int	dSphereInLeaf(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip, int leafnum)
+{
+	dIASSERT(skip >= (int)sizeof(dContactGeom));
+	dIASSERT(o1->type == dBSPClass);
+	dIASSERT(o2->type == dSphereClass);
+	dxBSP *bsp = (dxBSP*)o1;
+	
+	const dxBSP::dBSPLeaf& leaf = bsp->leafs[leafnum];
+	
+//	if(!(leaf.contents & trace_contents))
+//		return;
 
-    // project sides lengths along normal vector, get absolute values
-    vec_t Q1 = dDOT14(n,R+0);
-    vec_t Q2 = dDOT14(n,R+1);
-    vec_t Q3 = dDOT14(n,R+2);
-    vec_t A1 = box->side[0] * Q1;
-    vec_t A2 = box->side[1] * Q2;
-    vec_t A3 = box->side[2] * Q3;
-    vec_t B1 = X_fabs(A1);
-    vec_t B2 = X_fabs(A2);
-    vec_t B3 = X_fabs(A3);
-    
-    // early exit test
-    vec_t depth = plane[3] + REAL(0.5)*(B1+B2+B3) - dDOT(n,o1->pos);
-    if (depth < 0) return 0;
-    
-    // find deepest point
-    dVector3 p;
-    p[0] = o1->pos[0];
-    p[1] = o1->pos[1];
-    p[2] = o1->pos[2];
+	int contacts_num = 0;
+	for(int i=0; i<leaf.brushes_num; i++)
+	{
+		dxBSP::dBSPBrush& brush = bsp->brushes[bsp->leafbrushes[leaf.brushes_first + i]];
+		
+		if(brush.checkcount == bsp->checkcount)
+			continue;	// already checked this brush in another leaf
+			
+		brush.checkcount = bsp->checkcount;
+		
+//		if(!(brush.contents & trace_contents))
+//			continue;
+		
+		contacts_num += dSphereInBrush(o1, o2, flags, contact, skip, brush);
+		
+//		if(!trace_trace.fraction)
+//			return;
+	}
+	
+	return contacts_num;
+}
+
+int	dBoxInBrush(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip, const dxBSP::dBSPBrush &brush)
+{
+	dIASSERT(skip >= (int)sizeof(dContactGeom));
+	dIASSERT(o1->type == dBSPClass);
+	dIASSERT(o2->type == dBoxClass);
+	dxBSP *bsp = (dxBSP*)o1;
+	dxBox *box = (dxBox*)o2;
+	
+	contact->g1 = o1;
+	contact->g2 = o2;
+	int ret = 0;
+	
+	//@@@ problem: using 4-vector (plane->p) as 3-vector (normal).
+	const vec_t *R = (vec_t*)*o1->R;		// rotation of box
+	
+	// find number of contacts requested
+	int maxc = flags & NUMC_MASK;
+	if(maxc < 1)
+		maxc = 1;
+		
+	if(maxc > 3)
+		maxc = 3;	// no more than 3 contacts per box allowed
+		
+	for(int i=0; i<brush.sides_num; i++)
+	{
+		int contacts_num = 0;
+		
+		const cplane_c *plane = bsp->brushsides[brush.sides_first + i].plane;
+		const vec_t *n = (vec_t*)plane->_normal;		// normal vector
+		
+		// project sides lengths along normal vector, get absolute values
+		vec_t Q1 = dDOT14(n, R+0);
+		vec_t Q2 = dDOT14(n, R+1);
+		vec_t Q3 = dDOT14(n, R+2);
+		vec_t A1 = box->side[0] * Q1;
+		vec_t A2 = box->side[1] * Q2;
+		vec_t A3 = box->side[2] * Q3;
+		vec_t B1 = X_fabs(A1);
+		vec_t B2 = X_fabs(A2);
+		vec_t B3 = X_fabs(A3);
+		
+		// early exit test
+		vec_t depth = plane->_dist + REAL(0.5)*(B1+B2+B3) - dDOT(n,o1->pos);
+		if(depth < 0)
+			continue;
+			
+		// find deepest point
+		dVector3 p;
+		p[0] = o1->pos[0];
+		p[1] = o1->pos[1];
+		p[2] = o1->pos[2];
 #define FOO(i,op) \
   p[0] op REAL(0.5)*box->side[i] * R[0+i]; \
   p[1] op REAL(0.5)*box->side[i] * R[4+i]; \
   p[2] op REAL(0.5)*box->side[i] * R[8+i];
 #define BAR(i,iinc) if (A ## iinc > 0) { FOO(i,-=) } else { FOO(i,+=) }
-    BAR(0,1);
-    BAR(1,2);
-    BAR(2,3);
+    		BAR(0,1);
+    		BAR(1,2);
+    		BAR(2,3);
 #undef FOO
 #undef BAR
-
-    // the deepest point is the first contact point
-    contact->pos[0] = p[0];
-    contact->pos[1] = p[1];
-    contact->pos[2] = p[2];
-    contact->normal[0] = n[0];
-    contact->normal[1] = n[1];
-    contact->normal[2] = n[2];
-    contact->depth = depth;
-    contacts_num = 1;		// ret is number of contact points found so far
-    if (maxc == 1) goto done;
-    
-    // get the second and third contact points by starting from `p' and going
-    // along the two sides with the smallest projected length.
-
+		// the deepest point is the first contact point
+		contact->pos[0] = p[0];
+		contact->pos[1] = p[1];
+		contact->pos[2] = p[2];
+		contact->normal[0] = n[0];
+		contact->normal[1] = n[1];
+		contact->normal[2] = n[2];
+		contact->depth = depth;
+		contacts_num = 1;		// ret is number of contact points found so far
+		
+		if(maxc == 1)
+			goto dbox_in_brush_done;
+			
+			
+		// get the second and third contact points by starting from `p' and going
+		// along the two sides with the smallest projected length.
+		
 #define FOO(i,j,op) \
   CONTACT(contact,i*skip)->pos[0] = p[0] op box->side[j] * R[0+j]; \
   CONTACT(contact,i*skip)->pos[1] = p[1] op box->side[j] * R[4+j]; \
   CONTACT(contact,i*skip)->pos[2] = p[2] op box->side[j] * R[8+j];
 #define BAR(ctact,side,sideinc) \
   depth -= B ## sideinc; \
-  if (depth < 0) goto done; \
+  if (depth < 0) goto dbox_in_brush_done; \
   if (A ## sideinc > 0) { FOO(ctact,side,+) } else { FOO(ctact,side,-) } \
   CONTACT(contact,ctact*skip)->depth = depth; \
   ret++;
 
-    CONTACT(contact,skip)->normal[0] = n[0];
-    CONTACT(contact,skip)->normal[1] = n[1];
-    CONTACT(contact,skip)->normal[2] = n[2];
-    if (maxc == 3) {
-      CONTACT(contact,2*skip)->normal[0] = n[0];
-      CONTACT(contact,2*skip)->normal[1] = n[1];
-      CONTACT(contact,2*skip)->normal[2] = n[2];
-    }
-
-    if (B1 < B2) {
-      if (B3 < B1) goto use_side_3; else {
-        BAR(1,0,1);	// use side 1
-        if (maxc == 2) goto done;
-        if (B2 < B3) goto contact2_2; else goto contact2_3;
-      }
-    }
-    else {
-      if (B3 < B2) {
-        use_side_3:	// use side 3
-        BAR(1,2,3);
-        if (maxc == 2) goto done;
-        if (B1 < B2) goto contact2_1; else goto contact2_2;
-      }
-      else {
-        BAR(1,1,2);	// use side 2
-        if (maxc == 2) goto done;
-        if (B1 < B3) goto contact2_1; else goto contact2_3;
-      }
-    }
-
-    contact2_1: BAR(2,0,1); goto done;
-    contact2_2: BAR(2,1,2); goto done;
-    contact2_3: BAR(2,2,3); goto done;
+		CONTACT(contact, skip)->normal[0] = n[0];
+		CONTACT(contact, skip)->normal[1] = n[1];
+		CONTACT(contact, skip)->normal[2] = n[2];
+		
+		if(maxc == 3)
+		{
+			CONTACT(contact, 2*skip)->normal[0] = n[0];
+			CONTACT(contact, 2*skip)->normal[1] = n[1];
+			CONTACT(contact, 2*skip)->normal[2] = n[2];
+		}
+		
+		if(B1 < B2)
+		{
+			if(B3 < B1)
+				goto use_side_3;
+			else
+			{
+				BAR(1, 0, 1);	// use side 1
+				
+				if(maxc == 2)
+					goto dbox_in_brush_done;
+				
+				if(B2 < B3)
+					goto contact2_2;
+				else
+					goto contact2_3;
+			}
+		}
+		else
+		{
+			if(B3 < B2)
+			{
+				use_side_3:	// use side 3
+				BAR(1,2,3);
+				        
+				if(maxc == 2)
+					goto dbox_in_brush_done;
+				
+				if(B1 < B2)
+					goto contact2_1;
+				else
+					goto contact2_2;
+			}
+		else
+		{
+			BAR(1, 1, 2);	// use side 2
+			
+			if(maxc == 2)
+				goto dbox_in_brush_done;
+			
+			if(B1 < B3)
+				goto contact2_1;
+			else
+				goto contact2_3;
+		}
+	}
+	
+contact2_1:	BAR(2,0,1);	goto dbox_in_brush_done;
+contact2_2:	BAR(2,1,2);	goto dbox_in_brush_done;
+contact2_3:	BAR(2,2,3);	goto dbox_in_brush_done;
 #undef FOO
 #undef BAR
 
-    done:
-      ret += contacts_num;
-  }
-    
-  for (int i=0; i<ret; i++) {
-    CONTACT(contact,i*skip)->g1 = o1;
-    CONTACT(contact,i*skip)->g2 = o2;
-  }
-    
-  return ret;
+	dbox_in_brush_done:
+	ret += contacts_num;
+	}
+	
+	for(int i=0; i<ret; i++)
+	{
+		CONTACT(contact, i*skip)->g1 = o1;
+		CONTACT(contact, i*skip)->g2 = o2;
+	}
+	
+	return ret;
 }
 
-int dBoxInLeaf (dxGeom *o1, dxGeom *o2, int flags,
-		      dContactGeom *contact, int skip, int leafnum)
-{
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dBSPClass);
-  dIASSERT (o2->type == dBoxClass);
-  dxBSP *bsp = (dxBSP*) o1;
-  
-  const dxBSP::dBSPLeaf& leaf = bsp->leafs[leafnum];
 
-  //if(!(leaf.contents & trace_contents))
-  //  return;
-  
-  int contacts_num = 0;
-  for(int i=0; i<leaf.brushes_num; i++) {
-    dxBSP::dBSPBrush& brush = bsp->brushes[bsp->leafbrushes[leaf.brushes_first + i]];
-    
-    if(brush.checkcount == bsp->checkcount)
-      continue;	// already checked this brush in another leaf
-      
-    brush.checkcount = bsp->checkcount;
-    
-    //if(!(brush.contents & trace_contents))
-      //continue;
-      
-    contacts_num += dBoxInBrush(o1, o2, flags, contact, skip, brush);
-    //if(!trace_trace.fraction)
-      //return;
-  }
-  
-  if (!contacts_num) {
-    dDEBUGMSG ("no contacts");
-  }
-  else {
-    dDEBUGMSG ("contacts!!!");
-  }
-  
-  return contacts_num;
+int	dBoxInLeaf(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip, int leafnum)
+{
+	dIASSERT(skip >= (int)sizeof(dContactGeom));
+	dIASSERT(o1->type == dBSPClass);
+	dIASSERT(o2->type == dBoxClass);
+	dxBSP *bsp = (dxBSP*) o1;
+	
+	const dxBSP::dBSPLeaf& leaf = bsp->leafs[leafnum];
+	
+//	if(!(leaf.contents & trace_contents))
+//		return;
+
+	int contacts_num = 0;
+	for(int i=0; i<leaf.brushes_num; i++)
+	{
+		dxBSP::dBSPBrush& brush = bsp->brushes[bsp->leafbrushes[leaf.brushes_first + i]];
+		
+		if(brush.checkcount == bsp->checkcount)
+			continue;	// already checked this brush in another leaf
+			
+		brush.checkcount = bsp->checkcount;
+		
+//		if(!(brush.contents & trace_contents))
+//			continue;
+		
+		contacts_num += dBoxInBrush(o1, o2, flags, contact, skip, brush);
+		
+//		if(!trace_trace.fraction)
+//			return;
+	}
+	
+	if(!contacts_num)
+	{
+		dDEBUGMSG("no contacts");
+	}
+	else
+	{
+		dDEBUGMSG("contacts!!!");
+	}
+	
+	return contacts_num;
 }
 
-int dCollideBSPSphere (dxGeom *o1, dxGeom *o2, int flags,
-		      dContactGeom *contact, int skip)
+int	dCollideBSPSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
 {
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dBSPClass);
-  dIASSERT (o2->type == dSphereClass);
-  dDEBUGMSG ("");
-  return 0;
-}
-
-int dCollideBSPBox (dxGeom *o1, dxGeom *o2, int flags,
-		      dContactGeom *contact, int skip)
-{
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dBSPClass);
-  dIASSERT (o2->type == dBoxClass);
-  dDEBUGMSG ("");
-#if 0
-  dxBSP *bsp = (dxBSP*) o1;
-  dxBox *box = (dxBox*) o2;
-  
-  vec_t aabb[6];
-  aabb[0] = box->aabb[0]- 1.0f;
-  aabb[1] = box->aabb[1]+ 1.0f;
-  aabb[2] = box->aabb[2]- 1.0f;
-  aabb[3] = box->aabb[3]+ 1.0f;
-  aabb[4] = box->aabb[4]- 1.0f;
-  aabb[5] = box->aabb[5]+ 1.0f;
-  
-  bsp->checkcount++;
-  
-  dArray<int> leafs;
-  dBoxLeafnums(bsp, aabb, leafs, 0);
-  if (!leafs.size()) {
-    dDEBUGMSG ("no BSP leaves hit");
-    return 0;
-  }
-  
-  int contacts_num = 0;
-  for (int i=0; i<leafs.size(); i++) {
-    contacts_num += dBoxInLeaf(o1, o2, flags, contact, skip, leafs[i]);
-  }
-  
-  if (!contacts_num) {
-    dDEBUGMSG ("no contacts");
-  }
-  else {
-    dDEBUGMSG ("contacts!!!");
-  }
-  
-  return contacts_num;
+	dIASSERT(skip >= (int)sizeof(dContactGeom));
+	dIASSERT(o1->type == dBSPClass);
+	dIASSERT(o2->type == dSphereClass);
+//	dDEBUGMSG("");
+#if 1
+	dxBSP *bsp = (dxBSP*)o1;
+	dxSphere *sphere = (dxSphere*)o2;
+	
+	vec_t aabb[6];
+	aabb[0] = sphere->aabb[0]- 1.0f;
+	aabb[1] = sphere->aabb[1]+ 1.0f;
+	aabb[2] = sphere->aabb[2]- 1.0f;
+	aabb[3] = sphere->aabb[3]+ 1.0f;
+	aabb[4] = sphere->aabb[4]- 1.0f;
+	aabb[5] = sphere->aabb[5]+ 1.0f;
+	
+	bsp->checkcount++;
+	
+	dArray<int> leafs;
+	dBoxLeafnums(bsp, aabb, leafs, 0);
+	if(!leafs.size())
+	{
+		Com_Error(ERR_DROP, "dCollideBSPSphere: no BSP leaves hit");
+		return 0;
+	}
+	else
+	{
+//		Com_Printf("\ndCollideBSPSphere: sphere touches %i leaves\n", leafs.size());
+	}
+	
+	int contacts_num = 0;
+#if 1
+	for(int i=0; i<leafs.size(); i++)
+	{
+		contacts_num += dSphereInLeaf(o1, o2, flags, contact, skip, leafs[i]);
+	}
+	
+	if(!contacts_num)
+	{
+//		Com_Printf("dCollideBSPSphere: no contacts\n");
+	}
+	else
+	{
+		Com_Printf("dCollideBSPSphere: %i contacts\n", contacts_num);
+	}
+#endif
+	return contacts_num;
 #else
-  return 0;
+	return 0;
 #endif
 }
 
-int dCollideBSPCCylinder (dxGeom *o1, dxGeom *o2, int flags,
-		      dContactGeom *contact, int skip)
+int	dCollideBSPBox(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
 {
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dBSPClass);
-  dIASSERT (o2->type == dCCylinderClass);
-  dDEBUGMSG ("");
-  return 0;
+	dIASSERT(skip >= (int)sizeof(dContactGeom));
+	dIASSERT(o1->type == dBSPClass);
+	dIASSERT(o2->type == dBoxClass);
+//	dDEBUGMSG("");
+#if 0
+	dxBSP *bsp = (dxBSP*) o1;
+	dxBox *box = (dxBox*) o2;
+	
+	vec_t aabb[6];
+	aabb[0] = box->aabb[0]- 1.0f;
+	aabb[1] = box->aabb[1]+ 1.0f;
+	aabb[2] = box->aabb[2]- 1.0f;
+	aabb[3] = box->aabb[3]+ 1.0f;
+	aabb[4] = box->aabb[4]- 1.0f;
+	aabb[5] = box->aabb[5]+ 1.0f;
+	
+	bsp->checkcount++;
+	
+	dArray<int> leafs;
+	dBoxLeafnums(bsp, aabb, leafs, 0);
+	if(!leafs.size())
+	{
+		dDEBUGMSG("no BSP leaves hit");
+		return 0;
+	}
+	else
+	{
+		Com_Printf("dCollideBSPBox: box touches %i leaves\n", leafs.size());
+	}
+	
+	int contacts_num = 0;
+#if 1
+	for(int i=0; i<leafs.size(); i++)
+	{
+		contacts_num += dBoxInLeaf(o1, o2, flags, contact, skip, leafs[i]);
+	}
+	
+	if(!contacts_num)
+	{
+		dDEBUGMSG("no contacts");
+	}
+	else
+	{
+		//dDEBUGMSG("contacts!!!");
+		Com_Printf("dCollideBSPBox: %i contacts\n", contacts_num);
+	}
+#endif
+	return contacts_num;
+#else
+	return 0;
+#endif
+}
+
+int	dCollideBSPCCylinder(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
+{
+	dIASSERT(skip >= (int)sizeof(dContactGeom));
+	dIASSERT(o1->type == dBSPClass);
+	dIASSERT(o2->type == dCCylinderClass);
+	dDEBUGMSG("");
+	
+	//TODO
+	return 0;
 }
 
 int dCollideBSPCylinder (dxGeom *o1, dxGeom *o2, int flags,
@@ -2329,14 +2557,15 @@ int dCollideBSPCylinder (dxGeom *o1, dxGeom *o2, int flags,
   return 0;
 }
 
-int dCollideBSPPlane (dxGeom *o1, dxGeom *o2, int flags,
-		      dContactGeom *contact, int skip)
+int	dCollideBSPPlane(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
 {
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dBSPClass);
-  dIASSERT (o2->type == dPlaneClass);
-  dDEBUGMSG ("");
-  return 0;
+	dIASSERT(skip >= (int)sizeof(dContactGeom));
+	dIASSERT(o1->type == dBSPClass);
+	dIASSERT(o2->type == dPlaneClass);
+//	dDEBUGMSG("");
+	
+	//TODO
+	return 0;
 }
 
 int dCollideBSPRay (dxGeom *o1, dxGeom *o2, int flags,
