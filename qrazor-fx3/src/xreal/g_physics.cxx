@@ -1355,6 +1355,7 @@ void		G_SetWorldModel(g_entity_c *ent, const std::string &name)
 	if(X_strequal("*0", name.c_str()) && g_ode_bsp)
 	{
 		g_ode_bsp->setData(ent);
+		g_ode_bsp->setCollideBits(X_CONT_SOLID);
 		ent->_geoms.push_back(g_ode_bsp);
 	}
 	/*
