@@ -601,10 +601,20 @@ public:
 	inline operator float * () const;
 
 	inline operator float * ();
+	
+	inline operator double * () const;
+
+	inline operator double * ();
 			
 	inline vec3_c&	operator = (const vec3_c &v);
+	
+	inline vec3_c&	operator = (const vec4_c &v);
 		
-	inline vec3_c&	operator = (const vec_t *v);
+//	inline vec3_c&	operator = (const vec_t *v);
+	
+	inline vec3_c&	operator = (const float *v);
+		
+	inline vec3_c&	operator = (const double *v);
 
 private:
 	vec3_t	_v;
@@ -843,6 +853,16 @@ inline vec3_c::operator float * ()
 	return (float*)_v;
 }
 
+inline vec3_c::operator double * () const
+{
+	return (double*)_v;
+}
+
+inline vec3_c::operator double * ()
+{
+	return (double*)_v;
+}
+
 inline vec3_c&	vec3_c::operator = (const vec3_c &v)
 {
 	_v[0] = v._v[0];
@@ -851,8 +871,28 @@ inline vec3_c&	vec3_c::operator = (const vec3_c &v)
 	
 	return *this;
 }
-		
+
+/*		
 inline vec3_c&	vec3_c::operator = (const vec_t *v)
+{
+	_v[0] = v[0];
+	_v[1] = v[1];
+	_v[2] = v[2];
+	
+	return *this;
+}
+*/
+
+inline vec3_c&	vec3_c::operator = (const float *v)
+{
+	_v[0] = v[0];
+	_v[1] = v[1];
+	_v[2] = v[2];
+	
+	return *this;
+}
+
+inline vec3_c&	vec3_c::operator = (const double *v)
 {
 	_v[0] = v[0];
 	_v[1] = v[1];
@@ -1027,12 +1067,17 @@ public:
 		return (float*)_v;
 	}
 
-#ifdef HAVE_DOUBLEVEC_T
-	inline operator vec_t * ()
+//#ifdef HAVE_DOUBLEVEC_T
+	inline operator double * () const
 	{
-		return (vec_t*)_v;
+		return (double*)_v;
 	}
-#endif
+	
+	inline operator double * ()
+	{
+		return (double*)_v;
+	}
+//#endif
 		
 	inline vec4_c&	operator = (const vec4_c &v)
 	{
@@ -1057,6 +1102,16 @@ public:
 private:
 	vec4_t	_v;
 };
+
+
+inline vec3_c&	vec3_c::operator = (const vec4_c &v)
+{
+	_v[0] = v[0];
+	_v[1] = v[1];
+	_v[2] = v[2];
+	
+	return *this;
+}
 
 
 
@@ -1160,9 +1215,8 @@ public:
 
 	inline operator float * ();
 	
-#ifdef HAVE_DOUBLEVEC_T
-	inline operator vec_t * ();
-#endif
+	inline operator double * ();
+	
 //	matrix_c&	operator = (const matrix_c &m);
 
 private:
@@ -1276,12 +1330,10 @@ inline matrix_c::operator float * ()
 	return (float*)&_m[0][0];
 }
 	
-#ifdef HAVE_DOUBLEVEC_T
-inline matrix_c::operator vec_t * ()
+inline matrix_c::operator double * ()
 {
-	return (vec_t*)&_m[0][0];
+	return (double*)&_m[0][0];
 }
-#endif
 
 
 
@@ -1356,12 +1408,15 @@ public:
 
 	inline operator float * ();
 	
-#ifdef HAVE_DOUBLEVEC_T
-	inline operator vec_t * ();
-#endif
+	inline operator double * () const;
+
+	inline operator double * ();
+
 	inline quaternion_c&	operator = (const quaternion_c &q);
 	
 	inline quaternion_c&	operator = (const float *q);
+	
+	inline quaternion_c&	operator = (const double *q);
 	
 private:
 	vec4_t		_q;
@@ -1528,13 +1583,16 @@ inline quaternion_c::operator float * ()
 {
 	return (float*)_q;
 }
-	
-#ifdef HAVE_DOUBLEVEC_T
-inline quaternion_c::operator vec_t * ()
+
+inline quaternion_c::operator double * () const
 {
-	return (vec_t*)_q;
+	return (double*)_q;
 }
-#endif
+
+inline quaternion_c::operator double * ()
+{
+	return (double*)_q;
+}
 		
 inline quaternion_c&	quaternion_c::operator = (const quaternion_c &q)
 {

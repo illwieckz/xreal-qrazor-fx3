@@ -540,7 +540,7 @@ void CG_BfgParticles (r_entity_t *ent)
 		Vector3_Subtract (p->shared.origin, ent->origin, v);
 		dist = Vector3_Length(v) / 90.0;
 
-		p->colorvel = 0;
+		p->colorvel.clear();
 
 		//p->alpha = 1.0 - dist;
 		p->alphavel = -100;
