@@ -646,9 +646,13 @@ private:
 #define	X_SURF_LIGHTFILTER		(1<<15)		// act as a light filter during q3map -light
 #define	X_SURF_ALPHASHADOW		(1<<16)		// do per-pixel light shadow casting in q3map
 #define	X_SURF_NODLIGHT			(1<<17)		// never add dynamic lights
-#define	X_SURF_DUST			(1<<18)		// leave a dust trail when walking on this surface
-#define	X_SURF_DISCRETE			(1<<19)
-#define	X_SURF_BLOOD			(1<<20)
+#define X_SURF_NOSHADOWS		(1<<18)		// don't cast shadows
+#define X_SURF_NOSELFSHADOW		(1<<19)
+#define	X_SURF_DUST			(1<<20)		// leave a dust trail when walking on this surface
+#define	X_SURF_DISCRETE			(1<<21)		// never merge with other surfaces
+#define	X_SURF_BLOOD			(1<<22)
+#define X_SURF_STONE			(1<<23)
+
 
 // content masks
 #define	MASK_SOLID			(X_CONT_SOLID)
