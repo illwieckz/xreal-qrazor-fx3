@@ -1076,7 +1076,7 @@ static void	G_TopLevelCollisionCallback(void *data, dGeomID o1, dGeomID o2)
 //			return;
 //		}
 
-		const int	contacts_max = 16;
+		const int	contacts_max = 32;
 		dContact	contacts[contacts_max]; 
 		if(int contacts_num = dCollide(o1, o2, contacts_max, &contacts[0].geom, sizeof(dContact)))
 		{

@@ -148,7 +148,7 @@ void	r_areaportal_c::clipEdge(const r_frustum_c &frustum, const vec3_c &v1, cons
 			continue;	//edge behind plane
 			
 		if(side1 == SIDE_BACK || side2 == SIDE_BACK)
-			r_frustum[i].intersect(v1, v2, intersect);
+			intersect = r_frustum[i].intersect(v1, v2);
 			
 		if(side1 == SIDE_BACK)
 			out1 = intersect;

@@ -70,6 +70,7 @@ trace_t			CM_TransformedBoxTrace(const vec3_c &start, const vec3_c &end,
 						int headnode, int brushmask, 
 						const vec3_c &origin, const quaternion_c &quat);
 
+int			CM_PointLeafnum(const vec3_c &p);
 int			CM_PointAreanum(const vec3_c &p);
 
 // call with topnode set to the headnode, returns with topnode
