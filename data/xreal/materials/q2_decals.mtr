@@ -4,40 +4,41 @@
 
 textures/q2_decals/glass_pieces_floor
 {
+	qer_editorimage textures/q2_decals/glass_pieces_floor.tga
+
 	translucent
 	twoSided
 	noshadows
-	qer_editorimage	textures/q2_decals/glass_pieces_floor.tga
 	
 	{
-		blend diffuseMap
-		map textures/q2_decals/glass_pieces_floor.tga
+//		blend		diffuseMap
+		map		textures/q2_decals/glass_pieces_floor.tga
+//		blend		add
+//		blend		GL_ZERO , GL_ONE_MINUS_SRC_COLOR
+//		blend		GL_DST_COLOR , GL_ONE
+		blend		GL_ONE , GL_ONE
 	}
-	{
-		blend specularMap
-		map textures/q2_decals/glass_pieces_floor.tga
-	}
-
-
-
+//	{
+//		blend		specularMap
+//		map		textures/q2_decals/glass_pieces_floor.tga
+//	}
 }
 
 textures/q2_decals/strogg_wall_decal1
 {
+	qer_editorimage	textures/q2_decals/strogg_wall_decal1.tga
+	
 	translucent
 	twoSided
 	noshadows
-	qer_editorimage	textures/q2_decals/strogg_wall_decal1.tga
 	
 	{
-		blend diffuseMap
-		map textures/q2_decals/strogg_wall_decal1.tga
+//		blend	diffuseMap
+		map		textures/q2_decals/strogg_wall_decal1.tga
+		blend		GL_ONE , GL_ONE
 	}
-	{
-		blend specularMap
-		map textures/q2_decals/strogg_wall_decal1.tga
-	}
-
-
-
+//	{
+//		blend	specularMap
+//		map	textures/q2_decals/strogg_wall_decal1.tga
+//	}
 }     
