@@ -53,7 +53,7 @@ typedef struct
 
 
 
-void 	IMG_LoadTGA(const std::string &name, byte **pic, int *width, int *height)
+void 	IMG_LoadTGA(const std::string &name, byte **pic, int *width, int *height, bool fill_alpha)
 {
 	int		columns, rows, numPixels;
 	byte	*pixbuf;
@@ -153,7 +153,7 @@ void 	IMG_LoadTGA(const std::string &name, byte **pic, int *width, int *height)
 							*pixbuf++ = red;
 							*pixbuf++ = green;
 							*pixbuf++ = blue;
-							*pixbuf++ = 255;
+							*pixbuf++ = fill_alpha ? 255 : 0;
 							break;
 					case 32:
 							blue = *buf_p++;
@@ -193,7 +193,7 @@ void 	IMG_LoadTGA(const std::string &name, byte **pic, int *width, int *height)
 								blue = *buf_p++;
 								green = *buf_p++;
 								red = *buf_p++;
-								alphabyte = 255;
+								alphabyte = fill_alpha ? 255 : 0;
 								break;
 						case 32:
 								blue = *buf_p++;
@@ -235,7 +235,7 @@ void 	IMG_LoadTGA(const std::string &name, byte **pic, int *width, int *height)
 									*pixbuf++ = red;
 									*pixbuf++ = green;
 									*pixbuf++ = blue;
-									*pixbuf++ = 255;
+									*pixbuf++ = fill_alpha ? 255 : 0;
 									break;
 							case 32:
 									blue = *buf_p++;

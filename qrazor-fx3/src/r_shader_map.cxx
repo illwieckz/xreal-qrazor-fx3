@@ -58,12 +58,12 @@ struct r_shader_map_stc_grammar_t : public boost::spirit::grammar<r_shader_map_s
 				;
 			
 			heightmap
-				=
-					boost::spirit::nocase_d[boost::spirit::str_p("heightmap")] >>
+				=	// FIXME
+					boost::spirit::nocase_d[boost::spirit::str_p("heightmap")][boost::spirit::assign_a(r_current_stage->heightmap, false)] >>
 					boost::spirit::ch_p('(') >>
 					boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - boost::spirit::ch_p(',')] >>
 					boost::spirit::ch_p(',') >>
-					boost::spirit::real_p >>
+					boost::spirit::real_p[boost::spirit::assign(r_current_stage->heightmap_scale)] >>
 					boost::spirit::ch_p(')')
 				;
 				

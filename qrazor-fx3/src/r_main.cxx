@@ -57,6 +57,7 @@ r_image_c*	r_img_lightview_depth;
 r_image_c*	r_img_lightview_color;
 r_image_c*	r_img_currentrender;
 r_image_c*	r_img_currentrender_depth;
+r_image_c*	r_img_currentenvironment;
 
 r_shader_c*	r_shader_currentrender;
 
@@ -97,7 +98,7 @@ vec3_c		r_origin;
 bool		r_portal_view = false;	// if true, get vis data at
 vec3_c		r_portal_org;		// portalorg instead of vieworg
 
-bool		r_mirrorview = false;	// if true, lock pvs
+bool		r_mirror_view = false;	// if true, lock pvs
 
 bool		r_envmap = false;
 
@@ -133,7 +134,8 @@ r_poly_t	r_polys[MAX_POLYS];
 
 std::vector<r_contact_t>		r_contacts;
 
-r_scene_t	r_world_scene;
+r_scene_t	r_scene_main;
+r_scene_t	r_scene_portal;
 
 
 static uint_t	r_video_export_count = 0;
@@ -639,7 +641,7 @@ static void 	R_AddEntitiesToBuffer()
 		if(!ent)
 			continue;
 		
-		if(r_mirrorview)
+		if(r_mirror_view)
 		{
 			if(ent->getShared().flags & RF_WEAPONMODEL) 
 				continue;
@@ -972,7 +974,58 @@ void	R_DrawPbufferTest(int x, int y, int w, int h)
 	R_DrawStretchPic(x, y, w, h, 0, 0, 1, -1, color_white, r_shader_currentrender);
 }
 
-static void	R_BeginFrame()
+static void 	R_RenderScene(const r_refdef_t &fd, r_scene_t &scene)
+{
+	r_newrefdef = fd;
+	r_current_scene = &scene;
+	
+#if 0
+	GLimp_ActivatePbuffer();
+		
+	xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	
+//	RB_Clear();
+#endif
+
+	R_SetupFrame();			RB_CheckForError();
+	
+	RB_SetupGL3D();			RB_CheckForError();
+	
+	R_DrawWorld();			RB_CheckForError();
+	
+	R_AddEntitiesToBuffer();
+	
+	RB_RenderCommands();
+		
+	R_DrawLightDebuggingInfo();	RB_CheckForError();
+	
+	R_DrawEntityDebuggingInfo();	RB_CheckForError();
+	
+	R_DrawContactDebuggingInfo();	RB_CheckForError();
+	
+	R_DrawAreaPortals();		RB_CheckForError();
+		
+//	R_AddPolysToBuffer();
+		
+//	R_DrawParticles();
+	
+#if 0
+	// update _currentRender image
+	r_img_currentrender->copyFromContext();
+#endif
+
+//	R_WritePbuffer();
+
+#if 0
+	GLimp_DeactivatePbuffer();
+	
+	xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	
+//	RB_Clear();
+#endif
+}
+
+void	R_BeginFrame()
 {
 	// change modes if necessary
 	if(vid_mode->isModified() || vid_fullscreen->isModified())
@@ -1021,15 +1074,10 @@ R_RenderView
 r_newrefdef must be set before the first call
 ================
 */
-static void 	R_RenderFrame(const r_refdef_t &fd)
+void 	R_RenderFrame(const r_refdef_t &fd)
 {
 	int	time_start = 0;
-	int	time_setup = 0;
-	int	time_create = 0;
-	int	time_commands = 0;
 	int	time_end = 0;
-
-	r_newrefdef = fd;
 
 	if(!r_world_tree && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
 		ri.Com_Error(ERR_DROP, "R_RenderFrame: NULL worldmodel");
@@ -1037,77 +1085,16 @@ static void 	R_RenderFrame(const r_refdef_t &fd)
 	if(r_speeds->getInteger())
 		time_start = ri.Sys_Milliseconds();
 		
-	r_current_scene = &r_world_scene;
-	
-	RB_CheckForError();
-	
-#if 0
-	GLimp_ActivatePbuffer();
-		
-	xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	
-//	RB_Clear();
-#endif
-			
 	RB_BeginBackendFrame();		RB_CheckForError();
-
-	R_SetupFrame();			RB_CheckForError();
 	
-	RB_SetupGL3D();			RB_CheckForError();
-	
-	if(r_speeds->getInteger())
-		time_setup = ri.Sys_Milliseconds();
-	
-	R_DrawWorld();			RB_CheckForError();
-	
-//	R_DrawSky();			RB_CheckForError();
-	
-	R_AddEntitiesToBuffer();
-	
-	if(r_speeds->getInteger())
-		time_create = ri.Sys_Milliseconds();
-	
-	RB_RenderCommands();
-	
-	if(r_speeds->getInteger())
-		time_commands = ri.Sys_Milliseconds();
+	r_mirror_view = false;
+	r_portal_view = false;
 		
-	R_DrawLightDebuggingInfo();	RB_CheckForError();
-	
-	R_DrawEntityDebuggingInfo();	RB_CheckForError();
-	
-	R_DrawContactDebuggingInfo();	RB_CheckForError();
-	
-	R_DrawAreaPortals();		RB_CheckForError();
-		
-//	R_AddPolysToBuffer();
-		
-//	R_DrawParticles();
-	
-#if 0
-	// update _currentRender image
-	r_img_currentrender->copyFromContext();
-#endif
-
-//	R_WritePbuffer();
-
-#if 0
-	GLimp_DeactivatePbuffer();
-	
-	xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	
-//	RB_Clear();
-#endif
+	R_RenderScene(fd, r_scene_main);
 	
 	RB_SetupGL2D();			RB_CheckForError();
-	
-//	R_DrawPbufferTest(r_newrefdef.x, r_newrefdef.y, r_newrefdef.width, r_newrefdef.height);
-	
-//	R_ShadowBlend();
 		
-	RB_EndBackendFrame();
-	
-	RB_CheckForError();
+	RB_EndBackendFrame();		RB_CheckForError();
 	
 	if(r_speeds->getInteger())
 		time_end = ri.Sys_Milliseconds();
@@ -1143,7 +1130,7 @@ static void 	R_RenderFrame(const r_refdef_t &fd)
 	}
 }
 
-static void	R_EndFrame()
+void	R_EndFrame()
 {
 	RB_CheckForError();
 
@@ -1236,6 +1223,11 @@ static void	R_EnvMap_f()
 	delete [] buffer;
 	
 	r_envmap = false;
+}
+
+static void	R_EnvMap2_f()
+{
+	r_img_currentenvironment->copyFromContext();
 }
 
 static void	R_BenchCalcTangentSpaces_f()
@@ -1402,6 +1394,7 @@ static void 	R_Register()
 	ri.Cmd_AddCommand("spirittest",		R_SpiritTest_f);
 	ri.Cmd_AddCommand("skinlist",		R_SkinList_f);
 	ri.Cmd_AddCommand("envmap",		R_EnvMap_f);
+	ri.Cmd_AddCommand("envmap2",		R_EnvMap2_f);
 	
 	ri.Cmd_AddCommand("benchcalctangentspaces",	R_BenchCalcTangentSpaces_f);
 }
@@ -1612,6 +1605,7 @@ void 	R_Shutdown()
 	ri.Cmd_RemoveCommand("spirittest");
 	ri.Cmd_RemoveCommand("skinlist");
 	ri.Cmd_RemoveCommand("envmap");
+	ri.Cmd_RemoveCommand("envmap2");
 
 	R_ShutdownTree();
 	

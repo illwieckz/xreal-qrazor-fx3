@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // qrazor-fx ----------------------------------------------------------------
 
 
-void 	IMG_LoadTGA(const std::string &filename, byte **pic, int *width, int *height);
+void 	IMG_LoadTGA(const std::string &filename, byte **pic, int *width, int *height, bool fill_alpha = true);
 void	IMG_LoadTGAGrey(const std::string &filename, byte**pic, int *width, int *height);
 void	IMG_WriteTGA(const std::string &filename, byte *pic, int width, int height, int bits);
 

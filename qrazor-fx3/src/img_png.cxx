@@ -42,7 +42,7 @@ static void	png_user_read_data(png_structp png_ptr, png_bytep data, png_size_t l
 	png_buffer_ofs += length;
 }
 
-void 	IMG_LoadPNG(const std::string &name, byte **pic, int *width, int *height)
+void 	IMG_LoadPNG(const std::string &name, byte **pic, int *width, int *height, bool fill_alpha)
 {
 	int	length;
 	int	png_width;
@@ -190,7 +190,7 @@ void 	IMG_LoadPNG(const std::string &name, byte **pic, int *width, int *height)
 			red = *buf_p++;
 			green = *buf_p++;
 			blue = *buf_p++;
-			alpha = 255;
+			alpha = fill_alpha ? 255 : 0;
 			
 			*pixbuf++ = red;
 			*pixbuf++ = green;

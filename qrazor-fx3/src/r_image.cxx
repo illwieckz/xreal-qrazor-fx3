@@ -142,9 +142,90 @@ void	r_image_c::copyFromContext() const
 	RB_SelectTexture(GL_TEXTURE0_ARB);
 	bind(true);
 	
-//	xglCopyTexImage2D(_target, 0, GL_RGBA, 0, 0, _width, _height, 0);
-	xglCopyTexSubImage2D(_target, 0, 0, 0, 0, 0, _width, _height);
-//	xglTexImage2D(_target, 0, GL_RGBA, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	switch(_target)
+	{
+		case GL_TEXTURE_2D:
+		{
+			//xglCopyTexImage2D(_target, 0, GL_RGBA, 0, 0, _width, _height, 0);
+			xglCopyTexSubImage2D(_target, 0, 0, 0, 0, 0, _width, _height);
+			//xglTexImage2D(_target, 0, GL_RGBA, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+			break;
+		}
+		
+		case GL_TEXTURE_CUBE_MAP_ARB:
+		{
+			r_envmap = true;
+			
+			r_refdef_t refdef = r_newrefdef;
+			
+			refdef.x = 0;
+			refdef.y = 0;
+			refdef.width = _width;
+			refdef.height = _height;
+	
+			refdef.setFOV(90);
+
+			refdef.view_angles.set(0, 0, 90);
+			refdef.flip_x = false;
+			refdef.flip_y = false;
+			refdef.flip_z = false;
+			R_BeginFrame();
+			R_RenderFrame(refdef);
+			//xglFinish();
+			xglCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB, 0, 0, 0, 0, 0, _width, _height);
+			
+			refdef.view_angles.set(0, 180, 90);
+			refdef.flip_x = false;
+			refdef.flip_y = true;
+			refdef.flip_z = true;
+			R_BeginFrame();
+			R_RenderFrame(refdef);
+			//xglFinish();
+			xglCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X_ARB, 0, 0, 0, 0, 0, _width, _height);
+	
+			refdef.view_angles.set(0, 90, 0);
+			refdef.flip_x = false;
+			refdef.flip_y = false;
+			refdef.flip_z = false;
+			R_BeginFrame();
+			R_RenderFrame(refdef);
+			//xglFinish();
+			xglCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y_ARB, 0, 0, 0, 0, 0, _width, _height);
+	
+			refdef.view_angles.set(0,-90, 0);
+			refdef.flip_x = false;
+			refdef.flip_y = true;
+			refdef.flip_z = true;
+			R_BeginFrame();
+			R_RenderFrame(refdef);
+			//xglFinish();
+			xglCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_ARB, 0, 0, 0, 0, 0, _width, _height);
+	
+			refdef.view_angles.set(-90, 90, 0);
+			refdef.flip_x = false;
+			refdef.flip_y = false;
+			refdef.flip_z = false;
+			R_BeginFrame();
+			R_RenderFrame(refdef);
+			//xglFinish();
+			xglCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z_ARB, 0, 0, 0, 0, 0, _width, _height);
+		
+			refdef.view_angles.set(90, 90, 0);
+			refdef.flip_x = false;
+			refdef.flip_y = true;
+			refdef.flip_z = true;
+			R_BeginFrame();
+			R_RenderFrame(refdef);
+			//xglFinish();
+			xglCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB, 0, 0, 0, 0, 0, _width, _height);
+	
+			r_envmap = false;
+			break;
+		}
+		
+		default:
+			break;
+	}
 }
 
 void	r_image_c::copyFromVideo() const
@@ -722,13 +803,8 @@ static void	R_InitCurrentRenderColorImage()
 	uint_t frame_buffer_width;
 	uint_t frame_buffer_height;
 
-#if 1
 	for(frame_buffer_width = 1; frame_buffer_width < vid.width; frame_buffer_width <<= 1);
 	for(frame_buffer_height = 1; frame_buffer_height < vid.height; frame_buffer_height <<= 1);
-#else
-	frame_buffer_width = vid.width;
-	frame_buffer_height = vid.height;
-#endif
 	
 	r_image_c *image = new r_image_c(GL_TEXTURE_2D, "_currentrender", frame_buffer_width, frame_buffer_height, IMAGE_NOMIPMAP, NULL);
 	
@@ -755,7 +831,7 @@ static void	R_InitCurrentRenderColorImage()
 
 void	R_InitCurrentRenderDepthImage()
 {
-	ri.Com_Printf("regenerating '_currentrender_depth' ...\n");
+	ri.Com_Printf("regenerating '_currentrenderdepth' ...\n");
 
 	uint_t frame_buffer_width;
 	uint_t frame_buffer_height;
@@ -763,9 +839,16 @@ void	R_InitCurrentRenderDepthImage()
 	for(frame_buffer_width = 1; frame_buffer_width < vid.width; frame_buffer_width <<= 1);
 	for(frame_buffer_height = 1; frame_buffer_height < vid.height; frame_buffer_height <<= 1);
 	
-	r_image_c *image = new r_image_c(GL_TEXTURE_2D, "_currentrender_depth", frame_buffer_width, frame_buffer_height, IMAGE_NOMIPMAP, NULL);
+	r_image_c *image = new r_image_c(GL_TEXTURE_2D, "_currentrenderdepth", frame_buffer_width, frame_buffer_height, IMAGE_NOMIPMAP, NULL);
 	
 	image->bind();
+	
+	GLint depth_bits;
+	xglGetIntegerv(GL_DEPTH_BITS, & depth_bits);
+	if(depth_bits == 16)
+		r_depth_format = GL_DEPTH_COMPONENT16_ARB;
+	else
+		r_depth_format = GL_DEPTH_COMPONENT24_ARB;
 	
 //	xglTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 
@@ -783,6 +866,29 @@ void	R_InitCurrentRenderDepthImage()
 //		xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic_level->getInteger());
 	
 	r_img_currentrender_depth = image;
+}
+
+static void	R_InitCurrentEnvironmentColorImage()
+{
+	ri.Com_Printf("regenerating '_currentenvironment' ...\n");
+	
+	r_image_c *image = new r_image_c(GL_TEXTURE_CUBE_MAP_ARB, "_currentenvironment", 256, 256, IMAGE_NOMIPMAP, NULL);
+	
+	image->bind();
+
+	xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_MIN_FILTER, r_filter_max);
+	xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_MAG_FILTER, r_filter_max);
+	
+	xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	for(int i=0; i<6; i++)
+	{
+		xglTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB+i, 0, GL_RGBA, image->getWidth(), image->getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	}
+	
+	r_img_currentenvironment = image;
 }
 
 void	R_InitImages()
@@ -826,6 +932,8 @@ void	R_InitImages()
 	
 	R_InitCurrentRenderColorImage();
 	R_InitCurrentRenderDepthImage();
+	
+	R_InitCurrentEnvironmentColorImage();
 }
 
 void	R_ShutdownImages()
@@ -1168,7 +1276,7 @@ static r_image_c*	R_UploadBumpMap(const std::string &name, byte *data, uint_t wi
 	uint_t		scaled_width;
 	uint_t		scaled_height;
 	
-	vec3_c 		scale(1, 1, 0.2f);
+	vec3_c 		scale(1, 1, 1.2f);
 	
 	int		format;
 	int		format_internal;
@@ -1732,6 +1840,7 @@ static r_image_c*	R_LoadImage(const std::string &name, void *data, uint_t width,
 	switch(upload_type)
 	{	
 		case IMAGE_UPLOAD_COLORMAP:
+		case IMAGE_UPLOAD_NORMALMAP:
 			return R_UploadColorMap(name, (uint_t*)data, width, height, flags);
 			
 		case IMAGE_UPLOAD_ALPHAMAP:
@@ -1815,6 +1924,36 @@ r_image_c*	R_FindImage(const std::string &name, uint_t flags, r_image_upload_typ
 	
 			name_new = name_short + ".jpg";
 			IMG_LoadJPG(name_new, &pic, &width, &height);
+			if(pic)
+			{
+				image = R_LoadImage(name_short, pic, width, height, flags, upload_type);
+				goto r_find_image_done;
+			}
+		
+			ri.Com_Printf("R_FindImage: couldn't find rgba image '%s'\n", name_short.c_str());
+			break;
+		}
+		
+		case IMAGE_UPLOAD_NORMALMAP:
+		{
+			name_new = name_short + ".tga";
+			IMG_LoadTGA(name_new, &pic, &width, &height, false);
+			if(pic)
+			{
+				image = R_LoadImage(name_short, pic, width, height, flags, upload_type);
+				goto r_find_image_done;
+			}
+			
+			name_new = name_short + ".png";
+			IMG_LoadPNG(name_new, &pic, &width, &height, false);
+			if(pic)
+			{
+				image = R_LoadImage(name_short, pic, width, height, flags, upload_type);
+				goto r_find_image_done;
+			}
+	
+			name_new = name_short + ".jpg";
+			IMG_LoadJPG(name_new, &pic, &width, &height, false);
 			if(pic)
 			{
 				image = R_LoadImage(name_short, pic, width, height, flags, upload_type);
@@ -1968,6 +2107,8 @@ void	R_FreeUnusedImages()
 	
 	r_img_currentrender->setRegistrationSequence();
 	r_img_currentrender_depth->setRegistrationSequence();
+	
+	r_img_currentenvironment->setRegistrationSequence();
 	
 	for(std::vector<r_image_c*>::iterator ir = r_images.begin(); ir != r_images.end(); ir++)
 	{

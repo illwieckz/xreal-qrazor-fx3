@@ -1354,7 +1354,7 @@ void	r_bsptree_c::drawNode_r(r_tree_elem_c *elem, int clipflags)
 			
 			try
 			{
-				RB_AddCommand(&r_world_entity, _models.at(0), surf->getMesh(), surf->getShader(), NULL, NULL, surf->getLightMapNum(), 0);
+				RB_AddCommand(&r_world_entity, _models.at(0), surf->getMesh(), surf->getShader(), NULL, NULL, surf->getLightMapNum(), X_infinity);
 			}
 			catch(...)
 			{

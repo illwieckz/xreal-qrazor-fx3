@@ -69,6 +69,7 @@ void	RB_InitBackend()
 {
 	ri.Com_Printf("------- RB_InitBackend -------\n");
 	
+//	xglClearColor(0.0, 0.0, 0.0, 1.0);	RB_CheckForError();
 	xglClearColor(0.3, 0.3, 0.3, 1.0);	RB_CheckForError();
 	xglColor4fv(color_white);	RB_CheckForError();
 	
@@ -102,14 +103,19 @@ void	RB_InitBackend()
 	gl_state.current_vbo_array_buffer	= 0;
 	gl_state.current_vbo_vertexes_ofs	= 0;
 	
-	r_world_scene.cmds_num			= 0;
-	r_world_scene.cmds			= std::vector<r_command_t>(r_cmds_max->getInteger());
+	r_scene_main.cmds_num			= 0;
+	r_scene_main.cmds			= std::vector<r_command_t>(r_cmds_max->getInteger());
+	r_scene_main.cmds_light_num		= 0;
+	r_scene_main.cmds_light			= std::vector<r_command_t>(r_cmds_light_max->getInteger());
+	r_scene_main.cmds_translucent_num	= 0;
+	r_scene_main.cmds_translucent		= std::vector<r_command_t>(r_cmds_translucent_max->getInteger());
 	
-	r_world_scene.cmds_light_num		= 0;
-	r_world_scene.cmds_light		= std::vector<r_command_t>(r_cmds_light_max->getInteger());
-	
-	r_world_scene.cmds_translucent_num	= 0;
-	r_world_scene.cmds_translucent		= std::vector<r_command_t>(r_cmds_translucent_max->getInteger());
+	r_scene_portal.cmds_num			= 0;
+	r_scene_portal.cmds			= std::vector<r_command_t>(r_cmds_max->getInteger());
+	r_scene_portal.cmds_light_num		= 0;
+	r_scene_portal.cmds_light		= std::vector<r_command_t>(r_cmds_light_max->getInteger());
+	r_scene_portal.cmds_translucent_num	= 0;
+	r_scene_portal.cmds_translucent		= std::vector<r_command_t>(r_cmds_translucent_max->getInteger());
 	
 	RB_CheckOpenGLExtensions();
 	
@@ -499,26 +505,23 @@ void	RB_SetupGL3D()
 	
 	RB_SetupFrustum();
 	
-	/*
-	if(r_portal_view || r_mirrorview)
+	if(r_portal_view || r_mirror_view)
 	{
 		GLdouble clip[4];
 
 		clip[0] = r_clipplane._normal[0];
 		clip[1] = r_clipplane._normal[1];
 		clip[2] = r_clipplane._normal[2];
-		clip[3] = -r_clipplane._dist;
+		clip[3] =-r_clipplane._dist;
 
 		xglClipPlane(GL_CLIP_PLANE0, clip);
 		xglEnable(GL_CLIP_PLANE0);
 	}
-	*/
-	
 
 	xglEnable(GL_SCISSOR_TEST);
 	xglScissor(rb_vrect_viewport.x, rb_vrect_viewport.y, rb_vrect_viewport.width, rb_vrect_viewport.height);
 		
-	if(r_newrefdef.flip_y || r_newrefdef.flip_z)
+	if(r_newrefdef.flip_y ^ r_newrefdef.flip_z)
 		xglFrontFace(GL_CW);
 	else
 		xglFrontFace(GL_CCW);
@@ -1519,6 +1522,14 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 						break;
 					}
 					
+					case SHADER_MATERIAL_STAGE_TYPE_SKYBOXMAP:
+					{
+						RB_EnableShader_skybox();
+						RB_RenderCommand_skybox(cmd, stage);
+						RB_DisableShader_skybox();
+						break;
+					}
+					
 					default:
 						break;
 				}
@@ -1567,18 +1578,18 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 					
 				RB_RenderCommand_zfill(cmd, entity_shader->stage_diffusemap);
 			}
-		
-			/*
-			for(std::vector<r_shader_stage_c*>::const_iterator ir = entity_shader->stages.begin(); ir != entity_shader->stages.end(); ++ir)
+			else if(entity_shader->hasFlags(SHADER_FORCEOPAQUE))
 			{
-				const r_shader_stage_c* stage = *ir;
-			
-				if((stage->flags != SHADER_MATERIAL_STAGE_TYPE_DIFFUSEMAP) && (stage->flags & SHADER_STAGE_ALPHATEST))
+				for(std::vector<r_shader_stage_c*>::const_iterator ir = entity_shader->stages.begin(); ir != entity_shader->stages.end(); ++ir)
 				{
+					const r_shader_stage_c* stage = *ir;
+					
+					if(!RB_Evaluate(cmd->getEntity()->getShared(), stage->condition, 1))
+						continue;
+			
 					RB_RenderCommand_zfill(cmd, stage);
 				}
 			}
-			*/
 			
 			break;
 		}
@@ -1932,6 +1943,9 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 					{
 						// update _currentRender texture
 						r_img_currentrender->copyFromContext();
+						
+						// update _currentRenderDepth texture
+						r_img_currentrender_depth->copyFromContext();
 					
 						RB_EnableShader_heathaze();
 						RB_RenderCommand_heathaze(cmd, stage);
@@ -1970,10 +1984,10 @@ int	RB_SortByCommandDistanceFunc(void const *a, void const *b)
 	vec_t dist_b = cmd_b->getDistance();
 	
 	if(dist_a < dist_b)
-		return 1;
+		return -1;
 	
 	else if(dist_a > dist_b)
-		return -1;
+		return 1;
 		
 	else
 		return 0;
@@ -2081,6 +2095,13 @@ void	RB_RenderCommands()
 	RB_CheckForError();
 	
 	//
+	// FIXME
+	//
+	//r_img_currentenvironment->copyFromContext();
+	
+	
+	
+	//
 	// sort commands
 	//
 	qsort(&r_current_scene->cmds[0], r_current_scene->cmds_num, sizeof(r_command_t), RB_SortByCommandDistanceFunc);
@@ -2138,19 +2159,21 @@ void	RB_RenderCommands()
 	
 	
 	//
+	// disable writing into zbuffer
+	// 
+	xglDepthMask(GL_FALSE);
+	
+	
+	//
 	// draw sky stages, skybox and cloud layer stages
 	//
+	/*
 	if(r_drawsky->getInteger())
 	{
 		for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 			cmd->getEntityModel()->draw(cmd, RENDER_TYPE_SKY);
 	}
-	
-	
-	//
-	// disable writing into zbuffer
-	// 
-	xglDepthMask(GL_FALSE);
+	*/
 	
 	
 	//
@@ -2892,7 +2915,7 @@ void	RB_RenderCommands()
 	// draw extra stages
 	//
 	if(r_drawextra->getInteger())
-	{
+	{	
 		for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 			cmd->getEntityModel()->draw(cmd, RENDER_TYPE_DEFAULT);
 	}

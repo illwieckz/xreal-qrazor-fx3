@@ -103,7 +103,7 @@ static void	jpeg_mem_dest (struct jpeg_compress_struct *cinfo, byte *mem, int le
 #endif
 
 
-void 	IMG_LoadJPG(const std::string &name, byte **pic, int *width, int *height)
+void 	IMG_LoadJPG(const std::string &name, byte **pic, int *width, int *height, bool fill_alpha = true)
 {
 	byte	*buffer;
 	int		length;
@@ -184,7 +184,7 @@ void 	IMG_LoadJPG(const std::string &name, byte **pic, int *width, int *height)
 				jpeg_rgba[0] = b;
 				jpeg_rgba[1] = b;
 				jpeg_rgba[2] = b;
-				jpeg_rgba[3] = 255;
+				jpeg_rgba[3] = fill_alpha ? 255 : 0;
 			}
 		}
 	}
@@ -202,7 +202,7 @@ void 	IMG_LoadJPG(const std::string &name, byte **pic, int *width, int *height)
 				jpeg_rgba[0] = out[0];
 				jpeg_rgba[1] = out[1];
 				jpeg_rgba[2] = out[2];
-				jpeg_rgba[3] = 255;
+				jpeg_rgba[3] = fill_alpha ? 255 : 0;
 			}
 		}
 	}

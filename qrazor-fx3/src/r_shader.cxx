@@ -180,6 +180,8 @@ r_shader_stage_c::r_shader_stage_c()
 
 	make_intensity		= false;
 	make_alpha		= false;
+	heightmap		= false;
+	heightmap_scale		= 0.0;
 	
 	image_name		= "";
 	image			= NULL;
@@ -1455,15 +1457,30 @@ static void	R_FindMaterialShaderStageImage(r_shader_c *shader, r_shader_stage_c 
 			if(stage->image_name.length())
 			{
 				imageflags = IMAGE_NORMALMAP;
-			
+				
 				R_SetShaderStageImageFlags(stage, imageflags);
-	
-				image = R_FindImage(stage->image_name, imageflags, IMAGE_UPLOAD_COLORMAP);
-		
-				if(!image)
+				
+				/*
+				if(stage->heightmap)
 				{
-					ri.Com_Printf("R_FindMaterialShaderStageImage: shader '%s' has no normalmap '%s'\n", shader->getName(), stage->image_name.c_str());
-					image = r_img_flat;
+					image = R_FindImage(stage->image_name, imageflags, IMAGE_UPLOAD_BUMPMAP);
+		
+					if(!image)
+					{
+						ri.Com_Printf("R_FindMaterialShaderStageImage: shader '%s' has no bumpmap '%s'\n", shader->getName(), stage->image_name.c_str());
+						image = r_img_flat;
+					}
+				}
+				else
+				*/
+				{
+					image = R_FindImage(stage->image_name, imageflags, IMAGE_UPLOAD_NORMALMAP);
+					
+					if(!image)
+					{
+						ri.Com_Printf("R_FindMaterialShaderStageImage: shader '%s' has no normalmap '%s'\n", shader->getName(), stage->image_name.c_str());
+						image = r_img_flat;
+					}
 				}
 			
 				stage->image = image;
@@ -1673,12 +1690,27 @@ static void	R_FindMaterialShaderStageImage(r_shader_c *shader, r_shader_stage_c 
 			
 				R_SetShaderStageImageFlags(stage, imageflags);
 	
-				image = R_FindImage(stage->image_name, imageflags, IMAGE_UPLOAD_COLORMAP);
-		
-				if(!image)
+				/*
+				if(stage->heightmap)
 				{
-					ri.Com_Printf("R_FindMaterialShaderStageImage: shader '%s' has no heathazemap '%s'\n", shader->getName(), stage->image_name.c_str());
-					image = r_img_flat;
+					image = R_FindImage(stage->image_name, imageflags, IMAGE_UPLOAD_BUMPMAP);
+		
+					if(!image)
+					{
+						ri.Com_Printf("R_FindMaterialShaderStageImage: shader '%s' has no heathazemap '%s'\n", shader->getName(), stage->image_name.c_str());
+						image = r_img_flat;
+					}
+				}
+				else
+				*/
+				{
+					image = R_FindImage(stage->image_name, imageflags, IMAGE_UPLOAD_NORMALMAP);
+					
+					if(!image)
+					{
+						ri.Com_Printf("R_FindMaterialShaderStageImage: shader '%s' has no heathazemap '%s'\n", shader->getName(), stage->image_name.c_str());
+						image = r_img_flat;
+					}
 				}
 			
 				stage->image = image;
