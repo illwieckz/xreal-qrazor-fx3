@@ -12,12 +12,12 @@ textures/glass/outdoor_glass1
 	
 	{
 		stage		heathazemap
-//		map		textures/sfx/vp1.tga
-//		deformMagnitude	.5
+		map		textures/sfx/vp1.tga
+		deformMagnitude	0.1
 		 
-		map		textures/z13d3dm2/liquid12_norm.tga
-		scroll		time * 0.05 , time * 0.05
-		deformMagnitude	1
+//		map		textures/z13d3dm2/liquid12_norm.tga
+//		scroll		time * 0.05 , time * 0.05
+//		deformMagnitude	1
 	}
 	{	
 		maskcolor
@@ -274,7 +274,7 @@ textures/glass/glass1
 	{
 		stage		heathazemap
 		map		textures/sfx/vp1.tga
-		deformMagnitude	.5
+		deformMagnitude	.1
 	}
 	{	
 		maskcolor
@@ -340,7 +340,7 @@ textures/glass/glass2
 		map		textures/sfx/vp1.tga
 //		map		textures/q2_base/q2_flr1_1_local.tga
 //		scale		0.5 , 0.5
-		deformMagnitude	0.4
+		deformMagnitude	0.07
 	}
 	{
 		maskcolor
