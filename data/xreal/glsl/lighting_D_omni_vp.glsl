@@ -26,7 +26,7 @@ varying vec3		var_vertex;
 varying vec3		var_normal;
 varying vec2		var_tex_diffuse;
 varying vec3		var_tex_atten_xy_z;
-//varying vec3		var_tex_atten_cube;
+varying vec3		var_tex_atten_cube;
 
 void	main()
 {
@@ -46,5 +46,5 @@ void	main()
 	var_tex_atten_xy_z = (gl_TextureMatrix[1] * gl_Vertex).xyz;
 	
 	// calc light cube attenuation in light space
-//	var_tex_atten_cube = (gl_TextureMatrix[3] * gl_Vertex).xyz;
+	var_tex_atten_cube = (gl_TextureMatrix[3] * gl_Vertex).xyz;
 }
