@@ -155,7 +155,29 @@ void	S_InitOpenAL()
 
 	int attrlist[] = { ALC_FREQUENCY, 44100, 0 };
 
+#ifdef __linux__
+	if(X_strcaseequal(s_backend->getString(), "alsa"))
+	{
+		Com_Printf("trying to open ALSA device ...\n");
+		
+		s_dev = alcOpenDevice((const ALubyte*)"'( ( devices '( alsa ) ) )");
+	}
+	else if(X_strcaseequal(s_backend->getString(), "arts"))
+	{
+		Com_Printf("trying to open ARTS device ...\n");
+		
+		s_dev = alcOpenDevice((const ALubyte*)"'( ( devices '( arts ) ) )");
+	}
+	else
+	{
+		Com_Printf("trying to open OSS device ...\n");
+		
+		s_dev = alcOpenDevice((const ALubyte*)"'( ( devices '( native ) ) )");
+	}
+	
+#elif _WIN32
 	s_dev = alcOpenDevice(NULL);
+#endif
 	if(s_dev == NULL)
 	{
 		Com_Error(ERR_FATAL, "S_InitOpenAL: alcOpenDevice failed");
@@ -249,7 +271,7 @@ static s_buffer_c*	S_LoadOGG(const std::string &name)
 		return NULL;
 	
 
-	size = VFS_FLoad(name, (void **)&data);
+	size = VFS_FLoad(name, (void **)&data) -1;
 	if(!data)
 	{
 		return NULL;
@@ -282,7 +304,7 @@ static s_buffer_c*	S_LoadMP3(const std::string &name)
 		return NULL;
 	
 
-	size = VFS_FLoad(name, (void**)&data);
+	size = VFS_FLoad(name, (void**)&data) -1;
 	if(!data)
 	{
 		return NULL;

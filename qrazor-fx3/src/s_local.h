@@ -230,6 +230,8 @@ extern cvar_t	*s_khz;
 extern cvar_t	*s_show;
 extern cvar_t	*s_testsound;
 
+extern cvar_t	*s_backend;
+
 extern cvar_t	*s_loki_attenuation_scale;
 extern cvar_t	*s_ext_vorbis;
 extern cvar_t	*s_ext_mp3;
