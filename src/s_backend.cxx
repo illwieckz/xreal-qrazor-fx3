@@ -572,13 +572,15 @@ void	S_StartLocalSound(const std::string &name)
 }
 
 
-void	S_StartLoopSound(const vec3_c &origin, const vec3_c &velocity, int ent_num, int ent_channel, int sound)
+void	S_StartLoopSound(const vec3_c &origin, const vec3_c &velocity, int entity_num, int entity_channel, int sound)
 {
 	if(!s_initialized)
 		return;
 
 	if(sound == -1)
 		return;
+		
+//	Com_DPrintf("S_StartLoopSound: entity %i", entity_num);
 
 	s_shader_c *shader = S_GetShaderByNum(sound);
 	if(!shader)
@@ -594,11 +596,11 @@ void	S_StartLoopSound(const vec3_c &origin, const vec3_c &velocity, int ent_num,
 		if(!source)
 			continue;
 	
-		if(source->getEntityNum() == ent_num)
+		if(source->getEntityNum() == entity_num)
 			return;
 	}
 	
-	shader->createSource(origin, velocity, ent_num, ent_channel, true);
+	shader->createSource(origin, vec3_origin, entity_num, entity_channel, true);
 }
 
 void	S_UpdateLoopSound(const vec3_c &origin, const vec3_c &velocity, int entity_num, int entity_channel, int sound)
@@ -628,7 +630,7 @@ void	S_UpdateLoopSound(const vec3_c &origin, const vec3_c &velocity, int entity_
 		return;
 	}
 	
-	shader->createSource(origin, velocity, entity_num, entity_channel, true);
+	shader->createSource(origin, vec3_origin, entity_num, entity_channel, true);
 	
 //	Com_DPrintf("S_UpdateLoopSound: couldn't find sound source with entity %i\n", entity_num);
 }
@@ -642,15 +644,15 @@ void	S_StopLoopSound(int entity_num)
 		if(!source)
 			continue;
 	
-		if(source->getEntityNum() == entity_num)
+		if(source->getEntityNum() == entity_num && source->isLoopSound())
 		{
 			delete source;
 			*ir = NULL;
-			return;
+			//return;
 		}
 	}
 	
-	Com_DPrintf("S_StopLoopSound: couldn't find sound source with entity %i\n", entity_num);
+//	Com_DPrintf("S_StopLoopSound: couldn't find sound source with entity %i\n", entity_num);
 }
 
 /*
