@@ -54,49 +54,84 @@ public:
 	vec3_t			p[4];		// variable sized
 };
 
-class side_t
+class map_shader_c
 {
 public:
-	int			planenum;
-	int			texinfo;
-	winding_t*		winding;
-	side_t*			original;		// bspbrush_t sides will reference the mapbrush_t sides
-	
-	int			contents;		// from miptex
-	int			surf;			// from miptex
-	
-	bool			visible;		// choose visble planes first
-	bool			tested;			// this plane allready checked as a split
-	bool			bevel;			// don't ever use for bsp splitting
+	//TODO
 };
 
-class mapbrush_t
+class map_brush_side_c
 {
 public:
-	int			entitynum;
-	int			brushnum;
+	void			setPlaneNum(int value)		{_plane_num = value;}
+	int			getPlaneNum(int value) const 	{return _plane_num;}
 
-	int			contents;
+private:
+	int			_plane_num;
+	matrix_c		_tex_mat;
 	
-	vec3_t			mins, maxs;
+	winding_t*		_winding;
+//	side_t*			_original;		// bspbrush_t sides will reference the mapbrush_t sides
+	
+	map_shader_c*		_shader;
+	
+	bool			_visible;		// choose visble planes first
+	bool			_tested;		// this plane allready checked as a split
+	bool			_bevel;			// don't ever use for bsp splitting
+	bool			_culled;
+};
 
-	int			sides_num;
-	side_t*			sides;
+class map_brush_c
+{
+public:
+	//TODO
+	const aabb_c&		getAABB() const	{return _aabb;}
+private:
+	vec3_c			_plane_pts[3];
+	cplane_c		_plane_equation;
+	
+	int			_entity_num;
+	int			_brush_num;
+
+	int			_contents;
+	
+	aabb_c			_aabb;
+
+	std::vector<map_brush_side_c*>	_sides;
+};
+
+class map_patch_c
+{
+public:
+	//TODO
 };
 
 
-class entity_t
+class map_entity_c
 {
+	friend void	UnparseEntities();
 public:
-	vec3_c					origin;
+	const std::vector<map_brush_c*>&	getBrushes() const	{return _brushes;}
+
+	void 		setKeyValue(const std::string &key, const std::string &value);
+	// will return "" if not present
+	const char*	getValueForKey(const std::string &key) const;
+	vec_t		getFloatForKey(const std::string &key) const;
+	void 		getVector3ForKey(const std::string &key, vec3_c &v) const;
 	
-	std::vector<mapbrush_t*>		brushes;
+	void		toString() const;
+
+private:
+	vec3_c					_origin;
 	
-	std::map<std::string, std::string>	epairs;
+	std::vector<map_brush_c*>		_brushes;
+	std::vector<map_patch_c*>		_patches;
+	
+	std::map<std::string, std::string>	_epairs;
 
 	// only valid for func_areaportals
-	int					areaportalnum;
-	int					portalareas[2];
+	int					_areaportalnum;
+	int					_portalareas[2];
 };
 
 
@@ -135,9 +170,10 @@ public:
 	
 	vec3_t			mins, maxs;
 	int			side, testside;		// side of node during construction
-	mapbrush_t*		original;
+	map_brush_c*		original;
+	
 	int			sides_num;
-	side_t			sides[6];			// variably sized
+	map_brush_side_c	sides[6];			// variably sized
 };
 
 
@@ -154,7 +190,7 @@ public:
 
 	// nodes only
 	bool			detail_seperator;	// a detail brush caused the split
-	side_t*			side;			// the side that created the node
+	map_brush_side_c*	side;			// the side that created the node
 	node_t*			children[2];
 	face_t*			faces;
 
@@ -162,7 +198,7 @@ public:
 	bspbrush_t*		brushlist;	// fragments of all brushes in this leaf
 	int			contents;	// OR of all brush contents
 	int			occupied;	// 1 or greater can reach entity
-	entity_t*		occupant;	// for leak file testing
+	map_entity_c*		occupant;	// for leak file testing
 	int			cluster;	// for portalfile writing
 	int			area;		// for areaportals
 	portal_t*		portals;	// also on nodes during construction
@@ -178,7 +214,7 @@ public:
 	winding_t*		winding;
 
 	bool			sidefound;		// false if ->side hasn't been checked
-	side_t*			side;			// NULL = non-visible
+	map_brush_side_c*	side;			// NULL = non-visible
 	face_t*			face[2];		// output face in bsp file
 };
 
@@ -245,19 +281,10 @@ void		PrintBSPFileSizes();
 //
 // map_entity.cxx
 //
-extern std::vector<entity_t>	entities;
+extern std::vector<map_entity_c>	entities;
 
-void		ParseEntities();
+//void		ParseEntities();
 void		UnparseEntities();
-
-void 		SetKeyValue(entity_t &ent, const std::string &key, const std::string &value);
-const char*	ValueForKey(entity_t &ent, const std::string &key);
-// will return "" if not present
-
-vec_t		GetFloatForKey(entity_t &ent, const std::string &key);
-void 		GetVector3ForKey(entity_t &ent, const std::string &key, vec3_c &v);
-
-void		PrintEntity(entity_t &ent);
 
 
 //

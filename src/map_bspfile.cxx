@@ -284,6 +284,7 @@ static void	SwapBSPFile()
 		{
 			(*ir).position[j] = LittleFloat((*ir).position[j]);
 			(*ir).normal[j] = LittleFloat((*ir).normal[j]);
+			(*ir).light[j] = LittleFloat((*ir).light[j]);
 		}
 	}
 	

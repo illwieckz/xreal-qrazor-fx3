@@ -33,8 +33,80 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // xreal --------------------------------------------------------------------
 
 
-std::vector<entity_t>	entities;
 
+
+
+void	map_entity_c::setKeyValue(const std::string &key, const std::string &value)
+{
+	std::map<std::string, std::string>::iterator ir = _epairs.find(key);
+			
+	if(ir != _epairs.end())
+	{
+		ir->second = value;
+	}
+	else
+	{
+		_epairs.insert(make_pair(key, value));
+	}
+}
+
+const char*	map_entity_c::getValueForKey(const std::string &key) const
+{
+	std::map<std::string, std::string>::const_iterator ir = _epairs.find(key);
+			
+	if(ir != _epairs.end())
+	{
+		return ir->second.c_str();
+	}
+	else
+	{
+		return "";
+	}
+}
+
+vec_t	map_entity_c::getFloatForKey(const std::string &key) const
+{
+	const char *k = getValueForKey(key);
+	return atof(k);
+}
+
+void 	map_entity_c::getVector3ForKey(const std::string &key, vec3_c &v) const
+{
+	const char *k;
+	double	v1, v2, v3;
+
+	k = getValueForKey(key);
+	
+	// scanf into doubles, then assign, so it is vec_t size independent
+	v1 = v2 = v3 = 0;
+	
+	sscanf(k, "%lf %lf %lf", &v1, &v2, &v3);
+	
+	v[0] = v1;
+	v[1] = v2;
+	v[2] = v3;
+}
+
+
+void	map_entity_c::toString() const
+{
+	Com_Printf("------- entity -------\n");
+	
+	Com_Printf("%i brushes\n", _brushes.size());
+	
+	Com_Printf("%i patches\n", _patches.size());
+	
+	Com_Printf("%i epairs ...\n", _epairs.size());
+	for(std::map<std::string, std::string>::const_iterator ir = _epairs.begin(); ir != _epairs.end(); ++ir)
+	{
+		Com_Printf("'%s' = '%s'\n", ir->first.c_str(), ir->second.c_str());
+	}
+}
+
+
+std::vector<map_entity_c>	entities;
+
+/*
 void	StripTrailing(char *e)
 {
 	char	*s;
@@ -46,6 +118,7 @@ void	StripTrailing(char *e)
 		s--;
 	}
 }
+*/
 
 /*
 std::pair<std::string, std::string>	ParseEpair(char **data_p)
@@ -75,7 +148,7 @@ std::pair<std::string, std::string>	ParseEpair(char **data_p)
 */
 
 
-
+/*
 bool	ParseEntity(char **data_p)
 {
 	entity_t	mapent;
@@ -126,6 +199,7 @@ bool	ParseEntity(char **data_p)
 	
 	return true;
 }
+*/
 
 /*
 ================
@@ -134,6 +208,7 @@ ParseEntities
 Parses the dentdata string into entities
 ================
 */
+/*
 void	ParseEntities()
 {
 	entities.clear();
@@ -152,7 +227,7 @@ void	ParseEntities()
 	{
 	}
 }
-
+*/
 
 /*
 ================
@@ -165,11 +240,11 @@ void	UnparseEntities()
 {
 	std::string	entitystring;
 
-	for(std::vector<entity_t>::const_iterator eir = entities.begin(); eir != entities.end(); eir++)
+	for(std::vector<map_entity_c>::const_iterator eir = entities.begin(); eir != entities.end(); ++eir)
 	{
 		entitystring += "{\n";
 				
-		for(std::map<std::string, std::string>::const_iterator ir = (*eir).epairs.begin(); ir != (*eir).epairs.end(); ir++)
+		for(std::map<std::string, std::string>::const_iterator ir = (*eir)._epairs.begin(); ir != (*eir)._epairs.end(); ++ir)
 		{
 			entitystring += '\"';
 			entitystring += ir->first;	// key
@@ -188,75 +263,13 @@ void	UnparseEntities()
 		entitystring += "}\n";
 	}
 	
-	for(std::string::iterator ir = entitystring.begin(); ir != entitystring.end(); ir++)
+	for(std::string::iterator ir = entitystring.begin(); ir != entitystring.end(); ++ir)
 	{
 		dentdata.push_back(*ir);
 	}
 }
 
-void	PrintEntity(entity_t &ent)
-{
-	Com_Printf("------- entity -------\n");
-	
-	for(std::map<std::string, std::string>::const_iterator ir = ent.epairs.begin(); ir != ent.epairs.end(); ir++)
-	{
-		Com_Printf("%s = %s\n", ir->first.c_str(), ir->second.c_str());
-	}
 
-}
-
-void 	SetKeyValue(entity_t &ent, const std::string &key, const std::string &value)
-{
-	std::map<std::string, std::string>::iterator ir = ent.epairs.find(key);
-			
-	if(ir != ent.epairs.end())
-	{
-		ir->second = value;
-	}
-	else
-	{
-		ent.epairs.insert(make_pair(key, value));
-	}
-}
-
-const char*	ValueForKey(entity_t &ent, const std::string &key)
-{
-	std::map<std::string, std::string>::iterator ir = ent.epairs.find(key);
-			
-	if(ir != ent.epairs.end())
-	{
-		return ir->second.c_str();
-	}
-	else
-	{
-		return "";
-	}
-}
-
-vec_t	FloatForKey(entity_t &ent, const std::string &key)
-{
-	const char	*k;
-	
-	k = ValueForKey(ent, key);
-	return atof(k);
-}
-
-void 	GetVector3ForKey(entity_t &ent, const std::string &key, vec3_c &v)
-{
-	const char	*k;
-	double	v1, v2, v3;
-
-	k = ValueForKey(ent, key);
-	
-	// scanf into doubles, then assign, so it is vec_t size independent
-	v1 = v2 = v3 = 0;
-	
-	sscanf(k, "%lf %lf %lf", &v1, &v2, &v3);
-	
-	v[0] = v1;
-	v[1] = v2;
-	v[2] = v3;
-}
 
 
 
