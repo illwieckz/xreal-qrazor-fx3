@@ -45,7 +45,7 @@ void	cmodel_lwo_c::load()
 	ID4		id;
 	
 	matrix_c		transform;
-	cbbox_c			bbox;
+	aabb_c			bbox;
 	
 	_readcount = 0;
 	
@@ -315,12 +315,12 @@ void	cmodel_lwo_c::readPnts(uint_t nbytes)
 
 void	cmodel_lwo_c::readBbox(uint_t nbytes)
 {
-	readVEC12(_bbox._mins);
-	readVEC12(_bbox._maxs);
+	readVEC12(_aabb._mins);
+	readVEC12(_aabb._maxs);
 	
 	Com_DPrintf("BBOX [%d]\n", nbytes);
-	Com_DPrintf("\tMIN [%f,%f,%f]\n", _bbox._mins[0], _bbox._mins[1], _bbox._mins[2]);
-	Com_DPrintf("\tMAX [%f,%f,%f]\n", _bbox._maxs[0], _bbox._maxs[1], _bbox._maxs[2]);
+	Com_DPrintf("\tMIN [%f,%f,%f]\n", _aabb._mins[0], _aabb._mins[1], _aabb._mins[2]);
+	Com_DPrintf("\tMAX [%f,%f,%f]\n", _aabb._maxs[0], _aabb._maxs[1], _aabb._maxs[2]);
 }
 
 void	cmodel_lwo_c::readPols(uint_t nbytes)

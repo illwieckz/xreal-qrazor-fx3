@@ -2371,7 +2371,7 @@ int	dPointInLeaf(dxBSP *bsp, const vec3_c &p, int nodenum)
 	return dPointInLeaf(bsp, p, nodenum);
 }
 
-void	dBoxLeafnums(dxBSP *bsp, const cbbox_c &aabb, std::deque<int> &leafs, int nodenum)
+void	dBoxLeafnums(dxBSP *bsp, const aabb_c &aabb, std::deque<int> &leafs, int nodenum)
 {
 	dIASSERT(bsp->type == dBSPClass);
 #if 1
@@ -2799,7 +2799,7 @@ static int	dCollideBSPGeom(dxGeom *o1, dxGeom *o2, int flags, std::vector<dConta
 	
 	dxBSP *bsp = (dxBSP*)o1;
 	
-	cbbox_c aabb;
+	aabb_c aabb;
 	aabb._mins[0] = o2->aabb[0] - 1.0f;
 	aabb._maxs[0] = o2->aabb[1] + 1.0f;
 	aabb._mins[1] = o2->aabb[2] - 1.0f;

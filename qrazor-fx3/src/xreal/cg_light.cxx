@@ -138,12 +138,12 @@ void	CG_AddLights()
 		rlight.origin	= clight->origin;
 		rlight.color	= clight->color;
 		
-		//rlight.radius_bbox	= clight->radius_bbox;
+		//rlight.radius_aabb	= clight->radius_aabb;
 		//rlight.radius_value	= clight->radius_value;
-		rlight.radius_bbox._maxs = clight->origin + clight->radius;
-		rlight.radius_bbox._mins = clight->origin - clight->radius;
-		//rlight.radius_bbox._mins.negate();
-		rlight.radius_value = rlight.radius_bbox.radius();
+		rlight.radius_aabb._maxs = clight->origin + clight->radius;
+		rlight.radius_aabb._mins = clight->origin - clight->radius;
+		//rlight.radius_aabb._mins.negate();
+		rlight.radius_value = rlight.radius_aabb.radius();
 		
 		rlight.dir		= clight->dir;
 		rlight.cone_inner	= clight->cone_inner;
@@ -239,7 +239,7 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 			
 			rent.radius = cent->current.vectors[0];
 			
-			rent.radius_bbox.clear();
+			rent.radius_aabb.clear();
 			
 			// compute bbox vertices in light space
 			vec3_c vert0( cent->current.vectors[0][0], -cent->current.vectors[0][1], -cent->current.vectors[0][2]);
@@ -263,16 +263,16 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 			vert7.rotate(cent->current.quat);
 			
 			// transform vertices into world space and add them to the light world aabb
-			rent.radius_bbox.addPoint(cent->current.origin + vert0);
-			rent.radius_bbox.addPoint(cent->current.origin + vert1);
-			rent.radius_bbox.addPoint(cent->current.origin + vert2);
-			rent.radius_bbox.addPoint(cent->current.origin + vert3);
-			rent.radius_bbox.addPoint(cent->current.origin + vert4);
-			rent.radius_bbox.addPoint(cent->current.origin + vert5);
-			rent.radius_bbox.addPoint(cent->current.origin + vert6);
-			rent.radius_bbox.addPoint(cent->current.origin + vert7);
+			rent.radius_aabb.addPoint(cent->current.origin + vert0);
+			rent.radius_aabb.addPoint(cent->current.origin + vert1);
+			rent.radius_aabb.addPoint(cent->current.origin + vert2);
+			rent.radius_aabb.addPoint(cent->current.origin + vert3);
+			rent.radius_aabb.addPoint(cent->current.origin + vert4);
+			rent.radius_aabb.addPoint(cent->current.origin + vert5);
+			rent.radius_aabb.addPoint(cent->current.origin + vert6);
+			rent.radius_aabb.addPoint(cent->current.origin + vert7);
 			
-			rent.radius_value = rent.radius_bbox.radius();
+			rent.radius_value = rent.radius_aabb.radius();
 			
 			trap_R_AddLight(cent->current.getNumber(), 0, rent, LIGHT_OMNI);
 			break;
@@ -286,28 +286,28 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 			rent.right = cent->current.vectors[1];
 			rent.up = cent->current.vectors[2];
 			
-			rent.radius_bbox.clear();
+			rent.radius_aabb.clear();
 			
 			//vec3_c lt = rent.target - rent.origin;
 			//vec3_c lr = rent.right - rent.origin;
 			//vec3_c lu = rent.up - rent.origin;
 			
-			//rent.radius_bbox._maxs = rent.origin + vec3_c(300, 300, 300);
-			//rent.radius_bbox._mins = rent.origin - vec3_c(300, 300, 300);
+			//rent.radius_aabb._maxs = rent.origin + vec3_c(300, 300, 300);
+			//rent.radius_aabb._mins = rent.origin - vec3_c(300, 300, 300);
 			
-			//rent.radius_bbox.addPoint(cent->current.vectors[0]);
-			//rent.radius_bbox.addPoint(cent->current.vectors[1]);
-			//rent.radius_bbox.addPoint(cent->current.vectors[2]);
+			//rent.radius_aabb.addPoint(cent->current.vectors[0]);
+			//rent.radius_aabb.addPoint(cent->current.vectors[1]);
+			//rent.radius_aabb.addPoint(cent->current.vectors[2]);
 			
-			rent.radius_bbox.addPoint(rent.origin + rent.target);
+			rent.radius_aabb.addPoint(rent.origin + rent.target);
 			
-			rent.radius_bbox.addPoint(rent.origin + rent.right);
-			rent.radius_bbox.addPoint(rent.origin - rent.right);
+			rent.radius_aabb.addPoint(rent.origin + rent.right);
+			rent.radius_aabb.addPoint(rent.origin - rent.right);
 			
-			rent.radius_bbox.addPoint(rent.origin + rent.up);
-			rent.radius_bbox.addPoint(rent.origin - rent.up);
+			rent.radius_aabb.addPoint(rent.origin + rent.up);
+			rent.radius_aabb.addPoint(rent.origin - rent.up);
 		
-			rent.radius_value = rent.radius_bbox.radius();
+			rent.radius_value = rent.radius_aabb.radius();
 			
 			trap_R_AddLight(cent->current.getNumber(), 0, rent, LIGHT_PROJ);
 			break;
@@ -350,7 +350,7 @@ void	CG_UpdateLightEntity(const cg_entity_t *cent)
 			{
 				rent.radius.lerp(cent->prev.vectors[0], cent->current.vectors[0], cg.frame_lerp);
 		
-				rent.radius_bbox.clear();
+				rent.radius_aabb.clear();
 			
 				// compute bbox vertices in light space
 				vec3_c vert0( rent.radius[0], -rent.radius[1], -rent.radius[2]);
@@ -374,16 +374,16 @@ void	CG_UpdateLightEntity(const cg_entity_t *cent)
 				vert7.rotate(rent.quat);
 			
 				// transform vertices into world space and add them to the light world aabb
-				rent.radius_bbox.addPoint(rent.origin + vert0);
-				rent.radius_bbox.addPoint(rent.origin + vert1);
-				rent.radius_bbox.addPoint(rent.origin + vert2);
-				rent.radius_bbox.addPoint(rent.origin + vert3);
-				rent.radius_bbox.addPoint(rent.origin + vert4);
-				rent.radius_bbox.addPoint(rent.origin + vert5);
-				rent.radius_bbox.addPoint(rent.origin + vert6);
-				rent.radius_bbox.addPoint(rent.origin + vert7);
+				rent.radius_aabb.addPoint(rent.origin + vert0);
+				rent.radius_aabb.addPoint(rent.origin + vert1);
+				rent.radius_aabb.addPoint(rent.origin + vert2);
+				rent.radius_aabb.addPoint(rent.origin + vert3);
+				rent.radius_aabb.addPoint(rent.origin + vert4);
+				rent.radius_aabb.addPoint(rent.origin + vert5);
+				rent.radius_aabb.addPoint(rent.origin + vert6);
+				rent.radius_aabb.addPoint(rent.origin + vert7);
 			
-				rent.radius_value = rent.radius_bbox.radius();
+				rent.radius_value = rent.radius_aabb.radius();
 			
 				trap_Com_DPrintf("updating omni-directional light ...\n");
 				trap_R_UpdateLight(cent->current.getNumber(), 0, rent, LIGHT_OMNI);

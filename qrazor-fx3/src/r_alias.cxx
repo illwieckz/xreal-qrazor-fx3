@@ -291,66 +291,57 @@ void	r_alias_model_c::drawFrameLerp(const r_command_t *cmd, r_render_type_e type
 	RB_RenderCommand(cmd, type);
 }
 
-void	r_alias_model_c::updateBBox(r_entity_c *ent)
-{
-	r_alias_frame_t 	*frame;
-	r_alias_frame_t		*frame_old;
-	
-
-	//
-	// get frames
-	//
-	if((ent->getShared().frame < 0) || (ent->getShared().frame >= (int)_frames.size()))
-	{
-		ri.Com_Printf("r_alias_model_c::updateBBox: model %s has no such frame %d\n", getName(), ent->getShared().frame);
-	}
-	
-	if((ent->getShared().frame_old < 0) || (ent->getShared().frame_old >= (int)_frames.size()))
-	{
-		ri.Com_Printf ("r_alias_model_c::updateBBox: model %s has no such oldframe %d\n", getName(), ent->getShared().frame_old);
-	}
-
-	frame		= _frames[X_bound(0, ent->getShared().frame, (int)_frames.size()-1)];
-	frame_old	= _frames[X_bound(0, ent->getShared().frame_old, (int)_frames.size()-1)];
-
-
-	//
-	// compute axially aligned mins and maxs
-	//
-	if(frame == frame_old)
-	{
-		_bbox	= frame->bbox;
-	}
-	else
-	{
-		_bbox = frame_old->bbox;
-		_bbox.mergeWith(frame->bbox);	
-	}
-}
-
-
 bool	r_alias_model_c::cull(r_entity_c *ent)
 {
 	if(ent->getShared().flags & RF_WEAPONMODEL)
 		return false;
 	
-	updateBBox(ent);
-	
 	if(ent->getShared().flags & RF_VIEWERMODEL)
 		return (!(r_mirrorview || r_portal_view));
 	
-	
-	if(r_frustum.cull(ent->getShared().origin, _bbox.radius()))
+	if(r_frustum.cull(ent->getAABB()))
 		return true;
 	
-			
 	if((r_mirrorview || r_portal_view) && r_cull->getValue())
 	{
-		if(r_clipplane.distance(ent->getShared().origin) < -_bbox.radius())
+		if(r_clipplane.distance(ent->getShared().origin) < -ent->getAABB().radius())
 			return true;
 	}
 	
 	return false;
+}
+
+const aabb_c	r_alias_model_c::createAABB(r_entity_c *ent)
+{
+	// get frames
+	if((ent->getShared().frame < 0) || (ent->getShared().frame >= (int)_frames.size()))
+	{
+		ri.Com_Printf("r_alias_model_c::createAABB: model %s has no such frame %d\n", getName(), ent->getShared().frame);
+	}
+	
+	if((ent->getShared().frame_old < 0) || (ent->getShared().frame_old >= (int)_frames.size()))
+	{
+		ri.Com_Printf ("r_alias_model_c::createAABB: model %s has no such oldframe %d\n", getName(), ent->getShared().frame_old);
+	}
+
+	r_alias_frame_t* frame		= _frames[X_bound(0, ent->getShared().frame, (int)_frames.size()-1)];
+	r_alias_frame_t* frame_old	= _frames[X_bound(0, ent->getShared().frame_old, (int)_frames.size()-1)];
+
+	// compute axially aligned mins and maxs
+	aabb_c aabb;
+	aabb.clear();
+	
+	if(frame == frame_old)
+	{
+		aabb	= frame->bbox;
+	}
+	else
+	{
+		aabb = frame_old->bbox;
+		aabb.mergeWith(frame->bbox);
+	}
+	
+	return aabb;
 }
 
 void	r_alias_model_c::addModelToList(r_entity_c *ent)
@@ -360,7 +351,7 @@ void	r_alias_model_c::addModelToList(r_entity_c *ent)
 	if((ent->getShared().flags & RF_WEAPONMODEL) && (r_lefthand->getInteger() == 2))
 			return;
 
-	if(cull(ent))
+	if(ent->isVisible() && cull(ent))
 	{
 		ent->setVisFrameCount(0);
 		c_entities--;
@@ -420,7 +411,7 @@ void	r_alias_model_c::addModelToList(r_entity_c *ent)
 				if(!light.isVisible())
 					continue;
 			
-				if(light.getShared().radius_bbox.intersect(ent->getShared().origin, mesh->bbox.radius()))
+				if(light.getShared().radius_aabb.intersect(ent->getShared().origin, mesh->bbox.radius()))
 					RB_AddCommand(ent, this, mesh, shader, &light, NULL, -(i+1), 0);
 			}
 		}

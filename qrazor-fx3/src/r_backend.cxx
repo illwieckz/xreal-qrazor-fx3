@@ -2164,9 +2164,9 @@ void	RB_RenderCommands()
 			if(!light.isVisible())
 				continue;
 		
-			if(!light.getShared().radius_bbox.isInside(r_origin))
+			if(!light.getShared().radius_aabb.isInside(r_origin))
 			{
-				light.updateScissor(rb_matrix_model_view_projection, rb_vrect_viewport, light.getShared().radius_bbox);
+				light.updateScissor(rb_matrix_model_view_projection, rb_vrect_viewport, light.getShared().radius_aabb);
 			}
 			else
 			{
@@ -2175,7 +2175,7 @@ void	RB_RenderCommands()
 		
 			if(gl_config.arb_occlusion_query && r_arb_occlusion_query->getInteger())
 			{
-				const cbbox_c&bbox = light.getShared().radius_bbox;
+				const aabb_c& bbox = light.getShared().radius_aabb;
 			
 				/*
 				if(bbox.isInside(r_origin))

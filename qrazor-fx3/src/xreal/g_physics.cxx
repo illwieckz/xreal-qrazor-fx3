@@ -1302,7 +1302,7 @@ cmodel_c*	G_SetModel(g_entity_c *ent, const std::string &name)
 //		ent->_geom->setBody(ent->_body->getId());
 //		ent->_geom->setData(ent);
 		
-		ent->_r.bbox = model->getBBox();
+		ent->_r.bbox = model->getAABB();
 		ent->_r.size = ent->_r.bbox.size();
 	}
 	else
@@ -1370,7 +1370,7 @@ void		G_SetWorldModel(g_entity_c *ent, const std::string &name)
 	
 #endif
 		
-	ent->_r.bbox = model->getBBox();
+	ent->_r.bbox = model->getAABB();
 	ent->_r.size = ent->_r.bbox.size();
 }
 

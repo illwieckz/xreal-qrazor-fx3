@@ -380,13 +380,50 @@ bool	r_bsptree_c::pointIsVisible(const vec3_c &p)
 	return false;
 }
 
-void	r_bsptree_c::boxLeafs_r(const cbbox_c &bbox, std::vector<r_bsptree_leaf_c*> &leafs, r_tree_elem_c *elem)
+void	r_bsptree_c::boxLeafs_r(const aabb_c &aabb, std::vector<r_bsptree_leaf_c*> &leafs, r_tree_elem_c *elem)
 {
+#if 1
+	if(elem->contents != -1)
+	{
+		leafs.push_back((r_bsptree_leaf_c*)elem);
+		return;
+	}
+	
+	r_bsptree_node_c *node = (r_bsptree_node_c*)elem;
+		
+	plane_side_e side = node->plane->onSide(aabb, true);
+	
+	switch(side)
+	{
+		case SIDE_FRONT:
+		{
+			boxLeafs_r(aabb, leafs, node->children[SIDE_FRONT]);
+			break;
+		}
+		
+		case SIDE_BACK:
+		{
+			boxLeafs_r(aabb, leafs, node->children[SIDE_BACK]);
+			break;
+		}
+		
+		case SIDE_CROSS:
+		{
+			// go down both
+			boxLeafs_r(aabb, leafs, node->children[SIDE_FRONT]);
+			boxLeafs_r(aabb, leafs, node->children[SIDE_BACK]);
+			break;
+		}
+		
+		default:
+			break;
+	}
+#else
 	while(elem->contents == -1)
 	{
 		r_bsptree_node_c *node = (r_bsptree_node_c*)elem;
 	
-		plane_side_e side = node->plane->onSide(bbox, true);
+		plane_side_e side = node->plane->onSide(aabb, true);
 		
 		if(side == SIDE_FRONT)
 			elem = node->children[SIDE_FRONT];
@@ -396,16 +433,17 @@ void	r_bsptree_c::boxLeafs_r(const cbbox_c &bbox, std::vector<r_bsptree_leaf_c*>
 		
 		else
 		{	// go down both
-			boxLeafs_r(bbox, leafs, node->children[SIDE_FRONT]);
+			boxLeafs_r(aabb, leafs, node->children[SIDE_FRONT]);
 			
 			elem = node->children[SIDE_BACK];
 		}
 	}
 	
 	leafs.push_back((r_bsptree_leaf_c*)elem);
+#endif
 }
 
-void	r_bsptree_c::boxLeafs(const cbbox_c &bbox, std::vector<r_bsptree_leaf_c*> &leafs)
+void	r_bsptree_c::boxLeafs(const aabb_c &bbox, std::vector<r_bsptree_leaf_c*> &leafs)
 {
 	if(_nodes.empty())
 		return;
@@ -552,7 +590,7 @@ void	r_bsptree_c::loadModels(const byte *buffer, const bsp_lump_t *l)
 			starmod->_surfaces.push_back(_surfaces[model.modelsurfaces_first + j]);
 		}
 		
-		starmod->_bbox = model.bbox;
+		starmod->_aabb = model.bbox;
 		
 		_models.push_back(starmod);
 		r_models.push_back(starmod);
@@ -706,8 +744,8 @@ void	r_bsptree_c::loadNodes(const byte *buffer, const bsp_lump_t *l)
 		
 		for(j=0; j<3; j++)
 		{
-			out->bbox._mins[j] = (float)LittleLong(in->mins[j]);
-			out->bbox._maxs[j] = (float)LittleLong(in->maxs[j]);
+			out->_aabb._mins[j] = (float)LittleLong(in->mins[j]);
+			out->_aabb._maxs[j] = (float)LittleLong(in->maxs[j]);
 		}
 	
 		out->plane = _planes + LittleLong(in->plane_num);
@@ -795,8 +833,8 @@ void	r_bsptree_c::loadLeafs(const byte *buffer, const bsp_lump_t *l)
 	
 		for(j=0; j<3; j++)
 		{
-			out->bbox._mins[j] = (float)LittleLong(in->mins[j]);
-			out->bbox._maxs[j] = (float)LittleLong(in->maxs[j]);
+			out->_aabb._mins[j] = (float)LittleLong(in->mins[j]);
+			out->_aabb._maxs[j] = (float)LittleLong(in->maxs[j]);
 		}
 
 		out->contents = 0;
@@ -1212,7 +1250,7 @@ void	r_bsptree_c::drawNode_r(r_tree_elem_c *elem, int clipflags)
 			if(!(clipflags & (1<<i)))
 				continue;	// don't need to clip against it
 
-			plane_side_e clipped = r_frustum[i].onSide(elem->bbox, true);
+			plane_side_e clipped = r_frustum[i].onSide(elem->_aabb, true);
 			
 			if(clipped == SIDE_BACK)
 				return;
@@ -1239,11 +1277,8 @@ void	r_bsptree_c::drawNode_r(r_tree_elem_c *elem, int clipflags)
 			return;
 
 		// check for door connected areas
-		if(leaf->area >= 0 && leaf->area < (int)r_newrefdef.areabits.size())
-		{
-			if(!r_newrefdef.areabits[leaf->area])
-				return;		// not visible
-		}
+		if((leaf->area >= 0) && (leaf->area < (int)r_newrefdef.areabits.size()) && !r_newrefdef.areabits[leaf->area])
+			return;		// not visible
 		
 		for(std::vector<r_surface_c*>::const_iterator ir = leaf->surfaces.begin(); ir != leaf->surfaces.end(); ++ir)
 		{
@@ -1356,7 +1391,7 @@ void	r_bsptree_c::litNode_r(r_tree_elem_c *elem, r_light_c *light, bool precache
 				return;		// not visible
 		}
 		
-		if(!leaf->bbox.intersect(light->getShared().radius_bbox))
+		if(!leaf->_aabb.intersect(light->getShared().radius_aabb))
 			return;
 					
 		for(std::vector<r_surface_c*>::const_iterator ir = leaf->surfaces.begin(); ir != leaf->surfaces.end(); ++ir)
@@ -1368,7 +1403,7 @@ void	r_bsptree_c::litNode_r(r_tree_elem_c *elem, r_light_c *light, bool precache
 			
 			if(precache)
 			{
-				if(!surf->getMesh()->bbox.intersect(light->getShared().radius_bbox))
+				if(!surf->getMesh()->bbox.intersect(light->getShared().radius_aabb))
 					continue;
 			
 				if(light->hasSurface(0, surf))
@@ -1381,8 +1416,7 @@ void	r_bsptree_c::litNode_r(r_tree_elem_c *elem, r_light_c *light, bool precache
 				if(!surf->isFramed())
 					continue;
 			
-				if(!surf->getMesh()->bbox.intersect(light->getShared().radius_bbox))
-//				if(!surf->getMesh()->bbox.intersect(light->getShared().origin, light->getShared().radius_value))
+				if(!surf->getMesh()->bbox.intersect(light->getShared().radius_aabb))
 					continue;
 			
 				if(!surf->isLightFramed())
@@ -1425,7 +1459,7 @@ void	r_bsptree_c::litNode_r(r_tree_elem_c *elem, r_light_c *light, bool precache
 			litNode_r(node->children[1], light, precache);
 		}
 #else
-		plane_side_e side = node->plane->onSide(light->getShared().radius_bbox, true);
+		plane_side_e side = node->plane->onSide(light->getShared().radius_aabb, true);
 		
 		if(side == SIDE_FRONT)
 		{
@@ -1534,8 +1568,8 @@ void 	r_bsptree_c::markLeaves()
 				if(leaf->cluster == -1)
 					continue;
 					
-				//if(leaf->area <= 0)
-				//	continue;
+				if(leaf->area < 0)
+					continue;
 		
 				if(vis[leaf->cluster >> 3] & (1 << (leaf->cluster & 7)))
 				{
@@ -1584,7 +1618,7 @@ void 	r_bsptree_c::markLights()
 			{
 				r_light_c& light = *ir;
 			
-				if(r_frustum.cull(light.getShared().radius_bbox))
+				if(r_frustum.cull(light.getShared().radius_aabb))
 					continue;
 			
 				light.setVisFrameCount();
@@ -1607,7 +1641,7 @@ void 	r_bsptree_c::markLights()
 					//if(light.getCluster() < 0)
 					//	continue;
 				
-					if(r_frustum.cull(light.getShared().radius_bbox))
+					if(r_frustum.cull(light.getShared().radius_aabb))
 						continue;
 				
 					light.setVisFrameCount();
@@ -1630,7 +1664,7 @@ void 	r_bsptree_c::markLights()
 				}
 				*/
 			
-				if(r_frustum.cull(light.getShared().radius_bbox))
+				if(r_frustum.cull(light.getShared().radius_aabb))
 					continue;
 				
 				/*
@@ -1710,7 +1744,6 @@ void 	r_bsptree_c::markEntities()
 					c_entities++;
 					continue;
 				}
-				#if 0
 				else
 				{
 					// check if entity has shared leaves with the PVS
@@ -1729,10 +1762,6 @@ void 	r_bsptree_c::markEntities()
 						}
 					}
 				}
-				#else
-				ent.setVisFrameCount();
-				c_entities++;
-				#endif
 			}
 		}
 	}
@@ -1752,11 +1781,16 @@ r_bsp_model_c::~r_bsp_model_c()
 {
 }
 
+const aabb_c	r_bsp_model_c::createAABB(r_entity_c *ent)
+{
+	return _aabb;
+}
+
 void	r_bsp_model_c::addModelToList(r_entity_c *ent)
 {
 	//ri.Com_DPrintf("r_bsp_model_c::addModelToList:\n");
 	
-	if(r_frustum.cull(ent->getShared().origin, _bbox.radius(), FRUSTUM_CLIPALL))
+	if(ent->isVisible() && r_frustum.cull(ent->getAABB(), FRUSTUM_CLIPALL))
 	{
 		c_entities--;
 		return;
@@ -1826,7 +1860,7 @@ void	r_bsp_model_c::addModelToList(r_entity_c *ent)
 					}
 						
 			
-					if(light.getShared().radius_bbox.intersect(ent->getShared().origin, surf->getMesh()->bbox.radius()))
+					if(light.getShared().radius_aabb.intersect(ent->getShared().origin, surf->getMesh()->bbox.radius()))
 						RB_AddCommand(ent, this, surf->getMesh(), surf->getShader(), &light, NULL, -1, 0);
 				}
 			}

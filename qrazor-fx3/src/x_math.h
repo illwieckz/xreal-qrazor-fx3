@@ -1750,10 +1750,10 @@ inline void	vec3_c::transform(const matrix_c &m)
 
 
 
-class cbbox_c
+class aabb_c
 {
 public:
-	inline cbbox_c();
+	inline aabb_c();
 	
 private:
 	bool	lineIntersect(vec_t min1, vec_t max1, vec_t min2, vec_t max2) const;
@@ -1776,7 +1776,7 @@ public:
 	inline bool	isInside(const vec3_c &v) const;
 
 	// bbox
-	bool		intersect(const cbbox_c &bbox) const;
+	bool		intersect(const aabb_c &aabb) const;
 
 	// sphere
 	bool		intersect(const vec3_c &origin, const float radius) const;
@@ -1793,52 +1793,52 @@ public:
 
 	void		addPoint(const vec3_c &v);
 	
-	void		mergeWith(const cbbox_c &bbox);
+	void		mergeWith(const aabb_c &bbox);
 	
 	void		translate(const vec3_c &v);
 	
-	void		rotate(const quaternion_c &q);
+	void		rotate(const quaternion_c &q, bool object_space = false);
 
 	bool 		isZero() const;
 	
 	const char*	toString() const;
 	
-	inline cbbox_c&	operator = (const cbbox_c &bbox);
+	inline aabb_c&	operator = (const aabb_c &aabb);
 	
-	inline cbbox_c&	operator = (const vec_t aabb[6]);
+	inline aabb_c&	operator = (const vec_t aabb[6]);
 
 	vec3_c		_mins;
 	vec3_c		_maxs;
 };
 
-inline	cbbox_c::cbbox_c()
+inline	aabb_c::aabb_c()
 {
 	zero();
 }
 
-inline void	cbbox_c::clear()
+inline void	aabb_c::clear()
 {
 	_mins[0] = _mins[1] = _mins[2] =  99999;
 	_maxs[0] = _maxs[1] = _maxs[2] = -99999;
 }
 	
-inline void	cbbox_c::zero()
+inline void	aabb_c::zero()
 {
 	_mins[0] = _mins[1] = _mins[2] = 0;
 	_maxs[0] = _maxs[1] = _maxs[2] = 0;
 }
 
-inline vec3_c	cbbox_c::origin() const
+inline vec3_c	aabb_c::origin() const
 {
 	return (_mins + _maxs);
 }
 
-inline vec3_c	cbbox_c::size() const
+inline vec3_c	aabb_c::size() const
 {
 	return (_maxs - _mins);
 }
 
-inline bool	cbbox_c::isInside(vec_t x, vec_t y, vec_t z) const
+inline bool	aabb_c::isInside(vec_t x, vec_t y, vec_t z) const
 {
 	if(	x >= _mins[0] && x <= _maxs[0] &&
 		y >= _mins[1] && y <= _maxs[1] &&
@@ -1849,17 +1849,17 @@ inline bool	cbbox_c::isInside(vec_t x, vec_t y, vec_t z) const
 		return false;
 }
 	
-inline bool	cbbox_c::isInside(const vec3_c &v) const
+inline bool	aabb_c::isInside(const vec3_c &v) const
 {
 	return isInside(v[0], v[1], v[2]);
 }
 
-inline bool	cbbox_c::intersect(const vec3_c &u, const vec3_c &v) const
+inline bool	aabb_c::intersect(const vec3_c &u, const vec3_c &v) const
 {
 	return intersect(u[0], u[1], u[2], v[0], v[1], v[2]);
 }
 
-inline bool	cbbox_c::intersect(const vec3_c &v0, const vec3_c &v1, const vec3_c &v2) const
+inline bool	aabb_c::intersect(const vec3_c &v0, const vec3_c &v1, const vec3_c &v2) const
 {
 	if(isInside(v0) || isInside(v1) || isInside(v2))
 		return true;
@@ -1867,15 +1867,15 @@ inline bool	cbbox_c::intersect(const vec3_c &v0, const vec3_c &v1, const vec3_c 
 	return false;
 }
 
-inline cbbox_c&	cbbox_c::operator = (const cbbox_c &bbox)
+inline aabb_c&	aabb_c::operator = (const aabb_c &aabb)
 {
-	_mins = bbox._mins;
-	_maxs = bbox._maxs;
+	_mins = aabb._mins;
+	_maxs = aabb._maxs;
 	
 	return *this;
 }
 	
-inline cbbox_c&	cbbox_c::operator = (const vec_t aabb[6])
+inline aabb_c&	aabb_c::operator = (const vec_t aabb[6])
 {
 	_mins[0] = aabb[0];
 	_mins[1] = aabb[1];
@@ -1936,7 +1936,7 @@ public:
 	
 	inline plane_side_e	onSide(const vec3_c &center, vec_t radius) const;
 
-	plane_side_e	onSide(const cbbox_c &bbox, bool use_signbits = false) const;
+	plane_side_e	onSide(const aabb_c &bbox, bool use_signbits = false) const;
 	
 	// intersect ray
 	inline vec3_c	intersect(const vec3_c &v1, const vec3_c &v2);

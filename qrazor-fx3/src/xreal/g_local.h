@@ -496,7 +496,7 @@ void		G_SetAreaPortalState(g_entity_c *ent, bool open);
 // test.
 // returns the number of pointers filled in
 // ??? does this always return the world?
-int 		G_AreaEdicts(const cbbox_c &bbox, std::vector<g_entity_c*> &list, area_type_e type);
+int 		G_AreaEdicts(const aabb_c &bbox, std::vector<g_entity_c*> &list, area_type_e type);
 
 //
 // functions that interact with everything apropriate
@@ -514,7 +514,7 @@ int 		G_PointContents(const vec3_c &p);
 
 // if the starting point is in a solid, it will be allowed to move out
 // to an open area
-trace_t		G_Trace(const vec3_c &start, const cbbox_c &bbox, const vec3_c &end, g_entity_c *passedict, int contentmask);
+trace_t		G_Trace(const vec3_c &start, const aabb_c &bbox, const vec3_c &end, g_entity_c *passedict, int contentmask);
 
 
 //
@@ -571,17 +571,17 @@ int		trap_CM_LeafContents(int leafnum);
 int		trap_CM_LeafCluster(int leafnum);
 int		trap_CM_LeafArea(int leafnum);
 int		trap_CM_NumModels();
-int		trap_CM_HeadnodeForBox(const cbbox_c& bbox);
+int		trap_CM_HeadnodeForBox(const aabb_c& bbox);
 int		trap_CM_PointContents(const vec3_c &p, int headnode);
 int		trap_CM_TransformedPointContents(const vec3_c &p, int headnode, const vec3_c &origin, const quaternion_c &quat);
-trace_t		trap_CM_BoxTrace(const vec3_c &start, const vec3_c &end, const cbbox_c &bbox, int headnode, int brushmask);
+trace_t		trap_CM_BoxTrace(const vec3_c &start, const vec3_c &end, const aabb_c &bbox, int headnode, int brushmask);
 trace_t		trap_CM_TransformedBoxTrace(const vec3_c &start, const vec3_c &end,
-						const cbbox_c &bbox,
+						const aabb_c &bbox,
 						int headnode, int brushmask, 
 						const vec3_c &origin, const quaternion_c &quat);
 int		trap_CM_PointLeafnum(const vec3_c &p);
 int		trap_CM_PointAreanum(const vec3_c &p);
-int		trap_CM_BoxLeafnums(const cbbox_c &bbox, std::deque<int> &list, int headnode);
+int		trap_CM_BoxLeafnums(const aabb_c &bbox, std::deque<int> &list, int headnode);
 int		trap_CM_GetClosestAreaPortal(const vec3_c &p);
 bool		trap_CM_GetAreaPortalState(int portal);
 void		trap_CM_SetAreaPortalState(int portal, bool open);

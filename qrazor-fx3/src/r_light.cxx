@@ -323,15 +323,15 @@ void	r_light_c::addSurface(int areanum, const r_surface_c *surf)
 		cplane_c p;
 		p.fromThreePointForm(v0, v1, v2);
 		
-		cbbox_c b;
-		b.clear();
-		b.addPoint(v0);
-		b.addPoint(v1);
-		b.addPoint(v2);
+		aabb_c aabb;
+		aabb.clear();
+		aabb.addPoint(v0);
+		aabb.addPoint(v1);
+		aabb.addPoint(v2);
 		
-		if(	p.onSide(_s.radius_bbox) == SIDE_CROSS		// check if aabb crosses triangle plane
+		if(	p.onSide(_s.radius_aabb) == SIDE_CROSS		// check if aabb crosses triangle plane
 			&& p.onSide(_origin) == SIDE_BACK		// check if light origin + light center is in positive half-space
-			&& b.intersect(_s.radius_bbox)			// check if triangle aabb touches light aabb
+			&& aabb.intersect(_s.radius_aabb)		// check if triangle aabb touches light aabb
 		)
 		{
 			indexes.push_back(mesh->indexes[i+0]);

@@ -48,7 +48,7 @@ r_model_c::r_model_c(const std::string &name, byte *buffer, uint_t buffer_size, 
 	_buffer		= buffer;
 	_buffer_size	= buffer_size;
 	
-	_bbox.clear();
+//	_aabb.clear();
 	
 	setRegistrationSequence();
 }
@@ -64,7 +64,7 @@ r_model_c::~r_model_c()
 
 void	r_model_c::setupMeshes()
 {
-	_bbox.clear();
+	_aabb.clear();
 
 	for(std::vector<r_mesh_c*>::const_iterator ir = _meshes.begin(); ir != _meshes.end(); ++ir)
 	{
@@ -77,7 +77,7 @@ void	r_model_c::setupMeshes()
 //		mesh->calcEdges();
 		mesh->createBBoxFromVertexes();
 		
-		_bbox.mergeWith(mesh->bbox);
+		_aabb.mergeWith(mesh->bbox);
 	}
 }
 

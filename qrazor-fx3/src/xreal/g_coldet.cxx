@@ -60,7 +60,7 @@ g_areanode_c	g_areanodes[AREA_NODES];
 int		g_areanodes_num;
 
 
-static cbbox_c				g_area_bbox;
+static aabb_c				g_area_bbox;
 static std::vector<g_entity_c*>*	g_area_list;
 static int				g_area_count;
 static int				g_area_maxcount;
@@ -75,12 +75,12 @@ G_CreateAreaNode
 Builds a uniformly subdivided tree for the given world size
 ===============
 */
-static g_areanode_c*	G_CreateAreaNode(int depth, const cbbox_c &bbox)
+static g_areanode_c*	G_CreateAreaNode(int depth, const aabb_c &bbox)
 {
 	g_areanode_c	*anode;
 	vec3_c		size;
 	
-	cbbox_c	bbox1, bbox2;
+	aabb_c	bbox1, bbox2;
 
 	anode = &g_areanodes[g_areanodes_num];
 	g_areanodes_num++;
@@ -141,7 +141,7 @@ void	G_ClearWorld(const std::string &map)
 	
 	cmodel_c* model = trap_CM_GetModelByNum(0); 
 	
-	G_CreateAreaNode(0, model->getBBox());
+	G_CreateAreaNode(0, model->getAABB());
 }
 
 
@@ -471,7 +471,7 @@ void	G_SetAreaPortalState(g_entity_c *ent, bool open)
 #endif
 }
 
-int	G_AreaEdicts(const cbbox_c &bbox, std::vector<g_entity_c*> &list, area_type_e type)
+int	G_AreaEdicts(const aabb_c &bbox, std::vector<g_entity_c*> &list, area_type_e type)
 {
 	g_area_bbox = bbox;
 	g_area_list = &list;
@@ -529,7 +529,7 @@ int	G_PointContents(const vec3_c &p)
 	int			contents, c2=0;
 	int			headnode;
 	
-	cbbox_c		bbox;
+	aabb_c		bbox;
 	
 	bbox._mins = p;
 	bbox._maxs = p;
@@ -560,9 +560,9 @@ int	G_PointContents(const vec3_c &p)
 
 struct moveclip_t
 {
-	cbbox_c		bbox_abs;	// enclose the test object along entire move
+	aabb_c		bbox_abs;	// enclose the test object along entire move
 	
-	cbbox_c		bbox;		// size of the moving object
+	aabb_c		bbox;		// size of the moving object
 	
 	vec3_c		start, end;
 	trace_t		trace;
@@ -664,7 +664,7 @@ void	G_ClipMoveToEntities(moveclip_t *clip)
 }
 
 
-void	G_TraceBounds(const vec3_c &start, const cbbox_c &bbox, const vec3_c &end, cbbox_c &bbox_abs)
+void	G_TraceBounds(const vec3_c &start, const aabb_c &bbox, const vec3_c &end, aabb_c &bbox_abs)
 {
 	for(int i=0; i<3; i++)
 	{
@@ -691,7 +691,7 @@ Passedict and edicts owned by passedict are explicitly not checked.
 
 ==================
 */
-trace_t	G_Trace(const vec3_c &start, const cbbox_c &bbox, const vec3_c &end, g_entity_c *passedict, int contentmask)
+trace_t	G_Trace(const vec3_c &start, const aabb_c &bbox, const vec3_c &end, g_entity_c *passedict, int contentmask)
 {
 	moveclip_t	clip;
 	

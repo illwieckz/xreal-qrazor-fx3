@@ -52,7 +52,7 @@ void	r_vis_iface_a::updateVis(const r_entity_t &shared)
 		addArea(0);
 		*/
 		
-		r_world_tree->boxLeafs(shared.radius_bbox, _leafs);
+		r_world_tree->boxLeafs(shared.radius_aabb, _leafs);
 		for(std::vector<r_bsptree_leaf_c*>::iterator ir = _leafs.begin(); ir != _leafs.end(); ++ir)
 		{
 			r_bsptree_leaf_c *leaf = *ir;

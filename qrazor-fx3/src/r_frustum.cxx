@@ -39,7 +39,7 @@ R_CullBBox
 Returns true if the bounding box is completely outside the frustum
 =================
 */
-bool	r_frustum_c::cull(const cbbox_c &bbox, int clipflags) const
+bool	r_frustum_c::cull(const aabb_c &bbox, int clipflags) const
 {
 	if(!r_cull->getValue())
 		return false;

@@ -239,7 +239,7 @@ int	trap_CM_NumModels()
 	return gi.CM_NumModels();
 }
 
-int	trap_CM_HeadnodeForBox(const cbbox_c& bbox)
+int	trap_CM_HeadnodeForBox(const aabb_c& bbox)
 {
 	return gi.CM_HeadnodeForBox(bbox);
 }
@@ -254,13 +254,13 @@ int	trap_CM_TransformedPointContents(const vec3_c &p, int headnode, const vec3_c
 	return gi.CM_TransformedPointContents(p, headnode, origin, quat);
 }
 
-trace_t	trap_CM_BoxTrace(const vec3_c &start, const vec3_c &end, const cbbox_c &bbox, int headnode, int brushmask)
+trace_t	trap_CM_BoxTrace(const vec3_c &start, const vec3_c &end, const aabb_c &bbox, int headnode, int brushmask)
 {
 	return gi.CM_BoxTrace(start, end, bbox, headnode, brushmask);
 }
 
 trace_t	trap_CM_TransformedBoxTrace(const vec3_c &start, const vec3_c &end,
-					const cbbox_c &bbox,
+					const aabb_c &bbox,
 					int headnode, int brushmask, 
 					const vec3_c &origin, const quaternion_c &quat)
 {
@@ -277,7 +277,7 @@ int	trap_CM_PointAreanum(const vec3_c &p)
 	return gi.CM_PointAreanum(p);
 }
 
-int	trap_CM_BoxLeafnums(const cbbox_c &bbox, std::deque<int> &list, int headnode)
+int	trap_CM_BoxLeafnums(const aabb_c &bbox, std::deque<int> &list, int headnode)
 {
 	return gi.CM_BoxLeafnums(bbox, list, headnode);
 }
