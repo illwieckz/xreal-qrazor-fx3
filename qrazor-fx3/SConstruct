@@ -115,4 +115,5 @@ SConscript('SConscript_ref_gl', build_dir='build/ref_gl', duplicate=0)
 SConscript('SConscript_xreal_cgame', build_dir='build/xreal/cgame', duplicate=0)
 SConscript('SConscript_xreal_game', build_dir='build/xreal/game', duplicate=0)
 SConscript('SConscript_xreal_ui', build_dir='build/xreal/ui', duplicate=0)
+SConscript('SConscript_xreal_data')
 
