@@ -123,7 +123,7 @@ r_bsptree_c::r_bsptree_c(const std::string &name)
 		byte*		indexes = (byte*)Com_Alloc(indexes_size);
 		uint_t		indexes_ofs = 0;
 		
-		uint_t		data_size = vertexes_num * (sizeof(vec3_c)*4 + sizeof(vec2_c)*2);
+		uint_t		data_size = vertexes_num * (sizeof(vec3_c)*5 + sizeof(vec2_c)*2 + sizeof(vec4_c));
 		byte*		data = (byte*)Com_Alloc(data_size);
 		uint_t		data_ofs = 0;
 		
@@ -180,6 +180,20 @@ r_bsptree_c::r_bsptree_c(const std::string &name)
 				{
 					memcpy(data + data_ofs, (vec_t*)*ir, sizeof(vec3_c));
 					data_ofs += sizeof(vec3_c);
+				}
+				
+				surf->getMesh()->vbo_lights_ofs = data_ofs;
+				for(std::vector<vec3_c>::const_iterator ir = surf->getMesh()->lights.begin(); ir != surf->getMesh()->lights.end(); ir++)
+				{
+					memcpy(data + data_ofs, (vec_t*)*ir, sizeof(vec3_c));
+					data_ofs += sizeof(vec3_c);
+				}
+				
+				surf->getMesh()->vbo_colors_ofs = data_ofs;
+				for(std::vector<vec4_c>::const_iterator ir = surf->getMesh()->colors.begin(); ir != surf->getMesh()->colors.end(); ir++)
+				{
+					memcpy(data + data_ofs, (vec_t*)*ir, sizeof(vec4_c));
+					data_ofs += sizeof(vec4_c);
 				}
 								
 				// setup indices array
