@@ -95,11 +95,11 @@ if env['debug'] != '0':
 if env['optimize'] != '0':
 	env.Append(CXXFLAGS = '-O${optimize}')
 	
-	if env['simd'] == 'sse':
-		env.Append(CXXFLAGS = '-DSIMD_SSE')
+if env['simd'] == 'sse':
+	env.Append(CXXFLAGS = '-DSIMD_SSE')
 	
-	elif env['simd'] == '3dnow':
-		env.Append(CXXFLAGS = '-DSIMD_3DNOW')
+elif env['simd'] == '3dnow':
+	env.Append(CXXFLAGS = '-DSIMD_3DNOW')
 
 	
 env.Append(CXXFLAGS = '-DVFS_PKGDATADIR=\\"${PKGDATADIR}\\"')
