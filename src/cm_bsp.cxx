@@ -1128,6 +1128,9 @@ int	CM_LeafContents(int leafnum)
 
 int	CM_LeafCluster(int leafnum)
 {
+	if(cm_leafs.empty())	// may be called without level loaded
+		return -1;
+
 	if(leafnum < 0 || leafnum >= (int)cm_leafs.size())
 		Com_Error(ERR_DROP, "CM_LeafCluster: out of range %i", leafnum);
 	
@@ -2005,10 +2008,21 @@ trace_t	CM_TransformedBoxTrace(const vec3_c &start, const vec3_c &end,
 
 byte*	CM_ClusterPVS(int cluster)
 {
-	if(cluster >= 0 && cm_pvs.size())
-		return &(cm_pvs[cluster * cm_pvs_clusters_size]);
-	else
-		return cm_nullcluster;
+	if(cluster < 0 || cluster >= cm_pvs_clusters_num || cm_pvs.empty())
+		return NULL;
+	
+	byte *data = NULL;
+	
+	try
+	{
+		data =  &(cm_pvs.at(cluster * cm_pvs_clusters_size));
+	}
+	catch(...)
+	{
+		Com_Error(ERR_DROP, "CM_ClusterPVS: exception occured");
+	}
+	
+	return data;
 }
 
 static void	CM_FloodAreaConnections()

@@ -43,13 +43,14 @@ s_shader_c::s_shader_c(const std::string &name)
 	
 	_type			= SND_TYPE_OMNI;
 	
-	_gain			= 1.0;
+	_gain			= 0.5;
 	_gain_min		= 0.0;
 	_gain_max		= 1.0;
 	
 	_distance_ref		= 1.0;
-	_distance_max		= -1;
-	_rolloff_factor		= 1.0;
+	_distance_max		=-1.0;//std::numeric_limits<float>::infinity();
+	
+	_rolloff_factor		= 1.5;
 	
 	_pitch			= 1.0;
 		
@@ -103,13 +104,16 @@ void	s_shader_c::createSource(const vec3_c &origin, const vec3_c &velocity, int 
 	
 	source->setLooping(looping);
 	
-//	source->setGain(_gain);
+	source->setGain(_gain);
+	
 //	source->setMinGain(_gain_min);
 //	source->setMaxGain(_gain_max);
 	
-//	source->setRefDistance(_distance_ref);
-//	if(_distance_max >= 0)
-//		source->setMaxDistance(_distance_max);
+	source->setRefDistance(_distance_ref);
+
+	if(_distance_max >= 0.0)
+		source->setMaxDistance(_distance_max);
+	
 //	source->setRolloffFactor(_rolloff_factor);
 	
 //	source->setPitch(_pitch);
@@ -338,6 +342,11 @@ void	S_Buffer_sc(char const* begin, char const* end)
 		s_current_shader->_buffers.push_back(buffer);
 }
 
+static void	S_Volume_sc(float val)
+{
+	s_current_shader->setVolume(val);
+}
+
 static void	S_Gain_sc(float val)
 {
 	s_current_shader->setGain(val);
@@ -401,31 +410,39 @@ struct s_shader_grammar_t : public boost::spirit::grammar<s_shader_grammar_t>
 				;
 				
 			gain_sc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("gain")] >> +boost::spirit::real_p[&S_Gain_sc]
+				=	boost::spirit::nocase_d[boost::spirit::str_p("gain")] >> boost::spirit::real_p[&S_Gain_sc]
 				;
 				
 			mingain_sc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("mingain")] >> +boost::spirit::real_p[&S_MinGain_sc]
+				=	boost::spirit::nocase_d[boost::spirit::str_p("mingain")] >> boost::spirit::real_p[&S_MinGain_sc]
 				;
 			
 			maxgain_sc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("maxgain")] >> +boost::spirit::real_p[&S_MaxGain_sc]
+				=	boost::spirit::nocase_d[boost::spirit::str_p("maxgain")] >> boost::spirit::real_p[&S_MaxGain_sc]
+				;
+				
+			volume_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("volume")] >> boost::spirit::real_p[&S_Volume_sc]
 				;
 				
 			refdistance_sc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("refdistance")] >> +boost::spirit::real_p[&S_RefDistance_sc]
+				=	boost::spirit::nocase_d[boost::spirit::str_p("refdistance")] >> boost::spirit::real_p[&S_RefDistance_sc]
+				;
+				
+			mindistance_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("mindistance")] >> boost::spirit::real_p[&S_RefDistance_sc]
 				;
 			
 			maxdistance_sc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("maxdistance")] >> +boost::spirit::real_p[&S_MaxDistance_sc]
+				=	boost::spirit::nocase_d[boost::spirit::str_p("maxdistance")] >> boost::spirit::real_p[&S_MaxDistance_sc]
 				;
 				
 			rollofffactor_sc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("rollofffactor")] >> +boost::spirit::real_p[&S_RolloffFactor_sc]
+				=	boost::spirit::nocase_d[boost::spirit::str_p("rollofffactor")] >> boost::spirit::real_p[&S_RolloffFactor_sc]
 				;
 			
 			pitch_sc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("pitch")] >> +boost::spirit::real_p[&S_Pitch_sc]
+				=	boost::spirit::nocase_d[boost::spirit::str_p("pitch")] >> boost::spirit::real_p[&S_Pitch_sc]
 				;
 				
 			unknown_sc
@@ -438,8 +455,10 @@ struct s_shader_grammar_t : public boost::spirit::grammar<s_shader_grammar_t>
 					sound_sc[&S_Buffer_sc]	|
 					mingain_sc		|
 					maxgain_sc		|
+					volume_sc		|
 					gain_sc			|
 					refdistance_sc		|
+					mindistance_sc		|
 					maxdistance_sc		|
 					rollofffactor_sc	|
 					pitch_sc		|
@@ -464,7 +483,9 @@ struct s_shader_grammar_t : public boost::spirit::grammar<s_shader_grammar_t>
 								gain_sc,
 								mingain_sc,
 								maxgain_sc,
+								volume_sc,
 								refdistance_sc,
+								mindistance_sc,
 								maxdistance_sc,
 								rollofffactor_sc,
 								pitch_sc,

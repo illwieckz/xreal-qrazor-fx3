@@ -85,10 +85,11 @@ public:
 	
 	~s_source_c();
 	
-	bool		isPlaying();
 	void		setBuffer(s_buffer_c *buffer);
 	void		setPosition(const vec3_c &v);
 	void		setVelocity(const vec3_c &v);
+	
+	void		setVolume(float volume);
 	
 	void		setGain(float gain);
 	
@@ -103,8 +104,13 @@ public:
 	
 	void		setLooping(bool looping);
 	
+	void		play();
+	void		pause();
+	void		stop();
 	
-	uint_t		getId() const			{return _id;}
+	bool		isPlaying() const;
+	bool		isPaused() const;
+	bool		isStopped() const;
 	
 	bool		hasBuffer()			{return _buffer ? true : false;}
 	
@@ -116,8 +122,9 @@ public:
 	int		getEntityChannel() const	{return _entity_channel;}
 	void		setEntityChannel(int channel)	{_entity_channel = channel;}
 	
+	int		getCluster() const		{return _cluster;}
+	
 	bool		isActivated() const		{return _activated;}
-	void		isActivated(bool activated)	{_activated = activated;}
 	
 private:
 	uint_t		_id;
@@ -130,6 +137,8 @@ private:
 	
 	int		_entity_num;		// to allow overriding a specific sound
 	int		_entity_channel;
+	
+	int		_cluster;
 	
 	bool		_activated;
 };
@@ -153,13 +162,16 @@ public:
 	
 	s_sound_type_t	getType() const			{return _type;}
 	
+	void		setVolume(float volume)		{_gain = X_max(0.0, (60.0 + volume)/60.0);}
+	
 	void		setGain(float gain)		{_gain = gain;}
 	void		setMinGain(float gain)		{_gain_min = gain;}
 	void		setMaxGain(float gain)		{_gain_max = gain;}
 	
 	// distance model attributes
-	void		setRefDistance(float dist)	{_distance_ref = dist;}
-	void		setMaxDistance(float dist)	{_distance_max = dist;}
+	void		setRefDistance(float dist)	{_distance_ref = X_max(0.0, dist);}
+	void		setMaxDistance(float dist)	{_distance_max = X_max(0.0, dist);}
+	
 	void		setRolloffFactor(float factor)	{_rolloff_factor = factor;}
 	
 	void		setPitch(float pitch)		{_pitch = pitch;}
@@ -186,6 +198,7 @@ private:
 	
 	float				_distance_ref;
 	float				_distance_max;
+	
 	float				_rolloff_factor;
 	
 	float				_pitch;
@@ -240,6 +253,13 @@ extern std::vector<s_shader_c*>	s_shaders;
 //
 // s_backend
 //
+#if 1 //DEBUG
+#define		S_CheckForError()	S_CheckForError_(__FILE__, __LINE__)
+#else
+#define		S_CheckForError()
+#endif
+void		S_CheckForError_(const char *filename, int line);
+
 void		S_InitOpenAL();
 void		S_ShutdownOpenAL();
 
