@@ -1805,7 +1805,6 @@ r_image_c*	R_FindImage(const std::string &name, uint_t flags, r_image_upload_typ
 				goto r_find_image_done;
 			}
 			
-			/*
 			name_new = name_short + ".png";
 			IMG_LoadPNG(name_new, &pic, &width, &height);
 			if(pic)
@@ -1813,7 +1812,6 @@ r_image_c*	R_FindImage(const std::string &name, uint_t flags, r_image_upload_typ
 				image = R_LoadImage(name_short, pic, width, height, flags, upload_type);
 				goto r_find_image_done;
 			}
-			*/
 	
 			name_new = name_short + ".jpg";
 			IMG_LoadJPG(name_new, &pic, &width, &height);
@@ -1837,7 +1835,6 @@ r_image_c*	R_FindImage(const std::string &name, uint_t flags, r_image_upload_typ
 				goto r_find_image_done;
 			}
 		
-			/*
 			name_new = name_short + ".png";
 			IMG_LoadPNGGrey(name_new, &pic, &width, &height);
 			if(pic)
@@ -1845,7 +1842,6 @@ r_image_c*	R_FindImage(const std::string &name, uint_t flags, r_image_upload_typ
 				image = R_LoadImage(name_short, pic, width, height, flags, upload_type);
 				goto r_find_image_done;
 			}
-			*/
 			
 			ri.Com_Printf("R_FindImage: couldn't find greyscale image '%s'\n", name_short.c_str());
 			break;
@@ -1861,7 +1857,6 @@ r_image_c*	R_FindImage(const std::string &name, uint_t flags, r_image_upload_typ
 				goto r_find_image_done;
 			}
 		
-			/*
 			name_new = name_short + ".png";
 			IMG_LoadPNGGrey(name_new, &pic, &width, &height);
 			if(pic)
@@ -1869,7 +1864,6 @@ r_image_c*	R_FindImage(const std::string &name, uint_t flags, r_image_upload_typ
 				image = R_LoadImage(name_short, pic, width, height, flags, upload_type);
 				goto r_find_image_done;
 			}
-			*/
 			
 			ri.Com_Printf("R_FindImage: couldn't find greyscale image '%s'\n", name_short.c_str());
 			break;
