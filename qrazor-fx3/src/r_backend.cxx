@@ -1868,6 +1868,9 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 				{
 					case SHADER_MATERIAL_STAGE_TYPE_HEATHAZEMAP:
 					{
+						// update _currentRender texture
+						r_img_currentrender->copyFromContext();
+					
 						RB_EnableShader_heathaze();
 						RB_RenderCommand_heathaze(cmd, stage);
 						RB_DisableShader_heathaze();
@@ -2624,10 +2627,6 @@ void	RB_RenderCommands()
 	//
 	if(r_drawpostprocess->getInteger())
 	{
-		// update _currentRender texture
-		r_img_currentrender->copyFromContext();
-		r_img_currentrender_depth->copyFromContext();
-	
 		for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 		{
 			if(!cmd->getEntityShader()->hasFlags(SHADER_POSTPROCESS))
