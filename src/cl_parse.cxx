@@ -560,128 +560,6 @@ static void	CL_ParsePacketEntities(bitmessage_c &msg, frame_t *oldframe, frame_t
 	cge->CG_EndFrame(cl.frame.entities_num);
 }
 
-static void	CL_ParsePlayerstate(bitmessage_c &msg, frame_t *oldframe, frame_t *newframe)
-{
-	int			flags;
-	player_state_t	*state;
-	int			i;
-	int			statbits;
-
-	state = &newframe->playerstate;
-
-	// clear to old value before delta parsing
-	if (oldframe)
-		*state = oldframe->playerstate;
-	else
-		state->clear();
-
-	flags = msg.readShort();
-
-	//
-	// parse the pmove_state_t
-	//
-	if(flags & PS_M_TYPE)
-		state->pmove.pm_type = (pm_type_e) msg.readByte();
-
-	if(flags & PS_M_ORIGIN)
-	{
-		state->pmove.origin[0] = msg.readFloat();
-		state->pmove.origin[1] = msg.readFloat();
-		state->pmove.origin[2] = msg.readFloat();
-	}
-
-	if(flags & PS_M_VELOCITY)
-	{
-		state->pmove.velocity_linear[0] = msg.readFloat();
-		state->pmove.velocity_linear[1] = msg.readFloat();
-		state->pmove.velocity_linear[2] = msg.readFloat();
-	}
-
-	if(flags & PS_M_TIME)
-		state->pmove.pm_time = msg.readByte();
-
-	if(flags & PS_M_FLAGS)
-		state->pmove.pm_flags = msg.readByte();
-
-	if(flags & PS_M_GRAVITY)
-		state->pmove.gravity = msg.readFloat();
-
-	if(flags & PS_M_DELTA_ANGLES)
-	{
-		state->pmove.delta_angles[0] = msg.readFloat();
-		state->pmove.delta_angles[1] = msg.readFloat();
-		state->pmove.delta_angles[2] = msg.readFloat();
-	}
-
-	if(cl.attractloop)
-		state->pmove.pm_type = PM_FREEZE;		// demo playback
-
-	//
-	// parse the rest of the player_state_t
-	//
-	if(flags & PS_VIEW_OFFSET)
-	{
-		state->view_offset[0] = msg.readFloat();// * 0.25;
-		state->view_offset[1] = msg.readFloat();// * 0.25;
-		state->view_offset[2] = msg.readFloat();// * 0.25;
-	}
-
-	if(flags & PS_VIEW_ANGLES)
-	{		
-		state->view_angles[0] = msg.readAngle();
-		state->view_angles[1] = msg.readAngle();
-		state->view_angles[2] = msg.readAngle();
-
-	}
-
-	if(flags & PS_KICK_ANGLES)
-	{
-		state->kick_angles[0] = msg.readFloat();// * 0.25;
-		state->kick_angles[1] = msg.readFloat();// * 0.25;
-		state->kick_angles[2] = msg.readFloat();// * 0.25;
-	}
-
-	if(flags & PS_WEAPON_MODEL_INDEX)
-	{
-		state->gun_model_index = msg.readByte();
-	}
-
-	if(flags & PS_WEAPON_ANIMATION_FRAME)
-	{
-		state->gun_anim_frame = msg.readShort();
-		
-		state->gun_offset[0] = msg.readFloat();//*0.25;
-		state->gun_offset[1] = msg.readFloat();//*0.25;
-		state->gun_offset[2] = msg.readFloat();//*0.25;
-		
-		state->gun_angles[0] = msg.readFloat();//*0.25;
-		state->gun_angles[1] = msg.readFloat();//*0.25;
-		state->gun_angles[2] = msg.readFloat();//*0.25;
-	}
-	
-	if(flags & PS_WEAPON_ANIMATION_INDEX)
-	{
-		state->gun_anim_index = msg.readByte();
-	}
-
-	if(flags & PS_BLEND)
-	{
-		msg.readColor(state->blend);
-	}
-
-	if(flags & PS_FOV)
-		state->fov = msg.readFloat();
-
-	if(flags & PS_RDFLAGS)
-		state->rdflags = msg.readByte();
-
-	// parse stats
-	statbits = msg.readLong();
-	for(i=0; i<MAX_STATS; i++)
-		if(statbits & (1<<i))
-			state->stats[i] = msg.readShort();
-}
-
 static void	CL_ParseFrame(bitmessage_c &msg)
 {
 	int		cmd;
@@ -765,7 +643,7 @@ static void	CL_ParseFrame(bitmessage_c &msg)
 	if(cmd != SVC_PLAYERINFO)
 		Com_Error(ERR_DROP, "CL_ParseFrame: not SVC_PLAYERINFO");
 	
-	CL_ParsePlayerstate(msg, old, &cl.frame);
+	msg.readDeltaPlayerState(old ? &old->playerstate : &null_player_state, &cl.frame.playerstate);
 
 
 	//

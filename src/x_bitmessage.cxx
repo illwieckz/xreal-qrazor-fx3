@@ -478,58 +478,80 @@ void	bitmessage_c::writeQuaternion(const quaternion_c &q)
 
 void 	bitmessage_c::writeDeltaUsercmd(const usercmd_t *from, const usercmd_t *to)
 {
-	//
-	// send the movement message
-	//
-	int bits = 0;
+	writeLong(to->msec);
+	
+	// write current buttons
+	if(to->buttons != from->buttons)
+	{
+		writeBit(true);
+		writeByte(to->buttons);
+	}
+	else
+	{
+		writeBit(false);
+	}
+
+	// write current angles
 	if(to->angles[0] != from->angles[0])
-		bits |= CM_ANGLE1;
+	{
+		writeBit(true);
+		writeFloat(to->angles[0]);
+	}
+	else
+	{
+		writeBit(false);
+	}
 	
 	if(to->angles[1] != from->angles[1])
-		bits |= CM_ANGLE2;
+	{
+		writeBit(true);
+		writeFloat(to->angles[1]);
+	}
+	else
+	{
+		writeBit(false);
+	}
 	
 	if(to->angles[2] != from->angles[2])
-		bits |= CM_ANGLE3;
-	
-	if(to->forwardmove != from->forwardmove)
-		bits |= CM_FORWARD;
-	
-	if(to->sidemove != from->sidemove)
-		bits |= CM_SIDE;
-	
-	if(to->upmove != from->upmove)
-		bits |= CM_UP;
-	
-	if(to->buttons != from->buttons)
-		bits |= CM_BUTTONS;
-
-   	writeByte(bits);
-	
-	// write current angles
-	if(bits & CM_ANGLE1)
-		writeFloat(to->angles[0]);
-		
-	if(bits & CM_ANGLE2)
-		writeFloat(to->angles[1]);
-		
-	if(bits & CM_ANGLE3)
+	{
+		writeBit(true);
 		writeFloat(to->angles[2]);
+	}
+	else
+	{
+		writeBit(false);
+	}
 	
 	// write current movement
-	if(bits & CM_FORWARD)
+	if(to->forwardmove != from->forwardmove)
+	{
+		writeBit(true);
 		writeFloat(to->forwardmove);
-		
-	if(bits & CM_SIDE)
-	  	writeFloat(to->sidemove);
-		
-	if(bits & CM_UP)
+	}
+	else
+	{
+		writeBit(false);
+	}
+	
+	if(to->sidemove != from->sidemove)
+	{
+		writeBit(true);
+		writeFloat(to->sidemove);
+	}
+	else
+	{
+		writeBit(false);
+	}
+	
+	if(to->upmove != from->upmove)
+	{
+		writeBit(true);
 		writeFloat(to->upmove);
-
-	// write current buttons
- 	if(bits & CM_BUTTONS)
-	  	writeByte(to->buttons);
-
-	writeLong(to->msec);
+	}
+	else
+	{
+		writeBit(false);
+	}	
 }
 
 /*
@@ -542,8 +564,6 @@ Can delta from either a baseline or a previous packet_entity
 */
 void 	bitmessage_c::writeDeltaEntity(const entity_state_t *from, const entity_state_t *to, bool force)
 {
-	int		bits = 0;
-	
 //	Com_Printf("bitmessage_c::writeDeltaEntity: from %i to %i\n", from->getNumber(), to->getNumber());
 	
 	if(!from && !to)
@@ -563,185 +583,504 @@ void 	bitmessage_c::writeDeltaEntity(const entity_state_t *from, const entity_st
 		
 	if(to->getNumber() >= MAX_ENTITIES)
 		Com_Error(ERR_FATAL, "Entity number >= MAX_ENTITIES");
-
-	// send an update
-	bits = 0;
+		
 	
-	if(to->type != from->type)
-		bits |= U_TYPE;
-		
-	if(to->origin != from->origin)
-		bits |= U_ORIGIN;
-		
-	if(to->origin2 != from->origin2)
-		bits |= U_ORIGIN2;
-		
-	if(to->quat != from->quat)
-		bits |= U_QUATERNION;		
-		
-	if(to->quat2 != from->quat2)
-		bits |= U_QUATERNION2;
-		
-	if(to->velocity_linear != from->velocity_linear)
-		bits |= U_VELOCITY_LINEAR;
-		
-	if(to->velocity_angular != from->velocity_angular)
-		bits |= U_VELOCITY_ANGULAR;
-				
-	if(to->index_model != from->index_model)
-		bits |= U_INDEX_MODEL;
-		
-	if(to->index_shader != from->index_shader)
-		bits |= U_INDEX_SHADER;	
-		
-	if(to->index_animation != from->index_animation)
-		bits |= U_INDEX_ANIMATION;
-		
-	if(to->index_sound != from->index_sound)
-		bits |= U_INDEX_SOUND;
-		
-	if(to->index_light != from->index_light)
-		bits |= U_INDEX_LIGHT;
 	
-	if(to->frame != from->frame)
-		bits |= U_FRAME;
-
-	if(to->effects != from->effects)
-		bits |= U_EFFECTS;
-	
-	if(to->renderfx != from->renderfx)
-		bits |= U_RENDERFX;
-
-	if(to->event)	// event is not delta compressed, just 0 compressed
-		bits |= U_EVENT;
-		
-	if(to->shaderparms[0] != from->shaderparms[0])
-		bits |= U_SHADERPARM0;
-		
-	if(to->shaderparms[1] != from->shaderparms[1])
-		bits |= U_SHADERPARM1;
-		
-	if(to->shaderparms[2] != from->shaderparms[2])
-		bits |= U_SHADERPARM2;
-		
-	if(to->shaderparms[3] != from->shaderparms[3])
-		bits |= U_SHADERPARM3;
-		
-	if(to->shaderparms[4] != from->shaderparms[4])
-		bits |= U_SHADERPARM4;
-	
-	if(to->shaderparms[5] != from->shaderparms[5])
-		bits |= U_SHADERPARM5;
-		
-	if(to->shaderparms[6] != from->shaderparms[6])
-		bits |= U_SHADERPARM6;
-		
-	if(to->shaderparms[7] != from->shaderparms[7])
-		bits |= U_SHADERPARM7;
-		
-	if(to->vectors[0] != from->vectors[0])
-		bits |= U_VECTOR0;
-		
-	if(to->vectors[1] != from->vectors[1])
-		bits |= U_VECTOR1;
-		
-	if(to->vectors[2] != from->vectors[2])
-		bits |= U_VECTOR2;
-
-
-	//
-	// write the message
-	//
-	if(!bits && !force)
+	if(((memcmp(from, to, sizeof(entity_state_t)) == 0) && !to->event) && !force)
 		return;		// nothing to send!
 
 	//Com_Printf("message_c::writeDeltaEntity: %3i %3i\n", to->getNumber());
 	
 	writeBits(to->getNumber(), MAX_ENTITIES_BITS);
 	writeBit(false);	// keep entity
-	writeLong(bits);
-	
-	
-	if(bits & U_TYPE)
+
+	if(to->type != from->type)
+	{
+		writeBit(true);
 		writeByte(to->type);
-
-	if(bits & U_ORIGIN)
+	}
+	else
+	{
+		writeBit(false);
+	}
+		
+	if(to->origin != from->origin)
+	{
+		writeBit(true);
 		writeVec3(to->origin);
-				
-	if(bits & U_ORIGIN2)
+	}
+	else
+	{
+		writeBit(false);
+	}
+		
+	if(to->origin2 != from->origin2)
+	{
+		writeBit(true);
 		writeVec3(to->origin2);
+	}
+	else
+	{
+		writeBit(false);
+	}
 		
-	if(bits & U_QUATERNION)
+	if(to->quat != from->quat)
+	{
+		writeBit(true);
 		writeQuaternion(to->quat);
+	}
+	else
+	{
+		writeBit(false);
+	}
 		
-	if(bits & U_QUATERNION2)
+	if(to->quat2 != from->quat2)
+	{
+		writeBit(true);
 		writeQuaternion(to->quat2);
+	}
+	else
+	{
+		writeBit(false);
+	}
 		
-	if(bits & U_VELOCITY_LINEAR)
+	if(to->velocity_linear != from->velocity_linear)
+	{
+		writeBit(true);
 		writeVec3(to->velocity_linear);
+	}
+	else
+	{
+		writeBit(false);
+	}
 		
-	if(bits & U_VELOCITY_ANGULAR)
+	if(to->velocity_angular != from->velocity_angular)
+	{
+		writeBit(true);
 		writeVec3(to->velocity_angular);
-
-	if(bits & U_INDEX_MODEL)
+	}
+	else
+	{
+		writeBit(false);
+	}
+				
+	if(to->index_model != from->index_model)
+	{
+		writeBit(true);
 		writeBits(to->index_model, MAX_MODELS_BITS);
+	}
+	else
+	{
+		writeBit(false);
+	}
 		
-	if(bits & U_INDEX_SHADER)
+	if(to->index_shader != from->index_shader)
+	{
+		writeBit(true);
 		writeBits(to->index_shader, MAX_SHADERS_BITS);
+	}
+	else
+	{
+		writeBit(false);
+	}
 		
-	if(bits & U_INDEX_ANIMATION)
+	if(to->index_animation != from->index_animation)
+	{
+		writeBit(true);
 		writeBits(to->index_animation, MAX_ANIMATIONS_BITS);
+	}
+	else
+	{
+		writeBit(false);
+	}
 		
-	if(bits & U_INDEX_SOUND)
+	if(to->index_sound != from->index_sound)
+	{
+		writeBit(true);
 		writeBits(to->index_sound, MAX_SOUNDS_BITS);
+	}
+	else
+	{
+		writeBit(false);
+	}
 		
-	if(bits & U_INDEX_LIGHT)
+	if(to->index_light != from->index_light)
+	{
+		writeBit(true);
 		writeBits(to->index_light, MAX_LIGHTS_BITS);
+	}
+	else
+	{
+		writeBit(false);
+	}
 	
-	if(bits & U_FRAME)
+	if(to->frame != from->frame)
+	{
+		writeBit(true);
 		writeShort(to->frame);
-	
-	if(bits & U_EFFECTS)
-		writeLong(to->effects);
+	}
+	else
+	{
+		writeBit(false);
+	}
 
-	if(bits & U_RENDERFX)
+	if(to->effects != from->effects)
+	{
+		writeBit(true);
+		writeLong(to->effects);
+	}
+	else
+	{
+		writeBit(false);
+	}
+	
+	if(to->renderfx != from->renderfx)
+	{
+		writeBit(true);
 		writeLong(to->renderfx);
-		
-	if(bits & U_EVENT)
+	}
+	else
+	{
+		writeBit(false);
+	}
+
+	if(to->event)	// event is not delta compressed, just 0 compressed
+	{
+		writeBit(true);
 		writeByte(to->event);
+	}
+	else
+	{
+		writeBit(false);
+	}
 		
-	if(bits & U_SHADERPARM0)
+	if(to->shaderparms[0] != from->shaderparms[0])
+	{
+		writeBit(true);
 		writeFloat(to->shaderparms[0]);
+	}
+	else
+	{
+		writeBit(false);
+	}
 		
-	if(bits & U_SHADERPARM1)
+	if(to->shaderparms[1] != from->shaderparms[1])
+	{
+		writeBit(true);
 		writeFloat(to->shaderparms[1]);
+	}
+	else
+	{
+		writeBit(false);
+	}
 		
-	if(bits & U_SHADERPARM2)
+	if(to->shaderparms[2] != from->shaderparms[2])
+	{
+		writeBit(true);
 		writeFloat(to->shaderparms[2]);
+	}
+	else
+	{
+		writeBit(false);
+	}
 		
-	if(bits & U_SHADERPARM3)
+	if(to->shaderparms[3] != from->shaderparms[3])
+	{
+		writeBit(true);
 		writeFloat(to->shaderparms[3]);
+	}
+	else
+	{
+		writeBit(false);
+	}
 		
-	if(bits & U_SHADERPARM4)
+	if(to->shaderparms[4] != from->shaderparms[4])
+	{
+		writeBit(true);
 		writeFloat(to->shaderparms[4]);
-		
-	if(bits & U_SHADERPARM5)
+	}
+	else
+	{
+		writeBit(false);
+	}
+	
+	if(to->shaderparms[5] != from->shaderparms[5])
+	{
+		writeBit(true);
 		writeFloat(to->shaderparms[5]);
+	}
+	else
+	{
+		writeBit(false);
+	}
 		
-	if(bits & U_SHADERPARM6)
+	if(to->shaderparms[6] != from->shaderparms[6])
+	{
+		writeBit(true);
 		writeFloat(to->shaderparms[6]);
+	}
+	else
+	{
+		writeBit(false);
+	}
 		
-	if(bits & U_SHADERPARM7)
+	if(to->shaderparms[7] != from->shaderparms[7])
+	{
+		writeBit(true);
 		writeFloat(to->shaderparms[7]);
+	}
+	else
+	{
+		writeBit(false);
+	}
 		
-	if(bits & U_VECTOR0)
+	if(to->vectors[0] != from->vectors[0])
+	{
+		writeBit(true);
 		writeVec3(to->vectors[0]);
+	}
+	else
+	{
+		writeBit(false);
+	}
 		
-	if(bits & U_VECTOR1)
+	if(to->vectors[1] != from->vectors[1])
+	{
+		writeBit(true);
 		writeVec3(to->vectors[1]);
+	}
+	else
+	{
+		writeBit(false);
+	}
 		
-	if(bits & U_VECTOR2)
+	if(to->vectors[2] != from->vectors[2])
+	{
+		writeBit(true);
 		writeVec3(to->vectors[2]);
+	}
+	else
+	{
+		writeBit(false);
+	}	
+}
+
+void	bitmessage_c::writeDeltaPlayerState(const player_state_t *from, const player_state_t *to)
+{
+	//
+	// write the pmove_state_t
+	//
+	if(to->pmove.pm_type != from->pmove.pm_type)
+	{
+		writeBit(true);
+		writeByte(to->pmove.pm_type);
+	}
+	else
+	{
+		writeBit(false);
+	}
+
+	if(to->pmove.origin != from->pmove.origin)
+	{
+		writeBit(true);
+		writeVec3(to->pmove.origin);
+	}
+	else
+	{
+		writeBit(false);
+	}
+
+	if(to->pmove.velocity_linear != from->pmove.velocity_linear)
+	{
+		writeBit(true);
+		writeVec3(to->pmove.velocity_linear);
+	}
+	else
+	{
+		writeBit(false);
+	}
+	
+	if(to->pmove.velocity_angular != from->pmove.velocity_angular)
+	{
+		writeBit(true);
+		writeVec3(to->pmove.velocity_angular);
+	}
+	else
+	{
+		writeBit(false);
+	}
+	
+	if(to->pmove.pm_flags != from->pmove.pm_flags)
+	{
+		writeBit(true);
+		writeByte(to->pmove.pm_flags);
+	}
+	else
+	{
+		writeBit(false);
+	}
+
+	if(to->pmove.pm_time != from->pmove.pm_time)
+	{
+		writeBit(true);
+		writeByte(to->pmove.pm_time);
+	}
+	else
+	{
+		writeBit(false);
+	}
+
+	if(to->pmove.gravity != from->pmove.gravity)
+	{
+		writeBit(true);
+		writeFloat(to->pmove.gravity);
+	}
+	else
+	{
+		writeBit(false);
+	}
+
+	if(to->pmove.delta_angles != from->pmove.delta_angles)
+	{
+		writeBit(true);
+		writeAngle(to->pmove.delta_angles[0]);
+		writeAngle(to->pmove.delta_angles[1]);
+		writeAngle(to->pmove.delta_angles[2]);
+	}
+	else
+	{
+		writeBit(false);
+	}
+	
+	//
+	// write the rest of the player_state_t
+	//
+	if(to->view_angles != from->view_angles)
+	{
+		writeBit(true);
+		writeAngle(to->view_angles[0]);
+		writeAngle(to->view_angles[1]);
+		writeAngle(to->view_angles[2]);
+	}
+	else
+	{
+		writeBit(false);
+	}
+	
+	if(to->view_offset != from->view_offset)
+	{
+		writeBit(true);
+		writeVec3(to->view_offset[0]);
+	}
+	else
+	{
+		writeBit(false);
+	}
+
+	if(to->kick_angles != from->kick_angles)
+	{
+		writeBit(true);
+		writeAngle(to->kick_angles[0]);
+		writeAngle(to->kick_angles[1]);
+		writeAngle(to->kick_angles[2]);
+	}
+	else
+	{
+		writeBit(false);
+	}
+	
+	if(to->gun_angles != from->gun_angles)
+	{
+		writeBit(true);
+		writeAngle(to->gun_angles[0]/**4*/);
+		writeAngle(to->gun_angles[1]/**4*/);
+		writeAngle(to->gun_angles[2]/**4*/);
+	}
+	else
+	{
+		writeBit(false);
+	}
+	
+	if(to->gun_offset != from->gun_offset)
+	{
+		writeBit(true);
+		writeVec3(to->gun_offset);
+	}
+	else
+	{
+		writeBit(false);
+	}
+	
+	if(to->gun_model_index != from->gun_model_index)
+	{
+		writeBit(true);
+		writeBits(to->gun_model_index, MAX_MODELS_BITS);
+	}
+	else
+	{
+		writeBit(false);
+	}
+
+	if(to->gun_anim_frame != from->gun_anim_frame)
+	{
+		writeBit(true);
+		writeShort(to->gun_anim_frame);
+	}
+	else
+	{
+		writeBit(false);
+	}
+	
+	if(to->gun_anim_index != from->gun_anim_index)
+	{
+		writeBit(true);
+		writeBits(to->gun_anim_index, MAX_ANIMATIONS_BITS);
+	}
+	else
+	{
+		writeBit(false);
+	}
+	
+	if(to->blend != from->blend)
+	{
+		writeBit(true);
+		writeColor(to->blend);
+	}
+	else
+	{
+		writeBit(false);
+	}
+
+	if(to->fov != from->fov)
+	{
+		writeBit(true);
+		writeFloat(to->fov);
+	}
+	else
+	{
+		writeBit(false);
+	}
+
+	if(to->rdflags != from->rdflags)
+	{
+		writeBit(true);
+		writeByte(to->rdflags);
+	}
+	else
+	{
+		writeBit(false);
+	}
+	
+	// send stats
+	int statbits = 0;
+	for(int i=0; i<MAX_STATS; i++)
+		if(to->stats[i] != from->stats[i])
+			statbits |= 1<<i;
+	writeLong(statbits);
+	
+	for(int i=0; i<MAX_STATS; i++)
+		if(statbits & (1<<i))
+			writeShort(to->stats[i]);
 }
 
 
@@ -1069,36 +1408,35 @@ void	bitmessage_c::readQuaternion(quaternion_c &q)
 
 void	bitmessage_c::readDeltaUsercmd(const usercmd_t *from, usercmd_t *to)
 {
-	memcpy(to, from, sizeof(*to));
+	// set everything to the state we are delta'ing from
+	*to = *from;
+	
+	// read time to run command
+	to->msec = readLong();
+	
+	// read buttons
+	if(readBit())
+		to->buttons = readByte();
 
-	int bits = readByte();
-		
 	// read current angles
-	if(bits & CM_ANGLE1)
+	if(readBit())
 		to->angles[0] = readFloat();
 		
-	if(bits & CM_ANGLE2)
+	if(readBit())
 		to->angles[1] = readFloat();
 		
-	if(bits & CM_ANGLE3)
+	if(readBit())
 		to->angles[2] = readFloat();
 		
 	// read movement
-	if(bits & CM_FORWARD)
+	if(readBit())
 		to->forwardmove = readFloat();
 		
-	if(bits & CM_SIDE)
+	if(readBit())
 		to->sidemove = readFloat();
 		
-	if(bits & CM_UP)
-		to->upmove = readFloat();
-		
-	// read buttons
-	if(bits & CM_BUTTONS)
-		to->buttons = readByte();
-
-	// read time to run command
-	to->msec = readLong();
+	if(readBit())
+		to->upmove = readFloat();	
 }
 
 
@@ -1109,7 +1447,7 @@ CG_ParseDelta
 Can go from either a baseline or a previous packet_entity
 ==================
 */
-bool	bitmessage_c::readDeltaEntity(const entity_state_t *from, entity_state_t *to, int number)
+void	bitmessage_c::readDeltaEntity(const entity_state_t *from, entity_state_t *to, int number)
 {
 	// set everything to the state we are delta'ing from
 	*to = *from;
@@ -1119,97 +1457,186 @@ bool	bitmessage_c::readDeltaEntity(const entity_state_t *from, entity_state_t *t
 	if(remove)
 	{
 		to->clear();
-		return true;
+		return;
 	}
 
-	uint_t bits = readLong();
-	
-	if(!bits)
-		return false;
-	
-	if(bits & U_TYPE)
+	if(readBit())
 		to->type = (entity_type_e)readByte();
 	
-	if(bits & U_ORIGIN)
+	if(readBit())
 		readVec3(to->origin);
 		
-	if(bits & U_ORIGIN2)
+	if(readBit())
 		readVec3(to->origin2);
 		
-	if(bits & U_QUATERNION)
+	if(readBit())
 		readQuaternion(to->quat);
 		 
-	if(bits & U_QUATERNION2)
+	if(readBit())
 		readQuaternion(to->quat2);
 		 
-	if(bits & U_VELOCITY_LINEAR)
+	if(readBit())
 		readVec3(to->velocity_linear);
 		
-	if(bits & U_VELOCITY_ANGULAR)
+	if(readBit())
 		readVec3(to->velocity_angular);
 
-	if(bits & U_INDEX_MODEL)
+	if(readBit())
 		to->index_model = readBits(MAX_MODELS_BITS);
 		
-	if(bits & U_INDEX_SHADER)
+	if(readBit())
 		to->index_shader = readBits(MAX_SHADERS_BITS);
 		
-	if(bits & U_INDEX_ANIMATION)
+	if(readBit())
 		to->index_animation = readBits(MAX_ANIMATIONS_BITS);
 		
-	if(bits & U_INDEX_SOUND)
+	if(readBit())
 		to->index_sound = readBits(MAX_SOUNDS_BITS);
 		
-	if(bits & U_INDEX_LIGHT)
+	if(readBit())
 		to->index_light = readBits(MAX_LIGHTS_BITS);
 		
-	if(bits & U_FRAME)
+	if(readBit())
 		to->frame = readShort();
 	
-	if(bits & U_EFFECTS)
+	if(readBit())
 		to->effects = readLong();
 	
-	if(bits & U_RENDERFX)
+	if(readBit())
 		to->renderfx = readLong();
 
-	if(bits & U_EVENT)
+	if(readBit())
 		to->event = readByte();
 	else
 		to->event = 0;
 		
-	if(bits & U_SHADERPARM0)
+	if(readBit())
 		to->shaderparms[0] = readFloat();
 		
-	if(bits & U_SHADERPARM1)
+	if(readBit())
 		to->shaderparms[1] = readFloat();
 		
-	if(bits & U_SHADERPARM2)
+	if(readBit())
 		to->shaderparms[2] = readFloat();
 		
-	if(bits & U_SHADERPARM3)
+	if(readBit())
 		to->shaderparms[3] = readFloat();
 		
-	if(bits & U_SHADERPARM4)
+	if(readBit())
 		to->shaderparms[4] = readFloat();
 	
-	if(bits & U_SHADERPARM5)
+	if(readBit())
 		to->shaderparms[5] = readFloat();
 		
-	if(bits & U_SHADERPARM6)
+	if(readBit())
 		to->shaderparms[6] = readFloat();
 		
-	if(bits & U_SHADERPARM7)
+	if(readBit())
 		to->shaderparms[7] = readFloat();
 		
-	if(bits & U_VECTOR0)
+	if(readBit())
 		readVec3(to->vectors[0]);
 		
-	if(bits & U_VECTOR1)
+	if(readBit())
 		readVec3(to->vectors[1]);
 		
-	if(bits & U_VECTOR2)
+	if(readBit())
 		readVec3(to->vectors[2]);
-		
-	return true;
 }
+
+void	bitmessage_c::readDeltaPlayerState(const player_state_t *from, player_state_t *to)
+{
+	// set everything to the state we are delta'ing from
+	*to = *from;
+	
+	//
+	// parse the pmove_state_t
+	//
+	if(readBit())
+		to->pmove.pm_type = (pm_type_e) readByte();
+
+	if(readBit())
+		readVec3(to->pmove.origin);
+
+	if(readBit())
+		readVec3(to->pmove.velocity_linear);
+		
+	if(readBit())
+		readVec3(to->pmove.velocity_angular);
+		
+	if(readBit())
+		to->pmove.pm_flags = readByte();
+
+	if(readBit())
+		to->pmove.pm_time = readByte();
+
+	if(readBit())
+		to->pmove.gravity = readFloat();
+
+	if(readBit())
+	{
+		to->pmove.delta_angles[0] = readAngle();
+		to->pmove.delta_angles[1] = readAngle();
+		to->pmove.delta_angles[1] = readAngle();
+	}
+
+//	if(cl.attractloop)	FIXME
+//		to->pmove.pm_type = PM_FREEZE;		// demo playback
+
+	//
+	// parse the rest of the player_to_t
+	//
+	if(readBit())
+	{		
+		to->view_angles[0] = readAngle();
+		to->view_angles[1] = readAngle();
+		to->view_angles[2] = readAngle();
+	}
+	
+	if(readBit())
+		readVec3(to->view_offset);
+
+	if(readBit())
+	{
+		to->kick_angles[0] = readAngle();
+		to->kick_angles[1] = readAngle();
+		to->kick_angles[2] = readAngle();
+	}
+	
+	if(readBit())
+	{
+		to->gun_angles[0] = readAngle();
+		to->gun_angles[1] = readAngle();
+		to->gun_angles[2] = readAngle();
+	}
+	
+	if(readBit())
+		readVec3(to->gun_offset);
+
+	if(readBit())
+		to->gun_model_index = readBits(MAX_MODELS_BITS);
+
+	if(readBit())
+		to->gun_anim_frame = readShort();
+	
+	if(readBit())
+		to->gun_anim_index = readBits(MAX_ANIMATIONS_BITS);
+
+	if(readBit())
+		readColor(to->blend);
+
+	if(readBit())
+		to->fov = readFloat();
+
+	if(readBit())
+		to->rdflags = readByte();
+
+	// parse stats
+	int statbits = readLong();
+	for(int i=0; i<MAX_STATS; i++)
+		if(statbits & (1<<i))
+			to->stats[i] = readShort();
+}
+
+
 

@@ -38,7 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #define	MAX_PACKETLEN		1400
-#define MAX_MSGLEN		MAX_PACKETLEN*5
+#define MAX_MSGLEN		MAX_PACKETLEN
 
 
 class netchan_c;
@@ -84,6 +84,7 @@ public:
 
 	void		writeDeltaUsercmd(const usercmd_t *from, const usercmd_t *to);
 	void 		writeDeltaEntity(const entity_state_t *from, const entity_state_t *to, bool force);
+	void		writeDeltaPlayerState(const player_state_t *from, const player_state_t *to);
 	
 	void		writeMessage(const bitmessage_c &msg);
 	int		writeMessageCompressed(const bitmessage_c &msg, bool skip_if_fails = false);
@@ -108,7 +109,8 @@ public:
 	void		readQuaternion(quaternion_c &q);
 
 	void		readDeltaUsercmd(const usercmd_t *from, usercmd_t *to);
-	bool		readDeltaEntity(const entity_state_t *from, entity_state_t *to, int number);
+	void		readDeltaEntity(const entity_state_t *from, entity_state_t *to, int number);
+	void		readDeltaPlayerState(const player_state_t *from, player_state_t *to);
 	
 	
 	inline bool		isOverFlowed() const		{return _overflowed;}

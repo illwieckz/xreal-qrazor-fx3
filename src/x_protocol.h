@@ -1,7 +1,7 @@
 /// ============================================================================
 /*
 Copyright (C) 1997-2001 Id Software, Inc.
-Copyright (C) 2004 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2005 Robert Beckebans <trebor_7@users.sourceforge.net>
 Please see the file "AUTHORS" for a list of contributors
 
 This program is free software; you can redistribute it and/or
@@ -35,7 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 
-#define	PROTOCOL_VERSION	61
+#define	PROTOCOL_VERSION	62
 
 #define	UPDATE_BACKUP		32	// copies of entity_state_t to keep buffered, must be power of two
 #define	UPDATE_MASK		(UPDATE_BACKUP-1)
@@ -114,95 +114,7 @@ enum
 extern const int	clc_bitcount;
 extern const char*	clc_strings[];
 
-//==============================================
 
-// plyer_state_t communication
-
-#define	PS_M_TYPE				(1<<0)
-#define	PS_M_ORIGIN				(1<<1)
-#define	PS_M_VELOCITY				(1<<2)
-#define	PS_M_TIME				(1<<3)
-#define	PS_M_FLAGS				(1<<4)
-#define	PS_M_GRAVITY				(1<<5)
-#define	PS_M_DELTA_ANGLES			(1<<6)
-
-#define	PS_VIEW_OFFSET				(1<<7)
-#define	PS_VIEW_ANGLES				(1<<8)
-#define	PS_KICK_ANGLES				(1<<9)
-#define	PS_BLEND				(1<<10)
-#define	PS_FOV					(1<<11)
-#define	PS_WEAPON_MODEL_INDEX			(1<<12)
-#define	PS_WEAPON_ANIMATION_FRAME		(1<<13)
-#define PS_WEAPON_ANIMATION_INDEX		(1<<14)
-#define	PS_RDFLAGS				(1<<15)
-
-//==============================================
-
-// usercmd_t communication
-
-// ms and light always sent, the others are optional
-#define	CM_ANGLE1				(1<<0)
-#define	CM_ANGLE2				(1<<1)
-#define	CM_ANGLE3				(1<<2)
-#define	CM_FORWARD				(1<<3)
-#define	CM_SIDE					(1<<4)
-#define	CM_UP					(1<<5)
-#define	CM_BUTTONS				(1<<6)
-
-//==============================================
-
-// a sound without an ent or pos will be a local only sound
-#define	SND_VOLUME				(1<<0)		// a byte
-#define	SND_ATTENUATION				(1<<1)		// a byte
-#define	SND_POS					(1<<2)		// three coordinates
-#define	SND_ENT					(1<<3)		// a short 0-2: channel, 3-12: entity
-#define	SND_OFFSET				(1<<4)		// a byte, msec offset from frame start
-
-#define DEFAULT_SOUND_PACKET_VOLUME		1.0
-#define DEFAULT_SOUND_PACKET_ATTENUATION	1.0
-
-//==============================================
-
-// entity_state_t communication
-enum
-{
-	// try to pack the common update flags into the first byte
-	U_TYPE					= (1<<0),
-	U_ORIGIN				= (1<<1),
-	U_ORIGIN2				= (1<<2),
-	U_QUATERNION				= (1<<3),
-	U_QUATERNION2				= (1<<4),
-	U_VELOCITY_LINEAR			= (1<<5),
-	U_VELOCITY_ANGULAR			= (1<<6),
-	U_INDEX_MODEL				= (1<<7),
-
-	// second byte
-	U_INDEX_SHADER				= (1<<8),
-	U_INDEX_ANIMATION			= (1<<9),
-	U_INDEX_SOUND				= (1<<10),
-	U_INDEX_LIGHT				= (1<<11),
-	U_FRAME					= (1<<12),
-	U_EFFECTS				= (1<<13),			// autorotate, trails, etc
-	U_RENDERFX				= (1<<14),			// fullbright, etc
-	U_EVENT					= (1<<15),
-
-	// third byte
-	U_SHADERPARM0				= (1<<16),
-	U_SHADERPARM1				= (1<<17),
-	U_SHADERPARM2				= (1<<18),
-	U_SHADERPARM3				= (1<<19),
-	U_SHADERPARM4				= (1<<20),
-	U_SHADERPARM5				= (1<<21),
-	U_SHADERPARM6				= (1<<22),
-	U_SHADERPARM7				= (1<<23),
-
-	// fourth byte
-	U_VECTOR0				= (1<<24),
-	U_VECTOR1				= (1<<25),
-	U_VECTOR2				= (1<<26),
-	
-	U_BITS					= 27
-};
 
 // temp entity events
 //
@@ -242,6 +154,21 @@ enum
 
 extern const int	te_bitcount;
 extern const char*	te_strings[];
+
+
+// a sound without an ent or pos will be a local only sound
+enum
+{
+	SND_NONE				= 0,
+	SND_VOLUME				= (1<<0),		// a byte
+	SND_ATTENUATION				= (1<<1),		// a byte
+	SND_POS					= (1<<2),		// three coordinates
+	SND_ENT					= (1<<3),		// a short 0-2: channel, 3-12: entity
+	SND_OFFSET				= (1<<4),		// a byte, msec offset from frame start
+};
+	
+extern const float DEFAULT_SOUND_PACKET_VOLUME;
+extern const float DEFAULT_SOUND_PACKET_ATTENUATION;
 
 
 #endif // X_PROTOCOL_H
