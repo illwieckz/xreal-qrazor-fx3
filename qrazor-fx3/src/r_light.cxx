@@ -125,7 +125,7 @@ void	r_light_c::update(const r_entity_t &shared, r_light_type_t type)
 			}
 		}
 		
-		ri.Com_DPrintf("light has %i precached static entities interactions\n", count);
+		//ri.Com_DPrintf("light has %i precached static entities interactions\n", count);
 		
 	}
 	else
