@@ -168,6 +168,11 @@ void		RB_DisableShader_dispersion_C();
 void		RB_RenderCommand_dispersion_C(const r_command_t *cmd,			const r_shader_stage_c *stage_colormap);
 
 
+void		RB_EnableShader_skybox_C();
+void		RB_DisableShader_skybox_C();
+void		RB_RenderCommand_skybox_C(const r_command_t *cmd,			const r_shader_stage_c *stage_colormap);
+
+
 void		RB_EnableShader_liquid_C();
 void		RB_DisableShader_liquid_C();
 void		RB_RenderCommand_liquid_C(const r_command_t *cmd,			const r_shader_stage_c *stage_colormap);

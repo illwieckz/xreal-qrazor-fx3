@@ -1587,6 +1587,45 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 			break;
 		}
 		
+		case RENDER_TYPE_SKY:
+		{
+			if(entity_shader->stage_skyboxmap)
+			{
+				if(!RB_Evaluate(cmd->getEntity()->getShared(), entity_shader->stage_skyboxmap->condition, 1))
+					break;
+					
+				RB_RenderCommand_skybox_C(cmd, entity_shader->stage_skyboxmap);
+			}
+		
+			/*
+			for(std::vector<r_shader_stage_c*>::const_iterator ir = entity_shader->stages.begin(); ir != entity_shader->stages.end(); ++ir)
+			{
+				const r_shader_stage_c* stage = *ir;
+				
+				if(!RB_Evaluate(cmd->getEntity()->getShared(), stage->condition, 1))
+					continue;
+			
+				switch(stage->type)
+				{
+					case SHADER_MATERIAL_STAGE_TYPE_SKYBOXMAP:
+					{
+						RB_EnableShader_skybox_C();
+						RB_RenderCommand_skybox_C(cmd, stage);
+						RB_DisableShader_skybox_C();
+						break;
+					}
+					
+					//TODO
+					
+					default:
+						break;
+				}
+			}
+			*/
+			
+			break;
+		}
+		
 		case RENDER_TYPE_LIGHTING_R:
 		{
 			if(	entity_shader->stage_diffusemap &&
@@ -2041,6 +2080,20 @@ void	RB_RenderCommands()
 			cmd->getEntityModel()->draw(cmd, RENDER_TYPE_ZFILL);
 		}
 		RB_DisableShader_zfill();
+	}
+	
+	
+	//
+	// draw sky stages, skybox and cloud layer stages
+	//
+	if(r_drawsky->getInteger())
+	{
+		RB_EnableShader_skybox_C();
+		for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
+		{
+			cmd->getEntityModel()->draw(cmd, RENDER_TYPE_SKY);
+		}
+		RB_DisableShader_skybox_C();
 	}
 	
 	

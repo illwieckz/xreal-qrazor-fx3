@@ -55,6 +55,8 @@ senetemp
 sfx
 sfx_multiplayer
 shaderDemo
+shaderlab_wall
+shaderlab_skies
 skies
 sound
 specialcase
