@@ -1375,9 +1375,7 @@ void	RB_ModifyOmniLightTextureMatrix(const r_command_t *cmd, const r_shader_stag
 	matrix_c	m;
 		
 	RB_SetupTCModMatrix(cmd->getLight()->getShared(), stage, m);
-//	m.multiply(light->getAttenuation());
-//	m.multiply(ent->getTransform());
-	m.multiply(cmd->getTransform());
+	m.multiply(cmd->getLightAttenuation());
 		
 	// upload it
 	xglMatrixMode(GL_TEXTURE);
@@ -1387,7 +1385,10 @@ void	RB_ModifyOmniLightTextureMatrix(const r_command_t *cmd, const r_shader_stag
 
 void	RB_ModifyOmniLightCubeTextureMatrix(const r_command_t *cmd, const r_shader_stage_c *stage)
 {
-	matrix_c	m = cmd->getLight()->getTransform().affineInverse() * cmd->getEntity()->getTransform();
+	matrix_c	m;
+	
+	RB_SetupTCModMatrix(cmd->getLight()->getShared(), stage, m);
+	m.multiply(cmd->getLightTransform());
 	
 	// upload it
 	xglMatrixMode(GL_TEXTURE);
@@ -1400,9 +1401,7 @@ void	RB_ModifyProjLightTextureMatrix(const r_command_t *cmd, const r_shader_stag
 	matrix_c	m;
 	
 	RB_SetupTCModMatrix(cmd->getLight()->getShared(), stage, m);
-//	m.multiply(light->getAttenuation());
-//	m.multiply(ent->getTransform());
-	m.multiply(cmd->getTransform());
+	m.multiply(cmd->getLightAttenuation());
 	
 	// upload it
 	xglMatrixMode(GL_TEXTURE);
@@ -1692,7 +1691,8 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 					
 					RB_RenderCommand_lighting_D_omni(cmd,		entity_shader->stage_diffusemap,
 											stage,
-											light_shader->stage_attenuationmap_z);
+											light_shader->stage_attenuationmap_z,
+											light_shader->stage_attenuationmap_cube);
 				}
 			}
 			
@@ -1740,7 +1740,8 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 					RB_RenderCommand_lighting_DB_omni(cmd,		entity_shader->stage_diffusemap,
 											entity_shader->stage_bumpmap,
 											stage,
-											light_shader->stage_attenuationmap_z);
+											light_shader->stage_attenuationmap_z,
+											light_shader->stage_attenuationmap_cube);
 				}
 			}
 			
@@ -1765,7 +1766,8 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 					RB_RenderCommand_lighting_DBH_omni(cmd,		entity_shader->stage_diffusemap,
 											entity_shader->stage_bumpmap,
 											stage,
-											light_shader->stage_attenuationmap_z);
+											light_shader->stage_attenuationmap_z,
+											light_shader->stage_attenuationmap_cube);
 				}
 			}
 			
@@ -1792,7 +1794,8 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 											entity_shader->stage_bumpmap,
 											entity_shader->stage_specularmap,
 											stage,
-											light_shader->stage_attenuationmap_z);
+											light_shader->stage_attenuationmap_z,
+											light_shader->stage_attenuationmap_cube);
 				}
 			}
 
@@ -1819,7 +1822,8 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 											entity_shader->stage_bumpmap,
 											entity_shader->stage_specularmap,
 											stage,
-											light_shader->stage_attenuationmap_z);
+											light_shader->stage_attenuationmap_z,
+											light_shader->stage_attenuationmap_cube);
 				}
 			}
 			
@@ -2593,7 +2597,8 @@ void	RB_AddCommand(	r_entity_c*		entity,
 			cmd = &r_current_scene->cmds_light.at(r_current_scene->cmds_light_num);
 		}
 		
-		cmd->_transform	= light->getAttenuation() * entity->getTransform();
+		cmd->_light_transform	= light->getView() * entity->getTransform();
+		cmd->_light_attenuation	= light->getAttenuation() * cmd->_light_transform;
 		
 		r_current_scene->cmds_light_num++;
 	}
@@ -2656,6 +2661,7 @@ void	RB_AddCommand(	r_entity_c*		entity,
 		r_current_scene->cmds_postprocess_num++;
 	}
 	
+	/*
 	if(entity_shader->hasFlags(SHADER_DEFORM_FLARE))
 	{
 		cmd->_transform.setupTranslation(entity->getShared().origin);
@@ -2665,6 +2671,7 @@ void	RB_AddCommand(	r_entity_c*		entity,
 		
 		cmd->_transform.multiplyRotation(angles);		
 	}
+	*/
 	
 	cmd->_entity		= entity;
 	cmd->_entity_model	= entity_model;

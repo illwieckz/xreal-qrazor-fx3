@@ -1063,6 +1063,7 @@ public:
 	inline const vec3_c&		getOrigin() const	{return _origin;}
 	
 	inline const matrix_c&		getTransform() const	{return _transform;}
+	inline const matrix_c&		getView() const		{return _transform_inv;}
 	inline const matrix_c&		getAttenuation() const	{return _attenuation;}
 	inline const matrix_c&		getProjection() const	{return _projection;}
 	
@@ -1086,6 +1087,8 @@ private:
 	vec3_c			_origin;
 		
 	matrix_c		_transform;
+	matrix_c		_transform_inv;
+	
 	matrix_c		_attenuation;
 	matrix_c		_projection;
 		
@@ -1128,11 +1131,11 @@ public:
 	inline r_mesh_c*		getEntityMesh() const	{return _entity_mesh;}
 	inline r_shader_c*		getEntityShader() const	{return _entity_shader;}
 	
-	inline r_light_c*		getLight() const	{return _light;}
-	inline r_shader_c*		getLightShader() const	{return _light_shader;}
-	inline std::vector<index_t>*	getLightIndexes() const	{return _light_indexes;}
-	
-	inline const matrix_c&		getTransform() const	{return _transform;}
+	inline r_light_c*		getLight() const		{return _light;}
+	inline r_shader_c*		getLightShader() const		{return _light_shader;}
+	inline std::vector<index_t>*	getLightIndexes() const		{return _light_indexes;}
+	inline const matrix_c&		getLightTransform() const	{return _light_transform;}
+	inline const matrix_c&		getLightAttenuation() const	{return _light_attenuation;}
 		
 	inline int			getInfoKey() const	{return _infokey;}
 	
@@ -1148,8 +1151,8 @@ private:
 	r_shader_c*		_light_shader;
 	std::vector<index_t>*	_light_indexes;
 	
-	matrix_c		_transform;		// used by autosprites, so we don't have to recalc
-							// the transform every time we draw the entity
+	matrix_c		_light_transform;
+	matrix_c		_light_attenuation;
 	
 	int			_infokey;
 	

@@ -25,6 +25,7 @@ uniform sampler2D	u_bumpmap;
 uniform sampler2D	u_specularmap;
 uniform sampler2D	u_attenuationmap_xy;
 uniform sampler2D	u_attenuationmap_z;
+uniform samplerCube	u_attenuationmap_cube;
 uniform vec3		u_view_origin;
 uniform vec3		u_light_origin;
 uniform vec3		u_light_color;
@@ -37,6 +38,7 @@ varying vec3		var_vertex;
 varying vec4		var_tex_diffuse_bump;
 varying vec2		var_tex_specular;
 varying vec3		var_tex_atten_xy_z;
+varying vec3		var_tex_atten_cube;
 varying mat3		var_mat_os2ts;
 
 void	main()
@@ -71,11 +73,13 @@ void	main()
 	// compute attenuation
 	vec3 attenuation_xy	= texture2D(u_attenuationmap_xy, var_tex_atten_xy_z.xy).rgb;
 	vec3 attenuation_z	= texture2D(u_attenuationmap_z, vec2(var_tex_atten_xy_z.z, 0)).rgb;
+	vec3 attenuation_cube	= textureCube(u_attenuationmap_cube, var_tex_atten_cube).rgb;
 					
 	// compute final color
 	gl_FragColor.rgba = diffuse;
 	gl_FragColor.rgb += specular;
 	gl_FragColor.rgb *= attenuation_xy;
 	gl_FragColor.rgb *= attenuation_z;
+	gl_FragColor.rgb *= attenuation_cube;
 }
 
