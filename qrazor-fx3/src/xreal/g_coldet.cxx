@@ -311,7 +311,7 @@ void	G_LinkEntity(g_entity_c *ent)
 	{
 		ent->_r.clusters.resize(clusters.size());
 		
-		for(i=0, k; i<(int)leafs.size(); i++)
+		for(i=0, k=0; i<(int)leafs.size(); i++)
 		{
 			if(clusters[i] == -1)
 				continue;		// not a visible leaf

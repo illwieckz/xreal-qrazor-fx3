@@ -59,7 +59,7 @@
  *   DEBUGMSG just prints out a message
  */
 
-#ifdef DEBUG
+#if DEBUG
 #ifdef __GNUC__
 #define dIASSERT(a) if (!(a)) dDebug (d_ERR_IASSERT, \
   "assertion \"" #a "\" failed in %s() [%s]",__FUNCTION__,__FILE__);

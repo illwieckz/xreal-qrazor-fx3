@@ -747,7 +747,7 @@ void	r_bsptree_c::loadLeafs(const byte *buffer, const bsp_lump_t *l)
 		//if(out->area < 0)
 		//	ri.Com_Error(ERR_DROP, "r_bsptree_c::loadLeafs: leaf area < 0");
 	
-		int first = LittleLong(in->leafsurfaces_first);		
+		int first = LittleLong(in->leafsurfaces_first);
 		if(first < 0 || first >= (int)_surfaces_leaf.size())
 		{
 			ri.Com_DPrintf("r_bsptree_c::loadLeafs: bad firstleafface %i\n", first);
@@ -765,7 +765,7 @@ void	r_bsptree_c::loadLeafs(const byte *buffer, const bsp_lump_t *l)
 		{
 			ri.Com_Error(ERR_DROP, "r_bsptree_c::loadLeafs: exception occured");
 		}
-	}	
+	}
 }
 
 void	r_bsptree_c::loadLeafSurfaces(const byte *buffer, const bsp_lump_t *l)
@@ -1275,6 +1275,12 @@ void	r_bsptree_c::litNode_r(r_tree_elem_c *elem, r_light_c *light, bool precache
 
 void	r_bsptree_c::addSurfaceToList(r_surface_c *surf, int clipflags)
 {
+	if(!surf)
+	{
+		ri.Com_Error(ERR_DROP, "r_bsptree_c::addSurfaceToList: NULL surface\n");
+		return;
+	}
+
 	if(surf->getFrameCount() == r_framecount)	// already added surface
 		return;
 	

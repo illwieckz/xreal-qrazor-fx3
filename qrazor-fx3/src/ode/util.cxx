@@ -260,7 +260,7 @@ void dxProcessIslands (dxWorld *world, vec_t stepsize, dstepper_fn_t stepper)
   // if debugging, check that all objects (except for disabled bodies,
   // unconnected joints, and joints that are connected to disabled bodies)
   // were tagged.
-# ifndef dNODEBUG
+#if DEBUG
   for (b=world->firstbody; b; b=(dxBody*)b->next) {
     if (b->flags & dxBodyDisabled) {
       if (b->tag) dDebug (0,"disabled body tagged");

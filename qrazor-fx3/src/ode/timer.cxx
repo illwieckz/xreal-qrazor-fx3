@@ -114,12 +114,16 @@ static inline void getClockCount (unsigned long cc[2])
 }
 
 
-static inline void serialize()
+static inline void	serialize()
 {
-  asm volatile (
-	"mov $0,%%eax\n"
+	asm volatile
+	(
+	"mov $0, %%eax\n"
 	"cpuid\n"
-	: : : "%eax","%ebx","%ecx","%edx","cc","memory");
+	:
+	:
+	: "%eax", "%ecx", "%edx", "cc", "memory"
+	);
 }
 
 

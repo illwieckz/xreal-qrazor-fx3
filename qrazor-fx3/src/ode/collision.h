@@ -133,16 +133,18 @@ void dGeomRayGetParams (dGeomID g, int *FirstContact, int *BackfaceCull);
 void dGeomRaySetClosestHit (dGeomID g, int closestHit);
 int dGeomRayGetClosestHit (dGeomID g);
 
-dGeomID dCreateBrush (dSpaceID space, dVector4 *nplanes, int num);
+dGeomID		dCreateBSP(dSpaceID space);
+void		dGeomBSPSetLengths(dGeomID box, vec_t lx, vec_t ly, vec_t lz);
+void		dGeomBSPAddPlane(dGeomID g, vec_t a, vec_t b, vec_t c, vec_t d);
+//void		dGeomBSPAddBrush(dGeomID g, int sides_first, int sides_num);
+//void		dGeomBSPAddBrushSide(dGeomID g, int plane_num);
+//void		dGeomBSPAddLeafBrush(dGeomID g, int num);
 
-dGeomID dCreateBSP (dSpaceID space);
-void dGeomBSPSetLengths (dGeomID box, vec_t lx, vec_t ly, vec_t lz);
-void dGeomBSPAddPlane (dGeomID g, vec_t a, vec_t b, vec_t c, vec_t d);
-void dGeomBSPAddBrush (dGeomID g, int sides_first, int sides_num);
-void dGeomBSPAddBrushSide (dGeomID g, int plane_num);
-void dGeomBSPAddNode (dGeomID g, int plane_num, int child0, int child1);
-void dGeomBSPAddLeaf (dGeomID g, int brushes_first, int brushes_num);
-void dGeomBSPAddLeafBrush (dGeomID g, int num);
+void		dGeomBSPAddNode(dGeomID g, int plane_num, int child0, int child1);
+void		dGeomBSPAddLeaf(dGeomID g, int surfaces_first, int surfaces_num, int brushes_first, int brushes_num, int cluster, int area);
+
+void		dGeomBSPAddSurface(dGeomID g, int face_type, int shader_num, const std::vector<vec3_c> &vertexes, const std::vector<index_t> &indexes);
+void		dGeomBSPAddLeafSurface(dGeomID g, int num);
 
 #ifdef dTRIMESH_ENABLED
 #include "collision_trimesh.h"

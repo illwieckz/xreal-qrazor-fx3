@@ -668,7 +668,9 @@ public:
 	
 	inline bool	operator == (const vec3_c &v) const;
 	
-	inline bool	operator != (const vec3_c &v) const;	
+	inline bool	operator != (const vec3_c &v) const;
+	
+	inline vec3_c	operator - () const;
 	
 	inline vec3_c	operator - (const vec3_c &v) const;
 	
@@ -826,6 +828,11 @@ inline bool	vec3_c::operator != (const vec3_c &v) const
 		return true;
 	else
 		return false;
+}
+
+inline vec3_c	vec3_c::operator - () const
+{
+	return vec3_c(-_v[0], -_v[1], -_v[2]);
 }
 
 inline vec3_c	vec3_c::operator - (const vec3_c &v) const
@@ -1880,6 +1887,8 @@ class cplane_c
 public:
 	inline cplane_c();
 	
+	inline cplane_c(vec_t x, vec_t y, vec_t z, vec_t dist);
+	
 	inline cplane_c(const vec3_c &normal, vec_t dist);
 	
 	inline cplane_c(const vec3_c &v1, const vec3_c &v2, const vec3_c &v3);
@@ -1929,20 +1938,36 @@ public:
 	
 	bool	operator == (const cplane_c &p) const;
 	
+	inline vec_t	operator [] (const int index) const;
+
+	inline vec_t&	operator [] (const int index);
+	
 	inline cplane_c&	operator = (const cplane_c &p);
 	
-	
+//private:
 	vec3_c		_normal;
 	vec_t		_dist;
+//	vec4_t		_p;
 	
 	plane_type_e	_type;		// for fast side tests
 	byte		_signbits;	// signx + (signy<<1) + (signz<<1)
 };
 
 
-
 inline cplane_c::cplane_c()
 {
+	/*
+	_normal.set(0, 0, 1);
+	_dist		= 0;
+	
+	_type		= PLANE_ANYZ;
+	_signbits	= ;
+	*/
+}
+
+inline cplane_c::cplane_c(vec_t x, vec_t y, vec_t z, vec_t dist)
+{
+	set(x, y, z, dist);
 }
 	
 inline cplane_c::cplane_c(const vec3_c &normal, vec_t dist)
@@ -2007,6 +2032,7 @@ inline void	cplane_c::translate(const vec3_c &v)
 inline void	cplane_c::rotate(const vec3_c &angles)
 {
 	_normal.rotate(angles);
+	
 	setType();
 	setSignBits();
 }
@@ -2014,6 +2040,7 @@ inline void	cplane_c::rotate(const vec3_c &angles)
 inline void	cplane_c::rotate(const matrix_c &m)
 {
 	_normal.rotate(m);
+	
 	setType();
 	setSignBits();
 }
@@ -2021,6 +2048,7 @@ inline void	cplane_c::rotate(const matrix_c &m)
 inline void	cplane_c::rotate(const quaternion_c &quat)
 {
 	_normal.rotate(quat);
+	
 	setType();
 	setSignBits();
 }
@@ -2028,6 +2056,7 @@ inline void	cplane_c::rotate(const quaternion_c &quat)
 inline vec_t	cplane_c::snap()
 {
 	_normal.snap();
+	
 	setType();
 	setSignBits();
 
@@ -2069,12 +2098,12 @@ inline plane_side_e	cplane_c::onSide(const vec3_c &v) const
 	
 inline plane_side_e	cplane_c::onSide(const vec3_c &center, vec_t radius) const
 {	
-	vec_t d = distance(center, radius);
+	vec_t d = distance(center);
 	
 	//if(d == -radius)
 	//	return SIDE_ON;
 	
-	if(d <= (-radius * 2.0))
+	if(d <= -radius)
 		return SIDE_BACK;
 	else
 		return SIDE_FRONT;
@@ -2093,7 +2122,43 @@ inline vec3_c	cplane_c::closest(const vec3_c &v) const
 	vec_t d = distance(v);
 	
 	// same as (v + ((-_normal) * t)));
-	return (v - (_normal * d));
+	
+	if(onSide(v) == SIDE_FRONT)
+		return (v - (_normal * d));
+	else
+		return (v + (_normal * d));
+}
+
+inline vec_t	cplane_c::operator [] (const int index) const
+{
+	switch(index)
+	{
+		case 0:
+		case 1:
+		case 2:
+			return _normal[index];
+		case 3:
+			return _dist;
+		default:
+			Com_Error(ERR_FATAL, "cplane_c::operator []: bad index %i", index);
+			return 0;
+	}
+}
+
+inline vec_t&	cplane_c::operator [] (const int index)
+{
+	switch(index)
+	{
+		case 0:
+		case 1:
+		case 2:
+			return _normal[index];
+		case 3:
+			return _dist;
+		default:
+			Com_Error(ERR_FATAL, "cplane_c::operator []: bad index %i", index);
+			return _dist;
+	}
 }
 
 inline cplane_c&	cplane_c::operator = (const cplane_c &p)
