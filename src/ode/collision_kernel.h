@@ -244,6 +244,12 @@ struct dxBSP : public dxGeom
 		int	patches_num;
 	};
 	
+	struct dBSPShader
+	{
+		uint_t			flags;
+		uint_t			contents;
+	};
+	
 	struct dBSPSurface
 	{
 		int			face_type;
@@ -287,6 +293,7 @@ struct dxBSP : public dxGeom
 //	std::vector<dBSPBrush>		brushes;
 //	std::vector<dBSPBrushSide>	brushsides;
 //	std::vector<int>		leafbrushes;
+	std::vector<dBSPShader>		shaders;
 	std::vector<dBSPSurface>	surfaces;
 	std::vector<int>		leafsurfaces;
 	int 				checkcount;
