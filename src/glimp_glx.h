@@ -188,9 +188,9 @@ struct sys_gl_t
 #endif
 
 	const char*		extensions_string;
+	bool			arb_get_proc_address;
 	bool			sgix_fbconfig;
 	bool			sgix_pbuffer;
-
 };
 
 

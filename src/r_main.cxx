@@ -219,7 +219,9 @@ cvar_t	*r_arb_vertex_buffer_object;
 cvar_t	*r_arb_occlusion_query;
 cvar_t	*r_arb_texture_rectangle;
 
+cvar_t	*r_ext_texture3D;
 cvar_t	*r_ext_compiled_vertex_array;
+cvar_t	*r_ext_draw_range_elements;
 cvar_t	*r_ext_texture_filter_anisotropic;
 cvar_t	*r_ext_texture_filter_anisotropic_level;
 
@@ -612,167 +614,6 @@ static void	R_ScreenShot_f()
 {
 	R_ScreenShot();
 }
-
-
-
-static void	R_CheckOpenGLExtensions()
-{
-	gl_config.arb_multitexture = false;
-	gl_config.arb_texture_compression = false;
-	gl_config.arb_vertex_buffer_object = false;
-	gl_config.arb_occlusion_query = false;
-	gl_config.arb_texture_rectangle = false;
-	
-	gl_config.ext_compiled_vertex_array = false;
-	gl_config.ext_texture_filter_anisotropic = false;	
-        
-
-	if(strstr(gl_config.extensions_string, "GL_ARB_multitexture"))
-	{
-		if(r_arb_multitexture->getValue())
-		{
-			ri.Com_Printf("...using GL_ARB_multitexture\n");
-			//glMTexCoord2fSGIS 		= glGetProcAddress("glMultiTexCoord2fARB");
-			//glActiveTextureARB	 	= glGetProcAddress("glActiveTextureARB");
-			//glClientActiveTextureARB 	= glGetProcAddress("glClientActiveTextureARB");
-			gl_config.arb_multitexture = true;
-		}
-		else
-		{
-			ri.Com_Printf("...ignoring GL_ARB_multitexture\n");
-		}
-	}
-	else
-	{
-		ri.Com_Printf("...GL_ARB_multitexture not found\n" );
-	}
-	
-	if(strstr(gl_config.extensions_string, "GL_ARB_texture_compression"))
-	{
-		if(r_arb_texture_compression->getValue())
-		{
-			Com_Printf("...using GL_ARB_texture_compression\n");
-			gl_config.arb_texture_compression = true;
-		}
-		else
-		{
-			ri.Com_Printf("...ignoring GL_ARB_texture_compression\n");
-		}
-	}
-	else
-	{
-		ri.Com_Printf("...GL_ARB_texture_compression not found\n");
-	}
-	
-	if(strstr(gl_config.extensions_string, "GL_ARB_vertex_buffer_object"))
-	{
-		if(r_arb_vertex_buffer_object->getValue())
-		{
-			ri.Com_Printf("...using GL_ARB_vertex_buffer_object\n");
-			gl_config.arb_vertex_buffer_object = true;
-			
-			xglBindBufferARB = (void (GLAPIENTRY*) (GLenum, GLuint)) XGL_GetSymbol("glBindBufferARB");
-			xglDeleteBuffersARB = (void (GLAPIENTRY*) (GLsizei, const GLuint *)) XGL_GetSymbol("glDeleteBuffersARB");
-			xglGenBuffersARB = (void (GLAPIENTRY*) (GLsizei, GLuint *)) XGL_GetSymbol("glGenBuffersARB");
-			xglIsBufferARB = (GLboolean (GLAPIENTRY*) (GLuint)) XGL_GetSymbol("glIsBufferARB");
-			xglBufferDataARB = (void (GLAPIENTRY*) (GLenum, GLsizeiptrARB, const GLvoid *, GLenum)) XGL_GetSymbol("glBufferDataARB");
-			xglBufferSubDataARB = (void (GLAPIENTRY*) (GLenum, GLintptrARB, GLsizeiptrARB, const GLvoid *)) XGL_GetSymbol("glBufferSubDataARB");
-			xglGetBufferSubDataARB = (void (GLAPIENTRY*) (GLenum, GLintptrARB, GLsizeiptrARB, GLvoid *)) XGL_GetSymbol("glGetBufferSubDataARB");
-			xglMapBufferARB = (GLvoid* (GLAPIENTRY*) (GLenum, GLenum)) XGL_GetSymbol("glMapBufferARB");
-			xglUnmapBufferARB = (GLboolean (GLAPIENTRY*) (GLenum)) XGL_GetSymbol("glUnmapBufferARB");
-			xglGetBufferParameterivARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLint *)) XGL_GetSymbol("glGetBufferParameterivARB");
-			xglGetBufferPointervARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLvoid* *)) XGL_GetSymbol("glGetBufferPointervARB");
-		}
-		else
-		{
-			ri.Com_Printf("...ignoring GL_ARB_vertex_buffer_object\n");
-		}
-	}
-	else
-	{
-		ri.Com_Printf("...GL_ARB_vertex_buffer_object not found\n");
-	}
-	
-	if(strstr(gl_config.extensions_string, "GL_ARB_occlusion_query"))
-	{
-		if(r_arb_occlusion_query->getValue())
-		{
-			ri.Com_Printf("...using GL_ARB_occlusion_query\n");
-			gl_config.arb_occlusion_query = true;
-			
-			xglGenQueriesARB = (void (GLAPIENTRY*) (GLsizei, GLuint *)) XGL_GetSymbol("glGenQueriesARB");
-			xglDeleteQueriesARB = (void (GLAPIENTRY*) (GLsizei, const GLuint *)) XGL_GetSymbol("glDeleteQueriesARB");
-			xglIsQueryARB = (GLboolean (GLAPIENTRY*) (GLuint)) XGL_GetSymbol("glIsQueryARB");
-			xglBeginQueryARB = (void (GLAPIENTRY*) (GLenum, GLuint)) XGL_GetSymbol("glBeginQueryARB");
-			xglEndQueryARB = (void (GLAPIENTRY*) (GLenum)) XGL_GetSymbol("glEndQueryARB");
-			xglGetQueryivARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLint *)) XGL_GetSymbol("glGetQueryivARB");
-			xglGetQueryObjectivARB = (void (GLAPIENTRY*) (GLuint, GLenum, GLint *)) XGL_GetSymbol("glGetQueryObjectivARB");
-			xglGetQueryObjectuivARB = (void (GLAPIENTRY*) (GLuint, GLenum, GLuint *)) XGL_GetSymbol("glGetQueryObjectuivARB");
-		}
-		else
-		{
-			ri.Com_Printf("...ignoring GL_ARB_oclussion_query\n");
-		}
-	}
-	else
-	{
-		ri.Com_Printf("...GL_ARB_occlusion_query not found\n");
-	}
-	
-	if(strstr(gl_config.extensions_string, "GL_ARB_texture_rectangle"))
-	{
-		if(r_arb_texture_rectangle->getValue())
-		{
-			Com_Printf("...using GL_ARB_texture_rectangle\n");
-			gl_config.arb_texture_rectangle = true;
-		}
-		else
-		{
-			ri.Com_Printf("...ignoring GL_ARB_texture_rectangle\n");
-		}
-	}
-	else
-	{
-		ri.Com_Printf("...GL_ARB_texture_rectangle not found\n");
-	}
-	
-	if(strstr(gl_config.extensions_string, "GL_EXT_compiled_vertex_array") ||  strstr(gl_config.extensions_string, "GL_SGI_compiled_vertex_array"))
-	{
-		if(r_ext_compiled_vertex_array->getValue())
-		{
-			ri.Com_Printf("...using GL_EXT_compiled_vertex_array\n");
-			xglLockArraysEXT = (void (GLAPIENTRY*) (GLint first, GLsizei count)) XGL_GetSymbol("glLockArraysEXT");
-			xglUnlockArraysEXT = (void (GLAPIENTRY*) (void)) XGL_GetSymbol("glUnlockArraysEXT");
-			gl_config.ext_compiled_vertex_array = true;
-		}
-		else
-		{
-			ri.Com_Printf("...ignoring GL_EXT_compiled_vertex_array\n");
-		}
-	}
-	else
-	{
-		ri.Com_Printf("...GL_EXT_compiled_vertex_array not found\n");
-	}
-	
-	if(strstr(gl_config.extensions_string, "GL_EXT_texture_filter_anisotropic"))
-	{
-		if(r_ext_texture_filter_anisotropic->getValue())
-		{
-			ri.Com_Printf("...using GL_EXT_texture_filter_anisotropic\n");
-			gl_config.ext_texture_filter_anisotropic = true;
-		}
-		else
-		{
-			ri.Com_Printf("...ignoring GL_EXT_texture_filter_anisotropic\n");
-		}
-	}
-	else
-	{
-		ri.Com_Printf("...GL_EXT_texture_filter_anisotropic not found\n");
-	}
-}
-
 
  
 static void 	R_Strings_f()
@@ -1515,7 +1356,9 @@ static void 	R_Register()
 	r_arb_occlusion_query	= ri.Cvar_Get("r_arb_occlusion_query", "1", CVAR_ARCHIVE);
 	r_arb_texture_rectangle	= ri.Cvar_Get("r_arb_texture_rectangle", "1", CVAR_ARCHIVE);
 	
+	r_ext_texture3D		= ri.Cvar_Get("r_ext_texture3D", "1", CVAR_ARCHIVE);
 	r_ext_compiled_vertex_array = ri.Cvar_Get("r_ext_compiled_vertex_array", "0", CVAR_ARCHIVE);
+	r_ext_draw_range_elements = ri.Cvar_Get("r_ext_draw_range_elements", "1", CVAR_ARCHIVE);
 	r_ext_texture_filter_anisotropic = ri.Cvar_Get("r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE);
 	r_ext_texture_filter_anisotropic_level = ri.Cvar_Get("r_ext_texture_filter_anisotropic_level", "1", CVAR_ARCHIVE);
 
@@ -1684,7 +1527,7 @@ bool 	R_Init(void *hinstance, void *hWnd)
 	ri.Com_Printf("GL_EXTENSIONS: %s\n", gl_config.extensions_string );
 
 	// grab optional OpenGL extensions
-	R_CheckOpenGLExtensions();
+	XGL_InitExtensions();
 	
 	// setup shadow mapping support
 	GLimp_InitPbuffer(false, true);		RB_CheckForError();

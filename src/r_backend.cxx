@@ -38,7 +38,6 @@ std::vector<r_table_t>	r_tables;
 //
 // usefull matrices to handle geometric data processing
 //
-matrix_c			rb_matrix_framebuffer_to_vid;
 static matrix_c			rb_matrix_quake_to_opengl;
 matrix_c			rb_matrix_view;			// inverse of camera translation and rotation matrix
 matrix_c			rb_matrix_model;		// each model has its own translation and rotation matrix
@@ -93,10 +92,6 @@ void	RB_InitBackend()
 	r_framecount = 1;
 	r_visframecount = 1;
 	r_lightframecount = 1;
-	
-	rb_matrix_framebuffer_to_vid.identity();
-	rb_matrix_framebuffer_to_vid[0][0] = (float)vid.width / (float)r_img_currentrender->getWidth();
-	rb_matrix_framebuffer_to_vid[1][1] = (float)vid.width / (float)r_img_currentrender->getWidth();
 	
 	rb_matrix_quake_to_opengl.setupRotation   (1, 0, 0,-90);    	// put Z going up
 	rb_matrix_quake_to_opengl.multiplyRotation(0, 0, 1, 90);	// put Z going up
@@ -238,7 +233,7 @@ static void	RB_SetupOrthoProjectionMatrix()
 
 	xglMatrixMode(GL_PROJECTION);
 	
-	xglLoadTransposeMatrixf(&m[0][0]);
+	xglLoadTransposeMatrixfARB(&m[0][0]);
 	
 	xglMatrixMode(GL_MODELVIEW);
 }
@@ -283,7 +278,7 @@ static void	RB_SetupPerspectiveProjectionMatrix()
 	xglMatrixMode(GL_PROJECTION);
 	xglLoadIdentity();
 
-	xglLoadTransposeMatrixf(&m[0][0]);
+	xglLoadTransposeMatrixfARB(&m[0][0]);
 	
 	xglMatrixMode(GL_MODELVIEW);
 }
@@ -435,7 +430,7 @@ void	RB_SetupModelviewMatrix(const matrix_c &m, bool force)
 		rb_matrix_model_view = rb_matrix_view * rb_matrix_model;
 		
 		// load the final modelview matrix 
-		xglLoadTransposeMatrixf(&rb_matrix_model_view[0][0]);
+		xglLoadTransposeMatrixfARB(&rb_matrix_model_view[0][0]);
 		
 		rb_matrix_model_view_projection = rb_matrix_projection * rb_matrix_model_view;
 	}
@@ -601,15 +596,15 @@ void 	RB_SelectTexture(GLenum texture)
 	if(!gl_config.arb_multitexture)
 		return;
 
-	tmu = texture - GL_TEXTURE0;
+	tmu = texture - GL_TEXTURE0_ARB;
 	
 	if(tmu == gl_state.current_tmu)
 		return;
 	else
 		gl_state.current_tmu = tmu;
 	
-	xglActiveTexture(texture);
-	xglClientActiveTexture(texture);
+	xglActiveTextureARB(texture);
+	xglClientActiveTextureARB(texture);
 }
 
 void 	RB_TexEnv(GLenum mode)
@@ -781,11 +776,11 @@ void	RB_FlushMesh(const r_command_t *cmd)
 	const r_mesh_c* mesh = cmd->getEntityMesh();
 	const std::vector<index_t>* light_indexes = cmd->getLightIndexes();
 
-	if(gl_config.arb_vertex_buffer_object && mesh->vbo_element_array_buffer && !light_indexes)
+	if(gl_config.arb_vertex_buffer_object && gl_config.ext_draw_range_elements && mesh->vbo_element_array_buffer && !light_indexes)
 	{
 		xglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, mesh->vbo_element_array_buffer);	RB_CheckForError();
 	
-		xglDrawRangeElements(GL_TRIANGLES, 0, mesh->vertexes.size(), mesh->indexes.size(), GL_UNSIGNED_INT, VBO_BUFFER_OFFSET(mesh->vbo_indexes_ofs));	RB_CheckForError();
+		xglDrawRangeElementsEXT(GL_TRIANGLES, 0, mesh->vertexes.size(), mesh->indexes.size(), GL_UNSIGNED_INT, VBO_BUFFER_OFFSET(mesh->vbo_indexes_ofs));	RB_CheckForError();
 	}
 	else
 	{
@@ -1360,7 +1355,7 @@ void	RB_ModifyTextureMatrix(const r_entity_c *ent, const r_shader_stage_c *stage
 	
 	// upload it
 	xglMatrixMode(GL_TEXTURE);
-	xglLoadTransposeMatrixf(&m[0][0]);
+	xglLoadTransposeMatrixfARB(&m[0][0]);
 	xglMatrixMode(GL_MODELVIEW);
 }
 
@@ -1373,7 +1368,7 @@ void	RB_ModifyOmniLightTextureMatrix(const r_command_t *cmd, const r_shader_stag
 		
 	// upload it
 	xglMatrixMode(GL_TEXTURE);
-	xglLoadTransposeMatrixf(&m[0][0]);
+	xglLoadTransposeMatrixfARB(&m[0][0]);
 	xglMatrixMode(GL_MODELVIEW);
 }
 
@@ -1386,7 +1381,7 @@ void	RB_ModifyOmniLightCubeTextureMatrix(const r_command_t *cmd, const r_shader_
 	
 	// upload it
 	xglMatrixMode(GL_TEXTURE);
-	xglLoadTransposeMatrixf(&m[0][0]);
+	xglLoadTransposeMatrixfARB(&m[0][0]);
 	xglMatrixMode(GL_MODELVIEW);
 }
 
@@ -1399,7 +1394,7 @@ void	RB_ModifyProjLightTextureMatrix(const r_command_t *cmd, const r_shader_stag
 	
 	// upload it
 	xglMatrixMode(GL_TEXTURE);
-	xglLoadTransposeMatrixf(&m[0][0]);
+	xglLoadTransposeMatrixfARB(&m[0][0]);
 	xglMatrixMode(GL_MODELVIEW);
 }
 
@@ -2761,7 +2756,7 @@ void	RB_AddCommand(	r_entity_c*		entity,
 
 void	RB_DrawSkyBox()
 {
-	RB_SelectTexture(GL_TEXTURE0);
+	RB_SelectTexture(GL_TEXTURE0_ARB);
 	
 	RB_Bind(r_img_cubemap_sky);	
 	xglEnable(r_img_cubemap_sky->getTarget());		RB_CheckForError();
@@ -2819,7 +2814,7 @@ void	RB_DrawSkyBox()
 	//q.fromAngles(angles);
 	//m.fromQuaternion(q);
 			
-	xglLoadTransposeMatrixf((float*)&m[0][0]);
+	xglLoadTransposeMatrixfARB((float*)&m[0][0]);
 	
 	
 	xglMatrixMode(GL_MODELVIEW);

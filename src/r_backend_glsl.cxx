@@ -2132,7 +2132,7 @@ void		RB_RenderCommand_reflection_C(const r_command_t *cmd,			const r_shader_sta
 
 	RB_SelectTexture(GL_TEXTURE0);
 	xglMatrixMode(GL_TEXTURE);
-	xglLoadTransposeMatrixf(&rb_matrix_model[0][0]);
+	xglLoadTransposeMatrixfARB(&rb_matrix_model[0][0]);
 	xglMatrixMode(GL_MODELVIEW);
 	RB_Bind(stage_colormap->image);
 
@@ -2162,7 +2162,7 @@ void		RB_RenderCommand_refraction_C(const r_command_t *cmd,			const r_shader_sta
 
 	RB_SelectTexture(GL_TEXTURE0);
 	xglMatrixMode(GL_TEXTURE);
-	xglLoadTransposeMatrixf(&rb_matrix_model[0][0]);
+	xglLoadTransposeMatrixfARB(&rb_matrix_model[0][0]);
 	xglMatrixMode(GL_MODELVIEW);
 	RB_Bind(stage_colormap->image);
 	
@@ -2196,7 +2196,7 @@ void		RB_RenderCommand_dispersion_C(const r_command_t *cmd,			const r_shader_sta
 
 	RB_SelectTexture(GL_TEXTURE0);
 	xglMatrixMode(GL_TEXTURE);
-	xglLoadTransposeMatrixf(&rb_matrix_model[0][0]);
+	xglLoadTransposeMatrixfARB(&rb_matrix_model[0][0]);
 	xglMatrixMode(GL_MODELVIEW);
 	RB_Bind(stage_colormap->image);
 	
@@ -2230,7 +2230,7 @@ void		RB_RenderCommand_liquid_C(const r_command_t *cmd,			const r_shader_stage_c
 
 	RB_SelectTexture(GL_TEXTURE0);
 	xglMatrixMode(GL_TEXTURE);
-	xglLoadTransposeMatrixf(&rb_matrix_model[0][0]);
+	xglLoadTransposeMatrixfARB(&rb_matrix_model[0][0]);
 	xglMatrixMode(GL_MODELVIEW);
 	RB_Bind(stage_colormap->image);
 
@@ -2260,7 +2260,7 @@ void		RB_RenderCommand_skybox(const r_command_t *cmd,			const r_shader_stage_c *
 
 	RB_SelectTexture(GL_TEXTURE0);
 	xglMatrixMode(GL_TEXTURE);
-	xglLoadTransposeMatrixf(&rb_matrix_model[0][0]);
+	xglLoadTransposeMatrixfARB(&rb_matrix_model[0][0]);
 	xglMatrixMode(GL_MODELVIEW);
 	RB_Bind(stage_skyboxmap->image);
 
@@ -2317,7 +2317,6 @@ void	RB_RenderCommand_heathaze(const r_command_t *cmd, const r_shader_stage_c *s
 
 	RB_SelectTexture(GL_TEXTURE0);
 	xglMatrixMode(GL_TEXTURE);
-//	xglLoadTransposeMatrixf(&rb_matrix_framebuffer_to_vid[0][0]);
 	xglLoadIdentity();
 	xglMatrixMode(GL_MODELVIEW);
 	RB_Bind(r_img_currentrender);
