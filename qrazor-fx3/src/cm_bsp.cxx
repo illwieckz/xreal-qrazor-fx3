@@ -329,6 +329,104 @@ static void	CM_LoadIndexes(bsp_lump_t *l)
 }
 
 
+static void	CM_CreateMesh(const bsp_dsurface_t *in, cmesh_t &mesh)
+{
+	int vertexes_first = LittleLong(in->vertexes_first);
+	int vertexes_num = LittleLong(in->vertexes_num);
+				
+	mesh.vertexes = std::vector<vec3_c>(vertexes_num);
+	mesh.normals = std::vector<vec3_c>(vertexes_num);
+			
+	for(int j=0; j<vertexes_num; j++)
+	{
+		mesh.vertexes[j] = cm_vertexes[vertexes_first + j];
+		mesh.normals[j] = cm_normals[vertexes_first + j];
+	}
+				
+	int indexes_num = LittleLong(in->indexes_num);
+	int indexes_first = LittleLong(in->indexes_first);
+				
+	mesh.indexes = std::vector<index_t>(indexes_num);
+	for(int j=0; j<indexes_num; j++)
+	{
+		mesh.indexes[j] = cm_indexes[indexes_first + j];
+	}
+}
+
+static void	CM_CreateBezierMesh(const bsp_dsurface_t *in, cmesh_t &mesh)
+{
+	int		step[2];
+	int 		size[2];
+	int		flat[2];
+	int		mesh_cp[2];
+	int		i, p, u, v;
+	
+	int		vertexes_first;
+	int		vertexes_num;
+	
+	int		subdivlevel;
+	
+	mesh_cp[0] = LittleLong(in->mesh_cp[0]);
+	mesh_cp[1] = LittleLong(in->mesh_cp[1]);
+	
+	if(!mesh_cp[0] || !mesh_cp[1])
+		return;
+	
+	subdivlevel = cm_subdivisions->getInteger();
+	if(subdivlevel < 1)
+		subdivlevel = 1;
+	
+	vertexes_first = LittleLong(in->vertexes_first);
+	vertexes_num = LittleLong(in->vertexes_num);
+	
+	std::vector<vec4_c>	vertexes(vertexes_num);
+	
+	for(i=0; i<vertexes_num; i++)
+	{
+		cm_vertexes[vertexes_first +i].copyTo(vertexes[i]);
+	}
+	
+	// find degree of subdivision
+	Curve_GetFlatness(subdivlevel, &(vertexes[0]), mesh_cp, flat);
+	
+	// allocate space for mesh
+	step[0] = (1 << flat[0]);		//step u
+	step[1] = (1 << flat[1]);		//step v
+	
+	size[0] = (mesh_cp[0] / 2) * step[0] + 1;
+	size[1] = (mesh_cp[1] / 2) * step[1] + 1;
+	vertexes_num = size[0] * size[1];
+
+	mesh.vertexes = std::vector<vec3_c>(vertexes_num);
+	
+	// allocate and fill index table
+	int indexes_num = (size[0]-1) * (size[1]-1) * 6;
+	mesh.indexes = std::vector<index_t>(indexes_num);
+	
+	for(v=0, i=0; v<size[1]-1; v++)
+	{
+		for(u=0; u<size[0]-1; u++, i+=6)
+		{	
+			mesh.indexes[i+0] = p = v * size[0] + u;
+			mesh.indexes[i+1] = p + size[0];
+			mesh.indexes[i+2] = p + 1;
+			mesh.indexes[i+3] = p + 1;
+			mesh.indexes[i+4] = p + size[0];
+			mesh.indexes[i+5] = p + size[0] + 1;
+		}
+	}
+	
+	std::vector<vec4_c>	vertexes2(vertexes_num);
+		
+	// fill in
+	Curve_EvalQuadricBezierPatch(&(vertexes[0]), mesh_cp, step, &(vertexes2[0]));
+	
+	for(i=0; i<(int)mesh.vertexes.size(); i++)
+	{
+		mesh.vertexes[i] = vertexes2[i];
+	}
+}
+
 static void	CM_LoadSurfaces(bsp_lump_t *l, d_bsp_c *bsp)
 {
 	bsp_dsurface_t		*in;
@@ -349,64 +447,54 @@ static void	CM_LoadSurfaces(bsp_lump_t *l, d_bsp_c *bsp)
 	for(i=0; i<count; i++, in++)
 	{
 		csurface_t & out = cm_surfaces[i];
-	
-		int face_type = LittleLong(in->face_type);
+		
+		out.face_type = (bsp_surface_type_t)LittleLong(in->face_type);
 		
 		out.shader_num = LittleLong(in->shader_num);
 		
-		if(face_type != BSPST_FLARE && face_type != BSPST_BEZIER)
+		switch(out.face_type)
 		{
-			// setup mesh vertices
-			int vertexes_first = LittleLong(in->vertexes_first);
-			int vertexes_num = LittleLong(in->vertexes_num);
-			
-			out.mesh.vertexes = std::vector<vec3_c>(vertexes_num);
-			out.mesh.normals = std::vector<vec3_c>(vertexes_num);
-			
-			for(int j=0; j<vertexes_num; j++)
+			case BSPST_PLANAR:
 			{
-				out.mesh.vertexes[j] = cm_vertexes[vertexes_first + j];
-				out.mesh.normals[j] = cm_normals[vertexes_first + j];
-			}
+				 CM_CreateMesh(in, out.mesh);
 			
-			// setup mesh triangle indices
-			int indexes_num = LittleLong(in->indexes_num);
-			int indexes_first = LittleLong(in->indexes_first);
+				//vec3_c	origin;
+				vec3_c	normal;
 			
-			out.mesh.indexes = std::vector<index_t>(indexes_num);
-			
-			for(int j=0; j<indexes_num; j++)
-			{
-				out.mesh.indexes[j] = cm_indexes[indexes_first + j];
-			}
-
-		}
-		else if(face_type == BSPST_PLANAR)
-		{
-			vec3_c	origin;
-			vec3_c	normal;
-			float	dist;
-			
-			for(int j=0; j<3; j++)
-			{
-				origin[j] = LittleFloat(in->origin[j]);
-				normal[j] = LittleFloat(in->normal[j]);
-			}
+				for(int j=0; j<3; j++)
+				{
+					//origin[j] = LittleFloat(in->origin[j]);
+					normal[j] = LittleFloat(in->normal[j]);
+				}
 				
-			normal.normalize();
-	
-			dist = normal.dotProduct(origin);
+				if(!normal.length())
+				{
+					//out.face_type = BSPST_PLANAR_NOCULL;
+					out.face_type = BSPST_MESH;
+				}
+				break;
+			}
 			
-			out.plane.set(normal, dist);
-		}
-		else
-		{
-			//Tr3B don't support flares and bezier lod surfaces anymore
-			//continue;
+			case BSPST_MESH:
+			{
+				CM_CreateMesh(in, out.mesh);
+				break;
+			}
+			
+			case BSPST_BEZIER:
+			{
+				CM_CreateBezierMesh(in, out.mesh);
+				break;
+			}
+			
+			case BSPST_BAD:
+			case BSPST_FLARE:
+			default:
+				Com_Error(ERR_DROP, "CM_LoadSurfaces: bad surface type %i", out.face_type);
 		}
 		
 		if(bsp)
-			bsp->addSurface(face_type, out.shader_num, out.mesh.vertexes, out.mesh.normals, out.mesh.indexes, out.plane);
+			bsp->addSurface(out.face_type, out.shader_num, out.mesh.vertexes, out.mesh.indexes);
 	}
 }
 

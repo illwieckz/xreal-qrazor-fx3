@@ -79,18 +79,20 @@ public:
 	void		setQuickStepW(vec_t param)		{dWorldSetQuickStepW(_id, param);}
 	vec_t		getQuickStepW() const			{return dWorldGetQuickStepW(_id);}
 	
+	void		setAutoDisableFlag(int do_auto_disable)		{dWorldSetAutoDisableFlag(_id, do_auto_disable);}
+	int		getAutoDisableFlag() const			{return dWorldGetAutoDisableFlag(_id);}
 	
 	void		setAutoDisableLinearThreshold(vec_t threshold)	{dWorldSetAutoDisableLinearThreshold(_id, threshold);}
 	vec_t		getAutoDisableLinearThreshold() const 		{return dWorldGetAutoDisableLinearThreshold(_id);}
+	
+	void		setAutoDisableAngularThreshold(vec_t threshold)	{dWorldSetAutoDisableAngularThreshold(_id, threshold);}
+	vec_t		getAutoDisableAngularThreshold() const 		{return dWorldGetAutoDisableAngularThreshold(_id);}
 	
 	void		setAutoDisableSteps(int steps)	{dWorldSetAutoDisableSteps(_id, steps);}
 	int		getAutoDisableSteps() const	{return dWorldGetAutoDisableSteps(_id);}
 	
 	void		setAutoDisableTime(vec_t time)	{dWorldSetAutoDisableTime(_id, time);}
 	vec_t		getAutoDisableTime() const	{return dWorldGetAutoDisableTime(_id);}
-	
-	void		setAutoDisableFlag(int do_auto_disable)		{dWorldSetAutoDisableFlag(_id, do_auto_disable);}
-	int		getAutoDisableFlag() const			{return dWorldGetAutoDisableFlag(_id);}
 
 private:
 	dWorldID	_id;
@@ -891,9 +893,9 @@ public:
 	{
 		dGeomBSPAddLeaf(_id, surfaces_first, surfaces_num, brushes_first, brushes_num, cluster, area);
 	}
-	void	addSurface(int face_type, int shader_num, const std::vector<vec3_c> &vertexes, const std::vector<vec3_c> &normals, const std::vector<index_t> &indexes, const cplane_c &p)
+	void	addSurface(int face_type, int shader_num, const std::vector<vec3_c> &vertexes, const std::vector<index_t> &indexes)
 	{
-		dGeomBSPAddSurface(_id, face_type, shader_num, vertexes, normals, indexes, p);
+		dGeomBSPAddSurface(_id, face_type, shader_num, vertexes, indexes);
 	}
 	
 	void	addLeafSurface(int num)				{dGeomBSPAddLeafSurface(_id, num);}

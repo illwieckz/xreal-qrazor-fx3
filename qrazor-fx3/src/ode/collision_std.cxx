@@ -805,7 +805,7 @@ void	dGeomBSPAddLeafBrush(dGeomID g, int num)
 }
 */
 
-void	dGeomBSPAddSurface(dGeomID g, int face_type, int shader_num, const std::vector<vec3_c> &vertexes, const std::vector<vec3_c> &normals, const std::vector<index_t> &indexes, const cplane_c &p)
+void	dGeomBSPAddSurface(dGeomID g, int face_type, int shader_num, const std::vector<vec3_c> &vertexes, const std::vector<index_t> &indexes)
 {
 	dUASSERT(g && g->type == dBSPClass, "argument not a BSP");
 	dxBSP *bsp = (dxBSP*)g;
@@ -814,16 +814,18 @@ void	dGeomBSPAddSurface(dGeomID g, int face_type, int shader_num, const std::vec
 	surf.face_type = face_type;
 	surf.shader_num = shader_num;
 	surf.vertexes = vertexes;
-	surf.normals = normals;
 	surf.indexes = indexes;
 	std::reverse(surf.indexes.begin(), surf.indexes.end());	// change from CCW to CW order
-	surf.planes.resize(indexes.size()/3);
 	
 	switch(surf.face_type)
 	{
 		case BSPST_PLANAR:
 		{
-			// calculate triangle planes
+			// try to compute only one plane for all triangles
+		
+			if(indexes.size() >= 3)
+				surf.planes.resize(1);
+				
 			uint_t j=0;
 			for(uint_t i=0; i<indexes.size(); i += 3, j++)
 			{
@@ -849,9 +851,14 @@ void	dGeomBSPAddSurface(dGeomID g, int face_type, int shader_num, const std::vec
 			break;
 		}
 		
+		case BSPST_BEZIER:
 		case BSPST_MESH:
 		{
-			// calculate triangle planes
+			// try to compute one plane for each triangle
+		
+			if(indexes.size() >= 3)
+				surf.planes.resize(indexes.size()/3);
+		
 			for(uint_t i=0, j=0; i<indexes.size(); i += 3, j++)
 			{
 				try
@@ -862,20 +869,6 @@ void	dGeomBSPAddSurface(dGeomID g, int face_type, int shader_num, const std::vec
 					
 					if(!(surf.planes[j].fromThreePointForm(v0, v1, v2)))
 						Com_Error(ERR_DROP, "dGeomBSPAddSurface: degenerated triangle");
-				
-					/*
-					const vec3_c &n0 = normals.at(indexes[i+0]);
-					const vec3_c &n1 = normals.at(indexes[i+1]);
-					const vec3_c &n2 = normals.at(indexes[i+2]);
-				
-					vec3_c n = n0 + n1 + n2;
-					n.negate();
-					n.normalize(); 
-				
-					vec_t d = n.dotProduct(v0);
-				
-					surf.planes[j].set(n, d);
-					*/
 				}
 				catch(...)
 				{
@@ -2427,7 +2420,7 @@ int	dSphereInBrush(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int
 
 
 
-bool	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, const vec3_c vertexes[3], const vec3_c normals[3], const cplane_c &p, bool planar, bool cw)
+bool	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, const vec3_c vertexes[3], const cplane_c &p, bool planar, bool cw)
 {
 	dIASSERT(o1->type == dBSPClass);
 	dIASSERT(o2->type == dSphereClass);
@@ -2503,6 +2496,11 @@ bool	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dC
 	vec3_c C  = vertexes[0] + (edge0 * u) + (edge1 * v);
 //	vec_t w = REAL(1.0) -u -v;
 //	vec3_c C = (vertexes[0] * w) + (vertexes[1] * u) + (vertexes[2] * v);
+
+	// calculate interpolated normal
+//	vec3_c N1 = vertexes[0] + (edge0 * u) + (edge1 * v);
+//	vec3_c N  = N1 + N2;
+//	N.normalize();
 	
 	// calculate penetration depth
 //	vec_t depth = sphere->radius - dist;
@@ -2627,7 +2625,7 @@ int	dCollideBSPSurfaceSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dCon
 		case BSPST_PLANAR:
 		{
 			// for each triangle in the surface
-			for(uint_t i=0, j=0; i<surf.indexes.size(); i += 3, j++)
+			for(uint_t i=0; i<surf.indexes.size(); i += 3)
 			{
 				#if DEBUG
 				try
@@ -2640,15 +2638,8 @@ int	dCollideBSPSurfaceSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dCon
 					surf.vertexes.at(surf.indexes[i+1]),
 					surf.vertexes.at(surf.indexes[i+2])
 				};
-					
-				vec3_c normals[3] = 
-				{
-					surf.normals.at(surf.indexes[i+0]),
-					surf.normals.at(surf.indexes[i+1]),
-					surf.normals.at(surf.indexes[i+2])
-				};
 							
-				if(dCollideBSPTriangleSphere(o1, o2, flags, contacts, vertexes, normals, surf.plane, false, true))
+				if(dCollideBSPTriangleSphere(o1, o2, flags, contacts, vertexes, surf.plane, false, true))
 				{
 					contacts_num++;
 					// no need to check any other triangle of this surface because all are in 
@@ -2669,6 +2660,36 @@ int	dCollideBSPSurfaceSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dCon
 		
 		case BSPST_BEZIER:
 		case BSPST_MESH:
+		{
+			// for each triangle in the surface
+			for(uint_t i=0, j=0; i<surf.indexes.size(); i += 3, j++)
+			{
+				#if DEBUG
+				try
+				{
+				#endif
+				
+				vec3_c vertexes[3] = 
+				{
+					surf.vertexes.at(surf.indexes[i+0]),
+					surf.vertexes.at(surf.indexes[i+1]),
+					surf.vertexes.at(surf.indexes[i+2])
+				};
+							
+				if(dCollideBSPTriangleSphere(o1, o2, flags, contacts, vertexes, surf.planes[j], false, true))
+					contacts_num++;
+				
+				#if DEBUG
+				}
+				catch(...)
+				{
+					Com_Error(ERR_DROP, "dCollideBSPSurfaceSphere: exception occured");
+				}
+				#endif
+			}
+			break;
+		}
+		
 		default:
 			break;
 	}

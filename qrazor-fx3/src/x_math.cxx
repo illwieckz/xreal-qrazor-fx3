@@ -1902,15 +1902,15 @@ bool	cplane_c::fromThreePointForm(const vec3_c &v0, const vec3_c &v1, const vec3
 	normal.crossProduct(edge0, edge1);
 	vec_t len = normal.normalize();
 	
-	// check if degenerated triangle
-	if(len < REAL(0.1))
-		return false;
-	
 	// create distance from origin
 	vec_t dist = v0.dotProduct(normal);
 	
 	// finally setup the plane
 	set(normal, dist);
+	
+	// check if degenerated triangle
+	if(len < REAL(0.1))
+		return true;//false;	//FIXME
 	
 	return true;
 }
