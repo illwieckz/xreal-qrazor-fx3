@@ -45,18 +45,6 @@ void	CG_AddEntity(int newnum, const entity_state_t *state)
 	
 	cent->prev = cent->current = *state;
 	
-	if(cent->current.index_sound)
-	{
-		trap_S_StartLoopSound
-		(
-			cent->current.origin, 
-			cent->current.velocity_linear, 
-			cent->current.getNumber(), 
-			CHAN_AUTO, 
-			trap_S_RegisterSound(trap_CL_GetConfigString(CS_SOUNDS + cent->current.index_sound))
-		);
-	}
-	
 	switch(cent->prev.type)
 	{
 		case ET_GENERIC:
@@ -88,7 +76,7 @@ void	CG_UpdateEntity(int newnum, const entity_state_t *state, bool changed)
 	cg_entity_t *cent = &cg.entities[newnum];
 	
 	// some data changes will force no lerping
-	if(state->index_model != cent->current.index_model || state->event == EV_TELEPORT)
+	if(state->index_model != cent->current.index_model || state->event == EV_PLAYER_TELEPORT)
 	{
 		cent->serverframe = -99;
 	}
@@ -108,16 +96,16 @@ void	CG_UpdateEntity(int newnum, const entity_state_t *state, bool changed)
 	cent->serverframe_old = cent->serverframe;
 	cent->serverframe = cg.frame.serverframe;
 	cent->current = *state;
+	
+	if(cent->current.event)
+		CG_EntityEvent(cent);
 }
 
 void	CG_RemoveEntity(int newnum, const entity_state_t *state)
 {
 	cg_entity_t *cent = &cg.entities[newnum];
 	
-	if(cent->prev.index_sound)
-		trap_S_StopLoopSound(cent->prev.getNumber());
-	
- 	cent->prev = cent->current;
+	cent->prev = cent->current;
  	cent->current = *state;
 	
 	switch(cent->prev.type)
@@ -299,16 +287,23 @@ void	CG_UpdateSound(const cg_entity_t *cent)
 			cent->current.velocity_linear,
 			cent->current.getNumber(),
 			CHAN_AUTO,
-			trap_S_RegisterSound(trap_CL_GetConfigString(CS_SOUNDS + cent->current.index_sound))
+			cg.sound_precache[cent->current.index_sound]
 		);
 	}
 	else if(cent->prev.index_sound && cent->current.index_sound)
 	{
-		trap_S_UpdateLoopSound(cent->current.origin, cent->current.velocity_linear, cent->current.getNumber());
+		trap_S_UpdateLoopSound
+		(
+			cent->current.origin,
+			cent->current.velocity_linear,
+			cent->current.getNumber(),
+			CHAN_AUTO,
+			cg.sound_precache[cent->current.index_sound]
+		);
 	}
 	else if(cent->prev.index_sound && !cent->current.index_sound)
 	{
-		trap_S_StopLoopSound(cent->current.getNumber());
+		trap_S_StopLoopSound(cent->prev.getNumber());
 	}
 }
 
@@ -385,6 +380,18 @@ void	CG_AddGenericEntity(const cg_entity_t *cent)
 	rent.flags = cent->current.renderfx;
 	
 	trap_R_AddEntity(cent->current.getNumber(), rent);
+	
+	if(cent->current.index_sound)
+	{
+		trap_S_StartLoopSound
+		(
+			cent->current.origin, 
+			cent->current.velocity_linear, 
+			cent->current.getNumber(), 
+			CHAN_AUTO, 
+			trap_S_RegisterSound(trap_CL_GetConfigString(CS_SOUNDS + cent->current.index_sound))
+		);
+	}
 
 	if(cent->current.index_light && !cent->current.vectors[0].isZero())
 	{
@@ -464,6 +471,8 @@ void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 		update = true;
 	}
 	
+	CG_UpdateSound(cent);
+	
 	if(cent->current.index_light && !cent->current.vectors[0].isZero() && update)
 	{
 		rent.radius.lerp(cent->prev.vectors[0], cent->current.vectors[0], cg.frame_lerp);
@@ -513,6 +522,12 @@ void	CG_RemoveGenericEntity(const cg_entity_t *cent)
 
 	trap_R_RemoveEntity(cent->prev.getNumber());
 	trap_R_RemoveLight(cent->prev.getNumber());
+	
+	if(cent->prev.index_sound)
+		trap_S_StopLoopSound(cent->prev.getNumber());
+		
+//	if(cent->prev.event)
+//		CG_EntityEvent(cent);
 }
 
 
@@ -585,8 +600,6 @@ void	CG_UpdateEntities()
 			continue;
 		}
 		*/
-		
-		CG_UpdateSound(cent);
 		
 		switch(cent->prev.type)
 		{

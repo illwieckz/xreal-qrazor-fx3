@@ -574,7 +574,6 @@ void	S_StartLocalSound(const std::string &name)
 
 void	S_StartLoopSound(const vec3_c &origin, const vec3_c &velocity, int ent_num, int ent_channel, int sound)
 {
-#if 1
 	if(!s_initialized)
 		return;
 
@@ -599,13 +598,11 @@ void	S_StartLoopSound(const vec3_c &origin, const vec3_c &velocity, int ent_num,
 			return;
 	}
 	
-	shader->createSource(origin, vec3_origin, ent_num, ent_channel, true);
-#endif
+	shader->createSource(origin, velocity, ent_num, ent_channel, true);
 }
 
-void	S_UpdateLoopSound(const vec3_c &origin, const vec3_c &velocity, int entity_num)
+void	S_UpdateLoopSound(const vec3_c &origin, const vec3_c &velocity, int entity_num, int entity_channel, int sound)
 {
-#if 0
 	for(std::vector<s_source_c*>::iterator ir = s_sources.begin(); ir != s_sources.end(); ++ir)
 	{
 		s_source_c *source = *ir;
@@ -621,13 +618,23 @@ void	S_UpdateLoopSound(const vec3_c &origin, const vec3_c &velocity, int entity_
 		}
 	}
 	
-	Com_DPrintf("S_UpdateLoopSound: couldn't find sound source with entity %i\n", entity_num);
-#endif
+	if(sound == -1)
+		return;
+	
+	s_shader_c *shader = S_GetShaderByNum(sound);
+	if(!shader)
+	{
+		Com_Error(ERR_DROP, "S_StartLoopSound: bad sound number %i", sound);
+		return;
+	}
+	
+	shader->createSource(origin, velocity, entity_num, entity_channel, true);
+	
+//	Com_DPrintf("S_UpdateLoopSound: couldn't find sound source with entity %i\n", entity_num);
 }
 
 void	S_StopLoopSound(int entity_num)
 {
-#if 0
 	for(std::vector<s_source_c*>::iterator ir = s_sources.begin(); ir != s_sources.end(); ++ir)
 	{
 		s_source_c *source = *ir;
@@ -644,9 +651,36 @@ void	S_StopLoopSound(int entity_num)
 	}
 	
 	Com_DPrintf("S_StopLoopSound: couldn't find sound source with entity %i\n", entity_num);
-#endif
 }
 
+/*
+static bool 	S_InPVS(const vec3_c &p1, const vec3_c &p2)
+{
+	//int		leafnum;
+	//int		cluster;
+	int		area1, area2;
+	//byte	*mask;
+
+	//leafnum = CM_PointLeafnum(p1);
+	//cluster = CM_LeafCluster(leafnum);
+	//area1 = CM_LeafArea(leafnum);
+	//mask = CM_ClusterPVS(cluster);
+	area1 = CM_PointAreanum(p1);
+
+	//leafnum = CM_PointLeafnum(p2);
+	//cluster = CM_LeafCluster(leafnum);
+	//area2 = CM_LeafArea(leafnum);
+	area2 = CM_PointAreanum(p2);
+	
+	//if(mask && (!(mask[cluster>>3] & (1<<(cluster&7)) ) ) )
+	//	return false;
+	
+	if(!CM_AreasConnected(area1, area2))
+		return false;		// a door blocks sight
+	
+	return true;
+}
+*/
 
 /*
 ============
