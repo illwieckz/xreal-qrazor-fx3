@@ -58,5 +58,5 @@ void	main()
 	var_light = attr_Light;
 	
 	// assign color
-	var_color = gl_Color;
+	var_color = gl_Color.rgb;
 }

@@ -43,5 +43,5 @@ void	main()
 	var_tex_diffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;
 	
 	// assign color
-	var_color = gl_Color;
+	var_color = gl_Color.rgb;
 }
