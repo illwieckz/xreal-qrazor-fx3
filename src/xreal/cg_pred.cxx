@@ -35,31 +35,31 @@ void	CG_CheckPredictionError()
 	int		frame;
 	vec3_c		delta;
 
-	if(!cg_predict->value || (cgi.cl->frame.playerstate.pmove.pm_flags & PMF_NO_PREDICTION))
+	if(!cg_predict->value || (trap_cl->frame.playerstate.pmove.pm_flags & PMF_NO_PREDICTION))
 		return;
 
 	// calculate the last usercmd_t we sent that the server has processed
-	frame = cgi.cls->netchan.getIncomingAcknowledged();
+	frame = trap_cls->netchan.getIncomingAcknowledged();
 	frame &= (CMD_BACKUP-1);
 
 	// compare what the server returned with what we had predicted it to be
-	delta = cgi.cl->frame.playerstate.pmove.origin - cgi.cl->predicted_origins[frame];
+	delta = trap_cl->frame.playerstate.pmove.origin - trap_cl->predicted_origins[frame];
 
 	// save the prediction error for interpolation
 	if(fabs(delta[0]) > 128*8 || fabs(delta[1]) > 128*8 || fabs(delta[2]) > 128*8)
 	{	
 		// a teleport or something
-		cgi.cl->prediction_error.clear();
+		trap_cl->prediction_error.clear();
 	}
 	else
 	{
 		if(cg_showmiss->value && (delta[0] || delta[1] || delta[2]))
-			Com_Printf("prediction miss on %i: %i\n", cgi.cl->frame.serverframe, delta[0] + delta[1] + delta[2]);
+			Com_Printf("prediction miss on %i: %i\n", trap_cl->frame.serverframe, delta[0] + delta[1] + delta[2]);
 
-		cgi.cl->predicted_origins[frame] = cgi.cl->frame.playerstate.pmove.origin;
+		trap_cl->predicted_origins[frame] = trap_cl->frame.playerstate.pmove.origin;
 
 		// save for error interpolation
-		cgi.cl->prediction_error = delta * 0.125;
+		trap_cl->prediction_error = delta * 0.125;
 	}
 #endif
 }
@@ -77,9 +77,9 @@ static void	CG_ClipMoveToEntities(const vec3_c &start, const cbbox_c &bbox, cons
 	
 	cbbox_c	bbox2;
 
-	for(i=0; i<cgi.cl->frame.entities_num; i++)
+	for(i=0; i<trap_cl->frame.entities_num; i++)
 	{
-		num = (cgi.cl->frame.entities_parse_index + i)&(MAX_PARSE_ENTITIES-1);
+		num = (trap_cl->frame.entities_parse_index + i)&(MAX_PARSE_ENTITIES-1);
 		ent = &cg.entities_parse[num];
 
 		if(!ent->_s.solid)
@@ -91,7 +91,7 @@ static void	CG_ClipMoveToEntities(const vec3_c &start, const cbbox_c &bbox, cons
 		if(ent->_s.solid == 31)
 		{	
 			// special value for bmodel
-			cmodel = cgi.cl->model_clip[ent->_s.modelindex];
+			cmodel = trap_cl->model_clip[ent->_s.modelindex];
 			
 			if (!cmodel)
 				continue;
@@ -112,14 +112,14 @@ static void	CG_ClipMoveToEntities(const vec3_c &start, const cbbox_c &bbox, cons
 			bbox2._mins[2] = -zd;
 			bbox2._maxs[2] =  zu;
 
-			headnode = cgi.CM_HeadnodeForBox(bbox2);
+			headnode = trap_CM_HeadnodeForBox(bbox2);
 			angles = vec3_origin;	// boxes don't rotate
 		}
 
 		if (tr->allsolid)
 			return;
 
-		trace = cgi.CM_TransformedBoxTrace (start, end, bbox, headnode, contentmask, ent->_s.origin, angles);
+		trace = trap_CM_TransformedBoxTrace (start, end, bbox, headnode, contentmask, ent->_s.origin, angles);
 
 		if (trace.allsolid || trace.startsolid || trace.fraction < tr->fraction)
 		{
@@ -145,7 +145,7 @@ trace_t	CG_Trace(const vec3_c &start, const cbbox_c &bbox, const vec3_c &end, in
 	trace_t	t;
 
 	// check against world
-	t = cgi.CM_BoxTrace(start, end, bbox, 0, contentmask);
+	t = trap_CM_BoxTrace(start, end, bbox, 0, contentmask);
 	
 	if(t.fraction < 1.0)
 	{
@@ -178,23 +178,23 @@ static int	CG_PMpointcontents(const vec3_c &point)
 	cmodel_t	*cmodel;
 	int		contents;
 
-	contents = cgi.CM_PointContents(point, 0);
+	contents = trap_CM_PointContents(point, 0);
 
 
-	for(i=0; i<cgi.cl->frame.entities_num; i++)
+	for(i=0; i<trap_cl->frame.entities_num; i++)
 	{
-		ent_num = (cgi.cl->frame.entities_parse_index + i) & (MAX_PARSE_ENTITIES-1);
+		ent_num = (trap_cl->frame.entities_parse_index + i) & (MAX_PARSE_ENTITIES-1);
 		ent_state = &cg.entities_parse[ent_num];
 
 		if(ent_state->_s.solid != 31) // special value for bmodel
 			continue;
 
-		cmodel = cgi.cl->model_clip[ent_state->_s.modelindex];
+		cmodel = trap_cl->model_clip[ent_state->_s.modelindex];
 		
 		if(!cmodel)
 			continue;
 
-		contents |= cgi.CM_TransformedPointContents(point, cmodel->headnode, ent_state->_s.origin, ent_state->_s.angles);
+		contents |= trap_CM_TransformedPointContents(point, cmodel->headnode, ent_state->_s.origin, ent_state->_s.angles);
 	}
 
 	return contents;
@@ -221,18 +221,18 @@ void	CG_PredictMovement()
 	float			step_old;
 	int			oldz;
 
-	if(cgi.cls->state != CA_ACTIVE)
+	if(trap_cls->state != CA_ACTIVE)
 		return;
 		
-	if(!cg_predict->value || (cgi.cl->frame.playerstate.pmove.pm_flags & PMF_NO_PREDICTION))
+	if(!cg_predict->value || (trap_cl->frame.playerstate.pmove.pm_flags & PMF_NO_PREDICTION))
 	{	
 		// just set angles
-		cgi.cl->predicted_angles = cgi.cl->viewangles + cgi.cl->frame.playerstate.pmove.delta_angles;
+		trap_cl->predicted_angles = trap_cl->viewangles + trap_cl->frame.playerstate.pmove.delta_angles;
 		return;
 	}
 
-	ack = cgi.cls->netchan.getIncomingAcknowledged();
-	current = cgi.cls->netchan.getOutgoingSequence();
+	ack = trap_cls->netchan.getIncomingAcknowledged();
+	current = trap_cls->netchan.getOutgoingSequence();
 
 	// if we are too far out of date, just freeze
 	if(current - ack >= CMD_BACKUP)
@@ -246,46 +246,46 @@ void	CG_PredictMovement()
 	memset(&pm, 0, sizeof(pm));
 	pm.trace = CG_PMTrace;
 	pm.pointcontents = CG_PMpointcontents;
-	//pm_airaccelerate = atof(cgi.cl->configstrings[CS_AIRACCEL]);	//FIXME
-	pm.s = cgi.cl->frame.playerstate.pmove;
+	//pm_airaccelerate = atof(trap_cl->configstrings[CS_AIRACCEL]);	//FIXME
+	pm.s = trap_cl->frame.playerstate.pmove;
 
 	// run frames
 	while(++ack < current)
 	{
 		frame = ack & (CMD_BACKUP-1);
-		cmd = &cgi.cl->cmds[frame];
+		cmd = &trap_cl->cmds[frame];
 
 		pm.cmd = *cmd;
-		cgi.Com_Pmove(&pm);
+		trap_Com_Pmove(&pm);
 
 		// save for debug checking
-		cgi.cl->predicted_origins[frame] = pm.s.origin;
+		trap_cl->predicted_origins[frame] = pm.s.origin;
 	}
 
 	oldframe = (ack-2) & (CMD_BACKUP-1);
-	oldz = (int)cgi.cl->predicted_origins[oldframe][2];
+	oldz = (int)trap_cl->predicted_origins[oldframe][2];
 	step = (int)(pm.s.origin[2] - oldz);
 	
 	if(step > 63 && step < 160 && (pm.s.pm_flags & PMF_ON_GROUND))
 	{
 		step_old = 0;
 		
-		//if(cgi.cls->realtime - cgi.cl->predicted_step_time < 150)
-		//	step_old = cgi.cl->predicted_step_time * (150 - (cgi.cls->realtime - cgi.cl->predicted_step_time)) * (1.0/150);
+		//if(trap_cls->realtime - trap_cl->predicted_step_time < 150)
+		//	step_old = trap_cl->predicted_step_time * (150 - (trap_cls->realtime - trap_cl->predicted_step_time)) * (1.0/150);
 		
-		cgi.cl->predicted_step = step_old + step;
-		cgi.cl->predicted_step_time = (int)(cgi.cls->realtime - cgi.cls->frametime / 2);
+		trap_cl->predicted_step = step_old + step;
+		trap_cl->predicted_step_time = (int)(trap_cls->realtime - trap_cls->frametime / 2);
 	}
 
 
 	// copy results out for rendering
-	cgi.cl->predicted_origin = pm.s.origin;
+	trap_cl->predicted_origin = pm.s.origin;
 
-	cgi.cl->predicted_angles = pm.viewangles;
+	trap_cl->predicted_angles = pm.viewangles;
 #else
 	usercmd_t cmd;
 	
-	cgi.CL_GetCurrentUserCommand(cmd);
+	trap_CL_GetCurrentUserCommand(cmd);
 
 	// just set angles
 	cg.predicted_angles = cmd.angles + cg.frame.playerstate.pmove.delta_angles;

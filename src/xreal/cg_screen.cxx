@@ -64,7 +64,7 @@ void 	CG_CenterPrint (char *str)
 
 	strncpy (scr_centerstring, str, sizeof(scr_centerstring)-1);
 	scr_centertime_off = cg_centertime->getValue();
-	scr_centertime_start = cgi.CL_GetTime();
+	scr_centertime_start = trap_CL_GetTime();
 
 	// count the number of lines for centering
 	scr_center_lines = 1;
@@ -77,7 +77,7 @@ void 	CG_CenterPrint (char *str)
 	}
 
 	// echo it to the console
-	cgi.Com_Printf("\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n");
+	trap_Com_Printf("\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n");
 
 	s = str;
 	do	
@@ -97,7 +97,7 @@ void 	CG_CenterPrint (char *str)
 		line[i] = '\n';
 		line[i+1] = 0;
 
-		cgi.Com_Printf ("%s", line);
+		trap_Com_Printf ("%s", line);
 
 		while (*s && *s != '\n')
 			s++;
@@ -106,8 +106,8 @@ void 	CG_CenterPrint (char *str)
 			break;
 		s++;		// skip the \n
 	} while (1);
-	cgi.Com_Printf("\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n");
-	cgi.Con_ClearNotify ();
+	trap_Com_Printf("\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n");
+	trap_Con_ClearNotify ();
 }
 
 
@@ -126,7 +126,7 @@ void 	CG_DrawCenterString()
 	start = scr_centerstring;
 
 	if (scr_center_lines <= 4)
-		y = (int)(cgi.viddef->height*0.35);
+		y = (int)(trap_VID_GetHeight()*0.35);
 	else
 		y = 48;
 
@@ -136,10 +136,10 @@ void 	CG_DrawCenterString()
 		for (l=0 ; l<40 ; l++)
 			if (start[l] == '\n' || !start[l])
 				break;
-		x = (cgi.viddef->width - l*8)/2;
+		x = (trap_VID_GetWidth() - l*8)/2;
 		for (j=0 ; j<l ; j++, x+=8)
 		{
-			CG_DrawChar (x, y, start[j], color_white, FONT_NONE);
+			CG_DrawChar(x, y, start[j], color_white, FONT_NONE);
 			if (!remaining--)
 				return;
 		}
@@ -157,7 +157,7 @@ void 	CG_DrawCenterString()
 
 void 	CG_CheckDrawCenterString (void)
 {	
-	scr_centertime_off -= cgi.CLS_GetFrameTime();
+	scr_centertime_off -= trap_CLS_GetFrameTime();
 	
 	if (scr_centertime_off <= 0)
 		return;
@@ -180,40 +180,40 @@ void 	CG_CalcVrect()
 
 	// bound viewsize
 	if(cg_viewsize->getInteger() < 40)
-		cgi.Cvar_Set("cg_viewsize","40");
+		trap_Cvar_Set("cg_viewsize","40");
 		
 	if(cg_viewsize->getInteger() > 100)
-		cgi.Cvar_Set("cg_viewsize","100");
+		trap_Cvar_Set("cg_viewsize","100");
 
 	size = cg_viewsize->getInteger();
 
-	scr_vrect.width = cgi.viddef->width*size/100;
+	scr_vrect.width = trap_VID_GetWidth()*size/100;
 	scr_vrect.width &= ~7;
 
-	scr_vrect.height = cgi.viddef->height*size/100;
+	scr_vrect.height = trap_VID_GetHeight()*size/100;
 	scr_vrect.height &= ~1;
 
-	scr_vrect.x = (cgi.viddef->width - scr_vrect.width)/2;
-	scr_vrect.y = (cgi.viddef->height - scr_vrect.height)/2;
+	scr_vrect.x = (trap_VID_GetWidth() - scr_vrect.width)/2;
+	scr_vrect.y = (trap_VID_GetHeight() - scr_vrect.height)/2;
 }
 
 
 static void 	CG_SizeUp_f()
 {
-	cgi.Cvar_SetValue("cg_viewsize", cg_viewsize->getInteger() + 10);
+	trap_Cvar_SetValue("cg_viewsize", cg_viewsize->getInteger() + 10);
 }
 
 
 static void 	CG_SizeDown_f()
 {
-	cgi.Cvar_SetValue("cg_viewsize", cg_viewsize->getInteger() - 10);
+	trap_Cvar_SetValue("cg_viewsize", cg_viewsize->getInteger() - 10);
 }
 
 
 void 	CG_InitScreen()
 {	
-	cgi.Cmd_AddCommand("sizeup",	CG_SizeUp_f);
-	cgi.Cmd_AddCommand("sizedown",	CG_SizeDown_f);
+	trap_Cmd_AddCommand("sizeup",	CG_SizeUp_f);
+	trap_Cmd_AddCommand("sizedown",	CG_SizeDown_f);
 
 //	scr_initialized = true;
 }
@@ -273,16 +273,16 @@ void	CG_DrawChar(int x, int y, int num, const vec4_c &color, int flags)
 	size = 0.0625;
 	
 	if(flags & FONT_CHROME)
-		shader = cgi.R_RegisterPic("fonts/chromechars");
+		shader = trap_R_RegisterPic("fonts/chromechars");
 	else
-		shader = cgi.R_RegisterPic("textures/bigchars");
-		//shader = cgi.R_RegisterPic("fonts/conchars");
+		shader = trap_R_RegisterPic("textures/bigchars");
+		//shader = trap_R_RegisterPic("fonts/conchars");
 
 	
 	if(flags & FONT_SHADOWED)
-		cgi.R_DrawStretchPic(x+2, y+2, width, height, fcol, frow, fcol+size, frow+size, color, shader);
+		trap_R_DrawStretchPic(x+2, y+2, width, height, fcol, frow, fcol+size, frow+size, color, shader);
 	else
-		cgi.R_DrawStretchPic(x, y, width, height, fcol, frow, fcol+size, frow+size, color, shader);
+		trap_R_DrawStretchPic(x, y, width, height, fcol, frow, fcol+size, frow+size, color, shader);
 }
 
 
@@ -316,12 +316,12 @@ void 	CG_DrawNet()
 {
 	int incoming_ack, outgoing_seq;
 	
-	cgi.CLS_GetCurrentNetState(incoming_ack, outgoing_seq);
+	trap_CLS_GetCurrentNetState(incoming_ack, outgoing_seq);
 
 	if(outgoing_seq - incoming_ack < (CMD_BACKUP-1))
 		return;
 
-	cgi.R_DrawPic(scr_vrect.x+64, scr_vrect.y, 32, 32, color_white, cgi.R_RegisterPic("gfx/2d/net"));
+	trap_R_DrawPic(scr_vrect.x+64, scr_vrect.y, 32, 32, color_white, trap_R_RegisterPic("gfx/2d/net"));
 }
 
 
@@ -334,7 +334,7 @@ void 	CG_DrawFPS()
 	char s[32];
 	int x, width;
 
-	if(!cgi.CLS_GetFrameTime() || cgi.CLS_GetConnectionState() < CA_CONNECTED)
+	if(!trap_CLS_GetFrameTime() || trap_CLS_GetConnectionState() < CA_CONNECTED)
 		return;
 		
 	if(!cg_showfps->getInteger())
@@ -342,22 +342,22 @@ void 	CG_DrawFPS()
 
 	if(cg_showfps->getInteger() == 2)
 	{
-		t = cgi.CLS_GetRealTime();
+		t = trap_CLS_GetRealTime();
 		
 		if ((t - oldtime) >= 0.25)
 		{
 			// updates 4 times a second
-			fps = (int)((cgi.CLS_GetFrameCount() - oldframecount) / (t - oldtime) + 0.5);
-			oldframecount = cgi.CLS_GetFrameCount();
+			fps = (int)((trap_CLS_GetFrameCount() - oldframecount) / (t - oldtime) + 0.5);
+			oldframecount = trap_CLS_GetFrameCount();
 			oldtime = t;
 		}
 	}
 	else
-		fps = (int)(1.0 / (cgi.CLS_GetFrameTime() / 1000));
+		fps = (int)(1.0 / (trap_CLS_GetFrameTime() / 1000));
 
 	Com_sprintf ( s, sizeof( s ), "%3dfps", fps );
 	width = strlen(s) * CHAR_MEDIUM_WIDTH;
-	x = cgi.viddef->width - 5 - width;
+	x = trap_VID_GetWidth() - 5 - width;
 	
 	CG_DrawString(x, 2, color_white, FONT_MEDIUM, s);
 }
@@ -380,7 +380,7 @@ static void	CG_DrawTileClearRect(int x, int y, int w, int h, int shader)
 	iw = 1.0f / 64.0;
 	ih = 1.0f / 64.0;
 
-	cgi.R_DrawStretchPic(x, y, w, h, x*iw, y*ih, (x+w)*iw, (y+h)*ih, color_white, shader);
+	trap_R_DrawStretchPic(x, y, w, h, x*iw, y*ih, (x+w)*iw, (y+h)*ih, color_white, shader);
 }
 
 
@@ -402,15 +402,15 @@ void 	CG_TileClear()
 		return;		// full screen rendering
 		
 	
-	w = cgi.viddef->width;
-	h = cgi.viddef->height;
+	w = trap_VID_GetWidth();
+	h = trap_VID_GetHeight();
 
 	top = scr_vrect.y;
 	bottom = top + scr_vrect.height-1;
 	left = scr_vrect.x;
 	right = left + scr_vrect.width-1;
 	
-	shader = cgi.R_RegisterPic("gfx/2d/backtile");
+	shader = trap_R_RegisterPic("gfx/2d/backtile");
 
 	// clear above view screen
 	CG_DrawTileClearRect(0, 0, w, top, shader);
@@ -552,7 +552,7 @@ static void 	CG_DrawField(int x, int y, const vec4_c &color, int width, int valu
 		else
 			frame = *ptr -'0';
 
-		cgi.R_DrawStretchPic(x, y, CHAR_MEDIUM_WIDTH, CHAR_MEDIUM_WIDTH, 0, 0, 1, 1, color, cgi.R_RegisterPic(sb_nums[frame]));
+		trap_R_DrawStretchPic(x, y, CHAR_MEDIUM_WIDTH, CHAR_MEDIUM_WIDTH, 0, 0, 1, 1, color, trap_R_RegisterPic(sb_nums[frame]));
 		x += CHAR_MEDIUM_WIDTH;
 		ptr++;
 		l--;
@@ -586,7 +586,7 @@ static void 	CG_DrawField(int x, int y, int w, int h, const vec4_c &color, int w
 		else
 			frame = *ptr -'0';
 
-		cgi.R_DrawStretchPic(x, y, w, h, 0, 0, 1, 1, color, cgi.R_RegisterPic(sb_nums[frame]));
+		trap_R_DrawStretchPic(x, y, w, h, 0, 0, 1, 1, color, trap_R_RegisterPic(sb_nums[frame]));
 		x += w;
 		ptr++;
 		l--;
@@ -605,7 +605,7 @@ Allows rendering code to cache all needed sbar graphics
 void 	CG_RegisterPics()
 {
 	for(int j=0; j<11; j++)
-		cgi.R_RegisterPic(sb_nums[j]);
+		trap_R_RegisterPic(sb_nums[j]);
 
 	
 	if(cg_crosshair->getInteger())
@@ -615,7 +615,7 @@ void 	CG_RegisterPics()
 
 		std::string filename = va("crosshairs/crosshair_%i", cg_crosshair->getInteger());
 		
-		cg.media.shader_crosshair = cgi.R_RegisterPic(filename);
+		cg.media.shader_crosshair = trap_R_RegisterPic(filename);
 	}
 }
 
@@ -634,7 +634,7 @@ void	CG_DrawModel(int x, int y, int w, int h, int model, int shader, const vec3_
 	refdef.width = w;
 	refdef.height = h;
 	refdef.setFOV(40);
-	refdef.time = cgi.CL_GetTime() * 0.001;
+	refdef.time = trap_CL_GetTime() * 0.001;
 	refdef.rdflags = RDF_NOWORLDMODEL;
 
 	entity.model = model;
@@ -645,22 +645,22 @@ void	CG_DrawModel(int x, int y, int w, int h, int model, int shader, const vec3_
 	entity.origin2 = entity.origin;
 	entity.quat.fromAngles(angles);
 	
-	cgi.R_ClearScene();
-//	cgi.R_AddEntityToScene(entity);
+	trap_R_ClearScene();
+//	trap_R_AddEntityToScene(entity);
 
-	cgi.R_RenderFrame(refdef);
+	trap_R_RenderFrame(refdef);
 */
 }
 
 void	CG_DrawHUDModel(int x, int y, int w, int h, int model, int shader, float yawspeed)
 {
-	float autorotate = anglemod(cgi.CL_GetTime()/10);
+	float autorotate = anglemod(trap_CL_GetTime()/10);
 
 	vec3_c origin, angles;
 
 	origin.set(90, 0, 0);
 	//origin.set(90, 0, -10);
-	//angles.set(0, anglemod(yawspeed * (cgi.CL_GetTime() & 2047) * (360.0 / 2048.0)), 0);
+	//angles.set(0, anglemod(yawspeed * (trap_CL_GetTime() & 2047) * (360.0 / 2048.0)), 0);
 	angles.set(0, autorotate, 0);
 	
 	CG_DrawModel(x, y, w, h, model, shader, origin, angles);
@@ -677,7 +677,7 @@ void 	CG_ExecuteLayoutString(char *s)
 	client_info_t	*ci;
 	vec4_c		color(1, 1, 1, 1);
 
-	if(cgi.CLS_GetConnectionState() != CA_ACTIVE)
+	if(trap_CLS_GetConnectionState() != CA_ACTIVE)
 		return;
 
 	if(!s[0])
@@ -705,14 +705,14 @@ void 	CG_ExecuteLayoutString(char *s)
 		if(!strcmp(token, "xr"))
 		{
 			token = Com_Parse(&s);
-			x = cgi.viddef->width + atoi(token);
+			x = trap_VID_GetWidth() + atoi(token);
 			continue;
 		}
 		
 		if(!strcmp(token, "xv"))
 		{
 			token = Com_Parse(&s);
-			x = cgi.viddef->width/2 - 160 + atoi(token);
+			x = trap_VID_GetWidth()/2 - 160 + atoi(token);
 			continue;
 		}
 
@@ -725,14 +725,14 @@ void 	CG_ExecuteLayoutString(char *s)
 		if(!strcmp(token, "yb"))
 		{
 			token = Com_Parse(&s);
-			y = cgi.viddef->height + atoi(token);
+			y = trap_VID_GetHeight() + atoi(token);
 			continue;
 		}
 		
 		if(!strcmp(token, "yv"))
 		{
 			token = Com_Parse (&s);
-			y = cgi.viddef->height/2 - 120 + atoi(token);
+			y = trap_VID_GetHeight()/2 - 120 + atoi(token);
 			continue;
 		}
 		
@@ -771,11 +771,11 @@ void 	CG_ExecuteLayoutString(char *s)
 			value = cg.frame.playerstate.stats[atoi(token)];
 			
 			if(value >= MAX_SHADERS)
-				cgi.Com_Error(ERR_DROP, "Pic >= MAX_SHADERS");
+				trap_Com_Error(ERR_DROP, "Pic >= MAX_SHADERS");
 				
-			if(cgi.CL_GetConfigString(CS_SHADERS+value)[0])
+			if(trap_CL_GetConfigString(CS_SHADERS+value)[0])
 			{
-				cgi.R_DrawPic(x, y, w, h, color, cgi.R_RegisterPic(cgi.CL_GetConfigString(CS_SHADERS+value)));
+				trap_R_DrawPic(x, y, w, h, color, trap_R_RegisterPic(trap_CL_GetConfigString(CS_SHADERS+value)));
 			}
 			continue;
 		}
@@ -786,15 +786,15 @@ void 	CG_ExecuteLayoutString(char *s)
 			int		score, ping, time;
 
 			token = Com_Parse(&s);
-			x = cgi.viddef->width/2 - 160 + atoi(token);
+			x = trap_VID_GetWidth()/2 - 160 + atoi(token);
 			
 			token = Com_Parse(&s);
-			y = cgi.viddef->height/2 - 120 + atoi(token);
+			y = trap_VID_GetHeight()/2 - 120 + atoi(token);
 			
 			token = Com_Parse(&s);
 			value = atoi(token);
 			if(value < 0 || value >= MAX_CLIENTS)
-				cgi.Com_Error(ERR_DROP, "client >= MAX_CLIENTS");
+				trap_Com_Error(ERR_DROP, "client >= MAX_CLIENTS");
 			ci = &cg.clientinfo[value];
 
 			token = Com_Parse(&s);
@@ -822,15 +822,15 @@ void 	CG_ExecuteLayoutString(char *s)
 			char	block[80];
 
 			token = Com_Parse (&s);
-			x = cgi.viddef->width/2 - 160 + atoi(token);
+			x = trap_VID_GetWidth()/2 - 160 + atoi(token);
 			token = Com_Parse (&s);
-			y = cgi.viddef->height/2 - 120 + atoi(token);
+			y = trap_VID_GetHeight()/2 - 120 + atoi(token);
 			
 
 			token = Com_Parse (&s);
 			value = atoi(token);
 			if (value >= MAX_CLIENTS || value < 0)
-				cgi.Com_Error (ERR_DROP, "client >= MAX_CLIENTS");
+				trap_Com_Error (ERR_DROP, "client >= MAX_CLIENTS");
 			ci = &cg.clientinfo[value];
 
 			token = Com_Parse (&s);
@@ -843,7 +843,7 @@ void 	CG_ExecuteLayoutString(char *s)
 
 			sprintf(block, "%3d %3d %-12.12s", score, ping, ci->name.c_str());
 
-			if(value == cgi.playernum)
+			if(value == trap_CL_GetPlayerNum())
 				CG_DrawString (x, y, color_red, FONT_ALT, block);
 			else
 				CG_DrawString (x, y, color_white, FONT_NONE, block);
@@ -856,9 +856,9 @@ void 	CG_ExecuteLayoutString(char *s)
 			int	shader;	
 			
 			token = Com_Parse (&s);
-			shader = cgi.R_RegisterPic(token);
+			shader = trap_R_RegisterPic(token);
 			
-			cgi.R_DrawPic(x, y, w, h, color, shader);				
+			trap_R_DrawPic(x, y, w, h, color, shader);				
 			continue;
 		}
 		
@@ -872,16 +872,16 @@ void 	CG_ExecuteLayoutString(char *s)
 			value = cg.frame.playerstate.stats[atoi(token)];
 			
 			//if(value < 0 || value >= MAX_MODELS)
-			//	cgi.Com_Error(ERR_DROP, "model >= MAX_MODELS");
+			//	trap_Com_Error(ERR_DROP, "model >= MAX_MODELS");
 			
 			//if(value)
 						
 			token = Com_Parse (&s);
 			yawspeed = atof(token);
 			
-			if(cgi.CL_GetConfigString(CS_MODELS+value)[0])
+			if(trap_CL_GetConfigString(CS_MODELS+value)[0])
 			{
-				model = cgi.R_RegisterModel(cgi.CL_GetConfigString(CS_MODELS+value));
+				model = trap_R_RegisterModel(trap_CL_GetConfigString(CS_MODELS+value));
 				
 				CG_DrawHUDModel(x, y, w, h, model, -1, yawspeed);
 			}
@@ -895,10 +895,10 @@ void 	CG_ExecuteLayoutString(char *s)
 			
 			// draw a model from a stat number
 			token = Com_Parse (&s);
-			model = cgi.R_RegisterModel(token);
+			model = trap_R_RegisterModel(token);
 			
 			token = Com_Parse (&s);
-			shader = cgi.R_RegisterShader(token);
+			shader = trap_R_RegisterShader(token);
 			
 			token = Com_Parse (&s);
 			yawspeed = atof(token);
@@ -1011,13 +1011,13 @@ void 	CG_ExecuteLayoutString(char *s)
 			token = Com_Parse(&s);
 			index = atoi(token);
 			if(index < 0 || index >= MAX_CONFIGSTRINGS)
-				cgi.Com_Error (ERR_DROP, "Bad stat_string index");
+				trap_Com_Error (ERR_DROP, "Bad stat_string index");
 			
 			index = cg.frame.playerstate.stats[index];
 			if(index < 0 || index >= MAX_CONFIGSTRINGS)
-				cgi.Com_Error (ERR_DROP, "Bad stat_string index");
+				trap_Com_Error (ERR_DROP, "Bad stat_string index");
 				
-			CG_DrawString(x, y, color, FONT_NONE, cgi.CL_GetConfigString(index));
+			CG_DrawString(x, y, color, FONT_NONE, trap_CL_GetConfigString(index));
 			continue;
 		}
 
@@ -1072,7 +1072,7 @@ void 	CG_ExecuteLayoutString(char *s)
 
 void	CG_DrawCrosshair()
 {
-	if(cgi.CLS_GetConnectionState() != CA_ACTIVE)
+	if(trap_CLS_GetConnectionState() != CA_ACTIVE)
 		return;
 
 	if(!cg_crosshair->getInteger())
@@ -1088,11 +1088,11 @@ void	CG_DrawCrosshair()
 		
 		std::string filename = va("crosshairs/crosshair_%i", cg_crosshair->getInteger());
 		
-		cg.media.shader_crosshair = cgi.R_RegisterPic(filename);
+		cg.media.shader_crosshair = trap_R_RegisterPic(filename);
 	}
 
 
-	cgi.R_DrawStretchPic(	scr_vrect.x + ((scr_vrect.width - cg_crosshair_size->getInteger())>>1),
+	trap_R_DrawStretchPic(	scr_vrect.x + ((scr_vrect.width - cg_crosshair_size->getInteger())>>1),
 				scr_vrect.y + ((scr_vrect.height - cg_crosshair_size->getInteger())>>1),
 				cg_crosshair_size->getInteger(),
 				cg_crosshair_size->getInteger(),
@@ -1112,7 +1112,7 @@ is based on the stats array
 */
 void 	CG_DrawStats()
 {
-	CG_ExecuteLayoutString((char*)cgi.CL_GetConfigString(CS_STATUSBAR));
+	CG_ExecuteLayoutString((char*)trap_CL_GetConfigString(CS_STATUSBAR));
 }
 
 
@@ -1138,6 +1138,6 @@ void	CG_DrawBlend()
 	if(cg.v_blend[3] < 0.01f)
 		return;
 	
-	cgi.R_DrawFill(scr_vrect.x, scr_vrect.y, scr_vrect.width, scr_vrect.height, cg.v_blend);
+	trap_R_DrawFill(scr_vrect.x, scr_vrect.y, scr_vrect.width, scr_vrect.height, cg.v_blend);
 }
 

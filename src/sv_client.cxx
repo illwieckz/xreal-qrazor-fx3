@@ -33,9 +33,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // xreal --------------------------------------------------------------------
 
 
-sv_client_c::sv_client_c(const netadr_t &adr, int challenge)
+sv_client_c::sv_client_c(const netadr_t &adr, int qport, int challenge)
 {
-	netchan.setup(adr);
+	netchan.setup(adr, qport, false);
 
 	_state = CS_CONNECTED;
 	

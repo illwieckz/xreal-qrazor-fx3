@@ -389,7 +389,15 @@ void 	VID_Shutdown()
 	}
 }
 
+uint_t	VID_GetWidth()
+{
+	return viddef.width;
+}
 
+uint_t	VID_GetHeight()
+{
+	return viddef.height;
+}
 
 /*
 ================================================================================

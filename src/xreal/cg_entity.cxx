@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 void	CG_BeginFrame(const frame_t &frame)
 {
 	if(cg.frame_running)
-		cgi.Com_Error(ERR_DROP, "CG_BeginFrame: running frame");
+		trap_Com_Error(ERR_DROP, "CG_BeginFrame: running frame");
 		
 	cg.frame_running = true;
 
@@ -65,7 +65,7 @@ void	CG_AddEntity(int newnum, const entity_state_t *state)
 
 void	CG_UpdateEntity(int newnum, const entity_state_t *state, bool changed)
 {
-	//cgi.Com_Printf("CG_UpdateEntity: %i %i is type %i\n", newnum, state.getNumber(), state.type);
+	//trap_Com_Printf("CG_UpdateEntity: %i %i is type %i\n", newnum, state.getNumber(), state.type);
 	
 	// update entity
 	cg.entities_parse[(cg.entities_parse_index) & (MAX_PARSE_ENTITIES-1)] = *state;
@@ -127,7 +127,7 @@ void	CG_RemoveEntity(int newnum, const entity_state_t *state)
 void	CG_EndFrame(int entities_num)
 {
 	if(!cg.frame_running)
-		cgi.Com_Error(ERR_DROP, "CG_EndFrame: no running frame");
+		trap_Com_Error(ERR_DROP, "CG_EndFrame: no running frame");
 		
 	cg.frame_running = false;
 
@@ -144,7 +144,7 @@ void	CG_EndFrame(int entities_num)
 void	CG_SetFrame(r_entity_t &ent, const cg_entity_t *cent)
 {
 	// brush models can auto animate their frames
-	int autoanim = 2*cgi.CL_GetTime()/1000;
+	int autoanim = 2*trap_CL_GetTime()/1000;
 	
 	const uint_t& effects = cent->current.effects;
 	
@@ -159,8 +159,8 @@ void	CG_SetFrame(r_entity_t &ent, const cg_entity_t *cent)
 	
 	else if(effects & EF_ANIM_ALLFAST)	// should be allfast_repeat
 	{
-		//ent.frame = cgi.CL_GetTime() / 100;
-		ent.frame = (cgi.CL_GetTime() / 41) % 60;	// 24 Hz
+		//ent.frame = trap_CL_GetTime() / 100;
+		ent.frame = (trap_CL_GetTime() / 41) % 60;	// 24 Hz
 	}
 	else
 		ent.frame = cent->current.frame;
@@ -179,7 +179,7 @@ void	CG_GetEntitySoundOrigin(int ent, vec3_c &org)
 	cg_entity_t	*cent;
 
 	if(ent < 0 || ent >= MAX_ENTITIES)
-		cgi.Com_Error(ERR_DROP, "CG_GetEntitySoundOrigin: bad ent");
+		trap_Com_Error(ERR_DROP, "CG_GetEntitySoundOrigin: bad ent");
 	cent = &cg.entities[ent];
 	
 	org = cent->current.origin;
@@ -203,37 +203,37 @@ void	CG_UpdateFrame(const cg_entity_t *cent, r_entity_t &rent, bool &update)
 	
 	if(effects & EF_AUTOANIM_TOGGLE_01_2)
 	{
-		rent.frame = (2*cgi.CL_GetTime()/1000) & 1;
+		rent.frame = (2*trap_CL_GetTime()/1000) & 1;
 		rent.flags |= RF_AUTOANIM;
 		update = true;
 	}	
 	else if(effects & EF_AUTOANIM_TOGGLE_23_2)
 	{
-		rent.frame = 2 + ((2*cgi.CL_GetTime()/1000) & 1);
+		rent.frame = 2 + ((2*trap_CL_GetTime()/1000) & 1);
 		rent.flags |= RF_AUTOANIM;
 		update = true;
 	}	
 	else if(effects & EF_AUTOANIM_1)
 	{
-		rent.frame = cgi.CL_GetTime()/1000;
+		rent.frame = trap_CL_GetTime()/1000;
 		rent.flags |= RF_AUTOANIM;
 		update = true;
 	}
 	else if(effects & EF_AUTOANIM_2)
 	{
-		rent.frame = cgi.CL_GetTime()/500;
+		rent.frame = trap_CL_GetTime()/500;
 		rent.flags |= RF_AUTOANIM;
 		update = true;
 	}
 	else if(effects & EF_AUTOANIM_10)
 	{
-		rent.frame = cgi.CL_GetTime()/100;
+		rent.frame = trap_CL_GetTime()/100;
 		rent.flags |= RF_AUTOANIM;
 		update = true;
 	}
 	else if(effects & EF_AUTOANIM_24)
 	{
-		rent.frame = (cgi.CL_GetTime() / 41) % 60;
+		rent.frame = (trap_CL_GetTime() / 41) % 40;
 		rent.frame_old = cent->prev.frame;
 		rent.flags |= RF_AUTOANIM;
 		update = true;
@@ -256,7 +256,7 @@ void	CG_UpdateRotation(const cg_entity_t *cent, r_entity_t &rent, bool &update)
 	if(cent->current.effects & EF_ROTATE)
 	{	
 		// some bonus items auto-rotate
-		float autorotate = anglemod(cgi.CL_GetTime()/10);
+		float autorotate = anglemod(trap_CL_GetTime()/10);
 		vec3_c angles(0, autorotate, 0);
 		rent.quat.fromAngles(angles);
 	}
@@ -319,16 +319,16 @@ void	CG_UpdateRenderFXFlags(const cg_entity_t *cent, r_entity_t &rent, bool &upd
 
 void	CG_AddGenericEntity(const cg_entity_t *cent)
 {
-//	cgi.Com_DPrintf("adding generic entity %i ...\n", cent->current.getNumber());
+//	trap_Com_DPrintf("adding generic entity %i ...\n", cent->current.getNumber());
 	
 	r_entity_t	rent;
 
 	if(!cent->current.index_model)
-		cgi.Com_Error(ERR_DROP, "CG_AddGenericEntity: bad client game entity model index %i\n", cent->current.index_model);
+		trap_Com_Error(ERR_DROP, "CG_AddGenericEntity: bad client game entity model index %i\n", cent->current.index_model);
 	
 	rent.model = cg.model_draw[cent->current.index_model];
 	if(rent.model < 0)
-		cgi.Com_Error(ERR_DROP, "CG_AddGenericEntity: bad renderer entity model index %i\n", rent.model);
+		trap_Com_Error(ERR_DROP, "CG_AddGenericEntity: bad renderer entity model index %i\n", rent.model);
 		
 	rent.animation = cg.animation_precache[cent->current.index_animation];
 		
@@ -346,7 +346,7 @@ void	CG_AddGenericEntity(const cg_entity_t *cent)
 	
 	rent.flags = cent->current.renderfx;
 	
-	cgi.R_AddEntity(cent->current.getNumber(), 0, rent);
+	trap_R_AddEntity(cent->current.getNumber(), 0, rent);
 	
 	if(cent->current.index_light && !cent->current.vectors[0].isZero())
 	{
@@ -358,13 +358,13 @@ void	CG_AddGenericEntity(const cg_entity_t *cent)
 		rent.radius_bbox.rotate(cent->current.quat);
 		rent.radius_value = rent.radius_bbox.radius();
 			
-		cgi.R_AddLight(cent->current.getNumber(), 0, rent, LIGHT_OMNI);
+		trap_R_AddLight(cent->current.getNumber(), 0, rent, LIGHT_OMNI);
 	}
 }
 
 void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 {
-//	cgi.Com_DPrintf("updating generic entity ...\n");
+//	trap_Com_DPrintf("updating generic entity ...\n");
 	
 	r_entity_t	rent;
 	bool		update = false;
@@ -386,7 +386,7 @@ void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 	CG_UpdateRenderFXFlags(cent, rent, update);
 	
 	if(update)
-		cgi.R_UpdateEntity(cent->current.getNumber(), 0, rent);
+		trap_R_UpdateEntity(cent->current.getNumber(), 0, rent);
 		
 	CG_UpdateLightShader(cent, rent, update);
 	
@@ -404,16 +404,16 @@ void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 	
   	if(cent->current.index_light && !cent->current.vectors[0].isZero() && update)
 	{
-		cgi.R_UpdateLight(cent->current.getNumber(), 0, rent, LIGHT_OMNI);
+		trap_R_UpdateLight(cent->current.getNumber(), 0, rent, LIGHT_OMNI);
 	}
 }
 
 void	CG_RemoveGenericEntity(const cg_entity_t *cent)
 {
-//	cgi.Com_DPrintf("removing generic entity %i ...\n", cent->prev.getNumber());
+//	trap_Com_DPrintf("removing generic entity %i ...\n", cent->prev.getNumber());
 
-	cgi.R_RemoveEntity(cent->prev.getNumber());
-	cgi.R_RemoveLight(cent->prev.getNumber());
+	trap_R_RemoveEntity(cent->prev.getNumber());
+	trap_R_RemoveLight(cent->prev.getNumber());
 }
 
 

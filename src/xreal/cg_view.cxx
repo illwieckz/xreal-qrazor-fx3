@@ -51,91 +51,91 @@ void	CG_PrepRefresh()
 	/*
 	CG_RegisterSounds();
 		
-	if(!cgi.CL_GetConfigString(CS_MAPNAME)[0])
+	if(!trap_CL_GetConfigString(CS_MAPNAME)[0])
 		return;		// no map loaded
 	
 	//
 	// let the render dll load the map
 	//
-	std::string mapname = cgi.CL_GetConfigString(CS_MAPNAME);
+	std::string mapname = trap_CL_GetConfigString(CS_MAPNAME);
 		
-	cgi.Com_Printf("CG_PrepRefresh: map '%s'\n", mapname.c_str());
+	trap_Com_Printf("CG_PrepRefresh: map '%s'\n", mapname.c_str());
 
 	unsigned	map_checksum;		// for detecting cheater maps
-	cgi.CM_BeginRegistration(mapname, true, &map_checksum);
+	trap_CM_BeginRegistration(mapname, true, &map_checksum);
 	
-	if((int)map_checksum != atoi(cgi.CL_GetConfigString(CS_MAPCHECKSUM)))
+	if((int)map_checksum != atoi(trap_CL_GetConfigString(CS_MAPCHECKSUM)))
 	{
-		cgi.Com_Error(ERR_DROP, "Local map version differs from server: %i != '%s'\n", map_checksum, cgi.CL_GetConfigString(CS_MAPCHECKSUM));
+		trap_Com_Error(ERR_DROP, "Local map version differs from server: %i != '%s'\n", map_checksum, trap_CL_GetConfigString(CS_MAPCHECKSUM));
 		return;
 	}
 	
-	cgi.R_BeginRegistration(mapname);
+	trap_R_BeginRegistration(mapname);
 	
 	
 	//
 	// register models, shaders et cetera ...
 	//
-	cgi.Com_Printf("CG_PrepRefresh: models\n");
+	trap_Com_Printf("CG_PrepRefresh: models\n");
 	CG_RegisterTEntModels();
 
 	for(int i=1; i<MAX_MODELS; i++)
 	{
-		if(!cgi.CL_GetConfigString(CS_MODELS+i)[0])
+		if(!trap_CL_GetConfigString(CS_MODELS+i)[0])
 			continue;
 	
-		cg.model_clip[i] = cgi.CM_RegisterModel(cgi.CL_GetConfigString(CS_MODELS+i));
+		cg.model_clip[i] = trap_CM_RegisterModel(trap_CL_GetConfigString(CS_MODELS+i));
 	
-		cg.model_draw[i] = cgi.R_RegisterModel(cgi.CL_GetConfigString(CS_MODELS+i));
+		cg.model_draw[i] = trap_R_RegisterModel(trap_CL_GetConfigString(CS_MODELS+i));
 		
 		//CG_UpdateScreen();
 	}
 
 
-	cgi.Com_Printf("CG_PrepRefresh: shaders\n");
+	trap_Com_Printf("CG_PrepRefresh: shaders\n");
 	//CG_UpdateScreen();
 	CG_RegisterPics();
 	
 	for(int i=1; i<MAX_SHADERS; i++)
 	{
-		if(!cgi.CL_GetConfigString(CS_SHADERS+i)[0])
+		if(!trap_CL_GetConfigString(CS_SHADERS+i)[0])
 			continue;
 		 
-		cg.shader_precache[i] = cgi.R_RegisterPic(cgi.CL_GetConfigString(CS_SHADERS+i));
+		cg.shader_precache[i] = trap_R_RegisterPic(trap_CL_GetConfigString(CS_SHADERS+i));
 	}
 	
 	
-	cgi.Com_Printf("CG_PrepRefresh: animations\n");
+	trap_Com_Printf("CG_PrepRefresh: animations\n");
 	//CG_UpdateScreen();
 	
 	for(int i=1; i<MAX_ANIMATIONS; i++)
 	{
-		if(!cgi.CL_GetConfigString(CS_ANIMATIONS+i)[0])
+		if(!trap_CL_GetConfigString(CS_ANIMATIONS+i)[0])
 			continue;
 	
-		cg.animation_precache[i] = cgi.R_RegisterAnimation(cgi.CL_GetConfigString(CS_ANIMATIONS+i));
+		cg.animation_precache[i] = trap_R_RegisterAnimation(trap_CL_GetConfigString(CS_ANIMATIONS+i));
 	}
 	
 	
-	cgi.Com_Printf("CG_PrepRefresh: lights\n");
+	trap_Com_Printf("CG_PrepRefresh: lights\n");
 	//CG_UpdateScreen();
 	
 	for(int i=1; i<MAX_LIGHTS; i++)
 	{
-		if(!cgi.CL_GetConfigString(CS_LIGHTS+i)[0])
+		if(!trap_CL_GetConfigString(CS_LIGHTS+i)[0])
 			continue;
 	
-		cg.light_precache[i] = cgi.R_RegisterLight(cgi.CL_GetConfigString(CS_LIGHTS+i));
+		cg.light_precache[i] = trap_R_RegisterLight(trap_CL_GetConfigString(CS_LIGHTS+i));
 	}
 	
 
 	//
 	// register clients
 	//
-	cgi.Com_Printf("CG_PrepRefresh: clients\n");
+	trap_Com_Printf("CG_PrepRefresh: clients\n");
 	for(int i=0; i<MAX_CLIENTS; i++)
 	{
-		if(!cgi.CL_GetConfigString(CS_PLAYERSKINS+i)[0])
+		if(!trap_CL_GetConfigString(CS_PLAYERSKINS+i)[0])
 			continue;
 		 
 		CG_ParseClientinfo(i);
@@ -145,25 +145,25 @@ void	CG_PrepRefresh()
 	CG_LoadClientinfo(&cg.baseclientinfo, default_clientinfo);
 	*/
 	
-	cgi.R_SetSky(cgi.CL_GetConfigString(CS_SKY));
+	trap_R_SetSky(trap_CL_GetConfigString(CS_SKY));
 	
 	
 	//
 	// the renderer can now free unneeded stuff
 	//
-	cgi.CM_EndRegistration();
-	cgi.R_EndRegistration();
+	trap_CM_EndRegistration();
+	trap_R_EndRegistration();
 
 
 	//
 	// clear any lines of console text
 	//
-	cgi.Con_ClearNotify();
+	trap_Con_ClearNotify();
 
 	//CG_UpdateScreen();
 	
-	cgi.CL_SetRefreshPrepped(true);
-	cgi.CL_SetForceRefdef(true);	// make sure we have a valid refdef
+	trap_CL_SetRefreshPrepped(true);
+	trap_CL_SetForceRefdef(true);	// make sure we have a valid refdef
 }
 
 
@@ -171,31 +171,31 @@ void	CG_PrepRefresh()
 
 void	CG_CalcLerpFrac()
 {
-	if(cgi.CLS_GetConnectionState() != CA_ACTIVE)
+	if(trap_CLS_GetConnectionState() != CA_ACTIVE)
 		return;
 
-	if(cgi.CL_GetTime() > cg.frame.servertime)
+	if(trap_CL_GetTime() > cg.frame.servertime)
 	{
 		if(cg_showclamp->getValue())
-			cgi.Com_Printf("high clamp %i\n", cgi.CL_GetTime() - cg.frame.servertime);
+			trap_Com_Printf("high clamp %i\n", trap_CL_GetTime() - cg.frame.servertime);
 			
-		cgi.CL_SetTime(cg.frame.servertime);
+		trap_CL_SetTime(cg.frame.servertime);
 		cg.frame_lerp = 1.0;
 	}
-	else if(cgi.CL_GetTime() < cg.frame.servertime - 100)
+	else if(trap_CL_GetTime() < cg.frame.servertime - 100)
 	{
 		if(cg_showclamp->getValue())
-			cgi.Com_Printf("low clamp %i\n", cg.frame.servertime-100 - cgi.CL_GetTime());
+			trap_Com_Printf("low clamp %i\n", cg.frame.servertime-100 - trap_CL_GetTime());
 			
-		cgi.CL_SetTime(cg.frame.servertime - 100);
+		trap_CL_SetTime(cg.frame.servertime - 100);
 		cg.frame_lerp = 0;
 	}
 	else
 	{
-		cg.frame_lerp = 1.0 - (cg.frame.servertime - cgi.CL_GetTime()) * 0.01;
+		cg.frame_lerp = 1.0 - (cg.frame.servertime - trap_CL_GetTime()) * 0.01;
 	}
 
-	if(cgi.Cvar_VariableValue("timedemo"))
+	if(trap_Cvar_VariableValue("timedemo"))
 		cg.frame_lerp = 1.0;
 }
 
@@ -208,7 +208,7 @@ static void	CG_CalcViewValues()
 	frame_t		*oldframe = NULL;
 	player_state_t	*ps, *ps_old;
 	
-	if(cgi.CLS_GetConnectionState() != CA_ACTIVE)
+	if(trap_CLS_GetConnectionState() != CA_ACTIVE)
 		return;
 
 	// find the previous frame to interpolate from
@@ -230,7 +230,7 @@ static void	CG_CalcViewValues()
 		ps_old = ps;		// don't interpolate
 	}
 
-	ent = &cg.entities[cgi.playernum+1];
+	ent = &cg.entities[trap_CL_GetPlayerNum()+1];
 	lerp = cg.frame_lerp;
 
 	// calculate the origin
@@ -249,7 +249,7 @@ static void	CG_CalcViewValues()
 		}
 
 		// smooth out stair climbing
-		delta = (int)cgi.CLS_GetRealTime() - cg.predicted_step_time;
+		delta = (int)trap_CLS_GetRealTime() - cg.predicted_step_time;
 		if(delta < 100)
 			cg.refdef.view_origin[2] -= cg.predicted_step * (100 - delta) * 0.01;
 	}
@@ -293,29 +293,29 @@ static void	CG_CalcViewValues()
 
 void	CG_RenderView()
 {
-	if(cgi.CLS_GetConnectionState() != CA_ACTIVE)
+	if(trap_CLS_GetConnectionState() != CA_ACTIVE)
 		return;
 
-	if(!cgi.CL_GetRefreshPrepped())
+	if(!trap_CL_GetRefreshPrepped())
 		return;			// still loading
 
 	/*
-	if(cgi.Cvar_VariableValue("timedemo"))
+	if(trap_Cvar_VariableValue("timedemo"))
 	{
-		if(!cgi.CL_GetTime()demo_start)
-			cgi.CL_GetTime()demo_start = cgi.Sys_Milliseconds();
+		if(!trap_CL_GetTime()demo_start)
+			trap_CL_GetTime()demo_start = trap_Sys_Milliseconds();
 			
-		cgi.CL_GetTime()demo_frames++;
+		trap_CL_GetTime()demo_frames++;
 	}
 	*/
 
 	// an invalid frame will just use the exact previous refdef
 	// we can't use the old frame if the video mode has changed, though...
-	if(cg.frame.valid && (cgi.CL_GetForceRefdef() || !cg_paused->getValue()))
+	if(cg.frame.valid && (trap_CL_GetForceRefdef() || !cg_paused->getValue()))
 	{
-		cgi.CL_SetForceRefdef(false);
+		trap_CL_SetForceRefdef(false);
 
-		cgi.R_ClearScene();
+		trap_R_ClearScene();
 
 		CG_CalcLerpFrac();
 		
@@ -328,7 +328,7 @@ void	CG_RenderView()
 		cg.refdef.width = scr_vrect.width;
 		cg.refdef.height = scr_vrect.height;
 		cg.refdef.fov_y = CalcFOV(cg.refdef.fov_x, cg.refdef.width, cg.refdef.height);
-		//cg.refdef.time = cgi.CL_GetTime()*0.001;
+		//cg.refdef.time = trap_CL_GetTime()*0.001;
 
 		cg.refdef.areabits = cg.frame.areabits;
 
@@ -336,7 +336,7 @@ void	CG_RenderView()
 		cg.refdef.lerp = cg.frame_lerp;
 	}
 
-	cgi.R_RenderFrame(cg.refdef);
+	trap_R_RenderFrame(cg.refdef);
 	
 	
 	// clear any dirty part of the background
@@ -364,26 +364,26 @@ void	CG_RenderView()
 
 void	CG_Viewpos_f()
 {
-	cgi.Com_Printf("%s : %i\n", cg.refdef.view_origin.toString(), (int)cg.refdef.view_angles[YAW]);
+	trap_Com_Printf("%s : %i\n", cg.refdef.view_origin.toString(), (int)cg.refdef.view_angles[YAW]);
 }
 
 
 void	CG_Sky_f()
 {
-	if(cgi.Cmd_Argc() != 2)
+	if(trap_Cmd_Argc() != 2)
 	{
-		cgi.Com_Printf("usage: sky <name>\n");
+		trap_Com_Printf("usage: sky <name>\n");
 		return;
 	}
 	
 	// set sky
-	cgi.R_SetSky(cgi.Cmd_Argv(1));
+	trap_R_SetSky(trap_Cmd_Argv(1));
 }
 
 void 	CG_InitView()
 {
-	cgi.Cmd_AddCommand("viewpos", CG_Viewpos_f);
-	cgi.Cmd_AddCommand("sky", CG_Sky_f);
+	trap_Cmd_AddCommand("viewpos", CG_Viewpos_f);
+	trap_Cmd_AddCommand("sky", CG_Sky_f);
 }
 
 

@@ -41,16 +41,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 class netchan_c
 {
 public:
-	void	setup(const netadr_t &adr);
+	void			setup(const netadr_t &adr, int qport, bool client);
 	
-	void 	transmit(const byte *data, int length);
-	void	transmit(const message_c &msg);
+	void 			transmit(const byte *data, int length);
+	void			transmit(const message_c &msg);
 	
-	bool	process(message_c &msg);
+	bool			process(message_c &msg);
 	
 	int			getDropped() const		{return _dropped;}
 	
 	const netadr_t&		getRemoteAddress() const	{return _remote_address;}
+	void			fixRemoteAddressPort(int port)	{_remote_address.port = port;}
+	int			getQPort() const		{return _qport;}
 		
 	int			getLastReceived() const		{return _last_received;}
 	int			getLastSent() const		{return _last_sent;}
@@ -60,12 +62,14 @@ public:
 	int			getOutgoingSequence() const	{return _outgoing_sequence;}
 
 private:
-	bool	needReliable();
-	bool 	canReliable();
+	bool			needReliable();
+	bool 			canReliable();
 	
 	int			_dropped;			// between last packet and previous
 
 	netadr_t		_remote_address;
+	int			_qport;				// qport value to write when transmitting
+	bool			_client;			// are we a client?
 	
 	int			_last_received;			// for timeouts
 	int			_last_sent;			// for retransmits

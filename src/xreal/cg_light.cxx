@@ -60,7 +60,7 @@ cg_light_t*	CG_AllocLight(int key)
 	// then look for anything else
 	for(i=0, light = cg_lights; i<MAX_REFLIGHTS; i++, light++)
 	{
-		if(light->die < cgi.cl->time)
+		if(light->die < trap_cl->time)
 		{
 			memset(light, 0, sizeof(*light));
 			light->key = key;
@@ -84,7 +84,7 @@ void	CG_NewLight(int key, const vec3_c &origin, float radius, float time)
 	light->radius[0] = radius;
 	light->radius[1] = radius;
 	light->radius[2] = radius;
-	light->die = cgi.cl->time + time;
+	light->die = trap_cl->time + time;
 }
 
 
@@ -99,15 +99,15 @@ void	CG_RunLights()
 		if(!light->radius.length())
 			continue;
 		
-		if(light->die < cgi.cl->time)
+		if(light->die < trap_cl->time)
 		{
 			light->radius.clear();
 			return;
 		}
 		
-		light->radius[0] -= cgi.cls->frametime * light->decay;
-		light->radius[1] -= cgi.cls->frametime * light->decay;
-		light->radius[2] -= cgi.cls->frametime * light->decay;
+		light->radius[0] -= trap_cls->frametime * light->decay;
+		light->radius[1] -= trap_cls->frametime * light->decay;
+		light->radius[2] -= trap_cls->frametime * light->decay;
 		
 		if(light->radius.length() < 0)
 			light->radius.clear();
@@ -127,7 +127,7 @@ void	CG_AddLights()
 			continue;
 		
 		//if(light->type == LIGHT_SPOT)
-		//	cgi.Com_Printf("CG_AddLights: %i is a spot light\n", i);
+		//	trap_Com_Printf("CG_AddLights: %i is a spot light\n", i);
 					
 		r_light_t rlight;
 		
@@ -149,7 +149,7 @@ void	CG_AddLights()
 		rlight.cone_inner	= clight->cone_inner;
 		rlight.cone_outer	= clight->cone_outer;
 
-		cgi.R_AddLightToScene(rlight);
+		trap_R_AddLightToScene(rlight);
 	}
 }
 
@@ -163,8 +163,8 @@ void	CG_AddPacketLight(cg_entity_t *cent, entity_state_t *state)
 	if(light->color.isZero())
 		light->color = color_white;
 	
-	//light->shader = cgi.R_RegisterLight("lights/defaultProjectedLight");
-	light->shader = cgi.cl->light_precache[state->index_light];
+	//light->shader = trap_R_RegisterLight("lights/defaultProjectedLight");
+	light->shader = trap_cl->light_precache[state->index_light];
 	
 	light->radius = state->lengths;
 	
@@ -177,19 +177,19 @@ void	CG_AddPacketLight(cg_entity_t *cent, entity_state_t *state)
 		
 		case ET_LIGHT_SPOT:
 			light->type = LIGHT_SPOT;
-			//cgi.MSG_ReadDir(cgi.net_message, light->dir);
-			//light->cone_inner = cgi.MSG_ReadFloat(cgi.net_message);
-			//light->cone_outer = cgi.MSG_ReadFloat(cgi.net_message);
+			//trap_MSG_ReadDir(trap_net_message, light->dir);
+			//light->cone_inner = trap_MSG_ReadFloat(trap_net_message);
+			//light->cone_outer = trap_MSG_ReadFloat(trap_net_message);
 			
-			//cgi.Com_Printf("light entity %i is a spot light\n", i);
+			//trap_Com_Printf("light entity %i is a spot light\n", i);
 			break;
 		default:
-			cgi.Com_Error(ERR_DROP, "CG_ParseLight: bad light type %i\n", light->type);
+			trap_Com_Error(ERR_DROP, "CG_ParseLight: bad light type %i\n", light->type);
 	}
 
 	for(int i=0; i<3; i++)
 	{
-		light->origin[i] = cent->prev.origin[i] + cgi.cl->lerpfrac * (cent->current.origin[i] - cent->prev.origin[i]);
+		light->origin[i] = cent->prev.origin[i] + trap_cl->lerpfrac * (cent->current.origin[i] - cent->prev.origin[i]);
 	}
 	
 	//light->origin = ent->current.origin;
@@ -200,7 +200,7 @@ void	CG_AddPacketLight(cg_entity_t *cent, entity_state_t *state)
 	//light->radius = 200;// + (rand()&31);
 	light->minlight = 32;
 	
-	light->die = cgi.cl->time + 100;
+	light->die = trap_cl->time + 100;
 }
 */
 
@@ -211,7 +211,7 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 	r_entity_t rent;
 
 	if(!cent->current.index_light)
-		cgi.Com_Error(ERR_DROP, "CG_AddLightEntity: bad light index");
+		trap_Com_Error(ERR_DROP, "CG_AddLightEntity: bad light index");
 
 	rent.custom_light = cg.light_precache[cent->current.index_light];
 	
@@ -235,7 +235,7 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 	{
 		case ET_LIGHT_OMNI:
 		{
-			//cgi.Com_DPrintf("adding omni-directional light ...\n");
+			//trap_Com_DPrintf("adding omni-directional light ...\n");
 			
 			rent.radius = cent->current.vectors[0];
 			rent.radius_bbox._maxs = rent.origin + cent->current.vectors[0];
@@ -243,13 +243,13 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 			rent.radius_bbox.rotate(cent->current.quat);
 			rent.radius_value = rent.radius_bbox.radius();
 			
-			cgi.R_AddLight(cent->current.getNumber(), 0, rent, LIGHT_OMNI);
+			trap_R_AddLight(cent->current.getNumber(), 0, rent, LIGHT_OMNI);
 			break;
 		}
 				
 		case ET_LIGHT_PROJ:
 		{
-			//cgi.Com_DPrintf("adding projective light ...\n");
+			//trap_Com_DPrintf("adding projective light ...\n");
 			
 			rent.target = cent->current.vectors[0];
 			rent.right = cent->current.vectors[1];
@@ -278,7 +278,7 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 		
 			rent.radius_value = rent.radius_bbox.radius();
 			
-			cgi.R_AddLight(cent->current.getNumber(), 0, rent, LIGHT_PROJ);
+			trap_R_AddLight(cent->current.getNumber(), 0, rent, LIGHT_PROJ);
 			break;
 		}
 		
@@ -324,15 +324,15 @@ void	CG_UpdateLightEntity(const cg_entity_t *cent)
 			
 			if(update)
 			{
-				cgi.Com_DPrintf("updating omni-directional light ...\n");
-				cgi.R_UpdateLight(cent->current.getNumber(), 0, rent, LIGHT_OMNI);
+				trap_Com_DPrintf("updating omni-directional light ...\n");
+				trap_R_UpdateLight(cent->current.getNumber(), 0, rent, LIGHT_OMNI);
 			}
 			break;
 		}
 				
 		case ET_LIGHT_PROJ:
 		{
-			//cgi.Com_DPrintf("adding projective light ...\n");
+			//trap_Com_DPrintf("adding projective light ...\n");
 			break;
 		}
 		
@@ -343,9 +343,9 @@ void	CG_UpdateLightEntity(const cg_entity_t *cent)
 
 void	CG_RemoveLightEntity(const cg_entity_t *cent)
 {
-	//cgi.Com_DPrintf("removing light ...\n");
+	//trap_Com_DPrintf("removing light ...\n");
 
-	cgi.R_RemoveLight(cent->prev.getNumber());
+	trap_R_RemoveLight(cent->prev.getNumber());
 }
 
 

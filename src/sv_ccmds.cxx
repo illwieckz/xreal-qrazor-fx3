@@ -324,7 +324,7 @@ static void 	SV_Status_f()
 		for (j=0 ; j<l ; j++)
 			Com_Printf(" ");
 		
-		Com_Printf("%5i", cl->netchan.getRemoteAddress().port);
+		Com_Printf("%5i", cl->netchan.getQPort());
 
 		Com_Printf("\n");
 	}

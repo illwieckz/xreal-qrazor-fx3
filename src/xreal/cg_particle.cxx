@@ -65,7 +65,7 @@ cg_particle_t*	CG_SpawnParticle()
 	p->next = particles_active;
 	particles_active = p;
 	
-	p->time = cgi.CL_GetTime();
+	p->time = trap_CL_GetTime();
 	
 	return p;
 }
@@ -75,7 +75,7 @@ void CG_ExplosionParticles (vec3_t org)
 	int			i, j;
 	cg_particle_t	*p;
 	
-	//cgi.Com_DPrintf ("CG_ExplosionParticles: called\n");
+	//trap_Com_DPrintf ("CG_ExplosionParticles: called\n");
 
 	for (i=0 ; i<256 ; i++)
 	{
@@ -87,7 +87,7 @@ void CG_ExplosionParticles (vec3_t org)
 		p->next = particles_active;
 		particles_active = p;
 
-		p->time = cgi.CL_GetTime();
+		p->time = trap_CL_GetTime();
 
 		for (j=0 ; j<3 ; j++)
 		{
@@ -112,7 +112,7 @@ void CG_ExplosionParticles (vec3_t org)
 		p->shared.color[2] = 0;
 		p->shared.color[3] = 1;
 		
-		p->shared.shader = cgi.R_RegisterParticle ("particles/dot.tga");
+		p->shared.shader = trap_R_RegisterParticle ("particles/dot.tga");
 	}
 }
 
@@ -170,7 +170,7 @@ void	CG_DiminishingTrail(vec3_t start, vec3_t end, cg_entity_t *old, int flags)
 			particles_active = p;
 			p->accel.clear();
 		
-			p->time = cgi.CL_GetTime();
+			p->time = trap_CL_GetTime();
 
 			if (flags & EF_GIB)
 			{
@@ -242,7 +242,7 @@ void	CG_RocketTrail(vec3_t start, vec3_t end, cg_entity_t *old)
 			particles_active = p;
 			
 			p->accel.clear();
-			p->time = cgi.CL_GetTime();
+			p->time = trap_CL_GetTime();
 
 			//p->alpha = 1.0;
 			p->alphavel = -1.0 / (1+X_frand()*0.2);
@@ -271,7 +271,7 @@ void	CG_RocketTrail(vec3_t start, vec3_t end, cg_entity_t *old)
 			p->shared.color[2] = 5 + X_frand() * 0.2;
 			p->shared.color[3] = 0.5;
 		
-			p->shared.shader = cgi.R_RegisterParticle("particles/smoke1.tga");
+			p->shared.shader = trap_R_RegisterParticle("particles/smoke1.tga");
 
 		}
 		Vector3_Add (move, vec, move);
@@ -307,7 +307,7 @@ void CG_RailTrail (vec3_t start, vec3_t end)
 		p->next = particles_active;
 		particles_active = p;
 		
-		p->time = cgi.CL_GetTime();
+		p->time = trap_CL_GetTime();
 		p->accel.clear();
 
 		d = i * 0.1;
@@ -344,7 +344,7 @@ void CG_RailTrail (vec3_t start, vec3_t end)
 		p->next = particles_active;
 		particles_active = p;
 
-		p->time = cgi.CL_GetTime();
+		p->time = trap_CL_GetTime();
 		p->accel.clear();
 
 		//p->alpha = 1.0;
@@ -389,7 +389,7 @@ void	CG_BubbleTrail(vec3_t start, vec3_t end)
 		particles_active = p;
 
 		p->accel.clear();
-		p->time = cgi.CL_GetTime();
+		p->time = trap_CL_GetTime();
 
 		//p->alpha = 1.0;
 		p->alphavel = -1.0 / (1+X_frand()*0.1);
@@ -411,7 +411,7 @@ void	CG_BubbleTrail(vec3_t start, vec3_t end)
 		p->shared.color[2] = 1;
 		p->shared.color[3] = 1;
 		
-		p->shared.shader = cgi.R_RegisterParticle ("particles/bubble.tga");
+		p->shared.shader = trap_R_RegisterParticle ("particles/bubble.tga");
 
 		Vector3_Add (move, vec, move);
 	}
@@ -441,7 +441,7 @@ static void CG_FlyParticles (vec3_t origin, int count)
 	}
 
 
-	ltime = (float)cgi.CL_GetTime() / 1000.0;
+	ltime = (float)trap_CL_GetTime() / 1000.0;
 	for (i=0 ; i<count ; i+=2)
 	{
 		angle = ltime * avelocities[i][0];
@@ -465,7 +465,7 @@ static void CG_FlyParticles (vec3_t origin, int count)
 		p->next = particles_active;
 		particles_active = p;
 
-		p->time = cgi.CL_GetTime();
+		p->time = trap_CL_GetTime();
 
 		dist = sin(ltime + i)*64;
 		p->shared.origin[0] = origin[0] + bytedirs[i][0]*dist + forward[0]*BEAMLENGTH;
@@ -503,7 +503,7 @@ void CG_BfgParticles (r_entity_t *ent)
 	}
 
 
-	ltime = (float)cgi.CL_GetTime() / 1000.0;
+	ltime = (float)trap_CL_GetTime() / 1000.0;
 	for (i=0 ; i<NUMVERTEXNORMALS ; i++)
 	{
 		angle = ltime * avelocities[i][0];
@@ -527,7 +527,7 @@ void CG_BfgParticles (r_entity_t *ent)
 		p->next = particles_active;
 		particles_active = p;
 
-		p->time = cgi.CL_GetTime();
+		p->time = trap_CL_GetTime();
 
 		dist = sin(ltime + i)*64;
 		p->shared.origin[0] = ent->origin[0] + bytedirs[i][0]*dist + forward[0]*BEAMLENGTH;
@@ -563,7 +563,7 @@ void CG_BFGExplosionParticles (vec3_t org)
 		p->next = particles_active;
 		particles_active = p;
 
-		p->time = cgi.CL_GetTime();
+		p->time = trap_CL_GetTime();
 
 		for (j=0 ; j<3 ; j++)
 		{
@@ -597,7 +597,7 @@ void	CG_AddParticles()
 		
 		if(p->alphavel != INSTANT_PARTICLE)
 		{
-			time = (cgi.CL_GetTime() - p->time) * 0.001;
+			time = (trap_CL_GetTime() - p->time) * 0.001;
 			
 			if((p->shared.color[3] + time * p->alphavel) <= 0)
 			{
@@ -628,7 +628,7 @@ void	CG_AddParticles()
 		
 		p->shared.origin = org;
 
-		cgi.R_AddParticle(p->shared);
+		trap_R_AddParticle(p->shared);
 		
 		if(p->alphavel == INSTANT_PARTICLE)
 		{
@@ -831,7 +831,7 @@ void	CG_ParticleSpray(cg_particle_type_e type, const vec3_c &org, vec3_c &dir, c
 	float	dir_var;
 
 	
-	//cgi.Com_DPrintf("CG_ParticleSpray: called\n");
+	//trap_Com_DPrintf("CG_ParticleSpray: called\n");
 	
 	if(count <= 0)
 		count = (int)(30+X_frand()*30);
@@ -866,7 +866,7 @@ void	CG_ParticleSpray(cg_particle_type_e type, const vec3_c &org, vec3_c &dir, c
 				
 				p->weight = (p->shared.x * 0.1) + SPLASH_WEIGHT * X_frand();
 				
-				p->shared.shader = cgi.R_RegisterParticle("particles/wtrdrop.tga");
+				p->shared.shader = trap_R_RegisterParticle("particles/wtrdrop.tga");
 				
 				if(color.isZero())
 					p->shared.color.set(0.85, 0.85, 1.0, 0.8);
@@ -883,7 +883,7 @@ void	CG_ParticleSpray(cg_particle_type_e type, const vec3_c &org, vec3_c &dir, c
 				
 				p->weight = (p->shared.x * 0.1) + SPLASH_WEIGHT * X_frand();
 				
-				p->shared.shader = cgi.R_RegisterParticle("particles/wtrdrop1.tga");
+				p->shared.shader = trap_R_RegisterParticle("particles/wtrdrop1.tga");
 				
 				if (color.isZero())
 					p->shared.color.set(0.85, 0.85, 1.0, 0.8); 
@@ -903,7 +903,7 @@ void	CG_ParticleSpray(cg_particle_type_e type, const vec3_c &org, vec3_c &dir, c
 				
 				p->weight = (p->shared.x * 0.1) + SPARK_WEIGHT * X_frand();
 				
-				p->shared.shader = cgi.R_RegisterParticle("particles/sparks.tga");
+				p->shared.shader = trap_R_RegisterParticle("particles/sparks.tga");
 				
 				if (color.isZero())
 					p->shared.color.set(0.5+X_frand()*0.2, 0.5+X_frand()*0.2, 0, 0.7);
@@ -923,7 +923,7 @@ void	CG_ParticleSpray(cg_particle_type_e type, const vec3_c &org, vec3_c &dir, c
 				
 				p->weight = (p->shared.x * 0.1) + SPARK_WEIGHT * X_frand();
 				
-				p->shared.shader = cgi.R_RegisterParticle("particles/sparks1.tga");
+				p->shared.shader = trap_R_RegisterParticle("particles/sparks1.tga");
 				
 				if (color.isZero())
 					p->shared.color.set(0.5+X_frand()*0.2, 0.5+X_frand()*0.2, 0, 0.7);
@@ -944,7 +944,7 @@ void	CG_ParticleSpray(cg_particle_type_e type, const vec3_c &org, vec3_c &dir, c
 				
 				p->weight = (p->shared.x * 0.1) + SPARK_WEIGHT * X_frand();
 				
-				p->shared.shader = cgi.R_RegisterParticle("particles/sparks2.tga");
+				p->shared.shader = trap_R_RegisterParticle("particles/sparks2.tga");
 				
 				if(color.isZero())
 					p->shared.color.set(0.3+X_frand()*0.8, 0.3+X_frand()*0.8, 0.3, 1.0);
@@ -963,7 +963,7 @@ void	CG_ParticleSpray(cg_particle_type_e type, const vec3_c &org, vec3_c &dir, c
 				
 				p->weight = (p->shared.x * 0.1) + RAIN_WEIGHT * X_frand();
 				
-				p->shared.shader = cgi.R_RegisterParticle ("particles/rain1.tga");
+				p->shared.shader = trap_R_RegisterParticle ("particles/rain1.tga");
 				
 				if (color.isZero())
 					p->shared.color.set(0.7, 0.7, 0.9, 0.7);
@@ -991,7 +991,7 @@ void	CG_ParticleSpray(cg_particle_type_e type, const vec3_c &org, vec3_c &dir, c
 				
 				p->weight = (p->shared.x * 0.1) + BLOOD_WEIGHT * X_frand();
 				
-				p->shared.shader = cgi.R_RegisterParticle ("particles/blood.tga");
+				p->shared.shader = trap_R_RegisterParticle ("particles/blood.tga");
 				
 				if (color.isZero())
 					p->shared.color.set(0.5, 0.1, 0.1, 1);
@@ -1014,7 +1014,7 @@ void	CG_ParticleSpray(cg_particle_type_e type, const vec3_c &org, vec3_c &dir, c
 				
 				p->weight = (p->shared.x * 0.1) + SPARK_WEIGHT * X_frand();
 				
-				p->shared.shader = cgi.R_RegisterParticle("particles/sparks2.tga");
+				p->shared.shader = trap_R_RegisterParticle("particles/sparks2.tga");
 				
 				if(color.isZero())
 					p->shared.color.set(0.3+X_frand()*0.8, 0.3+X_frand()*0.8, 0.3, 1.0);
@@ -1043,67 +1043,67 @@ void	CG_ParticleSpray(cg_particle_type_e type, const vec3_c &org, vec3_c &dir, c
 				{
 					case 1:
 						p->type = PART_SNOW1;
-						p->shared.shader = cgi.R_RegisterParticle ("particles/snow1.tga");
+						p->shared.shader = trap_R_RegisterParticle ("particles/snow1.tga");
 						break;
 						
 					case 2:
 						p->type = PART_SNOW2;
-						p->shared.shader = cgi.R_RegisterParticle ("particles/snow2.tga");
+						p->shared.shader = trap_R_RegisterParticle ("particles/snow2.tga");
 						break;
 						
 					case 3:
 						p->type = PART_SNOW3;
-						p->shared.shader = cgi.R_RegisterParticle ("particles/snow3.tga");
+						p->shared.shader = trap_R_RegisterParticle ("particles/snow3.tga");
 						break;
 						
 					case 4:
 						p->type = PART_SNOW4;
-						p->shared.shader = cgi.R_RegisterParticle ("particles/snow4.tga");
+						p->shared.shader = trap_R_RegisterParticle ("particles/snow4.tga");
 						break;
 						
 					case 5:
 						p->type = PART_SNOW5;
-						p->shared.shader = cgi.R_RegisterParticle ("particles/snow5.tga");
+						p->shared.shader = trap_R_RegisterParticle ("particles/snow5.tga");
 						break;
 						
 					case 6:
 						p->type = PART_SNOW6;
-						p->shared.shader = cgi.R_RegisterParticle ("particles/snow6.tga");
+						p->shared.shader = trap_R_RegisterParticle ("particles/snow6.tga");
 						break;
 						
 					case 7:
 						p->type = PART_SNOW7;
-						p->shared.shader = cgi.R_RegisterParticle ("particles/snow7.tga");
+						p->shared.shader = trap_R_RegisterParticle ("particles/snow7.tga");
 						break;
 						
 					case 8:
 						p->type = PART_SNOW8;
-						p->shared.shader = cgi.R_RegisterParticle ("particles/snow8.tga");
+						p->shared.shader = trap_R_RegisterParticle ("particles/snow8.tga");
 						break;
 						
 					case 9:
 						p->type = PART_SNOW9;
-						p->shared.shader = cgi.R_RegisterParticle ("particles/snow9.tga");
+						p->shared.shader = trap_R_RegisterParticle ("particles/snow9.tga");
 						break;
 						
 					case 10:
 						p->type = PART_SNOW10;
-						p->shared.shader = cgi.R_RegisterParticle ("particles/snow10.tga");
+						p->shared.shader = trap_R_RegisterParticle ("particles/snow10.tga");
 						break;
 						
 					case 11:
 						p->type = PART_SNOW11;
-						p->shared.shader = cgi.R_RegisterParticle ("particles/snow11.tga");
+						p->shared.shader = trap_R_RegisterParticle ("particles/snow11.tga");
 						break;
 						
 					case 12:
 						p->type = PART_SNOW12;
-						p->shared.shader = cgi.R_RegisterParticle ("particles/snow12.tga");
+						p->shared.shader = trap_R_RegisterParticle ("particles/snow12.tga");
 						break;
 					
 					default:
 						p->type = PART_SNOW12;
-						p->shared.shader = cgi.R_RegisterParticle ("particles/snow12.tga");
+						p->shared.shader = trap_R_RegisterParticle ("particles/snow12.tga");
 						break;
 				}
 				
@@ -1130,7 +1130,7 @@ void	CG_ParticleSpray(cg_particle_type_e type, const vec3_c &org, vec3_c &dir, c
 				
 				p->weight = SPARK_WEIGHT;
 				
-				p->shared.shader = cgi.R_RegisterParticle ("particles/dot.tga");
+				p->shared.shader = trap_R_RegisterParticle ("particles/dot.tga");
 				
 				if(color.isZero())
 				{
@@ -1156,7 +1156,7 @@ void	CG_ParticleSpray(cg_particle_type_e type, const vec3_c &org, vec3_c &dir, c
 				
 				p->weight = 0;
 				
-				p->shared.shader = cgi.R_RegisterParticle ("particles/dot.tga");
+				p->shared.shader = trap_R_RegisterParticle ("particles/dot.tga");
 				
 				if(color.isZero())
 					p->shared.color.set(1.0, 1.0, 1.0, 0.6);
@@ -1164,7 +1164,7 @@ void	CG_ParticleSpray(cg_particle_type_e type, const vec3_c &org, vec3_c &dir, c
 
 				
 			case PART_EXPSMOKE:
-				//cgi.Com_DPrintf("CG_ParticleSpray: TODO PART_EXPSMOKE\n");
+				//trap_Com_DPrintf("CG_ParticleSpray: TODO PART_EXPSMOKE\n");
 			
 				for(j=0; j<3; j++)
 				{
@@ -1181,7 +1181,7 @@ void	CG_ParticleSpray(cg_particle_type_e type, const vec3_c &org, vec3_c &dir, c
 				
 				p->weight = -0.01;
 				
-				p->shared.shader = cgi.R_RegisterParticle("particles/dot.tga");
+				p->shared.shader = trap_R_RegisterParticle("particles/dot.tga");
 				
 				if(color.isZero())
 					p->shared.color.set(0.07+X_frand()*0.04, 0.07+X_frand()*0.04, 0.07+X_frand()*0.04, 1);
@@ -1189,7 +1189,7 @@ void	CG_ParticleSpray(cg_particle_type_e type, const vec3_c &org, vec3_c &dir, c
 
 	
 			case PART_BOSSTELE:
-				//cgi.Com_DPrintf ("CG_ParticleSpray: TODO PART_BOSSTELE\n");
+				//trap_Com_DPrintf ("CG_ParticleSpray: TODO PART_BOSSTELE\n");
 			
 				for (j=0; j<3; j++)
 				{
@@ -1205,7 +1205,7 @@ void	CG_ParticleSpray(cg_particle_type_e type, const vec3_c &org, vec3_c &dir, c
 				
 				p->weight = 0;
 				
-				p->shared.shader = cgi.R_RegisterParticle ("particles/dot.tga");
+				p->shared.shader = trap_R_RegisterParticle ("particles/dot.tga");
 				
 				if (color.isZero())
 					p->shared.color.set(0.5, 0.5, 0.5, 0.7);
@@ -1241,7 +1241,7 @@ void	CG_ParticleTrail(cg_particle_type_e type, const vec3_c &start, const vec3_c
 
 	vec.scale(5);
 	
-	//cgi.Com_DPrintf("CG_ParticleTrail: called\n");
+	//trap_Com_DPrintf("CG_ParticleTrail: called\n");
 	
 	while (len > 0)
 	{
@@ -1255,7 +1255,7 @@ void	CG_ParticleTrail(cg_particle_type_e type, const vec3_c &start, const vec3_c
 		p->next = particles_active;
 		particles_active = p;
 
-		p->time = cgi.CL_GetTime();
+		p->time = trap_CL_GetTime();
 		
 		p->shared.origin = move;
 
@@ -1289,7 +1289,7 @@ void	CG_ParticleTrail(cg_particle_type_e type, const vec3_c &start, const vec3_c
 				
 				p->weight = 0;
 				
-				p->shared.shader = cgi.R_RegisterParticle("particles/rail.tga");
+				p->shared.shader = trap_R_RegisterParticle("particles/rail.tga");
 				
 				if (color.isZero())
 					p->shared.color.set(0.0, 0.0, 1, 1);
@@ -1307,7 +1307,7 @@ void	CG_ParticleTrail(cg_particle_type_e type, const vec3_c &start, const vec3_c
 				
 				p->weight = 0;
 				
-				p->shared.shader = cgi.R_RegisterParticle("particles/blaster1.tga");
+				p->shared.shader = trap_R_RegisterParticle("particles/blaster1.tga");
 				
 				if(color.isZero())
 					p->shared.color.set(1.0, 0.9, 0, 1);

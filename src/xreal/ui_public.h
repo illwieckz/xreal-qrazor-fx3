@@ -126,6 +126,9 @@ typedef struct
 	
 	void		(*S_StartLocalSound)(const std::string &name);
 	
+	uint_t		(*VID_GetWidth)();
+	uint_t		(*VID_GetHeight)();
+	
 	char*		(*Sys_AdrToString)(const netadr_t &a);
 	int		(*Sys_Milliseconds)();
 	

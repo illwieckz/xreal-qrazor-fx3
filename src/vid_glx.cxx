@@ -177,6 +177,16 @@ void	VID_CheckChanges()
 {
 }
 
+uint_t	VID_GetWidth()
+{
+	return vid.width;
+}
+
+uint_t	VID_GetHeight()
+{
+	return vid.height;
+}
+
 
 /*
 ================================================================================

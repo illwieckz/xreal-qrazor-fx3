@@ -212,7 +212,7 @@ void 	SCR_DrawConsole()
 		// connected, but can't render
 		Con_DrawConsole(0.5);
 		
-		re.R_DrawFill(0, viddef.height/2, viddef.width, viddef.height/2, color);
+		re.R_DrawFill(0, VID_GetHeight()/2, VID_GetWidth(), VID_GetHeight()/2, color);
 		return;
 	}
 
@@ -239,8 +239,8 @@ static void 	SCR_TimeRefresh_f()
 		return;
 		
 	r_refdef_t refdef;
-	refdef.width = viddef.width;
-	refdef.height = viddef.height;
+	refdef.width = VID_GetWidth();
+	refdef.height = VID_GetHeight();
 	refdef.setFOV(90);
 	refdef.view_origin = cl.frame.playerstate.view_offset + (cl.frame.playerstate.pmove.origin * (1.0/16.0));
 
@@ -322,14 +322,14 @@ static void 	SCR_CalcVrect()
 
 	size = scr_viewsize->getInteger();
 
-	scr_vrect.width = viddef.width*size/100;
+	scr_vrect.width = VID_GetWidth()*size/100;
 	scr_vrect.width &= ~7;
 
-	scr_vrect.height = viddef.height*size/100;
+	scr_vrect.height = VID_GetHeight()*size/100;
 	scr_vrect.height &= ~1;
 
-	scr_vrect.x = (viddef.width - scr_vrect.width)/2;
-	scr_vrect.y = (viddef.height - scr_vrect.height)/2;
+	scr_vrect.x = (VID_GetWidth() - scr_vrect.width)/2;
+	scr_vrect.y = (VID_GetHeight() - scr_vrect.height)/2;
 }
 
 

@@ -882,7 +882,7 @@ void	CL_ConnectionlessPacket(message_c &msg, const netadr_t &adr)
 			Com_Printf("Dup connect received.  Ignored.\n");
 			return;
 		}
-		cls.netchan.setup(adr);
+		cls.netchan.setup(adr, cls.quake_port, true);
 		cls.netchan.message.writeByte(CLC_STRINGCMD);
 		cls.netchan.message.writeString("new");	
 		cls.state = CA_CONNECTED;
@@ -975,7 +975,7 @@ void	CL_PacketEvent(message_c &msg, const netadr_t &adr)
 	if(!cls.netchan.process(msg))
 		return;		// wasn't accepted for some reason
 		
-	CL_ParseServerMessage(msg);	
+	CL_ParseServerMessage(msg);
 }
 
 static void	CL_CheckTimeout()

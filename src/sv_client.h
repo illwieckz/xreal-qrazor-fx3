@@ -63,7 +63,7 @@ struct sv_client_frame_t
 struct sv_client_c
 {
 public:
-	sv_client_c(const netadr_t &adr, int challenge);
+	sv_client_c(const netadr_t &adr, int qport, int challenge);
 	
 	~sv_client_c();
 	

@@ -88,6 +88,11 @@ static void	CL_SetForceRefdef(bool val)
 	cl.force_refdef = val;
 }
 
+static int	CL_GetPlayerNum()
+{
+	return cl.playernum;
+}
+
 
 static connection_state_t	CLS_GetConnectionState()
 {
@@ -230,6 +235,7 @@ void	CL_InitClientGame()
 	import.CL_SetRefreshPrepped	= CL_SetRefreshPrepped;
 	import.CL_GetForceRefdef	= CL_GetForceRefdef;
 	import.CL_SetForceRefdef	= CL_SetForceRefdef;
+	import.CL_GetPlayerNum		= CL_GetPlayerNum;
 	
 	import.CLS_GetConnectionState	= CLS_GetConnectionState;
 	import.CLS_GetRealTime		= CLS_GetRealTime;
@@ -237,11 +243,10 @@ void	CL_InitClientGame()
 	import.CLS_GetFrameCount	= CLS_GetFrameCount;
 	import.CLS_GetCurrentNetState	= CLS_GetCurrentNetState;
 	
-	import.Sys_Milliseconds		= Sys_Milliseconds;	
+	import.VID_GetWidth		= VID_GetWidth;
+	import.VID_GetHeight		= VID_GetHeight;
 	
-	import.viddef			= &viddef;
-	
-	import.playernum		= cl.playernum;
+	import.Sys_Milliseconds		= Sys_Milliseconds;
 
 
 	cge = (cg_export_t *)Sys_GetAPI("cgame", "GetCGameAPI", &import, &cge_handle);

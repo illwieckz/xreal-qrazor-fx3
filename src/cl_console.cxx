@@ -211,9 +211,9 @@ void	Con_CheckResize()
 	int		i, j, width, oldwidth, oldtotallines, numlines, numchars;
 	char	tbuf[CON_TEXTSIZE];
 
-	width = (viddef.width >> 3) - 2;
+	width = (VID_GetWidth() >> 3) - 2;
 
-	if (width == con.linewidth)
+	if(width == con.linewidth)
 		return;
 
 	if (width < 1)			// video hasn't been initialized yet
@@ -511,8 +511,8 @@ void	Con_DrawNotify()
 		}
 
 		s = chat_buffer;
-		if (chat_bufferlen > (int)((viddef.width>>3)-(skip+1)))
-			s += chat_bufferlen - ((viddef.width>>3)-(skip+1));
+		if(chat_bufferlen > (int)((VID_GetWidth()>>3)-(skip+1)))
+			s += chat_bufferlen - ((VID_GetWidth()>>3)-(skip+1));
 		x = 0;
 		while(s[x])
 		{
@@ -542,15 +542,15 @@ void	Con_DrawConsole(float frac)
 	std::string	version_str;
 
 
-	lines = (int)(viddef.height * frac);
+	lines = (int)(VID_GetHeight() * frac);
 	if (lines <= 0)
 		return;
 
-	if (lines > (int)viddef.height)
-		lines = viddef.height;
+	if (lines > (int)VID_GetHeight())
+		lines = VID_GetHeight();
 	
 	// draw the background
-	re.R_DrawStretchPic (0, -viddef.height+lines, viddef.width, viddef.height, 0, 0, 1, 1, color_red, re.R_RegisterPic("console"));
+	re.R_DrawStretchPic(0, -VID_GetHeight()+lines, VID_GetWidth(), VID_GetHeight(), 0, 0, 1, 1, color_red, re.R_RegisterPic("console"));
 	
 
 	// draw version
@@ -558,7 +558,7 @@ void	Con_DrawConsole(float frac)
 	version = "QRazor FX III v" + version_str;
 	
 	for (x=0; x<(int)version.length(); x++)
-		cge->CG_DrawChar(((x)<<3) + (viddef.width - (version.length()*CHAR_SMALL_WIDTH)), lines-12, /*128 +*/ version[x], color_red, FONT_NONE);
+		cge->CG_DrawChar(((x)<<3) + (VID_GetWidth() - (version.length()*CHAR_SMALL_WIDTH)), lines-12, /*128 +*/ version[x], color_red, FONT_NONE);
 
 	// draw the text
 	con.vislines = lines;
