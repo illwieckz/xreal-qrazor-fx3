@@ -23,7 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 uniform sampler2D	u_diffusemap;
 uniform sampler2D	u_attenuationmap_xy;
 uniform sampler2D	u_attenuationmap_z;
-uniform samplerCube	u_attenuationmap_cube;
+//uniform samplerCube	u_attenuationmap_cube;
+//uniform samplerCube	u_shadowmap;
 uniform vec3		u_light_origin;
 uniform vec3		u_light_color;
 
@@ -32,6 +33,7 @@ varying vec3		var_normal;
 varying vec2		var_tex_diffuse;
 varying vec3		var_tex_atten_xy_z;
 //varying vec3		var_tex_atten_cube;
+//varying vec3		var_tex_shadow;
 
 void	main()
 {		
@@ -49,10 +51,14 @@ void	main()
 	vec3 attenuation_xy	= texture2D(u_attenuationmap_xy, var_tex_atten_xy_z.xy).rgb;
 	vec3 attenuation_z	= texture2D(u_attenuationmap_z, vec2(var_tex_atten_xy_z.z, 0)).rgb;
 //	vec3 attenuation_cube	= textureCube(u_attenuationmap_cube, var_tex_atten_cube).rgb;
+
+	// compute shadow
+//	vec3 shadow = textureCube(u_shadowmap, var_tex_shadow).rgb;
 	
 	// compute final color
 	gl_FragColor.rgba = diffuse;
 	gl_FragColor.rgb *= attenuation_xy;
 	gl_FragColor.rgb *= attenuation_z;
 //	gl_FragColor.rgb *= attenuation_cube;
+//	gl_FragColor.rgb *= shadow;
 }

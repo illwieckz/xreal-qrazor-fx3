@@ -1657,9 +1657,6 @@ void 	r_bsptree_c::markLeaves()
 
 void 	r_bsptree_c::markLights()
 {
-	if(!r_lighting->getInteger())
-		return;
-
 	if(r_lockpvs->getValue())
 		return;
 	
@@ -1728,7 +1725,7 @@ void 	r_bsptree_c::markLights()
 				
 				if(leaf->isVisible())
 				{
-					light->setVisFrameCount();	
+					light->setVisFrameCount();
 					break;
 				}
 			}

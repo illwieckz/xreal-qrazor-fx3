@@ -39,6 +39,8 @@ xreal_data_GLSL_files = [
 'data/xreal/glsl/lighting_DBHS_omni_fp.glsl',
 'data/xreal/glsl/lighting_DBS_omni_vp.glsl',
 'data/xreal/glsl/lighting_DBS_omni_fp.glsl',
+'data/xreal/glsl/fog_uniform_vp.glsl',
+'data/xreal/glsl/fog_uniform_fp.glsl',
 'data/xreal/glsl/reflection_C_vp.glsl',
 'data/xreal/glsl/reflection_C_fp.glsl',
 'data/xreal/glsl/refraction_C_vp.glsl',
