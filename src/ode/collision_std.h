@@ -45,22 +45,12 @@ int	dCollideSpherePlane(dGeomID o1, dGeomID o2, int flags, std::vector<dContact>
 int	dCollideBoxBox(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
 int	dCollideBoxPlane(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
 
-int	dCollideCCylinderSphere(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
-int	dCollideCCylinderBox(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
-int	dCollideCCylinderCCylinder(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
-int	dCollideCCylinderPlane(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
-
 int	dCollideRaySphere(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
 int	dCollideRayBox(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
-int	dCollideRayCCylinder(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
 int	dCollideRayPlane(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
-int	dCollideRayBrush(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
 
 int	dCollideBSPSphere(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
 int	dCollideBSPBox(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
-int	dCollideBSPCCylinder(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
-int	dCollideBSPCylinder(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
-int	dCollideBSPPlane(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
 int	dCollideBSPRay(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
 
 #endif

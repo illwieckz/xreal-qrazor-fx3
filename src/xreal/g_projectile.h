@@ -65,7 +65,7 @@ public:
 class g_projectile_rocket_c : public g_projectile_c
 {
 public:
-	g_projectile_rocket_c(g_entity_c *activator, const vec3_c &start, const vec3_c &dir, int damage, int speed, float damage_radius, float radius_damage);
+	g_projectile_rocket_c(g_entity_c *activator, const vec3_c &origin, const quaternion_c &quat, int damage, int speed, float damage_radius, float radius_damage);
 	
 	virtual void	think();
 	virtual bool	touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf);

@@ -49,6 +49,7 @@ void	CG_AddEntity(int newnum, const entity_state_t *state)
 	{
 		case ET_GENERIC:
 		case ET_FUNC_STATIC:
+		case ET_PROJECTILE_ROCKET:
 			CG_AddGenericEntity(cent);
 			break;
 			
@@ -108,6 +109,7 @@ void	CG_RemoveEntity(int newnum, const entity_state_t *state)
 	{
 		case ET_GENERIC:
 		case ET_FUNC_STATIC:
+		case ET_PROJECTILE_ROCKET:
 			CG_RemoveGenericEntity(cent);
 			break;
 	
@@ -433,6 +435,7 @@ void	CG_UpdateEntities()
 		{
 			case ET_GENERIC:
  			case ET_FUNC_STATIC:
+			case ET_PROJECTILE_ROCKET:
 				CG_UpdateGenericEntity(cent);
 				break;
 		

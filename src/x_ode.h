@@ -737,7 +737,7 @@ public:
 	void	getParams(vec4_c &result) const			{dGeomPlaneGetParams(_id, result);}
 };
 
-
+#if 0
 class d_ccylinder_c : public d_geom_c
 {
 	// intentionally undefined, don't use these
@@ -759,7 +759,7 @@ public:
 	void	setParams(vec_t radius, vec_t length)		{dGeomCCylinderSetParams(_id, radius, length);}
 	void	getParams(vec_t *radius, vec_t *length) const	{dGeomCCylinderGetParams(_id, (vec_t*)radius, (vec_t*)length);}
 };
-
+#endif
 
 class d_ray_c : public d_geom_c
 {

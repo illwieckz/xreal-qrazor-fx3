@@ -972,7 +972,7 @@ void	g_item_power_armor_c::drop(g_entity_c *ent, g_item_c *item)
 ================================================================================
 */
 
-g_item_dropable_c::g_item_dropable_c(g_player_c *player, g_item_c *item, const vec3_c &position, const vec3_c &velocity)
+g_item_dropable_c::g_item_dropable_c(g_player_c *player, g_item_c *item, const vec3_c &position, const quaternion_c &orientation, const vec3_c &velocity)
 {
 	//trap_Com_DPrintf("%s is dropping item %s\n", player->_pers.netname, item->getWorldModel());
 
@@ -1000,7 +1000,7 @@ g_item_dropable_c::g_item_dropable_c(g_player_c *player, g_item_c *item, const v
 	
 	// setup rigid body
 	_body->setPosition(position);
-	_body->setQuaternion(quat_identity);
+	_body->setQuaternion(orientation);
 	_body->setLinearVel(velocity);
 //	_body->setGravityMode(1);
 	
@@ -1008,14 +1008,14 @@ g_item_dropable_c::g_item_dropable_c(g_player_c *player, g_item_c *item, const v
 	
 	// setup mass
 	dMass m;
-//	m.setBoxTotal(3, _r.size[0], _r.size[1], _r.size[2]);
-	m.setSphereTotal(3, _r.size.length() * 0.5);
+	m.setBoxTotal(3, _r.size[0], _r.size[1], _r.size[2]);
+//	m.setSphereTotal(3, _r.size.length() * 0.5);
 	_body->setMass(&m);
 	
 	// setup collision
-//	d_geom_c *geom = new d_box_c(g_ode_space_toplevel->getId(), _r.size);
+	d_geom_c *geom = new d_box_c(g_ode_space_toplevel->getId(), _r.size);
 //	d_geom_c *geom = new d_trimesh_c(g_ode_space_toplevel->getId(), model->vertexes, model->indexes);
-	d_geom_c *geom = new d_sphere_c(g_ode_space_toplevel->getId(), _r.size.length() * 0.5);
+//	d_geom_c *geom = new d_sphere_c(g_ode_space_toplevel->getId(), _r.size.length() * 0.5);
 	
 	geom->setBody(_body->getId());
 	geom->setData(this);

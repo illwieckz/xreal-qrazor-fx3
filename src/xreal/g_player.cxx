@@ -1343,7 +1343,7 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	}
 	else
 	{
-		_v_angles = pm.viewangles;
+		setViewAngles(pm.viewangles);
 		_r.ps.view_angles = pm.viewangles;
 	}
 
@@ -2150,7 +2150,8 @@ void	g_player_c::putClientInServer()
 	_s.quat.fromAngles(_angles);
 	
 	_r.ps.view_angles = _angles;
-	_v_angles = _angles;
+	//_v_angles = _angles;
+	setViewAngles(_angles);
 	
 	
 	//trap_Com_Printf("g_player_c::putClientInServer: at %s\n", spawn_origin.toString());
@@ -3919,10 +3920,13 @@ g_entity_c*	g_player_c::dropItem(g_item_c *item)
 	
 	//trace = trap_SV_Trace(_s.origin, dropped->_r.bbox, origin, this, X_CONT_SOLID);
 	
+	quaternion_c orientation;
+	orientation.fromAngles(0, _v_angles[YAW], 0);
+	
 	vec3_c velocity = forward * 10;
 	velocity[2] = 30 * 3;
 	
-	g_item_dropable_c *dropped = new g_item_dropable_c(this, item, origin, velocity);
+	g_item_dropable_c *dropped = new g_item_dropable_c(this, item, origin, orientation, velocity);
 		
 	//trap_Com_Printf("g_player_c::dropItem: body at %s\n", dropped->_s.origin.toString());
 

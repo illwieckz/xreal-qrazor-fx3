@@ -383,7 +383,7 @@ public:
 class g_item_dropable_c : public g_entity_c
 {
 public:
-	g_item_dropable_c(g_player_c *player, g_item_c *item, const vec3_c &position, const vec3_c &velocity);
+	g_item_dropable_c(g_player_c *player, g_item_c *item, const vec3_c &position, const quaternion_c &orientation, const vec3_c &velocity);
 	~g_item_dropable_c();
 	
 	virtual void	think();

@@ -322,25 +322,31 @@ static void	Grenade_Proxy(g_entity_c *ent)
 				Q2/Q3A ROCKET PROJECTILE
 ================================================================================
 */
-g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c &start, const vec3_c &dir, int damage, int speed, float damage_radius, float radius_damage)
+g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c &origin, const quaternion_c &quat, int damage, int speed, float damage_radius, float radius_damage)
 {
 // 	trap_Com_Printf("g_projectile_rocket_c::ctor\n");
 
-	_s.origin = start;
-	vectoangles(dir, _angles);
-	_s.quat.fromAngles(_angles);
-
-	_s.type = ET_GENERIC;
-	_s.velocity_linear = dir * speed;
+	_s.type = ET_PROJECTILE_ROCKET;
+	_s.origin = origin;
+	_s.quat = quat;
+	
+	vec3_c forward(false), right(false), up(false); 
+	quat.toVectorsFRU(forward, right, up);
+	_s.velocity_linear = forward * speed;
+	
 	_s.vectors[0].set(100, 100, 100);
 	_s.shaderparms[0] = color_yellow[0];	// light color
 	_s.shaderparms[1] = color_yellow[1];	// light color
 	_s.shaderparms[2] = color_yellow[2];	// light color
 	_s.shaderparms[3] = color_yellow[3];	// light color
-	_s.index_model = trap_SV_ModelIndex("models/weapons/rocketlauncher/rocket.lwo");
+//	_s.index_model = trap_SV_ModelIndex("models/weapons/rocketlauncher/rocket.lwo");
+	_s.index_model = trap_SV_ModelIndex("models/ammo/rocket/rocket.md3");
 //	_s.index_shader = trap_SV_ShaderIndex("noshader");
 //	_s.index_sound = trap_SV_SoundIndex("sounds/weapons/sidewinder/we_sidewinderfly.wav");
-	_s.index_light = trap_SV_LightIndex("lights/defaultpointlight");
+//	_s.index_light = trap_SV_LightIndex("lights/defaultpointlight");
+//	_s.index_light = trap_SV_LightIndex("lights/squarelight");
+//	_s.index_light = trap_SV_LightIndex("lights/biground1");
+	_s.index_light = trap_SV_LightIndex("lights/baronflash");	// BFG light
 	
 	_r.inuse = true;
 	_r.clipmask = MASK_SHOT;
@@ -357,9 +363,8 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 	_dmg_radius = damage_radius;
 	_classname = "rocket";
 	
-	
 	// setup rigid body
-	_body->setPosition(start);
+	_body->setPosition(_s.origin);
 	_body->setQuaternion(_s.quat);
 	_body->setLinearVel(_s.velocity_linear);
 	_body->setGravityMode(0);
@@ -397,6 +402,9 @@ void	g_projectile_rocket_c::think()
 bool	g_projectile_rocket_c::touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf)
 {
 	if(other == _r.owner)
+		return false;
+		
+	if(other->_s.type == ET_PROJECTILE_ROCKET)
 		return false;
 		
  	trap_Com_Printf("g_projectile_rocket_c::touch: touching entity %i '%s'\n", other->_s.getNumber(), other->getClassName());

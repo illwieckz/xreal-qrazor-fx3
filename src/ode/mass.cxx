@@ -82,7 +82,7 @@ void	dMass::setSphereTotal(vec_t total_mass, vec_t radius)
 #endif
 }
 
-
+/*
 void	dMass::setCappedCylinder(vec_t density, int direction, vec_t radius, vec_t length)
 {
 	dUASSERT(direction >= 1 && direction <= 3, "bad direction number");
@@ -117,6 +117,7 @@ void	dMass::setCappedCylinderTotal(vec_t total_mass, int direction, vec_t a, vec
 	adjust(total_mass);
 }
 
+
 void	dMass::setCylinder(vec_t density, int direction, vec_t radius, vec_t length)
 {
 	setCylinderTotal(M_PI*radius*radius*length*density, direction, radius, length);
@@ -141,7 +142,7 @@ void	dMass::setCylinderTotal(vec_t total_mass, int direction, vec_t radius, vec_
 	check();
 #endif
 }
-
+*/
 
 void	dMass::setBox(vec_t density, vec_t lx, vec_t ly, vec_t lz)
 {
