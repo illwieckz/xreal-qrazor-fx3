@@ -156,7 +156,7 @@ void	M_AddToServerList(const netadr_t &adr, const char *info)
 
 static void	JoinServer_MenuInit()
 {
-	s_joinserver_menu._x = (int)(uii.viddef->width * 0.50 - 120);
+	s_joinserver_menu._x = (int)(uii.VID_GetWidth() * 0.50 - 120);
 	
 	s_joinserver_address_book_action._flags	= QMF_LEFT_JUSTIFY;
 	s_joinserver_address_book_action._x		= 0;

@@ -331,6 +331,7 @@ void	CG_RenderView()
 		//cg.refdef.time = trap_CL_GetTime()*0.001;
 
 		cg.refdef.areabits = cg.frame.areabits;
+//		cg.refdef.areabits.set();
 
 		cg.refdef.rdflags = cg.frame.playerstate.rdflags;
 		cg.refdef.lerp = cg.frame_lerp;

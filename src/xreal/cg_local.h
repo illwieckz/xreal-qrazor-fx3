@@ -268,8 +268,8 @@ struct cg_state_t
 	// it can be un-deltad from the original 
 	cg_entity_t	entities[MAX_ENTITIES];
 	
-	entity_state_t	entities_parse[MAX_PARSE_ENTITIES];
-	int		entities_parse_index;		// index (not anded off) into cl_parse_entities[]
+	entity_state_t	entities_parse[MAX_ENTITIES];
+	int		entities_first;		// index (not anded off) into cl_parse_entities[]
 	
 	// player prediction
 	vec3_c		predicted_origins[CMD_BACKUP];	// for debug comparing against server

@@ -73,7 +73,7 @@ g_light_c::g_light_c()
 	addField(g_field_c("light_center", &_s.origin2, F_VECTOR));
 	addField(g_field_c("light_rotation", &_s.quat, F_ROTATION_TO_QUATERNION));
 	addField(g_field_c("light_radius", &_s.vectors[0], F_VECTOR));
-//	addField(g_field_c("light", &_s.light, F_FLOAT));
+	addField(g_field_c("light", &_light, F_FLOAT));
 	
 	addField(g_field_c("texture", &_texture, F_STRING));
 	
@@ -201,9 +201,9 @@ void	g_light_c::activate()
 	
 		if(_s.vectors[0].isZero())
 		{
-			//if(_s.light)
-			//	_s.vectors[0].set(_s.light, _s.light, _s.light);
-			//else
+			if(_light)
+				_s.vectors[0].set(_light, _light, _light);
+			else
 				_s.vectors[0].set(300, 300, 300);
 		}
 	}

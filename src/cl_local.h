@@ -80,9 +80,9 @@ struct client_state_t
 	bool		sound_prepped;		// ambient sounds can start
 	bool		force_refdef;		// vid has changed, so we can't use a paused refdef
 	
-	std::vector<entity_state_t>	baselines;
-	entity_state_t	entities_parse[MAX_PARSE_ENTITIES];
-	int		entities_parse_index;
+	std::vector<entity_state_t>	entities_baseline;
+	std::vector<entity_state_t>	entities;
+	int				entities_first;
 
 	int		cmds_num;
 	usercmd_t	cmds[CMD_BACKUP];	// each mesage will send several old cmds

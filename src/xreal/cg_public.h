@@ -62,12 +62,13 @@ struct frame_t
 		servertime		= 0;
 		deltaframe		= 0;
 		
-		areabits.clear();
+		if(areabits.size())
+			areabits.clear();
 		
 		playerstate.clear();
 		
+		entities_first		= 0;
 		entities_num		= 0;
-		entities_parse_index	= 0;
 	}
 
 	bool			valid;				// cleared if delta parsing was invalid
@@ -77,11 +78,9 @@ struct frame_t
 	int			deltaframe;
 	
 	boost::dynamic_bitset<byte>	areabits;		// portalarea visibility bits
-	
-	player_state_t		playerstate;
-	
-	int			entities_num;
-	int			entities_parse_index;		// non-masked index into cl_parse_entities array
+	player_state_t			playerstate;
+	int				entities_first;		// non-masked index into cl_parse_entities array
+	int				entities_num;
 };
 
 

@@ -549,6 +549,10 @@ void SP_target_earthquake (edict_t *self)
 				POSITION TARGET
 ================================================================================
 */
+g_target_position_c::g_target_position_c()
+{
+	_r.svflags = SVF_NOCLIENT;
+}
 
 void	g_target_position_c::activate()
 {

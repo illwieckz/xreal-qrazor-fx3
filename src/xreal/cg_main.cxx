@@ -128,7 +128,7 @@ static void	CG_ClearEntities()
 	// clear all entities
 	memset(&cg.entities, 0, sizeof(cg.entities));
 	memset(&cg.entities_parse, 0, sizeof(cg.entities_parse));
-	cg.entities_parse_index		= 0;		// index (not anded off) into cl_parse_entities[]
+	cg.entities_first		= 0;		// index (not anded off) into cl_parse_entities[]
 }
 
 

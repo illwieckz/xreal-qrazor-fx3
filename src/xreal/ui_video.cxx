@@ -164,7 +164,7 @@ void	M_VIDMenuInit()
 		s_ref_list._curvalue = REF_NV30_GLX;
 	}
 	
-	s_video_menu._x = (int)(uii.viddef->width * 0.50) - CHAR_MEDIUM_WIDTH * 10;
+	s_video_menu._x = (int)(uii.VID_GetWidth() * 0.50) - CHAR_MEDIUM_WIDTH * 10;
 
 
 	//s_ref_list[i].generic.type = MTYPE_SPINCONTROL;

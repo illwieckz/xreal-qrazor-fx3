@@ -68,12 +68,19 @@ qrazor_fx_client_src = [
 'src/sv_null.cxx',
 'src/map_null.cxx' ]
 
+qrazor_fx_client_env = env.Copy()
+
 if sys.platform == 'linux2':
 	qrazor_fx_client_src += ['src/sys_linux.cxx','src/glob.cxx', 'src/vid_so.cxx']
+	#qrazor_fx_client_src += ['src/glimp_glx.cxx', 'src/r_backend_glsl.cxx']
+	#qrazor_fx_client_env.Append(CXXFLAGS='-DREF_HARD_LINKED')
+	#qrazor_fx_client_env.Append(CXXFLAGS='-DHAVE_XF86_DGA')
+	#qrazor_fx_client_env.Append(CXXFLAGS='-DHAVE_XF86_VIDMODE')
+	#qrazor_fx_client_env.Append(LIBPATH='/usr/X11R6/lib')
+	#qrazor_fx_client_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm', 'jpeg'])
+	qrazor_fx_client_env.Append(LIBS=['dl', 'z', 'openal', 'm'])
+	qrazor_fx_client_env.Program('qrazor-fx-client', qrazor_fx_client_src)
+	qrazor_fx_client_env.Install('#install', 'qrazor-fx-client')
 
 elif sys.platform == 'win32':
 	qrazor_fx_client_src += ['src/sys_win.cxx', 'src/in_win.cxx', 'src/vid_dll.cxx']
-
-qrazor_fx_client_env = env.Copy()
-qrazor_fx_client_env.Program('qrazor-fx-client', qrazor_fx_client_src, LIBS=['dl', 'z', 'openal', 'm'])
-qrazor_fx_client_env.Install('#install', 'qrazor-fx-client')

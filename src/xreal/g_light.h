@@ -48,6 +48,7 @@ public:
 private:
 	std::string	_texture;
 	
+	vec_t		_light;		// radius
 	vec3_c		_light_target;
 	vec3_c		_light_right;
 	vec3_c		_light_up;

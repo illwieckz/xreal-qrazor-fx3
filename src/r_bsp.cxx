@@ -265,8 +265,15 @@ void	r_bsptree_c::draw()
 {
 	if(!r_drawworld->getValue())
 		return;
-
-	drawNode_r(_nodes[0], FRUSTUM_CLIPALL);
+		
+	try
+	{
+		drawNode_r(_nodes.at(0), FRUSTUM_CLIPALL);
+	}
+	catch(...)
+	{
+		ri.Com_Error(ERR_DROP, "r_bsptree_c::draw: exception thrown");
+	}
 	
 	if(r_lighting->getInteger() == 1)
 	{
@@ -306,10 +313,19 @@ void	r_bsptree_c::draw()
 
 r_bsptree_leaf_c*	r_bsptree_c::pointInLeaf(const vec3_c &p)
 {
-	if(_nodes.empty())
-		ri.Com_Error(ERR_DROP, "r_bsp_model_c::pointInLeaf: bad model");
+//	if(_nodes.empty())
+//		ri.Com_Error(ERR_DROP, "r_bsp_model_c::pointInLeaf: bad model");
 
-	r_tree_elem_c *elem = (r_tree_elem_c*)_nodes[0];
+	r_tree_elem_c *elem = NULL;
+	
+	try
+	{
+		elem = (r_tree_elem_c*)_nodes[0];
+	}
+	catch(...)
+	{
+		ri.Com_Error(ERR_DROP, "r_bsp_model_c::exception thrown");
+	}
 	
 	do
 	{	
@@ -386,10 +402,15 @@ void	r_bsptree_c::loadVisibility(const byte *buffer, const bsp_lump_t *l)
 	
 	int pvs_size = l->filelen - BSP_PVS_HEADERSIZE;
 	
-	if(!pvs_size)
-		return;
+	ri.Com_DPrintf("PVS data size: %i\n", pvs_size);
 	
-	_pvs = std::vector<byte>(pvs_size);
+	if(pvs_size <= 0 || !r_vis->getInteger())
+	{
+		_pvs.clear();
+		return;
+	}
+	
+	_pvs = std::vector<byte>(pvs_size, 0);
 	
 	for(int i=0; i<pvs_size; i++)
 	{
@@ -398,6 +419,25 @@ void	r_bsptree_c::loadVisibility(const byte *buffer, const bsp_lump_t *l)
 	
 	_pvs_clusters_num  = LittleLong(((int*)(buffer + l->fileofs))[0]);
 	_pvs_clusters_size = LittleLong(((int*)(buffer + l->fileofs))[1]);
+	
+	/*
+	for(int i=0; i<_pvs_clusters_num; i++)
+	{
+		std::vector<boost::dynamic_bitset<byte> >	cluster(toBits(_pvs_cluster_size));
+		
+		try
+		{
+			bytesToBits(&_pvs.at(_pvs_clusters_size*i), _pvs_clusters_size);
+		}
+		catch(...)
+		{
+			ri.Com_Error(ERR_DROP, "r_bsptree_c::loadVisibility: exception occured");
+		}
+		
+		_pvs_clusters.push_back(;
+//		_pvs_clusters = std::vector<boost::dynamic_bitset<byte> >(_pvs_clusters_num);
+	*/
+	
 	
 	/*
 	_vis = (bsp_dvis_t*)Com_Alloc(l->filelen);
@@ -477,7 +517,7 @@ void	r_bsptree_c::loadModels(const byte *buffer, const bsp_lump_t *l)
 		out.modelsurfaces_first = LittleLong(in->modelsurfaces_first);	
 	}
 	
-	for(i=1; i<count; i++)
+	for(i=0; i<count; i++)
 	{
 		r_bsptree_model_t& model = models[i];
 		
@@ -726,6 +766,8 @@ void	r_bsptree_c::loadLeafs(const byte *buffer, const bsp_lump_t *l)
 		_leafs[i] = out = new r_bsptree_leaf_c;
 		
 		out->parent = NULL;
+		out->surfaces.clear();
+		out->lights.clear();
 	
 		for(j=0; j<3; j++)
 		{
@@ -1164,11 +1206,18 @@ void	r_bsptree_c::drawNode_r(r_tree_elem_c *elem, int clipflags)
 		//if(leaf->area <= 0)
 		//	return;
 		
+		/*
+		if(leaf->getFrameCount() == r_framecount)	// already added surface
+			return;
+			
+		leaf->setFrameCount();
+		*/
+		
 		if(leaf->surfaces.empty())
 			return;
 
 		// check for door connected areas
-		if(leaf->area < (int)r_newrefdef.areabits.size())
+		if(leaf->area >= 0 && leaf->area < (int)r_newrefdef.areabits.size())
 		{
 			if(!r_newrefdef.areabits[leaf->area])
 				return;		// not visible
@@ -1176,7 +1225,12 @@ void	r_bsptree_c::drawNode_r(r_tree_elem_c *elem, int clipflags)
 		
 		for(std::vector<r_surface_c*>::const_iterator ir = leaf->surfaces.begin(); ir != leaf->surfaces.end(); ++ir)
 		{
-			addSurfaceToList(*ir, clipflags);
+			r_surface_c* surf = *ir;
+			
+			if(surf == NULL)
+				continue;
+		
+			addSurfaceToList(surf, clipflags);
 		}
 		
 		c_leafs++;
@@ -1213,7 +1267,7 @@ void	r_bsptree_c::litNode_r(r_tree_elem_c *elem, r_light_c *light, bool precache
 			return;
 		
 		// check for door connected areas
-		if(!precache && (leaf->area < (int)r_newrefdef.areabits.size()))
+		if(!precache && leaf->area >= 0 && (leaf->area < (int)r_newrefdef.areabits.size()))
 		{
 			if(!r_newrefdef.areabits[leaf->area])
 				return;		// not visible
@@ -1275,7 +1329,7 @@ void	r_bsptree_c::litNode_r(r_tree_elem_c *elem, r_light_c *light, bool precache
 
 void	r_bsptree_c::addSurfaceToList(r_surface_c *surf, int clipflags)
 {
-	if(!surf)
+	if(surf == NULL)
 	{
 		ri.Com_Error(ERR_DROP, "r_bsptree_c::addSurfaceToList: NULL surface\n");
 		return;
@@ -1302,6 +1356,7 @@ void	r_bsptree_c::addSurfaceToList(r_surface_c *surf, int clipflags)
 	if(r_envmap && surf->getShader()->hasFlags(SHADER_NOENVMAP))
 		return;
 	
+#if 1
 	switch(surf->getFaceType())
 	{
 		case BSPST_PLANAR:
@@ -1325,10 +1380,23 @@ void	r_bsptree_c::addSurfaceToList(r_surface_c *surf, int clipflags)
 		default:
 			break;
 	}
-	
+#endif
+//	ri.Com_DPrintf("r_bsptree_c::addSurfaceToList: pass 1\n");
+
 	surf->setFrameCount();
 	
-	RB_AddCommand(&r_world_entity, _models[0], surf->getMesh(), surf->getShader(), NULL, NULL, surf->getLightMapNum(), 0);
+//	ri.Com_DPrintf("r_bsptree_c::addSurfaceToList: pass 2\n");
+	
+	try
+	{
+		RB_AddCommand(&r_world_entity, _models.at(0), surf->getMesh(), surf->getShader(), NULL, NULL, surf->getLightMapNum(), 0);
+	}
+	catch(...)
+	{
+		ri.Com_DPrintf("r_bsptree_c::addSurfaceToList: exception thrown\n");
+	}
+	
+//	ri.Com_DPrintf("r_bsptree_c::addSurfaceToList: pass 3\n");
 	
 	/*
 	if(r_lighting->getInteger())
@@ -1356,7 +1424,7 @@ void	r_bsptree_c::addSurfaceToList(r_surface_c *surf, int clipflags)
 
 byte*	r_bsptree_c::clusterPVS(int cluster)
 {
-	if(cluster == -1 || _pvs.empty())
+	if(cluster < 0 || cluster >= _pvs_clusters_num || _pvs.empty())
 		return NULL;
 		
 	//if(cluster < 0 || cluster >= (_pvs_clusters_num))
@@ -1446,7 +1514,7 @@ void 	r_bsptree_c::markLeaves()
 				//if(leaf->area <= 0)
 				//	continue;
 		
-				if(vis[leaf->cluster>>3] & (1<<(leaf->cluster&7)))
+				if(vis[leaf->cluster >> 3] & (1 << (leaf->cluster & 7)))
 				{
 					r_tree_elem_c *elem = (r_tree_elem_c*)leaf;
 			

@@ -50,11 +50,12 @@ enum sv_client_state_t
 
 struct sv_client_frame_t
 {
-	boost::dynamic_bitset<byte>	areabits;	// portalarea visibility bits
-	player_state_t			ps;
-	int				num_entities;
-	int				first_entity;	// into the circular sv_packet_entities[]
 	int				senttime;	// for ping calculations
+
+	boost::dynamic_bitset<byte>	areabits;	// portalarea visibility bits
+	player_state_t			playerstate;
+	int				entities_first;	// into the circular sv_packet_entities[]
+	int				entities_num;
 };
 
 #define	LATENCY_COUNTS	16
@@ -75,6 +76,7 @@ private:
 	void		buildFrame();
 //	void		fatPVS(const vec3_c &org);
 	bool		cullEntity(sv_entity_c *ent, byte *bitvector);
+	//! returns the number of written entities
 	void		writePacketEntities(sv_client_frame_t *from, sv_client_frame_t *to, bitmessage_c &msg);
 	void		writePlayerState(sv_client_frame_t *from, sv_client_frame_t *to, bitmessage_c &msg);
 	void		writeAreaBits(const sv_client_frame_t *from, bitmessage_c &msg);

@@ -873,14 +873,19 @@ static void	CM_LoadVisibility(bsp_lump_t *l)
 	
 	int pvs_size = l->filelen - BSP_PVS_HEADERSIZE;
 	
-	if(!pvs_size)
-		return;
+	Com_DPrintf("PVS data size: %i\n", pvs_size);
 	
-	cm_pvs = std::vector<byte>(pvs_size);
+	if(pvs_size <= 0)
+	{
+		cm_pvs.clear();
+		return;
+	}
+	
+	cm_pvs = std::vector<byte>(pvs_size, 0);
 	
 	for(int i=0; i<pvs_size; i++)
 	{
-		cm_pvs[i] = *((byte*)cm_base + (l->fileofs + BSP_PVS_HEADERSIZE + i));
+		cm_pvs[i] = cm_base[l->fileofs + BSP_PVS_HEADERSIZE + i];
 	}
 	
 	cm_pvs_clusters_num  = LittleLong(((int*)((byte*)cm_base + l->fileofs))[0]);
@@ -2084,13 +2089,15 @@ void	CM_WriteAreaBits(boost::dynamic_bitset<byte> &bits, int area)
 	if(cm_noareas->getValue() || area <= 0)
 	{	
 		// for debugging, send everything
-		bits = boost::dynamic_bitset<byte>(cm_areas.size(), true);
+		bits = boost::dynamic_bitset<byte>(cm_areas.size());
+		bits.set();
 	}
 	else
 	{
-		bits = boost::dynamic_bitset<byte>(cm_areas.size(), false);
+		bits = boost::dynamic_bitset<byte>(cm_areas.size());
+		bits.reset();
 
-		// area 0 is not used
+		// area 0 is the void and should not be visible
 		for(uint_t i=1; i<cm_areas.size(); i++)
 		{
 			if((int)i == area)//|| CM_AreasConnected(i, area))

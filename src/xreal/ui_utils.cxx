@@ -339,7 +339,7 @@ void	menu_framework_c::center()
 			width = (*ir)->_name.length() * charwidth;
 	}
 			
-	_x = (uii.viddef->width - width) / 2;
+	_x = (uii.VID_GetWidth() - width) / 2;
 	*/
 
 	int height;
@@ -347,7 +347,7 @@ void	menu_framework_c::center()
 	height = _items[_items.size()-1]->_y;
 	height += 10;
 
-	_y = (uii.viddef->height - height) / 2;
+	_y = (uii.VID_GetHeight() - height) / 2;
 }
 
 #if 0
@@ -648,18 +648,18 @@ void	menu_framework_c::drawStatusBar(const std::string &string)
 	if(string.length())
 	{
 		int l = string.length();
-		int maxcol = uii.viddef->width / 8;
+		int maxcol = uii.VID_GetWidth() / 8;
 		int col = maxcol / 2 - l / 2;
 		
 		vec4_c color(0.5, 0.5, 0.5, 1);
 
-		uii.R_DrawFill(0, uii.viddef->height-8, uii.viddef->width, 8, color);
-		Menu_DrawString(col*8, uii.viddef->height - 8, string, FONT_SMALL);
+		uii.R_DrawFill(0, uii.VID_GetHeight()-8, uii.VID_GetWidth(), 8, color);
+		Menu_DrawString(col*8, uii.VID_GetHeight() - 8, string, FONT_SMALL);
 	}
 	else
 	{
 		vec4_c color;
-		uii.R_DrawFill(0, uii.viddef->height-8, uii.viddef->width, 8, color);
+		uii.R_DrawFill(0, uii.VID_GetHeight()-8, uii.VID_GetWidth(), 8, color);
 	}
 }
 

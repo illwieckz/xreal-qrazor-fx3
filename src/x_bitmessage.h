@@ -41,10 +41,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define MAX_MSGLEN		MAX_PACKETLEN*5
 
 
-
+class netchan_c;
 
 class bitmessage_c
 {
+	friend class netchan_c;
 	friend void 	Sys_SendPacket(const bitmessage_c &msg, const netadr_t &to);
 public:
 	bitmessage_c();
@@ -54,10 +55,10 @@ public:
 	bool		isConnectionless();
 	
 	//! copy all bits from bits_offset to _cursize into the bits buffer
-	void		copyTo(boost::dynamic_bitset<byte> &bits, int bits_offset = 0, int size = -1) const;
+	void		copyTo(boost::dynamic_bitset<byte> &bits, int bits_offset, int bits_num) const;
 	
 	//! copy all bits from bits_offset to _cursize into the bytes buffer
-	void		copyTo(std::vector<byte> &bytes, int bits_offset = 0, int size = -1);
+	void		copyTo(std::vector<byte> &bytes, int bits_offset, int bits_num) const;
 	
 	//! calculate quick a checksum byte
 	int		calcCheckSum(int bits_offset = 0) const;
@@ -69,7 +70,7 @@ public:
 	void		writeBits(int bits, int bits_num);
 	void 		writeByte(int c);
 	void		writeBytes(const byte *bytes, int bytes_num);
-//	int		writeBytesCompressed(const byte *bytes, int bytes_num, bool skip_if_fails = false);
+	int		writeBytesCompressed(const std::vector<byte> &bytes, bool skip_if_fails = false);
 	void 		writeShort(int c);
 	void 		writeLong(int c);
 	void 		writeFloat(float f);
@@ -94,6 +95,7 @@ public:
 	bool		readBitsCompressed(boost::dynamic_bitset<byte> &bits);
 	int		readByte();
 	void		readBytes(byte *bytes, int bytes_num);
+	bool		readBytesCompressed(std::vector<byte> &bytes);
 	int		readShort();
 	int		readLong();
 	float		readFloat();
@@ -108,10 +110,7 @@ public:
 	void		readDeltaUsercmd(const usercmd_t *from, usercmd_t *to);
 	bool		readDeltaEntity(const entity_state_t *from, entity_state_t *to, int number);
 	
-	//! uncompress all data after offsetcurrent read count
-	void		uncompress(int bits_offset = 0);
 	
-		
 	inline bool		isOverFlowed() const		{return _overflowed;}
 	
 	inline uint_t		getMaxSize() const		{return _maxsize;}
@@ -121,8 +120,6 @@ public:
 	inline void		setCurSize(int size)		{_cursize = size;}
 	
 	inline uint_t		getReadCount() const		{return _readcount;}
-	
-//	inline bitmessage_c&	operator += (const bitmessage_c &msg);
 	
 private:
 	bool				_allowoverflow;		// if false, do a Com_Error
@@ -136,16 +133,5 @@ private:
 	uint_t				_cursize;
 	uint_t				_readcount;
 };
-
-/*
-inline bitmessage_c&	bitmessage_c::operator += (const bitmessage_c &msg)
-{
-	boost::dynamic_bitset<byte> bits;
-	msg.copyTo(bits);	
-	writeBits(bits);
-	
-	return *this;
-}
-*/
 
 #endif	// X_BITMESSAGE_H

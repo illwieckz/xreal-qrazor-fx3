@@ -47,7 +47,7 @@ void	CG_UpdateAnimationBuffer()
 
 	for(pnum=0; pnum<cg.frame.entities_num; pnum++)
 	{
-		entity_state_t& state = cg.entities_parse[(cg.frame.entities_parse_index+pnum)&(MAX_PARSE_ENTITIES-1)];
+		entity_state_t& state = cg.entities_parse[(cg.frame.entities_first + pnum) % MAX_ENTITIES];
 
 		if(state.getNumber() < MAX_CLIENTS+1)
 		{

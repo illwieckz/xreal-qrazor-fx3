@@ -461,7 +461,7 @@ static void	DMOptions_MenuInit()
 	int dmflags = uii.Cvar_VariableInteger("dmflags");
 	int y = 0;
 
-	s_dmoptions_menu._x = (int)(uii.viddef->width * 0.50);
+	s_dmoptions_menu._x = (int)(uii.VID_GetWidth() * 0.50);
 
 	s_falls_box._x	= 0;
 	s_falls_box._y	= y;	

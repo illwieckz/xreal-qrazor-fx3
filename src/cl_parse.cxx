@@ -317,11 +317,18 @@ static void	CL_ParseBaseline(bitmessage_c &msg)
 {
 	entity_state_t	nullstate;
 
-	memset(&nullstate, 0, sizeof(nullstate));
-
 	uint_t newnum = msg.readBits(MAX_ENTITYNUM_BITS);
 	
-	entity_state_t *state = &cl.baselines[newnum];
+	entity_state_t *state = NULL;
+	
+	try
+	{
+		state = &cl.entities_baseline.at(newnum);
+	}
+	catch(...)
+	{
+		Com_Error(ERR_DROP, "CL_ParseBaseLine: entity number %i out of range", newnum);
+	}
 		
 	msg.readDeltaEntity(&nullstate, state, newnum);
 	
@@ -404,7 +411,7 @@ static void	CL_ShowNet(bitmessage_c &msg, const char *s)
 
 static void	CL_DeltaEntity(bitmessage_c &msg, frame_t *frame, int newnum, entity_state_t *state_old, bool changed)
 {
-	entity_state_t *state = &cl.entities_parse[cl.entities_parse_index & (MAX_PARSE_ENTITIES-1)];
+	entity_state_t *state = &cl.entities[cl.entities_first % MAX_ENTITIES];
 	
 	if(changed)
 	{
@@ -443,7 +450,7 @@ static void	CL_DeltaEntity(bitmessage_c &msg, frame_t *frame, int newnum, entity
 		*state = *state_old;
 	}
 	
-	cl.entities_parse_index++;
+	cl.entities_first++;
 	frame->entities_num++;
 	
 	cge->CG_UpdateEntity(newnum, state, changed);
@@ -464,7 +471,7 @@ static void	CL_ParsePacketEntities(bitmessage_c &msg, frame_t *oldframe, frame_t
 	int			oldindex, oldnum;
 	entity_state_t*		oldstate = NULL;
 
-	newframe->entities_parse_index = cl.entities_parse_index;
+	newframe->entities_first = cl.entities_first;
 	newframe->entities_num = 0;
 	
 	cge->CG_BeginFrame(cl.frame);
@@ -472,16 +479,17 @@ static void	CL_ParsePacketEntities(bitmessage_c &msg, frame_t *oldframe, frame_t
 	// delta from the entities present in oldframe
 	oldindex = 0;
 	if(!oldframe)
+	{
 		oldnum = 99999;
+	}
+	else if(oldframe->entities_num <= 0)
+	{
+		oldnum = 99999;
+	}
 	else
 	{
-		if(oldindex >= oldframe->entities_num)
-			oldnum = 99999;
-		else
-		{
-			oldstate = &cl.entities_parse[(oldframe->entities_parse_index+oldindex) & (MAX_PARSE_ENTITIES-1)];
-			oldnum = oldstate->getNumber();
-		}
+		oldstate = &cl.entities[(oldframe->entities_first + oldindex) % MAX_ENTITIES];
+		oldnum = oldstate->getNumber();
 	}
 
 	while(true)
@@ -508,10 +516,12 @@ static void	CL_ParsePacketEntities(bitmessage_c &msg, frame_t *oldframe, frame_t
 			oldindex++;
 
 			if(oldindex >= oldframe->entities_num)
+			{
 				oldnum = 99999;
+			}
 			else
 			{
-				oldstate = &cl.entities_parse[(oldframe->entities_parse_index+oldindex) & (MAX_PARSE_ENTITIES-1)];
+				oldstate = &cl.entities[(oldframe->entities_first + oldindex) % MAX_ENTITIES];
 				oldnum = oldstate->getNumber();
 			}
 		}
@@ -527,10 +537,12 @@ static void	CL_ParsePacketEntities(bitmessage_c &msg, frame_t *oldframe, frame_t
 			oldindex++;
 
 			if(oldindex >= oldframe->entities_num)
+			{
 				oldnum = 99999;
+			}
 			else
 			{
-				oldstate = &cl.entities_parse[(oldframe->entities_parse_index+oldindex) & (MAX_PARSE_ENTITIES-1)];
+				oldstate = &cl.entities[(oldframe->entities_first + oldindex) % MAX_ENTITIES];
 				oldnum = oldstate->getNumber();
 			}
 			continue;
@@ -542,7 +554,7 @@ static void	CL_ParsePacketEntities(bitmessage_c &msg, frame_t *oldframe, frame_t
 			if(cl_shownet->getInteger() == 3)
 				Com_Printf("   baseline: %i\n", newnum);
 				
-			CL_DeltaEntity(msg, newframe, newnum, &cl.baselines[newnum], true);
+			CL_DeltaEntity(msg, newframe, newnum, &cl.entities_baseline[newnum], true);
 			continue;
 		}
 
@@ -563,7 +575,7 @@ static void	CL_ParsePacketEntities(bitmessage_c &msg, frame_t *oldframe, frame_t
 			oldnum = 99999;
 		else
 		{
-			oldstate = &cl.entities_parse[(oldframe->entities_parse_index+oldindex) & (MAX_PARSE_ENTITIES-1)];
+			oldstate = &cl.entities[(oldframe->entities_first + oldindex) % MAX_ENTITIES];
 			oldnum = oldstate->getNumber();
 		}
 	}
@@ -734,7 +746,7 @@ static void	CL_ParseFrame(bitmessage_c &msg)
 			// is too old, so we can't reconstruct it properly.
 			Com_Printf("Delta frame too old.\n");
 		}
-		else if(cl.entities_parse_index - old->entities_parse_index > MAX_PARSE_ENTITIES - 128)
+		else if(cl.entities_first - old->entities_first > MAX_ENTITIES - 128)
 		{
 			Com_Printf("Delta parse_entities too old.\n");
 		}
@@ -763,6 +775,7 @@ static void	CL_ParseFrame(bitmessage_c &msg)
 		
 	int areabits_num = msg.readByte();
 	msg.readBits(areabits_num, cl.frame.areabits);
+//	cl.frame.areabits.set();
 
 
 	//

@@ -273,7 +273,7 @@ void	CG_CheckEntityEvents()
 {
 	for(int i=0; i<cg.frame.entities_num; i++)
 	{
-		entity_state_t *state = &cg.entities_parse[(cg.frame.entities_parse_index + i) & (MAX_PARSE_ENTITIES-1)];
+		entity_state_t *state = &cg.entities_parse[(cg.frame.entities_first + i) % MAX_ENTITIES];
 		cg_entity_t *cent = &cg.entities[state->getNumber()];
 		
 		CG_EntityEvent(cent);

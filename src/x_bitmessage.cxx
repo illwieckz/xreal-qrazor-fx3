@@ -76,37 +76,25 @@ bool	bitmessage_c::isConnectionless()
 		return false;
 }
 
-void	bitmessage_c::copyTo(boost::dynamic_bitset<byte> &bits, int bits_offset, int size) const
+void	bitmessage_c::copyTo(boost::dynamic_bitset<byte> &bits, int bits_offset, int bits_num) const
 {
-	if(size == -1)
-		size = _cursize;
+	if(bits_offset < 0 || bits_num < 0 || (bits_offset + bits_num) > (int)_cursize)
+		Com_Error(ERR_FATAL, "bitmessage_c::copyTo: bad bits_offset %i + bits_num %i > current size %i", bits_offset, bits_num, _cursize);
 
-	if(bits_offset > size)
-		Com_Error(ERR_FATAL, "bitmessage_c::copyTo: bad bits_offset %i > current size %i", bits_offset, _cursize);
-
-	uint_t bits_num = size - bits_offset;
-
-	bits.clear();
-	bits.resize(bits_num, 0);
+	bits = boost::dynamic_bitset<byte>(bits_num);
 	
-	for(uint_t i=0; i<bits_num; i++)
+	for(int i=0; i<bits_num; i++)
 		bits[i] = _data[(bits_offset+i) >> 3] & (1<<((bits_offset+i) & 7));
 }
 
-void	bitmessage_c::copyTo(std::vector<byte> &bytes, int bits_offset, int size)
+void	bitmessage_c::copyTo(std::vector<byte> &bytes, int bits_offset, int bits_num) const
 {
-	if(size == -1)
-		size = _cursize;
-
-	if(bits_offset > size)
-		Com_Error(ERR_FATAL, "bitmessage_c::copyTo: bad bits_offset %i > current size %i", bits_offset, _cursize);
-
-	uint_t bits_num = size - bits_offset;
+	if(bits_offset < 0 || bits_num < 0 || (bits_offset + bits_num) > (int)_cursize)
+		Com_Error(ERR_FATAL, "bitmessage_c::copyTo: bad bits_offset %i + bits_num %i > current size %i", bits_offset, bits_num, _cursize);
 	
-	bytes.clear();
-	bytes.resize(toBytes(bits_num));
+	bytes = std::vector<byte>(toBytes(bits_num), 0);
 	
-	for(uint_t i=0; i<bits_num; i++)
+	for(int i=0; i<bits_num; i++)
 	{
 		bool bit = _data[(bits_offset+i) >> 3] & (1<<((bits_offset+i) & 7));
 	
@@ -120,6 +108,7 @@ int	bitmessage_c::calcCheckSum(int bits_offset) const
 		Com_Error(ERR_FATAL, "bitmessage_c::calcCheckSum: bad bits_offset %i > current size %i", bits_offset, _cursize);
 	
 	boost::crc_32_type crc;
+
 //	for(uint_t i=0; i<_cursize; i++)
 //		crc.process_bits(_data[(bits_offset+i) >> 3] & (1<<((bits_offset+i) & 7)));
 
@@ -133,8 +122,6 @@ void	bitmessage_c::beginWriting()
 	_overflowed = false;
 
 	_data = std::vector<byte>(_maxsize/8, 0);
-//	_data = std::vector<std::bitset<8> >(_maxsize/8);
-//	_data = boost::dynamic_bitset<byte>(_maxsize);
 	
 	_cursize = 0;
 }
@@ -144,20 +131,18 @@ void	bitmessage_c::writeBit(bool bit)
 	if((_cursize + 1) > _maxsize)
 	{
 		if(!_allowoverflow)
-			Com_Error(ERR_FATAL, "bitmessage_c::writeBit: overflow without allowoverflow set");
+			Com_Error(ERR_DROP, "bitmessage_c::writeBit: overflow without allowoverflow set");
 		
 		Com_Printf("bitmessage_c::writeBit: overflow maxsize %i\n", _maxsize);
 		
-		//assert(false);
 		beginWriting();
+		
 		_overflowed = true;
+		
 		throw std::overflow_error(va("bitmessage_c::writeBit: overflow maxsize %i", _maxsize));
-		//return;
 	}
 
 	_data[_cursize >> 3] |= (bit << (_cursize % 8));
-//	_data[_cursize / 8][_cursize % 8] = bit;
-//	_data[_cursize] = bit;
 
 	_cursize++;
 }
@@ -202,7 +187,7 @@ void	bitmessage_c::writeBits(int bits, int bits_num)
 
 int	bitmessage_c::writeBitsCompressed(const boost::dynamic_bitset<byte> &bits, bool skip_if_fails)
 {
-	if(bits.size() == 0)
+	if(!bits.size())
 	{
 		writeBit(false);	// nothing to follow
 		return 1;
@@ -244,18 +229,11 @@ int	bitmessage_c::writeBitsCompressed(const boost::dynamic_bitset<byte> &bits, b
 		case Z_DATA_ERROR:	// -3
 		{
 			if(!skip_if_fails)
-			{
 				Com_Error(ERR_DROP, "bitmessage_c::writeBytesCompressed: data error");
-				writeBit(false);
-				return 1;
-			}
-			else
-			{
-				throw std::exception();
-				writeBit(false);
-				return 1;
-				break;
-			}
+			
+			throw std::exception();
+			writeBit(false);
+			return 1;
 		}
 		
 		case Z_MEM_ERROR:	// -4
@@ -321,12 +299,13 @@ void	bitmessage_c::writeBytes(const byte *bytes, int bytes_num)
 	}
 }
 
-/*
-int	bitmessage_c::writeBytesCompressed(const byte *bytes, int bytes_num, bool skip_if_fails)
+int	bitmessage_c::writeBytesCompressed(const std::vector<byte> &bytes, bool skip_if_fails)
 {
-	
+	boost::dynamic_bitset<byte> bits;
+	bytesToBits(bytes, bits);
+
+	return writeBitsCompressed(bits, skip_if_fails);
 }
-*/
 
 void 	bitmessage_c::writeShort(int c)
 {
@@ -565,9 +544,11 @@ void 	bitmessage_c::writeDeltaEntity(const entity_state_t *from, const entity_st
 {
 	int		bits = 0;
 	
+//	Com_Printf("bitmessage_c::writeDeltaEntity: from %i to %i\n", from->getNumber(), to->getNumber());
+	
 	if(!from && !to)
 	{
-		Com_Error(ERR_FATAL, "message_c::writeDeltaEntity: NULL");
+		Com_Error(ERR_FATAL, "bitmessage_c::writeDeltaEntity: NULL");
 	}
 	
 	if(!to)
@@ -767,7 +748,7 @@ void 	bitmessage_c::writeDeltaEntity(const entity_state_t *from, const entity_st
 void	bitmessage_c::writeMessage(const bitmessage_c &msg)
 {
 	boost::dynamic_bitset<byte> bits;
-	msg.copyTo(bits);
+	msg.copyTo(bits, 0, msg._cursize);
 	
 	writeBits(bits);
 }
@@ -775,10 +756,9 @@ void	bitmessage_c::writeMessage(const bitmessage_c &msg)
 int	bitmessage_c::writeMessageCompressed(const bitmessage_c &msg, bool skip_if_fails)
 {
 	boost::dynamic_bitset<byte> bits;
-	msg.copyTo(bits);
+	msg.copyTo(bits, 0, msg._cursize);
 
 	return writeBitsCompressed(bits, skip_if_fails);
-//	return writeBytesCompressed(&msg._data[0], msg.getCurSizeInBytes(), skip_if_fails);
 }
 
 
@@ -864,74 +844,104 @@ bool	bitmessage_c::readBitsCompressed(boost::dynamic_bitset<byte> &bits)
 	}
 	catch(std::range_error)
 	{
-		Com_Printf("bitmessage_c::readBytesCompressed: range error while reading initial bit\n", _readcount, _cursize);
+		Com_Printf("bitmessage_c::readBytesCompressed: range error while reading initial bit\n");
+		throw;
+	}
+
+	
+	uint_t	bits_num = 0;
+	uint_t	bytes_num = 0;
+	
+	try
+	{
+		bits_num = readBits(14);	// original bits size
+	}
+	catch(std::range_error)
+	{
+		Com_Printf("bitmessage_c::readBytesCompressed: range error while reading original bits size\n");
 		throw;
 	}
 	
-	// get size in bytes
-	uint_t	bits_num = readBits(14);
-	uint_t	bytes_num = readBits(11);
+	try
+	{
+		bytes_num = readBits(11);	// compressed bytes size
+	}
+	catch(std::range_error)
+	{
+		Com_Printf("bitmessage_c::readBytesCompressed: range error while reading compressed bytes size\n");
+		throw;
+	}
+	
+	if(!bits_num)
+	{
+		bits.clear();
+		return false;
+	}
 	
 	// read the compressed bytes
 	std::vector<byte>	data_compressed(bytes_num, 0);
 	readBytes(&data_compressed[0], data_compressed.size());
 
 	// uncompress the bytes
-	byte			data_uncompressed[MAX_MSGLEN];
-	unsigned long		length_uncompressed = sizeof(data_uncompressed);
+	std::vector<byte>	data_uncompressed(MAX_MSGLEN, 0);
+	unsigned long		length_uncompressed = data_uncompressed.size();
 	
-	int err = ::uncompress(data_uncompressed, &length_uncompressed, &data_compressed[0], data_compressed.size());
+	int err = ::uncompress(&data_uncompressed[0], &length_uncompressed, &data_compressed[0], data_compressed.size());
 	
 	switch(err)
 	{
 		case Z_NEED_DICT:	// 2
-			Com_Error(ERR_DROP, "bitmessage_c::readBytesCompressed: need dictionary");
+			Com_Error(ERR_DROP, "bitmessage_c::readBitsCompressed: need dictionary");
 			return false;
 			
 		case Z_STREAM_END:	// 1
-			Com_Error(ERR_DROP, "bitmessage_c::readBytesCompressed: stream end");
+			Com_Error(ERR_DROP, "bitmessage_c::readBitsCompressed: stream end");
 			return false;
 			
 		case Z_OK:		// 0
 			break;
 			
 		case Z_ERRNO:		// -1
-			Com_Error(ERR_DROP, "bitmessage_c::readBytesCompressed: file error");
+			Com_Error(ERR_DROP, "bitmessage_c::readBitsCompressed: file error");
 			return false;
 			
 		case Z_STREAM_ERROR:	// -2
-			Com_Error(ERR_DROP, "bitmessage_c::readBytesCompressed: stream error");
+			Com_Error(ERR_DROP, "bitmessage_c::readBitsCompressed: stream error");
 			return false;
 			
 		case Z_DATA_ERROR:	// -3
-			Com_Error(ERR_DROP, "bitmessage_c::readBytesCompressed: data error");
+			Com_Error(ERR_DROP, "bitmessage_c::readBitsCompressed: data error");
 			return false;
 		
 		case Z_MEM_ERROR:	// -4
-			Com_Error(ERR_DROP, "bitmessage_c::readBytesCompressed: insufficient memory");
+			Com_Error(ERR_DROP, "bitmessage_c::readBitsCompressed: insufficient memory");
 			return false;
 			
 		case Z_BUF_ERROR:	// -5
-			Com_Error(ERR_DROP, "bitmessage_c::readBytesCompressed: buffer error");
+			Com_Error(ERR_DROP, "bitmessage_c::readBitsCompressed: buffer error");
 			return false;
 			
 		case Z_VERSION_ERROR:	// -6
-			Com_Error(ERR_DROP, "bitmessage_c::readBytesCompressed: incompatible version");
+			Com_Error(ERR_DROP, "bitmessage_c::readBitsCompressed: incompatible version");
 			return false;
 			
 		default:
-			Com_Error(ERR_DROP, "bitmessage_c::readBytesCompressed: unknown error");
+			Com_Error(ERR_DROP, "bitmessage_c::readBitsCompressed: unknown error");
 			return false;
 	}
 	
+	if(length_uncompressed != toBytes(bits_num))
+	{
+		Com_Error(ERR_DROP, "bitmessage_c::readBitsCompressed: uncompressed size %i is not excpeted size %i", length_uncompressed, toBytes(bits_num));
+		bits.clear();
+		return false;
+	}
+	
 	// copy uncompressed bytes into bits buffer
-	bits = boost::dynamic_bitset<byte>(bits_num, 0);
+	bits = boost::dynamic_bitset<byte>(bits_num);
 	
 	for(uint_t i=0; i<bits_num; i++)
-		bits[i] = data_uncompressed[i >> 3] & (1<<(i & 7));
-	
-//	bytes = std::vector<byte>(length_uncompressed, 0);
-//	memcpy(&bytes[0], &data_uncompressed[0], length_uncompressed);
+		bits[i] = data_uncompressed[i >> 3] & (1 << (i & 7));
 	
 	return true;
 }
@@ -945,6 +955,15 @@ void 	bitmessage_c::readBytes(byte *bytes, int bytes_num)
 {
 	for(int i=0; i<bytes_num; i++)
 		bytes[i] = readByte();
+}
+
+bool	bitmessage_c::readBytesCompressed(std::vector<byte> &bytes)
+{
+	boost::dynamic_bitset<byte> bits;
+	bool ret = readBitsCompressed(bits);
+	bytesToBits(bytes, bits);
+	
+	return ret;
 }
 
 
@@ -1192,54 +1211,5 @@ bool	bitmessage_c::readDeltaEntity(const entity_state_t *from, entity_state_t *t
 		readVec3(to->vectors[2]);
 		
 	return true;
-}
-
-void	bitmessage_c::uncompress(int bits_offset)
-{
-	if(bits_offset < 0 || bits_offset > (int)_cursize)
-		Com_Error(ERR_FATAL, "bitmessage_c::uncompress: bad bits_offset %i, current size %i", bits_offset, _cursize);
-	
-	
-	_readcount = bits_offset;
-	
-	// make backup
-	boost::dynamic_bitset<byte>	bits;		// backup bits + total uncompressed bits
-	copyTo(bits, 0, bits_offset);
-	
-	// uncompress data
-	do
-	{
-		boost::dynamic_bitset<byte>	uncomp;
-		
-		try
-		{
-			if(!(readBitsCompressed(uncomp)))
-				break;
-		}
-		catch(std::range_error)
-		{
-			Com_Printf("bitmessage_c::uncompress: range error while reading compressed bytes\n", _readcount, _cursize);
-			throw;
-		}
-		
-		for(boost::dynamic_bitset<byte>::size_type i=0; i<uncomp.size(); ++i)
-			bits.push_back(uncomp[i]);
-		
-	} while(_readcount < _cursize);
-	
-	// reset and expand _data if needed
-	if((bits_offset + bits.size()) > _maxsize)
-	{
-		_data.clear();
-		_data.resize(toBytes(bits_offset + bits.size()), 0);
-		_maxsize = toBits(_data.size());
-	}
-	
-	// copy back bits and bytes to _data
-	_cursize = 0;
-	writeBits(bits);
-	
-	// reset read count
-	_readcount = bits_offset;
 }
 
