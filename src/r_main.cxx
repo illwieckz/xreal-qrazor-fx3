@@ -721,7 +721,7 @@ static void	R_CullLights()
 		if(!light)
 			continue;
 			
-		if(!light->isVisFramed())
+		if(light->isStatic() && !light->isVisFramed())
 			continue;
 				
 		if(!r_frustum.cull(light->getShared().radius_aabb))
@@ -757,7 +757,7 @@ void 	R_DrawWorld()
 		
 	r_world_entity.setupTransform();
 		
-	RB_SetupModelviewMatrix(r_world_entity.getTransform());
+	RB_SetupModelviewMatrix(r_world_entity.getTransform(), true);
 	
 	r_world_tree->draw();
 }

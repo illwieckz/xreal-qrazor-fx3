@@ -430,7 +430,7 @@ void	RB_QuakeFrustum(matrix_c &m, double l, double r, double b, double t, double
 
 void	RB_SetupModelviewMatrix(const matrix_c &m, bool force)
 {
-//	if(force || !(m == rb_matrix_model))
+	if(force || !(m == rb_matrix_model))
 	{
 		xglMatrixMode(GL_MODELVIEW);
 		

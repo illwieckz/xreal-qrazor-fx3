@@ -303,7 +303,7 @@ void	r_bsptree_c::draw()
 					
 			r_lightframecount++;
 			
-			if(!(light->getShared().flags & RF_STATIC))
+			if(!light->isStatic())
 			{
 				litNode_r(_nodes[0], light, LITNODE_MODE_DYNAMIC);
 			}
@@ -330,7 +330,7 @@ void	r_bsptree_c::draw()
 					
 			r_lightframecount++;
 			
-			if(!(light->getShared().flags & RF_STATIC))
+			if(!light->isStatic())
 			{
 				litNode_r(_nodes[0], light, LITNODE_MODE_DYNAMIC);
 			}
@@ -1710,7 +1710,7 @@ void 	r_bsptree_c::markLights()
 			if(!light)
 				continue;
 			
-			if(!(light->getShared().flags & RF_STATIC))
+			if(!light->isStatic())
 			{
 				//if(light->getCluster() < 0)
 				//	continue;
@@ -1787,7 +1787,7 @@ void 	r_bsptree_c::markEntities()
 			if(!ent)
 				continue;
 				
-			if(!(ent->getShared().flags & RF_STATIC))
+			if(!ent->isStatic())
 			{
 				// entity is always visible
 				ent->setVisFrameCount();
