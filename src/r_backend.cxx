@@ -342,8 +342,8 @@ static void 	RB_SetupFrustum()
 	// http://www2.ravensoft.com/users/ggribb/plane%20extraction.pdf
 	
 	// this is ok because the model matrix is the identity matrix
-//	matrix_c& m = rb_matrix_model_view_projection;
-	matrix_c m = rb_matrix_projection * rb_matrix_view;
+	matrix_c& m = rb_matrix_model_view_projection;
+//	matrix_c m = rb_matrix_projection * rb_matrix_view;
 
 	// left
 	r_frustum[FRUSTUM_LEFT]._normal[0]	=  m[3][0] + m[0][0];
@@ -430,7 +430,7 @@ void	RB_QuakeFrustum(matrix_c &m, double l, double r, double b, double t, double
 
 void	RB_SetupModelviewMatrix(const matrix_c &m, bool force)
 {
-	if(force || !(m == rb_matrix_model))
+//	if(force || !(m == rb_matrix_model))
 	{
 		xglMatrixMode(GL_MODELVIEW);
 		

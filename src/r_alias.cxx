@@ -351,7 +351,7 @@ void	r_alias_model_c::addModelToList(r_entity_c *ent)
 	if((ent->getShared().flags & RF_WEAPONMODEL) && (r_lefthand->getInteger() == 2))
 		return;
 
-	if((ent->isStatic() && !ent->isVisFramed()) || cull(ent))
+	if(/*(ent->isStatic() && !ent->isVisFramed()) ||*/ cull(ent))
 	{
 		return;
 	}

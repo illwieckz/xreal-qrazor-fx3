@@ -1881,7 +1881,7 @@ int	dCollideBoxBox(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &con
 }
 
 
-int dCollideBoxPlane(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
+int	dCollideBoxPlane(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
 	dIASSERT(o1->type == dBoxClass);
 	dIASSERT(o2->type == dPlaneClass);
@@ -2461,13 +2461,299 @@ void	dBoxLeafnums(dxBSP *bsp, const aabb_c &aabb, std::deque<int> &leafs, int no
 #endif
 }
 
+static bool	_cldTestSeparatingAxes(const vec3_c vertexes[3])
+{
+	//TODO
+	
+	/*
+	// reset best axis
+	int axis_best = 0;
+	int axis_exit = -1;
+	vec_t best_depth = MAXVALUE;
+	
+	// calculate edges
+	const vec3_c edge0 = vertexes[1] - vertexes[0];
+	const vec3_c edge1 = vertexes[2] - vertexes[0];
+	
+	SUBTRACT(v1,v0,vE0);
+	SUBTRACT(v2,v0,vE1);
+	SUBTRACT(vE1,vE0,vE2);
+	
+	// calculate poly normal
+	dCROSS(vN,=,vE0,vE1);
+	
+	// extract box axes as vectors
+	vec3_c vA0,vA1,vA2;
+	GETCOL(mHullBoxRot, 0, vA0);
+	GETCOL(mHullBoxRot, 1, vA1);
+	GETCOL(mHullBoxRot, 2, vA2);
+	
+	// box halfsizes
+	dReal fa0 = vBoxHalfSize[0];
+	dReal fa1 = vBoxHalfSize[1];
+	dReal fa2 = vBoxHalfSize[2];
 
+  // calculate relative position between box and triangle
+  dVector3 vD;
+  SUBTRACT(v0,vHullBoxPos,vD);
+
+  // calculate length of face normal
+  dReal fNLen = LENGTHOF( vN );
+
+  dVector3 vL;
+  dReal fp0, fp1, fp2, fR, fD;
+
+  // Test separating axes for intersection
+  // ************************************************
+  // Axis 1 - Triangle Normal 
+  SET(vL,vN);
+  fp0  = dDOT(vL,vD);
+  fp1  = fp0;
+  fp2  = fp0;
+  fR=fa0*dFabs( dDOT(vN,vA0) ) + fa1 * dFabs( dDOT(vN,vA1) ) + fa2 * dFabs( dDOT(vN,vA2) );
+
+
+  if( !_cldTestNormal( fp0, fR, vL, 1) ) { 
+    iExitAxis=1;
+    return FALSE; 
+  } 
+ 
+  // ************************************************
+
+  // Test Faces
+  // ************************************************
+  // Axis 2 - Box X-Axis
+  SET(vL,vA0);
+  fD  = dDOT(vL,vN)/fNLen;
+  fp0 = dDOT(vL,vD);
+  fp1 = fp0 + dDOT(vA0,vE0);
+  fp2 = fp0 + dDOT(vA0,vE1);
+  fR  = fa0;
+
+
+  if( !_cldTestFace( fp0, fp1, fp2, fR, fD, vL, 2) ) { 
+    iExitAxis=2;
+    return FALSE; 
+  }
+  // ************************************************
+
+  // ************************************************
+  // Axis 3 - Box Y-Axis
+  SET(vL,vA1);
+  fD = dDOT(vL,vN)/fNLen;
+  fp0 = dDOT(vL,vD);
+  fp1 = fp0 + dDOT(vA1,vE0);
+  fp2 = fp0 + dDOT(vA1,vE1);
+  fR  = fa1;
+
+
+  if( !_cldTestFace( fp0, fp1, fp2, fR, fD, vL, 3) ) { 
+    iExitAxis=3;
+    return FALSE; 
+  }
+
+  // ************************************************
+
+  // ************************************************
+  // Axis 4 - Box Z-Axis
+  SET(vL,vA2);
+  fD = dDOT(vL,vN)/fNLen;
+  fp0 = dDOT(vL,vD);
+  fp1 = fp0 + dDOT(vA2,vE0);
+  fp2 = fp0 + dDOT(vA2,vE1);
+  fR  = fa2;
+
+
+  if( !_cldTestFace( fp0, fp1, fp2, fR, fD, vL, 4) ) { 
+    iExitAxis=4;
+    return FALSE; 
+  }
+
+  // ************************************************
+
+  // Test Edges
+  // ************************************************
+  // Axis 5 - Box X-Axis cross Edge0
+  dCROSS(vL,=,vA0,vE0);
+  fD  = dDOT(vL,vN)/fNLen;
+  fp0 = dDOT(vL,vD);
+  fp1 = fp0;
+  fp2 = fp0 + dDOT(vA0,vN);
+  fR  = fa1 * dFabs(dDOT(vA2,vE0)) + fa2 * dFabs(dDOT(vA1,vE0));
+
+
+  if( !_cldTestEdge( fp1, fp2, fR, fD, vL, 5) ) { 
+    iExitAxis=5;
+    return FALSE; 
+  }
+  // ************************************************
+
+  // ************************************************
+  // Axis 6 - Box X-Axis cross Edge1
+  dCROSS(vL,=,vA0,vE1);
+  fD  = dDOT(vL,vN)/fNLen;
+  fp0 = dDOT(vL,vD);
+  fp1 = fp0 - dDOT(vA0,vN);
+  fp2 = fp0;
+  fR  = fa1 * dFabs(dDOT(vA2,vE1)) + fa2 * dFabs(dDOT(vA1,vE1));
+
+
+  if( !_cldTestEdge( fp0, fp1, fR, fD, vL, 6) ) { 
+    iExitAxis=6;
+    return FALSE; 
+  }
+  // ************************************************
+
+  // ************************************************
+  // Axis 7 - Box X-Axis cross Edge2
+  dCROSS(vL,=,vA0,vE2);
+  fD  = dDOT(vL,vN)/fNLen;
+  fp0 = dDOT(vL,vD);
+  fp1 = fp0 - dDOT(vA0,vN);
+  fp2 = fp0 - dDOT(vA0,vN);
+  fR  = fa1 * dFabs(dDOT(vA2,vE2)) + fa2 * dFabs(dDOT(vA1,vE2));
+
+
+  if( !_cldTestEdge( fp0, fp1, fR, fD, vL, 7) ) { 
+    iExitAxis=7;
+    return FALSE; 
+  }
+
+  // ************************************************
+
+  // ************************************************
+  // Axis 8 - Box Y-Axis cross Edge0
+  dCROSS(vL,=,vA1,vE0);
+  fD  = dDOT(vL,vN)/fNLen;
+  fp0 = dDOT(vL,vD);
+  fp1 = fp0;
+  fp2 = fp0 + dDOT(vA1,vN);
+  fR  = fa0 * dFabs(dDOT(vA2,vE0)) + fa2 * dFabs(dDOT(vA0,vE0));
+
+
+  if( !_cldTestEdge( fp0, fp2, fR, fD, vL, 8) ) { 
+    iExitAxis=8;
+    return FALSE; 
+  }
+
+  // ************************************************
+
+  // ************************************************
+  // Axis 9 - Box Y-Axis cross Edge1
+  dCROSS(vL,=,vA1,vE1);
+  fD  = dDOT(vL,vN)/fNLen;
+  fp0 = dDOT(vL,vD);
+  fp1 = fp0 - dDOT(vA1,vN);
+  fp2 = fp0;
+  fR  = fa0 * dFabs(dDOT(vA2,vE1)) + fa2 * dFabs(dDOT(vA0,vE1));
+
+
+  if( !_cldTestEdge( fp0, fp1, fR, fD, vL, 9) ) { 
+    iExitAxis=9;
+    return FALSE; 
+  }
+
+  // ************************************************
+
+  // ************************************************
+  // Axis 10 - Box Y-Axis cross Edge2
+  dCROSS(vL,=,vA1,vE2);
+  fD  = dDOT(vL,vN)/fNLen;
+  fp0 = dDOT(vL,vD);
+  fp1 = fp0 - dDOT(vA1,vN);
+  fp2 = fp0 - dDOT(vA1,vN);
+  fR  = fa0 * dFabs(dDOT(vA2,vE2)) + fa2 * dFabs(dDOT(vA0,vE2));
+
+
+  if( !_cldTestEdge( fp0, fp1, fR, fD, vL, 10) ) { 
+    iExitAxis=10;
+    return FALSE; 
+  }
+
+  // ************************************************
+
+  // ************************************************
+  // Axis 11 - Box Z-Axis cross Edge0
+  dCROSS(vL,=,vA2,vE0);
+  fD  = dDOT(vL,vN)/fNLen;
+  fp0 = dDOT(vL,vD);
+  fp1 = fp0;
+  fp2 = fp0 + dDOT(vA2,vN);
+  fR  = fa0 * dFabs(dDOT(vA1,vE0)) + fa1 * dFabs(dDOT(vA0,vE0));
+
+
+  if( !_cldTestEdge( fp0, fp2, fR, fD, vL, 11) ) { 
+    iExitAxis=11;
+    return FALSE; 
+  }
+  // ************************************************
+
+  // ************************************************
+  // Axis 12 - Box Z-Axis cross Edge1
+  dCROSS(vL,=,vA2,vE1);
+  fD  = dDOT(vL,vN)/fNLen;
+  fp0 = dDOT(vL,vD);
+  fp1 = fp0 - dDOT(vA2,vN);
+  fp2 = fp0;
+  fR  = fa0 * dFabs(dDOT(vA1,vE1)) + fa1 * dFabs(dDOT(vA0,vE1));
+
+
+  if( !_cldTestEdge( fp0, fp1, fR, fD, vL, 12) ) { 
+    iExitAxis=12;
+    return FALSE; 
+  }
+  // ************************************************
+
+  // ************************************************
+  // Axis 13 - Box Z-Axis cross Edge2
+  dCROSS(vL,=,vA2,vE2);
+  fD  = dDOT(vL,vN)/fNLen;
+  fp0 = dDOT(vL,vD);
+  fp1 = fp0 - dDOT(vA2,vN);
+  fp2 = fp0 - dDOT(vA2,vN);
+  fR  = fa0 * dFabs(dDOT(vA1,vE2)) + fa1 * dFabs(dDOT(vA0,vE2));
+
+
+  if( !_cldTestEdge( fp0, fp1, fR, fD, vL, 13) ) { 
+    iExitAxis=13;
+    return FALSE; 
+  }
+ 
+  // ************************************************
+  return TRUE; 
+  
+  */
+  return false;
+}
 
 static int	dCollideBSPTriangleBox(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, const vec3_c vertexes[3], const cplane_c &p)
 {
 	dIASSERT(o1->type == dBSPClass);
 	dIASSERT(o2->type == dBoxClass);
 
+	// do intersection test and find best separating axis
+	if(!_cldTestSeparatingAxes(vertexes))
+	{
+		// if not found do nothing
+		return 0;
+	}
+	
+	//TODO
+	
+	// if best separation axis is not found
+	/*
+	if(iBestAxis == 0)
+	{
+		// this should not happen (we should already exit in that case)
+		//dMessage (0, "best separation axis not found");
+		// do nothing
+		return;
+	}
+	*/
+	
+	
+	//_cldClipping(v0, v1, v2);
+	
 	//TODO
 	return 0;
 }

@@ -52,7 +52,7 @@ r_animation_iface_a(shared.animation)
 	
 	//ri.Com_DPrintf("r_entity_c::ctor: %i sub entities\n", _subs.size());
 	
-	if(_s.flags & RF_STATIC)
+	if(isStatic())
 	{
 		//ri.Com_DPrintf("r_entity_c::ctor: static\n");
 	

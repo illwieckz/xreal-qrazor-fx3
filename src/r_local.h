@@ -786,7 +786,7 @@ protected:
 	}
 	
 public:
-	inline uint_t	getFrameCount() const	{return _framecount;}
+//	inline uint_t	getFrameCount() const	{return _framecount;}
 	inline void	setFrameCount()		{_framecount = r_framecount;}
 	inline void	resetFrameCount()		{_framecount = 0;}
 	inline bool	isFramed() const	{return r_framecount == _framecount;}
@@ -804,7 +804,7 @@ protected:
 	}
 	
 public:
-	inline uint_t	getVisFrameCount() const	{return _visframecount;}
+//	inline uint_t	getVisFrameCount() const	{return _visframecount;}
 	inline void	setVisFrameCount()		{_visframecount = r_visframecount;}
 	inline void	resetVisFrameCount()		{_visframecount = 0;}
 	inline bool	isVisFramed() const		{return r_visframecount == _visframecount;}
@@ -822,7 +822,7 @@ protected:
 	}
 	
 public:
-	inline uint_t	getLightFrameCount() const	{return _lightframecount;}
+//	inline uint_t	getLightFrameCount() const	{return _lightframecount;}
 	inline void	setLightFrameCount()		{_lightframecount = r_lightframecount;}
 	inline bool	isLightFramed() const		{return r_lightframecount == _lightframecount;}
 	
@@ -839,7 +839,7 @@ protected:
 	}
 	
 public:
-	inline uint_t	getShadowFrameCount() const	{return _shadowframecount;}
+//	inline uint_t	getShadowFrameCount() const	{return _shadowframecount;}
 	inline void	setShadowFrameCount()		{_shadowframecount = r_shadowframecount;}
 	inline bool	isShadowed() const		{return r_shadowframecount == _shadowframecount;}
 	
@@ -1130,13 +1130,13 @@ public:
 	inline bool	isStatic() const			{return (_s.flags & RF_STATIC);}
 	inline bool	isVisible() const
 	{
-		if(!isStatic())
+		if(isStatic())
 		{
-			return (r_framecount == _framecount);
+			return isVisFramed() && isFramed();
 		}
 		else
 		{
-			return ((r_framecount == _framecount) && (r_visframecount == _visframecount));
+			return isFramed();
 		}
 	}
 	
