@@ -2395,16 +2395,17 @@ int	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *c
 		// current vertex
 		const vec3_c &A = vertexes[i];
 		
-		const vec3_c &B = vertexes[(i+1)%3];	// next vertex clockwise
+		const vec3_c &B = vertexes[(i+1)%3];	// next vertex to A in clockwise order
 			
 		// current edge
-		const vec3_c E = B - A;
-		//E.normalize();
+		vec3_c E = B - A;
+		vec_t El = E.length();
+		E.normalize();
 		
 		// create edge normal
 		vec3_c En(false);
 		En.crossProduct(E, p._normal);
-		En.negate();
+		//En.negate();
 		En.normalize();
 		
 		// create edge plane
@@ -2414,8 +2415,8 @@ int	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *c
 		vec_t d = Ep.distance(sphere->pos, sphere->radius);
 		
 		// check if sphere is completely behind the edge plane
-		//if(d <= -(sphere->radius*2))
-		//	continue;
+		if(d <= -(sphere->radius*2))
+			continue;
 			
 		// check if sphere is too far away from edge plane
 		if(d > 0.0)
@@ -2427,7 +2428,7 @@ int	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *c
 		// distance of sphere center along the edge
 		vec_t t = T.dotProduct(E);
 			
-		if(t < 0.0)
+		if(t <= 0.0)
 		{
 			// sphere close to start point
 			vec_t depth = sphere->radius - A.distance(sphere->pos);
@@ -2446,7 +2447,7 @@ int	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *c
 			}
 			return contacts_num;
 		}
-		else if(t > E.length())
+		else if(t >= El)
 		{
 			// sphere close to end point of edge
 			vec_t depth = sphere->radius - B.distance(sphere->pos);
@@ -2568,13 +2569,14 @@ int	dCollideBSPLeafSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *conta
 	
 	const dxBSP::dBSPLeaf& leaf = bsp->leafs[leafnum];
 	
-#if 0
+	/*
 	if(leaf.area < 0)
 	{
 		Com_Printf("dSphereInLeaf: leaf %i in bad area %i\n", leafnum, leaf.area);
 		return 0;
 	}
-#endif
+	*/
+	
 	//if(leaf.cluster == -1)
 	//	return 0;
 	
@@ -2584,13 +2586,12 @@ int	dCollideBSPLeafSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *conta
 	int contacts_num = 0;
 	for(int i=0; i<leaf.surfaces_num; i++)
 	{
-		//dxBSP::dBSPBrush& brush = bsp->brushes[bsp->leafbrushes[leaf.brushes_first + i]];
 		dxBSP::dBSPSurface& surf = bsp->surfaces[bsp->leafsurfaces[leaf.surfaces_first + i]];
 		
-		//if(surf.checkcount == bsp->checkcount)
-		//	continue;	// already checked this brush in another leaf
+		if(surf.checkcount == bsp->checkcount)
+			continue;	// already checked this surface in another leaf
 			
-		//surf.checkcount = bsp->checkcount;
+		surf.checkcount = bsp->checkcount;
 		
 		//if(!(brush.contents & trace_contents))
 		//	continue;
@@ -2833,7 +2834,7 @@ int	dCollideBSPSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, 
 	
 	int contacts_num = 0;
 
-#if 0
+#if 1
 	std::deque<int> leafs;
 	dBoxLeafnums(bsp, aabb, leafs, 0);
 	if(!leafs.size())
