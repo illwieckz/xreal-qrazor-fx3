@@ -72,5 +72,6 @@ vb_skies
 vp_materials
 washroom
 //weapons
+z13d3dm1
 z13d3dm2
 zgraeme
