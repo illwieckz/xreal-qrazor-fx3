@@ -447,6 +447,7 @@ void		G_ShutdownDynamics();
 
 void		G_RunDynamics();
 
+trace_t		G_RayTrace(const vec3_c &start, const vec3_c &end);
 trace_t		G_RayTrace(const vec3_c &origin, const vec3_c &dir, vec_t length);
 
 cmodel_c*	G_SetModel(g_entity_c *ent, const std::string &name);

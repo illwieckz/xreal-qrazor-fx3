@@ -29,234 +29,108 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "r_local.h"
 
 
-
-struct r_shader_parameter_symbols_t : boost::spirit::symbols<r_shader_parms_e, char>
-{
-	r_shader_parameter_symbols_t()
-	{
-		add
-			("time",	SHADER_PARM_TIME)
-			
-			("parm0",	SHADER_PARM_PARM0)
-			("parm1",	SHADER_PARM_PARM1)
-			("parm2",	SHADER_PARM_PARM2)
-			("parm3",	SHADER_PARM_PARM3)
-			("parm4",	SHADER_PARM_PARM4)
-			("parm5",	SHADER_PARM_PARM5)
-			("parm6",	SHADER_PARM_PARM6)
-			("parm7",	SHADER_PARM_PARM7)
-			
-			("global0",	SHADER_PARM_GLOBAL0)
-			("global1",	SHADER_PARM_GLOBAL1)
-			("global2",	SHADER_PARM_GLOBAL2)
-			
-			("sound",	SHADER_PARM_SOUND)
-			;
-	}
-} r_shader_parameter_symbols_p;
-
-
-struct r_shader_table_symbols_t : boost::spirit::symbols<uint_t, char>//, std::set<const char*> >
-{
-	// add symbols later
-} r_shader_table_symbols_p;
-
-
-void	R_SetReal(boost::spirit::tree_node<boost::spirit::node_val_data<r_iterator_t, r_node_data_t> > &node, r_iterator_t begin, r_iterator_t end)
-{
-	//ri.Com_Printf("access node: real %f\n", atof(std::string(begin, end).c_str()));
-		
-	node.value.value(atof(std::string(begin, end).c_str()));
-}
-
-static r_shader_parms_e r_shader_parm_tmp;
-void	R_GetParm(r_shader_parms_e parm)
-{
-	//ri.Com_Printf("access node: parm %i\n", parm);
-	
-	r_shader_parm_tmp = parm;
-}
-
-void	R_SetParm(boost::spirit::tree_node<boost::spirit::node_val_data<r_iterator_t, r_node_data_t> > &node, r_iterator_t begin, r_iterator_t end)
-{
-	//ri.Com_Printf("access node: parm\n");
-		
-	node.value.value(r_shader_parm_tmp);
-}
+//
+// r_shader_sc.cxx
+//
+void	R_ColorMap_sc(char const* begin, char const* end);
+void	R_DiffuseMap_sc(char const* begin, char const* end);
+void	R_BumpMap_sc(char const* begin, char const* end);
+void	R_SpecularMap_sc(char const* begin, char const* end);
+void	R_LightMap_sc(char const* begin, char const* end);
+void	R_DeluxeMap_sc(char const* begin, char const* end);
+void	R_ReflectionMap_sc(char const* begin, char const* end);
+void	R_RefractionMap_sc(char const* begin, char const* end);
+void	R_DispersionMap_sc(char const* begin, char const* end);
+void	R_LiquidMap_sc(char const* begin, char const* end);
+void	R_NoDraw_sc(char const* begin, char const* end);
+void	R_NoShadows_sc(char const* begin, char const* end);
+void	R_NoSelfShadow_sc(char const* begin, char const* end);
+void	R_NoEnvMap_sc(char const* begin, char const* end);
+void	R_SortFarthest_sc(char const* begin, char const* end);
+void	R_SortFar_sc(char const* begin, char const* end);
+void	R_SortClose_sc(char const* begin, char const* end);
+void	R_SortDecal_sc(char const* begin, char const* end);
+void	R_SortNearest_sc(char const* begin, char const* end);
+void	R_Sort_sc(int sort);
+void	R_TwoSided_sc(char const* begin, char const* end);
+void	R_Translucent_sc(char const* begin, char const* end);
+void	R_PolygonOffset_sc(char const* begin, char const* end);
+void	R_Discrete_sc(char const* begin, char const* end);
+void	R_ForceOpaque_sc(char const* begin, char const* end);
+void	R_LightFalloffImage_sc(char const* begin, char const* end);
+void	R_AmbientLight_sc(char const* begin, char const* end);
+void	R_FogLight_sc(char const* begin, char const* end);
+void	R_DecalMacro_sc(char const* begin, char const* end);
+void	R_DeformFlare_sc(char const* begin, char const* end);
+void	R_SurfaceparmAreaPortal_sc(char const* begin, char const* end);
 
 
-static unsigned int r_shader_table_tmp;
-void	R_GetTable(unsigned int table)
-{
-//	ri.Com_Printf("access node: table %i\n", table);
-	
-	r_shader_table_tmp = table;
-}
-
-void	R_SetTable(boost::spirit::tree_node<boost::spirit::node_val_data<r_iterator_t, r_node_data_t> > &node, r_iterator_t begin, r_iterator_t end)
-{
-//	ri.Com_Printf("access node: table\n");
-	
-	node.value.value(r_shader_table_tmp);
-}
-
-
-struct r_shader_line_grammar_t : public boost::spirit::grammar<r_shader_line_grammar_t>
-{
-	template <typename ScannerT>
-	struct definition
-	{
-        	definition(r_shader_line_grammar_t const& self)
-		{
-			// start grammar definition
-			real
-				=	boost::spirit::access_node_d[boost::spirit::real_p][&R_SetReal]
-				;
-				
-			parm
-				=	boost::spirit::access_node_d[boost::spirit::nocase_d[r_shader_parameter_symbols_p[&R_GetParm]]][&R_SetParm]
-				;
-			
-			table_index
-				=	boost::spirit::access_node_d[boost::spirit::nocase_d[r_shader_table_symbols_p[&R_GetTable]]][&R_SetTable]
-				;
-				
-			table_eval
-				= 	table_index >> table_value
-				;
-							
-			// table value on the right side [...] expression used by all tables
-			table_value
-				=	boost::spirit::inner_node_d[boost::spirit::ch_p('[') >> expression >> boost::spirit::ch_p(']')]
-				;
-				
-			factor
-				=	real
-				|	parm
-				|	(boost::spirit::inner_node_d[boost::spirit::ch_p('(') >> expression >> boost::spirit::ch_p(')')])
-				|	table_eval
-				|	(boost::spirit::root_node_d[boost::spirit::ch_p('-')] >> factor)
-				|	(boost::spirit::root_node_d[boost::spirit::ch_p('+')] >> factor)
-				;
-				
-			term
-				=	factor >> 
-				*(	(boost::spirit::root_node_d[boost::spirit::ch_p('*')] >> factor) |
-					(boost::spirit::root_node_d[boost::spirit::ch_p('/')] >> factor)
-				)
-				;
-		
-			expression
-				= 	term >>
-				*(	(boost::spirit::root_node_d[boost::spirit::ch_p('+')] >> term) |
-					(boost::spirit::root_node_d[boost::spirit::ch_p('-')] >> term)
-				)
-				;
-				
-			// end grammar definiton
-		}
-		
-		boost::spirit::rule<ScannerT, boost::spirit::parser_context<>, boost::spirit::parser_tag<SHADER_GENERIC_RULE_REAL> >			real;
-		boost::spirit::rule<ScannerT, boost::spirit::parser_context<>, boost::spirit::parser_tag<SHADER_GENERIC_RULE_PARM> >			parm;
-		boost::spirit::rule<ScannerT, boost::spirit::parser_context<>, boost::spirit::parser_tag<SHADER_GENERIC_RULE_TABLE_EVAL> >		table_eval;
-		boost::spirit::rule<ScannerT, boost::spirit::parser_context<>, boost::spirit::parser_tag<SHADER_GENERIC_RULE_TABLE_INDEX> >		table_index;
-		boost::spirit::rule<ScannerT, boost::spirit::parser_context<>, boost::spirit::parser_tag<SHADER_GENERIC_RULE_TABLE_VALUE> >		table_value;
-		boost::spirit::rule<ScannerT, boost::spirit::parser_context<>, boost::spirit::parser_tag<SHADER_GENERIC_RULE_FACTOR> >			factor;
-		boost::spirit::rule<ScannerT, boost::spirit::parser_context<>, boost::spirit::parser_tag<SHADER_GENERIC_RULE_TERM> >			term;
-		boost::spirit::rule<ScannerT, boost::spirit::parser_context<>, boost::spirit::parser_tag<SHADER_GENERIC_RULE_EXPRESSION> >		expression;		
-		
-		boost::spirit::rule<ScannerT, boost::spirit::parser_context<>, boost::spirit::parser_tag<SHADER_GENERIC_RULE_EXPRESSION> > const&
-		start() const { return expression; }
-	};
-};
+//
+// r_shader_stc.cxx
+//
+void	R_Blend_stc(char const* begin, char const *end);
+void	R_BlendAdd_stc(char const* begin, char const *end);
+void	R_BlendBlend_stc(char const* begin, char const *end);
+void	R_BlendFilter_stc(char const* begin, char const *end);
+void	R_Linear_stc(char const* begin, char const *end);
+void	R_NoPicmip_stc(char const* begin, char const *end);
+void	R_ZeroClamp_stc(char const* begin, char const *end);
+void	R_Clamp_stc(char const* begin, char const *end);
+void	R_MaskAlpha_stc(char const* begin, char const *end);
+void	R_MaskColor_stc(char const* begin, char const *end);
+void	R_MaskDepth_stc(char const* begin, char const *end);
+void	R_ForceHighQuality_stc(char const* begin, char const *end);
+void	R_VideoMap_stc(char const* begin, char const *end);
+void	R_Colored_stc(char const* begin, char const *end);
+void	R_RGBA_stc(char const* begin, char const *end);
+void	R_RGB_stc(char const* begin, char const *end);
+void	R_Red_stc(char const* begin, char const *end);
+void	R_Green_stc(char const* begin, char const *end);
+void	R_Blue_stc(char const* begin, char const *end);
+void	R_Alpha_stc(char const* begin, char const *end);
+void	R_AlphaTest_stc(char const* begin, char const *end);
+void	R_Scale3D_stc(char const* begin, char const *end);
+void	R_Scale_stc(char const* begin, char const *end);
+void	R_CenterScale_stc(char const* begin, char const *end);
+void	R_Scroll_stc(char const* begin, char const *end);
+void	R_Rotate_stc(char const* begin, char const *end);
+void	R_Translate_stc(char const* begin, char const *end);
+void	R_BumpScale_stc(char const* begin, char const *end);
+void	R_HeightScale_stc(char const* begin, char const *end);
+void	R_HeightBias_stc(char const* begin, char const *end);
+void	R_SpecularExponent_stc(char const* begin, char const *end);
+void	R_RefractionIndex_stc(char const* begin, char const *end);
+void	R_FresnelPower_stc(char const* begin, char const *end);
+void	R_FresnelScale_stc(char const* begin, char const *end);
+void	R_FresnelBias_stc(char const* begin, char const *end);
+void	R_EtaDelta_stc(char const* begin, char const *end);
+void	R_Eta_stc(char const* begin, char const *end);
+void	R_StageColorMap_stc(char const* begin, char const *end);
+void	R_StageDiffuseMap_stc(char const* begin, char const *end);
+void	R_StageBumpMap_stc(char const* begin, char const *end);
+void	R_StageSpecularMap_stc(char const* begin, char const *end);
+void	R_StageLightMap_stc(char const* begin, char const *end);
+void	R_StageDeluxeMap_stc(char const* begin, char const *end);
+void	R_StageReflectionMap_stc(char const* begin, char const *end);
+void	R_StageRefractionMap_stc(char const* begin, char const *end);
+void	R_StageDispersionMap_stc(char const* begin, char const *end);
+void	R_StageLiquidMap_stc(char const* begin, char const *end);
+void	R_StageAttenuationMapXY_stc(char const* begin, char const *end);
+void	R_StageAttenuationMapZ_stc(char const* begin, char const *end);
+void	R_StageAttenuationMapXYZ_stc(char const* begin, char const *end);
+void	R_StageAttenuationMapCube_stc(char const* begin, char const *end);
 
 
+bool	R_ParseExpressionToAST(r_iterator_t begin, r_iterator_t end, boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> &info);
+void	R_Map_stc(char const* begin, char const *end);
 
-static r_shader_c*		r_current_shader;
-static r_shader_stage_c*	r_current_stage;
+r_shader_parameter_symbols_t r_shader_parameter_symbols_p;
+r_shader_table_symbols_t r_shader_table_symbols_p;
 
-
-struct r_shader_map_stc_grammar_t : public boost::spirit::grammar<r_shader_map_stc_grammar_t>
-{
-	template <typename ScannerT>
-	struct definition
-	{
-        	definition(r_shader_map_stc_grammar_t const& self)
-		{
-			// start grammar definition
-			makeintensity
-				=
-					boost::spirit::nocase_d[boost::spirit::str_p("makeintensity")][boost::spirit::assign_a(r_current_stage->make_intensity, true)] >>
-					boost::spirit::ch_p('(') >>
-					boost::spirit::lexeme_d[boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - (boost::spirit::space_p | boost::spirit::ch_p(')'))]][boost::spirit::assign(r_current_stage->image_name)] >>
-					boost::spirit::ch_p(')')
-				;
-				
-			makealpha
-				=
-					boost::spirit::nocase_d[boost::spirit::str_p("makealpha")][boost::spirit::assign_a(r_current_stage->make_alpha, true)] >>
-					boost::spirit::ch_p('(') >>
-					boost::spirit::lexeme_d[boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - (boost::spirit::space_p | boost::spirit::ch_p(')'))]][boost::spirit::assign(r_current_stage->image_name)] >>
-					boost::spirit::ch_p(')')
-				;
-			
-			heightmap
-				=
-					boost::spirit::nocase_d[boost::spirit::str_p("heightmap")] >>
-					boost::spirit::ch_p('(') >>
-					boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - boost::spirit::ch_p(',')] >>
-					boost::spirit::ch_p(',') >>
-					boost::spirit::real_p >>
-					boost::spirit::ch_p(')')
-				;
-				
-			addnormals
-				=	boost::spirit::nocase_d[boost::spirit::str_p("addnormals")] >>
-					boost::spirit::ch_p('(') >>
-					boost::spirit::lexeme_d[boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - (boost::spirit::space_p | boost::spirit::ch_p(','))]][boost::spirit::assign(r_current_stage->image_name)] >>
-					boost::spirit::ch_p(',') >>
-					heightmap >>
-					boost::spirit::ch_p(')')
-				;
-				
-			imagename
-				= boost::spirit::lexeme_d[boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - boost::spirit::space_p]][boost::spirit::assign(r_current_stage->image_name)]
-				;
-						
-			expression
-				=	makeintensity
-				|	makealpha
-				|	addnormals
-				|	heightmap
-				|	imagename
-				;
-				
-			// end grammar definiton
-		}
-		
-		boost::spirit::rule<ScannerT>	imagename;
-		boost::spirit::rule<ScannerT>	addnormals;
-		boost::spirit::rule<ScannerT>	heightmap;
-		boost::spirit::rule<ScannerT>	makeintensity;
-		boost::spirit::rule<ScannerT>	makealpha;
-		boost::spirit::rule<ScannerT>	expression;
-		
-		boost::spirit::rule<ScannerT> const&
-		start() const { return expression; }
-	};
-};
+r_shader_c*		r_current_shader;
+r_shader_stage_c*	r_current_stage;
 
 
-
-
-
-static void	R_Map_stc(char const* begin, char const *end);
-
-
-
-
-
-//static bool	R_ParseExpressionToAST(const std::string &exp, boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> &info);
 
 r_shader_stage_c::r_shader_stage_c()
 {
@@ -365,23 +239,7 @@ static std::vector<r_shader_c*>		r_shaders;
 static std::vector<r_shader_cache_c*>	r_shaders_cache;	
 
 
-// Tr3B - parses a single shader line expression and builds an Abstract Syntax Tree, which we can evaluate
-//  in the renderer backend later
-static bool	R_ParseExpressionToAST(r_iterator_t begin, r_iterator_t end, boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> &info)
-{
-	r_shader_line_grammar_t		grammar;
-	
-	info = boost::spirit::ast_parse<r_factory_t>(begin, end, grammar, boost::spirit::space_p);
-		
-	return info.full;
-}
 
-/*
-static bool	R_ParseExpressionToAST(const std::string &exp, boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> &info)
-{
-	return R_ParseExpressionToAST(exp.begin(), exp.end(), info);
-}
-*/
 
 // Tr3B - parses a list like "anyname { 0, .3, 2.0, 5 }"
 /*
@@ -404,7 +262,7 @@ static bool	R_ParseExpressionToFloatVector(const std::string &exp, std::string &
 */
 
 // Tr3B - parses a comma separated list of any strings
-static bool	R_ParseExpressionToStringVector(const std::string &exp, std::vector<std::string> &v, bool skip_space = true)
+bool	R_ParseExpressionToStringVector(const std::string &exp, std::vector<std::string> &v, bool skip_space = true)
 {
 	boost::spirit::parse_info<> info;
 
@@ -433,7 +291,7 @@ static bool	R_ParseExpressionToStringVector(const std::string &exp, std::vector<
 }
 
 
-static bool	R_SplitExpression(const std::string &exp, std::string &exp0, std::string &exp1, bool skip_space = true)
+bool	R_SplitExpression(const std::string &exp, std::string &exp0, std::string &exp1, bool skip_space = true)
 {
 	std::vector<std::string>	v;
 	
@@ -454,7 +312,7 @@ static bool	R_SplitExpression(const std::string &exp, std::string &exp0, std::st
 	return true;
 }
 
-static bool	R_SplitExpression(const std::string &exp, std::string &exp0, std::string &exp1, std::string &exp2, bool skip_space = true)
+bool	R_SplitExpression(const std::string &exp, std::string &exp0, std::string &exp1, std::string &exp2, bool skip_space = true)
 {
 	std::vector<std::string>	v;
 	
@@ -474,1079 +332,6 @@ static bool	R_SplitExpression(const std::string &exp, std::string &exp0, std::st
 	
 	return true;
 }
-
-static void	R_SetShaderStageImageFlags(const r_shader_stage_c *stage, int &flags)
-{
-	if(stage->flags & SHADER_STAGE_NOMIPMAPS)
-		flags |= IMAGE_NOMIPMAP;
-		
-	if(stage->flags & SHADER_STAGE_NOPICMIP)
-		flags |= IMAGE_NOPICMIP;
-		
-	if(stage->flags & SHADER_STAGE_CLAMP)
-		flags |= IMAGE_CLAMP;
-	
-	if(stage->flags & SHADER_STAGE_ZEROCLAMP)
-		flags |= IMAGE_CLAMP_TO_BORDER;
-		
-	if(stage->flags & SHADER_STAGE_FORCEHIGHQUALITY)
-		flags |= IMAGE_NOCOMPRESSION;
-}
-
-
-/*
-================================================================================
-			Q3A SHADER KEYWORDS
-================================================================================
-*/
-
-/*
-void	R_SkyParms_sk(r_shader_c *shader, r_shader_stage_c &stage, const std::vector<std::string> &argv, const std::string &args)
-{
-	shader->flags |= SHADER_SKY;
-	shader->sort = SHADER_SORT_SKY;
-}
-*/
-
-/*
-void	R_Cull_sk(r_shader_c *shader, r_shader_stage_c &stage, const std::vector<std::string> &argv, const std::string &args)
-{
-	// reset shader cull flags
-	shader->flags &= ~(SHADER_CULL_FRONT | SHADER_CULL_BACK);
-	
-	if(argv.size() == 0)
-	{
-
-		// if there are no arguments it defaults to "cull font"
-		shader->flags |= SHADER_CULL_FRONT;
-		return;
-	}
-	else
-	{
-		if(	X_strcaseequal(argv[0].c_str(), "disable")	||
-			X_strcaseequal(argv[0].c_str(), "none")	||
-			X_strcaseequal(argv[0].c_str(), "twosided")
-		)
-		{
-			// don't add any cull flags
-		}
-		else if(X_strcaseequal(argv[0].c_str(), "front"))
-			shader->flags |= SHADER_CULL_FRONT;
-		
-		else if(	X_strcaseequal(argv[0].c_str(), "back")	||
-				X_strcaseequal(argv[0].c_str(), "backside")	||
-				X_strcaseequal(argv[0].c_str(), "backsided")
-		)
-			shader->flags |= SHADER_CULL_BACK;
-		else
-			shader->flags |= SHADER_CULL_FRONT;		
-	}
-}
-*/
-
-/*
-void	R_FogParms_sk(r_shader_c *shader, r_shader_stage_c &stage, const std::vector<std::string> &argv, const std::string &args)
-{
-	ri.Com_DPrintf("R_FogParms_sk: TODO\n");
-	
-	//TODO
-}
-*/
-
-/*
-void	R_Portal_sk(r_shader_c *shader, r_shader_stage_c &stage, const std::vector<std::string> &argv, const std::string &args)
-{
-	shader->sort = SHADER_SORT_PORTAL;
-}
-*/
-
-/*
-void	R_Sort_sk(r_shader_c *shader, r_shader_stage_c &stage, const std::vector<std::string> &argv, const std::string &args)
-{
-	if(X_strcaseequal(argv[0].c_str(), "portal"))
-		shader->sort = SHADER_SORT_PORTAL;
-	
-	else if(X_strcaseequal(argv[0].c_str(), "sky"))
-		shader->sort = SHADER_SORT_SKY;
-	
-	else if(X_strcaseequal(argv[0].c_str(), "opaque"))
-		shader->sort = SHADER_SORT_OPAQUE;
-		
-	else if(X_strcaseequal(argv[0].c_str(), "banner"))
-		shader->sort = SHADER_SORT_BANNER;
-
-	else if(X_strcaseequal(argv[0].c_str(), "underwater"))
-		shader->sort = SHADER_SORT_UNDERWATER;
-	
-	else if(X_strcaseequal(argv[0].c_str(), "additive"))
-		shader->sort = SHADER_SORT_ADDITIVE;
-		
-	else if(X_strcaseequal(argv[0].c_str(), "nearest"))
-		shader->sort = SHADER_SORT_NEAREST;
-
-	else
-	{
-		shader->sort = atoi(argv[0].c_str());
-		
-		X_clamp(shader->sort, SHADER_SORT_NONE, SHADER_SORT_NEAREST);
-	}
-}
-*/
-
-/*
-void	R_Q3MapSurfaceLight_sk(r_shader_c *shader, r_shader_stage_c &stage, const std::vector<std::string> &argv, const std::string &args)
-{
-	//shader->_flags |= SHADER_NOLIGHTING;
-}
-*/
-
-/*
-void	R_Q3MapLightImage_sk(r_shader_c *shader, r_shader_stage_c &stage, const std::vector<std::string> &argv, const std::string &args)
-{
-	//shader->_flags |= SHADER_NOLIGHTING;
-}
-*/
-
-/*
-void	R_SurfaceParm_sk(r_shader_c *shader, r_shader_stage_c &stage, const std::vector<std::string> &argv, const std::string &args)
-{
-	if(X_strcaseequal(argv[0].c_str(), "nodlight"))
-		shader->flags |= SHADER_NOLIGHTING;
-	
-	else if(X_strcaseequal(argv[0].c_str(), "nolightmap"))
-		shader->flags |= SHADER_NOLIGHTING;
-}
-*/
-
-
-/*
-================================================================================
-				SHADER KEYWORDS
-================================================================================
-*/
-
-static void	R_ColorMap_sc(char const* begin, char const* end)
-{
-	r_current_stage = new r_shader_stage_c();
-	
-	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_COLORMAP;
-	
-	R_Map_stc(begin, end);
-	
-	r_current_shader->stages.push_back(r_current_stage);
-}
-
-static void	R_DiffuseMap_sc(char const* begin, char const* end)
-{
-	r_current_stage = new r_shader_stage_c();
-	
-	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_DIFFUSEMAP;
-	
-	R_Map_stc(begin, end);
-	
-	r_current_shader->stage_diffusemap = r_current_stage;
-	
-	r_current_shader->stages.push_back(r_current_stage);
-}
-
-static void	R_BumpMap_sc(char const* begin, char const* end)
-{
-	r_current_stage = new r_shader_stage_c();
-	
-	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_BUMPMAP;
-	
-	R_Map_stc(begin, end);
-	
-	r_current_shader->stage_bumpmap = r_current_stage;
-	
-	r_current_shader->stages.push_back(r_current_stage);
-}
-
-static void	R_SpecularMap_sc(char const* begin, char const* end)
-{
-	r_current_stage = new r_shader_stage_c();
-	
-	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_SPECULARMAP;
-	
-	R_Map_stc(begin, end);
-	
-	r_current_shader->stage_specularmap = r_current_stage;
-	
-	r_current_shader->stages.push_back(r_current_stage);
-}
-
-static void	R_LightMap_sc(char const* begin, char const* end)
-{
-	r_current_stage = new r_shader_stage_c();
-	
-	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_LIGHTMAP;
-	
-	R_Map_stc(begin, end);
-	
-	r_current_shader->stage_lightmap = r_current_stage;
-	
-	r_current_shader->stages.push_back(r_current_stage);
-}
-
-static void	R_DeluxeMap_sc(char const* begin, char const* end)
-{
-	r_current_stage = new r_shader_stage_c();
-	
-	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_DELUXEMAP;
-	
-	R_Map_stc(begin, end);
-	
-	r_current_shader->stage_deluxemap = r_current_stage;
-	
-	r_current_shader->stages.push_back(r_current_stage);
-}
-
-static void	R_ReflectionMap_sc(char const* begin, char const* end)
-{
-	r_current_stage = new r_shader_stage_c();
-	
-	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_REFLECTIONMAP;
-	
-	R_Map_stc(begin, end);
-	
-	r_current_shader->stages.push_back(r_current_stage);
-}
-
-static void	R_RefractionMap_sc(char const* begin, char const* end)
-{
-	r_current_stage = new r_shader_stage_c();
-	
-	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_REFRACTIONMAP;
-	
-	R_Map_stc(begin, end);
-	
-	r_current_shader->stages.push_back(r_current_stage);
-}
-
-static void	R_DispersionMap_sc(char const* begin, char const* end)
-{
-	r_current_stage = new r_shader_stage_c();
-	
-	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_DISPERSIONMAP;
-	
-	R_Map_stc(begin, end);
-	
-	r_current_shader->stages.push_back(r_current_stage);
-}
-
-static void	R_LiquidMap_sc(char const* begin, char const* end)
-{
-	r_current_stage = new r_shader_stage_c();
-	
-	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_LIQUIDMAP;
-	
-	R_Map_stc(begin, end);
-	
-	r_current_shader->stages.push_back(r_current_stage);
-}
-
-static void	R_NoDraw_sc(char const* begin, char const* end)
-{
-	r_current_shader->setORFlags(SHADER_NODRAW);
-}
-
-static void	R_NoShadows_sc(char const* begin, char const* end)
-{
-	r_current_shader->setORFlags(SHADER_NODRAW | SHADER_NOSHADOWS);
-}
-
-static void	R_NoSelfShadow_sc(char const* begin, char const* end)
-{
-	r_current_shader->setORFlags(SHADER_NOSELFSHADOW);
-}
-
-static void	R_NoEnvMap_sc(char const* begin, char const* end)
-{
-	r_current_shader->setORFlags(SHADER_NOENVMAP);
-}
-
-static void	R_SortFarthest_sc(char const* begin, char const* end)
-{
-	r_current_shader->setSort(SHADER_SORT_FARTHEST);
-}
-
-static void	R_SortFar_sc(char const* begin, char const* end)
-{
-	r_current_shader->setSort(SHADER_SORT_FAR);
-}
-
-static void	R_SortClose_sc(char const* begin, char const* end)
-{
-	r_current_shader->setSort(SHADER_SORT_CLOSE);
-}
-
-static void	R_SortDecal_sc(char const* begin, char const* end)
-{
-	r_current_shader->setSort(SHADER_SORT_DECAL);
-}
-
-static void	R_SortNearest_sc(char const* begin, char const* end)
-{
-	r_current_shader->setSort(SHADER_SORT_NEAREST);
-}
-
-static void	R_Sort_sc(int sort)
-{
-	r_current_shader->setSort(sort);
-}
-
-static void	R_TwoSided_sc(char const* begin, char const* end)
-{
-	r_current_shader->setORFlags(SHADER_TWOSIDED);
-}
-
-static void	R_Translucent_sc(char const* begin, char const* end)
-{
-	r_current_shader->setORFlags(SHADER_TRANSLUCENT);
-}
-
-static void	R_PolygonOffset_sc(char const* begin, char const* end)
-{
-	r_current_shader->setORFlags(SHADER_POLYGONOFFSET);
-}
-
-static void	R_Discrete_sc(char const* begin, char const* end)
-{
-	r_current_shader->setORFlags(SHADER_DISCRETE);
-}
-
-static void	R_ForceOpaque_sc(char const* begin, char const* end)
-{
-	//r_current_shader->setSort(SHADER_SORT_OPAQUE);	//FIXME
-}
-
-static void	R_LightFalloffImage_sc(char const* begin, char const* end)
-{
-	r_current_stage = new r_shader_stage_c();
-	
-	r_current_stage->type_light = SHADER_LIGHT_STAGE_TYPE_ATTENUATIONMAP_Z;
-	
-	R_Map_stc(begin, end);
-	
-	r_current_shader->stage_attenuationmap_z = r_current_stage;
-	
-	r_current_shader->stages.push_back(r_current_stage);
-}
-
-static void	R_AmbientLight_sc(char const* begin, char const* end)
-{
-	r_current_shader->setLightType(SHADER_LIGHT_AMBIENT);
-}
-
-static void	R_FogLight_sc(char const* begin, char const* end)
-{
-	r_current_shader->setLightType(SHADER_LIGHT_FOG);
-}
-
-static void	R_DecalMacro_sc(char const* begin, char const* end)
-{
-	r_current_shader->setORFlags(SHADER_POLYGONOFFSET);
-	r_current_shader->setORFlags(SHADER_DISCRETE);
-	r_current_shader->setORFlags(SHADER_NOSHADOWS);
-	r_current_shader->setORFlags(SHADER_TRANSLUCENT);
-	r_current_shader->setORFlags(SHADER_POLYGONOFFSET);
-	
-	/*
-		polygonoffset \
-			discrete \
-			noShadows \
-			translucent \
-			sort 1
-	*/
-}
-
-static void	R_DeformFlare_sc(char const* begin, char const* end)
-{
-	//TODO
-	
-	r_current_shader->setDeformType(SHADER_DEFORM_FLARE);
-}
-
-static void	R_SurfaceparmAreaPortal_sc(char const* begin, char const* end)
-{
-	r_current_shader->setORFlags(SHADER_AREAPORTAL);
-}
-
-
-
-/*
-================================================================================
-			SHADER STAGE KEYWORDS
-================================================================================
-*/
-
-static void	R_Blend_stc(char const* begin, char const *end)
-{
-	std::string exp(begin, end);
-
-	std::vector<std::string>	parms;
-
-	if(!R_ParseExpressionToStringVector(exp, parms))
-	{
-		ri.Com_Printf("R_Blend_stc: parsing failed\n");
-		return;
-	}
-
-	if(parms.size() != 2)
-	{
-		ri.Com_Printf("R_Blend_stc: bad number of parms %i\n", parms.size());
-		return;
-	}
-	
-	for(int i=0; i<2; i++)
-	{
-		unsigned int& blend = (i == 0) ? r_current_stage->blend_src : r_current_stage->blend_dst;
-			
-		if(X_strcaseequal(parms[i].c_str(), "gl_zero"))
-			blend = GL_ZERO;
-			
-		else if(X_strcaseequal(parms[i].c_str(), "gl_one"))
-			blend = GL_ONE;
-				
-		else if(X_strcaseequal(parms[i].c_str(), "gl_src_color"))
-			blend = GL_SRC_COLOR;
-				
-		else if(X_strcaseequal(parms[i].c_str(), "gl_one_minus_src_color"))
-			blend = GL_ONE_MINUS_SRC_COLOR;
-				
-		else if(X_strcaseequal(parms[i].c_str(), "gl_src_alpha"))
-			blend = GL_SRC_ALPHA;
-				
-		else if(X_strcaseequal(parms[i].c_str(), "gl_one_minus_src_alpha"))
-			blend = GL_ONE_MINUS_SRC_ALPHA;
-				
-		else if(X_strcaseequal(parms[i].c_str(), "gl_dst_alpha"))
-			blend = GL_DST_ALPHA;
-				
-		else if(X_strcaseequal(parms[i].c_str(), "gl_one_minus_dst_alpha"))
-			blend = GL_ONE_MINUS_DST_ALPHA;
-			
-		else if(X_strcaseequal(parms[i].c_str(), "gl_dst_color"))
-			blend = GL_DST_COLOR;
-			
-		else if(X_strcaseequal(parms[i].c_str(), "gl_one_minus_dst_color"))
-			blend = GL_ONE_MINUS_DST_COLOR;
-			
-		else if(X_strcaseequal(parms[i].c_str(), "gl_src_alpha_saturate"))
-			blend = GL_SRC_ALPHA_SATURATE;
-				
-		else
-			ri.Com_Printf("R_Blend_stc: unknown blend command: '%s'\n", parms[i].c_str());
-	}
-	
-	r_current_stage->flags |= SHADER_STAGE_BLEND;
-}
-
-static void	R_BlendAdd_stc(char const* begin, char const *end)
-{
-	r_current_stage->flags |= SHADER_STAGE_BLEND;
-	
-	r_current_stage->blend_src = GL_ONE;
-	r_current_stage->blend_dst = GL_ONE;
-}
-
-static void	R_BlendBlend_stc(char const* begin, char const *end)
-{
-	r_current_stage->flags |= SHADER_STAGE_BLEND;
-	
-	r_current_stage->blend_src = GL_SRC_ALPHA;
-	r_current_stage->blend_dst = GL_ONE_MINUS_SRC_ALPHA;
-}
-
-static void	R_BlendFilter_stc(char const* begin, char const *end)
-{
-	r_current_stage->flags |= SHADER_STAGE_BLEND;
-	
-	r_current_stage->blend_src = GL_DST_COLOR;
-	r_current_stage->blend_dst = GL_ZERO;
-}
-
-static void	R_Linear_stc(char const* begin, char const *end)
-{
-	r_current_stage->flags |= SHADER_STAGE_NOMIPMAPS;
-}
-
-static void	R_NoPicmip_stc(char const* begin, char const *end)
-{
-	r_current_stage->flags |= SHADER_STAGE_NOPICMIP;
-}
-
-static void	R_ZeroClamp_stc(char const* begin, char const *end)
-{
-	r_current_stage->flags |= SHADER_STAGE_ZEROCLAMP;
-}
-
-static void	R_Clamp_stc(char const* begin, char const *end)
-{
-	r_current_stage->flags |= SHADER_STAGE_CLAMP;
-}
-
-static void	R_MaskAlpha_stc(char const* begin, char const *end)
-{
-	r_current_stage->flags |= SHADER_STAGE_MASKALPHA;
-}
-
-static void	R_MaskColor_stc(char const* begin, char const *end)
-{
-	r_current_stage->flags |= SHADER_STAGE_MASKCOLOR;
-}
-
-static void	R_MaskDepth_stc(char const* begin, char const *end)
-{
-	r_current_stage->flags |= SHADER_STAGE_MASKDEPTH;
-}
-
-static void	R_ForceHighQuality_stc(char const* begin, char const *end)
-{
-	r_current_stage->flags |= SHADER_STAGE_FORCEHIGHQUALITY;
-}
-
-static void	R_VideoMap_stc(char const* begin, char const *end)
-{
-	r_current_stage->image_name = std::string(begin, end);
-	r_current_stage->flags |= SHADER_STAGE_VIDEOMAP;
-}
-
-static void	R_Map_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-
-	r_shader_map_stc_grammar_t	grammar;
-	
-	boost::spirit::parse_info<> info = boost::spirit::parse
-	(
-		exp.c_str(),
-		grammar,
-		boost::spirit::space_p ||
-		boost::spirit::comment_p("/*", "*/") ||
-		boost::spirit::comment_p("//")
-	);
-	
-	if(!info.full)
-	{
-		ri.Com_Printf("R_Map_stc: parsing failed\n");
-	}
-}
-
-static void	R_Colored_stc(char const* begin, char const *end)
-{
-	r_current_stage->rgb_gen = SHADER_RGB_GEN_ENTITY;
-	
-	r_current_stage->alpha_gen = SHADER_ALPHA_GEN_ENTITY;
-}
-
-static void	R_RGBA_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> rgba;
-	
-	if(R_ParseExpressionToAST(exp.begin(), exp.end(), rgba))
-	{
-		r_current_stage->rgb_gen = SHADER_RGB_GEN_CUSTOM;
-	
-		r_current_stage->red	= rgba;
-		r_current_stage->green	= rgba;
-		r_current_stage->blue	= rgba;
-		
-		r_current_stage->alpha_gen = SHADER_ALPHA_GEN_CUSTOM;
-		r_current_stage->alpha	= rgba;
-	}
-	else
-	{
-		ri.Com_Printf("R_RGBA_stc: parsing failed\n");
-	}
-}
-
-static void	R_RGB_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> rgb;
-	
-	if(R_ParseExpressionToAST(exp.begin(), exp.end(), rgb))
-	{
-		r_current_stage->rgb_gen = SHADER_RGB_GEN_CUSTOM;
-	
-		r_current_stage->red	= rgb;
-		r_current_stage->green	= rgb;
-		r_current_stage->blue	= rgb;
-	}
-	else
-	{
-		ri.Com_Printf("R_RGB_stc: parsing failed\n");
-	}
-}
-
-static void	R_Red_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> red;
-	
-	if(R_ParseExpressionToAST(exp.begin(), exp.end(), red))
-	{
-		r_current_stage->rgb_gen = SHADER_RGB_GEN_CUSTOM;
-	
-		r_current_stage->red	= red;
-	}
-	else
-	{
-		ri.Com_Printf("R_Red_stc: parsing failed\n");
-	}
-}
-
-static void	R_Green_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> green;
-	
-	if(R_ParseExpressionToAST(exp.begin(), exp.end(), green))
-	{
-		r_current_stage->rgb_gen = SHADER_RGB_GEN_CUSTOM;
-	
-		r_current_stage->green	= green;
-	}
-	else
-	{
-		ri.Com_Printf("R_Green_stc: parsing failed\n");
-	}
-}
-
-static void	R_Blue_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-	
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> blue;
-	
-	if(R_ParseExpressionToAST(exp.begin(), exp.end(), blue))
-	{
-		r_current_stage->rgb_gen = SHADER_RGB_GEN_CUSTOM;
-	
-		r_current_stage->blue	= blue;
-	}
-	else
-	{
-		ri.Com_Printf("R_Blue_stc: parsing failed\n");
-	}
-}
-
-static void	R_Alpha_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> alpha;
-	
-	if(R_ParseExpressionToAST(exp.begin(), exp.end(), alpha))
-	{
-		r_current_stage->alpha_gen = SHADER_ALPHA_GEN_CUSTOM;
-	
-		r_current_stage->alpha	= alpha;
-	}
-	else
-	{
-		ri.Com_Printf("R_Alpha_stc: parsing failed\n");
-	}
-}
-
-static void	R_AlphaTest_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-	
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> alpharef;
-	
-	if(R_ParseExpressionToAST(exp.begin(), exp.end(), alpharef))
-	{
-		r_current_stage->flags |= SHADER_STAGE_ALPHATEST;
-	
-		r_current_stage->alpha_ref	= alpharef;
-	}
-	else
-	{
-		ri.Com_Printf("R_AlphaTest_stc: parsing failed\n");
-	}
-}
-
-static void	R_Scale3D_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-		
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> x, y, z;
-	
-	std::string exp0, exp1, exp2;
-
-	if(!R_SplitExpression(exp, exp0, exp1, exp2, false))
-	{
-		ri.Com_Printf("R_Scale3D_stc: splitting expression failed\n");
-		return;
-	}
-	
-	if(
-		R_ParseExpressionToAST(exp0.begin(), exp0.end(), x) &&
-		R_ParseExpressionToAST(exp1.begin(), exp1.end(), y) &&
-		R_ParseExpressionToAST(exp1.begin(), exp1.end(), z)
-	)
-	{
-		r_tcmod_t tcmod;
-		
-		tcmod.type = SHADER_TCMOD_SCALE3D;
-	
-		tcmod.x = x;
-		tcmod.y = y;
-		tcmod.z = z;
-		
-		r_current_stage->tcmod_cmds.push_back(tcmod);
-	}
-	else
-	{
-		ri.Com_Printf("R_Scale3D_stc: parsing failed\n");
-	}
-}
-
-static void	R_Scale_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-		
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> x, y;
-	
-	std::string exp0, exp1;
-
-	if(!R_SplitExpression(exp, exp0, exp1, false))
-	{
-		ri.Com_Printf("R_Scale_stc: splitting expression failed\n");
-		return;
-	}
-	
-	if(R_ParseExpressionToAST(exp0.begin(), exp0.end(), x) && R_ParseExpressionToAST(exp1.begin(), exp1.end(), y))
-	{
-		r_tcmod_t tcmod;
-		
-		tcmod.type = SHADER_TCMOD_SCALE;
-	
-		tcmod.x = x;
-		tcmod.y = y;
-		
-		r_current_stage->tcmod_cmds.push_back(tcmod);
-	}
-	else
-	{
-		ri.Com_Printf("R_Scale_stc: parsing failed\n");
-	}
-}
-
-static void	R_CenterScale_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-		
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> x, y;
-	
-	std::string exp0, exp1;
-
-	if(!R_SplitExpression(exp, exp0, exp1, false))
-	{
-		ri.Com_Printf("R_CenterScale_stc: splitting expression failed\n");
-		return;
-	}
-	
-	if(R_ParseExpressionToAST(exp0.begin(), exp0.end(), x) && R_ParseExpressionToAST(exp1.begin(), exp1.end(), y))
-	{
-		r_tcmod_t tcmod;
-		
-		tcmod.type = SHADER_TCMOD_CENTERSCALE;
-	
-		tcmod.x = x;
-		tcmod.y = y;
-		
-		r_current_stage->tcmod_cmds.push_back(tcmod);
-	}
-	else
-	{
-		ri.Com_Printf("R_CenterScale_stc: parsing failed\n");
-	}
-}
-
-static void	R_Scroll_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-	
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> x, y;
-	
-	std::string exp0, exp1;
-
-	if(!R_SplitExpression(exp, exp0, exp1, false))
-	{
-		ri.Com_Printf("R_Scroll_stc: splitting expression failed\n");
-		return;
-	}
-
-	if(R_ParseExpressionToAST(exp0.begin(), exp0.end(), x) && R_ParseExpressionToAST(exp1.begin(), exp1.end(), y))
-	{
-		r_tcmod_t tcmod;
-		
-		tcmod.type = SHADER_TCMOD_SCROLL;
-	
-		tcmod.x = x;
-		tcmod.y = y;
-		
-		r_current_stage->tcmod_cmds.push_back(tcmod);
-	}
-	else
-	{
-		ri.Com_Printf("R_Scroll_stc: parsing failed\n");
-	}
-}
-
-static void	R_Rotate_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-	
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> x;
-	
-	if(R_ParseExpressionToAST(exp.begin(), exp.end(), x))
-	{
-		r_tcmod_t tcmod;
-		
-		tcmod.type = SHADER_TCMOD_ROTATE;
-	
-		tcmod.x = x;
-		
-		r_current_stage->tcmod_cmds.push_back(tcmod);
-	}
-	else
-	{
-		ri.Com_Printf("R_Rotate_stc: parsing failed\n");
-	}
-}
-
-static void	R_Translate_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-		
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> x, y;
-	
-	std::string exp0, exp1;
-
-	if(!R_SplitExpression(exp, exp0, exp1, false))
-	{
-		ri.Com_Printf("R_Translate_stc: splitting expression failed\n");
-		return;
-	}
-	
-	if(R_ParseExpressionToAST(exp0.begin(), exp0.end(), x) && R_ParseExpressionToAST(exp1.begin(), exp1.end(), y))
-	{
-		r_tcmod_t tcmod;
-		
-		tcmod.type = SHADER_TCMOD_TRANSLATE;
-	
-		tcmod.x = x;
-		tcmod.y = y;
-		
-		r_current_stage->tcmod_cmds.push_back(tcmod);
-	}
-	else
-	{
-		ri.Com_Printf("R_Translate_stc: parsing failed\n");
-	}
-}
-
-static void	R_BumpScale_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> bump_scale;
-	
-	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), bump_scale))
-		ri.Com_Printf("R_BumpScale_stc: parsing failed\n");
-	
-	r_current_stage->bump_scale = bump_scale;
-}
-
-static void	R_HeightScale_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> height_scale;
-	
-	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), height_scale))
-		ri.Com_Printf("R_HeightScale_stc: parsing failed\n");
-	
-	r_current_stage->height_scale = height_scale;
-}
-
-static void	R_HeightBias_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> height_bias;
-	
-	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), height_bias))
-		ri.Com_Printf("R_HeightBias_stc: parsing failed\n");
-	
-	r_current_stage->height_bias = height_bias;
-}
-
-static void	R_SpecularExponent_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> specular_exponent;
-	
-	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), specular_exponent))
-		ri.Com_Printf("R_SpecularExponent_stc: parsing failed\n");
-	
-	r_current_stage->specular_exponent = specular_exponent;
-}
-
-static void	R_RefractionIndex_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> refraction_index;
-	
-	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), refraction_index))
-		ri.Com_Printf("R_RefractionIndex_stc: parsing failed\n");
-	
-	r_current_stage->refraction_index = refraction_index;
-}
-
-static void	R_FresnelPower_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> fresnel_power;
-	
-	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), fresnel_power))
-		ri.Com_Printf("R_FresnelPower_stc: parsing failed\n");
-	
-	r_current_stage->fresnel_power = fresnel_power;
-}
-
-static void	R_FresnelScale_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> fresnel_scale;
-	
-	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), fresnel_scale))
-		ri.Com_Printf("R_FresnelScale_stc: parsing failed\n");
-	
-	r_current_stage->fresnel_scale = fresnel_scale;
-}
-
-static void	R_FresnelBias_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> fresnel_bias;
-	
-	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), fresnel_bias))
-		ri.Com_Printf("R_FresnelBias_stc: parsing failed\n");
-	
-	r_current_stage->fresnel_bias = fresnel_bias;
-}
-
-static void	R_EtaDelta_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> eta_delta;
-	
-	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), eta_delta))
-		ri.Com_Printf("R_EtaDelta_stc: parsing failed\n");
-	
-	r_current_stage->eta_delta = eta_delta;
-}
-
-static void	R_Eta_stc(char const* begin, char const *end)
-{
-	std::string	exp(begin, end);
-
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> eta;
-	
-	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), eta))
-		ri.Com_Printf("R_Eta_stc: parsing failed\n");
-	
-	r_current_stage->eta = eta;
-}
-
-static void	R_StageColorMap_stc(char const* begin, char const *end)
-{
-	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_COLORMAP;
-}
-
-static void	R_StageDiffuseMap_stc(char const* begin, char const *end)
-{
-	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_DIFFUSEMAP;
-}
-
-static void	R_StageBumpMap_stc(char const* begin, char const *end)
-{
-	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_BUMPMAP;
-}
-
-static void	R_StageSpecularMap_stc(char const* begin, char const *end)
-{
-	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_SPECULARMAP;
-}
-
-static void	R_StageLightMap_stc(char const* begin, char const *end)
-{
-	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_LIGHTMAP;
-}
-
-static void	R_StageDeluxeMap_stc(char const* begin, char const *end)
-{
-	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_DELUXEMAP;
-}
-
-static void	R_StageReflectionMap_stc(char const* begin, char const *end)
-{
-	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_REFLECTIONMAP;
-}
-
-static void	R_StageRefractionMap_stc(char const* begin, char const *end)
-{
-	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_REFRACTIONMAP;
-}
-
-static void	R_StageDispersionMap_stc(char const* begin, char const *end)
-{
-	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_DISPERSIONMAP;
-}
-
-static void	R_StageLiquidMap_stc(char const* begin, char const *end)
-{
-	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_LIQUIDMAP;
-}
-
-static void	R_StageAttenuationMapXY_stc(char const* begin, char const *end)
-{
-	r_current_stage->type_light = SHADER_LIGHT_STAGE_TYPE_ATTENUATIONMAP_XY;
-}
-
-static void	R_StageAttenuationMapZ_stc(char const* begin, char const *end)
-{
-	r_current_stage->type_light = SHADER_LIGHT_STAGE_TYPE_ATTENUATIONMAP_Z;
-}
-
-static void	R_StageAttenuationMapXYZ_stc(char const* begin, char const *end)
-{
-	r_current_stage->type_light = SHADER_LIGHT_STAGE_TYPE_ATTENUATIONMAP_XYZ;
-}
-
-static void	R_StageAttenuationMapCube_stc(char const* begin, char const *end)
-{
-	r_current_stage->type_light = SHADER_LIGHT_STAGE_TYPE_ATTENUATIONMAP_CUBE;
-}
-
-
-
 
 static void	R_Unknown_sc(char const* begin, char const* end)
 {
@@ -2468,6 +1253,24 @@ static void	R_PrecacheShaderFile(const std::string &filename)
 	ri.VFS_FFree(data);
 }
 
+
+static void	R_SetShaderStageImageFlags(const r_shader_stage_c *stage, int &flags)
+{
+	if(stage->flags & SHADER_STAGE_NOMIPMAPS)
+		flags |= IMAGE_NOMIPMAP;
+		
+	if(stage->flags & SHADER_STAGE_NOPICMIP)
+		flags |= IMAGE_NOPICMIP;
+		
+	if(stage->flags & SHADER_STAGE_CLAMP)
+		flags |= IMAGE_CLAMP;
+	
+	if(stage->flags & SHADER_STAGE_ZEROCLAMP)
+		flags |= IMAGE_CLAMP_TO_BORDER;
+		
+	if(stage->flags & SHADER_STAGE_FORCEHIGHQUALITY)
+		flags |= IMAGE_NOCOMPRESSION;
+}
 
 static void	R_FindMaterialShaderStageImage(r_shader_c *shader, r_shader_stage_c *stage)
 {

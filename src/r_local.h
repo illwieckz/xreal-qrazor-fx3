@@ -274,6 +274,41 @@ enum r_shader_parms_e
 	SHADER_PARM_SOUND
 };
 
+struct r_shader_parameter_symbols_t : boost::spirit::symbols<r_shader_parms_e, char>
+{
+	r_shader_parameter_symbols_t()
+	{
+		add
+			("time",	SHADER_PARM_TIME)
+			
+			("parm0",	SHADER_PARM_PARM0)
+			("parm1",	SHADER_PARM_PARM1)
+			("parm2",	SHADER_PARM_PARM2)
+			("parm3",	SHADER_PARM_PARM3)
+			("parm4",	SHADER_PARM_PARM4)
+			("parm5",	SHADER_PARM_PARM5)
+			("parm6",	SHADER_PARM_PARM6)
+			("parm7",	SHADER_PARM_PARM7)
+			
+			("global0",	SHADER_PARM_GLOBAL0)
+			("global1",	SHADER_PARM_GLOBAL1)
+			("global2",	SHADER_PARM_GLOBAL2)
+			
+			("sound",	SHADER_PARM_SOUND)
+			;
+	}
+};
+
+extern r_shader_parameter_symbols_t r_shader_parameter_symbols_p;
+
+
+struct r_shader_table_symbols_t : boost::spirit::symbols<uint_t, char>//, std::set<const char*> >
+{
+	// add symbols later
+};
+
+extern r_shader_table_symbols_t r_shader_table_symbols_p;
+
 
 enum
 {

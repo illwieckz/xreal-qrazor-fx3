@@ -2460,7 +2460,7 @@ void	RB_AddCommand(	r_entity_c*		entity,
 		return;
 	}
 
-#if 1 //HAVE_DEBUG
+#if 1 //DEBUG
 	if(entity_mesh->isNotValid())
 	{
 		//ri.Com_Printf("RB_AddCommand: entity_mesh not valid\n");

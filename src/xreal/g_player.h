@@ -195,7 +195,7 @@ public:
 	//
 	// virtual functions
 	//
-//	virtual void		think();
+	virtual void		think();
 //	virtual void		pain(g_entity_c *other, float kick, int damage);
 	virtual void		die(g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point);
 	
