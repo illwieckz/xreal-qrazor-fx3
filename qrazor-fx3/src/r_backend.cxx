@@ -537,6 +537,8 @@ void	RB_SetupGL3D()
 	
 	xglEnable(GL_CULL_FACE);
 	xglCullFace(GL_FRONT);
+	
+	xglPolygonMode(GL_FRONT_AND_BACK, gl_state.polygon_mode);
 }
 
 

@@ -208,6 +208,10 @@ void	g_light_c::activate()
 			else
 				_s.vectors[0].set(300, 300, 300);
 		}
+		else
+		{
+			//_s.vectors[0].scale(1.1f);
+		}
 	}
 	
 	if(_health)

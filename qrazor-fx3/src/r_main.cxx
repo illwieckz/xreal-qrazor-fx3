@@ -291,7 +291,7 @@ void 	R_DrawNULL(const vec3_c &origin, const vec3_c &angles)
 }
 
 
-void 	R_DrawBBox(const cbbox_c &bbox)
+void 	R_DrawBBox(const cbbox_c &bbox, const vec4_c &color)
 {
 #if 1
 	//if(!r_showbbox->getValue())
@@ -328,7 +328,7 @@ void 	R_DrawBBox(const cbbox_c &bbox)
 	//
 	// draw bounds
 	//
-	xglColor4f(0, 0, 1, 1.0);
+	xglColor4fv(color);
 	
 	xglBegin(GL_QUADS);
 	
@@ -910,9 +910,13 @@ void	R_DrawLightDebuggingInfo()
 				r_light_c& light = *ir;
 				
 				if(!light.isVisible())
-					continue;
+					R_DrawBBox(light.getShared().radius_bbox, color_red);
 				
-				R_DrawBBox(light.getShared().radius_bbox);
+				else if(light.getAreaSurfaces(0).empty())	// FIXME
+					R_DrawBBox(light.getShared().radius_bbox, color_blue);
+				
+				else
+					R_DrawBBox(light.getShared().radius_bbox, color_green);
 			}
 		}
 	}

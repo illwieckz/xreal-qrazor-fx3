@@ -1163,7 +1163,9 @@ struct r_scene_t
 
 
 
-class r_tree_elem_c
+class r_tree_elem_c :
+public r_framecount_iface_a,
+public r_visframecount_iface_a
 {
 public:
 	// wether if node a leaf, all tree elements have this
@@ -1171,9 +1173,6 @@ public:
 	cbbox_c			bbox;			// for bounding box culling
 	
 	r_tree_elem_c*		parent;
-	
-	uint_t			visframecount;		// node needs to be traversed if current
-	uint_t			framecount;
 };
 
 
@@ -1185,7 +1184,7 @@ public:
 
 class r_leaf_c : 
 public r_tree_elem_c,
-public r_framecount_iface_a
+public r_lightframecount_iface_a
 {
 public:	
 	std::vector<r_surface_c*>	surfaces;
@@ -1647,7 +1646,6 @@ public:
 	// virtual functions
 	//
 	virtual void	load()									{}
-	virtual	void	precacheLightInteractions(r_entity_c *ent)				{}
 	virtual void	updateBBox(r_entity_c *ent)						{}
 	virtual void	addModelToList(r_entity_c *ent) = 0;
 	virtual void 	draw(const r_command_t *cmd, r_render_type_e type) = 0;
@@ -1889,7 +1887,6 @@ public:
 	//
 	// virtual functions
 	//
-	void		precacheLightInteractions(r_entity_c *ent);
 	virtual void	addModelToList(r_entity_c *ent);
 	virtual void 	draw(const r_command_t *cmd, r_render_type_e type);
 	
@@ -2271,7 +2268,7 @@ void		R_EndRegistration();
 // r_main.cxx
 //
 void 		R_DrawNULL(const vec3_c &origin, const vec3_c &angles);
-void		R_DrawBBox(const cbbox_c &bbox);
+void		R_DrawBBox(const cbbox_c &bbox, const vec4_c &color = color_white);
 
 void		R_CalcTangentSpace(	vec3_c &tangent, vec3_c &binormal, vec3_c &normal, 
 					const vec3_c &v0, const vec3_c &v1, const vec3_c &v2,

@@ -63,14 +63,15 @@ qrazor_fx_server_src = [
 'src/cl_null.cxx',
 'src/map_null.cxx' ]
 
+qrazor_fx_server_env = env.Copy()
+
 if sys.platform == 'linux2':
 	qrazor_fx_server_src += ['src/sys_linux.cxx','src/glob.cxx']
+	qrazor_fx_server_env.Append(CXXFLAGS = '-DDEDICATED_ONLY')
+	qrazor_fx_server_env.Append(LIBS=['dl', 'z', 'm'])
+	qrazor_fx_server_env.Program('qrazor-fx-server', qrazor_fx_server_src)
+	qrazor_fx_server_env.Install('#install', 'qrazor-fx-server')
 
 elif sys.platform == 'win32':
 	qrazor_fx_server_src += ['src/sys_win.cxx']
 
-qrazor_fx_server_env = env.Copy()
-qrazor_fx_server_env.Append(CXXFLAGS = '-DDEDICATED_ONLY')
-qrazor_fx_server_env.Program('qrazor-fx-server', qrazor_fx_server_src, LIBS=['dl', 'z', 'm'])
-qrazor_fx_server_env.Install('#install', 'qrazor-fx-server')
-#qrazor_fx_server_env.Install('${PKGDATADIR}', 'qrazor-fx-server')

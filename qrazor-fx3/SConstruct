@@ -58,9 +58,9 @@ if sys.platform == 'linux2' or sys.platform == 'linux-i386':
 		print 'Did not find libdl.a, exiting!'
 		Exit(1)
 
-if not conf.CheckLib('m', autoadd=0):
-	print 'Did not find libm.a or m.lib, exiting!'
-	Exit(1)
+	if not conf.CheckLib('m', autoadd=0):
+		print 'Did not find libm.a or m.lib, exiting!'
+		Exit(1)
 
 if not conf.CheckCHeader('zlib.h'):
 	print 'zlib.h must be installed!'
@@ -82,12 +82,12 @@ if not conf.CheckLib('openal', autoadd=0):
 	print 'Did not find libopenal.a or openal.lib, exiting!'
 	Exit(1)
 	
-if not conf.CheckCHeader('ode/ode.h'):
-	print 'ode/ode.h must be installed!'
-	Exit(1)
-if not conf.CheckLib('ode', autoadd=0):
-	print 'Did not find libode.a or ode.lib, exiting!'
-	Exit(1)
+#if not conf.CheckCHeader('ode/ode.h'):
+#	print 'ode/ode.h must be installed!'
+#	Exit(1)
+#if not conf.CheckLib('ode', autoadd=0):
+#	print 'Did not find libode.a or ode.lib, exiting!'
+#	Exit(1)
 	
 if not conf.CheckCHeader('X11/Xlib.h'):
 	print 'X11/Xlib.h must be installed!'
