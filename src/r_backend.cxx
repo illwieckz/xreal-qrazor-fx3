@@ -2717,7 +2717,7 @@ void	RB_AddCommand(	r_entity_c*		entity,
 	
 	r_command_t *cmd = NULL, *cmd2 = NULL, *cmd3 = NULL;
 	
-	if(light)
+	if(light && entity_shader->stage_diffusemap)
 	{
 		// create light command
 		try
@@ -2739,7 +2739,7 @@ void	RB_AddCommand(	r_entity_c*		entity,
 		
 		r_current_scene->cmds_light_num++;
 	}
-	else if(entity_shader->hasFlags(SHADER_TRANSLUCENT))
+	else if(entity_shader->hasFlags(SHADER_TRANSLUCENT) && !entity_shader->stage_diffusemap)
 	{
 		// create translucent command
 		try
