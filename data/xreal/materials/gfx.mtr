@@ -13,14 +13,27 @@ textures/REGION
 }
 
 
-textures/bigchars {
+textures/bigchars
+{
 	{	
 		blend blend
 		maskDepth
 		colored
 		nopicmip
 		linear
-		map textures/bigchars.tga
+		map		textures/bigchars.tga
+	}
+}
+
+fonts/conchars
+{
+	{	
+		blend blend
+		maskDepth
+		colored
+		nopicmip
+		linear
+		map		fonts/conchars.tga
 	}
 }
 
@@ -41,18 +54,17 @@ console
 //		linear		// no mip maps
 //		scroll	time * 0.02 , 0
 //	}
-//	{
-		// pbuffer offscreen rendering test
-//		map		_currentrender
-//	}
 	{
+		map		_currentrender
+	}
+//	{
 //		blend		blend
-		map		textures/black.tga
+//		map		textures/black.tga
 //		map		menu/demo/logo_bg.tga
-		linear		// no mip maps
+//		linear		// no mip maps
 //		scroll		time * 0.3 , time * .3
 //		rotate		time * 0.7
-	}
+//	}
 }
 
 splashScreen 

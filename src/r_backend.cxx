@@ -2413,6 +2413,16 @@ void	RB_RenderCommands()
 						if(/*cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT ||*/ cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
 							continue;
 						
+						/*	
+						xglScissor
+						(		
+							cmd->getLight()->getScissorX(),
+							cmd->getLight()->getScissorY(),
+							cmd->getLight()->getScissorWidth(),
+							cmd->getLight()->getScissorHeight()
+						);
+						*/
+							
 						cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_DBHS_omni);
 					}
 					RB_DisableShader_lighting_DBHS_omni();
@@ -2433,6 +2443,16 @@ void	RB_RenderCommands()
 				
 						if(/*cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT ||*/ cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
 							continue;
+						
+						/*	
+						xglScissor
+						(		
+							cmd->getLight()->getScissorX(),
+							cmd->getLight()->getScissorY(),
+							cmd->getLight()->getScissorWidth(),
+							cmd->getLight()->getScissorHeight()
+						);
+						*/
 						
 						cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_DBH_omni);
 					}
@@ -2455,6 +2475,16 @@ void	RB_RenderCommands()
 						if(/*cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT ||*/ cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
 							continue;
 						
+						/*	
+						xglScissor
+						(		
+							cmd->getLight()->getScissorX(),
+							cmd->getLight()->getScissorY(),
+							cmd->getLight()->getScissorWidth(),
+							cmd->getLight()->getScissorHeight()
+						);
+						*/
+						
 						cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_DBS_omni);
 					}
 					RB_DisableShader_lighting_DBS_omni();
@@ -2475,6 +2505,16 @@ void	RB_RenderCommands()
 				
 						if(/*cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT ||*/ cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
 							continue;
+						
+						/*	
+						xglScissor
+						(		
+							cmd->getLight()->getScissorX(),
+							cmd->getLight()->getScissorY(),
+							cmd->getLight()->getScissorWidth(),
+							cmd->getLight()->getScissorHeight()
+						);
+						*/
 						
 						cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_DB_omni);
 					}
@@ -2497,6 +2537,16 @@ void	RB_RenderCommands()
 			
 					if(/*cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT ||*/ cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
 						continue;
+					
+					/*
+					xglScissor
+					(		
+						cmd->getLight()->getScissorX(),
+						cmd->getLight()->getScissorY(),
+						cmd->getLight()->getScissorWidth(),
+						cmd->getLight()->getScissorHeight()
+					);
+					*/
 						
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_D_omni);
 				}	
@@ -2535,6 +2585,11 @@ void	RB_RenderCommands()
 		
 		xglDisable(GL_BLEND);
 	}// r_lighting
+	
+	//
+	// reset scissor
+	//
+	xglScissor(rb_vrect_viewport.x, rb_vrect_viewport.y, rb_vrect_viewport.width, rb_vrect_viewport.height);
 	
 	
 	//

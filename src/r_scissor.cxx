@@ -144,7 +144,7 @@ void	r_scissor_iface_a::addVertex(const matrix_c &mvp, const r_vrect_t &vrect, c
 //	y = y * vrect.height + vrect.y;
 
 	x = vrect.x + (1.0 + res[0]) * vrect.width * 0.5;
-	y = vrect.y + (1.0 - res[1]) * vrect.height * 0.5;	//FIXME?
+	y = vrect.y + (1.0 + res[1]) * vrect.height * 0.5;
 
 	if(x > _maxs[0])	_maxs[0] = x;
 	if(x < _mins[0])	_mins[0] = x;

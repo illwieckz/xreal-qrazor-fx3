@@ -49,14 +49,13 @@ void	R_DrawStretchPic(int x, int y, int w, int h, float s1, float t1, float s2, 
 
 	if(!shader)
 		return;
-				
+
 	// lower left
 	r_draw_mesh.vertexes[0][0] = x;
 	r_draw_mesh.vertexes[0][1] = y;
 	
 	r_draw_mesh.texcoords[0][0] = s1;
 	r_draw_mesh.texcoords[0][1] = t1;
-	
 	
 	// lower right
 	r_draw_mesh.vertexes[1][0] = x+w;
@@ -65,14 +64,12 @@ void	R_DrawStretchPic(int x, int y, int w, int h, float s1, float t1, float s2, 
 	r_draw_mesh.texcoords[1][0] = s2;
 	r_draw_mesh.texcoords[1][1] = t1;
 	
-	
 	// upper right
 	r_draw_mesh.vertexes[2][0] = x+w;
 	r_draw_mesh.vertexes[2][1] = y+h;
 	
 	r_draw_mesh.texcoords[2][0] = s2;
 	r_draw_mesh.texcoords[2][1] = t2;
-	
 	
 	// upper left
 	r_draw_mesh.vertexes[3][0] = x;
@@ -126,10 +123,19 @@ void 	R_DrawFill(int x, int y, int w, int h, const vec4_c &color)
 	xglColor4f(color[0], color[1], color[2], color[3]);
 	
 	xglBegin(GL_QUADS);
+	
+//	xglColor4fv(color_red);
 	xglVertex3f(x, y, 0.0);
+	
+//	xglColor4fv(color_green);
 	xglVertex3f(x+w, y, 0.0);
+	
+//	xglColor4fv(color_blue);
 	xglVertex3f(x+w, y+h, 0.0);
+	
+//	xglColor4fv(color_white);
 	xglVertex3f(x, y+h, 0.0);
+	
 	xglEnd();
 	
 	xglColor4fv(color_white);
