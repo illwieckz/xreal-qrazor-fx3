@@ -1137,7 +1137,7 @@ void 	Com_Init(int argc, char **argv)
 	{	
 		// if the user didn't give any commands, run default action
 		if(!dedicated->getValue())
-			Cbuf_AddText("d1\n");
+			Cbuf_AddText("toggleconsole\n");
 		else
 			Cbuf_AddText("dedicated_start\n");
 			
