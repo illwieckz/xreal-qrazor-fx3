@@ -39,6 +39,7 @@ r_command_t::r_command_t()
 	_light		= NULL;
 	_light_shader	= NULL;
 	_light_indexes	= NULL;
+	_light_map	= false;
 	
 	_infokey	= -1;
 	

@@ -3830,18 +3830,21 @@ textures/sfx/techglass1
 
 textures/sfx/chiglass1blue
 {
+	qer_editorimage	textures/sfx/chiglass1blue.tga
+	
+	alphashadow
+	lightfilter
+	
 	translucent
 	twoSided
 	glass
 	noshadows
 	forceOverlays
 	
-	qer_editorimage	textures/sfx/chiglass1blue.tga
-	
 	{
-	 	 blend	diffuseMap
-		map textures/sfx/chiglass1blue_d.tga
-		scale	 16 , 16
+		blend	diffuseMap
+		map	textures/sfx/chiglass1blue_d.tga
+		scale	16 , 16
 	}
 	{
 		blend add

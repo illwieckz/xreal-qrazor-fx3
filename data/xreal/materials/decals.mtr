@@ -450,7 +450,8 @@ textures/decals/roach
 
 textures/decals/sentry_spot
 {
-	qer_editorimage textures/decals/sentry_spot.tga
+	qer_editorimage		textures/decals/sentry_spot.tga
+	
         noSelfShadow
 	noshadows
 	nonsolid
@@ -458,18 +459,20 @@ textures/decals/sentry_spot
 	translucent
         {
 
-		blend diffusemap	
-		map textures/decals/sentry_spot.tga
+//		blend		diffusemap
+		map		textures/decals/sentry_spot.tga
         	red		Parm0
 		green		Parm1
 		blue		Parm2
+		blend		GL_DST_COLOR , GL_ONE
         }
 
 }
 
 textures/decals/sentry_spot2
 {
-	qer_editorimage textures/decals/sentry_spot2.tga
+	qer_editorimage		textures/decals/sentry_spot2.tga
+	
         noSelfShadow
 	noshadows
 	nonsolid
@@ -478,11 +481,12 @@ textures/decals/sentry_spot2
 
 	{
 
-		blend diffusemap	
-		map textures/decals/sentry_spot2.tga
+//		blend		diffusemap
+		map		textures/decals/sentry_spot2.tga
         	red		Parm0
 		green		Parm1
 		blue		Parm2
+		blend		GL_DST_COLOR , GL_ONE
         }
 }
 

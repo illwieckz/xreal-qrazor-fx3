@@ -29,6 +29,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // xreal --------------------------------------------------------------------
 
+bool	R_ParseExpressionToAST(r_iterator_t begin, r_iterator_t end, boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> &info);
+bool	R_ParseExpressionToAST(const std::string &exp, boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> &info);
 void	R_Map_stc(char const* begin, char const *end);
 
 extern r_shader_c*		r_current_shader;
@@ -189,34 +191,92 @@ void	R_NoEnvMap_sc(char const* begin, char const* end)
 	r_current_shader->setORFlags(SHADER_NOENVMAP);
 }
 
-void	R_SortFarthest_sc(char const* begin, char const* end)
+void	R_SortSubview_sc(char const* begin, char const* end)
 {
-	r_current_shader->setSort(SHADER_SORT_FARTHEST);
+	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> sort;
+	R_ParseExpressionToAST("-2.0", sort);
+	
+	r_current_shader->setSort(sort);
 }
 
-void	R_SortFar_sc(char const* begin, char const* end)
+void	R_SortOpaque_sc(char const* begin, char const* end)
 {
-	r_current_shader->setSort(SHADER_SORT_FAR);
-}
-
-void	R_SortClose_sc(char const* begin, char const* end)
-{
-	r_current_shader->setSort(SHADER_SORT_CLOSE);
+	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> sort;
+	R_ParseExpressionToAST("-1.0", sort);
+	
+	r_current_shader->setSort(sort);
 }
 
 void	R_SortDecal_sc(char const* begin, char const* end)
 {
-	r_current_shader->setSort(SHADER_SORT_DECAL);
+	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> sort;
+	R_ParseExpressionToAST("4.0", sort);
+	
+	r_current_shader->setSort(sort);
+}
+
+void	R_SortFar_sc(char const* begin, char const* end)
+{
+	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> sort;
+	R_ParseExpressionToAST("0.0", sort);
+	
+	r_current_shader->setSort(sort);
+}
+
+void	R_SortMedium_sc(char const* begin, char const* end)
+{
+	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> sort;
+	R_ParseExpressionToAST("1.0", sort);
+	
+	r_current_shader->setSort(sort);
+}
+
+void	R_SortClose_sc(char const* begin, char const* end)
+{
+	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> sort;
+	R_ParseExpressionToAST("2.0", sort);
+	
+	r_current_shader->setSort(sort);
+}
+
+void	R_SortAlmostNearest_sc(char const* begin, char const* end)
+{
+	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> sort;
+	R_ParseExpressionToAST("5.0", sort);
+	
+	r_current_shader->setSort(sort);
 }
 
 void	R_SortNearest_sc(char const* begin, char const* end)
 {
-	r_current_shader->setSort(SHADER_SORT_NEAREST);
+	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> sort;
+	R_ParseExpressionToAST("6.0", sort);
+	
+	r_current_shader->setSort(sort);
 }
 
-void	R_Sort_sc(int sort)
+void	R_SortPostProcess_sc(char const* begin, char const* end)
 {
+	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> sort;
+	R_ParseExpressionToAST("7.0", sort);
+	
 	r_current_shader->setSort(sort);
+}
+
+void	R_Sort_sc(char const* begin, char const* end)
+{
+	std::string	exp(begin, end);
+
+	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> sort;
+	
+	if(R_ParseExpressionToAST(exp.begin(), exp.end(), sort))
+	{
+		r_current_shader->setSort(sort);
+	}
+	else
+	{
+		ri.Com_Printf("R_Sort_sc: parsing failed\n");
+	}
 }
 
 void	R_TwoSided_sc(char const* begin, char const* end)
@@ -269,19 +329,20 @@ void	R_FogLight_sc(char const* begin, char const* end)
 
 void	R_DecalMacro_sc(char const* begin, char const* end)
 {
+	/*
+		polygonoffset \
+		discrete \
+		noShadows \
+		translucent \
+		sort 1
+	*/
+
 	r_current_shader->setORFlags(SHADER_POLYGONOFFSET);
 	r_current_shader->setORFlags(SHADER_DISCRETE);
 	r_current_shader->setORFlags(SHADER_NOSHADOWS);
-	r_current_shader->setORFlags(SHADER_TRANSLUCENT);
-	r_current_shader->setORFlags(SHADER_POLYGONOFFSET);
+//	r_current_shader->setORFlags(SHADER_TRANSLUCENT);
 	
-	/*
-		polygonoffset \
-			discrete \
-			noShadows \
-			translucent \
-			sort 1
-	*/
+	R_SortDecal_sc(begin, end);
 }
 
 void	R_DeformFlare_sc(char const* begin, char const* end)

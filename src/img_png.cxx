@@ -190,7 +190,7 @@ void 	IMG_LoadPNG(const std::string &name, byte **pic, int *width, int *height)
 			red = *buf_p++;
 			green = *buf_p++;
 			blue = *buf_p++;
-			alpha = 0;
+			alpha = 255;
 			
 			*pixbuf++ = red;
 			*pixbuf++ = green;

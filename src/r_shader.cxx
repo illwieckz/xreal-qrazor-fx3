@@ -47,12 +47,16 @@ void	R_NoDraw_sc(char const* begin, char const* end);
 void	R_NoShadows_sc(char const* begin, char const* end);
 void	R_NoSelfShadow_sc(char const* begin, char const* end);
 void	R_NoEnvMap_sc(char const* begin, char const* end);
-void	R_SortFarthest_sc(char const* begin, char const* end);
-void	R_SortFar_sc(char const* begin, char const* end);
-void	R_SortClose_sc(char const* begin, char const* end);
+void	R_SortSubview_sc(char const* begin, char const* end);
+void	R_SortOpaque_sc(char const* begin, char const* end);
 void	R_SortDecal_sc(char const* begin, char const* end);
+void	R_SortFar_sc(char const* begin, char const* end);
+void	R_SortMedium_sc(char const* begin, char const* end);
+void	R_SortClose_sc(char const* begin, char const* end);
+void	R_SortAlmostNearest_sc(char const* begin, char const* end);
 void	R_SortNearest_sc(char const* begin, char const* end);
-void	R_Sort_sc(int sort);
+void	R_SortPostProcess_sc(char const* begin, char const* end);
+void	R_Sort_sc(char const* begin, char const* end);
 void	R_TwoSided_sc(char const* begin, char const* end);
 void	R_Translucent_sc(char const* begin, char const* end);
 void	R_PolygonOffset_sc(char const* begin, char const* end);
@@ -188,7 +192,6 @@ r_shader_c::r_shader_c(const std::string &name, r_shader_type_e type)
 	_name	= name;
 	_type	= type;
 	
-	_sort	= SHADER_SORT_FARTHEST;
 	_flags	= 0;
 	
 	setRegistrationSequence();
@@ -509,28 +512,44 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 				=	boost::spirit::nocase_d[boost::spirit::str_p("ricochet")]
 				;
 				
-			sort_farthest_sc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("sort")] >> boost::spirit::nocase_d[boost::spirit::str_p("farthest")][&R_SortFarthest_sc]
+			sort_subview_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("sort")] >> boost::spirit::nocase_d[boost::spirit::str_p("subview")][&R_SortSubview_sc]
 				;
 				
-			sort_far_sc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("sort")] >> boost::spirit::nocase_d[boost::spirit::str_p("far")][&R_SortFar_sc]
-				;
-				
-			sort_close_sc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("sort")] >> boost::spirit::nocase_d[boost::spirit::str_p("close")][&R_SortClose_sc]
+			sort_opaque_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("sort")] >> boost::spirit::nocase_d[boost::spirit::str_p("opaque")][&R_SortOpaque_sc]
 				;
 				
 			sort_decal_sc
 				=	boost::spirit::nocase_d[boost::spirit::str_p("sort")] >> boost::spirit::nocase_d[boost::spirit::str_p("decal")][&R_SortDecal_sc]
 				;
 				
+			sort_far_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("sort")] >> boost::spirit::nocase_d[boost::spirit::str_p("far")][&R_SortFar_sc]
+				;
+				
+			sort_medium_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("sort")] >> boost::spirit::nocase_d[boost::spirit::str_p("decal")][&R_SortMedium_sc]
+				;
+				
+			sort_close_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("sort")] >> boost::spirit::nocase_d[boost::spirit::str_p("close")][&R_SortClose_sc]
+				;
+				
+			sort_almostnearest_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("sort")] >> boost::spirit::nocase_d[boost::spirit::str_p("almostnearest")][&R_SortAlmostNearest_sc]
+				;
+				
 			sort_nearest_sc
 				=	boost::spirit::nocase_d[boost::spirit::str_p("sort")] >> boost::spirit::nocase_d[boost::spirit::str_p("nearest")][&R_SortNearest_sc]
 				;
 				
+			sort_postprocess_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("sort")] >> boost::spirit::nocase_d[boost::spirit::str_p("postprocess")][&R_SortPostProcess_sc]
+				;
+				
 			sort_sc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("sort")] >> boost::spirit::int_p[&R_Sort_sc]
+				=	boost::spirit::nocase_d[boost::spirit::str_p("sort")] >> restofline[&R_Sort_sc]
 				;
 				
 			twosided_sc
@@ -618,11 +637,15 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 					noenvmap_sc			|
 					ricochet_sc			|
 					twosided_sc			|
-					sort_farthest_sc		|
-					sort_far_sc			|
-					sort_close_sc			|
+					sort_subview_sc			|
+					sort_opaque_sc			|
 					sort_decal_sc			|
+					sort_far_sc			|
+					sort_medium_sc			|
+					sort_close_sc			|
+					sort_almostnearest_sc		|
 					sort_nearest_sc			|
+					sort_postprocess_sc		|
 					sort_sc				|
 					translucent_sc			|
 					polygonoffset_sc		|
@@ -1003,11 +1026,15 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 								noenvmap_sc,
 								ricochet_sc,
 								twosided_sc,
-								sort_farthest_sc,
-								sort_far_sc,
-								sort_close_sc,
+								sort_subview_sc,
+								sort_opaque_sc,
 								sort_decal_sc,
+								sort_far_sc,
+								sort_medium_sc,
+								sort_close_sc,
+								sort_almostnearest_sc,
 								sort_nearest_sc,
+								sort_postprocess_sc,
 								sort_sc,
 								translucent_sc,
 								polygonoffset_sc,
@@ -1809,15 +1836,40 @@ static void	R_FinishShader(r_shader_c *shader)
 	}
 	*/
 	
-	/*
+	
 	if(shader->hasFlags(SHADER_TRANSLUCENT))
 	{
-		shader->setSort(SHADER_SORT_ADDITIVE);
+		/*
+		if(shader->stage_diffusemap)
+		{
+			r_shader_stage_c& stage = *shader->stage_diffusemap;
+			
+			if(!(stage.flags & SHADER_STAGE_ALPHATEST))
+			{
+				shader->stage_diffusemap = NULL;
+				
+				stage.type = SHADER_MATERIAL_STAGE_TYPE_COLORMAP;
+				stage.flags |= SHADER_STAGE_BLEND;
+				stage.blend_src = GL_DST_COLOR;	//GL_DST_COLOR;
+				stage.blend_dst = GL_ONE;	//GL_ZERO;
+			}
+		}
+		*/
+	
+		/*
+		for(std::deque<r_shader_stage_c>::iterator ir = shader->stages.begin(); ir != shader->stages.end(); ++ir)
+		{
+			r_shader_stage_c& stage = *ir;
+			
+			if(stage.flags & SHADER_STAGE_ALPHATEST)
+				shader->sort = SHADER_SORT_ADDITIVE;
+		}
+		*/
 	}
 	
-	if(!shader->getSort())
-		shader->setSort(SHADER_SORT_OPAQUE);
-	*/
+//	if(!shader->getSort())
+//		shader->setSort(SHADER_SORT_OPAQUE);
+	
 	
 	if(shader->hasFlags(SHADER_SKY) && shader->hasFlags(SHADER_DEPTHWRITE))
 	{
@@ -2182,7 +2234,7 @@ static r_shader_c*	R_LoadShader(const std::string &name, r_shader_type_e type)
 						
 				//shader->flags = 0;/*SHADER_DEPTHWRITE | SHADER_CULL_FRONT*/;
 				shader->setORFlags(SHADER_TRANSLUCENT);
-				shader->setSort(10);
+				//shader->setSort(10);	//FIXME
 				shader->stages.push_back(stage);
 				break;
 			

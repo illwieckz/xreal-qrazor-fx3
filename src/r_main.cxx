@@ -990,6 +990,10 @@ void	R_DrawLightDebuggingInfo()
 				xglColor4fv(color_blue);
 				xglVertex3fv(s.origin);
 				xglVertex3fv(vu);
+				
+				xglColor4fv(color_yellow);
+				xglVertex3fv(s.origin);
+				xglVertex3fv(light.getOrigin());
 			
 				xglEnd();
 			}
