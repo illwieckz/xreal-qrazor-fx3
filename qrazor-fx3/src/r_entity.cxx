@@ -73,8 +73,8 @@ r_entity_c::r_entity_c(const r_entity_t &shared)
 			model->updateBBox(this);
 			r_world_tree->boxLeafs(model->getBBox(), _leafs);
 			
-			//if(_leafs.size())
-			//	ri.Com_DPrintf("entity touches %i BSP leaves\n", _leafs.size());
+			if(_leafs.size())
+				ri.Com_DPrintf("entity touches %i BSP leaves\n", _leafs.size());
 		}
 #endif
 	}

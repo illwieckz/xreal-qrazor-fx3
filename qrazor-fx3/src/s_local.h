@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
 // system -------------------------------------------------------------------
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -80,7 +81,7 @@ private:
 class s_source_c
 {
 public:
-	s_source_c();
+	s_source_c(int entity_num, int entity_channel);
 	
 	~s_source_c();
 	
@@ -109,11 +110,11 @@ public:
 	
 	bool		isLoopSound() const		{return _looping;}
 	
-	int		getEntityNum() const		{return _ent_num;}
-	void		setEntityNum(int num)		{_ent_num = num;}
+	int		getEntityNum() const		{return _entity_num;}
+	void		setEntityNum(int num)		{_entity_num = num;}
 	
-	int		getEntityChannel() const	{return _ent_channel;}
-	void		setEntityChannel(int channel)	{_ent_channel = channel;}
+	int		getEntityChannel() const	{return _entity_channel;}
+	void		setEntityChannel(int channel)	{_entity_channel = channel;}
 	
 	bool		isActivated() const		{return _activated;}
 	void		isActivated(bool activated)	{_activated = activated;}
@@ -127,8 +128,8 @@ private:
 	vec3_c		_velocity;		// same here
 	bool		_looping;		// from entity_state_t::sound
 	
-	int		_ent_num;		// to allow overriding a specific sound
-	int		_ent_channel;		//
+	int		_entity_num;		// to allow overriding a specific sound
+	int		_entity_channel;
 	
 	bool		_activated;
 };

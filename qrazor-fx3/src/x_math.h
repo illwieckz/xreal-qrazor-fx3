@@ -2197,9 +2197,28 @@ float 	LerpAngle(float a1, float a2, float frac);
 
 float	CalcFOV(float fov_x, float width, float height);
 
-float	X_frand();	// 0 ti 1
+//float	X_frand();	// 0 ti 1
 
-float	X_crand();	// -1 to 1
+//float	X_crand();	// -1 to 1
+
+// return 1 if the random number generator is working
+bool	X_testrand();
+
+//return next 32 bit random number. this uses a not-very-random linear congruential method.
+unsigned long	X_rand();
+
+// get and set the current random number seed
+unsigned long 	X_randGetSeed();
+void		X_randSetSeed(unsigned long s);
+
+// return a random integer between 0..n-1. the distribution will get worse as n approaches 2^32.
+int		X_irand(int n);
+
+// return a random real number between 0..1
+vec_t		X_frand();
+
+// return a random real number between -1..1
+vec_t		X_crand();
 
 
 #endif // X_MATH_H

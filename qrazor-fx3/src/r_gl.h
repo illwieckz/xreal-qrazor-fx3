@@ -2233,7 +2233,10 @@ extern void (GLAPIENTRY* qglGenTextures)(GLsizei n, GLuint *textures, const char
 /// OpenGL 1.2 functions =======================================================
 //void GLAPI glBlendColor (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
 //void GLAPI glBlendEquation (GLenum mode);
-extern void (GLAPIENTRY* xglDrawRangeElements) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices);
+extern void (GLAPIENTRY* qglDrawRangeElements)(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices, const char *filename, int line);
+#define			 xglDrawRangeElements(mode, start, end, count, type, indices) \
+			 qglDrawRangeElements(mode, start, end, count, type, indices, __FILE__, __LINE__)
+			 
 //void GLAPI glColorTable (GLenum target, GLenum internalformat, GLsizei width, GLenum format, GLenum type, const GLvoid *table);
 //void GLAPI glColorTableParameterfv (GLenum target, GLenum pname, const GLfloat *params);
 //void GLAPI glColorTableParameteriv (GLenum target, GLenum pname, const GLint *params);
@@ -2266,14 +2269,23 @@ extern void (GLAPIENTRY* xglDrawRangeElements) (GLenum mode, GLuint start, GLuin
 //void GLAPI glMinmax (GLenum target, GLenum internalformat, GLboolean sink);
 //void GLAPI glResetHistogram (GLenum target);
 //void GLAPI glResetMinmax (GLenum target);
-extern void (GLAPIENTRY* xglTexImage3D)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
+extern void (GLAPIENTRY* qglTexImage3D)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels, const char *filename, int line);
+#define			 xglTexImage3D(target, level, internalformat, width, height, depth, border, format, type, pixels) \
+			 qglTexImage3D(target, level, internalformat, width, height, depth, border, format, type, pixels, __FILE__, __LINE__)
+			 
 //void GLAPI glTexSubImage3D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const GLvoid *pixels);
 //void GLAPI glCopyTexSubImage3D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height);
 
 
 /// OpenGL 1.3 functions =======================================================
-extern void (GLAPIENTRY* xglActiveTexture) (GLenum texture);
-extern void (GLAPIENTRY* xglClientActiveTexture) (GLenum texture);
+extern void (GLAPIENTRY* qglActiveTexture)(GLenum texture, const char *filename, int line);
+#define			 xglActiveTexture(texture) \
+			 qglActiveTexture(texture, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglClientActiveTexture)(GLenum texture, const char *filename, int line);
+#define			 xglClientActiveTexture(texture) \
+			 qglClientActiveTexture(texture, __FILE__, __LINE__)
+			 
 //void GLAPI glMultiTexCoord1d (GLenum target, GLdouble s);
 //void GLAPI glMultiTexCoord1dv (GLenum target, const GLdouble *v);
 //void GLAPI glMultiTexCoord1f (GLenum target, GLfloat s);
@@ -2306,7 +2318,10 @@ extern void (GLAPIENTRY* xglClientActiveTexture) (GLenum texture);
 //void GLAPI glMultiTexCoord4iv (GLenum target, const GLint *v);
 //void GLAPI glMultiTexCoord4s (GLenum target, GLshort s, GLshort t, GLshort r, GLshort q);
 //void GLAPI glMultiTexCoord4sv (GLenum target, const GLshort *v);
-extern void (GLAPIENTRY* xglLoadTransposeMatrixf) (const GLfloat *m);
+extern void (GLAPIENTRY* qglLoadTransposeMatrixf)(const GLfloat *m, const char *filename, int line);
+#define			 xglLoadTransposeMatrixf(m) \
+			 qglLoadTransposeMatrixf(m, __FILE__, __LINE__)
+			 
 //void GLAPI glLoadTransposeMatrixd (const GLdouble *m);
 //void GLAPI glMultTransposeMatrixf (const GLfloat *m);
 //void GLAPI glMultTransposeMatrixd (const GLdouble *m);

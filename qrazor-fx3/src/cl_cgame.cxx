@@ -212,6 +212,11 @@ void	CL_InitClientGame()
 	import.S_Shutdown		= S_Shutdown;
 	
 	import.S_StartSound		= S_StartSound;
+	
+	import.S_StartLoopSound		= S_StartLoopSound;
+	import.S_UpdateLoopSound	= S_UpdateLoopSound;
+	import.S_StopLoopSound		= S_StopLoopSound;
+	
 	import.S_StopAllSounds		= S_StopAllSounds;
 	import.S_Update			= S_Update;
 	

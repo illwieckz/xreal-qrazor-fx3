@@ -83,7 +83,7 @@ void	s_shader_c::createDefaultBuffer()
 		_buffers.push_back(buffer);
 }
 
-void	s_shader_c::createSource(const vec3_c &origin, const vec3_c &velocity, int ent_num, int ent_channel, bool looping)
+void	s_shader_c::createSource(const vec3_c &origin, const vec3_c &velocity, int entity_num, int entity_channel, bool looping)
 {
 	// select random buffer
 	s_buffer_c *buffer = selectRandomBuffer();
@@ -94,14 +94,12 @@ void	s_shader_c::createSource(const vec3_c &origin, const vec3_c &velocity, int 
 	}
 
 
-	s_source_c *source = new s_source_c();
+	s_source_c *source = new s_source_c(entity_num, entity_channel);
 	
 	source->setBuffer(buffer);
 	
 	source->setPosition(origin);
 	source->setVelocity(velocity);
-	source->setEntityNum(ent_num);
-	source->setEntityChannel(ent_channel);
 	
 	source->setLooping(looping);
 	
@@ -124,6 +122,9 @@ s_buffer_c*	s_shader_c::selectRandomBuffer()
 		
 	return _buffers[(uint_t)((_buffers.size()-1) * X_frand()) % _buffers.size()];
 }
+
+
+
 
 
 class s_shader_cache_c
@@ -154,8 +155,6 @@ private:
 	unsigned int	_offset_end;
 };
 
-
-
 std::vector<s_shader_cache_c*>	s_shaders_cache;
 
 
@@ -163,7 +162,7 @@ static s_shader_cache_c*	S_FindShaderCache(const std::string &name)
 {
 	std::string name_short = Com_StripExtension(name);
 		
-	for(std::vector<s_shader_cache_c*>::const_iterator ir = s_shaders_cache.begin(); ir != s_shaders_cache.end(); ir++)
+	for(std::vector<s_shader_cache_c*>::const_iterator ir = s_shaders_cache.begin(); ir != s_shaders_cache.end(); ++ir)
 	{
 		if(X_strcaseequal(name_short.c_str(), (*ir)->getName()))
 			return (*ir);
@@ -191,74 +190,104 @@ static s_shader_cache_c*	S_GetShaderCache(const std::string &cache_name, const s
 	return cache;
 }
 
-static void	S_SkipShaderBody(char **buf_p)
+static std::string	s_sp_filename;
+static char*		s_sp_data = NULL;
+
+static std::string	s_sp_shader_name;
+static uint_t 		s_sp_shader_offset_begin;
+static uint_t		s_sp_shader_offset_end;
+
+static void	S_ShaderName(const char* begin, const char* end)
 {
-	char *token = Com_Parse(buf_p, true);	// skip '{'
+	s_sp_shader_name = std::string(begin, end);
+	s_sp_shader_offset_begin = (end+1) - s_sp_data;
 	
-	if(token[0] != '{')
-	{
-		Com_Error(ERR_DROP, "S_SkipShaderBody: found '%s' when expecting '{'", token);
-		return;
-	}
-	
-	while(buf_p)
-	{
-		char *token = Com_Parse(buf_p);
-		
-		if(token[0] ==  '}')
-			break;
-		
-		//if(token[0] ==  '{')
-		//	S_SkipShaderStage(buf_p);
-	}
+//	ri.Com_Printf("sound shader name: '%s'\n", s_sp_shader_name.c_str());
 }
+
+static void	S_PrecacheShader(const char *begin, const char* end)
+{
+	s_sp_shader_offset_end = end - s_sp_data;
+	
+	S_GetShaderCache(s_sp_shader_name, s_sp_filename, s_sp_shader_offset_begin, s_sp_shader_offset_end);
+}
+
+struct s_shader_precache_grammar_t : public boost::spirit::grammar<s_shader_precache_grammar_t>
+{
+	template <typename ScannerT>
+	struct definition
+	{
+        	definition(s_shader_precache_grammar_t const& self)
+		{
+			// start grammar definition
+			skip_tobracket
+				=	boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - (boost::spirit::ch_p('{') | boost::spirit::ch_p('}'))]
+				;
+				
+			skip_block
+				=	boost::spirit::ch_p('{') >>
+					skip_tobracket >>
+					boost::spirit::ch_p('}')
+				;
+				
+			shader
+				=	boost::spirit::lexeme_d[boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - (boost::spirit::space_p | boost::spirit::ch_p('{'))]][&S_ShaderName] >>
+					boost::spirit::ch_p('{') >> 
+					*(skip_block | skip_tobracket) >>
+					boost::spirit::ch_p('}')
+				;
+				
+			expression
+				=	*(shader[&S_PrecacheShader])
+				;
+				
+			// end grammar definiton
+		}
+		
+		boost::spirit::rule<ScannerT>	skip_tobracket,
+						skip_block,
+						shader,
+						expression;
+		
+		boost::spirit::rule<ScannerT> const&
+		start() const { return expression; }
+	};
+};
+
+
 
 static void	S_PrecacheShaderFile(const std::string &filename)
 {
 	char*	data = NULL;
-	char*	data_p;
-	char*	token;
-	
 	int	len;
-	int	offset_start;
-	int	offset_end;
 	
-
 	len = VFS_FLoad(filename, (void**)&data);
 	if(!data)
 	{
-		Com_Printf("S_PrecacheShaderFile: couldn't load '%s'\n", filename.c_str());
+		Com_Printf("couldn't load '%s'\n", filename.c_str());
 		return;
 	}
 	
 	Com_Printf("precaching '%s' ...\n", filename.c_str());
-		
-	data_p = data;
 	
-	while(data_p)
+	s_sp_filename = filename;
+	s_sp_data = data;
+	s_shader_precache_grammar_t	grammar;
+	
+	boost::spirit::parse_info<> info = boost::spirit::parse
+	(
+		data,
+		grammar,
+		boost::spirit::space_p ||
+		boost::spirit::comment_p("/*", "*/") ||
+		boost::spirit::comment_p("//")
+	);
+	
+	if(!info.full)
 	{
-		token = Com_Parse(&data_p);
-		
-		if(!token[0])
-		{
-			break;
-		}
-		else
-		{
-			// it should be a shader name with a shader body
-		
-			std::string cname = token;
-		
-			offset_start = data_p - data;
-		
-			S_SkipShaderBody(&data_p);
-			
-			offset_end = data_p - data;
-		
-			S_GetShaderCache(cname, filename, offset_start, offset_end);
-		}
+		Com_Error(ERR_DROP, "S_PrecacheShaderFile: failed parsing '%s'\n", filename.c_str());
 	}
-
+	
 	VFS_FFree(data);
 }
 
@@ -268,7 +297,7 @@ void		S_InitShaders()
 
 	std::vector<std::string>	shadernames;
 
-	if((shadernames = VFS_ListFiles("sound", ".sshader")).size() != 0)
+	if((shadernames = VFS_ListFiles("sound", ".sndshd")).size() != 0)
 	{
 		for(std::vector<std::string>::const_iterator ir = shadernames.begin(); ir != shadernames.end(); ir++)
 		{
@@ -365,6 +394,12 @@ struct s_shader_grammar_t : public boost::spirit::grammar<s_shader_grammar_t>
 				=	boost::spirit::nocase_d[boost::spirit::str_p("buffer")] >> restofline[&S_Buffer_sc]
 				;
 				
+			sound_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("sound")] >> 
+					boost::spirit::lexeme_d[boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - boost::spirit::ch_p('.')]] >>
+					boost::spirit::nocase_d[boost::spirit::str_p(".wav")]
+				;
+				
 			gain_sc
 				=	boost::spirit::nocase_d[boost::spirit::str_p("gain")] >> +boost::spirit::real_p[&S_Gain_sc]
 				;
@@ -400,6 +435,7 @@ struct s_shader_grammar_t : public boost::spirit::grammar<s_shader_grammar_t>
 			shader_command
 				=	cxx_comment		|
 					buffer_sc		|
+					sound_sc[&S_Buffer_sc]	|
 					mingain_sc		|
 					maxgain_sc		|
 					gain_sc			|
@@ -424,6 +460,7 @@ struct s_shader_grammar_t : public boost::spirit::grammar<s_shader_grammar_t>
 						restofline,
 							shader_command,
 								buffer_sc,
+								sound_sc,
 								gain_sc,
 								mingain_sc,
 								maxgain_sc,

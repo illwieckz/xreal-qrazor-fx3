@@ -2573,15 +2573,70 @@ float	CalcFOV(float fov_x, float width, float height)
 	return a;
 }
 
-
+/*
 float	X_frand()
 {
-	return (rand()&32767)* (1.0/32767);
+	return (rand() & 32767)* (1.0/32767);
 }
 
 float	X_crand()
 {
-	return (rand()&32767)* (2.0/32767) - 1;
+	return (rand() & 32767)* (2.0/32767) - 1;
+}
+*/
+
+static unsigned long	seed = 0;
+
+unsigned long	X_rand()
+{
+	seed = (1664525L * seed + 1013904223L) & 0xffffffff;
+	return seed;
 }
 
+
+unsigned long	X_randGetSeed()
+{
+	return seed;
+}
+
+void		X_randSetSeed(unsigned long s)
+{
+	seed = s;
+}
+
+
+int	X_randTest()
+{
+	unsigned long oldseed = seed;
+	int ret = 1;
+	seed = 0;
+	
+	if(	X_rand() != 0x3c6ef35f || X_rand() != 0x47502932 ||
+		X_rand() != 0xd1ccf6e9 || X_rand() != 0xaaf95334 ||
+		X_rand() != 0x6252e503
+	)
+	{
+		ret = 0;
+	}
+		
+	seed = oldseed;
+	
+	return ret;
+}
+
+int	X_irand(int n)
+{
+	double a = double(n) / 4294967296.0;
+	return (int) (double(X_rand()) * a);
+}
+
+vec_t	X_frand()
+{
+	return ((vec_t) X_rand()) / ((vec_t) 0xffffffff);
+}
+
+vec_t	X_crand()
+{
+	return (REAL(2.0) * (X_frand() - REAL(0.5)));
+}
 

@@ -397,7 +397,9 @@ static void 	RB_SetupFrustum()
 //	r_frustum[FRUSTUM_NEAR]._type	= PLANE_ANYZ;
 	r_frustum[FRUSTUM_NEAR].setType();
 	r_frustum[FRUSTUM_NEAR].setSignBits();
+#endif
 	
+#if 0
 	// far
 	r_frustum[FRUSTUM_FAR]._normal[0]	=  m[3][0] - m[2][0];
 	r_frustum[FRUSTUM_FAR]._normal[1]	=  m[3][1] - m[2][1];
@@ -1105,6 +1107,12 @@ static float	RB_EvalExpression(const r_entity_t &shared, boost::spirit::tree_mat
 				
 			case SHADER_PARM_SOUND:
 				return 0.5;	//shared.shader_sound;
+				
+			case SHADER_PARM_FRANDOM:
+				return X_frand();
+				
+			case SHADER_PARM_CRANDOM:
+				return X_crand();
 				
 			default:
 				ri.Com_Error(ERR_FATAL, "RB_EvalExpression: unknown parm '%s'\n", std::string(i->value.begin(), i->value.end()).c_str());
@@ -1982,7 +1990,7 @@ void	RB_RenderCommands()
 	// draw solid meshes into zbuffer
 	//
 	qsort(&r_current_scene->cmds[0], r_current_scene->cmds_num, sizeof(r_command_t), RB_SortByCommandDistanceFunc);
-	
+		
 #if 0
 	if(gl_config.arb_occlusion_query && r_arb_occlusion_query->getInteger())
 	{	
@@ -2000,7 +2008,7 @@ void	RB_RenderCommands()
 				cmd->getEntityModel()->draw(cmd, RENDER_TYPE_ZFILL);
 				ent->endOcclusionQuery();
 			
-				if(!ent->getOcclusionSamplesNum())
+				if(ent->getOcclusionSamplesAvailable() && ent->getOcclusionSamplesNum() <= 0)
 				{
 					ent->setVisFrameCount(0);
 					c_entities--;
@@ -2211,7 +2219,7 @@ void	RB_RenderCommands()
 		
 				light.endOcclusionQuery();
 		
-				if(!light.getOcclusionSamplesNum())
+				if(light.getOcclusionSamplesNum() <= 0)
 				{
 					light.setVisFrameCount(0);	// light bounding box is not visible
 					c_lights--;

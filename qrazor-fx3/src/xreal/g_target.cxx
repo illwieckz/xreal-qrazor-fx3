@@ -86,8 +86,10 @@ Multiple identical looping sounds will just increase volume without any speed co
 
 g_target_speaker_c::g_target_speaker_c()
 {
+	_s.type = ET_TARGET_SPEAKER;
+
 	addField(g_field_c("s_shader", &_s_shader, F_STRING));
-	addField(g_field_c("s_looping", &_s_looping, F_INT));
+	addField(g_field_c("s_looping", &_s_looping, F_BOOL));
 }
 
 void	g_target_speaker_c::use(g_entity_c *other, g_entity_c *activator)
@@ -142,7 +144,10 @@ void	g_target_speaker_c::activate()
 
 	// check for prestarted looping sound
 	if(_s_looping)
+	{
 		_s.index_sound = _noise_index;
+		_r.networksync = false;		// just pulse as baseline entity
+	}
 }
 
 

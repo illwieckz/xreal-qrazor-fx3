@@ -630,6 +630,11 @@ void		trap_S_Init();
 void		trap_S_Shutdown();
 	
 void		trap_S_StartSound(const vec3_c &origin, int ent_num, int ent_channel, int sound);
+
+void		trap_S_StartLoopSound(const vec3_c &origin, const vec3_c &velocity, int ent_num, int ent_channel, int sound);
+void		trap_S_UpdateLoopSound(const vec3_c &origin, const vec3_c &velocity, int ent_num);
+void		trap_S_StopLoopSound(int ent_num);
+
 void		trap_S_StopAllSounds();
 void		trap_S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forward, const vec3_c &v_right, const vec3_c &v_up);
 	

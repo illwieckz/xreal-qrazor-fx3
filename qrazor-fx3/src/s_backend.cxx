@@ -600,7 +600,7 @@ void	S_StartLoopSound(const vec3_c &origin, const vec3_c &velocity, int ent_num,
 #endif
 }
 
-void	S_UpdateLoopSound(const vec3_c &origin, const vec3_c &velocity, int ent_num)
+void	S_UpdateLoopSound(const vec3_c &origin, const vec3_c &velocity, int entity_num)
 {
 #if 0
 	for(std::vector<s_source_c*>::iterator ir = s_sources.begin(); ir != s_sources.end(); ++ir)
@@ -610,7 +610,7 @@ void	S_UpdateLoopSound(const vec3_c &origin, const vec3_c &velocity, int ent_num
 		if(!source)
 			continue;
 	
-		if(source->getEntityNum() == ent_num)
+		if(source->getEntityNum() == entity_num)
 		{
 			(*ir)->setPosition(origin);
 			(*ir)->setVelocity(velocity);
@@ -618,13 +618,13 @@ void	S_UpdateLoopSound(const vec3_c &origin, const vec3_c &velocity, int ent_num
 		}
 	}
 	
-	Com_Printf("S_UpdateLoopSound: couldn't find sound source with entity %i\n", ent_num);
+	Com_DPrintf("S_UpdateLoopSound: couldn't find sound source with entity %i\n", entity_num);
 #endif
 }
 
-void	S_StopLoopSound(int ent_num)
+void	S_StopLoopSound(int entity_num)
 {
-#if 1
+#if 0
 	for(std::vector<s_source_c*>::iterator ir = s_sources.begin(); ir != s_sources.end(); ++ir)
 	{
 		s_source_c *source = *ir;
@@ -632,14 +632,15 @@ void	S_StopLoopSound(int ent_num)
 		if(!source)
 			continue;
 	
-		if(source->getEntityNum() == ent_num)
+		if(source->getEntityNum() == entity_num)
 		{
 			delete source;
+			*ir = NULL;
 			return;
 		}
 	}
 	
-//	Com_Printf("S_StopLoopSound: couldn't find sound source with entity %i\n", ent_num);
+	Com_DPrintf("S_StopLoopSound: couldn't find sound source with entity %i\n", entity_num);
 #endif
 }
 
@@ -724,12 +725,21 @@ void	S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forw
 
 	//alDopplerFactor(1.0);		// don't exaggerate doppler shift
 	//alDopplerVelocity(343);		// using meters/second
+	
+	/*
+	if(s_show->getValue())
+	{
+		Com_Printf("listener at %s\n", s_origin.toString());
+		Com_Printf("listener vf %s\n", s_forward.toString());
+		Com_Printf("listener vu %s\n", s_up.toString());
+	}
+	*/
 
 
 	//
 	// stop old sound sources
 	//
-	for(std::vector<s_source_c*>::const_iterator ir = s_sources.begin(); ir != s_sources.end(); ir++)
+	for(std::vector<s_source_c*>::iterator ir = s_sources.begin(); ir != s_sources.end(); ++ir)
 	{
 		s_source_c *source = *ir;
 		
@@ -742,19 +752,18 @@ void	S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forw
 		if(!source->isPlaying() && source->isActivated())
 		{
 			alSourceStop(source->getId());
-			
 			delete source;
+			*ir = NULL;
 		}
-		continue;
 	}
 
 	
 	//
 	// paint in the channels
 	//
-	for(unsigned int i=0; i<s_sources.size(); i++)
+	for(std::vector<s_source_c*>::const_iterator ir = s_sources.begin(); ir != s_sources.end(); ++ir)
 	{
-		s_source_c *source = s_sources[i];
+		s_source_c *source = *ir;
 		
 		if(!source)
 			continue;
@@ -762,18 +771,21 @@ void	S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forw
 		if(!source->hasBuffer())
 			continue;
 			
+		if(source->isActivated())
+			continue;
+			
 		if(source->isPlaying())
 			continue;
 		
+		/*
 		if(s_show->getValue())
 		{
 			Com_Printf("listener at %s\n", s_origin.toString());
-			//Com_Printf("listener angles %s\n", cl.refdef.view_angles.toString());
-			//Com_Printf("listener vf looking at %s\n", v_forward.toString());
-			//Com_Printf("listener vu looking at %s\n", v_up.toString());
-			//Com_Printf("%3i %s at %s\n", i, ch->sfx->name.c_str(), ch->origin.toString());
+			Com_Printf("listener vf %s\n", s_forward.toString());
+			Com_Printf("listener vu %s\n", s_up.toString());
+			//Com_Printf("source %s for entity %4i at %s\n", source->getName(), ch->origin.toString());
 		}
-		
+		*/
 		
 		// setup source origin
 		//source->updatePosition();

@@ -364,7 +364,7 @@ void	r_bsptree_c::boxLeafs_r(const cbbox_c &bbox, std::vector<r_bsptree_leaf_c*>
 	{
 		r_bsptree_node_c *node = (r_bsptree_node_c*)elem;
 	
-		plane_side_e side = node->plane->onSide(bbox);
+		plane_side_e side = node->plane->onSide(bbox, true);
 		
 		if(side == SIDE_FRONT)
 			elem = node->children[SIDE_FRONT];
@@ -395,7 +395,7 @@ void	r_bsptree_c::precacheLight(r_light_c *light)
 {
 	litNode_r(_nodes[0], light, true);
 	
-	ri.Com_DPrintf("light has %i precached surface interactions\n", light->getAreaSurfaces(0).size());
+//	ri.Com_DPrintf("light has %i precached surface interactions\n", light->getAreaSurfaces(0).size());
 }
 
 void	r_bsptree_c::loadVisibility(const byte *buffer, const bsp_lump_t *l)
@@ -1318,7 +1318,7 @@ void	r_bsptree_c::litNode_r(r_tree_elem_c *elem, r_light_c *light, bool precache
 		//	return;
 		
 		/*
-		if(leaf->isLightFramed())	// already added surface
+		if(leaf->isLightFramed())
 			return;
 			
 		leaf->setLightFrameCount();
@@ -1392,15 +1392,16 @@ void	r_bsptree_c::litNode_r(r_tree_elem_c *elem, r_light_c *light, bool precache
 			litNode_r(node->children[0], light, precache);
 			return;
 		}
-		
-		if(dist < -light->getShared().radius_value)
+		else if(dist < -light->getShared().radius_value)
 		{
 			litNode_r(node->children[1], light, precache);
 			return;
 		}
-		
-		litNode_r(node->children[0], light, precache);
-		litNode_r(node->children[1], light, precache);
+		else
+		{
+			litNode_r(node->children[0], light, precache);
+			litNode_r(node->children[1], light, precache);
+		}
 #else
 		plane_side_e side = node->plane->onSide(light->getShared().radius_bbox, true);
 		
@@ -1581,6 +1582,9 @@ void 	r_bsptree_c::markLights()
 			
 				if(!(light.getShared().flags & RF_STATIC))
 				{
+					if(light.getCluster() < 0)
+						continue;
+				
 					if(r_frustum.cull(light.getShared().radius_bbox))
 						continue;
 				
@@ -1589,10 +1593,6 @@ void 	r_bsptree_c::markLights()
 					continue;
 				}
 			
-			
-				if(light.getCluster() == -1)
-					continue;
-				
 				/*
 				if(r_newrefdef.areabits)
 				{
@@ -1611,50 +1611,36 @@ void 	r_bsptree_c::markLights()
 				if(r_frustum.cull(light.getShared().radius_bbox))
 					continue;
 				
+				/*
 				if(vis[light.getCluster()>>3] & (1<<(light.getCluster()&7)))
 				{
 					light.setVisFrameCount();
 					c_lights++;
 				}
+				*/
 				
-				/*
-				//const std::vector<r_bsptree_leaf_c*>& leafs = light.getLeafs();
+				const std::vector<r_bsptree_leaf_c*>& leafs = light.getLeafs();
 				
-				//for(std::vector<r_bsptree_leaf_c*>::const_iterator ir = leafs.begin(); ir != leafs.end(); ++ir)
-				//{
-					//r_bsptree_leaf_c* leaf = *ir;
+				for(std::vector<r_bsptree_leaf_c*>::const_iterator ir = leafs.begin(); ir != leafs.end(); ++ir)
+				{
+					r_bsptree_leaf_c* leaf = *ir;
 				
-					//if(leaf->visframecount != r_visframecount)
-					//	continue;
+					if(!leaf->isVisible())
+						continue;
 				
 					//if(leaf->cluster == -1)
 					//	continue;
 					
-					if(light.getCluster() == -1)
-						continue;
+					//if(light.getCluster() == -1)
+					//	continue;
 				
-					if(r_newrefdef.areabits)
-					{
-						if(!r_newrefdef.areabits[light.getArea()])
-							continue;
-					}
-				
-					if(vis[light.getCluster()>>3] & (1<<(light.getCluster()&7)))
+					if(vis[leaf->cluster >> 3] & (1 << (leaf->cluster & 7)))
 					{
 						light.setVisFrameCount();
 						c_lights++;
-					}
-				
-				
-					if(vis[leaf->cluster>>3] & (1<<(leaf->cluster&7)))
-					{
-						light.setVisFrameCount();
 						break;
 					}
-				
-				//}
-			
-				*/
+				}
 			}
 		}
 	}
@@ -1702,20 +1688,8 @@ void 	r_bsptree_c::markEntities()
 					c_entities++;
 					continue;
 				}
-				
-				/*
-				if(ent.getCluster() != -1)
-				{
-					// check if entity is in visible cluster
-					if(vis[ent.getCluster()>>3] & (1<<(ent.getCluster()&7)))
-					{
-						ent.setVisFrameCount();
-						c_entities++;
-						continue;
-					}
-				}
-			
-				if(ent.getLeafs().size())
+				#if 0
+				else
 				{
 					// check if entity has shared leaves with the PVS
 					const std::vector<r_bsptree_leaf_c*>& leafs = ent.getLeafs();
@@ -1724,7 +1698,7 @@ void 	r_bsptree_c::markEntities()
 					{
 						r_bsptree_leaf_c* leaf = *ir;
 				
-						if(leaf->visframecount == r_visframecount)
+						if(leaf->isVisible())
 						{
 							// leaf is visible
 							ent.setVisFrameCount();
@@ -1732,30 +1706,11 @@ void 	r_bsptree_c::markEntities()
 							break;
 						}
 					}
-				
-					if(ent.isVisible())
-						continue;
 				}
-				*/
-			
-				/*
-				if(ent.getCluster() == -1)
-					continue;
-				*/
-			
-				/*	
-				if(r_newrefdef.areabits)
-				{
-					if(!r_newrefdef.areabits[ent.getArea()])
-						continue;
-				}
-				*/
-			
-				//if(vis[ent.getCluster()>>3] & (1<<(ent.getCluster()&7)))
-				{
-					ent.setVisFrameCount();
-					c_entities++;
-				}
+				#else
+				ent.setVisFrameCount();
+				c_entities++;
+				#endif
 			}
 		}
 	}

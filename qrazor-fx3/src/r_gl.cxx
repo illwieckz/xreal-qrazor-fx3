@@ -427,17 +427,17 @@ static void GLAPIENTRY stdGenTextures(GLsizei n, GLuint *textures, const char *f
 static void GLAPIENTRY dbgBegin(GLenum mode, const char *filename, int line)
 {
 	dllBegin(mode);
-	XGL_CheckForError_(filename, line);
+//	XGL_CheckForError_(filename, line);
 }
 static void GLAPIENTRY dbgColor4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha, const char *filename, int line)
 {
 	dllColor4f(red, green, blue, alpha);
-	XGL_CheckForError_(filename, line);
+//	XGL_CheckForError_(filename, line);
 }
 static void GLAPIENTRY dbgColor4fv(const GLfloat *v, const char *filename, int line)
 {
 	dllColor4fv(v);
-	XGL_CheckForError_(filename, line);
+//	XGL_CheckForError_(filename, line);
 }
 static void GLAPIENTRY dbgEnd(const char *filename, int line)
 {
@@ -447,42 +447,42 @@ static void GLAPIENTRY dbgEnd(const char *filename, int line)
 static void GLAPIENTRY dbgTexCoord1f(GLfloat s, const char *filename, int line)
 {
 	dllTexCoord1f(s);
-	XGL_CheckForError_(filename, line);
+//	XGL_CheckForError_(filename, line);
 }
 static void GLAPIENTRY dbgTexCoord1fv(const GLfloat *v, const char *filename, int line)
 {
 	dllTexCoord1fv(v);
-	XGL_CheckForError_(filename, line);
+//	XGL_CheckForError_(filename, line);
 }
 static void GLAPIENTRY dbgTexCoord2f(GLfloat s, GLfloat t, const char *filename, int line)
 {
 	dllTexCoord2f(s, t);
-	XGL_CheckForError_(filename, line);
+//	XGL_CheckForError_(filename, line);
 }
 static void GLAPIENTRY dbgTexCoord2fv(const GLfloat *v, const char *filename, int line)
 {
 	dllTexCoord2fv(v);
-	XGL_CheckForError_(filename, line);
+//	XGL_CheckForError_(filename, line);
 }
 static void GLAPIENTRY dbgTexCoord3f(GLfloat s, GLfloat t, GLfloat r, const char *filename, int line)
 {
 	dllTexCoord3f(s, t, r);
-	XGL_CheckForError_(filename, line);
+//	XGL_CheckForError_(filename, line);
 }
 static void GLAPIENTRY dbgTexCoord3fv(const GLfloat *v, const char *filename, int line)
 {
 	dllTexCoord3fv(v);
-	XGL_CheckForError_(filename, line);
+//	XGL_CheckForError_(filename, line);
 }
 static void GLAPIENTRY dbgVertex3f(GLfloat x, GLfloat y, GLfloat z, const char *filename, int line)
 {
 	dllVertex3f(x, y, z);
-	XGL_CheckForError_(filename, line);
+//	XGL_CheckForError_(filename, line);
 }
 static void GLAPIENTRY dbgVertex3fv(const GLfloat *v, const char *filename, int line)
 {
 	dllVertex3fv(v);
-	XGL_CheckForError_(filename, line);
+//	XGL_CheckForError_(filename, line);
 }
 static void GLAPIENTRY dbgCullFace(GLenum mode, const char *filename, int line)
 {
@@ -761,13 +761,70 @@ static void GLAPIENTRY logViewport (GLint x, GLint y, GLsizei width, GLsizei hei
 
 
 /// OpenGL 1.2 functions =======================================================
-void (GLAPIENTRY* xglDrawRangeElements) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices);
-void (GLAPIENTRY* xglTexImage3D)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
+void (GLAPIENTRY* qglDrawRangeElements)(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices, const char *filename, int line);
+void (GLAPIENTRY* qglTexImage3D)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels, const char *filename, int line);
+
+static void (GLAPIENTRY* dllDrawRangeElements)(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices);
+static void (GLAPIENTRY* dllTexImage3D)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
+
+static void GLAPIENTRY stdDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices, const char *filename, int line)
+{
+	dllDrawRangeElements(mode, start, end, count, type, indices);
+}
+static void GLAPIENTRY stdTexImage3D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels, const char *filename, int line)
+{
+	dllTexImage3D(target, level, internalformat, width, height, depth, border, format, type, pixels);
+}
+
+static void GLAPIENTRY dbgDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices, const char *filename, int line)
+{
+	dllDrawRangeElements(mode, start, end, count, type, indices);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgTexImage3D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels, const char *filename, int line)
+{
+	dllTexImage3D(target, level, internalformat, width, height, depth, border, format, type, pixels);
+	XGL_CheckForError_(filename, line);
+}
+
 
 /// OpenGL 1.3 functions =======================================================
-void (GLAPIENTRY* xglActiveTexture) (GLenum texture);
-void (GLAPIENTRY* xglClientActiveTexture) (GLenum texture);
-void (GLAPIENTRY* xglLoadTransposeMatrixf) (const GLfloat *m);
+void (GLAPIENTRY* qglActiveTexture)(GLenum texture, const char *filename, int line);
+void (GLAPIENTRY* qglClientActiveTexture)(GLenum texture, const char *filename, int line);
+void (GLAPIENTRY* qglLoadTransposeMatrixf)(const GLfloat *m, const char *filename, int line);
+
+static void (GLAPIENTRY* dllActiveTexture)(GLenum texture);
+static void (GLAPIENTRY* dllClientActiveTexture)(GLenum texture);
+static void (GLAPIENTRY* dllLoadTransposeMatrixf)(const GLfloat *m);
+
+void GLAPIENTRY stdActiveTexture(GLenum texture, const char *filename, int line)
+{
+	dllActiveTexture(texture);
+}
+void GLAPIENTRY stdClientActiveTexture(GLenum texture, const char *filename, int line)
+{
+	dllClientActiveTexture(texture);
+}
+void GLAPIENTRY stdLoadTransposeMatrixf(const GLfloat *m, const char *filename, int line)
+{
+	dllLoadTransposeMatrixf(m);
+}
+
+void GLAPIENTRY dbgActiveTexture(GLenum texture, const char *filename, int line)
+{
+	dllActiveTexture(texture);
+	XGL_CheckForError_(filename, line);
+}
+void GLAPIENTRY dbgClientActiveTexture(GLenum texture, const char *filename, int line)
+{
+	dllClientActiveTexture(texture);
+	XGL_CheckForError_(filename, line);
+}
+void GLAPIENTRY dbgLoadTransposeMatrixf(const GLfloat *m, const char *filename, int line)
+{
+	dllLoadTransposeMatrixf(m);
+	XGL_CheckForError_(filename, line);
+}
 
 
 /// GL_ARB_vertex_program ======================================================
@@ -1046,12 +1103,12 @@ void	XGL_Shutdown()
 	qglDeleteTextures					= NULL;
 	qglGenTextures						= NULL;
 	
-	xglDrawRangeElements					= NULL;
-	xglTexImage3D						= NULL;
+	qglDrawRangeElements					= NULL;
+	qglTexImage3D						= NULL;
 	
-	xglActiveTexture					= NULL;
-	xglClientActiveTexture					= NULL;
-	xglLoadTransposeMatrixf					= NULL;
+	qglActiveTexture					= NULL;
+	qglClientActiveTexture					= NULL;
+	qglLoadTransposeMatrixf					= NULL;
 	
 	xglVertexAttribPointerARB				= NULL;
 	xglEnableVertexAttribArrayARB				= NULL;
@@ -1358,14 +1415,12 @@ bool	XGL_Init(const char *dllname)
 	dllDeleteTextures = (void (GLAPIENTRY*) (GLsizei n, const GLuint *textures)) XGL_GetSymbol("glDeleteTextures");
 	dllGenTextures = (void (GLAPIENTRY*) (GLsizei n, GLuint *textures)) XGL_GetSymbol("glGenTextures");
 	
-	xglDrawRangeElements = (void (GLAPIENTRY*) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices)) XGL_GetSymbol("glDrawRangeElements");
+	dllDrawRangeElements = (void (GLAPIENTRY*) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices)) XGL_GetSymbol("glDrawRangeElements");
+	dllTexImage3D = (void (GLAPIENTRY*) (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels)) XGL_GetSymbol("glTexImage3D");
 	
-	xglTexImage3D = (void (GLAPIENTRY*) (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels)) XGL_GetSymbol("glTexImage3D");
-	
-	xglActiveTexture = (void (GLAPIENTRY*) (GLenum texture)) XGL_GetSymbol("glActiveTexture");
-	xglClientActiveTexture = (void (GLAPIENTRY*) (GLenum texture)) XGL_GetSymbol("glClientActiveTexture");
-	
-	xglLoadTransposeMatrixf = (void (GLAPIENTRY*) (const GLfloat *m)) XGL_GetSymbol("glLoadTransposeMatrixf");
+	dllActiveTexture = (void (GLAPIENTRY*) (GLenum texture)) XGL_GetSymbol("glActiveTexture");
+	dllClientActiveTexture = (void (GLAPIENTRY*) (GLenum texture)) XGL_GetSymbol("glClientActiveTexture");
+	dllLoadTransposeMatrixf = (void (GLAPIENTRY*) (const GLfloat *m)) XGL_GetSymbol("glLoadTransposeMatrixf");
 
 	/*
 	xglArrayElement = (void (GLAPIENTRY*) (GLint i)) XGL_GetSymbol("glArrayElement");
@@ -1474,6 +1529,13 @@ void	XGL_EnableDebugging(bool enable)
 		qglBindTexture						= dbgBindTexture;
 		qglDeleteTextures					= dbgDeleteTextures;
 		qglGenTextures						= dbgGenTextures;
+		
+		qglDrawRangeElements					= dbgDrawRangeElements;
+		qglTexImage3D						= dbgTexImage3D;
+		
+		qglActiveTexture					= dbgActiveTexture;
+		qglClientActiveTexture					= dbgClientActiveTexture;
+		qglLoadTransposeMatrixf					= dbgLoadTransposeMatrixf;
 	}
 	else
 	{
@@ -1542,6 +1604,13 @@ void	XGL_EnableDebugging(bool enable)
 		qglBindTexture						= stdBindTexture;
 		qglDeleteTextures					= stdDeleteTextures;
 		qglGenTextures						= stdGenTextures;
+		
+		qglDrawRangeElements					= stdDrawRangeElements;
+		qglTexImage3D						= stdTexImage3D;
+		
+		qglActiveTexture					= stdActiveTexture;
+		qglClientActiveTexture					= stdClientActiveTexture;
+		qglLoadTransposeMatrixf					= stdLoadTransposeMatrixf;
 	}
 }
 

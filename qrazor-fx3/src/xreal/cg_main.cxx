@@ -281,7 +281,10 @@ static void	CG_RunFrame()
 	CG_RenderView();
 	
 	// update audio
-	cgi.S_Update(cg.refdef.view_origin, cg.v_velocity, cg.v_forward, cg.v_right, cg.v_up);
+	if(trap_CLS_GetConnectionState() != CA_ACTIVE)
+		cgi.S_Update(vec3_origin, vec3_origin, vec3_c(1, 0, 0), vec3_c(0, 1, 0), vec3_c(0, 0, 1));
+	else
+		cgi.S_Update(cg.refdef.view_origin, cg.v_velocity, cg.v_forward, cg.v_right, cg.v_up);
 }
 
 

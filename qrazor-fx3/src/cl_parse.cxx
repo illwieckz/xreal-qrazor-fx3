@@ -317,7 +317,7 @@ static void	CL_ParseBaseline(bitmessage_c &msg)
 {
 	entity_state_t	nullstate;
 
-	uint_t newnum = msg.readBits(MAX_ENTITYNUM_BITS);
+	uint_t newnum = msg.readBits(MAX_ENTITIES_BITS);
 	
 	entity_state_t *state = NULL;
 	
@@ -332,12 +332,7 @@ static void	CL_ParseBaseline(bitmessage_c &msg)
 		
 	msg.readDeltaEntity(&nullstate, state, newnum);
 	
-//	if(state->index_sound)
-//		S_StartLoopSound(state->origin, state->velocity_linear, state->getNumber(), CHAN_AUTO, S_RegisterSound(cl.configstrings[CS_SOUNDS + state->index_sound]));
-		
 	cge->CG_AddEntity(newnum, state);
-	
-// 	cge->CG_UpdateEntity(newnum, state, true);
 }
 
 static void	CL_ParseStartSoundPacket(bitmessage_c &msg)
@@ -398,7 +393,7 @@ static void	CL_ParseStartSoundPacket(bitmessage_c &msg)
 		pos = NULL;
 	}
 
-	S_StartSound(pos, ent, channel, S_RegisterSound(cl.configstrings[CS_SOUNDS+sound_num]));//, volume, attenuation, ofs);
+	S_StartSound(pos, ent, channel, S_RegisterSound(cl.configstrings[CS_SOUNDS + sound_num]));//, volume, attenuation, ofs);
 }       
 
 
@@ -421,29 +416,11 @@ static void	CL_DeltaEntity(bitmessage_c &msg, frame_t *frame, int newnum, entity
 		{
 			if(cl_shownet->getInteger() == 3)
 				Com_Printf("   remove: %i\n", state_old->getNumber());
-		
-//			if(state_old->index_sound)
-//				S_StopLoopSound(state_old->getNumber());
-			
+					
 //			cge->CG_RemoveEntity(state_old->getNumber(), state);
 			cge->CG_RemoveEntity(newnum, state);
 			return;
 		}
-		
-		/*
-		if(!state_old->index_sound && state->index_sound)
-		{
-			S_StartLoopSound(state->origin, state->velocity_linear, state->getNumber(), CHAN_AUTO, S_RegisterSound(cl.configstrings[CS_SOUNDS + state->index_sound]));
-		}
-		else if(state_old->index_sound && state->index_sound)
-		{
-			S_UpdateLoopSound(state->origin, state->velocity_linear, state->getNumber());
-		}
-		else if(state_old->index_sound && !state->index_sound)
-		{
-			S_StopLoopSound(state->getNumber());
-		}
-		*/
 	}
 	else
 	{
@@ -494,7 +471,7 @@ static void	CL_ParsePacketEntities(bitmessage_c &msg, frame_t *oldframe, frame_t
 
 	while(true)
 	{
-		newnum = msg.readBits(MAX_ENTITYNUM_BITS);
+		newnum = msg.readBits(MAX_ENTITIES_BITS);
 		
 		if(newnum < 0 || newnum >= MAX_ENTITIES)
 			Com_Error(ERR_DROP,"CL_ParsePacketEntities: bad number %i", newnum);
