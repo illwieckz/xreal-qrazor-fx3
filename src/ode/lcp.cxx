@@ -752,68 +752,91 @@ void dLCP::unpermute()
 
 #ifdef dLCP_FAST
 
-struct dLCP {
-  int n,nskip,nub;
-  ATYPE A;				// A rows
-  vec_t *Adata,*x,*b,*w,*lo,*hi;	// permuted LCP problem data
-  vec_t *L,*d;				// L*D*L' factorization of set C
-  vec_t *Dell,*ell,*tmp;
-  int *state,*findex,*p,*C;
-  int nC,nN;				// size of each index set
-
-  dLCP (int _n, int _nub, vec_t *_Adata, vec_t *_x, vec_t *_b, vec_t *_w,
-	vec_t *_lo, vec_t *_hi, vec_t *_L, vec_t *_d,
-	vec_t *_Dell, vec_t *_ell, vec_t *_tmp,
-	int *_state, int *_findex, int *_p, int *_C, vec_t **Arows);
-  int getNub() { return nub; }
-  void transfer_i_to_C (int i);
-  void transfer_i_to_N (int i)
-    { nN++; }			// because we can assume C and N span 1:i-1
-  void transfer_i_from_N_to_C (int i);
-  void transfer_i_from_C_to_N (int i);
-  int numC() { return nC; }
-  int numN() { return nN; }
-  int indexC (int i) { return i; }
-  int indexN (int i) { return i+nC; }
-  vec_t Aii (int i) { return AROW(i)[i]; }
-  vec_t AiC_times_qC (int i, vec_t *q) { return dDot (AROW(i),q,nC); }
-  vec_t AiN_times_qN (int i, vec_t *q) { return dDot (AROW(i)+nC,q+nC,nN); }
-  void pN_equals_ANC_times_qC (vec_t *p, vec_t *q);
-  void pN_plusequals_ANi (vec_t *p, int i, int sign=1);
-  void pC_plusequals_s_times_qC (vec_t *p, vec_t s, vec_t *q)
-    { for (int i=0; i<nC; i++) p[i] += s*q[i]; }
-  void pN_plusequals_s_times_qN (vec_t *p, vec_t s, vec_t *q)
-    { for (int i=0; i<nN; i++) p[i+nC] += s*q[i+nC]; }
-  void solve1 (vec_t *a, int i, int dir=1, int only_transfer=0);
-  void unpermute();
+class dLCP
+{
+public:
+	int		n, nskip, nub;
+	ATYPE		A;				// A rows
+	vec_t		*Adata, *x, *b, *w, *lo, *hi;	// permuted LCP problem data
+	vec_t		*L, *d;				// L*D*L' factorization of set C
+	vec_t		*Dell, *ell, *tmp;
+	int*		state, *findex, *p, *C;
+	int		nC, nN;				// size of each index set
+	
+#if 0
+	dLCP(	int _n, int _nub, vec_t *_Adata, vec_t *_x, vec_t *_b, vec_t *_w,
+		vec_t *_lo, vec_t *_hi, vec_t *_L, vec_t *_d,
+		vec_t *_Dell, vec_t *_ell, vec_t *_tmp,
+		int *_state, int *_findex, int *_p, int *_C, vec_t **Arows	);
+#else
+	dLCP(	int, int, vec_t*, vec_t*, vec_t*, vec_t*,
+		vec_t*, vec_t*, vec_t*, vec_t*,
+		vec_t*, vec_t*, vec_t*,
+		int*, int*, int*, int*, vec_t**);
+#endif
+	
+	int	getNub()					{return nub;}
+	
+	void	transfer_i_to_C(int i);
+	void	transfer_i_to_N(int i)				{nN++;}			// because we can assume C and N span 1:i-1
+	void	transfer_i_from_N_to_C(int i);
+	void	transfer_i_from_C_to_N(int i);
+	
+	int	numC()						{return nC;}
+	int	numN()						{return nN;}
+	
+	int	indexC(int i)					{return i;}
+	int	indexN(int i)					{return i+nC;}
+	
+	vec_t	Aii(int i)					{return AROW(i)[i];}
+	vec_t	AiC_times_qC(int i, vec_t *q)			{return dDot(AROW(i),q,nC);}
+	vec_t	AiN_times_qN(int i, vec_t *q)			{return dDot(AROW(i)+nC,q+nC,nN);}
+	
+	void	pN_equals_ANC_times_qC(vec_t *p, vec_t *q);	
+	void	pN_plusequals_ANi(vec_t *p, int i, int sign=1);
+	
+	void	pC_plusequals_s_times_qC(vec_t *p, vec_t s, vec_t *q)
+	{
+		for(int i=0; i<nC; i++)
+			p[i] += s*q[i];
+	}
+	
+	void	pN_plusequals_s_times_qN(vec_t *p, vec_t s, vec_t *q)
+	{
+		for(int i=0; i<nN; i++)
+			p[i+nC] += s*q[i+nC];
+	}
+	
+	void	solve1(vec_t *a, int i, int dir=1, int only_transfer=0);
+	void	unpermute();
 };
 
 
-dLCP::dLCP (int _n, int _nub, vec_t *_Adata, vec_t *_x, vec_t *_b, vec_t *_w,
-	    vec_t *_lo, vec_t *_hi, vec_t *_L, vec_t *_d,
-	    vec_t *_Dell, vec_t *_ell, vec_t *_tmp,
-	    int *_state, int *_findex, int *_p, int *_C, vec_t **Arows)
+dLCP::dLCP(	int n_, int nub_, vec_t* Adata_, vec_t* x_, vec_t* b_, vec_t* w_,
+		vec_t* lo_, vec_t* hi_, vec_t* L_, vec_t* d_,
+		vec_t* Dell_, vec_t* ell_, vec_t* tmp_,
+		int* state_, int* findex_, int* p_, int* C_, vec_t** Arows)
 {
-  n = _n;
-  nub = _nub;
-  Adata = _Adata;
+  n = n_;
+  nub = nub_;
+  Adata = Adata_;
   A = 0;
-  x = _x;
-  b = _b;
-  w = _w;
-  lo = _lo;
-  hi = _hi;
-  L = _L;
-  d = _d;
-  Dell = _Dell;
-  ell = _ell;
-  tmp = _tmp;
-  state = _state;
-  findex = _findex;
-  p = _p;
-  C = _C;
+  x = x_;
+  b = b_;
+  w = w_;
+  lo = lo_;
+  hi = hi_;
+  L = L_;
+  d = d_;
+  Dell = Dell_;
+  ell = ell_;
+  tmp = tmp_;
+  state = state_;
+  findex = findex_;
+  p = p_;
+  C = C_;
   nskip = dPAD(n);
-  dSetZero (x,n);
+  dSetZero(x, n);
 
   int k;
 
