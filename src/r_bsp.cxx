@@ -429,9 +429,9 @@ void	r_bsptree_c::precacheLight(r_light_c *light)
 {
 	r_lightframecount++;	
 
-	int count = litNode_r(_nodes[0], light, LITNODE_MODE_PRECACHE);
+	litNode_r(_nodes[0], light, LITNODE_MODE_PRECACHE);
 	
-	ri.Com_DPrintf("light has %i precached world entity interactions\n", count);
+//	ri.Com_DPrintf("light has %i precached world entity interactions\n", count);
 }
 
 void	r_bsptree_c::loadVisibility(const byte *buffer, const bsp_lump_t *l)

@@ -105,7 +105,7 @@ r_animation_iface_a(shared.animation)
 				count += getModel()->precacheLight(this, light);
 			}
 		
-			ri.Com_DPrintf("entity has %i precached static lights interactions\n", count);
+			//ri.Com_DPrintf("entity has %i precached static lights interactions\n", count);
 		}
 		else
 		{
