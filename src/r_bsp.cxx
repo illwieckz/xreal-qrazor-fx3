@@ -1500,11 +1500,20 @@ void 	r_bsptree_c::markLights()
 			if(light.getCluster() == -1)
 				continue;
 				
+			/*
 			if(r_newrefdef.areabits)
 			{
 				if(!(r_newrefdef.areabits[light.getArea()>>3] & (1<<(light.getArea()&7))))
 					continue;
+					
+				const std::vector<int>& areas = light.getAreas();
+				
+				for(std::vector<int>::const_iterator ir = areas.begin(); ir != areas.end(); ++ir)
+				{
+					//_areas[*ir]->lights.push_back(light);
+				}
 			}
+			*/
 			
 			if(R_CullBBox(r_frustum, light.getShared().radius_bbox))
 				continue;
@@ -1738,15 +1747,6 @@ void	r_bsp_model_c::addModelToList(r_entity_c *ent)
 		
 		if(r_lighting->getInteger())
 		{
-			/*
-			const std::map<r_light_c*, std::vector<index_t> >& interactions = surf->getInteractions();
-			
-			for(std::map<r_light_c*, std::vector<index_t> >::const_iterator ir = interactions.begin(); ir != interactions.end(); ++ir)
-			{			
-				RB_AddCommand(ent, this, surf->getMesh(), surf->getShader(), ir->first, (std::vector<index_t>*)&ir->second, -1);
-			}
-			*/
-			
 			for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 			{
 				r_light_c& light = ir->second;

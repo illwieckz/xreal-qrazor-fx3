@@ -26,20 +26,55 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // qrazor-fx ----------------------------------------------------------------
 #include 	"r_local.h"
 
+r_areaportal_c::r_areaportal_c(const std::vector<vec3_c> &vertexes, int areas[2])
+{
+	_vertexes	= vertexes;
+	_areas[0]	= areas[0];
+	_areas[1]	= areas[1];
 
+	_bbox.clear();
+	
+	for(std::vector<vec3_c>::const_iterator ir = _vertexes.begin(); ir != _vertexes.end(); ir++)
+		_bbox.addPoint(*ir);
+		
+	if(vertexes.size() != 4)
+	{
+		ri.Com_Error(ERR_DROP, "r_areaportal_c::ctor: bad vertices number %i", vertexes.size());
+	}
+	else
+	{
+		_plane.fromThreePointForm(_vertexes[0], _vertexes[1], _vertexes[2]);
+	}
+	
+	//Com_Printf("iap: %s ", ap..toString());
+	//Com_Printf("%i %i %i \n", points_num, ap.areas[SIDE_FRONT], ap.areas[SIDE_BACK]);
+}
 
 void	r_areaportal_c::adjustFrustum()
 {
+	if(r_frustum[FRUSTUM_NEAR].onSide(_bbox) == SIDE_CROSS)
+	{
+		for(int i=0; i<FRUSTUM_PLANES; i++)
+			_frustum[i] = r_frustum[i];
+		return;
+	}
+
 	// left, right, down, up
-	if(plane.onSide(r_origin) == SIDE_BACK)
+	if(_plane.onSide(r_origin) == SIDE_BACK)
 	{
 		// build frustum's planes clockwise
 		for(int i=0; i<4; i++)
 		{
-			frustum[i].fromThreePointForm(r_origin, points[i], points[(i+1)%3]);
-//			frustum[i]._dist = -frustum[i]._dist;
-			frustum[i]._type = PLANE_ANYZ;
-			frustum[i].setSignBits();
+			if(r_frustum[FRUSTUM_NEAR].onSide(_vertexes[i]) == SIDE_FRONT)
+			{
+				_frustum[i].fromThreePointForm(r_origin, _vertexes[i], _vertexes[(i+1)%4]);
+				_frustum[i]._type = PLANE_ANYZ;
+				_frustum[i].setSignBits();
+			}
+			else
+			{
+				_frustum[i] = r_frustum[i];
+			}
 		}
 	}
 	else
@@ -47,60 +82,51 @@ void	r_areaportal_c::adjustFrustum()
 		// build frustum's planes counter clockwise
 		for(int i=0; i<4; i++)
 		{
-			frustum[i].fromThreePointForm(r_origin, points[i], points[(i+3-1)%3]);
-//			frustum[i]._dist = -frustum[i]._dist;
-			frustum[i]._type = PLANE_ANYZ;
-			frustum[i].setSignBits();
+			if(r_frustum[FRUSTUM_NEAR].onSide(_vertexes[i]) == SIDE_FRONT)
+			{		
+				_frustum[i].fromThreePointForm(r_origin, _vertexes[i], _vertexes[(i+3-1)%4]);
+				_frustum[i]._type = PLANE_ANYZ;
+				_frustum[i].setSignBits();
+			}
+			else
+			{
+				_frustum[i] = r_frustum[i];
+			}
 		}
 	}
 	
-#if 0
-	vec3_c x;
-	
-	// near
-	x = r_origin;
-	frustum[4]._normal	= bbox.origin() - r_origin;
-	frustum[4]._dist	= x.dotProduct(frustum[4]._normal);
-	frustum[4]._type	= PLANE_ANYZ;
-	
-	// far
-//	x = bbox.origin();
-//	frustum[5]._normal	= r_origin - bbox.origin();
-//	frustum[5]._dist	= x.dotProduct(frustum[5]._normal);
-//	frustum[5].normalize();
-//	frustum[5]._type	= PLANE_ANYZ;
-	frustum[5] = r_frustum[5];
-#else
-	frustum[FRUSTUM_NEAR] = r_frustum[FRUSTUM_NEAR];
-	frustum[FRUSTUM_FAR] = r_frustum[FRUSTUM_FAR];
-#endif
+	_frustum[FRUSTUM_NEAR] = r_frustum[FRUSTUM_NEAR];
+	_frustum[FRUSTUM_FAR] = r_frustum[FRUSTUM_FAR];
 }
-	
+
 void	r_areaportal_c::draw()
 {
-	if(!r_showareaportals->getValue())
-		return;
+	plane_side_e side = _plane.onSide(r_origin);
 
-	//xglDisable(GL_DEPTH_TEST);
-	xglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	
-	if(plane.distance(r_origin) >= 0)
+	if(!isVisible())
 		xglColor4fv(color_red);
+		
+	else if(side == SIDE_FRONT)
+		xglColor4fv(color_green);
+		
 	else
 		xglColor4fv(color_blue);
-	
-	//xglBegin(GL_LINE_LOOP);
-	//xglBegin(GL_LINES);
-	xglBegin(GL_QUADS);
-	
-	for(unsigned int i=0; i<points.size(); i++)
-		xglVertex3fv(points[i]);
 
+	xglBegin(GL_QUADS);
+	if(side == SIDE_FRONT)
+	{
+		for(std::vector<vec3_c>::const_iterator ir = _vertexes.begin(); ir != _vertexes.end(); ++ir)
+			xglVertex3fv(*ir);
+	}
+	else
+	{
+		for(std::vector<vec3_c>::const_iterator ir = _vertexes.end()-1; ir != _vertexes.begin()-1; --ir)
+			xglVertex3fv(*ir);
+	}
 	xglEnd();
-	
-	//xglEnable(GL_DEPTH_TEST);
-	xglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
+
+
 
 r_proctree_c::r_proctree_c(const std::string &name)
 {
@@ -184,28 +210,21 @@ r_proctree_c::~r_proctree_c()
 void	r_proctree_c::precacheLight(r_light_c* light)
 {
 	light->setAreaNum(_areas.size());
+		
+	const std::vector<int>& areas = light->getAreas();
 	
-#if 0
-	for(uint_t areanum=0; areanum<_areas.size(); areanum++)
+	for(std::vector<int>::const_iterator ir = areas.begin(); ir != areas.end(); ++ir)
 	{
-		r_proctree_area_c *area = _areas[areanum];
-				
-		for(std::vector<r_surface_c*>::const_iterator ir2 = area->model->_surfaces.begin(); ir2 != area->model->_surfaces.end(); ++ir2)
-		{
-			r_surface_c* surf = *ir2;
-				
-			if(!surf->getMesh()->bbox.intersect(light.getShared().radius_bbox))
-				continue;
-				
-			light.addSurface(areanum, surf);
-		}
+		litArea_r(*ir, light, true);
+		//_areas[*ir]->lights.push_back(light);
 	}
-#else			
+	
+	/*
 	int area = pointInArea(light->getShared().origin);
 				
 	if(area != -1)
-		litArea_r(area, light);
-#endif
+		litArea_r(area, light, true);
+	*/
 }
 
 void	r_proctree_c::update()
@@ -232,45 +251,164 @@ void	r_proctree_c::update()
 		_viewcluster = area;
 	}
 	*/
-}
-
-void	r_proctree_c::draw()
-{
-	// clear old lights
-	/*
-	for(unsigned int i=0; i<_areas.size(); i++)
-	{
-		r_proctree_area_c* area = _areas[i];
-			
-		area->lights.clear();
-	}
-	*/
-	
-	if(r_lighting->getValue())	// don't draw lights if outside of the map
-	{
-		/*					
-		// create new dynamic lights
-		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
-		{
-			r_light_c& light = ir->second;
-			
-			if(R_CullBBox(r_frustum, light.getShared().radius_bbox))
-				continue;
-			
-			_visframecount++;
-			
-			int area = pointInArea(light.getShared().origin);
-				
-			if(area != -1)
-				litArea_r(area, &light);
-		}
-		*/
-	}
 	
 	r_visframecount++;
 	
 	_sourcearea = pointInArea(r_origin);
 	
+	if(_sourcearea == -1)
+	{
+		for(unsigned i=0; i<_areas.size(); i++)
+		{
+			r_proctree_area_c *area = _areas[i];
+			
+			if(!area->model)
+				continue;
+			
+			if(r_newrefdef.areabits)
+			{
+				if(!(r_newrefdef.areabits[i>>3] & (1<<(i&7))))
+					continue;		// not visible
+			}
+			
+			area->visframecount = r_visframecount;
+			area->clipflags = FRUSTUM_CLIPALL;
+			c_leafs++;
+		}
+	}
+	else
+	{
+		updateArea_r(_sourcearea, r_frustum, FRUSTUM_CLIPALL);
+	}
+	
+	// mark entities
+	r_world_entity.setVisFrameCount();
+	c_entities++;
+
+	for(std::map<int, r_entity_c>::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
+	{
+		r_entity_c& ent = ir->second;
+		
+		ent.setVisFrameCount();
+		c_entities++;
+	}
+}
+
+void	r_proctree_c::updateArea_r(int areanum, const r_frustum_t frustum, int clipflags)
+{
+	r_proctree_area_c *area = _areas[areanum];
+	
+	if(area->visframecount == r_visframecount)
+		return;
+	
+	/*
+	if(r_newrefdef.areabits)
+	{
+		if(!(r_newrefdef.areabits[areanum>>3] & (1<<(areanum&7))))
+			return;		// not visible
+	}
+	*/
+	
+	/*
+	if(r_cull->getValue() && clipflags)
+	{
+		for(int i=0; i<FRUSTUM_PLANES; i++)
+		{
+			if(!(clipflags & (1<<i)))
+				continue;	// don't need to clip against it
+
+			plane_side_e clipped = r_frustum[i].onSide(area->model->getBBox());
+			
+			if(clipped == SIDE_BACK)
+				return;
+				
+			else if(clipped == SIDE_FRONT)
+				clipflags &= ~(1<<i);	// node is entirely on screen
+		}
+	}
+	*/
+	
+	if(R_CullBBox(frustum, area->bbox))
+		return;
+	
+	area->visframecount = r_visframecount;
+	area->clipflags = clipflags;
+	c_leafs++;
+	
+	
+	// mark lights
+	if(r_lighting->getInteger())
+	{
+		/*
+		for(std::vector<r_light_c*>::const_iterator ir = area->lights.begin(); ir != area->lights.end(); ++ir)
+		{
+			r_light_c *light = *ir;
+			
+			if(!light)
+				continue;
+				
+			if(R_CullBBox(frustum, light->getShared().radius_bbox, clipflags))
+				continue;
+			
+			if(!light->isVisible())
+			{
+				light->setVisFrameCount();
+				c_lights++;
+			}
+		}
+		*/
+		
+		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		{
+			r_light_c& light = ir->second;
+			
+			if(light.isVisible())
+				continue;
+			
+			if(!light.hasArea(areanum))
+				continue;
+			
+			if(R_CullBBox(frustum, light.getShared().radius_bbox, clipflags))
+				continue;
+			
+			light.setVisFrameCount();
+			c_lights++;
+		}
+	}
+	
+	//TODO: mark entities
+	
+	for(std::vector<r_areaportal_c*>::const_iterator ir = area->areaportals.begin(); ir != area->areaportals.end(); ++ir)
+	{
+		r_areaportal_c* iap = *ir;
+		
+		if(!iap->isVisible())
+		{
+			if(r_cullportals->getValue() && !R_CullBBox(frustum, iap->getBBox()))
+			{
+				for(int i=0; i<2; i++)
+				{
+					// skip current area
+					if(iap->getArea(i) == areanum)
+						continue;
+		
+					// never go back to the source area
+					if(iap->getArea(i) == _sourcearea)
+						continue;
+						
+					iap->adjustFrustum();
+					
+					iap->setVisFrameCount();
+					
+					updateArea_r(iap->getArea(i), iap->getFrustum(), clipflags);
+				}
+			}
+		}
+	}
+}
+
+void	r_proctree_c::draw()
+{
 	if(_sourcearea == -1)
 	{
 		for(unsigned i=0; i<_areas.size(); i++)
@@ -291,47 +429,42 @@ void	r_proctree_c::draw()
 	}
 	else
 	{
-		drawArea_r(_sourcearea, r_frustum, FRUSTUM_CLIPALL);
+		drawArea_r(_sourcearea);
 	}
 }
 
-
-void	r_proctree_c::drawArea_r(int areanum, const r_frustum_t frustum, int clipflags)
+void	r_proctree_c::drawAreaPortals()
 {
-	/*
-	if(r_newrefdef.areabits)
+	RB_SetupModelviewMatrix(matrix_identity);
+
+	xglDisable(GL_DEPTH_TEST);
+	xglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	for(std::vector<r_areaportal_c*>::const_iterator ir = _areaportals.begin(); ir != _areaportals.end(); ++ir)
 	{
-		if(!(r_newrefdef.areabits[areanum>>3] & (1<<(areanum&7))))
-			return;		// not visible
+		r_areaportal_c* iap = *ir;
+		
+		iap->draw();
 	}
-	*/
 	
+	xglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	xglEnable(GL_DEPTH_TEST);
+	
+	xglColor4fv(color_white);
+}
+
+void	r_proctree_c::drawArea_r(int areanum)
+{
+#if 1
 	r_proctree_area_c *area = _areas[areanum];
 	
-	if(area->visframecount == r_visframecount)
+	if(area->visframecount != r_visframecount)
+		return;
+		
+	if(area->framecount == r_framecount)
 		return;
 	
-	if(r_cull->getValue() && clipflags)
-	{
-		for(int i=0; i<FRUSTUM_PLANES; i++)
-		{
-			if(!(clipflags & (1<<i)))
-				continue;	// don't need to clip against it
-
-			plane_side_e clipped = r_frustum[i].onSide(area->model->getBBox());
-			
-			if(clipped == SIDE_BACK)
-				return;
-				
-			else if(clipped == SIDE_FRONT)
-				clipflags &= ~(1<<i);	// node is entirely on screen
-		}
-	}
-	
-	area->visframecount = r_visframecount;
-	c_leafs++;
-
-	for(std::vector<r_surface_c*>::const_iterator ir = area->model->_surfaces.begin(); ir != area->model->_surfaces.end(); ++ir)
+	for(std::vector<r_surface_c*>::const_iterator ir = area->surfaces.begin(); ir != area->surfaces.end(); ++ir)
 	{
 		r_surface_c *surf = *ir;
 		
@@ -350,7 +483,7 @@ void	r_proctree_c::drawArea_r(int areanum, const r_frustum_t frustum, int clipfl
 			continue;
 		}
 				
-		if(R_CullBBox(r_frustum, surf->getMesh()->bbox, clipflags))
+		if(R_CullBBox(r_frustum, surf->getMesh()->bbox, area->clipflags))
 			continue;
 		
 		surf->setFrameCount();
@@ -358,9 +491,55 @@ void	r_proctree_c::drawArea_r(int areanum, const r_frustum_t frustum, int clipfl
 		RB_AddCommand(&r_world_entity, area->model, surf->getMesh(), surf->getShader(), NULL, NULL, -1, 0);
 	}
 	
+	area->framecount = r_framecount;
 	
 	if(r_lighting->getValue() == 1)
 	{
+		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		{
+			r_light_c& light = ir->second;
+			
+			if(!light.isVisible())
+				continue;
+				
+			if(!light.hasArea(areanum))
+				continue;
+			
+			if(light.getShared().flags & RF_STATIC)
+			{
+				const std::map<const r_surface_c*, std::vector<index_t> >& surfaces = light.getAreaSurfaces(areanum);
+			
+				for(std::map<const r_surface_c*, std::vector<index_t> >::const_iterator ir = surfaces.begin(); ir != surfaces.end(); ++ir)
+				{
+					const r_surface_c* surf = ir->first;
+
+					if(surf->getFrameCount() != r_framecount)
+						continue;	// surface is not in this frame
+					
+					RB_AddCommand(&r_world_entity, area->model, surf->getMesh(), surf->getShader(), &light, (std::vector<index_t>*)&ir->second, -1, 0);
+				}
+			}
+			else
+			{
+				for(std::vector<r_surface_c*>::const_iterator ir = area->surfaces.begin(); ir != area->surfaces.end(); ++ir)
+				{
+					r_surface_c *surf = *ir;
+			
+					if(surf->getFrameCount() != r_framecount)
+						continue;	// surface is not in this frame
+				
+					if(!light.getShared().radius_bbox.intersect(surf->getMesh()->bbox))
+						continue;
+				
+					RB_AddCommand(&r_world_entity, area->model, surf->getMesh(), surf->getShader(), &light, NULL, -1, 0);
+				}
+			}
+			
+			
+			
+		}
+	
+		/*
 		for(std::vector<r_light_c*>::const_iterator ir = area->lights.begin(); ir != area->lights.end(); ++ir)
 		{
 			r_light_c *light = *ir;
@@ -368,130 +547,183 @@ void	r_proctree_c::drawArea_r(int areanum, const r_frustum_t frustum, int clipfl
 			if(!light)
 				continue;
 				
-			if(R_CullBBox(r_frustum, light->getShared().radius_bbox, clipflags))
+			if(!light->isVisible())
 				continue;
-					
-			const std::map<const r_surface_c*, std::vector<index_t> >& light_areasurfaces = light->getAreaSurfaces(areanum);
 			
-			for(std::map<const r_surface_c*, std::vector<index_t> >::const_iterator ir2 = light_areasurfaces.begin(); ir2 != light_areasurfaces.end(); ++ir2)
+			
+			const std::map<const r_surface_c*, std::vector<index_t> >& surfaces = light->getAreaSurfaces(areanum);
+			
+			for(std::map<const r_surface_c*, std::vector<index_t> >::const_iterator ir = surfaces.begin(); ir != surfaces.end(); ir++)
 			{
-				const r_surface_c* surf = ir2->first;
+				const r_surface_c* surf = ir->first;
 
 				if(surf->getFrameCount() != r_framecount)
 					continue;
 					
-				RB_AddCommand(&r_world_entity, area->model, surf->getMesh(), surf->getShader(), light, (std::vector<index_t>*)&ir2->second, -1, 0);
+				RB_AddCommand(&r_world_entity, area->model, surf->getMesh(), surf->getShader(), light, (std::vector<index_t>*)&ir->second, -1, 0);
 			}
 		}
+		*/
 	}
 	
 	for(std::vector<r_areaportal_c*>::const_iterator ir = area->areaportals.begin(); ir != area->areaportals.end(); ++ir)
 	{
 		r_areaportal_c* iap = *ir;
 		
-		if(iap->visframe != r_visframecount)
+		if(iap->isVisible())
 		{
-			if(r_cullportals->getValue() && !R_CullBBox(frustum, iap->bbox, clipflags))
+			for(int i=0; i<2; i++)
 			{
-				for(int i=0; i<2; i++)
-				{
-					//if(_areas[iap->areas[i]]->_r == r_v)
-				
-					if(iap->areas[i] == areanum)
-						continue;
-		
-					// never go back to the source area
-					if(iap->areas[i] == _sourcearea)
-						continue;
-						
-					iap->adjustFrustum();
-					
-					iap->visframe = r_visframecount;
-					drawArea_r(iap->areas[i], iap->frustum, clipflags);
-				}
+				drawArea_r(iap->getArea(i));
 			}
 		}
 	}
+#endif
 }
 
-void	r_proctree_c::litArea_r(int areanum, r_light_c *light)
+void	r_proctree_c::litArea_r(int areanum, r_light_c *light, bool precache)
 {
 	//ri.Com_Printf("r_proctree_c::litArea_r %i\n", areanum);
 
 	r_proctree_area_c *area = _areas[areanum];
-		
+	
+	/*	
 	std::vector<r_light_c*>::iterator ir = find(area->lights.begin(), area->lights.end(), static_cast<r_light_c*>(light));
 	if(ir != area->lights.end())
 		return;
 	else
 		area->lights.push_back(light);
-		
+	*/	
 	
-	for(std::vector<r_surface_c*>::const_iterator ir = area->model->_surfaces.begin(); ir != area->model->_surfaces.end(); ++ir)
+	for(std::vector<r_surface_c*>::const_iterator ir = area->surfaces.begin(); ir != area->surfaces.end(); ++ir)
 	{
 		r_surface_c *surf = *ir;
 		
-		if(!surf->getMesh()->bbox.intersect(light->getShared().radius_bbox))
+		if(!light->getShared().radius_bbox.intersect(surf->getMesh()->bbox))
 			continue;
-			
-		if(light->hasSurface(areanum, surf))
-			continue;
-						
+		
+		//if(light->hasSurface(areanum, surf))
+		//	continue;
+
 		light->addSurface(areanum, surf);
 	}
-		
+	
+	/*	
 	for(std::vector<r_areaportal_c*>::const_iterator ir = area->areaportals.begin(); ir != area->areaportals.end(); ++ir)
 	{
 		r_areaportal_c* iap = *ir;
 		
-		if(iap->bbox.intersect(light->getShared().radius_bbox))
+		if(iap->visframecount == r_visframecount)
 		{
-			for(int i=0; i<2; i++)
-			{			
-				litArea_r(iap->areas[i], light);
+			if(iap->bbox.intersect(light->getShared().radius_bbox))
+			{
+				for(int i=0; i<2; i++)
+				{			
+					litArea_r(iap->areas[i], light, precache);
+				}
 			}
+		
 		}
 	}
+	*/
 }
+	
 
-int	r_proctree_c::pointInArea_r(const vec3_c &p, int num)
+int	r_proctree_c::pointInArea_r(const vec3_c &p, int nodenum)
 {
-	if(num < 0 || num > (int)_nodes.size())
+	if(nodenum < 0 || nodenum >= (int)_nodes.size())
 	{
-		ri.Com_Error(ERR_DROP, "r_proctree_c::pointInArea_r: bad num %i", num);
+		ri.Com_Error(ERR_DROP, "r_proctree_c::pointInArea_r: bad num %i", nodenum);
 	}
 	
-	r_proctree_node_c *node = _nodes[num];
+	r_proctree_node_c *node = _nodes[nodenum];
+
+	plane_side_e side = node->plane.onSide(p);
+	
+	nodenum = node->children[side];
 		
-	vec_t d = node->plane.distance(p);
-		
-	if(d >= 0)
-		num = node->children[SIDE_FRONT];
-	else
-		num = node->children[SIDE_BACK];
-		
-	if(num < 0)
-		return -1 -num;
+	if(nodenum < 0)
+		return -1 -nodenum;
 			
-	if(num == 0)
+	if(nodenum == 0)
 		return -1;
 	
-	return pointInArea_r(p, num);
+	return pointInArea_r(p, nodenum);
 }
 
 int	r_proctree_c::pointInArea(const vec3_c &p)
 {
-	if(!_nodes.size())
-	{
-		//ri.Com_Error(ERR_DROP, "r_proctree_c::pointInArea: bad tree");
+	if(_nodes.empty())
 		return 0;
+		
+	return pointInArea_r(p, 0);
+}
+
+void	r_proctree_c::boxAreas_r(const cbbox_c &bbox, std::vector<int> &areas, int nodenum)
+{
+	if(nodenum < 0)
+	{
+		int areanum = -1 -nodenum;
+		
+		if(areanum < 0 || areanum >= (int)_areas.size())
+		{
+			ri.Com_Error(ERR_DROP, "r_proctree_c::boxAreas_r: bad areanum %i", areanum);
+		}
+		
+		std::vector<int>::iterator ir = find(areas.begin(), areas.end(), areanum);
+		if(ir == areas.end())
+			areas.push_back(areanum);
+			
+		return;
+	}
+
+	r_proctree_node_c *node = _nodes[nodenum];
+	
+	plane_side_e side = node->plane.onSide(bbox);
+	
+	switch(side)
+	{
+		case SIDE_FRONT:
+		{
+			if(node->children[SIDE_FRONT])
+				boxAreas_r(bbox, areas, node->children[SIDE_FRONT]);
+			break;
+		}
+		
+		case SIDE_BACK:
+		{
+			if(node->children[SIDE_BACK])
+				boxAreas_r(bbox, areas, node->children[SIDE_BACK]);
+			break;
+		}
+		
+		case SIDE_CROSS:
+		{
+			// go down both
+			if(node->children[SIDE_FRONT])
+				boxAreas_r(bbox, areas, node->children[SIDE_FRONT]);
+				
+			if(node->children[SIDE_BACK])
+				boxAreas_r(bbox, areas, node->children[SIDE_BACK]);
+			break;
+		}
+		
+		default:
+			break;
+	}
+}
+	
+void	r_proctree_c::boxAreas(const cbbox_c &bbox, std::vector<int> &areas)
+{
+	areas.clear();
+
+	if(_nodes.empty())
+	{
+		areas.push_back(0);
+		return;
 	}
 	
-	int area = pointInArea_r(p, 0);
-	
-	//ri.Com_Printf("r_proc_tree_c::pointInArea: %i\n", area);
-	
-	return area;
+	boxAreas_r(bbox, areas, 0);
 }
 
 
@@ -548,40 +780,23 @@ void	r_proctree_c::loadInterAreaPortals(char **buf_p)
 	
 	for(int i=0; i<areaportals_num; i++)
 	{
-		r_areaportal_c* ap = new r_areaportal_c();
-		
 		int points_num = Com_ParseInt(buf_p, true);
+		std::vector<vec3_c> points(points_num);
 		
-		ap->areas[SIDE_FRONT] = Com_ParseInt(buf_p, false);
-		ap->areas[SIDE_BACK] = Com_ParseInt(buf_p, false);
+		int areas[2];
+		areas[SIDE_FRONT] = Com_ParseInt(buf_p, false);
+		areas[SIDE_BACK] = Com_ParseInt(buf_p, false);
 		
-		_areas[ap->areas[SIDE_FRONT]]->areaportals.push_back(ap);
-		_areas[ap->areas[SIDE_BACK]]->areaportals.push_back(ap);
-		
-		ap->bbox.clear();
-	
 		// parse points
 		for(int j=0; j<points_num; j++)
 		{
-			vec3_c p = Com_ParseVec3(buf_p);
-		
-			ap->bbox.addPoint(p);
-			
-			ap->points.push_back(p);
+			points[j] = Com_ParseVec3(buf_p);
 		}
 		
-		if(points_num >= 3)
-		{		
-			ap->plane.fromThreePointForm(ap->points[0], ap->points[1], ap->points[2]);
-		}
-		else
-		{
-			ri.Com_Error(ERR_DROP, "r_proctree_c::loadInterAreaPortals: bad points num %i", points_num);
-		}
+		r_areaportal_c* ap = new r_areaportal_c(points, areas);
 		
-		//Com_Printf("iap: %s ", ap..toString());
-		//Com_Printf("%i %i %i \n", points_num, ap.areas[SIDE_FRONT], ap.areas[SIDE_BACK]);
-		
+		_areas[areas[SIDE_FRONT]]->areaportals.push_back(ap);
+		_areas[areas[SIDE_BACK]]->areaportals.push_back(ap);
 		_areaportals.push_back(ap);
 	}
 	
@@ -693,8 +908,6 @@ void	r_proc_model_c::load(char **buf_p)
 		
 		_surfaces.push_back(surf);
 		
-		
-		
 		char *token = Com_Parse(buf_p);	// skip '}'
 		
 		if(token[0] != '}')
@@ -748,46 +961,26 @@ void	r_proc_model_c::addModelToList(r_entity_c *ent)
 		//	continue;
 	
 		RB_AddCommand(ent, this, surf->getMesh(), surf->getShader(), NULL, NULL, -1, r_origin.distance(ent->getShared().origin));
-	}
 	
-	/*
-	if(r_lighting->getValue() == 1)
-	{
-		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		if(r_lighting->getValue() == 1)
 		{
-			r_light_c& light = ir->second;
-			
-			if(R_CullBBox(r_frustum, light.getShared().radius_bbox))
-					continue;
-			
-			for(std::vector<r_surface_c*>::const_iterator ir2 = _surfaces.begin(); ir2 != _surfaces.end(); ++ir2)
-			{
-				r_surface_c* surf = *ir2;
-				
-				if(surf->culled)
-					continue;				
-						
-				if(!surf->getMesh()->bbox.intersect(light.getShared().radius_bbox))
-					continue;
+			for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+			{	
+				r_light_c& light = ir->second;
 					
-				//if(light.hasSurface(surf))
-				//	continue;
-								
-				RB_AddCommand(ent, this, surf->getMesh(), surf->getShader(), &light, surf, -1);
-			}
+				if(!light.isVisible())
+					continue;
 			
-			//ri.Com_Printf("light in area %i intersects with %i surfaces\n", areanum, light->surfaces.size());
+				if(light.getShared().radius_bbox.intersect(ent->getShared().origin, surf->getMesh()->bbox.radius()))
+					RB_AddCommand(ent, this, surf->getMesh(), surf->getShader(), &light, NULL, -1, 0);
+			}
 		}
 	}
-	*/
 }
 
 void	r_proc_model_c::draw(const r_command_t *cmd, r_render_type_e type)
 {
 	if(!cmd)
-		return;
-
-	if(type == RENDER_TYPE_SHADOWING)
 		return;
 				
 	RB_SetupModelviewMatrix(cmd->getEntity()->getTransform());
@@ -795,11 +988,12 @@ void	r_proc_model_c::draw(const r_command_t *cmd, r_render_type_e type)
 	RB_RenderCommand(cmd, type);
 }
 
+/*
 void	r_proc_model_c::setupMeshes()
 {
 	_bbox.clear();
 	
-	for(std::vector<r_surface_c*>::const_iterator ir = _surfaces.begin(); ir != _surfaces.end(); ir++)
+	for(std::vector<r_surface_c*>::const_iterator ir = _surfaces.begin(); ir != _surfaces.end(); ++ir)
 	{
 		r_surface_c *surf = *ir;
 		
@@ -813,6 +1007,6 @@ void	r_proc_model_c::setupMeshes()
 		_bbox.mergeWith(surf->getMesh()->bbox);
 	}
 }
-
+*/
 
 

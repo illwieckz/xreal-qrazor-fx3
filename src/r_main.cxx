@@ -96,7 +96,7 @@ cplane_c	r_clipplane;
 
 
 r_entity_c	r_world_entity;
-r_bsptree_c*	r_world_tree;
+r_proctree_c*	r_world_tree;
 
 std::vector<index_t> 	r_quad_indexes;
 
@@ -841,6 +841,71 @@ void 	R_DrawWorld()
 }
 
 
+void	R_DrawLightDebuggingInfo()
+{
+	RB_SetupModelviewMatrix(matrix_identity, true);
+	
+	if(r_showlightbboxes->getInteger())
+	{
+		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		{
+			r_light_c& light = ir->second;
+			
+			if(!light.isVisible())
+				continue;
+				
+			R_DrawBBox(light.getShared().radius_bbox);
+		}
+	}
+	
+	if(r_showlightscissors->getInteger())
+	{
+		RB_SetupGL2D();
+		
+		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		{
+			r_light_c& light = ir->second;
+			
+			if(!light.isVisible())
+				continue;
+				
+			//R_DrawFill(light.getScissorX(), light.getScissorY(), light.getScissorWidth(), light.getScissorHeight(), color_red);
+			
+			
+			xglColor4fv(color_red);
+			
+			xglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			xglBegin(GL_QUADS);
+			xglVertex3f(light.getScissorX(), light.getScissorY(), 0.0);
+			xglVertex3f(light.getScissorX()+light.getScissorWidth(), light.getScissorY(), 0.0);
+			xglVertex3f(light.getScissorX()+light.getScissorWidth(), light.getScissorY()+light.getScissorHeight(), 0.0);
+			xglVertex3f(light.getScissorX(), light.getScissorY()+light.getScissorHeight(), 0.0);
+			xglEnd();
+			xglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			
+			xglColor4fv(color_white);
+			
+		}
+		
+		RB_SetupGL3D();
+	}
+}
+
+
+void	R_DrawAreaPortals()
+{
+	if(!r_world_tree)
+		return;
+
+	if(r_newrefdef.rdflags & RDF_NOWORLDMODEL)
+		return;
+		
+	if(!r_showareaportals->getValue())
+		return;
+		
+	r_world_tree->drawAreaPortals();
+}
+
 
 static void	R_BeginFrame()
 {
@@ -924,6 +989,10 @@ static void 	R_RenderFrame(const r_refdef_t &fd)
 	if(r_speeds->getInteger())
 		time_commands = ri.Sys_Milliseconds();
 		
+	R_DrawLightDebuggingInfo();
+	
+	R_DrawAreaPortals();
+		
 	//R_AddPolysToBuffer();
 		
 	//R_DrawParticles();
@@ -952,6 +1021,8 @@ static void 	R_RenderFrame(const r_refdef_t &fd)
 			c_triangles,
 			c_draws,
 			c_expressions);
+			
+		//ri.Com_Printf("%4i cmds %4i light cmds %4i translucent cmds\n", c_cmds, c_cmds_light, c_cmds_translucent);
 		
 		/*	
 		int	all, setup, create, commands;
@@ -1184,11 +1255,11 @@ void	R_InitTree(r_tree_type_e type, const std::string &name)
 	switch(type)
 	{
 		case TREE_BSP:
-			r_world_tree = new r_bsptree_c("maps/" + name);
+			//r_world_tree = new r_bsptree_c("maps/" + name);
 			break;
 		
 		case TREE_PROC:
-			//r_world_tree = new r_proctree_c("maps/" + name + ".proc");
+			r_world_tree = new r_proctree_c("maps/" + name + ".proc");
 			break;
 	}
 }

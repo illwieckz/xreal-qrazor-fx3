@@ -69,7 +69,7 @@ void	RB_InitBackend()
 {
 	ri.Com_Printf("------- RB_InitBackend -------\n");
 	
-	xglClearColor(0.0, 0.0, 1.0, 1.0);
+	xglClearColor(0.1, 0.1, 0.1, 1.0);
 	xglColor4fv(color_white);
 	
 	//xglEnable(GL_DEPTH_TEST);
@@ -2328,57 +2328,6 @@ void	RB_RenderCommands()
 		
 		for(i=0, cmd = &r_current_scene->cmds_translucent[0]; i<r_current_scene->cmds_translucent_num; i++, cmd++)
 			cmd->getEntityModel()->draw(cmd, RENDER_TYPE_DEFAULT);
-	}
-	
-	
-	//
-	// draw light debugging info
-	//
-	RB_SetupModelviewMatrix(matrix_identity, true);
-	
-	if(r_showlightbboxes->getInteger())
-	{
-		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
-		{
-			r_light_c& light = ir->second;
-			
-			if(!light.isVisible())
-				continue;
-				
-			R_DrawBBox(light.getShared().radius_bbox);
-		}
-	}
-	
-	if(r_showlightscissors->getInteger())
-	{
-		RB_SetupGL2D();
-		
-		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
-		{
-			r_light_c& light = ir->second;
-			
-			if(!light.isVisible())
-				continue;
-				
-			//R_DrawFill(light.getScissorX(), light.getScissorY(), light.getScissorWidth(), light.getScissorHeight(), color_red);
-			
-			
-			xglColor4fv(color_red);
-			
-			xglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			xglBegin(GL_QUADS);
-			xglVertex3f(light.getScissorX(), light.getScissorY(), 0.0);
-			xglVertex3f(light.getScissorX()+light.getScissorWidth(), light.getScissorY(), 0.0);
-			xglVertex3f(light.getScissorX()+light.getScissorWidth(), light.getScissorY()+light.getScissorHeight(), 0.0);
-			xglVertex3f(light.getScissorX(), light.getScissorY()+light.getScissorHeight(), 0.0);
-			xglEnd();
-			xglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			
-			xglColor4fv(color_white);
-			
-		}
-		
-		RB_SetupGL3D();
 	}
 	
 	

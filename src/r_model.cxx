@@ -231,7 +231,7 @@ void 	R_BeginRegistration(const std::string &model)
 	
 	R_ShutdownTree();
 	
-#if 1
+#if 0
 	R_LoadLightMapImages(model);
 	R_InitTree(TREE_BSP, model);
 #else

@@ -475,8 +475,8 @@ void	g_world_c::activate()
 	}
 	*/	
 		
-	G_SetWorldModel(this, "*0");
-//	G_SetWorldModel(this, "worldMap");
+//	G_SetWorldModel(this, "*0");
+	G_SetWorldModel(this, "worldMap");
 }
 
 void	SP_worldspawn(g_entity_c **entity)
