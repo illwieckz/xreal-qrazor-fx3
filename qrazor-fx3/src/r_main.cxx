@@ -1333,7 +1333,7 @@ static void 	R_Register()
 	r_lighting 		= ri.Cvar_Get("r_lighting", "1", CVAR_ARCHIVE);
 	r_lighting_omni		= ri.Cvar_Get("r_lighting_omni", "1", CVAR_ARCHIVE);
 	r_lighting_proj 	= ri.Cvar_Get("r_lighting_proj", "0", CVAR_NONE);
-	r_lightmap		= ri.Cvar_Get("r_lightmap", "1", CVAR_ARCHIVE);
+	r_lightmap		= ri.Cvar_Get("r_lightmap", "0", CVAR_ARCHIVE);
 	r_lightscale		= ri.Cvar_Get("r_lightscale", "4", CVAR_ARCHIVE);
 	r_znear			= ri.Cvar_Get("r_znear", "4.0", CVAR_ARCHIVE);
 	r_zfar			= ri.Cvar_Get("r_zfar", "65536.0", CVAR_ARCHIVE);
@@ -1376,7 +1376,7 @@ static void 	R_Register()
 	r_octree		= ri.Cvar_Get("r_octree", "0", CVAR_ARCHIVE);
 	r_bump_mapping		= ri.Cvar_Get("r_bump_mapping", "1", CVAR_ARCHIVE);
 	r_gloss			= ri.Cvar_Get("r_gloss", "1", CVAR_ARCHIVE);
-	r_parallax		= ri.Cvar_Get("r_parallax", "1", CVAR_ARCHIVE);
+	r_parallax		= ri.Cvar_Get("r_parallax", "0", CVAR_NONE);
 	r_cmds_max		= ri.Cvar_Get("r_cmds_max", "8192", CVAR_ARCHIVE);
 	r_cmds_light_max	= ri.Cvar_Get("r_cmds_light_max", "8192", CVAR_ARCHIVE);
 	r_cmds_translucent_max	= ri.Cvar_Get("r_cmds_translucent_max", "8192", CVAR_ARCHIVE);
