@@ -33,6 +33,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // xreal --------------------------------------------------------------------
 
+enum
+{
+	
+	MINS_Z			= -24,
+	VIEWHEIGHT_DEFAULT	= 26,
+	VIEWHEIGHT_CROUCH	= 12,
+	VIEWHEIGHT_DEAD		= -16
+};
 
 //
 // console variables

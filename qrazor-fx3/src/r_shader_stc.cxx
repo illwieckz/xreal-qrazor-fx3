@@ -631,6 +631,18 @@ void	R_Eta_stc(char const* begin, char const *end)
 	r_current_stage->eta = eta;
 }
 
+void	R_DeformMagnitude_stc(char const* begin, char const *end)
+{
+	std::string	exp(begin, end);
+
+	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> mag;
+	
+	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), mag))
+		ri.Com_Printf("R_DeformMagnitude_stc: parsing failed\n");
+	
+	r_current_stage->deform_magnitude = mag;
+}
+
 void	R_StageColorMap_stc(char const* begin, char const *end)
 {
 	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_COLORMAP;

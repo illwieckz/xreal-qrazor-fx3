@@ -617,6 +617,8 @@ public:
 	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	eta;
 	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	eta_delta;
 	
+	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	deform_magnitude;
+	
 	bool				make_intensity;
 	bool				make_alpha;
 	
