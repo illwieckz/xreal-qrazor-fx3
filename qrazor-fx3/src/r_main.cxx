@@ -261,12 +261,12 @@ void 	R_DrawNULL(const vec3_c &origin, const vec3_c &angles)
 
 void 	R_DrawBBox(const cbbox_c &bbox)
 {
-#if 1
+#if 0
 	if(!r_showbbox->getValue())
 		return;
 
 	//
-	// compute bbox edges
+	// compute bbox vertices
 	//
 	vec3_c vertexes[8];	// max x,y,z points in space
 	
@@ -846,8 +846,8 @@ static void 	R_RenderFrame(const r_refdef_t &fd)
 {
 	int	time_start = 0;
 	int	time_setup = 0;
-	int	time_world = 0;
-	int	time_entities = 0;
+	int	time_create = 0;
+	int	time_commands = 0;
 	int	time_end = 0;
 
 	r_newrefdef = fd;
@@ -873,15 +873,15 @@ static void 	R_RenderFrame(const r_refdef_t &fd)
 	
 	R_DrawSky();
 	
-	if(r_speeds->getInteger())
-		time_world = ri.Sys_Milliseconds();
-		
 	R_AddEntitiesToBuffer();
+	
+	if(r_speeds->getInteger())
+		time_create = ri.Sys_Milliseconds();
 	
 	RB_RenderCommands();
 	
 	if(r_speeds->getInteger())
-		time_entities = ri.Sys_Milliseconds();
+		time_commands = ri.Sys_Milliseconds();
 		
 	//R_AddPolysToBuffer();
 		
@@ -909,15 +909,15 @@ static void 	R_RenderFrame(const r_refdef_t &fd)
 			rb_flushes_counter,
 			rb_expressions_counter);
 			
-		int	all, setup, world, entities;
+		int	all, setup, create, commands;
 
 		all = time_end - time_start;
 		setup = time_setup - time_start;
-		world = time_world - time_setup;
-		entities = time_entities - time_world;
+		create = time_create - time_setup;
+		commands = time_commands - time_create;
 		
-		//ri.Com_Printf("%4i all %4i setup %4i world %4i entities\n", all, setup, world, entities);	
-		//ri.Com_Printf("%4i ents %4i lights %4i particles %4i polies\n", r_entities.size(), r_lights.size(), r_particles_num, r_polys_num);
+		ri.Com_Printf("%4i all %4i setup %4i create %4i commands\n", all, setup, create, commands);
+		ri.Com_Printf("%4i ents %4i lights %4i particles %4i polies\n", r_entities.size(), r_lights.size(), r_particles_num, r_polys_num);
 	}
 }
 

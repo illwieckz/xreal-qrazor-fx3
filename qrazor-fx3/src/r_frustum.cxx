@@ -49,7 +49,7 @@ bool	R_CullBBox(const r_frustum_t frustum, const cbbox_c &bbox, int clipflags)
 		if(!(clipflags & (1<<i)))
 			continue;
 	
-		if(frustum[i].onSide(bbox, true) == SIDE_BACK)
+		if(frustum[i].onSide(bbox, false) == SIDE_BACK)
 			return true;
 	}
 	

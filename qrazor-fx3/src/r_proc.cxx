@@ -737,6 +737,9 @@ void	r_proc_model_c::load(char **buf_p)
 
 void	r_proc_model_c::addModelToList(r_entity_c *ent)
 {
+	if(R_CullBSphere(r_frustum, ent->getShared().origin, _bbox.radius(), FRUSTUM_CLIPALL))
+		return;
+
 	for(std::vector<r_surface_c*>::const_iterator ir = _surfaces.begin(); ir != _surfaces.end(); ++ir)
 	{
 		r_surface_c *surf = *ir;
@@ -753,8 +756,8 @@ void	r_proc_model_c::addModelToList(r_entity_c *ent)
 			continue;
 		}	
 				
-		if(R_CullBBox(r_frustum, surf->getMesh()->bbox))
-			continue;
+		//if(R_CullBBox(r_frustum, surf->getMesh()->bbox))
+		//	continue;
 	
 		RB_AddCommand(ent, this, surf->getMesh(), surf->getShader(), NULL, NULL, -1);
 	}

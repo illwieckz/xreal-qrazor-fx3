@@ -481,26 +481,26 @@ void 	message_c::writeDeltaEntity(const entity_state_t *from, const entity_state
 	if(to->quat2 != from->quat2)
 		bits |= U_QUATERNION2;
 		
-	if(to->velocity != from->velocity)
-		bits |= U_VELOCITY;
+	if(to->velocity_linear != from->velocity_linear)
+		bits |= U_VELOCITY_LINEAR;
 		
-	if(to->lengths != from->lengths)
-		bits |= U_LENGTHS;
+	if(to->velocity_angular != from->velocity_angular)
+		bits |= U_VELOCITY_ANGULAR;
 				
 	if(to->index_model != from->index_model)
-		bits |= U_MODELINDEX;
+		bits |= U_INDEX_MODEL;
 		
 	if(to->index_shader != from->index_shader)
-		bits |= U_SHADERINDEX;	
+		bits |= U_INDEX_SHADER;	
 		
 	if(to->index_animation != from->index_animation)
-		bits |= U_ANIMATIONINDEX;
+		bits |= U_INDEX_ANIMATION;
 		
 	if(to->index_sound != from->index_sound)
-		bits |= U_SOUNDINDEX;
+		bits |= U_INDEX_SOUND;
 		
 	if(to->index_light != from->index_light)
-		bits |= U_LIGHTINDEX;
+		bits |= U_INDEX_LIGHT;
 	
 	if(to->frame != from->frame)
 		bits |= U_FRAME;
@@ -510,9 +510,6 @@ void 	message_c::writeDeltaEntity(const entity_state_t *from, const entity_state
 	
 	if(to->renderfx != from->renderfx)
 		bits |= U_RENDERFX;
-		
-	if(to->light != from->light)
-		bits |= U_LIGHT;
 
 	if(to->event)	// event is not delta compressed, just 0 compressed
 		bits |= U_EVENT;
@@ -540,6 +537,15 @@ void 	message_c::writeDeltaEntity(const entity_state_t *from, const entity_state
 		
 	if(to->shaderparms[7] != from->shaderparms[7])
 		bits |= U_SHADERPARM7;
+		
+	if(to->vectors[0] != from->vectors[0])
+		bits |= U_VECTOR0;
+		
+	if(to->vectors[1] != from->vectors[1])
+		bits |= U_VECTOR1;
+		
+	if(to->vectors[2] != from->vectors[2])
+		bits |= U_VECTOR2;
 
 
 	//
@@ -569,25 +575,25 @@ void 	message_c::writeDeltaEntity(const entity_state_t *from, const entity_state
 	if(bits & U_QUATERNION2)
 		writeQuaternion(to->quat2);
 		
-	if(bits & U_VELOCITY)
-		writeVector3(to->velocity);
+	if(bits & U_VELOCITY_LINEAR)
+		writeVector3(to->velocity_linear);
 		
-	if(bits & U_LENGTHS)
-		writeVector3(to->lengths);
+	if(bits & U_VELOCITY_ANGULAR)
+		writeVector3(to->velocity_angular);
 
-	if(bits & U_MODELINDEX)
+	if(bits & U_INDEX_MODEL)
 		writeShort(to->index_model);
 		
-	if(bits & U_SHADERINDEX)
+	if(bits & U_INDEX_SHADER)
 		writeShort(to->index_shader);
 		
-	if(bits & U_ANIMATIONINDEX)
+	if(bits & U_INDEX_ANIMATION)
 		writeShort(to->index_animation);
 		
-	if(bits & U_SOUNDINDEX)
+	if(bits & U_INDEX_SOUND)
 		writeShort(to->index_sound);
 		
-	if(bits & U_LIGHTINDEX)
+	if(bits & U_INDEX_LIGHT)
 		writeShort(to->index_light);
 	
 	if(bits & U_FRAME)
@@ -598,9 +604,6 @@ void 	message_c::writeDeltaEntity(const entity_state_t *from, const entity_state
 
 	if(bits & U_RENDERFX)
 		writeLong(to->renderfx);
-		
-	if(bits & U_LIGHT)
-		writeFloat(to->light);
 		
 	if(bits & U_EVENT)
 		writeByte(to->event);
@@ -628,6 +631,15 @@ void 	message_c::writeDeltaEntity(const entity_state_t *from, const entity_state
 		
 	if(bits & U_SHADERPARM7)
 		writeFloat(to->shaderparms[7]);
+		
+	if(bits & U_VECTOR0)
+		writeVector3(to->vectors[0]);
+		
+	if(bits & U_VECTOR1)
+		writeVector3(to->vectors[1]);
+		
+	if(bits & U_VECTOR2)
+		writeVector3(to->vectors[2]);
 }
 
 
@@ -976,25 +988,25 @@ bool	message_c::readDeltaEntity(const entity_state_t *from, entity_state_t *to, 
 	if(bits & U_QUATERNION2)
 		readQuaternion(to->quat2);
 		 
-	if(bits & U_VELOCITY)
-		readVector3(to->velocity);
-		 
-	if(bits & U_LENGTHS)
-		readVector3(to->lengths);
+	if(bits & U_VELOCITY_LINEAR)
+		readVector3(to->velocity_linear);
+		
+	if(bits & U_VELOCITY_ANGULAR)
+		readVector3(to->velocity_angular);
 
-	if(bits & U_MODELINDEX)
+	if(bits & U_INDEX_MODEL)
 		to->index_model = readShort();
 		
-	if(bits & U_SHADERINDEX)
+	if(bits & U_INDEX_SHADER)
 		to->index_shader = readShort();
 		
-	if(bits & U_ANIMATIONINDEX)
+	if(bits & U_INDEX_ANIMATION)
 		to->index_animation = readShort();
 		
-	if(bits & U_SOUNDINDEX)
+	if(bits & U_INDEX_SOUND)
 		to->index_sound = readShort();
 		
-	if(bits & U_LIGHTINDEX)
+	if(bits & U_INDEX_LIGHT)
 		to->index_light = readShort();
 		
 	if(bits & U_FRAME)
@@ -1005,9 +1017,6 @@ bool	message_c::readDeltaEntity(const entity_state_t *from, entity_state_t *to, 
 	
 	if(bits & U_RENDERFX)
 		to->renderfx = readLong();
-		
-	if(bits & U_LIGHT)
-		to->light = readFloat();
 
 	if(bits & U_EVENT)
 		to->event = readByte();
@@ -1037,6 +1046,15 @@ bool	message_c::readDeltaEntity(const entity_state_t *from, entity_state_t *to, 
 		
 	if(bits & U_SHADERPARM7)
 		to->shaderparms[7] = readFloat();
+		
+	if(bits & U_VECTOR0)
+		readVector3(to->vectors[0]);
+		
+	if(bits & U_VECTOR1)
+		readVector3(to->vectors[1]);
+		
+	if(bits & U_VECTOR2)
+		readVector3(to->vectors[2]);
 		
 	return true;
 }

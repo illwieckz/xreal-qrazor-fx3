@@ -46,7 +46,7 @@ g_projectile_bolt_c::g_projectile_bolt_c(g_entity_c *activator, const vec3_c &st
 	_s.origin = start;
 	_s.quat.fromAngles(_angles);	// set rotation
 	
-	_s.lengths.set(50, 50, 50);	// light radius
+	_s.vectors[0].set(50, 50, 50);	// light radius
 	_s.shaderparms[0] = color_yellow[0];	// light color
 	_s.shaderparms[1] = color_yellow[1];	// light color
 	_s.shaderparms[2] = color_yellow[2];	// light color
@@ -111,7 +111,7 @@ bool	g_projectile_bolt_c::touch(g_entity_c *other, const cplane_c &plane, csurfa
 		updateVelocity();
 	
 		// damage the other entity
-		other->takeDamage(this, (g_entity_c*)_r.owner, _s.velocity, _s.origin, plane._normal, _dmg, 1, DAMAGE_ENERGY, MOD_BLASTER);
+		other->takeDamage(this, (g_entity_c*)_r.owner, _s.velocity_linear, _s.origin, plane._normal, _dmg, 1, DAMAGE_ENERGY, MOD_BLASTER);
 	}
 	else
 	{
@@ -155,9 +155,9 @@ g_projectile_grenade_c::g_projectile_grenade_c(g_entity_c *activator, const vec3
 	
 	_s.origin = start;
 	
-	_s.velocity = aimdir * speed;
-	_s.velocity += up * (200 + crandom() * 10.0);
-	_s.velocity += right * (crandom() * 10.0);
+	_s.velocity_linear = aimdir * speed;
+	_s.velocity_linear += up * (200 + crandom() * 10.0);
+	_s.velocity_linear += right * (crandom() * 10.0);
 	
 	_movetype = MOVETYPE_BOUNCE;
 	_r.inuse = true;
@@ -175,7 +175,7 @@ g_projectile_grenade_c::g_projectile_grenade_c(g_entity_c *activator, const vec3
 	_dmg_radius = damage_radius;
 	_classname = "grenade";
 	
-	_body->setLinearVel(_s.velocity);
+	_body->setLinearVel(_s.velocity_linear);
 	_body->setAngularVel(300, 300, 300);
 }
 
@@ -333,8 +333,8 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 	_s.quat.fromAngles(_angles);
 
 	_s.type = ET_GENERIC;
-	_s.velocity = dir * speed;
-	_s.lengths.set(200, 200, 200);
+	_s.velocity_linear = dir * speed;
+	_s.vectors[0].set(200, 200, 200);
 //	_s.color = color_yellow;
 	_s.shaderparms[0] = color_yellow[0];	// light color
 	_s.shaderparms[1] = color_yellow[1];	// light color
@@ -362,7 +362,7 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 	// setup rigid body
 	_body->setPosition(start);
 	_body->setQuaternion(_s.quat);
-	_body->setLinearVel(_s.velocity);
+	_body->setLinearVel(_s.velocity_linear);
 	_body->setGravityMode(0);
 	
 	// setup mass
@@ -416,12 +416,12 @@ bool	g_projectile_rocket_c::touch(g_entity_c *other, const cplane_c &plane, csur
 	}
 
 	// calculate position for the explosion entity
-	vec3_c origin = _s.origin + _s.velocity * -0.02;
+	vec3_c origin = _s.origin + _s.velocity_linear * -0.02;
 
 	if(other->_takedamage)
 	{
 		updateVelocity();
-		other->takeDamage(this, (g_entity_c*)_r.owner, _s.velocity, _s.origin, plane._normal, _dmg, 0, 0, MOD_ROCKET);
+		other->takeDamage(this, (g_entity_c*)_r.owner, _s.velocity_linear, _s.origin, plane._normal, _dmg, 0, 0, MOD_ROCKET);
 	}
 	
 	G_RadiusDamage(this, (g_entity_c*)_r.owner, _radius_dmg, other, _dmg_radius, MOD_R_SPLASH);

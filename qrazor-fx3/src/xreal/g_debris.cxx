@@ -53,7 +53,7 @@ g_debris_c::g_debris_c(g_entity_c *ent, const std::string &modelname, float spee
 	
 	//FIXME
 	
-	Vector3_MA(ent->_s.velocity, speed, v, _s.velocity);
+	Vector3_MA(ent->_s.velocity_linear, speed, v, _s.velocity_linear);
 	_movetype = MOVETYPE_BOUNCE;
 	_r.solid = SOLID_NOT;
 	/*

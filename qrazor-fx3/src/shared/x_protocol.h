@@ -163,32 +163,34 @@ enum
 #define	U_ORIGIN2				(1<<3)
 #define	U_QUATERNION				(1<<4)
 #define U_QUATERNION2				(1<<5)
-#define U_VELOCITY				(1<<6)
-#define U_LENGTHS				(1<<7)
+#define U_VELOCITY_LINEAR			(1<<6)
+#define U_VELOCITY_ANGULAR			(1<<7)
 
 // second byte
-#define	U_MODELINDEX				(1<<8)
-#define U_SHADERINDEX				(1<<9)
-#define U_ANIMATIONINDEX			(1<<10)
-#define	U_SOUNDINDEX				(1<<11)
-#define U_LIGHTINDEX				(1<<12)
+#define	U_INDEX_MODEL				(1<<8)
+#define U_INDEX_SHADER				(1<<9)
+#define U_INDEX_ANIMATION			(1<<10)
+#define	U_INDEX_SOUND				(1<<11)
+#define U_INDEX_LIGHT				(1<<12)
 #define U_FRAME					(1<<13)
 #define	U_EFFECTS				(1<<14)			// autorotate, trails, etc
 #define U_RENDERFX				(1<<15)			// fullbright, etc
 
 // third byte
-#define U_LIGHT					(1<<16)			// light intensity
-#define	U_EVENT					(1<<17)
-#define U_SHADERPARM0				(1<<18)
-#define U_SHADERPARM1				(1<<19)
-#define U_SHADERPARM2				(1<<20)
-#define U_SHADERPARM3				(1<<21)
-#define U_SHADERPARM4				(1<<22)
-#define U_SHADERPARM5				(1<<23)
+#define	U_EVENT					(1<<16)
+#define U_SHADERPARM0				(1<<17)
+#define U_SHADERPARM1				(1<<18)
+#define U_SHADERPARM2				(1<<19)
+#define U_SHADERPARM3				(1<<20)
+#define U_SHADERPARM4				(1<<21)
+#define U_SHADERPARM5				(1<<22)
+#define U_SHADERPARM6				(1<<23)
 
-// fourth byte
-#define U_SHADERPARM6				(1<<24)
-#define U_SHADERPARM7				(1<<25)
+// fourth byty
+#define U_SHADERPARM7				(1<<24)
+#define U_VECTOR0				(1<<25)
+#define U_VECTOR1				(1<<26)
+#define U_VECTOR2				(1<<27)
 
 
 #endif // X_PROTOCOL_H

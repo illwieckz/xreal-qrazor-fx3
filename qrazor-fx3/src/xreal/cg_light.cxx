@@ -208,26 +208,10 @@ void	CG_AddPacketLight(cg_entity_t *cent, entity_state_t *state)
 
 void	CG_AddLightEntity(const cg_entity_t *cent)
 {
-	switch(cent->current.type)
-	{
-		case ET_LIGHT_OMNI:
-			cgi.Com_DPrintf("adding omni-directional light ...\n");
-			break;
-				
-		case ET_LIGHT_PROJ:
-			cgi.Com_DPrintf("adding projective light ...\n");
-			break;
-		
-		default:
-			break;
-	}
-
 	r_entity_t rent;
 
 	rent.type = cent->current.type;
 	rent.custom_shader = cg.light_precache[cent->current.index_light];
-	
-//	rent.color = cent->current.color;
 	
 	rent.shader_parms[0] = cent->current.shaderparms[0];
 	rent.shader_parms[1] = cent->current.shaderparms[1];
@@ -243,13 +227,56 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 	
 	rent.quat = cent->current.quat;
 
-	rent.radius = cent->current.lengths;
-	rent.radius_bbox._maxs = rent.origin + cent->current.lengths;
-	rent.radius_bbox._mins = rent.origin - cent->current.lengths;
-	rent.radius_value = rent.radius_bbox.radius();
-	
-	//cgi.Com_Printf("light entity %i has shader %i\n", cent->current.getNumber(), rent.custom_shader);
-	//cgi.Com_Printf("light entity %i has color %s\n", cent->current.getNumber(), rent.color.toString());
+	switch(cent->current.type)
+	{
+		case ET_LIGHT_OMNI:
+		{
+			cgi.Com_DPrintf("adding omni-directional light ...\n");
+			
+			rent.radius = cent->current.vectors[0];
+			rent.radius_bbox._maxs = rent.origin + cent->current.vectors[0];
+			rent.radius_bbox._mins = rent.origin - cent->current.vectors[0];
+			rent.radius_bbox.rotate(cent->current.quat);
+			rent.radius_value = rent.radius_bbox.radius();
+			break;
+		}
+				
+		case ET_LIGHT_PROJ:
+		{
+			cgi.Com_DPrintf("adding projective light ...\n");
+			
+			rent.target = cent->current.vectors[0];
+			rent.right = cent->current.vectors[1];
+			rent.up = cent->current.vectors[2];
+			
+			rent.radius_bbox.clear();
+			
+			//vec3_c lt = rent.target - rent.origin;
+			//vec3_c lr = rent.right - rent.origin;
+			//vec3_c lu = rent.up - rent.origin;
+			
+			//rent.radius_bbox._maxs = rent.origin + vec3_c(300, 300, 300);
+			//rent.radius_bbox._mins = rent.origin - vec3_c(300, 300, 300);
+			
+			//rent.radius_bbox.addPoint(cent->current.vectors[0]);
+			//rent.radius_bbox.addPoint(cent->current.vectors[1]);
+			//rent.radius_bbox.addPoint(cent->current.vectors[2]);
+			
+			rent.radius_bbox.addPoint(rent.origin + rent.target);
+			
+			rent.radius_bbox.addPoint(rent.origin + rent.right);
+			rent.radius_bbox.addPoint(rent.origin - rent.right);
+			
+			rent.radius_bbox.addPoint(rent.origin + rent.up);
+			rent.radius_bbox.addPoint(rent.origin - rent.up);
+		
+			rent.radius_value = rent.radius_bbox.radius();
+			break;
+		}
+		
+		default:
+			break;
+	}
 	
 	cgi.R_AddLight(cent->current.getNumber(), rent);
 }

@@ -1063,7 +1063,6 @@ private:
 // Tr3B - row major matrix
 class matrix_c
 {
-	friend class quaternion_c;
 public:
 	
 	matrix_c();
@@ -1077,13 +1076,13 @@ public:
 	
 	void	zero();
 	
-	void	copyTo(matrix_c &out);
+	void	copyTo(matrix_c &out)const ; 
 		
-	void	copyRotateOnly(matrix_c &out);
+	void	copyRotateOnly(matrix_c &out) const;
 	
-	void	copyTranslateOnly(matrix_c &out);
+	void	copyTranslateOnly(matrix_c &out) const;
 	
-	void	copyTranspose(matrix_c &out);
+	void	copyTranspose(matrix_c &out) const;
 
 	void	transpose();
 	
@@ -1164,7 +1163,7 @@ public:
 #ifdef HAVE_DOUBLEVEC_T
 	inline operator vec_t * ();
 #endif
-	matrix_c&	operator = (const matrix_c &m);
+//	matrix_c&	operator = (const matrix_c &m);
 
 private:
 	vec4_t		_m[4];
@@ -1594,8 +1593,11 @@ public:
 	inline cbbox_c();
 	
 private:
-	inline bool	lineIntersect(vec_t min1, vec_t max1, vec_t min2, vec_t max2) const;
-
+	bool	lineIntersect(vec_t min1, vec_t max1, vec_t min2, vec_t max2) const;
+	
+	vec_t	maxOfEight(vec_t n1, vec_t n2, vec_t n3, vec_t n4, vec_t n5, vec_t n6, vec_t n7, vec_t n8) const;
+	
+	vec_t	minOfEight(vec_t n1, vec_t n2, vec_t n3, vec_t n4, vec_t n5, vec_t n6, vec_t n7, vec_t n8) const;
 public:	
 
 	inline void	clear();
@@ -1627,6 +1629,12 @@ public:
 	float		radius() const;
 
 	void		addPoint(const vec3_c &v);
+	
+	void		mergeWith(const cbbox_c &bbox);
+	
+	void		translate(const vec3_c &v);
+	
+	void		rotate(const quaternion_c &q);
 
 	bool 		isZero() const;
 	

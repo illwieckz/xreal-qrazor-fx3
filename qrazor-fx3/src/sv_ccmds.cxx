@@ -170,7 +170,7 @@ static void 	SV_Map_f()
 	std::string	map;
 	std::string	expanded;
 
-	// if not a pcx, demo, or cinematic, check to make sure the level exists
+	// check to make sure the level exists
 	map = Cmd_Argv(1);
 	if(!strstr(map.c_str(), "."))
 	{

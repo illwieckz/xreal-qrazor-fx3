@@ -136,7 +136,7 @@ void	matrix_c::zero()
 	_m[3][0]=0.0f;	_m[3][1]=0.0f;	_m[3][2]=0.0f;	_m[3][3]=0.0f;
 }
 	
-void	matrix_c::copyTo(matrix_c &out)
+void	matrix_c::copyTo(matrix_c &out) const
 {
 	out._m[0][0]=_m[0][0];	out._m[0][1]=_m[0][1];	out._m[0][2]=_m[0][2];	out._m[0][3]=_m[0][3];
 	out._m[1][0]=_m[1][0];	out._m[1][1]=_m[1][1];	out._m[1][2]=_m[1][2];	out._m[1][3]=_m[1][3];
@@ -144,7 +144,7 @@ void	matrix_c::copyTo(matrix_c &out)
 	out._m[3][0]=_m[3][0];	out._m[3][1]=_m[3][1];	out._m[3][2]=_m[3][2];	out._m[3][3]=_m[3][3];
 }
 	
-void	matrix_c::copyRotateOnly(matrix_c &out)
+void	matrix_c::copyRotateOnly(matrix_c &out) const
 {
 	out._m[0][0]=_m[0][0];	out._m[0][1]=_m[0][1];	out._m[0][2]=_m[0][2];	out._m[0][3]=0.0f;
 	out._m[1][0]=_m[1][0];	out._m[1][1]=_m[1][1];	out._m[1][2]=_m[1][2];	out._m[1][3]=0.0f;
@@ -152,7 +152,7 @@ void	matrix_c::copyRotateOnly(matrix_c &out)
 	out._m[3][0]=_m[3][0];	out._m[3][1]=_m[3][1];	out._m[3][2]=_m[3][2];	out._m[3][3]=1.0f;
 }
 	
-void	matrix_c::copyTranslateOnly(matrix_c &out)
+void	matrix_c::copyTranslateOnly(matrix_c &out) const
 {
 	out._m[0][0]=1.0f;	out._m[0][1]=0.0f;	out._m[0][2]=0.0f;	out._m[0][3]=_m[0][3];
 	out._m[1][0]=0.0f;	out._m[1][1]=1.0f;	out._m[1][2]=0.0f;	out._m[1][3]=_m[1][3];
@@ -160,7 +160,7 @@ void	matrix_c::copyTranslateOnly(matrix_c &out)
 	out._m[3][0]=0.0f;	out._m[3][1]=0.0f;	out._m[3][2]=0.0f;	out._m[3][3]=1.0f;
 }
 	
-void	matrix_c::copyTranspose(matrix_c &out)
+void	matrix_c::copyTranspose(matrix_c &out) const
 {
 	out._m[0][0]=_m[0][0];	out._m[0][1]=_m[1][0];	out._m[0][2]=_m[2][0];	out._m[0][3]=_m[3][0];
 	out._m[1][0]=_m[0][1];	out._m[1][1]=_m[1][1];	out._m[1][2]=_m[2][1];	out._m[1][3]=_m[3][1];
@@ -468,7 +468,8 @@ matrix_c	matrix_c::operator * (const matrix_c &m) const
 				_m[3][0]*m._m[0][2] + _m[3][1]*m._m[1][2] + _m[3][2]*m._m[2][2] + _m[3][3]*m._m[3][2]	,
 				_m[3][0]*m._m[0][3] + _m[3][1]*m._m[1][3] + _m[3][2]*m._m[2][3] + _m[3][3]*m._m[3][3]	);
 }
-	
+
+/*	
 matrix_c&	matrix_c::operator = (const matrix_c &m)
 {
 	_m[0][0]=m._m[0][0];	_m[0][1]=m._m[0][1];	_m[0][2]=m._m[0][2];	_m[0][3]=m._m[0][3];
@@ -478,7 +479,7 @@ matrix_c&	matrix_c::operator = (const matrix_c &m)
 		
 	return *this;
 }
-
+*/
 
 
 	
@@ -530,50 +531,50 @@ void	quaternion_c::fromAngles(vec_t pitch, vec_t yaw, vec_t roll)
 	
 void	quaternion_c::fromMatrix(const matrix_c &m)
 {
-	float	s;
-		
 	// calculate the trace
-	float trace = 1.0f + m._m[0][0] + m._m[1][1] + m._m[2][2];
+	float trace = 1.0f + m[0][0] + m[1][1] + m[2][2];
 		
-	if(trace > 0.00001)
+	if(trace > 0.0f)
 	{
-		s = 0.5f / sqrt(trace);
+		float s = 0.5f / sqrt(trace);
 		
-		_q[0] = (m._m[2][1] - m._m[1][2]) * s;
-		_q[1] = (m._m[0][2] - m._m[2][0]) * s;
-		_q[2] = (m._m[1][0] - m._m[0][1]) * s;
+		_q[0] = (m[2][1] - m[1][2]) * s;
+		_q[1] = (m[0][2] - m[2][0]) * s;
+		_q[2] = (m[1][0] - m[0][1]) * s;
 		_q[3] = 0.25f / s;
-	}
-		
-	if(m._m[0][0] > m._m[1][1] && m._m[0][0] > m._m[2][2])
-	{	
-		// Column 0: 
-		s = sqrt(1.0f + m._m[0][0] - m._m[1][1] - m._m[2][2]) * 2.0f;
-			
-		_q[0] = 0.25f * s;
-		_q[1] = (m._m[0][1] + m._m[1][0]) / s;
-		_q[2] = (m._m[0][2] + m._m[2][0]) / s;
-		_q[3] = (m._m[1][2] - m._m[2][1]) / s;
-	}
-	else if(m._m[1][1] > m._m[2][2])
-	{
-		// Column 1:
-		s = sqrt(1.0f + m._m[1][1] - m._m[0][0] - m._m[2][2]) * 2.0f;
-			
-		_q[0] = (m._m[0][1] + m._m[1][0]) / s;
-		_q[1] = 0.25f * s;
-		_q[2] = (m._m[1][2] + m._m[2][1]) / s;
-		_q[3] = (m._m[0][2] - m._m[2][0]) / s;
 	}
 	else
 	{
-		// Column 2:
-		s = sqrt(1.0f + m._m[2][2] - m._m[0][0] - m._m[1][1]) * 2.0f;
+		if(m[0][0] > m[1][1] && m[0][0] > m[2][2])
+		{	
+			// Column 0: 
+			float s = sqrt(1.0f + m[0][0] - m[1][1] - m[2][2]) * 2.0f;
+				
+			_q[0] = 0.25f * s;
+			_q[1] = (m[0][1] + m[1][0]) / s;
+			_q[2] = (m[0][2] + m[2][0]) / s;
+			_q[3] = (m[1][2] - m[2][1]) / s;
+		}
+		else if(m[1][1] > m[2][2])
+		{
+			// Column 1:
+			float s = sqrt(1.0f + m[1][1] - m[0][0] - m[2][2]) * 2.0f;
 			
-		_q[0] = (m._m[0][2] + m._m[2][0]) / s;
-		_q[1] = (m._m[1][2] + m._m[2][1]) / s;
-		_q[2] = 0.25f * s;
-		_q[3] = (m._m[0][1] - m._m[1][0]) / s;
+			_q[0] = (m[0][1] + m[1][0]) / s;
+			_q[1] = 0.25f * s;
+			_q[2] = (m[1][2] + m[2][1]) / s;
+			_q[3] = (m[0][2] - m[2][0]) / s;
+		}
+		else
+		{
+			// Column 2:
+			float s = sqrt(1.0f + m[2][2] - m[0][0] - m[1][1]) * 2.0f;
+			
+			_q[0] = (m[0][2] + m[2][0]) / s;
+			_q[1] = (m[1][2] + m[2][1]) / s;
+			_q[2] = 0.25f * s;
+			_q[3] = (m[0][1] - m[1][0]) / s;
+		}
 	}
 	
 	normalize();
@@ -780,6 +781,63 @@ bool	cbbox_c::lineIntersect(float min1, float max1, float min2, float max2) cons
 	return false;
 }
 
+vec_t	cbbox_c::maxOfEight(vec_t n1, vec_t n2, vec_t n3, vec_t n4, vec_t n5, vec_t n6, vec_t n7, vec_t n8) const
+{
+	float max = n1;
+	
+	if(n2 > max)
+		max = n2;
+		
+	if(n3 > max)
+		max = n3;
+		
+	if(n4 > max)
+		max = n4;
+		
+	if(n5 > max)
+		max = n5;
+		
+	if(n6 > max)
+		max = n6;
+		
+	if(n7 > max)
+		max = n7;
+		
+	if(n8 > max)
+		max = n8;
+		
+	return max;
+}
+
+vec_t	cbbox_c::minOfEight(vec_t n1, vec_t n2, vec_t n3, vec_t n4, vec_t n5, vec_t n6, vec_t n7, vec_t n8) const
+{
+	float min = n1;
+	
+	if(n2 < min)
+		min = n2;
+		
+	if(n3 < min)
+		min = n3;
+		
+	if(n4 < min)
+		min = n4;
+		
+	if(n5 < min)
+		min = n5;
+		
+	if(n6 < min)
+		min = n6;
+		
+	if(n7 < min)
+		min = n7;
+		
+	if(n8 < min)
+		min = n8;
+		
+	return min;
+}
+
+
 bool	cbbox_c::intersect(const cbbox_c &bbox) const
 {
 #if 1
@@ -899,6 +957,61 @@ void	cbbox_c::addPoint(const vec3_c &v)
 		
 	if(v[2] > _maxs[2])
 		_maxs[2] = v[2];
+}
+
+void	cbbox_c::mergeWith(const cbbox_c &bbox)
+{
+	if(bbox._mins[0] < _mins[0])
+		_mins[0] = bbox._mins[0];
+		
+	if(bbox._mins[1] < _mins[1])
+		_mins[1] = bbox._mins[1];
+		
+	if(bbox._mins[2] < _mins[2])
+		_mins[2] = bbox._mins[2];
+	
+	
+	if(bbox._maxs[0] > _maxs[0])
+		_maxs[0] = bbox._maxs[0];
+		
+	if(bbox._maxs[1] > _maxs[1])
+		_maxs[1] = bbox._maxs[1];
+		
+	if(bbox._maxs[2] > _maxs[2])
+		_maxs[2] = bbox._maxs[2];
+}
+
+void	cbbox_c::translate(const vec3_c &v)
+{
+	_mins += v;
+	_maxs += v;
+}
+
+void	cbbox_c::rotate(const quaternion_c &q)
+{
+	// compute bbox vertices
+	vec3_c verts[8];	// max x,y,z points in space
+	
+	verts[0].set(_maxs[0], _mins[1], _mins[2]);
+	verts[1].set(_maxs[0], _mins[1], _maxs[2]);
+	verts[2].set(_mins[0], _mins[1], _maxs[2]);
+	verts[3].set(_mins[0], _mins[1], _mins[2]);
+	
+	verts[4].set(_maxs[0], _maxs[1], _mins[2]);
+	verts[5].set(_maxs[0], _maxs[1], _maxs[2]);
+	verts[6].set(_mins[0], _maxs[1], _maxs[2]);
+	verts[7].set(_mins[0], _maxs[1], _mins[2]);
+	
+	for(int i=0; i<8; i++)
+		verts[i].rotate(q);
+		
+	_maxs[0] = maxOfEight(verts[0][0], verts[1][0], verts[2][0], verts[3][0], verts[4][0], verts[5][0], verts[6][0], verts[7][0]);
+	_maxs[1] = maxOfEight(verts[0][1], verts[1][1], verts[2][1], verts[3][1], verts[4][1], verts[5][1], verts[6][1], verts[7][1]);
+	_maxs[2] = maxOfEight(verts[0][2], verts[1][2], verts[2][2], verts[3][2], verts[4][2], verts[5][2], verts[6][2], verts[7][2]);
+
+	_mins[0] = minOfEight(verts[0][0], verts[1][0], verts[2][0], verts[3][0], verts[4][0], verts[5][0], verts[6][0], verts[7][0]);
+	_mins[1] = minOfEight(verts[0][1], verts[1][1], verts[2][1], verts[3][1], verts[4][1], verts[5][1], verts[6][1], verts[7][1]);
+	_mins[2] = minOfEight(verts[0][2], verts[1][2], verts[2][2], verts[3][2], verts[4][2], verts[5][2], verts[6][2], verts[7][2]);
 }
 
 bool 	cbbox_c::isZero() const

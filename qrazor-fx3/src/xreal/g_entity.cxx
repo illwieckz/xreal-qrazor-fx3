@@ -394,6 +394,14 @@ const char*	g_entity_c::valueForKey(const std::string &key)
 	return "";
 }
 
+void	g_entity_c::updateField(const std::string &key)
+{
+	const char* value = valueForKey(key);
+	
+	if(value[0] != '\0')
+		setField(key, value);
+}
+
 void	g_entity_c::updateOrigin()
 {
 	if(_body)
@@ -409,7 +417,7 @@ void	g_entity_c::updateRotation()
 void	g_entity_c::updateVelocity()
 {
 	if(_body)
-		_s.velocity = _body->getLinearVel();
+		_s.velocity_linear = _body->getLinearVel();
 }
 
 bool	g_entity_c::inFront(const g_entity_c *other)

@@ -69,8 +69,8 @@ g_light_c::g_light_c()
 	addField(g_field_c("light_origin", &_s.origin, F_VECTOR));
 	addField(g_field_c("light_center", &_s.origin2, F_VECTOR));
 	addField(g_field_c("light_rotation", &_s.quat, F_ROTATION_TO_QUATERNION));
-	addField(g_field_c("light_radius", &_s.lengths, F_VECTOR));
-	addField(g_field_c("light", &_s.light, F_FLOAT));
+	addField(g_field_c("light_radius", &_s.vectors[0], F_VECTOR));
+//	addField(g_field_c("light", &_s.light, F_FLOAT));
 	
 	addField(g_field_c("texture", &_texture, F_STRING));
 	
@@ -158,20 +158,13 @@ void	g_light_c::activate()
 		//_s.lengths.scale(0.5);
 	}
 #endif
+	// update fields that may conflict with others
+	updateField("light_origin");
+	updateField("light_rotation");
 	
-	
-	if(_target.length() || (_s.quat != quat_identity))
-	{
-		_s.type = ET_LIGHT_PROJ;
-		
-		if(_texture.length())
-			_s.index_light = gi.SV_LightIndex(_texture);
-		else
-			_s.index_light = gi.SV_LightIndex("lights/defaultProjectedLight");
-	}
-	else if(	_light_target != vec3_origin	||
-			_light_right != vec3_origin	||
-			_light_up != vec3_origin
+	if(	_light_target != vec3_origin	||
+		_light_right != vec3_origin	||
+		_light_up != vec3_origin
 	)
 	{
 		_s.type = ET_LIGHT_PROJ;
@@ -181,29 +174,9 @@ void	g_light_c::activate()
 		else
 			_s.index_light = gi.SV_LightIndex("lights/defaultProjectedLight");
 			
-		_light_right.normalize();
-		_light_up.normalize();
-		
-		vec3_c forward, right, up;
-		
-		forward = _light_target - _s.origin;
-		forward.normalize();
-		
-		up = _light_up;
-		
-		right.crossProduct(forward, up);
-		right.normalize();
-		if(right.dotProduct(_light_right) < 0)
-			right.negate();
-			
-		up.crossProduct(forward, right);
-		up.normalize();
-	
-		matrix_c m;
-		m.fromVectorsFRU(forward, right, up);
-	
-		_s.quat.fromMatrix(m);
-//		_body->setQuaternion(_s.quat);
+		_s.vectors[0] = _light_target;
+		_s.vectors[1] = _light_right;
+		_s.vectors[2] = _light_up;
 	}
 	else
 	{
@@ -213,20 +186,15 @@ void	g_light_c::activate()
 			_s.index_light = gi.SV_LightIndex(_texture);
 		else
 			_s.index_light = gi.SV_LightIndex("lights/defaultPointLight");
-	}
 	
-	if(_s.lengths.isZero())
-	{
-		if(_s.light)
+		if(_s.vectors[0].isZero())
 		{
-			_s.lengths.set(_s.light, _s.light, _s.light);
-		}
-		else
-		{
-			_s.lengths.set(200, 200, 400);
+			//if(_s.light)
+			//	_s.vectors[0].set(_s.light, _s.light, _s.light);
+			//else
+				_s.vectors[0].set(300, 300, 300);
 		}
 	}
-	
 	
 	// setup rigid body
 //	_body->setPosition(_s.origin);

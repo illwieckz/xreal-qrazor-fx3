@@ -419,6 +419,32 @@ struct r_wedge_t
 	//int	tri[2];			// triangle index: for "open" models, w[1] == -1 on open edges
 };
 
+/*
+struct r_triangle_t
+{
+	inline r_triangle_t(index_t v0, index_t v1, index_t v2, uint_t n)
+	{
+		v[0] = v0;
+		v[1] = v1;
+		v[2] = v2;
+		
+		num = n;
+	}
+	
+	inline index_t	operator [] (const int index) const
+	{
+		return v[index];
+	}
+	
+	inline index_t&	operator [] (const int index)
+	{
+		return v[index];
+	}
+	
+	index_t		v[3];
+	uint_t		num;
+};
+*/
 
 class r_mesh_c
 {
@@ -432,6 +458,14 @@ public:
 	void		calcTangentSpaces2();
 	void		calcTangentSpaces3();
 	void		createBBoxFromVertexes();
+	
+	void		addVertex(const vec3_c &v);
+	
+	void		addTriangle(index_t v0, index_t v1, index_t v2, uint_t num);
+	void		addTriangle(index_t v0, index_t v1, index_t v2);
+	
+	bool		hasTriangle(uint_t num);
+	
 private:
 	void		addEdge(const r_wedge_t &we);
 	void		addEdge(int v0, int v1, int plane);
@@ -449,6 +483,7 @@ public:
 	std::vector<vec4_c>		colors;
 	
 	// triangles data
+	std::vector<uint_t>		triangles;	// triangle numbers
 	std::vector<index_t>		indexes;	// raw triangle indices data for OpenGL
 	std::vector<vec3_c>		normals_tri;
 	std::vector<cplane_c>		planes;
