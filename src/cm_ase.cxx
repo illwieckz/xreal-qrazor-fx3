@@ -238,7 +238,7 @@ struct cm_ase_model_grammar_t : public boost::spirit::grammar<cm_ase_model_gramm
 					boost::spirit::str_p("*MESH_NUMTVFACES") >> boost::spirit::int_p >>
 					mesh_tfacelist >>
 					!(boost::spirit::str_p("*MESH_NUMCVERTEX") >> boost::spirit::int_p) >>
-					mesh_normals >>
+					!mesh_normals >>
 					*skip_restofline >>
 					boost::spirit::ch_p('}')[&CM_ASE_AddMesh]
 				;

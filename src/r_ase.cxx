@@ -279,7 +279,7 @@ struct r_ase_model_grammar_t : public boost::spirit::grammar<r_ase_model_grammar
 					boost::spirit::str_p("*MESH_NUMTVFACES") >> boost::spirit::int_p[&R_ASE_GetTFacesNum] >>
 					mesh_tfacelist >>
 					!(boost::spirit::str_p("*MESH_NUMCVERTEX") >> boost::spirit::int_p) >>
-					mesh_normals >>
+					!mesh_normals >>
 					*skip_restofline >>
 					boost::spirit::ch_p('}')[&R_ASE_AddMesh]
 				;
