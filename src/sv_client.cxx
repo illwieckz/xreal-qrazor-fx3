@@ -39,7 +39,7 @@ sv_client_c::sv_client_c(const netadr_t &adr, int qport, int challenge)
 
 	_state = CS_CONNECTED;
 	
-	_datagram = bitmessage_c(tobits(MAX_MSGLEN), true);
+	_datagram = bitmessage_c(toBits(MAX_MSGLEN), true);
 	
 	_lastmessage_time = svs.realtime;	// don't timeout
 	_lastconnect_time = svs.realtime;
@@ -122,7 +122,7 @@ void	sv_client_c::printf(g_print_level_e level, const char *fmt, ...)
 	vsprintf(string, fmt,argptr);
 	va_end(argptr);
 	
-	netchan.message.writeByte(SVC_PRINT);
+	netchan.message.writeBits(SVC_PRINT, svc_bitcount);
 	netchan.message.writeByte(level);
 	netchan.message.writeString(string);
 }
@@ -133,7 +133,7 @@ bool	sv_client_c::sendDatagram()
 {
 	buildFrame();
 
-	bitmessage_c msg(tobits(MAX_MSGLEN), true);
+	bitmessage_c msg(toBits(MAX_MSGLEN), true);
 
 	// send over all the relevant entity_state_t
 	// and the player_state_t
@@ -200,7 +200,7 @@ void	sv_client_c::buildFrame()
 	//Com_Printf("SV_BuildClientFrame: client area %i\n", area);
 
 	// calculate the visible areas
-	frame->areabytes = CM_WriteAreaBits(frame->areabits, _entity->_r.area);
+	CM_WriteAreaBits(frame->areabits, _entity->_r.area);
 
 	// grab the current player_state_t
 	frame->ps = _entity->_r.ps;
@@ -420,7 +420,7 @@ void	sv_client_c::writePacketEntities(sv_client_frame_t *from, sv_client_frame_t
 	entity_state_t	*oldent = NULL;
 	entity_state_t	*newent = NULL;
 
-	msg.writeByte(SVC_PACKETENTITIES);
+	msg.writeBits(SVC_PACKETENTITIES, svc_bitcount);
 
 	if(!from)
 		from_num_entities = 0;
@@ -477,7 +477,7 @@ void	sv_client_c::writePacketEntities(sv_client_frame_t *from, sv_client_frame_t
 		}
 	}
 
-	msg.writeShort(0);	// end of packetentities
+	msg.writeBits(0, MAX_ENTITYNUM_BITS);	// end of packetentities
 }
 
 
@@ -570,7 +570,7 @@ void	sv_client_c::writePlayerState(sv_client_frame_t *from, sv_client_frame_t *t
 	//
 	// write it
 	//
-	msg.writeByte(SVC_PLAYERINFO);
+	msg.writeBits(SVC_PLAYERINFO, svc_bitcount);
 	msg.writeShort(pflags);
 
 	//
@@ -678,6 +678,13 @@ void	sv_client_c::writePlayerState(sv_client_frame_t *from, sv_client_frame_t *t
 }
 
 
+void	sv_client_c::writeAreaBits(const sv_client_frame_t *frame, bitmessage_c &msg)
+{
+	msg.writeBits(SVC_AREABITS, svc_bitcount);
+	msg.writeByte(frame->areabits.size());
+	msg.writeBits(frame->areabits);
+}
+
 void	sv_client_c::writeFrame(bitmessage_c &msg)
 {
 	sv_client_frame_t		*frame, *oldframe;
@@ -710,15 +717,14 @@ void	sv_client_c::writeFrame(bitmessage_c &msg)
 		//	Com_DPrintf("%s: Delta request from out-of-date packet.\n", _name);
 	}
 
-	msg.writeByte(SVC_FRAME);
+	msg.writeBits(SVC_FRAME, svc_bitcount);
 	msg.writeLong(sv.framenum);
 	msg.writeLong(lastframe);	// what we are delta'ing from
 	msg.writeByte(_surpress_count);	// rate dropped packets
 	_surpress_count = 0;
 
 	// send over the areabits
-	msg.writeByte(frame->areabytes);
-	msg.writeBytes(frame->areabits, frame->areabytes);
+	writeAreaBits(frame, msg);
 
 	// delta encode the playerstate
 	writePlayerState(oldframe, frame, msg);
@@ -848,7 +854,7 @@ void	sv_client_c::executeMessage(bitmessage_c &msg)
 			break;
 		}
 
-		int cmd = msg.readByte();
+		int cmd = msg.readBits(clc_bitcount);
 		
 		if(sv_shownet->getInteger())
 		{
@@ -868,11 +874,10 @@ void	sv_client_c::executeMessage(bitmessage_c &msg)
 			}
 			
 			case -1:
-			case CLC_EOM:
 			{
 				break;
 			}
-						
+		
 			case CLC_NOP:
 			{
 				break;
@@ -997,7 +1002,7 @@ void 	sv_client_c::drop()
 	//
 	// add the disconnect
 	//
-	netchan.message.writeByte(SVC_DISCONNECT);
+	netchan.message.writeBits(SVC_DISCONNECT, svc_bitcount);
 
 
 	//

@@ -86,13 +86,13 @@ bool	CL_CheckOrDownloadFile(char *filename)
 
 		// give the server an offset to start the download
 		Com_Printf("Resuming %s\n", cls.download_name.c_str());
-		cls.netchan.message.writeByte(CLC_STRINGCMD);
+		cls.netchan.message.writeBits(CLC_STRINGCMD, clc_bitcount);
 		cls.netchan.message.writeString(va("download %s %i", cls.download_name.c_str(), len));
 	} 
 	else 
 	{
 		Com_Printf("Downloading %s\n", cls.download_name.c_str());
-		cls.netchan.message.writeByte(CLC_STRINGCMD);
+		cls.netchan.message.writeBits(CLC_STRINGCMD, clc_bitcount);
 		cls.netchan.message.writeString(va("download %s", cls.download_name.c_str()));
 	}
 
@@ -142,7 +142,7 @@ void	CL_Download_f()
 	cls.download_tempname = Com_StripExtension(cls.download_name);
 	cls.download_tempname += ".tmp";
 
-	cls.netchan.message.writeByte(CLC_STRINGCMD);
+	cls.netchan.message.writeBits(CLC_STRINGCMD, clc_bitcount);
 	cls.netchan.message.writeString(va("download %s", cls.download_name.c_str()));
 
 	cls.download_number++;
@@ -213,7 +213,7 @@ static void	CL_ParseDownload(message_c &msg)
 #endif
 		cls.download_percent = percent;
 
-		MSG_WriteByte(&cls.netchan.message, CLC_STRINGCMD);
+		MSG_WriteBits(&cls.netchan.message, CLC_STRINGCMD, clc_bitcount);
 		MSG_Print(&cls.netchan.message, "nextdl");
 	}
 	else
@@ -319,7 +319,7 @@ static void	CL_ParseBaseline(bitmessage_c &msg)
 
 	memset(&nullstate, 0, sizeof(nullstate));
 
-	unsigned short newnum = msg.readShort();
+	uint_t newnum = msg.readBits(MAX_ENTITYNUM_BITS);
 	
 	entity_state_t *state = &cl.baselines[newnum];
 		
@@ -381,7 +381,7 @@ static void	CL_ParseStartSoundPacket(bitmessage_c &msg)
 	if(flags & SND_POS)
 	{
 		// positioned in space
-		msg.readVector3(pos_v);
+		msg.readVec3(pos_v);
  
 		pos = pos_v;
 	}
@@ -486,7 +486,7 @@ static void	CL_ParsePacketEntities(bitmessage_c &msg, frame_t *oldframe, frame_t
 
 	while(true)
 	{
-		newnum = msg.readShort();
+		newnum = msg.readBits(MAX_ENTITYNUM_BITS);
 		
 		if(newnum < 0 || newnum >= MAX_ENTITIES)
 			Com_Error(ERR_DROP,"CL_ParsePacketEntities: bad number %i", newnum);
@@ -695,9 +695,8 @@ static void	CL_ParsePlayerstate(bitmessage_c &msg, frame_t *oldframe, frame_t *n
 
 static void	CL_ParseFrame(bitmessage_c &msg)
 {
-	int			cmd;
-	int			len;
-	frame_t		*old;
+	int		cmd;
+	frame_t*	old;
 
 	cl.frame.clear();
 
@@ -755,18 +754,26 @@ static void	CL_ParseFrame(bitmessage_c &msg)
 	//
 	// read areabits
 	//
-	len = msg.readByte();
-	msg.readBytes(cl.frame.areabits, len);
+	cmd = msg.readBits(svc_bitcount);
+	
+	CL_ShowNet(msg, svc_strings[cmd]);
+	
+	if(cmd != SVC_AREABITS)
+		Com_Error(ERR_DROP, "CL_ParseFrame: not SVC_AREABITS");
+		
+	int areabits_num = msg.readByte();
+	msg.readBits(areabits_num, cl.frame.areabits);
 
 
 	//
 	// read playerinfo
 	//
-	cmd = msg.readByte();
+	cmd = msg.readBits(svc_bitcount);
+	
 	CL_ShowNet(msg, svc_strings[cmd]);
 	
 	if(cmd != SVC_PLAYERINFO)
-		Com_Error(ERR_DROP, "CL_ParseFrame: not playerinfo");
+		Com_Error(ERR_DROP, "CL_ParseFrame: not SVC_PLAYERINFO");
 	
 	CL_ParsePlayerstate(msg, old, &cl.frame);
 
@@ -774,12 +781,12 @@ static void	CL_ParseFrame(bitmessage_c &msg)
 	//
 	// read packet entities
 	//
-	cmd = msg.readByte();
+	cmd = msg.readBits(svc_bitcount);
 	
 	CL_ShowNet(msg, svc_strings[cmd]);
 	
 	if(cmd != SVC_PACKETENTITIES)
-		Com_Error(ERR_DROP, "CL_ParseFrame: not packetentities");
+		Com_Error(ERR_DROP, "CL_ParseFrame: not SVC_PACKETENTITIES");
 	
 	CL_ParsePacketEntities(msg, old, &cl.frame);
 	
@@ -845,7 +852,7 @@ void	CL_ParseServerMessage(bitmessage_c &msg)
 			break;
 		}
 
-		cmd = msg.readByte();
+		cmd = msg.readBits(svc_bitcount);
 
 		if(cl_shownet->getInteger() >= 2)
 		{
@@ -865,7 +872,6 @@ void	CL_ParseServerMessage(bitmessage_c &msg)
 				break;
 				
 			case -1:
-			case SVC_EOM:
 				//CL_ShowNet(msg, "END OF MESSAGE");
 				break;
 			

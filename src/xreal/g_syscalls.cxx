@@ -313,6 +313,16 @@ void	trap_SV_Unicast(sv_entity_c *ent, bool reliable)
 	gi.SV_Unicast(ent, reliable);
 }
 
+void	trap_SV_WriteBit(bool bit)
+{
+	gi.SV_WriteBit(bit);
+}
+
+void	trap_SV_WriteBits(int bits, int bits_num)
+{
+	gi.SV_WriteBits(bits, bits_num);
+}
+
 void	trap_SV_WriteByte(int c)
 {
 	gi.SV_WriteByte(c);

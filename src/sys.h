@@ -36,17 +36,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 // directory searching
-#define SFF_ARCH    0x01
-#define SFF_HIDDEN  0x02
-#define SFF_RDONLY  0x04
-#define SFF_SUBDIR  0x08
-#define SFF_SYSTEM  0x10
-
-
-#define	PORT_ANY		-1
-#define	PACKET_HEADER		10			// two ints and a short
-
-
+enum
+{
+	SFF_ARCH   	= 0x01,
+	SFF_HIDDEN	= 0x02,
+	SFF_RDONLY	= 0x04,
+	SFF_SUBDIR	= 0x08,
+	SFF_SYSTEM	= 0x10
+};
 
 
 //

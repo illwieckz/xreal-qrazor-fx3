@@ -625,7 +625,7 @@ void	g_item_weapon_grenade_launcher_c::fire(g_player_c *ent)
 		fire_grenade(ent, start, forward, damage, 600, 2.5, radius);
 	
 
-	trap_SV_WriteByte(SVC_MUZZLEFLASH);
+	trap_SV_WriteBits(SVC_MUZZLEFLASH, svc_bitcount);
 	trap_SV_WriteShort(ent->_s.getNumber());
 	trap_SV_WriteByte(MZ_GRENADE);
 	trap_SV_Multicast(ent->_s.origin, MULTICAST_PVS);
@@ -717,7 +717,7 @@ void	g_item_weapon_rocket_launcher_c::fire(g_player_c *ent)
 #endif
 
 	// send muzzle flash
-	trap_SV_WriteByte(SVC_MUZZLEFLASH);
+	trap_SV_WriteBits(SVC_MUZZLEFLASH, svc_bitcount);
 	trap_SV_WriteShort(ent->_s.getNumber());
 	trap_SV_WriteByte(MZ_ROCKET);
 	trap_SV_Multicast(ent->_s.origin, MULTICAST_PVS);
@@ -763,7 +763,7 @@ static void	Blaster_Fire(g_player_c *ent, vec3_t g_offset, int damage, bool hype
 	//fire_blaster(ent, start, forward, damage, 1000, effect, hyper);
 
 	// send muzzle flash
-	//trap_SV_WriteByte(SVC_MUZZLEFLASH);
+	//trap_SV_WriteBits(SVC_MUZZLEFLASH, svc_bitcount);
 	//trap_SV_WriteShort(ent->_s.getNumber());
 	//if(hyper)
 	//	trap_SV_WriteByte(MZ_HYPERBLASTER);
@@ -944,7 +944,7 @@ void	g_item_weapon_shotgun_c::attack1(g_player_c *ent)
 		fire_shotgun(ent, start, forward, damage, kick, 500, 500, DEFAULT_SHOTGUN_COUNT, MOD_SHOTGUN);
 
 	// send muzzle flash
-	trap_SV_WriteByte(SVC_MUZZLEFLASH);
+	trap_SV_WriteBits(SVC_MUZZLEFLASH, svc_bitcount);
 	trap_SV_WriteShort(ent->_s.getNumber());
 	trap_SV_WriteByte(MZ_SHOTGUN);
 	trap_SV_Multicast(ent->_s.origin, MULTICAST_PVS);
@@ -1180,7 +1180,7 @@ void	g_item_weapon_machinegun_c::fire(g_player_c *ent)
 	P_ProjectSource (ent, ent->_s.origin, offset, forward, right, start);
 	fire_bullet (ent, start, forward, damage, kick, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, MOD_MACHINEGUN);
 
-	trap_SV_WriteByte(SVC_MUZZLEFLASH);
+	trap_SV_WriteBits(SVC_MUZZLEFLASH, svc_bitcount);
 	trap_SV_WriteShort(ent->_s.getNumber());
 	trap_SV_WriteByte(MZ_MACHINEGUN);
 	trap_SV_Multicast(ent->_s.origin, MULTICAST_PVS);
@@ -1353,7 +1353,7 @@ void	g_item_weapon_chaingun_c::fire(g_player_c *ent)
 	}
 
 	// send muzzle flash
-	trap_SV_WriteByte (SVC_MUZZLEFLASH);
+	trap_SV_WriteBits(SVC_MUZZLEFLASH, svc_bitcount);
 	trap_SV_WriteShort (ent->_s.getNumber());
 	trap_SV_WriteByte ((MZ_CHAINGUN1 + shots - 1));
 	trap_SV_Multicast (ent->_s.origin, MULTICAST_PVS);
@@ -1444,7 +1444,7 @@ void	g_item_weapon_super_shotgun_c::fire(g_player_c *ent)
 	fire_shotgun (ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD, DEFAULT_SHOTGUN_VSPREAD, DEFAULT_SSHOTGUN_COUNT/2, MOD_SSHOTGUN);
 
 	// send muzzle flash
-	trap_SV_WriteByte(SVC_MUZZLEFLASH);
+	trap_SV_WriteBits(SVC_MUZZLEFLASH, svc_bitcount);
 	trap_SV_WriteShort(ent->_s.getNumber());
 	trap_SV_WriteByte(MZ_SSHOTGUN);
 	trap_SV_Multicast(ent->_s.origin, MULTICAST_PVS);
@@ -1535,7 +1535,7 @@ void	g_item_weapon_railgun_c::fire(g_player_c *ent)
 	fire_rail(ent, start, forward, damage, kick);
 
 	// send muzzle flash
-	trap_SV_WriteByte(SVC_MUZZLEFLASH);
+	trap_SV_WriteBits(SVC_MUZZLEFLASH, svc_bitcount);
 	trap_SV_WriteShort(ent->_s.getNumber());
 	trap_SV_WriteByte(MZ_RAILGUN);
 	trap_SV_Multicast(ent->_s.origin, MULTICAST_PVS);
@@ -1608,7 +1608,7 @@ void	g_item_weapon_bfg_c::fire(g_entity_c *ent)
 	if (ent->_r.ps.gunframe == 9)
 	{
 		// send muzzle flash
-		trap_SV_WriteByte (SVC_MUZZLEFLASH);
+		trap_SV_WriteBits(SVC_MUZZLEFLASH, svc_bitcount);
 		trap_SV_WriteShort (ent->s.number);
 		trap_SV_WriteByte (MZ_BFG | is_silenced);
 		trap_SV_Multicast (ent->s.origin, MULTICAST_PVS);
@@ -1837,7 +1837,7 @@ void	g_item_weapon_sidewinder_c::fire(g_player_c *ent)
 #endif
 
 	// send muzzle flash
-	trap_SV_WriteByte(SVC_MUZZLEFLASH);
+	trap_SV_WriteBits(SVC_MUZZLEFLASH, svc_bitcount);
 	trap_SV_WriteShort(ent->_s.getNumber());
 	trap_SV_WriteByte(MZ_SIDEWINDER);
 	trap_SV_Multicast(ent->_s.origin, MULTICAST_PVS);

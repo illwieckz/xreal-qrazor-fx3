@@ -70,7 +70,7 @@ void	sv_client_c::new_uc()
 	gamedir = Cvar_VariableString("vfs_game");
 
 	// send the serverdata
-	netchan.message.writeByte(SVC_SERVERDATA);
+	netchan.message.writeBits(SVC_SERVERDATA, svc_bitcount);
 	netchan.message.writeLong(PROTOCOL_VERSION);
 	netchan.message.writeLong(svs.spawncount);
 	netchan.message.writeByte(sv.attractloop);
@@ -95,7 +95,7 @@ void	sv_client_c::new_uc()
 		memset(&_lastcmd, 0, sizeof(_lastcmd));
 
 		// begin fetching configstrings
-		netchan.message.writeByte(SVC_STUFFTEXT);
+		netchan.message.writeBits(SVC_STUFFTEXT, svc_bitcount);
 		netchan.message.writeString(va("cmd configstrings %i 0\n", svs.spawncount));
 	}
 }
@@ -127,7 +127,7 @@ void 	sv_client_c::configStrings_uc()
 	{
 		if(sv.configstrings[start][0])
 		{
-			netchan.message.writeByte(SVC_CONFIGSTRING);
+			netchan.message.writeBits(SVC_CONFIGSTRING, svc_bitcount);
 			netchan.message.writeShort(start);
 			netchan.message.writeString(sv.configstrings[start]);
 		}
@@ -137,12 +137,12 @@ void 	sv_client_c::configStrings_uc()
 	// send next command
 	if(start == MAX_CONFIGSTRINGS)
 	{
-		netchan.message.writeByte(SVC_STUFFTEXT);
+		netchan.message.writeBits(SVC_STUFFTEXT, svc_bitcount);
 		netchan.message.writeString(va("cmd baselines %i 0\n", svs.spawncount));
 	}
 	else
 	{
-		netchan.message.writeByte(SVC_STUFFTEXT);
+		netchan.message.writeBits(SVC_STUFFTEXT, svc_bitcount);
 		netchan.message.writeString(va("cmd configstrings %i %i\n", svs.spawncount, start));
 	}
 }
@@ -185,7 +185,7 @@ void	sv_client_c::baseLines_uc()
 			base->effects
 		)
 		{
-			netchan.message.writeByte(SVC_SPAWNBASELINE);
+			netchan.message.writeBits(SVC_SPAWNBASELINE, svc_bitcount);
 			netchan.message.writeDeltaEntity(&nullstate, base, true);
 		}
 		
@@ -195,12 +195,12 @@ void	sv_client_c::baseLines_uc()
 	// send next command
 	if(start == MAX_ENTITIES)
 	{
-		netchan.message.writeByte(SVC_STUFFTEXT);
+		netchan.message.writeBits(SVC_STUFFTEXT, svc_bitcount);
 		netchan.message.writeString(va("precache %i\n", svs.spawncount));
 	}
 	else
 	{
-		netchan.message.writeByte(SVC_STUFFTEXT);
+		netchan.message.writeBits(SVC_STUFFTEXT, svc_bitcount);
 		netchan.message.writeString(va("cmd baselines %i %i\n", svs.spawncount, start));
 	}
 }
@@ -239,7 +239,7 @@ void 	sv_client_c::nextDownload_uc()
 	if (r > 1024)
 		r = 1024;
 
-	netchan.message.writeByte(SVC_DOWNLOAD);
+	netchan.message.writeBits(SVC_DOWNLOAD, svc_bitcount);
 	netchan.message.writeShort(r);
 
 	_download_count += r;
@@ -293,7 +293,7 @@ void	sv_client_c::beginDownload_uc()
 		|| !strstr(name, "/") )	
 	{	
 		// don't allow anything with .. path
-		netchan.message.writeByte(SVC_DOWNLOAD);
+		netchan.message.writeBits(SVC_DOWNLOAD, svc_bitcount);
 		netchan.message.writeShort(-1);
 		netchan.message.writeByte(0);
 		return;
@@ -325,7 +325,7 @@ void	sv_client_c::beginDownload_uc()
 			_download = NULL;
 		}
 
-		netchan.message.writeByte(SVC_DOWNLOAD);
+		netchan.message.writeBits(SVC_DOWNLOAD, svc_bitcount);
 		netchan.message.writeShort(-1);
 		netchan.message.writeByte(0);
 		return;

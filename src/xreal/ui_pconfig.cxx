@@ -728,7 +728,6 @@ static void	PlayerConfig_MenuDraw()
 	refdef.height = 400;
 	refdef.setFOV(45);
 	//refdef.time = uii.CL_GetRealtime() * 0.001;
-	refdef.areabits = NULL;
 	refdef.rdflags = RDF_NOWORLDMODEL;
 
 	if(s_pmi[s_player_model_box._curvalue].skindisplaynames.size())

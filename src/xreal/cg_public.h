@@ -62,7 +62,7 @@ struct frame_t
 		servertime		= 0;
 		deltaframe		= 0;
 		
-		memset(areabits, 0, sizeof(areabits));
+		areabits.clear();
 		
 		playerstate.clear();
 		
@@ -76,7 +76,7 @@ struct frame_t
 	int			servertime;			// server time the message is valid for (in msec)
 	int			deltaframe;
 	
-	byte			areabits[MAX_BSP_AREAS/8];	// portalarea visibility bits
+	boost::dynamic_bitset<byte>	areabits;		// portalarea visibility bits
 	
 	player_state_t		playerstate;
 	

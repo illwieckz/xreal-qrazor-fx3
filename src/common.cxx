@@ -42,6 +42,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "cm.h"
 
 #include "x_bitmessage.h"
+#include "x_protocol.h"
 
 
 #define	MAX_PRINT_MSG	4096
@@ -299,7 +300,7 @@ static void	Com_EventLoop()
 {
 #ifndef BSPCOMPILER_ONLY
 	netadr_t	adr;
-	bitmessage_c	msg(tobits(MAX_PACKETLEN));	// Tr3B - don't use MAX_MSGLEN, will cause buffer overflow -> exception -> kills server badly
+	bitmessage_c	msg(toBits(MAX_PACKETLEN));	// Tr3B - don't use MAX_MSGLEN, will cause buffer overflow -> exception -> kills server badly
 							// don't ask my for the reason
 #endif
 
@@ -857,6 +858,41 @@ static void	Com_D3MapToQ3AMap_f()
 	VFS_FFree(buf);
 }
 
+int	bitcount(uint_t bits)
+{
+#if 0
+#define TWO(c)		(0x1u << (c))
+#define MASK(c)		(((unsigned int)(-1)) / (TWO(TWO(c)) + 1u))
+#define COUNT(x,c)	((x) & MASK(c)) + (((x) >> (TWO(c))) & MASK(c))
+	n = COUNT(n, 0);
+	n = COUNT(n, 1);
+	n = COUNT(n, 2);
+	n = COUNT(n, 3);
+	n = COUNT(n, 4);
+//	n = COUNT(n, 5);	// for 64-bit integers
+#undef TWO
+#undef MASK
+#undef COUNT
+	return n;
+#elif 0
+	int count=0;
+	while(n)
+	{
+        	count += n & 0x1u;
+        	n >>= 1;
+	}
+	return count;
+	
+#else
+	int i;
+	for(i=31; i>=0; --i)
+		if(bits & (1 << i))
+			break;
+	return i;
+
+#endif
+}
+
 static void	Com_MiscCheck_f()
 {
 	/*
@@ -911,6 +947,7 @@ static void	Com_MiscCheck_f()
 	
 	//std::cout << bits << std::endl;
 	
+	/*
 	std::vector<int>	ints;
 	for(int i=0; i<10; i++)
 		ints.push_back(i);
@@ -922,6 +959,30 @@ static void	Com_MiscCheck_f()
 	for(std::vector<int>::const_iterator ir = ints.end()-1; ir != ints.begin()-1; --ir)
 		Com_Printf("%i", *ir);
 	Com_Printf("\n");
+	
+	for(int i=ints.size()-1; i>0; --i)
+		Com_Printf("%i", ints[i]);
+	Com_Printf("\n");
+	
+	const std::bitset<32>	svc_b(SVC_LAST);
+	const uint_t		svc_i = SVC_LAST;
+	
+	Com_Printf("SVC_LAST: %i\n", SVC_LAST);
+	
+	for(uint_t i=0; i<svc_b.size(); i++)
+		Com_Printf("%i", svc_b[i]);
+	Com_Printf("\n");
+	
+	Com_Printf("1     bits: %i\n", svc_b.count());
+	Com_Printf("total bits: %i\n", bitcount(svc_i));
+	Com_Printf("log2      : %f\n", log2(svc_i));
+	*/
+	
+	for(int i=0; i<20; i++)
+		Com_Printf("log2(%i)  : %f\n", i, log2(i));
+		
+	for(int i=0; i<20; i++)
+		Com_Printf("ceil(log2(%i))  : %i\n", i, (int)ceil(log2(i)));
 }
 
 static void	Com_MessageCheck_f()

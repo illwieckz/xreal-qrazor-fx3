@@ -61,7 +61,7 @@ void	netchan_c::setup(const netadr_t &adr, int qport, bool client)
 	_incoming_sequence = 0;
 	_outgoing_sequence = 1;
 
-	message = bitmessage_c(tobits(MAX_MSGLEN)-NETCHAN_PACKET_HEADER_BITS, true);
+	message = bitmessage_c(toBits(MAX_MSGLEN)-NETCHAN_PACKET_HEADER_BITS, true);
 }
 
 

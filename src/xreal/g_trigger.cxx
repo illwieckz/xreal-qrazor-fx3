@@ -827,12 +827,12 @@ bool	g_trigger_teleport_c::touch(g_entity_c *other, const cplane_c &plane, csurf
 
 	// draw the teleport splash at source and on the player
 	/*
-	trap_SV_WriteByte(SVC_TEMP_ENTITY);
+	trap_SV_WriteBits(SVC_TEMP_ENTITY, svc_bitcount);
 	trap_SV_WriteByte(TE_PLAYER_TELEPORT_OUT);
 	trap_SV_WritePosition(self->s.origin);
 	trap_SV_Multicast(_s.origin, MULTICAST_PVS);
 
-	trap_SV_WriteByte(SV_TEMP_ENTITY);
+	trap_SV_WriteBits(SVC_TEMP_ENTITY, svc_bitcount);
 	trap_SV_WriteByte(TE_PLAYER_TELEPORT_IN);
 	trap_SV_WritePosition(player->_s.origin);
 	trap_SV_Multicast(player->_s.origin, MULTICAST_PVS);

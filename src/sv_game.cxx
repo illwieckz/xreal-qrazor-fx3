@@ -129,7 +129,7 @@ static void 	SV_CenterPrintf(sv_entity_c *ent, const char *fmt, ...)
 	vsprintf(msg, fmt, argptr);
 	va_end(argptr);
 
-	sv.multicast.writeByte(SVC_CENTERPRINT);
+	sv.multicast.writeBits(SVC_CENTERPRINT, svc_bitcount);
 	sv.multicast.writeString(msg);
 	
 	SV_Unicast(ent, true);
@@ -153,7 +153,7 @@ void 	SV_SetConfigString(int index, const std::string &val)
 	{	
 		// send the update to everyone
 		sv.multicast.beginWriting();
-		sv.multicast.writeByte(SVC_CONFIGSTRING);
+		sv.multicast.writeBits(SVC_CONFIGSTRING, svc_bitcount);
 		sv.multicast.writeShort(index);
 		sv.multicast.writeString(val);
 
@@ -162,16 +162,17 @@ void 	SV_SetConfigString(int index, const std::string &val)
 }
 
 
-
-static void 	SV_WriteByte(int c) 		{sv.multicast.writeByte(c);}
-static void 	SV_WriteShort(int c) 		{sv.multicast.writeShort(c);}
-static void 	SV_WriteLong(int c) 		{sv.multicast.writeLong(c);}
-static void 	SV_WriteFloat(float f) 		{sv.multicast.writeFloat(f);}
-static void 	SV_WriteString(const char *s) 	{sv.multicast.writeString(s);}
-static void 	SV_WritePos(const vec3_c &pos) 	{sv.multicast.writeVector3(pos);}
-static void 	SV_WriteDir(const vec3_c &dir) 	{sv.multicast.writeDir(dir);}
-static void 	SV_WriteAngle(float f)		{sv.multicast.writeAngle(f);}
-static void 	SV_WriteColor(vec4_t color) 	{sv.multicast.writeColor(color);}
+static void	SV_WriteBit(bool bit)			{sv.multicast.writeBit(bit);}
+static void	SV_WriteBits(int bits, int bits_num)	{sv.multicast.writeBits(bits, bits_num);}
+static void 	SV_WriteByte(int c) 			{sv.multicast.writeByte(c);}
+static void 	SV_WriteShort(int c) 			{sv.multicast.writeShort(c);}
+static void 	SV_WriteLong(int c) 			{sv.multicast.writeLong(c);}
+static void 	SV_WriteFloat(float f) 			{sv.multicast.writeFloat(f);}
+static void 	SV_WriteString(const char *s) 		{sv.multicast.writeString(s);}
+static void 	SV_WritePos(const vec3_c &pos) 		{sv.multicast.writeVec3(pos);}
+static void 	SV_WriteDir(const vec3_c &dir) 		{sv.multicast.writeDir(dir);}
+static void 	SV_WriteAngle(float f)			{sv.multicast.writeAngle(f);}
+static void 	SV_WriteColor(vec4_t color) 		{sv.multicast.writeColor(color);}
 
 
 /*
@@ -302,6 +303,8 @@ void 	SV_InitGameProgs()
 	import.SV_Multicast 		= SV_Multicast;
 	import.SV_Unicast 		= SV_Unicast;
 	
+	import.SV_WriteBit		= SV_WriteBit;
+	import.SV_WriteBits		= SV_WriteBits;
 	import.SV_WriteByte 		= SV_WriteByte;
 	import.SV_WriteShort 		= SV_WriteShort;
 	import.SV_WriteLong 		= SV_WriteLong;

@@ -295,7 +295,7 @@ void	Cmd_ForwardToServer()
 		cmd += Cmd_Args();
 	}
 	
-	cls.netchan.message.writeByte(CLC_STRINGCMD);
+	cls.netchan.message.writeBits(CLC_STRINGCMD, clc_bitcount);
 	cls.netchan.message.writeString(cmd);
 }
 
@@ -310,7 +310,7 @@ void	CL_ForwardToServer_f()
 	// don't forward the first argument
 	if(Cmd_Argc() > 1)
 	{
-		cls.netchan.message.writeByte(CLC_STRINGCMD);
+		cls.netchan.message.writeBits(CLC_STRINGCMD, clc_bitcount);
 		cls.netchan.message.writeString(Cmd_Args());
 	}
 }
@@ -658,7 +658,7 @@ void	CL_Disconnect()
 
 	// send a disconnect message to the server
 	bitmessage_c msg(MAX_PACKETLEN*8);
-	msg.writeByte(CLC_STRINGCMD);
+	msg.writeBits(CLC_STRINGCMD, clc_bitcount);
 	msg.writeString("disconnect");
 	
 	cls.netchan.transmit(msg);
@@ -776,7 +776,7 @@ void	CL_Reconnect_f()
 	{
 		Com_Printf("reconnecting...\n");
 		//cls.state = ca_connected;
-		cls.netchan.message.writeByte(CLC_STRINGCMD);
+		cls.netchan.message.writeBits(CLC_STRINGCMD, clc_bitcount);
 		cls.netchan.message.writeString("new");
 		return;
 	}
@@ -891,7 +891,7 @@ void	CL_ConnectionlessPacket(bitmessage_c &msg, const netadr_t &adr)
 			return;
 		}
 		cls.netchan.setup(adr, cls.quake_port, true);
-		cls.netchan.message.writeByte(CLC_STRINGCMD);
+		cls.netchan.message.writeBits(CLC_STRINGCMD, clc_bitcount);
 		cls.netchan.message.writeString("new");	
 		cls.state = CA_CONNECTED;
 		return;
@@ -1413,7 +1413,7 @@ void	CL_RequestNextDownload()
 	//
 	cge->CG_PrepRefresh();
 
-	cls.netchan.message.writeByte(CLC_STRINGCMD);
+	cls.netchan.message.writeBits(CLC_STRINGCMD, clc_bitcount);
 	cls.netchan.message.writeString(va("begin %i\n", precache_spawncount));
 }
 

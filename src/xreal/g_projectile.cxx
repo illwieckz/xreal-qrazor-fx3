@@ -114,7 +114,7 @@ bool	g_projectile_bolt_c::touch(g_entity_c *other, const cplane_c &plane, csurfa
 	else
 	{
 		// bolt hitting wall, do some sparks particle effects
-		trap_SV_WriteByte(SVC_TEMP_ENTITY);
+		trap_SV_WriteBits(SVC_TEMP_ENTITY, svc_bitcount);
 		trap_SV_WriteByte(TE_BLASTER);
 		trap_SV_WritePosition(_s.origin);
 		trap_SV_WriteDir(plane._normal);
@@ -218,7 +218,7 @@ void	g_projectile_grenade_c::think()
 	//T_RadiusDamage(this, (g_entity_c*)_r.owner, _dmg, _enemy, _dmg_radius, mod);
 
 //	Vector3_MA(_s.origin, -0.02, _velocity, origin);
-	trap_SV_WriteByte (SVC_TEMP_ENTITY);
+	trap_SV_WriteBits(SVC_TEMP_ENTITY, svc_bitcount);
 	
 	if (_waterlevel)
 	{
@@ -431,7 +431,7 @@ bool	g_projectile_rocket_c::touch(g_entity_c *other, const cplane_c &plane, csur
 	
 	G_RadiusDamage(this, (g_entity_c*)_r.owner, _radius_dmg, other, _dmg_radius, MOD_R_SPLASH);
 
-	trap_SV_WriteByte(SVC_TEMP_ENTITY);
+	trap_SV_WriteBits(SVC_TEMP_ENTITY, svc_bitcount);
 	
 	if(_waterlevel)
 		trap_SV_WriteByte(TE_ROCKET_EXPLOSION_WATER);

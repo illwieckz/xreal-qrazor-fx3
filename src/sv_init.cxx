@@ -67,7 +67,7 @@ int 	SV_FindIndex(const std::string &name, int start, int max, bool create)
 	{
 		// send the update to everyone
 		sv.multicast.beginWriting();
-		sv.multicast.writeByte(SVC_CONFIGSTRING);
+		sv.multicast.writeBits(SVC_CONFIGSTRING, svc_bitcount);
 		sv.multicast.writeShort(start + i);
 		sv.multicast.writeString(name.c_str());
 		

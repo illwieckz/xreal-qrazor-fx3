@@ -993,14 +993,14 @@ static void 	SV_FinalMessage(const std::string &message, bool reconnect)
 {
 	bitmessage_c msg(MAX_PACKETLEN);
 	
-	msg.writeByte(SVC_PRINT);
+	msg.writeBits(SVC_PRINT, svc_bitcount);
 	msg.writeByte(PRINT_HIGH);
 	msg.writeString(message.c_str());
 
 	if(reconnect)
-		msg.writeByte(SVC_RECONNECT);
+		msg.writeBits(SVC_RECONNECT, svc_bitcount);
 	else
-		msg.writeByte(SVC_DISCONNECT);
+		msg.writeBits(SVC_DISCONNECT, svc_bitcount);
 
 	for(std::vector<sv_client_c*>::const_iterator ir = svs.clients.begin(); ir != svs.clients.end(); ++ir)
 	{

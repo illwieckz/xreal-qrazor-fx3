@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "config.h"
 #endif
 // system -------------------------------------------------------------------
+#include <boost/dynamic_bitset.hpp>
 #include <deque>
 #include <queue>
 
@@ -49,12 +50,11 @@ enum sv_client_state_t
 
 struct sv_client_frame_t
 {
-	int			areabytes;
-	byte			areabits[MAX_BSP_AREAS/8];	// portalarea visibility bits
-	player_state_t		ps;
-	int			num_entities;
-	int			first_entity;			// into the circular sv_packet_entities[]
-	int			senttime;			// for ping calculations
+	boost::dynamic_bitset<byte>	areabits;	// portalarea visibility bits
+	player_state_t			ps;
+	int				num_entities;
+	int				first_entity;	// into the circular sv_packet_entities[]
+	int				senttime;	// for ping calculations
 };
 
 #define	LATENCY_COUNTS	16
@@ -77,6 +77,7 @@ private:
 	bool		cullEntity(sv_entity_c *ent, byte *bitvector);
 	void		writePacketEntities(sv_client_frame_t *from, sv_client_frame_t *to, bitmessage_c &msg);
 	void		writePlayerState(sv_client_frame_t *from, sv_client_frame_t *to, bitmessage_c &msg);
+	void		writeAreaBits(const sv_client_frame_t *from, bitmessage_c &msg);
 	void		writeFrame(bitmessage_c &msg);
 public:
 	void		calcPing();

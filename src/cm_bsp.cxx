@@ -2079,28 +2079,24 @@ that area in the same flood as the area parameter
 This is used by the client refreshes to cull visibility
 =================
 */
-int	CM_WriteAreaBits(byte *buffer, int area)
+void	CM_WriteAreaBits(boost::dynamic_bitset<byte> &bits, int area)
 {
-	int bytes = (cm_areas.size()+7)>>3;
-
 	if(cm_noareas->getValue() || area <= 0)
 	{	
 		// for debugging, send everything
-		memset(buffer, 255, bytes);
+		bits = boost::dynamic_bitset<byte>(cm_areas.size(), true);
 	}
 	else
 	{
-		memset(buffer, 0, bytes);
+		bits = boost::dynamic_bitset<byte>(cm_areas.size(), false);
 
 		// area 0 is not used
 		for(uint_t i=1; i<cm_areas.size(); i++)
 		{
 			if((int)i == area)//|| CM_AreasConnected(i, area))
-				buffer[i>>3] |= 1<<(i&7);
+				bits[i] = true;
 		}
 	}
-
-	return bytes;
 }
 
 

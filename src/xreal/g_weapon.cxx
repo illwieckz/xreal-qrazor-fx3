@@ -170,7 +170,7 @@ static void	fire_lead(g_entity_c *self, vec3_t start, vec3_t aimdir, int damage,
 
 				if (color != SPLASH_UNKNOWN)
 				{
-					gi.SV_WriteByte (SVC_TEMP_ENTITY);
+					gi.SV_WriteBits(SVC_TEMP_ENTITY, svc_bitcount);
 					gi.SV_WriteByte (TE_SPLASH);
 					gi.SV_WriteByte (8);
 					gi.SV_WritePosition (tr.endpos);
@@ -208,7 +208,7 @@ static void	fire_lead(g_entity_c *self, vec3_t start, vec3_t aimdir, int damage,
 			{
 				if(!(tr.surface->flags & SURF_NOIMPACT))
 				{
-					gi.SV_WriteByte(SVC_TEMP_ENTITY);
+					gi.SV_WriteBits(SVC_TEMP_ENTITY, svc_bitcount);
 					gi.SV_WriteByte(te_impact);
 					gi.SV_WritePosition(tr.endpos);
 					gi.SV_WriteDir(tr.plane._normal);
@@ -237,7 +237,7 @@ static void	fire_lead(g_entity_c *self, vec3_t start, vec3_t aimdir, int damage,
 		Vector3_Add (water_start, tr.endpos, pos);
 		Vector3_Scale (pos, 0.5, pos);
 
-		gi.SV_WriteByte (SVC_TEMP_ENTITY);
+		gi.SV_WriteBits(SVC_TEMP_ENTITY, svc_bitcount);
 		gi.SV_WriteByte (TE_BUBBLETRAIL);
 		gi.SV_WritePosition (water_start);
 		gi.SV_WritePosition (tr.endpos);
@@ -353,7 +353,7 @@ void	fire_rail(g_entity_c *self, vec3_t start, vec3_t aimdir, int damage, int ki
 	}
 
 	// send gun puff / flash
-	gi.SV_WriteByte (SVC_TEMP_ENTITY);
+	gi.SV_WriteBits(SVC_TEMP_ENTITY, svc_bitcount);
 	gi.SV_WriteByte (TE_RAILTRAIL);
 	gi.SV_WritePosition (start);
 	gi.SV_WritePosition (tr.endpos);
@@ -362,7 +362,7 @@ void	fire_rail(g_entity_c *self, vec3_t start, vec3_t aimdir, int damage, int ki
 	
 	if (water)
 	{
-		gi.SV_WriteByte (SVC_TEMP_ENTITY);
+		gi.SV_WriteBits(SVC_TEMP_ENTITY, svc_bitcount);
 		gi.SV_WriteByte (TE_RAILTRAIL);
 		gi.SV_WritePosition (start);
 		gi.SV_WritePosition (tr.endpos);
@@ -407,7 +407,7 @@ void bfg_explode (g_entity_c *self)
 			if (ent == self->r.owner)
 				points = points * 0.5;
 
-			gi.SV_WriteByte (SVC_TEMP_ENTITY);
+			gi.SV_WriteBits(SVC_TEMP_ENTITY, svc_bitcount);
 			gi.SV_WriteByte (TE_BFG_EXPLOSION);
 			gi.SV_WritePosition (ent->s.origin);
 			gi.SV_Multicast (ent->s.origin, MULTICAST_PHS);
@@ -456,7 +456,7 @@ void bfg_touch (g_entity_c *self, g_entity_c *other, cplane_c *plane, csurface_c
 	self->nextthink = level.time + FRAMETIME;
 	self->enemy = other;
 
-	gi.SV_WriteByte (SVC_TEMP_ENTITY);
+	gi.SV_WriteBits(SVC_TEMP_ENTITY, svc_bitcount);
 	gi.SV_WriteByte (TE_BFG_BIGEXPLOSION);
 	gi.SV_WritePosition (self->s.origin);
 	gi.SV_Multicast (self->s.origin, MULTICAST_PVS);
@@ -518,7 +518,7 @@ void bfg_think (g_entity_c *self)
 			// if we hit something that's not a monster or player we're done
 			if (!tr.ent->r.client)
 			{
-				gi.SV_WriteByte (SVC_TEMP_ENTITY);
+				gi.SV_WriteBits(SVC_TEMP_ENTITY, svc_bitcount);
 				gi.SV_WriteByte (TE_LASER_SPARKS);
 				gi.SV_WriteByte (4);
 				gi.SV_WritePosition (tr.endpos);
@@ -532,7 +532,7 @@ void bfg_think (g_entity_c *self)
 			Vector3_Copy (tr.endpos, start);
 		}
 
-		gi.SV_WriteByte (SVC_TEMP_ENTITY);
+		gi.SV_WriteBits(SVC_TEMP_ENTITY, svc_bitcount);
 		gi.SV_WriteByte (TE_BFG_LASER);
 		gi.SV_WritePosition (self->s.origin);
 		gi.SV_WritePosition (tr.endpos);

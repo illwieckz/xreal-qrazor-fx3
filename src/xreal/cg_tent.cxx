@@ -227,8 +227,8 @@ static void	CG_ParseLaser(bitmessage_c &msg, int colors)
 	laser_t	*l;
 	int		i;
 
-	msg.readVector3(start);
-	msg.readVector3(end);
+	msg.readVec3(start);
+	msg.readVec3(end);
 
 	for(i=0, l=cl_lasers ; i< MAX_LASERS ; i++, l++)
 	{
@@ -252,7 +252,7 @@ static void	CG_ParseContact(bitmessage_c &msg)
 {
 	r_contact_t rc;
 	
-	msg.readVector3(rc.origin);
+	msg.readVec3(rc.origin);
 	msg.readDir(rc.normal);
 	rc.depth = msg.readFloat();
 	
@@ -279,7 +279,7 @@ void	CG_ParseTEnt(bitmessage_c &msg)
 	switch(type)
 	{
 	case TE_BLOOD:			// bullet hitting flesh
-		msg.readVector3(pos);
+		msg.readVec3(pos);
 		msg.readDir(dir);
 		
 		CG_ParticleSpray (PART_BLOOD4, pos, dir, color, 20+(int)X_crand()*100);
@@ -288,7 +288,7 @@ void	CG_ParseTEnt(bitmessage_c &msg)
 	case TE_GUNSHOT:			// bullet hitting wall
 	case TE_SPARKS:
 	case TE_BULLET_SPARKS:
-		msg.readVector3(pos);
+		msg.readVec3(pos);
 		msg.readDir(dir);
 		
 		if(type == TE_GUNSHOT)
@@ -321,7 +321,7 @@ void	CG_ParseTEnt(bitmessage_c &msg)
 		
 	case TE_SCREEN_SPARKS:
 	case TE_SHIELD_SPARKS:
-		msg.readVector3(pos);
+		msg.readVec3(pos);
 		msg.readDir(dir);
 		
 		if(type == TE_SCREEN_SPARKS)
@@ -341,7 +341,7 @@ void	CG_ParseTEnt(bitmessage_c &msg)
 		break;
 		
 	case TE_SHOTGUN:			// bullet hitting wall
-		msg.readVector3(pos);
+		msg.readVec3(pos);
 		msg.readDir(dir);
 		
 		//CG_ParticleEffect (pos, dir, 0, 20);
@@ -352,7 +352,7 @@ void	CG_ParseTEnt(bitmessage_c &msg)
 
 	case TE_SPLASH:			// bullet hitting water
 		cnt = msg.readByte();
-		msg.readVector3(pos);
+		msg.readVec3(pos);
 		msg.readDir(dir);
 		r = msg.readByte();
 		
@@ -389,7 +389,7 @@ void	CG_ParseTEnt(bitmessage_c &msg)
 
 	case TE_LASER_SPARKS:
 		cnt = msg.readByte();
-		msg.readVector3(pos);
+		msg.readVec3(pos);
 		msg.readDir(dir);
 		msg.readByte();
 		//color = trap_MSG_ReadByte (msg);
@@ -399,7 +399,7 @@ void	CG_ParseTEnt(bitmessage_c &msg)
 		break;
 
 	case TE_BLASTER:			// blaster hitting wall
-		msg.readVector3(pos);
+		msg.readVec3(pos);
 		msg.readDir(dir);
 		
 		CG_ParticleSpray(PART_BLASTER, pos, dir, color, 30+(int)X_frand()*30);
@@ -431,8 +431,8 @@ void	CG_ParseTEnt(bitmessage_c &msg)
 		break;
 		
 	case TE_RAILTRAIL:			// railgun effect
-		msg.readVector3(pos);
-		msg.readVector3(pos2);
+		msg.readVec3(pos);
+		msg.readVec3(pos2);
 		
 		//CG_RailTrail (pos, pos2);
 		CG_ParticleTrail(PART_RAIL, pos, pos2, color, 0.05);
@@ -443,7 +443,7 @@ void	CG_ParseTEnt(bitmessage_c &msg)
 	case TE_EXPLOSION2:
 	case TE_GRENADE_EXPLOSION:
 	case TE_GRENADE_EXPLOSION_WATER:
-		msg.readVector3(pos);
+		msg.readVec3(pos);
 	
 		/*
 		ex = CG_AllocExplosion ();
@@ -471,7 +471,7 @@ void	CG_ParseTEnt(bitmessage_c &msg)
 	case TE_EXPLOSION1:
 	case TE_ROCKET_EXPLOSION:
 	case TE_ROCKET_EXPLOSION_WATER:
-		msg.readVector3(pos);
+		msg.readVec3(pos);
 		
 		/*
 		ex = CG_AllocExplosion ();
@@ -506,7 +506,7 @@ void	CG_ParseTEnt(bitmessage_c &msg)
 		break;
 
 	case TE_BFG_EXPLOSION:
-		msg.readVector3(pos);
+		msg.readVec3(pos);
 		/*
 		ex = CG_AllocExplosion ();
 		Vector3_Copy (pos, ex->ent.origin);
@@ -525,7 +525,7 @@ void	CG_ParseTEnt(bitmessage_c &msg)
 		break;
 
 	case TE_BFG_BIGEXPLOSION:
-		msg.readVector3(pos);
+		msg.readVec3(pos);
 		CG_BFGExplosionParticles (pos);
 		break;
 
@@ -534,8 +534,8 @@ void	CG_ParseTEnt(bitmessage_c &msg)
 		break;
 
 	case TE_BUBBLETRAIL:
-		msg.readVector3(pos);
-		msg.readVector3(pos2);
+		msg.readVec3(pos);
+		msg.readVec3(pos2);
 		CG_BubbleTrail (pos, pos2);
 		break;
 		

@@ -851,7 +851,7 @@ void	g_player_c::clientBegin()
 		// send effect if in a multiplayer game
 		if(game.maxclients > 1)
 		{
-			trap_SV_WriteByte(SVC_MUZZLEFLASH);
+			trap_SV_WriteBits(SVC_MUZZLEFLASH, svc_bitcount);
 			trap_SV_WriteShort(_s.getNumber());
 			trap_SV_WriteByte(MZ_LOGIN);
 			trap_SV_Multicast(_s.origin, MULTICAST_PVS);
@@ -887,7 +887,7 @@ void	g_player_c::clientBeginDeathmatch()
 	else
 	{
 		// send effect
-		trap_SV_WriteByte(SVC_MUZZLEFLASH);
+		trap_SV_WriteBits(SVC_MUZZLEFLASH, svc_bitcount);
 		trap_SV_WriteShort(_s.getNumber());
 		trap_SV_WriteByte(MZ_LOGIN);
 		trap_SV_Multicast(_s.origin, MULTICAST_PVS);
@@ -995,7 +995,7 @@ void	g_player_c::clientDisconnect()
 	trap_SV_BPrintf(PRINT_HIGH, "%s disconnected\n", _pers.netname);
 
 	// send effect
-	trap_SV_WriteByte(SVC_MUZZLEFLASH);
+	trap_SV_WriteBits(SVC_MUZZLEFLASH, svc_bitcount);
 	trap_SV_WriteShort(_s.getNumber());
 	trap_SV_WriteByte(MZ_LOGOUT);
 	trap_SV_Multicast(_s.origin, MULTICAST_PVS);
@@ -2257,7 +2257,7 @@ void	g_player_c::respawnAsSpectator()
 		{
 			trap_SV_CPrintf(this, PRINT_HIGH, "Spectator password incorrect.\n");
 			_pers.spectator = false;
-			trap_SV_WriteByte(SVC_STUFFTEXT);
+			trap_SV_WriteBits(SVC_STUFFTEXT, svc_bitcount);
 			trap_SV_WriteString("spectator 0\n");
 			trap_SV_Unicast(this, true);
 			return;
@@ -2272,7 +2272,7 @@ void	g_player_c::respawnAsSpectator()
 		{
 			trap_SV_CPrintf(this, PRINT_HIGH, "Server spectator limit is full.");
 			_pers.spectator = false;
-			trap_SV_WriteByte(SVC_STUFFTEXT);
+			trap_SV_WriteBits(SVC_STUFFTEXT, svc_bitcount);
 			trap_SV_WriteString("spectator 0\n");
 			trap_SV_Unicast(this, true);
 			return;
@@ -2288,7 +2288,7 @@ void	g_player_c::respawnAsSpectator()
 		{
 			trap_SV_CPrintf(this, PRINT_HIGH, "Password incorrect.\n");
 			_pers.spectator = true;
-			trap_SV_WriteByte(SVC_STUFFTEXT);
+			trap_SV_WriteBits(SVC_STUFFTEXT, svc_bitcount);
 			trap_SV_WriteString("spectator 1\n");
 			trap_SV_Unicast(this, true);
 			return;
@@ -2305,7 +2305,7 @@ void	g_player_c::respawnAsSpectator()
 	if(!_pers.spectator)
 	{
 		// send effect
-		trap_SV_WriteByte(SVC_MUZZLEFLASH);
+		trap_SV_WriteBits(SVC_MUZZLEFLASH, svc_bitcount);
 		trap_SV_WriteShort(_s.getNumber());	// - g_entities);
 		trap_SV_WriteByte(MZ_LOGIN);
 		trap_SV_Multicast(_s.origin, MULTICAST_PVS);
@@ -4327,7 +4327,7 @@ void 	g_player_c::inven_f()
 
 	_showinventory = true;
 
-	trap_SV_WriteByte(SVC_INVENTORY);
+	trap_SV_WriteBits(SVC_INVENTORY, svc_bitcount);
 	for(int i=0; i<MAX_ITEMS; i++)
 	{
 		trap_SV_WriteShort(_pers.inventory[i]);
