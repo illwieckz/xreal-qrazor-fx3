@@ -265,8 +265,8 @@ void	CG_DrawChar(int x, int y, int num, const vec4_c &color, int flags)
 	if(flags & FONT_ALT)
 		num = num ^ 0x80;
 
-	row = num>>4;
-	col = num&15;
+	row = num >> 4;
+	col = num & 15;
 
 	frow = row*0.0625;
 	fcol = col*0.0625;
@@ -332,7 +332,7 @@ void 	CG_DrawFPS()
 	static int oldframecount;
 	double t;
 	char s[32];
-	int x, width;
+	int x, y, width;
 
 	if(!trap_CLS_GetFrameTime() || trap_CLS_GetConnectionState() < CA_CONNECTED)
 		return;
@@ -358,8 +358,12 @@ void 	CG_DrawFPS()
 	Com_sprintf ( s, sizeof( s ), "%3dfps", fps );
 	width = strlen(s) * CHAR_MEDIUM_WIDTH;
 	x = trap_VID_GetWidth() - 5 - width;
+//	y = trap_VID_GetHeight() - 2 - CHAR_MEDIUM_HEIGHT;
+	y = 2;
 	
-	CG_DrawString(x, 2, color_white, FONT_MEDIUM, s);
+	CG_DrawString(x, y, color_white, FONT_MEDIUM, s);
+	
+//	trap_R_DrawFill(x, y, width, CHAR_MEDIUM_HEIGHT, color_blue);
 }
 
 

@@ -761,8 +761,6 @@ void	R_DrawLightDebuggingInfo()
 	{
 		RB_SetupGL2D();
 		
-		xglColor4fv(color_red);
-				
 		xglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		
 		for(std::vector<r_light_c*>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
@@ -774,14 +772,34 @@ void	R_DrawLightDebuggingInfo()
 			
 			if(!light->isVisible())
 				continue;
+			
 					
-				
 			xglBegin(GL_QUADS);
+			
+			xglColor4fv(color_red);
 			xglVertex3f(light->getScissorX(), light->getScissorY(), 0.0);
+			
+			xglColor4fv(color_green);
 			xglVertex3f(light->getScissorX()+light->getScissorWidth(), light->getScissorY(), 0.0);
+			
+			xglColor4fv(color_blue);
 			xglVertex3f(light->getScissorX()+light->getScissorWidth(), light->getScissorY()+light->getScissorHeight(), 0.0);
+			
+			xglColor4fv(color_white);
 			xglVertex3f(light->getScissorX(), light->getScissorY()+light->getScissorHeight(), 0.0);
+			
 			xglEnd();
+			
+			/*
+			R_DrawFill
+			(
+				r_newrefdef.width - light->getScissorX(), 
+				r_newrefdef.height  - light->getScissorY(),
+				light->getScissorWidth(),
+				light->getScissorHeight(),
+				vec4_c(1.0, 0.0, 0.0, 0.1)
+			);
+			*/
 		}
 		
 		xglPolygonMode(GL_FRONT_AND_BACK, gl_state.polygon_mode);

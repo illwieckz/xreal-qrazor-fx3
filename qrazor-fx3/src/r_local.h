@@ -899,8 +899,8 @@ public:
 	//inline const vec4_c&	getScissorCoords() const	{return _coords;}
 	inline int		getScissorX() const		{return (int)_mins[0];}
 	inline int		getScissorY() const		{return (int)_mins[1];}
-	inline int		getScissorWidth() const		{return (int)(_maxs[0] - _mins[0]);}
-	inline int		getScissorHeight() const	{return (int)(_maxs[1] - _mins[1]);}
+	inline int		getScissorWidth() const		{return (int)X_fabs(_maxs[0] - _mins[0]);}
+	inline int		getScissorHeight() const	{return (int)X_fabs(_maxs[1] - _mins[1]);}
 	
 private:
 //	vec4_c		_coords;
