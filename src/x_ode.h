@@ -38,7 +38,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 // Open Dynamics C++ compatibilty classes redesigned for QRazor FX / XreaL
 //
-
 class d_world_c
 {
 private:

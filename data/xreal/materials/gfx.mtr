@@ -31,14 +31,17 @@ console
 ///		linear		// no mip maps
 //		//scroll	time * 0.02 , 0
 //	}
+//	{
+//		// pbuffer offscreen rendering test
+//		map		_currentrender
+//		linear
+//	}
 	{
-		//blend	add
-		map	textures/black.tga
+		//blend		add
+		map		textures/black.tga
 		linear		// no mip maps
 		//scroll	time * 0 , time * .5
-		
 	}
-
 }
 
 splashScreen {

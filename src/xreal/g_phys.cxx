@@ -1029,20 +1029,7 @@ void	G_ShutdownDynamics()
 }
 
 
-int	G_ContactSortFunc(void const *a, void const *b)
-{
-	dContact *c1 = (dContact*)a;
-	dContact *c2 = (dContact*)b;
-	
-	if(c1->geom.depth > c2->geom.depth)
-		return -1;
-	
-	else if(c1->geom.depth < c2->geom.depth)
-		return 1;
-	
-	else
-		return 0;
-}
+
 
 static void	G_NearCallback(void *data, dGeomID o1, dGeomID o2)
 {
@@ -1163,7 +1150,7 @@ void	G_RunDynamics()
 
 
 static trace_t			g_ray_trace;
-static std::deque<dContact>	g_ray_contacts;
+static std::vector<dContact>	g_ray_contacts;
 
 static void	G_RayCallback(void *data, dGeomID o1, dGeomID o2)
 {
@@ -1196,10 +1183,27 @@ static void	G_RayCallback(void *data, dGeomID o1, dGeomID o2)
 			for(int i=0; i<contacts_num; i++)
 			{
 				g_ray_contacts[g_ray_contacts.size() + i] = contacts[i];
-				//g_ray_contacts.push_back(contacts[i]);
 			}
 		}
 	}
+}
+
+int	G_SortByContactGeomDepthFunc(void const *a, void const *b)
+{
+	dContact* contact_a = (dContact*)a;
+	dContact* contact_b = (dContact*)b;
+
+	vec_t depth_a = contact_a->geom.depth;
+	vec_t depth_b = contact_b->geom.depth;
+	
+	if(depth_a < depth_b)
+		return 1;
+	
+	else if(depth_a > depth_b)
+		return -1;
+		
+	else
+		return 0;
 }
 
 trace_t	G_RayTrace(const vec3_c &start, const vec3_c &dir, vec_t length)
@@ -1227,9 +1231,10 @@ trace_t	G_RayTrace(const vec3_c &start, const vec3_c &dir, vec_t length)
 	
 	if(g_ray_contacts.size())
 	{
-		gi.Com_Printf("G_RayTrace: %i contacts\n", g_ray_contacts.size());
+		//gi.Com_Printf("G_RayTrace: %i contacts\n", g_ray_contacts.size());
 		
 		// find nearest contact
+		/*
 		vec_t dist_old = 0;
 	
 		std::deque<dContact>::const_iterator nearest = g_ray_contacts.begin();
@@ -1247,6 +1252,11 @@ trace_t	G_RayTrace(const vec3_c &start, const vec3_c &dir, vec_t length)
 		}
 	
 		const dContact& dnearest = *nearest;
+		*/
+		
+		qsort(&g_ray_contacts[0], g_ray_contacts.size(), sizeof(dContact), G_SortByContactGeomDepthFunc);
+		
+		const dContact& dnearest = g_ray_contacts[0];
 		
 		// we hit something!
 		g_ray_trace.nohit = false;

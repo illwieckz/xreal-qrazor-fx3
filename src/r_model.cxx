@@ -201,6 +201,7 @@ r_model_c*	R_GetModel(const std::string &name, bool crash)
 	mod->load();
 		
 	mod->setupMeshes();
+	mod->setupVBO();
 	
 	r_models.push_back(mod);
 
@@ -229,14 +230,10 @@ void 	R_BeginRegistration(const std::string &model)
 		
 	R_ShutdownModels();
 	
-	R_ShutdownTree();
-	
-#if 0
+	R_ShutdownTree();	
+
 	R_LoadLightMapImages(model);
-	R_InitTree(TREE_BSP, model);
-#else
-	R_InitTree(TREE_PROC, model);
-#endif
+	R_InitTree(model);
 }
 
 r_model_c*	R_RegisterModel(const std::string &name)

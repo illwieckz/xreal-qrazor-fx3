@@ -411,7 +411,7 @@ void	g_entity_c::updateOrigin()
 
 void	g_entity_c::updateRotation()
 {
-	if(_body)
+	if(_body) 
 		_s.quat = _body->getQuaternion();
 }
 

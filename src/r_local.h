@@ -139,7 +139,8 @@ enum
 	SHADER_NOSELFSHADOW		= 1 << 6,
 	SHADER_TRANSLUCENT		= 1 << 7,
 	SHADER_DISCRETE			= 1 << 8,
-	SHADER_AREAPORTAL		= 1 << 9
+	SHADER_AREAPORTAL		= 1 << 9,
+	SHADER_NOENVMAP			= 1 << 10
 };
 
 
@@ -292,13 +293,6 @@ enum
 	SHADER_TABLE_SNAP			= 1 << 1
 };
 
-enum r_tree_type_e
-{
-	TREE_BSP,
-	TREE_PROC
-};
-
-
 enum r_render_type_e
 {
 	RENDER_TYPE_DEFAULT,
@@ -335,7 +329,28 @@ enum
 	FRUSTUM_CLIPALL		= 1 | 2 | 4 | 8 | 16 | 32
 };
 
-typedef cplane_c	r_frustum_t[FRUSTUM_PLANES];
+
+class r_frustum_c
+{
+public:
+	bool	cull(const cbbox_c &bbox, int clipmask = FRUSTUM_CLIPALL) const;
+	bool	cull(const vec3_c &center, vec_t radius, int clipmask = FRUSTUM_CLIPALL) const;
+	bool	cull(const vec3_c &origin, int clipmask = FRUSTUM_CLIPALL) const;
+
+	inline const cplane_c&	operator [] (const int index) const
+	{
+		return _planes[index];
+	}
+
+	inline cplane_c&	operator [] (const int index)
+	{
+		return _planes[index];
+	}
+private:
+	cplane_c	_planes[FRUSTUM_PLANES];
+};
+
+
 
 
 typedef float							r_node_data_t;
@@ -354,7 +369,7 @@ public:
 	//
 	// constructor / destructor
 	//
-	r_image_c(uint_t target, const std::string &name, uint_t width, uint_t height, uint_t flags, roq_info_t *roq);
+	r_image_c(uint_t target, const std::string &name, uint_t width, uint_t height, uint_t flags, roq_info_t *roq, bool global = true);
 		
 	~r_image_c();
 	
@@ -373,6 +388,8 @@ public:
 	inline void		setRegistrationSequence()	{_registration_sequence = r_registration_sequence;}
 	
 	inline bool		hasVideo() const		{return _roq ? true : false;}
+	
+	inline void		bind() const			{if(_id) xglBindTexture(_target, _id);}
 	
 	void			updateTexture();
 	
@@ -804,7 +821,7 @@ protected:
 	}
 	
 public:
-//	void		updateVis(const r_entity_t &shared);
+	void		updateVis(const r_entity_t &shared);
 
 	inline uint_t	getVisFrameCount() const	{return _visframecount;}
 	inline void	setVisFrameCount(uint_t c)	{_visframecount = c;}
@@ -815,6 +832,12 @@ public:
 	inline const std::vector<r_bsptree_leaf_c*>&	getLeafs() const	{return _leafs;}
 	
 	inline const std::vector<int>&			getAreas() const	{return _areas;}
+	inline void	addArea(int areanum)
+	{
+		std::vector<int>::iterator ir = find(_areas.begin(), _areas.end(), areanum);
+		if(ir == _areas.end())
+			_areas.push_back(areanum);
+	}
 	inline bool	hasArea(int areanum)
 	{
 		std::vector<int>::iterator ir = find(_areas.begin(), _areas.end(), areanum);
@@ -826,11 +849,8 @@ public:
 protected:
 	uint_t		_visframecount;
 	
-	// if Q3A BSP used
 	int				_cluster;
 	std::vector<r_bsptree_leaf_c*>	_leafs;
-	
-	// if Doom3 proc used
 	std::vector<int>		_areas;
 };
 
@@ -885,6 +905,7 @@ public:
 	
 	inline const matrix_c&		getTransform() const	{return _transform;}
 	
+	inline void			setLerp(float lerp)	{_s.lerp = lerp;}
 	inline void			setColor(const vec4_c &color)
 	{
 		_s.shader_parms[0] = color[0];
@@ -930,6 +951,8 @@ public:
 	void			setupProjection();
 	void			setupFrustum();
 	
+	void			setupShadowMap();
+	
 	bool			hasSurface(int areanum, const r_surface_c *surf);
 	void			addSurface(int areanum, const r_surface_c *surf);	// clear interaction if any exists
 	
@@ -944,7 +967,7 @@ public:
 	inline const matrix_c&		getAttenuation() const	{return _attenuation;}
 	inline const matrix_c&		getProjection() const	{return _projection;}
 	
-	inline const r_frustum_t&	getFrustum() const	{return _frustum;}
+	inline const r_frustum_c&	getFrustum() const	{return _frustum;}
 	
 	inline bool			needsUpdate() const	{return _needsupdate;}
 	inline void			needsUpdate(bool b)	{_needsupdate = b;}
@@ -970,7 +993,9 @@ private:
 	matrix_c		_attenuation;
 	matrix_c		_projection;
 		
-	r_frustum_t		_frustum;
+	r_frustum_c		_frustum;
+	
+	r_image_c*		_shadowmap;
 	
 	bool			_needsupdate;
 						
@@ -1151,8 +1176,14 @@ class r_areaportal_c
 public:
 	r_areaportal_c(const std::vector<vec3_c> &vertexes, int areas[2]);
 
-	void			adjustFrustum();
-	void			draw();
+	void		adjustFrustum(const r_frustum_c &frustum);
+	
+private:
+	void		clipEdge(const r_frustum_c &frustum, const vec3_c &v1, const vec3_c &v2, vec3_c &out1, vec3_c &out2);
+	
+public:
+	void		drawPortal();
+	void		drawFrustum();
 	
 	inline uint_t	getVisFrameCount() const	{return _visframecount;}
 	inline void	setVisFrameCount()		{_visframecount = r_visframecount;}
@@ -1163,7 +1194,7 @@ public:
 	inline const cbbox_c&	getBBox() const		{return _bbox;}
 	inline const cplane_c&	getPlane() const	{return _plane;}
 	
-	inline const r_frustum_t& getFrustum() const	{return _frustum;}
+	inline const r_frustum_c& getFrustum() const	{return _frustum;}
 	
 private:
 	uint_t			_visframecount;
@@ -1173,9 +1204,10 @@ private:
 	cbbox_c			_bbox;
 	cplane_c		_plane;
 	
+	std::vector<vec3_c>	_vertexes_original;
 	std::vector<vec3_c>	_vertexes;
 	
-	r_frustum_t		_frustum;
+	r_frustum_c		_frustum;
 };
 
 class r_proctree_area_c : public r_leaf_c
@@ -1184,8 +1216,6 @@ public:
 	r_proc_model_c*			model;
 	
 	std::vector<r_areaportal_c*>	areaportals;
-	
-	int			clipflags;
 };
 
 
@@ -1318,9 +1348,9 @@ public:
 	void			boxAreas(const cbbox_c &bbox, std::vector<int> &areas);
 	
 private:
-	void			updateArea_r(int area, const r_frustum_t frustum, int clipflags);
-	void			drawArea_r(int area);
-	void			litArea_r(int area, r_light_c *light, bool precache);
+	void			updateArea_r(int area, const r_frustum_c &frustum);
+//	void			drawArea_r(int area);
+//	void			litArea_r(int area, r_light_c *light, bool precache);
 
 	void			loadNodes(char **buf_p);
 	void			loadInterAreaPortals(char **buf_p);
@@ -1328,7 +1358,7 @@ private:
 	//
 	// members
 	//
-	int					_sourcearea;	// the portal with the render origin
+	int					_sourcearea;	// the area with the render origin
 	
 	std::vector<r_areaportal_c*>		_areaportals;
 
@@ -1528,6 +1558,7 @@ public:
 	virtual void	addModelToList(r_entity_c *ent) = 0;
 	virtual void 	draw(const r_command_t *cmd, r_render_type_e type) = 0;
 	virtual void	setupMeshes();
+	virtual void	setupVBO()								{}
 	virtual bool	setupTag(r_tag_t &tag, const r_entity_t &ent, const std::string &name)	{return false;}
 	virtual bool	setupAnimation(r_skel_animation_c *anim)				{return false;}
 	
@@ -1790,6 +1821,7 @@ public:
 	virtual void	addModelToList(r_entity_c *ent);
 	virtual void 	draw(const r_command_t *cmd, r_render_type_e type);
 //	virtual void	setupMeshes();
+	virtual void	setupVBO();
 	
 	void	load(char **buf_p);
 	
@@ -1820,12 +1852,13 @@ extern r_image_c*	r_img_nofalloff;
 extern r_image_c*	r_img_attenuation_3d;
 extern r_image_c*	r_img_lightview_depth;
 extern r_image_c*	r_img_lightview_color;
+extern r_image_c*	r_img_currentrender;
 
 
 
 extern r_scene_t*	r_current_scene;
 
-extern r_frustum_t	r_frustum;
+extern r_frustum_c	r_frustum;
 
 
 extern std::vector<r_image_c*>	r_images;
@@ -1867,12 +1900,14 @@ extern vec3_c		r_right;
 extern vec3_c		r_origin;
 
 
-extern	bool		r_portal_view;	// if true, get vis data at
-extern	vec3_c		r_portal_org;	// portalorg instead of vieworg
+extern bool		r_portal_view;	// if true, get vis data at
+extern vec3_c		r_portal_org;	// portalorg instead of vieworg
 
-extern	bool		r_mirrorview;	// if true, lock pvs
+extern bool		r_mirrorview;	// if true, lock pvs
 
-extern	cplane_c	r_clipplane;
+extern bool		r_envmap;
+
+extern cplane_c		r_clipplane;
 
 
 
@@ -1883,7 +1918,7 @@ extern r_refdef_t	r_newrefdef;
 
 
 extern r_entity_c	r_world_entity;
-extern r_proctree_c*	r_world_tree;
+extern r_bsptree_c*	r_world_tree;
 
 
 extern std::vector<index_t>	r_quad_indexes;
@@ -1942,6 +1977,8 @@ extern cvar_t	*r_showbinormals;
 extern cvar_t	*r_showinvisible;
 extern cvar_t	*r_showlightbboxes;
 extern cvar_t	*r_showlightscissors;
+extern cvar_t	*r_showlighttransforms;
+extern cvar_t	*r_showentitytransforms;
 extern cvar_t	*r_clear;
 extern cvar_t	*r_cull;
 extern cvar_t	*r_cullplanes;
@@ -1990,7 +2027,8 @@ extern cvar_t	*vid_colorbits;
 extern cvar_t	*vid_depthbits;
 extern cvar_t	*vid_stencilbits;
 
-extern cvar_t	*vid_pbuffer_texsize;
+extern cvar_t	*vid_pbuffer_width;
+extern cvar_t	*vid_pbuffer_height;
 extern cvar_t	*vid_pbuffer_colorbits;
 extern cvar_t	*vid_pbuffer_depthbits;
 extern cvar_t	*vid_pbuffer_stencilbits;
@@ -2018,7 +2056,7 @@ void		RB_SetShaderTime(double time);
 
 void		RB_CheckForError_(const std::string &file, int line);
 
-#ifdef HAVE_DEBUG
+#if 1	//def HAVE_DEBUG
 #define		RB_CheckForError()	RB_CheckForError_(__FILE__, __LINE__)
 #else
 #define		RB_CheckForError()	
@@ -2115,19 +2153,6 @@ r_image_c*	R_GetLightMapImageByNum(int num);
 
 
 //
-// r_light.cxx
-//
-
-
-
-
-//
-// r_mesh.cxx
-//
-
-
-
-//
 // r_model.cxx
 //
 void		R_InitModels();
@@ -2147,14 +2172,9 @@ void		R_EndRegistration();
 
 
 
-
 //
 // r_main.cxx
 //
-bool 		R_CullBBox(const r_frustum_t frustum, const cbbox_c &bbox, int clipmask = FRUSTUM_CLIPALL);
-bool		R_CullBSphere(const r_frustum_t frustum, const vec3_c &center, vec_t radius, int clipmask = FRUSTUM_CLIPALL);
-bool		R_CullPoint(const r_frustum_t frustum, const vec3_c &origin, int clipmask = FRUSTUM_CLIPALL);
-
 void 		R_DrawNULL(const vec3_c &origin, const vec3_c &angles);
 void		R_DrawBBox(const cbbox_c &bbox);
 
@@ -2163,7 +2183,7 @@ void		R_CalcTangentSpace(	vec3_c &tangent, vec3_c &binormal, vec3_c &normal,
 					const vec2_c &t0, const vec2_c &t1, const vec2_c &t2,
 					const vec3_c &n	);
 					
-void		R_InitTree(r_tree_type_e type, const std::string &name);
+void		R_InitTree(const std::string &name);
 void		R_ShutdownTree();
 
 bool		R_Init(void *hinstance, void *hWnd);
@@ -2321,6 +2341,7 @@ struct glstate_t
 
 	bool		is2d;
 	bool		hwgamma;
+	bool		active_pbuffer;
 };
 
 extern glconfig_t  gl_config;

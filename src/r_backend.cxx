@@ -69,12 +69,12 @@ void	RB_InitBackend()
 {
 	ri.Com_Printf("------- RB_InitBackend -------\n");
 	
-	xglClearColor(0.1, 0.1, 0.1, 1.0);
-	xglColor4fv(color_white);
+	xglClearColor(0.1, 0.1, 0.1, 1.0);	RB_CheckForError();
+	xglColor4fv(color_white);	RB_CheckForError();
 	
 	//xglEnable(GL_DEPTH_TEST);
 	
-	xglDisable(GL_TEXTURE_2D);
+	xglDisable(GL_TEXTURE_2D);	RB_CheckForError();
 
 	//xglDisable(GL_DEPTH_TEST);
 	//xglDisable(GL_CULL_FACE);
@@ -83,8 +83,8 @@ void	RB_InitBackend()
 	
 	
 	//xglShadeModel(GL_SMOOTH);
-        xglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	xglPolygonOffset(-1, -2);
+        xglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);	RB_CheckForError();
+	xglPolygonOffset(-1, -2);	RB_CheckForError();
 		
 	rb_arrays_locked = false;
 
@@ -245,7 +245,7 @@ static void	RB_SetupViewPort(int x, int y, int w, int h)
 	xglViewport(x, y2, w, h);
 #else
 	rb_vrect_viewport.x		= x;
-	rb_vrect_viewport.y		= vid.height - (y + h);
+	rb_vrect_viewport.y		= y;	//vid.height - (y + h);
 	rb_vrect_viewport.width		= w;
 	rb_vrect_viewport.height	= h;
 	
@@ -290,40 +290,37 @@ static void	RB_SetupPerspectiveProjectionMatrix()
 	
 	double n = r_znear->getValue();
 	double f = r_zfar->getValue();
+	
+	if(r_newrefdef.flip_x)
+		std::swap<double>(n, f);
 		
 	double r = n * tan(r_newrefdef.fov_x * M_PI / 360.0);
 	double l = -r;
-		
-	double t = n * tan(r_newrefdef.fov_y * M_PI / 360.0);
-	double b = -t;
-			
-	matrix_c m;
 	
-//	RB_QuakeFrustum(m, l, r, b, t, n, f);
+	if(r_newrefdef.flip_y)
+		std::swap<double>(l, r);
+	
+	double t;
+	if(gl_state.active_pbuffer)
+		t = n * tan(CalcFOV(r_newrefdef.fov_x, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger()) * M_PI / 360.0);
+	else
+		t = n * tan(r_newrefdef.fov_y * M_PI / 360.0);
+	double b = -t;
+	
+	if(r_newrefdef.flip_z)
+		std::swap<double>(b, t);
+			
+	matrix_c& m = rb_matrix_projection;
+	
 	RB_OpenGLFrustum(m, l, r, b, t, n, f);
-//	m.multiply(rb_matrix_quake_to_opengl);
-
-	rb_matrix_projection = m * rb_matrix_quake_to_opengl;
+	m.multiply(rb_matrix_quake_to_opengl);
 	
 	xglMatrixMode(GL_PROJECTION);
 	xglLoadIdentity();
 
-	xglLoadTransposeMatrixf(&rb_matrix_projection[0][0]);
+	xglLoadTransposeMatrixf(&m[0][0]);
 	
 	xglMatrixMode(GL_MODELVIEW);
-	
-//	RB_QuakeFrustum(m2, l, r, b, t, n, f);
-	
-/*
-	matrix_c m2;
-	xglGetFloatv(GL_PROJECTION_MATRIX, &m2[0][0]);
-	m2.transpose();
-	
-	if(!(m == m2))
-	{
-		ri.Com_Error(ERR_DROP, "RB_SetupPerspectiveProjectionMatrix: m != m2");
-	}
-*/
 }
 
 
@@ -376,8 +373,8 @@ static void 	RB_SetupFrustum()
 	// http://www2.ravensoft.com/users/ggribb/plane%20extraction.pdf
 	
 	// this is ok because the model matrix is the identity matrix
-	matrix_c& m = rb_matrix_model_view_projection;
-//	matrix_c m = rb_matrix_projection * rb_matrix_view;
+//	matrix_c& m = rb_matrix_model_view_projection;
+	matrix_c m = rb_matrix_projection * rb_matrix_view;
 
 	// left
 	r_frustum[FRUSTUM_LEFT]._normal[0]	=  m[3][0] + m[0][0];
@@ -512,8 +509,11 @@ void	RB_SetupGL2D()
 void	RB_SetupGL3D()
 {
 	gl_state.is2d = false;
-
-	RB_SetupViewPort(r_newrefdef.x, r_newrefdef.y, r_newrefdef.width, r_newrefdef.height);
+	
+	if(gl_state.active_pbuffer)
+		RB_SetupViewPort(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
+	else
+		RB_SetupViewPort(r_newrefdef.x, r_newrefdef.y, r_newrefdef.width, r_newrefdef.height);
 	
 	RB_SetupPerspectiveProjectionMatrix();
 	
@@ -540,7 +540,15 @@ void	RB_SetupGL3D()
 	
 
 	xglEnable(GL_SCISSOR_TEST);
-	xglScissor(rb_vrect_viewport.x, rb_vrect_viewport.y, rb_vrect_viewport.width, rb_vrect_viewport.height);
+	if(gl_state.active_pbuffer)
+		xglScissor(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
+	else
+		xglScissor(rb_vrect_viewport.x, rb_vrect_viewport.y, rb_vrect_viewport.width, rb_vrect_viewport.height);
+		
+	if(r_newrefdef.flip_y || r_newrefdef.flip_z)
+		xglFrontFace(GL_CW);
+	else
+		xglFrontFace(GL_CCW);
 	
 	xglEnable(GL_DEPTH_TEST);
 	xglDepthFunc(GL_LEQUAL);
@@ -554,7 +562,6 @@ void	RB_SetupGL3D()
 void 	RB_Clear()
 {
 	if(r_clear->getValue())
-
 		xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	else
 		xglClear(GL_DEPTH_BUFFER_BIT);
@@ -574,6 +581,9 @@ void 	RB_Clear()
 
 void	RB_RenderLightScale()
 {
+	if(r_lightscale->getValue() < 1.0)
+		return;
+
 	xglPushAttrib(GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 	RB_SetupGL2D();
@@ -1822,7 +1832,6 @@ int	RB_SortByEntityShaderFunc(void const *a, void const *b)
 		return 0;
 }
 
-
 int	RB_SortByEntityMeshFunc(void const *a, void const *b)
 {
 	r_command_t* cmd_a = (r_command_t*)a;
@@ -1946,6 +1955,9 @@ void	RB_RenderCommands()
 		RB_EnableShader_zfill();
 		for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 		{
+			if(!cmd->getEntity()->isVisible())
+				continue;
+				
 			cmd->getEntityModel()->draw(cmd, RENDER_TYPE_ZFILL);
 		}
 		RB_DisableShader_zfill();
@@ -2150,6 +2162,74 @@ void	RB_RenderCommands()
 	//
 	if(r_lighting->getInteger())
 	{
+		//
+		// update shadow maps
+		//
+#if 0
+		//qsort(&r_current_scene->cmds_light[0], r_current_scene->cmds_light_num, sizeof(r_command_t), RB_SortByLightFunc);
+		
+		GLimp_ActivatePbuffer();
+		
+		xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		
+		RB_SetupPerspectiveProjectionMatrix();
+		
+		RB_SetupViewPort(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
+			
+		//xglEnable(GL_SCISSOR_TEST);
+		xglScissor(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
+			
+		//xglEnable(GL_DEPTH_TEST);
+		//xglDepthFunc(GL_LEQUAL);
+		//xglDepthMask(GL_TRUE);
+			
+		//xglEnable(GL_CULL_FACE);
+		//xglCullFace(GL_FRONT);
+		
+		RB_EnableShader_zfill();
+		
+		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		{
+			r_light_c& light = ir->second;
+			
+			if(!light.isVisible())
+				continue;
+				
+			matrix_c m;
+			
+			m.setupTranslation(light.getOrigin()origin);
+			m.multiplyRotation(angles[PITCH], angles[YAW], angles[ROLL]);
+			
+			rb_matrix_view = m.affineInverse();
+			RB_SetupFrustum();
+			
+			
+			
+			switch(light.getType())
+			{
+				case LIGHT_OMNI:
+				{
+					for(i=0, cmd = &r_current_scene->cmds_light[0]; i<r_current_scene->cmds_light_num; i++, cmd++)
+					{
+						if(cmd->getLight() != &light)
+							continue;
+							
+						cmd->getEntityModel()->draw(cmd, RENDER_TYPE_ZFILL);
+					}
+					break;
+				}
+			}
+		}
+		
+		RB_DisableShader_zfill();
+		
+		GLimp_DeActivatePbuffer();
+		
+		// reset view
+		RB_SetupGL3D();
+		
+#endif // shadow mapping
+
 		xglEnable(GL_BLEND);
 		xglBlendFunc(GL_ONE, GL_ONE);
 	

@@ -727,7 +727,7 @@ static void	PlayerConfig_MenuDraw()
 	refdef.width = 300;
 	refdef.height = 400;
 	refdef.setFOV(45);
-	refdef.time = uii.CL_GetRealtime() * 0.001;
+	//refdef.time = uii.CL_GetRealtime() * 0.001;
 	refdef.areabits = NULL;
 	refdef.rdflags = RDF_NOWORLDMODEL;
 

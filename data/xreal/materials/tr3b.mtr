@@ -1,0 +1,16 @@
+
+textures/xtest/dynamicReflectionCube
+{
+	{
+		stage		reflectionmap
+		cubemap		env/dynamic
+	}
+}
+
+textures/xtest/sampleReflectionCube
+{
+	{
+		stage		reflectionmap
+		cubemap		env/sample
+	}
+}

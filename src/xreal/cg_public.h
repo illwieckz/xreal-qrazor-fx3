@@ -238,8 +238,8 @@ typedef struct
 	// delta entities
 	void		(*CG_BeginFrame)(const frame_t &frame);
 	void		(*CG_AddEntity)(int newnum, const entity_state_t *state);
-	void		(*CG_UpdateEntity)(int parse_index, int newnum, const entity_state_t *state, bool changed);
-	void		(*CG_RemoveEntity)(int parse_index, int oldnum, const entity_state_t *state);
+	void		(*CG_UpdateEntity)(int newnum, const entity_state_t *state, bool changed);
+	void		(*CG_RemoveEntity)(int oldnum, const entity_state_t *state);
 	void		(*CG_EndFrame)(int entities_num);
 	
 	// main

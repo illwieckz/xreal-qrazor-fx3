@@ -31,78 +31,40 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // xreal --------------------------------------------------------------------
 
 
-
-/*
-=================
-R_CullBBox
-
-Returns true if the bounding box is completely outside the frustum
-=================
-*/
-bool	r_frustum_c::cull(const cbbox_c &bbox, int clipflags) const
+void	r_visiface_a::updateVis(const r_entity_t &shared)
 {
-	if(!r_cull->getValue())
-		return false;
-
-	for(int i=0; i<FRUSTUM_PLANES; i++)
+	if(shared.flags & RF_STATIC)
 	{
-		if(!(clipflags & (1<<i)))
-			continue;
-	
-		if(_planes[i].onSide(bbox, false) == SIDE_BACK)
-			return true;
-	}
-	
-	return false;
-}
-
-
-/*
-=================
-R_CullBBox
-
-Returns true if the bounding sphere is completely outside the frustum
-=================
-*/
-bool	r_frustum_c::cull(const vec3_c &center, vec_t radius, int clipflags) const
-{
-	if(!r_cull->getValue())
-		return false;
-
-	for(int i=0; i<FRUSTUM_PLANES; i++)
-	{
-		if(!(clipflags & (1<<i)))
-			continue;
+#if 0
+		r_world_tree->boxAreas(shared.radius_bbox, _areas);
+#else
+		r_bsptree_leaf_c* leaf = r_world_tree->pointInLeaf(shared.origin);
+		if(leaf)
+		{
+			_cluster = leaf->cluster;
+		}
+		else
+		{
+			_cluster = -1;
+		}
+		
+		/*
+		r_world_tree->boxLeafs(shared.radius_bbox, _leafs);
+		for(std::vector<r_bsptree_leaf_c*>::iterator ir = _leafs.begin(); ir != _leafs.end(); ++ir)
+		{
+			r_bsptree_leaf_c *leaf = *ir;
 			
-		if(_planes[i].onSide(center, radius) == SIDE_BACK)
-			return true;
-	}
-	
-	return false;
-}
-
-
-/*
-=================
-R_CullPoint
-
-Returns true if the point is completely outside the frustum
-=================
-*/
-bool	r_frustum_c::cull(const vec3_c &origin, int clipflags) const
-{
-	if(!r_cull->getValue())
-		return false;
-
-	for(int i=0; i<FRUSTUM_PLANES; i++)
-	{
-		if(!(clipflags & (1<<i)))
-			continue;
+			if(leaf->cluster == -1)
+				continue;
 			
-		if(_planes[i].onSide(origin) == SIDE_BACK)
-			return true;
+			addArea(leaf->area);
+		}
+		*/
+#endif
 	}
-	
-	return false;
+	else
+	{
+		_cluster = -1;
+		addArea(0);
+	}
 }
-
