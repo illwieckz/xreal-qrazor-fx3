@@ -60,5 +60,10 @@ xreal_cgame_src = [
 
 xreal_cgame_env = env.Copy()
 xreal_cgame_env.SharedLibrary('cgame', xreal_cgame_src, LIBS=['m', 'z'])
-xreal_cgame_env.InstallAs('#install/xreal/cgame.so', 'libcgame.so')
+
+if sys.platform == 'linux2':
+	xreal_cgame_env.InstallAs('#install/xreal/cgame.so', 'libcgame.so')
+
+elif sys.platform == 'win32':
+	xreal_cgame_env.InstallAs('#install/xreal/cgame.dll', 'libcgame.dll')
 

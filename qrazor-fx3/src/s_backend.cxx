@@ -207,7 +207,7 @@ static s_buffer_c*	S_LoadWAV(const std::string &name)
 	ALsizei		size;
 	ALsizei 	bits = 0;
 	ALsizei 	freq;
-	ALsizei 	format;
+	ALenum 		format;
 	ALboolean	loop;
 	ALuint		buffer;
 
