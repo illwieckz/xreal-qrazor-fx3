@@ -165,7 +165,7 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 	addField(g_field_c("rotation", &_s.quat, F_ROTATION_TO_QUATERNION));
 	
 	addField(g_field_c("_color", &_s.shaderparms[0], F_VECTOR));
-#if 1
+
 	addField(g_field_c("shaderparm0", &_s.shaderparms[0], F_FLOAT));
 	addField(g_field_c("shaderparm1", &_s.shaderparms[1], F_FLOAT));
 	addField(g_field_c("shaderparm2", &_s.shaderparms[2], F_FLOAT));
@@ -174,7 +174,7 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 	addField(g_field_c("shaderparm5", &_s.shaderparms[5], F_FLOAT));
 	addField(g_field_c("shaderparm6", &_s.shaderparms[6], F_FLOAT));
 	addField(g_field_c("shaderparm7", &_s.shaderparms[7], F_FLOAT));
-#endif	
+
 	// shared between server and game
 	addField(g_field_c("owner", &_r.owner, F_EDICT, FFL_NOSPAWN));
 	
@@ -367,6 +367,11 @@ void	g_entity_c::remove()
 		_body->disable();
 		
 	_remove = true;	// ready to destroy
+}
+
+void	g_entity_c::setEPairs(const std::map<std::string, std::string> &epairs)
+{
+	_epairs = epairs;
 }
 
 bool	g_entity_c::hasEPair(const std::string &key)

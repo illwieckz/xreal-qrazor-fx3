@@ -2476,7 +2476,7 @@ void	g_func_static_c::activate()
 {
 	_r.inuse = true;
 	
-	if(_model.empty())// || _model[0] != '*')
+	if(_model.empty())// || _model[0] == '*')
 	{
 		gi.Com_Printf("g_func_static_c::activate: bad model '%s'\n", _model.c_str());
 		remove();

@@ -486,7 +486,8 @@ void	G_SpawnEntities(const std::string &mapname, char *entities, const std::stri
 			gi.Com_Printf("G_SpawnEntities: spawned %s\n", classname);
 			spawned++;
 		}
-			
+		
+		ent->setEPairs(epairs);	
 		ent->setFields(epairs);
 		
 		// HACK

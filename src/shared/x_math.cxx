@@ -531,51 +531,52 @@ void	quaternion_c::fromAngles(vec_t pitch, vec_t yaw, vec_t roll)
 void	quaternion_c::fromMatrix(const matrix_c &m)
 {
 	float	s;
-	float	x, y, z, w;
 		
 	// calculate the trace
-	float trace = 1 + m._m[0][0] + m._m[1][1] + m._m[2][2];
+	float trace = 1.0f + m._m[0][0] + m._m[1][1] + m._m[2][2];
 		
-	if(trace > 0.00000001)
+	if(trace > 0.00001)
 	{
-		s = sqrt(trace) * 2;
+		s = 0.5f / sqrt(trace);
 		
-		x = (m._m[2][1] - m._m[1][2]) / s;
-		y = (m._m[0][2] - m._m[2][0]) / s;
-		z = (m._m[1][0] - m._m[0][1]) / s;
-		w = 0.25 * s;
+		_q[0] = (m._m[2][1] - m._m[1][2]) * s;
+		_q[1] = (m._m[0][2] - m._m[2][0]) * s;
+		_q[2] = (m._m[1][0] - m._m[0][1]) * s;
+		_q[3] = 0.25f / s;
 	}
 		
 	if(m._m[0][0] > m._m[1][1] && m._m[0][0] > m._m[2][2])
 	{	
 		// Column 0: 
-		s = sqrt(1.0 + m._m[0][0] - m._m[1][1] - m._m[2][2]) * 2;
+		s = sqrt(1.0f + m._m[0][0] - m._m[1][1] - m._m[2][2]) * 2.0f;
 			
-		x = 0.25 * s;
-		y = (m._m[1][0] + m._m[0][1]) / s;
-		z = (m._m[0][2] + m._m[2][0]) / s;
-		w = (m._m[2][1] - m._m[1][2]) / s;
+		_q[0] = 0.25f * s;
+		_q[1] = (m._m[0][1] + m._m[1][0]) / s;
+		_q[2] = (m._m[0][2] + m._m[2][0]) / s;
+		_q[3] = (m._m[1][2] - m._m[2][1]) / s;
 	}
 	else if(m._m[1][1] > m._m[2][2])
 	{
 		// Column 1:
-		s = sqrt(1.0 + m._m[1][1] - m._m[0][0] - m._m[2][2]) * 2;
+		s = sqrt(1.0f + m._m[1][1] - m._m[0][0] - m._m[2][2]) * 2.0f;
 			
-		x = (m._m[1][0] + m._m[0][1]) / s;
-		y = 0.25 * s;
-		z = (m._m[2][1] + m._m[1][2]) / s;
-		w = (m._m[0][2] - m._m[2][0]) / s;
+		_q[0] = (m._m[0][1] + m._m[1][0]) / s;
+		_q[1] = 0.25f * s;
+		_q[2] = (m._m[1][2] + m._m[2][1]) / s;
+		_q[3] = (m._m[0][2] - m._m[2][0]) / s;
 	}
 	else
 	{
 		// Column 2:
-		s = sqrt(1.0 + m._m[2][2] - m._m[0][0] - m._m[1][1]) * 2;
+		s = sqrt(1.0f + m._m[2][2] - m._m[0][0] - m._m[1][1]) * 2.0f;
 			
-		x = (m._m[0][2] + m._m[2][0]) / s;
-		y = (m._m[2][1] + m._m[1][2]) / s;
-		y = 0.25 * s;
-		w = (m._m[1][0] - m._m[0][1]) / s;
+		_q[0] = (m._m[0][2] + m._m[2][0]) / s;
+		_q[1] = (m._m[1][2] + m._m[2][1]) / s;
+		_q[2] = 0.25f * s;
+		_q[3] = (m._m[0][1] - m._m[1][0]) / s;
 	}
+	
+	normalize();
 }
 	
 void	quaternion_c::fromAxisAngle(vec_t x, vec_t y, vec_t z, vec_t deg)

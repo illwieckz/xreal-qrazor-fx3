@@ -71,6 +71,9 @@ bool	R_CullBSphere(const r_frustum_t frustum, const vec3_c &center, vec_t radius
 
 	for(int i=0; i<FRUSTUM_PLANES; i++)
 	{
+		if(!(clipflags & (1<<i)))
+			continue;
+			
 		if(frustum[i].onSide(center, radius) == SIDE_BACK)
 			return true;
 	}
@@ -93,9 +96,13 @@ bool	R_CullPoint(const r_frustum_t frustum, const vec3_c &origin, int clipflags)
 
 	for(int i=0; i<FRUSTUM_PLANES; i++)
 	{
+		if(!(clipflags & (1<<i)))
+			continue;
+			
 		if(frustum[i].onSide(origin) == SIDE_BACK)
 			return true;
 	}
 	
 	return false;
 }
+
