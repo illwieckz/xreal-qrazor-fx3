@@ -75,6 +75,11 @@ static void	CM_ASE_GeomObject(char const* begin, char const* end)
 //	Com_DPrintf("CM_ASE_GeomObject()\n");
 }
 
+static void	CM_ASE_NodeName(char const* begin, char const* end)
+{	
+//	Com_DPrintf("CM_ASE_NodeName(%s)\n", std::string(begin, end).c_str());
+}
+
 static void	CM_ASE_NewMesh(char const* begin, char const* end)
 {
 	cm_ase_vertexes.clear();
@@ -242,7 +247,7 @@ struct cm_ase_model_grammar_t : public boost::spirit::grammar<cm_ase_model_gramm
 					boost::spirit::ch_p('\"') >>
 					//boost::spirit::lexeme_d[boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - boost::spirit::ch_p('\"')]][&CM_ASE_AddShader] >>
 					boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - boost::spirit::ch_p('\"')][&CM_ASE_AddShader] >>
-					skip_restofline
+					boost::spirit::ch_p('\"')
 				;
 				
 			material_map_diffuse
@@ -258,11 +263,30 @@ struct cm_ase_model_grammar_t : public boost::spirit::grammar<cm_ase_model_gramm
 				
 			geomobject
 				=	boost::spirit::str_p("*GEOMOBJECT")[&CM_ASE_GeomObject] >> boost::spirit::ch_p('{') >>
-					boost::spirit::str_p("*NODE_NAME") >> skip_restofline >>
-					boost::spirit::str_p("*NODE_TM") >> skip_block >> 
+					node_name >>
+					!node_parent >>
+					node_tm >>
 					+mesh >>
 					*skip_restofline >>
 					boost::spirit::ch_p('}')
+				;
+				
+			node_name
+				=	boost::spirit::str_p("*NODE_NAME") >> 
+					boost::spirit::ch_p('\"') >>
+					boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - boost::spirit::ch_p('\"')][&CM_ASE_NodeName] >>
+					boost::spirit::ch_p('\"')
+				;
+				
+			node_parent
+				=	boost::spirit::str_p("*NODE_PARENT") >>
+					boost::spirit::ch_p('\"') >>
+					boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - boost::spirit::ch_p('\"')] >>
+					boost::spirit::ch_p('\"')
+				;
+				
+			node_tm
+				=	boost::spirit::str_p("*NODE_TM") >> skip_block
 				;
 				
 			mesh
@@ -420,6 +444,9 @@ struct cm_ase_model_grammar_t : public boost::spirit::grammar<cm_ase_model_gramm
 								material_map_diffuse,
 								material_submaterial,
 						geomobject,
+							node_name,
+							node_parent,
+							node_tm,
 							mesh,
 								mesh_vertex_list,
 									mesh_vertex,
