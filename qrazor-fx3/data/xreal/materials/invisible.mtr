@@ -71,6 +71,14 @@ textures/editor/visportal
 	areaportal
 	noshadows
 	translucent		// don't block VIS
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/areaportal.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // aassolid brushes create solid space in AAS files
@@ -126,6 +134,14 @@ textures/common/caulk
 	nomarks
 //	noshadows
 	forceOpaque			// will still seal levels
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/caulk.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 
@@ -141,6 +157,14 @@ textures/common/hint
 	noimpact
 	hint
 	translucent
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/hint.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // nodraw is used for surfaces that don't have any automatic
@@ -157,6 +181,14 @@ textures/common/nodraw
 	noshadows
 	translucent
 //	skip
+
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/nodraw.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // nodraw solid is used for surfaces that are not visible but are used to collide with
@@ -208,6 +240,14 @@ textures/common/trigger
 	nodraw
 	noshadows
 	trigger
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/trigger.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // trigger entities use this material
@@ -220,6 +260,14 @@ textures/common/trigmulti
 	nodraw
 	noshadows
 	trigger
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/trigger.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // trigger entities use this material
@@ -232,6 +280,14 @@ textures/common/trigonce
 	nodraw
 	noshadows
 	trigger
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/trigger.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // trigger entities use this material
@@ -244,6 +300,14 @@ textures/common/trigtimer
 	nodraw
 	noshadows
 	trigger
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/trigger.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // trigger entities use this material
@@ -256,6 +320,14 @@ textures/common/trigrelay
 	nodraw
 	noshadows
 	trigger
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/trigger.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // trigger entities use this material
@@ -280,6 +352,14 @@ textures/common/trigfade
 	nodraw
 	noshadows
 	trigger
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/trigger.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // trigger entities use this material
@@ -292,6 +372,14 @@ textures/common/triggui
 	nodraw
 	noshadows
 	trigger
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/trigger.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // trigger entities use this material
@@ -304,6 +392,14 @@ textures/common/trigair
 	nodraw
 	noshadows
 	trigger
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/trigger.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // trigger entities use this material
@@ -316,6 +412,14 @@ textures/common/trigentityname
 	nodraw
 	noshadows
 	trigger
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/trigger.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // trigger entities use this material
@@ -328,6 +432,14 @@ textures/common/trigentityname_once
 	nodraw
 	noshadows
 	trigger
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/trigger.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 textures/common/terrain
@@ -370,6 +482,14 @@ textures/common/nodrop
 	noshadows
 	twosided
 	translucent
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/nodop.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // a clip brush is solid to players and monsters, but not missiles
@@ -387,7 +507,13 @@ textures/common/clip
 	playerclip
 	translucent
 	
-//	skip
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/clip.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // flashlight trigger entities use this material
@@ -427,6 +553,14 @@ textures/common/full_clip
 	moveableclip
 	noshadows
 	translucent
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/full_clip.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // a player clip brush is solid to players only, not monsters or anything else
@@ -442,6 +576,14 @@ textures/common/player_clip
 	playerclip
 	noshadows
 	translucent
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/clip.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // a monster clip brush is solid to monsters only
@@ -456,6 +598,14 @@ textures/common/monster_clip
 	monsterclip
 	noshadows
 	translucent
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/bot_clip.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // a moveable clip brush is solid only to moveables like rigid bodies and articulated figures
@@ -470,6 +620,14 @@ textures/common/moveable_clip
 	moveableclip
 	noshadows
 	translucent
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/moveable_clip.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // a IK clip brush is solid only to IK collision testing
@@ -484,6 +642,14 @@ textures/common/ik_clip
 	ikclip
 	noshadows
 	translucent
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/ikclip.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // a cushion is an invisible surface that is
@@ -501,6 +667,14 @@ textures/common/cushion
 	noshadows
 	playerclip
 	translucent
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/cushion.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // slick is an invisible surface that should be
@@ -515,6 +689,14 @@ textures/common/slick
 	noshadows
 	slick
 	translucent
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/slick.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // noimpact can be used as a thin sliver
@@ -542,8 +724,8 @@ textures/common/mirror
 	solid
 	
 	{
-		blend add
-		map textures/common/qer_mirror.tga
+		blend	add
+		map	textures/common/qer_mirror.tga
 	}
 }
 
@@ -570,6 +752,14 @@ textures/common/ladder
 	ladder
 	noshadows
 	translucent
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/ladder.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // if an ASE/LWO model has a surface that uses this material that surface will
@@ -584,6 +774,14 @@ textures/common/collision
 	noshadows
 	collision
 	translucent
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/collision.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 
