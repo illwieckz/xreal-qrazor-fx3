@@ -40,6 +40,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "sys.h"
 #include "roq.h"
 #include "s_public.h"
+
+#include "winuser.h"
+
 // Structure containing functions exported from refresh DLL
 ref_export_t	re;
 
@@ -68,6 +71,8 @@ HWND        cl_hwnd;            // Main window handle for life of program
 #define VID_NUM_MODES ( sizeof( vid_modes ) / sizeof( vid_modes[0] ) )
 
 LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+uint_t	VID_GetWidth();
+uint_t	VID_GetHeight();
 
 static bool s_alttab_disabled;
 
@@ -241,6 +246,7 @@ void AppActivate(BOOL fActive, BOOL minimize)
 	}
 }
 
+
 /*
 ====================
 MainWndProc
@@ -254,23 +260,6 @@ LONG WINAPI MainWndProc (
     WPARAM  wParam,
     LPARAM  lParam)
 {
-	//LONG			lRet = 0;
-
-	if ( uMsg == MSH_MOUSEWHEEL )
-	{
-		if ( ( ( int ) wParam ) > 0 )
-		{
-			Key_Event( K_MWHEELUP, true, sys_msg_time );
-			Key_Event( K_MWHEELUP, false, sys_msg_time );
-		}
-		else
-		{
-			Key_Event( K_MWHEELDOWN, true, sys_msg_time );
-			Key_Event( K_MWHEELDOWN, false, sys_msg_time );
-		}
-        return DefWindowProc (hWnd, uMsg, wParam, lParam);
-	}
-
 	switch (uMsg)
 	{
 	case WM_MOUSEWHEEL:
@@ -375,7 +364,38 @@ LONG WINAPI MainWndProc (
 			if (wParam & MK_MBUTTON)
 				temp |= 4;
 
-			IN_MouseEvent (temp);
+			IN_MouseEvent(temp); // Button event
+
+            // Mouse Move Event (bj0ern)
+            static bool firsttime = false;
+            static int mouse_x_center = VID_GetWidth() / 2;
+            static int mouse_y_center = VID_GetHeight() / 2;
+
+            if(firsttime)
+            {
+                SetCursorPos(mouse_x_center, mouse_y_center); // center it
+                firsttime = false; // don't call subsequently
+                break;
+            }
+
+            int mouse_x_delta = (LOWORD(lParam) - mouse_x_center) + 6;
+            int mouse_y_delta = (HIWORD(lParam) - mouse_y_center) + 44;
+
+            // check bounds
+            if(mouse_x_delta > (int)VID_GetWidth())
+                mouse_x_delta = (int)VID_GetWidth();
+            else if(mouse_x_delta < (int)(VID_GetWidth() * -1))
+                mouse_x_delta = (int)(VID_GetWidth() * -1);
+            else if(mouse_y_delta > (int)VID_GetHeight())
+                mouse_y_delta = (int)VID_GetWidth();
+            else if(mouse_y_delta < (int)(VID_GetHeight() * -1))
+                mouse_y_delta = (int)(VID_GetWidth() * -1);
+
+            if(mouse_x_delta || mouse_y_delta)
+            {
+                CL_MouseEvent(mouse_x_delta, mouse_y_delta);
+                SetCursorPos(mouse_x_center, mouse_y_center);
+            }
 		}
 		break;
 
@@ -503,8 +523,6 @@ void VID_NewWindow ( int width, int height)
 {
 	viddef.width  = width;
 	viddef.height = height;
-
-	//cl.force_refdef = true;		// can't use a paused refdef
 }
 
 void VID_FreeReflib (void)
