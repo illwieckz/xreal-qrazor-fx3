@@ -818,7 +818,7 @@ bool	g_trigger_teleport_c::touch(g_entity_c *other, const cplane_c &plane, csurf
 
 	// unlink to make sure it can't possibly interfere with KillBox
 	player->_body->setPosition(dest->_s.origin);
-	player->_s.event = EV_TELEPORT;
+	player->_s.event = EV_PLAYER_TELEPORT;
 
 	// clear the velocity and hold them in place briefly
 	//player->_velocity.clear();
