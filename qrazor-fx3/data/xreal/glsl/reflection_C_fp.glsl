@@ -38,8 +38,8 @@ void	main()
 	vec3 R = reflect(I, N);
 	
 	// compute reflection color
-	vec3 reflect_color = textureCube(u_colormap, R).rgb;
+	vec4 reflect_color = textureCube(u_colormap, R).rgba;
 
 	// compute final color
-	gl_FragColor = vec4(reflect_color, 1.0);
+	gl_FragColor = reflect_color;
 }

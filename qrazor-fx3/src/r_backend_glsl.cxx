@@ -167,13 +167,13 @@ protected:
 public:
 	void	setUniform_height_scale(const r_command_t *cmd, const r_shader_stage_c *stage_bumpmap)
 	{
-		float height_scale = RB_Evaluate(cmd->getEntity()->getShared(), stage_bumpmap->height_scale, 0.04);
+		float height_scale = RB_Evaluate(cmd->getEntity()->getShared(), stage_bumpmap->height_scale, 0.05);
 		xglUniform1fARB(_u_height_scale, height_scale);	RB_CheckForError();
 	}
 	
 	void	setUniform_height_bias(const r_command_t *cmd, const r_shader_stage_c *stage_bumpmap)
 	{
-		float height_bias = RB_Evaluate(cmd->getEntity()->getShared(), stage_bumpmap->height_bias, -0.02);
+		float height_bias = RB_Evaluate(cmd->getEntity()->getShared(), stage_bumpmap->height_bias, 0.0);//-0.02);
 		xglUniform1fARB(_u_height_bias, height_bias);	RB_CheckForError();
 	}
 	
@@ -2348,11 +2348,9 @@ void		RB_RenderCommand_lighting_D_proj(const r_command_t *cmd,		const r_shader_s
 	RB_ModifyProjLightTextureMatrix(cmd, stage_attenuationmap_xy);
 	RB_Bind(stage_attenuationmap_xy->image);
 
-//	RB_SelectTexture(GL_TEXTURE2);
-//	xglMatrixMode(GL_TEXTURE);
-//	xglLoadTransposeMatrixfARB(&(cmd->getLight()->getShadowMapProjection())[0][0]);
-//	xglMatrixMode(GL_MODELVIEW);
-//	cmd->getLight()->getShadowMap()->bind();
+	RB_SelectTexture(GL_TEXTURE2);
+	RB_ModifyProjShadowTextureMatrix(cmd);
+	r_img_lightview_depth->bind(true);
 	
 	rb_program_lighting_D_proj->setUniform_light_origin(cmd);
 	rb_program_lighting_D_proj->setUniform_light_color(cmd, stage_attenuationmap_xy);

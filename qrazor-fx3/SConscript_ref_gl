@@ -46,7 +46,8 @@ ref_gl_src = [
 'src/r_vis.cxx',
 'src/img_tga.cxx',
 'src/img_jpg.cxx',
-'src/img_png.cxx' ]
+'src/img_png.cxx' 
+]
 
 if sys.platform == 'linux2':
 	ref_glsl_glx_env = env.Copy()

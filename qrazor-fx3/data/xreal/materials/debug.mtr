@@ -5,30 +5,40 @@ debugportals
 	twosided
 	               
 	{
-		blend	filter
+		blend	blend
 		map	_white
 		red	0
 		green	0
 		blue	1
-		alpha	0.5
+		//rgb	frandom
+		alpha	0.2
 	}
 }
 
-debugsurfaces
+debugareaportals
 {
 	translucent
 	twosided
 	               
 	{
-		stage	diffusemap
+		blend	blend
 		map	_white
+		red	1
+		green	0
+		blue	0
+		alpha	0.3
 	}
+}
+
+debugsurfaces
+{
+	forceOpaque
 	
 	{
 		stage	colormap
 		map	_white
-		blend	filter
-		rgb	frandom		// random color 0.0 - 1.0
-		alpha	0.5
+		// random color 0.0 - 1.0
+		rgb	frandom
+		alpha	1.0
 	}
 }

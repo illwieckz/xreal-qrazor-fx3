@@ -137,7 +137,7 @@ void	Sys_Init()
 	else if(vinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS )
 		s_win95 = true;
 
-	if((bool)dedicated->getValue())
+	if((bool)dedicated->getInteger())
 	{
 		if( ! FreeConsole())
 		{
@@ -170,7 +170,7 @@ void	Sys_Shutdown()
 
 	CloseHandle(qwclsemaphore);
 	
-	if((bool)dedicated && dedicated->getValue())
+	if((bool)dedicated && dedicated->getInteger())
 		FreeConsole();
 
 	// shut down QHOST hooks if necessary
@@ -504,7 +504,7 @@ int	Sys_GetPacket(void *data, int length, netadr_t &net_from)
 				return -1;
 			}
 
-			//if((bool)dedicated->getValue())	// let dedicated servers continue after errors
+			//if((bool)dedicated->getInteger())	// let dedicated servers continue after errors
 				//Com_Printf ("NET_GetPacket: %s from %s\n", Sys_NetErrorString(), Sys_AdrToString(*net_from));
 			//else
 				//Com_Error (ERR_DROP, "NET_GetPacket: %s from %s", Sys_NetErrorString(), Sys_AdrToString(*net_from));
@@ -576,7 +576,7 @@ void	Sys_SendPacket(const bitmessage_c &msg, const netadr_t &to)
 		//if ((err == WSAEADDRNOTAVAIL) && ((to.type == NA_BROADCAST) || (to.type == NA_BROADCAST_IPX)))
 		//	return;
 
-		//if((bool)dedicated->getValue())	// let dedicated servers continue after errors
+		//if((bool)dedicated->getInteger())	// let dedicated servers continue after errors
 		//{
 		//	Com_Printf ("NET_SendPacket ERROR: %s to %s\n", Sys_NetErrorString(), Sys_AdrToString (to));
 		//}
@@ -873,7 +873,7 @@ void 	Sys_SleepNet(int msec)
 	fd_set	fdset;
 	extern cvar_t *dedicated;
 
-	if(!ip_socket || (!dedicated || !dedicated->getValue()))
+	if(!ip_socket || (!dedicated || !dedicated->getInteger()))
 		return; // we're not a server, just run full speed
 
 	FD_ZERO(&fdset);
@@ -1064,7 +1064,7 @@ char*	Sys_ConsoleInput()
 	DWORD		dummy;
 	DWORD		ch, numread, numevents;
 
-	if(!dedicated || !dedicated->getValue())
+	if(!dedicated || !dedicated->getInteger())
 		return NULL;
 
 	for(;;)
@@ -1142,7 +1142,7 @@ void Sys_ConsoleOutput (char *string)
 	DWORD		dummy;
 	char	text[256];
 
-    if (!dedicated || !dedicated->getValue())
+    if (!dedicated || !dedicated->getInteger())
     {
         printf("%s", string);
         return;
@@ -1361,7 +1361,7 @@ int WINAPI	WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	while(true)
 	{
 		// if at a full screen console, don't update unless needed
-		if(Minimized || (dedicated && dedicated->getValue()))
+		if(Minimized || (dedicated && dedicated->getInteger()))
 		{
 			Sleep(1);
 		}

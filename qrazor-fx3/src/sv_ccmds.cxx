@@ -55,7 +55,7 @@ static void 	SV_SetMaster_f()
 	int		i, slot;
 
 	// only dedicated servers send heartbeats
-	if(!dedicated->getValue())
+	if(!dedicated->getInteger())
 	{
 		Com_Printf ("Only dedicated servers use masters.\n");
 		return;
@@ -469,7 +469,7 @@ void	SV_InitOperatorCommands()
 	Cmd_AddCommand("demomap",	SV_DemoMap_f);
 	Cmd_AddCommand("setmaster",	SV_SetMaster_f);
 
-	if(dedicated->getValue())
+	if(dedicated->getInteger())
 		Cmd_AddCommand("say",	SV_ConSay_f);
 
 	Cmd_AddCommand("killserver",	SV_KillServer_f);

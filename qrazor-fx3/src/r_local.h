@@ -118,7 +118,7 @@ enum r_shader_light_type_e
 // shader flags
 enum
 {
-	SHADER_DEPTHWRITE		= 1 << 0,
+	SHADER_DEBUG			= 1 << 0,
 	SHADER_SKY			= 1 << 1,
 	SHADER_POLYGONOFFSET		= 1 << 2,
 	SHADER_TWOSIDED			= 1 << 3,
@@ -369,8 +369,8 @@ enum
 	FRUSTUM_TOP,
 	FRUSTUM_NEAR,
 	FRUSTUM_FAR,
-	FRUSTUM_PLANES		= 5,
-	FRUSTUM_CLIPALL		= 1 | 2 | 4 | 8 | 16 //| 32
+	FRUSTUM_PLANES		= 4,
+	FRUSTUM_CLIPALL		= 1 | 2 | 4 | 8 //| 16 //| 32
 };
 
 
@@ -406,8 +406,8 @@ extern uint_t		r_registration_sequence;
 extern uint_t		r_framecount;
 extern uint_t		r_visframecount;			// bumped when going to a new PVS
 extern uint_t		r_lightframecount;			// bumped when walking down the BSP by a new dynamic light
+extern uint_t		r_shadowframecount;			// bumped when rendering shadow maps
 extern uint_t		r_checkcount;				// bumped when box runs against BSP leaves to collect them
-
 
 class r_image_c
 {
@@ -788,11 +788,13 @@ protected:
 public:
 	inline uint_t	getFrameCount() const	{return _framecount;}
 	inline void	setFrameCount()		{_framecount = r_framecount;}
+	inline void	resetFrameCount()		{_framecount = 0;}
 	inline bool	isFramed() const	{return r_framecount == _framecount;}
 	
 protected:
 	uint_t		_framecount;
 };
+
 
 class r_visframecount_iface_a
 {
@@ -806,11 +808,11 @@ public:
 	inline void	setVisFrameCount()		{_visframecount = r_visframecount;}
 	inline void	resetVisFrameCount()		{_visframecount = 0;}
 	inline bool	isVisFramed() const		{return r_visframecount == _visframecount;}
-	inline bool	isVisible() const		{return r_visframecount == _visframecount;}
 	
 protected:
 	uint_t		_visframecount;
 };
+
 
 class r_lightframecount_iface_a
 {
@@ -829,6 +831,23 @@ protected:
 };
 
 
+class r_shadowframecount_iface_a
+{
+protected:
+	r_shadowframecount_iface_a()
+	{
+	}
+	
+public:
+	inline uint_t	getShadowFrameCount() const	{return _shadowframecount;}
+	inline void	setShadowFrameCount()		{_shadowframecount = r_shadowframecount;}
+	inline bool	isShadowed() const		{return r_shadowframecount == _shadowframecount;}
+	
+protected:
+	uint_t		_shadowframecount;
+};
+
+
 class r_checkcount_iface_a
 {
 protected:
@@ -843,6 +862,9 @@ public:
 protected:
 	uint_t		_checkcount;
 };
+
+
+
 
 
 class r_surface_c : 
@@ -1077,6 +1099,7 @@ private:
 
 class r_entity_c :
 public r_vis_iface_a,
+public r_framecount_iface_a,
 public r_visframecount_iface_a,
 public r_occlusion_iface_a,
 public r_model_iface_a,
@@ -1104,6 +1127,10 @@ public:
 		_s.shader_parms[3] = color[3];
 	}
 	
+	inline bool	isVisible() const
+	{
+		return ((r_framecount == _framecount) && (r_visframecount == _visframecount));
+	}
 	
 	const r_entity_sub_c&	getSubEntity(int num) const;
 	void			addInteractionToSubEntity(int num, r_interaction_c* ia);
@@ -1117,7 +1144,9 @@ private:
 
 class r_light_c :
 public r_vis_iface_a,
+public r_framecount_iface_a,
 public r_visframecount_iface_a,
+public r_shadowframecount_iface_a,
 public r_scissor_iface_a,
 public r_occlusion_iface_a
 {
@@ -1142,6 +1171,7 @@ public:
 	void			setupProjection();
 	void			setupFrustum();
 	void			setupShadowMapProjection();
+	void			setupShadowMapView();
 	
 	r_interaction_c*	createInteraction(r_entity_c* ent, const r_mesh_c *mesh);
 	
@@ -1154,10 +1184,16 @@ public:
 	inline const matrix_c&		getView() const		{return _transform_inv;}
 	inline const matrix_c&		getAttenuation() const	{return _attenuation;}
 	inline const matrix_c&		getProjection() const	{return _projection;}
-	inline const matrix_c&		getShadowMapProjection() const	{return _projection_shadowmap;}
+	
+	inline const matrix_c&		getShadowMapProjection() const	{return _shadowmap_projection;}
+	inline const matrix_c&		getShadowMapView() const	{return _shadowmap_view;}
 	
 	inline const r_frustum_c&	getFrustum() const	{return _frustum;}
 	
+	inline bool	isVisible() const
+	{
+		return ((r_framecount == _framecount) && (r_visframecount == _visframecount));
+	}
 	
 
 private:
@@ -1171,7 +1207,9 @@ private:
 	
 	matrix_c		_attenuation;
 	matrix_c		_projection;
-	matrix_c		_projection_shadowmap;
+	
+	matrix_c		_shadowmap_projection;
+	matrix_c		_shadowmap_view;
 		
 	r_frustum_c		_frustum;
 						
@@ -2258,6 +2296,7 @@ extern cvar_t	*vid_stencilbits;
 extern cvar_t	*vid_pbuffer_width;
 extern cvar_t	*vid_pbuffer_height;
 extern cvar_t	*vid_pbuffer_colorbits;
+extern cvar_t	*vid_pbuffer_alphabits;
 extern cvar_t	*vid_pbuffer_depthbits;
 extern cvar_t	*vid_pbuffer_stencilbits;
 
@@ -2317,6 +2356,7 @@ void		RB_ModifyTextureMatrix(const r_entity_c *ent, const r_shader_stage_c *stag
 void		RB_ModifyOmniLightTextureMatrix(const r_command_t *cmd, const r_shader_stage_c *stage);
 void		RB_ModifyOmniLightCubeTextureMatrix(const r_command_t *cmd, const r_shader_stage_c *stage);
 void		RB_ModifyProjLightTextureMatrix(const r_command_t *cmd, const r_shader_stage_c *stage);
+void		RB_ModifyProjShadowTextureMatrix(const r_command_t *cmd);
 void		RB_ModifyColor(const r_entity_t &shared, const r_shader_stage_c *stage, vec4_c &color);
 
 void		RB_RenderCommand(const r_command_t *cmd, r_render_type_e type);

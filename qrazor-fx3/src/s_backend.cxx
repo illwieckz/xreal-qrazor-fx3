@@ -93,7 +93,7 @@ static void	S_CheckOpenALExtensions()
 	
 	if(strstr(al_config.extensions_string, "AL_LOKI_attenuation_scale"))
 	{
-		if(s_loki_attenuation_scale->getValue())
+		if(s_loki_attenuation_scale->getInteger())
 		{
 			Com_Printf("...using AL_LOKI_attenuation_scale\n");
 			al_config.loki_attenuation_scale = true;
@@ -111,7 +111,7 @@ static void	S_CheckOpenALExtensions()
 	
 	if(strstr(al_config.extensions_string, "AL_EXT_vorbis"))
 	{
-		if(s_ext_vorbis->getValue())
+		if(s_ext_vorbis->getInteger())
 		{
 			Com_Printf("...using AL_EXT_vorbis\n");
 			al_config.ext_vorbis = true;
@@ -129,7 +129,7 @@ static void	S_CheckOpenALExtensions()
 	
 	if(strstr(al_config.extensions_string, "AL_EXT_MP3"))
 	{
-		if(s_ext_mp3->getValue())
+		if(s_ext_mp3->getInteger())
 		{
 			Com_Printf("...using AL_EXT_MP3\n");
 			al_config.ext_mp3 = true;
@@ -786,7 +786,7 @@ void	S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forw
 //	alDopplerVelocity(343.0);	// using meters/second
 	
 	/*
-	if(s_show->getValue())
+	if(s_show->getInteger())
 	{
 		Com_Printf("listener at %s\n", s_origin.toString());
 		Com_Printf("listener vf %s\n", s_forward.toString());

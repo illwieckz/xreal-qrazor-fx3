@@ -74,7 +74,7 @@ int	r_static_model_c::precacheLight(r_entity_c *ent, r_light_c *light) const
 			continue;
 		}
 		
-		if(!r_showinvisible->getValue() && shader->hasFlags(SHADER_NODRAW))
+		if(!r_showinvisible->getInteger() && shader->hasFlags(SHADER_NODRAW))
 			continue;
 			
 		if(!shader->stage_diffusemap)
@@ -94,10 +94,14 @@ int	r_static_model_c::precacheLight(r_entity_c *ent, r_light_c *light) const
 	
 void	r_static_model_c::addModelToList(r_entity_c *ent)
 {
-	if(ent->isVisible() && r_frustum.cull(ent->getAABB()))
+	if(ent->isVisFramed() && r_frustum.cull(ent->getAABB()))
 	{
-		c_entities--;
 		return;
+	}
+	else
+	{
+		ent->setFrameCount();
+		c_entities++;
 	}
 
 	for(unsigned i=0; i<_meshes.size(); i++)
@@ -126,7 +130,7 @@ void	r_static_model_c::addModelToList(r_entity_c *ent)
 			continue;
 		}
 		
-		if(!r_showinvisible->getValue() && shader->hasFlags(SHADER_NODRAW))
+		if(!r_showinvisible->getInteger() && shader->hasFlags(SHADER_NODRAW))
 			continue;
 			
 		if(r_envmap && shader->hasFlags(SHADER_NOENVMAP))

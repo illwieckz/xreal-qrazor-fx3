@@ -100,7 +100,7 @@ void 	Sys_Shutdown()
 
 void	Sys_ConsoleOutput(char *string)
 {
-	if(nostdout && nostdout->getValue())
+	if(nostdout && nostdout->getInteger())
 		return;
 
 	fputs(string, stdout);
@@ -119,7 +119,7 @@ void 	Sys_Printf(char *fmt, ...)
 	if(strlen(text) > sizeof(text))
 		Sys_Error("memory overwrite in Sys_Printf");
 
-	if(nostdout && nostdout->getValue())
+	if(nostdout && nostdout->getInteger())
         	return;
 
 	for(p = (unsigned char *)text; *p; p++)
@@ -160,7 +160,7 @@ char*	Sys_ConsoleInput()
 	fd_set	fdset;
 	struct timeval timeout;
 
-	if(!dedicated || !dedicated->getValue())
+	if(!dedicated || !dedicated->getInteger())
 		return NULL;
 
 	if(!stdin_active)
@@ -312,7 +312,7 @@ int 	main(int argc, char **argv)
 	fcntl(0, F_SETFL, fcntl (0, F_GETFL, 0) | FNDELAY);
 
 	nostdout = Cvar_Get("nostdout", "0", 0);
-	if(!nostdout->getValue())
+	if(!nostdout->getInteger())
 	{
 		fcntl(0, F_SETFL, fcntl (0, F_GETFL, 0) | FNDELAY);
 	}
@@ -774,7 +774,7 @@ void 	Sys_SleepNet(int msec)
 	extern cvar_t *dedicated;
 	extern bool stdin_active;
 
-	if(!ip_socket || (dedicated && !dedicated->getValue()))
+	if(!ip_socket || (dedicated && !dedicated->getInteger()))
 		return; // we're not a server, just run full speed
 
 	FD_ZERO(&fdset);

@@ -255,6 +255,13 @@ static void	CL_ParseReconnect(bitmessage_c &msg)
 	cls.connect_time = -99999;	// CL_CheckForResend() will fire immediately
 }
 
+static void	CL_ParseStuffText(bitmessage_c &msg)
+{
+	const char* string = msg.readString();
+	Com_DPrintf("stufftext: '%s'\n", string);
+	Cbuf_AddText(string);
+}
+
 static void	CL_ParseServerData(bitmessage_c &msg)
 {
 	std::string	str;
@@ -702,9 +709,6 @@ static void	CL_ParseFrame(bitmessage_c &msg)
 
 void	CL_ParseServerMessage(bitmessage_c &msg)
 {
-	int		cmd;
-	const char*	string;
-
 	//
 	// if recording demos, copy the message out
 	//
@@ -735,7 +739,7 @@ void	CL_ParseServerMessage(bitmessage_c &msg)
 			break;
 		}
 
-		cmd = msg.readBits(svc_bitcount);
+		int cmd = msg.readBits(svc_bitcount);
 
 		if(cl_shownet->getInteger() >= 2)
 		{
@@ -779,9 +783,7 @@ void	CL_ParseServerMessage(bitmessage_c &msg)
 				break;
 			
 			case SVC_STUFFTEXT:
-				string = msg.readString();
-				Com_DPrintf("stufftext: %s\n", string);
-				Cbuf_AddText(string);
+				CL_ParseStuffText(msg);
 				break;
 			
 			case SVC_SERVERDATA:

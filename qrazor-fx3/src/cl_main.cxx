@@ -685,8 +685,8 @@ void	CL_ClearState()
 
 	CL_ClearClientState();
 	
-	cls.netchan.message.beginWriting();
-
+	if(!cls.demo_playback)
+		cls.netchan.message.beginWriting();
 }
 
 /*
@@ -703,7 +703,7 @@ void	CL_Disconnect()
 	if(cls.state == CA_DISCONNECTED)
 		return;
 
-	if(cl_timedemo && cl_timedemo->getValue())
+	if(cl_timedemo && cl_timedemo->getInteger())
 	{
 		int	time;
 		
@@ -892,7 +892,7 @@ void	CL_PingServers_f()
 	Com_Printf("pinging broadcast...\n");
 
 	noudp = Cvar_Get("noudp", "0", CVAR_INIT);
-	if(!noudp->getValue())
+	if(!noudp->getInteger())
 	{
 		adr.type = NA_BROADCAST;
 		adr.port = BigShort(PORT_SERVER);
@@ -1141,7 +1141,7 @@ void	CL_FixUpGender()
 	char *p;
 	char sk[80];
 
-	if(gender_auto->getValue())
+	if(gender_auto->getInteger())
 	{
 		if(gender->isModified())
 		{
@@ -1199,14 +1199,14 @@ void	CL_RequestNextDownload()
 		return;
 
 	/*	
-	if (!allow_download->getValue() && precache_check < ENV_CNT)
+	if (!allow_download->getInteger() && precache_check < ENV_CNT)
 		precache_check = ENV_CNT;
 
 //ZOID
 	if (precache_check == CS_MODELS) 
 	{ // confirm map
 		precache_check = CS_MODELS+2; // 0 isn't used
-		if (allow_download_maps->getValue())
+		if (allow_download_maps->getInteger())
 			if (!CL_CheckOrDownloadFile(cl.configstrings[CS_MODELS+1]))
 				return; // started a download
 	}
@@ -1214,7 +1214,7 @@ void	CL_RequestNextDownload()
 	
 	if (precache_check >= CS_MODELS && precache_check < CS_MODELS+MAX_MODELS) 
 	{
-		if (allow_download_models->getValue()) 
+		if (allow_download_models->getInteger()) 
 		{
 			while (precache_check < CS_MODELS+MAX_MODELS &&	cl.configstrings[precache_check][0]) 
 			{
@@ -1286,7 +1286,7 @@ void	CL_RequestNextDownload()
 		precache_check = CS_SOUNDS;
 	}
 	if (precache_check >= CS_SOUNDS && precache_check < CS_SOUNDS+MAX_SOUNDS) { 
-		if (allow_download_sounds->getValue()) {
+		if (allow_download_sounds->getInteger()) {
 			if (precache_check == CS_SOUNDS)
 				precache_check++; // zero is blank
 			while (precache_check < CS_SOUNDS+MAX_SOUNDS &&
@@ -1322,7 +1322,7 @@ void	CL_RequestNextDownload()
 	// model, weapon model and skin
 	// so precache_check is now *3
 	if (precache_check >= CS_PLAYERSKINS && precache_check < CS_PLAYERSKINS + MAX_CLIENTS * PLAYER_MULT) {
-		if (allow_download_players->getValue()) {
+		if (allow_download_players->getInteger()) {
 			while (precache_check < CS_PLAYERSKINS + MAX_CLIENTS * PLAYER_MULT) {
 				int i, n;
 				char model[MAX_QPATH], skin[MAX_QPATH], *p;
@@ -1420,7 +1420,7 @@ void	CL_RequestNextDownload()
 	/*
 	if(precache_check > ENV_CNT && precache_check < TEXTURE_CNT) 
 	{
-		if (allow_download->getValue() && allow_download_maps->getValue())
+		if (allow_download->getInteger() && allow_download_maps->getInteger())
 		{
 			while (precache_check < TEXTURE_CNT) 
 			{
@@ -1453,7 +1453,7 @@ void	CL_RequestNextDownload()
 		extern int			numtexinfo;
 		extern mapsurface_t	map_surfaces[];
 
-		if (allow_download->getValue() && allow_download_maps->getValue())
+		if (allow_download->getInteger() && allow_download_maps->getInteger())
 		{
 			while (precache_tex < numtexinfo) {
 				char fn[MAX_OSPATH];
@@ -1492,6 +1492,12 @@ before allowing the client into the server
 */
 void	CL_Precache_f()
 {
+	if(cls.demo_playback)
+	{
+		//TODO
+		return;
+	}
+
 	precache_check = CS_MODELS;
 	precache_spawncount = atoi(Cmd_Argv(1));
 	precache_model = 0;
@@ -1633,12 +1639,12 @@ void	CL_Frame(int msec)
 	static int	extratime;
 	//static int  lasttimecalled;
 
-	if(dedicated->getValue())
+	if(dedicated->getInteger())
 		return;
 
 	extratime += msec;
 
-	if(!cl_timedemo->getValue())
+	if(!cl_timedemo->getInteger())
 	{
 		if(cls.state == CA_CONNECTED && extratime < 100)
 			return;			// don't flood packets out while connecting
@@ -1697,12 +1703,12 @@ void	CL_Frame(int msec)
 //		cge->CG_PrepRefresh();
 
 	// update the screen
-	if(com_speeds->getValue())
+	if(com_speeds->getInteger())
 		time_before_ref = Sys_Milliseconds();
 	
 	SCR_UpdateScreen();
 	
-	if(com_speeds->getValue())
+	if(com_speeds->getInteger())
 		time_after_ref = Sys_Milliseconds();
 	
 	// advance local effects for next frame
@@ -1715,7 +1721,7 @@ void	CL_Frame(int msec)
 
 void	CL_Init()
 {
-	if(dedicated->getValue())
+	if(dedicated->getInteger())
 		return;		// nothing running on the client
 	
 	Com_Printf("------- CL_Init -------\n");

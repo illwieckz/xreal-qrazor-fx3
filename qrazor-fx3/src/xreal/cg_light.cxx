@@ -300,18 +300,11 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 			rent.right = cent->current.vectors[1];
 			rent.up = cent->current.vectors[2];
 			
+			rent.target.rotate(cent->current.quat);
+			rent.right.rotate(cent->current.quat);
+			rent.up.rotate(cent->current.quat);
+			
 			rent.radius_aabb.clear();
-			
-			//vec3_c lt = rent.target - rent.origin;
-			//vec3_c lr = rent.right - rent.origin;
-			//vec3_c lu = rent.up - rent.origin;
-			
-			//rent.radius_aabb._maxs = rent.origin + vec3_c(300, 300, 300);
-			//rent.radius_aabb._mins = rent.origin - vec3_c(300, 300, 300);
-			
-			//rent.radius_aabb.addPoint(cent->current.vectors[0]);
-			//rent.radius_aabb.addPoint(cent->current.vectors[1]);
-			//rent.radius_aabb.addPoint(cent->current.vectors[2]);
 			
 			rent.radius_aabb.addPoint(rent.origin + rent.target);
 			
@@ -407,7 +400,28 @@ void	CG_UpdateLightEntity(const cg_entity_t *cent)
 				
 		case ET_LIGHT_PROJ:
 		{
-			//trap_Com_DPrintf("adding projective light ...\n");
+			rent.target.lerp(cent->prev.vectors[0], cent->current.vectors[0], cg.frame_lerp);
+			rent.right.lerp(cent->prev.vectors[1], cent->current.vectors[1], cg.frame_lerp);
+			rent.up.lerp(cent->prev.vectors[2], cent->current.vectors[2], cg.frame_lerp);
+			
+			rent.target.rotate(rent.quat);
+			rent.right.rotate(rent.quat);
+			rent.up.rotate(rent.quat);
+			
+			rent.radius_aabb.clear();
+			
+			rent.radius_aabb.addPoint(rent.origin + rent.target);
+			
+			rent.radius_aabb.addPoint(rent.origin + rent.right);
+			rent.radius_aabb.addPoint(rent.origin - rent.right);
+			
+			rent.radius_aabb.addPoint(rent.origin + rent.up);
+			rent.radius_aabb.addPoint(rent.origin - rent.up);
+		
+			rent.radius_value = rent.radius_aabb.radius();
+			
+			trap_Com_DPrintf("updating projective light ...\n");
+			trap_R_UpdateLight(cent->current.getNumber(), rent, LIGHT_PROJ);
 			break;
 		}
 		

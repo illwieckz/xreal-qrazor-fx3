@@ -100,7 +100,7 @@ void	r_image_c::bind(bool force) const
 	uint_t texnum;
 	uint_t target;
 	
-	if(r_nobind->getValue())		// performance evaluation option
+	if(r_nobind->getInteger())		// performance evaluation option
 	{
 		texnum = r_img_default->getId();
 		target = r_img_default->getTarget();
@@ -792,7 +792,7 @@ static void	R_InitLightViewColorImage()
 	
 	image->bind();
 
-	xglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image->getWidth(), image->getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	xglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->getWidth(), image->getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 	
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -1921,7 +1921,7 @@ r_image_c*	R_FindImage(const std::string &name, uint_t flags, r_image_upload_typ
 				image = R_LoadImage(name_short, pic, width, height, flags, upload_type);
 				goto r_find_image_done;
 			}
-			
+			#if 1
 			name_new = name_short + ".png";
 			IMG_LoadPNG(name_new, &pic, &width, &height);
 			if(pic)
@@ -1937,7 +1937,7 @@ r_image_c*	R_FindImage(const std::string &name, uint_t flags, r_image_upload_typ
 				image = R_LoadImage(name_short, pic, width, height, flags, upload_type);
 				goto r_find_image_done;
 			}
-		
+			#endif
 			ri.Com_Printf("R_FindImage: couldn't find rgba image '%s'\n", name_short.c_str());
 			break;
 		}
@@ -1951,7 +1951,7 @@ r_image_c*	R_FindImage(const std::string &name, uint_t flags, r_image_upload_typ
 				image = R_LoadImage(name_short, pic, width, height, flags, upload_type);
 				goto r_find_image_done;
 			}
-			
+			#if 1
 			name_new = name_short + ".png";
 			IMG_LoadPNG(name_new, &pic, &width, &height, false);
 			if(pic)
@@ -1967,7 +1967,7 @@ r_image_c*	R_FindImage(const std::string &name, uint_t flags, r_image_upload_typ
 				image = R_LoadImage(name_short, pic, width, height, flags, upload_type);
 				goto r_find_image_done;
 			}
-		
+			#endif
 			ri.Com_Printf("R_FindImage: couldn't find rgba image '%s'\n", name_short.c_str());
 			break;
 		}
@@ -1981,7 +1981,7 @@ r_image_c*	R_FindImage(const std::string &name, uint_t flags, r_image_upload_typ
 				image = R_LoadImage(name_short, pic, width, height, flags, upload_type);
 				goto r_find_image_done;
 			}
-		
+			#if 1
 			name_new = name_short + ".png";
 			IMG_LoadPNGGrey(name_new, &pic, &width, &height);
 			if(pic)
@@ -1989,7 +1989,7 @@ r_image_c*	R_FindImage(const std::string &name, uint_t flags, r_image_upload_typ
 				image = R_LoadImage(name_short, pic, width, height, flags, upload_type);
 				goto r_find_image_done;
 			}
-			
+			#endif
 			ri.Com_Printf("R_FindImage: couldn't find greyscale image '%s'\n", name_short.c_str());
 			break;
 		}
@@ -2003,7 +2003,7 @@ r_image_c*	R_FindImage(const std::string &name, uint_t flags, r_image_upload_typ
 				image = R_LoadImage(name_short, pic, width, height, flags, upload_type);
 				goto r_find_image_done;
 			}
-		
+			#if 1
 			name_new = name_short + ".png";
 			IMG_LoadPNGGrey(name_new, &pic, &width, &height);
 			if(pic)
@@ -2011,7 +2011,7 @@ r_image_c*	R_FindImage(const std::string &name, uint_t flags, r_image_upload_typ
 				image = R_LoadImage(name_short, pic, width, height, flags, upload_type);
 				goto r_find_image_done;
 			}
-			
+			#endif
 			ri.Com_Printf("R_FindImage: couldn't find greyscale image '%s'\n", name_short.c_str());
 			break;
 		}

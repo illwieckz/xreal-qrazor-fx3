@@ -61,7 +61,7 @@ void	R_DrawParticles()
 	vec3_c			up, right;
 	vec3_c			corner;
 
-	if(!r_drawparticles->getValue())
+	if(!r_drawparticles->getInteger())
 		return;
 
 	if(!r_particles_num)

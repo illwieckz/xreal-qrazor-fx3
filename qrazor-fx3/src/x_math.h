@@ -1134,8 +1134,10 @@ inline vec3_c&	vec3_c::operator = (const vec4_c &v)
 class matrix_c
 {
 public:
-	
-	matrix_c();
+	inline matrix_c()
+	{
+		// DO NOTHING AND SAVE SPEED
+	}
 	
 	matrix_c(	vec_t m00, vec_t m01, vec_t m02, vec_t m03,
 			vec_t m10, vec_t m11, vec_t m12, vec_t m13,

@@ -201,7 +201,7 @@ void 	netchan_c::transmit(const bitmessage_c &msg)
 	//
 	Sys_SendPacket(packet, _remote_address);
 
-	if(net_showpackets->getValue())
+	if(net_showpackets->getInteger())
 	{
 		if(send_reliable)
 			Com_Printf("send %5i : s=%i reliable=%i ack=%i rack=%i saved=%i\n"
@@ -334,7 +334,7 @@ bool	netchan_c::process(bitmessage_c &msg)
 	}
 	
 
-	if(net_showpackets->getValue())
+	if(net_showpackets->getInteger())
 	{
 		if(reliable_message)
 			Com_Printf("recv %5i : s=%i reliable=%i ack=%i rack=%i\n"
@@ -357,7 +357,7 @@ bool	netchan_c::process(bitmessage_c &msg)
 	//
 	if(sequence <= _incoming_sequence)
 	{
-		if(net_showdrop->getValue())
+		if(net_showdrop->getInteger())
 			Com_Printf("%s:Out of order packet %i at %i\n"
 				, Sys_AdrToString(_remote_address)
 				,  sequence
@@ -372,7 +372,7 @@ bool	netchan_c::process(bitmessage_c &msg)
 	_dropped = sequence - (_incoming_sequence+1);
 	if(_dropped > 0)
 	{
-		if(net_showdrop->getValue())
+		if(net_showdrop->getInteger())
 			Com_Printf("%s:Dropped %i packets at %i\n"
 			, Sys_AdrToString(_remote_address)
 			, _dropped

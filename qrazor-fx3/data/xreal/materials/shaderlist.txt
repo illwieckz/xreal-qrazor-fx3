@@ -12,16 +12,13 @@ caves
 //characters
 char_common
 dbb
+debug
 decals
 door
 duffyTest
 fogs
 //gfx
 glass
-gw_dm1_rock
-gw_dm1_skies
-gw_dm1_tower
-gw_dm1_tree
 hell
 invisible
 jerry

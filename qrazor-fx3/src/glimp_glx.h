@@ -175,9 +175,9 @@ struct sys_gl_t
 
 	Display*		dpy;
 	int 			scr;
-	Window 			win;
-
 	GLXContext 		ctx;
+	
+	Window 			win;
 	void*			OpenGLLib; 	// instance of OpenGL library e.g. libGL.so.1
 	
 #ifdef HAVE_XF86_VIDMODE
@@ -195,12 +195,12 @@ struct sys_gl_t
 };
 
 
-typedef struct
+struct sys_pbuffer_t
 {
 	Display*		dpy;
-	int			scr;
 	GLXPbuffer		pbuffer;
 	GLXContext 		ctx;
+	int			scr;
 	
 	std::vector<int>	fattribs;
 	std::vector<int>	battribs; 
@@ -211,7 +211,7 @@ typedef struct
 	Display*		dpy_old;
 	GLXPbuffer		pbuffer_old;
 	GLXContext 		ctx_old;
-} sys_pbuffer_t;
+};
 
 
 extern sys_gl_t		sys_gl;

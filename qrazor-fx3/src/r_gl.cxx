@@ -1570,7 +1570,7 @@ void	XGL_InitExtensions()
 	
 	if(strstr(gl_config.extensions_string, "GL_ARB_texture_compression"))
 	{
-		if(r_arb_texture_compression->getValue())
+		if(r_arb_texture_compression->getInteger())
 		{
 			Com_Printf("...using GL_ARB_texture_compression\n");
 			gl_config.arb_texture_compression = true;
@@ -1587,7 +1587,7 @@ void	XGL_InitExtensions()
 	
 	if(strstr(gl_config.extensions_string, "GL_ARB_vertex_buffer_object"))
 	{
-		if(r_arb_vertex_buffer_object->getValue())
+		if(r_arb_vertex_buffer_object->getInteger())
 		{
 			ri.Com_Printf("...using GL_ARB_vertex_buffer_object\n");
 			gl_config.arb_vertex_buffer_object = true;
@@ -1616,7 +1616,7 @@ void	XGL_InitExtensions()
 	
 	if(strstr(gl_config.extensions_string, "GL_ARB_occlusion_query"))
 	{
-		if(r_arb_occlusion_query->getValue())
+		if(r_arb_occlusion_query->getInteger())
 		{
 			ri.Com_Printf("...using GL_ARB_occlusion_query\n");
 			gl_config.arb_occlusion_query = true;
@@ -1642,7 +1642,7 @@ void	XGL_InitExtensions()
 	
 	if(strstr(gl_config.extensions_string, "GL_ARB_texture_rectangle"))
 	{
-		if(r_arb_texture_rectangle->getValue())
+		if(r_arb_texture_rectangle->getInteger())
 		{
 			Com_Printf("...using GL_ARB_texture_rectangle\n");
 			gl_config.arb_texture_rectangle = true;
@@ -1659,7 +1659,7 @@ void	XGL_InitExtensions()
 	
 	if(strstr(gl_config.extensions_string, "GL_EXT_texture3D"))
 	{
-		if(r_ext_texture3D->getValue())
+		if(r_ext_texture3D->getInteger())
 		{
 			ri.Com_Printf("...using GL_EXT_texture3D\n");
 			dllTexImage3DEXT = (void (GLAPIENTRY*) (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels)) xglGetProcAddress("glTexImage3DEXT");
@@ -1677,7 +1677,7 @@ void	XGL_InitExtensions()
 	
 	if(strstr(gl_config.extensions_string, "GL_EXT_compiled_vertex_array"))
 	{
-		if(r_ext_compiled_vertex_array->getValue())
+		if(r_ext_compiled_vertex_array->getInteger())
 		{
 			ri.Com_Printf("...using GL_EXT_compiled_vertex_array\n");
 			xglLockArraysEXT = (void (GLAPIENTRY*) (GLint first, GLsizei count)) xglGetProcAddress("glLockArraysEXT");
@@ -1696,7 +1696,7 @@ void	XGL_InitExtensions()
 	
 	if(strstr(gl_config.extensions_string, "GL_EXT_draw_range_elements"))
 	{
-		if(r_ext_draw_range_elements->getValue())
+		if(r_ext_draw_range_elements->getInteger())
 		{
 			ri.Com_Printf("...using GL_EXT_draw_range_elements\n");
 			dllDrawRangeElementsEXT = (void (GLAPIENTRY*) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices)) xglGetProcAddress("glDrawRangeElementsEXT");
@@ -1714,7 +1714,7 @@ void	XGL_InitExtensions()
 	
 	if(strstr(gl_config.extensions_string, "GL_EXT_texture_filter_anisotropic"))
 	{
-		if(r_ext_texture_filter_anisotropic->getValue())
+		if(r_ext_texture_filter_anisotropic->getInteger())
 		{
 			ri.Com_Printf("...using GL_EXT_texture_filter_anisotropic\n");
 			gl_config.ext_texture_filter_anisotropic = true;

@@ -92,7 +92,7 @@ void	sv_client_c::new_uc()
 		// set up the entity for the client
 		sv_entity_c *ent = SV_GetEntityByNum(playernum+1);
 		_entity = ent;
-		memset(&_lastcmd, 0, sizeof(_lastcmd));
+		_lastcmd.clear();
 
 		// begin fetching configstrings
 		netchan.message.writeBits(SVC_STUFFTEXT, svc_bitcount);

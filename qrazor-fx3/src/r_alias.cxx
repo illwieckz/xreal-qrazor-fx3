@@ -217,7 +217,7 @@ void	r_alias_model_c::drawFrameLerp(const r_command_t *cmd, r_render_type_e type
 		
 	//ri.Com_Printf("r_alias_model_c::drawFrameLerp: model '%s' %i\n", getName(), mb.mesh->indexes.size());
 		
-	//if(!r_lerpmodels->getValue())
+	//if(!r_lerpmodels->getInteger())
 	//	cmd->getEntity()->getShared().backlerp = 0;
 	
 	
@@ -302,7 +302,7 @@ bool	r_alias_model_c::cull(r_entity_c *ent)
 	if(r_frustum.cull(ent->getAABB()))
 		return true;
 	
-	if((r_mirror_view || r_portal_view) && r_cull->getValue())
+	if((r_mirror_view || r_portal_view) && r_cull->getInteger())
 	{
 		if(r_clipplane.distance(ent->getShared().origin) < -ent->getAABB().radius())
 			return true;
@@ -351,11 +351,14 @@ void	r_alias_model_c::addModelToList(r_entity_c *ent)
 	if((ent->getShared().flags & RF_WEAPONMODEL) && (r_lefthand->getInteger() == 2))
 			return;
 
-	if(ent->isVisible() && cull(ent))
+	if(ent->isVisFramed() && cull(ent))
 	{
-		ent->resetVisFrameCount();
-		c_entities--;
 		return;
+	}
+	else
+	{
+		ent->setFrameCount();
+		c_entities++;
 	}
 		//TODO
 	//else
@@ -392,7 +395,7 @@ void	r_alias_model_c::addModelToList(r_entity_c *ent)
 			continue;
 		}
 		
-		if(!r_showinvisible->getValue() && shader->hasFlags(SHADER_NODRAW))
+		if(!r_showinvisible->getInteger() && shader->hasFlags(SHADER_NODRAW))
 			continue;
 			
 		if(r_envmap && shader->hasFlags(SHADER_NOENVMAP))
