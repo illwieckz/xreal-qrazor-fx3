@@ -382,6 +382,7 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 	
 	geom->setBody(_body->getId());
 	geom->setData(this);
+	geom->setCollideBits(MASK_SHOT);
 	
 	_geoms.push_back(geom);
 }
