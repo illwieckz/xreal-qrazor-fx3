@@ -154,8 +154,8 @@ typedef struct
 	void		(*R_UpdateEntity)(int entity_num, const r_entity_t &shared, bool update);
 	void		(*R_RemoveEntity)(int entity_num);
 	
-	void		(*R_AddLight)(int entity_num, const r_entity_t &shared);
-	void		(*R_UpdateLight)(int entity_num, const r_entity_t &shared);
+	void		(*R_AddLight)(int entity_num, const r_entity_t &shared, r_light_type_t type);
+	void		(*R_UpdateLight)(int entity_num, const r_entity_t &shared, r_light_type_t type);
 	void		(*R_RemoveLight)(int entity_num);
 	
 	void		(*R_AddParticle)(const r_particle_t &part);

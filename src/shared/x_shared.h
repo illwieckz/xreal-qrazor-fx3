@@ -42,6 +42,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <list>
 #include <map>
 #include <deque>
+#include <algorithm>
 // qrazor-fx ----------------------------------------------------------------
 
 
@@ -955,7 +956,8 @@ enum
 	RF_FRAMELERP		= (1<<6),
 	RF_GLOW			= (1<<7),		// pulse lighting for bonus items
 	RF_NOSHADOW		= (1<<8),		// don't cast shadow
-	RF_PORTALSURFACE	= (1<<9)
+	RF_PORTALSURFACE	= (1<<9),
+	RF_STATIC		= (1<<10)
 };
 
 

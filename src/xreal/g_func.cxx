@@ -103,6 +103,7 @@ enum
 g_func_c::g_func_c()
 {
 	addField(g_field_c("lip", &_lip, F_INT));
+	addField(g_field_c("movedir", &_s.quat, F_ANGLEHACK_TO_QUATERNION));
 //	addField(g_field_c("endfunc", &_moveinfo.endfunc, F_INT, FFL_NOSPAWN));
 }
 
@@ -1213,7 +1214,7 @@ void	g_func_door_c::activate()
 {
 	vec3_t	abs_movedir;
 	
-	if(_model.empty() || _model[0] != '*')
+	if(_model.empty())// || _model[0] != '*')
 	{
 		gi.Com_Printf("g_func_door_c::activate: door has bad model '%s'\n", _model.c_str());
 		remove();
@@ -1239,7 +1240,9 @@ void	g_func_door_c::activate()
 	_body->setGravityMode(0);
 		
 	// setup geom
-	G_SetWorldModel(this, _model);
+	//G_SetWorldModel(this, _model);
+	
+	_s.index_model = gi.SV_ModelIndex(_model);
 	
 	
 	//dMass m;
@@ -1278,12 +1281,15 @@ void	g_func_door_c::activate()
 		_dmg = 2;
 
 	// calculate second position
-	_pos1 = _s.origin;
-	abs_movedir[0] = fabs(_movedir[0]);
-	abs_movedir[1] = fabs(_movedir[1]);
-	abs_movedir[2] = fabs(_movedir[2]);
-	_moveinfo.distance = abs_movedir[0] * _r.size[0] + abs_movedir[1] * _r.size[1] + abs_movedir[2] * _r.size[2] - _lip;
-	Vector3_MA(_pos1, _moveinfo.distance, _movedir, _pos2);
+	//if(hasEPair("pos1") && hasEPair("pos2))
+	{
+		_pos1 = _s.origin;
+		abs_movedir[0] = fabs(_movedir[0]);
+		abs_movedir[1] = fabs(_movedir[1]);
+		abs_movedir[2] = fabs(_movedir[2]);
+		_moveinfo.distance = abs_movedir[0] * _r.size[0] + abs_movedir[1] * _r.size[1] + abs_movedir[2] * _r.size[2] - _lip;
+		Vector3_MA(_pos1, _moveinfo.distance, _movedir, _pos2);
+	}
 
 	// if it starts open, switch the positions
 	if(_spawnflags & DOOR_START_OPEN)
@@ -2470,6 +2476,7 @@ g_func_static_c::g_func_static_c()
 :g_entity_c(false)
 {
 	_s.type	= ET_FUNC_STATIC;
+	_s.renderfx = RF_STATIC;
 }
 
 void	g_func_static_c::activate()

@@ -30,6 +30,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // xreal --------------------------------------------------------------------
 
 
+
+
 r_entity_c::r_entity_c()
 {
 	_s.clear();
@@ -46,6 +48,26 @@ r_entity_c::r_entity_c(const r_entity_t &shared, bool update)
 	setupTransform();
 		
 	_needsupdate = update;
+	
+	if(_s.flags & RF_STATIC)
+	{
+		r_bsptree_leaf_c* leaf = r_world_tree->pointInLeaf(_s.origin);
+		if(leaf)
+		{
+			_cluster = leaf->cluster;
+			_area = leaf->area;
+		}
+		else
+		{
+			_cluster = -1;
+			_area = 1;
+		}
+	}
+	else
+	{
+		_cluster = -1;
+		_area = 1;
+	}
 }
 
 void 	r_entity_c::setupTransform()

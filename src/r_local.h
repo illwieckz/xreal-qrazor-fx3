@@ -250,6 +250,7 @@ class r_entity_c;
 class r_light_c;
 class r_surface_c;
 class r_proc_model_c;
+class r_bsptree_leaf_c;
 
 
 enum r_shader_parms_e
@@ -337,6 +338,7 @@ typedef boost::spirit::node_val_data_factory<r_node_data_t>	r_factory_t;
 
 extern uint_t		r_registration_sequence;
 extern uint_t		r_framecount;
+extern uint_t		r_visframecount;			// bumped when going to a new PVS
 
 
 class r_image_c
@@ -722,9 +724,6 @@ class r_surface_c
 public:
 	r_surface_c();
 	
-	bool			hasLight(r_light_c *light);
-	void			addLight(r_light_c *light, r_entity_c *ent, bool clear);	// clear interaction if any exists
-	
 	inline uint_t			getFrameCount() const	{return _framecount;}
 	inline void			setFrameCount()		{_framecount = r_framecount;}
 
@@ -739,12 +738,6 @@ public:
 	inline const cplane_c&		getPlane() const	{return _plane;}
 	
 	inline uint_t			getLightMapNum() const	{return _lightmap;}
-	
-	inline const std::map<r_light_c*, std::vector<index_t> >&
-	getInteractions() const
-	{
-		return _interactions;
-	}
 
 private:
 	uint_t			_framecount;		// should be drawn when node is crossed
@@ -755,13 +748,41 @@ private:
 	bsp_surface_type_t	_facetype;
 	cplane_c		_plane;			// if BSPST_PLANAR
 	int			_lightmap;		// if BSP surface
-	
-	std::map<r_light_c*, std::vector<index_t> >	_interactions;
-	//std::vector<r_interaction_c>	_interactions;
 };
 
 
-class r_entity_c
+class r_visiface_a
+{
+protected:
+	r_visiface_a()
+	{
+	}
+	
+public:
+//	void		updateVis(const r_entity_t &shared);
+
+	inline uint_t	getVisFrameCount() const	{return _visframecount;}
+	inline void	setVisFrameCount()	{_visframecount = r_visframecount;}
+	inline bool	isVisible() const	{return r_visframecount == _visframecount;}
+	
+	inline int	getCluster() const	{return _cluster;}
+	inline int	getArea() const		{return _area;}
+	
+	inline const std::vector<r_bsptree_leaf_c*>
+			getLeafs() const	{return _leafs;};
+	
+protected:
+	uint_t		_visframecount;
+	
+	int		_cluster;
+	int		_area;
+	
+	std::vector<r_bsptree_leaf_c*>	_leafs;
+};
+
+
+class r_entity_c :
+public r_visiface_a
 {
 public:
 	r_entity_c();
@@ -785,17 +806,21 @@ public:
 	
 	inline bool			needsUpdate() const	{return _needsupdate;}
 	inline void			needsUpdate(bool b)	{_needsupdate = b;}
+	
+	
 
 private:
 	r_entity_t		_s;
 		
 	matrix_c		_transform;
 	
+	
 	bool			_needsupdate;
 };
 
 
-class r_light_c
+class r_light_c :
+public r_visiface_a
 {
 	friend void	RB_AddCommand(	r_entity_c*		entity,
 					r_model_c*		entity_model,
@@ -806,7 +831,7 @@ class r_light_c
 					int			infokey);
 
 public:
-	r_light_c(const r_entity_t &shared);
+	r_light_c(const r_entity_t &shared, r_light_type_t type);
 
 	void			setupTransform();
 	void			setupAttenuation();
@@ -814,11 +839,12 @@ public:
 	void			setupFrustum();
 	
 	bool			hasSurface(int areanum, const r_surface_c *surf);
-	void			addSurface(int areanum, const r_surface_c *surf, bool clear);	// clear interaction if any exists
+	void			addSurface(int areanum, const r_surface_c *surf);	// clear interaction if any exists
 	
 	
 	
 	inline const r_entity_t&	getShared() const	{return _s;}
+	inline r_light_type_t		getType() const		{return _type;}
 	
 	inline const vec3_c&		getOrigin() const	{return _origin;}
 	
@@ -844,6 +870,7 @@ public:
 
 private:
 	r_entity_t		_s;
+	r_light_type_t		_type;
 	
 	vec3_c			_origin;
 		
@@ -939,7 +966,7 @@ public:
 	
 	r_tree_elem_c*		parent;
 	
-	uint_t			visframe;		// node needs to be traversed if current
+	uint_t			visframecount;		// node needs to be traversed if current
 };
 
 
@@ -1055,8 +1082,6 @@ public:
 	virtual void		draw() = 0;
 	
 protected:
-	uint_t		_visframecount;			// bumped when going to a new PVS
-	uint_t		_lightframecount;		// bumped when going to precache new light
 	
 	int		_viewcluster;
 	int		_viewcluster_old;
@@ -1074,7 +1099,17 @@ public:
 	virtual void		draw();
 	
 	r_bsptree_leaf_c*	pointInLeaf(const vec3_c &p);
+	int			pointInCluster(const vec3_c &p);
+	bool			pointIsVisible(const vec3_c &p);
 //	r_bsptree_area_c*	pointInArea(const vec3_c &p);
+
+	// Fills in a list of all the leafs touched
+	void			boxLeafs_r(const cbbox_c &bbox, std::vector<r_bsptree_leaf_c*> &leafs, r_tree_elem_c *elem);
+	void			boxLeafs(const cbbox_c &bbox, std::vector<r_bsptree_leaf_c*> &leafs);
+
+	void			precacheLight(r_light_c *light);
+
+	
 	
 private:
 	void			loadVisibility(const byte *buffer, const bsp_lump_t *l);
@@ -1102,6 +1137,9 @@ private:
 	void			addSurfaceToList(r_surface_c *surf, int clipflags);
 
 	void			markLeaves();
+	void			markLights();
+	void			markEntities();
+	
 	byte*			clusterPVS(int cluster);
 		
 	//
@@ -1726,7 +1764,7 @@ extern r_refdef_t	r_newrefdef;
 
 
 extern r_entity_c	r_world_entity;
-extern r_tree_c*	r_world_tree;
+extern r_bsptree_c*	r_world_tree;
 
 
 extern std::vector<index_t>	r_quad_indexes;

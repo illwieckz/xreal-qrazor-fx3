@@ -197,222 +197,6 @@ void	CG_SetRotation(r_entity_t &rent, const cg_entity_t *cent)
 	}
 }
 
-#if 0
-static void	CG_AddPacketEntities()
-{
-	r_entity_t	ent;		
-	unsigned int	effects, renderfx;
-	vec4_c		color;
-
-	//cgi.Com_Printf("CG_AddPacketEntities: entities num %i\n", cg.frame.entities_num);
-
-	for(int pnum = 0; pnum<cg.frame.entities_num; pnum++)
-	{
-		entity_state_t *state = &cg.entities_parse[(cg.frame.entities_parse_index + pnum)&(MAX_PARSE_ENTITIES-1)];
-		cg_entity_t *cent = &cg.entities[state->getNumber()];
-
-		effects = state->effects;
-		renderfx = state->renderfx;
-		
-		ent.clear();
-
-		CG_SetFrame(ent, cent);
-		
-		CG_SetRotation(ent, cent);
-
-
-		// quad can do different things on client
-		/*
-		if(effects & EF_QUAD)
-		{
-			effects &= ~EF_QUAD;
-			effects |= EF_COLOR_SHELL;
-		}
-
-
-		// color shells generate a seperate entity for the main model
-		if(effects & EF_COLOR_SHELL)
-		{
-			//ent.alpha = 0.30;
-
-			//TODO add shell shader
-			//ent.skin = shell shader
-			//V_AddEntity (&ent);
-		}
-		*/
-
-
-		ent.frame_old = cent->prev.frame;
-		ent.backlerp = 1.0 - cg.frame_lerp;
-		
-		/*
-		if(renderfx & (RF_FRAMELERP|RF_PORTALSURFACE))
-		{	
-			// step origin discretely, because the frames
-			// do the animation properly
-			ent.origin = cent->current.origin;
-			ent.origin_old = cent->current.origin_old;
-		}
-		else
-		*/
-		{	
-			// interpolate origin
-#if 1
-			for(int i=0; i<3; i++)
-			{
-				ent.origin[i] = cent->prev.origin[i] + cg.frame_lerp * (cent->current.origin[i] - cent->prev.origin[i]);
-				ent.origin2[i] = cent->prev.origin2[i] + cg.frame_lerp * (cent->current.origin2[i] - cent->prev.origin2[i]);
-			}
-#else
-			//ent.origin = cent->current.origin;
-#endif
-		}
-
-		//
-		// create a new entity
-		//
-	
-		//if(renderfx & RF_PORTALSURFACE)	//TODO
-		//{
-		//	if (state->modelindex3)
-		//		ent.frame = state->
-		//}
-		//else
-		
-							
-		// render effects (fullbright, translucent, etc)
-		/*
-		if((effects & EF_COLOR_SHELL))
-			ent.flags = 0;	// renderfx go on color shell entity
-		else
-			ent.flags = renderfx;
-		*/
-		
-		
-		
-				
-
-		//
-		// check 
-		//
-		if(state->getNumber() == cgi.playernum + 1)
-		{
-#if 0
-			ent.flags |= RF_VIEWERMODEL;	// only draw from mirrors
-#else
-			continue;
-#endif
-		}
-		
-			
-		ent.color = state->color;	
-		
-		
-		//cgi.Com_Printf("CG_AddPacketEntities: entity type %i\n", state->_s.type);
-		//cgi.Com_Printf("CG_AddPacketEntities: entity %i\n", state->_s.getNumber());
-		
-		//
-		// check entity type
-		//
-		ent.type = state->type;
-		
-		switch(state->type)
-		{
-			case ET_GENERIC:
-			default:
-				CG_AddGenericEntity(ent, cent);
-				continue;
-			
-			case ET_PLAYER:
-				CG_AddPlayerEntities(ent, cent, effects, renderfx);
-				continue;
-				
-			
-			case ET_LIGHT_OMNI:
-			case ET_LIGHT_PROJ:
-			//	CG_AddLightEntity(ent, cent);
-				continue;
-		}
-		
-	
-		/*
-		
-		ent.custom_shader = -1;
-		ent.custom_skin = -1;	// never use a custom skin on others
-		ent.shader_time = 0;
-
-		//ent.color[0] = 1;
-		//ent.color[1] = 1;
-		//ent.color[2] = 1;
-		ent.color[3] = 1;
-		
-		ent.flags = 0;
-		
-		*/
-						
-		// add automatic particle trails
-		/*
-		if((effects & ~EF_ROTATE))
-		{
-			light.origin = ent.origin;
-			light.radius = 200;
-			light.color.set(1, 1, 0);
-		
-			if(effects & EF_ROCKET)
-			{
-				CG_RocketTrail(cent->lerp_origin, ent.origin, cent);
-				cgi.R_AddLightToScene(light);
-			}
-			else if(effects & EF_BLASTER)
-			{
-				light.radius = 300;
-				light.color = color_green;
-								
-				CG_ParticleTrail(PART_BLASTER, cent->lerp_origin, ent.origin, color, 0.3);
-				cgi.R_AddLightToScene(light);
-			}
-			
-			else if(effects & EF_HYPERBLASTER)
-			{
-				CG_ParticleTrail(PART_BLASTER, cent->lerp_origin, ent.origin, color, 0.3);
-				cgi.R_AddLightToScene(light);
-			}
-			else if(effects & EF_GIB)
-			{
-				CG_DiminishingTrail(cent->lerp_origin, ent.origin, cent, effects);
-			}
-			else if(effects & EF_GRENADE)
-			{
-				CG_DiminishingTrail(cent->lerp_origin, ent.origin, cent, effects);
-			}
-			else if(effects & EF_BFG)
-			{
-				static int bfg_lightramp[6] = {300, 400, 600, 300, 150, 75};
-
-				if(effects & EF_ANIM_ALLFAST)
-				{
-					CG_BfgParticles (&ent);
-					i = 200;
-				}
-				else
-				{
-					i = bfg_lightramp[state->_s.frame];
-				}
-				
-				light.color.set(0, 1, 0);
-				cgi.R_AddLightToScene(light);
-			}
-		}
-
-		cent->lerp_origin = ent.origin;
-		*/
-	}
-}
-#endif
-
-
-
-
 
 
 /*
@@ -457,17 +241,59 @@ void	CG_GetEntitySoundOrigin(int ent, vec3_c &org)
 
 
 
+void	CG_UpdateOrigin(const cg_entity_t *cent, r_entity_t &rent, bool &update)
+{
+	if(cent->prev.origin != cent->current.origin)
+		update = true;
+	
+	rent.origin.lerp(cent->prev.origin, cent->current.origin, cg.frame_lerp);
+}
+
+void	CG_UpdateFrame(const cg_entity_t *cent, r_entity_t &rent, bool &update)
+{
+	if(cent->prev.frame != cent->current.frame)
+		update = true;
+		
+	rent.frame = cent->current.frame;
+	rent.frame_old = cent->prev.frame;
+}
+
+void	CG_UpdateRotation(const cg_entity_t *cent, r_entity_t &rent, bool &update)
+{
+	if(cent->prev.quat != cent->current.quat)
+		update = true;
+		
+	rent.quat.slerp(cent->prev.quat, cent->current.quat, cg.frame_lerp);
+}
+
+void	CG_UpdateModel(const cg_entity_t *cent, r_entity_t &rent, bool &update)
+{
+	if(cent->current.index_model && cg.model_draw[cent->prev.index_model] != cg.model_draw[cent->current.index_model])
+		update = true;
+		
+	rent.model = cg.model_draw[cent->current.index_model];
+}
+
+void	CG_UpdateShader(const cg_entity_t *cent, r_entity_t &rent, bool &update)
+{
+	if(cent->current.index_shader && cg.shader_precache[cent->prev.index_shader] != cg.shader_precache[cent->current.index_shader])
+		update = true;
+		
+	rent.custom_shader = cg.shader_precache[cent->current.index_shader];
+}
 
 
 void	CG_AddGenericEntity(const cg_entity_t *cent)
 {
-	//cgi.Com_DPrintf("adding generic entity ...\n");
+	cgi.Com_DPrintf("adding generic entity ...\n");
 	
 	r_entity_t	rent;
 
-	rent.type = cent->current.type;
-	rent.model = cg.model_draw[cent->current.index_model];
-//	rent.custom_shader = cg.light_precache[cent->current.index_light];
+	if(cent->current.index_model)
+		rent.model = cg.model_draw[cent->current.index_model];
+		
+	if(cent->current.index_shader)
+		rent.custom_shader = cg.shader_precache[cent->current.index_shader];
 	
 	rent.shader_parms[0] = cent->current.shaderparms[0];
 	rent.shader_parms[1] = cent->current.shaderparms[1];
@@ -479,27 +305,30 @@ void	CG_AddGenericEntity(const cg_entity_t *cent)
 	rent.shader_parms[7] = cent->current.shaderparms[7];
 	
 	rent.origin = cent->current.origin;
-	rent.origin2 = cent->current.origin2;
+	rent.quat = cent->current.quat;
 	
 	rent.frame = cent->current.frame;
 	rent.frame_old = cent->current.frame;
 	
-	rent.quat = cent->current.quat;
+	rent.flags = cent->current.renderfx;
 	
 	cgi.R_AddEntity(cent->current.getNumber(), rent);
 }
 
 void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 {
-	//cgi.Com_DPrintf("adding generic entity ...\n");
+//	cgi.Com_DPrintf("updating generic entity ...\n");
 	
 	r_entity_t	rent;
 	bool		update = false;
-
-	rent.type = cent->current.type;
 	
-	if(cg.model_draw[cent->prev.index_model] != cg.model_draw[cent->current.index_model])	update = true;
-	rent.model = cg.model_draw[cent->current.index_model];
+	CG_UpdateOrigin(cent, rent, update);
+	
+	CG_UpdateRotation(cent, rent, update);
+	
+	CG_UpdateModel(cent, rent, update);
+	
+	CG_UpdateShader(cent, rent, update);
 	
 	rent.shader_parms[0] = cent->current.shaderparms[0];
 	rent.shader_parms[1] = cent->current.shaderparms[1];
@@ -509,24 +338,17 @@ void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 	rent.shader_parms[5] = cent->current.shaderparms[5];
 	rent.shader_parms[6] = cent->current.shaderparms[6];
 	rent.shader_parms[7] = cent->current.shaderparms[7];
-	
-	if(cent->prev.origin != cent->current.origin)	update = true;
-	rent.origin.lerp(cent->prev.origin, cent->current.origin, cg.frame_lerp);
-	rent.origin2 = cent->current.origin2;
 
-	if(cent->prev.frame != cent->current.frame)	update = true;
-	rent.frame = cent->current.frame;
-	rent.frame_old = cent->prev.frame;
+	CG_UpdateFrame(cent, rent, update);	
 	
-	if(cent->prev.quat != cent->current.quat)	update = true;
-	rent.quat.slerp(cent->prev.quat, cent->current.quat, cg.frame_lerp);
+	rent.flags = cent->current.renderfx;
 	
 	cgi.R_UpdateEntity(cent->current.getNumber(), rent, update);
 }
 
 void	CG_RemoveGenericEntity(const cg_entity_t *cent)
 {
-	//cgi.Com_DPrintf("removing generic entity ...\n");
+	cgi.Com_DPrintf("removing generic entity ...\n");
 
 	cgi.R_RemoveEntity(cent->prev.getNumber());
 }

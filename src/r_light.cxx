@@ -30,11 +30,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // xreal --------------------------------------------------------------------
 
 
-r_light_c::r_light_c(const r_entity_t &shared)
+r_light_c::r_light_c(const r_entity_t &shared, r_light_type_t type)
 {
 	_s = shared;
+	_type = type;
 	
-	_origin = _s.origin + _s.origin2;
+	_origin = _s.origin + _s.center;
 	
 	setupTransform();
 	setupProjection();
@@ -42,6 +43,35 @@ r_light_c::r_light_c(const r_entity_t &shared)
 	setupFrustum();
 	
 	_needsupdate = true;
+	
+	if(_s.flags & RF_STATIC)
+	{
+		r_bsptree_leaf_c* leaf = r_world_tree->pointInLeaf(_s.origin);
+		if(leaf)
+		{
+			_cluster = leaf->cluster;
+			_area = leaf->area;
+		}
+		else
+		{
+			_cluster = -1;
+			_area = 1;
+		}
+		
+		_areasurfaces = std::vector<std::map<const r_surface_c*, std::vector<index_t> > >(1);
+		
+		r_world_tree->precacheLight(this);
+		
+		r_world_tree->boxLeafs(_s.radius_bbox, _leafs);
+		
+		if(_leafs.size())
+			ri.Com_DPrintf("light touches %i BSP leaves\n", _leafs.size());
+	}
+	else
+	{
+		_cluster = -1;
+		_area = 1;
+	}
 }
 
 void 	r_light_c::setupTransform()
@@ -49,6 +79,8 @@ void 	r_light_c::setupTransform()
 	_transform.setupTranslation(_s.origin);
 	
 	_transform.multiplyRotation(_s.quat);
+	
+	_transform.multiplyScale(_s.scale, _s.scale, _s.scale);
 }
 
 void	r_light_c::setupAttenuation()
@@ -61,15 +93,15 @@ void	r_light_c::setupAttenuation()
 
 void	r_light_c::setupProjection()
 {
-	switch(_s.type)
+	switch(_type)
 	{
-		case ET_LIGHT_OMNI:
+		case LIGHT_OMNI:
 		{
 			_projection.setupScale(1.0/_s.radius[0], 1.0/_s.radius[1], 1.0/_s.radius[2]);
 			break;
 		}
 		
-		case ET_LIGHT_PROJ:
+		case LIGHT_PROJ:
 		{
 #if 0
 			vec_t fov_x = 90;
@@ -119,7 +151,7 @@ void	r_light_c::setupProjection()
 		}
 		
 		default:
-			ri.Com_Error(ERR_DROP, "r_light_c::setupProjection: bad entity type %i", _s.type);
+			ri.Com_Error(ERR_DROP, "r_light_c::setupProjection: bad entity type %i", _type);
 	}
 }
 
@@ -144,7 +176,7 @@ bool	r_light_c::hasSurface(int areanum, const r_surface_c *surf)
 	return false;
 }
 
-void	r_light_c::addSurface(int areanum, const r_surface_c *surf, bool clear)
+void	r_light_c::addSurface(int areanum, const r_surface_c *surf)
 {
 	r_mesh_c* mesh;
 	
@@ -153,14 +185,6 @@ void	r_light_c::addSurface(int areanum, const r_surface_c *surf, bool clear)
 	
 	if(mesh->isNotValid())
 		return;
-		
-	if(clear)
-	{
-		std::map<const r_surface_c*, std::vector<index_t> >::iterator ir = _areasurfaces[areanum].find(surf);
-		
-		if(ir != _areasurfaces[areanum].end())
-			_areasurfaces[areanum].erase(ir);
-	}
 	
 	if(_areasurfaces.empty())
 	{
@@ -228,7 +252,7 @@ void	r_light_c::addSurface(int areanum, const r_surface_c *surf, bool clear)
 #endif
 	}
 	
-	if(!indexes.empty())
+	if(indexes.size())
 		_areasurfaces[areanum].insert(std::make_pair(surf, indexes));
 }
 

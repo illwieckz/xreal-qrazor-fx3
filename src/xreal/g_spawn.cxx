@@ -421,15 +421,15 @@ void	G_SpawnEntities(const std::string &mapname, char *entities, const std::stri
 	std::map<std::string, std::string>	epairs;
 	
 	//gi.Com_Printf("G_SpawnEntities:\n");
-	skill_level = floor (skill->getInteger());
+	skill_level = floorf(skill->getInteger());
 	
-	if (skill_level < 0)
+	if(skill_level < 0)
 		skill_level = 0;
 		
-	if (skill_level > 3)
+	if(skill_level > 3)
 		skill_level = 3;
 		
-	if (skill->getInteger() != skill_level)
+	if(skill->getInteger() != skill_level)
 		gi.Cvar_ForceSet("skill", va("%f", skill_level));
 
 	G_SaveClientData();

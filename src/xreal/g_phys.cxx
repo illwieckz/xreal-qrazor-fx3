@@ -1091,7 +1091,7 @@ static void	G_NearCallback(void *data, dGeomID o1, dGeomID o2)
 //			return;
 //		}
 
-		int		contacts_max = 16;
+		const int	contacts_max = 16;
 		dContact	contacts[contacts_max]; 
 		if(int contacts_num = dCollide(o1, o2, contacts_max, &contacts[0].geom, sizeof(dContact)))
 		{

@@ -61,6 +61,7 @@ r_scene_t*	r_current_scene;
 r_frustum_t	r_frustum;
 
 uint_t		r_framecount;		// used for dlight push checking
+uint_t		r_visframecount;	// bumped when going to a new PVS
 
 
 int		r_depth_format;
@@ -89,7 +90,7 @@ cplane_c	r_clipplane;
 
 
 r_entity_c	r_world_entity;
-r_tree_c*	r_world_tree;
+r_bsptree_c*	r_world_tree;
 
 std::vector<index_t> 	r_quad_indexes;
 
@@ -695,6 +696,9 @@ static void 	R_AddEntitiesToBuffer()
 				continue;
 		}
 		
+		if(!ent.isVisible())
+			continue;
+		
 		r_model_c *model = R_GetModelByNum(ent.getShared().model);
 			
 		if(!model)
@@ -704,7 +708,7 @@ static void 	R_AddEntitiesToBuffer()
 		}
 		
 		if(ent.needsUpdate())
-			model->precacheLightInteractions(&ent);
+		//	model->precacheLightInteractions(&ent);
 		ent.needsUpdate(false);
 			
 		model->addModelToList(&ent);
@@ -1147,7 +1151,7 @@ void	R_InitTree(r_tree_type_e type, const std::string &name)
 			break;
 		
 		case TREE_PROC:
-			r_world_tree = new r_proctree_c("maps/" + name + ".proc");
+			//r_world_tree = new r_proctree_c("maps/" + name + ".proc");
 			break;
 	}
 }
@@ -1476,27 +1480,27 @@ static void	R_RemoveEntity(int entity_num)
 }
 
 
-static void	R_AddLight(int entity_num, const r_entity_t &shared)
+static void	R_AddLight(int entity_num, const r_entity_t &shared, r_light_type_t type)
 {
 	std::map<int, r_light_c>::iterator ir = r_lights.find(entity_num);
 	
 	if(ir == r_lights.end())
 	{
-		r_lights.insert(std::make_pair(entity_num, r_light_c(shared)));
+		r_lights.insert(std::make_pair(entity_num, r_light_c(shared, type)));
 	}
 	else
 	{
-		ir->second = r_light_c(shared);
+		ir->second = r_light_c(shared, type);
 	}
 }
 
-static void	R_UpdateLight(int entity_num, const r_entity_t &shared)
+static void	R_UpdateLight(int entity_num, const r_entity_t &shared, r_light_type_t type)
 {
 	std::map<int, r_light_c>::iterator ir = r_lights.find(entity_num);
 	
 	if(ir != r_lights.end())
 	{
-		ir->second = r_light_c(shared);
+		ir->second = r_light_c(shared, type);
 	}
 }
 

@@ -2093,7 +2093,7 @@ void	RB_RenderCommands()
 					RB_EnableShader_lighting_DBHS_omni();
 					for(i=0, cmd = &r_current_scene->cmds_light[0]; i<r_current_scene->cmds_light_num; i++, cmd++)
 					{
-						if(cmd->getLight()->getShared().type == ET_LIGHT_PROJ)
+						if(cmd->getLight()->getType() == LIGHT_PROJ)
 							continue;
 				
 						if(cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT || cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
@@ -2108,7 +2108,7 @@ void	RB_RenderCommands()
 					RB_EnableShader_lighting_DBH_omni();
 					for(i=0, cmd = &r_current_scene->cmds_light[0]; i<r_current_scene->cmds_light_num; i++, cmd++)
 					{
-						if(cmd->getLight()->getShared().type == ET_LIGHT_PROJ)
+						if(cmd->getLight()->getType() == LIGHT_PROJ)
 							continue;
 				
 						if(cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT || cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
@@ -2123,7 +2123,7 @@ void	RB_RenderCommands()
 					RB_EnableShader_lighting_DBS_omni();
 					for(i=0, cmd = &r_current_scene->cmds_light[0]; i<r_current_scene->cmds_light_num; i++, cmd++)
 					{
-						if(cmd->getLight()->getShared().type == ET_LIGHT_PROJ)
+						if(cmd->getLight()->getType() == LIGHT_PROJ)
 							continue;
 				
 						if(cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT || cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
@@ -2138,7 +2138,7 @@ void	RB_RenderCommands()
 					RB_EnableShader_lighting_DB_omni();
 					for(i=0, cmd = &r_current_scene->cmds_light[0]; i<r_current_scene->cmds_light_num; i++, cmd++)
 					{
-						if(cmd->getLight()->getShared().type == ET_LIGHT_PROJ)
+						if(cmd->getLight()->getType() == LIGHT_PROJ)
 							continue;
 				
 						if(cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT || cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
@@ -2154,7 +2154,7 @@ void	RB_RenderCommands()
 				RB_EnableShader_lighting_D_omni();
 				for(i=0, cmd = &r_current_scene->cmds_light[0]; i<r_current_scene->cmds_light_num; i++, cmd++)
 				{
-					if(cmd->getLight()->getShared().type == ET_LIGHT_PROJ)
+					if(cmd->getLight()->getType() == LIGHT_PROJ)
 							continue;
 			
 					if(cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT || cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
@@ -2177,7 +2177,7 @@ void	RB_RenderCommands()
 				RB_EnableShader_lighting_D_proj();
 				for(i=0, cmd = &r_current_scene->cmds_light[0]; i<r_current_scene->cmds_light_num; i++, cmd++)
 				{
-					if(cmd->getLight()->getShared().type == ET_LIGHT_OMNI)
+					if(cmd->getLight()->getType() == LIGHT_OMNI)
 						continue;
 			
 					if(cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT || cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)

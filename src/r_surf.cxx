@@ -43,7 +43,7 @@ r_surface_c::r_surface_c()
 	_lightmap	= -1;
 }
 
-
+#if 0
 bool	r_surface_c::hasLight(r_light_c *light)
 {
 	std::map<r_light_c*, std::vector<index_t> >::iterator ir = _interactions.find(light);
@@ -129,3 +129,4 @@ void	r_surface_c::addLight(r_light_c *light, r_entity_c *ent, bool clear)
 //		_interactions.push_back(r_interaction_c(this, light, indexes));
 	}
 }
+#endif
