@@ -165,6 +165,134 @@ struct dxGeom : public dBase
 };
 
 //****************************************************************************
+// the basic geometry objects
+
+struct dxSphere : public dxGeom
+{
+	dxSphere(dSpaceID space, vec_t _radius);
+	
+	void	computeAABB();
+	
+	vec_t radius;		// sphere radius
+};
+
+
+struct dxBox : public dxGeom
+{
+	dxBox(dSpaceID space, vec_t lx, vec_t ly, vec_t lz);
+	
+	void	computeAABB();
+	
+	dVector3	side;	// side lengths (x,y,z)
+};
+
+
+struct dxPlane : public dxGeom
+{
+	dxPlane(dSpaceID space, vec_t a, vec_t b, vec_t c, vec_t d);
+	
+	void	computeAABB();
+	
+//	vec_t		p[4];
+	cplane_c	p;
+};
+
+
+struct dxRay : public dxGeom
+{
+	
+	dxRay(dSpaceID space, vec_t _length);
+	
+	void	computeAABB();
+	
+	vec_t		length;
+};
+
+
+struct dxBSP : public dxGeom
+{
+	dxBSP(dSpaceID space);
+	
+	void	computeAABB();
+
+	struct dBSPNode
+	{
+		dBSPNode()
+		{
+			plane		= NULL;
+		
+			children[0]	= 0;
+			children[1]	= 0;
+		}
+	
+		cplane_c*	plane;		// split plane
+		int 		children[2];	// negative numbers are leafs
+	};
+	
+	struct dBSPLeaf
+	{
+		int	cluster;
+		int	area;
+		
+		int	surfaces_first;
+		int	surfaces_num;
+		
+		int	brushes_first;
+		int	brushes_num;
+		
+		int	patches_first;
+		int	patches_num;
+	};
+	
+	struct dBSPSurface
+	{
+		int			face_type;
+	
+		int			shader_num;
+	
+		cplane_c		plane;			// BSPST_PLANAR only
+	
+		//int			mesh_cp[2];		// BSPST_BEZIER only
+	
+		// per vertex data
+		std::vector<vec3_c>	vertexes;
+		std::vector<vec3_c>	normals;
+		
+		// per triangle data
+		std::vector<index_t>	indexes;
+		std::vector<cplane_c>	planes;
+	
+		int			checkcount;
+	};
+	
+	/*
+	struct dBSPBrush
+	{
+		int	sides_first;
+		int	sides_num;
+		
+		int	checkcount;
+	};
+	
+	struct dBSPBrushSide
+	{
+		cplane_c* plane;
+	};
+	*/
+	
+	dVector3			side;	// side lengths (x,y,z) for AABB
+	std::vector<dBSPNode>		nodes;
+	std::vector<dBSPLeaf>		leafs;
+	std::vector<cplane_c>		planes;
+//	std::vector<dBSPBrush>		brushes;
+//	std::vector<dBSPBrushSide>	brushsides;
+//	std::vector<int>		leafbrushes;
+	std::vector<dBSPSurface>	surfaces;
+	std::vector<int>		leafsurfaces;
+	int 				checkcount;
+};
+
+//****************************************************************************
 // the base space class
 //
 // the contained geoms are divided into two kinds: clean and dirty.
@@ -193,10 +321,10 @@ struct dxSpace : public dxGeom
 	// turn all dirty geoms into clean geoms by computing their AABBs and any
 	// other space data structures that are required. this should clear the
 	// GEOM_DIRTY and GEOM_AABB_BAD flags of all geoms.
-	virtual void	cleanGeoms()=0;
+	virtual void	cleanGeoms() = 0;
   
-	virtual void collide (void *data, dNearCallback *callback)=0;
-	virtual void collide2 (void *data, dxGeom *geom, dNearCallback *callback)=0;
+	virtual void	collide(void *data, dNearCallback *callback) = 0;
+	virtual void	collide2(void *data, dxGeom *geom, dNearCallback *callback) = 0;
 	
 	int		count;		// number of geoms in this space
 	dxGeom*		first;		// first geom in list

@@ -140,7 +140,7 @@ void	CG_EndFrame(int entities_num)
 	CG_UpdateAnimationBuffer();
 }
 
-
+/*
 void	CG_SetFrame(r_entity_t &ent, const cg_entity_t *cent)
 {
 	// brush models can auto animate their frames
@@ -157,13 +157,15 @@ void	CG_SetFrame(r_entity_t &ent, const cg_entity_t *cent)
 	else if(effects & EF_ANIM_ALL)
 		ent.frame = autoanim;
 	
-	else if(effects & EF_ANIM_ALLFAST)
-		ent.frame = cgi.CL_GetTime() / 100;
-	
+	else if(effects & EF_ANIM_ALLFAST)	// should be allfast_repeat
+	{
+		//ent.frame = cgi.CL_GetTime() / 100;
+		ent.frame = (cgi.CL_GetTime() / 41) % 60;	// 24 Hz
+	}
 	else
 		ent.frame = cent->current.frame;
 }
-
+*/
 
 /*
 ===============
@@ -197,11 +199,53 @@ void	CG_UpdateOrigin(const cg_entity_t *cent, r_entity_t &rent, bool &update)
 
 void	CG_UpdateFrame(const cg_entity_t *cent, r_entity_t &rent, bool &update)
 {
-	if(cent->prev.frame != cent->current.frame)
+	const uint_t& effects = cent->current.effects;
+	
+	if(effects & EF_AUTOANIM_TOGGLE_01_2)
+	{
+		rent.frame = (2*cgi.CL_GetTime()/1000) & 1;
+		rent.flags |= RF_AUTOANIM;
 		update = true;
+	}	
+	else if(effects & EF_AUTOANIM_TOGGLE_23_2)
+	{
+		rent.frame = 2 + ((2*cgi.CL_GetTime()/1000) & 1);
+		rent.flags |= RF_AUTOANIM;
+		update = true;
+	}	
+	else if(effects & EF_AUTOANIM_1)
+	{
+		rent.frame = cgi.CL_GetTime()/1000;
+		rent.flags |= RF_AUTOANIM;
+		update = true;
+	}
+	else if(effects & EF_AUTOANIM_2)
+	{
+		rent.frame = cgi.CL_GetTime()/500;
+		rent.flags |= RF_AUTOANIM;
+		update = true;
+	}
+	else if(effects & EF_AUTOANIM_10)
+	{
+		rent.frame = cgi.CL_GetTime()/100;
+		rent.flags |= RF_AUTOANIM;
+		update = true;
+	}
+	else if(effects & EF_AUTOANIM_24)
+	{
+		rent.frame = (cgi.CL_GetTime() / 41) % 60;
+		rent.frame_old = cent->prev.frame;
+		rent.flags |= RF_AUTOANIM;
+		update = true;
+	}
+	else
+	{
+		if(cent->prev.frame != cent->current.frame)
+			update = true;
 		
-	rent.frame = cent->current.frame;
-	rent.frame_old = cent->prev.frame;
+		rent.frame = cent->current.frame;
+		rent.frame_old = cent->prev.frame;
+	}
 }
 
 void	CG_UpdateRotation(const cg_entity_t *cent, r_entity_t &rent, bool &update)
@@ -224,10 +268,18 @@ void	CG_UpdateRotation(const cg_entity_t *cent, r_entity_t &rent, bool &update)
 
 void	CG_UpdateModel(const cg_entity_t *cent, r_entity_t &rent, bool &update)
 {
-	if(cent->current.index_model && cg.model_draw[cent->prev.index_model] != cg.model_draw[cent->current.index_model])
+	if(cg.model_draw[cent->prev.index_model] != cg.model_draw[cent->current.index_model])
 		update = true;
 		
 	rent.model = cg.model_draw[cent->current.index_model];
+}
+
+void	CG_UpdateAnimation(const cg_entity_t *cent, r_entity_t &rent, bool &update)
+{
+	if(cg.animation_precache[cent->prev.index_animation] != cg.animation_precache[cent->current.index_animation])
+		update = true;
+		
+	rent.animation = cg.animation_precache[cent->current.index_animation];
 }
 
 void	CG_UpdateShader(const cg_entity_t *cent, r_entity_t &rent, bool &update)
@@ -240,7 +292,7 @@ void	CG_UpdateShader(const cg_entity_t *cent, r_entity_t &rent, bool &update)
 
 void	CG_UpdateLightShader(const cg_entity_t *cent, r_entity_t &rent, bool &update)
 {
-	if(cent->current.index_light && cg.light_precache[cent->prev.index_light] != cg.light_precache[cent->current.index_light])
+	if(cg.light_precache[cent->prev.index_light] != cg.light_precache[cent->current.index_light])
 		update = true;
 		
 	rent.custom_light = cg.light_precache[cent->current.index_light];
@@ -278,10 +330,12 @@ void	CG_AddGenericEntity(const cg_entity_t *cent)
 	if(rent.model < 0)
 		cgi.Com_Error(ERR_DROP, "CG_AddGenericEntity: bad renderer entity model index %i\n", rent.model);
 		
+	rent.animation = cg.animation_precache[cent->current.index_animation];
+		
 	if(cent->current.index_shader)
 		rent.custom_shader = cg.shader_precache[cent->current.index_shader];
 		
-	for(int i=0; i<8; i++)	
+	for(int i=0; i<8; i++)
 		rent.shader_parms[i] = cent->current.shaderparms[i];
 	
 	rent.origin = cent->current.origin;
@@ -321,11 +375,13 @@ void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 	
 	CG_UpdateModel(cent, rent, update);
 	
+	CG_UpdateAnimation(cent, rent, update);
+	
 	CG_UpdateShader(cent, rent, update);
 	
 	CG_UpdateShaderParms(cent, rent, update);
 
-	CG_UpdateFrame(cent, rent, update);	
+	CG_UpdateFrame(cent, rent, update);
 	
 	CG_UpdateRenderFXFlags(cent, rent, update);
 	

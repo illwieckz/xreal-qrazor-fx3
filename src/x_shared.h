@@ -293,7 +293,7 @@ enum char_height_e
 };
 
 
-#define DEFAULT_PLAYERMODEL	"alpha"
+#define DEFAULT_PLAYERMODEL	"marine"
 #define DEFAULT_PLAYERSKIN	"default"
 
 
@@ -952,51 +952,49 @@ void	Com_Pmove(pmove_t *pmove);		// player movement code common with client pred
 // even if it has a zero index model.
 enum
 {
-	EF_NONE			= 0,
-	EF_ROTATE		= (1<<0),		// rotate (bonus items)
-	EF_GIB			= (1<<1),		// leave a trail
-	EF_BLASTER		= (1<<2),		// redlight + trail
-	EF_ROCKET		= (1<<3),		// redlight + trail
-	EF_GRENADE		= (1<<4),
-	EF_HYPERBLASTER		= (1<<5),
-	EF_BFG			= (1<<6),
-	EF_COLOR_SHELL		= (1<<7),
-	EF_ANIM01		= (1<<8),		// automatically cycle between frames 0 and 1 at 2 hz
-	EF_ANIM23		= (1<<9),		// automatically cycle between frames 2 and 3 at 2 hz
-	EF_ANIM_ALL		= (1<<10),		// automatically cycle through all frames at 2hz
-	EF_ANIM_ALLFAST		= (1<<11),		// automatically cycle through all frames at 10hz
-	EF_FLIES		= (1<<12),
-	EF_QUAD			= (1<<13),
-	EF_DLIGHT		= (1<<14)
+	EF_NONE				= 0,
+	EF_ROTATE			= (1<<0),		// rotate (bonus items)
+	EF_GIB				= (1<<1),		// leave a trail
+	EF_BLASTER			= (1<<2),		// redlight + trail
+	EF_ROCKET			= (1<<3),		// redlight + trail
+	EF_GRENADE			= (1<<4),
+	EF_HYPERBLASTER			= (1<<5),
+	EF_BFG				= (1<<6),
+	EF_COLOR_SHELL			= (1<<7),
+	EF_AUTOANIM_TOGGLE_01_2		= (1<<8),		// automatically cycle between frames 0 and 1 at 2 hz
+	EF_AUTOANIM_TOGGLE_23_2		= (1<<9),		// automatically cycle between frames 2 and 3 at 2 hz
+	EF_AUTOANIM_1			= (1<<10),		// automatically cycle through all frames at 1hz
+	EF_AUTOANIM_2			= (1<<11),		// automatically cycle through all frames at 2hz
+	EF_AUTOANIM_10			= (1<<12),		// automatically cycle through all frames at 10hz
+	EF_AUTOANIM_24			= (1<<13),		// automatically cycle through all frames at 24hz
+	EF_QUAD				= (1<<14),
+	EF_DLIGHT			= (1<<15)
 };
 
 // entity_state_t->renderfx flags
 enum
 {
 	RF_NONE			= 0,
-	//FILL
-	RF_VIEWERMODEL		= (1<<1),		// don't draw through eyes, only mirrors
-	RF_WEAPONMODEL		= (1<<2),		// only draw through eyes
-	RF_FULLBRIGHT		= (1<<3),		// allways draw full intensity
-	RF_DEPTHHACK		= (1<<4),		// for view weapon Z crunching
-	RF_TRANSLUCENT		= (1<<5),
-	RF_FRAMELERP		= (1<<6),
-	RF_GLOW			= (1<<7),		// pulse lighting for bonus items
-	RF_NOSHADOW		= (1<<8),		// don't cast shadow
-	RF_PORTALSURFACE	= (1<<9),
-	RF_STATIC		= (1<<10)
+	RF_VIEWERMODEL		= (1<<0),		// don't draw through eyes, only mirrors
+	RF_WEAPONMODEL		= (1<<1),		// only draw through eyes
+	RF_FULLBRIGHT		= (1<<2),		// allways draw full intensity
+	RF_DEPTHHACK		= (1<<3),		// for view weapon Z crunching
+	RF_TRANSLUCENT		= (1<<4),
+	RF_NOSHADOW		= (1<<5),		// don't cast shadow
+	RF_PORTALSURFACE	= (1<<6),
+	RF_STATIC		= (1<<7),
+	RF_AUTOANIM		= (1<<8)
 };
 
 // player_state_t->refdef flags
 enum
 {
 	RDF_NONE		= 0,
-	RDF_UNDERWATER		= (1<<0),		// warp the screen as apropriate
-	RDF_NOWORLDMODEL	= (1<<1)		// used for player configuration screen
+	RDF_NOWORLDMODEL	= (1<<0),		// used for player configuration screen
+	RDF_UNDERWATER		= (1<<1),		// warp the screen as apropriate
+	RDF_BLOOM		= (1<<2),
+	RDF_BLUR		= (1<<3)
 };
-
-
-
 
 
 // temp entity events

@@ -55,6 +55,8 @@ public:
 		scale.set(1.0, 1.0, 1.0);
 	
 		model		= -1;
+		animation	= -1;
+		
 		custom_shader	= -1;
 		custom_skin	= -1;
 		custom_light	= -1;
@@ -84,6 +86,8 @@ public:
 		scale.set(1.0, 1.0, 1.0);
 	
 		model		= -1;
+		animation	= -1;
+		
 		custom_shader	= -1;
 		custom_skin	= -1;
 		custom_light	= -1;
@@ -120,6 +124,8 @@ public:
 	
 	// entity specific
 	int			model;			// opaque type outside refresh
+	int			animation;
+	
 	int			custom_shader;		// -1 for inline shader
 	int			custom_skin;		// -1 for inline skin
 	int			custom_light;		// -1 for inline skin

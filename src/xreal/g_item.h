@@ -114,6 +114,7 @@ public:
 	
 	const char*	getPickupSound()		{return _pickup_sound.c_str();}
 	const char*	getWorldModel()			{return _model_world.c_str();}
+	const char*	getWorldModelAnimation()	{return _model_world_animation.c_str();}
 	int		getWorldModelFlags()		{return _model_world_flags;}
 	const char*	getPlayerModel()		{return _model_player.c_str();}
 	const char*	getViewModel()			{return _model_view.c_str();}
@@ -147,6 +148,7 @@ protected:
 	std::string			_pickup_sound;
 	
 	std::string			_model_world;
+	std::string			_model_world_animation;
 	uint_t				_model_world_flags;
 	std::string			_model_player;
 	std::string			_model_view;

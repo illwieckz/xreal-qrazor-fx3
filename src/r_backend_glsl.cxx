@@ -266,7 +266,6 @@ protected:
 	}
 	
 public:
-
 	void	setUniform_fresnel_power(const r_command_t *cmd, const r_shader_stage_c *stage)
 	{
 		float fresnel_power = RB_Evaluate(cmd->getEntity()->getShared(), stage->fresnel_power, 2.0);
@@ -289,6 +288,35 @@ private:
 	uint_t		_u_fresnel_power;
 	uint_t		_u_fresnel_scale;
 	uint_t		_u_fresnel_bias;
+};
+
+
+class u_frame_buffer_a
+{
+private:
+	u_frame_buffer_a();
+	
+protected:
+	u_frame_buffer_a(GLhandleARB handle)
+	{
+		_u_fbuf_scale	= xglGetUniformLocationARB(handle, "u_fbuf_scale");	RB_CheckForError();
+		_u_npot_scale	= xglGetUniformLocationARB(handle, "u_npot_scale");	RB_CheckForError();
+	}
+	
+public:
+	void	setUniform_fbuf_scale(const r_command_t *cmd)
+	{
+		xglUniform2fARB(_u_fbuf_scale, X_recip((float)vid.width), X_recip((float)vid.height));	RB_CheckForError();
+	}
+	
+	void	setUniform_npot_scale(const r_command_t *cmd)
+	{
+		xglUniform2fARB(_u_npot_scale, (float)vid.width/(float)r_img_currentrender->getWidth(), (float)vid.height/(float)r_img_currentrender->getHeight());	RB_CheckForError();
+	}
+	
+private:
+	uint_t		_u_fbuf_scale;
+	uint_t		_u_npot_scale;
 };
 
 
@@ -442,14 +470,18 @@ void	rb_program_c::validate()
 
 void	rb_program_c::enable()
 {
-	xglUseProgramObjectARB(_handle);	RB_CheckForError();
+	RB_CheckForError();
+
+	xglUseProgramObjectARB(_handle);//	RB_CheckForError();
 	
 	enableVertexAttribs();
 }
 
 void	rb_program_c::disable()
 {
-	xglUseProgramObjectARB(0);	RB_CheckForError();
+	RB_CheckForError();
+
+	xglUseProgramObjectARB(0);//	RB_CheckForError();
 	
 	disableVertexAttribs();
 }
@@ -1167,6 +1199,34 @@ private:
 };
 
 
+class rb_heathaze_c : 
+public rb_program_c,
+public u_frame_buffer_a,
+public u_bump_scale_a
+{
+public:
+	rb_heathaze_c()
+	:rb_program_c("heathaze", VATTRIB_VERTEX | VATTRIB_TEX0),
+	u_frame_buffer_a(getHandle()),
+	u_bump_scale_a(getHandle())
+	{
+		_u_currentrendermap	= xglGetUniformLocationARB(getHandle(), "u_currentrendermap");	RB_CheckForError();
+		_u_heathazemap		= xglGetUniformLocationARB(getHandle(), "u_heathazemap");	RB_CheckForError();
+		
+		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		
+		xglUniform1iARB(_u_currentrendermap, 0);	RB_CheckForError();
+		xglUniform1iARB(_u_heathazemap, 1);		RB_CheckForError();
+		
+		xglUseProgramObjectARB(0);	RB_CheckForError();
+	}
+
+private:
+	uint_t		_u_currentrendermap;
+	uint_t		_u_heathazemap;
+};
+
+
 static rb_generic_c*			rb_program_generic = NULL;
 static rb_zfill_c*			rb_program_zfill = NULL;
 
@@ -1187,6 +1247,8 @@ static rb_reflection_C_c*		rb_program_reflection_C = NULL;
 static rb_refraction_C_c*		rb_program_refraction_C = NULL;
 static rb_dispersion_C_c*		rb_program_dispersion_C = NULL;
 static rb_liquid_C_c*			rb_program_liquid_C = NULL;
+
+static rb_heathaze_c*			rb_program_heathaze = NULL;
 
 
 static void	RB_CheckOpenGLExtension(const std::string &name)
@@ -1301,6 +1363,8 @@ void		RB_InitGPUShaders()
 	rb_program_refraction_C		= new rb_refraction_C_c();
 	rb_program_dispersion_C		= new rb_dispersion_C_c();
 	rb_program_liquid_C		= new rb_liquid_C_c();
+	
+	rb_program_heathaze		= new rb_heathaze_c();
 }
 
 void		RB_ShutdownGPUShaders()
@@ -1325,12 +1389,14 @@ void		RB_ShutdownGPUShaders()
 	delete rb_program_refraction_C;
 	delete rb_program_dispersion_C;
 	delete rb_program_liquid_C;
+	
+	delete rb_program_heathaze;
 }
 
 
 void		RB_EnableShader_generic()
 {
-	rb_program_generic->enable();
+	rb_program_generic->enable();		RB_CheckForError();
 
 	RB_SelectTexture(GL_TEXTURE0);
 	xglEnable(GL_TEXTURE_2D);		RB_CheckForError();
@@ -1338,7 +1404,7 @@ void		RB_EnableShader_generic()
 
 void		RB_DisableShader_generic()
 {
-	rb_program_generic->disable();
+	rb_program_generic->disable();		RB_CheckForError();
 
 	RB_SelectTexture(GL_TEXTURE0);
 	xglDisable(GL_TEXTURE_2D);		RB_CheckForError();
@@ -1346,7 +1412,7 @@ void		RB_DisableShader_generic()
 
 void		RB_RenderCommand_generic(const r_command_t *cmd,			const r_shader_stage_c *stage)
 {
-	RB_EnableShaderStageStates(cmd->getEntity(), stage, RENDER_TYPE_GENERIC);
+	RB_EnableShaderStageStates(cmd->getEntity(), stage);
 
 	rb_program_generic->setVertexAttribs(cmd);
 
@@ -1360,25 +1426,25 @@ void		RB_RenderCommand_generic(const r_command_t *cmd,			const r_shader_stage_c 
 
 	RB_FlushMesh(cmd);
 	
-	RB_DisableShaderStageStates(cmd->getEntity(), stage, RENDER_TYPE_GENERIC);
+	RB_DisableShaderStageStates(cmd->getEntity(), stage);
 }
 
 
 void		RB_EnableShader_zfill()
 {
-	rb_program_zfill->enable();	
+	rb_program_zfill->enable();	RB_CheckForError();
 }
 
 void		RB_DisableShader_zfill()
 {
-	rb_program_zfill->disable();
+	rb_program_zfill->disable();	RB_CheckForError();
 }
 
 void		RB_RenderCommand_zfill(const r_command_t *cmd,				const r_shader_stage_c *stage)
 {
 	xglColor4fv(color_black);
 
-	RB_EnableShaderStageStates(cmd->getEntity(), stage, RENDER_TYPE_ZFILL);
+	RB_EnableShaderStageStates(cmd->getEntity(), stage);
 
 	rb_program_zfill->setVertexAttribs(cmd);
 
@@ -1408,25 +1474,25 @@ void		RB_RenderCommand_zfill(const r_command_t *cmd,				const r_shader_stage_c *
 		xglDisable(GL_TEXTURE_2D);		RB_CheckForError();	
 	}
 	
-	RB_DisableShaderStageStates(cmd->getEntity(), stage, RENDER_TYPE_ZFILL);
+	RB_DisableShaderStageStates(cmd->getEntity(), stage);
 }
 
 
 void		RB_EnableShader_lighting_R()
 {
-	rb_program_lighting_R->enable();
+	rb_program_lighting_R->enable();	RB_CheckForError();
 }
 
 void		RB_DisableShader_lighting_R()
 {
-	rb_program_lighting_R->disable();
+	rb_program_lighting_R->disable();	RB_CheckForError();
 }
 
 void		RB_RenderCommand_lighting_R(const r_command_t *cmd,			const r_shader_stage_c *stage_diffusemap,
 											const r_shader_stage_c *stage_lightmap,
 											const r_shader_stage_c *stage_deluxemap)
 {
-	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_R);
+	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 	
 	rb_program_lighting_R->setVertexAttribs(cmd);
 	
@@ -1444,18 +1510,18 @@ void		RB_RenderCommand_lighting_R(const r_command_t *cmd,			const r_shader_stage
 	
 	RB_FlushMesh(cmd);
 	
-	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_R);
+	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 }
 										
 			
 void		RB_EnableShader_lighting_RB()
 {
-	rb_program_lighting_RB->enable();
+	rb_program_lighting_RB->enable();	RB_CheckForError();
 }
 
 void		RB_DisableShader_lighting_RB()
 {
-	rb_program_lighting_RB->disable();
+	rb_program_lighting_RB->disable();	RB_CheckForError();
 }
 
 void		RB_RenderCommand_lighting_RB(const r_command_t *cmd,			const r_shader_stage_c *stage_diffusemap,
@@ -1463,7 +1529,7 @@ void		RB_RenderCommand_lighting_RB(const r_command_t *cmd,			const r_shader_stag
 											const r_shader_stage_c *stage_lightmap,
 											const r_shader_stage_c *stage_deluxemap)
 {
-	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_RB);
+	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 	
 	rb_program_lighting_RB->setVertexAttribs(cmd);
 
@@ -1487,18 +1553,18 @@ void		RB_RenderCommand_lighting_RB(const r_command_t *cmd,			const r_shader_stag
 	
 	RB_FlushMesh(cmd);
 	
-	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_RB);
+	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 }
 										
 
 void		RB_EnableShader_lighting_RBH()
 {
-	rb_program_lighting_RBH->enable();
+	rb_program_lighting_RBH->enable();	RB_CheckForError();
 }
 
 void		RB_DisableShader_lighting_RBH()
 {
-	rb_program_lighting_RBH->disable();
+	rb_program_lighting_RBH->disable();	RB_CheckForError();
 }
 
 void		RB_RenderCommand_lighting_RBH(const r_command_t *cmd,			const r_shader_stage_c *stage_diffusemap,
@@ -1506,7 +1572,7 @@ void		RB_RenderCommand_lighting_RBH(const r_command_t *cmd,			const r_shader_sta
 											const r_shader_stage_c *stage_lightmap,
 											const r_shader_stage_c *stage_deluxemap)
 {
-	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_RBH);
+	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 	
 	rb_program_lighting_RBH->setVertexAttribs(cmd);
 
@@ -1533,18 +1599,18 @@ void		RB_RenderCommand_lighting_RBH(const r_command_t *cmd,			const r_shader_sta
 	
 	RB_FlushMesh(cmd);
 	
-	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_RBH);
+	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 }
 										
 
 void		RB_EnableShader_lighting_RBHS()
 {
-	rb_program_lighting_RBHS->enable();
+	rb_program_lighting_RBHS->enable();	RB_CheckForError();
 }
 
 void		RB_DisableShader_lighting_RBHS()
 {
-	rb_program_lighting_RBHS->disable();
+	rb_program_lighting_RBHS->disable();	RB_CheckForError();
 }
 
 void		RB_RenderCommand_lighting_RBHS(const r_command_t *cmd,			const r_shader_stage_c *stage_diffusemap,
@@ -1553,7 +1619,7 @@ void		RB_RenderCommand_lighting_RBHS(const r_command_t *cmd,			const r_shader_st
 											const r_shader_stage_c *stage_lightmap,
 											const r_shader_stage_c *stage_deluxemap)
 {
-	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_RBHS);
+	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 	
 	rb_program_lighting_RBHS->setVertexAttribs(cmd);
 
@@ -1585,18 +1651,18 @@ void		RB_RenderCommand_lighting_RBHS(const r_command_t *cmd,			const r_shader_st
 	
 	RB_FlushMesh(cmd);
 	
-	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_RBHS);
+	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 }
 										
 									
 void		RB_EnableShader_lighting_RBS()
 {
-	rb_program_lighting_RBS->enable();
+	rb_program_lighting_RBS->enable();	RB_CheckForError();
 }
 
 void		RB_DisableShader_lighting_RBS()
 {
-	rb_program_lighting_RBS->disable();
+	rb_program_lighting_RBS->disable();	RB_CheckForError();
 }
 
 void		RB_RenderCommand_lighting_RBS(const r_command_t *cmd,			const r_shader_stage_c *stage_diffusemap,
@@ -1605,7 +1671,7 @@ void		RB_RenderCommand_lighting_RBS(const r_command_t *cmd,			const r_shader_sta
 											const r_shader_stage_c *stage_lightmap,
 											const r_shader_stage_c *stage_deluxemap)
 {
-	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_RBS);
+	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 	
 	rb_program_lighting_RBS->setVertexAttribs(cmd);
 
@@ -1635,25 +1701,25 @@ void		RB_RenderCommand_lighting_RBS(const r_command_t *cmd,			const r_shader_sta
 	
 	RB_FlushMesh(cmd);
 	
-	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_RBS);
+	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 }
 
 
 void		RB_EnableShader_lighting_D_omni()
 {
-	rb_program_lighting_D_omni->enable();
+	rb_program_lighting_D_omni->enable();	RB_CheckForError();
 }
 
 void		RB_DisableShader_lighting_D_omni()
 {
-	rb_program_lighting_D_omni->disable();
+	rb_program_lighting_D_omni->disable();	RB_CheckForError();
 }
 
 void		RB_RenderCommand_lighting_D_omni(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
 											const r_shader_stage_c *stage_attenuationmap_xy,
 											const r_shader_stage_c *stage_attenuationmap_z)
 {
-	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_D_omni);
+	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 		
 	rb_program_lighting_D_omni->setVertexAttribs(cmd);
 	
@@ -1676,24 +1742,24 @@ void		RB_RenderCommand_lighting_D_omni(const r_command_t *cmd,		const r_shader_s
 	
 	RB_FlushMesh(cmd);
 	
-	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_D_omni);
+	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 }
 											
 void		RB_EnableShader_lighting_D_proj()
 {
-	rb_program_lighting_D_proj->enable();
+	rb_program_lighting_D_proj->enable();	RB_CheckForError();
 }
 
 void		RB_DisableShader_lighting_D_proj()
 {
-	rb_program_lighting_D_proj->disable();
+	rb_program_lighting_D_proj->disable();	RB_CheckForError();
 }
 
 void		RB_RenderCommand_lighting_D_proj(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
 											const r_shader_stage_c *stage_attenuationmap_xy,
 											const r_shader_stage_c *stage_attenuationmap_z)
 {
-	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_D_proj);
+	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 			
 	rb_program_lighting_D_proj->setVertexAttribs(cmd);
 	
@@ -1718,18 +1784,18 @@ void		RB_RenderCommand_lighting_D_proj(const r_command_t *cmd,		const r_shader_s
 	
 	RB_FlushMesh(cmd);
 	
-	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_D_proj);
+	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 }
 
 
 void		RB_EnableShader_lighting_DB_omni()
 {
-	rb_program_lighting_DB_omni->enable();
+	rb_program_lighting_DB_omni->enable();	RB_CheckForError();
 }
 
 void		RB_DisableShader_lighting_DB_omni()
 {
-	rb_program_lighting_DB_omni->disable();
+	rb_program_lighting_DB_omni->disable();	RB_CheckForError();
 }
 
 void		RB_RenderCommand_lighting_DB_omni(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
@@ -1737,7 +1803,7 @@ void		RB_RenderCommand_lighting_DB_omni(const r_command_t *cmd,		const r_shader_
 											const r_shader_stage_c *stage_attenuationmap_xy,
 											const r_shader_stage_c *stage_attenuationmap_z)
 {
-	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_DB_omni);
+	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 	
 	rb_program_lighting_DB_omni->setVertexAttribs(cmd);
 	
@@ -1765,18 +1831,18 @@ void		RB_RenderCommand_lighting_DB_omni(const r_command_t *cmd,		const r_shader_
 
 	RB_FlushMesh(cmd);
 	
-	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_DB_omni);
+	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 }
 										
 
 void		RB_EnableShader_lighting_DBH_omni()
 {
-	rb_program_lighting_DBH_omni->enable();
+	rb_program_lighting_DBH_omni->enable();		RB_CheckForError();
 }
 
 void		RB_DisableShader_lighting_DBH_omni()
 {
-	rb_program_lighting_DBH_omni->disable();
+	rb_program_lighting_DBH_omni->disable();	RB_CheckForError();
 }
 
 void		RB_RenderCommand_lighting_DBH_omni(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
@@ -1784,7 +1850,7 @@ void		RB_RenderCommand_lighting_DBH_omni(const r_command_t *cmd,		const r_shader
 											const r_shader_stage_c *stage_attenuationmap_xy,
 											const r_shader_stage_c *stage_attenuationmap_z)
 {
-	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_DBH_omni);
+	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 	
 	rb_program_lighting_DBH_omni->setVertexAttribs(cmd);
 	
@@ -1815,18 +1881,18 @@ void		RB_RenderCommand_lighting_DBH_omni(const r_command_t *cmd,		const r_shader
 
 	RB_FlushMesh(cmd);
 	
-	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_DBH_omni);
+	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 }
 
 
 void		RB_EnableShader_lighting_DBHS_omni()
 {
-	rb_program_lighting_DBHS_omni->enable();
+	rb_program_lighting_DBHS_omni->enable();	RB_CheckForError();
 }
 
 void		RB_DisableShader_lighting_DBHS_omni()
 {
-	rb_program_lighting_DBHS_omni->disable();
+	rb_program_lighting_DBHS_omni->disable();	RB_CheckForError();
 }
 
 void		RB_RenderCommand_lighting_DBHS_omni(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
@@ -1835,7 +1901,7 @@ void		RB_RenderCommand_lighting_DBHS_omni(const r_command_t *cmd,		const r_shade
 											const r_shader_stage_c *stage_attenuationmap_xy,
 											const r_shader_stage_c *stage_attenuationmap_z)
 {
-	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_DBHS_omni);
+	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 					
 	rb_program_lighting_DBHS_omni->setVertexAttribs(cmd);
 	
@@ -1871,18 +1937,18 @@ void		RB_RenderCommand_lighting_DBHS_omni(const r_command_t *cmd,		const r_shade
 
 	RB_FlushMesh(cmd);
 	
-	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_DBHS_omni);
+	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 }
 								
 								
 void		RB_EnableShader_lighting_DBS_omni()
 {
-	rb_program_lighting_DBS_omni->enable();
+	rb_program_lighting_DBS_omni->enable();		RB_CheckForError();
 }
 
 void		RB_DisableShader_lighting_DBS_omni()
 {
-	rb_program_lighting_DBS_omni->disable();
+	rb_program_lighting_DBS_omni->disable();	RB_CheckForError();
 }
 
 void		RB_RenderCommand_lighting_DBS_omni(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
@@ -1891,7 +1957,7 @@ void		RB_RenderCommand_lighting_DBS_omni(const r_command_t *cmd,		const r_shader
 											const r_shader_stage_c *stage_attenuationmap_xy,
 											const r_shader_stage_c *stage_attenuationmap_z)
 {
-	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_DBS_omni);
+	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 	
 	rb_program_lighting_DBS_omni->setVertexAttribs(cmd);
 
@@ -1925,23 +1991,23 @@ void		RB_RenderCommand_lighting_DBS_omni(const r_command_t *cmd,		const r_shader
 
 	RB_FlushMesh(cmd);
 	
-	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap, RENDER_TYPE_LIGHTING_DBS_omni);
+	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 }
 																						
 
 void		RB_EnableShader_reflection_C()
 {
-	rb_program_reflection_C->enable();
+	rb_program_reflection_C->enable();	RB_CheckForError();
 }
 
 void		RB_DisableShader_reflection_C()
 {
-	rb_program_reflection_C->disable();
+	rb_program_reflection_C->disable();	RB_CheckForError();
 }
 
 void		RB_RenderCommand_reflection_C(const r_command_t *cmd,			const r_shader_stage_c *stage_colormap)
 {
-	RB_EnableShaderStageStates(cmd->getEntity(), stage_colormap, RENDER_TYPE_REFLECTION);
+	RB_EnableShaderStageStates(cmd->getEntity(), stage_colormap);
 	
 	rb_program_reflection_C->setVertexAttribs(cmd);
 
@@ -1955,23 +2021,23 @@ void		RB_RenderCommand_reflection_C(const r_command_t *cmd,			const r_shader_sta
 
 	RB_FlushMesh(cmd);
 	
-	RB_DisableShaderStageStates(cmd->getEntity(), stage_colormap, RENDER_TYPE_REFLECTION);
+	RB_DisableShaderStageStates(cmd->getEntity(), stage_colormap);
 }
 
 
 void		RB_EnableShader_refraction_C()
 {
-	rb_program_refraction_C->enable();
+	rb_program_refraction_C->enable();	RB_CheckForError();
 }
 
 void		RB_DisableShader_refraction_C()
 {
-	rb_program_refraction_C->disable();
+	rb_program_refraction_C->disable();	RB_CheckForError();
 }
 
 void		RB_RenderCommand_refraction_C(const r_command_t *cmd,			const r_shader_stage_c *stage_colormap)
 {
-	RB_EnableShaderStageStates(cmd->getEntity(), stage_colormap, RENDER_TYPE_REFRACTION);
+	RB_EnableShaderStageStates(cmd->getEntity(), stage_colormap);
 	
 	rb_program_refraction_C->setVertexAttribs(cmd);
 
@@ -1989,23 +2055,23 @@ void		RB_RenderCommand_refraction_C(const r_command_t *cmd,			const r_shader_sta
 	
 	RB_FlushMesh(cmd);
 	
-	RB_DisableShaderStageStates(cmd->getEntity(), stage_colormap, RENDER_TYPE_REFRACTION);
+	RB_DisableShaderStageStates(cmd->getEntity(), stage_colormap);
 }
 
 
 void		RB_EnableShader_dispersion_C()
 {
-	rb_program_dispersion_C->enable();
+	rb_program_dispersion_C->enable();	RB_CheckForError();
 }
 
 void		RB_DisableShader_dispersion_C()
 {
-	rb_program_dispersion_C->disable();
+	rb_program_dispersion_C->disable();	RB_CheckForError();
 }
 
 void		RB_RenderCommand_dispersion_C(const r_command_t *cmd,			const r_shader_stage_c *stage_colormap)
 {
-	RB_EnableShaderStageStates(cmd->getEntity(), stage_colormap, RENDER_TYPE_DISPERSION);
+	RB_EnableShaderStageStates(cmd->getEntity(), stage_colormap);
 	
 	rb_program_dispersion_C->setVertexAttribs(cmd);
 
@@ -2023,23 +2089,23 @@ void		RB_RenderCommand_dispersion_C(const r_command_t *cmd,			const r_shader_sta
 	
 	RB_FlushMesh(cmd);
 	
-	RB_DisableShaderStageStates(cmd->getEntity(), stage_colormap, RENDER_TYPE_DISPERSION);
+	RB_DisableShaderStageStates(cmd->getEntity(), stage_colormap);
 }
 
 
 void		RB_EnableShader_liquid_C()
 {
-	rb_program_liquid_C->enable();
+	rb_program_liquid_C->enable();		RB_CheckForError();
 }
 
 void		RB_DisableShader_liquid_C()
 {
-	rb_program_liquid_C->disable();
+	rb_program_liquid_C->disable();		RB_CheckForError();
 }
 
 void		RB_RenderCommand_liquid_C(const r_command_t *cmd,			const r_shader_stage_c *stage_colormap)
 {
-	RB_EnableShaderStageStates(cmd->getEntity(), stage_colormap, RENDER_TYPE_LIQUID);
+	RB_EnableShaderStageStates(cmd->getEntity(), stage_colormap);
 	
 	rb_program_liquid_C->setVertexAttribs(cmd);
 
@@ -2053,6 +2119,43 @@ void		RB_RenderCommand_liquid_C(const r_command_t *cmd,			const r_shader_stage_c
 
 	RB_FlushMesh(cmd);
 	
-	RB_DisableShaderStageStates(cmd->getEntity(), stage_colormap, RENDER_TYPE_LIQUID);
+	RB_DisableShaderStageStates(cmd->getEntity(), stage_colormap);
+}
+
+
+void	RB_EnableShader_heathaze()
+{
+	rb_program_heathaze->enable();		RB_CheckForError();
+}
+
+void	RB_DisableShader_heathaze()
+{
+	rb_program_heathaze->disable();		RB_CheckForError();
+}
+
+void	RB_RenderCommand_heathaze(const r_command_t *cmd, const r_shader_stage_c *stage_heathazemap)
+{
+	RB_EnableShaderStageStates(cmd->getEntity(), stage_heathazemap);
+	
+	rb_program_heathaze->setVertexAttribs(cmd);
+
+	RB_SelectTexture(GL_TEXTURE0);
+	xglMatrixMode(GL_TEXTURE);
+//	xglLoadTransposeMatrixf(&rb_matrix_framebuffer_to_vid[0][0]);
+	xglLoadIdentity();
+	xglMatrixMode(GL_MODELVIEW);
+	RB_Bind(r_img_currentrender);
+	
+	RB_SelectTexture(GL_TEXTURE1);
+	RB_ModifyTextureMatrix(cmd->getEntity(), stage_heathazemap);
+	RB_Bind(stage_heathazemap->image);
+
+	rb_program_heathaze->setUniform_fbuf_scale(cmd);
+	rb_program_heathaze->setUniform_npot_scale(cmd);
+	rb_program_heathaze->setUniform_bump_scale(cmd, stage_heathazemap);
+
+	RB_FlushMesh(cmd);
+	
+	RB_DisableShaderStageStates(cmd->getEntity(), stage_heathazemap);
 }
 

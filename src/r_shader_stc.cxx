@@ -651,6 +651,13 @@ void	R_StageSpecularMap_stc(char const* begin, char const *end)
 	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_SPECULARMAP;
 }
 
+void	R_StageHeatHazeMap_stc(char const* begin, char const *end)
+{
+	r_current_shader->setORFlags(SHADER_POSTPROCESS);
+	
+	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_HEATHAZEMAP;
+}
+
 void	R_StageLightMap_stc(char const* begin, char const *end)
 {
 	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_LIGHTMAP;

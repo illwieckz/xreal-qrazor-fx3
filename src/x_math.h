@@ -1383,7 +1383,9 @@ public:
 	
 	inline bool 	isZero() const;
 	
-	inline vec_t	magnitude();
+	inline vec_t	length();
+	
+	inline void	calcW();
 	
 	vec_t	normalize();
 		
@@ -1516,13 +1518,8 @@ inline void	quaternion_c::set(vec_t x, vec_t y, vec_t z)
 	_q[0] = x; 
 	_q[1] = y;
 	_q[2] = z;
-
-	vec_t term = x*x + y*y + z*z;
 	
-	if(term < 0.0f)
-		_q[3] = 0.0f;
-	else
-		_q[3] = -X_sqrt(term);
+	calcW();
 }
 		
 inline void	quaternion_c::copyTo(float *q)
@@ -1541,9 +1538,19 @@ inline bool 	quaternion_c::isZero() const
 		return false;
 }
 	
-inline vec_t	quaternion_c::magnitude()
+inline vec_t	quaternion_c::length()
 {
 	return X_sqrt(_q[0]*_q[0] + _q[1]*_q[1] + _q[2]*_q[2] + _q[3]*_q[3]);
+}
+
+inline void	quaternion_c::calcW()
+{
+	vec_t term = REAL(1.0) - _q[0]*_q[0] - _q[1]*_q[1] - _q[2]*_q[2];
+	
+	if(term < REAL(0.0))
+		_q[3] = REAL(0.0);
+	else
+		_q[3] = -X_sqrt(term);
 }
 
 inline void	quaternion_c::inverse()

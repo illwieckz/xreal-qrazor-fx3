@@ -985,9 +985,9 @@ void	G_InitDynamics()
 	
 #if 1
 	g_ode_world->setAutoDisableFlag(true);
-//	g_ode_world->setAutoDisableLinearThreshold(0.015);
-//	g_ode_world->setAutoDisableAngularThreshold(0.008);
-//	g_ode_world->setAutoDisableSteps(50);
+	g_ode_world->setAutoDisableLinearThreshold(0.015);
+	g_ode_world->setAutoDisableAngularThreshold(0.008);
+	g_ode_world->setAutoDisableSteps(50);
 //	g_ode_world->setAutoDisableTime(vec_t time);
 #endif
 	
@@ -1294,13 +1294,23 @@ cmodel_c*	G_SetModel(g_entity_c *ent, const std::string &name)
 	ent->_s.index_model = trap_SV_ModelIndex(name);
 	
 	cmodel_c* model = trap_CM_RegisterModel(name);
+	
+	if(model)
+	{
 		
-//	ent->_geom = new d_trimesh_c(g_ode_space->getId(), model->vertexes, model->indexes);
-//	ent->_geom->setBody(ent->_body->getId());
-//	ent->_geom->setData(ent);
+//		ent->_geom = new d_trimesh_c(g_ode_space->getId(), model->vertexes, model->indexes);
+//		ent->_geom->setBody(ent->_body->getId());
+//		ent->_geom->setData(ent);
 		
-	ent->_r.bbox = model->getBBox();
-	ent->_r.size = ent->_r.bbox.size();
+		ent->_r.bbox = model->getBBox();
+		ent->_r.size = ent->_r.bbox.size();
+	}
+	else
+	{
+		ent->_r.bbox._maxs.set( 16.0, 16.0, 16.0);
+		ent->_r.bbox._mins.set(-16.0,-16.0,-16.0);
+		ent->_r.size = ent->_r.bbox.size();
+	}
 	
 	return model;
 }

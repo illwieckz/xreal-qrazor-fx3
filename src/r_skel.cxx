@@ -52,7 +52,8 @@ r_skel_model_c::~r_skel_model_c()
 
 void	r_skel_model_c::updateBBox(r_entity_c *ent)
 {
-	for(std::vector<r_skel_bone_t*>::iterator ir = _bones.begin(); ir != _bones.end(); ir++)
+#if 0
+	for(std::vector<r_skel_bone_t*>::iterator ir = _bones.begin(); ir != _bones.end(); ++ir)
 	{
 		updateBone(ent, *ir);
 	}
@@ -66,6 +67,42 @@ void	r_skel_model_c::updateBBox(r_entity_c *ent)
 	
 	if(bone_index != -1)
 		_bbox._maxs = _bones[bone_index]->position;
+#else
+	const r_skel_animation_c* anim = ent->getAnimation();
+	
+	if(!anim)
+		return;
+
+	// get frames
+	if((ent->getShared().frame < 0) || (ent->getShared().frame >= (int)anim->_frames.size()))
+	{
+		ri.Com_Printf("r_skel_model_c::updateBBox: animation %s has no such frame %d\n", anim->getName(), ent->getShared().frame);
+		_bbox.clear();
+		return;
+	}
+	
+	if((ent->getShared().frame_old < 0) || (ent->getShared().frame_old >= (int)anim->_frames.size()))
+	{
+		ri.Com_Printf ("r_skel_model_c::updateBBox: model %s has no such oldframe %d\n", anim->getName(), ent->getShared().frame_old);
+		_bbox.clear();
+		return;
+	}
+
+	r_skel_frame_t* frame		= anim->_frames[X_bound(0, ent->getShared().frame, (int)anim->_frames.size()-1)];
+	r_skel_frame_t* frame_old	= anim->_frames[X_bound(0, ent->getShared().frame_old, (int)anim->_frames.size()-1)];
+
+
+	// compute axially aligned mins and maxs
+	if(frame == frame_old)
+	{
+		_bbox	= frame->bbox;
+	}
+	else
+	{
+		_bbox = frame_old->bbox;
+		_bbox.mergeWith(frame->bbox);	
+	}
+#endif
 }
 
 bool	r_skel_model_c::cull(r_entity_c *ent)
@@ -113,40 +150,33 @@ void	r_skel_model_c::drawFrameLerp(const r_command_t *cmd, r_render_type_e type)
 	//
 	// update skeleton
 	//
-	for(std::vector<r_skel_bone_t*>::iterator ir = _bones.begin(); ir != _bones.end(); ir++)
-	{
-		updateBone(cmd->getEntity(), *ir);
-	}
-
+#if 1
+	updateBones(cmd->getEntity());
+#endif
 
 	//
 	// draw skeleton
 	//
-	/*
-	for(std::vector<r_skel_bone_t*>::iterator ir = _bones.begin(); ir != _bones.end(); ir++)
-	{
-		drawBone_r(*ir);
-	}
-	*/
-	
-			
+#if 0
+	drawBones();
+#endif
 	
 	//
 	// update vertices
 	//
+#if 1
 	if(type != RENDER_TYPE_SHADOWING)
 	{
 		for(unsigned int i=0; i<mesh->vertexes.size(); i++)
 		{
 			mesh->vertexes[i].clear();
 			
-			for(std::vector<r_skel_weight_t*>::const_iterator ir = mesh->vertexweights[i].begin(); ir != mesh->vertexweights[i].end(); ir++)
+			for(std::vector<r_skel_weight_t*>::const_iterator ir = mesh->vertexweights[i].begin(); ir != mesh->vertexweights[i].end(); ++ir)
 			{	
-				r_skel_weight_t *weight = *ir;
-				r_skel_bone_t *bone = _bones[(*ir)->bone_index];
+				const r_skel_weight_t *weight = *ir;
+				r_skel_bone_t *bone = _bones[weight->bone_index];
 				
-				vec3_c pos = bone->matrix * weight->position;
-				mesh->vertexes[i] += (pos + bone->position) * weight->weight;
+				mesh->vertexes[i] += (bone->origin + (bone->quat * weight->position)) * weight->weight;
 			}
 		}
 	}
@@ -154,6 +184,7 @@ void	r_skel_model_c::drawFrameLerp(const r_command_t *cmd, r_render_type_e type)
 	{
 		//TODO
 	}
+#endif
 	
 	
 	//
@@ -355,9 +386,10 @@ bool	r_skel_model_c::setupTag(r_tag_t &tag, const r_entity_t &ent, const std::st
 
 bool	r_skel_model_c::setupAnimation(r_skel_animation_c *anim)
 {
+#if 0
 	bool success = true;
 	
-	for(std::vector<r_skel_channel_t*>::const_iterator ir = anim->_channels.begin(); ir != anim->_channels.end(); ir++)
+	for(std::vector<r_skel_channel_t*>::const_iterator ir = anim->_channels.begin(); ir != anim->_channels.end(); ++ir)
 	{
 		r_skel_channel_t *channel = *ir;
 		
@@ -370,11 +402,8 @@ bool	r_skel_model_c::setupAnimation(r_skel_animation_c *anim)
 			
 			if(X_strequal(channel->joint.c_str(), "origin"))
 			{
-				if( 	channel->attribute == CHANNEL_ATTRIB_X ||
-					channel->attribute == CHANNEL_ATTRIB_Y ||
-					channel->attribute == CHANNEL_ATTRIB_Z
-				)
-				continue;
+				if(channel->attributes & (CHANNEL_BIT_X | CHANNEL_BIT_Y | CHANNEL_BIT_Z))
+					continue;
 			}
 			
 			_bones[bone_index]->channels[channel->attribute] = channel;
@@ -387,10 +416,13 @@ bool	r_skel_model_c::setupAnimation(r_skel_animation_c *anim)
 	}
 	
 	return success;
+#else
+	return false;
+#endif
 }
 
-
-void	r_skel_model_c::updateBone(const r_entity_c *ent, r_skel_bone_t *bone)
+/*
+void	r_skel_model_c::updateBones(const r_entity_c *ent)
 {
 	//ri.Com_Printf("r_skel_model_c::updateBone: %s\n", bone->name.c_str());
 	
@@ -422,7 +454,9 @@ void	r_skel_model_c::updateBone(const r_entity_c *ent, r_skel_bone_t *bone)
 //	matrix_c mat_lerp;
 	
 	if(bone->parent_index != -1)
-		mat_old = _bones[bone->parent_index]->matrix;
+	{
+		mat_old = _bones[bone->parent_index]->matrix_original;
+	}
 	else
 		mat_old.identity();
 		
@@ -434,30 +468,264 @@ void	r_skel_model_c::updateBone(const r_entity_c *ent, r_skel_bone_t *bone)
 	
 //	mat_lerp.lerp(mat_old, mat_new, ent->getShared().backlerp);
 	
-	bone->matrix = mat_new;
+	bone->matrix_dynamic = mat_new;
 	bone->position.set(mat_new[0][3], mat_new[1][3], mat_new[2][3]);
+*/
+
+
+void	r_skel_model_c::updateBones(const r_entity_c *ent)
+{
+	for(uint_t i=0; i<_bones.size(); i++)
+	{
+		updateBones_r(ent, i);
+	}
 }
 
-void	r_skel_model_c::drawBone(r_skel_bone_t *bone)
+
+void	r_skel_model_c::updateBones_r(const r_entity_c *ent, int bone_index)
 {
-	xglColor4fv(color_white);
-				
-	if(bone->parent_index != -1)
+	const r_skel_animation_c* anim = ent->getAnimation();
+	
+	if(_bones.size() != anim->_channels.size())
+			ri.Com_Error(ERR_DROP, "r_skel_model_c::updateBones: bones number != animated channels number");		
+	
+	r_skel_bone_t* bone = NULL;
+	try
 	{
-		xglBegin(GL_LINES);
-			
-		xglVertex3fv(_bones[bone->parent_index]->position);	
-		xglVertex3fv(bone->position);
-			
-		xglEnd();
+		bone = _bones.at(bone_index);
 	}
+	catch(...)
+	{
+		ri.Com_Error(ERR_DROP, "r_skel_model_c::updateBones: exception occured while getting bone using index %i", bone_index);
+	}
+	
+	if(!anim)
+	{
+		// take original values
+		bone->origin = bone->default_origin;
+		bone->quat = bone->default_quat;
+	}
+	else
+	{
+		r_skel_channel_t* channel = NULL;
+		try
+		{
+			channel = anim->_channels.at(bone_index);
+		}
+		catch(...)
+		{
+			ri.Com_Error(ERR_DROP, "r_skel_model_c::updateBones: exception occured while getting channel using index %i", bone_index);
+		}
+	
+		if(bone->parent_index != channel->parent_index)
+			ri.Com_Error(ERR_DROP, "r_skel_model_c::updateBones: bone parent index != channel parent index");
+			
+		
+		//
+		// set baseframe values
+		//
+		vec3_c		origin_old = channel->origin;
+		vec3_c		origin_new = channel->origin;
+		vec3_c		origin_lerp = channel->origin;
+			
+		quaternion_c	quat_old = channel->quat;
+		quaternion_c	quat_new = channel->quat;
+		quaternion_c	quat_lerp = channel->quat;
+		
+		//
+		// get frames
+		//
+		r_skel_frame_t* frame_old = NULL;
+		r_skel_frame_t* frame_new = NULL;
+		
+		if(ent->getShared().flags & RF_AUTOANIM)
+		{
+			frame_old = anim->_frames[ent->getShared().frame % (int)anim->_frames.size()];
+			frame_new = anim->_frames[ent->getShared().frame % (int)anim->_frames.size()];
+		}
+		else
+		{
+			if((ent->getShared().frame_old < 0) || (ent->getShared().frame_old >= (int)anim->_frames.size()))
+			{
+				ri.Com_Printf ("r_skel_model_c::updateBones: animation %s has no such oldframe %d\n", anim->getName(), ent->getShared().frame_old);
+			}
+		
+			if((ent->getShared().frame < 0) || (ent->getShared().frame >= (int)anim->_frames.size()))
+			{
+				ri.Com_Printf("r_skel_model_c::updateBones: animation %s has no such frame %d\n", anim->getName(), ent->getShared().frame);
+			}
+		
+			frame_old = anim->_frames[X_bound(0, ent->getShared().frame_old, (int)anim->_frames.size()-1)];
+			frame_new = anim->_frames[X_bound(0, ent->getShared().frame, (int)anim->_frames.size()-1)];
+		}
+				
+		//
+		// update components
+		//
+		
+		// update translation bits
+		int components_applied = 0;
+		if(channel->components_bits & COMPONENT_BIT_TX)
+		{
+			origin_old[0] = frame_old->components[channel->components_offset+components_applied];
+			origin_new[0] = frame_new->components[channel->components_offset+components_applied];
+			components_applied++;
+		}	
+		if(channel->components_bits & COMPONENT_BIT_TY)
+		{
+			origin_old[1] = frame_old->components[channel->components_offset+components_applied];
+		origin_new[1] = frame_new->components[channel->components_offset+components_applied];
+			components_applied++;
+		}	
+		if(channel->components_bits & COMPONENT_BIT_TZ)
+		{
+			origin_old[2] = frame_old->components[channel->components_offset+components_applied];
+			origin_new[2] = frame_new->components[channel->components_offset+components_applied];
+			components_applied++;
+		}
+			
+		// update quaternion rotation bits
+		if(channel->components_bits & COMPONENT_BIT_QX)
+		{
+			((vec_t*)quat_old)[0] = frame_old->components[channel->components_offset+components_applied];
+			((vec_t*)quat_new)[0] = frame_new->components[channel->components_offset+components_applied];
+			components_applied++;
+		}	
+		if(channel->components_bits & COMPONENT_BIT_QY)
+		{
+			((vec_t*)quat_old)[1] = frame_old->components[channel->components_offset+components_applied];
+			((vec_t*)quat_new)[1] = frame_new->components[channel->components_offset+components_applied];
+			components_applied++;
+		}				
+		if(channel->components_bits & COMPONENT_BIT_QZ)
+		{
+			((vec_t*)quat_old)[2] = frame_old->components[channel->components_offset+components_applied];
+			((vec_t*)quat_new)[2] = frame_new->components[channel->components_offset+components_applied];
+		}
+			
+		quat_old.calcW();
+		quat_old.normalize();
+			
+		quat_new.calcW();
+		quat_new.normalize();
+		
+		//
+		// lerp between old data and new data
+		//
+		origin_lerp.lerp(origin_old, origin_new, r_newrefdef.lerp);
+		
+		quat_lerp.slerp(quat_old, quat_new, r_newrefdef.lerp);
+		quat_lerp.normalize();
+		
+		//
+		// calculate bone
+		//
+		if(bone->parent_index < 0)
+		{
+			bone->origin = vec3_origin;	//origin_lerp;
+			bone->quat = quat_lerp;
+		}
+		else
+		{
+			r_skel_bone_t* parent = NULL;
+			try
+			{
+				parent = _bones.at(bone->parent_index);
+			}
+			catch(...)
+			{
+				ri.Com_Error(ERR_DROP, "r_skel_model_c::updateBones: exception occured while getting parent bone");
+			}
+			
+			bone->origin = parent->origin + (parent->quat * origin_lerp);
+			bone->quat = parent->quat * quat_lerp;
+			
+		}
+		
+	}
+	
+#if 0
+	for(uint_t i=0; i<bone->childrens.size(); i++)
+	{
+		updateBones_r(ent, bone->childrens[i]->index);
+	}
+#endif
+}
+
+void	r_skel_model_c::drawBones()
+{
+	for(std::vector<r_skel_bone_t*>::iterator ir = _bones.begin(); ir != _bones.end(); ++ir)
+	{
+		r_skel_bone_t* bone = *ir;
+		
+		if(bone->parent_index >= 0)
+		{
+			xglBegin(GL_LINES);
+			xglColor4fv(color_white);
+			xglVertex3fv(_bones[bone->parent_index]->origin);
+			xglVertex3fv(bone->origin);
+				
+			vec3_c mid = bone->origin;// - _bones[bone->parent_index]->position;
+			//mid *= 0.5f;
+			//mid += _bones[bone->parent_index]->position;
+		
+			vec3_c vf(false), vr(false), vu(false);
+		
+			bone->quat.toVectorsFRU(vf, vr, vu);
+		
+			vf += mid;
+			vr += mid;
+			vu += mid;
+			
+			//vf *= 4;
+			//vr *= 4;
+			//vu *= 4;
+			
+			xglColor4fv(color_red);
+			xglVertex3fv(mid);
+			xglVertex3fv(vf);
+				
+			xglColor4fv(color_green);
+			xglVertex3fv(mid);
+			xglVertex3fv(vr);
+			
+			xglColor4fv(color_blue);
+			xglVertex3fv(mid);
+			xglVertex3fv(vu);
+			
+			xglEnd();
+		}
+	}
+}
+
+void	r_skel_model_c::addBone(r_skel_bone_t *bone)
+{
+	bone->index = _bones.size();
+
+	if(bone->parent_index >= 0)
+	{
+		r_skel_bone_t* parent = NULL;
+		
+		try
+		{
+			parent = _bones.at(bone->parent_index);
+		}
+		catch(...)
+		{
+			ri.Com_Error(ERR_DROP, "r_skel_model_c::addBone: exception occured while getting parent for bone '%s'", bone->name.c_str());
+		}
+			
+		parent->childrens.push_back(bone);
+	}
+	
+	_bones.push_back(bone);
 }
 
 
 int	r_skel_model_c::getNumForBoneName(const std::string &name)
 {
 	for(unsigned int i=0; i<_bones.size(); i++)
-	{
+	{	
 		if(X_strcaseequal(_bones[i]->name.c_str(), name.c_str()))
 			return i;
 	}

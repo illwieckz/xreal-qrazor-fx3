@@ -80,26 +80,56 @@ int 	SV_FindIndex(const std::string &name, int start, int max, bool create)
 
 int 	SV_ModelIndex(const std::string &name)
 {
+	if(name.empty())
+	{
+		Com_Error(ERR_DROP, "SV_ModelIndex: empty name");
+		return 0;
+	}
+
 	return SV_FindIndex(name, CS_MODELS, MAX_MODELS, true);
 }
 
 int 	SV_ShaderIndex(const std::string &name)
 {
+	if(name.empty())
+	{
+		Com_Error(ERR_DROP, "SV_ShaderIndex: empty name");
+		return 0;
+	}
+
 	return SV_FindIndex(name, CS_SHADERS, MAX_SHADERS, true);
 }
 
 int 	SV_AnimationIndex(const std::string &name)
 {
+	if(name.empty())
+	{
+		//Com_Error(ERR_DROP, "SV_AnimationIndex: empty name");
+		return 0;
+	}
+
 	return SV_FindIndex(name, CS_ANIMATIONS, MAX_ANIMATIONS, true);
 }
 
 int 	SV_SoundIndex(const std::string &name)
 {
+	if(name.empty())
+	{
+		Com_Error(ERR_DROP, "SV_SoundIndex: empty name");
+		return 0;
+	}
+
 	return SV_FindIndex(name, CS_SOUNDS, MAX_SOUNDS, true);
 }
 
 int 	SV_LightIndex(const std::string &name)
 {
+	if(name.empty())
+	{
+		Com_Error(ERR_DROP, "SV_LightIndex: empty name");
+		return 0;
+	}
+
 	return SV_FindIndex(name, CS_LIGHTS, MAX_LIGHTS, true);
 }
 

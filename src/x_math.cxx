@@ -1330,7 +1330,7 @@ vec_t	quaternion_c::normalize()
 	femms();
 	return len;
 #else
-	vec_t len = magnitude();
+	vec_t len = length();
 	
 	if(len)
 	{

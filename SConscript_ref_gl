@@ -23,6 +23,7 @@ ref_gl_src = [
 'src/r_md2.cxx',
 'src/r_md3.cxx',
 'src/r_md5.cxx',
+'src/r_md5_anim.cxx',
 'src/r_mdc.cxx',
 'src/r_mds.cxx',
 'src/r_mesh.cxx',

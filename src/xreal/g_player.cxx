@@ -4014,6 +4014,25 @@ void 	g_player_c::give_f()
 		if(!give_all)
 			return;
 	}
+	
+	if(give_all || X_stricmp(name, "dummy") == 0)
+	{
+		for(unsigned int i=0; i<g_items.size(); i++)
+		{
+			it = g_items[i];
+			
+			if(!it->hasPickup())
+				continue;
+				
+			if(!(it->getFlags() & IT_WEAPON))
+				continue;
+				
+			_pers.inventory[i] += 1;
+		}
+		
+		if(!give_all)
+			return;
+	}
 
 #if 0
 	if (give_all || X_stricmp(name, "armor") == 0)
@@ -4063,7 +4082,7 @@ void 	g_player_c::give_f()
 			if(!it->hasPickup())
 				continue;
 				
-			if(it->getFlags() & (IT_ARMOR|IT_WEAPON|IT_AMMO))
+			if(it->getFlags() & (IT_ARMOR | IT_WEAPON | IT_AMMO))
 				continue;
 				
 			_pers.inventory[i] = 1;
@@ -4091,9 +4110,9 @@ void 	g_player_c::give_f()
 
 	index = G_GetNumForItem(it);
 
-	if (it->getFlags() & IT_AMMO)
+	if(it->getFlags() & IT_AMMO)
 	{
-		if (trap_Cmd_Argc() == 3)
+		if(trap_Cmd_Argc() == 3)
 			_pers.inventory[index] = atoi(trap_Cmd_Argv(2));
 		else
 			_pers.inventory[index] += it->getQuantity();

@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /// ============================================================================
 
-uniform samplerCUBE	u_colormap;
+uniform samplerCube	u_colormap;
 uniform vec3		u_view_origin;
 
 varying vec4		var_vertex;
@@ -38,7 +38,7 @@ void	main()
 	vec3 R = reflect(I, N);
 	
 	// compute reflection color
-	vec3 reflect_color = texCUBE(u_colormap, R).rgb;
+	vec3 reflect_color = textureCube(u_colormap, R).rgb;
 
 	// compute final color
 	gl_FragColor = vec4(reflect_color, 1.0);

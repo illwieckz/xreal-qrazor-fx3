@@ -38,6 +38,7 @@ std::vector<r_table_t>	r_tables;
 //
 // usefull matrices to handle geometric data processing
 //
+matrix_c			rb_matrix_framebuffer_to_vid;
 static matrix_c			rb_matrix_quake_to_opengl;
 matrix_c			rb_matrix_view;			// inverse of camera translation and rotation matrix
 matrix_c			rb_matrix_model;		// each model has its own translation and rotation matrix
@@ -69,7 +70,7 @@ void	RB_InitBackend()
 {
 	ri.Com_Printf("------- RB_InitBackend -------\n");
 	
-	xglClearColor(0.1, 0.1, 0.1, 1.0);	RB_CheckForError();
+	xglClearColor(0.3, 0.3, 0.3, 1.0);	RB_CheckForError();
 	xglColor4fv(color_white);	RB_CheckForError();
 	
 	//xglEnable(GL_DEPTH_TEST);
@@ -83,13 +84,18 @@ void	RB_InitBackend()
 	
 	
 	//xglShadeModel(GL_SMOOTH);
-        xglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);	RB_CheckForError();
+	gl_state.polygon_mode = GL_FILL;
+        xglPolygonMode(GL_FRONT_AND_BACK, gl_state.polygon_mode);	RB_CheckForError();
 	xglPolygonOffset(-1, -2);	RB_CheckForError();
 		
 	rb_arrays_locked = false;
 
 	r_framecount = 1;
 	r_visframecount = 1;
+	
+	rb_matrix_framebuffer_to_vid.identity();
+	rb_matrix_framebuffer_to_vid[0][0] = (float)vid.width / (float)r_img_currentrender->getWidth();
+	rb_matrix_framebuffer_to_vid[1][1] = (float)vid.width / (float)r_img_currentrender->getWidth();
 	
 	rb_matrix_quake_to_opengl.setupRotation   (1, 0, 0,-90);    	// put Z going up
 	rb_matrix_quake_to_opengl.multiplyRotation(0, 0, 1, 90);	// put Z going up
@@ -110,6 +116,9 @@ void	RB_InitBackend()
 	
 	r_world_scene.cmds_translucent_num	= 0;
 	r_world_scene.cmds_translucent		= std::vector<r_command_t>(r_cmds_translucent_max->getInteger());
+	
+	r_world_scene.cmds_postprocess_num	= 0;
+	r_world_scene.cmds_postprocess		= std::vector<r_command_t>(r_cmds_max->getInteger());
 	
 	RB_CheckOpenGLExtensions();
 	
@@ -148,16 +157,22 @@ void	RB_BeginBackendFrame()
 	// polygonmode
 	if(r_polygonmode->isModified())
 	{
-		r_drawbuffer->isModified(false);
+		r_polygonmode->isModified(false);
 	
 		if(X_strcaseequal(r_polygonmode->getString(), "GL_POINT"))
-			xglPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-			
+		{
+			gl_state.polygon_mode = GL_POINT;
+		}
 		else if(X_strcaseequal(r_polygonmode->getString(), "GL_LINE"))
-			xglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		
+		{
+			gl_state.polygon_mode = GL_LINE;
+		}
 		else
-			xglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		{
+			gl_state.polygon_mode = GL_FILL;
+		}
+			
+		xglPolygonMode(GL_FRONT_AND_BACK, gl_state.polygon_mode);
 	}
 
 	c_leafs = 0;
@@ -167,6 +182,7 @@ void	RB_BeginBackendFrame()
 	c_cmds_radiosity = 0;
 	c_cmds_light = 0;
 	c_cmds_translucent = 0;
+	c_cmds_postprocess = 0;
 	c_triangles = 0;
 	c_draws = 0;
 	c_expressions = 0;
@@ -181,52 +197,6 @@ void	RB_SetShaderTime(double time)
 {
 	rb_shader_time = time;
 }
-
-void	RB_CheckForError_(const std::string &file, int line)
-{
-	int err = xglGetError();
-	char* errstr;
-	
-	if(err != GL_NO_ERROR)
-	{
-		switch(err)
-		{
-			case GL_INVALID_ENUM:
-				errstr = "GL_INVALID_ENUM";
-				break;
-			
-			case GL_INVALID_VALUE:
-				errstr = "GL_INVALID_VALUE";
-				break;
-			
-			case GL_INVALID_OPERATION:
-				errstr = "GL_INVALID_OPERATION";
-				break;
-			
-			case GL_STACK_OVERFLOW:
-				errstr = "GL_STACK_OVERFLOW";
-				break;
-			
-			case GL_STACK_UNDERFLOW:
-				errstr = "GL_STACK_UNDERFLOW";
-				break;
-			
-			case GL_OUT_OF_MEMORY:
-				errstr = "GL_OUT_OF_MEMORY";
-				break;
-			
-			case GL_TABLE_TOO_LARGE:
-				errstr = "GL_TABLE_TOO_LARGE";
-				break;
-			
-			default:
-				errstr = "unknown error";
-		}
-		
-		ri.Com_Error(ERR_FATAL, "RB_CheckForError: %s in file %s, line %i", errstr, file.c_str(), line);
-	}
-}
-
 
 static void	RB_SetupViewPort(int x, int y, int w, int h)
 {
@@ -416,6 +386,7 @@ static void 	RB_SetupFrustum()
 	r_frustum[FRUSTUM_TOP].setType();
 	r_frustum[FRUSTUM_TOP].setSignBits();
 	
+#if 0
 	// near
 	r_frustum[FRUSTUM_NEAR]._normal[0]	=  m[3][0] + m[2][0];
 	r_frustum[FRUSTUM_NEAR]._normal[1]	=  m[3][1] + m[2][1];
@@ -435,6 +406,7 @@ static void 	RB_SetupFrustum()
 //	r_frustum[FRUSTUM_FAR]._type	= PLANE_ANYZ;
 	r_frustum[FRUSTUM_FAR].setType();
 	r_frustum[FRUSTUM_FAR].setSignBits();
+#endif
 }
 
 
@@ -494,7 +466,10 @@ void	RB_SetupGL2D()
 {
 	gl_state.is2d = true;
 
-	RB_SetupViewPort(0, 0, vid.width, vid.height);
+	if(gl_state.active_pbuffer)
+		RB_SetupViewPort(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
+	else
+		RB_SetupViewPort(0, 0, vid.width, vid.height);
 	
 	RB_SetupOrthoProjectionMatrix();
 	
@@ -509,6 +484,8 @@ void	RB_SetupGL2D()
 	//xglDepthMask(GL_FALSE);
 	
 	xglDisable(GL_CULL_FACE);
+	
+	xglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 
@@ -546,10 +523,7 @@ void	RB_SetupGL3D()
 	
 
 	xglEnable(GL_SCISSOR_TEST);
-	if(gl_state.active_pbuffer)
-		xglScissor(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
-	else
-		xglScissor(rb_vrect_viewport.x, rb_vrect_viewport.y, rb_vrect_viewport.width, rb_vrect_viewport.height);
+	xglScissor(rb_vrect_viewport.x, rb_vrect_viewport.y, rb_vrect_viewport.width, rb_vrect_viewport.height);
 		
 	if(r_newrefdef.flip_y || r_newrefdef.flip_z)
 		xglFrontFace(GL_CW);
@@ -567,6 +541,7 @@ void	RB_SetupGL3D()
 
 void 	RB_Clear()
 {
+#if 0
 	if(r_clear->getValue())
 		xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	else
@@ -578,6 +553,9 @@ void 	RB_Clear()
 
 		xglClear(GL_STENCIL_BUFFER_BIT);
 	}
+#else
+	xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+#endif
 	
 	r_depthmin = 0;
 	r_depthmax = 1;
@@ -631,12 +609,9 @@ void 	RB_SelectTexture(GLenum texture)
 	else
 		gl_state.current_tmu = tmu;
 	
-	
 	xglActiveTexture(texture);
 	xglClientActiveTexture(texture);
 }
-
-
 
 void 	RB_TexEnv(GLenum mode)
 {
@@ -657,41 +632,8 @@ void 	RB_Bind(r_image_c *image)
 		assert(image);
 	}
 	
-	uint_t texnum = image->getId();
-	uint_t target = image->getTarget();
-	
-	if(r_nobind->getValue())		// performance evaluation option
-	{
-		texnum = r_img_default->getId();
-		target = r_img_default->getTarget();
-	}
-
-	if(gl_state.current_textures[gl_state.current_tmu] == texnum)
-		return;
-
-	gl_state.current_textures[gl_state.current_tmu] = texnum;
-	
-	
-	switch(target)
-	{
-		case GL_TEXTURE_1D:
-		case GL_TEXTURE_2D:
-		case GL_TEXTURE_3D:
-		case GL_TEXTURE_CUBE_MAP_ARB:
-			break;
-		
-		default:
-			ri.Com_Error(ERR_FATAL, "RB_Bind: bad target for texture '%s' '%i'", image->getName(), texnum);
-	}
-	
-	xglBindTexture(target, texnum);
-	
-	if(image->hasVideo())
-		image->updateTexture();
+	image->bind();
 }
-
-
-
 
 void 	RB_TextureMode(const std::string &string)
 {
@@ -728,6 +670,12 @@ void 	RB_TextureMode(const std::string &string)
 		
 		if(!image)
 			continue;
+			
+		if(r_arb_texture_rectangle->getInteger())
+		{
+			if(image->getTarget() == GL_TEXTURE_RECTANGLE_ARB)
+				continue;
+		}
 		
 		if(image->hasFlags(IMAGE_NOMIPMAP) || (image->getTarget() == GL_TEXTURE_CUBE_MAP_ARB) || image->hasVideo())
 			continue;
@@ -935,7 +883,7 @@ static void	RB_DrawTriangleOutlines(const r_mesh_c *mesh)
 	
 	rb_flushes_counter++;
 
-	xglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	xglPolygonMode(GL_FRONT_AND_BACK, gl_state.polygon_mode);
 	
 	xglEnable(GL_DEPTH_TEST);
 }
@@ -997,7 +945,7 @@ static void	RB_DrawBinormals(const r_mesh_c *mesh)
 */
 
 
-void	RB_EnableShaderStates(const r_shader_c *shader, r_render_type_e type)
+void	RB_EnableShaderStates(const r_shader_c *shader)
 {
 	// check culling
 	if(shader->hasFlags(SHADER_TWOSIDED))
@@ -1013,7 +961,7 @@ void	RB_EnableShaderStates(const r_shader_c *shader, r_render_type_e type)
 	}
 }
 
-void	RB_DisableShaderStates(const r_shader_c *shader, r_render_type_e type)
+void	RB_DisableShaderStates(const r_shader_c *shader)
 {
 	// check culling
 	if(shader->hasFlags(SHADER_TWOSIDED))
@@ -1029,7 +977,7 @@ void	RB_DisableShaderStates(const r_shader_c *shader, r_render_type_e type)
 
 
 
-void	RB_EnableShaderStageStates(const r_entity_c *ent, const r_shader_stage_c *stage, r_render_type_e type)
+void	RB_EnableShaderStageStates(const r_entity_c *ent, const r_shader_stage_c *stage)
 {
 	// check blending
 	if(stage->flags & SHADER_STAGE_BLEND)
@@ -1068,7 +1016,7 @@ void	RB_EnableShaderStageStates(const r_entity_c *ent, const r_shader_stage_c *s
 }
 
 
-void	RB_DisableShaderStageStates(const r_entity_c *ent, const r_shader_stage_c *stage, r_render_type_e type)
+void	RB_DisableShaderStageStates(const r_entity_c *ent, const r_shader_stage_c *stage)
 {
 	// check blending
 	if(stage->flags & SHADER_STAGE_BLEND)
@@ -1508,10 +1456,12 @@ void	RB_ModifyColor(const r_entity_t &shared, const r_shader_stage_c *stage, vec
 
 void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 {
+	RB_CheckForError();
+
 	const r_shader_c*	entity_shader	= cmd->getEntityShader();
 	const r_shader_c*	light_shader	= cmd->getLightShader();
 
-	RB_EnableShaderStates(entity_shader, type);
+	RB_EnableShaderStates(entity_shader);	RB_CheckForError();
 
 	//
 	// call the apropiate flush function
@@ -1865,6 +1815,33 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 			break;
 		}
 		
+		case RENDER_TYPE_POSTPROCESS:
+		{
+			for(std::vector<r_shader_stage_c*>::const_iterator ir = entity_shader->stages.begin(); ir != entity_shader->stages.end(); ++ir)
+			{
+				const r_shader_stage_c* stage = *ir;
+				
+				if(!RB_Evaluate(cmd->getEntity()->getShared(), stage->condition, 1))
+					continue;
+			
+				switch(stage->type)
+				{
+					case SHADER_MATERIAL_STAGE_TYPE_HEATHAZEMAP:
+					{
+						RB_EnableShader_heathaze();
+						RB_RenderCommand_heathaze(cmd, stage);
+						RB_DisableShader_heathaze();
+						break;
+					}
+					
+					default:
+						break;
+				}
+			}
+			
+			break;
+		}
+		
 		default:
 		{
 			break;
@@ -1872,7 +1849,9 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 		
 	} // switch
 	
-	RB_DisableShaderStates(entity_shader, type);
+	RB_CheckForError();
+	
+	RB_DisableShaderStates(entity_shader);	RB_CheckForError();
 }
 
 
@@ -1994,6 +1973,7 @@ void	RB_RenderCommands()
 	uint_t		i;
 	r_command_t*	cmd = NULL;
 
+	RB_CheckForError();
 
 	//
 	// draw solid meshes into zbuffer
@@ -2256,11 +2236,9 @@ void	RB_RenderCommands()
 		
 		GLimp_ActivatePbuffer();
 		
-		xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		RB_SetupViewPort(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
 		
 		RB_SetupPerspectiveProjectionMatrix();
-		
-		RB_SetupViewPort(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
 			
 		//xglEnable(GL_SCISSOR_TEST);
 		xglScissor(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
@@ -2274,35 +2252,47 @@ void	RB_RenderCommands()
 		
 		RB_EnableShader_zfill();
 		
-		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
-			r_light_c& light = ir->second;
+			std::vector<r_light_c>& lights = *ir;
 			
-			if(!light.isVisible())
-				continue;
-				
-			matrix_c m;
-			
-			m.setupTranslation(light.getOrigin()origin);
-			m.multiplyRotation(angles[PITCH], angles[YAW], angles[ROLL]);
-			
-			rb_matrix_view = m.affineInverse();
-			RB_SetupFrustum();
-			
-			
-			
-			switch(light.getType())
+			for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
 			{
-				case LIGHT_OMNI:
+				r_light_c& light = *ir;
+			
+				if(!light.isVisible())
+					continue;
+					
+				xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+				
+				// setup light view matrix
+				matrix_c m;
+				m.setupTranslation(light.getOrigin());
+				m.multiplyRotation(light.getShared.quat);
+				rb_matrix_view = m.affineInverse();
+				
+				RB_SetupModelviewMatrix(matrix_identity, true);
+				
+				RB_SetupFrustum();
+				
+				switch(light.getType())
 				{
-					for(i=0, cmd = &r_current_scene->cmds_light[0]; i<r_current_scene->cmds_light_num; i++, cmd++)
+					case LIGHT_OMNI:
 					{
-						if(cmd->getLight() != &light)
-							continue;
+						/*
+						for(i=0, cmd = &r_current_scene->cmds_light[0]; i<r_current_scene->cmds_light_num; i++, cmd++)
+						{
+							if(cmd->getLight() != &light)
+								continue;
 							
-						cmd->getEntityModel()->draw(cmd, RENDER_TYPE_ZFILL);
+							cmd->getEntityModel()->draw(cmd, RENDER_TYPE_ZFILL);
+						}
+						*/
+						break;
 					}
-					break;
+					
+					default:
+						break;
 				}
 			}
 		}
@@ -2497,10 +2487,27 @@ void	RB_RenderCommands()
 	}
 	
 	
+	//
+	// draw _currentRender specific stages, post processing effects like heatHaze, Blur
+	//
+	if(r_drawpostprocess->getInteger())
+	{
+		// update _currentRender texture
+		r_img_currentrender->copyFromContext();
+		r_img_currentrender_depth->copyFromContext();
+	
+		qsort(&r_current_scene->cmds_postprocess[0], r_current_scene->cmds_postprocess_num, sizeof(r_command_t), RB_SortByCommandDistanceFunc);
+	
+		for(i=0, cmd = &r_current_scene->cmds_postprocess[0]; i<r_current_scene->cmds_postprocess_num; i++, cmd++)
+			cmd->getEntityModel()->draw(cmd, RENDER_TYPE_POSTPROCESS);
+	}
+	
+	
 	c_cmds += r_current_scene->cmds_num;
 	c_cmds_radiosity += r_current_scene->cmds_radiosity_num;
 	c_cmds_light += r_current_scene->cmds_light_num;
 	c_cmds_translucent += r_current_scene->cmds_translucent_num;
+	c_cmds_postprocess += r_current_scene->cmds_postprocess_num;
 	
 	
 	//
@@ -2510,6 +2517,7 @@ void	RB_RenderCommands()
 	r_current_scene->cmds_radiosity_num = 0;
 	r_current_scene->cmds_light_num = 0;
 	r_current_scene->cmds_translucent_num = 0;
+	r_current_scene->cmds_postprocess_num = 0;
 }
 
 
@@ -2560,7 +2568,7 @@ void	RB_AddCommand(	r_entity_c*		entity,
 	}
 #endif
 	
-	r_command_t *cmd = NULL, *cmd2 = NULL;
+	r_command_t *cmd = NULL, *cmd2 = NULL, *cmd3 = NULL;
 	
 	if(light)
 	{
@@ -2622,6 +2630,21 @@ void	RB_AddCommand(	r_entity_c*		entity,
 		r_current_scene->cmds_radiosity_num++;
 	}
 	
+	if(entity_shader->hasFlags(SHADER_POSTPROCESS))
+	{
+		try
+		{
+			cmd3 = &r_current_scene->cmds_postprocess.at(r_current_scene->cmds_postprocess_num);
+		}
+		catch(...)
+		{
+			r_current_scene->cmds_postprocess.push_back(r_command_t());
+			cmd3 = &r_current_scene->cmds_postprocess.at(r_current_scene->cmds_postprocess_num);
+		}
+		
+		r_current_scene->cmds_postprocess_num++;
+	}
+	
 	if(entity_shader->hasFlags(SHADER_DEFORM_FLARE))
 	{
 		cmd->_transform.setupTranslation(entity->getShared().origin);
@@ -2647,6 +2670,9 @@ void	RB_AddCommand(	r_entity_c*		entity,
 		
 	if(cmd2)
 		*cmd2 = *cmd;
+		
+	if(cmd3)
+		*cmd3 = *cmd;
 }
 
 

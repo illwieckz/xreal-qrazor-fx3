@@ -326,7 +326,7 @@ static void	CG_UpdateConfig(int index, const std::string &configstring)
 	else if(index >= CS_ANIMATIONS && index < CS_ANIMATIONS+MAX_ANIMATIONS)
 	{
 		//if(cgi.CL_GetRefreshPrepped())
-			//cg.animation_precache[index-CS_ANIMATIONS] = cgi.R_RegisterAnimation(configstring);
+			cg.animation_precache[index-CS_ANIMATIONS] = cgi.R_RegisterAnimation(configstring);
 	}
 	else if(index >= CS_SOUNDS && index < CS_SOUNDS+MAX_SOUNDS)
 	{

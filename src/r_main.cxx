@@ -56,6 +56,9 @@ r_image_c*	r_img_attenuation_3d;
 r_image_c*	r_img_lightview_depth;
 r_image_c*	r_img_lightview_color;
 r_image_c*	r_img_currentrender;
+r_image_c*	r_img_currentrender_depth;
+
+r_shader_c*	r_shader_currentrender;
 
 r_scene_t*	r_current_scene;
 
@@ -75,6 +78,7 @@ uint_t		c_cmds;
 uint_t		c_cmds_radiosity;
 uint_t		c_cmds_light;
 uint_t		c_cmds_translucent;
+uint_t		c_cmds_postprocess;
 uint_t		c_triangles;
 uint_t		c_draws;
 uint_t		c_expressions;
@@ -145,9 +149,11 @@ cvar_t	*r_drawpolygons;
 cvar_t	*r_drawsky;
 cvar_t	*r_drawextra;
 cvar_t	*r_drawtranslucent;
+cvar_t	*r_drawpostprocess;
 cvar_t	*r_speeds;
 cvar_t	*r_fullbright;
 cvar_t	*r_lerpmodels;
+cvar_t	*r_debug;
 cvar_t	*r_log;
 cvar_t	*r_shadows;
 cvar_t	*r_shadows_alpha;
@@ -209,6 +215,7 @@ cvar_t	*r_arb_multitexture;
 cvar_t	*r_arb_texture_compression;
 cvar_t	*r_arb_vertex_buffer_object;
 cvar_t	*r_arb_occlusion_query;
+cvar_t	*r_arb_texture_rectangle;
 
 cvar_t	*r_ext_compiled_vertex_array;
 cvar_t	*r_ext_texture_filter_anisotropic;
@@ -365,7 +372,7 @@ void 	R_DrawBBox(const cbbox_c &bbox)
 	
 	
 	//xglEnable(GL_TEXTURE_2D);
-	xglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	xglPolygonMode(GL_FRONT_AND_BACK, gl_state.polygon_mode);
 	xglEnable(GL_CULL_FACE);
 	xglEnable(GL_DEPTH_TEST);
 #endif
@@ -612,6 +619,7 @@ static void	R_CheckOpenGLExtensions()
 	gl_config.arb_texture_compression = false;
 	gl_config.arb_vertex_buffer_object = false;
 	gl_config.arb_occlusion_query = false;
+	gl_config.arb_texture_rectangle = false;
 	
 	gl_config.ext_compiled_vertex_array = false;
 	gl_config.ext_texture_filter_anisotropic = false;	
@@ -707,6 +715,23 @@ static void	R_CheckOpenGLExtensions()
 	else
 	{
 		ri.Com_Printf("...GL_ARB_occlusion_query not found\n");
+	}
+	
+	if(strstr(gl_config.extensions_string, "GL_ARB_texture_rectangle"))
+	{
+		if(r_arb_texture_rectangle->getValue())
+		{
+			Com_Printf("...using GL_ARB_texture_rectangle\n");
+			gl_config.arb_texture_rectangle = true;
+		}
+		else
+		{
+			ri.Com_Printf("...ignoring GL_ARB_texture_rectangle\n");
+		}
+	}
+	else
+	{
+		ri.Com_Printf("...GL_ARB_texture_rectangle not found\n");
 	}
 	
 	if(strstr(gl_config.extensions_string, "GL_EXT_compiled_vertex_array") ||  strstr(gl_config.extensions_string, "GL_SGI_compiled_vertex_array"))
@@ -895,6 +920,10 @@ void	R_DrawLightDebuggingInfo()
 	{
 		RB_SetupGL2D();
 		
+		xglColor4fv(color_red);
+				
+		xglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		
 		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
 			std::vector<r_light_c>& lights = *ir;
@@ -906,20 +935,19 @@ void	R_DrawLightDebuggingInfo()
 				if(!light.isVisible())
 					continue;
 					
-				xglColor4fv(color_red);
 				
-				xglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				xglBegin(GL_QUADS);
 				xglVertex3f(light.getScissorX(), light.getScissorY(), 0.0);
 				xglVertex3f(light.getScissorX()+light.getScissorWidth(), light.getScissorY(), 0.0);
 				xglVertex3f(light.getScissorX()+light.getScissorWidth(), light.getScissorY()+light.getScissorHeight(), 0.0);
 				xglVertex3f(light.getScissorX(), light.getScissorY()+light.getScissorHeight(), 0.0);
 				xglEnd();
-				xglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			
-				xglColor4fv(color_white);
 			}
 		}
+		
+		xglPolygonMode(GL_FRONT_AND_BACK, gl_state.polygon_mode);
+			
+		xglColor4fv(color_white);
 		
 		RB_SetupGL3D();
 	}
@@ -1010,6 +1038,8 @@ void	R_DrawContactDebuggingInfo()
 {
 	if(r_showcontacts->getInteger())
 	{
+		xglBegin(GL_LINES);
+	
 		for(std::vector<r_contact_t>::const_iterator ir = r_contacts.begin(); ir != r_contacts.end(); ++ir)
 		{
 			const r_contact_t& contact = *ir;
@@ -1017,8 +1047,6 @@ void	R_DrawContactDebuggingInfo()
 			const vec3_c& a = contact.origin;
 			const vec3_c  b = contact.origin + contact.normal;
 			const vec3_c  c = contact.origin + (contact.normal * contact.depth);
-			
-			xglBegin(GL_LINES);
 			
 			if(contact.depth <= REAL(0.0))
 			{
@@ -1032,19 +1060,21 @@ void	R_DrawContactDebuggingInfo()
 				xglVertex3fv(a);
 				xglVertex3fv(b);
 			}
-			else //if(contact.depth > REAL(1.0))
+			else if(contact.depth == REAL(1.0))
 			{
 				xglColor4fv(color_blue);
 				xglVertex3fv(a);
 				xglVertex3fv(b);
-				
+			}
+			else
+			{
 				xglColor4fv(color_green);
 				xglVertex3fv(b);
 				xglVertex3fv(c);
 			}
-			
-			xglEnd();
 		}
+		
+		xglEnd();
 	}
 }
 
@@ -1061,34 +1091,7 @@ void	R_DrawAreaPortals()
 
 void	R_DrawPbufferTest(int x, int y, int w, int h)
 {
-	xglColor4fv(color_white);
-	
-	RB_SelectTexture(GL_TEXTURE0);
-	RB_Bind(r_img_currentrender);
-	
-	xglEnable(GL_TEXTURE_2D);		RB_CheckForError();
-	
-	xglMatrixMode(GL_TEXTURE);
-	xglLoadIdentity();
-	xglMatrixMode(GL_MODELVIEW);
-	
-	xglBegin(GL_QUADS);
-	
-	xglTexCoord2f(0, 0);
-	xglVertex3f(x, y, 0.0);
-	
-	xglTexCoord2f(1, 0);
-	xglVertex3f(x+w, y, 0.0);
-	
-	xglTexCoord2f(1, 1);
-	xglVertex3f(x+w, y+h, 0.0);
-	
-	xglTexCoord2f(0, 1);
-	xglVertex3f(x, y+h, 0.0);
-	
-	xglEnd();
-	
-	xglDisable(GL_TEXTURE_2D);
+	R_DrawStretchPic(x, y, w, h, 0, 0, 1, -1, color_white, r_shader_currentrender);
 }
 
 static void	R_BeginFrame()
@@ -1104,7 +1107,7 @@ static void	R_BeginFrame()
 	}
 
 
-	//Tr3B - update hardware gamma
+	// update hardware gamma
 	if(vid_gamma->isModified())
 	{
 		vid_gamma->isModified(false);
@@ -1112,17 +1115,25 @@ static void	R_BeginFrame()
 		if(gl_state.hwgamma)
 			GLimp_Gamma();
 	}
+	
+	// update OpenGL debugging mode
+	if(r_debug->isModified())
+	{
+		r_debug->isModified(false);
+		
+		XGL_EnableDebugging((bool)r_debug->getInteger());
+	}
 
-	GLimp_BeginFrame();
+	GLimp_BeginFrame();	RB_CheckForError();
 	
 	// assign shader time
 	RB_SetShaderTime(ri.Sys_Milliseconds() * 0.001f);
 	
 	// go into 2D mode
-	RB_SetupGL2D();
+	RB_SetupGL2D();		RB_CheckForError();
 		
 	// clear screen if desired
-	RB_Clear();
+	RB_Clear();		RB_CheckForError();
 }
 
 /*
@@ -1150,24 +1161,28 @@ static void 	R_RenderFrame(const r_refdef_t &fd)
 		
 	r_current_scene = &r_world_scene;
 	
-//	GLimp_ActivatePbuffer();
+	RB_CheckForError();
+	
+#if 0
+	GLimp_ActivatePbuffer();
 		
-//	xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	
 //	RB_Clear();
+#endif
 			
-	RB_BeginBackendFrame();
+	RB_BeginBackendFrame();		RB_CheckForError();
 
-	R_SetupFrame();
+	R_SetupFrame();			RB_CheckForError();
 	
-	RB_SetupGL3D();
+	RB_SetupGL3D();			RB_CheckForError();
 	
 	if(r_speeds->getInteger())
 		time_setup = ri.Sys_Milliseconds();
 	
-	R_DrawWorld();
+	R_DrawWorld();			RB_CheckForError();
 	
-	R_DrawSky();
+	R_DrawSky();			RB_CheckForError();
 	
 	R_AddEntitiesToBuffer();
 	
@@ -1179,38 +1194,38 @@ static void 	R_RenderFrame(const r_refdef_t &fd)
 	if(r_speeds->getInteger())
 		time_commands = ri.Sys_Milliseconds();
 		
-	R_DrawLightDebuggingInfo();
+	R_DrawLightDebuggingInfo();	RB_CheckForError();
 	
-	R_DrawEntityDebuggingInfo();
+	R_DrawEntityDebuggingInfo();	RB_CheckForError();
 	
-	R_DrawContactDebuggingInfo();
+	R_DrawContactDebuggingInfo();	RB_CheckForError();
 	
-	R_DrawAreaPortals();
+	R_DrawAreaPortals();		RB_CheckForError();
 		
 //	R_AddPolysToBuffer();
 		
 //	R_DrawParticles();
 	
-//	xglEnable(GL_TEXTURE_2D);	RB_CheckForError();
-//	r_img_currentrender->bind();	RB_CheckForError();
-//	xglCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, r_img_currentrender->getWidth(), r_img_currentrender->getHeight(), 0);	RB_CheckForError();
-//	xglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, r_img_currentrender->getWidth(), r_img_currentrender->getHeight());	RB_CheckForError();
-//	xglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, r_img_currentrender->getWidth(), r_img_currentrender->getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);	RB_CheckForError();
-//	xglDisable(GL_TEXTURE_2D);	RB_CheckForError();
-	
+#if 0
+	// update _currentRender image
+	r_img_currentrender->copyFromContext();
+#endif
+
 //	R_WritePbuffer();
+
+#if 0
+	GLimp_DeactivatePbuffer();
 	
-//	GLimp_DeactivatePbuffer();
-	
-//	xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	
 //	RB_Clear();
+#endif
 	
-	RB_SetupGL2D();
+	RB_SetupGL2D();			RB_CheckForError();
 	
-//	R_DrawPbufferTest(0, 0, 300, 300);
+//	R_DrawPbufferTest(r_newrefdef.x, r_newrefdef.y, r_newrefdef.width, r_newrefdef.height);
 	
-	//R_ShadowBlend();
+//	R_ShadowBlend();
 		
 	RB_EndBackendFrame();
 	
@@ -1221,18 +1236,19 @@ static void 	R_RenderFrame(const r_refdef_t &fd)
 	
 	if(r_speeds->getInteger())
 	{
-		ri.Com_Printf("%4i leafs %4i entities %4i lights %4i tris %4i draws %4i exp %4i contacts\n",
-			c_leafs,
-			c_entities,
-			c_lights,
-			//c_cmds,
-			//c_cmds_radiosity,
-			//c_cmds_light,
-			//c_cmds_translucent,
-			c_triangles,
-			c_draws,
-			c_expressions,
-			r_contacts.size());
+		ri.Com_Printf("%4i leafs %4i entities %4i lights %4i tris %4i draws %4i exp\n"
+			,c_leafs
+			,c_entities
+			,c_lights
+			//,c_cmds
+			//,c_cmds_radiosity
+			//,c_cmds_light
+			//,c_cmds_translucent
+			,c_triangles
+			,c_draws
+			,c_expressions
+			//,r_contacts.size()
+			);
 			
 		//ri.Com_Printf("%4i cmds %4i light cmds %4i translucent cmds\n", c_cmds, c_cmds_light, c_cmds_translucent);
 		
@@ -1251,10 +1267,14 @@ static void 	R_RenderFrame(const r_refdef_t &fd)
 
 static void	R_EndFrame()
 {
+	RB_CheckForError();
+
 	if(r_video_export->getInteger())
 		R_WriteVideoScreenShot();
 		
-	GLimp_EndFrame();
+	GLimp_EndFrame();	
+	
+	RB_CheckForError();
 }
 
 static void	R_EnvMap_f()
@@ -1393,9 +1413,11 @@ static void 	R_Register()
 	r_drawsky		= ri.Cvar_Get("r_drawsky", "0", CVAR_ARCHIVE);
 	r_drawextra		= ri.Cvar_Get("r_drawextra", "1", CVAR_ARCHIVE);
 	r_drawtranslucent	= ri.Cvar_Get("r_drawtranslucent", "1", CVAR_ARCHIVE);
+	r_drawpostprocess	= ri.Cvar_Get("r_drawpostprocess", "1", CVAR_ARCHIVE);
 	r_lerpmodels 		= ri.Cvar_Get("r_lerpmodels", "1", CVAR_NONE);
 	r_speeds 		= ri.Cvar_Get("r_speeds", "0", CVAR_NONE);
-	r_log	 		= ri.Cvar_Get("r_log", "0", 0 );
+	r_debug			= ri.Cvar_Get("r_debug", "1", CVAR_ARCHIVE);
+	r_log	 		= ri.Cvar_Get("r_log", "0", CVAR_NONE);
 	r_shadows 		= ri.Cvar_Get("r_shadows", "0", CVAR_ARCHIVE );
 	r_shadows_alpha		= ri.Cvar_Get("r_shadows_alpha", "0.5", CVAR_ARCHIVE);
 	r_shadows_nudge		= ri.Cvar_Get("r_shadows_nudge", "1", CVAR_ARCHIVE);
@@ -1422,7 +1444,7 @@ static void 	R_Register()
 	r_showlightscissors	= ri.Cvar_Get("r_showlightscissors", "0", CVAR_NONE);
 	r_showlighttransforms	= ri.Cvar_Get("r_showlighttransforms", "0", CVAR_NONE);
 	r_showentitytransforms	= ri.Cvar_Get("r_showentitytransforms", "0", CVAR_NONE);
-	r_showcontacts		= ri.Cvar_Get("r_showcontacts", "1", CVAR_NONE);
+	r_showcontacts		= ri.Cvar_Get("r_showcontacts", "0", CVAR_NONE);
 
 	r_clear 		= ri.Cvar_Get("r_clear", "1", CVAR_NONE);
 	r_cull 			= ri.Cvar_Get("r_cull", "1", CVAR_NONE);
@@ -1458,6 +1480,7 @@ static void 	R_Register()
 	r_arb_texture_compression = ri.Cvar_Get("r_arb_texture_compression", "0", CVAR_ARCHIVE);
 	r_arb_vertex_buffer_object = ri.Cvar_Get("r_arb_vertex_buffer_object", "1", CVAR_ARCHIVE);
 	r_arb_occlusion_query	= ri.Cvar_Get("r_arb_occlusion_query", "1", CVAR_ARCHIVE);
+	r_arb_texture_rectangle	= ri.Cvar_Get("r_arb_texture_rectangle", "1", CVAR_ARCHIVE);
 	
 	r_ext_compiled_vertex_array = ri.Cvar_Get("r_ext_compiled_vertex_array", "0", CVAR_ARCHIVE);
 	r_ext_texture_filter_anisotropic = ri.Cvar_Get("r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE);
@@ -1591,6 +1614,12 @@ bool 	R_Init(void *hinstance, void *hWnd)
 		return false;
 	}
 	
+	if(r_debug->isModified())
+	{
+		r_debug->isModified(false);
+		XGL_EnableDebugging((bool)r_debug->getInteger());
+	}
+	
 	// initialize OS-specific parts of OpenGL
 	if(!GLimp_Init(hinstance, hWnd))
 	{
@@ -1628,7 +1657,7 @@ bool 	R_Init(void *hinstance, void *hWnd)
 	GLimp_InitPbuffer(false, true);		RB_CheckForError();
 	GLimp_ActivatePbuffer();		RB_CheckForError();
 //	xglClearColor(0.6, 0.1, 0.91, 0.0);
-	xglClearColor(0.0, 0.0, 0.0, 0.0);	RB_CheckForError();
+	xglClearColor(0.3, 0.3, 0.3, 1.0);	RB_CheckForError();
 	xglEnable(GL_DEPTH_TEST);		RB_CheckForError();
 	{
 		//TODO recode
@@ -1644,25 +1673,25 @@ bool 	R_Init(void *hinstance, void *hWnd)
 	GLimp_DeactivatePbuffer();		RB_CheckForError();
 
 	// setup image system
-	R_InitImages();
+	R_InitImages();				RB_CheckForError();
 		
         // setup Q3A style shader system
-	R_InitShaders();
+	R_InitShaders();			RB_CheckForError();
 	
 	// setup skin system
-	R_InitSkins();
-	
+	R_InitSkins();				RB_CheckForError();
+
 	// setup MD5 animation system
-	R_InitAnimations();
+	R_InitAnimations();			RB_CheckForError();
 	
 	// setup quad indices for 2d drawing
 	R_InitQuadIndexes();
 
 	// setup default images
-	R_InitDraw();
+	R_InitDraw();				RB_CheckForError();
 	
-	R_InitParticles();
-	R_InitPolys();
+	R_InitParticles();			RB_CheckForError();
+	R_InitPolys();				RB_CheckForError();
 	
 	// setup sky
 	//R_InitSkyDome();
@@ -1671,7 +1700,7 @@ bool 	R_Init(void *hinstance, void *hWnd)
 	//R_InitTree();
 	
 	// setup OpenGL renderer backend
-	RB_InitBackend();
+	RB_InitBackend();			RB_CheckForError();
 	
 	RB_CheckForError();
 	
