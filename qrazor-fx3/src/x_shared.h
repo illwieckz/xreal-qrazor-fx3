@@ -893,6 +893,8 @@ struct usercmd_t
 	float	upmove;
 };
 
+extern const usercmd_t	null_usercmd;
+
 
 // pmove_state_t is the information necessary for client side movement
 // prediction
@@ -1225,63 +1227,6 @@ enum
 };
 
 
-// entity_state_t->event values
-// ertity events are for effects that take place reletive
-// to an existing entities origin.  Very network efficient.
-// All muzzle flashes really should be converted to events...
-enum entity_event_e
-{
-	EV_NONE,
-	
-	EV_ITEM_RESPAWN,
-	
-	EV_FOOTSTEP,
-	EV_FOOTSTEP_METAL,
-	EV_FOOTSTEP_SPLASH,
-	EV_SWIM,
-	
-	EV_WATER_TOUCH,
-	EV_WATER_LEAVE,
-	EV_WATER_UNDER,
-	EV_WATER_CLEAR,
-	
-	EV_JUMPPAD,
-	EV_JUMP,
-	
-	EV_GRENADE_BOUNCE,
-	
-	EV_FALL_SHORT,
-	EV_FALL_MEDIUM,
-	EV_FALL_FAR,
-	
-	EV_PAIN_100,
-	EV_PAIN_75,
-	EV_PAIN_50,
-	EV_PAIN_25,
-	
-	EV_DIE,
-	EV_GIB,
-	
-	EV_TELEPORT,
-	
-	EV_GESTURE
-};
-
-enum solid_e
-{
-	SOLID_NOT,			// no interaction with other objects
-	SOLID_TRIGGER,			// only touch when inside, after moving
-	SOLID_BBOX,			// touch on edge
-	SOLID_BSP			// bsp clip, touch on edge
-};
-
-enum gender_e
-{
-	GENDER_MALE,
-	GENDER_FEMALE,
-	GENDER_NEUTRAL
-};
-
 enum entity_type_e
 {
 	ET_GENERIC,
@@ -1298,6 +1243,65 @@ enum entity_type_e
 	ET_PROJECTILE_ROCKET,
 	
 	ET_TARGET_SPEAKER
+};
+
+
+// entity_state_t->event values
+// ertity events are for effects that take place reletive
+// to an existing entities origin.  Very network efficient.
+// All muzzle flashes really should be converted to events...
+enum entity_event_e
+{
+	EV_NONE,
+	
+	EV_ITEM_RESPAWN,
+	
+	EV_PLAYER_TELEPORT,
+	
+	EV_PLAYER_FOOTSTEP,
+	EV_PLAYER_FOOTSTEP_METAL,
+	EV_PLAYER_FOOTSTEP_SPLASH,
+	EV_PLAYER_SWIM,
+	EV_PLAYER_JUMP,
+	
+	EV_PLAYER_FALL_SHORT,
+	EV_PLAYER_FALL_MEDIUM,
+	EV_PLAYER_FALL_FAR,
+	
+	EV_PLAYER_PAIN_100,
+	EV_PLAYER_PAIN_75,
+	EV_PLAYER_PAIN_50,
+	EV_PLAYER_PAIN_25,
+	
+	EV_PLAYER_DIE,
+	EV_PLAYER_GIB,
+	
+	EV_PLAYER_WATER_TOUCH,
+	EV_PLAYER_WATER_LEAVE,
+	EV_PLAYER_WATER_UNDER,
+	EV_PLAYER_WATER_CLEAR,
+	
+	EV_GRENADE_BOUNCE,
+	EV_GRENADE_EXPLODE,
+
+	EV_ROCKET_SCRATCH,
+	EV_ROCKET_EXPLOSION,
+	EV_ROCKET_EXPLOSION_UNDERWATER
+};
+
+enum solid_e
+{
+	SOLID_NOT,			// no interaction with other objects
+	SOLID_TRIGGER,			// only touch when inside, after moving
+	SOLID_BBOX,			// touch on edge
+	SOLID_BSP			// bsp clip, touch on edge
+};
+
+enum gender_e
+{
+	GENDER_MALE,
+	GENDER_FEMALE,
+	GENDER_NEUTRAL
 };
 
 
