@@ -50,9 +50,22 @@ r_light_c::r_light_c(const r_entity_t &shared, r_light_type_t type)
 		if(!r_world_tree && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
 			ri.Com_Error(ERR_DROP, "r_light_c::ctor: NULL worldmodel");
 	
-#if 0
-		_area = r_world_tree->pointInArea(_s.origin);
+#if 1
+		//_area = r_world_tree->pointInArea(_s.origin);	// main area
+		//ri.Com_DPrintf("light has main area %i\n", _area);
+		
+		r_world_tree->boxAreas(_s.radius_bbox, _areas);
+		if(_areas.size())
+			ri.Com_DPrintf("light touches %i BSP areas\n", _areas.size());
+		
 		r_world_tree->precacheLight(this);
+		
+		int c=0;
+		for(uint_t i=0; i<_areasurfaces.size(); i++)
+		{
+			c += _areasurfaces[i].size();
+		}
+		ri.Com_DPrintf("light has %i precached surface interactions\n", c);
 #else
 		r_bsptree_leaf_c* leaf = r_world_tree->pointInLeaf(_s.origin);
 		if(leaf)
@@ -79,7 +92,6 @@ r_light_c::r_light_c(const r_entity_t &shared, r_light_type_t type)
 	else
 	{
 		_cluster = -1;
-		_area = 1;
 	}
 }
 

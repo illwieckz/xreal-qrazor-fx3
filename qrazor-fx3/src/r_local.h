@@ -812,10 +812,15 @@ public:
 	inline bool	isVisible() const		{return r_visframecount == _visframecount;}
 	
 	inline int	getCluster() const		{return _cluster;}
-	inline int	getArea() const			{return _area;}
 	inline const std::vector<r_bsptree_leaf_c*>&	getLeafs() const	{return _leafs;}
 	
 	inline const std::vector<int>&			getAreas() const	{return _areas;}
+	inline bool	hasArea(int areanum)
+	{
+		std::vector<int>::iterator ir = find(_areas.begin(), _areas.end(), areanum);
+		
+		return (ir != _areas.end());
+	}
 	
 	
 protected:
@@ -823,7 +828,6 @@ protected:
 	
 	// if Q3A BSP used
 	int				_cluster;
-	int				_area;
 	std::vector<r_bsptree_leaf_c*>	_leafs;
 	
 	// if Doom3 proc used
@@ -1061,6 +1065,7 @@ public:
 	r_tree_elem_c*		parent;
 	
 	uint_t			visframecount;		// node needs to be traversed if current
+	uint_t			framecount;
 };
 
 
@@ -1144,20 +1149,33 @@ public:
 class r_areaportal_c
 {
 public:
+	r_areaportal_c(const std::vector<vec3_c> &vertexes, int areas[2]);
+
 	void			adjustFrustum();
-		
 	void			draw();
 	
-	uint_t			visframe;
+	inline uint_t	getVisFrameCount() const	{return _visframecount;}
+	inline void	setVisFrameCount()		{_visframecount = r_visframecount;}
+	inline bool	isVisible() const		{return r_visframecount == _visframecount;}
+	
+	inline int	getArea(int side) const		{return _areas[side];}
+	
+	inline const cbbox_c&	getBBox() const		{return _bbox;}
+	inline const cplane_c&	getPlane() const	{return _plane;}
+	
+	inline const r_frustum_t& getFrustum() const	{return _frustum;}
+	
+private:
+	uint_t			_visframecount;
 
-	int			areas[2];
+	int			_areas[2];
 	
-	cbbox_c			bbox;
-	cplane_c		plane;
+	cbbox_c			_bbox;
+	cplane_c		_plane;
 	
-	std::vector<vec3_c>	points;
+	std::vector<vec3_c>	_vertexes;
 	
-	r_frustum_t		frustum;
+	r_frustum_t		_frustum;
 };
 
 class r_proctree_area_c : public r_leaf_c
@@ -1166,6 +1184,8 @@ public:
 	r_proc_model_c*			model;
 	
 	std::vector<r_areaportal_c*>	areaportals;
+	
+	int			clipflags;
 };
 
 
@@ -1175,6 +1195,7 @@ public:
 	virtual void		precacheLight(r_light_c *light) = 0;
 	virtual void		update() = 0;
 	virtual void		draw() = 0;
+	virtual void		drawAreaPortals()		{}
 };
 
 
@@ -1288,6 +1309,7 @@ public:
 	virtual void		precacheLight(r_light_c *light);
 	virtual void		update();
 	virtual void		draw();
+	virtual void		drawAreaPortals();
 	
 	int			pointInArea_r(const vec3_c &p, int num);
 	int			pointInArea(const vec3_c &p);
@@ -1296,12 +1318,9 @@ public:
 	void			boxAreas(const cbbox_c &bbox, std::vector<int> &areas);
 	
 private:
-	void			drawArea_r(int area, const r_frustum_t frustum, int clipflags);
-	void			litArea_r(int area, r_light_c *light);
-	
-	void			markAreas();
-	void			markLights();
-	void			markEntities();
+	void			updateArea_r(int area, const r_frustum_t frustum, int clipflags);
+	void			drawArea_r(int area);
+	void			litArea_r(int area, r_light_c *light, bool precache);
 
 	void			loadNodes(char **buf_p);
 	void			loadInterAreaPortals(char **buf_p);
@@ -1770,7 +1789,7 @@ public:
 	//
 	virtual void	addModelToList(r_entity_c *ent);
 	virtual void 	draw(const r_command_t *cmd, r_render_type_e type);
-	virtual void	setupMeshes();
+//	virtual void	setupMeshes();
 	
 	void	load(char **buf_p);
 	
@@ -1864,7 +1883,7 @@ extern r_refdef_t	r_newrefdef;
 
 
 extern r_entity_c	r_world_entity;
-extern r_bsptree_c*	r_world_tree;
+extern r_proctree_c*	r_world_tree;
 
 
 extern std::vector<index_t>	r_quad_indexes;

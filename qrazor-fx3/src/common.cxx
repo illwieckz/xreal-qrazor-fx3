@@ -818,6 +818,7 @@ static void	Com_D3MapToQ3AMap_f()
 
 static void	Com_MiscCheck_f()
 {
+	/*
 	union
 	{
 		unsigned long	l;
@@ -857,6 +858,7 @@ static void	Com_MiscCheck_f()
 		Com_Printf("%i", (val & 1) << i ? 1 : 0);
 	}
 	Com_Printf("\n");
+	*/
 
 	//boost::dynamic_bitset<> bits(32, 5ul);
 	//for(int i=0; i<32; i++)
@@ -867,6 +869,18 @@ static void	Com_MiscCheck_f()
 	//std::cout << std::endl;
 	
 	//std::cout << bits << std::endl;
+	
+	std::vector<int>	ints;
+	for(int i=0; i<10; i++)
+		ints.push_back(i);
+		
+	for(std::vector<int>::const_iterator ir = ints.begin(); ir != ints.end(); ++ir)
+		Com_Printf("%i", *ir);
+	Com_Printf("\n");
+	
+	for(std::vector<int>::const_iterator ir = ints.end()-1; ir != ints.begin()-1; --ir)
+		Com_Printf("%i", *ir);
+	Com_Printf("\n");
 }
 
 void 	Com_Init(int argc, char **argv)

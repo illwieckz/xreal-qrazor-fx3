@@ -10,7 +10,7 @@ qrazor_fx_server_src = [
 'src/x_shared.cxx',
 'src/x_string.cxx',
 'src/cm_ase.cxx',
-'src/cm_bsp.cxx',
+'src/cm_d3.cxx',
 'src/cm_main.cxx',
 'src/cm_md3.cxx',
 'src/cm_md5anim.cxx',

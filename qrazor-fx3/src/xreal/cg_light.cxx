@@ -235,7 +235,7 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 	{
 		case ET_LIGHT_OMNI:
 		{
-			//cgi.Com_DPrintf("adding omni-directional light ...\n");
+			cgi.Com_DPrintf("adding omni-directional light ...\n");
 			
 			rent.radius = cent->current.vectors[0];
 			rent.radius_bbox._maxs = rent.origin + cent->current.vectors[0];
@@ -249,7 +249,7 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 				
 		case ET_LIGHT_PROJ:
 		{
-			//cgi.Com_DPrintf("adding projective light ...\n");
+			cgi.Com_DPrintf("adding projective light ...\n");
 			
 			rent.target = cent->current.vectors[0];
 			rent.right = cent->current.vectors[1];
@@ -315,7 +315,7 @@ void	CG_UpdateLightEntity(const cg_entity_t *cent)
 
 void	CG_RemoveLightEntity(const cg_entity_t *cent)
 {
-	//cgi.Com_DPrintf("removing light ...\n");
+	cgi.Com_DPrintf("removing light ...\n");
 
 	cgi.R_RemoveLight(cent->prev.getNumber());
 }

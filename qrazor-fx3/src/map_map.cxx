@@ -652,19 +652,15 @@ void	MoveBrushesToWorld(entity_t *mapent)
 
 static void	AdjustBrushesForOrigin(entity_t &ent)
 {
-	vec_t		newdist;
-	mapbrush_t	*b;
-
-	
-	for(std::vector<mapbrush_t*>::const_iterator ir = ent.brushes.begin(); ir != ent.brushes.end(); ir++)
+	for(std::vector<mapbrush_t*>::const_iterator ir = ent.brushes.begin(); ir != ent.brushes.end(); ++ir)
 	{
-		b = *ir;
+		mapbrush_t* b = *ir;
 		
 		for(int j=0; j<b->sides_num; j++)
 		{
 			side_t &s = b->sides[j];
 			
-			newdist = map_planes[s.planenum]._dist - map_planes[s.planenum]._normal.dotProduct(ent.origin);
+			vec_t newdist = map_planes[s.planenum]._dist - map_planes[s.planenum]._normal.dotProduct(ent.origin);
 			
 			map_planes[s.planenum]._dist = newdist;
 			
@@ -817,7 +813,6 @@ void	LoadMapFile(const std::string &filename)
 	char*		data_p;
 				
 	Com_Printf("------- LoadMapFile -------\n");
-
 	
 	VFS_FLoad(filename, (void **)&buf);
 	if(!buf)
@@ -835,7 +830,6 @@ void	LoadMapFile(const std::string &filename)
 	while(ParseMapEntity(&data_p))
 	{
 	}
-
 	
 	map_bbox.clear();
 	
@@ -845,15 +839,15 @@ void	LoadMapFile(const std::string &filename)
 		map_bbox.addPoint(map_brushes[i].maxs);
 	}
 
-	Com_Printf("%5i brushes\n", map_brushes.size());
-	Com_Printf("%5i clipbrushes\n", c_clipbrushes);
-	Com_Printf("%5i total sides\n", map_brushsides.size());
-	Com_Printf("%5i boxbevels\n", c_boxbevels);
-	Com_Printf("%5i edgebevels\n", c_edgebevels);
-	Com_Printf("%5i entities\n", entities.size());
-	Com_Printf("%5i planes\n", map_planes.size());
-	Com_Printf("%5i areaportals\n", c_areaportals);
-	Com_Printf("size: %s\n", map_bbox.toString());
+	Com_Printf("%5i brushes\n",	map_brushes.size());
+	Com_Printf("%5i clipbrushes\n",	c_clipbrushes);
+	Com_Printf("%5i total sides\n",	map_brushsides.size());
+	Com_Printf("%5i boxbevels\n",	c_boxbevels);
+	Com_Printf("%5i edgebevels\n",	c_edgebevels);
+	Com_Printf("%5i entities\n",	entities.size());
+	Com_Printf("%5i planes\n",	map_planes.size());
+	Com_Printf("%5i areaportals\n",	c_areaportals);
+	Com_Printf("size: %s\n",	map_bbox.toString());
 
 	VFS_FFree(buf);
 }
