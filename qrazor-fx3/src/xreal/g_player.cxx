@@ -108,7 +108,7 @@ g_player_c::g_player_c()
 	_bob_cycle		= 0;		
 	_bob_fracsin		= 0;		
 	
-	memset(&_old_pmove, 0, sizeof(_old_pmove));
+	_old_pmove.clear();
 	
 	_showscores		= false;
 	_showinventory		= false;
@@ -1055,7 +1055,7 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 
 	// set up for pmove
 	pmove_t	pm;
-	memset(&pm, 0, sizeof(pm));
+	pm.clear();
 
 	if(_movetype == MOVETYPE_NOCLIP)
 		_r.ps.pmove.pm_type = PM_SPECTATOR;
@@ -1069,7 +1069,8 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	else
 		_r.ps.pmove.pm_type = PM_NORMAL;
 
-	_r.ps.pmove.gravity = (9.81 * 32.0) * g_gravity->getValue();
+	// FIXME use real world gravity
+	_r.ps.pmove.gravity = (9.81 * 32.0 * 2.3) * g_gravity->getValue();
 	pm.s = _r.ps.pmove; 
 
 	pm.s.origin = _s.origin;
@@ -1079,7 +1080,7 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	if(memcmp(&_old_pmove, &pm.s, sizeof(pm.s)))
 	{
 		pm.snapinitial = true;
-		trap_Com_DPrintf("G_ClientThink: pmove changed!\n");
+		//trap_Com_DPrintf("G_ClientThink: pmove changed!\n");
 	}
 
 	pm.cmd = cmd;

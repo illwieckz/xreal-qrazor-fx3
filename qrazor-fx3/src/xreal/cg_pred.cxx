@@ -243,7 +243,7 @@ void	CG_PredictMovement()
 	}
 
 	// copy current state to pmove
-	memset(&pm, 0, sizeof(pm));
+	pm.clear();
 	pm.trace = CG_PMTrace;
 	pm.pointcontents = CG_PMpointcontents;
 	//pm_airaccelerate = atof(trap_cl->configstrings[CS_AIRACCEL]);	//FIXME
