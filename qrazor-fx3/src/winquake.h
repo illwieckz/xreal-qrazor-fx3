@@ -23,22 +23,30 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <windows.h>
 
+#if ! defined(BSPCOMPILER_ONLY) && ! defined(DEDICATED_ONLY)
 #include <dsound.h>
 
 #define	WINDOW_STYLE	(WS_OVERLAPPED|WS_BORDER|WS_CAPTION|WS_VISIBLE)
+#endif
+
 
 extern	HINSTANCE	global_hInstance;
 
+extern DWORD gSndBufSize;
+
+extern bool		ActiveApp, Minimized;
+
+#if ! defined(BSPCOMPILER_ONLY) && ! defined(DEDICATED_ONLY)
 extern LPDIRECTSOUND pDS;
 extern LPDIRECTSOUNDBUFFER pDSBuf;
 
-extern DWORD gSndBufSize;
-
-extern HWND			cl_hwnd;
-extern bool		ActiveApp, Minimized;
+extern HWND cl_hwnd;
+extern int		window_center_x, window_center_y;
+extern RECT		window_rect;
 
 void IN_Activate (bool active);
 void IN_MouseEvent (int mstate);
+#endif
 
-extern int		window_center_x, window_center_y;
-extern RECT		window_rect;
+
+
