@@ -39,9 +39,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 
-std::vector<mapbrush_t>	map_brushes;
+std::vector<map_brush_c>		map_brushes;
 
-std::vector<side_t>	map_brushsides;
+std::vector<map_brush_side_c>		map_brushsides;
 
 //brush_texture_t		side_brushtextures[MAX_MAP_SIDES];
 
@@ -60,7 +60,7 @@ int		c_clipbrushes;
 
 
 
-int	CreateNewFloatPlane(cplane_c &p)
+static int	CreateNewFloatPlane(const cplane_c &p)
 {
 	cplane_c	planes[2];
 
@@ -106,7 +106,7 @@ int	CreateNewFloatPlane(cplane_c &p)
 }
 
 
-int	FindFloatPlane(cplane_c &p)
+static int	FindFloatPlane(cplane_c &p)
 {
 	p.snap();
 	
@@ -812,8 +812,9 @@ static bool	ParseMapEntity(char **data_p)
 }
 */
 
-static std::string	map_key;
-static std::string	map_value;
+static map_entity_c*	map_entity;
+static std::string		map_key;
+static std::string		map_value;
 
 static void	MAP_Version(int version)
 {
@@ -821,17 +822,31 @@ static void	MAP_Version(int version)
 		Com_Error(ERR_DROP, "MAP_Version: wrong version number (%i should be %i)", version, MAP_VERSION);
 }
 
-static void	MAP_KeyValueInfo(char const* begin, char const* end)
-{
-	Com_Printf("'%s' '%s'\n", map_key.c_str(), map_value.c_str());
-}
-
 static void	MAP_NewEntity(char begin)
 {
 	Com_Printf("parsing entity %i ...\n", entities.size());
 	
-	entities.push_back(entity_t());
+	entities.push_back(map_entity_c());
+	
+	map_entity = &entities[entities.size()-1];
 }
+
+static void	MAP_FinishEntity(char const* begin, char const* end)
+{
+	map_entity->toString();
+}
+
+static void	MAP_BrushDef3(char const* begin, char const* end)
+{
+	Com_Printf("MAP_BrushDef3() '%s'\n", std::string(begin, end).c_str());
+}
+
+static void	MAP_KeyValueInfo(char const* begin, char const* end)
+{
+	//Com_Printf("'%s' '%s'\n", map_key.c_str(), map_value.c_str());
+	map_entity->setKeyValue(map_key, map_value);
+}
+
 
 struct map_grammar_t : public boost::spirit::grammar<map_grammar_t>
 {
@@ -864,7 +879,7 @@ struct map_grammar_t : public boost::spirit::grammar<map_grammar_t>
 				
 			primitive
 				=	boost::spirit::ch_p('{') >>
-					brushDef3 >>
+					brushDef3[&MAP_BrushDef3] >>
 					boost::spirit::ch_p('}')
 				;
 				
@@ -881,131 +896,10 @@ struct map_grammar_t : public boost::spirit::grammar<map_grammar_t>
 					boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - boost::spirit::ch_p('\"')][boost::spirit::assign(map_value)] >>
 					boost::spirit::ch_p('\"')
 				;
-			
-			/*
-			scene
-				=	boost::spirit::str_p("*SCENE") >> skip_block
-				;
-				
-			material_list
-				=	boost::spirit::str_p("*MATERIAL_LIST") >> boost::spirit::ch_p('{') >>
-					boost::spirit::str_p("*MATERIAL_COUNT") >> boost::spirit::int_p >>
-					+material >> 
-					boost::spirit::ch_p('}')
-				;
-				
-			material
-				=	boost::spirit::str_p("*MATERIAL") >> boost::spirit::int_p >> boost::spirit::ch_p('{') >>
-					+(material_map_diffuse | material_submaterial | material_option) >>
-					boost::spirit::ch_p('}')
-				;
-				
-			material_option
-				=	material_name	|
-					restofline[&CM_ASE_UnknownMaterialOption]
-				;
-			
-			material_name
-				=	boost::spirit::str_p("*MATERIAL_NAME") >>
-					boost::spirit::ch_p('\"') >>
-					//boost::spirit::lexeme_d[boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - boost::spirit::ch_p('\"')]][&CM_ASE_AddShader] >>
-					boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - boost::spirit::ch_p('\"')][&CM_ASE_AddShader] >>
-					skip_restofline
-				;
-				
-			material_map_diffuse
-				=	boost::spirit::str_p("*MAP_DIFFUSE") >> skip_block
-				;
-				
-			material_submaterial
-				=	boost::spirit::str_p("*SUBMATERIAL") >> boost::spirit::int_p >> skip_block
-				;
-				
-			geomobject
-				=	boost::spirit::str_p("*GEOMOBJECT") >> boost::spirit::ch_p('{') >>
-					boost::spirit::str_p("*NODE_NAME") >> skip_restofline >>
-					boost::spirit::str_p("*NODE_TM") >> skip_block >> 
-					+mesh >>
-					*skip_restofline >>
-					boost::spirit::ch_p('}')
-				;
-				
-			mesh
-				= 	boost::spirit::str_p("*MESH")[&CM_ASE_NewMesh] >> boost::spirit::ch_p('{') >>
-					boost::spirit::str_p("*TIMEVALUE") >> boost::spirit::int_p >>
-					boost::spirit::str_p("*MESH_NUMVERTEX") >> boost::spirit::int_p[&CM_ASE_GetVertexesNum] >>
-					boost::spirit::str_p("*MESH_NUMFACES") >> boost::spirit::int_p[&CM_ASE_GetFacesNum] >>
-					mesh_vertex_list >>
-					mesh_face_list >>
-					boost::spirit::str_p("*MESH_NUMTVERTEX") >> boost::spirit::int_p >>
-					mesh_tvertlist >>
-					boost::spirit::str_p("*MESH_NUMTVFACES") >> boost::spirit::int_p >>
-					mesh_tfacelist >>
-					*skip_restofline >>
-					boost::spirit::ch_p('}')[&CM_ASE_AddMesh]
-				;
-				
-			mesh_vertex_list
-				=	boost::spirit::str_p("*MESH_VERTEX_LIST") >> boost::spirit::ch_p('{') >>
-					+mesh_vertex[&CM_ASE_PushVertex] >>
-					boost::spirit::ch_p('}')[&CM_ASE_CheckVertexesNum]
-				;
-				
-			mesh_vertex
-				=	boost::spirit::str_p("*MESH_VERTEX") >> 
-					boost::spirit::int_p >> 
-					boost::spirit::real_p[&CM_ASE_Float0] >>
-					boost::spirit::real_p[&CM_ASE_Float1] >>
-					boost::spirit::real_p[&CM_ASE_Float2]
-				;
-				
-			mesh_face_list
-				=	boost::spirit::str_p("*MESH_FACE_LIST") >> boost::spirit::ch_p('{') >>
-					+mesh_face >>
-					boost::spirit::ch_p('}')[&CM_ASE_CheckIndexesNum]
-				;
-				
-			mesh_face
-				=	boost::spirit::str_p("*MESH_FACE") >>
-					boost::spirit::int_p >> boost::spirit::ch_p(':') >>
-					boost::spirit::str_p("A:") >> boost::spirit::int_p[&CM_ASE_PushVertexIndex] >>
-					boost::spirit::str_p("B:") >> boost::spirit::int_p[&CM_ASE_PushVertexIndex] >>
-					boost::spirit::str_p("C:") >> boost::spirit::int_p[&CM_ASE_PushVertexIndex] >>
-					skip_restofline
-				;
-				
-			mesh_tvertlist
-				=	boost::spirit::str_p("*MESH_TVERTLIST") >> boost::spirit::ch_p('{') >>
-					+mesh_tvert >>
-					boost::spirit::ch_p('}')
-				;
-				
-			mesh_tvert
-				=	boost::spirit::str_p("*MESH_TVERT") >>
-					boost::spirit::int_p >>
-					boost::spirit::real_p[&CM_ASE_Float0] >>
-					boost::spirit::real_p[&CM_ASE_Float1] >>
-					boost::spirit::real_p[&CM_ASE_Float2]
-				;
-				
-			mesh_tfacelist
-				=	boost::spirit::str_p("*MESH_TFACELIST") >> boost::spirit::ch_p('{') >>
-					+mesh_tface >>
-					boost::spirit::ch_p('}')
-				;
-				
-			mesh_tface
-				=	boost::spirit::str_p("*MESH_TFACE") >>
-					boost::spirit::int_p >> 
-					boost::spirit::int_p >>
-					boost::spirit::int_p >>
-					boost::spirit::int_p
-				;
-			*/
 				
 			expression
 				=	boost::spirit::str_p("Version") >> boost::spirit::int_p[&MAP_Version] >>
-					+entity >>
+					+entity[&MAP_FinishEntity] >>
 					*boost::spirit::anychar_p
 				;
 				
@@ -1070,10 +964,9 @@ void	LoadMapFile(const std::string &filename)
 	// compute world bounding box
 	map_bbox.clear();
 	
-	for(unsigned int i=0; i<entities[0].brushes.size(); i++)
+	for(unsigned int i=0; i<entities[0].getBrushes().size(); i++)
 	{
-		map_bbox.addPoint(map_brushes[i].mins);
-		map_bbox.addPoint(map_brushes[i].maxs);
+		map_bbox.mergeWith(map_brushes[i].getAABB());
 	}
 
 	Com_Printf("%5i brushes\n",	map_brushes.size());
