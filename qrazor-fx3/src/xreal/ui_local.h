@@ -33,9 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../x_keycodes.h"
 
 // xreal --------------------------------------------------------------------
-
-
-#define MAXMENUITEMS	64
+#include "gui_public.h"
 
 
 enum menu_type_t
@@ -69,15 +67,36 @@ class menu_common_c;
 class menu_framework_c
 {
 public:
+	inline menu_framework_c()
+	{
+		_x	= 0;
+		_y	= 0;
+	}
+	
+	virtual ~menu_framework_c()
+	{
+	}
+
+	virtual void		draw()
+	{
+		adjustCursor(1);
+		drawGeneric();
+	}
+	virtual std::string	keyDown(int key)
+	{
+		return defaultKeyDown(key);
+	}
+
 	menu_common_c*		getItemAtCursor();
 	void			addItem(menu_common_c *item);
 	void			adjustCursor(int dir);
 	void			center();
-	void			draw();
+	void			drawGeneric();
 	void			selectItem();
 	void			setStatusBar(const std::string &string);
 	void			slideItem(int dir);
 	int			getTallySlotsNum();
+	std::string		defaultKeyDown(int key);
 	
 private:
 	void			drawStatusBar(const std::string &string);
@@ -87,18 +106,11 @@ public:
 	int			_y;
 	int			_cursor;
 
-	//int			nitems;
-	int			_nslots;
-	
-
 	std::string		_statusbar;
 	
 	std::vector<menu_common_c*>	_items;
 
 	void		(*_cursordraw)(menu_framework_c *m);
-
-	
-
 };
 
 class menu_common_c
@@ -271,10 +283,6 @@ extern const char*	menu_move_sound;
 extern const char*	menu_out_sound;
 
 
-
-extern menu_framework_c	s_multiplayer_menu;
-
-
 void	M_Menu_Main_f();
 //	void M_Menu_Singleplayer_f();
 //		void M_Menu_LoadGame_f();
@@ -289,14 +297,14 @@ void	M_Menu_Main_f();
 	void M_Menu_Audio_f();
 	void M_Menu_Video_f();
 	void M_Menu_Options_f();
-		void M_Menu_Keys_f();
+	void M_Menu_Keys_f();
 	void M_Menu_Credits_f();
 	void M_Menu_Quit_f();
 
 
 //
 // ui_main.c
-//
+//virtual std::string	keyDown(int key)
 
 
 //
@@ -306,10 +314,9 @@ void		M_Banner(const std::string &name);
 void		M_Init();
 void		M_Keydown(int key);
 void		M_Draw();
-void		M_PushMenu(void (*draw)(), const std::string (*key)(int k));
+void		M_PushMenu(menu_framework_c *menu);
 void		M_PopMenu();
 void		M_ForceMenuOff();
-const std::string	Default_MenuKey(menu_framework_c *m, int key);
 void		M_AddToServerList(const netadr_t &adr, const char *info);
 void		M_Print(int cx, int cy, char *str);
 void		M_DrawPic(int x, int y, char *pic);

@@ -28,6 +28,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ui_local.h"
 
 
+class menu_mplayer_framework_c : public menu_framework_c
+{
+public:
+	virtual void	draw()
+	{
+		M_Banner("MULTIPLAYER");
+	
+		adjustCursor(1);
+		drawGeneric();
+	}
+	
+	virtual std::string	keyDown(int key)
+	{
+		return defaultKeyDown(key);
+	}
+};
+
 class menu_mplayer_join_network_c : public menu_action_c
 {
 public:
@@ -48,7 +65,7 @@ public:
 };
 */
 
-menu_framework_c			s_multiplayer_menu;
+static menu_mplayer_framework_c			s_multiplayer_menu;
 static menu_mplayer_join_network_c		s_join_network_server_action;
 //static menu_mplayer_player_setup_c		s_player_setup_action;
 
@@ -78,22 +95,9 @@ static void	Multiplayer_MenuInit()
 	s_multiplayer_menu.center();
 }
 
-static void	Multiplayer_MenuDraw()
-{
-	M_Banner("MULTIPLAYER");
-
-	s_multiplayer_menu.adjustCursor(1);
-	s_multiplayer_menu.draw();
-}
-
-static const std::string	Multiplayer_MenuKey(int key)
-{
-	return Default_MenuKey(&s_multiplayer_menu, key);
-}
-
 void	M_Menu_Multiplayer_f()
 {
 	Multiplayer_MenuInit();
-	M_PushMenu(Multiplayer_MenuDraw, Multiplayer_MenuKey);
+	M_PushMenu(&s_multiplayer_menu);
 }
 

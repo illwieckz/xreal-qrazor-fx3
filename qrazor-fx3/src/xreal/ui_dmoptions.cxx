@@ -30,7 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static char dmoptions_statusbar[128];
 
-
 class menu_dmoptions_c : public menu_spincontrol_c
 {
 protected:
@@ -547,19 +546,9 @@ static void	DMOptions_MenuInit()
 	s_dmoptions_menu.setStatusBar(dmoptions_statusbar);
 }
 
-static void	DMOptions_MenuDraw()
-{
-	s_dmoptions_menu.draw();
-}
-
-static const std::string	DMOptions_MenuKey(int key)
-{
-	return Default_MenuKey(&s_dmoptions_menu, key);
-}
-
 void	M_Menu_DMOptions_f()
 {
 	DMOptions_MenuInit();
-	M_PushMenu(DMOptions_MenuDraw, DMOptions_MenuKey);
+	M_PushMenu(&s_dmoptions_menu);
 }
 

@@ -28,6 +28,48 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ui_local.h"
 
 
+class menu_quit_framework_c : public menu_framework_c
+{
+public:
+	virtual std::string	keyDown(int key)
+	{
+		switch(key)
+		{
+			case K_ESCAPE:
+			case 'n':
+			case 'N':
+				M_PopMenu();
+				break;
+
+			case 'Y':
+			case 'y':
+				trap_Key_SetKeyDest(KEY_CONSOLE);
+				trap_CL_Quit_f();
+				break;
+				
+			case K_UPARROW:
+				_cursor--;
+				adjustCursor(-1);
+				break;
+			
+			case K_DOWNARROW:
+				_cursor++;
+				adjustCursor(1);
+				break;
+		
+			case K_ENTER:
+				selectItem();
+				break;
+			
+			default:
+				break;
+		}
+
+		return "";
+	}
+};
+
+
 class menu_quit_yes_c : public menu_action_c
 {
 public:
@@ -49,51 +91,10 @@ public:
 
 
 
-static menu_framework_c	s_quit_menu;
-static menu_separator_c		s_quit_question;
-static menu_quit_yes_c		s_quit_yes_action;
-static menu_quit_no_c		s_quit_no_action;
-
-
-const std::string	M_QuitKey(int key)
-{
-	menu_framework_c *m = &s_quit_menu;
-
-	switch (key)
-	{
-		case K_ESCAPE:
-		case 'n':
-		case 'N':
-			M_PopMenu();
-			break;
-
-		case 'Y':
-		case 'y':
-			trap_Key_SetKeyDest(KEY_CONSOLE);
-			trap_CL_Quit_f();
-			break;
-			
-		case K_UPARROW:
-			m->_cursor--;
-			m->adjustCursor(-1);
-			break;
-			
-		case K_DOWNARROW:
-			m->_cursor++;
-			m->adjustCursor(1);
-			break;
-		
-		case K_ENTER:
-			m->selectItem();
-			break;
-
-		default:
-			break;
-	}
-
-	return "";
-
-}
+static menu_quit_framework_c	s_quit_menu;
+static menu_separator_c			s_quit_question;
+static menu_quit_yes_c			s_quit_yes_action;
+static menu_quit_no_c			s_quit_no_action;
 
 static void	M_QuitInit()
 {
@@ -124,16 +125,9 @@ static void	M_QuitInit()
 	s_quit_menu.center();
 }
 
-static void	M_QuitDraw()
-{
-	s_quit_menu.adjustCursor(1);
-	s_quit_menu.draw();
-}
-
-
 void	M_Menu_Quit_f()
 {
 	M_QuitInit();
-	M_PushMenu(M_QuitDraw, M_QuitKey);
+	M_PushMenu(&s_quit_menu);
 }
 

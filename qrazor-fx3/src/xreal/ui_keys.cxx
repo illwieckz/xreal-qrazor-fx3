@@ -63,35 +63,6 @@ char *bindnames[][2] =
 int		keys_cursor;
 static int		bind_grab;
 
-static menu_framework_c	s_keys_menu;
-static menu_action_c		s_keys_attack_action;
-static menu_action_c		s_keys_attack2_action;
-static menu_action_c		s_keys_change_prev_weapon_action;
-static menu_action_c		s_keys_change_next_weapon_action;
-static menu_action_c		s_keys_walk_forward_action;
-static menu_action_c		s_keys_backpedal_action;
-static menu_action_c		s_keys_turn_left_action;
-static menu_action_c		s_keys_turn_right_action;
-static menu_action_c		s_keys_run_action;
-static menu_action_c		s_keys_step_left_action;
-static menu_action_c		s_keys_step_right_action;
-static menu_action_c		s_keys_sidestep_action;
-static menu_action_c		s_keys_look_up_action;
-static menu_action_c		s_keys_look_down_action;
-static menu_action_c		s_keys_center_view_action;
-static menu_action_c		s_keys_mouse_look_action;
-static menu_action_c		s_keys_keyboard_look_action;
-static menu_action_c		s_keys_move_up_action;
-static menu_action_c		s_keys_move_down_action;
-static menu_action_c		s_keys_inventory_action;
-static menu_action_c		s_keys_inv_use_action;
-static menu_action_c		s_keys_inv_drop_action;
-static menu_action_c		s_keys_inv_prev_action;
-static menu_action_c		s_keys_inv_next_action;
-
-static menu_action_c		s_keys_help_computer_action;
-
-
 
 static void	M_UnbindCommand(char *command)
 {
@@ -124,17 +95,18 @@ static void	M_FindKeysForCommand(char *command, int *twokeys)
 	l = strlen(command);
 	count = 0;
 
-	for (j=0 ; j<256 ; j++)
+	for(j=0; j<256; j++)
 	{
 		b = trap_Key_GetBinding(j);
-		if (!b)
+		if(!b)
 			continue;
 
-		if (!strncmp (b, command, l) )
+		if(!strncmp(b, command, l))
 		{
 			twokeys[count] = j;
 			count++;
-			if (count == 2)
+			
+			if(count == 2)
 				break;
 		}
 	}
@@ -154,26 +126,27 @@ static void	DrawKeyBindingFunc(void *self)
 	menu_action_c *a = (menu_action_c *) self;
 
 	M_FindKeysForCommand( bindnames[a->_localdata[0]][0], keys);
+	
+	int cwidth = Menu_GetCharWidth(a->_fontflags);
 
 	if(keys[0] == -1)
 	{
-		Menu_DrawString(a->_x + a->_parent->_x + 16, a->_y + a->_parent->_y, "???", FONT_NONE);
+		
+		Menu_DrawString(a->_name.length()*(cwidth+1) + a->_x + a->_parent->_x, a->_y + a->_parent->_y, "???", a->_fontflags);
+		//Menu_DrawString(a->_x + a->_parent->_x + (CHAR_SMALL_WIDTH*30), a->_y + a->_parent->_y, "???", FONT_NONE);
 	}
 	else
 	{
-		int x;
-		const char *name;
+		const std::string name = trap_Key_KeynumToString(keys[0]);
 
-		name = trap_Key_KeynumToString(keys[0]);
+		Menu_DrawString(a->_x + a->_parent->_x + 16, a->_y + a->_parent->_y, name, a->_fontflags);
 
-		Menu_DrawString(a->_x + a->_parent->_x + 16, a->_y + a->_parent->_y, name, FONT_NONE);
+		int x = name.length() * cwidth;
 
-		x = strlen(name) * 8;
-
-		if (keys[1] != -1)
+		if(keys[1] != -1)
 		{
-			Menu_DrawString(a->_x + a->_parent->_x + 24 + x, a->_y + a->_parent->_y, "or", FONT_NONE);
-			Menu_DrawString(a->_x + a->_parent->_x + 48 + x, a->_y + a->_parent->_y, trap_Key_KeynumToString (keys[1]), FONT_NONE);
+			Menu_DrawString(a->_name.length()*(cwidth+1) + a->_x + a->_parent->_x + 24 + x, a->_y + a->_parent->_y, "or", FONT_NONE);
+			Menu_DrawString(a->_name.length()*(cwidth+1) + a->_x + a->_parent->_x + 48 + x, a->_y + a->_parent->_y, trap_Key_KeynumToString(keys[1]), FONT_NONE);
 		}
 	}
 }
@@ -189,21 +162,100 @@ static void	KeyBindingFunc(void *self)
 		M_UnbindCommand(bindnames[a->_localdata[0]][0]);
 
 	bind_grab = true;
-
-	s_keys_menu.setStatusBar("press a key or button for this action");
 }
+
+class menu_keys_framework_c : public menu_framework_c
+{
+public:
+	virtual void	draw()
+	{
+		adjustCursor(1);
+		drawGeneric();
+	}
+	
+	virtual std::string	keyDown(int key)
+	{
+		menu_action_c *item = (menu_action_c*) getItemAtCursor();
+
+		if(bind_grab)
+		{
+			if(key != K_ESCAPE && key != '`')
+			{
+				char cmd[1024];
+
+				Com_sprintf(cmd, sizeof(cmd), "bind \"%s\" \"%s\"\n", trap_Key_KeynumToString(key), bindnames[item->_localdata[0]][0]);
+				trap_Cbuf_InsertText(cmd);
+			}
+			
+			setStatusBar("enter to change, backspace to clear");
+			bind_grab = false;
+			return menu_out_sound;
+		}
+		
+		switch(key)
+		{
+			case K_KP_ENTER:
+			case K_ENTER:
+				KeyBindingFunc(item);
+				setStatusBar("press a key or button for this action");
+				return menu_in_sound;
+			
+			case K_BACKSPACE:		// delete bindings
+			case K_DEL:				// delete bindings
+			case K_KP_DEL:
+				M_UnbindCommand(bindnames[item->_localdata[0]][0]);
+				return menu_out_sound;
+				
+			default:
+				return defaultKeyDown(key);
+		}
+	}
+};
+
+static menu_keys_framework_c	s_keys_menu;
+static menu_action_c		s_keys_attack_action;
+static menu_action_c		s_keys_attack2_action;
+static menu_action_c		s_keys_change_prev_weapon_action;
+static menu_action_c		s_keys_change_next_weapon_action;
+static menu_action_c		s_keys_walk_forward_action;
+static menu_action_c		s_keys_backpedal_action;
+static menu_action_c		s_keys_turn_left_action;
+static menu_action_c		s_keys_turn_right_action;
+static menu_action_c		s_keys_run_action;
+static menu_action_c		s_keys_step_left_action;
+static menu_action_c		s_keys_step_right_action;
+static menu_action_c		s_keys_sidestep_action;
+static menu_action_c		s_keys_look_up_action;
+static menu_action_c		s_keys_look_down_action;
+static menu_action_c		s_keys_center_view_action;
+static menu_action_c		s_keys_mouse_look_action;
+static menu_action_c		s_keys_keyboard_look_action;
+static menu_action_c		s_keys_move_up_action;
+static menu_action_c		s_keys_move_down_action;
+static menu_action_c		s_keys_inventory_action;
+static menu_action_c		s_keys_inv_use_action;
+static menu_action_c		s_keys_inv_drop_action;
+static menu_action_c		s_keys_inv_prev_action;
+static menu_action_c		s_keys_inv_next_action;
+
+static menu_action_c		s_keys_help_computer_action;
+
+
+
+
 
 static void	Keys_MenuInit()
 {
-	int y = 0;
-	int i = 0;
+	int	i = 0;
+	int	y = 0;
+	int	y_offset = CHAR_SMALL_HEIGHT + 5;
 
-	s_keys_menu._x = (int)(trap_VID_GetWidth() * 0.50);
+	s_keys_menu._x = (int)(trap_VID_GetWidth() * 0.30);
 	s_keys_menu._cursordraw = KeyCursorDrawFunc;
 
 	//s_keys_attack_action._type	= MTYPE_ACTION;
 	//s_keys_attack_action._flags  = QMF_GRAYED;
-	//s_keys_attack_action._fontflags	= FONT_ALT;
+	s_keys_attack_action._fontflags	= FONT_SMALL;
 	s_keys_attack_action._x		= 0;
 	s_keys_attack_action._y		= y;
 	s_keys_attack_action._ownerdraw = DrawKeyBindingFunc;
@@ -212,44 +264,45 @@ static void	Keys_MenuInit()
 
 	//s_keys_attack2_action._type	= MTYPE_ACTION;
 	//s_keys_attack2_action._flags  = QMF_GRAYED;
-	//s_keys_attack2_action._fontflags	= FONT_ALT;
+	s_keys_attack2_action._fontflags	= FONT_SMALL;
 	s_keys_attack2_action._x		= 0;
-	s_keys_attack2_action._y		= y += 9;
+	s_keys_attack2_action._y		= y += y_offset;
 	s_keys_attack2_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_attack2_action._localdata[0] = ++i;
 	s_keys_attack2_action._name	= bindnames[s_keys_attack2_action._localdata[0]][1];
 
 	//s_keys_change_prev_weapon_action._type	= MTYPE_ACTION;
 	//s_keys_change_prev_weapon_action._flags  = QMF_GRAYED;
-	//s_keys_change_prev_weapon_action._fontflags	= FONT_ALT;
+	s_keys_change_prev_weapon_action._fontflags	= FONT_SMALL;
 	s_keys_change_prev_weapon_action._x		= 0;
-	s_keys_change_prev_weapon_action._y		= y += 9;
+	s_keys_change_prev_weapon_action._y		= y += y_offset;
 	s_keys_change_prev_weapon_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_change_prev_weapon_action._localdata[0] = ++i;
 	s_keys_change_prev_weapon_action._name	= bindnames[s_keys_change_prev_weapon_action._localdata[0]][1];
 
 	//s_keys_change_next_weapon_action._type	= MTYPE_ACTION;
 	//s_keys_change_next_weapon_action._flags  = QMF_GRAYED;
-	//s_keys_change_next_weapon_action._fontflags	= FONT_ALT;
+	s_keys_change_next_weapon_action._fontflags	= FONT_SMALL;
 	s_keys_change_next_weapon_action._x		= 0;
-	s_keys_change_next_weapon_action._y		= y += 9;
+	s_keys_change_next_weapon_action._y		= y += y_offset;
 	s_keys_change_next_weapon_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_change_next_weapon_action._localdata[0] = ++i;
 	s_keys_change_next_weapon_action._name	= bindnames[s_keys_change_next_weapon_action._localdata[0]][1];
 
 	//s_keys_walk_forward_action._type	= MTYPE_ACTION;
 	//s_keys_walk_forward_action._flags  = QMF_GRAYED;
-	//s_keys_walk_forward_action._fontflags  = FONT_ALT;
+	s_keys_walk_forward_action._fontflags	= FONT_SMALL;
 	s_keys_walk_forward_action._x		= 0;
-	s_keys_walk_forward_action._y		= y += 9;
+	s_keys_walk_forward_action._y		= y += y_offset;
 	s_keys_walk_forward_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_walk_forward_action._localdata[0] = ++i;
 	s_keys_walk_forward_action._name	= bindnames[s_keys_walk_forward_action._localdata[0]][1];
 
 	//s_keys_backpedal_action._type	= MTYPE_ACTION;
 	//s_keys_backpedal_action._flags  = QMF_GRAYED;
+	s_keys_backpedal_action._fontflags	= FONT_SMALL;
 	s_keys_backpedal_action._x		= 0;
-	s_keys_backpedal_action._y		= y += 9;
+	s_keys_backpedal_action._y		= y += y_offset;
 	s_keys_backpedal_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_backpedal_action._localdata[0] = ++i;
 	s_keys_backpedal_action._name	= bindnames[s_keys_backpedal_action._localdata[0]][1];
@@ -257,7 +310,7 @@ static void	Keys_MenuInit()
 	//s_keys_turn_left_action._type	= MTYPE_ACTION;
 	//s_keys_turn_left_action._flags  = QMF_GRAYED;
 	s_keys_turn_left_action._x		= 0;
-	s_keys_turn_left_action._y		= y += 9;
+	s_keys_turn_left_action._y		= y += y_offset;
 	s_keys_turn_left_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_turn_left_action._localdata[0] = ++i;
 	s_keys_turn_left_action._name	= bindnames[s_keys_turn_left_action._localdata[0]][1];
@@ -265,7 +318,7 @@ static void	Keys_MenuInit()
 	//s_keys_turn_right_action._type	= MTYPE_ACTION;
 	//s_keys_turn_right_action._flags  = QMF_GRAYED;
 	s_keys_turn_right_action._x		= 0;
-	s_keys_turn_right_action._y		= y += 9;
+	s_keys_turn_right_action._y		= y += y_offset;
 	s_keys_turn_right_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_turn_right_action._localdata[0] = ++i;
 	s_keys_turn_right_action._name	= bindnames[s_keys_turn_right_action._localdata[0]][1];
@@ -273,7 +326,7 @@ static void	Keys_MenuInit()
 	//s_keys_run_action._type	= MTYPE_ACTION;
 	//s_keys_run_action._flags  = QMF_GRAYED;
 	s_keys_run_action._x		= 0;
-	s_keys_run_action._y		= y += 9;
+	s_keys_run_action._y		= y += y_offset;
 	s_keys_run_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_run_action._localdata[0] = ++i;
 	s_keys_run_action._name	= bindnames[s_keys_run_action._localdata[0]][1];
@@ -281,7 +334,7 @@ static void	Keys_MenuInit()
 	//s_keys_step_left_action._type	= MTYPE_ACTION;
 	//s_keys_step_left_action._flags  = QMF_GRAYED;
 	s_keys_step_left_action._x		= 0;
-	s_keys_step_left_action._y		= y += 9;
+	s_keys_step_left_action._y		= y += y_offset;
 	s_keys_step_left_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_step_left_action._localdata[0] = ++i;
 	s_keys_step_left_action._name	= bindnames[s_keys_step_left_action._localdata[0]][1];
@@ -289,7 +342,7 @@ static void	Keys_MenuInit()
 	//s_keys_step_right_action._type	= MTYPE_ACTION;
 	//s_keys_step_right_action._flags  = QMF_GRAYED;
 	s_keys_step_right_action._x		= 0;
-	s_keys_step_right_action._y		= y += 9;
+	s_keys_step_right_action._y		= y += y_offset;
 	s_keys_step_right_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_step_right_action._localdata[0] = ++i;
 	s_keys_step_right_action._name	= bindnames[s_keys_step_right_action._localdata[0]][1];
@@ -297,7 +350,7 @@ static void	Keys_MenuInit()
 	//s_keys_sidestep_action._type	= MTYPE_ACTION;
 	//s_keys_sidestep_action._flags  = QMF_GRAYED;
 	s_keys_sidestep_action._x		= 0;
-	s_keys_sidestep_action._y		= y += 9;
+	s_keys_sidestep_action._y		= y += y_offset;
 	s_keys_sidestep_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_sidestep_action._localdata[0] = ++i;
 	s_keys_sidestep_action._name	= bindnames[s_keys_sidestep_action._localdata[0]][1];
@@ -305,7 +358,7 @@ static void	Keys_MenuInit()
 	//s_keys_look_up_action._type	= MTYPE_ACTION;
 	//s_keys_look_up_action._flags  = QMF_GRAYED;
 	s_keys_look_up_action._x		= 0;
-	s_keys_look_up_action._y		= y += 9;
+	s_keys_look_up_action._y		= y += y_offset;
 	s_keys_look_up_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_look_up_action._localdata[0] = ++i;
 	s_keys_look_up_action._name	= bindnames[s_keys_look_up_action._localdata[0]][1];
@@ -313,7 +366,7 @@ static void	Keys_MenuInit()
 	//s_keys_look_down_action._type	= MTYPE_ACTION;
 	//s_keys_look_down_action._flags  = QMF_GRAYED;
 	s_keys_look_down_action._x		= 0;
-	s_keys_look_down_action._y		= y += 9;
+	s_keys_look_down_action._y		= y += y_offset;
 	s_keys_look_down_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_look_down_action._localdata[0] = ++i;
 	s_keys_look_down_action._name	= bindnames[s_keys_look_down_action._localdata[0]][1];
@@ -321,7 +374,7 @@ static void	Keys_MenuInit()
 	//s_keys_center_view_action._type	= MTYPE_ACTION;
 	//s_keys_center_view_action._flags  = QMF_GRAYED;
 	s_keys_center_view_action._x		= 0;
-	s_keys_center_view_action._y		= y += 9;
+	s_keys_center_view_action._y		= y += y_offset;
 	s_keys_center_view_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_center_view_action._localdata[0] = ++i;
 	s_keys_center_view_action._name	= bindnames[s_keys_center_view_action._localdata[0]][1];
@@ -329,7 +382,7 @@ static void	Keys_MenuInit()
 	//s_keys_mouse_look_action._type	= MTYPE_ACTION;
 	//s_keys_mouse_look_action._flags  = QMF_GRAYED;
 	s_keys_mouse_look_action._x		= 0;
-	s_keys_mouse_look_action._y		= y += 9;
+	s_keys_mouse_look_action._y		= y += y_offset;
 	s_keys_mouse_look_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_mouse_look_action._localdata[0] = ++i;
 	s_keys_mouse_look_action._name	= bindnames[s_keys_mouse_look_action._localdata[0]][1];
@@ -337,7 +390,7 @@ static void	Keys_MenuInit()
 	//s_keys_keyboard_look_action._type	= MTYPE_ACTION;
 	//s_keys_keyboard_look_action._flags  = QMF_GRAYED;
 	s_keys_keyboard_look_action._x		= 0;
-	s_keys_keyboard_look_action._y		= y += 9;
+	s_keys_keyboard_look_action._y		= y += y_offset;
 	s_keys_keyboard_look_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_keyboard_look_action._localdata[0] = ++i;
 	s_keys_keyboard_look_action._name	= bindnames[s_keys_keyboard_look_action._localdata[0]][1];
@@ -345,7 +398,7 @@ static void	Keys_MenuInit()
 	//s_keys_move_up_action._type	= MTYPE_ACTION;
 	//s_keys_move_up_action._flags  = QMF_GRAYED;
 	s_keys_move_up_action._x		= 0;
-	s_keys_move_up_action._y		= y += 9;
+	s_keys_move_up_action._y		= y += y_offset;
 	s_keys_move_up_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_move_up_action._localdata[0] = ++i;
 	s_keys_move_up_action._name	= bindnames[s_keys_move_up_action._localdata[0]][1];
@@ -353,7 +406,7 @@ static void	Keys_MenuInit()
 	//s_keys_move_down_action._type	= MTYPE_ACTION;
 	//s_keys_move_down_action._flags  = QMF_GRAYED;
 	s_keys_move_down_action._x		= 0;
-	s_keys_move_down_action._y		= y += 9;
+	s_keys_move_down_action._y		= y += y_offset;
 	s_keys_move_down_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_move_down_action._localdata[0] = ++i;
 	s_keys_move_down_action._name	= bindnames[s_keys_move_down_action._localdata[0]][1];
@@ -361,7 +414,7 @@ static void	Keys_MenuInit()
 	//s_keys_inventory_action._type	= MTYPE_ACTION;
 	//s_keys_inventory_action._flags  = QMF_GRAYED;
 	s_keys_inventory_action._x		= 0;
-	s_keys_inventory_action._y		= y += 9;
+	s_keys_inventory_action._y		= y += y_offset;
 	s_keys_inventory_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_inventory_action._localdata[0] = ++i;
 	s_keys_inventory_action._name	= bindnames[s_keys_inventory_action._localdata[0]][1];
@@ -369,7 +422,7 @@ static void	Keys_MenuInit()
 	//s_keys_inv_use_action._type	= MTYPE_ACTION;
 	//s_keys_inv_use_action._flags  = QMF_GRAYED;
 	s_keys_inv_use_action._x		= 0;
-	s_keys_inv_use_action._y		= y += 9;
+	s_keys_inv_use_action._y		= y += y_offset;
 	s_keys_inv_use_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_inv_use_action._localdata[0] = ++i;
 	s_keys_inv_use_action._name	= bindnames[s_keys_inv_use_action._localdata[0]][1];
@@ -377,7 +430,7 @@ static void	Keys_MenuInit()
 	//s_keys_inv_drop_action._type	= MTYPE_ACTION;
 	//s_keys_inv_drop_action._flags  = QMF_GRAYED;
 	s_keys_inv_drop_action._x		= 0;
-	s_keys_inv_drop_action._y		= y += 9;
+	s_keys_inv_drop_action._y		= y += y_offset;
 	s_keys_inv_drop_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_inv_drop_action._localdata[0] = ++i;
 	s_keys_inv_drop_action._name	= bindnames[s_keys_inv_drop_action._localdata[0]][1];
@@ -385,7 +438,7 @@ static void	Keys_MenuInit()
 	//s_keys_inv_prev_action._type	= MTYPE_ACTION;
 	//s_keys_inv_prev_action._flags  = QMF_GRAYED;
 	s_keys_inv_prev_action._x		= 0;
-	s_keys_inv_prev_action._y		= y += 9;
+	s_keys_inv_prev_action._y		= y += y_offset;
 	s_keys_inv_prev_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_inv_prev_action._localdata[0] = ++i;
 	s_keys_inv_prev_action._name	= bindnames[s_keys_inv_prev_action._localdata[0]][1];
@@ -393,7 +446,7 @@ static void	Keys_MenuInit()
 	//s_keys_inv_next_action._type	= MTYPE_ACTION;
 	//s_keys_inv_next_action._flags  = QMF_GRAYED;
 	s_keys_inv_next_action._x		= 0;
-	s_keys_inv_next_action._y		= y += 9;
+	s_keys_inv_next_action._y		= y += y_offset;
 	s_keys_inv_next_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_inv_next_action._localdata[0] = ++i;
 	s_keys_inv_next_action._name	= bindnames[s_keys_inv_next_action._localdata[0]][1];
@@ -401,7 +454,7 @@ static void	Keys_MenuInit()
 	//s_keys_help_computer_action._type	= MTYPE_ACTION;
 	//s_keys_help_computer_action._flags  = QMF_GRAYED;
 	s_keys_help_computer_action._x		= 0;
-	s_keys_help_computer_action._y		= y += 9;
+	s_keys_help_computer_action._y		= y += y_offset;
 	s_keys_help_computer_action._ownerdraw = DrawKeyBindingFunc;
 	s_keys_help_computer_action._localdata[0] = ++i;
 	s_keys_help_computer_action._name	= bindnames[s_keys_help_computer_action._localdata[0]][1];
@@ -438,51 +491,8 @@ static void	Keys_MenuInit()
 	s_keys_menu.center();
 }
 
-static void	Keys_MenuDraw()
-{
-	s_keys_menu.adjustCursor(1);
-	s_keys_menu.draw();
-}
-
-static const std::string	Keys_MenuKey(int key)
-{
-	menu_action_c *item = (menu_action_c*) s_keys_menu.getItemAtCursor();
-
-	if ( bind_grab )
-	{
-		if ( key != K_ESCAPE && key != '`' )
-		{
-			char cmd[1024];
-
-			Com_sprintf (cmd, sizeof(cmd), "bind \"%s\" \"%s\"\n", trap_Key_KeynumToString(key), bindnames[item->_localdata[0]][0]);
-			trap_Cbuf_InsertText (cmd);
-		}
-
-		s_keys_menu.setStatusBar("enter to change, backspace to clear");
-		bind_grab = false;
-		return menu_out_sound;
-	}
-
-	switch ( key )
-	{
-		case K_KP_ENTER:
-		case K_ENTER:
-			KeyBindingFunc( item );
-			return menu_in_sound;
-			
-		case K_BACKSPACE:		// delete bindings
-		case K_DEL:				// delete bindings
-		case K_KP_DEL:
-			M_UnbindCommand( bindnames[item->_localdata[0]][0] );
-			return menu_out_sound;
-		default:
-			return Default_MenuKey( &s_keys_menu, key );
-	}
-}
-
-
 void	M_Menu_Keys_f()
 {
 	Keys_MenuInit();
-	M_PushMenu(Keys_MenuDraw, Keys_MenuKey);
+	M_PushMenu(&s_keys_menu);
 }

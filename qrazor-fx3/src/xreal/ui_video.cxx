@@ -35,6 +35,51 @@ enum
 };
 
 
+class menu_video_framework_c : public menu_framework_c
+{
+public:
+	virtual void	draw()
+	{
+		M_Banner("VIDEO");
+		adjustCursor(1);
+		drawGeneric();
+	}
+	
+	virtual std::string	keyDown(int key)
+	{
+		switch(key)
+		{
+			case K_ESCAPE:
+				M_PopMenu();
+				return "";
+				
+			case K_UPARROW:
+				_cursor--;
+				adjustCursor(-1);
+				break;
+				
+			case K_DOWNARROW:
+				_cursor++;
+				adjustCursor(1);
+				break;
+				
+			case K_LEFTARROW:
+				slideItem(-1);
+				break;
+				
+			case K_RIGHTARROW:
+				slideItem(1);
+				break;
+				
+			case K_ENTER:
+				selectItem();
+				break;
+		}
+
+		return menu_in_sound;
+	}
+};
+
 class menu_video_mode_c : public menu_spincontrol_c
 {
 public:
@@ -131,7 +176,7 @@ public:
 
 
 
-static menu_framework_c	s_video_menu;
+static menu_video_framework_c	s_video_menu;
 static menu_video_mode_c	s_mode_list;
 static menu_video_ref_c		s_ref_list;
 static menu_video_screensize_c	s_screensize_slider;
@@ -255,73 +300,10 @@ void	M_VIDMenuInit()
 	s_video_menu.center();
 }
 
-void	M_VIDMenuDraw()
-{
-	//
-	// draw the banner
-	//
-	M_Banner("VIDEO");
-
-	//
-	// move cursor to a reasonable starting position
-	//
-	s_video_menu.adjustCursor(1);
-
-	//
-	// draw the menu
-	//
-	s_video_menu.draw();
-}
-
-const std::string	M_VIDMenuKey(int key)
-{
-	
-	menu_framework_c *m = &s_video_menu;
-
-	switch(key)
-	{
-		case K_ESCAPE:
-			M_PopMenu();
-			return "";
-			
-		case K_UPARROW:
-			m->_cursor--;
-			m->adjustCursor(-1);
-			break;
-			
-		case K_DOWNARROW:
-			m->_cursor++;
-			m->adjustCursor(1);
-			break;
-			
-		case K_LEFTARROW:
-			m->slideItem(-1);
-			break;
-			
-		case K_RIGHTARROW:
-			m->slideItem(1);
-			break;
-			
-		case K_ENTER:
-			m->selectItem();
-			break;
-	}
-
-	return "sound/misc/menu1.wav";
-}
-
-
-
-/*
-=======================================================================
-				VIDEO MENU
-=======================================================================
-*/
-
 void	M_Menu_Video_f()
 {
 	M_VIDMenuInit();
-	M_PushMenu(M_VIDMenuDraw, M_VIDMenuKey);
+	M_PushMenu(&s_video_menu);
 }
 
 

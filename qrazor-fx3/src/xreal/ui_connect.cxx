@@ -28,6 +28,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ui_local.h"
 
 
+class menu_joinserver_framework_c : public menu_framework_c
+{
+public:
+	virtual void	draw()
+	{
+		M_Banner("TODO");
+	
+		drawGeneric();
+	}
+	
+	virtual std::string	keyDown(int key)
+	{
+		return defaultKeyDown(key);
+	}
+};
+
 #define MAX_LOCAL_SERVERS 8
 
 int		m_num_servers;
@@ -116,7 +132,7 @@ private:
 	int	_index;
 };
 
-static menu_framework_c			s_joinserver_menu;
+static menu_joinserver_framework_c	s_joinserver_menu;
 static menu_separator_c			s_joinserver_server_title("connect to...");
 						
 static menu_joinserver_search_c		s_joinserver_search_action;
@@ -231,22 +247,9 @@ static void	JoinServer_MenuInit()
 	SearchLocalGames();
 }
 
-static void	JoinServer_MenuDraw()
-{
-	M_Banner("textues/pics/m_banner_join_server.pcx");
-	
-	s_joinserver_menu.draw();
-}
-
-
-static const std::string	JoinServer_MenuKey(int key)
-{
-	return Default_MenuKey(&s_joinserver_menu, key);
-}
-
 void	M_Menu_JoinServer_f ()
 {
 	JoinServer_MenuInit();
-	M_PushMenu(JoinServer_MenuDraw, JoinServer_MenuKey);
+	M_PushMenu(&s_joinserver_menu);
 }
 

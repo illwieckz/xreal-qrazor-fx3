@@ -27,6 +27,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // xreal --------------------------------------------------------------------
 #include "ui_local.h"
 
+class menu_audio_framework_c : public menu_framework_c
+{
+public:
+	virtual void	draw()
+	{
+		M_Banner("AUDIO");
+	
+		drawGeneric();
+	}
+	
+	virtual std::string	keyDown(int key)
+	{
+		return defaultKeyDown(key);
+	}
+};
+
 
 class menu_audio_volume_sfx_c : public menu_slider_c
 {
@@ -93,7 +109,7 @@ public:
 	}
 };
 
-static menu_framework_c			s_audio_menu;
+static menu_audio_framework_c			s_audio_menu;
 static menu_audio_volume_sfx_c			s_audio_sfxvolume_slider;									
 static menu_audio_volume_music_c		s_audio_musicvolume_slider;
 static menu_audio_quality_list_c		s_audio_quality_list;
@@ -106,7 +122,7 @@ static void	M_AudioInit()
 	
 	s_audio_menu._x = (int)(trap_VID_GetWidth() * 0.50 - (CHAR_MEDIUM_WIDTH * 10));
 	
-	s_audio_sfxvolume_slider._fontflags	= FONT_MEDIUM | FONT_CHROME;
+	s_audio_sfxvolume_slider._fontflags	= FONT_MEDIUM;
 	s_audio_sfxvolume_slider._x		= 0;
 	s_audio_sfxvolume_slider._y		= y = 0;
 	s_audio_sfxvolume_slider._curvalue	= trap_Cvar_VariableValue("s_sfxvolume") * 10;
@@ -137,23 +153,8 @@ static void	M_AudioInit()
 	s_audio_menu.center();
 }
 
-static void	M_AudioDraw()
-{
-	M_Banner("AUDIO");
-	
-	s_audio_menu.adjustCursor(1);
-	
-	s_audio_menu.draw();
-}
-
-static const std::string	M_AudioKey(int key)
-{
-	return Default_MenuKey(&s_audio_menu, key);
-}
-
-
 void	M_Menu_Audio_f()
 {
 	M_AudioInit();
-	M_PushMenu(M_AudioDraw, M_AudioKey);
+	M_PushMenu(&s_audio_menu);
 }

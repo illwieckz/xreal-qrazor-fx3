@@ -181,6 +181,12 @@ if sys.platform == 'linux2' or sys.platform == 'linux-i386':
 	#if not conf.CheckLib('Xxf86vm', symbol='XF86VidModeSwitchToMode', autoadd=0):
 	#	print 'Did not find libXxf86vm.a, exiting!'
 	#	Exit(1)
+	
+	#if not conf.CheckCHeader('libxml2/parser.h'):
+	#	print 'libxml2/libxml/parser.h must be installed!'
+	#if not conf.CheckLib('xml2', symbol='xmlFree', autoadd=0):
+	#	print 'Did not find libxml2.a, exiting!'
+	#	Exit(1)
 
 #if not conf.CheckCHeader('jpeglib.h'):
 #	print 'jpeglib.h must be installed!'

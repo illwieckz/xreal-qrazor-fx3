@@ -42,11 +42,13 @@ public:
 	virtual void	callback()
 	{
 		// the proper way to do this is probably to have ToggleConsole_f accept a parameter
+		/*
 		if(trap_CL_GetAttractloop())
 		{
 			trap_Cbuf_AddText("killserver\n");
 			return;
 		}
+		*/
 
 		trap_Con_ClearTyping();
 		trap_Con_ClearNotify();
@@ -93,6 +95,15 @@ public:
 	}
 };
 
+class menu_main_controls_c : public menu_action_c
+{
+public:
+	virtual void	callback()
+	{
+		M_Menu_Keys_f();
+	}
+};
+
 class menu_main_credicts_c : public menu_action_c
 {
 public:
@@ -118,6 +129,7 @@ static menu_main_multiplayer_c	s_main_multiplayer_action;
 static menu_main_audio_c	s_main_audio_action;
 static menu_main_video_c	s_main_video_action;
 static menu_main_options_c	s_main_options_action;
+static menu_main_controls_c	s_main_controls_action;
 static menu_main_credicts_c	s_main_credits_action;
 static menu_main_quit_c		s_main_quit_action;
 
@@ -164,6 +176,12 @@ static void	M_Main_MenuInit()
 	s_main_options_action._y		= y += y_offset;
 	s_main_options_action._name		= "OPTIONS";
 	
+	s_main_controls_action._flags  		= QMF_LEFT_JUSTIFY;
+	s_main_controls_action._fontflags	= FONT_CHROME | FONT_BIG;
+	s_main_controls_action._x		= 0;
+	s_main_controls_action._y		= y += y_offset;
+	s_main_controls_action._name		= "CONTROLS";
+	
 	s_main_credits_action._flags  		= QMF_LEFT_JUSTIFY;
 	s_main_credits_action._fontflags	= FONT_CHROME | FONT_BIG;
 	s_main_credits_action._x		= 0;
@@ -182,6 +200,7 @@ static void	M_Main_MenuInit()
 	s_main_menu.addItem(&s_main_audio_action);
 	s_main_menu.addItem(&s_main_video_action);
 	s_main_menu.addItem(&s_main_options_action);
+	s_main_menu.addItem(&s_main_controls_action);
 	s_main_menu.addItem(&s_main_credits_action);
 	s_main_menu.addItem(&s_main_quit_action);
 	
@@ -189,24 +208,10 @@ static void	M_Main_MenuInit()
 	s_main_menu.setStatusBar("");
 }
 
-
-static void	M_Main_Draw()
-{
-	s_main_menu.adjustCursor(1);
-	s_main_menu.draw();
-}
-
-
-static const std::string	M_Main_Key(int key)
-{
-	return Default_MenuKey(&s_main_menu, key);
-}
-
-
 void	M_Menu_Main_f()
 {
 	M_Main_MenuInit();
-	M_PushMenu(M_Main_Draw, M_Main_Key);
+	M_PushMenu(&s_main_menu);
 }
 
 

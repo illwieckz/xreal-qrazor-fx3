@@ -35,31 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ui_local.h"
 
 
-typedef void			(*drawfunc_t)();
-typedef const std::string	(*keyfunc_t)(int);
-
-static drawfunc_t			m_drawfunc;
-static keyfunc_t			m_keyfunc;
-
-class menu_layer_c
-{
-public:
-	inline menu_layer_c(drawfunc_t draw, keyfunc_t key)
-	{
-		_draw_fp	= draw;
-		_key_fp		= key;
-	}
-	
-	inline drawfunc_t	getDrawFunc() const	{return _draw_fp;}
-	inline keyfunc_t	getKeyFunc() const 	{return _key_fp;}
-	
-private:
-	drawfunc_t	_draw_fp;
-	keyfunc_t	_key_fp;
-};
-
-
-static std::stack<menu_layer_c>		m_layers;
+static std::stack<menu_framework_c*>	m_layers;
 
 
 void	M_Banner(const std::string &name)
@@ -71,16 +47,15 @@ void	M_Banner(const std::string &name)
 	Menu_DrawString(x, y, name, FONT_BIG | FONT_CHROME);
 }
 
-void	M_PushMenu(drawfunc_t draw, keyfunc_t key)
+void	M_PushMenu(menu_framework_c *menu)
 {
-	m_drawfunc = draw;
-	m_keyfunc = key;
-		
-	m_layers.push(menu_layer_c(draw, key));
+	m_layers.push(menu);
 	
 	trap_Key_SetKeyDest(KEY_MENU);
 	
 	trap_S_StartLocalSound(menu_in_sound);
+	
+//	trap_Com_DPrintf("M_PushMenu: stack size: %i\n", m_layers.size());
 }
 
 void	M_PopMenu()
@@ -94,44 +69,35 @@ void	M_PopMenu()
 	
 	if(m_layers.empty())
 	{
-		M_ForceMenuOff();
+		trap_Key_SetKeyDest(KEY_GAME);
+		trap_Key_ClearStates();
 	}
-	else
-	{	
-		const menu_layer_c& layer = m_layers.top();
 	
-		m_drawfunc = layer.getDrawFunc();
-		m_keyfunc = layer.getKeyFunc();
-	}
+//	trap_Com_DPrintf("M_PopMenu: stack size: %i\n", m_layers.size());
 }
 
 void	M_ForceMenuOff()
 {
-	m_drawfunc = NULL;
-	m_keyfunc = NULL;
-	
 	while(!m_layers.empty())
 		m_layers.pop();
+		
+//	trap_Com_DPrintf("M_ForceMenuOff: stack size: %i\n", m_layers.size());
 	
 	trap_Key_SetKeyDest(KEY_GAME);
-	
 	trap_Key_ClearStates();
 }
 
-const std::string	Default_MenuKey(menu_framework_c *m, int key)
+std::string	menu_framework_c::defaultKeyDown(int key)
 {
 	std::string sound = "";
 	menu_common_c *item;
 
-	if(m)
+	if((item = getItemAtCursor()) != 0)
 	{
-		if((item = m->getItemAtCursor()) != 0)
+		if(item->getType() == MTYPE_FIELD)
 		{
-			if(item->getType() == MTYPE_FIELD)
-			{
-				if(((menu_field_c*)item)->key(key))
-					return "";
-			}
+			if(((menu_field_c*)item)->key(key))
+				return "";
 		}
 	}
 
@@ -143,49 +109,34 @@ const std::string	Default_MenuKey(menu_framework_c *m, int key)
 			
 		case K_KP_UPARROW:
 		case K_UPARROW:
-			if(m)
-			{
-				m->_cursor--;
-				m->adjustCursor(-1);
-				sound = menu_move_sound;
-			}
+			_cursor--;
+			adjustCursor(-1);
+			sound = menu_move_sound;
 			break;
-		
+			
 		case K_TAB:
-			if(m)
-			{
-				m->_cursor++;
-				m->adjustCursor(1);
-				sound = menu_move_sound;
-			}
+			_cursor++;
+			adjustCursor(1);
+			sound = menu_move_sound;
 			break;
-		
+			
 		case K_KP_DOWNARROW:
 		case K_DOWNARROW:
-			if(m)
-			{
-				m->_cursor++;
-				m->adjustCursor(1);
-				sound = menu_move_sound;
-			}
+			_cursor++;
+			adjustCursor(1);
+			sound = menu_move_sound;
 			break;
 		
 		case K_KP_LEFTARROW:
 		case K_LEFTARROW:
-			if(m)
-			{
-				m->slideItem(-1);
-				sound = menu_move_sound;
-			}
+			slideItem(-1);
+			sound = menu_move_sound;
 			break;
 		
 		case K_KP_RIGHTARROW:
 		case K_RIGHTARROW:
-			if(m)			
-			{
-				m->slideItem(1);
-				sound = menu_move_sound;
-			}
+			slideItem(1);
+			sound = menu_move_sound;
 			break;
 		
 		case K_MOUSE1:
@@ -230,8 +181,7 @@ const std::string	Default_MenuKey(menu_framework_c *m, int key)
 		
 		case K_KP_ENTER:
 		case K_ENTER:
-			if(m)
-				m->selectItem();
+			selectItem();
 			sound = menu_move_sound;
 			break;
 	}
@@ -372,6 +322,8 @@ void M_DrawTextBox(int x, int y, int width, int lines)
 
 void	M_Init()
 {
+//	GUI_Init();	XUL menu
+
 	trap_Cmd_AddCommand("menu_main", M_Menu_Main_f);
 //	trap_Cmd_AddCommand("menu_singleplayer", M_Menu_Singleplayer_f);
 //		trap_Cmd_AddCommand("menu_loadgame", M_Menu_LoadGame_f);
@@ -404,17 +356,28 @@ void	M_Draw()
 	vec4_c color(0, 0, 0, 0.8);
 	trap_R_DrawFill(0, 0, trap_VID_GetWidth(), trap_VID_GetHeight(), color);
 	
-	m_drawfunc();
+	if(!m_layers.empty())
+	{
+		m_layers.top()->draw();
+	}
 }
 
 void	M_Keydown(int key)
 {
-	if(m_keyfunc)
+	if(trap_Key_GetKeyDest() != KEY_MENU)
+		return;
+
+	if(!m_layers.empty())
 	{
+		// keyDown may clear menu stack so remember current menu
+		menu_framework_c* menu = m_layers.top();
+	
 		std::string s;
 		
-		if((s = m_keyfunc(key)).length() != 0)
+		if((s = menu->keyDown(key)).length() != 0)
 			trap_S_StartLocalSound(s);
+	
+		menu->draw();
 	}
 }
 
