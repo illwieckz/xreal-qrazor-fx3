@@ -171,6 +171,11 @@ void	R_LiquidMap_sc(char const* begin, char const* end)
 	r_current_shader->stages.push_back(r_current_stage);
 }
 
+void	R_Debug_sc(char const* begin, char const* end)
+{
+	r_current_shader->setORFlags(SHADER_DEBUG);
+}
+
 void	R_NoDraw_sc(char const* begin, char const* end)
 {
 	r_current_shader->setORFlags(SHADER_NODRAW);

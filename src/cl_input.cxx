@@ -310,7 +310,7 @@ static void	CL_BaseMove(usercmd_t &cmd)
 
 static void	CL_MouseMove()
 {
-	if(m_filter->getValue())
+	if(m_filter->getInteger())
 	{
 		in_mx = (int)((in_mx_old + in_mx) * 0.5);
 		in_my = (int)((in_my_old + in_my) * 0.5);

@@ -62,13 +62,14 @@ textures/editor/visportal
 	qer_editorimage		textures/common/areaportal.tga
 	qer_trans		0.5
 	
+//	structural
+//	areaportal
+	skip
+	
 	nodraw
 	nolightmap
-	nonsolid
-	structural
 	nomarks
-//	hint
-	areaportal
+	nonsolid
 	noshadows
 	translucent		// don't block VIS
 	
@@ -180,7 +181,7 @@ textures/common/nodraw
 	nonsolid
 	noshadows
 	translucent
-//	skip
+	skip
 
 	// for debugging
 	{

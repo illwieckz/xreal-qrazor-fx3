@@ -174,7 +174,7 @@ void	CG_CalcLerpFrac()
 
 	if(trap_CL_GetTime() > cg.frame.servertime)
 	{
-		if(cg_showclamp->getValue())
+		if(cg_showclamp->getInteger())
 			trap_Com_Printf("high clamp %i\n", trap_CL_GetTime() - cg.frame.servertime);
 			
 		trap_CL_SetTime(cg.frame.servertime);
@@ -182,7 +182,7 @@ void	CG_CalcLerpFrac()
 	}
 	else if(trap_CL_GetTime() < cg.frame.servertime - 100)
 	{
-		if(cg_showclamp->getValue())
+		if(cg_showclamp->getInteger())
 			trap_Com_Printf("low clamp %i\n", cg.frame.servertime-100 - trap_CL_GetTime());
 			
 		trap_CL_SetTime(cg.frame.servertime - 100);
@@ -232,7 +232,7 @@ static void	CG_CalcViewValues()
 	lerp = cg.frame_lerp;
 
 	// calculate the origin
-	if(cg_predict->getValue() && !(cg.frame.playerstate.pmove.pm_flags & PMF_NO_PREDICTION))
+	if(cg_predict->getInteger() && !(cg.frame.playerstate.pmove.pm_flags & PMF_NO_PREDICTION))
 	{
 		// use predicted values
 		unsigned	delta;
@@ -309,7 +309,7 @@ void	CG_RenderView()
 
 	// an invalid frame will just use the exact previous refdef
 	// we can't use the old frame if the video mode has changed, though...
-	if(cg.frame.valid && (trap_CL_GetForceRefdef() || !cg_paused->getValue()))
+	if(cg.frame.valid && (trap_CL_GetForceRefdef() || !cg_paused->getInteger()))
 	{
 		trap_CL_SetForceRefdef(false);
 

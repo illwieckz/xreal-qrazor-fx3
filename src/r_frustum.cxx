@@ -41,7 +41,7 @@ Returns true if the bounding box is completely outside the frustum
 */
 bool	r_frustum_c::cull(const aabb_c &bbox, int clipflags) const
 {
-	if(!r_cull->getValue())
+	if(!r_cull->getInteger())
 		return false;
 
 	for(int i=0; i<FRUSTUM_PLANES; i++)
@@ -66,7 +66,7 @@ Returns true if the bounding sphere is completely outside the frustum
 */
 bool	r_frustum_c::cull(const vec3_c &center, vec_t radius, int clipflags) const
 {
-	if(!r_cull->getValue())
+	if(!r_cull->getInteger())
 		return false;
 
 	for(int i=0; i<FRUSTUM_PLANES; i++)
@@ -91,7 +91,7 @@ Returns true if the point is completely outside the frustum
 */
 bool	r_frustum_c::cull(const vec3_c &origin, int clipflags) const
 {
-	if(!r_cull->getValue())
+	if(!r_cull->getInteger())
 		return false;
 
 	for(int i=0; i<FRUSTUM_PLANES; i++)

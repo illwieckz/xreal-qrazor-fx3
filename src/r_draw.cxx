@@ -44,7 +44,7 @@ void 	R_InitDraw()
 
 void	R_DrawStretchPic(int x, int y, int w, int h, float s1, float t1, float s2, float t2, const vec4_c &color, r_shader_c *shader)
 {
-	if(!r_draw2d->getValue())
+	if(!r_draw2d->getInteger())
 		return;
 
 	if(!shader)

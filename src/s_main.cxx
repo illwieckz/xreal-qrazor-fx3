@@ -75,7 +75,7 @@ s_source_c::s_source_c(int entity_num, int entity_channel)
 	
 	_activated = false;
 
-	if(s_show->getValue())
+	if(s_show->getInteger())
 		Com_Printf("s_source_c::ctor: %i %i\n", _entity_num, _entity_channel);
 	
 	// find free sound source slot
@@ -89,7 +89,7 @@ s_source_c::s_source_c(int entity_num, int entity_channel)
 
 s_source_c::~s_source_c()
 {
-	if(s_show->getValue())
+	if(s_show->getInteger())
 		Com_Printf("s_source_c::dtor: %i %i\n", _entity_num, _entity_channel);
 
 	stop();
@@ -334,7 +334,7 @@ void	S_Init()
 	
 	s_nosound = Cvar_Get("s_nosound", "0", CVAR_NONE);
 	
-	if(s_nosound->getValue())
+	if(s_nosound->getInteger())
 	{
 		Com_Printf("not initializing.\n");
 	}

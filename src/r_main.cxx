@@ -69,6 +69,7 @@ r_frustum_c	r_frustum;
 uint_t		r_framecount;		// used for dlight push checking
 uint_t		r_visframecount;	// bumped when going to a new PVS
 uint_t		r_lightframecount;
+uint_t		r_shadowframecount;
 uint_t		r_checkcount;
 
 int		r_depth_format;
@@ -243,6 +244,7 @@ cvar_t	*vid_stencilbits;
 cvar_t	*vid_pbuffer_width;
 cvar_t	*vid_pbuffer_height;
 cvar_t	*vid_pbuffer_colorbits;
+cvar_t	*vid_pbuffer_alphabits;
 cvar_t	*vid_pbuffer_depthbits;
 cvar_t	*vid_pbuffer_stencilbits;
 
@@ -556,7 +558,7 @@ static void	R_ScreenShot()
 
 	//save it smart and small
 	IMG_WriteJPG(checkname, buffer, vid.width, vid.height, 95);
-	//IMG_WriteTGA(checkname, buffer, vid.width, vid.height, 3);
+//	IMG_WriteTGA(checkname, buffer, vid.width, vid.height, 3);
 
 	delete [] buffer;
 	
@@ -588,7 +590,8 @@ void	R_WritePbuffer()
 	
 	xglReadPixels(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), GL_RGB, GL_UNSIGNED_BYTE, buffer);
 
-	IMG_WriteJPG(checkname, buffer, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), 95);
+//	IMG_WriteJPG(checkname, buffer, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), 95);
+	IMG_WriteTGA(checkname, buffer, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), 3);
 
 	delete [] buffer;
 	
@@ -632,7 +635,7 @@ static void 	R_Strings_f()
 
 static void 	R_AddEntitiesToBuffer()
 {
-	if(!r_drawentities->getValue())
+	if(!r_drawentities->getInteger())
 		return;
 
 	for(std::vector<r_entity_c*>::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
@@ -648,7 +651,7 @@ static void 	R_AddEntitiesToBuffer()
 				continue;
 		}
 		
-		if(!ent->isVisible())
+		if(!ent->isVisFramed())
 			continue;
 		
 		r_model_c *model = R_GetModelByNum(ent->getShared().model);
@@ -666,7 +669,7 @@ static void 	R_AddEntitiesToBuffer()
 
 void 	R_ShadowBlend()
 {
-	if(r_shadows->getValue() != 1)
+	if(r_shadows->getInteger() != 1)
 		return;
 #if 0
 	glMatrixMode(GL_PROJECTION);
@@ -709,6 +712,25 @@ void 	R_ShadowBlend()
 	xglColor4fv(color_white);
 }
 
+static void	R_CullLights()
+{
+	for(std::vector<r_light_c*>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+	{
+		r_light_c* light = *ir;
+		
+		if(!light)
+			continue;
+			
+		if(!light->isVisFramed())
+			continue;
+				
+		if(!r_frustum.cull(light->getShared().radius_aabb))
+		{
+			light->setFrameCount();
+			c_lights++;
+		}
+	}
+}
 
 void	R_SetupFrame()
 {
@@ -721,6 +743,8 @@ void	R_SetupFrame()
 	// update scenegraph
 	if(r_world_tree)
 		r_world_tree->update();
+		
+	R_CullLights();
 }
 
 void 	R_DrawWorld()
@@ -776,7 +800,6 @@ void	R_DrawLightDebuggingInfo()
 			if(!light->isVisible())
 				continue;
 			
-					
 			xglBegin(GL_QUADS);
 			
 			xglColor4fv(color_red);
@@ -861,6 +884,10 @@ void	R_DrawLightDebuggingInfo()
 			xglVertex3fv(s.origin);
 			xglVertex3fv(s.origin + s.up);
 			
+			xglColor4fv(color_grey_med);
+			xglVertex3fv(s.origin);
+			xglVertex3fv(s.origin + s.target + s.up);
+			
 			xglEnd();
 		}
 	}
@@ -877,7 +904,6 @@ void	R_DrawEntityDebuggingInfo()
 			if(!ent)
 				continue;
 			
-				
 			if(!ent->isVisible())
 				R_DrawBBox(ent->getAABB(), color_red);
 			
@@ -1299,7 +1325,7 @@ static void 	R_Register()
 	r_drawpostprocess	= ri.Cvar_Get("r_drawpostprocess", "1", CVAR_ARCHIVE);
 	r_lerpmodels 		= ri.Cvar_Get("r_lerpmodels", "1", CVAR_NONE);
 	r_speeds 		= ri.Cvar_Get("r_speeds", "0", CVAR_NONE);
-	r_debug			= ri.Cvar_Get("r_debug", "1", CVAR_ARCHIVE);
+	r_debug			= ri.Cvar_Get("r_debug", "0", CVAR_ARCHIVE);
 	r_log	 		= ri.Cvar_Get("r_log", "0", CVAR_NONE);
 	r_shadows 		= ri.Cvar_Get("r_shadows", "0", CVAR_ARCHIVE );
 	r_shadows_alpha		= ri.Cvar_Get("r_shadows_alpha", "0.5", CVAR_ARCHIVE);
@@ -1385,15 +1411,16 @@ static void 	R_Register()
 #else
 	vid_gldriver 		= ri.Cvar_Get("vid_gldriver", "libGL.so", CVAR_ARCHIVE);
 #endif
-	vid_colorbits		= ri.Cvar_Get("vid_colorbits", "32", CVAR_ARCHIVE);
+	vid_colorbits		= ri.Cvar_Get("vid_colorbits", "16", CVAR_ARCHIVE);
 	vid_depthbits		= ri.Cvar_Get("vid_depthbits", "24", CVAR_ARCHIVE);
 	vid_stencilbits		= ri.Cvar_Get("vid_stencilbits", "8", CVAR_ARCHIVE);
 	
 	vid_pbuffer_width	= ri.Cvar_Get("vid_pbuffer_width", "512", CVAR_ARCHIVE);
 	vid_pbuffer_height	= ri.Cvar_Get("vid_pbuffer_height", "512", CVAR_ARCHIVE);
-	vid_pbuffer_colorbits	= ri.Cvar_Get("vid_pbuffer_colorbits", "32", CVAR_ARCHIVE);
+	vid_pbuffer_colorbits	= ri.Cvar_Get("vid_pbuffer_colorbits", "16", CVAR_ARCHIVE);
+	vid_pbuffer_alphabits	= ri.Cvar_Get("vid_pbuffer_alphabits", "0", CVAR_ARCHIVE);
 	vid_pbuffer_depthbits	= ri.Cvar_Get("vid_pbuffer_depthbits", "24", CVAR_ARCHIVE);
-	vid_pbuffer_stencilbits	= ri.Cvar_Get("vid_pbuffer_stencilbits", "8", CVAR_ARCHIVE);
+	vid_pbuffer_stencilbits	= ri.Cvar_Get("vid_pbuffer_stencilbits", "0", CVAR_ARCHIVE);
 	
 	vid_ref 		= ri.Cvar_Get("vid_ref", "glx", CVAR_ARCHIVE);
 
@@ -1508,7 +1535,7 @@ bool 	R_Init(void *hinstance, void *hWnd)
 	if(r_debug->isModified())
 	{
 		r_debug->isModified(false);
-		XGL_EnableDebugging(r_debug->getInteger() >= 0);
+		XGL_EnableDebugging((bool)r_debug->getInteger());
 	}
 	
 	// initialize OS-specific parts of OpenGL

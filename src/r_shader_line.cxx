@@ -155,7 +155,15 @@ bool	R_ParseExpressionToAST(r_iterator_t begin, r_iterator_t end, boost::spirit:
 {
 	r_shader_line_grammar_t		grammar;
 	
-	info = boost::spirit::ast_parse<r_factory_t>(begin, end, grammar, boost::spirit::space_p);
+	info = boost::spirit::ast_parse<r_factory_t>
+	(
+		begin,
+		end,
+		grammar,
+		boost::spirit::space_p ||
+		boost::spirit::comment_p("/*", "*/") ||
+		boost::spirit::comment_p("//")
+	);
 		
 	return info.full;
 }

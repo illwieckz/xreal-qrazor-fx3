@@ -221,7 +221,7 @@ void 	Com_DPrintf(const char *fmt, ...)
 	va_list		argptr;
 	char		msg[MAX_PRINT_MSG];
 		
-	if(!developer || !developer->getValue())
+	if(!developer || !developer->getInteger())
 		return;			// don't confuse non-developers with techie stuff...
 
 	va_start(argptr,fmt);
@@ -1120,7 +1120,7 @@ void 	Com_Init(int argc, char **argv)
 	Cvar_Get("version", s, CVAR_SERVERINFO | CVAR_INIT);
 
 
-	if(dedicated->getValue())
+	if(dedicated->getInteger())
 		Cmd_AddCommand("quit", Com_Shutdown);
 
 	Sys_Init();
@@ -1144,7 +1144,7 @@ void 	Com_Init(int argc, char **argv)
 	if(!Cbuf_AddLateCommands())
 	{	
 		// if the user didn't give any commands, run default action
-		if(!dedicated->getValue())
+		if(!dedicated->getInteger())
 			Cbuf_AddText("toggleconsole\n");
 		else
 			Cbuf_AddText("dedicated_start\n");
@@ -1176,14 +1176,14 @@ void	Com_Frame(int msec)
 	{
 		msec = fixedtime->getInteger();
 	}	
-	else if(timescale->getValue())
+	else if(timescale->getInteger())
 	{
 		msec = (int)(msec * timescale->getValue());
 		if(msec < 1)
 			msec = 1;
 	}
 
-	if(showtrace->getValue())
+	if(showtrace->getInteger())
 	{
 		extern	int cm_traces, cm_brush_traces;
 		extern	int cm_pointcontents;
@@ -1210,22 +1210,22 @@ void	Com_Frame(int msec)
 	
 	VFS_CheckForChanges();
 
-	if(com_speeds->getValue())
+	if(com_speeds->getInteger())
 		time_before = Sys_Milliseconds();
 
 	SV_Frame(msec);
 
-	if(com_speeds->getValue())
+	if(com_speeds->getInteger())
 		time_between = Sys_Milliseconds();		
 
 	CL_Frame(msec);
 
-	if(com_speeds->getValue())
+	if(com_speeds->getInteger())
 		time_after = Sys_Milliseconds();
 		
 	Map_Frame(msec);
 
-	if(com_speeds->getValue())
+	if(com_speeds->getInteger())
 	{
 		int			all, sv, gm, cl, rf;
 

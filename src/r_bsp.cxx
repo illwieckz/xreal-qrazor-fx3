@@ -277,7 +277,7 @@ void	r_bsptree_c::update()
 
 void	r_bsptree_c::draw()
 {
-	if(!r_drawworld->getValue())
+	if(!r_drawworld->getInteger())
 		return;
 		
 	try
@@ -1258,10 +1258,10 @@ r_mesh_c*	r_bsptree_c::createBezierMesh(const bsp_dsurface_t *in)
 
 void	r_bsptree_c::drawNode_r(r_tree_elem_c *elem, int clipflags)
 {
-	if(!elem->isVisible())
+	if(!elem->isVisFramed())
 		return;
 		
-	if(r_cull->getValue() && clipflags)
+	if(clipflags > 0)
 	{
 		for(int i=0; i<FRUSTUM_PLANES; i++)
 		{
@@ -1320,17 +1320,20 @@ void	r_bsptree_c::drawNode_r(r_tree_elem_c *elem, int clipflags)
 				continue;
 			}
 			
-			if(!r_showinvisible->getValue() && surf->getShaderRef()->hasFlags(X_SURF_NODRAW))
+			if(!r_showinvisible->getInteger() && surf->getShaderRef()->hasFlags(X_SURF_NODRAW))
 				continue;
 				
 			if(r_envmap && surf->getShader()->hasFlags(SHADER_NOENVMAP))
 				continue;
 				
+			//if(!r_showareaportals->getInteger() && surf->getShader()->hasFlags(SHADER_AREAPORTAL))
+			//	continue;
+				
 			switch(surf->getFaceType())
 			{
 				case BSPST_PLANAR:
 				{
-					if(r_cullplanes->getInteger() && !surf->getShader()->hasFlags(SHADER_TWOSIDED))
+					if(!surf->getShader()->hasFlags(SHADER_TWOSIDED))
 					{
 						if(surf->getPlane().distance(r_origin) <= -0.01)			
 						//if(surf->getPlane().onSide(r_origin) == SIDE_BACK)
@@ -1352,14 +1355,18 @@ void	r_bsptree_c::drawNode_r(r_tree_elem_c *elem, int clipflags)
 			
 			surf->setFrameCount();
 			
+			#if DEBUG
 			try
 			{
+			#endif
 				RB_AddCommand(&r_world_entity, _models.at(0), surf->getMesh(), surf->getShader(), NULL, NULL, surf->getLightMapNum(), X_infinity);
+			#if DEBUG
 			}
 			catch(...)
 			{
 				ri.Com_DPrintf("r_bsptree_c::drawNode_r: exception thrown while creating command\n");
 			}
+			#endif
 			
 			if(r_lighting->getInteger() == 1)
 			{
@@ -1373,15 +1380,20 @@ void	r_bsptree_c::drawNode_r(r_tree_elem_c *elem, int clipflags)
 					
 					if(ia->getIndexes().empty())
 						continue;
-							
+					
+					#if DEBUG
 					try
 					{
+					#endif
 						RB_AddCommand(&r_world_entity, _models.at(0), surf->getMesh(), surf->getShader(), ia->getLight(), (std::vector<index_t>*)&ia->getIndexes(), -1, 0);
+					
+					#if DEBUG
 					}
 					catch(...)
 					{
 						ri.Com_DPrintf("r_bsptree_c::drawNode_r: exception thrown while creating light command\n");
 					}
+					#endif
 				}
 			}
 		}
@@ -1401,7 +1413,7 @@ void	r_bsptree_c::drawNode_r(r_tree_elem_c *elem, int clipflags)
 
 int	r_bsptree_c::litNode_r(r_tree_elem_c *elem, r_light_c *light, r_litnode_mode_e mode, int count)
 {
-	if(mode == LITNODE_MODE_DYNAMIC && !elem->isVisible())
+	if(mode == LITNODE_MODE_DYNAMIC && !elem->isVisFramed())
 		return count;
 		
 	if(elem->contents != -1)
@@ -1498,14 +1510,18 @@ int	r_bsptree_c::litNode_r(r_tree_elem_c *elem, r_light_c *light, r_litnode_mode
 					if(!surf->getMesh()->bbox.intersect(light->getShared().radius_aabb))
 						continue;
 					
+					#if DEBUG
 					try
 					{
+					#endif
 						RB_AddCommand(&r_world_entity, _models.at(0), surf->getMesh(), surf->getShader(), light, NULL, -1, 0);
+					#if DEBUG
 					}
 					catch(...)
 					{
 						ri.Com_DPrintf("r_bsptree_c::litNode_r: exception thrown\n");
 					}
+					#endif
 					break;
 				}
 			}
@@ -1546,14 +1562,18 @@ byte*	r_bsptree_c::clusterPVS(int cluster)
 	
 	byte *data = NULL;
 	
+	#if DEBUG
 	try
 	{
+	#endif
 		data =  &(_pvs.at(cluster * _pvs_clusters_size));
+	#if DEBUG
 	}
 	catch(...)
 	{
 		ri.Com_Error(ERR_DROP, "r_bsptree_c::clusterPVS: exception occured");
 	}
+	#endif
 	
 	return data;
 }
@@ -1571,12 +1591,12 @@ cluster
 */
 void 	r_bsptree_c::markLeaves()
 {
-	if(_viewcluster_old == _viewcluster && r_vis->getValue() && _viewcluster != -1)
+	if(_viewcluster_old == _viewcluster && r_vis->getInteger() && _viewcluster != -1)
 		return;
 
 	// development aid to let you run around and see exactly where
 	// the PVS ends
-	if(r_lockpvs->getValue())
+	if(r_lockpvs->getInteger())
 		return;
 
 	r_visframecount++;
@@ -1615,8 +1635,10 @@ void 	r_bsptree_c::markLeaves()
 	}
 	else
 	{
+		#if DEBUG
 		try
 		{
+		#endif
 			// mark only leafs that are in the PVS
 			for(std::vector<r_bsptree_leaf_c*>::iterator ir = _leafs.begin(); ir != _leafs.end(); ++ir)
 			{
@@ -1634,7 +1656,7 @@ void 	r_bsptree_c::markLeaves()
 			
 					do
 					{
-						if(elem->isVisible())
+						if(elem->isVisFramed())
 							break;
 				
 						elem->setVisFrameCount();
@@ -1647,17 +1669,22 @@ void 	r_bsptree_c::markLeaves()
 				}
 				
 			}
+		#if DEBUG
 		}
 		catch(...)
 		{
 			ri.Com_Error(ERR_DROP, "r_bsptree_c::markLeaves: exception occured");
 		}
+		#endif
 	}
 }
 
 void 	r_bsptree_c::markLights()
 {
-	if(r_lockpvs->getValue())
+	if(_viewcluster_old == _viewcluster && r_vis->getInteger() && _viewcluster != -1)
+		return;
+
+	if(r_lockpvs->getInteger())
 		return;
 	
 	byte *vis = clusterPVS(_viewcluster);
@@ -1670,12 +1697,8 @@ void 	r_bsptree_c::markLights()
 			
 			if(!light)
 				continue;
-				
-			if(r_frustum.cull(light->getShared().radius_aabb))
-				continue;
 			
 			light->setVisFrameCount();
-			c_lights++;
 		}
 	}
 	else
@@ -1692,11 +1715,7 @@ void 	r_bsptree_c::markLights()
 				//if(light->getCluster() < 0)
 				//	continue;
 				
-				if(r_frustum.cull(light->getShared().radius_aabb))
-					continue;
-				
 				light->setVisFrameCount();
-				c_lights++;
 				continue;
 			}
 			
@@ -1723,33 +1742,26 @@ void 	r_bsptree_c::markLights()
 			{
 				r_bsptree_leaf_c* leaf = *ir;
 				
-				if(leaf->isVisible())
+				if(leaf->isVisFramed())
 				{
 					light->setVisFrameCount();
 					break;
 				}
 			}
-				
-			if(!light->isVisible())
-				continue;
-				
-			if(r_frustum.cull(light->getShared().radius_aabb))
-			{
-				light->resetVisFrameCount();
-				continue;
-			}
-			
-			c_lights++;
 		}
 	}
 }
 
 void 	r_bsptree_c::markEntities()
 {
-//	if(_viewcluster_old == _viewcluster && r_vis->getValue() && _viewcluster != -1)
-//		return;
+	r_world_entity.setFrameCount();
+	r_world_entity.setVisFrameCount();
+	c_entities++;
 
-	if(r_lockpvs->getValue())
+	if(_viewcluster_old == _viewcluster && r_vis->getInteger() && _viewcluster != -1)
+		return;
+
+	if(r_lockpvs->getInteger())
 		return;
 	
 	byte *vis = clusterPVS(_viewcluster);
@@ -1764,7 +1776,6 @@ void 	r_bsptree_c::markEntities()
 				continue;
 				
 			ent->setVisFrameCount();
-			c_entities++;
 		}
 	}
 	else
@@ -1780,7 +1791,6 @@ void 	r_bsptree_c::markEntities()
 			{
 				// entity is always visible
 				ent->setVisFrameCount();
-				c_entities++;
 				continue;
 			}
 			else
@@ -1792,20 +1802,16 @@ void 	r_bsptree_c::markEntities()
 				{
 					r_bsptree_leaf_c* leaf = *ir;
 			
-					if(leaf->isVisible())
+					if(leaf->isVisFramed())
 					{
 						// leaf is visible
 						ent->setVisFrameCount();
-						c_entities++;
 						break;
 					}
 				}
 			}
 		}
 	}
-	
-	r_world_entity.setVisFrameCount();
-	c_entities++;
 }
 
 
@@ -1828,10 +1834,14 @@ void	r_bsp_model_c::addModelToList(r_entity_c *ent)
 {
 	//ri.Com_DPrintf("r_bsp_model_c::addModelToList:\n");
 	
-	if(ent->isVisible() && r_frustum.cull(ent->getAABB(), FRUSTUM_CLIPALL))
+	if(ent->isVisFramed() && r_frustum.cull(ent->getAABB(), FRUSTUM_CLIPALL))
 	{
-		c_entities--;
 		return;
+	}
+	else
+	{
+		ent->setFrameCount();
+		c_entities++;
 	}
 
 	for(std::vector<r_surface_c*>::iterator ir = _surfaces.begin(); ir != _surfaces.end(); ++ir)
@@ -1853,7 +1863,7 @@ void	r_bsp_model_c::addModelToList(r_entity_c *ent)
 			continue;
 		}
 		
-		if(!r_showinvisible->getValue() && surf->getShaderRef()->hasFlags(X_SURF_NODRAW))
+		if(!r_showinvisible->getInteger() && surf->getShaderRef()->hasFlags(X_SURF_NODRAW))
 			continue;
 			
 		if(r_envmap && surf->getShader()->hasFlags(SHADER_NOENVMAP))
@@ -1949,7 +1959,7 @@ int	r_bsp_model_c::precacheLight(r_entity_c *ent, r_light_c *light) const
 			continue;
 		}
 		
-		if(!r_showinvisible->getValue() && surf->getShaderRef()->hasFlags(X_SURF_NODRAW))
+		if(!r_showinvisible->getInteger() && surf->getShaderRef()->hasFlags(X_SURF_NODRAW))
 			continue;
 			
 		if(!surf->getShader()->stage_diffusemap)

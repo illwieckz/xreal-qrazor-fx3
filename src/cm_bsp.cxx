@@ -1011,7 +1011,7 @@ d_bsp_c*	CM_BeginRegistration(const std::string &name, bool clientload, unsigned
 	std::string		full_name = "maps/" + name + ".bsp";
 	static unsigned		last_checksum;
 
-	cm_noareas	= Cvar_Get("cm_noareas", "1", CVAR_NONE);
+	cm_noareas	= Cvar_Get("cm_noareas", "0", CVAR_NONE);
 	cm_use_brushes	= Cvar_Get("cm_use_brushes", "1", CVAR_NONE);
 	cm_use_patches	= Cvar_Get("cm_use_patches", "0", CVAR_NONE);
 	cm_use_meshes	= Cvar_Get("cm_use_meshes", "0", CVAR_NONE);
@@ -2037,9 +2037,12 @@ static void	CM_FloodAreaConnections()
 	for(uint_t i=1; i<cm_areas.size(); i++)
 	{
 		for(uint_t j=1; j<cm_areas.size(); j++)
-			cm_areas[i].numareaportals[j] = (j == i);
+		{
+			cm_areas[i].numareaportals[j] = 1;//(j == i);
+		}
 	}
 
+	Com_DPrintf("%i areas flooded\n", cm_areas.size());
 }
 
 
@@ -2074,7 +2077,7 @@ void	CM_SetAreaPortalState(int portal, bool open)
 
 bool	CM_AreasConnected(int area1, int area2)
 {
-	if(cm_noareas->getValue())
+	if(cm_noareas->getInteger())
 		return true;
 	
 	if(area1 > (int)cm_areas.size() || area2 > (int)cm_areas.size())
@@ -2106,7 +2109,7 @@ This is used by the client refreshes to cull visibility
 */
 void	CM_WriteAreaBits(boost::dynamic_bitset<byte> &bits, int area)
 {
-	if(cm_noareas->getValue() || area <= 0)
+	if(cm_noareas->getInteger() || area <= 0)
 	{	
 		// for debugging, send everything
 		bits = boost::dynamic_bitset<byte>(cm_areas.size());
@@ -2120,7 +2123,7 @@ void	CM_WriteAreaBits(boost::dynamic_bitset<byte> &bits, int area)
 		// area 0 is the void and should not be visible
 		for(uint_t i=1; i<cm_areas.size(); i++)
 		{
-			if((int)i == area)//|| CM_AreasConnected(i, area))
+			if((int)i == area || CM_AreasConnected(i, area))
 				bits[i] = true;
 		}
 	}

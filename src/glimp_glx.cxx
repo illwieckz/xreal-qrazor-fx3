@@ -133,7 +133,7 @@ static void	install_grabs()
 				 CurrentTime);
 
 #ifdef HAVE_XF86_DGA
-	if(in_dgamouse->getValue())
+	if(in_dgamouse->getInteger())
 	{
 		int MajorVersion, MinorVersion;
 
@@ -259,7 +259,7 @@ static void	IN_ActivateMouse()
 	if(!mouse_avail || !sys_gl.dpy || !sys_gl.win)
 		return;
 
-	if(!mouse_active && in_mouse->getValue())
+	if(!mouse_active && in_mouse->getInteger())
 	{
 		install_grabs();
 		mouse_active = true;
@@ -872,7 +872,7 @@ int	GLimp_SetMode(int *pwidth, int *pheight, int mode, bool fullscreen)
 	
 	if(strstr(sys_gl.extensions_string, "ARB_get_proc_address"))
 	{
-		//if(r_arb_get_proc_address->getValue())
+		//if(r_arb_get_proc_address->getInteger())
 		{
 			ri.Com_Printf("...using ARB_get_proc_address\n");
 			xglXGetProcAddressARB = (void* (*)(const GLubyte *)) XGL_GetSymbol("glXGetProcAddressARB");
@@ -890,7 +890,7 @@ int	GLimp_SetMode(int *pwidth, int *pheight, int mode, bool fullscreen)
 
 	if(strstr(sys_gl.extensions_string, "SGIX_fbconfig"))
 	{
-		if(r_sgix_fbconfig->getValue())
+		if(r_sgix_fbconfig->getInteger())
 		{
 			ri.Com_Printf("...using SGIX_fbconfig\n");
 			xglXChooseFBConfigSGIX = (GLXFBConfigSGIX* (*)(Display *dpy, int screen, const int *attrib_list, int *nelements)) XGL_GetSymbol("glXChooseFBConfigSGIX");
@@ -909,7 +909,7 @@ int	GLimp_SetMode(int *pwidth, int *pheight, int mode, bool fullscreen)
 
 	if(strstr(sys_gl.extensions_string, "SGIX_pbuffer"))
 	{
-		if(r_sgix_pbuffer->getValue())
+		if(r_sgix_pbuffer->getInteger())
 		{
 			ri.Com_Printf("...using SGIX_pbuffer\n");
 			
@@ -1153,12 +1153,14 @@ static void	GLimp_ParsePbufferModeString(const std::string &mode_string, std::ve
 
 void	GLimp_InitPbuffer(bool shared_context, bool shared_objects)
 {
+	gl_state.active_pbuffer = false;
+
 	if(!sys_gl.sgix_fbconfig || !sys_gl.sgix_pbuffer)
 		return;
-	
-	Display *dpy		= xglXGetCurrentDisplay();
-	int screen		= DefaultScreen(dpy);
-	GLXContext ctx		= xglXGetCurrentContext();
+		
+	sys_pbuffer.dpy_old = xglXGetCurrentDisplay();
+	sys_pbuffer.pbuffer_old = xglXGetCurrentDrawable();
+	sys_pbuffer.ctx_old = xglXGetCurrentContext();
 	
 	GLXFBConfig*	config;
 	int		config_count;
@@ -1174,16 +1176,23 @@ void	GLimp_InitPbuffer(bool shared_context, bool shared_objects)
 	sys_pbuffer.battribs.push_back(GLX_PRESERVED_CONTENTS);
 	sys_pbuffer.battribs.push_back(true);
 
-		
-	if(vid_pbuffer_colorbits->getInteger() >= 16)
+	// set color bits
+	if(vid_pbuffer_colorbits->getInteger() >= 32)
+	{
+		sys_pbuffer.fattribs.push_back(GLX_RED_SIZE);
+		sys_pbuffer.fattribs.push_back(32);
+		sys_pbuffer.fattribs.push_back(GLX_GREEN_SIZE);
+		sys_pbuffer.fattribs.push_back(32);
+		sys_pbuffer.fattribs.push_back(GLX_BLUE_SIZE);
+		sys_pbuffer.fattribs.push_back(32);
+	}
+	else if(vid_pbuffer_colorbits->getInteger() >= 16)
 	{
 		sys_pbuffer.fattribs.push_back(GLX_RED_SIZE);
 		sys_pbuffer.fattribs.push_back(8);
 		sys_pbuffer.fattribs.push_back(GLX_GREEN_SIZE);
 		sys_pbuffer.fattribs.push_back(8);
 		sys_pbuffer.fattribs.push_back(GLX_BLUE_SIZE);
-		sys_pbuffer.fattribs.push_back(8);
-		sys_pbuffer.fattribs.push_back(GLX_ALPHA_SIZE);
 		sys_pbuffer.fattribs.push_back(8);
 	}
 	else
@@ -1194,24 +1203,39 @@ void	GLimp_InitPbuffer(bool shared_context, bool shared_objects)
 		sys_pbuffer.fattribs.push_back(5);
 		sys_pbuffer.fattribs.push_back(GLX_BLUE_SIZE);
 		sys_pbuffer.fattribs.push_back(5);
+	}
+	
+	// set alpha bits
+	if(vid_pbuffer_alphabits->getInteger() >= 32)
+	{
+		sys_pbuffer.fattribs.push_back(GLX_ALPHA_SIZE);
+		sys_pbuffer.fattribs.push_back(32);
+	}
+	else if(vid_pbuffer_alphabits->getInteger() >= 16)
+	{
+		sys_pbuffer.fattribs.push_back(GLX_ALPHA_SIZE);
+		sys_pbuffer.fattribs.push_back(8);
+	}
+	else if(vid_pbuffer_alphabits->getInteger() > 0)
+	{
 		sys_pbuffer.fattribs.push_back(GLX_ALPHA_SIZE);
 		sys_pbuffer.fattribs.push_back(5);
 	}
 	
-	
+	// set depth bits
 	sys_pbuffer.fattribs.push_back(GLX_DEPTH_SIZE);
-	if(vid_pbuffer_depthbits->getInteger())
+	if(vid_pbuffer_depthbits->getInteger() > 0)
 		sys_pbuffer.fattribs.push_back(vid_pbuffer_depthbits->getInteger());
 	else
 		sys_pbuffer.fattribs.push_back(24);
 		
 	
+	// set stencil bits
 	sys_pbuffer.fattribs.push_back(GLX_STENCIL_SIZE);
-	if(vid_pbuffer_stencilbits->getInteger())
+	if(vid_pbuffer_stencilbits->getInteger() > 0)
 		sys_pbuffer.fattribs.push_back(vid_pbuffer_stencilbits->getInteger());
 	else
 		sys_pbuffer.fattribs.push_back(8);
-
 
 	// end of attrib lists
 	sys_pbuffer.fattribs.push_back(0);
@@ -1220,7 +1244,7 @@ void	GLimp_InitPbuffer(bool shared_context, bool shared_objects)
 	
 	if(shared_context)
 	{
-		config = xglXGetFBConfigs(dpy, screen, &config_count);
+		config = xglXGetFBConfigs(sys_gl.dpy, sys_gl.scr, &config_count);
 		if(!config)
 		{
 			ri.Com_Error(ERR_FATAL, "GLimp_InitPbuffer: glXGetFBConfigs() failed");
@@ -1234,7 +1258,7 @@ void	GLimp_InitPbuffer(bool shared_context, bool shared_objects)
 		ri.Com_Printf("\n");
 #endif
 		
-		config = xglXChooseFBConfigSGIX(dpy, screen, &sys_pbuffer.fattribs[0], &config_count);
+		config = xglXChooseFBConfigSGIX(sys_gl.dpy, sys_gl.scr, &sys_pbuffer.fattribs[0], &config_count);
 		if(!config)
 		{
 			ri.Com_Error(ERR_FATAL, "GLimp_InitPbuffer: glXChooseFBConfigSGIX() failed");
@@ -1249,7 +1273,7 @@ void	GLimp_InitPbuffer(bool shared_context, bool shared_objects)
 	ri.Cvar_SetValue("vid_pbuffer_height", height);
 #endif
 	
-	sys_pbuffer.pbuffer = xglXCreateGLXPbufferSGIX(dpy, config[0], vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), &sys_pbuffer.battribs[0]);
+	sys_pbuffer.pbuffer = xglXCreateGLXPbufferSGIX(sys_gl.dpy, config[0], vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), &sys_pbuffer.battribs[0]);
 	
 	if(!sys_pbuffer.pbuffer)
 	{
@@ -1258,22 +1282,22 @@ void	GLimp_InitPbuffer(bool shared_context, bool shared_objects)
 	
 	if(shared_context)
 	{
-        	sys_pbuffer.ctx = ctx;
+        	sys_pbuffer.ctx = sys_gl.ctx;
 	}
 	else
 	{
 		if(shared_objects)
-			sys_pbuffer.ctx = xglXCreateContextWithConfigSGIX(dpy, config[0], GLX_RGBA_TYPE, ctx, true);
+			sys_pbuffer.ctx = xglXCreateContextWithConfigSGIX(sys_gl.dpy, config[0], GLX_RGBA_TYPE, sys_gl.ctx, true);
 		else
-			sys_pbuffer.ctx = xglXCreateContextWithConfigSGIX(dpy, config[0], GLX_RGBA_TYPE, NULL, true);
+			sys_pbuffer.ctx = xglXCreateContextWithConfigSGIX(sys_gl.dpy, config[0], GLX_RGBA_TYPE, NULL, true);
 		
 		if(!config)
 		{
-			ri.Com_Error(ERR_FATAL, "GLimp_InitPbuffer: glXCreateNewContext() failed");
+			ri.Com_Error(ERR_FATAL, "GLimp_InitPbuffer: glXCreateContextWithConfigSGIX() failed");
 		}
 	}
 	
-	sys_pbuffer.dpy = dpy;
+	sys_pbuffer.dpy = sys_gl.dpy;
 
 	xglXQueryGLXPbufferSGIX(sys_pbuffer.dpy, sys_pbuffer.pbuffer, GLX_WIDTH, &sys_pbuffer.width);
 	xglXQueryGLXPbufferSGIX(sys_pbuffer.dpy, sys_pbuffer.pbuffer, GLX_HEIGHT, &sys_pbuffer.height);
@@ -1288,17 +1312,12 @@ void	GLimp_ActivatePbuffer()
 		gl_state.active_pbuffer = false;
 		return;
 	}
-		
-	sys_pbuffer.dpy_old = xglXGetCurrentDisplay();
-	sys_pbuffer.pbuffer_old = xglXGetCurrentDrawable();
-	sys_pbuffer.ctx_old = xglXGetCurrentContext();
 
 	if(!xglXMakeCurrent(sys_pbuffer.dpy, sys_pbuffer.pbuffer, sys_pbuffer.ctx))
 		ri.Com_Error(ERR_FATAL, "GLimp_ActivatePbuffer: glXMakeCurrent failed");
 		
 	gl_state.active_pbuffer = true;
 }
-
 
 void	GLimp_DeactivatePbuffer()
 {
@@ -1310,10 +1329,6 @@ void	GLimp_DeactivatePbuffer()
 
 	if(!xglXMakeCurrent(sys_pbuffer.dpy_old, sys_pbuffer.pbuffer_old, sys_pbuffer.ctx_old))
 		ri.Com_Error(ERR_FATAL, "GLimp_DeactivatePbuffer: glXMakeCurrent failed");
-	
-	sys_pbuffer.dpy_old = NULL;
-	sys_pbuffer.pbuffer_old = 0;
-	sys_pbuffer.ctx_old = NULL;
 	
 	gl_state.active_pbuffer = false;
 }

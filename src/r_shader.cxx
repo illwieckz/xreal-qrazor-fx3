@@ -43,6 +43,7 @@ void	R_ReflectionMap_sc(char const* begin, char const* end);
 void	R_RefractionMap_sc(char const* begin, char const* end);
 void	R_DispersionMap_sc(char const* begin, char const* end);
 void	R_LiquidMap_sc(char const* begin, char const* end);
+void	R_Debug_sc(char const* begin, char const* end);
 void	R_NoDraw_sc(char const* begin, char const* end);
 void	R_NoShadows_sc(char const* begin, char const* end);
 void	R_NoSelfShadow_sc(char const* begin, char const* end);
@@ -484,6 +485,10 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 				=	boost::spirit::nocase_d[boost::spirit::str_p("liquidmap")] >> restofline[&R_LiquidMap_sc]
 				;
 				
+			debug_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("debug")][&R_Debug_sc]
+				;
+				
 			nodraw_sc
 				=	boost::spirit::nocase_d[boost::spirit::str_p("nodraw")][&R_NoDraw_sc]
 				;
@@ -632,6 +637,7 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 					refractionmap_sc		|
 					dispersionmap_sc		|
 					liquidmap_sc			|
+					debug_sc			|
 					nodraw_sc			|
 					nofragment_sc			|
 					noimpact_sc			|
@@ -1031,6 +1037,7 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 								refractionmap_sc,
 								dispersionmap_sc,
 								liquidmap_sc,
+								debug_sc,
 								nodraw_sc,
 								nofragment_sc,
 								noimpact_sc,
@@ -1969,11 +1976,12 @@ static void	R_FinishShader(r_shader_c *shader)
 //		shader->setSort(SHADER_SORT_OPAQUE);
 	
 	
+	/*
 	if(shader->hasFlags(SHADER_SKY) && shader->hasFlags(SHADER_DEPTHWRITE))
 	{
 		shader->removeFlags(SHADER_DEPTHWRITE);
 	}
-
+	*/
 
 	/*
 	if(!shader->stages.size() && !shader->sort)

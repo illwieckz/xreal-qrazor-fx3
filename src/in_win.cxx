@@ -152,7 +152,7 @@ void IN_ActivateMouse (void)
 
 	if (!mouseinitialized)
 		return;
-	if (!in_mouse->getValue())
+	if (!in_mouse->getInteger())
 	{
 		mouseactive = false;
 		return;
@@ -230,7 +230,7 @@ void IN_StartupMouse (void)
 	cvar_t		*cv;
 
 	cv = Cvar_Get ("in_initmouse", "1", CVAR_NONE);
-	if ( !cv->getValue() ) 
+	if ( !cv->getInteger() ) 
 		return; 
 
 	mouseinitialized = true;
@@ -295,7 +295,7 @@ void IN_MouseMove (usercmd_t *cmd)
 		return;
 #endif
 
-	if (m_filter->getValue())
+	if (m_filter->getInteger())
 	{
 		mouse_x = (int)((mx + old_mouse_x) * 0.5);
 		mouse_y = (int)((my + old_mouse_y) * 0.5);
@@ -509,7 +509,7 @@ void IN_StartupJoystick (void)
 
 	// abort startup if user requests no joystick
 	cv = Cvar_Get ("in_initjoy", "1", CVAR_NONE);
-	if ( !cv->getValue() ) 
+	if ( !cv->getInteger() ) 
 		return; 
  
 	// verify joystick driver is present
@@ -800,7 +800,7 @@ void IN_JoyMove (usercmd_t *cmd)
 	}
 
 #if 0
-	if ( (in_speed.state & 1) ^ (int)cl_run->getValue())
+	if ( (in_speed.state & 1) ^ (int)cl_run->getInteger())
 		speed = 2;
 	else
 		speed = 1;

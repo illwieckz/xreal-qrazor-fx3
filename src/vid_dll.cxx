@@ -230,7 +230,7 @@ void AppActivate(BOOL fActive, BOOL minimize)
 		IN_Activate (false);
 		//S_Activate (false);	//FIXME
 
-		if ( win_noalttab->getValue() )
+		if ( win_noalttab->getInteger() )
 		{
 			WIN_EnableAltTab();
 		}
@@ -239,7 +239,7 @@ void AppActivate(BOOL fActive, BOOL minimize)
 	{
 		IN_Activate (true);
 		//S_Activate (true);	//FIXME
-		if ( win_noalttab->getValue() )
+		if ( win_noalttab->getInteger() )
 		{
 			WIN_DisableAltTab();
 		}
@@ -318,7 +318,7 @@ LONG WINAPI MainWndProc (
 			RECT r;
 			int		style;
 
-			if (!vid_fullscreen->getValue())
+			if (!vid_fullscreen->getInteger())
 			{
 				xPos = (short) LOWORD(lParam);    // horizontal position
 				yPos = (short) HIWORD(lParam);    // vertical position
@@ -408,7 +408,7 @@ LONG WINAPI MainWndProc (
 		{
 			if ( vid_fullscreen )
 			{
-				Cvar_SetValue( "vid_fullscreen", !vid_fullscreen->getValue() );
+				Cvar_SetValue( "vid_fullscreen", !vid_fullscreen->getInteger() );
 			}
 			return 0;
 		}
@@ -676,7 +676,7 @@ void	VID_CheckChanges()
 
 	if ( win_noalttab->isModified() )
 	{
-		if ( win_noalttab->getValue() )
+		if ( win_noalttab->getInteger() )
 		{
 			WIN_DisableAltTab();
 		}
@@ -725,7 +725,7 @@ void	VID_CheckChanges()
 	*/
 	if ( vid_xpos->isModified() || vid_ypos->isModified() )
 	{
-		if (!vid_fullscreen->getValue())
+		if (!vid_fullscreen->getInteger())
 			VID_UpdateWindowPosAndSize( vid_xpos->getInteger(), vid_ypos->getInteger() );
 
 		vid_xpos->isModified(false);

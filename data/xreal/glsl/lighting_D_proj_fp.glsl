@@ -48,11 +48,13 @@ void	main()
 	vec3 attenuation_xy = var_tex_atten_xy_z.w < 0.0 ? vec3(0.0, 0.0, 0.0) : texture2DProj(u_attenuationmap_xy, var_tex_atten_xy_z.xyw).rgb;
 	
 	// compute shadow
-//	vec3 shadow = shadow2DProj(u_shadowmap, var_tex_shadow.xyzw).rgb;
+	vec3 shadow = shadow2DProj(u_shadowmap, var_tex_shadow).rgb;
+//	vec3 shadow = var_tex_shadow.w < 0.0 ? vec3(0.0, 0.0, 0.0) : texture2DProj(u_shadowmap, var_tex_shadow).rgb;
+//	vec3 shadow = var_tex_shadow.w < 0.0 ? vec3(0.0, 0.0, 0.0) : texture2DProj(u_attenuationmap_xy, var_tex_shadow.xyw).rgb;
 	
 	// compute final color
-	gl_FragColor.rgba = diffuse;
-//	gl_FragColor.rgb = vec3(1.0, 1.0, 1.0);
+	gl_FragColor.a = diffuse.a;
+	gl_FragColor.rgb = vec3(1.0, 1.0, 1.0);
 	gl_FragColor.rgb *= attenuation_xy;
 //	gl_FragColor.rgb *= shadow;
 }

@@ -101,7 +101,7 @@ void 	SCR_AddNetgraph()
 
 	// if using the debuggraph for something else, don't
 	// add the net lines
-	if(scr_debuggraph->getValue() || scr_timegraph->getValue())
+	if(scr_debuggraph->getInteger() || scr_timegraph->getInteger())
 		return;
 
 	vec4_c color;
@@ -130,11 +130,11 @@ void	SCR_DrawDebugGraph()
 {
 	int		x, y, w, h;
 
-	if(scr_timegraph->getValue())
+	if(scr_timegraph->getInteger())
 		SCR_DebugGraph((int)(cls.frametime/3), color_black);
 
 
-	if(!scr_debuggraph->getValue() || !scr_timegraph->getValue() || !scr_netgraph->getValue())
+	if(!scr_debuggraph->getInteger() || !scr_timegraph->getInteger() || !scr_netgraph->getInteger())
 		return;
 
 	//
@@ -419,7 +419,7 @@ void 	SCR_BeginLoadingPlaque()
 	if(cls.disable_screen)
 		return;
 		
-	if(developer->getValue())
+	if(developer->getInteger())
 		return;
 		
 	if(cls.state == CA_DISCONNECTED)

@@ -86,6 +86,7 @@ void	r_light_c::update(const r_entity_t &shared, r_light_type_t type)
 	setupFrustum();
 	
 	setupShadowMapProjection();
+	setupShadowMapView();
 	
 	if(_s.flags & RF_STATIC)
 	{
@@ -165,12 +166,6 @@ void	r_light_c::setupProjection()
 		
 		case LIGHT_PROJ:
 		{
-#if 0			
-			matrix_c m;// = _projection;
-			m.fromVectorsFRU(_s.target, _s.right, _s.up);
-			m[3][0] = m[1][0];	m[3][1] = m[1][1];	m[3][2] = m[1][2];	m[3][3] = m[1][3];
-			_projection = m.affineInverse();
-#else
 			//matrix_c m;
 			//m.fromVectorsFRU(_s.target, _s.right, _s.up);
 			//m[3][0] = m[1][0];	m[3][1] = m[1][1];	m[3][2] = m[1][2];	m[3][3] = m[1][3];
@@ -180,26 +175,20 @@ void	r_light_c::setupProjection()
 			vec_t fov_x = 60;
 			vec_t fov_y = CalcFOV(fov_x, _s.right.length() * 2, _s.up.length() * 2);
 			
-			//double n = r_znear->getValue();
 			double n = 1.0;
-			
-			//double f = r_zfar->getValue();
 			double f = _s.target.length();
 		
 			//double r = _s.target.dotProduct(_s.right);
 			//double r = _s.right.length();
 			double r = n * tan(fov_x * M_PI / 360.0);
-			//double r = lr.length();
 			double l = -r;
 			
 			//double t = _s.target.dotProduct(_s.up);
 			//double t = _s.up.length();
 			double t = n * tan(fov_y * M_PI / 360.0);
-			//double t = lu.length();
 			double b = -t;
 			
 			RB_OpenGLFrustum(_projection, l, r, b, t, n, f);
-#endif
 			break;
 		}
 		
@@ -215,16 +204,55 @@ void	r_light_c::setupFrustum()
 
 void	r_light_c::setupShadowMapProjection()
 {
-	double n = 1.0;
-	double f = 65536.0;
+	switch(_type)
+	{
+		case LIGHT_OMNI:
+			break;
+		
+		case LIGHT_PROJ:
+		{
+			double n = 1.0;
+			double f = 65536.0;
 
-	double r = n * tan(90 * M_PI / 360.0);
-	double l = -r;
+			double r = n * tan(90 * M_PI / 360.0);
+			double l = -r;
 	
-	double t = n * tan(CalcFOV(90, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger()) * M_PI / 360.0);
-	double b = -t;
+			double t = n * tan(CalcFOV(90, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger()) * M_PI / 360.0);
+			double b = -t;
 	
-	RB_OpenGLFrustum(_projection_shadowmap, l, r, b, t, n, f);
+			RB_OpenGLFrustum(_shadowmap_projection, l, r, b, t, n, f);
+			break;
+		}
+		
+		default:
+			ri.Com_Error(ERR_DROP, "r_light_c::setupShadowMapProjection: bad entity type %i", _type);
+	}
+}
+
+void	r_light_c::setupShadowMapView()
+{
+	switch(_type)
+	{
+		case LIGHT_OMNI:
+			break;
+		
+		case LIGHT_PROJ:
+		{
+			const vec3_c look_at = _s.target + _s.up;
+			vec3_c angles(false);
+			Vector3_ToAngles(look_at, angles);
+			
+			matrix_c m;
+			m.setupTranslation(_s.origin);
+			m.multiplyRotation(angles);
+			
+			_shadowmap_view = m.affineInverse();
+			break;
+		}
+		
+		default:
+			ri.Com_Error(ERR_DROP, "r_light_c::setupShadowMapView: bad entity type %i", _type);
+	}
 }
 
 r_interaction_c*	r_light_c::createInteraction(r_entity_c* ent, const r_mesh_c *mesh)
