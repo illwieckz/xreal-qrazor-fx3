@@ -563,7 +563,7 @@ void	KBD_Close()
 
 extern char*	strsignal(int sig);
 
-static void	signal_handler(int sig)
+void	signal_handler(int sig)
 {
 	char *sigstr;
 
@@ -588,6 +588,7 @@ static void	signal_handler(int sig)
 
 static void	InitSig()
 {
+#if 1
 	signal(SIGHUP, signal_handler);
 	signal(SIGQUIT, signal_handler);
 	signal(SIGILL, signal_handler);
@@ -597,6 +598,7 @@ static void	InitSig()
 	signal(SIGFPE, signal_handler);
 	signal(SIGSEGV, signal_handler);
 	signal(SIGTERM, signal_handler);
+#endif
 }
 
 
@@ -627,7 +629,7 @@ int	GLimp_SetMode(int *pwidth, int *pheight, int mode, bool fullscreen)
 		ri.Com_Printf("GLimp_SetMode: setting mode %d: %d %d\n", mode, width, height);
 
 	// destroy the existing window
-	GLimp_Shutdown();
+//	GLimp_Shutdown();
 	
 	char *dpy_name = getenv("DISPLAY");
 	

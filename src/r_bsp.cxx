@@ -1385,7 +1385,7 @@ void	r_bsptree_c::drawNode_r(r_tree_elem_c *elem, int clipflags)
 					try
 					{
 					#endif
-						RB_AddCommand(&r_world_entity, _models.at(0), surf->getMesh(), surf->getShader(), ia->getLight(), (std::vector<index_t>*)&ia->getIndexes(), -1, 0);
+						RB_AddCommand(&r_world_entity, _models.at(0), surf->getMesh(), surf->getShader(), ia->getLight(), (std::vector<index_t>*)&ia->getIndexes(), -1, 0, ia->getAttenuation());
 					
 					#if DEBUG
 					}
@@ -1492,7 +1492,7 @@ int	r_bsptree_c::litNode_r(r_tree_elem_c *elem, r_light_c *light, r_litnode_mode
 						if(ia->getIndexes().empty())
 							continue;
 					
-						RB_AddCommand(&r_world_entity, _models[0], surf->getMesh(), surf->getShader(), light, (std::vector<index_t>*)&ia->getIndexes(), -1, 0);
+						RB_AddCommand(&r_world_entity, _models[0], surf->getMesh(), surf->getShader(), light, (std::vector<index_t>*)&ia->getIndexes(), -1, 0, ia->getAttenuation());
 					}
 					break;
 				}
@@ -1902,7 +1902,7 @@ void	r_bsp_model_c::addModelToList(r_entity_c *ent)
 				if(ia->getIndexes().empty())
 					continue;
 				
-				RB_AddCommand(ent, this, surf->getMesh(), surf->getShader(), ia->getLight(), (std::vector<index_t>*)&ia->getIndexes(), -1, 0);	
+				RB_AddCommand(ent, this, surf->getMesh(), surf->getShader(), ia->getLight(), (std::vector<index_t>*)&ia->getIndexes(), -1, 0, ia->getAttenuation());
 			}
 			
 			#if 0

@@ -1071,13 +1071,14 @@ public:
 	
 	inline r_entity_c*		getEntity() const	{return _entity;}
 	inline r_light_c*		getLight() const	{return _light;}
+	inline const matrix_c&		getAttenuation() const	{return _attenuation;}
 	
 	inline const std::vector<index_t>&	getIndexes() const	{return _indexes;}
 	
 private:
 	r_entity_c*		_entity;
 	r_light_c*		_light;
-	
+	matrix_c		_attenuation;
 	std::vector<index_t>	_indexes;
 };
 
@@ -1165,7 +1166,8 @@ public r_occlusion_iface_a
 					r_light_c*		light,
 					std::vector<index_t>*	light_indexes,
 					int			infokey,
-					vec_t			distance);
+					vec_t			distance,
+					const matrix_c&		light_attenuation);
 
 public:
 //	r_light_c();
@@ -1201,13 +1203,13 @@ public:
 	inline bool	isStatic() const			{return (_s.flags & RF_STATIC);}
 	inline bool	isVisible() const
 	{
-		if(!isStatic())
+		if(isStatic())
 		{
-			return (r_framecount == _framecount);
+			return isVisFramed() && isFramed();
 		}
 		else
 		{
-			return ((r_framecount == _framecount) && (r_visframecount == _visframecount));
+			return isFramed();
 		}
 	}
 	
@@ -1247,7 +1249,8 @@ class r_command_t
 					r_light_c*		light,
 					std::vector<index_t>*	light_indexes,
 					int			infokey,
-					vec_t			distance);
+					vec_t			distance,
+					const matrix_c&		light_attenuation);
 
 public:
 	r_command_t();
@@ -1272,7 +1275,7 @@ public:
 	inline std::vector<index_t>*	getLightIndexes() const		{return _light_indexes;}
 	inline bool			hasLightMap() const		{return _light_map;}
 	inline bool			hasLightVertexes() const	{return _light_vertexes;}
-	inline const matrix_c&		getLightTransform() const	{return _light_transform;}
+//	inline const matrix_c&		getLightTransform() const	{return _light_transform;}
 	inline const matrix_c&		getLightAttenuation() const	{return _light_attenuation;}
 		
 	inline int			getInfoKey() const	{return _infokey;}
@@ -1290,7 +1293,7 @@ private:
 	std::vector<index_t>*	_light_indexes;
 	bool			_light_map;
 	bool			_light_vertexes;
-	matrix_c		_light_transform;
+//	matrix_c		_light_transform;
 	matrix_c		_light_attenuation;
 	
 	int			_infokey;
@@ -2153,6 +2156,19 @@ extern uint_t	c_triangles;
 extern uint_t	c_draws;
 extern uint_t	c_expressions;
 
+extern int	time_start;
+extern int	time_end;
+extern int	time_setup;
+extern int	time_zfill;
+extern int	time_lighting_static;
+extern int	time_lighting_dynamic;
+extern int	time_lighting_static;
+extern int	time_lighting_static;
+extern int	time_extra;
+extern int	time_translucent;
+extern int	time_post;
+
+
 struct r_table_t
 {
 	uint_t			flags;
@@ -2384,7 +2400,8 @@ void		RB_AddCommand(	r_entity_c*		entity,
 				r_light_c*		light,
 				std::vector<index_t>*	light_indexes,
 				int			infokey,
-				vec_t			distance);
+				vec_t			distance, 
+				const matrix_c&		light_attenuation = matrix_identity);
 
 
 
@@ -2599,10 +2616,6 @@ void 		R_SetSky(const std::string &name);
 			GL CONFIG STUFF
 ====================================================================
 */
-#define GL_RENDERER_NV			0x00000001
-#define GL_RENDERER_ATI			0x00000002
-#define GL_RENDERER_OTHER		0x80000000
-
 
 struct glconfig_t
 {
@@ -2612,7 +2625,7 @@ struct glconfig_t
 	const char*	version_string;
 	const char*	extensions_string;
 
-	// save here what extensions are currently available
+	// save here what extensions are currently available and enabled
 	bool		arb_multitexture;
 	bool		arb_transpose_matrix;
 	bool		arb_texture_compression;
@@ -2633,7 +2646,10 @@ struct glstate_t
 
 	int     	prev_mode;
 
-	uint_t		current_textures[16];
+	uint_t		current_tmu_images[16];
+	matrix_c	current_tmu_mats[16];
+	r_entity_c*	current_tmu_entities[16];
+	r_light_c*	current_tmu_lights[16];
 	uint_t		current_tmu;
 	
 	uint_t		current_vbo_array_buffer;
@@ -2648,6 +2664,16 @@ struct glstate_t
 	bool		is2d;
 	bool		hwgamma;
 	bool		active_pbuffer;
+	
+	matrix_c	matrix_quake_to_opengl;
+	matrix_c	matrix_view;			// inverse of camera translation and rotation matrix
+	matrix_c	matrix_model;			// each model has its own translation and rotation matrix
+	matrix_c	matrix_model_view;		// product of camera and model matrix
+	matrix_c	matrix_light;
+	matrix_c	matrix_projection;
+	matrix_c	matrix_model_view_projection;
+
+	r_vrect_t	vrect_viewport;
 };
 
 extern glconfig_t  gl_config;

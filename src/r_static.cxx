@@ -152,7 +152,7 @@ void	r_static_model_c::addModelToList(r_entity_c *ent)
 				if(ia->getIndexes().empty())
 					continue;
 				
-				RB_AddCommand(ent, this, mesh, shader, ia->getLight(), (std::vector<index_t>*)&ia->getIndexes(), -1, 0);	
+				RB_AddCommand(ent, this, mesh, shader, ia->getLight(), (std::vector<index_t>*)&ia->getIndexes(), -1, 0, ia->getAttenuation());
 			}
 		
 			#if 0

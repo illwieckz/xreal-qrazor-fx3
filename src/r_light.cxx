@@ -35,6 +35,8 @@ r_interaction_c::r_interaction_c(r_entity_c* ent, r_light_c* light, const std::v
 {
 	_entity		= ent;
 	_light		= light;
+
+	_attenuation	= light->getAttenuation() * (light->getView() * ent->getTransform());
 	
 	_indexes	= indexes;
 }

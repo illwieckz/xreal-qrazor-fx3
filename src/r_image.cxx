@@ -112,10 +112,10 @@ void	r_image_c::bind(bool force) const
 		target = getTarget();
 	}
 
-	if((gl_state.current_textures[gl_state.current_tmu] == texnum) && (force == false))
+	if((gl_state.current_tmu_images[gl_state.current_tmu] == texnum) && (force == false))
 		return;
 
-	gl_state.current_textures[gl_state.current_tmu] = texnum;
+	gl_state.current_tmu_images[gl_state.current_tmu] = texnum;
 	
 	/*
 	switch(target)
