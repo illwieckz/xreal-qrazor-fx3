@@ -48,7 +48,7 @@ void	main()
 	vec3 attenuation_xy = var_tex_atten_xy_z.w < 0.0 ? vec3(0.0, 0.0, 0.0) : texture2DProj(u_attenuationmap_xy, var_tex_atten_xy_z.xyw).rgb;
 	
 	// compute shadow
-	vec3 shadow = shadow2DProj(u_shadowmap, var_tex_shadow).rgb;
+	float shadow = shadow2DProj(u_shadowmap, var_tex_shadow);
 //	vec3 shadow = var_tex_shadow.w < 0.0 ? vec3(0.0, 0.0, 0.0) : texture2DProj(u_shadowmap, var_tex_shadow).rgb;
 //	vec3 shadow = var_tex_shadow.w < 0.0 ? vec3(0.0, 0.0, 0.0) : texture2DProj(u_attenuationmap_xy, var_tex_shadow.xyw).rgb;
 	
