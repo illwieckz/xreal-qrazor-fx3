@@ -1,6 +1,6 @@
 /// ============================================================================
 /*
-Copyright (C) 2004 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2005 Robert Beckebans <trebor_7@users.sourceforge.net>
 Please see the file "AUTHORS" for a list of contributors
 
 This program is free software; you can redistribute it and/or
@@ -26,6 +26,7 @@ varying vec3		var_vertex;
 varying vec3		var_normal;
 varying vec2		var_tex_diffuse;
 varying vec3		var_tex_atten_xy_z;
+varying vec3		var_tex_atten_cube;
 
 void	main()
 {
@@ -43,4 +44,7 @@ void	main()
 	
 	// calc light xy,z attenuation in light space
 	var_tex_atten_xy_z = (gl_TextureMatrix[1] * gl_Vertex).xyz;
+	
+	// calc light cube attenuation in light space
+	var_tex_atten_cube = (gl_TextureMatrix[3] * gl_Vertex).xyz;
 }

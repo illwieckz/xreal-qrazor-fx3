@@ -906,6 +906,28 @@ lights/default3DLight		// just for research
 	}
 }
 
+lights/defaultCubeLight
+{
+	{
+		stage			attenuationmap_xy
+		forceHighQuality
+		map			lights/squarelight1.tga
+		colored
+		zeroClamp
+		rotate			time * 0.2
+	}
+	{
+		stage			attenuationmap_z
+		map			meintensity(lights/squarelight1a.tga)
+	}
+	{
+		stage			attenuationmap_cube
+		forceHighQuality
+//		cubemap			cubemaps/tig_spots4a
+		cubemap			cubemaps/dots
+	}
+}
+
 lights/desertambientlight
 {
 	ambientLight

@@ -103,7 +103,8 @@ void		RB_EnableShader_lighting_D_omni();
 void		RB_DisableShader_lighting_D_omni();
 void		RB_RenderCommand_lighting_D_omni(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
 											const r_shader_stage_c *stage_attenuationmap_xy,
-											const r_shader_stage_c *stage_attenuationmap_z);
+											const r_shader_stage_c *stage_attenuationmap_z,
+											const r_shader_stage_c *stage_attenuationmap_cube);
 											
 void		RB_EnableShader_lighting_D_proj();
 void		RB_DisableShader_lighting_D_proj();
@@ -117,7 +118,8 @@ void		RB_DisableShader_lighting_DB_omni();
 void		RB_RenderCommand_lighting_DB_omni(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
 											const r_shader_stage_c *stage_bumpmap,
 											const r_shader_stage_c *stage_attenuationmap_xy,
-											const r_shader_stage_c *stage_attenuationmap_z);
+											const r_shader_stage_c *stage_attenuationmap_z,
+											const r_shader_stage_c *stage_attenuationmap_cube);
 										
 
 void		RB_EnableShader_lighting_DBH_omni();
@@ -125,7 +127,8 @@ void		RB_DisableShader_lighting_DBH_omni();
 void		RB_RenderCommand_lighting_DBH_omni(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
 											const r_shader_stage_c *stage_bumpmap,
 											const r_shader_stage_c *stage_attenuationmap_xy,
-											const r_shader_stage_c *stage_attenuationmap_z);
+											const r_shader_stage_c *stage_attenuationmap_z,
+											const r_shader_stage_c *stage_attenuationmap_cube);
 
 
 void		RB_EnableShader_lighting_DBHS_omni();
@@ -134,7 +137,8 @@ void		RB_RenderCommand_lighting_DBHS_omni(const r_command_t *cmd,		const r_shade
 											const r_shader_stage_c *stage_bumpmap,
 											const r_shader_stage_c *stage_specularmap,
 											const r_shader_stage_c *stage_attenuationmap_xy,
-											const r_shader_stage_c *stage_attenuationmap_z);
+											const r_shader_stage_c *stage_attenuationmap_z,
+											const r_shader_stage_c *stage_attenuationmap_cube);
 								
 								
 void		RB_EnableShader_lighting_DBS_omni();
@@ -143,7 +147,8 @@ void		RB_RenderCommand_lighting_DBS_omni(const r_command_t *cmd,		const r_shader
 											const r_shader_stage_c *stage_bumpmap,
 											const r_shader_stage_c *stage_specularmap,
 											const r_shader_stage_c *stage_attenuationmap_xy,
-											const r_shader_stage_c *stage_attenuationmap_z);
+											const r_shader_stage_c *stage_attenuationmap_z,
+											const r_shader_stage_c *stage_attenuationmap_cube);
 																						
 //
 // environment mapping

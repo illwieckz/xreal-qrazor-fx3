@@ -11,6 +11,7 @@ caves
 //common
 //characters
 char_common
+dbb
 decals
 door
 duffyTest
@@ -64,6 +65,8 @@ tim
 tools
 vehicles
 video
+vb_maya
+vb_skies
 vp_materials
 washroom
 //weapons

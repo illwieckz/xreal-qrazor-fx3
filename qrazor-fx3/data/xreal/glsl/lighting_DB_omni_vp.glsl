@@ -28,6 +28,7 @@ varying vec3		var_vertex;
 varying vec2		var_tex_diffuse;
 varying vec2		var_tex_bump;
 varying vec3		var_tex_atten_xy_z;
+varying vec3		var_tex_atten_cube;
 varying mat3		var_mat_os2ts;
 
 void	main()
@@ -46,6 +47,9 @@ void	main()
 	
 	// calc light xy,z attenuation in light space
 	var_tex_atten_xy_z = (gl_TextureMatrix[2] * gl_Vertex).xyz;
+	
+	// calc light cube attenuation in light space
+	var_tex_atten_cube = (gl_TextureMatrix[4] * gl_Vertex).xyz;
 	
 	// construct object-space-to-tangent-space 3x3 matrix
 	var_mat_os2ts = mat3(	attr_Tangent.x, attr_Binormal.x, gl_Normal.x,

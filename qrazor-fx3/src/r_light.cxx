@@ -117,10 +117,10 @@ void	r_light_c::update(const r_entity_t &shared, r_light_type_t type)
 void 	r_light_c::setupTransform()
 {
 	_transform.setupTranslation(_s.origin);
-	
 	_transform.multiplyRotation(_s.quat);
-	
 	_transform.multiplyScale(_s.scale);
+	
+	_transform_inv = _transform.affineInverse();
 }
 
 void	r_light_c::setupAttenuation()
@@ -128,7 +128,7 @@ void	r_light_c::setupAttenuation()
 	_attenuation.setupTranslation(0.5, 0.5, 0.5);			// bias
 	_attenuation.multiplyScale(0.5, 0.5, 0.5);			// scale
 	_attenuation.multiply(_projection);				// light projection (frustum)
-	_attenuation.multiply(_transform.affineInverse());		// light view matrix
+//	_attenuation.multiply(_transform_inv);				// light view matrix
 }
 
 void	r_light_c::setupProjection()

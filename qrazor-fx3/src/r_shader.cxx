@@ -710,6 +710,10 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 			forcehighquality_stc
 				=	boost::spirit::nocase_d[boost::spirit::str_p("forcehighquality")][&R_ForceHighQuality_stc]
 				;
+			
+			cameracubemap_stc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("cameracubemap")] >> restofline[&R_Map_stc]
+				;
 				
 			cubemap_stc
 				=	boost::spirit::nocase_d[boost::spirit::str_p("cubemap")] >> restofline[&R_Map_stc]
@@ -827,6 +831,10 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 				=	boost::spirit::nocase_d[boost::spirit::str_p("texgen") >> boost::spirit::str_p("reflect")][&R_StageReflectionMap_stc]
 				;
 				
+			texgen_skybox_stc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("texgen") >> boost::spirit::str_p("skybox")][&R_StageRefractionMap_stc]
+				;
+				
 			stage_colormap_stc
 				=	boost::spirit::nocase_d[boost::spirit::str_p("stage") >> boost::spirit::str_p("colormap")][&R_StageColorMap_stc]
 				;
@@ -904,6 +912,7 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 					maskcolor_stc			|
 					maskdepth_stc			|
 					forcehighquality_stc		|
+					cameracubemap_stc		|
 					cubemap_stc			|
 					videomap_stc			|
 					map_stc				|
@@ -933,6 +942,7 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 					eta_stc				|
 					deformmagnitude_stc		|
 					texgen_reflect_stc		|
+					texgen_skybox_stc		|
 					stage_colormap_stc		|
 					stage_diffusemap_stc		|
 					stage_bumpmap_stc		|
@@ -1034,6 +1044,7 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 									maskcolor_stc,
 									maskdepth_stc,
 									forcehighquality_stc,
+									cameracubemap_stc,
 									cubemap_stc,
 									videomap_stc,
 									map_stc,
@@ -1063,6 +1074,7 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 									eta_stc,
 									deformmagnitude_stc,
 									texgen_reflect_stc,
+									texgen_skybox_stc,
 									stage_colormap_stc,
 									stage_diffusemap_stc,
 									stage_bumpmap_stc,

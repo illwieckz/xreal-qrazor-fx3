@@ -1,0 +1,19 @@
+textures/vb_skies/maya_back
+{
+	qer_editorimage	textures/vb_skies/maya_back.tga
+	
+	noFragment
+	noshadows
+	nooverlays
+	noimpact
+	forceOpaque
+	
+	{
+//		blend		add
+		cameraCubeMap	env/vb_skies/maya
+		texgen		skybox
+		
+	}
+}
+
+
