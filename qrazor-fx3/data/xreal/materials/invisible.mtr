@@ -202,6 +202,14 @@ textures/common/nodrawsolid
 	nomarks
 	noshadows
 	translucent
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/nodrawsolid.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // This is an invisible brush that should cast a shadow
@@ -212,9 +220,18 @@ textures/common/shadow
 	qer_trans		0.5
 	
 	nodraw
+	nolightmap
 	nonsolid
 	forceshadows
 	translucent
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/shadow.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // Invisible Shadow 2
@@ -224,10 +241,19 @@ textures/common/shadow2
 	qer_trans		0.5
 	
 	nodraw
+	nolightmap
 	nonsolid
 	forceshadows
 	noselfshadow
 	translucent
+	
+	// for debugging
+	{
+		stage	colormap
+		map	textures/common/shadow.tga
+		blend	blend
+		alpha	0.2
+	}
 }
 
 // trigger entities use this material
@@ -707,6 +733,7 @@ textures/common/noimpact
 	qer_editorimage		textures/common/noimpact.tga
 	
 	nodraw
+	nolightmap
 	noimpact
 	noshadows
 }
@@ -792,6 +819,7 @@ textures/common/speaker
 	qer_trans		0.5
 	
 	nodraw
+	nolightmap
 	noshadows
 	translucent
 }
@@ -822,6 +850,7 @@ textures/common/moveableclipmodel
 	qer_editorimage		textures/common/clip.tga
 	qer_trans		0.5
 	
+	nolightmap
 	noshadows
 	translucent
 }
