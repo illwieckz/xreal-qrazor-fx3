@@ -100,7 +100,7 @@ cplane_c	r_clipplane;
 
 
 r_entity_c	r_world_entity;
-r_proctree_c*	r_world_tree;
+r_bsptree_c*	r_world_tree;
 
 std::vector<index_t> 	r_quad_indexes;
 
@@ -111,9 +111,13 @@ bool		r_zfill;
 //
 r_refdef_t	r_newrefdef;
 
-
+/*
 std::map<int, r_entity_c, std::less<int> >	r_entities;
 std::map<int, r_light_c>	r_lights;
+*/
+
+std::vector<std::vector<r_entity_c> >	r_entities = std::vector<std::vector<r_entity_c> >(MAX_ENTITIES);
+std::vector<std::vector<r_light_c> >	r_lights = std::vector<std::vector<r_light_c> >(MAX_ENTITIES);
 
 int		r_particles_num;
 r_particle_t	r_particles[MAX_PARTICLES];
@@ -756,32 +760,33 @@ static void 	R_AddEntitiesToBuffer()
 	if(!r_drawentities->getValue())
 		return;
 
-	for(std::map<int, r_entity_c>::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
+	for(std::vector<std::vector<r_entity_c> >::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
 	{
-		r_entity_c& ent = ir->second;
+		std::vector<r_entity_c>& entities = *ir;
 		
-		if(r_mirrorview)
+		for(std::vector<r_entity_c>::iterator ir = entities.begin(); ir != entities.end(); ++ir)
 		{
-			if(ent.getShared().flags & RF_WEAPONMODEL) 
+			r_entity_c& ent = *ir;
+		
+			if(r_mirrorview)
+			{
+				if(ent.getShared().flags & RF_WEAPONMODEL) 
+					continue;
+			}
+		
+			//if(!ent.isVisible())
+			//	continue;
+		
+			r_model_c *model = R_GetModelByNum(ent.getShared().model);
+			
+			if(!model)
+			{
+				//R_DrawNULL(r_current_entity->origin, r_current_entity->angles);
 				continue;
+			}
+		
+			model->addModelToList(&ent);
 		}
-		
-		//if(!ent.isVisible())
-		//	continue;
-		
-		r_model_c *model = R_GetModelByNum(ent.getShared().model);
-			
-		if(!model)
-		{
-			//R_DrawNULL(r_current_entity->origin, r_current_entity->angles);
-			continue;
-		}
-		
-		//if(ent.needsUpdate())
-		//	model->precacheLightInteractions(&ent);
-		//ent.needsUpdate(false);
-			
-		model->addModelToList(&ent);
 	}
 }
 
@@ -867,14 +872,19 @@ void	R_DrawLightDebuggingInfo()
 	
 	if(r_showlightbboxes->getInteger())
 	{
-		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
-			r_light_c& light = ir->second;
+			std::vector<r_light_c>& lights = *ir;
 			
-			if(!light.isVisible())
-				continue;
+			for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
+			{
+				r_light_c& light = *ir;
 				
-			R_DrawBBox(light.getShared().radius_bbox);
+				if(!light.isVisible())
+					continue;
+				
+				R_DrawBBox(light.getShared().radius_bbox);
+			}
 		}
 	}
 	
@@ -882,29 +892,30 @@ void	R_DrawLightDebuggingInfo()
 	{
 		RB_SetupGL2D();
 		
-		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
-			r_light_c& light = ir->second;
+			std::vector<r_light_c>& lights = *ir;
 			
-			if(!light.isVisible())
-				continue;
+			for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
+			{
+				r_light_c& light = *ir;
+			
+				if(!light.isVisible())
+					continue;
+					
+				xglColor4fv(color_red);
 				
-			//R_DrawFill(light.getScissorX(), light.getScissorY(), light.getScissorWidth(), light.getScissorHeight(), color_red);
+				xglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				xglBegin(GL_QUADS);
+				xglVertex3f(light.getScissorX(), light.getScissorY(), 0.0);
+				xglVertex3f(light.getScissorX()+light.getScissorWidth(), light.getScissorY(), 0.0);
+				xglVertex3f(light.getScissorX()+light.getScissorWidth(), light.getScissorY()+light.getScissorHeight(), 0.0);
+				xglVertex3f(light.getScissorX(), light.getScissorY()+light.getScissorHeight(), 0.0);
+				xglEnd();
+				xglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			
-			
-			xglColor4fv(color_red);
-			
-			xglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			xglBegin(GL_QUADS);
-			xglVertex3f(light.getScissorX(), light.getScissorY(), 0.0);
-			xglVertex3f(light.getScissorX()+light.getScissorWidth(), light.getScissorY(), 0.0);
-			xglVertex3f(light.getScissorX()+light.getScissorWidth(), light.getScissorY()+light.getScissorHeight(), 0.0);
-			xglVertex3f(light.getScissorX(), light.getScissorY()+light.getScissorHeight(), 0.0);
-			xglEnd();
-			xglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			
-			xglColor4fv(color_white);
-			
+				xglColor4fv(color_white);
+			}
 		}
 		
 		RB_SetupGL3D();
@@ -914,33 +925,38 @@ void	R_DrawLightDebuggingInfo()
 	{
 		vec3_c	vf, vr, vu;
 	
-		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
-			r_light_c& light = ir->second;
+			std::vector<r_light_c>& lights = *ir;
 			
-			const r_entity_t& s = light.getShared();
+			for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
+			{
+				r_light_c& light = *ir;
+				
+				const r_entity_t& s = light.getShared();
+				
+				light.getTransform().toVectorsFRU(vf, vr, vu);
+				
+				vf *= 16 * s.scale[0];	vf += s.origin;
+				vr *= 16 * s.scale[1];	vr += s.origin;
+				vu *= 16 * s.scale[2];	vu += s.origin;
 			
-			light.getTransform().toVectorsFRU(vf, vr, vu);
+				xglBegin(GL_LINES);
 			
-			vf *= 16 * s.scale[0];	vf += s.origin;
-			vr *= 16 * s.scale[1];	vr += s.origin;
-			vu *= 16 * s.scale[2];	vu += s.origin;
+				xglColor4fv(color_red);
+				xglVertex3fv(s.origin);
+				xglVertex3fv(vf);
 			
-			xglBegin(GL_LINES);
+				xglColor4fv(color_green);
+				xglVertex3fv(s.origin);
+				xglVertex3fv(vr);
 			
-			xglColor4fv(color_red);
-			xglVertex3fv(s.origin);
-			xglVertex3fv(vf);
+				xglColor4fv(color_blue);
+				xglVertex3fv(s.origin);
+				xglVertex3fv(vu);
 			
-			xglColor4fv(color_green);
-			xglVertex3fv(s.origin);
-			xglVertex3fv(vr);
-			
-			xglColor4fv(color_blue);
-			xglVertex3fv(s.origin);
-			xglVertex3fv(vu);
-			
-			xglEnd();
+				xglEnd();
+			}
 		}
 	}
 }
@@ -951,33 +967,38 @@ void	R_DrawEntityDebuggingInfo()
 	{
 		vec3_c	vf, vr, vu;
 	
-		for(std::map<int, r_entity_c>::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
+		for(std::vector<std::vector<r_entity_c> >::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
 		{
-			r_entity_c& ent = ir->second;
+			std::vector<r_entity_c>& entities = *ir;
 			
-			const r_entity_t& s = ent.getShared();
+			for(std::vector<r_entity_c>::iterator ir = entities.begin(); ir != entities.end(); ++ir)
+			{
+				r_entity_c& ent = *ir;
+				
+				const r_entity_t& s = ent.getShared();
 			
-			ent.getTransform().toVectorsFRU(vf, vr, vu);
+				ent.getTransform().toVectorsFRU(vf, vr, vu);
 			
-			vf *= 16 * s.scale[0];	vf += s.origin;
-			vr *= 16 * s.scale[1];	vr += s.origin;
-			vu *= 16 * s.scale[2];	vu += s.origin;
+				vf *= 16 * s.scale[0];	vf += s.origin;
+				vr *= 16 * s.scale[1];	vr += s.origin;
+				vu *= 16 * s.scale[2];	vu += s.origin;
 			
-			xglBegin(GL_LINES);
+				xglBegin(GL_LINES);
 			
-			xglColor4fv(color_red);
-			xglVertex3fv(s.origin);
-			xglVertex3fv(vf);
+				xglColor4fv(color_red);
+				xglVertex3fv(s.origin);
+				xglVertex3fv(vf);
+				
+				xglColor4fv(color_green);
+				xglVertex3fv(s.origin);
+				xglVertex3fv(vr);
 			
-			xglColor4fv(color_green);
-			xglVertex3fv(s.origin);
-			xglVertex3fv(vr);
+				xglColor4fv(color_blue);
+				xglVertex3fv(s.origin);
+				xglVertex3fv(vu);
 			
-			xglColor4fv(color_blue);
-			xglVertex3fv(s.origin);
-			xglVertex3fv(vu);
-			
-			xglEnd();
+				xglEnd();
+			}
 		}
 	}
 }
@@ -1155,7 +1176,7 @@ static void 	R_RenderFrame(const r_refdef_t &fd)
 	{
 		ri.Com_Printf("%4i leafs %4i entities %4i lights %4i tris %4i draws %4i exp\n",
 			c_leafs,
-			r_entities.size(),
+			c_entities,
 			c_lights,
 			//c_cmds,
 			//c_cmds_radiosity,
@@ -1478,7 +1499,7 @@ static bool 	R_SetMode()
 
 void	R_InitTree(const std::string &name)
 {
-#if 0
+#if 1
 	r_world_tree = new r_bsptree_c("maps/" + name);
 #else
 	r_world_tree = new r_proctree_c("maps/" + name + ".proc");
@@ -1758,145 +1779,95 @@ static void	R_ClearScene()
 	r_polys_num = 0;
 }
 
-static void	R_AddEntity(int entity_num, const r_entity_t &shared)
+static void	R_AddEntity(int entity_num, int index, const r_entity_t &shared)
 {
-	if(!entity_num)
+	if(entity_num < 0 || entity_num >= (int)r_entities.size())
 	{
 		ri.Com_Error(ERR_DROP, "R_AddEntity: bad entity number %i", entity_num);
 		return;
 	}
-
-	std::map<int, r_entity_c>::iterator ir = r_entities.find(entity_num);
 	
-	if(ir != r_entities.end())
+	if(index < 0 || index >= (int)r_entities[entity_num].size())
 	{
-		//ri.Com_Error(ERR_DROP, "R_AddEntity: entity %i already added", entity_num);
-		
-		//r_entities.erase(ir);
-		//r_entities.insert(std::make_pair(entity_num, r_entity_c(shared, update)));
-		
-		ir->second = r_entity_c(shared);
+		index = std::abs(index);
+		r_entities[entity_num].resize(index+1);
 	}
-	else
-	{
-		r_entities.insert(std::make_pair(entity_num, r_entity_c(shared)));
-	}
+	
+	r_entities[entity_num][index] = r_entity_c(shared);
 }
 
-static void	R_UpdateEntity(int entity_num, const r_entity_t &shared)
+static void	R_UpdateEntity(int entity_num, int index, const r_entity_t &shared)
 {
-	if(!entity_num)
+	if(entity_num < 0 || entity_num >= (int)r_entities.size())
 	{
 		ri.Com_Error(ERR_DROP, "R_UpdateEntity: bad entity number %i", entity_num);
 		return;
 	}
-
-	std::map<int, r_entity_c>::iterator ir = r_entities.find(entity_num);
 	
-	if(ir == r_entities.end())
+	if(index < 0 || index >= (int)r_entities[entity_num].size())
 	{
-		//ri.Com_Error(ERR_DROP, "R_UpdateEntity: entity %i is unknown", entity_num);
-		
-		r_entities.insert(std::make_pair(entity_num, r_entity_c(shared)));
+		index = std::abs(index);
+		r_entities[entity_num].resize(index+1);
 	}
-	else
-	{
-		//r_entities.erase(ir);
-		//r_entities.insert(std::make_pair(entity_num, r_entity_c(shared, update)));
-		
-		ir->second = r_entity_c(shared);
-	}
+	
+	r_entities[entity_num][index] = r_entity_c(shared);
 }
 
 static void	R_RemoveEntity(int entity_num)
 {
-	if(!entity_num)
+	if(entity_num < 0 || entity_num >= (int)r_entities.size())
 	{
-		ri.Com_Error(ERR_DROP, "R_RemoveEntity: bad entity number %i", entity_num);
+		ri.Com_Error(ERR_DROP, "R_RemoveEntity: bad entity number %i\n", entity_num);
 		return;
 	}
 	
-	std::map<int, r_entity_c>::iterator ir = r_entities.find(entity_num);
-	
-	if(ir == r_entities.end())
-	{
-		//ri.Com_Error(ERR_DROP, "R_RemoveEntity: entity %i is unknown", entity_num);
-	}
-	else
-	{
-		r_entities.erase(ir);
-	}
+	r_entities[entity_num].clear();
 }
 
 
-static void	R_AddLight(int entity_num, const r_entity_t &shared, r_light_type_t type)
+static void	R_AddLight(int entity_num, int index, const r_entity_t &shared, r_light_type_t type)
 {
-	std::map<int, r_light_c>::iterator ir = r_lights.find(entity_num);
+	if(entity_num < 0 || entity_num >= (int)r_lights.size())
+	{
+		ri.Com_Error(ERR_DROP, "R_AddLight: bad entity number %i", entity_num);
+		return;
+	}
 	
-	if(ir == r_lights.end())
+	if(index < 0 || index >= (int)r_lights[entity_num].size())
 	{
-		r_lights.insert(std::make_pair(entity_num, r_light_c(shared, type)));
+		index = std::abs(index);
+		r_lights[entity_num].resize(index+1);
 	}
-	else
-	{
-		ir->second = r_light_c(shared, type);
-	}
+	
+	r_lights[entity_num][index] = r_light_c(shared, type);
 }
 
-static void	R_UpdateLight(int entity_num, const r_entity_t &shared, r_light_type_t type)
+static void	R_UpdateLight(int entity_num, int index, const r_entity_t &shared, r_light_type_t type)
 {
-	if(!entity_num)
+	if(entity_num < 0 || entity_num >= (int)r_lights.size())
 	{
 		ri.Com_Error(ERR_DROP, "R_UpdateLight: bad entity number %i", entity_num);
 		return;
 	}
-
-	std::map<int, r_light_c>::iterator ir = r_lights.find(entity_num);
 	
-	if(ir == r_lights.end())
+	if(index < 0 || index >= (int)r_lights[entity_num].size())
 	{
-		//ri.Com_Error(ERR_DROP, "R_UpdateLight: entity %i is unknown", entity_num);
-		
-		r_lights.insert(std::make_pair(entity_num, r_light_c(shared, type)));
-	}
-	else
-	{
-		//if(update)
-		{
-			// update entire entity information
-			//r_entities.erase(ir);
-			//r_entities.insert(std::make_pair(entity_num, r_entity_c(shared, update)));
-			ir->second = r_light_c(shared, type);
-		}
-		/*
-		else
-		{
-			// update only client game lerp information
-			ir->second.setLerp(shared.lerp);
-		}
-		*/
+		index = std::abs(index);
+		r_lights[entity_num].resize(index+1);
 	}
 	
-	if(ir != r_lights.end())
-	{
-		ir->second = r_light_c(shared, type);
-	}
+	r_lights[entity_num][index].update(shared, type);
 }
 
 static void	R_RemoveLight(int entity_num)
 {
-	if(!entity_num)
+	if(entity_num < 0 || entity_num >= (int)r_lights.size())
 	{
 		ri.Com_Error(ERR_DROP, "R_RemoveLight: bad entity number %i", entity_num);
 		return;
 	}
-
-	std::map<int, r_light_c>::iterator ir = r_lights.find(entity_num);
 	
-	if(ir != r_lights.end())
-	{
-		r_lights.erase(ir);
-	}
+	r_lights[entity_num].clear();
 }
 
 static void	R_AddParticle(const r_particle_t &part)

@@ -33,6 +33,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "cm.h"
 #include "cm_md3.h"
+#include "cm_ase.h"
+#include "cm_lwo.h"
 
 // xreal --------------------------------------------------------------------
 
@@ -47,22 +49,23 @@ cmodel_c*	CM_RegisterModel(const std::string &name)
 	//
 	// search the currently loaded models
 	//
-	for(std::vector<cmodel_c*>::iterator ir = cm_models.begin(); ir != cm_models.end(); ir++)
+	for(std::vector<cmodel_c*>::iterator ir = cm_models.begin(); ir != cm_models.end(); ++ir)
 	{
 		if(X_strequal((*ir)->getName(), name.c_str()))
 			return *ir;
 	}
 
-	Com_DPrintf("loading '%s' ...\n", name.c_str());
+	Com_DPrintf("loading collision model '%s' ...\n", name.c_str());
 
 	//
 	// load the file
 	//
-	byte 		*data = NULL;
-	cmodel_c	*mod = NULL;
+	byte*		buffer = NULL;
+	int		buffer_size;
+	cmodel_c*	mod = NULL;
 	
-	VFS_FLoad(name, (void**)&data);
-	if(!data)
+	buffer_size = VFS_FLoad(name, (void**)&buffer);
+	if(!buffer)
 	{
 		Com_Printf("CM_RegisterModel: '%s' not found\n", name.c_str());	
 		return NULL;
@@ -71,8 +74,14 @@ cmodel_c*	CM_RegisterModel(const std::string &name)
 	//
 	// create the right class object
 	//
-	if(X_strnequal((const char*)data, MD3_IDENTSTRING, 4))
-		mod = new cmodel_md3_c(name);
+	if(X_strnequal((const char*)buffer, MD3_IDENTSTRING, 4))
+		mod = new cmodel_md3_c(name, buffer, buffer_size);
+		
+	else if(X_strnequal((const char*)buffer, ASE_IDENTSTRING, strlen(ASE_IDENTSTRING)))
+		mod = new cmodel_ase_c(name, buffer, buffer_size);
+		
+	else if(X_strnequal((const char*)buffer, "FORM", 4))
+		mod = new cmodel_lwo_c(name, buffer, buffer_size);
 		
 	//else if(X_strnequal((const char*)buf, MD5_IDENTSTRING, 10))
 	//	mod = new cm_skel_md5_model_c(name, buf);
@@ -93,11 +102,11 @@ cmodel_c*	CM_RegisterModel(const std::string &name)
 	//
 	// load it
 	//			
-	mod->load(data);
+	mod->load();
 		
 	cm_models.push_back(mod);
 
-	VFS_FFree(data);
+	VFS_FFree(buffer);
 
 	return mod;	
 }

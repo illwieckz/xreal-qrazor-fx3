@@ -213,7 +213,7 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 	if(!cent->current.index_light)
 		cgi.Com_Error(ERR_DROP, "CG_AddLightEntity: bad light index");
 
-	rent.custom_shader = cg.light_precache[cent->current.index_light];
+	rent.custom_light = cg.light_precache[cent->current.index_light];
 	
 	rent.shader_parms[0] = cent->current.shaderparms[0];
 	rent.shader_parms[1] = cent->current.shaderparms[1];
@@ -243,7 +243,7 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 			rent.radius_bbox.rotate(cent->current.quat);
 			rent.radius_value = rent.radius_bbox.radius();
 			
-			cgi.R_AddLight(cent->current.getNumber(), rent, LIGHT_OMNI);
+			cgi.R_AddLight(cent->current.getNumber(), 0, rent, LIGHT_OMNI);
 			break;
 		}
 				
@@ -278,21 +278,13 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 		
 			rent.radius_value = rent.radius_bbox.radius();
 			
-			cgi.R_AddLight(cent->current.getNumber(), rent, LIGHT_PROJ);
+			cgi.R_AddLight(cent->current.getNumber(), 0, rent, LIGHT_PROJ);
 			break;
 		}
 		
 		default:
 			break;
 	}
-}
-
-static void	CG_UpdateLightShader(const cg_entity_t *cent, r_entity_t &rent, bool &update)
-{
-	if(cent->current.index_light && cg.light_precache[cent->prev.index_light] != cg.light_precache[cent->current.index_light])
-		update = true;
-		
-	rent.custom_shader = cg.light_precache[cent->current.index_light];
 }
 
 void	CG_UpdateLightEntity(const cg_entity_t *cent)
@@ -318,8 +310,6 @@ void	CG_UpdateLightEntity(const cg_entity_t *cent)
 	{
 		case ET_LIGHT_OMNI:
 		{
-			//cgi.Com_DPrintf("updating omni-directional light ...\n");
-			
 			if(cent->prev.vectors[0] != cent->current.vectors[0])
 			{
 				update = true;
@@ -333,7 +323,10 @@ void	CG_UpdateLightEntity(const cg_entity_t *cent)
 			}
 			
 			if(update)
-				cgi.R_UpdateLight(cent->current.getNumber(), rent, LIGHT_OMNI);
+			{
+				cgi.Com_DPrintf("updating omni-directional light ...\n");
+				cgi.R_UpdateLight(cent->current.getNumber(), 0, rent, LIGHT_OMNI);
+			}
 			break;
 		}
 				

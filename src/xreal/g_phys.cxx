@@ -1292,10 +1292,10 @@ cmodel_c*	G_SetModel(g_entity_c *ent, const std::string &name)
 	if(name.empty())
 		Com_Error(ERR_DROP, "G_SetModel: empty name");
 	
+//	Com_Printf("G_SetModel: '%s'\n", name.c_str());
+
 	ent->_s.index_model = gi.SV_ModelIndex(name);
 	
-	Com_Printf("G_SetModel: '%s'\n", name.c_str());
-
 	cmodel_c* model = gi.CM_RegisterModel(name);
 		
 //	ent->_geom = new d_trimesh_c(g_ode_space->getId(), model->vertexes, model->indexes);
@@ -1313,10 +1313,10 @@ void		G_SetWorldModel(g_entity_c *ent, const std::string &name)
 	if(name.empty())
 		Com_Error(ERR_DROP, "G_SetWorldModel: empty name");
 	
-	Com_Printf("G_SetWorldModel: '%s'\n", name.c_str());
+//	Com_Printf("G_SetWorldModel: '%s'\n", name.c_str());
 	
 	ent->_s.index_model = gi.SV_ModelIndex(name);
-
+	
 	cmodel_c* model = gi.CM_RegisterModel(name);
 		
 #if 0

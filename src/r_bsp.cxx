@@ -270,29 +270,34 @@ void	r_bsptree_c::draw()
 	
 	if(r_lighting->getInteger())
 	{
-		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
-			r_light_c& light = ir->second;
+			std::vector<r_light_c>& lights = *ir;
 			
-			if(r_frustum.cull(light.getShared().radius_bbox))
-				continue;
-			
-			if(!(light.getShared().flags & RF_STATIC))
+			for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
 			{
-				litNode_r(_nodes[0], &light, false);
-			}
-			else
-			{
-				const std::map<const r_surface_c*, std::vector<index_t> >& surfaces = light.getAreaSurfaces(0);
+				r_light_c& light = *ir;
 			
-				for(std::map<const r_surface_c*, std::vector<index_t> >::const_iterator ir2 = surfaces.begin(); ir2 != surfaces.end(); ++ir2)
+				if(r_frustum.cull(light.getShared().radius_bbox))
+					continue;
+			
+				if(!(light.getShared().flags & RF_STATIC))
 				{
-					const r_surface_c* surf = ir2->first;
+					litNode_r(_nodes[0], &light, false);
+				}
+				else
+				{
+					const std::map<const r_surface_c*, std::vector<index_t> >& surfaces = light.getAreaSurfaces(0);
+			
+					for(std::map<const r_surface_c*, std::vector<index_t> >::const_iterator ir2 = surfaces.begin(); ir2 != surfaces.end(); ++ir2)
+					{
+						const r_surface_c* surf = ir2->first;
 				
-					if(surf->getFrameCount() != r_framecount)
-						continue;
+						if(surf->getFrameCount() != r_framecount)
+							continue;
 							
-					RB_AddCommand(&r_world_entity, _models[0], surf->getMesh(), surf->getShader(), &light, (std::vector<index_t>*)&ir2->second, -1, 0);
+						RB_AddCommand(&r_world_entity, _models[0], surf->getMesh(), surf->getShader(), &light, (std::vector<index_t>*)&ir2->second, -1, 0);
+					}
 				}
 			}
 		}
@@ -1227,7 +1232,8 @@ void	r_bsptree_c::litNode_r(r_tree_elem_c *elem, r_light_c *light, bool precache
 			if(!surf->getMesh())
 				continue;
 					
-			if(!surf->getMesh()->bbox.intersect(light->getShared().radius_bbox))
+//			if(!surf->getMesh()->bbox.intersect(light->getShared().radius_bbox))
+			if(!surf->getMesh()->bbox.intersect(light->getShared().origin, light->getShared().radius_value))
 				continue;
 				
 			if(light->hasSurface(0, surf))
@@ -1473,81 +1479,63 @@ void 	r_bsptree_c::markLights()
 	
 	if(!r_vis->getInteger() || _viewcluster == -1 || !vis || _pvs.empty())
 	{
-		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
-			r_light_c& light = ir->second;
+			std::vector<r_light_c>& lights = *ir;
 			
-			if(r_frustum.cull(light.getShared().radius_bbox))
-				continue;
+			for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
+			{
+				r_light_c& light = *ir;
 			
-			light.setVisFrameCount();
-			c_lights++;
+				if(r_frustum.cull(light.getShared().radius_bbox))
+					continue;
+			
+				light.setVisFrameCount();
+				c_lights++;
+			}
 		}
 	}
 	else
 	{
-		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
-			r_light_c& light = ir->second;
+			std::vector<r_light_c>& lights = *ir;
 			
-			if(!(light.getShared().flags & RF_STATIC))
+			for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
 			{
-				if(r_frustum.cull(light.getShared().radius_bbox))
-					continue;
-				
-				light.setVisFrameCount();
-				c_lights++;
-				continue;
-			}
+				r_light_c& light = *ir;
 			
-			if(light.getCluster() == -1)
-				continue;
-				
-			/*
-			if(r_newrefdef.areabits)
-			{
-				if(!(r_newrefdef.areabits[light.getArea()>>3] & (1<<(light.getArea()&7))))
-					continue;
-					
-				const std::vector<int>& areas = light.getAreas();
-				
-				for(std::vector<int>::const_iterator ir = areas.begin(); ir != areas.end(); ++ir)
+				if(!(light.getShared().flags & RF_STATIC))
 				{
-					//_areas[*ir]->lights.push_back(light);
+					if(r_frustum.cull(light.getShared().radius_bbox))
+						continue;
+				
+					light.setVisFrameCount();
+					c_lights++;
+					continue;
 				}
-			}
-			*/
 			
-			if(r_frustum.cull(light.getShared().radius_bbox))
-				continue;
-				
-			if(vis[light.getCluster()>>3] & (1<<(light.getCluster()&7)))
-			{
-				light.setVisFrameCount();
-				c_lights++;
-			}
 			
-			/*
-			//const std::vector<r_bsptree_leaf_c*>& leafs = light.getLeafs();
-			
-			//for(std::vector<r_bsptree_leaf_c*>::const_iterator ir = leafs.begin(); ir != leafs.end(); ++ir)
-			//{
-				//r_bsptree_leaf_c* leaf = *ir;
-				
-				//if(leaf->visframecount != r_visframecount)
-				//	continue;
-				
-				//if(leaf->cluster == -1)
-				//	continue;
-					
 				if(light.getCluster() == -1)
 					continue;
 				
+				/*
 				if(r_newrefdef.areabits)
 				{
 					if(!(r_newrefdef.areabits[light.getArea()>>3] & (1<<(light.getArea()&7))))
 						continue;
+					
+					const std::vector<int>& areas = light.getAreas();
+					
+					for(std::vector<int>::const_iterator ir = areas.begin(); ir != areas.end(); ++ir)
+					{
+						//_areas[*ir]->lights.push_back(light);
+					}
 				}
+				*/
+			
+				if(r_frustum.cull(light.getShared().radius_bbox))
+					continue;
 				
 				if(vis[light.getCluster()>>3] & (1<<(light.getCluster()&7)))
 				{
@@ -1555,16 +1543,45 @@ void 	r_bsptree_c::markLights()
 					c_lights++;
 				}
 				
+				/*
+				//const std::vector<r_bsptree_leaf_c*>& leafs = light.getLeafs();
 				
-				if(vis[leaf->cluster>>3] & (1<<(leaf->cluster&7)))
-				{
-					light.setVisFrameCount();
-					break;
-				}
+				//for(std::vector<r_bsptree_leaf_c*>::const_iterator ir = leafs.begin(); ir != leafs.end(); ++ir)
+				//{
+					//r_bsptree_leaf_c* leaf = *ir;
 				
-			//}
+					//if(leaf->visframecount != r_visframecount)
+					//	continue;
+				
+					//if(leaf->cluster == -1)
+					//	continue;
+					
+					if(light.getCluster() == -1)
+						continue;
+				
+					if(r_newrefdef.areabits)
+					{
+						if(!(r_newrefdef.areabits[light.getArea()>>3] & (1<<(light.getArea()&7))))
+							continue;
+					}
+				
+					if(vis[light.getCluster()>>3] & (1<<(light.getCluster()&7)))
+					{
+						light.setVisFrameCount();
+						c_lights++;
+					}
+				
+				
+					if(vis[leaf->cluster>>3] & (1<<(leaf->cluster&7)))
+					{
+						light.setVisFrameCount();
+						break;
+					}
+				
+				//}
 			
-			*/
+				*/
+			}
 		}
 	}
 }
@@ -1581,80 +1598,90 @@ void 	r_bsptree_c::markEntities()
 	
 	if(!r_vis->getInteger() || _viewcluster == -1 || !vis || _pvs.empty())
 	{
-		for(std::map<int, r_entity_c>::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
+		for(std::vector<std::vector<r_entity_c> >::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
 		{
-			r_entity_c& ent = ir->second;
+			std::vector<r_entity_c>& entities = *ir;
 			
-			ent.setVisFrameCount();
-			c_entities++;
+			for(std::vector<r_entity_c>::iterator ir = entities.begin(); ir != entities.end(); ++ir)
+			{
+				r_entity_c& ent = *ir;
+				
+				ent.setVisFrameCount();
+				c_entities++;
+			}
 		}
 	}
 	else
 	{
-		for(std::map<int, r_entity_c>::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
+		for(std::vector<std::vector<r_entity_c> >::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
 		{
-			r_entity_c& ent = ir->second;
+			std::vector<r_entity_c>& entities = *ir;
 			
-			if(!(ent.getShared().flags & RF_STATIC))
+			for(std::vector<r_entity_c>::iterator ir = entities.begin(); ir != entities.end(); ++ir)
 			{
-				// entity is always visible
-				ent.setVisFrameCount();
-				c_entities++;
-				continue;
-			}
-			
-			/*
-			if(ent.getCluster() != -1)
-			{
-				// check if entity is in visible cluster
-				if(vis[ent.getCluster()>>3] & (1<<(ent.getCluster()&7)))
+				r_entity_c& ent = *ir;
+				
+				if(!(ent.getShared().flags & RF_STATIC))
 				{
+					// entity is always visible
 					ent.setVisFrameCount();
 					c_entities++;
 					continue;
 				}
-			}
-			
-			if(ent.getLeafs().size())
-			{
-				// check if entity has shared leaves with the PVS
-				const std::vector<r_bsptree_leaf_c*>& leafs = ent.getLeafs();
-			
-				for(std::vector<r_bsptree_leaf_c*>::const_iterator ir = leafs.begin(); ir != leafs.end(); ++ir)
-				{
-					r_bsptree_leaf_c* leaf = *ir;
 				
-					if(leaf->visframecount == r_visframecount)
+				/*
+				if(ent.getCluster() != -1)
+				{
+					// check if entity is in visible cluster
+					if(vis[ent.getCluster()>>3] & (1<<(ent.getCluster()&7)))
 					{
-						// leaf is visible
 						ent.setVisFrameCount();
 						c_entities++;
-						break;
+						continue;
 					}
 				}
+			
+				if(ent.getLeafs().size())
+				{
+					// check if entity has shared leaves with the PVS
+					const std::vector<r_bsptree_leaf_c*>& leafs = ent.getLeafs();
 				
-				if(ent.isVisible())
+					for(std::vector<r_bsptree_leaf_c*>::const_iterator ir = leafs.begin(); ir != leafs.end(); ++ir)
+					{
+						r_bsptree_leaf_c* leaf = *ir;
+				
+						if(leaf->visframecount == r_visframecount)
+						{
+							// leaf is visible
+							ent.setVisFrameCount();
+							c_entities++;
+							break;
+						}
+					}
+				
+					if(ent.isVisible())
+						continue;
+				}
+				*/
+			
+				/*
+				if(ent.getCluster() == -1)
 					continue;
-			}
-			*/
+				*/
 			
-			/*
-			if(ent.getCluster() == -1)
-				continue;
-			*/
+				/*	
+				if(r_newrefdef.areabits)
+				{
+					if(!(r_newrefdef.areabits[ent.getArea()>>3] & (1<<(ent.getArea()&7))))
+						continue;
+				}
+				*/
 			
-			/*	
-			if(r_newrefdef.areabits)
-			{
-				if(!(r_newrefdef.areabits[ent.getArea()>>3] & (1<<(ent.getArea()&7))))
-					continue;
-			}
-			*/
-			
-			//if(vis[ent.getCluster()>>3] & (1<<(ent.getCluster()&7)))
-			{
-				ent.setVisFrameCount();
-				c_entities++;
+				//if(vis[ent.getCluster()>>3] & (1<<(ent.getCluster()&7)))
+				{
+					ent.setVisFrameCount();
+					c_entities++;
+				}
 			}
 		}
 	}
@@ -1753,15 +1780,20 @@ void	r_bsp_model_c::addModelToList(r_entity_c *ent)
 		
 		if(r_lighting->getInteger())
 		{
-			for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+			for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 			{
-				r_light_c& light = ir->second;
-				
-				if(!light.isVisible())
-					continue;
+				std::vector<r_light_c>& lights = *ir;
 			
-				if(light.getShared().radius_bbox.intersect(ent->getShared().origin, surf->getMesh()->bbox.radius()))
-					RB_AddCommand(ent, this, surf->getMesh(), surf->getShader(), &light, NULL, -1, 0);
+				for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
+				{
+					r_light_c& light = *ir;
+				
+					if(!light.isVisible())
+						continue;
+			
+					if(light.getShared().radius_bbox.intersect(ent->getShared().origin, surf->getMesh()->bbox.radius()))
+						RB_AddCommand(ent, this, surf->getMesh(), surf->getShader(), &light, NULL, -1, 0);
+				}
 			}
 		}
 	}

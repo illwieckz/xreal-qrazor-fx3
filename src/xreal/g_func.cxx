@@ -2502,9 +2502,34 @@ void	g_func_static_c::activate()
 		return;
 	}
 	
+#if 1
 	_s.index_model = gi.SV_ModelIndex(_model);
+//	G_SetModel(this, _model);
+#else
+	cmodel_c *model = G_SetModel(this, _model);
 	
-	//G_SetModel(this, _model);
+	// setup rigid body
+//	_body->setPosition(_s.origin);
+//	_body->setQuaternion(_s.quat);
+//	_body->setGravityMode(0);
+	
+	// setup collision
+	g_geom_info_c *geom_info = new g_geom_info_c(this, model, NULL);
+	
+	d_geom_c *geom = new d_box_c(g_ode_space->getId(), _r.size * 0.5);
+//	d_geom_c *geom = new d_trimesh_c(g_ode_space->getId(), model->vertexes, model->indexes);
+//	d_geom_c *geom = new d_sphere_c(g_ode_space->getId(), _r.bbox._maxs[0]);
+	
+//	geom->disable();
+//	geom->setBody(_body->getId());
+//	geom->setPosition(_s.origin);
+//	geom->setQuaternion(_s.quat);
+	geom->setData(geom_info);
+	geom->setCollideBits(MASK_SOLID);
+//	geom->enable();
+	
+	_geoms.insert(std::make_pair(geom, geom_info));
+#endif
 }
 
 

@@ -974,8 +974,11 @@ public r_occlusioniface_a
 					vec_t			distance);
 
 public:
+	r_light_c();
 	r_light_c(const r_entity_t &shared, r_light_type_t type);
 	~r_light_c();
+	
+	void			update(const r_entity_t &shared, r_light_type_t type);
 
 	void			setupTransform();
 	void			setupAttenuation();
@@ -1944,7 +1947,7 @@ extern r_refdef_t	r_newrefdef;
 
 
 extern r_entity_c	r_world_entity;
-extern r_proctree_c*	r_world_tree;
+extern r_bsptree_c*	r_world_tree;
 
 
 extern std::vector<index_t>	r_quad_indexes;
@@ -1954,8 +1957,8 @@ extern std::vector<index_t>	r_quad_indexes;
 //
 // scene info
 //
-extern std::map<int, r_entity_c>	r_entities;
-extern std::map<int, r_light_c>		r_lights;
+extern std::vector<std::vector<r_entity_c> >		r_entities;
+extern std::vector<std::vector<r_light_c> >		r_lights;
 
 extern int		r_particles_num;
 extern r_particle_t	r_particles[MAX_PARTICLES];

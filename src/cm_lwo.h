@@ -19,30 +19,49 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /// ============================================================================
-#ifndef CM_ASE_H
-#define CM_ASE_H
+#ifndef CM_LWO_H
+#define CM_LWO_H
 
 /// includes ===================================================================
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 // system -------------------------------------------------------------------
+// qrazor-fx ----------------------------------------------------------------
+// xreal --------------------------------------------------------------------
 // shared -------------------------------------------------------------------
 #include "x_shared.h"
 
-// qrazor-fx ----------------------------------------------------------------
-// xreal --------------------------------------------------------------------
 
 
-
-class cmodel_ase_c : public cmodel_c
+class cmodel_lwo_c : public cmodel_c
 {
 public:
-	cmodel_ase_c(const std::string &name, byte *buffer, uint_t buffer_size);
+	cmodel_lwo_c(const std::string &name, byte *buffer, uint_t buffer_size);
 	
 	virtual void	load();
+	
+private:
+	ushort_t	readU2();
+	uint_t		readU4();
+	
+	float		readF4();
+	
+	void		readID4(char *id);
+	void		readVEC12(vec3_c &vec);
+	void		readCOL12(vec3_c &vec);
+	index_t		readVX();
+	void		readName(char *name);
+	
+	void		readLayr(uint_t nbytes, matrix_c &transform);
+	void		readPnts(uint_t nbytes);
+	void		readBbox(uint_t nbytes);
+	void		readPols(uint_t nbytes);
+
+	uint_t			_readcount;
+	uint_t			_readcount_old;
 };
 
 
 
-#endif // CM_ASE_H
+#endif // CM_LWO_H

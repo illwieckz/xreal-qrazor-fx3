@@ -37,9 +37,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 class cmodel_md3_c : public cmodel_c
 {
 public:
-	cmodel_md3_c(const std::string &name);
+	cmodel_md3_c(const std::string &name, byte *buffer, uint_t buffer_size);
 	
-	virtual void	load(byte *data);
+	virtual void	load();
 };
 
 

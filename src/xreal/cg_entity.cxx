@@ -95,26 +95,6 @@ void	CG_UpdateEntity(int newnum, const entity_state_t *state, bool changed)
 	cent->serverframe_old = cent->serverframe;
 	cent->serverframe = cg.frame.serverframe;
 	cent->current = *state;
-	
-	/*
-	if(changed)
-	{
-		switch(cent->prev.type)
-		{
-			case ET_GENERIC:
-				CG_UpdateGenericEntity(cent);
-				break;
-		
-			case ET_LIGHT_OMNI:
-			case ET_LIGHT_PROJ:
-				CG_UpdateLightEntity(cent);
-				break;
-			
-			default:
-				break;
-		}
-	}
-	*/
 }
 
 void	CG_RemoveEntity(int newnum, const entity_state_t *state)
@@ -182,22 +162,6 @@ void	CG_SetFrame(r_entity_t &ent, const cg_entity_t *cent)
 		ent.frame = cent->current.frame;
 }
 
-void	CG_SetRotation(r_entity_t &rent, const cg_entity_t *cent)
-{
-	if(cent->current.effects & EF_ROTATE)
-	{	
-		// some bonus items auto-rotate
-		float autorotate = anglemod(cgi.CL_GetTime()/10);
-		vec3_c angles(0, autorotate, 0);
-		rent.quat.fromAngles(angles);
-	}
-	else
-	{			
-		rent.quat.slerp(cent->prev.quat, cent->current.quat, cg.frame_lerp);
-	}
-}
-
-
 
 /*
 ===============
@@ -240,10 +204,20 @@ void	CG_UpdateFrame(const cg_entity_t *cent, r_entity_t &rent, bool &update)
 
 void	CG_UpdateRotation(const cg_entity_t *cent, r_entity_t &rent, bool &update)
 {
-	if(cent->prev.quat != cent->current.quat)
+	if((cent->current.effects & EF_ROTATE) || cent->prev.quat != cent->current.quat)
 		update = true;
 		
-	rent.quat.slerp(cent->prev.quat, cent->current.quat, cg.frame_lerp);
+	if(cent->current.effects & EF_ROTATE)
+	{	
+		// some bonus items auto-rotate
+		float autorotate = anglemod(cgi.CL_GetTime()/10);
+		vec3_c angles(0, autorotate, 0);
+		rent.quat.fromAngles(angles);
+	}
+	else
+	{
+		rent.quat.slerp(cent->prev.quat, cent->current.quat, cg.frame_lerp);
+	}
 }
 
 void	CG_UpdateModel(const cg_entity_t *cent, r_entity_t &rent, bool &update)
@@ -260,6 +234,14 @@ void	CG_UpdateShader(const cg_entity_t *cent, r_entity_t &rent, bool &update)
 		update = true;
 		
 	rent.custom_shader = cg.shader_precache[cent->current.index_shader];
+}
+
+void	CG_UpdateLightShader(const cg_entity_t *cent, r_entity_t &rent, bool &update)
+{
+	if(cent->current.index_light && cg.light_precache[cent->prev.index_light] != cg.light_precache[cent->current.index_light])
+		update = true;
+		
+	rent.custom_light = cg.light_precache[cent->current.index_light];
 }
 
 void	CG_UpdateShaderParms(const cg_entity_t *cent, r_entity_t &rent, bool &update)
@@ -308,7 +290,20 @@ void	CG_AddGenericEntity(const cg_entity_t *cent)
 	
 	rent.flags = cent->current.renderfx;
 	
-	cgi.R_AddEntity(cent->current.getNumber(), rent);
+	cgi.R_AddEntity(cent->current.getNumber(), 0, rent);
+	
+	if(cent->current.index_light && !cent->current.vectors[0].isZero())
+	{
+		rent.custom_light = cg.light_precache[cent->current.index_light];
+	
+		rent.radius = cent->current.vectors[0];
+		rent.radius_bbox._maxs = rent.origin + cent->current.vectors[0];
+		rent.radius_bbox._mins = rent.origin - cent->current.vectors[0];
+		rent.radius_bbox.rotate(cent->current.quat);
+		rent.radius_value = rent.radius_bbox.radius();
+			
+		cgi.R_AddLight(cent->current.getNumber(), 0, rent, LIGHT_OMNI);
+	}
 }
 
 void	CG_UpdateGenericEntity(const cg_entity_t *cent)
@@ -333,7 +328,26 @@ void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 	CG_UpdateRenderFXFlags(cent, rent, update);
 	
 	if(update)
-		cgi.R_UpdateEntity(cent->current.getNumber(), rent);
+		cgi.R_UpdateEntity(cent->current.getNumber(), 0, rent);
+		
+	CG_UpdateLightShader(cent, rent, update);
+	
+//  	if(cent->prev.vectors[0] != cent->current.vectors[0])
+	{
+		update = true;
+		
+		rent.radius.lerp(cent->prev.vectors[0], cent->current.vectors[0], cg.frame_lerp);
+		
+		rent.radius_bbox._maxs = rent.origin + rent.radius;
+		rent.radius_bbox._mins = rent.origin - rent.radius;
+// 		rent.radius_bbox.rotate(rent.quat);
+		rent.radius_value = rent.radius_bbox.radius();
+	}
+	
+  	if(cent->current.index_light && !cent->current.vectors[0].isZero() && update)
+	{
+		cgi.R_UpdateLight(cent->current.getNumber(), 0, rent, LIGHT_OMNI);
+	}
 }
 
 void	CG_RemoveGenericEntity(const cg_entity_t *cent)
@@ -341,6 +355,7 @@ void	CG_RemoveGenericEntity(const cg_entity_t *cent)
 //	cgi.Com_DPrintf("removing generic entity %i ...\n", cent->prev.getNumber());
 
 	cgi.R_RemoveEntity(cent->prev.getNumber());
+	cgi.R_RemoveLight(cent->prev.getNumber());
 }
 
 
@@ -417,13 +432,14 @@ void	CG_UpdateEntities()
 		switch(cent->prev.type)
 		{
 			case ET_GENERIC:
+ 			case ET_FUNC_STATIC:
 				CG_UpdateGenericEntity(cent);
 				break;
 		
 // 			case ET_LIGHT_OMNI:
-// 			case ET_LIGHT_PROJ:
-// 				CG_UpdateLightEntity(cent);
-// 				break;
+//  			case ET_LIGHT_PROJ:
+//  				CG_UpdateLightEntity(cent);
+//  				break;
 			
 			default:
 				break;
