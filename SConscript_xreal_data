@@ -35,10 +35,12 @@ xreal_data_GLSL_files = [
 'data/xreal/glsl/refraction_C_fp.glsl',
 'data/xreal/glsl/dispersion_C_vp.glsl',
 'data/xreal/glsl/dispersion_C_fp.glsl',
-'data/xreal/glsl/skybox_C_vp.glsl',
-'data/xreal/glsl/skybox_C_fp.glsl',
 'data/xreal/glsl/liquid_C_vp.glsl',
 'data/xreal/glsl/liquid_C_fp.glsl',
+'data/xreal/glsl/skybox_vp.glsl',
+'data/xreal/glsl/skybox_fp.glsl',
+'data/xreal/glsl/skycloud_vp.glsl',
+'data/xreal/glsl/skycloud_fp.glsl',
 'data/xreal/glsl/heathaze_vp.glsl',
 'data/xreal/glsl/heathaze_fp.glsl' ]
 

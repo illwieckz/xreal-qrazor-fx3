@@ -1269,7 +1269,7 @@ void	XGL_Shutdown()
 }
 
 
-void*	XGL_GetSymbol(const char *symbolname)
+void*	XGL_GetSymbol(const char *symbolname, bool crash)
 {
 	void	*sym = NULL;
 
@@ -1287,21 +1287,36 @@ void*	XGL_GetSymbol(const char *symbolname)
 	}
 	
 	if(err)
-		ri.Com_Error(ERR_FATAL, "XGL_GetSymbol: %s by searching symbol '%s'", err, symbolname);
+	{
+		if(crash)
+			ri.Com_Error(ERR_FATAL, "XGL_GetSymbol: %s by searching symbol '%s'", err, symbolname);
+		else
+			ri.Com_Printf("XGL_GetSymbol: %s by searching symbol '%s'", err, symbolname);
+	}
 	else
-		ri.Com_Error(ERR_FATAL, "XGL_GetSymbol: unknown error by searching symbol '%s'", symbolname);
+	{
+		if(crash)
+			ri.Com_Error(ERR_FATAL, "XGL_GetSymbol: unknown error by searching symbol '%s'", symbolname);
+		else
+			ri.Com_Printf("XGL_GetSymbol: unknown error by searching symbol '%s'", symbolname);
+	}
 
 	return NULL;
 	
 #elif _WIN32
 	if((sym = GetProcAddress(sys_gl.OpenGLLib, symbolname)) == NULL)
 	{
-		ri.Com_Error(ERR_FATAL, "XGL_GetSymbol: GetProcAddress failed on '%s'", symbolname);
-		return NULL;
+		if((sym = wglGetProcAddres(symbolname)) == NULL)
+		{
+			if(crash)
+				ri.Com_Error(ERR_FATAL, "XGL_GetSymbol: GetProcAddress failed on '%s'", symbolname);
+			else
+				ri.Com_Printf(ERR_FATAL, "XGL_GetSymbol: GetProcAddress failed on '%s'", symbolname);
+			return NULL;
+		}
 	}
 
-	return sym;
-	
+	return sym;	
 #endif
 }
 

@@ -1213,29 +1213,6 @@ private:
 };
 
 
-class rb_skybox_C_c : 
-public rb_program_c,
-public u_view_origin_a
-{
-public:
-	rb_skybox_C_c()
-	:rb_program_c("skybox_C", VATTRIB_VERTEX | VATTRIB_NORMAL),
-	u_view_origin_a(getHandle())
-	{
-		_u_colormap	= xglGetUniformLocationARB(getHandle(), "u_colormap");	RB_CheckForError();
-		
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
-		
-		xglUniform1iARB(_u_colormap, 0);	RB_CheckForError();
-		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
-	}
-	
-private:
-	uint_t		_u_colormap;
-};
-
-
 class rb_liquid_C_c : 
 public rb_program_c,
 public u_view_origin_a
@@ -1256,6 +1233,52 @@ public:
 	
 private:
 	uint_t		_u_colormap;
+};
+
+
+class rb_skybox_c : 
+public rb_program_c,
+public u_view_origin_a
+{
+public:
+	rb_skybox_c()
+	:rb_program_c("skybox", VATTRIB_VERTEX | VATTRIB_NORMAL),
+	u_view_origin_a(getHandle())
+	{
+		_u_colormap	= xglGetUniformLocationARB(getHandle(), "u_colormap");	RB_CheckForError();
+		
+		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		
+		xglUniform1iARB(_u_colormap, 0);	RB_CheckForError();
+		
+		xglUseProgramObjectARB(0);	RB_CheckForError();
+	}
+	
+private:
+	uint_t		_u_colormap;
+};
+
+
+class rb_skycloud_c : 
+public rb_program_c,
+public u_view_origin_a
+{
+public:
+	rb_skycloud_c()
+	:rb_program_c("skycloud", VATTRIB_VERTEX | VATTRIB_TEX0),
+	u_view_origin_a(getHandle())
+	{
+		_u_cloudmap	= xglGetUniformLocationARB(getHandle(), "u_cloudmap");	RB_CheckForError();
+		
+		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		
+		xglUniform1iARB(_u_cloudmap, 0);	RB_CheckForError();
+		
+		xglUseProgramObjectARB(0);	RB_CheckForError();
+	}
+	
+private:
+	uint_t		_u_cloudmap;
 };
 
 
@@ -1308,8 +1331,10 @@ static rb_lighting_DBS_omni_c*		rb_program_lighting_DBS_omni = NULL;
 static rb_reflection_C_c*		rb_program_reflection_C = NULL;
 static rb_refraction_C_c*		rb_program_refraction_C = NULL;
 static rb_dispersion_C_c*		rb_program_dispersion_C = NULL;
-static rb_skybox_C_c*			rb_program_skybox_C = NULL;
 static rb_liquid_C_c*			rb_program_liquid_C = NULL;
+
+static rb_skybox_c*			rb_program_skybox = NULL;
+static rb_skycloud_c*			rb_program_skycloud = NULL;
 
 static rb_heathaze_c*			rb_program_heathaze = NULL;
 
@@ -1425,8 +1450,10 @@ void		RB_InitGPUShaders()
 	rb_program_reflection_C		= new rb_reflection_C_c();
 	rb_program_refraction_C		= new rb_refraction_C_c();
 	rb_program_dispersion_C		= new rb_dispersion_C_c();
-	rb_program_skybox_C		= new rb_skybox_C_c();
 	rb_program_liquid_C		= new rb_liquid_C_c();
+	
+	rb_program_skybox		= new rb_skybox_c();
+	rb_program_skycloud		= new rb_skycloud_c();
 	
 	rb_program_heathaze		= new rb_heathaze_c();
 }
@@ -1452,8 +1479,10 @@ void		RB_ShutdownGPUShaders()
 	delete rb_program_reflection_C;
 	delete rb_program_refraction_C;
 	delete rb_program_dispersion_C;
-	delete rb_program_skybox_C;
 	delete rb_program_liquid_C;
+	
+	delete rb_program_skybox;
+	delete rb_program_skycloud;
 	
 	delete rb_program_heathaze;
 }
@@ -2183,36 +2212,6 @@ void		RB_RenderCommand_dispersion_C(const r_command_t *cmd,			const r_shader_sta
 }
 
 
-void		RB_EnableShader_skybox_C()
-{
-	rb_program_skybox_C->enable();	RB_CheckForError();
-}
-
-void		RB_DisableShader_skybox_C()
-{
-	rb_program_skybox_C->disable();	RB_CheckForError();
-}
-
-void		RB_RenderCommand_skybox_C(const r_command_t *cmd,			const r_shader_stage_c *stage_colormap)
-{
-	RB_EnableShaderStageStates(cmd->getEntity(), stage_colormap);
-	
-	rb_program_skybox_C->setVertexAttribs(cmd);
-
-	RB_SelectTexture(GL_TEXTURE0);
-	xglMatrixMode(GL_TEXTURE);
-	xglLoadTransposeMatrixf(&rb_matrix_model[0][0]);
-	xglMatrixMode(GL_MODELVIEW);
-	RB_Bind(stage_colormap->image);
-
-	rb_program_skybox_C->setUniform_view_origin_inWorldSpace(cmd);
-
-	RB_FlushMesh(cmd);
-	
-	RB_DisableShaderStageStates(cmd->getEntity(), stage_colormap);
-}
-
-
 void		RB_EnableShader_liquid_C()
 {
 	rb_program_liquid_C->enable();		RB_CheckForError();
@@ -2241,6 +2240,63 @@ void		RB_RenderCommand_liquid_C(const r_command_t *cmd,			const r_shader_stage_c
 	
 	RB_DisableShaderStageStates(cmd->getEntity(), stage_colormap);
 }
+
+
+void		RB_EnableShader_skybox()
+{
+	rb_program_skybox->enable();	RB_CheckForError();
+}
+
+void		RB_DisableShader_skybox()
+{
+	rb_program_skybox->disable();	RB_CheckForError();
+}
+
+void		RB_RenderCommand_skybox(const r_command_t *cmd,			const r_shader_stage_c *stage_skyboxmap)
+{
+	RB_EnableShaderStageStates(cmd->getEntity(), stage_skyboxmap);
+	
+	rb_program_skybox->setVertexAttribs(cmd);
+
+	RB_SelectTexture(GL_TEXTURE0);
+	xglMatrixMode(GL_TEXTURE);
+	xglLoadTransposeMatrixf(&rb_matrix_model[0][0]);
+	xglMatrixMode(GL_MODELVIEW);
+	RB_Bind(stage_skyboxmap->image);
+
+	rb_program_skybox->setUniform_view_origin_inWorldSpace(cmd);
+
+	RB_FlushMesh(cmd);
+	
+	RB_DisableShaderStageStates(cmd->getEntity(), stage_skyboxmap);
+}
+
+
+void	RB_EnableShader_skycloud()
+{
+	rb_program_skycloud->enable();	RB_CheckForError();
+}
+
+void	RB_DisableShader_skycloud()
+{
+	rb_program_skycloud->disable();	RB_CheckForError();
+}
+
+void		RB_RenderCommand_skycloud(const r_command_t *cmd,		const r_shader_stage_c *stage_skycloudmap)
+{
+	RB_EnableShaderStageStates(cmd->getEntity(), stage_skycloudmap);
+	
+	rb_program_skycloud->setVertexAttribs(cmd);
+
+	RB_SelectTexture(GL_TEXTURE0);
+	RB_ModifyTextureMatrix(cmd->getEntity(), stage_skycloudmap);
+	RB_Bind(stage_skycloudmap->image);
+
+	RB_FlushMesh(cmd);
+	
+	RB_DisableShaderStageStates(cmd->getEntity(), stage_skycloudmap);
+}
+
 
 
 void	RB_EnableShader_heathaze()
