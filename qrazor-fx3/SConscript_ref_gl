@@ -47,14 +47,15 @@ ref_gl_src = [
 'src/r_surf.cxx',
 'src/r_vis.cxx',
 'src/img_tga.cxx',
-'src/img_jpg.cxx' ]
+'src/img_jpg.cxx',
+'src/img_png.cxx' ]
 
 if sys.platform == 'linux2':
 	ref_glsl_glx_env = env.Copy()
 	ref_glsl_glx_env.Append(CXXFLAGS='-DHAVE_XF86_DGA')
 	ref_glsl_glx_env.Append(CXXFLAGS='-DHAVE_XF86_VIDMODE')
 	ref_glsl_glx_env.Append(LIBPATH='/usr/X11R6/lib')
-	ref_glsl_glx_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm', 'dl', 'jpeg', 'm'])
+	ref_glsl_glx_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm', 'dl', 'jpeg', 'png', 'm'])
 	ref_glsl_glx_env.SharedLibrary('ref_glsl_glx', [ref_gl_src, ['src/glimp_glx.cxx', 'src/r_backend_glsl.cxx']])
 	ref_glsl_glx_env.InstallAs('#install/ref_glsl_glx.so', 'libref_glsl_glx.so')
 	
