@@ -33,7 +33,7 @@ void	main()
 	gl_Position = ftransform();
 	
 	// assign position in object space
-	var_vertex = gl_Vertex;
+	var_vertex = gl_Vertex.xyz;
 	
 	// assign normal in object space
 	var_normal = gl_Normal;
