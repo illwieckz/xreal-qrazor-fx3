@@ -168,7 +168,10 @@ static void 	VFS_Dir_f()
 	if((dirnames = VFS_ListFiles(dir, ext)).size() != 0 )
 	{
 		for(uint_t i=0; i < dirnames.size(); i++)
+		{
 			Com_Printf( "%s\n", dirnames[i].c_str());
+			ndirs++;
+		}
 	}
 	
 	Com_Printf("%i files listed\n", ndirs);
@@ -233,6 +236,9 @@ std::vector<std::string>	VFS_ListFiles(const std::string &dir, const std::string
 				if(dir.length() && s.length() > 1 && s[0] == '/')
 					s = s.substr(1, s.length());
 					
+				//if(s.length() > 1 && s[s.length()-1] == '/')
+				//	continue;
+					
 				if(s.find('.') == s.npos)
 					s += '/';
 			
@@ -266,10 +272,13 @@ std::vector<std::string>	VFS_ListFiles(const std::string &dir, const std::string
 								
 				if(X_strncasecmp(s.c_str(), dir.c_str(), dir.length()))
 					continue;
+					
+				if(s.length() > 1 && s[s.length()-1] == '/')
+					continue;
 				
 				if(extension.length())
 				{
-					if(X_strcasecmp((s.substr(s.length()-4, s.length()).c_str()), extension.c_str()))
+					if(X_strcasecmp((s.substr(s.length() - extension.length(), s.length()).c_str()), extension.c_str()))
 						continue;
 				}				
 				
