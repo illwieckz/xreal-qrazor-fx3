@@ -59,7 +59,6 @@ cvar_t	*cg_gravity;
 //
 // interface
 //
-cg_import_t	cgi;
 cg_export_t	cg_globals;
 
 
@@ -94,12 +93,12 @@ static void	CG_Skins_f()
 {
 	for(int i=0; i<MAX_CLIENTS; i++)
 	{
-		if(!cgi.CL_GetConfigString(CS_PLAYERSKINS+i)[0])
+		if(!trap_CL_GetConfigString(CS_PLAYERSKINS+i)[0])
 			continue;
 			
-		Com_Printf("client %i: %s\n", i, cgi.CL_GetConfigString(CS_PLAYERSKINS+i));
+		Com_Printf("client %i: %s\n", i, trap_CL_GetConfigString(CS_PLAYERSKINS+i));
 		CG_UpdateScreen();
-		cgi.Sys_SendKeyEvents();	// pump message loop
+		trap_Sys_SendKeyEvents();	// pump message loop
 		CG_ParseClientinfo(i);
 	}
 }
@@ -116,8 +115,8 @@ new parameters and flush all sounds
 */
 static void	CG_Snd_Restart_f()
 {
-	cgi.S_Shutdown();
-	cgi.S_Init();
+	trap_S_Shutdown();
+	trap_S_Init();
 	CG_RegisterSounds();
 }
 
@@ -126,8 +125,8 @@ static void	CG_Snd_Restart_f()
 static void	CG_ClearEntities()
 {
 	// clear all entities
-	memset(&cg.entities, 0, sizeof(cg.entities));
-	memset(&cg.entities_parse, 0, sizeof(cg.entities_parse));
+	cg.entities			= std::vector<cg_entity_t>(MAX_ENTITIES);
+	cg.entities_parse		= std::vector<entity_state_t>(MAX_ENTITIES);
 	cg.entities_first		= 0;		// index (not anded off) into cl_parse_entities[]
 }
 
@@ -183,19 +182,19 @@ void	CG_ClearState()
 
 void	CG_RegisterSounds()
 {
-	cgi.S_BeginRegistration();
+	trap_S_BeginRegistration();
 	
 	CG_RegisterTEntSounds();
 	
 	for(int i=1; i<MAX_SOUNDS; i++)
 	{
-		if(!cgi.CL_GetConfigString(CS_SOUNDS+i)[0])
+		if(!trap_CL_GetConfigString(CS_SOUNDS+i)[0])
 			break;
 			
-		cg.sound_precache[i] = cgi.S_RegisterSound(cgi.CL_GetConfigString(CS_SOUNDS+i));
+		cg.sound_precache[i] = trap_S_RegisterSound(trap_CL_GetConfigString(CS_SOUNDS+i));
 	}
 	
-	cgi.S_EndRegistration();
+	trap_S_EndRegistration();
 }
 
 
@@ -205,28 +204,28 @@ static void	CG_InitClientGame()
 	//
 	// register our variables
 	//
-	cg_gun 			= cgi.Cvar_Get("cg_gun", "1", CVAR_ARCHIVE);
-	cg_footsteps		= cgi.Cvar_Get("cg_footsteps", "1", CVAR_NONE);
-	cg_crosshair 		= cgi.Cvar_Get("cg_crosshair", "0", CVAR_ARCHIVE);
-	cg_crosshair_size 	= cgi.Cvar_Get("cg_crosshair_size", "24", CVAR_ARCHIVE);
-	cg_stats 		= cgi.Cvar_Get("cg_stats", "0", 0);
-	cg_vwep			= cgi.Cvar_Get("cg_vwep", "1", CVAR_ARCHIVE);
-	cg_noskins		= cgi.Cvar_Get("cg_noskins", "0", 0);
-	cg_showclamp		= cgi.Cvar_Get("showclamp", "0", 0);
-	cg_shownet		= cgi.Cvar_Get("shownet", "0", 0);
-	cg_predict		= cgi.Cvar_Get("cg_predict", "0", 0);
-	cg_showmiss		= cgi.Cvar_Get("cg_showmiss", "0", 0);
-	cg_viewsize		= cgi.Cvar_Get("cg_viewsize", "100", CVAR_ARCHIVE);
-	cg_centertime		= cgi.Cvar_Get("cg_centertime", "2.5", 0);
-	cg_showturtle		= cgi.Cvar_Get("cg_showturtle", "0", 0);
-	cg_showfps		= cgi.Cvar_Get("cg_showfps", "1", CVAR_ARCHIVE);
-	cg_showlayout		= cgi.Cvar_Get("cg_showlayout", "1", CVAR_ARCHIVE);
-	cg_printspeed		= cgi.Cvar_Get("cg_printspeed", "8", CVAR_NONE);
-	cg_paused		= cgi.Cvar_Get("paused", "0", CVAR_NONE);
-	cg_gravity		= cgi.Cvar_Get("cg_gravity", "1", CVAR_NONE);
+	cg_gun 			= trap_Cvar_Get("cg_gun", "1", CVAR_ARCHIVE);
+	cg_footsteps		= trap_Cvar_Get("cg_footsteps", "1", CVAR_NONE);
+	cg_crosshair 		= trap_Cvar_Get("cg_crosshair", "0", CVAR_ARCHIVE);
+	cg_crosshair_size 	= trap_Cvar_Get("cg_crosshair_size", "24", CVAR_ARCHIVE);
+	cg_stats 		= trap_Cvar_Get("cg_stats", "0", 0);
+	cg_vwep			= trap_Cvar_Get("cg_vwep", "1", CVAR_ARCHIVE);
+	cg_noskins		= trap_Cvar_Get("cg_noskins", "0", 0);
+	cg_showclamp		= trap_Cvar_Get("showclamp", "0", 0);
+	cg_shownet		= trap_Cvar_Get("shownet", "0", 0);
+	cg_predict		= trap_Cvar_Get("cg_predict", "0", 0);
+	cg_showmiss		= trap_Cvar_Get("cg_showmiss", "0", 0);
+	cg_viewsize		= trap_Cvar_Get("cg_viewsize", "100", CVAR_ARCHIVE);
+	cg_centertime		= trap_Cvar_Get("cg_centertime", "2.5", 0);
+	cg_showturtle		= trap_Cvar_Get("cg_showturtle", "0", 0);
+	cg_showfps		= trap_Cvar_Get("cg_showfps", "1", CVAR_ARCHIVE);
+	cg_showlayout		= trap_Cvar_Get("cg_showlayout", "1", CVAR_ARCHIVE);
+	cg_printspeed		= trap_Cvar_Get("cg_printspeed", "8", CVAR_NONE);
+	cg_paused		= trap_Cvar_Get("paused", "0", CVAR_NONE);
+	cg_gravity		= trap_Cvar_Get("cg_gravity", "1", CVAR_NONE);
 	
-//	cgi.Cmd_AddCommand("skins", 		CG_Skins_f);
-	cgi.Cmd_AddCommand("snd_restart",	CG_Snd_Restart_f);
+//	trap_Cmd_AddCommand("skins", 		CG_Skins_f);
+	trap_Cmd_AddCommand("snd_restart",	CG_Snd_Restart_f);
 
 
 	//
@@ -282,68 +281,64 @@ static void	CG_RunFrame()
 	
 	// update audio
 	if(trap_CLS_GetConnectionState() != CA_ACTIVE)
-		cgi.S_Update(vec3_origin, vec3_origin, vec3_c(1, 0, 0), vec3_c(0, 1, 0), vec3_c(0, 0, 1));
+		trap_S_Update(vec3_origin, vec3_origin, vec3_c(1, 0, 0), vec3_c(0, 1, 0), vec3_c(0, 0, 1));
 	else
-		cgi.S_Update(cg.refdef.view_origin, cg.v_velocity, cg.v_forward, cg.v_right, cg.v_up);
+		trap_S_Update(cg.refdef.view_origin, cg.v_velocity, cg.v_forward, cg.v_right, cg.v_up);
 }
 
 
 static void	CG_UpdateConfig(int index, const std::string &configstring)
 {
-	//cgi.Com_Printf("CG_UpdateConfig: %i '%s'\n", index, configstring.c_str());
+	//trap_Com_Printf("CG_UpdateConfig: %i '%s'\n", index, configstring.c_str());
 
 	if(index == CS_MAPNAME)
 	{
-		std::string mapname = cgi.CL_GetConfigString(CS_MAPNAME);
+		std::string mapname = trap_CL_GetConfigString(CS_MAPNAME);
 		
-		cgi.Com_Printf("CG_UpdateConfig: map '%s'\n", mapname.c_str());
+		trap_Com_Printf("CG_UpdateConfig: map '%s'\n", mapname.c_str());
 		
 		unsigned	map_checksum;		// for detecting cheater maps
-		cgi.CM_BeginRegistration(mapname, true, &map_checksum, 0);
+		trap_CM_BeginRegistration(mapname, true, &map_checksum, 0);
 		
-		if((int)map_checksum != atoi(cgi.CL_GetConfigString(CS_MAPCHECKSUM)))
+		if((int)map_checksum != atoi(trap_CL_GetConfigString(CS_MAPCHECKSUM)))
 		{
-			cgi.Com_Error(ERR_DROP, "Local map version differs from server: %i != '%s'\n", map_checksum, cgi.CL_GetConfigString(CS_MAPCHECKSUM));
+			trap_Com_Error(ERR_DROP, "Local map version differs from server: %i != '%s'\n", map_checksum, trap_CL_GetConfigString(CS_MAPCHECKSUM));
 			return;
 		}
-		cgi.R_BeginRegistration(mapname);
-	}
-	else if(index == CS_SKY)
-	{
-		cgi.R_SetSky(cgi.CL_GetConfigString(CS_SKY));
+		trap_R_BeginRegistration(mapname);
 	}
 	else if(index >= CS_MODELS && index < CS_MODELS+MAX_MODELS)
 	{
-		//if(cgi.CL_GetRefreshPrepped())
+		//if(trap_CL_GetRefreshPrepped())
 		{
-			cg.model_draw[index-CS_MODELS] = cgi.R_RegisterModel(configstring);
+			cg.model_draw[index-CS_MODELS] = trap_R_RegisterModel(configstring);
 			
-			cg.model_clip[index-CS_MODELS] = cgi.CM_RegisterModel(configstring);
+			cg.model_clip[index-CS_MODELS] = trap_CM_RegisterModel(configstring);
 		}
 	}
 	else if(index >= CS_SHADERS && index < CS_SHADERS+MAX_SHADERS)
 	{
-		//if(cgi.CL_GetRefreshPrepped())
-			cg.shader_precache[index-CS_SHADERS] = cgi.R_RegisterPic(configstring);
+		//if(trap_CL_GetRefreshPrepped())
+			cg.shader_precache[index-CS_SHADERS] = trap_R_RegisterPic(configstring);
 	}
 	else if(index >= CS_ANIMATIONS && index < CS_ANIMATIONS+MAX_ANIMATIONS)
 	{
-		//if(cgi.CL_GetRefreshPrepped())
-			cg.animation_precache[index-CS_ANIMATIONS] = cgi.R_RegisterAnimation(configstring);
+		//if(trap_CL_GetRefreshPrepped())
+			cg.animation_precache[index-CS_ANIMATIONS] = trap_R_RegisterAnimation(configstring);
 	}
 	else if(index >= CS_SOUNDS && index < CS_SOUNDS+MAX_SOUNDS)
 	{
-		//if(cgi.CL_GetRefreshPrepped())
-			cg.sound_precache[index-CS_SOUNDS] = cgi.S_RegisterSound(configstring);
+		//if(trap_CL_GetRefreshPrepped())
+			cg.sound_precache[index-CS_SOUNDS] = trap_S_RegisterSound(configstring);
 	}
 	else if(index >= CS_LIGHTS && index < CS_LIGHTS+MAX_LIGHTS)
 	{
-		//if(cgi.CL_GetRefreshPrepped())
-			cg.light_precache[index-CS_LIGHTS] = cgi.R_RegisterLight(configstring);
+		//if(trap_CL_GetRefreshPrepped())
+			cg.light_precache[index-CS_LIGHTS] = trap_R_RegisterLight(configstring);
 	}
 	else if(index >= CS_PLAYERSKINS && index < CS_PLAYERSKINS+MAX_CLIENTS)
 	{
-		//if(cgi.CL_GetRefreshPrepped())
+		//if(trap_CL_GetRefreshPrepped())
 			CG_ParseClientinfo(index-CS_PLAYERSKINS);
 	}
 }
@@ -365,6 +360,7 @@ extern "C" {
 
 cg_export_t*	GetCGameAPI(cg_import_t *import)
 {
+	extern cg_import_t cgi;
 	cgi = *import;
 
 	cg_globals.apiversion			= CG_API_VERSION;
@@ -421,7 +417,7 @@ void 	Com_Error(err_type_e type, const char *fmt, ...)
 	vsprintf(text, fmt, argptr);
 	va_end(argptr);
 
-	cgi.Com_Error(type, "%s", text);
+	trap_Com_Error(type, "%s", text);
 }
 
 void 	Com_Printf(const char *fmt, ...)
@@ -433,7 +429,7 @@ void 	Com_Printf(const char *fmt, ...)
 	vsprintf(text, fmt, argptr);
 	va_end(argptr);
 
-	cgi.Com_Printf("%s", text);
+	trap_Com_Printf("%s", text);
 }
 #endif
 

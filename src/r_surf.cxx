@@ -35,6 +35,8 @@ r_surface_c::r_surface_c()
 {
 	_framecount	= 0;
 	
+	_sub		= -1;
+	
 	_mesh		= NULL;
 	_shaderref	= NULL;
 	

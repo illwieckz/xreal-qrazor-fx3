@@ -186,6 +186,10 @@ struct client_info_t
 
 struct cg_entity_t
 {
+	inline cg_entity_t()
+	{
+	}
+
 	entity_state_t	current;
 	entity_state_t	prev;			// will always be valid, but might just be a copy of current
 
@@ -266,10 +270,9 @@ struct cg_state_t
 	// the cl_parse_entities must be large enough to hold UPDATE_BACKUP frames of
 	// entities, so that when a delta compressed message arives from the server
 	// it can be un-deltad from the original 
-	cg_entity_t	entities[MAX_ENTITIES];
-	
-	entity_state_t	entities_parse[MAX_ENTITIES];
-	int		entities_first;		// index (not anded off) into cl_parse_entities[]
+	std::vector<cg_entity_t>	entities;
+	std::vector<entity_state_t>	entities_parse;
+	int				entities_first;		// index (not anded off) into cl_parse_entities[]
 	
 	// player prediction
 	vec3_c		predicted_origins[CMD_BACKUP];	// for debug comparing against server
@@ -376,14 +379,6 @@ void	CG_FinishCinematic();
 //
 // cg_light.cxx
 //
-/*
-void	CG_ClearLights();
-cg_light_t*	CG_AllocLight(int key);
-void	CG_NewLight(int key, const vec3_c &origin, float radius, float time);
-void 	CG_RunLights();
-void 	CG_AddLights();
-*/
-
 void	CG_AddLightEntity(const cg_entity_t *cent);
 void	CG_UpdateLightEntity(const cg_entity_t *cent);
 void	CG_RemoveLightEntity(const cg_entity_t *cent);
@@ -477,7 +472,7 @@ void	CG_ShutdownDynamics();
 //
 void	CG_UpdateAnimationBuffer();
 
-void	CG_AddPlayerEntities(r_entity_t &ent, const cg_entity_t *cent, int effects, int renderfx);
+void	CG_AddPlayerEntities(r_entity_t &ent, cg_entity_t *cent, int effects, int renderfx);
 
 void	CG_LoadClientinfo(client_info_t *ci, const std::string &s);
 void	CG_ParseClientinfo(int player);
@@ -585,17 +580,15 @@ void		trap_R_DrawPic(int x, int y, int w, int h, const vec4_c &color, int shader
 void		trap_R_DrawStretchPic(int x, int y, int w, int h, float s1, float t1, float s2, float t2, const vec4_c &color, int shader);
 void		trap_R_DrawFill(int x, int y, int w, int h, const vec4_c &color);
 	
-void 		trap_R_SetSky(const std::string &name);
-	
 void		trap_R_ClearScene();
 	
-void		trap_R_AddEntity(int entity_num, int index, const r_entity_t &shared);
-void		trap_R_UpdateEntity(int entity_num, int index, const r_entity_t &shared);
-void		trap_R_RemoveEntity(int entity_num);
+void		trap_R_AddEntity(int index, const r_entity_t &shared);
+void		trap_R_UpdateEntity(int index, const r_entity_t &shared);
+void		trap_R_RemoveEntity(int index);
 	
-void		trap_R_AddLight(int entity_num, int index, const r_entity_t &shared, r_light_type_t type);
-void		trap_R_UpdateLight(int entity_num, int index, const r_entity_t &shared, r_light_type_t type);
-void		trap_R_RemoveLight(int entity_num);
+void		trap_R_AddLight(int index, const r_entity_t &shared, r_light_type_t type);
+void		trap_R_UpdateLight(int index, const r_entity_t &shared, r_light_type_t type);
+void		trap_R_RemoveLight(int index);
 	
 void		trap_R_AddParticle(const r_particle_t &part);
 void		trap_R_AddPoly(const r_poly_t &poly);

@@ -277,59 +277,48 @@ void	r_bsptree_c::draw()
 	
 	if(r_lighting->getInteger() == 1)
 	{
-		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		for(std::vector<r_light_c*>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
-			std::vector<r_light_c>& lights = *ir;
+			r_light_c* light = *ir;
 			
-			for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
-			{
-				r_light_c& light = *ir;
-				
-				if(!light.isVisible())
-					continue;
+			if(!light)
+				continue;
+			
+			if(!light->isVisible())
+				continue;
 					
-				r_lightframecount++;
+			r_lightframecount++;
 			
-				if(!(light.getShared().flags & RF_STATIC))
-				{
-					litNode_r(_nodes[0], &light, false);
-				}
-				else
-				{
-					const std::map<const r_surface_c*, std::vector<index_t> >& surfaces = light.getAreaSurfaces(0);
-			
-					for(std::map<const r_surface_c*, std::vector<index_t> >::const_iterator ir2 = surfaces.begin(); ir2 != surfaces.end(); ++ir2)
-					{
-						const r_surface_c* surf = ir2->first;
-				
-						if(!surf->isFramed())
-							continue;
-							
-						RB_AddCommand(&r_world_entity, _models[0], surf->getMesh(), surf->getShader(), &light, (std::vector<index_t>*)&ir2->second, -1, 0);
-					}
-				}
+			if(!(light->getShared().flags & RF_STATIC))
+			{
+				litNode_r(_nodes[0], light, LITNODE_MODE_DYNAMIC);
 			}
+			/*
+			else
+			{
+				Tr3B - use instead static light interactions in drawNode_r
+				litNode_r(_nodes[0], light, LITNODE_MODE_STATIC);
+			}
+			*/
 		}
 	}
 	else if(r_lighting->getInteger() == 2)
 	{
-		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		for(std::vector<r_light_c*>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
-			std::vector<r_light_c>& lights = *ir;
+			r_light_c* light = *ir;
 			
-			for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
-			{
-				r_light_c& light = *ir;
-				
-				if(!light.isVisible())
-					continue;
+			if(!light)
+				continue;
+			
+			if(!light->isVisible())
+				continue;
 					
-				r_lightframecount++;
+			r_lightframecount++;
 			
-				if(!(light.getShared().flags & RF_STATIC))
-				{
-					litNode_r(_nodes[0], &light, false);
-				}
+			if(!(light->getShared().flags & RF_STATIC))
+			{
+				litNode_r(_nodes[0], light, LITNODE_MODE_DYNAMIC);
 			}
 		}
 	}
@@ -382,10 +371,16 @@ bool	r_bsptree_c::pointIsVisible(const vec3_c &p)
 
 void	r_bsptree_c::boxLeafs_r(const aabb_c &aabb, std::vector<r_bsptree_leaf_c*> &leafs, r_tree_elem_c *elem)
 {
-#if 1
 	if(elem->contents != -1)
 	{
-		leafs.push_back((r_bsptree_leaf_c*)elem);
+		r_bsptree_leaf_c* leaf = (r_bsptree_leaf_c*)elem;
+		
+		if(leaf->isChecked())
+			return;
+			
+		leaf->setCheckCount();
+			
+		leafs.push_back(leaf);
 		return;
 	}
 	
@@ -418,29 +413,6 @@ void	r_bsptree_c::boxLeafs_r(const aabb_c &aabb, std::vector<r_bsptree_leaf_c*> 
 		default:
 			break;
 	}
-#else
-	while(elem->contents == -1)
-	{
-		r_bsptree_node_c *node = (r_bsptree_node_c*)elem;
-	
-		plane_side_e side = node->plane->onSide(aabb, true);
-		
-		if(side == SIDE_FRONT)
-			elem = node->children[SIDE_FRONT];
-		
-		else if(side == SIDE_BACK)
-			elem = node->children[SIDE_BACK];
-		
-		else
-		{	// go down both
-			boxLeafs_r(aabb, leafs, node->children[SIDE_FRONT]);
-			
-			elem = node->children[SIDE_BACK];
-		}
-	}
-	
-	leafs.push_back((r_bsptree_leaf_c*)elem);
-#endif
 }
 
 void	r_bsptree_c::boxLeafs(const aabb_c &bbox, std::vector<r_bsptree_leaf_c*> &leafs)
@@ -448,14 +420,18 @@ void	r_bsptree_c::boxLeafs(const aabb_c &bbox, std::vector<r_bsptree_leaf_c*> &l
 	if(_nodes.empty())
 		return;
 		
+	r_checkcount++;
+		
 	boxLeafs_r(bbox, leafs, _nodes[0]);
 }
 
 void	r_bsptree_c::precacheLight(r_light_c *light)
 {
-	litNode_r(_nodes[0], light, true);
+	r_lightframecount++;	
+
+	int count = litNode_r(_nodes[0], light, LITNODE_MODE_PRECACHE);
 	
-//	ri.Com_DPrintf("light has %i precached surface interactions\n", light->getAreaSurfaces(0).size());
+	ri.Com_DPrintf("light has %i precached world entity interactions\n", count);
 }
 
 void	r_bsptree_c::loadVisibility(const byte *buffer, const bsp_lump_t *l)
@@ -587,7 +563,11 @@ void	r_bsptree_c::loadModels(const byte *buffer, const bsp_lump_t *l)
 
 		for(int j=0; j<model.modelsurfaces_num; j++)
 		{
-			starmod->_surfaces.push_back(_surfaces[model.modelsurfaces_first + j]);
+			r_surface_c* surf = _surfaces[model.modelsurfaces_first + j];
+			
+			surf->_sub = j;
+		
+			starmod->_surfaces.push_back(surf);
 		}
 		
 		starmod->_aabb = model.bbox;
@@ -1340,12 +1320,35 @@ void	r_bsptree_c::drawNode_r(r_tree_elem_c *elem, int clipflags)
 			}
 			catch(...)
 			{
-				ri.Com_DPrintf("r_bsptree_c::drawNode_r: exception thrown\n");
+				ri.Com_DPrintf("r_bsptree_c::drawNode_r: exception thrown while creating command\n");
+			}
+			
+			if(r_lighting->getInteger() == 1)
+			{
+				const r_entity_sub_c& sub = r_world_entity.getSubEntity(surf->getSubEntityNum());
+					
+				const std::vector<r_interaction_c*>& interactions = sub.getInteractions();
+					
+				for(std::vector<r_interaction_c*>::const_iterator ir = interactions.begin(); ir != interactions.end(); ++ir)
+				{
+					const r_interaction_c* ia = *ir;
+					
+					if(ia->getIndexes().empty())
+						continue;
+							
+					try
+					{
+						RB_AddCommand(&r_world_entity, _models.at(0), surf->getMesh(), surf->getShader(), ia->getLight(), (std::vector<index_t>*)&ia->getIndexes(), -1, 0);
+					}
+					catch(...)
+					{
+						ri.Com_DPrintf("r_bsptree_c::drawNode_r: exception thrown while creating light command\n");
+					}
+				}
 			}
 		}
 		
 		c_leafs++;
-		return;
 	}
 	else
 	{
@@ -1358,41 +1361,30 @@ void	r_bsptree_c::drawNode_r(r_tree_elem_c *elem, int clipflags)
 
 
 
-void	r_bsptree_c::litNode_r(r_tree_elem_c *elem, r_light_c *light, bool precache)
+int	r_bsptree_c::litNode_r(r_tree_elem_c *elem, r_light_c *light, r_litnode_mode_e mode, int count)
 {
-	if(!precache && !elem->isVisible())
-		return;
-
-//	if(R_CullBBox(r_frustum, node->bbox))
-//		return;
+	if(mode == LITNODE_MODE_DYNAMIC && !elem->isVisible())
+		return count;
 		
 	if(elem->contents != -1)
 	{
 		// mark the polygons
 		r_bsptree_leaf_c *leaf = (r_bsptree_leaf_c*)elem;
 		
-		//if(leaf->area <= 0)
-		//	return;
-		
-		/*
 		if(leaf->isLightFramed())
-			return;
+			return count;
 			
 		leaf->setLightFrameCount();
-		*/
-		
-		if(leaf->surfaces.empty())
-			return;
 		
 		// check for door connected areas
-		if(!precache && leaf->area >= 0 && (leaf->area < (int)r_newrefdef.areabits.size()))
+		if(mode == LITNODE_MODE_DYNAMIC)
 		{
-			if(!r_newrefdef.areabits[leaf->area])
-				return;		// not visible
+			if((leaf->area >= 0) && (leaf->area < (int)r_newrefdef.areabits.size()) && !r_newrefdef.areabits[leaf->area])
+				return count;		// not visible
 		}
 		
-		if(!leaf->_aabb.intersect(light->getShared().radius_aabb))
-			return;
+		//if(!leaf->_aabb.intersect(light->getShared().radius_aabb))
+		//	return count;
 					
 		for(std::vector<r_surface_c*>::const_iterator ir = leaf->surfaces.begin(); ir != leaf->surfaces.end(); ++ir)
 		{
@@ -1400,28 +1392,73 @@ void	r_bsptree_c::litNode_r(r_tree_elem_c *elem, r_light_c *light, bool precache
 
 			if(!surf->getMesh())
 				continue;
-			
-			if(precache)
-			{
-				if(!surf->getMesh()->bbox.intersect(light->getShared().radius_aabb))
-					continue;
-			
-				if(light->hasSurface(0, surf))
-					continue;
 				
-				light->addSurface(0, surf);
-			}
-			else
+			if(!surf->getShader() || !surf->getShader()->stage_diffusemap)
+				continue;	
+				
+			switch(mode)
 			{
-				if(!surf->isFramed())
-					continue;
-			
-				if(!surf->getMesh()->bbox.intersect(light->getShared().radius_aabb))
-					continue;
-			
-				if(!surf->isLightFramed())
+				case LITNODE_MODE_PRECACHE:
 				{
+					if(surf->isLightFramed())
+						continue;
+						
 					surf->setLightFrameCount();
+				
+					if(!surf->getMesh()->bbox.intersect(light->getShared().radius_aabb))
+						continue;
+						
+					r_interaction_c* ia = light->createInteraction(&r_world_entity, surf->getMesh());
+					
+					if(!ia)
+						continue;
+						
+					r_world_entity.addInteractionToSubEntity(surf->getSubEntityNum(), ia);
+					count++;
+					break;
+				}
+				
+				case LITNODE_MODE_STATIC:
+				{
+					if(surf->isLightFramed())
+						continue;
+						
+					surf->setLightFrameCount();
+				
+					if(!surf->getMesh()->bbox.intersect(light->getShared().radius_aabb))
+						continue;
+				
+					const r_entity_sub_c& sub = r_world_entity.getSubEntity(surf->getSubEntityNum());
+					
+					const std::vector<r_interaction_c*>& interactions = sub.getInteractions();
+					
+					for(std::vector<r_interaction_c*>::const_iterator ir = interactions.begin(); ir != interactions.end(); ++ir)
+					{
+						const r_interaction_c* ia = *ir;
+						
+						if(light != ia->getLight())
+							continue;
+							
+						if(ia->getIndexes().empty())
+							continue;
+					
+						RB_AddCommand(&r_world_entity, _models[0], surf->getMesh(), surf->getShader(), light, (std::vector<index_t>*)&ia->getIndexes(), -1, 0);
+					}
+					break;
+				}
+				
+				case LITNODE_MODE_DYNAMIC:
+				{
+					if(!surf->isFramed())
+						continue;
+						
+					if(surf->isLightFramed())
+						continue;
+						
+					surf->setLightFrameCount();
+				
+					if(!surf->getMesh()->bbox.intersect(light->getShared().radius_aabb))
+						continue;
 					
 					try
 					{
@@ -1431,51 +1468,33 @@ void	r_bsptree_c::litNode_r(r_tree_elem_c *elem, r_light_c *light, bool precache
 					{
 						ri.Com_DPrintf("r_bsptree_c::litNode_r: exception thrown\n");
 					}
+					break;
 				}
 			}
 		}
-		return;
 	}
 	else
 	{
 		r_bsptree_node_c *node = (r_bsptree_node_c*)elem;
 		
-#if 0
-		vec_t dist = node->plane->distance(light->getShared().origin);
-		
-		if(dist > light->getShared().radius_value)
-		{
-			litNode_r(node->children[0], light, precache);
-			return;
-		}
-		else if(dist < -light->getShared().radius_value)
-		{
-			litNode_r(node->children[1], light, precache);
-			return;
-		}
-		else
-		{
-			litNode_r(node->children[0], light, precache);
-			litNode_r(node->children[1], light, precache);
-		}
-#else
 		plane_side_e side = node->plane->onSide(light->getShared().radius_aabb, true);
 		
 		if(side == SIDE_FRONT)
 		{
-			litNode_r(node->children[SIDE_FRONT], light, precache);
+			count = litNode_r(node->children[SIDE_FRONT], light, mode, count);
 		}
 		else if(side == SIDE_BACK)
 		{
-			litNode_r(node->children[SIDE_BACK], light, precache);
+			count = litNode_r(node->children[SIDE_BACK], light, mode, count);
 		}
 		else
 		{	// go down both
-			litNode_r(node->children[SIDE_FRONT], light, precache);
-			litNode_r(node->children[SIDE_BACK], light, precache);
+			count = litNode_r(node->children[SIDE_FRONT], light, mode, count);
+			count = litNode_r(node->children[SIDE_BACK], light, mode, count);
 		}
-#endif
 	}
+	
+	return count;
 }
 
 
@@ -1600,8 +1619,8 @@ void 	r_bsptree_c::markLeaves()
 
 void 	r_bsptree_c::markLights()
 {
-//	if(_viewcluster_old == _viewcluster && r_vis->getValue() && _viewcluster != -1)
-//		return;
+	if(!r_lighting->getInteger())
+		return;
 
 	if(r_lockpvs->getValue())
 		return;
@@ -1610,52 +1629,51 @@ void 	r_bsptree_c::markLights()
 	
 	if(!r_vis->getInteger() || _viewcluster == -1 || !vis || _pvs.empty())
 	{
-		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		for(std::vector<r_light_c*>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
-			std::vector<r_light_c>& lights = *ir;
+			r_light_c* light = *ir;
 			
-			for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
-			{
-				r_light_c& light = *ir;
+			if(!light)
+				continue;
+				
+			if(r_frustum.cull(light->getShared().radius_aabb))
+				continue;
 			
-				if(r_frustum.cull(light.getShared().radius_aabb))
-					continue;
-			
-				light.setVisFrameCount();
-				c_lights++;
-			}
+			light->setVisFrameCount();
+			c_lights++;
 		}
 	}
 	else
 	{
-		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		for(std::vector<r_light_c*>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
-			std::vector<r_light_c>& lights = *ir;
+			r_light_c* light = *ir;
 			
-			for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
+			if(!light)
+				continue;
+			
+			if(!(light->getShared().flags & RF_STATIC))
 			{
-				r_light_c& light = *ir;
-			
-				if(!(light.getShared().flags & RF_STATIC))
-				{
-					//if(light.getCluster() < 0)
-					//	continue;
+				//if(light->getCluster() < 0)
+				//	continue;
 				
-					if(r_frustum.cull(light.getShared().radius_aabb))
-						continue;
-				
-					light.setVisFrameCount();
-					c_lights++;
+				if(r_frustum.cull(light->getShared().radius_aabb))
 					continue;
-				}
+				
+				light->setVisFrameCount();
+				c_lights++;
+				continue;
+			}
 			
-				/*
-				if(r_newrefdef.areabits)
+			/*
+			if(r_newrefdef.areabits)
 				{
-					if(!r_newrefdef.areabits[light.getArea()])
+					TODO cull by unset areas
+				
+					if(!r_newrefdef.areabits[light->getArea()])
 						continue;
 					
-					const std::vector<int>& areas = light.getAreas();
+					const std::vector<int>& areas = light->getAreas();
 					
 					for(std::vector<int>::const_iterator ir = areas.begin(); ir != areas.end(); ++ir)
 					{
@@ -1663,41 +1681,30 @@ void 	r_bsptree_c::markLights()
 					}
 				}
 				*/
+				
+			const std::vector<r_bsptree_leaf_c*>& leafs = light->getLeafs();
 			
-				if(r_frustum.cull(light.getShared().radius_aabb))
-					continue;
+			for(std::vector<r_bsptree_leaf_c*>::const_iterator ir = leafs.begin(); ir != leafs.end(); ++ir)
+			{
+				r_bsptree_leaf_c* leaf = *ir;
 				
-				/*
-				if(vis[light.getCluster()>>3] & (1<<(light.getCluster()&7)))
+				if(leaf->isVisible())
 				{
-					light.setVisFrameCount();
-					c_lights++;
-				}
-				*/
-				
-				const std::vector<r_bsptree_leaf_c*>& leafs = light.getLeafs();
-				
-				for(std::vector<r_bsptree_leaf_c*>::const_iterator ir = leafs.begin(); ir != leafs.end(); ++ir)
-				{
-					r_bsptree_leaf_c* leaf = *ir;
-				
-					if(!leaf->isVisible())
-						continue;
-				
-					//if(leaf->cluster == -1)
-					//	continue;
-					
-					//if(light.getCluster() == -1)
-					//	continue;
-				
-					if(vis[leaf->cluster >> 3] & (1 << (leaf->cluster & 7)))
-					{
-						light.setVisFrameCount();
-						c_lights++;
-						break;
-					}
+					light->setVisFrameCount();	
+					break;
 				}
 			}
+				
+			if(!light->isVisible())
+				continue;
+				
+			if(r_frustum.cull(light->getShared().radius_aabb))
+			{
+				light->resetVisFrameCount();
+				continue;
+			}
+			
+			c_lights++;
 		}
 	}
 }
@@ -1714,52 +1721,48 @@ void 	r_bsptree_c::markEntities()
 	
 	if(!r_vis->getInteger() || _viewcluster == -1 || !vis || _pvs.empty())
 	{
-		for(std::vector<std::vector<r_entity_c> >::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
+		for(std::vector<r_entity_c*>::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
 		{
-			std::vector<r_entity_c>& entities = *ir;
+			r_entity_c* ent = *ir;
 			
-			for(std::vector<r_entity_c>::iterator ir = entities.begin(); ir != entities.end(); ++ir)
-			{
-				r_entity_c& ent = *ir;
+			if(!ent)
+				continue;
 				
-				ent.setVisFrameCount();
-				c_entities++;
-			}
+			ent->setVisFrameCount();
+			c_entities++;
 		}
 	}
 	else
 	{
-		for(std::vector<std::vector<r_entity_c> >::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
+		for(std::vector<r_entity_c*>::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
 		{
-			std::vector<r_entity_c>& entities = *ir;
+			r_entity_c* ent = *ir;
 			
-			for(std::vector<r_entity_c>::iterator ir = entities.begin(); ir != entities.end(); ++ir)
+			if(!ent)
+				continue;
+				
+			if(!(ent->getShared().flags & RF_STATIC))
 			{
-				r_entity_c& ent = *ir;
-				
-				if(!(ent.getShared().flags & RF_STATIC))
+				// entity is always visible
+				ent->setVisFrameCount();
+				c_entities++;
+				continue;
+			}
+			else
+			{
+				// check if entity has shared leaves with the PVS
+				const std::vector<r_bsptree_leaf_c*>& leafs = ent->getLeafs();
+			
+				for(std::vector<r_bsptree_leaf_c*>::const_iterator ir = leafs.begin(); ir != leafs.end(); ++ir)
 				{
-					// entity is always visible
-					ent.setVisFrameCount();
-					c_entities++;
-					continue;
-				}
-				else
-				{
-					// check if entity has shared leaves with the PVS
-					const std::vector<r_bsptree_leaf_c*>& leafs = ent.getLeafs();
-				
-					for(std::vector<r_bsptree_leaf_c*>::const_iterator ir = leafs.begin(); ir != leafs.end(); ++ir)
+					r_bsptree_leaf_c* leaf = *ir;
+			
+					if(leaf->isVisible())
 					{
-						r_bsptree_leaf_c* leaf = *ir;
-				
-						if(leaf->isVisible())
-						{
-							// leaf is visible
-							ent.setVisFrameCount();
-							c_entities++;
-							break;
-						}
+						// leaf is visible
+						ent->setVisFrameCount();
+						c_entities++;
+						break;
 					}
 				}
 			}
@@ -1781,7 +1784,7 @@ r_bsp_model_c::~r_bsp_model_c()
 {
 }
 
-const aabb_c	r_bsp_model_c::createAABB(r_entity_c *ent)
+const aabb_c	r_bsp_model_c::createAABB(r_entity_c *ent) const
 {
 	return _aabb;
 }
@@ -1801,18 +1804,18 @@ void	r_bsp_model_c::addModelToList(r_entity_c *ent)
 		r_surface_c *surf = *ir;
 		
 		if(surf->getFrameCount() == r_framecount)	// already added surface
-			return;
+			continue;
 	
 		if(!surf->getMesh())
 		{
 			ri.Com_DPrintf("r_bsp_model_c::addModelToList: surface of type %i has no mesh\n", surf->getFaceType());
-			return;
+			continue;
 		}
 		
 		if(!surf->getShader())
 		{
 			ri.Com_DPrintf("r_bsp_model_c::addModelToList: surface has no shader\n");
-			return;
+			continue;
 		}
 		
 		if(!r_showinvisible->getValue() && surf->getShaderRef()->hasFlags(X_SURF_NODRAW))
@@ -1842,30 +1845,94 @@ void	r_bsp_model_c::addModelToList(r_entity_c *ent)
 		
 		if(r_lighting->getInteger())
 		{
-			for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+			// create static interaction light commands
+			const r_entity_sub_c& sub = ent->getSubEntity(surf->getSubEntityNum());
+					
+			const std::vector<r_interaction_c*>& interactions = sub.getInteractions();
+					
+			for(std::vector<r_interaction_c*>::const_iterator ir = interactions.begin(); ir != interactions.end(); ++ir)
 			{
-				std::vector<r_light_c>& lights = *ir;
-			
-				for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
-				{
-					r_light_c& light = *ir;
+				const r_interaction_c* ia = *ir;
 				
-					if(!light.isVisible())
-						continue;
+				if(ia->getIndexes().empty())
+					continue;
+				
+				RB_AddCommand(ent, this, surf->getMesh(), surf->getShader(), ia->getLight(), (std::vector<index_t>*)&ia->getIndexes(), -1, 0);	
+			}
+			
+			#if 0
+			// create dynamic interaction light commands
+			
+			if(!surf->getShader() || !surf->getShader()->stage_diffusemap)
+				continue;
+		
+			for(std::vector<std::vector<r_light_c*> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+			{
+				r_light_c* light = *ir;
+				
+				if(!light)
+					continue;
+					
+				if(!(light->getShared().flags & RF_STATIC))
+					continue;
+					
+				if(!light->isVisible())
+					continue;
 						
-					if(r_lighting->getInteger() == 2)
-					{
-						if((light.getShared().flags & RF_STATIC) && surf->getLightMapNum())
-							continue;
-					}
+				if(r_lighting->getInteger() == 2)
+				{
+					if((light->getShared().flags & RF_STATIC) && surf->getLightMapNum())
+						continue;
+				}
 						
 			
-					if(light.getShared().radius_aabb.intersect(ent->getShared().origin, surf->getMesh()->bbox.radius()))
-						RB_AddCommand(ent, this, surf->getMesh(), surf->getShader(), &light, NULL, -1, 0);
-				}
+				if(light->getShared().radius_aabb.intersect(ent->getShared().origin, surf->getMesh()->bbox.radius()))
+					RB_AddCommand(ent, this, surf->getMesh(), surf->getShader(), &light, NULL, -1, 0);
 			}
+			#endif
 		}
 	}
+}
+
+int	r_bsp_model_c::precacheLight(r_entity_c *ent, r_light_c *light) const
+{
+	int count = 0;
+
+	for(std::vector<r_surface_c*>::const_iterator ir = _surfaces.begin(); ir != _surfaces.end(); ++ir)
+	{
+		const r_surface_c *surf = *ir;
+		
+		if(!surf->getMesh())
+		{
+			ri.Com_DPrintf("r_bsp_model_c::precacheLight: surface of type %i has no mesh\n", surf->getFaceType());
+			continue;
+		}
+		
+		if(!surf->getShader())
+		{
+			ri.Com_DPrintf("r_bsp_model_c::precacheLight: surface has no shader\n");
+			continue;
+		}
+		
+		if(!r_showinvisible->getValue() && surf->getShaderRef()->hasFlags(X_SURF_NODRAW))
+			continue;
+			
+		if(!surf->getShader()->stage_diffusemap)
+			continue;
+			
+		//if(!surf->getMesh()->bbox.intersect(light->getShared().radius_aabb))
+		//	continue;
+		
+		r_interaction_c* ia = light->createInteraction(ent, surf->getMesh());
+		
+		if(!ia)
+			continue;
+				
+		ent->addInteractionToSubEntity(surf->getSubEntityNum(), ia);
+		count++;
+	}
+	
+	return count;
 }
 
 void	r_bsp_model_c::draw(const r_command_t *cmd, r_render_type_e type)

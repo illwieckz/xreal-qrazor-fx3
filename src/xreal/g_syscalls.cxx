@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "g_public.h"
 #include "g_local.h"
 
-extern game_import_t	gi;
+game_import_t	gi;
 
 void	trap_Com_Printf(const char *fmt, ...)
 {

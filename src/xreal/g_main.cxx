@@ -34,7 +34,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "bg_physics.h"
 
 
-game_import_t	gi;
 game_export_t	globals;
 
 g_game_locals_c		game;
@@ -165,58 +164,58 @@ is loaded.
 */
 static void	G_InitGame()
 {
-	gi.Com_Printf ("======= G_InitGame \"XreaL\" =======\n");
+	trap_Com_Printf ("======= G_InitGame \"XreaL\" =======\n");
 
-	gun_x = gi.Cvar_Get ("gun_x", "0", 0);
-	gun_y = gi.Cvar_Get ("gun_y", "0", 0);
-	gun_z = gi.Cvar_Get ("gun_z", "0", 0);
+	gun_x = trap_Cvar_Get ("gun_x", "0", 0);
+	gun_y = trap_Cvar_Get ("gun_y", "0", 0);
+	gun_z = trap_Cvar_Get ("gun_z", "0", 0);
 
 	//FIXME: sv_ prefix is wrong for these
-	sv_rollspeed = gi.Cvar_Get ("sv_rollspeed", "200", 0);
-	sv_rollangle = gi.Cvar_Get ("sv_rollangle", "2", 0);
+	sv_rollspeed = trap_Cvar_Get ("sv_rollspeed", "200", 0);
+	sv_rollangle = trap_Cvar_Get ("sv_rollangle", "2", 0);
 	
-	g_gravity = gi.Cvar_Get("g_gravity", "1", CVAR_SERVERINFO);
+	g_gravity = trap_Cvar_Get("g_gravity", "1", CVAR_SERVERINFO);
 	
-	sv_maxvelocity = gi.Cvar_Get ("sv_maxvelocity", "2000", 0);
+	sv_maxvelocity = trap_Cvar_Get ("sv_maxvelocity", "2000", 0);
 
 	// noset vars
-	dedicated = gi.Cvar_Get ("dedicated", "0", CVAR_INIT);
+	dedicated = trap_Cvar_Get ("dedicated", "0", CVAR_INIT);
 
 	// latched vars
-	sv_cheats = gi.Cvar_Get ("cheats", "0", CVAR_SERVERINFO|CVAR_LATCH);
-	gi.Cvar_Get ("gamename", GAMEVERSION , CVAR_SERVERINFO | CVAR_LATCH);
-	gi.Cvar_Get ("gamedate", __DATE__ , CVAR_SERVERINFO | CVAR_LATCH);
+	sv_cheats = trap_Cvar_Get ("cheats", "0", CVAR_SERVERINFO|CVAR_LATCH);
+	trap_Cvar_Get ("gamename", GAMEVERSION , CVAR_SERVERINFO | CVAR_LATCH);
+	trap_Cvar_Get ("gamedate", __DATE__ , CVAR_SERVERINFO | CVAR_LATCH);
 
-	maxclients = gi.Cvar_Get ("maxclients", "4", CVAR_SERVERINFO | CVAR_LATCH);
-	maxspectators = gi.Cvar_Get ("maxspectators", "4", CVAR_SERVERINFO);
-	deathmatch = gi.Cvar_Get ("deathmatch", "0", CVAR_LATCH);
-	coop = gi.Cvar_Get ("coop", "0", CVAR_LATCH);
-	skill = gi.Cvar_Get ("skill", "1", CVAR_LATCH);
+	maxclients = trap_Cvar_Get ("maxclients", "4", CVAR_SERVERINFO | CVAR_LATCH);
+	maxspectators = trap_Cvar_Get ("maxspectators", "4", CVAR_SERVERINFO);
+	deathmatch = trap_Cvar_Get ("deathmatch", "0", CVAR_LATCH);
+	coop = trap_Cvar_Get ("coop", "0", CVAR_LATCH);
+	skill = trap_Cvar_Get ("skill", "1", CVAR_LATCH);
 
 	// change anytime vars
-	dmflags = gi.Cvar_Get ("dmflags", "0", CVAR_SERVERINFO);
-	fraglimit = gi.Cvar_Get ("fraglimit", "0", CVAR_SERVERINFO);
-	timelimit = gi.Cvar_Get ("timelimit", "0", CVAR_SERVERINFO);
-	password = gi.Cvar_Get ("password", "", CVAR_USERINFO);
-	spectator_password = gi.Cvar_Get ("spectator_password", "", CVAR_USERINFO);
-	needpass = gi.Cvar_Get ("needpass", "0", CVAR_SERVERINFO);
-	filterban = gi.Cvar_Get ("filterban", "1", 0);
+	dmflags = trap_Cvar_Get ("dmflags", "0", CVAR_SERVERINFO);
+	fraglimit = trap_Cvar_Get ("fraglimit", "0", CVAR_SERVERINFO);
+	timelimit = trap_Cvar_Get ("timelimit", "0", CVAR_SERVERINFO);
+	password = trap_Cvar_Get ("password", "", CVAR_USERINFO);
+	spectator_password = trap_Cvar_Get ("spectator_password", "", CVAR_USERINFO);
+	needpass = trap_Cvar_Get ("needpass", "0", CVAR_SERVERINFO);
+	filterban = trap_Cvar_Get ("filterban", "1", 0);
 
-	g_select_empty = gi.Cvar_Get ("g_select_empty", "0", CVAR_ARCHIVE);
+	g_select_empty = trap_Cvar_Get ("g_select_empty", "0", CVAR_ARCHIVE);
 
-	run_pitch = gi.Cvar_Get ("run_pitch", "0.002", 0);
-	run_roll = gi.Cvar_Get ("run_roll", "0.005", 0);
-	bob_up  = gi.Cvar_Get ("bob_up", "0.005", 0);
-	bob_pitch = gi.Cvar_Get ("bob_pitch", "0.002", 0);
-	bob_roll = gi.Cvar_Get ("bob_roll", "0.002", 0);
+	run_pitch = trap_Cvar_Get ("run_pitch", "0.002", 0);
+	run_roll = trap_Cvar_Get ("run_roll", "0.005", 0);
+	bob_up  = trap_Cvar_Get ("bob_up", "0.005", 0);
+	bob_pitch = trap_Cvar_Get ("bob_pitch", "0.002", 0);
+	bob_roll = trap_Cvar_Get ("bob_roll", "0.002", 0);
 
 	// flood control
-	flood_msgs = gi.Cvar_Get ("flood_msgs", "4", 0);
-	flood_persecond = gi.Cvar_Get ("flood_persecond", "4", 0);
-	flood_waitdelay = gi.Cvar_Get ("flood_waitdelay", "10", 0);
+	flood_msgs = trap_Cvar_Get ("flood_msgs", "4", 0);
+	flood_persecond = trap_Cvar_Get ("flood_persecond", "4", 0);
+	flood_waitdelay = trap_Cvar_Get ("flood_waitdelay", "10", 0);
 
 	// dm map list
-	sv_maplist = gi.Cvar_Get ("sv_maplist", "", 0);
+	sv_maplist = trap_Cvar_Get ("sv_maplist", "", 0);
 
 	
 	// initialize all client entities for this game
@@ -238,12 +237,12 @@ static void	G_InitGame()
 		
 	globals.entities = &g_entities;
 	
-	gi.Com_Printf("G_InitGame: entities num: %i\n", g_entities.size());
+	trap_Com_Printf("G_InitGame: entities num: %i\n", g_entities.size());
 }
 
 static void 	G_ShutdownGame()
 {
-	gi.Com_Printf("======= G_ShutdownGame \"XreaL\" =======\n");
+	trap_Com_Printf("======= G_ShutdownGame \"XreaL\" =======\n");
 
 	G_ShutdownEntities();
 	
@@ -270,6 +269,8 @@ extern "C" {
 
 game_export_t*		GetGameAPI (game_import_t *import)
 {
+	extern game_import_t gi;
+	 
 	gi = *import;
 
 	globals.apiversion 		= GAME_API_VERSION;
@@ -309,6 +310,7 @@ void 	Com_Error(err_type_e type, const char *fmt, ...)
 	vsprintf(text, fmt, argptr);
 	va_end(argptr);
 
+	extern game_import_t gi;
 	gi.Com_Error(type, "%s", text);
 }
 
@@ -321,6 +323,7 @@ void 	Com_Printf(const char *fmt, ...)
 	vsprintf(text, fmt, argptr);
 	va_end(argptr);
 
+	extern game_import_t gi;
 	gi.Com_Printf("%s", text);
 }
 #endif
@@ -460,7 +463,7 @@ static void	G_CheckNeedPass()
 		if(!X_strequal(spectator_password->getString(), "") && X_stricmp(spectator_password->getString(), "none"))
 			need |= 2;
 
-		gi.Cvar_Set("needpass", va("%d", need));
+		trap_Cvar_Set("needpass", va("%d", need));
 	}
 }
 
@@ -476,7 +479,7 @@ static void	G_CheckDMRules()
 	{
 		if(level.time >= timelimit->getInteger()*60)
 		{
-			gi.SV_BPrintf(PRINT_HIGH, "Timelimit hit.\n");
+			trap_SV_BPrintf(PRINT_HIGH, "Timelimit hit.\n");
 			G_EndDMLevel();
 			return;
 		}
@@ -493,7 +496,7 @@ static void	G_CheckDMRules()
 
 			if(player->_resp.score >= fraglimit->getInteger())
 			{
-				gi.SV_BPrintf(PRINT_HIGH, "Fraglimit hit.\n");
+				trap_SV_BPrintf(PRINT_HIGH, "Fraglimit hit.\n");
 				G_EndDMLevel();
 				return;
 			}
@@ -507,7 +510,7 @@ static void 	G_ExitLevel()
 	std::string	command;
 
 	command =  "gamemap \"" + level.changemap + "\"\n";
-	gi.Cbuf_AddText((char*)command.c_str());
+	trap_Cbuf_AddText((char*)command.c_str());
 	level.changemap = "";
 	level.intermission_exit = false;
 	level.intermission_time = 0;
@@ -540,7 +543,7 @@ static void	G_RemoveUnneededEntities()
 		{		
 			if(ent->getRemove())
 			{
-				//gi.Com_Printf("G_RunRemoveUneededEntities: killing '%s' %i ...\n", ent->_classname, ent->_s.number);
+				//trap_Com_Printf("G_RunRemoveUneededEntities: killing '%s' %i ...\n", ent->_classname, ent->_s.number);
 				delete ent;
 			}
 		}
@@ -562,7 +565,7 @@ void 	G_RunFrame()
 	level.time = level.framenum * FRAMETIME;
 	
 	// for debugging, check if ODE hangs anywhere
-//	gi.Com_Printf("G_RunFrame: %i\n", level.framenum); 
+//	trap_Com_Printf("G_RunFrame: %i\n", level.framenum); 
 
 	//
 	// exit intermissions
@@ -595,7 +598,7 @@ void 	G_RunFrame()
 		if(!ent->_r.inuse)
 			continue;
 			
-		//gi.Com_Printf("G_RunFrame: running %s %i ...\n", ent->_classname.c_str(), ent->_s.number);
+		//trap_Com_Printf("G_RunFrame: running %s %i ...\n", ent->_classname.c_str(), ent->_s.number);
 			
 		//ent->_s.origin2 = ent->_s.origin;
 		
@@ -631,11 +634,11 @@ void 	G_RunFrame()
 		ent->updateRotation();
 		ent->updateVelocity();
 		
-		//ent->_r.area = gi.CM_PointAreanum(ent->_s.origin);
+		//ent->_r.area = trap_CM_PointAreanum(ent->_s.origin);
 		
 		//if(ent->_s.origin != ent->_s.origin2)
 		/*
-		int area = gi.CM_PointAreanum(ent->_s.origin);
+		int area = trap_CM_PointAreanum(ent->_s.origin);
 			
 		if(area)
 		{	

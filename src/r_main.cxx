@@ -68,6 +68,7 @@ r_frustum_c	r_frustum;
 uint_t		r_framecount;		// used for dlight push checking
 uint_t		r_visframecount;	// bumped when going to a new PVS
 uint_t		r_lightframecount;
+uint_t		r_checkcount;
 
 int		r_depth_format;
 
@@ -121,8 +122,8 @@ std::map<int, r_entity_c, std::less<int> >	r_entities;
 std::map<int, r_light_c>	r_lights;
 */
 
-std::vector<std::vector<r_entity_c> >	r_entities = std::vector<std::vector<r_entity_c> >(MAX_ENTITIES);
-std::vector<std::vector<r_light_c> >	r_lights = std::vector<std::vector<r_light_c> >(MAX_ENTITIES);
+std::vector<r_entity_c*>		r_entities;
+std::vector<r_light_c*>			r_lights(MAX_ENTITIES, NULL);
 
 int		r_particles_num;
 r_particle_t	r_particles[MAX_PARTICLES];
@@ -631,33 +632,31 @@ static void 	R_AddEntitiesToBuffer()
 	if(!r_drawentities->getValue())
 		return;
 
-	for(std::vector<std::vector<r_entity_c> >::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
+	for(std::vector<r_entity_c*>::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
 	{
-		std::vector<r_entity_c>& entities = *ir;
+		r_entity_c* ent = *ir;
 		
-		for(std::vector<r_entity_c>::iterator ir = entities.begin(); ir != entities.end(); ++ir)
+		if(!ent)
+			continue;
+		
+		if(r_mirrorview)
 		{
-			r_entity_c& ent = *ir;
-		
-			if(r_mirrorview)
-			{
-				if(ent.getShared().flags & RF_WEAPONMODEL) 
-					continue;
-			}
-		
-			//if(!ent.isVisible())
-			//	continue;
-		
-			r_model_c *model = R_GetModelByNum(ent.getShared().model);
-			
-			if(!model)
-			{
-				//R_DrawNULL(r_current_entity->origin, r_current_entity->angles);
+			if(ent->getShared().flags & RF_WEAPONMODEL) 
 				continue;
-			}
-		
-			model->addModelToList(&ent);
 		}
+		
+		if(!ent->isVisible())
+			continue;
+		
+		r_model_c *model = R_GetModelByNum(ent->getShared().model);
+			
+		if(!model)
+		{
+			//R_DrawNULL(r_current_entity->origin, r_current_entity->angles);
+			continue;
+		}
+		
+		model->addModelToList(ent);
 	}
 }
 
@@ -743,23 +742,18 @@ void	R_DrawLightDebuggingInfo()
 	
 	if(r_showlightbboxes->getInteger())
 	{
-		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		for(std::vector<r_light_c*>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
-			std::vector<r_light_c>& lights = *ir;
+			r_light_c* light = *ir;
 			
-			for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
-			{
-				r_light_c& light = *ir;
+			if(!light)
+				continue;
 				
-				if(!light.isVisible())
-					R_DrawBBox(light.getShared().radius_aabb, color_red);
-				
-				else if(light.getAreaSurfaces(0).empty())	// FIXME
-					R_DrawBBox(light.getShared().radius_aabb, color_blue);
-				
-				else
-					R_DrawBBox(light.getShared().radius_aabb, color_green);
-			}
+			if(!light->isVisible())
+				R_DrawBBox(light->getShared().radius_aabb, color_red);
+	
+			else
+				R_DrawBBox(light->getShared().radius_aabb, color_green);
 		}
 	}
 	
@@ -771,25 +765,23 @@ void	R_DrawLightDebuggingInfo()
 				
 		xglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		
-		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		for(std::vector<r_light_c*>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
-			std::vector<r_light_c>& lights = *ir;
+			r_light_c* light = *ir;
 			
-			for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
-			{
-				r_light_c& light = *ir;
+			if(!light)
+				continue;
 			
-				if(!light.isVisible())
-					continue;
+			if(!light->isVisible())
+				continue;
 					
 				
-				xglBegin(GL_QUADS);
-				xglVertex3f(light.getScissorX(), light.getScissorY(), 0.0);
-				xglVertex3f(light.getScissorX()+light.getScissorWidth(), light.getScissorY(), 0.0);
-				xglVertex3f(light.getScissorX()+light.getScissorWidth(), light.getScissorY()+light.getScissorHeight(), 0.0);
-				xglVertex3f(light.getScissorX(), light.getScissorY()+light.getScissorHeight(), 0.0);
-				xglEnd();
-			}
+			xglBegin(GL_QUADS);
+			xglVertex3f(light->getScissorX(), light->getScissorY(), 0.0);
+			xglVertex3f(light->getScissorX()+light->getScissorWidth(), light->getScissorY(), 0.0);
+			xglVertex3f(light->getScissorX()+light->getScissorWidth(), light->getScissorY()+light->getScissorHeight(), 0.0);
+			xglVertex3f(light->getScissorX(), light->getScissorY()+light->getScissorHeight(), 0.0);
+			xglEnd();
 		}
 		
 		xglPolygonMode(GL_FRONT_AND_BACK, gl_state.polygon_mode);
@@ -803,42 +795,40 @@ void	R_DrawLightDebuggingInfo()
 	{
 		vec3_c	vf, vr, vu;
 	
-		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		for(std::vector<r_light_c*>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
-			std::vector<r_light_c>& lights = *ir;
+			r_light_c* light = *ir;
 			
-			for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
-			{
-				r_light_c& light = *ir;
+			if(!light)
+				continue;
 				
-				const r_entity_t& s = light.getShared();
+			const r_entity_t& s = light->getShared();
 				
-				light.getTransform().toVectorsFRU(vf, vr, vu);
+			light->getTransform().toVectorsFRU(vf, vr, vu);
 				
-				vf *= 16 * s.scale[0];	vf += s.origin;
-				vr *= 16 * s.scale[1];	vr += s.origin;
-				vu *= 16 * s.scale[2];	vu += s.origin;
+			vf *= 16 * s.scale[0];	vf += s.origin;
+			vr *= 16 * s.scale[1];	vr += s.origin;
+			vu *= 16 * s.scale[2];	vu += s.origin;
 			
-				xglBegin(GL_LINES);
+			xglBegin(GL_LINES);
 			
-				xglColor4fv(color_red);
-				xglVertex3fv(s.origin);
-				xglVertex3fv(vf);
+			xglColor4fv(color_red);
+			xglVertex3fv(s.origin);
+			xglVertex3fv(vf);
 			
-				xglColor4fv(color_green);
-				xglVertex3fv(s.origin);
-				xglVertex3fv(vr);
+			xglColor4fv(color_green);
+			xglVertex3fv(s.origin);
+			xglVertex3fv(vr);
 			
-				xglColor4fv(color_blue);
-				xglVertex3fv(s.origin);
-				xglVertex3fv(vu);
-				
-				xglColor4fv(color_yellow);
-				xglVertex3fv(s.origin);
-				xglVertex3fv(light.getOrigin());
+			xglColor4fv(color_blue);
+			xglVertex3fv(s.origin);
+			xglVertex3fv(vu);
 			
-				xglEnd();
-			}
+			xglColor4fv(color_yellow);
+			xglVertex3fv(s.origin);
+			xglVertex3fv(light->getOrigin());
+			
+			xglEnd();
 		}
 	}
 }
@@ -847,23 +837,22 @@ void	R_DrawEntityDebuggingInfo()
 {
 	if(r_showentitybboxes->getInteger())
 	{
-		for(std::vector<std::vector<r_entity_c> >::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
+		for(std::vector<r_entity_c*>::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
 		{
-			std::vector<r_entity_c>& entities = *ir;
+			r_entity_c* ent = *ir;
+		
+			if(!ent)
+				continue;
 			
-			for(std::vector<r_entity_c>::iterator ir = entities.begin(); ir != entities.end(); ++ir)
-			{
-				r_entity_c& ent = *ir;
 				
-				if(!ent.isVisible())
-					R_DrawBBox(ent.getAABB(), color_red);
-				
-				else if(ent.getLeafs().empty())
-					R_DrawBBox(ent.getAABB(), color_blue);
-				
-				else
-					R_DrawBBox(ent.getAABB(), color_green);
-			}
+			if(!ent->isVisible())
+				R_DrawBBox(ent->getAABB(), color_red);
+			
+			else if(ent->getLeafs().empty())
+				R_DrawBBox(ent->getAABB(), color_blue);
+			
+			else
+				R_DrawBBox(ent->getAABB(), color_green);
 		}
 	}
 
@@ -871,38 +860,36 @@ void	R_DrawEntityDebuggingInfo()
 	{
 		vec3_c	vf, vr, vu;
 	
-		for(std::vector<std::vector<r_entity_c> >::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
+		for(std::vector<r_entity_c*>::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
 		{
-			std::vector<r_entity_c>& entities = *ir;
+			r_entity_c* ent = *ir;
 			
-			for(std::vector<r_entity_c>::iterator ir = entities.begin(); ir != entities.end(); ++ir)
-			{
-				r_entity_c& ent = *ir;
+			if(!ent)
+				continue;
 				
-				const r_entity_t& s = ent.getShared();
+			const r_entity_t& s = ent->getShared();
 			
-				ent.getTransform().toVectorsFRU(vf, vr, vu);
+				ent->getTransform().toVectorsFRU(vf, vr, vu);
 			
-				vf *= 16 * s.scale[0];	vf += s.origin;
-				vr *= 16 * s.scale[1];	vr += s.origin;
-				vu *= 16 * s.scale[2];	vu += s.origin;
+			vf *= 16 * s.scale[0];	vf += s.origin;
+			vr *= 16 * s.scale[1];	vr += s.origin;
+			vu *= 16 * s.scale[2];	vu += s.origin;
 			
-				xglBegin(GL_LINES);
+			xglBegin(GL_LINES);
 			
-				xglColor4fv(color_red);
-				xglVertex3fv(s.origin);
-				xglVertex3fv(vf);
+			xglColor4fv(color_red);
+			xglVertex3fv(s.origin);
+			xglVertex3fv(vf);
 				
-				xglColor4fv(color_green);
-				xglVertex3fv(s.origin);
-				xglVertex3fv(vr);
+			xglColor4fv(color_green);
+			xglVertex3fv(s.origin);
+			xglVertex3fv(vr);
 			
-				xglColor4fv(color_blue);
-				xglVertex3fv(s.origin);
-				xglVertex3fv(vu);
+			xglColor4fv(color_blue);
+			xglVertex3fv(s.origin);
+			xglVertex3fv(vu);
 			
-				xglEnd();
-			}
+			xglEnd();
 		}
 	}
 }
@@ -1452,6 +1439,10 @@ void	R_InitTree(const std::string &name)
 #else
 	r_world_tree = new r_proctree_c("maps/" + name + ".proc");
 #endif
+
+	r_entity_t s;
+	s.model = 0;
+	r_world_entity = r_entity_c(s);
 }
 
 void	R_ShutdownTree()
@@ -1566,6 +1557,10 @@ bool 	R_Init(void *hinstance, void *hWnd)
 	// setup default images
 	R_InitDraw();				RB_CheckForError();
 	
+	R_InitEntities();
+	
+	R_InitLights();
+	
 	R_InitParticles();			RB_CheckForError();
 	R_InitPolys();				RB_CheckForError();
 	
@@ -1601,6 +1596,10 @@ void 	R_Shutdown()
 	ri.Cmd_RemoveCommand("envmap");
 
 	R_ShutdownTree();
+	
+	R_ShutdownLights();
+	
+	R_ShutdownEntities();
 	
 	R_ShutdownModels();
 	
@@ -1734,95 +1733,86 @@ static void	R_ClearScene()
 //	r_contacts.clear();
 }
 
-static void	R_AddEntity(int entity_num, int index, const r_entity_t &shared)
+static void	R_AddEntity(int index, const r_entity_t &shared)
 {
-	if(entity_num < 0 || entity_num >= (int)r_entities.size())
-	{
-		ri.Com_Error(ERR_DROP, "R_AddEntity: bad entity number %i", entity_num);
-		return;
-	}
+//	ri.Com_DPrintf("R_AddEntity(%i)\n", index);
 	
-	if(index < 0 || index >= (int)r_entities[entity_num].size())
-	{
-		index = std::abs(index);
-		r_entities[entity_num].resize(index+1);
-	}
+	r_entity_c* ent = R_GetEntityByNum(index);
 	
-	r_entities[entity_num][index] = r_entity_c(shared);
+	if(ent != NULL)
+		delete ent;
+
+	ent = new r_entity_c(shared);
+	
+	r_entities[index] = ent;
 }
 
-static void	R_UpdateEntity(int entity_num, int index, const r_entity_t &shared)
+static void	R_UpdateEntity(int index, const r_entity_t &shared)
 {
-	if(entity_num < 0 || entity_num >= (int)r_entities.size())
-	{
-		ri.Com_Error(ERR_DROP, "R_UpdateEntity: bad entity number %i", entity_num);
-		return;
-	}
+//	ri.Com_DPrintf("R_UpdateEntity(%i)\n", index);
+
+	r_entity_c* ent = R_GetEntityByNum(index);
 	
-	if(index < 0 || index >= (int)r_entities[entity_num].size())
-	{
-		index = std::abs(index);
-		r_entities[entity_num].resize(index+1);
-	}
+	if(ent != NULL)
+		delete ent;
 	
-	r_entities[entity_num][index] = r_entity_c(shared);
+	ent = new r_entity_c(shared);
+	
+	r_entities[index] = ent;
 }
 
-static void	R_RemoveEntity(int entity_num)
+static void	R_RemoveEntity(int index)
 {
-	if(entity_num < 0 || entity_num >= (int)r_entities.size())
-	{
-		ri.Com_Error(ERR_DROP, "R_RemoveEntity: bad entity number %i\n", entity_num);
-		return;
-	}
+//	ri.Com_DPrintf("R_RemoveEntity(%i)\n", index);
+
+	r_entity_c* ent = R_GetEntityByNum(index);
 	
-	r_entities[entity_num].clear();
+	if(ent)
+		delete ent;
+	
+	r_entities[index] = NULL;
 }
 
 
-static void	R_AddLight(int entity_num, int index, const r_entity_t &shared, r_light_type_t type)
+static void	R_AddLight(int index, const r_entity_t &shared, r_light_type_t type)
 {
-	if(entity_num < 0 || entity_num >= (int)r_lights.size())
-	{
-		ri.Com_Error(ERR_DROP, "R_AddLight: bad entity number %i", entity_num);
-		return;
-	}
+//	ri.Com_DPrintf("R_AddLight(%i)\n", index);
 	
-	if(index < 0 || index >= (int)r_lights[entity_num].size())
-	{
-		index = std::abs(index);
-		r_lights[entity_num].resize(index+1);
-	}
+	r_light_c* light = R_GetLightByNum(index);
 	
-	r_lights[entity_num][index] = r_light_c(shared, type);
+	if(light)
+		delete light;
+		
+	light = new r_light_c(shared, type);
+	
+	r_lights[index] = light;
 }
 
-static void	R_UpdateLight(int entity_num, int index, const r_entity_t &shared, r_light_type_t type)
+static void	R_UpdateLight(int index, const r_entity_t &shared, r_light_type_t type)
 {
-	if(entity_num < 0 || entity_num >= (int)r_lights.size())
-	{
-		ri.Com_Error(ERR_DROP, "R_UpdateLight: bad entity number %i", entity_num);
-		return;
-	}
+//	ri.Com_DPrintf("R_UpdateLight(%i)\n", index);
+
+	r_light_c* light = R_GetLightByNum(index);
 	
-	if(index < 0 || index >= (int)r_lights[entity_num].size())
-	{
-		index = std::abs(index);
-		r_lights[entity_num].resize(index+1);
-	}
+	if(light)
+		light->update(shared, type);
+	else
+		light = new r_light_c(shared, type);
 	
-	r_lights[entity_num][index].update(shared, type);
+	r_lights[index] = light;
+	
 }
 
-static void	R_RemoveLight(int entity_num)
+static void	R_RemoveLight(int index)
 {
-	if(entity_num < 0 || entity_num >= (int)r_lights.size())
-	{
-		ri.Com_Error(ERR_DROP, "R_RemoveLight: bad entity number %i", entity_num);
-		return;
-	}
+//	ri.Com_DPrintf("R_RemoveLight(%i)\n", index);
+
+	r_light_c* light = R_GetLightByNum(index);
 	
-	r_lights[entity_num].clear();
+	if(light)
+		delete light;
+	
+	r_lights[index] = NULL;
 }
 
 static void	R_AddParticle(const r_particle_t &part)
@@ -1886,8 +1876,6 @@ ref_export_t 	GetRefAPI(ref_import_t rimp)
 	re.R_DrawPic			= R_DrawPicExp;
 	re.R_DrawStretchPic 		= R_DrawStretchPicExp;
 	re.R_DrawFill			= R_DrawFill;
-	
-	re.R_SetSky			= R_SetSky;
 	
 	re.R_ClearScene			= R_ClearScene;
 	

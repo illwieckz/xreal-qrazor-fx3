@@ -31,21 +31,26 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 
-
-r_entity_c::r_entity_c()
-:r_animation_iface_a(-1)
+r_entity_c::r_entity_c() :
+r_model_iface_a(-1),
+r_animation_iface_a(-1)
 {
 	_s.clear();
 	
 	setupTransform();
 }
 
-r_entity_c::r_entity_c(const r_entity_t &shared)
-:r_animation_iface_a(shared.animation)
+r_entity_c::r_entity_c(const r_entity_t &shared) :
+r_model_iface_a(shared.model),
+r_animation_iface_a(shared.animation)
 {
 	_s = shared;
 	
 	setupTransform();
+	
+	_subs = std::vector<r_entity_sub_c>(getModel()->getMeshesNum());
+	
+	//ri.Com_DPrintf("r_entity_c::ctor: %i sub entities\n", _subs.size());
 	
 	if(_s.flags & RF_STATIC)
 	{
@@ -64,12 +69,9 @@ r_entity_c::r_entity_c(const r_entity_t &shared)
 			_cluster = -1;
 		}
 		
-		
-		r_model_c *model = R_GetModelByNum(_s.model);
-			
-		if(model)
+		if(getModel())
 		{
-			_aabb = model->createAABB(this);
+			_aabb = getModel()->createAABB(this);
 			
 			//ri.Com_DPrintf("r_entity_c::ctor: aabb %s\n", _aabb.toString());
 			
@@ -83,6 +85,27 @@ r_entity_c::r_entity_c(const r_entity_t &shared)
 			
 			//if(_leafs.size())
 			//	ri.Com_DPrintf("entity touches %i BSP leaves\n", _leafs.size());
+			
+			
+			// touch static lights
+			int count = 0;
+			for(std::vector<r_light_c*>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+			{
+				r_light_c* light = *ir;
+				
+				if(!light)
+					continue;
+					
+				if(!(light->getShared().flags & RF_STATIC))
+					continue;
+					
+				if(!_aabb.intersect(_s.radius_aabb))
+					continue;
+					
+				count += getModel()->precacheLight(this, light);
+			}
+		
+			ri.Com_DPrintf("entity has %i precached static lights interactions\n", count);
 		}
 		else
 		{
@@ -92,12 +115,10 @@ r_entity_c::r_entity_c(const r_entity_t &shared)
 	else
 	{
 		//ri.Com_DPrintf("r_entity_c::ctor: dynamic\n");
-	
-		r_model_c *model = R_GetModelByNum(_s.model);
-			
-		if(model)
+		
+		if(getModel())
 		{
-			_aabb = model->createAABB(this);
+			_aabb = getModel()->createAABB(this);
 			
 			_aabb.rotate(_s.quat);
 			
@@ -148,3 +169,92 @@ void	r_entity_c::setupTransformToViewer()
 	
 	_transform.multiplyScale(_s.scale);
 }
+
+
+const r_entity_sub_c&	r_entity_c::getSubEntity(int num) const
+{
+	//std::assert(num > 0 && < _sub.size());
+	
+	const r_entity_sub_c* sub = NULL;
+	
+	try
+	{
+		 sub = &_subs.at(num);
+	}
+	catch(...)
+	{
+		ri.Com_Error(ERR_DROP, "r_entity_c::getSubEntity: exception thrown while retrieving %i", num);
+	}
+	
+	return *sub;
+}
+
+void	r_entity_c::addInteractionToSubEntity(int num, r_interaction_c* ia)
+{
+	r_entity_sub_c* sub = NULL;
+	
+	try
+	{
+		 sub = &_subs.at(num);
+	}
+	catch(...)
+	{
+		ri.Com_Error(ERR_DROP, "r_entity_c::addInteractionToSubEntity: exception thrown while retrieving %i", num);
+	}
+	
+	sub->addInteraction(ia);
+}
+
+
+void	R_InitEntities()
+{
+	if(!r_entities.empty())
+		R_ShutdownEntities();
+
+	r_entities = std::vector<r_entity_c*>(MAX_ENTITIES, NULL);
+}
+
+void	R_ShutdownEntities()
+{
+	X_purge<std::vector<r_entity_c*> >(r_entities);
+	r_entities.clear();
+}
+
+
+
+int	R_GetNumForEntity(r_entity_c *ent)
+{
+	if(!ent)
+	{
+		ri.Com_Error(ERR_DROP, "R_GetNumForEntity: NULL parameter\n");
+		return -1;
+	}
+
+	for(uint_t i=0; i<r_entities.size(); i++)
+	{
+		if(ent == r_entities[i])
+			return i;
+	}
+	
+	ri.Com_Error(ERR_DROP, "R_GetNumForEntity: bad pointer\n");
+	return -1;
+}
+
+
+r_entity_c*	R_GetEntityByNum(int num)
+{
+	r_entity_c* ent = NULL;
+	
+	try
+	{
+		ent = r_entities.at(num);
+	}
+	catch(...)
+	{
+		ri.Com_Error(ERR_DROP, "R_GetEntityByNum: bad number %i, have %i entity slots\n", num, r_entities.size());
+		//ent = NULL;
+	}
+
+	return ent;
+}
+

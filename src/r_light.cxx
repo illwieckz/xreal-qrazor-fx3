@@ -30,6 +30,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // xreal --------------------------------------------------------------------
 
 
+
+r_interaction_c::r_interaction_c(r_entity_c* ent, r_light_c* light, const std::vector<index_t> &indexes)
+{
+	_entity		= ent;
+	_light		= light;
+	
+	_indexes	= indexes;
+}
+
+
+/*
 r_light_c::r_light_c()
 :r_occlusion_iface_a()
 {
@@ -46,7 +57,7 @@ r_light_c::r_light_c()
 	
 	_cluster = -1;
 }
-
+*/
 
 r_light_c::r_light_c(const r_entity_t &shared, r_light_type_t type)
 :r_occlusion_iface_a()
@@ -67,8 +78,8 @@ void	r_light_c::update(const r_entity_t &shared, r_light_type_t type)
 	
 	_origin = _s.origin + _s.quat * _s.center;
 	
-	if(_areasurfaces.empty())
-		_areasurfaces = std::vector<std::map<const r_surface_c*, std::vector<index_t> > >(1);
+//	if(_areasurfaces.empty())
+//		_areasurfaces = std::vector<std::map<const r_surface_c*, std::vector<index_t> > >(1);
 	
 	setupTransform();
 	setupProjection();
@@ -81,20 +92,6 @@ void	r_light_c::update(const r_entity_t &shared, r_light_type_t type)
 		if(!r_world_tree && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
 			ri.Com_Error(ERR_DROP, "r_light_c::ctor: NULL worldmodel");
 	
-#if 0
-		updateVis(_s);
-		if(_areas.size())
-			ri.Com_DPrintf("light touches %i BSP areas\n", _areas.size());
-		
-		r_world_tree->precacheLight(this);
-		
-		int c=0;
-		for(uint_t i=0; i<_areasurfaces.size(); i++)
-		{
-			c += _areasurfaces[i].size();
-		}
-		ri.Com_DPrintf("light has %i precached surface interactions\n", c);
-#else
 		updateVis(_s);
 		
 		r_world_tree->precacheLight(this);
@@ -104,7 +101,32 @@ void	r_light_c::update(const r_entity_t &shared, r_light_type_t type)
 			
 		//if(_areas.size())
 		//	ri.Com_DPrintf("light touches %i BSP areas\n", _areas.size());
-#endif
+		
+		int count = 0;
+		
+		// touch static entities
+		for(std::vector<r_entity_c*>::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
+		{
+			r_entity_c* ent = *ir;
+		
+			if(!ent)
+				continue;
+				
+			if(!(ent->getShared().flags & RF_STATIC))
+				continue;
+				
+			const r_model_c* model = ent->getModel();
+			if(model)
+			{
+				if(!ent->getAABB().intersect(_s.radius_aabb))
+					continue;
+					
+				count += model->precacheLight(ent, this);
+			}
+		}
+		
+		ri.Com_DPrintf("light has %i precached static entities interactions\n", count);
+		
 	}
 	else
 	{
@@ -241,51 +263,34 @@ void	r_light_c::setupShadowMap()
 #endif
 }
 
-bool	r_light_c::hasSurface(int areanum, const r_surface_c *surf)
+r_interaction_c*	r_light_c::createInteraction(r_entity_c* ent, const r_mesh_c *mesh)
 {
-	if(areanum < 0 || areanum >= (int)_areasurfaces.size())
-	{
-		ri.Com_Error(ERR_DROP, "r_light_c::hasSurface: %i areanum\n", areanum);
-		return false;
-	}
-
-	std::map<const r_surface_c*, std::vector<index_t> >::iterator ir = _areasurfaces[areanum].find(surf);
+	if(!ent)
+		return NULL;
+			
+	if(!mesh || mesh->isNotValid())
+		return NULL;
+		
+	std::vector<index_t>	indexes;
+	const matrix_c&		transform = ent->getTransform();
 	
-	if(ir != _areasurfaces[areanum].end())
-		return true;
-	
-	return false;
-}
-
-void	r_light_c::addSurface(int areanum, const r_surface_c *surf)
-{
-	r_mesh_c* mesh;
-	
-	if(!(mesh = surf->getMesh()))
-		return;
-	
-	if(mesh->isNotValid())
-		return;
-	
-	if(_areasurfaces.empty())
-	{
-		ri.Com_Error(ERR_DROP, "r_light_c::addSurface: 0 surfaces\n");
-		return;
-	}
-	
-	if(areanum < 0 || areanum >= (int)_areasurfaces.size())
-	{
-		ri.Com_Error(ERR_DROP, "r_light_c::addSurface: %i areanum\n", areanum);
-		return;
-	}
-
-	std::vector<index_t> indexes;
-
 	for(unsigned int i=0; i<mesh->indexes.size(); i += 3)
 	{
-		const vec3_c &v0 = mesh->vertexes[mesh->indexes[i+0]];
-		const vec3_c &v1 = mesh->vertexes[mesh->indexes[i+1]];
-		const vec3_c &v2 = mesh->vertexes[mesh->indexes[i+2]];
+		vec3_c v0 = transform * mesh->vertexes[mesh->indexes[i+0]];
+		vec3_c v1 = transform * mesh->vertexes[mesh->indexes[i+1]];
+		vec3_c v2 = transform * mesh->vertexes[mesh->indexes[i+2]];
+		
+		v0[0] += transform[0][3];
+		v0[1] += transform[1][3];
+		v0[2] += transform[2][3];
+		
+		v1[0] += transform[0][3];
+		v1[1] += transform[1][3];
+		v1[2] += transform[2][3];
+		
+		v2[0] += transform[0][3];
+		v2[1] += transform[1][3];
+		v2[2] += transform[2][3];
 	
 #if 0
 		// triangle visibility test
@@ -341,8 +346,61 @@ void	r_light_c::addSurface(int areanum, const r_surface_c *surf)
 #endif
 	}
 	
-	if(indexes.size())
-		_areasurfaces[areanum].insert(std::make_pair(surf, indexes));
+	if(!indexes.empty())
+		return new r_interaction_c(ent, this, indexes);
+	else
+		return NULL;
+}
+
+
+void	R_InitLights()
+{
+	if(!r_lights.empty())
+		R_ShutdownLights();
+
+	r_lights = std::vector<r_light_c*>(MAX_ENTITIES, NULL);
+}
+
+void	R_ShutdownLights()
+{
+	X_purge<std::vector<r_light_c*> >(r_lights);
+	r_lights.clear();
+}
+
+
+int	R_GetNumForLight(r_light_c *light)
+{
+	if(!light)
+	{
+		ri.Com_Error(ERR_DROP, "R_GetNumForLight: NULL parameter\n");
+		return -1;
+	}
+
+	for(uint_t i=0; i<r_lights.size(); i++)
+	{
+		if(light == r_lights[i])
+			return i;
+	}
+	
+	ri.Com_Error(ERR_DROP, "R_GetNumForLight: bad pointer\n");
+	return -1;
+}
+
+
+r_light_c*	R_GetLightByNum(int num)
+{
+	r_light_c* light = NULL;
+	
+	try
+	{
+		light = r_lights.at(num);
+	}
+	catch(...)
+	{
+		ri.Com_Error(ERR_DROP, "R_GetLightByNum: bad number %i\n", num);
+	}
+
+	return light;
 }
 
 

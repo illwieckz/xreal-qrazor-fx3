@@ -50,7 +50,7 @@ r_skel_model_c::~r_skel_model_c()
 	//TODO clear extra bone information
 }
 
-const aabb_c	r_skel_model_c::createAABB(r_entity_c *ent)
+const aabb_c	r_skel_model_c::createAABB(r_entity_c *ent) const
 {
 	const r_skel_animation_c* anim = ent->getAnimation();
 	
@@ -235,21 +235,19 @@ void	r_skel_model_c::addModelToList(r_entity_c *ent)
 		
 		RB_AddCommand(ent, this, mesh, shader, NULL, NULL, -(i+1), r_origin.distance(ent->getShared().origin));
 		
-		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		for(std::vector<r_light_c*>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
-			std::vector<r_light_c>& lights = *ir;
+			r_light_c* light = *ir;
 			
-			for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
-			{
-				r_light_c& light = *ir;
+			if(!light)
+				continue;
 			
-				if(!light.isVisible())
-					continue;
+			if(!light->isVisible())
+				continue;
 			
-				// FIXME
-				if(light.getShared().radius_aabb.intersect(ent->getShared().origin, mesh->bbox.radius()))
-					RB_AddCommand(ent, this, mesh, shader, &light, NULL, -(i+1), 0);
-			}
+			// FIXME
+			if(light->getShared().radius_aabb.intersect(ent->getShared().origin, mesh->bbox.radius()))
+				RB_AddCommand(ent, this, mesh, shader, light, NULL, -(i+1), 0);
 		}
 	}
 }

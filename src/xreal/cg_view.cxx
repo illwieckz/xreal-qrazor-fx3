@@ -145,8 +145,6 @@ void	CG_PrepRefresh()
 	CG_LoadClientinfo(&cg.baseclientinfo, default_clientinfo);
 	*/
 	
-	trap_R_SetSky(trap_CL_GetConfigString(CS_SKY));
-	
 	
 	//
 	// the renderer can now free unneeded stuff
@@ -368,23 +366,9 @@ void	CG_Viewpos_f()
 	trap_Com_Printf("%s : %i\n", cg.refdef.view_origin.toString(), (int)cg.refdef.view_angles[YAW]);
 }
 
-
-void	CG_Sky_f()
-{
-	if(trap_Cmd_Argc() != 2)
-	{
-		trap_Com_Printf("usage: sky <name>\n");
-		return;
-	}
-	
-	// set sky
-	trap_R_SetSky(trap_Cmd_Argv(1));
-}
-
 void 	CG_InitView()
 {
 	trap_Cmd_AddCommand("viewpos", CG_Viewpos_f);
-	trap_Cmd_AddCommand("sky", CG_Sky_f);
 }
 
 

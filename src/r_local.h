@@ -399,6 +399,7 @@ extern uint_t		r_registration_sequence;
 extern uint_t		r_framecount;
 extern uint_t		r_visframecount;			// bumped when going to a new PVS
 extern uint_t		r_lightframecount;			// bumped when walking down the BSP by a new dynamic light
+extern uint_t		r_checkcount;				// bumped when box runs against BSP leaves to collect them
 
 
 class r_image_c
@@ -763,25 +764,7 @@ private:
 };
 
 
-class r_interaction_c
-{
-public:
-	inline r_interaction_c(r_surface_c *surf, r_light_c *light, std::vector<index_t> &indexes)
-	{
-		_surf		= surf;
-		_light		= light;
-		_indexes	= indexes;
-	}
-	
-	inline r_surface_c*	getSurface() const	{return _surf;}
-	inline r_light_c*	getLight() const	{return _light;}
-	inline const std::vector<index_t>&	getIndexes() const	{return _indexes;}
-	
-private:
-	r_surface_c*		_surf;
-	r_light_c*		_light;
-	std::vector<index_t>	_indexes;
-};
+
 
 
 class r_framecount_iface_a
@@ -810,7 +793,7 @@ protected:
 public:
 	inline uint_t	getVisFrameCount() const	{return _visframecount;}
 	inline void	setVisFrameCount()		{_visframecount = r_visframecount;}
-	inline void	setVisFrameCount(uint_t c)	{_visframecount = c;}
+	inline void	resetVisFrameCount()		{_visframecount = 0;}
 	inline bool	isVisFramed() const		{return r_visframecount == _visframecount;}
 	inline bool	isVisible() const		{return r_visframecount == _visframecount;}
 	
@@ -835,6 +818,22 @@ protected:
 };
 
 
+class r_checkcount_iface_a
+{
+protected:
+	r_checkcount_iface_a()
+	{
+	}
+	
+public:
+	inline void	setCheckCount()			{_checkcount = r_checkcount;}
+	inline bool	isChecked() const		{return r_checkcount == _checkcount;}
+	
+protected:
+	uint_t		_checkcount;
+};
+
+
 class r_surface_c : 
 public r_framecount_iface_a,
 public r_lightframecount_iface_a
@@ -845,6 +844,9 @@ public:
 	
 	inline r_mesh_c*		getMesh() const		{return _mesh;}
 	inline void			setMesh(r_mesh_c *mesh)	{_mesh = mesh;}
+	
+	inline uint_t			getSubEntityNum() const	{return _sub;}
+	inline void			setSubEntityNum(uint_t sub) {_sub = sub;}
 	
 	inline r_model_shader_c*	getShaderRef() const	{return _shaderref;}
 	inline void			setShaderRef(r_model_shader_c *ref)	{_shaderref = ref;}
@@ -857,6 +859,9 @@ public:
 
 private:
 	r_mesh_c*		_mesh;
+	
+	int			_sub;
+	
 	r_model_shader_c*	_shaderref;
 
 	bsp_surface_type_t	_facetype;
@@ -977,6 +982,24 @@ private:
 	uint_t		_query;
 };
 
+
+r_model_c*	R_GetModelByNum(int num);
+class r_model_iface_a
+{
+protected:
+	inline r_model_iface_a(int anim)
+	{
+		_model = R_GetModelByNum(anim);
+	}
+	
+public:
+	inline const r_model_c*	getModel() const	{return _model;}
+	
+private:
+	r_model_c*	_model;
+};
+
+
 r_skel_animation_c*	R_GetAnimationByNum(int num);
 class r_animation_iface_a
 {
@@ -989,7 +1012,6 @@ protected:
 public:
 	inline const r_skel_animation_c*	getAnimation() const	{return _animation;}
 	
-//protected:
 private:
 	r_skel_animation_c*	_animation;
 };
@@ -1009,12 +1031,44 @@ public:
 };
 
 
+class r_interaction_c
+{
+public:
+	r_interaction_c(r_entity_c* ent, r_light_c* light, const std::vector<index_t> &indexes);
+	
+	inline r_entity_c*		getEntity() const	{return _entity;}
+	inline r_light_c*		getLight() const	{return _light;}
+	
+	inline const std::vector<index_t>&	getIndexes() const	{return _indexes;}
+	
+private:
+	r_entity_c*		_entity;
+	r_light_c*		_light;
+	
+	std::vector<index_t>	_indexes;
+};
+
+
+class r_entity_sub_c
+{
+public:
+	inline void					addInteraction(r_interaction_c* ia)
+	{
+		_interactions.push_back(ia);
+	}
+	
+	inline const std::vector<r_interaction_c*>&	getInteractions() const	{return _interactions;}
+	
+private:
+	std::vector<r_interaction_c*>	_interactions;
+};
 
 
 class r_entity_c :
 public r_vis_iface_a,
 public r_visframecount_iface_a,
 public r_occlusion_iface_a,
+public r_model_iface_a,
 public r_animation_iface_a,
 public r_aabb_iface_a
 {
@@ -1038,13 +1092,15 @@ public:
 		_s.shader_parms[2] = color[2];
 		_s.shader_parms[3] = color[3];
 	}
+	
+	
+	const r_entity_sub_c&	getSubEntity(int num) const;
+	void			addInteractionToSubEntity(int num, r_interaction_c* ia);
 
 private:
-	r_entity_t		_s;
-		
-	matrix_c		_transform;
-	
-	r_skel_animation_c*	_anim;
+	r_entity_t			_s;
+	matrix_c			_transform;
+	std::vector<r_entity_sub_c>	_subs;
 };
 
 
@@ -1064,7 +1120,7 @@ public r_occlusion_iface_a
 					vec_t			distance);
 
 public:
-	r_light_c();
+//	r_light_c();
 	r_light_c(const r_entity_t &shared, r_light_type_t type);
 	~r_light_c();
 	
@@ -1077,10 +1133,7 @@ public:
 	
 	void			setupShadowMap();
 	
-	bool			hasSurface(int areanum, const r_surface_c *surf);
-	void			addSurface(int areanum, const r_surface_c *surf);	// clear interaction if any exists
-	
-	
+	r_interaction_c*	createInteraction(r_entity_c* ent, const r_mesh_c *mesh);
 	
 	inline const r_entity_t&	getShared() const	{return _s;}
 	inline r_light_type_t		getType() const		{return _type;}
@@ -1093,17 +1146,6 @@ public:
 	inline const matrix_c&		getProjection() const	{return _projection;}
 	
 	inline const r_frustum_c&	getFrustum() const	{return _frustum;}
-	
-	inline void			setAreaNum(int areanum)
-	{
-		_areasurfaces = std::vector<std::map<const r_surface_c*, std::vector<index_t> > >(areanum ? areanum : 1);
-	}
-	
-	inline const std::map<const r_surface_c*, std::vector<index_t> >&
-	getAreaSurfaces(int areanum) const
-	{
-		return _areasurfaces[areanum];
-	}
 
 private:
 	r_entity_t		_s;
@@ -1121,7 +1163,10 @@ private:
 	
 	r_image_c*		_shadowmap;
 						
-	std::vector<std::map<const r_surface_c*, std::vector<index_t> >	>	_areasurfaces;
+//	std::vector<std::map<const r_surface_c*, std::vector<index_t> >	>	_areasurfaces;	
+//	std::vector<std::vector< >	>			_entity_interactions;
+
+//	std::vector<r_entity_sub>	_entity_interactions;
 };
 
 
@@ -1220,7 +1265,9 @@ public:
 };
 
 class r_leaf_c : 
-public r_tree_elem_c
+public r_tree_elem_c,
+public r_lightframecount_iface_a,
+public r_checkcount_iface_a
 {
 public:	
 	std::vector<r_surface_c*>	surfaces;
@@ -1354,6 +1401,14 @@ public:
 };
 
 
+enum r_litnode_mode_e
+{
+	LITNODE_MODE_PRECACHE,
+	LITNODE_MODE_STATIC,
+	LITNODE_MODE_DYNAMIC
+};
+
+
 class r_bsptree_c  : public r_tree_c
 {
 	friend class r_bsp_model_c;
@@ -1371,10 +1426,10 @@ public:
 //	r_bsptree_area_c*	pointInArea(const vec3_c &p);
 
 	// Fills in a list of all the leafs touched
+private:
 	void			boxLeafs_r(const aabb_c &bbox, std::vector<r_bsptree_leaf_c*> &leafs, r_tree_elem_c *elem);
+public:
 	void			boxLeafs(const aabb_c &bbox, std::vector<r_bsptree_leaf_c*> &leafs);
-
-	
 	
 private:
 	void			loadVisibility(const byte *buffer, const bsp_lump_t *l);
@@ -1397,7 +1452,7 @@ private:
 	void			setParent(r_tree_elem_c *elem, r_tree_elem_c *parent);
 
 	void			drawNode_r(r_tree_elem_c *elem, int clipflags);
-	void			litNode_r(r_tree_elem_c *elem, r_light_c *light, bool precache);
+	int			litNode_r(r_tree_elem_c *elem, r_light_c *light, r_litnode_mode_e mode, int count = 0);
 
 	void			markLeaves();
 	void			markLights();
@@ -1689,13 +1744,15 @@ public:
 	//
 	virtual void		load()									{}
 	//! return axis-aligned bounding box in model space
-	virtual const aabb_c	createAABB(r_entity_c *ent) = 0;
+	virtual const aabb_c	createAABB(r_entity_c *ent) const = 0;
+	virtual int		precacheLight(r_entity_c *ent, r_light_c *light) const			{return 0;}
 	virtual void		addModelToList(r_entity_c *ent) = 0;
 	virtual void		draw(const r_command_t *cmd, r_render_type_e type) = 0;
 	virtual void		setupMeshes();
 	virtual void		setupVBO()								{}
 	virtual bool		setupTag(r_tag_t &tag, const r_entity_t &ent, const std::string &name)	{return false;}
 	virtual bool		setupAnimation(r_skel_animation_c *anim)				{return false;}
+	virtual uint_t		getMeshesNum() const							{return _meshes.size();}
 	
 	//
 	// access
@@ -1737,7 +1794,8 @@ public:
 	//
 	// virtual functions
 	//
-	virtual const aabb_c	createAABB(r_entity_c *ent);
+	virtual const aabb_c	createAABB(r_entity_c *ent) const;
+	virtual int		precacheLight(r_entity_c *ent, r_light_c *light) const;
 	virtual void		addModelToList(r_entity_c *ent);
 	virtual void 		draw(const r_command_t *cmd, r_render_type_e type);
 };
@@ -1780,7 +1838,7 @@ public:
 	//
 	// virtual functions
 	//
-	virtual const aabb_c	createAABB(r_entity_c *ent);
+	virtual const aabb_c	createAABB(r_entity_c *ent) const;
 	virtual void		addModelToList(r_entity_c *ent);
 	virtual void 		draw(const r_command_t *cmd, r_render_type_e type);
 	virtual void		setupMeshes();
@@ -1857,7 +1915,7 @@ public:
 	//
 	// virtual functions
 	//
-	virtual const aabb_c	createAABB(r_entity_c *ent);
+	virtual const aabb_c	createAABB(r_entity_c *ent) const;
 	virtual void		addModelToList(r_entity_c *ent);
 	virtual void 		draw(const r_command_t *cmd, r_render_type_e type);
 	virtual bool		setupTag(r_tag_t &tag, const r_entity_t &ent, const std::string &name);
@@ -1929,9 +1987,11 @@ public:
 	//
 	// virtual functions
 	//
-	virtual const aabb_c	createAABB(r_entity_c *ent);
+	virtual const aabb_c	createAABB(r_entity_c *ent) const;
+	virtual int		precacheLight(r_entity_c *ent, r_light_c *light) const;
 	virtual void		addModelToList(r_entity_c *ent);
 	virtual void 		draw(const r_command_t *cmd, r_render_type_e type);
+	virtual uint_t		getMeshesNum() const							{return _surfaces.size();}
 	
 private:
 	std::vector<r_surface_c*>	_surfaces;
@@ -1953,7 +2013,7 @@ public:
 	//
 	// virtual functions
 	//
-	virtual const aabb_c	createAABB(r_entity_c *ent);
+	virtual const aabb_c	createAABB(r_entity_c *ent) const;
 	virtual void		addModelToList(r_entity_c *ent);
 	virtual void 		draw(const r_command_t *cmd, r_render_type_e type);
 //	virtual void		setupMeshes();
@@ -2068,8 +2128,8 @@ extern std::vector<index_t>	r_quad_indexes;
 //
 // scene info
 //
-extern std::vector<std::vector<r_entity_c> >		r_entities;
-extern std::vector<std::vector<r_light_c> >		r_lights;
+extern std::vector<r_entity_c*>		r_entities;
+extern std::vector<r_light_c*>		r_lights;
 
 extern int		r_particles_num;
 extern r_particle_t	r_particles[MAX_PARTICLES];
@@ -2251,8 +2311,6 @@ void		RB_AddCommand(	r_entity_c*		entity,
 				int			infokey,
 				vec_t			distance);
 
-void		RB_DrawSkyBox();
-
 
 
 //
@@ -2275,6 +2333,15 @@ void		R_DrawPicExp(int x, int y, int w, int h, const vec4_c &color, int shader);
 void		R_DrawFill(int x, int y, int w, int h, const vec4_c &color);
 
 
+//
+// r_entity.cxx
+//
+void		R_InitEntities();
+void		R_ShutdownEntities();
+
+int		R_GetNumForEntity(r_entity_c *ent);
+r_entity_c*	R_GetEntityByNum(int num);
+
 
 //
 // r_image.cxx
@@ -2291,6 +2358,15 @@ r_image_c*	R_GetImageByNum(int num);
 
 r_image_c*	R_GetLightMapImageByNum(int num);
 
+
+//
+// r_light.cxx
+//
+void		R_InitLights();
+void		R_ShutdownLights();
+
+int		R_GetNumForLight(r_light_c *light);
+r_light_c*	R_GetLightByNum(int num);
 
 
 //
@@ -2426,12 +2502,13 @@ void		R_SkinList_f();
 //
 // r_sky.cxx
 //
+/*
 void		R_DrawFastSkyBox();
 void 		R_ClearSkyBox();
 void		R_DrawSky();
 void		R_AddSkySurface(r_surface_c *surf);
 void 		R_SetSky(const std::string &name);
-
+*/
 
 
 

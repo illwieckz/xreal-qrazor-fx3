@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "r_local.h"
 
 
-
+#if 0
 
 
 //static index_t		sky_dome_indexes[SKY_ELEM_LEN];
@@ -172,4 +172,4 @@ void 	R_SetSky(const std::string &name)
 		r_img_cubemap_sky = sky;
 }
 
-
+#endif

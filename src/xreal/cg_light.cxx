@@ -274,7 +274,7 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 			
 			rent.radius_value = rent.radius_aabb.radius();
 			
-			trap_R_AddLight(cent->current.getNumber(), 0, rent, LIGHT_OMNI);
+			trap_R_AddLight(cent->current.getNumber(), rent, LIGHT_OMNI);
 			break;
 		}
 				
@@ -309,7 +309,7 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 		
 			rent.radius_value = rent.radius_aabb.radius();
 			
-			trap_R_AddLight(cent->current.getNumber(), 0, rent, LIGHT_PROJ);
+			trap_R_AddLight(cent->current.getNumber(), rent, LIGHT_PROJ);
 			break;
 		}
 		
@@ -386,7 +386,7 @@ void	CG_UpdateLightEntity(const cg_entity_t *cent)
 				rent.radius_value = rent.radius_aabb.radius();
 			
 				trap_Com_DPrintf("updating omni-directional light ...\n");
-				trap_R_UpdateLight(cent->current.getNumber(), 0, rent, LIGHT_OMNI);
+				trap_R_UpdateLight(cent->current.getNumber(), rent, LIGHT_OMNI);
 			}
 			break;
 		}

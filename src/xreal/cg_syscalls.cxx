@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "cg_public.h"
 #include "cg_local.h"
 
-extern cg_import_t	cgi;
+cg_import_t	cgi;
 
 void	trap_Com_Printf(const char *fmt, ...)
 {
@@ -192,47 +192,41 @@ void		trap_R_DrawFill(int x, int y, int w, int h, const vec4_c &color)
 }
 
 	
-void 		trap_R_SetSky(const std::string &name)
-{
-	cgi.R_SetSky(name);
-}
-
-	
 void		trap_R_ClearScene()
 {
 	cgi.R_ClearScene();
 }
 
 	
-void		trap_R_AddEntity(int entity_num, int index, const r_entity_t &shared)
+void		trap_R_AddEntity(int index, const r_entity_t &shared)
 {
-	cgi.R_AddEntity(entity_num, index, shared);
+	cgi.R_AddEntity(index, shared);
 }
 
-void		trap_R_UpdateEntity(int entity_num, int index, const r_entity_t &shared)
+void		trap_R_UpdateEntity(int index, const r_entity_t &shared)
 {
-	cgi.R_UpdateEntity(entity_num, index, shared);
+	cgi.R_UpdateEntity(index, shared);
 }
 
-void		trap_R_RemoveEntity(int entity_num)
+void		trap_R_RemoveEntity(int index)
 {
-	cgi.R_RemoveEntity(entity_num);
+	cgi.R_RemoveEntity(index);
 }
 
 
-void		trap_R_AddLight(int entity_num, int index, const r_entity_t &shared, r_light_type_t type)
+void		trap_R_AddLight(int index, const r_entity_t &shared, r_light_type_t type)
 {
-	cgi.R_AddLight(entity_num, index, shared, type);
+	cgi.R_AddLight(index, shared, type);
 }
 
-void		trap_R_UpdateLight(int entity_num, int index, const r_entity_t &shared, r_light_type_t type)
+void		trap_R_UpdateLight(int index, const r_entity_t &shared, r_light_type_t type)
 {
-	cgi.R_UpdateLight(entity_num, index, shared, type);
+	cgi.R_UpdateLight(index, shared, type);
 }
 
-void		trap_R_RemoveLight(int entity_num)
+void		trap_R_RemoveLight(int index)
 {
-	cgi.R_RemoveLight(entity_num);
+	cgi.R_RemoveLight(index);
 }
 
 

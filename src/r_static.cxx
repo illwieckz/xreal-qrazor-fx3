@@ -41,9 +41,55 @@ r_static_model_c::~r_static_model_c()
 {
 }
 
-const aabb_c	r_static_model_c::createAABB(r_entity_c *ent)
+const aabb_c	r_static_model_c::createAABB(r_entity_c *ent) const
 {
 	return _aabb;
+}
+
+int	r_static_model_c::precacheLight(r_entity_c *ent, r_light_c *light) const
+{
+	int count = 0;
+	
+	for(unsigned i=0; i<_meshes.size(); i++)
+	{
+		r_mesh_c*		mesh = _meshes[i];
+		r_shader_c*		shader = NULL;
+		
+		if(ent->getShared().custom_shader != -1)
+		{
+			shader = R_GetShaderByNum(ent->getShared().custom_shader);
+		}
+		else if(ent->getShared().custom_skin != -1)
+		{
+			r_model_skin_c *skin = R_GetSkinByNum(ent->getShared().custom_skin);
+			
+			shader = skin->getShader(mesh->name);
+		}
+		else if(i >= 0 && i < _shaders.size())
+		{
+			shader = _shaders[i]->getShader();
+		}
+		else
+		{
+			continue;
+		}
+		
+		if(!r_showinvisible->getValue() && shader->hasFlags(SHADER_NODRAW))
+			continue;
+			
+		if(!shader->stage_diffusemap)
+			continue;
+			
+		r_interaction_c* ia = light->createInteraction(ent, mesh);
+		
+		if(!ia)
+			continue;
+				
+		ent->addInteractionToSubEntity(i, ia);
+		count++;
+	}
+	
+	return count;
 }
 	
 void	r_static_model_c::addModelToList(r_entity_c *ent)
@@ -76,7 +122,7 @@ void	r_static_model_c::addModelToList(r_entity_c *ent)
 		}
 		else
 		{
-			//ri.Com_Error(ERR_DROP, "r_static_model_c::addModelToList: no way to create command");
+			//ri.Com_Error(ERR_DROP, "r_static_model_c::addModelToList: no way to get shader");
 			continue;
 		}
 		
@@ -90,27 +136,42 @@ void	r_static_model_c::addModelToList(r_entity_c *ent)
 		
 		if(r_lighting->getInteger())
 		{
+			// create static interaction light commands
+			const r_entity_sub_c& sub = ent->getSubEntity(i);
+					
+			const std::vector<r_interaction_c*>& interactions = sub.getInteractions();
+					
+			for(std::vector<r_interaction_c*>::const_iterator ir = interactions.begin(); ir != interactions.end(); ++ir)
+			{
+				const r_interaction_c* ia = *ir;
+				
+				if(ia->getIndexes().empty())
+					continue;
+				
+				RB_AddCommand(ent, this, mesh, shader, ia->getLight(), (std::vector<index_t>*)&ia->getIndexes(), -1, 0);	
+			}
+		
+			#if 0
+			// create dynamic interaction light commands
 			aabb_c aabb = mesh->bbox;
 			aabb.rotate(ent->getShared().quat);
 			aabb._mins += ent->getShared().origin;
 			aabb._maxs += ent->getShared().origin;
 		
-			for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+			for(std::vector<r_light_c*>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 			{
-				std::vector<r_light_c>& lights = *ir;
+				r_light_c* light = *ir;
 			
-				for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
-				{
-					r_light_c& light = *ir;
+				if(!light)
+					continue;
 			
-					if(!light.isVisible())
-						continue;
+				if(!light->isVisible())
+					continue;
 			
-					if(light.getShared().radius_aabb.intersect(aabb))
-						RB_AddCommand(ent, this, mesh, shader, &light, NULL, -(i+1), 0);
-				
-				}
+				if(light->getShared().radius_aabb.intersect(aabb))
+					RB_AddCommand(ent, this, mesh, shader, light, NULL, -(i+1), 0);
 			}
+			#endif
 		}
 	}
 }
