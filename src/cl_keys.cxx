@@ -711,14 +711,37 @@ void 	Key_Init()
 	keyshift['`'] = '~';
 	keyshift['\\'] = '|';
 	*/
+	
+	keyshift[49] = '!';
+	keyshift[50] = '@';
+	keyshift[51] = '#';
+	keyshift[52] = '$';
+	keyshift[53] = '%';
+	keyshift[54] = '^';
+	keyshift[55] = '&';
+	keyshift[56] = '*';
+	keyshift[57] = '(';
+	keyshift[48] = ')';
+	keyshift[45] = '_';
+	keyshift[61] = '+';
+	keyshift[44] = '<';
+	keyshift[46] = '>';
+	keyshift[47] = '?';
+	keyshift[59] = ':';
+	keyshift[92] = '"';
+	keyshift[91] = '{';
+	keyshift[93] = '}';
+	keyshift[96] = '~';
+	keyshift[124] = '|';
 
 	menubound[K_ESCAPE] = true;
 	for (i=0 ; i<12 ; i++)
 		menubound[K_F1+i] = true;
 
-//
-// register our functions
-//
+	
+	//
+	// register our functions
+	//
 	Cmd_AddCommand ("bind",Key_Bind_f);
 	Cmd_AddCommand ("unbind",Key_Unbind_f);
 	Cmd_AddCommand ("unbindall",Key_Unbindall_f);
