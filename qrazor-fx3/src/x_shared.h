@@ -212,7 +212,7 @@ enum
 
 	MAX_CLIENTS			= 256,				// absolute limit
 	
-	MAX_ENTITIES_BITS		= 10,				// use only 10 bits to represent the entity number
+	MAX_ENTITIES_BITS		= 11,				// use only 11 bits to represent the entity number
 	MAX_ENTITIES			= (1 << MAX_ENTITIES_BITS),	// must change protocol to increase more
 	
 	MAX_MODELS_BITS			= 12,
