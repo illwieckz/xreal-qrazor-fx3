@@ -261,11 +261,30 @@ struct r_ase_model_grammar_t : public boost::spirit::grammar<r_ase_model_grammar
 				
 			geomobject
 				=	boost::spirit::str_p("*GEOMOBJECT") >> boost::spirit::ch_p('{') >>
-					boost::spirit::str_p("*NODE_NAME") >> skip_restofline >>
-					boost::spirit::str_p("*NODE_TM") >> skip_block >> 
+					node_name >>
+					!node_parent >>
+					node_tm >>
 					+mesh >>
 					*skip_restofline >>
 					boost::spirit::ch_p('}')
+				;
+				
+			node_name
+				=	boost::spirit::str_p("*NODE_NAME") >> 
+					boost::spirit::ch_p('\"') >>
+					boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - boost::spirit::ch_p('\"')] >>
+					boost::spirit::ch_p('\"')
+				;
+				
+			node_parent
+				=	boost::spirit::str_p("*NODE_PARENT") >>
+					boost::spirit::ch_p('\"') >>
+					boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - boost::spirit::ch_p('\"')] >>
+					boost::spirit::ch_p('\"')
+				;
+				
+			node_tm
+				=	boost::spirit::str_p("*NODE_TM") >> skip_block
 				;
 				
 			mesh
@@ -423,6 +442,9 @@ struct r_ase_model_grammar_t : public boost::spirit::grammar<r_ase_model_grammar
 								material_map_diffuse,
 								material_submaterial,
 						geomobject,
+							node_name,
+							node_parent,
+							node_tm,
 							mesh,
 								mesh_vertex_list,
 									mesh_vertex,
