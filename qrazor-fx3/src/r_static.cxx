@@ -43,7 +43,7 @@ r_static_model_c::~r_static_model_c()
 	
 void	r_static_model_c::addModelToList(r_entity_c *ent)
 {
-	if(R_CullBSphere(r_frustum, ent->getShared().origin, _bbox.radius()))
+	if(r_frustum.cull(ent->getShared().origin, _bbox.radius()))
 	{
 		c_entities--;
 		return;
@@ -76,6 +76,9 @@ void	r_static_model_c::addModelToList(r_entity_c *ent)
 		}
 		
 		if(!r_showinvisible->getValue() && shader->hasFlags(SHADER_NODRAW))
+			continue;
+			
+		if(r_envmap && shader->hasFlags(SHADER_NOENVMAP))
 			continue;
 		
 		RB_AddCommand(ent, this, mesh, shader, NULL, NULL, -1, r_origin.distance(ent->getShared().origin));

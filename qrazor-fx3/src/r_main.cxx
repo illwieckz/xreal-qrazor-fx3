@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // qrazor-fx ----------------------------------------------------------------
 #include "r_local.h"
+#include "r_backend.h"
 
 
 viddef_t	vid;
@@ -54,11 +55,12 @@ r_image_c*	r_img_nofalloff;
 r_image_c*	r_img_attenuation_3d;
 r_image_c*	r_img_lightview_depth;
 r_image_c*	r_img_lightview_color;
+r_image_c*	r_img_currentrender;
 
 r_scene_t*	r_current_scene;
 
 
-r_frustum_t	r_frustum;
+r_frustum_c	r_frustum;
 
 uint_t		r_framecount;		// used for dlight push checking
 uint_t		r_visframecount;	// bumped when going to a new PVS
@@ -86,17 +88,19 @@ vec3_c		r_right;
 
 vec3_c		r_origin;
 
-bool		r_portal_view;	// if true, get vis data at
+bool		r_portal_view = false;	// if true, get vis data at
 vec3_c		r_portal_org;	// portalorg instead of vieworg
 
-bool		r_mirrorview;	// if true, lock pvs
+bool		r_mirrorview = false;	// if true, lock pvs
+
+bool		r_envmap = false;
 
 cplane_c	r_clipplane;
 
 
 
 r_entity_c	r_world_entity;
-r_proctree_c*	r_world_tree;
+r_bsptree_c*	r_world_tree;
 
 std::vector<index_t> 	r_quad_indexes;
 
@@ -108,7 +112,7 @@ bool		r_zfill;
 r_refdef_t	r_newrefdef;
 
 
-std::map<int, r_entity_c>	r_entities;
+std::map<int, r_entity_c, std::less<int> >	r_entities;
 std::map<int, r_light_c>	r_lights;
 
 int		r_particles_num;
@@ -162,6 +166,8 @@ cvar_t	*r_showbinormals;
 cvar_t	*r_showinvisible;
 cvar_t	*r_showlightbboxes;
 cvar_t	*r_showlightscissors;
+cvar_t	*r_showlighttransforms;
+cvar_t	*r_showentitytransforms;
 cvar_t	*r_clear;
 cvar_t	*r_cull;
 cvar_t	*r_cullplanes;
@@ -212,7 +218,8 @@ cvar_t	*vid_colorbits;
 cvar_t	*vid_depthbits;
 cvar_t	*vid_stencilbits;
 
-cvar_t	*vid_pbuffer_texsize;
+cvar_t	*vid_pbuffer_width;
+cvar_t	*vid_pbuffer_height;
 cvar_t	*vid_pbuffer_colorbits;
 cvar_t	*vid_pbuffer_depthbits;
 cvar_t	*vid_pbuffer_stencilbits;
@@ -531,10 +538,40 @@ static void	R_ScreenShot()
 
 	delete [] buffer;
 	
-	ri.Com_Printf("wrote %s\n", checkname.c_str());
+	ri.Com_Printf("wrote '%s'\n", checkname.c_str());
 }
 
+void	R_WritePbuffer()
+{
+	int		i;
+	byte		*buffer;
+	std::string	checkname;
+	 
+	// find a file name to save it to
+	for(i=0; i<=999; i++)
+	{	
+		checkname = "screenshots/pbuffer" + std::string(va("%03d", i)) + ".jpg";
+		
+		if(ri.VFS_FLoad(checkname, NULL) <= 0)
+			break;	// file doesn't exist
+	}
+	
+	if(i==1000)
+	{
+		ri.Com_Printf("R_WritePbuffer_f: Couldn't create a file\n"); 
+		return;
+ 	}
+	
+	buffer = new byte[vid_pbuffer_width->getInteger() * vid_pbuffer_height->getInteger() * 3];
+	
+	xglReadPixels(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), GL_RGB, GL_UNSIGNED_BYTE, buffer);
 
+	IMG_WriteJPG(checkname, buffer, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), 95);
+
+	delete [] buffer;
+	
+//	ri.Com_Printf("wrote '%s'\n", checkname.c_str());
+}
 
 
 static void	R_WriteVideoScreenShot() 
@@ -554,7 +591,6 @@ static void	R_WriteVideoScreenShot()
 	
 	r_video_export_count++;
 }
-
 
 static void	R_ScreenShot_f()
 {
@@ -722,9 +758,6 @@ static void 	R_AddEntitiesToBuffer()
 
 	for(std::map<int, r_entity_c>::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
 	{
-		if(ir->first == 0)
-			continue;
-			
 		r_entity_c& ent = ir->second;
 		
 		if(r_mirrorview)
@@ -733,8 +766,8 @@ static void 	R_AddEntitiesToBuffer()
 				continue;
 		}
 		
-		if(!ent.isVisible())
-			continue;
+		//if(!ent.isVisible())
+		//	continue;
 		
 		r_model_c *model = R_GetModelByNum(ent.getShared().model);
 			
@@ -744,9 +777,9 @@ static void 	R_AddEntitiesToBuffer()
 			continue;
 		}
 		
-		if(ent.needsUpdate())
+		//if(ent.needsUpdate())
 		//	model->precacheLightInteractions(&ent);
-		ent.needsUpdate(false);
+		//ent.needsUpdate(false);
 			
 		model->addModelToList(&ent);
 	}
@@ -801,32 +834,19 @@ void 	R_ShadowBlend()
 
 void	R_SetupFrame()
 {
-	//
-	// well a new frame is born ... :)
-	//
 	r_framecount++;
 
-
-	//
-	// build the transformation matrix for the given view angles
-	//
 	r_origin = r_newrefdef.view_origin;
 
 	Angles_ToVectors(r_newrefdef.view_angles, r_forward, r_right, r_up);
 
-
-	//
-	// update our scenegraph
-	//
+	// update scenegraph
 	if(r_world_tree)
 		r_world_tree->update();
 }
 
 void 	R_DrawWorld()
 {
-	if(!r_drawworld->getValue())
-		return;
-	
 	if(!r_world_tree)
 		return;
 
@@ -889,8 +909,78 @@ void	R_DrawLightDebuggingInfo()
 		
 		RB_SetupGL3D();
 	}
+	
+	if(r_showlighttransforms->getInteger())
+	{
+		vec3_c	vf, vr, vu;
+	
+		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		{
+			r_light_c& light = ir->second;
+			
+			const r_entity_t& s = light.getShared();
+			
+			light.getTransform().toVectorsFRU(vf, vr, vu);
+			
+			vf *= 16 * s.scale[0];	vf += s.origin;
+			vr *= 16 * s.scale[1];	vr += s.origin;
+			vu *= 16 * s.scale[2];	vu += s.origin;
+			
+			xglBegin(GL_LINES);
+			
+			xglColor4fv(color_red);
+			xglVertex3fv(s.origin);
+			xglVertex3fv(vf);
+			
+			xglColor4fv(color_green);
+			xglVertex3fv(s.origin);
+			xglVertex3fv(vr);
+			
+			xglColor4fv(color_blue);
+			xglVertex3fv(s.origin);
+			xglVertex3fv(vu);
+			
+			xglEnd();
+		}
+	}
 }
 
+void	R_DrawEntityDebuggingInfo()
+{
+	if(r_showentitytransforms->getInteger())
+	{
+		vec3_c	vf, vr, vu;
+	
+		for(std::map<int, r_entity_c>::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
+		{
+			r_entity_c& ent = ir->second;
+			
+			const r_entity_t& s = ent.getShared();
+			
+			ent.getTransform().toVectorsFRU(vf, vr, vu);
+			
+			vf *= 16 * s.scale[0];	vf += s.origin;
+			vr *= 16 * s.scale[1];	vr += s.origin;
+			vu *= 16 * s.scale[2];	vu += s.origin;
+			
+			xglBegin(GL_LINES);
+			
+			xglColor4fv(color_red);
+			xglVertex3fv(s.origin);
+			xglVertex3fv(vf);
+			
+			xglColor4fv(color_green);
+			xglVertex3fv(s.origin);
+			xglVertex3fv(vr);
+			
+			xglColor4fv(color_blue);
+			xglVertex3fv(s.origin);
+			xglVertex3fv(vu);
+			
+			xglEnd();
+		}
+	}
+}
 
 void	R_DrawAreaPortals()
 {
@@ -900,12 +990,40 @@ void	R_DrawAreaPortals()
 	if(r_newrefdef.rdflags & RDF_NOWORLDMODEL)
 		return;
 		
-	if(!r_showareaportals->getValue())
-		return;
-		
 	r_world_tree->drawAreaPortals();
 }
 
+void	R_DrawPbufferTest(int x, int y, int w, int h)
+{
+	xglColor4fv(color_white);
+	
+	RB_SelectTexture(GL_TEXTURE0);
+	RB_Bind(r_img_currentrender);
+	
+	xglEnable(GL_TEXTURE_2D);		RB_CheckForError();
+	
+	xglMatrixMode(GL_TEXTURE);
+	xglLoadIdentity();
+	xglMatrixMode(GL_MODELVIEW);
+	
+	xglBegin(GL_QUADS);
+	
+	xglTexCoord2f(0, 0);
+	xglVertex3f(x, y, 0.0);
+	
+	xglTexCoord2f(1, 0);
+	xglVertex3f(x+w, y, 0.0);
+	
+	xglTexCoord2f(1, 1);
+	xglVertex3f(x+w, y+h, 0.0);
+	
+	xglTexCoord2f(0, 1);
+	xglVertex3f(x, y+h, 0.0);
+	
+	xglEnd();
+	
+	xglDisable(GL_TEXTURE_2D);
+}
 
 static void	R_BeginFrame()
 {
@@ -965,11 +1083,17 @@ static void 	R_RenderFrame(const r_refdef_t &fd)
 		time_start = ri.Sys_Milliseconds();
 		
 	r_current_scene = &r_world_scene;
+	
+//	GLimp_ActivatePbuffer();
+		
+//	xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	
+//	RB_Clear();
 			
 	RB_BeginBackendFrame();
 
 	R_SetupFrame();
-			
+	
 	RB_SetupGL3D();
 	
 	if(r_speeds->getInteger())
@@ -991,13 +1115,32 @@ static void 	R_RenderFrame(const r_refdef_t &fd)
 		
 	R_DrawLightDebuggingInfo();
 	
+	R_DrawEntityDebuggingInfo();
+	
 	R_DrawAreaPortals();
 		
-	//R_AddPolysToBuffer();
+//	R_AddPolysToBuffer();
 		
-	//R_DrawParticles();
+//	R_DrawParticles();
+	
+//	xglEnable(GL_TEXTURE_2D);	RB_CheckForError();
+//	r_img_currentrender->bind();	RB_CheckForError();
+//	xglCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, r_img_currentrender->getWidth(), r_img_currentrender->getHeight(), 0);	RB_CheckForError();
+//	xglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, r_img_currentrender->getWidth(), r_img_currentrender->getHeight());	RB_CheckForError();
+//	xglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, r_img_currentrender->getWidth(), r_img_currentrender->getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);	RB_CheckForError();
+//	xglDisable(GL_TEXTURE_2D);	RB_CheckForError();
+	
+//	R_WritePbuffer();
+	
+//	GLimp_DeactivatePbuffer();
+	
+//	xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	
+//	RB_Clear();
 	
 	RB_SetupGL2D();
+	
+//	R_DrawPbufferTest(0, 0, 300, 300);
 	
 	//R_ShadowBlend();
 		
@@ -1012,7 +1155,7 @@ static void 	R_RenderFrame(const r_refdef_t &fd)
 	{
 		ri.Com_Printf("%4i leafs %4i entities %4i lights %4i tris %4i draws %4i exp\n",
 			c_leafs,
-			c_entities,
+			r_entities.size(),
 			c_lights,
 			//c_cmds,
 			//c_cmds_radiosity,
@@ -1045,6 +1188,88 @@ static void	R_EndFrame()
 	GLimp_EndFrame();
 }
 
+static void	R_EnvMap_f()
+{
+	r_refdef_t& refdef = r_newrefdef;
+	
+	r_envmap = true;
+	
+	int width = 256;
+	int height = 256;
+	
+	byte* buffer = new byte[width * height * 3];
+
+	refdef.x = 0;
+	refdef.y = 0;
+	refdef.width = width;
+	refdef.height = height;
+	
+	refdef.setFOV(90);
+
+	refdef.view_angles.set(0, 0, 90);
+	refdef.flip_x = false;
+	refdef.flip_y = false;
+	refdef.flip_z = true;
+	R_BeginFrame();
+	R_RenderFrame(refdef);
+	R_EndFrame();
+	xglReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+	IMG_WriteTGA("env/dynamic_px.tga", buffer, width, height, 3);
+	
+	refdef.view_angles.set(0, 180, 90);
+	refdef.flip_x = false;
+	refdef.flip_y = true;
+	refdef.flip_z = false;
+	R_BeginFrame();
+	R_RenderFrame(refdef);
+	R_EndFrame();
+	xglReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+	IMG_WriteTGA("env/dynamic_nx.tga", buffer, width, height, 3);
+	
+	refdef.view_angles.set(0, 90, 0);
+	refdef.flip_x = false;
+	refdef.flip_y = false;
+	refdef.flip_z = true;
+	R_BeginFrame();
+	R_RenderFrame(refdef);
+	R_EndFrame();
+	xglReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+	IMG_WriteTGA("env/dynamic_py.tga", buffer, width, height, 3);
+	
+	refdef.view_angles.set(0,-90, 0);
+	refdef.flip_x = false;
+	refdef.flip_y = true;
+	refdef.flip_z = false;
+	R_BeginFrame();
+	R_RenderFrame(refdef);
+	R_EndFrame();
+	xglReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+	IMG_WriteTGA("env/dynamic_ny.tga", buffer, width, height, 3);
+	
+	refdef.view_angles.set(-90, 90, 0);
+	refdef.flip_x = false;
+	refdef.flip_y = false;
+	refdef.flip_z = true;
+	R_BeginFrame();
+	R_RenderFrame(refdef);
+	R_EndFrame();
+	xglReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+	IMG_WriteTGA("env/dynamic_pz.tga", buffer, width, height, 3);
+	
+	refdef.view_angles.set(90, 90, 0);
+	refdef.flip_x = false;
+	refdef.flip_y = true;
+	refdef.flip_z = false;
+	R_BeginFrame();
+	R_RenderFrame(refdef);
+	R_EndFrame();
+	xglReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+	IMG_WriteTGA("env/dynamic_nz.tga", buffer, width, height, 3);
+	
+	delete [] buffer;
+	
+	r_envmap = false;
+}
 
 static void	R_BenchCalcTangentSpaces_f()
 {
@@ -1126,6 +1351,8 @@ static void 	R_Register()
 	r_showinvisible		= ri.Cvar_Get("r_showinvisible", "0", CVAR_NONE);
 	r_showlightbboxes	= ri.Cvar_Get("r_showlightbboxes", "0", CVAR_NONE);
 	r_showlightscissors	= ri.Cvar_Get("r_showlightscissors", "0", CVAR_NONE);
+	r_showlighttransforms	= ri.Cvar_Get("r_showlighttransforms", "0", CVAR_NONE);
+	r_showentitytransforms	= ri.Cvar_Get("r_showentitytransforms", "0", CVAR_NONE);
 
 	r_clear 		= ri.Cvar_Get("r_clear", "1", CVAR_NONE);
 	r_cull 			= ri.Cvar_Get("r_cull", "1", CVAR_NONE);
@@ -1179,20 +1406,18 @@ static void 	R_Register()
 #else
 	vid_gldriver 		= ri.Cvar_Get("vid_gldriver", "libGL.so", CVAR_ARCHIVE);
 #endif
-	vid_colorbits		= ri.Cvar_Get("vid_colorbits", "0", CVAR_ARCHIVE);
-	vid_depthbits		= ri.Cvar_Get("vid_depthbits", "0", CVAR_ARCHIVE);
-	vid_stencilbits		= ri.Cvar_Get("vid_stencilbits", "0", CVAR_ARCHIVE);
+	vid_colorbits		= ri.Cvar_Get("vid_colorbits", "32", CVAR_ARCHIVE);
+	vid_depthbits		= ri.Cvar_Get("vid_depthbits", "24", CVAR_ARCHIVE);
+	vid_stencilbits		= ri.Cvar_Get("vid_stencilbits", "8", CVAR_ARCHIVE);
 	
-	vid_pbuffer_texsize	= ri.Cvar_Get("vid_pbuffer_texsize", "1024", CVAR_ARCHIVE);
-	vid_pbuffer_colorbits	= ri.Cvar_Get("vid_pbuffer_colorbits", "16", CVAR_ARCHIVE);
-	vid_pbuffer_depthbits	= ri.Cvar_Get("vid_pbuffer_depthbits", "0", CVAR_ARCHIVE);
-	vid_pbuffer_stencilbits	= ri.Cvar_Get("vid_pbuffer_stencilbits", "0", CVAR_ARCHIVE);
+	vid_pbuffer_width	= ri.Cvar_Get("vid_pbuffer_width", "512", CVAR_ARCHIVE);
+	vid_pbuffer_height	= ri.Cvar_Get("vid_pbuffer_height", "512", CVAR_ARCHIVE);
+	vid_pbuffer_colorbits	= ri.Cvar_Get("vid_pbuffer_colorbits", "32", CVAR_ARCHIVE);
+	vid_pbuffer_depthbits	= ri.Cvar_Get("vid_pbuffer_depthbits", "24", CVAR_ARCHIVE);
+	vid_pbuffer_stencilbits	= ri.Cvar_Get("vid_pbuffer_stencilbits", "8", CVAR_ARCHIVE);
 	
 	vid_ref 		= ri.Cvar_Get("vid_ref", "glx", CVAR_ARCHIVE);
 
-
-
-	
 	ri.Cmd_AddCommand("imagelist", 		R_ImageList_f);	
 	ri.Cmd_AddCommand("screenshot",		R_ScreenShot_f);
 	ri.Cmd_AddCommand("modellist", 		R_Modellist_f);
@@ -1202,6 +1427,7 @@ static void 	R_Register()
 	ri.Cmd_AddCommand("shadersearch",	R_ShaderSearch_f);
 	ri.Cmd_AddCommand("spirittest",		R_SpiritTest_f);
 	ri.Cmd_AddCommand("skinlist",		R_SkinList_f);
+	ri.Cmd_AddCommand("envmap",		R_EnvMap_f);
 	
 	ri.Cmd_AddCommand("benchcalctangentspaces",	R_BenchCalcTangentSpaces_f);
 }
@@ -1250,18 +1476,13 @@ static bool 	R_SetMode()
 	return true;
 }
 
-void	R_InitTree(r_tree_type_e type, const std::string &name)
+void	R_InitTree(const std::string &name)
 {
-	switch(type)
-	{
-		case TREE_BSP:
-			//r_world_tree = new r_bsptree_c("maps/" + name);
-			break;
-		
-		case TREE_PROC:
-			r_world_tree = new r_proctree_c("maps/" + name + ".proc");
-			break;
-	}
+#if 1
+	r_world_tree = new r_bsptree_c("maps/" + name);
+#else
+	r_world_tree = new r_proctree_c("maps/" + name + ".proc");
+#endif
 }
 
 void	R_ShutdownTree()
@@ -1330,15 +1551,15 @@ bool 	R_Init(void *hinstance, void *hWnd)
 	gl_config.extensions_string = (const char*)xglGetString (GL_EXTENSIONS);
 	ri.Com_Printf("GL_EXTENSIONS: %s\n", gl_config.extensions_string );
 
-
 	// grab optional OpenGL extensions
 	R_CheckOpenGLExtensions();
 	
 	// setup shadow mapping support
-	GLimp_InitPbuffer(false, true);
-	GLimp_ActivatePbuffer();
-	xglClearColor(0.6, 0.1, 0.91, 0.0);
-	xglEnable(GL_DEPTH_TEST);
+	GLimp_InitPbuffer(false, true);		RB_CheckForError();
+	GLimp_ActivatePbuffer();		RB_CheckForError();
+//	xglClearColor(0.6, 0.1, 0.91, 0.0);
+	xglClearColor(0.0, 0.0, 0.0, 0.0);	RB_CheckForError();
+	xglEnable(GL_DEPTH_TEST);		RB_CheckForError();
 	{
 		//TODO recode
 		
@@ -1350,7 +1571,7 @@ bool 	R_Init(void *hinstance, void *hWnd)
         	else
 			r_depth_format = GL_DEPTH_COMPONENT24_ARB;
 	}
-	GLimp_DeactivatePbuffer();
+	GLimp_DeactivatePbuffer();		RB_CheckForError();
 
 	// setup image system
 	R_InitImages();
@@ -1389,14 +1610,10 @@ bool 	R_Init(void *hinstance, void *hWnd)
 	return true;
 }
 
-
 void 	R_Shutdown()
 {		
 	ri.Com_Printf("------- R_Shutdown -------\n");
 	
-	//
-	// remove cmds
-	//
 	ri.Cmd_RemoveCommand("imagelist");
 	ri.Cmd_RemoveCommand("screenshot");
 	ri.Cmd_RemoveCommand("modellist");
@@ -1406,11 +1623,8 @@ void 	R_Shutdown()
 	ri.Cmd_RemoveCommand("shadersearch");
 	ri.Cmd_RemoveCommand("spirittest");
 	ri.Cmd_RemoveCommand("skinlist");
-	
+	ri.Cmd_RemoveCommand("envmap");
 
-	//
-	// shutdown helper system
-	//
 	R_ShutdownTree();
 	
 	R_ShutdownModels();
@@ -1574,13 +1788,17 @@ static void	R_UpdateEntity(int entity_num, const r_entity_t &shared, bool update
 	}
 	else
 	{
-		if(!update && ir->second.needsUpdate())
-			update = true;
-		
-		r_entities.erase(ir);
-		r_entities.insert(std::make_pair(entity_num, r_entity_c(shared, update)));
-			
-		//ir->second = r_entity_c(shared, update);
+		if(update)
+		{
+			// update entire entity information
+			r_entities.erase(ir);
+			r_entities.insert(std::make_pair(entity_num, r_entity_c(shared, update)));
+		}
+		else
+		{
+			// update only client game lerp information
+			ir->second.setLerp(shared.lerp);
+		}
 	}
 }
 

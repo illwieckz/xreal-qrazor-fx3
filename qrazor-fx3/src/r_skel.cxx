@@ -78,7 +78,7 @@ bool	r_skel_model_c::cull(r_entity_c *ent)
 		
 	updateBBox(ent);
 	
-	if(R_CullBSphere(r_frustum, ent->getShared().origin, _bbox.radius()))
+	if(r_frustum.cull(ent->getShared().origin, _bbox.radius()))
 		return true;
 	
 	if((r_mirrorview || r_portal_view) && r_cull->getValue())
@@ -216,6 +216,9 @@ void	r_skel_model_c::addModelToList(r_entity_c *ent)
 		}
 		
 		if(!r_showinvisible->getValue() && shader->hasFlags(SHADER_NODRAW))
+			continue;
+			
+		if(r_envmap && shader->hasFlags(SHADER_NOENVMAP))
 			continue;
 		
 		RB_AddCommand(ent, this, mesh, shader, NULL, NULL, -(i+1), r_origin.distance(ent->getShared().origin));

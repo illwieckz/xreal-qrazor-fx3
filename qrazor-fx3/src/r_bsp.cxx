@@ -263,6 +263,9 @@ void	r_bsptree_c::update()
 
 void	r_bsptree_c::draw()
 {
+	if(!r_drawworld->getValue())
+		return;
+
 	drawNode_r(_nodes[0], FRUSTUM_CLIPALL);
 	
 	if(r_lighting->getInteger())
@@ -271,7 +274,7 @@ void	r_bsptree_c::draw()
 		{
 			r_light_c& light = ir->second;
 			
-			if(R_CullBBox(r_frustum, light.getShared().radius_bbox))
+			if(r_frustum.cull(light.getShared().radius_bbox))
 				continue;
 			
 			if(!(light.getShared().flags & RF_STATIC))
@@ -1284,6 +1287,9 @@ void	r_bsptree_c::addSurfaceToList(r_surface_c *surf, int clipflags)
 	if(!r_showinvisible->getValue() && surf->getShaderRef()->hasFlags(X_SURF_NODRAW))
 		return;
 	
+	if(r_envmap && surf->getShader()->hasFlags(SHADER_NOENVMAP))
+		return;
+	
 	switch(surf->getFaceType())
 	{
 		case BSPST_PLANAR:
@@ -1300,7 +1306,7 @@ void	r_bsptree_c::addSurfaceToList(r_surface_c *surf, int clipflags)
 		case BSPST_BEZIER:
 		case BSPST_MESH:
 		{
-			if(R_CullBBox(r_frustum, surf->getMesh()->bbox, clipflags))
+			if(r_frustum.cull(surf->getMesh()->bbox, clipflags))
 				return;
 		}
 		
@@ -1474,7 +1480,7 @@ void 	r_bsptree_c::markLights()
 		{
 			r_light_c& light = ir->second;
 			
-			if(R_CullBBox(r_frustum, light.getShared().radius_bbox))
+			if(r_frustum.cull(light.getShared().radius_bbox))
 				continue;
 			
 			light.setVisFrameCount();
@@ -1489,7 +1495,7 @@ void 	r_bsptree_c::markLights()
 			
 			if(!(light.getShared().flags & RF_STATIC))
 			{
-				if(R_CullBBox(r_frustum, light.getShared().radius_bbox))
+				if(r_frustum.cull(light.getShared().radius_bbox))
 					continue;
 				
 				light.setVisFrameCount();
@@ -1515,7 +1521,7 @@ void 	r_bsptree_c::markLights()
 			}
 			*/
 			
-			if(R_CullBBox(r_frustum, light.getShared().radius_bbox))
+			if(r_frustum.cull(light.getShared().radius_bbox))
 				continue;
 				
 			if(vis[light.getCluster()>>3] & (1<<(light.getCluster()&7)))
@@ -1698,7 +1704,7 @@ void	r_bsp_model_c::addModelToList(r_entity_c *ent)
 {
 	//ri.Com_DPrintf("r_bsp_model_c::addModelToList:\n");
 	
-	if(R_CullBSphere(r_frustum, ent->getShared().origin, _bbox.radius(), FRUSTUM_CLIPALL))
+	if(r_frustum.cull(ent->getShared().origin, _bbox.radius(), FRUSTUM_CLIPALL))
 	{
 		c_entities--;
 		return;
@@ -1724,7 +1730,10 @@ void	r_bsp_model_c::addModelToList(r_entity_c *ent)
 		}
 		
 		if(!r_showinvisible->getValue() && surf->getShaderRef()->hasFlags(X_SURF_NODRAW))
-			return;
+			continue;
+			
+		if(r_envmap && surf->getShader()->hasFlags(SHADER_NOENVMAP))
+			continue;
 			
 		surf->setFrameCount();
 		

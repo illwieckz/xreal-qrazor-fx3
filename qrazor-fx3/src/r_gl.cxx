@@ -72,6 +72,7 @@ void (GLAPIENTRY* xglBlendFunc) (GLenum sfactor, GLenum dfactor);
 void (GLAPIENTRY* xglStencilFunc) (GLenum func, GLint ref, GLuint mask);
 void (GLAPIENTRY* xglStencilOp) (GLenum fail, GLenum zfail, GLenum zpass);
 void (GLAPIENTRY* xglDepthFunc) (GLenum func);
+void (GLAPIENTRY* xglReadBuffer) (GLenum mode);
 void (GLAPIENTRY* xglReadPixels) (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels);
 GLenum (GLAPIENTRY* xglGetError) (void);
 void (GLAPIENTRY* xglGetFloatv) (GLenum pname, GLfloat *params);
@@ -97,6 +98,8 @@ void (GLAPIENTRY* xglNormalPointer) (GLenum type, GLsizei stride, const GLvoid *
 void (GLAPIENTRY* xglTexCoordPointer) (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
 void (GLAPIENTRY* xglVertexPointer) (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
 void (GLAPIENTRY* xglPolygonOffset) (GLfloat factor, GLfloat units);
+void (GLAPIENTRY* xglCopyTexImage2D) (GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border);
+void (GLAPIENTRY* xglCopyTexSubImage2D) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
 void (GLAPIENTRY* xglBindTexture) (GLenum target, GLuint texture);
 void (GLAPIENTRY* xglDeleteTextures) (GLsizei n, const GLuint *textures);
 void (GLAPIENTRY* xglGenTextures) (GLsizei n, GLuint *textures);
@@ -363,6 +366,7 @@ void	XGL_Shutdown()
 	xglStencilFunc						= NULL;
 	xglStencilOp						= NULL;
 	xglDepthFunc						= NULL;
+	xglReadBuffer						= NULL;
 	xglReadPixels						= NULL;
 	xglGetError						= NULL;
 	xglGetFloatv						= NULL;
@@ -388,6 +392,8 @@ void	XGL_Shutdown()
 	xglTexCoordPointer					= NULL;
 	xglVertexPointer					= NULL;
 	xglPolygonOffset					= NULL;
+	xglCopyTexImage2D					= NULL;
+	xglCopyTexSubImage2D					= NULL;
 	xglBindTexture						= NULL;
 	xglDeleteTextures					= NULL;
 	xglGenTextures						= NULL;
@@ -691,6 +697,7 @@ bool	XGL_Init(const char *dllname)
 	xglStencilOp = (void (GLAPIENTRY*) (GLenum fail, GLenum zfail, GLenum zpass)) XGL_GetSymbol("glStencilOp");
 	xglDepthFunc = (void (GLAPIENTRY*) (GLenum func)) XGL_GetSymbol("glDepthFunc");
 	
+	xglReadBuffer = (void (GLAPIENTRY*) (GLenum mode)) XGL_GetSymbol("glReadBuffer");
 	xglReadPixels = (void (GLAPIENTRY*) (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels)) XGL_GetSymbol("glReadPixels");
 	
 	xglGetError = (GLenum	(GLAPIENTRY*) (void)) XGL_GetSymbol("glGetError");
@@ -720,6 +727,8 @@ bool	XGL_Init(const char *dllname)
 	xglVertexPointer = (void (GLAPIENTRY*) (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer)) XGL_GetSymbol("glVertexPointer");
 	
 	xglPolygonOffset = (void (GLAPIENTRY*) (GLfloat factor, GLfloat units)) XGL_GetSymbol("glPolygonOffset");
+	xglCopyTexImage2D = (void (GLAPIENTRY*) (GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border)) XGL_GetSymbol("glCopyTexImage2D");
+	xglCopyTexSubImage2D = (void (GLAPIENTRY*) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height)) XGL_GetSymbol("glCopyTexSubImage2D");
 	
 	xglBindTexture = (void (GLAPIENTRY*) (GLenum target, GLuint texture)) XGL_GetSymbol("glBindTexture");
 	xglDeleteTextures = (void (GLAPIENTRY*) (GLsizei n, const GLuint *textures)) XGL_GetSymbol("glDeleteTextures");

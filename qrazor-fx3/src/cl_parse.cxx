@@ -445,7 +445,7 @@ static void	CL_DeltaEntity(message_c &msg, frame_t *frame, int newnum, entity_st
 			if(state_old->index_sound)
 				S_StopLoopSound(state_old->getNumber());
 			
-			cge->CG_RemoveEntity(cl.entities_parse_index, state_old->getNumber(), state);
+			cge->CG_RemoveEntity(state_old->getNumber(), state);
 			return;
 		}
 		
@@ -473,7 +473,7 @@ static void	CL_DeltaEntity(message_c &msg, frame_t *frame, int newnum, entity_st
 	if(state_old->getNumber() == 0 && state->getNumber() != 0)
 		cge->CG_AddEntity(newnum, state);
 	else
-		cge->CG_UpdateEntity(cl.entities_parse_index, newnum, state, changed);
+		cge->CG_UpdateEntity(newnum, state, changed);
 }
 
 

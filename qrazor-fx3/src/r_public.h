@@ -50,16 +50,16 @@ enum r_light_type_t
 class r_entity_t
 {
 public:
-	r_entity_t()
+	inline r_entity_t()
 	{
 		clear();
 	}
 	
-	void	clear()
+	inline void	clear()
 	{
 		origin.clear();
 		quat.identity();
-		scale		= 1;
+		scale.set(1.0, 1.0, 1.0);
 	
 		model		= -1;
 		custom_shader	= -1;
@@ -87,14 +87,14 @@ public:
 		right.clear();
 		up.clear();
 		
-		backlerp	= 0;
+		lerp		= 0;
 		flags		= RF_NONE;
 	}
 	
 	// transform
 	vec3_c			origin;
 	quaternion_c		quat;
-	float			scale;
+	vec3_c			scale;
 	
 	// entity specific
 	int			model;			// opaque type outside refresh
@@ -118,55 +118,9 @@ public:
 	vec3_c			up;
 	
 	// misc
-	float			backlerp;		// 0.0 = current, 1.0 = old
-	uint_t			flags;			// renderfx
+	float			lerp;		// 0.0 = old, 1.0 = current
+	uint_t			flags;		// renderfx
 };
-
-
-/*
-struct r_light_t
-{
-	r_light_t()
-	{
-		clear();
-	}
-
-	void	clear()
-	{
-		//type			= LIGHT_POINT;
-		
-		shader			= -1;
-		
-		origin.clear();
-		color.clear();
-		radius_bbox.zero();
-		radius_value		= 0;
-		
-		dir.clear();
-		cone_inner		= 0;
-		cone_outer		= 0;
-	}
-
-	// common for all
-	//light_type_t	type;
-	
-	int		shader;
-	
-	r_parms_t	parms;
-	
-	vec3_c		origin;
-	vec3_c		color;
-	
-	cbbox_c		radius_bbox;
-	float		radius_value;
-	
-	// spot light specific
-	vec3_c		dir;
-	float		cone_inner;
-	float		cone_outer;
-};
-*/
-
 
 struct r_particle_t
 {
@@ -235,10 +189,12 @@ struct r_refdef_t
 		fov_x		= 90;
 		fov_y		= 0;
 		
+		flip_x		= false;
+		flip_y		= false;
+		flip_z		= false;
+		
 		view_origin.clear();
 		view_angles.clear();
-		
-		time		= 0;
 		
 		rdflags		= 0;
 		
@@ -251,18 +207,20 @@ struct r_refdef_t
 		fov_y = CalcFOV(x, width, height);
 	}
 	
+	// projection
 	int			x, y;
 	int			width, height;
-	
 	float			fov_x, fov_y;
+	bool			flip_x, flip_y, flip_z;
 	
+	// view
 	vec3_c			view_origin;
 	vec3_c			view_angles;
 	
-	float			time;		// time is uesed to auto animate
-	
+	// special effects
 	int			rdflags;	// RDF_UNDERWATER, etc
 
+	// visibility
 	byte*			areabits;	// if not NULL, only areas with set bits will be drawn
 };
 

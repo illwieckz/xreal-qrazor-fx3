@@ -204,8 +204,8 @@ typedef struct
 	std::vector<int>	fattribs;
 	std::vector<int>	battribs; 
 
-	int			width;
-	int			height;
+	uint_t			width;
+	uint_t			height;
 	
 	Display*		dpy_old;
 	GLXPbuffer		pbuffer_old;

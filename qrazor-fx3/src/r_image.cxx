@@ -36,8 +36,10 @@ int		r_filter_min = GL_LINEAR_MIPMAP_NEAREST;
 int		r_filter_max = GL_LINEAR;
 
 
-
+//static char*	r_cubemap_suf[6] = {"rt", "bk", "lf", "ft", "up", "dn"};
 //static char*	r_cubemap_suf[6] = {"ft", "bk", "up", "dn", "rt", "lf"};
+
+//static char*	r_cubemap_suf[6] = {"rt", "lf", "up", "dn", "bk", "ft"};
 static char*	r_cubemap_suf[6] = {"px", "nx", "py", "ny", "pz", "nz"};
 
 static uint_t	r_yuv_to_rgba[1024 * 1024];
@@ -46,7 +48,7 @@ static void	R_ResampleTexture(unsigned *in, int inwidth, int inheight, unsigned 
 
 static r_image_c*	R_LoadImage(const std::string &name, void *data, uint_t width, uint_t height, uint_t flags, r_image_upload_type_e upload_type);
 
-r_image_c::r_image_c(uint_t target, const std::string &name, uint_t width, uint_t height, uint_t flags, roq_info_t *roq)
+r_image_c::r_image_c(uint_t target, const std::string &name, uint_t width, uint_t height, uint_t flags, roq_info_t *roq, bool global)
 {
 //	ri.Com_Printf("r_image_c::ctor: '%s'\n", name.c_str());
 
@@ -62,18 +64,21 @@ r_image_c::r_image_c(uint_t target, const std::string &name, uint_t width, uint_
 	_roq			= roq;
 	
 	// find free image slot
-	if(flags & IMAGE_LIGHTMAP)
+	if(global)
 	{
-		r_images_lm.push_back(this);
-	}
-	else
-	{
-		std::vector<r_image_c*>::iterator ir = find(r_images.begin(), r_images.end(), static_cast<r_image_c*>(NULL));
-	
-		if(ir != r_images.end())
-			*ir = this;
+		if(flags & IMAGE_LIGHTMAP)
+		{
+			r_images_lm.push_back(this);
+		}
 		else
-			r_images.push_back(this);
+		{
+			std::vector<r_image_c*>::iterator ir = find(r_images.begin(), r_images.end(), static_cast<r_image_c*>(NULL));
+	
+			if(ir != r_images.end())
+				*ir = this;
+			else
+				r_images.push_back(this);
+		}
 	}
 }
 
@@ -282,7 +287,7 @@ static void	R_InitWhiteCubeMapImage()
 	
 	r_image_c	*image = NULL;
 	
-	byte	data[32][32][4];
+	byte	data[32][32][3];
 	
 	memset(data, 255, sizeof(data));
 	
@@ -507,6 +512,7 @@ R_Init3DAttenuationTexture
 Tr3B - recoded from Omnio engine
 ==================
 */
+/*
 static void	R_Init3DAttenuationImage(int atten_volume_size)
 {
 	ri.Com_Printf("regenerating '_attenuation_3d' ...\n");
@@ -613,48 +619,25 @@ static void	R_Init3DAttenuationImage(int atten_volume_size)
 	
 	r_img_attenuation_3d = image;
 }
-
+*/
 
 
 static void	R_InitLightViewDepthImage()
 {
 	ri.Com_Printf("regenerating '_lightview_depth' ...\n");
 
-	//
-	// create image
-	//
-	r_image_c *image = new r_image_c(GL_TEXTURE_2D, "_lightview_depth", vid_pbuffer_texsize->getInteger(), vid_pbuffer_texsize->getInteger(), IMAGE_NONE, NULL);
+	r_image_c *image = new r_image_c(GL_TEXTURE_2D, "_lightview_depth", vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), IMAGE_NONE, NULL);
 	
+	image->bind();
 	
-	//
-	// bind texture
-	//
-	RB_Bind(image);
+	xglTexImage2D(GL_TEXTURE_2D, 0, r_depth_format, image->getWidth(), image->getHeight(), 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);	RB_CheckForError();
 	
-	
-	//
-	// create texture
-	//
-	xglTexImage2D(GL_TEXTURE_2D, 0, r_depth_format, image->getWidth(), image->getHeight(), 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
-	
-	
-	//
-	// set texture filter type
-	//
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, r_filter_max);
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, r_filter_max);
 	
-	
-	//
-	// set texture wrap type
-	//
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	
-	
-	//
-	// set texture compare type
-	//
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
 	
@@ -665,40 +648,48 @@ static void	R_InitLightViewColorImage()
 {
 	ri.Com_Printf("regenerating '_lightview_color' ...\n");
 
-	//
-	// create image
-	//
-	r_image_c *image = new r_image_c(GL_TEXTURE_2D, "_lightview_color", vid_pbuffer_texsize->getInteger(), vid_pbuffer_texsize->getInteger(), IMAGE_NONE, NULL);
-		
-	//
-	// bind texture
-	//
-	RB_Bind(image);
+	r_image_c *image = new r_image_c(GL_TEXTURE_2D, "_lightview_color", vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), IMAGE_NONE, NULL);
+	
+	image->bind();
 
-		
-	//
-	// create texture
-	//
 	xglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image->getWidth(), image->getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 	
-	
-	//
-	// set texture filter type
-	//
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	
-	
-	//
-	// set texture wrap type
-	//
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	
 	r_img_lightview_color = image;
 }
 
+static void	R_InitCurrentRenderImage()
+{
+	ri.Com_Printf("regenerating '_currentrender' ...\n");
 
+	r_image_c *image = new r_image_c(GL_TEXTURE_2D, "_currentrender", vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), IMAGE_NONE, NULL);
+	
+	image->bind();	RB_CheckForError();
+	
+	xglTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+
+	xglTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image->getWidth(), image->getHeight(), 0, GL_RGB, GL_FLOAT, 0);	RB_CheckForError();
+//	xglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image->getWidth(), image->getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	
+	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, r_filter_max);	RB_CheckForError();
+	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, r_filter_max);	RB_CheckForError();
+	
+//	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);	RB_CheckForError();
+//	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);	RB_CheckForError();
+
+	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	
+//	if(gl_config.ext_texture_filter_anisotropic)
+//		xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic_level->getInteger());
+	
+	r_img_currentrender = image;
+}
 
 
 void	R_InitImages()
@@ -724,21 +715,23 @@ void	R_InitImages()
 	//
 	// setup default textures
 	//
-	R_InitDefaultImage();
-	R_InitWhiteImage();
-	R_InitBlackImage();
-	R_InitFlatImage();
-	R_InitQuadraticImage();
+	R_InitDefaultImage();			RB_CheckForError();
+	R_InitWhiteImage();			RB_CheckForError();
+	R_InitBlackImage();			RB_CheckForError();
+	R_InitFlatImage();			RB_CheckForError();
+	R_InitQuadraticImage();			RB_CheckForError();
 
-	R_InitWhiteCubeMapImage();
-	R_InitNormalizationCubeMapImage(128);
-	R_InitSkyCubeMapImage();
+	R_InitWhiteCubeMapImage();		RB_CheckForError();
+	R_InitNormalizationCubeMapImage(128);	RB_CheckForError();
+	R_InitSkyCubeMapImage();		RB_CheckForError();
 	
-	R_InitNoFalloffImage();
-	R_Init3DAttenuationImage(32);
+	R_InitNoFalloffImage();			RB_CheckForError();
+//	R_Init3DAttenuationImage(32);		RB_CheckForError();
 	
-	R_InitLightViewDepthImage();
-	R_InitLightViewColorImage();
+	R_InitLightViewDepthImage();		RB_CheckForError();
+	R_InitLightViewColorImage();		RB_CheckForError();
+	
+	R_InitCurrentRenderImage();		RB_CheckForError();
 }
 
 void	R_ShutdownImages()
@@ -1870,10 +1863,12 @@ void	R_FreeUnusedImages()
 	r_img_cubemap_sky->setRegistrationSequence();
 	
 	r_img_nofalloff->setRegistrationSequence();
-	r_img_attenuation_3d->setRegistrationSequence();
+//	r_img_attenuation_3d->setRegistrationSequence();
 	
 	r_img_lightview_depth->setRegistrationSequence();
 	r_img_lightview_color->setRegistrationSequence();
+	
+	r_img_currentrender->setRegistrationSequence();
 	
 	for(std::vector<r_image_c*>::iterator ir = r_images.begin(); ir != r_images.end(); ir++)
 	{

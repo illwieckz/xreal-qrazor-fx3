@@ -42,6 +42,7 @@ r_light_c::r_light_c(const r_entity_t &shared, r_light_type_t type)
 	setupProjection();
 	setupAttenuation();
 	setupFrustum();
+	setupShadowMap();
 	
 	_needsupdate = true;
 	
@@ -50,11 +51,8 @@ r_light_c::r_light_c(const r_entity_t &shared, r_light_type_t type)
 		if(!r_world_tree && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
 			ri.Com_Error(ERR_DROP, "r_light_c::ctor: NULL worldmodel");
 	
-#if 1
-		//_area = r_world_tree->pointInArea(_s.origin);	// main area
-		//ri.Com_DPrintf("light has main area %i\n", _area);
-		
-		r_world_tree->boxAreas(_s.radius_bbox, _areas);
+#if 0
+		updateVis(_s);
 		if(_areas.size())
 			ri.Com_DPrintf("light touches %i BSP areas\n", _areas.size());
 		
@@ -67,26 +65,17 @@ r_light_c::r_light_c(const r_entity_t &shared, r_light_type_t type)
 		}
 		ri.Com_DPrintf("light has %i precached surface interactions\n", c);
 #else
-		r_bsptree_leaf_c* leaf = r_world_tree->pointInLeaf(_s.origin);
-		if(leaf)
-		{
-			_cluster = leaf->cluster;
-			_area = leaf->area;
-		}
-		else
-		{
-			_cluster = -1;
-			_area = 1;
-		}
+		updateVis(_s);
 		
 		_areasurfaces = std::vector<std::map<const r_surface_c*, std::vector<index_t> > >(1);
 		
 		r_world_tree->precacheLight(this);
 		
-		r_world_tree->boxLeafs(_s.radius_bbox, _leafs);
-		
-		//if(_leafs.size())
-		//	ri.Com_DPrintf("light touches %i BSP leaves\n", _leafs.size());
+		if(_leafs.size())
+			ri.Com_DPrintf("light touches %i BSP leaves\n", _leafs.size());
+			
+		if(_areas.size())
+			ri.Com_DPrintf("light touches %i BSP areas\n", _areas.size());
 #endif
 	}
 	else
@@ -97,6 +86,8 @@ r_light_c::r_light_c(const r_entity_t &shared, r_light_type_t type)
 
 r_light_c::~r_light_c()
 {
+//	if(_shadowmap)
+//		delete _shadowmap;
 }
 
 void 	r_light_c::setupTransform()
@@ -105,7 +96,7 @@ void 	r_light_c::setupTransform()
 	
 	_transform.multiplyRotation(_s.quat);
 	
-	_transform.multiplyScale(_s.scale, _s.scale, _s.scale);
+	_transform.multiplyScale(_s.scale);
 }
 
 void	r_light_c::setupAttenuation()
@@ -182,7 +173,48 @@ void	r_light_c::setupProjection()
 
 void	r_light_c::setupFrustum()
 {
-	//TODO
+	// TODO: figure out quake style matrix->frustum planes extraction
+}
+
+void	r_light_c::setupShadowMap()
+{
+#if 0
+	switch(_type)
+	{
+		case LIGHT_OMNI:
+		{
+			_shadowmap = new r_image_c(GL_TEXTURE_CUBE_MAP_ARB, "_shadowmap", vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), IMAGE_NOMIPMAP | IMAGE_NOPICMIP, NULL, false);
+			
+			_shadowmap->bind();
+			
+			xglTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+			
+			xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_MIN_FILTER, r_filter_max);
+			xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_MAG_FILTER, r_filter_max);
+			
+			xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+			
+			xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
+			xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
+				
+			for(int i=0; i<6; i++)
+			{
+				xglTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB+i, 0, r_depth_format, _shadowmap->getWidth(), _shadowmap->getHeight(), 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
+			//	xglTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB+i, 0, GL_RGB, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), 0, GL_RGB, GL_FLOAT, 0);
+			}
+			break;
+		}
+		
+		case LIGHT_PROJ:
+		{
+			// TODO:
+			_shadowmap = NULL;
+			break;
+		}
+	}
+#endif
 }
 
 bool	r_light_c::hasSurface(int areanum, const r_surface_c *surf)

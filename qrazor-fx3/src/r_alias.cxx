@@ -188,8 +188,8 @@ bool	r_alias_model_c::setupTag(r_tag_t &tag, const r_entity_t &ent, const std::s
 	//
 	// lerp orientation and origin
 	//	
-	tag.quat.slerp(atag_old->quat, atag->quat, ent.backlerp);	// FIXME use lerp
-	tag.origin.backlerp(atag_old->origin, atag->origin, ent.backlerp);
+	tag.quat.slerp(atag_old->quat, atag->quat, ent.lerp);
+	tag.origin.lerp(atag_old->origin, atag->origin, ent.lerp);
 
 	return true;
 }
@@ -252,7 +252,7 @@ void	r_alias_model_c::drawFrameLerp(const r_command_t *cmd, r_render_type_e type
 	//
 	// create movement using lerping between old and new frame translation lerping
 	//
-	move.backlerp(frame_old->translate, frame->translate, cmd->getEntity()->getShared().backlerp);
+	move.lerp(frame_old->translate, frame->translate, cmd->getEntity()->getShared().lerp);
 	
 
 	//
@@ -263,19 +263,19 @@ void	r_alias_model_c::drawFrameLerp(const r_command_t *cmd, r_render_type_e type
 		for(unsigned int i=0; i<mesh->vertexes.size(); i++)
 		{
 			mesh->vertexes[i] = move;	
-			vec3_c tmp; tmp.backlerp(mesh_frame_old->vertexes[i], mesh_frame->vertexes[i], cmd->getEntity()->getShared().backlerp);
+			vec3_c tmp; tmp.lerp(mesh_frame_old->vertexes[i], mesh_frame->vertexes[i], cmd->getEntity()->getShared().lerp);
 			mesh->vertexes[i] += tmp;
 			
 			//FIXME do this somewhere else
 			mesh->texcoords[i] = mesh_frame->texcoords[i];
 			
-			mesh->tangents[i].backlerp(mesh_frame_old->tangents[i], mesh_frame->tangents[i], cmd->getEntity()->getShared().backlerp);
+			mesh->tangents[i].lerp(mesh_frame_old->tangents[i], mesh_frame->tangents[i], cmd->getEntity()->getShared().lerp);
 			mesh->tangents[i].normalize();
 			
-			mesh->binormals[i].backlerp(mesh_frame_old->binormals[i], mesh_frame->binormals[i], cmd->getEntity()->getShared().backlerp);
+			mesh->binormals[i].lerp(mesh_frame_old->binormals[i], mesh_frame->binormals[i], cmd->getEntity()->getShared().lerp);
 			mesh->binormals[i].normalize();
 		
-			mesh->normals[i].backlerp(mesh_frame_old->normals[i], mesh_frame->normals[i], cmd->getEntity()->getShared().backlerp);
+			mesh->normals[i].lerp(mesh_frame_old->normals[i], mesh_frame->normals[i], cmd->getEntity()->getShared().lerp);
 			mesh->normals[i].normalize();
 		}
 	}
@@ -317,31 +317,14 @@ void	r_alias_model_c::updateBBox(r_entity_c *ent)
 	//
 	// compute axially aligned mins and maxs
 	//
-	cbbox_c		bbox_this;
-	cbbox_c		bbox_old;
-
-
 	if(frame == frame_old)
 	{
 		_bbox	= frame->bbox;
 	}
 	else
 	{
-		bbox_this = frame->bbox;
-		bbox_old  = frame_old->bbox;
-	
-		for(int i=0; i<3; i++)
-		{		
-			if(bbox_this._mins[i] < bbox_old._mins[i])
-				_bbox._mins[i] = bbox_this._mins[i];
-			else
-				_bbox._mins[i] = bbox_old._mins[i];
-
-			if(bbox_this._maxs[i] > bbox_old._maxs[i])
-				_bbox._maxs[i] = bbox_this._maxs[i];
-			else
-				_bbox._maxs[i] = bbox_old._maxs[i];
-		}
+		_bbox = frame_old->bbox;
+		_bbox.mergeWith(frame->bbox);	
 	}
 }
 
@@ -357,7 +340,7 @@ bool	r_alias_model_c::cull(r_entity_c *ent)
 		return (!(r_mirrorview || r_portal_view));
 	
 	
-	if(R_CullBSphere(r_frustum, ent->getShared().origin, _bbox.radius()))
+	if(r_frustum.cull(ent->getShared().origin, _bbox.radius()))
 		return true;
 	
 			
@@ -379,13 +362,15 @@ void	r_alias_model_c::addModelToList(r_entity_c *ent)
 
 	if(cull(ent))
 	{
+		ent->setVisFrameCount(0);
 		c_entities--;
 		return;
 	}
 		//TODO
 	//else
 		//r_entvisframe[e->number][(r_
-		
+	
+	//ri.Com_Printf("r_alias_model_c::addModelToList: model '%s'\n", getName());
 		
 	//
 	// add meshes to the mesh buffer lists with appropiate skins
@@ -417,6 +402,9 @@ void	r_alias_model_c::addModelToList(r_entity_c *ent)
 		}
 		
 		if(!r_showinvisible->getValue() && shader->hasFlags(SHADER_NODRAW))
+			continue;
+			
+		if(r_envmap && shader->hasFlags(SHADER_NOENVMAP))
 			continue;
 		
 		RB_AddCommand(ent, this, mesh, shader, NULL, NULL, -(i+1), r_origin.distance(ent->getShared().origin));

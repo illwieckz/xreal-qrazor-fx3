@@ -328,7 +328,7 @@ void	CG_RenderView()
 		cg.refdef.width = scr_vrect.width;
 		cg.refdef.height = scr_vrect.height;
 		cg.refdef.fov_y = CalcFOV(cg.refdef.fov_x, cg.refdef.width, cg.refdef.height);
-		cg.refdef.time = cgi.CL_GetTime()*0.001;
+		//cg.refdef.time = cgi.CL_GetTime()*0.001;
 
 		cg.refdef.areabits = cg.frame.areabits;
 

@@ -174,7 +174,7 @@ static void 	SV_Map_f()
 	map = Cmd_Argv(1);
 	if(!strstr(map.c_str(), "."))
 	{
-#if 1
+#if 0
 		expanded = "maps/" + map + ".map";
 		if(VFS_FLoad(expanded, NULL) == -1)
 		{

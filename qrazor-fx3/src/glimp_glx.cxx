@@ -664,7 +664,7 @@ int	GLimp_SetMode(int *pwidth, int *pheight, int mode, bool fullscreen)
 		attribs.push_back(GLX_BLUE_SIZE);
 		attribs.push_back(8);
 		attribs.push_back(GLX_ALPHA_SIZE);
-		attribs.push_back(0);
+		attribs.push_back(8);
 	}
 	else
 	{
@@ -682,13 +682,13 @@ int	GLimp_SetMode(int *pwidth, int *pheight, int mode, bool fullscreen)
 	if(vid_depthbits->getInteger())
 		attribs.push_back(vid_depthbits->getInteger());
 	else
-		attribs.push_back(16);
+		attribs.push_back(24);
 
 	attribs.push_back(GLX_STENCIL_SIZE);
 	if(vid_stencilbits->getInteger())
 		attribs.push_back(vid_stencilbits->getInteger());
 	else
-		attribs.push_back(0);
+		attribs.push_back(8);
 
 	// end of attrib list
 	attribs.push_back(0);
@@ -1118,6 +1118,9 @@ static void	GLimp_ParsePbufferModeString(const std::string &mode_string, std::ve
 
 void	GLimp_InitPbuffer(bool shared_context, bool shared_objects)
 {
+	if(!sys_gl.sgix_fbconfig || !sys_gl.sgix_pbuffer)
+		return;
+	
 	Display *dpy		= xglXGetCurrentDisplay();
 	int screen		= DefaultScreen(dpy);
 	GLXContext ctx		= xglXGetCurrentContext();
@@ -1125,11 +1128,7 @@ void	GLimp_InitPbuffer(bool shared_context, bool shared_objects)
 	GLXFBConfig*	config;
 	int		config_count;
 	
-
-	
-	//
 	// setup pixel buffer attributes
-	//
 	sys_pbuffer.fattribs.push_back(GLX_DRAWABLE_TYPE);
 	sys_pbuffer.fattribs.push_back(GLX_PBUFFER_BIT);
 	sys_pbuffer.fattribs.push_back(GLX_RENDER_TYPE);
@@ -1149,8 +1148,8 @@ void	GLimp_InitPbuffer(bool shared_context, bool shared_objects)
 		sys_pbuffer.fattribs.push_back(8);
 		sys_pbuffer.fattribs.push_back(GLX_BLUE_SIZE);
 		sys_pbuffer.fattribs.push_back(8);
-		//sys_pbuffer.fattribs.push_back(GLX_ALPHA_SIZE);
-		//sys_pbuffer.fattribs.push_back(0);
+		sys_pbuffer.fattribs.push_back(GLX_ALPHA_SIZE);
+		sys_pbuffer.fattribs.push_back(8);
 	}
 	else
 	{
@@ -1160,8 +1159,8 @@ void	GLimp_InitPbuffer(bool shared_context, bool shared_objects)
 		sys_pbuffer.fattribs.push_back(5);
 		sys_pbuffer.fattribs.push_back(GLX_BLUE_SIZE);
 		sys_pbuffer.fattribs.push_back(5);
-		//sys_pbuffer.fattribs.push_back(GLX_ALPHA_SIZE);
-		//sys_pbuffer.fattribs.push_back(0);
+		sys_pbuffer.fattribs.push_back(GLX_ALPHA_SIZE);
+		sys_pbuffer.fattribs.push_back(5);
 	}
 	
 	
@@ -1169,14 +1168,14 @@ void	GLimp_InitPbuffer(bool shared_context, bool shared_objects)
 	if(vid_pbuffer_depthbits->getInteger())
 		sys_pbuffer.fattribs.push_back(vid_pbuffer_depthbits->getInteger());
 	else
-		sys_pbuffer.fattribs.push_back(1);
+		sys_pbuffer.fattribs.push_back(24);
 		
 	
 	sys_pbuffer.fattribs.push_back(GLX_STENCIL_SIZE);
 	if(vid_pbuffer_stencilbits->getInteger())
 		sys_pbuffer.fattribs.push_back(vid_pbuffer_stencilbits->getInteger());
 	else
-		sys_pbuffer.fattribs.push_back(1);
+		sys_pbuffer.fattribs.push_back(8);
 
 
 	// end of attrib lists
@@ -1207,7 +1206,15 @@ void	GLimp_InitPbuffer(bool shared_context, bool shared_objects)
 		}
 	}
 	
-	sys_pbuffer.pbuffer = xglXCreateGLXPbufferSGIX(dpy, config[0], vid_pbuffer_texsize->getInteger(), vid_pbuffer_texsize->getInteger(), &sys_pbuffer.battribs[0]);
+#if 0
+	int width = 0, height = 0;
+	ri.VID_GetModeInfo(&width, &height, vid_mode->getInteger());
+	
+	ri.Cvar_SetValue("vid_pbuffer_width", width);
+	ri.Cvar_SetValue("vid_pbuffer_height", height);
+#endif
+	
+	sys_pbuffer.pbuffer = xglXCreateGLXPbufferSGIX(dpy, config[0], vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), &sys_pbuffer.battribs[0]);
 	
 	if(!sys_pbuffer.pbuffer)
 	{
@@ -1232,37 +1239,48 @@ void	GLimp_InitPbuffer(bool shared_context, bool shared_objects)
 	}
 	
 	sys_pbuffer.dpy = dpy;
-	unsigned int w, h;
-	w = h = 0;
 
-	xglXQueryGLXPbufferSGIX(sys_pbuffer.dpy, sys_pbuffer.pbuffer, GLX_WIDTH, &w);
-	xglXQueryGLXPbufferSGIX(sys_pbuffer.dpy, sys_pbuffer.pbuffer, GLX_HEIGHT, &h);
-	
-	sys_pbuffer.width = w;
-	sys_pbuffer.height = h;
-    
+	xglXQueryGLXPbufferSGIX(sys_pbuffer.dpy, sys_pbuffer.pbuffer, GLX_WIDTH, &sys_pbuffer.width);
+	xglXQueryGLXPbufferSGIX(sys_pbuffer.dpy, sys_pbuffer.pbuffer, GLX_HEIGHT, &sys_pbuffer.height);
+	    
 	ri.Com_Printf("GLimp_InitPbuffer: created a %d x %d pbuffer\n", sys_pbuffer.width, sys_pbuffer.height);
 }
 
 void	GLimp_ActivatePbuffer()
 {
+	if(!sys_gl.sgix_fbconfig || !sys_gl.sgix_pbuffer)
+	{
+		gl_state.active_pbuffer = false;
+		return;
+	}
+		
 	sys_pbuffer.dpy_old = xglXGetCurrentDisplay();
 	sys_pbuffer.pbuffer_old = xglXGetCurrentDrawable();
 	sys_pbuffer.ctx_old = xglXGetCurrentContext();
 
 	if(!xglXMakeCurrent(sys_pbuffer.dpy, sys_pbuffer.pbuffer, sys_pbuffer.ctx))
 		ri.Com_Error(ERR_FATAL, "GLimp_ActivatePbuffer: glXMakeCurrent failed");
+		
+	gl_state.active_pbuffer = true;
 }
 
 
 void	GLimp_DeactivatePbuffer()
 {
+	if(!sys_gl.sgix_fbconfig || !sys_gl.sgix_pbuffer)
+	{
+		gl_state.active_pbuffer = false;
+		return;
+	}
+
 	if(!xglXMakeCurrent(sys_pbuffer.dpy_old, sys_pbuffer.pbuffer_old, sys_pbuffer.ctx_old))
 		ri.Com_Error(ERR_FATAL, "GLimp_DeactivatePbuffer: glXMakeCurrent failed");
 	
 	sys_pbuffer.dpy_old = NULL;
 	sys_pbuffer.pbuffer_old = 0;
 	sys_pbuffer.ctx_old = NULL;
+	
+	gl_state.active_pbuffer = false;
 }
 
 

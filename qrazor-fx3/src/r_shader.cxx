@@ -760,6 +760,11 @@ static void	R_NoSelfShadow_sc(char const* begin, char const* end)
 	r_current_shader->setORFlags(SHADER_NOSELFSHADOW);
 }
 
+static void	R_NoEnvMap_sc(char const* begin, char const* end)
+{
+	r_current_shader->setORFlags(SHADER_NOENVMAP);
+}
+
 static void	R_SortFarthest_sc(char const* begin, char const* end)
 {
 	r_current_shader->setSort(SHADER_SORT_FARTHEST);
@@ -1697,6 +1702,10 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 				=	boost::spirit::nocase_d[boost::spirit::str_p("noselfshadow")][&R_NoSelfShadow_sc]
 				;
 				
+			noenvmap_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("noenvmap")][&R_NoEnvMap_sc]
+				;
+				
 			ricochet_sc
 				=	boost::spirit::nocase_d[boost::spirit::str_p("ricochet")]
 				;
@@ -1806,6 +1815,7 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 					nonsolid_sc			|
 					noshadows_sc			|
 					noselfshadow_sc			|
+					noenvmap_sc			|
 					ricochet_sc			|
 					twosided_sc			|
 					sort_farthest_sc		|
@@ -2164,6 +2174,7 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 								nonsolid_sc,
 								noshadows_sc,
 								noselfshadow_sc,
+								noenvmap_sc,
 								ricochet_sc,
 								twosided_sc,
 								sort_farthest_sc,
@@ -2497,12 +2508,19 @@ static void	R_FindMaterialShaderStageImage(r_shader_c *shader, r_shader_stage_c 
 				}
 				else
 				{
-					image = R_FindImage(stage->image_name, imageflags, IMAGE_UPLOAD_COLORMAP);
-		
-					if(!image)
+					if(X_strcaseequal(stage->image_name.c_str(), "_currentrender"))
 					{
-						ri.Com_Printf("R_FindMaterialShaderStageImage: shader '%s' has no colormap '%s'\n", shader->getName(), stage->image_name.c_str());
-						image = r_img_default;
+						image = r_img_currentrender;
+					}
+					else
+					{
+						image = R_FindImage(stage->image_name, imageflags, IMAGE_UPLOAD_COLORMAP);
+		
+						if(!image)
+						{
+							ri.Com_Printf("R_FindMaterialShaderStageImage: shader '%s' has no colormap '%s'\n", shader->getName(), stage->image_name.c_str());
+							image = r_img_default;
+						}
 					}
 				}
 				

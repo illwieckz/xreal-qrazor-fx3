@@ -62,13 +62,13 @@ void	CG_AddEntity(int newnum, const entity_state_t *state)
 	}
 }
 
-void	CG_UpdateEntity(int parse_index, int newnum, const entity_state_t *state, bool changed)
+void	CG_UpdateEntity(int newnum, const entity_state_t *state, bool changed)
 {
 	//cgi.Com_Printf("CG_UpdateEntity: %i %i is type %i\n", newnum, state.getNumber(), state.type);
 	
 	// update entity
-	cg.entities_parse_index = parse_index;
 	cg.entities_parse[(cg.entities_parse_index) & (MAX_PARSE_ENTITIES-1)] = *state;
+	cg.entities_parse_index++;
 	cg.frame.entities_num++;
 	
 
@@ -101,7 +101,7 @@ void	CG_UpdateEntity(int parse_index, int newnum, const entity_state_t *state, b
 		switch(cent->prev.type)
 		{
 			case ET_GENERIC:
-				//CG_UpdateGenericEntity(cent);
+				CG_UpdateGenericEntity(cent);
 				break;
 		
 			case ET_LIGHT_OMNI:
@@ -115,7 +115,7 @@ void	CG_UpdateEntity(int parse_index, int newnum, const entity_state_t *state, b
 	}
 }
 
-void	CG_RemoveEntity(int parse_index, int oldnum, const entity_state_t *state)
+void	CG_RemoveEntity(int oldnum, const entity_state_t *state)
 {
 	//entity_state_t *state = &cg.entities_parse[(cg.entities_parse_index) & (MAX_PARSE_ENTITIES-1)];
 	
@@ -282,10 +282,28 @@ void	CG_UpdateShader(const cg_entity_t *cent, r_entity_t &rent, bool &update)
 	rent.custom_shader = cg.shader_precache[cent->current.index_shader];
 }
 
+void	CG_UpdateShaderParms(const cg_entity_t *cent, r_entity_t &rent, bool &update)
+{
+	for(int i=0; i<8; i++)
+	{
+		if(cent->prev.shaderparms[i] != cent->current.shaderparms[i])
+			update = true;
+			
+		rent.shader_parms[i] = cent->current.shaderparms[i];
+	}
+}
+
+void	CG_UpdateRenderFXFlags(const cg_entity_t *cent, r_entity_t &rent, bool &update)
+{
+	if(cent->prev.renderfx != cent->current.renderfx)
+		update = true;
+	
+	rent.flags = cent->current.renderfx;
+}
 
 void	CG_AddGenericEntity(const cg_entity_t *cent)
 {
-	cgi.Com_DPrintf("adding generic entity %i ...\n", cent->current.getNumber());
+	//cgi.Com_DPrintf("adding generic entity %i ...\n", cent->current.getNumber());
 	
 	r_entity_t	rent;
 
@@ -298,15 +316,9 @@ void	CG_AddGenericEntity(const cg_entity_t *cent)
 		
 	if(cent->current.index_shader)
 		rent.custom_shader = cg.shader_precache[cent->current.index_shader];
-	
-	rent.shader_parms[0] = cent->current.shaderparms[0];
-	rent.shader_parms[1] = cent->current.shaderparms[1];
-	rent.shader_parms[2] = cent->current.shaderparms[2];
-	rent.shader_parms[3] = cent->current.shaderparms[3];
-	rent.shader_parms[4] = cent->current.shaderparms[4];
-	rent.shader_parms[5] = cent->current.shaderparms[5];
-	rent.shader_parms[6] = cent->current.shaderparms[6];
-	rent.shader_parms[7] = cent->current.shaderparms[7];
+		
+	for(int i=0; i<8; i++)	
+		rent.shader_parms[i] = cent->current.shaderparms[i];
 	
 	rent.origin = cent->current.origin;
 	rent.quat = cent->current.quat;
@@ -314,6 +326,7 @@ void	CG_AddGenericEntity(const cg_entity_t *cent)
 	rent.frame = cent->current.frame;
 	rent.frame_old = cent->current.frame;
 	
+	rent.lerp = cg.frame_lerp;
 	rent.flags = cent->current.renderfx;
 	
 	cgi.R_AddEntity(cent->current.getNumber(), rent);
@@ -334,25 +347,20 @@ void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 	
 	CG_UpdateShader(cent, rent, update);
 	
-	rent.shader_parms[0] = cent->current.shaderparms[0];
-	rent.shader_parms[1] = cent->current.shaderparms[1];
-	rent.shader_parms[2] = cent->current.shaderparms[2];
-	rent.shader_parms[3] = cent->current.shaderparms[3];
-	rent.shader_parms[4] = cent->current.shaderparms[4];
-	rent.shader_parms[5] = cent->current.shaderparms[5];
-	rent.shader_parms[6] = cent->current.shaderparms[6];
-	rent.shader_parms[7] = cent->current.shaderparms[7];
+	CG_UpdateShaderParms(cent, rent, update);
 
 	CG_UpdateFrame(cent, rent, update);	
 	
-	rent.flags = cent->current.renderfx;
+	CG_UpdateRenderFXFlags(cent, rent, update);
+	
+	rent.lerp = cg.frame_lerp;
 	
 	cgi.R_UpdateEntity(cent->current.getNumber(), rent, update);
 }
 
 void	CG_RemoveGenericEntity(const cg_entity_t *cent)
 {
-	cgi.Com_DPrintf("removing generic entity %i ...\n", cent->prev.getNumber());
+	//cgi.Com_DPrintf("removing generic entity %i ...\n", cent->prev.getNumber());
 
 	cgi.R_RemoveEntity(cent->prev.getNumber());
 }

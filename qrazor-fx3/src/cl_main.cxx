@@ -571,10 +571,6 @@ static void	CL_ClearClientState()
 	cl.force_refdef			= false;	// vid has changed, so we can't use a paused refdef
 	
 	cl.baselines			= std::vector<entity_state_t>(MAX_ENTITIES);
-	for(uint_t i=0; i<cl.baselines.size(); i++)
-	{
-		cl.baselines[i].clear();
-	}
 	
 	for(int i=0; i<X_asz(cl.entities_parse); i++)
 	{
