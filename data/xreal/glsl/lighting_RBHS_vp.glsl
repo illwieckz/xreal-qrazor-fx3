@@ -37,7 +37,7 @@ void	main()
 	gl_Position = ftransform();
 	
 	// assign vertex in object space
-	var_vertex = gl_Vertex;
+	var_vertex = gl_Vertex.xyz;
 	
 	// transform texcoords into diffusemap texture space
 	var_tex_diffuse_bump.st = (gl_TextureMatrix[0] * attr_TexCoord0).st;

@@ -67,7 +67,7 @@ void	main()
 	diffuse.rgb *= C * clamp(dot(N, L), 0.0, 1.0);
 	
 	// compute the specular term
-	vec3 specular = texture2D(u_specularmap, var_tex_specular + tex_offset).rgb * C * pow(saturate(dot(N, H)), u_specular_exponent);
+	vec3 specular = texture2D(u_specularmap, var_tex_specular + tex_offset).rgb * C * pow(clamp(dot(N, H), 0.0, 1.0), u_specular_exponent);
 					
 	// compute final color
 	gl_FragColor = diffuse;
