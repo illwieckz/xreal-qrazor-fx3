@@ -93,6 +93,7 @@ g_light_c::g_light_c()
 void	g_light_c::think()
 {
 	// check for a direction
+	/*
 	if(_target.length())
 	{
 		g_entity_c *target = G_PickTarget(_target);
@@ -109,6 +110,7 @@ void	g_light_c::think()
 		_s.quat.fromAngles(_angles);
 //		_body->setQuaternion(_s.quat);
 	}
+	*/
 
 	// HACK HACK HACK
 #if 0
