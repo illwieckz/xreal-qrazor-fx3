@@ -1,7 +1,5 @@
 import os, string, sys
-
 Import('env')
-
 ref_gl_src = [
 'src/x_endian.cxx',
 'src/x_math.cxx',
@@ -66,4 +64,11 @@ if sys.platform == 'linux2':
 	#ref_arb_glx_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm', 'dl', 'jpeg', 'm'])
 	#ref_arb_glx_env.SharedLibrary('ref_glsl_glx', [ref_gl_src, ['src/glimp_glx.cxx', 'src/r_backend_arb.cxx']])
 	#ref_arb_glx_env.InstallAs('#install/ref_arb_glx.so', 'libref_arb_glx.so')
+
+elif sys.platform == 'win32':
+	ref_glsl_glx_env = env.Copy()
+	ref_glsl_glx_env.Append(LIBS=['jpeg', 'png', 'm', 'gdi32', 'opengl32'])
+	ref_glsl_glx_env.SharedLibrary('ref_gl', [ref_gl_src, ['src/glimp_wgl.cxx', 'src/r_backend_glsl.cxx']])
+	ref_glsl_glx_env.InstallAs('#install/ref_gl.dll', 'ref_gl.dll')
+	
 
