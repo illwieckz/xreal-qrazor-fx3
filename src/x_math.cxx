@@ -444,10 +444,9 @@ void	matrix_c::transpose()
 													std::swap(_m[2][3], _m[3][2]);
 }
 
-
+#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
 void	matrix_c::transposeIntoXMM() const
 {
-#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
 	asm volatile
 	(						// reg[0]			| reg[1]		| reg[2]		| reg[3]
 	// load transpose into XMM registers
@@ -482,8 +481,8 @@ void	matrix_c::transposeIntoXMM() const
 	: "a"(&_m[0][0])
 	: "memory"
 	);
-#endif
 }
+#endif
 	
 void	matrix_c::setupXRotation(vec_t deg)
 {
