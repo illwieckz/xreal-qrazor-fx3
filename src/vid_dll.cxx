@@ -623,7 +623,7 @@ bool	VID_LoadRefresh(char *name)
 
 	//Real_IN_Init();
 
-	if(re.Init(0, 0) == false)
+	if(re.Init(global_hInstance, (void *)MainWndProc) == false)
 	{
 		re.Shutdown();
 		VID_FreeReflib();
