@@ -42,7 +42,7 @@ void	main()
 	
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_diffusemap, var_tex_diffuse);
-	diffuse.rgb *= C * saturate(dot(N, L));
+	diffuse.rgb *= C * clamp(dot(N, L), 0, 1);
 	
 	// compute final color
 	gl_FragColor = diffuse;
