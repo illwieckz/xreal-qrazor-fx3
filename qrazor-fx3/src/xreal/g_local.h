@@ -79,7 +79,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define FL_RESPAWN			0x80000000	// used for item respawning
 
 
-#if 0
+#if 1
 #define	FRAMETIME		0.02
 #else
 #define FRAMETIME		0.1
