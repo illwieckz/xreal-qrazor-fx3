@@ -193,8 +193,6 @@ private:
 	std::vector<s_buffer_c*>	_buffers;	// all possible sound buffers that could be played by this shader
 };
 
-
-
 struct alconfig_t
 {
 	int         	renderer;

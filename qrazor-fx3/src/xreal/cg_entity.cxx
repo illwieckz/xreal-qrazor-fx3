@@ -47,6 +47,24 @@ void	CG_AddEntity(int newnum, const entity_state_t *state)
 	
 	switch(cent->prev.type)
 	{
+		default:
+		{
+			if(cent->current.index_sound > 0)
+			{
+				trap_S_StartLoopSound
+				(
+					cent->current.origin, 
+					cent->current.velocity_linear, 
+					cent->current.getNumber(), 
+					CHAN_AUTO, 
+					cg.sound_precache[cent->current.index_sound]
+				);
+			}
+		}
+	}
+	
+	switch(cent->prev.type)
+	{
 		case ET_GENERIC:
 		case ET_FUNC_STATIC:
 		case ET_PROJECTILE_ROCKET:
@@ -107,6 +125,15 @@ void	CG_RemoveEntity(int newnum, const entity_state_t *state)
 	
 	cent->prev = cent->current;
  	cent->current = *state;
+	
+	switch(cent->prev.type)
+	{
+		default:
+		{
+			if(cent->current.index_sound > 0)
+				trap_S_StopLoopSound(cent->current.getNumber());
+		}
+	}
 	
 	switch(cent->prev.type)
 	{
@@ -380,18 +407,6 @@ void	CG_AddGenericEntity(const cg_entity_t *cent)
 	rent.flags = cent->current.renderfx;
 	
 	trap_R_AddEntity(cent->current.getNumber(), rent);
-	
-	if(cent->current.index_sound)
-	{
-		trap_S_StartLoopSound
-		(
-			cent->current.origin, 
-			cent->current.velocity_linear, 
-			cent->current.getNumber(), 
-			CHAN_AUTO, 
-			trap_S_RegisterSound(trap_CL_GetConfigString(CS_SOUNDS + cent->current.index_sound))
-		);
-	}
 
 	if(cent->current.index_light && !cent->current.vectors[0].isZero())
 	{
@@ -470,8 +485,6 @@ void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 	{
 		update = true;
 	}
-	
-	CG_UpdateSound(cent);
 	
 	if(cent->current.index_light && !cent->current.vectors[0].isZero() && update)
 	{
@@ -600,6 +613,14 @@ void	CG_UpdateEntities()
 			continue;
 		}
 		*/
+		
+		switch(cent->prev.type)
+		{	
+			default:
+			{
+				CG_UpdateSound(cent);
+			}
+		}
 		
 		switch(cent->prev.type)
 		{

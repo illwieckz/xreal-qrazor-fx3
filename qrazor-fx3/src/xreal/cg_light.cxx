@@ -231,6 +231,7 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 	
 	rent.flags = cent->current.renderfx;
 	
+	/*
 	if(cent->current.index_sound)
 	{
 		trap_S_StartLoopSound
@@ -242,6 +243,7 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 			trap_S_RegisterSound(trap_CL_GetConfigString(CS_SOUNDS + cent->current.index_sound))
 		);
 	}
+	*/
 
 	switch(cent->current.type)
 	{
