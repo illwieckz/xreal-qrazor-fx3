@@ -1583,6 +1583,13 @@ typedef void GLvoid;
 #define GL_SHADING_LANGUAGE_VERSION_ARB   0x8B8C
 #endif
 
+#ifndef GL_ARB_texture_rectangle
+#define GL_TEXTURE_RECTANGLE_ARB          0x84F5
+#define GL_TEXTURE_BINDING_RECTANGLE_ARB  0x84F6
+#define GL_PROXY_TEXTURE_RECTANGLE_ARB    0x84F7
+#define GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB 0x84F8
+#endif
+
 #ifndef GL_EXT_texture_filter_anisotropic
 #define GL_TEXTURE_MAX_ANISOTROPY_EXT     0x84FE
 #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
@@ -1687,6 +1694,7 @@ typedef void GLvoid;
 
 
 /// OpenGL 1.1 functions =======================================================
+/// display-list functions
 //void GLAPI glNewList (GLuint list, GLenum mode);
 //void GLAPI glEndList (void);
 //void GLAPI glCallList (GLuint list);
@@ -1694,7 +1702,10 @@ typedef void GLvoid;
 //void GLAPI glDeleteLists (GLuint list, GLsizei range);
 //GLuint GLAPI glGenLists (GLsizei range);
 //void GLAPI glListBase (GLuint base);
-extern void (GLAPIENTRY* xglBegin) (GLenum mode);
+/// drawing functions
+extern void (GLAPIENTRY* qglBegin)(GLenum mode, const char *filename, int line);
+#define			 xglBegin(mode) \
+			 qglBegin(mode, __FILE__, __LINE__)
 //void GLAPI glBitmap (GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove, const GLubyte *bitmap);
 //void GLAPI glColor3b (GLbyte red, GLbyte green, GLbyte blue);
 //void GLAPI glColor3bv (const GLbyte *v);
@@ -1716,8 +1727,13 @@ extern void (GLAPIENTRY* xglBegin) (GLenum mode);
 //void GLAPI glColor4bv (const GLbyte *v);
 //void GLAPI glColor4d (GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha);
 //void GLAPI glColor4dv (const GLdouble *v);
-extern void (GLAPIENTRY* xglColor4f) (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
-extern void (GLAPIENTRY* xglColor4fv) (const GLfloat *v);
+extern void (GLAPIENTRY* qglColor4f)(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha, const char *filename, int line);
+#define			 xglColor4f(red, green, blue, alpha) \
+			 qglColor4f(red, green, blue, alpha, __FILE__, __LINE__)
+			 
+extern void (GLAPIENTRY* qglColor4fv)(const GLfloat *v, const char *filename, int line);
+#define			 xglColor4fv(v) \
+			 qglColor4fv(v, __FILE__, __LINE__)
 //void GLAPI glColor4i (GLint red, GLint green, GLint blue, GLint alpha);
 //void GLAPI glColor4iv (const GLint *v);
 //void GLAPI glColor4s (GLshort red, GLshort green, GLshort blue, GLshort alpha);
@@ -1730,7 +1746,9 @@ extern void (GLAPIENTRY* xglColor4fv) (const GLfloat *v);
 //void GLAPI glColor4usv (const GLushort *v);
 //void GLAPI glEdgeFlag (GLboolean flag);
 //void GLAPI glEdgeFlagv (const GLboolean *flag);
-extern void (GLAPIENTRY* xglEnd) (void);
+extern void (GLAPIENTRY* qglEnd)(const char *filename, int line);
+#define			 xglEnd() \
+			 qglEnd(__FILE__, __LINE__)
 //void GLAPI glIndexd (GLdouble c);
 //void GLAPI glIndexdv (const GLdouble *c);
 //void GLAPI glIndexf (GLfloat c);
@@ -1783,24 +1801,39 @@ extern void (GLAPIENTRY* xglEnd) (void);
 //void GLAPI glRectsv (const GLshort *v1, const GLshort *v2);
 //void GLAPI glTexCoord1d (GLdouble s);
 //void GLAPI glTexCoord1dv (const GLdouble *v);
-extern void (GLAPIENTRY* xglTexCoord1f) (GLfloat s);
-extern void (GLAPIENTRY* xglTexCoord1fv) (const GLfloat *v);
+extern void (GLAPIENTRY* qglTexCoord1f)(GLfloat s, const char *filename, int line);
+#define			 xglTexCoord1f(s) \
+			 qglTexCoord1f(s, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* xglTexCoord1fv)(const GLfloat *v, const char *filename, int line);
+#define			 xglTexCoord1fv(v) \
+			 qglTexCoord1fv(v, __FILE__, __LINE__)
 //void GLAPI glTexCoord1i (GLint s);
 //void GLAPI glTexCoord1iv (const GLint *v);
 //void GLAPI glTexCoord1s (GLshort s);
 //void GLAPI glTexCoord1sv (const GLshort *v);
 //void GLAPI glTexCoord2d (GLdouble s, GLdouble t);
 //void GLAPI glTexCoord2dv (const GLdouble *v);
-extern void (GLAPIENTRY* xglTexCoord2f) (GLfloat s, GLfloat t);
-extern void (GLAPIENTRY* xglTexCoord2fv) (const GLfloat *v);
+extern void (GLAPIENTRY* qglTexCoord2f)(GLfloat s, GLfloat t, const char *filename, int line);
+#define			 xglTexCoord2f(s, t) \
+			 qglTexCoord2f(s, t, __FILE__, __LINE__)
+			 
+extern void (GLAPIENTRY* qglTexCoord2fv)(const GLfloat *v, const char *filename, int line);
+#define			 xglTexCoord2fv(v) \
+			 qglTexCoord2fv(v, __FILE__, __LINE__)
 //void GLAPI glTexCoord2i (GLint s, GLint t);
 //void GLAPI glTexCoord2iv (const GLint *v);
 //void GLAPI glTexCoord2s (GLshort s, GLshort t);
 //void GLAPI glTexCoord2sv (const GLshort *v);
 //void GLAPI glTexCoord3d (GLdouble s, GLdouble t, GLdouble r);
 //void GLAPI glTexCoord3dv (const GLdouble *v);
-extern void (GLAPIENTRY* xglTexCoord3f) (GLfloat s, GLfloat t, GLfloat r);
-extern void (GLAPIENTRY* xglTexCoord3fv) (const GLfloat *v);
+extern void (GLAPIENTRY* xglTexCoord3f)(GLfloat s, GLfloat t, GLfloat r, const char *filename, int line);
+#define			 xglTexCoord3f(s, t, r) \
+			 qglTexCoord3f(s, t, r, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglTexCoord3fv)(const GLfloat *v, const char *filename, int line);
+#define			 xglTexCoord3fv(v) \
+			 qglTexCoord3fv(v, __FILE__, __LINE__)
 //void GLAPI glTexCoord3i (GLint s, GLint t, GLint r);
 //void GLAPI glTexCoord3iv (const GLint *v);
 //void GLAPI glTexCoord3s (GLshort s, GLshort t, GLshort r);
@@ -1822,9 +1855,14 @@ extern void (GLAPIENTRY* xglTexCoord3fv) (const GLfloat *v);
 //void GLAPI glVertex2s (GLshort x, GLshort y);
 //void GLAPI glVertex2sv (const GLshort *v);
 //void GLAPI glVertex3d (GLdouble x, GLdouble y, GLdouble z);
-//void GLAPI glVertex3dv (const GLdouble *v);
-extern void (GLAPIENTRY* xglVertex3f) (GLfloat x, GLfloat y, GLfloat z);
-extern void (GLAPIENTRY* xglVertex3fv) (const GLfloat *v);
+//void GLAPI glVertex3dv (const GLdouble *v); 
+extern void (GLAPIENTRY* qglVertex3f)(GLfloat x, GLfloat y, GLfloat z, const char *filename, int line);
+#define			 xglVertex3f(x, y, z) \
+			 qglVertex3f(x, y, z, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglVertex3fv)(const GLfloat *v, const char *filename, int line);
+#define			 xglVertex3fv(v) \
+			 qglVertex3fv(v, __FILE__, __LINE__)
 //void GLAPI glVertex3i (GLint x, GLint y, GLint z);
 //void GLAPI glVertex3iv (const GLint *v);
 //void GLAPI glVertex3s (GLshort x, GLshort y, GLshort z);
@@ -1837,14 +1875,19 @@ extern void (GLAPIENTRY* xglVertex3fv) (const GLfloat *v);
 //void GLAPI glVertex4iv (const GLint *v);
 //void GLAPI glVertex4s (GLshort x, GLshort y, GLshort z, GLshort w);
 //void GLAPI glVertex4sv (const GLshort *v);
+/// drawing-control functions
 //void GLAPI glClipPlane (GLenum plane, const GLdouble *equation);
 //void GLAPI glColorMaterial (GLenum face, GLenum mode);
-extern void (GLAPIENTRY* xglCullFace) (GLenum mode);
+extern void (GLAPIENTRY* qglCullFace)(GLenum mode, const char *filename, int line);
+#define			 xglCullFace(mode) \
+			 qglCullFace(mode, __FILE__, __LINE__)
 //void GLAPI glFogf (GLenum pname, GLfloat param);
 //void GLAPI glFogfv (GLenum pname, const GLfloat *params);
 //void GLAPI glFogi (GLenum pname, GLint param);
 //void GLAPI glFogiv (GLenum pname, const GLint *params);
-extern void (GLAPIENTRY* xglFrontFace) (GLenum mode);
+extern void (GLAPIENTRY* qglFrontFace)(GLenum mode, const char *filename, int line);
+#define			 xglFrontFace(mode) \
+			 qglFrontFace(mode, __FILE__, __LINE__)
 //void GLAPI glHint (GLenum target, GLenum mode);
 //void GLAPI glLightf (GLenum light, GLenum pname, GLfloat param);
 //void GLAPI glLightfv (GLenum light, GLenum pname, const GLfloat *params);
@@ -1861,26 +1904,58 @@ extern void (GLAPIENTRY* xglFrontFace) (GLenum mode);
 //void GLAPI glMateriali (GLenum face, GLenum pname, GLint param);
 //void GLAPI glMaterialiv (GLenum face, GLenum pname, const GLint *params);
 //void GLAPI glPointSize (GLfloat size);
-extern void (GLAPIENTRY* xglPolygonMode) (GLenum face, GLenum mode);
+extern void (GLAPIENTRY* qglPolygonMode)(GLenum face, GLenum mode, const char *filename, int line);
+#define			 xglPolygonMode(face, mode) \
+			 qglPolygonMode(face, mode, __FILE__, __LINE__)
 //void GLAPI glPolygonStipple (const GLubyte *mask);
-extern void (GLAPIENTRY* xglScissor) (GLint x, GLint y, GLsizei width, GLsizei height);
+extern void (GLAPIENTRY* qglScissor)(GLint x, GLint y, GLsizei width, GLsizei height, const char *filename, int line);
+#define			 xglScissor(x, y, width, height) \
+			 qglScissor(x, y, width, height, __FILE__, __LINE__)
 //void GLAPI glShadeModel (GLenum mode);
 //void GLAPI glTexParameterf (GLenum target, GLenum pname, GLfloat param);
-extern void (GLAPIENTRY* xglTexParameterfv) (GLenum target, GLenum pname, const GLfloat *params);
-extern void (GLAPIENTRY* xglTexParameteri) (GLenum target, GLenum pname, GLint param);
-extern void (GLAPIENTRY* xglTexParameteriv) (GLenum target, GLenum pname, const GLint *params);
-extern void (GLAPIENTRY* xglTexImage1D) (GLenum target, GLint level, GLint internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
-extern void (GLAPIENTRY* xglTexImage2D) (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
+extern void (GLAPIENTRY* qglTexParameterfv)(GLenum target, GLenum pname, const GLfloat *params, const char *filename, int line);
+#define			 xglTexParameterfv(target, pname, params) \
+			 qglTexParameterfv(target, pname, params, __FILE__, __LINE__)
+			 
+extern void (GLAPIENTRY* qglTexParameteri)(GLenum target, GLenum pname, GLint param, const char *filename, int line);
+#define			 xglTexParameteri(target, pname, param) \
+			 qglTexParameteri(target, pname, param, __FILE__, __LINE__)
+			 
+extern void (GLAPIENTRY* qglTexParameteriv)(GLenum target, GLenum pname, const GLint *params, const char *filename, int line);
+#define			 xglTexParameteriv(target, pname, params) \
+			 qglTexParameteriv(target, pname, params, __FILE__, __LINE__)
+			 
+extern void (GLAPIENTRY* qglTexImage1D)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid *pixels, const char *filename, int line);
+#define			 xglTexImage1D(target, level, internalformat, width, border, format, type, pixels) \
+			 qglTexImage1D(target, level, internalformat, width, border, format, type, pixels, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglTexImage2D)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels, const char *filename, int line);
+#define			 xglTexImage2D(target, level, internalformat, width, height, border, format, type, pixels) \
+			 qglTexImage2D(target, level, internalformat, width, height, border, format, type, pixels, __FILE__, __LINE__)
 //void GLAPI glTexEnvf (GLenum target, GLenum pname, GLfloat param);
 //void GLAPI glTexEnvfv (GLenum target, GLenum pname, const GLfloat *params);
-extern void (GLAPIENTRY* xglTexEnvi) (GLenum target, GLenum pname, GLint param);
+extern void (GLAPIENTRY* qglTexEnvi)(GLenum target, GLenum pname, GLint param, const char *filename, int line);
+#define			 xglTexEnvi(target, pname, param) \
+			 qglTexEnvi(target, pname, param, __FILE__, __LINE__)
 //void GLAPI glTexEnviv (GLenum target, GLenum pname, const GLint *params);
 //void GLAPI glTexGend (GLenum coord, GLenum pname, GLdouble param);
 //void GLAPI glTexGendv (GLenum coord, GLenum pname, const GLdouble *params);
-extern void (GLAPIENTRY* xglTexGenf) (GLenum coord, GLenum pname, GLfloat param);
-extern void (GLAPIENTRY* xglTexGenfv) (GLenum coord, GLenum pname, const GLfloat *params);
-extern void (GLAPIENTRY* xglTexGeni) (GLenum coord, GLenum pname, GLint param);
-extern void (GLAPIENTRY* xglTexGeniv) (GLenum coord, GLenum pname, const GLint *params);
+extern void (GLAPIENTRY* qglTexGenf)(GLenum coord, GLenum pname, GLfloat param, const char *filename, int line);
+#define			 xglTexGenf(coord, pname, param) \
+			 qglTexGenf(coord, pname, param)
+			 
+extern void (GLAPIENTRY* qglTexGenfv)(GLenum coord, GLenum pname, const GLfloat *params, const char *filename, int line);
+#define			 xglTexGenfv(coord, pname, params) \
+			 qglTexGenfv(coord, pname, params, __FILE__, __LINE__)
+			 
+extern void (GLAPIENTRY* qglTexGeni)(GLenum coord, GLenum pname, GLint param, const char *filename, int line);
+#define			 xglTexGeni(coord, pname, param) \
+			 qglTexGeni(coord, pname, param, __FILE__, __LINE__)
+			 
+extern void (GLAPIENTRY* qglTexGeniv)(GLenum coord, GLenum pname, const GLint *params, const char *filename, int line);
+#define			 xglTexGeniv(coord, pname, params) \
+			 qglTexGeniv(coord, pname, params, __FILE__, __LINE__)
+/// feedback functions
 //void GLAPI glFeedbackBuffer (GLsizei size, GLenum type, GLfloat *buffer);
 //void GLAPI glSelectBuffer (GLsizei size, GLuint *buffer);
 //GLint GLAPI glRenderMode (GLenum mode);
@@ -1889,24 +1964,55 @@ extern void (GLAPIENTRY* xglTexGeniv) (GLenum coord, GLenum pname, const GLint *
 //void GLAPI glPassThrough (GLfloat token);
 //void GLAPI glPopName (void);
 //void GLAPI glPushName (GLuint name);
-extern void (GLAPIENTRY* xglDrawBuffer) (GLenum mode);
-extern void (GLAPIENTRY* xglClear) (GLbitfield mask);
+/// framebuf functions
+extern void (GLAPIENTRY* qglDrawBuffer)(GLenum mode, const char *filename, int line);
+#define			 xglDrawBuffer(mode) \
+			 qglDrawBuffer(mode, __FILE__, __LINE__)
+			 
+extern void (GLAPIENTRY* qglClear)(GLbitfield mask, const char *filename, int line);
+#define			 xglClear(mask) \
+			 qglClear(mask, __FILE__, __LINE__)
 //void GLAPI glClearAccum (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
 //void GLAPI glClearIndex (GLfloat c);
-extern void (GLAPIENTRY* xglClearColor) (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
-extern void (GLAPIENTRY* xglClearStencil) (GLint s);
+extern void (GLAPIENTRY* qglClearColor)(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha, const char *filename, int line);
+#define			 xglClearColor(red, green, blue, alpha) \
+			 qglClearColor(red, green, blue, alpha, __FILE__, __LINE__)
+			 
+extern void (GLAPIENTRY* qglClearStencil)(GLint s, const char *filename, int line);
+#define			 xglClearStencil(s) \
+			 qglClearStencil(s, __FILE__, __LINE__)
 //extern void (GLAPIENTRY* xglClearDepth) (GLclampd depth);
 //void GLAPI glStencilMask (GLuint mask);
-extern void (GLAPIENTRY* xglColorMask) (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
-extern void (GLAPIENTRY* xglDepthMask) (GLboolean flag);
+extern void (GLAPIENTRY* qglColorMask)(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha, const char *filename, int line);
+#define			 xglColorMask(red, green, blue, alpha) \
+			 qglColorMask(red, green, blue, alpha, __FILE__, __LINE__)
+			 
+extern void (GLAPIENTRY* qglDepthMask)(GLboolean flag, const char *filename, int line);
+#define			 xglDepthMask(flag) \
+			 qglDepthMask(flag, __FILE__, __LINE__)
 //void GLAPI glIndexMask (GLuint mask);
+/// misc functions
 //void GLAPI glAccum (GLenum op, GLfloat value);
-extern void (GLAPIENTRY* xglDisable) (GLenum cap);
-extern void (GLAPIENTRY* xglEnable) (GLenum cap);
-//extern void (GLAPIENTRY* glFinish) (void);
-extern void (GLAPIENTRY* xglFlush) (void);
-extern void (GLAPIENTRY* xglPopAttrib) (void);
-extern void (GLAPIENTRY* xglPushAttrib) (GLbitfield mask);
+extern void (GLAPIENTRY* qglDisable)(GLenum cap, const char *filename, int line);
+#define			 xglDisable(cap) \
+			 qglDisable(cap, __FILE__, __LINE__)
+			 
+extern void (GLAPIENTRY* qglEnable)(GLenum cap, const char *filename, int line);
+#define			 xglEnable(cap) \
+			 qglEnable(cap, __FILE__, __LINE__)
+//extern void (GLAPIENTRY* glFinish)();
+extern void (GLAPIENTRY* qglFlush)(const char *filename, int line);
+#define			 xglFlush() \
+			 qglFlush(__FILE__, __LINE__)
+			 
+extern void (GLAPIENTRY* qglPopAttrib)(const char *filename, int line);
+#define			 xglPopAttrib() \
+			 qglPopAttrib(__FILE__, __LINE__)
+			 
+extern void (GLAPIENTRY* qglPushAttrib)(GLbitfield mask, const char *filename, int line);
+#define			 xglPushAttrib(mask) \
+			 qglPushAttrib(mask, __FILE__, __LINE__)
+/// modelling functions
 //void GLAPI glMap1d (GLenum target, GLdouble u1, GLdouble u2, GLint stride, GLint order, const GLdouble *points);
 //void GLAPI glMap1f (GLenum target, GLfloat u1, GLfloat u2, GLint stride, GLint order, const GLfloat *points);
 //void GLAPI glMap2d (GLenum target, GLdouble u1, GLdouble u2, GLint ustride, GLint uorder, GLdouble v1, GLdouble v2, GLint vstride, GLint vorder, const GLdouble *points);
@@ -1927,12 +2033,28 @@ extern void (GLAPIENTRY* xglPushAttrib) (GLbitfield mask);
 //void GLAPI glEvalPoint1 (GLint i);
 //void GLAPI glEvalMesh2 (GLenum mode, GLint i1, GLint i2, GLint j1, GLint j2);
 //void GLAPI glEvalPoint2 (GLint i, GLint j);
-extern void (GLAPIENTRY* xglAlphaFunc) (GLenum func, GLclampf ref);
-extern void (GLAPIENTRY* xglBlendFunc) (GLenum sfactor, GLenum dfactor);
+/// pixel-op functions
+extern void (GLAPIENTRY* qglAlphaFunc)(GLenum func, GLclampf ref, const char *filename, int line);
+#define			 xglAlphaFunc(func, ref) \
+			 qglAlphaFunc(func, ref, __FILE__, __LINE__)
+			 
+extern void (GLAPIENTRY* qglBlendFunc)(GLenum sfactor, GLenum dfactor, const char *filename, int line);
+#define			 xglBlendFunc(sfactor, dfactor) \
+			 qglBlendFunc(sfactor, dfactor, __FILE__, __LINE__)
+
 //void GLAPI glLogicOp (GLenum opcode);
-extern void (GLAPIENTRY* xglStencilFunc) (GLenum func, GLint ref, GLuint mask);
-extern void (GLAPIENTRY* xglStencilOp) (GLenum fail, GLenum zfail, GLenum zpass);
-extern void (GLAPIENTRY* xglDepthFunc) (GLenum func);
+extern void (GLAPIENTRY* qglStencilFunc)(GLenum func, GLint ref, GLuint mask, const char *filename, int line);
+#define			 xglStencilFunc(func, ref, mask) \
+			 qglStencilFunc(func, ref, mask, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglStencilOp)(GLenum fail, GLenum zfail, GLenum zpass, const char *filename, int line);
+#define			 xglStencilOp(fail, zfail, zpass) \
+			 qglStencilOp(fail, zfail, zpass, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglDepthFunc)(GLenum func, const char *filename, int line);
+#define			 xglDepthFunc(func) \
+			 qglDepthFunc(func, __FILE__, __LINE__)
+/// pixel-rw functions
 //void GLAPI glPixelZoom (GLfloat xfactor, GLfloat yfactor);
 //void GLAPI glPixelTransferf (GLenum pname, GLfloat param);
 //void GLAPI glPixelTransferi (GLenum pname, GLint param);
@@ -1941,16 +2063,32 @@ extern void (GLAPIENTRY* xglDepthFunc) (GLenum func);
 //void GLAPI glPixelMapfv (GLenum map, GLint mapsize, const GLfloat *values);
 //void GLAPI glPixelMapuiv (GLenum map, GLint mapsize, const GLuint *values);
 //void GLAPI glPixelMapusv (GLenum map, GLint mapsize, const GLushort *values);
-extern void (GLAPIENTRY* xglReadBuffer) (GLenum mode);
+extern void (GLAPIENTRY* qglReadBuffer)(GLenum mode, const char *filename, int line);
+#define			 xglReadBuffer(mode) \
+			 qglReadBuffer(mode, __FILE__, __LINE__)
+
 //void GLAPI glCopyPixels (GLint x, GLint y, GLsizei width, GLsizei height, GLenum type);
-extern void (GLAPIENTRY* xglReadPixels) (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels);
+extern void (GLAPIENTRY* qglReadPixels)(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels, const char *filename, int line);
+#define			 xglReadPixels(x, y, width, height, format, type, pixels) \
+			 qglReadPixels(x, y, width, height, format, type, pixels, __FILE__, __LINE__)
+
 //void GLAPI glDrawPixels (GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);
+/// state-req functions
 //void GLAPI glGetBooleanv (GLenum pname, GLboolean *params);
 //void GLAPI glGetClipPlane (GLenum plane, GLdouble *equation);
 //void GLAPI glGetDoublev (GLenum pname, GLdouble *params);
-extern GLenum (GLAPIENTRY* xglGetError) (void);
-extern void (GLAPIENTRY* xglGetFloatv) (GLenum pname, GLfloat *params);
-extern void (GLAPIENTRY* xglGetIntegerv) (GLenum pname, GLint *params);
+//extern GLenum (GLAPIENTRY* qglGetError)(const char *filename, int line);
+//define		   xglGetError() 
+//			   qglGetError(__FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglGetFloatv)(GLenum pname, GLfloat *params, const char *filename, int line);
+#define			 xglGetFloatv(pname, params) \
+			 qglGetFloatv(pname, params, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglGetIntegerv)(GLenum pname, GLint *params, const char *filename, int line);
+#define			 xglGetIntegerv(pname, params) \
+			 qglGetIntegerv(pname, params, __FILE__, __LINE__)
+
 //void GLAPI glGetLightfv (GLenum light, GLenum pname, GLfloat *params);
 //void GLAPI glGetLightiv (GLenum light, GLenum pname, GLint *params);
 //void GLAPI glGetMapdv (GLenum target, GLenum query, GLdouble *v);
@@ -1962,7 +2100,10 @@ extern void (GLAPIENTRY* xglGetIntegerv) (GLenum pname, GLint *params);
 //void GLAPI glGetPixelMapuiv (GLenum map, GLuint *values);
 //void GLAPI glGetPixelMapusv (GLenum map, GLushort *values);
 //void GLAPI glGetPolygonStipple (GLubyte *mask);
-extern const GLubyte* (GLAPIENTRY* xglGetString) (GLenum name);
+extern const GLubyte* (GLAPIENTRY* qglGetString)(GLenum name, const char *filename, int line);
+#define				   xglGetString(name) \
+				   qglGetString(name, __FILE__, __LINE__)
+
 //void GLAPI glGetTexEnvfv (GLenum target, GLenum pname, GLfloat *params);
 //void GLAPI glGetTexEnviv (GLenum target, GLenum pname, GLint *params);
 //void GLAPI glGetTexGendv (GLenum coord, GLenum pname, GLdouble *params);
@@ -1975,48 +2116,112 @@ extern const GLubyte* (GLAPIENTRY* xglGetString) (GLenum name);
 //void GLAPI glGetTexLevelParameteriv (GLenum target, GLint level, GLenum pname, GLint *params);
 //GLboolean GLAPI glIsEnabled (GLenum cap);
 //GLboolean GLAPI glIsList (GLuint list);
-extern void (GLAPIENTRY* xglDepthRange) (GLclampd zNear, GLclampd zFar);
+/// xform functions
+extern void (GLAPIENTRY* qglDepthRange)(GLclampd zNear, GLclampd zFar, const char *filename, int line);
+#define			 xglDepthRange(zNear, zFar) \
+			 qglDepthRange(zNear, zFar, __FILE__, __LINE__)
+
 //extern void (GLAPIENTRY* xglFrustum) (GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar);
-extern void (GLAPIENTRY* xglLoadIdentity) (void);
-//extern void (GLAPIENTRY* xglLoadMatrixf) (const GLfloat *m);
+extern void (GLAPIENTRY* qglLoadIdentity)(const char *filename, int line);
+#define			 xglLoadIdentity() \
+			 qglLoadIdentity(__FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglLoadMatrixf)(const GLfloat *m, const char *filename, int line);
+#define			 xglLoadMatrixf(m) \
+			 qglLoadMatrixf(m, __FILE__, __LINE__)
+
 //void GLAPI glLoadMatrixd (const GLdouble *m);
-extern void (GLAPIENTRY* xglMatrixMode) (GLenum mode);
+extern void (GLAPIENTRY* qglMatrixMode)(GLenum mode, const char *filename, int line);
+#define			 xglMatrixMode(mode) \
+			 qglMatrixMode(mode, __FILE__, __LINE__)
+
 //void GLAPI glMultMatrixf (const GLfloat *m);
 //void GLAPI glMultMatrixd (const GLdouble *m);
-extern void (GLAPIENTRY* xglOrtho) (GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar);
-extern void (GLAPIENTRY* xglPopMatrix) (void);
-extern void (GLAPIENTRY* xglPushMatrix) (void);
+//extern void (GLAPIENTRY* qglOrtho)(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar);
+//define		 xglOrtho(left, right, bottom, top, zNear, zFar) 
+//			 qglOrtho(left, right, bottom, top, zNear, zFar, __FILE__, __LINE__)
+
+//extern void (GLAPIENTRY* qglPopMatrix)();
+//define			 xglPopMatrix() 
+//			 xglPopMatrix(__FILE__, __LINE__)
+
+//extern void (GLAPIENTRY* qglPushMatrix)();
+//define		 xglPushMatrix() 
+//			 qglPushMatrix(__FILE__, __LINE__)
+
 //void GLAPI glRotated (GLdouble angle, GLdouble x, GLdouble y, GLdouble z);
 //extern void (GLAPIENTRY* xglRotatef) (GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
 //void GLAPI glScaled (GLdouble x, GLdouble y, GLdouble z);
 //extern void (GLAPIENTRY* xglScalef) (GLfloat x, GLfloat y, GLfloat z);
 //void GLAPI glTranslated (GLdouble x, GLdouble y, GLdouble z);
 //extern void (GLAPIENTRY* xglTranslatef) (GLfloat x, GLfloat y, GLfloat z);
-extern void (GLAPIENTRY* xglViewport) (GLint x, GLint y, GLsizei width, GLsizei height);
+extern void (GLAPIENTRY* qglViewport)(GLint x, GLint y, GLsizei width, GLsizei height, const char *filename, int line);
+#define			 xglViewport(x, y, width, height) \
+			 qglViewport(x, y, width, height, __FILE__, __LINE__)
+/// 1.1 functions
 //void GLAPI glArrayElement (GLint i);
 //void GLAPI glColorPointer (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
-extern void (GLAPIENTRY* xglDisableClientState) (GLenum array);
+extern void (GLAPIENTRY* qglDisableClientState)(GLenum array, const char *filename, int line);
+#define			 xglDisableClientState(array) \
+			 qglDisableClientState(array, __FILE__, __LINE__)
+
 //void GLAPI glDrawArrays (GLenum mode, GLint first, GLsizei count);
-extern void (GLAPIENTRY* xglDrawElements) (GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
+extern void (GLAPIENTRY* qglDrawElements)(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices, const char *filename, int line);
+#define			 xglDrawElements(mode, count, type, indices) \
+			 qglDrawElements(mode, count, type, indices, __FILE__, __LINE__)
+
 //void GLAPI glEdgeFlagPointer (GLsizei stride, const GLboolean *pointer);
-extern void (GLAPIENTRY* xglEnableClientState) (GLenum array);
+extern void (GLAPIENTRY* qglEnableClientState)(GLenum array, const char *filename, int line);
+#define			 xglEnableClientState(array) \
+			 qglEnableClientState(array, __FILE__, __LINE__)
+			 
 //void GLAPI glGetPointerv (GLenum pname, GLvoid* *params);
-extern void (GLAPIENTRY* xglIndexPointer) (GLenum type, GLsizei stride, const GLvoid *pointer);
+extern void (GLAPIENTRY* qglIndexPointer)(GLenum type, GLsizei stride, const GLvoid *pointer, const char *filename, int line);
+#define			 xglIndexPointer(type, stride, pointer) \
+			 qglIndexPointer(type, stride, pointer, __FILE__, __LINE__)
+
 //void GLAPI glInterleavedArrays (GLenum format, GLsizei stride, const GLvoid *pointer);
-extern void (GLAPIENTRY* xglNormalPointer) (GLenum type, GLsizei stride, const GLvoid *pointer);
-extern void (GLAPIENTRY* xglTexCoordPointer) (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
-extern void (GLAPIENTRY* xglVertexPointer) (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
-extern void (GLAPIENTRY* xglPolygonOffset) (GLfloat factor, GLfloat units);
+extern void (GLAPIENTRY* qglNormalPointer)(GLenum type, GLsizei stride, const GLvoid *pointer, const char *filename, int line);
+#define			 xglNormalPointer(type, stride, pointer) \
+			 qglNormalPointer(type, stride, pointer, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglTexCoordPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer, const char *filename, int line);
+#define			 xglTexCoordPointer(size, type, stride, pointer) \
+			 xglTexCoordPointer(size, type, stride, pointer, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglVertexPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer, const char *filename, int line);
+#define			 xglVertexPointer(size, type, stride, pointer) \
+			 qglVertexPointer(size, type, stride, pointer, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglPolygonOffset)(GLfloat factor, GLfloat units, const char *filename, int line);
+#define			 xglPolygonOffset(factor, units) \
+			 qglPolygonOffset(factor, units, __FILE__, __LINE__)
+
 //void GLAPI glCopyTexImage1D (GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLint border);
-extern void (GLAPIENTRY* xglCopyTexImage2D) (GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border);
+extern void (GLAPIENTRY* qglCopyTexImage2D)(GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border, const char *filename, int line);
+#define			 xglCopyTexImage2D(target, level, internalformat, x, y, width, height, border) \
+			 qglCopyTexImage2D(target, level, internalformat, x, y, width, height, border, __FILE__, __LINE__)
+
 //void GLAPI glCopyTexSubImage1D (GLenum target, GLint level, GLint xoffset, GLint x, GLint y, GLsizei width);
-extern void (GLAPIENTRY* xglCopyTexSubImage2D) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
+extern void (GLAPIENTRY* qglCopyTexSubImage2D)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height, const char *filename, int line);
+#define			 xglCopyTexSubImage2D(target, level, xoffset, yoffset, x, y, width, height) \
+			 qglCopyTexSubImage2D(target, level, xoffset, yoffset, x, y, width, height, __FILE__, __LINE__)
+			 
 //void GLAPI glTexSubImage1D (GLenum target, GLint level, GLint xoffset, GLsizei width, GLenum format, GLenum type, const GLvoid *pixels);
 //void GLAPI glTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);
 //GLboolean GLAPI glAreTexturesResident (GLsizei n, const GLuint *textures, GLboolean *residences);
-extern void (GLAPIENTRY* xglBindTexture) (GLenum target, GLuint texture);
-extern void (GLAPIENTRY* xglDeleteTextures) (GLsizei n, const GLuint *textures);
-extern void (GLAPIENTRY* xglGenTextures) (GLsizei n, GLuint *textures);
+extern void (GLAPIENTRY* qglBindTexture)(GLenum target, GLuint texture, const char *filename, int line);
+#define			 xglBindTexture(target, texture) \
+			 qglBindTexture(target, texture, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglDeleteTextures)(GLsizei n, const GLuint *textures, const char *filename, int line);
+#define			 xglDeleteTextures(n, textures) \
+			 qglDeleteTextures(n, textures, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglGenTextures)(GLsizei n, GLuint *textures, const char *filename, int line);
+#define			 xglGenTextures(n, textures) \
+			 qglGenTextures(n, textures, __FILE__, __LINE__)
+
 //GLboolean GLAPI glIsTexture (GLuint texture);
 //void GLAPI glPrioritizeTextures (GLsizei n, const GLuint *textures, const GLclampf *priorities);
 //void GLAPI glIndexub (GLubyte c);
@@ -2351,11 +2556,22 @@ extern HGLRC		(*xwglCreateContext)(HDC);
 #endif // _WIN32
 
 /// GL Tools ==================================================================
-bool	XGL_Init(const char *dllname);
-void    XGL_Shutdown();
-void*	XGL_GetSymbol(const char *symbolname);
+bool		XGL_Init(const char *dllname);
+void    	XGL_Shutdown();
+void*		XGL_GetSymbol(const char *symbolname);
+void		XGL_EnableDebugging(bool enable);
 
-void*	xglGetProcAddress(const char *symbolname);		// Just an interface for XGL_GetSymbol
+void		XGL_CheckForError_(const std::string &file, int line);
+
+#if 1 //DEBUG
+#define		XGL_CheckForError()	XGL_CheckForError_(__FILE__, __LINE__)
+#else
+#define		XGL_CheckForError()
+#endif
+
+#define		RB_CheckForError()
+
+void*		xglGetProcAddress(const char *symbolname);		// Just an interface for XGL_GetSymbol
 
 
 #endif	// R_GL_H

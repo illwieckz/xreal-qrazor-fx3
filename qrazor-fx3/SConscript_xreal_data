@@ -36,7 +36,9 @@ xreal_data_GLSL_files = [
 'data/xreal/glsl/dispersion_C_vp.glsl',
 'data/xreal/glsl/dispersion_C_fp.glsl',
 'data/xreal/glsl/liquid_C_vp.glsl',
-'data/xreal/glsl/liquid_C_fp.glsl' ]
+'data/xreal/glsl/liquid_C_fp.glsl',
+'data/xreal/glsl/heathaze_vp.glsl',
+'data/xreal/glsl/heathaze_fp.glsl' ]
 
 xreal_data_MTR_files = [
 'data/xreal/materials/aaduffyTest.mtr',

@@ -50,14 +50,15 @@ static vec5_t	sky_vecs[24] =
 
 static void R_MakeSkyVec(vec5_t sky_vec)
 {
-	vec3_c		v;
-	vec2_c		st;
-
-	v.set(sky_vec[0], sky_vec[1], sky_vec[2]);
+	vec3_c v(sky_vec[0], sky_vec[1], sky_vec[2]);
 	v *= 4096.0 * 2;
 	
-	st.set(sky_vec[3] * (254.0/256.0) + (1.0f/256.f),
-		sky_vec[4] * (254.0/256.0) + (1.0f/256.f));
+	vec3_c st
+	(
+		sky_vec[3] * (254.0/256.0) + (1.0f/256.f),
+		sky_vec[4] * (254.0/256.0) + (1.0f/256.f),
+		0.0f
+	);
 
 	xglTexCoord2fv(st);
 	xglVertex3fv((float*)((vec_t*)v));

@@ -59,26 +59,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "img_png.h"
 
 
-
-
 #define	REF_VERSION	"GL 0.0.9"
 
+#define VBO_BUFFER_OFFSET(i) 		((char *)NULL + (i))
 
 
 extern	viddef_t	vid;
-
-
-
-
-
-#define MAX_ARRAY_VERTEXES		4096*2
-#define MAX_ARRAY_INDEXES		MAX_ARRAY_VERTEXES*6
-#define MAX_ARRAY_TRIANGLES		MAX_ARRAY_VERTEXES/3
-#define MAX_ARRAY_NEIGHBOURS		MAX_ARRAY_VERTEXES*3
-
-#define MAX_SHADOW_INDEXES		MAX_ARRAY_VERTEXES*4
-
-#define VBO_BUFFER_OFFSET(i) 		((char *)NULL + (i))
 
 
 enum r_serr_e
@@ -141,7 +127,8 @@ enum
 	SHADER_TRANSLUCENT		= 1 << 7,
 	SHADER_DISCRETE			= 1 << 8,
 	SHADER_AREAPORTAL		= 1 << 9,
-	SHADER_NOENVMAP			= 1 << 10
+	SHADER_NOENVMAP			= 1 << 10,
+	SHADER_POSTPROCESS		= 1 << 11
 };
 
 
@@ -151,6 +138,7 @@ enum r_shader_material_stage_type_e
 	SHADER_MATERIAL_STAGE_TYPE_DIFFUSEMAP,
 	SHADER_MATERIAL_STAGE_TYPE_BUMPMAP,
 	SHADER_MATERIAL_STAGE_TYPE_SPECULARMAP,
+	SHADER_MATERIAL_STAGE_TYPE_HEATHAZEMAP,
 	SHADER_MATERIAL_STAGE_TYPE_LIGHTMAP,
 	SHADER_MATERIAL_STAGE_TYPE_DELUXEMAP,
 	SHADER_MATERIAL_STAGE_TYPE_REFLECTIONMAP,
@@ -253,6 +241,7 @@ class r_light_c;
 class r_surface_c;
 class r_proc_model_c;
 class r_bsptree_leaf_c;
+class r_skel_animation_c;
 
 
 enum r_shader_parms_e
@@ -341,6 +330,7 @@ enum r_render_type_e
 	RENDER_TYPE_REFRACTION,
 	RENDER_TYPE_DISPERSION,
 	RENDER_TYPE_LIQUID,
+	RENDER_TYPE_POSTPROCESS,
 	RENDER_TYPE_SHADOWING,
 	RENDER_TYPE_LIGHTING_R,
 	RENDER_TYPE_LIGHTING_RB,
@@ -363,8 +353,8 @@ enum
 	FRUSTUM_TOP,
 	FRUSTUM_NEAR,
 	FRUSTUM_FAR,
-	FRUSTUM_PLANES		= 6,
-	FRUSTUM_CLIPALL		= 1 | 2 | 4 | 8 | 16 | 32
+	FRUSTUM_PLANES		= 4,
+	FRUSTUM_CLIPALL		= 1 | 2 | 4 | 8 //| 16 | 32
 };
 
 
@@ -404,11 +394,7 @@ extern uint_t		r_visframecount;			// bumped when going to a new PVS
 class r_image_c
 {
 public:
-	//
-	// constructor / destructor
-	//
 	r_image_c(uint_t target, const std::string &name, uint_t width, uint_t height, uint_t flags, roq_info_t *roq, bool global = true);
-		
 	~r_image_c();
 	
 	inline const char*	getName() const			{return _name.c_str();}
@@ -427,12 +413,12 @@ public:
 	
 	inline bool		hasVideo() const		{return _roq ? true : false;}
 	
-	inline void		bind() const			{if(_id) xglBindTexture(_target, _id);}
+	void			bind(bool force = false) const;
 	
-	void			updateTexture();
-	
+	void			copyFromContext() const;
+	void			copyFromVideo() const;
 private:
-	void			convertColors();
+	void			convertColors() const;
 
 	std::string		_name;
 	uint_t			_target;
@@ -674,6 +660,7 @@ public:
 	r_shader_stage_c*		stage_diffusemap;
 	r_shader_stage_c*		stage_bumpmap;
 	r_shader_stage_c*		stage_specularmap;
+	r_shader_stage_c*		stage_heathazemap;
 	
 	r_shader_stage_c*		stage_lightmap;
 	r_shader_stage_c*		stage_deluxemap;
@@ -926,10 +913,27 @@ private:
 	uint_t		_query;
 };
 
+r_skel_animation_c*	R_GetAnimationByNum(int num);
+class r_animationiface_a
+{
+protected:
+	inline r_animationiface_a(int anim)
+	{
+		_animation = R_GetAnimationByNum(anim);
+	}
+	
+public:
+	inline const r_skel_animation_c*	getAnimation() const	{return _animation;}
+	
+//protected:
+private:
+	r_skel_animation_c*	_animation;
+};
 
 class r_entity_c :
 public r_visiface_a,
-public r_occlusioniface_a
+public r_occlusioniface_a,
+public r_animationiface_a
 {
 public:
 	r_entity_c();
@@ -956,6 +960,8 @@ private:
 	r_entity_t		_s;
 		
 	matrix_c		_transform;
+	
+	r_skel_animation_c*	_anim;
 };
 
 
@@ -1105,6 +1111,9 @@ struct r_scene_t
 	
 	uint_t				cmds_translucent_num;
 	std::vector<r_command_t>	cmds_translucent;
+	
+	uint_t				cmds_postprocess_num;
+	std::vector<r_command_t>	cmds_postprocess;
 };
 
 
@@ -1458,83 +1467,92 @@ struct r_alias_frame_t
 //
 // skeletal model specific
 //
-/*
-struct r_skel_bone_frame_t
+enum
 {
-	quaternion_c		rot_quat;
-	quaternion_c		ofs_quat;
+	COMPONENT_BIT_TX	= 1 << 0,
+	COMPONENT_BIT_TY	= 1 << 1,
+	COMPONENT_BIT_TZ	= 1 << 2,
+	COMPONENT_BIT_QX	= 1 << 3,
+	COMPONENT_BIT_QY	= 1 << 4,
+	COMPONENT_BIT_QZ	= 1 << 5
 };
-*/
 
-/*
 struct r_skel_frame_t
 {	
 	cbbox_c			bbox;
-	float			radius;
-	vec3_c			translate;
-	
-	vec3_c			parent_offset;
-	std::vector<r_skel_bone_frame_t*>	boneframes;
+	std::vector<float>	components;
 };
-*/
 
-
-struct r_skel_channel_t;
+struct r_skel_channel_t
+{
+	std::string		name;
+	int			parent_index;
+	
+	uint_t			components_bits;	// e.g. (COMPONENT_BIT_TX | COMPONENT_BIT_TY | COMPONENT_BIT_TZ)
+	int			components_offset;
+		
+	vec3_c			origin;			// relative value to parent bone
+	quaternion_c		quat;
+};
 
 struct r_skel_bone_t
 {
 	r_skel_bone_t()
 	{
+		index = -1;
 		parent_index = -1;
-		channels = std::vector<r_skel_channel_t*>(6);
 	}
 
-	std::string		name;
-//	std::string		parent_name;
-	int			parent_index;		// bone parent index (-1 if root)
-		
-	vec3_c			position;
-	matrix_c		matrix;
-	quaternion_c		quat;
+	std::string			name;
+	int				index;
 	
-	std::vector<r_skel_bone_t*>	children;
-	std::vector<r_skel_channel_t*>	channels;
-};
-
-struct r_skel_channel_t
-{
-	std::string		joint;
+	std::string			parent_name;
+	int				parent_index;		// bone parent index (-1 if root)
 	
-	chan_attrib_type_t	attribute;
+	vec3_c				default_origin;		// absolute value
+	quaternion_c			default_quat;
 	
-	float			time_start;
-	float			time_end;
-	float			time_fps;
+	vec3_c				origin;
+	quaternion_c			quat;
 	
-	int			strings;
-	int			range[2];
-	
-	std::vector<float>	keys;
+	std::vector<r_skel_bone_t*>	childrens;
 };
 
 class r_skel_animation_c
 {
 public:
-	r_skel_animation_c(const std::string &name);
-	~r_skel_animation_c();
+	r_skel_animation_c(const std::string &name, byte *buffer, uint_t buffer_size);
+	virtual ~r_skel_animation_c();
 	
-	void	loadChannels(char **data_p);
+	virtual void		load()				{}
 	
-	inline const char*	getName()			{return _name.c_str();}
-	inline uint_t		getRegistrationSequence()	{return _registration_sequence;}
+	inline const char*	getName() const			{return _name.c_str();}
+	inline uint_t		getRegistrationSequence() const	{return _registration_sequence;}
 	inline void		setRegistrationSequence()	{_registration_sequence = r_registration_sequence;}
+	
+	inline uint_t		getFramesNum() const		{return _frames.size();}
+	inline uint_t		getChannelsNum() const		{return _channels.size();}
 
 private:
 	std::string		_name;
 	uint_t			_registration_sequence;
 
+protected:
+	byte*			_buffer;
+	uint_t			_buffer_size;
+
 public:
+	std::vector<r_skel_frame_t*>	_frames;
 	std::vector<r_skel_channel_t*>	_channels;
+};
+
+class r_md5_animation_c : public r_skel_animation_c
+{
+public:
+	r_md5_animation_c(const std::string &name, byte *buffer, uint_t buffer_size);
+	virtual ~r_md5_animation_c();
+	
+	virtual void		load();
 };
 
 /*
@@ -1616,7 +1634,6 @@ protected:
 	uint_t		_buffer_size;
 	
 	cbbox_c		_bbox;		// bbox that bounds around every mesh and surface
-	
 	
 	std::vector<r_mesh_c*>		_meshes;
 	std::vector<r_model_shader_c*>	_shaders;
@@ -1760,18 +1777,19 @@ public:
 	virtual bool	setupTag(r_tag_t &tag, const r_entity_t &ent, const std::string &name);
 	virtual bool	setupAnimation(r_skel_animation_c *anim);
 	
-	void		addBone(r_skel_bone_t *bone)		{_bones.push_back(bone);}
+	void		addBone(r_skel_bone_t *bone);
+	int		getNumForBoneName(const std::string &name);
 	
 protected:
-	bool	cull(r_entity_c *ent);
-	void	drawFrameLerp(const r_command_t *cmd, r_render_type_e type);
+	bool		cull(r_entity_c *ent);
+	void		drawFrameLerp(const r_command_t *cmd, r_render_type_e type);
 	
-	void	updateBone(const r_entity_c *ent, r_skel_bone_t *bone);
-	void	drawBone(r_skel_bone_t *bone);
-	int	getNumForBoneName(const std::string &name);
-
-
-	std::vector<r_skel_bone_t*>		_bones;
+	void		updateBones(const r_entity_c *ent);
+	void		updateBones_r(const r_entity_c *ent, int bone_index);
+	
+	void		drawBones();
+	
+	std::vector<r_skel_bone_t*>	_bones;
 };
 
 /*
@@ -1882,7 +1900,9 @@ extern r_image_c*	r_img_attenuation_3d;
 extern r_image_c*	r_img_lightview_depth;
 extern r_image_c*	r_img_lightview_color;
 extern r_image_c*	r_img_currentrender;
+extern r_image_c*	r_img_currentrender_depth;
 
+extern r_shader_c*	r_shader_currentrender;
 
 
 extern r_scene_t*	r_current_scene;
@@ -1906,6 +1926,7 @@ extern uint_t	c_cmds;
 extern uint_t	c_cmds_radiosity;
 extern uint_t	c_cmds_light;
 extern uint_t	c_cmds_translucent;
+extern uint_t	c_cmds_postprocess;
 extern uint_t	c_triangles;
 extern uint_t	c_draws;
 extern uint_t	c_expressions;
@@ -1981,9 +2002,11 @@ extern cvar_t	*r_drawpolygons;
 extern cvar_t	*r_drawsky;
 extern cvar_t	*r_drawextra;
 extern cvar_t	*r_drawtranslucent;
+extern cvar_t	*r_drawpostprocess;
 extern cvar_t	*r_speeds;
 extern cvar_t	*r_fullbright;
 extern cvar_t	*r_lerpmodels;
+extern cvar_t	*r_debug;
 extern cvar_t	*r_log;
 extern cvar_t	*r_shadows;
 extern cvar_t	*r_shadows_alpha;
@@ -2043,6 +2066,7 @@ extern cvar_t	*r_arb_multitexture;
 extern cvar_t	*r_arb_texture_compression;
 extern cvar_t	*r_arb_vertex_buffer_object;
 extern cvar_t	*r_arb_occlusion_query;
+extern cvar_t	*r_arb_texture_rectangle;
 
 extern cvar_t	*r_ext_compiled_vertex_array;
 extern cvar_t	*r_ext_texture_filter_anisotropic;
@@ -2086,14 +2110,6 @@ void		RB_EndBackendFrame();
 
 void		RB_SetShaderTime(double time);
 
-void		RB_CheckForError_(const std::string &file, int line);
-
-#if 1	//def HAVE_DEBUG
-#define		RB_CheckForError()	RB_CheckForError_(__FILE__, __LINE__)
-#else
-#define		RB_CheckForError()	
-#endif
-
 void		RB_OpenGLFrustum(matrix_c &m, double l, double r, double b, double t, double n, double f);
 void		RB_QuakeFrustum(matrix_c &m, double l, double r, double b, double t, double n, double f);
 
@@ -2117,11 +2133,11 @@ void		RB_FlushMesh(const r_command_t *cmd);
 void		RB_LockArrays(int vertexes_num);
 void		RB_UnlockArrays();
 
-void		RB_EnableShaderStates(const r_shader_c *shader, r_render_type_e type);
-void		RB_DisableShaderStates(const r_shader_c *shader, r_render_type_e type);
+void		RB_EnableShaderStates(const r_shader_c *shader);
+void		RB_DisableShaderStates(const r_shader_c *shader);
 
-void		RB_EnableShaderStageStates(const r_entity_c *ent, const r_shader_stage_c *stage, r_render_type_e type);
-void		RB_DisableShaderStageStates(const r_entity_c *ent, const r_shader_stage_c *stage, r_render_type_e type);
+void		RB_EnableShaderStageStates(const r_entity_c *ent, const r_shader_stage_c *stage);
+void		RB_DisableShaderStageStates(const r_entity_c *ent, const r_shader_stage_c *stage);
 
 float		RB_Evaluate(const r_entity_t &shared, const boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> &info, float default_value);
 
@@ -2349,6 +2365,7 @@ struct glconfig_t
 	bool		arb_texture_compression;
 	bool		arb_vertex_buffer_object;
 	bool		arb_occlusion_query;
+	bool		arb_texture_rectangle;
 	
 	bool		ext_compiled_vertex_array;
 	bool		ext_texture_filter_anisotropic;
@@ -2370,6 +2387,8 @@ struct glstate_t
 	uint_t		maxtexsize;
 	
 	int		anisotropylevel;
+	
+	uint_t		polygon_mode;
 
 	bool		is2d;
 	bool		hwgamma;

@@ -603,7 +603,7 @@ void	r_proctree_c::drawAreaPortals()
 		r_areaportal_c* iap = *ir;
 		iap->drawPortal();
 	}
-	xglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	xglPolygonMode(GL_FRONT_AND_BACK, gl_state.polygon_mode);
 	
 #if 0
 	xglEnable(GL_BLEND);

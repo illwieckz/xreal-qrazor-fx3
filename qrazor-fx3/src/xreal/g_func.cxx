@@ -760,14 +760,14 @@ void	g_func_rotating_c::activate()
 	//if (_dmg)
 	//	_blocked = rotating_blocked;
 
-	if (_spawnflags & 1)
+	if(_spawnflags & 1)
 		use(NULL, NULL);
 
-	if (_spawnflags & 64)
-		_s.effects |= EF_ANIM_ALL;
+	if(_spawnflags & 64)
+		_s.effects |= EF_AUTOANIM_2;
 		
 	if (_spawnflags & 128)
-		_s.effects |= EF_ANIM_ALLFAST;
+		_s.effects |= EF_AUTOANIM_10;
 
 	G_SetModel(this, _model);
 }
@@ -930,7 +930,7 @@ void	g_func_button_c::activate()
 	Vector3_MA (_pos1, dist, _movedir, _pos2);
 
 	//ent->use = button_use;
-	_s.effects |= EF_ANIM01;
+	_s.effects |= EF_AUTOANIM_TOGGLE_01_2;
 
 	if(_health)
 	{
@@ -961,8 +961,8 @@ void	g_func_button_c::activate()
 void 	g_func_button_c::finish()
 {
 	_moveinfo.state = STATE_BOTTOM;
-	_s.effects &= ~EF_ANIM23;
-	_s.effects |= EF_ANIM01;
+	_s.effects &= ~EF_AUTOANIM_TOGGLE_23_2;
+	_s.effects |= EF_AUTOANIM_TOGGLE_01_2;
 }
 
 
@@ -983,8 +983,8 @@ void	g_func_button_c::returnButton()
 void	g_func_button_c::wait()
 {
 	_moveinfo.state = STATE_TOP;
-	_s.effects &= ~EF_ANIM01;
-	_s.effects |= EF_ANIM23;
+	_s.effects &= ~EF_AUTOANIM_TOGGLE_01_2;
+	_s.effects |= EF_AUTOANIM_TOGGLE_23_2;
 
 	G_UseTargets(this, _activator);
 	
@@ -1325,10 +1325,10 @@ void	g_func_door_c::activate()
 	_moveinfo.end_quat = _s.quat;
 
 	if(_spawnflags & 16)
-		_s.effects |= EF_ANIM_ALL;
+		_s.effects |= EF_AUTOANIM_2;
 		
 	if(_spawnflags & 64)
-		_s.effects |= EF_ANIM_ALLFAST;
+		_s.effects |= EF_AUTOANIM_10;
 
 	// to simplify logic elsewhere, make non-teamed doors into a team of one
 	if(!_team.length())

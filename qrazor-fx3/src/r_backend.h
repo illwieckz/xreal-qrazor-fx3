@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 // usefull matrices to handle transformations
 //
+extern matrix_c			rb_matrix_framebuffer_to_vid;
 extern matrix_c			rb_matrix_view;
 extern matrix_c			rb_matrix_model;
 
@@ -165,6 +166,11 @@ void		RB_RenderCommand_dispersion_C(const r_command_t *cmd,			const r_shader_sta
 void		RB_EnableShader_liquid_C();
 void		RB_DisableShader_liquid_C();
 void		RB_RenderCommand_liquid_C(const r_command_t *cmd,			const r_shader_stage_c *stage_colormap);
+
+
+void		RB_EnableShader_heathaze();
+void		RB_DisableShader_heathaze();
+void		RB_RenderCommand_heathaze(const r_command_t *cmd,			const r_shader_stage_c *stage_colormap);
 
 
 #endif // R_BACKEND_H

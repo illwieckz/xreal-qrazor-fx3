@@ -95,7 +95,59 @@ r_image_c::~r_image_c()
 	}
 }
 
-void	r_image_c::updateTexture()
+void	r_image_c::bind(bool force) const
+{
+	uint_t texnum;
+	uint_t target;
+	
+	if(r_nobind->getValue())		// performance evaluation option
+	{
+		texnum = r_img_default->getId();
+		target = r_img_default->getTarget();
+		force  = true;
+	}
+	else
+	{
+		texnum = getId();
+		target = getTarget();
+	}
+
+	if((gl_state.current_textures[gl_state.current_tmu] == texnum) && (force == false))
+		return;
+
+	gl_state.current_textures[gl_state.current_tmu] = texnum;
+	
+	/*
+	switch(target)
+	{
+		case GL_TEXTURE_1D:
+		case GL_TEXTURE_2D:
+		case GL_TEXTURE_3D:
+		case GL_TEXTURE_CUBE_MAP_ARB:
+			break;
+		
+		default:
+			ri.Com_Error(ERR_FATAL, "r_image_c::bind: bad target for texture '%s' '%i'", image->getName(), texnum);
+	}
+	*/
+	
+	xglBindTexture(target, texnum);
+	
+	if(_roq)
+		copyFromVideo();
+}
+
+void	r_image_c::copyFromContext() const
+{
+	RB_SelectTexture(GL_TEXTURE0);
+	bind(true);
+	
+//	xglCopyTexImage2D(_target, 0, GL_RGBA, 0, 0, _width, _height, 0);
+	xglCopyTexSubImage2D(_target, 0, 0, 0, 0, 0, _width, _height);
+//	xglTexImage2D(_target, 0, GL_RGBA, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+}
+
+void	r_image_c::copyFromVideo() const
 {
 	if(!_roq)
 		return;
@@ -137,7 +189,7 @@ void	r_image_c::updateTexture()
 }
 
 
-void	r_image_c::convertColors()
+void	r_image_c::convertColors() const
 {
 	int i, j, y1, y2, u, v;
 	byte *pa, *pb, *pc, *c;
@@ -630,7 +682,7 @@ static void	R_InitLightViewDepthImage()
 	
 	image->bind();
 	
-	xglTexImage2D(GL_TEXTURE_2D, 0, r_depth_format, image->getWidth(), image->getHeight(), 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);	RB_CheckForError();
+	xglTexImage2D(GL_TEXTURE_2D, 0, r_depth_format, image->getWidth(), image->getHeight(), 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
 	
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, r_filter_max);
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, r_filter_max);
@@ -663,24 +715,34 @@ static void	R_InitLightViewColorImage()
 	r_img_lightview_color = image;
 }
 
-static void	R_InitCurrentRenderImage()
+static void	R_InitCurrentRenderColorImage()
 {
 	ri.Com_Printf("regenerating '_currentrender' ...\n");
 
-	r_image_c *image = new r_image_c(GL_TEXTURE_2D, "_currentrender", vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), IMAGE_NONE, NULL);
-	
-	image->bind();	RB_CheckForError();
-	
-	xglTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+	uint_t frame_buffer_width;
+	uint_t frame_buffer_height;
 
-	xglTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image->getWidth(), image->getHeight(), 0, GL_RGB, GL_FLOAT, 0);	RB_CheckForError();
-//	xglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image->getWidth(), image->getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+#if 1
+	for(frame_buffer_width = 1; frame_buffer_width < vid.width; frame_buffer_width <<= 1);
+	for(frame_buffer_height = 1; frame_buffer_height < vid.height; frame_buffer_height <<= 1);
+#else
+	frame_buffer_width = vid.width;
+	frame_buffer_height = vid.height;
+#endif
 	
-	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, r_filter_max);	RB_CheckForError();
-	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, r_filter_max);	RB_CheckForError();
+	r_image_c *image = new r_image_c(GL_TEXTURE_2D, "_currentrender", frame_buffer_width, frame_buffer_height, IMAGE_NOMIPMAP, NULL);
 	
-//	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);	RB_CheckForError();
-//	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);	RB_CheckForError();
+	image->bind();
+	
+//	xglTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+
+	xglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->getWidth(), image->getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	
+	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, r_filter_max);
+	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, r_filter_max);
+	
+//	xglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//	xglTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -691,6 +753,37 @@ static void	R_InitCurrentRenderImage()
 	r_img_currentrender = image;
 }
 
+void	R_InitCurrentRenderDepthImage()
+{
+	ri.Com_Printf("regenerating '_currentrender_depth' ...\n");
+
+	uint_t frame_buffer_width;
+	uint_t frame_buffer_height;
+	
+	for(frame_buffer_width = 1; frame_buffer_width < vid.width; frame_buffer_width <<= 1);
+	for(frame_buffer_height = 1; frame_buffer_height < vid.height; frame_buffer_height <<= 1);
+	
+	r_image_c *image = new r_image_c(GL_TEXTURE_2D, "_currentrender_depth", frame_buffer_width, frame_buffer_height, IMAGE_NOMIPMAP, NULL);
+	
+	image->bind();
+	
+//	xglTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+
+//	xglTexImage2D(GL_TEXTURE_2D, 0, r_depth_format, image->getWidth(), image->getHeight(), 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+
+	xglTexImage2D(GL_TEXTURE_2D, 0, r_depth_format, image->getWidth(), image->getHeight(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	
+	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, r_filter_max);
+	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, r_filter_max);
+
+	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	
+//	if(gl_config.ext_texture_filter_anisotropic)
+//		xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic_level->getInteger());
+	
+	r_img_currentrender_depth = image;
+}
 
 void	R_InitImages()
 {
@@ -715,23 +808,24 @@ void	R_InitImages()
 	//
 	// setup default textures
 	//
-	R_InitDefaultImage();			RB_CheckForError();
-	R_InitWhiteImage();			RB_CheckForError();
-	R_InitBlackImage();			RB_CheckForError();
-	R_InitFlatImage();			RB_CheckForError();
-	R_InitQuadraticImage();			RB_CheckForError();
+	R_InitDefaultImage();
+	R_InitWhiteImage();
+	R_InitBlackImage();
+	R_InitFlatImage();
+	R_InitQuadraticImage();
 
-	R_InitWhiteCubeMapImage();		RB_CheckForError();
-	R_InitNormalizationCubeMapImage(128);	RB_CheckForError();
-	R_InitSkyCubeMapImage();		RB_CheckForError();
+	R_InitWhiteCubeMapImage();
+	R_InitNormalizationCubeMapImage(128);
+	R_InitSkyCubeMapImage();
 	
-	R_InitNoFalloffImage();			RB_CheckForError();
-//	R_Init3DAttenuationImage(32);		RB_CheckForError();
+	R_InitNoFalloffImage();
+//	R_Init3DAttenuationImage(32);
 	
-	R_InitLightViewDepthImage();		RB_CheckForError();
-	R_InitLightViewColorImage();		RB_CheckForError();
+	R_InitLightViewDepthImage();
+	R_InitLightViewColorImage();
 	
-	R_InitCurrentRenderImage();		RB_CheckForError();
+	R_InitCurrentRenderColorImage();
+	R_InitCurrentRenderDepthImage();
 }
 
 void	R_ShutdownImages()
@@ -780,10 +874,14 @@ void	R_ImageList_f()
 			case GL_TEXTURE_CUBE_MAP_ARB:
 				target = "CUBE";
 				break;
+				
+			case GL_TEXTURE_RECTANGLE_ARB:
+				target = "RECT";
+				break;
 			
 			default:
 				target = "NA";
-		}	
+		}
 		
 		ri.Com_Printf(" %4i %4i %4i %s\t '%s'\n", image->getWidth(), image->getHeight(), image->getId(), target, image->getName());
 	}
@@ -1869,6 +1967,7 @@ void	R_FreeUnusedImages()
 	r_img_lightview_color->setRegistrationSequence();
 	
 	r_img_currentrender->setRegistrationSequence();
+	r_img_currentrender_depth->setRegistrationSequence();
 	
 	for(std::vector<r_image_c*>::iterator ir = r_images.begin(); ir != r_images.end(); ir++)
 	{

@@ -1,6 +1,6 @@
 /// ============================================================================
 /*
-Copyright (C) 2004 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2005 Robert Beckebans <trebor_7@users.sourceforge.net>
 Please see the file "AUTHORS" for a list of contributors
 
 This program is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include 	"r_local.h"
 
 // xreal --------------------------------------------------------------------
+
 
 static r_md5_model_c*	r_md5_model = NULL;
 static r_skel_bone_t*	r_md5_bone = NULL;
@@ -70,27 +71,28 @@ static void	R_MD5Mesh_MeshesNum(int meshes_num)
 }
 
 
-static void	R_MD5Mesh_CreateBone(char const* begin, char const* end)
+static void	R_MD5Mesh_NewBone(char const* begin, char const* end)
 {
 	r_md5_bone = new r_skel_bone_t();
 	r_md5_bone->name = std::string(begin, end);
+	
+//	ri.Com_Printf("parsing bone '%s' ...\n", r_md5_bone->name.c_str());
 }
 
-static void	R_MD5Mesh_BoneIndex(int parent_index)
+static void	R_MD5Mesh_ParentIndex(int parent_index)
 {
 	r_md5_bone->parent_index = parent_index;
 }
 
 static void	R_MD5Mesh_BoneOrigin(char const)
 {
-	r_md5_bone->position.set(r_md5_float0, r_md5_float1, r_md5_float2);
+	r_md5_bone->default_origin.set(r_md5_float0, r_md5_float1, r_md5_float2);
 }
 
-static void	R_MD5Mesh_BoneRotation(char const)
+static void	R_MD5Mesh_BoneQuaternion(char const)
 {
-	r_md5_bone->quat.set(	r_md5_float0,
-				r_md5_float1,
-				r_md5_float2	);
+	r_md5_bone->default_quat.set(r_md5_float0, r_md5_float1, r_md5_float2);
+	r_md5_bone->default_quat.normalize();
 }
 
 static void	R_MD5Mesh_AddBone(char const* begin, char const* end)
@@ -109,6 +111,8 @@ static void	R_MD5Mesh_AddShader(char const* begin, char const* end)
 static void	R_MD5Mesh_NewMesh(char const* begin, char const* end)
 {
 	r_md5_mesh = new r_skel_mesh_c();
+	
+//	ri.Com_Printf("parsing mesh ...\n");
 }
 
 
@@ -228,21 +232,19 @@ static void	R_MD5Mesh_AddMesh(char const)
 	r_md5_model->addMesh(r_md5_mesh);
 }
 
-
-
-static void	R_MD5Mesh_Float0(float f0)
+static void	R_MD5Mesh_Float0(float f)
 {
-	r_md5_float0 = f0;
+	r_md5_float0 = f;
 }
 
-static void	R_MD5Mesh_Float1(float f1)
+static void	R_MD5Mesh_Float1(float f)
 {
-	r_md5_float1 = f1;
+	r_md5_float1 = f;
 }
 
-static void	R_MD5Mesh_Float2(float f2)
+static void	R_MD5Mesh_Float2(float f)
 {
-	r_md5_float2 = f2;
+	r_md5_float2 = f;
 }
 
 
@@ -278,26 +280,24 @@ struct r_md5_model_grammar_t : public boost::spirit::grammar<r_md5_model_grammar
 					boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - boost::spirit::ch_p('\"')] >>
 					boost::spirit::ch_p('\"')
 				;
-				
+			
 			numjoints
-				=	boost::spirit::str_p("numJoints") >> boost::spirit::int_p[&R_MD5Mesh_JointsNum]
+				=	boost::spirit::nocase_d[boost::spirit::str_p("numjoints")] >> boost::spirit::int_p[&R_MD5Mesh_JointsNum]
 				;
 				
 			nummeshes
-				=	boost::spirit::str_p("numMeshes") >> boost::spirit::int_p[&R_MD5Mesh_MeshesNum]
+				=	boost::spirit::nocase_d[boost::spirit::str_p("nummeshes")] >> boost::spirit::int_p[&R_MD5Mesh_MeshesNum]
 				;
 				
 			joints
-				=	boost::spirit::str_p("joints") >> boost::spirit::ch_p('{') >>
-					+joint[&R_MD5Mesh_AddBone] >> 
-					boost::spirit::ch_p('}')
+				=	(boost::spirit::str_p("joints") >> boost::spirit::ch_p('{') >> +joint[&R_MD5Mesh_AddBone] >> boost::spirit::ch_p('}'))
 				;
 				
 			joint
 				=	boost::spirit::ch_p('\"') >>
-					boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - boost::spirit::ch_p('\"')][&R_MD5Mesh_CreateBone] >>
+					boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - boost::spirit::ch_p('\"')][&R_MD5Mesh_NewBone] >>
 					boost::spirit::ch_p('\"') >>
-					boost::spirit::int_p[&R_MD5Mesh_BoneIndex] >>
+					boost::spirit::int_p[&R_MD5Mesh_ParentIndex] >>
 					boost::spirit::ch_p('(') >>
 					boost::spirit::real_p[&R_MD5Mesh_Float0] >>
 					boost::spirit::real_p[&R_MD5Mesh_Float1] >>
@@ -307,7 +307,11 @@ struct r_md5_model_grammar_t : public boost::spirit::grammar<r_md5_model_grammar
 					boost::spirit::real_p[&R_MD5Mesh_Float0] >>
 					boost::spirit::real_p[&R_MD5Mesh_Float1] >>
 					boost::spirit::real_p[&R_MD5Mesh_Float2] >>
-					boost::spirit::ch_p(')')[&R_MD5Mesh_BoneRotation]
+					boost::spirit::ch_p(')')[&R_MD5Mesh_BoneQuaternion]
+				;
+				
+			meshes
+				=	+mesh
 				;
 				
 			mesh
@@ -362,7 +366,8 @@ struct r_md5_model_grammar_t : public boost::spirit::grammar<r_md5_model_grammar
 					numjoints >>
 					nummeshes >>
 					joints >>
-					+mesh
+					meshes// >>
+					//*boost::spirit::anychar_p
 				;
 				
 			// end grammar definiton
@@ -377,11 +382,16 @@ struct r_md5_model_grammar_t : public boost::spirit::grammar<r_md5_model_grammar
 						numjoints,
 						nummeshes,
 						joints,
-							joint,
-						mesh,
-							vert,
-							triangle,
-							weight,
+							bone,
+								bindpos,
+								bindmat,
+								parent,
+							joint,	
+						meshes,
+							mesh,
+								vert,
+								triangle,
+								weight,
 						
 						expression;
 		
@@ -404,6 +414,7 @@ r_md5_model_c::~r_md5_model_c()
 
 void	r_md5_model_c::load()
 {
+#if 1
 	r_md5_model = this;
 
 	std::string exp = (const char*)_buffer;
@@ -419,9 +430,10 @@ void	r_md5_model_c::load()
 	);
 	
 	if(!info.full)
-		ri.Com_Error(ERR_DROP, "r_ase_model_c::load: parsing failed for '%s'", getName());
+		ri.Com_Error(ERR_DROP, "r_md5_model_c::load: parsing failed for '%s'", getName());
+	
 
-	/*
+#else
 	char *data_p = (char*)_buffer;
 	
 	Com_Parse(&data_p);	// skip ident
@@ -437,12 +449,11 @@ void	r_md5_model_c::load()
 	
 	loadBones(&data_p);
 	loadMeshes(&data_p);
-	*/
+#endif
 	
 #if 0
 	ri.Com_Printf("r_md5_model_c::load: model '%s' has %i bones\n", getName(), _bones.size());
 	ri.Com_Printf("r_md5_model_c::load: model '%s' has %i meshes\n", getName(), _meshes.size());
-	ri.Com_Printf("r_md5_model_c::load: model '%s' finished\n", getName());
 #endif
 }
 
@@ -451,7 +462,7 @@ void	r_md5_model_c::load()
 void	r_md5_model_c::loadBones(char **data_p)
 {
 	r_skel_bone_t*	poutbone = NULL;
-	char*		token = NULL;
+//	char*		token = NULL;
 	
 	Com_Parse(data_p);	// skip "numbones"
 	int bones_num = Com_ParseInt(data_p);
@@ -466,56 +477,38 @@ void	r_md5_model_c::loadBones(char **data_p)
 	{
 		poutbone = new r_skel_bone_t();
 	
-		Com_Parse(data_p, true);	// skip "bone"
-		Com_Parse(data_p, false);	// skip bone number
-		Com_Parse(data_p, false);	// skip '{'
+		//Com_Parse(data_p, true);	// skip "bone"
+		//Com_Parse(data_p, false);	// skip bone number
+		//Com_Parse(data_p, false);	// skip '{'
 		
-		while(true)
-		{
-			token = Com_Parse(data_p, true);
+		// parse name
+		poutbone->name = Com_Parse(data_p, false);
 		
-			if(X_strequal(token, "name"))
-			{
-				poutbone->name = Com_Parse(data_p, false); // bone name
-			}
-			else if(X_strequal(token, "bindpos"))
-			{
-				// parse bindpos
-				for(int j=0; j<3; j++)
-				{
-					poutbone->position[j] = Com_ParseFloat(data_p);
-				}
-			}
-			else if(X_strequal(token, "bindmat"))
-			{
-				// parse bind matrix
-				poutbone->matrix.identity();
-				for(int j=0; j<3; j++)
-				{
-					for(int k=0; k<3; k++)
-					{
-						poutbone->matrix[j][k] = Com_ParseFloat(data_p, false);
-					}
-				}
-				poutbone->matrix.transpose();
+		// parse bone parent index
+		poutbone->parent_index = Com_ParseInt(data_p, false);
 		
-				//ri.Com_Printf("r_md5_model_c::loadBones: bone '%s' has matrix:\n%s\n", poutbone->name.c_str(), poutbone->matrix.toString());
-			}
-			else if(X_strequal(token, "parent"))
-			{
-				poutbone->parent_name = Com_Parse(data_p, false);
-				poutbone->parent_index = getNumForBoneName(poutbone->parent_name);
-			}
-			else if(X_strequal(token, "}"))
-			{
-				break;
-			}
-			else
-			{
-				ri.Com_Error(ERR_DROP, "r_md5_model_c::loadBones: found invalid token '%s'", token);
-				return;
-			}
-		}
+		// parse bindpos
+		Com_Parse(data_p, false);	// skip '('
+		for(int j=0; j<3; j++)
+			poutbone->position[j] = Com_ParseFloat(data_p, false);
+		Com_Parse(data_p, false);	// skip ')'
+		
+		// parse unit quaternion
+		Com_Parse(data_p, false);	// skip '('
+		vec3_c v(false);
+		for(int j=0; j<3; j++)
+			v[j] = Com_ParseFloat(data_p, false);
+		Com_Parse(data_p, false);	// skip ')'
+		
+		vec_t term = -1.0 - v[0]*v[0] - v[1]*v[1] - v[2]*v[2];
+		
+		if(term < 0.0f)
+			poutbone->quat.set(v[0], v[1], v[2], 0.0f);
+		else
+			poutbone->quat.set(v[0], v[1], v[2], -X_sqrt(term));
+			
+		poutbone->quat.normalize();
+		poutbone->matrix_original.fromQuaternion(poutbone->quat);
 		
 		_bones.push_back(poutbone);
 	}
@@ -526,7 +519,7 @@ void	r_md5_model_c::loadBones(char **data_p)
 	//
 	poutbone = new r_skel_bone_t();
 	poutbone->name = "boundsMin";
-	poutbone->matrix.identity();
+	poutbone->matrix_original.identity();
 	_bones.push_back(poutbone);
 	
 	
@@ -535,7 +528,7 @@ void	r_md5_model_c::loadBones(char **data_p)
 	//
 	poutbone = new r_skel_bone_t();
 	poutbone->name = "boundsMax";
-	poutbone->matrix.identity();
+	poutbone->matrix_original.identity();
 	_bones.push_back(poutbone);
 
 	
@@ -581,7 +574,8 @@ void	r_md5_model_c::loadMeshes(char **data_p)
 		//
 		Com_Parse(data_p);	// skip "shader"
 		std::string shader = Com_Parse(data_p);	//shader name
-		r_model_shader_c *poutshader = new r_model_shader_c(shader, R_RegisterShader(shader));
+		//addShader(new r_model_shader_c(shader, R_RegisterShader(shader), X_SURF_NONE, X_CONT_NONE));
+		r_model_shader_c *poutshader = new r_model_shader_c(shader, R_RegisterShader(shader), X_SURF_NONE, X_CONT_NONE);
 			
 		_shaders.push_back(poutshader);
 	

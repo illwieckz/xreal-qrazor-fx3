@@ -187,8 +187,38 @@ public:
 };
 
 
+/*
+================================================================================
+				TESTING
+================================================================================
+*/
 
+class g_item_dummy_c : public g_item_c
+{
+public:
+	g_item_dummy_c()
+	{
+		_classname 		= "ammo_shells";
+	
+		_pickup_sound 		= "misc/am_pkup.wav";
+		_model_world		= "models/powerups/ammo/shotgunam.md3";
+		_model_world_flags	= 0;
+		_model_view 		= "";
+	
+		_icon			= "icons/icona_shotgun.tga";
+		_pickup_name		= "Shells";
+		_count_width		= 3;
+	
+		_quantity		= 10;
+		_ammo			= "";
+		_flags			= IT_AMMO;
 
+		_weapmodel		= 0;
+
+		_info			= NULL;
+		_tag			= AMMO_SHELLS;
+	}
+};
 
 
 gitem_armor_t jacketarmor_info	= { 25,  50, .30, .00, ARMOR_JACKET};
@@ -979,8 +1009,9 @@ g_item_dropable_c::g_item_dropable_c(g_player_c *player, g_item_c *item, const v
 	_s.origin = position;
 	_s.origin2.set(0, 0, 8);
 	_s.index_model = trap_SV_ModelIndex(item->getWorldModel());
+	_s.index_animation = trap_SV_AnimationIndex(item->getWorldModelAnimation());	
 	_s.effects = item->getWorldModelFlags();
-	_s.renderfx = RF_GLOW;
+	_s.renderfx = RF_AUTOANIM;
 
 	_r.inuse = true;
 	_r.owner = this;
@@ -1008,14 +1039,14 @@ g_item_dropable_c::g_item_dropable_c(g_player_c *player, g_item_c *item, const v
 	
 	// setup mass
 	dMass m;
-	m.setBoxTotal(3, _r.size[0], _r.size[1], _r.size[2]);
-//	m.setSphereTotal(3, _r.size.length() * 0.5);
+//	m.setBoxTotal(3, _r.size[0], _r.size[1], _r.size[2]);
+	m.setSphereTotal(3, _r.size.length() * 0.5);
 	_body->setMass(&m);
 	
 	// setup collision
-	d_geom_c *geom = new d_box_c(g_ode_space_toplevel->getId(), _r.size);
+//	d_geom_c *geom = new d_box_c(g_ode_space_toplevel->getId(), _r.size);
 //	d_geom_c *geom = new d_trimesh_c(g_ode_space_toplevel->getId(), model->vertexes, model->indexes);
-//	d_geom_c *geom = new d_sphere_c(g_ode_space_toplevel->getId(), _r.size.length() * 0.5);
+	d_geom_c *geom = new d_sphere_c(g_ode_space_toplevel->getId(), _r.size.length() * 0.5);
 	
 	geom->setBody(_body->getId());
 	geom->setData(this);
@@ -1137,7 +1168,7 @@ g_item_spawnable_c::g_item_spawnable_c(g_item_c *item)
 	_classname = item->getClassname();
 	_item = item;
 	_s.effects = item->getWorldModelFlags();
-	_s.renderfx = RF_GLOW;
+	_s.renderfx = RF_NONE;
 	
 	G_SetModel(this, item->getWorldModel());
 	
@@ -1300,6 +1331,9 @@ void	G_PrecacheItem(g_item_c *item)
 		
 	if(item->getWorldModel())
 		trap_SV_ModelIndex(item->getWorldModel());
+		
+	if(item->getWorldModelAnimation())
+		trap_SV_AnimationIndex(item->getWorldModelAnimation());
 		
 	if(item->getViewModel())
 		trap_SV_ModelIndex(item->getViewModel());

@@ -85,6 +85,20 @@ void	R_SpecularMap_sc(char const* begin, char const* end)
 	r_current_shader->stages.push_back(r_current_stage);
 }
 
+void	R_HeatHazeMap_sc(char const* begin, char const* end)
+{
+	r_current_stage = new r_shader_stage_c();
+	
+	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_HEATHAZEMAP;
+	r_current_shader->setORFlags(SHADER_POSTPROCESS);
+	
+	R_Map_stc(begin, end);
+	
+	r_current_shader->stage_heathazemap = r_current_stage;
+	
+	r_current_shader->stages.push_back(r_current_stage);
+}
+
 void	R_LightMap_sc(char const* begin, char const* end)
 {
 	r_current_stage = new r_shader_stage_c();

@@ -36,6 +36,7 @@ void	R_ColorMap_sc(char const* begin, char const* end);
 void	R_DiffuseMap_sc(char const* begin, char const* end);
 void	R_BumpMap_sc(char const* begin, char const* end);
 void	R_SpecularMap_sc(char const* begin, char const* end);
+void	R_HeatHazeMap_sc(char const* begin, char const* end);
 void	R_LightMap_sc(char const* begin, char const* end);
 void	R_DeluxeMap_sc(char const* begin, char const* end);
 void	R_ReflectionMap_sc(char const* begin, char const* end);
@@ -110,6 +111,7 @@ void	R_StageColorMap_stc(char const* begin, char const *end);
 void	R_StageDiffuseMap_stc(char const* begin, char const *end);
 void	R_StageBumpMap_stc(char const* begin, char const *end);
 void	R_StageSpecularMap_stc(char const* begin, char const *end);
+void	R_StageHeatHazeMap_stc(char const* begin, char const *end);
 void	R_StageLightMap_stc(char const* begin, char const *end);
 void	R_StageDeluxeMap_stc(char const* begin, char const *end);
 void	R_StageReflectionMap_stc(char const* begin, char const *end);
@@ -369,6 +371,10 @@ static void	R_PushBackCurrentStage(char const begin)//, char const* end)
 				r_current_shader->stage_specularmap = r_current_stage;
 				break;
 				
+			case SHADER_MATERIAL_STAGE_TYPE_HEATHAZEMAP:
+				r_current_shader->stage_heathazemap = r_current_stage;
+				break;
+				
 			case SHADER_MATERIAL_STAGE_TYPE_LIGHTMAP:
 				r_current_shader->stage_lightmap = r_current_stage;
 				break;
@@ -440,6 +446,10 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 			
 			specularmap_sc
 				=	boost::spirit::nocase_d[boost::spirit::str_p("specularmap")] >> restofline[&R_SpecularMap_sc]
+				;
+				
+			heathazemap_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("heathazemap")] >> restofline[&R_HeatHazeMap_sc]
 				;
 			
 			lightmap_sc
@@ -591,6 +601,7 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 					diffusemap_sc			|
 					bumpmap_sc			|
 					specularmap_sc			|
+					heathazemap_sc			|
 					lightmap_sc			|
 					deluxemap_sc			|
 					reflectionmap_sc		|
@@ -826,6 +837,10 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 			stage_specularmap_stc
 				=	boost::spirit::nocase_d[boost::spirit::str_p("stage") >> boost::spirit::str_p("specularmap")][&R_StageSpecularMap_stc]
 				;
+				
+			stage_heathazemap_stc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("stage") >> boost::spirit::str_p("heathazemap")][&R_StageHeatHazeMap_stc]
+				;
 			
 			stage_lightmap_stc
 				=	boost::spirit::nocase_d[boost::spirit::str_p("stage") >> boost::spirit::str_p("lightmap")][&R_StageLightMap_stc]
@@ -916,6 +931,7 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 					stage_diffusemap_stc		|
 					stage_bumpmap_stc		|
 					stage_specularmap_stc		|
+					stage_heathazemap_stc		|
 					stage_lightmap_stc		|
 					stage_deluxemap_stc		|
 					stage_reflectionmap_stc		|
@@ -955,6 +971,7 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 								diffusemap_sc,
 								bumpmap_sc,
 								specularmap_sc,
+								heathazemap_sc,
 								lightmap_sc,
 								deluxemap_sc,
 								reflectionmap_sc,
@@ -1043,6 +1060,7 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 									stage_diffusemap_stc,
 									stage_bumpmap_stc,
 									stage_specularmap_stc,
+									stage_heathazemap_stc,
 									stage_lightmap_stc,
 									stage_deluxemap_stc,
 									stage_reflectionmap_stc,
@@ -1535,6 +1553,32 @@ static void	R_FindMaterialShaderStageImage(r_shader_c *shader, r_shader_stage_c 
 			break;
 		}
 		
+		case SHADER_MATERIAL_STAGE_TYPE_HEATHAZEMAP:
+		{
+			if(stage->image_name.length())
+			{
+				imageflags = IMAGE_NORMALMAP;
+			
+				R_SetShaderStageImageFlags(stage, imageflags);
+	
+				image = R_FindImage(stage->image_name, imageflags, IMAGE_UPLOAD_COLORMAP);
+		
+				if(!image)
+				{
+					ri.Com_Printf("R_FindMaterialShaderStageImage: shader '%s' has no heathazemap '%s'\n", shader->getName(), stage->image_name.c_str());
+					image = r_img_flat;
+				}
+			
+				stage->image = image;
+			}
+			else
+			{
+				stage->image = r_img_flat;
+			}
+			
+			break;
+		}
+		
 		default:
 		{
 			ri.Com_Error(ERR_DROP, "R_FindMaterialShaderStageImage: unknown shader stage type %i", stage->type);
@@ -1809,6 +1853,11 @@ static void	R_FinishShader(r_shader_c *shader)
 }
 
 
+static void	R_InitCurrentRenderShader()
+{
+	r_shader_currentrender = R_RegisterPic("currentRender");
+}
+
 void	R_InitShaders()
 {
 	ri.Com_Printf("------- R_InitShaders -------\n");
@@ -1822,6 +1871,8 @@ void	R_InitShaders()
 			R_PrecacheShaderFile(*ir);
 		}
 	}
+	
+	R_InitCurrentRenderShader();
 }
 
 
@@ -1838,6 +1889,8 @@ void	R_ShutdownShaders()
 
 void	R_FreeUnusedShaders()
 {
+	r_shader_currentrender->setRegistrationSequence();
+
 	for(std::vector<r_shader_c*>::iterator ir = r_shaders.begin(); ir != r_shaders.end(); ++ir)
 	{
 		r_shader_c* shader = *ir;

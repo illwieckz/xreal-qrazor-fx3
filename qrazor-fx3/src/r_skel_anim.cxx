@@ -31,30 +31,38 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "r_local.h"
 
 
+static std::vector<r_skel_animation_c*>	r_animations;
 
 
-
-r_skel_animation_c::r_skel_animation_c(const std::string &name)
+r_skel_animation_c::r_skel_animation_c(const std::string &name, byte *buffer, uint_t buffer_size)
 {
 	_name = name;
 	_registration_sequence = r_registration_sequence;
+	
+	_buffer = buffer;
+	_buffer_size = buffer_size;
+	
+	std::vector<r_skel_animation_c*>::iterator ir = find(r_animations.begin(), r_animations.end(), static_cast<r_skel_animation_c*>(NULL));
+	
+	if(ir != r_animations.end())
+		*ir = this;
+	else
+		r_animations.push_back(this);
 }
 
 r_skel_animation_c::~r_skel_animation_c()
 {
-	for(std::vector<r_skel_channel_t*>::const_iterator ir = _channels.begin(); ir != _channels.end(); ir++)
-	{
-		delete *ir;
-	}
+	X_purge<std::vector<r_skel_channel_t*> >(_channels);
 	_channels.clear();
 }
 
+/*
 void	r_skel_animation_c::loadChannels(char **data_p)
 {
 	Com_Parse(data_p);	// skip "numchannels"
 	int channels_num = Com_ParseInt(data_p);
 			
-	if(channels_num <= 0 /*|| channels_num > MD5_MAX_CHANNELS*/)
+	if(channels_num <= 0)// || channels_num > MD5_MAX_CHANNELS)
 	{
 		ri.Com_Error(ERR_DROP, "r_skel_animation_c::loadChannels: animation '%s' has invalid channels number %i", _name.c_str(), channels_num);
 		return;
@@ -134,13 +142,7 @@ void	r_skel_animation_c::loadChannels(char **data_p)
 		_channels.push_back(channel);
 	}
 }
-
-
-
-
-
-
-static std::vector<r_skel_animation_c*>	r_animations;
+*/
 
 
 void	R_InitAnimations()
@@ -156,71 +158,47 @@ void	R_ShutdownAnimations()
 	ri.Com_Printf("------- R_ShutdownAnimations -------\n");
 	
 	X_purge<std::vector<r_skel_animation_c*> >(r_animations);
-	
 	r_animations.clear();
 }
 
 
-static r_skel_animation_c*	R_GetFreeAnimation(const std::string &name)
-{
-	r_skel_animation_c *anim = new r_skel_animation_c(name);
-	
-	std::vector<r_skel_animation_c*>::iterator ir = find(r_animations.begin(), r_animations.end(), static_cast<r_skel_animation_c*>(NULL));//std::bind2nd(std::greater<r_skel_animation_c*>(), NULL));
-	
-	if(ir != r_animations.end())
-		*ir = anim;
-	else
-		r_animations.push_back(anim);
-	
-	return anim;
-}
-
-
-
-
 r_skel_animation_c*	R_LoadAnimation(const std::string &name)
 {
-	char *buf = NULL;
-	char *data_p = NULL;
+	byte*	buffer = NULL;
+	uint_t	buffer_size;
 	
 	Com_Printf("loading '%s' ...\n", name.c_str());
 
 	//
 	// load the file
 	//
-	ri.VFS_FLoad(name, (void **)&buf);
-	if(!buf)
+	buffer_size = ri.VFS_FLoad(name, (void **)&buffer);
+	if(!buffer)
 	{
 		ri.Com_Error(ERR_DROP, "r_skel_md5_model_c::registerAnimation: couldn't load '%s'", name.c_str());
 		return false;
 	}
 	
-	data_p = buf;
+	r_skel_animation_c *anim = NULL;
 	
-	Com_Parse(&data_p);	// skip ident
-	
-	int version = Com_ParseInt(&data_p);
-	
-	if(version != MD5_VERSION)
+	if(X_strnequal((const char*)buffer, MD5_IDENTSTRING, 10))
 	{
-		ri.Com_Error(ERR_DROP, "r_skel_md5_model_c::registerAnimation: '%s' has wrong version number (%i should be %i)", name.c_str(), version, MD5_VERSION);
-		return false;
+		anim = new r_md5_animation_c(name, buffer, buffer_size);
+	}
+	else
+	{
+		ri.VFS_FFree(buffer);
+		ri.Com_Error(ERR_DROP, "R_LoadAnimation: unknown fileid for %s", name.c_str());
+		return NULL;
 	}
 	
-	Com_Parse(&data_p);	// skip "commandline"
-	Com_Parse(&data_p);	// skip commandline string
-	
-	r_skel_animation_c *anim = R_GetFreeAnimation(name);
-	
-	anim->loadChannels(&data_p);
-	
-	//r_animations.push_back(anim);
-	
-	ri.VFS_FFree(buf);
+	anim->load();
+
+	ri.VFS_FFree(buffer);
 	
 	//TODO update public animation info
 	
-	//ri.Com_Printf("r_skel_md5_model_c::registerAnimation: anim '%s' has %i channels\n", name.c_str(), _channels.size());
+//	ri.Com_Printf("r_skel_md5_model_c::registerAnimation: anim '%s' has %i channels\n", name.c_str(), anim->_channels.size());
 	
 	return anim;
 }
@@ -278,7 +256,7 @@ r_skel_animation_c*	R_GetAnimationByNum(int num)
 {
 	if(num < 0 || num >= (int)r_animations.size())
 	{
-		ri.Com_Error(ERR_DROP, "R_GetAnimationByNum: bad number %i\n", num);
+		//ri.Com_Error(ERR_DROP, "R_GetAnimationByNum: bad number %i\n", num);
 		return NULL;
 	}
 
