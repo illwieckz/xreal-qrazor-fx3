@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 // system -------------------------------------------------------------------
 #include <limits>
+#include <iostream>
 
 // shared -------------------------------------------------------------------
 // qrazor-fx ----------------------------------------------------------------
@@ -52,8 +53,16 @@ typedef vec_t	vec3_t[3];
 typedef vec_t	vec4_t[4];
 typedef vec_t	vec5_t[5];
 
-//typedef int vec2sf_t		__attribute__ ((mode(V2SF)));	// vector of two  single floats
-//typedef int vec4sf_t		__attribute__ ((mode(V4SF)));	// vector of four single floats
+#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD_BUILTIN)
+typedef int vec1sf_t		__attribute__((mode(SF)));
+typedef int vec2sf_t		__attribute__((mode(V2SF)));	// vector of two  single floats
+struct      vec3sf_t
+{
+	vec2sf_t	xy;
+	vec1sf_t	z;
+};
+typedef int vec4sf_t		__attribute__((mode(V4SF)));	// vector of four single floats
+#endif
 
 class vec2_c;
 class vec3_c;
@@ -210,37 +219,16 @@ extern const quaternion_c	quat_identity;
 #define X_ftol(f) (long)(f)
 
 
-// reciprocal
-inline vec_t	X_recip(vec_t x)
-{
-#ifdef DOUBLEVEC_T
-	return (1.0/(x));
-#else
-	return ((float)(1.0f/(x)));
-#endif
-}
+//! reciprocal
+vec_t	X_recip(vec_t x);
 
-// square root
-inline vec_t	X_sqrt(vec_t x)
-{	
-#ifdef DOUBLEVEC_T
-	return sqrt(x);
-#else
-	return ((float)sqrtf(float(x)));
-#endif
-}
+//! square root
+vec_t	X_sqrt(vec_t x);
 
-// reciprocal square root
-inline vec_t	X_recipsqrt(vec_t x)
-{
-#ifdef DOUBLEVEC_T
-	return (1.0/sqrt(x));
-#else
-	return ((float)(1.0f/sqrtf(float(x))));
-#endif
-}
+//! reciprocal square root
+vec_t	X_recipsqrt(vec_t x);
 
-// sine
+//! sine
 inline vec_t	X_sin(vec_t x)
 {
 #ifdef DOUBLEVEC_T
@@ -250,7 +238,7 @@ inline vec_t	X_sin(vec_t x)
 #endif
 }
 
-// cosine
+//! cosine
 inline vec_t	X_cos(vec_t x)
 {
 #ifdef DOUBLEVEC_T
@@ -260,7 +248,7 @@ inline vec_t	X_cos(vec_t x)
 #endif
 }
 
-// absolute value
+//! absolute value
 inline vec_t	X_fabs(vec_t x)
 {
 #ifdef DOUBLEVEC_T
@@ -270,7 +258,7 @@ inline vec_t	X_fabs(vec_t x)
 #endif
 }
 
-// arc tangent with 2 args
+//! arc tangent with 2 args
 inline vec_t	X_atan2(vec_t y, vec_t x)
 {
 #ifdef DOUBLEVEC_T
@@ -280,7 +268,7 @@ inline vec_t	X_atan2(vec_t y, vec_t x)
 #endif
 }
 
-// modulo
+//! modulo
 inline vec_t	X_fmod(vec_t x, vec_t y)
 {
 #ifdef DOUBLEVEC_T
@@ -315,9 +303,10 @@ inline vec_t	X_sqr(vec_t v)
 class vec2_c
 {
 public:
-	inline vec2_c()
+	inline vec2_c(bool clear = true)
 	{
-		_v[0] = _v[1] = 0.0;
+		if(clear)
+			_v[0] = _v[1] = 0.0;
 	}
 	
 	inline vec2_c(vec_t x, vec_t y)
@@ -453,22 +442,15 @@ public:
 		return _v[index];
 	}
 	
-	inline operator float * () const
+	inline operator vec_t * () const
 	{
-		return (float*)_v;
+		return (vec_t*)_v;
 	}
 
-	inline operator float * ()
-	{
-		return (float*)_v;
-	}
-	
-#ifdef DOUBLEVEC_T
 	inline operator vec_t * ()
 	{
 		return (vec_t*)_v;
 	}
-#endif
 	
 	inline vec2_c&	operator = (const vec2_c &v)
 	{
@@ -654,15 +636,15 @@ public:
 	
 	inline bool 	isZero() const;
 	
-	inline vec_t	length() const;
+	vec_t	length() const;
 
-	inline vec_t	distance(const vec3_c &v) const;
-
-	inline vec_t	normalize();
+	vec_t	normalize();
 	
-	inline vec_t	dotProduct(const vec3_c &v) const;
+	vec_t	dotProduct(const vec3_c &v) const;
 
-	inline vec3_c& 	crossProduct(const vec3_c &v1, const vec3_c &v2);
+	vec3_c& 	crossProduct(const vec3_c &v1, const vec3_c &v2);
+	
+	inline vec_t	distance(const vec3_c &v) const;
 	
 	inline void	average(const vec3_c &v1, const vec3_c &v2);
 
@@ -709,26 +691,12 @@ public:
 	inline operator vec_t * () const;
 
 	inline operator vec_t * ();
-	
-	/*
-	inline operator float * () const;
-
-	inline operator float * ();
-	
-	inline operator double * () const;
-
-	inline operator double * ();
-	*/
 			
-	inline vec3_c&	operator = (const vec3_c &v);
+	vec3_c&	operator = (const vec3_c &v);
 	
-	inline vec3_c&	operator = (const vec4_c &v);
+	vec3_c&	operator = (const vec4_c &v);
 		
-//	inline vec3_c&	operator = (const vec_t *v);
-	
-	inline vec3_c&	operator = (const float *v);
-		
-	inline vec3_c&	operator = (const double *v);
+	vec3_c&	operator = (const vec_t *v);
 
 private:
 	vec3_t	_v;
@@ -745,15 +713,22 @@ inline vec3_c::vec3_c(vec_t x, vec_t y, vec_t z)
 {
 	set(x, y, z);
 }
-	
-inline vec3_c::vec3_c(const vec_t *v)
-{
-	set(v[0], v[1], v[2]);
-}
-	
+
 inline vec3_c::vec3_c(const vec3_c& v)
 {
 	set(v._v[0], v._v[1], v._v[2]);
+}
+
+vec3_c::vec3_c(const vec_t *v)
+{
+//	assert(false);
+
+//	Com_Error(ERR_FATAL, "vec3_c::(const vec_t *v): called @ file %s, line %i", s, line);
+	
+//	std::cerr << "vec3_c::(const vec_t *v): called @ " << s << "line " << line << std::endl;
+//	exit(1);
+
+	set(v[0], v[1], v[2]);
 }
 	
 inline void	vec3_c::clear()
@@ -804,46 +779,11 @@ inline bool	vec3_c::isZero() const
 		return false;
 }
 
-inline vec_t	vec3_c::length() const
-{
-	return X_sqrt(_v[0]*_v[0] + _v[1]*_v[1] + _v[2]*_v[2]);
-}
-
 inline vec_t	vec3_c::distance(const vec3_c &v) const
 {
 	vec3_c tmp = *this - v;
 		
 	return tmp.length();
-}
-
-inline vec_t	vec3_c::normalize()
-{
-	vec_t len = _v[0]*_v[0] + _v[1]*_v[1] + _v[2]*_v[2];
-	
-	if(len)
-	{
-		len = X_sqrt(len);
-		
-		_v[0] /= len;
-		_v[1] /= len;
-		_v[2] /= len;
-	}
-	
-	return len;
-}
-
-inline vec_t	vec3_c::dotProduct(const vec3_c &v) const
-{
-	return  (_v[0]*v._v[0] + _v[1]*v._v[1] + _v[2]*v._v[2]);
-}
-
-inline vec3_c&	vec3_c::crossProduct(const vec3_c &v1, const vec3_c &v2)
-{
-	_v[0] = v1._v[1]*v2._v[2] - v1._v[2]*v2._v[1];
-	_v[1] = v1._v[2]*v2._v[0] - v1._v[0]*v2._v[2];
-	_v[2] = v1._v[0]*v2._v[1] - v1._v[1]*v2._v[0];
-	
-	return *this;
 }
 	
 inline void	vec3_c::average(const vec3_c &v1, const vec3_c &v2)
@@ -970,74 +910,14 @@ inline vec3_c::operator vec_t * ()
 	return (vec_t*)_v;
 }
 
-/*	
-inline vec3_c::operator float * () const
-{
-	return (float*)_v;
-}
-
-inline vec3_c::operator float * ()
-{
-	return (float*)_v;
-}
-
-inline vec3_c::operator double * () const
-{
-	return (double*)_v;
-}
-
-inline vec3_c::operator double * ()
-{
-	return (double*)_v;
-}
-*/
-
-inline vec3_c&	vec3_c::operator = (const vec3_c &v)
-{
-	_v[0] = v._v[0];
-	_v[1] = v._v[1];
-	_v[2] = v._v[2];
-	
-	return *this;
-}
-
-/*		
-inline vec3_c&	vec3_c::operator = (const vec_t *v)
-{
-	_v[0] = v[0];
-	_v[1] = v[1];
-	_v[2] = v[2];
-	
-	return *this;
-}
-*/
-
-inline vec3_c&	vec3_c::operator = (const float *v)
-{
-	_v[0] = v[0];
-	_v[1] = v[1];
-	_v[2] = v[2];
-	
-	return *this;
-}
-
-inline vec3_c&	vec3_c::operator = (const double *v)
-{
-	_v[0] = v[0];
-	_v[1] = v[1];
-	_v[2] = v[2];
-	
-	return *this;
-}
-
-
 
 class vec4_c
 {
 public:
-	inline vec4_c()	
+	inline vec4_c(bool clear = true)
 	{
-		_v[0] = _v[1] = _v[2] = _v[3] = 0.0;
+		if(clear)
+			_v[0] = _v[1] = _v[2] = _v[3] = 0.0;
 	}
 	
 	inline vec4_c(vec_t x, vec_t y, vec_t z, vec_t w)
@@ -1045,6 +925,7 @@ public:
 		set(x, y, z, w);
 	}
 	
+	/*
 	inline vec4_c(const vec_t *v)
 	{
 		_v[0] = v[0];
@@ -1052,6 +933,7 @@ public:
 		_v[2] = v[2];
 		_v[3] = v[3];
 	}
+	*/
 	
 	inline void	clear()
 	{
@@ -1195,30 +1077,6 @@ public:
 	{
 		return (vec_t*)_v;
 	}
-
-/*	
-	inline operator float * () const
-	{
-		return (float*)_v;
-	}
-
-	inline operator float * ()
-	{
-		return (float*)_v;
-	}
-
-//#ifdef HAVE_DOUBLEVEC_T
-	inline operator double * () const
-	{
-		return (double*)_v;
-	}
-	
-	inline operator double * ()
-	{
-		return (double*)_v;
-	}
-//#endif
-*/
 		
 	inline vec4_c&	operator = (const vec4_c &v)
 	{
@@ -1324,7 +1182,7 @@ public:
 	void	fromAngles(vec_t pitch, vec_t yaw, vec_t roll);
 	
 	//! ODE style implementation
-	void	fromEulerAngles(vec_t phi, vec_t theta, vec_t psi);
+//	void	fromEulerAngles(vec_t phi, vec_t theta, vec_t psi);
 	
 	void	fromVectorsFLU(const vec3_c &forward, const vec3_c &left, const vec3_c &up);
 	
@@ -1354,9 +1212,9 @@ public:
 	
 	matrix_c	operator * (const matrix_c &m) const;
 
-	inline vec3_c	operator * (const vec3_c &v) const;
+	vec3_c	operator * (const vec3_c &v) const;
 	
-	inline vec4_c	operator * (const vec4_c &v) const;
+	vec4_c	operator * (const vec4_c &v) const;
 	
 	inline vec_t	operator () (const int i, const int j) const;
 	
@@ -1369,18 +1227,24 @@ public:
 	inline operator vec_t * () const;
 	
 	inline operator vec_t * ();
-
-/*
-	inline operator float * ();
 	
-	inline operator double * ();
-*/
-	
-//	matrix_c&	operator = (const matrix_c &m);
+	matrix_c&	operator = (const matrix_c &m);
 
 private:
-	vec4_t		_m[4];
-};
+#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD_BUILTIN)
+	union
+	{
+		vec4_t		_m[4];
+		vec4sf_t	_ms[4];
+	};
+#else
+	vec4_t			_m[4];
+#endif
+}
+#if defined(SIMD_SSE) || defined(SIMD_BUILTIN)
+__attribute__((aligned(16)));
+#endif
+;
 
 
 inline void	matrix_c::setupTranslation(const vec3_c &v)
@@ -1458,22 +1322,6 @@ inline void	matrix_c::fromAngles(const vec3_c &angles)
 	fromAngles(angles[PITCH], angles[YAW], angles[ROLL]);
 }
 
-
-inline vec3_c	matrix_c::operator * (const vec3_c &v) const
-{
-	return vec3_c(	_m[0][0]*v[0] + _m[0][1]*v[1] + _m[0][2]*v[2],
-			_m[1][0]*v[0] + _m[1][1]*v[1] + _m[1][2]*v[2],
-			_m[2][0]*v[0] + _m[2][1]*v[1] + _m[2][2]*v[2]	);
-}
-	
-inline vec4_c	matrix_c::operator * (const vec4_c &v) const
-{
-	return vec4_c(	_m[0][0]*v[0] + _m[0][1]*v[1] + _m[0][2]*v[2] + _m[0][3]*v[3],
-			_m[1][0]*v[0] + _m[1][1]*v[1] + _m[1][2]*v[2] + _m[1][3]*v[3],
-			_m[2][0]*v[0] + _m[2][1]*v[1] + _m[2][2]*v[2] + _m[2][3]*v[3],
-			_m[3][0]*v[0] + _m[3][1]*v[1] + _m[3][2]*v[2] + _m[3][3]*v[3]	);
-}
-
 inline vec_t	matrix_c::operator () (const int i, const int j) const
 {
 	return _m[i][j];
@@ -1504,17 +1352,6 @@ inline matrix_c::operator vec_t * ()
 	return (vec_t*)&_m[0][0];
 }
 
-/*
-inline matrix_c::operator float * ()
-{
-	return (float*)&_m[0][0];
-}
-	
-inline matrix_c::operator double * ()
-{
-	return (double*)&_m[0][0];
-}
-*/
 
 
 class quaternion_c

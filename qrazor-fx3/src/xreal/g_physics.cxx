@@ -977,7 +977,7 @@ void	G_InitDynamics()
 	g_ode_world = new d_world_c();
 	
 	// apply real world gravity by default
-	vec3_c gravity(0, 0, (-9.81 * (32.0/1.0)) * g_gravity->getValue());
+	vec3_c gravity(0.0f, 0.0f, (-9.81 * (32.0/1.0)) * g_gravity->getValue());
 
 	g_ode_world->setGravity(gravity);
 	g_ode_world->setCFM(1e-5);
@@ -990,7 +990,7 @@ void	G_InitDynamics()
 	
 //	g_ode_space_world = new d_simple_space_c(g_ode_space_toplevel->getId());
 
-	g_ode_testplane = new d_plane_c(g_ode_space_toplevel->getId(), vec3_c(0, 0, 1), 0);
+	g_ode_testplane = new d_plane_c(g_ode_space_toplevel->getId(), vec3_c(0.0, 0.0, 1.0), 0.0);
 	
 	g_ode_contact_group = new d_joint_group_c();
 }

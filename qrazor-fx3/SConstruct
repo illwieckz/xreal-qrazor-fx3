@@ -2,9 +2,11 @@ import os, string, sys
 import SCons
 
 opts = Options()
-opts.Add(BoolOption('debug', 'Set to 1 to build for debug', 0))
 opts.Add(BoolOption('warnings', 'Set to 1 to compile with -Wall -Werror', 1))
-opts.Add(BoolOption('optimize', 'Set to 1 to build with optimizations', 1))
+opts.Add(EnumOption('debug', 'Set to >= 1 to build for debug', '0', allowed_values=('0', '1', '2', '3')))
+opts.Add(EnumOption('optimize', 'Set to >= 1 to build with general optimizations', '2', allowed_values=('0', '1', '2', '4', '6')))
+opts.Add(EnumOption('simd', 'Choose special CPU register optimizations', 'none', allowed_values=('none', 'sse', '3dnow', 'builtin')))
+#opts.Add(EnumOption('cpu', 'Set to 1 to build with special CPU register optimizations', 'i386', allowed_values=('i386', 'athlon-xp', 'pentium4')))
 opts.Add(PathOption('PKGDATADIR', 'Installation path', '/usr/games/share/qrazor-fx'))
 
 env = Environment(options = opts)
@@ -14,15 +16,36 @@ print 'compiling for platform ', sys.platform
 
 env.Append(CXXFLAGS = '-pipe')
 
-env.Append(CXXFLAGS = '-DDEBUG=${debug}')
-if env['debug'] == 1:
-	env.Append(CXXFLAGS = '-ggdb1')
-
 if env['warnings'] == 1:
 	env.Append(CXXFLAGS = '-Wall -Werror')
 
-if env['optimize'] == 1:
-	env.Append(CXXFLAGS = '-O2 -ffast-math')
+env.Append(CXXFLAGS = '-DDEBUG=${debug}')
+if env['debug'] != '0':
+	env.Append(CXXFLAGS = '-ggdb${debug}')
+
+if env['optimize'] != '0':
+	env.Append(CXXFLAGS = '-O${optimize}')#-ffast-math')
+
+	#if env['cpu'] != 'i386':
+	#	env.Append(CXXFLAGS = '-march=${cpu}')
+	
+	#if env['cpu'] == 'athlon-xp':
+	#	env.Append(CXXFLAGS = '-march=athlon-xp -msse')#-mfpmath=sse')
+	
+	if env['simd'] != 'none':
+		env.Append(CXXFLAGS = '-DSIMD')
+	
+	if env['simd'] == 'sse':
+		env.Append(CXXFLAGS = '-DSIMD_SSE')
+		
+	elif env['simd'] == '3dnow':
+		env.Append(CXXFLAGS = '-DSIMD_3DNOW')
+		
+	elif env['simd'] == 'builtin':
+		env.Append(CXXFLAGS = '-DSIMD_BUILTIN')
+
+
+
 	
 env.Append(CXXFLAGS = '-DVFS_PKGDATADIR=\\"${PKGDATADIR}\\"')
 #env.Append(CXXFLAGS = '-DVFS_PKGLIBDIR="${PKGDATADIR}"')

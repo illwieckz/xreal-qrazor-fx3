@@ -642,7 +642,7 @@ void	PM_CheckOnGround(const vec3_c &point)
 	}
 	else
 	{
-		trace_t trace = pm->rayTrace(pml.origin, vec3_c(0, 0, -1), 18);
+		trace_t trace = pm->rayTrace(pml.origin, vec3_c(0.0f, 0.0f, -1), 18);
 		
 		/*
 		pml.groundplane = trace.plane;
@@ -992,7 +992,7 @@ void	PM_CheckDuck()
 			}
 			*/
 			
-			trace_t trace = pm->rayTrace(pml.origin, vec3_c(0, 0, 1), 32);
+			trace_t trace = pm->rayTrace(pml.origin, vec3_c(0, 0.0f, 1), 32);
 			
 			if(trace.nohit)
 			{
