@@ -1,4 +1,11 @@
 
+models/crate/crate
+{
+	bumpmap		models/crate/crate_n.tga
+	diffusemap	models/crate/crate_d.tga
+	specularmap	models/crate/crate_s.tga
+}
+
 textures/xtest/dynamicReflectionCube
 {
 	{
