@@ -108,6 +108,7 @@ struct client_state_t
 	//
 	bool		attractloop;		// running the attract loop, any key will menu
 	int		servercount;		// server identification for prespawns
+	std::string	gamedir;
 	int		playernum;
 
 	char		configstrings[MAX_CONFIGSTRINGS][MAX_QPATH];
@@ -154,8 +155,10 @@ struct client_static_t
 	int			download_percent;
 
 	// demo recording info must be here, so it isn't cleared on level change
+	bool			demo_playback;
 	bool			demo_recording;
 	bool			demo_waiting;			// don't record until a non-delta message is received
+	bitmessage_c		demo_message;
 	VFILE*			demo_stream;
 };
 
@@ -231,8 +234,6 @@ int  	CL_ReadFromServer();
 void 	CL_WriteToServer(usercmd_t *cmd);
 
 void 	IN_CenterView();
-
-
 
 
 //

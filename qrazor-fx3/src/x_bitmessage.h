@@ -47,9 +47,11 @@ class bitmessage_c
 {
 	friend class netchan_c;
 	friend void 	Sys_SendPacket(const bitmessage_c &msg, const netadr_t &to);
+	friend void	CL_Record_f();
+	friend void	CL_Stop_f();
 public:
 	bitmessage_c();
-	bitmessage_c(int bits_num, bool allowoverflow = false);
+	bitmessage_c(int bits_num, bool allowoverflow = false, bool expand = false);
 	
 	//! check wether this messsage is a connection less packet
 	bool		isConnectionless();
@@ -116,6 +118,7 @@ public:
 	inline bool		isOverFlowed() const		{return _overflowed;}
 	
 	inline uint_t		getMaxSize() const		{return _maxsize;}
+	inline uint_t		getMaxSizeInBytes() const	{return toBytes(_maxsize);}
 	
 	inline uint_t		getCurSizeInBytes() const	{return toBytes(_cursize);}
 	inline uint_t		getCurSize() const		{return _cursize;}
@@ -126,6 +129,7 @@ public:
 private:
 	bool				_allowoverflow;		// if false, do a Com_Error
 	bool				_overflowed;		// set to true if the buffer size failed
+	bool				_expand;		// expand if overflow
 	
 	std::vector<byte>		_data;
 //	std::vector<std::bitset<8> >	_data;

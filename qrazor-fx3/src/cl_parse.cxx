@@ -241,6 +241,20 @@ static void	CL_ParseDownload(message_c &msg)
 }
 */
 
+static void	CL_ParseReconnect(bitmessage_c &msg)
+{
+	if(cls.demo_playback)
+		return;
+
+	Com_Printf("Server disconnected, reconnecting\n");
+	if(cls.download_stream) 
+	{
+		VFS_FClose(&cls.download_stream);
+	}
+	cls.state = CA_CONNECTING;
+	cls.connect_time = -99999;	// CL_CheckForResend() will fire immediately
+}
+
 static void	CL_ParseServerData(bitmessage_c &msg)
 {
 	std::string	str;
@@ -259,7 +273,7 @@ static void	CL_ParseServerData(bitmessage_c &msg)
 	cls.server_protocol = i;
 
 	if(i != PROTOCOL_VERSION)
-		Com_Error(ERR_DROP,"Server returned version %i, not %i", i, PROTOCOL_VERSION);
+		Com_Error(ERR_DROP, "Server returned version %i, not %i", i, PROTOCOL_VERSION);
 
 	cl.servercount = msg.readLong();
 	cl.attractloop = msg.readByte();
@@ -268,8 +282,9 @@ static void	CL_ParseServerData(bitmessage_c &msg)
 	str = msg.readString();
 
 	// set gamedir
-	if(str.length())
+	if(!cls.demo_playback && str.length())
 		Cvar_Set("vfs_game", str);
+	cl.gamedir = str;
 
 	// parse player entity number
 	cl.playernum = msg.readShort();
@@ -752,13 +767,7 @@ void	CL_ParseServerMessage(bitmessage_c &msg)
 				break;
 
 			case SVC_RECONNECT:
-				Com_Printf("Server disconnected, reconnecting\n");
-				if(cls.download_stream) 
-				{
-					VFS_FClose(&cls.download_stream);
-				}
-				cls.state = CA_CONNECTING;
-				cls.connect_time = -99999;	// CL_CheckForResend() will fire immediately
+				CL_ParseReconnect(msg);
 				break;
 
 			case SVC_PRINT:

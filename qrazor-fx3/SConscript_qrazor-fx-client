@@ -58,7 +58,6 @@ qrazor_fx_client_src = [
 'src/cl_input.cxx',
 'src/cl_keys.cxx',
 'src/cl_main.cxx',
-'src/cl_netchan.cxx',
 'src/cl_parse.cxx',
 'src/cl_screen.cxx',
 'src/cl_ui.cxx',

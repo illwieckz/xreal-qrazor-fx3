@@ -48,15 +48,17 @@ bitmessage_c::bitmessage_c()
 {
 	_allowoverflow = false;
 	_overflowed = false;
+	_expand = false;
 	
 	_maxsize = 0;
 	_cursize = 0;
 	_readcount = 0;
 }
 
-bitmessage_c::bitmessage_c(int bits_num, bool allowoverflow)
+bitmessage_c::bitmessage_c(int bits_num, bool allowoverflow, bool expand)
 {
 	_allowoverflow = allowoverflow;
+	_expand = expand;
 
 	_maxsize = bits_num;
 	_readcount = 0;
@@ -121,7 +123,7 @@ void	bitmessage_c::beginWriting()
 {
 	_overflowed = false;
 
-	_data = std::vector<byte>(_maxsize/8, 0);
+	_data = std::vector<byte>(toBytes(_maxsize), 0);
 	
 	_cursize = 0;
 }
@@ -131,15 +133,27 @@ void	bitmessage_c::writeBit(bool bit)
 	if((_cursize + 1) > _maxsize)
 	{
 		if(!_allowoverflow)
+		{
 			Com_Error(ERR_DROP, "bitmessage_c::writeBit: overflow without allowoverflow set");
+		}
+		else
+		{
+			if(_expand)
+			{
+				_data.resize(_data.size() + 8);
+				_maxsize += 8;
+			}
+			else
+			{
+				Com_Printf("bitmessage_c::writeBit: overflow maxsize %i\n", _maxsize);
+			
+				beginWriting();
+			
+				_overflowed = true;
 		
-		Com_Printf("bitmessage_c::writeBit: overflow maxsize %i\n", _maxsize);
-		
-		beginWriting();
-		
-		_overflowed = true;
-		
-		throw std::overflow_error(va("bitmessage_c::writeBit: overflow maxsize %i", _maxsize));
+				throw std::overflow_error(va("bitmessage_c::writeBit: overflow maxsize %i", _maxsize));
+			}
+		}
 	}
 
 	_data[_cursize >> 3] |= (bit << (_cursize % 8));
