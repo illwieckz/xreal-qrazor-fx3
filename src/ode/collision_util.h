@@ -40,7 +40,7 @@ bool	dAddContact(const dContact c, std::vector<dContact> &contacts);
 void	dGetContactData(const vec3_c& p, const vec3_c &v0,  const vec3_c &edge0, const vec3_c &edge1, vec_t &dist, float &u, float &v);
 
 // returns true if p is inside the triangle vertices
-bool	dPointInTriangle(const vec3_c &p, const vec3_c &v0, const vec3_c &v1, const vec3_c &v2);
+bool	dPointInTriangle(const vec3_c &p, const vec3_c &v0, const vec3_c &v1, const vec3_c &v2, const vec3_c &normal, bool cw);
 
 // given a pointer `p' to a dContactGeom, return the dContactGeom at
 // p + skip bytes.

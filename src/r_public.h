@@ -167,12 +167,16 @@ struct r_particle_t
 
 struct r_poly_t
 {
-	
-	//r_vertex_t*		vertexes;
-	
+	//r_vertex_t*		vertexes
 	int			shader;
 };
 
+struct r_contact_t
+{
+	vec3_c			origin;
+	vec3_c			normal;
+	vec_t 			depth;
+};
 
 struct r_tag_t
 {
@@ -250,7 +254,7 @@ struct r_refdef_t
 
 
 
-#define	REF_API_VERSION		21
+#define	REF_API_VERSION		22
 
 #ifdef __cplusplus
 extern "C" {
@@ -303,6 +307,7 @@ typedef struct
 	
 	void		(*R_AddParticle)(const r_particle_t &part);
 	void		(*R_AddPoly)(const r_poly_t &poly);
+	void		(*R_AddContact)(const r_contact_t &contact);
 	
 	bool		(*R_SetupTag)(r_tag_t &tag, const r_entity_t &ent, const std::string &name);
 	bool		(*R_SetupAnimation)(int model, int anim);

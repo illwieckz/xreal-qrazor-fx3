@@ -1966,6 +1966,8 @@ extern r_particle_t	r_particles[MAX_PARTICLES];
 extern int		r_polys_num;
 extern r_poly_t		r_polys[MAX_POLYS];
 
+extern std::vector<r_contact_t>				r_contacts;
+
 extern r_scene_t	r_world_scene;
 
 
@@ -2008,6 +2010,7 @@ extern cvar_t	*r_showlightbboxes;
 extern cvar_t	*r_showlightscissors;
 extern cvar_t	*r_showlighttransforms;
 extern cvar_t	*r_showentitytransforms;
+extern cvar_t	*r_showcontacts;
 extern cvar_t	*r_clear;
 extern cvar_t	*r_cull;
 extern cvar_t	*r_cullplanes;

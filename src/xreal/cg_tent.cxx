@@ -248,6 +248,18 @@ static void	CG_ParseLaser(message_c &msg, int colors)
 	}
 }
 
+static void	CG_ParseContact(message_c &msg)
+{
+	r_contact_t rc;
+	
+	msg.readVector3(rc.origin);
+	msg.readDir(rc.normal);
+	rc.depth = msg.readFloat();
+	
+	cgi.R_AddContact(rc);
+}
+
+
 void	CG_ParseTEnt(message_c &msg)
 {
 	int		type;
@@ -526,12 +538,14 @@ void	CG_ParseTEnt(message_c &msg)
 		msg.readVector3(pos2);
 		CG_BubbleTrail (pos, pos2);
 		break;
+		
+	case TE_CONTACT:			// ODE contact geom info
+		CG_ParseContact(msg);
+		break;
 	
 	
-
-
-	default:
-		cgi.Com_Error (ERR_DROP, "CG_ParseTEnt: bad type");
+		default:
+			cgi.Com_Error (ERR_DROP, "CG_ParseTEnt: bad type");
 	}
 }
 

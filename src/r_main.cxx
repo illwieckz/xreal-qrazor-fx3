@@ -125,6 +125,8 @@ r_particle_t	r_particles[MAX_PARTICLES];
 int		r_polys_num;
 r_poly_t	r_polys[MAX_POLYS];
 
+std::vector<r_contact_t>		r_contacts;
+
 r_scene_t	r_world_scene;
 
 
@@ -172,6 +174,7 @@ cvar_t	*r_showlightbboxes;
 cvar_t	*r_showlightscissors;
 cvar_t	*r_showlighttransforms;
 cvar_t	*r_showentitytransforms;
+cvar_t	*r_showcontacts;
 cvar_t	*r_clear;
 cvar_t	*r_cull;
 cvar_t	*r_cullplanes;
@@ -1003,6 +1006,48 @@ void	R_DrawEntityDebuggingInfo()
 	}
 }
 
+void	R_DrawContactDebuggingInfo()
+{
+	if(r_showcontacts->getInteger())
+	{
+		for(std::vector<r_contact_t>::const_iterator ir = r_contacts.begin(); ir != r_contacts.end(); ++ir)
+		{
+			const r_contact_t& contact = *ir;
+			
+			const vec3_c& a = contact.origin;
+			const vec3_c  b = contact.origin + contact.normal;
+			const vec3_c  c = contact.origin + (contact.normal * contact.depth);
+			
+			xglBegin(GL_LINES);
+			
+			if(contact.depth <= REAL(0.0))
+			{
+				xglColor4fv(color_red);
+				xglVertex3fv(a);
+				xglVertex3fv(b);
+			}
+			else if(contact.depth < REAL(1.0))
+			{
+				xglColor4fv(color_yellow);
+				xglVertex3fv(a);
+				xglVertex3fv(b);
+			}
+			else //if(contact.depth > REAL(1.0))
+			{
+				xglColor4fv(color_blue);
+				xglVertex3fv(a);
+				xglVertex3fv(b);
+				
+				xglColor4fv(color_green);
+				xglVertex3fv(b);
+				xglVertex3fv(c);
+			}
+			
+			xglEnd();
+		}
+	}
+}
+
 void	R_DrawAreaPortals()
 {
 	if(!r_world_tree)
@@ -1138,6 +1183,8 @@ static void 	R_RenderFrame(const r_refdef_t &fd)
 	
 	R_DrawEntityDebuggingInfo();
 	
+	R_DrawContactDebuggingInfo();
+	
 	R_DrawAreaPortals();
 		
 //	R_AddPolysToBuffer();
@@ -1174,7 +1221,7 @@ static void 	R_RenderFrame(const r_refdef_t &fd)
 	
 	if(r_speeds->getInteger())
 	{
-		ri.Com_Printf("%4i leafs %4i entities %4i lights %4i tris %4i draws %4i exp\n",
+		ri.Com_Printf("%4i leafs %4i entities %4i lights %4i tris %4i draws %4i exp %4i contacts\n",
 			c_leafs,
 			c_entities,
 			c_lights,
@@ -1184,7 +1231,8 @@ static void 	R_RenderFrame(const r_refdef_t &fd)
 			//c_cmds_translucent,
 			c_triangles,
 			c_draws,
-			c_expressions);
+			c_expressions,
+			r_contacts.size());
 			
 		//ri.Com_Printf("%4i cmds %4i light cmds %4i translucent cmds\n", c_cmds, c_cmds_light, c_cmds_translucent);
 		
@@ -1374,6 +1422,7 @@ static void 	R_Register()
 	r_showlightscissors	= ri.Cvar_Get("r_showlightscissors", "0", CVAR_NONE);
 	r_showlighttransforms	= ri.Cvar_Get("r_showlighttransforms", "0", CVAR_NONE);
 	r_showentitytransforms	= ri.Cvar_Get("r_showentitytransforms", "0", CVAR_NONE);
+	r_showcontacts		= ri.Cvar_Get("r_showcontacts", "1", CVAR_NONE);
 
 	r_clear 		= ri.Cvar_Get("r_clear", "1", CVAR_NONE);
 	r_cull 			= ri.Cvar_Get("r_cull", "1", CVAR_NONE);
@@ -1777,6 +1826,7 @@ static void	R_ClearScene()
 //	r_lights.clear();
 	r_particles_num = 0;
 	r_polys_num = 0;
+//	r_contacts.clear();
 }
 
 static void	R_AddEntity(int entity_num, int index, const r_entity_t &shared)
@@ -1886,7 +1936,13 @@ static void	R_AddPoly(const r_poly_t &poly)
 	r_polys[r_polys_num++] = poly;
 }
 
-
+static void	R_AddContact(const r_contact_t &contact)
+{
+	if(r_contacts.size() < 1024)
+		r_contacts.push_back(contact);
+	else
+		r_contacts.clear();
+}
 
 
 
@@ -1940,6 +1996,7 @@ ref_export_t 	GetRefAPI(ref_import_t rimp)
 	
 	re.R_AddParticle		= R_AddParticle;
 	re.R_AddPoly			= R_AddPoly;
+	re.R_AddContact			= R_AddContact;
 	
 	re.R_SetupTag			= R_SetupTag;
 	re.R_SetupAnimation		= R_SetupAnimation;

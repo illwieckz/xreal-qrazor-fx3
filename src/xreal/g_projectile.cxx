@@ -366,13 +366,13 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 	
 	// setup mass
 	dMass m;
-//	m.setSphereTotal(5.0, 8);
-	m.setBoxTotal(5.0, 12, 4, 4);
+	m.setSphereTotal(5.0, 8);
+//	m.setBoxTotal(5.0, 12, 4, 4);
 	_body->setMass(&m);
 	
 	// setup geom
-//	d_geom_c *geom = new d_sphere_c(g_ode_space_toplevel->getId(), 8);
-	d_geom_c *geom = new d_box_c(g_ode_space_toplevel->getId(), 12, 4, 4);
+	d_geom_c *geom = new d_sphere_c(g_ode_space_toplevel->getId(), 8);
+//	d_geom_c *geom = new d_box_c(g_ode_space_toplevel->getId(), 12, 4, 4);
 	
 	geom->setBody(_body->getId());
 	geom->setData(this);
@@ -399,7 +399,7 @@ bool	g_projectile_rocket_c::touch(g_entity_c *other, const cplane_c &plane, csur
 	if(other == _r.owner)
 		return false;
 		
-// 	trap_Com_Printf("g_projectile_rocket_c::touch: touching entity %i '%s'\n", other->_s.getNumber(), other->getClassName());
+ 	trap_Com_Printf("g_projectile_rocket_c::touch: touching entity %i '%s'\n", other->_s.getNumber(), other->getClassName());
 	
 	if(surf && surf->hasFlags(X_CONT_AREAPORTAL))
 	{

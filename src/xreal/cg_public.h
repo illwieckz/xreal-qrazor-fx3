@@ -161,6 +161,7 @@ typedef struct
 	
 	void		(*R_AddParticle)(const r_particle_t &part);
 	void		(*R_AddPoly)(const r_poly_t &poly);
+	void		(*R_AddContact)(const r_contact_t &contact);
 
 	bool		(*R_SetupTag)(r_tag_t &tag, const r_entity_t &ent, const std::string &name);
 	bool		(*R_SetupAnimation)(int model, int anim);	

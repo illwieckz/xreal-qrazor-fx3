@@ -139,7 +139,7 @@ struct dxBSP : public dxGeom
 	
 		int			shader_num;
 	
-		//cplane_c		plane;			// BSPST_PLANAR only
+		cplane_c		plane;			// BSPST_PLANAR only
 	
 		//int			mesh_cp[2];		// BSPST_BEZIER only
 	
@@ -805,7 +805,7 @@ void	dGeomBSPAddLeafBrush(dGeomID g, int num)
 }
 */
 
-void	dGeomBSPAddSurface(dGeomID g, int face_type, int shader_num, const std::vector<vec3_c> &vertexes, const std::vector<vec3_c> &normals, const std::vector<index_t> &indexes)
+void	dGeomBSPAddSurface(dGeomID g, int face_type, int shader_num, const std::vector<vec3_c> &vertexes, const std::vector<vec3_c> &normals, const std::vector<index_t> &indexes, const cplane_c &p)
 {
 	dUASSERT(g && g->type == dBSPClass, "argument not a BSP");
 	dxBSP *bsp = (dxBSP*)g;
@@ -814,47 +814,79 @@ void	dGeomBSPAddSurface(dGeomID g, int face_type, int shader_num, const std::vec
 	surf.face_type = face_type;
 	surf.shader_num = shader_num;
 	surf.vertexes = vertexes;
+	surf.normals = normals;
 	surf.indexes = indexes;
-	std::reverse(surf.indexes.begin(), surf.indexes.end());
+	std::reverse(surf.indexes.begin(), surf.indexes.end());	// change from CCW to CW order
 	surf.planes.resize(indexes.size()/3);
 	
-	// calculate triangle planes
-	for(unsigned int i=0; i<(indexes.size()/3); i++)
+	switch(surf.face_type)
 	{
-		try
+		case BSPST_PLANAR:
 		{
-			//if(i % 2 == 0)
+			// calculate triangle planes
+			uint_t j=0;
+			for(uint_t i=0; i<indexes.size(); i += 3, j++)
 			{
-				const vec3_c &v0 = vertexes.at(indexes[i+0]);
-				const vec3_c &v1 = vertexes.at(indexes[i+1]);
-				const vec3_c &v2 = vertexes.at(indexes[i+2]);
+				try
+				{
+					const vec3_c &v0 = vertexes.at(indexes[i+0]);
+					const vec3_c &v1 = vertexes.at(indexes[i+1]);
+					const vec3_c &v2 = vertexes.at(indexes[i+2]);
 				
-				//const vec3_c &n0 = normals.at(indexes[i+0]);
-				//const vec3_c &n1 = normals.at(indexes[i+1]);
-				//const vec3_c &n2 = normals.at(indexes[i+2]);
-				
-				//vec3_c n = n0 + n1 + n2;
-				//n.normalize(); 
-				
-				//surf.planes[i].set(n, n.dotProduct(v0));
-				
-				surf.planes[i].fromThreePointForm(v0, v1, v2);
+					if(surf.plane.fromThreePointForm(v0, v1, v2))
+						break;
+				}
+				catch(...)
+				{
+					Com_Error(ERR_DROP, "dGeomBSPAddSurface: exception occured while calculating triangle planes");
+				}	
 			}
-			/*
-			else
+			
+			if(j == indexes.size())
 			{
-				const vec3_c &v0 = vertexes.at(indexes[i+2]);
-				const vec3_c &v1 = vertexes.at(indexes[i+1]);
-				const vec3_c &v2 = vertexes.at(indexes[i+0]);
-				
-				surf.planes[i].fromThreePointForm(v0, v1, v2);
+				Com_Error(ERR_DROP, "dGeomBSPAddSurface: degenerated triangle");
 			}
-			*/
+			break;
 		}
-		catch(...)
+		
+		case BSPST_MESH:
 		{
-			Com_Error(ERR_DROP, "dGeomBSPAddSurface: exception occured while calculating triangle planes");
+			// calculate triangle planes
+			for(uint_t i=0, j=0; i<indexes.size(); i += 3, j++)
+			{
+				try
+				{
+					const vec3_c &v0 = vertexes.at(indexes[i+0]);
+					const vec3_c &v1 = vertexes.at(indexes[i+1]);
+					const vec3_c &v2 = vertexes.at(indexes[i+2]);
+					
+					if(!(surf.planes[j].fromThreePointForm(v0, v1, v2)))
+						Com_Error(ERR_DROP, "dGeomBSPAddSurface: degenerated triangle");
+				
+					/*
+					const vec3_c &n0 = normals.at(indexes[i+0]);
+					const vec3_c &n1 = normals.at(indexes[i+1]);
+					const vec3_c &n2 = normals.at(indexes[i+2]);
+				
+					vec3_c n = n0 + n1 + n2;
+					n.negate();
+					n.normalize(); 
+				
+					vec_t d = n.dotProduct(v0);
+				
+					surf.planes[j].set(n, d);
+					*/
+				}
+				catch(...)
+				{
+					Com_Error(ERR_DROP, "dGeomBSPAddSurface: exception occured while calculating triangle planes");
+				}
+			}
+			break;
 		}
+		
+		default:
+			break;
 	}
 	
 	bsp->surfaces.push_back(surf);
@@ -1505,6 +1537,7 @@ int	dCollideSpherePlane(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact>
 	dxSphere *sphere = (dxSphere*)o1;
 	dxPlane *plane = (dxPlane*)o2;
 	
+	// check if sphere center is in negative half-space of the plane
 	if(plane->p.onSide(sphere->pos) == SIDE_BACK)
 		return 0;
 
@@ -1514,17 +1547,9 @@ int	dCollideSpherePlane(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact>
 	// get sphere depth using this closest point in the plane
 	vec_t depth = sphere->radius - c.distance(sphere->pos);
 		
-	if(depth >= 0)
+	if(depth >= REAL(0.0))
 	{
-		dContact contact;
-		
-		contact.geom._origin = c;	
-		contact.geom._normal = plane->p._normal;
-		contact.geom._depth = depth;
-		contact.geom._g1 = o1;
-		contact.geom._g2 = o2;
-		
-		if(dAddContact(contact, contacts));
+		if(dAddContact(dContact(dContactGeom(c, plane->p._normal, depth, o1, o2)), contacts));
 			return 1;
 	}
 
@@ -2402,7 +2427,7 @@ int	dSphereInBrush(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int
 
 
 
-int	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, const vec3_c &v0, const vec3_c &v1, const vec3_c &v2, const cplane_c &p, bool planar)
+bool	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, const vec3_c vertexes[3], const vec3_c normals[3], const cplane_c &p, bool planar, bool cw)
 {
 	dIASSERT(o1->type == dBSPClass);
 	dIASSERT(o2->type == dSphereClass);
@@ -2413,185 +2438,158 @@ int	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dCo
 #if 0
 	if(planar)
 	{
-		if(p.distance(sphere->pos, sphere->radius) <= ((-sphere->radius*2) -DIST_EPSILON))
-		//if(p.distance(sphere->pos) <= -DIST_EPSILON)
-			return 0;
+		if(p.distance(sphere->pos) <= -DIST_EPSILON)
+			return false;
 	}
 	else
 	{
 		if(p.onSide(sphere->pos) == SIDE_BACK)
-			return 0;
+			return false;
 	}
 #endif
 
 #if 0
 	// get closest point to sphere origin
-	vec3_c C = p.closest(sphere->pos);
-	
+	//vec3_c C = p.closest(sphere->pos);
+
 	/*
-	vec3_c C(false);
+	vec3_c c(false), n(false);
 	vec_t d = p.distance(sphere->pos);
 	
 	if(d > -DIST_EPSILON)
-		C = vec3_c(sphere->pos) - (p._normal * d);
+		c = vec3_c(sphere->pos) - (p._normal * d);
 		
 	else if(d < DIST_EPSILON)
 		C = vec3_c(sphere->pos) + (p._normal * d);
 	
-	//else
-	//	return 0;
+	else
+		return false;
 	*/
 	
+	vec_t d = p.distance(sphere->pos);
 	
-	if(dPointInTriangle(C, v0, v1, v2))
+	/*
+	if(d < REAL(0.0))
 	{
-		// calculate penetration depth
-		vec_t depth = sphere->radius - C.distance(sphere->pos);
-		
-		if(depth >= REAL(0.0))
+		return false;
+	}
+	else
+	*/
+	{
+		vec3_c c = vec3_c(sphere->pos) - (p._normal * d);
+	
+		if(dPointInTriangle(c, vertexes[0], vertexes[1], vertexes[2], p._normal, cw))
 		{
-			dContact contact;
-			contact.geom = dContactGeom(C, vec3_c(0, 0, 1), depth, o1, o2);
-			
-			if(dAddContact(contact, contacts))
-				return 1;
+			// calculate penetration depth
+			vec_t depth = sphere->radius - c.distance(sphere->pos);
+		
+			if(depth >= REAL(0.0))
+			{
+				if(dAddContact(dContact(dContactGeom(c, p._normal, depth, o1, o2)), contacts))
+					return true;
+			}
 		}
 	}
 	
 #elif 1
-	const vec3_c edge0 = v1 - v0;
-	const vec3_c edge1 = v2 - v0;
+	const vec3_c edge0 = vertexes[1] - vertexes[0];
+	const vec3_c edge1 = vertexes[2] - vertexes[0];
 
 	// calculate distant from sphere origin to triangle and barycentric coords
 	vec_t dist, u, v;
-	dGetContactData(sphere->pos, v0, edge0, edge1, dist, u, v);
+	dGetContactData(sphere->pos, vertexes[0], edge0, edge1, dist, u, v);
 	
 	// calculate the position of a vertex using its barycentric coords
-//	vec3_c C  = v0 + (edge0 * u) + (edge1 * v);
-	
-	vec_t w = REAL(1.0) -u -v;
-	vec3_c C = (v0 * w) + (v1 * u) + (v2 * v);
+	vec3_c C  = vertexes[0] + (edge0 * u) + (edge1 * v);
+//	vec_t w = REAL(1.0) -u -v;
+//	vec3_c C = (vertexes[0] * w) + (vertexes[1] * u) + (vertexes[2] * v);
 	
 	// calculate penetration depth
 //	vec_t depth = sphere->radius - dist;
 	vec_t depth = sphere->radius - C.distance(sphere->pos);
 	
-	if(depth < REAL(0.0))
-		return 0;	// depth = REAL(0.0);
-
-	dContact contact;
-	contact.geom._origin = C;
-	contact.geom._normal = p._normal;
-	contact.geom._depth = depth;
-	contact.geom._g1 = o1;
-	contact.geom._g2 = o2;
-				
-	if(dAddContact(contact, contacts))
-		return 1;
+	if(depth >= REAL(0.0))
+	{
+		if(dAddContact(dContact(dContactGeom(C, p._normal, depth, o1, o2)), contacts))
+			return true;
+	}
 #else
 
 	// check if the sphere is on the side of an edge
 	for(int i=0; i<3; i++)
 	{
 		// current vertex
-		const vec3_c &A = vertexes[i];
+		const vec3_c &Av = vertexes[i];
 		
-		const vec3_c &B = vertexes[(i+1)%3];	// next vertex to A in clockwise order
+		const vec3_c &Bv = cw ?	vertexes[(i+1)%3] :	// next to A in clockwise order
+					vertexes[(i+2)%3];	// next to A in counter clockwise order
 			
 		// current edge
-		vec3_c E = B - A;
-		vec_t El = E.length();
-		E.normalize();
+		vec3_c E = Bv - Av;
+		vec_t El = E.normalize();
 		
 		// create edge normal
 		vec3_c En(false);
-		En.crossProduct(E, p._normal);
-		//En.negate();
+		En.crossProduct(p._normal, E);
 		En.normalize();
+		//En.negate();
 		
 		// create edge plane
-		cplane_c Ep(En, En.dotProduct(A));
+		cplane_c Ep(En, En.dotProduct(Av));
 		
 		// distance between sphere and edge plane
 		vec_t d = Ep.distance(sphere->pos, sphere->radius);
 		
 		// check if sphere is completely behind the edge plane
-		if(d <= -(sphere->radius*2))
+		if(d <= ((-sphere->radius*2)-DIST_EPSILON))
 			continue;
 			
 		// check if sphere is too far away from edge plane
-		if(d > 0.0)
-			return 0;
+		if(d > REAL(0.0))	//DIST_EPSILON)//REAL(0.0))
+			return false;
 			
 		// direction of sphere center from start point of edge
-		vec3_c T  = vec3_c(sphere->pos) - A;
+		vec3_c T  = vec3_c(sphere->pos) - Av;
 				
 		// distance of sphere center along the edge
 		vec_t t = T.dotProduct(E);
 			
-		if(t <= 0.0)
+		if(t <= REAL(0.0))
 		{
 			// sphere close to start point
-			vec_t depth = sphere->radius - A.distance(sphere->pos);
+			vec_t depth = sphere->radius - Av.distance(sphere->pos);
 			
-			if(depth >= 0.0)
+			if(depth >= REAL(0.0))
 			{
-				dContact contact;
-			
-				contact.geom._origin = A;
-				contact.geom._normal = p._normal;
-				contact.geom._depth = depth;
-				contact.geom._g1 = o1;
-				contact.geom._g2 = o2;
-				
-				if(dAddContact(contact, contacts))
-					return 1;
+				if(dAddContact(dContact(dContactGeom(Av, p._normal, depth, o1, o2)), contacts))
+					return true;
 			}
-			return 0;
 		}
 		else if(t >= El)
 		{
 			// sphere close to end point of edge
-			vec_t depth = sphere->radius - B.distance(sphere->pos);
+			vec_t depth = sphere->radius - Bv.distance(sphere->pos);
 			
-			if(depth >= 0.0)
+			if(depth >= REAL(0.0))
 			{
-				dContact contact;
-			
-				contact.geom._origin = B;
-				contact.geom._normal = p._normal;
-				contact.geom._depth = depth;
-				contact.geom._g1 = o1;
-				contact.geom._g2 = o2;
-				
-				if(dAddContact(contact, contacts))
-					return 1;
+				if(dAddContact(dContact(dContactGeom(Bv, p._normal, depth, o1, o2)), contacts))
+					return true;
 			}
-			return 0;
 		}
 		else
 		{
 			// spehre / edge collision (the sphere pos is 'inside' the edge length)
 			
 			// point of collision on the triangle edge 
-			vec3_c C = A + (E * t);
+			vec3_c C = Av + (E * t);
 			
 			vec_t depth = sphere->radius - C.distance(sphere->pos);
 			
-			if(depth >= 0.0)
+			if(depth >= REAL(0.0))
 			{
-				dContact contact;
-			
-				contact.geom._origin = C;
-				contact.geom._normal = p._normal;
-				contact.geom._depth = depth;
-				contact.geom._g1 = o1;
-				contact.geom._g2 = o2;
-				
-				if(dAddContact(contact, contacts))
-					return 1;
+				if(dAddContact(dContact(dContactGeom(C, p._normal, depth, o1, o2)), contacts))
+					return true;
 			}
-			return 0;
 		}
 	}
 
@@ -2600,23 +2598,18 @@ int	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dCo
 	// point of collision on the triangle plane 
 	vec3_c C = p.closest(sphere->pos);
 	
-	vec_t depth = sphere->radius - C.distance(sphere->pos);
-
-	if(depth >= 0.0)
+	//if(dPointInTriangle(C, vertexes[0], vertexes[1], vertexes[2], p._normal, cw))
 	{
-		dContact contact;
-			
-		contact.geom._origin = C;
-		contact.geom._normal = p._normal;
-		contact.geom._depth = depth;
-		contact.geom._g1 = o1;
-		contact.geom._g2 = o2;
-				
-		if(dAddContact(contact, contacts))
-			return 1;
+		vec_t depth = sphere->radius - C.distance(sphere->pos);
+		
+		if(depth >= REAL(0.0))
+		{
+			if(dAddContact(dContact(dContactGeom(C, p._normal, depth, o1, o2)), contacts))
+				return true;
+		}
 	}
 #endif
-	return 0;
+	return false;
 }
 
 int	dCollideBSPSurfaceSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, const dxBSP::dBSPSurface &surf)
@@ -2634,43 +2627,35 @@ int	dCollideBSPSurfaceSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dCon
 		case BSPST_PLANAR:
 		{
 			// for each triangle in the surface
-			for(unsigned int i=0; i<(surf.indexes.size()/3); i++)
+			for(uint_t i=0, j=0; i<surf.indexes.size(); i += 3, j++)
 			{
 				#if DEBUG
 				try
 				{
 				#endif
 				
-				//if(i % 2 == 0)
+				vec3_c vertexes[3] = 
 				{
-					const vec3_c& v0 = surf.vertexes.at(surf.indexes[i+0]);
-					const vec3_c& v1 = surf.vertexes.at(surf.indexes[i+1]);
-					const vec3_c& v2 = surf.vertexes.at(surf.indexes[i+2]);
-				
-					contacts_num += dCollideBSPTriangleSphere(o1, o2, flags, contacts, v0, v1, v2, surf.planes[i], true);
-					if(contacts_num)
-					{
-						// no need to check any other triangle of this surface because all are in 
-						// the same plane
-						break;
-					}
-				}
-				/*
-				else
+					surf.vertexes.at(surf.indexes[i+0]),
+					surf.vertexes.at(surf.indexes[i+1]),
+					surf.vertexes.at(surf.indexes[i+2])
+				};
+					
+				vec3_c normals[3] = 
 				{
-					const vec3_c& v0 = surf.vertexes.at(surf.indexes[i+2]);
-					const vec3_c& v1 = surf.vertexes.at(surf.indexes[i+1]);
-					const vec3_c& v2 = surf.vertexes.at(surf.indexes[i+0]);
-				
-					contacts_num += dCollideBSPTriangleSphere(o1, o2, flags, contacts, v0, v1, v2, surf.planes[i], true);
-					if(contacts_num)
-					{
-						// no need to check any other triangle of this surface because all are in 
-						// the same plane
-						break;
-					}
+					surf.normals.at(surf.indexes[i+0]),
+					surf.normals.at(surf.indexes[i+1]),
+					surf.normals.at(surf.indexes[i+2])
+				};
+							
+				if(dCollideBSPTriangleSphere(o1, o2, flags, contacts, vertexes, normals, surf.plane, false, true))
+				{
+					contacts_num++;
+					// no need to check any other triangle of this surface because all are in 
+					// the same plane
+					break;
 				}
-				*/
+				
 				#if DEBUG
 				}
 				catch(...)
@@ -2684,56 +2669,6 @@ int	dCollideBSPSurfaceSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dCon
 		
 		case BSPST_BEZIER:
 		case BSPST_MESH:
-		{
-			// for each triangle in the surface
-			for(unsigned int i=0; i<(surf.indexes.size()/3); i++)
-			{
-				#if DEBUG
-				try
-				{
-				#endif
-				
-				/*
-				vec3_c vertexes[3] = 
-				{
-					surf.vertexes.at(surf.indexes[i+0]),
-					surf.vertexes.at(surf.indexes[i+1]),
-					surf.vertexes.at(surf.indexes[i+2])
-				};
-							
-				contacts_num += dCollideBSPTriangleSphere(o1, o2, flags, contacts, vertexes, surf.planes[i], false);
-				*/
-				
-				//if(i % 2 == 0)
-				{
-					const vec3_c& v0 = surf.vertexes.at(surf.indexes[i+0]);
-					const vec3_c& v1 = surf.vertexes.at(surf.indexes[i+1]);
-					const vec3_c& v2 = surf.vertexes.at(surf.indexes[i+2]);
-				
-					contacts_num += dCollideBSPTriangleSphere(o1, o2, flags, contacts, v0, v1, v2, surf.planes[i], false);
-				}
-				/*
-				else
-				{
-					const vec3_c& v0 = surf.vertexes.at(surf.indexes[i+2]);
-					const vec3_c& v1 = surf.vertexes.at(surf.indexes[i+1]);
-					const vec3_c& v2 = surf.vertexes.at(surf.indexes[i+0]);
-				
-					contacts_num += dCollideBSPTriangleSphere(o1, o2, flags, contacts, v0, v1, v2, surf.planes[i], false);
-				}
-				*/
-				
-				#if DEBUG
-				}
-				catch(...)
-				{
-					Com_Error(ERR_DROP, "dCollideBSPSurfaceSphere: exception occured");
-				}
-				#endif
-			}
-			break;
-		}
-		
 		default:
 			break;
 	}
@@ -3005,12 +2940,12 @@ int	dCollideBSPSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &
 	dxSphere *sphere = (dxSphere*)o2;
 	
 	cbbox_c aabb;
-	aabb._mins[0] = sphere->aabb[0];// - 1.0f;
-	aabb._maxs[0] = sphere->aabb[1];// + 1.0f;
-	aabb._mins[1] = sphere->aabb[2];// - 1.0f;
-	aabb._maxs[1] = sphere->aabb[3];// + 1.0f;
-	aabb._mins[2] = sphere->aabb[4];// - 1.0f;
-	aabb._maxs[2] = sphere->aabb[5];// + 1.0f;
+	aabb._mins[0] = sphere->aabb[0] - 1.0f;
+	aabb._maxs[0] = sphere->aabb[1] + 1.0f;
+	aabb._mins[1] = sphere->aabb[2] - 1.0f;
+	aabb._maxs[1] = sphere->aabb[3] + 1.0f;
+	aabb._mins[2] = sphere->aabb[4] - 1.0f;
+	aabb._maxs[2] = sphere->aabb[5] + 1.0f;
 	
 	bsp->checkcount++;
 	
@@ -3026,7 +2961,7 @@ int	dCollideBSPSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &
 	}
 	else
 	{
-		//Com_Printf("\ndCollideBSPSphere: sphere touches %i leaves\n", leafs.size());
+//		Com_Printf("dCollideBSPSphere: sphere touches %i leaves\n", leafs.size());
 	}
 
 	for(std::deque<int>::const_iterator ir = leafs.begin(); ir != leafs.end(); ++ir)
@@ -3047,7 +2982,7 @@ int	dCollideBSPSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &
 #endif
 	if(contacts_num)
 	{
-		Com_Printf("dCollideBSPSphere: %i contacts\n", contacts_num);
+//		Com_Printf("dCollideBSPSphere: %i contacts\n", contacts_num);
 	}
 	
 	return contacts_num;

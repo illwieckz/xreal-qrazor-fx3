@@ -541,7 +541,7 @@ protected:
 	dGeomID _id;
 
 public:
-	d_geom_c()						{Com_Printf("d_geom_c::ctor:\n"); _id = 0;/* setData(NULL);*/}
+	d_geom_c()						{/*Com_Printf("d_geom_c::ctor:\n");*/ _id = NULL;/* setData(NULL);*/}
 	~d_geom_c()						{if(_id) dGeomDestroy(_id);}
 	
 	dGeomID	getId() const					{return _id;}
@@ -891,11 +891,12 @@ public:
 	{
 		dGeomBSPAddLeaf(_id, surfaces_first, surfaces_num, brushes_first, brushes_num, cluster, area);
 	}
-	void	addSurface(int face_type, int shader_num, const std::vector<vec3_c> &vertexes, const std::vector<vec3_c> &normals, const std::vector<index_t> &indexes)
+	void	addSurface(int face_type, int shader_num, const std::vector<vec3_c> &vertexes, const std::vector<vec3_c> &normals, const std::vector<index_t> &indexes, const cplane_c &p)
 	{
-		dGeomBSPAddSurface(_id, face_type, shader_num, vertexes, normals, indexes);
-	};
-		void	addLeafSurface(int num)				{dGeomBSPAddLeafSurface(_id, num);}
+		dGeomBSPAddSurface(_id, face_type, shader_num, vertexes, normals, indexes, p);
+	}
+	
+	void	addLeafSurface(int num)				{dGeomBSPAddLeafSurface(_id, num);}
 };
 #else
 class d_bsp_c : public d_geom_c

@@ -182,6 +182,7 @@ void	CL_InitClientGame()
 	
 	import.R_AddParticle		= re.R_AddParticle;
 	import.R_AddPoly		= re.R_AddPoly;
+	import.R_AddContact		= re.R_AddContact;
 	
 	import.R_SetupTag		= re.R_SetupTag;
 	import.R_SetupAnimation		= re.R_SetupAnimation;
