@@ -760,69 +760,48 @@ static void GLAPIENTRY logViewport (GLint x, GLint y, GLsizei width, GLsizei hei
 */
 
 
-/// OpenGL 1.2 functions =======================================================
-void (GLAPIENTRY* qglDrawRangeElements)(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices, const char *filename, int line);
-void (GLAPIENTRY* qglTexImage3D)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels, const char *filename, int line);
 
-static void (GLAPIENTRY* dllDrawRangeElements)(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices);
-static void (GLAPIENTRY* dllTexImage3D)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
+/// GL_ARB_multitexture ========================================================
+void (GLAPIENTRY* qglActiveTextureARB)(GLenum texture, const char *filename, int line);
+void (GLAPIENTRY* qglClientActiveTextureARB)(GLenum texture, const char *filename, int line);
 
-static void GLAPIENTRY stdDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices, const char *filename, int line)
+static void (GLAPIENTRY* dllActiveTextureARB)(GLenum texture);
+static void (GLAPIENTRY* dllClientActiveTextureARB)(GLenum texture);
+
+void GLAPIENTRY stdActiveTextureARB(GLenum texture, const char *filename, int line)
 {
-	dllDrawRangeElements(mode, start, end, count, type, indices);
+	dllActiveTextureARB(texture);
 }
-static void GLAPIENTRY stdTexImage3D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels, const char *filename, int line)
+void GLAPIENTRY stdClientActiveTextureARB(GLenum texture, const char *filename, int line)
 {
-	dllTexImage3D(target, level, internalformat, width, height, depth, border, format, type, pixels);
+	dllClientActiveTextureARB(texture);
 }
 
-static void GLAPIENTRY dbgDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices, const char *filename, int line)
+void GLAPIENTRY dbgActiveTextureARB(GLenum texture, const char *filename, int line)
 {
-	dllDrawRangeElements(mode, start, end, count, type, indices);
+	dllActiveTextureARB(texture);
 	XGL_CheckForError_(filename, line);
 }
-static void GLAPIENTRY dbgTexImage3D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels, const char *filename, int line)
+void GLAPIENTRY dbgClientActiveTextureARB(GLenum texture, const char *filename, int line)
 {
-	dllTexImage3D(target, level, internalformat, width, height, depth, border, format, type, pixels);
+	dllClientActiveTextureARB(texture);
 	XGL_CheckForError_(filename, line);
 }
 
 
-/// OpenGL 1.3 functions =======================================================
-void (GLAPIENTRY* qglActiveTexture)(GLenum texture, const char *filename, int line);
-void (GLAPIENTRY* qglClientActiveTexture)(GLenum texture, const char *filename, int line);
-void (GLAPIENTRY* qglLoadTransposeMatrixf)(const GLfloat *m, const char *filename, int line);
+/// GL_ARB_transpose_matrix ====================================================
+void (GLAPIENTRY* qglLoadTransposeMatrixfARB)(const GLfloat *m, const char *filename, int line);
 
-static void (GLAPIENTRY* dllActiveTexture)(GLenum texture);
-static void (GLAPIENTRY* dllClientActiveTexture)(GLenum texture);
-static void (GLAPIENTRY* dllLoadTransposeMatrixf)(const GLfloat *m);
+static void (GLAPIENTRY* dllLoadTransposeMatrixfARB)(const GLfloat *m);
 
-void GLAPIENTRY stdActiveTexture(GLenum texture, const char *filename, int line)
+void GLAPIENTRY stdLoadTransposeMatrixfARB(const GLfloat *m, const char *filename, int line)
 {
-	dllActiveTexture(texture);
-}
-void GLAPIENTRY stdClientActiveTexture(GLenum texture, const char *filename, int line)
-{
-	dllClientActiveTexture(texture);
-}
-void GLAPIENTRY stdLoadTransposeMatrixf(const GLfloat *m, const char *filename, int line)
-{
-	dllLoadTransposeMatrixf(m);
+	dllLoadTransposeMatrixfARB(m);
 }
 
-void GLAPIENTRY dbgActiveTexture(GLenum texture, const char *filename, int line)
+void GLAPIENTRY dbgLoadTransposeMatrixfARB(const GLfloat *m, const char *filename, int line)
 {
-	dllActiveTexture(texture);
-	XGL_CheckForError_(filename, line);
-}
-void GLAPIENTRY dbgClientActiveTexture(GLenum texture, const char *filename, int line)
-{
-	dllClientActiveTexture(texture);
-	XGL_CheckForError_(filename, line);
-}
-void GLAPIENTRY dbgLoadTransposeMatrixf(const GLfloat *m, const char *filename, int line)
-{
-	dllLoadTransposeMatrixf(m);
+	dllLoadTransposeMatrixfARB(m);
 	XGL_CheckForError_(filename, line);
 }
 
@@ -924,9 +903,57 @@ void (GLAPIENTRY* xglGetActiveAttribARB) (GLhandleARB, GLuint, GLsizei, GLsizei 
 GLint (GLAPIENTRY* xglGetAttribLocationARB) (GLhandleARB, const GLcharARB *);
 
 
+/// GL_EXT_texture3D ===========================================================
+void (GLAPIENTRY* qglTexImage3DEXT)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels, const char *filename, int line);
+
+static void (GLAPIENTRY* dllTexImage3DEXT)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
+
+static void GLAPIENTRY stdTexImage3DEXT(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels, const char *filename, int line)
+{
+	if(dllTexImage3DEXT)
+		dllTexImage3DEXT(target, level, internalformat, width, height, depth, border, format, type, pixels);
+	else
+		ri.Com_Error(ERR_FATAL, "stdTexImage3DEXT: function pointer not available in file %s, line %i", filename, line);
+}
+
+static void GLAPIENTRY dbgTexImage3DEXT(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels, const char *filename, int line)
+{
+	if(dllTexImage3DEXT)
+		dllTexImage3DEXT(target, level, internalformat, width, height, depth, border, format, type, pixels);
+	else
+		ri.Com_Error(ERR_FATAL, "dbgTexImage3DEXT: function pointer not available in file %s, line %i", filename, line);
+		
+	XGL_CheckForError_(filename, line);
+}
+
+
 /// GL_EXT_compiled_vertex_array ===============================================
 void (GLAPIENTRY* xglLockArraysEXT) (GLint, GLsizei);
 void (GLAPIENTRY* xglUnlockArraysEXT) (void);
+
+
+/// GL_EXT_draw_range_elements =================================================
+void (GLAPIENTRY* qglDrawRangeElementsEXT)(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices, const char *filename, int line);
+
+static void (GLAPIENTRY* dllDrawRangeElementsEXT)(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices);
+
+static void GLAPIENTRY stdDrawRangeElementsEXT(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices, const char *filename, int line)
+{
+	if(dllDrawRangeElementsEXT)
+		dllDrawRangeElementsEXT(mode, start, end, count, type, indices);
+	else
+		ri.Com_Error(ERR_FATAL, "stdDrawRangeElementsEXT: function pointer not available in file %s, line %i", filename, line);
+}
+
+static void GLAPIENTRY dbgDrawRangeElementsEXT(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices, const char *filename, int line)
+{
+	if(dllDrawRangeElementsEXT)
+		dllDrawRangeElementsEXT(mode, start, end, count, type, indices);
+	else
+		ri.Com_Error(ERR_FATAL, "dbgDrawRangeElementsEXT: function pointer not available in file %s, line %i", filename, line);
+		
+	XGL_CheckForError_(filename, line);
+}
 
 
 /// GL_NV_vertex_program2 ======================================================
@@ -994,6 +1021,9 @@ Display*		(*xglXGetCurrentDisplay)(void);
 
 /// GLX 1.3 functions ==========================================================
 GLXFBConfig*		(*xglXGetFBConfigs)(Display *dpy, int screen, int *nelements);
+
+/// ARB_get_proc_address functions =============================================
+void*			(*xglXGetProcAddressARB)(const GLubyte *);
 
 /// SGIX_fbconfig functions ====================================================
 GLXFBConfigSGIX*	(*xglXChooseFBConfigSGIX)(Display *dpy, int screen, const int *attrib_list, int *nelements);
@@ -1103,12 +1133,14 @@ void	XGL_Shutdown()
 	qglDeleteTextures					= NULL;
 	qglGenTextures						= NULL;
 	
-	qglDrawRangeElements					= NULL;
-	qglTexImage3D						= NULL;
+	qglActiveTextureARB					= NULL;
+	dllActiveTextureARB					= NULL;
 	
-	qglActiveTexture					= NULL;
-	qglClientActiveTexture					= NULL;
-	qglLoadTransposeMatrixf					= NULL;
+	qglActiveTextureARB					= NULL;
+	dllActiveTextureARB					= NULL;
+	
+	qglLoadTransposeMatrixfARB				= NULL;
+	dllLoadTransposeMatrixfARB				= NULL;
 	
 	xglVertexAttribPointerARB				= NULL;
 	xglEnableVertexAttribArrayARB				= NULL;
@@ -1192,9 +1224,15 @@ void	XGL_Shutdown()
 	xglBindAttribLocationARB				= NULL;
 	xglGetActiveAttribARB					= NULL;
 	xglGetAttribLocationARB					= NULL;
+	
+	qglTexImage3DEXT					= NULL;
+	dllTexImage3DEXT					= NULL;
 
 	xglLockArraysEXT					= NULL;
 	xglUnlockArraysEXT					= NULL;
+	
+	qglDrawRangeElementsEXT					= NULL;
+	dllDrawRangeElementsEXT					= NULL;
 	
 	xglAreProgramsResidentNV				= NULL;
 	xglBindProgramNV					= NULL;
@@ -1248,6 +1286,8 @@ void	XGL_Shutdown()
 	xglXQueryVersion					= NULL;
 	xglXSwapBuffers						= NULL;
 	
+	xglXGetProcAddressARB					= NULL;
+	
 	xglXQueryExtensionsString				= NULL;
 	
 	xglXGetCurrentDisplay					= NULL;
@@ -1269,7 +1309,7 @@ void	XGL_Shutdown()
 }
 
 
-void*	XGL_GetSymbol(const char *symbolname, bool crash)
+void*	XGL_GetSymbol(const char *symbolname)
 {
 	void	*sym = NULL;
 
@@ -1279,41 +1319,23 @@ void*	XGL_GetSymbol(const char *symbolname, bool crash)
 	if((sym = dlsym(sys_gl.OpenGLLib, symbolname)) == NULL)
 	{
 		err = dlerror();
+		
+		if(err)
+			ri.Com_Error(ERR_FATAL, "XGL_GetSymbol: %s by searching symbol '%s'", err, symbolname);
+		else
+			ri.Com_Error(ERR_FATAL, "XGL_GetSymbol: unknown error by searching symbol '%s'", symbolname);
 	}
 	else
 	{
 //		ri.Com_DPrintf("XGL_GetSymbol: '%s'  '%p'\n", symbolname, sym);
-		return sym;
 	}
 	
-	if(err)
-	{
-		if(crash)
-			ri.Com_Error(ERR_FATAL, "XGL_GetSymbol: %s by searching symbol '%s'", err, symbolname);
-		else
-			ri.Com_Printf("XGL_GetSymbol: %s by searching symbol '%s'", err, symbolname);
-	}
-	else
-	{
-		if(crash)
-			ri.Com_Error(ERR_FATAL, "XGL_GetSymbol: unknown error by searching symbol '%s'", symbolname);
-		else
-			ri.Com_Printf("XGL_GetSymbol: unknown error by searching symbol '%s'", symbolname);
-	}
-
-	return NULL;
+	return sym;
 	
 #elif _WIN32
 	if((sym = GetProcAddress(sys_gl.OpenGLLib, symbolname)) == NULL)
 	{
-		if((sym = wglGetProcAddres(symbolname)) == NULL)
-		{
-			if(crash)
-				ri.Com_Error(ERR_FATAL, "XGL_GetSymbol: GetProcAddress failed on '%s'", symbolname);
-			else
-				ri.Com_Printf(ERR_FATAL, "XGL_GetSymbol: GetProcAddress failed on '%s'", symbolname);
-			return NULL;
-		}
+		ri.Com_Error(ERR_FATAL, "XGL_GetSymbol: GetProcAddress failed on '%s'", symbolname);
 	}
 
 	return sym;	
@@ -1322,10 +1344,17 @@ void*	XGL_GetSymbol(const char *symbolname, bool crash)
 
 void*	xglGetProcAddress(const char *symbol)
 {
-	if(sys_gl.OpenGLLib)
-		return XGL_GetSymbol(symbol);
-
-	return NULL;
+#ifdef __linux__
+	return XGL_GetSymbol(symbol);
+	
+#elif _WIN32
+	void* sym = wglGetProcAddress(symbol);
+	
+	if(!sym)
+		ri.Com_Error(ERR_FATAL, "xglGetProcAddress: failed on '%s'", symbolname);
+	
+	return sym;
+#endif
 }
 
 /*
@@ -1429,13 +1458,6 @@ bool	XGL_Init(const char *dllname)
 	dllBindTexture = (void (GLAPIENTRY*) (GLenum target, GLuint texture)) XGL_GetSymbol("glBindTexture");
 	dllDeleteTextures = (void (GLAPIENTRY*) (GLsizei n, const GLuint *textures)) XGL_GetSymbol("glDeleteTextures");
 	dllGenTextures = (void (GLAPIENTRY*) (GLsizei n, GLuint *textures)) XGL_GetSymbol("glGenTextures");
-	
-	dllDrawRangeElements = (void (GLAPIENTRY*) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices)) XGL_GetSymbol("glDrawRangeElements");
-	dllTexImage3D = (void (GLAPIENTRY*) (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels)) XGL_GetSymbol("glTexImage3D");
-	
-	dllActiveTexture = (void (GLAPIENTRY*) (GLenum texture)) XGL_GetSymbol("glActiveTexture");
-	dllClientActiveTexture = (void (GLAPIENTRY*) (GLenum texture)) XGL_GetSymbol("glClientActiveTexture");
-	dllLoadTransposeMatrixf = (void (GLAPIENTRY*) (const GLfloat *m)) XGL_GetSymbol("glLoadTransposeMatrixf");
 
 	/*
 	xglArrayElement = (void (GLAPIENTRY*) (GLint i)) XGL_GetSymbol("glArrayElement");
@@ -1473,6 +1495,206 @@ bool	XGL_Init(const char *dllname)
 #endif
 
 	return true;
+}
+
+void	XGL_InitExtensions()
+{
+	gl_config.arb_multitexture = false;
+	gl_config.arb_transpose_matrix = false;
+	gl_config.arb_texture_compression = false;
+	gl_config.arb_vertex_buffer_object = false;
+	gl_config.arb_occlusion_query = false;
+	gl_config.arb_texture_rectangle = false;
+	
+	gl_config.ext_texture3D = false;
+	gl_config.ext_compiled_vertex_array = false;
+	gl_config.ext_draw_range_elements = false;
+	gl_config.ext_texture_filter_anisotropic = false;	
+        
+
+	if(strstr(gl_config.extensions_string, "GL_ARB_multitexture"))
+	{
+		ri.Com_Printf("...using GL_ARB_multitexture\n");
+		dllActiveTextureARB = (void (GLAPIENTRY*) (GLenum texture)) XGL_GetSymbol("glActiveTextureARB");
+		dllClientActiveTextureARB = (void (GLAPIENTRY*) (GLenum texture)) XGL_GetSymbol("glClientActiveTextureARB");
+		gl_config.arb_multitexture = true;
+	}
+	else
+	{
+		ri.Com_Error(ERR_FATAL, "...GL_ARB_multitexture not found");
+	}
+	
+	if(strstr(gl_config.extensions_string, "GL_ARB_transpose_matrix"))
+	{
+		ri.Com_Printf("...using GL_ARB_tranpose_matrix\n");
+		dllLoadTransposeMatrixfARB = (void (GLAPIENTRY*) (const GLfloat *m)) XGL_GetSymbol("glLoadTransposeMatrixf");
+		gl_config.arb_multitexture = true;
+	}
+	else
+	{
+		ri.Com_Error(ERR_FATAL, "...GL_ARB_transpose_matrix not found");
+	}
+	
+	if(strstr(gl_config.extensions_string, "GL_ARB_texture_compression"))
+	{
+		if(r_arb_texture_compression->getValue())
+		{
+			Com_Printf("...using GL_ARB_texture_compression\n");
+			gl_config.arb_texture_compression = true;
+		}
+		else
+		{
+			ri.Com_Printf("...ignoring GL_ARB_texture_compression\n");
+		}
+	}
+	else
+	{
+		ri.Com_Printf("...GL_ARB_texture_compression not found\n");
+	}
+	
+	if(strstr(gl_config.extensions_string, "GL_ARB_vertex_buffer_object"))
+	{
+		if(r_arb_vertex_buffer_object->getValue())
+		{
+			ri.Com_Printf("...using GL_ARB_vertex_buffer_object\n");
+			gl_config.arb_vertex_buffer_object = true;
+			
+			xglBindBufferARB = (void (GLAPIENTRY*) (GLenum, GLuint)) XGL_GetSymbol("glBindBufferARB");
+			xglDeleteBuffersARB = (void (GLAPIENTRY*) (GLsizei, const GLuint *)) XGL_GetSymbol("glDeleteBuffersARB");
+			xglGenBuffersARB = (void (GLAPIENTRY*) (GLsizei, GLuint *)) XGL_GetSymbol("glGenBuffersARB");
+			xglIsBufferARB = (GLboolean (GLAPIENTRY*) (GLuint)) XGL_GetSymbol("glIsBufferARB");
+			xglBufferDataARB = (void (GLAPIENTRY*) (GLenum, GLsizeiptrARB, const GLvoid *, GLenum)) XGL_GetSymbol("glBufferDataARB");
+			xglBufferSubDataARB = (void (GLAPIENTRY*) (GLenum, GLintptrARB, GLsizeiptrARB, const GLvoid *)) XGL_GetSymbol("glBufferSubDataARB");
+			xglGetBufferSubDataARB = (void (GLAPIENTRY*) (GLenum, GLintptrARB, GLsizeiptrARB, GLvoid *)) XGL_GetSymbol("glGetBufferSubDataARB");
+			xglMapBufferARB = (GLvoid* (GLAPIENTRY*) (GLenum, GLenum)) XGL_GetSymbol("glMapBufferARB");
+			xglUnmapBufferARB = (GLboolean (GLAPIENTRY*) (GLenum)) XGL_GetSymbol("glUnmapBufferARB");
+			xglGetBufferParameterivARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLint *)) XGL_GetSymbol("glGetBufferParameterivARB");
+			xglGetBufferPointervARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLvoid* *)) XGL_GetSymbol("glGetBufferPointervARB");
+		}
+		else
+		{
+			ri.Com_Printf("...ignoring GL_ARB_vertex_buffer_object\n");
+		}
+	}
+	else
+	{
+		ri.Com_Printf("...GL_ARB_vertex_buffer_object not found\n");
+	}
+	
+	if(strstr(gl_config.extensions_string, "GL_ARB_occlusion_query"))
+	{
+		if(r_arb_occlusion_query->getValue())
+		{
+			ri.Com_Printf("...using GL_ARB_occlusion_query\n");
+			gl_config.arb_occlusion_query = true;
+			
+			xglGenQueriesARB = (void (GLAPIENTRY*) (GLsizei, GLuint *)) XGL_GetSymbol("glGenQueriesARB");
+			xglDeleteQueriesARB = (void (GLAPIENTRY*) (GLsizei, const GLuint *)) XGL_GetSymbol("glDeleteQueriesARB");
+			xglIsQueryARB = (GLboolean (GLAPIENTRY*) (GLuint)) XGL_GetSymbol("glIsQueryARB");
+			xglBeginQueryARB = (void (GLAPIENTRY*) (GLenum, GLuint)) XGL_GetSymbol("glBeginQueryARB");
+			xglEndQueryARB = (void (GLAPIENTRY*) (GLenum)) XGL_GetSymbol("glEndQueryARB");
+			xglGetQueryivARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLint *)) XGL_GetSymbol("glGetQueryivARB");
+			xglGetQueryObjectivARB = (void (GLAPIENTRY*) (GLuint, GLenum, GLint *)) XGL_GetSymbol("glGetQueryObjectivARB");
+			xglGetQueryObjectuivARB = (void (GLAPIENTRY*) (GLuint, GLenum, GLuint *)) XGL_GetSymbol("glGetQueryObjectuivARB");
+		}
+		else
+		{
+			ri.Com_Printf("...ignoring GL_ARB_oclussion_query\n");
+		}
+	}
+	else
+	{
+		ri.Com_Printf("...GL_ARB_occlusion_query not found\n");
+	}
+	
+	if(strstr(gl_config.extensions_string, "GL_ARB_texture_rectangle"))
+	{
+		if(r_arb_texture_rectangle->getValue())
+		{
+			Com_Printf("...using GL_ARB_texture_rectangle\n");
+			gl_config.arb_texture_rectangle = true;
+		}
+		else
+		{
+			ri.Com_Printf("...ignoring GL_ARB_texture_rectangle\n");
+		}
+	}
+	else
+	{
+		ri.Com_Printf("...GL_ARB_texture_rectangle not found\n");
+	}
+	
+	if(strstr(gl_config.extensions_string, "GL_EXT_texture3D"))
+	{
+		if(r_ext_texture3D->getValue())
+		{
+			ri.Com_Printf("...using GL_EXT_texture3D\n");
+			dllTexImage3DEXT = (void (GLAPIENTRY*) (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels)) XGL_GetSymbol("glTexImage3DEXT");
+			gl_config.ext_texture3D = true;
+		}
+		else
+		{
+			ri.Com_Printf("...ignoring GL_EXT_texture3D\n");
+		}
+	}
+	else
+	{
+		ri.Com_Printf("...GL_EXT_texture3D not found\n");
+	}
+	
+	if(strstr(gl_config.extensions_string, "GL_EXT_compiled_vertex_array"))
+	{
+		if(r_ext_compiled_vertex_array->getValue())
+		{
+			ri.Com_Printf("...using GL_EXT_compiled_vertex_array\n");
+			xglLockArraysEXT = (void (GLAPIENTRY*) (GLint first, GLsizei count)) XGL_GetSymbol("glLockArraysEXT");
+			xglUnlockArraysEXT = (void (GLAPIENTRY*) (void)) XGL_GetSymbol("glUnlockArraysEXT");
+			gl_config.ext_compiled_vertex_array = true;
+		}
+		else
+		{
+			ri.Com_Printf("...ignoring GL_EXT_compiled_vertex_array\n");
+		}
+	}
+	else
+	{
+		ri.Com_Printf("...GL_EXT_compiled_vertex_array not found\n");
+	}
+	
+	if(strstr(gl_config.extensions_string, "GL_EXT_draw_range_elements"))
+	{
+		if(r_ext_draw_range_elements->getValue())
+		{
+			ri.Com_Printf("...using GL_EXT_draw_range_elements\n");
+			dllDrawRangeElementsEXT = (void (GLAPIENTRY*) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices)) XGL_GetSymbol("glDrawRangeElementsEXT");
+			gl_config.ext_draw_range_elements = true;
+		}
+		else
+		{
+			ri.Com_Printf("...ignoring GL_EXT_draw_range_elements\n");
+		}
+	}
+	else
+	{
+		ri.Com_Printf("...GL_EXT_draw_range_elements not found\n");
+	}
+	
+	if(strstr(gl_config.extensions_string, "GL_EXT_texture_filter_anisotropic"))
+	{
+		if(r_ext_texture_filter_anisotropic->getValue())
+		{
+			ri.Com_Printf("...using GL_EXT_texture_filter_anisotropic\n");
+			gl_config.ext_texture_filter_anisotropic = true;
+		}
+		else
+		{
+			ri.Com_Printf("...ignoring GL_EXT_texture_filter_anisotropic\n");
+		}
+	}
+	else
+	{
+		ri.Com_Printf("...GL_EXT_texture_filter_anisotropic not found\n");
+	}
 }
 
 void	XGL_EnableDebugging(bool enable)
@@ -1545,12 +1767,14 @@ void	XGL_EnableDebugging(bool enable)
 		qglDeleteTextures					= dbgDeleteTextures;
 		qglGenTextures						= dbgGenTextures;
 		
-		qglDrawRangeElements					= dbgDrawRangeElements;
-		qglTexImage3D						= dbgTexImage3D;
+		qglActiveTextureARB					= dbgActiveTextureARB;
+		qglClientActiveTextureARB				= dbgClientActiveTextureARB;
 		
-		qglActiveTexture					= dbgActiveTexture;
-		qglClientActiveTexture					= dbgClientActiveTexture;
-		qglLoadTransposeMatrixf					= dbgLoadTransposeMatrixf;
+		qglLoadTransposeMatrixfARB				= dbgLoadTransposeMatrixfARB;
+		
+		qglTexImage3DEXT					= dbgTexImage3DEXT;
+		
+		qglDrawRangeElementsEXT					= dbgDrawRangeElementsEXT;
 	}
 	else
 	{
@@ -1620,12 +1844,14 @@ void	XGL_EnableDebugging(bool enable)
 		qglDeleteTextures					= stdDeleteTextures;
 		qglGenTextures						= stdGenTextures;
 		
-		qglDrawRangeElements					= stdDrawRangeElements;
-		qglTexImage3D						= stdTexImage3D;
+		qglActiveTextureARB					= stdActiveTextureARB;
+		qglClientActiveTextureARB				= stdClientActiveTextureARB;
 		
-		qglActiveTexture					= stdActiveTexture;
-		qglClientActiveTexture					= stdClientActiveTexture;
-		qglLoadTransposeMatrixf					= stdLoadTransposeMatrixf;
+		qglLoadTransposeMatrixfARB				= stdLoadTransposeMatrixfARB;
+		
+		qglTexImage3DEXT					= stdTexImage3DEXT;
+		
+		qglDrawRangeElementsEXT					= stdDrawRangeElementsEXT;
 	}
 }
 

@@ -2159,7 +2159,9 @@ extern cvar_t	*r_arb_vertex_buffer_object;
 extern cvar_t	*r_arb_occlusion_query;
 extern cvar_t	*r_arb_texture_rectangle;
 
+extern cvar_t	*r_ext_texture3D;
 extern cvar_t	*r_ext_compiled_vertex_array;
+extern cvar_t	*r_ext_draw_range_elements;
 extern cvar_t	*r_ext_texture_filter_anisotropic;
 extern cvar_t	*r_ext_texture_filter_anisotropic_level;
 
@@ -2453,12 +2455,15 @@ struct glconfig_t
 
 	// save here what extensions are currently available
 	bool		arb_multitexture;
+	bool		arb_transpose_matrix;
 	bool		arb_texture_compression;
 	bool		arb_vertex_buffer_object;
 	bool		arb_occlusion_query;
 	bool		arb_texture_rectangle;
 	
+	bool		ext_texture3D;
 	bool		ext_compiled_vertex_array;
+	bool		ext_draw_range_elements;
 	bool		ext_texture_filter_anisotropic;
 };
 

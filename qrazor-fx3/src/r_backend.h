@@ -32,7 +32,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 // usefull matrices to handle transformations
 //
-extern matrix_c			rb_matrix_framebuffer_to_vid;
 extern matrix_c			rb_matrix_view;
 extern matrix_c			rb_matrix_model;
 

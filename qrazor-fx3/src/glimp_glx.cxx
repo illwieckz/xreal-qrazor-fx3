@@ -854,8 +854,27 @@ int	GLimp_SetMode(int *pwidth, int *pheight, int mode, bool fullscreen)
 	sys_gl.extensions_string = (const char*)xglXQueryExtensionsString(sys_gl.dpy, sys_gl.scr);
 	ri.Com_Printf("GLX_EXTENSIONS: %s\n", sys_gl.extensions_string);
 	
+	sys_gl.arb_get_proc_address = false;
 	sys_gl.sgix_fbconfig	= false;
 	sys_gl.sgix_pbuffer	= false;
+	
+	if(strstr(sys_gl.extensions_string, "ARB_get_proc_address"))
+	{
+		//if(r_arb_get_proc_address->getValue())
+		{
+			ri.Com_Printf("...using ARB_get_proc_address\n");
+			xglXGetProcAddressARB = (void* (*)(const GLubyte *)) XGL_GetSymbol("glXGetProcAddressARB");
+			sys_gl.arb_get_proc_address = true;
+		}
+		//else
+		//{
+		//	ri.Com_Printf("...ignoring ARB_get_proc_address\n");
+		//}
+	}
+	else
+	{
+		ri.Com_Error(ERR_FATAL, "...ARB_get_proc_address not found\n");
+	}
 
 	if(strstr(sys_gl.extensions_string, "SGIX_fbconfig"))
 	{

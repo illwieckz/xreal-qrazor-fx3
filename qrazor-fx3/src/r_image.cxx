@@ -139,7 +139,7 @@ void	r_image_c::bind(bool force) const
 
 void	r_image_c::copyFromContext() const
 {
-	RB_SelectTexture(GL_TEXTURE0);
+	RB_SelectTexture(GL_TEXTURE0_ARB);
 	bind(true);
 	
 //	xglCopyTexImage2D(_target, 0, GL_RGBA, 0, 0, _width, _height, 0);
@@ -1277,7 +1277,7 @@ static r_image_c*	R_UploadBumpMap(const std::string &name, byte *data, uint_t wi
 r_upload_bumpmap_done:
 
 
-	xglTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+//	xglTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 
 	if(!(flags & IMAGE_NOMIPMAP))
 	{
@@ -1417,7 +1417,7 @@ static r_image_c*	R_UploadAlphaMap(const std::string &name, byte *data, uint_t w
 r_upload_alphamap_done:
 
 
-	xglTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+//	xglTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 
 	/*
 	if(!(flags & IMAGE_NOMIPMAP))
@@ -1559,7 +1559,7 @@ static r_image_c*	R_UploadColorMap(const std::string &name, uint_t *data, uint_t
 r_upload_colormap_done:
 
 
-	xglTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+//	xglTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 
 	//
 	// set texture filter type
