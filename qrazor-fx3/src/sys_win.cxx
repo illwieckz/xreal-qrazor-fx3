@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <direct.h>
 #include <io.h>
 #include <conio.h>
+
 // qrazor-fx ----------------------------------------------------------------
 #include "sys.h"
 #include "common.h"
@@ -47,7 +48,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define MINIMUM_WIN_MEMORY	0x0a00000
 #define MAXIMUM_WIN_MEMORY	0x1000000
-
 
 bool s_win95;
 
@@ -193,7 +193,8 @@ void	Sys_Error(const char *error, ...)
 	vsprintf (text, error, argptr);
 	va_end (argptr);
 
-	MessageBox(NULL, text, "Error", 0 /* MB_OK */ );
+	//MessageBox(NULL, text, "Error", 0 /* MB_OK */ );
+    printf(text);
 
 	if(qwclsemaphore)
 		CloseHandle(qwclsemaphore);
