@@ -62,6 +62,11 @@ void	Sys_ConsoleOutput(char *string);
 void	Sys_PushEvents();
 void	Sys_Error(const char *error, ...);
 
+#if defined(_WIN32)
+// Windows only method to get the last Error. Similar to perror and errno.
+std::string Sys_GetError();
+#endif
+
 char*	Sys_GetClipboardData();
 
 char*	Sys_ExpandSquiggle(const char *in);
