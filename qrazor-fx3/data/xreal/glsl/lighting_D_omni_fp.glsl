@@ -43,7 +43,7 @@ void	main()
 	
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_diffusemap, var_tex_diffuse);
-	diffuse.rgb *= u_light_color * saturate(dot(N, L));
+	diffuse.rgb *= u_light_color * clamp(dot(N, L), 0.0, 1.0);
 	
 	// compute attenuation
 	vec3 attenuation_xy	= texture2D(u_attenuationmap_xy, var_tex_atten_xy_z.xy).rgb;
