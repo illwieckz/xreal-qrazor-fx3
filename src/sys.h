@@ -72,7 +72,6 @@ char*	Sys_GetClipboardData();
 char*	Sys_ExpandSquiggle(const char *in);
 
 int	Sys_Milliseconds();
-int	Sys_Microseconds();
 void	Sys_Mkdir(const std::string &path);
 
 

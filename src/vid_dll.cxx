@@ -610,7 +610,6 @@ bool	VID_LoadRefresh(char *name)
 	ri.VID_NewWindow	= VID_NewWindow;
 
 	ri.Sys_Milliseconds	= Sys_Milliseconds;
-	ri.Sys_Microseconds	= Sys_Microseconds;
 
 
 	if((GetRefAPI = (ref_export_t(*)(ref_import_t))GetProcAddress(

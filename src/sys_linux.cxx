@@ -380,22 +380,6 @@ int	Sys_Milliseconds()
 	return ((tp.tv_sec - secbase)*1000 + tp.tv_usec/1000);
 }
 
-int	Sys_Microseconds()
-{
-	struct timeval tp;
-	static int		secbase;
-
-	gettimeofday(&tp, NULL);
-	
-	if(!secbase)
-	{
-		secbase = tp.tv_sec;
-		return tp.tv_usec;
-	}
-
-	return ((tp.tv_sec - secbase)*1000000 + tp.tv_usec);
-}
-
 void 	Sys_Mkdir(const std::string &path)
 {
 	mkdir(path.c_str(), 0777);
