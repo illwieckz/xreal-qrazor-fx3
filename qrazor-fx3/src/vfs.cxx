@@ -317,7 +317,7 @@ Loads the header and directory, adding the files at the beginning
 of the list so they override previous pack files.
 =================
 */
-static zip_c*	VFS_LoadZipFile(const std::string &name)
+zip_c*	VFS_LoadZipFile(const std::string &name)
 {
 	char			entry_name[MAX_OSPATH];
 	zipentry_c*		entry;
@@ -363,7 +363,7 @@ static zip_c*	VFS_LoadZipFile(const std::string &name)
 	pack = new zip_c(name, packhandle, entries);
 	
 	
-	Com_Printf("Added packfile %s (%i files)\n", name.c_str(), entries.size());
+	Com_Printf("added packfile %s (%i files)\n", name.c_str(), entries.size());
 	return pack;
 }
 
@@ -375,15 +375,42 @@ Sets vfs_game, adds the directory to the head of the path,
 then loads and adds the .pk4 files
 ================
 */
+/*
+class paksort_c : public std::binary_function<std::string, std::string, bool>
+{
+public:
+	bool operator()(const std::string &x, const std::string &y)
+	{
+		return strcmp(x.c_str(), y.c_str());
+	}
+};
+*/
+
 static void 	VFS_AddGameDirectory(const std::string &dir)
 {
+	Com_Printf("adding game directory '%s' ...\n", dir.c_str());
+
 	vfs_searchpaths.push_back(new searchpath_c(dir, NULL));
 
-	std::vector<std::string>	paknames;
-
-	for(int i=100; i>=0; i--)
+	std::vector<std::string>	filenames;
+	
+	std::string s = Sys_FindFirst(dir + "/*.pk4", 0, 0);
+	while(s.length())
 	{
-		std::string pakfile = va("%s/pak%03d.pk4", dir.c_str(), i);
+		filenames.push_back(s);
+		
+		s = Sys_FindNext(0, 0);
+	}
+	Sys_FindClose();
+	
+	std::sort(filenames.begin(), filenames.end(), std::greater<std::string>());
+//	std::sort(filenames.begin(), filenames.end(), paksort_c());
+	
+	for(uint_t i=0; i<filenames.size(); i++)
+	{
+		const std::string& pakfile = filenames[i];
+		
+		//Com_Printf("adding pak file '%s' ...\n", pakfile.c_str());
 		
 		zip_c *pak = VFS_LoadZipFile(pakfile);
 		if(!pak)
