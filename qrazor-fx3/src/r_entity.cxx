@@ -99,7 +99,7 @@ r_animation_iface_a(shared.animation)
 				if(!(light->getShared().flags & RF_STATIC))
 					continue;
 					
-				if(!_aabb.intersect(_s.radius_aabb))
+				if(!_aabb.intersect(light->getShared().radius_aabb))
 					continue;
 					
 				count += getModel()->precacheLight(this, light);
