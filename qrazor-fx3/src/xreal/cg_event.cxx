@@ -43,10 +43,12 @@ the female events are there for backwards compatability
 */
 extern int	cl_sfx_footsteps[4];
 
-static void	CG_EntityEvent(const cg_entity_t *cent)
+void	CG_EntityEvent(const cg_entity_t *cent)
 {
 	vec4_c	color;
 	vec3_c	dir;
+	
+//	trap_Com_Printf("CG_EntityEvent(%i)\n", cent->current.event);
 
 	switch(cent->current.event)
 	{
@@ -64,22 +66,35 @@ static void	CG_EntityEvent(const cg_entity_t *cent)
 		//	CG_ParticleSpray(PART_BOSSTELE, cent->current.origin, dir, color, 1024);
 		//	break;
 	
-		case EV_FOOTSTEP:
+		case EV_PLAYER_FOOTSTEP:
 			if(cg_footsteps->getValue())
 				trap_S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_BODY, cl_sfx_footsteps[rand()&3]);
 			break;
 	
-		case EV_FALL_SHORT:
+		case EV_PLAYER_FALL_SHORT:
 			trap_S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_AUTO, trap_S_RegisterSound("player/land1.wav"));
 			break;
-	
-		case EV_FALL_MEDIUM:
+
+		#if 0	
+		case EV_PLAYER_FALL_MEDIUM:
 			trap_S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_AUTO, trap_S_RegisterSound("*fall2.wav"));
 			break;
 	
 		case EV_FALL_FAR:
 			trap_S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_AUTO, trap_S_RegisterSound("*fall1.wav"));
 			break;
+			
+		case EV__FAR:
+			trap_S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_AUTO, trap_S_RegisterSound("*fall1.wav"));
+			break;
+		#endif
+		
+		case EV_ROCKET_EXPLOSION:
+		{
+			//trap_Com_Printf("CG_EntityEvent(EV_ROCKET_EXPLOSION)\n");
+			trap_S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_AUTO, trap_S_RegisterSound("rocket_impact"));
+			break;
+		}
 			
 		//
 		// muzzle flashes

@@ -2830,7 +2830,7 @@ void	g_player_c::updateFallingDamage()
 
 	if(delta < 15)
 	{
-		_s.event = EV_FOOTSTEP;
+		_s.event = EV_PLAYER_FOOTSTEP;
 		return;
 	}
 
@@ -2846,9 +2846,9 @@ void	g_player_c::updateFallingDamage()
 		if(_health > 0)
 		{
 			if (delta >= 55)
-				_s.event = EV_FALL_FAR;
+				_s.event = EV_PLAYER_FALL_FAR;
 			else
-				_s.event = EV_FALL_MEDIUM;
+				_s.event = EV_PLAYER_FALL_MEDIUM;
 		}
 		_pain_debounce_time = level.time;	// no normal pain sound
 		damage = (int)((delta-30)/2);
@@ -2862,7 +2862,7 @@ void	g_player_c::updateFallingDamage()
 	}
 	else
 	{
-		_s.event = EV_FALL_SHORT;
+		_s.event = EV_PLAYER_FALL_SHORT;
 		return;
 	}
 }
@@ -3098,7 +3098,7 @@ void	g_player_c::updateClientEvent()
 	if(_groundentity && _xyspeed > 225)
 	{
 		if((int)(_bob_time + _bob_move) != _bob_cycle)
-			_s.event = EV_FOOTSTEP;
+			_s.event = EV_PLAYER_FOOTSTEP;
 	}
 }
 
