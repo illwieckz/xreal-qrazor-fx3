@@ -990,7 +990,7 @@ void	G_InitDynamics()
 	
 //	g_ode_space_world = new d_simple_space_c(g_ode_space_toplevel->getId());
 
-//	g_ode_testplane = new d_plane_c(g_ode_space_toplevel->getId(), vec3_c(0.0, 0.0, 1.0), 64.0);
+	g_ode_testplane = new d_plane_c(g_ode_space_toplevel->getId(), vec3_c(0.0, 0.0, 1.0), 64.0);
 	
 	g_ode_contact_group = new d_joint_group_c();
 }
@@ -1016,8 +1016,8 @@ static int	G_SortByContactGeomDepthFunc(void const *a, void const *b)
 	dContact* contact_a = (dContact*)a;
 	dContact* contact_b = (dContact*)b;
 
-	vec_t depth_a = contact_a->geom.depth;
-	vec_t depth_b = contact_b->geom.depth;
+	vec_t depth_a = contact_a->geom._depth;
+	vec_t depth_b = contact_b->geom._depth;
 	
 	if(depth_a < depth_b)
 		return 1;
@@ -1077,8 +1077,10 @@ static void	G_TopLevelCollisionCallback(void *data, dGeomID o1, dGeomID o2)
 //		}
 
 		const int	contacts_max = 32;
-		dContact	contacts[contacts_max]; 
-		if(int contacts_num = dCollide(o1, o2, contacts_max, &contacts[0].geom, sizeof(dContact)))
+		//dContact	contacts[contacts_max]; 
+		std::vector<dContact> contacts;
+		//if(int contacts_num = dCollide(o1, o2, contacts_max, &contacts[0].geom, sizeof(dContact)))
+		if(int contacts_num = dCollide(o1, o2, contacts_max, contacts))
 		{
 			// sort contacts by penetration depth
 			//qsort(contacts, contacts_num, sizeof(dContact), G_SortByContactGeomDepthFunc);
@@ -1106,10 +1108,10 @@ static void	G_TopLevelCollisionCallback(void *data, dGeomID o1, dGeomID o2)
 				*/
 			
 				// set collision plane
-				vec3_c point = contacts[0].geom.pos;
-				vec3_c normal = contacts[0].geom.normal;
+				const vec3_c& point = contacts[0].geom._origin;
+				const vec3_c& normal = contacts[0].geom._normal;
 								
-				cplane_c plane(normal, -normal.dotProduct(point));
+				cplane_c plane(normal, normal.dotProduct(point));
 				
 				if(!e1->touch(e2, plane, surf))
 					return;
@@ -1171,8 +1173,8 @@ static void	G_RayCollisionCallback(void *data, dGeomID o1, dGeomID o2)
 			return;
 	
 		int		contacts_max = 16;
-		dContact	contacts[contacts_max];
-		if(int contacts_num = dCollide(o1, o2, contacts_max, &contacts[0].geom, sizeof(dContact)))
+		std::vector<dContact>	contacts;//[contacts_max];
+		if(int contacts_num = dCollide(o1, o2, contacts_max, contacts))
 		{
 			g_ray_contacts.resize(g_ray_contacts.size() + contacts_num);
 		
@@ -1245,13 +1247,13 @@ trace_t	G_RayTrace(const vec3_c &start, const vec3_c &dir, vec_t length)
 	
 		// calc endpos
 		//g_ray_trace.endpos = dnearest.geom.pos;
-		g_ray_trace.pos = start + dir * dnearest.geom.depth;
+		g_ray_trace.pos = start + dir * dnearest.geom._depth;
 		
-		g_ray_trace.depth = dnearest.geom.depth;
+		g_ray_trace.depth = dnearest.geom._depth;
 	
 		// calc plane
-		vec3_c normal = dnearest.geom.normal;
-		vec3_c x = dnearest.geom.pos;
+		const vec3_c& normal = dnearest.geom._normal;
+		const vec3_c& x = dnearest.geom._origin;
 	
 		g_ray_trace.plane.set(normal, normal.dotProduct(x));
 	}

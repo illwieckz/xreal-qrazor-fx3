@@ -50,33 +50,38 @@ for geometry objects
 
 // this struct records the parameters passed to dCollideSpaceGeom()
 
-struct SpaceGeomColliderData {
-  int flags;			// space left in contacts array
-  dContactGeom *contact;
-  int skip;
+struct SpaceGeomColliderData
+{
+	int			flags;			// space left in contacts array
+	std::vector<dContact>*	contacts;
+	//int skip;
 };
 
 
-static void space_geom_collider (void *data, dxGeom *o1, dxGeom *o2)
+static void	space_geom_collider(void *data, dxGeom *o1, dxGeom *o2)
 {
-  SpaceGeomColliderData *d = (SpaceGeomColliderData*) data;
-  if (d->flags & NUMC_MASK) {
-    int n = dCollide (o1,o2,d->flags,d->contact,d->skip);
-    d->contact = CONTACT (d->contact,d->skip*n);
-    d->flags -= n;
-  }
+	SpaceGeomColliderData *d = (SpaceGeomColliderData*) data;
+	
+	if(d->flags & NUMC_MASK)
+	{
+		
+		int n = dCollide(o1, o2, d->flags, *d->contacts);
+		//d->contact = CONTACT(d->contact, d->skip*n);
+		d->flags -= n;
+	}
 }
 
 
-static int dCollideSpaceGeom (dxGeom *o1, dxGeom *o2, int flags,
-			      dContactGeom *contact, int skip)
+static int	dCollideSpaceGeom(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
-  SpaceGeomColliderData data;
-  data.flags = flags;
-  data.contact = contact;
-  data.skip = skip;
-  dSpaceCollide2 (o1,o2,&data,&space_geom_collider);
-  return (flags & NUMC_MASK) - (data.flags & NUMC_MASK);
+	SpaceGeomColliderData data;
+	data.flags = flags;
+	data.contacts = &contacts;
+	//data.skip = skip;
+	
+	dSpaceCollide2(o1, o2, &data, &space_geom_collider);
+	
+	return (flags & NUMC_MASK) - (data.flags & NUMC_MASK);
 }
 
 //****************************************************************************
@@ -84,9 +89,10 @@ static int dCollideSpaceGeom (dxGeom *o1, dxGeom *o2, int flags,
 
 // function pointers and modes for n^2 class collider functions
 
-struct dColliderEntry {
-  dColliderFn *fn;	// collider function, 0 = no function available
-  int reverse;		// 1 = reverse o1 and o2
+struct dColliderEntry
+{
+	dColliderFn*	fn;		// collider function, NULL = no function available
+	bool		reverse;	// 1 = reverse o1 and o2
 };
 static dColliderEntry colliders[dGeomNumClasses][dGeomNumClasses];
 static int colliders_initialized = 0;
@@ -95,110 +101,115 @@ static int colliders_initialized = 0;
 // setCollider() will refuse to write over a collider entry once it has
 // been written.
 
-static void setCollider (int i, int j, dColliderFn *fn)
+static void	setCollider(int i, int j, dColliderFn *fn)
 {
-  if (colliders[i][j].fn == 0) {
-    colliders[i][j].fn = fn;
-    colliders[i][j].reverse = 0;
-  }
-  if (colliders[j][i].fn == 0) {
-    colliders[j][i].fn = fn;
-    colliders[j][i].reverse = 1;
-  }
+	if(colliders[i][j].fn == 0)
+	{
+		colliders[i][j].fn = fn;
+		colliders[i][j].reverse = false;
+	}
+	
+	if(colliders[j][i].fn == 0)
+	{
+		colliders[j][i].fn = fn;
+		colliders[j][i].reverse = true;
+	}
 }
 
 
-static void setAllColliders (int i, dColliderFn *fn)
+static void	setAllColliders(int i, dColliderFn *fn)
 {
-  for (int j=0; j<dGeomNumClasses; j++) setCollider (i,j,fn);
+	for(int j=0; j<dGeomNumClasses; j++)
+		setCollider(i, j, fn);
 }
 
 
-static void initColliders()
+static void	initColliders()
 {
-  int i,j;
-
-  if (colliders_initialized) return;
-  colliders_initialized = 1;
-
-  memset (colliders,0,sizeof(colliders));
-
-  // setup space colliders
-  for (i=dFirstSpaceClass; i <= dLastSpaceClass; i++) {
-    for (j=0; j < dGeomNumClasses; j++) {
-      setCollider (i,j,&dCollideSpaceGeom);
-    }
-  }
-
-  setCollider (dSphereClass,dSphereClass,&dCollideSphereSphere);
-  setCollider (dSphereClass,dBoxClass,&dCollideSphereBox);
-  setCollider (dSphereClass,dPlaneClass,&dCollideSpherePlane);
-  setCollider (dBoxClass,dBoxClass,&dCollideBoxBox);
-  setCollider (dBoxClass,dPlaneClass,&dCollideBoxPlane);
-  setCollider (dCCylinderClass,dSphereClass,&dCollideCCylinderSphere);
-  setCollider (dCCylinderClass,dBoxClass,&dCollideCCylinderBox);
-  setCollider (dCCylinderClass,dCCylinderClass,&dCollideCCylinderCCylinder);
-  setCollider (dCCylinderClass,dPlaneClass,&dCollideCCylinderPlane);
-  setCollider (dRayClass,dSphereClass,&dCollideRaySphere);
-  setCollider (dRayClass,dBoxClass,&dCollideRayBox);
-  setCollider (dRayClass,dCCylinderClass,&dCollideRayCCylinder);
-  setCollider (dRayClass,dPlaneClass,&dCollideRayPlane);
+	if(colliders_initialized)
+		return;
+		
+	colliders_initialized = 1;
+	
+	memset(colliders, 0, sizeof(colliders));
+	
+	// setup space colliders
+	for(int i=dFirstSpaceClass; i <= dLastSpaceClass; i++)
+	{
+		for(int j=0; j < dGeomNumClasses; j++)
+		{
+			setCollider(i, j, &dCollideSpaceGeom);
+		}
+	}
+	
+	setCollider(dSphereClass, dSphereClass, &dCollideSphereSphere);
+	setCollider(dSphereClass, dBoxClass, &dCollideSphereBox);
+	setCollider(dSphereClass, dPlaneClass, &dCollideSpherePlane);
+	setCollider(dBoxClass, dBoxClass, &dCollideBoxBox);
+	setCollider(dBoxClass, dPlaneClass, &dCollideBoxPlane);
+	setCollider(dCCylinderClass, dSphereClass, &dCollideCCylinderSphere);
+	setCollider(dCCylinderClass, dBoxClass, &dCollideCCylinderBox);
+	setCollider(dCCylinderClass, dCCylinderClass, &dCollideCCylinderCCylinder);
+	setCollider(dCCylinderClass, dPlaneClass, &dCollideCCylinderPlane);
+	setCollider(dRayClass, dSphereClass, &dCollideRaySphere);
+	setCollider(dRayClass, dBoxClass, &dCollideRayBox);
+	setCollider(dRayClass, dCCylinderClass, &dCollideRayCCylinder);
+	setCollider(dRayClass, dPlaneClass, &dCollideRayPlane);
   
-#if 1
-  setCollider (dBSPClass,dSphereClass,&dCollideBSPSphere);
-  setCollider (dBSPClass,dBoxClass,&dCollideBSPBox);
-  setCollider (dBSPClass,dCCylinderClass,&dCollideBSPCCylinder);
-  setCollider (dBSPClass,dCylinderClass,&dCollideBSPCylinder);
-  setCollider (dBSPClass,dPlaneClass,&dCollideBSPPlane);
-  setCollider (dBSPClass,dRayClass,&dCollideBSPRay);
-#endif
-  
+	setCollider(dBSPClass, dSphereClass, &dCollideBSPSphere);
+	setCollider(dBSPClass, dBoxClass, &dCollideBSPBox);
+	setCollider(dBSPClass, dCCylinderClass, &dCollideBSPCCylinder);
+	setCollider(dBSPClass, dCylinderClass, &dCollideBSPCylinder);
+	setCollider(dBSPClass, dPlaneClass, &dCollideBSPPlane);
+	setCollider(dBSPClass, dRayClass,&dCollideBSPRay);
 #ifdef dTRIMESH_ENABLED
-  setCollider (dTriMeshClass,dSphereClass,&dCollideSTL);
-  setCollider (dTriMeshClass,dBoxClass,&dCollideBTL);
-  setCollider (dTriMeshClass,dRayClass,&dCollideRTL);
-  setCollider (dTriMeshClass,dTriMeshClass,&dCollideTTL);
-  setCollider (dTriMeshClass,dCCylinderClass,&dCollideCCTL);
+	setCollider(dTriMeshClass, dSphereClass, &dCollideSTL);
+	setCollider(dTriMeshClass, dBoxClass, &dCollideBTL);
+	setCollider(dTriMeshClass, dRayClass, &dCollideRTL);
+	setCollider(dTriMeshClass, dTriMeshClass, &dCollideTTL);
+	setCollider(dTriMeshClass, dCCylinderClass, &dCollideCCTL);
 #endif
-
-  setAllColliders (dGeomTransformClass,&dCollideTransform);
+	setAllColliders(dGeomTransformClass, &dCollideTransform);
 }
 
 
-int dCollide (dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact,
-	      int skip)
+int	dCollide(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
-  dAASSERT(o1 && o2 && contact);
-  dUASSERT(colliders_initialized,"colliders array not initialized");
-  dUASSERT(o1->type >= 0 && o1->type < dGeomNumClasses,"bad o1 class number");
-  dUASSERT(o2->type >= 0 && o2->type < dGeomNumClasses,"bad o2 class number");
-
-  // no contacts if both geoms are the same
-  if (o1 == o2) return 0;
-
-  // no contacts if both geoms on the same body, and the body is not 0
-  if (o1->body == o2->body && o1->body) return 0;
-
-  dColliderEntry *ce = &colliders[o1->type][o2->type];
-  int count = 0;
-  if (ce->fn) {
-    if (ce->reverse) {
-      count = (*ce->fn) (o2,o1,flags,contact,skip);
-      for (int i=0; i<count; i++) {
-	dContactGeom *c = CONTACT(contact,skip*i);
-	c->normal[0] = -c->normal[0];
-	c->normal[1] = -c->normal[1];
-	c->normal[2] = -c->normal[2];
-	dxGeom *tmp = c->g1;
-	c->g1 = c->g2;
-	c->g2 = tmp;
-      }
-    }
-    else {
-      count = (*ce->fn) (o1,o2,flags,contact,skip);
-    }
-  }
-  return count;
+	dAASSERT(o1 && o2);
+	dUASSERT(colliders_initialized, "colliders array not initialized");
+	dUASSERT(o1->type >= 0 && o1->type < dGeomNumClasses, "bad o1 class number");
+	dUASSERT(o2->type >= 0 && o2->type < dGeomNumClasses, "bad o2 class number");
+	
+	// no contacts if both geoms are the same
+	if(o1 == o2)
+		return 0;
+		
+	// no contacts if both geoms on the same body, and the body is not 0
+	if(o1->body == o2->body && o1->body)
+		return 0;
+		
+	dColliderEntry *ce = &colliders[o1->type][o2->type];
+	int count = 0;
+	
+	if(ce->fn)
+	{
+		if(ce->reverse)
+		{
+			count = (*ce->fn)(o2, o1, flags, contacts);
+			
+			for(int i=0; i<count; i++)
+			{
+				dContactGeom& c = contacts[i].geom;
+				c.reverse();
+			}
+		}
+		else
+		{
+			count = (*ce->fn)(o1, o2, flags, contacts);
+		}
+	}
+	
+	return count;
 }
 
 //****************************************************************************

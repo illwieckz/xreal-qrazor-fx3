@@ -32,37 +32,48 @@ functions that are defined in the public header files.
 #include "collision.h"
 #include "collision_util.h"
 
-//****************************************************************************
 
-int dCollideSpheres (dVector3 p1, vec_t r1,
-		     dVector3 p2, vec_t r2, dContactGeom *c)
+bool	dAddContact(const dContact c, std::vector<dContact> &contacts)
 {
-  // printf ("d=%.2f  (%.2f %.2f %.2f) (%.2f %.2f %.2f) r1=%.2f r2=%.2f\n",
-  //	  d,p1[0],p1[1],p1[2],p2[0],p2[1],p2[2],r1,r2);
+	//FIXME get rid of redundant contacts
+	contacts.push_back(c);
+	
+	return true;
+	
+}
 
-  vec_t d = dDISTANCE (p1,p2);
-  if (d > (r1 + r2)) return 0;
-  if (d <= 0) {
-    c->pos[0] = p1[0];
-    c->pos[1] = p1[1];
-    c->pos[2] = p1[2];
-    c->normal[0] = 1;
-    c->normal[1] = 0;
-    c->normal[2] = 0;
-    c->depth = r1 + r2;
-  }
-  else {
-    vec_t d1 = X_recip (d);
-    c->normal[0] = (p1[0]-p2[0])*d1;
-    c->normal[1] = (p1[1]-p2[1])*d1;
-    c->normal[2] = (p1[2]-p2[2])*d1;
-    vec_t k = REAL(0.5) * (r2 - r1 - d);
-    c->pos[0] = p1[0] + c->normal[0]*k;
-    c->pos[1] = p1[1] + c->normal[1]*k;
-    c->pos[2] = p1[2] + c->normal[2]*k;
-    c->depth = r1 + r2 - d;
-  }
-  return 1;
+int	dCollideSpheres(const vec3_c &p1, vec_t r1, const vec3_c &p2, vec_t r2, dContactGeom &c)
+{
+	// printf ("d=%.2f  (%.2f %.2f %.2f) (%.2f %.2f %.2f) r1=%.2f r2=%.2f\n",
+	//	  d,p1[0],p1[1],p1[2],p2[0],p2[1],p2[2],r1,r2);
+	
+	vec_t d = p1.distance(p2);
+	
+	if(d > (r1 + r2))
+		return 0;
+		
+	if(d <= 0)
+	{
+		c._origin = p1;
+		c._normal.set(1, 0, 0);
+		c._depth = r1 + r2;
+	}
+	else
+	{
+		vec_t d1 = X_recip(d);
+		
+		vec_t k = REAL(0.5) * (r2 - r1 - d);
+		
+		c._origin = p1 + (c._normal*k);
+		
+		c._normal[0] = (p1[0]-p2[0])*d1;
+		c._normal[1] = (p1[1]-p2[1])*d1;
+		c._normal[2] = (p1[2]-p2[2])*d1;
+		
+		c._depth = r1 + r2 - d;
+	}
+	
+	return 1;
 }
 
 

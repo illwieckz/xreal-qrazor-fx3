@@ -56,11 +56,10 @@ int		dGeomIsEnabled(dGeomID);
 /* ************************************************************************ */
 /* collision detection */
 
-int dCollide (dGeomID o1, dGeomID o2, int flags, dContactGeom *contact,
-	      int skip);
-void dSpaceCollide (dSpaceID space, void *data, dNearCallback *callback);
-void dSpaceCollide2 (dGeomID o1, dGeomID o2, void *data,
-		     dNearCallback *callback);
+int		dCollide(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
+
+void		dSpaceCollide(dSpaceID space, void *data, dNearCallback *callback);
+void		dSpaceCollide2(dGeomID o1, dGeomID o2, void *data, dNearCallback *callback);
 
 /* ************************************************************************ */
 /* standard classes */
@@ -175,12 +174,11 @@ void dCloseODE(void);
 /* ************************************************************************ */
 /* custom classes */
 
-typedef void dGetAABBFn (dGeomID, vec_t aabb[6]);
-typedef int dColliderFn (dGeomID o1, dGeomID o2,
-			 int flags, dContactGeom *contact, int skip);
-typedef dColliderFn * dGetColliderFnFn (int num);
-typedef void dGeomDtorFn (dGeomID o);
-typedef int dAABBTestFn (dGeomID o1, dGeomID o2, vec_t aabb[6]);
+//typedef void dGetAABBFn (dGeomID, vec_t aabb[6]);
+typedef int dColliderFn(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
+//typedef dColliderFn * dGetColliderFnFn (int num);
+//typedef void dGeomDtorFn (dGeomID o);
+//typedef int dAABBTestFn (dGeomID o1, dGeomID o2, vec_t aabb[6]);
 
 /* ************************************************************************ */
 

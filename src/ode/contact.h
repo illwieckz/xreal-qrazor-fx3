@@ -44,8 +44,15 @@ enum
 };
 
 
-typedef struct dSurfaceParameters
+class dSurfaceParameters
 {
+public:
+	inline dSurfaceParameters()
+	{
+		mode		= 0;
+		mu		= X_infinity;
+	}
+
 	 /* must always be defined */
 	int	mode;
 	vec_t	mu;
@@ -58,27 +65,58 @@ typedef struct dSurfaceParameters
 	vec_t	soft_cfm;
 	vec_t	motion1,motion2;
 	vec_t	slip1,slip2;
-} dSurfaceParameters;
+};
 
 
-/* contact info set by collision functions */
-
-typedef struct dContactGeom
+// contact info set by collision functions
+class dContactGeom
 {
-	vec3_c	pos;
-	vec3_c	normal;
-	vec_t	depth;
-	dGeomID	g1,g2;
-} dContactGeom;
+public:
+	inline dContactGeom()
+	{
+		_depth		= 0;
+		_g1		= NULL;
+		_g2		= NULL;
+	}
+
+	inline dContactGeom(const vec3_c &origin, const vec3_c normal, vec_t depth, dGeomID g1, dGeomID g2)
+	{
+		_origin		= origin;
+		_normal		= normal;
+		_depth		= depth;
+		_g1		= g1;
+		_g2		= g2;
+	}
+	
+	inline const vec3_c&	getPosition() const		{return _origin;}
+	inline const vec3_c&	getNormal() const		{return _normal;}
+	inline const vec_t	getPenetrationDepth() const	{return _depth;}
+	inline const dGeomID	getGeom1() const		{return _g1;}
+	inline const dGeomID	getGeom2() const		{return _g2;}
+	
+	inline void		reverse()
+	{
+		_normal.negate();
+		std::swap(_g1, _g2);
+	}
+
+//private:
+	vec3_c		_origin;
+	vec3_c		_normal;
+	vec_t		_depth;
+	dGeomID		_g1;
+	dGeomID		_g2;
+};
 
 
 /* contact info used by contact joint */
 
-typedef struct dContact
+class dContact
 {
-	dSurfaceParameters surface;
-	dContactGeom geom;
-	vec3_c	fdir1;
-} dContact;
+public:
+	dSurfaceParameters	surface;
+	dContactGeom		geom;
+	vec3_c			fdir1;
+};
 
 #endif

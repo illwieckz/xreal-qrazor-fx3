@@ -26,15 +26,12 @@ geom transform
 
 */
 
-#ifndef _ODE_COLLISION_TRANSFORM_H_
-#define _ODE_COLLISION_TRANSFORM_H_
+#ifndef ODE_COLLISION_TRANSFORM_H
+#define ODE_COLLISION_TRANSFORM_H
 
 #include "common.h"
 #include "collision_kernel.h"
 
-
-int dCollideTransform (dxGeom *o1, dxGeom *o2, int flags,
-		       dContactGeom *contact, int skip);
-
+int	dCollideTransform(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
 
 #endif
