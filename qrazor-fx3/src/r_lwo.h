@@ -148,6 +148,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define ID_FALL  MAKE_ID('F','A','L','L')
 #define ID_CSYS  MAKE_ID('C','S','Y','S')
 
+#define ID_TXUV  MAKE_ID('T','X','U','V')
+
 /* image map */
 #define ID_IMAP  MAKE_ID('I','M','A','P')
 #define ID_IMAG  MAKE_ID('I','M','A','G')
@@ -221,14 +223,17 @@ private:
 	
 	void		readID4(char *id);
 	void		readVEC12(vec3_c &vec);
-	void		readVX(index_t &vx);
+	void		readCOL12(vec3_c &vec);
+	index_t		readVX();
 	void		readName(char *name);
 	
 	void		readTags(uint_t nbytes);
-	r_mesh_c*	readLayr(uint_t nbytes);
-	void		readPnts(uint_t nbytes, r_mesh_c *mesh);
+	r_mesh_c*	readLayr(uint_t nbytes, matrix_c &transform);
+	void		readPnts(uint_t nbytes, r_mesh_c *mesh, const matrix_c &transform);
 	void		readBbox(uint_t nbytes, r_mesh_c *mesh);
 	void		readPols(uint_t nbytes, r_mesh_c *mesh);
+	void		readVmap(uint_t nbytes, r_mesh_c *mesh);
+	void		readVmad(uint_t nbytes, r_mesh_c *mesh);
 	
 	uint_t	_readcount;
 	uint_t	_readcount_old;

@@ -109,6 +109,8 @@ public:
 					int damage, int knockback, int dflags, int mod	);
 						
 	void		remove();					// mark for removal from world
+	
+	void		setEPairs(const std::map<std::string, std::string> &epairs);
 	bool		hasEPair(const std::string &key);
 	const char*	valueForKey(const std::string &key);
 	

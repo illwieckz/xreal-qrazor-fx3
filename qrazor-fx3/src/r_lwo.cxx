@@ -42,10 +42,11 @@ r_lwo_model_c::~r_lwo_model_c()
 
 void	r_lwo_model_c::load()
 {
-	U4	datasize;
-	U4	type, size;
-	ID4	id;
+	U4		datasize;
+	U4		type, size;
+	ID4		id;
 	r_mesh_c*	mesh = NULL;
+	matrix_c	transform;
 
 	_readcount = 0;
 	
@@ -94,12 +95,12 @@ void	r_lwo_model_c::load()
 				break;
 			*/
 			case ID_LAYR:
-				mesh = readLayr(size);
+				mesh = readLayr(size, transform);
 				addMesh(mesh);
 				break;
 			
 			case ID_PNTS:
-				readPnts(size, mesh);
+				readPnts(size, mesh, transform);
 				break;
 				
 			case ID_BBOX:
@@ -113,11 +114,15 @@ void	r_lwo_model_c::load()
 			case ID_PTAG:
 				readPtag(size);
 				break;
-				
+			*/	
 			case ID_VMAP:
-				readVmap(size);
+				readVmap(size, mesh);
 				break;
-			
+
+			case ID_VMAD:
+				readVmad(size, mesh);
+				break;
+			/*
 			case ID_SURF:
 				read_surf(size);
 				break;
@@ -213,12 +218,19 @@ void	r_lwo_model_c::readVEC12(vec3_c &vec)
 	vec[1] = readF4();
 }
 
-void	r_lwo_model_c::readVX(index_t &vx)
+void	r_lwo_model_c::readCOL12(vec3_c &vec)
+{
+	vec[0] = readF4();
+	vec[1] = readF4();
+	vec[2] = readF4();
+}
+
+index_t	r_lwo_model_c::readVX()
 {
 	if(_readcount + 1 > _buffer_size)
-		return;
+		return 0;
 
-	vx = 0;
+	index_t vx = 0;
 	int c = _buffer[_readcount];
 	if(c == 0xFF)
 	{
@@ -238,6 +250,8 @@ void	r_lwo_model_c::readVX(index_t &vx)
 		
 		vx = BigShort(c);
 	}
+	
+	return vx;
 }
 
 void	r_lwo_model_c::readName(char *name)
@@ -273,7 +287,7 @@ void	r_lwo_model_c::readTags(uint_t nbytes)
 	}
 }
 
-r_mesh_c*	r_lwo_model_c::readLayr(uint_t nbytes)
+r_mesh_c*	r_lwo_model_c::readLayr(uint_t nbytes, matrix_c &transform)
 {
 	ushort_t	flags[2], parent;
 	vec3_c		pivot;
@@ -288,6 +302,8 @@ r_mesh_c*	r_lwo_model_c::readLayr(uint_t nbytes)
 
 	/*  Pivot point  */
 	readVEC12(pivot);
+	transform.setupTranslation(pivot);
+	
 	readName(name);
 
 	ri.Com_DPrintf(" NO [%d] NAME [%s]\n", flags[0], name);
@@ -302,7 +318,7 @@ r_mesh_c*	r_lwo_model_c::readLayr(uint_t nbytes)
 	return mesh;
 }
 
-void	r_lwo_model_c::readPnts(uint_t nbytes, r_mesh_c *mesh)
+void	r_lwo_model_c::readPnts(uint_t nbytes, r_mesh_c *mesh, const matrix_c &transform)
 {
 	if(!mesh)
 		ri.Com_Error(ERR_DROP, "r_lwo_model_c::readPnts: NULL mesh");
@@ -319,6 +335,7 @@ void	r_lwo_model_c::readPnts(uint_t nbytes, r_mesh_c *mesh)
 	{
 		readVEC12(mesh->vertexes[i]);
 		//ri.Com_DPrintf("\t[%d] [%f,%f,%f]\n", i, mesh->vertexes[i][0], mesh->vertexes[i][1], mesh->vertexes[i][2]);
+		mesh->vertexes[i].transform(transform);
 	}
 }
 
@@ -343,7 +360,7 @@ void	r_lwo_model_c::readPols(uint_t nbytes, r_mesh_c *mesh)
 	ushort_t	numvert, flags;
 	uint_t		nPols;
 	index_t		vx;
-	ID4		id;
+	char		id[5];
 	uint_t		type;
 	
 	if(!mesh)
@@ -355,7 +372,6 @@ void	r_lwo_model_c::readPols(uint_t nbytes, r_mesh_c *mesh)
 
 	readID4(id);
 	type = MAKE_ID(id[0], id[1], id[2], id[3]);
-	
 	ri.Com_DPrintf(" [%s]\n", id);
 
 	while(_readcount < (_readcount_old + nbytes))
@@ -368,10 +384,13 @@ void	r_lwo_model_c::readPols(uint_t nbytes, r_mesh_c *mesh)
 
 		for(int n=0; n<(int)numvert; n++)
 		{
-			readVX(vx);
+			vx = readVX();
 			
 			if(type == ID_FACE && numvert == 3)
 			{
+				if(vx < 0 || vx >= mesh->vertexes.size())
+					continue;
+					
 				mesh->indexes.push_back(vx);
 			}
 			
@@ -386,4 +405,289 @@ void	r_lwo_model_c::readPols(uint_t nbytes, r_mesh_c *mesh)
 	
 	//std::reverse(mesh->indexes.begin(), mesh->indexes.end());
 }
+
+void	r_lwo_model_c::readVmap(uint_t nbytes, r_mesh_c *mesh)
+{
+	ushort_t	dim;
+	index_t		vx;
+	float		value;
+	char		name[255];
+	char		id[5];
+	uint_t		type;
+	
+	if(!mesh)
+		ri.Com_Error(ERR_DROP, "r_lwo_model_c::readVmap: NULL mesh");
+		
+	ri.Com_DPrintf("VMAP [%d]", nbytes);
+
+	readID4(id);
+	type = MAKE_ID(id[0], id[1], id[2], id[3]);
+	ri.Com_DPrintf(" [%s]", id);
+
+	dim = readU2();
+	readName(name);
+	ri.Com_DPrintf(" DIM [%d] NAME [%s]\n", dim, name);
+
+	while(_readcount < (_readcount_old + nbytes))
+	{
+		vx = readVX();
+		
+		if(dim == 0)
+		{
+			//ri.Com_DPrintf("\tVERT[%d]\n", vx);
+		}
+		else
+		{
+			//ri.Com_DPrintf("\tVERT[%d] VALS[", vx);
+			
+			for(int n=0; n<(int)dim; n++)
+			{
+				value = readF4();
+				
+				if(type == ID_TXUV && dim == 2)
+				{
+					try
+					{
+						if(n==0)
+							mesh->texcoords.at(vx)[n] = value;
+						else
+							mesh->texcoords.at(vx)[n] = 1.0f - value;
+					}
+					catch(...)
+					{
+						ri.Com_Error(ERR_DROP, "r_lwo_model_c::loadVmap: exception occured");
+					}
+				}
+				
+				/*		
+				if(n+1 == dim)
+					ri.Com_DPrintf("%f]\n", value);
+				else
+					ri.Com_DPrintf("%f, " , value);
+				*/
+			}
+		}
+	}
+}
+
+void	r_lwo_model_c::readVmad(uint_t nbytes, r_mesh_c *mesh)
+{
+	ushort_t	dim;
+	index_t		vx;
+	index_t		poly;
+	float		value;
+	char		name[255];
+	char		id[5];
+	uint_t		type;
+	
+	if(!mesh)
+		ri.Com_Error(ERR_DROP, "r_lwo_model_c::readVmad: NULL mesh");
+		
+	ri.Com_DPrintf("VMAD [%d]", nbytes);
+
+	readID4(id);
+	type = MAKE_ID(id[0], id[1], id[2], id[3]);
+	ri.Com_DPrintf(" [%s]", id);
+
+	dim = readU2();
+	readName(name);
+	ri.Com_DPrintf(" DIM [%d] NAME [%s]\n", dim, name);
+
+	while(_readcount < (_readcount_old + nbytes))
+	{
+		vx = readVX();
+		poly = readVX();//	poly *= 3;
+		
+		if(dim == 0)
+		{
+			//ri.Com_DPrintf("\tVERT[%d]\n", vx);
+		}
+		else
+		{
+			//ri.Com_DPrintf("\tVERT[%d] VALS[", vx);
+			
+			for(int n=0; n<(int)dim; n++)
+			{
+				value = readF4();
+				
+				if(type == ID_TXUV && dim == 2)
+				{
+					try
+					{
+						if(n==0)
+							mesh->texcoords.at(vx)[n] = value;
+						else
+							mesh->texcoords.at(vx)[n] = 1.0f - value;
+					}
+					catch(...)
+					{
+						ri.Com_Error(ERR_DROP, "r_lwo_model_c::loadVmad: exception occured");
+					}
+				}
+				
+				/*		
+				if(n+1 == dim)
+					ri.Com_DPrintf("%f]\n", value);
+				else
+					ri.Com_DPrintf("%f, " , value);
+				*/
+			}
+		}
+	}
+}
+
+/*
+void	r_lwo_model_c::readSurf(uint_t nbytes)
+{
+	uint_t		bytesread = 0, type, byteshold;
+	ushort_t	size, u2[4];
+	float		f4[4];
+	index_t		vx[4];
+	S0		name, source, s0;
+	ID4		id;
+	vec3_c		col;
+	
+	ri.Com_DPrintf("SURF [%d]\n", nbytes);
+	
+	readName(name);
+	readName(source);
+	
+	ri.Com_DPrintf("[%s] [%s]\n", name, source);
+	
+	while(_readcount < (_readcount_old + nbytes))
+	{
+		if((nbytes - (_readcount - _readcount_old) < 6)
+		{
+			_readcount += (nbytes - (_readcount - _readcount_old)//seek_pad((nbytes - bytesread), file);
+			return;
+		}
+		
+		// Handle the various sub-chunks
+		readID4(id);
+		size = readU2();
+		type = MAKE_ID(id[0], id[1], id[2], id[3]);
+		
+		byteshold = _readcount - _readcount_old;
+		ri.Com_DPrintf("\t[%s] (%d) ", id, size);
+		
+		switch(type)
+		{
+			case ID_COLR:
+			case ID_LCOL:
+			readCOL12(col);
+			vx[0] = readVX();
+			ri.Com_DPrintf("<%f,%f,%f> <%d>\n", col[0], col[1], col[2], vx[0]);
+			break;
+		
+			case ID_DIFF:
+			case ID_LUMI:
+			case ID_SPEC:
+			case ID_REFL:
+			case ID_TRAN:
+			case ID_TRNL:
+			case ID_GLOS:
+			case ID_SHRP:
+			case ID_BUMP:
+			case ID_RSAN:
+			case ID_RIND:
+			case ID_CLRH:
+			case ID_CLRF:
+			case ID_ADTR:
+			case ID_GVAL:
+			case ID_LSIZ:
+				f4[0] = readF4();
+				vx[0] = readVX();
+				ri.Com_DPrintf("<%f> <%d>\n", f4[0], vx[0]);
+				break;
+				
+			case ID_SIDE:
+			case ID_RFOP:
+			case ID_TROP:
+				u2[0] = readU2();
+				_readcount += (size - sizeof(U2));
+				ri.Com_DPrintf("<%d>\n", u2[0]);
+				break;
+				
+			case ID_SMAN:
+				f4[0] = readF4();
+				ri.Com_DPrintf("<%f>\n", f4[0]);
+				break;
+			
+			case ID_RIMG:
+			case ID_TIMG:
+				vx[0] = readVX();
+				ri.Com_DPrintf("<%d>\n", vx[0]);
+				break;
+			
+			case ID_GLOW:
+				u2[0] = readU2();
+				f4[0] = readF4();
+				vx[0] = readVX();
+				f4[1] = readF4();
+				vx[1] = readVX();
+				ri.Com_DPrintf("<%d> <%f> <%d> <%f> <%d>\n", u2[0], f4[0], vx[0], f4[1], vx[1]);
+				break;
+			
+			case ID_LINE:
+				u2[0] = readU2();
+				
+				if(size > 2)
+				{
+					f4[0] = readF4();
+					vx[0] = readVX();
+					
+					if(size > 8)
+					{
+						readCOL12(col);
+						vx[1] = readVX();
+						
+						ri.Com_DPrintf("<%d> <%f> <%d> <%f,%f,%f> <%d>\n", 
+						u2[0], f4[0], vx[0], col[0], col[1], col[2], vx[1]);
+					}
+					else
+					{
+						ri.Com_DPrintf("<%d> <%f> <%d>\n", u2[0], f4[0], vx[0]);
+					}
+				}
+				else
+				{
+					ri.Com_DPrintf("<%d>\n", u2[0]);
+				}
+				break;
+				
+			case ID_ALPH:
+				u2[0] = readU2();
+				f4[0] = readF4();
+				ri.Com_DPrintf("<%d> <%f>\n", u2[0], f4[0]);
+				break;
+			
+			case ID_AVAL:
+				f4[0] = readF4();
+				ri.Com_DPrintf("<%f>\n", f4[0]);
+				break;
+			
+			//case ID_BLOK:
+			//	ri.Com_DPrintf("\n");
+				//TODO
+				//bytesread += read_blok(size, file);
+				//break;
+				
+			//case ID_CMNT:
+			//	memset(s0, 0x00, sizeof(s0));
+			//	bytesread += read_u1(s0, size, file);
+			//	printf("<%s>\n", s0);
+			//	break;
+			//
+			
+			default:
+		bytesread += seek_pad(size, file);
+        printf("(%d bytes)\n", size);
+      }
+	  if ((size - bytesread + byteshold) > 0) {
+		  bytesread += seek_pad((size - bytesread + byteshold), file);
+	  }
+    }
+
+}
+*/
 

@@ -48,6 +48,8 @@ r_model_c::r_model_c(const std::string &name, byte *buffer, uint_t buffer_size, 
 	_buffer		= buffer;
 	_buffer_size	= buffer_size;
 	
+	_bbox.clear();
+	
 	setRegistrationSequence();
 }
 
@@ -62,6 +64,8 @@ r_model_c::~r_model_c()
 
 void	r_model_c::setupMeshes()
 {
+	_bbox.clear();
+
 	for(std::vector<r_mesh_c*>::const_iterator ir = _meshes.begin(); ir != _meshes.end(); ++ir)
 	{
 		r_mesh_c*	mesh = *ir;
@@ -71,6 +75,10 @@ void	r_model_c::setupMeshes()
 		
 		mesh->calcTangentSpaces();		
 //		mesh->calcEdges();
+		mesh->createBBoxFromVertexes();
+		
+		_bbox.addPoint(mesh->bbox._mins);
+		_bbox.addPoint(mesh->bbox._maxs);
 	}
 }
 

@@ -160,7 +160,7 @@ void	g_field_iface_a::setField(const std::string &key, const std::string &value)
 					sscanf(value.c_str(), "%f %f %f %f %f %f %f %f %f",	&m[0][0], &m[0][1], &m[0][2],
 												&m[1][0], &m[1][1], &m[1][2],
 												&m[2][0], &m[2][1], &m[2][2]);
-					m.transpose();
+					//m.transpose();
 					((quaternion_c*)(f._ptr))->fromMatrix(m);
 					break;
 					
