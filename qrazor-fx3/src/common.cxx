@@ -636,13 +636,13 @@ void	Com_Error_f()
 
 
 
-static void	Com_BenchMatrix_f()
+static void	Com_BenchMath_f()
 {
 	int start, end;
 	
 	if(Cmd_Argc() != 2)
 	{
-		Com_Printf("usage: benchmatrix <iterations number>\n");
+		Com_Printf("usage: benchmath <iterations number>\n");
 		return;
 	}
 	
@@ -650,27 +650,36 @@ static void	Com_BenchMatrix_f()
 	if(!iterations_num)
 		iterations_num = 1000;
 	
-	matrix_c m1, m2, m3;
-	vec4_c v1(1, 0, 0, 0), v2;
+	matrix_c m_1, m_2, m_3;
+	vec3_c v3_1(X_crand()*123.0, X_crand()*456.0, X_crand()*789.0), v3_2;
+	vec4_c v4_1(X_crand()*123.0, X_crand()*456.0, X_crand()*789.0, 1.0), v4_2;
 	
-	m1.setupXRotation(56);
-	m2.setupYRotation(79);
+	m_1.setupXRotation(X_frand() * 360.0);
+	m_2.setupYRotation(X_frand() * 360.0);
+	
+	start = Sys_Microseconds();
+	for(int i=0; i<iterations_num; i++)
+	{
+		v3_2 = m_1 * v3_1;
+	}
+	end = Sys_Microseconds();
+	Com_Printf("matrix_c * vec3_c: %i\n", end - start);
+	
+	start = Sys_Microseconds();
+	for(int i=0; i<iterations_num; i++)
+	{
+		v3_2 = m_1 * v4_1;
+	}
+	end = Sys_Microseconds();
+	Com_Printf("matrix_c * vec4_c: %i\n", end - start);
 		
 	start = Sys_Microseconds();
 	for(int i=0; i<iterations_num; i++)
 	{
-		m3 = m1 * m2;
+		m_3 = m_1 * m_2;
 	}
 	end = Sys_Microseconds();
 	Com_Printf("matrix_c * matrix_c: %i\n", end - start);
-	
-	start = Sys_Microseconds();
-	for(int i=0; i<iterations_num; i++)
-	{
-		v2 = m1 * v1;
-	}
-	end = Sys_Microseconds();
-	Com_Printf("matrix_c * vec4_c: %i\n", end - start);
 }
 
 void	Com_MathCheck_f()
@@ -1084,7 +1093,7 @@ void 	Com_Init(int argc, char **argv)
 	Cmd_AddCommand("misccheck", Com_MiscCheck_f);
 	Cmd_AddCommand("messagecheck", Com_MessageCheck_f);
 	
-	Cmd_AddCommand("benchmatrix", Com_BenchMatrix_f);
+	Cmd_AddCommand("benchmath", Com_BenchMath_f);
 	
 
 	com_speeds	= Cvar_Get("com_speeds", "0", 0);
