@@ -53,10 +53,12 @@ g_light_c::g_light_c()
 	_s.effects = EF_DLIGHT;
 	_s.renderfx = RF_STATIC;
 	
+	/*
 	_s.shaderparms[0] = 1.0;
 	_s.shaderparms[1] = 1.0;
 	_s.shaderparms[2] = 1.0;
 	_s.shaderparms[3] = 1.0;
+	*/
 	
 	//_r.clipmask = MASK_SHOT;
 	//_r.solid = SOLID_BBOX;
@@ -115,7 +117,7 @@ void	g_light_c::think()
 		_body->setQuaternion(_s.quat);
 	}
 #endif
-		
+
 	_nextthink = level.time + FRAMETIME;
 }
 
@@ -125,6 +127,17 @@ void	g_light_c::touch(g_entity_c *other, cplane_c *plane, csurface_c *surf)
 	//_remove = true;
 }
 */
+
+void	g_light_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point)
+{
+	gi.Com_Printf("g_light_c::die: inflictor '%s'\n", inflictor->getClassName());
+
+	_health = _max_health;
+	_takedamage = DAMAGE_NO;
+	
+	_s.shaderparms[6] = 1.0;
+	_s.shaderparms[7] = 0.0;
+}
 
 
 /*
@@ -195,10 +208,37 @@ void	g_light_c::activate()
 		}
 	}
 	
-	// setup rigid body
-//	_body->setPosition(_s.origin);
-//	_body->setQuaternion(_s.quat);
-//	_body->setGravityMode(0);
+	if(_health)
+	{
+		_max_health = _health;
+		_takedamage = DAMAGE_YES;
+	}
+	
+	/*
+		// setup ODE collision
+		g_geom_info_c *geom_info = new g_geom_info_c(this, NULL, NULL);
+	
+		d_geom_c *geom = new d_box_c(g_ode_space->getId(), _s.vectors[0] * 0.5);
+		geom->setPosition(_s.origin);
+		geom->setQuaternion(_s.quat);
+		geom->setData(geom_info);
+	
+		_geoms.insert(std::make_pair(geom, geom_info));
+	*/
+	
+	
+	
+	
+	// setup ODE rigid body
+	/*
+	_body->setPosition(_s.origin);
+	_body->setQuaternion(_s.quat);
+	_body->setGravityMode(0);
+	
+	dMass m;
+	dMassSetSphereTotal(&m, 0.1, 8);
+	_body->setMass(&m);
+	*/
 	
 	_nextthink = level.time + FRAMETIME;
 }

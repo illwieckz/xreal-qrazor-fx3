@@ -327,7 +327,8 @@ void 	g_entity_c::takeDamage(g_entity_c *inflictor, g_entity_c *attacker, vec3_t
 
 			Vector3_Scale(dir, 500.0 * (float)knockback / mass, kvel);
 
-			_body->addForce(kvel);
+			if(_body)
+				_body->addForce(kvel);
 		}
 	}
 

@@ -100,7 +100,7 @@ cplane_c	r_clipplane;
 
 
 r_entity_c	r_world_entity;
-r_bsptree_c*	r_world_tree;
+r_proctree_c*	r_world_tree;
 
 std::vector<index_t> 	r_quad_indexes;
 
@@ -1478,7 +1478,7 @@ static bool 	R_SetMode()
 
 void	R_InitTree(const std::string &name)
 {
-#if 1
+#if 0
 	r_world_tree = new r_bsptree_c("maps/" + name);
 #else
 	r_world_tree = new r_proctree_c("maps/" + name + ".proc");
@@ -1771,48 +1771,56 @@ static void	R_AddEntity(int entity_num, const r_entity_t &shared)
 	if(ir != r_entities.end())
 	{
 		//ri.Com_Error(ERR_DROP, "R_AddEntity: entity %i already added", entity_num);
+		
 		//r_entities.erase(ir);
 		//r_entities.insert(std::make_pair(entity_num, r_entity_c(shared, update)));
-		ir->second = r_entity_c(shared, true);
+		
+		ir->second = r_entity_c(shared);
 	}
 	else
 	{
-		r_entities.insert(std::make_pair(entity_num, r_entity_c(shared, true)));
+		r_entities.insert(std::make_pair(entity_num, r_entity_c(shared)));
 	}
 }
 
-static void	R_UpdateEntity(int entity_num, const r_entity_t &shared, bool update)
+static void	R_UpdateEntity(int entity_num, const r_entity_t &shared)
 {
+	if(!entity_num)
+	{
+		ri.Com_Error(ERR_DROP, "R_UpdateEntity: bad entity number %i", entity_num);
+		return;
+	}
+
 	std::map<int, r_entity_c>::iterator ir = r_entities.find(entity_num);
 	
 	if(ir == r_entities.end())
 	{
-		ri.Com_Error(ERR_DROP, "R_UpdateEntity: entity %i is unknown", entity_num);
+		//ri.Com_Error(ERR_DROP, "R_UpdateEntity: entity %i is unknown", entity_num);
+		
+		r_entities.insert(std::make_pair(entity_num, r_entity_c(shared)));
 	}
 	else
 	{
-		if(update)
-		{
-			// update entire entity information
-			//r_entities.erase(ir);
-			//r_entities.insert(std::make_pair(entity_num, r_entity_c(shared, update)));
-			ir->second = r_entity_c(shared, true);
-		}
-		else
-		{
-			// update only client game lerp information
-			ir->second.setLerp(shared.lerp);
-		}
+		//r_entities.erase(ir);
+		//r_entities.insert(std::make_pair(entity_num, r_entity_c(shared, update)));
+		
+		ir->second = r_entity_c(shared);
 	}
 }
 
 static void	R_RemoveEntity(int entity_num)
 {
+	if(!entity_num)
+	{
+		ri.Com_Error(ERR_DROP, "R_RemoveEntity: bad entity number %i", entity_num);
+		return;
+	}
+	
 	std::map<int, r_entity_c>::iterator ir = r_entities.find(entity_num);
 	
 	if(ir == r_entities.end())
 	{
-		ri.Com_Error(ERR_DROP, "R_RemoveEntity: entity %i is unknown", entity_num);
+		//ri.Com_Error(ERR_DROP, "R_RemoveEntity: entity %i is unknown", entity_num);
 	}
 	else
 	{
@@ -1837,7 +1845,37 @@ static void	R_AddLight(int entity_num, const r_entity_t &shared, r_light_type_t 
 
 static void	R_UpdateLight(int entity_num, const r_entity_t &shared, r_light_type_t type)
 {
+	if(!entity_num)
+	{
+		ri.Com_Error(ERR_DROP, "R_UpdateLight: bad entity number %i", entity_num);
+		return;
+	}
+
 	std::map<int, r_light_c>::iterator ir = r_lights.find(entity_num);
+	
+	if(ir == r_lights.end())
+	{
+		//ri.Com_Error(ERR_DROP, "R_UpdateLight: entity %i is unknown", entity_num);
+		
+		r_lights.insert(std::make_pair(entity_num, r_light_c(shared, type)));
+	}
+	else
+	{
+		//if(update)
+		{
+			// update entire entity information
+			//r_entities.erase(ir);
+			//r_entities.insert(std::make_pair(entity_num, r_entity_c(shared, update)));
+			ir->second = r_light_c(shared, type);
+		}
+		/*
+		else
+		{
+			// update only client game lerp information
+			ir->second.setLerp(shared.lerp);
+		}
+		*/
+	}
 	
 	if(ir != r_lights.end())
 	{
@@ -1847,6 +1885,12 @@ static void	R_UpdateLight(int entity_num, const r_entity_t &shared, r_light_type
 
 static void	R_RemoveLight(int entity_num)
 {
+	if(!entity_num)
+	{
+		ri.Com_Error(ERR_DROP, "R_RemoveLight: bad entity number %i", entity_num);
+		return;
+	}
+
 	std::map<int, r_light_c>::iterator ir = r_lights.find(entity_num);
 	
 	if(ir != r_lights.end())

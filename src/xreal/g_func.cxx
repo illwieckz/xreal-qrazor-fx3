@@ -932,7 +932,7 @@ void	g_func_button_c::activate()
 	//ent->use = button_use;
 	_s.effects |= EF_ANIM01;
 
-	if (_health)
+	if(_health)
 	{
 		_max_health = _health;
 		//ent->die = button_killed;

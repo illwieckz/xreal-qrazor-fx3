@@ -36,6 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <boost/spirit/utility.hpp>
 #include <boost/spirit/symbols/symbols.hpp>
 #include <boost/spirit/tree/ast.hpp>
+#include <boost/spirit/tree/tree_to_xml.hpp>
 #include <boost/spirit/utility/lists.hpp>
 #include <boost/spirit/utility/escape_char.hpp>
 
@@ -319,6 +320,8 @@ enum
 	SHADER_GENERIC_RULE_TABLE_VALUE,
 	SHADER_GENERIC_RULE_FACTOR,
 	SHADER_GENERIC_RULE_TERM,
+ 	SHADER_GENERIC_RULE_OP_MUL,
+ 	SHADER_GENERIC_RULE_OP_DIV,
 	SHADER_GENERIC_RULE_EXPRESSION
 };
 
@@ -930,7 +933,7 @@ public r_occlusioniface_a
 {
 public:
 	r_entity_c();
-	r_entity_c(const r_entity_t &shared, bool update);
+	r_entity_c(const r_entity_t &shared);
 
 	void			setupTransform();
 	void			setupTransformLeftHanded();
@@ -940,7 +943,7 @@ public:
 	
 	inline const matrix_c&		getTransform() const	{return _transform;}
 	
-	inline void			setLerp(float lerp)	{_s.lerp = lerp;}
+//	inline void			setLerp(float lerp)	{_s.lerp = lerp;}
 	inline void			setColor(const vec4_c &color)
 	{
 		_s.shader_parms[0] = color[0];
@@ -948,18 +951,11 @@ public:
 		_s.shader_parms[2] = color[2];
 		_s.shader_parms[3] = color[3];
 	}
-	
-	inline bool			needsUpdate() const	{return _needsupdate;}
-	inline void			needsUpdate(bool b)	{_needsupdate = b;}
-	
-	
 
 private:
 	r_entity_t		_s;
 		
 	matrix_c		_transform;
-	
-	bool			_needsupdate;
 };
 
 
@@ -1004,9 +1000,6 @@ public:
 	
 	inline const r_frustum_c&	getFrustum() const	{return _frustum;}
 	
-	inline bool			needsUpdate() const	{return _needsupdate;}
-	inline void			needsUpdate(bool b)	{_needsupdate = b;}
-	
 	inline void			setAreaNum(int areanum)
 	{
 		_areasurfaces = std::vector<std::map<const r_surface_c*, std::vector<index_t> > >(areanum ? areanum : 1);
@@ -1031,8 +1024,6 @@ private:
 	r_frustum_c		_frustum;
 	
 	r_image_c*		_shadowmap;
-	
-	bool			_needsupdate;
 						
 	std::vector<std::map<const r_surface_c*, std::vector<index_t> >	>	_areasurfaces;
 };
@@ -1953,7 +1944,7 @@ extern r_refdef_t	r_newrefdef;
 
 
 extern r_entity_c	r_world_entity;
-extern r_bsptree_c*	r_world_tree;
+extern r_proctree_c*	r_world_tree;
 
 
 extern std::vector<index_t>	r_quad_indexes;

@@ -87,7 +87,6 @@ public:
 		right.clear();
 		up.clear();
 		
-		lerp		= 0;
 		flags		= RF_NONE;
 	}
 	
@@ -118,7 +117,6 @@ public:
 	vec3_c			up;
 	
 	// misc
-	float			lerp;		// 0.0 = old, 1.0 = current
 	uint_t			flags;		// renderfx
 };
 
@@ -197,6 +195,7 @@ struct r_refdef_t
 		view_angles.clear();
 		
 		rdflags		= 0;
+		lerp		= 0;
 		
 		areabits	= NULL;
 	}
@@ -217,8 +216,9 @@ struct r_refdef_t
 	vec3_c			view_origin;
 	vec3_c			view_angles;
 	
-	// special effects
+	// misc
 	int			rdflags;	// RDF_UNDERWATER, etc
+	float			lerp;		// 0.0 = old, 1.0 = current
 
 	// visibility
 	byte*			areabits;	// if not NULL, only areas with set bits will be drawn
@@ -270,7 +270,7 @@ typedef struct
 	void		(*R_ClearScene)();
 	
 	void		(*R_AddEntity)(int entity_num, const r_entity_t &shared);
-	void		(*R_UpdateEntity)(int entity_num, const r_entity_t &shared, bool update);
+	void		(*R_UpdateEntity)(int entity_num, const r_entity_t &shared);
 	void		(*R_RemoveEntity)(int entity_num);
 	
 	void		(*R_AddLight)(int entity_num, const r_entity_t &shared, r_light_type_t type);

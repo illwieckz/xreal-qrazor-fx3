@@ -190,6 +190,7 @@ struct cg_entity_t
 	entity_state_t	prev;			// will always be valid, but might just be a copy of current
 
 	int		serverframe;		// if not current, this ent isn't in the frame
+	int		serverframe_old;
 };
 
 
@@ -392,12 +393,21 @@ void	CG_UpdateEntity(int newnum, const entity_state_t *state, bool changed);
 void	CG_RemoveEntity(int oldnum, const entity_state_t *state);
 void	CG_EndFrame(int entities_num);
 
-void	CG_AddEntities();
 void	CG_GetEntitySoundOrigin(int ent, vec3_c &org);
+
+void	CG_UpdateOrigin(const cg_entity_t *cent, r_entity_t &rent, bool &update);
+void	CG_UpdateFrame(const cg_entity_t *cent, r_entity_t &rent, bool &update);
+void	CG_UpdateRotation(const cg_entity_t *cent, r_entity_t &rent, bool &update);
+void	CG_UpdateModel(const cg_entity_t *cent, r_entity_t &rent, bool &update);
+void	CG_UpdateShader(const cg_entity_t *cent, r_entity_t &rent, bool &update);
+void	CG_UpdateShaderParms(const cg_entity_t *cent, r_entity_t &rent, bool &update);
+void	CG_UpdateRenderFXFlags(const cg_entity_t *cent, r_entity_t &rent, bool &update);
 
 void	CG_AddGenericEntity(const cg_entity_t *cent);
 void	CG_UpdateGenericEntity(const cg_entity_t *cent);
 void	CG_RemoveGenericEntity(const cg_entity_t *cent);
+
+void	CG_UpdateEntities();
 
 
 //

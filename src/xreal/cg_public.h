@@ -71,7 +71,7 @@ struct frame_t
 
 	bool			valid;				// cleared if delta parsing was invalid
 	
-	int			serverframe;	
+	int			serverframe;
 	int			servertime;			// server time the message is valid for (in msec)
 	int			deltaframe;
 	
@@ -151,7 +151,7 @@ typedef struct
 	void		(*R_ClearScene)();
 	
 	void		(*R_AddEntity)(int entity_num, const r_entity_t &shared);
-	void		(*R_UpdateEntity)(int entity_num, const r_entity_t &shared, bool update);
+	void		(*R_UpdateEntity)(int entity_num, const r_entity_t &shared);
 	void		(*R_RemoveEntity)(int entity_num);
 	
 	void		(*R_AddLight)(int entity_num, const r_entity_t &shared, r_light_type_t type);

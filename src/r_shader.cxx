@@ -68,6 +68,7 @@ void	R_SurfaceparmAreaPortal_sc(char const* begin, char const* end);
 //
 // r_shader_stc.cxx
 //
+void	R_If_stc(char const* begin, char const *end);
 void	R_Blend_stc(char const* begin, char const *end);
 void	R_BlendAdd_stc(char const* begin, char const *end);
 void	R_BlendBlend_stc(char const* begin, char const *end);
@@ -122,6 +123,8 @@ void	R_StageAttenuationMapCube_stc(char const* begin, char const *end);
 
 
 bool	R_ParseExpressionToAST(r_iterator_t begin, r_iterator_t end, boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> &info);
+void	R_DumpASTToXML(const std::string &str, const boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> &info);
+
 void	R_Map_stc(char const* begin, char const *end);
 
 r_shader_parameter_symbols_t r_shader_parameter_symbols_p;
@@ -632,6 +635,10 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 				=	restofline[&R_Unknown_stc]
 				;
 				
+			if_stc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("if")] >> restofline[&R_If_stc]
+				;
+				
 			blend_add_stc
 				=	boost::spirit::nocase_d[boost::spirit::str_p("blend") >> boost::spirit::str_p("add")][&R_BlendAdd_stc]
 				;
@@ -861,7 +868,8 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 				;
 					
 			shader_stage_command
-				=	blend_add_stc			|
+				=	if_stc				|
+					blend_add_stc			|
 					blend_blend_stc			|
 					blend_filter_stc		|
 					blend_diffusemap_stc		|
@@ -987,6 +995,7 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 							
 							shader_stage,
 								shader_stage_command,
+									if_stc,
 									blend_add_stc,
 									blend_blend_stc,
 									blend_filter_stc,
@@ -1923,6 +1932,8 @@ void	R_SpiritTest_f()
 		
 	if(R_ParseExpressionToAST(exp.begin(), exp.end(), info))
 	{
+		R_DumpASTToXML(exp, info);
+	
 		Com_Printf("parsing succeeded\n");
 		Com_Printf("result: %f\n", RB_Evaluate(dummy, info, -1.0));
 	}

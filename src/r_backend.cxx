@@ -1138,13 +1138,13 @@ static float	RB_EvalExpression(const r_entity_t &shared, boost::spirit::tree_mat
 				return shared.shader_parms[7];
 				
 			case SHADER_PARM_GLOBAL0:
-				return 1.0;	//TODO
+				return 0.0;	//TODO
 			
 			case SHADER_PARM_GLOBAL1:
 				return rb_shader_time - floorf(rb_shader_time);	//TODO
 				
 			case SHADER_PARM_GLOBAL2:
-				return 1.0;	//TODO
+				return 0.0;	//TODO
 				
 			case SHADER_PARM_SOUND:
 				return 0.5;	//shared.shader_sound;
@@ -1209,7 +1209,7 @@ static float	RB_EvalExpression(const r_entity_t &shared, boost::spirit::tree_mat
 		return RB_EvalExpression(shared, i->children.begin());
 	}
 	else if(i->value.id() == SHADER_GENERIC_RULE_FACTOR)
-	{	
+	{
 		if(*i->value.begin() == '+')
 		{
 			assert(i->children.size() == 1);
@@ -1237,11 +1237,56 @@ static float	RB_EvalExpression(const r_entity_t &shared, boost::spirit::tree_mat
 			assert(i->children.size() == 2);
 			return RB_EvalExpression(shared, i->children.begin()) / RB_EvalExpression(shared, i->children.begin()+1);
 		}
+		else if(*i->value.begin() == '%')
+		{
+			assert(i->children.size() == 2);
+			return static_cast<int>(RB_EvalExpression(shared, i->children.begin())) % static_cast<int>(RB_EvalExpression(shared, i->children.begin()+1));
+		}
+		else if(*i->value.begin() == '<' && *(i->value.begin()+1) == '=')
+		{
+			assert(i->children.size() == 2);
+			return (RB_EvalExpression(shared, i->children.begin()) <= RB_EvalExpression(shared, i->children.begin()+1)) ? 1.0 : 0.0;
+		}
+		else if(*i->value.begin() == '<')
+		{
+			assert(i->children.size() == 2);
+			return (RB_EvalExpression(shared, i->children.begin()) < RB_EvalExpression(shared, i->children.begin()+1)) ? 1.0 : 0.0;
+		}
+		else if(*i->value.begin() == '>' && *(i->value.begin()+1) == '=')
+		{
+			assert(i->children.size() == 2);
+			return (RB_EvalExpression(shared, i->children.begin()) >= RB_EvalExpression(shared, i->children.begin()+1)) ? 1.0 : 0.0;
+		}
+		else if(*i->value.begin() == '>')
+		{
+			assert(i->children.size() == 2);
+			return (RB_EvalExpression(shared, i->children.begin()) > RB_EvalExpression(shared, i->children.begin()+1)) ? 1.0 : 0.0;
+		}
+		else if(*i->value.begin() == '=' && *(i->value.begin()+1) == '=')
+		{
+			assert(i->children.size() == 2);
+			return (RB_EvalExpression(shared, i->children.begin()) == RB_EvalExpression(shared, i->children.begin()+1)) ? 1.0 : 0.0;
+		}
+		else if(*i->value.begin() == '!' && *(i->value.begin()+1) == '=')
+		{
+			assert(i->children.size() == 2);
+			return (RB_EvalExpression(shared, i->children.begin()) != RB_EvalExpression(shared, i->children.begin()+1)) ? 1.0 : 0.0;
+		}
+		else if(*i->value.begin() == '&' && *(i->value.begin()+1) == '&')
+		{
+			assert(i->children.size() == 2);
+			return (RB_EvalExpression(shared, i->children.begin()) && RB_EvalExpression(shared, i->children.begin()+1)) ? 1.0 : 0.0;
+		}
+		else if(*i->value.begin() == '|' && *(i->value.begin()+1) == '|')
+		{
+			assert(i->children.size() == 2);
+			return (RB_EvalExpression(shared, i->children.begin()) || RB_EvalExpression(shared, i->children.begin()+1)) ? 1.0 : 0.0;
+		}
 		else
 		{
 			ri.Com_Error(ERR_FATAL, "RB_EvalExpression: unknown term '%s'\n", *i->value.begin());
 		}
-	}
+	}	
 	else if(i->value.id() == SHADER_GENERIC_RULE_EXPRESSION)
 	{
 		if(*i->value.begin() == '+')
@@ -1472,6 +1517,9 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 			for(std::vector<r_shader_stage_c*>::const_iterator ir = entity_shader->stages.begin(); ir != entity_shader->stages.end(); ++ir)
 			{
 				const r_shader_stage_c* stage = *ir;
+				
+				if(!RB_Evaluate(cmd->getEntity()->getShared(), stage->condition, 1))
+					continue;
 			
 				switch(stage->type)
 				{
@@ -1527,6 +1575,9 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 		{
 			if(entity_shader->stage_diffusemap)
 			{
+				if(!RB_Evaluate(cmd->getEntity()->getShared(), entity_shader->stage_diffusemap->condition, 1))
+					break;
+			
 				RB_RenderCommand_generic(cmd, entity_shader->stage_diffusemap);
 			}
 			
@@ -1538,9 +1589,12 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 			for(std::vector<r_shader_stage_c*>::const_iterator ir = entity_shader->stages.begin(); ir != entity_shader->stages.end(); ++ir)
 			{
 				const r_shader_stage_c* stage = *ir;
-			
+				
 				if(stage->type == SHADER_MATERIAL_STAGE_TYPE_COLORMAP)
 				{
+					if(!RB_Evaluate(cmd->getEntity()->getShared(), stage->condition, 1))
+						continue;
+					
 					RB_RenderCommand_generic(cmd, stage);
 				}
 			}
@@ -1552,6 +1606,9 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 		{
 			if(entity_shader->stage_diffusemap)
 			{
+				if(!RB_Evaluate(cmd->getEntity()->getShared(), entity_shader->stage_diffusemap->condition, 1))
+					break;
+					
 				RB_RenderCommand_zfill(cmd, entity_shader->stage_diffusemap);
 			}
 		
@@ -1659,8 +1716,11 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 				for(std::vector<r_shader_stage_c*>::const_iterator ir = light_shader->stages.begin(); ir != light_shader->stages.end(); ++ir)
 				{
 					const r_shader_stage_c* stage = *ir;
-				
+					
 					if(stage->type_light != SHADER_LIGHT_STAGE_TYPE_ATTENUATIONMAP_XY)
+						continue;
+						
+					if(!RB_Evaluate(cmd->getLight()->getShared(), stage->condition, 1))
 						continue;
 					
 					RB_RenderCommand_lighting_D_omni(cmd,		entity_shader->stage_diffusemap,
@@ -1681,6 +1741,9 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 					const r_shader_stage_c* stage = *ir;
 				
 					if(stage->type_light != SHADER_LIGHT_STAGE_TYPE_ATTENUATIONMAP_XY)
+						continue;
+						
+					if(!RB_Evaluate(cmd->getLight()->getShared(), stage->condition, 1))
 						continue;
 					
 					RB_RenderCommand_lighting_D_proj(cmd,		entity_shader->stage_diffusemap,
@@ -1703,6 +1766,9 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 				
 					if(stage->type_light != SHADER_LIGHT_STAGE_TYPE_ATTENUATIONMAP_XY)
 						continue;
+						
+					if(!RB_Evaluate(cmd->getLight()->getShared(), stage->condition, 1))
+						continue;
 					
 					RB_RenderCommand_lighting_DB_omni(cmd,		entity_shader->stage_diffusemap,
 											entity_shader->stage_bumpmap,
@@ -1724,6 +1790,9 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 					const r_shader_stage_c* stage = *ir;
 				
 					if(stage->type_light != SHADER_LIGHT_STAGE_TYPE_ATTENUATIONMAP_XY)
+						continue;
+						
+					if(!RB_Evaluate(cmd->getLight()->getShared(), stage->condition, 1))
 						continue;
 					
 					RB_RenderCommand_lighting_DBH_omni(cmd,		entity_shader->stage_diffusemap,
@@ -1748,6 +1817,9 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 				
 					if(stage->type_light != SHADER_LIGHT_STAGE_TYPE_ATTENUATIONMAP_XY)
 						continue;
+						
+					if(!RB_Evaluate(cmd->getLight()->getShared(), stage->condition, 1))
+						continue;
 					
 					RB_RenderCommand_lighting_DBHS_omni(cmd,	entity_shader->stage_diffusemap,
 											entity_shader->stage_bumpmap,
@@ -1771,6 +1843,9 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 					const r_shader_stage_c* stage = *ir;
 				
 					if(stage->type_light != SHADER_LIGHT_STAGE_TYPE_ATTENUATIONMAP_XY)
+						continue;
+						
+					if(!RB_Evaluate(cmd->getLight()->getShared(), stage->condition, 1))
 						continue;
 					
 					RB_RenderCommand_lighting_DBS_omni(cmd,		entity_shader->stage_diffusemap,

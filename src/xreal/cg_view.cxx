@@ -321,7 +321,7 @@ void	CG_RenderView()
 		
 		CG_CalcViewValues();
 		
-		CG_AddEntities();
+		CG_UpdateEntities();
 		
 		cg.refdef.x = scr_vrect.x;
 		cg.refdef.y = scr_vrect.y;
@@ -333,6 +333,7 @@ void	CG_RenderView()
 		cg.refdef.areabits = cg.frame.areabits;
 
 		cg.refdef.rdflags = cg.frame.playerstate.rdflags;
+		cg.refdef.lerp = cg.frame_lerp;
 	}
 
 	cgi.R_RenderFrame(cg.refdef);

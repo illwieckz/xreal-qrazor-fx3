@@ -41,6 +41,22 @@ extern r_shader_c*		r_current_shader;
 extern r_shader_stage_c*	r_current_stage;
 
 
+void	R_If_stc(char const* begin, char const *end)
+{
+	std::string	exp(begin, end);
+
+	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> condition;
+	
+	if(R_ParseExpressionToAST(exp.begin(), exp.end(), condition))
+	{
+		r_current_stage->condition	= condition;
+	}
+	else
+	{
+		ri.Com_Printf("R_If_stc: parsing failed\n");
+	}
+}
+
 void	R_Blend_stc(char const* begin, char const *end)
 {
 	std::string exp(begin, end);

@@ -70,7 +70,6 @@ void	CG_UpdateEntity(int newnum, const entity_state_t *state, bool changed)
 	cg.entities_parse[(cg.entities_parse_index) & (MAX_PARSE_ENTITIES-1)] = *state;
 	cg.entities_parse_index++;
 	cg.frame.entities_num++;
-	
 
 	// check entity
 	cg_entity_t *cent = &cg.entities[newnum];
@@ -93,9 +92,11 @@ void	CG_UpdateEntity(int newnum, const entity_state_t *state, bool changed)
 		cent->prev = cent->current;
 	}
 
+	cent->serverframe_old = cent->serverframe;
 	cent->serverframe = cg.frame.serverframe;
 	cent->current = *state;
 	
+	/*
 	if(changed)
 	{
 		switch(cent->prev.type)
@@ -113,16 +114,15 @@ void	CG_UpdateEntity(int newnum, const entity_state_t *state, bool changed)
 				break;
 		}
 	}
+	*/
 }
 
-void	CG_RemoveEntity(int oldnum, const entity_state_t *state)
+void	CG_RemoveEntity(int newnum, const entity_state_t *state)
 {
-	//entity_state_t *state = &cg.entities_parse[(cg.entities_parse_index) & (MAX_PARSE_ENTITIES-1)];
+	cg_entity_t *cent = &cg.entities[newnum];
 	
-	cg_entity_t *cent = &cg.entities[oldnum];
-	
-	cent->prev = cent->current;
-	cent->current = *state;
+ 	cent->prev = cent->current;
+ 	cent->current = *state;
 	
 	switch(cent->prev.type)
 	{
@@ -195,26 +195,6 @@ void	CG_SetRotation(r_entity_t &rent, const cg_entity_t *cent)
 	{			
 		rent.quat.slerp(cent->prev.quat, cent->current.quat, cg.frame_lerp);
 	}
-}
-
-
-
-/*
-===============
-CG_AddEntities
-
-Emits all entities, particles, and lights to the refresh
-===============
-*/
-void	CG_AddEntities()
-{
-	//CG_AddPacketEntities();
-	//CG_AddViewWeapon();
-	//CG_AddBeams();
-	//CG_AddExplosions();
-	//CG_AddLasers();
-	//CG_AddParticles();
-	//CG_AddLights();
 }
 
 
@@ -303,7 +283,7 @@ void	CG_UpdateRenderFXFlags(const cg_entity_t *cent, r_entity_t &rent, bool &upd
 
 void	CG_AddGenericEntity(const cg_entity_t *cent)
 {
-	//cgi.Com_DPrintf("adding generic entity %i ...\n", cent->current.getNumber());
+//	cgi.Com_DPrintf("adding generic entity %i ...\n", cent->current.getNumber());
 	
 	r_entity_t	rent;
 
@@ -326,7 +306,6 @@ void	CG_AddGenericEntity(const cg_entity_t *cent)
 	rent.frame = cent->current.frame;
 	rent.frame_old = cent->current.frame;
 	
-	rent.lerp = cg.frame_lerp;
 	rent.flags = cent->current.renderfx;
 	
 	cgi.R_AddEntity(cent->current.getNumber(), rent);
@@ -334,7 +313,7 @@ void	CG_AddGenericEntity(const cg_entity_t *cent)
 
 void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 {
-	//cgi.Com_DPrintf("updating generic entity ...\n");
+//	cgi.Com_DPrintf("updating generic entity ...\n");
 	
 	r_entity_t	rent;
 	bool		update = false;
@@ -353,16 +332,101 @@ void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 	
 	CG_UpdateRenderFXFlags(cent, rent, update);
 	
-	rent.lerp = cg.frame_lerp;
-	
-	cgi.R_UpdateEntity(cent->current.getNumber(), rent, update);
+	if(update)
+		cgi.R_UpdateEntity(cent->current.getNumber(), rent);
 }
 
 void	CG_RemoveGenericEntity(const cg_entity_t *cent)
 {
-	//cgi.Com_DPrintf("removing generic entity %i ...\n", cent->prev.getNumber());
+//	cgi.Com_DPrintf("removing generic entity %i ...\n", cent->prev.getNumber());
 
 	cgi.R_RemoveEntity(cent->prev.getNumber());
 }
 
 
+/*
+===============
+CG_AddEntities
+
+Emits all entities, particles, and lights to the refresh
+===============
+*/
+void	CG_UpdateEntities()
+{
+	//CG_AddPacketEntities();
+	//CG_AddViewWeapon();
+	//CG_AddBeams();
+	//CG_AddExplosions();
+	//CG_AddLasers();
+	//CG_AddParticles();
+	//CG_AddLights();
+	
+	for(int i=0; i<cg.frame.entities_num; i++)
+	{
+		entity_state_t *state = &cg.entities_parse[(cg.frame.entities_parse_index + i) & (MAX_PARSE_ENTITIES-1)];
+		cg_entity_t *cent = &cg.entities[state->getNumber()];
+		
+		/*
+		if(!cent->prev.getNumber() && !cent->current.getNumber())
+			continue;
+		
+		if(!cent->prev.getNumber() && cent->current.getNumber())
+		{
+			switch(cent->prev.type)
+			{
+				case ET_GENERIC:
+				case ET_FUNC_STATIC:
+					CG_AddGenericEntity(cent);
+					break;
+					
+				case ET_LIGHT_OMNI:
+				case ET_LIGHT_PROJ:
+					CG_AddLightEntity(cent);
+					break;
+				default:
+					break;
+			}
+			continue;
+		}
+		*/
+		
+		/*
+// 		if(cent->prev.getNumber() && !cent->current.getNumber())
+		if((cent->serverframe_old == cg.frame.serverframe -1) && (cent->serverframe != cg.frame.serverframe))
+		{
+			// entity was in last frame but is not in the current
+			switch(cent->prev.type)
+			{
+				case ET_GENERIC:
+				case ET_FUNC_STATIC:
+					CG_RemoveGenericEntity(cent);
+					break;
+					
+				case ET_LIGHT_OMNI:
+				case ET_LIGHT_PROJ:
+					CG_RemoveLightEntity(cent);
+					break;
+				
+				default:
+					break;
+			}
+			continue;
+		}
+		*/
+		
+		switch(cent->prev.type)
+		{
+			case ET_GENERIC:
+				CG_UpdateGenericEntity(cent);
+				break;
+		
+// 			case ET_LIGHT_OMNI:
+// 			case ET_LIGHT_PROJ:
+// 				CG_UpdateLightEntity(cent);
+// 				break;
+			
+			default:
+				break;
+		}
+	}
+}
