@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 attribute vec4		in_vertex;
 attribute vec3		in_normal;
 
-varying vec4		var_vertex;
+varying vec3		var_vertex;
 varying vec3		var_normal;
 
 void	main()
@@ -32,9 +32,11 @@ void	main()
 	gl_Position = gl_ModelViewProjectionMatrix * in_vertex;
 	
 	// transform position into world space
-	var_vertex = gl_TextureMatrix[0] * in_vertex;
+	var_vertex = (gl_TextureMatrix[0] * in_vertex).xyz;
 	
 	// transform normal into world space
-	var_normal = mat3(gl_TextureMatrix[0]) * in_normal;
+	var_normal.x = dot(gl_TextureMatrix[0][0].xyz, gl_Normal);
+	var_normal.y = dot(gl_TextureMatrix[0][1].xyz, gl_Normal);
+	var_normal.z = dot(gl_TextureMatrix[0][2].xyz, gl_Normal);
 }
 
