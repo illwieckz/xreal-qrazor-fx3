@@ -40,11 +40,11 @@ void	CG_ParseMuzzleFlash(message_c &msg)
 	float		volume;
 	char		soundname[64];
 	
-	//cgi.Com_Printf("CG_ParseMuzzleFlash:\n");
+	//trap_Com_Printf("CG_ParseMuzzleFlash:\n");
 
 	i = msg.readShort();
 	if(i < 1 || i >= MAX_ENTITIES)
-		cgi.Com_Error(ERR_DROP, "CG_ParseMuzzleFlash: bad entity");
+		trap_Com_Error(ERR_DROP, "CG_ParseMuzzleFlash: bad entity");
 
 	weapon = msg.readByte();
 
@@ -60,7 +60,7 @@ void	CG_ParseMuzzleFlash(message_c &msg)
 	light->radius = vec3_c(1, 1, 1);
 	light->radius.scale(200 + (rand()&31));
 	light->minlight = 32;
-	light->die = cgi.cl->time; // + 0.1;
+	light->die = trap_cl->time; // + 0.1;
 	*/
 
 	volume = 1;
@@ -70,7 +70,7 @@ void	CG_ParseMuzzleFlash(message_c &msg)
 		case MZ_BLASTER:
 			//light->color = color_green;
 			
-			cgi.S_StartSound (pl->current.origin, i, CHAN_WEAPON, cgi.S_RegisterSound("sounds/e1/we_ionshoota.wav"));
+			trap_S_StartSound (pl->current.origin, i, CHAN_WEAPON, trap_S_RegisterSound("sounds/e1/we_ionshoota.wav"));
 			break;
 		
 		case MZ_HYPERBLASTER:
@@ -80,7 +80,7 @@ void	CG_ParseMuzzleFlash(message_c &msg)
 			light->color[2] = 0;
 			*/
 			
-			cgi.S_StartSound (pl->current.origin, i, CHAN_WEAPON, cgi.S_RegisterSound("weapons/hyprbf1a.wav"));
+			trap_S_StartSound (pl->current.origin, i, CHAN_WEAPON, trap_S_RegisterSound("weapons/hyprbf1a.wav"));
 			break;
 		
 		case MZ_MACHINEGUN:
@@ -90,7 +90,7 @@ void	CG_ParseMuzzleFlash(message_c &msg)
 			light->color[2] = 0;
 			*/
 			Com_sprintf(soundname, sizeof(soundname), "weapons/machgf%ib.wav", (rand() % 5) + 1);
-			cgi.S_StartSound (pl->current.origin, i, CHAN_WEAPON, cgi.S_RegisterSound(soundname));
+			trap_S_StartSound (pl->current.origin, i, CHAN_WEAPON, trap_S_RegisterSound(soundname));
 			break;
 		
 		case MZ_SHOTGUN:
@@ -100,8 +100,8 @@ void	CG_ParseMuzzleFlash(message_c &msg)
 			light->color[2] = 0;
 			*/
 		
-			cgi.S_StartSound (pl->current.origin, i, CHAN_WEAPON, cgi.S_RegisterSound("weapons/shotgf1b.wav"));
-			cgi.S_StartSound (pl->current.origin, i, CHAN_AUTO,   cgi.S_RegisterSound("weapons/shotgr1b.wav"));
+			trap_S_StartSound (pl->current.origin, i, CHAN_WEAPON, trap_S_RegisterSound("weapons/shotgf1b.wav"));
+			trap_S_StartSound (pl->current.origin, i, CHAN_AUTO,   trap_S_RegisterSound("weapons/shotgr1b.wav"));
 			break;
 		
 		case MZ_SSHOTGUN:
@@ -111,7 +111,7 @@ void	CG_ParseMuzzleFlash(message_c &msg)
 			light->color[2] = 0;
 			*/
 			
-			cgi.S_StartSound (pl->current.origin, i, CHAN_WEAPON, cgi.S_RegisterSound("weapons/sshotf1b.wav"));
+			trap_S_StartSound (pl->current.origin, i, CHAN_WEAPON, trap_S_RegisterSound("weapons/sshotf1b.wav"));
 			break;
 			
 		case MZ_CHAINGUN1:
@@ -123,7 +123,7 @@ void	CG_ParseMuzzleFlash(message_c &msg)
 			*/
 			
 			Com_sprintf(soundname, sizeof(soundname), "weapons/machgf%ib.wav", (rand() % 5) + 1);
-			cgi.S_StartSound (pl->current.origin, i, CHAN_WEAPON, cgi.S_RegisterSound(soundname));
+			trap_S_StartSound (pl->current.origin, i, CHAN_WEAPON, trap_S_RegisterSound(soundname));
 			break;
 			
 		case MZ_CHAINGUN2:
@@ -132,13 +132,13 @@ void	CG_ParseMuzzleFlash(message_c &msg)
 			light->color[0] = 1;
 			light->color[1] = 0.5;
 			light->color[2] = 0;
-			light->die = cgi.cl->time  + 0.1;	// long delay
+			light->die = trap_cl->time  + 0.1;	// long delay
 			*/
 			
 			Com_sprintf(soundname, sizeof(soundname), "weapons/machgf%ib.wav", (rand() % 5) + 1);
-			cgi.S_StartSound (pl->current.origin, i, CHAN_WEAPON, cgi.S_RegisterSound(soundname));
+			trap_S_StartSound (pl->current.origin, i, CHAN_WEAPON, trap_S_RegisterSound(soundname));
 			Com_sprintf(soundname, sizeof(soundname), "weapons/machgf%ib.wav", (rand() % 5) + 1);
-			cgi.S_StartSound (pl->current.origin, i, CHAN_WEAPON, cgi.S_RegisterSound(soundname));
+			trap_S_StartSound (pl->current.origin, i, CHAN_WEAPON, trap_S_RegisterSound(soundname));
 			break;
 		
 		case MZ_CHAINGUN3:
@@ -147,15 +147,15 @@ void	CG_ParseMuzzleFlash(message_c &msg)
 			light->color[0] = 1;
 			light->color[1] = 1;
 			light->color[2] = 0;
-			light->die = cgi.cl->time  + 0.1;	// long delay
+			light->die = trap_cl->time  + 0.1;	// long delay
 			*/
 		
 			Com_sprintf(soundname, sizeof(soundname), "weapons/machgf%ib.wav", (rand() % 5) + 1);
-			cgi.S_StartSound (pl->current.origin, i, CHAN_WEAPON, cgi.S_RegisterSound(soundname));
+			trap_S_StartSound (pl->current.origin, i, CHAN_WEAPON, trap_S_RegisterSound(soundname));
 			Com_sprintf(soundname, sizeof(soundname), "weapons/machgf%ib.wav", (rand() % 5) + 1);
-			cgi.S_StartSound (pl->current.origin, i, CHAN_WEAPON, cgi.S_RegisterSound(soundname));
+			trap_S_StartSound (pl->current.origin, i, CHAN_WEAPON, trap_S_RegisterSound(soundname));
 			Com_sprintf(soundname, sizeof(soundname), "weapons/machgf%ib.wav", (rand() % 5) + 1);
-			cgi.S_StartSound (pl->current.origin, i, CHAN_WEAPON, cgi.S_RegisterSound(soundname));
+			trap_S_StartSound (pl->current.origin, i, CHAN_WEAPON, trap_S_RegisterSound(soundname));
 			break;
 		
 		case MZ_RAILGUN:
@@ -165,7 +165,7 @@ void	CG_ParseMuzzleFlash(message_c &msg)
 			light->color[2] = 1.0;
 			*/
 			
-			cgi.S_StartSound (pl->current.origin, i, CHAN_WEAPON, cgi.S_RegisterSound("weapons/railgf1a.wav"));
+			trap_S_StartSound (pl->current.origin, i, CHAN_WEAPON, trap_S_RegisterSound("weapons/railgf1a.wav"));
 			break;
 		
 		case MZ_ROCKET:
@@ -175,8 +175,8 @@ void	CG_ParseMuzzleFlash(message_c &msg)
 			light->color[2] = 0.2;
 			*/
 		
-			cgi.S_StartSound (pl->current.origin, i, CHAN_WEAPON, cgi.S_RegisterSound("sound/weapons/rocklf1a.wav"));
-			cgi.S_StartSound (pl->current.origin, i, CHAN_AUTO,   cgi.S_RegisterSound("sound/weapons/rocklr1b.wav"));
+			trap_S_StartSound (pl->current.origin, i, CHAN_WEAPON, trap_S_RegisterSound("sound/weapons/rocklf1a.wav"));
+			trap_S_StartSound (pl->current.origin, i, CHAN_AUTO,   trap_S_RegisterSound("sound/weapons/rocklr1b.wav"));
 			break;
 		
 		case MZ_GRENADE:
@@ -186,8 +186,8 @@ void	CG_ParseMuzzleFlash(message_c &msg)
 			light->color[2] = 0;
 			*/
 			
-			cgi.S_StartSound (pl->current.origin, i, CHAN_WEAPON, cgi.S_RegisterSound("sound/weapons/grenlf1a.wav"));
-			cgi.S_StartSound (pl->current.origin, i, CHAN_AUTO,   cgi.S_RegisterSound("sound/weapons/grenlr1b.wav"));
+			trap_S_StartSound (pl->current.origin, i, CHAN_WEAPON, trap_S_RegisterSound("sound/weapons/grenlf1a.wav"));
+			trap_S_StartSound (pl->current.origin, i, CHAN_AUTO,   trap_S_RegisterSound("sound/weapons/grenlr1b.wav"));
 			break;
 		
 		case MZ_BFG:
@@ -197,7 +197,7 @@ void	CG_ParseMuzzleFlash(message_c &msg)
 			light->color[2] = 0;
 			*/
 			
-			cgi.S_StartSound (pl->current.origin, i, CHAN_WEAPON, cgi.S_RegisterSound("weapons/bfg__f1y.wav"));
+			trap_S_StartSound (pl->current.origin, i, CHAN_WEAPON, trap_S_RegisterSound("weapons/bfg__f1y.wav"));
 			break;
 
 		case MZ_LOGIN:
@@ -205,10 +205,10 @@ void	CG_ParseMuzzleFlash(message_c &msg)
 			light->color[0] = 0;
 			light->color[1] = 1; 
 			light->color[2] = 0;
-			light->die = cgi.cl->time + 1.0;
+			light->die = trap_cl->time + 1.0;
 			*/
 			
-			cgi.S_StartSound (pl->current.origin, i, CHAN_WEAPON, cgi.S_RegisterSound("weapons/grenlf1a.wav"));
+			trap_S_StartSound (pl->current.origin, i, CHAN_WEAPON, trap_S_RegisterSound("weapons/grenlf1a.wav"));
 			
 			//TODO
 			/*
@@ -226,10 +226,10 @@ void	CG_ParseMuzzleFlash(message_c &msg)
 			light->color[0] = 1;
 			light->color[1] = 0;
 			light->color[2] = 0;
-			light->die = cgi.cl->time + 1.0;
+			light->die = trap_cl->time + 1.0;
 			*/
 			
-			cgi.S_StartSound (pl->current.origin, i, CHAN_WEAPON, cgi.S_RegisterSound("weapons/grenlf1a.wav"));
+			trap_S_StartSound (pl->current.origin, i, CHAN_WEAPON, trap_S_RegisterSound("weapons/grenlf1a.wav"));
 			
 			//TODO
 			/*
@@ -247,10 +247,10 @@ void	CG_ParseMuzzleFlash(message_c &msg)
 			light->color[0] = 1;
 			light->color[1] = 1;
 			light->color[2] = 0;
-			light->die = cgi.cl->time + 1.0;
+			light->die = trap_cl->time + 1.0;
 			*/
 			
-			cgi.S_StartSound (pl->current.origin, i, CHAN_WEAPON, cgi.S_RegisterSound("weapons/grenlf1a.wav"));
+			trap_S_StartSound (pl->current.origin, i, CHAN_WEAPON, trap_S_RegisterSound("weapons/grenlf1a.wav"));
 			/*
 			{
 				vec4_c	color(1, 1, 0, 1);
@@ -271,7 +271,7 @@ void	CG_ParseMuzzleFlash(message_c &msg)
 			*/
 			//TODO
 		
-			cgi.S_StartSound(pl->current.origin, i, CHAN_WEAPON, cgi.S_RegisterSound("sounds/e1/we_sidewindershoot.wav"));
+			trap_S_StartSound(pl->current.origin, i, CHAN_WEAPON, trap_S_RegisterSound("sounds/e1/we_sidewindershoot.wav"));
 			break;
 
 	}

@@ -96,7 +96,7 @@ enum connection_state_t
 
 
 
-#define CG_API_VERSION		9
+#define CG_API_VERSION		10
 
 
 #ifdef __cplusplus
@@ -215,6 +215,7 @@ typedef struct
 	void		(*CL_SetRefreshPrepped)(bool val);
 	bool		(*CL_GetForceRefdef)();
 	void		(*CL_SetForceRefdef)(bool val);
+	int		(*CL_GetPlayerNum)();
 	
 	connection_state_t	(*CLS_GetConnectionState)();
 	float		(*CLS_GetRealTime)();
@@ -222,11 +223,10 @@ typedef struct
 	int		(*CLS_GetFrameCount)();
 	void		(*CLS_GetCurrentNetState)(int &incoming_acknowledged, int &outgoing_sequence);
 	
+	uint_t		(*VID_GetWidth)();
+	uint_t		(*VID_GetHeight)();
+	
 	int		(*Sys_Milliseconds)();
-	
-	viddef_t*		viddef;
-	
-	int			playernum;
 } cg_import_t;
 
 

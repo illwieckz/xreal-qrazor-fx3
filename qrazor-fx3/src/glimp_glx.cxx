@@ -808,7 +808,7 @@ int	GLimp_SetMode(int *pwidth, int *pheight, int mode, bool fullscreen)
 	*pheight = height;
 
 	// let the sound and input subsystems know about the new window
-	ri.VID_NewWindow (width, height);
+	ri.VID_NewWindow(width, height);
 
 	xglXMakeCurrent(sys_gl.dpy, sys_gl.win, sys_gl.ctx);
 	

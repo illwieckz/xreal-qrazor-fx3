@@ -869,8 +869,9 @@ g_item_weapon_shotgun_c::g_item_weapon_shotgun_c()
 	_model_world		= "models/players/marine/mpplayer.md5mesh";
 //	_model_world		= "models/md5/monsters/zct/zct.md5mesh";
 	
+	_model_world_animation	= "models/players/marine/fists_idle.md5anim";
 //	_model_world_animation	= "models/players/marine/pistol_idle.md5anim";
-	_model_world_animation	= "models/players/marine/jog.md5anim";
+//	_model_world_animation	= "models/players/marine/jog.md5anim";
 	
 	_model_world_flags	= EF_NONE | EF_AUTOANIM_24;	//EF_ROTATE;
 //	_model_player		= "models/md5/weapons/shotgun_world/worldshotgun.md5mesh";

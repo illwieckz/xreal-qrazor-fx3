@@ -37,7 +37,7 @@ static void 	CG_Gun_Next_f()
 {
 	gun_frame++;
 	
-	cgi.Com_Printf("frame %i\n", gun_frame);
+	trap_Com_Printf("frame %i\n", gun_frame);
 }
 
 static void 	CG_Gun_Prev_f()
@@ -47,39 +47,39 @@ static void 	CG_Gun_Prev_f()
 	if(gun_frame < 0)
 		gun_frame = 0;
 		
-	cgi.Com_Printf("frame %i\n", gun_frame);
+	trap_Com_Printf("frame %i\n", gun_frame);
 }
 
 static void 	CG_Gun_Model_f()
 {
-	if(cgi.Cmd_Argc() != 2)
+	if(trap_Cmd_Argc() != 2)
 	{
 		gun_model = -1;
 		return;
 	}
 	
-	gun_model = cgi.R_RegisterModel(cgi.Cmd_Argv(1));
+	gun_model = trap_R_RegisterModel(trap_Cmd_Argv(1));
 }
 
 static void 	CG_Gun_Anim_f()
 {
-	if(cgi.Cmd_Argc() != 2)
+	if(trap_Cmd_Argc() != 2)
 	{
 		gun_anim = -1;
 		return;
 	}
 	
-	gun_anim = cgi.R_RegisterAnimation(cgi.Cmd_Argv(1));
+	gun_anim = trap_R_RegisterAnimation(trap_Cmd_Argv(1));
 }
 
 
 void 	CG_InitWeapon()
 {
 	// gun frame debugging functions
-	cgi.Cmd_AddCommand("gun_next",	CG_Gun_Next_f);
-	cgi.Cmd_AddCommand("gun_prev",	CG_Gun_Prev_f);
-	cgi.Cmd_AddCommand("gun_model", CG_Gun_Model_f);
-	cgi.Cmd_AddCommand("gun_anim",	CG_Gun_Anim_f);
+	trap_Cmd_AddCommand("gun_next",	CG_Gun_Next_f);
+	trap_Cmd_AddCommand("gun_prev",	CG_Gun_Prev_f);
+	trap_Cmd_AddCommand("gun_model", CG_Gun_Model_f);
+	trap_Cmd_AddCommand("gun_anim",	CG_Gun_Anim_f);
 }
 
 
@@ -94,7 +94,7 @@ void	CG_AddViewWeapon()
 	frame_t*	oldframe;
 	player_state_t	*ps = NULL, *ps_old;
 	
-	if(cgi.CLS_GetConnectionState() != CA_ACTIVE)
+	if(trap_CLS_GetConnectionState() != CA_ACTIVE)
 		return;
 
 	// allow the gun to be completely removed
@@ -123,23 +123,23 @@ void	CG_AddViewWeapon()
 	{
 		gun.model = gun_model;	// development tool
 		
-		cgi.R_SetupAnimation(gun.model, gun_anim);
+		trap_R_SetupAnimation(gun.model, gun_anim);
 	}
 	else
 	{
 		gun.model = cg.model_draw[ps->gun_model_index];
 		int anim = cg.animation_precache[ps->gun_anim_index];
 	
-		//gun.model = cgi.R_RegisterModel("models/weapons/pistol/cycles/idle.md5mesh");
-		//int anim = cgi.R_RegisterAnimation("models/weapons/pistol/cycles/idle.md5anim");
+		//gun.model = trap_R_RegisterModel("models/weapons/pistol/cycles/idle.md5mesh");
+		//int anim = trap_R_RegisterAnimation("models/weapons/pistol/cycles/idle.md5anim");
 		
-		if(!cgi.R_SetupAnimation(gun.model, anim))
+		if(!trap_R_SetupAnimation(gun.model, anim))
 			return;
 	}
 		
 	if(gun.model == -1)
 	{
-		cgi.Com_Printf("CG_AddViewWeapon: weapon has bad model index %i\n", gun.model);
+		trap_Com_Printf("CG_AddViewWeapon: weapon has bad model index %i\n", gun.model);
 		return;
 	}
 		
@@ -149,7 +149,7 @@ void	CG_AddViewWeapon()
 	// set up gun position
 	for(int i=0; i<3; i++)
 	{
-		gun.origin[i] = cg.refdef.view_origin[i];// + ops->gunoffset[i] + cgi.cl->lerpfrac * (ps->gunoffset[i] - ops->gunoffset[i]);
+		gun.origin[i] = cg.refdef.view_origin[i];// + ops->gunoffset[i] + trap_cl->lerpfrac * (ps->gunoffset[i] - ops->gunoffset[i]);
 		angles[i] = cg.refdef.view_angles[i];// + LerpAngle(ps_old->gun_angles[i], ps->gun_angles[i], cg.frame_lerp);
 		
 	}
@@ -179,9 +179,9 @@ void	CG_AddViewWeapon()
 	gun.backlerp = 1.0 - cg.frame_lerp;
 	gun.origin2 = gun.origin;		// don't lerp at all	
 	
-	cgi.R_AddEntity(gun);
+	trap_R_AddEntity(gun);
 	
-	//cgi.Com_Printf("CG_AddViewWeapon\n");
+	//trap_Com_Printf("CG_AddViewWeapon\n");
 }
 */
 

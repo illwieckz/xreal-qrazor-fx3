@@ -105,57 +105,57 @@ void	CG_RegisterTEntSounds()
 	char	name[MAX_QPATH];
 
 
-	cl_sfx_ric1 = cgi.S_RegisterSound("world/ric1.wav");
-	cl_sfx_ric2 = cgi.S_RegisterSound("world/ric2.wav");
-	cl_sfx_ric3 = cgi.S_RegisterSound("world/ric3.wav");
-	cl_sfx_lashit = cgi.S_RegisterSound("weapons/lashit.wav");
-	cl_sfx_spark5 = cgi.S_RegisterSound("world/spark5.wav");
-	cl_sfx_spark6 = cgi.S_RegisterSound("world/spark6.wav");
-	cl_sfx_spark7 = cgi.S_RegisterSound("world/spark7.wav");
-	cl_sfx_railg = cgi.S_RegisterSound("weapons/railgf1a.wav");
-	cl_sfx_rockexp = cgi.S_RegisterSound("sounds/e1/we_sidewinderexp.wav");
-	cl_sfx_grenexp = cgi.S_RegisterSound("weapons/grenlx1a.wav");
-	cl_sfx_watrexp = cgi.S_RegisterSound("weapons/xpld_wat.wav");
+	cl_sfx_ric1 = trap_S_RegisterSound("world/ric1.wav");
+	cl_sfx_ric2 = trap_S_RegisterSound("world/ric2.wav");
+	cl_sfx_ric3 = trap_S_RegisterSound("world/ric3.wav");
+	cl_sfx_lashit = trap_S_RegisterSound("weapons/lashit.wav");
+	cl_sfx_spark5 = trap_S_RegisterSound("world/spark5.wav");
+	cl_sfx_spark6 = trap_S_RegisterSound("world/spark6.wav");
+	cl_sfx_spark7 = trap_S_RegisterSound("world/spark7.wav");
+	cl_sfx_railg = trap_S_RegisterSound("weapons/railgf1a.wav");
+	cl_sfx_rockexp = trap_S_RegisterSound("sounds/e1/we_sidewinderexp.wav");
+	cl_sfx_grenexp = trap_S_RegisterSound("weapons/grenlx1a.wav");
+	cl_sfx_watrexp = trap_S_RegisterSound("weapons/xpld_wat.wav");
 	
-	cgi.S_RegisterSound("player/land1.wav");
-	cgi.S_RegisterSound("player/fall2.wav");
-	cgi.S_RegisterSound("player/fall1.wav");
+	trap_S_RegisterSound("player/land1.wav");
+	trap_S_RegisterSound("player/fall2.wav");
+	trap_S_RegisterSound("player/fall1.wav");
 
 	for(int i=0; i<4; i++)
 	{
 		Com_sprintf(name, sizeof(name), "sound/player/step%i.wav", i+1);
-		cl_sfx_footsteps[i] = cgi.S_RegisterSound(name);
+		cl_sfx_footsteps[i] = trap_S_RegisterSound(name);
 	}
 }
 
 void	CG_RegisterTEntModels()
 {
 	/*
-	cl_mod_explode = cgi.R_RegisterModel ("models/objects/explode/tris.md2");
-	cl_mod_smoke = cgi.R_RegisterModel ("models/objects/smoke/tris.md2");
-	cl_mod_flash = cgi.R_RegisterModel ("models/objects/flash/tris.md2");
-	cl_mod_parasite_segment = cgi.R_RegisterModel ("models/monsters/parasite/segment/tris.md2");
-	cl_mod_grapple_cable = cgi.R_RegisterModel ("models/ctf/segment/tris.md2");
-	cl_mod_parasite_tip = cgi.R_RegisterModel ("models/monsters/parasite/tip/tris.md2");
-	cl_mod_explo4 = cgi.R_RegisterModel ("models/objects/r_explode/tris.md2");
-	cl_mod_bfg_explo = cgi.R_RegisterModel ("sprites/s_bfg2.sp2");
+	cl_mod_explode = trap_R_RegisterModel ("models/objects/explode/tris.md2");
+	cl_mod_smoke = trap_R_RegisterModel ("models/objects/smoke/tris.md2");
+	cl_mod_flash = trap_R_RegisterModel ("models/objects/flash/tris.md2");
+	cl_mod_parasite_segment = trap_R_RegisterModel ("models/monsters/parasite/segment/tris.md2");
+	cl_mod_grapple_cable = trap_R_RegisterModel ("models/ctf/segment/tris.md2");
+	cl_mod_parasite_tip = trap_R_RegisterModel ("models/monsters/parasite/tip/tris.md2");
+	cl_mod_explo4 = trap_R_RegisterModel ("models/objects/r_explode/tris.md2");
+	cl_mod_bfg_explo = trap_R_RegisterModel ("sprites/s_bfg2.sp2");
 	*/
 
 	/*
-	cgi.R_RegisterModel ("models/objects/laser/tris.md2");
-	cgi.R_RegisterModel ("models/objects/grenade2/tris.md2");
-	cgi.R_RegisterModel ("models/weapons/v_machn/tris.md2");
-	cgi.R_RegisterModel ("models/weapons/v_handgr/tris.md2");
-	cgi.R_RegisterModel ("models/weapons/v_shotg2/tris.md2");
-	cgi.R_RegisterModel ("models/objects/gibs/bone/tris.md2");
-	cgi.R_RegisterModel ("models/objects/gibs/sm_meat/tris.md2");
-	cgi.R_RegisterModel ("models/objects/gibs/bone2/tris.md2");
+	trap_R_RegisterModel ("models/objects/laser/tris.md2");
+	trap_R_RegisterModel ("models/objects/grenade2/tris.md2");
+	trap_R_RegisterModel ("models/weapons/v_machn/tris.md2");
+	trap_R_RegisterModel ("models/weapons/v_handgr/tris.md2");
+	trap_R_RegisterModel ("models/weapons/v_shotg2/tris.md2");
+	trap_R_RegisterModel ("models/objects/gibs/bone/tris.md2");
+	trap_R_RegisterModel ("models/objects/gibs/sm_meat/tris.md2");
+	trap_R_RegisterModel ("models/objects/gibs/bone2/tris.md2");
 	
 
-	cgi.R_RegisterPic("textures/pics/w_machinegun.pcx");
-	cgi.R_RegisterPic("textures/pics/a_bullets.pcx");
-	cgi.R_RegisterPic("textures/pics/i_health.pcx");
-	cgi.R_RegisterPic("textures/pics/a_grenades.pcx");
+	trap_R_RegisterPic("textures/pics/w_machinegun.pcx");
+	trap_R_RegisterPic("textures/pics/a_bullets.pcx");
+	trap_R_RegisterPic("textures/pics/i_health.pcx");
+	trap_R_RegisterPic("textures/pics/a_grenades.pcx");
 	*/
 }	
 
@@ -182,7 +182,7 @@ explosion_t*	CG_AllocExplosion()
 	}
 	
 	// find the oldest explosion
-	time = cgi.CL_GetTime();
+	time = trap_CL_GetTime();
 	
 	index = 0;
 
@@ -205,7 +205,7 @@ void 	CG_SmokeAndFlash(vec3_t origin)
 	Vector3_Copy (origin, ex->ent.origin);
 	ex->type = ex_misc;
 	ex->frames = 4;
-	ex->start = cgi.cl->frame.servertime - 100;
+	ex->start = trap_cl->frame.servertime - 100;
 	ex->ent.model = cl_mod_smoke;
 
 	ex = CG_AllocExplosion ();
@@ -213,7 +213,7 @@ void 	CG_SmokeAndFlash(vec3_t origin)
 	ex->type = ex_flash;
 	ex->ent.flags = RF_FULLBRIGHT;
 	ex->frames = 2;
-	ex->start = cgi.cl->frame.servertime - 100;
+	ex->start = trap_cl->frame.servertime - 100;
 	ex->ent.model = cl_mod_flash;
 	*/
 }
@@ -232,7 +232,7 @@ static void	CG_ParseLaser(message_c &msg, int colors)
 
 	for(i=0, l=cl_lasers ; i< MAX_LASERS ; i++, l++)
 	{
-		if(l->endtime < cgi.CL_GetTime())
+		if(l->endtime < trap_CL_GetTime())
 		{
 			l->ent.flags = RF_TRANSLUCENT;
 			Vector3_Copy(start, l->ent.origin);
@@ -242,7 +242,7 @@ static void	CG_ParseLaser(message_c &msg, int colors)
 			l->ent.custom_skin = -1;//(colors >> ((rand() % 4)*8)) & 0xff;
 			l->ent.model = -1;
 			l->ent.frame = 4;
-			l->endtime = cgi.CL_GetTime() + 100;
+			l->endtime = trap_CL_GetTime() + 100;
 			return;
 		}
 	}
@@ -256,7 +256,7 @@ static void	CG_ParseContact(message_c &msg)
 	msg.readDir(rc.normal);
 	rc.depth = msg.readFloat();
 	
-	cgi.R_AddContact(rc);
+	trap_R_AddContact(rc);
 }
 
 
@@ -308,13 +308,13 @@ void	CG_ParseTEnt(message_c &msg)
 			// impact sound
 			cnt = rand()&15;
 			if(cnt == 1)
-				cgi.S_StartSound(pos, 0, 0, cl_sfx_ric1);
+				trap_S_StartSound(pos, 0, 0, cl_sfx_ric1);
 				
 			else if(cnt == 2)
-				cgi.S_StartSound(pos, 0, 0, cl_sfx_ric2);
+				trap_S_StartSound(pos, 0, 0, cl_sfx_ric2);
 				
 			else if(cnt == 3)
-				cgi.S_StartSound(pos, 0, 0, cl_sfx_ric3);
+				trap_S_StartSound(pos, 0, 0, cl_sfx_ric3);
 		}
 
 		break;
@@ -337,7 +337,7 @@ void	CG_ParseTEnt(message_c &msg)
 			CG_ParticleSpray(PART_SPARK2, pos, dir, color, 40);
 		}
 		//FIXME : replace or remove this sound
-		cgi.S_StartSound(pos, 0, 0, cl_sfx_lashit);
+		trap_S_StartSound(pos, 0, 0, cl_sfx_lashit);
 		break;
 		
 	case TE_SHOTGUN:			// bullet hitting wall
@@ -370,13 +370,13 @@ void	CG_ParseTEnt(message_c &msg)
 		
 			r = rand() & 3;
 			if(r == 0)
-				cgi.S_StartSound(pos, 0, 0, cl_sfx_spark5);
+				trap_S_StartSound(pos, 0, 0, cl_sfx_spark5);
 				
 			else if (r == 1)
-				cgi.S_StartSound(pos, 0, 0, cl_sfx_spark6);
+				trap_S_StartSound(pos, 0, 0, cl_sfx_spark6);
 				
 			else
-				cgi.S_StartSound(pos, 0, 0, cl_sfx_spark7);
+				trap_S_StartSound(pos, 0, 0, cl_sfx_spark7);
 		}
 		else
 		{
@@ -392,7 +392,7 @@ void	CG_ParseTEnt(message_c &msg)
 		msg.readVector3(pos);
 		msg.readDir(dir);
 		msg.readByte();
-		//color = cgi.MSG_ReadByte (msg);
+		//color = trap_MSG_ReadByte (msg);
 		
 		//CG_ParticleEffect2 (pos, dir, color, cnt);
 		CG_ParticleSpray (PART_SPARK2, pos, dir, color, 30+(int)X_frand()*30);		//well ignore particle count
@@ -420,13 +420,13 @@ void	CG_ParseTEnt(message_c &msg)
 
 		ex->type = ex_misc;
 		ex->ent.flags = RF_FULLBRIGHT|RF_TRANSLUCENT;
-		ex->start = cgi.cl->frame.servertime - 100;
+		ex->start = trap_cl->frame.servertime - 100;
 		ex->light = 150;
 		ex->lightcolor[0] = 1;
 		ex->lightcolor[1] = 1;
 		ex->ent.model = cl_mod_explode;
 		ex->frames = 4;
-		cgi.S_StartSound (pos,  0, 0, cl_sfx_lashit, 1, ATTN_NORM, 0);
+		trap_S_StartSound (pos,  0, 0, cl_sfx_lashit, 1, ATTN_NORM, 0);
 		*/
 		break;
 		
@@ -437,7 +437,7 @@ void	CG_ParseTEnt(message_c &msg)
 		//CG_RailTrail (pos, pos2);
 		CG_ParticleTrail(PART_RAIL, pos, pos2, color, 0.05);
 		
-		cgi.S_StartSound (pos2, 0, 0, cl_sfx_railg);
+		trap_S_StartSound (pos2, 0, 0, cl_sfx_railg);
 		break;
 
 	case TE_EXPLOSION2:
@@ -450,7 +450,7 @@ void	CG_ParseTEnt(message_c &msg)
 		Vector3_Copy (pos, ex->ent.origin);
 		ex->type = ex_poly;
 		ex->ent.flags = RF_FULLBRIGHT | RF_NOSHADOW;
-		ex->start = cgi.cl->frame.servertime - 100;
+		ex->start = trap_cl->frame.servertime - 100;
 		ex->light = 350;
 		ex->lightcolor[0] = 1.0;
 		ex->lightcolor[1] = 0.5;
@@ -463,9 +463,9 @@ void	CG_ParseTEnt(message_c &msg)
 		
 		CG_ExplosionParticles(pos);
 		if (type == TE_GRENADE_EXPLOSION_WATER)
-			cgi.S_StartSound (pos, 0, 0, cl_sfx_watrexp);
+			trap_S_StartSound (pos, 0, 0, cl_sfx_watrexp);
 		else
-			cgi.S_StartSound (pos, 0, 0, cl_sfx_grenexp);
+			trap_S_StartSound (pos, 0, 0, cl_sfx_grenexp);
 		break;
 	
 	case TE_EXPLOSION1:
@@ -478,7 +478,7 @@ void	CG_ParseTEnt(message_c &msg)
 		Vector3_Copy (pos, ex->ent.origin);
 		ex->type = ex_poly;
 		ex->ent.flags = RF_FULLBRIGHT | RF_NOSHADOW;
-		ex->start = cgi.cl->frame.servertime - 100;
+		ex->start = trap_cl->frame.servertime - 100;
 		ex->light = 350;
 		ex->lightcolor[0] = 1.0;
 		ex->lightcolor[1] = 0.5;
@@ -495,11 +495,11 @@ void	CG_ParseTEnt(message_c &msg)
 		
 		if(type == TE_ROCKET_EXPLOSION_WATER)
 		{
-			cgi.S_StartSound(pos, 0, 0, cl_sfx_watrexp);
+			trap_S_StartSound(pos, 0, 0, cl_sfx_watrexp);
 		}
 		else
 		{
-			cgi.S_StartSound(pos, 0, 0, cl_sfx_rockexp);
+			trap_S_StartSound(pos, 0, 0, cl_sfx_rockexp);
 			
 			CG_ParticleSpray(PART_EXPSMOKE, pos, dir, color, 1024);
 		}
@@ -512,7 +512,7 @@ void	CG_ParseTEnt(message_c &msg)
 		Vector3_Copy (pos, ex->ent.origin);
 		ex->type = ex_poly;
 		ex->ent.flags = RF_FULLBRIGHT;
-		ex->start = cgi.cl->frame.servertime - 100;
+		ex->start = trap_cl->frame.servertime - 100;
 		ex->light = 350;
 		ex->lightcolor[0] = 0.0;
 		ex->lightcolor[1] = 1.0;
@@ -545,7 +545,7 @@ void	CG_ParseTEnt(message_c &msg)
 	
 	
 		default:
-			cgi.Com_Error (ERR_DROP, "CG_ParseTEnt: bad type");
+			trap_Com_Error (ERR_DROP, "CG_ParseTEnt: bad type");
 	}
 }
 
@@ -564,11 +564,11 @@ void	CG_AddBeams()
 	// update beams
 	for (i=0, b=cl_beams ; i< MAX_BEAMS ; i++, b++)
 	{
-		if (!b->model || b->endtime < cgi.CL_GetTime())
+		if (!b->model || b->endtime < trap_CL_GetTime())
 			continue;
 
 		// if coming from the player, update the start position
-		if (b->entity == cgi.playernum+1)	// entity 0 is the world
+		if(b->entity == trap_CL_GetPlayerNum()+1)	// entity 0 is the world
 		{
 			Vector3_Copy(cg.refdef.view_origin, b->start);
 			b->start[2] -= 22;	// adjust for view height
@@ -624,8 +624,8 @@ void	CG_AddBeams()
 				ent.quat.fromAngles(angles);
 			}
 			
-//			cgi.Com_Printf("B: %d -> %d\n", b->entity, b->dest_entity);
-//			cgi.R_AddEntityToScene(ent);
+//			trap_Com_Printf("B: %d -> %d\n", b->entity, b->dest_entity);
+//			trap_R_AddEntityToScene(ent);
 
 			for (j=0 ; j<3 ; j++)
 				org[j] += dist[j]*len;
@@ -651,7 +651,7 @@ void	CG_AddExplosions()
 		if (ex->type == ex_free)
 			continue;
 			
-		frac = (cgi.CL_GetTime() - ex->start)/100.0;
+		frac = (trap_CL_GetTime() - ex->start)/100.0;
 		f = (int)floor(frac);
 
 		ent = &ex->ent;
@@ -730,7 +730,7 @@ void	CG_AddExplosions()
 			//light.radius = ex->light * ent->color[3];
 			light.color = ex->lightcolor;
 							
-			cgi.R_AddLightToScene(light);
+			trap_R_AddLightToScene(light);
 		}
 		*/
 
@@ -741,7 +741,7 @@ void	CG_AddExplosions()
 		ent->frame = ex->baseframe + f + 1;
 		ent->frame_old = ex->baseframe + f;
 
-//		cgi.R_AddEntityToScene(*ent);
+//		trap_R_AddEntityToScene(*ent);
 	}
 }
 
@@ -752,7 +752,7 @@ void	CG_AddLasers()
 
 	for (i=0, l=cl_lasers ; i< MAX_LASERS ; i++, l++)
 	{
-		//if (l->endtime >= cgi.CL_GetTime())
-//			cgi.R_AddEntityToScene(l->ent);
+		//if (l->endtime >= trap_CL_GetTime())
+//			trap_R_AddEntityToScene(l->ent);
 	}
 }

@@ -53,6 +53,7 @@ xreal_cgame_src = [
 'src/xreal/cg_player.cxx',
 'src/xreal/cg_pred.cxx',
 'src/xreal/cg_screen.cxx',
+'src/xreal/cg_syscalls.cxx',
 'src/xreal/cg_tent.cxx',
 'src/xreal/cg_view.cxx',
 'src/xreal/cg_weapon.cxx' ]

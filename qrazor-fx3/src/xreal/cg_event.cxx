@@ -55,30 +55,30 @@ static void	CG_EntityEvent(const cg_entity_t *cent)
 			break;
 	
 		case EV_ITEM_RESPAWN:
-			cgi.S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_WEAPON, cgi.S_RegisterSound("items/respawn1.wav"));
+			trap_S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_WEAPON, trap_S_RegisterSound("items/respawn1.wav"));
 			CG_ParticleSpray(PART_RESPAWN, cent->current.origin, dir, color, 64);			
 			break;
 		
 		//case EV_PLAYER_TELEPORT:
-		//	cgi.S_StartSound(NULL, cent->current.getNumber(), CHAN_WEAPON, cgi.S_RegisterSound("misc/tele1.wav"), 1, ATTN_IDLE, 0);
+		//	trap_S_StartSound(NULL, cent->current.getNumber(), CHAN_WEAPON, trap_S_RegisterSound("misc/tele1.wav"), 1, ATTN_IDLE, 0);
 		//	CG_ParticleSpray(PART_BOSSTELE, cent->current.origin, dir, color, 1024);
 		//	break;
 	
 		case EV_FOOTSTEP:
 			if(cg_footsteps->getValue())
-				cgi.S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_BODY, cl_sfx_footsteps[rand()&3]);
+				trap_S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_BODY, cl_sfx_footsteps[rand()&3]);
 			break;
 	
 		case EV_FALL_SHORT:
-			cgi.S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_AUTO, cgi.S_RegisterSound("player/land1.wav"));
+			trap_S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_AUTO, trap_S_RegisterSound("player/land1.wav"));
 			break;
 	
 		case EV_FALL_MEDIUM:
-			cgi.S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_AUTO, cgi.S_RegisterSound("*fall2.wav"));
+			trap_S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_AUTO, trap_S_RegisterSound("*fall2.wav"));
 			break;
 	
 		case EV_FALL_FAR:
-			cgi.S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_AUTO, cgi.S_RegisterSound("*fall1.wav"));
+			trap_S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_AUTO, trap_S_RegisterSound("*fall1.wav"));
 			break;
 			
 		//
@@ -90,7 +90,7 @@ static void	CG_EntityEvent(const cg_entity_t *cent)
 			dl->color[1] = 1;
 			dl->color[2] = 0;
 			
-			cgi.S_StartSound (NULL, i, CHAN_WEAPON, cgi.S_RegisterSound("weapons/blastf1a.wav"), volume, ATTN_NORM, 0);
+			trap_S_StartSound (NULL, i, CHAN_WEAPON, trap_S_RegisterSound("weapons/blastf1a.wav"), volume, ATTN_NORM, 0);
 			break;
 		
 		case MZ_HYPERBLASTER:
@@ -98,7 +98,7 @@ static void	CG_EntityEvent(const cg_entity_t *cent)
 			dl->color[1] = 1;
 			dl->color[2] = 0;
 			
-			cgi.S_StartSound (NULL, i, CHAN_WEAPON, cgi.S_RegisterSound("weapons/hyprbf1a.wav"), volume, ATTN_NORM, 0);
+			trap_S_StartSound (NULL, i, CHAN_WEAPON, trap_S_RegisterSound("weapons/hyprbf1a.wav"), volume, ATTN_NORM, 0);
 			break;
 		
 		case MZ_MACHINEGUN:
@@ -107,7 +107,7 @@ static void	CG_EntityEvent(const cg_entity_t *cent)
 			dl->color[2] = 0;
 			
 			Com_sprintf(soundname, sizeof(soundname), "weapons/machgf%ib.wav", (rand() % 5) + 1);
-			cgi.S_StartSound (NULL, i, CHAN_WEAPON, cgi.S_RegisterSound(soundname), volume, ATTN_NORM, 0);
+			trap_S_StartSound (NULL, i, CHAN_WEAPON, trap_S_RegisterSound(soundname), volume, ATTN_NORM, 0);
 			break;
 		
 		case MZ_SHOTGUN:
@@ -115,8 +115,8 @@ static void	CG_EntityEvent(const cg_entity_t *cent)
 			dl->color[1] = 1;
 			dl->color[2] = 0;
 		
-			cgi.S_StartSound (NULL, i, CHAN_WEAPON, cgi.S_RegisterSound("weapons/shotgf1b.wav"), volume, ATTN_NORM, 0);
-			cgi.S_StartSound (NULL, i, CHAN_AUTO,   cgi.S_RegisterSound("weapons/shotgr1b.wav"), volume, ATTN_NORM, 0.1);
+			trap_S_StartSound (NULL, i, CHAN_WEAPON, trap_S_RegisterSound("weapons/shotgf1b.wav"), volume, ATTN_NORM, 0);
+			trap_S_StartSound (NULL, i, CHAN_AUTO,   trap_S_RegisterSound("weapons/shotgr1b.wav"), volume, ATTN_NORM, 0.1);
 			break;
 		
 		case MZ_SSHOTGUN:
@@ -124,7 +124,7 @@ static void	CG_EntityEvent(const cg_entity_t *cent)
 			dl->color[1] = 1;
 			dl->color[2] = 0;
 			
-			cgi.S_StartSound (NULL, i, CHAN_WEAPON, cgi.S_RegisterSound("weapons/sshotf1b.wav"), volume, ATTN_NORM, 0);
+			trap_S_StartSound (NULL, i, CHAN_WEAPON, trap_S_RegisterSound("weapons/sshotf1b.wav"), volume, ATTN_NORM, 0);
 			break;
 			
 		case MZ_CHAINGUN1:
@@ -134,7 +134,7 @@ static void	CG_EntityEvent(const cg_entity_t *cent)
 			dl->color[2] = 0;
 			
 			Com_sprintf(soundname, sizeof(soundname), "weapons/machgf%ib.wav", (rand() % 5) + 1);
-			cgi.S_StartSound (NULL, i, CHAN_WEAPON, cgi.S_RegisterSound(soundname), volume, ATTN_NORM, 0);
+			trap_S_StartSound (NULL, i, CHAN_WEAPON, trap_S_RegisterSound(soundname), volume, ATTN_NORM, 0);
 			break;
 			
 		case MZ_CHAINGUN2:
@@ -142,12 +142,12 @@ static void	CG_EntityEvent(const cg_entity_t *cent)
 			dl->color[0] = 1;
 			dl->color[1] = 0.5;
 			dl->color[2] = 0;
-			dl->die = cgi.cl->time  + 0.1;	// long delay
+			dl->die = trap_cl->time  + 0.1;	// long delay
 			
 			Com_sprintf(soundname, sizeof(soundname), "weapons/machgf%ib.wav", (rand() % 5) + 1);
-			cgi.S_StartSound (NULL, i, CHAN_WEAPON, cgi.S_RegisterSound(soundname), volume, ATTN_NORM, 0);
+			trap_S_StartSound (NULL, i, CHAN_WEAPON, trap_S_RegisterSound(soundname), volume, ATTN_NORM, 0);
 			Com_sprintf(soundname, sizeof(soundname), "weapons/machgf%ib.wav", (rand() % 5) + 1);
-			cgi.S_StartSound (NULL, i, CHAN_WEAPON, cgi.S_RegisterSound(soundname), volume, ATTN_NORM, 0.05);
+			trap_S_StartSound (NULL, i, CHAN_WEAPON, trap_S_RegisterSound(soundname), volume, ATTN_NORM, 0.05);
 			break;
 		
 		case MZ_CHAINGUN3:
@@ -155,14 +155,14 @@ static void	CG_EntityEvent(const cg_entity_t *cent)
 			dl->color[0] = 1;
 			dl->color[1] = 1;
 			dl->color[2] = 0;
-			dl->die = cgi.cl->time  + 0.1;	// long delay
+			dl->die = trap_cl->time  + 0.1;	// long delay
 		
 			Com_sprintf(soundname, sizeof(soundname), "weapons/machgf%ib.wav", (rand() % 5) + 1);
-			cgi.S_StartSound (NULL, i, CHAN_WEAPON, cgi.S_RegisterSound(soundname), volume, ATTN_NORM, 0);
+			trap_S_StartSound (NULL, i, CHAN_WEAPON, trap_S_RegisterSound(soundname), volume, ATTN_NORM, 0);
 			Com_sprintf(soundname, sizeof(soundname), "weapons/machgf%ib.wav", (rand() % 5) + 1);
-			cgi.S_StartSound (NULL, i, CHAN_WEAPON, cgi.S_RegisterSound(soundname), volume, ATTN_NORM, 0.033);
+			trap_S_StartSound (NULL, i, CHAN_WEAPON, trap_S_RegisterSound(soundname), volume, ATTN_NORM, 0.033);
 			Com_sprintf(soundname, sizeof(soundname), "weapons/machgf%ib.wav", (rand() % 5) + 1);
-			cgi.S_StartSound (NULL, i, CHAN_WEAPON, cgi.S_RegisterSound(soundname), volume, ATTN_NORM, 0.066);
+			trap_S_StartSound (NULL, i, CHAN_WEAPON, trap_S_RegisterSound(soundname), volume, ATTN_NORM, 0.066);
 			break;
 		
 		case MZ_RAILGUN:
@@ -170,7 +170,7 @@ static void	CG_EntityEvent(const cg_entity_t *cent)
 			dl->color[1] = 0.5;
 			dl->color[2] = 1.0;
 			
-			cgi.S_StartSound (NULL, i, CHAN_WEAPON, cgi.S_RegisterSound("weapons/railgf1a.wav"), volume, ATTN_NORM, 0);
+			trap_S_StartSound (NULL, i, CHAN_WEAPON, trap_S_RegisterSound("weapons/railgf1a.wav"), volume, ATTN_NORM, 0);
 			break;
 		
 		case MZ_ROCKET:
@@ -178,8 +178,8 @@ static void	CG_EntityEvent(const cg_entity_t *cent)
 			dl->color[1] = 0.5;
 			dl->color[2] = 0.2;
 		
-			cgi.S_StartSound (NULL, i, CHAN_WEAPON, cgi.S_RegisterSound("sound/weapons/rocklf1a.wav"), volume, ATTN_NORM, 0);
-			cgi.S_StartSound (NULL, i, CHAN_AUTO,   cgi.S_RegisterSound("sound/weapons/rocklr1b.wav"), volume, ATTN_NORM, 0.1);
+			trap_S_StartSound (NULL, i, CHAN_WEAPON, trap_S_RegisterSound("sound/weapons/rocklf1a.wav"), volume, ATTN_NORM, 0);
+			trap_S_StartSound (NULL, i, CHAN_AUTO,   trap_S_RegisterSound("sound/weapons/rocklr1b.wav"), volume, ATTN_NORM, 0.1);
 			break;
 		
 		case MZ_GRENADE:
@@ -187,24 +187,24 @@ static void	CG_EntityEvent(const cg_entity_t *cent)
 			dl->color[1] = 0.5;
 			dl->color[2] = 0;
 			
-			cgi.S_StartSound (NULL, i, CHAN_WEAPON, cgi.S_RegisterSound("weapons/grenlf1a.wav"), volume, ATTN_NORM, 0);
-			cgi.S_StartSound (NULL, i, CHAN_AUTO,   cgi.S_RegisterSound("weapons/grenlr1b.wav"), volume, ATTN_NORM, 0.1);
+			trap_S_StartSound (NULL, i, CHAN_WEAPON, trap_S_RegisterSound("weapons/grenlf1a.wav"), volume, ATTN_NORM, 0);
+			trap_S_StartSound (NULL, i, CHAN_AUTO,   trap_S_RegisterSound("weapons/grenlr1b.wav"), volume, ATTN_NORM, 0.1);
 			break;
 		
 		case MZ_BFG:
 			dl->color[0] = 0;
 			dl->color[1] = 1;
 			dl->color[2] = 0;
-			cgi.S_StartSound (NULL, i, CHAN_WEAPON, cgi.S_RegisterSound("weapons/bfg__f1y.wav"), volume, ATTN_NORM, 0);
+			trap_S_StartSound (NULL, i, CHAN_WEAPON, trap_S_RegisterSound("weapons/bfg__f1y.wav"), volume, ATTN_NORM, 0);
 			break;
 
 		case MZ_LOGIN:
 			dl->color[0] = 0;
 			dl->color[1] = 1; 
 			dl->color[2] = 0;
-			dl->die = cgi.cl->time + 1.0;
+			dl->die = trap_cl->time + 1.0;
 			
-			cgi.S_StartSound (NULL, i, CHAN_WEAPON, cgi.S_RegisterSound("weapons/grenlf1a.wav"), 1, ATTN_NORM, 0);
+			trap_S_StartSound (NULL, i, CHAN_WEAPON, trap_S_RegisterSound("weapons/grenlf1a.wav"), 1, ATTN_NORM, 0);
 			
 			//TODO
 			/*
@@ -221,9 +221,9 @@ static void	CG_EntityEvent(const cg_entity_t *cent)
 			dl->color[0] = 1;
 			dl->color[1] = 0;
 			dl->color[2] = 0;
-			dl->die = cgi.cl->time + 1.0;
+			dl->die = trap_cl->time + 1.0;
 			
-			cgi.S_StartSound (NULL, i, CHAN_WEAPON, cgi.S_RegisterSound("weapons/grenlf1a.wav"), 1, ATTN_NORM, 0);
+			trap_S_StartSound (NULL, i, CHAN_WEAPON, trap_S_RegisterSound("weapons/grenlf1a.wav"), 1, ATTN_NORM, 0);
 			
 			//TODO
 			/*
@@ -240,9 +240,9 @@ static void	CG_EntityEvent(const cg_entity_t *cent)
 			dl->color[0] = 1;
 			dl->color[1] = 1;
 			dl->color[2] = 0;
-			dl->die = cgi.cl->time + 1.0;
+			dl->die = trap_cl->time + 1.0;
 			
-			cgi.S_StartSound (NULL, i, CHAN_WEAPON, cgi.S_RegisterSound("weapons/grenlf1a.wav"), 1, ATTN_NORM, 0);
+			trap_S_StartSound (NULL, i, CHAN_WEAPON, trap_S_RegisterSound("weapons/grenlf1a.wav"), 1, ATTN_NORM, 0);
 			/*
 			{
 				vec4_c	color(1, 1, 0, 1);
@@ -262,7 +262,7 @@ static void	CG_EntityEvent(const cg_entity_t *cent)
 			
 			//TODO
 		
-			cgi.S_StartSound(NULL, i, CHAN_WEAPON, cgi.S_RegisterSound("sounds/e1/we_sidewindershoot.wav"), volume, ATTN_NORM, 0);
+			trap_S_StartSound(NULL, i, CHAN_WEAPON, trap_S_RegisterSound("sounds/e1/we_sidewindershoot.wav"), volume, ATTN_NORM, 0);
 			break;
 #endif
 	}

@@ -32,13 +32,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // shared -------------------------------------------------------------------
 #include "x_shared.h"
 
-
-extern	viddef_t	viddef;				// global video state
-
 // Video module initialisation etc
 void		VID_Init();
 void		VID_Shutdown();
 void		VID_CheckChanges();
 
+uint_t		VID_GetWidth();
+uint_t		VID_GetHeight();
 
 #endif // VID_H

@@ -42,7 +42,7 @@ packet header
 1	does this message contain a reliable payload
 31	acknowledge sequence
 1	acknowledge receipt of even/odd message
-16	qport 					 // Tr3B - removed
+16	qport
 
 The remote connection never knows if it missed a reliable message, the
 local side detects that it has been dropped by seeing a sequence acknowledge
@@ -101,11 +101,13 @@ Netchan_Setup
 called to open a channel to a remote system
 ==============
 */
-void	netchan_c::setup(const netadr_t &adr)
+void	netchan_c::setup(const netadr_t &adr, int qport, bool client)
 {
 	memset(this, 0, sizeof(*this));
 	
 	_remote_address = adr;
+	_qport = qport;
+	_client = client;
 	
 	_last_received = Sys_Milliseconds();
 	
@@ -162,6 +164,10 @@ void 	netchan_c::transmit(const byte *data, int length)
 
 	packet.writeLong(w1);
 	packet.writeLong(w2);
+	
+	// send the qport if we are a client
+	if(_client)
+		packet.writeShort(net_qport->getInteger());
 
 
 	//
@@ -251,6 +257,10 @@ bool	netchan_c::process(message_c &msg)
 
 	sequence &= ~(1<<31);
 	sequence_ack &= ~(1<<31);
+	
+	// read the qport if we are a server
+	if(!_client)
+		msg.readShort();
 	
 	
 	//

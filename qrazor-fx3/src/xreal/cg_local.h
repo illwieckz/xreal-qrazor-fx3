@@ -352,7 +352,7 @@ extern cvar_t	*cg_gravity;
 
 
 
-extern cg_import_t	cgi;
+//extern cg_import_t	cgi;
 extern cg_export_t	cg_globals;
 
 extern vrect_t		scr_vrect;		// position of render window
@@ -540,12 +540,131 @@ void	CG_RenderView();
 void 	CG_PrepRefresh();
 
 
-
 //
 // cg_weapon.cxx
 //
 void	CG_InitWeapon();
 void	CG_AddViewWeapon();
+
+
+//
+// cg_syscalls.cxx
+//
+// common printing
+void 		trap_Com_Printf(const char *fmt, ...);
+void 		trap_Com_DPrintf(const char *fmt, ...);
+
+void 		trap_Com_Error(err_type_e type, const char *fmt, ...);
+
+void		trap_Cmd_AddCommand(const std::string &name, void(*cmd)());
+void		trap_Cmd_RemoveCommand(const std::string &name);
+int		trap_Cmd_Argc();
+const char*	trap_Cmd_Argv(int i);
+
+cvar_t*		trap_Cvar_Get(const std::string &name, const std::string &value, uint_t flags);
+cvar_t*		trap_Cvar_Set(const std::string &name, const std::string &value);
+void		trap_Cvar_SetValue(const std::string &name, float value);
+float		trap_Cvar_VariableValue(const std::string &name);
+int		trap_Cvar_VariableInteger(const std::string &name);
+
+void		trap_R_BeginRegistration(const std::string &map);
+int		trap_R_RegisterModel(const std::string &name);
+int		trap_R_RegisterAnimation(const std::string &name);
+int		trap_R_RegisterSkin(const std::string &name);
+int		trap_R_RegisterShader(const std::string &name);
+int		trap_R_RegisterPic(const std::string &name);
+int		trap_R_RegisterParticle(const std::string &name);
+int		trap_R_RegisterLight(const std::string &name);
+void		trap_R_EndRegistration();
+
+void		trap_R_BeginFrame();
+void		trap_R_RenderFrame(const r_refdef_t &fd);
+void		trap_R_EndFrame();
+	
+void		trap_R_DrawPic(int x, int y, int w, int h, const vec4_c &color, int shader);
+void		trap_R_DrawStretchPic(int x, int y, int w, int h, float s1, float t1, float s2, float t2, const vec4_c &color, int shader);
+void		trap_R_DrawFill(int x, int y, int w, int h, const vec4_c &color);
+	
+void 		trap_R_SetSky(const std::string &name);
+	
+void		trap_R_ClearScene();
+	
+void		trap_R_AddEntity(int entity_num, int index, const r_entity_t &shared);
+void		trap_R_UpdateEntity(int entity_num, int index, const r_entity_t &shared);
+void		trap_R_RemoveEntity(int entity_num);
+	
+void		trap_R_AddLight(int entity_num, int index, const r_entity_t &shared, r_light_type_t type);
+void		trap_R_UpdateLight(int entity_num, int index, const r_entity_t &shared, r_light_type_t type);
+void		trap_R_RemoveLight(int entity_num);
+	
+void		trap_R_AddParticle(const r_particle_t &part);
+void		trap_R_AddPoly(const r_poly_t &poly);
+void		trap_R_AddContact(const r_contact_t &contact);
+
+bool		trap_R_SetupTag(r_tag_t &tag, const r_entity_t &ent, const std::string &name);
+bool		trap_R_SetupAnimation(int model, int anim);	
+
+	// virtual fileystem access
+int		trap_VFS_FOpenRead(const std::string &filename, VFILE **stream);
+int		trap_VFS_FOpenWrite(const std::string &filename, VFILE **stream);
+void		trap_VFS_FClose(VFILE **stream);
+	
+int		trap_VFS_FLoad(const std::string &name, void **buf);
+void		trap_VFS_FSave(const std::string &path, void *buffer, int len);
+void		trap_VFS_FFree(void *buf);
+
+int		trap_VFS_FRead(void *buffer, int len, VFILE *stream);
+int		trap_VFS_FWrite(const void *buffer, int len, VFILE *stream);
+	
+		
+char*		trap_Key_KeynumToString(int keynum);
+char*		trap_Key_GetBinding(int keynum);
+//void 		(*Key_SetBinding)(int keynum, char *binding);
+//void 		(*Key_ClearStates)(void);
+//keydest_t	(*Key_GetKeyDest)(void);
+//void		(*Key_SetKeyDest)( keydest_t key_dest );
+	
+void		trap_Con_ClearNotify();
+	
+void		trap_S_Init();
+void		trap_S_Shutdown();
+	
+void		trap_S_StartSound(const vec3_c &origin, int ent_num, int ent_channel, int sound);
+void		trap_S_StopAllSounds();
+void		trap_S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forward, const vec3_c &v_right, const vec3_c &v_up);
+	
+void		trap_S_BeginRegistration();
+int		trap_S_RegisterSound(const std::string &name);
+void		trap_S_EndRegistration();
+	
+d_bsp_c*	trap_CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum, dSpaceID space);
+cmodel_c*	trap_CM_RegisterModel(const std::string &name);
+void		trap_CM_EndRegistration();
+	
+int		trap_CM_PointContents(const vec3_c &p, int headnode);
+int		trap_CM_TransformedPointContents(const vec3_c &p, int headnode, const vec3_c &origin, const quaternion_c &quat);
+	
+int		trap_CL_GetTime();
+void		trap_CL_SetTime(int time);
+const char*	trap_CL_GetConfigString(int index);
+void		trap_CL_GetUserCommand(int frame, usercmd_t &cmd);
+void		trap_CL_GetCurrentUserCommand(usercmd_t &cmd);
+bool		trap_CL_GetRefreshPrepped();
+void		trap_CL_SetRefreshPrepped(bool val);
+bool		trap_CL_GetForceRefdef();
+void		trap_CL_SetForceRefdef(bool val);
+int		trap_CL_GetPlayerNum();
+	
+connection_state_t	trap_CLS_GetConnectionState();
+float		trap_CLS_GetRealTime();
+float		trap_CLS_GetFrameTime();
+int		trap_CLS_GetFrameCount();
+void		trap_CLS_GetCurrentNetState(int &incoming_acknowledged, int &outgoing_sequence);
+
+uint_t		trap_VID_GetWidth();
+uint_t		trap_VID_GetHeight();
+
+int		trap_Sys_Milliseconds();
 
 
 #endif

@@ -143,11 +143,12 @@ void	CL_InitUserInterface()
 	import.CL_SetServercount	= CL_SetServercount;
 	
 	import.S_StartLocalSound	= S_StartLocalSound;
+	
+	import.VID_GetWidth		= VID_GetWidth;
+	import.VID_GetHeight		= VID_GetHeight;
 		
 	import.Sys_AdrToString		= Sys_AdrToString;
 	import.Sys_Milliseconds		= Sys_Milliseconds;
-	
-	import.viddef			= &viddef;
 
 	
 	uie = (ui_export_t *)Sys_GetAPI("ui", "GetUIAPI", &import, &uie_handle);

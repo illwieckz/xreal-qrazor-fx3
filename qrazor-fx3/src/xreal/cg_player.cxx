@@ -107,7 +107,7 @@ static void	CG_AnimToServerFrame(anim_info_t &anim)
 		
 		if(anim.buffer.newanim < 0 || anim.buffer.newanim >= (int)anim.animations.size())
 		{
-			cgi.Com_Error(ERR_DROP, "CG_AnimToServerFrame: bad sequence %i of %i", anim.buffer.newanim, anim.animations.size());
+			trap_Com_Error(ERR_DROP, "CG_AnimToServerFrame: bad sequence %i of %i", anim.buffer.newanim, anim.animations.size());
 		}
 			
 		anim.frame = anim.animations[anim.buffer.newanim].first_frame;
@@ -169,7 +169,7 @@ void	CG_AddPlayerEntities(r_entity_t &ent, const cg_entity_t *cent, int effects,
 		
 	
 	// add entities to the renderer
-	cgi.R_AddEntity(ppm);
+	trap_R_AddEntity(ppm);
 	
 	//TODO
 }
@@ -199,10 +199,10 @@ static void	CG_ParseAnimationCFG(client_info_t *ci, const std::string &model_nam
 	// load the animation.cfg
 	//
 	filename = "models/players/" + model_name + "/animation.cfg";
-	cgi.VFS_FLoad(filename, (void**)&buffer);
+	trap_VFS_FLoad(filename, (void**)&buffer);
 	if(!buffer)
 	{
-		cgi.Com_Error(ERR_DROP, "CG_ParseAnimationCFG: bad config '%s\n", filename.c_str());
+		trap_Com_Error(ERR_DROP, "CG_ParseAnimationCFG: bad config '%s\n", filename.c_str());
 	}
 		
 	//
@@ -300,9 +300,9 @@ static void	CG_ParseAnimationCFG(client_info_t *ci, const std::string &model_nam
 		}
 	}
 	
-	cgi.VFS_FFree(buffer);
+	trap_VFS_FFree(buffer);
 	
-	cgi.Com_Printf("CG_ParseAnimationCFG: animation sequences %i %i %i\n",	upper_sequences.size(),
+	trap_Com_Printf("CG_ParseAnimationCFG: animation sequences %i %i %i\n",	upper_sequences.size(),
 										lower_sequences.size(),
 										head_sequences.size());
 
@@ -367,7 +367,7 @@ static void	CG_LoadClientModelinfo(client_info_t *ci, const std::string model_na
 	//
 	// load body model
 	//
-	ci->model = cgi.R_RegisterModel(filename = "models/players/" + model_name + "/body.md5mesh");
+	ci->model = trap_R_RegisterModel(filename = "models/players/" + model_name + "/body.md5mesh");
 	
 	
 }
@@ -388,7 +388,7 @@ static void	CG_LoadClientAnimationinfo(client_info_t *ci, const std::string mode
 		
 	// load idle animation
 	anim.model = ci->model;
-	anim.sequence = cgi.R_RegisterAnimation("models/players/" + model_name + "/idle.md5anim");
+	anim.sequence = trap_R_RegisterAnimation("models/players/" + model_name + "/idle.md5anim");
 	
 	// dummy sequence
 	ci->anim.animations.push_back(anim);
@@ -401,7 +401,7 @@ static void	CG_LoadClientSkininfo(client_info_t *ci, const std::string model_nam
 	//
 	// load body skin
 	//
-	ci->skin = cgi.R_RegisterSkin("models/players/" + model_name + "/body_" + skin_name +  ".skin");
+	ci->skin = trap_R_RegisterSkin("models/players/" + model_name + "/body_" + skin_name +  ".skin");
 		
 	//TODO
 }
@@ -413,14 +413,14 @@ void	CG_LoadClientinfo(client_info_t *ci, const std::string &s)
 	std::string	skin_name;
 	std::string	weapon_name;
 	
-	cgi.Com_Printf("CG_LoadClientInfo: '%s'\n", s.c_str());
+	trap_Com_Printf("CG_LoadClientInfo: '%s'\n", s.c_str());
 
 	ci->cinfo = s;
 
 	// isolate the player's name
 	std::string player_name = s.substr(0, s.find('\\'));
 	
-	cgi.Com_Printf("CG_LoadClientInfo: name '%s'\n", player_name.c_str());
+	trap_Com_Printf("CG_LoadClientInfo: name '%s'\n", player_name.c_str());
 	
 	ci->name = player_name;
 	
@@ -465,17 +465,17 @@ void	CG_LoadClientinfo(client_info_t *ci, const std::string &s)
 		// model file
 		Com_sprintf (model_filename, sizeof(model_filename), "players/%s/tris.md2", model_name);
 		//Com_sprintf (model_filename, sizeof(model_filename), "players/%s/body.mds", model_name);
-		ci->model = cgi.R_RegisterModel (model_filename);
+		ci->model = trap_R_RegisterModel (model_filename);
 		if (!ci->model)
 		{
 			strcpy(model_name, "male");
 			Com_sprintf (model_filename, sizeof(model_filename), "players/male/tris.md2");
-			ci->model = cgi.R_RegisterModel (model_filename);
+			ci->model = trap_R_RegisterModel (model_filename);
 		}
 
 		// skin file
 		Com_sprintf (skin_filename, sizeof(skin_filename), "players/%s/%s.pcx", model_name, skin_name);
-		ci->skin = cgi.R_RegisterShader(skin_filename);
+		ci->skin = trap_R_RegisterShader(skin_filename);
 
 		// if we don't have the skin and the model wasn't male,
 		// see if the male has it (this is for CTF's skins)
@@ -484,11 +484,11 @@ void	CG_LoadClientinfo(client_info_t *ci, const std::string &s)
 			// change model to male
 			strcpy(model_name, "male");
 			Com_sprintf (model_filename, sizeof(model_filename), "players/male/tris.md2");
-			ci->model = cgi.R_RegisterModel (model_filename);
+			ci->model = trap_R_RegisterModel (model_filename);
 
 			// see if the skin exists for the male model
 			Com_sprintf (skin_filename, sizeof(skin_filename), "players/%s/%s.pcx", model_name, skin_name);
-			ci->skin = cgi.R_RegisterShader(skin_filename);
+			ci->skin = trap_R_RegisterShader(skin_filename);
 		}
 
 		// if we still don't have a skin, it means that the male model didn't have
@@ -497,16 +497,16 @@ void	CG_LoadClientinfo(client_info_t *ci, const std::string &s)
 		{
 			// see if the skin exists for the male model
 			Com_sprintf (skin_filename, sizeof(skin_filename), "players/%s/grunt.pcx", model_name, skin_name);
-			ci->skin = cgi.R_RegisterShader(skin_filename);
+			ci->skin = trap_R_RegisterShader(skin_filename);
 		}
 
 		// icon file
 		Com_sprintf (ci->iconname, sizeof(ci->iconname), "/players/%s/%s_i.pcx", model_name, skin_name);
-		ci->icon = cgi.R_RegisterPic (ci->iconname);
+		ci->icon = trap_R_RegisterPic (ci->iconname);
 	}
 	*/
 	
-	//cgi.Com_Printf("CG_LoadClientInfo: middle\n");
+	//trap_Com_Printf("CG_LoadClientInfo: middle\n");
 
 	// must have loaded all data types to be valud
 	/*
@@ -519,7 +519,7 @@ void	CG_LoadClientinfo(client_info_t *ci, const std::string &s)
 	}
 	*/
 	
-	//cgi.Com_Printf("CG_LoadClientInfo: end\n");
+	//trap_Com_Printf("CG_LoadClientInfo: end\n");
 }
 
 
@@ -533,11 +533,11 @@ Load the skin, icon, and model for a client
 */
 void	CG_ParseClientinfo(int player)
 {
-	cgi.Com_Printf("CG_ParseClientinfo: %i\n", player);
+	trap_Com_Printf("CG_ParseClientinfo: %i\n", player);
 		
-	if(!cgi.CL_GetConfigString(player+CS_PLAYERSKINS)[0])
+	if(!trap_CL_GetConfigString(player+CS_PLAYERSKINS)[0])
 		return;
 
-	CG_LoadClientinfo(&cg.clientinfo[player], cgi.CL_GetConfigString(player+CS_PLAYERSKINS));
+	CG_LoadClientinfo(&cg.clientinfo[player], trap_CL_GetConfigString(player+CS_PLAYERSKINS));
 }
 

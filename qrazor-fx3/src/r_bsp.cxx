@@ -268,7 +268,7 @@ void	r_bsptree_c::draw()
 
 	drawNode_r(_nodes[0], FRUSTUM_CLIPALL);
 	
-	if(r_lighting->getInteger())
+	if(r_lighting->getInteger() == 1)
 	{
 		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
@@ -1784,7 +1784,7 @@ void	r_bsp_model_c::addModelToList(r_entity_c *ent)
 		
 		RB_AddCommand(ent, this, surf->getMesh(), surf->getShader(), NULL, NULL, surf->getLightMapNum(), r_origin.distance(ent->getShared().origin));
 		
-		if(r_lighting->getInteger())
+		if(r_lighting->getInteger() && (surf->getLightMapNum() < 0))
 		{
 			for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 			{

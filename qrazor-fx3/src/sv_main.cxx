@@ -323,7 +323,7 @@ static void 	SVC_DirectConnect(const netadr_t &adr)
 		if(cl->getState() == CS_FREE)
 			continue;
 			
-		if(Sys_CompareBaseAdr(adr, cl->netchan.getRemoteAddress()) && adr.port == cl->netchan.getRemoteAddress().port)
+		if(Sys_CompareBaseAdr(adr, cl->netchan.getRemoteAddress()) && (cl->netchan.getRemoteAddress().port == qport))
 		{
 			if(!Sys_IsLocalAddress(adr) && (svs.realtime - cl->getLastConnectTime()) < ((int)sv_reconnect_limit->getValue() * 1000))
 			{
@@ -360,7 +360,7 @@ svc_directconnect_got_slot:
 		*ir = NULL;
 	}
 		
-	sv_client_c *newcl = *ir = new sv_client_c(adr, challenge);
+	sv_client_c *newcl = *ir = new sv_client_c(adr, qport, challenge);
 	
 	edictnum = SV_GetNumForClient(newcl) + 1;
 	ent = SV_GetEntityByNum(edictnum);
@@ -579,6 +579,8 @@ void 	SV_PacketEvent(message_c &msg, const netadr_t &adr)
 	msg.beginReading();
 	msg.readLong();		// sequence number
 	msg.readLong();		// sequence number
+	
+	int qport = msg.readShort() & 0xffff;
 
 	// check for packets from connected clients
 	for(std::vector<sv_client_c*>::const_iterator ir = svs.clients.begin(); ir != svs.clients.end(); ir++)
@@ -593,12 +595,14 @@ void 	SV_PacketEvent(message_c &msg, const netadr_t &adr)
 			
 		if(!Sys_CompareBaseAdr(adr, cl->netchan.getRemoteAddress()))
 			continue;
-				
+			
+		if(cl->netchan.getQPort() != qport)
+			continue;
+
 		if(cl->netchan.getRemoteAddress().port != adr.port)
 		{
-			Com_Error(ERR_FATAL, "SV_ReadPackets: bad translated port");
-			//Com_Printf("SV_ReadPackets: fixing up a translated port\n");
-			//cl->netchan.getRemoteAddress().port = adr.port;
+			Com_Printf("SV_PacketEvent: fixing up a translated port\n");
+			cl->netchan.fixRemoteAddressPort(adr.port);
 		}
 
 		if(cl->netchan.process(msg))

@@ -93,11 +93,11 @@ void	CG_DrawInventory()
 	if (top < 0)
 		top = 0;
 
-	x = (cgi.viddef->width-256)/2;
-	y = (cgi.viddef->height-240)/2;
+	x = (trap_VID_GetWidth()-256)/2;
+	y = (trap_VID_GetHeight()-240)/2;
 
 	
-	//cgi.R_DrawPic(x, y+8, color_white, cgi.R_RegisterPic("textures/pics/inventory"));
+	//trap_R_DrawPic(x, y+8, color_white, trap_R_RegisterPic("textures/pics/inventory"));
 
 	y += 24;
 	x += 24;
@@ -108,19 +108,19 @@ void	CG_DrawInventory()
 	{
 		item = index[i];
 		// search for a binding
-		Com_sprintf(binding, sizeof(binding), "use %s", cgi.CL_GetConfigString(CS_ITEMS+item));
+		Com_sprintf(binding, sizeof(binding), "use %s", trap_CL_GetConfigString(CS_ITEMS+item));
 		
 		bind = "";
 		for(j=0; j<256; j++)
 		{
-			if(cgi.Key_GetBinding(j) && !X_stricmp(cgi.Key_GetBinding(j), binding))
+			if(trap_Key_GetBinding(j) && !X_stricmp(trap_Key_GetBinding(j), binding))
 			{
-				bind = cgi.Key_KeynumToString(j);
+				bind = trap_Key_KeynumToString(j);
 				break;
 			}
 		}
 
-		Com_sprintf(string, sizeof(string), "%6s %3i %s", bind, cg.inventory[item], cgi.CL_GetConfigString(CS_ITEMS+item));
+		Com_sprintf(string, sizeof(string), "%6s %3i %s", bind, cg.inventory[item], trap_CL_GetConfigString(CS_ITEMS+item));
 		
 		if(item != selected)
 		{
@@ -129,7 +129,7 @@ void	CG_DrawInventory()
 		else	
 		{
 			// draw a blinky cursor by the selected item
-			if((int)(cgi.CLS_GetRealTime()*10) & 1)
+			if((int)(trap_CLS_GetRealTime()*10) & 1)
 				CG_DrawChar(x-8, y, 15, color_red, FONT_NONE);
 		}
 		

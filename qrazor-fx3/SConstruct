@@ -7,7 +7,12 @@ opts.Add(EnumOption('debug', 'Set to >= 1 to build for debug', '0', allowed_valu
 opts.Add(EnumOption('optimize', 'Set to >= 1 to build with general optimizations', '2', allowed_values=('0', '1', '2')))
 opts.Add(EnumOption('simd', 'Choose special CPU register optimizations', 'none', allowed_values=('none', 'sse', '3dnow')))
 #opts.Add(EnumOption('cpu', 'Set to 1 to build with special CPU register optimizations', 'i386', allowed_values=('i386', 'athlon-xp', 'pentium4')))
-opts.Add(PathOption('PKGDATADIR', 'Installation path', '/usr/games/share/qrazor-fx'))
+
+if sys.platform == 'linux2' or sys.platform == 'linux-i386':
+	opts.Add(PathOption('PKGDATADIR', 'Installation path', '/usr/games/share/qrazor-fx'))
+	
+elif sys.platform == 'win32':
+	opts.Add(PathOption('PKGDATADIR', 'Installation path', 'C:\Program Files\QRazor-FX'))
 
 env = Environment(options = opts)
 Help(opts.GenerateHelpText(env))

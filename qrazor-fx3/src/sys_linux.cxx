@@ -750,7 +750,7 @@ void 	Sys_InitNet(bool server)
 	else
 	{
 		if(!ip_socket)
-			ip_socket = Sys_Socket(ip->getString(), PORT_CLIENT);
+			ip_socket = Sys_Socket(ip->getString(), PORT_ANY);//PORT_CLIENT);
 	}
 }
 
