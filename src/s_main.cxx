@@ -95,14 +95,6 @@ s_source_c::~s_source_c()
 	stop();
 
 	alDeleteSources(1, &_id);	S_CheckForError();
-	
-	// clear slot
-	/*
-	std::vector<s_source_c*>::iterator ir = find(s_sources.begin(), s_sources.end(), static_cast<s_source_c*>(this));
-	
-	if(ir != s_sources.end())
-		*ir = NULL;
-	*/
 }
 
 
@@ -278,6 +270,8 @@ cvar_t	*s_khz;
 cvar_t	*s_show;
 cvar_t	*s_testsound;
 
+cvar_t	*s_backend;
+
 cvar_t	*s_loki_attenuation_scale;
 cvar_t	*s_ext_vorbis;
 cvar_t	*s_ext_mp3;
@@ -351,6 +345,12 @@ void	S_Init()
 		s_khz 				= Cvar_Get("s_khz", "11", CVAR_ARCHIVE);
 		s_show				= Cvar_Get("s_show", "0", 0);
 		s_testsound			= Cvar_Get("s_testsound", "0", 0);
+		
+#ifdef __linux__
+		s_backend			= Cvar_Get("s_backend", "alsa", CVAR_ARCHIVE);
+#else
+		s_backend			= Cvar_Get("s_backend", "", CVAR_ARCHIVE);
+#endif
 		
 		// openal extensions
 		s_loki_attenuation_scale	= Cvar_Get("s_loki_attenuation_scale", "1", CVAR_ARCHIVE);
