@@ -181,6 +181,7 @@ struct sys_gl_t
 	void*			OpenGLLib; 	// instance of OpenGL library e.g. libGL.so.1
 	
 #ifdef HAVE_XF86_VIDMODE
+	bool			vidmodes_available;
 	XF86VidModeModeInfo**	vidmodes;
 	int 			vidmodes_num;
 	bool 			vidmodes_active;
