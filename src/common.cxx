@@ -430,7 +430,7 @@ void 	Com_InitArgv(int argc, char **argv)
 	
 	Com_Printf("com_argc:  %i\n", com_argv.size());
 	
-	for(uint i=0; i < com_argv.size(); i++)
+	for(uint_t i=0; i < com_argv.size(); i++)
 	{
 		Com_Printf("com_argv: [%i][%s]\n", i, com_argv[i].c_str());
 		

@@ -1197,8 +1197,7 @@ public:
 };
 
 class r_leaf_c : 
-public r_tree_elem_c,
-public r_lightframecount_iface_a
+public r_tree_elem_c
 {
 public:	
 	std::vector<r_surface_c*>	surfaces;
@@ -1206,14 +1205,16 @@ public:
 };
 
 
-class r_bsptree_node_c : public r_node_c
+class r_bsptree_node_c : 
+public r_node_c
 {
 public:
 	cplane_c*		plane;
 	r_tree_elem_c*		children[2];
 };
 	
-class r_bsptree_leaf_c : public r_leaf_c
+class r_bsptree_leaf_c : 
+public r_leaf_c
 {
 public:
 	int			cluster;
@@ -1221,7 +1222,8 @@ public:
 };
 
 /*
-class r_bsptree_area_c : public r_tree_elem_c
+class r_bsptree_area_c : 
+public r_tree_elem_c
 {
 public:
 	std::vector<r_surface_c*>	surfaces;
@@ -1261,7 +1263,8 @@ struct r_bsptree_model_t
 };
 
 
-class r_proctree_node_c : public r_node_c
+class r_proctree_node_c : 
+public r_node_c
 {
 public:
 	cplane_c		plane;

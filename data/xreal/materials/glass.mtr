@@ -11,8 +11,8 @@ textures/glass/outdoor_glass1
 	qer_editorimage textures/glass/glass1
 	
 	{	
-		maskcolor				
-	    map	makealpha(textures/glass/glass1)
+		maskcolor
+		map		makealpha(textures/glass/glass1)
 	}	
 	{
 		blend gl_dst_alpha, gl_one
@@ -25,10 +25,18 @@ textures/glass/outdoor_glass1
 
 	}
 	{
-     		blend filter
+		blend filter
 		map textures/glass/outdoor_glass1fx
 	}
-	
+	{
+		stage		heathazemap
+//		map		textures/sfx/vp1.tga
+//		deformMagnitude	.5
+		 
+		map		textures/z13d3dm2/liquid12_norm.tga
+		scroll		time * 0.05 , time * 0.05
+		deformMagnitude	1
+	}
 }
 
 textures/glass/breakyglass3
@@ -147,7 +155,7 @@ textures/glass/mc_scannerglass
 }
 
 textures/glass/glass1
- {
+{
 	noSelfShadow
 	noshadows
 	twosided
@@ -158,24 +166,31 @@ textures/glass/glass1
 	qer_editorimage textures/glass/glass1
 	
 	{	
-		maskcolor				
-	    map	makealpha(textures/glass/glass1)
+		maskcolor
+		map	makealpha(textures/glass/glass1)
 	}	
 	{
 	    blend gl_dst_alpha, gl_one
 	    maskalpha
-       	cubeMap		env/gen2
+       		cubeMap		env/gen2
 			red		Parm0
 	        green   Parm1
 	        blue	Parm2
-        texgen		reflect
+        	texgen		reflect
 
+	}
+	{
+		stage		heathazemap
+		map		textures/sfx/vp1.tga
+		deformMagnitude	.5
 	}
 	
 }
 
 textures/glass/glass2
- {
+{
+	q3map2_tessSize	16
+	 
 	noSelfShadow
 	noshadows
 	twosided
@@ -187,11 +202,10 @@ textures/glass/glass2
 
 	{
 		maskcolor
-		map	makealpha(textures/glass/glass2)
+		map		makealpha(textures/glass/glass2)
 	}
-	
 	{
-		blend gl_dst_alpha, gl_one
+		blend		gl_dst_alpha, gl_one
 		maskalpha
 		cubeMap		env/gen2
 		
@@ -200,7 +214,12 @@ textures/glass/glass2
 		blue		Parm2
 		texgen		reflect
 	}
-
-		
+	{
+		stage		heathazemap
+		map		textures/sfx/vp1.tga
+//		map		textures/q2_base/q2_flr1_1_local.tga
+//		scale		0.5 , 0.5
+		deformMagnitude	0.4
+	}
 }
 

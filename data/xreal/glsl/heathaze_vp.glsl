@@ -25,7 +25,7 @@ attribute vec4		attr_TexCoord0;
 uniform float		u_deform_magnitude;
 
 varying vec2		var_tex_heathaze;
-varying vec4		var_deform;
+varying float		var_deform;
 
 void	main()
 {
@@ -38,12 +38,12 @@ void	main()
 	// take the deform magnitude and scale it by the projection distance
 	vec4 R0 = vec4(1, 0, 0, 1);
 	R0.z = dot(gl_ModelViewMatrix[2], gl_Vertex);
-	vec4 R1 = dot(gl_ProjectionMatrix[0],  R0);
-	vec4 R2 = dot(gl_ProjectionMatrix[3],  R0);
+	float R1 = dot(gl_ProjectionMatrix[0],  R0);
+	float R2 = dot(gl_ProjectionMatrix[3],  R0);
 	
 	// don't let the recip get near zero for polygons that cross the view plane
-	R2 = max(R2, 1);
-	R2 = 1.0 / R2.w;
+	R2 = max(R2, 1.0);
+	R2 = 1.0 / R2;
 	R1 *= R2;
 	
 	// clamp the distance so the the deformations don't get too wacky near the view

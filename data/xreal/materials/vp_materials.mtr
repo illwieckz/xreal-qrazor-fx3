@@ -1,34 +1,29 @@
 textures/sfx/vpstatic
 {
-		nonsolid
-		translucent
+	nonsolid
+	translucent
 
-
-        {
-                vertexProgram           heatHaze.vfp
-                vertexParm              0       time * 0.1 , time * 0.5 // texture scrolling
-                vertexParm              1       .2          // magnitude of the distortion
-                fragmentProgram			heatHaze.vfp
-                fragmentMap             0       _currentRender
-                fragmentMap             1       textures/sfx/vpstatic.tga   // the normal map for distortion
-        }
-			{
-
-	    blend		add
-		scale .01, 1
-		translate time * 40, time * 0.5
-
-		map    textures/sfx/vpstatic_add.tga
-
+	{
+		stage		heathazemap
+		map		textures/sfx/vpstatic.tga
+		scroll		time * 0.1 , time * 0.5
+		deformMagnitude	1
 	}
+	{
+	
+		blend		add
+		scale		.01, 1
+		translate	time * 40, time * 0.5
 
-
+		map		textures/sfx/vpstatic_add.tga
+	}
 }
 
 
 textures/sfx/vpring1
 {
-		translucent
+	translucent
+	
         {
                 program         heatHazeWithMaskAndVertex.vfp
                 vertexParm              0               0                               // texture scrolling

@@ -27,22 +27,22 @@ uniform vec2		u_npot_scale;
 uniform float		u_bump_scale;
 
 varying vec2		var_tex_heathaze;
-varying vec4		var_deform;
+varying float		var_deform;
 
 void	main()
 {
 	// compute normal in tangent space from bumpmap
-	vec3 N = 2 * (texture2D(u_heathazemap, var_tex_heathaze).rgb - 0.5);
+	vec4 N = 2 * (texture2D(u_heathazemap, var_tex_heathaze).rgba - 0.5);
 	N.z *= u_bump_scale;
 	N = normalize(N);
 
-	vec2 s_coord = gl_FragCoord.xy;
+	vec2 s_coord = gl_FragCoord.st;
 
 	// calculate the screen texcoord in the 0.0 to 1.0 range
 	s_coord *= u_fbuf_scale;
 	
 	// offset by the scaled normal and clamp it to 0.0 - 1.0
-	s_coord += N.xy * var_deform.xy;
+	s_coord += N.xy * var_deform;
 	clamp(s_coord, 0.0, 1.0);
 	
 	// scale by the screen non-power-of-two-adjust

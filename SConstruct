@@ -1,6 +1,56 @@
 import os, string, sys
 import SCons
+import SCons.Errors
 
+#
+# Misc global variables
+#
+INSTALL = '#install'
+
+#
+# Misc helper functions
+#
+def mkdirs(newdir, mode=0777):
+	"""
+	Create directory and all of its parents if needed.
+	Direct copy from 'Python Cookbook' Page 143.
+	"""
+	
+	try:
+        	os.makedirs(newdir, mode)
+	except OSError, err:
+		# Reraise the error unless its about an already existing dir
+		if err.errno != errno.EEXIST or not os.path.isdir(newdir):
+			raise
+
+def XValidator(key, val, env):
+	try:
+		global INSTALL
+		INSTALL = val
+	
+		if not os.path.exists(val):
+			mkdirs(val)
+	
+		elif os.path.isfile(val):
+			print "A file with the name " + val + " already exists!"
+			raise
+	except:
+		raise SCons.Errors.UserError('Could not create path for option %s: %s' % (key, val))
+
+def XPathOption(key, help, default):
+	"""
+	The input parameters describe a 'path list' option, thus they
+	are returned with the correct converter and validator appended. The
+	result is usable for input to opts.Add() .
+		
+	A 'package list' option may either be 'all', 'none' or a list of
+	package names (seperated by space).
+	"""
+	return (key, '%s ( /path/to/%s )' % (help, key), default, XValidator, None)
+
+#
+# Set configuration options
+#
 opts = Options()
 opts.Add(BoolOption('warnings', 'Set to 1 to compile with -Wall -Werror', 1))
 opts.Add(EnumOption('debug', 'Set to >= 1 to build for debug', '0', allowed_values=('0', '1', '2', '3')))
@@ -9,15 +59,27 @@ opts.Add(EnumOption('simd', 'Choose special CPU register optimizations', 'none',
 #opts.Add(EnumOption('cpu', 'Set to 1 to build with special CPU register optimizations', 'i386', allowed_values=('i386', 'athlon-xp', 'pentium4')))
 
 if sys.platform == 'linux2' or sys.platform == 'linux-i386':
-	opts.Add(PathOption('PKGDATADIR', 'Installation path', '/usr/games/share/qrazor-fx'))
+	opts.Add(XPathOption('PKGDATADIR', 'Installation path', '/usr/games/share/qrazor-fx'))
 	
 elif sys.platform == 'win32':
-	opts.Add(PathOption('PKGDATADIR', 'Installation path', 'C:\Program Files\QRazor-FX'))
+	opts.Add(XPathOption('PKGDATADIR', 'Installation path', 'C:/QRazor-FX'))
 
-env = Environment(options = opts)
+#
+# Initialize compiler environment base
+#
+if sys.platform == 'win32':
+	env = Environment(ENV = {'PATH' : os.environ['PATH']}, options = opts, tools = ['mingw'])
+else:
+	env = Environment(ENV = {'PATH' : os.environ['PATH']}, options = opts)
+
 Help(opts.GenerateHelpText(env))
 
+
+#
+# Set common C++ flags
+#
 print 'compiling for platform ', sys.platform
+print 'installation path ', INSTALL
 
 env.Append(CXXFLAGS = '-pipe')
 
@@ -29,13 +91,7 @@ if env['debug'] != '0':
 	env.Append(CXXFLAGS = '-ggdb${debug}')
 
 if env['optimize'] != '0':
-	env.Append(CXXFLAGS = '-O${optimize}')#-ffast-math')
-
-	#if env['cpu'] != 'i386':
-	#	env.Append(CXXFLAGS = '-march=${cpu}')
-	
-	#if env['cpu'] == 'athlon-xp':
-	#	env.Append(CXXFLAGS = '-march=athlon-xp -msse')#-mfpmath=sse')
+	env.Append(CXXFLAGS = '-O${optimize}')
 	
 	if env['simd'] == 'sse':
 		env.Append(CXXFLAGS = '-DSIMD_SSE')
@@ -43,11 +99,8 @@ if env['optimize'] != '0':
 	elif env['simd'] == '3dnow':
 		env.Append(CXXFLAGS = '-DSIMD_3DNOW')
 
-
-
 	
 env.Append(CXXFLAGS = '-DVFS_PKGDATADIR=\\"${PKGDATADIR}\\"')
-#env.Append(CXXFLAGS = '-DVFS_PKGLIBDIR="${PKGDATADIR}"')
 
 
 
@@ -58,9 +111,9 @@ if sys.platform == 'linux2' or sys.platform == 'linux-i386':
 		print 'Did not find libdl.a, exiting!'
 		Exit(1)
 
-	if not conf.CheckLib('m', autoadd=0):
-		print 'Did not find libm.a or m.lib, exiting!'
-		Exit(1)
+if not conf.CheckLib('m', autoadd=0):
+	print 'Did not find libm.a or m.lib, exiting!'
+	Exit(1)
 
 if not conf.CheckCHeader('zlib.h'):
 	print 'zlib.h must be installed!'
@@ -78,44 +131,45 @@ if not conf.CheckCHeader('AL/alc.h'):
 if not conf.CheckCHeader('AL/alut.h'):
 	print 'AL/alut.h must be installed!'
 	Exit(1)
-if not conf.CheckLib('openal', autoadd=0):
-	print 'Did not find libopenal.a or openal.lib, exiting!'
-	Exit(1)
 	
-#if not conf.CheckCHeader('ode/ode.h'):
-#	print 'ode/ode.h must be installed!'
-#	Exit(1)
-#if not conf.CheckLib('ode', autoadd=0):
-#	print 'Did not find libode.a or ode.lib, exiting!'
-#	Exit(1)
+if sys.platform == 'linux2' or sys.platform == 'linux-i386':
+	if not conf.CheckLib('openal', autoadd=0):
+		print 'Did not find libopenal.a or openal.lib, exiting!'
+		Exit(1)
 	
-if not conf.CheckCHeader('X11/Xlib.h'):
-	print 'X11/Xlib.h must be installed!'
-	Exit(1)
-if not conf.CheckCHeader('X11/Xutil.h'):
-	print 'X11/Xutil.h must be installed!'
-	Exit(1)
-if not conf.CheckCHeader('X11/Xatom.h'):
-	print 'X11/Xatom.h must be installed!'
-	Exit(1)
-#if not conf.CheckLib('X11', autoadd=0):
-#	print 'Did not find libX11.a, exiting!'
-#	Exit(1)
-#if not conf.CheckLib('Xext', symbol='XShmQueryExtension', autoadd=0):
-#	print 'Did not find libXext.a, exiting!'
-#	Exit(1)
+elif sys.platform == 'win32':
+	if not conf.CheckLib('openal32', autoadd=0):
+		print 'Did not find libopenal32.a or openal32.lib, exiting!'
+		Exit(1)
+	
+if sys.platform == 'linux2' or sys.platform == 'linux-i386':
+	if not conf.CheckCHeader('X11/Xlib.h'):
+		print 'X11/Xlib.h must be installed!'
+		Exit(1)
+	if not conf.CheckCHeader('X11/Xutil.h'):
+		print 'X11/Xutil.h must be installed!'
+		Exit(1)
+	if not conf.CheckCHeader('X11/Xatom.h'):
+		print 'X11/Xatom.h must be installed!'
+		Exit(1)
+	#if not conf.CheckLib('X11', autoadd=0):
+	#	print 'Did not find libX11.a, exiting!'
+	#	Exit(1)
+	#if not conf.CheckLib('Xext', symbol='XShmQueryExtension', autoadd=0):
+	#	print 'Did not find libXext.a, exiting!'
+	#	Exit(1)
 
-#if conf.CheckCHeader('X11/extensions/xf86dga.h'):
-#	conf.env.Append(CXXFLAGS='-DHAVE_XF86_DGA')
-#if not conf.CheckLib('Xxf86dga', symbol='XF86DGAQueryVersion', autoadd=0):
-#	print 'Did not find libXxf86dga.a, exiting!'
-#	Exit(1)
+	#if conf.CheckCHeader('X11/extensions/xf86dga.h'):
+	#	conf.env.Append(CXXFLAGS='-DHAVE_XF86_DGA')
+	#if not conf.CheckLib('Xxf86dga', symbol='XF86DGAQueryVersion', autoadd=0):
+	#	print 'Did not find libXxf86dga.a, exiting!'
+	#	Exit(1)
 
-#if conf.CheckCHeader('X11/extensions/xf86vmode.h'):
-#	conf.env.Append(CXXFLAGS='-DHAVE_XF86_VIDMODE')
-#if not conf.CheckLib('Xxf86vm', symbol='XF86VidModeSwitchToMode', autoadd=0):
-#	print 'Did not find libXxf86vm.a, exiting!'
-#	Exit(1)
+	#if conf.CheckCHeader('X11/extensions/xf86vmode.h'):
+	#	conf.env.Append(CXXFLAGS='-DHAVE_XF86_VIDMODE')
+	#if not conf.CheckLib('Xxf86vm', symbol='XF86VidModeSwitchToMode', autoadd=0):
+	#	print 'Did not find libXxf86vm.a, exiting!'
+	#	Exit(1)
 
 #if not conf.CheckCHeader('jpeglib.h'):
 #	print 'jpeglib.h must be installed!'
@@ -134,7 +188,7 @@ if not conf.CheckLib('jpeg', symbol='jpeg_start_decompress', autoadd=0):
 env = conf.Finish()
 
 
-Export('env')
+Export('INSTALL env')
 #SConscript('SConscript_ode')
 SConscript('SConscript_qrazor-fx-server', build_dir='build/server', duplicate=0)
 SConscript('SConscript_qrazor-fx-client', build_dir='build/client', duplicate=0)

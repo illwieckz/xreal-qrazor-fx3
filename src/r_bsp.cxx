@@ -284,8 +284,8 @@ void	r_bsptree_c::draw()
 			for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
 			{
 				r_light_c& light = *ir;
-			
-				if(r_frustum.cull(light.getShared().radius_bbox))
+				
+				if(!light.isVisible())
 					continue;
 					
 				r_lightframecount++;
@@ -1582,8 +1582,8 @@ void 	r_bsptree_c::markLights()
 			
 				if(!(light.getShared().flags & RF_STATIC))
 				{
-					if(light.getCluster() < 0)
-						continue;
+					//if(light.getCluster() < 0)
+					//	continue;
 				
 					if(r_frustum.cull(light.getShared().radius_bbox))
 						continue;

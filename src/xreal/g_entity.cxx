@@ -180,8 +180,8 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 	addField(g_field_c("shaderparm7", &_s.shaderparms[7], F_FLOAT));
 
 	// shared between server and game
+//	addField(g_field_c("networksync", &_r.networksync, F_BOOL));
 	addField(g_field_c("owner", &_r.owner, F_EDICT, FFL_NOSPAWN));
-	addField(g_field_c("networksync", &_r.networksync, F_BOOL));
 	
 	// private to game
 	addField(g_field_c("classname", &_classname, F_STRING));
