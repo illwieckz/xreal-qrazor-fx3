@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 uniform samplerCube	u_colormap;
 uniform vec3		u_view_origin;
 
-varying vec4		var_vertex;
+varying vec3		var_vertex;
 varying vec3		var_normal;
 
 void	main()

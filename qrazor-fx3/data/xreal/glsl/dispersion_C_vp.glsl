@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /// ============================================================================
 
-varying vec4		var_vertex;
+varying vec3		var_vertex;
 varying vec3		var_normal;
 
 void	main()
@@ -29,7 +29,7 @@ void	main()
 	gl_Position = ftransform();
 	
 	// transform position into world space
-	var_vertex = gl_TextureMatrix[0] * gl_Vertex;
+	var_vertex = (gl_TextureMatrix[0] * gl_Vertex).xyz;
 	
 	// transform normal into world space
 	var_normal.x = dot(gl_TextureMatrix[0][0].xyz, gl_Normal);
