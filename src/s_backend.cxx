@@ -30,8 +30,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "vfs.h"
 
-
-
+// OpenAL on Windows is different (Apple should be as well)
+#if defined(_WIN32) || defined( __APPLE__ )
+#define AL_ILLEGAL_ENUM AL_INVALID_ENUM
+#define AL_ILLEGAL_COMMAND AL_INVALID_OPERATION
+#endif
 
 
 static alconfig_t  al_config;
