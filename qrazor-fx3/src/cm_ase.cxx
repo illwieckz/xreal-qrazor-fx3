@@ -83,11 +83,50 @@ static void	CM_ASE_NewMesh(char const* begin, char const* end)
 //	Com_DPrintf("CM_ASE_NewMesh()\n");
 }
 
+static void	CM_ASE_MeshVertexList(char const* begin, char const* end)
+{	
+//	Com_DPrintf("CM_ASE_MeshVertexList()\n");
+}
+
+static void	CM_ASE_MeshVertex(int value)
+{	
+//	Com_DPrintf("CM_ASE_MeshVertex(%i)\n", value);
+}
+
+static void	CM_ASE_MeshFaceList(char const* begin, char const* end)
+{	
+//	Com_DPrintf("CM_ASE_MeshFaceList()\n");
+}
+
+static void	CM_ASE_MeshTVertList(char const* begin, char const* end)
+{	
+//	Com_DPrintf("CM_ASE_MeshTVertList()\n");
+}
+
+static void	CM_ASE_MeshTFaceList(char const* begin, char const* end)
+{	
+//	Com_DPrintf("CM_ASE_MeshTFaceList()\n");
+}
+
+static void	CM_ASE_MeshCVertList(char const* begin, char const* end)
+{	
+//	Com_DPrintf("CM_ASE_MeshCVertList()\n");
+}
+
+static void	CM_ASE_MeshCFaceList(char const* begin, char const* end)
+{	
+//	Com_DPrintf("CM_ASE_MeshCFaceList()\n");
+}
+
+static void	CM_ASE_MeshNormals(char const* begin, char const* end)
+{	
+//	Com_DPrintf("CM_ASE_MeshNormals()\n");
+}
 
 static void	CM_ASE_GetVertexesNum(int vertexes_num)
 {
-	if(vertexes_num <= 0)
-		Com_Error(ERR_DROP, "CM_ASE_GetVertexesNum: mesh has invalid vertices number %i", vertexes_num);
+//	if(vertexes_num <= 0)
+//		Com_Error(ERR_DROP, "CM_ASE_GetVertexesNum: mesh has invalid vertices number %i", vertexes_num);
 
 	cm_ase_vertexes_num = vertexes_num;
 }
@@ -101,8 +140,8 @@ static void	CM_ASE_CheckVertexesNum(char const)
 
 static void	CM_ASE_GetFacesNum(int faces_num)
 {
-	if(faces_num <= 0)
-		Com_Error(ERR_DROP, "CM_ASE_GetFacesNum: mesh has invalid faces number %i", faces_num);
+//	if(faces_num <= 0)
+//		Com_Error(ERR_DROP, "CM_ASE_GetFacesNum: mesh has invalid faces number %i", faces_num);
 
 	cm_ase_faces_num = faces_num;
 }
@@ -233,33 +272,36 @@ struct cm_ase_model_grammar_t : public boost::spirit::grammar<cm_ase_model_gramm
 					boost::spirit::str_p("*MESH_NUMFACES") >> boost::spirit::int_p[&CM_ASE_GetFacesNum] >>
 					mesh_vertex_list >>
 					mesh_face_list >>
-					boost::spirit::str_p("*MESH_NUMTVERTEX") >> boost::spirit::int_p >>
-					mesh_tvertlist >>
-					boost::spirit::str_p("*MESH_NUMTVFACES") >> boost::spirit::int_p >>
-					mesh_tfacelist >>
+					!(boost::spirit::str_p("*MESH_NUMTVERTEX") >> boost::spirit::int_p) >>
+					!mesh_tvertlist >>
+					!(boost::spirit::str_p("*MESH_NUMTVFACES") >> boost::spirit::int_p) >>
+					!mesh_tfacelist >>
 					!(boost::spirit::str_p("*MESH_NUMCVERTEX") >> boost::spirit::int_p) >>
+					!mesh_cvertlist >>
+					!(boost::spirit::str_p("*MESH_NUMCVFACES") >> boost::spirit::int_p) >>
+					!mesh_cfacelist >>
 					!mesh_normals >>
 					*skip_restofline >>
 					boost::spirit::ch_p('}')[&CM_ASE_AddMesh]
 				;
 				
 			mesh_vertex_list
-				=	boost::spirit::str_p("*MESH_VERTEX_LIST") >> boost::spirit::ch_p('{') >>
-					+mesh_vertex[&CM_ASE_PushVertex] >>
+				=	boost::spirit::str_p("*MESH_VERTEX_LIST")[&CM_ASE_MeshVertexList] >> boost::spirit::ch_p('{') >>
+					*mesh_vertex[&CM_ASE_PushVertex] >>
 					boost::spirit::ch_p('}')[&CM_ASE_CheckVertexesNum]
 				;
 				
 			mesh_vertex
 				=	boost::spirit::str_p("*MESH_VERTEX") >> 
-					boost::spirit::int_p >> 
+					boost::spirit::int_p[&CM_ASE_MeshVertex] >> 
 					boost::spirit::real_p[&CM_ASE_Float0] >>
 					boost::spirit::real_p[&CM_ASE_Float1] >>
 					boost::spirit::real_p[&CM_ASE_Float2]
 				;
 				
 			mesh_face_list
-				=	boost::spirit::str_p("*MESH_FACE_LIST") >> boost::spirit::ch_p('{') >>
-					+mesh_face >>
+				=	boost::spirit::str_p("*MESH_FACE_LIST")[&CM_ASE_MeshFaceList] >> boost::spirit::ch_p('{') >>
+					*mesh_face >>
 					boost::spirit::ch_p('}')[&CM_ASE_CheckIndexesNum]
 				;
 				
@@ -273,7 +315,7 @@ struct cm_ase_model_grammar_t : public boost::spirit::grammar<cm_ase_model_gramm
 				;
 				
 			mesh_tvertlist
-				=	boost::spirit::str_p("*MESH_TVERTLIST") >> boost::spirit::ch_p('{') >>
+				=	boost::spirit::str_p("*MESH_TVERTLIST")[&CM_ASE_MeshTVertList] >> boost::spirit::ch_p('{') >>
 					+mesh_tvert >>
 					boost::spirit::ch_p('}')
 				;
@@ -287,7 +329,7 @@ struct cm_ase_model_grammar_t : public boost::spirit::grammar<cm_ase_model_gramm
 				;
 				
 			mesh_tfacelist
-				=	boost::spirit::str_p("*MESH_TFACELIST") >> boost::spirit::ch_p('{') >>
+				=	boost::spirit::str_p("*MESH_TFACELIST")[&CM_ASE_MeshTFaceList] >> boost::spirit::ch_p('{') >>
 					+mesh_tface >>
 					boost::spirit::ch_p('}')
 				;
@@ -300,9 +342,37 @@ struct cm_ase_model_grammar_t : public boost::spirit::grammar<cm_ase_model_gramm
 					boost::spirit::int_p
 				;
 				
+			mesh_cvertlist
+				=	boost::spirit::str_p("*MESH_CVERTLIST")[&CM_ASE_MeshCVertList] >> boost::spirit::ch_p('{') >>
+					+mesh_vertcol >>
+					boost::spirit::ch_p('}')
+				;
+				
+			mesh_vertcol
+				=	boost::spirit::str_p("*MESH_VERTCOL") >>
+					boost::spirit::int_p >>
+					boost::spirit::real_p >>
+					boost::spirit::real_p >>
+					boost::spirit::real_p
+				;
+				
+			mesh_cfacelist
+				=	boost::spirit::str_p("*MESH_CFACELIST")[&CM_ASE_MeshCFaceList] >> boost::spirit::ch_p('{') >>
+					+mesh_cface >>
+					boost::spirit::ch_p('}')
+				;
+				
+			mesh_cface
+				=	boost::spirit::str_p("*MESH_CFACE") >>
+					boost::spirit::int_p >> 
+					boost::spirit::int_p >>
+					boost::spirit::int_p >>
+					boost::spirit::int_p
+				;
+				
 			mesh_normals
-				=	boost::spirit::str_p("*MESH_NORMALS") >> boost::spirit::ch_p('{') >>
-					+(	mesh_facenormal >> 
+				=	boost::spirit::str_p("*MESH_NORMALS")[&CM_ASE_MeshNormals] >> boost::spirit::ch_p('{') >>
+					*(	mesh_facenormal >> 
 						mesh_vertexnormal >> 
 						mesh_vertexnormal >>
 						mesh_vertexnormal
@@ -359,6 +429,10 @@ struct cm_ase_model_grammar_t : public boost::spirit::grammar<cm_ase_model_gramm
 									mesh_tvert,
 								mesh_tfacelist,
 									mesh_tface,
+								mesh_cvertlist,
+									mesh_vertcol,
+								mesh_cfacelist,
+									mesh_cface,
 								mesh_normals,
 									mesh_facenormal,
 									mesh_vertexnormal,
