@@ -909,14 +909,21 @@ public:
 		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		RB_CheckForError();
 		_u_attenuationmap_xy	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_xy");		RB_CheckForError();
 		_u_attenuationmap_z	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_z");		RB_CheckForError();
-//		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube");	RB_CheckForError();
+		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube");	RB_CheckForError();
 				
 		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
 		
+		RB_SelectTexture(GL_TEXTURE0);
 		xglUniform1iARB(_u_diffusemap,		0);	RB_CheckForError();
+		
+		RB_SelectTexture(GL_TEXTURE1);
 		xglUniform1iARB(_u_attenuationmap_xy,	1);	RB_CheckForError();
+		
+		RB_SelectTexture(GL_TEXTURE2);
 		xglUniform1iARB(_u_attenuationmap_z,	2);	RB_CheckForError();
-//		xglUniform1iARB(_u_attenuationmap_cube,	3);	RB_CheckForError();
+		
+		RB_SelectTexture(GL_TEXTURE3);
+		xglUniform1iARB(_u_attenuationmap_cube,	3);	RB_CheckForError();
 		
 		xglUseProgramObjectARB(0);	RB_CheckForError();
 	}
@@ -925,7 +932,7 @@ private:
 	uint_t		_u_diffusemap;
 	uint_t		_u_attenuationmap_xy;
 	uint_t		_u_attenuationmap_z;
-//	uint_t		_u_attenuationmap_cube;
+	uint_t		_u_attenuationmap_cube;
 };
 
 
@@ -1832,9 +1839,9 @@ void		RB_RenderCommand_lighting_D_omni(const r_command_t *cmd,		const r_shader_s
 	xglMatrixMode(GL_MODELVIEW);
 	RB_Bind(stage_attenuationmap_z->image);
 	
-//	RB_SelectTexture(GL_TEXTURE3);
-//	RB_ModifyOmniLightCubeTextureMatrix(cmd, stage_attenuationmap_xy);
-//	RB_Bind(stage_attenuationmap_cube->image);
+	RB_SelectTexture(GL_TEXTURE3);
+	RB_ModifyOmniLightCubeTextureMatrix(cmd, stage_attenuationmap_xy);
+	RB_Bind(stage_attenuationmap_cube->image);
 	
 	rb_program_lighting_D_omni->setUniform_light_origin(cmd);
 	rb_program_lighting_D_omni->setUniform_light_color(cmd, stage_attenuationmap_xy);
