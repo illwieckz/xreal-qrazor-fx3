@@ -387,7 +387,7 @@ s_buffer_c*	S_FindBuffer(const std::string &name)
 	if(name.empty())
 		Com_Error(ERR_FATAL, "S_FindBuffer: empty name\n");
 		
-	std::string name_short = Com_StripExtension(name);
+	std::string name_short = X_strlwr(Com_StripExtension(name));
 			
 	for(std::vector<s_buffer_c*>::const_iterator ir = s_buffers.begin(); ir != s_buffers.end(); ir++)
 	{
