@@ -54,7 +54,7 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 	_r.area2	= 0;
 	_r.areaportal	= 0;
 
-	_r.svflags	= 0;			// SVF_NOCLIENT, SVF_DEADMONSTER, SVF_MONSTER, etc
+	_r.svflags	= SVF_NONE;		// SVF_NOCLIENT, SVF_DEADMONSTER, SVF_MONSTER, etc
 	_r.bbox.zero();
 	_r.size.clear();			// bbox size
 	_r.solid	= SOLID_NOT;
@@ -181,6 +181,7 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 
 	// shared between server and game
 	addField(g_field_c("owner", &_r.owner, F_EDICT, FFL_NOSPAWN));
+	addField(g_field_c("networksync", &_r.networksync, F_BOOL));
 	
 	// private to game
 	addField(g_field_c("classname", &_classname, F_STRING));

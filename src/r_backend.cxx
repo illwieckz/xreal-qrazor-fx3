@@ -92,6 +92,7 @@ void	RB_InitBackend()
 
 	r_framecount = 1;
 	r_visframecount = 1;
+	r_lightframecount = 1;
 	
 	rb_matrix_framebuffer_to_vid.identity();
 	rb_matrix_framebuffer_to_vid[0][0] = (float)vid.width / (float)r_img_currentrender->getWidth();
@@ -386,7 +387,7 @@ static void 	RB_SetupFrustum()
 	r_frustum[FRUSTUM_TOP].setType();
 	r_frustum[FRUSTUM_TOP].setSignBits();
 	
-#if 0
+#if 1
 	// near
 	r_frustum[FRUSTUM_NEAR]._normal[0]	=  m[3][0] + m[2][0];
 	r_frustum[FRUSTUM_NEAR]._normal[1]	=  m[3][1] + m[2][1];

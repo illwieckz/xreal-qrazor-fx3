@@ -57,6 +57,7 @@ struct entity_shared_t
 	entity_shared_t()
 	{
 		inuse		= false;
+		networksync	= true;
 		
 		islinked	= false;
 		linkcount	= 0;
@@ -83,6 +84,7 @@ struct entity_shared_t
 
 	// common for all server/game entities
 	bool			inuse;
+	bool			networksync;
 	
 	bool			islinked;
 	int			linkcount;

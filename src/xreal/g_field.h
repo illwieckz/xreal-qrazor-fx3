@@ -44,6 +44,7 @@ enum
 
 enum fieldtype_t
 {
+	F_BOOL,
 	F_BYTE,
 	F_INT, 
 	F_FLOAT,

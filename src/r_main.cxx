@@ -67,6 +67,7 @@ r_frustum_c	r_frustum;
 
 uint_t		r_framecount;		// used for dlight push checking
 uint_t		r_visframecount;	// bumped when going to a new PVS
+uint_t		r_lightframecount;
 
 int		r_depth_format;
 

@@ -287,6 +287,8 @@ void	r_bsptree_c::draw()
 			
 				if(r_frustum.cull(light.getShared().radius_bbox))
 					continue;
+					
+				r_lightframecount++;
 			
 				if(!(light.getShared().flags & RF_STATIC))
 				{
@@ -300,7 +302,7 @@ void	r_bsptree_c::draw()
 					{
 						const r_surface_c* surf = ir2->first;
 				
-						if(surf->getFrameCount() != r_framecount)
+						if(!surf->isFramed())
 							continue;
 							
 						RB_AddCommand(&r_world_entity, _models[0], surf->getMesh(), surf->getShader(), &light, (std::vector<index_t>*)&ir2->second, -1, 0);
@@ -1206,12 +1208,10 @@ void	r_bsptree_c::drawNode_r(r_tree_elem_c *elem, int clipflags)
 		//if(leaf->area <= 0)
 		//	return;
 		
-		/*
-		if(leaf->getFrameCount() == r_framecount)	// already added surface
+		if(leaf->isFramed())	// already added surface
 			return;
 			
 		leaf->setFrameCount();
-		*/
 		
 		if(leaf->surfaces.empty())
 			return;
@@ -1230,7 +1230,61 @@ void	r_bsptree_c::drawNode_r(r_tree_elem_c *elem, int clipflags)
 			if(surf == NULL)
 				continue;
 		
-			addSurfaceToList(surf, clipflags);
+			if(surf->isFramed())	// already added surface
+				continue;
+			
+			if(!surf->getMesh())
+			{
+				ri.Com_DPrintf("r_bsptree_c::drawNode_r: surface of type %i has no mesh\n", surf->getFaceType());
+				continue;
+			}
+			
+			if(!surf->getShader())
+			{
+				ri.Com_DPrintf("r_bsptree_c::drawNode_r: surface has no shader\n");
+				continue;
+			}
+			
+			if(!r_showinvisible->getValue() && surf->getShaderRef()->hasFlags(X_SURF_NODRAW))
+				continue;
+				
+			if(r_envmap && surf->getShader()->hasFlags(SHADER_NOENVMAP))
+				continue;
+				
+			switch(surf->getFaceType())
+			{
+				case BSPST_PLANAR:
+				{
+					if(r_cullplanes->getInteger() && !surf->getShader()->hasFlags(SHADER_TWOSIDED))
+					{
+						if(surf->getPlane().distance(r_origin) <= -0.01)			
+						//if(surf->getPlane().onSide(r_origin) == SIDE_BACK)
+							continue;
+					}
+					break;
+				}
+			
+				case BSPST_BEZIER:
+				case BSPST_MESH:
+				{
+					if(r_frustum.cull(surf->getMesh()->bbox, clipflags))
+						continue;
+				}
+		
+				default:
+					break;
+			}
+			
+			surf->setFrameCount();
+			
+			try
+			{
+				RB_AddCommand(&r_world_entity, _models.at(0), surf->getMesh(), surf->getShader(), NULL, NULL, surf->getLightMapNum(), 0);
+			}
+			catch(...)
+			{
+				ri.Com_DPrintf("r_bsptree_c::addSurfaceToList: exception thrown\n");
+			}
 		}
 		
 		c_leafs++;
@@ -1280,7 +1334,7 @@ void	r_bsptree_c::litNode_r(r_tree_elem_c *elem, r_light_c *light, bool precache
 		{
 			r_surface_c *surf = *ir;
 
-			if(!precache && surf->getFrameCount() != r_framecount)
+			if(!precache && !surf->isFramed())
 				continue;
 				
 			if(!surf->getMesh())
@@ -1289,17 +1343,22 @@ void	r_bsptree_c::litNode_r(r_tree_elem_c *elem, r_light_c *light, bool precache
 //			if(!surf->getMesh()->bbox.intersect(light->getShared().radius_bbox))
 			if(!surf->getMesh()->bbox.intersect(light->getShared().origin, light->getShared().radius_value))
 				continue;
-				
-			if(light->hasSurface(0, surf))
-				continue;
 			
 			if(precache)
 			{
+				if(light->hasSurface(0, surf))
+					continue;
+				
 				light->addSurface(0, surf);
 			}
 			else
 			{
-				RB_AddCommand(&r_world_entity, _models[0], surf->getMesh(), surf->getShader(), light, NULL, -1, 0);
+				if(!surf->isLightFramed())
+				{
+					surf->setLightFrameCount();
+					
+					RB_AddCommand(&r_world_entity, _models[0], surf->getMesh(), surf->getShader(), light, NULL, -1, 0);
+				}
 			}
 		}
 		return;
@@ -1325,100 +1384,6 @@ void	r_bsptree_c::litNode_r(r_tree_elem_c *elem, r_light_c *light, bool precache
 		litNode_r(node->children[0], light, precache);
 		litNode_r(node->children[1], light, precache);
 	}
-}
-
-void	r_bsptree_c::addSurfaceToList(r_surface_c *surf, int clipflags)
-{
-	if(surf == NULL)
-	{
-		ri.Com_Error(ERR_DROP, "r_bsptree_c::addSurfaceToList: NULL surface\n");
-		return;
-	}
-
-	if(surf->getFrameCount() == r_framecount)	// already added surface
-		return;
-	
-	if(!surf->getMesh())
-	{
-		ri.Com_DPrintf("r_bsptree_c::addSurfaceToList: surface of type %i has no mesh\n", surf->getFaceType());
-		return;
-	}
-	
-	if(!surf->getShader())
-	{
-		ri.Com_DPrintf("r_bsptree_c::addSurfaceToList: surface has no shader\n");
-		return;
-	}
-		
-	if(!r_showinvisible->getValue() && surf->getShaderRef()->hasFlags(X_SURF_NODRAW))
-		return;
-	
-	if(r_envmap && surf->getShader()->hasFlags(SHADER_NOENVMAP))
-		return;
-	
-#if 1
-	switch(surf->getFaceType())
-	{
-		case BSPST_PLANAR:
-		{
-			if(r_cullplanes->getInteger() && !surf->getShader()->hasFlags(SHADER_TWOSIDED))
-			{
-				if(surf->getPlane().distance(r_origin) <= -0.01)			
-				//if(surf->getPlane().onSide(r_origin) == SIDE_BACK)
-					return;
-			}
-			break;
-		}
-		
-		case BSPST_BEZIER:
-		case BSPST_MESH:
-		{
-			if(r_frustum.cull(surf->getMesh()->bbox, clipflags))
-				return;
-		}
-		
-		default:
-			break;
-	}
-#endif
-//	ri.Com_DPrintf("r_bsptree_c::addSurfaceToList: pass 1\n");
-
-	surf->setFrameCount();
-	
-//	ri.Com_DPrintf("r_bsptree_c::addSurfaceToList: pass 2\n");
-	
-	try
-	{
-		RB_AddCommand(&r_world_entity, _models.at(0), surf->getMesh(), surf->getShader(), NULL, NULL, surf->getLightMapNum(), 0);
-	}
-	catch(...)
-	{
-		ri.Com_DPrintf("r_bsptree_c::addSurfaceToList: exception thrown\n");
-	}
-	
-//	ri.Com_DPrintf("r_bsptree_c::addSurfaceToList: pass 3\n");
-	
-	/*
-	if(r_lighting->getInteger())
-	{
-		const std::map<r_light_c*, std::vector<index_t> >& interactions = surf->getInteractions();
-			
-		for(std::map<r_light_c*, std::vector<index_t> >::const_iterator ir = interactions.begin(); ir != interactions.end(); ++ir)
-		{			
-			RB_AddCommand(&r_world_entity, _models[0], surf->getMesh(), surf->getShader(), ir->first, (std::vector<index_t>*)&ir->second, -1);
-		}
-	}
-	*/
-	
-	/*
-	if(mb)
-	{
-		if(surf->shader->shader->flags & SHADER_SKY)
-		{
-			R_AddSkySurface(surf);
-		}	
-	}
-	*/
 }
 
 

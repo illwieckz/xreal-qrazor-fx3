@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 r_entity_c::r_entity_c()
-:r_animationiface_a(-1)
+:r_animation_iface_a(-1)
 {
 	_s.clear();
 	
@@ -41,7 +41,7 @@ r_entity_c::r_entity_c()
 }
 
 r_entity_c::r_entity_c(const r_entity_t &shared)
-:r_animationiface_a(shared.animation)
+:r_animation_iface_a(shared.animation)
 {
 	_s = shared;
 	

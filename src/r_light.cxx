@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 r_light_c::r_light_c()
-:r_occlusioniface_a()
+:r_occlusion_iface_a()
 {
 	_s.clear();
 	_type = LIGHT_OMNI;
@@ -49,7 +49,7 @@ r_light_c::r_light_c()
 
 
 r_light_c::r_light_c(const r_entity_t &shared, r_light_type_t type)
-:r_occlusioniface_a()
+:r_occlusion_iface_a()
 {
 	update(shared, type);
 }

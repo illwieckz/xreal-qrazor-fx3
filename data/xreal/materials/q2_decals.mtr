@@ -1,0 +1,43 @@
+//====================================
+// QUAKE 2 DECALS SHADERS - Kiltron
+//====================================
+
+textures/q2_decals/glass_pieces_floor
+{
+	translucent
+	twoSided
+	noshadows
+	qer_editorimage	textures/q2_decals/glass_pieces_floor.tga
+	
+	{
+		blend diffuseMap
+		map textures/q2_decals/glass_pieces_floor.tga
+	}
+	{
+		blend specularMap
+		map textures/q2_decals/glass_pieces_floor.tga
+	}
+
+
+
+}
+
+textures/q2_decals/strogg_wall_decal1
+{
+	translucent
+	twoSided
+	noshadows
+	qer_editorimage	textures/q2_decals/strogg_wall_decal1.tga
+	
+	{
+		blend diffuseMap
+		map textures/q2_decals/strogg_wall_decal1.tga
+	}
+	{
+		blend specularMap
+		map textures/q2_decals/strogg_wall_decal1.tga
+	}
+
+
+
+}     

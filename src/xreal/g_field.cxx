@@ -118,6 +118,10 @@ void	g_field_iface_a::setField(const std::string &key, const std::string &value)
 			
 			switch(f._type)
 			{
+				case F_BOOL:
+					*(bool*)(f._ptr) = atoi(value.c_str());
+					break;
+			
 				case F_INT:
 					*(int*)(f._ptr) = atoi(value.c_str());
 					break;

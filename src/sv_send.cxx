@@ -300,7 +300,7 @@ void 	SV_StartSound(vec3_t origin, sv_entity_c *entity, int channel, int soundin
 
 	// the client doesn't know that bmodels have weird origins
 	// the origin can also be explicitly set
-	if((entity->_r.svflags & SVF_NOCLIENT) || (entity->_r.solid == SOLID_BSP) || origin )
+	if((entity->_r.svflags & SVF_NOCLIENT)  || !entity->_r.networksync || (entity->_r.solid == SOLID_BSP) || origin)
 		flags |= SND_POS;
 
 	// always send the entity number for channel overrides

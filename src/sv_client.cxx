@@ -35,7 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 sv_client_c::sv_client_c(const netadr_t &adr, int qport, int challenge)
 {
-	netchan.setup(adr, qport, false);
+	netchan.setup(adr, qport);
 
 	_state = CS_CONNECTED;
 	
@@ -217,7 +217,7 @@ void	sv_client_c::buildFrame()
 			continue;
 
 		// ignore ents without visible models
-		if(ent->_r.svflags & SVF_NOCLIENT)
+		if((ent->_r.svflags & SVF_NOCLIENT) || !ent->_r.networksync)
 			continue;
 
 		// ignore ents without visible models unless they have an effect

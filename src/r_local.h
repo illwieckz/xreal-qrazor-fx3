@@ -353,8 +353,8 @@ enum
 	FRUSTUM_TOP,
 	FRUSTUM_NEAR,
 	FRUSTUM_FAR,
-	FRUSTUM_PLANES		= 4,
-	FRUSTUM_CLIPALL		= 1 | 2 | 4 | 8 //| 16 | 32
+	FRUSTUM_PLANES		= 6,
+	FRUSTUM_CLIPALL		= 1 | 2 | 4 | 8 | 16 | 32
 };
 
 
@@ -389,6 +389,7 @@ typedef boost::spirit::node_val_data_factory<r_node_data_t>	r_factory_t;
 extern uint_t		r_registration_sequence;
 extern uint_t		r_framecount;
 extern uint_t		r_visframecount;			// bumped when going to a new PVS
+extern uint_t		r_lightframecount;			// bumped when walking down the BSP by a new dynamic light
 
 
 class r_image_c
@@ -767,15 +768,66 @@ private:
 	std::vector<index_t>	_indexes;
 };
 
-class r_surface_c
+
+class r_framecount_iface_a
+{
+protected:
+	r_framecount_iface_a()
+	{
+	}
+	
+public:
+	inline uint_t	getFrameCount() const	{return _framecount;}
+	inline void	setFrameCount()		{_framecount = r_framecount;}
+	inline bool	isFramed() const	{return r_framecount == _framecount;}
+	
+protected:
+	uint_t		_framecount;
+};
+
+class r_visframecount_iface_a
+{
+protected:
+	r_visframecount_iface_a()
+	{
+	}
+	
+public:
+	inline uint_t	getVisFrameCount() const	{return _visframecount;}
+	inline void	setVisFrameCount()		{_visframecount = r_visframecount;}
+	inline void	setVisFrameCount(uint_t c)	{_visframecount = c;}
+	inline bool	isVisFramed() const		{return r_visframecount == _visframecount;}
+	inline bool	isVisible() const		{return r_visframecount == _visframecount;}
+	
+protected:
+	uint_t		_visframecount;
+};
+
+class r_lightframecount_iface_a
+{
+protected:
+	r_lightframecount_iface_a()
+	{
+	}
+	
+public:
+	inline uint_t	getLightFrameCount() const	{return _lightframecount;}
+	inline void	setLightFrameCount()		{_lightframecount = r_lightframecount;}
+	inline bool	isLightFramed() const		{return r_lightframecount == _lightframecount;}
+	
+protected:
+	uint_t		_lightframecount;
+};
+
+
+class r_surface_c : 
+public r_framecount_iface_a,
+public r_lightframecount_iface_a
 {
 	friend class r_bsptree_c;
 public:
 	r_surface_c();
 	
-	inline uint_t			getFrameCount() const	{return _framecount;}
-	inline void			setFrameCount()		{_framecount = r_framecount;}
-
 	inline r_mesh_c*		getMesh() const		{return _mesh;}
 	inline void			setMesh(r_mesh_c *mesh)	{_mesh = mesh;}
 	
@@ -789,8 +841,6 @@ public:
 	inline uint_t			getLightMapNum() const	{return _lightmap;}
 
 private:
-	uint_t			_framecount;		// should be drawn when node is crossed
-
 	r_mesh_c*		_mesh;
 	r_model_shader_c*	_shaderref;
 
@@ -815,7 +865,7 @@ struct r_vrect_t
 	int	width, height;
 };
 
-class r_scissoriface_a
+class r_scissor_iface_a
 {
 public:
 	void			updateScissor(const matrix_c &mvp, const r_vrect_t &vrect, const cbbox_c &bbox);
@@ -838,20 +888,15 @@ private:
 	vec2_c		_maxs;
 };
 
-class r_visiface_a
+class r_vis_iface_a
 {
 protected:
-	r_visiface_a()
+	r_vis_iface_a()
 	{
 	}
 	
 public:
 	void		updateVis(const r_entity_t &shared);
-
-	inline uint_t	getVisFrameCount() const	{return _visframecount;}
-	inline void	setVisFrameCount(uint_t c)	{_visframecount = c;}
-	inline void	setVisFrameCount()		{_visframecount = r_visframecount;}
-	inline bool	isVisible() const		{return r_visframecount == _visframecount;}
 	
 	inline int	getCluster() const		{return _cluster;}
 	inline const std::vector<r_bsptree_leaf_c*>&	getLeafs() const	{return _leafs;}
@@ -872,17 +917,15 @@ public:
 	
 	
 protected:
-	uint_t		_visframecount;
-	
 	int				_cluster;
 	std::vector<r_bsptree_leaf_c*>	_leafs;
 	std::vector<int>		_areas;
 };
 
-class r_occlusioniface_a
+class r_occlusion_iface_a
 {
 protected:
-	r_occlusioniface_a()
+	r_occlusion_iface_a()
 	{
 		_query = 0;
 	
@@ -890,7 +933,7 @@ protected:
 			xglGenQueriesARB(1, &_query);
 	}
 	
-	~r_occlusioniface_a()
+	~r_occlusion_iface_a()
 	{
 		if(xglDeleteQueriesARB && _query)
 			xglDeleteQueriesARB(1, &_query);
@@ -914,10 +957,10 @@ private:
 };
 
 r_skel_animation_c*	R_GetAnimationByNum(int num);
-class r_animationiface_a
+class r_animation_iface_a
 {
 protected:
-	inline r_animationiface_a(int anim)
+	inline r_animation_iface_a(int anim)
 	{
 		_animation = R_GetAnimationByNum(anim);
 	}
@@ -931,9 +974,10 @@ private:
 };
 
 class r_entity_c :
-public r_visiface_a,
-public r_occlusioniface_a,
-public r_animationiface_a
+public r_vis_iface_a,
+public r_visframecount_iface_a,
+public r_occlusion_iface_a,
+public r_animation_iface_a
 {
 public:
 	r_entity_c();
@@ -966,9 +1010,10 @@ private:
 
 
 class r_light_c :
-public r_visiface_a,
-public r_scissoriface_a,
-public r_occlusioniface_a
+public r_vis_iface_a,
+public r_visframecount_iface_a,
+public r_scissor_iface_a,
+public r_occlusion_iface_a
 {
 	friend void	RB_AddCommand(	r_entity_c*		entity,
 					r_model_c*		entity_model,
@@ -1138,7 +1183,9 @@ public:
 	//TODO
 };
 
-class r_leaf_c : public r_tree_elem_c
+class r_leaf_c : 
+public r_tree_elem_c,
+public r_framecount_iface_a
 {
 public:	
 	std::vector<r_surface_c*>	surfaces;
@@ -1311,8 +1358,6 @@ private:
 
 	void			drawNode_r(r_tree_elem_c *elem, int clipflags);
 	void			litNode_r(r_tree_elem_c *elem, r_light_c *light, bool precache);
-	
-	void			addSurfaceToList(r_surface_c *surf, int clipflags);
 
 	void			markLeaves();
 	void			markLights();

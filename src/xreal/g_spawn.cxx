@@ -154,7 +154,7 @@ spawn_t	spawns[] = {
 	{"trigger_teleport",		SP_trigger_teleport},
 
 //	{"target_speaker",		SP_target_speaker},
-	{"target_explosion",		SP_target_explosion},
+//	{"target_explosion",		SP_target_explosion},
 //	{"target_changelevel",		SP_target_changelevel},
 //	{"target_splash",		SP_target_splash},
 //	{"target_spawner",		SP_target_spawner},
@@ -207,6 +207,7 @@ static g_entity_c*	G_CallEntitySpawn(const std::string &classname)
 	//
 	// check item spawn functions
 	//
+#if 0
 	for(std::vector<g_item_c*>::const_iterator ir = g_items.begin(); ir != g_items.end(); ir++)
 	{
 		g_item_c *item = *ir;
@@ -225,6 +226,7 @@ static g_entity_c*	G_CallEntitySpawn(const std::string &classname)
 			return ent;
 		}
 	}
+#endif
 
 	//
 	// check normal spawn functions

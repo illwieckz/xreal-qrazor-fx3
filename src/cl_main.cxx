@@ -886,7 +886,7 @@ void	CL_ConnectionlessPacket(bitmessage_c &msg, const netadr_t &adr)
 			Com_Printf("Dup connect received.  Ignored.\n");
 			return;
 		}
-		cls.netchan.setup(adr, cls.quake_port, true);
+		cls.netchan.setup(adr, cls.quake_port);
 		cls.netchan.message.writeBits(CLC_STRINGCMD, clc_bitcount);
 		cls.netchan.message.writeString("new");	
 		cls.state = CA_CONNECTED;

@@ -39,6 +39,11 @@ patd
 patricktest
 pdtest
 phook
+q2_base
+q2_decals
+q2_lights
+q2_models
+q2_skies
 recyc_door
 recyc_floor
 recyc_light
@@ -62,4 +67,5 @@ video
 vp_materials
 washroom
 //weapons
+z13d3dm2
 zgraeme
