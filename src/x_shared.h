@@ -875,7 +875,7 @@ enum
 // usercmd_t is sent to the server each client frame
 struct usercmd_t
 {
-	void clear()
+	inline void clear()
 	{
 		msec		= 0;
 		buttons		= 0;
@@ -932,7 +932,7 @@ enum
 // will result in a prediction error of some degree.
 struct pmove_state_t
 {
-	void	clear()
+	inline void	clear()
 	{
 		pm_type		= PM_NORMAL;
 		
@@ -965,6 +965,30 @@ struct pmove_state_t
 
 struct pmove_t
 {
+	inline void	clear()
+	{
+		s.clear();
+		
+		cmd.clear();
+		snapinitial	 = false;
+		
+		touchents.clear();
+		
+		viewangles.clear();
+		viewheight	= 0;
+		
+		bbox.clear();
+		
+		groundentity	= NULL;
+		
+		watertype	= 0;
+		waterlevel	= 0;
+		
+		rayTrace	= NULL;
+		boxTrace	= NULL;
+		pointContents	= NULL;
+	}
+
 	// state (in / out)
 	pmove_state_t	s;
 
