@@ -43,7 +43,7 @@ void	main()
 	diffuse.rgb *= u_light_color * clamp(dot(N, L), 0.0, 1.0);
 	
 	// compute attenuation
-	vec3 attenuation_xy	= var_tex_atten_xy_z.w < 0 ? 0 : texture2DProj(u_attenuationmap_xy, var_tex_atten_xy_z.xyw).rgb;
+	vec3 attenuation_xy	= var_tex_atten_xy_z.w < 0.0 ? 0.0 : texture2DProj(u_attenuationmap_xy, var_tex_atten_xy_z.xyw).rgb;
 	
 	// compute final color
 	gl_FragColor.rgba = diffuse;
