@@ -43,7 +43,8 @@ typedef struct
 	HGLRC   	hGLRC;			// handle to GL rendering context
 
 //	HINSTANCE	hinstOpenGL;	// HINSTANCE for the OpenGL library
-	HMODULE		OpenGLLib;
+//	HMODULE		OpenGLLib;
+	HINSTANCE	OpenGLLib;	    // HINSTANCE for the OpenGL library
 
 	bool		allowdisplaydepthchange;
 	bool		mcd_accelerated;
