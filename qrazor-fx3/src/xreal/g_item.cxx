@@ -977,15 +977,16 @@ g_item_dropable_c::g_item_dropable_c(g_player_c *player, g_item_c *item, const v
 	//gi.Com_DPrintf("%s is dropping item %s\n", player->_pers.netname, item->getWorldModel());
 
 	_s.origin = position;
+	_s.origin2.set(0, 0, 8);
 	_s.index_model = gi.SV_ModelIndex(item->getWorldModel());
 	_s.effects = item->getWorldModelFlags();
 	_s.renderfx = RF_GLOW;
 
 	_r.inuse = true;
 	_r.owner = this;
-	_r.bbox._mins.set(-15, -15, -15);
-	_r.bbox._maxs.set( 15,  15,  15);
-	_r.size = _r.bbox.size();
+//	_r.bbox._mins.set(-15, -15, -15);
+//	_r.bbox._maxs.set( 15,  15,  15);
+//	_r.size = _r.bbox.size();
 	_r.solid = SOLID_TRIGGER;
 	
 	_nextthink = level.time + 10;
@@ -1002,19 +1003,20 @@ g_item_dropable_c::g_item_dropable_c(g_player_c *player, g_item_c *item, const v
 	_body->setLinearVel(velocity);
 //	_body->setGravityMode(1);
 	
-	G_SetModel(this, _item->getWorldModel());
+	cmodel_c *model = G_SetModel(this, _item->getWorldModel());
 	
 	// setup mass
 	dMass m;
 	dMassSetBoxTotal(&m, 3, _r.size[0], _r.size[1], _r.size[2]);
+//	dMassSetSphereTotal(&m, 3, _r.size.length() * 0.5);
 	_body->setMass(&m);
 	
 	// setup collision
-	g_geom_info_c *geom_info = new g_geom_info_c(this, NULL, NULL);
+	g_geom_info_c *geom_info = new g_geom_info_c(this, model, NULL);
 	
 	d_geom_c *geom = new d_box_c(g_ode_space->getId(), _r.size);
-	//_geom = new d_trimesh_c(g_ode_space->getId(), model->vertexes, model->indexes);
-	//_geom = new d_sphere_c(g_ode_space->getId(), _r.bbox._maxs[0]);
+//	d_geom_c *geom = new d_trimesh_c(g_ode_space->getId(), model->vertexes, model->indexes);
+//	d_geom_c *geom = new d_sphere_c(g_ode_space->getId(), _r.size.length());
 	
 	geom->setBody(_body->getId());
 	geom->setData(geom_info);
@@ -1467,7 +1469,7 @@ g_item_armor_body_c::g_item_armor_body_c()
 	_pickup_sound 		= "misc/ar1_pkup.wav";
 	_world_model 		= "models/items/armor/body/tris.md2";
 	_world_model_flags	= EF_ROTATE;
-	_view_model 		= "";
+	_model_view 		= "";
 	
 	_icon		= "textures/pics/i_bodyarmor.pcx";
 	_pickup_name	= "Body Armor";
@@ -1493,7 +1495,7 @@ g_item_armor_combat_c::g_item_armor_combat_c()
 	_pickup_sound 		= "misc/ar1_pkup.wav";
 	_world_model 		= "models/items/armor/combat/tris.md2";
 	_world_model_flags	= EF_ROTATE;
-	_view_model 		= "";
+	_model_view 		= "";
 	
 	_icon		= "textures/pics/i_combatarmor.pcx";
 	_pickup_name	= "Combat Armor";
@@ -1519,7 +1521,7 @@ g_item_armor_jacket_c::g_item_armor_jacket_c()
 	_pickup_sound 		= "misc/ar1_pkup.wav";
 	_world_model 		= "models/items/armor/jacket/tris.md2";
 	_world_model_flags	= EF_ROTATE;
-	_view_model 		= "";
+	_model_view 		= "";
 	
 	_icon		= "textures/pics/i_jacketarmor.pcx";
 	_pickup_name	= "Jacket Armor";
@@ -1545,7 +1547,7 @@ g_item_armor_shard_c::g_item_armor_shard_c()
 	_pickup_sound 		= "misc/ar2_pkup.wav";
 	_world_model 		= "models/items/armor/shard/tris.md2";
 	_world_model_flags	= EF_ROTATE;
-	_view_model 		= "";
+	_model_view 		= "";
 	
 	_icon		= "textures/pics/i_jacketarmor.pcx";
 	_pickup_name	= "Shard Armor";
@@ -1572,7 +1574,7 @@ g_item_power_screen_c::g_item_power_screen_c()
 	_pickup_sound 		= "misc/ar3_pkup.wav";
 	_world_model 		= "models/items/armor/screen/tris.md2";
 	_world_model_flags	= EF_ROTATE;
-	_view_model 		= "";
+	_model_view 		= "";
 	
 	_icon		= "textures/pics/i_powerscreen.pcx";
 	_pickup_name	= "Power Screen";
@@ -1599,7 +1601,7 @@ g_item_power_shield_c::g_item_power_shield_c()
 	_pickup_sound 		= "misc/ar3_pkup.wav";
 	_world_model 		= "models/items/armor/shield/tris.md2";
 	_world_model_flags	= EF_ROTATE;
-	_view_model 		= "";
+	_model_view 		= "";
 	
 	_icon		= "textures/pics/i_powershield.pcx";
 	_pickup_name	= "Power Shield";
@@ -1626,16 +1628,16 @@ g_item_ammo_shells_c::g_item_ammo_shells_c()
 	_classname 	= "ammo_shells";
 	
 	_pickup_sound 		= "misc/am_pkup.wav";
-	_world_model 		= "models/powerups/ammo/shotgunam.md3";
-	_world_model_flags	= 0;
-	_view_model 		= "";
+	_model_world		= "models/powerups/ammo/shotgunam.md3";
+	_model_world_flags	= 0;
+	_model_view 		= "";
 	
 	_icon		= "icons/icona_shotgun.tga";
 	_pickup_name	= "Shells";
 	_count_width	= 3;
 
-	_quantity	= 10;			
-	_ammo		= "";			
+	_quantity	= 10;
+	_ammo		= "";
 	_flags		= IT_AMMO;	
 
 	_weapmodel	= 0;
@@ -1650,9 +1652,9 @@ g_item_ammo_bullets_c::g_item_ammo_bullets_c()
 	_classname 	= "ammo_bullets";
 	
 	_pickup_sound 		= "misc/am_pkup.wav";
-	_world_model 		= "models/powerups/ammo/machinegunam.md3";
-	_world_model_flags	= 0;
-	_view_model 		= "";
+	_model_world 		= "models/powerups/ammo/machinegunam.md3";
+	_model_world_flags	= 0;
+	_model_view 		= "";
 	
 	_icon		= "icons/icona_machinegun.tga";
 	_pickup_name	= "Bullets";
@@ -1674,9 +1676,9 @@ g_item_ammo_cells_c::g_item_ammo_cells_c()
 	_classname 	= "ammo_cells";
 	
 	_pickup_sound 		= "misc/am_pkup.wav";
-	_world_model 		= "models/powerups/ammo/plasmaam.md3";
-	_world_model_flags	= 0;
-	_view_model 		= "";
+	_model_world 		= "models/powerups/ammo/plasmaam.md3";
+	_model_world_flags	= 0;
+	_model_view 		= "";
 	
 	_icon		= "icons/icona_plasma";
 	_pickup_name	= "Cells";
@@ -1697,9 +1699,9 @@ g_item_ammo_rockets_c::g_item_ammo_rockets_c()
 	_classname 	= "ammo_rockets";
 	
 	_pickup_sound 		= "misc/am_pkup.wav";
-	_world_model 		= "models/powerups/ammo/rocketam.md3";
-	_world_model_flags	= 0;//EF_ROTATE;
-	_view_model 		= "";
+	_model_world 		= "models/powerups/ammo/rocketam.md3";
+	_model_world_flags	= 0;//EF_ROTATE;
+	_model_view 		= "";
 	
 	_icon		= "icons/icona_rocket.tga";
 	_pickup_name	= "Rockets";
@@ -1721,9 +1723,9 @@ g_item_ammo_grenades_c::g_item_ammo_grenades_c()
 	_classname 	= "ammo_grenades";
 	
 	_pickup_sound 		= "misc/am_pkup.wav";
-	_world_model 		= "models/items/ammo/grenades/medium/tris.md2";
-	_world_model_flags	= 0;
-	_view_model 		= "";
+	_model_world 		= "models/items/ammo/grenades/medium/tris.md2";
+	_model_world_flags	= 0;
+	_model_view 		= "";
 	
 	_icon		= "textures/pics/a_grenades.pcx";
 	_pickup_name	= "Grenades";
@@ -1747,9 +1749,9 @@ g_item_ammo_slugs_c::g_item_ammo_slugs_c()
 	_classname 	= "ammo_slugs";
 	
 	_pickup_sound 		= "misc/am_pkup.wav";
-	_world_model 		= "models/powerups/ammo/railgunam.md3";
-	_world_model_flags	= 0;
-	_view_model 		= "";
+	_model_world 		= "models/powerups/ammo/railgunam.md3";
+	_model_world_flags	= 0;
+	_model_view 		= "";
 	
 	_icon		= "icons/icona_railgun.tga";
 	_pickup_name	= "Slugs";

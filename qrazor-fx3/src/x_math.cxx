@@ -933,7 +933,7 @@ bool	cbbox_c::intersect(vec_t x0, vec_t y0, vec_t z0, vec_t x1, vec_t y1, vec_t 
 
 float	cbbox_c::radius() const
 {
-	vec3_c	corner;
+	vec3_c	corner(false);
 	
 	corner[0] = fabs(_mins[0]) > fabs(_maxs[0]) ? fabs(_mins[0]) : fabs(_maxs[0]);
 	corner[1] = fabs(_mins[1]) > fabs(_maxs[1]) ? fabs(_mins[1]) : fabs(_maxs[1]);
@@ -995,28 +995,32 @@ void	cbbox_c::translate(const vec3_c &v)
 void	cbbox_c::rotate(const quaternion_c &q)
 {
 	// compute bbox vertices
-	vec3_c verts[8];	// max x,y,z points in space
+	vec3_c vert0(_maxs[0], _mins[1], _mins[2]);
+	vec3_c vert1(_maxs[0], _mins[1], _maxs[2]);
+	vec3_c vert2(_mins[0], _mins[1], _maxs[2]);
+	vec3_c vert3(_mins[0], _mins[1], _mins[2]);
 	
-	verts[0].set(_maxs[0], _mins[1], _mins[2]);
-	verts[1].set(_maxs[0], _mins[1], _maxs[2]);
-	verts[2].set(_mins[0], _mins[1], _maxs[2]);
-	verts[3].set(_mins[0], _mins[1], _mins[2]);
+	vec3_c vert4(_maxs[0], _maxs[1], _mins[2]);
+	vec3_c vert5(_maxs[0], _maxs[1], _maxs[2]);
+	vec3_c vert6(_mins[0], _maxs[1], _maxs[2]);
+	vec3_c vert7(_mins[0], _maxs[1], _mins[2]);
 	
-	verts[4].set(_maxs[0], _maxs[1], _mins[2]);
-	verts[5].set(_maxs[0], _maxs[1], _maxs[2]);
-	verts[6].set(_mins[0], _maxs[1], _maxs[2]);
-	verts[7].set(_mins[0], _maxs[1], _mins[2]);
+	vert0.rotate(q);
+	vert1.rotate(q);
+	vert2.rotate(q);
+	vert3.rotate(q);
+	vert4.rotate(q);
+	vert5.rotate(q);
+	vert6.rotate(q);
+	vert7.rotate(q);
 	
-	for(int i=0; i<8; i++)
-		verts[i].rotate(q);
-		
-	_maxs[0] = maxOfEight(verts[0][0], verts[1][0], verts[2][0], verts[3][0], verts[4][0], verts[5][0], verts[6][0], verts[7][0]);
-	_maxs[1] = maxOfEight(verts[0][1], verts[1][1], verts[2][1], verts[3][1], verts[4][1], verts[5][1], verts[6][1], verts[7][1]);
-	_maxs[2] = maxOfEight(verts[0][2], verts[1][2], verts[2][2], verts[3][2], verts[4][2], verts[5][2], verts[6][2], verts[7][2]);
-
-	_mins[0] = minOfEight(verts[0][0], verts[1][0], verts[2][0], verts[3][0], verts[4][0], verts[5][0], verts[6][0], verts[7][0]);
-	_mins[1] = minOfEight(verts[0][1], verts[1][1], verts[2][1], verts[3][1], verts[4][1], verts[5][1], verts[6][1], verts[7][1]);
-	_mins[2] = minOfEight(verts[0][2], verts[1][2], verts[2][2], verts[3][2], verts[4][2], verts[5][2], verts[6][2], verts[7][2]);
+	_mins[0] = minOfEight(vert0[0], vert1[0], vert2[0], vert3[0], vert4[0], vert5[0], vert6[0], vert7[0]);
+	_mins[1] = minOfEight(vert0[1], vert1[1], vert2[1], vert3[1], vert4[1], vert5[1], vert6[1], vert7[1]);
+	_mins[2] = minOfEight(vert0[2], vert1[2], vert2[2], vert3[2], vert4[2], vert5[2], vert6[2], vert7[2]);
+	
+	_maxs[0] = maxOfEight(vert0[0], vert1[0], vert2[0], vert3[0], vert4[0], vert5[0], vert6[0], vert7[0]);
+	_maxs[1] = maxOfEight(vert0[1], vert1[1], vert2[1], vert3[1], vert4[1], vert5[1], vert6[1], vert7[1]);
+	_maxs[2] = maxOfEight(vert0[2], vert1[2], vert2[2], vert3[2], vert4[2], vert5[2], vert6[2], vert7[2]);
 }
 
 bool 	cbbox_c::isZero() const

@@ -30,13 +30,45 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // xreal --------------------------------------------------------------------
 
 
+r_light_c::r_light_c()
+:r_occlusioniface_a()
+{
+	_s.clear();
+	_type = LIGHT_OMNI;
+	
+	_origin = _s.origin;
+	
+	setupTransform();
+	setupProjection();
+	setupAttenuation();
+	setupFrustum();
+	setupShadowMap();
+	
+	_cluster = -1;
+}
+
+
 r_light_c::r_light_c(const r_entity_t &shared, r_light_type_t type)
 :r_occlusioniface_a()
+{
+	update(shared, type);
+}
+
+r_light_c::~r_light_c()
+{
+//	if(_shadowmap)
+//		delete _shadowmap;
+}
+
+void	r_light_c::update(const r_entity_t &shared, r_light_type_t type)
 {
 	_s = shared;
 	_type = type;
 	
 	_origin = _s.origin + _s.center;
+	
+	if(_areasurfaces.empty())
+		_areasurfaces = std::vector<std::map<const r_surface_c*, std::vector<index_t> > >(1);
 	
 	setupTransform();
 	setupProjection();
@@ -65,8 +97,6 @@ r_light_c::r_light_c(const r_entity_t &shared, r_light_type_t type)
 #else
 		updateVis(_s);
 		
-		_areasurfaces = std::vector<std::map<const r_surface_c*, std::vector<index_t> > >(1);
-		
 		r_world_tree->precacheLight(this);
 		
 		if(_leafs.size())
@@ -78,14 +108,10 @@ r_light_c::r_light_c(const r_entity_t &shared, r_light_type_t type)
 	}
 	else
 	{
+		updateVis(_s);
+	
 		_cluster = -1;
 	}
-}
-
-r_light_c::~r_light_c()
-{
-//	if(_shadowmap)
-//		delete _shadowmap;
 }
 
 void 	r_light_c::setupTransform()

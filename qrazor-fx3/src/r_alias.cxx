@@ -263,7 +263,7 @@ void	r_alias_model_c::drawFrameLerp(const r_command_t *cmd, r_render_type_e type
 		for(unsigned int i=0; i<mesh->vertexes.size(); i++)
 		{
 			mesh->vertexes[i] = move;	
-			vec3_c tmp; tmp.lerp(mesh_frame_old->vertexes[i], mesh_frame->vertexes[i], r_newrefdef.lerp);
+			vec3_c tmp(false); tmp.lerp(mesh_frame_old->vertexes[i], mesh_frame->vertexes[i], r_newrefdef.lerp);
 			mesh->vertexes[i] += tmp;
 			
 			//FIXME do this somewhere else
@@ -409,15 +409,20 @@ void	r_alias_model_c::addModelToList(r_entity_c *ent)
 		
 		RB_AddCommand(ent, this, mesh, shader, NULL, NULL, -(i+1), r_origin.distance(ent->getShared().origin));
 		
-		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
-			r_light_c& light = ir->second;
+			std::vector<r_light_c>& lights = *ir;
 			
-			if(!light.isVisible())
-				continue;
+			for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
+			{
+				r_light_c& light = *ir;
 			
-			if(light.getShared().radius_bbox.intersect(ent->getShared().origin, mesh->bbox.radius()))
-				RB_AddCommand(ent, this, mesh, shader, &light, NULL, -(i+1), 0);
+				if(!light.isVisible())
+					continue;
+			
+				if(light.getShared().radius_bbox.intersect(ent->getShared().origin, mesh->bbox.radius()))
+					RB_AddCommand(ent, this, mesh, shader, &light, NULL, -(i+1), 0);
+			}
 		}
 	}
 }

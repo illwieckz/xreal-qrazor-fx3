@@ -391,11 +391,10 @@ r_ase_model_c::~r_ase_model_c()
 void	r_ase_model_c::load()
 {
 	r_ase_model = this;
-
-	std::string exp = (const char*)_buffer;
+;
 	r_ase_model_grammar_t grammar;
 
-	boost::spirit::parse_info<> info = boost::spirit::parse(exp.c_str(), grammar, boost::spirit::space_p);
+	boost::spirit::parse_info<> info = boost::spirit::parse((const char*)_buffer, grammar, boost::spirit::space_p);
 	
 	if(!info.full)
 		ri.Com_Error(ERR_DROP, "r_ase_model_c::load: parsing failed for '%s'", getName());

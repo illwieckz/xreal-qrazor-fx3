@@ -35,7 +35,7 @@ void	r_visiface_a::updateVis(const r_entity_t &shared)
 {
 	if(shared.flags & RF_STATIC)
 	{
-#if 1
+#if 0
 		r_world_tree->boxAreas(shared.radius_bbox, _areas);
 #else
 		r_bsptree_leaf_c* leaf = r_world_tree->pointInLeaf(shared.origin);
@@ -47,6 +47,8 @@ void	r_visiface_a::updateVis(const r_entity_t &shared)
 		{
 			_cluster = -1;
 		}
+		
+		addArea(0);
 		
 		/*
 		r_world_tree->boxLeafs(shared.radius_bbox, _leafs);

@@ -32,12 +32,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "files.h"
 
 
-cmodel_md3_c::cmodel_md3_c(const std::string &name)
-:cmodel_c(name)
+cmodel_md3_c::cmodel_md3_c(const std::string &name, byte *buffer, uint_t buffer_size)
+:cmodel_c(name, buffer, buffer_size)
 {
 }
 
-void	cmodel_md3_c::load(byte *data)
+void	cmodel_md3_c::load()
 {
 	int					i=0, j=0, k=0;
 	int					version;
@@ -48,7 +48,7 @@ void	cmodel_md3_c::load(byte *data)
 	md3_dvertex_t				*pinvertex;
 	index_t					*pinindex;
 	
-	pinmodel = (md3_dheader_t*)data;
+	pinmodel = (md3_dheader_t*)_buffer;
 	version = LittleLong(pinmodel->version);
 	
 	if(version != MD3_VERSION)
@@ -95,16 +95,6 @@ void	cmodel_md3_c::load(byte *data)
 		for(j=0; j<indexes_num; j++, pinindex++)
 		{
 			indexes.push_back(vertexes_counter + (index_t)LittleLong(*pinindex));
-			
-			/*
-			triangle_c tri;
-			
-			tri[0] = (index_t)LittleLong(pinindex[0]);
-			tri[1] = (index_t)LittleLong(pinindex[1]);
-			tri[2] = (index_t)LittleLong(pinindex[2]);
-				
-			triangles.push_back(tri);
-			*/
 		}
 	
 					
@@ -122,35 +112,10 @@ void	cmodel_md3_c::load(byte *data)
 			vertex[2] = ((float)LittleShort(pinvertex->vertex[2]) * MD3_VERTEX_SCALE);
 			
 			vertexes.push_back(vertex);
-			
-			/*	
-			int normal = LittleShort(pinvertex->normal);
-								
-			alpha = ((float)((normal)&255) * M_TWOPI / 255.0);
-			beta = ((float)((normal>>8)&255) * M_TWOPI / 255.0);
-							
-			poutmeshframe->normals[k][0] = cos(beta) * sin(alpha);
-			poutmeshframe->normals[k][1] = sin(beta) * sin(alpha);
-			poutmeshframe->normals[k][2] = cos(alpha);
-				
-			poutmeshframe->normals[k].normalize();
-			*/
 		}
 		
 		vertexes_counter += vertexes_num;
 		
-		
-		//
-		// create bbox
-		//
-		_bbox.clear();
-			
-		for(std::vector<vec3_c>::const_iterator ir = vertexes.begin(); ir != vertexes.end(); ir++)
-		{
-			_bbox.addPoint(*ir);
-		}
-			
-			
 		//Com_Printf("cmodel_md3_c::load: mesh '%s' in model '%s' has indexes number %i\n", pinmesh->name, name.c_str(), poutmesh->indexes_num);
 		
 		//
@@ -159,8 +124,13 @@ void	cmodel_md3_c::load(byte *data)
 		pinmesh = (md3_dmesh_t*)((byte*)pinmesh + LittleLong(pinmesh->end_ofs));
 	}
 	
+	_bbox.clear();
+	for(std::vector<vec3_c>::const_iterator ir = vertexes.begin(); ir != vertexes.end(); ir++)
+	{
+		_bbox.addPoint(*ir);
+	}
 	
-	// swap vertices for ODE
+	// reverse polygon indices to flip normals for ODE
 	reverse(indexes.begin(), indexes.end());
 }
 

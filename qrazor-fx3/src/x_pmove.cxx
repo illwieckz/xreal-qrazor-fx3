@@ -917,7 +917,7 @@ void	PM_FlyMove(bool doclip)
 
 void	PM_RollMove()
 {
-	vec3_c forward, right;
+	vec3_c forward(false), right(false);
 	
 	forward[0] = pml.forward[0];
 	forward[1] = pml.forward[1];

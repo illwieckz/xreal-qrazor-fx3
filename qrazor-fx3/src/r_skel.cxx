@@ -223,15 +223,19 @@ void	r_skel_model_c::addModelToList(r_entity_c *ent)
 		
 		RB_AddCommand(ent, this, mesh, shader, NULL, NULL, -(i+1), r_origin.distance(ent->getShared().origin));
 		
-		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
-			r_light_c& light = ir->second;
+			std::vector<r_light_c>& lights = *ir;
 			
-			if(light.getShared().radius_bbox.intersect(ent->getShared().origin, _bbox.radius()))
+			for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
 			{
-				//ri.Com_Printf("r_skel_model_c::addModelToList: model has light interaction '%s'\n", getName());
-				
-				RB_AddCommand(ent, this, mesh, shader, &light, NULL, -(i+1), 0);
+				r_light_c& light = *ir;
+			
+				if(!light.isVisible())
+					continue;
+			
+				if(light.getShared().radius_bbox.intersect(ent->getShared().origin, mesh->bbox.radius()))
+					RB_AddCommand(ent, this, mesh, shader, &light, NULL, -(i+1), 0);
 			}
 		}
 	}

@@ -400,6 +400,7 @@ void	CG_UpdateFrame(const cg_entity_t *cent, r_entity_t &rent, bool &update);
 void	CG_UpdateRotation(const cg_entity_t *cent, r_entity_t &rent, bool &update);
 void	CG_UpdateModel(const cg_entity_t *cent, r_entity_t &rent, bool &update);
 void	CG_UpdateShader(const cg_entity_t *cent, r_entity_t &rent, bool &update);
+void	CG_UpdateLightShader(const cg_entity_t *cent, r_entity_t &rent, bool &update);
 void	CG_UpdateShaderParms(const cg_entity_t *cent, r_entity_t &rent, bool &update);
 void	CG_UpdateRenderFXFlags(const cg_entity_t *cent, r_entity_t &rent, bool &update);
 

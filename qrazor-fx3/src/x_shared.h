@@ -654,15 +654,16 @@ private:
 class cmodel_c
 {
 public:
-	cmodel_c(const std::string &name)
+	cmodel_c(const std::string &name, byte *buffer, uint_t buffer_size)
 	{
-		Com_DPrintf("loading collisionModel '%s' ...\n", name.c_str());
 		_name = name;
+		_buffer = buffer;
+		_buffer_size = buffer_size;
 	}
 	
 	virtual ~cmodel_c()			{}
 	
-	virtual void	load(byte *data)	{}
+	virtual void	load()			{}
 	
 	inline const char*	getName() const				{return _name.c_str();}
 	inline uint_t		getRegistrationSequence() const		{return _registration_sequence;}
@@ -677,6 +678,11 @@ public:
 private:
 	std::string		_name;
 	uint_t			_registration_sequence;
+	
+protected:
+	byte*			_buffer;		// for loading
+	uint_t			_buffer_size;
+	
 public:	
 	cbbox_c			_bbox;			
 	int			_headnode;		// FIXME get rid of
@@ -1274,7 +1280,30 @@ struct entity_state_t
 public:	
 	inline entity_state_t()
 	{
-		clear();
+		type		= ET_GENERIC;
+		
+		number		= 0;
+		
+		index_model	= 0;
+		index_shader	= 0;
+		index_animation	= 0;
+		index_sound	= 0;
+		index_light	= 0;
+		
+		frame		= 0;
+		effects		= EF_NONE;
+		renderfx	= RF_NONE;
+				
+		event		= EV_NONE;
+		
+		shaderparms[0]	= 0;
+		shaderparms[1]	= 0;
+		shaderparms[2]	= 0;
+		shaderparms[3]	= 0;
+		shaderparms[4]	= 0;
+		shaderparms[5]	= 0;
+		shaderparms[6]	= 0;
+		shaderparms[7]	= 0;
 	}
 	
 	inline void	clear()

@@ -162,7 +162,7 @@ struct carea_t
 struct cmodel_extended_t : public cmodel_c
 {
 	cmodel_extended_t(const std::string &name)
-	:cmodel_c(name)
+	:cmodel_c(name, NULL, 0)
 	{
 	}
 

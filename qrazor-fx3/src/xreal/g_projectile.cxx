@@ -334,15 +334,15 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 
 	_s.type = ET_GENERIC;
 	_s.velocity_linear = dir * speed;
-	_s.vectors[0].set(200, 200, 200);
-//	_s.color = color_yellow;
+	_s.vectors[0].set(100, 100, 100);
 	_s.shaderparms[0] = color_yellow[0];	// light color
 	_s.shaderparms[1] = color_yellow[1];	// light color
 	_s.shaderparms[2] = color_yellow[2];	// light color
+	_s.shaderparms[3] = color_yellow[3];	// light color
 	_s.index_model = gi.SV_ModelIndex("models/weapons/rocketlauncher/rocket.lwo");
 //	_s.index_shader = gi.SV_ShaderIndex("noshader");
 //	_s.index_sound = gi.SV_SoundIndex("sounds/weapons/sidewinder/we_sidewinderfly.wav");
-//	_s.index_light = gi.SV_LightIndex("lights/defaultpointlight");
+	_s.index_light = gi.SV_LightIndex("lights/defaultpointlight");
 	
 	_r.inuse = true;
 	_r.clipmask = MASK_SHOT;

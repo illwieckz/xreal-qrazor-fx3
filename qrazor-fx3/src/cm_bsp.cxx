@@ -424,7 +424,7 @@ static void	CM_LoadModels(bsp_lump_t *l)
 
 	for(int i=0; i<count; i++, in++)
 	{
-		cmodel_c *model = new cmodel_c(va("*%i", i));
+		cmodel_c *model = new cmodel_c(va("*%i", i), NULL, 0);
 			
 		int	modelsurfaces_first = LittleLong(in->modelsurfaces_first);
 		int	modelsurfaces_num = LittleLong(in->modelsurfaces_num);

@@ -52,7 +52,29 @@ class r_entity_t
 public:
 	inline r_entity_t()
 	{
-		clear();
+		scale.set(1.0, 1.0, 1.0);
+	
+		model		= -1;
+		custom_shader	= -1;
+		custom_skin	= -1;
+		custom_light	= -1;
+		
+		shader_parms[0]	= 1;
+		shader_parms[1]	= 1;
+		shader_parms[2]	= 1;
+		shader_parms[3]	= 1;
+		shader_parms[4]	= 0;
+		shader_parms[5]	= 0;
+		shader_parms[6]	= 0;
+		shader_parms[7]	= 0;
+		shader_sound	= 0;
+		
+		frame		= 0;
+		frame_old	= 0;
+		
+		radius_value	= 0;
+		
+		flags		= RF_NONE;
 	}
 	
 	inline void	clear()
@@ -64,6 +86,7 @@ public:
 		model		= -1;
 		custom_shader	= -1;
 		custom_skin	= -1;
+		custom_light	= -1;
 		
 		shader_parms[0]	= 1;
 		shader_parms[1]	= 1;
@@ -99,6 +122,7 @@ public:
 	int			model;			// opaque type outside refresh
 	int			custom_shader;		// -1 for inline shader
 	int			custom_skin;		// -1 for inline skin
+	int			custom_light;		// -1 for inline skin
 		
 	float			shader_parms[8];	// needed by shader system
 	float			shader_sound;		// needed by shader system
@@ -269,12 +293,12 @@ typedef struct
 	
 	void		(*R_ClearScene)();
 	
-	void		(*R_AddEntity)(int entity_num, const r_entity_t &shared);
-	void		(*R_UpdateEntity)(int entity_num, const r_entity_t &shared);
+	void		(*R_AddEntity)(int entity_num, int index, const r_entity_t &shared);
+	void		(*R_UpdateEntity)(int entity_num, int index, const r_entity_t &shared);
 	void		(*R_RemoveEntity)(int entity_num);
 	
-	void		(*R_AddLight)(int entity_num, const r_entity_t &shared, r_light_type_t type);
-	void		(*R_UpdateLight)(int entity_num, const r_entity_t &shared, r_light_type_t type);
+	void		(*R_AddLight)(int entity_num, int index, const r_entity_t &shared, r_light_type_t type);
+	void		(*R_UpdateLight)(int entity_num, int index, const r_entity_t &shared, r_light_type_t type);
 	void		(*R_RemoveLight)(int entity_num);
 	
 	void		(*R_AddParticle)(const r_particle_t &part);

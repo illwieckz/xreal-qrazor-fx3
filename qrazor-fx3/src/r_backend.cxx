@@ -94,7 +94,7 @@ void	RB_InitBackend()
 	rb_matrix_quake_to_opengl.setupRotation   (1, 0, 0,-90);    	// put Z going up
 	rb_matrix_quake_to_opengl.multiplyRotation(0, 0, 1, 90);	// put Z going up
 	
-	ri.Com_DPrintf("quake2opengl matrix:\n%s\n", rb_matrix_quake_to_opengl.toString());
+//	ri.Com_DPrintf("quake2opengl matrix:\n%s\n", rb_matrix_quake_to_opengl.toString());
 	
 	gl_state.current_vbo_array_buffer	= 0;
 	gl_state.current_vbo_vertexes_ofs	= 0;
@@ -1138,13 +1138,13 @@ static float	RB_EvalExpression(const r_entity_t &shared, boost::spirit::tree_mat
 				return shared.shader_parms[7];
 				
 			case SHADER_PARM_GLOBAL0:
-				return 0.0;	//TODO
+				return 1.0;	//TODO
 			
 			case SHADER_PARM_GLOBAL1:
 				return rb_shader_time - floorf(rb_shader_time);	//TODO
 				
 			case SHADER_PARM_GLOBAL2:
-				return 0.0;	//TODO
+				return 1.0;	//TODO
 				
 			case SHADER_PARM_SOUND:
 				return 0.5;	//shared.shader_sound;
@@ -2129,99 +2129,104 @@ void	RB_RenderCommands()
 	xglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	xglDepthMask(GL_FALSE);
 		
-	for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+	for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 	{
-		r_light_c& light = ir->second;
+		std::vector<r_light_c>& lights = *ir;
 			
-		if(!light.isVisible())
-			continue;
-		
-		if(!light.getShared().radius_bbox.isInside(r_origin))
+		for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
 		{
-			light.updateScissor(rb_matrix_model_view_projection, rb_vrect_viewport, light.getShared().radius_bbox);
-		}
-		else
-		{
-			light.setScissor(rb_vrect_viewport);
-		}
-		
-		if(gl_config.arb_occlusion_query && r_arb_occlusion_query->getInteger())
-		{
-			const cbbox_c&bbox = light.getShared().radius_bbox;
+			r_light_c& light = *ir;
 			
-			/*
-			if(bbox.isInside(r_origin))
+			if(!light.isVisible())
 				continue;
-			*/
 		
-			vertexes[0].set(bbox._maxs[0], bbox._mins[1], bbox._mins[2]);
-			vertexes[1].set(bbox._maxs[0], bbox._mins[1], bbox._maxs[2]);
-			vertexes[2].set(bbox._mins[0], bbox._mins[1], bbox._maxs[2]);
-			vertexes[3].set(bbox._mins[0], bbox._mins[1], bbox._mins[2]);
-			vertexes[4].set(bbox._maxs[0], bbox._maxs[1], bbox._mins[2]);
-			vertexes[5].set(bbox._maxs[0], bbox._maxs[1], bbox._maxs[2]);
-			vertexes[6].set(bbox._mins[0], bbox._maxs[1], bbox._maxs[2]);
-			vertexes[7].set(bbox._mins[0], bbox._maxs[1], bbox._mins[2]);
-			
-			for(i=0; i<8; i++)
+			if(!light.getShared().radius_bbox.isInside(r_origin))
 			{
-				plane_side_e side = r_frustum[FRUSTUM_NEAR].onSide(vertexes[i]);
-				
-				if(side == SIDE_BACK)
-					break;
+				light.updateScissor(rb_matrix_model_view_projection, rb_vrect_viewport, light.getShared().radius_bbox);
 			}
-			
-			if(i != 8)
-				continue;
-		
-			light.beginOcclusionQuery();
-		
-			xglBegin(GL_QUADS);
-			
-			// left side
-			xglVertex3fv(vertexes[0]);
-			xglVertex3fv(vertexes[1]);
-			xglVertex3fv(vertexes[2]);
-			xglVertex3fv(vertexes[3]);
-			
-			// right side
-			xglVertex3fv(vertexes[4]);
-			xglVertex3fv(vertexes[5]);
-			xglVertex3fv(vertexes[6]);
-			xglVertex3fv(vertexes[7]);
-		
-			// front side
-			xglVertex3fv(vertexes[0]);
-			xglVertex3fv(vertexes[1]);
-			xglVertex3fv(vertexes[5]);
-			xglVertex3fv(vertexes[4]);
-		
-			// back side
-			xglVertex3fv(vertexes[2]);
-			xglVertex3fv(vertexes[3]);
-			xglVertex3fv(vertexes[7]);
-			xglVertex3fv(vertexes[6]);
-		
-			// top side
-			xglVertex3fv(vertexes[1]); 
-			xglVertex3fv(vertexes[2]);
-			xglVertex3fv(vertexes[6]); 
-			xglVertex3fv(vertexes[5]);
-		
-			// bottom side
-			xglVertex3fv(vertexes[0]); 
-			xglVertex3fv(vertexes[3]);
-			xglVertex3fv(vertexes[7]); 
-			xglVertex3fv(vertexes[4]);
-			
-			xglEnd();
-		
-			light.endOcclusionQuery();
-		
-			if(!light.getOcclusionSamplesNum())
+			else
 			{
-				light.setVisFrameCount(0);	// light bounding box is not visible
-				c_lights--;
+				light.setScissor(rb_vrect_viewport);
+			}
+		
+			if(gl_config.arb_occlusion_query && r_arb_occlusion_query->getInteger())
+			{
+				const cbbox_c&bbox = light.getShared().radius_bbox;
+			
+				/*
+				if(bbox.isInside(r_origin))
+					continue;
+				*/
+		
+				vertexes[0].set(bbox._maxs[0], bbox._mins[1], bbox._mins[2]);
+				vertexes[1].set(bbox._maxs[0], bbox._mins[1], bbox._maxs[2]);
+				vertexes[2].set(bbox._mins[0], bbox._mins[1], bbox._maxs[2]);
+				vertexes[3].set(bbox._mins[0], bbox._mins[1], bbox._mins[2]);
+				vertexes[4].set(bbox._maxs[0], bbox._maxs[1], bbox._mins[2]);
+				vertexes[5].set(bbox._maxs[0], bbox._maxs[1], bbox._maxs[2]);
+				vertexes[6].set(bbox._mins[0], bbox._maxs[1], bbox._maxs[2]);
+				vertexes[7].set(bbox._mins[0], bbox._maxs[1], bbox._mins[2]);
+			
+				for(i=0; i<8; i++)
+				{
+					plane_side_e side = r_frustum[FRUSTUM_NEAR].onSide(vertexes[i]);
+					
+					if(side == SIDE_BACK)
+						break;
+				}
+			
+				if(i != 8)
+					continue;
+		
+				light.beginOcclusionQuery();
+			
+				xglBegin(GL_QUADS);
+			
+				// left side
+				xglVertex3fv(vertexes[0]);
+				xglVertex3fv(vertexes[1]);
+				xglVertex3fv(vertexes[2]);
+				xglVertex3fv(vertexes[3]);
+			
+				// right side
+				xglVertex3fv(vertexes[4]);
+				xglVertex3fv(vertexes[5]);
+				xglVertex3fv(vertexes[6]);
+				xglVertex3fv(vertexes[7]);
+		
+				// front side
+				xglVertex3fv(vertexes[0]);
+				xglVertex3fv(vertexes[1]);
+				xglVertex3fv(vertexes[5]);
+				xglVertex3fv(vertexes[4]);
+		
+				// back side
+				xglVertex3fv(vertexes[2]);
+				xglVertex3fv(vertexes[3]);
+				xglVertex3fv(vertexes[7]);
+				xglVertex3fv(vertexes[6]);
+		
+				// top side
+				xglVertex3fv(vertexes[1]); 
+				xglVertex3fv(vertexes[2]);
+				xglVertex3fv(vertexes[6]); 
+				xglVertex3fv(vertexes[5]);
+		
+				// bottom side
+				xglVertex3fv(vertexes[0]); 
+				xglVertex3fv(vertexes[3]);
+				xglVertex3fv(vertexes[7]); 
+				xglVertex3fv(vertexes[4]);
+			
+				xglEnd();
+		
+				light.endOcclusionQuery();
+		
+				if(!light.getOcclusionSamplesNum())
+				{
+					light.setVisFrameCount(0);	// light bounding box is not visible
+					c_lights--;
+				}
 			}
 		}
 	}
@@ -2627,7 +2632,7 @@ void	RB_AddCommand(	r_entity_c*		entity,
 	cmd->_entity_shader	= entity_shader;
 	
 	cmd->_light		= light;
-	cmd->_light_shader	= light ? R_GetShaderByNum(light->getShared().custom_shader) : NULL;
+	cmd->_light_shader	= light ? R_GetShaderByNum(light->getShared().custom_light) : NULL;
 	cmd->_light_indexes	= light_indexes;
 	
 	cmd->_infokey		= infokey;

@@ -790,9 +790,10 @@ g_item_weapon_blaster_c::g_item_weapon_blaster_c()
 	_has_drop		= false;
 	
 	_pickup_sound 		= "misc/w_pkup.wav";
-	_world_model 		= "";
-	_world_model_flags	= 0;
-	_view_model 		= "models/weapons/pistol_view/viewpistol.md5mesh";
+	_model_world 		= "";
+	_model_world_flags	= 0;
+	_model_player		= "";
+	_model_view 		= "models/weapons/pistol_view/viewpistol.md5mesh";
 	
 	_icon			= "textures/pics/w_blaster.pcx";
 	_pickup_name		= "Blaster";
@@ -862,10 +863,11 @@ g_item_weapon_shotgun_c::g_item_weapon_shotgun_c()
 	_classname		= "weapon_shotgun";
 	
 	_pickup_sound 		= "misc/w_pkup.wav";
-//	_world_model 		= "models/md5/weapons/shotgun_world/worldshotgun.md5mesh";
-	_world_model		= "models/weapons2/rocketl/rocketl.md3";
-	_world_model_flags	= EF_NONE;
-	_view_model 		= "models/md5/weapons/shotgun_view/viewshotgun.md5mesh";
+//	_model_world		= "models/weapons2/rocketl/rocketl.md3";
+	_model_world		= "models/weapons/shotgun/w_shotgun2.lwo";
+	_model_world_flags	= EF_NONE;	//EF_ROTATE;
+	_model_player		= "models/md5/weapons/shotgun_world/worldshotgun.md5mesh";
+	_model_view		= "models/md5/weapons/shotgun_view/viewshotgun.md5mesh";
 	
 	_icon			= "textures/pics/w_shotgun.pcx";
 	_pickup_name		= "Shotgun";

@@ -425,49 +425,54 @@ void	r_proctree_c::updateArea_r(int areanum, const r_frustum_c &frustum)
 	// mark lights and create light commands
 	if(r_lighting->getInteger())
 	{
-		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
-			r_light_c& light = ir->second;
+			std::vector<r_light_c>& lights = *ir;
 			
-			if(!light.hasArea(areanum))
-				continue;
-				
-			//if(light.isVisible())
-			//	continue;
-			
-			if(frustum.cull(light.getShared().radius_bbox))
-				continue;
-			
-			light.setVisFrameCount();
-			c_lights++;
-			
-			if(light.getShared().flags & RF_STATIC)
+			for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
 			{
-				const std::map<const r_surface_c*, std::vector<index_t> >& surfaces = light.getAreaSurfaces(areanum);
+				r_light_c& light = *ir;
 			
-				for(std::map<const r_surface_c*, std::vector<index_t> >::const_iterator ir = surfaces.begin(); ir != surfaces.end(); ++ir)
+				if(!light.hasArea(areanum))
+					continue;
+				
+				//if(light.isVisible())
+				//	continue;
+			
+				if(frustum.cull(light.getShared().radius_bbox))
+					continue;
+			
+				light.setVisFrameCount();
+				c_lights++;
+			
+				if(light.getShared().flags & RF_STATIC)
 				{
-					const r_surface_c* surf = ir->first;
+					const std::map<const r_surface_c*, std::vector<index_t> >& surfaces = light.getAreaSurfaces(areanum);
+			
+					for(std::map<const r_surface_c*, std::vector<index_t> >::const_iterator ir = surfaces.begin(); ir != surfaces.end(); ++ir)
+					{
+						const r_surface_c* surf = ir->first;
 
-					if(surf->getFrameCount() != r_framecount)
-						continue;	// surface is not in this frame
+						if(surf->getFrameCount() != r_framecount)
+							continue;	// surface is not in this frame
 					
-					RB_AddCommand(&r_world_entity, area->model, surf->getMesh(), surf->getShader(), &light, (std::vector<index_t>*)&ir->second, -1, 0);
+						RB_AddCommand(&r_world_entity, area->model, surf->getMesh(), surf->getShader(), &light, (std::vector<index_t>*)&ir->second, -1, 0);
+					}
 				}
-			}
-			else
-			{
-				for(std::vector<r_surface_c*>::const_iterator ir = area->surfaces.begin(); ir != area->surfaces.end(); ++ir)
+				else
 				{
-					r_surface_c *surf = *ir;
+					for(std::vector<r_surface_c*>::const_iterator ir = area->surfaces.begin(); ir != area->surfaces.end(); ++ir)
+					{
+						r_surface_c *surf = *ir;
 			
-					if(surf->getFrameCount() != r_framecount)
-						continue;	// surface is not in this frame
+						if(surf->getFrameCount() != r_framecount)
+							continue;	// surface is not in this frame
 				
-					if(!light.getShared().radius_bbox.intersect(surf->getMesh()->bbox))
-						continue;
+						if(!light.getShared().radius_bbox.intersect(surf->getMesh()->bbox))
+							continue;
 				
-					RB_AddCommand(&r_world_entity, area->model, surf->getMesh(), surf->getShader(), &light, NULL, -1, 0);
+						RB_AddCommand(&r_world_entity, area->model, surf->getMesh(), surf->getShader(), &light, NULL, -1, 0);
+					}
 				}
 			}
 		}
@@ -513,12 +518,17 @@ void	r_proctree_c::draw()
 	r_world_entity.setVisFrameCount();
 	c_entities++;
 
-	for(std::map<int, r_entity_c>::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
+	for(std::vector<std::vector<r_entity_c> >::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
 	{
-		r_entity_c& ent = ir->second;
+		std::vector<r_entity_c>& entities = *ir;
+			
+		for(std::vector<r_entity_c>::iterator ir = entities.begin(); ir != entities.end(); ++ir)
+		{
+			r_entity_c& ent = *ir;
 		
-		ent.setVisFrameCount();
-		c_entities++;
+			ent.setVisFrameCount();
+			c_entities++;
+		}
 	}
 	
 	if(!r_drawworld->getValue())
@@ -1103,15 +1113,20 @@ void	r_proc_model_c::addModelToList(r_entity_c *ent)
 	
 		if(r_lighting->getValue() == 1)
 		{
-			for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
-			{	
-				r_light_c& light = ir->second;
-					
-				if(!light.isVisible())
-					continue;
+			for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+			{
+				std::vector<r_light_c>& lights = *ir;
 			
-				if(light.getShared().radius_bbox.intersect(ent->getShared().origin, surf->getMesh()->bbox.radius()))
-					RB_AddCommand(ent, this, surf->getMesh(), surf->getShader(), &light, NULL, -1, 0);
+				for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
+				{
+					r_light_c& light = *ir;
+					
+					if(!light.isVisible())
+						continue;
+			
+					if(light.getShared().radius_bbox.intersect(ent->getShared().origin, surf->getMesh()->bbox.radius()))
+						RB_AddCommand(ent, this, surf->getMesh(), surf->getShader(), &light, NULL, -1, 0);
+				}
 			}
 		}
 	}

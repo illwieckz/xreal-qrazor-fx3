@@ -113,9 +113,10 @@ public:
 	bool		isWeapon() const		{return _flags & IT_WEAPON;}
 	
 	const char*	getPickupSound()		{return _pickup_sound.c_str();}
-	const char*	getWorldModel()			{return _world_model.c_str();}
-	int		getWorldModelFlags()		{return _world_model_flags;}
-	const char*	getViewModel()			{return _view_model.c_str();}
+	const char*	getWorldModel()			{return _model_world.c_str();}
+	int		getWorldModelFlags()		{return _model_world_flags;}
+	const char*	getPlayerModel()		{return _model_player.c_str();}
+	const char*	getViewModel()			{return _model_view.c_str();}
 	
 	const char*	getIcon()			{return _icon.c_str();}
 	const char*	getPickupName()			{return _pickup_name.c_str();}
@@ -144,9 +145,11 @@ protected:
 	bool				_has_drop;
 
 	std::string			_pickup_sound;
-	std::string			_world_model;
-	int				_world_model_flags;
-	std::string			_view_model;
+	
+	std::string			_model_world;
+	uint_t				_model_world_flags;
+	std::string			_model_player;
+	std::string			_model_view;
 
 	// client side info
 	std::string			_icon;
