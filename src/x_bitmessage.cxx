@@ -970,7 +970,7 @@ void	bitmessage_c::writeDeltaPlayerState(const player_state_t *from, const playe
 	if(to->view_offset != from->view_offset)
 	{
 		writeBit(true);
-		writeVec3(to->view_offset[0]);
+		writeVec3(to->view_offset);
 	}
 	else
 	{
