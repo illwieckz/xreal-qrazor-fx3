@@ -178,7 +178,7 @@ void	R_NoDraw_sc(char const* begin, char const* end)
 
 void	R_NoShadows_sc(char const* begin, char const* end)
 {
-	r_current_shader->setORFlags(SHADER_NODRAW | SHADER_NOSHADOWS);
+	r_current_shader->setORFlags(SHADER_NOSHADOWS);
 }
 
 void	R_NoSelfShadow_sc(char const* begin, char const* end)
