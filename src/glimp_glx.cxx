@@ -92,7 +92,6 @@ static bool mlooking;
 
 static bool mouse_active = false;
 static bool dgamouse = false;
-static bool vidmode_ext = false;
 
 // state struct passed in Init
 static in_state_t	*in_state;
@@ -269,10 +268,19 @@ static void	IN_ActivateMouse()
 
 void	RW_IN_Activate(bool active)
 {
-	if(active || sys_gl.vidmodes_active)
+	if
+	(	active 
+#ifdef HAVE_XF86_VIDMODE
+		|| sys_gl.vidmodes_active
+#endif
+	)
+	{
 		IN_ActivateMouse();
+	}
 	else
+	{
 		IN_DeactivateMouse();
+	}
 }
 
 static int	XLateKey(XKeyEvent *ev)
@@ -601,8 +609,6 @@ int	GLimp_SetMode(int *pwidth, int *pheight, int mode, bool fullscreen)
 	XSetWindowAttributes attr;
 	unsigned long mask;
 	int MajorVersion, MinorVersion;
-	int actualWidth, actualHeight;
-	int i;
 	int value;
 	
 	ri.Com_Printf("------- GLimp_SetMode -------\n");
@@ -642,12 +648,12 @@ int	GLimp_SetMode(int *pwidth, int *pheight, int mode, bool fullscreen)
 	if (!XF86VidModeQueryVersion(sys_gl.dpy, &MajorVersion, &MinorVersion))
 	{
 		ri.Com_Printf("GLimp_SetMode: no XFree86-VidModeExtension available\n");
-		vidmode_ext = false;
+		sys_gl.vidmodes_available = false;
 	}
 	else
 	{
 		ri.Com_Printf("GLimp_SetMode: using XFree86-VidModeExtension Version %d.%d\n", MajorVersion, MinorVersion);
-		vidmode_ext = true;
+		sys_gl.vidmodes_available = true;
 	}
 #endif
 
@@ -705,8 +711,10 @@ int	GLimp_SetMode(int *pwidth, int *pheight, int mode, bool fullscreen)
         gl_state.hwgamma = false;
 	
 #ifdef HAVE_XF86_VIDMODE
-	if(vidmode_ext)
+	if(sys_gl.vidmodes_available)
 	{
+		int actualWidth, actualHeight;
+		int i;
 		int best_fit, best_dist, dist, x, y;
 		
 		XF86VidModeGetAllModeLines(sys_gl.dpy, sys_gl.scr, &sys_gl.vidmodes_num, &sys_gl.vidmodes);
@@ -768,6 +776,7 @@ int	GLimp_SetMode(int *pwidth, int *pheight, int mode, bool fullscreen)
 	attr.border_pixel = 0;
 	attr.colormap = XCreateColormap(sys_gl.dpy, root, visinfo->visual, AllocNone);
 	attr.event_mask = X_MASK;
+#ifdef HAVE_XF86_VIDMODE
 	if (sys_gl.vidmodes_active)
 	{
 		mask = CWBackPixel | CWColormap | CWSaveUnder | CWBackingStore | CWEventMask | CWOverrideRedirect;
@@ -775,7 +784,10 @@ int	GLimp_SetMode(int *pwidth, int *pheight, int mode, bool fullscreen)
 		attr.backing_store = NotUseful;
 		attr.save_under = False;
 	} else
+#endif
+	{
 		mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask;
+	}
 
 	sys_gl.win = XCreateWindow(sys_gl.dpy, root, 0, 0, width, height,
 						0, visinfo->depth, InputOutput,
