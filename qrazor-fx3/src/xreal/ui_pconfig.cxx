@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ui_local.h"
 
 
-
+#if 0
 
 #define MAX_DISPLAYNAME 16
 
@@ -76,7 +76,7 @@ class menu_player_model_c : public menu_spincontrol_c
 public:
 	virtual void	callback()
 	{
-		uii.Cvar_Set("model", s_pmi[_curvalue].directory);
+		trap_Cvar_Set("model", s_pmi[_curvalue].directory);
 
 		//FIXME
 //		s_player_skin_box._itemnames = s_pmi[s_player_model_box._curvalue].skindisplaynames;
@@ -89,7 +89,7 @@ class menu_player_handedness_c : public menu_spincontrol_c
 public:
 	virtual void	callback()
 	{
-		uii.Cvar_SetValue("hand", _curvalue);
+		trap_Cvar_SetValue("hand", _curvalue);
 	}
 };
 
@@ -99,7 +99,7 @@ public:
 	virtual void	callback()
 	{
 		if(_curvalue != sizeof(rate_tbl) / sizeof(*rate_tbl) - 1)
-			uii.Cvar_SetValue("rate", rate_tbl[_curvalue]);
+			trap_Cvar_SetValue("rate", rate_tbl[_curvalue]);
 	}
 };
 
@@ -160,10 +160,10 @@ static bool	PlayerConfig_ParseAnimationCFG(playermodelinfo_c &pmi)
 	// load the animation.cfg
 	//
 	filename = "models/players/" + pmi.directory + "/animation.cfg";
-	uii.VFS_FLoad(filename, (void**)&buffer);
+	trap_VFS_FLoad(filename, (void**)&buffer);
 	if(!buffer)
 	{
-		uii.Com_Printf("PlayerConfig_ParseAnimationCFG: bad config '%s\n", filename.c_str());
+		trap_Com_Printf("PlayerConfig_ParseAnimationCFG: bad config '%s\n", filename.c_str());
 		return false;
 	}
 		
@@ -233,7 +233,7 @@ static bool	PlayerConfig_ParseAnimationCFG(playermodelinfo_c &pmi)
 						
 							
 #if 0
-			uii.Com_Printf("PlayerConfig_ParseAnimationCFG: %i %i %i %i\n", a.first_frame,
+			trap_Com_Printf("PlayerConfig_ParseAnimationCFG: %i %i %i %i\n", a.first_frame,
 											a.frames_num,
 											a.looping_frames,
 											a.frames_per_second);
@@ -257,9 +257,9 @@ static bool	PlayerConfig_ParseAnimationCFG(playermodelinfo_c &pmi)
 		}
 	}
 	
-	uii.VFS_FFree(buffer);
+	trap_VFS_FFree(buffer);
 	
-	//uii.Com_Printf("PlayerConfig_ParseAnimationCFG: animation sequences %i %i\n", upper_sequences.size(), lower_sequences.size());
+	//trap_Com_Printf("PlayerConfig_ParseAnimationCFG: animation sequences %i %i\n", upper_sequences.size(), lower_sequences.size());
 
 	pmi.upper_sequences = upper_sequences;
 	pmi.lower_sequences = lower_sequences;
@@ -305,7 +305,7 @@ static bool	PlayerConfig_ParseAnimationCFG(playermodelinfo_c &pmi)
 	pmi.lowerframe = 0;
 #endif
 		
-	//uii.Com_Printf("PlayerConfig_ParseAnimationCFG: upper %i lower %i\n", pmi.upperframe, pmi.lowerframe);
+	//trap_Com_Printf("PlayerConfig_ParseAnimationCFG: upper %i lower %i\n", pmi.upperframe, pmi.lowerframe);
 	
 	return true;
 }
@@ -314,10 +314,10 @@ static bool	PlayerConfig_ParseAnimationCFG(playermodelinfo_c &pmi)
 static bool	PlayerConfig_ScanAnimations(playermodelinfo_c &pmi, const std::vector<std::string> &md5anim_names)
 {
 #if 0
-	pmi.model = uii.R_RegisterModel("models/players/" + pmi.directory + "/body.md5mesh");
+	pmi.model = trap_R_RegisterModel("models/players/" + pmi.directory + "/body.md5mesh");
 	if(pmi.model == -1)
 	{
-		uii.Com_Printf("PlayerConfig_ScanAnimations: no body.md5mesh in '%s'\n", pmi.directory.c_str());
+		trap_Com_Printf("PlayerConfig_ScanAnimations: no body.md5mesh in '%s'\n", pmi.directory.c_str());
 		return false;
 	}
 	
@@ -326,8 +326,8 @@ static bool	PlayerConfig_ScanAnimations(playermodelinfo_c &pmi, const std::vecto
 	{
 		r_animation_t	anim;
 	
-		//uii.R_RegisterAnimation(pmi.model, "models/players/" + pmi.directory + "/idle.md5anim");
-		anim.sequence = uii.R_RegisterAnimation(*ir);
+		//trap_R_RegisterAnimation(pmi.model, "models/players/" + pmi.directory + "/idle.md5anim");
+		anim.sequence = trap_R_RegisterAnimation(*ir);
 		
 		pmi.animations.push_back(anim);
 	}
@@ -337,7 +337,7 @@ static bool	PlayerConfig_ScanAnimations(playermodelinfo_c &pmi, const std::vecto
 	{
 		std::string name = "models/players/" + pmi.directory + "/" + std::string(anim->name) + ".md5anim";
 		
-		if(!uii.VFS_FLoad(name, NULL))
+		if(!trap_VFS_FLoad(name, NULL))
 		{
 			Com_Error(ERR_DROP, "PlayerConfig_ScanAnimations: player model '%s' does not provide animation '%s'", pmi.directory.c_str(), name.c_str());
 			return false;
@@ -345,7 +345,7 @@ static bool	PlayerConfig_ScanAnimations(playermodelinfo_c &pmi, const std::vecto
 		
 		r_animation_t	anim;
 	
-		anim.sequence = uii.R_RegisterAnimation(name);
+		anim.sequence = trap_R_RegisterAnimation(name);
 		
 		pmi.animations.push_back(anim);
 	}
@@ -370,7 +370,7 @@ static void	PlayerConfig_ScanDirectories()
 	//
 	// get a list of directories
 	//
-	if((dir_names = uii.VFS_ListFiles("models/players", "")).size() == 0)
+	if((dir_names = trap_VFS_ListFiles("models/players", "")).size() == 0)
 		return;
 	
 
@@ -395,11 +395,11 @@ static void	PlayerConfig_ScanDirectories()
 		else
 			dir_names[i] = dir_names[i].substr(0, dir_names[i].length()-1);
 			
-		uii.Com_Printf("PlayerConfig_ScanDirectories: scanning '%s' ...\n", dir_names[i].c_str());
+		trap_Com_Printf("PlayerConfig_ScanDirectories: scanning '%s' ...\n", dir_names[i].c_str());
 
 
 		// verify the existence of at least one .skin file
-		skin_names = uii.VFS_ListFiles(dir_names[i], ".skin");
+		skin_names = trap_VFS_ListFiles(dir_names[i], ".skin");
 		if(!skin_names.size())
 		{
 			dir_names[i] = "";
@@ -408,7 +408,7 @@ static void	PlayerConfig_ScanDirectories()
 
 
 		// verify the existence of at least one .md5mesh file
-		md5mesh_names = uii.VFS_ListFiles(dir_names[i], ".md5mesh");
+		md5mesh_names = trap_VFS_ListFiles(dir_names[i], ".md5mesh");
 		if(!md5mesh_names.size())
 		{
 			dir_names[i] = "";
@@ -416,7 +416,7 @@ static void	PlayerConfig_ScanDirectories()
 		}
 		
 		// verify the existence of at least one .md5anim file
-		md5anim_names = uii.VFS_ListFiles(dir_names[i], ".md5anim");
+		md5anim_names = trap_VFS_ListFiles(dir_names[i], ".md5anim");
 		if(!md5anim_names.size())
 		{
 			dir_names[i] = "";
@@ -434,7 +434,7 @@ static void	PlayerConfig_ScanDirectories()
 			skin_name = skin_name_full.substr(skin_name_full.find("_")+1, skin_name_full.length());
 			skin_name = skin_name.substr(0, skin_name.find('.'));
 					
-			//uii.Com_Printf("PlayerConfig_ScanDirectories: '%s'\n", skinname.c_str());
+			//trap_Com_Printf("PlayerConfig_ScanDirectories: '%s'\n", skinname.c_str());
 	
 			for(j=0; j<skin_names_final.size(); j++)
 			{
@@ -531,16 +531,16 @@ static bool	PlayerConfig_MenuInit()
 
 	if(s_pmi.size() == 0)
 	{
-		//uii.Com_DPrintf("PlayerConfig_MenuInit: no player models\n");
+		//trap_Com_DPrintf("PlayerConfig_MenuInit: no player models\n");
 		return false;
 	}
 	
 	
 
-	if(uii.Cvar_VariableValue("hand") < 0 || uii.Cvar_VariableValue("hand") > 2)
-		uii.Cvar_SetValue("hand", 0);
+	if(trap_Cvar_VariableValue("hand") < 0 || trap_Cvar_VariableValue("hand") > 2)
+		trap_Cvar_SetValue("hand", 0);
 
-	strcpy(currentdirectory, uii.Cvar_VariableString("skin"));
+	strcpy(currentdirectory, trap_Cvar_VariableString("skin"));
 
 	if(strchr(currentdirectory, '/'))
 	{
@@ -585,8 +585,8 @@ static bool	PlayerConfig_MenuInit()
 	int	y;
 	int	y_offset = CHAR_MEDIUM_HEIGHT + 5;
 
-	s_player_config_menu._x = uii.VID_GetWidth()/2 - CHAR_MEDIUM_WIDTH * 13; 
-	s_player_config_menu._y = uii.VID_GetHeight()/2 - 150;
+	s_player_config_menu._x = trap_VID_GetWidth()/2 - CHAR_MEDIUM_WIDTH * 13; 
+	s_player_config_menu._y = trap_VID_GetHeight()/2 - 150;
 
 	s_player_name_field._fontflags	= FONT_MEDIUM;
 	s_player_name_field._name = "name";
@@ -594,8 +594,8 @@ static bool	PlayerConfig_MenuInit()
 	s_player_name_field._y		= y = 0;
 	s_player_name_field._length	= 20;
 	//s_player_name_field._visible_length = 20;
-	s_player_name_field._buffer = uii.Cvar_VariableString("name");
-	s_player_name_field._cursor = strlen(uii.Cvar_VariableString("name"));
+	s_player_name_field._buffer = trap_Cvar_VariableString("name");
+	s_player_name_field._cursor = strlen(trap_Cvar_VariableString("name"));
 
 	
 	s_player_model_box._fontflags	= FONT_MEDIUM;
@@ -620,13 +620,13 @@ static bool	PlayerConfig_MenuInit()
 	s_player_handedness_box._y	= y += y_offset;
 	s_player_handedness_box._name	= "hand";
 	s_player_handedness_box._cursor_offset = -48;
-	s_player_handedness_box._curvalue = uii.Cvar_VariableInteger("hand");
+	s_player_handedness_box._curvalue = trap_Cvar_VariableInteger("hand");
 	s_player_handedness_box._itemnames.push_back("right");
 	s_player_handedness_box._itemnames.push_back("left");
 	s_player_handedness_box._itemnames.push_back("center");
 
 	for (i = 0; i < (int)sizeof(rate_tbl) / (int)sizeof(*rate_tbl) - 1; i++)
-		if (uii.Cvar_VariableValue("rate") == rate_tbl[i])
+		if (trap_Cvar_VariableValue("rate") == rate_tbl[i])
 			break;
 
 
@@ -652,9 +652,9 @@ static bool	PlayerConfig_MenuInit()
 	s_player_download_action._y	= y += y_offset;
 	//s_player_download_action._statusbar = "";
 	
-	//uii.Com_Printf("PlayerConfig_MenuInit: s_player_model_box._curvalue %i\n", s_player_model_box._curvalue);
-	//uii.Com_Printf("PlayerConfig_MenuInit: s_pmi.size() %i\n", s_pmi.size());
-	//uii.Com_Printf("PlayerConfig_MenuInit: anims %i\n", s_pmi[s_player_model_box._curvalue].anim_data.size());
+	//trap_Com_Printf("PlayerConfig_MenuInit: s_player_model_box._curvalue %i\n", s_player_model_box._curvalue);
+	//trap_Com_Printf("PlayerConfig_MenuInit: s_pmi.size() %i\n", s_pmi.size());
+	//trap_Com_Printf("PlayerConfig_MenuInit: anims %i\n", s_pmi[s_player_model_box._curvalue].anim_data.size());
 	
 	/*
 	s_player_upper_slider._flags		= QMF_LEFT_JUSTIFY;
@@ -705,7 +705,7 @@ static bool	PlayerConfig_MenuInit()
 	s_player_config_menu.addItem(&s_player_download_action);
 	
 	
-	if(uii.Cvar_VariableInteger("developer"))
+	if(trap_Cvar_VariableInteger("developer"))
 	{
 		s_player_config_menu.addItem(&s_player_animation_box);
 	}
@@ -722,12 +722,12 @@ static void	PlayerConfig_MenuDraw()
 	r_refdef_t refdef;
 	std::string	scratch;
 
-	refdef.x = uii.VID_GetWidth() / 2;
-	refdef.y = uii.VID_GetHeight() / 2 - 50;
+	refdef.x = trap_VID_GetWidth() / 2;
+	refdef.y = trap_VID_GetHeight() / 2 - 50;
 	refdef.width = 300;
 	refdef.height = 400;
 	refdef.setFOV(45);
-	//refdef.time = uii.CL_GetRealtime() * 0.001;
+	//refdef.time = trap_CL_GetRealtime() * 0.001;
 	refdef.rdflags = RDF_NOWORLDMODEL;
 
 	if(s_pmi[s_player_model_box._curvalue].skindisplaynames.size())
@@ -747,7 +747,7 @@ static void	PlayerConfig_MenuDraw()
 		static vec3_c angles(0, 180, 0);
 #endif
 			
-		//uii.R_ClearScene();
+		//trap_R_ClearScene();
 		
 
 #if 0
@@ -758,12 +758,12 @@ static void	PlayerConfig_MenuDraw()
 		// lower
 		//
 		scratch = "models/players/" + s_pmi[s_player_model_box._curvalue].directory + "/lower.md3";
-		lower.model = uii.R_RegisterModel(scratch);
+		lower.model = trap_R_RegisterModel(scratch);
 		
 		lower.custom_shader = -1;
 		
 		scratch = "models/players/" + s_pmi[s_player_model_box._curvalue].directory + "/" + "lower_" + s_pmi[s_player_model_box._curvalue].skindisplaynames[s_player_skin_box._curvalue] + ".skin";
-		lower.custom_skin = uii.R_RegisterSkin(scratch);
+		lower.custom_skin = trap_R_RegisterSkin(scratch);
 		
 		lower.flags = RF_FULLBRIGHT | RF_NOSHADOW | RF_DEPTHHACK;
 		lower.origin.set(120, 0, 0);
@@ -774,10 +774,10 @@ static void	PlayerConfig_MenuDraw()
 		lower.frame = s_pmi[s_player_model_box._curvalue].lowerframe;
 		lower.frame_old = lower.frame;
 		
-		uii.R_AddEntityToScene(lower);
+		trap_R_AddEntityToScene(lower);
 		
 		
-		if(uii.R_LerpAttachment(upper_lerped, lower, "tag_torso"))
+		if(trap_R_LerpAttachment(upper_lerped, lower, "tag_torso"))
 		{
 			r_entity_t	upper;
 			r_orientation_t	head_lerped;
@@ -786,12 +786,12 @@ static void	PlayerConfig_MenuDraw()
 			// upper
 			//
 			scratch = "models/players/" + s_pmi[s_player_model_box._curvalue].directory + "/upper.md3";
-			upper.model = uii.R_RegisterModel(scratch);
+			upper.model = trap_R_RegisterModel(scratch);
 		
 			upper.custom_shader = -1;
 		
 			scratch = "models/players/" + s_pmi[s_player_model_box._curvalue].directory + "/" + "upper_" + s_pmi[s_player_model_box._curvalue].skindisplaynames[s_player_skin_box._curvalue] + ".skin";
-			upper.custom_skin = uii.R_RegisterSkin(scratch);
+			upper.custom_skin = trap_R_RegisterSkin(scratch);
 			
 			upper.frame = s_pmi[s_player_model_box._curvalue].upperframe;
 			upper.frame_old = upper.frame;
@@ -807,9 +807,9 @@ static void	PlayerConfig_MenuDraw()
 		
 			upper.quat = lower.quat * upper_lerped.quat;
 					
-			uii.R_AddEntityToScene(upper);
+			trap_R_AddEntityToScene(upper);
 			
-			if(uii.R_LerpAttachment(head_lerped, upper, "tag_head"))
+			if(trap_R_LerpAttachment(head_lerped, upper, "tag_head"))
 			{
 				r_entity_t head;
 				
@@ -817,12 +817,12 @@ static void	PlayerConfig_MenuDraw()
 				// head
 				//
 				scratch = "models/players/" + s_pmi[s_player_model_box._curvalue].directory + "/head.md3";
-				head.model = uii.R_RegisterModel(scratch);
+				head.model = trap_R_RegisterModel(scratch);
 		
 				head.custom_shader = -1;
 		
 				scratch = "models/players/" + s_pmi[s_player_model_box._curvalue].directory + "/" + "head_" + s_pmi[s_player_model_box._curvalue].skindisplaynames[s_player_skin_box._curvalue] + ".skin";
-				head.custom_skin = uii.R_RegisterSkin(scratch);
+				head.custom_skin = trap_R_RegisterSkin(scratch);
 			
 				head.frame = 0;
 				head.frame_old = 0;
@@ -838,7 +838,7 @@ static void	PlayerConfig_MenuDraw()
 								
 				head.quat = upper.quat * head_lerped.quat;
 						
-				uii.R_AddEntityToScene(head);
+				trap_R_AddEntityToScene(head);
 			}
 		}
 
@@ -851,18 +851,18 @@ static void	PlayerConfig_MenuDraw()
 		// body
 		r_entity_t	body;
 	
-		body.model = uii.R_RegisterModel("models/players/" + s_pmi[s_player_model_box._curvalue].directory + "/body.md5mesh");
+		body.model = trap_R_RegisterModel("models/players/" + s_pmi[s_player_model_box._curvalue].directory + "/body.md5mesh");
 		
-		if(!uii.R_SetupAnimation(body.model, s_pmi[s_player_model_box._curvalue].anim))
-			uii.Com_Error(ERR_DROP, "animation setup failed");
+		if(!trap_R_SetupAnimation(body.model, s_pmi[s_player_model_box._curvalue].anim))
+			trap_Com_Error(ERR_DROP, "animation setup failed");
 			
-		if(uii.Sys_Milliseconds() - 41 > time)	// 41 milliseconds -> 24 frames per second
+		if(trap_Sys_Milliseconds() - 41 > time)	// 41 milliseconds -> 24 frames per second
 		{
-			time = uii.Sys_Milliseconds();
+			time = trap_Sys_Milliseconds();
 			s_pmi[s_player_model_box._curvalue].anim_frame++;
 		}
 		
-		body.custom_skin = uii.R_RegisterSkin("models/players/" + s_pmi[s_player_model_box._curvalue].directory + "/body_" + s_pmi[s_player_model_box._curvalue].skindisplaynames[s_player_skin_box._curvalue] + ".skin");
+		body.custom_skin = trap_R_RegisterSkin("models/players/" + s_pmi[s_player_model_box._curvalue].directory + "/body_" + s_pmi[s_player_model_box._curvalue].skindisplaynames[s_player_skin_box._curvalue] + ".skin");
 
 						
 		body.flags = RF_FULLBRIGHT | RF_NOSHADOW | RF_DEPTHHACK;
@@ -874,14 +874,14 @@ static void	PlayerConfig_MenuDraw()
 		body.frame = s_pmi[s_player_model_box._curvalue].anim_frame;
 		body.frame_old = body.frame;
 		
-		uii.R_AddEntity(body);
+		trap_R_AddEntity(body);
 		
 		
 		// light
 		r_entity_t	light;
 		
 		light.type = ET_LIGHT_OMNI;
-		light.custom_shader = uii.R_RegisterLight("lights/defaultPointLight");
+		light.custom_shader = trap_R_RegisterLight("lights/defaultPointLight");
 		light.color = color_white;
 		light.origin.set(0, 100, 100);
 		light.radius.set(1000, 1000, 1000);
@@ -889,16 +889,16 @@ static void	PlayerConfig_MenuDraw()
 		light.radius_bbox._mins = light.origin - light.radius;
 		light.radius_value = light.radius_bbox.radius();
 		
-		uii.R_AddLightToScene(light);
+		trap_R_AddLightToScene(light);
 		*/
 #endif
 		
 		s_player_config_menu.draw();
 
-		//M_DrawTextBox((int)((refdef.x) * (640.0F / uii.VID_GetWidth() ) - 8), (int)(( uii.VID_GetHeight() / 2 ) * (480.0F / uii.VID_GetHeight()) - 77), refdef.width / 8, refdef.height / 8);
+		//M_DrawTextBox((int)((refdef.x) * (640.0F / trap_VID_GetWidth() ) - 8), (int)(( trap_VID_GetHeight() / 2 ) * (480.0F / trap_VID_GetHeight()) - 77), refdef.width / 8, refdef.height / 8);
 		refdef.height += 4;
 
-		//uii.R_RenderFrame(refdef);
+		//trap_R_RenderFrame(refdef);
 
 		//
 		// render icon
@@ -906,9 +906,9 @@ static void	PlayerConfig_MenuDraw()
 		scratch = "models/players/" + s_pmi[s_player_model_box._curvalue].directory + "/icon_" + 
 			s_pmi[s_player_model_box._curvalue].skindisplaynames[s_player_skin_box._curvalue];
 			
-		//uii.Com_Printf("PlayerConfig_MenuDraw: icon '%s'\n", scratch.c_str());
+		//trap_Com_Printf("PlayerConfig_MenuDraw: icon '%s'\n", scratch.c_str());
 			
-		//uii.R_DrawStretchPic(s_player_config_menu._x - 40, s_player_config_menu._y + 32, 32, 32, 0, 0, 1, 1, color_white, uii.R_RegisterPic(scratch));
+		//trap_R_DrawStretchPic(s_player_config_menu._x - 40, s_player_config_menu._y + 32, 32, 32, 0, 0, 1, 1, color_white, trap_R_RegisterPic(scratch));
 		
 	}
 }
@@ -919,13 +919,13 @@ static const std::string	PlayerConfig_MenuKey(int key)
 	{
 		std::string	scratch;
 
-		uii.Cvar_Set("name", s_player_name_field._buffer);
+		trap_Cvar_Set("name", s_player_name_field._buffer);
 
 		scratch =	s_pmi[s_player_model_box._curvalue].directory + 
 				"/" + 
 				s_pmi[s_player_model_box._curvalue].skindisplaynames[s_player_skin_box._curvalue];
 
-		uii.Cvar_Set("skin", (char*)scratch.c_str());
+		trap_Cvar_Set("skin", (char*)scratch.c_str());
 
 		for(unsigned int i=0; i<s_pmi.size(); i++)
 		{
@@ -955,3 +955,4 @@ void	M_Menu_PlayerConfig_f()
 	M_PushMenu(PlayerConfig_MenuDraw, PlayerConfig_MenuKey);
 }
 
+#endif

@@ -33,7 +33,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../x_keycodes.h"
 
 // xreal --------------------------------------------------------------------
-#include "ui_public.h"
 
 
 #define MAXMENUITEMS	64
@@ -267,9 +266,6 @@ public:
 };
 
 
-extern ui_import_t	uii;
-extern ui_export_t	ui_globals;
-
 extern const char*	menu_in_sound;
 extern const char*	menu_move_sound;
 extern const char*	menu_out_sound;
@@ -288,7 +284,7 @@ void	M_Menu_Main_f();
 //			void M_Menu_AddressBook_f();
 //		void M_Menu_StartServer_f();
 //			void M_Menu_DMOptions_f();
-		void M_Menu_PlayerConfig_f();
+//		void M_Menu_PlayerConfig_f();
 			void M_Menu_DownloadOptions_f();
 	void M_Menu_Audio_f();
 	void M_Menu_Video_f();
@@ -331,6 +327,70 @@ void		M_VIDMenuDraw();
 int	Menu_GetCharWidth(int flags);
 void	Menu_DrawChar(int x, int y, int num, const vec4_c &color, int flags);
 void	Menu_DrawString(int, int, const std::string &string, int flags);
+
+
+//
+// ui_syscalls.cxx
+//
+void 		trap_Com_Printf(const char *fmt, ...);
+void 		trap_Com_DPrintf(const char *fmt, ...);
+void 		trap_Com_Error(err_type_e type, const char *fmt, ...);
+int		trap_Com_ServerState();
+
+void 		trap_Cbuf_AddText(const std::string &text);
+void 		trap_Cbuf_InsertText(const std::string &text);
+void 		trap_Cbuf_ExecuteText(exec_type_e, const std::string &text);
+void 		trap_Cbuf_Execute();
+	
+void		trap_Cmd_AddCommand(const std::string &name, void(*cmd)());
+void		trap_Cmd_RemoveCommand(const std::string &name);
+int		trap_Cmd_Argc();
+const char*	trap_Cmd_Argv(int i);	
+
+cvar_t*		trap_Cvar_Get(const std::string &name, const std::string &value, uint_t flags);
+cvar_t*		trap_Cvar_Set(const std::string &name, const std::string &value);
+cvar_t*		trap_Cvar_ForceSet(const std::string &name, const std::string &value);
+void		trap_Cvar_SetValue(const std::string &name, float value);
+void		trap_Cvar_SetModified(const std::string &name);
+float		trap_Cvar_VariableValue(const std::string &name);
+int		trap_Cvar_VariableInteger(const std::string &name);
+const char*	trap_Cvar_VariableString(const std::string &name);
+float		trap_Cvar_ClampVariable(const std::string &name, float min, float max);
+	
+std::string	trap_VFS_Gamedir();
+std::vector<std::string>	trap_VFS_ListFiles(const std::string &dir, const std::string &extension);
+	
+int		trap_VFS_FLoad(const std::string &name, void **buf);
+void		trap_VFS_FFree(void *buf);
+		
+int		trap_R_RegisterPic(const std::string &name);
+void		trap_R_DrawPic(int x, int y, int w, int h, const vec4_c &color, int shader);
+void		trap_R_DrawStretchPic(int x, int y, int w, int h, float s1, float t1, float s2, float t2, const vec4_c &color, int shader);
+void		trap_R_DrawFill(int x, int y, int w, int h, const vec4_c &color);
+	
+char*		trap_Key_KeynumToString(int keynum);
+char*		trap_Key_GetBinding(int keynum);
+void 		trap_Key_SetBinding(int keynum, char *binding);
+void 		trap_Key_ClearStates();
+keydest_t	trap_Key_GetKeyDest();
+void		trap_Key_SetKeyDest(keydest_t key_dest);
+	
+void		trap_Con_ClearNotify();
+void		trap_Con_ClearTyping();
+
+float		trap_CL_GetRealtime();
+bool		trap_CL_GetAttractloop();
+void 		trap_CL_Quit_f();
+void 		trap_CL_PingServers_f();
+void		trap_CL_SetServercount(int count);
+
+void		trap_S_StartLocalSound(const std::string &name);
+
+uint_t		trap_VID_GetWidth();
+uint_t		trap_VID_GetHeight();
+	
+char*		trap_Sys_AdrToString(const netadr_t &a);
+int		trap_Sys_Milliseconds();
 
 
 #endif

@@ -65,8 +65,8 @@ static std::stack<menu_layer_c>		m_layers;
 void	M_Banner(const std::string &name)
 {
 	// center the string on the top
-	int x = uii.VID_GetWidth()/2 - (CHAR_BIG_WIDTH * (name.length()/2));
-	int y = uii.VID_GetHeight()/2 - 160;
+	int x = trap_VID_GetWidth()/2 - (CHAR_BIG_WIDTH * (name.length()/2));
+	int y = trap_VID_GetHeight()/2 - 160;
 	
 	Menu_DrawString(x, y, name, FONT_BIG | FONT_CHROME);
 }
@@ -78,17 +78,17 @@ void	M_PushMenu(drawfunc_t draw, keyfunc_t key)
 		
 	m_layers.push(menu_layer_c(draw, key));
 	
-	uii.Key_SetKeyDest(KEY_MENU);
+	trap_Key_SetKeyDest(KEY_MENU);
 	
-	uii.S_StartLocalSound(menu_in_sound);
+	trap_S_StartLocalSound(menu_in_sound);
 }
 
 void	M_PopMenu()
 {
-	uii.S_StartLocalSound(menu_out_sound);
+	trap_S_StartLocalSound(menu_out_sound);
 	
 	if(m_layers.empty())
-		uii.Com_Error(ERR_FATAL, "M_PopMenu: depth < 1");
+		trap_Com_Error(ERR_FATAL, "M_PopMenu: depth < 1");
 	
 	m_layers.pop();
 	
@@ -113,9 +113,9 @@ void	M_ForceMenuOff()
 	while(!m_layers.empty())
 		m_layers.pop();
 	
-	uii.Key_SetKeyDest(KEY_GAME);
+	trap_Key_SetKeyDest(KEY_GAME);
 	
-	uii.Key_ClearStates();
+	trap_Key_ClearStates();
 }
 
 const std::string	Default_MenuKey(menu_framework_c *m, int key)
@@ -252,7 +252,7 @@ higher res screens.
 */
 static void	M_DrawCharacter(int cx, int cy, int num)
 {
-	Menu_DrawChar( cx + ((uii.VID_GetWidth() - 640)>>1), cy + ((uii.VID_GetHeight() - 480)>>1), num, color_white, FONT_NONE);
+	Menu_DrawChar( cx + ((trap_VID_GetWidth() - 640)>>1), cy + ((trap_VID_GetHeight() - 480)>>1), num, color_white, FONT_NONE);
 }
 
 void	M_Print(int cx, int cy, char *str)
@@ -280,8 +280,8 @@ void	M_DrawPic(int x, int y, char *pic)
 	/*
 	int	shader;
 	
-	shader = uii.R_RegisterPic(pic);
-	uii.R_DrawPic(x + ((uii.VID_GetWidth() -640)>>1), y + ((uii.VID_GetHeight() - 480)>>1), color_white, shader);
+	shader = trap_R_RegisterPic(pic);
+	trap_R_DrawPic(x + ((trap_VID_GetWidth() -640)>>1), y + ((trap_VID_GetHeight() - 480)>>1), color_white, shader);
 	*/
 }
 
@@ -310,14 +310,14 @@ void	M_DrawCursor(int x, int y, int f)
 		{
 			Com_sprintf( cursorname, sizeof( cursorname ), "textures/pics/m_cursor%d.pcx", i );
 
-			uii.R_RegisterPic( cursorname );
+			trap_R_RegisterPic( cursorname );
 		}
 		cached = true;
 	}
 
 	Com_sprintf( cursorname, sizeof(cursorname), "textures/pics/m_cursor%d.pcx", f );
 	
-	uii.R_DrawPic( x, y, color_white, uii.R_RegisterPic(cursorname) );
+	trap_R_DrawPic( x, y, color_white, trap_R_RegisterPic(cursorname) );
 	*/
 }
 
@@ -372,37 +372,37 @@ void M_DrawTextBox(int x, int y, int width, int lines)
 
 void	M_Init()
 {
-	uii.Cmd_AddCommand("menu_main", M_Menu_Main_f);
-//	uii.Cmd_AddCommand("menu_singleplayer", M_Menu_Singleplayer_f);
-//		uii.Cmd_AddCommand("menu_loadgame", M_Menu_LoadGame_f);
-//		uii.Cmd_AddCommand("menu_savegame", M_Menu_SaveGame_f);
+	trap_Cmd_AddCommand("menu_main", M_Menu_Main_f);
+//	trap_Cmd_AddCommand("menu_singleplayer", M_Menu_Singleplayer_f);
+//		trap_Cmd_AddCommand("menu_loadgame", M_Menu_LoadGame_f);
+//		trap_Cmd_AddCommand("menu_savegame", M_Menu_SaveGame_f);
 		
-	uii.Cmd_AddCommand("menu_multiplayer", M_Menu_Multiplayer_f);
-		uii.Cmd_AddCommand("menu_joinserver", M_Menu_JoinServer_f);
-//			uii.Cmd_AddCommand("menu_addressbook", M_Menu_AddressBook_f);
+	trap_Cmd_AddCommand("menu_multiplayer", M_Menu_Multiplayer_f);
+		trap_Cmd_AddCommand("menu_joinserver", M_Menu_JoinServer_f);
+//			trap_Cmd_AddCommand("menu_addressbook", M_Menu_AddressBook_f);
 			
-//		uii.Cmd_AddCommand("menu_startserver", M_Menu_StartServer_f);
-//			uii.Cmd_AddCommand("menu_dmoptions", M_Menu_DMOptions_f);
+//		trap_Cmd_AddCommand("menu_startserver", M_Menu_StartServer_f);
+//			trap_Cmd_AddCommand("menu_dmoptions", M_Menu_DMOptions_f);
 			
-		uii.Cmd_AddCommand("menu_playerconfig", M_Menu_PlayerConfig_f);
-			uii.Cmd_AddCommand("menu_downloadoptions", M_Menu_DownloadOptions_f);
+//		trap_Cmd_AddCommand("menu_playerconfig", M_Menu_PlayerConfig_f);
+//			trap_Cmd_AddCommand("menu_downloadoptions", M_Menu_DownloadOptions_f);
 			
-	uii.Cmd_AddCommand("menu_options", M_Menu_Options_f);
-		uii.Cmd_AddCommand("menu_keys", M_Menu_Keys_f);
+	trap_Cmd_AddCommand("menu_options", M_Menu_Options_f);
+		trap_Cmd_AddCommand("menu_keys", M_Menu_Keys_f);
 		
-	uii.Cmd_AddCommand("menu_video", M_Menu_Video_f);
-	uii.Cmd_AddCommand("menu_credits", M_Menu_Credits_f);
-	uii.Cmd_AddCommand("menu_quit", M_Menu_Quit_f);
+	trap_Cmd_AddCommand("menu_video", M_Menu_Video_f);
+	trap_Cmd_AddCommand("menu_credits", M_Menu_Credits_f);
+	trap_Cmd_AddCommand("menu_quit", M_Menu_Quit_f);
 }
 
 
 void	M_Draw()
 {
-	if(uii.Key_GetKeyDest() != KEY_MENU)
+	if(trap_Key_GetKeyDest() != KEY_MENU)
 		return;
 	
 	vec4_c color(0, 0, 0, 0.8);
-	uii.R_DrawFill(0, 0, uii.VID_GetWidth(), uii.VID_GetHeight(), color);
+	trap_R_DrawFill(0, 0, trap_VID_GetWidth(), trap_VID_GetHeight(), color);
 	
 	m_drawfunc();
 }
@@ -414,7 +414,7 @@ void	M_Keydown(int key)
 		std::string s;
 		
 		if((s = m_keyfunc(key)).length() != 0)
-			uii.S_StartLocalSound(s);
+			trap_S_StartLocalSound(s);
 	}
 }
 

@@ -29,8 +29,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ui_local.h"
 
 
-ui_import_t	uii;
-ui_export_t	ui_globals;
+
+static ui_export_t	ui_globals;
 
 
 #define	MAIN_ITEMS	5
@@ -42,18 +42,18 @@ public:
 	virtual void	callback()
 	{
 		// the proper way to do this is probably to have ToggleConsole_f accept a parameter
-		if(uii.CL_GetAttractloop)
+		if(trap_CL_GetAttractloop())
 		{
-			uii.Cbuf_AddText("killserver\n");
+			trap_Cbuf_AddText("killserver\n");
 			return;
 		}
 
-		uii.Con_ClearTyping();
-		uii.Con_ClearNotify();
+		trap_Con_ClearTyping();
+		trap_Con_ClearNotify();
 
 		M_ForceMenuOff();
 	
-		uii.Key_SetKeyDest(KEY_CONSOLE);
+		trap_Key_SetKeyDest(KEY_CONSOLE);
 	}
 };
 
@@ -132,7 +132,7 @@ static void	M_Main_MenuInit()
 	int	y = 0;
 	int	y_offset = CHAR_BIG_HEIGHT + 10;
 	
-	s_main_menu._x = (int)(uii.VID_GetWidth() * 0.50) - (5*CHAR_BIG_WIDTH);
+	s_main_menu._x = (int)(trap_VID_GetWidth() * 0.50) - (5*CHAR_BIG_WIDTH);
 
 	s_main_console_action._flags 		= QMF_LEFT_JUSTIFY;
 	s_main_console_action._fontflags	= FONT_CHROME | FONT_BIG;
@@ -231,6 +231,7 @@ extern "C" {
 
 ui_export_t*	GetUIAPI (ui_import_t *import)
 {
+	extern ui_import_t uii;
 	uii = *import;
 
 	ui_globals.apiversion		= UI_API_VERSION;
@@ -258,24 +259,26 @@ ui_export_t*	GetUIAPI (ui_import_t *import)
 void 	Com_Error(err_type_e type, const char *fmt, ...)
 {
 	va_list		argptr;
-	char		text[1024];
+	char		text[MAX_STRING_CHARS];
 
 	va_start(argptr, fmt);
 	vsprintf(text, fmt, argptr);
 	va_end(argptr);
 
+	extern ui_import_t uii;
 	uii.Com_Error(type, "%s", text);
 }
 
 void 	Com_Printf(const char *fmt, ...)
 {
 	va_list		argptr;
-	char		text[1024];
+	char		text[MAX_STRING_CHARS];
 
 	va_start(argptr, fmt);
 	vsprintf(text, fmt, argptr);
 	va_end(argptr);
 
+	extern ui_import_t uii;
 	uii.Com_Printf("%s", text);
 }
 #endif

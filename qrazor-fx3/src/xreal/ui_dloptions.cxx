@@ -41,7 +41,7 @@ public:
 
 	virtual void	callback()
 	{
-		uii.Cvar_SetValue("allow_download", _curvalue);
+		trap_Cvar_SetValue("allow_download", _curvalue);
 	}
 };
 
@@ -59,7 +59,7 @@ public:
 
 	virtual void	callback()
 	{
-		uii.Cvar_SetValue("allow_download_maps", _curvalue);
+		trap_Cvar_SetValue("allow_download_maps", _curvalue);
 	}
 };
 
@@ -77,7 +77,7 @@ public:
 
 	virtual void	callback()
 	{
-		uii.Cvar_SetValue("allow_download_models", _curvalue);
+		trap_Cvar_SetValue("allow_download_models", _curvalue);
 	}
 };
 
@@ -95,7 +95,7 @@ public:
 
 	virtual void	callback()
 	{
-		uii.Cvar_SetValue("allow_download_players", _curvalue);
+		trap_Cvar_SetValue("allow_download_players", _curvalue);
 	}
 };
 
@@ -113,7 +113,7 @@ public:
 	
 	virtual void	callback()
 	{
-		uii.Cvar_SetValue("allow_download_sounds", _curvalue);
+		trap_Cvar_SetValue("allow_download_sounds", _curvalue);
 	}
 };
 
@@ -132,30 +132,30 @@ static void	DownloadOptions_MenuInit()
 {
 	int y = 0;
 
-	s_downloadoptions_menu._x = (int)(uii.VID_GetWidth() * 0.50);
+	s_downloadoptions_menu._x = (int)(trap_VID_GetWidth() * 0.50);
 
 	s_download_title._x    = 48;
 	s_download_title._y	 = y;
 
 	s_allow_download_box._x	= 0;
 	s_allow_download_box._y	= y += 20;
-	s_allow_download_box._curvalue = (uii.Cvar_VariableValue("allow_download") != 0);
+	s_allow_download_box._curvalue = (trap_Cvar_VariableValue("allow_download") != 0);
 
 	s_allow_download_maps_box._x	= 0;
 	s_allow_download_maps_box._y	= y += 20;
-	s_allow_download_maps_box._curvalue = (uii.Cvar_VariableValue("allow_download_maps") != 0);
+	s_allow_download_maps_box._curvalue = (trap_Cvar_VariableValue("allow_download_maps") != 0);
 
 	s_allow_download_players_box._x	= 0;
 	s_allow_download_players_box._y	= y += 10;
-	s_allow_download_players_box._curvalue = (uii.Cvar_VariableValue("allow_download_players") != 0);
+	s_allow_download_players_box._curvalue = (trap_Cvar_VariableValue("allow_download_players") != 0);
 
 	s_allow_download_models_box._x	= 0;
 	s_allow_download_models_box._y	= y += 10;
-	s_allow_download_models_box._curvalue = (uii.Cvar_VariableValue("allow_download_models") != 0);
+	s_allow_download_models_box._curvalue = (trap_Cvar_VariableValue("allow_download_models") != 0);
 
 	s_allow_download_sounds_box._x	= 0;
 	s_allow_download_sounds_box._y	= y += 10;
-	s_allow_download_sounds_box._curvalue = (uii.Cvar_VariableValue("allow_download_sounds") != 0);
+	s_allow_download_sounds_box._curvalue = (trap_Cvar_VariableValue("allow_download_sounds") != 0);
 	
 	s_downloadoptions_menu.addItem(&s_download_title);
 	s_downloadoptions_menu.addItem(&s_allow_download_box);

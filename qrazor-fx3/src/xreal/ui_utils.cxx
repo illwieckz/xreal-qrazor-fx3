@@ -88,7 +88,7 @@ void	menu_field_c::draw()
 	// draw field box
 	//
 	int cwidth = Menu_GetCharWidth(_fontflags);
-	uii.R_DrawFill((_name.length()+1)*cwidth + _x + _parent->_x, _y + _parent->_y, cwidth * _length, cwidth, color_grey_med);
+	trap_R_DrawFill((_name.length()+1)*cwidth + _x + _parent->_x, _y + _parent->_y, cwidth * _length, cwidth, color_grey_med);
 	
 	
 	//
@@ -111,7 +111,7 @@ void	menu_field_c::draw()
 			offset = _cursor;
 		*/
 
-		if(((int)(uii.Sys_Milliseconds() / 250)) & 1)
+		if(((int)(trap_Sys_Milliseconds() / 250)) & 1)
 		{
 			Menu_DrawChar((_name.length()+1)*cwidth + _x + _parent->_x + _cursor*cwidth, _y + _parent->_y, 11, color_white, _fontflags);
 		}
@@ -339,7 +339,7 @@ void	menu_framework_c::center()
 			width = (*ir)->_name.length() * charwidth;
 	}
 			
-	_x = (uii.VID_GetWidth() - width) / 2;
+	_x = (trap_VID_GetWidth() - width) / 2;
 	*/
 
 	int height;
@@ -347,7 +347,7 @@ void	menu_framework_c::center()
 	height = _items[_items.size()-1]->_y;
 	height += 10;
 
-	_y = (uii.VID_GetHeight() - height) / 2;
+	_y = (trap_VID_GetHeight() - height) / 2;
 }
 
 #if 0
@@ -613,12 +613,12 @@ void	menu_framework_c::draw()
 		/*
 		if(item->_flags & QMF_LEFT_JUSTIFY)
 		{
-			Menu_DrawChar(_x + item->_x - 24 + item->_cursor_offset, _y + item->_y, 12 + ((int)(uii.Sys_Milliseconds()/250) & 1), color_white, FONT_NONE);
+			Menu_DrawChar(_x + item->_x - 24 + item->_cursor_offset, _y + item->_y, 12 + ((int)(trap_Sys_Milliseconds()/250) & 1), color_white, FONT_NONE);
 		}
 		else
 		*/
 		{
-			Menu_DrawChar(_x + item->_cursor_offset, _y + item->_y, 12 + ((int)(uii.Sys_Milliseconds()/250) & 1), color_white, FONT_NONE);
+			Menu_DrawChar(_x + item->_cursor_offset, _y + item->_y, 12 + ((int)(trap_Sys_Milliseconds()/250) & 1), color_white, FONT_NONE);
 		}
 	}
 
@@ -648,18 +648,18 @@ void	menu_framework_c::drawStatusBar(const std::string &string)
 	if(string.length())
 	{
 		int l = string.length();
-		int maxcol = uii.VID_GetWidth() / 8;
+		int maxcol = trap_VID_GetWidth() / 8;
 		int col = maxcol / 2 - l / 2;
 		
 		vec4_c color(0.5, 0.5, 0.5, 1);
 
-		uii.R_DrawFill(0, uii.VID_GetHeight()-8, uii.VID_GetWidth(), 8, color);
-		Menu_DrawString(col*8, uii.VID_GetHeight() - 8, string, FONT_SMALL);
+		trap_R_DrawFill(0, trap_VID_GetHeight()-8, trap_VID_GetWidth(), 8, color);
+		Menu_DrawString(col*8, trap_VID_GetHeight() - 8, string, FONT_SMALL);
 	}
 	else
 	{
 		vec4_c color;
-		uii.R_DrawFill(0, uii.VID_GetHeight()-8, uii.VID_GetWidth(), 8, color);
+		trap_R_DrawFill(0, trap_VID_GetHeight()-8, trap_VID_GetWidth(), 8, color);
 	}
 }
 
@@ -737,15 +737,15 @@ void	Menu_DrawChar(int x, int y, int num, const vec4_c &color, int flags)
 	
 	
 	if(flags & FONT_CHROME)
-		shader = uii.R_RegisterPic("fonts/chromechars");
+		shader = trap_R_RegisterPic("fonts/chromechars");
 	else
-		shader = uii.R_RegisterPic("fonts/conchars");
+		shader = trap_R_RegisterPic("fonts/conchars");
 
 	
 	if(flags & FONT_SHADOWED)
-		uii.R_DrawStretchPic(x+2, y+2, width, height, fcol, frow, fcol+size, frow+size, color, shader);
+		trap_R_DrawStretchPic(x+2, y+2, width, height, fcol, frow, fcol+size, frow+size, color, shader);
 	else
-		uii.R_DrawStretchPic(x, y, width, height, fcol, frow, fcol+size, frow+size, color, shader);
+		trap_R_DrawStretchPic(x, y, width, height, fcol, frow, fcol+size, frow+size, color, shader);
 }
 
 
@@ -862,7 +862,7 @@ void 	menu_list_c::draw()
 
 	Menu_DrawString(_x + _parent->_x, _y + _parent->_y, _name, _fontflags | FONT_ALT);
 
-  	uii.R_DrawFill(_x - 112 + _parent->_x, _y + _parent->_y + _curvalue*10 + 10, 128, 10, color_grey_med);
+  	trap_R_DrawFill(_x - 112 + _parent->_x, _y + _parent->_y + _curvalue*10 + 10, 128, 10, color_grey_med);
 	
 	for(unsigned int i=0; i<_itemnames.size(); i++)
 	{
@@ -922,8 +922,8 @@ void	menu_slider_c::draw()
 #else
 
 	int cwidth = Menu_GetCharWidth(_fontflags);
-	uii.R_DrawFill((_name.length()+1)*cwidth +_x + _parent->_x, _y + _parent->_y, cwidth * SLIDER_RANGE, cwidth, color_grey_med);
-	uii.R_DrawFill((_name.length()+1)*cwidth +_x + _parent->_x, _y + _parent->_y,(int)(cwidth * SLIDER_RANGE * range), cwidth, color_blue);
+	trap_R_DrawFill((_name.length()+1)*cwidth +_x + _parent->_x, _y + _parent->_y, cwidth * SLIDER_RANGE, cwidth, color_grey_med);
+	trap_R_DrawFill((_name.length()+1)*cwidth +_x + _parent->_x, _y + _parent->_y,(int)(cwidth * SLIDER_RANGE * range), cwidth, color_blue);
 #endif
 }
 

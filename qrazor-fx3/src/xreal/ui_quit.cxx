@@ -33,8 +33,8 @@ class menu_quit_yes_c : public menu_action_c
 public:
 	virtual void	callback()
 	{
-		uii.Key_SetKeyDest(KEY_CONSOLE);
-		uii.CL_Quit_f();
+		trap_Key_SetKeyDest(KEY_CONSOLE);
+		trap_CL_Quit_f();
 	}
 };
 
@@ -69,8 +69,8 @@ const std::string	M_QuitKey(int key)
 
 		case 'Y':
 		case 'y':
-			uii.Key_SetKeyDest(KEY_CONSOLE);
-			uii.CL_Quit_f();
+			trap_Key_SetKeyDest(KEY_CONSOLE);
+			trap_CL_Quit_f();
 			break;
 			
 		case K_UPARROW:
@@ -97,7 +97,7 @@ const std::string	M_QuitKey(int key)
 
 static void	M_QuitInit()
 {
-	s_quit_menu._x = uii.VID_GetWidth() / 2;
+	s_quit_menu._x = trap_VID_GetWidth() / 2;
 	
 	s_quit_question._flags		= QMF_LEFT_JUSTIFY;
 	s_quit_question._fontflags	= FONT_MEDIUM | FONT_ALT | FONT_CHROME;

@@ -37,6 +37,7 @@ public:
 	}
 };
 
+/*
 class menu_mplayer_player_setup_c : public menu_action_c
 {
 public:
@@ -45,18 +46,19 @@ public:
 		M_Menu_PlayerConfig_f();
 	}
 };
+*/
 
 menu_framework_c			s_multiplayer_menu;
 static menu_mplayer_join_network_c		s_join_network_server_action;
-static menu_mplayer_player_setup_c		s_player_setup_action;
+//static menu_mplayer_player_setup_c		s_player_setup_action;
 
 
 static void	Multiplayer_MenuInit()
 {
 	int	y;
-	int	y_offset = CHAR_MEDIUM_HEIGHT + 5;
+//	int	y_offset = CHAR_MEDIUM_HEIGHT + 5;
 
-	s_multiplayer_menu._x = (int)(uii.VID_GetWidth() * 0.50 - (CHAR_MEDIUM_WIDTH * 10));
+	s_multiplayer_menu._x = (int)(trap_VID_GetWidth() * 0.50 - (CHAR_MEDIUM_WIDTH * 10));
 
 	s_join_network_server_action._flags 	= QMF_LEFT_JUSTIFY;
 	s_join_network_server_action._fontflags	= FONT_MEDIUM | FONT_CHROME;
@@ -64,14 +66,14 @@ static void	Multiplayer_MenuInit()
 	s_join_network_server_action._y		= y = 0;
 	s_join_network_server_action._name	= "join network server";
 
-	s_player_setup_action._flags		= QMF_LEFT_JUSTIFY;
-	s_player_setup_action._fontflags	= FONT_MEDIUM | FONT_CHROME;
-	s_player_setup_action._x		= 0;
-	s_player_setup_action._y		= y += y_offset;
-	s_player_setup_action._name		= "player setup";
+//	s_player_setup_action._flags		= QMF_LEFT_JUSTIFY;
+//	s_player_setup_action._fontflags	= FONT_MEDIUM | FONT_CHROME;
+//	s_player_setup_action._x		= 0;
+//	s_player_setup_action._y		= y += y_offset;
+//	s_player_setup_action._name		= "player setup";
 
 	s_multiplayer_menu.addItem(&s_join_network_server_action);
-	s_multiplayer_menu.addItem(&s_player_setup_action);
+//	s_multiplayer_menu.addItem(&s_player_setup_action);
 
 	s_multiplayer_menu.center();
 }

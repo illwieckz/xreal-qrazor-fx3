@@ -77,7 +77,7 @@ static void	M_Credits_MenuDraw()
 	//
 	// draw the credits
 	//
-	for(i=0, y=(int)(uii.VID_GetHeight() - ((uii.CL_GetRealtime() - credits_start_time ) / 40.0F)); credits[i] && y < (int)uii.VID_GetHeight(); i++)
+	for(i=0, y=(int)(trap_VID_GetHeight() - ((trap_CL_GetRealtime() - credits_start_time ) / 40.0F)); credits[i] && y < (int)trap_VID_GetHeight(); i++)
 	{
 		int j, stringoffset = 0;
 		
@@ -111,17 +111,17 @@ static void	M_Credits_MenuDraw()
 		{
 			int x;
 
-			//x =(uii.VID_GetWidth() - strlen(credits[i]) * 8 - stringoffset * 8 ) / 2 + (j + stringoffset) * 8;
+			//x =(trap_VID_GetWidth() - strlen(credits[i]) * 8 - stringoffset * 8 ) / 2 + (j + stringoffset) * 8;
 
 			if(bold)
 			{
-				x =(uii.VID_GetWidth() - strlen(credits[i]) * CHAR_MEDIUM_WIDTH - stringoffset * CHAR_MEDIUM_WIDTH ) / 2 + (j + stringoffset) * CHAR_MEDIUM_WIDTH;
+				x =(trap_VID_GetWidth() - strlen(credits[i]) * CHAR_MEDIUM_WIDTH - stringoffset * CHAR_MEDIUM_WIDTH ) / 2 + (j + stringoffset) * CHAR_MEDIUM_WIDTH;
 				
 				Menu_DrawChar(x, y, credits[i][j+stringoffset], color_white, FONT_MEDIUM | FONT_ALT | FONT_CHROME);
 			}	
 			else
 			{
-				x =(uii.VID_GetWidth() - strlen(credits[i]) * CHAR_MEDIUM_WIDTH - stringoffset * CHAR_MEDIUM_WIDTH ) / 2 + (j + stringoffset) * CHAR_MEDIUM_WIDTH;
+				x =(trap_VID_GetWidth() - strlen(credits[i]) * CHAR_MEDIUM_WIDTH - stringoffset * CHAR_MEDIUM_WIDTH ) / 2 + (j + stringoffset) * CHAR_MEDIUM_WIDTH;
 				
 				Menu_DrawChar(x, y, credits[i][j+stringoffset], color_white, FONT_MEDIUM | FONT_CHROME);
 			}
@@ -134,7 +134,7 @@ static void	M_Credits_MenuDraw()
 	}
 
 	if(y < 0)
-		credits_start_time = (int)uii.CL_GetRealtime();
+		credits_start_time = (int)trap_CL_GetRealtime();
 }
 
 static const std::string	M_Credits_Key(int key)
@@ -143,7 +143,7 @@ static const std::string	M_Credits_Key(int key)
 	{
 		case K_ESCAPE:
 			if (creditsBuffer)
-				uii.VFS_FFree (creditsBuffer);
+				trap_VFS_FFree (creditsBuffer);
 			M_PopMenu ();
 		break;
 	}
@@ -159,7 +159,7 @@ void	M_Menu_Credits_f()
 	char	*p;
 
 	creditsBuffer = NULL;
-	count = uii.VFS_FLoad("credits", (void**)&creditsBuffer);
+	count = trap_VFS_FLoad("credits", (void**)&creditsBuffer);
 	if(count != -1)
 	{
 		p = creditsBuffer;
@@ -190,7 +190,7 @@ void	M_Menu_Credits_f()
 		credits = xrealcredits;		//XreaL project
 	}
 
-	credits_start_time = (int)uii.CL_GetRealtime();
+	credits_start_time = (int)trap_CL_GetRealtime();
 	
 	M_PushMenu(M_Credits_MenuDraw, M_Credits_Key);
 }

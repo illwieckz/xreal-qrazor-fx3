@@ -38,12 +38,12 @@ protected:
 
 	void	getDMFlags()
 	{
-		_dmflags = uii.Cvar_VariableInteger("dmflags");
+		_dmflags = trap_Cvar_VariableInteger("dmflags");
 	}
 
 	void	setDMFlags()
 	{
-		uii.Cvar_SetValue("dmflags", _dmflags);
+		trap_Cvar_SetValue("dmflags", _dmflags);
 
 		Com_sprintf(dmoptions_statusbar, sizeof(dmoptions_statusbar), "dmflags = %d", _dmflags);
 	}
@@ -458,10 +458,10 @@ static menu_quad_drop_c			s_quad_drop_box;
 
 static void	DMOptions_MenuInit()
 {
-	int dmflags = uii.Cvar_VariableInteger("dmflags");
+	int dmflags = trap_Cvar_VariableInteger("dmflags");
 	int y = 0;
 
-	s_dmoptions_menu._x = (int)(uii.VID_GetWidth() * 0.50);
+	s_dmoptions_menu._x = (int)(trap_VID_GetWidth() * 0.50);
 
 	s_falls_box._x	= 0;
 	s_falls_box._y	= y;	
