@@ -1590,8 +1590,8 @@ static void	CM_TraceToLeaf(int leafnum)
 		
 			brush.checkcount = cm_checkcount;
 
-//			if(!(brush.contents & trace_contents))
-//				continue;
+			if(!(brush.contents & trace_contents))
+				continue;
 		
 			CM_ClipBoxToBrush(trace_bbox, trace_start, trace_end, trace_trace, brush);
 		
