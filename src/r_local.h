@@ -261,7 +261,10 @@ enum r_shader_parms_e
 	SHADER_PARM_GLOBAL1,
 	SHADER_PARM_GLOBAL2,
 	
-	SHADER_PARM_SOUND
+	SHADER_PARM_SOUND,
+	
+	SHADER_PARM_FRANDOM,
+	SHADER_PARM_CRANDOM
 };
 
 struct r_shader_parameter_symbols_t : boost::spirit::symbols<r_shader_parms_e, char>
@@ -285,6 +288,9 @@ struct r_shader_parameter_symbols_t : boost::spirit::symbols<r_shader_parms_e, c
 			("global2",	SHADER_PARM_GLOBAL2)
 			
 			("sound",	SHADER_PARM_SOUND)
+			
+			("frandom",	SHADER_PARM_FRANDOM)
+			("crandom",	SHADER_PARM_CRANDOM)
 			;
 	}
 };
@@ -353,8 +359,8 @@ enum
 	FRUSTUM_TOP,
 	FRUSTUM_NEAR,
 	FRUSTUM_FAR,
-	FRUSTUM_PLANES		= 6,
-	FRUSTUM_CLIPALL		= 1 | 2 | 4 | 8 | 16 | 32
+	FRUSTUM_PLANES		= 5,
+	FRUSTUM_CLIPALL		= 1 | 2 | 4 | 8 | 16 //| 32
 };
 
 
@@ -945,9 +951,15 @@ public:
 	inline void		beginOcclusionQuery() const	{xglBeginQueryARB(GL_SAMPLES_PASSED_ARB, _query);}	
 	inline void		endOcclusionQuery() const	{xglEndQueryARB(GL_SAMPLES_PASSED_ARB);}
 	
+	inline bool		getOcclusionSamplesAvailable() const
+	{
+		int avail;
+		xglGetQueryObjectivARB(_query, GL_QUERY_RESULT_AVAILABLE_ARB, &avail);
+		return avail >= 1;
+	}
 	inline uint_t		getOcclusionSamplesNum() const
 	{
-		uint_t samples;
+		uint_t samples = 0;
 		xglGetQueryObjectuivARB(_query, GL_QUERY_RESULT_ARB, &samples);
 		return samples;
 	}

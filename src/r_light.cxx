@@ -99,11 +99,11 @@ void	r_light_c::update(const r_entity_t &shared, r_light_type_t type)
 		
 		r_world_tree->precacheLight(this);
 		
-		if(_leafs.size())
-			ri.Com_DPrintf("light touches %i BSP leaves\n", _leafs.size());
+		//if(_leafs.size())
+		//	ri.Com_DPrintf("light touches %i BSP leaves\n", _leafs.size());
 			
-		if(_areas.size())
-			ri.Com_DPrintf("light touches %i BSP areas\n", _areas.size());
+		//if(_areas.size())
+		//	ri.Com_DPrintf("light touches %i BSP areas\n", _areas.size());
 #endif
 	}
 	else
@@ -300,7 +300,7 @@ void	r_light_c::addSurface(int areanum, const r_surface_c *surf)
 		}
 #elif 0
 		// triangle vertices interaction test		
-		if(_s.radius_bbox.intersect(v0, v1, v2))
+		if()
 		{
 			indexes.push_back(mesh->indexes[i+0]);
 			indexes.push_back(mesh->indexes[i+1]);
@@ -323,7 +323,16 @@ void	r_light_c::addSurface(int areanum, const r_surface_c *surf)
 		cplane_c p;
 		p.fromThreePointForm(v0, v1, v2);
 		
-		if(p.onSide(_s.radius_bbox) == SIDE_CROSS)
+		cbbox_c b;
+		b.clear();
+		b.addPoint(v0);
+		b.addPoint(v1);
+		b.addPoint(v2);
+		
+		if(	p.onSide(_s.radius_bbox) == SIDE_CROSS		// check if aabb crosses triangle plane
+			&& p.onSide(_origin) == SIDE_BACK		// check if light origin + light center is in positive half-space
+			&& b.intersect(_s.radius_bbox)			// check if triangle aabb touches light aabb
+		)
 		{
 			indexes.push_back(mesh->indexes[i+0]);
 			indexes.push_back(mesh->indexes[i+1]);

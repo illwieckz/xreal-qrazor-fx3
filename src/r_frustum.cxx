@@ -49,7 +49,7 @@ bool	r_frustum_c::cull(const cbbox_c &bbox, int clipflags) const
 		if(!(clipflags & (1<<i)))
 			continue;
 	
-		if(_planes[i].onSide(bbox, false) == SIDE_BACK)
+		if(_planes[i].onSide(bbox, true) == SIDE_BACK)
 			return true;
 	}
 	

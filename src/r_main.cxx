@@ -1622,7 +1622,7 @@ bool 	R_Init(void *hinstance, void *hWnd)
 	if(r_debug->isModified())
 	{
 		r_debug->isModified(false);
-		XGL_EnableDebugging((bool)r_debug->getInteger());
+		XGL_EnableDebugging(r_debug->getInteger() >= 0);
 	}
 	
 	// initialize OS-specific parts of OpenGL

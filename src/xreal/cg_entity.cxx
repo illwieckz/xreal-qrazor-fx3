@@ -45,6 +45,18 @@ void	CG_AddEntity(int newnum, const entity_state_t *state)
 	
 	cent->prev = cent->current = *state;
 	
+	if(cent->current.index_sound)
+	{
+		trap_S_StartLoopSound
+		(
+			cent->current.origin, 
+			cent->current.velocity_linear, 
+			cent->current.getNumber(), 
+			CHAN_AUTO, 
+			trap_S_RegisterSound(trap_CL_GetConfigString(CS_SOUNDS + cent->current.index_sound))
+		);
+	}
+	
 	switch(cent->prev.type)
 	{
 		case ET_GENERIC:
@@ -101,6 +113,9 @@ void	CG_UpdateEntity(int newnum, const entity_state_t *state, bool changed)
 void	CG_RemoveEntity(int newnum, const entity_state_t *state)
 {
 	cg_entity_t *cent = &cg.entities[newnum];
+	
+	if(cent->prev.index_sound)
+		trap_S_StopLoopSound(cent->prev.getNumber());
 	
  	cent->prev = cent->current;
  	cent->current = *state;
@@ -274,6 +289,29 @@ void	CG_UpdateModel(const cg_entity_t *cent, r_entity_t &rent, bool &update)
 	rent.model = cg.model_draw[cent->current.index_model];
 }
 
+void	CG_UpdateSound(const cg_entity_t *cent)
+{
+	if(!cent->prev.index_sound && cent->current.index_sound)
+	{
+		trap_S_StartLoopSound
+		(
+			cent->current.origin,
+			cent->current.velocity_linear,
+			cent->current.getNumber(),
+			CHAN_AUTO,
+			trap_S_RegisterSound(trap_CL_GetConfigString(CS_SOUNDS + cent->current.index_sound))
+		);
+	}
+	else if(cent->prev.index_sound && cent->current.index_sound)
+	{
+		trap_S_UpdateLoopSound(cent->current.origin, cent->current.velocity_linear, cent->current.getNumber());
+	}
+	else if(cent->prev.index_sound && !cent->current.index_sound)
+	{
+		trap_S_StopLoopSound(cent->current.getNumber());
+	}
+}
+
 void	CG_UpdateAnimation(const cg_entity_t *cent, r_entity_t &rent, bool &update)
 {
 	if(cg.animation_precache[cent->prev.index_animation] != cg.animation_precache[cent->current.index_animation])
@@ -323,8 +361,8 @@ void	CG_AddGenericEntity(const cg_entity_t *cent)
 	
 	r_entity_t	rent;
 
-	if(!cent->current.index_model)
-		trap_Com_Error(ERR_DROP, "CG_AddGenericEntity: bad client game entity model index %i\n", cent->current.index_model);
+//	if(!cent->current.index_model)
+//		trap_Com_Error(ERR_DROP, "CG_AddGenericEntity: bad client game entity model index %i\n", cent->current.index_model);
 	
 	rent.model = cg.model_draw[cent->current.index_model];
 //	if(rent.model < 0)
@@ -545,6 +583,8 @@ void	CG_UpdateEntities()
 			continue;
 		}
 		*/
+		
+		CG_UpdateSound(cent);
 		
 		switch(cent->prev.type)
 		{

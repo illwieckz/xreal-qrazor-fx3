@@ -55,7 +55,7 @@ public:
 
 private:
 	std::string	_s_shader;
-	int		_s_looping;
+	bool		_s_looping;
 };
 
 

@@ -553,7 +553,7 @@ void 	bitmessage_c::writeDeltaEntity(const entity_state_t *from, const entity_st
 	
 	if(!to)
 	{
-		writeBits(from->getNumber(), MAX_ENTITYNUM_BITS);
+		writeBits(from->getNumber(), MAX_ENTITIES_BITS);
 		writeBit(true);				// remove entity
 		return;
 	}
@@ -657,7 +657,7 @@ void 	bitmessage_c::writeDeltaEntity(const entity_state_t *from, const entity_st
 
 	//Com_Printf("message_c::writeDeltaEntity: %3i %3i\n", to->getNumber());
 	
-	writeBits(to->getNumber(), MAX_ENTITYNUM_BITS);
+	writeBits(to->getNumber(), MAX_ENTITIES_BITS);
 	writeBit(false);	// keep entity
 	writeLong(bits);
 	
@@ -684,19 +684,19 @@ void 	bitmessage_c::writeDeltaEntity(const entity_state_t *from, const entity_st
 		writeVec3(to->velocity_angular);
 
 	if(bits & U_INDEX_MODEL)
-		writeShort(to->index_model);
+		writeBits(to->index_model, MAX_MODELS_BITS);
 		
 	if(bits & U_INDEX_SHADER)
-		writeShort(to->index_shader);
+		writeBits(to->index_shader, MAX_SHADERS_BITS);
 		
 	if(bits & U_INDEX_ANIMATION)
-		writeShort(to->index_animation);
+		writeBits(to->index_animation, MAX_ANIMATIONS_BITS);
 		
 	if(bits & U_INDEX_SOUND)
-		writeShort(to->index_sound);
+		writeBits(to->index_sound, MAX_SOUNDS_BITS);
 		
 	if(bits & U_INDEX_LIGHT)
-		writeShort(to->index_light);
+		writeBits(to->index_light, MAX_LIGHTS_BITS);
 	
 	if(bits & U_FRAME)
 		writeShort(to->frame);
@@ -1149,19 +1149,19 @@ bool	bitmessage_c::readDeltaEntity(const entity_state_t *from, entity_state_t *t
 		readVec3(to->velocity_angular);
 
 	if(bits & U_INDEX_MODEL)
-		to->index_model = readShort();
+		to->index_model = readBits(MAX_MODELS_BITS);
 		
 	if(bits & U_INDEX_SHADER)
-		to->index_shader = readShort();
+		to->index_shader = readBits(MAX_SHADERS_BITS);
 		
 	if(bits & U_INDEX_ANIMATION)
-		to->index_animation = readShort();
+		to->index_animation = readBits(MAX_ANIMATIONS_BITS);
 		
 	if(bits & U_INDEX_SOUND)
-		to->index_sound = readShort();
+		to->index_sound = readBits(MAX_SOUNDS_BITS);
 		
 	if(bits & U_INDEX_LIGHT)
-		to->index_light = readShort();
+		to->index_light = readBits(MAX_LIGHTS_BITS);
 		
 	if(bits & U_FRAME)
 		to->frame = readShort();

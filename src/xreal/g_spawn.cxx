@@ -153,7 +153,7 @@ spawn_t	spawns[] = {
 	{"trigger_gravity",		SP_trigger_gravity},
 	{"trigger_teleport",		SP_trigger_teleport},
 
-//	{"target_speaker",		SP_target_speaker},
+	{"target_speaker",		SP_target_speaker},
 //	{"target_explosion",		SP_target_explosion},
 //	{"target_changelevel",		SP_target_changelevel},
 //	{"target_splash",		SP_target_splash},
@@ -176,7 +176,7 @@ spawn_t	spawns[] = {
 	{"light",			SP_light},
 
 	{"misc_teleporter_dest",	SP_target_teleport},
-//	{"speaker",			SP_target_speaker},
+	{"speaker",			SP_target_speaker},
 	
 //	{"ode_box",			SP_ode_box},
 

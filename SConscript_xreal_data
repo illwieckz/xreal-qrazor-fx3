@@ -53,6 +53,7 @@ xreal_data_MTR_files = [
 'data/xreal/materials/caves.mtr',
 'data/xreal/materials/characters.mtr',
 'data/xreal/materials/char_common.mtr',
+'data/xreal/materials/debug.mtr',
 'data/xreal/materials/decals.mtr',
 'data/xreal/materials/door.mtr',
 'data/xreal/materials/duffyTest.mtr',

@@ -275,7 +275,7 @@ void	sv_client_c::buildFrame()
 		frame.entities_num++;
 	}
 	
-//	Com_DPrintf("SV_BuildClientFrame: entities num: %i\n", frame.entities_num);
+//	Com_DPrintf("SV_BuildClientFrame: %i entities for %s\n", frame.entities_num, _name);
 }
 
 
@@ -472,7 +472,7 @@ void	sv_client_c::writePacketEntities(sv_client_frame_t *from, sv_client_frame_t
 		}
 	}
 
-	msg.writeBits(0, MAX_ENTITYNUM_BITS);	// end of packetentities
+	msg.writeBits(0, MAX_ENTITIES_BITS);	// end of packetentities
 }
 
 

@@ -63,13 +63,17 @@ s_buffer_c::~s_buffer_c()
 }
 
 
-s_source_c::s_source_c()
+s_source_c::s_source_c(int entity_num, int entity_channel)
 {
-	if(s_show->getValue())
-		Com_Printf("s_source_c::ctor:\n");
-	
 	alGenSources(1, &_id);
+
+	_entity_num	= entity_num;
+	_entity_channel = entity_channel;
 	
+	_activated = false;
+
+	if(s_show->getValue())
+		Com_Printf("s_source_c::ctor: %i %i\n", _entity_num, _entity_channel);
 	
 	// find free sound source slot
 	std::vector<s_source_c*>::iterator ir = find(s_sources.begin(), s_sources.end(), static_cast<s_source_c*>(NULL));
@@ -83,7 +87,7 @@ s_source_c::s_source_c()
 s_source_c::~s_source_c()
 {
 	if(s_show->getValue())
-		Com_Printf("s_source_c::dtor: %i %i\n", _ent_num, _ent_channel);
+		Com_Printf("s_source_c::dtor: %i %i\n", _entity_num, _entity_channel);
 
 	if(isPlaying())
 		alSourceStop(_id);
@@ -91,10 +95,12 @@ s_source_c::~s_source_c()
 	alDeleteSources(1, &_id);
 	
 	// clear slot
+	/*
 	std::vector<s_source_c*>::iterator ir = find(s_sources.begin(), s_sources.end(), static_cast<s_source_c*>(this));
 	
 	if(ir != s_sources.end())
 		*ir = NULL;
+	*/
 }
 
 

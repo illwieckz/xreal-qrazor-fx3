@@ -229,15 +229,28 @@ inline void	operator delete (void *ptr)
 
 enum
 {
-	MAX_ENTITYNUM_BITS		= 10,				// use only 10 bits to represent the entity number
+	
 
 	MAX_CLIENTS			= 256,				// absolute limit
-	MAX_ENTITIES			= (1 << MAX_ENTITYNUM_BITS),	// must change protocol to increase more
-	MAX_MODELS			= 4096,				// these are sent over the net as bytes
-	MAX_SHADERS			= 4096,
-	MAX_ANIMATIONS			= 4096,
-	MAX_SOUNDS			= 4096,				// so they cannot be blindly increased
-	MAX_LIGHTS			= 4096,				// should be enough for Doom3 style lighting
+	
+	MAX_ENTITIES_BITS		= 10,				// use only 10 bits to represent the entity number
+	MAX_ENTITIES			= (1 << MAX_ENTITIES_BITS),	// must change protocol to increase more
+	
+	MAX_MODELS_BITS			= 12,
+	MAX_MODELS			= (1 << MAX_MODELS_BITS),
+	
+	MAX_SHADERS_BITS		= 12,
+	MAX_SHADERS			= (1 << MAX_SHADERS_BITS),
+	
+	MAX_ANIMATIONS_BITS		= 12,
+	MAX_ANIMATIONS			= (1 << MAX_ANIMATIONS_BITS),
+	
+	MAX_SOUNDS_BITS			= 12,
+	MAX_SOUNDS			= (1 << MAX_SOUNDS_BITS),
+	
+	MAX_LIGHTS_BITS			= 12,
+	MAX_LIGHTS			= (1 << MAX_LIGHTS_BITS),
+	
 	MAX_ITEMS			= 256,
 	MAX_GENERAL			= (MAX_CLIENTS*2)		// general config strings
 };
@@ -1049,39 +1062,6 @@ enum
 };
 
 
-// temp entity events
-//
-// Temp entity events are for things that happen
-// at a location seperate from any existing entity.
-// Temporary entity messages are explicitly constructed
-// and broadcast.
-enum temp_event_e
-{
-	TE_GUNSHOT,
-	TE_BLOOD,
-	TE_BLASTER,
-	TE_RAILTRAIL,
-	TE_SHOTGUN,
-	TE_EXPLOSION1,
-	TE_EXPLOSION2,
-	TE_ROCKET_EXPLOSION,
-	TE_GRENADE_EXPLOSION,
-	TE_SPARKS,
-	TE_SPLASH,
-	TE_BUBBLETRAIL,
-	TE_SCREEN_SPARKS,
-	TE_SHIELD_SPARKS,
-	TE_BULLET_SPARKS,
-	TE_LASER_SPARKS,
-	TE_ROCKET_EXPLOSION_WATER,
-	TE_GRENADE_EXPLOSION_WATER,
-	TE_BFG_EXPLOSION,
-	TE_BFG_BIGEXPLOSION,
-	TE_BFG_LASER,
-	TE_CONTACT
-};
-
-
 //
 // splash types
 //
@@ -1336,7 +1316,9 @@ enum entity_type_e
 	
 	ET_PROJECTILE_BOLT,
 	ET_PROJECTILE_GRENADE,
-	ET_PROJECTILE_ROCKET
+	ET_PROJECTILE_ROCKET,
+	
+	ET_TARGET_SPEAKER
 };
 
 

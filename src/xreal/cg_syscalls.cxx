@@ -339,6 +339,21 @@ void		trap_S_StartSound(const vec3_c &origin, int ent_num, int ent_channel, int 
 	cgi.S_StartSound(origin, ent_num, ent_channel, sound);
 }
 
+void		trap_S_StartLoopSound(const vec3_c &origin, const vec3_c &velocity, int ent_num, int ent_channel, int sound)
+{
+	cgi.S_StartLoopSound(origin, velocity, ent_num, ent_channel, sound);
+}
+
+void		trap_S_UpdateLoopSound(const vec3_c &origin, const vec3_c &velocity, int ent_num)
+{
+	cgi.S_UpdateLoopSound(origin, velocity, ent_num);
+}
+
+void		trap_S_StopLoopSound(int ent_num)
+{
+	cgi.S_StopLoopSound(ent_num);
+}
+
 void		trap_S_StopAllSounds()
 {
 	cgi.S_StopAllSounds();
