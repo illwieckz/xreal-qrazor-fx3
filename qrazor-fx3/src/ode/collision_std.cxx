@@ -45,24 +45,33 @@ dContactGeom::g1 and dContactGeom::g2.
 //****************************************************************************
 // the basic geometry objects
 
-struct dxSphere : public dxGeom {
-  vec_t radius;		// sphere radius
-  dxSphere (dSpaceID space, vec_t _radius);
-  void computeAABB();
+struct dxSphere : public dxGeom
+{
+	dxSphere(dSpaceID space, vec_t _radius);
+	
+	void computeAABB();
+	
+	vec_t radius;		// sphere radius
 };
 
 
-struct dxBox : public dxGeom {
-  dVector3 side;	// side lengths (x,y,z)
-  dxBox (dSpaceID space, vec_t lx, vec_t ly, vec_t lz);
-  void computeAABB();
+struct dxBox : public dxGeom
+{
+	dxBox(dSpaceID space, vec_t lx, vec_t ly, vec_t lz);
+	
+	void computeAABB();
+	
+	dVector3	side;	// side lengths (x,y,z)
 };
 
 
-struct dxCCylinder : public dxGeom {
-  vec_t radius,lz;	// radius, length along z axis
-  dxCCylinder (dSpaceID space, vec_t _radius, vec_t _length);
-  void computeAABB();
+struct dxCCylinder : public dxGeom
+{
+	dxCCylinder(dSpaceID space, vec_t _radius, vec_t _length);
+	
+	void computeAABB();
+	
+	vec_t		radius, lz;	// radius, length along z axis
 };
 
 
@@ -77,10 +86,14 @@ struct dxPlane : public dxGeom
 };
 
 
-struct dxRay : public dxGeom {
-  vec_t length;
-  dxRay (dSpaceID space, vec_t _length);
-  void computeAABB();
+struct dxRay : public dxGeom
+{
+	
+	dxRay(dSpaceID space, vec_t _length);
+	
+	void computeAABB();
+	
+	vec_t		length;
 };
 
 
@@ -844,7 +857,7 @@ void	dGeomBSPAddLeafSurface(dGeomID g, int num)
 // the number of intersection points is returned by the function (this will
 // be in the range 0 to 8).
 
-static int intersectRectQuad (vec_t h[2], vec_t p[8], vec_t ret[16])
+int intersectRectQuad (vec_t h[2], vec_t p[8], vec_t ret[16])
 {
   // q (and r) contain nq (and nr) coordinate points for the current (and
   // chopped) polygons
@@ -986,7 +999,7 @@ void cullPoints (int n, vec_t p[], int m, int i0, int iret[])
 // `contact' and `skip' are the contact array information provided to the
 // collision functions. this function only fills in the position and depth
 // fields.
-
+/*
 int dBoxBox (const dVector3 p1, const matrix_c &R1,
 	     const dVector3 side1, const dVector3 p2,
 	     const matrix_c &R2, const dVector3 side2,
@@ -1142,8 +1155,11 @@ int dBoxBox (const dVector3 p1, const matrix_c &R1,
     for (i=0; i<3; i++) pa[i] += ua[i]*alpha;
     for (i=0; i<3; i++) pb[i] += ub[i]*beta;
 
-    for (i=0; i<3; i++) contact[0].pos[i] = REAL(0.5)*(pa[i]+pb[i]);
+    for (i=0; i<3; i++)
+    	contact[0].pos[i] = REAL(0.5)*(pa[i]+pb[i]);
+	
     contact[0].depth = *depth;
+    
     *return_code = code;
     return 1;
   }
@@ -1344,29 +1360,31 @@ int dBoxBox (const dVector3 p1, const matrix_c &R1,
   *return_code = code;
   return cnum;
 }
-
+*/
 //****************************************************************************
 // pairwise collision functions for standard geom types
 
-int dCollideSphereSphere (dxGeom *o1, dxGeom *o2, int flags,
-			  dContactGeom *contact, int skip)
+int	dCollideSphereSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dSphereClass);
-  dIASSERT (o2->type == dSphereClass);
-  dxSphere *sphere1 = (dxSphere*) o1;
-  dxSphere *sphere2 = (dxSphere*) o2;
-
-  contact->g1 = o1;
-  contact->g2 = o2;
-
-  return dCollideSpheres (o1->pos,sphere1->radius,
-			  o2->pos,sphere2->radius,contact);
+	dIASSERT(o1->type == dSphereClass);
+	dIASSERT(o2->type == dSphereClass);
+	dxSphere *sphere1 = (dxSphere*)o1;
+	dxSphere *sphere2 = (dxSphere*)o2;
+	
+	dContact contact;
+	
+	contact.geom._g1 = o1;
+	contact.geom._g2 = o2;
+	
+	int ret = dCollideSpheres(o1->pos, sphere1->radius, o2->pos, sphere2->radius, contact.geom);
+	
+	dAddContact(contact, contacts);
+	
+	return ret;
 }
 
 
-int dCollideSphereBox (dxGeom *o1, dxGeom *o2, int flags,
-		       dContactGeom *contact, int skip)
+int	dCollideSphereBox (dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
   // this is easy. get the sphere center `p' relative to the box, and then clip
   // that to the boundary of the box (call that point `q'). if q is on the
@@ -1374,13 +1392,13 @@ int dCollideSphereBox (dxGeom *o1, dxGeom *o2, int flags,
   // if q is inside the box, the sphere is inside the box, so set a contact
   // normal to push the sphere to the closest box face.
 
-  dVector3 l,t,p,q,r;
+	dIASSERT(o1->type == dSphereClass);
+	dIASSERT(o2->type == dBoxClass);
+#if 0
+   dVector3 l,t,p,q,r;
   vec_t depth;
   int onborder = 0;
-
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dSphereClass);
-  dIASSERT (o2->type == dBoxClass);
+  
   dxSphere *sphere = (dxSphere*) o1;
   dxBox *box = (dxBox*) o2;
 
@@ -1449,41 +1467,21 @@ int dCollideSphereBox (dxGeom *o1, dxGeom *o2, int flags,
   dNormalize3 (contact->normal);
   contact->depth = depth;
   return 1;
+#else
+	return 0;
+#endif
 }
 
-
-int	dCollideSpherePlane(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
+int	dCollideSpherePlane(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
-	dIASSERT(skip >= (int)sizeof(dContactGeom));
 	dIASSERT(o1->type == dSphereClass);
 	dIASSERT(o2->type == dPlaneClass);
+	
 	dxSphere *sphere = (dxSphere*)o1;
 	dxPlane *plane = (dxPlane*)o2;
 	
-	contact->g1 = o1;
-	contact->g2 = o2;
-	
-#if 0
-	vec_t k = plane->p._normal.dotProduct(o1->pos);
-	vec_t depth = plane->p[3] - k + sphere->radius;
-	
-	if(depth >= 0)
-	{
-		contact->normal[0] = plane->p[0];
-		contact->normal[1] = plane->p[1];
-		contact->normal[2] = plane->p[2];
-		
-		contact->pos[0] = o1->pos[0] - plane->p[0] * sphere->radius;
-		contact->pos[1] = o1->pos[1] - plane->p[1] * sphere->radius;
-		contact->pos[2] = o1->pos[2] - plane->p[2] * sphere->radius;
-		
-		contact->depth = depth;
-		
-		return 1;
-	}
-#else
-	//if(plane->p.onSide(sphere->pos, sphere->radius) == SIDE_BACK)
-	//	return 0;
+	if(plane->p.onSide(sphere->pos) == SIDE_BACK)
+		return 0;
 
 	// get closest point to sphere origin
 	vec3_c c = plane->p.closest(sphere->pos);
@@ -1493,43 +1491,34 @@ int	dCollideSpherePlane(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact
 		
 	if(depth >= 0)
 	{
-		if(plane->p.onSide(sphere->pos) == SIDE_FRONT)
-		{	
-			contact->normal[0] = plane->p._normal[0];
-			contact->normal[1] = plane->p._normal[1];
-			contact->normal[2] = plane->p._normal[2];
-		}
-		else
-		{
-			contact->normal[0] = -plane->p._normal[0];
-			contact->normal[1] = -plane->p._normal[1];
-			contact->normal[2] = -plane->p._normal[2];
-		}
-			
-		contact->pos[0] = c[0];
-		contact->pos[1] = c[1];
-		contact->pos[2] = c[2];
-			
-		contact->depth = depth;
-			
-		return 1;
+		dContact contact;
+		
+		contact.geom._origin = c;	
+		contact.geom._normal = plane->p._normal;
+		contact.geom._depth = depth;
+		contact.geom._g1 = o1;
+		contact.geom._g2 = o2;
+		
+		if(dAddContact(contact, contacts));
+			return 1;
 	}
-#endif
+
 	return 0;
 }
 
 
-int	dCollideBoxBox(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
+int	dCollideBoxBox(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dBoxClass);
-  dIASSERT (o2->type == dBoxClass);
-  dVector3 normal;
-  vec_t depth;
-  int code;
-  dxBox *b1 = (dxBox*) o1;
-  dxBox *b2 = (dxBox*) o2;
-  int num = dBoxBox(o1->pos, *o1->R, b1->side, o2->pos, *o2->R, b2->side, normal, &depth, &code, flags & NUMC_MASK, contact, skip);
+	dIASSERT(o1->type == dBoxClass);
+	dIASSERT(o2->type == dBoxClass);
+#if 0	
+	dVector3 normal;
+	vec_t depth;
+	int code;
+	dxBox *b1 = (dxBox*) o1;
+	dxBox *b2 = (dxBox*) o2;
+	
+	int num = dBoxBox(o1->pos, *o1->R, b1->side, o2->pos, *o2->R, b2->side, normal, &depth, &code, flags & NUMC_MASK, contact, skip);
   
 	for(int i=0; i<num; i++)
 	{
@@ -1541,15 +1530,17 @@ int	dCollideBoxBox(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int
 	}
 	
 	return num;
+#else
+	return 0;
+#endif
 }
 
 
-int dCollideBoxPlane (dxGeom *o1, dxGeom *o2,
-		      int flags, dContactGeom *contact, int skip)
+int dCollideBoxPlane(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dBoxClass);
-  dIASSERT (o2->type == dPlaneClass);
+	dIASSERT(o1->type == dBoxClass);
+	dIASSERT(o2->type == dPlaneClass);
+#if 0	
   dxBox *box = (dxBox*) o1;
   dxPlane *plane = (dxPlane*) o2;
 
@@ -1664,15 +1655,18 @@ int dCollideBoxPlane (dxGeom *o1, dxGeom *o2,
     CONTACT(contact,i*skip)->g2 = o2;
   }
   return ret;
+#else
+	return 0;
+#endif
 }
 
 
-int dCollideCCylinderSphere (dxGeom *o1, dxGeom *o2, int flags,
-			     dContactGeom *contact, int skip)
+int	dCollideCCylinderSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dCCylinderClass);
-  dIASSERT (o2->type == dSphereClass);
+	dIASSERT (o1->type == dCCylinderClass);
+	dIASSERT (o2->type == dSphereClass);
+#if 0
+	
   dxCCylinder *ccyl = (dxCCylinder*) o1;
   dxSphere *sphere = (dxSphere*) o2;
 
@@ -1695,14 +1689,18 @@ int dCollideCCylinderSphere (dxGeom *o1, dxGeom *o2, int flags,
   p[2] = o1->pos[2] + alpha * *o1->R[2][2];
   
   return dCollideSpheres(p, ccyl->radius, o2->pos, sphere->radius, contact);
+#else
+	return 0;
+#endif
 }
 
 
-int dCollideCCylinderBox (dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
+int	dCollideCCylinderBox(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dCCylinderClass);
-  dIASSERT (o2->type == dBoxClass);
+	dIASSERT(o1->type == dCCylinderClass);
+	dIASSERT(o2->type == dBoxClass);
+#if 0
+	
   dxCCylinder *cyl = (dxCCylinder*) o1;
   dxBox *box = (dxBox*) o2;
 
@@ -1733,17 +1731,21 @@ int dCollideCCylinderBox (dxGeom *o1, dxGeom *o2, int flags, dContactGeom *conta
 
   // generate contact point
   return dCollideSpheres (pl,radius,pb,0,contact);
+#else
+	return 0;
+#endif
 }
 
 
-int dCollideCCylinderCCylinder (dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
+int	dCollideCCylinderCCylinder(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
-  int i;
-  const vec_t tolerance = REAL(1e-5);
+	//int i;
+	//const vec_t tolerance = REAL(1e-5);
+	
+	dIASSERT (o1->type == dCCylinderClass);
+	dIASSERT (o2->type == dCCylinderClass);
+#if 0
 
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dCCylinderClass);
-  dIASSERT (o2->type == dCCylinderClass);
   dxCCylinder *cyl1 = (dxCCylinder*) o1;
   dxCCylinder *cyl2 = (dxCCylinder*) o2;
 
@@ -1846,15 +1848,17 @@ int dCollideCCylinderCCylinder (dxGeom *o1, dxGeom *o2, int flags, dContactGeom 
 
   dClosestLineSegmentPoints (a1,a2,b1,b2,sphere1,sphere2);
   return dCollideSpheres (sphere1,cyl1->radius,sphere2,cyl2->radius,contact);
+#else
+	return 0;
+#endif
 }
 
 
-int dCollideCCylinderPlane (dxGeom *o1, dxGeom *o2, int flags,
-			    dContactGeom *contact, int skip)
+int	dCollideCCylinderPlane(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dCCylinderClass);
-  dIASSERT (o2->type == dPlaneClass);
+	dIASSERT(o1->type == dCCylinderClass);
+	dIASSERT(o2->type == dPlaneClass);
+#if 0
   dxCCylinder *ccyl = (dxCCylinder*) o1;
   dxPlane *plane = (dxPlane*) o2;
 
@@ -1903,11 +1907,14 @@ int dCollideCCylinderPlane (dxGeom *o1, dxGeom *o2, int flags,
     CONTACT(contact,i*skip)->g2 = o2;
   }
   return ncontacts;
+#else
+	return 0;
+#endif
 }
 
 
 // if mode==1 then use the sphere exit contact, not the entry contact
-
+/*
 static int ray_sphere_helper (dxRay *ray, dVector3 sphere_pos, vec_t radius,
 			      dContactGeom *contact, int mode)
 {
@@ -1945,28 +1952,29 @@ static int ray_sphere_helper (dxRay *ray, dVector3 sphere_pos, vec_t radius,
   contact->depth = alpha;
   return 1;
 }
+*/
 
-
-int dCollideRaySphere (dxGeom *o1, dxGeom *o2, int flags,
-		       dContactGeom *contact, int skip)
+int	dCollideRaySphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dRayClass);
-  dIASSERT (o2->type == dSphereClass);
+	dIASSERT (o1->type == dRayClass);
+	dIASSERT (o2->type == dSphereClass);
+#if 0
   dxRay *ray = (dxRay*) o1;
   dxSphere *sphere = (dxSphere*) o2;
   contact->g1 = ray;
   contact->g2 = sphere;
   return ray_sphere_helper (ray,sphere->pos,sphere->radius,contact,0);
+#else
+	return 0;
+#endif
 }
 
 
-int dCollideRayBox (dxGeom *o1, dxGeom *o2, int flags,
-		    dContactGeom *contact, int skip)
+int	dCollideRayBox(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dRayClass);
-  dIASSERT (o2->type == dBoxClass);
+	dIASSERT (o1->type == dRayClass);
+	dIASSERT (o2->type == dBoxClass);
+#if 0
   dxRay *ray = (dxRay*) o1;
   dxBox *box = (dxBox*) o2;
 
@@ -2044,7 +2052,8 @@ int dCollideRayBox (dxGeom *o1, dxGeom *o2, int flags,
     alpha = hi;
     n = nhi;
   }
-  if (alpha < 0 || alpha > ray->length) return 0;
+  if (alpha < 0 || alpha > ray->length)
+  	return 0;
   contact->pos[0] = ray->pos[0] + alpha * *ray->R[0][2];
   contact->pos[1] = ray->pos[1] + alpha * *ray->R[1][2];
   contact->pos[2] = ray->pos[2] + alpha * *ray->R[2][2];
@@ -2053,15 +2062,17 @@ int dCollideRayBox (dxGeom *o1, dxGeom *o2, int flags,
   contact->normal[2] = *box->R[2][n] * sign[n];
   contact->depth = alpha;
   return 1;
+#else
+	return 0;
+#endif
 }
 
 
-int dCollideRayCCylinder (dxGeom *o1, dxGeom *o2,
-			  int flags, dContactGeom *contact, int skip)
+int	dCollideRayCCylinder(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dRayClass);
-  dIASSERT (o2->type == dCCylinderClass);
+	dIASSERT (o1->type == dRayClass);
+	dIASSERT (o2->type == dCCylinderClass);
+#if 0
   dxRay *ray = (dxRay*) o1;
   dxCCylinder *ccyl = (dxCCylinder*) o2;
 
@@ -2163,15 +2174,17 @@ int dCollideRayCCylinder (dxGeom *o1, dxGeom *o2,
   q[1] = ccyl->pos[1] + k * *ccyl->R[1][2];
   q[2] = ccyl->pos[2] + k * *ccyl->R[2][2];
   return ray_sphere_helper (ray,q,ccyl->radius,contact, inside_ccyl);
+#else
+	return 0;
+#endif
 }
 
 
-int dCollideRayPlane (dxGeom *o1, dxGeom *o2, int flags,
-		      dContactGeom *contact, int skip)
+int	dCollideRayPlane(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dRayClass);
-  dIASSERT (o2->type == dPlaneClass);
+	dIASSERT(o1->type == dRayClass);
+	dIASSERT(o2->type == dPlaneClass);
+#if 0
   dxRay *ray = (dxRay*) o1;
   dxPlane *plane = (dxPlane*) o2;
 
@@ -2192,6 +2205,9 @@ int dCollideRayPlane (dxGeom *o1, dxGeom *o2, int flags,
   contact->g1 = ray;
   contact->g2 = plane;
   return 1;
+#else
+	return 0;
+#endif
 }
 
 int	dPointInLeaf(dxBSP *bsp, const vec3_c &p, int nodenum)
@@ -2371,24 +2387,17 @@ int	dSphereInBrush(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int
 */
 
 
-int	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip, int contacts_num, const vec3_c vertexes[3], const cplane_c &p)
+int	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, const vec3_c vertexes[3], const cplane_c &p)
 {
-	dIASSERT(skip >= (int)sizeof(dContactGeom));
 	dIASSERT(o1->type == dBSPClass);
 	dIASSERT(o2->type == dSphereClass);
+	
 	dxSphere *sphere = (dxSphere*)o2;
 
-#if 1
 	// check if sphere center is behind the triangle plane
 	if(p.onSide(sphere->pos) == SIDE_BACK)
-		return contacts_num;
-#else
-	// check if sphere center is too far away from the triangle plane
-	if(fabs(p.distance(sphere->pos)) > sphere->radius)
-		return contacts_num;
-#endif
-	
-#if 1
+		return 0;
+
 	// check if the sphere is on the side of an edge
 	for(int i=0; i<3; i++)
 	{
@@ -2420,7 +2429,7 @@ int	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *c
 			
 		// check if sphere is too far away from edge plane
 		if(d > 0.0)
-			return contacts_num;
+			return 0;
 			
 		// direction of sphere center from start point of edge
 		vec3_c T  = vec3_c(sphere->pos) - A;
@@ -2435,17 +2444,18 @@ int	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *c
 			
 			if(depth >= 0.0)
 			{
-				CONTACT(contact, contacts_num*skip)->pos = A;
-				CONTACT(contact, contacts_num*skip)->normal = p._normal;
-				//CONTACT(contact, contacts_num*skip)->normal = vec3_c(sphere->pos) - A;
-				//CONTACT(contact, contacts_num*skip)->normal.normalize();
-				CONTACT(contact, contacts_num*skip)->depth = depth;
-				CONTACT(contact, contacts_num*skip)->g1 = o1;
-				CONTACT(contact, contacts_num*skip)->g2 = o2;
+				dContact contact;
+			
+				contact.geom._origin = A;
+				contact.geom._normal = p._normal;
+				contact.geom._depth = depth;
+				contact.geom._g1 = o1;
+				contact.geom._g2 = o2;
 				
-				contacts_num++;
+				if(dAddContact(contact, contacts))
+					return 1;
 			}
-			return contacts_num;
+			return 0;
 		}
 		else if(t >= El)
 		{
@@ -2454,17 +2464,18 @@ int	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *c
 			
 			if(depth >= 0.0)
 			{
-				CONTACT(contact, contacts_num*skip)->pos = B;
-				CONTACT(contact, contacts_num*skip)->normal = p._normal;
-				//CONTACT(contact, contacts_num*skip)->normal = vec3_c(sphere->pos) - B;
-				//CONTACT(contact, contacts_num*skip)->normal.normalize();
-				CONTACT(contact, contacts_num*skip)->depth = depth;
-				CONTACT(contact, contacts_num*skip)->g1 = o1;
-				CONTACT(contact, contacts_num*skip)->g2 = o2;
+				dContact contact;
+			
+				contact.geom._origin = B;
+				contact.geom._normal = p._normal;
+				contact.geom._depth = depth;
+				contact.geom._g1 = o1;
+				contact.geom._g2 = o2;
 				
-				contacts_num++;
+				if(dAddContact(contact, contacts))
+					return 1;
 			}
-			return contacts_num;
+			return 0;
 		}
 		else
 		{
@@ -2477,20 +2488,20 @@ int	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *c
 			
 			if(depth >= 0.0)
 			{
-				CONTACT(contact, contacts_num*skip)->pos = C;
-				CONTACT(contact, contacts_num*skip)->normal = p._normal;
-				//CONTACT(contact, contacts_num*skip)->normal = vec3_c(sphere->pos) - C;
-				//CONTACT(contact, contacts_num*skip)->normal.normalize();
-				CONTACT(contact, contacts_num*skip)->depth = depth;
-				CONTACT(contact, contacts_num*skip)->g1 = o1;
-				CONTACT(contact, contacts_num*skip)->g2 = o2;
+				dContact contact;
+			
+				contact.geom._origin = C;
+				contact.geom._normal = p._normal;
+				contact.geom._depth = depth;
+				contact.geom._g1 = o1;
+				contact.geom._g2 = o2;
 				
-				contacts_num++;
+				if(dAddContact(contact, contacts))
+					return 1;
 			}
-			return contacts_num;
+			return 0;
 		}
 	}
-#endif
 
 	// the sphere pos is 'inside' the triangle edge planes, so do a sphere / plane collision
 	
@@ -2501,36 +2512,30 @@ int	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *c
 
 	if(depth >= 0.0)
 	{
-		CONTACT(contact, contacts_num*skip)->pos = C;
-		
-		//if(p.onSide(sphere->pos) == SIDE_FRONT)
-		{
-			CONTACT(contact, contacts_num*skip)->normal = p._normal;
-		}
-		//else
-		//{
-		//	CONTACT(contact, contacts_num*skip)->normal =-p._normal;
-		//}
-		
-		CONTACT(contact, contacts_num*skip)->depth = depth;
-		CONTACT(contact, contacts_num*skip)->g1 = o1;
-		CONTACT(contact, contacts_num*skip)->g2 = o2;
-		
-		contacts_num++;
+		dContact contact;
+			
+		contact.geom._origin = C;
+		contact.geom._normal = p._normal;
+		contact.geom._depth = depth;
+		contact.geom._g1 = o1;
+		contact.geom._g2 = o2;
+				
+		if(dAddContact(contact, contacts))
+			return 1;
 	}
 	
-	return contacts_num;
+	return 0;
 }
 
-int	dCollideBSPSurfaceSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip, int contacts_num, const dxBSP::dBSPSurface &surf)
+int	dCollideBSPSurfaceSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, const dxBSP::dBSPSurface &surf)
 {
-	dIASSERT(skip >= (int)sizeof(dContactGeom));
 	dIASSERT(o1->type == dBSPClass);
 	dIASSERT(o2->type == dSphereClass);
 	
 	if(surf.indexes.empty())
-		return contacts_num;
-
+		return 0;
+		
+	int contacts_num = 0;
 	// for each triangle in the surface
 	for(unsigned int i=0; i<(surf.indexes.size()/3); i++)
 	{
@@ -2546,7 +2551,7 @@ int	dCollideBSPSurfaceSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *co
 			surf.vertexes.at(surf.indexes[i+2])
 		};
 		
-		contacts_num = dCollideBSPTriangleSphere(o1, o2, flags, contact, skip, contacts_num, vertexes, surf.planes[i]);
+		contacts_num += dCollideBSPTriangleSphere(o1, o2, flags, contacts, vertexes, surf.planes[i]);
 		
 		#if DEBUG
 		}
@@ -2560,11 +2565,11 @@ int	dCollideBSPSurfaceSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *co
 	return contacts_num;
 }
 
-int	dCollideBSPLeafSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip, int leafnum)
+int	dCollideBSPLeafSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, int leafnum)
 {
-	dIASSERT(skip >= (int)sizeof(dContactGeom));
 	dIASSERT(o1->type == dBSPClass);
 	dIASSERT(o2->type == dSphereClass);
+	
 	dxBSP *bsp = (dxBSP*)o1;
 	
 	const dxBSP::dBSPLeaf& leaf = bsp->leafs[leafnum];
@@ -2596,7 +2601,7 @@ int	dCollideBSPLeafSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *conta
 		//if(!(brush.contents & trace_contents))
 		//	continue;
 		
-		contacts_num = dCollideBSPSurfaceSphere(o1, o2, flags, contact, skip, contacts_num, surf);
+		contacts_num += dCollideBSPSurfaceSphere(o1, o2, flags, contacts, surf);
 	}
 	
 	return contacts_num;
@@ -2813,9 +2818,8 @@ int	dBoxInLeaf(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int ski
 }
 */
 
-int	dCollideBSPSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
+int	dCollideBSPSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
-	dIASSERT(skip >= (int)sizeof(dContactGeom));
 	dIASSERT(o1->type == dBSPClass);
 	dIASSERT(o2->type == dSphereClass);
 	
@@ -2849,7 +2853,7 @@ int	dCollideBSPSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, 
 
 	for(std::deque<int>::const_iterator ir = leafs.begin(); ir != leafs.end(); ++ir)
 	{
-		contacts_num += dCollideBSPLeafSphere(o1, o2, flags, contact, skip, *ir);
+		contacts_num += dCollideBSPLeafSphere(o1, o2, flags, contacts, *ir);
 	}
 #else
 	int leaf_num = dPointInLeaf(bsp, o2->pos, 0);
@@ -2867,11 +2871,11 @@ int	dCollideBSPSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, 
 	return contacts_num;
 }
 
-int	dCollideBSPBox(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
+int	dCollideBSPBox(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
-	dIASSERT(skip >= (int)sizeof(dContactGeom));
 	dIASSERT(o1->type == dBSPClass);
 	dIASSERT(o2->type == dBoxClass);
+	
 //	dDEBUGMSG("");
 #if 0
 	dxBSP *bsp = (dxBSP*) o1;
@@ -2922,9 +2926,8 @@ int	dCollideBSPBox(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int
 #endif
 }
 
-int	dCollideBSPCCylinder(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
+int	dCollideBSPCCylinder(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
-	dIASSERT(skip >= (int)sizeof(dContactGeom));
 	dIASSERT(o1->type == dBSPClass);
 	dIASSERT(o2->type == dCCylinderClass);
 	dDEBUGMSG("");
@@ -2933,9 +2936,8 @@ int	dCollideBSPCCylinder(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contac
 	return 0;
 }
 
-int	dCollideBSPCylinder(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
+int	dCollideBSPCylinder(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
-	dIASSERT(skip >= (int)sizeof(dContactGeom));
 	dIASSERT(o1->type == dBSPClass);
 	dIASSERT(o2->type == dCylinderClass);
 	dDEBUGMSG("");
@@ -2944,9 +2946,8 @@ int	dCollideBSPCylinder(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact
 	return 0;
 }
 
-int	dCollideBSPPlane(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
+int	dCollideBSPPlane(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
-	dIASSERT(skip >= (int)sizeof(dContactGeom));
 	dIASSERT(o1->type == dBSPClass);
 	dIASSERT(o2->type == dPlaneClass);
 //	dDEBUGMSG("");
@@ -2955,9 +2956,8 @@ int	dCollideBSPPlane(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, i
 	return 0;
 }
 
-int	dCollideBSPRay(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
+int	dCollideBSPRay(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
-	dIASSERT(skip >= (int)sizeof(dContactGeom));
 	dIASSERT(o1->type == dBSPClass);
 	dIASSERT(o2->type == dRayClass);
 	dDEBUGMSG("");

@@ -26,8 +26,8 @@ the standard ODE geometry primitives.
 
 */
 
-#ifndef _ODE_COLLISION_STD_H_
-#define _ODE_COLLISION_STD_H_
+#ifndef ODE_COLLISION_STD_H
+#define ODE_COLLISION_STD_H
 
 #include "common.h"
 #include "collision_kernel.h"
@@ -37,46 +37,31 @@ the standard ODE geometry primitives.
 // the same interface as dCollide(). the first and second geom arguments must
 // have the specified types.
 
-int dCollideSphereSphere (dxGeom *o1, dxGeom *o2, int flags,
-			  dContactGeom *contact, int skip);
-int dCollideSphereBox (dxGeom *o1, dxGeom *o2, int flags,
-		       dContactGeom *contact, int skip);
-int dCollideSpherePlane (dxGeom *o1, dxGeom *o2, int flags,
-			 dContactGeom *contact, int skip);
-int dCollideBoxBox (dxGeom *o1, dxGeom *o2, int flags,
-		    dContactGeom *contact, int skip);
-int dCollideBoxPlane (dxGeom *o1, dxGeom *o2,
-		      int flags, dContactGeom *contact, int skip);
-int dCollideCCylinderSphere (dxGeom *o1, dxGeom *o2, int flags,
-			     dContactGeom *contact, int skip);
-int dCollideCCylinderBox (dxGeom *o1, dxGeom *o2, int flags,
-			  dContactGeom *contact, int skip);
-int dCollideCCylinderCCylinder (dxGeom *o1, dxGeom *o2,
-				int flags, dContactGeom *contact, int skip);
-int dCollideCCylinderPlane (dxGeom *o1, dxGeom *o2, int flags,
-			    dContactGeom *contact, int skip);
-int dCollideRaySphere (dxGeom *o1, dxGeom *o2, int flags,
-		       dContactGeom *contact, int skip);
-int dCollideRayBox (dxGeom *o1, dxGeom *o2, int flags,
-		    dContactGeom *contact, int skip);
-int dCollideRayCCylinder (dxGeom *o1, dxGeom *o2,
-			  int flags, dContactGeom *contact, int skip);
-int dCollideRayPlane (dxGeom *o1, dxGeom *o2, int flags,
-		      dContactGeom *contact, int skip);
-int dCollideRayBrush (dxGeom *o1, dxGeom *o2, int flags,
-		      dContactGeom *contact, int skip);
-int dCollideBSPSphere (dxGeom *o1, dxGeom *o2, int flags,
-		      dContactGeom *contact, int skip);
-int dCollideBSPBox (dxGeom *o1, dxGeom *o2, int flags,
-		      dContactGeom *contact, int skip);
-int dCollideBSPCCylinder (dxGeom *o1, dxGeom *o2, int flags,
-		      dContactGeom *contact, int skip);
-int dCollideBSPCylinder (dxGeom *o1, dxGeom *o2, int flags,
-		      dContactGeom *contact, int skip);
-int dCollideBSPPlane (dxGeom *o1, dxGeom *o2, int flags,
-		      dContactGeom *contact, int skip);
-int dCollideBSPRay (dxGeom *o1, dxGeom *o2, int flags,
-		      dContactGeom *contact, int skip);
 
+int	dCollideSphereSphere(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
+int	dCollideSphereBox(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
+int	dCollideSpherePlane(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
+
+int	dCollideBoxBox(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
+int	dCollideBoxPlane(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
+
+int	dCollideCCylinderSphere(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
+int	dCollideCCylinderBox(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
+int	dCollideCCylinderCCylinder(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
+int	dCollideCCylinderPlane(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
+
+int	dCollideRaySphere(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
+int	dCollideRayBox(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
+int	dCollideRayCCylinder(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
+int	dCollideRayPlane(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
+int	dCollideRayBrush(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
+
+int	dCollideBSPSphere(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
+int	dCollideBSPBox(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
+int	dCollideBSPCCylinder(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
+int	dCollideBSPCylinder(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
+int	dCollideBSPPlane(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
+int	dCollideBSPRay(dGeomID o1, dGeomID o2, int flags, std::vector<dContact> &contacts);
 
 #endif
+

@@ -33,16 +33,18 @@ some useful collision utility stuff.
 #include "contact.h"
 
 
+// returns true if contact was added
+bool	dAddContact(const dContact c, std::vector<dContact> &contacts);
+
 // given a pointer `p' to a dContactGeom, return the dContactGeom at
 // p + skip bytes.
-#define CONTACT(p,skip) ((dContactGeom*) (((char*)p) + (skip)))
+//#define CONTACT(p,skip) ((dContactGeom*) (((char*)p) + (skip)))
 
 
 // if the spheres (p1,r1) and (p2,r2) collide, set the contact `c' and
 // return 1, else return 0.
 
-int dCollideSpheres (dVector3 p1, vec_t r1,
-		     dVector3 p2, vec_t r2, dContactGeom *c);
+int	dCollideSpheres(const vec3_c & p1, vec_t r1, const vec3_c & p2, vec_t r2, dContactGeom &c);
 
 
 // given two lines

@@ -119,11 +119,9 @@ void	dxGeomTransform::computeFinalTx()
 // this collides a transformed geom with another geom. the other geom can
 // also be a transformed geom, but this case is not handled specially.
 
-int dCollideTransform (dxGeom *o1, dxGeom *o2, int flags,
-		       dContactGeom *contact, int skip)
+int	dCollideTransform(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dGeomTransformClass);
+	dIASSERT (o1->type == dGeomTransformClass);
 
   dxGeomTransform *tr = (dxGeomTransform*) o1;
   if (!tr->obj) return 0;
@@ -150,15 +148,17 @@ int dCollideTransform (dxGeom *o1, dxGeom *o2, int flags,
   tr->obj->body = o1->body;
 
   // do the collision
-  int n = dCollide (tr->obj,o2,flags,contact,skip);
+  int n = dCollide(tr->obj, o2, flags, contacts);
 
   // if required, adjust the 'g1' values in the generated contacts so that
   // thay indicated the GeomTransform object instead of the encapsulated
   // object.
-  if (tr->infomode) {
-    for (int i=0; i<n; i++) {
-      dContactGeom *c = CONTACT(contact,skip*i);
-      c->g1 = o1;
+  if (tr->infomode)
+  {
+    for (int i=0; i<n; i++)
+    {
+      dContactGeom& c = contacts[i].geom;
+      c._g1 = o1;
     }
   }
 

@@ -1356,20 +1356,20 @@ static void contactGetInfo2 (dxJointContact *j, dxJoint::Info2 *info)
   // get normal, with sign adjusted for body1/body2 polarity
   dVector3 normal;
   if (j->flags & dJOINT_REVERSE) {
-    normal[0] = - j->contact.geom.normal[0];
-    normal[1] = - j->contact.geom.normal[1];
-    normal[2] = - j->contact.geom.normal[2];
+    normal[0] = - j->contact.geom._normal[0];
+    normal[1] = - j->contact.geom._normal[1];
+    normal[2] = - j->contact.geom._normal[2];
   }
   else {
-    normal[0] = j->contact.geom.normal[0];
-    normal[1] = j->contact.geom.normal[1];
-    normal[2] = j->contact.geom.normal[2];
+    normal[0] = j->contact.geom._normal[0];
+    normal[1] = j->contact.geom._normal[1];
+    normal[2] = j->contact.geom._normal[2];
   }
   normal[3] = 0;	// @@@ hmmm
 
   // c1,c2 = contact points with respect to body PORs
   dVector3 c1,c2;
-  for (i=0; i<3; i++) c1[i] = j->contact.geom.pos[i] - j->node[0].body->pos[i];
+  for (i=0; i<3; i++) c1[i] = j->contact.geom._origin[i] - j->node[0].body->pos[i];
 
   // set jacobian for normal
   info->J1l[0] = normal[0];
@@ -1377,8 +1377,7 @@ static void contactGetInfo2 (dxJointContact *j, dxJoint::Info2 *info)
   info->J1l[2] = normal[2];
   dCROSS (info->J1a,=,c1,normal);
   if (j->node[1].body) {
-    for (i=0; i<3; i++) c2[i] = j->contact.geom.pos[i] -
-			  j->node[1].body->pos[i];
+    for (i=0; i<3; i++) c2[i] = j->contact.geom._origin[i] - j->node[1].body->pos[i];
     info->J2l[0] = -normal[0];
     info->J2l[1] = -normal[1];
     info->J2l[2] = -normal[2];
@@ -1390,7 +1389,7 @@ static void contactGetInfo2 (dxJointContact *j, dxJoint::Info2 *info)
   if (j->contact.surface.mode & dContactSoftERP)
     erp = j->contact.surface.soft_erp;
   vec_t k = info->fps * erp;
-  vec_t depth = j->contact.geom.depth - j->world->contactp.min_depth;
+  vec_t depth = j->contact.geom._depth - j->world->contactp.min_depth;
   if (depth < 0) depth = 0;
   vec_t maxvel = j->world->contactp.max_vel;
   if (k*depth > maxvel) info->c[0] = maxvel; else info->c[0] = k*depth;
