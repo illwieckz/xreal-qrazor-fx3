@@ -35,7 +35,7 @@ void	main()
 	vec3 N = normalize(var_normal);
 	
 	// compute light direction from object space deluxe map
-	vec3 L = 2 * normalize(texture2D(u_deluxemap, var_tex_deluxe).xyz - 0.5);
+	vec3 L = normalize(2.0 * (texture2D(u_deluxemap, var_tex_deluxe).xyz - 0.5));
 	
 	// compute light color from object space lightmap
 	vec3 C = texture2D(u_lightmap, var_tex_light).xyz;

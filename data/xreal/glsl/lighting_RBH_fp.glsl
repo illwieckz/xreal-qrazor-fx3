@@ -48,10 +48,10 @@ void	main()
 	vec2 tex_offset = (height * u_height_scale + u_height_bias) * V.xy;
 	
 	// compute light direction in tangent space from deluxemap
-	vec3 L = normalize(var_mat_os2ts * (2 * (texture2D(u_deluxemap, var_tex_deluxe).xyz - 0.5)));
+	vec3 L = normalize(var_mat_os2ts * (2.0 * (texture2D(u_deluxemap, var_tex_deluxe).xyz - 0.5)));
 	
 	// compute normal in tangent space from bumpmap
-	vec3 N = 2 * (texture2D(u_bumpmap, var_tex_bump + tex_offset).xyz - 0.5);
+	vec3 N = 2.0 * (texture2D(u_bumpmap, var_tex_bump + tex_offset).xyz - 0.5);
 	N.z *= u_bump_scale;
 	N = normalize(N);
 	
@@ -60,7 +60,7 @@ void	main()
 	
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_diffusemap, var_tex_diffuse + tex_offset);
-	diffuse.rgb *= C * saturate(dot(N, L));
+	diffuse.rgb *= C * clamp(dot(N, L), 0.0, 1.0);
 					
 	// compute final color
 	gl_FragColor = diffuse;
