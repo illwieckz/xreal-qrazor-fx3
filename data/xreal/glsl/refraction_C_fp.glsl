@@ -27,7 +27,7 @@ uniform float		u_fresnel_power;
 uniform float		u_fresnel_scale;
 uniform float		u_fresnel_bias;
 
-varying vec4		var_vertex;
+varying vec3		var_vertex;
 varying vec3		var_normal;
 
 void	main()
