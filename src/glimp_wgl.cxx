@@ -75,7 +75,8 @@ static bool	VerifyDriver()
 /*
 ** VID_CreateWindow
 */
-#define	WINDOW_CLASS_NAME	"QRazor FX III"
+#define	WINDOW_CLASS_NAME	"QRazor_Win"
+#define	WINDOW_NAME	        "QRazor FX III"
 
 bool	VID_CreateWindow(int width, int height, bool fullscreen)
 {
@@ -86,6 +87,7 @@ bool	VID_CreateWindow(int width, int height, bool fullscreen)
 	int				x, y, w, h;
 	int				exstyle;
 
+	
 	/* Register the frame class */
 	wc.style         = 0;
 	wc.lpfnWndProc   = (WNDPROC)sys_gl.wndproc;
@@ -109,7 +111,7 @@ bool	VID_CreateWindow(int width, int height, bool fullscreen)
 	else
 	{
 		exstyle = 0;
-		stylebits = WINDOW_STYLE;
+		stylebits = WS_CAPTION;
 	}
 
 	r.left = 0;
@@ -135,16 +137,9 @@ bool	VID_CreateWindow(int width, int height, bool fullscreen)
 		y = vid_ypos->getInteger();
 	}
 
-	sys_gl.hWnd = CreateWindowEx(
-		 exstyle, 
-		 WINDOW_CLASS_NAME,
-		 "QRazor FX III",
-		 stylebits,
-		 x, y, w, h,
-		 NULL,
-		 NULL,
-		 sys_gl.hInstance,
-		 NULL);
+	// Create Window
+	sys_gl.hWnd = CreateWindow(WINDOW_CLASS_NAME, WINDOW_NAME, stylebits,
+		 x, y, w, h, NULL, NULL, sys_gl.hInstance, NULL);
 
 	if(!sys_gl.hWnd)
 		ri.Com_Error(ERR_FATAL, "Couldn't create window");
@@ -262,7 +257,7 @@ int	GLimp_SetMode(int *pwidth, int *pheight, int mode, bool fullscreen)
 
 			/*
 			** our first CDS failed, so maybe we're running on some weird dual monitor
-			** system 
+			** system
 			*/
 			if(ChangeDisplaySettings(&dm, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
 			{
@@ -306,7 +301,10 @@ int	GLimp_SetMode(int *pwidth, int *pheight, int mode, bool fullscreen)
 		gl_state.fullscreen = false;
 		
 		if(!VID_CreateWindow(width, height, false))
+		{
+			ri.Com_Printf("... failed!\n");
 			return RSERR_INVALID_MODE;
+		}
 	}
 
 	return RSERR_OK;
@@ -412,7 +410,7 @@ int	GLimp_Init(void *hinstance, void *wndproc)
 
 bool	GLimp_InitGL()
 {
-	PIXELFORMATDESCRIPTOR pfd = 
+	PIXELFORMATDESCRIPTOR pfd =
 	{
 		sizeof(PIXELFORMATDESCRIPTOR),	// size of this pfd
 		1,				// version number
@@ -526,7 +524,7 @@ bool	GLimp_InitGL()
 	}
 
 	/*
-	** print out PFD specifics 
+	** print out PFD specifics
 	*/
 	ri.Com_Printf("GL PFD: color(%d-bits) Z(%d-bit)\n", (int)pfd.cColorBits, (int)pfd.cDepthBits);
 
@@ -581,7 +579,7 @@ void	GLimp_BeginFrame()
 
 /*
 ** GLimp_EndFrame
-** 
+**
 ** Responsible for doing a swapbuffers and possibly for other stuff
 ** as yet to be determined.  Probably better not to make this a GLimp
 ** function and instead do a call to GLimp_SwapBuffers.
@@ -623,11 +621,11 @@ void	GLimp_Gamma()
 	HDC dc = GetDC(NULL);
 	WORD ramp[256*3];
 
-	for(int i=0; i<256; i++) 
+	for(int i=0; i<256; i++)
 	{
-		ramp[i+0] = ramp[i+256] = ramp[i+512] = 
-			(WORD)(min(65535, max(0, 
-				pow((i+1) / 256.0, vid_gamma->getValue()) 
+		ramp[i+0] = ramp[i+256] = ramp[i+512] =
+			(WORD)(min(65535, max(0,
+				pow((i+1) / 256.0, vid_gamma->getValue())
 					   * 65535 + 0.5)));
 	}
 	
