@@ -33,26 +33,18 @@ textures/z13d3dm2/water_distortion
 	sort decal
 
 	qer_editorimage textures/glass/outdoor_glass1fx.tga
-//	{
-//                Program           heatHaze.vfp
-//                vertexParm              0       time * .05 , time * .05
-//                vertexParm              1       .5        
-//                fragmentProgram			heatHaze.vfp
-//                fragmentMap             0       _currentRender
-//                fragmentMap             1       textures/z13d3dm2/liquid12_norm.tga 			
-//             
-//   	}
+
+	{
+		stage	colormap
+		blend	filter
+		map	textures/glass/outdoor_glass1fx.tga
+	}
 	{
 		stage		heathazemap
 		map		textures/z13d3dm2/liquid12_norm.tga
 		scroll		time * 0.05 , time * 0.1
 		deformMagnitude	0.5
 	}
-	{
-		stage	colormap
-		blend	filter
-		map	textures/glass/outdoor_glass1fx.tga
-	}	
 }
 	
 lights/cubeMap

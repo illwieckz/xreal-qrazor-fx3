@@ -154,27 +154,16 @@ inline void	operator delete (void *ptr)
 
 
 #ifdef _WIN32
-
-#ifdef NDEBUG
-#define BUILDSTRING "Win32 RELEASE"
-#else
-#define BUILDSTRING "Win32 DEBUG"
-#endif
-
-#ifdef _M_IX86
-#define	CPUSTRING	"x86"
-#elif defined _M_ALPHA
-#define	CPUSTRING	"AXP"
-#endif
-
-
-#define VFS_USERDATADIR  	"."PACKAGE
-#define VFS_PKGDATADIR		PKGDATADIR
-#define VFS_PKGLIBDIR		PKGLIBDIR
-
-
-//TODO
-
+	#define BUILDHOST		"Win32"
+	#define VERSION			"0.3.5"
+	
+	#ifndef VFS_PKGDATADIR
+		#define VFS_PKGDATADIR	VFS_PKGDATADIR
+	#endif
+	
+	#ifndef VFS_PKGLIBDIR
+		#define VFS_PKGLIBDIR	VFS_PKGDATADIR
+	#endif
 #endif
 
 /*
@@ -183,20 +172,16 @@ inline void	operator delete (void *ptr)
 ================================================================================
 */
 #ifdef __linux__
-	#ifdef HAVE_CONFIG_H
-		#define VFS_USERDATADIR  	"~/."PACKAGE
-		#define VFS_PKGDATADIR		PKGDATADIR
-		#define VFS_PKGLIBDIR		PKGLIBDIR
-	#else
-		#define BUILDHOST		"Linux"
-		#define VERSION			"0.3.5"
-		#define VFS_USERDATADIR		"~/.qrazor-fx"
-		#ifndef VFS_PKGDATADIR
-			#define VFS_PKGDATADIR		"."
-		#endif
-		#ifndef VFS_PKGLIBDIR
-			#define VFS_PKGLIBDIR		"."
-		#endif
+	#define BUILDHOST		"Linux"
+	#define VERSION			"0.3.5"
+	#define VFS_USERDATADIR		"~/.qrazor-fx"
+	
+	#ifndef VFS_PKGDATADIR
+		#define VFS_PKGDATADIR		"."
+	#endif
+	
+	#ifndef VFS_PKGLIBDIR
+		#define VFS_PKGLIBDIR		"."
 	#endif
 #endif
 

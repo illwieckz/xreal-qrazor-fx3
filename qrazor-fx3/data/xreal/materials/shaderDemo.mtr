@@ -977,13 +977,12 @@ lights/tableTest {
 shaderDemos/heatHaze
 {
 	translucent		// don't write during the fill depth buffer phase
+		
 	{
-		vertexProgram	heatHaze.vfp
-		vertexParm		0		0 , time * 0.05	// texture scrolling
-		vertexParm		1		1				// magnitude of the distortion
-		fragmentProgram	heatHaze.vfp
-		fragmentMap		0		_currentRender
-		fragmentMap		1		textures/hell/lava1_local.tga	// the normal map for distortion
+		stage		heathazemap
+		map		textures/hell/lava1_local.tga		// the normal map for distortion
+		scroll		0 , time * 0.05
+		deformMagnitude	0.5					// magnitude of the distortion
 	}
 }
 
@@ -997,7 +996,9 @@ shaderDemos/heatHazeWithMaskAndVertex
 		fragmentMap		0		_currentRender
 		fragmentMap     1       textures/sfx/vpsphere   // the normal map for distortion
 		fragmentMap		2       textures/particles/vpring1_alpha.tga   // the distortion blend map
-	}				
+	}
+	
+	
 }
 
 //==============================================

@@ -3,6 +3,8 @@
 #ifndef _ODE_CONFIG_H_
 #define _ODE_CONFIG_H_
 
+// FIXME get rid of this file
+
 /* standard system headers */
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,7 +12,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <malloc.h>
-#include <alloca.h>
+//#include <alloca.h>
 #include <values.h>
 #include <float.h>
 

@@ -38,6 +38,7 @@ void	r_vis_iface_a::updateVis(const r_entity_t &shared)
 #if 0
 		r_world_tree->boxAreas(shared.radius_bbox, _areas);
 #else
+		/*
 		r_bsptree_leaf_c* leaf = r_world_tree->pointInLeaf(shared.origin);
 		if(leaf)
 		{
@@ -49,6 +50,7 @@ void	r_vis_iface_a::updateVis(const r_entity_t &shared)
 		}
 		
 		addArea(0);
+		*/
 		
 		r_world_tree->boxLeafs(shared.radius_bbox, _leafs);
 		for(std::vector<r_bsptree_leaf_c*>::iterator ir = _leafs.begin(); ir != _leafs.end(); ++ir)
@@ -64,21 +66,16 @@ void	r_vis_iface_a::updateVis(const r_entity_t &shared)
 	}
 	else
 	{
-#if 1
 		r_bsptree_leaf_c* leaf = r_world_tree->pointInLeaf(shared.origin);
 		if(leaf)
 		{
 			_cluster = leaf->cluster;
+			
+			addArea(leaf->area);
 		}
 		else
 		{
 			_cluster = -1;
 		}
-		
-		addArea(0);
-#else
-		_cluster = -1;
-		addArea(0);
-#endif
 	}
 }
