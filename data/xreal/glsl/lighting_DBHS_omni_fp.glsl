@@ -59,16 +59,16 @@ void	main()
 	vec3 H = normalize(L + V);
 	
 	// compute normal in tangent space from bumpmap
-	vec3 N = 2 * (texture2D(u_bumpmap, var_tex_diffuse_bump.pq + tex_offset).xyz - 0.5);
+	vec3 N = 2.0 * (texture2D(u_bumpmap, var_tex_diffuse_bump.pq + tex_offset).xyz - 0.5);
 	N.z *= u_bump_scale;
 	N = normalize(N);
 	
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_diffusemap, var_tex_diffuse_bump.st + tex_offset);
-	diffuse.rgb *= u_light_color * saturate(dot(N, L));
+	diffuse.rgb *= u_light_color * clamp(dot(N, L), 0.0, 1.0);
 	
 	// compute the specular term
-	vec3 specular = texture2D(u_specularmap, var_tex_specular + tex_offset).rgb * u_light_color * pow(saturate(dot(N, H)), u_specular_exponent);
+	vec3 specular = texture2D(u_specularmap, var_tex_specular + tex_offset).rgb * u_light_color * pow(clamp(dot(N, H), 0.0, 1.0), u_specular_exponent);
 	
 	// compute attenuation
 	vec3 attenuation_xy	= texture2D(u_attenuationmap_xy, var_tex_atten_xy_z.xy).rgb;

@@ -54,13 +54,13 @@ void	main()
 	vec3 L = normalize(var_mat_os2ts * (u_light_origin - var_vertex));
 	
 	// compute normal in tangent space from bumpmap
-	vec3 N = 2 * (texture2D(u_bumpmap, var_tex_bump + tex_offset).xyz - 0.5);
+	vec3 N = 2.0 * (texture2D(u_bumpmap, var_tex_bump + tex_offset).xyz - 0.5);
 	N.z *= u_bump_scale;
 	N = normalize(N);
 	
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_diffusemap, var_tex_diffuse + tex_offset);
-	diffuse.rgb *= u_light_color * saturate(dot(N, L));
+	diffuse.rgb *= u_light_color * clamp(dot(N, L), 0.0, 1.0);
 	
 	// compute attenuation
 	vec3 attenuation_xy	= texture2D(u_attenuationmap_xy, var_tex_atten_xy_z.xy).rgb;
