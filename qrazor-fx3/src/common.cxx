@@ -660,6 +660,14 @@ static void	Com_BenchMath_f()
 	start = Sys_Milliseconds();
 	for(int i=0; i<iterations_num; i++)
 	{
+		// empty
+	}
+	end = Sys_Milliseconds();
+	Com_Printf("empty: %i ms\n", end - start);
+	
+	start = Sys_Milliseconds();
+	for(int i=0; i<iterations_num; i++)
+	{
 		v3_2 = m_1 * v3_1;
 	}
 	end = Sys_Milliseconds();
