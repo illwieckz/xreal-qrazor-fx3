@@ -1006,7 +1006,7 @@ void	G_InitDynamics()
 
 	g_ode_world->setGravity(gravity);
 	g_ode_world->setCFM(1e-5);
-	g_ode_world->setAutoDisableFlag(true);
+//	g_ode_world->setAutoDisableFlag(true);
 //	g_ode_world->setContactMaxCorrectingVel(0.1);
 //	g_ode_world->setContactSurfaceLayer(0.001);
 	
@@ -1154,8 +1154,6 @@ static std::vector<dContact>	g_ray_contacts;
 
 static void	G_RayCallback(void *data, dGeomID o1, dGeomID o2)
 {
-//	gi.Com_Printf("G_RayCallback:\n");
-
 	if(dGeomIsSpace(o1) || dGeomIsSpace(o2))
 	{
 		// colliding a space with something
@@ -1206,6 +1204,11 @@ int	G_SortByContactGeomDepthFunc(void const *a, void const *b)
 		return 0;
 }
 
+trace_t	G_RayTrace(const vec3_c &start, const vec3_c &end)
+{
+	return G_RayTrace(start, end - start, start.distance(end));
+}
+
 trace_t	G_RayTrace(const vec3_c &start, const vec3_c &dir, vec_t length)
 {
 	g_ray_contacts.clear();
@@ -1214,14 +1217,13 @@ trace_t	G_RayTrace(const vec3_c &start, const vec3_c &dir, vec_t length)
 	g_ray_trace.nohit	= true;
 	g_ray_trace.allsolid	= false;
 	g_ray_trace.startsolid	= false;
-	g_ray_trace.depth	= 0.0;
-	g_ray_trace.endpos	= start;
+	g_ray_trace.depth	= 1.0;
+	g_ray_trace.endpos	= start + dir * length;
 	g_ray_trace.plane.set(0, 0, 1, 0);
 	g_ray_trace.surface	= NULL;		
 	g_ray_trace.contents	= X_CONT_NONE;
 	
 	g_ray_trace.ent		= NULL;
-
 
 	// create ray
 	d_ray_c ray(g_ode_space->getId(), start, dir, length);
@@ -1262,7 +1264,10 @@ trace_t	G_RayTrace(const vec3_c &start, const vec3_c &dir, vec_t length)
 		g_ray_trace.nohit = false;
 	
 		// calc endpos
-		g_ray_trace.endpos = dnearest.geom.pos;
+		//g_ray_trace.endpos = dnearest.geom.pos;
+		g_ray_trace.endpos = start + dir * dnearest.geom.depth;
+		
+		g_ray_trace.depth = dnearest.geom.depth;
 	
 		// calc plane
 		vec3_c normal = dnearest.geom.normal;

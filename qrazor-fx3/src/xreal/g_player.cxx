@@ -89,7 +89,7 @@ void SP_info_player_intermission(void)
 */
 
 g_player_c::g_player_c()
-:g_entity_c(false)
+:g_entity_c(true)
 {
 	_s.type = ET_PLAYER;
 	
@@ -197,19 +197,22 @@ g_player_c::g_player_c()
 	_respawn_time		= 0;
 	_jumppad_time		= 0;
 
+	// setup ODE rigid body
+//	_body->setPosition(start);
+//	_body->setQuaternion(_s.quat);
+//	_body->setLinearVel(dir * speed);
+//	_body->setGravityMode(0);
 	
-/*	// setup rigid body
+	// setup rigid body
 	dMass m;
 //	dMassSetBoxTotal(&m, 30, 32, 32, 56);
-	dMassSetSphereTotal(&m, 50, 32);
+ 	dMassSetSphereTotal(&m, 200, 16);
 //	dMassSetCappedCylinderTotal(&m, 10, 2, 32, 56);
 //	dMassTranslate(&m, 0, 0, -28);
-*/
-		
-/*
+
 	_body->setMass(&m);
 	_body->disable();
-*/		
+			
 	// setup ODE collision detection
 	_space = new d_simple_space_c(g_ode_space->getId());
 	_space->setCollideBits(MASK_PLAYERSOLID);
@@ -218,35 +221,16 @@ g_player_c::g_player_c()
 	
 	d_geom_c *geom;
 	
-//	_geom = new d_box_c(g_ode_space->getId(), vec3_c(32, 32, 56));
-	geom = new d_sphere_c(_space->getId(), 32);
-//	_geom = new d_ccylinder_c(g_ode_space->getId(), 32, 56);
-	
-	
-//	geom->setBody(_body->getId());
+//	geom = new d_box_c(g_ode_space->getId(), vec3_c(32, 32, 56));
+	geom = new d_sphere_c(_space->getId(), 16);
+//	geom = new d_ccylinder_c(g_ode_space->getId(), 32, 56);
+
+	geom->setBody(_body->getId());
 	geom->setData(geom_info);
-//	geom->setCollideBits(MASK_PLAYERSOLID);
-	geom->disable();
+	geom->setCollideBits(MASK_PLAYERSOLID);
+//	geom->disable();
 	
 	_geoms.insert(std::make_pair(geom, geom_info));
-
-	
-	/*
-	_joint_amotor.create(g_ode_world->getId(), g_ode_contact_group->getId());
-	_joint_amotor.attach(g_world->_body->getId(), _body->getId());
-	
-	//_joint_amotor.setMode(dAMotorEuler);
-	_joint_amotor.setNumAxes(1);
-	
-	_joint_amotor.setAxis(0, 0, vec3_c(1, 0, 0));
-	_joint_amotor.setAxis(1, 0, vec3_c(0, 1, 0));
-	_joint_amotor.setAxis(2, 0, vec3_c(0, 0, 1));
-	
-	_joint_amotor.setAxis(2, 2, vec3_c(0, 0, 1));
-	
-	//_joint_amotor.setAngle(2, 0);
-	//_joint_amotor.setAngle(2, 0);
-	*/
 }
 
 
@@ -256,7 +240,6 @@ g_player_c::~g_player_c()
 	//gi.Com_Printf("g_player_c::dtor:\n");
 }
 
-/*
 void	g_player_c::think()
 {
 #if 0
@@ -386,17 +369,21 @@ void	g_player_c::think()
 		}
 	}
 	
-	_cmds.clear();
+	vel_linear *= (1.0/_cmds.size());
+	vel_angular *= (1.0/_cmds.size());
 	
-	_body->setQuaternion(_v_quat);
+	//_body->addForce(vel_linear);
+	//_body->addTorque(vel_angular[ROLL], vel_angular[PITCH], vel_angular[YAW]);
 	
-	_body->addForce(vel_linear);
-	_body->setAngularVel(vel_angular[ROLL], vel_angular[PITCH], vel_angular[YAW]);
+	//_body->setRotation(pm.viewangles);
+	_body->setLinearVel(vel_linear);
+	_body->setAngularVel(vel_angular);
 	
 	_nextthink = level.time + FRAMETIME;
+	
+	_cmds.clear();
 #endif
 }
-*/
 
 
 /*
@@ -1164,7 +1151,7 @@ void	g_player_c::clientCommand()
 
 // pmove doesn't need to know about passent and contentmask
 
-static trace_t	PM_trace(const vec3_c &start, const cbbox_c &bbox, const vec3_c &end)
+trace_t	PM_trace(const vec3_c &start, const cbbox_c &bbox, const vec3_c &end)
 {
 	trace_t trace;
 	
@@ -1229,8 +1216,13 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	_r.ps.pmove.gravity = g_gravity->getValue();
 	pm.s = _r.ps.pmove;
 
-	pm.s.origin = _s.origin;
-	pm.s.velocity_linear = _s.velocity_linear;
+//	pm.s.origin = _s.origin;
+//	pm.s.velocity_linear = _s.velocity_linear;
+//	pm.s.velocity_angular = _s.velocity_angular;
+	
+	pm.s.origin = _body->getPosition();
+	pm.s.velocity_linear = _body->getLinearVel();
+	pm.s.velocity_angular = _body->getAngularVel();
 
 	if(memcmp(&_old_pmove, &pm.s, sizeof(pm.s)))
 	{
@@ -1250,15 +1242,22 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	// save results of pmove
 	_r.ps.pmove = pm.s;
 	_old_pmove = pm.s;
+	
+	// update ODE body
+	_body->setRotation(pm.viewangles);
+	_body->setLinearVel(pm.s.velocity_linear);
+	_body->setAngularVel(pm.s.velocity_angular);
 
 	// update entity network state
-	_s.origin = pm.s.origin;
-	_s.velocity_linear = pm.s.velocity_linear;
+//	_s.origin = pm.s.origin;
+//	_s.velocity_linear = pm.s.velocity_linear;
+//	_s.velocity_angular = pm.s.velocity_angular;
 	
-	_r.bbox = pm.bbox;
+//	_r.bbox = pm.bbox;
 	
-	// update collision detection space
+	// update estimated collision detection space
 //	_space->setPosition(_s.origin);
+//	_space->setRotation(pm.viewangles);
 //	_space->setQuaternion(_s.quat);
 
 	_resp.cmd_angles[0] = cmd.angles[0];
@@ -2082,7 +2081,6 @@ void	g_player_c::putClientInServer()
 	_anim_lastsent = -1; 
 
 	//_s.frame = 0;
-	
 
 	// set the delta angle
 	_r.ps.pmove.delta_angles = spawn_angles - _resp.cmd_angles;
@@ -2118,13 +2116,12 @@ void	g_player_c::putClientInServer()
 		_r.svflags |= SVF_NOCLIENT;
 		_r.ps.gun_model_index = 0;
 		
-		/*
+		
 		_body->setPosition(spawn_origin);
-//		_body->setLinearVel(0, 0, 0);
-//		_body->setAngularVel(0, 0, 0);
+		_body->setLinearVel(0, 0, 0);
+		_body->setAngularVel(0, 0, 0);
 		_body->setGravityMode(0);
 		_body->enable();
-		*/
 		
 		_space->disable();
 		
@@ -2132,13 +2129,11 @@ void	g_player_c::putClientInServer()
 	}
 	else
 	{
-		/*
 		_body->setPosition(spawn_origin);
-//		_body->setLinearVel(0, 0, 0);
-//		_body->setAngularVel(0, 0, 0);
+		_body->setLinearVel(0, 0, 0);
+		_body->setAngularVel(0, 0, 0);
 		_body->setGravityMode(1);
 		_body->enable();
-		*/
 		
 		_space->enable();
 		
@@ -2343,10 +2338,12 @@ void	g_player_c::endServerFrame()
 	// If it wasn't updated here, the view position would lag a frame
 	// behind the body position when pushed -- "sinking into plats"
 	
-	_r.ps.pmove.origin = _s.origin;
-	_r.ps.pmove.velocity_linear = _s.velocity_linear;
+	_r.ps.pmove.origin = _body->getPosition();
+	_r.ps.pmove.velocity_linear = _body->getLinearVel();
+	_r.ps.pmove.velocity_angular = _body->getAngularVel();
 	
-
+//	_r.ps.pmove.origin = _s.origin;
+//	_r.ps.pmove.velocity_linear = _s.velocity_linear;
 
 	// If the end of unit layout is displayed, don't give
 	// the player any normal movement attributes
@@ -4134,14 +4131,14 @@ void 	g_player_c::noclip_f()
 	if(!_space->isEnabled())
 	{
 		_movetype = MOVETYPE_WALK;
-//		_body->setGravityMode(1);
+		_body->setGravityMode(1);
 		_space->enable();
 		msg = "noclip OFF\n";
 	}
 	else
 	{
 		_movetype = MOVETYPE_NOCLIP;
-//		_body->setGravityMode(0);
+		_body->setGravityMode(0);
 		_space->disable();
 		msg = "noclip ON\n";
 	}
@@ -5050,86 +5047,6 @@ void	g_player_c::moveToIntermission()
 		gi.SV_Unicast(this, true);
 	}
 }
-
-
-
-
-/*
-void	G_InitBodyQue()
-{
-	int		i;
-	g_entity_c	*ent;
-
-	level.body_que = 0;
-	
-	for (i=0; i<BODY_QUEUE_SIZE ; i++)
-	{
-		//ent = G_Spawn();
-		ent = new g_bodyque_c();
-		
-	}
-}
-*/
-
-/*
-g_bodyque_c::g_bodyque_c()
-{
-	_has_die	 = true;
-	
-	classname = "bodyque";
-}
-*/
-
-/*
-void	g_bodyque_c::die(g_entity_c *self, g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point)
-{
-	if (self->health < -40)
-	{
-		gi.SV_StartSound (NULL, self, CHAN_BODY, gi.SV_SoundIndex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
-		//for (int n= 0; n < 4; n++)
-		//	ThrowGib (self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
-		self->s.origin[2] -= 48;
-		//ThrowClientHead (self, damage);
-		self->takedamage = DAMAGE_NO;
-	}
-}
-*/
-
-/*
-void	CopyToBodyQue (g_entity_c *ent)
-{
-	g_entity_c		*body;
-
-	// grab a body que and cycle to the next one
-	body = g_entities[(int)maxclients->getInteger() + level.body_que + 1];
-	level.body_que = (level.body_que + 1) % BODY_QUEUE_SIZE;
-
-	// FIXME: send an effect on the removed body
-
-	gi.SV_UnlinkEdict (ent);
-
-	gi.SV_UnlinkEdict (body);
-	
-	body->s = ent->s;
-	body->s.number = G_GetNumForEdict(body);// - g_entities;
-
-	body->r.svflags = ent->r.svflags;
-	
-	body->r.bbox = ent->r.bbox;
-	body->r.bbox_abs = ent->r.bbox_abs;
-	
-	Vector3_Copy (ent->r.size, body->r.size);
-	body->r.solid = ent->r.solid;
-	body->r.clipmask = ent->r.clipmask;
-	body->r.owner = ent->r.owner;
-	body->movetype = ent->movetype;
-
-	//body->die = body_die;
-	body->takedamage = DAMAGE_YES;
-
-	gi.SV_LinkEdict (body);
-}
-*/
 
 
 

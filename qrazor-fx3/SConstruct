@@ -2,8 +2,8 @@ import os, string, sys
 import SCons
 
 opts = Options()
-opts.Add(BoolOption('warnings', 'Set to 1 to compile with -Wall -Werror', 1))
 opts.Add(BoolOption('debug', 'Set to 1 to build for debug', 0))
+opts.Add(BoolOption('warnings', 'Set to 1 to compile with -Wall -Werror', 1))
 opts.Add(BoolOption('optimize', 'Set to 1 to build with optimizations', 1))
 opts.Add(PathOption('PKGDATADIR', 'Installation path', '/usr/games/share/qrazor-fx'))
 
@@ -11,6 +11,12 @@ env = Environment(options = opts)
 Help(opts.GenerateHelpText(env))
 
 print 'compiling for platform ', sys.platform
+
+env.Append(CXXFLAGS = '-pipe')
+
+env.Append(CXXFLAGS = '-DDEBUG=${debug}')
+if env['debug'] == 1:
+	env.Append(CXXFLAGS = '-ggdb1')
 
 if env['warnings'] == 1:
 	env.Append(CXXFLAGS = '-Wall -Werror')
@@ -21,9 +27,7 @@ if env['optimize'] == 1:
 env.Append(CXXFLAGS = '-DVFS_PKGDATADIR=\\"${PKGDATADIR}\\"')
 #env.Append(CXXFLAGS = '-DVFS_PKGLIBDIR="${PKGDATADIR}"')
 
-env.Append(CXXFLAGS = '-DDEBUG=${debug}')
-if env['debug'] == 1:
-	env.Append(CXXFLAGS = '-ggdb')
+
 
 conf = Configure(env)
 

@@ -54,7 +54,7 @@ r_entity_c::r_entity_c(const r_entity_t &shared, bool update)
 		if(!r_world_tree && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
 			ri.Com_Error(ERR_DROP, "r_entity_c::ctor: NULL worldmodel");
 	
-#if 0
+#if 1
 		//_area = r_world_tree->pointInArea(_s.origin);
 #else
 		r_bsptree_leaf_c* leaf = r_world_tree->pointInLeaf(_s.origin);

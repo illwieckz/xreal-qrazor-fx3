@@ -63,18 +63,18 @@ static pml_t	pml;
 
 // movement parameters
 static float	pm_stopspeed = 100;
-//static float	pm_maxspeed = 300;
+static float	pm_maxspeed = 300;
 //static float	pm_duckspeed = 100;
 //static float	pm_noclipspeed = 200;
 
-//static float	pm_accelerate = 10;
+static float	pm_accelerate = 10;
 //static float	pm_airaccelerate = 0;
 //static float	pm_wateraccelerate = 6;
 
 //static float	pm_friction = 6;
 //static float	pm_groundfriction = 6;
 //static float	pm_waterfriction = 1;
-static float	pm_airfriction = 1.5;
+static float	pm_airfriction = 9;
 //static float	pm_waterspeed = 400;
 
 /*
@@ -843,13 +843,10 @@ static void	PM_CheckSpecialMovement()
 
 void	PM_FlyMove(bool doclip)
 {
-#if 0
 	float	currentspeed, addspeed, accelspeed;
 	vec3_c		wishvel;
 	vec3_c		wishdir;
 	float		wishspeed;
-
-	pm->viewheight = 22;
 
 	// friction
 	PM_AirFriction();
@@ -864,18 +861,14 @@ void	PM_FlyMove(bool doclip)
 	wishdir = wishvel;
 	wishspeed = wishdir.normalize();
 
-	//
 	// clamp to server defined max speed
-	//
 	if(wishspeed > pm_maxspeed)
 	{
-		wishspeed = pm_maxspeed/wishspeed;
-		Vector3_Scale (wishvel, wishspeed, wishvel);
+		wishvel.scale(pm_maxspeed / wishspeed);
 		wishspeed = pm_maxspeed;
 	}
 
-
-	currentspeed = Vector3_DotProduct(pml.velocity, wishdir);
+	currentspeed = pml.velocity_linear.dotProduct(wishdir);
 	addspeed = wishspeed - currentspeed;
 	
 	if(addspeed <= 0)
@@ -885,78 +878,72 @@ void	PM_FlyMove(bool doclip)
 	if(accelspeed > addspeed)
 		accelspeed = addspeed;
 	
-	pml.velocity += (wishdir * accelspeed);
+	pml.velocity_linear += (wishdir * accelspeed);
+	wishdir = pml.velocity_linear;
+	wishdir.normalize();
 
 	// move
-	if(!doclip)
-	{
-		pml.origin += pml.velocity * pml.frametime;
-	}
-	else
-	{
-		//TODO
-		pml.origin += pml.velocity * pml.frametime;
-	}
-#else
-
-	pm->viewheight = 22;
-
-	// accelerate
-	pml.forward.normalize();
-	pml.right.normalize();
-	pml.up.normalize();
-
-	vec3_c wishvel = (pml.forward * pm->cmd.forwardmove) + (pml.right * pm->cmd.sidemove);
-	wishvel[2] += pm->cmd.upmove;
-	wishvel.normalize();
-	
-	pml.velocity_linear = wishvel * 200;
-	
 	if(!doclip)
 	{
 		pml.origin += pml.velocity_linear * pml.frametime;
 	}
 	else
 	{
-		trace_t trace = pm->rayTrace(pml.origin, wishvel, (pml.velocity_linear * pml.frametime).length());
+		trace_t trace = pm->rayTrace(pml.origin, wishdir, (pml.velocity_linear * pml.frametime).length() + 16);
+		
+		//pml.origin = trace.endpos;
 		
 		if(trace.nohit)
 		{
 			pml.origin += pml.velocity_linear * pml.frametime;
 		}
+		else
+		{
+			pml.origin = trace.endpos;
+			//pml.origin += wishdir * trace.depth;
+		}
 	}
-#endif
+	
+	
+	pml.velocity_angular[0] = 0;
+	pml.velocity_angular[1] = 0;
+	pml.velocity_angular[2] = 0;
 }
 
 void	PM_RollMove()
 {
-	pm->viewheight = 22;
-//	vec3_c wishvel = (pml.forward * pm->cmd.forwardmove) + (pml.right * pm->cmd.sidemove);
-//	wishvel[2] += pm->cmd.upmove;
-//	wishvel.normalize();
+	vec3_c forward, right;
 	
-//	pml.velocity[PITCH]	= wishvel[0] * pml.frametime;	// roll forward around the Y-Axis
-//	pml.velocity[YAW]	= 0;//wishvel[1] * pml.frametime;	// roll right around the X-Axis
-//	pml.velocity[ROLL]	= 0;
+	forward[0] = pml.forward[0];
+	forward[1] = pml.forward[1];
+	forward[2] = 0;
+	forward.normalize();
+	
+	right[0] = pml.right[0];
+	right[1] = pml.right[1];
+	right[2] = 0;
+	right.normalize();
+	
+	vec_t factor = 4.0f;
 
-	pml.velocity_angular[PITCH] = pm->cmd.forwardmove * pml.frametime * 0.5;	// roll forward around the Y-Axis
-	pml.velocity_angular[ROLL] = pm->cmd.sidemove * pml.frametime * 0.5;		// roll right around the X-Axis
-	pml.velocity_angular[YAW] = 0;
+	pml.velocity_angular[1] = forward[0] * pm->cmd.forwardmove * pml.frametime * factor;
+	pml.velocity_angular[0] =-forward[1] * pm->cmd.forwardmove * pml.frametime * factor;
+	
+	pml.velocity_angular[0] +=-right[1] * pm->cmd.sidemove * pml.frametime * factor;
+	pml.velocity_angular[1] += right[0] * pm->cmd.sidemove * pml.frametime * factor;
+	
+	pml.velocity_angular[2] = 0;
 }
 
-/*
-static void	PM_CheckDuck()
+void	PM_CheckDuck()
 {
-	trace_t	trace;
-	vec3_t	end;
-
 	pm->bbox._mins[0] = -16;
 	pm->bbox._mins[1] = -16;
 
 	pm->bbox._maxs[0] = 16;
 	pm->bbox._maxs[1] = 16;
 
-	if (pm->s.pm_type == PM_GIB)
+	if(pm->s.pm_type == PM_GIB)
 	{
 		pm->bbox._mins[2] = 0;
 		pm->bbox._maxs[2] = 16;
@@ -966,11 +953,11 @@ static void	PM_CheckDuck()
 
 	pm->bbox._mins[2] = -24;
 
-	if (pm->s.pm_type == PM_DEAD)
+	if(pm->s.pm_type == PM_DEAD)
 	{
 		pm->s.pm_flags |= PMF_DUCKED;
 	}
-	else if (pm->cmd.upmove < 0 && (pm->s.pm_flags & PMF_ON_GROUND) )
+	else if(pm->cmd.upmove < 0 && (pm->s.pm_flags & PMF_ON_GROUND) )
 	{	
 		// duck
 		pm->s.pm_flags |= PMF_DUCKED;
@@ -978,15 +965,25 @@ static void	PM_CheckDuck()
 	else
 	{	
 		// stand up if possible
-		if (pm->s.pm_flags & PMF_DUCKED)
+		if(pm->s.pm_flags & PMF_DUCKED)
 		{
 			// try to stand up
-			Vector3_Copy (pml.origin, end);
+			/*
+			vec3_c end = pml.origin;
 			end[2] += 32 - pm->bbox._maxs[2];
 
-			trace = pm->trace (pml.origin, pm->bbox, end);
+			trace_t trace = pm->trace(pml.origin, pm->bbox, end);
 			
-			if (trace.fraction == 1)
+			if(trace.fraction == 1)
+			{
+				pm->bbox._maxs[2] = 32;
+				pm->s.pm_flags &= ~PMF_DUCKED;
+			}
+			*/
+			
+			trace_t trace = pm->rayTrace(pml.origin, vec3_c(0, 0, 1), 32);
+			
+			if(trace.nohit)
 			{
 				pm->bbox._maxs[2] = 32;
 				pm->s.pm_flags &= ~PMF_DUCKED;
@@ -994,7 +991,7 @@ static void	PM_CheckDuck()
 		}
 	}
 
-	if (pm->s.pm_flags & PMF_DUCKED)
+	if(pm->s.pm_flags & PMF_DUCKED)
 	{
 		pm->bbox._maxs[2] = 4;
 		pm->viewheight = -2;
@@ -1005,7 +1002,6 @@ static void	PM_CheckDuck()
 		pm->viewheight = 22;
 	}
 }
-*/
 
 /*
 static void	PM_DeadMove()
@@ -1212,6 +1208,8 @@ void 	Com_Pmove(pmove_t *pmove)
 
 	if(pm->s.pm_type == PM_SPECTATOR)
 	{
+		pm->viewheight = 22;
+	
 		PM_FlyMove(false);
 		PM_SnapPosition();
 		return;
@@ -1227,13 +1225,12 @@ void 	Com_Pmove(pmove_t *pmove)
 	if(pm->s.pm_type == PM_FREEZE)
 		return;		// no movement at all
 	
-	PM_FlyMove(true);
-	
-	//PM_RollMove();
-		
-	
 	// set mins, maxs, and viewheight
-	//PM_CheckDuck();
+	PM_CheckDuck();
+	
+	PM_RollMove();
+	
+	//PM_FlyMove(true);
 	
 	/*
 	if(pm->snapinitial)

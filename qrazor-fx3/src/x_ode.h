@@ -156,6 +156,7 @@ public:
 	void		getMass(dMass *mass) const	{dBodyGetMass(_id,mass);}
 	
 	void		addForce(const vec3_c &f)	{dBodyAddForce(_id, f[0], f[1], f[2]);}
+	void		addTorque(vec_t v0, vec_t v1, vec_t v2)	{dBodyAddTorque(_id, v0, v1, v2);}
 	void		addTorque(const vec3_c &f)	{dBodyAddTorque(_id, f[0], f[1], f[2]);}
 	void		addRelForce(const vec3_c &f)	{dBodyAddRelForce(_id, f[0], f[1], f[2]);}
 	void		addRelTorque(const vec3_c &f)	{dBodyAddRelTorque(_id, f[0], f[1], f[2]);}

@@ -1770,7 +1770,10 @@ static void	R_AddEntity(int entity_num, const r_entity_t &shared)
 	
 	if(ir != r_entities.end())
 	{
-		ri.Com_Error(ERR_DROP, "R_AddEntity: entity %i already added", entity_num);
+		//ri.Com_Error(ERR_DROP, "R_AddEntity: entity %i already added", entity_num);
+		//r_entities.erase(ir);
+		//r_entities.insert(std::make_pair(entity_num, r_entity_c(shared, update)));
+		ir->second = r_entity_c(shared, true);
 	}
 	else
 	{
@@ -1791,8 +1794,9 @@ static void	R_UpdateEntity(int entity_num, const r_entity_t &shared, bool update
 		if(update)
 		{
 			// update entire entity information
-			r_entities.erase(ir);
-			r_entities.insert(std::make_pair(entity_num, r_entity_c(shared, update)));
+			//r_entities.erase(ir);
+			//r_entities.insert(std::make_pair(entity_num, r_entity_c(shared, update)));
+			ir->second = r_entity_c(shared, true);
 		}
 		else
 		{

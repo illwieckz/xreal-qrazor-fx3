@@ -1352,7 +1352,6 @@ byte*	r_bsptree_c::clusterPVS(int cluster)
 	
 	byte *data = NULL;
 	
-#ifdef HAVE_DEBUG
 	try
 	{
 		data =  &(_pvs.at(cluster * _pvs_clusters_size));
@@ -1361,9 +1360,7 @@ byte*	r_bsptree_c::clusterPVS(int cluster)
 	{
 		ri.Com_Error(ERR_DROP, "r_bsptree_c::clusterPVS: exception occured");
 	}
-#else
-	data =  &(_pvs[cluster * _pvs_clusters_size]);
-#endif
+	
 	return data;
 }
 
