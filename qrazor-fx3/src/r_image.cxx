@@ -300,7 +300,7 @@ static void	R_InitBlackImage()
 
 	byte	data[32][32][4];
 	
-	memset(data, 255, sizeof(data));
+	memset(data, 0, sizeof(data));
 	
 	r_img_black = R_LoadImage("_black", (byte*)data, 32, 32, IMAGE_NONE, IMAGE_UPLOAD_COLORMAP);
 }
