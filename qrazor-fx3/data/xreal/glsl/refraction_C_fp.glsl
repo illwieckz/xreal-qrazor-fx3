@@ -51,8 +51,8 @@ void	main()
 	vec3 refract_color = textureCube(u_colormap, T).rgb;
 
 	// compute final color
-	gl_FragColor.r = lerp(refract_color.r, reflect_color.r, fresnel);
-	gl_FragColor.g = lerp(refract_color.g, reflect_color.g, fresnel);
-	gl_FragColor.b = lerp(refract_color.b, reflect_color.b, fresnel);
+	gl_FragColor.r = (1.0 - fresnel) * refract_color.r + reflect_color.r * fresnel;
+	gl_FragColor.g = (1.0 - fresnel) * refract_color.g + reflect_color.g * fresnel;
+	gl_FragColor.b = (1.0 - fresnel) * refract_color.b + reflect_color.b * fresnel;
 	gl_FragColor.a = 1.0;
 }
