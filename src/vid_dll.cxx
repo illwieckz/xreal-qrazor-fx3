@@ -12,7 +12,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -29,18 +29,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <float.h>
 
 // qrazor-fx ----------------------------------------------------------------
-#include "client.h"
+//#include "client.h"
 #include "winquake.h"
 
 #include "cmd.h"
 #include "cvar.h"
 #include "vfs.h"
-
+#include "x_keycodes.h"
+#include "r_public.h"
+#include "sys.h"
+#include "roq.h"
+#include "s_public.h"
 // Structure containing functions exported from refresh DLL
 ref_export_t	re;
 
 #ifndef WM_MOUSEWHEEL
-#define WM_MOUSEWHEEL (WM_MOUSELAST+1)  // message that will be supported by the OS 
+#define WM_MOUSEWHEEL (WM_MOUSELAST+1)  // message that will be supported by the OS
 #endif
 
 static UINT MSH_MOUSEWHEEL;
@@ -56,7 +60,7 @@ cvar_t 		*win_noalttab;
 
 // Global variables used internally by this module
 viddef_t	viddef;				// global video state; used by other modules
-HINSTANCE	reflib_library;		// Handle to refresh DLL 
+HINSTANCE	reflib_library;		// Handle to refresh DLL
 bool		reflib_active = 0;
 
 HWND        cl_hwnd;            // Main window handle for life of program
@@ -68,6 +72,9 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 static bool s_alttab_disabled;
 
 extern	unsigned	sys_msg_time;
+
+//in_state_t in_state;
+
 
 /*
 ** WIN32 helper functions
@@ -114,27 +121,27 @@ static void WIN_EnableAltTab( void )
 }
 
 
-byte        scantokey[128] = 
-					{ 
-//  0           1       2       3       4       5       6       7 
-//  8           9       A       B       C       D       E       F 
-	0  ,    27,     '1',    '2',    '3',    '4',    '5',    '6', 
-	'7',    '8',    '9',    '0',    '-',    '=',    K_BACKSPACE, 9, // 0 
-	'q',    'w',    'e',    'r',    't',    'y',    'u',    'i', 
-	'o',    'p',    '[',    ']',    13 ,    K_CTRL,'a',  's',      // 1 
-	'd',    'f',    'g',    'h',    'j',    'k',    'l',    ';', 
-	'\'' ,    '`',    K_SHIFT,'\\',  'z',    'x',    'c',    'v',      // 2 
-	'b',    'n',    'm',    ',',    '.',    '/',    K_SHIFT,'*', 
-	K_ALT,' ',   0  ,    K_F1, K_F2, K_F3, K_F4, K_F5,   // 3 
-	K_F6, K_F7, K_F8, K_F9, K_F10,  K_PAUSE,    0  , K_HOME, 
-	K_UPARROW,K_PGUP,K_KP_MINUS,K_LEFTARROW,K_KP_5,K_RIGHTARROW, K_KP_PLUS,K_END, //4 
-	K_DOWNARROW,K_PGDN,K_INS,K_DEL,0,0,             0,              K_F11, 
+byte        scantokey[128] =
+					{
+//  0           1       2       3       4       5       6       7
+//  8           9       A       B       C       D       E       F
+	0  ,    27,     '1',    '2',    '3',    '4',    '5',    '6',
+	'7',    '8',    '9',    '0',    '-',    '=',    K_BACKSPACE, 9, // 0
+	'q',    'w',    'e',    'r',    't',    'y',    'u',    'i',
+	'o',    'p',    '[',    ']',    13 ,    K_CTRL,'a',  's',      // 1
+	'd',    'f',    'g',    'h',    'j',    'k',    'l',    ';',
+	'\'' ,    '`',    K_SHIFT,'\\',  'z',    'x',    'c',    'v',      // 2
+	'b',    'n',    'm',    ',',    '.',    '/',    K_SHIFT,'*',
+	K_ALT,' ',   0  ,    K_F1, K_F2, K_F3, K_F4, K_F5,   // 3
+	K_F6, K_F7, K_F8, K_F9, K_F10,  K_PAUSE,    0  , K_HOME,
+	K_UPARROW,K_PGUP,K_KP_MINUS,K_LEFTARROW,K_KP_5,K_RIGHTARROW, K_KP_PLUS,K_END, //4
+	K_DOWNARROW,K_PGDN,K_INS,K_DEL,0,0,             0,              K_F11,
 	K_F12,0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0,        // 5
-	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0, 
-	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0,        // 6 
-	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0, 
-	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0         // 7 
-}; 
+	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0,
+	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0,        // 6
+	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0,
+	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0         // 7
+};
 
 /*
 =======
@@ -204,7 +211,7 @@ void AppActivate(BOOL fActive, BOOL minimize)
 {
 	Minimized = minimize;
 
-	Key_ClearStates();
+//	Key_ClearStates();
 
 	// we don't want to act like we're active if we're minimized
 	if (fActive && !Minimized)
@@ -218,7 +225,7 @@ void AppActivate(BOOL fActive, BOOL minimize)
 		IN_Activate (false);
 		//S_Activate (false);	//FIXME
 
-		if ( win_noalttab->value )
+		if ( win_noalttab->getValue() )
 		{
 			WIN_EnableAltTab();
 		}
@@ -227,7 +234,7 @@ void AppActivate(BOOL fActive, BOOL minimize)
 	{
 		IN_Activate (true);
 		//S_Activate (true);	//FIXME
-		if ( win_noalttab->value )
+		if ( win_noalttab->getValue() )
 		{
 			WIN_DisableAltTab();
 		}
@@ -247,7 +254,7 @@ LONG WINAPI MainWndProc (
     WPARAM  wParam,
     LPARAM  lParam)
 {
-	LONG			lRet = 0;
+	//LONG			lRet = 0;
 
 	if ( uMsg == MSH_MOUSEWHEEL )
 	{
@@ -289,7 +296,7 @@ LONG WINAPI MainWndProc (
 	case WM_CREATE:
 		cl_hwnd = hWnd;
 
-		MSH_MOUSEWHEEL = RegisterWindowMessage("MSWHEEL_ROLLMSG"); 
+		MSH_MOUSEWHEEL = RegisterWindowMessage("MSWHEEL_ROLLMSG");
 		return DefWindowProc (hWnd, uMsg, wParam, lParam);
 
 	case WM_PAINT:
@@ -322,10 +329,10 @@ LONG WINAPI MainWndProc (
 			RECT r;
 			int		style;
 
-			if (!vid_fullscreen->value)
+			if (!vid_fullscreen->getValue())
 			{
-				xPos = (short) LOWORD(lParam);    // horizontal position 
-				yPos = (short) HIWORD(lParam);    // vertical position 
+				xPos = (short) LOWORD(lParam);    // horizontal position
+				yPos = (short) HIWORD(lParam);    // vertical position
 
 				r.left   = 0;
 				r.top    = 0;
@@ -337,8 +344,8 @@ LONG WINAPI MainWndProc (
 
 				Cvar_SetValue( "vid_xpos", xPos + r.left);
 				Cvar_SetValue( "vid_ypos", yPos + r.top);
-				vid_xpos->modified = false;
-				vid_ypos->modified = false;
+				vid_xpos->isModified(false);
+				vid_ypos->isModified(false);
 				if (ActiveApp)
 					IN_Activate (true);
 			}
@@ -381,7 +388,7 @@ LONG WINAPI MainWndProc (
 		{
 			if ( vid_fullscreen )
 			{
-				Cvar_SetValue( "vid_fullscreen", !vid_fullscreen->value );
+				Cvar_SetValue( "vid_fullscreen", !vid_fullscreen->getValue() );
 			}
 			return 0;
 		}
@@ -421,7 +428,7 @@ cause the entire video mode and refresh DLL to be reset on the next frame.
 */
 void VID_Restart_f (void)
 {
-	vid_ref->modified = true;
+	vid_ref->isModified(true);
 }
 
 void VID_Front_f( void )
@@ -486,7 +493,7 @@ void VID_UpdateWindowPosAndSize( int x, int y )
 	w = r.right - r.left;
 	h = r.bottom - r.top;
 
-	MoveWindow( cl_hwnd, vid_xpos->integer, vid_ypos->integer, w, h, TRUE );
+	MoveWindow( cl_hwnd, vid_xpos->getInteger(), vid_ypos->getInteger(), w, h, TRUE );
 }
 
 /*
@@ -497,7 +504,7 @@ void VID_NewWindow ( int width, int height)
 	viddef.width  = width;
 	viddef.height = height;
 
-	cl.force_refdef = true;		// can't use a paused refdef
+	//cl.force_refdef = true;		// can't use a paused refdef
 }
 
 void VID_FreeReflib (void)
@@ -518,43 +525,54 @@ bool	VID_LoadRefresh(char *name)
 {
 	ref_import_t	ri;
 	GetRefAPI_t	GetRefAPI;
-	
-	if ( reflib_active )
+	char	fn[MAX_OSPATH];
+
+	if(reflib_active)
 	{
+		//if (KBD_Close_fp)
+		//	KBD_Close_fp();
+		//if (RW_IN_Shutdown_fp)
+		//	RW_IN_Shutdown_fp();
+		//KBD_Close_fp = NULL;
+		//RW_IN_Shutdown_fp = NULL;
 		re.Shutdown();
 		VID_FreeReflib ();
 	}
 
 	Com_Printf( "------- Loading %s -------\n", name );
 
-	if ( ( reflib_library = LoadLibrary( name ) ) == 0 )
-	{
-		Com_Printf( "LoadLibrary(\"%s\") failed\n", name );
+	strncpy(fn, VFS_PKGLIBDIR, sizeof(VFS_PKGLIBDIR));
 
+	while(*fn && isspace(fn[strlen(fn) - 1]))
+		fn[strlen(fn) - 1] = 0;
+
+	strcat(fn, "/");
+	strcat(fn, name);
+
+	if((reflib_library = LoadLibrary(fn)) == 0)
+	{
+		Com_Printf( "LoadLibrary(\"%s\") failed: %s\n", name,
+                    Sys_GetError().c_str());
 		return false;
 	}
 
+  	Com_Printf("LoadLibrary(\"%s\")\n", fn);
+
+
 	//
 	// setup import interface
-	// 
+	//
 	ri.Com_Printf		= Com_Printf;
 	ri.Com_DPrintf		= Com_DPrintf;
 	ri.Com_Error		= Com_Error;
 
 	ri.Cbuf_ExecuteText	= Cbuf_ExecuteText;
-	
+
 	ri.Cmd_AddCommand	= Cmd_AddCommand;
 	ri.Cmd_RemoveCommand	= Cmd_RemoveCommand;
 	ri.Cmd_Argc		= Cmd_Argc;
 	ri.Cmd_Argv		= Cmd_Argv;
-	
-	ri.Com_Malloc		= Com_Malloc;
-	ri.Com_Free		= Com_Free;
-	
-	ri.Hunk_Begin		= Hunk_Begin;
-	ri.Hunk_Alloc		= Hunk_Alloc;
-	ri.Hunk_Free		= Hunk_Free;
-	ri.Hunk_End		= Hunk_End;
+	ri.Cmd_Args		= Cmd_Args;
 
 	ri.VFS_FLoad		= VFS_FLoad;
 	ri.VFS_FSave		= VFS_FSave;
@@ -563,39 +581,63 @@ bool	VID_LoadRefresh(char *name)
 
 	ri.Cvar_Get		= Cvar_Get;
 	ri.Cvar_Set		= Cvar_Set;
-	//cvar_t*		(*Cvar_ForceSet) (char *var_name, char *value);
 	ri.Cvar_SetValue	= Cvar_SetValue;
-	//void		(*Cvar_SetValue) (char *name, float value );
-	//void		(*Cvar_SetModified) (char *var_name);
-	//float		(*Cvar_VariableValue) (char *var_name);
-	//char*		(*Cvar_VariableString) (char *var_name);
-	//float		(*Cvar_ClampVariable) (char *var_name, float min, float max);
-	
-	ri.CL_Trace		= CL_Trace;
+
+	ri.Roq_Open		= Roq_Open;
+	ri.Roq_Close		= Roq_Close;
+	ri.Roq_ReadVideo	= Roq_ReadVideo;
+	ri.Roq_ResetStream	= Roq_ResetStream;
 
 	ri.VID_GetModeInfo	= VID_GetModeInfo;
 	ri.VID_NewWindow	= VID_NewWindow;
-	
+
 	ri.Sys_Milliseconds	= Sys_Milliseconds;
+	ri.Sys_Microseconds	= Sys_Microseconds;
 
 
-	if ( ( GetRefAPI = (ref_export_t(*)(ref_import_t)) GetProcAddress( reflib_library, "GetRefAPI" ) ) == 0 )
-		Com_Error( ERR_FATAL, "GetProcAddress failed on %s", name );
+	if((GetRefAPI = (ref_export_t(*)(ref_import_t))GetProcAddress(
+            reflib_library, "GetRefAPI")) == 0)
+    {
+		Com_Error(ERR_FATAL, "dlsym failed on %s", name);
+    }
 
-	re = GetRefAPI( ri );
+	re = GetRefAPI(ri);
 
-	if (re.api_version != REF_API_VERSION)
+	if(re.api_version != REF_API_VERSION)
 	{
-		VID_FreeReflib ();
-		Com_Error (ERR_FATAL, "%s has incompatible api_version", name);
+		VID_FreeReflib();
+		Com_Error(ERR_FATAL, "%s has incompatible api_version", name);
 	}
 
-	if ( re.Init( global_hInstance, (void*)MainWndProc ) == false )
+	// Init IN (Mouse)
+	//in_state.Com_PushEvent_fp = Com_PushEvent;
+
+	//if(	(RW_IN_Init_fp = (void(*)(in_state_t*))dlsym(reflib_library, "RW_IN_Init")) == NULL ||
+	//	(RW_IN_Shutdown_fp = (void(*)())dlsym(reflib_library, "RW_IN_Shutdown")) == NULL ||
+	//	(RW_IN_Activate_fp = (void(*)(bool))dlsym(reflib_library, "RW_IN_Activate")) == NULL ||
+	//	(RW_IN_Commands_fp = (void(*)())dlsym(reflib_library, "RW_IN_Commands")) == NULL ||
+	//	(RW_IN_Move_fp = (void(*)(usercmd_t&))dlsym(reflib_library, "RW_IN_Move")) == NULL ||
+	//	(RW_IN_Frame_fp = (void(*)())dlsym(reflib_library, "RW_IN_Frame")) == NULL
+	//)
+	//	Com_Error(ERR_FATAL, "No RW_IN functions in REF.\n");
+
+	//Real_IN_Init();
+
+	if(re.Init(0, 0) == false)
 	{
 		re.Shutdown();
-		VID_FreeReflib ();
+		VID_FreeReflib();
 		return false;
 	}
+
+	// Init KBD
+	//if(	(KBD_Init_fp = (void(*)())dlsym(reflib_library, "KBD_Init")) == NULL ||
+	//	(KBD_Update_fp = (void(*)())dlsym(reflib_library, "KBD_Update")) == NULL ||
+	//	(KBD_Close_fp = (void(*)())dlsym(reflib_library, "KBD_Close")) == NULL
+	//)
+	//	Com_Error(ERR_FATAL, "No KBD functions in REF.\n");
+
+	//KBD_Init_fp();
 
 	Com_Printf( "------------------------------------\n");
 	reflib_active = true;
@@ -607,7 +649,7 @@ bool	VID_LoadRefresh(char *name)
 VID_CheckChanges
 
 This function gets called once just before drawing each frame, and it's sole purpose in life
-is to check to see if any of the video mode parameters have changed, and if they have to 
+is to check to see if any of the video mode parameters have changed, and if they have to
 update the rendering DLL and/or video mode to match.
 ============
 */
@@ -615,9 +657,9 @@ void	VID_CheckChanges()
 {
 	char name[100];
 
-	if ( win_noalttab->modified )
+	if ( win_noalttab->isModified() )
 	{
-		if ( win_noalttab->value )
+		if ( win_noalttab->getValue() )
 		{
 			WIN_DisableAltTab();
 		}
@@ -625,52 +667,52 @@ void	VID_CheckChanges()
 		{
 			WIN_EnableAltTab();
 		}
-		win_noalttab->modified = false;
+  		win_noalttab->isModified(false);
 	}
 
-	if ( vid_ref->modified )
+	if ( vid_ref->isModified() )
 	{
-		cl.force_refdef = true;		// can't use a paused refdef
+		//cl.force_refdef = true;		// can't use a paused refdef
 		S_StopAllSounds();
 	}
-	while (vid_ref->modified)
+	while (vid_ref->isModified())
 	{
 		//
 		// refresh has changed
 		//
-		vid_ref->modified = false;
-		vid_fullscreen->modified = true;
-		cl.refresh_prepped = false;
-		cls.disable_screen = true;
+		vid_ref->isModified(false);
+		vid_fullscreen->isModified(true);
+		//cl.refresh_prepped = false;
+		//cls.disable_screen = true;
 
-		Com_sprintf( name, sizeof(name), "ref_%s.dll", vid_ref->string );
+		Com_sprintf( name, sizeof(name), "ref_%s.dll", vid_ref->getString() );
 		if ( !VID_LoadRefresh( name ) )
 		{
-			if ( strcmp (vid_ref->string, "soft") == 0 )
+			if ( strcmp (vid_ref->getString(), "gl") == 0 )
 				Com_Error (ERR_FATAL, "Couldn't fall back to software refresh!");
-			Cvar_Set( "vid_ref", "soft" );
+			Cvar_Set( "vid_ref", "gl" );
 
 			/*
 			** drop the console if we fail to load a refresh
 			*/
-			if ( cls.key_dest != key_console )
-			{
-				Con_ToggleConsole_f();
-			}
+			//if ( cls.key_dest != key_console )
+			//{
+			//	Con_ToggleConsole_f();
+			//}
 		}
-		cls.disable_screen = false;
+		//cls.disable_screen = false;
 	}
 
 	/*
 	** update our window position
 	*/
-	if ( vid_xpos->modified || vid_ypos->modified )
+	if ( vid_xpos->isModified() || vid_ypos->isModified() )
 	{
-		if (!vid_fullscreen->value)
-			VID_UpdateWindowPosAndSize( vid_xpos->integer, vid_ypos->integer );
+		if (!vid_fullscreen->getValue())
+			VID_UpdateWindowPosAndSize( vid_xpos->getInteger(), vid_ypos->getInteger() );
 
-		vid_xpos->modified = false;
-		vid_ypos->modified = false;
+		vid_xpos->isModified(false);
+		vid_ypos->isModified(false);
 	}
 }
 
@@ -682,20 +724,30 @@ VID_Init
 void	VID_Init()
 {
 	/* Create the video variables so we know how to start the graphics drivers */
-	vid_ref		= Cvar_Get ("vid_ref", "soft", CVAR_ARCHIVE);
+	vid_ref		= Cvar_Get ("vid_ref", "gl", CVAR_ARCHIVE);
 	vid_xpos	= Cvar_Get ("vid_xpos", "3", CVAR_ARCHIVE);
 	vid_ypos	= Cvar_Get ("vid_ypos", "22", CVAR_ARCHIVE);
 	vid_fullscreen	= Cvar_Get ("vid_fullscreen", "0", CVAR_ARCHIVE);
 	vid_gamma	= Cvar_Get( "vid_gamma", "1", CVAR_ARCHIVE );
-	
+
 	win_noalttab	= Cvar_Get( "win_noalttab", "0", CVAR_ARCHIVE );
 
 	/* Add some console commands that we want to handle */
 	Cmd_AddCommand ("vid_restart", VID_Restart_f);
 	Cmd_AddCommand ("vid_front", VID_Front_f);
-		
+
 	/* Start the graphics mode and load refresh DLL */
 	VID_CheckChanges();
+}
+
+uint_t	VID_GetWidth()
+{
+	return viddef.width;
+}
+
+uint_t	VID_GetHeight()
+{
+	return viddef.height;
 }
 
 /*
@@ -711,5 +763,3 @@ void VID_Shutdown (void)
 		VID_FreeReflib ();
 	}
 }
-
-
