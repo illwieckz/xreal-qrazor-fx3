@@ -902,7 +902,7 @@ void	RB_PushMesh(r_mesh_c *mesh, bool create_vbo_array_buffer, bool create_vbo_e
 			mesh->vbo_vertexes_ofs = data_ofs;
 			for(std::vector<vec3_c>::const_iterator ir = mesh->vertexes.begin(); ir != mesh->vertexes.end(); ++ir)
 			{
-				memcpy(data + data_ofs, *ir, sizeof(vec3_c));
+				memcpy(data + data_ofs, (float*)*ir, sizeof(vec3_c));
 				data_ofs += sizeof(vec3_c);
 			}
 		
@@ -916,21 +916,21 @@ void	RB_PushMesh(r_mesh_c *mesh, bool create_vbo_array_buffer, bool create_vbo_e
 			mesh->vbo_tangents_ofs = data_ofs;
 			for(std::vector<vec3_c>::const_iterator ir = mesh->tangents.begin(); ir != mesh->tangents.end(); ++ir)
 			{
-				memcpy(data + data_ofs, *ir, sizeof(vec3_c));
+				memcpy(data + data_ofs, (float*)*ir, sizeof(vec3_c));
 				data_ofs += sizeof(vec3_c);
 			}
 			
 			mesh->vbo_binormals_ofs = data_ofs;
 			for(std::vector<vec3_c>::const_iterator ir = mesh->binormals.begin(); ir != mesh->binormals.end(); ++ir)
 			{
-				memcpy(data + data_ofs, *ir, sizeof(vec3_c));
+				memcpy(data + data_ofs, (float*)*ir, sizeof(vec3_c));
 				data_ofs += sizeof(vec3_c);
 			}
 		
 			mesh->vbo_normals_ofs = data_ofs;
 			for(std::vector<vec3_c>::const_iterator ir = mesh->normals.begin(); ir != mesh->normals.end(); ++ir)
 			{
-				memcpy(data + data_ofs, *ir, sizeof(vec3_c));
+				memcpy(data + data_ofs, (float*)*ir, sizeof(vec3_c));
 				data_ofs += sizeof(vec3_c);
 			}
 			

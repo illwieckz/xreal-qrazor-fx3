@@ -147,11 +147,11 @@ public:
 	void		setAngularVel(const vec3_c &v)			{dBodySetAngularVel(_id, v[0], v[1], v[2]);}
 	void		setAngularVel(vec_t v0, vec_t v1, vec_t v2)	{dBodySetAngularVel(_id, v0, v1, v2);}
 	
-	const vec_t*	getPosition() const		{return	dBodyGetPosition(_id);}
-	const vec_t*	getRotation() const		{return dBodyGetRotation(_id);}
-	const vec_t*	getQuaternion() const		{return dBodyGetQuaternion(_id);}
-	const vec_t*	getLinearVel() const		{return dBodyGetLinearVel(_id);}
-	const vec_t*	getAngularVel() const		{return dBodyGetAngularVel(_id);}
+	const vec_t*	getPosition() const		{return	(vec_t*)dBodyGetPosition(_id);}
+	const vec_t*	getRotation() const		{return (vec_t*)dBodyGetRotation(_id);}
+	const vec_t*	getQuaternion() const		{return (vec_t*)dBodyGetQuaternion(_id);}
+	const vec_t*	getLinearVel() const		{return (vec_t*)dBodyGetLinearVel(_id);}
+	const vec_t*	getAngularVel() const		{return (vec_t*)dBodyGetAngularVel(_id);}
 	
 	void		setMass(const dMass *mass)	{dBodySetMass(_id,mass);}
 	void		getMass(dMass *mass) const	{dBodyGetMass(_id,mass);}
@@ -592,7 +592,7 @@ public:
 	void	setQuaternion(quaternion_c &quat)		{dGeomSetQuaternion(_id, quat);}
 	void	getQuaternion(quaternion_c &quat) const		{dGeomGetQuaternion(_id, quat);}
 
-	void	getAABB(vec_t aabb[6]) const			{dGeomGetAABB(_id, aabb);}
+//	void	getAABB(vec_t aabb[6]) const			{dGeomGetAABB(_id, aabb);}
 	
 	int	isSpace()					{return dGeomIsSpace(_id);}
 
@@ -766,7 +766,7 @@ public:
 	}
 	
 	void	setParams(vec_t radius, vec_t length)		{dGeomCCylinderSetParams(_id, radius, length);}
-	void	getParams(vec_t *radius, vec_t *length) const	{dGeomCCylinderGetParams(_id, radius, length);}
+	void	getParams(vec_t *radius, vec_t *length) const	{dGeomCCylinderGetParams(_id, (dReal*)radius, (dReal*)length);}
 };
 
 

@@ -195,10 +195,16 @@ inline void	operator delete (void *ptr)
 #define CPUSTRING "Unknown"
 #endif
 
+#ifdef HAVE_CONFIG_H
 #define VFS_USERDATADIR  	"~/."PACKAGE
 #define VFS_PKGDATADIR		PKGDATADIR
 #define VFS_PKGLIBDIR		PKGLIBDIR
-
+#else
+#define VERSION			"0.3.5"
+#define VFS_USERDATADIR		"~/.qrazor-fx"
+#define VFS_PKGDATADIR		"/usr/games/qrazor-fx"
+#define VFS_PKGLIBDIR		"/usr/games/qrazor-fx"
+#endif
 
 //TODO
 

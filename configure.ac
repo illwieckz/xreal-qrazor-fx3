@@ -2,19 +2,24 @@ dnl stick the revision info into the resulting configure script
 AC_REVISION($Revision$) dnl
 AC_PREREQ(2.50)
 
-AC_INIT(qrazor-fx, 0.3.5)
+AC_INIT(Makefile.am)
+#dnl This is the only place where the package version appears
+AM_INIT_AUTOMAKE(qrazor-fx, 0.3.5)
+
+#AM_INIT_AUTOMAKE
+#([foreign dist-bzip2 dist-zip])
+
 #AC_CONFIG_AUX_DIR(.)
 #AC_CONFIG_SRCDIR(src/sys_linux.c)
 AM_CONFIG_HEADER(src/config.h)
 
 dnl get the build and target hosts
-AC_CANONICAL_SYSTEM
+#AC_CANONICAL_SYSTEM
 
-dnl This is the only place where the package version appears
-AM_INIT_AUTOMAKE([foreign dist-bzip2 dist-zip])
+
 
 dnl configure --enable-maintainer-mode gets some extra targets
-AM_MAINTAINER_MODE
+#AM_MAINTAINER_MODE
 
 dnl set some macros
 AC_DEFINE_UNQUOTED(BUILDHOST, "${target_cpu}-${target_os}",

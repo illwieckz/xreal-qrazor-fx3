@@ -143,42 +143,42 @@ r_bsptree_c::r_bsptree_c(const std::string &name)
 				surf->getMesh()->vbo_vertexes_ofs = data_ofs;
 				for(std::vector<vec3_c>::const_iterator ir = surf->getMesh()->vertexes.begin(); ir != surf->getMesh()->vertexes.end(); ir++)
 				{
-					memcpy(data + data_ofs, *ir, sizeof(vec3_c));
+					memcpy(data + data_ofs, (vec_t*)*ir, sizeof(vec3_c));
 					data_ofs += sizeof(vec3_c);
 				}
 		
 				surf->getMesh()->vbo_texcoords_ofs = data_ofs;
 				for(std::vector<vec2_c>::const_iterator ir = surf->getMesh()->texcoords.begin(); ir != surf->getMesh()->texcoords.end(); ir++)
 				{
-					memcpy(data + data_ofs, *ir, sizeof(vec2_c));
+					memcpy(data + data_ofs, (vec_t*)*ir, sizeof(vec2_c));
 					data_ofs += sizeof(vec2_c);
 				}
 				
 				surf->getMesh()->vbo_texcoords_lm_ofs = data_ofs;
 				for(std::vector<vec2_c>::const_iterator ir = surf->getMesh()->texcoords_lm.begin(); ir != surf->getMesh()->texcoords_lm.end(); ir++)
 				{
-					memcpy(data + data_ofs, *ir, sizeof(vec2_c));
+					memcpy(data + data_ofs, (vec_t*)*ir, sizeof(vec2_c));
 					data_ofs += sizeof(vec2_c);
 				}
 				
 				surf->getMesh()->vbo_tangents_ofs = data_ofs;
 				for(std::vector<vec3_c>::const_iterator ir = surf->getMesh()->tangents.begin(); ir != surf->getMesh()->tangents.end(); ir++)
 				{
-					memcpy(data + data_ofs, *ir, sizeof(vec3_c));
+					memcpy(data + data_ofs, (vec_t*)*ir, sizeof(vec3_c));
 					data_ofs += sizeof(vec3_c);
 				}
 				
 				surf->getMesh()->vbo_binormals_ofs = data_ofs;
 				for(std::vector<vec3_c>::const_iterator ir = surf->getMesh()->binormals.begin(); ir != surf->getMesh()->binormals.end(); ir++)
 				{
-					memcpy(data + data_ofs, *ir, sizeof(vec3_c));
+					memcpy(data + data_ofs, (vec_t*)*ir, sizeof(vec3_c));
 					data_ofs += sizeof(vec3_c);
 				}
 				
 				surf->getMesh()->vbo_normals_ofs = data_ofs;
 				for(std::vector<vec3_c>::const_iterator ir = surf->getMesh()->normals.begin(); ir != surf->getMesh()->normals.end(); ir++)
 				{
-					memcpy(data + data_ofs, *ir, sizeof(vec3_c));
+					memcpy(data + data_ofs, (vec_t*)*ir, sizeof(vec3_c));
 					data_ofs += sizeof(vec3_c);
 				}
 								
