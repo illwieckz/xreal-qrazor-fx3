@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "cmd.h"
 #include "cvar.h"
+#include "cm.h"
 
 // xreal --------------------------------------------------------------------
 
@@ -65,10 +66,12 @@ s_buffer_c::~s_buffer_c()
 
 s_source_c::s_source_c(int entity_num, int entity_channel)
 {
-	alGenSources(1, &_id);
+	alGenSources(1, &_id);	S_CheckForError();
 
 	_entity_num	= entity_num;
 	_entity_channel = entity_channel;
+	
+	_cluster = -1;
 	
 	_activated = false;
 
@@ -89,10 +92,9 @@ s_source_c::~s_source_c()
 	if(s_show->getValue())
 		Com_Printf("s_source_c::dtor: %i %i\n", _entity_num, _entity_channel);
 
-	if(isPlaying())
-		alSourceStop(_id);
+	stop();
 
-	alDeleteSources(1, &_id);
+	alDeleteSources(1, &_id);	S_CheckForError();
 	
 	// clear slot
 	/*
@@ -115,6 +117,9 @@ void	s_source_c::setBuffer(s_buffer_c *buffer)
 
 void	s_source_c::setPosition(const vec3_c &v)
 {
+	int leafnum = CM_PointLeafnum(v);
+	_cluster = CM_LeafCluster(leafnum);
+
 	// convert from Quake coords to OpenAL coords
 	_position[0] = v[1];
 	_position[1] = v[2];
@@ -124,6 +129,8 @@ void	s_source_c::setPosition(const vec3_c &v)
 	_position.scale(1.0/32.0);
 				
 	alSourcefv(_id, AL_POSITION, _position);
+	
+	S_CheckForError();
 }
 
 void	s_source_c::setVelocity(const vec3_c &v)
@@ -135,41 +142,57 @@ void	s_source_c::setVelocity(const vec3_c &v)
 	_velocity.scale(1.0/32.0);
 				
 	alSourcefv(_id, AL_VELOCITY, _velocity);
+	
+	S_CheckForError();
 }
 
 void	s_source_c::setGain(float gain)
 {
 	alSourcef(_id, AL_GAIN, gain);
+	
+	S_CheckForError();
 }
 
 void	s_source_c::setMinGain(float gain)
 {
 	alSourcef(_id, AL_MIN_GAIN, gain);
+	
+	S_CheckForError();
 }
 
 void	s_source_c::setMaxGain(float gain)
 {
 	alSourcef(_id, AL_MAX_GAIN, gain);
+	
+	S_CheckForError();
 }
 
 void	s_source_c::setRefDistance(float dist)
 {
-	alSourcef(_id, AL_REFERENCE_DISTANCE, dist * (1.0/32.0));
+	alSourcef(_id, AL_REFERENCE_DISTANCE, dist);
+	
+	S_CheckForError();
 }
 
 void	s_source_c::setMaxDistance(float dist)
 {
-	alSourcef(_id, AL_MAX_DISTANCE, dist * (1.0/32.0));
+	alSourcef(_id, AL_MAX_DISTANCE, dist);
+	
+	S_CheckForError();
 }
 
 void	s_source_c::setRolloffFactor(float factor)
 {
 	alSourcef(_id, AL_ROLLOFF_FACTOR, factor);
+	
+	S_CheckForError();
 }
 
 void	s_source_c::setPitch(float pitch)
 {
 	alSourcef(_id, AL_PITCH, pitch);
+	
+	S_CheckForError();
 }
 
 void	s_source_c::setLooping(bool looping)
@@ -177,30 +200,69 @@ void	s_source_c::setLooping(bool looping)
 	_looping = looping;
 	
 	alSourcef(_id, AL_LOOPING, _looping);
+	
+	S_CheckForError();
 }
 
-bool	s_source_c::isPlaying()
+bool	s_source_c::isPlaying() const
 {
-	ALint state;
+//	if(alIsSource(_id) == AL_FALSE)
+//		return AL_FALSE;
 
-	if(alIsSource(_id) == AL_FALSE)
-	{
-		return AL_FALSE;
-	}
-
-	state = AL_INITIAL;
-	alGetSourcei(_id, AL_SOURCE_STATE, &state);
-	switch(state) 
-	{
-		case AL_PLAYING:
-		case AL_PAUSED:
-			return true;
-			
-		default:
-			break;
-	}
+	ALint state = AL_INITIAL;
+	alGetSourcei(_id, AL_SOURCE_STATE, &state);	S_CheckForError();
+	
+	if(state == AL_PLAYING)
+		return true;
 
 	return false;
+}
+
+bool	s_source_c::isPaused() const
+{
+//	if(alIsSource(_id) == AL_FALSE)
+//		return AL_FALSE;
+
+	ALint state = AL_INITIAL;
+	alGetSourcei(_id, AL_SOURCE_STATE, &state);	S_CheckForError();
+	
+	if(state == AL_PAUSED)
+		return true;
+		
+	return false;
+}
+
+bool	s_source_c::isStopped() const
+{
+//	if(alIsSource(_id) == AL_FALSE)
+//		return AL_FALSE;
+
+	ALint state = AL_INITIAL;
+	alGetSourcei(_id, AL_SOURCE_STATE, &state);	S_CheckForError();
+	
+	if(state == AL_STOPPED)
+		return true;
+		
+	return false;
+}
+
+void	s_source_c::play()
+{
+	alSourcePlay(_id);	S_CheckForError();
+			
+	_activated = true;
+}
+
+void	s_source_c::pause()
+{
+	alSourcePause(_id);	S_CheckForError();
+			
+	_activated = true;
+}
+
+void	s_source_c::stop()
+{
+	alSourceStop(_id);	S_CheckForError();
 }
 
 

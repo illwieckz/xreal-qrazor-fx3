@@ -77,6 +77,9 @@ int			CM_PointAreanum(const vec3_c &p);
 // set to the first node that splits the box
 int			CM_BoxLeafnums(const aabb_c &bbox, std::deque<int> &list, int headnode);
 
+// returns NULL if bad cluster
+byte*			CM_ClusterPVS(int cluster);
+
 int			CM_GetClosestAreaPortal(const vec3_c &p);
 bool			CM_GetAreaPortalState(int portal);
 void			CM_SetAreaPortalState(int portal, bool open);

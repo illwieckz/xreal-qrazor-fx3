@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "s_local.h"
 
 #include "vfs.h"
+#include "cm.h"
 
 // OpenAL on Windows is different (Apple should be as well)
 #if defined(_WIN32) || defined( __APPLE__ )
@@ -47,7 +48,7 @@ static ALboolean (*s_alutLoadVorbis_LOKI)(ALuint bid, ALvoid *data, ALint size);
 static ALboolean (*s_alutLoadMP3_LOKI)(ALuint bid, ALvoid *data, ALint size);
 
 
-static void	S_CheckForError()
+void	S_CheckForError_(const char *filename, int line)
 {
 	int err = alGetError();
 	char* errstr;
@@ -79,15 +80,10 @@ static void	S_CheckForError()
 			default:
 				errstr = "unknown error";
 		}
-#if 0
-		Com_Error(ERR_FATAL, "S_CheckForError: %s", errstr);
-#else
-		Com_Error(ERR_WARNING, "S_CheckForError: %s", errstr);
-#endif
+		
+		Com_Error(ERR_DROP, "S_CheckForError: %s in file %s, line %i", errstr, filename, line);
 	}
-
 }
-
 
 static void	S_CheckOpenALExtensions()
 {
@@ -646,9 +642,10 @@ void	S_StopLoopSound(int entity_num)
 	
 		if(source->getEntityNum() == entity_num && source->isLoopSound())
 		{
+			source->stop();
+		
 			delete source;
 			*ir = NULL;
-			//return;
 		}
 	}
 	
@@ -723,7 +720,7 @@ void	S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forw
 	al_listener_origin[2] = -s_origin[0];
 	al_listener_origin.scale(1.0/32.0);
 		
-	alListenerfv(AL_POSITION, al_listener_origin);
+	alListenerfv(AL_POSITION, al_listener_origin);		S_CheckForError();
 	
 	
 	//
@@ -735,7 +732,7 @@ void	S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forw
 	al_listener_velocity[2] = -s_velocity[0];
 	al_listener_velocity.scale(1.0/32.0);
 		
-	alListenerfv(AL_VELOCITY, al_listener_velocity);
+	alListenerfv(AL_VELOCITY, al_listener_velocity);	S_CheckForError();
 	
 		
 	//
@@ -754,16 +751,17 @@ void	S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forw
 	al_listener_orientation[4] = -s_up[2];
 	al_listener_orientation[5] = -s_up[0];
 	
-	alListenerfv(AL_ORIENTATION, al_listener_orientation);
+	alListenerfv(AL_ORIENTATION, al_listener_orientation);	S_CheckForError();
 	
-	//alDistanceModel(AL_NONE);
-	//alDistanceModel(AL_INVERSE_DISTANCE);
-	//alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
-	//alDistanceModel(AL_REFERENCE_DISTANCE);
+//	alDistanceModel(AL_NONE);
+//	alDistanceModel(AL_INVERSE_DISTANCE);
+	alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
+	
+	S_CheckForError();
 	
 
-	//alDopplerFactor(1.0);		// don't exaggerate doppler shift
-	//alDopplerVelocity(343);		// using meters/second
+//	alDopplerFactor(1.0);		// don't exaggerate doppler shift
+//	alDopplerVelocity(343.0);	// using meters/second
 	
 	/*
 	if(s_show->getValue())
@@ -773,10 +771,9 @@ void	S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forw
 		Com_Printf("listener vu %s\n", s_up.toString());
 	}
 	*/
-
-
+	
 	//
-	// stop old sound sources
+	// kill stopped sound sources
 	//
 	for(std::vector<s_source_c*>::iterator ir = s_sources.begin(); ir != s_sources.end(); ++ir)
 	{
@@ -788,18 +785,23 @@ void	S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forw
 		if(!source->hasBuffer())
 			continue;
 		
-		if(!source->isPlaying() && source->isActivated())
+		if(source->isStopped())// && source->isActivated())
 		{
-			alSourceStop(source->getId());
 			delete source;
 			*ir = NULL;
 		}
 	}
-
 	
+	S_CheckForError();
+
+
 	//
 	// paint in the channels
 	//
+	int leafnum = CM_PointLeafnum(origin);
+	int cluster = CM_LeafCluster(leafnum);
+	byte* pvs = CM_ClusterPVS(cluster);
+	
 	for(std::vector<s_source_c*>::const_iterator ir = s_sources.begin(); ir != s_sources.end(); ++ir)
 	{
 		s_source_c *source = *ir;
@@ -810,55 +812,40 @@ void	S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forw
 		if(!source->hasBuffer())
 			continue;
 			
-		if(source->isActivated())
-			continue;
-			
-		if(source->isPlaying())
-			continue;
-		
-		/*
-		if(s_show->getValue())
+		if(pvs)
 		{
-			Com_Printf("listener at %s\n", s_origin.toString());
-			Com_Printf("listener vf %s\n", s_forward.toString());
-			Com_Printf("listener vu %s\n", s_up.toString());
-			//Com_Printf("source %s for entity %4i at %s\n", source->getName(), ch->origin.toString());
+			if(source->getCluster() >= 0)
+			{	
+				if(pvs[source->getCluster() >> 3] & (1 << (source->getCluster() & 7)))
+				{
+					// source is in PVS
+					if(source->isPlaying())
+						continue;
+					
+					// if not playing yet start it now
+					source->play();
+				}
+				else
+				{
+					// source is not in the PVS
+					if(source->isPlaying())
+					{
+						if(source->isLoopSound())
+							source->pause();
+					}
+				}
+			}
 		}
-		*/
-		
-		// setup source origin
-		//source->updatePosition();
-		
-		// setup source velocity
-		//vec3_c al_source_velocity(0, 0, 1);
-		//alSourcefv(ch->src_num, AL_VELOCITY, al_source_velocity);
-		
-		
-		//alSourcefv(sfx->src_num, AL_ORIENTATION, back );
-		//alSourcef (ch->src_num, AL_REFERENCE_DISTANCE, 10.0);
-		
-		// setup source buffer
-		//alSourcei(ch->src, AL_BUFFER, ch->sfx->buffer);
-		//source->updateBuffer();
-		
-		//alSourcei (sfx->src_num, AL_SOURCE_RELATIVE, AL_FALSE);
-		
-		// setup source looping
-		//alSourcei(source->getId(), AL_LOOPING, source->autosound);
-		
-		// setup source volume
-		//source->updateGain();
-		
-		//source->updatePitch();
-		
-		//alSourcef(sfx->src_num, AL_MAX_DISTANCE, ch->distance);
-		//alSourcef(sfx->src_num, AL_MIN_GAIN, ch->distance);
-	
-		// play sound source
-		alSourcePlay(source->getId());
-				
-		source->isActivated(true);
+		else
+		{
+			if(source->isPlaying())
+				continue;
+			
+			source->play();
+		}
 	}
+	
+	S_CheckForError();
 }
 
 
