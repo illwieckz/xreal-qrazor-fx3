@@ -41,7 +41,7 @@ void	S_StartSound(const vec3_c &origin, int ent_num, int ent_channel, int sound)
 void	S_StartLocalSound(const std::string &name);
 
 void	S_StartLoopSound(const vec3_c &origin, const vec3_c &velocity, int ent_num, int ent_channel, int sound);
-void	S_UpdateLoopSound(const vec3_c &origin, const vec3_c &velocity, int ent_num);
+void	S_UpdateLoopSound(const vec3_c &origin, const vec3_c &velocity, int ent_num, int ent_channel, int sound);
 void	S_StopLoopSound(int ent_num);
 
 void	S_StopAllSounds();
