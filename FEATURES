@@ -7,16 +7,19 @@ renderer
 -custom Doom3 like material shader language for surface materials and lights
 -different render modes like diffuse per-pixel lighting or specular tangent-space bumpmapping
 -basic Doom3 .proc support
--md2 model loader
--md3 model loader
--md5 version 10 model/animation loader
--tga image loader
--jpg image loader
--png image loader
+-.md2 model loader
+-.md3 model loader
+-.md5mesh version 10 model loader
+-.md5anim version 10 animation loader
+-.ase model loader
+-.lwo model loader
+-.tga image loader
+-.jpg image loader
+-.png image loader
 -deluxe mapping (invented by Randy Reddig the founder of the q3map2 BSP compiler) which allows static N dot L lighting for saving GPU power and radiosity based lighting
 -new improved bump mapping techniques that combine deluxe mapping with parallax bump mapping and dynamic lighting
 -different modes of environment mapping like reflection, refraction and dispersion
--post process effects like heat haze
+-post process effects like heat haze, uniform fog
 -BSP and PVS usage for all static entities/lights
 -Doom3 light shader support
 -support for Doom3 omni-directional lights and projective lights
