@@ -47,6 +47,7 @@ void (GLAPIENTRY* qglTexCoord3f)(GLfloat s, GLfloat t, GLfloat r, const char *fi
 void (GLAPIENTRY* qglTexCoord3fv)(const GLfloat *v, const char *filename, int line);
 void (GLAPIENTRY* qglVertex3f)(GLfloat x, GLfloat y, GLfloat z, const char *filename, int line);
 void (GLAPIENTRY* qglVertex3fv)(const GLfloat *v, const char *filename, int line);
+void (GLAPIENTRY* qglClipPlane)(GLenum plane, const GLdouble *equation, const char *filename, int line);
 void (GLAPIENTRY* qglCullFace)(GLenum mode, const char *filename, int line);
 void (GLAPIENTRY* qglFrontFace)(GLenum mode, const char *filename, int line);
 void (GLAPIENTRY* qglPolygonMode)(GLenum face, GLenum mode, const char *filename, int line);
@@ -114,6 +115,7 @@ static void (GLAPIENTRY* dllTexCoord3f)(GLfloat s, GLfloat t, GLfloat r);
 static void (GLAPIENTRY* dllTexCoord3fv)(const GLfloat *v);
 static void (GLAPIENTRY* dllVertex3f)(GLfloat x, GLfloat y, GLfloat z);
 static void (GLAPIENTRY* dllVertex3fv)(const GLfloat *v);
+static void (GLAPIENTRY* dllClipPlane)(GLenum plane, const GLdouble *equation);
 static void (GLAPIENTRY* dllCullFace)(GLenum mode);
 static void (GLAPIENTRY* dllFrontFace)(GLenum mode);
 static void (GLAPIENTRY* dllPolygonMode)(GLenum face, GLenum mode);
@@ -217,6 +219,10 @@ static void GLAPIENTRY stdVertex3f(GLfloat x, GLfloat y, GLfloat z, const char *
 static void GLAPIENTRY stdVertex3fv(const GLfloat *v, const char *filename, int line)
 {
 	dllVertex3fv(v);
+}
+static void GLAPIENTRY stdClipPlane(GLenum plane, const GLdouble *equation, const char *filename, int line)
+{
+	dllClipPlane(plane, equation);
 }
 static void GLAPIENTRY stdCullFace(GLenum mode, const char *filename, int line)
 {
@@ -494,6 +500,11 @@ static void GLAPIENTRY dbgVertex3fv(const GLfloat *v, const char *filename, int 
 {
 	dllVertex3fv(v);
 //	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgClipPlane(GLenum plane, const GLdouble *equation, const char *filename, int line)
+{
+	dllClipPlane(plane, equation);
+	XGL_CheckForError_(filename, line);
 }
 static void GLAPIENTRY dbgCullFace(GLenum mode, const char *filename, int line)
 {
@@ -1095,6 +1106,7 @@ void	XGL_Shutdown()
 	qglTexCoord3fv						= NULL;
 	qglVertex3f						= NULL;
 	qglVertex3fv						= NULL;
+	qglClipPlane						= NULL;
 	qglCullFace						= NULL;
 	qglFrontFace						= NULL;
 	qglPolygonMode						= NULL;
@@ -1423,6 +1435,7 @@ bool	XGL_Init(const char *dllname)
 	dllTexCoord3fv = (void (GLAPIENTRY*) (const GLfloat *v)) XGL_GetSymbol("glTexCoord3fv");
 	dllVertex3f = (void (GLAPIENTRY*) (GLfloat x, GLfloat y, GLfloat z)) XGL_GetSymbol("glVertex3f");
 	dllVertex3fv = (void (GLAPIENTRY*) (const GLfloat *v)) XGL_GetSymbol("glVertex3fv");
+	dllClipPlane = (void (GLAPIENTRY*)(GLenum plane, const GLdouble *equation)) XGL_GetSymbol("glClipPlane");
 	dllCullFace = (void (GLAPIENTRY*) (GLenum mode)) XGL_GetSymbol("glCullFace");
 	dllFrontFace = (void (GLAPIENTRY*) (GLenum mode)) XGL_GetSymbol("glFrontFace");
 	dllPolygonMode = (void (GLAPIENTRY*) (GLenum face, GLenum mode)) XGL_GetSymbol("glPolygonMode");
@@ -1733,6 +1746,7 @@ void	XGL_EnableDebugging(bool enable)
 		qglTexCoord3fv						= dbgTexCoord3fv;
 		qglVertex3f						= dbgVertex3f;
 		qglVertex3fv						= dbgVertex3fv;
+		qglClipPlane						= dbgClipPlane;
 		qglCullFace						= dbgCullFace;
 		qglFrontFace						= dbgFrontFace;
 		qglPolygonMode						= dbgPolygonMode;
@@ -1811,6 +1825,7 @@ void	XGL_EnableDebugging(bool enable)
 		qglTexCoord3fv						= stdTexCoord3fv;
 		qglVertex3f						= stdVertex3f;
 		qglVertex3fv						= stdVertex3fv;
+		qglClipPlane						= stdClipPlane;
 		qglCullFace						= stdCullFace;
 		qglFrontFace						= stdFrontFace;
 		qglPolygonMode						= stdPolygonMode;

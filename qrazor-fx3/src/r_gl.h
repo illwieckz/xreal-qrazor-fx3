@@ -2100,7 +2100,10 @@ extern void (GLAPIENTRY* qglVertex3fv)(const GLfloat *v, const char *filename, i
 //void GLAPI glVertex4s (GLshort x, GLshort y, GLshort z, GLshort w);
 //void GLAPI glVertex4sv (const GLshort *v);
 /// drawing-control functions
-//void GLAPI glClipPlane (GLenum plane, const GLdouble *equation);
+extern void (GLAPIENTRY* qglClipPlane)(GLenum plane, const GLdouble *equation, const char *filename, int line);
+#define			 xglClipPlane(plane, equation) \
+			 qglClipPlane(plane, equation, __FILE__, __LINE__)
+
 //void GLAPI glColorMaterial (GLenum face, GLenum mode);
 extern void (GLAPIENTRY* qglCullFace)(GLenum mode, const char *filename, int line);
 #define			 xglCullFace(mode) \
@@ -2414,7 +2417,7 @@ extern void (GLAPIENTRY* qglNormalPointer)(GLenum type, GLsizei stride, const GL
 
 extern void (GLAPIENTRY* qglTexCoordPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer, const char *filename, int line);
 #define			 xglTexCoordPointer(size, type, stride, pointer) \
-			 xglTexCoordPointer(size, type, stride, pointer, __FILE__, __LINE__)
+			 qglTexCoordPointer(size, type, stride, pointer, __FILE__, __LINE__)
 
 extern void (GLAPIENTRY* qglVertexPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer, const char *filename, int line);
 #define			 xglVertexPointer(size, type, stride, pointer) \
