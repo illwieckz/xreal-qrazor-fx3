@@ -2384,7 +2384,10 @@ extern void (GLAPIENTRY* qglViewport)(GLint x, GLint y, GLsizei width, GLsizei h
 			 qglViewport(x, y, width, height, __FILE__, __LINE__)
 /// 1.1 functions
 //void GLAPI glArrayElement (GLint i);
-//void GLAPI glColorPointer (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
+extern void (GLAPIENTRY* qglColorPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer, const char *filename, int line);
+#define			 xglColorPointer(size, type, stride, pointer) \
+			 qglColorPointer(size, type, stride, pointer, __FILE__, __LINE__)
+
 extern void (GLAPIENTRY* qglDisableClientState)(GLenum array, const char *filename, int line);
 #define			 xglDisableClientState(array) \
 			 qglDisableClientState(array, __FILE__, __LINE__)

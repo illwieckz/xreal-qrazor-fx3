@@ -40,6 +40,7 @@ r_mesh_c::r_mesh_c()
 	vbo_tangents_ofs	= 0;
 	vbo_binormals_ofs	= 0;
 	vbo_normals_ofs		= 0;
+	vbo_lights_ofs		= 0;
 	vbo_colors_ofs		= 0;
 
 	vbo_element_array_buffer	= 0;
@@ -60,19 +61,22 @@ r_mesh_c::~r_mesh_c()
 }
 
 
-void	r_mesh_c::fillVertexes(int vertexes_num, bool with_lightmap_texcoords)
+void	r_mesh_c::fillVertexes(int vertexes_num, bool with_lightmap_texcoords, bool with_light_vectors)
 {
 	vertexes = std::vector<vec3_c>(vertexes_num);
 	texcoords = std::vector<vec2_c>(vertexes_num);
+	
+	if(with_lightmap_texcoords)
+		texcoords_lm = std::vector<vec2_c>(vertexes_num);
+	
 	tangents = std::vector<vec3_c>(vertexes_num);
 	binormals = std::vector<vec3_c>(vertexes_num);
 	normals = std::vector<vec3_c>(vertexes_num);
-	colors = std::vector<vec4_c>(vertexes_num);
-
-	if(with_lightmap_texcoords)
-		texcoords_lm = std::vector<vec2_c>(vertexes_num);
-
-	//triangles_sh = std::vector<bool>(vertexes_num);
+	
+	if(with_light_vectors)
+		lights= std::vector<vec3_c>(vertexes_num);
+	
+	colors = std::vector<vec4_c>(vertexes_num, color_white);
 }
 
 bool	r_mesh_c::isNotValid() const

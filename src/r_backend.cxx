@@ -1700,6 +1700,68 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 			break;
 		}
 		
+		case RENDER_TYPE_LIGHTING_D_vstatic:
+		{
+			if(entity_shader->stage_diffusemap)
+			{
+				RB_RenderCommand_lighting_D_vstatic(cmd,	entity_shader->stage_diffusemap);
+			}
+			
+			break;
+		}
+		
+		case RENDER_TYPE_LIGHTING_DB_vstatic:
+		{
+			if(	entity_shader->stage_diffusemap &&
+				entity_shader->stage_bumpmap)
+			{
+				RB_RenderCommand_lighting_DB_vstatic(cmd,	entity_shader->stage_diffusemap,
+										entity_shader->stage_bumpmap);
+			}
+			
+			break;
+		}
+		
+		case RENDER_TYPE_LIGHTING_DBH_vstatic:
+		{
+			if(	entity_shader->stage_diffusemap &&
+				entity_shader->stage_bumpmap)
+			{
+				RB_RenderCommand_lighting_DBH_vstatic(cmd,	entity_shader->stage_diffusemap,
+										entity_shader->stage_bumpmap);
+			}
+			
+			break;
+		}
+		
+		case RENDER_TYPE_LIGHTING_DBHS_vstatic:
+		{
+			if(	entity_shader->stage_diffusemap &&
+				entity_shader->stage_bumpmap &&
+				entity_shader->stage_specularmap)
+			{
+				RB_RenderCommand_lighting_DBHS_vstatic(cmd,	entity_shader->stage_diffusemap,
+										entity_shader->stage_bumpmap,
+										entity_shader->stage_specularmap);
+			}
+			
+			break;
+		}
+		
+		case RENDER_TYPE_LIGHTING_DBS_vstatic:
+		{
+			if(	entity_shader->stage_diffusemap &&
+				entity_shader->stage_bumpmap &&
+				entity_shader->stage_specularmap)
+			{
+				RB_RenderCommand_lighting_DBS_vstatic(cmd,	entity_shader->stage_diffusemap,
+										entity_shader->stage_bumpmap,
+										entity_shader->stage_specularmap);
+			}
+			
+			break;
+		}
+		
 		case RENDER_TYPE_LIGHTING_D_omni:
 		{
 			if(entity_shader->stage_diffusemap)
@@ -2068,9 +2130,14 @@ void	RB_RenderCommands()
 		{
 			if(!cmd->getEntity()->isVisible())
 				continue;
-				
+			
+			/*	
 			if(cmd->hasLightMap())
 				continue;
+				
+			if(cmd->hasLightVertexes())
+				continue;
+			*/
 				
 			cmd->getEntityModel()->draw(cmd, RENDER_TYPE_ZFILL);
 		}
@@ -2089,10 +2156,19 @@ void	RB_RenderCommands()
 	
 	
 	//
+	// disable writing into zbuffer
+	// 
+	xglDepthMask(GL_FALSE);
+	
+	
+	//
 	// draw static radiosity
 	//
 	if(r_lightmap->getInteger() && r_images_lm.size())
 	{
+		xglEnable(GL_BLEND);
+		xglBlendFunc(GL_ONE, GL_ONE);
+	
 		//qsort(&r_current_scene->cmds_radiosity[0], r_current_scene->cmds_radiosity_num, sizeof(r_command_t), RB_SortByEntityShaderFunc);
 	
 		if(r_bump_mapping->getInteger())
@@ -2110,9 +2186,23 @@ void	RB_RenderCommands()
 				
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_RBHS);
 				}
-				xglDisable(GL_BLEND);
-			
 				RB_DisableShader_lighting_RBHS();
+				
+				RB_EnableShader_lighting_DBHS_vstatic();
+				for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
+				{
+					if(!cmd->getEntity()->isVisible())
+						continue;
+					
+					if(!cmd->hasLightVertexes())
+						continue;
+					
+					if(cmd->hasLightMap())
+						continue;
+				
+					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_DBHS_vstatic);
+				}
+				RB_DisableShader_lighting_DBHS_vstatic();
 			}
 			else if(r_parallax->getInteger())
 			{
@@ -2128,6 +2218,22 @@ void	RB_RenderCommands()
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_RBH);
 				}
 				RB_DisableShader_lighting_RBH();
+				
+				RB_EnableShader_lighting_DBH_vstatic();
+				for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
+				{
+					if(!cmd->getEntity()->isVisible())
+						continue;
+					
+					if(!cmd->hasLightVertexes())
+						continue;
+					
+					if(cmd->hasLightMap())
+						continue;
+				
+					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_DBH_vstatic);
+				}
+				RB_DisableShader_lighting_DBH_vstatic();
 			}
 			else if(r_gloss->getInteger())
 			{
@@ -2143,6 +2249,22 @@ void	RB_RenderCommands()
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_RBS);
 				}
 				RB_DisableShader_lighting_RBS();
+				
+				RB_EnableShader_lighting_DBS_vstatic();
+				for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
+				{
+					if(!cmd->getEntity()->isVisible())
+						continue;
+					
+					if(!cmd->hasLightVertexes())
+						continue;
+					
+					if(cmd->hasLightMap())
+						continue;
+				
+					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_DBS_vstatic);
+				}
+				RB_DisableShader_lighting_DBS_vstatic();
 			}
 			else
 			{
@@ -2158,12 +2280,27 @@ void	RB_RenderCommands()
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_RB);
 				}
 				RB_DisableShader_lighting_RB();
+				
+				RB_EnableShader_lighting_DB_vstatic();
+				for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
+				{
+					if(!cmd->getEntity()->isVisible())
+						continue;
+					
+					if(!cmd->hasLightVertexes())
+						continue;
+					
+					if(cmd->hasLightMap())
+						continue;
+				
+					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_DB_vstatic);
+				}
+				RB_DisableShader_lighting_DB_vstatic();
 			}
 		}
 		else
 		{
 			RB_EnableShader_lighting_R();
-			
 			for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 			{
 				if(!cmd->getEntity()->isVisible())
@@ -2174,15 +2311,27 @@ void	RB_RenderCommands()
 				
 				cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_R);
 			}
-				
 			RB_DisableShader_lighting_R();
+			
+			RB_EnableShader_lighting_D_vstatic();
+			for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
+			{
+				if(!cmd->getEntity()->isVisible())
+					continue;
+					
+				if(!cmd->hasLightVertexes())
+					continue;
+					
+				if(cmd->hasLightMap())
+					continue;
+				
+				cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_D_vstatic);
+			}
+			RB_DisableShader_lighting_D_vstatic();
 		}
+		
+		xglDisable(GL_BLEND);
 	}
-	
-	//
-	// disable writing into zbuffer
-	// 
-	xglDepthMask(GL_FALSE);
 	
 	
 	//
@@ -2771,6 +2920,11 @@ void	RB_AddCommand(	r_entity_c*		entity,
 			cmd->_light_map = true;
 		else
 			cmd->_light_map = false;
+			
+		if(!entity_mesh->lights.empty())
+			cmd->_light_vertexes = true;
+		else
+			cmd->_light_vertexes = false;
 		
 		r_current_scene->cmds_num++;
 	}
