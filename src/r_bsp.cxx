@@ -311,6 +311,28 @@ void	r_bsptree_c::draw()
 			}
 		}
 	}
+	else if(r_lighting->getInteger() == 2)
+	{
+		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		{
+			std::vector<r_light_c>& lights = *ir;
+			
+			for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
+			{
+				r_light_c& light = *ir;
+				
+				if(!light.isVisible())
+					continue;
+					
+				r_lightframecount++;
+			
+				if(!(light.getShared().flags & RF_STATIC))
+				{
+					litNode_r(_nodes[0], &light, false);
+				}
+			}
+		}
+	}
 }
 
 r_bsptree_leaf_c*	r_bsptree_c::pointInLeaf(const vec3_c &p)
@@ -1784,7 +1806,7 @@ void	r_bsp_model_c::addModelToList(r_entity_c *ent)
 		
 		RB_AddCommand(ent, this, surf->getMesh(), surf->getShader(), NULL, NULL, surf->getLightMapNum(), r_origin.distance(ent->getShared().origin));
 		
-		if(r_lighting->getInteger() == 1)
+		if(r_lighting->getInteger())
 		{
 			for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 			{
@@ -1796,6 +1818,13 @@ void	r_bsp_model_c::addModelToList(r_entity_c *ent)
 				
 					if(!light.isVisible())
 						continue;
+						
+					if(r_lighting->getInteger() == 2)
+					{
+						if((light.getShared().flags & RF_STATIC) && surf->getLightMapNum())
+							continue;
+					}
+						
 			
 					if(light.getShared().radius_bbox.intersect(ent->getShared().origin, surf->getMesh()->bbox.radius()))
 						RB_AddCommand(ent, this, surf->getMesh(), surf->getShader(), &light, NULL, -1, 0);

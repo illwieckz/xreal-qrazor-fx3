@@ -59,6 +59,6 @@ xreal_cgame_src = [
 'src/xreal/cg_weapon.cxx' ]
 
 xreal_cgame_env = env.Copy()
-xreal_cgame_env.SharedLibrary('cgame', xreal_cgame_src, LIBS=['m'])
+xreal_cgame_env.SharedLibrary('cgame', xreal_cgame_src, LIBS=['m', 'z'])
 xreal_cgame_env.InstallAs('#install/xreal/cgame.so', 'libcgame.so')
 

@@ -113,7 +113,7 @@ static void	PM_ClipVelocity(const vec3_c &in, const vec3_c &normal, vec3_t out, 
 PM_SlideMove
 ==================
 */
-static void	PM_SlideMove()
+void	PM_SlideMove()
 {
 	int		bumpcount, numbumps;
 	vec3_c		dir;
@@ -232,6 +232,7 @@ static void	PM_SlideMove()
 
 static void 	PM_StepSlideMove()
 {
+#if 0
 	const vec3_c start_o = pml.origin;
 	const vec3_c start_v = pml.velocity_linear;
 
@@ -287,6 +288,7 @@ static void 	PM_StepSlideMove()
 	
 	//!! special case, if we were walking along a plane, then we need to copy the Z over
 	pml.velocity_linear[2] = down_v[2];
+#endif
 }
 
 
