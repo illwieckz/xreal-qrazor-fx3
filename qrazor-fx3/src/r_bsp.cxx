@@ -504,6 +504,10 @@ void	r_bsptree_c::loadVertexes(const byte *buffer, const bsp_lump_t *l)
 	_tangents = std::vector<vec3_c>(count);
 	_binormals = std::vector<vec3_c>(count);
 	_normals = std::vector<vec3_c>(count);
+	_lights = std::vector<vec3_c>(count);
+	_colors = std::vector<vec4_c>(count, color_white);
+	
+	float div = X_recip(255.0);
 	
 	for(int i=0; i<count; i++, in++)
 	{
@@ -511,17 +515,25 @@ void	r_bsptree_c::loadVertexes(const byte *buffer, const bsp_lump_t *l)
 		_vertexes[i][1] = LittleFloat(in->position[1]);
 		_vertexes[i][2] = LittleFloat(in->position[2]);
 		
-		_normals[i][0] = LittleFloat(in->normal[0]);
-		_normals[i][1] = LittleFloat(in->normal[1]);
-		_normals[i][2] = LittleFloat(in->normal[2]);
-
-		_normals[i].normalize();
-		
 		_texcoords[i][0] = LittleFloat(in->texcoord_st[0]);
 		_texcoords[i][1] = LittleFloat(in->texcoord_st[1]);
 		
 		_texcoords_lm[i][0] = LittleFloat(in->texcoord_lm[0]);
 		_texcoords_lm[i][1] = LittleFloat(in->texcoord_lm[1]);
+		
+		_normals[i][0] = LittleFloat(in->normal[0]);
+		_normals[i][1] = LittleFloat(in->normal[1]);
+		_normals[i][2] = LittleFloat(in->normal[2]);
+		_normals[i].normalize();
+		
+		_lights[i][0] = LittleFloat(in->light[0]);
+		_lights[i][1] = LittleFloat(in->light[1]);
+		_lights[i][2] = LittleFloat(in->light[2]);
+		_lights[i].normalize();
+		
+		_colors[i][0] = in->color[0] * div;
+		_colors[i][1] = in->color[1] * div;
+		_colors[i][2] = in->color[2] * div;
 	}
 }
 
@@ -1099,7 +1111,7 @@ r_mesh_c*	r_bsptree_c::createMesh(const bsp_dsurface_t *in)
 	int vertexes_first = LittleLong(in->vertexes_first);
 	int vertexes_num = LittleLong(in->vertexes_num);
 				
-	mesh->fillVertexes(vertexes_num, true);
+	mesh->fillVertexes(vertexes_num, true, true);
 			
 	for(int j=0; j<vertexes_num; j++)
 	{
@@ -1107,6 +1119,8 @@ r_mesh_c*	r_bsptree_c::createMesh(const bsp_dsurface_t *in)
 		mesh->texcoords[j] = _texcoords[vertexes_first + j];
 		mesh->texcoords_lm[j] = _texcoords_lm[vertexes_first + j];
 		mesh->normals[j] = _normals[vertexes_first + j];
+		mesh->lights[j] = _lights[vertexes_first + j];
+		mesh->colors[j] = _colors[vertexes_first + j];
 	}
 				
 	int indexes_num = LittleLong(in->indexes_num);
@@ -1153,6 +1167,8 @@ r_mesh_c*	r_bsptree_c::createBezierMesh(const bsp_dsurface_t *in)
 	std::vector<vec4_c>	normals(vertexes_num);
 	std::vector<vec4_c>	texcoords(vertexes_num);
 	std::vector<vec4_c>	texcoords_lm(vertexes_num);
+	std::vector<vec4_c>	lights(vertexes_num);
+	std::vector<vec4_c>	colors(vertexes_num);
 	
 	for(i=0; i<vertexes_num; i++)
 	{
@@ -1160,6 +1176,8 @@ r_mesh_c*	r_bsptree_c::createBezierMesh(const bsp_dsurface_t *in)
 		_normals[vertexes_first +i].copyTo(normals[i]);
 		_texcoords[vertexes_first +i].copyTo(texcoords[i]);
 		_texcoords_lm[vertexes_first +i].copyTo(texcoords_lm[i]);
+		_lights[vertexes_first +i].copyTo(lights[i]);
+		_colors[vertexes_first +i].copyTo(colors[i]);
 	}
 	
 	// find degree of subdivision
@@ -1175,7 +1193,7 @@ r_mesh_c*	r_bsptree_c::createBezierMesh(const bsp_dsurface_t *in)
 
 	mesh = new r_mesh_c();
 	
-	mesh->fillVertexes(vertexes_num, true);
+	mesh->fillVertexes(vertexes_num, true, true);
 	
 	// allocate and fill index table
 	int indexes_num = (size[0]-1) * (size[1]-1) * 6;
@@ -1198,12 +1216,16 @@ r_mesh_c*	r_bsptree_c::createBezierMesh(const bsp_dsurface_t *in)
 	std::vector<vec4_c>	normals2(vertexes_num);
 	std::vector<vec4_c>	texcoords2(vertexes_num);
 	std::vector<vec4_c>	texcoords2_lm(vertexes_num);
+	std::vector<vec4_c>	lights2(vertexes_num);
+	std::vector<vec4_c>	colors2(vertexes_num);
 		
 	// fill in
 	Curve_EvalQuadricBezierPatch(&(vertexes[0]), mesh_cp, step, &(vertexes2[0]));
 	Curve_EvalQuadricBezierPatch(&(texcoords[0]), mesh_cp, step, &(texcoords2[0]));
 	Curve_EvalQuadricBezierPatch(&(texcoords_lm[0]), mesh_cp, step, &(texcoords2_lm[0]));
 	Curve_EvalQuadricBezierPatch(&(normals[0]), mesh_cp, step, &(normals2[0]));
+	Curve_EvalQuadricBezierPatch(&(lights[0]), mesh_cp, step, &(lights2[0]));
+	Curve_EvalQuadricBezierPatch(&(colors[0]), mesh_cp, step, &(colors2[0]));
 	
 	for(i=0; i<(int)mesh->vertexes.size(); i++)
 	{
@@ -1211,6 +1233,8 @@ r_mesh_c*	r_bsptree_c::createBezierMesh(const bsp_dsurface_t *in)
 		mesh->texcoords[i] = texcoords2[i];
 		mesh->texcoords_lm[i] = texcoords2_lm[i];
 		mesh->normals[i] = normals2[i];
+		mesh->lights[i] = lights2[i];
+		mesh->colors[i] = colors2[i];
 	}
 	
 	return mesh;

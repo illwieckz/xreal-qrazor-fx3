@@ -87,6 +87,7 @@ void (GLAPIENTRY* qglLoadIdentity)(const char *filename, int line);
 void (GLAPIENTRY* qglLoadMatrixf)(const GLfloat *m, const char *filename, int line);
 void (GLAPIENTRY* qglMatrixMode)(GLenum mode, const char *filename, int line);
 void (GLAPIENTRY* qglViewport) (GLint x, GLint y, GLsizei width, GLsizei height, const char *filename, int line);
+void (GLAPIENTRY* qglColorPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer, const char *filename, int line);
 void (GLAPIENTRY* qglDisableClientState)(GLenum array, const char *filename, int line);
 void (GLAPIENTRY* qglDrawElements)(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices, const char *filename, int line);
 void (GLAPIENTRY* qglEnableClientState)(GLenum array, const char *filename, int line);
@@ -154,6 +155,7 @@ static void (GLAPIENTRY* dllLoadIdentity)(void);
 static void (GLAPIENTRY* dllLoadMatrixf)(const GLfloat *m);
 static void (GLAPIENTRY* dllMatrixMode)(GLenum mode);
 static void (GLAPIENTRY* dllViewport)(GLint x, GLint y, GLsizei width, GLsizei height);
+static void (GLAPIENTRY* dllColorPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
 static void (GLAPIENTRY* dllDisableClientState)(GLenum array);
 static void (GLAPIENTRY* dllDrawElements)(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
 static void (GLAPIENTRY* dllEnableClientState)(GLenum array);
@@ -375,6 +377,10 @@ static void GLAPIENTRY stdMatrixMode(GLenum mode, const char *filename, int line
 static void GLAPIENTRY stdViewport(GLint x, GLint y, GLsizei width, GLsizei height, const char *filename, int line)
 {
 	dllViewport(x, y, width, height);
+}
+static void GLAPIENTRY stdColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer, const char *filename, int line)
+{
+	dllColorPointer(size, type, stride, pointer);
 }
 static void GLAPIENTRY stdDisableClientState(GLenum array, const char *filename, int line)
 {
@@ -688,6 +694,11 @@ static void GLAPIENTRY dbgMatrixMode(GLenum mode, const char *filename, int line
 static void GLAPIENTRY dbgViewport(GLint x, GLint y, GLsizei width, GLsizei height, const char *filename, int line)
 {
 	dllViewport(x, y, width, height);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer, const char *filename, int line)
+{
+	dllColorPointer(size, type, stride, pointer);
 	XGL_CheckForError_(filename, line);
 }
 static void GLAPIENTRY dbgDisableClientState(GLenum array, const char *filename, int line)
@@ -1124,6 +1135,7 @@ void	XGL_Shutdown()
 	qglLoadMatrixf						= NULL;
 	qglMatrixMode						= NULL;
 	qglViewport						= NULL;
+	qglColorPointer						= NULL;
 	qglDisableClientState					= NULL;
 	qglDrawElements						= NULL;
 	qglEnableClientState					= NULL;
@@ -1452,6 +1464,7 @@ bool	XGL_Init(const char *dllname)
 	dllLoadMatrixf = (void (GLAPIENTRY*) (const GLfloat *m)) XGL_GetSymbol("glLoadMatrixf");
 	dllMatrixMode = (void (GLAPIENTRY*) (GLenum mode)) XGL_GetSymbol ("glMatrixMode");
 	dllViewport = (void (GLAPIENTRY*) (GLint x, GLint y, GLsizei width, GLsizei height)) XGL_GetSymbol("glViewport");
+	dllColorPointer = (void (GLAPIENTRY*)(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer)) XGL_GetSymbol("glColorPointer");
 	dllDisableClientState = (void (GLAPIENTRY*) (GLenum array)) XGL_GetSymbol("glDisableClientState");
 	dllDrawElements = (void (GLAPIENTRY*) (GLenum mode, GLsizei count, GLenum type, const GLvoid *indices)) XGL_GetSymbol("glDrawElements");
 	dllEnableClientState = (void (GLAPIENTRY*) (GLenum array)) XGL_GetSymbol("glEnableClientState");
@@ -1760,6 +1773,7 @@ void	XGL_EnableDebugging(bool enable)
 		qglLoadMatrixf						= dbgLoadMatrixf;
 		qglMatrixMode						= dbgMatrixMode;
 		qglViewport						= dbgViewport;
+		qglColorPointer						= dbgColorPointer;
 		qglDisableClientState					= dbgDisableClientState;
 		qglDrawElements						= dbgDrawElements;
 		qglEnableClientState					= dbgEnableClientState;
@@ -1837,6 +1851,7 @@ void	XGL_EnableDebugging(bool enable)
 		qglLoadMatrixf						= stdLoadMatrixf;
 		qglMatrixMode						= stdMatrixMode;
 		qglViewport						= stdViewport;
+		qglColorPointer						= stdColorPointer;
 		qglDisableClientState					= stdDisableClientState;
 		qglDrawElements						= stdDrawElements;
 		qglEnableClientState					= stdEnableClientState;

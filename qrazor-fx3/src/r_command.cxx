@@ -40,6 +40,7 @@ r_command_t::r_command_t()
 	_light_shader	= NULL;
 	_light_indexes	= NULL;
 	_light_map	= false;
+	_light_vertexes	= false;
 	
 	_infokey	= -1;
 	
@@ -64,6 +65,8 @@ r_command_t::r_command_t(	r_entity_c*		entity,
 	_light		= light;
 	_light_shader	= light_shader;
 	_light_indexes	= light_indexes;
+	_light_map	= false;
+	_light_vertexes	= false;
 	
 	_infokey	= infokey;
 	

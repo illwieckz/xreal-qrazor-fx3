@@ -94,6 +94,37 @@ void		RB_RenderCommand_lighting_RBS(const r_command_t *cmd,			const r_shader_sta
 											const r_shader_stage_c *stage_specularmap,
 											const r_shader_stage_c *stage_lightmap,
 											const r_shader_stage_c *stage_deluxemap);
+										
+										
+void		RB_EnableShader_lighting_D_vstatic();
+void		RB_DisableShader_lighting_D_vstatic();
+void		RB_RenderCommand_lighting_D_vstatic(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap);
+
+
+void		RB_EnableShader_lighting_DB_vstatic();
+void		RB_DisableShader_lighting_DB_vstatic();
+void		RB_RenderCommand_lighting_DB_vstatic(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
+											const r_shader_stage_c *stage_bumpmap);
+										
+										
+void		RB_EnableShader_lighting_DBH_vstatic();
+void		RB_DisableShader_lighting_DBH_vstatic();
+void		RB_RenderCommand_lighting_DBH_vstatic(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
+											const r_shader_stage_c *stage_bumpmap);
+										
+							
+void		RB_EnableShader_lighting_DBHS_vstatic();
+void		RB_DisableShader_lighting_DBHS_vstatic();
+void		RB_RenderCommand_lighting_DBHS_vstatic(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
+											const r_shader_stage_c *stage_bumpmap,
+											const r_shader_stage_c *stage_specularmap);
+										
+void		RB_EnableShader_lighting_DBS_vstatic();
+void		RB_DisableShader_lighting_DBS_vstatic();
+void		RB_RenderCommand_lighting_DBS_vstatic(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
+											const r_shader_stage_c *stage_bumpmap,
+											const r_shader_stage_c *stage_specularmap);
+
 
 //
 // dynamic lighting

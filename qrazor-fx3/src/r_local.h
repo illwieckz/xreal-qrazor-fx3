@@ -346,6 +346,11 @@ enum r_render_type_e
 	RENDER_TYPE_LIGHTING_RBH,
 	RENDER_TYPE_LIGHTING_RBHS,
 	RENDER_TYPE_LIGHTING_RBS,
+	RENDER_TYPE_LIGHTING_D_vstatic,
+	RENDER_TYPE_LIGHTING_DB_vstatic,
+	RENDER_TYPE_LIGHTING_DBH_vstatic,
+	RENDER_TYPE_LIGHTING_DBHS_vstatic,
+	RENDER_TYPE_LIGHTING_DBS_vstatic,
 	RENDER_TYPE_LIGHTING_D_omni,
 	RENDER_TYPE_LIGHTING_D_proj,
 	RENDER_TYPE_LIGHTING_DB_omni,
@@ -513,7 +518,7 @@ public:
 	r_mesh_c();
 	virtual ~r_mesh_c();
 	
-	void		fillVertexes(int vertexes_num, bool with_lightmap_texcoords = false);
+	void		fillVertexes(int vertexes_num, bool with_lightmap_texcoords = false, bool with_light_vectors = false);
 	bool		isNotValid() const;
 	void		calcTangentSpaces();
 	void		calcTangentSpaces2();
@@ -537,10 +542,11 @@ public:
 	// vertex data
 	std::vector<vec3_c>		vertexes;
 	std::vector<vec2_c>		texcoords;
-	std::vector<vec2_c>		texcoords_lm;
-	std::vector<vec3_c>		tangents;
-	std::vector<vec3_c>		binormals;
+	std::vector<vec2_c>		texcoords_lm;	// for lightmapping
+	std::vector<vec3_c>		tangents;	// for creating tangent space
+	std::vector<vec3_c>		binormals;	// for creating tangent space
 	std::vector<vec3_c>		normals;
+	std::vector<vec3_c>		lights;		// for static N dot L lighting
 	std::vector<vec4_c>		colors;
 	
 	// triangles data
@@ -569,6 +575,7 @@ public:
 	GLuint				vbo_tangents_ofs;
 	GLuint				vbo_binormals_ofs;
 	GLuint				vbo_normals_ofs;
+	GLuint				vbo_lights_ofs;
 	GLuint				vbo_colors_ofs;
 	
 	GLuint				vbo_element_array_buffer;
@@ -1205,6 +1212,7 @@ public:
 	inline r_shader_c*		getLightShader() const		{return _light_shader;}
 	inline std::vector<index_t>*	getLightIndexes() const		{return _light_indexes;}
 	inline bool			hasLightMap() const		{return _light_map;}
+	inline bool			hasLightVertexes() const	{return _light_vertexes;}
 	inline const matrix_c&		getLightTransform() const	{return _light_transform;}
 	inline const matrix_c&		getLightAttenuation() const	{return _light_attenuation;}
 		
@@ -1222,6 +1230,7 @@ private:
 	r_shader_c*		_light_shader;
 	std::vector<index_t>*	_light_indexes;
 	bool			_light_map;
+	bool			_light_vertexes;
 	matrix_c		_light_transform;
 	matrix_c		_light_attenuation;
 	
@@ -1489,6 +1498,8 @@ private:
 	std::vector<vec3_c>			_tangents;
 	std::vector<vec3_c>			_binormals;
 	std::vector<vec3_c>			_normals;
+	std::vector<vec3_c>			_lights;	// for static N dot L lighting
+	std::vector<vec4_c>			_colors;
 	
 	std::vector<index_t>			_indexes;
 
