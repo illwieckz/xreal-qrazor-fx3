@@ -10,6 +10,15 @@ textures/glass/outdoor_glass1
 
 	qer_editorimage textures/glass/glass1
 	
+	{
+		stage		heathazemap
+//		map		textures/sfx/vp1.tga
+//		deformMagnitude	.5
+		 
+		map		textures/z13d3dm2/liquid12_norm.tga
+		scroll		time * 0.05 , time * 0.05
+		deformMagnitude	1
+	}
 	{	
 		maskcolor
 		map		makealpha(textures/glass/glass1)
@@ -28,19 +37,10 @@ textures/glass/outdoor_glass1
 		blend filter
 		map textures/glass/outdoor_glass1fx
 	}
-	{
-		stage		heathazemap
-//		map		textures/sfx/vp1.tga
-//		deformMagnitude	.5
-		 
-		map		textures/z13d3dm2/liquid12_norm.tga
-		scroll		time * 0.05 , time * 0.05
-		deformMagnitude	1
-	}
 }
 
 textures/glass/breakyglass3
- {
+{
 	noSelfShadow
 	noshadows
 	twosided
@@ -50,6 +50,42 @@ textures/glass/breakyglass3
 
 	qer_editorimage textures/glass/breakyglass3
 	
+//	{
+//                Program           heatHazeWithMaskAndVertex.vfp
+//                vertexParm              0       time * 0 , time * 0 // texture scrolling
+//                vertexParm              1       .5        // magnitude of the distortion
+//                fragmentMap             0       _currentRender
+//                fragmentMap             1       textures/glass/breakyglass3   // the normal map for distortion
+//	            fragmentMap             2       textures/glass/4x4  // the normal map for distortion	
+//             
+//    }
+	{	
+		maskcolor				
+	    map	makealpha(textures/glass/breakyglass3)
+	}	
+	{
+	    blend gl_dst_alpha, gl_one
+	    maskalpha
+       	cubeMap		env/gen2
+			red		Parm0
+	        green   Parm1
+	        blue	Parm2
+        texgen		reflect
+		vertexColor
+	}
+	
+}
+
+textures/glass/breakyglass3_nvp
+ {
+	noSelfShadow
+	noshadows
+	twosided
+	translucent
+	glass
+	forceoverlays
+
+	qer_editorimage textures/glass/breakyglass3
 	{	
 		maskcolor				
 	    map	makealpha(textures/glass/breakyglass3)
@@ -78,6 +114,41 @@ textures/glass/breakyglass2
 
 	qer_editorimage textures/glass/breakyglass2
 	
+//	{
+//                Program           heatHazeWithMaskAndVertex.vfp
+//                vertexParm              0       time * 0 , time * 0 // texture scrolling
+//                vertexParm              1       .5        // magnitude of the distortion
+//                fragmentMap             0       _currentRender
+//                fragmentMap             1       textures/glass/breakyglass2   // the normal map for distortion		
+//	            fragmentMap             2       textures/glass/4x4  // the normal map for distortion		
+//	}
+	{	
+		maskcolor				
+	    map	makealpha(textures/glass/breakyglass2)
+	}	
+	{
+	    blend gl_dst_alpha, gl_one
+	    maskalpha
+       	cubeMap		env/gen2
+			red		Parm0
+	        green   Parm1
+	        blue	Parm2
+        texgen		reflect
+		vertexColor
+	}
+	
+}
+
+textures/glass/breakyglass2_nvp
+ {
+	noSelfShadow
+	noshadows
+	twosided
+	translucent
+	glass
+	forceoverlays
+
+	qer_editorimage textures/glass/breakyglass2
 	{	
 		maskcolor				
 	    map	makealpha(textures/glass/breakyglass2)
@@ -106,6 +177,14 @@ textures/glass/breakyglass1
 
 	qer_editorimage textures/glass/breakyglass1
 	
+//	{
+//                Program           heatHazeWithMaskAndVertex.vfp
+//                vertexParm              0       time * 0 , time * 0 // texture scrolling
+//                vertexParm              1       .5        // magnitude of the distortion
+//                fragmentMap             0       _currentRender
+//                fragmentMap             1       textures/glass/breakyglass1   // the normal map for distortion		
+//	            fragmentMap             2       textures/glass/4x4  // the normal map for distortion		
+//	}
 	{
 		maskcolor				
 		map		makealpha(textures/glass/breakyglass1)
@@ -126,9 +205,36 @@ textures/glass/breakyglass1
 }
 
 
+textures/glass/breakyglass1_nvp
+ {
+	noSelfShadow
+	noshadows
+	twosided
+	translucent
+	glass
+	forceoverlays
+
+	qer_editorimage textures/glass/breakyglass1
+	{	
+		maskcolor				
+	    map	makealpha(textures/glass/breakyglass1)
+	}	
+	{
+	    blend gl_dst_alpha, gl_one
+	    maskalpha
+       	cubeMap		env/gen2
+			red		Parm0
+	        green   Parm1
+	        blue	Parm2
+        texgen		reflect
+		vertexColor
+	}
+	
+}
+
 
 textures/glass/mc_scannerglass
- {
+{
 	noSelfShadow
 	noshadows
 	twosided
@@ -165,29 +271,95 @@ textures/glass/glass1
 
 	qer_editorimage textures/glass/glass1
 	
-	{	
-		maskcolor
-		map	makealpha(textures/glass/glass1)
-	}	
-	{
-	    blend gl_dst_alpha, gl_one
-	    maskalpha
-       		cubeMap		env/gen2
-			red		Parm0
-	        green   Parm1
-	        blue	Parm2
-        	texgen		reflect
-
-	}
 	{
 		stage		heathazemap
 		map		textures/sfx/vp1.tga
 		deformMagnitude	.5
 	}
+	{	
+		maskcolor
+		map		makealpha(textures/glass/glass1)
+	}	
+	{
+		blend		gl_dst_alpha, gl_one
+		maskalpha
+		cubeMap		env/gen2
+		
+		red		Parm0
+		green		Parm1
+		blue		Parm2
+        	texgen		reflect
+	}
+}
+
+textures/glass/glass1_nvp
+{
+	noSelfShadow
+	noshadows
+	twosided
+	translucent
+	glass
+	forceoverlays
+
+	qer_editorimage textures/glass/glass1
 	
+	{
+		maskcolor
+		map		makealpha(textures/glass/glass1)
+	}
+	{
+		blend		gl_dst_alpha, gl_one
+		maskalpha
+		cubeMap		env/gen2
+		
+		red		Parm0
+		green		Parm1
+		blue		Parm2
+        	texgen		reflect
+	}
 }
 
 textures/glass/glass2
+{
+//	q3map2_tessSize	16
+	
+//	alphashadow
+//	lightfilter
+	 
+	noSelfShadow
+	noshadows
+	twosided
+	translucent
+	glass
+	forceoverlays
+
+	qer_editorimage textures/glass/glass2
+
+	{
+		stage		heathazemap
+		map		textures/sfx/vp1.tga
+//		map		textures/q2_base/q2_flr1_1_local.tga
+//		scale		0.5 , 0.5
+		deformMagnitude	0.4
+	}
+	{
+		maskcolor
+		map		makealpha(textures/glass/glass2)
+	}
+	{
+		blend		gl_dst_alpha, gl_one
+		maskalpha
+		cubeMap		env/gen2
+		
+		red		Parm0
+		green		Parm1
+		blue		Parm2
+		texgen		reflect
+	}
+	
+}
+
+textures/glass/glass2_nvp
 {
 //	q3map2_tessSize	16
 	
@@ -217,12 +389,6 @@ textures/glass/glass2
 		blue		Parm2
 		texgen		reflect
 	}
-	{
-		stage		heathazemap
-		map		textures/sfx/vp1.tga
-//		map		textures/q2_base/q2_flr1_1_local.tga
-//		scale		0.5 , 0.5
-		deformMagnitude	0.4
-	}
+	
 }
 
