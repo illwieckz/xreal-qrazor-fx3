@@ -24,13 +24,19 @@ qrazor_fx_map_src = [
 'src/map_map.cxx',
 'src/map_winding.cxx' ]
 
+qrazor_fx_map_env = env.Copy()
+
 if sys.platform == 'linux2':
 	qrazor_fx_map_src += ['src/sys_linux.cxx','src/glob.cxx']
+	qrazor_fx_map_env.Append(CXXFLAGS = '-DBSPCOMPILER_ONLY')
+	qrazor_fx_map_env.Program('qrazor-fx-map', qrazor_fx_map_src, \
+					LIBS=['dl', 'z', 'm'])
+	qrazor_fx_map_env.Install('#install', 'qrazor-fx-map')
 
 elif sys.platform == 'win32':
 	qrazor_fx_map_src += ['src/sys_win.cxx']
+	qrazor_fx_map_env.Append(CXXFLAGS = '-DBSPCOMPILER_ONLY -DMAP_ONLY')
+	qrazor_fx_map_env.Program('QRazor-FX-Map', qrazor_fx_map_src, \
+					LIBS=['z', 'm', 'winmm'])
+	qrazor_fx_map_env.Install('#install', 'QRazor-FX-Map.exe')
 
-qrazor_fx_map_env = env.Copy()
-qrazor_fx_map_env.Append(CXXFLAGS = '-DBSPCOMPILER_ONLY')
-qrazor_fx_map_env.Program('qrazor-fx-map', qrazor_fx_map_src, LIBS=['dl', 'z', 'm'])
-qrazor_fx_map_env.Install('#install', 'qrazor-fx-map')
