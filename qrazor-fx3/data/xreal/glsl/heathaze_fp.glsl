@@ -32,7 +32,7 @@ varying float		var_deform;
 void	main()
 {
 	// compute normal in tangent space from bumpmap
-	vec3 N = 2.0 * (texture2D(u_heathazemap, var_tex_heathaze).agb - 0.5);
+	vec3 N = 2.0 * (texture2D(u_heathazemap, var_tex_heathaze).rgb - 0.5);
 	N.z *= u_bump_scale;
 	N = normalize(N);
 
