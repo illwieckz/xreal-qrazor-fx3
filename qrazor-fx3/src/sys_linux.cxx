@@ -79,7 +79,6 @@ cvar_t *nostdout;
 unsigned	sys_frame_time;
 
 
-uid_t saved_euid;
 bool stdin_active = true;
 
 
@@ -251,13 +250,8 @@ void*	Sys_GetAPI(const char *api_name, const char *api_main, void *api_parms, vo
 	name_modul = api_name;
 	name_modul += ".so";
 
-	setreuid(getuid(), getuid());
-	setegid(getgid());
-
 	if(*api_handle)
 		Com_Error(ERR_FATAL, "Sys_GetAPI without Sys_UnloadAPI");
-
-	//getcwd(curpath, sizeof(curpath));
 
 	Com_Printf("------- Loading %s -------\n", name_modul.c_str());
 
@@ -313,10 +307,6 @@ int 	main(int argc, char **argv)
 {
 	int 	time, oldtime, newtime;
 
-	// go back to real user for config loads
-	saved_euid = geteuid();
-	seteuid(getuid());
-
 	Com_Init(argc, argv);
 
 	fcntl(0, F_SETFL, fcntl (0, F_GETFL, 0) | FNDELAY);
@@ -340,7 +330,7 @@ int 	main(int argc, char **argv)
 		Com_Frame(time);
 		
 		oldtime = newtime;
-    }
+	}
 }
 
 

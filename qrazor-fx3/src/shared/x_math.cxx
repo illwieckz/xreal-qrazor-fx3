@@ -418,7 +418,12 @@ const char*	matrix_c::toString() const
 		s += _m[3].toString();
 		return s.c_str();
 #else
-		return "";
+		std::string s;
+		s  = va("(%i %i %i %i)\n", (int)_m[0][0], (int)_m[0][1], (int)_m[0][2], (int)_m[0][3]);
+		s += va("(%i %i %i %i)\n", (int)_m[1][0], (int)_m[1][1], (int)_m[1][2], (int)_m[1][3]);
+		s += va("(%i %i %i %i)\n", (int)_m[2][0], (int)_m[2][1], (int)_m[2][2], (int)_m[2][3]);
+		s += va("(%i %i %i %i)",   (int)_m[3][0], (int)_m[3][1], (int)_m[3][2], (int)_m[3][3]);
+		return s.c_str();
 #endif
 }
 		

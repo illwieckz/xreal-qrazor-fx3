@@ -385,7 +385,7 @@ if test "x$USE_OPT" = "xyes"; then
 #			;;
 #	esac
 	
-	temp_CXXFLAGS=`echo $CXXFLAGS | sed 's/O2/O3/g'`
+	temp_CXXFLAGS=`echo $CXXFLAGS | sed 's/O2/O2/g'`
 	CXXFLAGS="$temp_CXXFLAGS"
 else
 	# kill off that fucking retarded -O2 that gets bunged in by default
@@ -590,28 +590,8 @@ fi
 #	BUILD_GLX="yes"
 #fi
 
-
-#SND_REFS=""
-#
-#if test "x$HAVE_OSS" = xyes; then
-#	SND_REFS="$SND_REFS snd_oss.la"
-#	BUILD_OSS="yes"
-#fi
-
-#if test "x$HAVE_ALSA" = xyes; then
-#	SND_REFS="$SND_REFS snd_alsa.la"
-#	BUILD_ALSA="yes"
-#fi
-
-
 AM_CONDITIONAL(BUILD_GLX, test "x$BUILD_GLX" = xyes)
-
-#AM_CONDITIONAL(BUILD_OSS, test "x$BUILD_OSS" = xyes)
-#AM_CONDITIONAL(BUILD_ALSA, test "x$BUILD_ALSA" = xyes)
-
 AC_SUBST(VID_REFS)
-#AC_SUBST(SND_REFS)
-
 
 
 dnl -----------

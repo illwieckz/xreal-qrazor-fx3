@@ -29,20 +29,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "r_backend.h"
 
 
-//
-// stats counters
-//
-unsigned int		rb_triangles_counter;
-unsigned int		rb_flushes_counter;
-unsigned int		rb_expressions_counter;
-
 
 static bool			rb_arrays_locked;
 static double			rb_shader_time;
 
-
 std::vector<r_table_t>	r_tables;
-
 
 //
 // usefull matrices to handle geometric data processing
@@ -53,12 +44,9 @@ matrix_c			rb_matrix_model;		// each model has its own translation and rotation 
 static matrix_c			rb_matrix_model_view;		// product of camera and model matrix
 static matrix_c			rb_matrix_light;
 static matrix_c			rb_matrix_projection;
+static matrix_c			rb_matrix_model_view_projection;
 
-
-
-
-
-
+static r_vrect_t		rb_vrect_viewport;
 
 
 struct glmode_t
@@ -75,11 +63,6 @@ static glmode_t gl_modes[] = {
 	{"GL_NEAREST_MIPMAP_LINEAR", GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST},
 	{"GL_LINEAR_MIPMAP_LINEAR", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR}
 };
-
-#define NUM_GL_MODES (sizeof(gl_modes) / sizeof (glmode_t))
-
-
-
 
 
 void	RB_InitBackend()
@@ -109,6 +92,8 @@ void	RB_InitBackend()
 	
 	rb_matrix_quake_to_opengl.setupRotation   (1, 0, 0,-90);    	// put Z going up
 	rb_matrix_quake_to_opengl.multiplyRotation(0, 0, 1, 90);	// put Z going up
+	
+	ri.Com_DPrintf("quake2opengl matrix:\n%s\n", rb_matrix_quake_to_opengl.toString());
 	
 	r_world_scene.cmds_num			= 0;
 	r_world_scene.cmds			= std::vector<r_command_t>(r_cmds_max->getInteger());
@@ -171,13 +156,16 @@ void	RB_BeginBackendFrame()
 			xglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
-	r_leafs_counter = 0;
-	r_cmds_counter = 0;
-	r_cmds_radiosity_counter = 0;
-	r_cmds_light_counter = 0;
-	rb_triangles_counter = 0;
-	rb_flushes_counter = 0;
-	rb_expressions_counter = 0;
+	c_leafs = 0;
+	c_entities = 0;
+	c_lights = 0;
+	c_cmds = 0;
+	c_cmds_radiosity = 0;
+	c_cmds_light = 0;
+	c_cmds_translucent = 0;
+	c_triangles = 0;
+	c_draws = 0;
+	c_expressions = 0;
 }
 
 void	RB_EndBackendFrame()
@@ -252,7 +240,12 @@ static void	RB_SetupViewPort(int x, int y, int w, int h)
 
 	xglViewport(x, y2, w, h);
 #else
-	xglViewport(x, vid.height - (y + h), w, h);
+	rb_vrect_viewport.x		= x;
+	rb_vrect_viewport.y		= vid.height - (y + h);
+	rb_vrect_viewport.width		= w;
+	rb_vrect_viewport.height	= h;
+	
+	xglViewport(rb_vrect_viewport.x, rb_vrect_viewport.y, rb_vrect_viewport.width, rb_vrect_viewport.height);
 #endif
 }
 
@@ -266,7 +259,6 @@ static void	RB_SetupOrthoProjectionMatrix()
 	
 	double f = 99999;
 	double n = -f;
-	
 
 	matrix_c& m = rb_matrix_projection;
 		
@@ -291,7 +283,6 @@ static void	RB_SetupPerspectiveProjectionMatrix()
 		
 	if(r_zfar->getValue() <= r_znear->getValue())
 		ri.Cvar_SetValue("r_zfar", 65536.0);
-		
 	
 	double n = r_znear->getValue();
 	double f = r_zfar->getValue();
@@ -301,21 +292,22 @@ static void	RB_SetupPerspectiveProjectionMatrix()
 		
 	double t = n * tan(r_newrefdef.fov_y * M_PI / 360.0);
 	double b = -t;
-	
 			
 	matrix_c m;
-		
-	RB_Frustum(m, l, r, b, t, n, f);
 	
-	rb_matrix_projection = m;
+//	RB_QuakeFrustum(m, l, r, b, t, n, f);
+	RB_OpenGLFrustum(m, l, r, b, t, n, f);
 	m.multiply(rb_matrix_quake_to_opengl);
-
+	
 	xglMatrixMode(GL_PROJECTION);
 	xglLoadIdentity();
 
 	xglLoadTransposeMatrixf(&m[0][0]);
 	
 	xglMatrixMode(GL_MODELVIEW);
+	
+//	RB_QuakeFrustum(m2, l, r, b, t, n, f);
+	rb_matrix_projection = m;
 	
 /*
 	matrix_c m2;
@@ -376,224 +368,83 @@ static void	RB_SetupViewMatrix(const vec3_c &origin, const vec3_c &angles)
 
 static void 	RB_SetupFrustum()
 {
-#if 0
-	// Tr3B - this code generates the camera frustum in world space
-
-	// left
-	RotatePointAroundVector(r_frustum[0]._normal, r_up, r_forward, 90-r_newrefdef.fov_x / 2 );
-
-	// right
-	RotatePointAroundVector(r_frustum[1]._normal, r_up, r_forward, -(90-r_newrefdef.fov_x / 2));
-	
-	// down
-	RotatePointAroundVector(r_frustum[2]._normal, r_right, r_forward, -(90 - r_newrefdef.fov_y / 2));
-	
-	// up
-	RotatePointAroundVector(r_frustum[3]._normal, r_right, r_forward, 90-r_newrefdef.fov_y / 2);
-	
-	for(int i=0; i<4; i++)
-	{
-		r_frustum[i]._dist = r_origin.dotProduct(r_frustum[i]._normal);
-		r_frustum[i].normalize();
-		r_frustum[i]._type = PLANE_ANYZ;
-		r_frustum[i].setSignBits();
-	}
-	
-	vec3_c x; // point in plane
-	
-	// near
-	x = r_origin + (r_forward * r_znear->getValue());
-	r_frustum[4]._normal	= r_forward;
-	r_frustum[4]._dist	= x.dotProduct(r_frustum[4]._normal);
-	r_frustum[4].normalize();
-	r_frustum[4]._type	= PLANE_ANYZ;
-	r_frustum[4].setSignBits();
-	
-	// far
-	x = r_origin + (r_forward * r_zfar->getValue());
-	r_frustum[5]._normal	= r_forward;
-	r_frustum[5]._normal.negate();
-	r_frustum[5]._dist	= x.dotProduct(r_frustum[5]._normal);
-	r_frustum[5].normalize();
-	r_frustum[5]._type	= PLANE_ANYZ;
-	r_frustum[5].setSignBits();
-
-#elif 0
 	// http://www2.ravensoft.com/users/ggribb/plane%20extraction.pdf
+	
+//	rb_matrix_model_view_projection = rb_matrix_projection * rb_matrix_view;
 
-	
-	matrix_c proj;
-	xglGetFloatv(GL_PROJECTION_MATRIX, &proj[0][0]);
-	proj.transpose();
-//	if(!(rb_matrix_projection == proj))
-//	{
-//		ri.Com_Error(ERR_DROP, "RB_SetupFrustum: rb_matrix_projection != proj");
-//	}
-	
-	matrix_c modelview;
-	xglGetFloatv(GL_MODELVIEW_MATRIX, &modelview[0][0]);
-	modelview.transpose();
-//	if(!((rb_matrix_view * rb_matrix_model) == modelview))
-//	{
-//		ri.Com_Error(ERR_DROP, "RB_SetupFrustum: rb_matrix_modelview != modelview");
-//	}
-	
-	
-	matrix_c m;
-	m.identity();
-	m.multiply(modelview);
-	m.multiply(proj);
-//	m.multiply(rb_matrix_view);
-//	m.multiply(rb_matrix_projection);
-	
+//	matrix_c& m = rb_matrix_model_view_projection;
+	matrix_c m = rb_matrix_projection * rb_matrix_view;
+
 	// left
-	r_frustum[0]._normal[0]	=  m[0][3] + m[0][0];
-	r_frustum[0]._normal[1]	=  m[1][3] + m[1][0];
-	r_frustum[0]._normal[2]	=  m[2][3] + m[2][0];
-	r_frustum[0]._dist	=-(m[3][3] + m[3][0]);
-	r_frustum[0].normalize();
-	r_frustum[0]._type	= PLANE_ANYZ;
-	r_frustum[0].setSignBits();
+	r_frustum[FRUSTUM_LEFT]._normal[0]	=  m[3][0] + m[0][0];
+	r_frustum[FRUSTUM_LEFT]._normal[1]	=  m[3][1] + m[0][1];
+	r_frustum[FRUSTUM_LEFT]._normal[2]	=  m[3][2] + m[0][2];
+	r_frustum[FRUSTUM_LEFT]._dist		=-(m[3][3] + m[0][3]);
+	r_frustum[FRUSTUM_LEFT].normalize();
+	r_frustum[FRUSTUM_LEFT]._type	= PLANE_ANYZ;
+	r_frustum[FRUSTUM_LEFT].setSignBits();
 	
 	// right
-	r_frustum[1]._normal[0]	=  m[0][3] - m[0][0];
-	r_frustum[1]._normal[1]	=  m[1][3] - m[1][0];
-	r_frustum[1]._normal[2]	=  m[2][3] - m[2][0];
-	r_frustum[1]._dist	=-(m[3][3] - m[3][0]);
-	r_frustum[1].normalize();
-	r_frustum[1]._type	= PLANE_ANYZ;
-	r_frustum[1].setSignBits();
+	r_frustum[FRUSTUM_RIGHT]._normal[0]	=  m[3][0] - m[0][0];
+	r_frustum[FRUSTUM_RIGHT]._normal[1]	=  m[3][1] - m[0][1];
+	r_frustum[FRUSTUM_RIGHT]._normal[2]	=  m[3][2] - m[0][2];
+	r_frustum[FRUSTUM_RIGHT]._dist		=-(m[3][3] - m[0][3]);
+	r_frustum[FRUSTUM_RIGHT].normalize();
+	r_frustum[FRUSTUM_RIGHT]._type	= PLANE_ANYZ;
+	r_frustum[FRUSTUM_RIGHT].setSignBits();
 	
 	// bottom
-	r_frustum[2]._normal[0]	=  m[0][3] + m[0][1];
-	r_frustum[2]._normal[1]	=  m[1][3] + m[1][1];
-	r_frustum[2]._normal[2]	=  m[2][3] + m[2][1];
-	r_frustum[2]._dist	=-(m[3][3] + m[3][1]);
-	r_frustum[2].normalize();
-	r_frustum[2]._type	= PLANE_ANYZ;
-	r_frustum[2].setSignBits();
+	r_frustum[FRUSTUM_BOTTOM]._normal[0]	=  m[3][0] + m[1][0];
+	r_frustum[FRUSTUM_BOTTOM]._normal[1]	=  m[3][1] + m[1][1];
+	r_frustum[FRUSTUM_BOTTOM]._normal[2]	=  m[3][2] + m[1][2];
+	r_frustum[FRUSTUM_BOTTOM]._dist		=-(m[3][3] + m[1][3]);
+	r_frustum[FRUSTUM_BOTTOM].normalize();
+	r_frustum[FRUSTUM_BOTTOM]._type	= PLANE_ANYZ;
+	r_frustum[FRUSTUM_BOTTOM].setSignBits();
 	
 	// top
-	r_frustum[3]._normal[0]	=  m[0][3] - m[0][1];
-	r_frustum[3]._normal[1]	=  m[1][3] - m[1][1];
-	r_frustum[3]._normal[2]	=  m[2][3] - m[2][1];
-	r_frustum[3]._dist	=-(m[3][3] - m[3][1]);
-	r_frustum[3].normalize();
-	r_frustum[3]._type	= PLANE_ANYZ;
-	r_frustum[3].setSignBits();
+	r_frustum[FRUSTUM_TOP]._normal[0]	=  m[3][0] - m[1][0];
+	r_frustum[FRUSTUM_TOP]._normal[1]	=  m[3][1] - m[1][1];
+	r_frustum[FRUSTUM_TOP]._normal[2]	=  m[3][2] - m[1][2];
+	r_frustum[FRUSTUM_TOP]._dist		=-(m[3][3] - m[1][3]);
+	r_frustum[FRUSTUM_TOP].normalize();
+	r_frustum[FRUSTUM_TOP]._type	= PLANE_ANYZ;
+	r_frustum[FRUSTUM_TOP].setSignBits();
 	
 	// near
-	r_frustum[4]._normal[0]	=  m[0][3] + m[0][2];
-	r_frustum[4]._normal[1]	=  m[1][3] + m[1][2];
-	r_frustum[4]._normal[2]	=  m[2][3] + m[2][2];
-	r_frustum[4]._dist	=-(m[3][3] + m[3][2]);
-	r_frustum[4].normalize();
-	r_frustum[4]._type	= PLANE_ANYZ;
-	r_frustum[4].setSignBits();
+	r_frustum[FRUSTUM_NEAR]._normal[0]	=  m[3][0] + m[2][0];
+	r_frustum[FRUSTUM_NEAR]._normal[1]	=  m[3][1] + m[2][1];
+	r_frustum[FRUSTUM_NEAR]._normal[2]	=  m[3][2] + m[2][2];
+	r_frustum[FRUSTUM_NEAR]._dist		=-(m[3][3] + m[2][3]);
+	r_frustum[FRUSTUM_NEAR].normalize();
+	r_frustum[FRUSTUM_NEAR]._type	= PLANE_ANYZ;
+	r_frustum[FRUSTUM_NEAR].setSignBits();
 	
 	// far
-	r_frustum[5]._normal[0]	=  m[0][3] - m[0][2];
-	r_frustum[5]._normal[1]	=  m[1][3] - m[1][2];
-	r_frustum[5]._normal[2]	=  m[2][3] - m[2][2];
-	r_frustum[5]._dist	=-(m[3][3] - m[3][2]);
-	r_frustum[5].normalize();
-	r_frustum[5]._type	= PLANE_ANYZ;
-	r_frustum[5].setSignBits();
-
-#elif 1
-	float   proj[16];
-	float   modl[16];
-	float   clip[16];
-	
-	// Get the current PROJECTION matrix from OpenGL
-	xglGetFloatv(GL_PROJECTION_MATRIX, proj);
-	
-	// Get the current MODELVIEW matrix from OpenGL
-	xglGetFloatv(GL_MODELVIEW_MATRIX, modl);
-	
-	// Combine the two matrices (multiply projection by modelview)
-	clip[ 0] = modl[ 0] * proj[ 0] + modl[ 1] * proj[ 4] + modl[ 2] * proj[ 8] + modl[ 3] * proj[12];
-	clip[ 1] = modl[ 0] * proj[ 1] + modl[ 1] * proj[ 5] + modl[ 2] * proj[ 9] + modl[ 3] * proj[13];
-	clip[ 2] = modl[ 0] * proj[ 2] + modl[ 1] * proj[ 6] + modl[ 2] * proj[10] + modl[ 3] * proj[14];
-	clip[ 3] = modl[ 0] * proj[ 3] + modl[ 1] * proj[ 7] + modl[ 2] * proj[11] + modl[ 3] * proj[15];
-	
-	clip[ 4] = modl[ 4] * proj[ 0] + modl[ 5] * proj[ 4] + modl[ 6] * proj[ 8] + modl[ 7] * proj[12];
-	clip[ 5] = modl[ 4] * proj[ 1] + modl[ 5] * proj[ 5] + modl[ 6] * proj[ 9] + modl[ 7] * proj[13];
-	clip[ 6] = modl[ 4] * proj[ 2] + modl[ 5] * proj[ 6] + modl[ 6] * proj[10] + modl[ 7] * proj[14];
-	clip[ 7] = modl[ 4] * proj[ 3] + modl[ 5] * proj[ 7] + modl[ 6] * proj[11] + modl[ 7] * proj[15];
-	
-	clip[ 8] = modl[ 8] * proj[ 0] + modl[ 9] * proj[ 4] + modl[10] * proj[ 8] + modl[11] * proj[12];
-	clip[ 9] = modl[ 8] * proj[ 1] + modl[ 9] * proj[ 5] + modl[10] * proj[ 9] + modl[11] * proj[13];
-	clip[10] = modl[ 8] * proj[ 2] + modl[ 9] * proj[ 6] + modl[10] * proj[10] + modl[11] * proj[14];
-	clip[11] = modl[ 8] * proj[ 3] + modl[ 9] * proj[ 7] + modl[10] * proj[11] + modl[11] * proj[15];
-	
-	clip[12] = modl[12] * proj[ 0] + modl[13] * proj[ 4] + modl[14] * proj[ 8] + modl[15] * proj[12];
-	clip[13] = modl[12] * proj[ 1] + modl[13] * proj[ 5] + modl[14] * proj[ 9] + modl[15] * proj[13];
-	clip[14] = modl[12] * proj[ 2] + modl[13] * proj[ 6] + modl[14] * proj[10] + modl[15] * proj[14];
-	clip[15] = modl[12] * proj[ 3] + modl[13] * proj[ 7] + modl[14] * proj[11] + modl[15] * proj[15];
-	
-	// Extract the numbers for the LEFT plane
-	r_frustum[0]._normal[0]	=  clip[ 3] + clip[ 0];
-	r_frustum[0]._normal[1]	=  clip[ 7] + clip[ 4];
-	r_frustum[0]._normal[2]	=  clip[11] + clip[ 8];
-	r_frustum[0]._dist	=-(clip[15] + clip[12]);
-	r_frustum[0].normalize();
-	r_frustum[0]._type	= PLANE_ANYZ;
-	r_frustum[0].setSignBits();
-	
-	// Extract the numbers for the RIGHT plane
-	r_frustum[1]._normal[0]	=  clip[ 3] - clip[ 0];
-	r_frustum[1]._normal[1]	=  clip[ 7] - clip[ 4];
-	r_frustum[1]._normal[2]	=  clip[11] - clip[ 8];
-	r_frustum[1]._dist	=-(clip[15] - clip[12]);
-	r_frustum[1].normalize();
-	r_frustum[1]._type	= PLANE_ANYZ;
-	r_frustum[1].setSignBits();
-	
-	// Extract the BOTTOM plane
-	r_frustum[2]._normal[0]	=  clip[ 3] + clip[ 1];
-	r_frustum[2]._normal[1]	=  clip[ 7] + clip[ 5];
-	r_frustum[2]._normal[2]	=  clip[11] + clip[ 9];
-	r_frustum[2]._dist	=-(clip[15] + clip[13]);
-	r_frustum[2].normalize();
-	r_frustum[2]._type	= PLANE_ANYZ;
-	r_frustum[2].setSignBits();
-	
-	// Extract the TOP plane
-	r_frustum[3]._normal[0]	=  clip[ 3] - clip[ 1];
-	r_frustum[3]._normal[1]	=  clip[ 7] - clip[ 5];
-	r_frustum[3]._normal[2]	=  clip[11] - clip[ 9];
-	r_frustum[3]._dist	=-(clip[15] - clip[13]);
-	r_frustum[3].normalize();
-	r_frustum[3]._type	= PLANE_ANYZ;
-	r_frustum[3].setSignBits();
-	
-	//Extract the NEAR plane
-	r_frustum[4]._normal[0]	=  clip[ 3] + clip[ 2];
-	r_frustum[4]._normal[1]	=  clip[ 7] + clip[ 6];
-	r_frustum[4]._normal[2]	=  clip[11] + clip[10];
-	r_frustum[4]._dist	=-(clip[15] + clip[14]);
-	r_frustum[4].normalize();
-	r_frustum[4]._type	= PLANE_ANYZ;
-	r_frustum[4].setSignBits();
-	
-	// Extract the FAR plane
-	r_frustum[5]._normal[0]	=  clip[ 3] - clip[ 2];
-	r_frustum[5]._normal[1]	=  clip[ 7] - clip[ 6];
-	r_frustum[5]._normal[2]	=  clip[11] - clip[10];
-	r_frustum[5]._dist	=-(clip[15] - clip[14]);
-	r_frustum[5].normalize();
-	r_frustum[5]._type	= PLANE_ANYZ;
-	r_frustum[5].setSignBits();
-#endif
+	r_frustum[FRUSTUM_FAR]._normal[0]	=  m[3][0] - m[2][0];
+	r_frustum[FRUSTUM_FAR]._normal[1]	=  m[3][1] - m[2][1];
+	r_frustum[FRUSTUM_FAR]._normal[2]	=  m[3][2] - m[2][2];
+	r_frustum[FRUSTUM_FAR]._dist		=-(m[3][3] - m[2][3]);
+	r_frustum[FRUSTUM_FAR].normalize();
+	r_frustum[FRUSTUM_FAR]._type	= PLANE_ANYZ;
+	r_frustum[FRUSTUM_FAR].setSignBits();
 }
 
 
-void	RB_Frustum(matrix_c &m, double l, double r, double b, double t, double n, double f)
+void	RB_OpenGLFrustum(matrix_c &m, double l, double r, double b, double t, double n, double f)
 {
 	m[0][0] = (2.0*n)/(r-l);	m[0][1] = 0.0;			m[0][2] = (r+l)/(r-l);		m[0][3] = 0.0;
 	m[1][0] = 0.0;			m[1][1] = (2.0*n)/(t-b);	m[1][2] = (t+b)/(t-b);		m[1][3] = 0.0;
 	m[2][0] = 0.0;			m[2][1] = 0.0;			m[2][2] =-(f+n)/(f-n);		m[2][3] =-(2.0*f*n)/(f-n);
+	m[3][0] = 0.0;			m[3][1] = 0.0;			m[3][2] =-1.0;			m[3][3] = 0.0;
+}
+
+void	RB_QuakeFrustum(matrix_c &m, double l, double r, double b, double t, double n, double f)
+{
+	// QRazorFX specific: Quake coordinate system
+	m[0][0] = (f+n)/(f-n);		m[0][1] = 0.0;			m[0][2] = (f+n)/(f-n);		m[0][3] = 0.0;
+	m[1][0] = 0.0;			m[1][1] = (2.0*n)/(r-l);	m[1][2] = (r+l)/(r-l);		m[1][3] = 0.0;
+	m[2][0] = 0.0;			m[2][1] = 0.0;			m[2][2] = (2.0*n)/(t-b);	m[2][3] =-(2.0*f*n)/(t-b);
 	m[3][0] = 0.0;			m[3][1] = 0.0;			m[3][2] =-1.0;			m[3][3] = 0.0;
 }
 
@@ -609,6 +460,8 @@ void	RB_SetupModelviewMatrix(const matrix_c &m, bool force)
 		
 		// load the final modelview matrix 
 		xglLoadTransposeMatrixf(&rb_matrix_model_view[0][0]);
+		
+		rb_matrix_model_view_projection = rb_matrix_projection * rb_matrix_model_view;
 	}
 }
 
@@ -641,7 +494,10 @@ void	RB_SetupGL2D()
 	RB_SetupOrthoViewMatrix();
 	
 	RB_SetupModelviewMatrix(matrix_identity, true);
+	
 
+	xglDisable(GL_SCISSOR_TEST);
+	
 	xglDisable(GL_DEPTH_TEST);
 	//xglDepthMask(GL_FALSE);
 	
@@ -679,6 +535,9 @@ void	RB_SetupGL3D()
 	*/
 	
 
+	xglEnable(GL_SCISSOR_TEST);
+	xglScissor(rb_vrect_viewport.x, rb_vrect_viewport.y, rb_vrect_viewport.width, rb_vrect_viewport.height);
+	
 	xglEnable(GL_DEPTH_TEST);
 	xglDepthFunc(GL_LEQUAL);
 	xglDepthMask(GL_TRUE);
@@ -825,14 +684,14 @@ void 	RB_TextureMode(const std::string &string)
 		return;
 	}
 
-	for(i=0; i< (int)NUM_GL_MODES; i++)
+	for(i=0; i< X_asz(gl_modes); i++)
 
 	{
-		if(!X_stricmp( gl_modes[i].name, string.c_str() ) )
+		if(!X_stricmp(gl_modes[i].name, string.c_str()))
 			break;
 	}
 
-	if(i == (int)NUM_GL_MODES)
+	if(i == X_asz(gl_modes))
 	{
 		ri.Com_Printf ("RB_TextureMode: bad filter name %s\n", string.c_str());
 		return;
@@ -969,16 +828,16 @@ void	RB_FlushMesh(const r_command_t *cmd)
 		if(light_indexes)
 		{
 			xglDrawElements(GL_TRIANGLES, light_indexes->size(), GL_UNSIGNED_INT, &((*light_indexes)[0]));	RB_CheckForError();
-			rb_triangles_counter += light_indexes->size() / 3;
+			c_triangles += light_indexes->size() / 3;
 		}
 		else
 		{
 			xglDrawElements(GL_TRIANGLES, mesh->indexes.size(), GL_UNSIGNED_INT, &(mesh->indexes[0]));	RB_CheckForError();
-			rb_triangles_counter += mesh->indexes.size() / 3;
+			c_triangles += mesh->indexes.size() / 3;
 		}
 	}
 		
-	rb_flushes_counter++;
+	c_draws++;
 }
 
 void	RB_LockArrays(int vertexes_num)
@@ -1232,7 +1091,7 @@ void	RB_DisableShaderStageStates(const r_entity_c *ent, const r_shader_stage_c *
 
 static float	RB_EvalExpression(const r_entity_t &shared, boost::spirit::tree_match<r_iterator_t, r_factory_t>::const_tree_iterator const & i)
 {
-	rb_expressions_counter++;
+	c_expressions++;
 
 	//ri.Com_Printf("RB_EvalExpression: i->value = %s i->children.size() = %i\n", std::string(i->value.begin(), i->value.end()).c_str(), i->children.size());
 
@@ -2221,9 +2080,69 @@ void	RB_RenderCommands()
 	}
 	
 	
-	r_cmds_counter += r_current_scene->cmds_num + r_current_scene->cmds_translucent_num;
-	r_cmds_radiosity_counter += r_current_scene->cmds_radiosity_num;
-	r_cmds_light_counter += r_current_scene->cmds_light_num;
+	//
+	// draw light debugging info
+	//
+	RB_SetupModelviewMatrix(matrix_identity, true);
+	
+	for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+	{
+		r_light_c& light = ir->second;
+			
+		if(!light.isVisible())
+			continue;
+				
+		light.updateScissor(rb_matrix_model_view_projection, rb_vrect_viewport, light.getShared().radius_bbox);
+	}
+	
+	if(r_showlightbboxes->getInteger())
+	{
+		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		{
+			r_light_c& light = ir->second;
+			
+			if(!light.isVisible())
+				continue;
+				
+			R_DrawBBox(light.getShared().radius_bbox);
+		}
+	}
+	
+	if(r_showlightscissors->getInteger())
+	{
+		RB_SetupGL2D();
+		
+		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		{
+			r_light_c& light = ir->second;
+			
+			if(!light.isVisible())
+				continue;
+				
+			//R_DrawFill(light.getScissorX(), light.getScissorY(), light.getScissorWidth(), light.getScissorHeight(), color_red);
+			
+			xglColor4fv(color_red);
+			
+			xglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			xglBegin(GL_QUADS);
+			xglVertex3f(light.getScissorX(), light.getScissorY(), 0.0);
+			xglVertex3f(light.getScissorX()+light.getScissorWidth(), light.getScissorY(), 0.0);
+			xglVertex3f(light.getScissorX()+light.getScissorWidth(), light.getScissorY()+light.getScissorHeight(), 0.0);
+			xglVertex3f(light.getScissorX(), light.getScissorY()+light.getScissorHeight(), 0.0);
+			xglEnd();
+			xglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			
+			xglColor4fv(color_white);
+		}
+		
+		RB_SetupGL3D();
+	}
+	
+	
+	c_cmds += r_current_scene->cmds_num;
+	c_cmds_radiosity += r_current_scene->cmds_radiosity_num;
+	c_cmds_light += r_current_scene->cmds_light_num;
+	c_cmds_translucent += r_current_scene->cmds_translucent_num;
 	
 	
 	//

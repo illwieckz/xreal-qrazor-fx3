@@ -54,10 +54,8 @@ cvar_t		*vid_fullscreen;
 // Global variables used internally by this module
 viddef_t	viddef;				// global video state; used by other modules
 
-void*		reflib_library;		// Handle to refresh DLL 
-bool		reflib_active = 0;
-
-#define VID_NUM_MODES ( sizeof( vid_modes ) / sizeof( vid_modes[0] ) )
+void*		reflib_library = NULL;		// Handle to refresh DLL 
+bool		reflib_active = false;
 
 /** KEYBOARD **************************************************************/
 
@@ -100,23 +98,6 @@ struct vidmode_t
 	int         mode;
 };
 
-/*
-vidmode_t vid_modes[] =
-{
-	//{ "Mode 1: 320x240",   320, 240,   0 },
-	//{ "Mode 2: 400x300",   400, 300,   1 },
-	//{ "Mode 3: 512x384",   512, 384,   2 },
-	{ "Mode 0: 640x480",  	640,	480,	0 },
-	{ "Mode 1: 800x600",	800,	600,	1 },
-	{ "Mode 2: 960x720",	960,	720,	2 },
-	{ "Mode 3: 1024x768",	1024,	768,	3 },
-	{ "Mode 4: 1152x864",	1152,	864,	4 },
-	{ "Mode 5: 1280x1024",	1280,	1024,	5 },
-	{ "Mode 6: 1600x1200",	1600,	1200,	6 },
-	{ "Mode 7: 2048x1536",	2048,	1536,	7 }
-};
-*/
-
 vidmode_t vid_modes[] =
 {
 	{ "Mode 0: 320x240",   320, 240,   0 },
@@ -135,7 +116,7 @@ vidmode_t vid_modes[] =
 
 bool 	VID_GetModeInfo(int *width, int *height, int mode)
 {
-	if(mode < 3 || mode >= (int)VID_NUM_MODES)
+	if(mode < 0 || mode >= X_asz(vid_modes))
 		return false;
 
 	*width  = vid_modes[mode].width;
@@ -180,16 +161,13 @@ void 	VID_FreeReflib()
 
 }
 
-bool 	VID_LoadRefresh( const char *name )
+bool 	VID_LoadRefresh(const char *name)
 {
 	ref_import_t	ri;
 	GetRefAPI_t	GetRefAPI;
 	char	fn[MAX_OSPATH];
-	//struct stat st;
-	extern uid_t saved_euid;
-	//FILE *fp;
-	
-	if ( reflib_active )
+		
+	if(reflib_active)
 	{
 		if (KBD_Close_fp)
 			KBD_Close_fp();
@@ -203,56 +181,21 @@ bool 	VID_LoadRefresh( const char *name )
 
 	Com_Printf( "------- Loading %s -------\n", name );
 
-	//regain root
-	seteuid(saved_euid);
-
-	//if ((fp = fopen(so_file, "r")) == NULL) {
-	//	Com_Printf( "LoadLibrary(\"%s\") failed: can't open %s (required for location of ref libraries)\n", name, so_file);
-	//	return false;
-	//}
-	//fgets(fn, sizeof(fn), fp);
-	//fclose(fp);
 	strncpy(fn, VFS_PKGLIBDIR, sizeof(VFS_PKGLIBDIR));
 	
-	while (*fn && isspace(fn[strlen(fn) - 1]))
+	while(*fn && isspace(fn[strlen(fn) - 1]))
 		fn[strlen(fn) - 1] = 0;
 
 	strcat(fn, "/");
 	strcat(fn, name);
 
-	// permission checking
-#if 0
-  if (strstr(fn, "softx") == NULL) { // softx doesn't require root
-		if (stat(fn, &st) == -1) {
-			Com_Printf( "LoadLibrary(\"%s\") failed: %s\n", name, strerror(errno));
-			return false;
-		}
-
-
-#if 0
-		if (st.st_uid != 0) {
-			Com_Printf( "LoadLibrary(\"%s\") failed: ref is not owned by root\n", name);
-			return false;
-		}
-		if ((st.st_mode & 0777) & ~0700) {
-			Com_Printf( "LoadLibrary(\"%s\") failed: invalid permissions, must be 700 for security considerations\n", name);
-			return false;
-		}
-#endif
-	} else {
-		// softx requires we give up root now
-		setreuid(getuid(), getuid());
-		setegid(getgid());
-	}
-#endif
-
-	if ( ( reflib_library = dlopen( fn, RTLD_NOW | RTLD_GLOBAL ) ) == 0 )
+	if((reflib_library = dlopen(fn, RTLD_NOW)) == 0) // | RTLD_GLOBAL)) == 0)
 	{
 		Com_Printf( "LoadLibrary(\"%s\") failed: %s\n", name , dlerror());
 		return false;
 	}
 
-  	Com_Printf( "LoadLibrary(\"%s\")\n", fn );
+  	Com_Printf("LoadLibrary(\"%s\")\n", fn);
 
 
 	//
@@ -332,10 +275,6 @@ bool 	VID_LoadRefresh( const char *name )
 
 	KBD_Init_fp();
 
-	// give up root now
-	setreuid(getuid(), getuid());
-	setegid(getgid());
-
 	Com_Printf( "------------------------------------\n");
 	reflib_active = true;
 	return true;
@@ -374,11 +313,11 @@ void 	VID_CheckChanges()
 		
 		if(!VID_LoadRefresh(name.c_str()))
 		{
-			if(X_strequal(vid_ref->getString(), "arb_glx"))
+			if(X_strequal(vid_ref->getString(), "glsl_glx"))
 			{
 				Com_Printf("Refresh failed\n");
 				
-				vid_mode = Cvar_Get( "vid_mode", "0", 0 );
+				vid_mode = Cvar_Get("vid_mode", "0", 0);
 				
 				if(vid_mode->getInteger() != 0)
 				{
@@ -393,7 +332,7 @@ void 	VID_CheckChanges()
 					Com_Error(ERR_FATAL, "Couldn't initialize renderer plugin!");
 			}
 			
-			Cvar_Set("vid_ref", "arb_glx");
+			Cvar_Set("vid_ref", "glsl_glx");
 
 			//
 			// drop the console if we fail to load a refresh
@@ -415,7 +354,7 @@ void 	VID_Init()
 	
 	/* Create the video variables so we know how to start the graphics drivers */
 	// if DISPLAY is defined, try X
-	vid_ref		= Cvar_Get("vid_ref", "arb_glx", CVAR_ARCHIVE);
+	vid_ref		= Cvar_Get("vid_ref", "glsl_glx", CVAR_ARCHIVE);
 	vid_xpos	= Cvar_Get("vid_xpos", "3", CVAR_ARCHIVE);
 	vid_ypos	= Cvar_Get("vid_ypos", "22", CVAR_ARCHIVE);
 	vid_fullscreen	= Cvar_Get("vid_fullscreen", "0", CVAR_ARCHIVE);

@@ -217,7 +217,6 @@ struct r_animation_t
 	int	last_frame;
 };
 
-
 struct r_refdef_t
 {
 	inline r_refdef_t()
@@ -253,10 +252,9 @@ struct r_refdef_t
 	}
 	
 	int			x, y;
-	int			width, height;	// in virtual screen coordinates
+	int			width, height;
 	
 	float			fov_x, fov_y;
-	
 	
 	vec3_c			view_origin;
 	vec3_c			view_angles;

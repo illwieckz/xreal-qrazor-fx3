@@ -1828,6 +1828,9 @@ public:
 
 	plane_side_e	onSide(const cbbox_c &bbox, bool use_signbits = false) const;
 	
+	// intersect ray
+	inline void	intersect(const vec3_c &v1, const vec3_c &v2, vec3_c &out);
+	
 	const char*	toString() const;
 	
 	bool	operator == (const cplane_c &p) const;
@@ -1970,6 +1973,14 @@ inline plane_side_e	cplane_c::onSide(const vec3_c &center, vec_t radius) const
 		return SIDE_BACK;
 	else
 		return SIDE_FRONT;
+}
+
+inline void	cplane_c::intersect(const vec3_c &v1, const vec3_c &v2, vec3_c &out)
+{
+	vec3_c v = v1 - v2;
+	float sect = -distance(v1) / _normal.dotProduct(v);
+	v.scale(sect);
+	out = v1 + v;
 }
 
 inline cplane_c&	cplane_c::operator = (const cplane_c &p)

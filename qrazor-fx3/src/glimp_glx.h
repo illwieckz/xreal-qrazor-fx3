@@ -161,8 +161,18 @@ typedef struct __GLXFBConfigRec *GLXFBConfig;
 typedef struct __GLXFBConfigRec *GLXFBConfigSGIX;
 
 
-typedef struct
+struct sys_gl_t
 {
+	sys_gl_t()
+	{
+		dpy		= NULL;
+		scr		= 0;
+		win		= 0;
+		
+		ctx		= 0;
+		OpenGLLib	= NULL;
+	}
+
 	Display*		dpy;
 	int 			scr;
 	Window 			win;
@@ -181,7 +191,7 @@ typedef struct
 	bool			sgix_fbconfig;
 	bool			sgix_pbuffer;
 
-} sys_gl_t;
+};
 
 
 typedef struct

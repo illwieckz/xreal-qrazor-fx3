@@ -1855,7 +1855,7 @@ extern void (GLAPIENTRY* xglFrontFace) (GLenum mode);
 //void GLAPI glPointSize (GLfloat size);
 extern void (GLAPIENTRY* xglPolygonMode) (GLenum face, GLenum mode);
 //void GLAPI glPolygonStipple (const GLubyte *mask);
-//void GLAPI glScissor (GLint x, GLint y, GLsizei width, GLsizei height);
+extern void (GLAPIENTRY* xglScissor) (GLint x, GLint y, GLsizei width, GLsizei height);
 //void GLAPI glShadeModel (GLenum mode);
 //void GLAPI glTexParameterf (GLenum target, GLenum pname, GLfloat param);
 extern void (GLAPIENTRY* xglTexParameterfv) (GLenum target, GLenum pname, const GLfloat *params);

@@ -171,11 +171,11 @@ static void	install_grabs()
 
 static void	uninstall_grabs()
 {
-	if (!sys_gl.dpy || !sys_gl.win)
+	if(!sys_gl.dpy || !sys_gl.win)
 		return;
 
 #ifdef HAVE_XF86_DGA
-	if (dgamouse)
+	if(dgamouse)
 	{
 		dgamouse = false;
 		XF86DGADirectVideo(sys_gl.dpy, DefaultScreen(sys_gl.dpy), 0);
@@ -272,7 +272,7 @@ void	RW_IN_Activate(bool active)
 	if(active || sys_gl.vidmodes_active)
 		IN_ActivateMouse();
 	else
-		IN_DeactivateMouse ();
+		IN_DeactivateMouse();
 }
 
 static int	XLateKey(XKeyEvent *ev)
@@ -604,29 +604,32 @@ int	GLimp_SetMode(int *pwidth, int *pheight, int mode, bool fullscreen)
 	int actualWidth, actualHeight;
 	int i;
 	int value;
+	
+	ri.Com_Printf("------- GLimp_SetMode -------\n");
 
 	ri.Com_Printf("GLimp_SetMode: Initializing OpenGL display\n");
-
-	if(fullscreen)
-		ri.Com_Printf("GLimp_SetMode: setting fullscreen mode %d:", mode );
-	else
-		ri.Com_Printf("GLimp_SetMode: setting mode %d:", mode );
-
-	if(!ri.VID_GetModeInfo( &width, &height, mode))
+	
+	if(!ri.VID_GetModeInfo(&width, &height, mode))
 	{
-		ri.Com_Printf ("GLimp_SetMode: invalid mode\n");
+		ri.Com_Printf("GLimp_SetMode: invalid mode\n");
 		return RSERR_INVALID_MODE;
 	}
 
-	ri.Com_Printf("%d %d\n", width, height);
+	if(fullscreen)
+		ri.Com_Printf("GLimp_SetMode: setting fullscreen mode %d: %d %d\n", mode, width, height);
+	else
+		ri.Com_Printf("GLimp_SetMode: setting mode %d: %d %d\n", mode, width, height);
 
 	// destroy the existing window
 	GLimp_Shutdown();
+	
+	char *dpy_name = getenv("DISPLAY");
+	
+	ri.Com_Printf("GLimp_SetMode: trying to open '%s'\n", dpy_name);
 
-
-	if(!(sys_gl.dpy = XOpenDisplay(NULL)))
+	if((sys_gl.dpy = XOpenDisplay(dpy_name)) == NULL)
 	{
-		ri.Com_Error (ERR_FATAL, "GLimp_SetMode: couldn't open the X display\n");
+		ri.Com_Error(ERR_FATAL, "GLimp_SetMode: couldn't open the X display\n");
 		return RSERR_INVALID_MODE;
 	}
 
@@ -907,6 +910,8 @@ int	GLimp_SetMode(int *pwidth, int *pheight, int mode, bool fullscreen)
 */
 void	GLimp_Shutdown()
 {
+	ri.Com_Printf("------- GLimp_Shutdown -------\n");
+
 	uninstall_grabs();
 	mouse_active = false;
 	dgamouse = false;
@@ -926,7 +931,7 @@ void	GLimp_Shutdown()
 		if(sys_gl.vidmodes_active)
 			XF86VidModeSwitchToMode(sys_gl.dpy, sys_gl.scr, sys_gl.vidmodes[0]);
 #endif
-			
+		XUngrabKeyboard(sys_gl.dpy, CurrentTime);
 		XCloseDisplay(sys_gl.dpy);
 	}
 	
@@ -944,6 +949,8 @@ void	GLimp_Shutdown()
 */
 int	GLimp_Init(void *hinstance, void *wndproc)
 {
+	ri.Com_Printf("------- GLimp_Init -------\n");
+
 	InitSig();
 	
 	return true;
