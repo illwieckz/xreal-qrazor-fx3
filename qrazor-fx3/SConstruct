@@ -105,7 +105,6 @@ elif env['simd'] == '3dnow':
 env.Append(CXXFLAGS = '-DVFS_PKGDATADIR=\\"${PKGDATADIR}\\"')
 
 
-
 conf = Configure(env)
 
 if sys.platform == 'linux2' or sys.platform == 'linux-i386':

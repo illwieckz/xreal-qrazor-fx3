@@ -1127,9 +1127,17 @@ public:
 		_s.shader_parms[3] = color[3];
 	}
 	
+	inline bool	isStatic() const			{return (_s.flags & RF_STATIC);}
 	inline bool	isVisible() const
 	{
-		return ((r_framecount == _framecount) && (r_visframecount == _visframecount));
+		if(!isStatic())
+		{
+			return (r_framecount == _framecount);
+		}
+		else
+		{
+			return ((r_framecount == _framecount) && (r_visframecount == _visframecount));
+		}
 	}
 	
 	const r_entity_sub_c&	getSubEntity(int num) const;
@@ -1190,9 +1198,17 @@ public:
 	
 	inline const r_frustum_c&	getFrustum() const	{return _frustum;}
 	
+	inline bool	isStatic() const			{return (_s.flags & RF_STATIC);}
 	inline bool	isVisible() const
 	{
-		return ((r_framecount == _framecount) && (r_visframecount == _visframecount));
+		if(!isStatic())
+		{
+			return (r_framecount == _framecount);
+		}
+		else
+		{
+			return ((r_framecount == _framecount) && (r_visframecount == _visframecount));
+		}
 	}
 	
 

@@ -349,9 +349,9 @@ void	r_alias_model_c::addModelToList(r_entity_c *ent)
 	//ri.Com_Printf("r_alias_model_c::addModelToList: model '%s'\n", getName());
 
 	if((ent->getShared().flags & RF_WEAPONMODEL) && (r_lefthand->getInteger() == 2))
-			return;
+		return;
 
-	if(ent->isVisFramed() && cull(ent))
+	if((ent->isStatic() && !ent->isVisFramed()) || cull(ent))
 	{
 		return;
 	}
