@@ -210,7 +210,9 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 {
 	r_entity_t rent;
 
-	rent.type = cent->current.type;
+	if(!cent->current.index_light)
+		cgi.Com_Error(ERR_DROP, "CG_AddLightEntity: bad light index");
+
 	rent.custom_shader = cg.light_precache[cent->current.index_light];
 	
 	rent.shader_parms[0] = cent->current.shaderparms[0];
@@ -223,9 +225,11 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 	rent.shader_parms[7] = cent->current.shaderparms[7];
 	
 	rent.origin = cent->current.origin;
-	rent.origin2 = cent->current.origin2;
-	
 	rent.quat = cent->current.quat;
+	
+	rent.center = cent->current.origin2;
+	
+	rent.flags = cent->current.renderfx;
 
 	switch(cent->current.type)
 	{
@@ -238,6 +242,8 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 			rent.radius_bbox._mins = rent.origin - cent->current.vectors[0];
 			rent.radius_bbox.rotate(cent->current.quat);
 			rent.radius_value = rent.radius_bbox.radius();
+			
+			cgi.R_AddLight(cent->current.getNumber(), rent, LIGHT_OMNI);
 			break;
 		}
 				
@@ -271,14 +277,14 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 			rent.radius_bbox.addPoint(rent.origin - rent.up);
 		
 			rent.radius_value = rent.radius_bbox.radius();
+			
+			cgi.R_AddLight(cent->current.getNumber(), rent, LIGHT_PROJ);
 			break;
 		}
 		
 		default:
 			break;
 	}
-	
-	cgi.R_AddLight(cent->current.getNumber(), rent);
 }
 
 void	CG_UpdateLightEntity(const cg_entity_t *cent)

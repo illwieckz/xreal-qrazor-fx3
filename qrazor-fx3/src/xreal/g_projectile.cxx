@@ -326,7 +326,7 @@ static void	Grenade_Proxy(g_entity_c *ent)
 */
 g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c &start, const vec3_c &dir, int damage, int speed, float damage_radius, float radius_damage)
 {
-	//gi.Com_Printf("g_projectile_rocket_c::ctor\n");
+	gi.Com_Printf("g_projectile_rocket_c::ctor\n");
 
 	_s.origin = start;
 	vectoangles(dir, _angles);
@@ -339,9 +339,10 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 	_s.shaderparms[0] = color_yellow[0];	// light color
 	_s.shaderparms[1] = color_yellow[1];	// light color
 	_s.shaderparms[2] = color_yellow[2];	// light color
-	_s.index_model = gi.SV_ModelIndex("models/items/projectiles/rocket.md3");
+	_s.index_model = gi.SV_ModelIndex("models/weapons/rocketlauncher/rocket.lwo");
+//	_s.index_shader = gi.SV_ShaderIndex("noshader");
 //	_s.index_sound = gi.SV_SoundIndex("sounds/weapons/sidewinder/we_sidewinderfly.wav");
-	_s.index_light = gi.SV_LightIndex("lights/defaultpointlight");
+//	_s.index_light = gi.SV_LightIndex("lights/defaultpointlight");
 	
 	_r.inuse = true;
 	_r.clipmask = MASK_SHOT;

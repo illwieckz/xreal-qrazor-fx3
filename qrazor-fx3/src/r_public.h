@@ -40,6 +40,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 struct roq_info_t;
 
+
+enum r_light_type_t
+{
+	LIGHT_OMNI,
+	LIGHT_PROJ
+};
+
 class r_entity_t
 {
 public:
@@ -50,7 +57,9 @@ public:
 	
 	void	clear()
 	{
-		type		= ET_GENERIC;
+		origin.clear();
+		quat.identity();
+		scale		= 1;
 	
 		model		= -1;
 		custom_shader	= -1;
@@ -66,30 +75,28 @@ public:
 		shader_parms[7]	= 0;
 		shader_sound	= 0;
 		
-		origin.clear();
-		origin2.clear();
-		
 		frame		= 0;
 		frame_old	= 0;
-		
-		quat.identity();
 		
 		radius.clear();
 		radius_bbox.zero();
 		radius_value	= 0;
 		
+		center.clear();
 		target.clear();
 		right.clear();
 		up.clear();
 		
 		backlerp	= 0;
 		flags		= RF_NONE;
-		
-		scale		= 1;
 	}
 	
-	entity_type_e		type;
+	// transform
+	vec3_c			origin;
+	quaternion_c		quat;
+	float			scale;
 	
+	// entity specific
 	int			model;			// opaque type outside refresh
 	int			custom_shader;		// -1 for inline shader
 	int			custom_skin;		// -1 for inline skin
@@ -97,27 +104,22 @@ public:
 	float			shader_parms[8];	// needed by shader system
 	float			shader_sound;		// needed by shader system
 	
-	vec3_c			origin;
-	vec3_c			origin2;
-	
 	int			frame;
 	int			frame_old;
-	
-	quaternion_c		quat;
 	
 	// light specific
 	vec3_c			radius;
 	cbbox_c			radius_bbox;
 	float			radius_value;
 	
+	vec3_c			center;
 	vec3_c			target;
 	vec3_c			right;
 	vec3_c			up;
 	
 	// misc
 	float			backlerp;		// 0.0 = current, 1.0 = old
-	unsigned int		flags;
-	float			scale;
+	uint_t			flags;			// renderfx
 };
 
 
@@ -315,8 +317,8 @@ typedef struct
 	void		(*R_UpdateEntity)(int entity_num, const r_entity_t &shared, bool update);
 	void		(*R_RemoveEntity)(int entity_num);
 	
-	void		(*R_AddLight)(int entity_num, const r_entity_t &shared);
-	void		(*R_UpdateLight)(int entity_num, const r_entity_t &shared);
+	void		(*R_AddLight)(int entity_num, const r_entity_t &shared, r_light_type_t type);
+	void		(*R_UpdateLight)(int entity_num, const r_entity_t &shared, r_light_type_t type);
 	void		(*R_RemoveLight)(int entity_num);
 	
 	void		(*R_AddParticle)(const r_particle_t &part);

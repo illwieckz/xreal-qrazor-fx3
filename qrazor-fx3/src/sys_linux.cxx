@@ -592,7 +592,7 @@ int	Sys_GetPacket(void *data, int length, netadr_t &net_from)
 		//	socket = ip6_socket;
 
 		if(!socket)
-			return false;
+			return -1;
 
 		fromlen = sizeof(from);
 		ret = recvfrom(socket, data, length, 0, (struct sockaddr*)&from, (socklen_t*)&fromlen);

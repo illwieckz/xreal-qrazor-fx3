@@ -82,6 +82,9 @@ void	r_static_model_c::addModelToList(r_entity_c *ent)
 			for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 			{
 				r_light_c& light = ir->second;
+				
+				if(!light.isVisible())
+					continue;
 			
 				if(light.getShared().radius_bbox.intersect(ent->getShared().origin, mesh->bbox.radius()))
 					RB_AddCommand(ent, this, mesh, shader, &light, NULL, -1);

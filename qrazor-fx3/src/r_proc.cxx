@@ -272,7 +272,7 @@ void	r_proctree_c::draw()
 		*/
 	}
 	
-	_visframecount++;
+	r_visframecount++;
 	
 	_sourcearea = pointInArea(r_origin);
 	
@@ -313,7 +313,7 @@ void	r_proctree_c::drawArea_r(int areanum, const r_frustum_t frustum, int clipfl
 	
 	r_proctree_area_c *area = _areas[areanum];
 	
-	if(area->visframe == r_framecount)
+	if(area->visframecount == r_visframecount)
 		return;
 	
 	if(r_cull->getValue() && clipflags)
@@ -333,7 +333,7 @@ void	r_proctree_c::drawArea_r(int areanum, const r_frustum_t frustum, int clipfl
 		}
 	}
 	
-	area->visframe = r_framecount;
+	area->visframecount = r_visframecount;
 	r_leafs_counter++;
 
 	for(std::vector<r_surface_c*>::const_iterator ir = area->model->_surfaces.begin(); ir != area->model->_surfaces.end(); ++ir)
@@ -394,12 +394,12 @@ void	r_proctree_c::drawArea_r(int areanum, const r_frustum_t frustum, int clipfl
 	{
 		r_areaportal_c* iap = *ir;
 		
-		if(iap->visframe != r_framecount)
+		if(iap->visframe != r_visframecount)
 		{
-			iap->visframe = r_framecount;
-		
 			if(r_cullportals->getValue() && !R_CullBBox(frustum, iap->bbox, clipflags))
 			{
+				iap->visframe = r_visframecount;
+			
 				for(int i=0; i<2; i++)
 				{
 					if(iap->areas[i] == areanum)
@@ -441,7 +441,7 @@ void	r_proctree_c::litArea_r(int areanum, r_light_c *light)
 		if(light->hasSurface(areanum, surf))
 			continue;
 						
-		light->addSurface(areanum, surf, false);
+		light->addSurface(areanum, surf);
 	}
 		
 	for(std::vector<r_areaportal_c*>::const_iterator ir = area->areaportals.begin(); ir != area->areaportals.end(); ++ir)

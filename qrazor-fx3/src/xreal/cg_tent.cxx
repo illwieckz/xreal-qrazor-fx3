@@ -236,7 +236,7 @@ static void	CG_ParseLaser(message_c &msg, int colors)
 		{
 			l->ent.flags = RF_TRANSLUCENT;
 			Vector3_Copy(start, l->ent.origin);
-			Vector3_Copy(end, l->ent.origin2);
+			//Vector3_Copy(end, l->ent.origin2);
 			//l->ent.color[3] = 0.30;
 			l->ent.custom_shader = -1;
 			l->ent.custom_skin = -1;//(colors >> ((rand() % 4)*8)) & 0xff;
@@ -720,7 +720,7 @@ void	CG_AddExplosions()
 		}
 		*/
 
-		Vector3_Copy (ent->origin, ent->origin2);
+		//Vector3_Copy (ent->origin, ent->origin2);
 
 		if (f < 0)
 			f = 0;

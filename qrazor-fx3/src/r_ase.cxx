@@ -185,10 +185,8 @@ static void	R_ASE_AddMesh(char const begin)
 	{
 		r_ase_mesh->texcoords[r_ase_mesh->indexes[i+0]] = r_ase_tvertexes[r_ase_tindexes[i+0]];
 		r_ase_mesh->texcoords[r_ase_mesh->indexes[i+1]] = r_ase_tvertexes[r_ase_tindexes[i+1]];
-		r_ase_mesh->texcoords[r_ase_mesh->indexes[i+2]] = r_ase_tvertexes[r_ase_tindexes[i+0]];
+		r_ase_mesh->texcoords[r_ase_mesh->indexes[i+2]] = r_ase_tvertexes[r_ase_tindexes[i+2]];
 	}
-
-	
 
 	r_ase_mesh->createBBoxFromVertexes();
 	

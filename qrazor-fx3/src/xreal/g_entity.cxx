@@ -185,6 +185,7 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 	addField(g_field_c("speed", &_speed, F_FLOAT));
 	addField(g_field_c("accel", &_accel, F_FLOAT));
 	addField(g_field_c("decel", &_decel, F_FLOAT));
+//	addField(g_field_c("movedir", &_movedir, F_ANGLEHACK_TO_QUATERNION));
 	addField(g_field_c("target", &_target, F_STRING));
 	addField(g_field_c("target1", &_target1, F_STRING));
 	addField(g_field_c("target2", &_target2, F_STRING));
