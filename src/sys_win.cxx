@@ -12,7 +12,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -75,14 +75,14 @@ SYSTEM IO
 ===============================================================================
 */
 
-std::string Sys_GetError() 
-{  
+std::string Sys_GetError()
+{
 	TCHAR szBuf[1024];
 	LPVOID lpMsgBuf;
-	DWORD dw = GetLastError(); 
+	DWORD dw = GetLastError();
 
 	FormatMessage(
-			FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+			FORMAT_MESSAGE_ALLOCATE_BUFFER |
 			FORMAT_MESSAGE_FROM_SYSTEM,
 			NULL,
 			dw,
@@ -90,7 +90,7 @@ std::string Sys_GetError()
 			(LPTSTR) &lpMsgBuf,
 			0, NULL );
 
-	wsprintf(szBuf, "%s", lpMsgBuf); 
+	wsprintf(szBuf, "%s", lpMsgBuf);
 
 	std::string retval(szBuf);
 
@@ -143,7 +143,7 @@ void	Sys_Init()
 		{
 			std::string error("Error: \n");
 			error += "Couldn't detach from console\n\n";
-			error += "Message: "; 
+			error += "Message: ";
 			error += Sys_GetError();
 			Sys_Error(error.c_str());
 		}
@@ -152,7 +152,7 @@ void	Sys_Init()
 			std::string error("Error: \n");
 			error += "Couldn't create dedicated"
 				" server console\n\n";
-			error += "Message: "; 
+			error += "Message: ";
 			error += Sys_GetError();
 			Sys_Error(error.c_str());
 		}
@@ -210,14 +210,14 @@ static void	WinError()
 {
 	LPVOID lpMsgBuf;
 
-	FormatMessage( 
+	FormatMessage(
 		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
 		NULL,
 		GetLastError(),
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
 		(LPTSTR) &lpMsgBuf,
 		0,
-		NULL 
+		NULL
 	);
 
 	// Display the string.
@@ -273,6 +273,7 @@ void	Sys_Mkdir(const std::string &path)
 
 
 
+#if ! defined(BSPCOMPILER_ONLY)
 static netadr_t	net_local_adr;
 static int			ip_socket;
 
@@ -976,6 +977,7 @@ char*	Sys_NetErrorString()
 	}
 }
 
+#endif // from -- #if ! defined(BSPCOMPILER_ONLY)
 
 
 
@@ -1155,8 +1157,11 @@ void Sys_ConsoleOutput (char *string)
 	DWORD		dummy;
 	char	text[256];
 
-	if (!dedicated || !dedicated->getValue())
-		return;
+    if (!dedicated || !dedicated->getValue())
+    {
+        printf("%s", string);
+        return;
+    }
 
 	if (console_textlen)
 	{
@@ -1191,6 +1196,7 @@ void	Sys_PushEvents()
 		DispatchMessage(&msg);
 	}
 
+#if ! defined(BSPCOMPILER_ONLY)
 	//
 	// push SE_PACKET events
 	//
@@ -1211,6 +1217,7 @@ void	Sys_PushEvents()
 
 		Com_PushEvent(SE_PACKET, -1, -1, -1, data, data_size);
 	}
+#endif
 }
 
 
@@ -1225,7 +1232,7 @@ char*	Sys_GetClipboardData()
 
 		if((hClipboardData = GetClipboardData(CF_TEXT)) != 0)
 		{
-			if ( ( cliptext = (char*)GlobalLock( hClipboardData ) ) != 0 ) 
+			if ( ( cliptext = (char*)GlobalLock( hClipboardData ) ) != 0 )
 			{
 				data = (char*) malloc( GlobalSize( hClipboardData ) + 1 );
 				strcpy( data, cliptext );
@@ -1310,12 +1317,11 @@ void*	Sys_GetAPI(const char *api_name, const char *api_main, void *api_parms, vo
 
 void 	Sys_UnloadAPI(void **api_handle)
 {
-	if(!FreeLibrary((HINSTANCE)*api_handle)) 
+	if(!FreeLibrary((HINSTANCE)*api_handle))
 		Com_Error(ERR_FATAL, "Sys_UnloadAPI: FreeLibrary failed");
-		
+
 	*api_handle = NULL;
 }
-
 
 static void	ParseCommandLine(LPSTR lpCmdLine)
 {
