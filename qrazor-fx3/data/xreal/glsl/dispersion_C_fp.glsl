@@ -42,7 +42,8 @@ void	main()
 	vec3 R = reflect(I, N);
 	
 	// compute fresnel term
-	vec3 fresnel_term = u_fresnel_bias + pow(1.0 - dot(I, N), u_fresnel_power) * u_fresnel_scale;
+	float fresnel = u_fresnel_bias + pow(1.0 - dot(I, N), u_fresnel_power) * u_fresnel_scale;
+	vec3 fresnel_term = vec3(fresnel, fresnel, fresnel);
 	
 	// compute reflection color
 	vec3 reflect_color = textureCube(u_colormap, R).rgb;
