@@ -10,7 +10,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -515,7 +515,7 @@ void	rb_program_c::setVertexAttribs(const r_command_t *cmd)
 	if(gl_config.arb_vertex_buffer_object && entity_mesh->vbo_array_buffer)
 	{
 		/*
-		if(	(gl_state.current_vbo_array_buffer == entity_mesh->vbo_array_buffer) && 
+		if(	(gl_state.current_vbo_array_buffer == entity_mesh->vbo_array_buffer) &&
 			(gl_state.current_vbo_vertexes_ofs == entity_mesh->vbo_vertexes_ofs)	)
 		{
 			xglBindBufferARB(GL_ARRAY_BUFFER_ARB, entity_mesh->vbo_array_buffer);	RB_CheckForError();
@@ -779,8 +779,8 @@ private:
 };
 
 
-class rb_lighting_RBH_c : 
-public rb_program_c, 
+class rb_lighting_RBH_c :
+public rb_program_c,
 public u_view_origin_a,
 public u_bump_scale_a,
 public u_parallax_a
@@ -816,7 +816,7 @@ private:
 
 
 class rb_lighting_RBHS_c :
-public rb_program_c, 
+public rb_program_c,
 public u_view_origin_a,
 public u_bump_scale_a,
 public u_parallax_a,
@@ -857,7 +857,7 @@ private:
 
 
 class rb_lighting_RBS_c :
-public rb_program_c, 
+public rb_program_c,
 public u_view_origin_a,
 public u_bump_scale_a,
 public u_specular_exponent_a
@@ -896,7 +896,7 @@ private:
 
 
 class rb_lighting_D_omni_c :
-public rb_program_c, 
+public rb_program_c,
 public u_light_origin_a,
 public u_light_color_a
 {
@@ -930,7 +930,7 @@ private:
 
 
 class rb_lighting_D_proj_c :
-public rb_program_c, 
+public rb_program_c,
 public u_light_origin_a,
 public u_light_color_a
 {
@@ -961,7 +961,7 @@ private:
 
 
 class rb_lighting_DB_omni_c :
-public rb_program_c, 
+public rb_program_c,
 public u_light_origin_a,
 public u_light_color_a,
 public u_bump_scale_a
@@ -1000,7 +1000,7 @@ private:
 
 
 class rb_lighting_DBH_omni_c :
-public rb_program_c, 
+public rb_program_c,
 public u_view_origin_a,
 public u_light_origin_a,
 public u_light_color_a,
@@ -1043,7 +1043,7 @@ private:
 
 
 class rb_lighting_DBHS_omni_c :
-public rb_program_c, 
+public rb_program_c,
 public u_view_origin_a,
 public u_light_origin_a,
 public u_light_color_a,
@@ -1091,7 +1091,7 @@ private:
 
 
 class rb_lighting_DBS_omni_c :
-public rb_program_c, 
+public rb_program_c,
 public u_view_origin_a,
 public u_light_origin_a,
 public u_light_color_a,
@@ -1136,7 +1136,7 @@ private:
 };
 
 
-class rb_reflection_C_c : 
+class rb_reflection_C_c :
 public rb_program_c,
 public u_view_origin_a
 {
@@ -1159,7 +1159,7 @@ private:
 };
 
 
-class rb_refraction_C_c : 
+class rb_refraction_C_c :
 public rb_program_c,
 public u_view_origin_a,
 public u_refraction_index_a,
@@ -1186,7 +1186,7 @@ private:
 };
 
 
-class rb_dispersion_C_c : 
+class rb_dispersion_C_c :
 public rb_program_c,
 public u_view_origin_a,
 public u_eta_ratio_a,
@@ -1213,7 +1213,7 @@ private:
 };
 
 
-class rb_liquid_C_c : 
+class rb_liquid_C_c :
 public rb_program_c,
 public u_view_origin_a
 {
@@ -1236,7 +1236,7 @@ private:
 };
 
 
-class rb_skybox_c : 
+class rb_skybox_c :
 public rb_program_c,
 public u_view_origin_a
 {
@@ -1259,7 +1259,7 @@ private:
 };
 
 
-class rb_skycloud_c : 
+class rb_skycloud_c :
 public rb_program_c,
 public u_view_origin_a
 {
@@ -1282,7 +1282,7 @@ private:
 };
 
 
-class rb_heathaze_c : 
+class rb_heathaze_c :
 public rb_program_c,
 public u_deform_magnitude_a,
 public u_frame_buffer_a,
@@ -1360,9 +1360,9 @@ void		RB_CheckOpenGLExtensions()
 	RB_CheckOpenGLExtension("GL_ARB_shading_language_100");
 	
 	/// GL_ARB_vertex_program
-	xglVertexAttribPointerARB = (void (GLAPIENTRY*) (GLuint, GLint, GLenum, GLboolean, GLsizei, const GLvoid *)) XGL_GetSymbol("glVertexAttribPointerARB");
-	xglEnableVertexAttribArrayARB = (void (GLAPIENTRY*) (GLuint)) XGL_GetSymbol("glEnableVertexAttribArrayARB");
-	xglDisableVertexAttribArrayARB = (void (GLAPIENTRY*) (GLuint)) XGL_GetSymbol("glDisableVertexAttribArrayARB");
+	xglVertexAttribPointerARB = (void (GLAPIENTRY*) (GLuint, GLint, GLenum, GLboolean, GLsizei, const GLvoid *)) xglGetProcAddress("glVertexAttribPointerARB");
+	xglEnableVertexAttribArrayARB = (void (GLAPIENTRY*) (GLuint)) xglGetProcAddress("glEnableVertexAttribArrayARB");
+	xglDisableVertexAttribArrayARB = (void (GLAPIENTRY*) (GLuint)) xglGetProcAddress("glDisableVertexAttribArrayARB");
 //	xglProgramStringARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLsizei, const GLvoid *)) XGL_GetSymbol("glProgramStringARB");
 //	xglBindProgramARB = (void (GLAPIENTRY*) (GLenum, GLuint)) XGL_GetSymbol("glBindProgramARB");
 //	xglDeleteProgramsARB = (void (GLAPIENTRY*) (GLsizei, const GLuint *)) XGL_GetSymbol("glDeleteProgramsARB");
@@ -1380,50 +1380,50 @@ void		RB_CheckOpenGLExtensions()
 //	xglIsProgramARB = (GLboolean (GLAPIENTRY*) (GLuint)) XGL_GetSymbol("glIsProgramARB");
 	
 	/// GL_ARB_shader_objects
-	xglDeleteObjectARB = (void (GLAPIENTRY*) (GLhandleARB)) XGL_GetSymbol("glDeleteObjectARB");
-	xglGetHandleARB = (GLhandleARB (GLAPIENTRY*) (GLenum)) XGL_GetSymbol("glGetHandleARB");
-	xglDetachObjectARB = (void (GLAPIENTRY*) (GLhandleARB, GLhandleARB)) XGL_GetSymbol("glDetachObjectARB");
-	xglCreateShaderObjectARB = (GLhandleARB (GLAPIENTRY*) (GLenum)) XGL_GetSymbol("glCreateShaderObjectARB");
-	xglShaderSourceARB = (void (GLAPIENTRY*) (GLhandleARB, GLsizei, const GLcharARB* *, const GLint *)) XGL_GetSymbol("glShaderSourceARB");
-	xglCompileShaderARB = (void (GLAPIENTRY*) (GLhandleARB)) XGL_GetSymbol("glCompileShaderARB");
-	xglCreateProgramObjectARB = (GLhandleARB (GLAPIENTRY*) (void)) XGL_GetSymbol("glCreateProgramObjectARB");
-	xglAttachObjectARB = (void (GLAPIENTRY*) (GLhandleARB, GLhandleARB)) XGL_GetSymbol("glAttachObjectARB");
-	xglLinkProgramARB = (void (GLAPIENTRY*) (GLhandleARB)) XGL_GetSymbol("glLinkProgramARB");
-	xglUseProgramObjectARB = (void (GLAPIENTRY*) (GLhandleARB)) XGL_GetSymbol("glUseProgramObjectARB");
-	xglValidateProgramARB = (void (GLAPIENTRY*) (GLhandleARB)) XGL_GetSymbol("glValidateProgramARB");
-	xglUniform1fARB = (void (GLAPIENTRY*) (GLint, GLfloat)) XGL_GetSymbol("glUniform1fARB");
-	xglUniform2fARB = (void (GLAPIENTRY*) (GLint, GLfloat, GLfloat)) XGL_GetSymbol("glUniform2fARB");
-	xglUniform3fARB = (void (GLAPIENTRY*) (GLint, GLfloat, GLfloat, GLfloat)) XGL_GetSymbol("glUniform3fARB");
-	xglUniform4fARB = (void (GLAPIENTRY*) (GLint, GLfloat, GLfloat, GLfloat, GLfloat)) XGL_GetSymbol("glUniform4fARB");
-	xglUniform1iARB = (void (GLAPIENTRY*) (GLint, GLint)) XGL_GetSymbol("glUniform1iARB");
-	xglUniform2iARB = (void (GLAPIENTRY*) (GLint, GLint, GLint)) XGL_GetSymbol("glUniform2iARB");
-	xglUniform3iARB = (void (GLAPIENTRY*) (GLint, GLint, GLint, GLint)) XGL_GetSymbol("glUniform3iARB");
-	xglUniform4iARB = (void (GLAPIENTRY*) (GLint, GLint, GLint, GLint, GLint)) XGL_GetSymbol("glUniform4iARB");
-	xglUniform1fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLfloat *)) XGL_GetSymbol("glUniform1fvARB");
-	xglUniform2fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLfloat *)) XGL_GetSymbol("glUniform2fvARB");
-	xglUniform3fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLfloat *)) XGL_GetSymbol("glUniform3fvARB");
-	xglUniform4fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLfloat *)) XGL_GetSymbol("glUniform4fvARB");
-	xglUniform1ivARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLint *)) XGL_GetSymbol("glUniform1ivARB");
-	xglUniform2ivARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLint *)) XGL_GetSymbol("glUniform2ivARB");
-	xglUniform3ivARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLint *)) XGL_GetSymbol("glUniform3ivARB");
-	xglUniform4ivARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLint *)) XGL_GetSymbol("glUniform4ivARB");
-	xglUniformMatrix2fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, GLboolean, const GLfloat *)) XGL_GetSymbol("glUniformMatrix2fvARB");
-	xglUniformMatrix3fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, GLboolean, const GLfloat *)) XGL_GetSymbol("glUniformMatrix3fvARB");
-	xglUniformMatrix4fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, GLboolean, const GLfloat *)) XGL_GetSymbol("glUniformMatrix4fvARB");
-	xglGetObjectParameterfvARB = (void (GLAPIENTRY*) (GLhandleARB, GLenum, GLfloat *)) XGL_GetSymbol("glGetObjectParameterfvARB");
-	xglGetObjectParameterivARB = (void (GLAPIENTRY*) (GLhandleARB, GLenum, GLint *)) XGL_GetSymbol("glGetObjectParameterivARB");
-	xglGetInfoLogARB = (void (GLAPIENTRY*) (GLhandleARB, GLsizei, GLsizei *, GLcharARB *)) XGL_GetSymbol("glGetInfoLogARB");
-	xglGetAttachedObjectsARB = (void (GLAPIENTRY*) (GLhandleARB, GLsizei, GLsizei *, GLhandleARB *)) XGL_GetSymbol("glGetAttachedObjectsARB");
-	xglGetUniformLocationARB = (GLint (GLAPIENTRY*) (GLhandleARB, const GLcharARB *)) XGL_GetSymbol("glGetUniformLocationARB");
-	xglGetActiveUniformARB = (void (GLAPIENTRY*) (GLhandleARB, GLuint, GLsizei, GLsizei *, GLint *, GLenum *, GLcharARB *)) XGL_GetSymbol("glGetActiveUniformARB");
-	xglGetUniformfvARB = (void (GLAPIENTRY*) (GLhandleARB, GLint, GLfloat *)) XGL_GetSymbol("glGetUniformfvARB");
-	xglGetUniformivARB = (void (GLAPIENTRY*) (GLhandleARB, GLint, GLint *)) XGL_GetSymbol("glGetUniformivARB");
-	xglGetShaderSourceARB = (void (GLAPIENTRY*) (GLhandleARB, GLsizei, GLsizei *, GLcharARB *)) XGL_GetSymbol("glGetShaderSourceARB");
+	xglDeleteObjectARB = (void (GLAPIENTRY*) (GLhandleARB)) xglGetProcAddress("glDeleteObjectARB");
+	xglGetHandleARB = (GLhandleARB (GLAPIENTRY*) (GLenum)) xglGetProcAddress("glGetHandleARB");
+	xglDetachObjectARB = (void (GLAPIENTRY*) (GLhandleARB, GLhandleARB)) xglGetProcAddress("glDetachObjectARB");
+	xglCreateShaderObjectARB = (GLhandleARB (GLAPIENTRY*) (GLenum)) xglGetProcAddress("glCreateShaderObjectARB");
+	xglShaderSourceARB = (void (GLAPIENTRY*) (GLhandleARB, GLsizei, const GLcharARB* *, const GLint *)) xglGetProcAddress("glShaderSourceARB");
+	xglCompileShaderARB = (void (GLAPIENTRY*) (GLhandleARB)) xglGetProcAddress("glCompileShaderARB");
+	xglCreateProgramObjectARB = (GLhandleARB (GLAPIENTRY*) (void)) xglGetProcAddress("glCreateProgramObjectARB");
+	xglAttachObjectARB = (void (GLAPIENTRY*) (GLhandleARB, GLhandleARB)) xglGetProcAddress("glAttachObjectARB");
+	xglLinkProgramARB = (void (GLAPIENTRY*) (GLhandleARB)) xglGetProcAddress("glLinkProgramARB");
+	xglUseProgramObjectARB = (void (GLAPIENTRY*) (GLhandleARB)) xglGetProcAddress("glUseProgramObjectARB");
+	xglValidateProgramARB = (void (GLAPIENTRY*) (GLhandleARB)) xglGetProcAddress("glValidateProgramARB");
+	xglUniform1fARB = (void (GLAPIENTRY*) (GLint, GLfloat)) xglGetProcAddress("glUniform1fARB");
+	xglUniform2fARB = (void (GLAPIENTRY*) (GLint, GLfloat, GLfloat)) xglGetProcAddress("glUniform2fARB");
+	xglUniform3fARB = (void (GLAPIENTRY*) (GLint, GLfloat, GLfloat, GLfloat)) xglGetProcAddress("glUniform3fARB");
+	xglUniform4fARB = (void (GLAPIENTRY*) (GLint, GLfloat, GLfloat, GLfloat, GLfloat)) xglGetProcAddress("glUniform4fARB");
+	xglUniform1iARB = (void (GLAPIENTRY*) (GLint, GLint)) xglGetProcAddress("glUniform1iARB");
+	xglUniform2iARB = (void (GLAPIENTRY*) (GLint, GLint, GLint)) xglGetProcAddress("glUniform2iARB");
+	xglUniform3iARB = (void (GLAPIENTRY*) (GLint, GLint, GLint, GLint)) xglGetProcAddress("glUniform3iARB");
+	xglUniform4iARB = (void (GLAPIENTRY*) (GLint, GLint, GLint, GLint, GLint)) xglGetProcAddress("glUniform4iARB");
+	xglUniform1fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLfloat *)) xglGetProcAddress("glUniform1fvARB");
+	xglUniform2fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLfloat *)) xglGetProcAddress("glUniform2fvARB");
+	xglUniform3fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLfloat *)) xglGetProcAddress("glUniform3fvARB");
+	xglUniform4fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLfloat *)) xglGetProcAddress("glUniform4fvARB");
+	xglUniform1ivARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLint *)) xglGetProcAddress("glUniform1ivARB");
+	xglUniform2ivARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLint *)) xglGetProcAddress("glUniform2ivARB");
+	xglUniform3ivARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLint *)) xglGetProcAddress("glUniform3ivARB");
+	xglUniform4ivARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLint *)) xglGetProcAddress("glUniform4ivARB");
+	xglUniformMatrix2fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, GLboolean, const GLfloat *)) xglGetProcAddress("glUniformMatrix2fvARB");
+	xglUniformMatrix3fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, GLboolean, const GLfloat *)) xglGetProcAddress("glUniformMatrix3fvARB");
+	xglUniformMatrix4fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, GLboolean, const GLfloat *)) xglGetProcAddress("glUniformMatrix4fvARB");
+	xglGetObjectParameterfvARB = (void (GLAPIENTRY*) (GLhandleARB, GLenum, GLfloat *)) xglGetProcAddress("glGetObjectParameterfvARB");
+	xglGetObjectParameterivARB = (void (GLAPIENTRY*) (GLhandleARB, GLenum, GLint *)) xglGetProcAddress("glGetObjectParameterivARB");
+	xglGetInfoLogARB = (void (GLAPIENTRY*) (GLhandleARB, GLsizei, GLsizei *, GLcharARB *)) xglGetProcAddress("glGetInfoLogARB");
+	xglGetAttachedObjectsARB = (void (GLAPIENTRY*) (GLhandleARB, GLsizei, GLsizei *, GLhandleARB *)) xglGetProcAddress("glGetAttachedObjectsARB");
+	xglGetUniformLocationARB = (GLint (GLAPIENTRY*) (GLhandleARB, const GLcharARB *)) xglGetProcAddress("glGetUniformLocationARB");
+	xglGetActiveUniformARB = (void (GLAPIENTRY*) (GLhandleARB, GLuint, GLsizei, GLsizei *, GLint *, GLenum *, GLcharARB *)) xglGetProcAddress("glGetActiveUniformARB");
+	xglGetUniformfvARB = (void (GLAPIENTRY*) (GLhandleARB, GLint, GLfloat *)) xglGetProcAddress("glGetUniformfvARB");
+	xglGetUniformivARB = (void (GLAPIENTRY*) (GLhandleARB, GLint, GLint *)) xglGetProcAddress("glGetUniformivARB");
+	xglGetShaderSourceARB = (void (GLAPIENTRY*) (GLhandleARB, GLsizei, GLsizei *, GLcharARB *)) xglGetProcAddress("glGetShaderSourceARB");
 
 	/// GL_ARB_vertex_shader
-	xglBindAttribLocationARB = (void (GLAPIENTRY*) (GLhandleARB, GLuint, const GLcharARB *)) XGL_GetSymbol("glBindAttribLocationARB");
-	xglGetActiveAttribARB = (void (GLAPIENTRY*) (GLhandleARB, GLuint, GLsizei, GLsizei *, GLint *, GLenum *, GLcharARB *)) XGL_GetSymbol("glGetActiveAttribARB");
-	xglGetAttribLocationARB = (GLint (GLAPIENTRY*) (GLhandleARB, const GLcharARB *)) XGL_GetSymbol("glGetAttribLocationARB");
+	xglBindAttribLocationARB = (void (GLAPIENTRY*) (GLhandleARB, GLuint, const GLcharARB *)) xglGetProcAddress("glBindAttribLocationARB");
+	xglGetActiveAttribARB = (void (GLAPIENTRY*) (GLhandleARB, GLuint, GLsizei, GLsizei *, GLint *, GLenum *, GLcharARB *)) xglGetProcAddress("glGetActiveAttribARB");
+	xglGetAttribLocationARB = (GLint (GLAPIENTRY*) (GLhandleARB, const GLcharARB *)) xglGetProcAddress("glGetAttribLocationARB");
 }
 
 
