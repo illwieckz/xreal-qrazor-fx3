@@ -9,6 +9,8 @@ xreal_ui_src = [
 'src/x_panim.cxx',
 'src/x_shared.cxx',
 'src/x_string.cxx',
+#'src/xreal/gui_main.cxx',
+#'src/xreal/gui_window.cxx',
 'src/xreal/ui_address.cxx',
 'src/xreal/ui_audio.cxx',
 'src/xreal/ui_connect.cxx',
@@ -30,6 +32,8 @@ xreal_ui_src = [
 'src/xreal/ui_video.cxx' ]
 
 xreal_ui_env = env.Copy()
+#xreal_ui_env.Append(CXXFLAGS='`xml2-config --cflags`')
+#xreal_ui_env.Append(LINKFLAGS='`xml2-config --libs`')
 xreal_ui_env.SharedLibrary('ui', xreal_ui_src)
 
 if sys.platform == 'linux2':

@@ -176,7 +176,7 @@ r_skel_animation_c*	R_LoadAnimation(const std::string &name)
 	if(!buffer)
 	{
 		ri.Com_Error(ERR_DROP, "r_skel_md5_model_c::registerAnimation: couldn't load '%s'", name.c_str());
-		return false;
+		return NULL;
 	}
 	
 	r_skel_animation_c *anim = NULL;

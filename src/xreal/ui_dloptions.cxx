@@ -28,6 +28,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ui_local.h"
 
 
+class menu_downloadoptions_framework_c : public menu_framework_c
+{
+public:
+	virtual void	draw()
+	{
+		M_Banner("TODO");
+	
+		drawGeneric();
+	}
+	
+	virtual std::string	keyDown(int key)
+	{
+		return defaultKeyDown(key);
+	}
+};
+
+
 class menu_allow_download_c : public menu_spincontrol_c
 {
 public:
@@ -118,7 +135,7 @@ public:
 };
 
 
-static menu_framework_c			s_downloadoptions_menu;
+static menu_downloadoptions_framework_c		s_downloadoptions_menu;
 static menu_separator_c				s_download_title("Download Options");
 static menu_allow_download_c			s_allow_download_box;
 static menu_allow_download_maps_c		s_allow_download_maps_box;
@@ -171,19 +188,9 @@ static void	DownloadOptions_MenuInit()
 		s_downloadoptions_menu._cursor = 1;
 }
 
-static void	DownloadOptions_MenuDraw()
-{
-	s_downloadoptions_menu.draw();
-}
-
-static const std::string	DownloadOptions_MenuKey(int key)
-{
-	return Default_MenuKey(&s_downloadoptions_menu, key);
-}
-
 void	M_Menu_DownloadOptions_f()
 {
 	DownloadOptions_MenuInit();
-	M_PushMenu(DownloadOptions_MenuDraw, DownloadOptions_MenuKey);
+	M_PushMenu(&s_downloadoptions_menu);
 }
 

@@ -27,8 +27,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // xreal --------------------------------------------------------------------
 #include "ui_local.h"
 
-
-static void	ControlsSetMenuItemValues();
+class menu_options_framework_c : public menu_framework_c
+{
+public:
+	virtual void	draw()
+	{
+		M_Banner("OPTIONS");
+	
+		adjustCursor(1);
+		drawGeneric();
+	}
+};
 
 class menu_options_defaults_c : public menu_action_c
 {
@@ -43,7 +52,7 @@ public:
 		trap_Cbuf_AddText("exec default.cfg\n");
 		trap_Cbuf_Execute();
 	
-		ControlsSetMenuItemValues();
+		M_PopMenu();
 	}
 };
 
@@ -150,91 +159,73 @@ public:
 
 
 
-static menu_framework_c				s_options_menu;
+static menu_options_framework_c			s_options_menu;
 static menu_options_defaults_c				s_options_defaults_action;
-static menu_options_customize_controls_c		s_options_customize_controls_action;
+//static menu_options_customize_controls_c		s_options_customize_controls_action;
 static menu_options_sensitivity_c			s_options_sensitivity_slider;
 static menu_options_alwaysrun_c				s_options_alwaysrun_box;
 static menu_options_invertmouse_c			s_options_invertmouse_box;
 static menu_options_crosshair_c				s_options_crosshair_box;
 static menu_options_joystick_c				s_options_joystick_box;
 
-
-static void ControlsSetMenuItemValues()
-{
-	//s_options_sfxvolume_slider._curvalue		=  trap_Cvar_VariableValue("s_volume") * 10;
-	s_options_sensitivity_slider._curvalue		=  trap_Cvar_VariableValue("sensitivity") * 2;
-
-	trap_Cvar_SetValue("cl_run", trap_Cvar_ClampVariable( "cl_run", 0 , 1));
-	s_options_alwaysrun_box._curvalue		= trap_Cvar_VariableInteger("cl_run");
-
-	s_options_invertmouse_box._curvalue		= trap_Cvar_VariableInteger("m_pitch") < 0;
-
-	trap_Cvar_SetValue("cg_crosshair", trap_Cvar_ClampVariable( "cg_crosshair", 0, 3));
-	s_options_crosshair_box._curvalue		= trap_Cvar_VariableInteger("cg_crosshair");
-
-	trap_Cvar_SetValue("in_joystick", trap_Cvar_ClampVariable( "in_joystick", 0, 1));
-	s_options_joystick_box._curvalue		= trap_Cvar_VariableInteger("in_joystick");
-}
-
 static void	Options_MenuInit()
 {
-	//
-	// configure controls menu and menu items
-	//
-	s_options_menu._x = trap_VID_GetWidth() / 2;
-	s_options_menu._y = trap_VID_GetHeight() / 2 - 58;
-	
+	int	y = 0;
+	int	y_offset = CHAR_MEDIUM_HEIGHT + 5;
 
+	s_options_menu._x = (int)(trap_VID_GetWidth() * 0.50 - (CHAR_MEDIUM_WIDTH * 10));
+	
+	s_options_sensitivity_slider._fontflags	= FONT_MEDIUM | FONT_CHROME;
 	s_options_sensitivity_slider._x		= 0;
-	s_options_sensitivity_slider._y		= 50;
+	s_options_sensitivity_slider._y		= y = 0;
+	s_options_sensitivity_slider._curvalue	= trap_Cvar_VariableValue("sensitivity") * 2;
 	
-	s_options_alwaysrun_box._x	= 0;
-	s_options_alwaysrun_box._y	= 60;
+	s_options_alwaysrun_box._fontflags	= FONT_MEDIUM | FONT_CHROME;
+	s_options_alwaysrun_box._x		= 0;
+	s_options_alwaysrun_box._y		= y += y_offset;
+	trap_Cvar_SetValue("cl_run", trap_Cvar_ClampVariable( "cl_run", 0 , 1));
+	s_options_alwaysrun_box._curvalue		= trap_Cvar_VariableInteger("cl_run");
 	
-	s_options_invertmouse_box._x	= 0;
-	s_options_invertmouse_box._y	= 70;
+	s_options_invertmouse_box._fontflags	= FONT_MEDIUM | FONT_CHROME;
+	s_options_invertmouse_box._x		= 0;
+	s_options_invertmouse_box._y		= y += y_offset;
+	s_options_invertmouse_box._curvalue	= trap_Cvar_VariableInteger("m_pitch") < 0;
 
-	s_options_crosshair_box._x	= 0;
-	s_options_crosshair_box._y	= 110;
+	s_options_crosshair_box._fontflags	= FONT_MEDIUM | FONT_CHROME;
+	s_options_crosshair_box._x		= 0;
+	s_options_crosshair_box._y		= y += y_offset;
+	trap_Cvar_SetValue("cg_crosshair", trap_Cvar_ClampVariable( "cg_crosshair", 0, 3));
+	s_options_crosshair_box._curvalue		= trap_Cvar_VariableInteger("cg_crosshair");
 	
-	s_options_joystick_box._x	= 0;
-	s_options_joystick_box._y	= 120;
+	s_options_joystick_box._fontflags	= FONT_MEDIUM | FONT_CHROME;
+	s_options_joystick_box._x		= 0;
+	s_options_joystick_box._y		= y += y_offset;
+	trap_Cvar_SetValue("in_joystick", trap_Cvar_ClampVariable( "in_joystick", 0, 1));
+	s_options_joystick_box._curvalue		= trap_Cvar_VariableInteger("in_joystick");
 	
-	s_options_customize_controls_action._x		= 0;
-	s_options_customize_controls_action._y		= 140;
+//	s_options_customize_controls_action._fontflags	= FONT_MEDIUM | FONT_CHROME;
+//	s_options_customize_controls_action._x		= 0;
+//	s_options_customize_controls_action._y		= y += y_offset;
 
+	s_options_defaults_action._fontflags	= FONT_MEDIUM | FONT_CHROME;
 	s_options_defaults_action._x		= 0;
-	s_options_defaults_action._y		= 150;
-
-	ControlsSetMenuItemValues();
+	s_options_defaults_action._y		= y += y_offset;
 
 	s_options_menu.addItem(&s_options_sensitivity_slider);
 	s_options_menu.addItem(&s_options_alwaysrun_box);
 	s_options_menu.addItem(&s_options_invertmouse_box);
 	s_options_menu.addItem(&s_options_crosshair_box);
 	s_options_menu.addItem(&s_options_joystick_box);
-	s_options_menu.addItem(&s_options_customize_controls_action);
+//	s_options_menu.addItem(&s_options_customize_controls_action);
 	s_options_menu.addItem(&s_options_defaults_action);
-}
-
-static void	Options_MenuDraw()
-{
-	M_Banner("OPTIONS");
 	
-	s_options_menu.adjustCursor(1);
-	s_options_menu.draw();
-}
-
-static const std::string	Options_MenuKey(int key)
-{
-	return Default_MenuKey(&s_options_menu, key);
+	s_options_menu.center();
 }
 
 void	M_Menu_Options_f()
 {
 	Options_MenuInit();
 	
-	M_PushMenu (Options_MenuDraw, Options_MenuKey);
+	M_PushMenu(&s_options_menu);
 }
 

@@ -239,17 +239,14 @@ bool	menu_field_c::key(int key)
 
 void	menu_framework_c::addItem(menu_common_c *item)
 {
-	if(_items.size() == 0)
-		_nslots = 0;
+	std::vector<menu_common_c*>::iterator ir = std::find(_items.begin(), _items.end(), item);
 
-	if(_items.size() < MAXMENUITEMS)
+	if(ir == _items.end())
 	{		
 		item->_parent = this;
 		
 		_items.push_back(item);
 	}
-
-	_nslots = getTallySlotsNum();
 }
 
 /*
@@ -581,23 +578,17 @@ void	Menu_Init(menuframework_s *menu)
 
 #endif
 
-void	menu_framework_c::draw()
+void	menu_framework_c::drawGeneric()
 {
 	menu_common_c *item;
 	
-
-	//
 	// draw contents
-	//
-	for(std::vector<menu_common_c*>::const_iterator ir = _items.begin(); ir != _items.end(); ir++)
+	for(std::vector<menu_common_c*>::const_iterator ir = _items.begin(); ir != _items.end(); ++ir)
 	{
 		(*ir)->draw();
 	}
-
-
-	//
+	
 	// draw cursor
-	//
 	item = getItemAtCursor();
 
 	if(item && item->_cursordraw)
@@ -608,7 +599,7 @@ void	menu_framework_c::draw()
 	{
 		_cursordraw(this);
 	}
-	else if(item && item->getType() != MTYPE_FIELD )
+	else if(item && item->getType() != MTYPE_FIELD)
 	{
 		/*
 		if(item->_flags & QMF_LEFT_JUSTIFY)
@@ -622,20 +613,16 @@ void	menu_framework_c::draw()
 		}
 	}
 
-
-	//
 	// draw item statusbar or framework statusbar
-	//
 	if(item)
 	{
 		if(item->_statusbarfunc)
 			item->_statusbarfunc((void*)item);
 			
-		else if (item->_statusbar.length())
+		else if(item->_statusbar.length())
 			drawStatusBar(item->_statusbar);
 		else
 			drawStatusBar(_statusbar);
-
 	}
 	else
 	{

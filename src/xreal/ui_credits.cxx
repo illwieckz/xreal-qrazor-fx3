@@ -69,88 +69,89 @@ static const char *xrealcredits[] =
 };
 
 
-
-static void	M_Credits_MenuDraw()
+class menu_credits_framework_c : public menu_framework_c
 {
-	int i, y;
-
-	//
-	// draw the credits
-	//
-	for(i=0, y=(int)(trap_VID_GetHeight() - ((trap_CL_GetRealtime() - credits_start_time ) / 40.0F)); credits[i] && y < (int)trap_VID_GetHeight(); i++)
+public:
+	virtual void	draw()
 	{
-		int j, stringoffset = 0;
+		int i, y;
+
+		for(i=0, y=(int)(trap_VID_GetHeight() - ((trap_CL_GetRealtime() - credits_start_time ) / 40.0F)); credits[i] && y < (int)trap_VID_GetHeight(); i++)
+		{
+			int j, stringoffset = 0;
 		
-		bool bold = false;
+			bool bold = false;
 
-		//if(y <= -8)
-		//	continue;
+			//if(y <= -8)
+			//	continue;
 		
-		if(y <= -CHAR_MEDIUM_HEIGHT)
-			continue;
+			if(y <= -CHAR_MEDIUM_HEIGHT)
+				continue;
 
 
-		if(credits[i][0] == '+')
-		{
-			bold = true;
-			stringoffset = 1;
-			
-			//if(y <= -CHAR_MEDIUM_HEIGHT)
-			//	continue;
-		}
-		else
-		{
-			bold = false;
-			stringoffset = 0;
-			
-			//if(y <= -CHAR_SMALL_HEIGHT)
-			//	continue;
-		}
-
-		for(j=0; credits[i][j+stringoffset]; j++)
-		{
-			int x;
-
-			//x =(trap_VID_GetWidth() - strlen(credits[i]) * 8 - stringoffset * 8 ) / 2 + (j + stringoffset) * 8;
-
-			if(bold)
+			if(credits[i][0] == '+')
 			{
-				x =(trap_VID_GetWidth() - strlen(credits[i]) * CHAR_MEDIUM_WIDTH - stringoffset * CHAR_MEDIUM_WIDTH ) / 2 + (j + stringoffset) * CHAR_MEDIUM_WIDTH;
-				
-				Menu_DrawChar(x, y, credits[i][j+stringoffset], color_white, FONT_MEDIUM | FONT_ALT | FONT_CHROME);
-			}	
+				bold = true;
+				stringoffset = 1;
+			
+				//if(y <= -CHAR_MEDIUM_HEIGHT)
+				//	continue;
+			}
 			else
 			{
-				x =(trap_VID_GetWidth() - strlen(credits[i]) * CHAR_MEDIUM_WIDTH - stringoffset * CHAR_MEDIUM_WIDTH ) / 2 + (j + stringoffset) * CHAR_MEDIUM_WIDTH;
-				
-				Menu_DrawChar(x, y, credits[i][j+stringoffset], color_white, FONT_MEDIUM | FONT_CHROME);
+				bold = false;
+				stringoffset = 0;
+			
+				//if(y <= -CHAR_SMALL_HEIGHT)
+				//	continue;
 			}
-		}
+	
+			for(j=0; credits[i][j+stringoffset]; j++)
+			{
+				int x;
+	
+				//x =(trap_VID_GetWidth() - strlen(credits[i]) * 8 - stringoffset * 8 ) / 2 + (j + stringoffset) * 8;
+
+				if(bold)
+				{
+					x =(trap_VID_GetWidth() - strlen(credits[i]) * CHAR_MEDIUM_WIDTH - stringoffset * CHAR_MEDIUM_WIDTH ) / 2 + (j + stringoffset) * CHAR_MEDIUM_WIDTH;
+					
+					Menu_DrawChar(x, y, credits[i][j+stringoffset], color_white, FONT_MEDIUM | FONT_ALT | FONT_CHROME);
+				}	
+				else
+				{
+					x =(trap_VID_GetWidth() - strlen(credits[i]) * CHAR_MEDIUM_WIDTH - stringoffset * CHAR_MEDIUM_WIDTH ) / 2 + (j + stringoffset) * CHAR_MEDIUM_WIDTH;
+					
+					Menu_DrawChar(x, y, credits[i][j+stringoffset], color_white, FONT_MEDIUM | FONT_CHROME);
+				}
+			}
 		
-		//if(bold)
-		//	y += CHAR_MEDIUM_WIDTH + 5;
-		//else
-			y += CHAR_MEDIUM_WIDTH + 5;
+			//if(bold)
+			//	y += CHAR_MEDIUM_WIDTH + 5;
+			//else
+				y += CHAR_MEDIUM_WIDTH + 5;
+		}
+
+		if(y < 0)
+			credits_start_time = (int)trap_CL_GetRealtime();
 	}
-
-	if(y < 0)
-		credits_start_time = (int)trap_CL_GetRealtime();
-}
-
-static const std::string	M_Credits_Key(int key)
-{
-	switch (key)
+	
+	virtual std::string	keyDown(int key)
 	{
-		case K_ESCAPE:
-			if (creditsBuffer)
-				trap_VFS_FFree (creditsBuffer);
-			M_PopMenu ();
-		break;
+		switch (key)
+		{
+			case K_ESCAPE:
+				if(creditsBuffer)
+					trap_VFS_FFree(creditsBuffer);
+				M_PopMenu ();
+				break;
+		}
+	
+		return menu_out_sound;
 	}
+};
 
-	return menu_out_sound;
-
-}
+static menu_credits_framework_c	s_credits_menu;
 
 void	M_Menu_Credits_f()
 {
@@ -192,6 +193,6 @@ void	M_Menu_Credits_f()
 
 	credits_start_time = (int)trap_CL_GetRealtime();
 	
-	M_PushMenu(M_Credits_MenuDraw, M_Credits_Key);
+	M_PushMenu(&s_credits_menu);
 }
 
