@@ -96,6 +96,9 @@ void	RB_InitBackend()
 	
 	ri.Com_DPrintf("quake2opengl matrix:\n%s\n", rb_matrix_quake_to_opengl.toString());
 	
+	gl_state.current_vbo_array_buffer	= 0;
+	gl_state.current_vbo_vertexes_ofs	= 0;
+	
 	r_world_scene.cmds_num			= 0;
 	r_world_scene.cmds			= std::vector<r_command_t>(r_cmds_max->getInteger());
 	
@@ -607,10 +610,10 @@ void 	RB_SelectTexture(GLenum texture)
 
 	tmu = texture - GL_TEXTURE0;
 	
-	if(tmu == gl_state.currenttmu)
+	if(tmu == gl_state.current_tmu)
 		return;
 	else
-		gl_state.currenttmu = tmu;
+		gl_state.current_tmu = tmu;
 	
 	
 	xglActiveTexture(texture);
@@ -621,12 +624,12 @@ void 	RB_SelectTexture(GLenum texture)
 
 void 	RB_TexEnv(GLenum mode)
 {
-	static int lastmodes[8] = { -1, -1, -1, -1, -1, -1, -1, -1};
+	static int lastmodes[16] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
-	if((int)mode != lastmodes[gl_state.currenttmu])
+	if((int)mode != lastmodes[gl_state.current_tmu])
 	{
 		xglTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, mode);
-		lastmodes[gl_state.currenttmu] = mode;
+		lastmodes[gl_state.current_tmu] = mode;
 	}
 }
 
@@ -647,10 +650,10 @@ void 	RB_Bind(r_image_c *image)
 		target = r_img_default->getTarget();
 	}
 
-	if(gl_state.currenttextures[gl_state.currenttmu] == texnum)
+	if(gl_state.current_textures[gl_state.current_tmu] == texnum)
 		return;
 
-	gl_state.currenttextures[gl_state.currenttmu] = texnum;
+	gl_state.current_textures[gl_state.current_tmu] = texnum;
 	
 	
 	switch(target)
@@ -1838,6 +1841,26 @@ int	RB_SortByEntityMeshFunc(void const *a, void const *b)
 		return 0;	
 }
 
+int	RB_SortByEntityMeshVertexBufferOffsetFunc(void const *a, void const *b)
+{
+	r_command_t* cmd_a = (r_command_t*)a;
+	r_command_t* cmd_b = (r_command_t*)b;
+	
+	uint_t vbo_a = cmd_a->getEntityMesh()->vbo_array_buffer;
+	uint_t vbo_b = cmd_b->getEntityMesh()->vbo_array_buffer;
+
+	uint_t ofs_a = cmd_a->getEntityMesh()->vbo_vertexes_ofs;
+	uint_t ofs_b = cmd_b->getEntityMesh()->vbo_vertexes_ofs;
+	
+	if(vbo_a < vbo_b)	return 1;
+	if(vbo_a > vbo_b)	return-1;
+	
+	if(ofs_a < ofs_b)	return 1;
+	if(ofs_a > ofs_b)	return-1;
+	
+	return 0;
+}
+
 int	R_TranslucentCommandSortFunc(void const *a, void const *b)
 {
 	r_command_t* cmd_a = (r_command_t*)a;
@@ -1888,7 +1911,7 @@ void	RB_RenderCommands()
 	qsort(&r_current_scene->cmds[0], r_current_scene->cmds_num, sizeof(r_command_t), RB_SortByCommandDistanceFunc);
 	
 #if 0
-	if(r_arb_occlusion_query->getInteger())
+	if(gl_config.arb_occlusion_query && r_arb_occlusion_query->getInteger())
 	{	
 		RB_EnableShader_zfill();
 		for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
@@ -2035,7 +2058,7 @@ void	RB_RenderCommands()
 			light.setScissor(rb_vrect_viewport);
 		}
 		
-		if(r_arb_occlusion_query->getInteger())
+		if(gl_config.arb_occlusion_query && r_arb_occlusion_query->getInteger())
 		{
 			const cbbox_c&bbox = light.getShared().radius_bbox;
 			
@@ -2130,7 +2153,7 @@ void	RB_RenderCommands()
 		xglEnable(GL_BLEND);
 		xglBlendFunc(GL_ONE, GL_ONE);
 	
-		//qsort(&r_current_scene->cmds_light[0], r_current_scene->cmds_light_num, sizeof(r_command_t), RB_SortByEntityShaderFunc);
+		qsort(&r_current_scene->cmds_light[0], r_current_scene->cmds_light_num, sizeof(r_command_t), RB_SortByEntityMeshVertexBufferOffsetFunc);
 	
 		//
 		// omni-directional lighting
@@ -2408,7 +2431,7 @@ void	RB_AddCommand(	r_entity_c*		entity,
 		return;
 	}
 
-#ifdef HAVE_DEBUG
+#if 1 //HAVE_DEBUG
 	if(entity_mesh->isNotValid())
 	{
 		//ri.Com_Printf("RB_AddCommand: entity_mesh not valid\n");
