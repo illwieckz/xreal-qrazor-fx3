@@ -443,6 +443,47 @@ void	matrix_c::transpose()
 									std::swap(_m[1][2], _m[2][1]);	std::swap(_m[1][3], _m[3][1]);
 													std::swap(_m[2][3], _m[3][2]);
 }
+
+
+void	matrix_c::transposeIntoXMM() const
+{
+#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+	asm volatile
+	(						// reg[0]			| reg[1]		| reg[2]		| reg[3]
+	// load transpose into XMM registers
+	"movlps		(%%eax),	%%xmm4\n"	// _m[0][0]			| _m[0][1]		| -			| -
+	"movhps		16(%%eax),	%%xmm4\n"	// _m[0][0]			| _m[0][1]		| _m[1][0]		| _m[1][1]
+	
+	"movlps		32(%%eax),	%%xmm3\n"	// _m[2][0]			| _m[2][1]		| -			| -
+	"movhps		48(%%eax),	%%xmm3\n"	// _m[2][0]			| _m[2][1]		| _m[3][0]		| _m[3][1]
+	
+	"movups		%%xmm4,		%%xmm5\n"	// _m[0][0]			| _m[0][1]		| _m[1][0]		| _m[1][1]
+	
+	// 0x88 = 10 00 | 10 00 <-> 00 10 | 00 10	   xmm4[00]			  xmm4[10]		  xmm3[00]		  xmm3[10]
+	"shufps		$0x88, %%xmm3,	%%xmm4\n"	// _m[0][0]			| _m[1][0]		| _m[2][0]		| _m[3][0]
+	
+	// 0xDD = 11 01 | 11 01 <-> 01 11 | 01 11	   xmm5[01]			  xmm5[11]		  xmm3[01]		  xmm3[11]
+	"shufps		$0xDD, %%xmm3,	%%xmm5\n"	// _m[0][1]			| _m[1][1]		| _m[2][1]		| _m[3][1]
+	
+	"movlps		8(%%eax),	%%xmm6\n"	// _m[0][2]			| _m[0][3]		| -			| -
+	"movhps		24(%%eax),	%%xmm6\n"	// _m[0][2]			| _m[0][3]		| _m[1][2]		| _m[1][3]
+	
+	"movlps		40(%%eax),	%%xmm3\n"	// _m[2][2]			| _m[2][3]		| -			| -
+	"movhps		56(%%eax),	%%xmm3\n"	// _m[2][2]			| _m[2][3]		| _m[3][2]		| _m[3][3]
+	
+	"movups		%%xmm6,		%%xmm7\n"	// _m[0][2]			| _m[0][3]		| _m[1][2]		| _m[1][3]
+	
+	// 0x88 = 10 00 | 10 00 <-> 00 10 | 00 10	   xmm6[00]			  xmm6[10]		  xmm3[00]		  xmm3[10]
+	"shufps		$0x88, %%xmm3,	%%xmm6\n"	// _m[0][2]			| _m[1][2]		| _m[2][2]		| _m[3][2]
+	
+	// 0xDD = 11 01 | 11 01 <-> 01 11 | 01 11	   xmm7[01]			  xmm7[11]		  xmm3[01]		  xmm3[11]
+	"shufps		$0xDD, %%xmm3,	%%xmm7\n"	// _m[0][3]			| _m[1][3]		| _m[2][3]		| _m[3][3]
+	:
+	: "a"(&_m[0][0])
+	: "memory"
+	);
+#endif
+}
 	
 void	matrix_c::setupXRotation(vec_t deg)
 {
@@ -809,55 +850,156 @@ matrix_c	matrix_c::operator - (const matrix_c &m) const
 	
 matrix_c	matrix_c::operator * (const matrix_c &m) const
 {
-	/*
-					std::swap(_m[0][1], _m[1][0]);	std::swap(_m[0][2], _m[2][0]);	std::swap(_m[0][3], _m[3][0]);
-									std::swap(_m[1][2], _m[2][1]);	std::swap(_m[1][3], _m[3][1]);
-													std::swap(_m[2][3], _m[3][2]);
-	*/
-	
-#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_SSE) && 0
+			/*
+				_m[0][0]*m._m[0][0] + | _m[0][0]*m._m[0][1] + | _m[0][0]*m._m[0][2] + | _m[0][0]*m._m[0][3] +
+				_m[0][1]*m._m[1][0] + | _m[0][1]*m._m[1][1] + | _m[0][1]*m._m[1][2] + | _m[0][1]*m._m[1][3] +
+				_m[0][2]*m._m[2][0] + | _m[0][2]*m._m[2][1] + | _m[0][2]*m._m[2][2] + | _m[0][2]*m._m[2][3] +
+				_m[0][3]*m._m[3][0]   | _m[0][3]*m._m[3][1]   | _m[0][3]*m._m[3][2]   | _m[0][3]*m._m[3][3]
+				.
+				.
+				.
+				_m[1][0]*m._m[0][0] + _m[1][1]*m._m[1][0] + _m[1][2]*m._m[2][0] + _m[1][3]*m._m[3][0]	,
+				_m[1][0]*m._m[0][1] + _m[1][1]*m._m[1][1] + _m[1][2]*m._m[2][1] + _m[1][3]*m._m[3][1]	,
+				_m[1][0]*m._m[0][2] + _m[1][1]*m._m[1][2] + _m[1][2]*m._m[2][2] + _m[1][3]*m._m[3][2]	,
+				_m[1][0]*m._m[0][3] + _m[1][1]*m._m[1][3] + _m[1][2]*m._m[2][3] + _m[1][3]*m._m[3][3]	,
+				
+				_m[2][0]*m._m[0][0] + _m[2][1]*m._m[1][0] + _m[2][2]*m._m[2][0] + _m[2][3]*m._m[3][0]	,
+				_m[2][0]*m._m[0][1] + _m[2][1]*m._m[1][1] + _m[2][2]*m._m[2][1] + _m[2][3]*m._m[3][1]	,
+				_m[2][0]*m._m[0][2] + _m[2][1]*m._m[1][2] + _m[2][2]*m._m[2][2] + _m[2][3]*m._m[3][2]	,
+				_m[2][0]*m._m[0][3] + _m[2][1]*m._m[1][3] + _m[2][2]*m._m[2][3] + _m[2][3]*m._m[3][3]	,
+					
+				_m[3][0]*m._m[0][0] + _m[3][1]*m._m[1][0] + _m[3][2]*m._m[2][0] + _m[3][3]*m._m[3][0]	,
+				_m[3][0]*m._m[0][1] + _m[3][1]*m._m[1][1] + _m[3][2]*m._m[2][1] + _m[3][3]*m._m[3][1]	,
+				_m[3][0]*m._m[0][2] + _m[3][1]*m._m[1][2] + _m[3][2]*m._m[2][2] + _m[3][3]*m._m[3][2]	,
+				_m[3][0]*m._m[0][3] + _m[3][1]*m._m[1][3] + _m[3][2]*m._m[2][3] + _m[3][3]*m._m[3][3]	);
+			*/
+
+#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
 	matrix_c out;
 	asm volatile
-	(						// reg[0]			| reg[1]		| reg[2]		| reg[3]
-	// load transpose into XMM registers
-	"movlps		(%%eax),	%%xmm4\n"	// _m[0][0]			| _m[0][1]		| -			| -
-	"movhps		16(%%eax),	%%xmm4\n"	// _m[0][0]			| _m[0][1]		| _m[1][0]		| _m[1][1]
-	"movlps		32(%%eax),	%%xmm3\n"	// _m[2][0]			| _m[2][1]		| -			| -
-	"movhps		48(%%eax),	%%xmm3\n"	// _m[2][0]			| _m[2][1]		| _m[3][0]		| _m[3][1]
+	(
+	//
+	// load m into the xmm4-7
+	//
+	"movups		(%%edx),	%%xmm4\n"	// m[0][0]			| m[0][1]			| m[0][2]			| m[0][3]
+	"movups		16(%%edx),	%%xmm5\n"	// m[1][0]			| m[1][1]			| m[1][2]			| m[1][3]
+	"movups		32(%%edx),	%%xmm6\n"	// m[2][0]			| m[2][1]			| m[2][2]			| m[2][3]
+	"movups		48(%%edx),	%%xmm7\n"	// m[3][0]			| m[3][1]			| m[3][2]			| m[3][3]
 	
-	"movups		%%xmm4,		%%xmm5\n"	// _m[0][0]			| _m[0][1]		| _m[1][0]		| _m[1][1]
 	
-	"shufps		$0x88, %%xmm3,	%%xmm4\n"	// _m[2][0]			| _m[2][1]		| _m[3][0]		| _m[3][1]
+	//
+	// calculate first row of out
+	//
+	"movups		(%%eax),	%%xmm0\n"	// _m[0][0]			| _m[0][1]			| _m[0][2]			| _m[0][3]	
+	"movups		%%xmm0,		%%xmm1\n"	// _m[0][0]			| _m[0][1]			| _m[0][2]			| _m[0][3]
+	"movups		%%xmm0,		%%xmm2\n"	// _m[0][0]			| _m[0][1]			| _m[0][2]			| _m[0][3]
+	"movups		%%xmm0,		%%xmm3\n"	// _m[0][0]			| _m[0][1]			| _m[0][2]			| _m[0][3]
+		
+	// 0x00 = 00 00 | 00 00 <-> 00 00 | 00 00	   xmmx[00]			  xmmx[00]			  xmmx[00]			  xmmx[00]
+	"shufps		$0x00, %%xmm0,	%%xmm0\n"	// _m[0][0]			| _m[0][0]			| _m[0][0]			| _m[0][0]
 	
-	#error TODO matrix_c	matrix_c::operator * (const matrix_c &m) const for SSE
+	// 0x55 = 01 01 | 01 01 <-> 01 01 | 01 01	   xmm1[01]			  xmm1[01]			  xmm1[01]			  xmm1[01]
+	"shufps		$0x55, %%xmm1,	%%xmm1\n"	// _m[0][1]			| _m[0][1]			| _m[0][1]			| _m[0][1]
 	
-	"movups		(%%eax),	%%xmm0\n"	// _m[0][0]			| _m[0][1]		| _m[0][2]		| _m[0][3]
-	"movups		16(%%eax),	%%xmm1\n"	// _m[1][0]			| _m[1][1]		| _m[1][2]		| _m[1][3]
-	"movups		32(%%eax),	%%xmm2\n"	// _m[2][0]			| _m[2][1]		| _m[2][2]		| _m[2][3]
-	"movups		48(%%eax),	%%xmm3\n"	// _m[3][0]			| _m[3][1]		| _m[3][2]		| _m[3][3]
+	// 0xAA = 10 10 | 10 10 <-> 10 10 | 10 10	   xmm2[10]			  xmm2[10]			  xmm2[10]			  xmm2[10]
+	"shufps		$0xAA, %%xmm2,	%%xmm2\n"	// _m[0][2]			| _m[0][2]			| _m[0][2]			| _m[0][2]
+	
+	// 0xFF = 11 11 | 11 11 <-> 11 11 | 11 11	   xmm3[11]			  xmm3[11]			  xmm3[11]			  xmm3[11]
+	"shufps		$0xFF, %%xmm3,	%%xmm3\n"	// _m[0][3]			| _m[0][3]			| _m[0][3]			| _m[0][3]
+	
+	"mulps		%%xmm4,		%%xmm0\n"	// _m[0][0]*m[0][0]		| _m[0][0]*m[0][1]		| _m[0][0]*m[0][2]		| _m[0][0]*m[0][3]
+	"mulps		%%xmm5,		%%xmm1\n"	// _m[0][1]*m[1][0]		| _m[0][1]*m[1][1]		| _m[0][1]*m[1][2]		| _m[0][1]*m[1][3]
+	"mulps		%%xmm6,		%%xmm2\n"	// _m[0][2]*m[2][0]		| _m[0][2]*m[2][1]		| _m[0][2]*m[2][2]		| _m[0][2]*m[2][3]
+	"mulps		%%xmm7,		%%xmm3\n"	// _m[0][3]*m[3][0]		| _m[0][3]*m[3][1]		| _m[0][3]*m[3][2]		| _m[0][3]*m[3][3]
+	
+	"addps		%%xmm0,		%%xmm1\n"	// _m[0][0]*m[0][0]+		| _m[0][0]*m[0][1]+		| _m[0][0]*m[0][2]+		| _m[0][0]*m[0][3]+
+							// _m[0][1]*m[1][0]		| _m[0][1]*m[1][1]		| _m[0][1]*m[1][2]		| _m[0][1]*m[1][3]
+	
+	"addps		%%xmm1,		%%xmm2\n"	// _m[0][0]*m[0][0]+		| _m[0][0]*m[0][1]+		| _m[0][0]*m[0][2]+		| _m[0][0]*m[0][3]+
+							// _m[0][1]*m[1][0]+		| _m[0][1]*m[1][1]+		| _m[0][1]*m[1][2]+		| _m[0][1]*m[1][3]+
+							// _m[0][2]*m[2][0]		| _m[0][2]*m[2][1]		| _m[0][2]*m[2][2]		| _m[0][2]*m[2][3]
+							
+	"addps		%%xmm2,		%%xmm3\n"	// _m[0][0]*m[0][0]+		| _m[0][0]*m[0][1]+		| _m[0][0]*m[0][2]+		| _m[0][0]*m[0][3]+
+							// _m[0][1]*m[1][0]+		| _m[0][1]*m[1][1]+		| _m[0][1]*m[1][2]+		| _m[0][1]*m[1][3]+
+							// _m[0][2]*m[2][0]+		| _m[0][2]*m[2][1]+		| _m[0][2]*m[2][2]+		| _m[0][2]*m[2][3]+
+							// _m[0][3]*m[3][0]		| _m[0][3]*m[3][1]		| _m[0][3]*m[3][2]		| _m[0][3]*m[3][3]
+	
+	"movups		%%xmm3,		(%%ecx)\n"
+	
+	
+	//
+	// calculate second row of out
+	//
+	"movups		16(%%eax),	%%xmm0\n"
+	"movups		%%xmm0,		%%xmm1\n"
+	"movups		%%xmm0,		%%xmm2\n"
+	"movups		%%xmm0,		%%xmm3\n"
+		
+	"shufps		$0x00, %%xmm0,	%%xmm0\n"
+	"shufps		$0x55, %%xmm1,	%%xmm1\n"
+	"shufps		$0xAA, %%xmm2,	%%xmm2\n"
+	"shufps		$0xFF, %%xmm3,	%%xmm3\n"
 
-//	"movups		(%%edx),	%%xmm4\n"	// v[0]				| v[1]			| v[2]			| v[3]
-	"movss		(%%edx),	%%xmm4\n"	// v[0]				| -			| -			| -
-	"movss		4(%%edx),	%%xmm5\n"	// v[1]				| -			| -			| -
-	"movss		8(%%edx),	%%xmm6\n"	// v[2]				| -			| -			| -
-	"movss		12(%%edx),	%%xmm6\n"	// v[3]				| -			| -			| -
+	"mulps		%%xmm4,		%%xmm0\n"
+	"mulps		%%xmm5,		%%xmm1\n"
+	"mulps		%%xmm6,		%%xmm2\n"
+	"mulps		%%xmm7,		%%xmm3\n"
 	
-//	"shufps		$0x00, %%xmm4,	%%xmm4\n"	// v[0]				| v[0]			| v[0]			| v[0]
-//	"shufps		$0x00, %%xmm5,	%%xmm5\n"	// v[1]				| v[1]			| v[1]			| v[1]
-//	"shufps		$0x00, %%xmm6,	%%xmm6\n"	// v[2]				| v[2]			| v[2]			| v[2]
+	"addps		%%xmm0,		%%xmm1\n"
+	"addps		%%xmm1,		%%xmm2\n"
+	"addps		%%xmm2,		%%xmm3\n"
 	
-//	"xorps		%%xmm5,		%%xmm6\n"	// -				| -			| -			| -
+	"movups		%%xmm3,		16(%%ecx)\n"
 	
-	"mulps		%%xmm4,		%%xmm0\n"	// _m[0][0]*v[0]		| _m[0][1]*v[1]		| _m[0][2]*v[2]		| _m[0][3]*v[3]
-	"mulps		%%xmm5,		%%xmm1\n"	// _m[1][0]*v[0]		| _m[1][1]*v[1]		| _m[1][2]*v[2]		| _m[1][3]*v[3]
-	"mulps		%%xmm6,		%%xmm2\n"	// _m[2][0]*v[0]		| _m[2][1]*v[1]		| _m[2][2]*v[2]		| _m[2][3]*v[3]
-	"mulps		%%xmm7,		%%xmm3\n"	// _m[3][0]*v[0]		| _m[3][1]*v[1]		| _m[3][2]*v[2]		| _m[3][3]*v[3]
 	
-	"addps		%%xmm1,		%%xmm0\n"	// _m[0][0]*v[0]+_m[1][0]*v[1]	| _m[0][1]*v[0]+_m[1][1]*v[1]	| _m[0][2]*v[0]+_m[1][2]*v[1]	| _m[0][3]*v[0]+_m[1][3]*v[1]
-	"addps		%%xmm2,		%%xmm0\n"	// _m[0][0]*v[0]+_m[1][0]*v[1]+_m[2][0]*v[2]	| _m[0][1]*v[0]+_m[1][1]*v[1]	| _m[0][2]*v[0]+_m[1][2]*v[1]	| _m[0][3]*v[0]+_m[1][3]*v[1]
-	"addps		%%xmm3,		%%xmm0\n"
+	//
+	// calculate third row of out
+	//
+	"movups		32(%%eax),	%%xmm0\n"
+	"movups		%%xmm0,		%%xmm1\n"
+	"movups		%%xmm0,		%%xmm2\n"
+	"movups		%%xmm0,		%%xmm3\n"
+		
+	"shufps		$0x00, %%xmm0,	%%xmm0\n"
+	"shufps		$0x55, %%xmm1,	%%xmm1\n"
+	"shufps		$0xAA, %%xmm2,	%%xmm2\n"
+	"shufps		$0xFF, %%xmm3,	%%xmm3\n"
+
+	"mulps		%%xmm4,		%%xmm0\n"
+	"mulps		%%xmm5,		%%xmm1\n"
+	"mulps		%%xmm6,		%%xmm2\n"
+	"mulps		%%xmm7,		%%xmm3\n"
 	
-	"movups		%%xmm0,		(%%ecx)\n"
+	"addps		%%xmm0,		%%xmm1\n"
+	"addps		%%xmm1,		%%xmm2\n"
+	"addps		%%xmm2,		%%xmm3\n"
+	
+	"movups		%%xmm3,		32(%%ecx)\n"
+	
+	
+	//
+	// calculate fourth row of out
+	//
+	"movups		48(%%eax),	%%xmm0\n"
+	"movups		%%xmm0,		%%xmm1\n"
+	"movups		%%xmm0,		%%xmm2\n"
+	"movups		%%xmm0,		%%xmm3\n"
+		
+	"shufps		$0x00, %%xmm0,	%%xmm0\n"
+	"shufps		$0x55, %%xmm1,	%%xmm1\n"
+	"shufps		$0xAA, %%xmm2,	%%xmm2\n"
+	"shufps		$0xFF, %%xmm3,	%%xmm3\n"
+
+	"mulps		%%xmm4,		%%xmm0\n"
+	"mulps		%%xmm5,		%%xmm1\n"
+	"mulps		%%xmm6,		%%xmm2\n"
+	"mulps		%%xmm7,		%%xmm3\n"
+	
+	"addps		%%xmm0,		%%xmm1\n"
+	"addps		%%xmm1,		%%xmm2\n"
+	"addps		%%xmm2,		%%xmm3\n"
+	
+	"movups		%%xmm3,		48(%%ecx)\n"
 	:
 	: "a"(&_m[0][0]), "d"(&m._m[0][0]), "c"(&out._m[0][0])
 	: "memory"
@@ -1094,7 +1236,58 @@ matrix_c	matrix_c::operator * (const matrix_c &m) const
 
 vec3_c	matrix_c::operator * (const vec3_c &v) const
 {
-#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_3DNOW)
+#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+	vec3_c out(false);
+	// transpose the matrix into the xmm4-7
+	transposeIntoXMM();
+							// reg[0]			| reg[1]			| reg[2]			| reg[3]
+	
+						// xmm4:   _m[0][0]			| _m[1][0]			| _m[2][0]			| _m[3][0]
+						// xmm5:   _m[0][1]			| _m[1][1]			| _m[2][1]			| _m[3][1]
+						// xmm6:   _m[0][2]			| _m[1][2]			| _m[2][2]			| _m[3][2]
+						// xmm7:   _m[0][3]			| _m[1][3]			| _m[2][3]			| _m[3][3]
+	asm volatile
+	(						
+	// load v into xmm0
+	"movups		(%%edx),	%%xmm0\n"	// v[0]				| v[1]				| v[2]				| v[3]
+		
+	"movups		%%xmm0,		%%xmm1\n"	// v[0]				| v[1]				| v[2]				| v[3]
+	"movups		%%xmm0,		%%xmm2\n"	// v[0]				| v[1]				| v[2]				| v[3]
+	"movups		%%xmm0,		%%xmm3\n"	// v[0]				| v[1]				| v[2]				| v[3]
+	
+	// 0x00 = 00 00 | 00 00 <-> 00 00 | 00 00	   xmm0[00]			  xmm0[00]			  xmm0[00]			  xmm0[00]
+	"shufps		$0x00, %%xmm0,	%%xmm0\n"	// v[0]				| v[0]				| v[0]				| v[0]
+	
+	// 0x55 = 01 01 | 01 01 <-> 01 01 | 01 01	   xmm1[01]			  xmm1[01]			  xmm1[01]			  xmm1[01]
+	"shufps		$0x55, %%xmm1,	%%xmm1\n"	// v[1]				| v[1]				| v[1]				| v[1]
+	
+	// 0xAA = 10 10 | 10 10 <-> 10 10 | 10 10	   xmm2[10]			  xmm2[10]			  xmm2[10]			  xmm2[10]
+	"shufps		$0xAA, %%xmm2,	%%xmm2\n"	// v[2]				| v[2]				| v[2]				| v[2]
+	
+	// 0xFF = 11 11 | 11 11 <-> 11 11 | 11 11	   xmm3[11]			  xmm3[11]			  xmm3[11]			  xmm3[11]
+	"shufps		$0xFF, %%xmm3,	%%xmm3\n"	// v[3]				| v[3]				| v[3]				| v[3]
+	
+	
+	"mulps		%%xmm4,		%%xmm0\n"	// _m[0][0]*v[0]		| _m[1][0]*v[0]			| _m[2][0]*v[0]			| _m[3][0]*v[0]
+	"mulps		%%xmm5,		%%xmm1\n"	// _m[0][1]*v[1]		| _m[1][1]*v[1]			| _m[2][1]*v[1]			| _m[3][1]*v[1]
+	"mulps		%%xmm6,		%%xmm2\n"	// _m[0][2]*v[2]		| _m[1][2]*v[2]			| _m[2][2]*v[2]			| _m[3][2]*v[2]
+//	"mulps		%%xmm7,		%%xmm3\n"	// _m[0][3]*v[3]		| _m[1][3]*v[3]			| _m[2][3]*v[3]			| _m[3][3]*v[3]
+	
+	"addps		%%xmm0,		%%xmm1\n"	// _m[0][0]*v[0]+_m[0][1]*v[1]	| _m[1][0]*v[0]+_m[1][1]*v[1]	| _m[2][0]*v[0]+_m[2][1]*v[1]	| _m[3][0]*v[0]+_m[3][1]*v[1]
+	
+	"addps		%%xmm1,		%%xmm2\n"	// _m[0][0]*v[0]+_m[0][1]*v[1]+	| _m[1][0]*v[0]+_m[1][1]*v[1]+	| _m[2][0]*v[0]+_m[2][1]*v[1]+	| _m[3][0]*v[0]+_m[3][1]*v[1]+
+							// _m[0][2]*v[2]		| _m[1][2]*v[2]			| _m[2][2]*v[2]			| _m[3][2]*v[2]
+							
+//	"addps		%%xmm2,		%%xmm3\n"	// _m[0][0]*v[0]+_m[0][1]*v[1]+	| _m[1][0]*v[0]+_m[1][1]*v[1]+	| _m[2][0]*v[0]+_m[2][1]*v[1]+	| _m[3][0]*v[0]+_m[3][1]*v[1]+
+//							// _m[0][2]*v[2]+_m[0][3]*v[3]	| _m[1][2]*v[2]+_m[1][3]*v[3]	| _m[2][2]*v[2]+_m[2][3]*v[3]	| _m[3][2]*v[2]+_m[3][3]*v[3]
+	
+	"movups		%%xmm2,		(%%ecx)\n"
+	:
+	: "d"((vec_t*)v), "c"((vec_t*)out)
+	: "memory"
+	);
+	return out;
+#elif defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_3DNOW)
 	vec3_c out(false);
 	femms();
 	asm volatile
@@ -1143,40 +1336,54 @@ vec3_c	matrix_c::operator * (const vec3_c &v) const
 	
 vec4_c	matrix_c::operator * (const vec4_c &v) const
 {
-#if 0
-//#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
 	vec4_c out(false);
+	// transpose the matrix into the xmm4-7
+	transposeIntoXMM();
+							// reg[0]			| reg[1]			| reg[2]			| reg[3]
+	
+						// xmm4:   _m[0][0]			| _m[1][0]			| _m[2][0]			| _m[3][0]
+						// xmm5:   _m[0][1]			| _m[1][1]			| _m[2][1]			| _m[3][1]
+						// xmm6:   _m[0][2]			| _m[1][2]			| _m[2][2]			| _m[3][2]
+						// xmm7:   _m[0][3]			| _m[1][3]			| _m[2][3]			| _m[3][3]
 	asm volatile
-	(						// reg[0]			| reg[1]		| reg[2]		| reg[3]
-	"movups		(%%eax),	%%xmm0\n"	// _m[0][0]			| _m[0][1]		| _m[0][2]		| _m[0][3]
-	"movups		16(%%eax),	%%xmm1\n"	// _m[1][0]			| _m[1][1]		| _m[1][2]		| _m[1][3]
-	"movups		32(%%eax),	%%xmm2\n"	// _m[2][0]			| _m[2][1]		| _m[2][2]		| _m[2][3]
-//	"movups		48(%%eax),	%%xmm3\n"	// _m[3][0]			| _m[3][1]		| _m[3][2]		| _m[3][3]
-
-//	"movups		(%%edx),	%%xmm4\n"	// v[0]				| v[1]			| v[2]			| v[3]
-	"movss		(%%edx),	%%xmm4\n"	// v[0]				| -			| -			| -
-	"movss		4(%%edx),	%%xmm5\n"	// v[1]				| -			| -			| -
-	"movss		8(%%edx),	%%xmm6\n"	// v[2]				| -			| -			| -
-	"movss		12(%%edx),	%%xmm6\n"	// v[3]				| -			| -			| -
+	(						
+	// load v into xmm0
+	"movups		(%%edx),	%%xmm0\n"	// v[0]				| v[1]				| v[2]				| v[3]
+		
+	"movups		%%xmm0,		%%xmm1\n"	// v[0]				| v[1]				| v[2]				| v[3]
+	"movups		%%xmm0,		%%xmm2\n"	// v[0]				| v[1]				| v[2]				| v[3]
+	"movups		%%xmm0,		%%xmm3\n"	// v[0]				| v[1]				| v[2]				| v[3]
 	
-//	"shufps		$0x00, %%xmm4,	%%xmm4\n"	// v[0]				| v[0]			| v[0]			| v[0]
-//	"shufps		$0x00, %%xmm5,	%%xmm5\n"	// v[1]				| v[1]			| v[1]			| v[1]
-//	"shufps		$0x00, %%xmm6,	%%xmm6\n"	// v[2]				| v[2]			| v[2]			| v[2]
+	// 0x00 = 00 00 | 00 00 <-> 00 00 | 00 00	   xmm0[00]			  xmm0[00]			  xmm0[00]			  xmm0[00]
+	"shufps		$0x00, %%xmm0,	%%xmm0\n"	// v[0]				| v[0]				| v[0]				| v[0]
 	
-//	"xorps		%%xmm5,		%%xmm6\n"	// -				| -			| -			| -
+	// 0x55 = 01 01 | 01 01 <-> 01 01 | 01 01	   xmm1[01]			  xmm1[01]			  xmm1[01]			  xmm1[01]
+	"shufps		$0x55, %%xmm1,	%%xmm1\n"	// v[1]				| v[1]				| v[1]				| v[1]
 	
-	"mulps		%%xmm4,		%%xmm0\n"	// _m[0][0]*v[0]		| _m[0][1]*v[1]		| _m[0][2]*v[2]		| _m[0][3]*v[3]
-	"mulps		%%xmm5,		%%xmm1\n"	// _m[1][0]*v[0]		| _m[1][1]*v[1]		| _m[1][2]*v[2]		| _m[1][3]*v[3]
-	"mulps		%%xmm6,		%%xmm2\n"	// _m[2][0]*v[0]		| _m[2][1]*v[1]		| _m[2][2]*v[2]		| _m[2][3]*v[3]
-	"mulps		%%xmm7,		%%xmm3\n"	// _m[3][0]*v[0]		| _m[3][1]*v[1]		| _m[3][2]*v[2]		| _m[3][3]*v[3]
+	// 0xAA = 10 10 | 10 10 <-> 10 10 | 10 10	   xmm2[10]			  xmm2[10]			  xmm2[10]			  xmm2[10]
+	"shufps		$0xAA, %%xmm2,	%%xmm2\n"	// v[2]				| v[2]				| v[2]				| v[2]
 	
-	"addps		%%xmm1,		%%xmm0\n"	// _m[0][0]*v[0]+_m[1][0]*v[1]	| _m[0][1]*v[0]+_m[1][1]*v[1]	| _m[0][2]*v[0]+_m[1][2]*v[1]	| _m[0][3]*v[0]+_m[1][3]*v[1]
-	"addps		%%xmm2,		%%xmm0\n"	// _m[0][0]*v[0]+_m[1][0]*v[1]+_m[2][0]*v[2]	| _m[0][1]*v[0]+_m[1][1]*v[1]	| _m[0][2]*v[0]+_m[1][2]*v[1]	| _m[0][3]*v[0]+_m[1][3]*v[1]
-	"addps		%%xmm3,		%%xmm0\n"
+	// 0xFF = 11 11 | 11 11 <-> 11 11 | 11 11	   xmm3[11]			  xmm3[11]			  xmm3[11]			  xmm3[11]
+	"shufps		$0xFF, %%xmm3,	%%xmm3\n"	// v[3]				| v[3]				| v[3]				| v[3]
 	
-	"movups		%%xmm0,		(%%ecx)\n"
+	
+	"mulps		%%xmm4,		%%xmm0\n"	// _m[0][0]*v[0]		| _m[1][0]*v[0]			| _m[2][0]*v[0]			| _m[3][0]*v[0]
+	"mulps		%%xmm5,		%%xmm1\n"	// _m[0][1]*v[1]		| _m[1][1]*v[1]			| _m[2][1]*v[1]			| _m[3][1]*v[1]
+	"mulps		%%xmm6,		%%xmm2\n"	// _m[0][2]*v[2]		| _m[1][2]*v[2]			| _m[2][2]*v[2]			| _m[3][2]*v[2]
+	"mulps		%%xmm7,		%%xmm3\n"	// _m[0][3]*v[3]		| _m[1][3]*v[3]			| _m[2][3]*v[3]			| _m[3][3]*v[3]
+	
+	"addps		%%xmm0,		%%xmm1\n"	// _m[0][0]*v[0]+_m[0][1]*v[1]	| _m[1][0]*v[0]+_m[1][1]*v[1]	| _m[2][0]*v[0]+_m[2][1]*v[1]	| _m[3][0]*v[0]+_m[3][1]*v[1]
+	
+	"addps		%%xmm1,		%%xmm2\n"	// _m[0][0]*v[0]+_m[0][1]*v[1]+	| _m[1][0]*v[0]+_m[1][1]*v[1]+	| _m[2][0]*v[0]+_m[2][1]*v[1]+	| _m[3][0]*v[0]+_m[3][1]*v[1]+
+							// _m[0][2]*v[2]		| _m[1][2]*v[2]			| _m[2][2]*v[2]			| _m[3][2]*v[2]
+							
+	"addps		%%xmm2,		%%xmm3\n"	// _m[0][0]*v[0]+_m[0][1]*v[1]+	| _m[1][0]*v[0]+_m[1][1]*v[1]+	| _m[2][0]*v[0]+_m[2][1]*v[1]+	| _m[3][0]*v[0]+_m[3][1]*v[1]+
+							// _m[0][2]*v[2]+_m[0][3]*v[3]	| _m[1][2]*v[2]+_m[1][3]*v[3]	| _m[2][2]*v[2]+_m[2][3]*v[3]	| _m[3][2]*v[2]+_m[3][3]*v[3]
+	
+	"movups		%%xmm3,		(%%ecx)\n"
 	:
-	: "a"(&_m[0][0]), "d"((vec_t*)v), "c"((vec_t*)out)
+	: "d"((vec_t*)v), "c"((vec_t*)out)
 	: "memory"
 	);
 	return out;
