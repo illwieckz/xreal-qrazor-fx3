@@ -324,6 +324,12 @@ enum r_render_type_e
 
 enum
 {
+	FRUSTUM_LEFT		= 0,
+	FRUSTUM_RIGHT,
+	FRUSTUM_BOTTOM,
+	FRUSTUM_TOP,
+	FRUSTUM_NEAR,
+	FRUSTUM_FAR,
 	FRUSTUM_PLANES		= 6,
 	FRUSTUM_CLIPALL		= 1 | 2 | 4 | 8 | 16 | 32
 };
@@ -750,6 +756,43 @@ private:
 	int			_lightmap;		// if BSP surface
 };
 
+// virtual screen coordinates
+struct r_vrect_t
+{
+	inline r_vrect_t()
+	{
+		x	= 0;
+		y	= 0;
+		
+		width	= 0;
+		height	= 0;
+	}
+	
+	int	x, y;
+	int	width, height;
+};
+
+class r_scissoriface_a
+{
+public:
+	void			updateScissor(const matrix_c &mvp, const r_vrect_t &vrect, const cbbox_c &bbox);
+	
+private:
+	void			addVertex(const matrix_c &mvp, const r_vrect_t &vrect, const vec3_c &v);
+	void			addEdge(const matrix_c &mvp, const r_vrect_t &vrect, const vec3_c &v0, const vec3_c &v1);
+public:
+
+	//inline const vec4_c&	getScissorCoords() const	{return _coords;}
+	inline int		getScissorX() const		{return (int)_coords[0];}
+	inline int		getScissorY() const		{return (int)_coords[1];}
+	inline int		getScissorWidth() const		{return (int)(_coords[2] - _coords[0]);}
+	inline int		getScissorHeight() const	{return (int)(_coords[3] - _coords[1]);}
+	
+private:
+	vec4_c		_coords;
+//	vec2_c		_mins;
+//	vec2_c		_maxs;
+};
 
 class r_visiface_a
 {
@@ -820,7 +863,8 @@ private:
 
 
 class r_light_c :
-public r_visiface_a
+public r_visiface_a,
+public r_scissoriface_a
 {
 	friend void	RB_AddCommand(	r_entity_c*		entity,
 					r_model_c*		entity_model,
@@ -1721,13 +1765,16 @@ extern int		r_filter_max;
 
 extern int		r_depth_format;
 
-extern uint_t	r_leafs_counter;
-extern uint_t	r_cmds_counter;
-extern uint_t	r_cmds_radiosity_counter;
-extern uint_t	r_cmds_light_counter;
-extern uint_t	rb_triangles_counter;
-extern uint_t	rb_flushes_counter;
-extern uint_t	rb_expressions_counter;
+extern uint_t	c_leafs;
+extern uint_t	c_entities;
+extern uint_t	c_lights;
+extern uint_t	c_cmds;
+extern uint_t	c_cmds_radiosity;
+extern uint_t	c_cmds_light;
+extern uint_t	c_cmds_translucent;
+extern uint_t	c_triangles;
+extern uint_t	c_draws;
+extern uint_t	c_expressions;
 
 struct r_table_t
 {
@@ -1821,6 +1868,8 @@ extern cvar_t	*r_shownormals;
 extern cvar_t	*r_showtangents;
 extern cvar_t	*r_showbinormals;
 extern cvar_t	*r_showinvisible;
+extern cvar_t	*r_showlightbboxes;
+extern cvar_t	*r_showlightscissors;
 extern cvar_t	*r_clear;
 extern cvar_t	*r_cull;
 extern cvar_t	*r_cullplanes;
@@ -1902,7 +1951,8 @@ void		RB_CheckForError_(const std::string &file, int line);
 #define		RB_CheckForError()	
 #endif
 
-void		RB_Frustum(matrix_c &m, double l, double r, double b, double t, double n, double f);
+void		RB_OpenGLFrustum(matrix_c &m, double l, double r, double b, double t, double n, double f);
+void		RB_QuakeFrustum(matrix_c &m, double l, double r, double b, double t, double n, double f);
 
 void		RB_SetupModelviewMatrix(const matrix_c &m, bool force = false);
 void		RB_SetupLightviewMatrix(const matrix_c &m);

@@ -63,13 +63,19 @@ r_frustum_t	r_frustum;
 uint_t		r_framecount;		// used for dlight push checking
 uint_t		r_visframecount;	// bumped when going to a new PVS
 
-
 int		r_depth_format;
 
-uint_t		r_leafs_counter;
-uint_t		r_cmds_counter;
-uint_t		r_cmds_radiosity_counter;
-uint_t		r_cmds_light_counter;
+
+uint_t		c_leafs;
+uint_t		c_entities;
+uint_t		c_lights;
+uint_t		c_cmds;
+uint_t		c_cmds_radiosity;
+uint_t		c_cmds_light;
+uint_t		c_cmds_translucent;
+uint_t		c_triangles;
+uint_t		c_draws;
+uint_t		c_expressions;
 
 //
 // view origin
@@ -154,6 +160,8 @@ cvar_t	*r_shownormals;
 cvar_t	*r_showtangents;
 cvar_t	*r_showbinormals;
 cvar_t	*r_showinvisible;
+cvar_t	*r_showlightbboxes;
+cvar_t	*r_showlightscissors;
 cvar_t	*r_clear;
 cvar_t	*r_cull;
 cvar_t	*r_cullplanes;
@@ -262,9 +270,9 @@ void 	R_DrawNULL(const vec3_c &origin, const vec3_c &angles)
 
 void 	R_DrawBBox(const cbbox_c &bbox)
 {
-#if 0
-	if(!r_showbbox->getValue())
-		return;
+#if 1
+	//if(!r_showbbox->getValue())
+	//	return;
 
 	//
 	// compute bbox vertices
@@ -282,8 +290,8 @@ void 	R_DrawBBox(const cbbox_c &bbox)
 	vertexes[7].set(bbox._mins[0], bbox._maxs[1], bbox._mins[2]);
 	
 		
-	
-	//glDisable(GL_CULL_FACE);
+	xglDisable(GL_DEPTH_TEST);
+	xglDisable(GL_CULL_FACE);
 	xglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	//glDisable(GL_TEXTURE_2D);
 	
@@ -343,7 +351,8 @@ void 	R_DrawBBox(const cbbox_c &bbox)
 	
 	//xglEnable(GL_TEXTURE_2D);
 	xglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	//xglEnable(GL_CULL_FACE);
+	xglEnable(GL_CULL_FACE);
+	xglEnable(GL_DEPTH_TEST);
 #endif
 }
 
@@ -904,24 +913,28 @@ static void 	R_RenderFrame(const r_refdef_t &fd)
 	
 	if(r_speeds->getInteger())
 	{
-		ri.Com_Printf("%4i leafs %4i cmds %4i radiosity cmds %4i light cmds %4i tris %4i flushes %4i exp\n",
-			r_leafs_counter,
-			r_cmds_counter,
-			r_cmds_radiosity_counter,
-			r_cmds_light_counter,
-			rb_triangles_counter,
-			rb_flushes_counter,
-			rb_expressions_counter);
-			
+		ri.Com_Printf("%4i leafs %4i entities %4i lights %4i tris %4i draws %4i exp\n",
+			c_leafs,
+			c_entities,
+			c_lights,
+			//c_cmds,
+			//c_cmds_radiosity,
+			//c_cmds_light,
+			//c_cmds_translucent,
+			c_triangles,
+			c_draws,
+			c_expressions);
+		
+		/*	
 		int	all, setup, create, commands;
 
 		all = time_end - time_start;
 		setup = time_setup - time_start;
 		create = time_create - time_setup;
 		commands = time_commands - time_create;
-		
-		ri.Com_Printf("%4i all %4i setup %4i create %4i commands\n", all, setup, create, commands);
-		ri.Com_Printf("%4i ents %4i lights %4i particles %4i polies\n", r_entities.size(), r_lights.size(), r_particles_num, r_polys_num);
+		*/
+		//ri.Com_Printf("%4i all %4i setup %4i create %4i commands\n", all, setup, create, commands);
+		//ri.Com_Printf("%4i ents %4i lights %4i particles %4i polies\n", r_entities.size(), r_lights.size(), r_particles_num, r_polys_num);
 	}
 }
 
@@ -984,7 +997,7 @@ static void 	R_Register()
 	r_drawworld 		= ri.Cvar_Get("r_drawworld", "1", CVAR_ARCHIVE);
 	r_drawparticles		= ri.Cvar_Get("r_drawparticles", "1", CVAR_ARCHIVE);
 	r_drawpolygons		= ri.Cvar_Get("r_drawpolygons", "1", CVAR_ARCHIVE);
-	r_drawsky		= ri.Cvar_Get("r_drawsky", "1", CVAR_ARCHIVE);
+	r_drawsky		= ri.Cvar_Get("r_drawsky", "0", CVAR_ARCHIVE);
 	r_drawextra		= ri.Cvar_Get("r_drawextra", "1", CVAR_ARCHIVE);
 	r_drawtranslucent	= ri.Cvar_Get("r_drawtranslucent", "1", CVAR_ARCHIVE);
 	r_lerpmodels 		= ri.Cvar_Get("r_lerpmodels", "1", CVAR_NONE);
@@ -1012,6 +1025,8 @@ static void 	R_Register()
 	r_showtangents		= ri.Cvar_Get("r_showtangents", "0", CVAR_NONE);
 	r_showbinormals		= ri.Cvar_Get("r_showbinormals", "0", CVAR_NONE);
 	r_showinvisible		= ri.Cvar_Get("r_showinvisible", "0", CVAR_NONE);
+	r_showlightbboxes	= ri.Cvar_Get("r_showlightbboxes", "0", CVAR_NONE);
+	r_showlightscissors	= ri.Cvar_Get("r_showlightscissors", "0", CVAR_NONE);
 
 	r_clear 		= ri.Cvar_Get("r_clear", "1", CVAR_NONE);
 	r_cull 			= ri.Cvar_Get("r_cull", "1", CVAR_NONE);
@@ -1096,12 +1111,14 @@ static bool 	R_SetMode()
 	r_serr_e err;
 	bool fullscreen;
 
+	/*
 	if(vid_fullscreen->isModified() && !gl_config.allow_cds)
 	{
 		ri.Com_Printf("R_SetMode: CDS not allowed with this driver\n");
 		ri.Cvar_SetValue("vid_fullscreen", !vid_fullscreen->getValue());
 		vid_fullscreen->isModified(false);
 	}
+	*/
 
 	fullscreen = (bool)vid_fullscreen->getInteger();
 
@@ -1126,7 +1143,7 @@ static bool 	R_SetMode()
 		}
 		else if(err == RSERR_INVALID_MODE)
 		{
-			ri.Cvar_SetValue("r_mode", gl_state.prev_mode );
+			ri.Cvar_SetValue("r_mode", gl_state.prev_mode);
 			vid_mode->isModified(false);
 			
 			ri.Com_Printf("R_SetMode: invalid mode\n" );
@@ -1200,12 +1217,6 @@ bool 	R_Init(void *hinstance, void *hWnd)
 
 	// set our "safe" modes
 	gl_state.prev_mode = 3;
-  	gl_config.allow_cds = true;
-
-	if(gl_config.allow_cds)
-		ri.Com_Printf("...allowing CDS\n" );
-	else
-		ri.Com_Printf("...disabling CDS\n" );
 
 	// create the window and set up the context
 	if(!R_SetMode())

@@ -45,6 +45,7 @@ void (GLAPIENTRY* xglVertex3fv) (const GLfloat *v);
 void (GLAPIENTRY* xglCullFace) (GLenum mode);
 void (GLAPIENTRY* xglFrontFace) (GLenum mode);
 void (GLAPIENTRY* xglPolygonMode) (GLenum face, GLenum mode);
+void (GLAPIENTRY* xglScissor) (GLint x, GLint y, GLsizei width, GLsizei height);
 void (GLAPIENTRY* xglTexParameterfv) (GLenum target, GLenum pname, const GLfloat *params);
 void (GLAPIENTRY* xglTexParameteri) (GLenum target, GLenum pname, GLint param);
 void (GLAPIENTRY* xglTexParameteriv) (GLenum target, GLenum pname, const GLint *params);
@@ -324,6 +325,7 @@ void	XGL_Shutdown()
 	xglCullFace						= NULL;
 	xglFrontFace						= NULL;
 	xglPolygonMode						= NULL;
+	xglScissor						= NULL;
 	xglTexParameterfv					= NULL;
 	xglTexParameteri					= NULL;
 	xglTexParameteriv					= NULL;
@@ -596,8 +598,11 @@ bool	XGL_Init(const char *dllname)
 {
 	ri.Com_Printf("------- XGL_Init -------\n");
 	
+	if(sys_gl.OpenGLLib)
+		XGL_Shutdown();
+	
 #ifdef __linux__
-	if((sys_gl.OpenGLLib = dlopen(dllname, RTLD_NOW | RTLD_GLOBAL)) == NULL)
+	if((sys_gl.OpenGLLib = dlopen(dllname, RTLD_NOW/* | RTLD_GLOBAL*/)) == NULL)
 	{
 		ri.Com_Printf("%s\n", dlerror());
 		return false;
@@ -630,6 +635,7 @@ bool	XGL_Init(const char *dllname)
 	xglCullFace = (void (GLAPIENTRY*) (GLenum mode)) XGL_GetSymbol("glCullFace");
 	xglFrontFace = (void (GLAPIENTRY*) (GLenum mode)) XGL_GetSymbol("glFrontFace");
 	xglPolygonMode = (void (GLAPIENTRY*) (GLenum face, GLenum mode)) XGL_GetSymbol("glPolygonMode");
+	xglScissor = (void (GLAPIENTRY*) (GLint x, GLint y, GLsizei width, GLsizei height)) XGL_GetSymbol("glScissor");
 	
 	xglTexParameterfv = (void (GLAPIENTRY*) (GLenum target, GLenum pname, const GLfloat *params)) XGL_GetSymbol("glTexParameterfv");
 	xglTexParameteri = (void (GLAPIENTRY*) (GLenum target, GLenum pname, GLint param)) XGL_GetSymbol("glTexParameteri");

@@ -33,6 +33,7 @@ REF_GL_COMMON = r_alias.cxx \
 		r_particle.cxx \
 		r_poly.cxx \
 		r_proc.cxx \
+		r_scissor.cxx \
 		r_shader.cxx \
 		r_shadow.cxx \
 		r_skel.cxx \
@@ -137,9 +138,9 @@ qrazor_fx_client_SOURCES = cl_cgame.cxx \
 
 EXTRA_qrazor_fx_client_SOURCES = sys_win.cxx vid_dll.cxx in_win.cxx sys_linux.cxx vid_so.cxx glob.cxx
 
-qrazor_fx_client_CXXFLAGS = $(std_cflags) @X_CFLAGS@
+qrazor_fx_client_CXXFLAGS = $(std_cflags)
 qrazor_fx_client_LDFLAGS = 
-qrazor_fx_client_LDADD = shared/libshared.a @DL_LIBS@ @SYSTEM_LIBS@ @Z_LIBS@ @OPENAL_LIBS@ @ODE_LIBS@ -lm
+qrazor_fx_client_LDADD = shared/libshared.a @DL_LIBS@ @SYSTEM_LIBS@ @Z_LIBS@ @OPENAL_LIBS@ @ODE_LIBS@  -lm
 
 
 

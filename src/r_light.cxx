@@ -145,7 +145,7 @@ void	r_light_c::setupProjection()
 			//double t = lu.length();
 			double b = -t;
 			
-			RB_Frustum(_projection, l, r, b, t, n, f);
+			RB_OpenGLFrustum(_projection, l, r, b, t, n, f);
 #endif
 			break;
 		}

@@ -1171,7 +1171,7 @@ void	r_bsptree_c::drawNode_r(r_tree_elem_c *elem, int clipflags)
 			addSurfaceToList(*ir, clipflags);
 		}
 		
-		r_leafs_counter++;
+		c_leafs++;
 		return;
 	}
 	else
@@ -1478,6 +1478,7 @@ void 	r_bsptree_c::markLights()
 				continue;
 			
 			light.setVisFrameCount();
+			c_lights++;
 		}
 	}
 	else
@@ -1486,15 +1487,35 @@ void 	r_bsptree_c::markLights()
 		{
 			r_light_c& light = ir->second;
 			
-			if(R_CullBBox(r_frustum, light.getShared().radius_bbox))
-				continue;
-			
 			if(!(light.getShared().flags & RF_STATIC))
 			{
+				if(R_CullBBox(r_frustum, light.getShared().radius_bbox))
+					continue;
+				
 				light.setVisFrameCount();
+				c_lights++;
 				continue;
 			}
 			
+			if(light.getCluster() == -1)
+				continue;
+				
+			if(r_newrefdef.areabits)
+			{
+				if(!(r_newrefdef.areabits[light.getArea()>>3] & (1<<(light.getArea()&7))))
+					continue;
+			}
+			
+			if(R_CullBBox(r_frustum, light.getShared().radius_bbox))
+				continue;
+				
+			if(vis[light.getCluster()>>3] & (1<<(light.getCluster()&7)))
+			{
+				light.setVisFrameCount();
+				c_lights++;
+			}
+			
+			/*
 			//const std::vector<r_bsptree_leaf_c*>& leafs = light.getLeafs();
 			
 			//for(std::vector<r_bsptree_leaf_c*>::const_iterator ir = leafs.begin(); ir != leafs.end(); ++ir)
@@ -1517,24 +1538,29 @@ void 	r_bsptree_c::markLights()
 				}
 				
 				if(vis[light.getCluster()>>3] & (1<<(light.getCluster()&7)))
+				{
 					light.setVisFrameCount();
+					c_lights++;
+				}
 				
-				/*
+				
 				if(vis[leaf->cluster>>3] & (1<<(leaf->cluster&7)))
 				{
 					light.setVisFrameCount();
 					break;
 				}
-				*/
+				
 			//}
+			
+			*/
 		}
 	}
 }
 
 void 	r_bsptree_c::markEntities()
 {
-	if(_viewcluster_old == _viewcluster && r_vis->getValue() && _viewcluster != -1)
-		return;
+//	if(_viewcluster_old == _viewcluster && r_vis->getValue() && _viewcluster != -1)
+//		return;
 
 	if(r_lockpvs->getValue())
 		return;
@@ -1548,6 +1574,7 @@ void 	r_bsptree_c::markEntities()
 			r_entity_c& ent = ir->second;
 			
 			ent.setVisFrameCount();
+			c_entities++;
 		}
 	}
 	else
@@ -1560,22 +1587,26 @@ void 	r_bsptree_c::markEntities()
 			{
 				// entity is always visible
 				ent.setVisFrameCount();
+				c_entities++;
 				continue;
 			}
 			
-			/*
 			if(ent.getCluster() == -1)
 				continue;
-				
+			
+			/*	
 			if(r_newrefdef.areabits)
 			{
 				if(!(r_newrefdef.areabits[ent.getArea()>>3] & (1<<(ent.getArea()&7))))
 					continue;
 			}
+			*/
 			
 			if(vis[ent.getCluster()>>3] & (1<<(ent.getCluster()&7)))
-			*/
+			{
 				ent.setVisFrameCount();
+				c_entities++;
+			}
 		}
 	}
 }

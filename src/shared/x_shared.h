@@ -184,29 +184,17 @@ inline void	operator delete (void *ptr)
 */
 #ifdef __linux__
 
-
-#define BUILDSTRING "Linux"
-
-#ifdef __i386__
-#define CPUSTRING "i386"
-#elif defined __alpha__
-#define CPUSTRING "axp"
-#else
-#define CPUSTRING "Unknown"
-#endif
-
 #ifdef HAVE_CONFIG_H
 #define VFS_USERDATADIR  	"~/."PACKAGE
 #define VFS_PKGDATADIR		PKGDATADIR
 #define VFS_PKGLIBDIR		PKGLIBDIR
 #else
+#define BUILDHOST		"Linux"
 #define VERSION			"0.3.5"
 #define VFS_USERDATADIR		"~/.qrazor-fx"
-#define VFS_PKGDATADIR		"/usr/games/qrazor-fx"
-#define VFS_PKGLIBDIR		"/usr/games/qrazor-fx"
+#define VFS_PKGDATADIR		"/usr/games/share/qrazor-fx"
+#define VFS_PKGLIBDIR		"/usr/games/lib/qrazor-fx"
 #endif
-
-//TODO
 
 #endif
 

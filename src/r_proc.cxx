@@ -334,7 +334,7 @@ void	r_proctree_c::drawArea_r(int areanum, const r_frustum_t frustum, int clipfl
 	}
 	
 	area->visframecount = r_visframecount;
-	r_leafs_counter++;
+	c_leafs++;
 
 	for(std::vector<r_surface_c*>::const_iterator ir = area->model->_surfaces.begin(); ir != area->model->_surfaces.end(); ++ir)
 	{
