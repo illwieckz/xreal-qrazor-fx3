@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /// ============================================================================
 
-uniform samplerCUBE	u_colormap;
+uniform samplerCube	u_colormap;
 uniform vec3		u_view_origin;
 uniform vec3		u_eta_ratio;
 uniform float		u_fresnel_power;

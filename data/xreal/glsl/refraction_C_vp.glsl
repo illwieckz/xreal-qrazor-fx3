@@ -32,6 +32,8 @@ void	main()
 	var_vertex = gl_TextureMatrix[0] * gl_Vertex;
 	
 	// transform normal into world space
-	var_normal = mat3(gl_TextureMatrix[0]) * gl_Normal;
+	var_normal.x = dot(gl_TextureMatrix[0][0].xyz, gl_Normal);
+	var_normal.y = dot(gl_TextureMatrix[0][1].xyz, gl_Normal);
+	var_normal.z = dot(gl_TextureMatrix[0][2].xyz, gl_Normal);
 }
 
