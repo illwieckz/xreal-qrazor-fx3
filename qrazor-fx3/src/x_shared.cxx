@@ -34,6 +34,7 @@ const vec3_t	bytedirs[NUMVERTEXNORMALS] =
 #include "x_anorms.h"
 };
 
+const usercmd_t		null_usercmd;
 const entity_state_t	null_entity_state;
 const player_state_t	null_player_state;
 
