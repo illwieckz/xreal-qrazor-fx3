@@ -173,6 +173,7 @@ void	r_image_c::copyFromContext() const
 			R_RenderFrame(refdef);
 			//xglFinish();
 			xglCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB, 0, 0, 0, 0, 0, _width, _height);
+			//xglCopyTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB, 0, GL_RGBA, 0, 0, _width, _height, 0);
 			
 			refdef.view_angles.set(0, 180, 90);
 			refdef.flip_x = false;
@@ -182,6 +183,7 @@ void	r_image_c::copyFromContext() const
 			R_RenderFrame(refdef);
 			//xglFinish();
 			xglCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X_ARB, 0, 0, 0, 0, 0, _width, _height);
+			//xglCopyTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X_ARB, 0, GL_RGBA, 0, 0, _width, _height, 0);
 	
 			refdef.view_angles.set(0, 90, 0);
 			refdef.flip_x = false;
@@ -191,6 +193,7 @@ void	r_image_c::copyFromContext() const
 			R_RenderFrame(refdef);
 			//xglFinish();
 			xglCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y_ARB, 0, 0, 0, 0, 0, _width, _height);
+			//xglCopyTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y_ARB, 0, GL_RGBA, 0, 0, _width, _height, 0);
 	
 			refdef.view_angles.set(0,-90, 0);
 			refdef.flip_x = false;
@@ -200,6 +203,7 @@ void	r_image_c::copyFromContext() const
 			R_RenderFrame(refdef);
 			//xglFinish();
 			xglCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_ARB, 0, 0, 0, 0, 0, _width, _height);
+			//xglCopyTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_ARB, 0, GL_RGBA, 0, 0, _width, _height, 0);
 	
 			refdef.view_angles.set(-90, 90, 0);
 			refdef.flip_x = false;
@@ -209,6 +213,7 @@ void	r_image_c::copyFromContext() const
 			R_RenderFrame(refdef);
 			//xglFinish();
 			xglCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z_ARB, 0, 0, 0, 0, 0, _width, _height);
+			//xglCopyTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z_ARB, 0, GL_RGBA, 0, 0, _width, _height, 0);
 		
 			refdef.view_angles.set(90, 90, 0);
 			refdef.flip_x = false;
@@ -218,6 +223,7 @@ void	r_image_c::copyFromContext() const
 			R_RenderFrame(refdef);
 			//xglFinish();
 			xglCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB, 0, 0, 0, 0, 0, _width, _height);
+			//xglCopyTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB, 0, GL_RGBA, 0, 0, _width, _height, 0);
 	
 			r_envmap = false;
 			break;
@@ -762,8 +768,9 @@ static void	R_InitLightViewDepthImage()
 	r_image_c *image = new r_image_c(GL_TEXTURE_2D, "_lightview_depth", vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), IMAGE_NONE, NULL);
 	
 	image->bind();
-	
-	xglTexImage2D(GL_TEXTURE_2D, 0, r_depth_format, image->getWidth(), image->getHeight(), 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+
+	extern int vid_depth_format;
+	xglTexImage2D(GL_TEXTURE_2D, 0, vid_depth_format, image->getWidth(), image->getHeight(), 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
 	
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, r_filter_max);
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, r_filter_max);
@@ -844,7 +851,7 @@ void	R_InitCurrentRenderDepthImage()
 	image->bind();
 	
 	GLint depth_bits;
-	xglGetIntegerv(GL_DEPTH_BITS, & depth_bits);
+	xglGetIntegerv(GL_DEPTH_BITS, &depth_bits);
 	if(depth_bits == 16)
 		r_depth_format = GL_DEPTH_COMPONENT16_ARB;
 	else
@@ -852,9 +859,8 @@ void	R_InitCurrentRenderDepthImage()
 	
 //	xglTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 
-//	xglTexImage2D(GL_TEXTURE_2D, 0, r_depth_format, image->getWidth(), image->getHeight(), 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
-
-	xglTexImage2D(GL_TEXTURE_2D, 0, r_depth_format, image->getWidth(), image->getHeight(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	xglTexImage2D(GL_TEXTURE_2D, 0, r_depth_format, image->getWidth(), image->getHeight(), 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+//	xglTexImage2D(GL_TEXTURE_2D, 0, r_depth_format, image->getWidth(), image->getHeight(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, r_filter_max);
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, r_filter_max);
@@ -875,6 +881,8 @@ static void	R_InitCurrentEnvironmentColorImage()
 	r_image_c *image = new r_image_c(GL_TEXTURE_CUBE_MAP_ARB, "_currentenvironment", 256, 256, IMAGE_NOMIPMAP, NULL);
 	
 	image->bind();
+	
+//	xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 
 	xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_MIN_FILTER, r_filter_max);
 	xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_MAG_FILTER, r_filter_max);

@@ -52,6 +52,11 @@ void		RB_DisableShader_zfill();
 void		RB_RenderCommand_zfill(const r_command_t *cmd,				const r_shader_stage_c *stage);
 
 
+void		RB_EnableShader_depth_to_rgba();
+void		RB_DisableShader_depth_to_rgba();
+void		RB_RenderCommand_depth_to_rgba(const r_command_t *cmd,			const r_shader_stage_c *stage);
+
+
 //
 // static lighting
 //
@@ -179,7 +184,12 @@ void		RB_RenderCommand_lighting_DBS_omni(const r_command_t *cmd,		const r_shader
 											const r_shader_stage_c *stage_attenuationmap_xy,
 											const r_shader_stage_c *stage_attenuationmap_z,
 											const r_shader_stage_c *stage_attenuationmap_cube);
-																						
+
+void		RB_EnableShader_fog_uniform();
+void		RB_DisableShader_fog_uniform();
+void		RB_RenderCommand_fog_uniform(const r_command_t *cmd,			const r_shader_stage_c *stage);
+
+
 //
 // environment mapping
 //

@@ -67,8 +67,7 @@ r_light_c::r_light_c(const r_entity_t &shared, r_light_type_t type)
 
 r_light_c::~r_light_c()
 {
-//	if(_shadowmap)
-//		delete _shadowmap;
+	// TODO
 }
 
 void	r_light_c::update(const r_entity_t &shared, r_light_type_t type)
@@ -85,7 +84,8 @@ void	r_light_c::update(const r_entity_t &shared, r_light_type_t type)
 	setupProjection();
 	setupAttenuation();
 	setupFrustum();
-	setupShadowMap();
+	
+	setupShadowMapProjection();
 	
 	if(_s.flags & RF_STATIC)
 	{
@@ -165,20 +165,11 @@ void	r_light_c::setupProjection()
 		
 		case LIGHT_PROJ:
 		{
-#if 0
-			vec_t fov_x = 90;
-			vec_t fov_y = CalcFOV(fov_x, 100, 100);
-		
-			double n = r_znear->getValue();
-			double f = r_zfar->getValue();
-		
-			double r = n * tan(fov_x * M_PI / 360.0);
-			double l = -r;
-			
-			double t = n * tan(fov_y * M_PI / 360.0);
-			double b = -t;
-			
-			RB_Frustum(_projection, l, r, b, t, n, f);
+#if 0			
+			matrix_c m;// = _projection;
+			m.fromVectorsFRU(_s.target, _s.right, _s.up);
+			m[3][0] = m[1][0];	m[3][1] = m[1][1];	m[3][2] = m[1][2];	m[3][3] = m[1][3];
+			_projection = m.affineInverse();
 #else
 			//matrix_c m;
 			//m.fromVectorsFRU(_s.target, _s.right, _s.up);
@@ -222,45 +213,18 @@ void	r_light_c::setupFrustum()
 	// TODO: figure out quake style matrix->frustum planes extraction
 }
 
-void	r_light_c::setupShadowMap()
+void	r_light_c::setupShadowMapProjection()
 {
-#if 0
-	switch(_type)
-	{
-		case LIGHT_OMNI:
-		{
-			_shadowmap = new r_image_c(GL_TEXTURE_CUBE_MAP_ARB, "_shadowmap", vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), IMAGE_NOMIPMAP | IMAGE_NOPICMIP, NULL, false);
-			
-			_shadowmap->bind();
-			
-			xglTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-			
-			xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_MIN_FILTER, r_filter_max);
-			xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_MAG_FILTER, r_filter_max);
-			
-			xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-			
-			xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
-			xglTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
-				
-			for(int i=0; i<6; i++)
-			{
-				xglTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB+i, 0, r_depth_format, _shadowmap->getWidth(), _shadowmap->getHeight(), 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
-			//	xglTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB+i, 0, GL_RGB, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), 0, GL_RGB, GL_FLOAT, 0);
-			}
-			break;
-		}
-		
-		case LIGHT_PROJ:
-		{
-			// TODO:
-			_shadowmap = NULL;
-			break;
-		}
-	}
-#endif
+	double n = 1.0;
+	double f = 65536.0;
+
+	double r = n * tan(90 * M_PI / 360.0);
+	double l = -r;
+	
+	double t = n * tan(CalcFOV(90, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger()) * M_PI / 360.0);
+	double b = -t;
+	
+	RB_OpenGLFrustum(_projection_shadowmap, l, r, b, t, n, f);
 }
 
 r_interaction_c*	r_light_c::createInteraction(r_entity_c* ent, const r_mesh_c *mesh)

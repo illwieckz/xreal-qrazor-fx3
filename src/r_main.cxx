@@ -72,7 +72,7 @@ uint_t		r_lightframecount;
 uint_t		r_checkcount;
 
 int		r_depth_format;
-
+int		vid_depth_format;
 
 uint_t		c_leafs;
 uint_t		c_entities;
@@ -81,6 +81,7 @@ uint_t		c_cmds;
 uint_t		c_cmds_radiosity;
 uint_t		c_cmds_light;
 uint_t		c_cmds_translucent;
+uint_t		c_cmds_fog;
 uint_t		c_cmds_postprocess;
 uint_t		c_triangles;
 uint_t		c_draws;
@@ -161,7 +162,7 @@ cvar_t	*r_debug;
 cvar_t	*r_log;
 cvar_t	*r_shadows;
 cvar_t	*r_shadows_alpha;
-cvar_t	*r_shadows_nudge;
+cvar_t	*r_shadows_export;
 cvar_t	*r_lighting;
 cvar_t	*r_lighting_omni;
 cvar_t	*r_lighting_proj;
@@ -848,6 +849,18 @@ void	R_DrawLightDebuggingInfo()
 			xglVertex3fv(s.origin);
 			xglVertex3fv(light->getOrigin());
 			
+			xglColor4fv(color_magenta);
+			xglVertex3fv(s.origin);
+			xglVertex3fv(s.origin + s.target);
+			
+			xglColor4fv(color_cyan);
+			xglVertex3fv(s.origin);
+			xglVertex3fv(s.origin + s.right);
+			
+			xglColor4fv(color_white);
+			xglVertex3fv(s.origin);
+			xglVertex3fv(s.origin + s.up);
+			
 			xglEnd();
 		}
 	}
@@ -1115,7 +1128,7 @@ void 	R_RenderFrame(const r_refdef_t &fd)
 			//,r_contacts.size()
 			);
 			
-		//ri.Com_Printf("%4i cmds %4i light cmds %4i translucent cmds\n", c_cmds, c_cmds_light, c_cmds_translucent);
+		ri.Com_Printf("%4i cmds %4i light cmds %4i translucent cmds %4i fog cmds\n", c_cmds, c_cmds_light, c_cmds_translucent, c_cmds_fog);
 		
 		/*	
 		int	all, setup, create, commands;
@@ -1290,7 +1303,7 @@ static void 	R_Register()
 	r_log	 		= ri.Cvar_Get("r_log", "0", CVAR_NONE);
 	r_shadows 		= ri.Cvar_Get("r_shadows", "0", CVAR_ARCHIVE );
 	r_shadows_alpha		= ri.Cvar_Get("r_shadows_alpha", "0.5", CVAR_ARCHIVE);
-	r_shadows_nudge		= ri.Cvar_Get("r_shadows_nudge", "1", CVAR_ARCHIVE);
+	r_shadows_export	= ri.Cvar_Get("r_shadows_export", "0", CVAR_NONE);
 	r_lighting 		= ri.Cvar_Get("r_lighting", "1", CVAR_ARCHIVE);
 	r_lighting_omni		= ri.Cvar_Get("r_lighting_omni", "1", CVAR_ARCHIVE);
 	r_lighting_proj 	= ri.Cvar_Get("r_lighting_proj", "1", CVAR_ARCHIVE);
@@ -1541,12 +1554,12 @@ bool 	R_Init(void *hinstance, void *hWnd)
 		//TODO recode
 		
         	GLint depth_bits;
-        	xglGetIntegerv(GL_DEPTH_BITS, & depth_bits);
+        	xglGetIntegerv(GL_DEPTH_BITS, &depth_bits);
         
         	if(depth_bits == 16)
-			r_depth_format = GL_DEPTH_COMPONENT16_ARB;
+			vid_depth_format = GL_DEPTH_COMPONENT16_ARB;
         	else
-			r_depth_format = GL_DEPTH_COMPONENT24_ARB;
+			vid_depth_format = GL_DEPTH_COMPONENT24_ARB;
 	}
 	GLimp_DeactivatePbuffer();		RB_CheckForError();
 

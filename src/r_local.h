@@ -333,7 +333,6 @@ enum
 enum r_render_type_e
 {
 	RENDER_TYPE_DEFAULT,
-	RENDER_TYPE_OCCLUSION_QUERY,
 	RENDER_TYPE_GENERIC,
 	RENDER_TYPE_ZFILL,
 	RENDER_TYPE_SKY,
@@ -341,7 +340,6 @@ enum r_render_type_e
 	RENDER_TYPE_REFRACTION,
 	RENDER_TYPE_DISPERSION,
 	RENDER_TYPE_LIQUID,
-	RENDER_TYPE_POSTPROCESS,
 	RENDER_TYPE_SHADOWING,
 	RENDER_TYPE_LIGHTING_R,
 	RENDER_TYPE_LIGHTING_RB,
@@ -358,7 +356,9 @@ enum r_render_type_e
 	RENDER_TYPE_LIGHTING_DB_omni,
 	RENDER_TYPE_LIGHTING_DBH_omni,
 	RENDER_TYPE_LIGHTING_DBHS_omni,
-	RENDER_TYPE_LIGHTING_DBS_omni
+	RENDER_TYPE_LIGHTING_DBS_omni,
+	RENDER_TYPE_FOG_UNIFORM,
+	RENDER_TYPE_POSTPROCESS
 };
 
 enum
@@ -1141,8 +1141,7 @@ public:
 	void			setupAttenuation();
 	void			setupProjection();
 	void			setupFrustum();
-	
-	void			setupShadowMap();
+	void			setupShadowMapProjection();
 	
 	r_interaction_c*	createInteraction(r_entity_c* ent, const r_mesh_c *mesh);
 	
@@ -1155,8 +1154,11 @@ public:
 	inline const matrix_c&		getView() const		{return _transform_inv;}
 	inline const matrix_c&		getAttenuation() const	{return _attenuation;}
 	inline const matrix_c&		getProjection() const	{return _projection;}
+	inline const matrix_c&		getShadowMapProjection() const	{return _projection_shadowmap;}
 	
 	inline const r_frustum_c&	getFrustum() const	{return _frustum;}
+	
+	
 
 private:
 	r_entity_t		_s;
@@ -1169,10 +1171,9 @@ private:
 	
 	matrix_c		_attenuation;
 	matrix_c		_projection;
+	matrix_c		_projection_shadowmap;
 		
 	r_frustum_c		_frustum;
-	
-	r_image_c*		_shadowmap;
 						
 //	std::vector<std::map<const r_surface_c*, std::vector<index_t> >	>	_areasurfaces;	
 //	std::vector<std::vector< >	>			_entity_interactions;
@@ -2092,6 +2093,7 @@ extern uint_t	c_cmds;
 extern uint_t	c_cmds_radiosity;
 extern uint_t	c_cmds_light;
 extern uint_t	c_cmds_translucent;
+extern uint_t	c_cmds_fog;
 extern uint_t	c_cmds_postprocess;
 extern uint_t	c_triangles;
 extern uint_t	c_draws;
@@ -2177,7 +2179,7 @@ extern cvar_t	*r_debug;
 extern cvar_t	*r_log;
 extern cvar_t	*r_shadows;
 extern cvar_t	*r_shadows_alpha;
-extern cvar_t	*r_shadows_nudge;
+extern cvar_t	*r_shadows_export;
 extern cvar_t	*r_lighting;
 extern cvar_t	*r_lighting_omni;
 extern cvar_t	*r_lighting_proj;

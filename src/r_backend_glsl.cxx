@@ -344,6 +344,37 @@ private:
 };
 
 
+class u_fog_a
+{
+private:
+	u_fog_a();
+	
+protected:
+	u_fog_a(GLhandleARB handle)
+	{
+		_u_fog_density	= xglGetUniformLocationARB(handle, "u_fog_density");	RB_CheckForError();
+		_u_fog_color	= xglGetUniformLocationARB(handle, "u_fog_color");	RB_CheckForError();
+	}
+	
+public:
+	void	setUniform_fog_density(const r_command_t *cmd, const r_shader_stage_c *stage)
+	{
+		xglUniform1fARB(_u_fog_density, 0.00125f);	RB_CheckForError();
+	}
+	
+	void	setUniform_fog_color(const r_command_t *cmd, const r_shader_stage_c *stage)
+	{
+		vec4_c color = color_blue;
+		//RB_ModifyColor(cmd->getLight()->getShared(), stage, light_color);
+		xglUniform4fARB(_u_fog_color, color[0], color[1], color[2], color[3]);	RB_CheckForError();
+	}
+	
+private:
+	uint_t		_u_fog_density;
+	uint_t		_u_fog_color;
+};
+
+
 static char*	RB_PrintInfoLog(GLhandleARB object)
 {
 	static char	msg[4096*2];
@@ -1072,7 +1103,8 @@ public:
 		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		RB_CheckForError();
 		_u_attenuationmap_xy	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_xy");		RB_CheckForError();
 		_u_attenuationmap_z	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_z");		RB_CheckForError();
-		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube");	RB_CheckForError();
+//		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube");	RB_CheckForError();
+//		_u_shadowmap		= xglGetUniformLocationARB(getHandle(), "u_shadowmap");			RB_CheckForError();
 				
 		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
 		
@@ -1080,7 +1112,8 @@ public:
 		xglUniform1iARB(_u_diffusemap,		0);	RB_CheckForError();
 		xglUniform1iARB(_u_attenuationmap_xy,	1);	RB_CheckForError();
 		xglUniform1iARB(_u_attenuationmap_z,	2);	RB_CheckForError();
-		xglUniform1iARB(_u_attenuationmap_cube,	3);	RB_CheckForError();
+//		xglUniform1iARB(_u_attenuationmap_cube,	3);	RB_CheckForError();
+//		xglUniform1iARB(_u_shadowmap,		4);	RB_CheckForError();
 		
 		xglUseProgramObjectARB(0);	RB_CheckForError();
 	}
@@ -1089,7 +1122,8 @@ private:
 	uint_t		_u_diffusemap;
 	uint_t		_u_attenuationmap_xy;
 	uint_t		_u_attenuationmap_z;
-	uint_t		_u_attenuationmap_cube;
+//	uint_t		_u_attenuationmap_cube;
+//	uint_t		_u_shadowmap;
 };
 
 
@@ -1106,13 +1140,13 @@ public:
 	{
 		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		RB_CheckForError();
 		_u_attenuationmap_xy	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_xy");		RB_CheckForError();
-//		_u_attenuationmap_z	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_z");		RB_CheckForError();
+		_u_shadowmap		= xglGetUniformLocationARB(getHandle(), "u_shadowmap");			RB_CheckForError();
 				
 		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
 		
 		xglUniform1iARB(_u_diffusemap,		0);	RB_CheckForError();
 		xglUniform1iARB(_u_attenuationmap_xy,	1);	RB_CheckForError();
-//		xglUniform1iARB(_u_attenuationmap_z,	2);	RB_CheckForError();
+		xglUniform1iARB(_u_shadowmap,		2);	RB_CheckForError();
 		
 		xglUseProgramObjectARB(0);	RB_CheckForError();
 	}
@@ -1120,7 +1154,7 @@ public:
 private:
 	uint_t		_u_diffusemap;
 	uint_t		_u_attenuationmap_xy;
-//	uint_t		_u_attenuationmap_z;
+	uint_t		_u_shadowmap;
 };
 
 
@@ -1297,6 +1331,34 @@ private:
 	uint_t		_u_attenuationmap_xy;
 	uint_t		_u_attenuationmap_z;
 //	uint_t		_u_attenuationmap_cube;
+};
+
+
+class rb_fog_uniform_c :
+public rb_program_c,
+public u_frame_buffer_a,
+public u_fog_a
+{
+public:
+	rb_fog_uniform_c()
+	:rb_program_c("fog_uniform", VATTRIB_VERTEX | VATTRIB_TEX0),
+	u_frame_buffer_a(getHandle()),
+	u_fog_a(getHandle())
+	{
+		_u_currentrendermap	= xglGetUniformLocationARB(getHandle(), "u_currentrendermap");	RB_CheckForError();
+//		_u_heathazemap		= xglGetUniformLocationARB(getHandle(), "u_heathazemap");	RB_CheckForError();
+		
+		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		
+		xglUniform1iARB(_u_currentrendermap, 0);	RB_CheckForError();
+//		xglUniform1iARB(_u_heathazemap, 1);		RB_CheckForError();
+		
+		xglUseProgramObjectARB(0);	RB_CheckForError();
+	}
+
+private:
+	uint_t		_u_currentrendermap;
+//	uint_t		_u_heathazemap;
 };
 
 
@@ -1498,6 +1560,8 @@ static rb_lighting_DBH_omni_c*		rb_program_lighting_DBH_omni = NULL;
 static rb_lighting_DBHS_omni_c*		rb_program_lighting_DBHS_omni = NULL;
 static rb_lighting_DBS_omni_c*		rb_program_lighting_DBS_omni = NULL;
 
+static rb_fog_uniform_c*		rb_program_fog_uniform = NULL;
+
 static rb_reflection_C_c*		rb_program_reflection_C = NULL;
 static rb_refraction_C_c*		rb_program_refraction_C = NULL;
 static rb_dispersion_C_c*		rb_program_dispersion_C = NULL;
@@ -1623,6 +1687,8 @@ void		RB_InitGPUShaders()
 	rb_program_lighting_DBHS_omni		= new rb_lighting_DBHS_omni_c();
 	rb_program_lighting_DBS_omni		= new rb_lighting_DBS_omni_c();
 	
+	rb_program_fog_uniform			= new rb_fog_uniform_c();
+	
 	rb_program_reflection_C			= new rb_reflection_C_c();
 	rb_program_refraction_C			= new rb_refraction_C_c();
 	rb_program_dispersion_C			= new rb_dispersion_C_c();
@@ -1657,6 +1723,8 @@ void		RB_ShutdownGPUShaders()
 	delete rb_program_lighting_DBH_omni;
 	delete rb_program_lighting_DBHS_omni;
 	delete rb_program_lighting_DBS_omni;
+	
+	delete rb_program_fog_uniform;
 	
 	delete rb_program_reflection_C;
 	delete rb_program_refraction_C;
@@ -2239,6 +2307,12 @@ void		RB_RenderCommand_lighting_D_omni(const r_command_t *cmd,		const r_shader_s
 //	RB_SelectTexture(GL_TEXTURE3);
 //	RB_ModifyOmniLightCubeTextureMatrix(cmd, stage_attenuationmap_xy);
 //	RB_Bind(stage_attenuationmap_cube->image);
+
+//	RB_SelectTexture(GL_TEXTURE4);
+//	xglMatrixMode(GL_TEXTURE);
+//	xglLoadTransposeMatrixfARB(&(cmd->getLightTransform())[0][0]);
+//	xglMatrixMode(GL_MODELVIEW);
+//	cmd->getLight()->getShadowMap()->bind();
 	
 	rb_program_lighting_D_omni->setUniform_light_origin(cmd);
 	rb_program_lighting_D_omni->setUniform_light_color(cmd, stage_attenuationmap_xy);
@@ -2274,13 +2348,11 @@ void		RB_RenderCommand_lighting_D_proj(const r_command_t *cmd,		const r_shader_s
 	RB_ModifyProjLightTextureMatrix(cmd, stage_attenuationmap_xy);
 	RB_Bind(stage_attenuationmap_xy->image);
 
-/*	
-	RB_SelectTexture(GL_TEXTURE2);
-	xglMatrixMode(GL_TEXTURE);
-	xglLoadIdentity();
-	xglMatrixMode(GL_MODELVIEW);
-	RB_Bind(stage_attenuationmap_z->image);
-*/
+//	RB_SelectTexture(GL_TEXTURE2);
+//	xglMatrixMode(GL_TEXTURE);
+//	xglLoadTransposeMatrixfARB(&(cmd->getLight()->getShadowMapProjection())[0][0]);
+//	xglMatrixMode(GL_MODELVIEW);
+//	cmd->getLight()->getShadowMap()->bind();
 	
 	rb_program_lighting_D_proj->setUniform_light_origin(cmd);
 	rb_program_lighting_D_proj->setUniform_light_color(cmd, stage_attenuationmap_xy);
@@ -2516,7 +2588,42 @@ void		RB_RenderCommand_lighting_DBS_omni(const r_command_t *cmd,		const r_shader
 	
 	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 }
-																						
+
+
+
+void		RB_EnableShader_fog_uniform()
+{
+	rb_program_fog_uniform->enable();		RB_CheckForError();
+}
+
+void		RB_DisableShader_fog_uniform()
+{
+	rb_program_fog_uniform->disable();	RB_CheckForError();
+}
+
+void		RB_RenderCommand_fog_uniform(const r_command_t *cmd,		const r_shader_stage_c *stage)
+{
+	RB_EnableShaderStageStates(cmd->getEntity(), stage);
+	
+	rb_program_fog_uniform->setVertexAttribs(cmd);
+	
+	RB_SelectTexture(GL_TEXTURE0);
+	xglMatrixMode(GL_TEXTURE);
+	xglLoadIdentity();
+	xglMatrixMode(GL_MODELVIEW);
+	RB_Bind(r_img_currentrender);
+
+	rb_program_fog_uniform->setUniform_fbuf_scale(cmd);
+	rb_program_fog_uniform->setUniform_npot_scale(cmd);
+	rb_program_fog_uniform->setUniform_fog_density(cmd, stage);
+	rb_program_fog_uniform->setUniform_fog_color(cmd, stage);
+
+	RB_FlushMesh(cmd);
+	
+	RB_DisableShaderStageStates(cmd->getEntity(), stage);
+}
+
+
 
 void		RB_EnableShader_reflection_C()
 {

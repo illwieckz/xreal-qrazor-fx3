@@ -781,7 +781,7 @@ static void 	SV_RunGameFrame()
 	// don't run if paused
 	if(!sv_paused->getInteger() || maxclients->getInteger() > 1)
 	{
-		//for(int i=0; i<5; i++)
+		for(int i=0; i<5; i++)
 			ge->G_RunFrame();
 
 		// never get more than one tic behind

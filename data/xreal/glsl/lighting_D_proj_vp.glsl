@@ -26,6 +26,7 @@ varying vec3		var_vertex;
 varying vec3		var_normal;
 varying vec2		var_tex_diffuse;
 varying vec4		var_tex_atten_xy_z;
+varying vec4		var_tex_shadow;
 
 void	main()
 {
@@ -43,4 +44,7 @@ void	main()
 	
 	// calc light xy,z attenuation in light space
 	var_tex_atten_xy_z = gl_TextureMatrix[1] * gl_Vertex;
+	
+	// transform position into shadowmap texture space
+	var_tex_shadow = gl_TextureMatrix[2] * gl_Vertex;
 }

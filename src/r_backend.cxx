@@ -69,8 +69,8 @@ void	RB_InitBackend()
 {
 	ri.Com_Printf("------- RB_InitBackend -------\n");
 	
-//	xglClearColor(0.0, 0.0, 0.0, 1.0);	RB_CheckForError();
-	xglClearColor(0.3, 0.3, 0.3, 1.0);	RB_CheckForError();
+	xglClearColor(0.0, 0.0, 0.0, 1.0);	RB_CheckForError();
+//	xglClearColor(0.3, 0.3, 0.3, 1.0);	RB_CheckForError();
 	xglColor4fv(color_white);	RB_CheckForError();
 	
 	//xglEnable(GL_DEPTH_TEST);
@@ -179,6 +179,7 @@ void	RB_BeginBackendFrame()
 	c_cmds_radiosity = 0;
 	c_cmds_light = 0;
 	c_cmds_translucent = 0;
+	c_cmds_fog = 0;
 	c_cmds_postprocess = 0;
 	c_triangles = 0;
 	c_draws = 0;
@@ -247,7 +248,7 @@ static void	RB_SetupOrthoProjectionMatrix()
 
 
 
-static void	RB_SetupPerspectiveProjectionMatrix()
+static void	RB_SetupPerspectiveProjectionMatrix(const r_refdef_t &refdef)
 {
 	if(r_znear->getValue() < 0.1)
 		ri.Cvar_SetValue("r_znear", 4.0);
@@ -258,23 +259,23 @@ static void	RB_SetupPerspectiveProjectionMatrix()
 	double n = r_znear->getValue();
 	double f = r_zfar->getValue();
 	
-	if(r_newrefdef.flip_x)
+	if(refdef.flip_x)
 		std::swap<double>(n, f);
 		
-	double r = n * tan(r_newrefdef.fov_x * M_PI / 360.0);
+	double r = n * tan(refdef.fov_x * M_PI / 360.0);
 	double l = -r;
 	
-	if(r_newrefdef.flip_y)
+	if(refdef.flip_y)
 		std::swap<double>(l, r);
 	
 	double t;
 	if(gl_state.active_pbuffer)
-		t = n * tan(CalcFOV(r_newrefdef.fov_x, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger()) * M_PI / 360.0);
+		t = n * tan(CalcFOV(refdef.fov_x, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger()) * M_PI / 360.0);
 	else
-		t = n * tan(r_newrefdef.fov_y * M_PI / 360.0);
+		t = n * tan(refdef.fov_y * M_PI / 360.0);
 	double b = -t;
 	
-	if(r_newrefdef.flip_z)
+	if(refdef.flip_z)
 		std::swap<double>(b, t);
 			
 	matrix_c& m = rb_matrix_projection;
@@ -497,7 +498,7 @@ void	RB_SetupGL3D()
 	else
 		RB_SetupViewPort(r_newrefdef.x, r_newrefdef.y, r_newrefdef.width, r_newrefdef.height);
 	
-	RB_SetupPerspectiveProjectionMatrix();
+	RB_SetupPerspectiveProjectionMatrix(r_newrefdef);
 	
 	RB_SetupViewMatrix(r_origin, r_newrefdef.view_angles);
 	
@@ -989,9 +990,7 @@ void	RB_EnableShaderStageStates(const r_entity_c *ent, const r_shader_stage_c *s
 	{
 		xglEnable(GL_ALPHA_TEST);
 		
-		float	value = RB_Evaluate(ent->getShared(), stage->alpha_ref, 0.5);
-	
-		X_clamp(value, 0, 1);
+		float	value = X_bound(0.0f, RB_Evaluate(ent->getShared(), stage->alpha_ref, 0.5), 1.0f);
 		
 		xglAlphaFunc(GL_GREATER, value);
 	}
@@ -1538,19 +1537,6 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 			break;
 		}
 		
-		case RENDER_TYPE_OCCLUSION_QUERY:
-		{
-			if(entity_shader->stage_diffusemap)
-			{
-				if(!RB_Evaluate(cmd->getEntity()->getShared(), entity_shader->stage_diffusemap->condition, 1))
-					break;
-			
-				RB_RenderCommand_generic(cmd, entity_shader->stage_diffusemap);
-			}
-			
-			break;
-		}
-		
 		case RENDER_TYPE_GENERIC:
 		{
 			for(std::vector<r_shader_stage_c*>::const_iterator ir = entity_shader->stages.begin(); ir != entity_shader->stages.end(); ++ir)
@@ -1567,7 +1553,7 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 			}
 			
 			break;
-		 }
+		}
 		
 		case RENDER_TYPE_ZFILL:
 		{
@@ -1928,6 +1914,31 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 			break;
 		}
 		
+		case RENDER_TYPE_FOG_UNIFORM:	// for now same as zfill
+		{
+			if(entity_shader->stage_diffusemap)
+			{
+				if(!RB_Evaluate(cmd->getEntity()->getShared(), entity_shader->stage_diffusemap->condition, 1))
+					break;
+					
+				RB_RenderCommand_fog_uniform(cmd, entity_shader->stage_diffusemap);
+			}
+			else if(entity_shader->hasFlags(SHADER_FORCEOPAQUE))
+			{
+				for(std::vector<r_shader_stage_c*>::const_iterator ir = entity_shader->stages.begin(); ir != entity_shader->stages.end(); ++ir)
+				{
+					const r_shader_stage_c* stage = *ir;
+					
+					if(!RB_Evaluate(cmd->getEntity()->getShared(), stage->condition, 1))
+						continue;
+			
+					RB_RenderCommand_fog_uniform(cmd, stage);
+				}
+			}
+			
+			break;
+		}
+		
 		case RENDER_TYPE_POSTPROCESS:
 		{
 			for(std::vector<r_shader_stage_c*>::const_iterator ir = entity_shader->stages.begin(); ir != entity_shader->stages.end(); ++ir)
@@ -1942,10 +1953,10 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 					case SHADER_MATERIAL_STAGE_TYPE_HEATHAZEMAP:
 					{
 						// update _currentRender texture
-						r_img_currentrender->copyFromContext();
+						//r_img_currentrender->copyFromContext();
 						
 						// update _currentRenderDepth texture
-						r_img_currentrender_depth->copyFromContext();
+						//r_img_currentrender_depth->copyFromContext();
 					
 						RB_EnableShader_heathaze();
 						RB_RenderCommand_heathaze(cmd, stage);
@@ -2089,7 +2100,7 @@ static int	sortfunc(void const *a, void const *b)
 
 void	RB_RenderCommands()
 {
-	uint_t		i;
+	uint_t		i;//, j;
 	r_command_t*	cmd = NULL;
 
 	RB_CheckForError();
@@ -2112,55 +2123,20 @@ void	RB_RenderCommands()
 	//
 	// draw solid meshes into zbuffer
 	//
-		
-#if 0
-	if(gl_config.arb_occlusion_query && r_arb_occlusion_query->getInteger())
-	{	
-		RB_EnableShader_zfill();
-		for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
-		{
-			r_entity_c* ent = cmd->getEntity();
-		
-			if(!ent->isVisible())
-				continue;
-			
-			if(ent != &r_world_entity)
-			{
-				ent->beginOcclusionQuery();
-				cmd->getEntityModel()->draw(cmd, RENDER_TYPE_ZFILL);
-				ent->endOcclusionQuery();
-			
-				if(ent->getOcclusionSamplesAvailable() && ent->getOcclusionSamplesNum() <= 0)
-				{
-					ent->setVisFrameCount(0);
-					c_entities--;
-				}
-			}
-			else
-			{
-				cmd->getEntityModel()->draw(cmd, RENDER_TYPE_ZFILL);
-			}
-		}
-		RB_DisableShader_zfill();
-	}
-	else
-#endif
+	xglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	xglDepthMask(GL_TRUE);
+	
+	RB_EnableShader_zfill();
+	for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 	{
-		RB_EnableShader_zfill();
-		for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
-		{
-			if(!cmd->getEntity()->isVisible())
-				continue;
+		if(!cmd->getEntity()->isVisible())
+			continue;
 				
-			cmd->getEntityModel()->draw(cmd, RENDER_TYPE_ZFILL);
-		}
-		RB_DisableShader_zfill();
+		cmd->getEntityModel()->draw(cmd, RENDER_TYPE_ZFILL);
 	}
+	RB_DisableShader_zfill();
 	
-	
-	//
-	// disable writing into zbuffer
-	// 
+	xglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	xglDepthMask(GL_FALSE);
 	
 	
@@ -2183,8 +2159,6 @@ void	RB_RenderCommands()
 	{
 		xglEnable(GL_BLEND);
 		xglBlendFunc(GL_ONE, GL_ONE);
-	
-		//qsort(&r_current_scene->cmds_radiosity[0], r_current_scene->cmds_radiosity_num, sizeof(r_command_t), RB_SortByEntityShaderFunc);
 	
 		if(r_bump_mapping->getInteger())
 		{
@@ -2497,6 +2471,7 @@ void	RB_RenderCommands()
 	//
 	// setup lights
 	//
+#if 0
 	RB_SetupModelviewMatrix(matrix_identity, true);	
 		
 	vec3_c vertexes[8];	// max x,y,z points in space
@@ -2611,7 +2586,7 @@ void	RB_RenderCommands()
 	
 	xglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 //	xglDepthMask(GL_TRUE);
-	
+#endif
 	
 	//
 	// draw dynamic shadowing and lighting
@@ -2621,89 +2596,211 @@ void	RB_RenderCommands()
 		//
 		// update shadow maps
 		//
-#if 0
-		//qsort(&r_current_scene->cmds_light[0], r_current_scene->cmds_light_num, sizeof(r_command_t), RB_SortByLightFunc);
-		
+		#if 0
 		GLimp_ActivatePbuffer();
 		
-		RB_SetupViewPort(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
-		
-		RB_SetupPerspectiveProjectionMatrix();
-			
+		xglDisable(GL_SCISSOR_TEST);
 		//xglEnable(GL_SCISSOR_TEST);
-		xglScissor(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
-			
-		//xglEnable(GL_DEPTH_TEST);
-		//xglDepthFunc(GL_LEQUAL);
-		//xglDepthMask(GL_TRUE);
-			
-		//xglEnable(GL_CULL_FACE);
-		//xglCullFace(GL_FRONT);
+		//xglScissor(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
 		
-		RB_EnableShader_zfill();
+		//if(r_newrefdef.flip_y ^ r_newrefdef.flip_z)
+		//	xglFrontFace(GL_CW);
+		//else
+		//	xglFrontFace(GL_CCW);
+	
+		xglEnable(GL_DEPTH_TEST);
+		xglDepthFunc(GL_LEQUAL);
+		xglDepthMask(GL_TRUE);
+	
+		xglEnable(GL_CULL_FACE);
+		xglCullFace(GL_FRONT);
+	
+		xglPolygonMode(GL_FRONT_AND_BACK, gl_state.polygon_mode);
 		
-		for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+		xglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		xglDepthMask(GL_TRUE);
+
+		for(i=0; i<r_lights.size(); i++)
 		{
-			std::vector<r_light_c>& lights = *ir;
+			r_light_c* light = r_lights[i];
+		
+			if(!light)
+				continue;
 			
-			for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
+			if(!light->isVisible())
+				continue;
+				
+			xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+				
+			switch(light->getType())
 			{
-				r_light_c& light = *ir;
-			
-				if(!light.isVisible())
-					continue;
-					
-				xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-				
-				// setup light view matrix
-				matrix_c m;
-				m.setupTranslation(light.getOrigin());
-				m.multiplyRotation(light.getShared.quat);
-				rb_matrix_view = m.affineInverse();
-				
-				RB_SetupModelviewMatrix(matrix_identity, true);
-				
-				RB_SetupFrustum();
-				
-				switch(light.getType())
+				#if 0
+				case LIGHT_OMNI:
 				{
-					case LIGHT_OMNI:
-					{
-						/*
-						for(i=0, cmd = &r_current_scene->cmds_light[0]; i<r_current_scene->cmds_light_num; i++, cmd++)
-						{
-							if(cmd->getLight() != &light)
-								continue;
-							
-							cmd->getEntityModel()->draw(cmd, RENDER_TYPE_ZFILL);
-						}
-						*/
-						break;
-					}
+					if(r_lighting_omni->getInteger() <= 0)
+						continue;
+						
+					r_refdef_t refdef;
+					refdef.x = 0;
+					refdef.y = 0;
+					refdef.width = vid_pbuffer_width->getInteger();
+					refdef.height = vid_pbuffer_height->getInteger();
+					refdef.setFOV(90);
+					refdef.view_angles.set(0, 0, 90);
+					refdef.flip_x = false;
+					refdef.flip_y = false;
+					refdef.flip_z = false;
 					
-					default:
-						break;
+					RB_SetupViewPort(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
+					
+					RB_SetupPerspectiveProjectionMatrix(refdef);
+					
+					RB_SetupViewMatrix(light->getOrigin(), refdef.view_angles);
+					
+					xglPolygonOffset(2.5f, 10.0f);
+					xglEnable(GL_POLYGON_OFFSET_FILL);
+					
+					RB_EnableShader_depth_to_rgba();
+					for(i=0, cmd = &r_current_scene->cmds_light[0]; i<r_current_scene->cmds_light_num; i++, cmd++)
+					{
+						if(cmd->getLight() != light)
+							continue;
+							
+						if(!cmd->getEntity()->isVisible())
+							continue;
+				
+						if(cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
+							continue;
+							
+						cmd->getEntityModel()->draw(cmd, RENDER_TYPE_DEPTH_TO_RGBA);
+					}
+					RB_DisableShader_depth_to_rgba();
+		
+					xglDisable(GL_POLYGON_OFFSET_FILL);
+									
+					//RB_SelectTexture(GL_TEXTURE0_ARB);
+					light->getShadowMap()->bind(true);
+					xglCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB, 0, 0, 0, 0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
+					
+					#if 0
+					if(r_shadows_export->getInteger())
+					{
+						byte* buffer = new byte[vid_pbuffer_width->getInteger() * vid_pbuffer_height->getInteger() * 3];
+						xglReadPixels(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), GL_RGB, GL_UNSIGNED_BYTE, buffer);
+						IMG_WriteTGA(va("shadowmaps/light_%04d_px.tga", i), buffer,vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), 3);
+						delete [] buffer;
+					}
+					#endif
+					break;
 				}
+				#endif
+				
+				#if 1
+				case LIGHT_PROJ:
+				{
+					if(r_lighting_proj->getInteger() <= 0)
+						continue;
+				
+					// setup viewport
+					xglViewport(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
+					
+					// setup perspective projection
+					matrix_c& m = rb_matrix_projection = light->getShadowMapProjection() * rb_matrix_quake_to_opengl;
+					
+					xglMatrixMode(GL_PROJECTION);
+					xglLoadTransposeMatrixfARB(&m[0][0]);
+					xglMatrixMode(GL_MODELVIEW);
+					
+					// setup view
+					rb_matrix_view = light->getView();
+					
+					RB_SetupModelviewMatrix(matrix_identity, true);
+					
+					//RB_SetupFrustum();
+					
+					//xglPolygonOffset(2.5f, 10.0f);
+					//xglEnable(GL_POLYGON_OFFSET_FILL);
+					
+					RB_EnableShader_zfill();
+					for(j=0, cmd = &r_current_scene->cmds_light[0]; j<r_current_scene->cmds_light_num; j++, cmd++)
+					{
+						if(cmd->getLight() != light)
+							continue;
+							
+						if(!cmd->getEntity()->isVisible())
+							continue;
+							
+						if(cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
+							continue;
+							
+						cmd->getEntityModel()->draw(cmd, RENDER_TYPE_ZFILL);
+					}
+					RB_DisableShader_zfill();
+					
+					/*
+					RB_EnableShader_lighting_D_proj();
+					for(j=0, cmd = &r_current_scene->cmds_light[0]; j<r_current_scene->cmds_light_num; j++, cmd++)
+					{
+						if(cmd->getLight() != light)
+							continue;
+					
+						if(!cmd->getEntity()->isVisible())
+							continue;
+				
+						if(cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
+							continue;
+							
+						cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_D_proj);
+					}
+					RB_DisableShader_lighting_D_proj();
+					*/
+					
+					//xglDisable(GL_POLYGON_OFFSET_FILL);
+					
+					#if 1
+					if(r_shadows_export->getInteger())
+					{
+						byte* buffer = new byte[vid_pbuffer_width->getInteger() * vid_pbuffer_height->getInteger() * 3];
+						xglReadPixels(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), GL_RGB, GL_UNSIGNED_BYTE, buffer);
+						IMG_WriteTGA(va("shadowmaps/light_%04d.tga", i), buffer,vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), 3);
+						delete [] buffer;
+					}
+					#endif
+					
+					//RB_SelectTexture(GL_TEXTURE0_ARB);
+					light->getShadowMap()->bind(true);
+					xglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
+					break;
+				}
+				#endif
+				
+				default:
+					break;
 			}
 		}
+	
+		xglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		xglDepthMask(GL_FALSE);
 		
-		RB_DisableShader_zfill();
+		GLimp_DeactivatePbuffer();
 		
-		GLimp_DeActivatePbuffer();
+		if(r_shadows_export->getInteger())
+		{
+			ri.Cvar_SetValue("r_shadows_export", 0);
+		}
 		
 		// reset view
 		RB_SetupGL3D();
-		
-#endif // shadow mapping
+		#endif
 
+		//
+		// omni-directional lighting
+		//
 		xglEnable(GL_BLEND);
 		xglBlendFunc(GL_ONE, GL_ONE);
 	
 		qsort(&r_current_scene->cmds_light[0], r_current_scene->cmds_light_num, sizeof(r_command_t), RB_SortByEntityMeshVertexBufferOffsetFunc);
-	
-		//
-		// omni-directional lighting
-		//
+		
 		if(r_lighting_omni->getInteger())
 		{
 			if(r_bump_mapping->getInteger())
@@ -2867,7 +2964,6 @@ void	RB_RenderCommands()
 		} // r_lighting_omni
 		
 		
-		
 		//
 		// projective lighting
 		//
@@ -2936,6 +3032,47 @@ void	RB_RenderCommands()
 	//
 	if(r_drawpostprocess->getInteger())
 	{
+		// update _currentRender texture
+		r_img_currentrender->copyFromContext();
+						
+		// update _currentRenderDepth texture
+		r_img_currentrender_depth->copyFromContext();
+	
+		#if 0
+		RB_EnableShader_fog_uniform();
+		for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
+		{
+			if(!cmd->getEntity()->isVisible())
+				continue;
+				
+			cmd->getEntityModel()->draw(cmd, RENDER_TYPE_FOG_UNIFORM);
+		}
+		RB_DisableShader_fog_uniform();
+		/*
+		#else
+		RB_EnableShader_fog();
+		for(i=0, cmd = &r_current_scene->cmds_light[0]; i<r_current_scene->cmds_light_num; i++, cmd++)
+		{
+			if(!cmd->getEntity()->isVisible())
+				continue;
+					
+			if(!cmd->getLight()->isVisible())
+				continue;
+					
+			if(cmd->getLight()->getType() == LIGHT_PROJ)
+				continue;
+				
+			if(cmd->getLightShader()->getLightType() != SHADER_LIGHT_FOG)
+				continue;
+						
+			cmd->getEntityModel()->draw(cmd, RENDER_TYPE_FOG);
+			
+			c_cmds_fog++;
+		}
+		RB_DisableShader_fog();
+		*/
+		#endif
+	
 		for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 		{
 			if(!cmd->getEntityShader()->hasFlags(SHADER_POSTPROCESS))
