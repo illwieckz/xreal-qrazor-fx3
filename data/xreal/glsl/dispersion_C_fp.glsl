@@ -49,11 +49,13 @@ void	main()
 	vec3 reflect_color = textureCube(u_colormap, R).rgb;
 	
 	// compute refraction color using a refraction ray for each channel
-	vec3 refract_color;
-	
-	refract_color.r = textureCube(u_colormap, refract(I, N, u_eta_ratio.x)).r;
-	refract_color.g = textureCube(u_colormap, refract(I, N, u_eta_ratio.y)).g;
-	refract_color.b = textureCube(u_colormap, refract(I, N, u_eta_ratio.z)).b;
+	vec3 refract_color = 
+	vec3
+	(
+		textureCube(u_colormap, refract(I, N, u_eta_ratio.x)).x,
+		textureCube(u_colormap, refract(I, N, u_eta_ratio.y)).y,
+		textureCube(u_colormap, refract(I, N, u_eta_ratio.z)).z
+	);
 	
 	// compute final color
 	gl_FragColor.rgb = lerp(refract_color, reflect_color, fresnel_term);
