@@ -42,13 +42,13 @@ void	main()
 	vec3 V = normalize(var_mat_os2ts * (u_view_origin - var_vertex));
 
 	// compute light direction in tangent space from deluxemap
-	vec3 L = normalize(var_mat_os2ts * (2 * (texture2D(u_deluxemap, var_tex_deluxe).xyz - 0.5)));
+	vec3 L = normalize(var_mat_os2ts * (2.0 * (texture2D(u_deluxemap, var_tex_deluxe).xyz - 0.5)));
 	
 	// compute half angle in tangent space
 	vec3 H = normalize(L + V);
 	
 	// compute normal in tangent space from bumpmap
-	vec3 N = 2 * (texture2D(u_bumpmap, var_tex_diffuse_bump.pq).xyz - 0.5);
+	vec3 N = 2.0 * (texture2D(u_bumpmap, var_tex_diffuse_bump.pq).xyz - 0.5);
 	N.z *= u_bump_scale;
 	N = normalize(N);
 	
@@ -57,7 +57,7 @@ void	main()
 	
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_diffusemap, var_tex_diffuse_bump.st);
-	diffuse.rgb *= C * saturate(dot(N, L));
+	diffuse.rgb *= C * clamp(dot(N, L), 0.0, 1.0);
 	
 	// compute the specular term
 	vec3 specular = texture2D(u_specularmap, var_tex_specular).rgb * C * pow(saturate(dot(N, H)), u_specular_exponent);
