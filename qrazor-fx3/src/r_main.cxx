@@ -1214,7 +1214,7 @@ static void 	R_RenderFrame(const r_refdef_t &fd)
 	
 	R_DrawWorld();			RB_CheckForError();
 	
-	R_DrawSky();			RB_CheckForError();
+//	R_DrawSky();			RB_CheckForError();
 	
 	R_AddEntitiesToBuffer();
 	

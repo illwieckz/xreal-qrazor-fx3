@@ -5525,7 +5525,7 @@ textures/skies/colortest
 	forceOpaque
 	noshadows
 	{
-		blend		add		// so transparent windows can draw on top of it
+//		blend		add		// so transparent windows can draw on top of it
 		cameraCubeMap	env/cloudy
 		texgen		skybox
 	}
@@ -5537,7 +5537,7 @@ textures/skies/desertlightning
 	forceOpaque				// so transparent windows can draw on top of it
 	noshadows
 	{
-		blend			add		// so transparent windows can draw on top of it
+//		blend			add		// so transparent windows can draw on top of it
 		cameraCubeMap	env/desert
 		texgen			skybox
 		red 			( deserttable [Parm4 + (time * 0.1) ]) * Parm0
@@ -5552,8 +5552,9 @@ textures/skies/desert
 	noshadows
 	noimpact
 	forceOpaque		
+	
 	{
-		blend			add	
+//		blend			add	
 		cameraCubeMap	env/desert
 		texgen			skybox
 	}
@@ -5566,7 +5567,7 @@ textures/skies/commoutside
 	noimpact
 	forceOpaque		
 	{
-		blend			add	
+//		blend			add	
 		cameraCubeMap	env/cloudy //desert
 		texgen			skybox
 		red				.75//Parm0 * xray02table[ time * .1 ]

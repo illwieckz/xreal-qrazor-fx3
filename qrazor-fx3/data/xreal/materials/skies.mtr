@@ -7,7 +7,7 @@ textures/skies/marssky
 	nooverlays
 	forceOpaque				// so transparent windows can draw on top of it
 	{
-		blend		add		// so transparent windows can draw on top of it
+//		blend		add		// so transparent windows can draw on top of it
 		cameraCubeMap	env/marssky
 		texgen		skybox
 		texgen			wobblesky .0 .0 .0

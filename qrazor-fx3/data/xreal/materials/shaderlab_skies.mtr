@@ -1,0 +1,15 @@
+
+textures/shaderlab_skies/sea
+{
+	qer_editorimage		cubemaps/sea_sky_back.tga
+	
+	noFragment
+	noshadows
+	nooverlays
+	forceOpaque
+	
+	{
+		stage		skyboxmap
+		cubeMap		cubemaps/sea
+	}
+}

@@ -246,6 +246,7 @@ void	r_skel_model_c::addModelToList(r_entity_c *ent)
 				if(!light.isVisible())
 					continue;
 			
+				// FIXME
 				if(light.getShared().radius_aabb.intersect(ent->getShared().origin, mesh->bbox.radius()))
 					RB_AddCommand(ent, this, mesh, shader, &light, NULL, -(i+1), 0);
 			}
