@@ -586,6 +586,18 @@ void	dGeomBSPAddLeafBrush(dGeomID g, int num)
 }
 */
 
+void	dGeomBSPAddShader(dGeomID g, int flags, int contents)
+{
+	dUASSERT(g && g->type == dBSPClass, "argument not a BSP");
+	dxBSP *bsp = (dxBSP*)g;
+	
+	dxBSP::dBSPShader shader;
+	shader.flags = flags;
+	shader.contents = contents;
+	
+	bsp->shaders.push_back(shader);
+}
+
 void	dGeomBSPAddSurface(dGeomID g, int face_type, int shader_num, const std::vector<vec3_c> &vertexes, const std::vector<index_t> &indexes)
 {
 	dUASSERT(g && g->type == dBSPClass, "argument not a BSP");
@@ -2658,6 +2670,13 @@ static int	dCollideBSPSurfaceGeom(dxGeom *o1, dxGeom *o2, int flags, std::vector
 	
 	if(surf.indexes.empty())
 		return 0;
+		
+	#if 1
+	dxBSP *bsp = (dxBSP*)o1;
+	const dxBSP::dBSPShader& shader = bsp->shaders[surf.shader_num];
+	if(!(o2->collide_bits & shader.contents))
+		return 0;
+	#endif
 		
 	int contacts_num = 0;
 	

@@ -634,7 +634,7 @@ static void	CM_LoadModels(bsp_lump_t *l, d_bsp_c *bsp)
 		bsp->setLengths(cm_models[0]->getAABB().size());
 }
 
-static void	CM_LoadShaders(bsp_lump_t *l)
+static void	CM_LoadShaders(bsp_lump_t *l, d_bsp_c *bsp)
 {
 	bsp_dshader_t		*in;
 	int			i, count;
@@ -654,8 +654,14 @@ static void	CM_LoadShaders(bsp_lump_t *l)
 
 	for(i=0; i<count; i++, in++)
 	{
-		cm_shaders[i].flags = LittleLong(in->flags);
-		cm_shaders[i].contents = LittleLong(in->contents);
+		uint_t flags	= LittleLong(in->flags);
+		uint_t contents = LittleLong(in->contents);
+	
+		cm_shaders[i].flags = flags;
+		cm_shaders[i].contents = contents;
+		
+		if(bsp)
+			bsp->addShader(flags, contents);
 	}
 }
 
@@ -1064,7 +1070,7 @@ d_bsp_c*	CM_BeginRegistration(const std::string &name, bool clientload, unsigned
 		bsp = new d_bsp_c(space);
 
 	
-	CM_LoadShaders(&header.lumps[BSP_LUMP_SHADERS]);
+	CM_LoadShaders(&header.lumps[BSP_LUMP_SHADERS], bsp);
 	CM_LoadPlanes(&header.lumps[BSP_LUMP_PLANES], bsp);
 	CM_LoadLeafBrushes(&header.lumps[BSP_LUMP_LEAFBRUSHES], bsp);
 	CM_LoadBrushes(&header.lumps[BSP_LUMP_BRUSHES], bsp);

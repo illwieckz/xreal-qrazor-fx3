@@ -134,6 +134,8 @@ void		dGeomBSPAddPlane(dGeomID g, vec_t a, vec_t b, vec_t c, vec_t d);
 void		dGeomBSPAddNode(dGeomID g, int plane_num, int child0, int child1);
 void		dGeomBSPAddLeaf(dGeomID g, int surfaces_first, int surfaces_num, int brushes_first, int brushes_num, int cluster, int area);
 
+void		dGeomBSPAddShader(dGeomID g, int flags, int contents);
+
 void		dGeomBSPAddSurface(dGeomID g, int face_type, int shader_num, const std::vector<vec3_c> &vertexes, const std::vector<index_t> &indexes);
 void		dGeomBSPAddLeafSurface(dGeomID g, int num);
 
