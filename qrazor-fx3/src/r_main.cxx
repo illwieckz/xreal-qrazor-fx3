@@ -88,6 +88,16 @@ uint_t		c_triangles;
 uint_t		c_draws;
 uint_t		c_expressions;
 
+int		time_start;
+int		time_end;
+int		time_setup;
+int		time_zfill;
+int		time_lighting_static;
+int		time_lighting_dynamic;
+int		time_extra;
+int		time_translucent;
+int		time_post;
+
 //
 // view origin
 //
@@ -1115,9 +1125,6 @@ r_newrefdef must be set before the first call
 */
 void 	R_RenderFrame(const r_refdef_t &fd)
 {
-	int	time_start = 0;
-	int	time_end = 0;
-
 	if(!r_world_tree && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
 		ri.Com_Error(ERR_DROP, "R_RenderFrame: NULL worldmodel");
 		
@@ -1156,15 +1163,21 @@ void 	R_RenderFrame(const r_refdef_t &fd)
 			
 		ri.Com_Printf("%4i cmds %4i light cmds %4i translucent cmds %4i fog cmds\n", c_cmds, c_cmds_light, c_cmds_translucent, c_cmds_fog);
 		
-		/*	
-		int	all, setup, create, commands;
 
-		all = time_end - time_start;
-		setup = time_setup - time_start;
-		create = time_create - time_setup;
-		commands = time_commands - time_create;
-		*/
-		//ri.Com_Printf("%4i all %4i setup %4i create %4i commands\n", all, setup, create, commands);
+		//time_all = time_end - time_start;
+		//setup = time_setup - time_start;
+		//create = time_create - time_setup;
+		//commands = time_commands - time_create;
+		
+		ri.Com_Printf("%4i all %4i setup %4i zfill %4i deluxel %4i dynamic %4i rest\n"
+			,time_end - time_start
+			,time_setup - time_start
+			,time_zfill - time_setup
+			,time_lighting_static - time_zfill
+			,time_lighting_dynamic - time_lighting_static
+			,time_post - time_lighting_dynamic
+			);
+		
 		//ri.Com_Printf("%4i ents %4i lights %4i particles %4i polies\n", r_entities.size(), r_lights.size(), r_particles_num, r_polys_num);
 	}
 }
@@ -1664,7 +1677,7 @@ void 	R_Shutdown()
 	R_ShutdownShaders();
 
 	R_ShutdownImages();
-
+	
 	GLimp_Shutdown();
 	
 	XGL_Shutdown();

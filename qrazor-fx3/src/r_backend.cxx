@@ -30,24 +30,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 
-static bool			rb_arrays_locked;
-static double			rb_shader_time;
+static bool		rb_arrays_locked;
+static double		rb_shader_time;
 
 std::vector<r_table_t>	r_tables;
-
-//
-// usefull matrices to handle geometric data processing
-//
-static matrix_c			rb_matrix_quake_to_opengl;
-matrix_c			rb_matrix_view;			// inverse of camera translation and rotation matrix
-matrix_c			rb_matrix_model;		// each model has its own translation and rotation matrix
-static matrix_c			rb_matrix_model_view;		// product of camera and model matrix
-static matrix_c			rb_matrix_light;
-static matrix_c			rb_matrix_projection;
-static matrix_c			rb_matrix_model_view_projection;
-
-static r_vrect_t		rb_vrect_viewport;
-
 
 struct glmode_t
 {
@@ -96,13 +82,19 @@ void	RB_InitBackend()
 	r_shadowframecount = 1;
 	r_checkcount = 1;
 	
-	rb_matrix_quake_to_opengl.setupRotation   (1, 0, 0,-90);    	// put Z going up
-	rb_matrix_quake_to_opengl.multiplyRotation(0, 0, 1, 90);	// put Z going up
-	
-//	ri.Com_DPrintf("quake2opengl matrix:\n%s\n", rb_matrix_quake_to_opengl.toString());
+	memset(gl_state.current_tmu_images, 0, sizeof(gl_state.current_tmu_images));
+	memset(gl_state.current_tmu_mats, 0, sizeof(gl_state.current_tmu_mats));
+	memset(gl_state.current_tmu_entities, 0, sizeof(gl_state.current_tmu_entities));
+	memset(gl_state.current_tmu_lights, 0, sizeof(gl_state.current_tmu_lights));
+	gl_state.current_tmu			= 0;
 	
 	gl_state.current_vbo_array_buffer	= 0;
 	gl_state.current_vbo_vertexes_ofs	= 0;
+	
+	gl_state.matrix_quake_to_opengl.setupRotation   (1, 0, 0,-90);    	// put Z going up
+	gl_state.matrix_quake_to_opengl.multiplyRotation(0, 0, 1, 90);		// put Z going up
+	
+//	ri.Com_DPrintf("quake2opengl matrix:\n%s\n", gl_state.matrix_quake_to_opengl.toString());
 	
 	r_scene_main.cmds_num			= 0;
 	r_scene_main.cmds			= std::vector<r_command_t>(r_cmds_max->getInteger());
@@ -213,12 +205,12 @@ static void	RB_SetupViewPort(int x, int y, int w, int h)
 
 	xglViewport(x, y2, w, h);
 #else
-	rb_vrect_viewport.x		= x;
-	rb_vrect_viewport.y		= y;	//vid.height - (y + h);
-	rb_vrect_viewport.width		= w;
-	rb_vrect_viewport.height	= h;
+	gl_state.vrect_viewport.x		= x;
+	gl_state.vrect_viewport.y		= y;	//vid.height - (y + h);
+	gl_state.vrect_viewport.width		= w;
+	gl_state.vrect_viewport.height	= h;
 	
-	xglViewport(rb_vrect_viewport.x, rb_vrect_viewport.y, rb_vrect_viewport.width, rb_vrect_viewport.height);
+	xglViewport(gl_state.vrect_viewport.x, gl_state.vrect_viewport.y, gl_state.vrect_viewport.width, gl_state.vrect_viewport.height);
 #endif
 }
 
@@ -233,7 +225,7 @@ static void	RB_SetupOrthoProjectionMatrix()
 	double f = 99999;
 	double n = -f;
 
-	matrix_c& m = rb_matrix_projection;
+	matrix_c& m = gl_state.matrix_projection;
 		
 	m[0][0] = 2.0/(r-l);		m[0][1] = 0.0;			m[0][2] = 0.0;			m[0][3] =-(r+l)/(r-l);
 	m[1][0] = 0.0;			m[1][1] = 2.0/(t-b);		m[1][2] = 0.0;			m[1][3] =-(t+b)/(t-b);
@@ -279,10 +271,10 @@ static void	RB_SetupPerspectiveProjectionMatrix(const r_refdef_t &refdef)
 	if(refdef.flip_z)
 		std::swap<double>(b, t);
 			
-	matrix_c& m = rb_matrix_projection;
+	matrix_c& m = gl_state.matrix_projection;
 	
 	RB_OpenGLFrustum(m, l, r, b, t, n, f);
-	m.multiply(rb_matrix_quake_to_opengl);
+	m.multiply(gl_state.matrix_quake_to_opengl);
 	
 	xglMatrixMode(GL_PROJECTION);
 	xglLoadIdentity();
@@ -295,7 +287,7 @@ static void	RB_SetupPerspectiveProjectionMatrix(const r_refdef_t &refdef)
 
 static void	RB_SetupOrthoViewMatrix()
 {
-	rb_matrix_view.identity();
+	gl_state.matrix_view.identity();
 }
 
 
@@ -332,7 +324,7 @@ static void	RB_SetupViewMatrix(const vec3_c &origin, const vec3_c &angles)
 //	matrix_c m_y; m_y.setupYRotation(angles[PITCH]);	m.multiply(m_y);
 //	matrix_c m_x; m_x.setupXRotation(angles[ROLL]);		m.multiply(m_x);
 
-	rb_matrix_view = m.affineInverse();
+	gl_state.matrix_view = m.affineInverse();
 }
 
 
@@ -342,8 +334,8 @@ static void 	RB_SetupFrustum()
 	// http://www2.ravensoft.com/users/ggribb/plane%20extraction.pdf
 	
 	// this is ok because the model matrix is the identity matrix
-	matrix_c& m = rb_matrix_model_view_projection;
-//	matrix_c m = rb_matrix_projection * rb_matrix_view;
+	matrix_c& m = gl_state.matrix_model_view_projection;
+//	matrix_c m = gl_state.matrix_projection * gl_state.matrix_view;
 
 	// left
 	r_frustum[FRUSTUM_LEFT]._normal[0]	=  m[3][0] + m[0][0];
@@ -430,35 +422,35 @@ void	RB_QuakeFrustum(matrix_c &m, double l, double r, double b, double t, double
 
 void	RB_SetupModelviewMatrix(const matrix_c &m, bool force)
 {
-//	if(force || !(m == rb_matrix_model))
+//	if(force || !(m == gl_state.matrix_model))
 	{
 		xglMatrixMode(GL_MODELVIEW);
 		
-		rb_matrix_model = m;
+		gl_state.matrix_model = m;
 		
-		rb_matrix_model_view = rb_matrix_view * rb_matrix_model;
+		gl_state.matrix_model_view = gl_state.matrix_view * gl_state.matrix_model;
 		
 		// load the final modelview matrix 
-		xglLoadTransposeMatrixfARB(&rb_matrix_model_view[0][0]);
+		xglLoadTransposeMatrixfARB(&gl_state.matrix_model_view[0][0]);
 		
-		rb_matrix_model_view_projection = rb_matrix_projection * rb_matrix_model_view;
+		gl_state.matrix_model_view_projection = gl_state.matrix_projection * gl_state.matrix_model_view;
 	}
 }
 
 void	RB_SetupLightviewMatrix(const matrix_c &m)
 {
 	/*
-	if(!(m == rb_matrix_light))
+	if(!(m == gl_state.matrix_light))
 	{
 		//xglMatrixMode(GL_MODELVIEW);
 		
-		rb_matrix_light = m;
+		gl_state.matrix_light = m;
 		
-		rb_lightview_matrix = rb_matrix_view * rb_matrix_light.affineInverse();
-		//rb_matrix_view.copyTranspose(rb_matrix_model_view_gl);
+		rb_lightview_matrix = gl_state.matrix_view * gl_state.matrix_light.affineInverse();
+		//gl_state.matrix_view.copyTranspose(gl_state.matrix_model_view_gl);
 		
 		// load the final modelview matrix 
-		//xglLoadMatrixf(&rb_matrix_model_view_gl[0][0]);
+		//xglLoadMatrixf(&gl_state.matrix_model_view_gl[0][0]);
 	}
 	*/
 }
@@ -521,7 +513,7 @@ void	RB_SetupGL3D()
 	}
 
 	xglEnable(GL_SCISSOR_TEST);
-	xglScissor(rb_vrect_viewport.x, rb_vrect_viewport.y, rb_vrect_viewport.width, rb_vrect_viewport.height);
+	xglScissor(gl_state.vrect_viewport.x, gl_state.vrect_viewport.y, gl_state.vrect_viewport.width, gl_state.vrect_viewport.height);
 		
 	if(r_newrefdef.flip_y ^ r_newrefdef.flip_z)
 		xglFrontFace(GL_CW);
@@ -1279,9 +1271,12 @@ float	RB_Evaluate(const r_entity_t &shared, const boost::spirit::tree_parse_info
 }
 
 
-static void	RB_SetupTCModMatrix(const r_entity_t &shared, const r_shader_stage_c *stage, matrix_c &m)
-{	
-	m.identity();
+static bool	RB_SetupTCModMatrix(const r_entity_t &shared, const r_shader_stage_c *stage, matrix_c &m)
+{
+	m = matrix_identity;
+	
+	if(stage->tcmod_cmds.empty())
+		return false;
 	
 	vec_t x;
 	vec_t y;
@@ -1348,6 +1343,8 @@ static void	RB_SetupTCModMatrix(const r_entity_t &shared, const r_shader_stage_c
 				break;
 		}
 	}
+	
+	return true;
 }
 
 
@@ -1356,6 +1353,11 @@ void	RB_ModifyTextureMatrix(const r_entity_c *ent, const r_shader_stage_c *stage
 	matrix_c	m;
 	
 	RB_SetupTCModMatrix(ent->getShared(), stage, m);
+	
+//	if(gl_state.current_tmu_mats[gl_state.current_tmu] == m)
+//		return;
+
+//	gl_state.current_tmu_mats[gl_state.current_tmu] = m;
 	
 	// upload it
 	xglMatrixMode(GL_TEXTURE);
@@ -1369,6 +1371,30 @@ void	RB_ModifyOmniLightTextureMatrix(const r_command_t *cmd, const r_shader_stag
 		
 	RB_SetupTCModMatrix(cmd->getLight()->getShared(), stage, m);
 	m.multiply(cmd->getLightAttenuation());
+
+	/*
+	if(	gl_state.current_tmu_entities[gl_state.current_tmu] != cmd->getEntity() ||
+		gl_state.current_tmu_lights[gl_state.current_tmu] != cmd->getLight() ||
+		gl_state.current_tmu_mats[gl_state.current_tmu] == m)
+		return;
+
+	if(!RB_SetupTCModMatrix(ent->getShared(), stage, m))
+	{
+		if(gl_state.current_tmu_mats[gl_state.current_tmu] == matrix_identity)
+			return;
+	}
+	else
+	{
+		if(gl_state.current_tmu_mats[gl_state.current_tmu] == m)
+			return;
+	}
+	
+	m.multiply(cmd->getLight()->getAttenuation());
+	if(&r_world_entity == cmd->getEntity())
+		m.multiply(cmd->getLight()->getView());
+	else
+		m.multiply(cmd->getLight()->getView() * cmd->getEntity()->getTransform());
+	*/
 		
 	// upload it
 	xglMatrixMode(GL_TEXTURE);
@@ -1378,15 +1404,24 @@ void	RB_ModifyOmniLightTextureMatrix(const r_command_t *cmd, const r_shader_stag
 
 void	RB_ModifyOmniLightCubeTextureMatrix(const r_command_t *cmd, const r_shader_stage_c *stage)
 {
+#if 0
 	matrix_c	m;
 	
-	RB_SetupTCModMatrix(cmd->getLight()->getShared(), stage, m);
+	RB_SetupTCModMatrix(cmd->getLight()->getShared(), stage, m);	
 	m.multiply(cmd->getLightTransform());
+
+	/*
+	if(&r_world_entity == cmd->getEntity())
+		m.multiply(cmd->getLight()->getView());
+	else
+		m.multiply(cmd->getLight()->getView() * cmd->getEntity()->getTransform());
+	*/
 	
 	// upload it
 	xglMatrixMode(GL_TEXTURE);
 	xglLoadTransposeMatrixfARB(&m[0][0]);
 	xglMatrixMode(GL_MODELVIEW);
+#endif
 }
 
 void	RB_ModifyProjLightTextureMatrix(const r_command_t *cmd, const r_shader_stage_c *stage)
@@ -1395,6 +1430,14 @@ void	RB_ModifyProjLightTextureMatrix(const r_command_t *cmd, const r_shader_stag
 	
 	RB_SetupTCModMatrix(cmd->getLight()->getShared(), stage, m);
 	m.multiply(cmd->getLightAttenuation());
+
+	/*
+	m.multiply(cmd->getLight()->getAttenuation());
+	if(&r_world_entity == cmd->getEntity())
+		m.multiply(cmd->getLight()->getView());
+	else
+		m.multiply(cmd->getLight()->getView() * cmd->getEntity()->getTransform());
+	*/
 	
 	// upload it
 	xglMatrixMode(GL_TEXTURE);
@@ -1413,6 +1456,15 @@ void	RB_ModifyProjShadowTextureMatrix(const r_command_t *cmd)
 	m.multiply(cmd->getEntity()->getTransform());
 #else
 	const matrix_c& m = cmd->getLightAttenuation();
+
+	/*
+	matrix_c	m;
+	m.multiply(cmd->getLight()->getAttenuation());
+	if(&r_world_entity == cmd->getEntity())
+		m.multiply(cmd->getLight()->getView());
+	else
+		m.multiply(cmd->getLight()->getView() * cmd->getEntity()->getTransform());
+	*/
 #endif
 	
 	// upload it
@@ -2015,10 +2067,10 @@ int	RB_SortByCommandDistanceFunc(void const *a, void const *b)
 	vec_t dist_b = cmd_b->getDistance();
 	
 	if(dist_a < dist_b)
-		return -1;
+		return 1;
 	
 	else if(dist_a > dist_b)
-		return 1;
+		return -1;
 		
 	else
 		return 0;
@@ -2157,6 +2209,10 @@ void	RB_RenderCommands()
 	
 	qsort(&r_current_scene->cmds_translucent[0], r_current_scene->cmds_translucent_num, sizeof(r_command_t), R_TranslucentCommandSortFunc);
 	
+	
+	if(r_speeds->getInteger())
+		time_setup = ri.Sys_Milliseconds();
+	
 
 	//
 	// draw solid meshes into zbuffer
@@ -2176,6 +2232,10 @@ void	RB_RenderCommands()
 	
 	xglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	xglDepthMask(GL_FALSE);
+	
+	
+	if(r_speeds->getInteger())
+		time_zfill = ri.Sys_Milliseconds();
 	
 	
 	//
@@ -2505,6 +2565,9 @@ void	RB_RenderCommands()
 		xglDisable(GL_BLEND);
 	}
 	
+	if(r_speeds->getInteger())
+		time_lighting_static = ri.Sys_Milliseconds();
+	
 	
 	//
 	// setup lights
@@ -2531,7 +2594,7 @@ void	RB_RenderCommands()
 		
 		if(!light->getShared().radius_aabb.isInside(r_origin))
 		{
-			light->updateScissor(rb_matrix_model_view_projection, rb_vrect_viewport, light->getShared().radius_aabb);
+			light->updateScissor(gl_state.matrix_model_view_projection, rb_vrect_viewport, light->getShared().radius_aabb);
 		}
 		else
 		{
@@ -2743,14 +2806,14 @@ void	RB_RenderCommands()
 					xglViewport(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
 					
 					// setup perspective projection
-					matrix_c& m = rb_matrix_projection = light->getShadowMapProjection() * rb_matrix_quake_to_opengl;
+					matrix_c& m = gl_state.matrix_projection = light->getShadowMapProjection() * gl_state.matrix_quake_to_opengl;
 					
 					xglMatrixMode(GL_PROJECTION);
 					xglLoadTransposeMatrixfARB(&m[0][0]);
 					xglMatrixMode(GL_MODELVIEW);
 					
 					// setup view
-					rb_matrix_view = light->getView();
+					gl_state.matrix_view = light->getView();
 					
 					RB_SetupModelviewMatrix(matrix_identity, true);
 					
@@ -3054,14 +3117,14 @@ void	RB_RenderCommands()
 					xglViewport(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
 					
 					// setup perspective projection
-					matrix_c& m = rb_matrix_projection = light->getShadowMapProjection() * rb_matrix_quake_to_opengl;
+					matrix_c& m = gl_state.matrix_projection = light->getShadowMapProjection() * gl_state.matrix_quake_to_opengl;
 					
 					xglMatrixMode(GL_PROJECTION);
 					xglLoadTransposeMatrixfARB(&m[0][0]);
 					xglMatrixMode(GL_MODELVIEW);
 					
 					// setup view
-					rb_matrix_view = light->getShadowMapView();
+					gl_state.matrix_view = light->getShadowMapView();
 					
 					RB_SetupModelviewMatrix(matrix_identity, true);
 					
@@ -3144,7 +3207,7 @@ void	RB_RenderCommands()
 	//
 	// reset scissor
 	//
-	xglScissor(rb_vrect_viewport.x, rb_vrect_viewport.y, rb_vrect_viewport.width, rb_vrect_viewport.height);
+	xglScissor(gl_state.vrect_viewport.x, gl_state.vrect_viewport.y, gl_state.vrect_viewport.width, gl_state.vrect_viewport.height);
 	
 	
 	//
@@ -3153,6 +3216,9 @@ void	RB_RenderCommands()
 	RB_RenderLightScale();
 	xglDepthMask(GL_FALSE);	// RB_Setup3D was called so disable writing to z-buffer again
 	
+	
+	if(r_speeds->getInteger())
+		time_lighting_dynamic = ri.Sys_Milliseconds();	
 	
 	//
 	// draw extra stages
@@ -3163,6 +3229,9 @@ void	RB_RenderCommands()
 			cmd->getEntityModel()->draw(cmd, RENDER_TYPE_DEFAULT);
 	}
 	
+	if(r_speeds->getInteger())
+		time_extra = ri.Sys_Milliseconds();
+	
 	
 	//
 	// draw translucent meshes
@@ -3172,6 +3241,9 @@ void	RB_RenderCommands()
 		for(i=0, cmd = &r_current_scene->cmds_translucent[0]; i<r_current_scene->cmds_translucent_num; i++, cmd++)
 			cmd->getEntityModel()->draw(cmd, RENDER_TYPE_DEFAULT);
 	}
+	
+	if(r_speeds->getInteger())
+		time_translucent = ri.Sys_Milliseconds();
 	
 	
 	//
@@ -3237,9 +3309,13 @@ void	RB_RenderCommands()
 		}
 	}
 	
+	if(r_speeds->getInteger())
+		time_post = ri.Sys_Milliseconds();
+	
 	//
 	// draw areaportal debug surfaces
 	//
+	/*
 	if(r_showareaportals->getInteger())
 	{
 		xglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -3254,6 +3330,7 @@ void	RB_RenderCommands()
 		
 		xglPolygonMode(GL_FRONT_AND_BACK, gl_state.polygon_mode);
 	}
+	*/
 	
 	
 	//
@@ -3287,7 +3364,8 @@ void	RB_AddCommand(	r_entity_c*		entity,
 			r_light_c*		light,
 			std::vector<index_t>*	light_indexes,
 			int			infokey,
-			vec_t			distance)
+			vec_t			distance,
+			const matrix_c&		light_attenuation)
 {
 	if(!entity)
 	{
@@ -3342,16 +3420,30 @@ void	RB_AddCommand(	r_entity_c*		entity,
 			cmd = &r_current_scene->cmds_light.at(r_current_scene->cmds_light_num);
 		}
 		
+		/*
 		if(&r_world_entity == entity)
 			cmd->_light_transform	= light->getView();
 		else
 			cmd->_light_transform	= light->getView() * entity->getTransform();
 			
 		cmd->_light_attenuation	= light->getAttenuation() * cmd->_light_transform;
+		*/
+		
+		if(entity->isStatic() && light->isStatic())
+		{
+			cmd->_light_attenuation = light_attenuation;
+		}
+		else
+		{
+			if(&r_world_entity == entity)
+				cmd->_light_attenuation	= light->getAttenuation() * light->getView();
+			else
+				cmd->_light_attenuation	= light->getAttenuation() * (light->getView() * entity->getTransform());
+		}
 		
 		r_current_scene->cmds_light_num++;
 	}
-	else 
+	else
 	{
 		if(entity_shader->hasFlags(SHADER_TRANSLUCENT))
 		{	

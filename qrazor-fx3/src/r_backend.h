@@ -27,15 +27,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // qrazor-fx ----------------------------------------------------------------
 #include "r_local.h"
 
-
-
-//
-// usefull matrices to handle transformations
-//
-extern matrix_c			rb_matrix_view;
-extern matrix_c			rb_matrix_model;
-
-
 void		RB_CheckOpenGLExtensions();
 
 void		RB_InitGPUShaders();
