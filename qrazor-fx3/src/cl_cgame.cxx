@@ -173,8 +173,6 @@ void	CL_InitClientGame()
 	import.R_DrawStretchPic		= re.R_DrawStretchPic;
 	import.R_DrawFill		= re.R_DrawFill;
 	
-	import.R_SetSky			= re.R_SetSky;
-	
 	import.R_ClearScene		= re.R_ClearScene;
 	
 	import.R_AddEntity		= re.R_AddEntity;

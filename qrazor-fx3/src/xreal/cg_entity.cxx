@@ -156,7 +156,7 @@ void	CG_EndFrame(int entities_num)
 }
 
 /*
-void	CG_SetFrame(r_entity_t &ent, const cg_entity_t *cent)
+void	CG_SetFrame(r_entity_t &ent, cg_entity_t *cent)
 {
 	// brush models can auto animate their frames
 	int autoanim = 2*trap_CL_GetTime()/1000;
@@ -384,8 +384,8 @@ void	CG_AddGenericEntity(const cg_entity_t *cent)
 	
 	rent.flags = cent->current.renderfx;
 	
-	trap_R_AddEntity(cent->current.getNumber(), 0, rent);
-	
+	trap_R_AddEntity(cent->current.getNumber(), rent);
+
 	if(cent->current.index_light && !cent->current.vectors[0].isZero())
 	{
 		rent.custom_light = cg.light_precache[cent->current.index_light];
@@ -425,13 +425,13 @@ void	CG_AddGenericEntity(const cg_entity_t *cent)
 			
 		rent.radius_value = rent.radius_aabb.radius();
 			
-		trap_R_AddLight(cent->current.getNumber(), 0, rent, LIGHT_OMNI);
+		trap_R_AddLight(cent->current.getNumber(), rent, LIGHT_OMNI);
 	}
 }
 
 void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 {
-//	trap_Com_DPrintf("updating generic entity ...\n");
+//	trap_Com_DPrintf("updating generic entity %i ...\n", cent->current.getNumber());
 	
 	r_entity_t	rent;
 	bool		update = false;
@@ -453,16 +453,18 @@ void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 	CG_UpdateRenderFXFlags(cent, rent, update);
 	
 	if(update)
-		trap_R_UpdateEntity(cent->current.getNumber(), 0, rent);
+		trap_R_UpdateEntity(cent->current.getNumber(), rent);
 		
+//	update = false;
+	
 	CG_UpdateLightShader(cent, rent, update);
 	
-  	if(cent->prev.vectors[0] != cent->current.vectors[0])
+	if(cent->prev.vectors[0] != cent->current.vectors[0])
 	{
 		update = true;
 	}
 	
-  	if(cent->current.index_light && !cent->current.vectors[0].isZero() && update)
+	if(cent->current.index_light && !cent->current.vectors[0].isZero() && update)
 	{
 		rent.radius.lerp(cent->prev.vectors[0], cent->current.vectors[0], cg.frame_lerp);
 		
@@ -501,7 +503,7 @@ void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 			
 		rent.radius_value = rent.radius_aabb.radius();
 	
-		trap_R_UpdateLight(cent->current.getNumber(), 0, rent, LIGHT_OMNI);
+		trap_R_UpdateLight(cent->current.getNumber(), rent, LIGHT_OMNI);
 	}
 }
 

@@ -92,6 +92,7 @@ void	RB_InitBackend()
 	r_framecount = 1;
 	r_visframecount = 1;
 	r_lightframecount = 1;
+	r_checkcount = 1;
 	
 	rb_matrix_quake_to_opengl.setupRotation   (1, 0, 0,-90);    	// put Z going up
 	rb_matrix_quake_to_opengl.multiplyRotation(0, 0, 1, 90);	// put Z going up
@@ -2193,104 +2194,103 @@ void	RB_RenderCommands()
 	xglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 //	xglDepthMask(GL_FALSE);
 		
-	for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+	for(std::vector<r_light_c*>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 	{
-		std::vector<r_light_c>& lights = *ir;
+		r_light_c* light = *ir;
+		
+		if(!light)
+			continue;
 			
-		for(std::vector<r_light_c>::iterator ir = lights.begin(); ir != lights.end(); ++ir)
+		if(!light->isVisible())
+			continue;
+		
+		if(!light->getShared().radius_aabb.isInside(r_origin))
 		{
-			r_light_c& light = *ir;
+			light->updateScissor(rb_matrix_model_view_projection, rb_vrect_viewport, light->getShared().radius_aabb);
+		}
+		else
+		{
+			light->setScissor(rb_vrect_viewport);
+		}
+		
+		if(gl_config.arb_occlusion_query && r_arb_occlusion_query->getInteger())
+		{
+			const aabb_c& bbox = light->getShared().radius_aabb;
 			
-			if(!light.isVisible())
+			/*
+			if(bbox.isInside(r_origin))
+				continue;
+			*/
+		
+			vertexes[0].set(bbox._maxs[0], bbox._mins[1], bbox._mins[2]);
+			vertexes[1].set(bbox._maxs[0], bbox._mins[1], bbox._maxs[2]);
+			vertexes[2].set(bbox._mins[0], bbox._mins[1], bbox._maxs[2]);
+			vertexes[3].set(bbox._mins[0], bbox._mins[1], bbox._mins[2]);
+			vertexes[4].set(bbox._maxs[0], bbox._maxs[1], bbox._mins[2]);
+			vertexes[5].set(bbox._maxs[0], bbox._maxs[1], bbox._maxs[2]);
+			vertexes[6].set(bbox._mins[0], bbox._maxs[1], bbox._maxs[2]);
+			vertexes[7].set(bbox._mins[0], bbox._maxs[1], bbox._mins[2]);
+			
+			for(i=0; i<8; i++)
+			{
+				plane_side_e side = r_frustum[FRUSTUM_NEAR].onSide(vertexes[i]);
+					
+				if(side == SIDE_BACK)
+					break;
+			}
+			
+			if(i != 8)
 				continue;
 		
-			if(!light.getShared().radius_aabb.isInside(r_origin))
+			light->beginOcclusionQuery();
+			
+			xglBegin(GL_QUADS);
+							
+			// left side
+			xglVertex3fv(vertexes[0]);
+			xglVertex3fv(vertexes[1]);
+			xglVertex3fv(vertexes[2]);
+			xglVertex3fv(vertexes[3]);
+			
+			// right side
+			xglVertex3fv(vertexes[4]);
+			xglVertex3fv(vertexes[5]);
+			xglVertex3fv(vertexes[6]);
+			xglVertex3fv(vertexes[7]);
+			
+			// front side
+			xglVertex3fv(vertexes[0]);
+			xglVertex3fv(vertexes[1]);
+			xglVertex3fv(vertexes[5]);
+			xglVertex3fv(vertexes[4]);
+		
+			// back side
+			xglVertex3fv(vertexes[2]);
+			xglVertex3fv(vertexes[3]);
+			xglVertex3fv(vertexes[7]);
+			xglVertex3fv(vertexes[6]);
+			
+			// top side
+			xglVertex3fv(vertexes[1]); 
+			xglVertex3fv(vertexes[2]);
+			xglVertex3fv(vertexes[6]); 
+			xglVertex3fv(vertexes[5]);
+		
+			// bottom side
+			xglVertex3fv(vertexes[0]); 
+			xglVertex3fv(vertexes[3]);
+			xglVertex3fv(vertexes[7]); 
+			xglVertex3fv(vertexes[4]);
+			
+			xglEnd();
+		
+			light->endOcclusionQuery();
+		
+			if(light->getOcclusionSamplesAvailable() && light->getOcclusionSamplesNum() <= 0)
 			{
-				light.updateScissor(rb_matrix_model_view_projection, rb_vrect_viewport, light.getShared().radius_aabb);
-			}
-			else
-			{
-				light.setScissor(rb_vrect_viewport);
-			}
-		
-			if(gl_config.arb_occlusion_query && r_arb_occlusion_query->getInteger())
-			{
-				const aabb_c& bbox = light.getShared().radius_aabb;
-			
-				/*
-				if(bbox.isInside(r_origin))
-					continue;
-				*/
-		
-				vertexes[0].set(bbox._maxs[0], bbox._mins[1], bbox._mins[2]);
-				vertexes[1].set(bbox._maxs[0], bbox._mins[1], bbox._maxs[2]);
-				vertexes[2].set(bbox._mins[0], bbox._mins[1], bbox._maxs[2]);
-				vertexes[3].set(bbox._mins[0], bbox._mins[1], bbox._mins[2]);
-				vertexes[4].set(bbox._maxs[0], bbox._maxs[1], bbox._mins[2]);
-				vertexes[5].set(bbox._maxs[0], bbox._maxs[1], bbox._maxs[2]);
-				vertexes[6].set(bbox._mins[0], bbox._maxs[1], bbox._maxs[2]);
-				vertexes[7].set(bbox._mins[0], bbox._maxs[1], bbox._mins[2]);
-			
-				for(i=0; i<8; i++)
-				{
-					plane_side_e side = r_frustum[FRUSTUM_NEAR].onSide(vertexes[i]);
-					
-					if(side == SIDE_BACK)
-						break;
-				}
-			
-				if(i != 8)
-					continue;
-		
-				light.beginOcclusionQuery();
-			
-				xglBegin(GL_QUADS);
-			
-				// left side
-				xglVertex3fv(vertexes[0]);
-				xglVertex3fv(vertexes[1]);
-				xglVertex3fv(vertexes[2]);
-				xglVertex3fv(vertexes[3]);
-			
-				// right side
-				xglVertex3fv(vertexes[4]);
-				xglVertex3fv(vertexes[5]);
-				xglVertex3fv(vertexes[6]);
-				xglVertex3fv(vertexes[7]);
-		
-				// front side
-				xglVertex3fv(vertexes[0]);
-				xglVertex3fv(vertexes[1]);
-				xglVertex3fv(vertexes[5]);
-				xglVertex3fv(vertexes[4]);
-		
-				// back side
-				xglVertex3fv(vertexes[2]);
-				xglVertex3fv(vertexes[3]);
-				xglVertex3fv(vertexes[7]);
-				xglVertex3fv(vertexes[6]);
-		
-				// top side
-				xglVertex3fv(vertexes[1]); 
-				xglVertex3fv(vertexes[2]);
-				xglVertex3fv(vertexes[6]); 
-				xglVertex3fv(vertexes[5]);
-		
-				// bottom side
-				xglVertex3fv(vertexes[0]); 
-				xglVertex3fv(vertexes[3]);
-				xglVertex3fv(vertexes[7]); 
-				xglVertex3fv(vertexes[4]);
-			
-				xglEnd();
-		
-				light.endOcclusionQuery();
-		
-				if(light.getOcclusionSamplesAvailable() && light.getOcclusionSamplesNum() <= 0)
-				{
-					light.setVisFrameCount(0);	// light bounding box is not visible
-					c_lights--;
-				}
+				// light bounding box is not visible
+				light->resetVisFrameCount();	
+				c_lights--;
 			}
 		}
 	}
@@ -2754,80 +2754,4 @@ void	RB_AddCommand(	r_entity_c*		entity,
 }
 
 
-void	RB_DrawSkyBox()
-{
-	RB_SelectTexture(GL_TEXTURE0_ARB);
-	
-	RB_Bind(r_img_cubemap_sky);	
-	xglEnable(r_img_cubemap_sky->getTarget());		RB_CheckForError();
-
-		
-	GLfloat s_plane[] = { 1.0, 0.0, 0.0, 0.0 };
-	GLfloat t_plane[] = { 0.0, 1.0, 0.0, 0.0 };
-	GLfloat r_plane[] = { 0.0, 0.0, 1.0, 0.0 };
-	
-	xglTexGenfv(GL_S, GL_OBJECT_PLANE, s_plane);
-	xglTexGenfv(GL_T, GL_OBJECT_PLANE, t_plane);
-	xglTexGenfv(GL_R, GL_OBJECT_PLANE, r_plane);
-	
-	
-	xglTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	xglTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	xglTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-		
-	xglEnable(GL_TEXTURE_GEN_S);	RB_CheckForError();
-	xglEnable(GL_TEXTURE_GEN_T);	RB_CheckForError();
-	xglEnable(GL_TEXTURE_GEN_R);	RB_CheckForError();
-		
-	RB_TexEnv(GL_REPLACE);	RB_CheckForError();
-
-	xglMatrixMode(GL_TEXTURE);
-	
-	
-	vec3_c angles =  r_newrefdef.view_angles;
-	
-	vec3_c origin = r_world_entity.getShared().origin;
-
-	matrix_c	m;
-	
-#if 1
-	m.setupTranslation(origin);
-	
-	m.multiplyRotation(0, 0, 1, angles[2]);
-	
-	m.multiplyRotation(0, 1, 0, angles[1]);
-	
-	m.multiplyRotation(1, 0, 0,-angles[0]);
-	
-#else
-	m.multiplyTranslation(origin);
-
-	m.fromAngles(-90, 0, 90);	// put Z going up
-	
-	quaternion_c	q;
-	q.fromAngles(r_newrefdef.view_angles);
-	q.inverse();
-		
-	m.multiplyRotation(q);
-#endif
-	
-	//q.fromAngles(angles);
-	//m.fromQuaternion(q);
-			
-	xglLoadTransposeMatrixfARB((float*)&m[0][0]);
-	
-	
-	xglMatrixMode(GL_MODELVIEW);
-	
-	xglLoadIdentity();
-	//RB_SetupModelMatrix(matrix_identity);
-	R_DrawFastSkyBox();	RB_CheckForError();
-	
-		
-	xglDisable(GL_TEXTURE_GEN_S);	RB_CheckForError();
-	xglDisable(GL_TEXTURE_GEN_T);	RB_CheckForError();
-	xglDisable(GL_TEXTURE_GEN_R);	RB_CheckForError();
-	
-	xglDisable(r_img_cubemap_sky->getTarget());	RB_CheckForError();
-}
 

@@ -449,8 +449,6 @@ void	g_world_c::activate()
 		level.level_name = level.mapname;
 
 
-	trap_SV_SetConfigString(CS_SKY, "cubemaps/dots");
-
 	//trap_SV_Configstring (CS_CDTRACK, va("%i", ent->sounds) );
 
 	trap_SV_SetConfigString(CS_MAXCLIENTS, va("%i", maxclients->getInteger()));

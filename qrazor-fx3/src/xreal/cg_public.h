@@ -145,17 +145,15 @@ typedef struct
 	void		(*R_DrawStretchPic)(int x, int y, int w, int h, float s1, float t1, float s2, float t2, const vec4_c &color, int shader);
 	void		(*R_DrawFill)(int x, int y, int w, int h, const vec4_c &color);
 	
-	void 		(*R_SetSky)(const std::string &name);
-	
 	void		(*R_ClearScene)();
 	
-	void		(*R_AddEntity)(int entity_num, int index, const r_entity_t &shared);
-	void		(*R_UpdateEntity)(int entity_num, int index, const r_entity_t &shared);
-	void		(*R_RemoveEntity)(int entity_num);
+	void		(*R_AddEntity)(int index, const r_entity_t &shared);
+	void		(*R_UpdateEntity)(int index, const r_entity_t &shared);
+	void		(*R_RemoveEntity)(int index);
 	
-	void		(*R_AddLight)(int entity_num, int index, const r_entity_t &shared, r_light_type_t type);
-	void		(*R_UpdateLight)(int entity_num, int index, const r_entity_t &shared, r_light_type_t type);
-	void		(*R_RemoveLight)(int entity_num);
+	void		(*R_AddLight)(int index, const r_entity_t &shared, r_light_type_t type);
+	void		(*R_UpdateLight)(int index, const r_entity_t &shared, r_light_type_t type);
+	void		(*R_RemoveLight)(int index);
 	
 	void		(*R_AddParticle)(const r_particle_t &part);
 	void		(*R_AddPoly)(const r_poly_t &poly);
