@@ -424,7 +424,7 @@ void	sv_client_c::writePacketEntities(sv_client_frame_t *from, sv_client_frame_t
 	{
 		if(newindex >= to->entities_num)
 		{
-			newnum = 9999;
+			newnum = 99999;
 		}
 		else
 		{
@@ -434,7 +434,7 @@ void	sv_client_c::writePacketEntities(sv_client_frame_t *from, sv_client_frame_t
 
 		if(oldindex >= from_num_entities)
 		{
-			oldnum = 9999;
+			oldnum = 99999;
 		}
 		else
 		{
@@ -466,7 +466,7 @@ void	sv_client_c::writePacketEntities(sv_client_frame_t *from, sv_client_frame_t
 		if(newnum > oldnum)
 		{
 			// the old entity isn't present in the new message
-			msg.writeDeltaEntity(oldent, NULL, false);
+			msg.writeDeltaEntity(oldent, NULL, true);
 			oldindex++;
 			continue;
 		}
@@ -555,7 +555,7 @@ void	sv_client_c::writeFrame(bitmessage_c &msg)
 	}
 	catch(std::overflow_error)
 	{
-		Com_Printf("sv_client_::writeFrame: overflow error while writing packet entities\n");
+		Com_Printf("sv_client_::writeFrame: overflow error while writing %i packet entities\n", frame->entities_num);
 	}
 	
 //	Com_DPrintf("sv_client_::writeFrame: %i bits\n", msg.getCurSize());

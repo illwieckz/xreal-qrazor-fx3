@@ -160,6 +160,11 @@ bool	R_ParseExpressionToAST(r_iterator_t begin, r_iterator_t end, boost::spirit:
 	return info.full;
 }
 
+bool	R_ParseExpressionToAST(const std::string &exp, boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> &info)
+{
+	return R_ParseExpressionToAST(exp.begin(), exp.end(), info);
+}
+
 void	R_DumpASTToXML(const std::string &str, const boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> &info)
 {
 #if 0
@@ -178,10 +183,4 @@ void	R_DumpASTToXML(const std::string &str, const boost::spirit::tree_parse_info
 #endif
 }
 
-/*
-static bool	R_ParseExpressionToAST(const std::string &exp, boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> &info)
-{
-	return R_ParseExpressionToAST(exp.begin(), exp.end(), info);
-}
-*/
 

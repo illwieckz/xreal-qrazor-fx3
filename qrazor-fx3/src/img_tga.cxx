@@ -153,7 +153,7 @@ void 	IMG_LoadTGA(const std::string &name, byte **pic, int *width, int *height)
 							*pixbuf++ = red;
 							*pixbuf++ = green;
 							*pixbuf++ = blue;
-							*pixbuf++ = 0;
+							*pixbuf++ = 255;
 							break;
 					case 32:
 							blue = *buf_p++;
@@ -193,7 +193,7 @@ void 	IMG_LoadTGA(const std::string &name, byte **pic, int *width, int *height)
 								blue = *buf_p++;
 								green = *buf_p++;
 								red = *buf_p++;
-								alphabyte = 0;
+								alphabyte = 255;
 								break;
 						case 32:
 								blue = *buf_p++;
@@ -235,7 +235,7 @@ void 	IMG_LoadTGA(const std::string &name, byte **pic, int *width, int *height)
 									*pixbuf++ = red;
 									*pixbuf++ = green;
 									*pixbuf++ = blue;
-									*pixbuf++ = 0;
+									*pixbuf++ = 255;
 									break;
 							case 32:
 									blue = *buf_p++;

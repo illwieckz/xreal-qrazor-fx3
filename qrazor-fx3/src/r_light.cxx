@@ -65,7 +65,7 @@ void	r_light_c::update(const r_entity_t &shared, r_light_type_t type)
 	_s = shared;
 	_type = type;
 	
-	_origin = _s.origin + _s.center;
+	_origin = _s.origin + _s.quat * _s.center;
 	
 	if(_areasurfaces.empty())
 		_areasurfaces = std::vector<std::map<const r_surface_c*, std::vector<index_t> > >(1);

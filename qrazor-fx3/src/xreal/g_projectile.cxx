@@ -346,7 +346,8 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 //	_s.index_light = trap_SV_LightIndex("lights/defaultpointlight");
 //	_s.index_light = trap_SV_LightIndex("lights/squarelight");
 //	_s.index_light = trap_SV_LightIndex("lights/biground1");
-	_s.index_light = trap_SV_LightIndex("lights/round");
+	_s.index_light = trap_SV_LightIndex("lights/round");	// good
+//	_s.index_light = trap_SV_LightIndex("lights/defaultcubelight");
 	
 	_r.inuse = true;
 	_r.clipmask = MASK_SHOT;

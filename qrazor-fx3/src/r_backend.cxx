@@ -109,17 +109,11 @@ void	RB_InitBackend()
 	r_world_scene.cmds_num			= 0;
 	r_world_scene.cmds			= std::vector<r_command_t>(r_cmds_max->getInteger());
 	
-	r_world_scene.cmds_radiosity_num	= 0;
-	r_world_scene.cmds_radiosity		= std::vector<r_command_t>(r_cmds_max->getInteger());
-	
 	r_world_scene.cmds_light_num		= 0;
 	r_world_scene.cmds_light		= std::vector<r_command_t>(r_cmds_light_max->getInteger());
 	
 	r_world_scene.cmds_translucent_num	= 0;
 	r_world_scene.cmds_translucent		= std::vector<r_command_t>(r_cmds_translucent_max->getInteger());
-	
-	r_world_scene.cmds_postprocess_num	= 0;
-	r_world_scene.cmds_postprocess		= std::vector<r_command_t>(r_cmds_max->getInteger());
 	
 	RB_CheckOpenGLExtensions();
 	
@@ -1949,9 +1943,9 @@ int	R_TranslucentCommandSortFunc(void const *a, void const *b)
 {
 	r_command_t* cmd_a = (r_command_t*)a;
 	r_command_t* cmd_b = (r_command_t*)b;
-
-	int sort_a = cmd_a->getEntityShader()->getSort();
-	int sort_b = cmd_b->getEntityShader()->getSort();
+	
+	float sort_a = RB_Evaluate(cmd_a->getEntity()->getShared(), cmd_a->getEntityShader()->getSort(), 0);
+	float sort_b = RB_Evaluate(cmd_b->getEntity()->getShared(), cmd_b->getEntityShader()->getSort(), 0);
 	
 	if(sort_a > sort_b)
 		return -1;
@@ -1989,11 +1983,18 @@ void	RB_RenderCommands()
 	r_command_t*	cmd = NULL;
 
 	RB_CheckForError();
+	
+	//
+	// sort commands
+	//
+	qsort(&r_current_scene->cmds[0], r_current_scene->cmds_num, sizeof(r_command_t), RB_SortByCommandDistanceFunc);
+	
+	qsort(&r_current_scene->cmds_translucent[0], r_current_scene->cmds_translucent_num, sizeof(r_command_t), R_TranslucentCommandSortFunc);
+	
 
 	//
 	// draw solid meshes into zbuffer
 	//
-	qsort(&r_current_scene->cmds[0], r_current_scene->cmds_num, sizeof(r_command_t), RB_SortByCommandDistanceFunc);
 		
 #if 0
 	if(gl_config.arb_occlusion_query && r_arb_occlusion_query->getInteger())
@@ -2034,6 +2035,9 @@ void	RB_RenderCommands()
 			if(!cmd->getEntity()->isVisible())
 				continue;
 				
+			if(cmd->hasLightMap())
+				continue;
+				
 			cmd->getEntityModel()->draw(cmd, RENDER_TYPE_ZFILL);
 		}
 		RB_DisableShader_zfill();
@@ -2045,9 +2049,6 @@ void	RB_RenderCommands()
 	//
 	if(r_lightmap->getInteger() && r_images_lm.size())
 	{
-		xglEnable(GL_BLEND);
-		xglBlendFunc(GL_ONE, GL_ONE);
-	
 		//qsort(&r_current_scene->cmds_radiosity[0], r_current_scene->cmds_radiosity_num, sizeof(r_command_t), RB_SortByEntityShaderFunc);
 	
 		if(r_bump_mapping->getInteger())
@@ -2055,21 +2056,29 @@ void	RB_RenderCommands()
 			if(r_parallax->getInteger() && r_gloss->getInteger())
 			{
 				RB_EnableShader_lighting_RBHS();
-				for(i=0, cmd = &r_current_scene->cmds_radiosity[0]; i<r_current_scene->cmds_radiosity_num; i++, cmd++)
+				for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 				{
 					if(!cmd->getEntity()->isVisible())
+						continue;
+						
+					if(!cmd->hasLightMap())
 						continue;
 				
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_RBHS);
 				}
+				xglDisable(GL_BLEND);
+			
 				RB_DisableShader_lighting_RBHS();
 			}
 			else if(r_parallax->getInteger())
 			{
 				RB_EnableShader_lighting_RBH();
-				for(i=0, cmd = &r_current_scene->cmds_radiosity[0]; i<r_current_scene->cmds_radiosity_num; i++, cmd++)
+				for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 				{
 					if(!cmd->getEntity()->isVisible())
+						continue;
+						
+					if(!cmd->hasLightMap())
 						continue;
 							
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_RBH);
@@ -2079,9 +2088,12 @@ void	RB_RenderCommands()
 			else if(r_gloss->getInteger())
 			{
 				RB_EnableShader_lighting_RBS();
-				for(i=0, cmd = &r_current_scene->cmds_radiosity[0]; i<r_current_scene->cmds_radiosity_num; i++, cmd++)
+				for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 				{
 					if(!cmd->getEntity()->isVisible())
+						continue;
+						
+					if(!cmd->hasLightMap())
 						continue;
 				
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_RBS);
@@ -2091,9 +2103,12 @@ void	RB_RenderCommands()
 			else
 			{
 				RB_EnableShader_lighting_RB();
-				for(i=0, cmd = &r_current_scene->cmds_radiosity[0]; i<r_current_scene->cmds_radiosity_num; i++, cmd++)
+				for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 				{
 					if(!cmd->getEntity()->isVisible())
+						continue;
+						
+					if(!cmd->hasLightMap())
 						continue;
 						
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_RB);
@@ -2104,18 +2119,26 @@ void	RB_RenderCommands()
 		else
 		{
 			RB_EnableShader_lighting_R();
-			for(i=0, cmd = &r_current_scene->cmds_radiosity[0]; i<r_current_scene->cmds_radiosity_num; i++, cmd++)
+			
+			for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
 			{
 				if(!cmd->getEntity()->isVisible())
+					continue;
+					
+				if(!cmd->hasLightMap())
 					continue;
 				
 				cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_R);
 			}
+				
 			RB_DisableShader_lighting_R();
 		}
-		
-		xglDisable(GL_BLEND);
 	}
+	
+	//
+	// disable writing into zbuffer
+	// 
+	xglDepthMask(GL_FALSE);
 	
 	
 	//
@@ -2128,7 +2151,7 @@ void	RB_RenderCommands()
 	xglDisable(GL_CULL_FACE);
 	
 	xglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-	xglDepthMask(GL_FALSE);
+//	xglDepthMask(GL_FALSE);
 		
 	for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 	{
@@ -2223,7 +2246,7 @@ void	RB_RenderCommands()
 		
 				light.endOcclusionQuery();
 		
-				if(light.getOcclusionSamplesNum() <= 0)
+				if(light.getOcclusionSamplesAvailable() && light.getOcclusionSamplesNum() <= 0)
 				{
 					light.setVisFrameCount(0);	// light bounding box is not visible
 					c_lights--;
@@ -2235,7 +2258,7 @@ void	RB_RenderCommands()
 	xglEnable(GL_CULL_FACE);
 	
 	xglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	xglDepthMask(GL_TRUE);
+//	xglDepthMask(GL_TRUE);
 	
 	
 	//
@@ -2478,6 +2501,7 @@ void	RB_RenderCommands()
 	// do overbright hack
 	//
 	RB_RenderLightScale();
+	xglDepthMask(GL_FALSE);	// RB_Setup3D was called so disable writing to z-buffer again
 	
 	
 	//
@@ -2495,8 +2519,6 @@ void	RB_RenderCommands()
 	//
 	if(r_drawtranslucent->getInteger())
 	{
-		qsort(&r_current_scene->cmds_translucent[0], r_current_scene->cmds_translucent_num, sizeof(r_command_t), R_TranslucentCommandSortFunc);
-		
 		for(i=0, cmd = &r_current_scene->cmds_translucent[0]; i<r_current_scene->cmds_translucent_num; i++, cmd++)
 			cmd->getEntityModel()->draw(cmd, RENDER_TYPE_DEFAULT);
 	}
@@ -2511,28 +2533,44 @@ void	RB_RenderCommands()
 		r_img_currentrender->copyFromContext();
 		r_img_currentrender_depth->copyFromContext();
 	
-		qsort(&r_current_scene->cmds_postprocess[0], r_current_scene->cmds_postprocess_num, sizeof(r_command_t), RB_SortByCommandDistanceFunc);
-	
-		for(i=0, cmd = &r_current_scene->cmds_postprocess[0]; i<r_current_scene->cmds_postprocess_num; i++, cmd++)
+		for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
+		{
+			if(!cmd->getEntityShader()->hasFlags(SHADER_POSTPROCESS))
+				continue;
+				
 			cmd->getEntityModel()->draw(cmd, RENDER_TYPE_POSTPROCESS);
+		}
+		
+		for(i=0, cmd = &r_current_scene->cmds_translucent[0]; i<r_current_scene->cmds_translucent_num; i++, cmd++)
+		{
+			if(!cmd->getEntityShader()->hasFlags(SHADER_POSTPROCESS))
+				continue;
+				
+			cmd->getEntityModel()->draw(cmd, RENDER_TYPE_POSTPROCESS);
+		}
 	}
+	
+	//
+	// done
+	//
+	xglDepthMask(GL_TRUE);	// reenable default RB_Setup3D state
 	
 	
 	c_cmds += r_current_scene->cmds_num;
-	c_cmds_radiosity += r_current_scene->cmds_radiosity_num;
+//	c_cmds_radiosity += r_current_scene->cmds_radiosity_num;
 	c_cmds_light += r_current_scene->cmds_light_num;
 	c_cmds_translucent += r_current_scene->cmds_translucent_num;
-	c_cmds_postprocess += r_current_scene->cmds_postprocess_num;
+//	c_cmds_postprocess += r_current_scene->cmds_postprocess_num;
 	
 	
 	//
 	// clear current list
 	//	
 	r_current_scene->cmds_num = 0;
-	r_current_scene->cmds_radiosity_num = 0;
+//	r_current_scene->cmds_radiosity_num = 0;
 	r_current_scene->cmds_light_num = 0;
 	r_current_scene->cmds_translucent_num = 0;
-	r_current_scene->cmds_postprocess_num = 0;
+//	r_current_scene->cmds_postprocess_num = 0;
 }
 
 
@@ -2587,6 +2625,7 @@ void	RB_AddCommand(	r_entity_c*		entity,
 	
 	if(light)
 	{
+		// create light command
 		try
 		{
 			cmd = &r_current_scene->cmds_light.at(r_current_scene->cmds_light_num);
@@ -2597,13 +2636,18 @@ void	RB_AddCommand(	r_entity_c*		entity,
 			cmd = &r_current_scene->cmds_light.at(r_current_scene->cmds_light_num);
 		}
 		
-		cmd->_light_transform	= light->getView() * entity->getTransform();
+		if(&r_world_entity == entity)
+			cmd->_light_transform	= light->getView();
+		else
+			cmd->_light_transform	= light->getView() * entity->getTransform();
+			
 		cmd->_light_attenuation	= light->getAttenuation() * cmd->_light_transform;
 		
 		r_current_scene->cmds_light_num++;
 	}
 	else if(entity_shader->hasFlags(SHADER_TRANSLUCENT))
 	{
+		// create translucent command
 		try
 		{		
 			cmd = &r_current_scene->cmds_translucent.at(r_current_scene->cmds_translucent_num);
@@ -2618,6 +2662,7 @@ void	RB_AddCommand(	r_entity_c*		entity,
 	}
 	else
 	{
+		// create default command that copes with zfill, diffuse lighting and extra special stages
 		try
 		{
 			cmd = &r_current_scene->cmds.at(r_current_scene->cmds_num);
@@ -2627,38 +2672,13 @@ void	RB_AddCommand(	r_entity_c*		entity,
 			r_current_scene->cmds.push_back(r_command_t());
 			cmd = &r_current_scene->cmds.at(r_current_scene->cmds_num);
 		}
+			
+		if(entity_shader->stage_lightmap && (infokey >= 0) && !light && r_images_lm.size() && r_lightmap->getInteger())
+			cmd->_light_map = true;
+		else
+			cmd->_light_map = false;
 		
 		r_current_scene->cmds_num++;
-	}
-	
-	if(entity_shader->stage_lightmap && (infokey >= 0) && !light && r_images_lm.size() && r_lightmap->getInteger())
-	{
-		try
-		{
-			cmd2 = &r_current_scene->cmds_radiosity.at(r_current_scene->cmds_radiosity_num);
-		}
-		catch(...)
-		{
-			r_current_scene->cmds_radiosity.push_back(r_command_t());
-			cmd2 = &r_current_scene->cmds_radiosity.at(r_current_scene->cmds_radiosity_num);
-		}
-		
-		r_current_scene->cmds_radiosity_num++;
-	}
-	
-	if(entity_shader->hasFlags(SHADER_POSTPROCESS))
-	{
-		try
-		{
-			cmd3 = &r_current_scene->cmds_postprocess.at(r_current_scene->cmds_postprocess_num);
-		}
-		catch(...)
-		{
-			r_current_scene->cmds_postprocess.push_back(r_command_t());
-			cmd3 = &r_current_scene->cmds_postprocess.at(r_current_scene->cmds_postprocess_num);
-		}
-		
-		r_current_scene->cmds_postprocess_num++;
 	}
 	
 	/*

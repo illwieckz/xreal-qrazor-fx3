@@ -414,7 +414,7 @@ void	G_SpawnEntities(const std::string &mapname, char *entities, const std::stri
 {
 	g_entity_c	*ent;
 	char		*token;
-	const char	*classname = NULL, *value = NULL;
+	const char	*classname = NULL;
 	
 	int		inhibit;
 	int		spawned;
@@ -501,9 +501,7 @@ void	G_SpawnEntities(const std::string &mapname, char *entities, const std::stri
 			ent->_s.origin.clear();
 		*/
 		
-		value = ent->valueForKey("rotation");
-		if(value[0] != '\0')
-			ent->setField("rotation", value);
+		ent->updateField("rotation");
 		
 		ent->activate();
 			

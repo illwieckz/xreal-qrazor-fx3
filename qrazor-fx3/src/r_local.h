@@ -188,14 +188,16 @@ enum r_shader_tcmod_type_e
 };
 
 // shader sort types
+/*
 enum r_shader_sort_type_e
 {
-	SHADER_SORT_FARTHEST	= 0,
+	SHADER_SORT_SUBVIEW	= 0,
 	SHADER_SORT_FAR		= 1,
 	SHADER_SORT_CLOSE	= 5,
 	SHADER_SORT_DECAL	= 6,
 	SHADER_SORT_NEAREST	= 16
 };
+*/
 
 enum r_shader_deform_type_e
 {
@@ -639,8 +641,12 @@ public:
 	inline r_shader_light_type_e	getLightType() const		{return _type_light;}
 	inline void			setLightType(r_shader_light_type_e type)	{_type_light = type;}
 	
-	inline int			getSort() const				{return _sort;}
-	inline void			setSort(int sort)			{_sort = sort;}
+	inline const boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>&
+					getSort() const			{return _sort;}
+	inline void			setSort(boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>& sort)
+	{
+		_sort = sort;
+	}
 	
 	inline r_shader_deform_type_e	getDeformType() const				{return _deform;}
 	inline void			setDeformType(r_shader_deform_type_e deform)	{_deform = deform;}
@@ -659,7 +665,7 @@ private:
 	r_shader_type_e			_type;
 	r_shader_light_type_e		_type_light;	// only used if shader is a light shader
 	
-	int				_sort;
+	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	_sort;
 	r_shader_deform_type_e		_deform;
 	uint_t				_flags;
 	uint_t				_registration_sequence;
@@ -1134,6 +1140,7 @@ public:
 	inline r_light_c*		getLight() const		{return _light;}
 	inline r_shader_c*		getLightShader() const		{return _light_shader;}
 	inline std::vector<index_t>*	getLightIndexes() const		{return _light_indexes;}
+	inline bool			hasLightMap() const		{return _light_map;}
 	inline const matrix_c&		getLightTransform() const	{return _light_transform;}
 	inline const matrix_c&		getLightAttenuation() const	{return _light_attenuation;}
 		
@@ -1150,7 +1157,7 @@ private:
 	r_light_c*		_light;
 	r_shader_c*		_light_shader;
 	std::vector<index_t>*	_light_indexes;
-	
+	bool			_light_map;
 	matrix_c		_light_transform;
 	matrix_c		_light_attenuation;
 	
@@ -1165,17 +1172,11 @@ struct r_scene_t
 	uint_t				cmds_num;
 	std::vector<r_command_t>	cmds;
 	
-	uint_t				cmds_radiosity_num;
-	std::vector<r_command_t>	cmds_radiosity;
-	
 	uint_t				cmds_light_num;
 	std::vector<r_command_t>	cmds_light;
 	
 	uint_t				cmds_translucent_num;
 	std::vector<r_command_t>	cmds_translucent;
-	
-	uint_t				cmds_postprocess_num;
-	std::vector<r_command_t>	cmds_postprocess;
 };
 
 
