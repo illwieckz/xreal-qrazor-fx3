@@ -342,7 +342,7 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 //	_s.index_model = trap_SV_ModelIndex("models/weapons/rocketlauncher/rocket.lwo");
 	_s.index_model = trap_SV_ModelIndex("models/ammo/rocket/rocket.md3");
 //	_s.index_shader = trap_SV_ShaderIndex("noshader");
-//	_s.index_sound = trap_SV_SoundIndex("sounds/weapons/sidewinder/we_sidewinderfly.wav");
+	_s.index_sound = trap_SV_SoundIndex("rocket_flight");
 //	_s.index_light = trap_SV_LightIndex("lights/defaultpointlight");
 //	_s.index_light = trap_SV_LightIndex("lights/squarelight");
 //	_s.index_light = trap_SV_LightIndex("lights/biground1");
@@ -431,18 +431,13 @@ bool	g_projectile_rocket_c::touch(g_entity_c *other, const cplane_c &plane, csur
 	}
 	
 	G_RadiusDamage(this, (g_entity_c*)_r.owner, _radius_dmg, other, _dmg_radius, MOD_R_SPLASH);
-
-	trap_SV_WriteBits(SVC_TEMP_ENTITY, svc_bitcount);
 	
 	if(_waterlevel)
-		trap_SV_WriteByte(TE_ROCKET_EXPLOSION_WATER);
+		_s.event = EV_ROCKET_EXPLOSION_UNDERWATER;
 	else
-		trap_SV_WriteByte(TE_ROCKET_EXPLOSION);
-		
-	trap_SV_WritePosition(origin);
-	trap_SV_Multicast(_s.origin, MULTICAST_ALL);
+		_s.event = EV_ROCKET_EXPLOSION;
 	
-	remove();
+	_nextthink = level.time + FRAMETIME;
 	
 	return true;
 }
