@@ -28,12 +28,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "config.h"
 #endif
 // system -------------------------------------------------------------------
+#include <limits>
+
 // shared -------------------------------------------------------------------
 // qrazor-fx ----------------------------------------------------------------
 // xreal --------------------------------------------------------------------
 
 
-#ifdef HAVE_DOUBLEVEC_T
+#ifndef DOUBLEVEC_T
+#define REAL(x)			(x ## f)	// form a constant
+#else
+#define REAL(x)			(x)
+#endif
+
+#ifdef DOUBLEVEC_T
 typedef double	vec_t;
 #else
 typedef float	vec_t;
@@ -128,15 +136,24 @@ enum plane_type_e
 // planes (x&~1) and (x&~1)+1 are always opposites
 
 #ifndef M_PI
-#define M_PI		3.14159265358979323846	// matches value in gcc v2 math.h
+#define M_PI			3.14159265358979323846	// matches value in gcc v2 math.h
 #endif
+/*
+#ifndef M_PI
+#define M_PI 			REAL(3.1415926535897932384626433832795029)
+#endif
+*/
 
 #ifndef M_TWOPI
-#define M_TWOPI		6.28318530717958647692
+#define M_TWOPI			6.28318530717958647692
+#endif
+
+#ifndef M_SQRT1_2
+#define M_SQRT1_2		REAL(0.7071067811865475244008443621048490)
 #endif
 
 //Tr3B - values from Nvidia's math lib
-typedef float X_scalar;
+typedef vec_t X_scalar;
 
 #define X_zero			X_scalar(0)
 #define X_zero_5		X_scalar(0.5)
@@ -157,6 +174,8 @@ typedef float X_scalar;
 #define X_big_eps		X_scalar(10e-6)
 #define X_small_eps		X_scalar(10e-2)
 
+
+extern const vec_t		X_infinity;
 
 extern const vec3_c		vec3_origin;		// null vector
 
@@ -191,17 +210,95 @@ extern const quaternion_c	quat_identity;
 #define X_ftol(f) (long)(f)
 
 
-vec_t 	X_RSqrt(vec_t number);
-
-inline vec_t	X_sin(vec_t deg)
+// reciprocal
+inline vec_t	X_recip(vec_t x)
 {
-	return sin(DEGTORAD(deg));
+#ifdef DOUBLEVEC_T
+	return (1.0/(x));
+#else
+	return ((float)(1.0f/(x)));
+#endif
 }
 
-inline vec_t	X_cos(vec_t deg)
-{
-	return cos(DEGTORAD(deg));
+// square root
+inline vec_t	X_sqrt(vec_t x)
+{	
+#ifdef DOUBLEVEC_T
+	return sqrt(x);
+#else
+	return ((float)sqrtf(float(x)));
+#endif
 }
+
+// reciprocal square root
+inline vec_t	X_recipsqrt(vec_t x)
+{
+#ifdef DOUBLEVEC_T
+	return (1.0/sqrt(x));
+#else
+	return ((float)(1.0f/sqrtf(float(x))));
+#endif
+}
+
+// sine
+inline vec_t	X_sin(vec_t x)
+{
+#ifdef DOUBLEVEC_T
+	return sin(x);
+#else
+	return ((float)sinf(float(x)));
+#endif
+}
+
+// cosine
+inline vec_t	X_cos(vec_t x)
+{
+#ifdef DOUBLEVEC_T
+	return cos(x);
+#else
+	return ((float)cosf(float(x)));
+#endif
+}
+
+// absolute value
+inline vec_t	X_fabs(vec_t x)
+{
+#ifdef DOUBLEVEC_T
+	return fabs(x);
+#else
+	return ((float)fabsf(float(x)));
+#endif
+}
+
+// arc tangent with 2 args
+inline vec_t	X_atan2(vec_t y, vec_t x)
+{
+#ifdef DOUBLEVEC_T
+	return atan2(y, x);
+#else
+	return ((float)atan2f(float(y), float(x)));
+#endif
+}
+
+// modulo
+inline vec_t	X_fmod(vec_t x, vec_t y)
+{
+#ifdef DOUBLEVEC_T
+	return fmod(x);
+#else
+	return ((float)fmod(float(x), float(y)));
+#endif
+}
+
+inline vec_t	X_copysign(vec_t x, vec_t y)
+{
+#ifdef DOUBLEVEC_T
+	return copysign(x, y);
+#else
+	return ((float)copysignf(float(x), float(y)));
+#endif
+}
+
 
 inline vec_t	X_rint(const vec_t in)
 {
@@ -366,7 +463,7 @@ public:
 		return (float*)_v;
 	}
 	
-#ifdef HAVE_DOUBLEVEC_T
+#ifdef DOUBLEVEC_T
 	inline operator vec_t * ()
 	{
 		return (vec_t*)_v;
@@ -447,15 +544,17 @@ inline vec_t 	Vector3_DotProduct(const vec3_t v1, const vec3_t v2)
 
 inline vec_t 	Vector3_Length(const vec3_t v)
 {
-	return sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+	return X_sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
 }
 
 inline vec_t 	Vector3_Normalize(vec3_t v)
 {
-	vec_t len = Vector3_Length(v);
+	vec_t len = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
 	
 	if(len)
 	{
+		len = X_sqrt(len);
+		
 		v[0] /= len;
 		v[1] /= len;
 		v[2] /= len;
@@ -466,10 +565,12 @@ inline vec_t 	Vector3_Normalize(vec3_t v)
 
 inline vec_t 	Vector3_Normalize2(const vec3_t v, vec3_t out)
 {
-	vec_t len = Vector3_Length(v);
+	vec_t len = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
 	
 	if(len)
 	{
+		len = X_sqrt(len);
+		
 		out[0] = v[0] / len;
 		out[1] = v[1] / len;
 		out[2] = v[2] / len;	
@@ -504,6 +605,15 @@ void 	Vector3_MakeNormalVectors(const vec3_c &forward, vec3_c &right, vec3_c &up
 void 	Vector3_ProjectOnPlane(vec3_c &dst, const vec3_c &p, const vec3_c &normal);
 void 	Vector3_Perpendicular(vec3_c &dst, const vec3_c &src);
 void	Vector3_ToAngles(const vec3_c &value1, vec3_c &angles);
+
+/*
+ * given a unit length "normal" vector n, generate vectors p and q vectors
+ * that are an orthonormal basis for the plane space perpendicular to n.
+ * i.e. this makes p,q such that n,p,q are all perpendicular to each other.
+ * q will equal n x p. if n is not unit length then p will be unit length but
+ * q wont be.
+ */
+void	Vector3_PlaneSpace(const vec3_t n, vec3_t p, vec3_t q);
 
 char*	Vector3_String(const vec3_t v);
 
@@ -545,8 +655,6 @@ public:
 	inline bool 	isZero() const;
 	
 	inline vec_t	length() const;
-
-	inline vec_t	lengthFast() const;
 
 	inline vec_t	distance(const vec3_c &v) const;
 
@@ -598,6 +706,11 @@ public:
 
 	inline vec_t&	operator [] (const int index);
 	
+	inline operator vec_t * () const;
+
+	inline operator vec_t * ();
+	
+	/*
 	inline operator float * () const;
 
 	inline operator float * ();
@@ -605,6 +718,7 @@ public:
 	inline operator double * () const;
 
 	inline operator double * ();
+	*/
 			
 	inline vec3_c&	operator = (const vec3_c &v);
 	
@@ -692,12 +806,7 @@ inline bool	vec3_c::isZero() const
 
 inline vec_t	vec3_c::length() const
 {
-	return sqrt(_v[0]*_v[0] + _v[1]*_v[1] + _v[2]*_v[2]);
-}
-
-inline vec_t	vec3_c::lengthFast() const
-{
-	return X_RSqrt(_v[0]*_v[0] + _v[1]*_v[1] + _v[2]*_v[2]);
+	return X_sqrt(_v[0]*_v[0] + _v[1]*_v[1] + _v[2]*_v[2]);
 }
 
 inline vec_t	vec3_c::distance(const vec3_c &v) const
@@ -709,10 +818,12 @@ inline vec_t	vec3_c::distance(const vec3_c &v) const
 
 inline vec_t	vec3_c::normalize()
 {
-	vec_t len = length();
+	vec_t len = _v[0]*_v[0] + _v[1]*_v[1] + _v[2]*_v[2];
 	
 	if(len)
 	{
+		len = X_sqrt(len);
+		
 		_v[0] /= len;
 		_v[1] /= len;
 		_v[2] /= len;
@@ -835,14 +946,31 @@ inline vec3_c&	vec3_c::operator *= (const float s)
 
 inline vec_t	vec3_c::operator [] (const int index) const
 {
+	if(index < 0 || index >= 3)
+		Com_Error(ERR_FATAL, "vec3_c::operator []: bad index %i", index);
+		
 	return _v[index];
 }
 
 inline vec_t&	vec3_c::operator [] (const int index)
 {
+	if(index < 0 || index >= 3)
+		Com_Error(ERR_FATAL, "vec3_c::operator []: bad index %i", index);
+		
 	return _v[index];
 }
-	
+
+inline vec3_c::operator vec_t * () const
+{
+	return (vec_t*)_v;
+}
+
+inline vec3_c::operator vec_t * ()
+{
+	return (vec_t*)_v;
+}
+
+/*	
 inline vec3_c::operator float * () const
 {
 	return (float*)_v;
@@ -862,6 +990,7 @@ inline vec3_c::operator double * ()
 {
 	return (double*)_v;
 }
+*/
 
 inline vec3_c&	vec3_c::operator = (const vec3_c &v)
 {
@@ -1057,6 +1186,17 @@ public:
 		return _v[index];
 	}
 	
+	inline operator vec_t * () const
+	{
+		return (vec_t*)_v;
+	}
+
+	inline operator vec_t * ()
+	{
+		return (vec_t*)_v;
+	}
+
+/*	
 	inline operator float * () const
 	{
 		return (float*)_v;
@@ -1078,6 +1218,7 @@ public:
 		return (double*)_v;
 	}
 //#endif
+*/
 		
 	inline vec4_c&	operator = (const vec4_c &v)
 	{
@@ -1178,8 +1319,12 @@ public:
 	inline void	multiplyScale(vec_t x, vec_t y, vec_t z);
 
 	inline void	fromAngles(const vec3_c &angles);
-
+	
+	//! Quake style implementation
 	void	fromAngles(vec_t pitch, vec_t yaw, vec_t roll);
+	
+	//! ODE style implementation
+	void	fromEulerAngles(vec_t phi, vec_t theta, vec_t psi);
 	
 	void	fromVectorsFLU(const vec3_c &forward, const vec3_c &left, const vec3_c &up);
 	
@@ -1190,6 +1335,10 @@ public:
 	void	toVectorsFRU(vec3_c &forward, vec3_c &right, vec3_c &up) const;
 	
 	void	fromQuaternion(const quaternion_c &q);
+	
+	void	from2Axes(vec_t ax, vec_t ay, vec_t az, vec_t bx, vec_t by, vec_t bz);
+	
+	void	fromZAxis(vec_t ax, vec_t ay, vec_t az);
 	
 	void	lerp(const matrix_c &from, const matrix_c &to, vec_t f);
 	
@@ -1209,13 +1358,23 @@ public:
 	
 	inline vec4_c	operator * (const vec4_c &v) const;
 	
+	inline vec_t	operator () (const int i, const int j) const;
+	
+	inline vec_t&	operator () (const int i, const int j);
+	
 	inline const vec4_t&	operator [] (const int index) const;
 
 	inline vec4_t&	operator [] (const int index);
+	
+	inline operator vec_t * () const;
+	
+	inline operator vec_t * ();
 
+/*
 	inline operator float * ();
 	
 	inline operator double * ();
+*/
 	
 //	matrix_c&	operator = (const matrix_c &m);
 
@@ -1314,6 +1473,16 @@ inline vec4_c	matrix_c::operator * (const vec4_c &v) const
 			_m[2][0]*v[0] + _m[2][1]*v[1] + _m[2][2]*v[2] + _m[2][3]*v[3],
 			_m[3][0]*v[0] + _m[3][1]*v[1] + _m[3][2]*v[2] + _m[3][3]*v[3]	);
 }
+
+inline vec_t	matrix_c::operator () (const int i, const int j) const
+{
+	return _m[i][j];
+}
+
+inline vec_t&	matrix_c::operator () (const int i, const int j)
+{
+	return _m[i][j];
+}
 	
 inline const vec4_t&	matrix_c::operator [] (const int index) const
 {
@@ -1325,6 +1494,17 @@ inline vec4_t&	matrix_c::operator [] (const int index)
 	return _m[index];
 }
 
+inline matrix_c::operator vec_t * () const
+{
+	return (vec_t*)&_m[0][0];
+}
+
+inline matrix_c::operator vec_t * ()
+{
+	return (vec_t*)&_m[0][0];
+}
+
+/*
 inline matrix_c::operator float * ()
 {
 	return (float*)&_m[0][0];
@@ -1334,11 +1514,13 @@ inline matrix_c::operator double * ()
 {
 	return (double*)&_m[0][0];
 }
-
+*/
 
 
 class quaternion_c
 {
+	friend class matrix_c;
+	friend class message_c;
 public:
 	inline quaternion_c();
 	
@@ -1372,13 +1554,28 @@ public:
 	
 	inline void	fromAxisAngle(const vec3_c &axis, vec_t deg);
 	
-	void	fromAxisAngle(vec_t x, vec_t y, vec_t z, vec_t deg);
+	//! This function takes an angle in radians !!!
+	void	fromAxisAngle(vec_t x, vec_t y, vec_t z, vec_t angle);
+	
+	inline void	fromW(const vec3_c &w, const quaternion_c &q);
 	
 	void	toAxisAngle(vec3_c &axis, float *deg);
 	
 	void	toVectorsFLU(vec3_c &forward, vec3_c &left, vec3_c &up) const;
 	
 	void	toVectorsFRU(vec3_c &forward, vec3_c &right, vec3_c &up) const;
+	
+	//! rotate by qc, then qb
+	void	multiply0(const quaternion_c &qb, const quaternion_c &qc);
+	
+	//! rotate by qc, then by inverse of qb
+	void	multiply1(const quaternion_c &qb, const quaternion_c &qc);
+	
+	//! rotate by inverse of qc, then by qb
+	void	multiply2(const quaternion_c &qb, const quaternion_c &qc);
+	
+	//! rotate by inverse of qc, then by inverse of qb
+	void	multiply3(const quaternion_c &qb, const quaternion_c &qc);
 	
 	inline void	multiplyRotation(const vec3_c &axis, vec_t deg);
 	
@@ -1396,14 +1593,26 @@ public:
 	
 	inline bool	operator != (const quaternion_c &q) const;
 	
-	inline vec3_c	operator * (const vec3_c &v) const;
+	inline quaternion_c operator + (const quaternion_c &q) const;
 	
 	quaternion_c	operator * (const quaternion_c &q) const;
 	
-	inline vec_t	operator [] (const int index) const;
-
-	inline vec_t&	operator [] (const int index);
+	inline quaternion_c operator * (vec_t s) const;
 	
+	inline vec3_c	operator * (const vec3_c &v) const;
+	
+	inline quaternion_c& operator += (const quaternion_c &q);
+	
+	
+//	inline vec_t	operator [] (const int index) const;
+
+//	inline vec_t&	operator [] (const int index);
+
+	inline operator vec_t * () const;
+
+	inline operator vec_t * ();
+	
+	/*
 	inline operator float * () const;
 
 	inline operator float * ();
@@ -1411,6 +1620,7 @@ public:
 	inline operator double * () const;
 
 	inline operator double * ();
+	*/
 
 	inline quaternion_c&	operator = (const quaternion_c &q);
 	
@@ -1467,7 +1677,7 @@ inline void	quaternion_c::set(vec_t x, vec_t y, vec_t z)
 	if(term < 0.0f)
 		_q[3] = 0.0f;
 	else
-		_q[3] = -sqrt(term);
+		_q[3] = -X_sqrt(term);
 }
 		
 inline void	quaternion_c::copyTo(float *q)
@@ -1488,7 +1698,7 @@ inline bool 	quaternion_c::isZero() const
 	
 inline vec_t	quaternion_c::magnitude()
 {
-	return sqrt(_q[0]*_q[0] + _q[1]*_q[1] + _q[2]*_q[2] + _q[3]*_q[3]);
+	return X_sqrt(_q[0]*_q[0] + _q[1]*_q[1] + _q[2]*_q[2] + _q[3]*_q[3]);
 }
 
 inline void	quaternion_c::inverse()
@@ -1514,6 +1724,14 @@ inline void	quaternion_c::fromAngles(const vec3_c &angles)
 inline void	quaternion_c::fromAxisAngle(const vec3_c &axis, vec_t deg)
 {
 	fromAxisAngle(axis[0], axis[1], axis[2], deg);
+}
+
+inline void	quaternion_c::fromW(const vec3_c &w, const quaternion_c &q)
+{
+	_q[0] = REAL(0.5) * (  w[0]*q._q[3] + w[1]*q._q[2] - w[2]*q._q[1]);
+	_q[1] = REAL(0.5) * (- w[0]*q._q[2] + w[1]*q._q[3] + w[2]*q._q[0]);
+	_q[2] = REAL(0.5) * (  w[0]*q._q[1] - w[1]*q._q[0] + w[2]*q._q[3]);
+	_q[3] = REAL(0.5) * (- w[0]*q._q[0] - w[1]*q._q[1] - w[2]*q._q[2]);
 }
 
 inline void	quaternion_c::multiplyRotation(const vec3_c &axis, vec_t deg)
@@ -1555,6 +1773,16 @@ inline bool	quaternion_c::operator != (const quaternion_c &q) const
 	else
 		return false;
 }
+
+inline quaternion_c	quaternion_c::operator + (const quaternion_c &q) const
+{
+	return quaternion_c(_q[0]+q._q[0], _q[1]+q._q[1], _q[2]+q._q[2], _q[3]+q._q[3]);
+}
+
+inline quaternion_c	quaternion_c::operator * (vec_t s) const
+{
+	return quaternion_c(_q[0]*s, _q[1]*s, _q[2]*s, _q[3]*s);
+}
 	
 inline vec3_c	quaternion_c::operator * (const vec3_c &v) const
 {
@@ -1564,6 +1792,17 @@ inline vec3_c	quaternion_c::operator * (const vec3_c &v) const
 	return vec3_c(m * v);
 }
 
+inline quaternion_c&	quaternion_c::operator += (const quaternion_c &q)
+{
+	_q[0] += q._q[0];
+	_q[1] += q._q[1];
+	_q[2] += q._q[2];
+	_q[3] += q._q[3];
+		
+	return *this;
+}
+
+/*
 inline vec_t	quaternion_c::operator [] (const int index) const
 {
 	return _q[index];
@@ -1573,7 +1812,19 @@ inline vec_t&	quaternion_c::operator [] (const int index)
 {
 	return _q[index];
 }
-	
+*/
+
+inline quaternion_c::operator vec_t * () const
+{
+	return (vec_t*)_q;
+}
+
+inline quaternion_c::operator vec_t * ()
+{
+	return (vec_t*)_q;
+}
+
+/*	
 inline quaternion_c::operator float * () const
 {
 	return (float*)_q;
@@ -1593,6 +1844,7 @@ inline quaternion_c::operator double * ()
 {
 	return (double*)_q;
 }
+*/
 		
 inline quaternion_c&	quaternion_c::operator = (const quaternion_c &q)
 {

@@ -211,8 +211,8 @@ void	DeathmatchScoreboardMessage()
 		stringlength += j;
 	}
 
-	gi.SV_WriteByte(SVC_LAYOUT);
-	gi.SV_WriteString(string);
+	trap_SV_WriteByte(SVC_LAYOUT);
+	trap_SV_WriteString(string);
 }
 
 
@@ -227,7 +227,7 @@ Note that it isn't that hard to overflow the 1400 byte message limit!
 void	DeathmatchScoreboard(g_entity_c *ent)
 {
 	DeathmatchScoreboardMessage();
-	gi.SV_Unicast(ent, true);
+	trap_SV_Unicast(ent, true);
 }
 
 

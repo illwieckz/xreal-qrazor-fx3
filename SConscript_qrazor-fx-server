@@ -32,7 +32,6 @@ qrazor_fx_server_src = [
 'src/sv_main.cxx',
 'src/sv_send.cxx',
 'src/sv_user.cxx',
-'src/sv_world.cxx',
 'src/cl_null.cxx',
 'src/map_null.cxx' ]
 

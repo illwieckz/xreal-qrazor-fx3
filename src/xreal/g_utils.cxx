@@ -39,6 +39,19 @@ void	G_ProjectSource(const vec3_c &point, const vec3_c &distance, const vec3_c &
 }
 
 
+bool 	G_AreasConnected(const vec3_c &p1, const vec3_c &p2)
+{
+	int area1 = trap_CM_PointAreanum(p1);
+
+	int area2 = trap_CM_PointAreanum(p2);
+	
+	if(!trap_CM_AreasConnected(area1, area2))
+		return false;		// a door blocks sight
+	
+	return true;
+}
+
+
 /*
 =============
 G_IsVisible
@@ -59,7 +72,7 @@ bool	G_IsVisible(g_entity_c *self, g_entity_c *other)
 	
 	spot2 = other->_s.origin;
 	//spot2[2] += other->_viewheight;
-	trace = gi.SV_Trace(spot1, bbox, spot2, self, MASK_OPAQUE);
+	trace = trap_SV_Trace(spot1, bbox, spot2, self, MASK_OPAQUE);
 	
 	if(trace.fraction == 1.0)
 		return true;
@@ -231,7 +244,7 @@ g_entity_c*	G_PickTarget(const std::string &targetname)
 
 	if(!targetname.length())
 	{
-		gi.Com_Printf("G_PickTarget called with NULL targetname\n");
+		trap_Com_Printf("G_PickTarget called with NULL targetname\n");
 		return NULL;
 	}
 
@@ -247,7 +260,7 @@ g_entity_c*	G_PickTarget(const std::string &targetname)
 
 	if(!num_choices)
 	{
-		gi.Com_Printf("G_PickTarget: target %s not found\n", targetname.c_str());
+		trap_Com_Printf("G_PickTarget: target %s not found\n", targetname.c_str());
 		return NULL;
 	}
 
@@ -294,12 +307,12 @@ void	G_UseTargets(g_entity_c *ent, g_entity_c *activator)
 	//
 	if(ent->_message.length())
 	{
-		gi.SV_CenterPrintf(activator, "%s", ent->_message.c_str());
+		trap_SV_CenterPrintf(activator, "%s", ent->_message.c_str());
 		
 		if(ent->_noise_index)
-			gi.SV_StartSound (NULL, activator, CHAN_AUTO, ent->_noise_index, 1, ATTN_NORM, 0);
+			trap_SV_StartSound (NULL, activator, CHAN_AUTO, ent->_noise_index, 1, ATTN_NORM, 0);
 		else
-			gi.SV_StartSound (NULL, activator, CHAN_AUTO, gi.SV_SoundIndex("misc/talk1.wav"), 1, ATTN_NORM, 0);
+			trap_SV_StartSound (NULL, activator, CHAN_AUTO, trap_SV_SoundIndex("misc/talk1.wav"), 1, ATTN_NORM, 0);
 	}
 
 
@@ -316,7 +329,7 @@ void	G_UseTargets(g_entity_c *ent, g_entity_c *activator)
 			
 			if(!ent->_r.inuse)
 			{
-				gi.Com_Printf("entity was removed while using killtargets\n");
+				trap_Com_Printf("entity was removed while using killtargets\n");
 				return;
 			}
 		}
@@ -339,7 +352,7 @@ void	G_UseTargets(g_entity_c *ent, g_entity_c *activator)
 
 			if(target == ent)
 			{
-				gi.Com_Printf ("WARNING: Entity used itself.\n");
+				trap_Com_Printf ("WARNING: Entity used itself.\n");
 			}
 			else
 			{
@@ -348,7 +361,7 @@ void	G_UseTargets(g_entity_c *ent, g_entity_c *activator)
 			
 			if(!ent->_r.inuse)
 			{
-				gi.Com_Printf("entity was removed while using targets\n");
+				trap_Com_Printf("entity was removed while using targets\n");
 				return;
 			}
 		}
@@ -385,10 +398,10 @@ vec_t*	tv(float x, float y, float z)
 
 
 
-static vec3_c VEC_UP(0, -1, 0);
-static vec3_c MOVEDIR_UP(0, 0, 1);
-static vec3_c VEC_DOWN(0, -2, 0);
-static vec3_c MOVEDIR_DOWN(0, 0, -1);
+static const vec3_c VEC_UP(0, -1, 0);
+static const vec3_c MOVEDIR_UP(0, 0, 1);
+static const vec3_c VEC_DOWN(0, -2, 0);
+static const vec3_c MOVEDIR_DOWN(0, 0, -1);
 
 void	G_SetMovedir(quaternion_c &quat, vec3_c &movedir)
 {
@@ -468,7 +481,7 @@ void	vectoangles(vec3_t value1, vec3_t angles)
 		if (yaw < 0)
 			yaw += 360;
 
-		forward = sqrt (value1[0]*value1[0] + value1[1]*value1[1]);
+		forward = X_sqrt(value1[0]*value1[0] + value1[1]*value1[1]);
 		pitch = (int) (atan2(value1[2], forward) * 180 / M_PI);
 		if (pitch < 0)
 			pitch += 360;
@@ -497,11 +510,11 @@ bool	G_KillBox(g_entity_c *ent)
 #if 0
 	trace_t		tr;
 	
-	gi.Com_Printf("G_KillBox: %s\n", ent->_classname.c_str());
+	trap_Com_Printf("G_KillBox: %s\n", ent->_classname.c_str());
 
 	while(1)
 	{
-		tr = gi.SV_Trace(ent->_s.origin, ent->_r.bbox, ent->_s.origin, NULL, MASK_PLAYERSOLID);
+		tr = trap_SV_Trace(ent->_s.origin, ent->_r.bbox, ent->_s.origin, NULL, MASK_PLAYERSOLID);
 		
 		if(!tr.ent)
 			break;
@@ -527,7 +540,7 @@ g_entity_c*	G_GetEntityByNum(int num)
 {
 	if(num < 0 || num >= (int)g_entities.size())
 	{
-		gi.Com_Error(ERR_DROP, "G_GetEntityByNum: bad number %i\n", num);
+		trap_Com_Error(ERR_DROP, "G_GetEntityByNum: bad number %i\n", num);
 		return NULL;
 	}
 
@@ -538,7 +551,7 @@ int	G_GetNumForEntity(g_entity_c *ent)
 {
 	if(!ent)
 	{
-		gi.Com_Error(ERR_DROP, "G_GetNumForEntity: NULL parameter\n");
+		trap_Com_Error(ERR_DROP, "G_GetNumForEntity: NULL parameter\n");
 		return -1;
 	}
 
@@ -548,7 +561,7 @@ int	G_GetNumForEntity(g_entity_c *ent)
 			return i;
 	}
 	
-	gi.Com_Error(ERR_DROP, "G_GetNumForEntity: bad pointer of entity %i\n", ent->_s.getNumber());
+	trap_Com_Error(ERR_DROP, "G_GetNumForEntity: bad pointer of entity %i\n", ent->_s.getNumber());
 	return -1;
 }
 

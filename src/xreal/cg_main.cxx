@@ -53,7 +53,7 @@ cvar_t	*cg_showfps;
 cvar_t	*cg_showlayout;
 cvar_t	*cg_printspeed;
 cvar_t	*cg_paused;
-
+cvar_t	*cg_gravity;
 
 
 //
@@ -66,6 +66,10 @@ cg_export_t	cg_globals;
 cg_state_t	cg;
 cg_static_t	cgs;
 
+
+d_world_c*		cg_ode_world;
+d_space_c*		cg_ode_space;
+d_joint_group_c*	cg_ode_contact_group;
 
 
 
@@ -219,6 +223,7 @@ static void	CG_InitClientGame()
 	cg_showlayout		= cgi.Cvar_Get("cg_showlayout", "1", CVAR_ARCHIVE);
 	cg_printspeed		= cgi.Cvar_Get("cg_printspeed", "8", CVAR_NONE);
 	cg_paused		= cgi.Cvar_Get("paused", "0", CVAR_NONE);
+	cg_gravity		= cgi.Cvar_Get("cg_gravity", "1", CVAR_NONE);
 	
 //	cgi.Cmd_AddCommand("skins", 		CG_Skins_f);
 	cgi.Cmd_AddCommand("snd_restart",	CG_Snd_Restart_f);
@@ -228,6 +233,8 @@ static void	CG_InitClientGame()
 	// initialize subsystems
 	//
 	CG_InitScreen();
+	
+	CG_InitDynamics();
 	
 	CG_InitView();
 	
@@ -258,7 +265,7 @@ static void	CG_InitClientGame()
 
 static void	CG_ShutdownClientGame()
 {
-	//TODO
+	CG_ShutdownDynamics();
 }
 
 
@@ -289,7 +296,7 @@ static void	CG_UpdateConfig(int index, const std::string &configstring)
 		cgi.Com_Printf("CG_UpdateConfig: map '%s'\n", mapname.c_str());
 		
 		unsigned	map_checksum;		// for detecting cheater maps
-		cgi.CM_BeginRegistration(mapname, true, &map_checksum);
+		cgi.CM_BeginRegistration(mapname, true, &map_checksum, 0);
 		
 		if((int)map_checksum != atoi(cgi.CL_GetConfigString(CS_MAPCHECKSUM)))
 		{

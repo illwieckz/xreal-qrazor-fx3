@@ -145,8 +145,6 @@ clients along with it.
 */
 void 	SV_SpawnServer(const std::string &server, char *spawnpoint, bool attractloop, bool loadgame)
 {
-	unsigned	checksum;
-
 	if(attractloop)
 		Cvar_Set("paused", "0");
 
@@ -200,30 +198,14 @@ void 	SV_SpawnServer(const std::string &server, char *spawnpoint, bool attractlo
 	
 	sv.name = server;
 	strcpy(sv.configstrings[CS_MAPNAME], server.c_str());
-
 	
-	CM_BeginRegistration(server, false, &checksum);
-	
-	sv.models[1] = CM_GetModelByNum(0);
-	
-	Com_sprintf(sv.configstrings[CS_MAPCHECKSUM],sizeof(sv.configstrings[CS_MAPCHECKSUM]), "%i", checksum);
-
+	//
+	// create collision map
+	//
+	ge->G_ClearWorld(server);
 
 	//
-	// clear physics interaction links
-	//	
-	for(int i=0; i<CM_NumModels(); i++)
-	{		
-		cmodel_c *model = CM_GetModelByNum(i);
-		
-		sv.models[i] = model;
-		
-		Com_sprintf(sv.configstrings[CS_MODELS+i], sizeof(sv.configstrings[CS_MODELS+i]), "%s", model->getName());
-	}
-
-
-	//
-	// spawn the rest of the entities on the map
+	// spawn entities
 	//	
 
 	// precache and static commands can be issued during

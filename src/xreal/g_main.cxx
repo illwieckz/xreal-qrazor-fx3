@@ -30,6 +30,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "g_target.h"
 #include "g_world.h"
 
+#include "bg_local.h"
+#include "bg_physics.h"
+
 
 game_import_t	gi;
 game_export_t	globals;
@@ -45,9 +48,12 @@ g_entity_c*			g_world;
 std::vector<sv_entity_c*>	g_entities;
 std::vector<g_item_c*>		g_items;
 
-d_world_c*			g_ode_world;
-d_space_c*			g_ode_space;
-d_joint_group_c*		g_ode_contact_group;
+d_world_c*			g_ode_world = NULL;
+d_space_c*			g_ode_space_toplevel = NULL;
+//d_space_c*			g_ode_space_world = NULL;
+d_bsp_c*			g_ode_bsp = NULL;
+d_plane_c*			g_ode_testplane = NULL;
+d_joint_group_c*		g_ode_contact_group = NULL;
 
 cvar_t	*deathmatch;
 cvar_t	*coop;
@@ -222,7 +228,9 @@ static void	G_InitGame()
 	
 	G_InitItems();
 	
-	G_InitDynamics();
+	G_InitDynamics();	// ODE
+	
+	BG_InitPhysics();	// Tr3B - new custom physics engine
 	
 	g_world = new g_world_c();
 		
@@ -245,6 +253,8 @@ static void 	G_ShutdownGame()
 	G_ShutdownItems();
 	
 	G_ShutdownDynamics();
+	
+	BG_ShutdownPhysics();
 }
 
 
@@ -267,9 +277,10 @@ game_export_t*		GetGameAPI (game_import_t *import)
 
 	globals.apiversion 		= GAME_API_VERSION;
 	
-	globals.Init 			= G_InitGame;
-	globals.Shutdown 		= G_ShutdownGame;
+	globals.G_InitGame		= G_InitGame;
+	globals.G_ShutdownGame		= G_ShutdownGame;
 	
+	globals.G_ClearWorld		= G_ClearWorld;
 	globals.G_SpawnEntities		= G_SpawnEntities;
 	
 	globals.G_ClientConnect 	= G_ClientConnect;
@@ -553,7 +564,8 @@ void 	G_RunFrame()
 	level.framenum++;
 	level.time = level.framenum * FRAMETIME;
 	
-	//gi.Com_Printf("G_RunFrame:\n");
+	// for debugging, check if ODE hangs anywhere
+//	gi.Com_Printf("G_RunFrame: %i\n", level.framenum); 
 
 	//
 	// exit intermissions
@@ -574,9 +586,8 @@ void 	G_RunFrame()
 	//
 	// treat each object in turn
 	// even the world gets a chance to think
+	// apply forces to the bodies as necessary
 	//
-	
-	// Tr3B -  apply forces to the bodies as necessary
 	for(unsigned int i=0; i<g_entities.size(); i++)
 	{
 		ent = (g_entity_c*)g_entities[i];
@@ -591,9 +602,7 @@ void 	G_RunFrame()
 			
 		//ent->_s.origin2 = ent->_s.origin;
 		
-		//G_RunEntity(ent);
-		
-		G_RunThink(ent);
+		ent->runThink();
 	}
 	
 	
@@ -605,6 +614,7 @@ void 	G_RunFrame()
 	
 	//
 	// update network entity states and area information for network culling
+	// update entity states with applied dynamics from the rigid bodies
 	//
 	for(unsigned int i=0; i<g_entities.size(); i++)
 	{

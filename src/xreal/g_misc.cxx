@@ -97,7 +97,7 @@ void gib_touch (g_entity_c *self, g_entity_c *other, cplane_c *plane, csurface_c
 
 	if (plane)
 	{
-		gi.SV_StartSound (NULL, self, CHAN_VOICE, gi.SV_SoundIndex ("misc/fhit3.wav"), 1, ATTN_NORM, 0);
+		trap_SV_StartSound (NULL, self, CHAN_VOICE, trap_SV_SoundIndex ("misc/fhit3.wav"), 1, ATTN_NORM, 0);
 
 		vectoangles (plane->_normal, normal_angles);
 		Angles_ToVectors (normal_angles, forward, right, up);
@@ -138,7 +138,7 @@ void ThrowGib (g_entity_c *self, char *gibname, int damage, int type)
 	gib->s.origin[1] = origin[1] + crandom() * size[1];
 	gib->s.origin[2] = origin[2] + crandom() * size[2];
 
-	gi.SV_SetModel (gib, gibname);
+	trap_SV_SetModel (gib, gibname);
 	gib->r.solid = SOLID_NOT;
 	gib->s.effects |= EF_GIB;
 	gib->flags |= FL_NO_KNOCKBACK;
@@ -167,7 +167,7 @@ void ThrowGib (g_entity_c *self, char *gibname, int damage, int type)
 	gib->think = G_FreeEdict;
 	gib->nextthink = level.time + 10 + random()*10;
 
-	gi.SV_LinkEdict (gib);
+	trap_SV_LinkEdict (gib);
 }
 */
 
@@ -182,7 +182,7 @@ void ThrowHead (g_entity_c *self, char *gibname, int damage, int type)
 	self->r.bbox.zero();
 
 	self->s.modelindex2 = 0;
-	gi.SV_SetModel (self, gibname);
+	trap_SV_SetModel (self, gibname);
 	self->r.solid = SOLID_NOT;
 	self->s.effects |= EF_GIB;
 	self->s.effects &= ~EF_FLIES;
@@ -212,7 +212,7 @@ void ThrowHead (g_entity_c *self, char *gibname, int damage, int type)
 	self->think = G_FreeEdict;
 	self->nextthink = level.time + 10 + random()*10;
 
-	gi.SV_LinkEdict (self);
+	trap_SV_LinkEdict (self);
 }
 */
 
@@ -236,7 +236,7 @@ void ThrowClientHead (g_entity_c *self, int damage)
 
 	self->s.origin[2] += 32;
 	self->s.frame = 0;
-	gi.SV_SetModel (self, gibname);
+	trap_SV_SetModel (self, gibname);
 	self->r.bbox._mins.set(-16,-16, 0);
 	self->r.bbox._maxs.set( 16, 16, 16);
 
@@ -261,7 +261,7 @@ void ThrowClientHead (g_entity_c *self, int damage)
 		self->nextthink = 0;
 	}
 
-	gi.SV_LinkEdict (self);
+	trap_SV_LinkEdict (self);
 }
 */
 
@@ -269,10 +269,10 @@ void ThrowClientHead (g_entity_c *self, int damage)
 
 void	G_BecomeExplosion1 (g_entity_c *self)
 {
-	gi.SV_WriteByte(SVC_TEMP_ENTITY);
-	gi.SV_WriteByte(TE_EXPLOSION1);
-	gi.SV_WritePosition(self->_s.origin);
-	gi.SV_Multicast(self->_s.origin, MULTICAST_PVS);
+	trap_SV_WriteByte(SVC_TEMP_ENTITY);
+	trap_SV_WriteByte(TE_EXPLOSION1);
+	trap_SV_WritePosition(self->_s.origin);
+	trap_SV_Multicast(self->_s.origin, MULTICAST_PVS);
 
 	self->remove();
 }
@@ -280,10 +280,10 @@ void	G_BecomeExplosion1 (g_entity_c *self)
 
 void	G_BecomeExplosion2 (g_entity_c *self)
 {
-	gi.SV_WriteByte(SVC_TEMP_ENTITY);
-	gi.SV_WriteByte(TE_EXPLOSION2);
-	gi.SV_WritePosition(self->_s.origin);
-	gi.SV_Multicast(self->_s.origin, MULTICAST_PVS);
+	trap_SV_WriteByte(SVC_TEMP_ENTITY);
+	trap_SV_WriteByte(TE_EXPLOSION2);
+	trap_SV_WritePosition(self->_s.origin);
+	trap_SV_Multicast(self->_s.origin, MULTICAST_PVS);
 
 	self->remove();
 }
@@ -324,7 +324,7 @@ void func_wall_use (g_entity_c *self, g_entity_c *other, g_entity_c *activator)
 		self->r.solid = SOLID_NOT;
 		self->r.svflags |= SVF_NOCLIENT;
 	}
-	gi.SV_LinkEdict (self);
+	trap_SV_LinkEdict (self);
 
 	if (!(self->spawnflags & 2))
 		self->use = NULL;
@@ -335,7 +335,7 @@ void func_wall_use (g_entity_c *self, g_entity_c *other, g_entity_c *activator)
 void SP_func_wall (g_entity_c *self)
 {
 	self->movetype = MOVETYPE_PUSH;
-	gi.SV_SetModel (self, self->model);
+	trap_SV_SetModel (self, self->model);
 
 	if (self->spawnflags & 8)
 		self->s.effects |= EF_ANIM_ALL;
@@ -346,14 +346,14 @@ void SP_func_wall (g_entity_c *self)
 	if ((self->spawnflags & 7) == 0)
 	{
 		self->r.solid = SOLID_BSP;
-		gi.SV_LinkEdict (self);
+		trap_SV_LinkEdict (self);
 		return;
 	}
 
 	// it must be TRIGGER_SPAWN
 	if (!(self->spawnflags & 1))
 	{
-//		gi.Com_Printf("func_wall missing TRIGGER_SPAWN\n");
+//		trap_Com_Printf("func_wall missing TRIGGER_SPAWN\n");
 		self->spawnflags |= 1;
 	}
 
@@ -362,7 +362,7 @@ void SP_func_wall (g_entity_c *self)
 	{
 		if (!(self->spawnflags & 2))
 		{
-			gi.Com_Printf("func_wall START_ON without TOGGLE\n");
+			trap_Com_Printf("func_wall START_ON without TOGGLE\n");
 			self->spawnflags |= 2;
 		}
 	}
@@ -377,7 +377,7 @@ void SP_func_wall (g_entity_c *self)
 		self->r.solid = SOLID_NOT;
 		self->r.svflags |= SVF_NOCLIENT;
 	}
-	gi.SV_LinkEdict (self);
+	trap_SV_LinkEdict (self);
 }
 */
 
@@ -424,7 +424,7 @@ void func_object_use (g_entity_c *self, g_entity_c *other, g_entity_c *activator
 /*
 void SP_func_object (g_entity_c *self)
 {
-	gi.SV_SetModel (self, self->model);
+	trap_SV_SetModel (self, self->model);
 
 	self->r.bbox._mins[0] += 1;
 	self->r.bbox._mins[1] += 1;
@@ -458,7 +458,7 @@ void SP_func_object (g_entity_c *self)
 
 	self->r.clipmask = MASK_MONSTERSOLID;
 
-	gi.SV_LinkEdict (self);
+	trap_SV_LinkEdict (self);
 }
 */
 
@@ -556,7 +556,7 @@ void func_explosive_spawn (g_entity_c *self, g_entity_c *other, g_entity_c *acti
 	self->r.svflags &= ~SVF_NOCLIENT;
 	self->use = NULL;
 	G_KillBox (self);
-	gi.SV_LinkEdict (self);
+	trap_SV_LinkEdict (self);
 }
 */
 
@@ -571,10 +571,10 @@ void SP_func_explosive (g_entity_c *self)
 
 	self->movetype = MOVETYPE_PUSH;
 
-	gi.SV_ModelIndex ("models/objects/debris1/tris.md2");
-	gi.SV_ModelIndex ("models/objects/debris2/tris.md2");
+	trap_SV_ModelIndex ("models/objects/debris1/tris.md2");
+	trap_SV_ModelIndex ("models/objects/debris2/tris.md2");
 
-	gi.SV_SetModel (self, self->model);
+	trap_SV_SetModel (self, self->model);
 
 	if (self->spawnflags & 1)
 	{
@@ -602,7 +602,7 @@ void SP_func_explosive (g_entity_c *self)
 		self->takedamage = DAMAGE_YES;
 	}
 
-	gi.SV_LinkEdict (self);
+	trap_SV_LinkEdict (self);
 }
 */
 
@@ -624,10 +624,10 @@ used with target_string (must be on same "team")
 void SP_target_character (g_entity_c *self)
 {
 	self->movetype = MOVETYPE_PUSH;
-	gi.SV_SetModel (self, self->model);
+	trap_SV_SetModel (self, self->model);
 	self->r.solid = SOLID_BSP;
 	self->s.frame = 12;
-	gi.SV_LinkEdict (self);
+	trap_SV_LinkEdict (self);
 	return;
 }
 */
@@ -825,14 +825,14 @@ void SP_func_clock (g_entity_c *self)
 {
 	if (!self->target)
 	{
-		gi.Com_Printf("%s with no target at %s\n", self->classname, Vector3_String(self->s.origin));
+		trap_Com_Printf("%s with no target at %s\n", self->classname, Vector3_String(self->s.origin));
 		G_FreeEdict (self);
 		return;
 	}
 
 	if ((self->spawnflags & 2) && (!self->count))
 	{
-		gi.Com_Printf("%s with no count at %s\n", self->classname, Vector3_String(self->s.origin));
+		trap_Com_Printf("%s with no count at %s\n", self->classname, Vector3_String(self->s.origin));
 		G_FreeEdict (self);
 		return;
 	}
@@ -842,8 +842,8 @@ void SP_func_clock (g_entity_c *self)
 
 	func_clock_reset (self);
 
-	self->message = (char*)gi.Z_TagMalloc (CLOCK_MESSAGE_SIZE, TAG_LEVEL);
-	//self->message = (char*)gi.Z_Malloc(CLOCK_MESSAGE_SIZE);
+	self->message = (char*)trap_Z_TagMalloc (CLOCK_MESSAGE_SIZE, TAG_LEVEL);
+	//self->message = (char*)trap_Z_Malloc(CLOCK_MESSAGE_SIZE);
 
 	self->think = func_clock_think;
 

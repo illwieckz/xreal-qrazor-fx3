@@ -168,8 +168,8 @@ enum
 //
 // interface
 //
-extern	game_import_t	gi;
-extern	game_export_t	globals;
+//extern	game_import_t	gi;
+//extern	game_export_t	globals;
 
 
 //
@@ -282,7 +282,10 @@ extern std::vector<sv_entity_c*>	g_entities;
 extern std::vector<g_item_c*>		g_items;
 
 extern d_world_c*		g_ode_world;
-extern d_space_c*		g_ode_space;
+extern d_space_c*		g_ode_space_toplevel;
+//extern d_space_c*		g_ode_space_world;
+extern d_bsp_c*			g_ode_bsp;
+extern d_plane_c*		g_ode_testplane;
 extern d_joint_group_c*		g_ode_contact_group;
 
 
@@ -426,7 +429,6 @@ void		G_ServerCommand();
 bool 		SV_FilterPacket(const char *from);
 
 
-
 //
 // g_hud.cxx
 //
@@ -435,13 +437,9 @@ void 		DeathmatchScoreboardMessage();
 void		DeathmatchScoreboard(g_entity_c *ent);
 
 
-
 //
 // g_phys.cxx
 //
-bool		G_RunThink(g_entity_c *ent);
-void 		G_RunEntity(g_entity_c *ent);
-
 void		G_InitDynamics();
 void		G_ShutdownDynamics();
 
@@ -465,6 +463,156 @@ void 		G_SaveClientData();
 //
 
 
+//
+// g_coldet.cxx
+//
+//
+// sv_world.cxx
+//
+
+//
+// high level object sorting to reduce interaction tests
+//
+
+// called to load the world model, before linking any entities
+void 		G_ClearWorld(const std::string &map);
+
+// call before removing an entity, and before trying to move one,
+// so it doesn't clip against itself
+void 		G_UnlinkEntity(g_entity_c *ent);
+
+
+// Needs to be called any time an entity changes origin, mins, maxs,
+// or solid.  Automatically unlinks if needed.
+// sets ent->v.absmin and ent->v.absmax
+// sets ent->leafnums[] for pvs determination even if the entity
+// is not solid
+void 		G_LinkEntity(g_entity_c *ent);
+
+
+void		G_SetAreaPortalState(g_entity_c *ent, bool open);
+
+// fills in a table of edict pointers with edicts that have bounding boxes
+// that intersect the given area.  It is possible for a non-axial bmodel
+// to be returned that doesn't actually intersect the area on an exact
+// test.
+// returns the number of pointers filled in
+// ??? does this always return the world?
+int 		G_AreaEdicts(const cbbox_c &bbox, std::vector<g_entity_c*> &list, area_type_e type);
+
+//
+// functions that interact with everything apropriate
+//
+
+// returns the CONTENTS_* value from the world at the given point.
+// Quake 2 extends this to also check entities, to allow moving liquids
+int 		G_PointContents(const vec3_c &p);
+
+
+// mins and maxs are relative
+
+// if the entire move stays in a solid volume, trace.allsolid will be set,
+// trace.startsolid will be set, and trace.fraction will be 0
+
+// if the starting point is in a solid, it will be allowed to move out
+// to an open area
+trace_t		G_Trace(const vec3_c &start, const cbbox_c &bbox, const vec3_c &end, g_entity_c *passedict, int contentmask);
+
+
+//
+// g_syscalls.cxx
+//
+// common printing
+void 		trap_Com_Printf(const char *fmt, ...);
+void 		trap_Com_DPrintf(const char *fmt, ...);
+
+void 		trap_Com_Error(err_type_e type, const char *fmt, ...);
+	
+// add commands to the server console as if they were typed in
+// for map changing, etc
+void 		trap_Cbuf_AddText(const std::string &text);
+
+// ClientCommand and ServerCommand parameter access
+void		trap_Cmd_AddCommand(const std::string &name, void(*cmd)());
+void		trap_Cmd_RemoveCommand(const std::string &name);
+int		trap_Cmd_Argc();
+const char*	trap_Cmd_Argv(int i);	
+const char*	trap_Cmd_Args();
+
+// console variable interaction
+cvar_t*		trap_Cvar_Get(const std::string &name, const std::string &value, uint_t flags);
+cvar_t*		trap_Cvar_Set(const std::string &name, const std::string &value);
+cvar_t*		trap_Cvar_ForceSet(const std::string &name, const std::string &value);
+void		trap_Cvar_SetValue(const std::string &name, float value);
+
+// special messages
+void		trap_SV_BPrintf(g_print_level_e level, const char *fmt, ...);
+void		trap_SV_CPrintf(sv_entity_c *ent, g_print_level_e level, const char *fmt, ...);
+void		trap_SV_CenterPrintf(sv_entity_c *ent, const char *fmt, ...);
+void		trap_SV_StartSound(vec3_t origin, sv_entity_c *ent, int channel, int soundinedex, float volume, float attenuation, float timeofs);
+
+// config strings hold all the index strings, the lightstyles,
+// and misc data like the sky definition and cdtrack.
+// All of the current configstrings are sent to clients when
+// they connect, and changes are sent to all connected clients.
+void		trap_SV_SetConfigString(int index, const std::string &val);
+	
+// the *index functions create configstrings and some internal server state
+int		trap_SV_ModelIndex(const std::string &name);
+int		trap_SV_ShaderIndex(const std::string &name);
+int		trap_SV_AnimationIndex(const std::string &name);
+int		trap_SV_SoundIndex(const std::string &name);
+int		trap_SV_LightIndex(const std::string &name);
+
+// collision detection
+d_bsp_c*	trap_CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum, dSpaceID space);
+cmodel_c*	trap_CM_RegisterModel(const std::string &name);
+cskel_animation_c*	trap_CM_RegisterAnimation(const std::string &name);
+cmodel_c*	trap_CM_GetModelByNum(int num);
+int		trap_CM_LeafContents(int leafnum);
+int		trap_CM_LeafCluster(int leafnum);
+int		trap_CM_LeafArea(int leafnum);
+int		trap_CM_NumModels();
+int		trap_CM_HeadnodeForBox(const cbbox_c& bbox);
+int		trap_CM_PointContents(const vec3_c &p, int headnode);
+int		trap_CM_TransformedPointContents(const vec3_c &p, int headnode, const vec3_c &origin, const quaternion_c &quat);
+trace_t		trap_CM_BoxTrace(const vec3_c &start, const vec3_c &end, const cbbox_c &bbox, int headnode, int brushmask);
+trace_t		trap_CM_TransformedBoxTrace(const vec3_c &start, const vec3_c &end,
+						const cbbox_c &bbox,
+						int headnode, int brushmask, 
+						const vec3_c &origin, const quaternion_c &quat);
+int		trap_CM_PointAreanum(const vec3_c &p);
+int		trap_CM_BoxLeafnums(const cbbox_c &bbox, std::deque<int> &list, int headnode);
+int		trap_CM_GetClosestAreaPortal(const vec3_c &p);
+bool		trap_CM_GetAreaPortalState(int portal);
+void		trap_CM_SetAreaPortalState(int portal, bool open);
+bool		trap_CM_AreasConnected(int area1, int area2);
+
+// network messaging
+void		trap_SV_Multicast(const vec3_c &origin, multicast_type_e to);
+void		trap_SV_Unicast(sv_entity_c *ent, bool reliable);
+	
+void		trap_SV_WriteByte(int c);
+void		trap_SV_WriteShort(int c);
+void		trap_SV_WriteLong(int c);
+void		trap_SV_WriteFloat(float f);
+void		trap_SV_WriteString(const char *s);
+void		trap_SV_WritePosition(const vec3_c &pos);	// some fractional bits
+void		trap_SV_WriteDir(const vec3_c &pos);	// single byte encoded, very coarse
+void		trap_SV_WriteAngle(float f);
+void		trap_SV_WriteColor(vec4_t color);
+
+// virtual fileystem access
+int		trap_VFS_FOpenRead(const std::string &filename, VFILE **stream);
+int		trap_VFS_FOpenWrite(const std::string &filename, VFILE **stream);
+void		trap_VFS_FClose(VFILE **stream);
+	
+int		trap_VFS_FLoad(const std::string &name, void **buf);
+void		trap_VFS_FSave(const std::string &path, void *buffer, int len);
+void		trap_VFS_FFree(void *buf);
+
+int		trap_VFS_FRead(void *buffer, int len, VFILE *stream);
+int		trap_VFS_FWrite(const void *buffer, int len, VFILE *stream);
 
 
 #endif // G_LOCAL_H

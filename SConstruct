@@ -113,6 +113,7 @@ env = conf.Finish()
 
 
 Export('env')
+#SConscript('SConscript_ode')
 SConscript('SConscript_qrazor-fx-server', build_dir='build/server', duplicate=0)
 SConscript('SConscript_qrazor-fx-client', build_dir='build/client', duplicate=0)
 SConscript('SConscript_qrazor-fx-map', build_dir='build/map', duplicate=0)

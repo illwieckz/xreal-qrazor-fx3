@@ -70,7 +70,7 @@ bool	G_CanDamage(g_entity_c *targ, g_entity_c *inflictor)
 	{
 		dest = targ->_r.bbox_abs._mins + targ->_r.bbox_abs._maxs;
 		Vector3_Scale (dest, 0.5, dest);
-		trace = gi.SV_Trace (inflictor->_s.origin, bbox, dest, inflictor, MASK_SOLID);
+		trace = trap_SV_Trace (inflictor->_s.origin, bbox, dest, inflictor, MASK_SOLID);
 		
 		if (trace.fraction == 1.0)
 			return true;
@@ -83,35 +83,35 @@ bool	G_CanDamage(g_entity_c *targ, g_entity_c *inflictor)
 	*/
 	
 	/*
-	trace = gi.SV_Trace(inflictor->_s.origin, bbox, targ->_s.origin, inflictor, MASK_SOLID);
+	trace = trap_SV_Trace(inflictor->_s.origin, bbox, targ->_s.origin, inflictor, MASK_SOLID);
 	if(trace.fraction == 1.0)
 		return true;
 
 	Vector3_Copy(targ->_s.origin, dest);
 	dest[0] += 15.0;
 	dest[1] += 15.0;
-	trace = gi.SV_Trace(inflictor->_s.origin, bbox, dest, inflictor, MASK_SOLID);
+	trace = trap_SV_Trace(inflictor->_s.origin, bbox, dest, inflictor, MASK_SOLID);
 	if(trace.fraction == 1.0)
 		return true;
 
 	Vector3_Copy(targ->_s.origin, dest);
 	dest[0] += 15.0;
 	dest[1] -= 15.0;
-	trace = gi.SV_Trace(inflictor->_s.origin, bbox, dest, inflictor, MASK_SOLID);
+	trace = trap_SV_Trace(inflictor->_s.origin, bbox, dest, inflictor, MASK_SOLID);
 	if(trace.fraction == 1.0)
 		return true;
 
 	Vector3_Copy(targ->_s.origin, dest);
 	dest[0] -= 15.0;
 	dest[1] += 15.0;
-	trace = gi.SV_Trace(inflictor->_s.origin, bbox, dest, inflictor, MASK_SOLID);
+	trace = trap_SV_Trace(inflictor->_s.origin, bbox, dest, inflictor, MASK_SOLID);
 	if(trace.fraction == 1.0)
 		return true;
 
 	Vector3_Copy(targ->_s.origin, dest);
 	dest[0] -= 15.0;
 	dest[1] -= 15.0;
-	trace = gi.SV_Trace(inflictor->_s.origin, bbox, dest, inflictor, MASK_SOLID);
+	trace = trap_SV_Trace(inflictor->_s.origin, bbox, dest, inflictor, MASK_SOLID);
 	if(trace.fraction == 1.0)
 		return true;
 	*/
@@ -154,12 +154,12 @@ void 	G_SpawnDamage(int type, vec3_t origin, vec3_t normal, int damage)
 	if (damage > 255)
 		damage = 255;
 		
-	gi.SV_WriteByte(SVC_TEMP_ENTITY);
-	gi.SV_WriteByte(type);
-//	gi.SV_WriteByte(damage);
-	gi.SV_WritePosition(origin);
-	gi.SV_WriteDir(normal);
-	gi.SV_Multicast(origin, MULTICAST_PVS);
+	trap_SV_WriteByte(SVC_TEMP_ENTITY);
+	trap_SV_WriteByte(type);
+//	trap_SV_WriteByte(damage);
+	trap_SV_WritePosition(origin);
+	trap_SV_WriteDir(normal);
+	trap_SV_Multicast(origin, MULTICAST_PVS);
 }
 
 
@@ -408,7 +408,7 @@ void 	T_Damage(g_entity_c *targ, g_entity_c *inflictor, g_entity_c *attacker, ve
 	{
 		if (targ->_pain_debounce_time < level.time)
 		{
-			gi.SV_StartSound (NULL, targ, CHAN_ITEM, gi.SV_SoundIndex("items/protect4.wav"), 1, ATTN_NORM, 0);
+			trap_SV_StartSound (NULL, targ, CHAN_ITEM, trap_SV_SoundIndex("items/protect4.wav"), 1, ATTN_NORM, 0);
 			targ->_pain_debounce_time = level.time + 2;
 		}
 		

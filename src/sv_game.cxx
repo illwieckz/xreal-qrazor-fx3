@@ -181,6 +181,7 @@ SV_inPVS
 Also checks portalareas so that doors block sight
 =================
 */
+/*
 static bool 	SV_InPVS(const vec3_c &p1, const vec3_c &p2)
 {
 	//int		leafnum;
@@ -207,6 +208,7 @@ static bool 	SV_InPVS(const vec3_c &p1, const vec3_c &p2)
 	
 	return true;
 }
+*/
 
 
 /*
@@ -222,7 +224,7 @@ void 	SV_ShutdownGameProgs()
 	if(!ge)
 		return;
 		
-	ge->Shutdown();
+	ge->G_ShutdownGame();
 	
 	Sys_UnloadAPI(&ge_handle);
 }
@@ -276,12 +278,21 @@ void 	SV_InitGameProgs()
 	import.SV_SoundIndex 		= SV_SoundIndex;
 	import.SV_LightIndex		= SV_LightIndex;
 	
-	import.SV_PointContents 	= SV_PointContents;
-	import.SV_InPVS 		= SV_InPVS;
-	
+	import.CM_BeginRegistration	= CM_BeginRegistration;
 	import.CM_RegisterModel		= CM_RegisterModel;
 	import.CM_RegisterAnimation	= CM_RegisterAnimation;
+	import.CM_GetModelByNum		= CM_GetModelByNum;
+	import.CM_LeafContents		= CM_LeafContents;
+	import.CM_LeafCluster		= CM_LeafCluster;
+	import.CM_LeafArea		= CM_LeafArea;
+	import.CM_NumModels		= CM_NumModels;
+	import.CM_HeadnodeForBox	= CM_HeadnodeForBox;
+	import.CM_PointContents		= CM_PointContents;
+	import.CM_TransformedPointContents	= CM_TransformedPointContents;
+	import.CM_BoxTrace		= CM_BoxTrace;
+	import.CM_TransformedBoxTrace	= CM_TransformedBoxTrace;
 	import.CM_PointAreanum		= CM_PointAreanum;
+	import.CM_BoxLeafnums		= CM_BoxLeafnums;
 	import.CM_GetClosestAreaPortal	= CM_GetClosestAreaPortal;
 	import.CM_GetAreaPortalState 	= CM_GetAreaPortalState;
 	import.CM_SetAreaPortalState 	= CM_SetAreaPortalState;
@@ -321,6 +332,6 @@ void 	SV_InitGameProgs()
 	if(ge->apiversion != GAME_API_VERSION)
 		Com_Error(ERR_DROP, "game is version %i, not %i", ge->apiversion, GAME_API_VERSION);
 
-	ge->Init();
+	ge->G_InitGame();
 }
 

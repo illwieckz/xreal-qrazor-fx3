@@ -403,7 +403,7 @@ void bfg_explode (g_entity_c *self)
 			Vector3_MA (ent->s.origin, 0.5, v, v);
 			Vector3_Subtract (self->s.origin, v, v);
 			dist = Vector3_Length(v);
-			points = self->radius_dmg * (1.0 - sqrt(dist/self->dmg_radius));
+			points = self->radius_dmg * (1.0 - X_sqrt(dist/self->dmg_radius));
 			if (ent == self->r.owner)
 				points = points * 0.5;
 

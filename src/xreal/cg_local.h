@@ -322,6 +322,10 @@ struct cg_static_t
 };
 
 
+extern d_world_c*		cg_ode_world;
+extern d_space_c*		cg_ode_space;
+extern d_joint_group_c*		cg_ode_contact_group;
+
 //
 // cvars
 //
@@ -343,6 +347,7 @@ extern cvar_t	*cg_showfps;
 extern cvar_t	*cg_showlayout;
 extern cvar_t	*cg_printspeed;
 extern cvar_t	*cg_paused;
+extern cvar_t	*cg_gravity;
 
 
 
@@ -458,6 +463,13 @@ void	CG_AddParticles();
 
 void	CG_ParticleSpray(cg_particle_type_e type, const vec3_c &org, vec3_c &dir, const vec4_c &color, int count);
 void	CG_ParticleTrail(cg_particle_type_e type, const vec3_c &start, const vec3_c &end, const vec4_c &color, float interval);
+
+
+//
+// g_physics.cxx
+//
+void	CG_InitDynamics();
+void	CG_ShutdownDynamics();
 
 
 //

@@ -39,7 +39,7 @@ g_item_c::~g_item_c()
 cskel_animation_c*	g_item_c::registerAnimation(const std::string &name)
 {
 	_precaches.push_back(name);
-	return gi.CM_RegisterAnimation(name);
+	return trap_CM_RegisterAnimation(name);
 }
 
 
@@ -205,7 +205,7 @@ int	G_GetNumForItem(g_item_c *item)
 {
 	if(!item)
 	{
-		//gi.Com_Error(ERR_DROP, "G_GetNumForItem: NULL parameter\n");
+		//trap_Com_Error(ERR_DROP, "G_GetNumForItem: NULL parameter\n");
 		return -1;
 	}
 
@@ -215,7 +215,7 @@ int	G_GetNumForItem(g_item_c *item)
 			return i;
 	}
 	
-	gi.Com_Error(ERR_DROP, "G_GetNumForItem: bad pointer\n");
+	trap_Com_Error(ERR_DROP, "G_GetNumForItem: bad pointer\n");
 	return -1;
 }
 
@@ -231,7 +231,7 @@ g_item_c*	G_GetItemByNum(int num)
 
 	if(num < 0 || num >= (int)g_items.size())
 	{
-		//gi.Com_Error(ERR_DROP, "G_GetItemByNum: bad number %i\n", num);
+		//trap_Com_Error(ERR_DROP, "G_GetItemByNum: bad number %i\n", num);
 		return NULL;
 	}
 
@@ -251,7 +251,7 @@ g_item_c*	G_FindItem(const std::string &pickup_name)
 			return item;
 	}
 
-	gi.Com_Error(ERR_DROP, "G_FindItem: no item '%s'\n", pickup_name.c_str());
+	trap_Com_Error(ERR_DROP, "G_FindItem: no item '%s'\n", pickup_name.c_str());
 	return NULL;
 }
 
@@ -269,7 +269,7 @@ g_item_c*	G_FindItemByClassname(const std::string &classname)
 			return item;
 	}
 
-	gi.Com_Error(ERR_DROP, "G_FindItemByClassname: no item '%s'\n", classname.c_str());
+	trap_Com_Error(ERR_DROP, "G_FindItemByClassname: no item '%s'\n", classname.c_str());
 	return NULL;
 }
 
@@ -298,7 +298,7 @@ void	DoRespawn (g_entity_c *ent)
 
 	ent->r.svflags &= ~SVF_NOCLIENT;
 	ent->r.solid = SOLID_TRIGGER;
-	gi.SV_LinkEdict (ent);
+	trap_SV_LinkEdict (ent);
 
 	// send an effect
 	ent->s.event = EV_ITEM_RESPAWN;
@@ -314,7 +314,7 @@ void	SetRespawn (g_entity_c *ent, float delay)
 	ent->r.solid = SOLID_NOT;
 	ent->nextthink = level.time + delay;
 	ent->think = DoRespawn;
-	gi.SV_LinkEdict (ent);
+	trap_SV_LinkEdict (ent);
 #else
 	ent->remove();
 #endif
@@ -550,7 +550,7 @@ void Use_Quad (g_entity_c *ent, g_item_c *item)
 	else
 		ent->getClient()->quad_framenum = level.framenum + timeout;
 
-	gi.SV_StartSound(NULL, ent, CHAN_ITEM, gi.SV_SoundIndex("items/damage.wav"), 1, ATTN_NORM, 0);
+	trap_SV_StartSound(NULL, ent, CHAN_ITEM, trap_SV_SoundIndex("items/damage.wav"), 1, ATTN_NORM, 0);
 }
 */
 
@@ -567,7 +567,7 @@ void Use_Breather (g_entity_c *ent, g_item_c *item)
 	else
 		ent->getClient()->breather_framenum = level.framenum + 300;
 
-//	gi.SV_StartSound(ent, CHAN_ITEM, gi.SV_SoundIndex("items/damage.wav"), 1, ATTN_NORM, 0);
+//	trap_SV_StartSound(ent, CHAN_ITEM, trap_SV_SoundIndex("items/damage.wav"), 1, ATTN_NORM, 0);
 }
 */
 
@@ -584,7 +584,7 @@ void Use_Envirosuit (g_entity_c *ent, g_item_c *item)
 	else
 		ent->getClient()->enviro_framenum = level.framenum + 300;
 
-//	gi.SV_StartSound(ent, CHAN_ITEM, gi.SV_SoundIndex("items/damage.wav"), 1, ATTN_NORM, 0);
+//	trap_SV_StartSound(ent, CHAN_ITEM, trap_SV_SoundIndex("items/damage.wav"), 1, ATTN_NORM, 0);
 }
 */
 
@@ -601,7 +601,7 @@ void	Use_Invulnerability (g_entity_c *ent, g_item_c *item)
 	else
 		ent->getClient()->invincible_framenum = level.framenum + 300;
 
-	gi.SV_StartSound(NULL, ent, CHAN_ITEM, gi.SV_SoundIndex("items/protect.wav"), 1, ATTN_NORM, 0);
+	trap_SV_StartSound(NULL, ent, CHAN_ITEM, trap_SV_SoundIndex("items/protect.wav"), 1, ATTN_NORM, 0);
 }
 */
 
@@ -689,7 +689,7 @@ void	g_item_ammo_c::drop(g_player_c *player)
 		&& getTag() == AMMO_GRENADES 
 		&& player->_pers.inventory[index] - dropped->_count <= 0	)
 	{
-		gi.SV_CPrintf(player, PRINT_HIGH, "Can't drop current weapon\n");
+		trap_SV_CPrintf(player, PRINT_HIGH, "Can't drop current weapon\n");
 		
 		dropped->remove();
 		return;
@@ -937,18 +937,18 @@ void	g_item_power_armor_c::use(g_entity_c *ent, g_item_c *item)
 	if (ent->_flags & FL_POWER_ARMOR)
 	{
 		ent->_flags &= ~FL_POWER_ARMOR;
-		gi.SV_StartSound(NULL, ent, CHAN_AUTO, gi.SV_SoundIndex("misc/power2.wav"), 1, ATTN_NORM, 0);
+		trap_SV_StartSound(NULL, ent, CHAN_AUTO, trap_SV_SoundIndex("misc/power2.wav"), 1, ATTN_NORM, 0);
 	}
 	else
 	{
 		index = G_GetNumForItem(G_FindItem("cells"));
 		if (!ent->getClient()->pers.inventory[index])
 		{
-			gi.SV_CPrintf (ent, PRINT_HIGH, "No cells for power armor.\n");
+			trap_SV_CPrintf (ent, PRINT_HIGH, "No cells for power armor.\n");
 			return;
 		}
 		ent->_flags |= FL_POWER_ARMOR;
-		gi.SV_StartSound(NULL, ent, CHAN_AUTO, gi.SV_SoundIndex("misc/power1.wav"), 1, ATTN_NORM, 0);
+		trap_SV_StartSound(NULL, ent, CHAN_AUTO, trap_SV_SoundIndex("misc/power1.wav"), 1, ATTN_NORM, 0);
 	}
 }
 
@@ -974,11 +974,11 @@ void	g_item_power_armor_c::drop(g_entity_c *ent, g_item_c *item)
 
 g_item_dropable_c::g_item_dropable_c(g_player_c *player, g_item_c *item, const vec3_c &position, const vec3_c &velocity)
 {
-	//gi.Com_DPrintf("%s is dropping item %s\n", player->_pers.netname, item->getWorldModel());
+	//trap_Com_DPrintf("%s is dropping item %s\n", player->_pers.netname, item->getWorldModel());
 
 	_s.origin = position;
 	_s.origin2.set(0, 0, 8);
-	_s.index_model = gi.SV_ModelIndex(item->getWorldModel());
+	_s.index_model = trap_SV_ModelIndex(item->getWorldModel());
 	_s.effects = item->getWorldModelFlags();
 	_s.renderfx = RF_GLOW;
 
@@ -1003,26 +1003,24 @@ g_item_dropable_c::g_item_dropable_c(g_player_c *player, g_item_c *item, const v
 	_body->setLinearVel(velocity);
 //	_body->setGravityMode(1);
 	
-	cmodel_c *model = G_SetModel(this, _item->getWorldModel());
+	/*cmodel_c *model = */G_SetModel(this, _item->getWorldModel());
 	
 	// setup mass
 	dMass m;
-	dMassSetBoxTotal(&m, 3, _r.size[0], _r.size[1], _r.size[2]);
-//	dMassSetSphereTotal(&m, 3, _r.size.length() * 0.5);
+	m.setBoxTotal(3, _r.size[0], _r.size[1], _r.size[2]);
+//	m.setSphereTotal(3, _r.size.length() * 0.5);
 	_body->setMass(&m);
 	
 	// setup collision
-	g_geom_info_c *geom_info = new g_geom_info_c(this, model, NULL);
-	
-	d_geom_c *geom = new d_box_c(g_ode_space->getId(), _r.size);
-//	d_geom_c *geom = new d_trimesh_c(g_ode_space->getId(), model->vertexes, model->indexes);
-//	d_geom_c *geom = new d_sphere_c(g_ode_space->getId(), _r.size.length());
+	d_geom_c *geom = new d_box_c(g_ode_space_toplevel->getId(), _r.size);
+//	d_geom_c *geom = new d_trimesh_c(g_ode_space_toplevel->getId(), model->vertexes, model->indexes);
+//	d_geom_c *geom = new d_sphere_c(g_ode_space_toplevel->getId(), _r.size.length());
 	
 	geom->setBody(_body->getId());
-	geom->setData(geom_info);
+	geom->setData(this);
 	geom->setCollideBits(MASK_SOLID);
 	
-	_geoms.insert(std::make_pair(geom, geom_info));
+	_geoms.push_back(geom);
 }
 
 g_item_dropable_c::~g_item_dropable_c()
@@ -1064,7 +1062,7 @@ bool	g_item_dropable_c::touch(g_entity_c *other, const cplane_c &plane, csurface
 		other->getClient()->bonus_alpha = 0.25;	
 
 		// show icon and name on status bar
-		other->getClient()->ps.stats[STAT_PICKUP_ICON] = gi.SV_ImageIndex (_item->getIcon());
+		other->getClient()->ps.stats[STAT_PICKUP_ICON] = trap_SV_ImageIndex (_item->getIcon());
 		other->getClient()->ps.stats[STAT_PICKUP_STRING] = CS_ITEMS + G_GetNumForItem(_item);
 		other->getClient()->pickup_msg_time = level.time + 3.0;
 
@@ -1075,20 +1073,20 @@ bool	g_item_dropable_c::touch(g_entity_c *other, const cplane_c &plane, csurface
 		if(!X_stricmp(_item->getPickupName(), "Health"))
 		{
 			if (_count == 2)
-				gi.SV_StartSound(NULL, other, CHAN_ITEM, gi.SV_SoundIndex("items/s_health.wav"), 1, ATTN_NORM, 0);
+				trap_SV_StartSound(NULL, other, CHAN_ITEM, trap_SV_SoundIndex("items/s_health.wav"), 1, ATTN_NORM, 0);
 				
 			else if (_count == 10)
-				gi.SV_StartSound(NULL, other, CHAN_ITEM, gi.SV_SoundIndex("items/n_health.wav"), 1, ATTN_NORM, 0);
+				trap_SV_StartSound(NULL, other, CHAN_ITEM, trap_SV_SoundIndex("items/n_health.wav"), 1, ATTN_NORM, 0);
 				
 			else if (_count == 25)
-				gi.SV_StartSound(NULL, other, CHAN_ITEM, gi.SV_SoundIndex("items/l_health.wav"), 1, ATTN_NORM, 0);
+				trap_SV_StartSound(NULL, other, CHAN_ITEM, trap_SV_SoundIndex("items/l_health.wav"), 1, ATTN_NORM, 0);
 				
 			else // (ent->count == 100)
-				gi.SV_StartSound(NULL, other, CHAN_ITEM, gi.SV_SoundIndex("items/m_health.wav"), 1, ATTN_NORM, 0);
+				trap_SV_StartSound(NULL, other, CHAN_ITEM, trap_SV_SoundIndex("items/m_health.wav"), 1, ATTN_NORM, 0);
 		}
 		else if(_item->getPickupSound())
 		{
-			gi.SV_StartSound(NULL, other, CHAN_ITEM, gi.SV_SoundIndex(_item->getPickupSound()), 1, ATTN_NORM, 0);
+			trap_SV_StartSound(NULL, other, CHAN_ITEM, trap_SV_SoundIndex(_item->getPickupSound()), 1, ATTN_NORM, 0);
 		}
 	}
 
@@ -1165,7 +1163,7 @@ void	g_item_spawnable_c::activate()
 	_body->setGravityMode(0);
 	_body->disable();
 	
-	cmodel_c *model = G_SetModel(this, _item->getWorldModel());
+	/*cmodel_c* model = */G_SetModel(this, _item->getWorldModel());
 	
 	// setup mass
 	//dMass m;
@@ -1173,16 +1171,14 @@ void	g_item_spawnable_c::activate()
 	//_body->setMass(&m);
 	
 	// setup collision
-	g_geom_info_c *geom_info = new g_geom_info_c(this, model, NULL);
-	
-	d_geom_c *geom = new d_box_c(g_ode_space->getId(), _r.size);
-	//_geom = new d_trimesh_c(g_ode_space->getId(), model->vertexes, model->indexes);
+	d_geom_c *geom = new d_box_c(g_ode_space_toplevel->getId(), _r.size);
+	//d_geom_c* geom = new d_trimesh_c(g_ode_space_toplevel->getId(), model->vertexes, model->indexes);
 	//_geom = new d_sphere_c(g_ode_space->getId(), _r.bbox._maxs[0]);
 	
 	geom->setBody(_body->getId());
-	geom->setData(geom_info);
+	geom->setData(this);
 	
-	_geoms.insert(std::make_pair(geom, geom_info));
+	_geoms.push_back(geom);
 }
 
 
@@ -1206,7 +1202,7 @@ static void	Use_Item (g_entity_c *ent, g_entity_c *other, g_entity_c *activator)
 	}
 
 
-	gi.SV_LinkEdict (ent);
+	trap_SV_LinkEdict (ent);
 }
 */
 
@@ -1231,10 +1227,10 @@ void	droptofloor(g_entity_c *ent)
 	vec3_c v(0, 0, -128);
 	dest = ent->_s.origin + v;
 
-	tr = gi.SV_Trace(ent->_s.origin, ent->_r.bbox, dest, ent, MASK_SOLID);
+	tr = trap_SV_Trace(ent->_s.origin, ent->_r.bbox, dest, ent, MASK_SOLID);
 	if(tr.startsolid)
 	{
-		gi.Com_DPrintf("droptofloor: '%s' startsolid at '%s'\n", ent->getClassName(), Vector3_String(ent->_s.origin));
+		trap_Com_DPrintf("droptofloor: '%s' startsolid at '%s'\n", ent->getClassName(), Vector3_String(ent->_s.origin));
 		ent->remove();
 		return;
 	}
@@ -1291,16 +1287,16 @@ void	G_PrecacheItem(g_item_c *item)
 		return;
 
 	if(item->getPickupSound())
-		gi.SV_SoundIndex(item->getPickupSound());
+		trap_SV_SoundIndex(item->getPickupSound());
 		
 	if(item->getWorldModel())
-		gi.SV_ModelIndex(item->getWorldModel());
+		trap_SV_ModelIndex(item->getWorldModel());
 		
 	if(item->getViewModel())
-		gi.SV_ModelIndex(item->getViewModel());
+		trap_SV_ModelIndex(item->getViewModel());
 		
 	if(item->getIcon())
-		gi.SV_ShaderIndex(item->getIcon());
+		trap_SV_ShaderIndex(item->getIcon());
 	
 	// parse everything for its ammo
 	if(item->getAmmo() && item->getAmmo()[0])
@@ -1323,42 +1319,47 @@ void	G_PrecacheItem(g_item_c *item)
 	
 		if(s.length() < 5 || s.length() > MAX_QPATH)
 		{
-			gi.Com_Error(ERR_DROP, "G_PrecacheItem: '%s' has bad precache string length %i for entry '%s'", item->getClassname(), s.length(), s.c_str());
+			trap_Com_Error(ERR_DROP, "G_PrecacheItem: '%s' has bad precache string length %i for entry '%s'", item->getClassname(), s.length(), s.c_str());
 			break;
 		}
 		
 		const char *ext = s.substr(s.length()-4, s.length()).c_str();
 		
 		// determine type based on extension
-		if(X_strcaseequal(ext, ".md2"))
-			gi.SV_ModelIndex(s);
+		if(X_strcaseequal(ext, ".ase"))
+			trap_SV_ModelIndex(s);
+			
+		else if(X_strcaseequal(ext, ".lwo"))
+			trap_SV_ModelIndex(s);
+		else if(X_strcaseequal(ext, ".md2"))
+			trap_SV_ModelIndex(s);
 			
 		else if(X_strcaseequal(ext, ".md3"))
-			gi.SV_ModelIndex(s);
+			trap_SV_ModelIndex(s);
 		
 		else if(X_strcaseequal(ext, ".md5mesh"))
-			gi.SV_ModelIndex(s);
+			trap_SV_ModelIndex(s);
 		
 		else if(X_strcaseequal(ext, ".md5anim"))
-			gi.SV_AnimationIndex(s);
+			trap_SV_AnimationIndex(s);
 			
 		else if(X_strcaseequal(ext, ".tga"))
-			gi.SV_ShaderIndex(s);
+			trap_SV_ShaderIndex(s);
 			
 		else if(X_strcaseequal(ext, ".jpg"))
-			gi.SV_ShaderIndex(s);
+			trap_SV_ShaderIndex(s);
 		
 		else if(X_strcaseequal(ext, ".png"))
-			gi.SV_ShaderIndex(s);
+			trap_SV_ShaderIndex(s);
 			
 		else if(X_strcaseequal(ext, ".wav"))
-			gi.SV_SoundIndex(s);
+			trap_SV_SoundIndex(s);
 			
 		else if(X_strcaseequal(ext, ".ogg"))
-			gi.SV_SoundIndex(s);
+			trap_SV_SoundIndex(s);
 			
 		else if(X_strcaseequal(ext, ".mp3"))
-			gi.SV_SoundIndex(s);
+			trap_SV_SoundIndex(s);
 	}
 }
 
@@ -1382,7 +1383,7 @@ void	G_SpawnItem(g_entity_c **entity, g_item_c *item)
 		if (strcmp(ent->_classname, "key_power_cube") != 0)
 		{
 			ent->_spawnflags = 0;
-			gi.Com_Printf("%s at %s has invalid spawnflags set\n", ent->_classname, Vector3_String(ent->_s.origin));
+			trap_Com_Printf("%s at %s has invalid spawnflags set\n", ent->_classname, Vector3_String(ent->_s.origin));
 		}
 	}
 	*/
@@ -1450,7 +1451,7 @@ void	G_SpawnItem(g_entity_c **entity, g_item_c *item)
 	ent->_s.renderfx = RF_GLOW;
 	
 	if(ent->_model.length())
-		gi.SV_ModelIndex(ent->model);
+		trap_SV_ModelIndex(ent->model);
 		
 #else
 	g_entity_c *ent =  new g_item_spawnable_c(item);
@@ -2408,7 +2409,7 @@ void SP_item_health (g_entity_c *self)
 	self->model = "models/items/healing/medium/tris.md2";
 	self->count = 10;
 	SpawnItem (self, G_FindItem ("Health"));
-	gi.SV_SoundIndex ("items/n_health.wav");
+	trap_SV_SoundIndex ("items/n_health.wav");
 }
 */
 
@@ -2427,7 +2428,7 @@ void SP_item_health_small (g_entity_c *self)
 	self->count = 2;
 	SpawnItem (self, G_FindItem ("Health"));
 	self->style = HEALTH_IGNORE_MAX;
-	gi.SV_SoundIndex ("items/s_health.wav");
+	trap_SV_SoundIndex ("items/s_health.wav");
 }
 */
 
@@ -2445,7 +2446,7 @@ void SP_item_health_large (g_entity_c *self)
 	self->model = "models/items/healing/large/tris.md2";
 	self->count = 25;
 	SpawnItem (self, G_FindItem ("Health"));
-	gi.SV_SoundIndex ("items/l_health.wav");
+	trap_SV_SoundIndex ("items/l_health.wav");
 }
 */
 
@@ -2463,7 +2464,7 @@ void SP_item_health_mega (g_entity_c *self)
 	self->model = "models/items/mega_h/tris.md2";
 	self->count = 100;
 	SpawnItem (self, G_FindItem ("Health"));
-	gi.SV_SoundIndex ("items/m_health.wav");
+	trap_SV_SoundIndex ("items/m_health.wav");
 	self->style = HEALTH_IGNORE_MAX|HEALTH_TIMED;
 }
 */
@@ -2533,7 +2534,7 @@ void	G_SetItemNames()
 	{
 		g_item_c *item = g_items[i];
 		
-		gi.SV_SetConfigString(CS_ITEMS+i, item->getPickupName());
+		trap_SV_SetConfigString(CS_ITEMS+i, item->getPickupName());
 	}
 
 	/*

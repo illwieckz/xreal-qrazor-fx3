@@ -107,7 +107,6 @@ enum err_type_e
 };
 
 
-// this is only here so the functions in q_shared.c and q_shwin.c can link
 void	Com_Printf(const char *fmt, ...);
 void 	Com_Error(err_type_e type, const char *fmt, ...);
 void*	Com_Alloc(int size);	// returns 0 filled memory
@@ -620,6 +619,12 @@ private:
 class csurface_c
 {
 public:
+	csurface_c(uint_t flags, uint_t contents)
+	{
+		_flags		= flags;
+		_contents	= contents;
+	}
+	
 	csurface_c(const std::vector<vec3_c> &vertexes, const std::vector<index_t> &indexes, uint_t flags, uint_t contents)
 	{
 //		Com_DPrintf("creating collisionSurface ...\n");
@@ -764,24 +769,45 @@ protected:
 	std::vector<cskel_channel_t*>	_channels;
 };
 
+/*
+class bg_rigid_body_c;
+class bg_geom_c;
+struct contact_t
+{
+	vec3_c			origin;
+	vec3_c			normal;		// direction
+	vec_t			depth;		// penetration depth
+	
+	bg_geom_c*		g1, g2;		// colliding geometric objects
+};
+*/
 
 class entity_c;
 
+//
 // a trace is returned when a box is swept through the world
+//
 struct trace_t
 {
 	bool			nohit;		// if true, didn't hit anything
 	bool			allsolid;	// if true, plane is not valid
 	bool			startsolid;	// if true, the initial point was in a solid area
+	vec_t			fraction;	// 0.0 = start, 1.0 = end
 	vec_t			depth;		// penetration depth
-	vec3_c			endpos;		// final position
+	vec3_c			pos;		// final position
 	cplane_c		plane;		// surface normal at impact
 	csurface_c*		surface;	// surface hit
-	uint_t			contents;	// contents on other side of surface hit
-	entity_c*		ent;		// entity that was hit
+	
+	uint_t			pos_flags;
+	uint_t			pos_contents;
+	
+	uint_t			neg_flags;
+	uint_t			neg_contents;	// contents on other side of surface hit
+	
+//	std::vector<dContact>	contacts;	// contacts to affect rigid bodies
+	
+	entity_c*		ent;		// entity that was hit, not set by CM_ functions
 };
-
-
 
 
 
@@ -960,7 +986,6 @@ enum
 	RF_PORTALSURFACE	= (1<<9),
 	RF_STATIC		= (1<<10)
 };
-
 
 // player_state_t->refdef flags
 enum

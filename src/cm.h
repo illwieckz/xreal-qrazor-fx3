@@ -31,13 +31,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // xreal --------------------------------------------------------------------
 // shared -------------------------------------------------------------------
 #include "x_shared.h"
-
+#include "x_ode.h"
 
 
 //
 // public interface
 //
-void			CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum);
+d_bsp_c*		CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum, dSpaceID space);
 cmodel_c*		CM_RegisterModel(const std::string &name);
 cskel_animation_c*	CM_RegisterAnimation(const std::string &name);
 void			CM_EndRegistration();
@@ -48,29 +48,43 @@ cmodel_c*		CM_GetModelByNum(int num);
 cskel_animation_c*	CM_GetAnimationByName(const std::string &name);
 cskel_animation_c*	CM_GetAnimationByNum(int num);
 
-int		CM_NumModels();
+int			CM_LeafContents(int leafnum);
+int			CM_LeafCluster(int leafnum);
+int			CM_LeafArea(int leafnum);
 
-const char*	CM_EntityString();
+int			CM_NumModels();
+
+const char*		CM_EntityString();
+
+// creates a clipping hull for an arbitrary box
+int			CM_HeadnodeForBox(const cbbox_c& bbox);
 
 // returns an ORed contents mask
-int		CM_PointContents(const vec3_c &p, int headnode);
-int		CM_TransformedPointContents(const vec3_c &p, int headnode, const vec3_c &origin, const quaternion_c &quat);
+int			CM_PointContents(const vec3_c &p, int headnode);
+int			CM_TransformedPointContents(const vec3_c &p, int headnode, const vec3_c &origin, const quaternion_c &quat);
 
-int		CM_PointAreanum(const vec3_c &p);
+trace_t			CM_BoxTrace(const vec3_c &start, const vec3_c &end, const cbbox_c &bbox, int headnode, int brushmask);
+	
+trace_t			CM_TransformedBoxTrace(const vec3_c &start, const vec3_c &end,
+						const cbbox_c &bbox,
+						int headnode, int brushmask, 
+						const vec3_c &origin, const quaternion_c &quat);
+
+int			CM_PointAreanum(const vec3_c &p);
 
 // call with topnode set to the headnode, returns with topnode
 // set to the first node that splits the box
-int		CM_BoxLeafnums(const cbbox_c &bbox, int *list, int listsize, int *topnode);
+int			CM_BoxLeafnums(const cbbox_c &bbox, std::deque<int> &list, int headnode);
 
-int		CM_GetClosestAreaPortal(const vec3_c &p);
-bool		CM_GetAreaPortalState(int portal);
-void		CM_SetAreaPortalState(int portal, bool open);
-bool		CM_AreasConnected(int area1, int area2);
+int			CM_GetClosestAreaPortal(const vec3_c &p);
+bool			CM_GetAreaPortalState(int portal);
+void			CM_SetAreaPortalState(int portal, bool open);
+bool			CM_AreasConnected(int area1, int area2);
 
-int		CM_WriteAreaBits(byte *buffer, int area);
-void		CM_MergeAreaBits(byte *buffer, int area);
+int			CM_WriteAreaBits(byte *buffer, int area);
+void			CM_MergeAreaBits(byte *buffer, int area);
 
-bool		CM_HeadnodeVisible(int headnode, byte *visbits);
+bool			CM_HeadnodeVisible(int headnode, byte *visbits);
 
 #endif	// CM_H
 

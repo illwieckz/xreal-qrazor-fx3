@@ -63,8 +63,8 @@ static std::string	G_NewString(const std::string &s)
 	
 	l = s.length();
 
-	//newb = (char*)gi.Z_TagMalloc (l, TAG_LEVEL);
-	//newb = (char*)gi.Z_Malloc(l);
+	//newb = (char*)trap_Z_TagMalloc (l, TAG_LEVEL);
+	//newb = (char*)trap_Z_Malloc(l);
 
 	//new_p = newb;
 	
@@ -105,7 +105,7 @@ void	g_field_iface_a::setField(const std::string &key, const std::string &value)
 	vec3_c		vec;
 	matrix_c	m;
 	
-//	gi.Com_Printf("g_field_iface_a:setField: checking for '%s' '%s'\n", key.c_str(), value.c_str());
+//	trap_Com_Printf("g_field_iface_a:setField: checking for '%s' '%s'\n", key.c_str(), value.c_str());
 
 	for(std::deque<g_field_c>::iterator ir = _fields.begin(); ir != _fields.end(); ++ir)
 	{
@@ -175,6 +175,6 @@ void	g_field_iface_a::setField(const std::string &key, const std::string &value)
 	}
 	
 
-	gi.Com_Printf("%s is not a field\n", key.c_str());
+	trap_Com_Printf("%s is not a field\n", key.c_str());
 }
 

@@ -11,6 +11,34 @@ xreal_cgame_src = [
 'src/x_pmove.cxx',
 'src/x_shared.cxx',
 'src/x_string.cxx',
+'src/ode/array.cxx',
+'src/ode/collision_kernel.cxx',
+'src/ode/collision_quadtreespace.cxx',
+'src/ode/collision_space.cxx',
+'src/ode/collision_std.cxx',
+'src/ode/collision_transform.cxx',
+'src/ode/collision_util.cxx',
+'src/ode/error.cxx',
+'src/ode/fast_dot.cxx',
+'src/ode/fast_ldlt.cxx',
+'src/ode/fast_lsolve.cxx',
+'src/ode/fast_ltsolve.cxx',
+'src/ode/joint.cxx',
+'src/ode/lcp.cxx',
+'src/ode/mass.cxx',
+'src/ode/mat.cxx',
+'src/ode/matrix.cxx',
+'src/ode/memory.cxx',
+'src/ode/misc.cxx',
+'src/ode/obstack.cxx',
+'src/ode/ode.cxx',
+'src/ode/odemath.cxx',
+'src/ode/rotation.cxx',
+'src/ode/step.cxx',
+'src/ode/step_quick.cxx',
+'src/ode/testing.cxx',
+'src/ode/timer.cxx',
+'src/ode/util.cxx',
 'src/xreal/cg_decal.cxx',
 'src/xreal/cg_entity.cxx',
 'src/xreal/cg_event.cxx',
@@ -21,6 +49,7 @@ xreal_cgame_src = [
 'src/xreal/cg_main.cxx',
 'src/xreal/cg_muzzleflash.cxx',
 'src/xreal/cg_particle.cxx',
+'src/xreal/cg_physics.cxx',
 'src/xreal/cg_player.cxx',
 'src/xreal/cg_pred.cxx',
 'src/xreal/cg_screen.cxx',
@@ -29,6 +58,6 @@ xreal_cgame_src = [
 'src/xreal/cg_weapon.cxx' ]
 
 xreal_cgame_env = env.Copy()
-xreal_cgame_env.SharedLibrary('cgame', xreal_cgame_src)
+xreal_cgame_env.SharedLibrary('cgame', xreal_cgame_src, LIBS=['m'])
 xreal_cgame_env.InstallAs('#install/xreal/cgame.so', 'libcgame.so')
 

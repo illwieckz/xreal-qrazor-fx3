@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 void	Svcmd_Test_f()
 {
-	gi.SV_CPrintf(NULL, PRINT_HIGH, "Svcmd_Test_f()\n");
+	trap_SV_CPrintf(NULL, PRINT_HIGH, "Svcmd_Test_f()\n");
 }
 
 /*
@@ -94,7 +94,7 @@ static bool	StringToFilter(const char *s, ipfilter_t *f)
 	{
 		if (*s < '0' || *s > '9')
 		{
-			gi.SV_CPrintf(NULL, PRINT_HIGH, "Bad filter address: %s\n", s);
+			trap_SV_CPrintf(NULL, PRINT_HIGH, "Bad filter address: %s\n", s);
 			return false;
 		}
 		
@@ -153,8 +153,8 @@ void 	SVCmd_AddIP_f()
 {
 	int		i;
 	
-	if (gi.Cmd_Argc() < 3) {
-		gi.SV_CPrintf(NULL, PRINT_HIGH, "Usage:  addip <ip-mask>\n");
+	if (trap_Cmd_Argc() < 3) {
+		trap_SV_CPrintf(NULL, PRINT_HIGH, "Usage:  addip <ip-mask>\n");
 		return;
 	}
 
@@ -165,13 +165,13 @@ void 	SVCmd_AddIP_f()
 	{
 		if (numipfilters == MAX_IPFILTERS)
 		{
-			gi.SV_CPrintf (NULL, PRINT_HIGH, "IP filter list is full\n");
+			trap_SV_CPrintf (NULL, PRINT_HIGH, "IP filter list is full\n");
 			return;
 		}
 		numipfilters++;
 	}
 	
-	if (!StringToFilter (gi.Cmd_Argv(2), &ipfilters[i]))
+	if (!StringToFilter (trap_Cmd_Argv(2), &ipfilters[i]))
 		ipfilters[i].compare = 0xffffffff;
 }
 
@@ -180,12 +180,12 @@ void 	SVCmd_RemoveIP_f()
 	ipfilter_t	f;
 	int			i, j;
 
-	if (gi.Cmd_Argc() < 3) {
-		gi.SV_CPrintf(NULL, PRINT_HIGH, "Usage:  sv removeip <ip-mask>\n");
+	if (trap_Cmd_Argc() < 3) {
+		trap_SV_CPrintf(NULL, PRINT_HIGH, "Usage:  sv removeip <ip-mask>\n");
 		return;
 	}
 
-	if (!StringToFilter (gi.Cmd_Argv(2), &f))
+	if (!StringToFilter (trap_Cmd_Argv(2), &f))
 		return;
 
 	for (i=0 ; i<numipfilters ; i++)
@@ -195,10 +195,10 @@ void 	SVCmd_RemoveIP_f()
 			for (j=i+1 ; j<numipfilters ; j++)
 				ipfilters[j-1] = ipfilters[j];
 			numipfilters--;
-			gi.SV_CPrintf (NULL, PRINT_HIGH, "Removed.\n");
+			trap_SV_CPrintf (NULL, PRINT_HIGH, "Removed.\n");
 			return;
 		}
-	gi.SV_CPrintf (NULL, PRINT_HIGH, "Didn't find %s.\n", gi.Cmd_Argv(2));
+	trap_SV_CPrintf (NULL, PRINT_HIGH, "Didn't find %s.\n", trap_Cmd_Argv(2));
 }
 
 void 	SVCmd_ListIP_f()
@@ -206,11 +206,11 @@ void 	SVCmd_ListIP_f()
 	int		i;
 	byte	b[4];
 
-	gi.SV_CPrintf (NULL, PRINT_HIGH, "Filter list:\n");
+	trap_SV_CPrintf (NULL, PRINT_HIGH, "Filter list:\n");
 	for (i=0 ; i<numipfilters ; i++)
 	{
 		*(unsigned *)b = ipfilters[i].compare;
-		gi.SV_CPrintf (NULL, PRINT_HIGH, "%3i.%3i.%3i.%3i\n", b[0], b[1], b[2], b[3]);
+		trap_SV_CPrintf (NULL, PRINT_HIGH, "%3i.%3i.%3i.%3i\n", b[0], b[1], b[2], b[3]);
 	}
 }
 
@@ -222,19 +222,19 @@ void 	SVCmd_WriteIP_f()
 	int		i;
 	cvar_t	*vfs_game;
 
-	vfs_game = gi.Cvar_Get("vfs_game", "", 0);
+	vfs_game = trap_Cvar_Get("vfs_game", "", 0);
 
 	if(X_strequal(vfs_game->getString(), ""))
 		sprintf(name, "%s/listip.cfg", GAMEVERSION);
 	else
 		sprintf(name, "%s/listip.cfg", vfs_game->getString());
 
-	gi.SV_CPrintf(NULL, PRINT_HIGH, "Writing %s.\n", name);
+	trap_SV_CPrintf(NULL, PRINT_HIGH, "Writing %s.\n", name);
 
 	f = fopen (name, "wb");
 	if (!f)
 	{
-		gi.SV_CPrintf (NULL, PRINT_HIGH, "Couldn't open %s\n", name);
+		trap_SV_CPrintf (NULL, PRINT_HIGH, "Couldn't open %s\n", name);
 		return;
 	}
 	
@@ -254,7 +254,7 @@ void 	SVCmd_WriteIP_f()
 ServerCommand
 
 ServerCommand will be called when an "sv" command is issued.
-The game can issue gi.argc() / gi.argv() commands to get the rest
+The game can issue trap_argc() / trap_argv() commands to get the rest
 of the parameters
 =================
 */
@@ -262,7 +262,7 @@ void	G_ServerCommand()
 {
 	const char	*cmd;
 
-	cmd = gi.Cmd_Argv(1);
+	cmd = trap_Cmd_Argv(1);
 	
 	if (X_stricmp (cmd, "test") == 0)
 		Svcmd_Test_f ();
@@ -280,6 +280,6 @@ void	G_ServerCommand()
 		SVCmd_WriteIP_f ();
 		
 	else
-		gi.SV_CPrintf (NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);
+		trap_SV_CPrintf (NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);
 }
 

@@ -31,30 +31,34 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // qrazor-fx ----------------------------------------------------------------
 // xreal --------------------------------------------------------------------
 
+#ifdef DOUBLEVEC_T
+const vec_t		X_infinity = std::numeric_limits<double>::infinity();
+#else
+const vec_t		X_infinity = std::numeric_limits<float>::infinity();
+#endif
 
-const vec3_c		vec3_origin = vec3_c(0, 0, 0);
+const vec3_c		vec3_origin(0, 0, 0);
 
 
-const matrix_c		matrix_identity = matrix_c(	1, 0, 0, 0, 
-							0, 1, 0, 0,
-							0, 0, 1, 0,
-							0, 0, 0, 1	);
+const matrix_c		matrix_identity(	1, 0, 0, 0, 
+						0, 1, 0, 0,
+						0, 0, 1, 0,
+						0, 0, 0, 1	);
 						
-const quaternion_c	quat_identity = quaternion_c(0, 0, 0, 1);
+const quaternion_c	quat_identity(0, 0, 0, 1);
 
 
-const vec4_c	color_black	= vec4_c(0, 0, 0, 1);
-const vec4_c	color_red	= vec4_c(1, 0, 0, 1);
-const vec4_c	color_green	= vec4_c(0, 1, 0, 1);
-const vec4_c	color_blue	= vec4_c(0, 0, 1, 1);
-const vec4_c	color_yellow	= vec4_c(1, 1, 0, 1);
-const vec4_c	color_magenta	= vec4_c(1, 0, 1, 1);
-const vec4_c	color_cyan	= vec4_c(0, 1, 1, 1);
-const vec4_c	color_white	= vec4_c(1, 1, 1, 1);
-const vec4_c	color_grey_lite	= vec4_c(0.75, 0.75, 0.75, 1);
-const vec4_c	color_grey_med	= vec4_c(0.5, 0.5, 0.5, 1);
-const vec4_c	color_grey_dark	= vec4_c(0.25, 0.25, 0.25, 1);
-
+const vec4_c	color_black	(0, 0, 0, 1);
+const vec4_c	color_red	(1, 0, 0, 1);
+const vec4_c	color_green	(0, 1, 0, 1);
+const vec4_c	color_blue	(0, 0, 1, 1);
+const vec4_c	color_yellow	(1, 1, 0, 1);
+const vec4_c	color_magenta	(1, 0, 1, 1);
+const vec4_c	color_cyan	(0, 1, 1, 1);
+const vec4_c	color_white	(1, 1, 1, 1);
+const vec4_c	color_grey_lite	(0.75, 0.75, 0.75, 1);
+const vec4_c	color_grey_med	(0.5, 0.5, 0.5, 1);
+const vec4_c	color_grey_dark	(0.25, 0.25, 0.25, 1);
 
 
 
@@ -211,7 +215,7 @@ void	matrix_c::setupRotation(vec_t x, vec_t y, vec_t z, vec_t deg)
 	
 	len = x*x+y*y+z*z;
 	if(len != 0.0f)
-		len = 1.0f / (vec_t)sqrt(len);
+		len = 1.0f / (vec_t)X_sqrt(len);
 	x *= len;
 	y *= len;
 	z *= len;
@@ -246,19 +250,38 @@ void	matrix_c::fromAngles(vec_t pitch, vec_t yaw, vec_t roll)
 {
 	double	sr, sp, sy, cr, cp, cy;
 		
-	sp = X_sin(pitch);
-	cp = X_cos(pitch);
+	sp = X_sin(DEGTORAD(pitch));
+	cp = X_cos(DEGTORAD(pitch));
 	
-	sy = X_sin(yaw);
-	cy = X_cos(yaw);
+	sy = X_sin(DEGTORAD(yaw));
+	cy = X_cos(DEGTORAD(yaw));
 	
-	sr = X_sin(roll);
-	cr = X_cos(roll);
+	sr = X_sin(DEGTORAD(roll));
+	cr = X_cos(DEGTORAD(roll));
 
 	_m[0][0]=(vec_t)(cp*cy);	_m[0][1]=(vec_t)(sr*sp*cy+cr*-sy);	_m[0][2]=(vec_t)(cr*sp*cy+-sr*-sy);	_m[0][3]= 0;
 	_m[1][0]=(vec_t)(cp*sy);	_m[1][1]=(vec_t)(sr*sp*sy+cr*cy);	_m[1][2]=(vec_t)(cr*sp*sy+-sr*cy);	_m[1][3]= 0;
 	_m[2][0]=(vec_t)(-sp);		_m[2][1]=(vec_t)(sr*cp);		_m[2][2]=(vec_t)(cr*cp);		_m[2][3]= 0;
 	_m[3][0]= 0;			_m[3][1]= 0;				_m[3][2]= 0;				_m[3][3]= 1;
+}
+
+void	matrix_c::fromEulerAngles(vec_t phi, vec_t theta, vec_t psi)
+{
+	vec_t sphi,cphi,stheta,ctheta,spsi,cpsi;
+	
+	sphi = X_sin(phi);
+	cphi = X_cos(phi);
+	
+	stheta = X_sin(theta);
+	ctheta = X_cos(theta);
+	
+	spsi = X_sin(psi);
+	cpsi = X_cos(psi);
+	
+	_m[0][0]=cpsi*ctheta;			_m[0][1]=spsi*ctheta;			_m[0][2]=-stheta;		_m[0][3]=0.0f;
+	_m[1][0]=cpsi*stheta*sphi - spsi*cphi;	_m[1][1]=spsi*stheta*sphi + cpsi*cphi;	_m[1][2]=ctheta*sphi;		_m[1][3]=0.0f;
+	_m[2][0]=cpsi*stheta*cphi + spsi*sphi;	_m[2][1]=spsi*stheta*cphi - cpsi*sphi;	_m[2][2]=ctheta*cphi;		_m[2][3]=0.0f;
+	_m[3][0]=0.0f;				_m[3][1]=0.0f;				_m[3][2]=0.0f;			_m[3][3]=1.0f;
 }
 	
 void	matrix_c::fromVectorsFLU(const vec3_c &forward, const vec3_c &left, const vec3_c &up)
@@ -339,25 +362,87 @@ void	matrix_c::fromQuaternion(const quaternion_c &q)
 	If a 4x4 matrix is required, then the bottom row and right-most column
 	may be added.
 	*/
-
 	
-	double xx = q[0] * q[0];
-	double xy = q[0] * q[1];
-	double xz = q[0] * q[2];
-	double xw = q[0] * q[3];
+	/*
+	dReal qq1 = 2*q[0]*q[0];
+	dReal qq2 = 2*q[1]*q[1];
+	dReal qq3 = 2*q[2]*q[2];
 	
-	double yy = q[1] * q[1];
-	double yz = q[1] * q[2];
-	double yw = q[1] * q[3];
+	_R(0,0) = 1 - qq2 - qq3;		_R(0,1) = 2*(q[0]*q[1] - q[3]*q[2]);	_R(0,2) = 2*(q[0]*q[2] + q[3]*q[1]);
+	_R(1,0) = 2*(q[0]*q[1] + q[3]*q[2]);	_R(1,1) = 1 - qq1 - qq3;		_R(1,2) = 2*(q[1]*q[2] - q[3]*q[0]);
+	_R(2,0) = 2*(q[0]*q[2] - q[3]*q[1]);	_R(2,1) = 2*(q[1]*q[2] + q[3]*q[0]);	_R(2,2) = 1 - qq1 - qq2;
+	*/
 	
-	double zz = q[2] * q[2];
-	double zw = q[2] * q[3];
+	double xx = q._q[0] * q._q[0];
+	double xy = q._q[0] * q._q[1];
+	double xz = q._q[0] * q._q[2];
+	double xw = q._q[0] * q._q[3];
 	
+	double yy = q._q[1] * q._q[1];
+	double yz = q._q[1] * q._q[2];
+	double yw = q._q[1] * q._q[3];
+	
+	double zz = q._q[2] * q._q[2];
+	double zw = q._q[2] * q._q[3];
 
 	_m[0][0]=1-2*(yy+zz);	_m[0][1]=  2*(xy-zw);	_m[0][2]=  2*(xz+yw);	_m[0][3]=0;
 	_m[1][0]=  2*(xy+zw);	_m[1][1]=1-2*(xx+zz);	_m[1][2]=  2*(yz-xw);	_m[1][3]=0;
 	_m[2][0]=  2*(xz-yw);	_m[2][1]=  2*(yz+xw);	_m[2][2]=1-2*(xx+yy);	_m[2][3]=0;
 	_m[3][0]=0;		_m[3][1]=0;		_m[3][2]=0;		_m[3][3]=1;
+}
+
+void	matrix_c::from2Axes(vec_t ax, vec_t ay, vec_t az, vec_t bx, vec_t by, vec_t bz)
+{
+	vec_t	l,k;
+	  
+	l = X_sqrt(ax*ax + ay*ay + az*az);
+	if(l <= REAL(0.0))
+	{
+		Com_Printf("matrix_c::from2Axes: zero length vector");
+		return;
+	}
+	
+	l = X_recip(l);
+	ax *= l;
+	ay *= l;
+	az *= l;
+	
+	k = ax*bx + ay*by + az*bz;
+	
+	bx -= k*ax;
+	by -= k*ay;
+	bz -= k*az;
+	
+	l = X_sqrt(bx*bx + by*by + bz*bz);
+	if(l <= REAL(0.0))
+	{
+		Com_Printf("matrix_c::from2Axes: zero length vector");
+		return;
+	}
+	
+	l = X_recip(l);
+	bx *= l;
+	by *= l;
+	bz *= l;
+	
+	_m[0][0] = ax;		_m[0][1] = bx;		_m[0][2] = - by*az + ay*bz;	_m[0][3] = REAL(0.0);
+	_m[1][0] = ay;		_m[1][1] = by;		_m[1][2] = - bz*ax + az*bx;	_m[1][3] = REAL(0.0);
+	_m[2][0] = az;		_m[2][1] = bz;		_m[2][2] = - bx*ay + ax*by;	_m[2][3] = REAL(0.0);
+	_m[3][0] = REAL(0.0);	_m[3][1] = REAL(0.0);	_m[3][2] = REAL(0.0);		_m[3][3] = REAL(1.0);
+}
+	
+void	matrix_c::fromZAxis(vec_t ax, vec_t ay, vec_t az)
+{
+	vec3_c n(ax, ay, az), p, q;
+	
+	n.normalize();
+	
+	Vector3_PlaneSpace(n, p, q);
+	
+	_m[0][0] = p[0];	_m[0][1] = q[0];	_m[0][2] = n[0];	_m[0][3] = REAL(0.0);
+	_m[1][0] = p[1];	_m[1][1] = q[1];	_m[1][2] = n[1];	_m[1][3] = REAL(0.0);
+	_m[2][0] = p[2];	_m[2][1] = q[2];	_m[2][2] = n[2];	_m[2][3] = REAL(0.0);
+	_m[3][0] = REAL(0.0);	_m[3][1] = REAL(0.0);	_m[3][2] = REAL(0.0);	_m[3][3] = REAL(1.0);
 }
 	
 void	matrix_c::lerp(const matrix_c &old, const matrix_c &nu, vec_t f)
@@ -506,6 +591,7 @@ vec_t	quaternion_c::normalize()
 void	quaternion_c::fromAngles(vec_t pitch, vec_t yaw, vec_t roll)
 {
 #if 0
+	//FIXME figure out with existing euler angles and degrees
 	double	cr, cp, cy, sr, sp, sy;
 
 	cp = X_cos(pitch / 2.0);
@@ -536,12 +622,11 @@ void	quaternion_c::fromAngles(vec_t pitch, vec_t yaw, vec_t roll)
 	
 void	quaternion_c::fromMatrix(const matrix_c &m)
 {
-	// calculate the trace
-	float trace = 1.0f + m[0][0] + m[1][1] + m[2][2];
+	vec_t trace = 1.0f + m[0][0] + m[1][1] + m[2][2];
 		
-	if(trace > 0.0f)
+	if(trace > 0)
 	{
-		float s = 0.5f / sqrt(trace);
+		vec_t s = 0.5f / X_sqrt(trace);
 		
 		_q[0] = (m[2][1] - m[1][2]) * s;
 		_q[1] = (m[0][2] - m[2][0]) * s;
@@ -553,7 +638,7 @@ void	quaternion_c::fromMatrix(const matrix_c &m)
 		if(m[0][0] > m[1][1] && m[0][0] > m[2][2])
 		{	
 			// Column 0: 
-			float s = sqrt(1.0f + m[0][0] - m[1][1] - m[2][2]) * 2.0f;
+			float s = X_sqrt(1.0f + m[0][0] - m[1][1] - m[2][2]) * 2.0f;
 				
 			_q[0] = 0.25f * s;
 			_q[1] = (m[0][1] + m[1][0]) / s;
@@ -563,7 +648,7 @@ void	quaternion_c::fromMatrix(const matrix_c &m)
 		else if(m[1][1] > m[2][2])
 		{
 			// Column 1:
-			float s = sqrt(1.0f + m[1][1] - m[0][0] - m[2][2]) * 2.0f;
+			float s = X_sqrt(1.0f + m[1][1] - m[0][0] - m[2][2]) * 2.0f;
 			
 			_q[0] = (m[0][1] + m[1][0]) / s;
 			_q[1] = 0.25f * s;
@@ -573,7 +658,7 @@ void	quaternion_c::fromMatrix(const matrix_c &m)
 		else
 		{
 			// Column 2:
-			float s = sqrt(1.0f + m[2][2] - m[0][0] - m[1][1]) * 2.0f;
+			float s = X_sqrt(1.0f + m[2][2] - m[0][0] - m[1][1]) * 2.0f;
 			
 			_q[0] = (m[0][2] + m[2][0]) / s;
 			_q[1] = (m[1][2] + m[2][1]) / s;
@@ -585,21 +670,42 @@ void	quaternion_c::fromMatrix(const matrix_c &m)
 	normalize();
 }
 	
-void	quaternion_c::fromAxisAngle(vec_t x, vec_t y, vec_t z, vec_t deg)
+void	quaternion_c::fromAxisAngle(vec_t ax, vec_t ay, vec_t az, vec_t angle)
 {
+#if 0
 	vec3_c	naxis(x, y, z);
 	double	sin_a;
 	double	cos_a;
 	
 	naxis.normalize();
 	
-	sin_a = X_sin(deg/2);
-	cos_a = X_cos(deg/2);
+	sin_a = X_sin(DEGTORAD(deg/2.0f));
+	cos_a = X_cos(DEGTORAD(deg/2.0f));
 	
 	_q[0] = naxis[0] * sin_a;
 	_q[1] = naxis[1] * sin_a;
 	_q[2] = naxis[2] * sin_a;
 	_q[3] = cos_a;
+#else
+
+	vec_t l = ax*ax + ay*ay + az*az;
+	if (l > REAL(0.0))
+	{
+		angle *= REAL(0.5);
+		_q[3] = X_cos(angle);
+		l = X_sin(angle) * X_recipsqrt(l);
+		_q[0] = ax*l;
+		_q[1] = ay*l;
+		_q[2] = az*l;
+	}
+	else
+	{
+		_q[3] = 1;
+		_q[0] = 0;
+		_q[1] = 0;
+		_q[2] = 0;
+	}
+#endif
 }
 	
 void	quaternion_c::toAxisAngle(vec3_c &axis, float *deg)
@@ -691,6 +797,38 @@ void	quaternion_c::toVectorsFRU(vec3_c &forward, vec3_c &right, vec3_c &up) cons
 	up[1] =   2*(yz-xw);		//_m[1][2];	// cr*sp*sy+-sr*cy;
 	up[2] = 1-2*(xx+yy);		//_m[2][2];	// cr*cp;
 }
+
+void	quaternion_c::multiply0(const quaternion_c &qb, const quaternion_c &qc)
+{
+	_q[0] = qb._q[3]*qc._q[0] + qb._q[0]*qc._q[3] + qb._q[1]*qc._q[2] - qb._q[2]*qc._q[1];
+	_q[1] = qb._q[3]*qc._q[1] + qb._q[1]*qc._q[3] + qb._q[2]*qc._q[0] - qb._q[0]*qc._q[2];
+	_q[2] = qb._q[3]*qc._q[2] + qb._q[2]*qc._q[3] + qb._q[0]*qc._q[1] - qb._q[1]*qc._q[0];
+	_q[3] = qb._q[3]*qc._q[3] - qb._q[0]*qc._q[0] - qb._q[1]*qc._q[1] - qb._q[2]*qc._q[2];
+}
+
+void	quaternion_c::multiply1(const quaternion_c &qb, const quaternion_c &qc)
+{
+	_q[0] = qb._q[3]*qc._q[0] - qb._q[0]*qc._q[3] - qb._q[1]*qc._q[2] + qb._q[2]*qc._q[1];
+	_q[1] = qb._q[3]*qc._q[1] - qb._q[1]*qc._q[3] - qb._q[2]*qc._q[0] + qb._q[0]*qc._q[2];
+	_q[2] = qb._q[3]*qc._q[2] - qb._q[2]*qc._q[3] - qb._q[0]*qc._q[1] + qb._q[1]*qc._q[0];
+	_q[3] = qb._q[3]*qc._q[3] + qb._q[0]*qc._q[0] + qb._q[1]*qc._q[1] + qb._q[2]*qc._q[2];
+}
+
+void	quaternion_c::multiply2(const quaternion_c &qb, const quaternion_c &qc)
+{
+	_q[0] =-qb._q[3]*qc._q[0] + qb._q[0]*qc._q[3] - qb._q[1]*qc._q[2] + qb._q[2]*qc._q[1];
+	_q[1] =-qb._q[3]*qc._q[1] + qb._q[1]*qc._q[3] - qb._q[2]*qc._q[0] + qb._q[0]*qc._q[2];
+	_q[2] =-qb._q[3]*qc._q[2] + qb._q[2]*qc._q[3] - qb._q[0]*qc._q[1] + qb._q[1]*qc._q[0];
+	_q[3] = qb._q[3]*qc._q[3] + qb._q[0]*qc._q[0] + qb._q[1]*qc._q[1] + qb._q[2]*qc._q[2];
+}
+
+void	quaternion_c::multiply3(const quaternion_c &qb, const quaternion_c &qc)
+{
+	_q[0] =-qb._q[3]*qc._q[0] - qb._q[0]*qc._q[3] + qb._q[1]*qc._q[2] - qb._q[2]*qc._q[1];
+	_q[1] =-qb._q[3]*qc._q[1] - qb._q[1]*qc._q[3] + qb._q[2]*qc._q[0] - qb._q[0]*qc._q[2];
+	_q[2] =-qb._q[3]*qc._q[2] - qb._q[2]*qc._q[3] + qb._q[0]*qc._q[1] - qb._q[1]*qc._q[0];
+	_q[3] = qb._q[3]*qc._q[3] - qb._q[0]*qc._q[0] - qb._q[1]*qc._q[1] - qb._q[2]*qc._q[2];
+}
 	
 void	quaternion_c::slerp(const quaternion_c &from, const quaternion_c &to, float t)
 {
@@ -708,7 +846,7 @@ void	quaternion_c::slerp(const quaternion_c &from, const quaternion_c &to, float
 	quaternion_c to1;
 	double omega, cosom, sinom, scale0, scale1;
 
-	cosom = from[0]*to[0] + from[1]*to[1] + from[2]*to[2] + from[3]*to[3];
+	cosom = from._q[0]*to._q[0] + from._q[1]*to._q[1] + from._q[2]*to._q[2] + from._q[3]*to._q[3];
 
 	if(cosom < 0.0)
 	{
@@ -735,10 +873,10 @@ void	quaternion_c::slerp(const quaternion_c &from, const quaternion_c &to, float
 		scale1 = t;
 	}
 
-	_q[0] = scale0 * from[0] + scale1 * to1[0];
-	_q[1] = scale0 * from[1] + scale1 * to1[1];
-	_q[2] = scale0 * from[2] + scale1 * to1[2];
-	_q[3] = scale0 * from[3] + scale1 * to1[3];
+	_q[0] = scale0 * from._q[0] + scale1 * to1._q[0];
+	_q[1] = scale0 * from._q[1] + scale1 * to1._q[1];
+	_q[2] = scale0 * from._q[2] + scale1 * to1._q[2];
+	_q[3] = scale0 * from._q[3] + scale1 * to1._q[3];
 }
 	
 const char*	quaternion_c::toString() const
@@ -748,8 +886,6 @@ const char*	quaternion_c::toString() const
 	
 quaternion_c	quaternion_c::operator * (const quaternion_c &q) const
 {
-	quaternion_c out;
-		
 	/* from matrix and quaternion faq
 	x = w1x2 + x1w2 + y1z2 - z1y2
 	y = w1y2 + y1w2 + z1x2 - x1z2
@@ -757,14 +893,14 @@ quaternion_c	quaternion_c::operator * (const quaternion_c &q) const
 	
 	w = w1w2 - x1x2 - y1y2 - z1z2
 	*/
-		
-	out._q[0] = _q[3]*q._q[0] + _q[0]*q._q[3] + _q[1]*q._q[2] - _q[2]*q._q[1];
-	out._q[1] = _q[3]*q._q[1] + _q[1]*q._q[3] + _q[2]*q._q[0] - _q[0]*q._q[2];
-	out._q[2] = _q[3]*q._q[2] + _q[2]*q._q[3] + _q[0]*q._q[1] - _q[1]*q._q[0];
 	
-	out._q[3] = _q[3]*q._q[3] - _q[0]*q._q[0] - _q[1]*q._q[1] - _q[2]*q._q[2];
+	// this corresponds to dQMultiply0 from the ODE lib
+	
+	return quaternion_c(	_q[3]*q._q[0] + _q[0]*q._q[3] + _q[1]*q._q[2] - _q[2]*q._q[1],
+				_q[3]*q._q[1] + _q[1]*q._q[3] + _q[2]*q._q[0] - _q[0]*q._q[2],
+				_q[3]*q._q[2] + _q[2]*q._q[3] + _q[0]*q._q[1] - _q[1]*q._q[0],
+				_q[3]*q._q[3] - _q[0]*q._q[0] - _q[1]*q._q[1] - _q[2]*q._q[2]	);
 
-	return out;
 }
 
 
@@ -1354,7 +1490,7 @@ void	Vector3_ToAngles(const vec3_c &value1, vec3_c &angles)
 		if (yaw < 0)
 			yaw += 360;
 
-		forward = sqrt (value1[0]*value1[0] + value1[1]*value1[1]);
+		forward = X_sqrt(value1[0]*value1[0] + value1[1]*value1[1]);
 		pitch = (int) (atan2(value1[2], forward) * 180 / M_PI);
 		if (pitch < 0)
 			pitch += 360;
@@ -1365,6 +1501,41 @@ void	Vector3_ToAngles(const vec3_c &value1, vec3_c &angles)
 	angles[ROLL] = 0;
 }
 
+void	Vector3_PlaneSpace(const vec3_t n, vec3_t p, vec3_t q)
+{
+	assert(n && p && q);
+	
+	if(X_fabs(n[2]) > M_SQRT1_2)
+	{
+		// choose p in y-z plane
+		vec_t a = n[1]*n[1] + n[2]*n[2];
+		vec_t k = X_recipsqrt(a);
+		
+		p[0] = 0;
+		p[1] = -n[2]*k;
+		p[2] = n[1]*k;
+		
+		// set q = n x p
+		q[0] = a*k;
+		q[1] = -n[0]*p[2];
+		q[2] = n[0]*p[1];
+	}
+	else
+	{
+		// choose p in x-y plane
+		vec_t a = n[0]*n[0] + n[1]*n[1];
+		vec_t k = X_recipsqrt (a);
+		 
+		p[0] = -n[1]*k;
+		p[1] = n[0]*k;
+		p[2] = 0;
+		 
+		// set q = n x p
+		q[0] = -n[2]*p[1];
+		q[1] = n[2]*p[0];
+		q[2] = a*k;
+	}
+}
 
 
 /*
