@@ -56,7 +56,7 @@ static void	CG_EntityEvent(const cg_entity_t *cent)
 	
 		case EV_ITEM_RESPAWN:
 			trap_S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_WEAPON, trap_S_RegisterSound("items/respawn1.wav"));
-			CG_ParticleSpray(PART_RESPAWN, cent->current.origin, dir, color, 64);			
+			CG_ParticleSpray(PART_RESPAWN, cent->current.origin, dir, color, 64);
 			break;
 		
 		//case EV_PLAYER_TELEPORT:

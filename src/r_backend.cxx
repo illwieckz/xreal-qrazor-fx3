@@ -1332,7 +1332,7 @@ static void	RB_SetupTCModMatrix(const r_entity_t &shared, const r_shader_stage_c
 				break;
 				
 			case SHADER_TCMOD_ROTATE:				
-				x = RB_Evaluate(shared, tcmod.x, 0.0);
+				x = RADTODEG(RB_Evaluate(shared, tcmod.x, 0.0));
 				
 				m.multiplyTranslation( 0.5, 0.5, 0);
 				m.multiplyRotation(0, 0, 1, x);
@@ -2343,7 +2343,7 @@ void	RB_RenderCommands()
 						if(cmd->getLight()->getType() == LIGHT_PROJ)
 							continue;
 				
-						if(cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT || cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
+						if(/*cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT ||*/ cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
 							continue;
 						
 						cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_DBHS_omni);
@@ -2364,7 +2364,7 @@ void	RB_RenderCommands()
 						if(cmd->getLight()->getType() == LIGHT_PROJ)
 							continue;
 				
-						if(cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT || cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
+						if(/*cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT ||*/ cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
 							continue;
 						
 						cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_DBH_omni);
@@ -2385,7 +2385,7 @@ void	RB_RenderCommands()
 						if(cmd->getLight()->getType() == LIGHT_PROJ)
 							continue;
 				
-						if(cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT || cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
+						if(/*cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT ||*/ cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
 							continue;
 						
 						cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_DBS_omni);
@@ -2406,7 +2406,7 @@ void	RB_RenderCommands()
 						if(cmd->getLight()->getType() == LIGHT_PROJ)
 							continue;
 				
-						if(cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT || cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
+						if(/*cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT ||*/ cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
 							continue;
 						
 						cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_DB_omni);
@@ -2428,7 +2428,7 @@ void	RB_RenderCommands()
 					if(cmd->getLight()->getType() == LIGHT_PROJ)
 							continue;
 			
-					if(cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT || cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
+					if(/*cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT ||*/ cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
 						continue;
 						
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_D_omni);
@@ -2457,7 +2457,7 @@ void	RB_RenderCommands()
 					if(cmd->getLight()->getType() == LIGHT_OMNI)
 						continue;
 			
-					if(cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT || cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
+					if(/*cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT ||*/ cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
 						continue;
 						
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_D_proj);

@@ -243,165 +243,6 @@ g_player_c::~g_player_c()
 	//trap_Com_Printf("g_player_c::dtor:\n");
 }
 
-void	g_player_c::think()
-{
-#if 0
-	//trap_Com_Printf("g_player_c::think: called\n");
-	
-	vec3_c vel_linear;// = _body->getLinearVel();
-	vec3_c vel_angular;// = _body->getAngularVel();
-
-	for(std::deque<usercmd_t>::const_iterator ir = _cmds.begin(); ir != _cmds.end(); ++ir)
-	{
-		const usercmd_t& cmd = *ir;
-	
-		// set up for pmove
-		if(_movetype == MOVETYPE_NOCLIP)
-			_r.ps.pmove.pm_type = PM_SPECTATOR;
-		
-		else if(_s.index_model != 255)
-			_r.ps.pmove.pm_type = PM_GIB;
-			
-		else if(_deadflag)
-			_r.ps.pmove.pm_type = PM_DEAD;
-			
-		else
-			_r.ps.pmove.pm_type = PM_NORMAL;
-
-		_r.ps.pmove.gravity = g_gravity->getValue();
-		
-		pmove_t pm;
-		memset(&pm, 0, sizeof(pm));
-		
-		pm.s = _r.ps.pmove;
-
-		pm.s.origin = _s.origin;
-		pm.s.velocity_linear = _s.velocity_linear;
-		pm.s.velocity_angular = _s.velocity_angular;
-
-		pm.cmd = cmd;
-
-		pm.rayTrace = G_RayTrace;
-		pm.pointContents = trap_SV_PointContents;
-
-		// perform a pmove
-		Com_Pmove(&pm);
-
-		// save results of pmove
-		_r.ps.pmove = pm.s;
-		
-		//_s.origin = pm.s.origin;
-// 		_body->addForce(pm.s.velocity_linear);
-//  		_body->addTorque(pm.s.velocity_angular);
-
-		_r.bbox = pm.bbox;
-
-		_resp.cmd_angles = cmd.angles;
-
-		if(_groundentity && !pm.groundentity && (pm.cmd.upmove >= 10) && (pm.waterlevel == 0))
-		{
-			trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex("*jump1.wav"), 1, ATTN_NORM, 0);
-		}
-
-		_v_height = pm.viewheight;
-		_waterlevel = pm.waterlevel;
-		_watertype = pm.watertype;
-		_groundentity = (g_entity_c*)pm.groundentity;
-		
-		if(_deadflag)
-		{
-			_r.ps.view_angles[ROLL] = 40;
-			_r.ps.view_angles[PITCH] = -15;
-			_r.ps.view_angles[YAW] = _killer_yaw;
-		}
-		else
-		{
-			_v_angles = pm.viewangles;
-			_v_quat.fromAngles(pm.viewangles);
-			_r.ps.view_angles = pm.viewangles;
-		}
-
-		_buttons_old = _buttons;
-		_buttons = cmd.buttons;
-		_buttons_latched |= _buttons & ~_buttons_old;
-	
-		// set movement flags
-		_anim_moveflags = 0;
-
-		if(cmd.forwardmove < -1)
-			_anim_moveflags |= ANIMMOVE_BACK;
-		else if(cmd.forwardmove > 1)
-			_anim_moveflags |= ANIMMOVE_FRONT;
-
-		if(cmd.sidemove < -1)
-			_anim_moveflags |= ANIMMOVE_LEFT;
-		else if(cmd.sidemove > 1)
-			_anim_moveflags |= ANIMMOVE_RIGHT;
-
-		if(cmd.buttons & BUTTON_WALK)
-			_anim_moveflags |= ANIMMOVE_WALK;
-
-	
-		// fire weapon from final position if needed
-		if(_buttons_latched & BUTTON_ATTACK  || _buttons_latched & BUTTON_ATTACK2)
-		{
-			if(_resp.spectator)
-			{
-				// don't shoot
-			}
-			else if(!_weapon_thunk)
-			{
-				// shoot !
-				_weapon_thunk = true;
-				thinkWeapon();
-			}
-		}
-
-		if(_resp.spectator)
-		{
-			if(cmd.upmove >= 10)
-			{
-				if(!(_r.ps.pmove.pm_flags & PMF_JUMP_HELD))
-				{
-					_r.ps.pmove.pm_flags |= PMF_JUMP_HELD;
-				}
-			}
-			else
-			{
-				_r.ps.pmove.pm_flags &= ~PMF_JUMP_HELD;
-			}
-		}
-	}
-	
-// 	vel_linear *= (1.0/_cmds.size());
-// 	vel_angular *= (1.0/_cmds.size());
-	
-//	_body->setQuaternion(_v_quat);
-//	_body->addForce(vel_linear);
-//	_body->addTorque(vel_angular);
-
-	_body->setAngularVel(vel_angular);
-	
-	/*
-	if(!(_r.ps.pmove.pm_flags & PMF_ON_GROUND))
-	{
-//  		_body->setLinearVel(vel_linear);
-//		_body->addForce(vel_linear);
-	}
-	else
-	{
-//		_body->setAngularVel(vel_angular);
-		_body->addTorque(vel_angular);
-	}
-	*/
-	
-	_nextthink = level.time + FRAMETIME;
-	
-	_cmds.clear();
-#endif
-}
-
-
 /*
 void	g_player_c::pain(g_entity_c *other, float kick, int damage)
 {
@@ -1199,21 +1040,6 @@ usually be a couple times for each server frame.
 */
 void	g_player_c::clientThink(const usercmd_t &cmd)
 {
-#if 0
-	if(level.intermission_time)
-	{
-		_r.ps.pmove.pm_type = PM_FREEZE;
-		
-		// can exit intermission after five seconds
-		if(level.time > level.intermission_time + 5.0 && (cmd.buttons & BUTTON_ANY))
-			level.intermission_exit = true;
-			
-		return;
-	}
-
-	_cmds.push_back(cmd);
-
-#else
 	if(level.intermission_time)
 	{
 		_r.ps.pmove.pm_type = PM_FREEZE;
@@ -1243,21 +1069,17 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	else
 		_r.ps.pmove.pm_type = PM_NORMAL;
 
-	_r.ps.pmove.gravity = g_gravity->getValue();
+	_r.ps.pmove.gravity = (9.81 * 32.0) * g_gravity->getValue();
 	pm.s = _r.ps.pmove; 
 
 	pm.s.origin = _s.origin;
 	pm.s.velocity_linear = _s.velocity_linear;
 	pm.s.velocity_angular = _s.velocity_angular;
-	
-//	pm.s.origin = _body->getPosition();
-//	pm.s.velocity_linear = _body->getLinearVel();
-//	pm.s.velocity_angular = _body->getAngularVel();
 
 	if(memcmp(&_old_pmove, &pm.s, sizeof(pm.s)))
 	{
 		pm.snapinitial = true;
-		//trap_Com_DPrintf("G_ClientThink: pmove changed!\n");
+		trap_Com_DPrintf("G_ClientThink: pmove changed!\n");
 	}
 
 	pm.cmd = cmd;
@@ -1265,9 +1087,13 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	pm.rayTrace = G_RayTrace;
 	pm.boxTrace = PM_Trace;	// adds default parms
 	pm.pointContents = G_PointContents;
+	
+//	trap_Com_DPrintf("G_ClientThink: performing pmove ...\n");
 
 	// perform a pmove
 	Com_Pmove(&pm); 
+	
+//	trap_Com_DPrintf("G_ClientThink: performed pmove\n");
 
 	// save results of pmove
 	_r.ps.pmove = pm.s;
@@ -1324,7 +1150,7 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 
 	if(_groundentity && !pm.groundentity && (pm.cmd.upmove >= 10) && (pm.waterlevel == 0))
 	{
-		trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex("*jump1.wav"), 1, ATTN_NORM, 0);
+		//trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex("*jump1.wav"), 1, ATTN_NORM, 0);
 	}
 
 	_v_height = pm.viewheight;
@@ -1347,7 +1173,7 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 		_r.ps.view_angles = pm.viewangles;
 	}
 
-	//trap_SV_LinkEdict(this);
+//	link();
 
 //	if(_movetype != MOVETYPE_NOCLIP)
 //		G_TouchTriggers(this);
@@ -1418,7 +1244,6 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 		else
 			_r.ps.pmove.pm_flags &= ~PMF_JUMP_HELD;
 	}
-#endif
 }
 
 

@@ -2,7 +2,7 @@ lights/light_caustics
 {	
 	{
 		forceHighQuality
-		map	textures/z13d3dm2/liquid12.tga
+		map		textures/z13d3dm2/liquid12.tga
 		colored
 		zeroclamp
 		
@@ -13,8 +13,8 @@ lights/light_caustics2
 {	
 	{
 		forceHighQuality
-		map	textures/z13d3dm2/liquid12_s.tga
-		 rotate	time * .01
+		map		textures/z13d3dm2/liquid12_s.tga
+		rotate		time * .01
 		colored
 		zeroclamp
 		
@@ -33,21 +33,26 @@ textures/z13d3dm2/water_distortion
 	sort decal
 
 	qer_editorimage textures/glass/outdoor_glass1fx.tga
+//	{
+//                Program           heatHaze.vfp
+//                vertexParm              0       time * .05 , time * .05
+//                vertexParm              1       .5        
+//                fragmentProgram			heatHaze.vfp
+//                fragmentMap             0       _currentRender
+//                fragmentMap             1       textures/z13d3dm2/liquid12_norm.tga 			
+//             
+//   	}
 	{
-                Program           heatHaze.vfp
-                vertexParm              0       time * .05 , time * .05
-                vertexParm              1       .5        
-                fragmentProgram			heatHaze.vfp
-                fragmentMap             0       _currentRender
-                fragmentMap             1       textures/z13d3dm2/liquid12_norm.tga 			
-             
-   	}
-	{
-    		    blend filter
-		    map textures/glass/outdoor_glass1fx.tga
+		stage		heathazemap
+		map		textures/z13d3dm2/liquid12_norm.tga
+		scroll		time * 0.05 , time * 0.1
+		deformMagnitude	0.5
 	}
-	
-	
+	{
+		stage	colormap
+		blend	filter
+		map	textures/glass/outdoor_glass1fx.tga
+	}	
 }
 	
 lights/cubeMap
@@ -61,6 +66,8 @@ lights/cubeMap
 
 textures/z13d3dm2/water_floor
 {
+	qer_editorimage textures/z13d3dm2/liquid12.tga
+
 	noSelfShadow
 	noshadows
 	twosided
@@ -69,30 +76,25 @@ textures/z13d3dm2/water_floor
 	sort decal
 	water
 
-	qer_editorimage textures/z13d3dm2/liquid12.tga
 	{
-                Program           heatHaze.vfp
-                vertexParm              0       time * .05 , time * .05
-                vertexParm              1       1       
-                fragmentProgram			heatHaze.vfp
-                fragmentMap             0       _currentRender
-                fragmentMap             1       textures/z13d3dm2/liquid12_norm.tga 			
-             
-   	}
-	{
-	    	    blend gl_dst_alpha, gl_one
-	          maskalpha
-       	    cubeMap		env/gen2
-		    red	Parm0
-	          green   Parm1
-	          blue	Parm2
-        	    texgen	reflect
-
+		stage		heathazemap
+		map		textures/z13d3dm2/liquid12_norm.tga
+		scroll		time * 0.05 , time * 0.05
+		deformMagnitude	1
 	}
 	{
-    	 	    blend filter
-		    map textures/z13d3dm2/liquid12.tga
-		    translate	time * 0.05 , time * 0.05
+		blend		gl_dst_alpha , gl_one
+		maskalpha
+		cubeMap		env/gen2
+		red		Parm0
+		green   	Parm1
+		blue		Parm2
+		texgen		reflect
+	}
+	{
+		blend		filter
+		map		textures/z13d3dm2/liquid12.tga
+		translate	time * 0.05 , time * 0.05
 	}
 }
 
@@ -157,9 +159,10 @@ textures/z13d3dm2/logo_decal_dsr
 	noimpact
 	twoSided
 	translucent
+	
 	{
 		colored
-      	blend	add
-		map textures/z13d3dm2/dsr_logo_decal
+		blend		add
+		map		textures/z13d3dm2/dsr_logo_decal
 	}
 }

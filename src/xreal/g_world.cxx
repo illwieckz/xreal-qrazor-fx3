@@ -467,7 +467,7 @@ void	g_world_c::activate()
 	{
 		trap_Cvar_SetValue("g_gravity", _gravity);
 		
-		vec3_c gravity(0, 0, (-9.81 * 32/10) * g_gravity->value);
+		vec3_c gravity(0, 0, (-9.81 * 32) * g_gravity->value);
 
 		g_ode_world->setGravity(gravity);
 	}

@@ -1,6 +1,6 @@
 /// ============================================================================
 /*
-Copyright (C) 2004 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2005 Robert Beckebans <trebor_7@users.sourceforge.net>
 Please see the file "AUTHORS" for a list of contributors
 
 This program is free software; you can redistribute it and/or
@@ -27,11 +27,12 @@ uniform vec2		u_npot_scale;
 uniform float		u_bump_scale;
 
 varying vec2		var_tex_heathaze;
+varying vec4		var_deform;
 
 void	main()
 {
 	// compute normal in tangent space from bumpmap
-	vec3 N = 2 * (texture2D(u_heathazemap, var_tex_heathaze).xyz - 0.5);
+	vec3 N = 2 * (texture2D(u_heathazemap, var_tex_heathaze).rgb - 0.5);
 	N.z *= u_bump_scale;
 	N = normalize(N);
 
@@ -41,12 +42,11 @@ void	main()
 	s_coord *= u_fbuf_scale;
 	
 	// offset by the scaled normal and clamp it to 0.0 - 1.0
-	s_coord += N.xy;
+	s_coord += N.xy * var_deform.xy;
 	clamp(s_coord, 0.0, 1.0);
 	
 	// scale by the screen non-power-of-two-adjust
 	s_coord *= u_npot_scale;
 
 	gl_FragColor = texture2D(u_currentrendermap, s_coord);
-//	gl_FragColor *= vec4(0.5, 0.5, 0.9, 1.0);
 }

@@ -320,6 +320,28 @@ private:
 };
 
 
+class u_deform_magnitude_a
+{
+private:
+	u_deform_magnitude_a();
+	
+protected:
+	u_deform_magnitude_a(GLhandleARB handle)
+	{
+		_u_deform_magnitude	= xglGetUniformLocationARB(handle, "u_deform_magnitude");	RB_CheckForError();
+	}
+	
+public:
+	void	setUniform_deform_magnitude(const r_command_t *cmd, const r_shader_stage_c *stage)
+	{
+		float value = X_max(0, RB_Evaluate(cmd->getEntity()->getShared(), stage->deform_magnitude, 1.0));
+		xglUniform1fARB(_u_deform_magnitude, value);	RB_CheckForError();
+	}
+	
+private:
+	uint_t		_u_deform_magnitude;
+};
+
 
 static char*	RB_PrintInfoLog(GLhandleARB object)
 {
@@ -1201,12 +1223,14 @@ private:
 
 class rb_heathaze_c : 
 public rb_program_c,
+public u_deform_magnitude_a,
 public u_frame_buffer_a,
 public u_bump_scale_a
 {
 public:
 	rb_heathaze_c()
 	:rb_program_c("heathaze", VATTRIB_VERTEX | VATTRIB_TEX0),
+	u_deform_magnitude_a(getHandle()),
 	u_frame_buffer_a(getHandle()),
 	u_bump_scale_a(getHandle())
 	{
@@ -2149,6 +2173,8 @@ void	RB_RenderCommand_heathaze(const r_command_t *cmd, const r_shader_stage_c *s
 	RB_SelectTexture(GL_TEXTURE1);
 	RB_ModifyTextureMatrix(cmd->getEntity(), stage_heathazemap);
 	RB_Bind(stage_heathazemap->image);
+	
+	rb_program_heathaze->setUniform_deform_magnitude(cmd, stage_heathazemap);
 
 	rb_program_heathaze->setUniform_fbuf_scale(cmd);
 	rb_program_heathaze->setUniform_npot_scale(cmd);

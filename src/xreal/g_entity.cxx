@@ -450,6 +450,16 @@ bool	g_entity_c::runThink()
 	return false;
 }
 
+void	g_entity_c::link()
+{
+	G_LinkEntity(this);
+}
+
+void	g_entity_c::unlink()
+{
+	G_UnlinkEntity(this);
+}
+
 bool	g_entity_c::inFront(const g_entity_c *other)
 {
 	vec3_c		forward, right, up;

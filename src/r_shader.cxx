@@ -107,6 +107,7 @@ void	R_FresnelScale_stc(char const* begin, char const *end);
 void	R_FresnelBias_stc(char const* begin, char const *end);
 void	R_EtaDelta_stc(char const* begin, char const *end);
 void	R_Eta_stc(char const* begin, char const *end);
+void	R_DeformMagnitude_stc(char const* begin, char const *end);
 void	R_StageColorMap_stc(char const* begin, char const *end);
 void	R_StageDiffuseMap_stc(char const* begin, char const *end);
 void	R_StageBumpMap_stc(char const* begin, char const *end);
@@ -818,6 +819,10 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 				=	boost::spirit::nocase_d[boost::spirit::str_p("eta")] >> restofline[&R_Eta_stc]
 				;
 				
+			deformmagnitude_stc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("deformmagnitude")] >> restofline[&R_DeformMagnitude_stc]
+				;
+				
 			texgen_reflect_stc
 				=	boost::spirit::nocase_d[boost::spirit::str_p("texgen") >> boost::spirit::str_p("reflect")][&R_StageReflectionMap_stc]
 				;
@@ -926,6 +931,7 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 					fresnelbias_stc			|
 					etadelta_stc			|
 					eta_stc				|
+					deformmagnitude_stc		|
 					texgen_reflect_stc		|
 					stage_colormap_stc		|
 					stage_diffusemap_stc		|
@@ -1055,6 +1061,7 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 									fresnelbias_stc,
 									etadelta_stc,
 									eta_stc,
+									deformmagnitude_stc,
 									texgen_reflect_stc,
 									stage_colormap_stc,
 									stage_diffusemap_stc,
