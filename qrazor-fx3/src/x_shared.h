@@ -1005,7 +1005,7 @@ enum
 // at a location seperate from any existing entity.
 // Temporary entity messages are explicitly constructed
 // and broadcast.
-enum temp_event_t
+enum temp_event_e
 {
 	TE_GUNSHOT,
 	TE_BLOOD,
@@ -1027,7 +1027,8 @@ enum temp_event_t
 	TE_GRENADE_EXPLOSION_WATER,
 	TE_BFG_EXPLOSION,
 	TE_BFG_BIGEXPLOSION,
-	TE_BFG_LASER
+	TE_BFG_LASER,
+	TE_CONTACT
 };
 
 

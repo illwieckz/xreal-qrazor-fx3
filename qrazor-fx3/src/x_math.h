@@ -1893,7 +1893,7 @@ public:
 	
 	inline cplane_c(const vec3_c &v1, const vec3_c &v2, const vec3_c &v3);
 
-	void	fromThreePointForm(const vec3_c &v1, const vec3_c &v2, const vec3_c &v3);
+	bool	fromThreePointForm(const vec3_c &v1, const vec3_c &v2, const vec3_c &v3);
 	
 	inline void	set(const vec3_c &normal, const vec_t dist);
 
@@ -2007,8 +2007,7 @@ inline void	cplane_c::negate()
 {
 	_normal.negate();
 	_dist = -_dist;
-		
-	normalize();
+
 	setType();
 	setSignBits();
 }

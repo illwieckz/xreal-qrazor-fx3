@@ -102,15 +102,14 @@ public:
 	
 	inline bool operator == (const dContactGeom &g) const
 	{
-		if(	_origin == g._origin &&
+		return
+		(
+			_origin == g._origin &&
 			_normal == g._normal &&
 			_depth	== g._depth &&
 			_g1	== g._g1 &&
 			_g2	== g._g2
-		)
-			return true;
-		else
-			return false;
+		);
 	}
 
 //private:
@@ -127,6 +126,15 @@ public:
 class dContact
 {
 public:
+	inline dContact()
+	{
+	}
+
+	inline dContact(const dContactGeom &g)
+	{
+		geom = g;
+	}
+
 	dSurfaceParameters	surface;
 	dContactGeom		geom;
 	vec3_c			fdir1;

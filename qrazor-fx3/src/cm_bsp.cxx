@@ -406,7 +406,7 @@ static void	CM_LoadSurfaces(bsp_lump_t *l, d_bsp_c *bsp)
 		}
 		
 		if(bsp)
-			bsp->addSurface(face_type, out.shader_num, out.mesh.vertexes, out.mesh.normals, out.mesh.indexes);
+			bsp->addSurface(face_type, out.shader_num, out.mesh.vertexes, out.mesh.normals, out.mesh.indexes, out.plane);
 	}
 }
 

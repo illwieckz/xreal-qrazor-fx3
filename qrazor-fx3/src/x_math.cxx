@@ -1891,7 +1891,7 @@ const char*	cbbox_c::toString() const
 
 
 
-void	cplane_c::fromThreePointForm(const vec3_c &v0, const vec3_c &v1, const vec3_c &v2)
+bool	cplane_c::fromThreePointForm(const vec3_c &v0, const vec3_c &v1, const vec3_c &v2)
 {
 	// build directional vectors
 	vec3_c edge0 = v1 - v0;
@@ -1900,13 +1900,19 @@ void	cplane_c::fromThreePointForm(const vec3_c &v0, const vec3_c &v1, const vec3
 	// create normal
 	vec3_c	normal(false);
 	normal.crossProduct(edge0, edge1);
-	normal.normalize();
+	vec_t len = normal.normalize();
+	
+	// check if degenerated triangle
+	if(len < REAL(0.1))
+		return false;
 	
 	// create distance from origin
 	vec_t dist = v0.dotProduct(normal);
 	
 	// finally setup the plane
 	set(normal, dist);
+	
+	return true;
 }
 
 void	cplane_c::setType()
@@ -1968,12 +1974,14 @@ void	cplane_c::normalize()
 {
 	vec_t len = _normal.length();
 	
-	if(len)
+	if(len > REAL(0.0))
 	{
-		_normal[0] /= len;
-		_normal[1] /= len;
-		_normal[2] /= len;
-		_dist /= len;
+		vec_t ilen = X_recip(len);
+		
+		_normal[0] *= ilen;
+		_normal[1] *= ilen;
+		_normal[2] *= ilen;
+		_dist *= ilen;
 	}
 }
 

@@ -49,6 +49,7 @@ struct dContactCompare : public std::unary_function<dContact, bool>
 
 bool	dAddContact(const dContact c, std::vector<dContact> &contacts)
 {
+#if 1
 	std::vector<dContact>::iterator ir = std::find_if(contacts.begin(), contacts.end(), dContactCompare(c));
 	
 	if(ir == contacts.end())
@@ -58,6 +59,10 @@ bool	dAddContact(const dContact c, std::vector<dContact> &contacts)
 	}
 	else
 		return false;
+#else
+	contacts.push_back(c);
+	return true;
+#endif
 }
 
 void	dGetContactData(const vec3_c& p, const vec3_c &v0,  const vec3_c &edge0, const vec3_c &edge1, vec_t &dist, float &u, float &v)
@@ -308,8 +313,9 @@ void	dGetContactData(const vec3_c& p, const vec3_c &v0,  const vec3_c &edge0, co
 	dist = X_sqrt(X_fabs(DistSq));
 }
 
-bool	dPointInTriangle(const vec3_c &p, const vec3_c &v0, const vec3_c &v1, const vec3_c &v2)
+bool	dPointInTriangle(const vec3_c &p, const vec3_c &v0, const vec3_c &v1, const vec3_c &v2, const vec3_c &normal, bool cw)
 {
+#if 1
 	vec3_c vectors[3];
 	vec_t total_angle = 0.0f;
 
@@ -335,9 +341,19 @@ bool	dPointInTriangle(const vec3_c &p, const vec3_c &v0, const vec3_c &v1, const
 	// 2. Use acos() to convert cosine back into an angle.
 	// 3. Add angle to total_angle to keep track of running sum.
 	//
+	for(int i=0; i<3; i++)
+	{
+		if(cw)
+			total_angle += RADTODEG(acos(vectors[i].dotProduct(vectors[(i+1)%3])));
+		else
+			total_angle += RADTODEG(acos(vectors[i].dotProduct(vectors[(i+2)%3])));
+	}
+	
+	/*
 	total_angle  = RADTODEG(acos(vectors[0].dotProduct(vectors[1])));
 	total_angle += RADTODEG(acos(vectors[1].dotProduct(vectors[2])));
 	total_angle += RADTODEG(acos(vectors[2].dotProduct(vectors[0])));
+	*/
 
 	//
 	// If we are able to sum together all three angles and get 360.0, the
@@ -351,6 +367,111 @@ bool	dPointInTriangle(const vec3_c &p, const vec3_c &v0, const vec3_c &v1, const
 		return true;
 
 	return false;
+#else
+	vec_t		xt, yt;
+	plane_type_e	s1, s2;
+	
+	vec3_c	nn(false);
+	nn[0] = X_fabs(normal[0]);
+	nn[0] = X_fabs(normal[0]);
+	nn[0] = X_fabs(normal[0]);
+	
+	if((nn[0] >= nn[1]) && (nn[0] >= nn[2]))
+	{
+		xt = p[1];
+		yt = p[2];
+	
+		// PLANE_ANYX
+		s1 = PLANE_Y;
+		s2 = PLANE_Z;
+	}
+	else if((nn[1] >= nn[0]) && (nn[1] >= nn[2]))
+	{
+		xt = p[0];
+		yt = p[2];
+		
+		// PLANE_ANYY
+		s1 = PLANE_X;
+		s2 = PLANE_Z;
+	}
+	else
+	{
+		xt = p[0];
+		yt = p[1];
+		
+		// PLANE_ANYZ
+		s1 = PLANE_X;
+		s2 = PLANE_Y;
+	}
+	
+	vec_t	Ax, Ay, Bx, By;
+	vec_t	s;
+	
+	bool front = false;
+	bool back = false;
+	
+	Ax=v0[s1]; Bx=v1[s1];
+	Ay=v0[s2]; By=v1[s2];
+	
+	s=((Ay-yt)*(Bx-Ax)-(Ax-xt)*(By-Ay));
+	
+	if(s >= 0) 
+	{ 
+		if(back)
+			return false; 
+		
+		front = true;
+	}
+	else
+	{
+		if(front)
+			return false;
+		
+		back = true;
+	}
+	
+	Ax=v1[s1]; Bx=v2[s1];
+	Ay=v1[s2]; By=v2[s2];
+	
+	s=((Ay-yt)*(Bx-Ax)-(Ax-xt)*(By-Ay));
+	
+	if(s >= 0)
+	{
+		if(back)
+			return false; 
+			
+		front = true;
+	}
+	else
+	{
+		if(front)
+			return false; 
+		
+		back = true;
+	}
+	
+	Ax=v2[s1]; Bx=v0[s1];
+	Ay=v2[s2]; By=v0[s2];
+	
+	s=((Ay-yt)*(Bx-Ax)-(Ax-xt)*(By-Ay));
+	
+	if(s >= 0)
+	{
+		if(back)
+			return false;
+		
+		front = true;
+	}
+	else
+	{
+		if(front)
+			return false;
+		
+		back = true;
+	}
+	
+	return true;
+#endif
 }
 
 bool	dCollideSpheres(const vec3_c &p1, vec_t r1, const vec3_c &p2, vec_t r2, dContactGeom &c)

@@ -981,6 +981,7 @@ void	G_InitDynamics()
 
 	g_ode_world->setGravity(gravity);
 	g_ode_world->setCFM(1e-5);
+	g_ode_world->setERP(0.4);
 //	g_ode_world->setAutoDisableFlag(true);
 //	g_ode_world->setContactMaxCorrectingVel(0.1);
 //	g_ode_world->setContactSurfaceLayer(0.001);
@@ -1076,11 +1077,8 @@ static void	G_TopLevelCollisionCallback(void *data, dGeomID o1, dGeomID o2)
 //			return;
 //		}
 
-		const int	contacts_max = 32;
-		//dContact	contacts[contacts_max]; 
 		std::vector<dContact> contacts;
-		//if(int contacts_num = dCollide(o1, o2, contacts_max, &contacts[0].geom, sizeof(dContact)))
-		if(int contacts_num = dCollide(o1, o2, contacts_max, contacts))
+		if(int contacts_num = dCollide(o1, o2, 32, contacts))
 		{
 			// sort contacts by penetration depth
 			//qsort(contacts, contacts_num, sizeof(dContact), G_SortByContactGeomDepthFunc);
@@ -1128,6 +1126,13 @@ static void	G_TopLevelCollisionCallback(void *data, dGeomID o1, dGeomID o2)
 				contacts[i].surface.bounce = 0.1;
 				contacts[i].surface.bounce_vel = 0.1;
 				contacts[i].surface.soft_cfm = 0.0001;
+				
+				trap_SV_WriteByte(SVC_TEMP_ENTITY);
+				trap_SV_WriteByte(TE_CONTACT);
+				trap_SV_WritePosition(contacts[i].geom._origin);
+				trap_SV_WriteDir(contacts[i].geom._normal);
+				trap_SV_WriteFloat(contacts[i].geom._depth);
+				trap_SV_Multicast(contacts[i].geom._origin, MULTICAST_ALL);
 		
 				dJointID c = dJointCreateContact(g_ode_world->getId(), g_ode_contact_group->getId(), &contacts[i]);
 				dJointAttach(c, b1, b2);
