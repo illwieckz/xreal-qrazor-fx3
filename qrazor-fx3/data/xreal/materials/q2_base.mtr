@@ -751,6 +751,7 @@ textures/q2_base/q2_mud1_1_trans_d
 		blend diffusemap
 		map textures/q2_base/q2_mud1_1_d.tga
 		scroll time * -.02 , time * .002
+		//blend blend
 	}
 	{
 		blend bumpmap
