@@ -32,6 +32,6 @@ void	main()
 	
 //	gl_FragColor = horizon * (1.0 - clouds.x) + clouds;
 
-	gl_FragColor = texture2D(u_cloudmap, gl_TexCoord[0]);
+	gl_FragColor = texture2D(u_cloudmap, gl_TexCoord[0].xy);
 //	gl_FragColor *= u_color;
 }
