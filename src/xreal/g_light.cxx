@@ -152,11 +152,9 @@ void	g_light_c::activate()
 	{
 		G_SetModel(this, _model);
 		
-		//_geom->disable();
-		
 		_s.origin = _r.bbox.origin();
-		_s.lengths = _r.bbox.size();
-		//_s.lengths.scale(0.5);
+		_s.vectors[0] = _r.bbox.size();
+		_s.vectors[0].scale(1.5);
 	}
 #endif
 	// update fields that may conflict with others

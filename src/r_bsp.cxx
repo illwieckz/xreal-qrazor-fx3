@@ -201,6 +201,11 @@ r_bsptree_c::r_bsptree_c(const std::string &name)
 		xglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexes_size, indexes, GL_STATIC_DRAW_ARB);	RB_CheckForError();
 		Com_Free(indexes);
 	}
+	else
+	{
+		_vbo_array_buffer = 0;
+		_vbo_element_array_buffer = 0;
+	}
 }
 
 r_bsptree_c::~r_bsptree_c()
@@ -737,7 +742,8 @@ void	r_bsptree_c::loadLeafs(const byte *buffer, const bsp_lump_t *l)
 		int first = LittleLong(in->leafsurfaces_first);		
 		if(first < 0 || first >= (int)_surfaces_leaf.size())
 		{
-			ri.Com_Error(ERR_DROP, "r_bsptree_c::loadLeafs: bad firstleafface %i\n", first);
+			ri.Com_DPrintf("r_bsptree_c::loadLeafs: bad firstleafface %i\n", first);
+			continue;
 		}
 		
 		try
@@ -1454,8 +1460,8 @@ void 	r_bsptree_c::markLeaves()
 
 void 	r_bsptree_c::markLights()
 {
-	if(_viewcluster_old == _viewcluster && r_vis->getValue() && _viewcluster != -1)
-		return;
+//	if(_viewcluster_old == _viewcluster && r_vis->getValue() && _viewcluster != -1)
+//		return;
 
 	if(r_lockpvs->getValue())
 		return;
@@ -1480,30 +1486,47 @@ void 	r_bsptree_c::markLights()
 		{
 			r_light_c& light = ir->second;
 			
-			if(!(light.getShared().flags & RF_STATIC))
-			{
-				if(R_CullBBox(r_frustum, light.getShared().radius_bbox))
-					continue;
-					
-				light.setVisFrameCount();
-				continue;
-			}
-				
-			
-			if(light.getCluster() == -1)
-				continue;
-				
-			if(r_newrefdef.areabits)
-			{
-				if(!(r_newrefdef.areabits[light.getArea()>>3] & (1<<(light.getArea()&7))))
-					continue;
-			}
-			
 			if(R_CullBBox(r_frustum, light.getShared().radius_bbox))
 				continue;
 			
-			if(vis[light.getCluster()>>3] & (1<<(light.getCluster()&7)))
+			if(!(light.getShared().flags & RF_STATIC))
+			{
 				light.setVisFrameCount();
+				continue;
+			}
+			
+			//const std::vector<r_bsptree_leaf_c*>& leafs = light.getLeafs();
+			
+			//for(std::vector<r_bsptree_leaf_c*>::const_iterator ir = leafs.begin(); ir != leafs.end(); ++ir)
+			//{
+				//r_bsptree_leaf_c* leaf = *ir;
+				
+				//if(leaf->visframecount != r_visframecount)
+				//	continue;
+				
+				//if(leaf->cluster == -1)
+				//	continue;
+					
+				if(light.getCluster() == -1)
+					continue;
+				
+				if(r_newrefdef.areabits)
+				{
+					if(!(r_newrefdef.areabits[light.getArea()>>3] & (1<<(light.getArea()&7))))
+						continue;
+				}
+				
+				if(vis[light.getCluster()>>3] & (1<<(light.getCluster()&7)))
+					light.setVisFrameCount();
+				
+				/*
+				if(vis[leaf->cluster>>3] & (1<<(leaf->cluster&7)))
+				{
+					light.setVisFrameCount();
+					break;
+				}
+				*/
+			//}
 		}
 	}
 }
@@ -1540,6 +1563,7 @@ void 	r_bsptree_c::markEntities()
 				continue;
 			}
 			
+			/*
 			if(ent.getCluster() == -1)
 				continue;
 				
@@ -1550,6 +1574,7 @@ void 	r_bsptree_c::markEntities()
 			}
 			
 			if(vis[ent.getCluster()>>3] & (1<<(ent.getCluster()&7)))
+			*/
 				ent.setVisFrameCount();
 		}
 	}
