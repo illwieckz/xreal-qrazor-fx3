@@ -340,10 +340,10 @@ void	cmodel_ase_c::load()
 	if(!info.full)
 		Com_Error(ERR_DROP, "cm_ase_model_c::load: parsing failed for '%s'", getName());
 		
-	_bbox.clear();
-	for(std::vector<vec3_c>::const_iterator ir = vertexes.begin(); ir != vertexes.end(); ir++)
+	_aabb.clear();
+	for(std::vector<vec3_c>::const_iterator ir = vertexes.begin(); ir != vertexes.end(); ++ir)
 	{
-		_bbox.addPoint(*ir);
+		_aabb.addPoint(*ir);
 	}
 }
 

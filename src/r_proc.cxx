@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // qrazor-fx ----------------------------------------------------------------
 #include 	"r_local.h"
 
-
+#if 0
 
 r_areaportal_c::r_areaportal_c(const std::vector<vec3_c> &vertexes, int areas[2])
 {
@@ -44,10 +44,10 @@ r_areaportal_c::r_areaportal_c(const std::vector<vec3_c> &vertexes, int areas[2]
 	_areas[0]		= areas[0];
 	_areas[1]		= areas[1];
 
-	_bbox.clear();
+	_aabb.clear();
 	
-	for(std::vector<vec3_c>::const_iterator ir = vertexes.begin(); ir != vertexes.end(); ir++)
-		_bbox.addPoint(*ir);
+	for(std::vector<vec3_c>::const_iterator ir = vertexes.begin(); ir != vertexes.end(); ++ir)
+		_aabb.addPoint(*ir);
 	
 	//Com_Printf("iap: %s ", ap..toString());
 	//Com_Printf("%i %i %i \n", points_num, ap.areas[SIDE_FRONT], ap.areas[SIDE_BACK]);
@@ -55,7 +55,7 @@ r_areaportal_c::r_areaportal_c(const std::vector<vec3_c> &vertexes, int areas[2]
 
 void	r_areaportal_c::adjustFrustum(const r_frustum_c &frustum)
 {
-	if(r_frustum[FRUSTUM_NEAR].onSide(_bbox) == SIDE_CROSS)
+	if(r_frustum[FRUSTUM_NEAR].onSide(_aabb) == SIDE_CROSS)
 	{
 		for(int i=0; i<FRUSTUM_PLANES; i++)
 			_frustum[i] = r_frustum[i];
@@ -273,7 +273,7 @@ r_proctree_c::r_proctree_c(const std::string &name)
 			{
 				r_proctree_area_c *area = new r_proctree_area_c();
 				
-				area->bbox = model->getBBox();
+				area->_aabb = model->getAABB();
 				area->surfaces = model->_surfaces;
 				area->model = model;
 				
@@ -383,7 +383,7 @@ void	r_proctree_c::updateArea_r(int areanum, const r_frustum_c &frustum)
 	}
 	*/
 	
-	if(frustum.cull(area->bbox))
+	if(frustum.cull(area->_aabb))
 		return;
 		
 	area->setVisFrameCount();
@@ -489,7 +489,7 @@ void	r_proctree_c::updateArea_r(int areanum, const r_frustum_c &frustum)
 		
 		if(!iap->isVisible())
 		{
-			if(!frustum.cull(iap->getBBox()))
+			if(!frustum.cull(iap->getAABB()))
 			{
 				for(int i=0; i<2; i++)
 				{
@@ -969,10 +969,12 @@ void	r_proctree_c::loadInterAreaPortals(char **buf_p)
 
 
 
-r_proc_model_c::r_proc_model_c(const std::string &name)
+r_proc_model_c::r_proc_model_c(const std::string &name, bool inline_model)
 :r_model_c(name, NULL, 0, MOD_PROC)
 {
 	ri.Com_DPrintf("loading '%s' ...\n", getName());
+
+	_inline = inline_model;
 }
 
 r_proc_model_c::~r_proc_model_c()
@@ -1081,9 +1083,24 @@ void	r_proc_model_c::load(char **buf_p)
 	Com_Parse(buf_p);	// skip '}'
 }
 
+const cbbox_c	r_proc_model_c::createAABB(r_entity_c *ent)
+{
+	if(!_inline)
+	{
+		return _aabb;
+	}
+	else
+	{
+		cbbox_c aabb = _aabb;
+		aabb._mins += ent->getShared().origin;
+		aabb._maxs += ent->getShared().origin;
+		return aabb;
+	}
+}
+
 void	r_proc_model_c::addModelToList(r_entity_c *ent)
 {
-	if(r_frustum.cull(ent->getShared().origin, _bbox.radius(), FRUSTUM_CLIPALL))
+	if(r_frustum.cull(ent->getAABB(), FRUSTUM_CLIPALL))
 	{
 		c_entities--;
 		return;
@@ -1278,3 +1295,4 @@ void	r_proc_model_c::setupVBO()
 	}
 }
 
+#endif

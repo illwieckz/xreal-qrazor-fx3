@@ -47,7 +47,7 @@ std::vector<side_t>	map_brushsides;
 
 std::vector<cplane_c>	map_planes;
 
-cbbox_c			map_bbox;
+aabb_c			map_bbox;
 
 
 int		c_boxbevels;

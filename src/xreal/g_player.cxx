@@ -1008,7 +1008,7 @@ void	g_player_c::clientCommand()
 
 // pmove doesn't need to know about passent and contentmask
 /*
-trace_t	PM_Trace(const vec3_c &start, const cbbox_c &bbox, const vec3_c &end)
+trace_t	PM_Trace(const vec3_c &start, const aabb_c &bbox, const vec3_c &end)
 {
 	trace_t trace;
 	
@@ -1021,7 +1021,7 @@ trace_t	PM_Trace(const vec3_c &start, const cbbox_c &bbox, const vec3_c &end)
 static g_entity_c*	pm_passent;
 
 // pmove doesn't need to know about passent and contentmask
-static trace_t	PM_Trace(const vec3_c &start, const cbbox_c &bbox, const vec3_c &end)
+static trace_t	PM_Trace(const vec3_c &start, const aabb_c &bbox, const vec3_c &end)
 {
 	if(pm_passent->_health > 0)
 		return G_Trace(start, bbox, end, pm_passent, MASK_PLAYERSOLID);

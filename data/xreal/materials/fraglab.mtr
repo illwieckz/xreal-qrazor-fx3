@@ -11,15 +11,15 @@ textures/fraglab/crates/crate01
 {    
 	qer_editorimage textures/fraglab/crates/crate01_d.tga
 	
-//	diffusemap textures/fraglab/crates/crate01_d.tga
-//	bumpmap textures/fraglab/crates/crate01_n.tga
-//	specularmap textures/fraglab/crates/crate01_s.tga
+	diffusemap textures/fraglab/crates/crate01_d.tga
+	bumpmap textures/fraglab/crates/crate01_n.tga
+	specularmap textures/fraglab/crates/crate01_s.tga
 
-	{
-		stage	heathazemap
-		map	textures/fraglab/crates/ubicrate01_local.tga
-		scroll	0 , time * 0.2
-	}
+//	{
+//		stage	heathazemap
+//		map	textures/fraglab/crates/ubicrate01_local.tga
+//		scroll	0 , time * 0.2
+//	}
 }
 
 textures/fraglab/plants/plant01

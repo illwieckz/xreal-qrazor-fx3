@@ -50,42 +50,22 @@ r_skel_model_c::~r_skel_model_c()
 	//TODO clear extra bone information
 }
 
-void	r_skel_model_c::updateBBox(r_entity_c *ent)
+const aabb_c	r_skel_model_c::createAABB(r_entity_c *ent)
 {
-#if 0
-	for(std::vector<r_skel_bone_t*>::iterator ir = _bones.begin(); ir != _bones.end(); ++ir)
-	{
-		updateBone(ent, *ir);
-	}
-		
-	int bone_index = getNumForBoneName("boundsMin");
-	
-	if(bone_index != -1)
-		_bbox._mins = _bones[bone_index]->position;	
-	
-	bone_index = getNumForBoneName("boundsMax");
-	
-	if(bone_index != -1)
-		_bbox._maxs = _bones[bone_index]->position;
-#else
 	const r_skel_animation_c* anim = ent->getAnimation();
 	
 	if(!anim)
-		return;
+		return aabb_c();
 
 	// get frames
 	if((ent->getShared().frame < 0) || (ent->getShared().frame >= (int)anim->_frames.size()))
 	{
-		ri.Com_Printf("r_skel_model_c::updateBBox: animation %s has no such frame %d\n", anim->getName(), ent->getShared().frame);
-		_bbox.clear();
-		return;
+		ri.Com_Printf("r_skel_model_c::createAABB: animation '%s' has no such frame %d\n", anim->getName(), ent->getShared().frame);
 	}
 	
 	if((ent->getShared().frame_old < 0) || (ent->getShared().frame_old >= (int)anim->_frames.size()))
 	{
-		ri.Com_Printf ("r_skel_model_c::updateBBox: model %s has no such oldframe %d\n", anim->getName(), ent->getShared().frame_old);
-		_bbox.clear();
-		return;
+		ri.Com_Printf ("r_skel_model_c::createAABB: animation '%s' has no such oldframe %d\n", anim->getName(), ent->getShared().frame_old);
 	}
 
 	r_skel_frame_t* frame		= anim->_frames[X_bound(0, ent->getShared().frame, (int)anim->_frames.size()-1)];
@@ -93,16 +73,19 @@ void	r_skel_model_c::updateBBox(r_entity_c *ent)
 
 
 	// compute axially aligned mins and maxs
+	aabb_c aabb;
+	aabb.clear();
 	if(frame == frame_old)
 	{
-		_bbox	= frame->bbox;
+		aabb	= frame->bbox;
 	}
 	else
 	{
-		_bbox = frame_old->bbox;
-		_bbox.mergeWith(frame->bbox);	
+		aabb = frame_old->bbox;
+		aabb.mergeWith(frame->bbox);	
 	}
-#endif
+
+	return aabb;
 }
 
 bool	r_skel_model_c::cull(r_entity_c *ent)
@@ -112,15 +95,13 @@ bool	r_skel_model_c::cull(r_entity_c *ent)
 	
 	if(ent->getShared().flags & RF_VIEWERMODEL)
 		return (!(r_mirrorview || r_portal_view));
-		
-	updateBBox(ent);
 	
-	if(r_frustum.cull(ent->getShared().origin, _bbox.radius()))
+	if(r_frustum.cull(ent->getAABB()))
 		return true;
 	
 	if((r_mirrorview || r_portal_view) && r_cull->getValue())
 	{
-		if(r_clipplane.distance(ent->getShared().origin) < -_bbox.radius())
+		if(r_clipplane.distance(ent->getShared().origin) < -ent->getAABB().radius())
 			return true;
 	}
 	
@@ -207,7 +188,7 @@ void	r_skel_model_c::addModelToList(r_entity_c *ent)
 			
 	//ri.Com_Printf("r_skel_model_c::addModelToList: model '%s'\n", getName());
 	
-	if(cull(ent))
+	if(ent->isVisible() && cull(ent))
 	{
 		c_entities--;
 		return;
@@ -265,7 +246,7 @@ void	r_skel_model_c::addModelToList(r_entity_c *ent)
 				if(!light.isVisible())
 					continue;
 			
-				if(light.getShared().radius_bbox.intersect(ent->getShared().origin, mesh->bbox.radius()))
+				if(light.getShared().radius_aabb.intersect(ent->getShared().origin, mesh->bbox.radius()))
 					RB_AddCommand(ent, this, mesh, shader, &light, NULL, -(i+1), 0);
 			}
 		}

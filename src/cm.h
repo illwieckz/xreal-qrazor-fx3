@@ -57,16 +57,16 @@ int			CM_NumModels();
 const char*		CM_EntityString();
 
 // creates a clipping hull for an arbitrary box
-int			CM_HeadnodeForBox(const cbbox_c& bbox);
+int			CM_HeadnodeForBox(const aabb_c& bbox);
 
 // returns an ORed contents mask
 int			CM_PointContents(const vec3_c &p, int headnode);
 int			CM_TransformedPointContents(const vec3_c &p, int headnode, const vec3_c &origin, const quaternion_c &quat);
 
-trace_t			CM_BoxTrace(const vec3_c &start, const vec3_c &end, const cbbox_c &bbox, int headnode, int brushmask);
+trace_t			CM_BoxTrace(const vec3_c &start, const vec3_c &end, const aabb_c &bbox, int headnode, int brushmask);
 	
 trace_t			CM_TransformedBoxTrace(const vec3_c &start, const vec3_c &end,
-						const cbbox_c &bbox,
+						const aabb_c &bbox,
 						int headnode, int brushmask, 
 						const vec3_c &origin, const quaternion_c &quat);
 
@@ -75,7 +75,7 @@ int			CM_PointAreanum(const vec3_c &p);
 
 // call with topnode set to the headnode, returns with topnode
 // set to the first node that splits the box
-int			CM_BoxLeafnums(const cbbox_c &bbox, std::deque<int> &list, int headnode);
+int			CM_BoxLeafnums(const aabb_c &bbox, std::deque<int> &list, int headnode);
 
 int			CM_GetClosestAreaPortal(const vec3_c &p);
 bool			CM_GetAreaPortalState(int portal);

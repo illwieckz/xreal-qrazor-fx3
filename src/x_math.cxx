@@ -1648,7 +1648,7 @@ quaternion_c	quaternion_c::operator * (const quaternion_c &q) const
 
 
 
-bool	cbbox_c::lineIntersect(float min1, float max1, float min2, float max2) const
+bool	aabb_c::lineIntersect(float min1, float max1, float min2, float max2) const
 {
 	if(min1 <= min2 && min2 <= max1 )
 		return true;
@@ -1665,7 +1665,7 @@ bool	cbbox_c::lineIntersect(float min1, float max1, float min2, float max2) cons
 	return false;
 }
 
-vec_t	cbbox_c::maxOfEight(vec_t n1, vec_t n2, vec_t n3, vec_t n4, vec_t n5, vec_t n6, vec_t n7, vec_t n8) const
+vec_t	aabb_c::maxOfEight(vec_t n1, vec_t n2, vec_t n3, vec_t n4, vec_t n5, vec_t n6, vec_t n7, vec_t n8) const
 {
 	float max = n1;
 	
@@ -1693,7 +1693,7 @@ vec_t	cbbox_c::maxOfEight(vec_t n1, vec_t n2, vec_t n3, vec_t n4, vec_t n5, vec_
 	return max;
 }
 
-vec_t	cbbox_c::minOfEight(vec_t n1, vec_t n2, vec_t n3, vec_t n4, vec_t n5, vec_t n6, vec_t n7, vec_t n8) const
+vec_t	aabb_c::minOfEight(vec_t n1, vec_t n2, vec_t n3, vec_t n4, vec_t n5, vec_t n6, vec_t n7, vec_t n8) const
 {
 	float min = n1;
 	
@@ -1722,7 +1722,7 @@ vec_t	cbbox_c::minOfEight(vec_t n1, vec_t n2, vec_t n3, vec_t n4, vec_t n5, vec_
 }
 
 
-bool	cbbox_c::intersect(const cbbox_c &bbox) const
+bool	aabb_c::intersect(const aabb_c &bbox) const
 {
 #if 1
 	return(	_mins[0] <= bbox._maxs[0]	&& 
@@ -1743,7 +1743,7 @@ bool	cbbox_c::intersect(const cbbox_c &bbox) const
 }
 
 
-bool	cbbox_c::intersect(const vec3_c &origin, const float radius) const
+bool	aabb_c::intersect(const vec3_c &origin, const float radius) const
 {
 #if 1
 	return(	_mins[0] <= origin[0] + radius	&& 
@@ -1754,7 +1754,7 @@ bool	cbbox_c::intersect(const vec3_c &origin, const float radius) const
 		_maxs[1] >= origin[1] - radius	&& 
 		_maxs[2] >= origin[2] - radius	);
 #else
-	cbbox_c	bbox;
+	aabb_c	bbox;
 		
 	bbox._mins[0] = origin[0] - radius;
 	bbox._mins[1] = origin[1] - radius;
@@ -1773,7 +1773,7 @@ bool	cbbox_c::intersect(const vec3_c &origin, const float radius) const
 #endif
 }
 
-bool	cbbox_c::intersect(vec_t x0, vec_t y0, vec_t z0, vec_t x1, vec_t y1, vec_t z1) const
+bool	aabb_c::intersect(vec_t x0, vec_t y0, vec_t z0, vec_t x1, vec_t y1, vec_t z1) const
 {
 	// an infinite ray would intersect the box but if it is not
 	// we must check if the ray is out side the box
@@ -1810,7 +1810,7 @@ bool	cbbox_c::intersect(vec_t x0, vec_t y0, vec_t z0, vec_t x1, vec_t y1, vec_t 
 	return false;
 }
 
-float	cbbox_c::radius() const
+float	aabb_c::radius() const
 {
 	vec3_c	corner(false);
 	
@@ -1821,7 +1821,7 @@ float	cbbox_c::radius() const
 	return corner.length();
 }
 
-void	cbbox_c::addPoint(const vec3_c &v)
+void	aabb_c::addPoint(const vec3_c &v)
 {
 	if(v[0] < _mins[0])
 		_mins[0] = v[0];
@@ -1843,7 +1843,7 @@ void	cbbox_c::addPoint(const vec3_c &v)
 		_maxs[2] = v[2];
 }
 
-void	cbbox_c::mergeWith(const cbbox_c &bbox)
+void	aabb_c::mergeWith(const aabb_c &bbox)
 {
 	if(bbox._mins[0] < _mins[0])
 		_mins[0] = bbox._mins[0];
@@ -1865,13 +1865,13 @@ void	cbbox_c::mergeWith(const cbbox_c &bbox)
 		_maxs[2] = bbox._maxs[2];
 }
 
-void	cbbox_c::translate(const vec3_c &v)
+void	aabb_c::translate(const vec3_c &v)
 {
 	_mins += v;
 	_maxs += v;
 }
 
-void	cbbox_c::rotate(const quaternion_c &q)
+void	aabb_c::rotate(const quaternion_c &q, bool object_space)
 {
 	// compute bbox vertices
 	vec3_c vert0(_maxs[0], _mins[1], _mins[2]);
@@ -1902,7 +1902,7 @@ void	cbbox_c::rotate(const quaternion_c &q)
 	_maxs[2] = maxOfEight(vert0[2], vert1[2], vert2[2], vert3[2], vert4[2], vert5[2], vert6[2], vert7[2]);
 }
 
-bool 	cbbox_c::isZero() const
+bool 	aabb_c::isZero() const
 {
 	if (	_mins[0] == 0 && _mins[1] == 0 && _mins[2] == 0 &&
 		_maxs[0] == 0 && _maxs[1] == 0 && _maxs[2] == 0)
@@ -1911,7 +1911,7 @@ bool 	cbbox_c::isZero() const
 		return false;
 }
 	
-const char*	cbbox_c::toString() const
+const char*	aabb_c::toString() const
 {
 	return va("(%i %i %i) (%i %i %i)", (int)_mins[0], (int)_mins[1], (int)_mins[2], (int)_maxs[0], (int)_maxs[1], (int)_maxs[2]);
 }
@@ -2012,7 +2012,7 @@ void	cplane_c::normalize()
 	}
 }
 
-plane_side_e	cplane_c::onSide(const cbbox_c &bbox, bool use_signbits) const
+plane_side_e	cplane_c::onSide(const aabb_c &bbox, bool use_signbits) const
 {	
 	// fast axial cases
 	if(_type <= PLANE_Z)

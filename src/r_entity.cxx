@@ -49,12 +49,11 @@ r_entity_c::r_entity_c(const r_entity_t &shared)
 	
 	if(_s.flags & RF_STATIC)
 	{
+		//ri.Com_DPrintf("r_entity_c::ctor: static\n");
+	
 		if(!r_world_tree && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
 			ri.Com_Error(ERR_DROP, "r_entity_c::ctor: NULL worldmodel");
 	
-#if 1
-		//_area = r_world_tree->pointInArea(_s.origin);
-#else
 		r_bsptree_leaf_c* leaf = r_world_tree->pointInLeaf(_s.origin);
 		if(leaf)
 		{
@@ -70,16 +69,42 @@ r_entity_c::r_entity_c(const r_entity_t &shared)
 			
 		if(model)
 		{
-			model->updateBBox(this);
-			r_world_tree->boxLeafs(model->getBBox(), _leafs);
+			_aabb = model->createAABB(this);
 			
-			if(_leafs.size())
-				ri.Com_DPrintf("entity touches %i BSP leaves\n", _leafs.size());
+			//ri.Com_DPrintf("r_entity_c::ctor: aabb %s\n", _aabb.toString());
+			
+			_aabb.rotate(_s.quat);
+			
+			_aabb._mins += _s.origin;
+			_aabb._maxs += _s.origin;
+			
+			// run this AABB through the BSP and collect all touched leaves
+			r_world_tree->boxLeafs(_aabb, _leafs);
+			
+			//if(_leafs.size())
+			//	ri.Com_DPrintf("entity touches %i BSP leaves\n", _leafs.size());
 		}
-#endif
+		else
+		{
+			//ri.Com_DPrintf("r_entity_c::ctor: model not found\n");
+		}
 	}
 	else
 	{
+		//ri.Com_DPrintf("r_entity_c::ctor: dynamic\n");
+	
+		r_model_c *model = R_GetModelByNum(_s.model);
+			
+		if(model)
+		{
+			_aabb = model->createAABB(this);
+			
+			_aabb.rotate(_s.quat);
+			
+			_aabb._mins += _s.origin;
+			_aabb._maxs += _s.origin;
+		}
+	
 		_cluster = -1;
 	}
 }

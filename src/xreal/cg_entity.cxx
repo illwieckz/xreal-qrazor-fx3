@@ -390,7 +390,7 @@ void	CG_AddGenericEntity(const cg_entity_t *cent)
 	{
 		rent.custom_light = cg.light_precache[cent->current.index_light];
 	
-		rent.radius_bbox.clear();
+		rent.radius_aabb.clear();
 			
 		// compute bbox vertices in light space
 		vec3_c vert0( cent->current.vectors[0][0], -cent->current.vectors[0][1], -cent->current.vectors[0][2]);
@@ -414,16 +414,16 @@ void	CG_AddGenericEntity(const cg_entity_t *cent)
 		vert7.rotate(cent->current.quat);
 			
 		// transform vertices into world space and add them to the light world aabb
-		rent.radius_bbox.addPoint(cent->current.origin + vert0);
-		rent.radius_bbox.addPoint(cent->current.origin + vert1);
-		rent.radius_bbox.addPoint(cent->current.origin + vert2);
-		rent.radius_bbox.addPoint(cent->current.origin + vert3);
-		rent.radius_bbox.addPoint(cent->current.origin + vert4);
-		rent.radius_bbox.addPoint(cent->current.origin + vert5);
-		rent.radius_bbox.addPoint(cent->current.origin + vert6);
-		rent.radius_bbox.addPoint(cent->current.origin + vert7);
+		rent.radius_aabb.addPoint(cent->current.origin + vert0);
+		rent.radius_aabb.addPoint(cent->current.origin + vert1);
+		rent.radius_aabb.addPoint(cent->current.origin + vert2);
+		rent.radius_aabb.addPoint(cent->current.origin + vert3);
+		rent.radius_aabb.addPoint(cent->current.origin + vert4);
+		rent.radius_aabb.addPoint(cent->current.origin + vert5);
+		rent.radius_aabb.addPoint(cent->current.origin + vert6);
+		rent.radius_aabb.addPoint(cent->current.origin + vert7);
 			
-		rent.radius_value = rent.radius_bbox.radius();
+		rent.radius_value = rent.radius_aabb.radius();
 			
 		trap_R_AddLight(cent->current.getNumber(), 0, rent, LIGHT_OMNI);
 	}
@@ -466,7 +466,7 @@ void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 	{
 		rent.radius.lerp(cent->prev.vectors[0], cent->current.vectors[0], cg.frame_lerp);
 		
-		rent.radius_bbox.clear();
+		rent.radius_aabb.clear();
 			
 		// compute bbox vertices in light space
 		vec3_c vert0( rent.radius[0], -rent.radius[1], -rent.radius[2]);
@@ -490,16 +490,16 @@ void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 		vert7.rotate(rent.quat);
 			
 		// transform vertices into world space and add them to the light world aabb
-		rent.radius_bbox.addPoint(rent.origin + vert0);
-		rent.radius_bbox.addPoint(rent.origin + vert1);
-		rent.radius_bbox.addPoint(rent.origin + vert2);
-		rent.radius_bbox.addPoint(rent.origin + vert3);
-		rent.radius_bbox.addPoint(rent.origin + vert4);
-		rent.radius_bbox.addPoint(rent.origin + vert5);
-		rent.radius_bbox.addPoint(rent.origin + vert6);
-		rent.radius_bbox.addPoint(rent.origin + vert7);
+		rent.radius_aabb.addPoint(rent.origin + vert0);
+		rent.radius_aabb.addPoint(rent.origin + vert1);
+		rent.radius_aabb.addPoint(rent.origin + vert2);
+		rent.radius_aabb.addPoint(rent.origin + vert3);
+		rent.radius_aabb.addPoint(rent.origin + vert4);
+		rent.radius_aabb.addPoint(rent.origin + vert5);
+		rent.radius_aabb.addPoint(rent.origin + vert6);
+		rent.radius_aabb.addPoint(rent.origin + vert7);
 			
-		rent.radius_value = rent.radius_bbox.radius();
+		rent.radius_value = rent.radius_aabb.radius();
 	
 		trap_R_UpdateLight(cent->current.getNumber(), 0, rent, LIGHT_OMNI);
 	}

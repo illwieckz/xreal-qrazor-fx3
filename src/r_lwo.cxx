@@ -47,7 +47,7 @@ void	r_lwo_model_c::load()
 	ID4		id;
 	
 	matrix_c		transform;
-	cbbox_c			bbox;
+	aabb_c			bbox;
 	vec2_c			default_texcoord;
 	int			default_texcoord_axis[2];
 	vec2_c			default_texcoord_scale;
@@ -419,7 +419,7 @@ void	r_lwo_model_c::readPnts(uint_t nbytes, std::vector<vec3_c> &vertexes)
 	}
 }
 
-void	r_lwo_model_c::readBbox(uint_t nbytes, cbbox_c &bbox)
+void	r_lwo_model_c::readBbox(uint_t nbytes, aabb_c &bbox)
 {
 	readVEC12(bbox._mins);
 	readVEC12(bbox._maxs);

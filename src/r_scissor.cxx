@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // xreal --------------------------------------------------------------------
 
-void	r_scissor_iface_a::updateScissor(const matrix_c &modelviewproj, const r_vrect_t &vrect, const cbbox_c &bbox)
+void	r_scissor_iface_a::updateScissor(const matrix_c &modelviewproj, const r_vrect_t &vrect, const aabb_c &bbox)
 {
 	_mins[0] = 100000000;
 	_mins[1] = 100000000;

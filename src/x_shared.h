@@ -718,7 +718,7 @@ public:
 	inline uint_t		getRegistrationSequence() const		{return _registration_sequence;}
 	inline void		setRegistrationSequence(uint_t seq)	{_registration_sequence = seq;}
 	
-	inline const cbbox_c&	getBBox() const				{return _bbox;}
+	inline const aabb_c&	getAABB() const				{return _aabb;}
 	inline int		getHeadNode() const			{return _headnode;}
 	
 //	inline const vec3_c*	getVertexes() const			{return &_vertexes[0];}
@@ -733,7 +733,7 @@ protected:
 	uint_t			_buffer_size;
 	
 public:	
-	cbbox_c			_bbox;			
+	aabb_c			_aabb;
 	int			_headnode;		// FIXME get rid of
 
 //protected:	
@@ -972,7 +972,7 @@ struct pmove_t
 	vec3_c		viewangles;			// clamped
 	float		viewheight;
 
-	cbbox_c		bbox;
+	aabb_c		bbox;
 
 	entity_c*	groundentity;
 	
@@ -981,7 +981,7 @@ struct pmove_t
 
 	// callbacks to test the world
 	trace_t		(*rayTrace)(const vec3_c &start, const vec3_c &dir, vec_t length);
-	trace_t		(*boxTrace)(const vec3_c &start, const cbbox_c &bbox, const vec3_c &end);
+	trace_t		(*boxTrace)(const vec3_c &start, const aabb_c &bbox, const vec3_c &end);
 	int		(*pointContents)(const vec3_c &point);
 };
 

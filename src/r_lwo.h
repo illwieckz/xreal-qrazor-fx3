@@ -63,7 +63,7 @@ private:
 	void		readTags(uint_t nbytes);
 	void		readLayr(uint_t nbytes, matrix_c &transform);
 	void		readPnts(uint_t nbytes, std::vector<vec3_c> &vertexes);
-	void		readBbox(uint_t nbytes, cbbox_c &bbox);
+	void		readBbox(uint_t nbytes, aabb_c &bbox);
 	void		readPols(uint_t nbytes, std::vector<index_t> &indexes);
 	void		readPtag(uint_t nbytes, std::vector<lwo_ptag_t> &ptags);
 	void		readVmap(uint_t nbytes, std::vector<lwo_vmap_t> &vmaps);

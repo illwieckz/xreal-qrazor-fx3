@@ -180,6 +180,7 @@ cvar_t	*r_showinvisible;
 cvar_t	*r_showlightbboxes;
 cvar_t	*r_showlightscissors;
 cvar_t	*r_showlighttransforms;
+cvar_t	*r_showentitybboxes;
 cvar_t	*r_showentitytransforms;
 cvar_t	*r_showcontacts;
 cvar_t	*r_clear;
@@ -291,7 +292,7 @@ void 	R_DrawNULL(const vec3_c &origin, const vec3_c &angles)
 }
 
 
-void 	R_DrawBBox(const cbbox_c &bbox, const vec4_c &color)
+void 	R_DrawBBox(const aabb_c &bbox, const vec4_c &color)
 {
 #if 1
 	//if(!r_showbbox->getValue())
@@ -910,13 +911,13 @@ void	R_DrawLightDebuggingInfo()
 				r_light_c& light = *ir;
 				
 				if(!light.isVisible())
-					R_DrawBBox(light.getShared().radius_bbox, color_red);
+					R_DrawBBox(light.getShared().radius_aabb, color_red);
 				
 				else if(light.getAreaSurfaces(0).empty())	// FIXME
-					R_DrawBBox(light.getShared().radius_bbox, color_blue);
+					R_DrawBBox(light.getShared().radius_aabb, color_blue);
 				
 				else
-					R_DrawBBox(light.getShared().radius_bbox, color_green);
+					R_DrawBBox(light.getShared().radius_aabb, color_green);
 			}
 		}
 	}
@@ -1003,6 +1004,28 @@ void	R_DrawLightDebuggingInfo()
 
 void	R_DrawEntityDebuggingInfo()
 {
+	if(r_showentitybboxes->getInteger())
+	{
+		for(std::vector<std::vector<r_entity_c> >::iterator ir = r_entities.begin(); ir != r_entities.end(); ++ir)
+		{
+			std::vector<r_entity_c>& entities = *ir;
+			
+			for(std::vector<r_entity_c>::iterator ir = entities.begin(); ir != entities.end(); ++ir)
+			{
+				r_entity_c& ent = *ir;
+				
+				if(!ent.isVisible())
+					R_DrawBBox(ent.getAABB(), color_red);
+				
+				else if(ent.getLeafs().empty())
+					R_DrawBBox(ent.getAABB(), color_blue);
+				
+				else
+					R_DrawBBox(ent.getAABB(), color_green);
+			}
+		}
+	}
+
 	if(r_showentitytransforms->getInteger())
 	{
 		vec3_c	vf, vr, vu;
@@ -1452,6 +1475,7 @@ static void 	R_Register()
 	r_showlightbboxes	= ri.Cvar_Get("r_showlightbboxes", "0", CVAR_NONE);
 	r_showlightscissors	= ri.Cvar_Get("r_showlightscissors", "0", CVAR_NONE);
 	r_showlighttransforms	= ri.Cvar_Get("r_showlighttransforms", "0", CVAR_NONE);
+	r_showentitybboxes	= ri.Cvar_Get("r_showentitybboxes", "0", CVAR_NONE);
 	r_showentitytransforms	= ri.Cvar_Get("r_showentitytransforms", "0", CVAR_NONE);
 	r_showcontacts		= ri.Cvar_Get("r_showcontacts", "0", CVAR_NONE);
 

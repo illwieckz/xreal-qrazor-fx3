@@ -241,7 +241,7 @@ class r_model_c;
 class r_entity_c;
 class r_light_c;
 class r_surface_c;
-class r_proc_model_c;
+//class r_proc_model_c;
 class r_bsptree_leaf_c;
 class r_skel_animation_c;
 
@@ -369,7 +369,7 @@ enum
 class r_frustum_c
 {
 public:
-	bool	cull(const cbbox_c &bbox, int clipmask = FRUSTUM_CLIPALL) const;
+	bool	cull(const aabb_c &bbox, int clipmask = FRUSTUM_CLIPALL) const;
 	bool	cull(const vec3_c &center, vec_t radius, int clipmask = FRUSTUM_CLIPALL) const;
 	bool	cull(const vec3_c &origin, int clipmask = FRUSTUM_CLIPALL) const;
 
@@ -554,7 +554,7 @@ public:
 	std::vector<int>		edges_sh;
 	
 	// culling
-	cbbox_c				bbox;
+	aabb_c				bbox;
 	
 	// skin support
 	std::string			name;
@@ -882,7 +882,7 @@ struct r_vrect_t
 class r_scissor_iface_a
 {
 public:
-	void			updateScissor(const matrix_c &mvp, const r_vrect_t &vrect, const cbbox_c &bbox);
+	void			updateScissor(const matrix_c &mvp, const r_vrect_t &vrect, const aabb_c &bbox);
 	void			setScissor(const r_vrect_t &vrect);
 	
 private:
@@ -993,11 +993,29 @@ private:
 	r_skel_animation_c*	_animation;
 };
 
+class r_aabb_iface_a
+{
+protected:
+	inline r_aabb_iface_a()
+	{
+	}
+	
+public:
+	inline const aabb_c&	getAABB() const		{return _aabb;}
+	
+//protected:
+	aabb_c		_aabb;
+};
+
+
+
+
 class r_entity_c :
 public r_vis_iface_a,
 public r_visframecount_iface_a,
 public r_occlusion_iface_a,
-public r_animation_iface_a
+public r_animation_iface_a,
+public r_aabb_iface_a
 {
 public:
 	r_entity_c();
@@ -1183,12 +1201,12 @@ struct r_scene_t
 
 class r_tree_elem_c :
 public r_framecount_iface_a,
-public r_visframecount_iface_a
+public r_visframecount_iface_a,
+public r_aabb_iface_a
 {
 public:
 	// wether if node a leaf, all tree elements have this
 	int			contents;		// -1, to differentiate from leafs
-	cbbox_c			bbox;			// for bounding box culling
 	
 	r_tree_elem_c*		parent;
 };
@@ -1246,7 +1264,7 @@ public:
 	bool			areaportal;
 	
 	vec3_c			center;
-	cbbox_c			bbox;
+	aabb_c			bbox;
 	cplane_c		plane;
 	
 	std::vector<vec3_c>	points;
@@ -1259,14 +1277,14 @@ public:
 
 struct r_bsptree_model_t
 {
-	cbbox_c			bbox;
+	aabb_c			bbox;
 	float			radius;
 	
 	int			modelsurfaces_first;
 	int			modelsurfaces_num;
 };
 
-
+/*
 class r_proctree_node_c : 
 public r_node_c
 {
@@ -1274,9 +1292,10 @@ public:
 	cplane_c		plane;
 	int			children[2];
 };
+*/
 
-
-class r_areaportal_c
+class r_areaportal_c : 
+public r_aabb_iface_a
 {
 public:
 	r_areaportal_c(const std::vector<vec3_c> &vertexes, int areas[2]);
@@ -1296,7 +1315,6 @@ public:
 	
 	inline int	getArea(int side) const		{return _areas[side];}
 	
-	inline const cbbox_c&	getBBox() const		{return _bbox;}
 	inline const cplane_c&	getPlane() const	{return _plane;}
 	
 	inline const r_frustum_c& getFrustum() const	{return _frustum;}
@@ -1305,8 +1323,7 @@ private:
 	uint_t			_visframecount;
 
 	int			_areas[2];
-	
-	cbbox_c			_bbox;
+
 	cplane_c		_plane;
 	
 	std::vector<vec3_c>	_vertexes_original;
@@ -1315,14 +1332,16 @@ private:
 	r_frustum_c		_frustum;
 };
 
-class r_proctree_area_c : public r_leaf_c
+/*
+class r_proctree_area_c : 
+public r_leaf_c
 {
 public:
 	r_proc_model_c*			model;
 	
 	std::vector<r_areaportal_c*>	areaportals;
 };
-
+*/
 
 class r_tree_c
 {
@@ -1351,8 +1370,8 @@ public:
 //	r_bsptree_area_c*	pointInArea(const vec3_c &p);
 
 	// Fills in a list of all the leafs touched
-	void			boxLeafs_r(const cbbox_c &bbox, std::vector<r_bsptree_leaf_c*> &leafs, r_tree_elem_c *elem);
-	void			boxLeafs(const cbbox_c &bbox, std::vector<r_bsptree_leaf_c*> &leafs);
+	void			boxLeafs_r(const aabb_c &bbox, std::vector<r_bsptree_leaf_c*> &leafs, r_tree_elem_c *elem);
+	void			boxLeafs(const aabb_c &bbox, std::vector<r_bsptree_leaf_c*> &leafs);
 
 	
 	
@@ -1434,7 +1453,7 @@ private:
 };
 
 
-
+/*
 class r_proctree_c  : public r_tree_c
 {
 public:
@@ -1449,8 +1468,8 @@ public:
 	int			pointInArea_r(const vec3_c &p, int num);
 	int			pointInArea(const vec3_c &p);
 	
-	void			boxAreas_r(const cbbox_c &bbox, std::vector<int> &areas, int nodenum);
-	void			boxAreas(const cbbox_c &bbox, std::vector<int> &areas);
+	void			boxAreas_r(const aabb_c &bbox, std::vector<int> &areas, int nodenum);
+	void			boxAreas(const aabb_c &bbox, std::vector<int> &areas);
 	
 private:
 	void			updateArea_r(int area, const r_frustum_c &frustum);
@@ -1471,7 +1490,7 @@ private:
 
 	std::vector<r_proctree_node_c*>		_nodes;
 };
-
+*/
 
 
 //
@@ -1520,7 +1539,7 @@ struct r_alias_frame_t
 {	
 	~r_alias_frame_t();
 
-	cbbox_c			bbox;
+	aabb_c			bbox;
 	float			radius;
 	vec3_c			translate;
 	
@@ -1546,7 +1565,7 @@ enum
 
 struct r_skel_frame_t
 {	
-	cbbox_c			bbox;
+	aabb_c			bbox;
 	std::vector<float>	components;
 };
 
@@ -1654,7 +1673,8 @@ public:
 //
 // model classes
 //
-class r_model_c
+class r_model_c : 
+public r_aabb_iface_a
 {
 public:
 	//
@@ -1666,14 +1686,15 @@ public:
 	//
 	// virtual functions
 	//
-	virtual void	load()									{}
-	virtual void	updateBBox(r_entity_c *ent)						{}
-	virtual void	addModelToList(r_entity_c *ent) = 0;
-	virtual void 	draw(const r_command_t *cmd, r_render_type_e type) = 0;
-	virtual void	setupMeshes();
-	virtual void	setupVBO()								{}
-	virtual bool	setupTag(r_tag_t &tag, const r_entity_t &ent, const std::string &name)	{return false;}
-	virtual bool	setupAnimation(r_skel_animation_c *anim)				{return false;}
+	virtual void		load()									{}
+	//! return axis-aligned bounding box in model space
+	virtual const aabb_c	createAABB(r_entity_c *ent) = 0;
+	virtual void		addModelToList(r_entity_c *ent) = 0;
+	virtual void		draw(const r_command_t *cmd, r_render_type_e type) = 0;
+	virtual void		setupMeshes();
+	virtual void		setupVBO()								{}
+	virtual bool		setupTag(r_tag_t &tag, const r_entity_t &ent, const std::string &name)	{return false;}
+	virtual bool		setupAnimation(r_skel_animation_c *anim)				{return false;}
 	
 	//
 	// access
@@ -1682,7 +1703,6 @@ public:
 	unsigned int	getRegistrationSequence() const	{return _registration_sequence;}
 	void		setRegistrationSequence()	{_registration_sequence = r_registration_sequence;}
 	r_mod_type_t	getType() const			{return _type;}
-	const cbbox_c&	getBBox() const			{return _bbox;}
 	
 	void		addMesh(r_mesh_c* mesh)			{_meshes.push_back(mesh);}
 	void		addShader(r_model_shader_c* shader)	{_shaders.push_back(shader);}
@@ -1698,8 +1718,6 @@ protected:
 	r_mod_type_t	_type;
 	byte*		_buffer;	// for loading
 	uint_t		_buffer_size;
-	
-	cbbox_c		_bbox;		// bbox that bounds around every mesh and surface
 	
 	std::vector<r_mesh_c*>		_meshes;
 	std::vector<r_model_shader_c*>	_shaders;
@@ -1718,8 +1736,9 @@ public:
 	//
 	// virtual functions
 	//
-	virtual void	addModelToList(r_entity_c *ent);
-	virtual void 	draw(const r_command_t *cmd, r_render_type_e type);
+	virtual const aabb_c	createAABB(r_entity_c *ent);
+	virtual void		addModelToList(r_entity_c *ent);
+	virtual void 		draw(const r_command_t *cmd, r_render_type_e type);
 };
 
 
@@ -1760,11 +1779,11 @@ public:
 	//
 	// virtual functions
 	//
-	virtual void	updateBBox(r_entity_c *ent);
-	virtual void	addModelToList(r_entity_c *ent);
-	virtual void 	draw(const r_command_t *cmd, r_render_type_e type);
-	virtual void	setupMeshes();
-	virtual bool	setupTag(r_tag_t &tag, const r_entity_t &ent, const std::string &name);
+	virtual const aabb_c	createAABB(r_entity_c *ent);
+	virtual void		addModelToList(r_entity_c *ent);
+	virtual void 		draw(const r_command_t *cmd, r_render_type_e type);
+	virtual void		setupMeshes();
+	virtual bool		setupTag(r_tag_t &tag, const r_entity_t &ent, const std::string &name);
 	
 protected:
 	bool	cull(r_entity_c *ent);
@@ -1837,11 +1856,11 @@ public:
 	//
 	// virtual functions
 	//
-	virtual void	updateBBox(r_entity_c *ent);
-	virtual void	addModelToList(r_entity_c *ent);
-	virtual void 	draw(const r_command_t *cmd, r_render_type_e type);
-	virtual bool	setupTag(r_tag_t &tag, const r_entity_t &ent, const std::string &name);
-	virtual bool	setupAnimation(r_skel_animation_c *anim);
+	virtual const aabb_c	createAABB(r_entity_c *ent);
+	virtual void		addModelToList(r_entity_c *ent);
+	virtual void 		draw(const r_command_t *cmd, r_render_type_e type);
+	virtual bool		setupTag(r_tag_t &tag, const r_entity_t &ent, const std::string &name);
+	virtual bool		setupAnimation(r_skel_animation_c *anim);
 	
 	void		addBone(r_skel_bone_t *bone);
 	int		getNumForBoneName(const std::string &name);
@@ -1895,7 +1914,8 @@ private:
 };
 
 
-class r_bsp_model_c : public r_model_c
+class r_bsp_model_c : 
+public r_model_c
 { 
 	friend class r_bsptree_c;
 public:
@@ -1908,41 +1928,45 @@ public:
 	//
 	// virtual functions
 	//
-	virtual void	addModelToList(r_entity_c *ent);
-	virtual void 	draw(const r_command_t *cmd, r_render_type_e type);
+	virtual const aabb_c	createAABB(r_entity_c *ent);
+	virtual void		addModelToList(r_entity_c *ent);
+	virtual void 		draw(const r_command_t *cmd, r_render_type_e type);
 	
 private:
 	std::vector<r_surface_c*>	_surfaces;
-
 	bool				_inline;
 };
 
-
-class r_proc_model_c : public r_model_c
+/*
+class r_proc_model_c : 
+public r_model_c,
+public r_aabb_iface_a
 {  
 public:
 	//
 	// constructor / destructor
 	//
-	r_proc_model_c(const std::string &name);
+	r_proc_model_c(const std::string &name, bool inline_model);
 	virtual ~r_proc_model_c();
 	
 	//
 	// virtual functions
 	//
-	virtual void	addModelToList(r_entity_c *ent);
-	virtual void 	draw(const r_command_t *cmd, r_render_type_e type);
-//	virtual void	setupMeshes();
-	virtual void	setupVBO();
+	virtual const aabb_c	createAABB(r_entity_c *ent);
+	virtual void		addModelToList(r_entity_c *ent);
+	virtual void 		draw(const r_command_t *cmd, r_render_type_e type);
+//	virtual void		setupMeshes();
+	virtual void		setupVBO();
 	
 	void	load(char **buf_p);
 	
 	std::vector<r_surface_c*>	_surfaces;
+	bool				_inline;
 	
 	GLuint				_vbo_array_buffer;
 	GLuint				_vbo_element_array_buffer;
 };
-
+*/
 
 
 extern std::vector<r_model_c*>	r_models;
@@ -2097,6 +2121,7 @@ extern cvar_t	*r_showinvisible;
 extern cvar_t	*r_showlightbboxes;
 extern cvar_t	*r_showlightscissors;
 extern cvar_t	*r_showlighttransforms;
+extern cvar_t	*r_showentitybboxes;
 extern cvar_t	*r_showentitytransforms;
 extern cvar_t	*r_showcontacts;
 extern cvar_t	*r_clear;
@@ -2289,7 +2314,7 @@ void		R_EndRegistration();
 // r_main.cxx
 //
 void 		R_DrawNULL(const vec3_c &origin, const vec3_c &angles);
-void		R_DrawBBox(const cbbox_c &bbox, const vec4_c &color = color_white);
+void		R_DrawBBox(const aabb_c &bbox, const vec4_c &color = color_white);
 
 void		R_CalcTangentSpace(	vec3_c &tangent, vec3_c &binormal, vec3_c &normal, 
 					const vec3_c &v0, const vec3_c &v1, const vec3_c &v2,

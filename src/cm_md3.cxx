@@ -124,10 +124,10 @@ void	cmodel_md3_c::load()
 		pinmesh = (md3_dmesh_t*)((byte*)pinmesh + LittleLong(pinmesh->end_ofs));
 	}
 	
-	_bbox.clear();
-	for(std::vector<vec3_c>::const_iterator ir = vertexes.begin(); ir != vertexes.end(); ir++)
+	_aabb.clear();
+	for(std::vector<vec3_c>::const_iterator ir = vertexes.begin(); ir != vertexes.end(); ++ir)
 	{
-		_bbox.addPoint(*ir);
+		_aabb.addPoint(*ir);
 	}
 	
 	// reverse polygon indices to flip normals for ODE

@@ -114,7 +114,7 @@ struct cbrush_t
 
 struct cpatch_t
 {
-	cbbox_c			bbox_abs;
+	aabb_c			bbox_abs;
 	
 	int			brushes_num;
 	cbrush_t*		brushes;
@@ -210,7 +210,7 @@ static int		box_headnode;
 
 
 static std::deque<int>*	leaf_list;
-static cbbox_c		leaf_bbox;
+static aabb_c		leaf_bbox;
 static int		leaf_topnode;
 
 // box tracing
@@ -222,8 +222,8 @@ static int		cm_checkcount;
 static vec3_c		trace_start;		// replace this by a ray
 static vec3_c		trace_end;
 
-static cbbox_c		trace_bbox;
-static cbbox_c		trace_bbox_abs;
+static aabb_c		trace_bbox;
+static aabb_c		trace_bbox_abs;
 
 static vec3_c		trace_extents;
 
@@ -622,8 +622,8 @@ static void	CM_LoadModels(bsp_lump_t *l, d_bsp_c *bsp)
 		for(int j=0; j<3; j++)
 		{	
 			// spread the mins / maxs by a pixel
-			model->_bbox._mins[j] = LittleFloat(in->mins[j]);
-			model->_bbox._maxs[j] = LittleFloat(in->maxs[j]);
+			model->_aabb._mins[j] = LittleFloat(in->mins[j]);
+			model->_aabb._maxs[j] = LittleFloat(in->maxs[j]);
 		}
 		
 		cm_models.push_back(model);
@@ -631,7 +631,7 @@ static void	CM_LoadModels(bsp_lump_t *l, d_bsp_c *bsp)
 	
 	// set bsp size for AABB and assign it to the model
 	if(bsp)
-		bsp->setLengths(cm_models[0]->getBBox().size());
+		bsp->setLengths(cm_models[0]->getAABB().size());
 }
 
 static void	CM_LoadShaders(bsp_lump_t *l)
@@ -1152,7 +1152,7 @@ To keep everything totally uniform, bounding boxes are turned into small
 BSP trees instead of being compared directly.
 ===================
 */
-int	CM_HeadnodeForBox(const cbbox_c & bbox)
+int	CM_HeadnodeForBox(const aabb_c & bbox)
 {
 	box_planes[0]._dist	=  bbox._maxs[0];
 	box_planes[1]._dist	= -bbox._maxs[0];
@@ -1252,7 +1252,7 @@ int	CM_PointAreanum(const vec3_c &p)
 	return areanum;
 }
 
-int	CM_BoxLeafnums(const cbbox_c &bbox, std::deque<int> &list, int headnode)
+int	CM_BoxLeafnums(const aabb_c &bbox, std::deque<int> &list, int headnode)
 {
 	leaf_list = &list;
 	leaf_bbox = bbox;
@@ -1325,7 +1325,7 @@ int	CM_TransformedPointContents(const vec3_c &p, int headnode, const vec3_c &ori
 	return CM_PointContents(p_l, headnode);
 }
 
-void	CM_ClipBoxToBrush(const cbbox_c &bbox, const vec3_c &p1, const vec3_c &p2, trace_t &trace, const cbrush_t &brush)
+void	CM_ClipBoxToBrush(const aabb_c &bbox, const vec3_c &p1, const vec3_c &p2, trace_t &trace, const cbrush_t &brush)
 {
 	int			i, j;
 	cplane_c	*plane, *clipplane;
@@ -1447,7 +1447,7 @@ void	CM_ClipBoxToBrush(const cbbox_c &bbox, const vec3_c &p1, const vec3_c &p2, 
 	}
 }
 
-void	CM_TestBoxInBrush(const cbbox_c &bbox, const vec3_c &p1, trace_t &trace, const cbrush_t &brush)
+void	CM_TestBoxInBrush(const aabb_c &bbox, const vec3_c &p1, trace_t &trace, const cbrush_t &brush)
 {
 	int			i, j;
 	cplane_c	*plane;
@@ -1494,7 +1494,7 @@ void	CM_TestBoxInBrush(const cbbox_c &bbox, const vec3_c &p1, trace_t &trace, co
 }
 
 /*
-void	CM_TestBoxInMesh(const cbbox_c &bbox, const vec3_c &p1, trace_t *trace, cmesh_t *mesh, cshader_t *shader)
+void	CM_TestBoxInMesh(const aabb_c &bbox, const vec3_c &p1, trace_t *trace, cmesh_t *mesh, cshader_t *shader)
 {
 	int			i;
 	cplane_c	*plane;
@@ -1842,7 +1842,7 @@ static void	CM_HullCheck_r(int num, float p1f, float p2f, const vec3_c &p1, cons
 
 
 
-trace_t	CM_BoxTrace(const vec3_c &start, const vec3_c &end, const cbbox_c &bbox, int headnode, int brushmask)
+trace_t	CM_BoxTrace(const vec3_c &start, const vec3_c &end, const aabb_c &bbox, int headnode, int brushmask)
 {
 	vec3_c	p;
 
@@ -1890,7 +1890,7 @@ trace_t	CM_BoxTrace(const vec3_c &start, const vec3_c &end, const cbbox_c &bbox,
 	{
 		std::deque<int> leafs;
 
-		cbbox_c		c;
+		aabb_c		c;
 
 		c._mins = start + bbox._mins;
 		c._maxs = start + bbox._maxs;
@@ -1960,7 +1960,7 @@ rotating entities
 ==================
 */
 trace_t	CM_TransformedBoxTrace(const vec3_c &start, const vec3_c &end,
-						const cbbox_c &bbox,
+						const aabb_c &bbox,
 						int headnode, int brushmask, 
 						const vec3_c &origin, const quaternion_c &quat)
 {

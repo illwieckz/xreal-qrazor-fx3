@@ -96,8 +96,8 @@ struct entity_shared_t
 	int			areaportal;
 
 	int			svflags;			// SVF_NOCLIENT, SVF_DEADMONSTER, SVF_MONSTER, etc
-	cbbox_c			bbox_abs;			// world space axis aligned bounding box = entity origin + local bbox
-	cbbox_c			bbox;				// object space bounding box
+	aabb_c			bbox_abs;			// world space axis aligned bounding box = entity origin + local bbox
+	aabb_c			bbox;				// object space bounding box
 	vec3_c			size;				// object space bbox size
 	solid_e			solid;
 	int			clipmask;
@@ -182,17 +182,17 @@ typedef struct
 	int			(*CM_LeafCluster)(int leafnum);
 	int			(*CM_LeafArea)(int leafnum);
 	int			(*CM_NumModels)();
-	int			(*CM_HeadnodeForBox)(const cbbox_c& bbox);
+	int			(*CM_HeadnodeForBox)(const aabb_c& bbox);
 	int			(*CM_PointContents)(const vec3_c &p, int headnode);
 	int			(*CM_TransformedPointContents)(const vec3_c &p, int headnode, const vec3_c &origin, const quaternion_c &quat);
-	trace_t			(*CM_BoxTrace)(const vec3_c &start, const vec3_c &end, const cbbox_c &bbox, int headnode, int brushmask);
+	trace_t			(*CM_BoxTrace)(const vec3_c &start, const vec3_c &end, const aabb_c &bbox, int headnode, int brushmask);
 	trace_t			(*CM_TransformedBoxTrace)(const vec3_c &start, const vec3_c &end,
-						const cbbox_c &bbox,
+						const aabb_c &bbox,
 						int headnode, int brushmask, 
 						const vec3_c &origin, const quaternion_c &quat);
 	int			(*CM_PointLeafnum)(const vec3_c &p);
 	int			(*CM_PointAreanum)(const vec3_c &p);
-	int			(*CM_BoxLeafnums)(const cbbox_c &bbox, std::deque<int> &list, int headnode);
+	int			(*CM_BoxLeafnums)(const aabb_c &bbox, std::deque<int> &list, int headnode);
 	int			(*CM_GetClosestAreaPortal)(const vec3_c &p);
 	bool			(*CM_GetAreaPortalState)(int portal);
 	void			(*CM_SetAreaPortalState)(int portal, bool open);

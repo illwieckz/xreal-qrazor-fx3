@@ -106,7 +106,7 @@ public:
 		frame_old	= 0;
 		
 		radius.clear();
-		radius_bbox.zero();
+		radius_aabb.zero();
 		radius_value	= 0;
 		
 		center.clear();
@@ -138,7 +138,7 @@ public:
 	
 	// light specific
 	vec3_c			radius;
-	cbbox_c			radius_bbox;
+	aabb_c			radius_aabb;
 	float			radius_value;
 	
 	vec3_c			center;

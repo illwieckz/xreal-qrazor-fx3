@@ -34,16 +34,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 r_static_model_c::r_static_model_c(const std::string &name, byte *buffer, uint_t buffer_size)
 :r_model_c(name, buffer, buffer_size, MOD_STATIC)
 {
-	_bbox.clear();
+//	_aabb.clear();
 }
 
 r_static_model_c::~r_static_model_c()
 {
 }
+
+const aabb_c	r_static_model_c::createAABB(r_entity_c *ent)
+{
+	return _aabb;
+}
 	
 void	r_static_model_c::addModelToList(r_entity_c *ent)
 {
-	if(r_frustum.cull(ent->getShared().origin, _bbox.radius()))
+	if(ent->isVisible() && r_frustum.cull(ent->getAABB()))
 	{
 		c_entities--;
 		return;
@@ -85,6 +90,11 @@ void	r_static_model_c::addModelToList(r_entity_c *ent)
 		
 		if(r_lighting->getInteger())
 		{
+			aabb_c aabb = mesh->bbox;
+			aabb.rotate(ent->getShared().quat);
+			aabb._mins += ent->getShared().origin;
+			aabb._maxs += ent->getShared().origin;
+		
 			for(std::vector<std::vector<r_light_c> >::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 			{
 				std::vector<r_light_c>& lights = *ir;
@@ -96,7 +106,7 @@ void	r_static_model_c::addModelToList(r_entity_c *ent)
 					if(!light.isVisible())
 						continue;
 			
-					if(light.getShared().radius_bbox.intersect(ent->getShared().origin, mesh->bbox.radius()))
+					if(light.getShared().radius_aabb.intersect(aabb))
 						RB_AddCommand(ent, this, mesh, shader, &light, NULL, -(i+1), 0);
 				
 				}
