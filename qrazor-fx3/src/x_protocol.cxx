@@ -30,16 +30,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // xreal --------------------------------------------------------------------
 
-
+const int	svc_bitcount = bitCount(SVC_LAST);
 const char*	svc_strings[] =
 {
 	"SVC_BAD",
-
+	
 	"SVC_MUZZLEFLASH",
 	"SVC_TEMP_ENTITY",
 	"SVC_LAYOUT",
 	"SVC_INVENTORY",
-
+	
 	"SVC_NOP",
 	"SVC_DISCONNECT",
 	"SVC_RECONNECT",
@@ -51,13 +51,14 @@ const char*	svc_strings[] =
 	"SVC_SPAWNBASELINE",
 	"SVC_CENTERPRINT",
 	"SVC_DOWNLOAD",
+	"SVC_AREABITS",
 	"SVC_PLAYERINFO",
 	"SVC_PACKETENTITIES",
 	"SVC_DELTAPACKETENTITIES",
 	"SVC_FRAME",
-	"SVC_EOM"
 };
 
+const int	clc_bitcount = 8;//bitCount(CLC_LAST);	FIXME
 const char*	clc_strings[] =
 {
 	"CLC_BAD",
@@ -65,7 +66,6 @@ const char*	clc_strings[] =
 	"CLC_MOVE",
 	"CLC_USERINFO",
 	"CLC_STRINGCMD",
-	"CLC_EOM"
 };
 
 

@@ -499,14 +499,14 @@ void	CL_SendCmd()
 	{
 		CL_FixUpGender();
 		cvar_userinfo_modified = false;
-		cls.netchan.message.writeByte(CLC_USERINFO);
+		cls.netchan.message.writeBits(CLC_USERINFO, clc_bitcount);
 		cls.netchan.message.writeString(Cvar_Userinfo());
 	}
 
 	bitmessage_c msg(MAX_PACKETLEN*8);
 
 	// begin a client move command
-	msg.writeByte(CLC_MOVE);
+	msg.writeBits(CLC_MOVE, clc_bitcount);
 
 	// save the position for a checksum byte
 //	int checksum_index = msg.getCurSize();

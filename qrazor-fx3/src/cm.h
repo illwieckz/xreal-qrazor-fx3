@@ -82,7 +82,7 @@ bool			CM_GetAreaPortalState(int portal);
 void			CM_SetAreaPortalState(int portal, bool open);
 bool			CM_AreasConnected(int area1, int area2);
 
-int			CM_WriteAreaBits(byte *buffer, int area);
+void			CM_WriteAreaBits(boost::dynamic_bitset<byte> &bits, int area);
 void			CM_MergeAreaBits(byte *buffer, int area);
 
 bool			CM_HeadnodeVisible(int headnode, byte *visbits);

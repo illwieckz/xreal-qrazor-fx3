@@ -269,7 +269,7 @@ void ThrowClientHead (g_entity_c *self, int damage)
 
 void	G_BecomeExplosion1 (g_entity_c *self)
 {
-	trap_SV_WriteByte(SVC_TEMP_ENTITY);
+	trap_SV_WriteBits(SVC_TEMP_ENTITY, svc_bitcount);
 	trap_SV_WriteByte(TE_EXPLOSION1);
 	trap_SV_WritePosition(self->_s.origin);
 	trap_SV_Multicast(self->_s.origin, MULTICAST_PVS);
@@ -280,7 +280,7 @@ void	G_BecomeExplosion1 (g_entity_c *self)
 
 void	G_BecomeExplosion2 (g_entity_c *self)
 {
-	trap_SV_WriteByte(SVC_TEMP_ENTITY);
+	trap_SV_WriteBits(SVC_TEMP_ENTITY, svc_bitcount);
 	trap_SV_WriteByte(TE_EXPLOSION2);
 	trap_SV_WritePosition(self->_s.origin);
 	trap_SV_Multicast(self->_s.origin, MULTICAST_PVS);

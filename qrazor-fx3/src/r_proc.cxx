@@ -378,7 +378,7 @@ void	r_proctree_c::updateArea_r(int areanum, const r_frustum_c &frustum)
 	/*
 	if(r_newrefdef.areabits)
 	{
-		if(!(r_newrefdef.areabits[areanum>>3] & (1<<(areanum&7))))
+		if(!r_newrefdef.areabits[areanum])
 			return;		// not visible
 	}
 	*/
@@ -547,9 +547,9 @@ void	r_proctree_c::draw()
 			if(!area->model)
 				continue;
 			
-			if(r_newrefdef.areabits)
+			if(r_newrefdef.areabits.size())
 			{
-				if(!(r_newrefdef.areabits[i>>3] & (1<<(i&7))))
+				if(!r_newrefdef.areabits[i])
 					continue;		// not visible
 			}
 			
@@ -574,7 +574,7 @@ void	r_proctree_c::draw()
 			
 			if(r_newrefdef.areabits)
 			{
-				if(!(r_newrefdef.areabits[i>>3] & (1<<(i&7))))
+				if(!r_newrefdef.areabits[i])
 					continue;		// not visible
 			}
 		

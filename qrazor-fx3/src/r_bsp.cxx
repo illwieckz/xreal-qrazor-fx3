@@ -1168,9 +1168,9 @@ void	r_bsptree_c::drawNode_r(r_tree_elem_c *elem, int clipflags)
 			return;
 
 		// check for door connected areas
-		if(r_newrefdef.areabits)
+		if(leaf->area < (int)r_newrefdef.areabits.size())
 		{
-			if(!(r_newrefdef.areabits[leaf->area>>3] & (1<<(leaf->area&7))))
+			if(!r_newrefdef.areabits[leaf->area])
 				return;		// not visible
 		}
 		
@@ -1213,9 +1213,9 @@ void	r_bsptree_c::litNode_r(r_tree_elem_c *elem, r_light_c *light, bool precache
 			return;
 		
 		// check for door connected areas
-		if(!precache && r_newrefdef.areabits)
+		if(!precache && (leaf->area < (int)r_newrefdef.areabits.size()))
 		{
-			if(!(r_newrefdef.areabits[leaf->area>>3] & (1<<(leaf->area&7))))
+			if(!r_newrefdef.areabits[leaf->area])
 				return;		// not visible
 		}
 		
@@ -1528,7 +1528,7 @@ void 	r_bsptree_c::markLights()
 				/*
 				if(r_newrefdef.areabits)
 				{
-					if(!(r_newrefdef.areabits[light.getArea()>>3] & (1<<(light.getArea()&7))))
+					if(!r_newrefdef.areabits[light.getArea()])
 						continue;
 					
 					const std::vector<int>& areas = light.getAreas();
@@ -1567,7 +1567,7 @@ void 	r_bsptree_c::markLights()
 				
 					if(r_newrefdef.areabits)
 					{
-						if(!(r_newrefdef.areabits[light.getArea()>>3] & (1<<(light.getArea()&7))))
+						if(!r_newrefdef.areabits[light.getArea()])
 							continue;
 					}
 				
@@ -1678,7 +1678,7 @@ void 	r_bsptree_c::markEntities()
 				/*	
 				if(r_newrefdef.areabits)
 				{
-					if(!(r_newrefdef.areabits[ent.getArea()>>3] & (1<<(ent.getArea()&7))))
+					if(!r_newrefdef.areabits[ent.getArea()])
 						continue;
 				}
 				*/

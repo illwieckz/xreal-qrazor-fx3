@@ -177,7 +177,7 @@ void	g_target_explosion_c::think()
 {
 	float		save;
 
-	trap_SV_WriteByte(SVC_TEMP_ENTITY);
+	trap_SV_WriteBits(SVC_TEMP_ENTITY, svc_bitcount);
 	trap_SV_WriteByte(TE_EXPLOSION1);
 	trap_SV_WritePosition(_s.origin);
 	trap_SV_Multicast(_s.origin, MULTICAST_PHS);

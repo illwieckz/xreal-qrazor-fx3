@@ -36,6 +36,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "x_protocol.h"
 
 
+// snapped vectors are packed in 13 bits instead of 32
+enum
+{
+	SNAPPED_BITS		= 13,
+	MAX_SNAPPED		= (1<<SNAPPED_BITS)
+};
+
 
 bitmessage_c::bitmessage_c()
 {
@@ -97,7 +104,7 @@ void	bitmessage_c::copyTo(std::vector<byte> &bytes, int bits_offset, int size)
 	uint_t bits_num = size - bits_offset;
 	
 	bytes.clear();
-	bytes.resize(tobytes(bits_num));
+	bytes.resize(toBytes(bits_num));
 	
 	for(uint_t i=0; i<bits_num; i++)
 	{
@@ -116,7 +123,7 @@ int	bitmessage_c::calcCheckSum(int bits_offset) const
 //	for(uint_t i=0; i<_cursize; i++)
 //		crc.process_bits(_data[(bits_offset+i) >> 3] & (1<<((bits_offset+i) & 7)));
 
-	crc.process_bytes(&_data[bits_offset >> 3], tobytes(_cursize));
+	crc.process_bytes(&_data[bits_offset >> 3], toBytes(_cursize));
 	
 	return crc.checksum();
 }
@@ -202,13 +209,13 @@ int	bitmessage_c::writeBitsCompressed(const boost::dynamic_bitset<byte> &bits, b
 	}
 
 	// convert bits to bytes
-	std::vector<byte> bytes(tobytes(bits.size()), 0);
+	std::vector<byte> bytes(toBytes(bits.size()), 0);
 
 	for(uint_t i=0; i<bits.size(); i++)
 		bytes[i >> 3] |= (bits[i] << (i % 8));
 		
 	// compress converted bytes
-	std::vector<byte>	bytes_compressed(tobytes(_maxsize - _cursize), 0);
+	std::vector<byte>	bytes_compressed(toBytes(_maxsize - _cursize), 0);
 	unsigned long		size_compressed = bytes_compressed.size();
 	
 	int err = compress(&bytes_compressed[0], &size_compressed, &bytes[0], bytes.size());
@@ -273,7 +280,7 @@ int	bitmessage_c::writeBitsCompressed(const boost::dynamic_bitset<byte> &bits, b
 	writeBits(size_compressed, 11);				// compressed bytes size
 	writeBytes(&bytes_compressed[0], size_compressed);	// compressed bytes
 	
-	return 1+14+11+tobits(size_compressed);
+	return 1+14+11+toBits(size_compressed);
 }
 
 void 	bitmessage_c::writeByte(int c)
@@ -397,16 +404,48 @@ void 	bitmessage_c::writeString(const std::string &s)
 	}
 }
 
-void 	bitmessage_c::writeCoord(float f)
+void 	bitmessage_c::writeVec(vec_t v)
 {
-	writeFloat(f);
+#ifdef DOUBLEVEC_T
+#error bitmessage_c::writeVec TODO
+#else
+	union
+	{
+		float	f;
+		int	l;
+	} dat;
+	
+	dat.f = v;
+	dat.l = LittleLong(dat.l);
+	
+	try
+	{
+		if(	(float)dat.l == dat.f
+			&& dat.l + MAX_SNAPPED/2 >= 0
+			&& dat.l + MAX_SNAPPED/2 < MAX_SNAPPED	)
+		{
+			writeBit(true);	// mark as compressed
+			writeBits(dat.l + MAX_SNAPPED/2, SNAPPED_BITS);
+		}
+		else
+		{
+			writeBit(false);
+			writeBits(dat.l, 32);
+		}
+	}
+	catch(std::overflow_error)
+	{
+		Com_Printf("bitmessage_c::writeFloat: overflow error\n");
+		throw;
+	}
+#endif
 }
 
-void 	bitmessage_c::writeVector3(const vec3_c &v)
+void 	bitmessage_c::writeVec3(const vec3_c &v)
 {
-	writeFloat(v[0]);
-	writeFloat(v[1]);
-	writeFloat(v[2]);
+	writeVec(v[0]);
+	writeVec(v[1]);
+	writeVec(v[2]);
 }
 
 void	bitmessage_c::writeAngle(float f)
@@ -533,8 +572,8 @@ void 	bitmessage_c::writeDeltaEntity(const entity_state_t *from, const entity_st
 	
 	if(!to)
 	{
-		writeShort(from->getNumber());
-		writeLong(U_REMOVE);
+		writeBits(from->getNumber(), MAX_ENTITYNUM_BITS);
+		writeBit(true);				// remove entity
 		return;
 	}
 
@@ -543,7 +582,6 @@ void 	bitmessage_c::writeDeltaEntity(const entity_state_t *from, const entity_st
 		
 	if(to->getNumber() >= MAX_ENTITIES)
 		Com_Error(ERR_FATAL, "Entity number >= MAX_ENTITIES");
-
 
 	// send an update
 	bits = 0;
@@ -638,7 +676,8 @@ void 	bitmessage_c::writeDeltaEntity(const entity_state_t *from, const entity_st
 
 	//Com_Printf("message_c::writeDeltaEntity: %3i %3i\n", to->getNumber());
 	
-	writeShort(to->getNumber());
+	writeBits(to->getNumber(), MAX_ENTITYNUM_BITS);
+	writeBit(false);	// keep entity
 	writeLong(bits);
 	
 	
@@ -646,10 +685,10 @@ void 	bitmessage_c::writeDeltaEntity(const entity_state_t *from, const entity_st
 		writeByte(to->type);
 
 	if(bits & U_ORIGIN)
-		writeVector3(to->origin);
+		writeVec3(to->origin);
 				
 	if(bits & U_ORIGIN2)
-		writeVector3(to->origin2);
+		writeVec3(to->origin2);
 		
 	if(bits & U_QUATERNION)
 		writeQuaternion(to->quat);
@@ -658,10 +697,10 @@ void 	bitmessage_c::writeDeltaEntity(const entity_state_t *from, const entity_st
 		writeQuaternion(to->quat2);
 		
 	if(bits & U_VELOCITY_LINEAR)
-		writeVector3(to->velocity_linear);
+		writeVec3(to->velocity_linear);
 		
 	if(bits & U_VELOCITY_ANGULAR)
-		writeVector3(to->velocity_angular);
+		writeVec3(to->velocity_angular);
 
 	if(bits & U_INDEX_MODEL)
 		writeShort(to->index_model);
@@ -715,13 +754,13 @@ void 	bitmessage_c::writeDeltaEntity(const entity_state_t *from, const entity_st
 		writeFloat(to->shaderparms[7]);
 		
 	if(bits & U_VECTOR0)
-		writeVector3(to->vectors[0]);
+		writeVec3(to->vectors[0]);
 		
 	if(bits & U_VECTOR1)
-		writeVector3(to->vectors[1]);
+		writeVec3(to->vectors[1]);
 		
 	if(bits & U_VECTOR2)
-		writeVector3(to->vectors[2]);
+		writeVec3(to->vectors[2]);
 }
 
 
@@ -782,7 +821,7 @@ int	bitmessage_c::readBits(int bits_num)
 		}
 		catch(std::range_error)
 		{
-			Com_Printf("bitmessage_c::readBits: range error while reading %i bits\n", bits_num);
+			Com_Printf("bitmessage_c::readBits: range error while reading %i bits to bitmask\n", bits_num);
 			throw;
 		}
 	}
@@ -790,15 +829,28 @@ int	bitmessage_c::readBits(int bits_num)
 	return bitset.to_ulong();
 }
 
-int	bitmessage_c::readBits(int n, boost::dynamic_bitset<byte> &bits)
+void	bitmessage_c::readBits(int bits_num, boost::dynamic_bitset<byte> &bits)
 {
-	if(n < 0)
-		n = -n;
+//	if(bits_num < 0)
+//		bits_num = -bits_num;
 
-	for(int i=0; i<n; i++)
-		bits[i] = readByte();
+	if(!bits_num)
+		Com_Error(ERR_FATAL, "bitmessage_c::readBits: bad bits number %i", bits_num);
 		
-	return 0;
+	bits = boost::dynamic_bitset<byte>(bits_num);
+
+	for(int i=0; i<bits_num; i++)
+	{
+		try
+		{
+			bits[i] = readBit();
+		}
+		catch(std::range_error)
+		{
+			Com_Printf("bitmessage_c::readBits: range error while reading %i bits to bitset\n", bits_num);
+			throw;
+		}
+	}
 }
 
 bool	bitmessage_c::readBitsCompressed(boost::dynamic_bitset<byte> &bits)
@@ -931,16 +983,38 @@ const char*	bitmessage_c::readString()
 	return s.c_str();
 }
 
-float	bitmessage_c::readCoord()
+vec_t	bitmessage_c::readVec()
 {
-	return readFloat();
+#ifdef DOUBLEVEC_T
+#error bitmessage_c::readVec TODO
+#else
+	union
+	{
+		float	f;
+		int	l;
+	} dat;
+	
+	if(readBit())
+	{
+		dat.l = 0;
+		dat.l = readBits(13) - 0x1000;
+	}
+	else
+	{
+		dat.l = readBits(32);
+	}
+	
+	dat.l = LittleLong(dat.l);
+
+	return dat.f;
+#endif
 }
 
-void 	bitmessage_c::readVector3(vec3_c &v)
+void 	bitmessage_c::readVec3(vec3_c &v)
 {
-	v[0] = readFloat();
-	v[1] = readFloat();
-	v[2] = readFloat();
+	v[0] = readVec();
+	v[1] = readVec();
+	v[2] = readVec();
 }
 
 float	bitmessage_c::readAngle()
@@ -1021,14 +1095,15 @@ bool	bitmessage_c::readDeltaEntity(const entity_state_t *from, entity_state_t *t
 	// set everything to the state we are delta'ing from
 	*to = *from;
 	to->number = number;
-
-	unsigned int bits = readLong();
 	
-	if(bits & U_REMOVE)
+	bool remove = readBit();
+	if(remove)
 	{
 		to->clear();
 		return true;
 	}
+
+	uint_t bits = readLong();
 	
 	if(!bits)
 		return false;
@@ -1037,10 +1112,10 @@ bool	bitmessage_c::readDeltaEntity(const entity_state_t *from, entity_state_t *t
 		to->type = (entity_type_e)readByte();
 	
 	if(bits & U_ORIGIN)
-		readVector3(to->origin);
+		readVec3(to->origin);
 		
 	if(bits & U_ORIGIN2)
-		readVector3(to->origin2);
+		readVec3(to->origin2);
 		
 	if(bits & U_QUATERNION)
 		readQuaternion(to->quat);
@@ -1049,10 +1124,10 @@ bool	bitmessage_c::readDeltaEntity(const entity_state_t *from, entity_state_t *t
 		readQuaternion(to->quat2);
 		 
 	if(bits & U_VELOCITY_LINEAR)
-		readVector3(to->velocity_linear);
+		readVec3(to->velocity_linear);
 		
 	if(bits & U_VELOCITY_ANGULAR)
-		readVector3(to->velocity_angular);
+		readVec3(to->velocity_angular);
 
 	if(bits & U_INDEX_MODEL)
 		to->index_model = readShort();
@@ -1108,13 +1183,13 @@ bool	bitmessage_c::readDeltaEntity(const entity_state_t *from, entity_state_t *t
 		to->shaderparms[7] = readFloat();
 		
 	if(bits & U_VECTOR0)
-		readVector3(to->vectors[0]);
+		readVec3(to->vectors[0]);
 		
 	if(bits & U_VECTOR1)
-		readVector3(to->vectors[1]);
+		readVec3(to->vectors[1]);
 		
 	if(bits & U_VECTOR2)
-		readVector3(to->vectors[2]);
+		readVec3(to->vectors[2]);
 		
 	return true;
 }
@@ -1156,8 +1231,8 @@ void	bitmessage_c::uncompress(int bits_offset)
 	if((bits_offset + bits.size()) > _maxsize)
 	{
 		_data.clear();
-		_data.resize(tobytes(bits_offset + bits.size()), 0);
-		_maxsize = tobits(_data.size());
+		_data.resize(toBytes(bits_offset + bits.size()), 0);
+		_maxsize = toBits(_data.size());
 	}
 	
 	// copy back bits and bytes to _data

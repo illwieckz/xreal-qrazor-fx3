@@ -122,7 +122,7 @@ void 	SV_BroadcastCommand(const char *fmt, ...)
 	vsprintf(string, fmt,argptr);
 	va_end(argptr);
 
-	sv.multicast.writeByte(SVC_STUFFTEXT);
+	sv.multicast.writeBits(SVC_STUFFTEXT, svc_bitcount);
 	sv.multicast.writeString(string);
 	
 	SV_Multicast(vec3_origin, MULTICAST_ALL_R);
@@ -324,7 +324,7 @@ void 	SV_StartSound(vec3_t origin, sv_entity_c *entity, int channel, int soundin
 		}
 	}
 
-	sv.multicast.writeByte(SVC_SOUND);
+	sv.multicast.writeBits(SVC_SOUND, svc_bitcount);
 	sv.multicast.writeByte(flags);
 	sv.multicast.writeByte(soundindex);
 
@@ -341,7 +341,7 @@ void 	SV_StartSound(vec3_t origin, sv_entity_c *entity, int channel, int soundin
 		sv.multicast.writeShort(sendchan);
 
 	if(flags & SND_POS)
-		sv.multicast.writeVector3(origin);
+		sv.multicast.writeVec3(origin);
 
 	// if the sound doesn't attenuate,send it to everyone
 	// (global radio chatter, voiceovers, etc)

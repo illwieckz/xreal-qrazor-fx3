@@ -592,7 +592,9 @@ bool		trap_CM_AreasConnected(int area1, int area2);
 // network messaging
 void		trap_SV_Multicast(const vec3_c &origin, multicast_type_e to);
 void		trap_SV_Unicast(sv_entity_c *ent, bool reliable);
-	
+
+void		trap_SV_WriteBit(bool bit);
+void		trap_SV_WriteBits(int bits, int bits_num);
 void		trap_SV_WriteByte(int c);
 void		trap_SV_WriteShort(int c);
 void		trap_SV_WriteLong(int c);

@@ -37,6 +37,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <time.h>
 #include <ctype.h>
 
+#include <boost/dynamic_bitset.hpp>
+
 #include <string>
 #include <vector>
 #include <list>
@@ -225,20 +227,21 @@ inline void	operator delete (void *ptr)
 #endif
 
 
-#define MAX_ENTITYNUM_BITS		1+11		// kill bit + 11 bits to present the entity number
+enum
+{
+	MAX_ENTITYNUM_BITS		= 11,		// use only 11 bits to represent the entity number
 
-#define	MAX_CLIENTS			256				// absolute limit
-#define	MAX_ENTITIES			(1 << MAX_ENTITYNUM_BITS)	// must change protocol to increase more
-#define	MAX_PARSE_ENTITIES		MAX_ENTITIES
-#define MAX_LIGHTS			4096
-#define	MAX_MODELS			4096		// these are sent over the net as bytes
-#define	MAX_SHADERS			4096
-#define MAX_ANIMATIONS			4096
-#define	MAX_SOUNDS			4096		// so they cannot be blindly increased
-#define MAX_LIGHTS			4096		// should be enough for Doom3 style lighting
-#define	MAX_ITEMS			256
-#define MAX_GENERAL			(MAX_CLIENTS*2)	// general config strings
-
+	MAX_CLIENTS			= 256,				// absolute limit
+	MAX_ENTITIES			= (1 << MAX_ENTITYNUM_BITS),	// must change protocol to increase more
+	MAX_PARSE_ENTITIES		= MAX_ENTITIES,
+	MAX_MODELS			= 4096,		// these are sent over the net as bytes
+	MAX_SHADERS			= 4096,
+	MAX_ANIMATIONS			= 4096,
+	MAX_SOUNDS			= 4096,		// so they cannot be blindly increased
+	MAX_LIGHTS			= 4096,		// should be enough for Doom3 style lighting
+	MAX_ITEMS			= 256,
+	MAX_GENERAL			= (MAX_CLIENTS*2)	// general config strings
+};
 
 
 enum exec_type_e
@@ -353,10 +356,57 @@ inline void	X_purge(seq& c)
 
 // Tr3B - discover the size of an array
 template<typename T, int size>
-int	X_asz(T (&)[size])
+inline int	X_asz(T (&)[size])
 {
 	return size;
 }
+
+
+
+inline int	bitCount(uint_t n)
+{
+	assert(n);
+		
+	return (int)ceil(log2(n));
+}
+
+inline uint_t	toBytes(uint_t bits_num)
+{
+//	return (bits_num + 7) >> 3;
+	return (bits_num % 8) ? (bits_num / 8)+1 : (bits_num / 8);
+}
+
+inline uint_t	toBits(uint_t bytes_num)
+{
+	return bytes_num*8;
+}
+
+
+inline void	bytesToBits(const std::vector<byte> &bytes, boost::dynamic_bitset<byte> &bits)
+{
+	int bits_num = toBits(bytes.size());
+	
+	bits = boost::dynamic_bitset<byte>(bits_num);
+	
+	for(int i=0; i<bits_num; i++)
+		bits[i] = bytes[i >> 3] & (1 << (i & 7));
+}
+
+inline void	bitsToBytes(const boost::dynamic_bitset<byte> &bits, std::vector<byte> &bytes)
+{
+	bytes = std::vector<byte>(toBytes(bits.size()), 0);
+
+	for(uint_t i=0; i<bits.size(); i++)
+		bytes[i >> 3] |= (bits[i] << (i % 8));
+}
+
+/*
+inline std::vector<byte>&	operator = (std::vector<byte> &bytes, const boost::dynamic_bitset<byte> &bits)
+{
+	bitsToBytes(bits, bytes);
+	return bytes;
+}
+*/
 
 
 /*

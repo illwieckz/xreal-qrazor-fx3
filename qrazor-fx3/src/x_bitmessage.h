@@ -41,15 +41,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define MAX_MSGLEN		MAX_PACKETLEN*5
 
 
-inline uint_t tobytes(uint_t bits_num)
-{
-	return (bits_num % 8) ? (bits_num / 8)+1 : (bits_num / 8);
-}
 
-inline uint_t tobits(uint_t bytes_num)
-{
-	return bytes_num*8;
-}
 
 class bitmessage_c
 {
@@ -82,8 +74,8 @@ public:
 	void 		writeLong(int c);
 	void 		writeFloat(float f);
 	void		writeString(const std::string &s);
-	void 		writeCoord(float f);
-	void 		writeVector3(const vec3_c &v);
+	void 		writeVec(vec_t v);
+	void 		writeVec3(const vec3_c &v);
 	void 		writeAngle(float f);
 	void 		writeDir(const vec3_c &dir);
 	void		writeColor(const vec4_c &color);
@@ -97,8 +89,8 @@ public:
 
 	void		beginReading();
 	bool		readBit();
-	int		readBits(int n);
-	int		readBits(int n, boost::dynamic_bitset<byte> &bits);
+	int		readBits(int bits_num);
+	void		readBits(int bits_num, boost::dynamic_bitset<byte> &bits);
 	bool		readBitsCompressed(boost::dynamic_bitset<byte> &bits);
 	int		readByte();
 	void		readBytes(byte *bytes, int bytes_num);
@@ -106,8 +98,8 @@ public:
 	int		readLong();
 	float		readFloat();
 	const char*	readString();
-	float		readCoord();
-	void		readVector3(vec3_c &v);
+	vec_t		readVec();
+	void		readVec3(vec3_c &v);
 	float		readAngle();
 	void		readDir(vec3_c &dir);
 	void		readColor(vec4_c &color);
@@ -124,7 +116,7 @@ public:
 	
 	inline uint_t		getMaxSize() const		{return _maxsize;}
 	
-	inline uint_t		getCurSizeInBytes() const	{return tobytes(_cursize);}
+	inline uint_t		getCurSizeInBytes() const	{return toBytes(_cursize);}
 	inline uint_t		getCurSize() const		{return _cursize;}
 	inline void		setCurSize(int size)		{_cursize = size;}
 	

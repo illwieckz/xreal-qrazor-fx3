@@ -200,6 +200,8 @@ typedef struct
 	void		(*SV_Multicast)(const vec3_c &origin, multicast_type_e to);
 	void		(*SV_Unicast)(sv_entity_c *ent, bool reliable);
 	
+	void		(*SV_WriteBit)(bool bit);
+	void		(*SV_WriteBits)(int bits, int bits_num);
 	void		(*SV_WriteByte)(int c);
 	void		(*SV_WriteShort)(int c);
 	void		(*SV_WriteLong)(int c);

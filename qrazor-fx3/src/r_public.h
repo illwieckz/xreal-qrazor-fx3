@@ -231,7 +231,7 @@ struct r_refdef_t
 		rdflags		= 0;
 		lerp		= 0;
 		
-		areabits	= NULL;
+		areabits.clear();
 	}
 	
 	inline void	setFOV(float x)
@@ -255,7 +255,7 @@ struct r_refdef_t
 	float			lerp;		// 0.0 = old, 1.0 = current
 
 	// visibility
-	byte*			areabits;	// if not NULL, only areas with set bits will be drawn
+	boost::dynamic_bitset<byte>	areabits;	// if not empty, only areas with set bits will be drawn
 };
 
 

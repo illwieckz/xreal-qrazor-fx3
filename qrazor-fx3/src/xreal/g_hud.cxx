@@ -211,7 +211,7 @@ void	DeathmatchScoreboardMessage()
 		stringlength += j;
 	}
 
-	trap_SV_WriteByte(SVC_LAYOUT);
+	trap_SV_WriteBits(SVC_LAYOUT, svc_bitcount);
 	trap_SV_WriteString(string);
 }
 
