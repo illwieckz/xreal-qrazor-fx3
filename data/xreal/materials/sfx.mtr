@@ -3969,27 +3969,24 @@ textures/sfx/chiglass1
 
 textures/sfx/act1glass
 {
+	qer_editorimage	textures/sfx/chiglass1blue.tga
+
 	translucent
 	twoSided
 	noshadows
 	glass
 	
-	qer_editorimage	textures/sfx/chiglass1blue.tga
+	{
+		blend		diffuseMap
+		map		textures/sfx/chiglass1blue_d.tga
+		scale		16 , 16
+	}
 
 	{
-		blend add
+		blend		add
 		cubeMap		env/act1
 		texgen		reflect
 	}
-	
-	{
-	 	 blend	diffuseMap
-		map textures/sfx/chiglass1blue_d.tga
-		scale	 16 , 16
-	}
-
-
-
 }
 
 textures/sfx/act1glass2
