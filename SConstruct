@@ -51,10 +51,10 @@ def XPathOption(key, help, default):
 #
 # Set configuration options
 #
-opts = Options()
+opts = Options('qrazor.conf')
 opts.Add(BoolOption('warnings', 'Set to 1 to compile with -Wall -Werror', 1))
 opts.Add(EnumOption('debug', 'Set to >= 1 to build for debug', '0', allowed_values=('0', '1', '2', '3')))
-opts.Add(EnumOption('optimize', 'Set to >= 1 to build with general optimizations', '2', allowed_values=('0', '1', '2')))
+opts.Add(EnumOption('optimize', 'Set to >= 1 to build with general optimizations', '2', allowed_values=('0', '1', '2', '3')))
 opts.Add(EnumOption('simd', 'Choose special CPU register optimizations', 'none', allowed_values=('none', 'sse', '3dnow')))
 #opts.Add(EnumOption('cpu', 'Set to 1 to build with special CPU register optimizations', 'i386', allowed_values=('i386', 'athlon-xp', 'pentium4')))
 
@@ -63,6 +63,7 @@ if sys.platform == 'linux2' or sys.platform == 'linux-i386':
 	
 elif sys.platform == 'win32':
 	opts.Add(XPathOption('PKGDATADIR', 'Installation path', 'C:/QRazor-FX'))
+
 
 #
 # Initialize compiler environment base
@@ -197,6 +198,8 @@ if not conf.CheckLib('jpeg', symbol='jpeg_start_decompress', autoadd=0):
 		
 env = conf.Finish()
 
+# Save options
+opts.Save('qrazor.conf', env)
 
 Export('INSTALL env')
 #SConscript('SConscript_ode')
