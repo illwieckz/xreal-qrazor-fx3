@@ -1292,9 +1292,8 @@ public:
 		quat.identity();
 		quat2.identity();
 		
-		velocity.clear();
-		
-		lengths.clear();
+		velocity_linear.clear();
+		velocity_angular.clear();
 		
 		index_model	= 0;
 		index_shader	= 0;
@@ -1305,9 +1304,7 @@ public:
 		frame		= 0;
 		effects		= EF_NONE;
 		renderfx	= RF_NONE;
-		
-		light		= 0;
-		
+				
 		event		= EV_NONE;
 		
 		shaderparms[0]	= 0;
@@ -1318,6 +1315,10 @@ public:
 		shaderparms[5]	= 0;
 		shaderparms[6]	= 0;
 		shaderparms[7]	= 0;
+		
+		vectors[0].clear();
+		vectors[1].clear();
+		vectors[2].clear();
 	}
 	
 	inline int	getNumber() const	{return number;}
@@ -1336,9 +1337,8 @@ public:
 	quaternion_c	quat;
 	quaternion_c	quat2;
 	
-	vec3_c		velocity;		// linear velocity
-	
-	vec3_c		lengths;
+	vec3_c		velocity_linear;
+	vec3_c		velocity_angular;
 	
 	int		index_model;
 	int		index_shader;
@@ -1350,13 +1350,13 @@ public:
 	uint_t		effects;		// PGM - we're filling it, so it needs to be unsigned
 	uint_t		renderfx;
 	
-	float		light;			// light intensity
-	
 	byte		event;			// impulse events -- muzzle flashes, footsteps, etc
 							// events only go out for a single frame, they
 							// are automatically cleared each frame
 							
 	float		shaderparms[8];		// renderer material shaders want these
+	
+	vec3_c		vectors[3];		// misc vectors. e.g. used by lights
 };
 
 

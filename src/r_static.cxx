@@ -75,7 +75,7 @@ void	r_static_model_c::addModelToList(r_entity_c *ent)
 		if(!r_showinvisible->getValue() && shader->hasFlags(SHADER_NODRAW))
 			continue;
 		
-		RB_AddCommand(ent, this, mesh, shader, NULL, NULL, -(i+1));
+		RB_AddCommand(ent, this, mesh, shader, NULL, NULL, -1);
 		
 		if(r_lighting->getInteger())
 		{
@@ -84,7 +84,7 @@ void	r_static_model_c::addModelToList(r_entity_c *ent)
 				r_light_c& light = ir->second;
 			
 				if(light.getShared().radius_bbox.intersect(ent->getShared().origin, mesh->bbox.radius()))
-					RB_AddCommand(ent, this, mesh, shader, &light, NULL, -(i+1));
+					RB_AddCommand(ent, this, mesh, shader, &light, NULL, -1);
 			}
 		}
 	}

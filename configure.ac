@@ -380,7 +380,7 @@ if test "x$USE_OPT" = "xyes"; then
 #			;;
 #	esac
 	
-	temp_CXXFLAGS=`echo $CXXFLAGS | sed 's/O2/O2/g'`
+	temp_CXXFLAGS=`echo $CXXFLAGS | sed 's/O2/O3/g'`
 	CXXFLAGS="$temp_CXXFLAGS"
 else
 	# kill off that fucking retarded -O2 that gets bunged in by default

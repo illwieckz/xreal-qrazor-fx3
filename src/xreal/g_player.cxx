@@ -289,7 +289,7 @@ void	g_player_c::think()
 		pm.s = _r.ps.pmove;
 
 		pm.s.origin = _s.origin;
-		pm.s.velocity_linear = _s.velocity;
+		pm.s.velocity_linear = _s.velocity_linear;
 
 		pm.cmd = cmd;
 
@@ -1230,7 +1230,7 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	pm.s = _r.ps.pmove;
 
 	pm.s.origin = _s.origin;
-	pm.s.velocity_linear = _s.velocity;
+	pm.s.velocity_linear = _s.velocity_linear;
 
 	if(memcmp(&_old_pmove, &pm.s, sizeof(pm.s)))
 	{
@@ -1253,7 +1253,7 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 
 	// update entity network state
 	_s.origin = pm.s.origin;
-	_s.velocity = pm.s.velocity_linear;
+	_s.velocity_linear = pm.s.velocity_linear;
 	
 	_r.bbox = pm.bbox;
 	
@@ -2344,7 +2344,7 @@ void	g_player_c::endServerFrame()
 	// behind the body position when pushed -- "sinking into plats"
 	
 	_r.ps.pmove.origin = _s.origin;
-	_r.ps.pmove.velocity_linear = _s.velocity;
+	_r.ps.pmove.velocity_linear = _s.velocity_linear;
 	
 
 
@@ -2374,14 +2374,14 @@ void	g_player_c::endServerFrame()
 		
 	_angles[YAW] = _v_angles[YAW];
 	_angles[ROLL] = 0;
-	_angles[ROLL] = calcRoll(_angles, _s.velocity)*4;
+	_angles[ROLL] = calcRoll(_angles, _s.velocity_linear)*4;
 	
 	_s.quat.fromAngles(_angles);
 
 
 	// calculate speed and cycle to be used for
 	// all cyclic walking effects
-	_xyspeed = sqrt(_s.velocity[0]*_s.velocity[0] + _s.velocity[1]*_s.velocity[1]);
+	_xyspeed = sqrt(_s.velocity_linear[0]*_s.velocity_linear[0] + _s.velocity_linear[1]*_s.velocity_linear[1]);
 
 	//if(_xyspeed < 5)
 	{
@@ -2446,7 +2446,7 @@ void	g_player_c::endServerFrame()
 
 	updateClientFrame();
 
-	_oldvelocity = _s.velocity;
+	_oldvelocity = _s.velocity_linear;
 	_oldviewangles = _r.ps.view_angles;
 
 	// clear weapon kicks
@@ -2910,7 +2910,7 @@ void	g_player_c::updateFallingDamage()
 	if(_movetype == MOVETYPE_NOCLIP)
 		return;
 
-	if((_oldvelocity[2] < 0) && (_s.velocity[2] > _oldvelocity[2]) && (!_groundentity))
+	if((_oldvelocity[2] < 0) && (_s.velocity_linear[2] > _oldvelocity[2]) && (!_groundentity))
 	{
 		delta = _oldvelocity[2];
 	}
@@ -2919,7 +2919,7 @@ void	g_player_c::updateFallingDamage()
 		if(!_groundentity)
 			return;
 			
-		delta = _s.velocity[2] - _oldvelocity[2];
+		delta = _s.velocity_linear[2] - _oldvelocity[2];
 	}
 	delta = delta*delta * 0.0001;
 
@@ -3492,10 +3492,10 @@ void	g_player_c::calcViewOffset()
 		_r.ps.kick_angles[PITCH] += ratio * _fall_value;
 
 		// add angles based on velocity
-		delta = _s.velocity.dotProduct(_v_forward);
+		delta = _s.velocity_linear.dotProduct(_v_forward);
 		_r.ps.kick_angles[PITCH] += delta*run_pitch->getValue();
 		
-		delta = _s.velocity.dotProduct(_v_right);
+		delta = _s.velocity_linear.dotProduct(_v_right);
 		_r.ps.kick_angles[ROLL] += delta*run_roll->getValue();
 
 		// add angles based on bob

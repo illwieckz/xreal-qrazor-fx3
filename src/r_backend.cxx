@@ -338,15 +338,22 @@ static void	RB_SetupOrthoViewMatrix()
 
 static void	RB_SetupViewMatrix(const vec3_c &origin, const vec3_c &angles)
 {
-	matrix_c m;
+	matrix_c m;//, m2;
 	
 	m.setupTranslation(origin);
 	m.multiplyRotation(angles[PITCH], angles[YAW], angles[ROLL]);
 
-	//quaternion_c	q;
+//	m2.fromAngles(angles[PITCH], angles[YAW], angles[ROLL]);
+
+//	quaternion_c q;
+//	q.fromMatrix(m2);
 	
-	//q.fromAngles(angles[PITCH], angles[YAW], angles[ROLL]);
-	//q.fromAngles(angles);
+//	q.fromAngles(angles[PITCH], angles[YAW], angles[ROLL]);
+//	q.fromAngles(angles);
+	
+//	matrix_c m2;
+//	m2.fromQuaternion(q);
+//	m.multiply(m2);
 	
 	//q.multiplyRotation(0, 0, 1, angles[YAW]);
 	//q.multiplyRotation(0, 1, 0,-angles[PITCH]);
@@ -356,7 +363,7 @@ static void	RB_SetupViewMatrix(const vec3_c &origin, const vec3_c &angles)
 //	m.multiplyRotation(0, 1, 0, angles[PITCH]);
 //	m.multiplyRotation(1, 0, 0, angles[ROLL]);
 
-	//m.multiplyRotation(q);
+//	m.multiplyRotation(q);
 	
 //	matrix_c m_z; m_z.setupZRotation(angles[YAW]);		m.multiply(m_z);
 //	matrix_c m_y; m_y.setupYRotation(angles[PITCH]);	m.multiply(m_y);
@@ -369,7 +376,7 @@ static void	RB_SetupViewMatrix(const vec3_c &origin, const vec3_c &angles)
 
 static void 	RB_SetupFrustum()
 {
-#if 1
+#if 0
 	// Tr3B - this code generates the camera frustum in world space
 
 	// left
@@ -392,7 +399,6 @@ static void 	RB_SetupFrustum()
 		r_frustum[i].setSignBits();
 	}
 	
-#if 1
 	vec3_c x; // point in plane
 	
 	// near
@@ -411,40 +417,41 @@ static void 	RB_SetupFrustum()
 	r_frustum[5].normalize();
 	r_frustum[5]._type	= PLANE_ANYZ;
 	r_frustum[5].setSignBits();
-#endif
 
-#else
+#elif 0
 	// http://www2.ravensoft.com/users/ggribb/plane%20extraction.pdf
 
-	/*
+	
 	matrix_c proj;
 	xglGetFloatv(GL_PROJECTION_MATRIX, &proj[0][0]);
 	proj.transpose();
-	if(!(rb_matrix_projection == proj))
-	{
-		ri.Com_Error(ERR_DROP, "RB_SetupFrustum: rb_matrix_projection != proj");
-	}
+//	if(!(rb_matrix_projection == proj))
+//	{
+//		ri.Com_Error(ERR_DROP, "RB_SetupFrustum: rb_matrix_projection != proj");
+//	}
 	
 	matrix_c modelview;
 	xglGetFloatv(GL_MODELVIEW_MATRIX, &modelview[0][0]);
 	modelview.transpose();
-	if(!((rb_matrix_view * rb_matrix_model) == modelview))
-	{
-		ri.Com_Error(ERR_DROP, "RB_SetupFrustum: rb_matrix_modelview != modelview");
-	}
-	*/
+//	if(!((rb_matrix_view * rb_matrix_model) == modelview))
+//	{
+//		ri.Com_Error(ERR_DROP, "RB_SetupFrustum: rb_matrix_modelview != modelview");
+//	}
+	
 	
 	matrix_c m;
 	m.identity();
-	m.multiply(rb_matrix_view);
-	m.multiply(rb_matrix_projection);
+	m.multiply(modelview);
+	m.multiply(proj);
+//	m.multiply(rb_matrix_view);
+//	m.multiply(rb_matrix_projection);
 	
 	// left
 	r_frustum[0]._normal[0]	=  m[0][3] + m[0][0];
 	r_frustum[0]._normal[1]	=  m[1][3] + m[1][0];
 	r_frustum[0]._normal[2]	=  m[2][3] + m[2][0];
 	r_frustum[0]._dist	=-(m[3][3] + m[3][0]);
-//	r_frustum[0].normalize();
+	r_frustum[0].normalize();
 	r_frustum[0]._type	= PLANE_ANYZ;
 	r_frustum[0].setSignBits();
 	
@@ -453,7 +460,7 @@ static void 	RB_SetupFrustum()
 	r_frustum[1]._normal[1]	=  m[1][3] - m[1][0];
 	r_frustum[1]._normal[2]	=  m[2][3] - m[2][0];
 	r_frustum[1]._dist	=-(m[3][3] - m[3][0]);
-//	r_frustum[1].normalize();
+	r_frustum[1].normalize();
 	r_frustum[1]._type	= PLANE_ANYZ;
 	r_frustum[1].setSignBits();
 	
@@ -462,7 +469,7 @@ static void 	RB_SetupFrustum()
 	r_frustum[2]._normal[1]	=  m[1][3] + m[1][1];
 	r_frustum[2]._normal[2]	=  m[2][3] + m[2][1];
 	r_frustum[2]._dist	=-(m[3][3] + m[3][1]);
-//	r_frustum[2].normalize();
+	r_frustum[2].normalize();
 	r_frustum[2]._type	= PLANE_ANYZ;
 	r_frustum[2].setSignBits();
 	
@@ -471,7 +478,7 @@ static void 	RB_SetupFrustum()
 	r_frustum[3]._normal[1]	=  m[1][3] - m[1][1];
 	r_frustum[3]._normal[2]	=  m[2][3] - m[2][1];
 	r_frustum[3]._dist	=-(m[3][3] - m[3][1]);
-//	r_frustum[3].normalize();
+	r_frustum[3].normalize();
 	r_frustum[3]._type	= PLANE_ANYZ;
 	r_frustum[3].setSignBits();
 	
@@ -480,7 +487,7 @@ static void 	RB_SetupFrustum()
 	r_frustum[4]._normal[1]	=  m[1][3] + m[1][2];
 	r_frustum[4]._normal[2]	=  m[2][3] + m[2][2];
 	r_frustum[4]._dist	=-(m[3][3] + m[3][2]);
-//	r_frustum[4].normalize();
+	r_frustum[4].normalize();
 	r_frustum[4]._type	= PLANE_ANYZ;
 	r_frustum[4].setSignBits();
 	
@@ -489,7 +496,93 @@ static void 	RB_SetupFrustum()
 	r_frustum[5]._normal[1]	=  m[1][3] - m[1][2];
 	r_frustum[5]._normal[2]	=  m[2][3] - m[2][2];
 	r_frustum[5]._dist	=-(m[3][3] - m[3][2]);
-//	r_frustum[5].normalize();
+	r_frustum[5].normalize();
+	r_frustum[5]._type	= PLANE_ANYZ;
+	r_frustum[5].setSignBits();
+
+#elif 1
+	float   proj[16];
+	float   modl[16];
+	float   clip[16];
+	
+	// Get the current PROJECTION matrix from OpenGL
+	xglGetFloatv(GL_PROJECTION_MATRIX, proj);
+	
+	// Get the current MODELVIEW matrix from OpenGL
+	xglGetFloatv(GL_MODELVIEW_MATRIX, modl);
+	
+	// Combine the two matrices (multiply projection by modelview)
+	clip[ 0] = modl[ 0] * proj[ 0] + modl[ 1] * proj[ 4] + modl[ 2] * proj[ 8] + modl[ 3] * proj[12];
+	clip[ 1] = modl[ 0] * proj[ 1] + modl[ 1] * proj[ 5] + modl[ 2] * proj[ 9] + modl[ 3] * proj[13];
+	clip[ 2] = modl[ 0] * proj[ 2] + modl[ 1] * proj[ 6] + modl[ 2] * proj[10] + modl[ 3] * proj[14];
+	clip[ 3] = modl[ 0] * proj[ 3] + modl[ 1] * proj[ 7] + modl[ 2] * proj[11] + modl[ 3] * proj[15];
+	
+	clip[ 4] = modl[ 4] * proj[ 0] + modl[ 5] * proj[ 4] + modl[ 6] * proj[ 8] + modl[ 7] * proj[12];
+	clip[ 5] = modl[ 4] * proj[ 1] + modl[ 5] * proj[ 5] + modl[ 6] * proj[ 9] + modl[ 7] * proj[13];
+	clip[ 6] = modl[ 4] * proj[ 2] + modl[ 5] * proj[ 6] + modl[ 6] * proj[10] + modl[ 7] * proj[14];
+	clip[ 7] = modl[ 4] * proj[ 3] + modl[ 5] * proj[ 7] + modl[ 6] * proj[11] + modl[ 7] * proj[15];
+	
+	clip[ 8] = modl[ 8] * proj[ 0] + modl[ 9] * proj[ 4] + modl[10] * proj[ 8] + modl[11] * proj[12];
+	clip[ 9] = modl[ 8] * proj[ 1] + modl[ 9] * proj[ 5] + modl[10] * proj[ 9] + modl[11] * proj[13];
+	clip[10] = modl[ 8] * proj[ 2] + modl[ 9] * proj[ 6] + modl[10] * proj[10] + modl[11] * proj[14];
+	clip[11] = modl[ 8] * proj[ 3] + modl[ 9] * proj[ 7] + modl[10] * proj[11] + modl[11] * proj[15];
+	
+	clip[12] = modl[12] * proj[ 0] + modl[13] * proj[ 4] + modl[14] * proj[ 8] + modl[15] * proj[12];
+	clip[13] = modl[12] * proj[ 1] + modl[13] * proj[ 5] + modl[14] * proj[ 9] + modl[15] * proj[13];
+	clip[14] = modl[12] * proj[ 2] + modl[13] * proj[ 6] + modl[14] * proj[10] + modl[15] * proj[14];
+	clip[15] = modl[12] * proj[ 3] + modl[13] * proj[ 7] + modl[14] * proj[11] + modl[15] * proj[15];
+	
+	// Extract the numbers for the LEFT plane
+	r_frustum[0]._normal[0]	=  clip[ 3] + clip[ 0];
+	r_frustum[0]._normal[1]	=  clip[ 7] + clip[ 4];
+	r_frustum[0]._normal[2]	=  clip[11] + clip[ 8];
+	r_frustum[0]._dist	=-(clip[15] + clip[12]);
+	r_frustum[0].normalize();
+	r_frustum[0]._type	= PLANE_ANYZ;
+	r_frustum[0].setSignBits();
+	
+	// Extract the numbers for the RIGHT plane
+	r_frustum[1]._normal[0]	=  clip[ 3] - clip[ 0];
+	r_frustum[1]._normal[1]	=  clip[ 7] - clip[ 4];
+	r_frustum[1]._normal[2]	=  clip[11] - clip[ 8];
+	r_frustum[1]._dist	=-(clip[15] - clip[12]);
+	r_frustum[1].normalize();
+	r_frustum[1]._type	= PLANE_ANYZ;
+	r_frustum[1].setSignBits();
+	
+	// Extract the BOTTOM plane
+	r_frustum[2]._normal[0]	=  clip[ 3] + clip[ 1];
+	r_frustum[2]._normal[1]	=  clip[ 7] + clip[ 5];
+	r_frustum[2]._normal[2]	=  clip[11] + clip[ 9];
+	r_frustum[2]._dist	=-(clip[15] + clip[13]);
+	r_frustum[2].normalize();
+	r_frustum[2]._type	= PLANE_ANYZ;
+	r_frustum[2].setSignBits();
+	
+	// Extract the TOP plane
+	r_frustum[3]._normal[0]	=  clip[ 3] - clip[ 1];
+	r_frustum[3]._normal[1]	=  clip[ 7] - clip[ 5];
+	r_frustum[3]._normal[2]	=  clip[11] - clip[ 9];
+	r_frustum[3]._dist	=-(clip[15] - clip[13]);
+	r_frustum[3].normalize();
+	r_frustum[3]._type	= PLANE_ANYZ;
+	r_frustum[3].setSignBits();
+	
+	//Extract the NEAR plane
+	r_frustum[4]._normal[0]	=  clip[ 3] + clip[ 2];
+	r_frustum[4]._normal[1]	=  clip[ 7] + clip[ 6];
+	r_frustum[4]._normal[2]	=  clip[11] + clip[10];
+	r_frustum[4]._dist	=-(clip[15] + clip[14]);
+	r_frustum[4].normalize();
+	r_frustum[4]._type	= PLANE_ANYZ;
+	r_frustum[4].setSignBits();
+	
+	// Extract the FAR plane
+	r_frustum[5]._normal[0]	=  clip[ 3] - clip[ 2];
+	r_frustum[5]._normal[1]	=  clip[ 7] - clip[ 6];
+	r_frustum[5]._normal[2]	=  clip[11] - clip[10];
+	r_frustum[5]._dist	=-(clip[15] - clip[14]);
+	r_frustum[5].normalize();
 	r_frustum[5]._type	= PLANE_ANYZ;
 	r_frustum[5].setSignBits();
 #endif
@@ -2175,6 +2268,7 @@ void	RB_AddCommand(	r_entity_c*		entity,
 		return;
 	}
 
+#ifdef HAVE_DEBUG
 	if(entity_mesh->isNotValid())
 	{
 		//ri.Com_Printf("RB_AddCommand: entity_mesh not valid\n");
@@ -2186,6 +2280,7 @@ void	RB_AddCommand(	r_entity_c*		entity,
 		// Tr3B - surface<->light relation ship doesn't result in any lit polygons
 		return;
 	}
+#endif
 	
 	r_command_t *cmd = NULL, *cmd2 = NULL;
 	

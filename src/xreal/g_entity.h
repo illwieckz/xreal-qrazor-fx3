@@ -114,6 +114,8 @@ public:
 	bool		hasEPair(const std::string &key);
 	const char*	valueForKey(const std::string &key);
 	
+	void		updateField(const std::string &key);
+	
 	// helper functions to update the entity network state
 	void		updateOrigin();
 	void		updateRotation();

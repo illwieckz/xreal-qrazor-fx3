@@ -73,12 +73,11 @@ void	r_model_c::setupMeshes()
 		if(!mesh)
 			continue;
 		
-		mesh->calcTangentSpaces();		
+		mesh->calcTangentSpaces();
 //		mesh->calcEdges();
 		mesh->createBBoxFromVertexes();
 		
-		_bbox.addPoint(mesh->bbox._mins);
-		_bbox.addPoint(mesh->bbox._maxs);
+		_bbox.mergeWith(mesh->bbox);
 	}
 }
 

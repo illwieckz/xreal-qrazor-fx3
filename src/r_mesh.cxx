@@ -349,6 +349,43 @@ void	r_mesh_c::createBBoxFromVertexes()
 	}
 }
 
+void	r_mesh_c::addVertex(const vec3_c &v)
+{
+	vertexes.push_back(v);
+	texcoords.push_back(vec2_c());
+	tangents.push_back(vec3_c());
+	binormals.push_back(vec3_c());
+	normals.push_back(vec3_c());
+	colors.push_back(vec4_c());
+}
+
+
+void	r_mesh_c::addTriangle(index_t v0, index_t v1, index_t v2, uint_t num)
+{
+	triangles.push_back(num);
+
+	indexes.push_back(v0);
+	indexes.push_back(v1);
+	indexes.push_back(v2);
+	
+}
+
+void	r_mesh_c::addTriangle(index_t v0, index_t v1, index_t v2)
+{
+	indexes.push_back(v0);
+	indexes.push_back(v1);
+	indexes.push_back(v2);
+}
+
+bool	r_mesh_c::hasTriangle(uint_t num)
+{
+	std::vector<uint_t>::iterator ir = std::find(triangles.begin(), triangles.end(), num);
+	
+	if(ir != triangles.end())
+		return true;
+	
+	return false;
+}
 
 void	r_mesh_c::addEdge(const r_wedge_t &we)
 {

@@ -74,8 +74,13 @@ public:
 		
 		quat.identity();
 		
+		radius.clear();
 		radius_bbox.zero();
 		radius_value	= 0;
+		
+		target.clear();
+		right.clear();
+		up.clear();
 		
 		backlerp	= 0;
 		flags		= RF_NONE;
@@ -100,9 +105,14 @@ public:
 	
 	quaternion_c		quat;
 	
-	vec3_c			radius;			// used by lights
+	// light specific
+	vec3_c			radius;
 	cbbox_c			radius_bbox;
 	float			radius_value;
+	
+	vec3_c			target;
+	vec3_c			right;
+	vec3_c			up;
 	
 	// misc
 	float			backlerp;		// 0.0 = current, 1.0 = old

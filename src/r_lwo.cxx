@@ -45,8 +45,18 @@ void	r_lwo_model_c::load()
 	U4		datasize;
 	U4		type, size;
 	ID4		id;
-	r_mesh_c*	mesh = NULL;
-	matrix_c	transform;
+	
+	matrix_c		transform;
+	cbbox_c			bbox;
+	vec2_c			default_texcoord;
+	int			default_texcoord_axis[2];
+	vec2_c			default_texcoord_scale;
+	
+	std::vector<vec3_c>		vertexes;
+	std::vector<lwo_vmap_t>		vmaps;
+	std::vector<lwo_vmad_t>		vmads;
+	std::vector<lwo_ptag_t>		ptags;
+	std::vector<index_t>		indexes;
 
 	_readcount = 0;
 	
@@ -95,32 +105,31 @@ void	r_lwo_model_c::load()
 				break;
 			*/
 			case ID_LAYR:
-				mesh = readLayr(size, transform);
-				addMesh(mesh);
+				readLayr(size, transform);
 				break;
 			
 			case ID_PNTS:
-				readPnts(size, mesh, transform);
+				readPnts(size, vertexes);
 				break;
 				
 			case ID_BBOX:
-				readBbox(size, mesh);
+				readBbox(size, bbox);
 				break;
 			
 			case ID_POLS:
-				readPols(size, mesh);
+				readPols(size, indexes);
 				break;
-			/*
+			
 			case ID_PTAG:
-				readPtag(size);
+				readPtag(size, ptags);
 				break;
-			*/	
+				
 			case ID_VMAP:
-				readVmap(size, mesh);
+				readVmap(size, vmaps);
 				break;
 
 			case ID_VMAD:
-				readVmad(size, mesh);
+				readVmad(size, vmads);
 				break;
 			/*
 			case ID_SURF:
@@ -136,6 +145,83 @@ void	r_lwo_model_c::load()
 		
 		if(_readcount != (_readcount_old + size))
 			ri.Com_Error(ERR_DROP, "r_lwo_model_c::load: bad readcount %i vs. %i", _readcount, (_readcount_old + size));
+	}
+	
+	for(std::vector<lwo_ptag_t>::const_iterator ir = ptags.begin(); ir != ptags.end(); ++ir)
+	{
+		const lwo_ptag_t& ptag = *ir;
+	
+		if(ptag.index_tag < 0 || ptag.index_tag >= _meshes.size())
+			ri.Com_Error(ERR_DROP, "r_lwo_model_c::load: tag out of range");
+			
+		if(ptag.index_polygon < 0 || (ptag.index_polygon * 3) >= indexes.size())
+			ri.Com_Error(ERR_DROP, "r_lwo_model_c::load: poly out of range");
+			
+		r_mesh_c *mesh = _meshes[ptag.index_tag];
+		
+		mesh->addTriangle(indexes[(ptag.index_polygon*3)+0], indexes[(ptag.index_polygon*3)+1], indexes[(ptag.index_polygon*3)+2], ptag.index_polygon);
+	}
+	
+	default_texcoord.clear();
+	default_texcoord_axis[0] = 0;
+	default_texcoord_axis[1] = 1;
+	for(int i=0; i<3; i++)
+	{
+		float min = bbox._mins[i];
+		float max = bbox._maxs[i];
+		float size = max - min;
+		
+		if(size > default_texcoord[0])
+		{
+			default_texcoord_axis[1] = default_texcoord_axis[0];
+			default_texcoord_axis[0] = i;
+
+			default_texcoord[1] = default_texcoord[0];
+			default_texcoord[0] = size;
+		}
+		else if(size > default_texcoord[1])
+		{
+			default_texcoord_axis[1] = i;
+			default_texcoord[1] = size;
+		}
+	}
+	default_texcoord_scale[0] = 4.0f / default_texcoord[0];
+	default_texcoord_scale[1] = 4.0f / default_texcoord[1];
+	
+	for(std::vector<r_mesh_c*>::const_iterator ir = _meshes.begin(); ir != _meshes.end(); ++ir)
+	{
+		r_mesh_c *mesh = *ir;
+		
+		//mesh->indexes = indexes;
+				
+		if(mesh->indexes.size())
+		{
+			mesh->fillVertexes(vertexes.size());
+			mesh->vertexes = vertexes;
+			
+			for(uint_t i=0; i<mesh->vertexes.size(); i++)
+			{
+				mesh->texcoords[i][0] = mesh->vertexes[i][default_texcoord_axis[0]] * default_texcoord_scale[0];
+				mesh->texcoords[i][1] = mesh->vertexes[i][default_texcoord_axis[1]] * default_texcoord_scale[1];
+			}
+			
+			for(std::vector<lwo_vmap_t>::const_iterator ir = vmaps.begin(); ir != vmaps.end(); ++ir)
+			{
+				const lwo_vmap_t& vmap = *ir;
+				
+				mesh->texcoords[vmap.index_vertex] = vmap.texcoord;
+			}
+			
+			for(std::vector<lwo_vmad_t>::const_iterator ir = vmads.begin(); ir != vmads.end(); ++ir)
+			{
+				const lwo_vmad_t& vmad = *ir;
+				
+				if(mesh->hasTriangle(vmad.index_polygon))
+				{
+					mesh->texcoords[vmad.index_vertex] = vmad.texcoord;
+				}
+			}
+		}
 	}
 	
 #if 1
@@ -284,15 +370,15 @@ void	r_lwo_model_c::readTags(uint_t nbytes)
 		readName(name);
 		ri.Com_DPrintf("\t[%d] [%s]\n", n++, name);
 		addShader(new r_model_shader_c(name, R_RegisterShader(name), X_SURF_NONE, X_CONT_NONE));
+		addMesh(new r_mesh_c());
 	}
 }
 
-r_mesh_c*	r_lwo_model_c::readLayr(uint_t nbytes, matrix_c &transform)
+void	r_lwo_model_c::readLayr(uint_t nbytes, matrix_c &transform)
 {
 	ushort_t	flags[2], parent;
 	vec3_c		pivot;
 	char		name[255];
-	r_mesh_c*	mesh = new r_mesh_c();
 	
 	ri.Com_DPrintf("LAYR [%d]\n", nbytes);
 
@@ -314,48 +400,36 @@ r_mesh_c*	r_lwo_model_c::readLayr(uint_t nbytes, matrix_c &transform)
 		parent = readU2();
 		ri.Com_DPrintf("\tPARENT [%d]\n", parent);
 	}
-	
-	return mesh;
 }
 
-void	r_lwo_model_c::readPnts(uint_t nbytes, r_mesh_c *mesh, const matrix_c &transform)
+void	r_lwo_model_c::readPnts(uint_t nbytes, std::vector<vec3_c> &vertexes)
 {
-	if(!mesh)
-		ri.Com_Error(ERR_DROP, "r_lwo_model_c::readPnts: NULL mesh");
-	
 	uint_t points_num = nbytes/sizeof(VEC12);
 	if(points_num <= 0)
 		ri.Com_Error(ERR_DROP, "r_lwo_model_c::readPnts: mesh has invalid vertices number %i", points_num);
 	
 	ri.Com_Printf("PNTS [%d] points_num [%d]\n", nbytes, points_num);
 	
-	mesh->fillVertexes(points_num);
+	vertexes.resize(points_num);
 	
 	for(uint_t i=0; i<points_num; i++)
 	{
-		readVEC12(mesh->vertexes[i]);
+		readVEC12(vertexes[i]);
 		//ri.Com_DPrintf("\t[%d] [%f,%f,%f]\n", i, mesh->vertexes[i][0], mesh->vertexes[i][1], mesh->vertexes[i][2]);
-		mesh->vertexes[i].transform(transform);
 	}
 }
 
-void	r_lwo_model_c::readBbox(uint_t nbytes, r_mesh_c *mesh)
+void	r_lwo_model_c::readBbox(uint_t nbytes, cbbox_c &bbox)
 {
-	if(!mesh)
-		ri.Com_Error(ERR_DROP, "r_lwo_model_c::readBBox: NULL mesh");
-		
-	readVEC12(mesh->bbox._mins);
-	readVEC12(mesh->bbox._maxs);
-	
-	_bbox.addPoint(mesh->bbox._mins);
-	_bbox.addPoint(mesh->bbox._maxs);
+	readVEC12(bbox._mins);
+	readVEC12(bbox._maxs);
 	
 	ri.Com_DPrintf("BBOX [%d]\n", nbytes);
-	ri.Com_DPrintf("\tMIN [%f,%f,%f]\n", mesh->bbox._mins[0], mesh->bbox._mins[1], mesh->bbox._mins[2]);
-	ri.Com_DPrintf("\tMAX [%f,%f,%f]\n", mesh->bbox._maxs[0], mesh->bbox._maxs[1], mesh->bbox._maxs[2]);
+	ri.Com_DPrintf("\tMIN [%f,%f,%f]\n", bbox._mins[0], bbox._mins[1], bbox._mins[2]);
+	ri.Com_DPrintf("\tMAX [%f,%f,%f]\n", bbox._maxs[0], bbox._maxs[1], bbox._maxs[2]);
 }
 
-void	r_lwo_model_c::readPols(uint_t nbytes, r_mesh_c *mesh)
+void	r_lwo_model_c::readPols(uint_t nbytes, std::vector<index_t> &indexes)
 {
 	ushort_t	numvert, flags;
 	uint_t		nPols;
@@ -363,22 +437,27 @@ void	r_lwo_model_c::readPols(uint_t nbytes, r_mesh_c *mesh)
 	char		id[5];
 	uint_t		type;
 	
-	if(!mesh)
-		ri.Com_Error(ERR_DROP, "r_lwo_model_c::readPols: NULL mesh");
-	
 	ri.Com_DPrintf("POLS [%d]", nbytes);
 	
 	nPols = 0L;
 
 	readID4(id);
 	type = MAKE_ID(id[0], id[1], id[2], id[3]);
+	if(type != ID_FACE)
+		ri.Com_Error(ERR_DROP, "r_lwo_model_c::readVmap: bad id '%s'", id);
 	ri.Com_DPrintf(" [%s]\n", id);
+	
+	indexes.clear();
 
 	while(_readcount < (_readcount_old + nbytes))
 	{
 		numvert = readU2();
 		flags      = (0xFC00 & numvert) >> 10;
 		numvert    =  0x03FF & numvert;
+		
+		if(numvert != 3)
+			ri.Com_Error(ERR_DROP, "r_lwo_model_c::readPols: numvert %i != 3", numvert);
+			
 		//ri.Com_DPrintf("\t[%d] NVERT[%d] FLAG[%02x] <", nPols, numvert, flags);
 		nPols++;
 
@@ -386,12 +465,12 @@ void	r_lwo_model_c::readPols(uint_t nbytes, r_mesh_c *mesh)
 		{
 			vx = readVX();
 			
-			if(type == ID_FACE && numvert == 3)
+			//if(type == ID_FACE && numvert == 3)
 			{
-				if(vx < 0 || vx >= mesh->vertexes.size())
-					continue;
+				//if(vx < 0 || vx >= mesh->vertexes.size())
+				//	continue;
 					
-				mesh->indexes.push_back(vx);
+				indexes.push_back(vx);
 			}
 			
 			/*
@@ -402,137 +481,149 @@ void	r_lwo_model_c::readPols(uint_t nbytes, r_mesh_c *mesh)
 			*/
 		}
 	}
-	
-	//std::reverse(mesh->indexes.begin(), mesh->indexes.end());
 }
 
-void	r_lwo_model_c::readVmap(uint_t nbytes, r_mesh_c *mesh)
+int	LWO_SortByTagAndPolyFunc(void const *a, void const *b)
+{
+	lwo_ptag_t* ptag_a = (lwo_ptag_t*)a;
+	lwo_ptag_t* ptag_b = (lwo_ptag_t*)b;
+	
+	// first sort by Tag
+#if 1
+	if(ptag_a->index_tag < ptag_b->index_tag)
+		return 1;
+		
+	else if(ptag_a->index_tag > ptag_b->index_tag)
+		return -1;
+#endif
+		
+	// second sort by Poly
+	if(ptag_a->index_polygon < ptag_b->index_polygon)
+		return 1;
+		
+	else if(ptag_a->index_polygon > ptag_b->index_polygon)
+		return -1;
+		
+	return 0;
+}
+
+void	r_lwo_model_c::readPtag(uint_t nbytes, std::vector<lwo_ptag_t> &ptags)
+{
+	uint_t		nTags;
+	ID4		id;
+	uint_t		type;
+	
+	ri.Com_DPrintf("PTAG [%d]", nbytes);
+	
+	nTags = 0L;
+	
+	readID4(id);
+	type = MAKE_ID(id[0], id[1], id[2], id[3]);
+//	if(type != ID_SURF)
+//		ri.Com_Error(ERR_DROP, "r_lwo_model_c::readPtag: bad id '%s'", id);
+	ri.Com_DPrintf(" [%s]\n", id);
+	
+	ptags.clear();
+
+	while(_readcount < (_readcount_old + nbytes))
+	{
+		lwo_ptag_t ptag;
+	
+		ptag.index_polygon = readVX();
+		ptag.index_tag = readU2();
+		
+		//ri.Com_DPrintf("\tPOLY[%d] TAG[%d]\n", vx, tag);
+		
+		if(type == ID_SURF)
+			ptags.push_back(ptag);
+		
+		nTags++;
+	}
+	
+//	qsort(&ptags[0], ptags.size(), sizeof(lwo_ptag_t), LWO_SortByTagAndPolyFunc);
+}
+
+void	r_lwo_model_c::readVmap(uint_t nbytes, std::vector<lwo_vmap_t> &vmaps)
 {
 	ushort_t	dim;
-	index_t		vx;
-	float		value;
 	char		name[255];
 	char		id[5];
 	uint_t		type;
-	
-	if(!mesh)
-		ri.Com_Error(ERR_DROP, "r_lwo_model_c::readVmap: NULL mesh");
 		
 	ri.Com_DPrintf("VMAP [%d]", nbytes);
 
 	readID4(id);
 	type = MAKE_ID(id[0], id[1], id[2], id[3]);
+//	if(type != ID_TXUV)
+//		ri.Com_Error(ERR_DROP, "r_lwo_model_c::readVmap: bad id '%s'", id);
 	ri.Com_DPrintf(" [%s]", id);
 
 	dim = readU2();
+//	if(dim != 2)
+//		ri.Com_Error(ERR_DROP, "r_lwo_model_c::readVmap: texcoords size %i != 2", dim);
 	readName(name);
 	ri.Com_DPrintf(" DIM [%d] NAME [%s]\n", dim, name);
-
-	while(_readcount < (_readcount_old + nbytes))
+	
+	if(type == ID_TXUV && dim == 2)
 	{
-		vx = readVX();
+		while(_readcount < (_readcount_old + nbytes))
+		{
+			lwo_vmap_t vmap;
 		
-		if(dim == 0)
-		{
-			//ri.Com_DPrintf("\tVERT[%d]\n", vx);
-		}
-		else
-		{
-			//ri.Com_DPrintf("\tVERT[%d] VALS[", vx);
-			
-			for(int n=0; n<(int)dim; n++)
-			{
-				value = readF4();
+			vmap.index_vertex = readVX();
+		
+			vmap.texcoord[0] = readF4();
+			vmap.texcoord[1] = 1.0f - readF4();
 				
-				if(type == ID_TXUV && dim == 2)
-				{
-					try
-					{
-						if(n==0)
-							mesh->texcoords.at(vx)[n] = value;
-						else
-							mesh->texcoords.at(vx)[n] = 1.0f - value;
-					}
-					catch(...)
-					{
-						ri.Com_Error(ERR_DROP, "r_lwo_model_c::loadVmap: exception occured");
-					}
-				}
-				
-				/*		
-				if(n+1 == dim)
-					ri.Com_DPrintf("%f]\n", value);
-				else
-					ri.Com_DPrintf("%f, " , value);
-				*/
-			}
+			vmaps.push_back(vmap);
 		}
+	}
+	else
+	{
+		_readcount += (nbytes - (_readcount - _readcount_old));
 	}
 }
 
-void	r_lwo_model_c::readVmad(uint_t nbytes, r_mesh_c *mesh)
+void	r_lwo_model_c::readVmad(uint_t nbytes, std::vector<lwo_vmad_t> &vmads)
 {
 	ushort_t	dim;
-	index_t		vx;
-	index_t		poly;
-	float		value;
 	char		name[255];
 	char		id[5];
 	uint_t		type;
-	
-	if(!mesh)
-		ri.Com_Error(ERR_DROP, "r_lwo_model_c::readVmad: NULL mesh");
+	vec2_c		texcoord;
 		
 	ri.Com_DPrintf("VMAD [%d]", nbytes);
 
 	readID4(id);
 	type = MAKE_ID(id[0], id[1], id[2], id[3]);
+//	if(type != ID_TXUV)
+//		ri.Com_Error(ERR_DROP, "r_lwo_model_c::readVmad: bad id '%s'", id);
 	ri.Com_DPrintf(" [%s]", id);
 
 	dim = readU2();
+//	if(dim != 2)
+//		ri.Com_Error(ERR_DROP, "r_lwo_model_c::readVmad: texcoords size %i != 2", dim);
 	readName(name);
 	ri.Com_DPrintf(" DIM [%d] NAME [%s]\n", dim, name);
-
-	while(_readcount < (_readcount_old + nbytes))
+	
+	if(type == ID_TXUV && dim == 2)
 	{
-		vx = readVX();
-		poly = readVX();//	poly *= 3;
+		while(_readcount < (_readcount_old + nbytes))
+		{
+			lwo_vmad_t vmad;
 		
-		if(dim == 0)
-		{
-			//ri.Com_DPrintf("\tVERT[%d]\n", vx);
-		}
-		else
-		{
-			//ri.Com_DPrintf("\tVERT[%d] VALS[", vx);
+			vmad.index_vertex = readVX();
+			vmad.index_polygon = readVX();
 			
-			for(int n=0; n<(int)dim; n++)
-			{
-				value = readF4();
+			vmad.texcoord[0] = readF4();
+			vmad.texcoord[1] = 1.0f - readF4();
 				
-				if(type == ID_TXUV && dim == 2)
-				{
-					try
-					{
-						if(n==0)
-							mesh->texcoords.at(vx)[n] = value;
-						else
-							mesh->texcoords.at(vx)[n] = 1.0f - value;
-					}
-					catch(...)
-					{
-						ri.Com_Error(ERR_DROP, "r_lwo_model_c::loadVmad: exception occured");
-					}
-				}
-				
-				/*		
-				if(n+1 == dim)
-					ri.Com_DPrintf("%f]\n", value);
-				else
-					ri.Com_DPrintf("%f, " , value);
-				*/
-			}
+			vmads.push_back(vmad);
 		}
+	}
+	else
+	{
+		_readcount += (nbytes - (_readcount - _readcount_old));
 	}
 }
 

@@ -355,7 +355,7 @@ static void	CL_ParseBaseline(message_c &msg)
 	msg.readDeltaEntity(&nullstate, state, newnum);
 	
 	if(state->index_sound)
-		S_StartLoopSound(state->origin, state->velocity, state->getNumber(), CHAN_AUTO, S_RegisterSound(cl.configstrings[CS_SOUNDS + state->index_sound]));
+		S_StartLoopSound(state->origin, state->velocity_linear, state->getNumber(), CHAN_AUTO, S_RegisterSound(cl.configstrings[CS_SOUNDS + state->index_sound]));
 		
 	cge->CG_AddEntity(newnum, state);
 }
@@ -448,11 +448,11 @@ static void	CL_DeltaEntity(message_c &msg, frame_t *frame, int newnum, entity_st
 		
 		if(!state_old->index_sound && state->index_sound)
 		{
-			S_StartLoopSound(state->origin, state->velocity, state->getNumber(), CHAN_AUTO, S_RegisterSound(cl.configstrings[CS_SOUNDS + state->index_sound]));
+			S_StartLoopSound(state->origin, state->velocity_linear, state->getNumber(), CHAN_AUTO, S_RegisterSound(cl.configstrings[CS_SOUNDS + state->index_sound]));
 		}
 		else if(state_old->index_sound && state->index_sound)
 		{
-			S_UpdateLoopSound(state->origin, state->velocity, state->getNumber());
+			S_UpdateLoopSound(state->origin, state->velocity_linear, state->getNumber());
 		}
 		else if(state_old->index_sound && !state->index_sound)
 		{

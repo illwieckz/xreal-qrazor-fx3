@@ -200,6 +200,25 @@ typedef char            ID4[5];
 typedef char            S0[255];
 typedef char            FNAM0[255];
 
+typedef struct
+{
+	uint_t		index_vertex;
+	vec2_c		texcoord;
+} lwo_vmap_t;
+
+typedef struct
+{
+	uint_t		index_vertex;
+	uint_t		index_polygon;
+	vec2_c		texcoord;
+} lwo_vmad_t;
+
+typedef struct
+{
+	uint_t		index_polygon;
+	uint_t		index_tag;
+} lwo_ptag_t;
+
 
 class r_lwo_model_c : public r_static_model_c
 {
@@ -228,15 +247,17 @@ private:
 	void		readName(char *name);
 	
 	void		readTags(uint_t nbytes);
-	r_mesh_c*	readLayr(uint_t nbytes, matrix_c &transform);
-	void		readPnts(uint_t nbytes, r_mesh_c *mesh, const matrix_c &transform);
-	void		readBbox(uint_t nbytes, r_mesh_c *mesh);
-	void		readPols(uint_t nbytes, r_mesh_c *mesh);
-	void		readVmap(uint_t nbytes, r_mesh_c *mesh);
-	void		readVmad(uint_t nbytes, r_mesh_c *mesh);
+	void		readLayr(uint_t nbytes, matrix_c &transform);
+	void		readPnts(uint_t nbytes, std::vector<vec3_c> &vertexes);
+	void		readBbox(uint_t nbytes, cbbox_c &bbox);
+	void		readPols(uint_t nbytes, std::vector<index_t> &indexes);
+	void		readPtag(uint_t nbytes, std::vector<lwo_ptag_t> &ptags);
+	void		readVmap(uint_t nbytes, std::vector<lwo_vmap_t> &vmaps);
+	void		readVmad(uint_t nbytes, std::vector<lwo_vmad_t> &vmads);
 	
-	uint_t	_readcount;
-	uint_t	_readcount_old;
+	
+	uint_t			_readcount;
+	uint_t			_readcount_old;
 };
 
 

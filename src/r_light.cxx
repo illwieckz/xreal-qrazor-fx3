@@ -71,7 +71,8 @@ void	r_light_c::setupProjection()
 		
 		case ET_LIGHT_PROJ:
 		{
-			vec_t fov_x = 45;
+#if 0
+			vec_t fov_x = 90;
 			vec_t fov_y = CalcFOV(fov_x, 100, 100);
 		
 			double n = r_znear->getValue();
@@ -84,6 +85,36 @@ void	r_light_c::setupProjection()
 			double b = -t;
 			
 			RB_Frustum(_projection, l, r, b, t, n, f);
+#else
+			//matrix_c m;
+			//m.fromVectorsFRU(_s.target, _s.right, _s.up);
+			//m[3][0] = m[1][0];	m[3][1] = m[1][1];	m[3][2] = m[1][2];	m[3][3] = m[1][3];
+			//_projection = m.affineInverse();
+			
+			//vec_t fov_x = acos(_s.target.dotProduct(lr) /(lt.length() * lr.length()));
+			vec_t fov_x = 60;
+			vec_t fov_y = CalcFOV(fov_x, _s.right.length() * 2, _s.up.length() * 2);
+			
+			//double n = r_znear->getValue();
+			double n = 1.0;
+			
+			//double f = r_zfar->getValue();
+			double f = _s.target.length();
+		
+			//double r = _s.target.dotProduct(_s.right);
+			//double r = _s.right.length();
+			double r = n * tan(fov_x * M_PI / 360.0);
+			//double r = lr.length();
+			double l = -r;
+			
+			//double t = _s.target.dotProduct(_s.up);
+			//double t = _s.up.length();
+			double t = n * tan(fov_y * M_PI / 360.0);
+			//double t = lu.length();
+			double b = -t;
+			
+			RB_Frustum(_projection, l, r, b, t, n, f);
+#endif
 			break;
 		}
 		
