@@ -11,7 +11,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -27,6 +27,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // qrazor-fx ----------------------------------------------------------------
 #include "r_local.h"
 
+#ifdef _WIN32
+BOOL	(*xglMakeCurrent)(HDC, HGLRC);
+BOOL	(*xglDeleteContext)(HGLRC);
+HGLRC	(*xglCreateContext)(HDC);
+#endif
 
 
 /// OpenGL 1.1 functions =======================================================
@@ -1059,7 +1064,7 @@ void	XGL_Shutdown()
 #endif
 
 #ifdef _WIN32
-	if(sys_gl.OpengGLLib)
+	if(sys_gl.OpenGLLib)
 	{
 		FreeLibrary(sys_gl.OpenGLLib);
 	}
@@ -1333,7 +1338,9 @@ void*	XGL_GetSymbol(const char *symbolname)
 	return sym;
 	
 #elif _WIN32
-	if((sym = GetProcAddress(sys_gl.OpenGLLib, symbolname)) == NULL)
+	sym = (void*)GetProcAddress(sys_gl.OpenGLLib, symbolname);
+	
+    if( ! sym)
 	{
 		ri.Com_Error(ERR_FATAL, "XGL_GetSymbol: GetProcAddress failed on '%s'", symbolname);
 	}
@@ -1348,10 +1355,10 @@ void*	xglGetProcAddress(const char *symbol)
 	return XGL_GetSymbol(symbol);
 	
 #elif _WIN32
-	void* sym = wglGetProcAddress(symbol);
+	void* sym = (void*)wglGetProcAddress(symbol);
 	
-	if(!sym)
-		ri.Com_Error(ERR_FATAL, "xglGetProcAddress: failed on '%s'", symbolname);
+    if(!sym)
+		ri.Com_Error(ERR_FATAL, "xglGetProcAddress: failed on '%s'", symbol);
 	
 	return sym;
 #endif
@@ -1362,11 +1369,11 @@ void*	xglGetProcAddress(const char *symbol)
 XGL_Init
 
 This is responsible for binding our xgl function pointers to
-the appropriate GL stuff.  In Windows this means doing a 
+the appropriate GL stuff.  In Windows this means doing a
 LoadLibrary and a bunch of calls to GetProcAddress.  On other
 operating systems we need to do the right thing, whatever that
 might be.
-=================== 
+===================
 */
 
 bool	XGL_Init(const char *dllname)
@@ -1489,9 +1496,9 @@ bool	XGL_Init(const char *dllname)
 	xglXGetFBConfigs = (GLXFBConfig* (*)(Display *dpy, int screen, int *nelements)) XGL_GetSymbol("glXGetFBConfigs");
 	
 #elif _WIN32
-	xwglMakeCurrent = (BOOL (*)(HDC, HGLRC)) XGL_GetSymbol("wglMakeCurrent");
-	xwglDeleteContext = (BOOL (*)(HGLRC)) XGL_GetSymbol("wglDeleteContext");
-	xwglCreateContext = (HGLRC (*)(HDC)) XGL_GetSymbol("wglCreateContext");
+	xglMakeCurrent = (BOOL (*)(HDC, HGLRC)) XGL_GetSymbol("wglMakeCurrent");
+	xglDeleteContext = (BOOL (*)(HGLRC)) XGL_GetSymbol("wglDeleteContext");
+	xglCreateContext = (HGLRC (*)(HDC)) XGL_GetSymbol("wglCreateContext");
 #endif
 
 	return true;
@@ -1510,7 +1517,7 @@ void	XGL_InitExtensions()
 	gl_config.ext_compiled_vertex_array = false;
 	gl_config.ext_draw_range_elements = false;
 	gl_config.ext_texture_filter_anisotropic = false;	
-        
+
 
 	if(strstr(gl_config.extensions_string, "GL_ARB_multitexture"))
 	{
