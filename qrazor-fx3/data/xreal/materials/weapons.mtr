@@ -4148,3 +4148,37 @@ models/weapons/hands/hand_invis
 
         specularmap	models/weapons/hands/hand_sp.tga
 }
+
+// Tr3B - Q3A rocket
+models/ammo/rocket/rocket
+{
+	diffusemap		models/ammo/rocket/rocket.tga
+}
+
+models/ammo/rocket/rockfls1
+{
+	twosided
+	
+	{
+		map		models/ammo/rocket/rockfls1.tga
+		blend		GL_ONE , GL_ONE
+	}
+}
+
+models/ammo/rocket/rockfls2
+{
+	twosided
+	{
+		map		models/ammo/rocket/rockfls2.tga
+		blend		GL_ONE , GL_ONE
+	}
+}
+
+models/ammo/rocket/rockflar
+{
+	twosided
+	{
+		map		models/ammo/rocket/rockflar.tga
+		blend		GL_ONE , GL_ONE
+	}
+}

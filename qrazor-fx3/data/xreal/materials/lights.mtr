@@ -73,6 +73,16 @@ lights/biground1_strobe
 	}
 }
 
+lights/biground1
+{
+	{
+		forceHighQuality
+		map		lights/biground1.tga
+		colored
+		zeroclamp
+	}
+}
+
 
 lights/bfg_flare
 {
@@ -171,7 +181,7 @@ lights/falloff_exp1
 {	
 	{
 		forceHighQuality
-		map lights/falloff_exp1
+		map		lights/falloff_exp1
 		colored
 		zeroclamp
 		
@@ -840,9 +850,9 @@ lights/spawnflash
 {
 	{
 		forceHighQuality		
-		map lights/spawnflash.tga
+		map		lights/spawnflash.tga
 		zeroClamp
-		rotate	time * 3.7
+		rotate		time * 3.7
 		colored
 		//rgb		flickerblink[ time * 1 ]
 	}
@@ -853,9 +863,9 @@ lights/baronflash
 {
 	{
 		forceHighQuality		
-		map lights/baronflash.tga
+		map		lights/baronflash.tga
 		zeroClamp
-		rotate	time * 3.7
+		rotate		time * 3.7
 		colored
 		//rgb		flickerblink[ time * 1 ]
 	}
@@ -877,10 +887,10 @@ lights/flashlight4
 lights/defaultPointLight
 {
 	lightFalloffImage	makeintensity( lights/squarelight1a.tga )	// this will also be the falloff for any
-																	// point light shaders that don't specify one
+										// point light shaders that don't specify one
 	{
 		forceHighQuality
-		map lights/squarelight1.tga
+		map		lights/squarelight1.tga
 		colored
 		zeroClamp
 	}
@@ -2403,7 +2413,7 @@ lights/squarelight
 {
 	{
 		forceHighQuality
-		map	lights/squarelight.tga
+		map		lights/squarelight.tga
 		zeroClamp
 		colored
 	}

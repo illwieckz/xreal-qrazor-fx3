@@ -145,23 +145,18 @@ static void	initColliders()
 	setCollider(dSphereClass, dSphereClass, &dCollideSphereSphere);
 	setCollider(dSphereClass, dBoxClass, &dCollideSphereBox);
 	setCollider(dSphereClass, dPlaneClass, &dCollideSpherePlane);
+	
 	setCollider(dBoxClass, dBoxClass, &dCollideBoxBox);
 	setCollider(dBoxClass, dPlaneClass, &dCollideBoxPlane);
-	setCollider(dCCylinderClass, dSphereClass, &dCollideCCylinderSphere);
-	setCollider(dCCylinderClass, dBoxClass, &dCollideCCylinderBox);
-	setCollider(dCCylinderClass, dCCylinderClass, &dCollideCCylinderCCylinder);
-	setCollider(dCCylinderClass, dPlaneClass, &dCollideCCylinderPlane);
+	
 	setCollider(dRayClass, dSphereClass, &dCollideRaySphere);
 	setCollider(dRayClass, dBoxClass, &dCollideRayBox);
-	setCollider(dRayClass, dCCylinderClass, &dCollideRayCCylinder);
 	setCollider(dRayClass, dPlaneClass, &dCollideRayPlane);
   
 	setCollider(dBSPClass, dSphereClass, &dCollideBSPSphere);
 	setCollider(dBSPClass, dBoxClass, &dCollideBSPBox);
-	setCollider(dBSPClass, dCCylinderClass, &dCollideBSPCCylinder);
-	setCollider(dBSPClass, dCylinderClass, &dCollideBSPCylinder);
-	setCollider(dBSPClass, dPlaneClass, &dCollideBSPPlane);
 	setCollider(dBSPClass, dRayClass,&dCollideBSPRay);
+	
 #ifdef dTRIMESH_ENABLED
 	setCollider(dTriMeshClass, dSphereClass, &dCollideSTL);
 	setCollider(dTriMeshClass, dBoxClass, &dCollideBTL);

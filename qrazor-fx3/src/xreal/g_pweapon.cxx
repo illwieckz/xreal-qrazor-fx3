@@ -843,7 +843,7 @@ void	g_item_weapon_blaster_c::attack1(g_player_c *player)
 	player->_kick_angles[0] = -1;
 
 //	new g_projectile_bolt_c(ent, start, forward, damage, 1000.0);
-	new g_projectile_rocket_c(player, start, player->getViewForward(), damage, 800, 120, 120);
+	new g_projectile_rocket_c(player, start, player->getViewQuaternion(), damage, 800, 120, 120);
 }
 
 void	g_item_weapon_blaster_c::reload(g_player_c *ent)

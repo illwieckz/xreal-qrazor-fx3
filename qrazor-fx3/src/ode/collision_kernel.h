@@ -49,9 +49,10 @@ internal data structures and functions for collision detection.
 // position vector and rotation matrix for geometry objects that are not
 // connected to bodies.
 
-struct dxPosR {
-  dVector3 pos;
-  matrix_c R;
+struct dxPosR
+{
+	dVector3	pos;
+	matrix_c	R;
 };
 
 
@@ -67,16 +68,17 @@ struct dxPosR {
 // structures for the space it is in. but GEOM_AABB_BAD implies GEOM_DIRTY.
 // the valid combinations are: 0, GEOM_DIRTY, GEOM_DIRTY|GEOM_AABB_BAD.
 
-enum {
-  GEOM_DIRTY	= 1,	// geom is 'dirty', i.e. position unknown
-  GEOM_AABB_BAD	= 2,	// geom's AABB is not valid
-  GEOM_PLACEABLE = 4,	// geom is placeable
-  GEOM_ENABLED = 8,		// geom is enabled
+enum
+{
+	GEOM_DIRTY		= 1,	// geom is 'dirty', i.e. position unknown
+	GEOM_AABB_BAD		= 2,	// geom's AABB is not valid
+	GEOM_PLACEABLE		= 4,	// geom is placeable
+	GEOM_ENABLED		= 8,		// geom is enabled
 
-  // Ray specific
-  RAY_FIRSTCONTACT = 0x10000,
-  RAY_BACKFACECULL = 0x20000,
-  RAY_CLOSEST_HIT  = 0x40000
+	// Ray specific
+	RAY_FIRSTCONTACT	= 0x10000,
+	RAY_BACKFACECULL	= 0x20000,
+	RAY_CLOSEST_HIT		= 0x40000
 };
 
 
@@ -85,69 +87,81 @@ enum {
 // the pos and R of the body (if body nonzero).
 // a dGeomID is a pointer to this object.
 
-struct dxGeom : public dBase {
-  int type;		// geom type number, set by subclass constructor
-  int gflags;		// flags used by geom and space
-  void *data;		// user-defined data pointer
-  dBodyID body;		// dynamics body associated with this object (if any)
-  dxGeom *body_next;	// next geom in body's linked list of associated geoms
-  vec_t *pos;		// pointer to object's position vector
-  matrix_c *R;		// pointer to object's rotation matrix
-
-  // information used by spaces
-  dxGeom *next;		// next geom in linked list of geoms
-  dxGeom **tome;	// linked list backpointer
-  dxSpace *parent_space;// the space this geom is contained in, 0 if none
-  vec_t aabb[6];	// cached AABB for this space
-  unsigned long category_bits,collide_bits;
-
-  dxGeom (dSpaceID _space, int is_placeable);
-  virtual ~dxGeom();
-
-  virtual void computeAABB()=0;
-  // compute the AABB for this object and put it in aabb. this function
-  // always performs a fresh computation, it does not inspect the
-  // GEOM_AABB_BAD flag.
-
-  virtual int AABBTest (dxGeom *o, vec_t aabb[6]);
-  // test whether the given AABB object intersects with this object, return
-  // 1=yes, 0=no. this is used as an early-exit test in the space collision
-  // functions. the default implementation returns 1, which is the correct
-  // behavior if no more detailed implementation can be provided.
-
-  // utility functions
-
-  // compute the AABB only if it is not current. this function manipulates
-  // the GEOM_AABB_BAD flag.
-
-  void recomputeAABB() {
-    if (gflags & GEOM_AABB_BAD) {
-      computeAABB();
-      gflags &= ~GEOM_AABB_BAD;
-    }
-  }
-
-  // add and remove this geom from a linked list maintained by a space.
-
-  void spaceAdd (dxGeom **first_ptr) {
-    next = *first_ptr;
-    tome = first_ptr;
-    if (*first_ptr) (*first_ptr)->tome = &next;
-    *first_ptr = this;
-  }
-  void spaceRemove() {
-    if (next) next->tome = tome;
-    *tome = next;
-  }
-
-  // add and remove this geom from a linked list maintained by a body.
-
-  void bodyAdd (dxBody *b) {
-    body = b;
-    body_next = b->geom;
-    b->geom = this;
-  }
-  void bodyRemove();
+struct dxGeom : public dBase 
+{
+	dxGeom(dSpaceID _space, int is_placeable);
+	virtual ~dxGeom();
+	
+	// compute the AABB for this object and put it in aabb. this function
+	// always performs a fresh computation, it does not inspect the
+	// GEOM_AABB_BAD flag
+	virtual void	computeAABB() = 0;
+	
+	// test whether the given AABB object intersects with this object, return
+	// 1=yes, 0=no. this is used as an early-exit test in the space collision
+	// functions. the default implementation returns 1, which is the correct
+	// behavior if no more detailed implementation can be provided
+	virtual int	AABBTest(dxGeom *o, vec_t aabb[6]);
+	
+	//
+	// utility functions
+	//
+	
+	// compute the AABB only if it is not current. this function manipulates
+	// the GEOM_AABB_BAD flag
+	
+	void	recomputeAABB()
+	{
+		if(gflags & GEOM_AABB_BAD)
+		{
+			computeAABB();
+			gflags &= ~GEOM_AABB_BAD;
+		}
+	}
+	
+	// add and remove this geom from a linked list maintained by a space.
+	void	spaceAdd(dxGeom **first_ptr)
+	{
+		next = *first_ptr;
+		tome = first_ptr;
+		
+		if(*first_ptr)
+			(*first_ptr)->tome = &next;
+		*first_ptr = this;
+	}
+	
+	void	spaceRemove()
+	{
+		if(next)
+			next->tome = tome;
+		*tome = next;
+	}
+	
+	// add and remove this geom from a linked list maintained by a body.
+	void	bodyAdd(dxBody *b)
+	{
+		body = b;
+		body_next = b->geom;
+		b->geom = this;
+	}
+	
+	void	bodyRemove();
+	
+  
+	int		type;		// geom type number, set by subclass constructor
+	int		gflags;		// flags used by geom and space
+	void*		data;		// user-defined data pointer
+	dBodyID		body;		// dynamics body associated with this object (if any)
+	dxGeom*		body_next;	// next geom in body's linked list of associated geoms
+	vec_t*		pos;		// pointer to object's position vector
+	matrix_c*	R;		// pointer to object's rotation matrix
+	
+	// information used by spaces
+	dxGeom*		next;		// next geom in linked list of geoms
+	dxGeom**	tome;		// linked list backpointer
+	dxSpace*	parent_space;// the space this geom is contained in, 0 if none
+	vec_t		aabb[6];	// cached AABB for this space
+	unsigned long	category_bits, collide_bits;
 };
 
 //****************************************************************************
@@ -159,43 +173,44 @@ struct dxGeom : public dBase {
 // their AABBs are may not be valid. the two types are distinguished by the
 // GEOM_DIRTY flag. all dirty geoms come *before* all clean geoms in the list.
 
-struct dxSpace : public dxGeom {
-  int count;			// number of geoms in this space
-  dxGeom *first;		// first geom in list
-  int cleanup;			// cleanup mode, 1=destroy geoms on exit
-
-  // cached state for getGeom()
-  int current_index;		// only valid if current_geom != 0
-  dxGeom *current_geom;		// if 0 then there is no information
-
-  // locking stuff. the space is locked when it is currently traversing its
-  // internal data structures, e.g. in collide() and collide2(). operations
-  // that modify the contents of the space are not permitted when the space
-  // is locked.
-  int lock_count;
-
-  dxSpace (dSpaceID _space);
-  ~dxSpace();
-
-  void computeAABB();
-
-  void setCleanup (int mode);
-  int getCleanup();
-  int query (dxGeom *geom);
-  int getNumGeoms();
-  virtual dxGeom *getGeom (int i);
-
-  virtual void add (dxGeom *);
-  virtual void remove (dxGeom *);
-  virtual void dirty (dxGeom *);
-
-  virtual void cleanGeoms()=0;
-  // turn all dirty geoms into clean geoms by computing their AABBs and any
-  // other space data structures that are required. this should clear the
-  // GEOM_DIRTY and GEOM_AABB_BAD flags of all geoms.
-
-  virtual void collide (void *data, dNearCallback *callback)=0;
-  virtual void collide2 (void *data, dxGeom *geom, dNearCallback *callback)=0;
+struct dxSpace : public dxGeom
+{
+	dxSpace(dSpaceID _space);
+	~dxSpace();
+	
+	void	computeAABB();
+	
+	void		setCleanup(int mode);
+	int		getCleanup();
+	int		query(dxGeom *geom);
+	int		getNumGeoms();
+	virtual dxGeom*	getGeom(int i);
+	
+	virtual void	add(dxGeom *);
+	virtual void	remove(dxGeom *);
+	virtual void	dirty(dxGeom *);
+	
+	// turn all dirty geoms into clean geoms by computing their AABBs and any
+	// other space data structures that are required. this should clear the
+	// GEOM_DIRTY and GEOM_AABB_BAD flags of all geoms.
+	virtual void	cleanGeoms()=0;
+  
+	virtual void collide (void *data, dNearCallback *callback)=0;
+	virtual void collide2 (void *data, dxGeom *geom, dNearCallback *callback)=0;
+	
+	int		count;		// number of geoms in this space
+	dxGeom*		first;		// first geom in list
+	int		cleanup;	// cleanup mode, 1=destroy geoms on exit
+	
+	// cached state for getGeom()
+	int		current_index;	// only valid if current_geom != 0
+	dxGeom*		current_geom;	// if 0 then there is no information
+	
+	// locking stuff. the space is locked when it is currently traversing its
+	// internal data structures, e.g. in collide() and collide2(). operations
+	// that modify the contents of the space are not permitted when the space
+	// is locked.
+	int		lock_count;
 };
 
 

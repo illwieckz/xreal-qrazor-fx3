@@ -1291,40 +1291,67 @@ matrix_c&	matrix_c::operator = (const matrix_c &m)
 	
 vec_t	quaternion_c::normalize()
 {
-	vec_t mag = magnitude();
+#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_3DNOW)
+	vec_t len;
+	femms();
+	asm volatile
+	(						// lo							| hi
+	"movq		(%%eax),	%%mm0\n"	// _q[0]						| _q[1]
+	"movq		8(%%eax),	%%mm1\n"	// _q[2]						| _q[3]
+	// mm0[lo] = dot product(this)
+	"pfmul		%%mm0,		%%mm0\n"	// _q[0]*_q[0]						| _q[1]*_q[1]
+	"pfmul		%%mm1,		%%mm1\n"	// _q[2]*_q[2]						| _q[3]*_q[3]
+	"pfacc		%%mm0,		%%mm0\n"	// _q[0]*_q[0]+_q[1]*_q[1]				| -
+	"pfacc		%%mm1,		%%mm1\n"	// _q[2]*_q[2]+_q[3]*_q[3]				| -
+	"pfadd		%%mm1,		%%mm0\n"	// _q[0]*_q[0]+_q[1]*_q[1]+_q[2]*_q[2]+_q[3]*_q[3]	| -
+	// mm0[lo] = sqrt(mm0[lo])
+	"pfrsqrt	%%mm0,		%%mm1\n"	// 1/sqrt(dot)						| 1/sqrt(dot)		(approx)
+	"movq		%%mm1,		%%mm2\n"	// 1/sqrt(dot)						| 1/sqrt(dot)		(approx)
+	"pfmul		%%mm1,		%%mm1\n"	// (1/sqrt(dot))²					| (1/sqrt(dot))²	step 1
+	"punpckldq	%%mm0,		%%mm0\n"	// dot							| dot			(MMX instruction)
+	"pfrsqit1	%%mm0,		%%mm1\n"	// intermediate						| intermediate		step 2
+	"pfrcpit2	%%mm2,		%%mm1\n"	// 1/sqrt(dot) (full 24-bit precision)			| 1/sqrt(dot)		step 3
+	"pfmul		%%mm1,		%%mm0\n"	// sqrt(dot)						| sqrt(dot)
+	// len = mm0[lo]
+	"movd		%%mm0,		(%%edx)\n"
+	// load this into registers
+	"movq		(%%eax),	%%mm2\n"	// _q[0]						| _q[1]
+	"movq		8(%%eax),	%%mm3\n"	// _q[2]						| _q[3]
+	// scale this by the reciprocal square root
+	"pfmul		%%mm1,		%%mm2\n"	// _q[0]*1/sqrt(dot)					| _q[1]*1/sqrt(dot)
+	"pfmul		%%mm1,		%%mm3\n"	// _q[2]*1/sqrt(dot)					| _q[3]*1/sqrt(dot)
+	// store scaled vector
+	"movq		%%mm2,		(%%eax)\n"
+	"movq		%%mm3,		8(%%eax)\n"
+	:
+	: "a"(&_q[0]), "d"(&len)
+	: "memory"
+	);
+	femms();
+	return len;
+#else
+	vec_t len = magnitude();
 	
-	if(mag != 0)
+	if(len)
 	{
-		_q[0] /= mag;
-		_q[1] /= mag;
-		_q[2] /= mag;
-		_q[3] /= mag;
+		vec_t ilen = X_recip(len);
+		
+		_q[0] *= ilen;
+		_q[1] *= ilen;
+		_q[2] *= ilen;
+		_q[3] *= ilen;
 	}
 	
-	return mag;
+	return len;
+#endif
 }
 	
 void	quaternion_c::fromAngles(vec_t pitch, vec_t yaw, vec_t roll)
 {
-#if 0
-	//FIXME figure out with existing euler angles and degrees
-	double	cr, cp, cy, sr, sp, sy;
-
-	cp = X_cos(pitch / 2.0);
-	cy = X_cos(yaw / 2.0);
-	cr = X_cos(roll / 2.0);
-
-	sp = X_sin(pitch / 2.0);
-	sy = X_sin(yaw / 2.0);
-	sr = X_sin(roll / 2.0);
-
-	_q[0] = (float)(sr*cp*cy - cr*sp*sy);
-	_q[1] = (float)(cr*sp*cy + sr*cp*sy);
-	_q[2] = (float)(cr*cp*sy - sr*sp*cy);
-	
-	_q[3] = (float)(cr*cp*cy + sr*sp*sy);
-
-	normalize();
+#if 1
+	matrix_c m;
+	m.fromAngles(pitch, yaw, roll);
+	fromMatrix(m);
 #else
 	identity();
 		
@@ -1460,23 +1487,23 @@ void	quaternion_c::toAxisAngle(vec3_c &axis, float *deg)
 	
 void	quaternion_c::toVectorsFLU(vec3_c &forward, vec3_c &left, vec3_c &up) const
 {
-	double xx = _q[0] * _q[0];
-	double xy = _q[0] * _q[1];
-	double xz = _q[0] * _q[2];
-	double xw = _q[0] * _q[3];
+	vec_t xx = _q[0] * _q[0];
+	vec_t xy = _q[0] * _q[1];
+	vec_t xz = _q[0] * _q[2];
+	vec_t xw = _q[0] * _q[3];
 	
-	double yy = _q[1] * _q[1];
-	double yz = _q[1] * _q[2];
-	double yw = _q[1] * _q[3];
+	vec_t yy = _q[1] * _q[1];
+	vec_t yz = _q[1] * _q[2];
+	vec_t yw = _q[1] * _q[3];
 	
-	double zz = _q[2] * _q[2];
-	double zw = _q[2] * _q[3];
-		
+	vec_t zz = _q[2] * _q[2];
+	vec_t zw = _q[2] * _q[3];
+
 	
 	forward[0] = 1-2*(yy+zz);	//_m[0][0];	// cp*cy;
 	forward[1] =   2*(xy+zw);	//_m[1][0];	// cp*sy;
 	forward[2] =   2*(xz-yw);	//_m[2][0];	//-sp;
-		
+	
 	left[0] =   2*(xy-zw);		//_m[0][1];	// sr*sp*cy+cr*-sy;
 	left[1] = 1-2*(xx+zz);		//_m[1][1];	// sr*sp*sy+cr*cy;
 	left[2] =   2*(yz+xw);		//_m[2][1];	// sr*cp;
@@ -1488,23 +1515,23 @@ void	quaternion_c::toVectorsFLU(vec3_c &forward, vec3_c &left, vec3_c &up) const
 	
 void	quaternion_c::toVectorsFRU(vec3_c &forward, vec3_c &right, vec3_c &up) const
 {
-	double xx = _q[0] * _q[0];
-	double xy = _q[0] * _q[1];
-	double xz = _q[0] * _q[2];
-	double xw = _q[0] * _q[3];
+	vec_t xx = _q[0] * _q[0];
+	vec_t xy = _q[0] * _q[1];
+	vec_t xz = _q[0] * _q[2];
+	vec_t xw = _q[0] * _q[3];
 	
-	double yy = _q[1] * _q[1];
-	double yz = _q[1] * _q[2];
-	double yw = _q[1] * _q[3];
+	vec_t yy = _q[1] * _q[1];
+	vec_t yz = _q[1] * _q[2];
+	vec_t yw = _q[1] * _q[3];
 	
-	double zz = _q[2] * _q[2];
-	double zw = _q[2] * _q[3];
-		
+	vec_t zz = _q[2] * _q[2];
+	vec_t zw = _q[2] * _q[3];
+	
 	
 	forward[0] = 1-2*(yy+zz);	//_m[0][0];	// cp*cy;
 	forward[1] =   2*(xy+zw);	//_m[1][0];	// cp*sy;
 	forward[2] =   2*(xz-yw);	//_m[2][0];	//-sp;
-		
+	
 	right[0] =    -2*(xy-zw);	//_m[0][1];	//-sr*sp*cy+cr*-sy;
 	right[1] = -(1-2*(xx+zz));	//_m[1][1];	//-sr*sp*sy+cr*cy;
 	right[2] =    -2*(yz+xw);	//_m[2][1];	//-sr*cp;

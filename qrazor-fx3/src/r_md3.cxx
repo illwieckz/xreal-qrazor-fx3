@@ -196,6 +196,8 @@ void	r_md3_model_c::load()
 			
 		//for (j=0; j<shaders_num; j++, pinshader++)	// Tr3B - only grab first shader
 		{
+			ri.Com_Printf("r_md3_model_c::load: needs shader '%s'\n", pinshader->name);
+		
 			poutshader = new r_model_shader_c(pinshader->name, R_RegisterShader(pinshader->name), X_SURF_NONE, X_CONT_NONE);
 						
 			_shaders.push_back(poutshader);

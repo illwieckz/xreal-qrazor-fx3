@@ -2127,12 +2127,7 @@ inline vec3_c	cplane_c::closest(const vec3_c &v) const
 {
 	vec_t d = distance(v);
 	
-	// same as (v + ((-_normal) * t)));
-	
-	if(d >= 0.0)
-		return (v - (_normal * d));
-	else
-		return (v + (_normal * d));
+	return v - (_normal * d);
 }
 
 inline vec_t	cplane_c::operator [] (const int index) const

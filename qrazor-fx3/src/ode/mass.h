@@ -38,11 +38,13 @@ public:
 	void	setSphere(vec_t density, vec_t radius);
 	void	setSphereTotal(vec_t total_mass, vec_t radius);
 	
+	/*
 	void	setCappedCylinder(vec_t density, int direction, vec_t radius, vec_t length);
 	void	setCappedCylinderTotal(vec_t total_mass, int direction,vec_t radius, vec_t length);
 	
 	void	setCylinder(vec_t density, int direction, vec_t radius, vec_t length);
 	void	setCylinderTotal(vec_t total_mass, int direction, vec_t radius, vec_t length);
+	*/
 	
 	void	setBox(vec_t density, vec_t lx, vec_t ly, vec_t lz);
 	void	setBoxTotal(vec_t total_mass, vec_t lx, vec_t ly, vec_t lz);

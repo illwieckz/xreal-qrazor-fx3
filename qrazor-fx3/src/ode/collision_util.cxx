@@ -34,6 +34,7 @@ functions that are defined in the public header files.
 #include "collision.h"
 #include "collision_util.h"
 
+
 struct dContactCompare : public std::unary_function<dContact, bool>
 {
 	dContactGeom	_geom;
@@ -45,7 +46,6 @@ struct dContactCompare : public std::unary_function<dContact, bool>
 	
 	bool	operator()(const dContact &c) const	{return _geom == c.geom;}
 };
-
 
 bool	dAddContact(const dContact c, std::vector<dContact> &contacts)
 {

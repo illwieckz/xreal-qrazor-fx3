@@ -50,7 +50,7 @@ struct dxSphere : public dxGeom
 {
 	dxSphere(dSpaceID space, vec_t _radius);
 	
-	void computeAABB();
+	void	computeAABB();
 	
 	vec_t radius;		// sphere radius
 };
@@ -60,19 +60,9 @@ struct dxBox : public dxGeom
 {
 	dxBox(dSpaceID space, vec_t lx, vec_t ly, vec_t lz);
 	
-	void computeAABB();
+	void	computeAABB();
 	
 	dVector3	side;	// side lengths (x,y,z)
-};
-
-
-struct dxCCylinder : public dxGeom
-{
-	dxCCylinder(dSpaceID space, vec_t _radius, vec_t _length);
-	
-	void computeAABB();
-	
-	vec_t		radius, lz;	// radius, length along z axis
 };
 
 
@@ -92,7 +82,7 @@ struct dxRay : public dxGeom
 	
 	dxRay(dSpaceID space, vec_t _length);
 	
-	void computeAABB();
+	void	computeAABB();
 	
 	vec_t		length;
 };
@@ -357,86 +347,6 @@ vec_t dGeomBoxPointDepth (dGeomID g, vec_t x, vec_t y, vec_t z)
   }
 
   return -largest_dist;
-}
-
-//****************************************************************************
-// capped cylinder public API
-
-dxCCylinder::dxCCylinder (dSpaceID space, vec_t _radius, vec_t _length) :
-  dxGeom (space,1)
-{
-  dAASSERT (_radius > 0 && _length > 0);
-  type = dCCylinderClass;
-  radius = _radius;
-  lz = _length;
-}
-
-
-void dxCCylinder::computeAABB()
-{
-  vec_t xrange = X_fabs((*R)[0][2] * lz) * REAL(0.5) + radius;
-  vec_t yrange = X_fabs((*R)[1][2] * lz) * REAL(0.5) + radius;
-  vec_t zrange = X_fabs((*R)[2][2] * lz) * REAL(0.5) + radius;
-  
-  aabb[0] = pos[0] - xrange;
-  aabb[1] = pos[0] + xrange;
-  aabb[2] = pos[1] - yrange;
-  aabb[3] = pos[1] + yrange;
-  aabb[4] = pos[2] - zrange;
-  aabb[5] = pos[2] + zrange;
-}
-
-
-dGeomID dCreateCCylinder (dSpaceID space, vec_t radius, vec_t length)
-{
-  return new dxCCylinder (space,radius,length);
-}
-
-
-void dGeomCCylinderSetParams (dGeomID g, vec_t radius, vec_t length)
-{
-  dUASSERT (g && g->type == dCCylinderClass,"argument not a ccylinder");
-  dAASSERT (radius > 0 && length > 0);
-  dxCCylinder *c = (dxCCylinder*) g;
-  c->radius = radius;
-  c->lz = length;
-  dGeomMoved (g);
-}
-
-
-void dGeomCCylinderGetParams (dGeomID g, vec_t *radius, vec_t *length)
-{
-  dUASSERT (g && g->type == dCCylinderClass, "argument not a ccylinder");
-  dxCCylinder *c = (dxCCylinder*) g;
-  *radius = c->radius;
-  *length = c->lz;
-}
-
-
-vec_t	dGeomCCylinderPointDepth(dGeomID g, vec_t x, vec_t y, vec_t z)
-{
-	dUASSERT(g && g->type == dCCylinderClass, "argument not a ccylinder");
-	dxCCylinder *c = (dxCCylinder*)g;
-	
-	dVector3 a;
-	a[0] = x - c->pos[0];
-	a[1] = y - c->pos[1];
-	a[2] = z - c->pos[2];
-	
-	vec_t beta = dDOT14(a, c->R[0][2]);
-	vec_t lz2 = c->lz*REAL(0.5);
-	
-	if(beta < -lz2)
-		beta = -lz2;
-	
-	else if(beta > lz2)
-		beta = lz2;
-	
-	a[0] = c->pos[0] + beta * *c->R[0][2];
-	a[1] = c->pos[1] + beta * *c->R[1][2];
-	a[2] = c->pos[2] + beta * *c->R[2][2];
-	
-	return c->radius - X_sqrt((x-a[0])*(x-a[0]) + (y-a[1])*(y-a[1]) + (z-a[2])*(z-a[2]));
 }
 
 //****************************************************************************
@@ -1530,12 +1440,15 @@ int	dCollideSpherePlane(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact>
 	dxSphere *sphere = (dxSphere*)o1;
 	dxPlane *plane = (dxPlane*)o2;
 	
+	// get closest distance to sphere origin
+	vec_t d = plane->p.distance(sphere->pos);
+	
 	// check if sphere center is in negative half-space of the plane
-	if(plane->p.onSide(sphere->pos) == SIDE_BACK)
-		return 0;
+//	if(d < REAL(0.0))
+//		return 0;
 
 	// get closest point to sphere origin
-	vec3_c c = plane->p.closest(sphere->pos);
+	vec3_c c = vec3_c(sphere->pos) - (plane->p._normal * d);
 		
 	// get sphere depth using this closest point in the plane
 	vec_t depth = sphere->radius - c.distance(sphere->pos);
@@ -1554,27 +1467,533 @@ int	dCollideBoxBox(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &con
 {
 	dIASSERT(o1->type == dBoxClass);
 	dIASSERT(o2->type == dBoxClass);
-#if 0	
-	dVector3 normal;
-	vec_t depth;
-	int code;
+	
 	dxBox *b1 = (dxBox*) o1;
 	dxBox *b2 = (dxBox*) o2;
 	
-	int num = dBoxBox(o1->pos, *o1->R, b1->side, o2->pos, *o2->R, b2->side, normal, &depth, &code, flags & NUMC_MASK, contact, skip);
-  
-	for(int i=0; i<num; i++)
+#if 0
+	const vec3_c& p1 = *b1->pos;
+	const vec3_c& p2 = *b2->pos;
+
+	// get side lengths / 2
+	const vec3_c A
+	(
+		b1->side[0]*REAL(0.5),
+		b1->side[1]*REAL(0.5),
+		b1->side[2]*REAL(0.5)
+	);
+	
+	const vec3_c B
+	(
+		b2->side[0]*REAL(0.5),
+		b2->side[1]*REAL(0.5),
+		b2->side[2]*REAL(0.5)
+	);
+	
+	// create object space vertices of b1
+	vec3_c V1[8] = 
 	{
-		CONTACT(contact,i*skip)->normal[0] = -normal[0];
-		CONTACT(contact,i*skip)->normal[1] = -normal[1];
-		CONTACT(contact,i*skip)->normal[2] = -normal[2];
-		CONTACT(contact,i*skip)->g1 = o1;
-		CONTACT(contact,i*skip)->g2 = o2;
+		( A[0],-A[1],-A[2]),	//(_maxs[0], _mins[1], _mins[2]),
+		( A[0],-A[1], A[2]),	//(_maxs[0], _mins[1], _maxs[2]);
+		(-A[0],-A[1], A[2]),	//(_mins[0], _mins[1], _maxs[2]);
+		(-A[0],-A[1],-A[2]),	//(_mins[0], _mins[1], _mins[2]);
+		
+		( A[0], A[1],-A[2]),	//(_maxs[0], _maxs[1], _mins[2]);
+		( A[0], A[1], A[2]),	//(_maxs[0], _maxs[1], _maxs[2]);
+		(-A[0], A[1], A[2]),	//(_mins[0], _maxs[1], _maxs[2]);
+		(-A[0], A[1],-A[2])	//(_mins[0], _maxs[1], _mins[2]);
+	};
+	
+	// create object space vertices of b2
+	vec3_c V2[8] = 
+	{
+		( B[0],-B[1],-B[2]),
+		( B[0],-B[1], B[2]),
+		(-B[0],-B[1], B[2]),
+		(-B[0],-B[1],-B[2]),
+		
+		( B[0], B[1],-B[2]),
+		( B[0], B[1], B[2]),
+		(-B[0], B[1], B[2]),
+		(-B[0], B[1],-B[2])
+	};
+	
+	// transform vertices to world space
+	for(int i=0; i<8; i++)
+	{
+		V1[i].rotate(*b1->R);
+		V1[i] += p1;
+				
+		V2[i].rotate(*b2->R);
+		V2[i] += p2;
 	}
 	
-	return num;
+	int contacts_num = 0;
+	for(int i=0; i<8; i++)
+	{
+		vec_t depth = dGeomBoxPointDepth(o2, V1[i][0], V1[i][1], V1[i][2]);
+		
+		if(depth >= REAL(0.0))
+		{
+			vec3_c normal = V1[i] - p2;
+			normal.normalize();
+		
+			if(dAddContact(dContact(dContactGeom(V1[i], normal, depth, o1, o2)), contacts));
+				contacts_num++;
+		}
+	}
+	
+	for(int i=0; i<8; i++)
+	{
+		vec_t depth = dGeomBoxPointDepth(o1, V2[i][0], V2[i][1], V2[i][2]);
+		
+		if(depth >= REAL(0.0))
+		{
+			vec3_c normal = V2[i] - p1;
+			normal.normalize();
+		
+			if(dAddContact(dContact(dContactGeom(V2[i], normal, depth, o2, o1)), contacts));
+				contacts_num++;
+		}
+	}
+	
+	return contacts_num;
 #else
-	return 0;
+
+	const vec_t fudge_factor = REAL(1.05);
+	dVector3 p, pp, normalC;
+	const vec_t* normalR = 0;
+	int contacts_num = 0;
+	
+	vec_t R11, R12, R13, R21, R22, R23, R31, R32, R33;
+	vec_t Q11, Q12, Q13, Q21, Q22, Q23, Q31, Q32, Q33;
+	vec_t s, s2, l;
+	int i, j, invert_normal, code;
+	
+	const vec3_c& p1 = *b1->pos;
+	const vec3_c& p2 = *b2->pos;
+	
+	const matrix_c& R1 = *b1->R;
+	const matrix_c& R2 = *b2->R;
+	
+	// get vector from centers of box 1 to box 2, relative to box 1
+	p[0] = b2->pos[0] - b1->pos[0];
+	p[1] = b2->pos[1] - b1->pos[1];
+	p[2] = b2->pos[2] - b1->pos[2];
+	
+	dMULTIPLY1_331(pp, (vec_t*)*o1->R, p);		// get pp = p relative to body 1
+	
+	// get side lengths / 2
+	const vec3_c A
+	(
+		b1->side[0]*REAL(0.5),
+		b1->side[1]*REAL(0.5),
+		b1->side[2]*REAL(0.5)
+	);
+	
+	const vec3_c B
+	(
+		b2->side[0]*REAL(0.5),
+		b2->side[1]*REAL(0.5),
+		b2->side[2]*REAL(0.5)
+	);
+	
+	// Rij is R1'*R2, i.e. the relative rotation between R1 and R2
+	R11 = dDOT44(R1+0,R2+0); R12 = dDOT44(R1+0,R2+1); R13 = dDOT44(R1+0,R2+2);
+	R21 = dDOT44(R1+1,R2+0); R22 = dDOT44(R1+1,R2+1); R23 = dDOT44(R1+1,R2+2);
+	R31 = dDOT44(R1+2,R2+0); R32 = dDOT44(R1+2,R2+1); R33 = dDOT44(R1+2,R2+2);
+	
+	Q11 = X_fabs(R11); Q12 = X_fabs(R12); Q13 = X_fabs(R13);
+	Q21 = X_fabs(R21); Q22 = X_fabs(R22); Q23 = X_fabs(R23);
+	Q31 = X_fabs(R31); Q32 = X_fabs(R32); Q33 = X_fabs(R33);
+
+  // for all 15 possible separating axes:
+  //   * see if the axis separates the boxes. if so, return 0.
+  //   * find the depth of the penetration along the separating axis (s2)
+  //   * if this is the largest depth so far, record it.
+  // the normal vector will be set to the separating axis with the smallest
+  // depth. note: normalR is set to point to a column of R1 or R2 if that is
+  // the smallest depth normal so far. otherwise normalR is 0 and normalC is
+  // set to a vector relative to body 1. invert_normal is 1 if the sign of
+  // the normal should be flipped.
+
+#define TST(expr1,expr2,norm,cc) \
+  s2 = X_fabs(expr1) - (expr2); \
+  if (s2 > 0) return 0; \
+  if (s2 > s) { \
+    s = s2; \
+    normalR = norm; \
+    invert_normal = ((expr1) < 0); \
+    code = (cc); \
+  }
+  
+	s = -X_infinity;
+	invert_normal = 0;
+	code = 0;
+	
+	// separating axis = u1,u2,u3
+	TST(pp[0],(A[0] + B[0]*Q11 + B[1]*Q12 + B[2]*Q13), R1+0, 1);
+	TST(pp[1],(A[1] + B[0]*Q21 + B[1]*Q22 + B[2]*Q23), R1+1, 2);
+	TST(pp[2],(A[2] + B[0]*Q31 + B[1]*Q32 + B[2]*Q33), R1+2, 3);
+	
+	// separating axis = v1,v2,v3
+	TST(dDOT41(R2+0, p),(A[0]*Q11 + A[1]*Q21 + A[2]*Q31 + B[0]), R2+0, 4);
+	TST(dDOT41(R2+1, p),(A[0]*Q12 + A[1]*Q22 + A[2]*Q32 + B[1]), R2+1, 5);
+	TST(dDOT41(R2+2, p),(A[0]*Q13 + A[1]*Q23 + A[2]*Q33 + B[2]), R2+2, 6);
+	
+	// note: cross product axes need to be scaled when s is computed.
+	// normal (n1,n2,n3) is relative to box 1.
+#undef TST
+#define TST(expr1,expr2,n1,n2,n3,cc) \
+  s2 = X_fabs(expr1) - (expr2); \
+  if (s2 > 0) return 0; \
+  l = X_sqrt ((n1)*(n1) + (n2)*(n2) + (n3)*(n3)); \
+  if (l > 0) { \
+    s2 /= l; \
+    if (s2*fudge_factor > s) { \
+      s = s2; \
+      normalR = 0; \
+      normalC[0] = (n1)/l; normalC[1] = (n2)/l; normalC[2] = (n3)/l; \
+      invert_normal = ((expr1) < 0); \
+      code = (cc); \
+    } \
+  }
+  
+	// separating axis = u1 x (v1, v2, v3)
+	TST(pp[2]*R21-pp[1]*R31, (A[1]*Q31+A[2]*Q21+B[1]*Q13+B[2]*Q12), 0, -R31, R21, 7);
+	TST(pp[2]*R22-pp[1]*R32, (A[1]*Q32+A[2]*Q22+B[0]*Q13+B[2]*Q11), 0, -R32, R22, 8);
+	TST(pp[2]*R23-pp[1]*R33, (A[1]*Q33+A[2]*Q23+B[0]*Q12+B[1]*Q11), 0, -R33, R23, 9);
+	
+	// separating axis = u2 x (v1,v2,v3)
+	TST(pp[0]*R31-pp[2]*R11, (A[0]*Q31+A[2]*Q11+B[1]*Q23+B[2]*Q22), R31, 0, -R11, 10);
+	TST(pp[0]*R32-pp[2]*R12, (A[0]*Q32+A[2]*Q12+B[0]*Q23+B[2]*Q21), R32, 0, -R12, 11);
+	TST(pp[0]*R33-pp[2]*R13, (A[0]*Q33+A[2]*Q13+B[0]*Q22+B[1]*Q21), R33, 0, -R13, 12);
+	
+	// separating axis = u3 x (v1,v2,v3)
+	TST(pp[1]*R11-pp[0]*R21, (A[0]*Q21+A[1]*Q11+B[1]*Q33+B[2]*Q32), -R21, R11, 0, 13);
+	TST(pp[1]*R12-pp[0]*R22, (A[0]*Q22+A[1]*Q12+B[0]*Q33+B[2]*Q31), -R22, R12, 0, 14);
+	TST(pp[1]*R13-pp[0]*R23, (A[0]*Q23+A[1]*Q13+B[0]*Q32+B[1]*Q31), -R23, R13, 0, 15);
+
+#undef TST
+
+	if(!code)
+		return contacts_num;
+		
+	// if we get to this point, the boxes interpenetrate. compute the normal
+	// in global coordinates.
+	vec3_c normal;
+	
+	if(normalR)
+	{
+		normal[0] = normalR[0];
+		normal[1] = normalR[4];
+		normal[2] = normalR[8];
+	}
+	else
+	{
+		dMULTIPLY0_331((vec_t*)normal, (vec_t*)R1, normalC);
+	}
+	
+	if(invert_normal)
+		normal.negate();
+	
+	vec_t depth = -s;
+	
+	// compute contact point(s)
+	if(code > 6)
+	{
+		// an edge from box 1 touches an edge from box 2.
+		// find a point pa on the intersecting edge of box 1
+		vec3_c pa(p1);
+		vec_t sign;
+			
+		for(j=0; j<3; j++)
+		{
+			sign = (dDOT14(normal,R1+j) > 0) ? REAL(1.0) : REAL(-1.0);
+			
+			for(i=0; i<3; i++)
+				pa[i] += sign * A[j] * R1[i][j];
+		}
+		
+		// find a point pb on the intersecting edge of box 2
+		vec3_c pb(p2);
+		
+		for(j=0; j<3; j++)
+		{
+			sign = (dDOT14(normal,R2+j) > 0) ? REAL(-1.0) : REAL(1.0);
+			
+			for(i=0; i<3; i++)
+				pb[i] += sign * B[j] * R2[i][j];
+		}
+		
+		vec_t alpha, beta;
+		vec3_c ua, ub;
+		
+		for(i=0; i<3; i++)
+			ua[i] = R1[i][((code)-7)/3];
+		
+		for(i=0; i<3; i++)
+			ub[i] = R2[i][((code)-7)%3];
+			
+		dLineClosestApproach(pa, ua, pb, ub, &alpha, &beta);
+		
+		pa += (ua*alpha);
+			
+		pb += (ub*beta);
+			
+		vec3_c c = (pa+pb)*REAL(0.5);
+			
+		if(dAddContact(dContact(dContactGeom(c, -normal, depth, o1, o2)), contacts));
+			contacts_num++;
+			
+		return contacts_num;
+	}
+	
+	// okay, we have a face-something intersection (because the separating
+	// axis is perpendicular to a face). define face 'a' to be the reference
+	// face (i.e. the normal vector is perpendicular to this) and face 'b' to be
+	// the incident face (the closest face of the other box).
+	
+	const vec_t *Ra, *Rb, *Sa, *Sb;
+	vec3_c pa(false), pb(false);
+	
+	if(code <= 3)
+	{
+		Ra = R1;
+		Rb = R2;
+		pa = b1->pos;
+		pb = b2->pos;
+		Sa = A;
+		Sb = B;
+	}
+	else
+	{
+		Ra = R2;
+		Rb = R1;
+		pa = b2->pos;
+		pb = b1->pos;
+		Sa = B;
+		Sb = A;
+	}
+	
+	// nr = normal vector of reference face dotted with axes of incident box.
+	// anr = absolute values of nr.
+	vec3_c normal2, nr, anr;
+	if(code <= 3)
+	{
+		normal2 = normal;
+	}
+	else
+	{
+		normal2 = -normal;
+	}
+	
+	dMULTIPLY1_331((vec_t*)nr, Rb, (vec_t*)normal2);
+	
+	anr[0] = X_fabs(nr[0]);
+	anr[1] = X_fabs(nr[1]);
+	anr[2] = X_fabs(nr[2]);
+	
+	// find the largest compontent of anr: this corresponds to the normal
+	// for the indident face. the other axis numbers of the indicent face
+	// are stored in a1,a2.
+	
+	int lanr, a1, a2;
+	if(anr[1] > anr[0])
+	{
+		if(anr[1] > anr[2])
+		{
+			a1 = 0;
+			lanr = 1;
+			a2 = 2;
+		}
+		else
+		{
+			a1 = 0;
+			a2 = 1;
+			lanr = 2;
+		}
+	}
+	else
+	{
+		if(anr[0] > anr[2])
+		{
+			lanr = 0;
+			a1 = 1;
+			a2 = 2;
+		}
+		else
+		{
+			a1 = 0;
+			a2 = 1;
+			lanr = 2;
+		}
+	}
+	
+	// compute center point of incident face, in reference-face coordinates
+	vec3_c center;
+	if(nr[lanr] < 0)
+	{
+		for(i=0; i<3; i++)
+			center[i] = pb[i] - pa[i] + Sb[lanr] * Rb[i*4+lanr];
+	}
+	else
+	{
+		for(i=0; i<3; i++)
+			center[i] = pb[i] - pa[i] - Sb[lanr] * Rb[i*4+lanr];
+	}
+	
+	// find the normal and non-normal axis numbers of the reference box
+	int codeN, code1, code2;
+	if(code <= 3)
+		codeN = code-1;
+	else
+		codeN = code-4;
+	
+	if(codeN==0)
+	{
+		code1 = 1;
+		code2 = 2;
+	}
+	else if(codeN==1)
+	{
+		code1 = 0;
+		code2 = 2;
+	}
+	else
+	{
+		code1 = 0;
+		code2 = 1;
+	}
+	
+	// find the four corners of the incident face, in reference-face coordinates
+	vec_t quad[8];	// 2D coordinate of incident face (x,y pairs)
+	vec_t c1, c2;
+	vec_t m11, m12, m21, m22;
+	c1 = dDOT14(center, Ra+code1);
+	c2 = dDOT14(center, Ra+code2);
+	 
+	 // optimize this? - we have already computed this data above, but it is not
+	 // stored in an easy-to-index format. for now it's quicker just to recompute
+	 // the four dot products.
+	 m11 = dDOT44(Ra+code1, Rb+a1);
+	 m12 = dDOT44(Ra+code1, Rb+a2);
+	 m21 = dDOT44(Ra+code2, Rb+a1);
+	 m22 = dDOT44(Ra+code2, Rb+a2);
+	 
+	 vec_t k1 = m11*Sb[a1];
+	 vec_t k2 = m21*Sb[a1];
+	 vec_t k3 = m12*Sb[a2];
+	 vec_t k4 = m22*Sb[a2];
+	 
+	 quad[0] = c1 - k1 - k3;
+	 quad[1] = c2 - k2 - k4;
+	 quad[2] = c1 - k1 + k3;
+	 quad[3] = c2 - k2 + k4;
+	 quad[4] = c1 + k1 + k3;
+	 quad[5] = c2 + k2 + k4;
+	 quad[6] = c1 + k1 - k3;
+	 quad[7] = c2 + k2 - k4;
+	 
+	 // find the size of the reference face
+	 vec_t rect[2];
+	 rect[0] = Sa[code1];
+	 rect[1] = Sa[code2];
+	 
+	 // intersect the incident and reference faces
+	 vec_t ret[16];
+	 int n = intersectRectQuad(rect, quad, ret);
+	 if(n < 1)
+	 	return contacts_num;		// this should never happen
+		
+	// convert the intersection points into reference-face coordinates,
+	// and compute the contact position and depth for each point. only keep
+	// those points that have a positive (penetrating) depth. delete points in
+	// the 'ret' array as necessary so that 'point' and 'ret' correspond.
+	vec_t point[3*8];		// penetrating contact points
+	vec_t dep[8];			// depths for those points
+	
+	vec_t det1 = X_recip(m11*m22 - m12*m21);
+	m11 *= det1;
+	m12 *= det1;
+	m21 *= det1;
+	m22 *= det1;
+	
+	int cnum = 0;			// number of penetrating contact points found
+	int maxc = flags & NUMC_MASK;
+	for(j=0; j < n; j++)
+	{
+		vec_t k1 =  m22*(ret[j*2]-c1) - m12*(ret[j*2+1]-c2);
+		vec_t k2 = -m21*(ret[j*2]-c1) + m11*(ret[j*2+1]-c2);
+		
+		for(i=0; i<3; i++)
+			point[cnum*3+i] = center[i] + k1*Rb[i*4+a1] + k2*Rb[i*4+a2];
+			
+		dep[cnum] = Sa[codeN] - dDOT(normal2,point+cnum*3);
+		
+		if(dep[cnum] >= 0)
+		{
+			ret[cnum*2] = ret[j*2];
+			ret[cnum*2+1] = ret[j*2+1];
+			cnum++;
+		}
+	}
+	
+	if(cnum < 1)
+		return contacts_num;	// this should never happen
+		
+	// we can't generate more contacts than we actually have
+	if(maxc > cnum)
+		maxc = cnum;
+	
+	if(maxc < 1)
+		maxc = 1;
+		
+	if(cnum <= maxc)
+	{
+		// we have less contacts than we need, so we use them all
+		for(j=0; j < cnum; j++)
+		{
+			vec3_c c(false);
+			for(i=0; i<3; i++)
+				c[i] = point[j*3+i] + pa[i];
+			
+			if(dAddContact(dContact(dContactGeom(c, -normal, dep[j], o1, o2)), contacts))
+				contacts_num++;
+			
+		}
+	}
+	else
+	{
+		// we have more contacts than are wanted, some of them must be culled.
+		// find the deepest point, it is always the first contact.
+		int i1 = 0;
+		vec_t maxdepth = dep[0];
+		
+		for(i=1; i<cnum; i++)
+		{
+			if(dep[i] > maxdepth)
+			{
+				maxdepth = dep[i];
+				i1 = i;
+			}
+		}
+		
+		int iret[8];
+		cullPoints(cnum, ret, maxc, i1, iret);
+		
+		for(j=0; j < maxc; j++)
+		{
+			vec3_c c(false);
+			for(i=0; i<3; i++)
+				c[i] = point[iret[j]*3+i] + pa[i];
+		
+			if(dAddContact(dContact(dContactGeom(c, -normal, dep[iret[j]], o1, o2)), contacts))
+				contacts_num++;
+		}
+	}
+	
+	return contacts_num;
 #endif
 }
 
@@ -1583,373 +2002,289 @@ int dCollideBoxPlane(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &c
 {
 	dIASSERT(o1->type == dBoxClass);
 	dIASSERT(o2->type == dPlaneClass);
-#if 0	
-  dxBox *box = (dxBox*) o1;
-  dxPlane *plane = (dxPlane*) o2;
+#if 1
+	dxBox *box = (dxBox*)o1;
+	dxPlane *plane = (dxPlane*)o2;
 
-  contact->g1 = o1;
-  contact->g2 = o2;
-  int ret = 0;
-
-  //@@@ problem: using 4-vector (plane->p) as 3-vector (normal).
-  const vec_t *R = (vec_t*)*o1->R;		// rotation of box
-  const vec_t *n = plane->p._normal;		// normal vector
-
-  // project sides lengths along normal vector, get absolute values
-  vec_t Q1 = dDOT14(n,R+0);
-  vec_t Q2 = dDOT14(n,R+1);
-  vec_t Q3 = dDOT14(n,R+2);
-  vec_t A1 = box->side[0] * Q1;
-  vec_t A2 = box->side[1] * Q2;
-  vec_t A3 = box->side[2] * Q3;
-  vec_t B1 = X_fabs(A1);
-  vec_t B2 = X_fabs(A2);
-  vec_t B3 = X_fabs(A3);
-
-  // early exit test
-  vec_t depth = plane->p[3] + REAL(0.5)*(B1+B2+B3) - dDOT(n,o1->pos);
-  if (depth < 0) return 0;
-
-  // find number of contacts requested
-  int maxc = flags & NUMC_MASK;
-  if (maxc < 1) maxc = 1;
-  if (maxc > 3) maxc = 3;	// no more than 3 contacts per box allowed
-
-  // find deepest point
-  dVector3 p;
-  p[0] = o1->pos[0];
-  p[1] = o1->pos[1];
-  p[2] = o1->pos[2];
-#define FOO(i,op) \
-  p[0] op REAL(0.5)*box->side[i] * R[0+i]; \
-  p[1] op REAL(0.5)*box->side[i] * R[4+i]; \
-  p[2] op REAL(0.5)*box->side[i] * R[8+i];
-#define BAR(i,iinc) if (A ## iinc > 0) { FOO(i,-=) } else { FOO(i,+=) }
-  BAR(0,1);
-  BAR(1,2);
-  BAR(2,3);
-#undef FOO
-#undef BAR
-
-  // the deepest point is the first contact point
-  contact->pos[0] = p[0];
-  contact->pos[1] = p[1];
-  contact->pos[2] = p[2];
-  contact->normal[0] = n[0];
-  contact->normal[1] = n[1];
-  contact->normal[2] = n[2];
-  contact->depth = depth;
-  ret = 1;		// ret is number of contact points found so far
-  if (maxc == 1) goto done;
-
-  // get the second and third contact points by starting from `p' and going
-  // along the two sides with the smallest projected length.
-
-#define FOO(i,j,op) \
-  CONTACT(contact,i*skip)->pos[0] = p[0] op box->side[j] * R[0+j]; \
-  CONTACT(contact,i*skip)->pos[1] = p[1] op box->side[j] * R[4+j]; \
-  CONTACT(contact,i*skip)->pos[2] = p[2] op box->side[j] * R[8+j];
-#define BAR(ctact,side,sideinc) \
-  depth -= B ## sideinc; \
-  if (depth < 0) goto done; \
-  if (A ## sideinc > 0) { FOO(ctact,side,+) } else { FOO(ctact,side,-) } \
-  CONTACT(contact,ctact*skip)->depth = depth; \
-  ret++;
-
-  CONTACT(contact,skip)->normal[0] = n[0];
-  CONTACT(contact,skip)->normal[1] = n[1];
-  CONTACT(contact,skip)->normal[2] = n[2];
-  if (maxc == 3) {
-    CONTACT(contact,2*skip)->normal[0] = n[0];
-    CONTACT(contact,2*skip)->normal[1] = n[1];
-    CONTACT(contact,2*skip)->normal[2] = n[2];
-  }
-
-  if (B1 < B2) {
-    if (B3 < B1) goto use_side_3; else {
-      BAR(1,0,1);	// use side 1
-      if (maxc == 2) goto done;
-      if (B2 < B3) goto contact2_2; else goto contact2_3;
-    }
-  }
-  else {
-    if (B3 < B2) {
-      use_side_3:	// use side 3
-      BAR(1,2,3);
-      if (maxc == 2) goto done;
-      if (B1 < B2) goto contact2_1; else goto contact2_2;
-    }
-    else {
-      BAR(1,1,2);	// use side 2
-      if (maxc == 2) goto done;
-      if (B1 < B3) goto contact2_1; else goto contact2_3;
-    }
-  }
-
-  contact2_1: BAR(2,0,1); goto done;
-  contact2_2: BAR(2,1,2); goto done;
-  contact2_3: BAR(2,2,3); goto done;
-#undef FOO
-#undef BAR
-
- done:
-  for (int i=0; i<ret; i++) {
-    CONTACT(contact,i*skip)->g1 = o1;
-    CONTACT(contact,i*skip)->g2 = o2;
-  }
-  return ret;
-#else
-	return 0;
-#endif
-}
-
-
-int	dCollideCCylinderSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
-{
-	dIASSERT (o1->type == dCCylinderClass);
-	dIASSERT (o2->type == dSphereClass);
-#if 0
+	int ret = 0;
 	
-  dxCCylinder *ccyl = (dxCCylinder*) o1;
-  dxSphere *sphere = (dxSphere*) o2;
-
-  contact->g1 = o1;
-  contact->g2 = o2;
-
-  // find the point on the cylinder axis that is closest to the sphere
-  vec_t alpha = 
-    *o1->R[0][2] * (o2->pos[0] - o1->pos[0]) +
-    *o1->R[1][2] * (o2->pos[1] - o1->pos[1]) +
-    *o1->R[2][2] * (o2->pos[2] - o1->pos[2]);
-  vec_t lz2 = ccyl->lz * REAL(0.5);
-  if (alpha > lz2) alpha = lz2;
-  if (alpha < -lz2) alpha = -lz2;
-
-  // collide the spheres
-  dVector3 p;
-  p[0] = o1->pos[0] + alpha * *o1->R[0][2];
-  p[1] = o1->pos[1] + alpha * *o1->R[1][2];
-  p[2] = o1->pos[2] + alpha * *o1->R[2][2];
-  
-  return dCollideSpheres(p, ccyl->radius, o2->pos, sphere->radius, contact);
-#else
-	return 0;
-#endif
-}
-
-
-int	dCollideCCylinderBox(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
-{
-	dIASSERT(o1->type == dCCylinderClass);
-	dIASSERT(o2->type == dBoxClass);
-#if 0
+	const matrix_c& R = *o1->R;		// rotation of box
+	const vec3_c& n = plane->p._normal;	// normal vector
 	
-  dxCCylinder *cyl = (dxCCylinder*) o1;
-  dxBox *box = (dxBox*) o2;
-
-  contact->g1 = o1;
-  contact->g2 = o2;
-
-  // get p1,p2 = cylinder axis endpoints, get radius
-  dVector3 p1,p2;
-  vec_t clen = cyl->lz * REAL(0.5);
-  
-  p1[0] = o1->pos[0] + clen * *o1->R[0][2];
-  p1[1] = o1->pos[1] + clen * *o1->R[1][2];
-  p1[2] = o1->pos[2] + clen * *o1->R[2][2];
-  
-  p2[0] = o1->pos[0] - clen * *o1->R[0][2];
-  p2[1] = o1->pos[1] - clen * *o1->R[1][2];
-  p2[2] = o1->pos[2] - clen * *o1->R[2][2];
-  
-  vec_t radius = cyl->radius;
-
-  // copy out box center, rotation matrix, and side array
-  vec_t *c = o2->pos;
-  const vec_t *side = box->side;
-
-  // get the closest point between the cylinder axis and the box
-  dVector3 pl,pb;
-  dClosestLineBoxPoints(p1, p2, c, *o2->R, side, pl, pb);
-
-  // generate contact point
-  return dCollideSpheres (pl,radius,pb,0,contact);
-#else
-	return 0;
-#endif
-}
-
-
-int	dCollideCCylinderCCylinder(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
-{
-	//int i;
-	//const vec_t tolerance = REAL(1e-5);
+	// project sides lengths along normal vector, get absolute values
+	vec3_c Q
+	(
+		dDOT14(n, R+0),
+		dDOT14(n, R+1),
+		dDOT14(n, R+2)
+	);
 	
-	dIASSERT (o1->type == dCCylinderClass);
-	dIASSERT (o2->type == dCCylinderClass);
-#if 0
+	vec3_c A
+	(
+		box->side[0] * Q[0],
+		box->side[1] * Q[1],
+		box->side[2] * Q[2]
+	);
+	
+	vec3_c B
+	(
+		X_fabs(A[0]),
+		X_fabs(A[1]),
+		X_fabs(A[2])
+	);
+	
+	// early exit test
+	vec_t depth = plane->p[3] + REAL(0.5)*(B[0]+B[1]+B[2]) - dDOT(n, o1->pos);
+	if(depth < 0)
+		return 0;
+		
+	// find number of contacts requested
+	int maxc = flags & NUMC_MASK;
+	if(maxc < 1)
+		maxc = 1;
+	
+	if(maxc > 3)
+		maxc = 3;	// no more than 3 contacts per box allowed
+		
+	// find deepest point
+	vec3_c p1(o1->pos), p2(false), p3(false);
 
-  dxCCylinder *cyl1 = (dxCCylinder*) o1;
-  dxCCylinder *cyl2 = (dxCCylinder*) o2;
-
-  contact->g1 = o1;
-  contact->g2 = o2;
-
-  // copy out some variables, for convenience
-  vec_t lz1 = cyl1->lz * REAL(0.5);
-  vec_t lz2 = cyl2->lz * REAL(0.5);
-  vec_t *pos1 = o1->pos;
-  vec_t *pos2 = o2->pos;
-  vec_t axis1[3],axis2[3];
-  
-  axis1[0] = *o1->R[0][2];
-  axis1[1] = *o1->R[1][2];
-  axis1[2] = *o1->R[2][2];
-  
-  axis2[0] = *o2->R[0][2];
-  axis2[1] = *o2->R[1][2];
-  axis2[2] = *o2->R[2][2];
-
-  // if the cylinder axes are close to parallel, we'll try to detect up to
-  // two contact points along the body of the cylinder. if we can't find any
-  // points then we'll fall back to the closest-points algorithm. note that
-  // we are not treating this special case for reasons of degeneracy, but
-  // because we want two contact points in some situations. the closet-points
-  // algorithm is robust in all casts, but it can return only one contact.
-
-  dVector3 sphere1,sphere2;
-  vec_t a1a2 = dDOT (axis1,axis2);
-  vec_t det = REAL(1.0)-a1a2*a1a2;
-  if (det < tolerance) {
-    // the cylinder axes (almost) parallel, so we will generate up to two
-    // contacts. alpha1 and alpha2 (line position parameters) are related by:
-    //       alpha2 =   alpha1 + (pos1-pos2)'*axis1   (if axis1==axis2)
-    //    or alpha2 = -(alpha1 + (pos1-pos2)'*axis1)  (if axis1==-axis2)
-    // first compute where the two cylinders overlap in alpha1 space:
-    if (a1a2 < 0) {
-      axis2[0] = -axis2[0];
-      axis2[1] = -axis2[1];
-      axis2[2] = -axis2[2];
-    }
-    vec_t q[3];
-    for (i=0; i<3; i++) q[i] = pos1[i]-pos2[i];
-    vec_t k = dDOT (axis1,q);
-    vec_t a1lo = -lz1;
-    vec_t a1hi = lz1;
-    vec_t a2lo = -lz2 - k;
-    vec_t a2hi = lz2 - k;
-    vec_t lo = (a1lo > a2lo) ? a1lo : a2lo;
-    vec_t hi = (a1hi < a2hi) ? a1hi : a2hi;
-    if (lo <= hi) {
-      int num_contacts = flags & NUMC_MASK;
-      if (num_contacts >= 2 && lo < hi) {
-	// generate up to two contacts. if one of those contacts is
-	// not made, fall back on the one-contact strategy.
-	for (i=0; i<3; i++) sphere1[i] = pos1[i] + lo*axis1[i];
-	for (i=0; i<3; i++) sphere2[i] = pos2[i] + (lo+k)*axis2[i];
-	int n1 = dCollideSpheres (sphere1,cyl1->radius,
-				  sphere2,cyl2->radius,contact);
-	if (n1) {
-	  for (i=0; i<3; i++) sphere1[i] = pos1[i] + hi*axis1[i];
-	  for (i=0; i<3; i++) sphere2[i] = pos2[i] + (hi+k)*axis2[i];
-	  dContactGeom *c2 = CONTACT(contact,skip);
-	  int n2 = dCollideSpheres (sphere1,cyl1->radius,
-				    sphere2,cyl2->radius, c2);
-	  if (n2) {
-	    c2->g1 = o1;
-	    c2->g2 = o2;
-	    return 2;
-	  }
+	if(A[0] > 0)
+	{
+		p1[0] -= REAL(0.5)*box->side[0] * R[0][0];
+		p1[1] -= REAL(0.5)*box->side[0] * R[1][0];
+		p1[2] -= REAL(0.5)*box->side[0] * R[2][0];
 	}
-      }
+	else
+	{
+		p1[0] += REAL(0.5)*box->side[0] * R[0][0];
+		p1[1] += REAL(0.5)*box->side[0] * R[1][0];
+		p1[2] += REAL(0.5)*box->side[0] * R[2][0];
+	}
+	
+	if(A[1] > 0)
+	{
+		p1[0] -= REAL(0.5)*box->side[1] * R[0][1];
+		p1[1] -= REAL(0.5)*box->side[1] * R[1][1];
+		p1[2] -= REAL(0.5)*box->side[1] * R[2][1];
+	}
+	else
+	{
+		p1[0] += REAL(0.5)*box->side[1] * R[0][1];
+		p1[1] += REAL(0.5)*box->side[1] * R[1][1];
+		p1[2] += REAL(0.5)*box->side[1] * R[2][1];
+	}
+	
+	if(A[2] > 0)
+	{
+		p1[0] -= REAL(0.5)*box->side[2] * R[0][2];
+		p1[1] -= REAL(0.5)*box->side[2] * R[1][2];
+		p1[2] -= REAL(0.5)*box->side[2] * R[2][2];
+	}
+	else
+	{
+		p1[0] += REAL(0.5)*box->side[2] * R[0][2];
+		p1[1] += REAL(0.5)*box->side[2] * R[1][2];
+		p1[2] += REAL(0.5)*box->side[2] * R[2][2];
+	}
 
-      // just one contact to generate, so put it in the middle of
-      // the range
-      vec_t alpha1 = (lo + hi) * REAL(0.5);
-      vec_t alpha2 = alpha1 + k;
-      for (i=0; i<3; i++) sphere1[i] = pos1[i] + alpha1*axis1[i];
-      for (i=0; i<3; i++) sphere2[i] = pos2[i] + alpha2*axis2[i];
-      return dCollideSpheres (sphere1,cyl1->radius,
-			      sphere2,cyl2->radius,contact);
-    }
-  }
-	  
-  // use the closest point algorithm
-  dVector3 a1,a2,b1,b2;
-  a1[0] = o1->pos[0] + axis1[0]*lz1;
-  a1[1] = o1->pos[1] + axis1[1]*lz1;
-  a1[2] = o1->pos[2] + axis1[2]*lz1;
-  a2[0] = o1->pos[0] - axis1[0]*lz1;
-  a2[1] = o1->pos[1] - axis1[1]*lz1;
-  a2[2] = o1->pos[2] - axis1[2]*lz1;
-  b1[0] = o2->pos[0] + axis2[0]*lz2;
-  b1[1] = o2->pos[1] + axis2[1]*lz2;
-  b1[2] = o2->pos[2] + axis2[2]*lz2;
-  b2[0] = o2->pos[0] - axis2[0]*lz2;
-  b2[1] = o2->pos[1] - axis2[1]*lz2;
-  b2[2] = o2->pos[2] - axis2[2]*lz2;
-
-  dClosestLineSegmentPoints (a1,a2,b1,b2,sphere1,sphere2);
-  return dCollideSpheres (sphere1,cyl1->radius,sphere2,cyl2->radius,contact);
-#else
-	return 0;
-#endif
-}
-
-
-int	dCollideCCylinderPlane(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
-{
-	dIASSERT(o1->type == dCCylinderClass);
-	dIASSERT(o2->type == dPlaneClass);
-#if 0
-  dxCCylinder *ccyl = (dxCCylinder*) o1;
-  dxPlane *plane = (dxPlane*) o2;
-
-  // collide the deepest capping sphere with the plane
-  vec_t sign = (dDOT14(plane->p._normal, &((*o1->R)[0][2])) > 0) ? REAL(-1.0) : REAL(1.0);
-  dVector3 p;
-  p[0] = o1->pos[0] + *o1->R[0][2] * ccyl->lz * REAL(0.5) * sign;
-  p[1] = o1->pos[1] + *o1->R[1][2] * ccyl->lz * REAL(0.5) * sign;
-  p[2] = o1->pos[2] + *o1->R[2][2] * ccyl->lz * REAL(0.5) * sign;
-
-  vec_t k = dDOT (p,plane->p._normal);
-  vec_t depth = plane->p[3] - k + ccyl->radius;
-  if (depth < 0) return 0;
-  contact->normal[0] = plane->p[0];
-  contact->normal[1] = plane->p[1];
-  contact->normal[2] = plane->p[2];
-  contact->pos[0] = p[0] - plane->p[0] * ccyl->radius;
-  contact->pos[1] = p[1] - plane->p[1] * ccyl->radius;
-  contact->pos[2] = p[2] - plane->p[2] * ccyl->radius;
-  contact->depth = depth;
-
-  int ncontacts = 1;
-  if ((flags & NUMC_MASK) >= 2) {
-    // collide the other capping sphere with the plane
-    p[0] = o1->pos[0] - *o1->R[0][2]  * ccyl->lz * REAL(0.5) * sign;
-    p[1] = o1->pos[1] - *o1->R[1][2]  * ccyl->lz * REAL(0.5) * sign;
-    p[2] = o1->pos[2] - *o1->R[2][2] * ccyl->lz * REAL(0.5) * sign;
-
-    k = dDOT (p,plane->p._normal);
-    depth = plane->p[3] - k + ccyl->radius;
-    if (depth >= 0) {
-      dContactGeom *c2 = CONTACT(contact,skip);
-      c2->normal[0] = plane->p[0];
-      c2->normal[1] = plane->p[1];
-      c2->normal[2] = plane->p[2];
-      c2->pos[0] = p[0] - plane->p[0] * ccyl->radius;
-      c2->pos[1] = p[1] - plane->p[1] * ccyl->radius;
-      c2->pos[2] = p[2] - plane->p[2] * ccyl->radius;
-      c2->depth = depth;
-      ncontacts = 2;
-    }
-  }
-
-  for (int i=0; i < ncontacts; i++) {
-    CONTACT(contact,i*skip)->g1 = o1;
-    CONTACT(contact,i*skip)->g2 = o2;
-  }
-  return ncontacts;
+	// the deepest point is the first contact point
+	if(dAddContact(dContact(dContactGeom(p1, n, depth, o1, o2)), contacts));
+	{
+		ret++;
+		
+		if(maxc == 1)
+			return ret;
+	}
+		
+	// get the second and third contact points by starting from `p' and going
+	// along the two sides with the smallest projected length.	
+	if(B[0] < B[1])
+	{
+		if(B[2] < B[0])
+		{
+			goto use_side_3;
+		}
+		else
+		{
+			//BAR(1, 0, 1);	// use side 1
+			
+			depth -= B[0];
+			if(depth < 0)
+				return ret;
+				
+			if(A[0] > 0)
+			{
+				p2[0] = p1[0] + box->side[0] * R[0][0];
+				p2[1] = p1[1] + box->side[0] * R[1][0];
+				p2[2] = p1[2] + box->side[0] * R[2][0];
+			}
+			else
+			{
+				p2[0] = p1[0] - box->side[0] * R[0][0];
+				p2[1] = p1[1] - box->side[0] * R[1][0];
+				p2[2] = p1[2] - box->side[0] * R[2][0];
+			}
+			
+			if(dAddContact(dContact(dContactGeom(p2, n, depth, o1, o2)), contacts));
+			{
+				ret++;
+				
+				if(maxc == 2)
+					return ret;
+			}
+			
+			if(B[1] < B[2])
+				goto contact2_2;
+			else
+				goto contact2_3;
+		}
+	}
+	else
+	{
+		if(B[2] < B[1])
+		{
+			use_side_3:	// use side 3
+			
+			//BAR(1, 2, 3);
+			
+			depth -= B[2];
+			if(depth < 0)
+				return ret;
+			
+			if(A[2] > 0)
+			{
+				p2[0] = p1[0] + box->side[2] * R[0][2];
+				p2[1] = p1[1] + box->side[2] * R[1][2];
+				p2[2] = p1[2] + box->side[2] * R[2][2];
+			}
+			else
+			{
+				p2[0] = p1[0] - box->side[2] * R[0][2];
+				p2[1] = p1[1] - box->side[2] * R[1][2];
+				p2[2] = p1[2] - box->side[2] * R[2][2];
+			}
+			
+			if(dAddContact(dContact(dContactGeom(p2, n, depth, o1, o2)), contacts));
+			{
+				ret++;
+				
+				if(maxc == 2)
+					return ret;
+			}
+			
+			if(B[0] < B[1])
+				goto contact2_1;
+			else
+				goto contact2_2;
+		}
+		else
+		{
+			//BAR(1, 1, 2);	// use side 2
+		
+			depth -= B[1];
+			if(depth < 0)
+				return ret;
+			
+			if(A[1] > 0)
+			{
+				p2[0] = p1[0] + box->side[1] * R[0][1];
+				p2[1] = p1[1] + box->side[1] * R[1][1];
+				p2[2] = p1[2] + box->side[1] * R[2][1];
+			}
+			else
+			{
+				p2[0] = p1[0] - box->side[1] * R[0][1];
+				p2[1] = p1[1] - box->side[1] * R[1][1];
+				p2[2] = p1[2] - box->side[1] * R[2][1];
+			}
+			
+			if(dAddContact(dContact(dContactGeom(p2, n, depth, o1, o2)), contacts));
+			{
+				ret++;
+				
+				if(maxc == 2)
+					return ret;
+			}
+				
+			if(B[0] < B[2])
+				goto contact2_1;
+			else
+				goto contact2_3;
+		}
+	}
+	
+	contact2_1:
+		//BAR(2,0,1);
+		
+		depth -= B[0];
+		if(depth < 0)
+			return ret;
+			
+		if(A[0] > 0)
+		{
+			p3[0] = p1[0] + box->side[0] * R[0][0];
+			p3[1] = p1[1] + box->side[0] * R[1][0];
+			p3[2] = p1[2] + box->side[0] * R[2][0];
+		}
+		else
+		{
+			p3[0] = p1[0] - box->side[0] * R[0][0];
+			p3[1] = p1[1] - box->side[0] * R[1][0];
+			p3[2] = p1[2] - box->side[0] * R[2][0];
+		}
+			
+		if(dAddContact(dContact(dContactGeom(p3, n, depth, o1, o2)), contacts));
+			ret++;	
+		return ret;
+		
+	contact2_2:
+		//BAR(2,1,2);
+		
+		depth -= B[1];
+		if(depth < 0)
+			return ret;
+			
+		if(A[1] > 0)
+		{
+			p3[0] = p1[0] + box->side[1] * R[0][1];
+			p3[1] = p1[1] + box->side[1] * R[1][1];
+			p3[2] = p1[2] + box->side[1] * R[2][1];
+		}
+		else
+		{
+			p3[0] = p1[0] - box->side[1] * R[0][1];
+			p3[1] = p1[1] - box->side[1] * R[1][1];
+			p3[2] = p1[2] - box->side[1] * R[2][1];
+		}
+			
+		if(dAddContact(dContact(dContactGeom(p3, n, depth, o1, o2)), contacts));
+			ret++;
+		return ret;
+		
+	contact2_3:
+		//BAR(2,2,3);
+		
+		depth -= B[2];
+		if(depth < 0)
+			return ret;
+			
+		if(A[2] > 0)
+		{
+			p3[0] = p1[0] + box->side[2] * R[0][2];
+			p3[1] = p1[1] + box->side[2] * R[1][2];
+			p3[2] = p1[2] + box->side[2] * R[2][2];
+		}
+		else
+		{
+			p3[0] = p1[0] - box->side[2] * R[0][2];
+			p3[1] = p1[1] - box->side[2] * R[1][2];
+			p3[2] = p1[2] - box->side[2] * R[2][2];
+		}
+			
+		if(dAddContact(dContact(dContactGeom(p3, n, depth, o1, o2)), contacts));
+			ret++;
+		return ret;
 #else
 	return 0;
 #endif
@@ -2111,118 +2446,6 @@ int	dCollideRayBox(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &con
 }
 
 
-int	dCollideRayCCylinder(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
-{
-	dIASSERT (o1->type == dRayClass);
-	dIASSERT (o2->type == dCCylinderClass);
-#if 0
-  dxRay *ray = (dxRay*) o1;
-  dxCCylinder *ccyl = (dxCCylinder*) o2;
-
-  contact->g1 = ray;
-  contact->g2 = ccyl;
-  vec_t lz2 = ccyl->lz * REAL(0.5);
-
-  // compute some useful info
-  dVector3 cs,q,r;
-  vec_t C,k;
-  cs[0] = ray->pos[0] - ccyl->pos[0];
-  cs[1] = ray->pos[1] - ccyl->pos[1];
-  cs[2] = ray->pos[2] - ccyl->pos[2];
-  k = dDOT41(&((*ccyl->R)[0][2]), cs);	// position of ray start along ccyl axis
-  q[0] = k * *ccyl->R[0][2] - cs[0];
-  q[1] = k * *ccyl->R[1][2] - cs[1];
-  q[2] = k * *ccyl->R[2][2] - cs[2];
-  C = dDOT(q,q) - ccyl->radius*ccyl->radius;
-  // if C < 0 then ray start position within infinite extension of cylinder
-
-  // see if ray start position is inside the capped cylinder
-  int inside_ccyl = 0;
-  if (C < 0) {
-    if (k < -lz2) k = -lz2;
-    else if (k > lz2) k = lz2;
-    r[0] = ccyl->pos[0] + k * *ccyl->R[0][2];
-    r[1] = ccyl->pos[1] + k * *ccyl->R[1][2];
-    r[2] = ccyl->pos[2] + k * *ccyl->R[2][2];
-    if ((ray->pos[0]-r[0])*(ray->pos[0]-r[0]) +
-	(ray->pos[1]-r[1])*(ray->pos[1]-r[1]) +
-	(ray->pos[2]-r[2])*(ray->pos[2]-r[2]) < ccyl->radius*ccyl->radius) {
-      inside_ccyl = 1;
-    }
-  }
-
-  // compute ray collision with infinite cylinder, except for the case where
-  // the ray is outside the capped cylinder but within the infinite cylinder
-  // (it that case the ray can only hit endcaps)
-  if (!inside_ccyl && C < 0) {
-    // set k to cap position to check
-    if (k < 0) k = -lz2; else k = lz2;
-  }
-  else {
-    vec_t uv = dDOT44(&((*ccyl->R)[0][2]), &((*ray->R[0][2])));
-    r[0] = uv * *ccyl->R[0][2] - *ray->R[0][2];
-    r[1] = uv * *ccyl->R[1][2] - *ray->R[1][2];
-    r[2] = uv * *ccyl->R[2][2] - *ray->R[2][2];
-    vec_t A = dDOT(r,r);
-    vec_t B = 2*dDOT(q,r);
-    k = B*B-4*A*C;
-    if (k < 0) {
-      // the ray does not intersect the infinite cylinder, but if the ray is
-      // inside and parallel to the cylinder axis it may intersect the end
-      // caps. set k to cap position to check.
-      if (!inside_ccyl) return 0;
-      if (uv < 0) k = -lz2; else k = lz2;
-    }
-    else {
-      k = X_sqrt(k);
-      A = X_recip (2*A);
-      vec_t alpha = (-B-k)*A;
-      if (alpha < 0) {
-	alpha = (-B+k)*A;
-	if (alpha < 0) return 0;
-      }
-      if (alpha > ray->length) return 0;
-
-      // the ray intersects the infinite cylinder. check to see if the
-      // intersection point is between the caps
-      contact->pos[0] = ray->pos[0] + alpha * *ray->R[0][2];
-      contact->pos[1] = ray->pos[1] + alpha * *ray->R[1][2];
-      contact->pos[2] = ray->pos[2] + alpha * *ray->R[2][2];
-      q[0] = contact->pos[0] - ccyl->pos[0];
-      q[1] = contact->pos[1] - ccyl->pos[1];
-      q[2] = contact->pos[2] - ccyl->pos[2];
-      k = dDOT14(q, &((*ccyl->R)[0][2]));
-      vec_t nsign = inside_ccyl ? REAL(-1.0) : REAL(1.0);
-      if (k >= -lz2 && k <= lz2) {
-	contact->normal[0] = nsign * (contact->pos[0] -
-				      (ccyl->pos[0] + k * *ccyl->R[0][2]));
-	contact->normal[1] = nsign * (contact->pos[1] -
-				      (ccyl->pos[1] + k * *ccyl->R[1][2]));
-	contact->normal[2] = nsign * (contact->pos[2] - 
-				      (ccyl->pos[2] + k * *ccyl->R[2][2]));
-	dNormalize3 (contact->normal);
-	contact->depth = alpha;
-	return 1;
-      }
-
-      // the infinite cylinder intersection point is not between the caps.
-      // set k to cap position to check.
-      if (k < 0) k = -lz2; else k = lz2;
-    }
-  }
-
-  // check for ray intersection with the caps. k must indicate the cap
-  // position to check
-  q[0] = ccyl->pos[0] + k * *ccyl->R[0][2];
-  q[1] = ccyl->pos[1] + k * *ccyl->R[1][2];
-  q[2] = ccyl->pos[2] + k * *ccyl->R[2][2];
-  return ray_sphere_helper (ray,q,ccyl->radius,contact, inside_ccyl);
-#else
-	return 0;
-#endif
-}
-
-
 int	dCollideRayPlane(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
 	dIASSERT(o1->type == dRayClass);
@@ -2355,72 +2578,19 @@ void	dBoxLeafnums(dxBSP *bsp, const cbbox_c &aabb, std::deque<int> &leafs, int n
 #endif
 }
 
-/*
-int	dSphereInBrush(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip, int contacts_num, const dxBSP::dBSPBrush &brush)
+
+
+static int	dCollideBSPTriangleBox(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, const vec3_c vertexes[3], const cplane_c &p)
 {
-	dIASSERT(skip >= (int)sizeof(dContactGeom));
 	dIASSERT(o1->type == dBSPClass);
-	dIASSERT(o2->type == dSphereClass);
-	dxBSP *bsp = (dxBSP*)o1;
-	dxSphere *sphere = (dxSphere*)o2;
-	
-	int contacts_num = 0;
-	for(int i=0; i<brush.sides_num; i++)
-	{
-		const cplane_c *plane = bsp->brushsides[brush.sides_first + i].plane;
-		
-#if 0
-		vec_t k = plane->_normal.dotProduct(o1->pos);
-		vec_t depth = plane->_dist - k + sphere->radius;
-		
-		if(depth >= 0)
-		{
-			CONTACT(contact, contacts_num*skip)->normal[0] = plane->_normal[0];
-			CONTACT(contact, contacts_num*skip)->normal[1] = plane->_normal[1];
-			CONTACT(contact, contacts_num*skip)->normal[2] = plane->_normal[2];
-			
-			CONTACT(contact, contacts_num*skip)->pos[0] = sphere->pos[0] - plane->_normal[0] * sphere->radius;
-			CONTACT(contact, contacts_num*skip)->pos[1] = sphere->pos[1] - plane->_normal[1] * sphere->radius;
-			CONTACT(contact, contacts_num*skip)->pos[2] = sphere->pos[2] - plane->_normal[2] * sphere->radius;
-			
-			CONTACT(contact, contacts_num*skip)->depth = depth;
-		}
-#else
-		//if(plane->onSide(sphere->pos, sphere->radius) == SIDE_BACK)
-		//	continue;
-		
-		if(plane->onSide(sphere->pos) == SIDE_BACK)
-			continue;
+	dIASSERT(o2->type == dBoxClass);
 
-		// get closest point to sphere origin
-		vec3_c c = plane->closest(sphere->pos);
-		
-		// get sphere depth using this closest point in the plane
-		vec_t depth = sphere->radius - c.distance(sphere->pos);
-		
-		if(depth >= 0)
-		{
-			dContact contact;
-			
-			contact.geom._origin = c;
-			contact.geom._normal = p._normal;
-			contact.geom._depth = depth;
-			contact.geom._g1 = o1;
-			contact.geom._g2 = o2;
-			
-			if(dAddContact(contact, contacts))
-				contacts_num++;
-		}
-#endif
-	}
-	
-	return contacts_num;
+	//TODO
+	return 0;
 }
-*/
 
 
-
-bool	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, const vec3_c vertexes[3], const cplane_c &p, bool planar, bool cw)
+static bool	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, const vec3_c vertexes[3], const cplane_c &p, bool planar, bool cw)
 {
 	dIASSERT(o1->type == dBSPClass);
 	dIASSERT(o2->type == dSphereClass);
@@ -2610,10 +2780,10 @@ bool	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dC
 	return false;
 }
 
-int	dCollideBSPSurfaceSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, const dxBSP::dBSPSurface &surf)
+static int	dCollideBSPSurfaceGeom(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, const dxBSP::dBSPSurface &surf)
 {
 	dIASSERT(o1->type == dBSPClass);
-	dIASSERT(o2->type == dSphereClass);
+	dIASSERT(o2->type == dBoxClass || o2->type == dSphereClass);
 	
 	if(surf.indexes.empty())
 		return 0;
@@ -2638,13 +2808,18 @@ int	dCollideBSPSurfaceSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dCon
 					surf.vertexes.at(surf.indexes[i+1]),
 					surf.vertexes.at(surf.indexes[i+2])
 				};
-							
-				if(dCollideBSPTriangleSphere(o1, o2, flags, contacts, vertexes, surf.plane, false, true))
+				
+				if(o2->type == dBoxClass)
 				{
-					contacts_num++;
-					// no need to check any other triangle of this surface because all are in 
-					// the same plane
-					break;
+					contacts_num += dCollideBSPTriangleBox(o1, o2, flags, contacts, vertexes, surf.plane);
+				}
+				else if(o2->type == dSphereClass)
+				{	
+					if(dCollideBSPTriangleSphere(o1, o2, flags, contacts, vertexes, surf.plane, false, true))
+					{
+						contacts_num++;
+						break;
+					}
 				}
 				
 				#if DEBUG
@@ -2675,9 +2850,16 @@ int	dCollideBSPSurfaceSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dCon
 					surf.vertexes.at(surf.indexes[i+1]),
 					surf.vertexes.at(surf.indexes[i+2])
 				};
-							
-				if(dCollideBSPTriangleSphere(o1, o2, flags, contacts, vertexes, surf.planes[j], false, true))
-					contacts_num++;
+				
+				if(o2->type == dBoxClass)
+				{
+					contacts_num += dCollideBSPTriangleBox(o1, o2, flags, contacts, vertexes, surf.plane);
+				}
+				else if(o2->type == dSphereClass)
+				{	
+					if(dCollideBSPTriangleSphere(o1, o2, flags, contacts, vertexes, surf.plane, false, true))
+						contacts_num++;
+				}
 				
 				#if DEBUG
 				}
@@ -2694,14 +2876,13 @@ int	dCollideBSPSurfaceSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dCon
 			break;
 	}
 	
-	
 	return contacts_num;
 }
 
-int	dCollideBSPLeafSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, int leafnum)
+static int	dCollideBSPLeafGeom(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, int leafnum)
 {
 	dIASSERT(o1->type == dBSPClass);
-	dIASSERT(o2->type == dSphereClass);
+	dIASSERT(o2->type == dBoxClass || o2->type == dSphereClass);
 	
 	dxBSP *bsp = (dxBSP*)o1;
 	
@@ -2724,7 +2905,6 @@ int	dCollideBSPLeafSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContac
 	int contacts_num = 0;
 	for(int i=0; i<leaf.surfaces_num; i++)
 	{
-		//dxBSP::dBSPBrush& surf = bsp->surfaces[bsp->leafsurfaces[leaf.surfaces_first + i]];
 		dxBSP::dBSPSurface& surf = bsp->surfaces[bsp->leafsurfaces[leaf.surfaces_first + i]];
 		
 		if(surf.checkcount == bsp->checkcount)
@@ -2732,278 +2912,69 @@ int	dCollideBSPLeafSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContac
 			
 		surf.checkcount = bsp->checkcount;
 		
-		//if(!(brush.contents & trace_contents))
+		//if(!(surf.contents & o2->trace_contents))
 		//	continue;
 		
-		contacts_num += dCollideBSPSurfaceSphere(o1, o2, flags, contacts, surf);
+		contacts_num += dCollideBSPSurfaceGeom(o1, o2, flags, contacts, surf);
 	}
 	
 	return contacts_num;
 }
 
-/*
-int	dBoxInBrush(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip, const dxBSP::dBSPBrush &brush)
-{
-	dIASSERT(skip >= (int)sizeof(dContactGeom));
-	dIASSERT(o1->type == dBSPClass);
-	dIASSERT(o2->type == dBoxClass);
-	dxBSP *bsp = (dxBSP*)o1;
-	dxBox *box = (dxBox*)o2;
-	
-	contact->g1 = o1;
-	contact->g2 = o2;
-	int ret = 0;
-	
-	//@@@ problem: using 4-vector (plane->p) as 3-vector (normal).
-	const vec_t *R = (vec_t*)*o1->R;		// rotation of box
-	
-	// find number of contacts requested
-	int maxc = flags & NUMC_MASK;
-	if(maxc < 1)
-		maxc = 1;
-		
-	if(maxc > 3)
-		maxc = 3;	// no more than 3 contacts per box allowed
-		
-	for(int i=0; i<brush.sides_num; i++)
-	{
-		int contacts_num = 0;
-		
-		const cplane_c *plane = bsp->brushsides[brush.sides_first + i].plane;
-		const vec_t *n = (vec_t*)plane->_normal;		// normal vector
-		
-		// project sides lengths along normal vector, get absolute values
-		vec_t Q1 = dDOT14(n, R+0);
-		vec_t Q2 = dDOT14(n, R+1);
-		vec_t Q3 = dDOT14(n, R+2);
-		vec_t A1 = box->side[0] * Q1;
-		vec_t A2 = box->side[1] * Q2;
-		vec_t A3 = box->side[2] * Q3;
-		vec_t B1 = X_fabs(A1);
-		vec_t B2 = X_fabs(A2);
-		vec_t B3 = X_fabs(A3);
-		
-		// early exit test
-		vec_t depth = plane->_dist + REAL(0.5)*(B1+B2+B3) - dDOT(n,o1->pos);
-		if(depth < 0)
-			continue;
-			
-		// find deepest point
-		dVector3 p;
-		p[0] = o1->pos[0];
-		p[1] = o1->pos[1];
-		p[2] = o1->pos[2];
-#define FOO(i,op) \
-  p[0] op REAL(0.5)*box->side[i] * R[0+i]; \
-  p[1] op REAL(0.5)*box->side[i] * R[4+i]; \
-  p[2] op REAL(0.5)*box->side[i] * R[8+i];
-#define BAR(i,iinc) if (A ## iinc > 0) { FOO(i,-=) } else { FOO(i,+=) }
-    		BAR(0,1);
-    		BAR(1,2);
-    		BAR(2,3);
-#undef FOO
-#undef BAR
-		// the deepest point is the first contact point
-		contact->pos[0] = p[0];
-		contact->pos[1] = p[1];
-		contact->pos[2] = p[2];
-		contact->normal[0] = n[0];
-		contact->normal[1] = n[1];
-		contact->normal[2] = n[2];
-		contact->depth = depth;
-		contacts_num = 1;		// ret is number of contact points found so far
-		
-		if(maxc == 1)
-			goto dbox_in_brush_done;
-			
-			
-		// get the second and third contact points by starting from `p' and going
-		// along the two sides with the smallest projected length.
-		
-#define FOO(i,j,op) \
-  CONTACT(contact,i*skip)->pos[0] = p[0] op box->side[j] * R[0+j]; \
-  CONTACT(contact,i*skip)->pos[1] = p[1] op box->side[j] * R[4+j]; \
-  CONTACT(contact,i*skip)->pos[2] = p[2] op box->side[j] * R[8+j];
-#define BAR(ctact,side,sideinc) \
-  depth -= B ## sideinc; \
-  if (depth < 0) goto dbox_in_brush_done; \
-  if (A ## sideinc > 0) { FOO(ctact,side,+) } else { FOO(ctact,side,-) } \
-  CONTACT(contact,ctact*skip)->depth = depth; \
-  ret++;
-
-		CONTACT(contact, skip)->normal[0] = n[0];
-		CONTACT(contact, skip)->normal[1] = n[1];
-		CONTACT(contact, skip)->normal[2] = n[2];
-		
-		if(maxc == 3)
-		{
-			CONTACT(contact, 2*skip)->normal[0] = n[0];
-			CONTACT(contact, 2*skip)->normal[1] = n[1];
-			CONTACT(contact, 2*skip)->normal[2] = n[2];
-		}
-		
-		if(B1 < B2)
-		{
-			if(B3 < B1)
-				goto use_side_3;
-			else
-			{
-				BAR(1, 0, 1);	// use side 1
-				
-				if(maxc == 2)
-					goto dbox_in_brush_done;
-				
-				if(B2 < B3)
-					goto contact2_2;
-				else
-					goto contact2_3;
-			}
-		}
-		else
-		{
-			if(B3 < B2)
-			{
-				use_side_3:	// use side 3
-				BAR(1,2,3);
-				        
-				if(maxc == 2)
-					goto dbox_in_brush_done;
-				
-				if(B1 < B2)
-					goto contact2_1;
-				else
-					goto contact2_2;
-			}
-		else
-		{
-			BAR(1, 1, 2);	// use side 2
-			
-			if(maxc == 2)
-				goto dbox_in_brush_done;
-			
-			if(B1 < B3)
-				goto contact2_1;
-			else
-				goto contact2_3;
-		}
-	}
-	
-contact2_1:	BAR(2,0,1);	goto dbox_in_brush_done;
-contact2_2:	BAR(2,1,2);	goto dbox_in_brush_done;
-contact2_3:	BAR(2,2,3);	goto dbox_in_brush_done;
-#undef FOO
-#undef BAR
-
-	dbox_in_brush_done:
-	ret += contacts_num;
-	}
-	
-	for(int i=0; i<ret; i++)
-	{
-		CONTACT(contact, i*skip)->g1 = o1;
-		CONTACT(contact, i*skip)->g2 = o2;
-	}
-	
-	return ret;
-}
-*/
-/*
-int	dBoxInLeaf(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip, int leafnum)
-{
-	dIASSERT(skip >= (int)sizeof(dContactGeom));
-	dIASSERT(o1->type == dBSPClass);
-	dIASSERT(o2->type == dBoxClass);
-	dxBSP *bsp = (dxBSP*) o1;
-	
-	const dxBSP::dBSPLeaf& leaf = bsp->leafs[leafnum];
-	
-//	if(!(leaf.contents & trace_contents))
-//		return;
-
-	int contacts_num = 0;
-	for(int i=0; i<leaf.brushes_num; i++)
-	{
-		dxBSP::dBSPBrush& brush = bsp->brushes[bsp->leafbrushes[leaf.brushes_first + i]];
-		
-		if(brush.checkcount == bsp->checkcount)
-			continue;	// already checked this brush in another leaf
-			
-		brush.checkcount = bsp->checkcount;
-		
-//		if(!(brush.contents & trace_contents))
-//			continue;
-		
-		contacts_num += dBoxInBrush(o1, o2, flags, contact, skip, brush);
-		
-//		if(!trace_trace.fraction)
-//			return;
-	}
-	
-	if(!contacts_num)
-	{
-		dDEBUGMSG("no contacts");
-	}
-	else
-	{
-		dDEBUGMSG("contacts!!!");
-	}
-	
-	return contacts_num;
-}
-*/
-
-int	dCollideBSPSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
+static int	dCollideBSPGeom(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
 	dIASSERT(o1->type == dBSPClass);
-	dIASSERT(o2->type == dSphereClass);
+	dIASSERT(o2->type == dBoxClass || o2->type == dSphereClass);
 	
 	dxBSP *bsp = (dxBSP*)o1;
-	dxSphere *sphere = (dxSphere*)o2;
 	
 	cbbox_c aabb;
-	aabb._mins[0] = sphere->aabb[0] - 1.0f;
-	aabb._maxs[0] = sphere->aabb[1] + 1.0f;
-	aabb._mins[1] = sphere->aabb[2] - 1.0f;
-	aabb._maxs[1] = sphere->aabb[3] + 1.0f;
-	aabb._mins[2] = sphere->aabb[4] - 1.0f;
-	aabb._maxs[2] = sphere->aabb[5] + 1.0f;
+	aabb._mins[0] = o2->aabb[0] - 1.0f;
+	aabb._maxs[0] = o2->aabb[1] + 1.0f;
+	aabb._mins[1] = o2->aabb[2] - 1.0f;
+	aabb._maxs[1] = o2->aabb[3] + 1.0f;
+	aabb._mins[2] = o2->aabb[4] - 1.0f;
+	aabb._maxs[2] = o2->aabb[5] + 1.0f;
 	
 	bsp->checkcount++;
 	
 	int contacts_num = 0;
 
 #if 1
+	//
+	// test in all leafs the aabb touches
+	//
 	std::deque<int> leafs;
 	dBoxLeafnums(bsp, aabb, leafs, 0);
 	if(!leafs.size())
 	{
-		Com_Error(ERR_DROP, "dCollideBSPSphere: no BSP leaves touching");
+		Com_Error(ERR_DROP, "dCollideBSPGeom: no BSP leaves touching");
 		return 0;
 	}
 	else
 	{
-//		Com_Printf("dCollideBSPSphere: sphere touches %i leaves\n", leafs.size());
+//		Com_Printf("dCollideBSPGeom: %i leaves\n", leafs.size());
 	}
 
 	for(std::deque<int>::const_iterator ir = leafs.begin(); ir != leafs.end(); ++ir)
 	{
-		contacts_num += dCollideBSPLeafSphere(o1, o2, flags, contacts, *ir);
+		contacts_num += dCollideBSPLeafGeom(o1, o2, flags, contacts, *ir);
 	}
-#elif 0
+#else
+	//
+	// test only in single leaf
+	//
+
 	int leaf_num = dPointInLeaf(bsp, o2->pos, 0);
 	
-//	Com_Printf("dCollideBSPSphere: sphere in leaf %i, area %i, cluster %i\n", leaf_num, bsp->leafs[leaf_num].area, bsp->leafs[leaf_num].cluster);
+//	Com_Printf("dCollideBSPGeom: sphere in leaf %i, area %i, cluster %i\n", leaf_num, bsp->leafs[leaf_num].area, bsp->leafs[leaf_num].cluster);
 	
 	if(leaf_num != -1)
-		contacts_num += dCollideBSPLeafSphere(o1, o2, flags, contacts, leaf_num);
-		
-#else
-	for(uint_t i=0; i<bsp->leafs.size(); i++)
-		contacts_num += dCollideBSPLeafSphere(o1, o2, flags, contacts, i);
+		contacts_num += dCollideBSPLeafGeom(o1, o2, flags, contacts, leaf_num);
 #endif
 	if(contacts_num)
 	{
-//		Com_Printf("dCollideBSPSphere: %i contacts\n", contacts_num);
+//		Com_Printf("dCollideBSPGeom: %i contacts\n", contacts_num);
 	}
 	
 	return contacts_num;
@@ -3014,84 +2985,16 @@ int	dCollideBSPBox(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &con
 	dIASSERT(o1->type == dBSPClass);
 	dIASSERT(o2->type == dBoxClass);
 	
-//	dDEBUGMSG("");
-#if 0
-	dxBSP *bsp = (dxBSP*) o1;
-	dxBox *box = (dxBox*) o2;
-	
-	vec_t aabb[6];
-	aabb[0] = box->aabb[0]- 1.0f;
-	aabb[1] = box->aabb[1]+ 1.0f;
-	aabb[2] = box->aabb[2]- 1.0f;
-	aabb[3] = box->aabb[3]+ 1.0f;
-	aabb[4] = box->aabb[4]- 1.0f;
-	aabb[5] = box->aabb[5]+ 1.0f;
-	
-	bsp->checkcount++;
-	
-	dArray<int> leafs;
-	dBoxLeafnums(bsp, aabb, leafs, 0);
-	if(!leafs.size())
-	{
-		dDEBUGMSG("no BSP leaves hit");
-		return 0;
-	}
-	else
-	{
-		Com_Printf("dCollideBSPBox: box touches %i leaves\n", leafs.size());
-	}
-	
-	int contacts_num = 0;
-#if 1
-	for(int i=0; i<leafs.size(); i++)
-	{
-		contacts_num += dBoxInLeaf(o1, o2, flags, contact, skip, leafs[i]);
-	}
-	
-	if(!contacts_num)
-	{
-		dDEBUGMSG("no contacts");
-	}
-	else
-	{
-		//dDEBUGMSG("contacts!!!");
-		Com_Printf("dCollideBSPBox: %i contacts\n", contacts_num);
-	}
-#endif
-	return contacts_num;
-#else
-	return 0;
-#endif
+	return dCollideBSPGeom(o1, o2, flags, contacts);
 }
 
-int	dCollideBSPCCylinder(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
+int	dCollideBSPSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
 {
 	dIASSERT(o1->type == dBSPClass);
-	dIASSERT(o2->type == dCCylinderClass);
-	dDEBUGMSG("");
+	dIASSERT(o2->type == dSphereClass);
 	
-	//TODO
-	return 0;
-}
-
-int	dCollideBSPCylinder(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
-{
-	dIASSERT(o1->type == dBSPClass);
-	dIASSERT(o2->type == dCylinderClass);
-	dDEBUGMSG("");
+	return dCollideBSPGeom(o1, o2, flags, contacts);
 	
-	//TODO
-	return 0;
-}
-
-int	dCollideBSPPlane(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
-{
-	dIASSERT(o1->type == dBSPClass);
-	dIASSERT(o2->type == dPlaneClass);
-//	dDEBUGMSG("");
-	
-	//TODO
-	return 0;
 }
 
 int	dCollideBSPRay(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts)
