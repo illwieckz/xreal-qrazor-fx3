@@ -733,7 +733,7 @@ public:
 		_u_lightmap	= xglGetUniformLocationARB(getHandle(), "u_lightmap");		RB_CheckForError();
 		_u_deluxemap	= xglGetUniformLocationARB(getHandle(), "u_deluxemap");		RB_CheckForError();
 		
-//		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
 		
 		xglUniform1iARB(_u_diffusemap, 0);	RB_CheckForError();
 		xglUniform1iARB(_u_lightmap, 1);	RB_CheckForError();
