@@ -581,6 +581,7 @@ trace_t		trap_CM_TransformedBoxTrace(const vec3_c &start, const vec3_c &end,
 						const cbbox_c &bbox,
 						int headnode, int brushmask, 
 						const vec3_c &origin, const quaternion_c &quat);
+int		trap_CM_PointLeafnum(const vec3_c &p);
 int		trap_CM_PointAreanum(const vec3_c &p);
 int		trap_CM_BoxLeafnums(const cbbox_c &bbox, std::deque<int> &list, int headnode);
 int		trap_CM_GetClosestAreaPortal(const vec3_c &p);

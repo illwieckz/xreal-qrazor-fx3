@@ -168,7 +168,7 @@ void	r_scissoriface_a::addEdge(const matrix_c &mvp, const r_vrect_t &vrect, cons
 			continue;	//edge behind plane
 			
 		if(side1 == SIDE_BACK || side2 == SIDE_BACK)
-			r_frustum[i].intersect(v1, v2, intersect);
+			intersect = r_frustum[i].intersect(v1, v2);
 			
 		if(side1 == SIDE_BACK)
 			addVertex(mvp, vrect, intersect);

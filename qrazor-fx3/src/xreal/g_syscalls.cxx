@@ -267,6 +267,11 @@ trace_t	trap_CM_TransformedBoxTrace(const vec3_c &start, const vec3_c &end,
 	return gi.CM_TransformedBoxTrace(start, end, bbox, headnode, brushmask, origin, quat);
 }
 
+int	trap_CM_PointLeafnum(const vec3_c &p)
+{
+	return gi.CM_PointLeafnum(p);
+}
+
 int	trap_CM_PointAreanum(const vec3_c &p)
 {
 	return gi.CM_PointAreanum(p);

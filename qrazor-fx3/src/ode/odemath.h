@@ -205,7 +205,7 @@ void dNormalize4 (dVector4 a);
 
 void dPlaneSpace (const dVector3 n, dVector3 p, dVector3 q);
 
-
+/*
 enum {
   dPlaneSideFront = 0,
   dPlaneSideOn = 2,
@@ -217,10 +217,11 @@ vec_t dPlaneDistance (const dVector4 p, const dVector3 v);
 
 int dVertexOnPlaneSide (const dVector4 p, const dVector3 v);
 
-/*
+ *
  * given an axis aligned bounding box tell us on which side of the plane it is
  *
- */
+
 int dBoxOnPlaneSide (const dVector4 p, const vec_t aabb[6]);
+*/
 
 #endif

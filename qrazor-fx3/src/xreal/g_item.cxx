@@ -990,6 +990,7 @@ g_item_dropable_c::g_item_dropable_c(g_player_c *player, g_item_c *item, const v
 	_r.solid = SOLID_TRIGGER;
 	
 	_nextthink = level.time + 10;
+//	_nextthink = level.time + FRAMETIME;
 	
 	_classname = item->getClassname();
 	_item = item;
@@ -1031,8 +1032,18 @@ g_item_dropable_c::~g_item_dropable_c()
 
 void	g_item_dropable_c::think()
 {
-	if(deathmatch->getInteger())
+	if(deathmatch->getInteger())// && (level.time >= getSpawnTime() + 10))
+	{
 		remove();
+	}
+	/*
+	else
+	{
+		int leafnum = trap_CM_PointLeafnum(_s.origin);
+		trap_Com_Printf("g_item_dropable_c::think: in leaf %i\n", leafnum);
+		_nextthink = level.time + FRAMETIME;
+	}
+	*/
 }
 
 bool	g_item_dropable_c::touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf)

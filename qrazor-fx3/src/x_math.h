@@ -1912,6 +1912,8 @@ public:
 	
 	inline vec_t	distance(const vec3_c &v) const;
 	
+	inline vec_t	distance(const vec3_c &center, vec_t radius) const;
+	
 	inline plane_side_e	onSide(const vec3_c &v) const;
 	
 	inline plane_side_e	onSide(const vec3_c &center, vec_t radius) const;
@@ -1919,7 +1921,9 @@ public:
 	plane_side_e	onSide(const cbbox_c &bbox, bool use_signbits = false) const;
 	
 	// intersect ray
-	inline void	intersect(const vec3_c &v1, const vec3_c &v2, vec3_c &out);
+	inline vec3_c	intersect(const vec3_c &v1, const vec3_c &v2);
+	
+	inline vec3_c	closest(const vec3_c &v) const;
 	
 	const char*	toString() const;
 	
@@ -2044,12 +2048,20 @@ inline vec_t	cplane_c::distance(const vec3_c &v) const
 	
 	return d;
 }
+
+inline vec_t	cplane_c::distance(const vec3_c &center, vec_t radius) const
+{	
+	return distance(center) -radius;
+}
 	
 inline plane_side_e	cplane_c::onSide(const vec3_c &v) const
 {	
 	vec_t d = distance(v);
+	
+	//if(d == 0)
+	//	return SIDE_ON;
 		
-	if(d >= 0)
+	if(d >= 0.0)
 		return SIDE_FRONT;
 	else
 		return SIDE_BACK;
@@ -2057,20 +2069,31 @@ inline plane_side_e	cplane_c::onSide(const vec3_c &v) const
 	
 inline plane_side_e	cplane_c::onSide(const vec3_c &center, vec_t radius) const
 {	
-	vec_t d = distance(center);
+	vec_t d = distance(center, radius);
 	
-	if(d <= -radius)
+	//if(d == -radius)
+	//	return SIDE_ON;
+	
+	if(d <= (-radius * 2.0))
 		return SIDE_BACK;
 	else
 		return SIDE_FRONT;
 }
 
-inline void	cplane_c::intersect(const vec3_c &v1, const vec3_c &v2, vec3_c &out)
+inline vec3_c	cplane_c::intersect(const vec3_c &v1, const vec3_c &v2)
 {
 	vec3_c v = v1 - v2;
 	float sect = -distance(v1) / _normal.dotProduct(v);
 	v.scale(sect);
-	out = v1 + v;
+	return v1 + v;
+}
+
+inline vec3_c	cplane_c::closest(const vec3_c &v) const
+{
+	vec_t d = distance(v);
+	
+	// same as (v + ((-_normal) * t)));
+	return (v - (_normal * d));
 }
 
 inline cplane_c&	cplane_c::operator = (const cplane_c &p)

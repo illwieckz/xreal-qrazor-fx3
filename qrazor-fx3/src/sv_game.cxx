@@ -291,6 +291,7 @@ void 	SV_InitGameProgs()
 	import.CM_TransformedPointContents	= CM_TransformedPointContents;
 	import.CM_BoxTrace		= CM_BoxTrace;
 	import.CM_TransformedBoxTrace	= CM_TransformedBoxTrace;
+	import.CM_PointLeafnum		= CM_PointLeafnum;
 	import.CM_PointAreanum		= CM_PointAreanum;
 	import.CM_BoxLeafnums		= CM_BoxLeafnums;
 	import.CM_GetClosestAreaPortal	= CM_GetClosestAreaPortal;

@@ -179,11 +179,10 @@ vec_t dGeomSphereGetRadius (dGeomID g)
 
 vec_t dGeomSpherePointDepth (dGeomID g, vec_t x, vec_t y, vec_t z)
 {
-  dUASSERT (g && g->type == dSphereClass,"argument not a sphere");
-  dxSphere *s = (dxSphere*) g;
-  return s->radius - X_sqrt((x-s->pos[0])*(x-s->pos[0]) +
-			    (y-s->pos[1])*(y-s->pos[1]) +
-			    (z-s->pos[2])*(z-s->pos[2]));
+	dUASSERT(g && g->type == dSphereClass, "argument not a sphere");
+	
+	dxSphere *s = (dxSphere*)g;
+	return s->radius - X_sqrt((x-s->pos[0])*(x-s->pos[0]) + (y-s->pos[1])*(y-s->pos[1]) + (z-s->pos[2])*(z-s->pos[2]));
 }
 
 //****************************************************************************
@@ -2086,11 +2085,35 @@ int dCollideRayPlane (dxGeom *o1, dxGeom *o2, int flags,
   return 1;
 }
 
-#if 1
-static void	dBoxLeafnums(dxBSP *bsp, const vec_t aabb[6], dArray<int> &leafs, int nodenum)
+int	dPointInLeaf(dxBSP *bsp, const vec3_c &p, int nodenum)
 {
 	dIASSERT(bsp->type == dBSPClass);
+
+	if(nodenum < 0 || nodenum >= (int)bsp->nodes.size())
+	{
+		Com_Error(ERR_DROP, "dPointInLeaf: bad num %i", nodenum);
+	}
 	
+	const dxBSP::dBSPNode& node = bsp->nodes[nodenum];
+
+	plane_side_e side = node.plane->onSide(p);
+	
+	nodenum = node.children[side];
+		
+	if(nodenum < 0)
+		return -1 -nodenum;
+			
+	if(nodenum == 0)
+		return -1;
+	
+	return dPointInLeaf(bsp, p, nodenum);
+}
+
+#if 1
+void	dBoxLeafnums(dxBSP *bsp, const cbbox_c &aabb, dArray<int> &leafs, int nodenum)
+{
+	dIASSERT(bsp->type == dBSPClass);
+#if 1
 	if(nodenum < 0)
 	{
 		int leafnum = -1 -nodenum;
@@ -2104,7 +2127,7 @@ static void	dBoxLeafnums(dxBSP *bsp, const vec_t aabb[6], dArray<int> &leafs, in
 		//if(ir == areas.end())
 		//	areas.push_back(areanum);
 		
-		//Com_Printf("%i ", leafnum);
+		Com_Printf("%i ", leafnum);
 		
 		leafs.push(leafnum);
 		return;
@@ -2112,7 +2135,7 @@ static void	dBoxLeafnums(dxBSP *bsp, const vec_t aabb[6], dArray<int> &leafs, in
 	
 	const dxBSP::dBSPNode& node = bsp->nodes[nodenum];
 		
-	int s = node.plane->onSide(aabb);
+	plane_side_e s = node.plane->onSide(aabb);
 	
 	switch(s)
 	{
@@ -2144,6 +2167,30 @@ static void	dBoxLeafnums(dxBSP *bsp, const vec_t aabb[6], dArray<int> &leafs, in
 		default:
 			break;
 	}
+#else
+	while(nodenum >= 0)
+	{
+		const dxBSP::dBSPNode& node = bsp->nodes[nodenum];
+		
+		plane_side_e s = node.plane->onSide(aabb);
+		
+		if(s == SIDE_FRONT)
+			nodenum = node.children[0];
+		
+		else if(s == SIDE_BACK)
+			nodenum = node.children[1];
+		
+		else
+		{	// go down both
+			dBoxLeafnums(bsp, aabb, leafs, node.children[0]);
+			
+			nodenum = node.children[1];
+		}
+	}
+	
+	Com_Printf("%i ", -1 -nodenum);
+	leafs.push(-1 -nodenum);
+#endif
 }
 
 
@@ -2163,8 +2210,14 @@ int	dSphereInBrush(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int
 		CONTACT(contact, skip)->g1 = o1;
 		CONTACT(contact, skip)->g2 = o2;
 		
-		vec_t k = dDOT(o1->pos, plane->_normal);
-		vec_t depth = plane->_dist - k + sphere->radius;
+		//vec_t k = dDOT(o1->pos, plane->_normal);
+		//vec_t depth = plane->_dist - k + sphere->radius;
+
+		// get closest point to sphere origin
+		vec3_c c = plane->closest(o2->pos);
+		
+		// get sphere depth using this closest point in the plane
+		vec_t depth = sphere->radius - vec3_c(o2->pos).distance(c);
 		
 		if(depth >= 0)
 		{
@@ -2177,7 +2230,6 @@ int	dSphereInBrush(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int
 			CONTACT(contact, skip)->depth = depth;
 			
 			contacts_num++;
-			return 1;
 		}
 	}
 	
@@ -2211,6 +2263,9 @@ int	dSphereInLeaf(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int 
 		
 		contacts_num += dSphereInBrush(o1, o2, flags, contact, skip, brush);
 		
+		if(contacts_num)
+			return contacts_num;
+		
 //		if(!trace_trace.fraction)
 //			return;
 	}
@@ -2218,6 +2273,7 @@ int	dSphereInLeaf(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int 
 	return contacts_num;
 }
 
+/*
 int	dBoxInBrush(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip, const dxBSP::dBSPBrush &brush)
 {
 	dIASSERT(skip >= (int)sizeof(dContactGeom));
@@ -2382,8 +2438,8 @@ contact2_3:	BAR(2,2,3);	goto dbox_in_brush_done;
 	
 	return ret;
 }
-
-
+*/
+/*
 int	dBoxInLeaf(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip, int leafnum)
 {
 	dIASSERT(skip >= (int)sizeof(dContactGeom));
@@ -2426,27 +2482,30 @@ int	dBoxInLeaf(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int ski
 	
 	return contacts_num;
 }
+*/
 
 int	dCollideBSPSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
 {
 	dIASSERT(skip >= (int)sizeof(dContactGeom));
 	dIASSERT(o1->type == dBSPClass);
 	dIASSERT(o2->type == dSphereClass);
-//	dDEBUGMSG("");
-#if 1
+	
 	dxBSP *bsp = (dxBSP*)o1;
 	dxSphere *sphere = (dxSphere*)o2;
 	
-	vec_t aabb[6];
-	aabb[0] = sphere->aabb[0]- 1.0f;
-	aabb[1] = sphere->aabb[1]+ 1.0f;
-	aabb[2] = sphere->aabb[2]- 1.0f;
-	aabb[3] = sphere->aabb[3]+ 1.0f;
-	aabb[4] = sphere->aabb[4]- 1.0f;
-	aabb[5] = sphere->aabb[5]+ 1.0f;
+	cbbox_c aabb;
+	aabb._mins[0] = sphere->aabb[0] - 1.0f;
+	aabb._maxs[0] = sphere->aabb[1] + 1.0f;
+	aabb._mins[1] = sphere->aabb[2] - 1.0f;
+	aabb._maxs[1] = sphere->aabb[3] + 1.0f;
+	aabb._mins[2] = sphere->aabb[4] - 1.0f;
+	aabb._maxs[2] = sphere->aabb[5] + 1.0f;
 	
 	bsp->checkcount++;
 	
+	int contacts_num = 0;
+
+#if 0
 	dArray<int> leafs;
 	dBoxLeafnums(bsp, aabb, leafs, 0);
 	if(!leafs.size())
@@ -2456,29 +2515,31 @@ int	dCollideBSPSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, 
 	}
 	else
 	{
-//		Com_Printf("\ndCollideBSPSphere: sphere touches %i leaves\n", leafs.size());
+		Com_Printf("\ndCollideBSPSphere: sphere touches %i leaves\n", leafs.size());
 	}
-	
-	int contacts_num = 0;
-#if 1
+
 	for(int i=0; i<leafs.size(); i++)
 	{
 		contacts_num += dSphereInLeaf(o1, o2, flags, contact, skip, leafs[i]);
 	}
+#else
+	int leaf_num = dPointInLeaf(bsp, vec3_c(o2->pos), 0);
 	
+//	Com_Printf("dCollideBSPSphere: sphere in leave %i\n", leaf_num);
+	
+	if(leaf_num != -1)
+		contacts_num += dSphereInLeaf(o1, o2, flags, contact, skip, leaf_num);
+#endif
 	if(!contacts_num)
 	{
 //		Com_Printf("dCollideBSPSphere: no contacts\n");
 	}
 	else
 	{
-		Com_Printf("dCollideBSPSphere: %i contacts\n", contacts_num);
+//		Com_Printf("dCollideBSPSphere: %i contacts\n", contacts_num);
 	}
-#endif
+	
 	return contacts_num;
-#else
-	return 0;
-#endif
 }
 
 int	dCollideBSPBox(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)

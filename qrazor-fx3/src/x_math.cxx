@@ -212,8 +212,8 @@ vec_t	vec3_c::normalize()
 	"movq		%%mm1,		%%mm2\n"	// 1/sqrt(dot)					| 1/sqrt(dot)		(approx)
 	"pfmul		%%mm1,		%%mm1\n"	// (1/sqrt(dot))²				| (1/sqrt(dot))²	step 1
 	"punpckldq	%%mm0,		%%mm0\n"	// dot						| dot			(MMX instruction)
-	"pfrsqit1	%%mm0,		%%mm1\n"	// intermediate					| -"-			step 2
-	"pfrcpit2	%%mm2,		%%mm1\n"	// 1/sqrt(dot) (full 24-bit precision)		| -"-			step 3
+	"pfrsqit1	%%mm0,		%%mm1\n"	// intermediate					| intermediate		step 2
+	"pfrcpit2	%%mm2,		%%mm1\n"	// 1/sqrt(dot) (full 24-bit precision)		| 1/sqrt(dot)		step 3
 	"pfmul		%%mm1,		%%mm0\n"	// sqrt(dot)					| sqrt(dot)
 	// len = mm0[lo]
 	"movd		%%mm0,		(%%edx)\n"
@@ -432,9 +432,10 @@ void	matrix_c::copyTranspose(matrix_c &out) const
 
 void	matrix_c::transpose()
 {
-	matrix_c tmp;
-	copyTranspose(tmp);
-	tmp.copyTo(*this);
+					std::swap(_m[0][1], _m[1][0]);	std::swap(_m[0][2], _m[2][0]);	std::swap(_m[0][3], _m[3][0]);
+	std::swap(_m[1][0], _m[0][1]);					std::swap(_m[1][2], _m[2][1]);	std::swap(_m[1][3], _m[3][1]);
+	std::swap(_m[2][0], _m[0][2]);	std::swap(_m[2][1], _m[1][2]);					std::swap(_m[2][3], _m[3][2]);
+	std::swap(_m[3][0], _m[0][3]);	std::swap(_m[3][1], _m[1][3]);	std::swap(_m[3][2], _m[2][3]);
 }
 	
 void	matrix_c::setupXRotation(vec_t deg)
