@@ -1250,11 +1250,11 @@ char*	Sys_GetClipboardData()
 Sys_AppActivate
 =================
 */
-void Sys_AppActivate (void)
+void	Sys_AppActivate()
 {
-#ifndef DEDICATED_ONLY
-	ShowWindow ( cl_hwnd, SW_RESTORE);
-	SetForegroundWindow ( cl_hwnd );
+#if !defined(DEDICATED_ONLY) && !defined(BSPCOMPILER_ONLY)
+	ShowWindow(cl_hwnd, SW_RESTORE);
+	SetForegroundWindow(cl_hwnd);
 #endif
 }
 

@@ -34,6 +34,9 @@ const vec3_t	bytedirs[NUMVERTEXNORMALS] =
 #include "x_anorms.h"
 };
 
+const entity_state_t	null_entity_state;
+const player_state_t	null_player_state;
+
 
 const char*	Com_StripExtension(const std::string &name)
 {

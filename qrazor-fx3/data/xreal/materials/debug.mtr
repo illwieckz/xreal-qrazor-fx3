@@ -1,0 +1,34 @@
+
+debugportals
+{
+	translucent
+	twosided
+	               
+	{
+		blend	filter
+		map	_white
+		red	0
+		green	0
+		blue	1
+		alpha	0.5
+	}
+}
+
+debugsurfaces
+{
+	translucent
+	twosided
+	               
+	{
+		stage	diffusemap
+		map	_white
+	}
+	
+	{
+		stage	colormap
+		map	_white
+		blend	filter
+		rgb	frandom		// random color 0.0 - 1.0
+		alpha	0.5
+	}
+}

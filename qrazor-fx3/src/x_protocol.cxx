@@ -97,4 +97,8 @@ const char*	te_strings[] =
 };
 
 
+const float DEFAULT_SOUND_PACKET_VOLUME = 1.0f;
+const float DEFAULT_SOUND_PACKET_ATTENUATION = 1.0f;
+
+
 

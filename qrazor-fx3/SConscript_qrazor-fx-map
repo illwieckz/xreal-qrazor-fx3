@@ -7,6 +7,7 @@ qrazor_fx_map_src = [
 'src/x_endian.cxx',
 'src/x_info.cxx',
 'src/x_math.cxx',
+'src/x_protocol.cxx',
 'src/x_shared.cxx',
 'src/x_string.cxx',
 'src/cmd.cxx',

@@ -78,7 +78,6 @@ private:
 	bool		cullEntity(sv_entity_c *ent, byte *bitvector);
 	//! returns the number of written entities
 	void		writePacketEntities(sv_client_frame_t *from, sv_client_frame_t *to, bitmessage_c &msg);
-	void		writePlayerState(sv_client_frame_t *from, sv_client_frame_t *to, bitmessage_c &msg);
 	void		writeAreaBits(const sv_client_frame_t *from, bitmessage_c &msg);
 	void		writeFrame(bitmessage_c &msg);
 public:

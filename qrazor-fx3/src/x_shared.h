@@ -1307,13 +1307,11 @@ enum entity_type_e
 // entity_state_t is the information conveyed from the server
 // in an update message about entities that the client will
 // need to render in some way
-struct entity_state_t
+class entity_state_t
 {
 	friend class g_entity_c;
 	friend class message_c;
 	friend class bitmessage_c;
-	
-//	friend void	message_c::readDeltaEntity(entity_state_t *from, entity_state_t *to, int number);
 
 public:	
 	inline entity_state_t()
@@ -1423,6 +1421,8 @@ public:
 	vec3_c		vectors[3];		// misc vectors. e.g. used by lights
 };
 
+extern const entity_state_t	null_entity_state;
+
 
 
 
@@ -1430,8 +1430,9 @@ public:
 // to rendered a view.  There will only be 10 player_state_t sent each second,
 // but the number of pmove_state_t changes will be reletive to client
 // frame rates
-struct player_state_t // : public entity state
+class player_state_t // : public entity state
 {
+public:
 	inline player_state_t()
 	{
 		clear();
@@ -1485,6 +1486,7 @@ struct player_state_t // : public entity state
 	short		stats[MAX_STATS];	// fast status bar updates
 };
 
+extern const player_state_t	null_player_state;
 
 
 class entity_c

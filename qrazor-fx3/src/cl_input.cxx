@@ -523,7 +523,7 @@ void	CL_SendCmd()
 	// if the last packet was dropped, it can be recovered
 	i = (cls.netchan.getOutgoingSequence()-2) & CMD_MASK;
 	cmd = &cl.cmds[i];
-	memset(&nullcmd, 0, sizeof(nullcmd));
+	nullcmd.clear();
 	msg.writeDeltaUsercmd(&nullcmd, cmd);
 	oldcmd = cmd;
 
