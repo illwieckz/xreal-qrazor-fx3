@@ -65,10 +65,22 @@ static void	CM_ASE_AddShader(char const* begin, char const* end)
 {
 }
 
+static void	CM_ASE_Material(char const* begin, char const* end)
+{	
+//	Com_DPrintf("CM_ASE_Material()\n");
+}
+
+static void	CM_ASE_GeomObject(char const* begin, char const* end)
+{	
+//	Com_DPrintf("CM_ASE_GeomObject()\n");
+}
+
 static void	CM_ASE_NewMesh(char const* begin, char const* end)
 {
 	cm_ase_vertexes.clear();
 	cm_ase_indexes.clear();
+	
+//	Com_DPrintf("CM_ASE_NewMesh()\n");
 }
 
 
@@ -176,7 +188,7 @@ struct cm_ase_model_grammar_t : public boost::spirit::grammar<cm_ase_model_gramm
 				;
 				
 			material
-				=	boost::spirit::str_p("*MATERIAL") >> boost::spirit::int_p >> boost::spirit::ch_p('{') >>
+				=	boost::spirit::str_p("*MATERIAL")[&CM_ASE_Material] >> boost::spirit::int_p >> boost::spirit::ch_p('{') >>
 					+(material_map_diffuse | material_submaterial | material_option) >>
 					boost::spirit::ch_p('}')
 				;
@@ -199,11 +211,14 @@ struct cm_ase_model_grammar_t : public boost::spirit::grammar<cm_ase_model_gramm
 				;
 				
 			material_submaterial
-				=	boost::spirit::str_p("*SUBMATERIAL") >> boost::spirit::int_p >> skip_block
+				=	boost::spirit::str_p("*SUBMATERIAL") >> boost::spirit::int_p >> 
+					boost::spirit::ch_p('{') >>
+					*(material_map_diffuse | skip_restofline) >>
+					boost::spirit::ch_p('}')
 				;
 				
 			geomobject
-				=	boost::spirit::str_p("*GEOMOBJECT") >> boost::spirit::ch_p('{') >>
+				=	boost::spirit::str_p("*GEOMOBJECT")[&CM_ASE_GeomObject] >> boost::spirit::ch_p('{') >>
 					boost::spirit::str_p("*NODE_NAME") >> skip_restofline >>
 					boost::spirit::str_p("*NODE_TM") >> skip_block >> 
 					+mesh >>
@@ -222,6 +237,8 @@ struct cm_ase_model_grammar_t : public boost::spirit::grammar<cm_ase_model_gramm
 					mesh_tvertlist >>
 					boost::spirit::str_p("*MESH_NUMTVFACES") >> boost::spirit::int_p >>
 					mesh_tfacelist >>
+					!(boost::spirit::str_p("*MESH_NUMCVERTEX") >> boost::spirit::int_p) >>
+					mesh_normals >>
 					*skip_restofline >>
 					boost::spirit::ch_p('}')[&CM_ASE_AddMesh]
 				;
@@ -283,13 +300,39 @@ struct cm_ase_model_grammar_t : public boost::spirit::grammar<cm_ase_model_gramm
 					boost::spirit::int_p
 				;
 				
+			mesh_normals
+				=	boost::spirit::str_p("*MESH_NORMALS") >> boost::spirit::ch_p('{') >>
+					+(	mesh_facenormal >> 
+						mesh_vertexnormal >> 
+						mesh_vertexnormal >>
+						mesh_vertexnormal
+					) >>
+					boost::spirit::ch_p('}')
+				;
+				
+			mesh_facenormal
+				=	boost::spirit::str_p("*MESH_FACENORMAL") >>
+					boost::spirit::int_p >>
+					boost::spirit::real_p >>
+					boost::spirit::real_p >>
+					boost::spirit::real_p
+				;
+				
+			mesh_vertexnormal
+				=	boost::spirit::str_p("*MESH_VERTEXNORMAL") >>
+					boost::spirit::int_p >>
+					boost::spirit::real_p >>
+					boost::spirit::real_p >>
+					boost::spirit::real_p
+				;
+				
 			expression
 				=	boost::spirit::str_p("*3DSMAX_ASCIIEXPORT") >> boost::spirit::int_p[&CM_ASE_Version] >>
 					boost::spirit::str_p("*COMMENT") >> restofline >>
 					scene >>
 					material_list >>
-					geomobject >>
-					*boost::spirit::anychar_p
+					+geomobject// >>
+					//*boost::spirit::anychar_p
 				;
 				
 			// end grammar definiton
@@ -316,6 +359,9 @@ struct cm_ase_model_grammar_t : public boost::spirit::grammar<cm_ase_model_gramm
 									mesh_tvert,
 								mesh_tfacelist,
 									mesh_tface,
+								mesh_normals,
+									mesh_facenormal,
+									mesh_vertexnormal,
 						expression;
 		
 		boost::spirit::rule<ScannerT> const&

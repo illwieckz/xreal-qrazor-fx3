@@ -252,7 +252,10 @@ struct r_ase_model_grammar_t : public boost::spirit::grammar<r_ase_model_grammar
 				;
 				
 			material_submaterial
-				=	boost::spirit::str_p("*SUBMATERIAL") >> boost::spirit::int_p >> skip_block
+				=	boost::spirit::str_p("*SUBMATERIAL") >> boost::spirit::int_p >> 
+					boost::spirit::ch_p('{') >>
+					*(material_map_diffuse | skip_restofline) >>
+					boost::spirit::ch_p('}')
 				;
 				
 			geomobject
@@ -275,6 +278,8 @@ struct r_ase_model_grammar_t : public boost::spirit::grammar<r_ase_model_grammar
 					mesh_tvertlist >>
 					boost::spirit::str_p("*MESH_NUMTVFACES") >> boost::spirit::int_p[&R_ASE_GetTFacesNum] >>
 					mesh_tfacelist >>
+					!(boost::spirit::str_p("*MESH_NUMCVERTEX") >> boost::spirit::int_p) >>
+					mesh_normals >>
 					*skip_restofline >>
 					boost::spirit::ch_p('}')[&R_ASE_AddMesh]
 				;
@@ -336,13 +341,39 @@ struct r_ase_model_grammar_t : public boost::spirit::grammar<r_ase_model_grammar
 					boost::spirit::int_p[&R_ASE_PushTVertexIndex]
 				;
 				
+			mesh_normals
+				=	boost::spirit::str_p("*MESH_NORMALS") >> boost::spirit::ch_p('{') >>
+					+(	mesh_facenormal >> 
+						mesh_vertexnormal >> 
+						mesh_vertexnormal >>
+						mesh_vertexnormal
+					) >>
+					boost::spirit::ch_p('}')
+				;
+				
+			mesh_facenormal
+				=	boost::spirit::str_p("*MESH_FACENORMAL") >>
+					boost::spirit::int_p >>
+					boost::spirit::real_p >>
+					boost::spirit::real_p >>
+					boost::spirit::real_p
+				;
+				
+			mesh_vertexnormal
+				=	boost::spirit::str_p("*MESH_VERTEXNORMAL") >>
+					boost::spirit::int_p >>
+					boost::spirit::real_p >>
+					boost::spirit::real_p >>
+					boost::spirit::real_p
+				;
+				
 			expression
 				=	boost::spirit::str_p("*3DSMAX_ASCIIEXPORT") >> boost::spirit::int_p[&R_ASE_Version] >>
 					boost::spirit::str_p("*COMMENT") >> restofline >>
 					scene >>
 					material_list >>
-					geomobject >>
-					*boost::spirit::anychar_p
+					+geomobject// >>
+					//*boost::spirit::anychar_p
 				;
 				
 			// end grammar definiton
@@ -369,6 +400,9 @@ struct r_ase_model_grammar_t : public boost::spirit::grammar<r_ase_model_grammar
 									mesh_tvert,
 								mesh_tfacelist,
 									mesh_tface,
+								mesh_normals,
+									mesh_facenormal,
+									mesh_vertexnormal,
 						expression;
 		
 		boost::spirit::rule<ScannerT> const&
