@@ -167,7 +167,7 @@ bool	R_ParseExpressionToAST(const std::string &exp, boost::spirit::tree_parse_in
 
 void	R_DumpASTToXML(const std::string &str, const boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> &info)
 {
-#if 0
+#if 1
 	std::map<boost::spirit::parser_id, std::string>	rule_names;
 	
 	rule_names[SHADER_GENERIC_RULE_REAL]		= "real";

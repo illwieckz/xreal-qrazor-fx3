@@ -145,6 +145,7 @@ enum r_shader_material_stage_type_e
 	SHADER_MATERIAL_STAGE_TYPE_REFRACTIONMAP,
 	SHADER_MATERIAL_STAGE_TYPE_DISPERSIONMAP,
 	SHADER_MATERIAL_STAGE_TYPE_SKYBOXMAP,
+	SHADER_MATERIAL_STAGE_TYPE_SKYCLOUDMAP,
 	SHADER_MATERIAL_STAGE_TYPE_LIQUIDMAP
 };
 
@@ -318,8 +319,6 @@ enum
 	SHADER_GENERIC_RULE_TABLE_VALUE,
 	SHADER_GENERIC_RULE_FACTOR,
 	SHADER_GENERIC_RULE_TERM,
- 	SHADER_GENERIC_RULE_OP_MUL,
- 	SHADER_GENERIC_RULE_OP_DIV,
 	SHADER_GENERIC_RULE_EXPRESSION
 };
 
@@ -681,8 +680,6 @@ public:
 	
 	r_shader_stage_c*		stage_lightmap;
 	r_shader_stage_c*		stage_deluxemap;
-	
-	r_shader_stage_c*		stage_skyboxmap;
 	
 	// used if light shader
 	r_shader_stage_c*		stage_attenuationmap_z;

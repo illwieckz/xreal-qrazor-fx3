@@ -695,14 +695,19 @@ void	R_StageDispersionMap_stc(char const* begin, char const *end)
 	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_DISPERSIONMAP;
 }
 
+void	R_StageLiquidMap_stc(char const* begin, char const *end)
+{
+	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_LIQUIDMAP;
+}
+
 void	R_StageSkyBoxMap_stc(char const* begin, char const *end)
 {
 	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_SKYBOXMAP;
 }
 
-void	R_StageLiquidMap_stc(char const* begin, char const *end)
+void	R_StageSkyCloudMap_stc(char const* begin, char const *end)
 {
-	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_LIQUIDMAP;
+	r_current_stage->type = SHADER_MATERIAL_STAGE_TYPE_SKYCLOUDMAP;
 }
 
 void	R_StageAttenuationMapXY_stc(char const* begin, char const *end)

@@ -122,8 +122,9 @@ void	R_StageDeluxeMap_stc(char const* begin, char const *end);
 void	R_StageReflectionMap_stc(char const* begin, char const *end);
 void	R_StageRefractionMap_stc(char const* begin, char const *end);
 void	R_StageDispersionMap_stc(char const* begin, char const *end);
-void	R_StageSkyBoxMap_stc(char const* begin, char const *end);
 void	R_StageLiquidMap_stc(char const* begin, char const *end);
+void	R_StageSkyBoxMap_stc(char const* begin, char const *end);
+void	R_StageSkyCloudMap_stc(char const* begin, char const *end);
 void	R_StageAttenuationMapXY_stc(char const* begin, char const *end);
 void	R_StageAttenuationMapZ_stc(char const* begin, char const *end);
 void	R_StageAttenuationMapXYZ_stc(char const* begin, char const *end);
@@ -203,8 +204,6 @@ r_shader_c::r_shader_c(const std::string &name, r_shader_type_e type)
 	
 	stage_lightmap		= NULL;
 	stage_deluxemap		= NULL;
-	
-	stage_skyboxmap		= NULL;
 	
 	stage_attenuationmap_z	= NULL;
 	stage_attenuationmap_cube	= NULL;
@@ -389,9 +388,6 @@ static void	R_PushBackCurrentStage(char const begin)//, char const* end)
 			case SHADER_MATERIAL_STAGE_TYPE_DELUXEMAP:
 				r_current_shader->stage_deluxemap = r_current_stage;
 				break;
-				
-			case SHADER_MATERIAL_STAGE_TYPE_SKYBOXMAP:
-				r_current_shader->stage_skyboxmap = r_current_stage;
 		
 			default:
 				break;
@@ -904,12 +900,16 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 				=	boost::spirit::nocase_d[boost::spirit::str_p("stage") >> boost::spirit::str_p("dispersionmap")][&R_StageDispersionMap_stc]
 				;
 				
+			stage_liquidmap_stc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("stage") >> boost::spirit::str_p("liquidmap")][&R_StageLiquidMap_stc]
+				;
+				
 			stage_skyboxmap_stc
 				=	boost::spirit::nocase_d[boost::spirit::str_p("stage") >> boost::spirit::str_p("skyboxmap")][&R_StageSkyBoxMap_stc]
 				;
 			
-			stage_liquidmap_stc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("stage") >> boost::spirit::str_p("liquidmap")][&R_StageLiquidMap_stc]
+			stage_skycloudmap_stc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("stage") >> boost::spirit::str_p("skycloudmap")][&R_StageSkyCloudMap_stc]
 				;
 				
 			stage_attenuationmap_xy_stc
@@ -986,8 +986,9 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 					stage_reflectionmap_stc		|
 					stage_refractionmap_stc		|
 					stage_dispersionmap_stc		|
-					stage_skyboxmap_stc		|
 					stage_liquidmap_stc		|
+					stage_skyboxmap_stc		|
+					stage_skycloudmap_stc		|
 					stage_attenuationmap_xy_stc	|
 					stage_attenuationmap_z_stc	|
 					stage_attenuationmap_xyz_stc	|
@@ -1123,8 +1124,9 @@ struct r_shader_grammar_t : public boost::spirit::grammar<r_shader_grammar_t>
 									stage_reflectionmap_stc,
 									stage_refractionmap_stc,
 									stage_dispersionmap_stc,
-									stage_skyboxmap_stc,
 									stage_liquidmap_stc,
+									stage_skyboxmap_stc,
+									stage_skycloudmap_stc,
 									stage_attenuationmap_xy_stc,
 									stage_attenuationmap_z_stc,
 									stage_attenuationmap_xyz_stc,
@@ -1585,6 +1587,32 @@ static void	R_FindMaterialShaderStageImage(r_shader_c *shader, r_shader_stage_c 
 			break;
 		}
 		
+		case SHADER_MATERIAL_STAGE_TYPE_LIQUIDMAP:
+		{
+			if(stage->image_name.length())
+			{
+				imageflags = IMAGE_NONE;
+			
+				R_SetShaderStageImageFlags(stage, imageflags);
+
+				image = R_FindImage(stage->image_name, imageflags, IMAGE_UPLOAD_CUBEMAP);
+		
+				if(!image)
+				{
+					ri.Com_Printf("R_FindMaterialShaderStageImage: shader '%s' has no liquid cubemap '%s'\n", shader->getName(), stage->image_name.c_str());
+					image = r_img_cubemap_normal;
+				}
+			
+				stage->image = image;
+			}
+			else
+			{
+				stage->image = r_img_cubemap_normal;
+			}
+			
+			break;
+		}
+		
 		case SHADER_MATERIAL_STAGE_TYPE_SKYBOXMAP:
 		{
 			if(stage->image_name.length())
@@ -1611,27 +1639,27 @@ static void	R_FindMaterialShaderStageImage(r_shader_c *shader, r_shader_stage_c 
 			break;
 		}
 		
-		case SHADER_MATERIAL_STAGE_TYPE_LIQUIDMAP:
+		case SHADER_MATERIAL_STAGE_TYPE_SKYCLOUDMAP:
 		{
 			if(stage->image_name.length())
 			{
 				imageflags = IMAGE_NONE;
 			
 				R_SetShaderStageImageFlags(stage, imageflags);
-
-				image = R_FindImage(stage->image_name, imageflags, IMAGE_UPLOAD_CUBEMAP);
+	
+				image = R_FindImage(stage->image_name, imageflags, IMAGE_UPLOAD_COLORMAP);
 		
 				if(!image)
 				{
-					ri.Com_Printf("R_FindMaterialShaderStageImage: shader '%s' has no liquid cubemap '%s'\n", shader->getName(), stage->image_name.c_str());
-					image = r_img_cubemap_normal;
+					ri.Com_Printf("R_FindMaterialShaderStageImage: shader '%s' has no skycloudmap '%s'\n", shader->getName(), stage->image_name.c_str());
+					image = r_img_default;
 				}
 			
 				stage->image = image;
 			}
 			else
 			{
-				stage->image = r_img_cubemap_normal;
+				stage->image = r_img_default;
 			}
 			
 			break;

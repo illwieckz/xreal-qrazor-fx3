@@ -2573,7 +2573,7 @@ extern HGLRC		(*xwglCreateContext)(HDC);
 /// GL Tools ==================================================================
 bool		XGL_Init(const char *dllname);
 void    	XGL_Shutdown();
-void*		XGL_GetSymbol(const char *symbolname);
+void*		XGL_GetSymbol(const char *symbolname, bool crash = true);
 void		XGL_EnableDebugging(bool enable);
 
 void		XGL_CheckForError_(const std::string &file, int line);
