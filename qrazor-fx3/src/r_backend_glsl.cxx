@@ -733,7 +733,7 @@ public:
 		_u_lightmap	= xglGetUniformLocationARB(getHandle(), "u_lightmap");		RB_CheckForError();
 		_u_deluxemap	= xglGetUniformLocationARB(getHandle(), "u_deluxemap");		RB_CheckForError();
 		
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+//		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
 		
 		xglUniform1iARB(_u_diffusemap, 0);	RB_CheckForError();
 		xglUniform1iARB(_u_lightmap, 1);	RB_CheckForError();
@@ -913,16 +913,10 @@ public:
 				
 		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
 		
-		RB_SelectTexture(GL_TEXTURE0);
+		
 		xglUniform1iARB(_u_diffusemap,		0);	RB_CheckForError();
-		
-		RB_SelectTexture(GL_TEXTURE1);
 		xglUniform1iARB(_u_attenuationmap_xy,	1);	RB_CheckForError();
-		
-		RB_SelectTexture(GL_TEXTURE2);
 		xglUniform1iARB(_u_attenuationmap_z,	2);	RB_CheckForError();
-		
-		RB_SelectTexture(GL_TEXTURE3);
 		xglUniform1iARB(_u_attenuationmap_cube,	3);	RB_CheckForError();
 		
 		xglUseProgramObjectARB(0);	RB_CheckForError();
@@ -984,7 +978,7 @@ public:
 		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");			RB_CheckForError();
 		_u_attenuationmap_xy	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_xy");		RB_CheckForError();
 		_u_attenuationmap_z	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_z");		RB_CheckForError();
-		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube");	RB_CheckForError();
+//		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube");	RB_CheckForError();
 				
 		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
 		
@@ -992,7 +986,7 @@ public:
 		xglUniform1iARB(_u_bumpmap,		1);	RB_CheckForError();
 		xglUniform1iARB(_u_attenuationmap_xy,	2);	RB_CheckForError();
 		xglUniform1iARB(_u_attenuationmap_z,	3);	RB_CheckForError();
-		xglUniform1iARB(_u_attenuationmap_cube,	4);	RB_CheckForError();
+//		xglUniform1iARB(_u_attenuationmap_cube,	4);	RB_CheckForError();
 		
 		xglUseProgramObjectARB(0);	RB_CheckForError();
 	}
@@ -1002,7 +996,7 @@ private:
 	uint_t		_u_bumpmap;
 	uint_t		_u_attenuationmap_xy;
 	uint_t		_u_attenuationmap_z;
-	uint_t		_u_attenuationmap_cube;
+//	uint_t		_u_attenuationmap_cube;
 };
 
 
@@ -1027,7 +1021,7 @@ public:
 		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");			RB_CheckForError();
 		_u_attenuationmap_xy	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_xy");		RB_CheckForError();
 		_u_attenuationmap_z	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_z");		RB_CheckForError();
-		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube");	RB_CheckForError();
+//		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube");	RB_CheckForError();
 				
 		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
 		
@@ -1035,7 +1029,7 @@ public:
 		xglUniform1iARB(_u_bumpmap,		1);	RB_CheckForError();
 		xglUniform1iARB(_u_attenuationmap_xy,	2);	RB_CheckForError();
 		xglUniform1iARB(_u_attenuationmap_z,	3);	RB_CheckForError();
-		xglUniform1iARB(_u_attenuationmap_cube,	4);	RB_CheckForError();
+//		xglUniform1iARB(_u_attenuationmap_cube,	4);	RB_CheckForError();
 		
 		xglUseProgramObjectARB(0);	RB_CheckForError();
 	}
@@ -1045,7 +1039,7 @@ private:
 	uint_t		_u_bumpmap;
 	uint_t		_u_attenuationmap_xy;
 	uint_t		_u_attenuationmap_z;
-	uint_t		_u_attenuationmap_cube;
+//	uint_t		_u_attenuationmap_cube;
 };
 
 
@@ -1073,7 +1067,7 @@ public:
 		_u_specularmap		= xglGetUniformLocationARB(getHandle(), "u_specularmap");		RB_CheckForError();
 		_u_attenuationmap_xy	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_xy");		RB_CheckForError();
 		_u_attenuationmap_z	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_z");		RB_CheckForError();
-		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube");	RB_CheckForError();
+//		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube");	RB_CheckForError();
 				
 		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
 		
@@ -1082,7 +1076,7 @@ public:
 		xglUniform1iARB(_u_specularmap,		2);	RB_CheckForError();
 		xglUniform1iARB(_u_attenuationmap_xy,	3);	RB_CheckForError();
 		xglUniform1iARB(_u_attenuationmap_z,	4);	RB_CheckForError();
-		xglUniform1iARB(_u_attenuationmap_cube,	5);	RB_CheckForError();
+//		xglUniform1iARB(_u_attenuationmap_cube,	5);	RB_CheckForError();
 		
 		xglUseProgramObjectARB(0);	RB_CheckForError();
 	}
@@ -1093,7 +1087,7 @@ private:
 	uint_t		_u_specularmap;
 	uint_t		_u_attenuationmap_xy;
 	uint_t		_u_attenuationmap_z;
-	uint_t		_u_attenuationmap_cube;
+//	uint_t		_u_attenuationmap_cube;
 };
 
 
@@ -1119,7 +1113,7 @@ public:
 		_u_specularmap		= xglGetUniformLocationARB(getHandle(), "u_specularmap");		RB_CheckForError();
 		_u_attenuationmap_xy	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_xy");		RB_CheckForError();
 		_u_attenuationmap_z	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_z");		RB_CheckForError();
-		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube");	RB_CheckForError();
+//		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube");	RB_CheckForError();
 				
 		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
 		
@@ -1128,7 +1122,7 @@ public:
 		xglUniform1iARB(_u_specularmap,		2);	RB_CheckForError();
 		xglUniform1iARB(_u_attenuationmap_xy,	3);	RB_CheckForError();
 		xglUniform1iARB(_u_attenuationmap_z,	4);	RB_CheckForError();
-		xglUniform1iARB(_u_attenuationmap_cube,	5);	RB_CheckForError();
+//		xglUniform1iARB(_u_attenuationmap_cube,	5);	RB_CheckForError();
 		
 		xglUseProgramObjectARB(0);	RB_CheckForError();
 	}
@@ -1139,7 +1133,7 @@ private:
 	uint_t		_u_specularmap;
 	uint_t		_u_attenuationmap_xy;
 	uint_t		_u_attenuationmap_z;
-	uint_t		_u_attenuationmap_cube;
+//	uint_t		_u_attenuationmap_cube;
 };
 
 
@@ -1839,9 +1833,9 @@ void		RB_RenderCommand_lighting_D_omni(const r_command_t *cmd,		const r_shader_s
 	xglMatrixMode(GL_MODELVIEW);
 	RB_Bind(stage_attenuationmap_z->image);
 	
-	RB_SelectTexture(GL_TEXTURE3);
-	RB_ModifyOmniLightCubeTextureMatrix(cmd, stage_attenuationmap_xy);
-	RB_Bind(stage_attenuationmap_cube->image);
+//	RB_SelectTexture(GL_TEXTURE3);
+//	RB_ModifyOmniLightCubeTextureMatrix(cmd, stage_attenuationmap_xy);
+//	RB_Bind(stage_attenuationmap_cube->image);
 	
 	rb_program_lighting_D_omni->setUniform_light_origin(cmd);
 	rb_program_lighting_D_omni->setUniform_light_color(cmd, stage_attenuationmap_xy);
@@ -1932,9 +1926,9 @@ void		RB_RenderCommand_lighting_DB_omni(const r_command_t *cmd,		const r_shader_
 	xglMatrixMode(GL_MODELVIEW);
 	RB_Bind(stage_attenuationmap_z->image);
 	
-	RB_SelectTexture(GL_TEXTURE4);
-	RB_ModifyOmniLightCubeTextureMatrix(cmd, stage_attenuationmap_xy);
-	RB_Bind(stage_attenuationmap_cube->image);
+//	RB_SelectTexture(GL_TEXTURE4);
+//	RB_ModifyOmniLightCubeTextureMatrix(cmd, stage_attenuationmap_xy);
+//	RB_Bind(stage_attenuationmap_cube->image);
 	
 	rb_program_lighting_DB_omni->setUniform_light_origin(cmd);
 	rb_program_lighting_DB_omni->setUniform_light_color(cmd, stage_attenuationmap_xy);
@@ -1984,9 +1978,9 @@ void		RB_RenderCommand_lighting_DBH_omni(const r_command_t *cmd,		const r_shader
 	xglMatrixMode(GL_MODELVIEW);
 	RB_Bind(stage_attenuationmap_z->image);
 	
-	RB_SelectTexture(GL_TEXTURE4);
-	RB_ModifyOmniLightCubeTextureMatrix(cmd, stage_attenuationmap_xy);
-	RB_Bind(stage_attenuationmap_cube->image);
+//	RB_SelectTexture(GL_TEXTURE4);
+//	RB_ModifyOmniLightCubeTextureMatrix(cmd, stage_attenuationmap_xy);
+//	RB_Bind(stage_attenuationmap_cube->image);
 	
 	rb_program_lighting_DBH_omni->setUniform_view_origin(cmd);
 	rb_program_lighting_DBH_omni->setUniform_light_origin(cmd);
@@ -2044,9 +2038,9 @@ void		RB_RenderCommand_lighting_DBHS_omni(const r_command_t *cmd,		const r_shade
 	xglMatrixMode(GL_MODELVIEW);
 	RB_Bind(stage_attenuationmap_z->image);
 	
-	RB_SelectTexture(GL_TEXTURE5);
-	RB_ModifyOmniLightCubeTextureMatrix(cmd, stage_attenuationmap_xy);
-	RB_Bind(stage_attenuationmap_cube->image);
+//	RB_SelectTexture(GL_TEXTURE5);
+//	RB_ModifyOmniLightCubeTextureMatrix(cmd, stage_attenuationmap_xy);
+//	RB_Bind(stage_attenuationmap_cube->image);
 	
 	rb_program_lighting_DBHS_omni->setUniform_view_origin(cmd);
 	rb_program_lighting_DBHS_omni->setUniform_light_origin(cmd);
@@ -2105,9 +2099,9 @@ void		RB_RenderCommand_lighting_DBS_omni(const r_command_t *cmd,		const r_shader
 	xglMatrixMode(GL_MODELVIEW);
 	RB_Bind(stage_attenuationmap_z->image);
 	
-	RB_SelectTexture(GL_TEXTURE5);
-	RB_ModifyOmniLightCubeTextureMatrix(cmd, stage_attenuationmap_xy);
-	RB_Bind(stage_attenuationmap_cube->image);
+//	RB_SelectTexture(GL_TEXTURE5);
+//	RB_ModifyOmniLightCubeTextureMatrix(cmd, stage_attenuationmap_xy);
+//	RB_Bind(stage_attenuationmap_cube->image);
 	
 	rb_program_lighting_DBS_omni->setUniform_view_origin(cmd);
 	rb_program_lighting_DBS_omni->setUniform_light_origin(cmd);
