@@ -35,14 +35,14 @@ void	main()
 	vec3 N = normalize(var_normal);
 	
 	// compute light direction from object space deluxe map
-	vec3 L = normalize(2 * (texture2D(u_deluxemap, var_tex_deluxe).xyz - 0.5));
+	vec3 L = 2 * normalize(texture2D(u_deluxemap, var_tex_deluxe).xyz - 0.5);
 	
 	// compute light color from object space lightmap
 	vec3 C = texture2D(u_lightmap, var_tex_light).xyz;
 	
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_diffusemap, var_tex_diffuse);
-	diffuse.rgb *= C * clamp(dot(N, L), 0, 1);
+	diffuse.rgb *= C * clamp(dot(N, L), 0.0, 1.0);
 	
 	// compute final color
 	gl_FragColor = diffuse;
