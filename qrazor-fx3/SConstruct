@@ -5,7 +5,7 @@ opts = Options()
 opts.Add(BoolOption('warnings', 'Set to 1 to compile with -Wall -Werror', 1))
 opts.Add(EnumOption('debug', 'Set to >= 1 to build for debug', '0', allowed_values=('0', '1', '2', '3')))
 opts.Add(EnumOption('optimize', 'Set to >= 1 to build with general optimizations', '2', allowed_values=('0', '1', '2', '4', '6')))
-opts.Add(EnumOption('simd', 'Choose special CPU register optimizations', 'none', allowed_values=('none', 'sse', '3dnow', 'builtin')))
+opts.Add(EnumOption('simd', 'Choose special CPU register optimizations', 'none', allowed_values=('none', '3dnow', 'sse')))
 #opts.Add(EnumOption('cpu', 'Set to 1 to build with special CPU register optimizations', 'i386', allowed_values=('i386', 'athlon-xp', 'pentium4')))
 opts.Add(PathOption('PKGDATADIR', 'Installation path', '/usr/games/share/qrazor-fx'))
 
@@ -32,17 +32,11 @@ if env['optimize'] != '0':
 	#if env['cpu'] == 'athlon-xp':
 	#	env.Append(CXXFLAGS = '-march=athlon-xp -msse')#-mfpmath=sse')
 	
-	if env['simd'] != 'none':
-		env.Append(CXXFLAGS = '-DSIMD')
-	
-	if env['simd'] == 'sse':
-		env.Append(CXXFLAGS = '-DSIMD_SSE')
-		
-	elif env['simd'] == '3dnow':
+	if env['simd'] == '3dnow':
 		env.Append(CXXFLAGS = '-DSIMD_3DNOW')
-		
-	elif env['simd'] == 'builtin':
-		env.Append(CXXFLAGS = '-DSIMD_BUILTIN')
+	
+	elif env['simd'] == 'sse':
+		env.Append(CXXFLAGS = '-DSIMD_SSE')
 
 
 

@@ -91,7 +91,7 @@ void*	message_c::getSpace(int length)
 		if(length > (int)_maxsize)
 			Com_Error(ERR_FATAL, "message_c::getSpace: %i is > full buffer size", length);
 			
-		Com_Printf("MSG_GetSpace: overflow\n");
+		Com_Printf("message_c::getSpace: overflow maxsize %i, cursize+length %i\n", _maxsize, _cursize+length);
 		
 		clear(); 
 		

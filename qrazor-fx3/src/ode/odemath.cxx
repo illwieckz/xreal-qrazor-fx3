@@ -164,23 +164,28 @@ void dPlaneSpace (const dVector3 n, dVector3 p, dVector3 q)
 }
 
 
-vec_t dPlaneDistance (const dVector4 p, const dVector3 v)
+vec_t	dPlaneDistance(const dVector4 p, const dVector3 v)
 {
-  dAASSERT (p && v);
-  vec_t d = dDOT (p, v) + p[3];
-  return d;
+	dAASSERT(p && v);
+	
+	vec_t d = Vector3_DotProduct(p, v) - p[3];
+	return d;
 }
 
-int dVertexOnPlaneSide (const dVector4 p, const dVector3 v)
+int	dVertexOnPlaneSide(const dVector4 p, const dVector3 v)
 {
-  dAASSERT (p && v);
-  vec_t d = dPlaneDistance (p, v);
-  if (d >= 0) {
-    return dPlaneSideFront;
-  }
-  else {
-    return dPlaneSideBack;
-  }
+	dAASSERT(p && v);
+	
+	vec_t d = dPlaneDistance(p, v);
+	
+	if(d >= 0)
+	{
+		return dPlaneSideFront;
+	}
+	else
+	{
+		return dPlaneSideBack;
+	}
 }
 
 /*
@@ -200,12 +205,13 @@ int dBoxOnPlaneSide (const dVector4 p, const vec_t aabb[6])
   corners[1][1] = (p[1] < 0) ? aabb[3] : aabb[2];
   corners[1][2] = (p[2] < 0) ? aabb[5] : aabb[4];
   
-  vec_t dist1 = dPlaneDistance (p, corners[0]);
-  vec_t dist2 = dPlaneDistance (p, corners[1]);
+  vec_t dist1 = dPlaneDistance(p, corners[0]);
+  vec_t dist2 = dPlaneDistance(p, corners[1]);
   
   bool front = (dist1 >= 0);
   
-  if(dist2 < 0) {
+  if(dist2 < 0)
+  {
     if(front) {
       return dPlaneSideCross;
     }

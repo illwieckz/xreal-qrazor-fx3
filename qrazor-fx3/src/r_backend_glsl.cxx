@@ -478,7 +478,11 @@ void	rb_program_c::setVertexAttribs(const r_command_t *cmd)
 		
 		if(_vflags & VATTRIB_VERTEX)
 //			xglVertexAttribPointerARB(0, 3, GL_FLOAT, 0, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_vertexes_ofs));	RB_CheckForError();
+#if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+			xglVertexPointer(3, GL_FLOAT, 16, VBO_BUFFER_OFFSET(entity_mesh->vbo_vertexes_ofs));			RB_CheckForError();
+#else
 			xglVertexPointer(3, GL_FLOAT, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_vertexes_ofs));			RB_CheckForError();
+#endif
 			
 		if(_vflags & VATTRIB_TEX0)
 			xglVertexAttribPointerARB(7, 2, GL_FLOAT, 0, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_texcoords_ofs));	RB_CheckForError();		
@@ -487,14 +491,26 @@ void	rb_program_c::setVertexAttribs(const r_command_t *cmd)
 			xglVertexAttribPointerARB(8, 2, GL_FLOAT, 0, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_texcoords_lm_ofs));	RB_CheckForError();
 		
 		if(_vflags & VATTRIB_TANGENT)
+#if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+			xglVertexAttribPointerARB(3, 3, GL_FLOAT, 0, 16, VBO_BUFFER_OFFSET(entity_mesh->vbo_tangents_ofs));	RB_CheckForError();
+#else
 			xglVertexAttribPointerARB(3, 3, GL_FLOAT, 0, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_tangents_ofs));	RB_CheckForError();
+#endif
 		
 		if(_vflags & VATTRIB_BINORMAL)
+#if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+			xglVertexAttribPointerARB(4, 3, GL_FLOAT, 0, 16, VBO_BUFFER_OFFSET(entity_mesh->vbo_binormals_ofs));	RB_CheckForError();
+#else
 			xglVertexAttribPointerARB(4, 3, GL_FLOAT, 0, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_binormals_ofs));	RB_CheckForError();
+#endif
 			
 		if(_vflags & VATTRIB_NORMAL)
 //			xglVertexAttribPointerARB(5, 3, GL_FLOAT, 0, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_normals_ofs));	RB_CheckForError();
+#if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+			xglNormalPointer(GL_FLOAT, 16, VBO_BUFFER_OFFSET(entity_mesh->vbo_normals_ofs));			RB_CheckForError();
+#else
 			xglNormalPointer(GL_FLOAT, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_normals_ofs));				RB_CheckForError();
+#endif
 		
 //		if(_vflags & VATTRIB_COLOR)
 //			xglVertexAttribPointerARB(6, 4, GL_FLOAT, 0, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_colors_ofs));	RB_CheckForError();
@@ -512,7 +528,11 @@ void	rb_program_c::setVertexAttribs(const r_command_t *cmd)
 		
 		if(_vflags & VATTRIB_VERTEX)
 //			xglVertexAttribPointerARB(0, 3, GL_FLOAT, 0, 0, &(entity_mesh->vertexes[0]));		RB_CheckForError();
+#if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+			xglVertexPointer(3, GL_FLOAT, 16, &(entity_mesh->vertexes[0]));				RB_CheckForError();
+#else
 			xglVertexPointer(3, GL_FLOAT, 0, &(entity_mesh->vertexes[0]));				RB_CheckForError();
+#endif
 		
 		if(_vflags & VATTRIB_TEX0)
 			xglVertexAttribPointerARB(7, 2, GL_FLOAT, 0, 0, &(entity_mesh->texcoords[0]));		RB_CheckForError();
@@ -521,14 +541,26 @@ void	rb_program_c::setVertexAttribs(const r_command_t *cmd)
 			xglVertexAttribPointerARB(8, 2, GL_FLOAT, 0, 0, &(entity_mesh->texcoords_lm[0]));	RB_CheckForError();
 		
 		if(_vflags & VATTRIB_TANGENT)
+#if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+			xglVertexAttribPointerARB(3, 3, GL_FLOAT, 0, 16, &(entity_mesh->tangents[0]));		RB_CheckForError();
+#else
 			xglVertexAttribPointerARB(3, 3, GL_FLOAT, 0, 0, &(entity_mesh->tangents[0]));		RB_CheckForError();
+#endif
 		
 		if(_vflags & VATTRIB_BINORMAL)
+#if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+			xglVertexAttribPointerARB(4, 3, GL_FLOAT, 0, 16, &(entity_mesh->binormals[0]));		RB_CheckForError();
+#else
 			xglVertexAttribPointerARB(4, 3, GL_FLOAT, 0, 0, &(entity_mesh->binormals[0]));		RB_CheckForError();
+#endif
 		
 		if(_vflags & VATTRIB_NORMAL)
 //			xglVertexAttribPointerARB(5, 3, GL_FLOAT, 0, 0, &(entity_mesh->normals[0]));		RB_CheckForError();
+#if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+			xglNormalPointer(GL_FLOAT, 16, &(entity_mesh->normals[0]));				RB_CheckForError();
+#else
 			xglNormalPointer(GL_FLOAT, 0, &(entity_mesh->normals[0]));				RB_CheckForError();
+#endif
 			
 //		if(_vflags & VATTRIB_COLOR)
 //			xglVertexAttribPointerARB(6, 4, GL_FLOAT, 0, 0, &(entity_mesh->colors[0]));		RB_CheckForError();

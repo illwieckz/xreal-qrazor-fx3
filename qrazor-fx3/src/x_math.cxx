@@ -71,34 +71,24 @@ inline void	femms()
 // reciprocal
 vec_t	X_recip(vec_t in)
 {
-#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD)
+#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_3DNOW)
+	vec_t out;
+	femms();
+	asm volatile
+	(
+	"movd		(%%eax),	%%mm0\n"
 	
-	#if defined(SIMD_SSE)
-	#error X_recip not implemented for SSE
-
-	#elif defined(SIMD_3DNOW)
-	// Tr3B -
-		vec_t out;
-		femms();
-		asm volatile
-		(
-		"movd		(%%eax),	%%mm0\n"
-		"pfrcp		%%mm0,		%%mm1\n"	// (approx)
-		"pfrcpit1	%%mm1,		%%mm0\n"	// (intermediate)
-		"pfrcpit2	%%mm1,		%%mm0\n"	// (full 24-bit)
-		"movd		%%mm0,		(%%edx)\n"	// out := mm0[low]
-		:
-		: "a"(&in), "d"(&out)
-		: "memory"
-		);
-		femms();
-		return out;
-
-	#elif defined(SIMD_BUILTIN)
-	#error X_recip not implemented for GCC BUILTIN SIMD
-
-	#endif
-
+	"pfrcp		%%mm0,		%%mm1\n"	// (approx)
+	"pfrcpit1	%%mm1,		%%mm0\n"	// (intermediate)
+	"pfrcpit2	%%mm1,		%%mm0\n"	// (full 24-bit)
+	// out = mm0[low]
+	"movd		%%mm0,		(%%edx)\n"
+	:
+	: "a"(&in), "d"(&out)
+	: "memory"
+	);
+	femms();
+	return out;
 #elif defined(DOUBLEVEC_T)
 	return (1.0/(in));
 #else
@@ -109,40 +99,29 @@ vec_t	X_recip(vec_t in)
 // square root
 vec_t	X_sqrt(vec_t in)
 {
-#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD)
+#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_3DNOW)
+// Tr3B - see 3DNow! Technology Manual p.62
+	vec_t out;
+	femms();
+	asm volatile
+	(						// lo				| hi
+	"movd		(%%eax),	%%mm0\n"	// in				| -
 	
-	#if defined(SIMD_SSE)
-	#error X_recip not implemented for SSE
-
-	#elif defined(SIMD_3DNOW)
-	// Tr3B - see 3DNow! Technology Manual p.62
-		vec_t out;
-		femms();
-		asm volatile
-		(
-		"movd		(%%eax),	%%mm0\n"	// 0		|	a
-		"pfrsqrt	%%mm0,		%%mm1\n"	// 1/sqrt(in)	|	1/sqrt(a)	(approx)
-		#if 1	// Newton-Raphson iteration
-		"movq		%%mm1,		%%mm2\n"	//	X_0 = 1/sqrt(a)			(approx)
-		"pfmul		%%mm1,		%%mm1\n"	// X_0*X_0	|	X_0*X_0		step 1
-		"punpckldq	%%mm0,		%%mm0\n"	// a		|	a		(MMX instruction)
-		"pfrsqit1	%%mm0,		%%mm1\n"	//	intermediate			step 2
-		"pfrcpit2	%%mm2,		%%mm1\n"	// 1/sqrt(a) (full 24-bit precision)	step 3
-		#endif
-		"pfmul		%%mm1,		%%mm0\n"	// sqrt(a)	|	sqrt(a)
-		"movd		%%mm0,		(%%edx)\n"
-		:
-		: "a"(&in), "d"(&out)
-		: "memory"
-		);
-		femms();
-		return out;
-
-	#elif defined(SIMD_BUILTIN)
-	#error X_recip not implemented for GCC BUILTIN SIMD
-
-	#endif
-
+	"pfrsqrt	%%mm0,		%%mm1\n"	// 1/sqrt(in)			| 1/sqrt(in)	(approx)
+	"movq		%%mm1,		%%mm2\n"	// 1/sqrt(in)			| 1/sqrt(in)	(approx)
+	"pfmul		%%mm1,		%%mm1\n"	// (1/sqrt(in))�		| (1/sqrt(in))�	step 1
+//	"punpckldq	%%mm0,		%%mm0\n"	// in				| in		(MMX instruction)
+	"pfrsqit1	%%mm0,		%%mm1\n"	// intermediate					step 2
+	"pfrcpit2	%%mm2,		%%mm1\n"	// 1/sqrt(in) (full 24-bit precision)		step 3
+	"pfmul		%%mm1,		%%mm0\n"	// sqrt(in)
+	
+	"movd		%%mm0,		(%%edx)\n"
+	:
+	: "a"(&in), "d"(&out)
+	: "memory"
+	);
+	femms();
+	return out;
 #elif defined(DOUBLEVEC_T)
 	return sqrt(in);
 #else
@@ -153,36 +132,26 @@ vec_t	X_sqrt(vec_t in)
 // reciprocal square root
 vec_t	X_recipsqrt(vec_t in)
 {
-#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD) && 0
+#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_3DNOW)
+	vec_t out;
+	femms();
+	asm volatile
+	(
+	"movd		(%%eax),	%%mm0\n"	// 0		|	a
 	
-	#if defined(SIMD_SSE)
-	#error X_recip not implemented for SSE
-
-	#elif defined(SIMD_3DNOW)
-		vec_t out;
-		asm volatile
-		(
-		"movd		(%%eax),	%%mm0\n"	// 0		|	a
-		"pfrsqrt	%%mm0,		%%mm1\n"	// 1/sqrt(in)	|	1/sqrt(a)	(approx)
-		//"movq		%%mm1,		%%mm2\n"	//	X_0 = 1/sqrt(a)			(approx)
-		//"pfmul		%%mm1,		%%mm1\n"	// X_0*X_0	|	X_0*X_0		step 1
-		//"punpckldq	%%mm0,		%%mm0\n"	// a		|	a		(MMX instruction)
-		"pfrsqit1	%%mm1,		%%mm0\n"	//	intermediate			step 2
-		"pfrcpit2	%%mm1,		%%mm0\n"	// 1/sqrt(a) (full precision)		step 3
-		//"pfmul		%%mm1,		%%mm0\n"	// sqrt(a)	|	sqrt(a)
-		"movd		%%mm0,		(%%edx)\n"
-		:
-		: "a"(&in), "d"(&out)
-		: "memory"
-		);
-		femms();
-		return out;
-
-	#elif defined(SIMD_BUILTIN)
-	#error X_recip not implemented for GCC BUILTIN SIMD
-
-	#endif
-
+	"pfrsqrt	%%mm0,		%%mm1\n"	// 1/sqrt(in)			| 1/sqrt(in)	(approx)
+	"movq		%%mm1,		%%mm2\n"	// 1/sqrt(in)			| 1/sqrt(in)	(approx)
+	"pfmul		%%mm1,		%%mm1\n"	// (1/sqrt(in))�		| (1/sqrt(in))�	step 1
+	"pfrsqit1	%%mm0,		%%mm1\n"	// intermediate					step 2
+	"pfrcpit2	%%mm2,		%%mm1\n"	// 1/sqrt(in) (full 24-bit precision)		step 3
+	
+	"movd		%%mm1,		(%%edx)\n"
+	:
+	: "a"(&in), "d"(&out)
+	: "memory"
+	);
+	femms();
+	return out;
 #elif defined(DOUBLEVEC_T)
 	return (1.0/sqrt(in));
 #else
@@ -192,46 +161,33 @@ vec_t	X_recipsqrt(vec_t in)
 
 vec_t	vec3_c::length() const
 {
-#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD)
-	
-	#if defined(SIMD_SSE)
-	#error X_recip not implemented for SSE
-
-	#elif defined(SIMD_3DNOW)
-		vec_t out;
-		femms();
-		asm volatile
-		(						// lo						|	hi
-		"movq		(%%eax),	%%mm0\n"	// _v[0]					|	_v[1]
-		"movd		8(%%eax),	%%mm1\n"	// _v[2]					|	-
-		// mm0[lo] = dot product(this)
-		"pfmul		%%mm0,		%%mm0\n"	// _v[0]*_v[0]					|	_v[1]*_v[1]
-		"pfmul		%%mm1,		%%mm1\n"	// _v[2]*_v[2]					|	-
-		"pfacc		%%mm0,		%%mm0\n"	// _v[0]*v._v[0]+_v[1]*v._v[1]			|	-
-		"pfadd		%%mm1,		%%mm0\n"	// _v[0]*v._v[0]+_v[1]*v._v[1]+_v[2]*v._v[2]	|	-
-		// mm0[lo] = sqrt(mm0[lo])
-		"pfrsqrt	%%mm0,		%%mm1\n"	// 1/sqrt(a)	|	1/sqrt(a)	(approx)
-		
-		"movq		%%mm1,		%%mm2\n"	//	X_0 = 1/sqrt(a)			(approx)
-		"pfmul		%%mm1,		%%mm1\n"	// X_0*X_0	|	X_0*X_0		step 1
-		"punpckldq	%%mm0,		%%mm0\n"	// a		|	a		(MMX instruction)
-		"pfrsqit1	%%mm0,		%%mm1\n"	//	intermediate			step 2
-		"pfrcpit2	%%mm2,		%%mm1\n"	// 1/sqrt(a) (full 24-bit precision)	step 3
-		
-		"pfmul		%%mm1,		%%mm0\n"	// sqrt(a)	|	sqrt(a)
-		
-		"movd		%%mm0,		(%%edx)\n"	// out := mm0[lo]
-		:
-		: "a"(&_v[0]), "d"(&out)
-		: "memory"
-		);
-		femms();
-		return out;
-
-	#elif defined(SIMD_BUILTIN)
-	#error X_recip not implemented for GCC BUILTIN SIMD
-
-	#endif
+#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_3DNOW)
+	vec_t out;
+	femms();
+	asm volatile
+	(						// lo						| hi
+	"movq		(%%eax),	%%mm0\n"	// _v[0]					| _v[1]
+	"movd		8(%%eax),	%%mm1\n"	// _v[2]					| -
+	// mm0[lo] = dot product(this)
+	"pfmul		%%mm0,		%%mm0\n"	// _v[0]*_v[0]					| _v[1]*_v[1]
+	"pfmul		%%mm1,		%%mm1\n"	// _v[2]*_v[2]					| -
+	"pfacc		%%mm0,		%%mm0\n"	// _v[0]*v._v[0]+_v[1]*v._v[1]			| -
+	"pfadd		%%mm1,		%%mm0\n"	// _v[0]*v._v[0]+_v[1]*v._v[1]+_v[2]*v._v[2]	| -
+	// mm0[lo] = sqrt(mm0[lo])
+	"pfrsqrt	%%mm0,		%%mm1\n"	// 1/sqrt(dot)					| 1/sqrt(dot)		(approx)
+	"movq		%%mm1,		%%mm2\n"	// 1/sqrt(dot)					| 1/sqrt(dot)		(approx)
+	"pfmul		%%mm1,		%%mm1\n"	// (1/sqrt(dot))�				| (1/sqrt(dot))�	step 1
+	"pfrsqit1	%%mm0,		%%mm1\n"	// intermediate								step 2
+	"pfrcpit2	%%mm2,		%%mm1\n"	// 1/sqrt(dot) (full 24-bit precision)					step 3
+	"pfmul		%%mm1,		%%mm0\n"	// sqrt(dot)
+	// out = mm0[lo]
+	"movd		%%mm0,		(%%edx)\n"
+	:
+	: "a"(&_v[0]), "d"(&out)
+	: "memory"
+	);
+	femms();
+	return out;
 #else
 	return X_sqrt(_v[0]*_v[0] + _v[1]*_v[1] + _v[2]*_v[2]);
 #endif
@@ -239,53 +195,83 @@ vec_t	vec3_c::length() const
 
 vec_t	vec3_c::normalize()
 {
-	vec_t len = _v[0]*_v[0] + _v[1]*_v[1] + _v[2]*_v[2];
+#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_3DNOW)
+	vec_t len;
+	femms();
+	asm volatile
+	(						// lo						| hi
+	"movq		(%%eax),	%%mm0\n"	// _v[0]					| _v[1]
+	"movd		8(%%eax),	%%mm1\n"	// _v[2]					| -
+	// mm0[lo] = dot product(this)
+	"pfmul		%%mm0,		%%mm0\n"	// _v[0]*_v[0]					| _v[1]*_v[1]
+	"pfmul		%%mm1,		%%mm1\n"	// _v[2]*_v[2]					| -
+	"pfacc		%%mm0,		%%mm0\n"	// _v[0]*v._v[0]+_v[1]*v._v[1]			| -
+	"pfadd		%%mm1,		%%mm0\n"	// _v[0]*v._v[0]+_v[1]*v._v[1]+_v[2]*v._v[2]	| -
+	// mm0[lo] = sqrt(mm0[lo])
+	"pfrsqrt	%%mm0,		%%mm1\n"	// 1/sqrt(dot)					| 1/sqrt(dot)		(approx)
+	"movq		%%mm1,		%%mm2\n"	// 1/sqrt(dot)					| 1/sqrt(dot)		(approx)
+	"pfmul		%%mm1,		%%mm1\n"	// (1/sqrt(dot))�				| (1/sqrt(dot))�	step 1
+	"punpckldq	%%mm0,		%%mm0\n"	// dot						| dot			(MMX instruction)
+	"pfrsqit1	%%mm0,		%%mm1\n"	// intermediate					| -"-			step 2
+	"pfrcpit2	%%mm2,		%%mm1\n"	// 1/sqrt(dot) (full 24-bit precision)		| -"-			step 3
+	"pfmul		%%mm1,		%%mm0\n"	// sqrt(dot)					| sqrt(dot)
+	// len = mm0[lo]
+	"movd		%%mm0,		(%%edx)\n"
+	// load this into registers
+	"movq		(%%eax),	%%mm2\n"	// _v[0]					| _v[1]
+	"movd		8(%%eax),	%%mm3\n"	// _v[2]					| -
+	// scale this by the reciprocal square root
+	"pfmul		%%mm1,		%%mm2\n"	// _v[0]*1/sqrt(dot)				| _v[1]*1/sqrt(dot)
+	"pfmul		%%mm1,		%%mm3\n"	// _v[2]*1/sqrt(dot)				| -
+	// store scaled vector
+	"movq		%%mm2,		(%%eax)\n"
+	"movd		%%mm3,		8(%%eax)\n"
+	:
+	: "a"(&_v[0]), "d"(&len)
+	: "memory"
+	);
+	femms();
+	return len;
+#else
+	vec_t len = length();
 	
 	if(len)
 	{
-		len = X_sqrt(len);
+		vec_t ilen = X_recip(len);
 		
-		_v[0] /= len;
-		_v[1] /= len;
-		_v[2] /= len;
+		_v[0] *= ilen;
+		_v[1] *= ilen;
+		_v[2] *= ilen;
 	}
 	
 	return len;
+#endif
 }
 
 vec_t	vec3_c::dotProduct(const vec3_c &v) const
 {
-#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD)
+#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_3DNOW)
+	vec_t out;
+	femms();
+	asm volatile
+	(						// lo						| hi
+	"movq		(%%eax),	%%mm0\n"	// _v[0]					| _v[1]
+	"movq		(%%edx),	%%mm2\n"	// v._v[0]					| v._v[1]
+	"movd		8(%%eax),	%%mm1\n"	// _v[2]					| -
+	"movd		8(%%edx),	%%mm3\n"	// v._v[2]					| -
+		
+	"pfmul		%%mm2,		%%mm0\n"	// _v[0]*v._v[0]				| _v[1]*v._v[1]
+	"pfmul		%%mm3,		%%mm1\n"	// _v[2]*v._v[2]				| -
+	"pfacc		%%mm0,		%%mm0\n"	// _v[0]*v._v[0]+_v[1]*v._v[1]			| -
+	"pfadd		%%mm1,		%%mm0\n"	// _v[0]*v._v[0]+_v[1]*v._v[1]+_v[2]*v._v[2]	| -
 	
-	#if defined(SIMD_SSE)
-	#error X_recip not implemented for SSE
-
-	#elif defined(SIMD_3DNOW)
-		vec_t out;
-		femms();
-		asm volatile
-		(						// lo						|	hi
-		"movq		(%%eax),	%%mm0\n"	// _v[0]					|	_v[1]
-		"movq		(%%edx),	%%mm2\n"	// v._v[0]					|	v._v[1]
-		"movd		8(%%eax),	%%mm1\n"	// _v[2]					|	-
-		"movd		8(%%edx),	%%mm3\n"	// v._v[2]					|	-
-			
-		"pfmul		%%mm2,		%%mm0\n"	// _v[0]*v._v[0]				|	_v[1]*v._v[1]
-		"pfmul		%%mm3,		%%mm1\n"	// _v[2]*v._v[2]				|	-
-		"pfacc		%%mm0,		%%mm0\n"	// _v[0]*v._v[0]+_v[1]*v._v[1]			|	-
-		"pfadd		%%mm1,		%%mm0\n"	// _v[0]*v._v[0]+_v[1]*v._v[1]+_v[2]*v._v[2]	|	-
-		"movd		%%mm0,		(%%ecx)\n"	// out := mm2[lo]
-		:
-		: "a"(&_v[0]), "d"(&v._v[0]), "c"(&out)
-		: "memory"
-		);
-		femms();
-		return out;
-
-	#elif defined(SIMD_BUILTIN)
-	#error X_recip not implemented for GCC BUILTIN SIMD
-
-	#endif
+	"movd		%%mm0,		(%%ecx)\n"	// out = mm2[lo]
+	:
+	: "a"(&_v[0]), "d"(&v._v[0]), "c"(&out)
+	: "memory"
+	);
+	femms();
+	return out;
 #else
 	return  (_v[0]*v._v[0] + _v[1]*v._v[1] + _v[2]*v._v[2]);
 #endif
@@ -327,20 +313,54 @@ const char*	vec3_c::toString() const
 
 vec3_c&	vec3_c::operator = (const vec3_c &v)
 {
+#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_3DNOW)
+	femms();
+	asm volatile
+	(						// lo						| hi
+	"movq		(%%edx),	%%mm0\n"	// v._v[0]					| v._v[1]
+	"movd		8(%%edx),	%%mm1\n"	// v._v[2]					| -
+	
+	"movq		%%mm0,		(%%eax)\n"
+	"movd		%%mm1,		8(%%eax)\n"
+	:
+	: "a"(&_v[0]), "d"(&v._v[0])
+	: "memory"
+	);
+	femms();
+	return *this;
+#else
 	_v[0] = v._v[0];
 	_v[1] = v._v[1];
 	_v[2] = v._v[2];
 	
 	return *this;
+#endif
 }
 		
 vec3_c&	vec3_c::operator = (const vec_t *v)
 {
+#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_3DNOW)
+	femms();
+	asm volatile
+	(						// lo						| hi
+	"movq		(%%edx),	%%mm0\n"	// v._v[0]					| v._v[1]
+	"movd		8(%%edx),	%%mm1\n"	// v._v[2]					| -
+	
+	"movq		%%mm0,		(%%eax)\n"
+	"movd		%%mm1,		8(%%eax)\n"
+	:
+	: "a"(&_v[0]), "d"(v)
+	: "memory"
+	);
+	femms();
+	return *this;
+#else
 	_v[0] = v[0];
 	_v[1] = v[1];
 	_v[2] = v[2];
 	
 	return *this;
+#endif
 }
 
 
@@ -754,14 +774,14 @@ const char*	matrix_c::toString() const
 		
 bool	matrix_c::operator == (const matrix_c &m) const
 {
-//#if defined(__GNUC__) && !defined(DOUBLE_VEC_T)
-//	return (_ms[0] == m._ms[0] && _ms[1] == m._ms[1] && _ms[2] == m._ms[2] && _ms[3] == m._ms[3]);
-//#else
+#if 1
 	return	(	_m[0][0]==m._m[0][0] && _m[0][1]==m._m[0][1] && _m[0][2]==m._m[0][2] && _m[0][3]==m._m[0][3] &&
 			_m[1][0]==m._m[1][0] && _m[1][1]==m._m[1][1] && _m[1][2]==m._m[1][2] && _m[1][3]==m._m[1][3] &&
 			_m[2][0]==m._m[2][0] && _m[2][1]==m._m[2][1] && _m[2][2]==m._m[2][2] && _m[2][3]==m._m[2][3] &&
 			_m[3][0]==m._m[3][0] && _m[3][1]==m._m[3][1] && _m[3][2]==m._m[3][2] && _m[3][3]==m._m[3][3]	);
-//#endif
+#else
+	return (memcmp(&_m[0][0], &m._m[0][0], sizeof(m)) == 0);
+#endif
 }
 
 matrix_c	matrix_c::operator + (const matrix_c &m) const
@@ -782,40 +802,212 @@ matrix_c	matrix_c::operator - (const matrix_c &m) const
 	
 matrix_c	matrix_c::operator * (const matrix_c &m) const
 {
-#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD) && 0
-	
-#if defined(SIMD_SSE)
-#error matrix_c::operator * (const vec4_c &v) not implemented for SSE
-
-#elif defined(SIMD_3DNOW)
+#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_3DNOW)
 	matrix_c out;
 	femms();
 	asm volatile
-	(						//	LOW				|	HIGH
-	// row 0 of this
-	"movq		(%%eax),	%%mm0\n"	//	_m[0][0]			|	_m[0][1]
-	"movq		8(%%eax),	%%mm2\n"	//	_m[0][2]			|	_m[0][3]
-	"movq		%%mm0,		%%mm1\n"
-	"movq		%%mm2,		%%mm3\n"
+	(						// lo									| hi
+	//
+	// calculate first row of out
+	//
 	
-	"punpckldq	%%mm0,		%%mm0\n"
-	"punpckldq	%%mm2,		%%mm2\n"
-	"punpckhdq	%%mm1,		%%mm1\n"
-	"punpckhdq	%%mm3,		%%mm3\n"
+	// copy row 0 of this into registers mm0-mm3
+	"movq		(%%eax),	%%mm0\n"	// _m[0][0]								| _m[0][1]
+	"movq		%%mm0,		%%mm1\n"	// _m[0][0]								| _m[0][1]
 	
-	//TODO
+	"movq		8(%%eax),	%%mm2\n"	// _m[0][2]								| _m[0][3]
+	"movq		%%mm2,		%%mm3\n"	// _m[0][2]								| _m[0][3]
+	
+	"punpckldq	%%mm0,		%%mm0\n"	// _m[0][0]								| _m[0][0]
+	"punpckhdq	%%mm1,		%%mm1\n"	// _m[0][1]								| _m[0][1]
+	
+	"punpckldq	%%mm2,		%%mm2\n"	// _m[0][2]								| _m[0][2]
+	"punpckhdq	%%mm3,		%%mm3\n"	// _m[0][3]								| _m[0][3]
+	// copy column 0 and column 1 of m into registers mm4-mm7
+	"movq		(%%edx),	%%mm4\n"	// m[0][0]								| m[0][1]
+	"movq		16(%%edx),	%%mm5\n"	// m[1][0]								| m[1][1]
+	"movq		32(%%edx),	%%mm6\n"	// m[2][0]								| m[2][1]
+	"movq		48(%%edx),	%%mm7\n"	// m[3][0]								| m[3][1]
+	// calc out[0][0] and out[0][1]	
+	"pfmul		%%mm0,		%%mm4\n"	// _m[0][0]*m[0][0]							| _m[0][0]*m[0][1]
+	"pfmul		%%mm1,		%%mm5\n"	// _m[0][1]*m[1][0]							| _m[0][1]*m[1][1]
+	"pfmul		%%mm2,		%%mm6\n"	// _m[0][2]*m[2][0]							| _m[0][2]*m[2][1]
+	"pfmul		%%mm3,		%%mm7\n"	// _m[0][3]*m[3][0]							| _m[0][3]*m[3][1]
+	
+	"pfadd		%%mm4,		%%mm5\n"	// _m[0][0]*m[0][0]+_m[0][1]*m[1][0]					| _m[0][0]*m[0][1]+_m[0][1]*m[1][1]
+	"pfadd		%%mm5,		%%mm6\n"	// _m[0][0]*m[0][0]+_m[0][1]*m[1][0]+_m[0][2]*m[2][0]			| _m[0][0]*m[0][1]+_m[0][1]*m[1][1]+_m[0][2]*m[2][1]
+	"pfadd		%%mm6,		%%mm7\n"	// _m[0][0]*m[0][0]+_m[0][1]*m[1][0]+_m[0][2]*m[2][0]+_m[0][3]*m[3][0]	| _m[0][0]*m[0][1]+_m[0][1]*m[1][1]+_m[0][2]*m[2][1]+_m[0][3]*m[3][1]
+	// write out[0][0] and out[0][1]
+	"movq		%%mm7,		(%%ecx)\n"
+	// copy column 2 and column 3 of m into registers mm4-mm7
+	"movq		8(%%edx),	%%mm4\n"	// m[0][2]								| m[0][3]
+	"movq		24(%%edx),	%%mm5\n"	// m[1][2]								| m[1][3]
+	"movq		40(%%edx),	%%mm6\n"	// m[2][2]								| m[2][3]
+	"movq		56(%%edx),	%%mm7\n"	// m[3][2]								| m[3][3]
+	// calc out[0][2] and out[0][3]	
+	"pfmul		%%mm0,		%%mm4\n"	// _m[0][0]*m[0][2]							| _m[0][0]*m[0][3]
+	"pfmul		%%mm1,		%%mm5\n"	// _m[0][1]*m[1][2]							| _m[0][1]*m[1][3]
+	"pfmul		%%mm2,		%%mm6\n"	// _m[0][2]*m[2][2]							| _m[0][2]*m[2][3]
+	"pfmul		%%mm3,		%%mm7\n"	// _m[0][3]*m[3][2]							| _m[0][3]*m[3][3]
+	
+	"pfadd		%%mm4,		%%mm5\n"	// _m[0][0]*m[0][2]+_m[0][1]*m[1][2]					| _m[0][0]*m[0][3]+_m[0][1]*m[1][3]
+	"pfadd		%%mm5,		%%mm6\n"	// _m[0][0]*m[0][2]+_m[0][1]*m[1][2]+_m[0][2]*m[2][2]			| _m[0][0]*m[0][3]+_m[0][1]*m[1][3]+_m[0][2]*m[2][3]
+	"pfadd		%%mm6,		%%mm7\n"	// _m[0][0]*m[0][2]+_m[0][1]*m[1][2]+_m[0][2]*m[2][2]+_m[0][3]*m[3][2]	| _m[0][0]*m[0][3]+_m[0][1]*m[1][3]+_m[0][2]*m[2][3]+_m[0][3]*m[3][3]
+	// write out[0][2] and out[0][3]
+	"movq		%%mm7,		8(%%ecx)\n"
+	
+	//
+	// calculate second row of out
+	//
+	
+	// copy row 1 of this into registers mm0-mm3
+	"movq		16(%%eax),	%%mm0\n"	// _m[1][0]								| _m[1][1]
+	"movq		%%mm0,		%%mm1\n"	// _m[1][0]								| _m[1][1]
+	
+	"movq		24(%%eax),	%%mm2\n"	// _m[1][2]								| _m[1][3]
+	"movq		%%mm2,		%%mm3\n"	// _m[1][2]								| _m[1][3]
+	
+	"punpckldq	%%mm0,		%%mm0\n"	// _m[1][0]								| _m[1][0]
+	"punpckhdq	%%mm1,		%%mm1\n"	// _m[1][1]								| _m[1][1]
+	
+	"punpckldq	%%mm2,		%%mm2\n"	// _m[1][2]								| _m[1][2]
+	"punpckhdq	%%mm3,		%%mm3\n"	// _m[1][3]								| _m[1][3]
+	// copy column 0 and column 1 of m into registers mm4-mm7
+	"movq		(%%edx),	%%mm4\n"	// m[0][0]								| m[0][1]
+	"movq		16(%%edx),	%%mm5\n"	// m[1][0]								| m[1][1]
+	"movq		32(%%edx),	%%mm6\n"	// m[2][0]								| m[2][1]
+	"movq		48(%%edx),	%%mm7\n"	// m[3][0]								| m[3][1]
+	// calc out[1][0] and out[1][1]	
+	"pfmul		%%mm0,		%%mm4\n"	// _m[1][0]*m[0][0]							| _m[1][0]*m[0][1]
+	"pfmul		%%mm1,		%%mm5\n"	// _m[1][1]*m[1][0]							| _m[1][1]*m[1][1]
+	"pfmul		%%mm2,		%%mm6\n"	// _m[1][2]*m[2][0]							| _m[1][2]*m[2][1]
+	"pfmul		%%mm3,		%%mm7\n"	// _m[1][3]*m[3][0]							| _m[1][3]*m[3][1]
+	
+	"pfadd		%%mm4,		%%mm5\n"	// _m[1][0]*m[0][0]+_m[1][1]*m[1][0]					| _m[1][0]*m[0][1]+_m[1][1]*m[1][1]
+	"pfadd		%%mm5,		%%mm6\n"	// _m[1][0]*m[0][0]+_m[1][1]*m[1][0]+_m[1][2]*m[2][0]			| _m[1][0]*m[0][1]+_m[1][1]*m[1][1]+_m[1][2]*m[2][1]
+	"pfadd		%%mm6,		%%mm7\n"	// _m[1][0]*m[0][0]+_m[1][1]*m[1][0]+_m[1][2]*m[2][0]+_m[1][3]*m[3][0]	| _m[1][0]*m[0][1]+_m[1][1]*m[1][1]+_m[1][2]*m[2][1]+_m[1][3]*m[3][1]
+	// write out[0][0] and out[0][1]
+	"movq		%%mm7,		16(%%ecx)\n"
+	// copy column 2 and column 3 of m into registers mm4-mm7
+	"movq		8(%%edx),	%%mm4\n"	// m[0][2]								| m[0][3]
+	"movq		24(%%edx),	%%mm5\n"	// m[1][2]								| m[1][3]
+	"movq		40(%%edx),	%%mm6\n"	// m[2][2]								| m[2][3]
+	"movq		56(%%edx),	%%mm7\n"	// m[3][2]								| m[3][3]
+	// calc out[1][2] and out[1][3]	
+	"pfmul		%%mm0,		%%mm4\n"	// _m[1][0]*m[0][2]							| _m[1][0]*m[0][3]
+	"pfmul		%%mm1,		%%mm5\n"	// _m[1][1]*m[1][2]							| _m[1][1]*m[1][3]
+	"pfmul		%%mm2,		%%mm6\n"	// _m[1][2]*m[2][2]							| _m[1][2]*m[2][3]
+	"pfmul		%%mm3,		%%mm7\n"	// _m[1][3]*m[3][2]							| _m[1][3]*m[3][3]
+	
+	"pfadd		%%mm4,		%%mm5\n"	// _m[1][0]*m[0][2]+_m[1][1]*m[1][2]					| _m[1][0]*m[0][3]+_m[1][1]*m[1][3]
+	"pfadd		%%mm5,		%%mm6\n"	// _m[1][0]*m[0][2]+_m[1][1]*m[1][2]+_m[1][2]*m[2][2]			| _m[1][0]*m[0][3]+_m[1][1]*m[1][3]+_m[1][2]*m[2][3]
+	"pfadd		%%mm6,		%%mm7\n"	// _m[1][0]*m[0][2]+_m[1][1]*m[1][2]+_m[1][2]*m[2][2]+_m[1][3]*m[3][2]	| _m[1][0]*m[0][3]+_m[1][1]*m[1][3]+_m[1][2]*m[2][3]+_m[1][3]*m[3][3]
+	// write out[1][2] and out[1][3]
+	"movq		%%mm7,		24(%%ecx)\n"
+	
+	//
+	// calculate third row of out
+	//
+	
+	// copy row 2 of this into registers mm0-mm3
+	"movq		32(%%eax),	%%mm0\n"	// _m[2][0]								| _m[2][1]
+	"movq		%%mm0,		%%mm1\n"	// _m[2][0]								| _m[2][1]
+	
+	"movq		40(%%eax),	%%mm2\n"	// _m[2][2]								| _m[2][3]
+	"movq		%%mm2,		%%mm3\n"	// _m[2][2]								| _m[2][3]
+	
+	"punpckldq	%%mm0,		%%mm0\n"	// _m[2][0]								| _m[2][0]
+	"punpckhdq	%%mm1,		%%mm1\n"	// _m[2][1]								| _m[2][1]
+	
+	"punpckldq	%%mm2,		%%mm2\n"	// _m[2][2]								| _m[2][2]
+	"punpckhdq	%%mm3,		%%mm3\n"	// _m[2][3]								| _m[2][3]
+	// copy column 0 and column 1 of m into registers mm4-mm7
+	"movq		(%%edx),	%%mm4\n"	// m[0][0]								| m[0][1]
+	"movq		16(%%edx),	%%mm5\n"	// m[1][0]								| m[1][1]
+	"movq		32(%%edx),	%%mm6\n"	// m[2][0]								| m[2][1]
+	"movq		48(%%edx),	%%mm7\n"	// m[3][0]								| m[3][1]
+	// calc out[2][0] and out[2][1]	
+	"pfmul		%%mm0,		%%mm4\n"	// _m[2][0]*m[0][0]							| _m[2][0]*m[0][1]
+	"pfmul		%%mm1,		%%mm5\n"	// _m[2][1]*m[1][0]							| _m[2][1]*m[1][1]
+	"pfmul		%%mm2,		%%mm6\n"	// _m[2][2]*m[2][0]							| _m[2][2]*m[2][1]
+	"pfmul		%%mm3,		%%mm7\n"	// _m[2][3]*m[3][0]							| _m[2][3]*m[3][1]
+	
+	"pfadd		%%mm4,		%%mm5\n"	// _m[2][0]*m[0][0]+_m[2][1]*m[1][0]					| _m[2][0]*m[0][1]+_m[2][1]*m[1][1]
+	"pfadd		%%mm5,		%%mm6\n"	// _m[2][0]*m[0][0]+_m[2][1]*m[1][0]+_m[2][2]*m[2][0]			| _m[2][0]*m[0][1]+_m[2][1]*m[1][1]+_m[2][2]*m[2][1]
+	"pfadd		%%mm6,		%%mm7\n"	// _m[2][0]*m[0][0]+_m[2][1]*m[1][0]+_m[2][2]*m[2][0]+_m[2][3]*m[3][0]	| _m[2][0]*m[0][1]+_m[2][1]*m[1][1]+_m[2][2]*m[2][1]+_m[2][3]*m[3][1]
+	// write out[2][0] and out[2][1]
+	"movq		%%mm7,		32(%%ecx)\n"
+	// copy column 2 and column 3 of m into registers mm4-mm7
+	"movq		8(%%edx),	%%mm4\n"	// m[0][2]								| m[0][3]
+	"movq		24(%%edx),	%%mm5\n"	// m[1][2]								| m[1][3]
+	"movq		40(%%edx),	%%mm6\n"	// m[2][2]								| m[2][3]
+	"movq		56(%%edx),	%%mm7\n"	// m[3][2]								| m[3][3]
+	// calc out[2][2] and out[2][3]	
+	"pfmul		%%mm0,		%%mm4\n"	// _m[2][0]*m[0][2]							| _m[2][0]*m[0][3]
+	"pfmul		%%mm1,		%%mm5\n"	// _m[2][1]*m[1][2]							| _m[2][1]*m[1][3]
+	"pfmul		%%mm2,		%%mm6\n"	// _m[2][2]*m[2][2]							| _m[2][2]*m[2][3]
+	"pfmul		%%mm3,		%%mm7\n"	// _m[2][3]*m[3][2]							| _m[2][3]*m[3][3]
+	
+	"pfadd		%%mm4,		%%mm5\n"	// _m[2][0]*m[0][2]+_m[2][1]*m[1][2]					| _m[2][0]*m[0][3]+_m[2][1]*m[1][3]
+	"pfadd		%%mm5,		%%mm6\n"	// _m[2][0]*m[0][2]+_m[2][1]*m[1][2]+_m[2][2]*m[2][2]			| _m[2][0]*m[0][3]+_m[2][1]*m[1][3]+_m[2][2]*m[2][3]
+	"pfadd		%%mm6,		%%mm7\n"	// _m[2][0]*m[0][2]+_m[2][1]*m[1][2]+_m[2][2]*m[2][2]+_m[2][3]*m[3][2]	| _m[2][0]*m[0][3]+_m[2][1]*m[1][3]+_m[2][2]*m[2][3]+_m[2][3]*m[3][3]
+	// write out[2][2] and out[2][3]
+	"movq		%%mm7,		40(%%ecx)\n"
+	
+	//
+	// calculate fourth row of out
+	//
+	
+	// copy row 3 of this into registers mm0-mm3
+	"movq		48(%%eax),	%%mm0\n"	// _m[3][0]								| _m[3][1]
+	"movq		%%mm0,		%%mm1\n"	// _m[3][0]								| _m[3][1]
+	
+	"movq		56(%%eax),	%%mm2\n"	// _m[3][2]								| _m[3][3]
+	"movq		%%mm2,		%%mm3\n"	// _m[3][2]								| _m[3][3]
+	
+	"punpckldq	%%mm0,		%%mm0\n"	// _m[3][0]								| _m[3][0]
+	"punpckhdq	%%mm1,		%%mm1\n"	// _m[3][1]								| _m[3][1]
+	
+	"punpckldq	%%mm2,		%%mm2\n"	// _m[3][2]								| _m[3][2]
+	"punpckhdq	%%mm3,		%%mm3\n"	// _m[3][3]								| _m[3][3]
+	// copy column 0 and column 1 of m into registers mm4-mm7
+	"movq		(%%edx),	%%mm4\n"	// m[0][0]								| m[0][1]
+	"movq		16(%%edx),	%%mm5\n"	// m[1][0]								| m[1][1]
+	"movq		32(%%edx),	%%mm6\n"	// m[2][0]								| m[2][1]
+	"movq		48(%%edx),	%%mm7\n"	// m[3][0]								| m[3][1]
+	// calc out[3][0] and out[3][1]	
+	"pfmul		%%mm0,		%%mm4\n"	// _m[3][0]*m[0][0]							| _m[3][0]*m[0][1]
+	"pfmul		%%mm1,		%%mm5\n"	// _m[3][1]*m[1][0]							| _m[3][1]*m[1][1]
+	"pfmul		%%mm2,		%%mm6\n"	// _m[3][2]*m[2][0]							| _m[3][2]*m[2][1]
+	"pfmul		%%mm3,		%%mm7\n"	// _m[3][3]*m[3][0]							| _m[3][3]*m[3][1]
+	
+	"pfadd		%%mm4,		%%mm5\n"	// _m[3][0]*m[0][0]+_m[3][1]*m[1][0]					| _m[3][0]*m[0][1]+_m[3][1]*m[1][1]
+	"pfadd		%%mm5,		%%mm6\n"	// _m[3][0]*m[0][0]+_m[3][1]*m[1][0]+_m[3][2]*m[2][0]			| _m[3][0]*m[0][1]+_m[3][1]*m[1][1]+_m[3][2]*m[2][1]
+	"pfadd		%%mm6,		%%mm7\n"	// _m[3][0]*m[0][0]+_m[3][1]*m[1][0]+_m[3][2]*m[2][0]+_m[3][3]*m[3][0]	| _m[3][0]*m[0][1]+_m[3][1]*m[1][1]+_m[3][2]*m[2][1]+_m[3][3]*m[3][1]
+	// write out[3][0] and out[3][1]
+	"movq		%%mm7,		48(%%ecx)\n"
+	// copy column 2 and column 3 of m into registers mm4-mm7
+	"movq		8(%%edx),	%%mm4\n"	// m[0][2]								| m[0][3]
+	"movq		24(%%edx),	%%mm5\n"	// m[1][2]								| m[1][3]
+	"movq		40(%%edx),	%%mm6\n"	// m[2][2]								| m[2][3]
+	"movq		56(%%edx),	%%mm7\n"	// m[3][2]								| m[3][3]
+	// calc out[3][2] and out[3][3]	
+	"pfmul		%%mm0,		%%mm4\n"	// _m[3][0]*m[0][2]							| _m[3][0]*m[0][3]
+	"pfmul		%%mm1,		%%mm5\n"	// _m[3][1]*m[1][2]							| _m[3][1]*m[1][3]
+	"pfmul		%%mm2,		%%mm6\n"	// _m[3][2]*m[2][2]							| _m[3][2]*m[2][3]
+	"pfmul		%%mm3,		%%mm7\n"	// _m[3][3]*m[3][2]							| _m[3][3]*m[3][3]
+	
+	"pfadd		%%mm4,		%%mm5\n"	// _m[3][0]*m[0][2]+_m[3][1]*m[1][2]					| _m[3][0]*m[0][3]+_m[3][1]*m[1][3]
+	"pfadd		%%mm5,		%%mm6\n"	// _m[3][0]*m[0][2]+_m[3][1]*m[1][2]+_m[3][2]*m[2][2]			| _m[3][0]*m[0][3]+_m[3][1]*m[1][3]+_m[3][2]*m[2][3]
+	"pfadd		%%mm6,		%%mm7\n"	// _m[3][0]*m[0][2]+_m[3][1]*m[1][2]+_m[3][2]*m[2][2]+_m[3][3]*m[3][2]	| _m[3][0]*m[0][3]+_m[3][1]*m[1][3]+_m[3][2]*m[2][3]+_m[3][3]*m[3][3]
+	// write out[3][2] and out[3][3]
+	"movq		%%mm7,		56(%%ecx)\n"
 	:
 	: "a"(&_m[0][0]), "d"(&m._m[0][0]), "c"(&out._m[0][0])
 	: "memory"
 	);
 	femms();
 	return out;
-
-#elif defined(SIMD_BUILTIN)
-#error matrix_c::operator * (const vec4_c &v) not implemented for GCC BUILTIN SIMD
-
-#endif
-
 #else
 	return matrix_c(	_m[0][0]*m._m[0][0] + _m[0][1]*m._m[1][0] + _m[0][2]*m._m[2][0] + _m[0][3]*m._m[3][0]	,
 				_m[0][0]*m._m[0][1] + _m[0][1]*m._m[1][1] + _m[0][2]*m._m[2][1] + _m[0][3]*m._m[3][1]	,
@@ -841,12 +1033,7 @@ matrix_c	matrix_c::operator * (const matrix_c &m) const
 
 vec3_c	matrix_c::operator * (const vec3_c &v) const
 {
-#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD)
-	
-#if defined(SIMD_SSE)
-#error matrix_c::operator * (const vec3_c &v) not implemented for SSE
-
-#elif defined(SIMD_3DNOW)
+#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_3DNOW)
 	vec3_c out(false);
 	femms();
 	asm volatile
@@ -885,12 +1072,6 @@ vec3_c	matrix_c::operator * (const vec3_c &v) const
 	);
 	femms();
 	return out;
-
-#elif defined(SIMD_BUILTIN)
-#error matrix_c::operator * (const vec3_c &v) not implemented for GCC BUILTIN SIMD
-
-#endif
-
 #else
 	// ~ 50 ASM instructions
 	return vec3_c(	_m[0][0]*v[0] + _m[0][1]*v[1] + _m[0][2]*v[2],
@@ -901,12 +1082,44 @@ vec3_c	matrix_c::operator * (const vec3_c &v) const
 	
 vec4_c	matrix_c::operator * (const vec4_c &v) const
 {
-#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD)
-	
-#if defined(SIMD_SSE)
-#error matrix_c::operator * (const vec4_c &v) not implemented for SSE
+#if 0
+//#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+	vec4_c out(false);
+	asm volatile
+	(						// reg[0]			| reg[1]		| reg[2]		| reg[3]
+	"movups		(%%eax),	%%xmm0\n"	// _m[0][0]			| _m[0][1]		| _m[0][2]		| _m[0][3]
+	"movups		16(%%eax),	%%xmm1\n"	// _m[1][0]			| _m[1][1]		| _m[1][2]		| _m[1][3]
+	"movups		32(%%eax),	%%xmm2\n"	// _m[2][0]			| _m[2][1]		| _m[2][2]		| _m[2][3]
+//	"movups		48(%%eax),	%%xmm3\n"	// _m[3][0]			| _m[3][1]		| _m[3][2]		| _m[3][3]
 
-#elif defined(SIMD_3DNOW)
+//	"movups		(%%edx),	%%xmm4\n"	// v[0]				| v[1]			| v[2]			| v[3]
+	"movss		(%%edx),	%%xmm4\n"	// v[0]				| -			| -			| -
+	"movss		4(%%edx),	%%xmm5\n"	// v[1]				| -			| -			| -
+	"movss		8(%%edx),	%%xmm6\n"	// v[2]				| -			| -			| -
+	"movss		12(%%edx),	%%xmm6\n"	// v[3]				| -			| -			| -
+	
+//	"shufps		$0x00, %%xmm4,	%%xmm4\n"	// v[0]				| v[0]			| v[0]			| v[0]
+//	"shufps		$0x00, %%xmm5,	%%xmm5\n"	// v[1]				| v[1]			| v[1]			| v[1]
+//	"shufps		$0x00, %%xmm6,	%%xmm6\n"	// v[2]				| v[2]			| v[2]			| v[2]
+	
+//	"xorps		%%xmm5,		%%xmm6\n"	// -				| -			| -			| -
+	
+	"mulps		%%xmm4,		%%xmm0\n"	// _m[0][0]*v[0]		| _m[0][1]*v[1]		| _m[0][2]*v[2]		| _m[0][3]*v[3]
+	"mulps		%%xmm5,		%%xmm1\n"	// _m[1][0]*v[0]		| _m[1][1]*v[1]		| _m[1][2]*v[2]		| _m[1][3]*v[3]
+	"mulps		%%xmm6,		%%xmm2\n"	// _m[2][0]*v[0]		| _m[2][1]*v[1]		| _m[2][2]*v[2]		| _m[2][3]*v[3]
+	"mulps		%%xmm7,		%%xmm3\n"	// _m[3][0]*v[0]		| _m[3][1]*v[1]		| _m[3][2]*v[2]		| _m[3][3]*v[3]
+	
+	"addps		%%xmm1,		%%xmm0\n"	// _m[0][0]*v[0]+_m[1][0]*v[1]	| _m[0][1]*v[0]+_m[1][1]*v[1]	| _m[0][2]*v[0]+_m[1][2]*v[1]	| _m[0][3]*v[0]+_m[1][3]*v[1]
+	"addps		%%xmm2,		%%xmm0\n"	// _m[0][0]*v[0]+_m[1][0]*v[1]+_m[2][0]*v[2]	| _m[0][1]*v[0]+_m[1][1]*v[1]	| _m[0][2]*v[0]+_m[1][2]*v[1]	| _m[0][3]*v[0]+_m[1][3]*v[1]
+	"addps		%%xmm3,		%%xmm0\n"
+	
+	"movups		%%xmm0,		(%%ecx)\n"
+	:
+	: "a"(&_m[0][0]), "d"((vec_t*)v), "c"((vec_t*)out)
+	: "memory"
+	);
+	return out;
+#elif defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_3DNOW)
 	vec4_c out(false);
 	femms();
 	asm volatile
@@ -927,7 +1140,7 @@ vec4_c	matrix_c::operator * (const vec4_c &v) const
 	"pfadd		%%mm4,		%%mm5\n"	//	_m[1][2]*v[2] + _m[1][0]*v[0]	| _m[1][3]*v[3] + _m[1][1]*v[1]
 	
 	"pfacc		%%mm5,		%%mm3\n"	// _m[0][2]*v[2] + _m[0][0]*v[0] + _m[0][3]*v[3] + _m[0][1]*v[1]	|	_m[1][2]*v[2] + _m[1][0]*v[0] + _m[1][3]*v[3] + _m[1][1]*v[1]
-	"movq		%%mm3,		(%%ecx)\n"	// out[0] := mm3[low], out[1] := mm3[high]
+	"movq		%%mm3,		(%%ecx)\n"	// out[0] = mm3[low], out[1] = mm3[high]
 	
 	"movq		32(%%eax),	%%mm2\n"	//	_m[2][0]			|	_m[2][1]
 	"movq		40(%%eax),	%%mm3\n"	//	_m[2][2]			|	_m[2][3]
@@ -942,19 +1155,13 @@ vec4_c	matrix_c::operator * (const vec4_c &v) const
 	"pfadd		%%mm4,		%%mm5\n"	//	_m[3][2]*v[2] + _m[3][0]*v[0]	| _m[3][3]*v[3] + _m[3][1]*v[1]
 	
 	"pfacc		%%mm5,		%%mm3\n"	// _m[2][2]*v[2] + _m[2][0]*v[0] + _m[2][3]*v[3] + _m[2][1]*v[1]	|	_m[3][2]*v[2] + _m[3][0]*v[0] + _m[3][3]*v[3] + _m[3][1]*v[1]
-	"movq		%%mm3,		8(%%ecx)\n"	// out[2] := mm3[low], out[3] := mm3[high]
+	"movq		%%mm3,		8(%%ecx)\n"	// out[2] = mm3[low], out[3] = mm3[high]
 	:
 	: "a"(&_m[0][0]), "d"((vec_t*)v), "c"((vec_t*)out)
 	: "memory"
 	);
 	femms();
 	return out;
-
-#elif defined(SIMD_BUILTIN)
-#error matrix_c::operator * (const vec4_c &v) not implemented for GCC BUILTIN SIMD
-
-#endif
-
 #else
 	// ~ 80 ASM instructions
 	return vec4_c(	_m[0][0]*v[0] + _m[0][1]*v[1] + _m[0][2]*v[2] + _m[0][3]*v[3],
@@ -966,9 +1173,7 @@ vec4_c	matrix_c::operator * (const vec4_c &v) const
 
 matrix_c&	matrix_c::operator = (const matrix_c &m)
 {
-#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD)
-	
-#if defined(SIMD_SSE)
+#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
 	asm volatile
 	(
 	//FIXME figure out why movaps breaks at runtime
@@ -982,11 +1187,10 @@ matrix_c&	matrix_c::operator = (const matrix_c &m)
 	"movups		%%xmm2,		0x20(%%eax)\n"
 	"movups		%%xmm3,		0x30(%%eax)\n"
 	:
-	: "a"((float*)&_m[0][0]), "d"((float*)&m._m[0][0])
+	: "a"(&_m[0][0]), "d"(&m._m[0][0])
 	: "memory"
 	);
-	
-#elif defined(SIMD_3DNOW)
+#elif defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_3DNOW)
 	femms();
 	asm volatile
 	(
@@ -1009,19 +1213,10 @@ matrix_c&	matrix_c::operator = (const matrix_c &m)
 	"movq		%%mm6,		48(%%eax)\n"
 	"movq		%%mm7,		56(%%eax)\n"
 	:
-	: "a"((float*)&_m[0][0]), "d"((float*)&m._m[0][0])
+	: "a"(&_m[0][0]), "d"(&m._m[0][0])
 	: "memory"
 	);
 	femms();
-	
-#elif defined(SIMD_BUILTIN)
-	_ms[0] = m._ms[0];
-	_ms[1] = m._ms[1];
-	_ms[2] = m._ms[2];
-	_ms[3] = m._ms[3];
-	
-#endif
-
 #else
 	_m[0][0]=m._m[0][0];	_m[0][1]=m._m[0][1];	_m[0][2]=m._m[0][2];	_m[0][3]=m._m[0][3];
 	_m[1][0]=m._m[1][0];	_m[1][1]=m._m[1][1];	_m[1][2]=m._m[1][2];	_m[1][3]=m._m[1][3];
