@@ -698,9 +698,9 @@ typedef struct
 			QRazor FX's own BSP format
 ================================================================================
 */
-#define BSP_IDENTSTRING		"IBSP"
-#define BSP_IDENT		(('P'<<24)+('S'<<16)+('B'<<8)+'I')	// little-endian "XBSP"
-#define BSP_VERSION		46
+#define BSP_IDENTSTRING		"XBSP"
+#define BSP_IDENT		(('P'<<24)+('S'<<16)+('B'<<8)+'X')	// little-endian "XBSP"
+#define BSP_VERSION		1
 
 
 // upper design bounds
@@ -858,6 +858,7 @@ struct bsp_dvertex_t
 	float			texcoord_st[2];
 	float			texcoord_lm[2];
 	float			normal[3];
+	float			light[3];
 	byte			color[4];
 };
 
