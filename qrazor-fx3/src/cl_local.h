@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdlib.h>
 
 // shared -------------------------------------------------------------------
-#include "shared/x_protocol.h"
+#include "x_protocol.h"
 
 // qrazor-fx ----------------------------------------------------------------
 #include "r_public.h"

@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // qrazor-fx ----------------------------------------------------------------
 // xreal --------------------------------------------------------------------
 // shared -------------------------------------------------------------------
-#include "shared/x_message.h"
+#include "x_message.h"
 
 
 //#define FRAGMENT_MASK			0x80000000

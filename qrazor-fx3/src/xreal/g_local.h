@@ -28,9 +28,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // qrazor-fx ----------------------------------------------------------------
 // xreal --------------------------------------------------------------------
 // shared -------------------------------------------------------------------
-#include "../shared/x_shared.h"
-#include "../shared/x_ode.h"
-#include "../shared/x_protocol.h"
+#include "../x_shared.h"
+#include "../x_ode.h"
+#include "../x_protocol.h"
 
 
 // define GAME_INCLUDE so that game.h does not define the

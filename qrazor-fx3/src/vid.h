@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // system -------------------------------------------------------------------
 // qrazor-fx ----------------------------------------------------------------
 // shared -------------------------------------------------------------------
-#include "shared/x_shared.h"
+#include "x_shared.h"
 
 
 extern	viddef_t	viddef;				// global video state

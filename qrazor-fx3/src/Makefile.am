@@ -1,5 +1,5 @@
 
-SUBDIRS = shared . xreal
+SUBDIRS = . xreal
 
 std_cflags = -pipe @WARN_CXXFLAGS@ @OPT_CXXFLAGS@ @SIMD_CXXFLAGS@ @PROFILE_CXXFLAGS@
 module_ldflags = -module -avoid-version -no-undefined -rpath $(pkglibdir)
@@ -9,7 +9,13 @@ pkglib_LTLIBRARIES = @VID_REFS@
 EXTRA_LTLIBRARIES = ref_arb_glx.la ref_glsl_glx.la ref_nv30_glx.la
 
 # Common source files
-REF_GL_COMMON = r_alias.cxx \
+REF_GL_COMMON = x_endian.cxx \
+		x_info.cxx \
+		x_math.cxx \
+		x_shared.cxx \
+		x_string.cxx \
+		\
+		r_alias.cxx \
 		r_ase.cxx \
 		r_backend.cxx \
 		r_bsp.cxx \
@@ -53,7 +59,13 @@ else
 QRAZOR_FX_SERVER_SYS = sys_linux.cxx glob.cxx
 endif
 
-qrazor_fx_server_SOURCES = cl_null.cxx \
+qrazor_fx_server_SOURCES = x_endian.cxx \
+			x_info.cxx \
+			x_math.cxx \
+			x_message.cxx \
+			x_shared.cxx \
+			x_string.cxx \
+			cl_null.cxx \
 			\
 			cm_ase.cxx \
 			cm_bsp.cxx \
@@ -88,7 +100,7 @@ EXTRA_qrazor_fx_server_SOURCES = sys_win.cxx sys_linux.cxx glob.cxx
 
 qrazor_fx_server_CXXFLAGS = $(std_cflags) -DDEDICATED_ONLY
 qrazor_fx_server_LDFLAGS =
-qrazor_fx_server_LDADD = shared/libshared.a @DL_LIBS@ @SYSTEM_LIBS@ @Z_LIBS@ @ODE_LIBS@ -lm
+qrazor_fx_server_LDADD = @DL_LIBS@ @SYSTEM_LIBS@ @Z_LIBS@ @ODE_LIBS@ -lm
 
 
 
@@ -100,7 +112,14 @@ else
 QRAZOR_FX_CLIENT_SYS = sys_linux.cxx glob.cxx vid_so.cxx
 endif
 
-qrazor_fx_client_SOURCES = cl_cgame.cxx \
+qrazor_fx_client_SOURCES = x_endian.cxx \
+			x_info.cxx \
+			x_math.cxx \
+			x_message.cxx \
+			x_shared.cxx \
+			x_string.cxx \
+			\
+			cl_cgame.cxx \
 			cl_console.cxx \
 			cl_input.cxx \
 			cl_keys.cxx \
@@ -140,7 +159,7 @@ EXTRA_qrazor_fx_client_SOURCES = sys_win.cxx vid_dll.cxx in_win.cxx sys_linux.cx
 
 qrazor_fx_client_CXXFLAGS = $(std_cflags)
 qrazor_fx_client_LDFLAGS = 
-qrazor_fx_client_LDADD = shared/libshared.a @DL_LIBS@ @SYSTEM_LIBS@ @Z_LIBS@ @OPENAL_LIBS@ @ODE_LIBS@  -lm
+qrazor_fx_client_LDADD = @DL_LIBS@ @SYSTEM_LIBS@ @Z_LIBS@ @OPENAL_LIBS@ @ODE_LIBS@  -lm
 
 
 
@@ -150,7 +169,13 @@ else
 QRAZOR_FX_MAP_SYS = sys_linux.cxx glob.cxx
 endif
 
-qrazor_fx_map_SOURCES = cl_null.cxx \
+qrazor_fx_map_SOURCES = x_endian.cxx \
+			x_info.cxx \
+			x_math.cxx \
+			x_shared.cxx \
+			x_string.cxx \
+			\
+			cl_null.cxx \
 			\
 			cmd.cxx \
 			common.cxx \
@@ -173,24 +198,24 @@ EXTRA_qrazor_fx_map_SOURCES =
 
 qrazor_fx_map_CXXFLAGS = $(std_cflags) -DBSPCOMPILER_ONLY
 qrazor_fx_map_LDFLAGS =
-qrazor_fx_map_LDADD = shared/libshared.a @DL_LIBS@ @SYSTEM_LIBS@ @Z_LIBS@ -lm
+qrazor_fx_map_LDADD = @DL_LIBS@ @SYSTEM_LIBS@ @Z_LIBS@ -lm
 
 
 
 if BUILD_GLX
 ref_arb_glx_la_SOURCES = $(REF_GL_COMMON) glimp_glx.cxx r_backend_arb.cxx
 ref_arb_glx_la_CXXFLAGS = $(std_cflags) -fPIC @X_CFLAGS@
-ref_arb_glx_la_LIBADD = shared/libshared.a @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@ @JPEG_LIBS@ @PNG_LIBS@
+ref_arb_glx_la_LIBADD = @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@ @JPEG_LIBS@ @PNG_LIBS@
 ref_arb_glx_la_LDFLAGS = $(module_ldflags)
 
 ref_glsl_glx_la_SOURCES = $(REF_GL_COMMON) glimp_glx.cxx r_backend_glsl.cxx
 ref_glsl_glx_la_CXXFLAGS = $(std_cflags) -fPIC @X_CFLAGS@
-ref_glsl_glx_la_LIBADD = shared/libshared.a @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@ @JPEG_LIBS@ @PNG_LIBS@
+ref_glsl_glx_la_LIBADD = @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@ @JPEG_LIBS@ @PNG_LIBS@
 ref_glsl_glx_la_LDFLAGS = $(module_ldflags)
 
 ref_nv30_glx_la_SOURCES = $(REF_GL_COMMON) glimp_glx.cxx r_backend_nv30.cxx
 ref_nv30_glx_la_CXXFLAGS = $(std_cflags) -fPIC @X_CFLAGS@
-ref_nv30_glx_la_LIBADD = shared/libshared.a @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@ @JPEG_LIBS@ @PNG_LIBS@
+ref_nv30_glx_la_LIBADD = @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@ @JPEG_LIBS@ @PNG_LIBS@
 ref_nv30_glx_la_LDFLAGS = $(module_ldflags)
 endif
 

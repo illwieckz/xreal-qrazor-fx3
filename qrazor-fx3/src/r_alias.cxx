@@ -291,7 +291,7 @@ void	r_alias_model_c::drawFrameLerp(const r_command_t *cmd, r_render_type_e type
 	RB_RenderCommand(cmd, type);
 }
 
-void	r_alias_model_c::createBBox(r_entity_c *ent, cbbox_c &bbox)
+void	r_alias_model_c::updateBBox(r_entity_c *ent)
 {
 	r_alias_frame_t 	*frame;
 	r_alias_frame_t		*frame_old;
@@ -302,12 +302,12 @@ void	r_alias_model_c::createBBox(r_entity_c *ent, cbbox_c &bbox)
 	//
 	if((ent->getShared().frame < 0) || (ent->getShared().frame >= (int)_frames.size()))
 	{
-		ri.Com_Printf("r_alias_model_c::createBBox: model %s has no such frame %d\n", getName(), ent->getShared().frame);
+		ri.Com_Printf("r_alias_model_c::updateBBox: model %s has no such frame %d\n", getName(), ent->getShared().frame);
 	}
 	
 	if((ent->getShared().frame_old < 0) || (ent->getShared().frame_old >= (int)_frames.size()))
 	{
-		ri.Com_Printf ("r_alias_model_c::createBBox: model %s has no such oldframe %d\n", getName(), ent->getShared().frame_old);
+		ri.Com_Printf ("r_alias_model_c::updateBBox: model %s has no such oldframe %d\n", getName(), ent->getShared().frame_old);
 	}
 
 	frame		= _frames[X_bound(0, ent->getShared().frame, (int)_frames.size()-1)];
@@ -323,7 +323,7 @@ void	r_alias_model_c::createBBox(r_entity_c *ent, cbbox_c &bbox)
 
 	if(frame == frame_old)
 	{
-		bbox	= frame->bbox;
+		_bbox	= frame->bbox;
 	}
 	else
 	{
@@ -333,14 +333,14 @@ void	r_alias_model_c::createBBox(r_entity_c *ent, cbbox_c &bbox)
 		for(int i=0; i<3; i++)
 		{		
 			if(bbox_this._mins[i] < bbox_old._mins[i])
-				bbox._mins[i] = bbox_this._mins[i];
+				_bbox._mins[i] = bbox_this._mins[i];
 			else
-				bbox._mins[i] = bbox_old._mins[i];
+				_bbox._mins[i] = bbox_old._mins[i];
 
 			if(bbox_this._maxs[i] > bbox_old._maxs[i])
-				bbox._maxs[i] = bbox_this._maxs[i];
+				_bbox._maxs[i] = bbox_this._maxs[i];
 			else
-				bbox._maxs[i] = bbox_old._maxs[i];
+				_bbox._maxs[i] = bbox_old._maxs[i];
 		}
 	}
 }
@@ -351,7 +351,7 @@ bool	r_alias_model_c::cull(r_entity_c *ent)
 	if(ent->getShared().flags & RF_WEAPONMODEL)
 		return false;
 	
-	createBBox(ent, _bbox);
+	updateBBox(ent);
 	
 	if(ent->getShared().flags & RF_VIEWERMODEL)
 		return (!(r_mirrorview || r_portal_view));
@@ -379,51 +379,13 @@ void	r_alias_model_c::addModelToList(r_entity_c *ent)
 
 	if(cull(ent))
 	{
-		if(!r_shadows->getValue())
-			return;
+		c_entities--;
+		return;
 	}
 		//TODO
 	//else
 		//r_entvisframe[e->number][(r_
 		
-		
-	//
-	// get lights
-	//
-#if 0
-	mb.lights_num = 0;
-	
-	if(r_world_model)
-	{
-		r_bsptree_leaf_c *leaf = (r_bsptree_leaf_c*) r_world_tree->pointInLeaf(mb.entity->origin);
-		
-		if(leaf)
-		{
-			if(leaf->leafsurfaces.size())
-			{
-				r_surface_t	*surf;
-				r_light_t	*light;
-				
-				
-				if(leaf->leafsurfaces.size())
-				{
-					for(std::vector<r_surface_t*>::const_iterator ir = leaf->leafsurfaces.begin(); ir != leaf->leafsurfaces.end(); ++ir)
-					{
-						surf = *ir;
-					
-						for(int j=0; j<surf->lights_num; j++)
-						{
-							light = surf->lights[j];
-					
-							if(mb.lights_num < 3)//MAX_DLIGHTS)
-								mb.lights[mb.lights_num++] = light;
-						}
-					}
-				}
-			}
-		}
-	}
-#endif
 		
 	//
 	// add meshes to the mesh buffer lists with appropiate skins
@@ -457,7 +419,7 @@ void	r_alias_model_c::addModelToList(r_entity_c *ent)
 		if(!r_showinvisible->getValue() && shader->hasFlags(SHADER_NODRAW))
 			continue;
 		
-		RB_AddCommand(ent, this, mesh, shader, NULL, NULL, -(i+1));
+		RB_AddCommand(ent, this, mesh, shader, NULL, NULL, -(i+1), r_origin.distance(ent->getShared().origin));
 		
 		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
@@ -467,7 +429,7 @@ void	r_alias_model_c::addModelToList(r_entity_c *ent)
 				continue;
 			
 			if(light.getShared().radius_bbox.intersect(ent->getShared().origin, mesh->bbox.radius()))
-				RB_AddCommand(ent, this, mesh, shader, &light, NULL, -(i+1));
+				RB_AddCommand(ent, this, mesh, shader, &light, NULL, -(i+1), 0);
 		}
 	}
 }

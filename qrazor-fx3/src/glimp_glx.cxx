@@ -55,7 +55,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //#include <GL/glx.h>
 // shared -------------------------------------------------------------------
-#include "shared/x_keycodes.h"
+#include "x_keycodes.h"
 
 // qrazor-fx ----------------------------------------------------------------
 #include "r_local.h"

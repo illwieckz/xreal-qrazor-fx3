@@ -37,8 +37,9 @@ void	r_areaportal_c::adjustFrustum()
 		for(int i=0; i<4; i++)
 		{
 			frustum[i].fromThreePointForm(points[(i+1)&3], r_origin, points[i]);
-//			frustum[i]._dist = -frustum[i]._dist;
+			frustum[i]._dist = -frustum[i]._dist;
 			frustum[i]._type = PLANE_ANYZ;
+			frustum[i].setSignBits();
 		}
 	}
 	else
@@ -47,8 +48,9 @@ void	r_areaportal_c::adjustFrustum()
 		for(int i=0; i<4; i++)
 		{
 			frustum[i].fromThreePointForm(points[i], r_origin, points[(i+1)&3]);
-//			frustum[i]._dist = -frustum[i]._dist;
+			frustum[i]._dist = -frustum[i]._dist;
 			frustum[i]._type = PLANE_ANYZ;
+			frustum[i].setSignBits();
 		}
 	}
 	
@@ -69,8 +71,8 @@ void	r_areaportal_c::adjustFrustum()
 //	frustum[5]._type	= PLANE_ANYZ;
 	frustum[5] = r_frustum[5];
 #else
-	frustum[4] = r_frustum[4];
-	frustum[5] = r_frustum[5];
+	frustum[FRUSTUM_NEAR] = r_frustum[FRUSTUM_NEAR];
+	frustum[FRUSTUM_FAR] = r_frustum[FRUSTUM_FAR];
 #endif
 }
 	
@@ -178,12 +180,39 @@ r_proctree_c::~r_proctree_c()
 {
 	//TODO
 }
+
+void	r_proctree_c::precacheLight(r_light_c* light)
+{
+	light->setAreaNum(_areas.size());
 	
+#if 0
+	for(uint_t areanum=0; areanum<_areas.size(); areanum++)
+	{
+		r_proctree_area_c *area = _areas[areanum];
+				
+		for(std::vector<r_surface_c*>::const_iterator ir2 = area->model->_surfaces.begin(); ir2 != area->model->_surfaces.end(); ++ir2)
+		{
+			r_surface_c* surf = *ir2;
+				
+			if(!surf->getMesh()->bbox.intersect(light.getShared().radius_bbox))
+				continue;
+				
+			light.addSurface(areanum, surf);
+		}
+	}
+#else			
+	int area = pointInArea(light->getShared().origin);
+				
+	if(area != -1)
+		litArea_r(area, light);
+#endif
+}
 
 void	r_proctree_c::update()
 {
+	/*
 	// current viewcluster
-	if(!(r_newrefdef.rdflags & RDF_NOWORLDMODEL)/* && !r_mirrorview*/)
+	if(!(r_newrefdef.rdflags & RDF_NOWORLDMODEL) && !r_mirrorview)
 	{
 		int	area = 0;
 	
@@ -202,41 +231,7 @@ void	r_proctree_c::update()
 
 		_viewcluster = area;
 	}
-	
-	// cache lights
-	for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
-	{
-		r_light_c& light = ir->second;
-		
-		if(light.needsUpdate())
-		{
-			light.setAreaNum(_areas.size());
-		
-#if 0
-			for(uint_t areanum=0; areanum<_areas.size(); areanum++)
-			{
-				r_proctree_area_c *area = _areas[areanum];
-				
-				for(std::vector<r_surface_c*>::const_iterator ir2 = area->model->_surfaces.begin(); ir2 != area->model->_surfaces.end(); ++ir2)
-				{
-					r_surface_c* surf = *ir2;
-						
-					if(!surf->getMesh()->bbox.intersect(light.getShared().radius_bbox))
-						continue;
-						
-					light.addSurface(areanum, surf);
-				}
-			}
-#else			
-			int area = pointInArea(light.getShared().origin);
-				
-			if(area != -1)
-				litArea_r(area, &light);
-#endif
-			
-			light.needsUpdate(false);
-		}
-	}
+	*/
 }
 
 void	r_proctree_c::draw()
@@ -360,7 +355,7 @@ void	r_proctree_c::drawArea_r(int areanum, const r_frustum_t frustum, int clipfl
 		
 		surf->setFrameCount();
 	
-		RB_AddCommand(&r_world_entity, area->model, surf->getMesh(), surf->getShader(), NULL, NULL, -1);
+		RB_AddCommand(&r_world_entity, area->model, surf->getMesh(), surf->getShader(), NULL, NULL, -1, 0);
 	}
 	
 	
@@ -385,7 +380,7 @@ void	r_proctree_c::drawArea_r(int areanum, const r_frustum_t frustum, int clipfl
 				if(surf->getFrameCount() != r_framecount)
 					continue;
 					
-				RB_AddCommand(&r_world_entity, area->model, surf->getMesh(), surf->getShader(), light, (std::vector<index_t>*)&ir2->second, -1);
+				RB_AddCommand(&r_world_entity, area->model, surf->getMesh(), surf->getShader(), light, (std::vector<index_t>*)&ir2->second, -1, 0);
 			}
 		}
 	}
@@ -618,8 +613,6 @@ void	r_proc_model_c::load(char **buf_p)
 	//
 	int surfaces_num = Com_ParseInt(buf_p);
 	
-	_bbox.clear();
-	
 	for(int i=0; i<surfaces_num; i++)
 	{
 		Com_Parse(buf_p);	// skip '{'
@@ -681,21 +674,12 @@ void	r_proc_model_c::load(char **buf_p)
 		//ri.Com_Printf("indices %i\n", mesh->indexes_num);
 		
 		
-		// create bounding box on the fly	
-		mesh->bbox.clear();
-		for(std::vector<vec3_c>::const_iterator ir = mesh->vertexes.begin(); ir != mesh->vertexes.end(); ir++)
-		{
-			mesh->bbox.addPoint(*ir);
-			_bbox.addPoint(*ir);
-		}
-		
 		// build triangle neighbours
 		//mesh->neighbours = new int[mesh->indexes_num];
 		//RB_BuildTriangleNeighbours(mesh->neighbours, mesh->indexes, mesh->indexes_num);
 		
 		
 		_meshes.push_back(mesh);
-	
 		
 		
 		//
@@ -738,7 +722,10 @@ void	r_proc_model_c::load(char **buf_p)
 void	r_proc_model_c::addModelToList(r_entity_c *ent)
 {
 	if(R_CullBSphere(r_frustum, ent->getShared().origin, _bbox.radius(), FRUSTUM_CLIPALL))
+	{
+		c_entities--;
 		return;
+	}
 
 	for(std::vector<r_surface_c*>::const_iterator ir = _surfaces.begin(); ir != _surfaces.end(); ++ir)
 	{
@@ -759,7 +746,7 @@ void	r_proc_model_c::addModelToList(r_entity_c *ent)
 		//if(R_CullBBox(r_frustum, surf->getMesh()->bbox))
 		//	continue;
 	
-		RB_AddCommand(ent, this, surf->getMesh(), surf->getShader(), NULL, NULL, -1);
+		RB_AddCommand(ent, this, surf->getMesh(), surf->getShader(), NULL, NULL, -1, r_origin.distance(ent->getShared().origin));
 	}
 	
 	/*
@@ -808,7 +795,9 @@ void	r_proc_model_c::draw(const r_command_t *cmd, r_render_type_e type)
 }
 
 void	r_proc_model_c::setupMeshes()
-{	
+{
+	_bbox.clear();
+	
 	for(std::vector<r_surface_c*>::const_iterator ir = _surfaces.begin(); ir != _surfaces.end(); ir++)
 	{
 		r_surface_c *surf = *ir;
@@ -818,6 +807,9 @@ void	r_proc_model_c::setupMeshes()
 		
 		surf->getMesh()->calcTangentSpaces();
 //		surf->getMesh()->calcEdges();
+		surf->getMesh()->createBBoxFromVertexes();
+		
+		_bbox.mergeWith(surf->getMesh()->bbox);
 	}
 }
 

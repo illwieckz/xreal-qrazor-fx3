@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 r_light_c::r_light_c(const r_entity_t &shared, r_light_type_t type)
+:r_occlusioniface_a()
 {
 	_s = shared;
 	_type = type;
@@ -46,6 +47,12 @@ r_light_c::r_light_c(const r_entity_t &shared, r_light_type_t type)
 	
 	if(_s.flags & RF_STATIC)
 	{
+		if(!r_world_tree && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
+			ri.Com_Error(ERR_DROP, "r_light_c::ctor: NULL worldmodel");
+	
+		//_area = r_world_tree->pointInArea(_s.origin);
+		//r_world_tree->precacheLight(this);
+	
 		r_bsptree_leaf_c* leaf = r_world_tree->pointInLeaf(_s.origin);
 		if(leaf)
 		{
@@ -64,14 +71,18 @@ r_light_c::r_light_c(const r_entity_t &shared, r_light_type_t type)
 		
 		r_world_tree->boxLeafs(_s.radius_bbox, _leafs);
 		
-		if(_leafs.size())
-			ri.Com_DPrintf("light touches %i BSP leaves\n", _leafs.size());
+		//if(_leafs.size())
+		//	ri.Com_DPrintf("light touches %i BSP leaves\n", _leafs.size());
 	}
 	else
 	{
 		_cluster = -1;
 		_area = 1;
 	}
+}
+
+r_light_c::~r_light_c()
+{
 }
 
 void 	r_light_c::setupTransform()

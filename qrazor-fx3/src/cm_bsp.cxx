@@ -1075,7 +1075,7 @@ int	CM_TransformedPointContents(const vec3_c &p, int headnode, const vec3_c &ori
 
 byte*	CM_ClusterPVS(int cluster)
 {
-	if(cluster != -1 && cm_pvs.size())
+	if(cluster >= 0 && cm_pvs.size())
 		return &(cm_pvs[cluster * cm_pvs_clusters_size]);
 	else
 		return cm_nullcluster;
@@ -1083,7 +1083,7 @@ byte*	CM_ClusterPVS(int cluster)
 
 static void	CM_FloodAreaConnections()
 {
-	// area 0 is not used
+	// area 0 is the void and not considered
 	for(uint_t i=1; i<cm_areas.size(); i++)
 	{
 		for(uint_t j=1; j<cm_areas.size(); j++)

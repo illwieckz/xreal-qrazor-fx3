@@ -1,0 +1,34 @@
+import os, string, sys
+
+Import('env')
+
+xreal_cgame_src = [
+'src/x_endian.cxx',
+'src/x_info.cxx',
+'src/x_math.cxx',
+'src/x_message.cxx',
+'src/x_panim.cxx',
+'src/x_pmove.cxx',
+'src/x_shared.cxx',
+'src/x_string.cxx',
+'src/xreal/cg_decal.cxx',
+'src/xreal/cg_entity.cxx',
+'src/xreal/cg_event.cxx',
+'src/xreal/cg_explosion.cxx',
+'src/xreal/cg_hud.cxx',
+'src/xreal/cg_inv.cxx',
+'src/xreal/cg_light.cxx',
+'src/xreal/cg_main.cxx',
+'src/xreal/cg_muzzleflash.cxx',
+'src/xreal/cg_particle.cxx',
+'src/xreal/cg_player.cxx',
+'src/xreal/cg_pred.cxx',
+'src/xreal/cg_screen.cxx',
+'src/xreal/cg_tent.cxx',
+'src/xreal/cg_view.cxx',
+'src/xreal/cg_weapon.cxx' ]
+
+xreal_cgame_env = env.Copy()
+xreal_cgame_env.SharedLibrary('cgame', xreal_cgame_src)
+xreal_cgame_env.InstallAs('#install/xreal/cgame.so', 'libcgame.so')
+

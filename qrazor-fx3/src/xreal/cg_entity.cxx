@@ -101,7 +101,7 @@ void	CG_UpdateEntity(int parse_index, int newnum, const entity_state_t *state, b
 		switch(cent->prev.type)
 		{
 			case ET_GENERIC:
-				CG_UpdateGenericEntity(cent);
+				//CG_UpdateGenericEntity(cent);
 				break;
 		
 			case ET_LIGHT_OMNI:
@@ -285,12 +285,16 @@ void	CG_UpdateShader(const cg_entity_t *cent, r_entity_t &rent, bool &update)
 
 void	CG_AddGenericEntity(const cg_entity_t *cent)
 {
-	cgi.Com_DPrintf("adding generic entity ...\n");
+	cgi.Com_DPrintf("adding generic entity %i ...\n", cent->current.getNumber());
 	
 	r_entity_t	rent;
 
-	if(cent->current.index_model)
-		rent.model = cg.model_draw[cent->current.index_model];
+	if(!cent->current.index_model)
+		cgi.Com_Error(ERR_DROP, "CG_AddGenericEntity: bad client game entity model index %i\n", cent->current.index_model);
+	
+	rent.model = cg.model_draw[cent->current.index_model];
+	if(rent.model < 0)
+		cgi.Com_Error(ERR_DROP, "CG_AddGenericEntity: bad renderer entity model index %i\n", rent.model);
 		
 	if(cent->current.index_shader)
 		rent.custom_shader = cg.shader_precache[cent->current.index_shader];
@@ -317,7 +321,7 @@ void	CG_AddGenericEntity(const cg_entity_t *cent)
 
 void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 {
-//	cgi.Com_DPrintf("updating generic entity ...\n");
+	//cgi.Com_DPrintf("updating generic entity ...\n");
 	
 	r_entity_t	rent;
 	bool		update = false;
@@ -348,7 +352,7 @@ void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 
 void	CG_RemoveGenericEntity(const cg_entity_t *cent)
 {
-	cgi.Com_DPrintf("removing generic entity ...\n");
+	cgi.Com_DPrintf("removing generic entity %i ...\n", cent->prev.getNumber());
 
 	cgi.R_RemoveEntity(cent->prev.getNumber());
 }

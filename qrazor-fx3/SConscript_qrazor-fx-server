@@ -1,0 +1,48 @@
+import os, string, sys
+
+Import('env')
+
+qrazor_fx_server_src = [
+'src/x_endian.cxx',
+'src/x_info.cxx',
+'src/x_math.cxx',
+'src/x_message.cxx',
+'src/x_shared.cxx',
+'src/x_string.cxx',
+'src/cm_ase.cxx',
+'src/cm_bsp.cxx',
+'src/cm_main.cxx',
+'src/cm_md3.cxx',
+'src/cm_md5anim.cxx',
+'src/cm_md5mesh.cxx',
+'src/cmd.cxx',
+'src/common.cxx',
+'src/cvar.cxx',
+'src/md4.cxx',
+'src/net_chan.cxx',
+'src/sha1.cxx',
+'src/vfs.cxx',
+'src/unzip.cxx',
+'src/sv_ccmds.cxx',
+'src/sv_client.cxx',
+'src/sv_ents.cxx',
+'src/sv_game.cxx',
+'src/sv_init.cxx',
+'src/sv_main.cxx',
+'src/sv_send.cxx',
+'src/sv_user.cxx',
+'src/sv_world.cxx',
+'src/cl_null.cxx',
+'src/map_null.cxx' ]
+
+if sys.platform == 'linux2':
+	qrazor_fx_server_src += ['src/sys_linux.cxx','src/glob.cxx']
+
+elif sys.platform == 'win32':
+	qrazor_fx_server_src += ['src/sys_win.cxx']
+
+qrazor_fx_server_env = env.Copy()
+qrazor_fx_server_env.Append(CXXFLAGS = '-DDEDICATED_ONLY')
+qrazor_fx_server_env.Program('qrazor-fx-server', qrazor_fx_server_src, LIBS=['dl', 'z', 'm'])
+qrazor_fx_server_env.Install('#install', 'qrazor-fx-server')
+#qrazor_fx_server_env.Install('${PKGDATADIR}', 'qrazor-fx-server')

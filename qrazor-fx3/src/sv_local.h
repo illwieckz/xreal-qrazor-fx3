@@ -37,8 +37,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "xreal/g_public.h"
 
 // shared -------------------------------------------------------------------
-#include "shared/x_message.h"
-#include "shared/x_protocol.h"
+#include "x_message.h"
+#include "x_protocol.h"
 
 
 #define	MAX_MASTERS	8				// max recipients for heartbeat packets

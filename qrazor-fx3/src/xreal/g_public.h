@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // system -------------------------------------------------------------------
 // xreal --------------------------------------------------------------------
 // shared -------------------------------------------------------------------
-#include "../shared/x_shared.h"
+#include "../x_shared.h"
 
 
 // xg_public.h -- game dll information visible to server

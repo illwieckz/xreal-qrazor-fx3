@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /// includes ===================================================================
 // system -------------------------------------------------------------------
 // shared -------------------------------------------------------------------
-#include "../shared/x_panim.h"
+#include "../x_panim.h"
 
 // xreal --------------------------------------------------------------------
 #include "g_local.h"
@@ -862,8 +862,8 @@ g_item_weapon_shotgun_c::g_item_weapon_shotgun_c()
 	_classname		= "weapon_shotgun";
 	
 	_pickup_sound 		= "misc/w_pkup.wav";
-	_world_model 		= "models/md5/weapons/shotgun_world/worldshotgun.md5mesh";
-//	_world_model		= "models/weapons2/rocketl/rocketl.md3";
+//	_world_model 		= "models/md5/weapons/shotgun_world/worldshotgun.md5mesh";
+	_world_model		= "models/weapons2/rocketl/rocketl.md3";
 	_world_model_flags	= EF_NONE;
 	_view_model 		= "models/md5/weapons/shotgun_view/viewshotgun.md5mesh";
 	

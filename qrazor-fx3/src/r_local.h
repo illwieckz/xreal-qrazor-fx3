@@ -302,6 +302,7 @@ enum r_tree_type_e
 enum r_render_type_e
 {
 	RENDER_TYPE_DEFAULT,
+	RENDER_TYPE_OCCLUSION_QUERY,
 	RENDER_TYPE_GENERIC,
 	RENDER_TYPE_ZFILL,
 	RENDER_TYPE_REFLECTION,
@@ -776,6 +777,7 @@ class r_scissoriface_a
 {
 public:
 	void			updateScissor(const matrix_c &mvp, const r_vrect_t &vrect, const cbbox_c &bbox);
+	void			setScissor(const r_vrect_t &vrect);
 	
 private:
 	void			addVertex(const matrix_c &mvp, const r_vrect_t &vrect, const vec3_c &v);
@@ -783,15 +785,15 @@ private:
 public:
 
 	//inline const vec4_c&	getScissorCoords() const	{return _coords;}
-	inline int		getScissorX() const		{return (int)_coords[0];}
-	inline int		getScissorY() const		{return (int)_coords[1];}
-	inline int		getScissorWidth() const		{return (int)(_coords[2] - _coords[0]);}
-	inline int		getScissorHeight() const	{return (int)(_coords[3] - _coords[1]);}
+	inline int		getScissorX() const		{return (int)_mins[0];}
+	inline int		getScissorY() const		{return (int)_mins[1];}
+	inline int		getScissorWidth() const		{return (int)(_maxs[0] - _mins[0]);}
+	inline int		getScissorHeight() const	{return (int)(_maxs[1] - _mins[1]);}
 	
 private:
-	vec4_c		_coords;
-//	vec2_c		_mins;
-//	vec2_c		_maxs;
+//	vec4_c		_coords;
+	vec2_c		_mins;
+	vec2_c		_maxs;
 };
 
 class r_visiface_a
@@ -805,27 +807,67 @@ public:
 //	void		updateVis(const r_entity_t &shared);
 
 	inline uint_t	getVisFrameCount() const	{return _visframecount;}
-	inline void	setVisFrameCount()	{_visframecount = r_visframecount;}
-	inline bool	isVisible() const	{return r_visframecount == _visframecount;}
+	inline void	setVisFrameCount(uint_t c)	{_visframecount = c;}
+	inline void	setVisFrameCount()		{_visframecount = r_visframecount;}
+	inline bool	isVisible() const		{return r_visframecount == _visframecount;}
 	
-	inline int	getCluster() const	{return _cluster;}
-	inline int	getArea() const		{return _area;}
+	inline int	getCluster() const		{return _cluster;}
+	inline int	getArea() const			{return _area;}
+	inline const std::vector<r_bsptree_leaf_c*>&	getLeafs() const	{return _leafs;}
 	
-	inline const std::vector<r_bsptree_leaf_c*>
-			getLeafs() const	{return _leafs;};
+	inline const std::vector<int>&			getAreas() const	{return _areas;}
+	
 	
 protected:
 	uint_t		_visframecount;
 	
-	int		_cluster;
-	int		_area;
-	
+	// if Q3A BSP used
+	int				_cluster;
+	int				_area;
 	std::vector<r_bsptree_leaf_c*>	_leafs;
+	
+	// if Doom3 proc used
+	std::vector<int>		_areas;
+};
+
+class r_occlusioniface_a
+{
+protected:
+	r_occlusioniface_a()
+	{
+		_query = 0;
+	
+		if(xglGenQueriesARB)
+			xglGenQueriesARB(1, &_query);
+	}
+	
+	~r_occlusioniface_a()
+	{
+		if(xglDeleteQueriesARB && _query)
+			xglDeleteQueriesARB(1, &_query);
+	}
+	
+public:
+	//inline uint_t		getQuery() const	{return _query;}
+	
+	inline void		beginOcclusionQuery() const	{xglBeginQueryARB(GL_SAMPLES_PASSED_ARB, _query);}	
+	inline void		endOcclusionQuery() const	{xglEndQueryARB(GL_SAMPLES_PASSED_ARB);}
+	
+	inline uint_t		getOcclusionSamplesNum() const
+	{
+		uint_t samples;
+		xglGetQueryObjectuivARB(_query, GL_QUERY_RESULT_ARB, &samples);
+		return samples;
+	}
+	
+private:
+	uint_t		_query;
 };
 
 
 class r_entity_c :
-public r_visiface_a
+public r_visiface_a,
+public r_occlusioniface_a
 {
 public:
 	r_entity_c();
@@ -857,14 +899,14 @@ private:
 		
 	matrix_c		_transform;
 	
-	
 	bool			_needsupdate;
 };
 
 
 class r_light_c :
 public r_visiface_a,
-public r_scissoriface_a
+public r_scissoriface_a,
+public r_occlusioniface_a
 {
 	friend void	RB_AddCommand(	r_entity_c*		entity,
 					r_model_c*		entity_model,
@@ -872,10 +914,12 @@ public r_scissoriface_a
 					r_shader_c*		entity_shader,
 					r_light_c*		light,
 					std::vector<index_t>*	light_indexes,
-					int			infokey);
+					int			infokey,
+					vec_t			distance);
 
 public:
 	r_light_c(const r_entity_t &shared, r_light_type_t type);
+	~r_light_c();
 
 	void			setupTransform();
 	void			setupAttenuation();
@@ -940,7 +984,8 @@ class r_command_t
 					r_shader_c*		entity_shader,
 					r_light_c*		light,
 					std::vector<index_t>*	light_indexes,
-					int			infokey);
+					int			infokey,
+					vec_t			distance);
 
 public:
 	r_command_t();
@@ -952,7 +997,8 @@ public:
 			r_light_c*		light,
 			r_shader_c*		light_shader,
 			std::vector<index_t>*	light_indexes,
-			int			infokey);
+			int			infokey,
+			vec_t			distance);
 			
 	inline r_entity_c*		getEntity() const	{return _entity;}
 	inline r_model_c*		getEntityModel() const	{return _entity_model;}
@@ -966,6 +1012,8 @@ public:
 	inline const matrix_c&		getTransform() const	{return _transform;}
 		
 	inline int			getInfoKey() const	{return _infokey;}
+	
+	inline vec_t			getDistance() const	{return _distance;}
 	
 private:
 	r_entity_c*		_entity;
@@ -981,6 +1029,8 @@ private:
 							// the transform every time we draw the entity
 	
 	int			_infokey;
+	
+	vec_t			_distance;		// for sort by distance
 };
 
 
@@ -1122,13 +1172,9 @@ public:
 class r_tree_c
 {
 public:
+	virtual void		precacheLight(r_light_c *light) = 0;
 	virtual void		update() = 0;
 	virtual void		draw() = 0;
-	
-protected:
-	
-	int		_viewcluster;
-	int		_viewcluster_old;
 };
 
 
@@ -1139,6 +1185,7 @@ public:
 	r_bsptree_c(const std::string &name);
 	virtual ~r_bsptree_c();
 	
+	virtual void		precacheLight(r_light_c *light);
 	virtual void		update();
 	virtual void		draw();
 	
@@ -1150,8 +1197,6 @@ public:
 	// Fills in a list of all the leafs touched
 	void			boxLeafs_r(const cbbox_c &bbox, std::vector<r_bsptree_leaf_c*> &leafs, r_tree_elem_c *elem);
 	void			boxLeafs(const cbbox_c &bbox, std::vector<r_bsptree_leaf_c*> &leafs);
-
-	void			precacheLight(r_light_c *light);
 
 	
 	
@@ -1225,6 +1270,9 @@ private:
 	int					_pvs_clusters_num;
 	int					_pvs_clusters_size;
 	
+	int					_viewcluster;
+	int					_viewcluster_old;
+	
 	GLuint					_vbo_array_buffer;
 	GLuint					_vbo_element_array_buffer;
 };
@@ -1237,24 +1285,31 @@ public:
 	r_proctree_c(const std::string &name);
 	virtual ~r_proctree_c();
 	
-	
+	virtual void		precacheLight(r_light_c *light);
 	virtual void		update();
 	virtual void		draw();
 	
+	int			pointInArea_r(const vec3_c &p, int num);
+	int			pointInArea(const vec3_c &p);
+	
+	void			boxAreas_r(const cbbox_c &bbox, std::vector<int> &areas, int nodenum);
+	void			boxAreas(const cbbox_c &bbox, std::vector<int> &areas);
+	
 private:
-	void		drawArea_r(int area, const r_frustum_t frustum, int clipflags);
-	void		litArea_r(int area, r_light_c *light);
+	void			drawArea_r(int area, const r_frustum_t frustum, int clipflags);
+	void			litArea_r(int area, r_light_c *light);
+	
+	void			markAreas();
+	void			markLights();
+	void			markEntities();
 
-	void		loadNodes(char **buf_p);
-	void		loadInterAreaPortals(char **buf_p);
-
-	int		pointInArea_r(const vec3_c &p, int num);
-	int		pointInArea(const vec3_c &p);
+	void			loadNodes(char **buf_p);
+	void			loadInterAreaPortals(char **buf_p);
 		
 	//
 	// members
 	//
-	int				_sourcearea;	// the portal with the render origin
+	int					_sourcearea;	// the portal with the render origin
 	
 	std::vector<r_areaportal_c*>		_areaportals;
 
@@ -1450,6 +1505,7 @@ public:
 	//
 	virtual void	load()									{}
 	virtual	void	precacheLightInteractions(r_entity_c *ent)				{}
+	virtual void	updateBBox(r_entity_c *ent)						{}
 	virtual void	addModelToList(r_entity_c *ent) = 0;
 	virtual void 	draw(const r_command_t *cmd, r_render_type_e type) = 0;
 	virtual void	setupMeshes();
@@ -1467,16 +1523,11 @@ public:
 	
 	void		addMesh(r_mesh_c* mesh)			{_meshes.push_back(mesh);}
 	void		addShader(r_model_shader_c* shader)	{_shaders.push_back(shader);}
-	
-	//cbbox_c		getBBox() const			{return &_bbox;}
-	
+		
 	//
 	// members
 	//
 	
-	cbbox_c		_bbox;		// bbox that bounds around every mesh and surface
-
-	// common stuff for all model types
 private:
 	std::string	_name;
 	uint_t		_registration_sequence;
@@ -1484,6 +1535,8 @@ protected:
 	r_mod_type_t	_type;
 	byte*		_buffer;	// for loading
 	uint_t		_buffer_size;
+	
+	cbbox_c		_bbox;		// bbox that bounds around every mesh and surface
 	
 	
 	std::vector<r_mesh_c*>		_meshes;
@@ -1545,13 +1598,13 @@ public:
 	//
 	// virtual functions
 	//
+	virtual void	updateBBox(r_entity_c *ent);
 	virtual void	addModelToList(r_entity_c *ent);
 	virtual void 	draw(const r_command_t *cmd, r_render_type_e type);
 	virtual void	setupMeshes();
 	virtual bool	setupTag(r_tag_t &tag, const r_entity_t &ent, const std::string &name);
 	
 protected:
-	void	createBBox(r_entity_c *ent, cbbox_c &bbox);
 	bool	cull(r_entity_c *ent);
 	void	drawFrameLerp(const r_command_t *cmd, r_render_type_e type);
 
@@ -1622,6 +1675,7 @@ public:
 	//
 	// virtual functions
 	//
+	virtual void	updateBBox(r_entity_c *ent);
 	virtual void	addModelToList(r_entity_c *ent);
 	virtual void 	draw(const r_command_t *cmd, r_render_type_e type);
 	virtual bool	setupTag(r_tag_t &tag, const r_entity_t &ent, const std::string &name);
@@ -1630,7 +1684,6 @@ public:
 	void		addBone(r_skel_bone_t *bone)		{_bones.push_back(bone);}
 	
 protected:
-	void	createBBox(r_entity_c *ent, cbbox_c &bbox);
 	bool	cull(r_entity_c *ent);
 	void	drawFrameLerp(const r_command_t *cmd, r_render_type_e type);
 	
@@ -1901,6 +1954,7 @@ extern cvar_t	*r_evalexpressions;
 extern cvar_t	*r_arb_multitexture;
 extern cvar_t	*r_arb_texture_compression;
 extern cvar_t	*r_arb_vertex_buffer_object;
+extern cvar_t	*r_arb_occlusion_query;
 
 extern cvar_t	*r_ext_compiled_vertex_array;
 extern cvar_t	*r_ext_texture_filter_anisotropic;
@@ -1996,7 +2050,8 @@ void		RB_AddCommand(	r_entity_c*		entity,
 				r_shader_c*		entity_shader,
 				r_light_c*		light,
 				std::vector<index_t>*	light_indexes,
-				int			infokey);
+				int			infokey,
+				vec_t			distance);
 
 void		RB_DrawSkyBox();
 
@@ -2224,6 +2279,7 @@ struct glconfig_t
 	bool		arb_multitexture;
 	bool		arb_texture_compression;
 	bool		arb_vertex_buffer_object;
+	bool		arb_occlusion_query;
 	
 	bool		ext_compiled_vertex_array;
 	bool		ext_texture_filter_anisotropic;

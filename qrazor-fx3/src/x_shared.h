@@ -63,6 +63,7 @@ typedef unsigned int		index_t;
 
 #define VFS_BASEDIRNAME		"xreal"
 
+
 #if (defined _M_IX86 || defined __i386__) && !defined C_ONLY && !defined __sun__
 #define id386	1
 #else
@@ -74,8 +75,6 @@ typedef unsigned int		index_t;
 #else
 #define idaxp	0
 #endif
-
-
 
 
 short	BigShort(short l);
@@ -183,19 +182,21 @@ inline void	operator delete (void *ptr)
 ================================================================================
 */
 #ifdef __linux__
-
-#ifdef HAVE_CONFIG_H
-#define VFS_USERDATADIR  	"~/."PACKAGE
-#define VFS_PKGDATADIR		PKGDATADIR
-#define VFS_PKGLIBDIR		PKGLIBDIR
-#else
-#define BUILDHOST		"Linux"
-#define VERSION			"0.3.5"
-#define VFS_USERDATADIR		"~/.qrazor-fx"
-#define VFS_PKGDATADIR		"/usr/games/share/qrazor-fx"
-#define VFS_PKGLIBDIR		"/usr/games/lib/qrazor-fx"
-#endif
-
+	#ifdef HAVE_CONFIG_H
+		#define VFS_USERDATADIR  	"~/."PACKAGE
+		#define VFS_PKGDATADIR		PKGDATADIR
+		#define VFS_PKGLIBDIR		PKGLIBDIR
+	#else
+		#define BUILDHOST		"Linux"
+		#define VERSION			"0.3.5"
+		#define VFS_USERDATADIR		"~/.qrazor-fx"
+		#ifndef VFS_PKGDATADIR
+			#define VFS_PKGDATADIR		"."
+		#endif
+		#ifndef VFS_PKGLIBDIR
+			#define VFS_PKGLIBDIR		"."
+		#endif
+	#endif
 #endif
 
 

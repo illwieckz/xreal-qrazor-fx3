@@ -50,24 +50,22 @@ r_skel_model_c::~r_skel_model_c()
 	//TODO clear extra bone information
 }
 
-void	r_skel_model_c::createBBox(r_entity_c *ent, cbbox_c &bbox)
+void	r_skel_model_c::updateBBox(r_entity_c *ent)
 {
 	for(std::vector<r_skel_bone_t*>::iterator ir = _bones.begin(); ir != _bones.end(); ir++)
 	{
 		updateBone(ent, *ir);
 	}
-	
 		
 	int bone_index = getNumForBoneName("boundsMin");
 	
 	if(bone_index != -1)
-		bbox._mins = _bones[bone_index]->position;
-		
+		_bbox._mins = _bones[bone_index]->position;	
 	
 	bone_index = getNumForBoneName("boundsMax");
 	
 	if(bone_index != -1)
-		bbox._maxs = _bones[bone_index]->position;
+		_bbox._maxs = _bones[bone_index]->position;
 }
 
 bool	r_skel_model_c::cull(r_entity_c *ent)
@@ -77,6 +75,8 @@ bool	r_skel_model_c::cull(r_entity_c *ent)
 	
 	if(ent->getShared().flags & RF_VIEWERMODEL)
 		return (!(r_mirrorview || r_portal_view));
+		
+	updateBBox(ent);
 	
 	if(R_CullBSphere(r_frustum, ent->getShared().origin, _bbox.radius()))
 		return true;
@@ -176,12 +176,10 @@ void	r_skel_model_c::addModelToList(r_entity_c *ent)
 			
 	//ri.Com_Printf("r_skel_model_c::addModelToList: model '%s'\n", getName());
 	
-	createBBox(ent, _bbox);
-
 	if(cull(ent))
 	{
-		if(!r_shadows->getValue())
-			return;
+		c_entities--;
+		return;
 	}
 		//TODO
 	//else
@@ -220,7 +218,7 @@ void	r_skel_model_c::addModelToList(r_entity_c *ent)
 		if(!r_showinvisible->getValue() && shader->hasFlags(SHADER_NODRAW))
 			continue;
 		
-		RB_AddCommand(ent, this, mesh, shader, NULL, NULL, -(i+1));
+		RB_AddCommand(ent, this, mesh, shader, NULL, NULL, -(i+1), r_origin.distance(ent->getShared().origin));
 		
 		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
 		{
@@ -230,7 +228,7 @@ void	r_skel_model_c::addModelToList(r_entity_c *ent)
 			{
 				//ri.Com_Printf("r_skel_model_c::addModelToList: model has light interaction '%s'\n", getName());
 				
-				RB_AddCommand(ent, this, mesh, shader, &light, NULL, -(i+1));
+				RB_AddCommand(ent, this, mesh, shader, &light, NULL, -(i+1), 0);
 			}
 		}
 	}

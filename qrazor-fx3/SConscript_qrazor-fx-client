@@ -1,0 +1,50 @@
+import os, string, sys
+
+Import('env')
+
+qrazor_fx_client_src = [
+'src/x_endian.cxx',
+'src/x_info.cxx',
+'src/x_math.cxx',
+'src/x_message.cxx',
+'src/x_shared.cxx',
+'src/x_string.cxx',
+'src/cm_ase.cxx',
+'src/cm_bsp.cxx',
+'src/cm_main.cxx',
+'src/cm_md3.cxx',
+'src/cm_md5anim.cxx',
+'src/cm_md5mesh.cxx',
+'src/cmd.cxx',
+'src/common.cxx',
+'src/cvar.cxx',
+'src/md4.cxx',
+'src/net_chan.cxx',
+'src/roq.cxx',
+'src/sha1.cxx',
+'src/vfs.cxx',
+'src/unzip.cxx',
+'src/cl_cgame.cxx',
+'src/cl_console.cxx',
+'src/cl_input.cxx',
+'src/cl_keys.cxx',
+'src/cl_main.cxx',
+'src/cl_netchan.cxx',
+'src/cl_parse.cxx',
+'src/cl_screen.cxx',
+'src/cl_ui.cxx',
+'src/s_backend.cxx',
+'src/s_main.cxx',
+'src/s_shader.cxx',
+'src/sv_null.cxx',
+'src/map_null.cxx' ]
+
+if sys.platform == 'linux2':
+	qrazor_fx_client_src += ['src/sys_linux.cxx','src/glob.cxx', 'src/vid_so.cxx']
+
+elif sys.platform == 'win32':
+	qrazor_fx_client_src += ['src/sys_win.cxx', 'src/in_win.cxx', 'src/vid_dll.cxx']
+
+qrazor_fx_client_env = env.Copy()
+qrazor_fx_client_env.Program('qrazor-fx-client', qrazor_fx_client_src, LIBS=['dl', 'z', 'openal', 'm'])
+qrazor_fx_client_env.Install('#install', 'qrazor-fx-client')

@@ -439,6 +439,9 @@ static void	CL_DeltaEntity(message_c &msg, frame_t *frame, int newnum, entity_st
 		
 		if(state->getNumber() == 0)	// the entity present in oldframe is not in the current frame
 		{
+			if(cl_shownet->getInteger() == 3)
+				Com_Printf("   remove: %i\n", state_old->getNumber());
+		
 			if(state_old->index_sound)
 				S_StopLoopSound(state_old->getNumber());
 			
@@ -467,7 +470,7 @@ static void	CL_DeltaEntity(message_c &msg, frame_t *frame, int newnum, entity_st
 	cl.entities_parse_index++;
 	frame->entities_num++;
 	
-	if(state_old->getNumber() == 0)
+	if(state_old->getNumber() == 0 && state->getNumber() != 0)
 		cge->CG_AddEntity(newnum, state);
 	else
 		cge->CG_UpdateEntity(cl.entities_parse_index, newnum, state, changed);
@@ -512,8 +515,8 @@ static void	CL_ParsePacketEntities(message_c &msg, frame_t *oldframe, frame_t *n
 	{
 		newnum = msg.readShort();
 		
-		if(newnum >= MAX_ENTITIES)
-			Com_Error(ERR_DROP,"CL_ParsePacketEntities: bad number:%i", newnum);
+		if(newnum < 0 || newnum >= MAX_ENTITIES)
+			Com_Error(ERR_DROP,"CL_ParsePacketEntities: bad number %i", newnum);
 
 		if(msg.getBytesReadCount() > msg.getCurSize())
 			Com_Error(ERR_DROP,"CL_ParsePacketEntities: end of message");

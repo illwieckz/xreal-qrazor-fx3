@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /// includes ===================================================================
 // system -------------------------------------------------------------------
 // qrazor-fx ----------------------------------------------------------------
-#include "shared/x_keycodes.h"
+#include "x_keycodes.h"
 
 
 extern char*		keybindings[256];
