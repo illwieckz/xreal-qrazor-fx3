@@ -1901,7 +1901,8 @@ public:
 	
 	inline void	negate();
 
-	void	setType();
+	void			setType();
+	inline	plane_type_e	getType() const;
 	
 	void	setSignBits();
 
@@ -1948,9 +1949,10 @@ public:
 	vec3_c		_normal;
 	vec_t		_dist;
 //	vec4_t		_p;
-	
+private:
 	plane_type_e	_type;		// for fast side tests
 	byte		_signbits;	// signx + (signy<<1) + (signz<<1)
+//TODO	bool		_snapped;
 };
 
 
@@ -2011,6 +2013,11 @@ inline void	cplane_c::negate()
 	setSignBits();
 }
 
+inline	plane_type_e	cplane_c::getType() const
+{
+	return _type;
+}
+
 /*
 inline void	cplane_c::translate(vec_t x, vec_t y, vec_t z)
 {
@@ -2056,13 +2063,13 @@ inline void	cplane_c::rotate(const quaternion_c &quat)
 inline vec_t	cplane_c::snap()
 {
 	_normal.snap();
-	
+
+	if(X_fabs(_dist - X_rint(_dist)) < DIST_EPSILON)
+		_dist = X_rint(_dist);
+		
 	setType();
 	setSignBits();
 
-	if(fabs(_dist - X_rint(_dist)) < DIST_EPSILON)
-		_dist = X_rint(_dist);
-			
 	return _dist;
 }
 	
@@ -2123,7 +2130,7 @@ inline vec3_c	cplane_c::closest(const vec3_c &v) const
 	
 	// same as (v + ((-_normal) * t)));
 	
-	if(onSide(v) == SIDE_FRONT)
+	if(d >= 0.0)
 		return (v - (_normal * d));
 	else
 		return (v + (_normal * d));

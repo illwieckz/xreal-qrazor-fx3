@@ -87,7 +87,7 @@ int	CreateNewFloatPlane(cplane_c &p)
 	//nummapplanes += 2;
 
 	// allways put axial planes facing positive first
-	if(p._type < 3)
+	if(p.getType() < 3)
 	{
 		if(p._normal[0] < 0 || p._normal[1] < 0 || p._normal[2] < 0)
 		{

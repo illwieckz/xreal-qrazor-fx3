@@ -99,6 +99,19 @@ public:
 		_normal.negate();
 		std::swap(_g1, _g2);
 	}
+	
+	inline bool operator == (const dContactGeom &g) const
+	{
+		if(	_origin == g._origin &&
+			_normal == g._normal &&
+			_depth	== g._depth &&
+			_g1	== g._g1 &&
+			_g2	== g._g2
+		)
+			return true;
+		else
+			return false;
+	}
 
 //private:
 	vec3_c		_origin;

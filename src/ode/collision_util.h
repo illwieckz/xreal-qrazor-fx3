@@ -26,8 +26,8 @@ some useful collision utility stuff.
 
 */
 
-#ifndef _ODE_COLLISION_UTIL_H_
-#define _ODE_COLLISION_UTIL_H_
+#ifndef ODE_COLLISION_UTIL_H
+#define ODE_COLLISION_UTIL_H
 
 #include "common.h"
 #include "contact.h"
@@ -36,15 +36,20 @@ some useful collision utility stuff.
 // returns true if contact was added
 bool	dAddContact(const dContact c, std::vector<dContact> &contacts);
 
+// given a vector p get barycentric coordinates and distance to p
+void	dGetContactData(const vec3_c& p, const vec3_c &v0,  const vec3_c &edge0, const vec3_c &edge1, vec_t &dist, float &u, float &v);
+
+// returns true if p is inside the triangle vertices
+bool	dPointInTriangle(const vec3_c &p, const vec3_c &v0, const vec3_c &v1, const vec3_c &v2);
+
 // given a pointer `p' to a dContactGeom, return the dContactGeom at
 // p + skip bytes.
 //#define CONTACT(p,skip) ((dContactGeom*) (((char*)p) + (skip)))
 
 
 // if the spheres (p1,r1) and (p2,r2) collide, set the contact `c' and
-// return 1, else return 0.
-
-int	dCollideSpheres(const vec3_c & p1, vec_t r1, const vec3_c & p2, vec_t r2, dContactGeom &c);
+// return true, else return false.
+bool	dCollideSpheres(const vec3_c & p1, vec_t r1, const vec3_c & p2, vec_t r2, dContactGeom &c);
 
 
 // given two lines

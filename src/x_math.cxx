@@ -290,14 +290,14 @@ void	vec3_c::snap()
 {
 	for(int i=0; i<3; i++)
 	{
-		if(fabs(_v[i] - 1) < NORMAL_EPSILON)
+		if(X_fabs(_v[i] - 1) < NORMAL_EPSILON)
 		{
 			clear();
 			_v[i] = 1;
 			break;
 		}
 			
-		if(fabs(_v[i] - -1) < NORMAL_EPSILON)
+		if(X_fabs(_v[i] - -1) < NORMAL_EPSILON)
 		{
 			clear();
 			_v[i] = -1;
@@ -1891,23 +1891,19 @@ const char*	cbbox_c::toString() const
 
 
 
-void	cplane_c::fromThreePointForm(const vec3_c &v1, const vec3_c &v2, const vec3_c &v3)
+void	cplane_c::fromThreePointForm(const vec3_c &v0, const vec3_c &v1, const vec3_c &v2)
 {
-	vec3_c	v, u;
-	vec3_c	normal;
-	float	dist;
-	
-	
 	// build directional vectors
-	u = v2 - v1;
-	v = v3 - v1;
+	vec3_c edge0 = v1 - v0;
+	vec3_c edge1 = v2 - v0;
 	
 	// create normal
-	normal.crossProduct(v, u);
+	vec3_c	normal(false);
+	normal.crossProduct(edge0, edge1);
 	normal.normalize();
 	
 	// create distance from origin
-	dist = v1.dotProduct(normal);
+	vec_t dist = v0.dotProduct(normal);
 	
 	// finally setup the plane
 	set(normal, dist);
@@ -1915,29 +1911,27 @@ void	cplane_c::fromThreePointForm(const vec3_c &v1, const vec3_c &v2, const vec3
 
 void	cplane_c::setType()
 {
-	vec_t		ax, ay, az;
-
-	if(_normal[0] >= 1.0 /*|| _normal[0] == -1.0*/)
+	if(_normal[0] == REAL(1.0))
 	{
 		_type = PLANE_X;
 		return;
 	}
 	
-	if(_normal[1] >= 1.0 /*|| _normal[1] == -1.0*/)
+	if(_normal[1] == REAL(1.0))
 	{
 		_type = PLANE_Y;
 		return;
 	}
 	
-	if(_normal[2] >= 1.0 /*|| _normal[2] == -1.0*/)
+	if(_normal[2] == REAL(1.0))
 	{
 		_type = PLANE_Z;
 		return;
 	}
 	
-	ax = fabs(_normal[0]);
-	ay = fabs(_normal[1]);
-	az = fabs(_normal[2]);
+	vec_t ax = X_fabs(_normal[0]);
+	vec_t ay = X_fabs(_normal[1]);
+	vec_t az = X_fabs(_normal[2]);
 	
 	if(ax >= ay && ax >= az)
 	{
@@ -2090,10 +2084,10 @@ const char*	cplane_c::toString() const
 bool	cplane_c::operator == (const cplane_c &p) const
 {
 #if 1
-		if(	fabs(p._normal[0] - _normal[0]) < NORMAL_EPSILON
-			&& fabs(p._normal[1] - _normal[1]) < NORMAL_EPSILON
-			&& fabs(p._normal[2] - _normal[2]) < NORMAL_EPSILON
-			&& fabs(p._dist - _dist) < DIST_EPSILON )
+		if(	X_fabs(p._normal[0] - _normal[0]) < NORMAL_EPSILON
+			&& X_fabs(p._normal[1] - _normal[1]) < NORMAL_EPSILON
+			&& X_fabs(p._normal[2] - _normal[2]) < NORMAL_EPSILON
+			&& X_fabs(p._dist - _dist) < DIST_EPSILON )
 			return true;
 #else
 		if(	p._normal[0] == _normal[0]

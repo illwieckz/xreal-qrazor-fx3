@@ -37,6 +37,7 @@ dContactGeom::g1 and dContactGeom::g2.
 #include "collision_kernel.h"
 #include "collision_std.h"
 #include "collision_util.h"
+#include "../files.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4291)  // for VC++, no complaints about "no matching operator delete found"
@@ -804,7 +805,7 @@ void	dGeomBSPAddLeafBrush(dGeomID g, int num)
 }
 */
 
-void	dGeomBSPAddSurface(dGeomID g, int face_type, int shader_num, const std::vector<vec3_c> &vertexes, const std::vector<index_t> &indexes)
+void	dGeomBSPAddSurface(dGeomID g, int face_type, int shader_num, const std::vector<vec3_c> &vertexes, const std::vector<vec3_c> &normals, const std::vector<index_t> &indexes)
 {
 	dUASSERT(g && g->type == dBSPClass, "argument not a BSP");
 	dxBSP *bsp = (dxBSP*)g;
@@ -822,11 +823,33 @@ void	dGeomBSPAddSurface(dGeomID g, int face_type, int shader_num, const std::vec
 	{
 		try
 		{
-			const vec3_c &v0 = vertexes.at(indexes[i+0]);
-			const vec3_c &v1 = vertexes.at(indexes[i+1]);
-			const vec3_c &v2 = vertexes.at(indexes[i+2]);
-			
-			surf.planes[i].fromThreePointForm(v0, v1, v2);
+			//if(i % 2 == 0)
+			{
+				const vec3_c &v0 = vertexes.at(indexes[i+0]);
+				const vec3_c &v1 = vertexes.at(indexes[i+1]);
+				const vec3_c &v2 = vertexes.at(indexes[i+2]);
+				
+				//const vec3_c &n0 = normals.at(indexes[i+0]);
+				//const vec3_c &n1 = normals.at(indexes[i+1]);
+				//const vec3_c &n2 = normals.at(indexes[i+2]);
+				
+				//vec3_c n = n0 + n1 + n2;
+				//n.normalize(); 
+				
+				//surf.planes[i].set(n, n.dotProduct(v0));
+				
+				surf.planes[i].fromThreePointForm(v0, v1, v2);
+			}
+			/*
+			else
+			{
+				const vec3_c &v0 = vertexes.at(indexes[i+2]);
+				const vec3_c &v1 = vertexes.at(indexes[i+1]);
+				const vec3_c &v2 = vertexes.at(indexes[i+0]);
+				
+				surf.planes[i].fromThreePointForm(v0, v1, v2);
+			}
+			*/
 		}
 		catch(...)
 		{
@@ -1376,11 +1399,13 @@ int	dCollideSphereSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact
 	contact.geom._g1 = o1;
 	contact.geom._g2 = o2;
 	
-	int ret = dCollideSpheres(o1->pos, sphere1->radius, o2->pos, sphere2->radius, contact.geom);
+	if(dCollideSpheres(o1->pos, sphere1->radius, o2->pos, sphere2->radius, contact.geom))
+	{
+		if(dAddContact(contact, contacts))
+			return 1;
+	}
 	
-	dAddContact(contact, contacts);
-	
-	return ret;
+	return 0;
 }
 
 
@@ -2321,12 +2346,11 @@ int	dSphereInBrush(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int
 	dxBSP *bsp = (dxBSP*)o1;
 	dxSphere *sphere = (dxSphere*)o2;
 	
+	int contacts_num = 0;
 	for(int i=0; i<brush.sides_num; i++)
 	{
 		const cplane_c *plane = bsp->brushsides[brush.sides_first + i].plane;
 		
-		CONTACT(contact, contacts_num*skip)->g1 = o1;
-		CONTACT(contact, contacts_num*skip)->g2 = o2;	
 #if 0
 		vec_t k = plane->_normal.dotProduct(o1->pos);
 		vec_t depth = plane->_dist - k + sphere->radius;
@@ -2358,26 +2382,16 @@ int	dSphereInBrush(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int
 		
 		if(depth >= 0)
 		{
-			if(plane->onSide(sphere->pos) == SIDE_FRONT)
-			{
-				CONTACT(contact, contacts_num*skip)->normal[0] = plane->_normal[0];
-				CONTACT(contact, contacts_num*skip)->normal[1] = plane->_normal[1];
-				CONTACT(contact, contacts_num*skip)->normal[2] = plane->_normal[2];
-			}
-			else
-			{
-				CONTACT(contact, contacts_num*skip)->normal[0] = -plane->_normal[0];
-				CONTACT(contact, contacts_num*skip)->normal[1] = -plane->_normal[1];
-				CONTACT(contact, contacts_num*skip)->normal[2] = -plane->_normal[2];
-			}
+			dContact contact;
 			
-			CONTACT(contact, contacts_num*skip)->pos[0] = c[0];
-			CONTACT(contact, contacts_num*skip)->pos[1] = c[1];
-			CONTACT(contact, contacts_num*skip)->pos[2] = c[2];
+			contact.geom._origin = c;
+			contact.geom._normal = p._normal;
+			contact.geom._depth = depth;
+			contact.geom._g1 = o1;
+			contact.geom._g2 = o2;
 			
-			CONTACT(contact, contacts_num*skip)->depth = depth;
-			
-			contacts_num++;
+			if(dAddContact(contact, contacts))
+				contacts_num++;
 		}
 #endif
 	}
@@ -2387,16 +2401,94 @@ int	dSphereInBrush(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int
 */
 
 
-int	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, const vec3_c vertexes[3], const cplane_c &p)
+
+int	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, const vec3_c &v0, const vec3_c &v1, const vec3_c &v2, const cplane_c &p, bool planar)
 {
 	dIASSERT(o1->type == dBSPClass);
 	dIASSERT(o2->type == dSphereClass);
 	
 	dxSphere *sphere = (dxSphere*)o2;
-
+	
 	// check if sphere center is behind the triangle plane
-	if(p.onSide(sphere->pos) == SIDE_BACK)
-		return 0;
+#if 0
+	if(planar)
+	{
+		if(p.distance(sphere->pos, sphere->radius) <= ((-sphere->radius*2) -DIST_EPSILON))
+		//if(p.distance(sphere->pos) <= -DIST_EPSILON)
+			return 0;
+	}
+	else
+	{
+		if(p.onSide(sphere->pos) == SIDE_BACK)
+			return 0;
+	}
+#endif
+
+#if 0
+	// get closest point to sphere origin
+	vec3_c C = p.closest(sphere->pos);
+	
+	/*
+	vec3_c C(false);
+	vec_t d = p.distance(sphere->pos);
+	
+	if(d > -DIST_EPSILON)
+		C = vec3_c(sphere->pos) - (p._normal * d);
+		
+	else if(d < DIST_EPSILON)
+		C = vec3_c(sphere->pos) + (p._normal * d);
+	
+	//else
+	//	return 0;
+	*/
+	
+	
+	if(dPointInTriangle(C, v0, v1, v2))
+	{
+		// calculate penetration depth
+		vec_t depth = sphere->radius - C.distance(sphere->pos);
+		
+		if(depth >= REAL(0.0))
+		{
+			dContact contact;
+			contact.geom = dContactGeom(C, vec3_c(0, 0, 1), depth, o1, o2);
+			
+			if(dAddContact(contact, contacts))
+				return 1;
+		}
+	}
+	
+#elif 1
+	const vec3_c edge0 = v1 - v0;
+	const vec3_c edge1 = v2 - v0;
+
+	// calculate distant from sphere origin to triangle and barycentric coords
+	vec_t dist, u, v;
+	dGetContactData(sphere->pos, v0, edge0, edge1, dist, u, v);
+	
+	// calculate the position of a vertex using its barycentric coords
+//	vec3_c C  = v0 + (edge0 * u) + (edge1 * v);
+	
+	vec_t w = REAL(1.0) -u -v;
+	vec3_c C = (v0 * w) + (v1 * u) + (v2 * v);
+	
+	// calculate penetration depth
+//	vec_t depth = sphere->radius - dist;
+	vec_t depth = sphere->radius - C.distance(sphere->pos);
+	
+	if(depth < REAL(0.0))
+		return 0;	// depth = REAL(0.0);
+
+	dContact contact;
+	contact.geom._origin = C;
+	contact.geom._normal = p._normal;
+	contact.geom._depth = depth;
+	contact.geom._g1 = o1;
+	contact.geom._g2 = o2;
+				
+	if(dAddContact(contact, contacts))
+		return 1;
+#else
 
 	// check if the sphere is on the side of an edge
 	for(int i=0; i<3; i++)
@@ -2523,7 +2615,7 @@ int	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dCo
 		if(dAddContact(contact, contacts))
 			return 1;
 	}
-	
+#endif
 	return 0;
 }
 
@@ -2536,31 +2628,116 @@ int	dCollideBSPSurfaceSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dCon
 		return 0;
 		
 	int contacts_num = 0;
-	// for each triangle in the surface
-	for(unsigned int i=0; i<(surf.indexes.size()/3); i++)
+	
+	switch(surf.face_type)
 	{
-		#if DEBUG
-		try
+		case BSPST_PLANAR:
 		{
-		#endif
-			
-		vec3_c vertexes[3] = 
-		{
-			surf.vertexes.at(surf.indexes[i+0]),
-			surf.vertexes.at(surf.indexes[i+1]),
-			surf.vertexes.at(surf.indexes[i+2])
-		};
-		
-		contacts_num += dCollideBSPTriangleSphere(o1, o2, flags, contacts, vertexes, surf.planes[i]);
-		
-		#if DEBUG
+			// for each triangle in the surface
+			for(unsigned int i=0; i<(surf.indexes.size()/3); i++)
+			{
+				#if DEBUG
+				try
+				{
+				#endif
+				
+				//if(i % 2 == 0)
+				{
+					const vec3_c& v0 = surf.vertexes.at(surf.indexes[i+0]);
+					const vec3_c& v1 = surf.vertexes.at(surf.indexes[i+1]);
+					const vec3_c& v2 = surf.vertexes.at(surf.indexes[i+2]);
+				
+					contacts_num += dCollideBSPTriangleSphere(o1, o2, flags, contacts, v0, v1, v2, surf.planes[i], true);
+					if(contacts_num)
+					{
+						// no need to check any other triangle of this surface because all are in 
+						// the same plane
+						break;
+					}
+				}
+				/*
+				else
+				{
+					const vec3_c& v0 = surf.vertexes.at(surf.indexes[i+2]);
+					const vec3_c& v1 = surf.vertexes.at(surf.indexes[i+1]);
+					const vec3_c& v2 = surf.vertexes.at(surf.indexes[i+0]);
+				
+					contacts_num += dCollideBSPTriangleSphere(o1, o2, flags, contacts, v0, v1, v2, surf.planes[i], true);
+					if(contacts_num)
+					{
+						// no need to check any other triangle of this surface because all are in 
+						// the same plane
+						break;
+					}
+				}
+				*/
+				#if DEBUG
+				}
+				catch(...)
+				{
+					Com_Error(ERR_DROP, "dCollideBSPSurfaceSphere: exception occured");
+				}
+				#endif
+			}
+			break;
 		}
-		catch(...)
+		
+		case BSPST_BEZIER:
+		case BSPST_MESH:
 		{
-			Com_Error(ERR_DROP, "dCollideBSPSurfaceSphere: exception occured");
+			// for each triangle in the surface
+			for(unsigned int i=0; i<(surf.indexes.size()/3); i++)
+			{
+				#if DEBUG
+				try
+				{
+				#endif
+				
+				/*
+				vec3_c vertexes[3] = 
+				{
+					surf.vertexes.at(surf.indexes[i+0]),
+					surf.vertexes.at(surf.indexes[i+1]),
+					surf.vertexes.at(surf.indexes[i+2])
+				};
+							
+				contacts_num += dCollideBSPTriangleSphere(o1, o2, flags, contacts, vertexes, surf.planes[i], false);
+				*/
+				
+				//if(i % 2 == 0)
+				{
+					const vec3_c& v0 = surf.vertexes.at(surf.indexes[i+0]);
+					const vec3_c& v1 = surf.vertexes.at(surf.indexes[i+1]);
+					const vec3_c& v2 = surf.vertexes.at(surf.indexes[i+2]);
+				
+					contacts_num += dCollideBSPTriangleSphere(o1, o2, flags, contacts, v0, v1, v2, surf.planes[i], false);
+				}
+				/*
+				else
+				{
+					const vec3_c& v0 = surf.vertexes.at(surf.indexes[i+2]);
+					const vec3_c& v1 = surf.vertexes.at(surf.indexes[i+1]);
+					const vec3_c& v2 = surf.vertexes.at(surf.indexes[i+0]);
+				
+					contacts_num += dCollideBSPTriangleSphere(o1, o2, flags, contacts, v0, v1, v2, surf.planes[i], false);
+				}
+				*/
+				
+				#if DEBUG
+				}
+				catch(...)
+				{
+					Com_Error(ERR_DROP, "dCollideBSPSurfaceSphere: exception occured");
+				}
+				#endif
+			}
+			break;
 		}
-		#endif
+		
+		default:
+			break;
 	}
+	
 	
 	return contacts_num;
 }
@@ -2591,6 +2768,7 @@ int	dCollideBSPLeafSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContac
 	int contacts_num = 0;
 	for(int i=0; i<leaf.surfaces_num; i++)
 	{
+		//dxBSP::dBSPBrush& surf = bsp->surfaces[bsp->leafsurfaces[leaf.surfaces_first + i]];
 		dxBSP::dBSPSurface& surf = bsp->surfaces[bsp->leafsurfaces[leaf.surfaces_first + i]];
 		
 		if(surf.checkcount == bsp->checkcount)
@@ -2855,13 +3033,17 @@ int	dCollideBSPSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &
 	{
 		contacts_num += dCollideBSPLeafSphere(o1, o2, flags, contacts, *ir);
 	}
-#else
+#elif 0
 	int leaf_num = dPointInLeaf(bsp, o2->pos, 0);
 	
 //	Com_Printf("dCollideBSPSphere: sphere in leaf %i, area %i, cluster %i\n", leaf_num, bsp->leafs[leaf_num].area, bsp->leafs[leaf_num].cluster);
 	
 	if(leaf_num != -1)
-		contacts_num += dCollideBSPLeafSphere(o1, o2, flags, contact, skip, leaf_num);
+		contacts_num += dCollideBSPLeafSphere(o1, o2, flags, contacts, leaf_num);
+		
+#else
+	for(uint_t i=0; i<bsp->leafs.size(); i++)
+		contacts_num += dCollideBSPLeafSphere(o1, o2, flags, contacts, i);
 #endif
 	if(contacts_num)
 	{
