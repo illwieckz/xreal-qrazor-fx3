@@ -482,7 +482,7 @@ void	CL_SendCmd()
 
 	*cmd = CL_CreateCmd();
 
-	if(cls.state == CA_DISCONNECTED || cls.state == CA_CONNECTING)
+	if(cls.state == CA_DISCONNECTED || cls.state == CA_CONNECTING || cls.demo_playback)
 		return;
 
 	if(cls.state == CA_CONNECTED)

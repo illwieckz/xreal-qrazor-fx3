@@ -149,10 +149,6 @@ void 	sv_client_c::configStrings_uc()
 
 void	sv_client_c::baseLines_uc()
 {
-	int		start;
-	entity_state_t	nullstate;
-	entity_state_t	*base;
-
 	Com_DPrintf("sv_client_c::baseLines_uc() from '%s'\n", _name);
 
 	if(_state != CS_CONNECTED)
@@ -169,22 +165,22 @@ void	sv_client_c::baseLines_uc()
 		return;
 	}
 	
-	start = atoi(Cmd_Argv(2));
+	int start = atoi(Cmd_Argv(2));
 
 	// write a packet full of data
 	while(netchan.message.getCurSize() < (MAX_PACKETLEN/2)*8 && start < MAX_ENTITIES)
 	{
-		base = &sv.baselines[start];
+		const entity_state_t& base = sv.baselines[start];
 		
-		if(	base->index_model ||
-			base->index_animation ||
-			base->index_sound ||
-			base->index_light ||
-			base->effects
+		if(	base.index_model ||
+			base.index_animation ||
+			base.index_sound ||
+			base.index_light ||
+			base.effects
 		)
 		{
 			netchan.message.writeBits(SVC_SPAWNBASELINE, svc_bitcount);
-			netchan.message.writeDeltaEntity(&nullstate, base, true);
+			netchan.message.writeDeltaEntity(&null_entity_state, &base, true);
 		}
 		
 		start++;

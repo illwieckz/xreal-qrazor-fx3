@@ -110,6 +110,13 @@ void	CL_WriteDemoMessage(bitmessage_c &msg)
 	
 	VFS_FWrite(&swlen, 4, cls.demo_stream);
 	VFS_FWrite(&msg[8], len, cls.demo_stream);
+#else
+	// skip packet header
+	//boost::dynamic_bitset<byte> bits;
+	//msg.copyTo(bits, NETCHAN_PACKET_HEADER_BITS, msg.getCurSize());
+	
+	//cls.demo_message.writeBits(bits);
+	cls.demo_message.writeMessage(msg);
 #endif
 }
 
@@ -123,19 +130,33 @@ stop recording a demo
 */
 void	CL_Stop_f()
 {
-	int		len;
-
 	if(!cls.demo_recording)
 	{
 		Com_Printf("Not recording a demo.\n");
 		return;
 	}
+	
+	if(cls.demo_playback)
+	{
+		Com_Error(ERR_DROP, "Demo finished." );
+	}
+	
+	// dump entire message
+	VFS_FWrite(&cls.demo_message._data[0], cls.demo_message.getCurSizeInBytes(), cls.demo_stream);
+	VFS_FClose(&cls.demo_stream);
 
+	/*
 	// finish up
+	int len = LittleLong(cls.demo_message.getCurSizeInBytes());
+	VFS_FWrite(&len, 4, cls.demo_stream);
 	len = -1;
 	VFS_FWrite(&len, 4, cls.demo_stream);
 	VFS_FClose(&cls.demo_stream);
+	*/
+	
 	cls.demo_recording = false;
+	cls.demo_message.beginWriting();
+	
 	Com_Printf("Stopped demo.\n");
 }
 
@@ -150,15 +171,6 @@ Begins recording a demo from the current position
 */
 void	CL_Record_f()
 {
-	/*
-	char	name[MAX_OSPATH];
-	char	buf_data[MAX_MSGLEN];
-	message_c	buf;
-	int		i;
-	int		len;
-	entity_state_c	*ent;
-	entity_state_c	nullstate;
-
 	if(Cmd_Argc() != 2)
 	{
 		Com_Printf("record <demoname>\n");
@@ -171,7 +183,7 @@ void	CL_Record_f()
 		return;
 	}
 
-	if(cls.state != CA_ACTIVE)
+	if(cls.state != CA_ACTIVE || cls.demo_playback)
 	{
 		Com_Printf("You must be in a level to record.\n");
 		return;
@@ -180,19 +192,21 @@ void	CL_Record_f()
 	//
 	// open the demo file
 	//
-	Com_sprintf (name, sizeof(name), "demos/%s.dm2", Cmd_Argv(1));
+	std::string filename = "demos/";
+	filename += Cmd_Argv(1);
+	filename += ".qrd";
 
-	Com_Printf ("recording to %s.\n", name);
-	VFS_Mkdir (name);
-	//cls.demofile = fopen (name, "wb");
+	Com_Printf("recording to '%s' ...\n", filename.c_str());
+	VFS_Mkdir(filename);
 	
-	VFS_FOpenWrite(name, &cls.demo_stream);
+	VFS_FOpenWrite(filename, &cls.demo_stream);
 	if(!cls.demo_stream)
 	{
 		Com_Printf("ERROR: couldn't open.\n");
 		return;
 	}
 	cls.demo_recording = true;
+	cls.demo_message = bitmessage_c(toBits(MAX_PACKETLEN), true, true);
 
 	// don't start saving messages until a non-delta compressed message is received
 	cls.demo_waiting = true;
@@ -201,74 +215,118 @@ void	CL_Record_f()
 	//
 	// write out messages to hold the startup information
 	//
-	MSG_Init(&buf, (byte*)buf_data, sizeof(buf_data));
-
+	//bitmessage_c buf(toBits(MAX_PACKETLEN));
+	
 	// send the serverdata
-	MSG_WriteByte(&buf, SVC_SERVERDATA);
-	MSG_WriteLong(&buf, PROTOCOL_VERSION);
-	MSG_WriteLong(&buf, 0x10000 + cl.servercount);
-	MSG_WriteByte(&buf, 1);	// demos are always attract loops
-	MSG_WriteString(&buf, cl.gamedir);
-	MSG_WriteShort(&buf, cl.playernum);
+	cls.demo_message.writeBits(SVC_SERVERDATA, svc_bitcount);
+	cls.demo_message.writeLong(PROTOCOL_VERSION);
+	cls.demo_message.writeLong(0x10000 + cl.servercount);
+	cls.demo_message.writeByte(1);	// demos are always attract loops
+	cls.demo_message.writeString(cl.gamedir);
+	cls.demo_message.writeShort(cl.playernum);
 
-	MSG_WriteString(&buf, cl.configstrings[CS_NAME]);
+	// send full levelname
+	cls.demo_message.writeString(cl.configstrings[CS_MAPNAME]);
 
 	// configstrings
-	for(i=0; i<MAX_CONFIGSTRINGS; i++)
+	for(int i=0; i<MAX_CONFIGSTRINGS; i++)
 	{
 		if(cl.configstrings[i][0])
 		{
-			if(buf.cursize + (int)strlen (cl.configstrings[i]) + 32 > buf.maxsize)
+			/*
+			if(buf.getCurSizeInBytes() + strlen(cl.configstrings[i]) + 32 > buf.getMaxSizeInBytes())
 			{
 				// write it out
-				len = LittleLong(buf.cursize);
+				int len = LittleLong(buf.getCurSizeInBytes());
 				VFS_FWrite(&len, 4, cls.demo_stream);
-				VFS_FWrite(buf.data, buf.cursize, cls.demo_stream);
-				buf.cursize = 0;
+				VFS_FWrite(&buf._data[0], buf.getCurSizeInBytes(), cls.demo_stream);
+				buf.setCurSize(0);
 			}
-
-			MSG_WriteByte(&buf, SVC_CONFIGSTRING);
-			MSG_WriteShort(&buf, i);
-			MSG_WriteString(&buf, cl.configstrings[i]);
+			*/
+			
+			cls.demo_message.writeBits(SVC_CONFIGSTRING, svc_bitcount);
+			cls.demo_message.writeShort(i);
+			cls.demo_message.writeString(cl.configstrings[i]);
 		}
-
 	}
 
 	// baselines
-	memset(&nullstate, 0, sizeof(nullstate));
-	for(i=0; i<MAX_EDICTS ; i++)
+	for(int i=0; i<MAX_ENTITIES; i++)
 	{
-		ent = &cl_entities[i].baseline;
+		const entity_state_t& ent = cl.entities_baseline[i];
 		
-		if(!ent->modelindex)
+		if(!ent.index_model)
 			continue;
 
-		if (buf.cursize + 64 > buf.maxsize)
-		{	// write it out
-			len = LittleLong (buf.cursize);
-			VFS_FWrite (&len, 4, cls.demo_stream);
-			VFS_FWrite (buf.data, buf.cursize, cls.demo_stream);
-			buf.cursize = 0;
+		/*
+		if(buf.getCurSizeInBytes() + 64 > buf.getMaxSizeInBytes())
+		{
+			// write it out
+			int len = LittleLong(buf.getCurSizeInBytes());
+			VFS_FWrite(&len, 4, cls.demo_stream);
+			VFS_FWrite(&buf._data[0], buf.getCurSizeInBytes(), cls.demo_stream);
+			buf.setCurSize(0);
 		}
-
-		MSG_WriteByte(&buf, SVC_SPAWNBASELINE);		
-		MSG_WriteDeltaEntity(&nullstate, &cl_entities[i].baseline, &buf, true, true);
+		*/
+		
+		cls.demo_message.writeBits(SVC_SPAWNBASELINE, svc_bitcount);
+		cls.demo_message.writeDeltaEntity(&null_entity_state, &ent, true);
 	}
 
-	MSG_WriteByte(&buf, SVC_STUFFTEXT);
-	MSG_WriteString(&buf, "precache\n");
+	cls.demo_message.writeBits(SVC_STUFFTEXT, svc_bitcount);
+	cls.demo_message.writeString("precache\n");
 
+	/*
 	// write it to the demo file
-
-	len = LittleLong (buf.cursize);
-	VFS_FWrite (&len, 4, cls.demo_stream);
-	VFS_FWrite (buf.data, buf.cursize, cls.demo_stream);
+	int len = LittleLong(buf.getCurSizeInBytes());
+	VFS_FWrite(&len, 4, cls.demo_stream);
+	VFS_FWrite(&buf._data[0], buf.getCurSizeInBytes(), cls.demo_stream);
+	*/
 
 	// the rest of the demo file will be individual frames
-	*/
 }
 
+void	CL_Demo_f()
+{
+	if(Cmd_Argc() != 2)
+	{
+		Com_Printf("demo <demoname>\n");
+		return;
+	}
 
+	if(cls.demo_recording)
+	{
+		Com_Printf("still recording.\n");
+		return;
+	}
+
+	std::string filename = "demos/";
+	filename += Cmd_Argv(1);
+	filename += ".qrd";
+
+	Com_Printf("playing '%s' ...\n", filename.c_str());
+	
+	//int len = VFS_FOpenRead(name, &cls.demo_stream);
+	byte *buffer;
+	int len = VFS_FLoad(filename, (void**)&buffer);
+	if(!buffer)
+	{
+		Com_Printf("ERROR: couldn't open.\n");
+		return;
+	}
+	
+	cls.demo_playback = true;
+	cls.demo_message = bitmessage_c(toBits(len));
+	cls.demo_message.writeBytes(buffer, len);
+	
+	VFS_FFree(buffer);
+	
+	CL_Disconnect();
+	
+	CL_ParseServerMessage(cls.demo_message);
+	
+	Com_Printf("Demo ended.\n");
+}
 
 /*
 ===================
@@ -288,6 +346,9 @@ void	Cmd_ForwardToServer()
 		Com_Printf("Unknown command \"%s\"\n", cmd.c_str());
 		return;
 	}
+	
+	if(cls.demo_playback)
+		return;
 
 	if(Cmd_Argc() > 1)
 	{
@@ -306,6 +367,9 @@ void	CL_ForwardToServer_f()
 		Com_Printf("Can't \"%s\", not connected\n", Cmd_Argv(0));
 		return;
 	}
+	
+	if(cls.demo_playback)
+		return;
 	
 	// don't forward the first argument
 	if(Cmd_Argc() > 1)
@@ -444,6 +508,9 @@ void	CL_CheckForResend()
 
 	// resend if we haven't gotten a reply yet
 	if(cls.state != CA_CONNECTING)
+		return;
+		
+	if(cls.demo_playback)
 		return;
 
 	if(cls.realtime - cls.connect_time < 3000)
@@ -604,6 +671,7 @@ static void	CL_ClearClientState()
 
 	cl.attractloop			= false;		// running the attract loop, any key will menu
 	cl.servercount			= 0;			// server identification for prespawns
+	cl.gamedir.clear();
 	cl.playernum			= 0;
 
 	memset(cl.configstrings, 0, sizeof(cl.configstrings));
@@ -649,7 +717,7 @@ void	CL_Disconnect()
 
 	cls.connect_time = 0;
 
-	if(cls.demo_recording)
+	if(cls.demo_recording || cls.demo_playback)
 		CL_Stop_f();
 
 	// send a disconnect message to the server
@@ -670,6 +738,7 @@ void	CL_Disconnect()
 	}
 
 	cls.state = CA_DISCONNECTED;
+	cls.demo_playback = false;
 }
 
 void	CL_Disconnect_f()
@@ -1541,8 +1610,11 @@ void	CL_InitLocal()
 	Cmd_AddCommand("userinfo",	CL_Userinfo_f);
 	Cmd_AddCommand("changing",	CL_Changing_f);
 	Cmd_AddCommand("disconnect",	CL_Disconnect_f);
+	
 	Cmd_AddCommand("record",	CL_Record_f);
 	Cmd_AddCommand("stop",		CL_Stop_f);
+	Cmd_AddCommand("demo",		CL_Demo_f);
+	
 	Cmd_AddCommand("quit",		CL_Quit_f);
 	Cmd_AddCommand("connect",	CL_Connect_f);
 	Cmd_AddCommand("reconnect",	CL_Reconnect_f);
