@@ -1110,7 +1110,7 @@ void 	Com_Init(int argc, char **argv)
 
 #ifdef DEDICATED_ONLY
 	Sys_InitNet(true);
-#else
+#elif ! defined(BSPCOMPILER_ONLY)
 	Sys_InitNet(false);
 #endif
 	
