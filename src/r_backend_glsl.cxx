@@ -1672,17 +1672,23 @@ void		RB_ShutdownGPUShaders()
 
 void		RB_EnableShader_generic()
 {
-	rb_program_generic->enable();		RB_CheckForError();
+//	rb_program_generic->enable();		RB_CheckForError();
 
-	RB_SelectTexture(GL_TEXTURE0);
+	xglEnableClientState(GL_VERTEX_ARRAY);			RB_CheckForError();
+
+	RB_SelectTexture(GL_TEXTURE0);	
+	xglEnableClientState(GL_TEXTURE_COORD_ARRAY);		RB_CheckForError();
 	xglEnable(GL_TEXTURE_2D);		RB_CheckForError();
 }
 
 void		RB_DisableShader_generic()
 {
-	rb_program_generic->disable();		RB_CheckForError();
+//	rb_program_generic->disable();		RB_CheckForError();
+
+	xglDisableClientState(GL_VERTEX_ARRAY);			RB_CheckForError();
 
 	RB_SelectTexture(GL_TEXTURE0);
+	xglDisableClientState(GL_TEXTURE_COORD_ARRAY);		RB_CheckForError();
 	xglDisable(GL_TEXTURE_2D);		RB_CheckForError();
 }
 
@@ -1690,8 +1696,40 @@ void		RB_RenderCommand_generic(const r_command_t *cmd,			const r_shader_stage_c 
 {
 	RB_EnableShaderStageStates(cmd->getEntity(), stage);
 
-	rb_program_generic->setVertexAttribs(cmd);
+//	rb_program_generic->setVertexAttribs(cmd);
 
+	if(gl_config.arb_vertex_buffer_object && cmd->getEntityMesh()->vbo_array_buffer)
+	{
+		xglBindBufferARB(GL_ARRAY_BUFFER_ARB, cmd->getEntityMesh()->vbo_array_buffer);	RB_CheckForError();
+		
+#if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+		xglVertexPointer(3, GL_FLOAT, 16, VBO_BUFFER_OFFSET(cmd->getEntityMesh()->vbo_vertexes_ofs));		RB_CheckForError();
+#else
+		xglVertexPointer(3, GL_FLOAT, 0, VBO_BUFFER_OFFSET(cmd->getEntityMesh()->vbo_vertexes_ofs));		RB_CheckForError();
+#endif
+		RB_SelectTexture(GL_TEXTURE0);
+		xglTexCoordPointer(2, GL_FLOAT, 0, VBO_BUFFER_OFFSET(cmd->getEntityMesh()->vbo_texcoords_ofs));		RB_CheckForError();
+	}
+	else
+	{
+		if(gl_config.arb_vertex_buffer_object)
+		{
+			gl_state.current_vbo_array_buffer = 0;
+			gl_state.current_vbo_vertexes_ofs = 0;
+			
+			xglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);	RB_CheckForError();
+		}
+		
+#if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+		xglVertexPointer(3, GL_FLOAT, 16, &(cmd->getEntityMesh()->vertexes[0]));	RB_CheckForError();
+#else
+		xglVertexPointer(3, GL_FLOAT, 0, &(cmd->getEntityMesh()->vertexes[0]));		RB_CheckForError();
+#endif
+		
+		RB_SelectTexture(GL_TEXTURE0);
+		xglTexCoordPointer(2, GL_FLOAT, 0, &(cmd->getEntityMesh()->texcoords[0]));	RB_CheckForError();
+	}
+	
 	RB_ModifyTextureMatrix(cmd->getEntity(), stage);	RB_CheckForError();
 	RB_Bind(stage->image);
 
@@ -1720,14 +1758,16 @@ void		RB_RenderCommand_zfill(const r_command_t *cmd,				const r_shader_stage_c *
 {
 	xglColor4fv(color_black);
 
-	RB_EnableShaderStageStates(cmd->getEntity(), stage);
+//	RB_EnableShaderStageStates(cmd->getEntity(), stage);
 
 	rb_program_zfill->setVertexAttribs(cmd);
 
-	RB_SelectTexture(GL_TEXTURE0);
-
 	if(stage->flags & SHADER_STAGE_ALPHATEST)
 	{
+		xglEnable(GL_ALPHA_TEST);
+		float	value = X_bound(0.0, RB_Evaluate(cmd->getEntity()->getShared(), stage->alpha_ref, 0.5), 1.0);		
+		xglAlphaFunc(GL_GREATER, value);
+	
 		RB_ModifyTextureMatrix(cmd->getEntity(), stage);
 		RB_Bind(stage->image);
 		xglEnable(GL_TEXTURE_2D);		RB_CheckForError();
@@ -1747,10 +1787,11 @@ void		RB_RenderCommand_zfill(const r_command_t *cmd,				const r_shader_stage_c *
 	
 	if(stage->flags & SHADER_STAGE_ALPHATEST)
 	{
-		xglDisable(GL_TEXTURE_2D);		RB_CheckForError();	
+		xglDisable(GL_ALPHA_TEST);
+		xglDisable(GL_TEXTURE_2D);		RB_CheckForError();
 	}
 	
-	RB_DisableShaderStageStates(cmd->getEntity(), stage);
+//	RB_DisableShaderStageStates(cmd->getEntity(), stage);
 }
 
 

@@ -92,6 +92,7 @@ enum
 enum r_image_upload_type_e
 {	
 	IMAGE_UPLOAD_COLORMAP,
+	IMAGE_UPLOAD_NORMALMAP,
 	IMAGE_UPLOAD_ALPHAMAP,
 	IMAGE_UPLOAD_BUMPMAP,
 	IMAGE_UPLOAD_CUBEMAP,
@@ -128,7 +129,8 @@ enum
 	SHADER_DISCRETE			= 1 << 8,
 	SHADER_AREAPORTAL		= 1 << 9,
 	SHADER_NOENVMAP			= 1 << 10,
-	SHADER_POSTPROCESS		= 1 << 11
+	SHADER_POSTPROCESS		= 1 << 11,
+	SHADER_FORCEOPAQUE		= 1 << 12
 };
 
 
@@ -632,6 +634,8 @@ public:
 	
 	bool				make_intensity;
 	bool				make_alpha;
+	bool				heightmap;
+	float				heightmap_scale;
 	
 	std::string			image_name;
 	r_image_c*			image;
@@ -2062,6 +2066,7 @@ extern r_image_c*	r_img_lightview_depth;
 extern r_image_c*	r_img_lightview_color;
 extern r_image_c*	r_img_currentrender;
 extern r_image_c*	r_img_currentrender_depth;
+extern r_image_c*	r_img_currentenvironment;
 
 extern r_shader_c*	r_shader_currentrender;
 
@@ -2109,12 +2114,12 @@ extern vec3_c		r_forward;
 extern vec3_c		r_right;
 
 extern vec3_c		r_origin;
-
+extern vec3_c		r_origin_old;
 
 extern bool		r_portal_view;	// if true, get vis data at
 extern vec3_c		r_portal_org;	// portalorg instead of vieworg
 
-extern bool		r_mirrorview;	// if true, lock pvs
+extern bool		r_mirror_view;	// if true, lock pvs
 
 extern bool		r_envmap;
 
@@ -2150,7 +2155,8 @@ extern r_poly_t		r_polys[MAX_POLYS];
 
 extern std::vector<r_contact_t>				r_contacts;
 
-extern r_scene_t	r_world_scene;
+extern r_scene_t	r_scene_main;
+extern r_scene_t	r_scene_portal;
 
 
 
@@ -2419,6 +2425,13 @@ void		R_Shutdown();
 
 bool		R_SetupTag(r_tag_t &tag, const r_entity_t &ent, const std::string &name);
 bool		R_SetupAnimation(int model, int anim);
+
+
+void		R_BeginFrame();
+void		R_RenderFrame(const r_refdef_t &fd);
+void		R_EndFrame();
+
+
 
 //
 // r_octree.cxx

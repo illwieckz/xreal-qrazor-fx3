@@ -297,12 +297,12 @@ bool	r_alias_model_c::cull(r_entity_c *ent)
 		return false;
 	
 	if(ent->getShared().flags & RF_VIEWERMODEL)
-		return (!(r_mirrorview || r_portal_view));
+		return (!(r_mirror_view || r_portal_view));
 	
 	if(r_frustum.cull(ent->getAABB()))
 		return true;
 	
-	if((r_mirrorview || r_portal_view) && r_cull->getValue())
+	if((r_mirror_view || r_portal_view) && r_cull->getValue())
 	{
 		if(r_clipplane.distance(ent->getShared().origin) < -ent->getAABB().radius())
 			return true;

@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 
-void 	IMG_LoadJPG(const std::string &filename, byte **pic, int *width, int *height);
+void 	IMG_LoadJPG(const std::string &filename, byte **pic, int *width, int *height, bool fill_alpha = true);
 void	IMG_WriteJPG(const std::string &filename, byte *pic, int width, int height, int quality);
 
 

@@ -301,7 +301,7 @@ void	R_Discrete_sc(char const* begin, char const* end)
 
 void	R_ForceOpaque_sc(char const* begin, char const* end)
 {
-	//r_current_shader->setSort(SHADER_SORT_OPAQUE);	//FIXME
+	r_current_shader->setORFlags(SHADER_FORCEOPAQUE);
 }
 
 void	R_LightFalloffImage_sc(char const* begin, char const* end)
