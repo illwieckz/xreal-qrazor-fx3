@@ -26,10 +26,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /// includes ===================================================================
 // system -------------------------------------------------------------------
 // qrazor-fx ----------------------------------------------------------------
-#include "client.h"
+//#include "client.h"
 #include "winquake.h"
 #include "cvar.h"
 #include "cmd.h"
+#include "x_keycodes.h"
 
 extern	unsigned	sys_msg_time;
 
@@ -151,7 +152,7 @@ void IN_ActivateMouse (void)
 
 	if (!mouseinitialized)
 		return;
-	if (!in_mouse->value)
+	if (!in_mouse->getValue())
 	{
 		mouseactive = false;
 		return;
@@ -228,8 +229,8 @@ void IN_StartupMouse (void)
 {
 	cvar_t		*cv;
 
-	cv = Cvar_Get ("in_initmouse", "1", CVAR_NOSET);
-	if ( !cv->value ) 
+	cv = Cvar_Get ("in_initmouse", "1", CVAR_NONE);
+	if ( !cv->getValue() ) 
 		return; 
 
 	mouseinitialized = true;
@@ -261,7 +262,7 @@ void IN_MouseEvent (int mstate)
 		if ( !(mstate & (1<<i)) &&
 			(mouse_oldbuttonstate & (1<<i)) )
 		{
-				Key_Event (K_MOUSE1 + i, false, sys_msg_time);
+			Key_Event (K_MOUSE1 + i, false, sys_msg_time);
 		}
 	}	
 		
@@ -276,6 +277,7 @@ IN_MouseMove
 */
 void IN_MouseMove (usercmd_t *cmd)
 {
+#if 0
 	int		mx, my;
 
 	if (!mouseactive)
@@ -293,7 +295,7 @@ void IN_MouseMove (usercmd_t *cmd)
 		return;
 #endif
 
-	if (m_filter->value)
+	if (m_filter->getValue())
 	{
 		mouse_x = (int)((mx + old_mouse_x) * 0.5);
 		mouse_y = (int)((my + old_mouse_y) * 0.5);
@@ -311,23 +313,24 @@ void IN_MouseMove (usercmd_t *cmd)
 	mouse_y *= sensitivity->integer;
 
 	// add mouse X/Y movement to cmd
-	if ( (in_strafe.state & 1) || (lookstrafe->value && mlooking ))
-		cmd->sidemove += m_side->value * mouse_x;
+	if ( (in_strafe.state & 1) || (lookstrafe->getValue() && mlooking ))
+		cmd->sidemove += m_side->getValue() * mouse_x;
 	else
-		cl.viewangles[YAW] -= m_yaw->value * mouse_x;
+		cl.viewangles[YAW] -= m_yaw->getValue() * mouse_x;
 
-	if ( (mlooking || freelook->value) && !(in_strafe.state & 1))
+	if ( (mlooking || freelook->getValue()) && !(in_strafe.state & 1))
 	{
-		cl.viewangles[PITCH] += m_pitch->value * mouse_y;
+		cl.viewangles[PITCH] += m_pitch->getValue() * mouse_y;
 	}
 	else
 	{
-		cmd->forwardmove -= m_forward->value * mouse_y;
+		cmd->forwardmove -= m_forward->getValue() * mouse_y;
 	}
 
 	// force the mouse to the center, so there's room to move
 	if (mx || my)
 		SetCursorPos (window_center_x, window_center_y);
+#endif
 }
 
 
@@ -431,6 +434,7 @@ void IN_Frame (void)
 	if (!mouseinitialized)
 		return;
 
+#if 0
 	if (!in_mouse || !in_appactive)
 	{
 		IN_DeactivateMouse ();
@@ -448,6 +452,7 @@ void IN_Frame (void)
 			return;
 		}
 	}
+#endif
 
 	IN_ActivateMouse ();
 }
@@ -503,8 +508,8 @@ void IN_StartupJoystick (void)
 	joy_avail = false; 
 
 	// abort startup if user requests no joystick
-	cv = Cvar_Get ("in_initjoy", "1", CVAR_NOSET);
-	if ( !cv->value ) 
+	cv = Cvar_Get ("in_initjoy", "1", CVAR_NONE);
+	if ( !cv->getValue() ) 
 		return; 
  
 	// verify joystick driver is present
@@ -584,7 +589,11 @@ PDWORD RawValuePointer (int axis)
 			
 		case JOY_AXIS_V:
 			return &ji.dwVpos;
+
+		default:
+			printf("ERROR: Undefined JoyAxis delivered\n");
 	}
+	return NULL;
 }
 
 
@@ -609,7 +618,7 @@ void Joy_AdvancedUpdate_f (void)
 		pdwRawValue[i] = RawValuePointer(i);
 	}
 
-	if( joy_advanced->value == 0.0)
+	if( joy_advanced->getValue() == 0.0)
 	{
 		// default joystick initialization
 		// 2 axes only with joystick control
@@ -620,30 +629,30 @@ void Joy_AdvancedUpdate_f (void)
 	}
 	else
 	{
-		if (strcmp (joy_name->string, "joystick") != 0)
+		if (strcmp (joy_name->getString(), "joystick") != 0)
 		{
 			// notify user of advanced controller
-			Com_Printf ("\n%s configured\n\n", joy_name->string);
+			Com_Printf ("\n%s configured\n\n", joy_name->getString());
 		}
 
 		// advanced initialization here
 		// data supplied by user via joy_axisn cvars
-		dwTemp = (DWORD) joy_advaxisx->value;
+		dwTemp = (DWORD) joy_advaxisx->getValue();
 		dwAxisMap[JOY_AXIS_X] = dwTemp & 0x0000000f;
 		dwControlMap[JOY_AXIS_X] = dwTemp & JOY_RELATIVE_AXIS;
-		dwTemp = (DWORD) joy_advaxisy->value;
+		dwTemp = (DWORD) joy_advaxisy->getValue();
 		dwAxisMap[JOY_AXIS_Y] = dwTemp & 0x0000000f;
 		dwControlMap[JOY_AXIS_Y] = dwTemp & JOY_RELATIVE_AXIS;
-		dwTemp = (DWORD) joy_advaxisz->value;
+		dwTemp = (DWORD) joy_advaxisz->getValue();
 		dwAxisMap[JOY_AXIS_Z] = dwTemp & 0x0000000f;
 		dwControlMap[JOY_AXIS_Z] = dwTemp & JOY_RELATIVE_AXIS;
-		dwTemp = (DWORD) joy_advaxisr->value;
+		dwTemp = (DWORD) joy_advaxisr->getValue();
 		dwAxisMap[JOY_AXIS_R] = dwTemp & 0x0000000f;
 		dwControlMap[JOY_AXIS_R] = dwTemp & JOY_RELATIVE_AXIS;
-		dwTemp = (DWORD) joy_advaxisu->value;
+		dwTemp = (DWORD) joy_advaxisu->getValue();
 		dwAxisMap[JOY_AXIS_U] = dwTemp & 0x0000000f;
 		dwControlMap[JOY_AXIS_U] = dwTemp & JOY_RELATIVE_AXIS;
-		dwTemp = (DWORD) joy_advaxisv->value;
+		dwTemp = (DWORD) joy_advaxisv->getValue();
 		dwAxisMap[JOY_AXIS_V] = dwTemp & 0x0000000f;
 		dwControlMap[JOY_AXIS_V] = dwTemp & JOY_RELATIVE_AXIS;
 	}
@@ -749,7 +758,7 @@ bool IN_ReadJoystick (void)
 	else
 	{
 		// read error occurred
-		// turning off the joystick seems too harsh for 1 read error,\
+		// turning off the joystick seems too harsh for 1 read error,
 		// but what should be done?
 		// Com_Printf ("IN_ReadJoystick: no response\n");
 		// joy_avail = false;
@@ -765,7 +774,8 @@ IN_JoyMove
 */
 void IN_JoyMove (usercmd_t *cmd)
 {
-	float	speed, aspeed;
+#if 0
+	//float	speed, aspeed;
 	float	fAxisValue;
 	int		i;
 
@@ -778,7 +788,7 @@ void IN_JoyMove (usercmd_t *cmd)
 	}
 
 	// verify joystick is available and that the user wants to use it
-	if (!joy_avail || !in_joystick->value)
+	if (!joy_avail || !in_joystick->getValue())
 	{
 		return; 
 	}
@@ -789,11 +799,13 @@ void IN_JoyMove (usercmd_t *cmd)
 		return;
 	}
 
-	if ( (in_speed.state & 1) ^ (int)cl_run->value)
+#if 0
+	if ( (in_speed.state & 1) ^ (int)cl_run->getValue())
 		speed = 2;
 	else
 		speed = 1;
 	aspeed = speed * (cls.frametime / 1000);
+#endif
 
 	// loop through the axes
 	for (i = 0; i < JOY_MAX_AXES; i++)
@@ -809,68 +821,72 @@ void IN_JoyMove (usercmd_t *cmd)
 		switch (dwAxisMap[i])
 		{
 		case AxisForward:
-			if ((joy_advanced->value == 0.0) && mlooking)
+			if ((joy_advanced->getValue() == 0.0) && mlooking)
 			{
 				// user wants forward control to become look control
-				if (fabs(fAxisValue) > joy_pitchthreshold->value)
+				if (fabs(fAxisValue) > joy_pitchthreshold->getValue())
 				{		
 					// if mouse invert is on, invert the joystick pitch value
 					// only absolute control support here (joy_advanced is false)
-					if (m_pitch->value < 0.0)
+#if 0
+					if (m_pitch->getValue() < 0.0)
 					{
-						cl.viewangles[PITCH] -= (fAxisValue * joy_pitchsensitivity->value) * aspeed * cl_pitchspeed->value;
+						cl.viewangles[PITCH] -= (fAxisValue * joy_pitchsensitivity->getValue()) * aspeed * cl_pitchspeed->getValue();
 					}
 					else
 					{
-						cl.viewangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value) * aspeed * cl_pitchspeed->value;
+						cl.viewangles[PITCH] += (fAxisValue * joy_pitchsensitivity->getValue()) * aspeed * cl_pitchspeed->getValue();
 					}
+#endif
 				}
 			}
 			else
 			{
 				// user wants forward control to be forward control
-				if (fabs(fAxisValue) > joy_forwardthreshold->value)
+				if (fabs(fAxisValue) > joy_forwardthreshold->getValue())
 				{
-					cmd->forwardmove += (fAxisValue * joy_forwardsensitivity->value) * speed * cl_forwardspeed->value;
+				//cmd->forwardmove += (fAxisValue * joy_forwardsensitivity->getValue()) * speed * cl_forwardspeed->getValue();
 				}
 			}
 			break;
 
 		case AxisSide:
-			if (fabs(fAxisValue) > joy_sidethreshold->value)
+			if (fabs(fAxisValue) > joy_sidethreshold->getValue())
 			{
-				cmd->sidemove += (fAxisValue * joy_sidesensitivity->value) * speed * cl_sidespeed->value;
+				//cmd->sidemove += (fAxisValue * joy_sidesensitivity->getValue()) * speed * cl_sidespeed->getValue();
 			}
 			break;
 
 		case AxisUp:
-			if (fabs(fAxisValue) > joy_upthreshold->value)
+			if (fabs(fAxisValue) > joy_upthreshold->getValue())
 			{
-				cmd->upmove += (fAxisValue * joy_upsensitivity->value) * speed * cl_upspeed->value;
+				//cmd->upmove += (fAxisValue * joy_upsensitivity->getValue()) * speed * cl_upspeed->getValue();
 			}
 			break;
 
 		case AxisTurn:
-			if ((in_strafe.state & 1) || (lookstrafe->value && mlooking))
+#if 0
+			if ((in_strafe.state & 1) || (lookstrafe->getValue() && mlooking))
 			{
 				// user wants turn control to become side control
-				if (fabs(fAxisValue) > joy_sidethreshold->value)
+				if (fabs(fAxisValue) > joy_sidethreshold->getValue())
 				{
-					cmd->sidemove -= (fAxisValue * joy_sidesensitivity->value) * speed * cl_sidespeed->value;
+					//cmd->sidemove -= (fAxisValue * joy_sidesensitivity->getValue()) * speed * cl_sidespeed->getValue();
 				}
 			}
 			else
+#endif
 			{
 				// user wants turn control to be turn control
-				if (fabs(fAxisValue) > joy_yawthreshold->value)
+				if (fabs(fAxisValue) > joy_yawthreshold->getValue())
 				{
 					if(dwControlMap[i] == JOY_ABSOLUTE_AXIS)
 					{
-						cl.viewangles[YAW] += (fAxisValue * joy_yawsensitivity->value) * aspeed * cl_yawspeed->value;
+						//cl.viewangles[YAW] += (fAxisValue * joy_yawsensitivity->getValue()) * aspeed * cl_yawspeed->getValue();
 					}
 					else
 					{
-						cl.viewangles[YAW] += (fAxisValue * joy_yawsensitivity->value) * speed * 180.0;
+						//cl.viewangles[YAW] += (fAxisValue * joy_yawsensitivity->getValue()) * speed * 180.0;
 					}
 
 				}
@@ -880,16 +896,16 @@ void IN_JoyMove (usercmd_t *cmd)
 		case AxisLook:
 			if (mlooking)
 			{
-				if (fabs(fAxisValue) > joy_pitchthreshold->value)
+				if (fabs(fAxisValue) > joy_pitchthreshold->getValue())
 				{
 					// pitch movement detected and pitch movement desired by user
 					if(dwControlMap[i] == JOY_ABSOLUTE_AXIS)
 					{
-						cl.viewangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value) * aspeed * cl_pitchspeed->value;
+						//cl.viewangles[PITCH] += (fAxisValue * joy_pitchsensitivity->getValue()) * aspeed * cl_pitchspeed->getValue();
 					}
 					else
 					{
-						cl.viewangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value) * speed * 180.0;
+						cl.viewangles[PITCH] += (fAxisValue * joy_pitchsensitivity->getValue()) * speed * 180.0;
 					}
 				}
 			}
@@ -899,5 +915,6 @@ void IN_JoyMove (usercmd_t *cmd)
 			break;
 		}
 	}
+#endif
 }
 
