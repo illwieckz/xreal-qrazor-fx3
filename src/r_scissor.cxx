@@ -31,13 +31,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 void	r_scissoriface_a::updateScissor(const matrix_c &modelviewproj, const r_vrect_t &vrect, const cbbox_c &bbox)
 {
+	_mins[0] = 100000000;
+	_mins[1] = 100000000;
+	
+	_maxs[0] =-100000000;
+	_maxs[1] =-100000000;
+
+#if 1
 	vec3_c	v1, v2;
-
-	_coords[0] = 100000000;
-	_coords[1] = 100000000;
-	_coords[2] =-100000000;
-	_coords[3] =-100000000;
-
+	
 	v1.set(bbox._maxs[0], bbox._maxs[1], bbox._maxs[2]);
 	v2.set(bbox._mins[0], bbox._maxs[1], bbox._maxs[2]);
 	addEdge(modelviewproj, vrect, v1, v2);
@@ -87,12 +89,39 @@ void	r_scissoriface_a::updateScissor(const matrix_c &modelviewproj, const r_vrec
 	v1.set(bbox._maxs[0], bbox._mins[1], bbox._mins[2]);
 	v2.set(bbox._maxs[0], bbox._mins[1], bbox._maxs[2]);
 	addEdge(modelviewproj, vrect, v1, v2);
+#else
+	vec3_c vertexes[8];	// max x,y,z points in space
+	
+	vertexes[0].set(bbox._maxs[0], bbox._mins[1], bbox._mins[2]);
+	vertexes[1].set(bbox._maxs[0], bbox._mins[1], bbox._maxs[2]);
+	vertexes[2].set(bbox._mins[0], bbox._mins[1], bbox._maxs[2]);
+	vertexes[3].set(bbox._mins[0], bbox._mins[1], bbox._mins[2]);
+	
+	vertexes[4].set(bbox._maxs[0], bbox._maxs[1], bbox._mins[2]);
+	vertexes[5].set(bbox._maxs[0], bbox._maxs[1], bbox._maxs[2]);
+	vertexes[6].set(bbox._mins[0], bbox._maxs[1], bbox._maxs[2]);
+	vertexes[7].set(bbox._mins[0], bbox._maxs[1], bbox._mins[2]);
+	
+	for(int i=0; i<8; i++)
+	{
+		addVertex(modelviewproj, vrect, vertexes[i]);
+	}
+#endif
+}
+
+void	r_scissoriface_a::setScissor(const r_vrect_t &vrect)
+{
+	_mins[0] = vrect.x;
+	_mins[1] = vrect.y;
+	
+	_maxs[0] = vrect.x + vrect.width;
+	_maxs[1] = vrect.y + vrect.height;
 }
 
 void	r_scissoriface_a::addVertex(const matrix_c &mvp, const r_vrect_t &vrect, const vec3_c &v1)
 {
 	vec4_c	point, res;
-	float	px, py;
+	float	x, y;
 
 	point[0] = v1[0];
 	point[1] = v1[1];
@@ -100,18 +129,28 @@ void	r_scissoriface_a::addVertex(const matrix_c &mvp, const r_vrect_t &vrect, co
 	point[3] = 1.0f;
 	
 	res = mvp * point;
-
-	px = (res[0]*(1/res[3])+1.0) * 0.5;
-	py = (res[1]*(1/res[3])+1.0) * 0.5;
-
-	px = px * vrect.width + vrect.x;
-	py = py * vrect.height + vrect.y;
-
-	if(px > _coords[2])	_coords[2] = px;
-	if(px < _coords[0])	_coords[0] = px;
 	
-	if(py > _coords[3])	_coords[3] = py;
-	if(py < _coords[1])	_coords[1] = py;
+	if(res[3] <= 0.0)
+		return;
+	
+	res[0] /= res[3];
+	res[1] /= res[3];
+	res[2] /= res[3];
+
+//	x = (res[0]*(1/res[3])+1.0) * 0.5;
+//	y = (res[1]*(1/res[3])+1.0) * 0.5;
+
+//	x = x * vrect.width + vrect.x;
+//	y = y * vrect.height + vrect.y;
+
+	x = vrect.x + (1.0 + res[0]) * vrect.width * 0.5;
+	y = vrect.y + (1.0 - res[1]) * vrect.height * 0.5;	//FIXME? 
+
+	if(x > _maxs[0])	_maxs[0] = x;
+	if(x < _mins[0])	_mins[0] = x;
+		
+	if(y > _maxs[1])	_maxs[1] = y;
+	if(y < _mins[1])	_mins[1] = y;
 }
 
 void	r_scissoriface_a::addEdge(const matrix_c &mvp, const r_vrect_t &vrect, const vec3_c &v1, const vec3_c &v2)
@@ -119,24 +158,27 @@ void	r_scissoriface_a::addEdge(const matrix_c &mvp, const r_vrect_t &vrect, cons
 	vec3_c		intersect;
 	plane_side_e	side1, side2;
 
-	// check edge to frustrum near plane
-	side1 = r_frustum[FRUSTUM_NEAR].onSide(v1);
-	side2 = r_frustum[FRUSTUM_NEAR].onSide(v2);
-
-	if(side1 == SIDE_BACK && side2 == SIDE_BACK)
-		return; //edge behind near plane
-
-	if(side1 == SIDE_BACK || side2 == SIDE_BACK)
-		r_frustum[FRUSTUM_NEAR].intersect(v1, v2, intersect);
-
-	if(side1 == SIDE_BACK)
-		addVertex(mvp, vrect, intersect);
-	else
-		addVertex(mvp, vrect, v1);
+	// check edge against all frustum planes
+	for(int i=0; i<1; i++)
+	{
+		side1 = r_frustum[i].onSide(v1);
+		side2 = r_frustum[i].onSide(v2);
 		
-	if(side2 == SIDE_BACK)
-		addVertex(mvp, vrect, intersect);
-	else
-		addVertex(mvp, vrect, v2);
+		if(side1 == SIDE_BACK && side2 == SIDE_BACK)
+			continue;	//edge behind plane
+			
+		if(side1 == SIDE_BACK || side2 == SIDE_BACK)
+			r_frustum[i].intersect(v1, v2, intersect);
+			
+		if(side1 == SIDE_BACK)
+			addVertex(mvp, vrect, intersect);
+		else
+			addVertex(mvp, vrect, v1);
+			
+		if(side2 == SIDE_BACK)
+			addVertex(mvp, vrect, intersect);
+		else
+			addVertex(mvp, vrect, v2);
+	}
 }
 

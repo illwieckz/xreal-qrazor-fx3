@@ -189,9 +189,6 @@ static void	R_ASE_AddMesh(char const begin)
 	}
 
 	r_ase_mesh->createBBoxFromVertexes();
-	
-	r_ase_model->_bbox.addPoint(r_ase_mesh->bbox._mins);
-	r_ase_model->_bbox.addPoint(r_ase_mesh->bbox._maxs);
 
 	r_ase_model->addMesh(r_ase_mesh);
 }

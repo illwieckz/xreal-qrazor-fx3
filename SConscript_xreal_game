@@ -1,0 +1,38 @@
+import os, string, sys
+
+Import('env')
+
+xreal_game_src = [
+'src/x_endian.cxx',
+'src/x_info.cxx',
+'src/x_math.cxx',
+'src/x_panim.cxx',
+'src/x_pmove.cxx',
+'src/x_shared.cxx',
+'src/x_string.cxx',
+'src/xreal/g_combat.cxx',
+'src/xreal/g_debris.cxx',
+'src/xreal/g_entity.cxx',
+'src/xreal/g_field.cxx',
+'src/xreal/g_func.cxx',
+'src/xreal/g_hud.cxx',
+'src/xreal/g_item.cxx',
+'src/xreal/g_light.cxx',
+'src/xreal/g_main.cxx',
+'src/xreal/g_misc.cxx',
+'src/xreal/g_phys.cxx',
+'src/xreal/g_player.cxx',
+'src/xreal/g_projectile.cxx',
+'src/xreal/g_pweapon.cxx',
+'src/xreal/g_spawn.cxx',
+'src/xreal/g_svcmds.cxx',
+'src/xreal/g_target.cxx',
+'src/xreal/g_trigger.cxx',
+'src/xreal/g_utils.cxx',
+'src/xreal/g_weapon.cxx',
+'src/xreal/g_world.cxx' ]
+
+xreal_game_env = env.Copy()
+xreal_game_env.SharedLibrary('game', xreal_game_src, LIBS=['ode', 'm'])
+xreal_game_env.InstallAs('#install/xreal/game.so', 'libgame.so')
+

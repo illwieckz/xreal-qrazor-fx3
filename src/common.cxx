@@ -295,9 +295,6 @@ void	Com_PushEvent(sys_event_type_e type, int time, int parm1, int parm2, byte *
 
 static void	Com_EventLoop()
 {
-	netadr_t	adr;
-	message_c	msg(MSG_TYPE_RAWBYTES, MAX_PACKETLEN);
-
 	while(com_event_queue.size())
 	{
 		const sys_event_c* event = com_event_queue.front();
@@ -317,6 +314,11 @@ static void	Com_EventLoop()
 				break;
 				
 			case SE_PACKET:
+			{
+			#ifndef BSPCOMPILER_ONLY
+				netadr_t	adr;
+				message_c	msg(MSG_TYPE_RAWBYTES, MAX_PACKETLEN);
+				
 				memcpy(&adr, event->getData(), sizeof(adr));
 				
 				msg.beginWriting();
@@ -324,8 +326,9 @@ static void	Com_EventLoop()
 			
 				SV_PacketEvent(msg, adr);
 				CL_PacketEvent(msg, adr);
-				
+			#endif
 				break;
+			}
 		}
 		
 		delete event;

@@ -98,7 +98,9 @@ void	R_DrawParticles()
 					
 					NULL,
 				
-					0);
+					0,
+					
+					r_origin.distance(p->origin));
 
 
 		RB_RenderCommand(&cmd, RENDER_TYPE_DEFAULT);

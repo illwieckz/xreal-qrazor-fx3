@@ -61,8 +61,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <exception>
 
 // shared -------------------------------------------------------------------
-#include "shared/x_message.h"
-#include "shared/x_protocol.h"
+#include "x_message.h"
+#include "x_protocol.h"
 
 // qrazor-fx ----------------------------------------------------------------
 #include "sys.h"

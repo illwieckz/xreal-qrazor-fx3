@@ -146,6 +146,17 @@ void (GLAPIENTRY* xglGetBufferParameterivARB) (GLenum, GLenum, GLint *);
 void (GLAPIENTRY* xglGetBufferPointervARB) (GLenum, GLenum, GLvoid* *);
 
 
+/// GL_ARB_occlusion_query =====================================================
+void (GLAPIENTRY* xglGenQueriesARB) (GLsizei, GLuint *);
+void (GLAPIENTRY* xglDeleteQueriesARB) (GLsizei, const GLuint *);
+GLboolean (GLAPIENTRY* xglIsQueryARB) (GLuint);
+void (GLAPIENTRY* xglBeginQueryARB) (GLenum, GLuint);
+void (GLAPIENTRY* xglEndQueryARB) (GLenum);
+void (GLAPIENTRY* xglGetQueryivARB) (GLenum, GLenum, GLint *);
+void (GLAPIENTRY* xglGetQueryObjectivARB) (GLuint, GLenum, GLint *);
+void (GLAPIENTRY* xglGetQueryObjectuivARB) (GLuint, GLenum, GLuint *);
+
+
 /// GL_ARB_shader_objects ======================================================
 typedef char GLcharARB;			/* native character */
 typedef unsigned int GLhandleARB;	/* shader object handle */
@@ -417,6 +428,15 @@ void	XGL_Shutdown()
 	xglUnmapBufferARB					= NULL;
 	xglGetBufferParameterivARB				= NULL;
 	xglGetBufferPointervARB					= NULL;
+	
+	xglGenQueriesARB					= NULL;
+	xglDeleteQueriesARB					= NULL;
+	xglIsQueryARB						= NULL;
+	xglBeginQueryARB					= NULL;
+	xglEndQueryARB						= NULL;
+	xglGetQueryivARB					= NULL;
+	xglGetQueryObjectivARB					= NULL;
+	xglGetQueryObjectuivARB					= NULL;
 	
 	xglDeleteObjectARB					= NULL;
 	xglGetHandleARB						= NULL;

@@ -30,12 +30,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 // system -------------------------------------------------------------------
 // shared -------------------------------------------------------------------
-#include "shared/x_shared.h"
-#include "shared/x_protocol.h"
+#include "../x_shared.h"
+#include "../x_protocol.h"
 
 // qrazor-fx ----------------------------------------------------------------
-#include "r_public.h"
-#include "files.h"
+#include "../r_public.h"
+#include "../files.h"
 
 // xreal --------------------------------------------------------------------
 

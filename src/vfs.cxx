@@ -416,7 +416,7 @@ void 	VFS_Init()
 	// basedir <path>
 	// allows the game to run from outside the data tree
 	//
-	vfs_basedir = Cvar_Get("vfs_basedir", VFS_BASEDIRNAME, CVAR_ARCHIVE);
+	vfs_basedir = Cvar_Get("vfs_basedir", VFS_BASEDIRNAME, CVAR_ARCHIVE); 
 	
 	//
 	// libdir
@@ -431,7 +431,7 @@ void 	VFS_Init()
 	{
 		VFS_AddGameDirectory(std::string(vfs_userdatadir->getString()) + "/" + std::string(vfs_basedir->getString()));
 		VFS_AddGameDirectory(std::string(vfs_pkgdatadir->getString()) + "/" + std::string(vfs_basedir->getString()));
-		VFS_AddGameDirectory(std::string(vfs_pkglibdir->getString()) + "/" + std::string(vfs_basedir->getString()));
+		//VFS_AddGameDirectory(std::string(vfs_pkglibdir->getString()) + "/" + std::string(vfs_basedir->getString()));
 	}
 	else
 	{
@@ -441,8 +441,8 @@ void 	VFS_Init()
 		VFS_AddGameDirectory(std::string(vfs_pkgdatadir->getString()) + "/" + std::string(vfs_game->getString()));
 		VFS_AddGameDirectory(std::string(vfs_pkgdatadir->getString()) + "/" + std::string(vfs_basedir->getString()));
 		
-		VFS_AddGameDirectory(std::string(vfs_pkglibdir->getString()) + "/" + std::string(vfs_game->getString()));
-		VFS_AddGameDirectory(std::string(vfs_pkglibdir->getString()) + "/" + std::string(vfs_basedir->getString()));
+		//VFS_AddGameDirectory(std::string(vfs_pkglibdir->getString()) + "/" + std::string(vfs_game->getString()));
+		//VFS_AddGameDirectory(std::string(vfs_pkglibdir->getString()) + "/" + std::string(vfs_basedir->getString()));
 	}
 	
 	//VFS_AddGameDirectory(vfs_pkglibdir->getString());

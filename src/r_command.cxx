@@ -41,6 +41,8 @@ r_command_t::r_command_t()
 	_light_indexes	= NULL;
 	
 	_infokey	= -1;
+	
+	_distance	= 0;
 }
 
 r_command_t::r_command_t(	r_entity_c*		entity,
@@ -50,7 +52,8 @@ r_command_t::r_command_t(	r_entity_c*		entity,
 				r_light_c*		light,
 				r_shader_c*		light_shader,
 				std::vector<index_t>*	light_indexes,
-				int			infokey)
+				int			infokey,
+				vec_t			distance)
 {
 	_entity		= entity;
 	_entity_model	= entity_model;
@@ -62,5 +65,7 @@ r_command_t::r_command_t(	r_entity_c*		entity,
 	_light_indexes	= light_indexes;
 	
 	_infokey	= infokey;
+	
+	_distance	= 0;
 }
 

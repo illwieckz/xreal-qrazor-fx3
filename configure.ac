@@ -601,7 +601,6 @@ dnl -----------
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
-	src/shared/Makefile
 	src/xreal/Makefile
 	data/Makefile
 	data/xreal/Makefile

@@ -51,6 +51,11 @@ r_entity_c::r_entity_c(const r_entity_t &shared, bool update)
 	
 	if(_s.flags & RF_STATIC)
 	{
+		if(!r_world_tree && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
+			ri.Com_Error(ERR_DROP, "r_entity_c::ctor: NULL worldmodel");
+	
+		//_area = r_world_tree->pointInArea(_s.origin);
+	
 		r_bsptree_leaf_c* leaf = r_world_tree->pointInLeaf(_s.origin);
 		if(leaf)
 		{
@@ -61,6 +66,18 @@ r_entity_c::r_entity_c(const r_entity_t &shared, bool update)
 		{
 			_cluster = -1;
 			_area = 1;
+		}
+		
+		
+		r_model_c *model = R_GetModelByNum(_s.model);
+			
+		if(model)
+		{
+			model->updateBBox(this);
+			r_world_tree->boxLeafs(model->getBBox(), _leafs);
+			
+			//if(_leafs.size())
+			//	ri.Com_DPrintf("entity touches %i BSP leaves\n", _leafs.size());
 		}
 	}
 	else

@@ -89,6 +89,7 @@ void	RB_InitBackend()
 	rb_arrays_locked = false;
 
 	r_framecount = 1;
+	r_visframecount = 1;
 	
 	rb_matrix_quake_to_opengl.setupRotation   (1, 0, 0,-90);    	// put Z going up
 	rb_matrix_quake_to_opengl.multiplyRotation(0, 0, 1, 90);	// put Z going up
@@ -297,17 +298,18 @@ static void	RB_SetupPerspectiveProjectionMatrix()
 	
 //	RB_QuakeFrustum(m, l, r, b, t, n, f);
 	RB_OpenGLFrustum(m, l, r, b, t, n, f);
-	m.multiply(rb_matrix_quake_to_opengl);
+//	m.multiply(rb_matrix_quake_to_opengl);
+
+	rb_matrix_projection = m * rb_matrix_quake_to_opengl;
 	
 	xglMatrixMode(GL_PROJECTION);
 	xglLoadIdentity();
 
-	xglLoadTransposeMatrixf(&m[0][0]);
+	xglLoadTransposeMatrixf(&rb_matrix_projection[0][0]);
 	
 	xglMatrixMode(GL_MODELVIEW);
 	
 //	RB_QuakeFrustum(m2, l, r, b, t, n, f);
-	rb_matrix_projection = m;
 	
 /*
 	matrix_c m2;
@@ -370,10 +372,9 @@ static void 	RB_SetupFrustum()
 {
 	// http://www2.ravensoft.com/users/ggribb/plane%20extraction.pdf
 	
-//	rb_matrix_model_view_projection = rb_matrix_projection * rb_matrix_view;
-
-//	matrix_c& m = rb_matrix_model_view_projection;
-	matrix_c m = rb_matrix_projection * rb_matrix_view;
+	// this is ok because the model matrix is the identity matrix
+	matrix_c& m = rb_matrix_model_view_projection;
+//	matrix_c m = rb_matrix_projection * rb_matrix_view;
 
 	// left
 	r_frustum[FRUSTUM_LEFT]._normal[0]	=  m[3][0] + m[0][0];
@@ -1017,12 +1018,6 @@ void	RB_EnableShaderStageStates(const r_entity_c *ent, const r_shader_stage_c *s
 		xglEnable(GL_BLEND);
 		xglBlendFunc(stage->blend_src, stage->blend_dst);
 	}
-	/*
-	else
-	{
-		xglDisable(GL_BLEND);
-	}
-	*/
 	
 	// check alpha funcs
 	if(stage->flags & SHADER_STAGE_ALPHATEST)
@@ -1035,12 +1030,6 @@ void	RB_EnableShaderStageStates(const r_entity_c *ent, const r_shader_stage_c *s
 		
 		xglAlphaFunc(GL_GREATER, value);
 	}
-	/*
-	else
-	{
-		xglDisable(GL_ALPHA_TEST);
-	}
-	*/
 	
 	// check masking
 	if(stage->flags & SHADER_STAGE_MASKALPHA)
@@ -1063,7 +1052,7 @@ void	RB_EnableShaderStageStates(const r_entity_c *ent, const r_shader_stage_c *s
 void	RB_DisableShaderStageStates(const r_entity_c *ent, const r_shader_stage_c *stage, r_render_type_e type)
 {
 	// check blending
-	if(stage->flags & SHADER_STAGE_BLEND)// || (type >= RENDER_TYPE_LIGHTING_R))
+	if(stage->flags & SHADER_STAGE_BLEND)
 	{
 		xglDisable(GL_BLEND);
 	}
@@ -1521,6 +1510,16 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 			break;
 		}
 		
+		case RENDER_TYPE_OCCLUSION_QUERY:
+		{
+			if(entity_shader->stage_diffusemap)
+			{
+				RB_RenderCommand_generic(cmd, entity_shader->stage_diffusemap);
+			}
+			
+			break;
+		}
+		
 		case RENDER_TYPE_GENERIC:
 		{
 			for(std::vector<r_shader_stage_c*>::const_iterator ir = entity_shader->stages.begin(); ir != entity_shader->stages.end(); ++ir)
@@ -1784,6 +1783,24 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 
 
 
+int	RB_SortByCommandDistanceFunc(void const *a, void const *b)
+{
+	r_command_t* cmd_a = (r_command_t*)a;
+	r_command_t* cmd_b = (r_command_t*)b;
+
+	vec_t dist_a = cmd_a->getDistance();
+	vec_t dist_b = cmd_b->getDistance();
+	
+	if(dist_a < dist_b)
+		return 1;
+	
+	else if(dist_a > dist_b)
+		return -1;
+		
+	else
+		return 0;
+}
+
 int	RB_SortByEntityShaderFunc(void const *a, void const *b)
 {
 	r_command_t* cmd_a = (r_command_t*)a;
@@ -1868,13 +1885,48 @@ void	RB_RenderCommands()
 	//
 	// draw solid meshes into zbuffer
 	//
-	//qsort(&r_current_scene->cmds[0], r_current_scene->cmds_num, sizeof(r_command_t), RB_SortByEntityShaderFunc);
+	qsort(&r_current_scene->cmds[0], r_current_scene->cmds_num, sizeof(r_command_t), RB_SortByCommandDistanceFunc);
 	
-	RB_EnableShader_zfill();
-	for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
-	//for(std::vector<r_command_t>::iterator ir = r_current_scene->cmds.begin(); ir <= (r_current_scene->cmds.begin() + (r_current_scene->cmds_num -1)); ++ir)
-		cmd->getEntityModel()->draw(cmd, RENDER_TYPE_ZFILL);
-	RB_DisableShader_zfill();
+#if 0
+	if(r_arb_occlusion_query->getInteger())
+	{	
+		RB_EnableShader_zfill();
+		for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
+		{
+			r_entity_c* ent = cmd->getEntity();
+		
+			if(!ent->isVisible())
+				continue;
+			
+			if(ent != &r_world_entity)
+			{
+				ent->beginOcclusionQuery();
+				cmd->getEntityModel()->draw(cmd, RENDER_TYPE_ZFILL);
+				ent->endOcclusionQuery();
+			
+				if(!ent->getOcclusionSamplesNum())
+				{
+					ent->setVisFrameCount(0);
+					c_entities--;
+				}
+			}
+			else
+			{
+				cmd->getEntityModel()->draw(cmd, RENDER_TYPE_ZFILL);
+			}
+		}
+		RB_DisableShader_zfill();
+	}
+	else
+#endif
+	{
+		RB_EnableShader_zfill();
+		for(i=0, cmd = &r_current_scene->cmds[0]; i<r_current_scene->cmds_num; i++, cmd++)
+		{
+			cmd->getEntityModel()->draw(cmd, RENDER_TYPE_ZFILL);
+		}
+		RB_DisableShader_zfill();
+	}
 	
 	
 	//
@@ -1893,28 +1945,48 @@ void	RB_RenderCommands()
 			{
 				RB_EnableShader_lighting_RBHS();
 				for(i=0, cmd = &r_current_scene->cmds_radiosity[0]; i<r_current_scene->cmds_radiosity_num; i++, cmd++)
+				{
+					if(!cmd->getEntity()->isVisible())
+						continue;
+				
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_RBHS);
+				}
 				RB_DisableShader_lighting_RBHS();
 			}
 			else if(r_parallax->getInteger())
 			{
 				RB_EnableShader_lighting_RBH();
 				for(i=0, cmd = &r_current_scene->cmds_radiosity[0]; i<r_current_scene->cmds_radiosity_num; i++, cmd++)
+				{
+					if(!cmd->getEntity()->isVisible())
+						continue;
+							
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_RBH);
+				}
 				RB_DisableShader_lighting_RBH();
 			}
 			else if(r_gloss->getInteger())
 			{
 				RB_EnableShader_lighting_RBS();
 				for(i=0, cmd = &r_current_scene->cmds_radiosity[0]; i<r_current_scene->cmds_radiosity_num; i++, cmd++)
+				{
+					if(!cmd->getEntity()->isVisible())
+						continue;
+				
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_RBS);
+				}
 				RB_DisableShader_lighting_RBS();
 			}
 			else
 			{
 				RB_EnableShader_lighting_RB();
 				for(i=0, cmd = &r_current_scene->cmds_radiosity[0]; i<r_current_scene->cmds_radiosity_num; i++, cmd++)
+				{
+					if(!cmd->getEntity()->isVisible())
+						continue;
+						
 					cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_RB);
+				}
 				RB_DisableShader_lighting_RB();
 			}
 		}
@@ -1922,12 +1994,132 @@ void	RB_RenderCommands()
 		{
 			RB_EnableShader_lighting_R();
 			for(i=0, cmd = &r_current_scene->cmds_radiosity[0]; i<r_current_scene->cmds_radiosity_num; i++, cmd++)
+			{
+				if(!cmd->getEntity()->isVisible())
+					continue;
+				
 				cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_R);
+			}
 			RB_DisableShader_lighting_R();
 		}
 		
 		xglDisable(GL_BLEND);
 	}
+	
+	
+	//
+	// setup lights
+	//
+	RB_SetupModelviewMatrix(matrix_identity, true);	
+		
+	vec3_c vertexes[8];	// max x,y,z points in space
+	
+	xglDisable(GL_CULL_FACE);
+	
+	xglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	xglDepthMask(GL_FALSE);
+		
+	for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
+	{
+		r_light_c& light = ir->second;
+			
+		if(!light.isVisible())
+			continue;
+		
+		if(!light.getShared().radius_bbox.isInside(r_origin))
+		{
+			light.updateScissor(rb_matrix_model_view_projection, rb_vrect_viewport, light.getShared().radius_bbox);
+		}
+		else
+		{
+			light.setScissor(rb_vrect_viewport);
+		}
+		
+		if(r_arb_occlusion_query->getInteger())
+		{
+			const cbbox_c&bbox = light.getShared().radius_bbox;
+			
+			/*
+			if(bbox.isInside(r_origin))
+				continue;
+			*/
+		
+			vertexes[0].set(bbox._maxs[0], bbox._mins[1], bbox._mins[2]);
+			vertexes[1].set(bbox._maxs[0], bbox._mins[1], bbox._maxs[2]);
+			vertexes[2].set(bbox._mins[0], bbox._mins[1], bbox._maxs[2]);
+			vertexes[3].set(bbox._mins[0], bbox._mins[1], bbox._mins[2]);
+			vertexes[4].set(bbox._maxs[0], bbox._maxs[1], bbox._mins[2]);
+			vertexes[5].set(bbox._maxs[0], bbox._maxs[1], bbox._maxs[2]);
+			vertexes[6].set(bbox._mins[0], bbox._maxs[1], bbox._maxs[2]);
+			vertexes[7].set(bbox._mins[0], bbox._maxs[1], bbox._mins[2]);
+			
+			for(i=0; i<8; i++)
+			{
+				plane_side_e side = r_frustum[FRUSTUM_NEAR].onSide(vertexes[i]);
+				
+				if(side == SIDE_BACK)
+					break;
+			}
+			
+			if(i != 8)
+				continue;
+		
+			light.beginOcclusionQuery();
+		
+			xglBegin(GL_QUADS);
+			
+			// left side
+			xglVertex3fv(vertexes[0]);
+			xglVertex3fv(vertexes[1]);
+			xglVertex3fv(vertexes[2]);
+			xglVertex3fv(vertexes[3]);
+			
+			// right side
+			xglVertex3fv(vertexes[4]);
+			xglVertex3fv(vertexes[5]);
+			xglVertex3fv(vertexes[6]);
+			xglVertex3fv(vertexes[7]);
+		
+			// front side
+			xglVertex3fv(vertexes[0]);
+			xglVertex3fv(vertexes[1]);
+			xglVertex3fv(vertexes[5]);
+			xglVertex3fv(vertexes[4]);
+		
+			// back side
+			xglVertex3fv(vertexes[2]);
+			xglVertex3fv(vertexes[3]);
+			xglVertex3fv(vertexes[7]);
+			xglVertex3fv(vertexes[6]);
+		
+			// top side
+			xglVertex3fv(vertexes[1]); 
+			xglVertex3fv(vertexes[2]);
+			xglVertex3fv(vertexes[6]); 
+			xglVertex3fv(vertexes[5]);
+		
+			// bottom side
+			xglVertex3fv(vertexes[0]); 
+			xglVertex3fv(vertexes[3]);
+			xglVertex3fv(vertexes[7]); 
+			xglVertex3fv(vertexes[4]);
+			
+			xglEnd();
+		
+			light.endOcclusionQuery();
+		
+			if(!light.getOcclusionSamplesNum())
+			{
+				light.setVisFrameCount(0);	// light bounding box is not visible
+				c_lights--;
+			}
+		}
+	}
+	
+	xglEnable(GL_CULL_FACE);
+	
+	xglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	xglDepthMask(GL_TRUE);
 	
 	
 	//
@@ -1952,6 +2144,12 @@ void	RB_RenderCommands()
 					RB_EnableShader_lighting_DBHS_omni();
 					for(i=0, cmd = &r_current_scene->cmds_light[0]; i<r_current_scene->cmds_light_num; i++, cmd++)
 					{
+						if(!cmd->getEntity()->isVisible())
+							continue;
+					
+						if(!cmd->getLight()->isVisible())
+							continue;
+					
 						if(cmd->getLight()->getType() == LIGHT_PROJ)
 							continue;
 				
@@ -1967,6 +2165,12 @@ void	RB_RenderCommands()
 					RB_EnableShader_lighting_DBH_omni();
 					for(i=0, cmd = &r_current_scene->cmds_light[0]; i<r_current_scene->cmds_light_num; i++, cmd++)
 					{
+						if(!cmd->getEntity()->isVisible())
+							continue;
+					
+						if(!cmd->getLight()->isVisible())
+							continue;
+					
 						if(cmd->getLight()->getType() == LIGHT_PROJ)
 							continue;
 				
@@ -1982,6 +2186,12 @@ void	RB_RenderCommands()
 					RB_EnableShader_lighting_DBS_omni();
 					for(i=0, cmd = &r_current_scene->cmds_light[0]; i<r_current_scene->cmds_light_num; i++, cmd++)
 					{
+						if(!cmd->getEntity()->isVisible())
+							continue;
+					
+						if(!cmd->getLight()->isVisible())
+							continue;
+					
 						if(cmd->getLight()->getType() == LIGHT_PROJ)
 							continue;
 				
@@ -1997,6 +2207,12 @@ void	RB_RenderCommands()
 					RB_EnableShader_lighting_DB_omni();
 					for(i=0, cmd = &r_current_scene->cmds_light[0]; i<r_current_scene->cmds_light_num; i++, cmd++)
 					{
+						if(!cmd->getEntity()->isVisible())
+							continue;
+					
+						if(!cmd->getLight()->isVisible())
+							continue;
+					
 						if(cmd->getLight()->getType() == LIGHT_PROJ)
 							continue;
 				
@@ -2013,6 +2229,12 @@ void	RB_RenderCommands()
 				RB_EnableShader_lighting_D_omni();
 				for(i=0, cmd = &r_current_scene->cmds_light[0]; i<r_current_scene->cmds_light_num; i++, cmd++)
 				{
+					if(!cmd->getEntity()->isVisible())
+						continue;
+				
+					if(!cmd->getLight()->isVisible())
+						continue;
+				
 					if(cmd->getLight()->getType() == LIGHT_PROJ)
 							continue;
 			
@@ -2036,6 +2258,12 @@ void	RB_RenderCommands()
 				RB_EnableShader_lighting_D_proj();
 				for(i=0, cmd = &r_current_scene->cmds_light[0]; i<r_current_scene->cmds_light_num; i++, cmd++)
 				{
+					if(!cmd->getEntity()->isVisible())
+						continue;
+				
+					if(!cmd->getLight()->isVisible())
+						continue;
+				
 					if(cmd->getLight()->getType() == LIGHT_OMNI)
 						continue;
 			
@@ -2085,16 +2313,6 @@ void	RB_RenderCommands()
 	//
 	RB_SetupModelviewMatrix(matrix_identity, true);
 	
-	for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
-	{
-		r_light_c& light = ir->second;
-			
-		if(!light.isVisible())
-			continue;
-				
-		light.updateScissor(rb_matrix_model_view_projection, rb_vrect_viewport, light.getShared().radius_bbox);
-	}
-	
 	if(r_showlightbboxes->getInteger())
 	{
 		for(std::map<int, r_light_c>::iterator ir = r_lights.begin(); ir != r_lights.end(); ++ir)
@@ -2121,6 +2339,7 @@ void	RB_RenderCommands()
 				
 			//R_DrawFill(light.getScissorX(), light.getScissorY(), light.getScissorWidth(), light.getScissorHeight(), color_red);
 			
+			
 			xglColor4fv(color_red);
 			
 			xglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -2133,6 +2352,7 @@ void	RB_RenderCommands()
 			xglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			
 			xglColor4fv(color_white);
+			
 		}
 		
 		RB_SetupGL3D();
@@ -2161,7 +2381,8 @@ void	RB_AddCommand(	r_entity_c*		entity,
 			r_shader_c*		entity_shader,
 			r_light_c*		light,
 			std::vector<index_t>*	light_indexes,
-			int			infokey)
+			int			infokey,
+			vec_t			distance)
 {
 	if(!entity)
 	{
@@ -2283,6 +2504,8 @@ void	RB_AddCommand(	r_entity_c*		entity,
 	cmd->_light_indexes	= light_indexes;
 	
 	cmd->_infokey		= infokey;
+	
+	cmd->_distance		= distance;
 		
 	if(cmd2)
 		*cmd2 = *cmd;

@@ -44,7 +44,10 @@ r_static_model_c::~r_static_model_c()
 void	r_static_model_c::addModelToList(r_entity_c *ent)
 {
 	if(R_CullBSphere(r_frustum, ent->getShared().origin, _bbox.radius()))
+	{
+		c_entities--;
 		return;
+	}
 
 	for(unsigned i=0; i<_meshes.size(); i++)
 	{
@@ -75,7 +78,7 @@ void	r_static_model_c::addModelToList(r_entity_c *ent)
 		if(!r_showinvisible->getValue() && shader->hasFlags(SHADER_NODRAW))
 			continue;
 		
-		RB_AddCommand(ent, this, mesh, shader, NULL, NULL, -1);
+		RB_AddCommand(ent, this, mesh, shader, NULL, NULL, -1, r_origin.distance(ent->getShared().origin));
 		
 		if(r_lighting->getInteger())
 		{
@@ -87,7 +90,7 @@ void	r_static_model_c::addModelToList(r_entity_c *ent)
 					continue;
 			
 				if(light.getShared().radius_bbox.intersect(ent->getShared().origin, mesh->bbox.radius()))
-					RB_AddCommand(ent, this, mesh, shader, &light, NULL, -1);
+					RB_AddCommand(ent, this, mesh, shader, &light, NULL, -1, 0);
 			}
 		}
 	}

@@ -1518,6 +1518,14 @@ typedef void GLvoid;
 #define GL_DYNAMIC_COPY_ARB               0x88EA
 #endif
 
+#ifndef GL_ARB_occlusion_query
+#define GL_QUERY_COUNTER_BITS_ARB         0x8864
+#define GL_CURRENT_QUERY_ARB              0x8865
+#define GL_QUERY_RESULT_ARB               0x8866
+#define GL_QUERY_RESULT_AVAILABLE_ARB     0x8867
+#define GL_SAMPLES_PASSED_ARB             0x8914
+#endif
+
 #ifndef GL_ARB_shader_objects
 #define GL_PROGRAM_OBJECT_ARB             0x8B40
 #define GL_SHADER_OBJECT_ARB              0x8B48
@@ -2191,6 +2199,17 @@ extern GLvoid* (GLAPIENTRY* xglMapBufferARB) (GLenum, GLenum);
 extern GLboolean (GLAPIENTRY* xglUnmapBufferARB) (GLenum);
 extern void (GLAPIENTRY* xglGetBufferParameterivARB) (GLenum, GLenum, GLint *);
 extern void (GLAPIENTRY* xglGetBufferPointervARB) (GLenum, GLenum, GLvoid* *);
+
+
+/// GL_ARB_occlusion_query =====================================================
+extern void (GLAPIENTRY* xglGenQueriesARB) (GLsizei, GLuint *);
+extern void (GLAPIENTRY* xglDeleteQueriesARB) (GLsizei, const GLuint *);
+extern GLboolean (GLAPIENTRY* xglIsQueryARB) (GLuint);
+extern void (GLAPIENTRY* xglBeginQueryARB) (GLenum, GLuint);
+extern void (GLAPIENTRY* xglEndQueryARB) (GLenum);
+extern void (GLAPIENTRY* xglGetQueryivARB) (GLenum, GLenum, GLint *);
+extern void (GLAPIENTRY* xglGetQueryObjectivARB) (GLuint, GLenum, GLint *);
+extern void (GLAPIENTRY* xglGetQueryObjectuivARB) (GLuint, GLenum, GLuint *);
 
 
 /// GL_ARB_shader_objects ======================================================

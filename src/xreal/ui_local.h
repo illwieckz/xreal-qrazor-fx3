@@ -29,8 +29,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 // system -------------------------------------------------------------------
 // shared --------------------------------------------------------------------
-#include "../shared/x_shared.h"
-#include "../shared/x_keycodes.h"
+#include "../x_shared.h"
+#include "../x_keycodes.h"
 
 // xreal --------------------------------------------------------------------
 #include "ui_public.h"

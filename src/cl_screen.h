@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // system -------------------------------------------------------------------
 // qrazor-fx ----------------------------------------------------------------
 // shared -------------------------------------------------------------------
-#include "shared/x_shared.h"
+#include "x_shared.h"
 
 
 void	SCR_Init();
@@ -36,7 +36,6 @@ void	SCR_BeginLoadingPlaque();
 void	SCR_EndLoadingPlaque();
 void 	SCR_RunConsole();
 void 	SCR_AddNetgraph();
-
 
 #endif // CL_SCREEN_H
 

@@ -95,6 +95,8 @@ void	R_DrawStretchPic(int x, int y, int w, int h, float s1, float t1, float s2, 
 				
 				NULL,
 				
+				0,
+				
 				0);
 	
 	RB_EnableShader_generic();

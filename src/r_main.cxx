@@ -195,6 +195,7 @@ cvar_t	*r_evalexpressions;
 cvar_t	*r_arb_multitexture;
 cvar_t	*r_arb_texture_compression;
 cvar_t	*r_arb_vertex_buffer_object;
+cvar_t	*r_arb_occlusion_query;
 
 cvar_t	*r_ext_compiled_vertex_array;
 cvar_t	*r_ext_texture_filter_anisotropic;
@@ -567,6 +568,7 @@ static void	R_CheckOpenGLExtensions()
 	gl_config.arb_multitexture = false;
 	gl_config.arb_texture_compression = false;
 	gl_config.arb_vertex_buffer_object = false;
+	gl_config.arb_occlusion_query = false;
 	
 	gl_config.ext_compiled_vertex_array = false;
 	gl_config.ext_texture_filter_anisotropic = false;	
@@ -590,7 +592,7 @@ static void	R_CheckOpenGLExtensions()
 	else
 	{
 		ri.Com_Printf("...GL_ARB_multitexture not found\n" );
-	}	
+	}
 	
 	if(strstr(gl_config.extensions_string, "GL_ARB_texture_compression"))
 	{
@@ -636,6 +638,32 @@ static void	R_CheckOpenGLExtensions()
 	else
 	{
 		ri.Com_Printf("...GL_ARB_vertex_buffer_object not found\n");
+	}
+	
+	if(strstr(gl_config.extensions_string, "GL_ARB_occlusion_query"))
+	{
+		if(r_arb_occlusion_query->getValue())
+		{
+			ri.Com_Printf("...using GL_ARB_occlusion_query\n");
+			gl_config.arb_occlusion_query = true;
+			
+			xglGenQueriesARB = (void (GLAPIENTRY*) (GLsizei, GLuint *)) XGL_GetSymbol("glGenQueriesARB");
+			xglDeleteQueriesARB = (void (GLAPIENTRY*) (GLsizei, const GLuint *)) XGL_GetSymbol("glDeleteQueriesARB");
+			xglIsQueryARB = (GLboolean (GLAPIENTRY*) (GLuint)) XGL_GetSymbol("glIsQueryARB");
+			xglBeginQueryARB = (void (GLAPIENTRY*) (GLenum, GLuint)) XGL_GetSymbol("glBeginQueryARB");
+			xglEndQueryARB = (void (GLAPIENTRY*) (GLenum)) XGL_GetSymbol("glEndQueryARB");
+			xglGetQueryivARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLint *)) XGL_GetSymbol("glGetQueryivARB");
+			xglGetQueryObjectivARB = (void (GLAPIENTRY*) (GLuint, GLenum, GLint *)) XGL_GetSymbol("glGetQueryObjectivARB");
+			xglGetQueryObjectuivARB = (void (GLAPIENTRY*) (GLuint, GLenum, GLuint *)) XGL_GetSymbol("glGetQueryObjectuivARB");
+		}
+		else
+		{
+			ri.Com_Printf("...ignoring GL_ARB_oclussion_query\n");
+		}
+	}
+	else
+	{
+		ri.Com_Printf("...GL_ARB_occlusion_query not found\n");
 	}
 	
 	if(strstr(gl_config.extensions_string, "GL_EXT_compiled_vertex_array") ||  strstr(gl_config.extensions_string, "GL_SGI_compiled_vertex_array"))
@@ -1061,6 +1089,7 @@ static void 	R_Register()
 	r_arb_multitexture 	= ri.Cvar_Get("r_arb_multitexture", "1", CVAR_ARCHIVE);
 	r_arb_texture_compression = ri.Cvar_Get("r_arb_texture_compression", "0", CVAR_ARCHIVE);
 	r_arb_vertex_buffer_object = ri.Cvar_Get("r_arb_vertex_buffer_object", "1", CVAR_ARCHIVE);
+	r_arb_occlusion_query	= ri.Cvar_Get("r_arb_occlusion_query", "1", CVAR_ARCHIVE);
 	
 	r_ext_compiled_vertex_array = ri.Cvar_Get("r_ext_compiled_vertex_array", "0", CVAR_ARCHIVE);
 	r_ext_texture_filter_anisotropic = ri.Cvar_Get("r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE);
@@ -1455,15 +1484,21 @@ static void	R_ClearScene()
 
 static void	R_AddEntity(int entity_num, const r_entity_t &shared)
 {
+	if(!entity_num)
+	{
+		ri.Com_Error(ERR_DROP, "R_AddEntity: bad entity number %i", entity_num);
+		return;
+	}
+
 	std::map<int, r_entity_c>::iterator ir = r_entities.find(entity_num);
 	
-	if(ir == r_entities.end())
+	if(ir != r_entities.end())
 	{
-		r_entities.insert(std::make_pair(entity_num, r_entity_c(shared, true)));
+		ri.Com_Error(ERR_DROP, "R_AddEntity: entity %i already added", entity_num);
 	}
 	else
 	{
-		ir->second = r_entity_c(shared, true);
+		r_entities.insert(std::make_pair(entity_num, r_entity_c(shared, true)));
 	}
 }
 
@@ -1471,12 +1506,19 @@ static void	R_UpdateEntity(int entity_num, const r_entity_t &shared, bool update
 {
 	std::map<int, r_entity_c>::iterator ir = r_entities.find(entity_num);
 	
-	if(ir != r_entities.end())
+	if(ir == r_entities.end())
+	{
+		ri.Com_Error(ERR_DROP, "R_UpdateEntity: entity %i is unknown", entity_num);
+	}
+	else
 	{
 		if(!update && ir->second.needsUpdate())
 			update = true;
+		
+		r_entities.erase(ir);
+		r_entities.insert(std::make_pair(entity_num, r_entity_c(shared, update)));
 			
-		ir->second = r_entity_c(shared, update);
+		//ir->second = r_entity_c(shared, update);
 	}
 }
 
@@ -1484,7 +1526,11 @@ static void	R_RemoveEntity(int entity_num)
 {
 	std::map<int, r_entity_c>::iterator ir = r_entities.find(entity_num);
 	
-	if(ir != r_entities.end())
+	if(ir == r_entities.end())
+	{
+		ri.Com_Error(ERR_DROP, "R_RemoveEntity: entity %i is unknown", entity_num);
+	}
+	else
 	{
 		r_entities.erase(ir);
 	}
