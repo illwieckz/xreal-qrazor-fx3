@@ -5557,9 +5557,9 @@ textures/skies/desert
 	forceOpaque		
 	
 	{
-//		blend			add	
-		cameraCubeMap	env/desert
-		texgen			skybox
+		blend		add
+		cubeMap		env/desert
+		texgen		skybox
 	}
 }
 
