@@ -2477,6 +2477,8 @@ g_func_static_c::g_func_static_c()
 {
 	_s.type	= ET_FUNC_STATIC;
 	_s.renderfx = RF_STATIC;
+	
+	_r.networksync = false;		// no network synchronisation by default
 }
 
 void	g_func_static_c::activate()

@@ -10,6 +10,47 @@ qrazor_fx_client_src = [
 'src/x_protocol.cxx',
 'src/x_shared.cxx',
 'src/x_string.cxx',
+'src/r_alias.cxx',
+'src/r_ase.cxx',
+'src/r_backend.cxx',
+'src/r_bsp.cxx',
+'src/r_command.cxx',
+'src/r_draw.cxx',
+'src/r_entity.cxx',
+'src/r_frustum.cxx',
+'src/r_gl.cxx',
+'src/r_image.cxx',
+'src/r_light.cxx',
+'src/r_lwo.cxx',
+'src/r_main.cxx',
+'src/r_md2.cxx',
+'src/r_md3.cxx',
+'src/r_md5.cxx',
+'src/r_md5_anim.cxx',
+'src/r_mdc.cxx',
+'src/r_mds.cxx',
+'src/r_mesh.cxx',
+'src/r_model.cxx',
+'src/r_obj.cxx',
+'src/r_particle.cxx',
+'src/r_poly.cxx',
+'src/r_proc.cxx',
+'src/r_scissor.cxx',
+'src/r_shader.cxx',
+'src/r_shader_line.cxx',
+'src/r_shader_map.cxx',
+'src/r_shader_sc.cxx',
+'src/r_shader_stc.cxx',
+'src/r_shadow.cxx',
+'src/r_skel.cxx',
+'src/r_skel_anim.cxx',
+'src/r_skin.cxx',
+'src/r_sky.cxx',
+'src/r_static.cxx',
+'src/r_surf.cxx',
+'src/r_vis.cxx',
+'src/img_tga.cxx',
+'src/img_jpg.cxx',
 'src/ode/array.cxx',
 'src/ode/collision_kernel.cxx',
 'src/ode/collision_quadtreespace.cxx',
@@ -71,13 +112,13 @@ qrazor_fx_client_src = [
 qrazor_fx_client_env = env.Copy()
 
 if sys.platform == 'linux2':
-	qrazor_fx_client_src += ['src/sys_linux.cxx','src/glob.cxx', 'src/vid_so.cxx']
-	#qrazor_fx_client_src += ['src/glimp_glx.cxx', 'src/r_backend_glsl.cxx']
-	#qrazor_fx_client_env.Append(CXXFLAGS='-DREF_HARD_LINKED')
-	#qrazor_fx_client_env.Append(CXXFLAGS='-DHAVE_XF86_DGA')
-	#qrazor_fx_client_env.Append(CXXFLAGS='-DHAVE_XF86_VIDMODE')
-	#qrazor_fx_client_env.Append(LIBPATH='/usr/X11R6/lib')
-	#qrazor_fx_client_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm', 'jpeg'])
+	qrazor_fx_client_src += ['src/sys_linux.cxx','src/glob.cxx', 'src/vid_glx.cxx']
+	qrazor_fx_client_src += ['src/glimp_glx.cxx', 'src/r_backend_glsl.cxx']
+	qrazor_fx_client_env.Append(CXXFLAGS='-DREF_HARD_LINKED')
+	qrazor_fx_client_env.Append(CXXFLAGS='-DHAVE_XF86_DGA')
+	qrazor_fx_client_env.Append(CXXFLAGS='-DHAVE_XF86_VIDMODE')
+	qrazor_fx_client_env.Append(LIBPATH='/usr/X11R6/lib')
+	qrazor_fx_client_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm', 'jpeg'])
 	qrazor_fx_client_env.Append(LIBS=['dl', 'z', 'openal', 'm'])
 	qrazor_fx_client_env.Program('qrazor-fx-client', qrazor_fx_client_src)
 	qrazor_fx_client_env.Install('#install', 'qrazor-fx-client')

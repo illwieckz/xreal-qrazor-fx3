@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // xreal --------------------------------------------------------------------
 
 
-void	r_visiface_a::updateVis(const r_entity_t &shared)
+void	r_vis_iface_a::updateVis(const r_entity_t &shared)
 {
 	if(shared.flags & RF_STATIC)
 	{

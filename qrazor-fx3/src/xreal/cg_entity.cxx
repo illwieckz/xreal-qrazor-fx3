@@ -327,8 +327,8 @@ void	CG_AddGenericEntity(const cg_entity_t *cent)
 		trap_Com_Error(ERR_DROP, "CG_AddGenericEntity: bad client game entity model index %i\n", cent->current.index_model);
 	
 	rent.model = cg.model_draw[cent->current.index_model];
-	if(rent.model < 0)
-		trap_Com_Error(ERR_DROP, "CG_AddGenericEntity: bad renderer entity model index %i\n", rent.model);
+//	if(rent.model < 0)
+//		trap_Com_Error(ERR_DROP, "CG_AddGenericEntity: bad renderer entity model index %i\n", rent.model);
 		
 	rent.animation = cg.animation_precache[cent->current.index_animation];
 		

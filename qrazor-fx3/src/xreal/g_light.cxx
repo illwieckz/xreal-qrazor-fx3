@@ -53,6 +53,8 @@ g_light_c::g_light_c()
 	_s.effects = EF_DLIGHT;
 	_s.renderfx = RF_STATIC;
 	
+	_r.networksync = false;		// no network synchronisation by default
+	
 	/*
 	_s.shaderparms[0] = 1.0;
 	_s.shaderparms[1] = 1.0;

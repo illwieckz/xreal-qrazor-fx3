@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // xreal --------------------------------------------------------------------
 
-void	r_scissoriface_a::updateScissor(const matrix_c &modelviewproj, const r_vrect_t &vrect, const cbbox_c &bbox)
+void	r_scissor_iface_a::updateScissor(const matrix_c &modelviewproj, const r_vrect_t &vrect, const cbbox_c &bbox)
 {
 	_mins[0] = 100000000;
 	_mins[1] = 100000000;
@@ -109,7 +109,7 @@ void	r_scissoriface_a::updateScissor(const matrix_c &modelviewproj, const r_vrec
 #endif
 }
 
-void	r_scissoriface_a::setScissor(const r_vrect_t &vrect)
+void	r_scissor_iface_a::setScissor(const r_vrect_t &vrect)
 {
 	_mins[0] = vrect.x;
 	_mins[1] = vrect.y;
@@ -118,7 +118,7 @@ void	r_scissoriface_a::setScissor(const r_vrect_t &vrect)
 	_maxs[1] = vrect.y + vrect.height;
 }
 
-void	r_scissoriface_a::addVertex(const matrix_c &mvp, const r_vrect_t &vrect, const vec3_c &v1)
+void	r_scissor_iface_a::addVertex(const matrix_c &mvp, const r_vrect_t &vrect, const vec3_c &v1)
 {
 	vec4_c	point, res;
 	float	x, y;
@@ -153,7 +153,7 @@ void	r_scissoriface_a::addVertex(const matrix_c &mvp, const r_vrect_t &vrect, co
 	if(y < _mins[1])	_mins[1] = y;
 }
 
-void	r_scissoriface_a::addEdge(const matrix_c &mvp, const r_vrect_t &vrect, const vec3_c &v1, const vec3_c &v2)
+void	r_scissor_iface_a::addEdge(const matrix_c &mvp, const r_vrect_t &vrect, const vec3_c &v1, const vec3_c &v2)
 {
 	vec3_c		intersect;
 	plane_side_e	side1, side2;

@@ -48,13 +48,12 @@ Netchan_Setup
 called to open a channel to a remote system
 ==============
 */
-void	netchan_c::setup(const netadr_t &adr, int qport, bool client)
+void	netchan_c::setup(const netadr_t &adr, int qport)
 {
 	memset(this, 0, sizeof(*this));
 	
 	_remote_address = adr;
 	_qport = qport;
-	_client = client;
 	
 	_last_received = Sys_Milliseconds();
 	

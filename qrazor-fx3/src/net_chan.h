@@ -41,6 +41,8 @@ enum
 	NETCHAN_PACKET_HEADER_BITS_SEQUENCE_ACK			= 31,
 	NETCHAN_PACKET_HEADER_BITS_RELIABLE_ACK			= 1,
 	
+//	NETCHAN_PACKET_HEADER_BITS_FRAGMENT			= 1,
+	
 	NETCHAN_PACKET_HEADER_BITS_SIZE_OFFSET			= NETCHAN_PACKET_HEADER_BITS_SEQUENCE +
 								  NETCHAN_PACKET_HEADER_BITS_RELIABLE +
 								  NETCHAN_PACKET_HEADER_BITS_SEQUENCE_ACK+
@@ -73,6 +75,7 @@ packet header
 1	does this message contain a reliable payload
 31	acknowledge sequence
 1	acknowledge receipt of even/odd message
+//1	is this message a fragment
 16	uncompressed total packet size in bits
 16	compressed total packet size in bits
 32	checksum of all data after this packet header
@@ -129,7 +132,7 @@ unacknowledged reliable
 class netchan_c
 {
 public:
-	void			setup(const netadr_t &adr, int qport, bool client);
+	void			setup(const netadr_t &adr, int qport);
 	
 	//! Tries to send an unreliable message to a connection, and handles the
 	//! transmition / retransmition of the reliable messages.
@@ -160,7 +163,6 @@ private:
 
 	netadr_t			_remote_address;
 	int				_qport;					// qport value to write when transmitting
-	bool				_client;				// are we a client?
 	
 	// timestamps
 	int				_last_received;				// for timeouts
