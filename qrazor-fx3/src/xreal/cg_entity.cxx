@@ -68,8 +68,8 @@ void	CG_UpdateEntity(int newnum, const entity_state_t *state, bool changed)
 	//trap_Com_Printf("CG_UpdateEntity: %i %i is type %i\n", newnum, state.getNumber(), state.type);
 	
 	// update entity
-	cg.entities_parse[(cg.entities_parse_index) & (MAX_PARSE_ENTITIES-1)] = *state;
-	cg.entities_parse_index++;
+	cg.entities_parse[cg.entities_first % MAX_ENTITIES] = *state;
+	cg.entities_first++;
 	cg.frame.entities_num++;
 
 	// check entity
@@ -436,7 +436,7 @@ void	CG_UpdateEntities()
 	
 	for(int i=0; i<cg.frame.entities_num; i++)
 	{
-		entity_state_t *state = &cg.entities_parse[(cg.frame.entities_parse_index + i) & (MAX_PARSE_ENTITIES-1)];
+		entity_state_t *state = &cg.entities_parse[(cg.frame.entities_first + i) % MAX_ENTITIES];
 		cg_entity_t *cent = &cg.entities[state->getNumber()];
 		
 		/*

@@ -176,11 +176,6 @@ copies off the playerstat and areabits.
 */
 void	sv_client_c::buildFrame()
 {
-	vec3_c			org;
-	int			area;
-	sv_client_frame_t*	frame;
-	entity_state_t*		state;	
-
 	if(!_entity->_r.isclient)
 	{
 		Com_Printf("SV_BuildClientFrame: _entity->_r.isclient is false for entity %i\n", SV_GetNumForEntity(_entity));
@@ -188,22 +183,20 @@ void	sv_client_c::buildFrame()
 	}
 
 	// this is the frame we are creating
-	frame = &_frames[sv.framenum & UPDATE_MASK];
+	sv_client_frame_t& frame = _frames[sv.framenum & UPDATE_MASK];
 
-	frame->senttime = svs.realtime; // save it for ping calc later
+	frame.senttime = svs.realtime; // save it for ping calc later
 
 	// find the client's PVS
-	org = _entity->_r.ps.pmove.origin + _entity->_r.ps.view_offset;
-
-	area = _entity->_r.area = CM_PointAreanum(org);
+	_entity->_r.area = CM_PointAreanum(_entity->_r.ps.pmove.origin + _entity->_r.ps.view_offset);
 	
 	//Com_Printf("SV_BuildClientFrame: client area %i\n", area);
 
 	// calculate the visible areas
-	CM_WriteAreaBits(frame->areabits, _entity->_r.area);
+	CM_WriteAreaBits(frame.areabits, _entity->_r.area);
 
 	// grab the current player_state_t
-	frame->ps = _entity->_r.ps;
+	frame.playerstate = _entity->_r.ps;
 
 	// save client's PVS so it can be later compared with fatpvs
 	//fatPVS(org);
@@ -212,12 +205,10 @@ void	sv_client_c::buildFrame()
 	
 
 	// build up the list of visible entities
-	frame->num_entities = 0;
-	frame->first_entity = svs.next_client_entities;
+	frame.entities_num = 0;
+	frame.entities_first = svs.next_client_entities;
 
-	//Com_Printf("SV_BuildClientFrame: edicts num: %i\n", ge->edicts->size());
-
-	for(std::vector<sv_entity_c*>::const_iterator ir = ge->entities->begin() + 1; ir != ge->entities->end(); ir++)
+	for(std::vector<sv_entity_c*>::const_iterator ir = ge->entities->begin() + 1; ir != ge->entities->end(); ++ir)
 	{	
 		sv_entity_c *ent = *ir;
 		
@@ -272,19 +263,19 @@ void	sv_client_c::buildFrame()
 
 
 		// add it to the circular client_entities array
-		state = &svs.client_entities[svs.next_client_entities%svs.num_client_entities];
+		entity_state_t& state = svs.client_entities[svs.next_client_entities % svs.num_client_entities];
 		
-		*state = ent->_s;
+		state = ent->_s;
 
 		// don't mark players missiles as solid
 		//if(ent->_r.owner == _entity)
 		//	state->solid = 0;
 
 		svs.next_client_entities++;
-		frame->num_entities++;
+		frame.entities_num++;
 	}
 	
-	//Com_Printf("SV_BuildClientFrame: entities num: %i\n", frame->num_entities);
+//	Com_DPrintf("SV_BuildClientFrame: entities num: %i\n", frame.entities_num);
 }
 
 
@@ -425,25 +416,29 @@ void	sv_client_c::writePacketEntities(sv_client_frame_t *from, sv_client_frame_t
 	if(!from)
 		from_num_entities = 0;
 	else
-		from_num_entities = from->num_entities;
+		from_num_entities = from->entities_num;
 
 	newindex = 0;
 	oldindex = 0;
-	while(newindex < to->num_entities || oldindex < from_num_entities)
+	while(newindex < to->entities_num || oldindex < from_num_entities)
 	{
-		if(newindex >= to->num_entities)
+		if(newindex >= to->entities_num)
+		{
 			newnum = 9999;
+		}
 		else
 		{
-			newent = &svs.client_entities[(to->first_entity+newindex)%svs.num_client_entities];
+			newent = &svs.client_entities[(to->entities_first + newindex) % svs.num_client_entities];
 			newnum = newent->getNumber();
 		}
 
 		if(oldindex >= from_num_entities)
+		{
 			oldnum = 9999;
+		}
 		else
 		{
-			oldent = &svs.client_entities[(from->first_entity+oldindex)%svs.num_client_entities];
+			oldent = &svs.client_entities[(from->entities_first + oldindex) % svs.num_client_entities];
 			oldnum = oldent->getNumber();
 		}
 
@@ -489,14 +484,14 @@ void	sv_client_c::writePlayerState(sv_client_frame_t *from, sv_client_frame_t *t
 	player_state_t	dummy;
 	int				statbits;
 
-	ps = &to->ps;
+	ps = &to->playerstate;
 	if(!from)
 	{
 		memset(&dummy, 0, sizeof(dummy));
 		ops = &dummy;
 	}
 	else
-		ops = &from->ps;
+		ops = &from->playerstate;
 
 	//
 	// determine what needs to be sent
@@ -722,15 +717,44 @@ void	sv_client_c::writeFrame(bitmessage_c &msg)
 	msg.writeLong(lastframe);	// what we are delta'ing from
 	msg.writeByte(_surpress_count);	// rate dropped packets
 	_surpress_count = 0;
+	
+//	Com_DPrintf("sv_client_::writeFrame: %i bits\n", msg.getCurSize());
 
 	// send over the areabits
-	writeAreaBits(frame, msg);
+	try
+	{
+		writeAreaBits(frame, msg);
+	}
+	catch(std::overflow_error)
+	{
+		Com_Printf("sv_client_::writeFrame: overflow error while writing area bits\n");
+	}
+	
+//	Com_DPrintf("sv_client_::writeFrame: %i bits\n", msg.getCurSize());
 
 	// delta encode the playerstate
-	writePlayerState(oldframe, frame, msg);
+	try
+	{
+		writePlayerState(oldframe, frame, msg);
+	}
+	catch(std::overflow_error)
+	{
+		Com_Printf("sv_client_::writeFrame: overflow error while writing player state\n");
+	}
+	
+//	Com_DPrintf("sv_client_::writeFrame: %i bits\n", msg.getCurSize());
 
 	// delta encode the entities
-	writePacketEntities(oldframe, frame, msg);
+	try
+	{
+		writePacketEntities(oldframe, frame, msg);
+	}
+	catch(std::overflow_error)
+	{
+		Com_Printf("sv_client_::writeFrame: overflow error while writing packet entities\n");
+	}
+	
+//	Com_DPrintf("sv_client_::writeFrame: %i bits\n", msg.getCurSize());
 }
 
 

@@ -229,18 +229,17 @@ inline void	operator delete (void *ptr)
 
 enum
 {
-	MAX_ENTITYNUM_BITS		= 11,		// use only 11 bits to represent the entity number
+	MAX_ENTITYNUM_BITS		= 10,				// use only 10 bits to represent the entity number
 
 	MAX_CLIENTS			= 256,				// absolute limit
 	MAX_ENTITIES			= (1 << MAX_ENTITYNUM_BITS),	// must change protocol to increase more
-	MAX_PARSE_ENTITIES		= MAX_ENTITIES,
-	MAX_MODELS			= 4096,		// these are sent over the net as bytes
+	MAX_MODELS			= 4096,				// these are sent over the net as bytes
 	MAX_SHADERS			= 4096,
 	MAX_ANIMATIONS			= 4096,
-	MAX_SOUNDS			= 4096,		// so they cannot be blindly increased
-	MAX_LIGHTS			= 4096,		// should be enough for Doom3 style lighting
+	MAX_SOUNDS			= 4096,				// so they cannot be blindly increased
+	MAX_LIGHTS			= 4096,				// should be enough for Doom3 style lighting
 	MAX_ITEMS			= 256,
-	MAX_GENERAL			= (MAX_CLIENTS*2)	// general config strings
+	MAX_GENERAL			= (MAX_CLIENTS*2)		// general config strings
 };
 
 

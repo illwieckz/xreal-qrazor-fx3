@@ -132,7 +132,7 @@ static void	DownloadOptions_MenuInit()
 {
 	int y = 0;
 
-	s_downloadoptions_menu._x = (int)(uii.viddef->width * 0.50);
+	s_downloadoptions_menu._x = (int)(uii.VID_GetWidth() * 0.50);
 
 	s_download_title._x    = 48;
 	s_download_title._y	 = y;

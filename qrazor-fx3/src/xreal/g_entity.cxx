@@ -150,8 +150,8 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 	}
 	else
 	{
-		if((int)g_entities.size() == game.maxentities)
-			trap_Com_Error(ERR_DROP, "g_entity_c::ctor: max entities limit reached");
+		if(g_entities.size() == MAX_ENTITIES)
+			trap_Com_Error(ERR_DROP, "g_entity_c::ctor: max entities limit reached, have to change network protocol for more");
 		
 		g_entities.push_back(this);	
 	}

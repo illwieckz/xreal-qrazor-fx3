@@ -576,13 +576,9 @@ static void	CL_ClearClientState()
 	cl.sound_prepped		= false;	// ambient sounds can start
 	cl.force_refdef			= false;	// vid has changed, so we can't use a paused refdef
 	
-	cl.baselines			= std::vector<entity_state_t>(MAX_ENTITIES);
-	
-	for(int i=0; i<X_asz(cl.entities_parse); i++)
-	{
-		cl.entities_parse[i].clear();
-	}
-	cl.entities_parse_index		= 0;
+	cl.entities_baseline		= std::vector<entity_state_t>(MAX_ENTITIES);
+	cl.entities			= std::vector<entity_state_t>(MAX_ENTITIES);
+	cl.entities_first		= 0;
 
 //	cl.cmd.clear();
 	cl.cmds_num			= 0;

@@ -26,7 +26,7 @@ if env['warnings'] == 1:
 
 env.Append(CXXFLAGS = '-DDEBUG=${debug}')
 if env['debug'] != '0':
-	env.Append(CXXFLAGS = '-g')# -ggdb${debug}')
+	env.Append(CXXFLAGS = '-ggdb${debug}')
 
 if env['optimize'] != '0':
 	env.Append(CXXFLAGS = '-O${optimize}')#-ffast-math')
@@ -124,12 +124,12 @@ if not conf.CheckLib('jpeg', symbol='jpeg_start_decompress', autoadd=0):
 	print 'Did not find libjpeg.a or jpeg.lib, exiting!'
 	Exit(1)
 	
-if not conf.CheckCHeader('png.h'):
-	print 'png.h must be installed!'
-	Exit(1)
-if not conf.CheckLib('png12', symbol='png_create_read_struct', autoadd=0):
-	print 'Did not find libpng.a or png.lib, exiting!'
-	Exit(1)
+#if not conf.CheckCHeader('png.h'):
+#	print 'png.h must be installed!'
+#	Exit(1)
+#if not conf.CheckLib('png12', symbol='png_create_read_struct', autoadd=0):
+#	print 'Did not find libpng.a or png.lib, exiting!'
+#	Exit(1)
 		
 env = conf.Finish()
 

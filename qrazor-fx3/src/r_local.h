@@ -1356,6 +1356,8 @@ private:
 	cplane_c*				_planes;
 	
 	std::vector<byte>			_pvs;
+	std::vector<boost::dynamic_bitset<byte> >
+						_pvs_clusters;
 	int					_pvs_clusters_num;
 	int					_pvs_clusters_size;
 	

@@ -45,7 +45,7 @@ enum
 								  NETCHAN_PACKET_HEADER_BITS_RELIABLE +
 								  NETCHAN_PACKET_HEADER_BITS_SEQUENCE_ACK+
 								  NETCHAN_PACKET_HEADER_BITS_RELIABLE_ACK,
-	
+								  
 	NETCHAN_PACKET_HEADER_BITS_UNCOMPRESSED_SIZE		= 16,
 	NETCHAN_PACKET_HEADER_BITS_COMPRESSED_SIZE		= 16,
 	
@@ -73,8 +73,8 @@ packet header
 1	does this message contain a reliable payload
 31	acknowledge sequence
 1	acknowledge receipt of even/odd message
-16	uncompressed size in bits
-16	compressed size in bits
+16	uncompressed total packet size in bits
+16	compressed total packet size in bits
 32	checksum of all data after this packet header
 16	qport
 
@@ -133,10 +133,10 @@ public:
 	
 	//! Tries to send an unreliable message to a connection, and handles the
 	//! transmition / retransmition of the reliable messages.
+	//! A 0 length will still generate a packet and deal with the reliable messages.
 	void			transmit(const bitmessage_c &msg);
 	
 	//! Called when the current net_message is from remote_address.
-	//! A 0 length will still generate a packet and deal with the reliable messages.
 	bool			process(bitmessage_c &msg);
 	
 	int			getDropped() const		{return _dropped;}
@@ -156,32 +156,30 @@ private:
 	bool			needReliable();
 	bool 			canReliable();
 	
-	int			_dropped;				// between last packet and previous
+	int				_dropped;				// between last packet and previous
 
-	netadr_t		_remote_address;
-	int			_qport;					// qport value to write when transmitting
-	bool			_client;				// are we a client?
+	netadr_t			_remote_address;
+	int				_qport;					// qport value to write when transmitting
+	bool				_client;				// are we a client?
 	
-	int			_last_received;				// for timeouts
-	int			_last_sent;				// for retransmits
+	// timestamps
+	int				_last_received;				// for timeouts
+	int				_last_sent;				// for retransmits
 
 	// sequencing variables
-	int			_incoming_sequence;
-	int			_incoming_acknowledged;
-	bool			_incoming_reliable_acknowledged;	// single bit
+	int				_incoming_sequence;
+	bool				_incoming_reliable;			// single bit, maintained local
+	int				_incoming_acknowledged;
+	bool				_incoming_reliable_acknowledged;	// single bit
 
-	int			_incoming_reliable_sequence;		// single bit, maintained local
-
-	int			_outgoing_sequence;
-	bool			_reliable_sequence;			// single bit
-	int			_last_reliable_sequence;		// sequence number of last send
+	int				_outgoing_sequence;
+	bool				_outgoing_reliable;			// single bit
+	boost::dynamic_bitset<byte>	_outgoing_reliable_buf;			// message is copied to this buffer when it is first transfered
+	int				_outgoing_reliable_last;		// sequence number of last send
 
 public:
 	// reliable staging and holding areas
-	bitmessage_c		message;				// writing buffer to send to server
-private:	
-	// message is copied to this buffer when it is first transfered
-	boost::dynamic_bitset<byte>	_reliable_buf;
+	bitmessage_c			message;				// writing buffer to send to server
 };
 
 void 	Netchan_Init();

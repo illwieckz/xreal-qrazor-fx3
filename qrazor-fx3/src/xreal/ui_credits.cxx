@@ -77,7 +77,7 @@ static void	M_Credits_MenuDraw()
 	//
 	// draw the credits
 	//
-	for(i=0, y=(int)(uii.viddef->height - ((uii.CL_GetRealtime() - credits_start_time ) / 40.0F)); credits[i] && y < (int)uii.viddef->height; i++)
+	for(i=0, y=(int)(uii.VID_GetHeight() - ((uii.CL_GetRealtime() - credits_start_time ) / 40.0F)); credits[i] && y < (int)uii.VID_GetHeight(); i++)
 	{
 		int j, stringoffset = 0;
 		
@@ -111,17 +111,17 @@ static void	M_Credits_MenuDraw()
 		{
 			int x;
 
-			//x =(uii.viddef->width - strlen(credits[i]) * 8 - stringoffset * 8 ) / 2 + (j + stringoffset) * 8;
+			//x =(uii.VID_GetWidth() - strlen(credits[i]) * 8 - stringoffset * 8 ) / 2 + (j + stringoffset) * 8;
 
 			if(bold)
 			{
-				x =(uii.viddef->width - strlen(credits[i]) * CHAR_MEDIUM_WIDTH - stringoffset * CHAR_MEDIUM_WIDTH ) / 2 + (j + stringoffset) * CHAR_MEDIUM_WIDTH;
+				x =(uii.VID_GetWidth() - strlen(credits[i]) * CHAR_MEDIUM_WIDTH - stringoffset * CHAR_MEDIUM_WIDTH ) / 2 + (j + stringoffset) * CHAR_MEDIUM_WIDTH;
 				
 				Menu_DrawChar(x, y, credits[i][j+stringoffset], color_white, FONT_MEDIUM | FONT_ALT | FONT_CHROME);
 			}	
 			else
 			{
-				x =(uii.viddef->width - strlen(credits[i]) * CHAR_MEDIUM_WIDTH - stringoffset * CHAR_MEDIUM_WIDTH ) / 2 + (j + stringoffset) * CHAR_MEDIUM_WIDTH;
+				x =(uii.VID_GetWidth() - strlen(credits[i]) * CHAR_MEDIUM_WIDTH - stringoffset * CHAR_MEDIUM_WIDTH ) / 2 + (j + stringoffset) * CHAR_MEDIUM_WIDTH;
 				
 				Menu_DrawChar(x, y, credits[i][j+stringoffset], color_white, FONT_MEDIUM | FONT_CHROME);
 			}

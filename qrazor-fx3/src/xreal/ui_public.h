@@ -131,9 +131,6 @@ typedef struct
 	
 	char*		(*Sys_AdrToString)(const netadr_t &a);
 	int		(*Sys_Milliseconds)();
-	
-	viddef_t*	viddef;
-
 } ui_import_t;
 
 

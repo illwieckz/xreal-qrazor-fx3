@@ -196,7 +196,6 @@ public:
 
 	// store latched cvars here that we want to get at often
 	int		maxclients;
-	int		maxentities;
 
 	// cross level triggers
 	int		serverflags;
@@ -292,7 +291,6 @@ extern d_joint_group_c*		g_ode_contact_group;
 #define random()	((rand () & 0x7fff) / ((float)0x7fff))
 #define crandom()	(2.0 * (random() - 0.5))
 
-extern	cvar_t	*maxentities;
 extern	cvar_t	*deathmatch;
 extern	cvar_t	*coop;
 extern	cvar_t	*dmflags;

@@ -66,7 +66,6 @@ cvar_t	*spectator_password;
 cvar_t	*needpass;
 cvar_t	*maxclients;
 cvar_t	*maxspectators;
-cvar_t	*maxentities;
 cvar_t	*g_select_empty;
 cvar_t	*dedicated;
 
@@ -193,7 +192,6 @@ static void	G_InitGame()
 	deathmatch = gi.Cvar_Get ("deathmatch", "0", CVAR_LATCH);
 	coop = gi.Cvar_Get ("coop", "0", CVAR_LATCH);
 	skill = gi.Cvar_Get ("skill", "1", CVAR_LATCH);
-	maxentities = gi.Cvar_Get ("maxentities", "1024", CVAR_LATCH);
 
 	// change anytime vars
 	dmflags = gi.Cvar_Get ("dmflags", "0", CVAR_SERVERINFO);
@@ -222,7 +220,6 @@ static void	G_InitGame()
 
 	
 	// initialize all client entities for this game
-	game.maxentities = maxentities->getInteger();
 	game.maxclients = maxclients->getInteger();
 
 	

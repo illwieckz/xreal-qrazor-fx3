@@ -56,7 +56,7 @@ static void	Multiplayer_MenuInit()
 	int	y;
 	int	y_offset = CHAR_MEDIUM_HEIGHT + 5;
 
-	s_multiplayer_menu._x = (int)(uii.viddef->width * 0.50 - (CHAR_MEDIUM_WIDTH * 10));
+	s_multiplayer_menu._x = (int)(uii.VID_GetWidth() * 0.50 - (CHAR_MEDIUM_WIDTH * 10));
 
 	s_join_network_server_action._flags 	= QMF_LEFT_JUSTIFY;
 	s_join_network_server_action._fontflags	= FONT_MEDIUM | FONT_CHROME;

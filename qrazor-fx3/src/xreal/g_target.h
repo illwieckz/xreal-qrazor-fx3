@@ -74,6 +74,7 @@ public:
 class g_target_position_c : public g_target_c
 {
 public:
+	g_target_position_c();
 
 	virtual void	activate();
 };

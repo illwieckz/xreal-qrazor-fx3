@@ -133,7 +133,7 @@ static void	M_Main_MenuInit()
 	int	y = 0;
 	int	y_offset = CHAR_BIG_HEIGHT + 10;
 	
-	s_main_menu._x = (int)(uii.viddef->width * 0.50) - (5*CHAR_BIG_WIDTH);
+	s_main_menu._x = (int)(uii.VID_GetWidth() * 0.50) - (5*CHAR_BIG_WIDTH);
 
 	s_main_console_action._flags 		= QMF_LEFT_JUSTIFY;
 	s_main_console_action._fontflags	= FONT_CHROME | FONT_BIG;

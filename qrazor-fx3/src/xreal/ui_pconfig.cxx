@@ -585,8 +585,8 @@ static bool	PlayerConfig_MenuInit()
 	int	y;
 	int	y_offset = CHAR_MEDIUM_HEIGHT + 5;
 
-	s_player_config_menu._x = uii.viddef->width/2 - CHAR_MEDIUM_WIDTH * 13; 
-	s_player_config_menu._y = uii.viddef->height/2 - 150;
+	s_player_config_menu._x = uii.VID_GetWidth()/2 - CHAR_MEDIUM_WIDTH * 13; 
+	s_player_config_menu._y = uii.VID_GetHeight()/2 - 150;
 
 	s_player_name_field._fontflags	= FONT_MEDIUM;
 	s_player_name_field._name = "name";
@@ -722,8 +722,8 @@ static void	PlayerConfig_MenuDraw()
 	r_refdef_t refdef;
 	std::string	scratch;
 
-	refdef.x = uii.viddef->width / 2;
-	refdef.y = uii.viddef->height / 2 - 50;
+	refdef.x = uii.VID_GetWidth() / 2;
+	refdef.y = uii.VID_GetHeight() / 2 - 50;
 	refdef.width = 300;
 	refdef.height = 400;
 	refdef.setFOV(45);
@@ -895,7 +895,7 @@ static void	PlayerConfig_MenuDraw()
 		
 		s_player_config_menu.draw();
 
-		//M_DrawTextBox((int)((refdef.x) * (640.0F / uii.viddef->width ) - 8), (int)(( uii.viddef->height / 2 ) * (480.0F / uii.viddef->height) - 77), refdef.width / 8, refdef.height / 8);
+		//M_DrawTextBox((int)((refdef.x) * (640.0F / uii.VID_GetWidth() ) - 8), (int)(( uii.VID_GetHeight() / 2 ) * (480.0F / uii.VID_GetHeight()) - 77), refdef.width / 8, refdef.height / 8);
 		refdef.height += 4;
 
 		//uii.R_RenderFrame(refdef);

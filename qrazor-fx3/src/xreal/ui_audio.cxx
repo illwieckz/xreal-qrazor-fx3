@@ -104,7 +104,7 @@ static void	M_AudioInit()
 	int	y = 0;
 	int	y_offset = CHAR_MEDIUM_HEIGHT + 5;
 	
-	s_audio_menu._x = (int)(uii.viddef->width * 0.50 - (CHAR_MEDIUM_WIDTH * 10));
+	s_audio_menu._x = (int)(uii.VID_GetWidth() * 0.50 - (CHAR_MEDIUM_WIDTH * 10));
 	
 	s_audio_sfxvolume_slider._fontflags	= FONT_MEDIUM | FONT_CHROME;
 	s_audio_sfxvolume_slider._x		= 0;

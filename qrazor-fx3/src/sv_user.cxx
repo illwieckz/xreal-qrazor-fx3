@@ -171,8 +171,6 @@ void	sv_client_c::baseLines_uc()
 	
 	start = atoi(Cmd_Argv(2));
 
-	memset(&nullstate, 0, sizeof(nullstate));
-
 	// write a packet full of data
 	while(netchan.message.getCurSize() < (MAX_PACKETLEN/2)*8 && start < MAX_ENTITIES)
 	{

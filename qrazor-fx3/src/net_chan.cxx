@@ -89,11 +89,11 @@ void 	netchan_c::transmit(const bitmessage_c &msg)
 
 	bool send_reliable = needReliable();
 
-	if(!_reliable_buf.size() && message.getCurSize())
+	if(!_outgoing_reliable_buf.size() && message.getCurSize())
 	{
-		message.copyTo(_reliable_buf);
+		message.copyTo(_outgoing_reliable_buf, 0, message.getCurSize());
 		message.beginWriting();
-		_reliable_sequence ^= 1;
+		_outgoing_reliable ^= true;
 	}
 
 
@@ -106,7 +106,7 @@ void 	netchan_c::transmit(const bitmessage_c &msg)
 	packet.writeBit(send_reliable);
 	
 	packet.writeBits(_incoming_sequence, NETCHAN_PACKET_HEADER_BITS_SEQUENCE_ACK);
-	packet.writeBit(_incoming_reliable_sequence);
+	packet.writeBit(_incoming_reliable);
 	
 	packet.writeBits(0, NETCHAN_PACKET_HEADER_BITS_UNCOMPRESSED_SIZE);	// dummy value to correct later
 	packet.writeBits(0, NETCHAN_PACKET_HEADER_BITS_COMPRESSED_SIZE);	// - " -
@@ -135,19 +135,19 @@ void 	netchan_c::transmit(const bitmessage_c &msg)
 	//
 	if(send_reliable)
 	{
-		packet_size_uncompressed += _reliable_buf.size();
+		packet_size_uncompressed += _outgoing_reliable_buf.size();
 	
-		if(!_client && net_compression->getInteger())
+		if(net_compression->getInteger())
 		{
-			packet_size_compressed += packet.writeBitsCompressed(_reliable_buf);
+			packet_size_compressed += packet.writeBitsCompressed(_outgoing_reliable_buf);
 		}
 		else
 		{
-			packet_size_compressed += _reliable_buf.size();
-			packet.writeBits(_reliable_buf);
+			packet_size_compressed += _outgoing_reliable_buf.size();
+			packet.writeBits(_outgoing_reliable_buf);
 		}
 			
-		_last_reliable_sequence = _outgoing_sequence;
+		_outgoing_reliable_last = _outgoing_sequence;
 	}
 	
 	
@@ -164,7 +164,7 @@ void 	netchan_c::transmit(const bitmessage_c &msg)
 		}
 		catch(...)
 		{
-			Com_Printf("netchan_c::transmit: dumped unreliable\n");
+			Com_Printf("netchan_c::transmit: dumped unreliable with %i bits\n", msg.getCurSize());
 		}
 	}
 	else
@@ -177,7 +177,7 @@ void 	netchan_c::transmit(const bitmessage_c &msg)
 		}
 		else
 		{
-			Com_Printf("netchan_c::transmit: dumped unreliable\n");
+			Com_Printf("netchan_c::transmit: dumped unreliable with %i bits\n", msg.getCurSize());
 		}
 	}
 	#endif
@@ -208,16 +208,16 @@ void 	netchan_c::transmit(const bitmessage_c &msg)
 			Com_Printf("send %5i : s=%i reliable=%i ack=%i rack=%i saved=%i\n"
 				, packet.getCurSize()
 				, _outgoing_sequence - 1
-				, _reliable_sequence
+				, _outgoing_reliable
 				, _incoming_sequence
-				, _incoming_reliable_sequence
+				, _incoming_reliable
 				, packet_size_uncompressed - packet_size_compressed);
 		else
 			Com_Printf("send %5i : s=%i ack=%i rack=%i saved=%i\n"
 				, packet.getCurSize()
 				, _outgoing_sequence - 1
 				, _incoming_sequence
-				, _incoming_reliable_sequence
+				, _incoming_reliable
 				, packet_size_uncompressed - packet_size_compressed);
 	}
 }
@@ -281,7 +281,54 @@ bool	netchan_c::process(bitmessage_c &msg)
 	//
 	if(net_compression->getInteger())
 	{
-		msg.uncompress(NETCHAN_PACKET_HEADER_BITS);
+		//msg.uncompress(NETCHAN_PACKET_HEADER_BITS);
+		
+		// make backup
+		boost::dynamic_bitset<byte>	bits;		// backup bits + total uncompressed bits
+		msg.copyTo(bits, 0, NETCHAN_PACKET_HEADER_BITS);
+		
+		int parts_num = 1;
+		if(reliable_message)
+			parts_num++;
+		
+		// uncompress data
+		for(int i=0; i<parts_num; i++)
+		{
+			boost::dynamic_bitset<byte>	uncomp;
+		
+			try
+			{
+				if(!(msg.readBitsCompressed(uncomp)))
+					continue;
+			}
+			catch(std::range_error)
+			{
+				Com_Printf("netchan_c::process: range error while reading compressed bytes\n", msg._readcount, msg._cursize);
+				throw;
+			}
+			
+			for(boost::dynamic_bitset<byte>::size_type i=0; i<uncomp.size(); ++i)
+				bits.push_back(uncomp[i]);
+		};
+		
+		if(msg._readcount != msg._cursize)
+		{
+			Com_Error(ERR_DROP, "netchan_c::process: read count %i != current size %i after reading compressed bytes", msg._readcount, msg._cursize);
+		}
+		
+		// reset and expand _data if needed
+		if((NETCHAN_PACKET_HEADER_BITS + bits.size()) > msg._maxsize)
+		{
+			msg._data = std::vector<byte>(toBytes(NETCHAN_PACKET_HEADER_BITS + bits.size()), 0);
+			msg._maxsize = toBits(msg._data.size());
+		}
+		
+		// copy back bits and bytes to _data
+		msg._cursize = 0;
+		msg.writeBits(bits);
+		
+		// reset read count
+		msg._readcount = NETCHAN_PACKET_HEADER_BITS;
 		
 		if(packet_size_uncompressed != msg.getCurSize())
 			Com_Error(ERR_DROP, "netchan_c::process: corrupt uncompressed packet size %i != %i", packet_size_uncompressed, msg.getCurSize());
@@ -294,7 +341,7 @@ bool	netchan_c::process(bitmessage_c &msg)
 			Com_Printf("recv %5i : s=%i reliable=%i ack=%i rack=%i\n"
 				, packet_size_compressed
 				, sequence
-				, _incoming_reliable_sequence ^ 1
+				, _incoming_reliable ^ true
 				, sequence_ack
 				, reliable_ack);
 		else
@@ -338,8 +385,8 @@ bool	netchan_c::process(bitmessage_c &msg)
 	// if the current outgoing reliable message has been acknowledged
 	// clear the buffer to make way for the next
 	//
-	if(reliable_ack == _reliable_sequence)
-		_reliable_buf.clear();	// it has been received
+	if(reliable_ack == _outgoing_reliable)
+		_outgoing_reliable_buf.clear();		// it has been received
 	
 	
 	//
@@ -350,7 +397,7 @@ bool	netchan_c::process(bitmessage_c &msg)
 	_incoming_reliable_acknowledged = reliable_ack;
 	if(reliable_message)
 	{
-		_incoming_reliable_sequence ^= 1;
+		_incoming_reliable ^= true;
 	}
 
 
@@ -366,11 +413,11 @@ bool	netchan_c::process(bitmessage_c &msg)
 bool	netchan_c::needReliable()
 {
 	// if the remote side dropped the last reliable message, resend it
-	if(_incoming_acknowledged > _last_reliable_sequence && _incoming_reliable_acknowledged != _reliable_sequence)
+	if(_incoming_acknowledged > _outgoing_reliable_last && _incoming_reliable_acknowledged != _outgoing_reliable)
 		return true;
 
 	// if the reliable transmit buffer is empty, copy the current message out
-	if(!_reliable_buf.size() && message.getCurSize())
+	if(!_outgoing_reliable_buf.size() && message.getCurSize())
 		return true;
 
 	return false;
@@ -387,7 +434,7 @@ Returns true if the last reliable message has acked
 */
 bool	netchan_c::canReliable()
 {
-	if(_reliable_buf.size())
+	if(_outgoing_reliable_buf.size())
 		return false;			// waiting for ack
 		
 	return true;

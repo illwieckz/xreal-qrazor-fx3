@@ -65,8 +65,8 @@ static std::stack<menu_layer_c>		m_layers;
 void	M_Banner(const std::string &name)
 {
 	// center the string on the top
-	int x = uii.viddef->width/2 - (CHAR_BIG_WIDTH * (name.length()/2));
-	int y = uii.viddef->height/2 - 160;
+	int x = uii.VID_GetWidth()/2 - (CHAR_BIG_WIDTH * (name.length()/2));
+	int y = uii.VID_GetHeight()/2 - 160;
 	
 	Menu_DrawString(x, y, name, FONT_BIG | FONT_CHROME);
 }
@@ -252,7 +252,7 @@ higher res screens.
 */
 static void	M_DrawCharacter(int cx, int cy, int num)
 {
-	Menu_DrawChar( cx + ((uii.viddef->width - 640)>>1), cy + ((uii.viddef->height - 480)>>1), num, color_white, FONT_NONE);
+	Menu_DrawChar( cx + ((uii.VID_GetWidth() - 640)>>1), cy + ((uii.VID_GetHeight() - 480)>>1), num, color_white, FONT_NONE);
 }
 
 void	M_Print(int cx, int cy, char *str)
@@ -281,7 +281,7 @@ void	M_DrawPic(int x, int y, char *pic)
 	int	shader;
 	
 	shader = uii.R_RegisterPic(pic);
-	uii.R_DrawPic(x + ((uii.viddef->width -640)>>1), y + ((uii.viddef->height - 480)>>1), color_white, shader);
+	uii.R_DrawPic(x + ((uii.VID_GetWidth() -640)>>1), y + ((uii.VID_GetHeight() - 480)>>1), color_white, shader);
 	*/
 }
 
@@ -402,7 +402,7 @@ void	M_Draw()
 		return;
 	
 	vec4_c color(0, 0, 0, 0.8);
-	uii.R_DrawFill(0, 0, uii.viddef->width, uii.viddef->height, color);
+	uii.R_DrawFill(0, 0, uii.VID_GetWidth(), uii.VID_GetHeight(), color);
 	
 	m_drawfunc();
 }

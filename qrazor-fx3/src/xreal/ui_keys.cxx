@@ -198,7 +198,7 @@ static void	Keys_MenuInit()
 	int y = 0;
 	int i = 0;
 
-	s_keys_menu._x = (int)(uii.viddef->width * 0.50);
+	s_keys_menu._x = (int)(uii.VID_GetWidth() * 0.50);
 	s_keys_menu._cursordraw = KeyCursorDrawFunc;
 
 	//s_keys_attack_action._type	= MTYPE_ACTION;

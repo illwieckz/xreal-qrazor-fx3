@@ -182,8 +182,8 @@ static void	Options_MenuInit()
 	//
 	// configure controls menu and menu items
 	//
-	s_options_menu._x = uii.viddef->width / 2;
-	s_options_menu._y = uii.viddef->height / 2 - 58;
+	s_options_menu._x = uii.VID_GetWidth() / 2;
+	s_options_menu._y = uii.VID_GetHeight() / 2 - 58;
 	
 
 	s_options_sensitivity_slider._x		= 0;

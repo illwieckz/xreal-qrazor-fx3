@@ -97,7 +97,7 @@ const std::string	M_QuitKey(int key)
 
 static void	M_QuitInit()
 {
-	s_quit_menu._x = uii.viddef->width / 2;
+	s_quit_menu._x = uii.VID_GetWidth() / 2;
 	
 	s_quit_question._flags		= QMF_LEFT_JUSTIFY;
 	s_quit_question._fontflags	= FONT_MEDIUM | FONT_ALT | FONT_CHROME;
