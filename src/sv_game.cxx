@@ -59,11 +59,11 @@ static void 	SV_Unicast(sv_entity_c *ent, bool reliable)
 	client = svs.clients[p-1];
 
 	if(reliable)
-		client->netchan.message.write(&sv.multicast[0], sv.multicast.getCurSize());
+		client->netchan.message.writeMessage(sv.multicast);
 	else
-		client->getDatagram()->write(&sv.multicast[0], sv.multicast.getCurSize());
+		client->getDatagram().writeMessage(sv.multicast);
 
-	sv.multicast.clear();
+	sv.multicast.beginWriting();
 }
 
 
@@ -152,10 +152,10 @@ void 	SV_SetConfigString(int index, const std::string &val)
 	if(sv.state != SS_LOADING)
 	{	
 		// send the update to everyone
-		sv.multicast.clear();
+		sv.multicast.beginWriting();
 		sv.multicast.writeByte(SVC_CONFIGSTRING);
 		sv.multicast.writeShort(index);
-		sv.multicast.writeString(val.c_str());
+		sv.multicast.writeString(val);
 
 		SV_Multicast(vec3_origin, MULTICAST_ALL_R);
 	}

@@ -33,11 +33,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "sys.h"
 
 
-
-
-
 netadr_t	master_adr[MAX_MASTERS];	// address of group servers
 
+cvar_t	*sv_shownet;
 cvar_t	*sv_paused;
 cvar_t	*sv_timedemo;
 
@@ -218,10 +216,11 @@ static void 	SVC_GetChallenge(const netadr_t &adr)
 	oldestTime = 0x7fffffff;
 
 	// see if we already have a challenge for this ip
-	for(i = 0 ; i < MAX_CHALLENGES ; i++)
+	for(i=0; i < MAX_CHALLENGES; i++)
 	{
 		if(Sys_CompareBaseAdr(adr, svs.challenges[i].adr))
 			break;
+			
 		if(svs.challenges[i].time < oldestTime)
 		{
 			oldestTime = svs.challenges[i].time;
@@ -259,7 +258,7 @@ static void 	SVC_DirectConnect(const netadr_t &adr)
 	int			qport;
 	int			challenge;
 
-	Com_DPrintf("SVC_DirectConnect ()\n");
+	Com_DPrintf("SVC_DirectConnect()\n");
 
 	version = atoi(Cmd_Argv(1));
 	if(version != PROTOCOL_VERSION)
@@ -414,8 +413,9 @@ Shift down the remaining args
 Redirect all printfs
 ===============
 */
-static void 	SVC_RemoteCommand(message_c &msg, const netadr_t &adr)
+void 	SVC_RemoteCommand(bitmessage_c &msg, const netadr_t &adr)
 {
+	/*
 	int		i;
 	char	remaining[1024];
 
@@ -446,6 +446,7 @@ static void 	SVC_RemoteCommand(message_c &msg, const netadr_t &adr)
 	}
 
 	Com_EndRedirect();
+	*/
 }
 
 /*
@@ -458,15 +459,15 @@ Clients that are in the game can still send
 connectionless packets.
 =================
 */
-static void 	SV_ConnectionlessPacket(message_c &msg, const netadr_t &adr)
+static void 	SV_ConnectionlessPacket(bitmessage_c &msg, const netadr_t &adr)
 {
-	char		*string;
+	const char	*string;
 	const char	*cmd;
 
 	msg.beginReading();
 	msg.readLong();		// skip the -1 marker
 
-	string = msg.readStringLine();
+	string = msg.readString();
 	Cmd_TokenizeString(string);
 	
 //	if(X_strncaseequal(net_message->data + 4, "connect", 7))
@@ -474,7 +475,7 @@ static void 	SV_ConnectionlessPacket(message_c &msg, const netadr_t &adr)
 
 	cmd = Cmd_Argv(0);
 	
-	Com_DPrintf("connectionless packet '%s : '%s\n", Sys_AdrToString(adr), cmd);
+	Com_DPrintf("connectionless packet '%s : '%s'\n", Sys_AdrToString(adr), string);
 
 	if(!strcmp(cmd, "ping"))
 	{
@@ -500,10 +501,10 @@ static void 	SV_ConnectionlessPacket(message_c &msg, const netadr_t &adr)
 	{
 		SVC_DirectConnect(adr);
 	}	
-	else if(!strcmp(cmd, "rcon"))
-	{
-		SVC_RemoteCommand(msg, adr);
-	}
+//	else if(!strcmp(cmd, "rcon"))
+//	{
+//		SVC_RemoteCommand(msg, adr);
+//	}
 	else
 	{
 		Com_Printf("bad connectionless packet from '%s':\n'%s'\n", Sys_AdrToString(adr), string);
@@ -565,10 +566,12 @@ static void 	SV_GiveMsec()
 }
 
 
-void 	SV_PacketEvent(message_c &msg, const netadr_t &adr)
+void 	SV_PacketEvent(bitmessage_c &msg, const netadr_t &adr)
 {
+//	Com_DPrintf("SV_PacketEvent()\n");
+
 	// check for connectionless packet (0xffffffff) first
-	if(*(int*)&msg[0] == -1)
+	if(msg.isConnectionless())
 	{
 		SV_ConnectionlessPacket(msg, adr);
 		return;
@@ -576,14 +579,21 @@ void 	SV_PacketEvent(message_c &msg, const netadr_t &adr)
 
 	// read the qport out of the message so we can fix up
 	// stupid address translating routers
-	msg.beginReading();
-	msg.readLong();		// sequence number
-	msg.readLong();		// sequence number
+	msg.readBits(NETCHAN_PACKET_HEADER_BITS_SEQUENCE);
+	msg.readBits(NETCHAN_PACKET_HEADER_BITS_RELIABLE);
 	
-	int qport = msg.readShort() & 0xffff;
+	msg.readBits(NETCHAN_PACKET_HEADER_BITS_SEQUENCE_ACK);
+	msg.readBits(NETCHAN_PACKET_HEADER_BITS_RELIABLE_ACK);
+	
+	msg.readBits(NETCHAN_PACKET_HEADER_BITS_UNCOMPRESSED_SIZE);
+	msg.readBits(NETCHAN_PACKET_HEADER_BITS_COMPRESSED_SIZE);
+	
+	msg.readBits(NETCHAN_PACKET_HEADER_BITS_CHECKSUM);
+	
+	int qport = msg.readBits(NETCHAN_PACKET_HEADER_BITS_QPORT) & 0xffff;
 
 	// check for packets from connected clients
-	for(std::vector<sv_client_c*>::const_iterator ir = svs.clients.begin(); ir != svs.clients.end(); ir++)
+	for(std::vector<sv_client_c*>::const_iterator ir = svs.clients.begin(); ir != svs.clients.end(); ++ir)
 	{
 		sv_client_c *cl = *ir;
 	
@@ -771,7 +781,7 @@ static void 	SV_RunGameFrame()
 	// don't run if paused
 	if(!sv_paused->getInteger() || maxclients->getInteger() > 1)
 	{
-		for(int i=0; i<5; i++)
+		//for(int i=0; i<5; i++)
 			ge->G_RunFrame();
 
 		// never get more than one tic behind
@@ -948,7 +958,8 @@ void 	SV_Init()
 	hostname			= Cvar_Get("hostname", "noname", CVAR_SERVERINFO | CVAR_ARCHIVE);
 	timeout				= Cvar_Get("timeout", "125", 0);
 	zombietime			= Cvar_Get("zombietime", "2", 0);
-	sv_showclamp			= Cvar_Get("showclamp", "0", 0);
+	sv_showclamp			= Cvar_Get("showclamp", "0", CVAR_NONE);
+	sv_shownet			= Cvar_Get("sv_shownet", "0", CVAR_NONE);
 	sv_paused			= Cvar_Get("paused", "0", 0);
 	sv_timedemo			= Cvar_Get("timedemo", "0", 0);
 	sv_enforcetime			= Cvar_Get("sv_enforcetime", "0", 0);
@@ -980,7 +991,7 @@ to totally exit after returning from this function.
 */
 static void 	SV_FinalMessage(const std::string &message, bool reconnect)
 {
-	message_c msg(MSG_TYPE_RAWBYTES, MAX_PACKETLEN);
+	bitmessage_c msg(MAX_PACKETLEN);
 	
 	msg.writeByte(SVC_PRINT);
 	msg.writeByte(PRINT_HIGH);
@@ -991,7 +1002,7 @@ static void 	SV_FinalMessage(const std::string &message, bool reconnect)
 	else
 		msg.writeByte(SVC_DISCONNECT);
 
-	for(std::vector<sv_client_c*>::const_iterator ir = svs.clients.begin(); ir != svs.clients.end(); ir++)
+	for(std::vector<sv_client_c*>::const_iterator ir = svs.clients.begin(); ir != svs.clients.end(); ++ir)
 	{
 		sv_client_c *cl = *ir;
 	

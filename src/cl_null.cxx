@@ -90,7 +90,7 @@ void	CL_MouseEvent(int dx, int dy)
 	//DO NOTHING
 }
 
-void 	CL_PacketEvent(message_c &msg, const netadr_t &adr)
+void 	CL_PacketEvent(bitmessage_c &msg, const netadr_t &adr)
 {
 	//DO NOTHING
 }

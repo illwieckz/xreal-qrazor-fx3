@@ -215,12 +215,12 @@ void 	SV_Multicast(const vec3_c &origin, multicast_type_e to)
 		}
 
 		if(reliable)
-			cl->netchan.message.write(&sv.multicast[0], sv.multicast.getCurSize());
+			cl->netchan.message.writeMessage(sv.multicast);
 		else
-			cl->getDatagram()->write(&sv.multicast[0], sv.multicast.getCurSize());
+			cl->getDatagram().writeMessage(sv.multicast);
 	}
 
-	sv.multicast.clear();
+	sv.multicast.beginWriting();
 }
 
 
@@ -368,7 +368,7 @@ void 	SV_StartSound(vec3_t origin, sv_entity_c *entity, int channel, int soundin
 void 	SV_SendClientMessages()
 {
 	// send a message to each connected client
-	for(std::vector<sv_client_c*>::const_iterator ir = svs.clients.begin(); ir != svs.clients.end(); ir++)
+	for(std::vector<sv_client_c*>::const_iterator ir = svs.clients.begin(); ir != svs.clients.end(); ++ir)
 	{
 		sv_client_c *cl = *ir;
 	
@@ -378,12 +378,11 @@ void 	SV_SendClientMessages()
 		if(cl->getState() == CS_FREE)
 			continue;
 			
-		// if the reliable message overflowed,
-		// drop the client
+		// if the reliable message overflowed, drop the client
 		if(cl->netchan.message.isOverFlowed())
 		{
-			cl->netchan.message.clear();
-			cl->getDatagram()->clear();
+			cl->netchan.message.beginWriting();
+			cl->getDatagram().beginWriting();
 			
 			SV_BroadcastPrintf(PRINT_HIGH, "'%s' overflowed\n", cl->getName());
 			
@@ -402,7 +401,7 @@ void 	SV_SendClientMessages()
 		{
 			// just update reliable	if needed
 			if(cl->netchan.message.getCurSize() || Sys_Milliseconds() - cl->netchan.getLastSent() > 1000)
-				cl->netchan.transmit(NULL, 0);
+				cl->netchan.transmit(bitmessage_c());
 		}
 	}
 }

@@ -96,7 +96,7 @@ void	sv_client_c::new_uc()
 
 		// begin fetching configstrings
 		netchan.message.writeByte(SVC_STUFFTEXT);
-		netchan.message.writeString(va("cmd configstrings %i 0\n", svs.spawncount) );
+		netchan.message.writeString(va("cmd configstrings %i 0\n", svs.spawncount));
 	}
 }
 
@@ -123,7 +123,7 @@ void 	sv_client_c::configStrings_uc()
 	start = atoi(Cmd_Argv(2));
 
 	// write a packet full of data
-	while(netchan.message.getCurSize() < MAX_PACKETLEN/2 && start < MAX_CONFIGSTRINGS)
+	while(netchan.message.getCurSize() < (MAX_PACKETLEN/2)*8 && start < MAX_CONFIGSTRINGS)
 	{
 		if(sv.configstrings[start][0])
 		{
@@ -174,7 +174,7 @@ void	sv_client_c::baseLines_uc()
 	memset(&nullstate, 0, sizeof(nullstate));
 
 	// write a packet full of data
-	while(netchan.message.getCurSize() <  MAX_PACKETLEN/2 && start < MAX_ENTITIES)
+	while(netchan.message.getCurSize() < (MAX_PACKETLEN/2)*8 && start < MAX_ENTITIES)
 	{
 		base = &sv.baselines[start];
 		
@@ -248,7 +248,7 @@ void 	sv_client_c::nextDownload_uc()
 		size = 1;
 	percent = _download_count*100/size;
 	netchan.message.writeByte( percent);
-	netchan.message.write(_download + _download_count - r, r);
+	netchan.message.writeBytes(_download + _download_count - r, r);
 
 	if (_download_count != _download_size)
 		return;

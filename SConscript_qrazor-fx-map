@@ -3,6 +3,7 @@ import os, string, sys
 Import('env')
 
 qrazor_fx_map_src = [
+'src/x_bitmessage.cxx',
 'src/x_endian.cxx',
 'src/x_info.cxx',
 'src/x_math.cxx',
@@ -11,7 +12,6 @@ qrazor_fx_map_src = [
 'src/cmd.cxx',
 'src/common.cxx',
 'src/cvar.cxx',
-'src/md4.cxx',
 'src/sha1.cxx',
 'src/vfs.cxx',
 'src/unzip.cxx',

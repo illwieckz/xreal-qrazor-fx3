@@ -1,7 +1,7 @@
 /// ============================================================================
 /*
 Copyright (C) 1997-2001 Id Software, Inc.
-Copyright (C) 2004 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2005 Robert Beckebans <trebor_7@users.sourceforge.net>
 Please see the file "AUTHORS" for a list of contributors
 
 This program is free software; you can redistribute it and/or
@@ -27,66 +27,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <zlib.h>
 
 // qrazor-fx ----------------------------------------------------------------
+#include "x_protocol.h"
 #include "net_chan.h"
 
 #include "common.h"
 #include "cvar.h"
 #include "sys.h"
 
-
-/*
-
-packet header
--------------
-31	sequence
-1	does this message contain a reliable payload
-31	acknowledge sequence
-1	acknowledge receipt of even/odd message
-16	qport
-
-The remote connection never knows if it missed a reliable message, the
-local side detects that it has been dropped by seeing a sequence acknowledge
-higher thatn the last reliable sequence, but without the correct evon/odd
-bit for the reliable set.
-
-If the sender notices that a reliable message has been dropped, it will be
-retransmitted.  It will not be retransmitted again until a message after
-the retransmit has been acknowledged and the reliable still failed to get there.
-
-if the sequence number is -1, the packet should be handled without a netcon
-
-The reliable message can be added to at any time by doing
-MSG_Write* (&netchan->message, <data>).
-
-If the message buffer is overflowed, either by a single message, or by
-multiple frames worth piling up while the last reliable transmit goes
-unacknowledged, the netchan signals a fatal error.
-
-Reliable messages are always placed first in a packet, then the unreliable
-message is included if there is sufficient room.
-
-To the receiver, there is no distinction between the reliable and unreliable
-parts of the message, they are just processed out as a single larger message.
-
-Illogical packet sequence numbers cause the packet to be dropped, but do
-not kill the connection.  This, combined with the tight window of valid
-reliable acknowledgement numbers provides protection against malicious
-address spoofing.
-
-
-The qport field is a workaround for bad address translating routers that
-sometimes remap the client's source port on a packet during gameplay.
-
-If the base part of the net address matches and the qport matches, then the
-channel matches even if the IP port differs.  The IP port should be updated
-to the new value before sending out any replies.
-
-
-If there is no information that needs to be transfered on a given frame,
-such as during the connection stage while waiting for the client to load,
-then a packet only needs to be delivered if there is something in the
-unacknowledged reliable
-*/
 
 static cvar_t*	net_showpackets;
 static cvar_t*	net_showdrop;
@@ -114,7 +61,7 @@ void	netchan_c::setup(const netadr_t &adr, int qport, bool client)
 	_incoming_sequence = 0;
 	_outgoing_sequence = 1;
 
-	message = message_c(MSG_TYPE_RAWBYTES, MAX_MSGLEN, true);
+	message = bitmessage_c(tobits(MAX_MSGLEN)-NETCHAN_PACKET_HEADER_BITS, true);
 }
 
 
@@ -129,7 +76,7 @@ transmition / retransmition of the reliable messages.
 A 0 length will still generate a packet and deal with the reliable messages.
 ================
 */
-void 	netchan_c::transmit(const byte *data, int length)
+void 	netchan_c::transmit(const bitmessage_c &msg)
 {
 	//
 	// check for message overflow
@@ -142,11 +89,10 @@ void 	netchan_c::transmit(const byte *data, int length)
 
 	bool send_reliable = needReliable();
 
-	if(!_reliable_length && message.getCurSize())
+	if(!_reliable_buf.size() && message.getCurSize())
 	{
-		memcpy(_reliable_buf, &message[0], message.getCurSize());
-		_reliable_length = message.getCurSize();
-		message.clear();
+		message.copyTo(_reliable_buf);
+		message.beginWriting();
 		_reliable_sequence ^= 1;
 	}
 
@@ -154,31 +100,52 @@ void 	netchan_c::transmit(const byte *data, int length)
 	//
 	// write the packet header
 	//
-	message_c packet(MSG_TYPE_RAWBYTES, MAX_PACKETLEN-16, false);
+	bitmessage_c	packet((MAX_PACKETLEN*8), false);
 
-	unsigned long w1 = ( _outgoing_sequence & ~(1<<31) ) | (send_reliable<<31);
-	unsigned long w2 = ( _incoming_sequence & ~(1<<31) ) | (_incoming_reliable_sequence<<31);
-
+	packet.writeBits(_outgoing_sequence, NETCHAN_PACKET_HEADER_BITS_SEQUENCE);
+	packet.writeBit(send_reliable);
+	
+	packet.writeBits(_incoming_sequence, NETCHAN_PACKET_HEADER_BITS_SEQUENCE_ACK);
+	packet.writeBit(_incoming_reliable_sequence);
+	
+	packet.writeBits(0, NETCHAN_PACKET_HEADER_BITS_UNCOMPRESSED_SIZE);	// dummy value to correct later
+	packet.writeBits(0, NETCHAN_PACKET_HEADER_BITS_COMPRESSED_SIZE);	// - " -
+	
+	packet.writeBits(0, NETCHAN_PACKET_HEADER_BITS_CHECKSUM);		// - " -
+	
+	packet.writeBits(net_qport->getInteger(), NETCHAN_PACKET_HEADER_BITS_QPORT);
+	
+	
+	//
+	// track packet sizes
+	//
+	uint_t		packet_size_uncompressed = packet.getCurSize();
+	uint_t		packet_size_compressed = packet.getCurSize();
+	
+	
+	//
+	// update current state
+	//
 	_outgoing_sequence++;
 	_last_sent = Sys_Milliseconds();
-
-	packet.writeLong(w1);
-	packet.writeLong(w2);
 	
-	// send the qport if we are a client
-	if(_client)
-		packet.writeShort(net_qport->getInteger());
-
 
 	//
 	// copy the reliable message to the packet first
 	//
 	if(send_reliable)
 	{
-		if(net_compression->getInteger())
-			packet.writeCompressedData(_reliable_buf, _reliable_length);
+		packet_size_uncompressed += _reliable_buf.size();
+	
+		if(!_client && net_compression->getInteger())
+		{
+			packet_size_compressed += packet.writeBitsCompressed(_reliable_buf);
+		}
 		else
-			packet.writeRawData(_reliable_buf, _reliable_length);
+		{
+			packet_size_compressed += _reliable_buf.size();
+			packet.writeBits(_reliable_buf);
+		}
 			
 		_last_reliable_sequence = _outgoing_sequence;
 	}
@@ -187,47 +154,72 @@ void 	netchan_c::transmit(const byte *data, int length)
 	//
 	// add the unreliable part if space is available
 	//
+	#if 1
 	if(net_compression->getInteger())
 	{
-		if((packet.writeCompressedData(data, length, true)) == false)
+		try
+		{
+			packet_size_uncompressed += msg.getCurSize();
+			packet_size_compressed += packet.writeMessageCompressed(msg, true);
+		}
+		catch(...)
+		{
 			Com_Printf("netchan_c::transmit: dumped unreliable\n");
+		}
 	}
 	else
 	{
-		if((int)(packet.getMaxSize() - packet.getCurSize()) >= length)
-			packet.writeRawData(data, length);
+		if((packet.getMaxSize() - packet.getCurSize()) >= msg.getCurSize())
+		{
+			packet_size_uncompressed += msg.getCurSize();
+			packet_size_compressed += msg.getCurSize();
+			packet.writeMessage(msg);
+		}
 		else
+		{
 			Com_Printf("netchan_c::transmit: dumped unreliable\n");
+		}
 	}
+	#endif
+	
+	//
+	// correct packet header
+	//
+	if(packet_size_compressed != packet.getCurSize())
+		Com_Error(ERR_DROP, "netchan_c::transmit: corrupt packet size %i != %i", packet_size_compressed, packet.getCurSize());
+		
+	int checksum = packet.calcCheckSum(NETCHAN_PACKET_HEADER_BITS);
+	
+	packet.setCurSize(NETCHAN_PACKET_HEADER_BITS_SIZE_OFFSET);
+	packet.writeBits(packet_size_uncompressed, NETCHAN_PACKET_HEADER_BITS_UNCOMPRESSED_SIZE);
+	packet.writeBits(packet_size_compressed, NETCHAN_PACKET_HEADER_BITS_COMPRESSED_SIZE);
+	packet.writeBits(checksum, NETCHAN_PACKET_HEADER_BITS_CHECKSUM);
+	packet.setCurSize(packet_size_compressed);
 	
 	
 	//
 	// send the datagram
 	//
-	Sys_SendPacket(&packet[0], packet.getCurSize(), _remote_address);
+	Sys_SendPacket(packet, _remote_address);
 
 	if(net_showpackets->getValue())
 	{
 		if(send_reliable)
-			Com_Printf("send %4i : s=%i reliable=%i ack=%i rack=%i\n"
+			Com_Printf("send %5i : s=%i reliable=%i ack=%i rack=%i saved=%i\n"
 				, packet.getCurSize()
 				, _outgoing_sequence - 1
 				, _reliable_sequence
 				, _incoming_sequence
-				, _incoming_reliable_sequence);
+				, _incoming_reliable_sequence
+				, packet_size_uncompressed - packet_size_compressed);
 		else
-			Com_Printf("send %4i : s=%i ack=%i rack=%i\n"
+			Com_Printf("send %5i : s=%i ack=%i rack=%i saved=%i\n"
 				, packet.getCurSize()
 				, _outgoing_sequence - 1
 				, _incoming_sequence
-				, _incoming_reliable_sequence);
+				, _incoming_reliable_sequence
+				, packet_size_uncompressed - packet_size_compressed);
 	}
-}
-
-
-void	netchan_c::transmit(const message_c &msg)
-{
-	transmit((byte*)msg, msg.getCurSize());
 }
 
 
@@ -239,50 +231,75 @@ called when the current net_message is from remote_address
 modifies net_message so that it points to the packet payload
 =================
 */
-bool	netchan_c::process(message_c &msg)
+bool	netchan_c::process(bitmessage_c &msg)
 {
-	unsigned int	sequence, sequence_ack;
-	unsigned int	reliable_ack, reliable_message;
-
-
 	//
-	// read the packet header and get sequence numbers		
+	// read the packet header and get sequence numbers
 	//
 	msg.beginReading();
-	sequence = msg.readLong();
-	sequence_ack = msg.readLong();
-
-	reliable_message = sequence >> 31;
-	reliable_ack = sequence_ack >> 31;
-
-	sequence &= ~(1<<31);
-	sequence_ack &= ~(1<<31);
 	
-	// read the qport if we are a server
-	if(!_client)
-		msg.readShort();
+	int	sequence = msg.readBits(NETCHAN_PACKET_HEADER_BITS_SEQUENCE);
+	bool	reliable_message = msg.readBit();
+	
+	int	sequence_ack = msg.readBits(NETCHAN_PACKET_HEADER_BITS_SEQUENCE_ACK);
+	bool	reliable_ack = msg.readBit();
+	
+	uint_t	packet_size_uncompressed = msg.readBits(NETCHAN_PACKET_HEADER_BITS_UNCOMPRESSED_SIZE);
+	uint_t	packet_size_compressed = msg.readBits(NETCHAN_PACKET_HEADER_BITS_COMPRESSED_SIZE);
+	
+	int	checksum;
+	checksum = msg.readBits(NETCHAN_PACKET_HEADER_BITS_CHECKSUM);
+	
+	msg.readBits(NETCHAN_PACKET_HEADER_BITS_QPORT);
 	
 	
 	//
-	// uncompress the rest of the message
+	// check transmitted packet size
+	//
+	if(packet_size_compressed != msg.getCurSize())
+	{
+		// packet size may differ because the network sends bytes instead of bits
+		if((msg.getCurSize() - packet_size_compressed) >= 8)
+			Com_Error(ERR_DROP, "netchan_c::process: corrupt compressed packet size %i != %i", packet_size_compressed, msg.getCurSize());
+			
+		msg.setCurSize(packet_size_compressed);
+	}
+	
+	
+	//
+	// check sum
+	//
+	int checksum_new = msg.calcCheckSum(NETCHAN_PACKET_HEADER_BITS);
+	if(checksum != checksum_new)
+	{
+		Com_Error(ERR_DROP, "netchan_c::process: corrupt packet: old checksum %i != new checksum %i", checksum, checksum_new);
+	}
+	
+	
+	//
+	// uncompress the rest of the message and check message
 	//
 	if(net_compression->getInteger())
 	{
-		msg.uncompress();
+		msg.uncompress(NETCHAN_PACKET_HEADER_BITS);
+		
+		if(packet_size_uncompressed != msg.getCurSize())
+			Com_Error(ERR_DROP, "netchan_c::process: corrupt uncompressed packet size %i != %i", packet_size_uncompressed, msg.getCurSize());
 	}
+	
 
 	if(net_showpackets->getValue())
 	{
 		if(reliable_message)
-			Com_Printf("recv %4i : s=%i reliable=%i ack=%i rack=%i\n"
-				, msg.getCurSize()
+			Com_Printf("recv %5i : s=%i reliable=%i ack=%i rack=%i\n"
+				, packet_size_compressed
 				, sequence
 				, _incoming_reliable_sequence ^ 1
 				, sequence_ack
 				, reliable_ack);
 		else
-			Com_Printf("recv %4i : s=%i ack=%i rack=%i\n"
-				, msg.getCurSize()
+			Com_Printf("recv %5i : s=%i ack=%i rack=%i\n"
+				, packet_size_compressed
 				, sequence
 				, sequence_ack
 				, reliable_ack);
@@ -292,7 +309,7 @@ bool	netchan_c::process(message_c &msg)
 	//
 	// discard stale or duplicated packets
 	//
-	if((int)sequence <= _incoming_sequence)
+	if(sequence <= _incoming_sequence)
 	{
 		if(net_showdrop->getValue())
 			Com_Printf("%s:Out of order packet %i at %i\n"
@@ -321,8 +338,8 @@ bool	netchan_c::process(message_c &msg)
 	// if the current outgoing reliable message has been acknowledged
 	// clear the buffer to make way for the next
 	//
-	if((int)reliable_ack == _reliable_sequence)
-		_reliable_length = 0;	// it has been received
+	if(reliable_ack == _reliable_sequence)
+		_reliable_buf.clear();	// it has been received
 	
 	
 	//
@@ -349,18 +366,14 @@ bool	netchan_c::process(message_c &msg)
 bool	netchan_c::needReliable()
 {
 	// if the remote side dropped the last reliable message, resend it
-	bool send_reliable = false;
-
 	if(_incoming_acknowledged > _last_reliable_sequence && _incoming_reliable_acknowledged != _reliable_sequence)
-		send_reliable = true;
+		return true;
 
 	// if the reliable transmit buffer is empty, copy the current message out
-	if(!_reliable_length && message.getCurSize())
-	{
-		send_reliable = true;
-	}
+	if(!_reliable_buf.size() && message.getCurSize())
+		return true;
 
-	return send_reliable;
+	return false;
 }
 
 
@@ -374,7 +387,7 @@ Returns true if the last reliable message has acked
 */
 bool	netchan_c::canReliable()
 {
-	if(_reliable_length)
+	if(_reliable_buf.size())
 		return false;			// waiting for ack
 		
 	return true;
@@ -390,7 +403,7 @@ void	Netchan_Init()
 	net_showpackets	= Cvar_Get("net_showpackets", "0", CVAR_NONE);
 	net_showdrop	= Cvar_Get("net_showdrop", "0", CVAR_NONE);
 	net_qport 	= Cvar_Get("qport", va("%i", port), CVAR_INIT);
-	net_compression	= Cvar_Get("net_compression", "1", CVAR_NONE);
+	net_compression	= Cvar_Get("net_compression", "0", CVAR_NONE);
 }
 
 /*
@@ -400,16 +413,18 @@ Netchan_OutOfBand
 Sends an out-of-band datagram
 ================
 */
+/*
 void	Netchan_OutOfBand(const netadr_t &adr, const byte *data, int length)
 {
-	message_c send(MSG_TYPE_RAWBYTES, MAX_PACKETLEN);
+	bitmessage_c send(MAX_PACKETLEN*8);
 	
 	send.writeLong(-1);	// -1 sequence means out of band
-	send.write(data, length);
+	send.writeString(data, length);
 
 	// send the datagram
-	Sys_SendPacket(&send[0], send.getCurSize(), adr);
+	Sys_SendPacket(send, adr);
 }
+*/
 
 /*
 ===============
@@ -421,13 +436,21 @@ Sends a text message in an out-of-band datagram
 void	Netchan_OutOfBandPrint(const netadr_t &adr, const char *format, ...)
 {
 	va_list		argptr;
-	static char		string[MAX_PACKETLEN - 4];
+	static char	string[MAX_PACKETLEN - 4];
 	
 	va_start(argptr, format);
 	vsprintf(string, format,argptr);
 	va_end(argptr);
 
-	Netchan_OutOfBand(adr, (byte*)string, strlen(string));
+//	Netchan_OutOfBand(adr, (byte*)string, strlen(string));
+	
+	bitmessage_c send(MAX_PACKETLEN*8);
+	
+	send.writeLong(-1);	// -1 sequence means out of band
+	send.writeString(string);
+
+	// send the datagram
+	Sys_SendPacket(send, adr);
 }
 
 

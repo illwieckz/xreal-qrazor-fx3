@@ -3,10 +3,11 @@ import os, string, sys
 Import('env')
 
 qrazor_fx_client_src = [
+'src/x_bitmessage.cxx',
 'src/x_endian.cxx',
 'src/x_info.cxx',
 'src/x_math.cxx',
-'src/x_message.cxx',
+'src/x_protocol.cxx',
 'src/x_shared.cxx',
 'src/x_string.cxx',
 'src/ode/array.cxx',
@@ -47,7 +48,6 @@ qrazor_fx_client_src = [
 'src/cmd.cxx',
 'src/common.cxx',
 'src/cvar.cxx',
-'src/md4.cxx',
 'src/net_chan.cxx',
 'src/roq.cxx',
 'src/sha1.cxx',

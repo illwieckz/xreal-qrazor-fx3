@@ -98,8 +98,10 @@ CL_WriteDemoMessage
 Dumps the current net message, prefixed by the length
 ====================
 */
-void	CL_WriteDemoMessage(message_c &msg)
+void	CL_WriteDemoMessage(bitmessage_c &msg)
 {
+#if 0
+	//FIXME
 	int		len, swlen;
 
 	// the first eight bytes are just packet sequencing stuff
@@ -108,6 +110,7 @@ void	CL_WriteDemoMessage(message_c &msg)
 	
 	VFS_FWrite(&swlen, 4, cls.demo_stream);
 	VFS_FWrite(&msg[8], len, cls.demo_stream);
+#endif
 }
 
 
@@ -278,21 +281,37 @@ so when they are typed in at the console, they will need to be forwarded.
 */
 void	Cmd_ForwardToServer()
 {
-	const char *cmd = Cmd_Argv(0);
+	std::string cmd = Cmd_Argv(0);
 	
-	if(cls.state <= CA_CONNECTED || *cmd == '-' || *cmd == '+')
+	if(cls.state <= CA_CONNECTED || cmd[0] == '-' || cmd[0] == '+')
 	{
-		Com_Printf("Unknown command \"%s\"\n", cmd);
+		Com_Printf("Unknown command \"%s\"\n", cmd.c_str());
 		return;
 	}
 
-	cls.netchan.message.writeByte(CLC_STRINGCMD);
-	cls.netchan.message.print(cmd);
-	
 	if(Cmd_Argc() > 1)
 	{
-		cls.netchan.message.print(" ");
-		cls.netchan.message.print(Cmd_Args());
+		cmd += " ";
+		cmd += Cmd_Args();
+	}
+	
+	cls.netchan.message.writeByte(CLC_STRINGCMD);
+	cls.netchan.message.writeString(cmd);
+}
+
+void	CL_ForwardToServer_f()
+{
+	if(cls.state != CA_CONNECTED && cls.state != CA_ACTIVE)
+	{
+		Com_Printf("Can't \"%s\", not connected\n", Cmd_Argv(0));
+		return;
+	}
+	
+	// don't forward the first argument
+	if(Cmd_Argc() > 1)
+	{
+		cls.netchan.message.writeByte(CLC_STRINGCMD);
+		cls.netchan.message.writeString(Cmd_Args());
 	}
 }
 
@@ -331,25 +350,6 @@ void	CL_Setenv_f()
 	}
 }
 
-
-void	CL_ForwardToServer_f()
-{
-	if(cls.state != CA_CONNECTED && cls.state != CA_ACTIVE)
-	{
-		Com_Printf("Can't \"%s\", not connected\n", Cmd_Argv(0));
-		return;
-	}
-	
-	// don't forward the first argument
-	if(Cmd_Argc() > 1)
-	{
-		cls.netchan.message.writeByte(CLC_STRINGCMD);
-		cls.netchan.message.print(Cmd_Args());
-	}
-}
-
-
-
 void	CL_Quit_f()
 {
 	CL_Disconnect();
@@ -387,8 +387,10 @@ We have gotten a challenge from the server, so try and
 connect.
 ======================
 */
-void	CL_SendConnectPacket()
+void	CLC_SendConnectPacket()
 {
+	Com_DPrintf("CLC_SendConnectPacket()\n");
+
 	netadr_t	adr;
 	int		port;
 
@@ -407,13 +409,13 @@ void	CL_SendConnectPacket()
 
 	//Netchan_OutOfBandPrint(adr, "connect %i %i %i \"%s\"\n", PROTOCOL_VERSION, port, cls.challenge, Cvar_Userinfo());
 	
-	message_c msg(MSG_TYPE_RAWBYTES, MAX_INFO_STRING + 32);
+	bitmessage_c msg(MAX_PACKETLEN*8);
 	msg.writeLong(-1);	// -1 sequence means out of band
-	msg.writeString(va("connect %i %i %i \"%s\"\n", PROTOCOL_VERSION, port, cls.challenge, Cvar_Userinfo()));
+	msg.writeString(va("connect %i %i %i \"%s\"", PROTOCOL_VERSION, port, cls.challenge, Cvar_Userinfo()));
 	
 	//Huff_CompressPacket(&msg, 12);
 	
-	Sys_SendPacket(&msg[0], msg.getCurSize(), adr);
+	Sys_SendPacket(msg, adr);
 }
 
 /*
@@ -505,6 +507,9 @@ CL_Rcon_f
 */
 void	CL_Rcon_f()
 {
+#if 0
+	//TODO
+
 	char	message[1024];
 	int		i;
 	netadr_t	to;
@@ -553,6 +558,7 @@ void	CL_Rcon_f()
 	}
 	
 	Sys_SendPacket(message, strlen(message)+1, to);
+#endif
 }
 
 
@@ -615,7 +621,7 @@ void	CL_ClearState()
 
 	CL_ClearClientState();
 	
-	cls.netchan.message.clear();
+	cls.netchan.message.beginWriting();
 
 }
 
@@ -630,8 +636,6 @@ This is also called on Com_Error, so it shouldn't cause any errors
 */
 void	CL_Disconnect()
 {
-	byte	final[32];
-
 	if(cls.state == CA_DISCONNECTED)
 		return;
 
@@ -653,11 +657,13 @@ void	CL_Disconnect()
 		CL_Stop_f();
 
 	// send a disconnect message to the server
-	final[0] = CLC_STRINGCMD;
-	strcpy ((char *)final+1, "disconnect");
-	cls.netchan.transmit(final, strlen((const char*)final));
-	cls.netchan.transmit(final, strlen((const char*)final));
-	cls.netchan.transmit(final, strlen((const char*)final));
+	bitmessage_c msg(MAX_PACKETLEN*8);
+	msg.writeByte(CLC_STRINGCMD);
+	msg.writeString("disconnect");
+	
+	cls.netchan.transmit(msg);
+	cls.netchan.transmit(msg);
+	cls.netchan.transmit(msg);
 
 	CL_ClearState();
 
@@ -685,6 +691,7 @@ packet <destination> <contents>
 Contents allows \n escape character
 ====================
 */
+/*
 void	CL_Packet_f()
 {
 	char	send[2048];
@@ -725,6 +732,7 @@ void	CL_Packet_f()
 
 	Sys_SendPacket(send, out-send, adr);
 }
+*/
 
 /*
 =================
@@ -797,7 +805,7 @@ CL_ParseStatusMessage
 Handle a reply from a ping
 =================
 */
-static void	CLC_ParseStatusMessage(message_c &msg, const netadr_t &adr)
+static void	CLC_ParseStatusMessage(bitmessage_c &msg, const netadr_t &adr)
 {
 	const char *s = msg.readString();
 
@@ -858,24 +866,24 @@ CL_ConnectionlessPacket
 Responses to broadcasts, etc
 =================
 */
-void	CL_ConnectionlessPacket(message_c &msg, const netadr_t &adr)
+void	CL_ConnectionlessPacket(bitmessage_c &msg, const netadr_t &adr)
 {
-	char	*s;
-	const char	*c;
+	const char	*string;
+	const char	*cmd;
 	
 	msg.beginReading();
 	msg.readLong();	// skip the -1
 
-	s = msg.readStringLine();
+	string = msg.readString();
 
-	Cmd_TokenizeString(s);
+	Cmd_TokenizeString(string);
 
-	c = Cmd_Argv(0);
+	cmd = Cmd_Argv(0);
 
-	Com_Printf("%s: %s\n", Sys_AdrToString(adr), c);
+	Com_DPrintf("connectionless packet '%s' : '%s'\n", Sys_AdrToString(adr), string);
 
 	// server connection
-	if(!strcmp(c, "client_connect"))
+	if(!strcmp(cmd, "client_connect"))
 	{
 		if(cls.state == CA_CONNECTED)
 		{
@@ -890,14 +898,14 @@ void	CL_ConnectionlessPacket(message_c &msg, const netadr_t &adr)
 	}
 
 	// server responding to a status broadcast
-	if(!strcmp(c, "info"))
+	if(!strcmp(cmd, "info"))
 	{
 		CLC_ParseStatusMessage(msg, adr);
 		return;
 	}
 
 	// remote command from gui front end
-	if(!strcmp(c, "cmd"))
+	if(!strcmp(cmd, "cmd"))
 	{
 		if(!Sys_IsLocalAddress(adr))
 		{
@@ -905,36 +913,37 @@ void	CL_ConnectionlessPacket(message_c &msg, const netadr_t &adr)
 			return;
 		}
 		Sys_AppActivate();
-		s = msg.readString();
-		Cbuf_AddText(s);
+		string = msg.readString();
+		Cbuf_AddText(string);
 		Cbuf_AddText("\n");
 		return;
 	}
+	
 	// print command from somewhere
-	if(!strcmp(c, "print"))
+	if(!strcmp(cmd, "print"))
 	{
-		s = msg.readString();
-		Com_Printf("%s", s);
+		string = msg.readString();
+		Com_Printf("%s", string);
 		return;
 	}
 
 	// ping from somewhere
-	if(!strcmp(c, "ping"))
+	if(!strcmp(cmd, "ping"))
 	{
 		Netchan_OutOfBandPrint(adr, "ack");
 		return;
 	}
 
 	// challenge from the server we are connecting to
-	if(!strcmp(c, "challenge"))
+	if(!strcmp(cmd, "challenge"))
 	{
 		cls.challenge = atoi(Cmd_Argv(1));
-		CL_SendConnectPacket();
+		CLC_SendConnectPacket();
 		return;
 	}
 
 	// echo request from server
-	if(!strcmp(c, "echo"))
+	if(!strcmp(cmd, "echo"))
 	{
 		Netchan_OutOfBandPrint(adr, "%s", Cmd_Argv(1));
 		return;
@@ -943,12 +952,14 @@ void	CL_ConnectionlessPacket(message_c &msg, const netadr_t &adr)
 	Com_Printf("Unknown command.\n");
 }
 
-void	CL_PacketEvent(message_c &msg, const netadr_t &adr)
+void	CL_PacketEvent(bitmessage_c &msg, const netadr_t &adr)
 {
+//	Com_DPrintf("CL_PacketEvent()\n");
+
 	//
 	// remote command packet
 	//
-	if(*(int*)&msg[0] == -1)
+	if(msg.isConnectionless())
 	{
 		CL_ConnectionlessPacket(msg, adr);
 		return;
@@ -957,7 +968,7 @@ void	CL_PacketEvent(message_c &msg, const netadr_t &adr)
 	if(cls.state == CA_DISCONNECTED || cls.state == CA_CONNECTING)
 		return;		// dump it if not connected
 
-	if(msg.getCurSize() < 8)
+	if(msg.getCurSize() < NETCHAN_PACKET_HEADER_BITS)
 	{
 		Com_Printf("%s: runt packet\n", Sys_AdrToString(adr));
 		return;
@@ -972,10 +983,11 @@ void	CL_PacketEvent(message_c &msg, const netadr_t &adr)
 		return;
 	}
 	
-	if(!cls.netchan.process(msg))
-		return;		// wasn't accepted for some reason
-		
-	CL_ParseServerMessage(msg);
+	if(cls.netchan.process(msg))
+	{
+		// this is a valid, sequenced packet, so process it
+		CL_ParseServerMessage(msg);
+	}
 }
 
 static void	CL_CheckTimeout()
@@ -1496,7 +1508,7 @@ void	CL_InitLocal()
 	//
 	cl_maxfps		= Cvar_Get("cl_maxfps", "90", CVAR_ARCHIVE);
 
-	cl_shownet		= Cvar_Get("shownet", "0", 0);
+	cl_shownet		= Cvar_Get("cl_shownet", "0", 0);
 	cl_timeout		= Cvar_Get("cl_timeout", "120", 0);
 	cl_timedemo		= Cvar_Get("timedemo", "0", 0);
 
@@ -1539,7 +1551,7 @@ void	CL_InitLocal()
 	Cmd_AddCommand("connect",	CL_Connect_f);
 	Cmd_AddCommand("reconnect",	CL_Reconnect_f);
 	Cmd_AddCommand("rcon",		CL_Rcon_f);
-	Cmd_AddCommand("packet",	CL_Packet_f);		// this is dangerous to leave in
+//	Cmd_AddCommand("packet",	CL_Packet_f);		// this is dangerous to leave in
 	Cmd_AddCommand("setenv",	CL_Setenv_f );
 	Cmd_AddCommand("precache",	CL_Precache_f);
 	Cmd_AddCommand("download",	CL_Download_f);	

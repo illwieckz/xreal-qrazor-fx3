@@ -39,7 +39,7 @@ sv_client_c::sv_client_c(const netadr_t &adr, int qport, int challenge)
 
 	_state = CS_CONNECTED;
 	
-	_datagram = message_c(MSG_TYPE_RAWBYTES, MAX_PACKETLEN, true);
+	_datagram = bitmessage_c(tobits(MAX_MSGLEN), true);
 	
 	_lastmessage_time = svs.realtime;	// don't timeout
 	_lastconnect_time = svs.realtime;
@@ -133,7 +133,7 @@ bool	sv_client_c::sendDatagram()
 {
 	buildFrame();
 
-	message_c msg(MSG_TYPE_RAWBYTES, MAX_MSGLEN, true);
+	bitmessage_c msg(tobits(MAX_MSGLEN), true);
 
 	// send over all the relevant entity_state_t
 	// and the player_state_t
@@ -146,22 +146,22 @@ bool	sv_client_c::sendDatagram()
 	if(_datagram.isOverFlowed())
 		Com_Error(ERR_WARNING, "sv_client_c::sendDatagram: datagram overflowed for '%s'\n", _name);
 	else
-		msg.write(&_datagram[0], _datagram.getCurSize());
+		msg.writeMessage(_datagram);
 	
-	_datagram.clear();
+	_datagram.beginWriting();
 
 	if(msg.isOverFlowed())
 	{
 		// must have room left for the packet header
 		Com_Error(ERR_WARNING, "sv_client_c::sendDatagram: msg overflowed for '%s'\n", _name);
-		msg.clear();
+		msg.beginWriting();
 	}
 
 	// send the datagram
 	netchan.transmit(msg);
 
 	// record the size for rate estimation
-	_message_size[sv.framenum % RATE_MESSAGES] = msg.getCurSize();
+	_message_size[sv.framenum % RATE_MESSAGES] = msg.getCurSize() / 8;
 
 	return true;
 }
@@ -411,7 +411,7 @@ SV_EmitPacketEntities
 Writes a delta update of an entity_state_t list to the message.
 =============
 */
-void	sv_client_c::writePacketEntities(sv_client_frame_t *from, sv_client_frame_t *to, message_c &msg)
+void	sv_client_c::writePacketEntities(sv_client_frame_t *from, sv_client_frame_t *to, bitmessage_c &msg)
 {
 	int		oldindex, newindex;
 	int		oldnum, newnum;
@@ -481,7 +481,7 @@ void	sv_client_c::writePacketEntities(sv_client_frame_t *from, sv_client_frame_t
 }
 
 
-void	sv_client_c::writePlayerState(sv_client_frame_t *from, sv_client_frame_t *to, message_c &msg)
+void	sv_client_c::writePlayerState(sv_client_frame_t *from, sv_client_frame_t *to, bitmessage_c &msg)
 {
 	int				i;
 	int				pflags;
@@ -678,7 +678,7 @@ void	sv_client_c::writePlayerState(sv_client_frame_t *from, sv_client_frame_t *t
 }
 
 
-void	sv_client_c::writeFrame(message_c &msg)
+void	sv_client_c::writeFrame(bitmessage_c &msg)
 {
 	sv_client_frame_t		*frame, *oldframe;
 	int					lastframe;
@@ -718,7 +718,7 @@ void	sv_client_c::writeFrame(message_c &msg)
 
 	// send over the areabits
 	msg.writeByte(frame->areabytes);
-	msg.write(frame->areabits, frame->areabytes);
+	msg.writeBytes(frame->areabits, frame->areabytes);
 
 	// delta encode the playerstate
 	writePlayerState(oldframe, frame, msg);
@@ -811,15 +811,18 @@ SV_ExecuteClientMessage
 The current net_message is parsed for the given client
 ===================
 */
-void	sv_client_c::executeMessage(message_c &msg)
+void	sv_client_c::executeMessage(bitmessage_c &msg)
 {
 	usercmd_t	nullcmd;
 	usercmd_t	oldest, oldcmd, newcmd;
 	
 	int		net_drop;
 	int		stringCmdCount;
-	int		checksum, calculatedChecksum;
-	int		checksumIndex;
+	
+//	int		checksum;
+//	int		checksum_offset;
+//	int		checksum_calculated;
+	
 	bool		move_issued;
 	int		lastframe;
 
@@ -831,39 +834,69 @@ void	sv_client_c::executeMessage(message_c &msg)
 
 	while(true)
 	{
-		if(msg.getBytesReadCount() > msg.getCurSize())
+		if(msg.getReadCount() > msg.getCurSize())
 		{
-			Com_Printf("sv_client_c::executeMessage: badread\n");
+			Com_Printf("sv_client_c::executeMessage: bad readcount\n");
 			drop();
 			return;
-		}	
-
-		int c = msg.readByte();
-		if(c == -1)
+		}
+		
+		if(msg.getReadCount() == msg.getCurSize())
+		{
+			if(sv_shownet->getInteger())
+				Com_Printf("     %5i : END OF MESSAGE from '%s'\n", msg.getReadCount(), _name);
 			break;
+		}
+
+		int cmd = msg.readByte();
+		
+		if(sv_shownet->getInteger())
+		{
+			if(cmd < CLC_FIRST || cmd > CLC_LAST)
+				Com_Printf("     %5i : BAD CMD %i from '%s'\n", msg.getReadCount(), cmd, _name);
+			else
+				Com_Printf("     %5i : %s\n", msg.getReadCount(), clc_strings[cmd]);
+		}
 				
-		switch(c)
+		switch(cmd)
 		{
 			default:
-				Com_Printf("sv_client_c::executeMessage: unknown command char '%c'\n", c);
+			{
+				Com_Printf("sv_client_c::executeMessage: unknown client command\n");
 				drop();
 				return;
+			}
+			
+			case -1:
+			case CLC_EOM:
+			{
+				break;
+			}
 						
 			case CLC_NOP:
+			{
 				break;
-
+			}
+			
 			case CLC_USERINFO:
+			{
 				_userinfo.fromString(msg.readString());
 				extractUserInfo();
 				break;
-
+			}
+			
 			case CLC_MOVE:
+			{
 				if(move_issued)
 					return;		// someone is trying to cheat...
 
 				move_issued = true;
-				checksumIndex = msg.getBytesReadCount();
-				checksum = msg.readByte();
+				
+				/*
+				checksum = msg.readLong();
+				checksum_offset = msg.getCurSize();
+				*/
+				
 				lastframe = msg.readLong();
 				if(lastframe != _lastframe)
 				{
@@ -888,18 +921,19 @@ void	sv_client_c::executeMessage(message_c &msg)
 				}
 				
 				// if the checksum fails, ignore the rest of the packet
-				calculatedChecksum = Com_BlockSequenceCRCByte(	&msg[checksumIndex + 1],
-										msg.getBytesReadCount() - checksumIndex - 1, 
-										netchan.getIncomingSequence()	);
+				/*
+				//calculatedChecksum = Com_BlockSequenceCRCByte(&msg[checksumIndex + 1], msg.getBytesReadCount() - checksumIndex - 1, netchan.getIncomingSequence());
+				checksum_calculated = msg.calcCheckSum(checksum_offset);
 
-				if(calculatedChecksum != checksum)
+				if(checksum_calculated != checksum)
 				{
 					Com_DPrintf("Failed command checksum for %s (%d != %d)/%d\n",	_name, 
-													calculatedChecksum, 
+													checksum_calculated, 
 													checksum,
 													netchan.getIncomingSequence());
 					return;
 				}
+				*/
 
 				if(!sv_paused->getInteger())
 				{
@@ -930,8 +964,9 @@ void	sv_client_c::executeMessage(message_c &msg)
 				
 				_lastcmd = newcmd;
 				break;
+			}
 				
-			case CLC_STRINGCMD:	
+			case CLC_STRINGCMD:
 			{
 				const char *s = msg.readString();
 

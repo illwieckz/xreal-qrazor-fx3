@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 
-void	CG_ParseMuzzleFlash(message_c &msg)
+void	CG_ParseMuzzleFlash(bitmessage_c &msg)
 {
 	//vec3_c		fv, rv, upv;
 	matrix_c	matrix;

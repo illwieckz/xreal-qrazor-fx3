@@ -6,7 +6,6 @@ xreal_ui_src = [
 'src/x_endian.cxx',
 'src/x_info.cxx',
 'src/x_math.cxx',
-'src/x_message.cxx',
 'src/x_panim.cxx',
 'src/x_pmove.cxx',
 'src/x_shared.cxx',

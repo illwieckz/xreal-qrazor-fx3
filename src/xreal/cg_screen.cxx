@@ -56,22 +56,22 @@ Called for important messages that should stay in the center of the screen
 for a few moments
 ==============
 */
-void 	CG_CenterPrint (char *str)
+void 	CG_CenterPrint(const char *str)
 {
-	char	*s;
-	char	line[64];
+	const char*	s;
+	char		line[64];
 	int		i, j, l;
 
-	strncpy (scr_centerstring, str, sizeof(scr_centerstring)-1);
+	strncpy(scr_centerstring, str, sizeof(scr_centerstring)-1);
 	scr_centertime_off = cg_centertime->getValue();
 	scr_centertime_start = trap_CL_GetTime();
 
 	// count the number of lines for centering
 	scr_center_lines = 1;
 	s = str;
-	while (*s)
+	while(*s)
 	{
-		if (*s == '\n')
+		if(*s == '\n')
 			scr_center_lines++;
 		s++;
 	}

@@ -66,7 +66,7 @@ int 	SV_FindIndex(const std::string &name, int start, int max, bool create)
 	if(sv.state != SS_LOADING)
 	{
 		// send the update to everyone
-		sv.multicast.clear();
+		sv.multicast.beginWriting();
 		sv.multicast.writeByte(SVC_CONFIGSTRING);
 		sv.multicast.writeShort(start + i);
 		sv.multicast.writeString(name.c_str());

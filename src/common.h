@@ -70,9 +70,6 @@ void		Com_PushEvent(sys_event_type_e type, int time, int parm1, int parm2, byte 
 int		Com_ServerState();		// this should have just been a cvar...
 void		Com_SetServerState(int state);
 
-unsigned	Com_BlockChecksum(void *buffer, int length);
-byte		Com_BlockSequenceCRCByte(byte *base, int length, int sequence);
-
 
 void		CL_Init();
 void		CL_Shutdown();
@@ -81,13 +78,13 @@ void		CL_Drop();
 void		Key_Init();
 void		Key_Event(int key, bool down, int time);
 void		CL_MouseEvent(int dx, int dy);
-void		CL_PacketEvent(message_c &msg, const netadr_t &adr);
+void		CL_PacketEvent(bitmessage_c &msg, const netadr_t &adr);
 void		Con_Print(const char *text);
 
 void		SV_Init();
 void		SV_Shutdown(char *finalmsg, bool reconnect);
 void		SV_Frame(int msec);
-void		SV_PacketEvent(message_c &msg, const netadr_t &adr);
+void		SV_PacketEvent(bitmessage_c &msg, const netadr_t &adr);
 
 void		Map_Init();
 void		Map_Shutdown();

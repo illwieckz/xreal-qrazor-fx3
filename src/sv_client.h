@@ -75,13 +75,13 @@ private:
 	void		buildFrame();
 //	void		fatPVS(const vec3_c &org);
 	bool		cullEntity(sv_entity_c *ent, byte *bitvector);
-	void		writePacketEntities(sv_client_frame_t *from, sv_client_frame_t *to, message_c &msg);
-	void		writePlayerState(sv_client_frame_t *from, sv_client_frame_t *to, message_c &msg);
-	void		writeFrame(message_c &msg);
+	void		writePacketEntities(sv_client_frame_t *from, sv_client_frame_t *to, bitmessage_c &msg);
+	void		writePlayerState(sv_client_frame_t *from, sv_client_frame_t *to, bitmessage_c &msg);
+	void		writeFrame(bitmessage_c &msg);
 public:
 	void		calcPing();
 	bool		rateDrop();
-	void		executeMessage(message_c &msg);
+	void		executeMessage(bitmessage_c &msg);
 	void		executeCommand(const char *s);
 	void		think(const usercmd_t &cmd);
 	
@@ -108,7 +108,7 @@ public:
 	sv_entity_c*		getEntity() const		{return _entity;}
 	int			getCommandTime() const		{return _command_time;}
 	int			getPing() const			{return _ping;}
-	message_c*		getDatagram()			{return &_datagram;}
+	bitmessage_c&		getDatagram()			{return _datagram;}
 	int			getLastMessageTime() const	{return _lastmessage_time;}
 	int			getLastConnectTime() const	{return _lastconnect_time;}
 	
@@ -145,7 +145,7 @@ private:
 
 	// The datagram is written to by sound calls, prints, temp ents, etc.
 	// It can be harmlessly overflowed.
-	message_c		_datagram;
+	bitmessage_c		_datagram;
 
 	sv_client_frame_t	_frames[UPDATE_BACKUP];			// updates can be delta'd from here
 

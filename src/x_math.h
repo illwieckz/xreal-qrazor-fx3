@@ -1366,6 +1366,7 @@ class quaternion_c
 {
 	friend class matrix_c;
 	friend class message_c;
+	friend class bitmessage_c;
 public:
 	inline quaternion_c();
 	

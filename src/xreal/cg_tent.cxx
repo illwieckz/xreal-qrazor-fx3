@@ -220,7 +220,7 @@ void 	CG_SmokeAndFlash(vec3_t origin)
 
 
 
-static void	CG_ParseLaser(message_c &msg, int colors)
+static void	CG_ParseLaser(bitmessage_c &msg, int colors)
 {
 	vec3_c	start;
 	vec3_c	end;
@@ -248,7 +248,7 @@ static void	CG_ParseLaser(message_c &msg, int colors)
 	}
 }
 
-static void	CG_ParseContact(message_c &msg)
+static void	CG_ParseContact(bitmessage_c &msg)
 {
 	r_contact_t rc;
 	
@@ -260,7 +260,7 @@ static void	CG_ParseContact(message_c &msg)
 }
 
 
-void	CG_ParseTEnt(message_c &msg)
+void	CG_ParseTEnt(bitmessage_c &msg)
 {
 	int		type;
 	vec3_c		pos;

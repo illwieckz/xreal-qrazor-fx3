@@ -34,35 +34,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "vfs.h"
 
 
-char *svc_strings[256] =
-{
-	"svc_bad",
-
-	"svc_muzzleflash",
-	"svc_temp_entity",
-	"svc_layout",
-	"svc_inventory",
-
-	"svc_nop",
-	"svc_disconnect",
-	"svc_reconnect",
-	"svc_sound",
-	"svc_print",
-	"svc_stufftext",
-	"svc_serverdata",
-	"svc_configstring",
-	"svc_spawnbaseline",	
-	"svc_centerprint",
-	"svc_download",
-	"svc_playerinfo",
-	"svc_packetentities",
-	"svc_deltapacketentities",
-	"svc_frame"
-};
-
-
-
-
 /*
 ===============
 CL_CheckOrDownloadFile
@@ -270,7 +241,7 @@ static void	CL_ParseDownload(message_c &msg)
 }
 */
 
-static void	CL_ParseServerData(message_c &msg)
+static void	CL_ParseServerData(bitmessage_c &msg)
 {
 	std::string	str;
 	int		i;
@@ -324,13 +295,13 @@ static void	CL_ParseServerData(message_c &msg)
 
 
 
-static void	CL_ParseConfigString(message_c &msg)
+static void	CL_ParseConfigString(bitmessage_c &msg)
 {
 	int index = msg.readShort();
 	if(index < 0 || index >= MAX_CONFIGSTRINGS)
 		Com_Error(ERR_DROP, "configstring > MAX_CONFIGSTRINGS");
 	
-	char *s = msg.readString();
+	const char *s = msg.readString();
 
 	char	olds[MAX_QPATH];
 	strncpy(olds, cl.configstrings[index], sizeof(olds));
@@ -342,7 +313,7 @@ static void	CL_ParseConfigString(message_c &msg)
 }
 
 
-static void	CL_ParseBaseline(message_c &msg)
+static void	CL_ParseBaseline(bitmessage_c &msg)
 {
 	entity_state_t	nullstate;
 
@@ -362,7 +333,7 @@ static void	CL_ParseBaseline(message_c &msg)
 // 	cge->CG_UpdateEntity(newnum, state, true);
 }
 
-static void	CL_ParseStartSoundPacket(message_c &msg)
+static void	CL_ParseStartSoundPacket(bitmessage_c &msg)
 {
 	vec3_c  pos_v;
 	vec_t	*pos;
@@ -424,14 +395,14 @@ static void	CL_ParseStartSoundPacket(message_c &msg)
 }       
 
 
-void	CL_ShowNet(message_c &msg, const char *s)
+static void	CL_ShowNet(bitmessage_c &msg, const char *s)
 {
 	if(cl_shownet->getInteger() >= 2)
-		Com_Printf("%3i:%s\n", msg.getBytesReadCount() -1, s);
+		Com_Printf("     %5i : %s\n", msg.getReadCount(), s);
 }
 
 
-static void	CL_DeltaEntity(message_c &msg, frame_t *frame, int newnum, entity_state_t *state_old, bool changed)
+static void	CL_DeltaEntity(bitmessage_c &msg, frame_t *frame, int newnum, entity_state_t *state_old, bool changed)
 {
 	entity_state_t *state = &cl.entities_parse[cl.entities_parse_index & (MAX_PARSE_ENTITIES-1)];
 	
@@ -487,7 +458,7 @@ An svc_packetentities has just been parsed, deal with the
 rest of the data stream.
 ==================
 */
-static void	CL_ParsePacketEntities(message_c &msg, frame_t *oldframe, frame_t *newframe)
+static void	CL_ParsePacketEntities(bitmessage_c &msg, frame_t *oldframe, frame_t *newframe)
 {
 	int			newnum;
 	int			oldindex, oldnum;
@@ -520,7 +491,7 @@ static void	CL_ParsePacketEntities(message_c &msg, frame_t *oldframe, frame_t *n
 		if(newnum < 0 || newnum >= MAX_ENTITIES)
 			Com_Error(ERR_DROP,"CL_ParsePacketEntities: bad number %i", newnum);
 
-		if(msg.getBytesReadCount() > msg.getCurSize())
+		if(msg.getReadCount() > msg.getCurSize())
 			Com_Error(ERR_DROP,"CL_ParsePacketEntities: end of message");
 
 		if(!newnum)
@@ -600,7 +571,7 @@ static void	CL_ParsePacketEntities(message_c &msg, frame_t *oldframe, frame_t *n
 	cge->CG_EndFrame(cl.frame.entities_num);
 }
 
-static void	CL_ParsePlayerstate(message_c &msg, frame_t *oldframe, frame_t *newframe)
+static void	CL_ParsePlayerstate(bitmessage_c &msg, frame_t *oldframe, frame_t *newframe)
 {
 	int			flags;
 	player_state_t	*state;
@@ -722,7 +693,7 @@ static void	CL_ParsePlayerstate(message_c &msg, frame_t *oldframe, frame_t *newf
 			state->stats[i] = msg.readShort();
 }
 
-static void	CL_ParseFrame(message_c &msg)
+static void	CL_ParseFrame(bitmessage_c &msg)
 {
 	int			cmd;
 	int			len;
@@ -785,7 +756,7 @@ static void	CL_ParseFrame(message_c &msg)
 	// read areabits
 	//
 	len = msg.readByte();
-	msg.readRawData(&cl.frame.areabits, len);
+	msg.readBytes(cl.frame.areabits, len);
 
 
 	//
@@ -839,17 +810,17 @@ static void	CL_ParseFrame(message_c &msg)
 
 
 
-void	CL_ParseServerMessage(message_c &msg)
+void	CL_ParseServerMessage(bitmessage_c &msg)
 {
-	int			cmd;
-	char		*s;
+	int		cmd;
+	const char*	string;
 
 	//
 	// if recording demos, copy the message out
 	//
 	if(cl_shownet->getInteger() == 1)
 	{
-		Com_Printf("%i ",msg.getCurSize());
+		Com_Printf("%i ", msg.getCurSize());
 	}
 	else if(cl_shownet->getInteger() >= 2)
 	{
@@ -862,24 +833,24 @@ void	CL_ParseServerMessage(message_c &msg)
 	//
 	while(true)
 	{
-		if(msg.getBytesReadCount() > msg.getCurSize())
+		if(msg.getReadCount() > msg.getCurSize())
 		{
 			Com_Error(ERR_DROP,"CL_ParseServerMessage: Bad server message");
 			break;
 		}
-
-		cmd = msg.readByte();
-
-		if(cmd == -1)
+		
+		if(msg.getReadCount() == msg.getCurSize())
 		{
 			CL_ShowNet(msg, "END OF MESSAGE");
 			break;
 		}
 
+		cmd = msg.readByte();
+
 		if(cl_shownet->getInteger() >= 2)
 		{
-			if(!svc_strings[cmd])
-				Com_Printf("%3i:BAD CMD %i\n", msg.getBytesReadCount() -1, cmd);
+			if(cmd < SVC_FIRST || cmd > SVC_LAST)
+				Com_Printf("     %5i : BAD CMD %i\n", msg.getReadCount(), cmd);
 			else
 				CL_ShowNet(msg, svc_strings[cmd]);
 		}
@@ -891,6 +862,11 @@ void	CL_ParseServerMessage(message_c &msg)
 		{
 			default:
 				Com_Error(ERR_DROP,"CL_ParseServerMessage: Illegible server message\n");
+				break;
+				
+			case -1:
+			case SVC_EOM:
+				//CL_ShowNet(msg, "END OF MESSAGE");
 				break;
 			
 			case SVC_NOP:
@@ -920,9 +896,9 @@ void	CL_ParseServerMessage(message_c &msg)
 				break;
 			
 			case SVC_STUFFTEXT:
-				s = msg.readString();
-				Com_DPrintf("stufftext: %s\n", s);
-				Cbuf_AddText(s);
+				string = msg.readString();
+				Com_DPrintf("stufftext: %s\n", string);
+				Cbuf_AddText(string);
 				break;
 			
 			case SVC_SERVERDATA:
@@ -952,11 +928,7 @@ void	CL_ParseServerMessage(message_c &msg)
 
 			case SVC_DOWNLOAD:
 				//CL_ParseDownload(msg);
-				Com_Error(ERR_FATAL, "CL_ParseServerMessage: SVC_DOWNLOAD requested");
-				break;
-
-			case SVC_FRAME:
-				CL_ParseFrame(msg);
+				Com_Error(ERR_DROP, "CL_ParseServerMessage: SVC_DOWNLOAD requested");
 				break;
 
 			case SVC_INVENTORY:
@@ -971,6 +943,10 @@ void	CL_ParseServerMessage(message_c &msg)
 			case SVC_PACKETENTITIES:
 			case SVC_DELTAPACKETENTITIES:
 				Com_Error(ERR_DROP, "Out of place frame data");
+				break;
+				
+			case SVC_FRAME:
+				CL_ParseFrame(msg);
 				break;
 		}
 	}

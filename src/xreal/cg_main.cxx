@@ -74,7 +74,7 @@ d_joint_group_c*	cg_ode_contact_group;
 
 
 
-void	CG_ParseLayout(message_c &msg)
+void	CG_ParseLayout(bitmessage_c &msg)
 {
 	const char *s = msg.readString();
 	

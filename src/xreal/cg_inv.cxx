@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "cg_local.h"
 
 
-void	CG_ParseInventory(message_c &msg)
+void	CG_ParseInventory(bitmessage_c &msg)
 {
 	for(int i=0; i<MAX_ITEMS; i++)
 		cg.inventory[i] = msg.readShort();
