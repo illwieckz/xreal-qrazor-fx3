@@ -37,17 +37,13 @@ r_entity_c::r_entity_c()
 	_s.clear();
 	
 	setupTransform();
-	
-	_needsupdate = false;
 }
 
-r_entity_c::r_entity_c(const r_entity_t &shared, bool update)
+r_entity_c::r_entity_c(const r_entity_t &shared)
 {
 	_s = shared;
 	
 	setupTransform();
-		
-	_needsupdate = update;
 	
 	if(_s.flags & RF_STATIC)
 	{

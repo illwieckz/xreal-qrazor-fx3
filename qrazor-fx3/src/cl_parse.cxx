@@ -354,10 +354,12 @@ static void	CL_ParseBaseline(message_c &msg)
 		
 	msg.readDeltaEntity(&nullstate, state, newnum);
 	
-	if(state->index_sound)
-		S_StartLoopSound(state->origin, state->velocity_linear, state->getNumber(), CHAN_AUTO, S_RegisterSound(cl.configstrings[CS_SOUNDS + state->index_sound]));
+//	if(state->index_sound)
+//		S_StartLoopSound(state->origin, state->velocity_linear, state->getNumber(), CHAN_AUTO, S_RegisterSound(cl.configstrings[CS_SOUNDS + state->index_sound]));
 		
 	cge->CG_AddEntity(newnum, state);
+	
+// 	cge->CG_UpdateEntity(newnum, state, true);
 }
 
 static void	CL_ParseStartSoundPacket(message_c &msg)
@@ -442,13 +444,15 @@ static void	CL_DeltaEntity(message_c &msg, frame_t *frame, int newnum, entity_st
 			if(cl_shownet->getInteger() == 3)
 				Com_Printf("   remove: %i\n", state_old->getNumber());
 		
-			if(state_old->index_sound)
-				S_StopLoopSound(state_old->getNumber());
+//			if(state_old->index_sound)
+//				S_StopLoopSound(state_old->getNumber());
 			
-			cge->CG_RemoveEntity(state_old->getNumber(), state);
+//			cge->CG_RemoveEntity(state_old->getNumber(), state);
+			cge->CG_RemoveEntity(newnum, state);
 			return;
 		}
 		
+		/*
 		if(!state_old->index_sound && state->index_sound)
 		{
 			S_StartLoopSound(state->origin, state->velocity_linear, state->getNumber(), CHAN_AUTO, S_RegisterSound(cl.configstrings[CS_SOUNDS + state->index_sound]));
@@ -461,6 +465,7 @@ static void	CL_DeltaEntity(message_c &msg, frame_t *frame, int newnum, entity_st
 		{
 			S_StopLoopSound(state->getNumber());
 		}
+		*/
 	}
 	else
 	{
@@ -470,10 +475,7 @@ static void	CL_DeltaEntity(message_c &msg, frame_t *frame, int newnum, entity_st
 	cl.entities_parse_index++;
 	frame->entities_num++;
 	
-	if(state_old->getNumber() == 0 && state->getNumber() != 0)
-		cge->CG_AddEntity(newnum, state);
-	else
-		cge->CG_UpdateEntity(newnum, state, changed);
+	cge->CG_UpdateEntity(newnum, state, changed);
 }
 
 

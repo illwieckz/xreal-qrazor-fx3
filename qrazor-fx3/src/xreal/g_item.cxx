@@ -988,7 +988,7 @@ g_item_dropable_c::g_item_dropable_c(g_player_c *player, g_item_c *item, const v
 	_r.size = _r.bbox.size();
 	_r.solid = SOLID_TRIGGER;
 	
-	_nextthink = level.time + 30;
+	_nextthink = level.time + 10;
 	
 	_classname = item->getClassname();
 	_item = item;

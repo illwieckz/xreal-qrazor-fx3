@@ -726,7 +726,6 @@ void	CG_AddExplosions()
 			f = 0;
 		ent->frame = ex->baseframe + f + 1;
 		ent->frame_old = ex->baseframe + f;
-		ent->lerp = cg.frame_lerp;
 
 //		cgi.R_AddEntityToScene(*ent);
 	}

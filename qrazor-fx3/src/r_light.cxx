@@ -44,8 +44,6 @@ r_light_c::r_light_c(const r_entity_t &shared, r_light_type_t type)
 	setupFrustum();
 	setupShadowMap();
 	
-	_needsupdate = true;
-	
 	if(_s.flags & RF_STATIC)
 	{
 		if(!r_world_tree && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL))

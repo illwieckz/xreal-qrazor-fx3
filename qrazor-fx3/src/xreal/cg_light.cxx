@@ -287,30 +287,65 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 	}
 }
 
+static void	CG_UpdateLightShader(const cg_entity_t *cent, r_entity_t &rent, bool &update)
+{
+	if(cent->current.index_light && cg.light_precache[cent->prev.index_light] != cg.light_precache[cent->current.index_light])
+		update = true;
+		
+	rent.custom_shader = cg.light_precache[cent->current.index_light];
+}
+
 void	CG_UpdateLightEntity(const cg_entity_t *cent)
 {
-//	cgi.Com_DPrintf("CG_UpdateLightEntity\n");
+	r_entity_t	rent;
+	bool		update = false;
 	
-	/*
-	r_entity_t rent;
+	CG_UpdateOrigin(cent, rent, update);
+	
+	CG_UpdateRotation(cent, rent, update);
+	
+// 	CG_UpdateModel(cent, rent, update);
+	
+ 	CG_UpdateLightShader(cent, rent, update);
+	
+	CG_UpdateShaderParms(cent, rent, update);
 
-	rent.type = cent->current.type;
-	rent.custom_shader = cg.light_precache[cent->current.index_light];
+// 	CG_UpdateFrame(cent, rent, update);	
 	
-	rent.color = cent->current.color;
+	CG_UpdateRenderFXFlags(cent, rent, update);
 	
-	rent.origin.lerp(cent->prev.origin, cent->current.origin, cg.frame_lerp);
-	rent.origin2 = cent->current.origin2;
-	
-	rent.quat.slerp(cent->prev.quat, cent->current.quat, cg.frame_lerp);
-	
-	rent.radius = cent->current.lengths;
-	rent.radius_bbox._maxs = rent.origin + cent->current.lengths;
-	rent.radius_bbox._mins = rent.origin - cent->current.lengths;
-	rent.radius_value = rent.radius_bbox.radius();
-	
-	cgi.R_UpdateLight(cent->current.getNumber(), rent);
-	*/
+	switch(cent->current.type)
+	{
+		case ET_LIGHT_OMNI:
+		{
+			//cgi.Com_DPrintf("updating omni-directional light ...\n");
+			
+			if(cent->prev.vectors[0] != cent->current.vectors[0])
+			{
+				update = true;
+				
+				rent.radius.lerp(cent->prev.vectors[0], cent->current.vectors[0], cg.frame_lerp);
+		
+				rent.radius_bbox._maxs = rent.origin + rent.radius;
+				rent.radius_bbox._mins = rent.origin - rent.radius;
+				rent.radius_bbox.rotate(rent.quat);
+				rent.radius_value = rent.radius_bbox.radius();
+			}
+			
+			if(update)
+				cgi.R_UpdateLight(cent->current.getNumber(), rent, LIGHT_OMNI);
+			break;
+		}
+				
+		case ET_LIGHT_PROJ:
+		{
+			//cgi.Com_DPrintf("adding projective light ...\n");
+			break;
+		}
+		
+		default:
+			break;
+	}
 }
 
 void	CG_RemoveLightEntity(const cg_entity_t *cent)

@@ -110,8 +110,17 @@ struct r_shader_line_grammar_t : public boost::spirit::grammar<r_shader_line_gra
 				
 			term
 				=	factor >> 
-				*(	(boost::spirit::root_node_d[boost::spirit::ch_p('*')] >> factor) |
-					(boost::spirit::root_node_d[boost::spirit::ch_p('/')] >> factor)
+				*(	(boost::spirit::root_node_d[boost::spirit::ch_p('*')] >> factor) 	| 
+					(boost::spirit::root_node_d[boost::spirit::ch_p('/')] >> factor) 	|
+					(boost::spirit::root_node_d[boost::spirit::ch_p('%')] >> factor) 	|
+					(boost::spirit::root_node_d[boost::spirit::str_p("<=")] >> factor) 	|
+					(boost::spirit::root_node_d[boost::spirit::ch_p('<')] >> factor) 	|
+					(boost::spirit::root_node_d[boost::spirit::str_p(">=")] >> factor) 	|
+					(boost::spirit::root_node_d[boost::spirit::ch_p('>')] >> factor) 	|
+					(boost::spirit::root_node_d[boost::spirit::str_p("==")] >> factor) 	|
+					(boost::spirit::root_node_d[boost::spirit::str_p("!=")] >> factor) 	|
+					(boost::spirit::root_node_d[boost::spirit::str_p("&&")] >> factor)	|
+					(boost::spirit::root_node_d[boost::spirit::str_p("||")] >> factor)
 				)
 				;
 		
@@ -130,9 +139,9 @@ struct r_shader_line_grammar_t : public boost::spirit::grammar<r_shader_line_gra
 		boost::spirit::rule<ScannerT, boost::spirit::parser_context<>, boost::spirit::parser_tag<SHADER_GENERIC_RULE_TABLE_EVAL> >		table_eval;
 		boost::spirit::rule<ScannerT, boost::spirit::parser_context<>, boost::spirit::parser_tag<SHADER_GENERIC_RULE_TABLE_INDEX> >		table_index;
 		boost::spirit::rule<ScannerT, boost::spirit::parser_context<>, boost::spirit::parser_tag<SHADER_GENERIC_RULE_TABLE_VALUE> >		table_value;
-		boost::spirit::rule<ScannerT, boost::spirit::parser_context<>, boost::spirit::parser_tag<SHADER_GENERIC_RULE_FACTOR> >			factor;
-		boost::spirit::rule<ScannerT, boost::spirit::parser_context<>, boost::spirit::parser_tag<SHADER_GENERIC_RULE_TERM> >			term;
-		boost::spirit::rule<ScannerT, boost::spirit::parser_context<>, boost::spirit::parser_tag<SHADER_GENERIC_RULE_EXPRESSION> >		expression;		
+ 		boost::spirit::rule<ScannerT, boost::spirit::parser_context<>, boost::spirit::parser_tag<SHADER_GENERIC_RULE_FACTOR> >			factor;
+ 		boost::spirit::rule<ScannerT, boost::spirit::parser_context<>, boost::spirit::parser_tag<SHADER_GENERIC_RULE_TERM> >			term;
+		boost::spirit::rule<ScannerT, boost::spirit::parser_context<>, boost::spirit::parser_tag<SHADER_GENERIC_RULE_EXPRESSION> >		expression;
 		
 		boost::spirit::rule<ScannerT, boost::spirit::parser_context<>, boost::spirit::parser_tag<SHADER_GENERIC_RULE_EXPRESSION> > const&
 		start() const { return expression; }
@@ -149,6 +158,24 @@ bool	R_ParseExpressionToAST(r_iterator_t begin, r_iterator_t end, boost::spirit:
 	info = boost::spirit::ast_parse<r_factory_t>(begin, end, grammar, boost::spirit::space_p);
 		
 	return info.full;
+}
+
+void	R_DumpASTToXML(const std::string &str, const boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> &info)
+{
+#if 0
+	std::map<boost::spirit::parser_id, std::string>	rule_names;
+	
+	rule_names[SHADER_GENERIC_RULE_REAL]		= "real";
+	rule_names[SHADER_GENERIC_RULE_PARM]		= "parm";
+	rule_names[SHADER_GENERIC_RULE_TABLE_EVAL]	= "table_eval";
+	rule_names[SHADER_GENERIC_RULE_TABLE_INDEX]	= "table_index";
+	rule_names[SHADER_GENERIC_RULE_TABLE_VALUE]	= "table_value";
+	rule_names[SHADER_GENERIC_RULE_FACTOR]		= "factor";
+	rule_names[SHADER_GENERIC_RULE_TERM]		= "term";
+	rule_names[SHADER_GENERIC_RULE_EXPRESSION]	= "expression";
+	
+	boost::spirit::tree_to_xml(std::cout, info.trees, str.c_str(), rule_names);
+#endif
 }
 
 /*

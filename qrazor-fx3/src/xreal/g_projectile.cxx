@@ -326,7 +326,7 @@ static void	Grenade_Proxy(g_entity_c *ent)
 */
 g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c &start, const vec3_c &dir, int damage, int speed, float damage_radius, float radius_damage)
 {
-	gi.Com_Printf("g_projectile_rocket_c::ctor\n");
+// 	gi.Com_Printf("g_projectile_rocket_c::ctor\n");
 
 	_s.origin = start;
 	vectoangles(dir, _angles);

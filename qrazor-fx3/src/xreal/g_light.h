@@ -41,6 +41,7 @@ public:
 	
 	virtual void	think();
 	//virtual void	touch(g_entity_c *other, cplane_c *plane, csurface_c *surf);
+	virtual void	die(g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point);
 	
 	virtual void	activate();
 	

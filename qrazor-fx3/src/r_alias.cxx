@@ -188,8 +188,8 @@ bool	r_alias_model_c::setupTag(r_tag_t &tag, const r_entity_t &ent, const std::s
 	//
 	// lerp orientation and origin
 	//	
-	tag.quat.slerp(atag_old->quat, atag->quat, ent.lerp);
-	tag.origin.lerp(atag_old->origin, atag->origin, ent.lerp);
+	tag.quat.slerp(atag_old->quat, atag->quat, r_newrefdef.lerp);
+	tag.origin.lerp(atag_old->origin, atag->origin, r_newrefdef.lerp);
 
 	return true;
 }
@@ -252,7 +252,7 @@ void	r_alias_model_c::drawFrameLerp(const r_command_t *cmd, r_render_type_e type
 	//
 	// create movement using lerping between old and new frame translation lerping
 	//
-	move.lerp(frame_old->translate, frame->translate, cmd->getEntity()->getShared().lerp);
+	move.lerp(frame_old->translate, frame->translate, r_newrefdef.lerp);
 	
 
 	//
@@ -263,19 +263,19 @@ void	r_alias_model_c::drawFrameLerp(const r_command_t *cmd, r_render_type_e type
 		for(unsigned int i=0; i<mesh->vertexes.size(); i++)
 		{
 			mesh->vertexes[i] = move;	
-			vec3_c tmp; tmp.lerp(mesh_frame_old->vertexes[i], mesh_frame->vertexes[i], cmd->getEntity()->getShared().lerp);
+			vec3_c tmp; tmp.lerp(mesh_frame_old->vertexes[i], mesh_frame->vertexes[i], r_newrefdef.lerp);
 			mesh->vertexes[i] += tmp;
 			
 			//FIXME do this somewhere else
 			mesh->texcoords[i] = mesh_frame->texcoords[i];
 			
-			mesh->tangents[i].lerp(mesh_frame_old->tangents[i], mesh_frame->tangents[i], cmd->getEntity()->getShared().lerp);
+			mesh->tangents[i].lerp(mesh_frame_old->tangents[i], mesh_frame->tangents[i], r_newrefdef.lerp);
 			mesh->tangents[i].normalize();
 			
-			mesh->binormals[i].lerp(mesh_frame_old->binormals[i], mesh_frame->binormals[i], cmd->getEntity()->getShared().lerp);
+			mesh->binormals[i].lerp(mesh_frame_old->binormals[i], mesh_frame->binormals[i], r_newrefdef.lerp);
 			mesh->binormals[i].normalize();
 		
-			mesh->normals[i].lerp(mesh_frame_old->normals[i], mesh_frame->normals[i], cmd->getEntity()->getShared().lerp);
+			mesh->normals[i].lerp(mesh_frame_old->normals[i], mesh_frame->normals[i], r_newrefdef.lerp);
 			mesh->normals[i].normalize();
 		}
 	}
