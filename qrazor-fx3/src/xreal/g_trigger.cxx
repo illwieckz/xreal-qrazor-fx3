@@ -161,7 +161,7 @@ void trigger_enable (g_entity_c *self, g_entity_c *other, g_entity_c *activator)
 {
 	self->r.solid = SOLID_TRIGGER;
 	self->use = Use_Multi;
-	gi.SV_LinkEdict (self);
+	trap_SV_LinkEdict (self);
 }
 */
 
@@ -170,13 +170,13 @@ void	g_trigger_multiple_c::activate()
 	_r.inuse = true;
 
 	if (_sounds == 1)
-		_noise_index = gi.SV_SoundIndex("misc/secret.wav");
+		_noise_index = trap_SV_SoundIndex("misc/secret.wav");
 		
 	else if (_sounds == 2)
-		_noise_index = gi.SV_SoundIndex("misc/talk.wav");
+		_noise_index = trap_SV_SoundIndex("misc/talk.wav");
 		
 	else if (_sounds == 3)
-		_noise_index = gi.SV_SoundIndex("misc/trigger1.wav");
+		_noise_index = trap_SV_SoundIndex("misc/trigger1.wav");
 	
 	if (!_wait)
 		_wait = 0.2;
@@ -242,7 +242,7 @@ void	g_trigger_once_c::activate()
 		Vector3_MA (_r.bbox._mins, 0.5, _r.size, v);
 		_spawnflags &= ~1;
 		_spawnflags |= 4;
-		gi.Com_Printf("fixed TRIGGERED flag on %s at %s\n", _classname.c_str(), Vector3_String(v));
+		trap_Com_Printf("fixed TRIGGERED flag on %s at %s\n", _classname.c_str(), Vector3_String(v));
 	}
 
 	_wait = -1;
@@ -250,13 +250,13 @@ void	g_trigger_once_c::activate()
 	_r.inuse = true;
 
 	if (_sounds == 1)
-		_noise_index = gi.SV_SoundIndex("misc/secret.wav");
+		_noise_index = trap_SV_SoundIndex("misc/secret.wav");
 		
 	else if (_sounds == 2)
-		_noise_index = gi.SV_SoundIndex("misc/talk.wav");
+		_noise_index = trap_SV_SoundIndex("misc/talk.wav");
 		
 	else if (_sounds == 3)
-		_noise_index = gi.SV_SoundIndex("misc/trigger1.wav");
+		_noise_index = trap_SV_SoundIndex("misc/trigger1.wav");
 	
 	if (!_wait)
 		_wait = 0.2;
@@ -336,12 +336,12 @@ void trigger_key_use (g_entity_c *self, g_entity_c *other, g_entity_c *activator
 		if (level.time < self->touch_debounce_time)
 			return;
 		self->touch_debounce_time = level.time + 5.0;
-		gi.SV_CenterPrintf (activator, "You need the %s", self->item->getPickupName());
-		gi.SV_StartSound (NULL, activator, CHAN_AUTO, gi.SV_SoundIndex ("misc/keytry.wav"), 1, ATTN_NORM, 0);
+		trap_SV_CenterPrintf (activator, "You need the %s", self->item->getPickupName());
+		trap_SV_StartSound (NULL, activator, CHAN_AUTO, trap_SV_SoundIndex ("misc/keytry.wav"), 1, ATTN_NORM, 0);
 		return;
 	}
 
-	gi.SV_StartSound (NULL, activator, CHAN_AUTO, gi.SV_SoundIndex ("misc/keyuse.wav"), 1, ATTN_NORM, 0);
+	trap_SV_StartSound (NULL, activator, CHAN_AUTO, trap_SV_SoundIndex ("misc/keyuse.wav"), 1, ATTN_NORM, 0);
 	if (coop->value)
 	{
 		int		player;
@@ -404,25 +404,25 @@ void SP_trigger_key (g_entity_c *self)
 {
 	if (!st.item)
 	{
-		gi.Com_Printf("no key item for trigger_key at %s\n", Vector3_String(self->s.origin));
+		trap_Com_Printf("no key item for trigger_key at %s\n", Vector3_String(self->s.origin));
 		return;
 	}
 	self->item = G_FindItemByClassname (st.item);
 
 	if (!self->item)
 	{
-		gi.Com_Printf("item %s not found for trigger_key at %s\n", st.item, Vector3_String(self->s.origin));
+		trap_Com_Printf("item %s not found for trigger_key at %s\n", st.item, Vector3_String(self->s.origin));
 		return;
 	}
 
 	if (!self->target)
 	{
-		gi.Com_Printf("%s at %s has no target\n", self->classname, Vector3_String(self->s.origin));
+		trap_Com_Printf("%s at %s has no target\n", self->classname, Vector3_String(self->s.origin));
 		return;
 	}
 
-	gi.SV_SoundIndex ("misc/keytry.wav");
-	gi.SV_SoundIndex ("misc/keyuse.wav");
+	trap_SV_SoundIndex ("misc/keytry.wav");
+	trap_SV_SoundIndex ("misc/keyuse.wav");
 
 	self->use = trigger_key_use;
 }
@@ -455,16 +455,16 @@ void trigger_counter_use(g_entity_c *self, g_entity_c *other, g_entity_c *activa
 	{
 		if (! (self->spawnflags & 1))
 		{
-			gi.SV_CenterPrintf(activator, "%i more to go...", self->count);
-			gi.SV_StartSound (NULL, activator, CHAN_AUTO, gi.SV_SoundIndex ("misc/talk1.wav"), 1, ATTN_NORM, 0);
+			trap_SV_CenterPrintf(activator, "%i more to go...", self->count);
+			trap_SV_StartSound (NULL, activator, CHAN_AUTO, trap_SV_SoundIndex ("misc/talk1.wav"), 1, ATTN_NORM, 0);
 		}
 		return;
 	}
 	
 	if (! (self->spawnflags & 1))
 	{
-		gi.SV_CenterPrintf(activator, "Sequence completed!");
-		gi.SV_StartSound (NULL, activator, CHAN_AUTO, gi.SV_SoundIndex ("misc/talk1.wav"), 1, ATTN_NORM, 0);
+		trap_SV_CenterPrintf(activator, "Sequence completed!");
+		trap_SV_StartSound (NULL, activator, CHAN_AUTO, trap_SV_SoundIndex ("misc/talk1.wav"), 1, ATTN_NORM, 0);
 	}
 	self->activator = activator;
 	multi_trigger (self);
@@ -523,7 +523,7 @@ void	g_trigger_push_c::think()
 	//float	height, gravity, time, forward;
         //float	dist;
 
-	//gi.Com_Printf("g_trigger_push_c::think\n\n");
+	//trap_Com_Printf("g_trigger_push_c::think\n\n");
 
 	vec3_c origin = _r.bbox._mins + _r.bbox._maxs;
 	origin.scale(0.5);
@@ -532,7 +532,7 @@ void	g_trigger_push_c::think()
 
 	if(!target)
 	{
-		gi.Com_Error(ERR_DROP, "g_trigger_push_c::think: can't find target '%s'\n", _target.c_str());
+		trap_Com_Error(ERR_DROP, "g_trigger_push_c::think: can't find target '%s'\n", _target.c_str());
 		remove();
 		return;
 	}
@@ -540,7 +540,7 @@ void	g_trigger_push_c::think()
 	/*
 	height = target->_s.origin[2] - origin[2];
 	gravity = fabs(g_gravity->value);
-	time = sqrt(2.0f * (height / gravity));
+	time = X_sqrt(2.0f * (height / gravity));
 
 	if(!time)
 	{
@@ -574,7 +574,7 @@ bool	g_trigger_push_c::touch(g_entity_c *other, const cplane_c &plane, csurface_
 	else if(other->_health > 0 && other->_r.isclient)
 	*/
 	{
-		//gi.Com_Printf("g_trigger_push_c::touching client\n");
+		//trap_Com_Printf("g_trigger_push_c::touching client\n");
 	
 		// set actors speed
 		//other->_velocity = _movedir;
@@ -593,7 +593,7 @@ bool	g_trigger_push_c::touch(g_entity_c *other, const cplane_c &plane, csurface_
 		if(other->_fly_sound_debounce_time < level.time)
 		{
 			other->_fly_sound_debounce_time = level.time + 1.5;
-			gi.SV_StartSound (NULL, other, CHAN_AUTO, gi.SV_SoundIndex ("misc/windfly.wav"), 1, ATTN_NORM, 0);
+			trap_SV_StartSound (NULL, other, CHAN_AUTO, trap_SV_SoundIndex ("misc/windfly.wav"), 1, ATTN_NORM, 0);
 		}
 		*/
 	}
@@ -671,7 +671,7 @@ bool	g_trigger_hurt_c::touch(g_entity_c *other, const cplane_c &plane, csurface_
 	if(!(_spawnflags & 4))
 	{
 		if ((level.framenum % 10) == 0)
-			gi.SV_StartSound (NULL, other, CHAN_AUTO, _noise_index, 1, ATTN_NORM, 0);
+			trap_SV_StartSound (NULL, other, CHAN_AUTO, _noise_index, 1, ATTN_NORM, 0);
 	}
 
 	if (_spawnflags & 8)
@@ -706,7 +706,7 @@ void	g_trigger_hurt_c::activate()
 	
 	_r.inuse = true;
 
-	_noise_index = gi.SV_SoundIndex("world/electro.wav");
+	_noise_index = trap_SV_SoundIndex("world/electro.wav");
 	
 	if (!_dmg)
 		_dmg = 5;
@@ -757,7 +757,7 @@ void	g_trigger_gravity_c::activate()
 {
 	if(_gravity == 0)
 	{
-		gi.Com_Printf("trigger_gravity without gravity set at %s\n",  _s.origin.toString());
+		trap_Com_Printf("trigger_gravity without gravity set at %s\n",  _s.origin.toString());
 		remove();
 		return;
 	}
@@ -792,7 +792,7 @@ void	g_trigger_teleport_c::think()
 {
 	if(!_target.length())
 	{
-		gi.Com_Printf("teleporter without a target.\n");
+		trap_Com_Printf("teleporter without a target.\n");
 		remove();
 		return;
 	}
@@ -812,7 +812,7 @@ bool	g_trigger_teleport_c::touch(g_entity_c *other, const cplane_c &plane, csurf
 	dest = G_FindByTargetName(NULL, _target);
 	if(!dest)
 	{
-		gi.Com_Printf("Couldn't find destination\n");
+		trap_Com_Printf("Couldn't find destination\n");
 		return false;
 	}
 
@@ -827,15 +827,15 @@ bool	g_trigger_teleport_c::touch(g_entity_c *other, const cplane_c &plane, csurf
 
 	// draw the teleport splash at source and on the player
 	/*
-	gi.SV_WriteByte(SVC_TEMP_ENTITY);
-	gi.SV_WriteByte(TE_PLAYER_TELEPORT_OUT);
-	gi.SV_WritePosition(self->s.origin);
-	gi.SV_Multicast(_s.origin, MULTICAST_PVS);
+	trap_SV_WriteByte(SVC_TEMP_ENTITY);
+	trap_SV_WriteByte(TE_PLAYER_TELEPORT_OUT);
+	trap_SV_WritePosition(self->s.origin);
+	trap_SV_Multicast(_s.origin, MULTICAST_PVS);
 
-	gi.SV_WriteByte(SV_TEMP_ENTITY);
-	gi.SV_WriteByte(TE_PLAYER_TELEPORT_IN);
-	gi.SV_WritePosition(player->_s.origin);
-	gi.SV_Multicast(player->_s.origin, MULTICAST_PVS);
+	trap_SV_WriteByte(SV_TEMP_ENTITY);
+	trap_SV_WriteByte(TE_PLAYER_TELEPORT_IN);
+	trap_SV_WritePosition(player->_s.origin);
+	trap_SV_Multicast(player->_s.origin, MULTICAST_PVS);
 	*/
 
 	// set angles
@@ -863,12 +863,12 @@ void	g_trigger_teleport_c::activate()
 	//G_SetModel(this, "models/objects/dmspot/tris.md2");
 	//_s.skinnum = 1;
 	//_s.effects = EF_TELEPORTER;
-	//_s.sound = gi.SV_SoundIndex ("world/amb10.wav");
+	//_s.sound = trap_SV_SoundIndex ("world/amb10.wav");
 	//_r.solid = SOLID_BBOX;
 
 	//_r.bbox._mins.set(-32,-32,-24);
 	//_r.bbox._maxs.set( 32, 32,-16);
-	//gi.SV_LinkEdict (ent);
+	//trap_SV_LinkEdict (ent);
 
 	//trig = G_Spawn ();
 	//trig = new g_entity_c();

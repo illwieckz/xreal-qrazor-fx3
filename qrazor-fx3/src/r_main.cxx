@@ -89,7 +89,7 @@ vec3_c		r_right;
 vec3_c		r_origin;
 
 bool		r_portal_view = false;	// if true, get vis data at
-vec3_c		r_portal_org;	// portalorg instead of vieworg
+vec3_c		r_portal_org;		// portalorg instead of vieworg
 
 bool		r_mirrorview = false;	// if true, lock pvs
 
@@ -392,7 +392,7 @@ void	R_CalcTangentSpace(	vec3_c &vtangent, vec3_c &vbinormal, vec3_c &vnormal,
 	vec3_c normal;
 	
 		
-	if(fabs(cp[0]) > X_eps)
+	if(X_fabs(cp[0]) > X_eps)
 	{
 		tangent[0]	= -cp[1] / cp[0];
 		binormal[0]	= -cp[2] / cp[0];
@@ -402,7 +402,7 @@ void	R_CalcTangentSpace(	vec3_c &vtangent, vec3_c &vbinormal, vec3_c &vnormal,
 	e1[0] = v2[1] - v0[1];
 
 	cp.crossProduct(e0,e1);
-	if(fabs(cp[0]) > X_eps)
+	if(X_fabs(cp[0]) > X_eps)
 	{
         	tangent[1]	= -cp[1] / cp[0];        
         	binormal[1]	= -cp[2] / cp[0];
@@ -412,7 +412,7 @@ void	R_CalcTangentSpace(	vec3_c &vtangent, vec3_c &vbinormal, vec3_c &vnormal,
 	e1[0] = v2[2] - v0[2];
 
 	cp.crossProduct(e0,e1);
-	if(fabs(cp[0]) > X_eps)
+	if(X_fabs(cp[0]) > X_eps)
 	{
 		tangent[2]	= -cp[1] / cp[0];        
 		binormal[2]	= -cp[2] / cp[0];

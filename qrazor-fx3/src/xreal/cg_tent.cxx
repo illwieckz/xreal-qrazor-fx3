@@ -584,7 +584,7 @@ void	CG_AddBeams()
 			if (yaw < 0)
 				yaw += 360;
 	
-			forward = sqrt (dist[0]*dist[0] + dist[1]*dist[1]);
+			forward = X_sqrt(dist[0]*dist[0] + dist[1]*dist[1]);
 			pitch = (atan2(dist[2], forward) * -180.0 / M_PI);
 			if (pitch < 0)
 				pitch += 360.0;

@@ -127,13 +127,13 @@ void	g_item_weapon_c::use(g_player_c *player)
 
 		if(!player->_pers.inventory[ammo_index])
 		{
-			gi.SV_CPrintf(player, PRINT_HIGH, "No %s for %s.\n", ammo_item->getPickupName(), getPickupName());
+			trap_SV_CPrintf(player, PRINT_HIGH, "No %s for %s.\n", ammo_item->getPickupName(), getPickupName());
 			return;
 		}
 
 		if(player->_pers.inventory[ammo_index] < getQuantity())
 		{
-			gi.SV_CPrintf(player, PRINT_HIGH, "Not enough %s for %s.\n", ammo_item->getPickupName(), getPickupName());
+			trap_SV_CPrintf(player, PRINT_HIGH, "Not enough %s for %s.\n", ammo_item->getPickupName(), getPickupName());
 			return;
 		}
 	}
@@ -156,7 +156,7 @@ void	g_item_weapon_c::drop(g_player_c *player)
 	// see if we're already using it
 	if(((this == player->_pers.weapon) || (this == player->_newweapon))&& (player->_pers.inventory[index] == 1))
 	{
-		gi.SV_CPrintf(player, PRINT_HIGH, "Can't drop current weapon\n");
+		trap_SV_CPrintf(player, PRINT_HIGH, "Can't drop current weapon\n");
 		return;
 	}
 
@@ -186,7 +186,7 @@ void	g_item_weapon_c::weaponThink(g_player_c *player)
 			{
 				player->_weapon_state = WEAPON_READY;
 				player->_r.ps.gun_anim_frame = getIdleAnimationFirstFrame();
-				player->_r.ps.gun_anim_index = gi.SV_AnimationIndex(getIdleAnimationName());
+				player->_r.ps.gun_anim_index = trap_SV_AnimationIndex(getIdleAnimationName());
 				break;
 			}
 			
@@ -241,7 +241,7 @@ void	g_item_weapon_c::weaponThink(g_player_c *player)
 				{
 					player->_weapon_state = WEAPON_ATTACKING1;
 					player->_r.ps.gun_anim_frame = getAttack1AnimationFirstFrame();
-					player->_r.ps.gun_anim_index = gi.SV_AnimationIndex(getAttack1AnimationName());
+					player->_r.ps.gun_anim_index = trap_SV_AnimationIndex(getAttack1AnimationName());
 
 					// start the animation
 					/*
@@ -268,7 +268,7 @@ void	g_item_weapon_c::weaponThink(g_player_c *player)
 					/*
 					if (level.time >= player->_pain_debounce_time)
 					{
-						gi.SV_StartSound(NULL, ent, CHAN_VOICE, gi.SV_SoundIndex("weapons/noammo.wav"), 1, ATTN_NORM, 0);
+						trap_SV_StartSound(NULL, ent, CHAN_VOICE, trap_SV_SoundIndex("weapons/noammo.wav"), 1, ATTN_NORM, 0);
 						player->_pain_debounce_time = level.time + 1;
 					}
 					*/
@@ -286,14 +286,14 @@ void	g_item_weapon_c::weaponThink(g_player_c *player)
 				{	
 					player->_weapon_state = WEAPON_DEACTIVATING;
 					player->_r.ps.gun_anim_frame = getDeActivateAnimationFirstFrame();
-					player->_r.ps.gun_anim_index = gi.SV_AnimationIndex(getDeActivateAnimationName());
+					player->_r.ps.gun_anim_index = trap_SV_AnimationIndex(getDeActivateAnimationName());
 					break;
 				}
 			
 				if(player->_r.ps.gun_anim_frame >= getIdleAnimationLastFrame())
 				{
 					player->_r.ps.gun_anim_frame = getIdleAnimationFirstFrame();
-					player->_r.ps.gun_anim_index = gi.SV_AnimationIndex(getIdleAnimationName());
+					player->_r.ps.gun_anim_index = trap_SV_AnimationIndex(getIdleAnimationName());
 					break;
 				}
 				
@@ -312,7 +312,7 @@ void	g_item_weapon_c::weaponThink(g_player_c *player)
 				if(player->_r.ps.gun_anim_frame == _frames_fire[n])
 				{
 					//if(player->_quad_framenum > level.framenum)
-					//	gi.SV_StartSound(NULL, ent, CHAN_ITEM, gi.SV_SoundIndex("items/damage3.wav"), 1, ATTN_NORM, 0);
+					//	trap_SV_StartSound(NULL, ent, CHAN_ITEM, trap_SV_SoundIndex("items/damage3.wav"), 1, ATTN_NORM, 0);
 				
 					//TODO
 					//player->applyQuadSound();
@@ -340,7 +340,7 @@ void	g_item_weapon_c::weaponThink(g_player_c *player)
 				player->_weapon_state = WEAPON_READY;
 				player->_weapon_fired = false;
 				player->_r.ps.gun_anim_frame = getIdleAnimationFirstFrame();
-				player->_r.ps.gun_anim_index = gi.SV_AnimationIndex(getIdleAnimationName());
+				player->_r.ps.gun_anim_index = trap_SV_AnimationIndex(getIdleAnimationName());
 			}
 		
 			player->incWeaponFrame();
@@ -353,7 +353,7 @@ void	g_item_weapon_c::weaponThink(g_player_c *player)
 			{
 				player->_weapon_state = WEAPON_READY;
 				player->_r.ps.gun_anim_frame = getIdleAnimationFirstFrame();
-				player->_r.ps.gun_anim_index = gi.SV_AnimationIndex(getIdleAnimationName());
+				player->_r.ps.gun_anim_index = trap_SV_AnimationIndex(getIdleAnimationName());
 				break;
 			}
 			
@@ -453,7 +453,7 @@ void Weapon_Grenade (g_entity_c *ent)
 			{
 				if (level.time >= ent->pain_debounce_time)
 				{
-					gi.SV_StartSound(NULL, ent, CHAN_VOICE, gi.SV_SoundIndex("weapons/noammo.wav"), 1, ATTN_NORM, 0);
+					trap_SV_StartSound(NULL, ent, CHAN_VOICE, trap_SV_SoundIndex("weapons/noammo.wav"), 1, ATTN_NORM, 0);
 					ent->pain_debounce_time = level.time + 1;
 				}
 				NoAmmoWeaponChange (ent);
@@ -475,14 +475,14 @@ void Weapon_Grenade (g_entity_c *ent)
 	if (ent->_weapon_state == WEAPON_FIRING)
 	{
 		if (ent->_r.ps.gunframe == 5)
-			gi.SV_StartSound(NULL, ent, CHAN_WEAPON, gi.SV_SoundIndex("weapons/hgrena1b.wav"), 1, ATTN_NORM, 0);
+			trap_SV_StartSound(NULL, ent, CHAN_WEAPON, trap_SV_SoundIndex("weapons/hgrena1b.wav"), 1, ATTN_NORM, 0);
 
 		if (ent->_r.ps.gunframe == 11)
 		{
 			if (!ent->_grenade_time)
 			{
 				ent->_grenade_time = level.time + GRENADE_TIMER + 0.2;
-				ent->_weapon_sound = gi.SV_SoundIndex("weapons/hgrenc1b.wav");
+				ent->_weapon_sound = trap_SV_SoundIndex("weapons/hgrenc1b.wav");
 			}
 
 			// they waited too long, detonate it in their hand
@@ -625,10 +625,10 @@ void	g_item_weapon_grenade_launcher_c::fire(g_player_c *ent)
 		fire_grenade(ent, start, forward, damage, 600, 2.5, radius);
 	
 
-	gi.SV_WriteByte(SVC_MUZZLEFLASH);
-	gi.SV_WriteShort(ent->_s.getNumber());
-	gi.SV_WriteByte(MZ_GRENADE);
-	gi.SV_Multicast(ent->_s.origin, MULTICAST_PVS);
+	trap_SV_WriteByte(SVC_MUZZLEFLASH);
+	trap_SV_WriteShort(ent->_s.getNumber());
+	trap_SV_WriteByte(MZ_GRENADE);
+	trap_SV_Multicast(ent->_s.origin, MULTICAST_PVS);
 
 	ent->_r.ps.gun_anim_frame++;
 
@@ -717,10 +717,10 @@ void	g_item_weapon_rocket_launcher_c::fire(g_player_c *ent)
 #endif
 
 	// send muzzle flash
-	gi.SV_WriteByte(SVC_MUZZLEFLASH);
-	gi.SV_WriteShort(ent->_s.getNumber());
-	gi.SV_WriteByte(MZ_ROCKET);
-	gi.SV_Multicast(ent->_s.origin, MULTICAST_PVS);
+	trap_SV_WriteByte(SVC_MUZZLEFLASH);
+	trap_SV_WriteShort(ent->_s.getNumber());
+	trap_SV_WriteByte(MZ_ROCKET);
+	trap_SV_Multicast(ent->_s.origin, MULTICAST_PVS);
 
 	ent->_r.ps.gun_frame++;
 
@@ -763,13 +763,13 @@ static void	Blaster_Fire(g_player_c *ent, vec3_t g_offset, int damage, bool hype
 	//fire_blaster(ent, start, forward, damage, 1000, effect, hyper);
 
 	// send muzzle flash
-	//gi.SV_WriteByte(SVC_MUZZLEFLASH);
-	//gi.SV_WriteShort(ent->_s.getNumber());
+	//trap_SV_WriteByte(SVC_MUZZLEFLASH);
+	//trap_SV_WriteShort(ent->_s.getNumber());
 	//if(hyper)
-	//	gi.SV_WriteByte(MZ_HYPERBLASTER);
+	//	trap_SV_WriteByte(MZ_HYPERBLASTER);
 	//else
-	//	gi.SV_WriteByte(MZ_BLASTER);
-	//gi.SV_Multicast(ent->_s.origin, MULTICAST_PVS);
+	//	trap_SV_WriteByte(MZ_BLASTER);
+	//trap_SV_Multicast(ent->_s.origin, MULTICAST_PVS);
 
 	//PlayerNoise(ent, start, PNOISE_WEAPON);
 }
@@ -825,7 +825,7 @@ g_item_weapon_blaster_c::g_item_weapon_blaster_c()
 
 void	g_item_weapon_blaster_c::attack1(g_player_c *player)
 {
-	//gi.Com_Printf("g_item_weapon_blaster_c::attack1:\n");
+	//trap_Com_Printf("g_item_weapon_blaster_c::attack1:\n");
 
 	int		damage;
 
@@ -863,8 +863,8 @@ g_item_weapon_shotgun_c::g_item_weapon_shotgun_c()
 	_classname		= "weapon_shotgun";
 	
 	_pickup_sound 		= "misc/w_pkup.wav";
-//	_model_world		= "models/weapons2/rocketl/rocketl.md3";
-	_model_world		= "models/weapons/shotgun/w_shotgun2.lwo";
+	_model_world		= "models/weapons2/rocketl/rocketl.md3";
+//	_model_world		= "models/weapons/shotgun/w_shotgun2.lwo";
 	_model_world_flags	= EF_NONE;	//EF_ROTATE;
 	_model_player		= "models/md5/weapons/shotgun_world/worldshotgun.md5mesh";
 	_model_view		= "models/md5/weapons/shotgun_view/viewshotgun.md5mesh";
@@ -935,10 +935,10 @@ void	g_item_weapon_shotgun_c::attack1(g_player_c *ent)
 		fire_shotgun(ent, start, forward, damage, kick, 500, 500, DEFAULT_SHOTGUN_COUNT, MOD_SHOTGUN);
 
 	// send muzzle flash
-	gi.SV_WriteByte(SVC_MUZZLEFLASH);
-	gi.SV_WriteShort(ent->_s.getNumber());
-	gi.SV_WriteByte(MZ_SHOTGUN);
-	gi.SV_Multicast(ent->_s.origin, MULTICAST_PVS);
+	trap_SV_WriteByte(SVC_MUZZLEFLASH);
+	trap_SV_WriteShort(ent->_s.getNumber());
+	trap_SV_WriteByte(MZ_SHOTGUN);
+	trap_SV_Multicast(ent->_s.origin, MULTICAST_PVS);
 
 	ent->_r.ps.gun_frame++;
 	
@@ -1002,7 +1002,7 @@ void	g_item_weapon_hyper_blaster_c::fire(g_player_c *ent)
 	int		effect;
 	int		damage;
 
-	ent->_weapon_sound = gi.SV_SoundIndex("weapons/hyprbl1a.wav");
+	ent->_weapon_sound = trap_SV_SoundIndex("weapons/hyprbl1a.wav");
 
 	if (!(ent->_buttons & BUTTON_ATTACK))
 	{
@@ -1014,7 +1014,7 @@ void	g_item_weapon_hyper_blaster_c::fire(g_player_c *ent)
 		{
 			if (level.time >= ent->_pain_debounce_time)
 			{
-				gi.SV_StartSound(NULL, ent, CHAN_VOICE, gi.SV_SoundIndex("weapons/noammo.wav"), 1, ATTN_NORM, 0);
+				trap_SV_StartSound(NULL, ent, CHAN_VOICE, trap_SV_SoundIndex("weapons/noammo.wav"), 1, ATTN_NORM, 0);
 				ent->_pain_debounce_time = level.time + 1;
 			}
 			ent->noAmmoWeaponChange();
@@ -1060,7 +1060,7 @@ void	g_item_weapon_hyper_blaster_c::fire(g_player_c *ent)
 
 	if (ent->_r.ps.gunframe == 12)
 	{
-		gi.SV_StartSound(NULL, ent, CHAN_AUTO, gi.SV_SoundIndex("weapons/hyprbd1a.wav"), 1, ATTN_NORM, 0);
+		trap_SV_StartSound(NULL, ent, CHAN_AUTO, trap_SV_SoundIndex("weapons/hyprbd1a.wav"), 1, ATTN_NORM, 0);
 		ent->_weapon_sound = 0;
 	}
 
@@ -1140,7 +1140,7 @@ void	g_item_weapon_machinegun_c::fire(g_player_c *ent)
 		ent->_r.ps.gunframe = 6;
 		if (level.time >= ent->_pain_debounce_time)
 		{
-			gi.SV_StartSound(NULL, ent, CHAN_VOICE, gi.SV_SoundIndex("weapons/noammo.wav"), 1, ATTN_NORM, 0);
+			trap_SV_StartSound(NULL, ent, CHAN_VOICE, trap_SV_SoundIndex("weapons/noammo.wav"), 1, ATTN_NORM, 0);
 			ent->_pain_debounce_time = level.time + 1;
 		}
 		ent->noAmmoWeaponChange();
@@ -1171,10 +1171,10 @@ void	g_item_weapon_machinegun_c::fire(g_player_c *ent)
 	P_ProjectSource (ent, ent->_s.origin, offset, forward, right, start);
 	fire_bullet (ent, start, forward, damage, kick, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, MOD_MACHINEGUN);
 
-	gi.SV_WriteByte(SVC_MUZZLEFLASH);
-	gi.SV_WriteShort(ent->_s.getNumber());
-	gi.SV_WriteByte(MZ_MACHINEGUN);
-	gi.SV_Multicast(ent->_s.origin, MULTICAST_PVS);
+	trap_SV_WriteByte(SVC_MUZZLEFLASH);
+	trap_SV_WriteShort(ent->_s.getNumber());
+	trap_SV_WriteByte(MZ_MACHINEGUN);
+	trap_SV_Multicast(ent->_s.origin, MULTICAST_PVS);
 
 	//PlayerNoise(ent, start, PNOISE_WEAPON);
 
@@ -1258,7 +1258,7 @@ void	g_item_weapon_chaingun_c::fire(g_player_c *ent)
 		damage = 8;
 
 	if (ent->_r.ps.gunframe == 5)
-		gi.SV_StartSound(NULL, ent, CHAN_AUTO, gi.SV_SoundIndex("weapons/chngnu1a.wav"), 1, ATTN_IDLE, 0);
+		trap_SV_StartSound(NULL, ent, CHAN_AUTO, trap_SV_SoundIndex("weapons/chngnu1a.wav"), 1, ATTN_IDLE, 0);
 
 	if ((ent->_r.ps.gunframe == 14) && !(ent->_buttons & BUTTON_ATTACK))
 	{
@@ -1279,11 +1279,11 @@ void	g_item_weapon_chaingun_c::fire(g_player_c *ent)
 	if (ent->_r.ps.gunframe == 22)
 	{
 		ent->_weapon_sound = 0;
-		gi.SV_StartSound(NULL, ent, CHAN_AUTO, gi.SV_SoundIndex("weapons/chngnd1a.wav"), 1, ATTN_IDLE, 0);
+		trap_SV_StartSound(NULL, ent, CHAN_AUTO, trap_SV_SoundIndex("weapons/chngnd1a.wav"), 1, ATTN_IDLE, 0);
 	}
 	else
 	{
-		ent->_weapon_sound = gi.SV_SoundIndex("weapons/chngnl1a.wav");
+		ent->_weapon_sound = trap_SV_SoundIndex("weapons/chngnl1a.wav");
 	}
 
 	ent->_anim_priority = ANIM_ATTACK;
@@ -1317,7 +1317,7 @@ void	g_item_weapon_chaingun_c::fire(g_player_c *ent)
 	{
 		if (level.time >= ent->_pain_debounce_time)
 		{
-			gi.SV_StartSound(NULL, ent, CHAN_VOICE, gi.SV_SoundIndex("weapons/noammo.wav"), 1, ATTN_NORM, 0);
+			trap_SV_StartSound(NULL, ent, CHAN_VOICE, trap_SV_SoundIndex("weapons/noammo.wav"), 1, ATTN_NORM, 0);
 			ent->_pain_debounce_time = level.time + 1;
 		}
 		ent->noAmmoWeaponChange();
@@ -1344,10 +1344,10 @@ void	g_item_weapon_chaingun_c::fire(g_player_c *ent)
 	}
 
 	// send muzzle flash
-	gi.SV_WriteByte (SVC_MUZZLEFLASH);
-	gi.SV_WriteShort (ent->_s.getNumber());
-	gi.SV_WriteByte ((MZ_CHAINGUN1 + shots - 1));
-	gi.SV_Multicast (ent->_s.origin, MULTICAST_PVS);
+	trap_SV_WriteByte (SVC_MUZZLEFLASH);
+	trap_SV_WriteShort (ent->_s.getNumber());
+	trap_SV_WriteByte ((MZ_CHAINGUN1 + shots - 1));
+	trap_SV_Multicast (ent->_s.origin, MULTICAST_PVS);
 
 	//PlayerNoise(ent, start, PNOISE_WEAPON);
 
@@ -1435,10 +1435,10 @@ void	g_item_weapon_super_shotgun_c::fire(g_player_c *ent)
 	fire_shotgun (ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD, DEFAULT_SHOTGUN_VSPREAD, DEFAULT_SSHOTGUN_COUNT/2, MOD_SSHOTGUN);
 
 	// send muzzle flash
-	gi.SV_WriteByte(SVC_MUZZLEFLASH);
-	gi.SV_WriteShort(ent->_s.getNumber());
-	gi.SV_WriteByte(MZ_SSHOTGUN);
-	gi.SV_Multicast(ent->_s.origin, MULTICAST_PVS);
+	trap_SV_WriteByte(SVC_MUZZLEFLASH);
+	trap_SV_WriteShort(ent->_s.getNumber());
+	trap_SV_WriteByte(MZ_SSHOTGUN);
+	trap_SV_Multicast(ent->_s.origin, MULTICAST_PVS);
 
 	ent->_r.ps.gun_frame++;
 	
@@ -1526,10 +1526,10 @@ void	g_item_weapon_railgun_c::fire(g_player_c *ent)
 	fire_rail(ent, start, forward, damage, kick);
 
 	// send muzzle flash
-	gi.SV_WriteByte(SVC_MUZZLEFLASH);
-	gi.SV_WriteShort(ent->_s.getNumber());
-	gi.SV_WriteByte(MZ_RAILGUN);
-	gi.SV_Multicast(ent->_s.origin, MULTICAST_PVS);
+	trap_SV_WriteByte(SVC_MUZZLEFLASH);
+	trap_SV_WriteShort(ent->_s.getNumber());
+	trap_SV_WriteByte(MZ_RAILGUN);
+	trap_SV_Multicast(ent->_s.origin, MULTICAST_PVS);
 
 	ent->_r.ps.gun_frame++;
 	
@@ -1599,10 +1599,10 @@ void	g_item_weapon_bfg_c::fire(g_entity_c *ent)
 	if (ent->_r.ps.gunframe == 9)
 	{
 		// send muzzle flash
-		gi.SV_WriteByte (SVC_MUZZLEFLASH);
-		gi.SV_WriteShort (ent->s.number);
-		gi.SV_WriteByte (MZ_BFG | is_silenced);
-		gi.SV_Multicast (ent->s.origin, MULTICAST_PVS);
+		trap_SV_WriteByte (SVC_MUZZLEFLASH);
+		trap_SV_WriteShort (ent->s.number);
+		trap_SV_WriteByte (MZ_BFG | is_silenced);
+		trap_SV_Multicast (ent->s.origin, MULTICAST_PVS);
 
 		ent->_r.ps.gunframe++;
 
@@ -1828,10 +1828,10 @@ void	g_item_weapon_sidewinder_c::fire(g_player_c *ent)
 #endif
 
 	// send muzzle flash
-	gi.SV_WriteByte(SVC_MUZZLEFLASH);
-	gi.SV_WriteShort(ent->_s.getNumber());
-	gi.SV_WriteByte(MZ_SIDEWINDER);
-	gi.SV_Multicast(ent->_s.origin, MULTICAST_PVS);
+	trap_SV_WriteByte(SVC_MUZZLEFLASH);
+	trap_SV_WriteShort(ent->_s.getNumber());
+	trap_SV_WriteByte(MZ_SIDEWINDER);
+	trap_SV_Multicast(ent->_s.origin, MULTICAST_PVS);
 
 	ent->_r.ps.gun_frame++;
 

@@ -305,7 +305,7 @@ void plat_CalcAcceleratedMove(moveinfo_t *moveinfo)
 		float	f;
 
 		f = (moveinfo->accel + moveinfo->decel) / (moveinfo->accel * moveinfo->decel);
-		moveinfo->move_speed = (-2 + sqrt(4 - 4 * f * (-2 * moveinfo->remaining_distance))) / (2 * f);
+		moveinfo->move_speed = (-2 + X_sqrt(4 - 4 * f * (-2 * moveinfo->remaining_distance))) / (2 * f);
 		decel_dist = AccelerationDistance (moveinfo->move_speed, moveinfo->decel);
 	}
 
@@ -418,7 +418,7 @@ void plat_hit_top (g_entity_c *ent)
 	if (!(ent->flags & FL_TEAMSLAVE))
 	{
 		if (ent->moveinfo.sound_end)
-			gi.SV_StartSound (NULL, ent, CHAN_NO_PHS_ADD+CHAN_VOICE, ent->moveinfo.sound_end, 1, ATTN_STATIC, 0);
+			trap_SV_StartSound (NULL, ent, CHAN_NO_PHS_ADD+CHAN_VOICE, ent->moveinfo.sound_end, 1, ATTN_STATIC, 0);
 		ent->s.sound = 0;
 	}
 	ent->moveinfo.state = STATE_TOP;
@@ -434,7 +434,7 @@ void plat_hit_bottom (g_entity_c *ent)
 	if (!(ent->flags & FL_TEAMSLAVE))
 	{
 		if (ent->moveinfo.sound_end)
-			gi.SV_StartSound (NULL, ent, CHAN_NO_PHS_ADD+CHAN_VOICE, ent->moveinfo.sound_end, 1, ATTN_STATIC, 0);
+			trap_SV_StartSound (NULL, ent, CHAN_NO_PHS_ADD+CHAN_VOICE, ent->moveinfo.sound_end, 1, ATTN_STATIC, 0);
 		ent->s.sound = 0;
 	}
 	ent->moveinfo.state = STATE_BOTTOM;
@@ -447,7 +447,7 @@ void plat_go_down (g_entity_c *ent)
 	if (!(ent->flags & FL_TEAMSLAVE))
 	{
 		if (ent->moveinfo.sound_start)
-			gi.SV_StartSound (NULL, ent, CHAN_NO_PHS_ADD+CHAN_VOICE, ent->moveinfo.sound_start, 1, ATTN_STATIC, 0);
+			trap_SV_StartSound (NULL, ent, CHAN_NO_PHS_ADD+CHAN_VOICE, ent->moveinfo.sound_start, 1, ATTN_STATIC, 0);
 		ent->s.sound = ent->moveinfo.sound_middle;
 	}
 	ent->moveinfo.state = STATE_DOWN;
@@ -461,7 +461,7 @@ void plat_go_up (g_entity_c *ent)
 	if (!(ent->flags & FL_TEAMSLAVE))
 	{
 		if (ent->moveinfo.sound_start)
-			gi.SV_StartSound (NULL, ent, CHAN_NO_PHS_ADD+CHAN_VOICE, ent->moveinfo.sound_start, 1, ATTN_STATIC, 0);
+			trap_SV_StartSound (NULL, ent, CHAN_NO_PHS_ADD+CHAN_VOICE, ent->moveinfo.sound_start, 1, ATTN_STATIC, 0);
 		ent->s.sound = ent->moveinfo.sound_middle;
 	}
 	ent->moveinfo.state = STATE_UP;
@@ -561,7 +561,7 @@ void plat_spawn_inside_trigger (g_entity_c *ent)
 	trigger->r.bbox._mins = tmin;
 	trigger->r.bbox._maxs = tmax;
 
-	gi.SV_LinkEdict (trigger);
+	trap_SV_LinkEdict (trigger);
 }
 */
 
@@ -635,7 +635,7 @@ void SP_func_plat (g_entity_c *ent)
 	else
 	{
 		Vector3_Copy (ent->pos2, ent->s.origin);
-		gi.SV_LinkEdict (ent);
+		trap_SV_LinkEdict (ent);
 		ent->moveinfo.state = STATE_BOTTOM;
 	}
 
@@ -649,9 +649,9 @@ void SP_func_plat (g_entity_c *ent)
 	ent->moveinfo.end_origin = ent->pos2;
 	ent->moveinfo.end_angles = ent->s.angles;
 
-	ent->moveinfo.sound_start = gi.SV_SoundIndex ("plats/pt1_strt.wav");
-	ent->moveinfo.sound_middle = gi.SV_SoundIndex ("plats/pt1_mid.wav");
-	ent->moveinfo.sound_end = gi.SV_SoundIndex ("plats/pt1_end.wav");
+	ent->moveinfo.sound_start = trap_SV_SoundIndex ("plats/pt1_strt.wav");
+	ent->moveinfo.sound_middle = trap_SV_SoundIndex ("plats/pt1_mid.wav");
+	ent->moveinfo.sound_end = trap_SV_SoundIndex ("plats/pt1_end.wav");
 }
 */
 
@@ -753,7 +753,7 @@ void	g_func_rotating_c::activate()
 	if (!_dmg)
 		_dmg = 2;
 
-	_moveinfo.sound_middle = gi.SV_SoundIndex("doors/hydro1.wav");
+	_moveinfo.sound_middle = trap_SV_SoundIndex("doors/hydro1.wav");
 
 	//ent->use = rotating_use;
 	
@@ -838,7 +838,7 @@ void	g_func_button_c::think()
 			break;
 			
 		default:
-			gi.Com_Error(ERR_DROP, "g_func_button_c::think: bad think type %i\n", _thinktype);
+			trap_Com_Error(ERR_DROP, "g_func_button_c::think: bad think type %i\n", _thinktype);
 			break;
 	}
 }
@@ -905,7 +905,7 @@ void	g_func_button_c::activate()
 	_r.solid = SOLID_BSP;
 
 	if(_sounds != 1)
-		_moveinfo.sound_start = gi.SV_SoundIndex("switches/butn2.wav");
+		_moveinfo.sound_start = trap_SV_SoundIndex("switches/butn2.wav");
 	
 	if(!_speed)
 		_speed = 40;
@@ -1007,7 +1007,7 @@ void	g_func_button_c::fire()
 	_moveinfo.state = STATE_UP;
 	
 	if (_moveinfo.sound_start && !(_flags & FL_TEAMSLAVE))
-		gi.SV_StartSound(NULL, this, CHAN_NO_PHS_ADD+CHAN_VOICE, _moveinfo.sound_start, 1, ATTN_STATIC, 0);
+		trap_SV_StartSound(NULL, this, CHAN_NO_PHS_ADD+CHAN_VOICE, _moveinfo.sound_start, 1, ATTN_STATIC, 0);
 		
 	calcMove(_moveinfo.end_origin, THINK_PUSH_BUTTON);
 }
@@ -1091,7 +1091,7 @@ void	g_func_door_c::think()
 			break;
 		
 		default:
-			gi.Com_Error(ERR_DROP, "g_func_door_c::think: bad think type %i\n", _thinktype);
+			trap_Com_Error(ERR_DROP, "g_func_door_c::think: bad think type %i\n", _thinktype);
 			break;
 	}
 }
@@ -1145,12 +1145,12 @@ bool	g_func_door_c::touch(g_entity_c *other, const cplane_c &plane, csurface_c *
 	if(level.time < _touch_debounce_time)
 		return true;
 		
-	gi.Com_Printf("g_func_door_c::touch: origin %s\n", _s.origin.toString());
+	trap_Com_Printf("g_func_door_c::touch: origin %s\n", _s.origin.toString());
 		
 	_touch_debounce_time = level.time + 5.0;
 
-	gi.SV_CenterPrintf(other, "%s", _message.c_str());
-	gi.SV_StartSound(NULL, other, CHAN_AUTO, gi.SV_SoundIndex("misc/talk1.wav"), 1, ATTN_NORM, 0);
+	trap_SV_CenterPrintf(other, "%s", _message.c_str());
+	trap_SV_StartSound(NULL, other, CHAN_AUTO, trap_SV_SoundIndex("misc/talk1.wav"), 1, ATTN_NORM, 0);
 	
 	use(other, other);
 	
@@ -1160,7 +1160,7 @@ bool	g_func_door_c::touch(g_entity_c *other, const cplane_c &plane, csurface_c *
 void	g_func_door_c::use(g_entity_c *other, g_entity_c *activator)
 {
 #if 0
-	//gi.Com_Printf("g_func_door_c::use:\n");
+	//trap_Com_Printf("g_func_door_c::use:\n");
 
 	g_func_door_c	*ent;
 
@@ -1216,7 +1216,7 @@ void	g_func_door_c::activate()
 	
 	if(_model.empty())// || _model[0] != '*')
 	{
-		gi.Com_Printf("g_func_door_c::activate: door has bad model '%s'\n", _model.c_str());
+		trap_Com_Printf("g_func_door_c::activate: door has bad model '%s'\n", _model.c_str());
 		remove();
 		return;
 	}
@@ -1224,13 +1224,13 @@ void	g_func_door_c::activate()
 	_r.inuse = true;
 	
 	if(_targetname.length())
-		gi.Com_Printf("g_func_door_c::activate: '%s'\n", _targetname.c_str());
+		trap_Com_Printf("g_func_door_c::activate: '%s'\n", _targetname.c_str());
 	
 	if(_sounds != 1)
 	{
-		_moveinfo.sound_start = gi.SV_SoundIndex("doors/dr1_strt.wav");
-		_moveinfo.sound_middle = gi.SV_SoundIndex("doors/dr1_mid.wav");
-		_moveinfo.sound_end = gi.SV_SoundIndex("doors/dr1_end.wav");
+		_moveinfo.sound_start = trap_SV_SoundIndex("doors/dr1_strt.wav");
+		_moveinfo.sound_middle = trap_SV_SoundIndex("doors/dr1_mid.wav");
+		_moveinfo.sound_end = trap_SV_SoundIndex("doors/dr1_end.wav");
 	}
 	
 	// setup rigid body
@@ -1242,7 +1242,7 @@ void	g_func_door_c::activate()
 	// setup geom
 	//G_SetWorldModel(this, _model);
 	
-	_s.index_model = gi.SV_ModelIndex(_model);
+	_s.index_model = trap_SV_ModelIndex(_model);
 	
 	
 	//dMass m;
@@ -1257,7 +1257,7 @@ void	g_func_door_c::activate()
 	_movetype = MOVETYPE_PUSH;
 	_r.solid = SOLID_BSP;
 	
-	_r.areaportal = gi.CM_GetClosestAreaPortal(_s.origin);		
+	_r.areaportal = trap_CM_GetClosestAreaPortal(_s.origin);		
 
 	if(!_speed)
 		_speed = 100;
@@ -1311,7 +1311,7 @@ void	g_func_door_c::activate()
 	}
 	else if (_targetname.length() && _message.length())
 	{
-		gi.SV_SoundIndex("misc/talk.wav");
+		trap_SV_SoundIndex("misc/talk.wav");
 		//ent->touch = door_touch;
 	}
 	
@@ -1352,7 +1352,7 @@ void 	g_func_door_c::hitTop()
 	if(!(_flags & FL_TEAMSLAVE))
 	{
 		if(_moveinfo.sound_end)
-			gi.SV_StartSound (NULL, this, CHAN_NO_PHS_ADD+CHAN_VOICE, _moveinfo.sound_end, 1, ATTN_STATIC, 0);
+			trap_SV_StartSound (NULL, this, CHAN_NO_PHS_ADD+CHAN_VOICE, _moveinfo.sound_end, 1, ATTN_STATIC, 0);
 		_s.index_sound = 0;
 	}
 	
@@ -1376,7 +1376,7 @@ void	g_func_door_c::hitBottom()
 	if(!(_flags & FL_TEAMSLAVE))
 	{
 		if(_moveinfo.sound_end)
-			gi.SV_StartSound (NULL, this, CHAN_NO_PHS_ADD+CHAN_VOICE, _moveinfo.sound_end, 1, ATTN_STATIC, 0);
+			trap_SV_StartSound (NULL, this, CHAN_NO_PHS_ADD+CHAN_VOICE, _moveinfo.sound_end, 1, ATTN_STATIC, 0);
 		_s.index_sound = 0;
 	}
 	
@@ -1480,7 +1480,7 @@ void	g_func_door_c::goDown()
 	if(!(_flags & FL_TEAMSLAVE))
 	{
 		if(_moveinfo.sound_start)
-			gi.SV_StartSound(NULL, this, CHAN_NO_PHS_ADD+CHAN_VOICE, _moveinfo.sound_start, 1, ATTN_STATIC, 0);
+			trap_SV_StartSound(NULL, this, CHAN_NO_PHS_ADD+CHAN_VOICE, _moveinfo.sound_start, 1, ATTN_STATIC, 0);
 			
 		_s.index_sound = _moveinfo.sound_middle;
 	}
@@ -1520,7 +1520,7 @@ void	g_func_door_c::goUp(g_entity_c *activator)
 	if(!(_flags & FL_TEAMSLAVE))
 	{
 		if(_moveinfo.sound_start)
-			gi.SV_StartSound(NULL, this, CHAN_NO_PHS_ADD+CHAN_VOICE, _moveinfo.sound_start, 1, ATTN_STATIC, 0);
+			trap_SV_StartSound(NULL, this, CHAN_NO_PHS_ADD+CHAN_VOICE, _moveinfo.sound_start, 1, ATTN_STATIC, 0);
 			
 		_s.index_sound = _moveinfo.sound_middle;
 	}
@@ -1550,14 +1550,14 @@ void 	g_func_door_c::useAreaportals(bool open)
 	//{
 	//	if (X_stricmp(t->classname, "func_areaportal") == 0)
 	//	{
-	//		gi.SV_SetAreaPortalState (self, open);
+	//		trap_SV_SetAreaPortalState (self, open);
 	//	}
 	//}
 	
 	if(_flags & FL_TEAMSLAVE)
 		return;
 		
-	gi.CM_SetAreaPortalState(_r.areaportal, open);
+	trap_CM_SetAreaPortalState(_r.areaportal, open);
 }
 
 
@@ -1622,7 +1622,7 @@ void SP_func_door_rotating (g_entity_c *ent)
 
 	if (!st.distance)
 	{
-		gi.Com_Printf("%s at %s with no distance set\n", ent->classname, Vector3_String(ent->s.origin));
+		trap_Com_Printf("%s at %s with no distance set\n", ent->classname, Vector3_String(ent->s.origin));
 		st.distance = 90;
 	}
 
@@ -1651,9 +1651,9 @@ void SP_func_door_rotating (g_entity_c *ent)
 
 	if (ent->sounds != 1)
 	{
-		ent->moveinfo.sound_start = gi.SV_SoundIndex  ("doors/dr1_strt.wav");
-		ent->moveinfo.sound_middle = gi.SV_SoundIndex  ("doors/dr1_mid.wav");
-		ent->moveinfo.sound_end = gi.SV_SoundIndex  ("doors/dr1_end.wav");
+		ent->moveinfo.sound_start = trap_SV_SoundIndex  ("doors/dr1_strt.wav");
+		ent->moveinfo.sound_middle = trap_SV_SoundIndex  ("doors/dr1_mid.wav");
+		ent->moveinfo.sound_end = trap_SV_SoundIndex  ("doors/dr1_end.wav");
 	}
 
 	// if it starts open, switch the positions
@@ -1674,7 +1674,7 @@ void SP_func_door_rotating (g_entity_c *ent)
 	
 	if (ent->targetname && ent->message)
 	{
-		gi.SV_SoundIndex ("misc/talk.wav");
+		trap_SV_SoundIndex ("misc/talk.wav");
 		ent->touch = door_touch;
 	}
 
@@ -1695,7 +1695,7 @@ void SP_func_door_rotating (g_entity_c *ent)
 	if (!ent->team)
 		ent->teammaster = ent;
 
-	gi.SV_LinkEdict (ent);
+	trap_SV_LinkEdict (ent);
 
 	ent->nextthink = level.time + FRAMETIME;
 	if (ent->health || ent->targetname)
@@ -1736,13 +1736,13 @@ void SP_func_water (g_entity_c *self)
 			break;
 
 		case 1: // water
-			self->moveinfo.sound_start = gi.SV_SoundIndex  ("world/mov_watr.wav");
-			self->moveinfo.sound_end = gi.SV_SoundIndex  ("world/stp_watr.wav");
+			self->moveinfo.sound_start = trap_SV_SoundIndex  ("world/mov_watr.wav");
+			self->moveinfo.sound_end = trap_SV_SoundIndex  ("world/stp_watr.wav");
 			break;
 
 		case 2: // lava
-			self->moveinfo.sound_start = gi.SV_SoundIndex  ("world/mov_watr.wav");
-			self->moveinfo.sound_end = gi.SV_SoundIndex  ("world/stp_watr.wav");
+			self->moveinfo.sound_start = trap_SV_SoundIndex  ("world/mov_watr.wav");
+			self->moveinfo.sound_end = trap_SV_SoundIndex  ("world/stp_watr.wav");
 			break;
 	}
 
@@ -1784,7 +1784,7 @@ void SP_func_water (g_entity_c *self)
 
 	self->classname = "func_door";
 
-	gi.SV_LinkEdict (self);
+	trap_SV_LinkEdict (self);
 }
 */
 
@@ -1864,7 +1864,7 @@ void train_wait (g_entity_c *self)
 		if (!(self->flags & FL_TEAMSLAVE))
 		{
 			if (self->moveinfo.sound_end)
-				gi.SV_StartSound (NULL, self, CHAN_NO_PHS_ADD+CHAN_VOICE, self->moveinfo.sound_end, 1, ATTN_STATIC, 0);
+				trap_SV_StartSound (NULL, self, CHAN_NO_PHS_ADD+CHAN_VOICE, self->moveinfo.sound_end, 1, ATTN_STATIC, 0);
 			self->s.sound = 0;
 		}
 	}
@@ -1887,14 +1887,14 @@ void train_next (g_entity_c *self)
 again:
 	if (!self->target)
 	{
-//		gi.Com_Printf ("train_next: no next target\n");
+//		trap_Com_Printf ("train_next: no next target\n");
 		return;
 	}
 
 	ent = G_PickTarget (self->target);
 	if (!ent)
 	{
-		gi.Com_Printf ("train_next: bad target %s\n", self->target);
+		trap_Com_Printf ("train_next: bad target %s\n", self->target);
 		return;
 	}
 
@@ -1905,14 +1905,14 @@ again:
 	{
 		if (!first)
 		{
-			gi.Com_Printf ("connected teleport path_corners, see %s at %s\n", ent->classname, Vector3_String(ent->s.origin));
+			trap_Com_Printf ("connected teleport path_corners, see %s at %s\n", ent->classname, Vector3_String(ent->s.origin));
 			return;
 		}
 		first = false;
 		self->s.origin = ent->s.origin - self->r.bbox._mins;
 		self->s.old_origin = self->s.origin;
 		self->s.event = EV_OTHER_TELEPORT;
-		gi.SV_LinkEdict (self);
+		trap_SV_LinkEdict (self);
 		goto again;
 	}
 
@@ -1922,7 +1922,7 @@ again:
 	if (!(self->flags & FL_TEAMSLAVE))
 	{
 		if (self->moveinfo.sound_start)
-			gi.SV_StartSound (NULL, self, CHAN_NO_PHS_ADD+CHAN_VOICE, self->moveinfo.sound_start, 1, ATTN_STATIC, 0);
+			trap_SV_StartSound (NULL, self, CHAN_NO_PHS_ADD+CHAN_VOICE, self->moveinfo.sound_start, 1, ATTN_STATIC, 0);
 		self->s.sound = self->moveinfo.sound_middle;
 	}
 
@@ -1959,19 +1959,19 @@ void func_train_find (g_entity_c *self)
 
 	if (!self->target)
 	{
-		gi.Com_Printf ("train_find: no target\n");
+		trap_Com_Printf ("train_find: no target\n");
 		return;
 	}
 	ent = G_PickTarget (self->target);
 	if (!ent)
 	{
-		gi.Com_Printf ("train_find: target %s not found\n", self->target);
+		trap_Com_Printf ("train_find: target %s not found\n", self->target);
 		return;
 	}
 	self->target = ent->target;
 
 	self->s.origin = ent->s.origin - self->r.bbox._mins;
-	gi.SV_LinkEdict (self);
+	trap_SV_LinkEdict (self);
 
 	// if not triggered, start immediately
 	if (!self->targetname)
@@ -2028,7 +2028,7 @@ void SP_func_train (g_entity_c *self)
 	G_SetModel (self, self->model);
 
 	if (st.noise)
-		self->moveinfo.sound_middle = gi.SV_SoundIndex  (st.noise);
+		self->moveinfo.sound_middle = trap_SV_SoundIndex  (st.noise);
 
 	if (!self->speed)
 		self->speed = 100;
@@ -2038,7 +2038,7 @@ void SP_func_train (g_entity_c *self)
 
 	self->use = train_use;
 
-	gi.SV_LinkEdict (self);
+	trap_SV_LinkEdict (self);
 
 	if (self->target)
 	{
@@ -2049,7 +2049,7 @@ void SP_func_train (g_entity_c *self)
 	}
 	else
 	{
-		gi.Com_Printf ("func_train without a target at %s\n", Vector3_String(self->r.bbox_abs._mins));
+		trap_Com_Printf ("func_train without a target at %s\n", Vector3_String(self->r.bbox_abs._mins));
 	}
 }
 */
@@ -2063,20 +2063,20 @@ void trigger_elevator_use (g_entity_c *self, g_entity_c *other, g_entity_c *acti
 
 	if (self->movetarget->nextthink)
 	{
-//		gi.Com_Printf("elevator busy\n");
+//		trap_Com_Printf("elevator busy\n");
 		return;
 	}
 
 	if (!other->pathtarget)
 	{
-		gi.Com_Printf("elevator used with no pathtarget\n");
+		trap_Com_Printf("elevator used with no pathtarget\n");
 		return;
 	}
 
 	target = G_PickTarget (other->pathtarget);
 	if (!target)
 	{
-		gi.Com_Printf("elevator used with bad pathtarget: %s\n", other->pathtarget);
+		trap_Com_Printf("elevator used with bad pathtarget: %s\n", other->pathtarget);
 		return;
 	}
 
@@ -2090,18 +2090,18 @@ void trigger_elevator_init (g_entity_c *self)
 {
 	if (!self->target)
 	{
-		gi.Com_Printf("trigger_elevator has no target\n");
+		trap_Com_Printf("trigger_elevator has no target\n");
 		return;
 	}
 	self->movetarget = G_PickTarget (self->target);
 	if (!self->movetarget)
 	{
-		gi.Com_Printf("trigger_elevator unable to find target %s\n", self->target);
+		trap_Com_Printf("trigger_elevator unable to find target %s\n", self->target);
 		return;
 	}
 	if (strcmp(self->movetarget->classname, "func_train") != 0)
 	{
-		gi.Com_Printf("trigger_elevator target %s is not a train\n", self->target);
+		trap_Com_Printf("trigger_elevator target %s is not a train\n", self->target);
 		return;
 	}
 
@@ -2175,7 +2175,7 @@ void SP_func_timer (g_entity_c *self)
 	if (self->random >= self->wait)
 	{
 		self->random = self->wait - FRAMETIME;
-		gi.Com_Printf("func_timer at %s has random >= wait\n", Vector3_String(self->s.origin));
+		trap_Com_Printf("func_timer at %s has random >= wait\n", Vector3_String(self->s.origin));
 	}
 
 	if (self->spawnflags & 1)
@@ -2228,7 +2228,7 @@ void SP_func_conveyor (g_entity_c *self)
 
 	G_SetModel (self, self->model);
 	self->r.solid = SOLID_BSP;
-	gi.SV_LinkEdict (self);
+	trap_SV_LinkEdict (self);
 }
 */
 
@@ -2367,9 +2367,9 @@ void SP_func_door_secret (g_entity_c *ent)
 	float	width;
 	float	length;
 
-	ent->moveinfo.sound_start = gi.SV_SoundIndex  ("doors/dr1_strt.wav");
-	ent->moveinfo.sound_middle = gi.SV_SoundIndex  ("doors/dr1_mid.wav");
-	ent->moveinfo.sound_end = gi.SV_SoundIndex  ("doors/dr1_end.wav");
+	ent->moveinfo.sound_start = trap_SV_SoundIndex  ("doors/dr1_strt.wav");
+	ent->moveinfo.sound_middle = trap_SV_SoundIndex  ("doors/dr1_mid.wav");
+	ent->moveinfo.sound_end = trap_SV_SoundIndex  ("doors/dr1_end.wav");
 
 	ent->movetype = MOVETYPE_PUSH;
 	ent->r.solid = SOLID_BSP;
@@ -2418,13 +2418,13 @@ void SP_func_door_secret (g_entity_c *ent)
 	}
 	else if (ent->targetname && ent->message)
 	{
-		gi.SV_SoundIndex ("misc/talk.wav");
+		trap_SV_SoundIndex ("misc/talk.wav");
 		ent->touch = door_touch;
 	}
 	
 	ent->classname = "func_door";
 
-	gi.SV_LinkEdict (ent);
+	trap_SV_LinkEdict (ent);
 }
 */
 
@@ -2485,26 +2485,26 @@ void	g_func_static_c::activate()
 	
 	if(_model.empty())// || _model[0] == '*')
 	{
-		gi.Com_Printf("g_func_static_c::activate: bad model '%s'\n", _model.c_str());
+		trap_Com_Printf("g_func_static_c::activate: bad model '%s'\n", _model.c_str());
 		remove();
 		return;
 	}
 	
-	//gi.Com_Printf("g_func_static_c::activate: model '%s'\n", _model.c_str());
+	//trap_Com_Printf("g_func_static_c::activate: model '%s'\n", _model.c_str());
 	
 	if(	_model[0] != '*' &&
 		//X_strcaseequal(_model.substr(_model.length()-4, _model.length()).c_str(), ".ase") ||
 		//(X_strcaseequal(_model.substr(_model.length()-4, _model.length()).c_str(), ".lwo") ||
 		X_strcaseequal(_model.substr(_model.length()-4, _model.length()).c_str(), ".obj")	)
 	{
-		gi.Com_Printf("g_func_static_c::activate: model type not supported yet for '%s'\n", _model.c_str());
+		trap_Com_Printf("g_func_static_c::activate: model type not supported yet for '%s'\n", _model.c_str());
 		remove();
 		return;
 	}
 	
 #if 1
-	_s.index_model = gi.SV_ModelIndex(_model);
-//	G_SetModel(this, _model);
+//	_s.index_model = trap_SV_ModelIndex(_model);
+	G_SetModel(this, _model);
 #else
 	cmodel_c *model = G_SetModel(this, _model);
 	
@@ -2558,14 +2558,14 @@ void	g_func_flare_c::activate()
 	
 	if(_model.empty() || _model[0] != '*')
 	{
-		gi.Com_Printf("g_func_flare_c::activate: bad inline model '%s'", _model.c_str());
+		trap_Com_Printf("g_func_flare_c::activate: bad inline model '%s'", _model.c_str());
 		remove();
 		return;
 	}
 	
-	//gi.Com_Printf("g_func_flare_c::activate: model '%s'\n", _model.c_str());
+	//trap_Com_Printf("g_func_flare_c::activate: model '%s'\n", _model.c_str());
 	
-	_s.index_model = gi.SV_ModelIndex(_model);
+	_s.index_model = trap_SV_ModelIndex(_model);
 }
 
 

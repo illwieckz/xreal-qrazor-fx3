@@ -125,7 +125,7 @@ spawn_t	spawns[] = {
 
 //	{"func_plat",			SP_func_plat},
 //	{"func_button",			SP_func_button},
-	{"func_door",			SP_func_door},
+//	{"func_door",			SP_func_door},
 //	{"func_door_secret",		SP_func_door_secret},
 //	{"func_door_rotating",		SP_func_door_rotating},
 //	{"func_rotating",		SP_func_rotating},
@@ -138,7 +138,7 @@ spawn_t	spawns[] = {
 //	{"func_timer",			SP_func_timer},
 //	{"func_explosive",		SP_func_explosive},
 	{"func_killbox",		SP_func_killbox},
-	{"func_static", 		SP_func_static},
+//	{"func_static", 		SP_func_static},
 //	{"func_flare",			SP_func_flare},
 
 //	{"trigger_always",		SP_trigger_always},
@@ -199,11 +199,11 @@ static g_entity_c*	G_CallEntitySpawn(const std::string &classname)
 	
 	if(!classname.length())
 	{
-		gi.Com_Printf("G_CallEntitySpawn: NULL classname\n");
+		trap_Com_Printf("G_CallEntitySpawn: NULL classname\n");
 		return NULL;
 	}
 	
-	//gi.Com_Printf ("G_CallEntitySpawn: %s\n", classname);
+	//trap_Com_Printf ("G_CallEntitySpawn: %s\n", classname);
 
 	//
 	// check item spawn functions
@@ -276,7 +276,7 @@ static char*	G_ParseEntity(char *data, std::map<std::string, std::string> &map)
 			break;
 		
 		if(!data)
-			gi.Com_Error(ERR_DROP, "G_ParseEntity: EOF without closing brace");
+			trap_Com_Error(ERR_DROP, "G_ParseEntity: EOF without closing brace");
 
 		key = token;
 	
@@ -286,10 +286,10 @@ static char*	G_ParseEntity(char *data, std::map<std::string, std::string> &map)
 		token = Com_Parse(&data);
 		
 		if(!data)
-			gi.Com_Error(ERR_DROP, "G_ParseEntity: EOF without closing brace");
+			trap_Com_Error(ERR_DROP, "G_ParseEntity: EOF without closing brace");
 
 		if(token[0] == '}')
-			gi.Com_Error(ERR_DROP, "G_ParseEntity: closing brace without data");
+			trap_Com_Error(ERR_DROP, "G_ParseEntity: closing brace without data");
 
 
 
@@ -365,8 +365,8 @@ static void	G_FindTeams()
 			if(e2->_flags & FL_TEAMSLAVE)
 				continue;
 			
-			//gi.Com_Printf("G_FindTeams: '%i' '%i'\n", i, j);
-			//gi.Com_Printf("G_FindTeams: '%s'\n", e->classname);
+			//trap_Com_Printf("G_FindTeams: '%i' '%i'\n", i, j);
+			//trap_Com_Printf("G_FindTeams: '%s'\n", e->classname);
 			
 			if(e->_team == e2->_team)
 			{
@@ -376,12 +376,12 @@ static void	G_FindTeams()
 				chain = e2;
 				e2->_flags |= FL_TEAMSLAVE;
 				
-				gi.Com_Printf("G_FindTeams: '%s' '%s' are in team '%s'\n", e->getClassName(), e2->getClassName(), e->_team.c_str());
+				trap_Com_Printf("G_FindTeams: '%s' '%s' are in team '%s'\n", e->getClassName(), e2->getClassName(), e->_team.c_str());
 			}
 		}
 	}
 
-	gi.Com_Printf("%i teams with %i entities\n", c, c2);
+	trap_Com_Printf("%i teams with %i entities\n", c, c2);
 }
 
 
@@ -420,7 +420,8 @@ void	G_SpawnEntities(const std::string &mapname, char *entities, const std::stri
 	
 	std::map<std::string, std::string>	epairs;
 	
-	//gi.Com_Printf("G_SpawnEntities:\n");
+		
+	//trap_Com_Printf("G_SpawnEntities:\n");
 	skill_level = floorf(skill->getInteger());
 	
 	if(skill_level < 0)
@@ -430,11 +431,11 @@ void	G_SpawnEntities(const std::string &mapname, char *entities, const std::stri
 		skill_level = 3;
 		
 	if(skill->getInteger() != skill_level)
-		gi.Cvar_ForceSet("skill", va("%f", skill_level));
+		trap_Cvar_ForceSet("skill", va("%f", skill_level));
 
 	G_SaveClientData();
 
-	//gi.Z_FreeTags (TAG_LEVEL);
+	//trap_Z_FreeTags (TAG_LEVEL);
 
 	//memset (&level, 0, sizeof(level));
 			
@@ -458,7 +459,7 @@ void	G_SpawnEntities(const std::string &mapname, char *entities, const std::stri
 			break;
 			
 		if(token[0] != '{')
-			gi.Com_Error(ERR_DROP, "G_SpawnEntities: found %s when expecting {", token);
+			trap_Com_Error(ERR_DROP, "G_SpawnEntities: found %s when expecting {", token);
 
 
 		// spawn custom entity
@@ -478,12 +479,12 @@ void	G_SpawnEntities(const std::string &mapname, char *entities, const std::stri
 						
 		if(!ent)
 		{
-			gi.Com_Printf("G_SpawnEntities: could not spawn %s\n", classname);
+			trap_Com_Printf("could not spawn '%s'\n", classname);
 			continue;
 		}
 		else
 		{
-			gi.Com_Printf("G_SpawnEntities: spawned %s\n", classname);
+			trap_Com_Printf("spawned '%s'\n", classname);
 			spawned++;
 		}
 		
@@ -536,11 +537,11 @@ void	G_SpawnEntities(const std::string &mapname, char *entities, const std::stri
 	}	
 
 
-	gi.Com_Printf("%i entities inhibited\n", inhibit);
-	gi.Com_Printf("%i entities spawned\n", spawned);
+	trap_Com_Printf("%i entities inhibited\n", inhibit);
+	trap_Com_Printf("%i entities spawned\n", spawned);
 
 	// create team links
-	G_FindTeams ();
+	G_FindTeams();
 }
 
 

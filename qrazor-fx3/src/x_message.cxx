@@ -369,10 +369,10 @@ void	message_c::writeColor(const vec4_c &color)
 
 void	message_c::writeQuaternion(const quaternion_c &q)
 {
-	writeFloat(q[0]);
-	writeFloat(q[1]);
-	writeFloat(q[2]);
-	writeFloat(q[3]);
+	writeFloat(q._q[0]);
+	writeFloat(q._q[1]);
+	writeFloat(q._q[2]);
+	writeFloat(q._q[3]);
 }
 
 
@@ -880,10 +880,10 @@ void 	message_c::readColor(vec4_c &color)
 
 void	message_c::readQuaternion(quaternion_c &q)
 {
-	q[0] = readFloat();
-	q[1] = readFloat();
-	q[2] = readFloat();
-	q[3] = readFloat();
+	q._q[0] = readFloat();
+	q._q[1] = readFloat();
+	q._q[2] = readFloat();
+	q._q[3] = readFloat();
 }
 
 void 	message_c::readRawData(void *data, int length)

@@ -51,9 +51,9 @@ g_projectile_bolt_c::g_projectile_bolt_c(g_entity_c *activator, const vec3_c &st
 	_s.shaderparms[1] = color_yellow[1];	// light color
 	_s.shaderparms[2] = color_yellow[2];	// light color
 	
-//	_s.index_model = gi.SV_ModelIndex("models/items/projectiles/rocket.md3");
-//	_s.index_sound = gi.SV_SoundIndex("sounds/e1/we_ionflyby.wav");
-	_s.index_light = gi.SV_LightIndex("lights/defaultpointlight");
+//	_s.index_model = trap_SV_ModelIndex("models/items/projectiles/rocket.md3");
+//	_s.index_sound = trap_SV_SoundIndex("sounds/e1/we_ionflyby.wav");
+	_s.index_light = trap_SV_LightIndex("lights/defaultpointlight");
 	
 	_s.renderfx = RF_NOSHADOW;	// don't cast a shadow in the renderer
 	
@@ -73,18 +73,16 @@ g_projectile_bolt_c::g_projectile_bolt_c(g_entity_c *activator, const vec3_c &st
 	_body->setGravityMode(0);
 	
 	dMass m;
-	dMassSetSphereTotal(&m, 0.1, 8);
+	m.setSphereTotal(0.1, 8);
 	_body->setMass(&m);
 	
 	// setup ODE collision
-	g_geom_info_c *geom_info = new g_geom_info_c(this, NULL, NULL);
-	
-	d_geom_c *geom = new d_sphere_c(g_ode_space->getId(), 8);
+	d_geom_c *geom = new d_sphere_c(g_ode_space_toplevel->getId(), 8);
 	geom->setBody(_body->getId());
-	geom->setData(geom_info);
+	geom->setData(this);
 	geom->setCollideBits(MASK_SHOT);
 	
-	_geoms.insert(std::make_pair(geom, geom_info));
+	_geoms.push_back(geom);
 }
 
 void	g_projectile_bolt_c::think()
@@ -98,7 +96,7 @@ bool	g_projectile_bolt_c::touch(g_entity_c *other, const cplane_c &plane, csurfa
 	if(other == _r.owner)
 		return false;
 		
-	gi.Com_Printf("g_projectile_bolt_c::touch: touching entity %i '%s'\n", other->_s.getNumber(), other->getClassName());
+	trap_Com_Printf("g_projectile_bolt_c::touch: touching entity %i '%s'\n", other->_s.getNumber(), other->getClassName());
 
 	if(surf && surf->hasFlags(X_SURF_SKY))
 	{
@@ -116,12 +114,12 @@ bool	g_projectile_bolt_c::touch(g_entity_c *other, const cplane_c &plane, csurfa
 	else
 	{
 		// bolt hitting wall, do some sparks particle effects
-		gi.SV_WriteByte(SVC_TEMP_ENTITY);
-		gi.SV_WriteByte(TE_BLASTER);
-		gi.SV_WritePosition(_s.origin);
-		gi.SV_WriteDir(plane._normal);
+		trap_SV_WriteByte(SVC_TEMP_ENTITY);
+		trap_SV_WriteByte(TE_BLASTER);
+		trap_SV_WritePosition(_s.origin);
+		trap_SV_WriteDir(plane._normal);
 			
-		gi.SV_Multicast(_s.origin, MULTICAST_PVS);
+		trap_SV_Multicast(_s.origin, MULTICAST_PVS);
 	}
 
 	remove();	// remove from world when done
@@ -145,7 +143,7 @@ bool	g_projectile_bolt_c::touch(g_entity_c *other, const cplane_c &plane, csurfa
 */
 g_projectile_grenade_c::g_projectile_grenade_c(g_entity_c *activator, const vec3_c &start, const vec3_c &aimdir, int damage, int speed, float timer, float damage_radius)
 {
-	//gi.Com_Printf("g_projectile_grenade_c::ctor:\n");
+	//trap_Com_Printf("g_projectile_grenade_c::ctor:\n");
 
 	vec3_c	dir;
 	vec3_c	forward, right, up;
@@ -166,7 +164,7 @@ g_projectile_grenade_c::g_projectile_grenade_c(g_entity_c *activator, const vec3
 	_s.effects |= EF_GRENADE;
 	_s.renderfx = RF_NOSHADOW;
 	_r.bbox.zero();
-	_s.index_model = gi.SV_ModelIndex ("models/ammo/grenade1.md3");
+	_s.index_model = trap_SV_ModelIndex ("models/ammo/grenade1.md3");
 	_r.owner = activator;
 	//touch = Grenade_Touch;
 	_nextthink = level.time + timer;
@@ -220,24 +218,24 @@ void	g_projectile_grenade_c::think()
 	//T_RadiusDamage(this, (g_entity_c*)_r.owner, _dmg, _enemy, _dmg_radius, mod);
 
 //	Vector3_MA(_s.origin, -0.02, _velocity, origin);
-	gi.SV_WriteByte (SVC_TEMP_ENTITY);
+	trap_SV_WriteByte (SVC_TEMP_ENTITY);
 	
 	if (_waterlevel)
 	{
 		if (_groundentity)
-			gi.SV_WriteByte (TE_GRENADE_EXPLOSION_WATER);
+			trap_SV_WriteByte (TE_GRENADE_EXPLOSION_WATER);
 		else
-			gi.SV_WriteByte (TE_ROCKET_EXPLOSION_WATER);
+			trap_SV_WriteByte (TE_ROCKET_EXPLOSION_WATER);
 	}
 	else
 	{
 		if (_groundentity)
-			gi.SV_WriteByte (TE_GRENADE_EXPLOSION);
+			trap_SV_WriteByte (TE_GRENADE_EXPLOSION);
 		else
-			gi.SV_WriteByte (TE_ROCKET_EXPLOSION);
+			trap_SV_WriteByte (TE_ROCKET_EXPLOSION);
 	}
-	gi.SV_WritePosition (origin);
-	gi.SV_Multicast (_s.origin, MULTICAST_PHS);
+	trap_SV_WritePosition (origin);
+	trap_SV_Multicast (_s.origin, MULTICAST_PHS);
 
 	remove();
 }
@@ -260,13 +258,13 @@ bool	g_projectile_grenade_c::touch(g_entity_c *other, const cplane_c &plane, csu
 		if(_spawnflags & 1)
 		{
 			if(random() > 0.5)
-				gi.SV_StartSound(NULL, this, CHAN_VOICE, gi.SV_SoundIndex("weapons/hgrenb1a.wav"), 1, ATTN_NORM, 0);
+				trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex("weapons/hgrenb1a.wav"), 1, ATTN_NORM, 0);
 			else
-				gi.SV_StartSound(NULL, this, CHAN_VOICE, gi.SV_SoundIndex("weapons/hgrenb2a.wav"), 1, ATTN_NORM, 0);
+				trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex("weapons/hgrenb2a.wav"), 1, ATTN_NORM, 0);
 		}
 		else
 		{
-			gi.SV_StartSound(NULL, this, CHAN_VOICE, gi.SV_SoundIndex ("weapons/grenlb1b.wav"), 1, ATTN_NORM, 0);
+			trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex ("weapons/grenlb1b.wav"), 1, ATTN_NORM, 0);
 		}
 		return true;
 	}
@@ -326,7 +324,7 @@ static void	Grenade_Proxy(g_entity_c *ent)
 */
 g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c &start, const vec3_c &dir, int damage, int speed, float damage_radius, float radius_damage)
 {
-// 	gi.Com_Printf("g_projectile_rocket_c::ctor\n");
+// 	trap_Com_Printf("g_projectile_rocket_c::ctor\n");
 
 	_s.origin = start;
 	vectoangles(dir, _angles);
@@ -339,10 +337,10 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 	_s.shaderparms[1] = color_yellow[1];	// light color
 	_s.shaderparms[2] = color_yellow[2];	// light color
 	_s.shaderparms[3] = color_yellow[3];	// light color
-	_s.index_model = gi.SV_ModelIndex("models/weapons/rocketlauncher/rocket.lwo");
-//	_s.index_shader = gi.SV_ShaderIndex("noshader");
-//	_s.index_sound = gi.SV_SoundIndex("sounds/weapons/sidewinder/we_sidewinderfly.wav");
-	_s.index_light = gi.SV_LightIndex("lights/defaultpointlight");
+	_s.index_model = trap_SV_ModelIndex("models/weapons/rocketlauncher/rocket.lwo");
+//	_s.index_shader = trap_SV_ShaderIndex("noshader");
+//	_s.index_sound = trap_SV_SoundIndex("sounds/weapons/sidewinder/we_sidewinderfly.wav");
+	_s.index_light = trap_SV_LightIndex("lights/defaultpointlight");
 	
 	_r.inuse = true;
 	_r.clipmask = MASK_SHOT;
@@ -369,19 +367,17 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 	// setup mass
 	dMass m;
 //	dMassSetSphereTotal(&m, 5.0, 8);
-	dMassSetBoxTotal(&m, 5.0, 12, 4, 4);
+	m.setBoxTotal(5.0, 12, 4, 4);
 	_body->setMass(&m);
 	
 	// setup geom
-	g_geom_info_c *geom_info = new g_geom_info_c(this, NULL, NULL);
-	
 //	d_geom_c *geom = new d_sphere_c(g_ode_space->getId(), 8);
-	d_geom_c *geom = new d_box_c(g_ode_space->getId(), 12, 4, 4);
+	d_geom_c *geom = new d_box_c(g_ode_space_toplevel->getId(), 12, 4, 4);
 	
 	geom->setBody(_body->getId());
-	geom->setData(geom_info);
+	geom->setData(this);
 	
-	_geoms.insert(std::make_pair(geom, geom_info));
+	_geoms.push_back(geom);
 }
 
 void	g_projectile_rocket_c::think()
@@ -403,11 +399,11 @@ bool	g_projectile_rocket_c::touch(g_entity_c *other, const cplane_c &plane, csur
 	if(other == _r.owner)
 		return false;
 		
-	gi.Com_Printf("g_projectile_rocket_c::touch: touching entity %i '%s'\n", other->_s.getNumber(), other->getClassName());
+// 	trap_Com_Printf("g_projectile_rocket_c::touch: touching entity %i '%s'\n", other->_s.getNumber(), other->getClassName());
 	
 	if(surf && surf->hasFlags(X_CONT_AREAPORTAL))
 	{
-		gi.Com_Printf("g_projectile_rocket_c::touch: touching areaportal\n");
+		trap_Com_Printf("g_projectile_rocket_c::touch: touching areaportal\n");
 	}
 
 	if(surf && surf->hasFlags(X_SURF_NOIMPACT))
@@ -427,15 +423,15 @@ bool	g_projectile_rocket_c::touch(g_entity_c *other, const cplane_c &plane, csur
 	
 	G_RadiusDamage(this, (g_entity_c*)_r.owner, _radius_dmg, other, _dmg_radius, MOD_R_SPLASH);
 
-	gi.SV_WriteByte(SVC_TEMP_ENTITY);
+	trap_SV_WriteByte(SVC_TEMP_ENTITY);
 	
 	if(_waterlevel)
-		gi.SV_WriteByte(TE_ROCKET_EXPLOSION_WATER);
+		trap_SV_WriteByte(TE_ROCKET_EXPLOSION_WATER);
 	else
-		gi.SV_WriteByte(TE_ROCKET_EXPLOSION);
+		trap_SV_WriteByte(TE_ROCKET_EXPLOSION);
 		
-	gi.SV_WritePosition(origin);
-	gi.SV_Multicast(_s.origin, MULTICAST_ALL);
+	trap_SV_WritePosition(origin);
+	trap_SV_Multicast(_s.origin, MULTICAST_ALL);
 	
 	remove();
 	

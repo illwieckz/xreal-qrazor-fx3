@@ -56,7 +56,7 @@ void	info_c::setValueForKey(const std::string &key, const std::string &value)
 
 	if(key.length() > MAX_INFO_KEY-1 || value.length() > MAX_INFO_KEY-1)
 	{
-		Com_Printf("Keys and values must be < 64 characters.\n");
+		Com_Printf("Keys and values must be < %i characters.\n", MAX_INFO_KEY);
 		return;
 	}
 	
@@ -102,7 +102,9 @@ void	info_c::fromString(const std::string &s)
 {
 	std::vector<std::string> v;
 
-	boost::spirit::parse_info<> info = boost::spirit::parse(s.c_str(),
+	boost::spirit::parse_info<> info = boost::spirit::parse
+	(	
+		s.c_str(),
 		(
 		// start grammar
 		*(boost::spirit::ch_p('\\') >> boost::spirit::refactor_unary_d[*boost::spirit::anychar_p - boost::spirit::ch_p('\\')][boost::spirit::append(v)])

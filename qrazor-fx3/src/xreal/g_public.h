@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // xreal --------------------------------------------------------------------
 // shared -------------------------------------------------------------------
 #include "../x_shared.h"
-
+#include "../x_ode.h"
 
 // xg_public.h -- game dll information visible to server
 
@@ -36,26 +36,67 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // edict->svflags
 
-#define	SVF_NOCLIENT			0x00000001	// don't send entity to clients, even if it has effects
-#define	SVF_CORPSE			0x00000002	// treat as CONTENTS_DEADMONSTER for collision
+enum
+{
+	SVF_NONE		= 0,
+	SVF_NOCLIENT		= (1<<0),	// don't send entity to clients, even if it has effects
+	SVF_CORPSE		= (1<<1)	// treat as CONTENTS_DEADMONSTER for collision
+};
 
-
+// gi.SV_BoxEntities() can return a list of either solid or trigger entities
+// FIXME: eliminate AREA_ distinction?
+enum area_type_e
+{
+	AREA_SOLID		= 1,
+	AREA_TRIGGERS
+};
 
 
 struct entity_shared_t
 {
+	entity_shared_t()
+	{
+		inuse		= false;
+		
+		islinked	= false;
+		linkcount	= 0;
+		
+		clusters	= std::vector<int>(16);
+		headnode	= 0;
+		area		= 0;
+		area2		= 0;
+		areaportal	= -1;
+		
+		svflags		= SVF_NONE;
+		
+		solid		= SOLID_NOT;
+		clipmask	= 0;
+		
+		owner		= NULL;
+		
+		isclient	= false;
+		isbot		= false;
+		ps.clear();
+		
+		ping		= 9999;
+	}
+
 	// common for all server/game entities
 	bool			inuse;
 	
-	int			headnode;			// unused if num_clusters != -1
+	bool			islinked;
+	int			linkcount;
 	
+	std::vector<int>	clusters;
+	int			headnode;			// unused if num_clusters != -1
 	int			area;
 	int			area2;
 	int			areaportal;
 
 	int			svflags;			// SVF_NOCLIENT, SVF_DEADMONSTER, SVF_MONSTER, etc
-	cbbox_c			bbox;
-	vec3_c			size;				// bbox size			
+	cbbox_c			bbox_abs;			// world space axis aligned bounding box = entity origin + local bbox
+	cbbox_c			bbox;				// object space bounding box
+	vec3_c			size;				// object space bbox size
 	solid_e			solid;
 	int			clipmask;
 	
@@ -111,7 +152,6 @@ typedef struct
 	cvar_t*		(*Cvar_ForceSet)(const std::string &name, const std::string &value);
 	void		(*Cvar_SetValue)(const std::string &name, float value);
 
-
 	// special messages
 	void		(*SV_BPrintf)(g_print_level_e level, const char *fmt, ...);
 	void		(*SV_CPrintf)(sv_entity_c *ent, g_print_level_e level, const char *fmt, ...);
@@ -123,7 +163,6 @@ typedef struct
 	// All of the current configstrings are sent to clients when
 	// they connect, and changes are sent to all connected clients.
 	void		(*SV_SetConfigString)(int index, const std::string &val);
-
 	
 	// the *index functions create configstrings and some internal server state
 	int		(*SV_ModelIndex)(const std::string &name);
@@ -133,12 +172,24 @@ typedef struct
 	int		(*SV_LightIndex)(const std::string &name);
 
 	// collision detection
-	int		(*SV_PointContents)(const vec3_c &p);
-	bool		(*SV_InPVS)(const vec3_c &p1, const vec3_c &p2);
-	
+	d_bsp_c*		(*CM_BeginRegistration)(const std::string &name, bool clientload, unsigned *checksum, dSpaceID space);
 	cmodel_c*		(*CM_RegisterModel)(const std::string &name);
 	cskel_animation_c*	(*CM_RegisterAnimation)(const std::string &name);
+	cmodel_c*		(*CM_GetModelByNum)(int num);
+	int			(*CM_LeafContents)(int leafnum);
+	int			(*CM_LeafCluster)(int leafnum);
+	int			(*CM_LeafArea)(int leafnum);
+	int			(*CM_NumModels)();
+	int			(*CM_HeadnodeForBox)(const cbbox_c& bbox);
+	int			(*CM_PointContents)(const vec3_c &p, int headnode);
+	int			(*CM_TransformedPointContents)(const vec3_c &p, int headnode, const vec3_c &origin, const quaternion_c &quat);
+	trace_t			(*CM_BoxTrace)(const vec3_c &start, const vec3_c &end, const cbbox_c &bbox, int headnode, int brushmask);
+	trace_t			(*CM_TransformedBoxTrace)(const vec3_c &start, const vec3_c &end,
+						const cbbox_c &bbox,
+						int headnode, int brushmask, 
+						const vec3_c &origin, const quaternion_c &quat);
 	int			(*CM_PointAreanum)(const vec3_c &p);
+	int			(*CM_BoxLeafnums)(const cbbox_c &bbox, std::deque<int> &list, int headnode);
 	int			(*CM_GetClosestAreaPortal)(const vec3_c &p);
 	bool			(*CM_GetAreaPortalState)(int portal);
 	void			(*CM_SetAreaPortalState)(int portal, bool open);
@@ -182,10 +233,11 @@ typedef struct
 	// the init function will only be called when a game starts,
 	// not each time a level is loaded.  Persistant data for clients
 	// and the server can be allocated in init
-	void		(*Init)();
-	void		(*Shutdown)();
+	void		(*G_InitGame)();
+	void		(*G_ShutdownGame)();
 
 	// each new level entered will cause a call to SpawnEntities
+	void		(*G_ClearWorld)(const std::string &map);
 	void		(*G_SpawnEntities)(const std::string &mapname, char *entstring, const std::string &spawnpoint);
 
 	// issue per client specific commands

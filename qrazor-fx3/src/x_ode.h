@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /// includes ===================================================================
 // system -------------------------------------------------------------------
-#include <ode/ode.h>
+#include "ode/ode.h"
 
 // shared -------------------------------------------------------------------
 #include "x_shared.h"
@@ -62,7 +62,6 @@ public:
 	vec_t		getCFM()			{return dWorldGetCFM(_id);}
 	
 	void		step(vec_t step_size)		{dWorldStep(_id, step_size);}
-	void		stepFast(vec_t step_size, int max_iterations)	{dWorldStepFast1(_id, step_size, max_iterations);}
 	void		stepQuick(vec_t step_size)	{dWorldQuickStep(_id, step_size);}
 	
 	void		impulseToForce(vec_t stepsize, vec_t ix, vec_t iy, vec_t iz, dVector3 force)
@@ -75,9 +74,6 @@ public:
 	void		setContactSurfaceLayer(vec_t depth)	{dWorldSetContactSurfaceLayer(_id, depth);}
 	vec_t		getContactSurfaceLayer() const		{return dWorldGetContactSurfaceLayer(_id);}
 	
-	void		setAutoEnableDepthSF1(int depth)	{dWorldSetAutoEnableDepthSF1(_id, depth);}
-	int		getAutoEnableDepthSF1() const	{return dWorldGetAutoEnableDepthSF1(_id);}
-	
 	void		setQuickStepNumIterations(int num)	{dWorldSetQuickStepNumIterations(_id, num);}
 	int		getQuickStepNumIterations() const	{return dWorldGetQuickStepNumIterations(_id);}
 	void		setQuickStepW(vec_t param)		{dWorldSetQuickStepW(_id, param);}
@@ -86,9 +82,6 @@ public:
 	
 	void		setAutoDisableLinearThreshold(vec_t threshold)	{dWorldSetAutoDisableLinearThreshold(_id, threshold);}
 	vec_t		getAutoDisableLinearThreshold() const 		{return dWorldGetAutoDisableLinearThreshold(_id);}
-	
-	void		setAutoDisableAngularThreshold(vec_t threshold)	{dWorldSetAutoDisableAngularThreshold(_id, threshold);}
-	vec_t		getAutoDisableAngularThreshold() const		{return dWorldGetAutoDisableAngularThreshold(_id);}
 	
 	void		setAutoDisableSteps(int steps)	{dWorldSetAutoDisableSteps(_id, steps);}
 	int		getAutoDisableSteps() const	{return dWorldGetAutoDisableSteps(_id);}
@@ -133,13 +126,14 @@ public:
 	void*		getData() const				{return dBodyGetData(_id);}
 
 	void		setPosition(const vec3_c &pos)		{dBodySetPosition(_id, pos[0], pos[1], pos[2]);}
+	/*
 	void		setRotation(const vec3_c &angles)	
 	{
 		dMatrix3 R; 
 		dRFromEulerAngles(R, angles[0], angles[1], angles[2]);
 		dBodySetRotation(_id, R);
 	}
-	
+	*/
 	void		setQuaternion(const quaternion_c &q)		{dBodySetQuaternion(_id, q);}
 	void		setLinearVel(const vec3_c &v)			{dBodySetLinearVel(_id, v[0], v[1], v[2]);}
 	void		setLinearVel(vec_t v0, vec_t v1, vec_t v2)	{dBodySetLinearVel(_id, v0, v1, v2);}
@@ -147,8 +141,8 @@ public:
 	void		setAngularVel(vec_t v0, vec_t v1, vec_t v2)	{dBodySetAngularVel(_id, v0, v1, v2);}
 	
 	const vec_t*	getPosition() const		{return	(vec_t*)dBodyGetPosition(_id);}
-	const vec_t*	getRotation() const		{return (vec_t*)dBodyGetRotation(_id);}
-	const vec_t*	getQuaternion() const		{return (vec_t*)dBodyGetQuaternion(_id);}
+//	const vec_t*	getRotation() const		{return (vec_t*)dBodyGetRotation(_id);}
+	const quaternion_c&	getQuaternion() const	{return dBodyGetQuaternion(_id);}
 	const vec_t*	getLinearVel() const		{return (vec_t*)dBodyGetLinearVel(_id);}
 	const vec_t*	getAngularVel() const		{return (vec_t*)dBodyGetAngularVel(_id);}
 	
@@ -555,7 +549,7 @@ protected:
 	dGeomID _id;
 
 public:
-	d_geom_c()						{_id = 0;}
+	d_geom_c()						{Com_Printf("d_geom_c::ctor:\n"); _id = 0;/* setData(NULL);*/}
 	~d_geom_c()						{if(_id) dGeomDestroy(_id);}
 	
 	dGeomID	getId() const					{return _id;}
@@ -581,6 +575,7 @@ public:
 	void	setPosition(const vec3_c &v)			{dGeomSetPosition(_id, v[0], v[1], v[2]);}
 	const vec_t* getPosition() const			{return (vec_t*)dGeomGetPosition(_id);}
 	
+	/*
 	void	setRotation(const dMatrix3 R)			{dGeomSetRotation(_id,R);}
 	void	setRotation(const vec3_c &angles)
 	{
@@ -589,8 +584,10 @@ public:
 		dGeomSetRotation(_id, R);
 	}
 	const vec_t* getRotation() const			{return (vec_t*)dGeomGetRotation(_id);}
-	void	setQuaternion(quaternion_c &quat)		{dGeomSetQuaternion(_id, quat);}
-	void	getQuaternion(quaternion_c &quat) const		{dGeomGetQuaternion(_id, quat);}
+	*/
+	
+	void	setQuaternion(quaternion_c &quat)				{dGeomSetQuaternion(_id, quat);}
+	const quaternion_c&	getQuaternion(quaternion_c &quat) const		{return dGeomGetQuaternion(_id);}
 
 //	void	getAABB(vec_t aabb[6]) const			{dGeomGetAABB(_id, aabb);}
 	
@@ -834,7 +831,7 @@ public:
 	int	getInfo()					{return dGeomTransformGetInfo(_id);}
 };
 
-
+#if 0
 class d_trimesh_c : public d_geom_c
 {
 	// intentionally undefined, don't use these
@@ -870,8 +867,59 @@ public:
 private:
 	dTriMeshDataID	_data;
 };
+#endif
 
+#if 0
+class d_bsp_c : public d_geom_c
+{
+	// intentionally undefined, don't use these
+	d_bsp_c (d_bsp_c &);
+	void operator = (d_bsp_c &);
 
+public:
+	d_bsp_c()						{}
+	d_bsp_c(dSpaceID space)					{_id = dCreateBSP(space);}
+	
+	void	create(dSpaceID space)
+	{
+		if(_id)
+			dGeomDestroy(_id);
+			
+		_id = dCreateBSP(space);
+	}
+	
+	void	setLengths(const vec3_c &v)			{dGeomBSPSetLengths(_id, v[0], v[1], v[2]);}
+	
+	void	addPlane(const cplane_c &p)			{dGeomBSPAddPlane(_id, p._normal[0], p._normal[1], p._normal[2], -p._dist);}
+	void	addBrush(int sides_first, int sides_num)	{dGeomBSPAddBrush(_id, sides_first, sides_num);}
+	void	addBrushSide(int plane_num)			{dGeomBSPAddBrushSide(_id, plane_num);}
+	void	addNode(int plane_num, int child0, int child1)	{dGeomBSPAddNode(_id, plane_num, child0, child1);}
+	void	addLeaf(int brushes_first, int brushes_num)	{dGeomBSPAddLeaf(_id, brushes_first, brushes_num);}
+	void	addLeafBrush(int num)				{dGeomBSPAddLeafBrush(_id, num);}
+};
+#else
+class d_bsp_c : public d_geom_c
+{
+	// intentionally undefined, don't use these
+	d_bsp_c (d_bsp_c &);
+	void operator = (d_bsp_c &);
+
+public:
+	d_bsp_c()						{}
+	d_bsp_c(dSpaceID space)					{}
+	
+	void	create(dSpaceID space)				{}
+	
+	void	setLengths(const vec3_c &v)			{}
+	
+	void	addPlane(const cplane_c &p)			{}
+	void	addBrush(int sides_first, int sides_num)	{}
+	void	addBrushSide(int plane_num)			{}
+	void	addNode(int plane_num, int child0, int child1)	{}
+	void	addLeaf(int brushes_first, int brushes_num)	{}
+	void	addLeafBrush(int num)				{}
+};
+#endif
 
 #endif // X_ODE_H
 

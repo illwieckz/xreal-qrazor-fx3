@@ -387,7 +387,7 @@ static void	R_GetCubeVector(int i, int cubesize, int x, int y, float *vector)
 			break;
 	}
 
-	mag = 1.0/sqrt(vector[0]*vector[0] + vector[1]*vector[1] + vector[2]*vector[2]);
+	mag = 1.0/X_sqrt(vector[0]*vector[0] + vector[1]*vector[1] + vector[2]*vector[2]);
 	vector[0] *= mag;
 	vector[1] *= mag;
 	vector[2] *= mag;

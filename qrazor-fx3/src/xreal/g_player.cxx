@@ -214,19 +214,18 @@ g_player_c::g_player_c()
 //	_body->disable();
 			
 	// setup ODE collision detection
-	_space = new d_simple_space_c(g_ode_space->getId());
-	_space->setCollideBits(MASK_PLAYERSOLID);
-	
-	g_geom_info_c *geom_info = new g_geom_info_c(this, NULL, NULL);
+//	_space = new d_simple_space_c(g_ode_space_toplevel->getId());
+//	_space->setCollideBits(MASK_PLAYERSOLID);
 	
 //	geom = new d_box_c(g_ode_space->getId(), vec3_c(32, 32, 56));
 //	geom = new d_ccylinder_c(g_ode_space->getId(), 32, 56);
 
-	_sphere = new d_sphere_c(_space->getId(), 16);
+//	_sphere = new d_sphere_c(_space->getId(), 16);
 // 	_sphere->setBody(_body->getId());
-	_sphere->setData(geom_info);
-	_sphere->setCollideBits(MASK_PLAYERSOLID);
-	_geoms.insert(std::make_pair(_sphere, geom_info));
+//	_sphere->setData(this);
+//	_sphere->setCollideBits(MASK_PLAYERSOLID);
+	
+//	_geoms.push_back(_sphere);
 	
 	/*
 	_ray = new d_ray_c(_space->getId(), vec3_c(0, 0, 0), vec3_c(0, 0, -1), 18);
@@ -241,13 +240,13 @@ g_player_c::g_player_c()
 
 g_player_c::~g_player_c()
 {
-	//gi.Com_Printf("g_player_c::dtor:\n");
+	//trap_Com_Printf("g_player_c::dtor:\n");
 }
 
 void	g_player_c::think()
 {
 #if 0
-	//gi.Com_Printf("g_player_c::think: called\n");
+	//trap_Com_Printf("g_player_c::think: called\n");
 	
 	vec3_c vel_linear;// = _body->getLinearVel();
 	vec3_c vel_angular;// = _body->getAngularVel();
@@ -283,7 +282,7 @@ void	g_player_c::think()
 		pm.cmd = cmd;
 
 		pm.rayTrace = G_RayTrace;
-		pm.pointContents = gi.SV_PointContents;
+		pm.pointContents = trap_SV_PointContents;
 
 		// perform a pmove
 		Com_Pmove(&pm);
@@ -301,7 +300,7 @@ void	g_player_c::think()
 
 		if(_groundentity && !pm.groundentity && (pm.cmd.upmove >= 10) && (pm.waterlevel == 0))
 		{
-			gi.SV_StartSound(NULL, this, CHAN_VOICE, gi.SV_SoundIndex("*jump1.wav"), 1, ATTN_NORM, 0);
+			trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex("*jump1.wav"), 1, ATTN_NORM, 0);
 		}
 
 		_v_height = pm.viewheight;
@@ -471,7 +470,7 @@ void	g_player_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, ve
 	{
 #if 0	
 		// gib
-		gi.SV_StartSound (NULL, self, CHAN_BODY, gi.SV_SoundIndex("misc/udeath.wav"), 1, ATTN_NORM, 0);
+		trap_SV_StartSound (NULL, self, CHAN_BODY, trap_SV_SoundIndex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 		for (n= 0; n < 4; n++)
 			ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
 		ThrowClientHead(self, damage);
@@ -530,7 +529,7 @@ void	g_player_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, ve
 					//_anim_time = PLAYER_ANIM_BOTH_DEATH3_TIME;
 					break;
 			}
-			gi.SV_StartSound(NULL, this, CHAN_VOICE, gi.SV_SoundIndex(va("*death%i.wav", (rand()%4)+1)), 1, ATTN_NORM, 0);
+			trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex(va("*death%i.wav", (rand()%4)+1)), 1, ATTN_NORM, 0);
 		}
 	}
 
@@ -645,7 +644,7 @@ void	g_player_c::takeDamage(g_entity_c *inflictor, g_entity_c *attacker, vec3_t 
 	{
 		if (targ->_pain_debounce_time < level.time)
 		{
-			gi.SV_StartSound (NULL, targ, CHAN_ITEM, gi.SV_SoundIndex("items/protect4.wav"), 1, ATTN_NORM, 0);
+			trap_SV_StartSound (NULL, targ, CHAN_ITEM, trap_SV_SoundIndex("items/protect4.wav"), 1, ATTN_NORM, 0);
 			targ->_pain_debounce_time = level.time + 2;
 		}
 		
@@ -779,7 +778,7 @@ bool	g_player_c::clientConnect(info_c &userinfo)
 	//
 	// they can connect
 	//
-	//gi.Com_Printf("G_ClientConnect: ent->s.number %i\n", ent->s.number);
+	//trap_Com_Printf("G_ClientConnect: ent->s.number %i\n", ent->s.number);
 	_r.isclient = true;
 
 	// if there is already a body waiting for us (a loadgame), just
@@ -796,7 +795,7 @@ bool	g_player_c::clientConnect(info_c &userinfo)
 	clientUserinfoChanged(userinfo);
 
 	if(game.maxclients > 1)
-		gi.Com_DPrintf("%s connected\n", _pers.netname);
+		trap_Com_DPrintf("%s connected\n", _pers.netname);
 
 	_r.svflags = 0; // make sure we start with known default
 	_pers.connected = true;
@@ -815,7 +814,7 @@ to be placed into the game.  This will happen every level load.
 void	g_player_c::clientBegin()
 {
 	if(!_r.isclient)
-		gi.Com_Error(ERR_DROP, "g_player_c::clientBegin: got no client");
+		trap_Com_Error(ERR_DROP, "g_player_c::clientBegin: got no client");
 
 	if(deathmatch->getInteger())
 	{
@@ -852,12 +851,12 @@ void	g_player_c::clientBegin()
 		// send effect if in a multiplayer game
 		if(game.maxclients > 1)
 		{
-			gi.SV_WriteByte(SVC_MUZZLEFLASH);
-			gi.SV_WriteShort(_s.getNumber());
-			gi.SV_WriteByte(MZ_LOGIN);
-			gi.SV_Multicast(_s.origin, MULTICAST_PVS);
+			trap_SV_WriteByte(SVC_MUZZLEFLASH);
+			trap_SV_WriteShort(_s.getNumber());
+			trap_SV_WriteByte(MZ_LOGIN);
+			trap_SV_Multicast(_s.origin, MULTICAST_PVS);
 
-			gi.SV_BPrintf(PRINT_HIGH, "%s entered the game\n", _pers.netname);
+			trap_SV_BPrintf(PRINT_HIGH, "%s entered the game\n", _pers.netname);
 		}
 	}
 
@@ -888,15 +887,15 @@ void	g_player_c::clientBeginDeathmatch()
 	else
 	{
 		// send effect
-		gi.SV_WriteByte(SVC_MUZZLEFLASH);
-		gi.SV_WriteShort(_s.getNumber());
-		gi.SV_WriteByte(MZ_LOGIN);
-		gi.SV_Multicast(_s.origin, MULTICAST_PVS);
+		trap_SV_WriteByte(SVC_MUZZLEFLASH);
+		trap_SV_WriteShort(_s.getNumber());
+		trap_SV_WriteByte(MZ_LOGIN);
+		trap_SV_Multicast(_s.origin, MULTICAST_PVS);
 	}
 
-	gi.SV_BPrintf(PRINT_HIGH, "%s entered the game\n", _pers.netname);
+	trap_SV_BPrintf(PRINT_HIGH, "%s entered the game\n", _pers.netname);
 	
-	//gi.Com_Printf("G_ClientBeginDeathmatch:\n");
+	//trap_Com_Printf("G_ClientBeginDeathmatch:\n");
 
 	// make sure all view stuff is valid
 	endServerFrame();
@@ -949,7 +948,7 @@ void	g_player_c::clientUserinfoChanged(info_c &userinfo)
 	playernum = _s.getNumber() -1;
 
 	// combine name and skin into a configstring
-	gi.SV_SetConfigString(CS_PLAYERSKINS + playernum, va("%s\\%s", _pers.netname, s));
+	trap_SV_SetConfigString(CS_PLAYERSKINS + playernum, va("%s\\%s", _pers.netname, s));
 
 	// fov
 	if(deathmatch->getInteger() && (dmflags->getInteger() & DF_FIXED_FOV))
@@ -993,13 +992,13 @@ void	g_player_c::clientDisconnect()
 	//if(!getClient())
 	//	return;
 
-	gi.SV_BPrintf(PRINT_HIGH, "%s disconnected\n", _pers.netname);
+	trap_SV_BPrintf(PRINT_HIGH, "%s disconnected\n", _pers.netname);
 
 	// send effect
-	gi.SV_WriteByte(SVC_MUZZLEFLASH);
-	gi.SV_WriteShort(_s.getNumber());
-	gi.SV_WriteByte(MZ_LOGOUT);
-	gi.SV_Multicast(_s.origin, MULTICAST_PVS);
+	trap_SV_WriteByte(SVC_MUZZLEFLASH);
+	trap_SV_WriteShort(_s.getNumber());
+	trap_SV_WriteByte(MZ_LOGOUT);
+	trap_SV_Multicast(_s.origin, MULTICAST_PVS);
 	
 	_s.index_model = 0;
 	_r.solid = SOLID_NOT;
@@ -1009,7 +1008,7 @@ void	g_player_c::clientDisconnect()
 
 	playernum = _s.getNumber() - 1;
 	
-	gi.SV_SetConfigString(CS_PLAYERSKINS + playernum, "");
+	trap_SV_SetConfigString(CS_PLAYERSKINS + playernum, "");
 }
 
 
@@ -1021,45 +1020,45 @@ void	g_player_c::clientCommand()
 	if(!_r.isclient)
 		return;		// not fully in game yet
 		
-	cmd = gi.Cmd_Argv(0);
+	cmd = trap_Cmd_Argv(0);
 	
 #if 0
 	if(X_strcaseequal(cmd, "addnode") == 0 && debug_mode)
 	{
-		_last_node = ACEND_AddNode(this, atoi(gi.Cmd_Argv(1)));
+		_last_node = ACEND_AddNode(this, atoi(trap_Cmd_Argv(1)));
 		return;
 	}	
 	else if(X_strcaseequal(cmd, "removelink") == 0 && debug_mode)
 	{
-		ACEND_RemoveNodeEdge(this, atoi(gi.Cmd_Argv(1)), atoi(gi.Cmd_Argv(2)));
+		ACEND_RemoveNodeEdge(this, atoi(trap_Cmd_Argv(1)), atoi(trap_Cmd_Argv(2)));
 		return;
 	}
 	else if(X_strcaseequal(cmd, "addlink") == 0 && debug_mode)
 	{
-		ACEND_UpdateNodeEdge(atoi(gi.Cmd_Argv(1)), atoi(gi.Cmd_Argv(2)));
+		ACEND_UpdateNodeEdge(atoi(trap_Cmd_Argv(1)), atoi(trap_Cmd_Argv(2)));
 		return;
 	}
 	else if(X_strcaseequal(cmd, "showpath") == 0 && debug_mode)
     	{
-		ACEND_ShowPath(this, atoi(gi.Cmd_Argv(1)));
+		ACEND_ShowPath(this, atoi(trap_Cmd_Argv(1)));
 		return;
 	}
 	else if(X_strcaseequal(cmd, "findnode") == 0 && debug_mode)
 	{
 		int node = ACEND_FindClosestReachableNode(this, NODE_DENSITY, NODE_ALL);
 		
-		gi.SV_BPrintf(PRINT_MEDIUM, "node: %d type: %d x: %f y: %f z %f\n", node, nodes[node].type, nodes[node].origin[0], nodes[node].origin[1], nodes[node].origin[2]);
+		trap_SV_BPrintf(PRINT_MEDIUM, "node: %d type: %d x: %f y: %f z %f\n", node, nodes[node].type, nodes[node].origin[0], nodes[node].origin[1], nodes[node].origin[2]);
 		return;
 	}
 	else if(X_strcaseequal(cmd, "movenode") == 0 && debug_mode)
 	{
-		int node = atoi(gi.Cmd_Argv(1));
+		int node = atoi(trap_Cmd_Argv(1));
 		
-		nodes[node].origin[0] = atof(gi.Cmd_Argv(2));
-		nodes[node].origin[1] = atof(gi.Cmd_Argv(3));
-		nodes[node].origin[2] = atof(gi.Cmd_Argv(4));
+		nodes[node].origin[0] = atof(trap_Cmd_Argv(2));
+		nodes[node].origin[1] = atof(trap_Cmd_Argv(3));
+		nodes[node].origin[2] = atof(trap_Cmd_Argv(4));
 		
-		gi.SV_BPrintf(PRINT_MEDIUM, "node: %d moved to x: %f y: %f z %f\n", node, nodes[node].origin[0], nodes[node].origin[1], nodes[node].origin[2]);
+		trap_SV_BPrintf(PRINT_MEDIUM, "node: %d moved to x: %f y: %f z %f\n", node, nodes[node].origin[0], nodes[node].origin[1], nodes[node].origin[2]);
 		return;
 	}
 #endif
@@ -1167,14 +1166,26 @@ void	g_player_c::clientCommand()
 
 
 // pmove doesn't need to know about passent and contentmask
-
-trace_t	PM_trace(const vec3_c &start, const cbbox_c &bbox, const vec3_c &end)
+/*
+trace_t	PM_Trace(const vec3_c &start, const cbbox_c &bbox, const vec3_c &end)
 {
 	trace_t trace;
 	
 	memset(&trace, 0, sizeof(trace));
 	
 	return trace;
+}
+*/
+
+static g_entity_c*	pm_passent;
+
+// pmove doesn't need to know about passent and contentmask
+static trace_t	PM_Trace(const vec3_c &start, const cbbox_c &bbox, const vec3_c &end)
+{
+	if(pm_passent->_health > 0)
+		return G_Trace(start, bbox, end, pm_passent, MASK_PLAYERSOLID);
+	else
+		return G_Trace(start, bbox, end, pm_passent, MASK_DEADSOLID);
 }
 
 
@@ -1213,6 +1224,8 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 			
 		return;
 	}
+	
+	pm_passent = this;
 
 	// set up for pmove
 	pmove_t	pm;
@@ -1231,7 +1244,7 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 		_r.ps.pmove.pm_type = PM_NORMAL;
 
 	_r.ps.pmove.gravity = g_gravity->getValue();
-	pm.s = _r.ps.pmove;
+	pm.s = _r.ps.pmove; 
 
 	pm.s.origin = _s.origin;
 	pm.s.velocity_linear = _s.velocity_linear;
@@ -1244,17 +1257,17 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	if(memcmp(&_old_pmove, &pm.s, sizeof(pm.s)))
 	{
 		pm.snapinitial = true;
-		//gi.Com_DPrintf("G_ClientThink: pmove changed!\n");
+		//trap_Com_DPrintf("G_ClientThink: pmove changed!\n");
 	}
 
 	pm.cmd = cmd;
 
 	pm.rayTrace = G_RayTrace;
-	pm.boxTrace = PM_trace;	// adds default parms
-	pm.pointContents = gi.SV_PointContents;
+	pm.boxTrace = PM_Trace;	// adds default parms
+	pm.pointContents = G_PointContents;
 
 	// perform a pmove
-	Com_Pmove(&pm);
+	Com_Pmove(&pm); 
 
 	// save results of pmove
 	_r.ps.pmove = pm.s;
@@ -1311,7 +1324,7 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 
 	if(_groundentity && !pm.groundentity && (pm.cmd.upmove >= 10) && (pm.waterlevel == 0))
 	{
-		gi.SV_StartSound(NULL, this, CHAN_VOICE, gi.SV_SoundIndex("*jump1.wav"), 1, ATTN_NORM, 0);
+		trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex("*jump1.wav"), 1, ATTN_NORM, 0);
 	}
 
 	_v_height = pm.viewheight;
@@ -1334,7 +1347,7 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 		_r.ps.view_angles = pm.viewangles;
 	}
 
-	//gi.SV_LinkEdict(this);
+	//trap_SV_LinkEdict(this);
 
 //	if(_movetype != MOVETYPE_NOCLIP)
 //		G_TouchTriggers(this);
@@ -1575,7 +1588,7 @@ void	g_player_c::clientObituary(g_entity_c *inflictor, g_entity_c *attacker)
 		
 		if(message)
 		{
-			gi.SV_BPrintf (PRINT_MEDIUM, "%s %s.\n", _pers.netname, message);
+			trap_SV_BPrintf (PRINT_MEDIUM, "%s %s.\n", _pers.netname, message);
 			
 			if(deathmatch->getInteger())
 				_resp.score--;
@@ -1662,7 +1675,7 @@ void	g_player_c::clientObituary(g_entity_c *inflictor, g_entity_c *attacker)
 			
 			if(message)
 			{
-				gi.SV_BPrintf (PRINT_MEDIUM,"%s %s %s%s\n", _pers.netname, message, ((g_player_c*)attacker)->_pers.netname, message2);
+				trap_SV_BPrintf (PRINT_MEDIUM,"%s %s %s%s\n", _pers.netname, message, ((g_player_c*)attacker)->_pers.netname, message2);
 				
 				if (deathmatch->getInteger())
 				{
@@ -1676,7 +1689,7 @@ void	g_player_c::clientObituary(g_entity_c *inflictor, g_entity_c *attacker)
 		}
 	}
 
-	gi.SV_BPrintf (PRINT_MEDIUM,"%s died.\n", _pers.netname);
+	trap_SV_BPrintf (PRINT_MEDIUM,"%s died.\n", _pers.netname);
 	
 	if (deathmatch->getInteger())
 		_resp.score--;
@@ -1789,7 +1802,7 @@ g_entity_c*	g_player_c::selectRandomDeathmatchSpawnPoint()
 
 	if(!count)
 	{
-		gi.Com_Printf("g_player_c::selectRandomDeathmatchSpawnPoint: no spawn points\n");
+		trap_Com_Printf("g_player_c::selectRandomDeathmatchSpawnPoint: no spawn points\n");
 		return NULL;
 	}
 
@@ -1939,7 +1952,7 @@ void	g_player_c::selectSpawnPoint(vec3_c &origin, vec3_c &angles)
 				spot = G_FindByClassName(spot, "info_player_start");
 			}
 			if(!spot)
-				gi.Com_Error(ERR_DROP, "g_player_c::selectSpawnPoint: Couldn't find spawn point %s\n", game.spawnpoint.c_str());
+				trap_Com_Error(ERR_DROP, "g_player_c::selectSpawnPoint: Couldn't find spawn point %s\n", game.spawnpoint.c_str());
 		}
 	}
 
@@ -2109,8 +2122,8 @@ void	g_player_c::putClientInServer()
 			_r.ps.fov = 160;
 	}
 
-	_r.ps.gun_model_index = gi.SV_ModelIndex(_pers.weapon->getViewModel());
-	_r.ps.gun_anim_index = gi.SV_AnimationIndex(_pers.weapon->getActivateAnimationName());
+	_r.ps.gun_model_index = trap_SV_ModelIndex(_pers.weapon->getViewModel());
+	_r.ps.gun_anim_index = trap_SV_AnimationIndex(_pers.weapon->getActivateAnimationName());
 
 	// clear entity state values
 	_s.effects = 0;
@@ -2140,7 +2153,7 @@ void	g_player_c::putClientInServer()
 	_v_angles = _angles;
 	
 	
-	//gi.Com_Printf("g_player_c::putClientInServer: at %s\n", spawn_origin.toString());
+	//trap_Com_Printf("g_player_c::putClientInServer: at %s\n", spawn_origin.toString());
 	
 	_r.ps.pmove.origin[0] = spawn_origin[0];
 	_r.ps.pmove.origin[1] = spawn_origin[1];
@@ -2168,7 +2181,7 @@ void	g_player_c::putClientInServer()
 //  		_body->setGravityMode(0);
 //  		_body->enable();
 		
-		_space->disable();
+//		_space->disable();
 		
 		return;
 	}
@@ -2180,7 +2193,7 @@ void	g_player_c::putClientInServer()
 //  		_body->setGravityMode(1);
 //  		_body->enable();
 		
-		_space->enable();
+//		_space->enable();
 		
 		_resp.spectator = false;
 	}
@@ -2188,7 +2201,7 @@ void	g_player_c::putClientInServer()
 	if(!G_KillBox(this))
 	{	
 		// could't spawn in?
-		//gi.Com_Printf("G_PutClientInServer: could not spawn %s\n", ent->_pers.netname);
+		//trap_Com_Printf("G_PutClientInServer: could not spawn %s\n", ent->_pers.netname);
 	}
 
 	// force the current weapon up
@@ -2241,11 +2254,11 @@ void	g_player_c::respawnAsSpectator()
 		
 		if(!X_strequal(spectator_password->getString(), "") && !X_strequal(spectator_password->getString(), "none") && !X_strequal(spectator_password->getString(), value))
 		{
-			gi.SV_CPrintf(this, PRINT_HIGH, "Spectator password incorrect.\n");
+			trap_SV_CPrintf(this, PRINT_HIGH, "Spectator password incorrect.\n");
 			_pers.spectator = false;
-			gi.SV_WriteByte(SVC_STUFFTEXT);
-			gi.SV_WriteString("spectator 0\n");
-			gi.SV_Unicast(this, true);
+			trap_SV_WriteByte(SVC_STUFFTEXT);
+			trap_SV_WriteString("spectator 0\n");
+			trap_SV_Unicast(this, true);
 			return;
 		}
 
@@ -2256,11 +2269,11 @@ void	g_player_c::respawnAsSpectator()
 
 		if(numspec >= maxspectators->getInteger()) 
 		{
-			gi.SV_CPrintf(this, PRINT_HIGH, "Server spectator limit is full.");
+			trap_SV_CPrintf(this, PRINT_HIGH, "Server spectator limit is full.");
 			_pers.spectator = false;
-			gi.SV_WriteByte(SVC_STUFFTEXT);
-			gi.SV_WriteString("spectator 0\n");
-			gi.SV_Unicast(this, true);
+			trap_SV_WriteByte(SVC_STUFFTEXT);
+			trap_SV_WriteString("spectator 0\n");
+			trap_SV_Unicast(this, true);
 			return;
 		}
 	}
@@ -2272,11 +2285,11 @@ void	g_player_c::respawnAsSpectator()
 		
 		if(!X_strequal(password->getString(), "") && !X_strequal(password->getString(), "none") && !X_strequal(password->getString(), value))
 		{
-			gi.SV_CPrintf(this, PRINT_HIGH, "Password incorrect.\n");
+			trap_SV_CPrintf(this, PRINT_HIGH, "Password incorrect.\n");
 			_pers.spectator = true;
-			gi.SV_WriteByte(SVC_STUFFTEXT);
-			gi.SV_WriteString("spectator 1\n");
-			gi.SV_Unicast(this, true);
+			trap_SV_WriteByte(SVC_STUFFTEXT);
+			trap_SV_WriteString("spectator 1\n");
+			trap_SV_Unicast(this, true);
 			return;
 		}
 	}
@@ -2291,10 +2304,10 @@ void	g_player_c::respawnAsSpectator()
 	if(!_pers.spectator)
 	{
 		// send effect
-		gi.SV_WriteByte(SVC_MUZZLEFLASH);
-		gi.SV_WriteShort(_s.getNumber());	// - g_entities);
-		gi.SV_WriteByte(MZ_LOGIN);
-		gi.SV_Multicast(_s.origin, MULTICAST_PVS);
+		trap_SV_WriteByte(SVC_MUZZLEFLASH);
+		trap_SV_WriteShort(_s.getNumber());	// - g_entities);
+		trap_SV_WriteByte(MZ_LOGIN);
+		trap_SV_Multicast(_s.origin, MULTICAST_PVS);
 
 		// hold in place briefly
 		_r.ps.pmove.pm_flags = PMF_TIME_TELEPORT;
@@ -2304,9 +2317,9 @@ void	g_player_c::respawnAsSpectator()
 	_respawn_time = level.time;
 
 	if(_pers.spectator) 
-		gi.SV_BPrintf(PRINT_HIGH, "%s has moved to the sidelines\n", _pers.netname);
+		trap_SV_BPrintf(PRINT_HIGH, "%s has moved to the sidelines\n", _pers.netname);
 	else
-		gi.SV_BPrintf(PRINT_HIGH, "%s joined the game\n", _pers.netname);
+		trap_SV_BPrintf(PRINT_HIGH, "%s joined the game\n", _pers.netname);
 }
 
 
@@ -2323,7 +2336,7 @@ void	g_player_c::beginServerFrame()
 {
 	int		buttonMask;
 	
-	//gi.Com_Printf("g_player_c::beginServerFrame:\n");
+	//trap_Com_Printf("g_player_c::beginServerFrame:\n");
 
 	if(level.intermission_time)
 		return;
@@ -2424,7 +2437,7 @@ void	g_player_c::endServerFrame()
 
 	// calculate speed and cycle to be used for
 	// all cyclic walking effects
-	_xyspeed = sqrt(_s.velocity_linear[0]*_s.velocity_linear[0] + _s.velocity_linear[1]*_s.velocity_linear[1]);
+	_xyspeed = X_sqrt(_s.velocity_linear[0]*_s.velocity_linear[0] + _s.velocity_linear[1]*_s.velocity_linear[1]);
 
 	//if(_xyspeed < 5)
 	{
@@ -2500,13 +2513,13 @@ void	g_player_c::endServerFrame()
 	if(_showscores && !(level.framenum & 31))
 	{
 		DeathmatchScoreboardMessage();
-		gi.SV_Unicast(this, false);
+		trap_SV_Unicast(this, false);
 	}
 	
 	//if(!ent->client)
-	//	gi.Com_Error(ERR_DROP, "G_ClientEndServerFrame: NULL ent->getClient()");
+	//	trap_Com_Error(ERR_DROP, "G_ClientEndServerFrame: NULL ent->getClient()");
 		
-	//gi.Com_Printf("G_ClientEndServerFrame: %s\n", ent->_pers.netname);
+	//trap_Com_Printf("G_ClientEndServerFrame: %s\n", ent->_pers.netname);
 	
 	
 }
@@ -2523,7 +2536,7 @@ void	g_player_c::updateStats()
 	//
 	// health
 	//
-	_r.ps.stats[STAT_HEALTH_ICON] = gi.SV_ShaderIndex("gfx/hud/healthicon");
+	_r.ps.stats[STAT_HEALTH_ICON] = trap_SV_ShaderIndex("gfx/hud/healthicon");
 	_r.ps.stats[STAT_HEALTH] = _health;
 	
 
@@ -2532,13 +2545,13 @@ void	g_player_c::updateStats()
 	//
 	if(!_ammo_index  || !_pers.inventory[_ammo_index])
 	{
-		_r.ps.stats[STAT_AMMO_ICON] = gi.SV_ShaderIndex("gfx/hud/ammoicon");
+		_r.ps.stats[STAT_AMMO_ICON] = trap_SV_ShaderIndex("gfx/hud/ammoicon");
 		_r.ps.stats[STAT_AMMO] = 0;
 	}
 	else
 	{
 		//item = G_GetItemByNum(_ammo_index);
-		_r.ps.stats[STAT_AMMO_ICON] = gi.SV_ShaderIndex("gfx/hud/ammoicon"); //gi.SV_ShaderIndex (item->getIcon());
+		_r.ps.stats[STAT_AMMO_ICON] = trap_SV_ShaderIndex("gfx/hud/ammoicon"); //trap_SV_ShaderIndex (item->getIcon());
 		_r.ps.stats[STAT_AMMO] = _pers.inventory[_ammo_index];
 	}
 	
@@ -2555,7 +2568,7 @@ void	g_player_c::updateStats()
 		if (cells == 0)
 		{	// ran out of cells for power armor
 			_flags &= ~FL_POWER_ARMOR;
-			gi.SV_StartSound(NULL, this, CHAN_ITEM, gi.SV_SoundIndex("misc/power2.wav"), 1, ATTN_NORM, 0);
+			trap_SV_StartSound(NULL, this, CHAN_ITEM, trap_SV_SoundIndex("misc/power2.wav"), 1, ATTN_NORM, 0);
 			power_armor_type = 0;;
 		}
 	}
@@ -2566,19 +2579,19 @@ void	g_player_c::updateStats()
 	if(power_armor_type && (!index || (level.framenum & 8) ) )
 	{	
 		// flash between power armor and other armor icon
-		_r.ps.stats[STAT_ARMOR_ICON] = gi.SV_ShaderIndex("textures/pics/i_powershield");
+		_r.ps.stats[STAT_ARMOR_ICON] = trap_SV_ShaderIndex("textures/pics/i_powershield");
 		_r.ps.stats[STAT_ARMOR] = cells;
 	}
 	else if(index)
 	{
 		item = G_GetItemByNum(index);
-		_r.ps.stats[STAT_ARMOR_ICON] = gi.SV_ShaderIndex("gfx/hud/armoricon"); //gi.SV_ShaderIndex (item->getIcon());
+		_r.ps.stats[STAT_ARMOR_ICON] = trap_SV_ShaderIndex("gfx/hud/armoricon"); //trap_SV_ShaderIndex (item->getIcon());
 		_r.ps.stats[STAT_ARMOR] = _pers.inventory[index];
 	}
 	else
 	*/
 	{
-		_r.ps.stats[STAT_ARMOR_ICON] = gi.SV_ShaderIndex("gfx/hud/armoricon");
+		_r.ps.stats[STAT_ARMOR_ICON] = trap_SV_ShaderIndex("gfx/hud/armoricon");
 		_r.ps.stats[STAT_ARMOR] = 0;
 	}
 
@@ -2598,22 +2611,22 @@ void	g_player_c::updateStats()
 	//
 	if (_quad_framenum > level.framenum)
 	{
-		_r.ps.stats[STAT_TIMER_ICON] = gi.SV_ShaderIndex("textures/pics/p_quad");
+		_r.ps.stats[STAT_TIMER_ICON] = trap_SV_ShaderIndex("textures/pics/p_quad");
 		_r.ps.stats[STAT_TIMER] = (short)((_quad_framenum - level.framenum)/10);
 	}
 	else if (_invincible_framenum > level.framenum)
 	{
-		_r.ps.stats[STAT_TIMER_ICON] = gi.SV_ShaderIndex("textures/pics/p_invulnerability");
+		_r.ps.stats[STAT_TIMER_ICON] = trap_SV_ShaderIndex("textures/pics/p_invulnerability");
 		_r.ps.stats[STAT_TIMER] = (short)((_invincible_framenum - level.framenum)/10);
 	}
 	else if (_enviro_framenum > level.framenum)
 	{
-		_r.ps.stats[STAT_TIMER_ICON] = gi.SV_ShaderIndex("textures/pics/p_envirosuit");
+		_r.ps.stats[STAT_TIMER_ICON] = trap_SV_ShaderIndex("textures/pics/p_envirosuit");
 		_r.ps.stats[STAT_TIMER] = (short)((_enviro_framenum - level.framenum)/10);
 	}
 	else if (_breather_framenum > level.framenum)
 	{
-		_r.ps.stats[STAT_TIMER_ICON] = gi.SV_ShaderIndex("textures/pics/p_rebreather");
+		_r.ps.stats[STAT_TIMER_ICON] = trap_SV_ShaderIndex("textures/pics/p_rebreather");
 		_r.ps.stats[STAT_TIMER] = (short)((_breather_framenum - level.framenum)/10);
 	}
 	else
@@ -2629,7 +2642,7 @@ void	g_player_c::updateStats()
 	if (_pers.selected_item == -1)
 		_r.ps.stats[STAT_SELECTED_ICON] = 0;
 	else
-		_r.ps.stats[STAT_SELECTED_ICON] = gi.SV_ShaderIndex (g_items[_pers.selected_item]->getIcon());
+		_r.ps.stats[STAT_SELECTED_ICON] = trap_SV_ShaderIndex (g_items[_pers.selected_item]->getIcon());
 
 	_r.ps.stats[STAT_SELECTED_ITEM] = _pers.selected_item;
 
@@ -2660,7 +2673,7 @@ void	g_player_c::updateStats()
 	//
 	// frags
 	//
-	_r.ps.stats[STAT_FRAGS_ICON] = gi.SV_ShaderIndex("gfx/hud/fragicon");
+	_r.ps.stats[STAT_FRAGS_ICON] = trap_SV_ShaderIndex("gfx/hud/fragicon");
 	_r.ps.stats[STAT_FRAGS] = _resp.score;
 
 
@@ -2668,7 +2681,7 @@ void	g_player_c::updateStats()
 	// help icon / current weapon if not shown
 	//
 	if((_pers.hand == CENTER_HANDED || _r.ps.fov > 91) && _pers.weapon)
-		_r.ps.stats[STAT_HELPICON] = gi.SV_ShaderIndex (_pers.weapon->getIcon());
+		_r.ps.stats[STAT_HELPICON] = trap_SV_ShaderIndex (_pers.weapon->getIcon());
 	else
 		_r.ps.stats[STAT_HELPICON] = 0;
 
@@ -2678,37 +2691,37 @@ void	g_player_c::updateStats()
 	//
 	// main hud status bar
 	//
-	_r.ps.stats[STAT_HUDBAR] = gi.SV_ShaderIndex("gfx/hud/hud_bar");
+	_r.ps.stats[STAT_HUDBAR] = trap_SV_ShaderIndex("gfx/hud/hud_bar");
 	
 		
 	//
 	// weapon windows
 	//
-	//_r.ps.stats[STAT_WEAPON_WINDOW0_ICON] = gi.SV_ShaderIndex("gfx/hud/weapn_win.tga");
+	//_r.ps.stats[STAT_WEAPON_WINDOW0_ICON] = trap_SV_ShaderIndex("gfx/hud/weapn_win.tga");
 	//_r.ps.stats[STAT_WEAPON_WINDOW0_AMMO] = _pers.inventory[G_GetNumForItem(G_FindItem("rockets"))];
 	
 	//if(_pers.inventory[G_GetNumForItem(G_FindItem("rocket launcher"))])
 	//{
 	//	item = G_FindItem("blaster");
 		
-	//	_r.ps.stats[STAT_WEAPON_WINDOW0_WEAPON] = gi.SV_ModelIndex(item->getWorldModel());
+	//	_r.ps.stats[STAT_WEAPON_WINDOW0_WEAPON] = trap_SV_ModelIndex(item->getWorldModel());
 	//}
 	//else
 	//	_r.ps.stats[STAT_WEAPON_WINDOW0_WEAPON] = 0;
 		
-	//_r.ps.stats[STAT_WEAPON_WINDOW1_ICON] = gi.SV_ShaderIndex ("gfx/statusbar/weapn_win.tga");
+	//_r.ps.stats[STAT_WEAPON_WINDOW1_ICON] = trap_SV_ShaderIndex ("gfx/statusbar/weapn_win.tga");
 	//_r.ps.stats[STAT_WEAPON_WINDOW1] = _pers.inventory[G_GetNumForItem(G_FindItem("cells"))];
 	
-	//_r.ps.stats[STAT_WEAPON_WINDOW2_ICON] = gi.SV_ShaderIndex ("gfx/statusbar/weapn_win.tga");
+	//_r.ps.stats[STAT_WEAPON_WINDOW2_ICON] = trap_SV_ShaderIndex ("gfx/statusbar/weapn_win.tga");
 	//_r.ps.stats[STAT_WEAPON_WINDOW2] = _pers.inventory[G_GetNumForItem(G_FindItem("cells"))];
 	
-	//_r.ps.stats[STAT_WEAPON_WINDOW3_ICON] = gi.SV_ShaderIndex ("gfx/statusbar/weapn_win.tga");
+	//_r.ps.stats[STAT_WEAPON_WINDOW3_ICON] = trap_SV_ShaderIndex ("gfx/statusbar/weapn_win.tga");
 	//_r.ps.stats[STAT_WEAPON_WINDOW3] = _pers.inventory[G_GetNumForItem(G_FindItem("cells"))];
 	
-	//_r.ps.stats[STAT_WEAPON_WINDOW4_ICON] = gi.SV_ShaderIndex ("gfx/statusbar/weapn_win.tga");
+	//_r.ps.stats[STAT_WEAPON_WINDOW4_ICON] = trap_SV_ShaderIndex ("gfx/statusbar/weapn_win.tga");
 	//_r.ps.stats[STAT_WEAPON_WINDOW4] = _pers.inventory[G_GetNumForItem(G_FindItem("cells"))];
 	
-	//_r.ps.stats[STAT_WEAPON_WINDOW5_ICON] = gi.SV_ShaderIndex ("gfx/statusbar/weapn_win.tga");
+	//_r.ps.stats[STAT_WEAPON_WINDOW5_ICON] = trap_SV_ShaderIndex ("gfx/statusbar/weapn_win.tga");
 	//_r.ps.stats[STAT_WEAPON_WINDOW5] = _pers.inventory[G_GetNumForItem(G_FindItem("cells"))];
  	
 	//
@@ -2717,7 +2730,7 @@ void	g_player_c::updateStats()
 	/*
 	{
 		//item = &itemlist[_ammo_index];
-		_r.ps.stats[STAT_SELECTED_WEAPON_ICON] = gi.SV_ShaderIndex ("gfx/hud/selec_weapn.tga");
+		_r.ps.stats[STAT_SELECTED_WEAPON_ICON] = trap_SV_ShaderIndex ("gfx/hud/selec_weapn.tga");
 		_r.ps.stats[STAT_SELECTED_WEAPON] = 0;  //TODO _weapon_index]
 	}
 	*/
@@ -2788,13 +2801,13 @@ void	g_player_c::updateWorldEffects()
 		//PlayerNoise(current_player, current_player->_s.origin, PNOISE_SELF);
 		
 		if(_watertype & X_CONT_LAVA)
-			gi.SV_StartSound(NULL, this, CHAN_BODY, gi.SV_SoundIndex("player/lava_in.wav"), 1, ATTN_NORM, 0);
+			trap_SV_StartSound(NULL, this, CHAN_BODY, trap_SV_SoundIndex("player/lava_in.wav"), 1, ATTN_NORM, 0);
 			
 		else if(_watertype & X_CONT_SLIME)
-			gi.SV_StartSound(NULL, this, CHAN_BODY, gi.SV_SoundIndex("player/watr_in.wav"), 1, ATTN_NORM, 0);
+			trap_SV_StartSound(NULL, this, CHAN_BODY, trap_SV_SoundIndex("player/watr_in.wav"), 1, ATTN_NORM, 0);
 			
 		else if(_watertype & X_CONT_WATER)
-			gi.SV_StartSound(NULL, this, CHAN_BODY, gi.SV_SoundIndex("player/watr_in.wav"), 1, ATTN_NORM, 0);
+			trap_SV_StartSound(NULL, this, CHAN_BODY, trap_SV_SoundIndex("player/watr_in.wav"), 1, ATTN_NORM, 0);
 			
 		_flags |= FL_INWATER;
 
@@ -2810,7 +2823,7 @@ void	g_player_c::updateWorldEffects()
 	{
 		//PlayerNoise(current_player, current_player->_s.origin, PNOISE_SELF);
 		
-		gi.SV_StartSound(NULL, this, CHAN_BODY, gi.SV_SoundIndex("player/watr_out.wav"), 1, ATTN_NORM, 0);
+		trap_SV_StartSound(NULL, this, CHAN_BODY, trap_SV_SoundIndex("player/watr_out.wav"), 1, ATTN_NORM, 0);
 		_flags &= ~FL_INWATER;
 	}
 
@@ -2820,7 +2833,7 @@ void	g_player_c::updateWorldEffects()
 	//
 	if(old_waterlevel != 3 && waterlevel == 3)
 	{
-		gi.SV_StartSound(NULL, this, CHAN_BODY, gi.SV_SoundIndex("player/watr_un.wav"), 1, ATTN_NORM, 0);
+		trap_SV_StartSound(NULL, this, CHAN_BODY, trap_SV_SoundIndex("player/watr_un.wav"), 1, ATTN_NORM, 0);
 	}
 
 
@@ -2832,14 +2845,14 @@ void	g_player_c::updateWorldEffects()
 		if(_air_finished < level.time)
 		{	
 			// gasp for air
-			gi.SV_StartSound(NULL, this, CHAN_VOICE, gi.SV_SoundIndex("player/gasp1.wav"), 1, ATTN_NORM, 0);
+			trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex("player/gasp1.wav"), 1, ATTN_NORM, 0);
 			
 			//PlayerNoise(current_player, current_player->_s.origin, PNOISE_SELF);
 		}
 		else  if(_air_finished < level.time + 11)
 		{	
 			// just break surface
-			gi.SV_StartSound (NULL, this, CHAN_VOICE, gi.SV_SoundIndex("player/gasp2.wav"), 1, ATTN_NORM, 0);
+			trap_SV_StartSound (NULL, this, CHAN_VOICE, trap_SV_SoundIndex("player/gasp2.wav"), 1, ATTN_NORM, 0);
 		}
 	}
 	
@@ -2857,9 +2870,9 @@ void	g_player_c::updateWorldEffects()
 			if(((int)(_breather_framenum - level.framenum) % 25) == 0)
 			{
 				if(!_breather_sound)
-					gi.SV_StartSound(NULL, this, CHAN_AUTO, gi.SV_SoundIndex("player/u_breath1.wav"), 1, ATTN_NORM, 0);
+					trap_SV_StartSound(NULL, this, CHAN_AUTO, trap_SV_SoundIndex("player/u_breath1.wav"), 1, ATTN_NORM, 0);
 				else
-					gi.SV_StartSound (NULL, this, CHAN_AUTO, gi.SV_SoundIndex("player/u_breath2.wav"), 1, ATTN_NORM, 0);
+					trap_SV_StartSound (NULL, this, CHAN_AUTO, trap_SV_SoundIndex("player/u_breath2.wav"), 1, ATTN_NORM, 0);
 				
 				_breather_sound ^= 1;
 				
@@ -2884,13 +2897,13 @@ void	g_player_c::updateWorldEffects()
 
 				// play a gurp sound instead of a normal pain sound
 				if(_health <= _dmg)
-					gi.SV_StartSound(NULL, this, CHAN_VOICE, gi.SV_SoundIndex("player/drown1.wav"), 1, ATTN_NORM, 0);
+					trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex("player/drown1.wav"), 1, ATTN_NORM, 0);
 					
 				else if (rand()&1)
-					gi.SV_StartSound(NULL, this, CHAN_VOICE, gi.SV_SoundIndex("*gurp1.wav"), 1, ATTN_NORM, 0);
+					trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex("*gurp1.wav"), 1, ATTN_NORM, 0);
 					
 				else
-					gi.SV_StartSound(NULL, this, CHAN_VOICE, gi.SV_SoundIndex("*gurp2.wav"), 1, ATTN_NORM, 0);
+					trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex("*gurp2.wav"), 1, ATTN_NORM, 0);
 
 				_pain_debounce_time = level.time;
 
@@ -2915,9 +2928,9 @@ void	g_player_c::updateWorldEffects()
 			if(_health > 0 && _pain_debounce_time <= level.time && _invincible_framenum < level.framenum)
 			{
 				if(rand()&1)
-					gi.SV_StartSound(NULL, this, CHAN_VOICE, gi.SV_SoundIndex("player/burn1.wav"), 1, ATTN_NORM, 0);
+					trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex("player/burn1.wav"), 1, ATTN_NORM, 0);
 				else
-					gi.SV_StartSound(NULL, this, CHAN_VOICE, gi.SV_SoundIndex("player/burn2.wav"), 1, ATTN_NORM, 0);
+					trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex("player/burn2.wav"), 1, ATTN_NORM, 0);
 				
 				_pain_debounce_time = level.time + 1;
 			}
@@ -3131,7 +3144,7 @@ void	g_player_c::updateDamageFeedback()
 		else
 			l = 100;
 			
-		gi.SV_StartSound(NULL, this, CHAN_VOICE, gi.SV_SoundIndex(va("*pain%i_%i.wav", l, r)), 1, ATTN_NORM, 0);
+		trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex(va("*pain%i_%i.wav", l, r)), 1, ATTN_NORM, 0);
 	}
 
 	// the total alpha of the blend is always proportional to count
@@ -3273,13 +3286,13 @@ void	g_player_c::updateClientSound()
 		weap = "";
 
 	if(_waterlevel && (_watertype & (X_CONT_LAVA|X_CONT_SLIME)))
-		_s.index_sound = gi.SV_SoundIndex("player/fry.wav");
+		_s.index_sound = trap_SV_SoundIndex("player/fry.wav");
 	
 	else if(strcmp(weap, "weapon_railgun") == 0)
-		_s.index_sound = gi.SV_SoundIndex("weapons/rg_hum.wav");
+		_s.index_sound = trap_SV_SoundIndex("weapons/rg_hum.wav");
 	
 	else if (strcmp(weap, "weapon_bfg") == 0)
-		_s.index_sound = gi.SV_SoundIndex("weapons/bfg_hum.wav");
+		_s.index_sound = trap_SV_SoundIndex("weapons/bfg_hum.wav");
 	
 	else if (_weapon_sound)
 		_s.index_sound = _weapon_sound;
@@ -3648,7 +3661,7 @@ void	g_player_c::calcBlend()
 
 	// add for contents
 	vieworg = _s.origin + _r.ps.view_offset;
-	contents = gi.SV_PointContents(vieworg);
+	contents = G_PointContents(vieworg);
 	
 	if(contents & (X_CONT_LAVA|X_CONT_SLIME|X_CONT_WATER) )
 		_r.ps.rdflags |= RDF_UNDERWATER;
@@ -3670,7 +3683,7 @@ void	g_player_c::calcBlend()
 		remaining = (int)(_quad_framenum - level.framenum);
 		
 		if (remaining == 30)	// beginning to fade
-			gi.SV_StartSound(NULL, this, CHAN_ITEM, gi.SV_SoundIndex("items/damage2.wav"), 1, ATTN_NORM, 0);
+			trap_SV_StartSound(NULL, this, CHAN_ITEM, trap_SV_SoundIndex("items/damage2.wav"), 1, ATTN_NORM, 0);
 		
 		if (remaining > 30 || (remaining & 4) )
 			addBlend (0, 0, 1, 0.08, _r.ps.blend);
@@ -3680,7 +3693,7 @@ void	g_player_c::calcBlend()
 		remaining = (int)(_invincible_framenum - level.framenum);
 		
 		if (remaining == 30)	// beginning to fade
-			gi.SV_StartSound(NULL, this, CHAN_ITEM, gi.SV_SoundIndex("items/protect2.wav"), 1, ATTN_NORM, 0);
+			trap_SV_StartSound(NULL, this, CHAN_ITEM, trap_SV_SoundIndex("items/protect2.wav"), 1, ATTN_NORM, 0);
 		
 		if (remaining > 30 || (remaining & 4) )
 			addBlend (1, 1, 0, 0.08, _r.ps.blend);
@@ -3690,7 +3703,7 @@ void	g_player_c::calcBlend()
 		remaining = (int)(_enviro_framenum - level.framenum);
 		
 		if (remaining == 30)	// beginning to fade
-			gi.SV_StartSound(NULL, this, CHAN_ITEM, gi.SV_SoundIndex("items/airout.wav"), 1, ATTN_NORM, 0);
+			trap_SV_StartSound(NULL, this, CHAN_ITEM, trap_SV_SoundIndex("items/airout.wav"), 1, ATTN_NORM, 0);
 		
 		if (remaining > 30 || (remaining & 4) )
 			addBlend (0, 1, 0, 0.08, _r.ps.blend);
@@ -3699,7 +3712,7 @@ void	g_player_c::calcBlend()
 	{
 		remaining = (int)(_breather_framenum - level.framenum);
 		if (remaining == 30)	// beginning to fade
-			gi.SV_StartSound(NULL, this, CHAN_ITEM, gi.SV_SoundIndex("items/airout.wav"), 1, ATTN_NORM, 0);
+			trap_SV_StartSound(NULL, this, CHAN_ITEM, trap_SV_SoundIndex("items/airout.wav"), 1, ATTN_NORM, 0);
 		if (remaining > 30 || (remaining & 4) )
 			addBlend (0.4, 1, 0.4, 0.04, _r.ps.blend);
 	}
@@ -3779,7 +3792,7 @@ bool	g_player_c::isStepping()
 	point[2] -= (1.6*PM_STEPSIZE);
 	
 	// trace to point
-	trace = gi.SV_Trace(_s.origin, _r.bbox, point, this, MASK_PLAYERSOLID);
+	trace = trap_SV_Trace(_s.origin, _r.bbox, point, this, MASK_PLAYERSOLID);
 	
 	if(!trace.ent || (trace.plane._normal[2] < 0.7 && !trace.startsolid))
 	{
@@ -3802,13 +3815,13 @@ bool	g_player_c::scanAnimations(const std::string &model)
 	{
 		std::string name = "models/players/" + model + "/" + std::string(anim->name) + ".md5anim";
 		
-		if(gi.VFS_FLoad(name, NULL) <= 0)
+		if(trap_VFS_FLoad(name, NULL) <= 0)
 		{
 			Com_Error(ERR_DROP, "g_player_c::scanAnimations: player model '%s' does not provide animation '%s'", model.c_str(), name.c_str());
 			return false;
 		}
 		
-		//gi.Com_Printf("adding '%s'\n", name.c_str());
+		//trap_Com_Printf("adding '%s'\n", name.c_str());
 		
 		scanAnimation(name);
 		
@@ -3904,14 +3917,14 @@ g_entity_c*	g_player_c::dropItem(g_item_c *item)
 		
 	G_ProjectSource(_s.origin, offset, forward, right, origin);
 	
-	//trace = gi.SV_Trace(_s.origin, dropped->_r.bbox, origin, this, X_CONT_SOLID);
+	//trace = trap_SV_Trace(_s.origin, dropped->_r.bbox, origin, this, X_CONT_SOLID);
 	
 	vec3_c velocity = forward * 10;
 	velocity[2] = 30 * 3;
 	
 	g_item_dropable_c *dropped = new g_item_dropable_c(this, item, origin, velocity);
 		
-	//gi.Com_Printf("g_player_c::dropItem: body at %s\n", dropped->_s.origin.toString());
+	//trap_Com_Printf("g_player_c::dropItem: body at %s\n", dropped->_s.origin.toString());
 
 	return dropped;
 }
@@ -3938,21 +3951,21 @@ void 	g_player_c::give_f()
 
 	if(deathmatch->getValue() && !sv_cheats->getValue())
 	{
-		gi.SV_CPrintf(this, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
+		trap_SV_CPrintf(this, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
 		return;
 	}
 
-	name = gi.Cmd_Args();
+	name = trap_Cmd_Args();
 
 	if (X_stricmp(name, "all") == 0)
 		give_all = true;
 	else
 		give_all = false;
 
-	if(give_all || X_stricmp(gi.Cmd_Argv(1), "health") == 0)
+	if(give_all || X_stricmp(trap_Cmd_Argv(1), "health") == 0)
 	{
-		if(gi.Cmd_Argc() == 3)
-			_health = atoi(gi.Cmd_Argv(2));
+		if(trap_Cmd_Argc() == 3)
+			_health = atoi(trap_Cmd_Argv(2));
 		else
 			_health = _max_health;
 		
@@ -4057,18 +4070,18 @@ void 	g_player_c::give_f()
 	it = G_FindItem (name);
 	if(!it)
 	{
-		name = gi.Cmd_Argv(1);
+		name = trap_Cmd_Argv(1);
 		it = G_FindItem (name);
 		if (!it)
 		{
-			gi.SV_CPrintf(this, PRINT_HIGH, "unknown item\n");
+			trap_SV_CPrintf(this, PRINT_HIGH, "unknown item\n");
 			return;
 		}
 	}
 
 	if(!it->hasPickup())
 	{
-		gi.SV_CPrintf(this, PRINT_HIGH, "non-pickup item\n");
+		trap_SV_CPrintf(this, PRINT_HIGH, "non-pickup item\n");
 		return;
 	}
 
@@ -4076,8 +4089,8 @@ void 	g_player_c::give_f()
 
 	if (it->getFlags() & IT_AMMO)
 	{
-		if (gi.Cmd_Argc() == 3)
-			_pers.inventory[index] = atoi(gi.Cmd_Argv(2));
+		if (trap_Cmd_Argc() == 3)
+			_pers.inventory[index] = atoi(trap_Cmd_Argv(2));
 		else
 			_pers.inventory[index] += it->getQuantity();
 	}
@@ -4112,7 +4125,7 @@ void	g_player_c::ultraman_f()
 
 	if(deathmatch->getValue() && !sv_cheats->getValue())
 	{
-		gi.SV_CPrintf(this, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
+		trap_SV_CPrintf(this, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
 		return;
 	}
 
@@ -4123,7 +4136,7 @@ void	g_player_c::ultraman_f()
 	else
 		msg = "ultraman mode ON\n";
 
-	gi.SV_CPrintf(this, PRINT_HIGH, msg);
+	trap_SV_CPrintf(this, PRINT_HIGH, msg);
 }
 
 
@@ -4142,7 +4155,7 @@ void 	g_player_c::notarget_f()
 
 	if(deathmatch->getValue() && !sv_cheats->getValue())
 	{
-		gi.SV_CPrintf(this, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
+		trap_SV_CPrintf(this, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
 		return;
 	}
 
@@ -4153,7 +4166,7 @@ void 	g_player_c::notarget_f()
 	else
 		msg = "notarget ON\n";
 
-	gi.SV_CPrintf(this, PRINT_HIGH, msg);
+	trap_SV_CPrintf(this, PRINT_HIGH, msg);
 }
 
 
@@ -4170,26 +4183,26 @@ void 	g_player_c::noclip_f()
 
 	if(deathmatch->getValue() && !sv_cheats->getValue())
 	{
-		gi.SV_CPrintf(this, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
+		trap_SV_CPrintf(this, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
 		return;
 	}
 
-	if(!_space->isEnabled())
+	if(_movetype == MOVETYPE_NOCLIP)//!_space->isEnabled())
 	{
 		_movetype = MOVETYPE_WALK;
-//  		_body->setGravityMode(1);
-		_space->enable();
+//		_body->setGravityMode(1);
+//		_space->enable();
 		msg = "noclip OFF\n";
 	}
 	else
 	{
 		_movetype = MOVETYPE_NOCLIP;
-//  		_body->setGravityMode(0);
-		_space->disable();
+//		_body->setGravityMode(0);
+//		_space->disable();
 		msg = "noclip ON\n";
 	}
 
-	gi.SV_CPrintf(this, PRINT_HIGH, msg);
+	trap_SV_CPrintf(this, PRINT_HIGH, msg);
 }
 
 
@@ -4206,18 +4219,18 @@ void 	g_player_c::use_f()
 	g_item_c		*item;
 	const char		*s;
 
-	s = gi.Cmd_Args();
+	s = trap_Cmd_Args();
 	item = G_FindItem(s);
 	
 	if(!item)
 	{
-		gi.SV_CPrintf(this, PRINT_HIGH, "unknown item: %s\n", s);
+		trap_SV_CPrintf(this, PRINT_HIGH, "unknown item: %s\n", s);
 		return;
 	}
 	
 	if(!item->hasUse())
 	{
-		gi.SV_CPrintf(this, PRINT_HIGH, "Item is not usable.\n");
+		trap_SV_CPrintf(this, PRINT_HIGH, "Item is not usable.\n");
 		return;
 	}
 	
@@ -4225,7 +4238,7 @@ void 	g_player_c::use_f()
 	
 	if(!_pers.inventory[index])
 	{
-		gi.SV_CPrintf(this, PRINT_HIGH, "Out of item: %s\n", s);
+		trap_SV_CPrintf(this, PRINT_HIGH, "Out of item: %s\n", s);
 		return;
 	}
 
@@ -4246,18 +4259,18 @@ void	g_player_c::drop_f()
 	g_item_c		*item;
 	const char		*s;
 
-	s = gi.Cmd_Args();
+	s = trap_Cmd_Args();
 	item = G_FindItem(s);
 	
 	if(!item)
 	{
-		gi.SV_CPrintf(this, PRINT_HIGH, "unknown item: %s\n", s);
+		trap_SV_CPrintf(this, PRINT_HIGH, "unknown item: %s\n", s);
 		return;
 	}
 	
 	if(!item->hasDrop())
 	{
-		gi.SV_CPrintf(this, PRINT_HIGH, "Item %s is not dropable.\n", item->getClassname());
+		trap_SV_CPrintf(this, PRINT_HIGH, "Item %s is not dropable.\n", item->getClassname());
 		return;
 	}
 	
@@ -4265,7 +4278,7 @@ void	g_player_c::drop_f()
 	
 	if(!_pers.inventory[index])
 	{
-		gi.SV_CPrintf(this, PRINT_HIGH, "Out of item: %s\n", s);
+		trap_SV_CPrintf(this, PRINT_HIGH, "Out of item: %s\n", s);
 		return;
 	}
 
@@ -4291,12 +4304,12 @@ void 	g_player_c::inven_f()
 
 	_showinventory = true;
 
-	gi.SV_WriteByte(SVC_INVENTORY);
+	trap_SV_WriteByte(SVC_INVENTORY);
 	for(int i=0; i<MAX_ITEMS; i++)
 	{
-		gi.SV_WriteShort(_pers.inventory[i]);
+		trap_SV_WriteShort(_pers.inventory[i]);
 	}
-	gi.SV_Unicast(this, true);
+	trap_SV_Unicast(this, true);
 }
 
 /*
@@ -4312,7 +4325,7 @@ void 	g_player_c::invUse_f()
 
 	if(_pers.selected_item == -1)
 	{
-		gi.SV_CPrintf(this, PRINT_HIGH, "No item to use.\n");
+		trap_SV_CPrintf(this, PRINT_HIGH, "No item to use.\n");
 		return;
 	}
 
@@ -4320,7 +4333,7 @@ void 	g_player_c::invUse_f()
 	
 	if(!item->hasUse())
 	{
-		gi.SV_CPrintf(this, PRINT_HIGH, "Item is not usable.\n");
+		trap_SV_CPrintf(this, PRINT_HIGH, "Item is not usable.\n");
 		return;
 	}
 	
@@ -4340,7 +4353,7 @@ void 	g_player_c::invDrop_f()
 
 	if(_pers.selected_item == -1)
 	{
-		gi.SV_CPrintf(this, PRINT_HIGH, "No item to drop.\n");
+		trap_SV_CPrintf(this, PRINT_HIGH, "No item to drop.\n");
 		return;
 	}
 
@@ -4348,7 +4361,7 @@ void 	g_player_c::invDrop_f()
 	
 	if(!item->hasDrop())
 	{
-		gi.SV_CPrintf(this, PRINT_HIGH, "Item %s is not dropable.\n", item->getClassname());
+		trap_SV_CPrintf(this, PRINT_HIGH, "Item %s is not dropable.\n", item->getClassname());
 		return;
 	}
 	
@@ -4468,15 +4481,15 @@ void	g_player_c::weapReload_f()
 		
 	if(!(_pers.weapon->getFlags() & IT_WEAPON))
 	{
-		gi.Com_Error(ERR_DROP, "g_player_c::weapReload_f: _pers.weapon has no IT_WEAPON flag");
+		trap_Com_Error(ERR_DROP, "g_player_c::weapReload_f: _pers.weapon has no IT_WEAPON flag");
 		return;
 	}
 	
 	_weapon_state = WEAPON_RELOADING;
 	//_weapon_update = level.time;
-	_r.ps.gun_model_index = gi.SV_ModelIndex(_pers.weapon->getViewModel());
+	_r.ps.gun_model_index = trap_SV_ModelIndex(_pers.weapon->getViewModel());
 	_r.ps.gun_anim_frame = _pers.weapon->getReloadAnimationFirstFrame();
-	_r.ps.gun_anim_index = gi.SV_AnimationIndex(_pers.weapon->getReloadAnimationName());
+	_r.ps.gun_anim_index = trap_SV_AnimationIndex(_pers.weapon->getReloadAnimationName());
 	
 	_pers.weapon->reload(this);
 }
@@ -4575,7 +4588,7 @@ void 	g_player_c::players_f()
 		strcat(large, small);
 	}
 
-	gi.SV_CPrintf(ent, PRINT_HIGH, "%s\n%i players\n", large, count);
+	trap_SV_CPrintf(ent, PRINT_HIGH, "%s\n%i players\n", large, count);
 	*/
 }
 
@@ -4588,7 +4601,7 @@ void 	g_player_c::wave_f()
 {
 	int		i;
 
-	i = atoi (gi.Cmd_Argv(1));
+	i = atoi (trap_Cmd_Argv(1));
 
 	// can't wave when ducked
 	//if(_r.ps.pmove.pm_flags & PMF_DUCKED)
@@ -4603,25 +4616,25 @@ void 	g_player_c::wave_f()
 	{
 		/*
 		case 0:
-			gi.SV_CPrintf(this, PRINT_HIGH, "flipoff\n");
+			trap_SV_CPrintf(this, PRINT_HIGH, "flipoff\n");
 			_s.frame = FRAME_flip01-1;
 			_anim_end = FRAME_flip12;
 			break;
 		
 		case 1:
-			gi.SV_CPrintf(this, PRINT_HIGH, "salute\n");
+			trap_SV_CPrintf(this, PRINT_HIGH, "salute\n");
 			_s.frame = FRAME_salute01-1;
 			_anim_end = FRAME_salute11;
 			break;
 			
 		case 2:
-			gi.SV_CPrintf(this, PRINT_HIGH, "taunt\n");
+			trap_SV_CPrintf(this, PRINT_HIGH, "taunt\n");
 			_s.frame = FRAME_taunt01-1;
 			_anim_end = FRAME_taunt17;
 			break;
 			
 		case 3:
-			gi.SV_CPrintf(this, PRINT_HIGH, "wave\n");
+			trap_SV_CPrintf(this, PRINT_HIGH, "wave\n");
 			_s.frame = FRAME_wave01-1;
 			_anim_end = FRAME_wave11;
 			break;
@@ -4630,7 +4643,7 @@ void 	g_player_c::wave_f()
 		*/
 		
 		default:
-			gi.SV_CPrintf(this, PRINT_HIGH, "point\n");
+			trap_SV_CPrintf(this, PRINT_HIGH, "point\n");
 			//_s.frame = FRAME_point01-1;
 			//_anim_end = FRAME_point12;
 			
@@ -4654,7 +4667,7 @@ void 	g_player_c::say_f(bool team, bool arg0)
 	char	text[2048];
 	//g_client_c *cl;
 
-	if(gi.Cmd_Argc () < 2 && !arg0)
+	if(trap_Cmd_Argc () < 2 && !arg0)
 		return;
 
 	if(!(dmflags->getInteger() & (DF_MODELTEAMS | DF_SKINTEAMS)))
@@ -4667,13 +4680,13 @@ void 	g_player_c::say_f(bool team, bool arg0)
 
 	if (arg0)
 	{
-		strcat (text, gi.Cmd_Argv(0));
+		strcat (text, trap_Cmd_Argv(0));
 		strcat (text, " ");
-		strcat (text, gi.Cmd_Args());
+		strcat (text, trap_Cmd_Args());
 	}
 	else
 	{
-		p = (char*)gi.Cmd_Args();
+		p = (char*)trap_Cmd_Args();
 
 		if (*p == '"')
 		{
@@ -4695,7 +4708,7 @@ void 	g_player_c::say_f(bool team, bool arg0)
 
         	if(level.time < _flood_locktill)
 		{
-			gi.SV_CPrintf(this, PRINT_HIGH, "You can't talk for %d more seconds\n", (int)(_flood_locktill - level.time));
+			trap_SV_CPrintf(this, PRINT_HIGH, "You can't talk for %d more seconds\n", (int)(_flood_locktill - level.time));
 			return;
         	}
         
@@ -4708,7 +4721,7 @@ void 	g_player_c::say_f(bool team, bool arg0)
 		{
 			_flood_locktill = level.time + flood_waitdelay->getInteger();
 			
-			gi.SV_CPrintf(this, PRINT_CHAT, "Flood protection:  You can't talk for %d seconds.\n", (int)flood_waitdelay->getInteger());
+			trap_SV_CPrintf(this, PRINT_CHAT, "Flood protection:  You can't talk for %d seconds.\n", (int)flood_waitdelay->getInteger());
 			return;
         	}	
 		
@@ -4717,7 +4730,7 @@ void 	g_player_c::say_f(bool team, bool arg0)
 	}
 
 	if(dedicated->getInteger())
-		gi.SV_CPrintf(NULL, PRINT_CHAT, "%s", text);
+		trap_SV_CPrintf(NULL, PRINT_CHAT, "%s", text);
 
 
 	for(j=1; j<=game.maxclients; j++)
@@ -4732,7 +4745,7 @@ void 	g_player_c::say_f(bool team, bool arg0)
 			if(!G_OnSameTeam(this, other))
 				continue;
 		}
-		gi.SV_CPrintf(other, PRINT_CHAT, "%s", text);
+		trap_SV_CPrintf(other, PRINT_CHAT, "%s", text);
 	}
 }
 
@@ -4763,12 +4776,12 @@ void 	g_player_c::playerList_f()
 		if(strlen(text) + strlen(st) > sizeof(text) - 50) 
 		{
 			sprintf(text+strlen(text), "And more...\n");
-			gi.SV_CPrintf(this, PRINT_HIGH, "%s", text);
+			trap_SV_CPrintf(this, PRINT_HIGH, "%s", text);
 			return;
 		}
 		strcat(text, st);
 	}
-	gi.SV_CPrintf(this, PRINT_HIGH, "%s", text);
+	trap_SV_CPrintf(this, PRINT_HIGH, "%s", text);
 }
 
 
@@ -4800,7 +4813,7 @@ Called by ClientBeginServerFrame and ClientThink
 */
 void	g_player_c::thinkWeapon()
 {
-	//gi.Com_Printf("g_player_c::thinkWeapon:\n");
+	//trap_Com_Printf("g_player_c::thinkWeapon:\n");
 
 	// if just died, put the weapon away
 	if(_health < 1)
@@ -4862,9 +4875,9 @@ void	g_player_c::changeWeapon()
 	
 	_weapon_state = WEAPON_ACTIVATING;
 	_weapon_update = level.time;
-	_r.ps.gun_model_index = gi.SV_ModelIndex(_pers.weapon->getViewModel());
+	_r.ps.gun_model_index = trap_SV_ModelIndex(_pers.weapon->getViewModel());
 	_r.ps.gun_anim_frame = _pers.weapon->getActivateAnimationFirstFrame();
-	_r.ps.gun_anim_index = gi.SV_AnimationIndex(_pers.weapon->getActivateAnimationName());
+	_r.ps.gun_anim_index = trap_SV_AnimationIndex(_pers.weapon->getActivateAnimationName());
 	
 
 	// FIXME
@@ -5090,7 +5103,7 @@ void	g_player_c::moveToIntermission()
 	if(deathmatch->getInteger() || coop->getInteger())
 	{
 		DeathmatchScoreboardMessage();
-		gi.SV_Unicast(this, true);
+		trap_SV_Unicast(this, true);
 	}
 }
 

@@ -45,10 +45,10 @@ Fire an origin based temp entity event to the clients.
 /*
 void Use_Target_Tent (edict_t *ent, edict_t *other, edict_t *activator)
 {
-	gi.SV_WriteByte (svc_temp_entity);
-	gi.SV_WriteByte (ent->style);
-	gi.SV_WritePosition (ent->s.origin);
-	gi.SV_Multicast (ent->s.origin, MULTICAST_PVS);
+	trap_SV_WriteByte (svc_temp_entity);
+	trap_SV_WriteByte (ent->style);
+	trap_SV_WritePosition (ent->s.origin);
+	trap_SV_Multicast (ent->s.origin, MULTICAST_PVS);
 }
 */
 
@@ -112,7 +112,7 @@ void	g_target_speaker_c::use(g_entity_c *other, g_entity_c *activator)
 			
 		// use a positioned_sound, because this entity won't normally be
 		// sent to any clients because it is invisible
-		gi.SV_StartSound(_s.origin, this, chan, _noise_index, _volume, _attenuation, 0);
+		trap_SV_StartSound(_s.origin, this, chan, _noise_index, _volume, _attenuation, 0);
 	}
 }
 
@@ -120,16 +120,16 @@ void	g_target_speaker_c::activate()
 {
 	if(_s_shader.empty())
 	{
-		gi.Com_Printf("target_speaker with no sound shader set at %s\n", Vector3_String(_s.origin));
+		trap_Com_Printf("target_speaker with no sound shader set at %s\n", Vector3_String(_s.origin));
 		remove();
 		return;
 	}
 	
 	_r.inuse = true;
 	
-	gi.Com_Printf("g_target_speaker::activate: sound '%s'\n", _s_shader.c_str());
+	trap_Com_Printf("g_target_speaker::activate: sound '%s'\n", _s_shader.c_str());
 		
-	_noise_index = gi.SV_SoundIndex(_s_shader);
+	_noise_index = trap_SV_SoundIndex(_s_shader);
 
 	if(!_volume)
 		_volume = 1.0;
@@ -177,10 +177,10 @@ void	g_target_explosion_c::think()
 {
 	float		save;
 
-	gi.SV_WriteByte(SVC_TEMP_ENTITY);
-	gi.SV_WriteByte(TE_EXPLOSION1);
-	gi.SV_WritePosition(_s.origin);
-	gi.SV_Multicast(_s.origin, MULTICAST_PHS);
+	trap_SV_WriteByte(SVC_TEMP_ENTITY);
+	trap_SV_WriteByte(TE_EXPLOSION1);
+	trap_SV_WritePosition(_s.origin);
+	trap_SV_Multicast(_s.origin, MULTICAST_PHS);
 
 	//T_RadiusDamage(this, _activator, _dmg, NULL, _dmg+40, MOD_EXPLOSIVE);
 
@@ -246,7 +246,7 @@ void use_target_changelevel (edict_t *self, edict_t *other, edict_t *activator)
 	if (deathmatch->value)
 	{
 		if (activator && activator->r.client)
-			gi.SV_BPrintf (PRINT_HIGH, "%s exited the level.\n", activator->r.client->pers.netname);
+			trap_SV_BPrintf (PRINT_HIGH, "%s exited the level.\n", activator->r.client->pers.netname);
 	}
 
 	// if going to a new unit, clear cross triggers
@@ -262,7 +262,7 @@ void SP_target_changelevel (edict_t *ent)
 {
 	if (!ent->map)
 	{
-		gi.Com_Printf("target_changelevel with no map at %s\n", Vector3_String(ent->s.origin));
+		trap_Com_Printf("target_changelevel with no map at %s\n", Vector3_String(ent->s.origin));
 		G_FreeEdict (ent);
 		return;
 	}
@@ -298,13 +298,13 @@ Set "sounds" to one of the following:
 /*
 void use_target_splash (edict_t *self, edict_t *other, edict_t *activator)
 {
-	gi.SV_WriteByte (svc_temp_entity);
-	gi.SV_WriteByte (TE_SPLASH);
-	gi.SV_WriteByte (self->count);
-	gi.SV_WritePosition (self->s.origin);
-	gi.SV_WriteDir (self->movedir);
-	gi.SV_WriteByte (self->sounds);
-	gi.SV_Multicast (self->s.origin, MULTICAST_PVS);
+	trap_SV_WriteByte (svc_temp_entity);
+	trap_SV_WriteByte (TE_SPLASH);
+	trap_SV_WriteByte (self->count);
+	trap_SV_WritePosition (self->s.origin);
+	trap_SV_WriteDir (self->movedir);
+	trap_SV_WriteByte (self->sounds);
+	trap_SV_Multicast (self->s.origin, MULTICAST_PVS);
 
 	if (self->dmg)
 		T_RadiusDamage (self, activator, self->dmg, NULL, self->dmg+40, MOD_SPLASH);
@@ -353,9 +353,9 @@ void use_target_spawner (edict_t *self, edict_t *other, edict_t *activator)
 	Vector3_Copy (self->s.origin, ent->s.origin);
 	Vector3_Copy (self->s.angles, ent->s.angles);
 	ED_CallSpawn (ent);
-	gi.SV_UnlinkEdict (ent);
+	trap_SV_UnlinkEdict (ent);
 	G_KillBox (ent);
-	gi.SV_LinkEdict (ent);
+	trap_SV_LinkEdict (ent);
 	if (self->speed)
 		Vector3_Copy (self->movedir, ent->velocity);
 }
@@ -396,7 +396,7 @@ void use_target_blaster (edict_t *self, edict_t *other, edict_t *activator)
 		effect = EF_BLASTER;
 
 	fire_blaster (self, self->s.origin, self->movedir, self->dmg, (int)self->speed, EF_BLASTER, MOD_TARGET_BLASTER);
-	gi.SV_StartSound (NULL, self, CHAN_VOICE, self->noise_index, 1, ATTN_NORM, 0);
+	trap_SV_StartSound (NULL, self, CHAN_VOICE, self->noise_index, 1, ATTN_NORM, 0);
 }
 */
 
@@ -405,7 +405,7 @@ void SP_target_blaster (edict_t *self)
 {
 	self->use = use_target_blaster;
 	G_SetMovedir (self->s.angles, self->movedir);
-	self->noise_index = gi.SV_SoundIndex ("weapons/laser2.wav");
+	self->noise_index = trap_SV_SoundIndex ("weapons/laser2.wav");
 
 	if (!self->dmg)
 		self->dmg = 15;
@@ -484,7 +484,7 @@ void target_earthquake_think (edict_t *self)
 
 	if (self->last_move_time < level.time)
 	{
-		gi.SV_StartSound (self->s.origin, self, CHAN_AUTO, self->noise_index, 1.0, ATTN_NONE, 0);
+		trap_SV_StartSound (self->s.origin, self, CHAN_AUTO, self->noise_index, 1.0, ATTN_NONE, 0);
 		self->last_move_time = level.time + 0.5;
 	}
 
@@ -526,7 +526,7 @@ void target_earthquake_use (edict_t *self, edict_t *other, edict_t *activator)
 void SP_target_earthquake (edict_t *self)
 {
 	if (!self->targetname)
-		gi.Com_Printf("untargeted %s at %s\n", self->classname, Vector3_String(self->s.origin));
+		trap_Com_Printf("untargeted %s at %s\n", self->classname, Vector3_String(self->s.origin));
 
 	if (!self->count)
 		self->count = 5;
@@ -538,7 +538,7 @@ void SP_target_earthquake (edict_t *self)
 	self->think = target_earthquake_think;
 	self->use = target_earthquake_use;
 
-	self->noise_index = gi.SV_SoundIndex ("world/quake.wav");
+	self->noise_index = trap_SV_SoundIndex ("world/quake.wav");
 }
 */
 
@@ -576,7 +576,7 @@ void	g_target_teleport_c::activate()
 {
 	_r.inuse = true;
 	
-	//gi.SV_SetModel (ent, "models/objects/dmspot/tris.md2");
+	//trap_SV_SetModel (ent, "models/objects/dmspot/tris.md2");
 	//ent->_s.skinnum = 0;
 	//ent->_r.solid = SOLID_BBOX;
 	//ent->s.effects |= EF_FLIES;
@@ -607,7 +607,7 @@ g_target_delay_c::g_target_delay_c(g_entity_c *ent, g_entity_c *activator)
 	
 	_activator = activator;	
 	if(!activator)
-		gi.Com_Printf("Think_Delay with no activator\n");
+		trap_Com_Printf("Think_Delay with no activator\n");
 	
 	_message = ent->_message;
 	_target = ent->_target;

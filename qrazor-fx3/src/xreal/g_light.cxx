@@ -96,7 +96,7 @@ void	g_light_c::think()
 		g_entity_c *target = G_PickTarget(_target);
 		if(!target)
 		{
-			gi.Com_Printf("g_light_c::think: can't find target %s\n", _target.c_str());
+			trap_Com_Printf("g_light_c::think: can't find target %s\n", _target.c_str());
 			remove();
 			return;
 		}
@@ -130,7 +130,7 @@ void	g_light_c::touch(g_entity_c *other, cplane_c *plane, csurface_c *surf)
 
 void	g_light_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point)
 {
-	gi.Com_Printf("g_light_c::die: inflictor '%s'\n", inflictor->getClassName());
+	trap_Com_Printf("g_light_c::die: inflictor '%s'\n", inflictor->getClassName());
 
 	_health = _max_health;
 	_takedamage = DAMAGE_NO;
@@ -145,12 +145,12 @@ static void light_use (g_entity_c *self, g_entity_c *other, g_entity_c *activato
 {
 	if (self->spawnflags & START_OFF)
 	{
-		gi.configstring (CS_LIGHTS+self->style, "m");
+		trap_configstring (CS_LIGHTS+self->style, "m");
 		self->spawnflags &= ~START_OFF;
 	}
 	else
 	{
-		gi.configstring (CS_LIGHTS+self->style, "a");
+		trap_configstring (CS_LIGHTS+self->style, "a");
 		self->spawnflags |= START_OFF;
 	}
 }
@@ -182,9 +182,9 @@ void	g_light_c::activate()
 		_s.type = ET_LIGHT_PROJ;
 		
 		if(_texture.length())
-			_s.index_light = gi.SV_LightIndex(_texture);
+			_s.index_light = trap_SV_LightIndex(_texture);
 		else
-			_s.index_light = gi.SV_LightIndex("lights/defaultProjectedLight");
+			_s.index_light = trap_SV_LightIndex("lights/defaultProjectedLight");
 			
 		_s.vectors[0] = _light_target;
 		_s.vectors[1] = _light_right;
@@ -195,9 +195,9 @@ void	g_light_c::activate()
 		_s.type = ET_LIGHT_OMNI;
 		
 		if(_texture.length())
-			_s.index_light = gi.SV_LightIndex(_texture);
+			_s.index_light = trap_SV_LightIndex(_texture);
 		else
-			_s.index_light = gi.SV_LightIndex("lights/defaultPointLight");
+			_s.index_light = trap_SV_LightIndex("lights/defaultPointLight");
 	
 		if(_s.vectors[0].isZero())
 		{

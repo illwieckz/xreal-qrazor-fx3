@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 g_entity_c::g_entity_c(bool create_rigid_body)
 {
-	//gi.Com_Printf ("g_entity_c::ctor:\n");
+	//trap_Com_Printf ("g_entity_c::ctor:\n");
 
 	//
 	// create default values
@@ -45,7 +45,7 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 	_s.shaderparms[4] = 1.0;
 	_s.shaderparms[5] = 1.0;
 	_s.shaderparms[6] = 1.0;
-// 	_s.shaderparms[7] = 1.0;
+// 	_s.shaderparms[7] = 1.0; 
 	
 	_r.inuse	= false;
 	_r.headnode	= 0;			// unused if num_clusters != -1
@@ -146,12 +146,12 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 	{
 		*ir = this;
 			
-		//gi.Com_Printf("g_entity_c::ctor: found free slot %i\n", s.number);
+		//trap_Com_Printf("g_entity_c::ctor: found free slot %i\n", s.number);
 	}
 	else
 	{
 		if((int)g_entities.size() == game.maxentities)
-			gi.Com_Error(ERR_DROP, "g_entity_c::ctor: max entities limit reached");
+			trap_Com_Error(ERR_DROP, "g_entity_c::ctor: max entities limit reached");
 		
 		g_entities.push_back(this);	
 	}
@@ -246,7 +246,7 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 
 g_entity_c::~g_entity_c()
 {
-	//gi.Com_Printf ("g_entity_c::dtor: %s %i\n", _classname, _s.number);
+	//trap_Com_Printf ("g_entity_c::dtor: %s %i\n", _classname, _s.number);
 	
 	//
 	// reset entity's slot
@@ -256,21 +256,20 @@ g_entity_c::~g_entity_c()
 	if(ir != g_entities.end())
 		*ir = NULL;
 	else
-		gi.Com_Error(ERR_FATAL, "g_entity_c::dtor: entity '%s' %i not in list", _classname.c_str(), _s.number);
+		trap_Com_Error(ERR_FATAL, "g_entity_c::dtor: entity '%s' %i not in list", _classname.c_str(), _s.number);
 		
 	
 	//
 	// clear dynamics
 	//
-	for(std::map<d_geom_c*, g_geom_info_c*>::iterator ir = _geoms.begin(); ir != _geoms.end(); ++ir)
+	for(std::vector<d_geom_c*>::iterator ir = _geoms.begin(); ir != _geoms.end(); ++ir)
 	{
-		if(ir->first->isEnabled())
+		if((*ir)->isEnabled())
 		{
-			gi.Com_Error(ERR_FATAL, "g_entity_c::dtor: tried to delete entity '%s' %i which has enabled geom object", _classname.c_str(), _s.number);
+			trap_Com_Error(ERR_FATAL, "g_entity_c::dtor: tried to delete entity '%s' %i which has enabled geom object", _classname.c_str(), _s.number);
 		}
 		
-		delete ir->first;
-		delete ir->second;
+		delete *ir;
 	}
 	
 	if(_body)
@@ -364,9 +363,9 @@ void	g_entity_c::remove()
 {
 	_r.inuse = false;
 		
-	for(std::map<d_geom_c*, g_geom_info_c*>::iterator ir = _geoms.begin(); ir != _geoms.end(); ++ir)
+	for(std::vector<d_geom_c*>::iterator ir = _geoms.begin(); ir != _geoms.end(); ++ir)
 	{
-		ir->first->disable();
+		(*ir)->disable();
 	}
 		
 	if(_body)
@@ -426,6 +425,30 @@ void	g_entity_c::updateVelocity()
 		_s.velocity_linear = _body->getLinearVel();
 }
 
+/*
+=============
+G_RunThink
+
+Runs thinking code for this frame if necessary
+=============
+*/
+bool	g_entity_c::runThink()
+{
+	float thinktime = _nextthink;
+	
+	if(thinktime <= 0)
+		return true;
+		
+	if(thinktime > level.time + 0.001)
+		return true;
+	
+	_nextthink = 0;
+	
+	think();
+
+	return false;
+}
+
 bool	g_entity_c::inFront(const g_entity_c *other)
 {
 	vec3_c		forward, right, up;
@@ -446,7 +469,7 @@ bool	g_entity_c::inFront(const g_entity_c *other)
 
 void	G_ShutdownEntities()
 {
-	gi.Com_Printf("G_ShutdownEntities: %i edict slots left\n", g_entities.size());
+	trap_Com_Printf("G_ShutdownEntities: %i edict slots left\n", g_entities.size());
 	
 	for(std::vector<sv_entity_c*>::iterator ir = g_entities.begin(); ir != g_entities.end(); ir++)
 	{
@@ -454,7 +477,9 @@ void	G_ShutdownEntities()
 		
 		if(ent)
 		{
-			//gi.Com_Printf("killing %s %i ...\n", ent->_classname, ent->_s.number);
+			ent->remove();	// get rid of enabled bodies and geoms
+		
+			//trap_Com_Printf("killing %s %i ...\n", ent->_classname, ent->_s.number);
 			delete ent;
 		}
 	}

@@ -415,8 +415,6 @@ g_world_c::g_world_c()
 	addField(g_field_c("maxyaw", &_maxyaw, F_FLOAT, FFL_SPAWNTEMP));
 	addField(g_field_c("minpitch", &_minpitch, F_FLOAT, FFL_SPAWNTEMP));
 	addField(g_field_c("maxpitch", &_maxpitch, F_FLOAT, FFL_SPAWNTEMP));
-	
-	_space = new d_simple_space_c(g_ode_space->getId());
 }
 
 g_world_c::~g_world_c()
@@ -442,32 +440,32 @@ void	g_world_c::activate()
 	// make some data visible to the server
 	if(ent->_message.length() && ent->_message[0])
 	{
-		//gi.Com_Printf("g_world_c::activate: message '%s'\n", ent->_message.c_str());
+		//trap_Com_Printf("g_world_c::activate: message '%s'\n", ent->_message.c_str());
 		
-		gi.SV_SetConfigString(CS_MAPMESSAGE, ent->_message);
+		trap_SV_SetConfigString(CS_MAPMESSAGE, ent->_message);
 		level.level_name = ent->_message;
 	}
 	else
 		level.level_name = level.mapname;
 
 
-	gi.SV_SetConfigString(CS_SKY, "cubemaps/dots");
+	trap_SV_SetConfigString(CS_SKY, "cubemaps/dots");
 
-	//gi.SV_Configstring (CS_CDTRACK, va("%i", ent->sounds) );
+	//trap_SV_Configstring (CS_CDTRACK, va("%i", ent->sounds) );
 
-	gi.SV_SetConfigString(CS_MAXCLIENTS, va("%i", maxclients->getInteger()));
+	trap_SV_SetConfigString(CS_MAXCLIENTS, va("%i", maxclients->getInteger()));
 
 	
 	// status bar program	//TODO use client side GUIs based on XUL scripting
 	if(deathmatch->getValue())
-		gi.SV_SetConfigString(CS_STATUSBAR, dm_statusbar);
+		trap_SV_SetConfigString(CS_STATUSBAR, dm_statusbar);
 	else
-		gi.SV_SetConfigString(CS_STATUSBAR, "");
+		trap_SV_SetConfigString(CS_STATUSBAR, "");
 
 	/*
 	if(_gravity)
 	{
-		gi.Cvar_SetValue("g_gravity", _gravity);
+		trap_Cvar_SetValue("g_gravity", _gravity);
 		
 		vec3_c gravity(0, 0, (-9.81 * 32/10) * g_gravity->value);
 
@@ -477,6 +475,9 @@ void	g_world_c::activate()
 		
 	G_SetWorldModel(this, "*0");
 //	G_SetWorldModel(this, "worldMap");
+
+//	delete g_ode_bsp; 
+//	g_ode_bsp = NULL;
 }
 
 void	SP_worldspawn(g_entity_c **entity)

@@ -65,7 +65,6 @@ struct server_t
 		framenum	= 0;
 		
 		name		= "";
-		memset(models, 0, sizeof(models));
 		
 		memset(configstrings, 0, sizeof(configstrings));
 		baselines	= std::vector<entity_state_t>(MAX_ENTITIES);
@@ -82,7 +81,6 @@ struct server_t
 	int				framenum;
 
 	std::string			name;			// map name, or cinematic name
-	cmodel_c*			models[MAX_MODELS];
 	
 	char				configstrings[MAX_CONFIGSTRINGS][MAX_QPATH];
 	std::vector<entity_state_t>	baselines;
@@ -247,18 +245,6 @@ extern	game_export_t	*ge;
 
 void 	SV_InitGameProgs();
 void 	SV_ShutdownGameProgs();
-
-
-
-//
-// sv_world.cxx
-//
-void	SV_SetAreaPortalState(sv_entity_c *ent, bool open);
-
-
-// returns the CONTENTS_* value from the world at the given point.
-// Quake 2 extends this to also check entities, to allow moving liquids
-int 	SV_PointContents(const vec3_c &p);
 
 
 #endif // SERVER_H

@@ -57,7 +57,7 @@ enum movetype_t
 //
 class g_item_c;
 
-
+/*
 class g_geom_info_c
 {
 public:
@@ -77,6 +77,7 @@ private:
 	cmodel_c*	_model;
 	csurface_c*	_surf;
 };
+*/
 
 
 class g_entity_c :
@@ -99,16 +100,18 @@ public:
 	virtual bool	touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf) {return true;}
 	virtual void	use(g_entity_c *other, g_entity_c *activator) {};
 	virtual void	pain(g_entity_c *other, float kick, int damage) {};
-	virtual void	die(g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point) {};
+	virtual void	die(g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point) {};		//TODO rename to ::killed
 	
+	// called by G_SpawnEntities
 	virtual void	activate() {};
 	
 	virtual std::string	clientTeam()	{return "";}
 	virtual void	takeDamage(	g_entity_c *inflictor, 	g_entity_c *attacker, 
 					vec3_t dir, vec3_t point, vec3_t normal, 
 					int damage, int knockback, int dflags, int mod	);
-						
-	void		remove();					// mark for removal from world
+	
+	// destroy this entity at the end of the current or next frame
+	void		remove();
 	
 	void		setEPairs(const std::map<std::string, std::string> &epairs);
 	bool		hasEPair(const std::string &key);
@@ -120,6 +123,16 @@ public:
 	void		updateOrigin();
 	void		updateRotation();
 	void		updateVelocity();
+	
+	//TODO update physical state
+	void		runPhysics();
+	
+	// run think() function if necessary
+	bool		runThink();
+	
+	// collision detection
+	void		link();
+	void		unlink();
 	
 	// check if other entity is visible to this
 	bool		inFront(const g_entity_c *other);
@@ -230,8 +243,9 @@ public:
 	d_body_c*		_body;
 
 	// collision detection
-	d_space_c*				_space;			// used only when we need a group of geoms
-	std::map<d_geom_c*, g_geom_info_c*>	_geoms;
+	d_space_c*		_space;			// used only when we need a group of geoms
+	std::vector<d_geom_c*>	_geoms;
+//	std::map<d_geom_c*, g_geom_info_c*>	_geoms;
 };
 
 
