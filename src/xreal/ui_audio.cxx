@@ -38,7 +38,7 @@ public:
 
 	virtual void	callback()
 	{
-		uii.Cvar_SetValue("s_sfxvolume", _curvalue / 10);
+		trap_Cvar_SetValue("s_sfxvolume", _curvalue / 10);
 	}
 };
 
@@ -52,7 +52,7 @@ public:
 	
 	virtual void	callback()
 	{
-		uii.Cvar_SetValue("s_musicvolume", _curvalue / 10);
+		trap_Cvar_SetValue("s_musicvolume", _curvalue / 10);
 	}
 };
 
@@ -71,13 +71,13 @@ public:
 	virtual void	callback()
 	{
 		if(_curvalue == 0)
-			uii.Cvar_SetValue("s_khz", 11);
+			trap_Cvar_SetValue("s_khz", 11);
 	
 		else if(_curvalue == 1)
-			uii.Cvar_SetValue("s_khz", 22);
+			trap_Cvar_SetValue("s_khz", 22);
 		
 		else if(_curvalue == 2)
-			uii.Cvar_SetValue("s_khz", 44);
+			trap_Cvar_SetValue("s_khz", 44);
 		
 	
 
@@ -87,9 +87,9 @@ public:
 		//M_Print( 16 + 16, 120 - 48 + 24, "please be patient.");
 
 		// the text box won't show up unless we do a buffer swap
-		//uii.R_EndFrame();
+		//trap_R_EndFrame();
 
-		uii.Cbuf_AddText("snd_restart\n");
+		trap_Cbuf_AddText("snd_restart\n");
 	}
 };
 
@@ -104,23 +104,23 @@ static void	M_AudioInit()
 	int	y = 0;
 	int	y_offset = CHAR_MEDIUM_HEIGHT + 5;
 	
-	s_audio_menu._x = (int)(uii.VID_GetWidth() * 0.50 - (CHAR_MEDIUM_WIDTH * 10));
+	s_audio_menu._x = (int)(trap_VID_GetWidth() * 0.50 - (CHAR_MEDIUM_WIDTH * 10));
 	
 	s_audio_sfxvolume_slider._fontflags	= FONT_MEDIUM | FONT_CHROME;
 	s_audio_sfxvolume_slider._x		= 0;
 	s_audio_sfxvolume_slider._y		= y = 0;
-	s_audio_sfxvolume_slider._curvalue	= uii.Cvar_VariableValue("s_sfxvolume") * 10;
+	s_audio_sfxvolume_slider._curvalue	= trap_Cvar_VariableValue("s_sfxvolume") * 10;
 	
 	s_audio_musicvolume_slider._fontflags	= FONT_MEDIUM | FONT_CHROME;
 	s_audio_musicvolume_slider._x		= 0;
 	s_audio_musicvolume_slider._y		= y += y_offset;
-	s_audio_musicvolume_slider._curvalue	= uii.Cvar_VariableValue("s_musicvolume") * 10;
+	s_audio_musicvolume_slider._curvalue	= trap_Cvar_VariableValue("s_musicvolume") * 10;
 
 	s_audio_quality_list._fontflags		= FONT_MEDIUM;// | FONT_CHROME;
 	s_audio_quality_list._x			= 0;
 	s_audio_quality_list._y			= y += y_offset;
 	
-	int kHz = uii.Cvar_VariableInteger("s_khz");
+	int kHz = trap_Cvar_VariableInteger("s_khz");
 	if(kHz == 11)
 		s_audio_quality_list._curvalue = 0;
 		

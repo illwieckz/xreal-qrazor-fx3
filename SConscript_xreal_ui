@@ -25,6 +25,7 @@ xreal_ui_src = [
 'src/xreal/ui_quit.cxx',
 'src/xreal/ui_server.cxx',
 'src/xreal/ui_splayer.cxx',
+'src/xreal/ui_syscalls.cxx',
 'src/xreal/ui_utils.cxx',
 'src/xreal/ui_video.cxx' ]
 

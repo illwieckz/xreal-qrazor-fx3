@@ -53,10 +53,10 @@ static void	SearchLocalGames()
 	M_Print( 16 + 16, 120 - 48 + 24, "please be patient." );
 
 	// the text box won't show up unless we do a buffer swap
-	//uii.R_EndFrame();
+	//trap_R_EndFrame();
 
 	// send out info packets
-	uii.CL_PingServers_f();
+	trap_CL_PingServers_f();
 }
 
 class menu_joinserver_address_book_c : public menu_action_c
@@ -108,8 +108,8 @@ public:
 		if(_index >= m_num_servers)
 			return;
 
-		Com_sprintf(buffer, sizeof(buffer), "connect %s\n", uii.Sys_AdrToString(local_server_netadr[_index]));
-		uii.Cbuf_AddText(buffer);
+		Com_sprintf(buffer, sizeof(buffer), "connect %s\n", trap_Sys_AdrToString(local_server_netadr[_index]));
+		trap_Cbuf_AddText(buffer);
 		M_ForceMenuOff();
 	}
 private:
@@ -156,7 +156,7 @@ void	M_AddToServerList(const netadr_t &adr, const char *info)
 
 static void	JoinServer_MenuInit()
 {
-	s_joinserver_menu._x = (int)(uii.VID_GetWidth() * 0.50 - 120);
+	s_joinserver_menu._x = (int)(trap_VID_GetWidth() * 0.50 - 120);
 	
 	s_joinserver_address_book_action._flags	= QMF_LEFT_JUSTIFY;
 	s_joinserver_address_book_action._x		= 0;

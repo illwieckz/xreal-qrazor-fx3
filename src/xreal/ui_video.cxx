@@ -40,7 +40,7 @@ class menu_video_mode_c : public menu_spincontrol_c
 public:
 	virtual void	callback()
 	{
-		uii.Cvar_SetValue("vid_mode", _curvalue);
+		trap_Cvar_SetValue("vid_mode", _curvalue);
 	}
 };
 
@@ -52,11 +52,11 @@ public:
 		switch(_curvalue)
 		{
 			case REF_ARB_GLX :
-				uii.Cvar_Set("vid_ref", "arb_glx");
+				trap_Cvar_Set("vid_ref", "arb_glx");
 				break;
 			
 			case REF_NV30_GLX :
-				uii.Cvar_Set("vid_ref", "nv30_glx");
+				trap_Cvar_Set("vid_ref", "nv30_glx");
 				break;
 		}
 	}
@@ -75,7 +75,7 @@ public:
 
 	virtual void	callback()
 	{
-		uii.Cvar_SetValue("cg_viewsize", _curvalue * 10);
+		trap_Cvar_SetValue("cg_viewsize", _curvalue * 10);
 	}
 };
 
@@ -95,7 +95,7 @@ public:
 		// invert sense so greater = brighter, and scale to a range of 0.5 to 1.3
 		float gamma = (0.8 - (_curvalue/10.0 - 0.5)) + 0.5;
 
-		uii.Cvar_SetValue("vid_gamma", gamma);
+		trap_Cvar_SetValue("vid_gamma", gamma);
 	}
 };
 
@@ -104,7 +104,7 @@ class menu_video_fullscreen_c : public menu_spincontrol_c
 public:
 	virtual void	callback()
 	{
-		uii.Cvar_SetValue("vid_fullscreen", _curvalue);
+		trap_Cvar_SetValue("vid_fullscreen", _curvalue);
 	}
 };
 
@@ -114,7 +114,7 @@ class menu_video_apply_c : public menu_action_c
 public:
 	virtual void	callback()
 	{		
-		//uii.Cvar_SetValue("r_picmip", 3 - s_tq_slider._curvalue);
+		//trap_Cvar_SetValue("r_picmip", 3 - s_tq_slider._curvalue);
 		M_ForceMenuOff();
 	}
 };
@@ -150,21 +150,21 @@ void	M_VIDMenuInit()
 	int	y;
 	int	y_offset = 20;
 
-	s_mode_list._curvalue = uii.Cvar_VariableInteger("vid_mode");
+	s_mode_list._curvalue = trap_Cvar_VariableInteger("vid_mode");
 
-	s_screensize_slider._curvalue = uii.Cvar_VariableValue("cg_viewsize") / 10;
+	s_screensize_slider._curvalue = trap_Cvar_VariableValue("cg_viewsize") / 10;
 
 
-	if(strcmp(uii.Cvar_VariableString("vid_ref"), "arb_glx") == 0)
+	if(strcmp(trap_Cvar_VariableString("vid_ref"), "arb_glx") == 0)
 	{
 		s_ref_list._curvalue = REF_ARB_GLX;
 	}
-	else if(strcmp(uii.Cvar_VariableString("vid_ref"), "nv30_glx") == 0)
+	else if(strcmp(trap_Cvar_VariableString("vid_ref"), "nv30_glx") == 0)
 	{
 		s_ref_list._curvalue = REF_NV30_GLX;
 	}
 	
-	s_video_menu._x = (int)(uii.VID_GetWidth() * 0.50) - CHAR_MEDIUM_WIDTH * 10;
+	s_video_menu._x = (int)(trap_VID_GetWidth() * 0.50) - CHAR_MEDIUM_WIDTH * 10;
 
 
 	//s_ref_list[i].generic.type = MTYPE_SPINCONTROL;
@@ -202,7 +202,7 @@ void	M_VIDMenuInit()
 	s_gamma_slider._fontflags	= FONT_MEDIUM | FONT_ALT | FONT_CHROME;
 	s_gamma_slider._x		= 0;
 	s_gamma_slider._y		= y += y_offset;
-	s_gamma_slider._curvalue	= (1.3 - uii.Cvar_VariableValue("vid_gamma") + 0.5) * 10;
+	s_gamma_slider._curvalue	= (1.3 - trap_Cvar_VariableValue("vid_gamma") + 0.5) * 10;
 
 	s_fs_box._fontflags	= FONT_MEDIUM;
 	s_fs_box._x		= 0;
@@ -210,7 +210,7 @@ void	M_VIDMenuInit()
 	s_fs_box._name		= "fullscreen";
 	s_fs_box._itemnames.push_back("no");
 	s_fs_box._itemnames.push_back("yes");
-	s_fs_box._curvalue = uii.Cvar_VariableInteger("vid_fullscreen");
+	s_fs_box._curvalue = trap_Cvar_VariableInteger("vid_fullscreen");
 	
 	/*
 	s_tq_slider._fontflags	= FONT_MEDIUM | FONT_ALT | FONT_CHROME;
@@ -219,7 +219,7 @@ void	M_VIDMenuInit()
 	s_tq_slider._name	= "texture quality";
 	s_tq_slider._minvalue = 0;
 	s_tq_slider._maxvalue = 3;
-	s_tq_slider._curvalue = 3 - uii.Cvar_VariableInteger("r_picmip");
+	s_tq_slider._curvalue = 3 - trap_Cvar_VariableInteger("r_picmip");
 	*/
 
 	s_defaults_action._fontflags	= FONT_MEDIUM | FONT_CHROME;
@@ -238,7 +238,7 @@ void	M_VIDMenuInit()
 	s_windowed_mouse._x  = 0;
 	s_windowed_mouse._y  = y += y_offset;
 	s_windowed_mouse._name   = "windowed mouse";
-	s_windowed_mouse._curvalue = uii.Cvar_VariableInteger("_windowed_mouse");
+	s_windowed_mouse._curvalue = trap_Cvar_VariableInteger("_windowed_mouse");
 	s_windowed_mouse._itemnames.push_back("no");
 	s_windowed_mouse._itemnames.push_back("yes");
 	*/

@@ -40,8 +40,8 @@ public:
 
 	virtual void	callback()
 	{
-		uii.Cbuf_AddText("exec default.cfg\n");
-		uii.Cbuf_Execute();
+		trap_Cbuf_AddText("exec default.cfg\n");
+		trap_Cbuf_Execute();
 	
 		ControlsSetMenuItemValues();
 	}
@@ -74,7 +74,7 @@ public:
 
 	virtual void	callback()
 	{
-		uii.Cvar_SetValue("sensitivity", _curvalue / 2.0F);
+		trap_Cvar_SetValue("sensitivity", _curvalue / 2.0F);
 	}
 };
 
@@ -91,7 +91,7 @@ public:
 
 	virtual void	callback()
 	{
-		uii.Cvar_SetValue("cl_run", _curvalue);
+		trap_Cvar_SetValue("cl_run", _curvalue);
 	}
 };
 
@@ -108,7 +108,7 @@ public:
 
 	virtual void	callback()
 	{
-		uii.Cvar_SetValue("m_pitch", -uii.Cvar_VariableValue("m_pitch"));
+		trap_Cvar_SetValue("m_pitch", -trap_Cvar_VariableValue("m_pitch"));
 	}
 };
 
@@ -127,7 +127,7 @@ public:
 
 	virtual void	callback()
 	{
-		uii.Cvar_SetValue("cg_crosshair", _curvalue );
+		trap_Cvar_SetValue("cg_crosshair", _curvalue );
 	}
 };
 
@@ -144,7 +144,7 @@ public:
 
 	virtual void	callback()
 	{
-		uii.Cvar_SetValue("in_joystick", _curvalue );
+		trap_Cvar_SetValue("in_joystick", _curvalue );
 	}
 };
 
@@ -162,19 +162,19 @@ static menu_options_joystick_c				s_options_joystick_box;
 
 static void ControlsSetMenuItemValues()
 {
-	//s_options_sfxvolume_slider._curvalue		=  uii.Cvar_VariableValue("s_volume") * 10;
-	s_options_sensitivity_slider._curvalue		=  uii.Cvar_VariableValue("sensitivity") * 2;
+	//s_options_sfxvolume_slider._curvalue		=  trap_Cvar_VariableValue("s_volume") * 10;
+	s_options_sensitivity_slider._curvalue		=  trap_Cvar_VariableValue("sensitivity") * 2;
 
-	uii.Cvar_SetValue("cl_run", uii.Cvar_ClampVariable( "cl_run", 0 , 1));
-	s_options_alwaysrun_box._curvalue		= uii.Cvar_VariableInteger("cl_run");
+	trap_Cvar_SetValue("cl_run", trap_Cvar_ClampVariable( "cl_run", 0 , 1));
+	s_options_alwaysrun_box._curvalue		= trap_Cvar_VariableInteger("cl_run");
 
-	s_options_invertmouse_box._curvalue		= uii.Cvar_VariableInteger("m_pitch") < 0;
+	s_options_invertmouse_box._curvalue		= trap_Cvar_VariableInteger("m_pitch") < 0;
 
-	uii.Cvar_SetValue("cg_crosshair", uii.Cvar_ClampVariable( "cg_crosshair", 0, 3));
-	s_options_crosshair_box._curvalue		= uii.Cvar_VariableInteger("cg_crosshair");
+	trap_Cvar_SetValue("cg_crosshair", trap_Cvar_ClampVariable( "cg_crosshair", 0, 3));
+	s_options_crosshair_box._curvalue		= trap_Cvar_VariableInteger("cg_crosshair");
 
-	uii.Cvar_SetValue("in_joystick", uii.Cvar_ClampVariable( "in_joystick", 0, 1));
-	s_options_joystick_box._curvalue		= uii.Cvar_VariableInteger("in_joystick");
+	trap_Cvar_SetValue("in_joystick", trap_Cvar_ClampVariable( "in_joystick", 0, 1));
+	s_options_joystick_box._curvalue		= trap_Cvar_VariableInteger("in_joystick");
 }
 
 static void	Options_MenuInit()
@@ -182,8 +182,8 @@ static void	Options_MenuInit()
 	//
 	// configure controls menu and menu items
 	//
-	s_options_menu._x = uii.VID_GetWidth() / 2;
-	s_options_menu._y = uii.VID_GetHeight() / 2 - 58;
+	s_options_menu._x = trap_VID_GetWidth() / 2;
+	s_options_menu._y = trap_VID_GetHeight() / 2 - 58;
 	
 
 	s_options_sensitivity_slider._x		= 0;

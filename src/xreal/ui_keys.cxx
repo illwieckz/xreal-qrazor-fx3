@@ -103,11 +103,11 @@ static void	M_UnbindCommand(char *command)
 
 	for (j=0 ; j<256 ; j++)
 	{
-		b = uii.Key_GetBinding(j);
+		b = trap_Key_GetBinding(j);
 		if (!b)
 			continue;
 		if (!strncmp (b, command, l) )
-			uii.Key_SetBinding (j, "");
+			trap_Key_SetBinding (j, "");
 	}
 }
 
@@ -126,7 +126,7 @@ static void	M_FindKeysForCommand(char *command, int *twokeys)
 
 	for (j=0 ; j<256 ; j++)
 	{
-		b = uii.Key_GetBinding(j);
+		b = trap_Key_GetBinding(j);
 		if (!b)
 			continue;
 
@@ -145,7 +145,7 @@ static void	KeyCursorDrawFunc(menu_framework_c *menu)
 	if(bind_grab)
 		Menu_DrawChar(menu->_x, menu->_y + menu->_cursor * 9, '=', color_white, FONT_NONE);
 	else
-		Menu_DrawChar(menu->_x, menu->_y + menu->_cursor * 9, 12 + ((int)(uii.Sys_Milliseconds() / 250) & 1), color_white, FONT_NONE);
+		Menu_DrawChar(menu->_x, menu->_y + menu->_cursor * 9, 12 + ((int)(trap_Sys_Milliseconds() / 250) & 1), color_white, FONT_NONE);
 }
 
 static void	DrawKeyBindingFunc(void *self)
@@ -164,7 +164,7 @@ static void	DrawKeyBindingFunc(void *self)
 		int x;
 		const char *name;
 
-		name = uii.Key_KeynumToString(keys[0]);
+		name = trap_Key_KeynumToString(keys[0]);
 
 		Menu_DrawString(a->_x + a->_parent->_x + 16, a->_y + a->_parent->_y, name, FONT_NONE);
 
@@ -173,7 +173,7 @@ static void	DrawKeyBindingFunc(void *self)
 		if (keys[1] != -1)
 		{
 			Menu_DrawString(a->_x + a->_parent->_x + 24 + x, a->_y + a->_parent->_y, "or", FONT_NONE);
-			Menu_DrawString(a->_x + a->_parent->_x + 48 + x, a->_y + a->_parent->_y, uii.Key_KeynumToString (keys[1]), FONT_NONE);
+			Menu_DrawString(a->_x + a->_parent->_x + 48 + x, a->_y + a->_parent->_y, trap_Key_KeynumToString (keys[1]), FONT_NONE);
 		}
 	}
 }
@@ -198,7 +198,7 @@ static void	Keys_MenuInit()
 	int y = 0;
 	int i = 0;
 
-	s_keys_menu._x = (int)(uii.VID_GetWidth() * 0.50);
+	s_keys_menu._x = (int)(trap_VID_GetWidth() * 0.50);
 	s_keys_menu._cursordraw = KeyCursorDrawFunc;
 
 	//s_keys_attack_action._type	= MTYPE_ACTION;
@@ -454,8 +454,8 @@ static const std::string	Keys_MenuKey(int key)
 		{
 			char cmd[1024];
 
-			Com_sprintf (cmd, sizeof(cmd), "bind \"%s\" \"%s\"\n", uii.Key_KeynumToString(key), bindnames[item->_localdata[0]][0]);
-			uii.Cbuf_InsertText (cmd);
+			Com_sprintf (cmd, sizeof(cmd), "bind \"%s\" \"%s\"\n", trap_Key_KeynumToString(key), bindnames[item->_localdata[0]][0]);
+			trap_Cbuf_InsertText (cmd);
 		}
 
 		s_keys_menu.setStatusBar("enter to change, backspace to clear");
