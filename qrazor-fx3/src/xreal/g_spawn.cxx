@@ -174,6 +174,7 @@ spawn_t	spawns[] = {
 	{"worldspawn",			SP_worldspawn},
 
 	{"light",			SP_light},
+	{"rt_light",			SP_light},
 
 	{"misc_teleporter_dest",	SP_target_teleport},
 	{"speaker",			SP_target_speaker},

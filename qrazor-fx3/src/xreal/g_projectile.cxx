@@ -334,11 +334,11 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 	quat.toVectorsFRU(forward, right, up);
 	_s.velocity_linear = forward * speed;
 	
-	_s.vectors[0].set(100, 100, 100);
-	_s.shaderparms[0] = color_yellow[0];	// light color
-	_s.shaderparms[1] = color_yellow[1];	// light color
-	_s.shaderparms[2] = color_yellow[2];	// light color
-	_s.shaderparms[3] = color_yellow[3];	// light color
+	_s.vectors[0].set(150, 150, 150);
+	_s.shaderparms[0] = 1.0;	//color_white[0];	// light color
+	_s.shaderparms[1] = 1.0;	//color_white[1];	// light color
+	_s.shaderparms[2] = 0.75;	//color_white[2];	// light color
+	_s.shaderparms[3] = 1.0;	//color_white[3];	// light color
 //	_s.index_model = trap_SV_ModelIndex("models/weapons/rocketlauncher/rocket.lwo");
 	_s.index_model = trap_SV_ModelIndex("models/ammo/rocket/rocket.md3");
 //	_s.index_shader = trap_SV_ShaderIndex("noshader");
@@ -346,7 +346,7 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 //	_s.index_light = trap_SV_LightIndex("lights/defaultpointlight");
 //	_s.index_light = trap_SV_LightIndex("lights/squarelight");
 //	_s.index_light = trap_SV_LightIndex("lights/biground1");
-	_s.index_light = trap_SV_LightIndex("lights/baronflash");	// BFG light
+	_s.index_light = trap_SV_LightIndex("lights/round");
 	
 	_r.inuse = true;
 	_r.clipmask = MASK_SHOT;
@@ -357,7 +357,7 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 	_r.owner = activator;
 	
 	_speed = speed;
-	_nextthink = level.time + 5;	//level.time + FRAMETIME;
+	_nextthink = level.time + 30;	//level.time + FRAMETIME;
 	_dmg = damage;
 	_radius_dmg = (int)radius_damage;
 	_dmg_radius = damage_radius;
