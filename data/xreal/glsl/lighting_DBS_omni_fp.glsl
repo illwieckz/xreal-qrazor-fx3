@@ -57,7 +57,7 @@ void	main()
 	
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_diffusemap, var_tex_diffuse_bump.st);
-	diffuse.rgb *= u_light_color * saturate(dot(N, L));
+	diffuse.rgb *= u_light_color * clamp(dot(N, L), 0.0, 1.0);
 	
 	// compute the specular term
 	vec3 specular = texture2D(u_specularmap, var_tex_specular).rgb * u_light_color * pow(clamp(dot(N, H), 0.0, 1.0), u_specular_exponent);
