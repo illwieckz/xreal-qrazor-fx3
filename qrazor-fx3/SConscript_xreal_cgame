@@ -65,5 +65,5 @@ if sys.platform == 'linux2':
 	xreal_cgame_env.InstallAs('#install/xreal/cgame.so', 'libcgame.so')
 
 elif sys.platform == 'win32':
-	xreal_cgame_env.InstallAs('#install/xreal/cgame.dll', 'libcgame.dll')
+	xreal_cgame_env.InstallAs('#install/xreal/cgame.dll', 'cgame.dll')
 

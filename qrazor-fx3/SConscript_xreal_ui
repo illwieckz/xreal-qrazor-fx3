@@ -35,5 +35,5 @@ if sys.platform == 'linux2':
 	xreal_ui_env.InstallAs('#install/xreal/ui.so', 'libui.so')
 
 elif sys.platform == 'win32':
-	xreal_ui_env.InstallAs('#install/xreal/ui.dll', 'libui.dll')
+	xreal_ui_env.InstallAs('#install/xreal/ui.dll', 'ui.dll')
 
