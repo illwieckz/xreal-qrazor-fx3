@@ -89,6 +89,7 @@ if env['warnings'] == 1:
 env.Append(CXXFLAGS = '-DDEBUG=${debug}')
 if env['debug'] != '0':
 	env.Append(CXXFLAGS = '-ggdb${debug}')
+	
 
 if env['optimize'] != '0':
 	env.Append(CXXFLAGS = '-O${optimize}')
@@ -140,6 +141,15 @@ if sys.platform == 'linux2' or sys.platform == 'linux-i386':
 elif sys.platform == 'win32':
 	if not conf.CheckLib('openal32', autoadd=0):
 		print 'Did not find libopenal32.a or openal32.lib, exiting!'
+		Exit(1)
+	if not conf.CheckLib('winmm', autoadd=0):
+		print 'Did not find libwinmm.a or winmm.lib, exiting!'
+		Exit(1)
+	if not conf.CheckLib('wsock32', autoadd=0):
+		print 'Did not find libwsock32.a or wsock32.lib, exiting!'
+		Exit(1)
+	if not conf.CheckLib('alut', autoadd=0):
+		print 'Did not find libalut.a or alut.lib, exiting!'
 		Exit(1)
 	
 if sys.platform == 'linux2' or sys.platform == 'linux-i386':
