@@ -25,56 +25,60 @@
 
 #include "common.h"
 
-enum {
-  dContactMu2		= 0x001,
-  dContactFDir1		= 0x002,
-  dContactBounce	= 0x004,
-  dContactSoftERP	= 0x008,
-  dContactSoftCFM	= 0x010,
-  dContactMotion1	= 0x020,
-  dContactMotion2	= 0x040,
-  dContactSlip1		= 0x080,
-  dContactSlip2		= 0x100,
+enum
+{
+	dContactMu2		= 0x001,
+	dContactFDir1		= 0x002,
+	dContactBounce		= 0x004,
+	dContactSoftERP		= 0x008,
+	dContactSoftCFM		= 0x010,
+	dContactMotion1		= 0x020,
+	dContactMotion2		= 0x040,
+	dContactSlip1		= 0x080,
+	dContactSlip2		= 0x100,
 
-  dContactApprox0	= 0x0000,
-  dContactApprox1_1	= 0x1000,
-  dContactApprox1_2	= 0x2000,
-  dContactApprox1	= 0x3000
+	dContactApprox0		= 0x0000,
+	dContactApprox1_1	= 0x1000,
+	dContactApprox1_2	= 0x2000,
+	dContactApprox1		= 0x3000
 };
 
 
-typedef struct dSurfaceParameters {
-  /* must always be defined */
-  int mode;
-  vec_t mu;
+typedef struct dSurfaceParameters
+{
+	 /* must always be defined */
+	int	mode;
+	vec_t	mu;
 
-  /* only defined if the corresponding flag is set in mode */
-  vec_t mu2;
-  vec_t bounce;
-  vec_t bounce_vel;
-  vec_t soft_erp;
-  vec_t soft_cfm;
-  vec_t motion1,motion2;
-  vec_t slip1,slip2;
+	 /* only defined if the corresponding flag is set in mode */
+	vec_t	mu2;
+	vec_t	bounce;
+	vec_t	bounce_vel;
+	vec_t	soft_erp;
+	vec_t	soft_cfm;
+	vec_t	motion1,motion2;
+	vec_t	slip1,slip2;
 } dSurfaceParameters;
 
 
 /* contact info set by collision functions */
 
-typedef struct dContactGeom {
-  dVector3 pos;
-  dVector3 normal;
-  vec_t depth;
-  dGeomID g1,g2;
+typedef struct dContactGeom
+{
+	vec3_c	pos;
+	vec3_c	normal;
+	vec_t	depth;
+	dGeomID	g1,g2;
 } dContactGeom;
 
 
 /* contact info used by contact joint */
 
-typedef struct dContact {
-  dSurfaceParameters surface;
-  dContactGeom geom;
-  dVector3 fdir1;
+typedef struct dContact
+{
+	dSurfaceParameters surface;
+	dContactGeom geom;
+	vec3_c	fdir1;
 } dContact;
 
 #endif

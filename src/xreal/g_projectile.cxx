@@ -366,12 +366,12 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 	
 	// setup mass
 	dMass m;
-//	dMassSetSphereTotal(&m, 5.0, 8);
+//	m.setSphereTotal(5.0, 8);
 	m.setBoxTotal(5.0, 12, 4, 4);
 	_body->setMass(&m);
 	
 	// setup geom
-//	d_geom_c *geom = new d_sphere_c(g_ode_space->getId(), 8);
+//	d_geom_c *geom = new d_sphere_c(g_ode_space_toplevel->getId(), 8);
 	d_geom_c *geom = new d_box_c(g_ode_space_toplevel->getId(), 12, 4, 4);
 	
 	geom->setBody(_body->getId());

@@ -883,11 +883,19 @@ public:
 	void	setLengths(const vec3_c &v)			{dGeomBSPSetLengths(_id, v[0], v[1], v[2]);}
 	
 	void	addPlane(const cplane_c &p)			{dGeomBSPAddPlane(_id, p._normal[0], p._normal[1], p._normal[2], p._dist);}
-	void	addBrush(int sides_first, int sides_num)	{dGeomBSPAddBrush(_id, sides_first, sides_num);}
-	void	addBrushSide(int plane_num)			{dGeomBSPAddBrushSide(_id, plane_num);}
+//	void	addBrush(int sides_first, int sides_num)	{dGeomBSPAddBrush(_id, sides_first, sides_num);}
+//	void	addBrushSide(int plane_num)			{dGeomBSPAddBrushSide(_id, plane_num);}
+//	void	addLeafBrush(int num)				{dGeomBSPAddLeafBrush(_id, num);}
 	void	addNode(int plane_num, int child0, int child1)	{dGeomBSPAddNode(_id, plane_num, child0, child1);}
-	void	addLeaf(int brushes_first, int brushes_num)	{dGeomBSPAddLeaf(_id, brushes_first, brushes_num);}
-	void	addLeafBrush(int num)				{dGeomBSPAddLeafBrush(_id, num);}
+	void	addLeaf(int surfaces_first, int surfaces_num, int brushes_first, int brushes_num, int cluster, int area)
+	{
+		dGeomBSPAddLeaf(_id, surfaces_first, surfaces_num, brushes_first, brushes_num, cluster, area);
+	}
+	void	addSurface(int face_type, int shader_num, const std::vector<vec3_c> &vertexes, const std::vector<index_t> &indexes)
+	{
+		dGeomBSPAddSurface(_id, face_type, shader_num, vertexes, indexes);
+	};
+		void	addLeafSurface(int num)				{dGeomBSPAddLeafSurface(_id, num);}
 };
 #else
 class d_bsp_c : public d_geom_c

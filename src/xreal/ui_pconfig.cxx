@@ -474,7 +474,7 @@ static void	PlayerConfig_ScanDirectories()
 		else
 			c = b;
 
-		pmi.displayname = c + 1, MAX_DISPLAYNAME-1;
+		pmi.displayname = c + 1;//, MAX_DISPLAYNAME-1;
 		pmi.directory = c + 1;
 #else
 		pmi.displayname = dir_names[i];

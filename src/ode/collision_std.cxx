@@ -66,10 +66,14 @@ struct dxCCylinder : public dxGeom {
 };
 
 
-struct dxPlane : public dxGeom {
-  vec_t p[4];
-  dxPlane (dSpaceID space, vec_t a, vec_t b, vec_t c, vec_t d);
-  void computeAABB();
+struct dxPlane : public dxGeom
+{
+	dxPlane(dSpaceID space, vec_t a, vec_t b, vec_t c, vec_t d);
+	
+	void	computeAABB();
+	
+//	vec_t		p[4];
+	cplane_c	p;
 };
 
 
@@ -82,6 +86,10 @@ struct dxRay : public dxGeom {
 
 struct dxBSP : public dxGeom
 {
+	dxBSP(dSpaceID space);
+	
+	void	computeAABB();
+
 	struct dBSPNode
 	{
 		dBSPNode()
@@ -95,37 +103,68 @@ struct dxBSP : public dxGeom
 		cplane_c*	plane;		// split plane
 		int 		children[2];	// negative numbers are leafs
 	};
-  
-  struct dBSPLeaf {
-    int brushes_first;
-    int brushes_num;
-    
-    int patches_first;
-    int patches_num;
-  };
-  
-  struct dBSPBrush {
-    int sides_first;
-    int sides_num;
-    
-    int checkcount;
-  };
-  
-  struct dBSPBrushSide {
-    cplane_c* plane;
-  };
-
-  dVector3		side;	// side lengths (x,y,z) for AABB
-  dArray<dBSPNode>	nodes;
-  dArray<dBSPLeaf>	leafs;
-  dArray<cplane_c>	planes;
-  dArray<dBSPBrush>	brushes;
-  dArray<dBSPBrushSide> brushsides;
-  dArray<int>		leafbrushes;
-  int 			checkcount;
-  
-  dxBSP (dSpaceID space);
-  void computeAABB();
+	
+	struct dBSPLeaf
+	{
+		int	cluster;
+		int	area;
+		
+		int	surfaces_first;
+		int	surfaces_num;
+		
+		int	brushes_first;
+		int	brushes_num;
+		
+		int	patches_first;
+		int	patches_num;
+	};
+	
+	struct dBSPSurface
+	{
+		int			face_type;
+	
+		int			shader_num;
+	
+		//cplane_c		plane;			// BSPST_PLANAR only
+	
+		//int			mesh_cp[2];		// BSPST_BEZIER only
+	
+		// per vertex data
+		std::vector<vec3_c>	vertexes;
+		std::vector<vec3_c>	normals;
+		
+		// per triangle data
+		std::vector<index_t>	indexes;
+		std::vector<cplane_c>	planes;
+	
+		int			checkcount;
+	};
+	
+	/*
+	struct dBSPBrush
+	{
+		int	sides_first;
+		int	sides_num;
+		
+		int	checkcount;
+	};
+	
+	struct dBSPBrushSide
+	{
+		cplane_c* plane;
+	};
+	*/
+	
+	dVector3			side;	// side lengths (x,y,z) for AABB
+	std::vector<dBSPNode>		nodes;
+	std::vector<dBSPLeaf>		leafs;
+	std::vector<cplane_c>		planes;
+//	std::vector<dBSPBrush>		brushes;
+//	std::vector<dBSPBrushSide>	brushsides;
+//	std::vector<int>		leafbrushes;
+	std::vector<dBSPSurface>	surfaces;
+	std::vector<int>		leafsurfaces;
+	int 				checkcount;
 };
 
 
@@ -389,7 +428,7 @@ vec_t	dGeomCCylinderPointDepth(dGeomID g, vec_t x, vec_t y, vec_t z)
 //****************************************************************************
 // plane public API
 
-static void make_sure_plane_normal_has_unit_length (dxPlane *g)
+static void	make_sure_plane_normal_has_unit_length(dxPlane *g)
 {
   vec_t l = g->p[0]*g->p[0] + g->p[1]*g->p[1] + g->p[2]*g->p[2];
   if (l > 0) {
@@ -621,8 +660,7 @@ int dGeomRayGetClosestHit (dxGeom *g)
 //****************************************************************************
 // BSP public API
 
-#if 1
-dxBSP::dxBSP (dSpaceID space) : dxGeom (space,1)
+dxBSP::dxBSP(dSpaceID space) : dxGeom(space, 1)
 {
 	dDEBUGMSG("dxBSP");
 	
@@ -668,9 +706,11 @@ void	dGeomBSPSetLengths(dGeomID g, vec_t lx, vec_t ly, vec_t lz)
 	dUASSERT(g && g->type == dBSPClass, "argument not a BSP");
 	dAASSERT(lx > 0 && ly > 0 && lz > 0);
 	dxBSP *bsp = (dxBSP*)g;
+	
 	bsp->side[0] = lx;
 	bsp->side[1] = ly;
 	bsp->side[2] = lz;
+	
 	dGeomMoved(g);
 }
 
@@ -679,33 +719,13 @@ void	dGeomBSPAddPlane(dGeomID g, vec_t a, vec_t b, vec_t c, vec_t d)
 	dUASSERT(g && g->type == dBSPClass, "argument not a BSP");
 	dxBSP *bsp = (dxBSP*)g;
 	
-	/*
-	dVector4 p;
-	p[0] = a;
-	p[1] = b;
-	p[2] = c;
-	p[3] = d;
-	*/
+	cplane_c p;
+	p.set(a, b, c, d);
 	
-	/*
-	vec_t l = p[0]*p[0] + p[1]*p[1] + p[2]*p[2];
-	
-	if(l > 0)
-	{
-		l = X_recipsqrt(l);
-		
-		p[0] *= l;
-		p[1] *= l;
-		p[2] *= l;
-		p[3] *= l;
-	}
-	*/
-	
-	cplane_c p; p.set(a, b, c, d);
-	
-	bsp->planes.push(p);
+	bsp->planes.push_back(p);
 }
 
+/*
 void	dGeomBSPAddBrush(dGeomID g, int sides_first, int sides_num)
 {
 	dUASSERT(g && g->type == dBSPClass, "argument not a BSP");
@@ -728,6 +748,7 @@ void	dGeomBSPAddBrushSide(dGeomID g, int plane_num)
 	
 	bsp->brushsides.push(s);
 }
+*/
 
 void	dGeomBSPAddNode(dGeomID g, int plane_num, int child0, int child1)
 {
@@ -739,21 +760,28 @@ void	dGeomBSPAddNode(dGeomID g, int plane_num, int child0, int child1)
 	n.children[0] = child0;
 	n.children[1] = child1;
 	
-	bsp->nodes.push(n);
+	bsp->nodes.push_back(n);
 }
 
-void	dGeomBSPAddLeaf(dGeomID g, int brushes_first, int brushes_num)
+void	dGeomBSPAddLeaf(dGeomID g, int surfaces_first, int surfaces_num, int brushes_first, int brushes_num, int cluster, int area)
 {
 	dUASSERT(g && g->type == dBSPClass, "argument not a BSP");
 	dxBSP *bsp = (dxBSP*)g;
 	
 	dxBSP::dBSPLeaf l;
+	l.surfaces_first = surfaces_first;
+	l.surfaces_num = surfaces_num;
+	
 	l.brushes_first = brushes_first;
 	l.brushes_num = brushes_num;
 	
-	bsp->leafs.push(l);
+	l.cluster = cluster;
+	l.area = area;
+	
+	bsp->leafs.push_back(l);
 }
 
+/*
 void	dGeomBSPAddLeafBrush(dGeomID g, int num)
 {
 	dUASSERT(g && g->type == dBSPClass, "argument not a BSP");
@@ -761,7 +789,48 @@ void	dGeomBSPAddLeafBrush(dGeomID g, int num)
 	
 	bsp->leafbrushes.push(num);
 }
-#endif
+*/
+
+void	dGeomBSPAddSurface(dGeomID g, int face_type, int shader_num, const std::vector<vec3_c> &vertexes, const std::vector<index_t> &indexes)
+{
+	dUASSERT(g && g->type == dBSPClass, "argument not a BSP");
+	dxBSP *bsp = (dxBSP*)g;
+	
+	dxBSP::dBSPSurface surf;
+	surf.face_type = face_type;
+	surf.shader_num = shader_num;
+	surf.vertexes = vertexes;
+	surf.indexes = indexes;
+	std::reverse(surf.indexes.begin(), surf.indexes.end());
+	surf.planes.resize(indexes.size()/3);
+	
+	// calculate triangle planes
+	for(unsigned int i=0; i<(indexes.size()/3); i++)
+	{
+		try
+		{
+			const vec3_c &v0 = vertexes.at(indexes[i+0]);
+			const vec3_c &v1 = vertexes.at(indexes[i+1]);
+			const vec3_c &v2 = vertexes.at(indexes[i+2]);
+			
+			surf.planes[i].fromThreePointForm(v0, v1, v2);
+		}
+		catch(...)
+		{
+			Com_Error(ERR_DROP, "dGeomBSPAddSurface: exception occured while calculating triangle planes");
+		}
+	}
+	
+	bsp->surfaces.push_back(surf);
+}
+
+void	dGeomBSPAddLeafSurface(dGeomID g, int num)
+{
+	dUASSERT(g && g->type == dBSPClass, "argument not a BSP");
+	dxBSP *bsp = (dxBSP*)g;
+	
+	bsp->leafsurfaces.push_back(num);
+}
 
 //****************************************************************************
 // box-box collision utility
@@ -880,7 +949,7 @@ void cullPoints (int n, vec_t p[], int m, int i0, int iret[])
     a = vec_t(j)*(2*M_PI/m) + A[i0];
     if (a > M_PI) a -= 2*M_PI;
     vec_t maxdiff=1e9,diff;
-#ifndef dNODEBUG
+#if DEBUG
     *iret = i0;			// iret is not allowed to keep this value
 #endif
     for (i=0; i<n; i++) {
@@ -893,7 +962,7 @@ void cullPoints (int n, vec_t p[], int m, int i0, int iret[])
 	}
       }
     }
-#ifndef dNODEBUG
+#if DEBUG
     dIASSERT (*iret != i0);	// ensure iret got set
 #endif
     avail[*iret] = 0;
@@ -1358,7 +1427,7 @@ int dCollideSphereBox (dxGeom *o1, dxGeom *o2, int flags,
     tmp[1] = 0;
     tmp[2] = 0;
     tmp[mini] = (t[mini] > 0) ? REAL(1.0) : REAL(-1.0);
-    dMULTIPLY0_331(contact->normal, (vec_t*)o2->R, tmp);
+    dMULTIPLY0_331((vec_t*)contact->normal, (vec_t*)o2->R, tmp);
     // contact depth = distance to wall along normal plus radius
     contact->depth = min_distance + sphere->radius;
     return 1;
@@ -1383,30 +1452,70 @@ int dCollideSphereBox (dxGeom *o1, dxGeom *o2, int flags,
 }
 
 
-int dCollideSpherePlane (dxGeom *o1, dxGeom *o2, int flags,
-			 dContactGeom *contact, int skip)
+int	dCollideSpherePlane(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
 {
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dSphereClass);
-  dIASSERT (o2->type == dPlaneClass);
-  dxSphere *sphere = (dxSphere*) o1;
-  dxPlane *plane = (dxPlane*) o2;
+	dIASSERT(skip >= (int)sizeof(dContactGeom));
+	dIASSERT(o1->type == dSphereClass);
+	dIASSERT(o2->type == dPlaneClass);
+	dxSphere *sphere = (dxSphere*)o1;
+	dxPlane *plane = (dxPlane*)o2;
+	
+	contact->g1 = o1;
+	contact->g2 = o2;
+	
+#if 0
+	vec_t k = plane->p._normal.dotProduct(o1->pos);
+	vec_t depth = plane->p[3] - k + sphere->radius;
+	
+	if(depth >= 0)
+	{
+		contact->normal[0] = plane->p[0];
+		contact->normal[1] = plane->p[1];
+		contact->normal[2] = plane->p[2];
+		
+		contact->pos[0] = o1->pos[0] - plane->p[0] * sphere->radius;
+		contact->pos[1] = o1->pos[1] - plane->p[1] * sphere->radius;
+		contact->pos[2] = o1->pos[2] - plane->p[2] * sphere->radius;
+		
+		contact->depth = depth;
+		
+		return 1;
+	}
+#else
+	//if(plane->p.onSide(sphere->pos, sphere->radius) == SIDE_BACK)
+	//	return 0;
 
-  contact->g1 = o1;
-  contact->g2 = o2;
-  vec_t k = dDOT (o1->pos,plane->p);
-  vec_t depth = plane->p[3] - k + sphere->radius;
-  if (depth >= 0) {
-    contact->normal[0] = plane->p[0];
-    contact->normal[1] = plane->p[1];
-    contact->normal[2] = plane->p[2];
-    contact->pos[0] = o1->pos[0] - plane->p[0] * sphere->radius;
-    contact->pos[1] = o1->pos[1] - plane->p[1] * sphere->radius;
-    contact->pos[2] = o1->pos[2] - plane->p[2] * sphere->radius;
-    contact->depth = depth;
-    return 1;
-  }
-  else return 0;
+	// get closest point to sphere origin
+	vec3_c c = plane->p.closest(sphere->pos);
+		
+	// get sphere depth using this closest point in the plane
+	vec_t depth = sphere->radius - c.distance(sphere->pos);
+		
+	if(depth >= 0)
+	{
+		if(plane->p.onSide(sphere->pos) == SIDE_FRONT)
+		{	
+			contact->normal[0] = plane->p._normal[0];
+			contact->normal[1] = plane->p._normal[1];
+			contact->normal[2] = plane->p._normal[2];
+		}
+		else
+		{
+			contact->normal[0] = -plane->p._normal[0];
+			contact->normal[1] = -plane->p._normal[1];
+			contact->normal[2] = -plane->p._normal[2];
+		}
+			
+		contact->pos[0] = c[0];
+		contact->pos[1] = c[1];
+		contact->pos[2] = c[2];
+			
+		contact->depth = depth;
+			
+		return 1;
+	}
+#endif
+	return 0;
 }
 
 
@@ -1450,7 +1559,7 @@ int dCollideBoxPlane (dxGeom *o1, dxGeom *o2,
 
   //@@@ problem: using 4-vector (plane->p) as 3-vector (normal).
   const vec_t *R = (vec_t*)*o1->R;		// rotation of box
-  const vec_t *n = plane->p;		// normal vector
+  const vec_t *n = plane->p._normal;		// normal vector
 
   // project sides lengths along normal vector, get absolute values
   vec_t Q1 = dDOT14(n,R+0);
@@ -1750,13 +1859,13 @@ int dCollideCCylinderPlane (dxGeom *o1, dxGeom *o2, int flags,
   dxPlane *plane = (dxPlane*) o2;
 
   // collide the deepest capping sphere with the plane
-  vec_t sign = (dDOT14(plane->p, &((*o1->R)[0][2])) > 0) ? REAL(-1.0) : REAL(1.0);
+  vec_t sign = (dDOT14(plane->p._normal, &((*o1->R)[0][2])) > 0) ? REAL(-1.0) : REAL(1.0);
   dVector3 p;
   p[0] = o1->pos[0] + *o1->R[0][2] * ccyl->lz * REAL(0.5) * sign;
   p[1] = o1->pos[1] + *o1->R[1][2] * ccyl->lz * REAL(0.5) * sign;
   p[2] = o1->pos[2] + *o1->R[2][2] * ccyl->lz * REAL(0.5) * sign;
 
-  vec_t k = dDOT (p,plane->p);
+  vec_t k = dDOT (p,plane->p._normal);
   vec_t depth = plane->p[3] - k + ccyl->radius;
   if (depth < 0) return 0;
   contact->normal[0] = plane->p[0];
@@ -1774,7 +1883,7 @@ int dCollideCCylinderPlane (dxGeom *o1, dxGeom *o2, int flags,
     p[1] = o1->pos[1] - *o1->R[1][2]  * ccyl->lz * REAL(0.5) * sign;
     p[2] = o1->pos[2] - *o1->R[2][2] * ccyl->lz * REAL(0.5) * sign;
 
-    k = dDOT (p,plane->p);
+    k = dDOT (p,plane->p._normal);
     depth = plane->p[3] - k + ccyl->radius;
     if (depth >= 0) {
       dContactGeom *c2 = CONTACT(contact,skip);
@@ -2066,10 +2175,10 @@ int dCollideRayPlane (dxGeom *o1, dxGeom *o2, int flags,
   dxRay *ray = (dxRay*) o1;
   dxPlane *plane = (dxPlane*) o2;
 
-  vec_t alpha = plane->p[3] - dDOT (plane->p,ray->pos);
+  vec_t alpha = plane->p[3] - dDOT (plane->p._normal, ray->pos);
   // note: if alpha > 0 the starting point is below the plane
   vec_t nsign = (alpha > 0) ? REAL(-1.0) : REAL(1.0);
-  vec_t k = dDOT14(plane->p, &((*ray->R)[0][2]));
+  vec_t k = dDOT14(plane->p._normal, &((*ray->R)[0][2]));
   if (k==0) return 0;		// ray parallel to plane
   alpha /= k;
   if (alpha < 0 || alpha > ray->length) return 0;
@@ -2109,8 +2218,7 @@ int	dPointInLeaf(dxBSP *bsp, const vec3_c &p, int nodenum)
 	return dPointInLeaf(bsp, p, nodenum);
 }
 
-#if 1
-void	dBoxLeafnums(dxBSP *bsp, const cbbox_c &aabb, dArray<int> &leafs, int nodenum)
+void	dBoxLeafnums(dxBSP *bsp, const cbbox_c &aabb, std::deque<int> &leafs, int nodenum)
 {
 	dIASSERT(bsp->type == dBSPClass);
 #if 1
@@ -2127,9 +2235,9 @@ void	dBoxLeafnums(dxBSP *bsp, const cbbox_c &aabb, dArray<int> &leafs, int noden
 		//if(ir == areas.end())
 		//	areas.push_back(areanum);
 		
-		Com_Printf("%i ", leafnum);
+		//Com_Printf("%i ", leafnum);
 		
-		leafs.push(leafnum);
+		leafs.push_back(leafnum);
 		return;
 	}
 	
@@ -2141,26 +2249,21 @@ void	dBoxLeafnums(dxBSP *bsp, const cbbox_c &aabb, dArray<int> &leafs, int noden
 	{
 		case SIDE_FRONT:
 		{
-			if(node.children[0])
-				dBoxLeafnums(bsp, aabb, leafs, node.children[0]);
+			dBoxLeafnums(bsp, aabb, leafs, node.children[0]);
 			break;
 		}
 		
 		case SIDE_BACK:
 		{
-			if(node.children[1])
-				dBoxLeafnums(bsp, aabb, leafs, node.children[1]);
+			dBoxLeafnums(bsp, aabb, leafs, node.children[1]);
 			break;
 		}
 		
 		case SIDE_CROSS:
 		{
 			// go down both
-			if(node.children[0])
-				dBoxLeafnums(bsp, aabb, leafs, node.children[0]);
-				
-			if(node.children[1])
-				dBoxLeafnums(bsp, aabb, leafs, node.children[1]);
+			dBoxLeafnums(bsp, aabb, leafs, node.children[0]);
+			dBoxLeafnums(bsp, aabb, leafs, node.children[1]);
 			break;
 		}
 		
@@ -2188,13 +2291,13 @@ void	dBoxLeafnums(dxBSP *bsp, const cbbox_c &aabb, dArray<int> &leafs, int noden
 		}
 	}
 	
-	Com_Printf("%i ", -1 -nodenum);
+//	Com_Printf("%i ", -1 -nodenum);
 	leafs.push(-1 -nodenum);
 #endif
 }
 
-
-int	dSphereInBrush(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip, const dxBSP::dBSPBrush &brush)
+/*
+int	dSphereInBrush(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip, int contacts_num, const dxBSP::dBSPBrush &brush)
 {
 	dIASSERT(skip >= (int)sizeof(dContactGeom));
 	dIASSERT(o1->type == dBSPClass);
@@ -2202,41 +2305,261 @@ int	dSphereInBrush(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int
 	dxBSP *bsp = (dxBSP*)o1;
 	dxSphere *sphere = (dxSphere*)o2;
 	
-	int contacts_num = 0;
 	for(int i=0; i<brush.sides_num; i++)
 	{
 		const cplane_c *plane = bsp->brushsides[brush.sides_first + i].plane;
 		
-		CONTACT(contact, skip)->g1 = o1;
-		CONTACT(contact, skip)->g2 = o2;
-		
-		//vec_t k = dDOT(o1->pos, plane->_normal);
-		//vec_t depth = plane->_dist - k + sphere->radius;
-
-		// get closest point to sphere origin
-		vec3_c c = plane->closest(o2->pos);
-		
-		// get sphere depth using this closest point in the plane
-		vec_t depth = sphere->radius - vec3_c(o2->pos).distance(c);
+		CONTACT(contact, contacts_num*skip)->g1 = o1;
+		CONTACT(contact, contacts_num*skip)->g2 = o2;	
+#if 0
+		vec_t k = plane->_normal.dotProduct(o1->pos);
+		vec_t depth = plane->_dist - k + sphere->radius;
 		
 		if(depth >= 0)
 		{
-			CONTACT(contact, skip)->normal[0] = plane->_normal[0];
-			CONTACT(contact, skip)->normal[1] = plane->_normal[1];
-			CONTACT(contact, skip)->normal[2] = plane->_normal[2];
-			CONTACT(contact, skip)->pos[0] = o1->pos[0] - plane->_normal[0] * sphere->radius;
-			CONTACT(contact, skip)->pos[1] = o1->pos[1] - plane->_normal[1] * sphere->radius;
-			CONTACT(contact, skip)->pos[2] = o1->pos[2] - plane->_normal[2] * sphere->radius;
-			CONTACT(contact, skip)->depth = depth;
+			CONTACT(contact, contacts_num*skip)->normal[0] = plane->_normal[0];
+			CONTACT(contact, contacts_num*skip)->normal[1] = plane->_normal[1];
+			CONTACT(contact, contacts_num*skip)->normal[2] = plane->_normal[2];
+			
+			CONTACT(contact, contacts_num*skip)->pos[0] = sphere->pos[0] - plane->_normal[0] * sphere->radius;
+			CONTACT(contact, contacts_num*skip)->pos[1] = sphere->pos[1] - plane->_normal[1] * sphere->radius;
+			CONTACT(contact, contacts_num*skip)->pos[2] = sphere->pos[2] - plane->_normal[2] * sphere->radius;
+			
+			CONTACT(contact, contacts_num*skip)->depth = depth;
+		}
+#else
+		//if(plane->onSide(sphere->pos, sphere->radius) == SIDE_BACK)
+		//	continue;
+		
+		if(plane->onSide(sphere->pos) == SIDE_BACK)
+			continue;
+
+		// get closest point to sphere origin
+		vec3_c c = plane->closest(sphere->pos);
+		
+		// get sphere depth using this closest point in the plane
+		vec_t depth = sphere->radius - c.distance(sphere->pos);
+		
+		if(depth >= 0)
+		{
+			if(plane->onSide(sphere->pos) == SIDE_FRONT)
+			{
+				CONTACT(contact, contacts_num*skip)->normal[0] = plane->_normal[0];
+				CONTACT(contact, contacts_num*skip)->normal[1] = plane->_normal[1];
+				CONTACT(contact, contacts_num*skip)->normal[2] = plane->_normal[2];
+			}
+			else
+			{
+				CONTACT(contact, contacts_num*skip)->normal[0] = -plane->_normal[0];
+				CONTACT(contact, contacts_num*skip)->normal[1] = -plane->_normal[1];
+				CONTACT(contact, contacts_num*skip)->normal[2] = -plane->_normal[2];
+			}
+			
+			CONTACT(contact, contacts_num*skip)->pos[0] = c[0];
+			CONTACT(contact, contacts_num*skip)->pos[1] = c[1];
+			CONTACT(contact, contacts_num*skip)->pos[2] = c[2];
+			
+			CONTACT(contact, contacts_num*skip)->depth = depth;
 			
 			contacts_num++;
 		}
+#endif
+	}
+	
+	return contacts_num;
+}
+*/
+
+
+int	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip, int contacts_num, const vec3_c vertexes[3], const cplane_c &p)
+{
+	dIASSERT(skip >= (int)sizeof(dContactGeom));
+	dIASSERT(o1->type == dBSPClass);
+	dIASSERT(o2->type == dSphereClass);
+	dxSphere *sphere = (dxSphere*)o2;
+
+#if 1
+	// check if sphere center is behind the triangle plane
+	if(p.onSide(sphere->pos) == SIDE_BACK)
+		return contacts_num;
+#else
+	// check if sphere center is too far away from the triangle plane
+	if(fabs(p.distance(sphere->pos)) > sphere->radius)
+		return contacts_num;
+#endif
+	
+#if 1
+	// check if the sphere is on the side of an edge
+	for(int i=0; i<3; i++)
+	{
+		// current vertex
+		const vec3_c &A = vertexes[i];
+		
+		const vec3_c &B = vertexes[(i+1)%3];	// next vertex clockwise
+			
+		// current edge
+		const vec3_c E = B - A;
+		//E.normalize();
+		
+		// create edge normal
+		vec3_c En(false);
+		En.crossProduct(E, p._normal);
+		En.negate();
+		En.normalize();
+		
+		// create edge plane
+		cplane_c Ep(En, En.dotProduct(A));
+		
+		// distance between sphere and edge plane
+		vec_t d = Ep.distance(sphere->pos, sphere->radius);
+		
+		// check if sphere is completely behind the edge plane
+		//if(d <= -(sphere->radius*2))
+		//	continue;
+			
+		// check if sphere is too far away from edge plane
+		if(d > 0.0)
+			return contacts_num;
+			
+		// direction of sphere center from start point of edge
+		vec3_c T  = vec3_c(sphere->pos) - A;
+				
+		// distance of sphere center along the edge
+		vec_t t = T.dotProduct(E);
+			
+		if(t < 0.0)
+		{
+			// sphere close to start point
+			vec_t depth = sphere->radius - A.distance(sphere->pos);
+			
+			if(depth >= 0.0)
+			{
+				CONTACT(contact, contacts_num*skip)->pos = A;
+				CONTACT(contact, contacts_num*skip)->normal = p._normal;
+				//CONTACT(contact, contacts_num*skip)->normal = vec3_c(sphere->pos) - A;
+				//CONTACT(contact, contacts_num*skip)->normal.normalize();
+				CONTACT(contact, contacts_num*skip)->depth = depth;
+				CONTACT(contact, contacts_num*skip)->g1 = o1;
+				CONTACT(contact, contacts_num*skip)->g2 = o2;
+				
+				contacts_num++;
+			}
+			return contacts_num;
+		}
+		else if(t > E.length())
+		{
+			// sphere close to end point of edge
+			vec_t depth = sphere->radius - B.distance(sphere->pos);
+			
+			if(depth >= 0.0)
+			{
+				CONTACT(contact, contacts_num*skip)->pos = B;
+				CONTACT(contact, contacts_num*skip)->normal = p._normal;
+				//CONTACT(contact, contacts_num*skip)->normal = vec3_c(sphere->pos) - B;
+				//CONTACT(contact, contacts_num*skip)->normal.normalize();
+				CONTACT(contact, contacts_num*skip)->depth = depth;
+				CONTACT(contact, contacts_num*skip)->g1 = o1;
+				CONTACT(contact, contacts_num*skip)->g2 = o2;
+				
+				contacts_num++;
+			}
+			return contacts_num;
+		}
+		else
+		{
+			// spehre / edge collision (the sphere pos is 'inside' the edge length)
+			
+			// point of collision on the triangle edge 
+			vec3_c C = A + (E * t);
+			
+			vec_t depth = sphere->radius - C.distance(sphere->pos);
+			
+			if(depth >= 0.0)
+			{
+				CONTACT(contact, contacts_num*skip)->pos = C;
+				CONTACT(contact, contacts_num*skip)->normal = p._normal;
+				//CONTACT(contact, contacts_num*skip)->normal = vec3_c(sphere->pos) - C;
+				//CONTACT(contact, contacts_num*skip)->normal.normalize();
+				CONTACT(contact, contacts_num*skip)->depth = depth;
+				CONTACT(contact, contacts_num*skip)->g1 = o1;
+				CONTACT(contact, contacts_num*skip)->g2 = o2;
+				
+				contacts_num++;
+			}
+			return contacts_num;
+		}
+	}
+#endif
+
+	// the sphere pos is 'inside' the triangle edge planes, so do a sphere / plane collision
+	
+	// point of collision on the triangle plane 
+	vec3_c C = p.closest(sphere->pos);
+	
+	vec_t depth = sphere->radius - C.distance(sphere->pos);
+
+	if(depth >= 0.0)
+	{
+		CONTACT(contact, contacts_num*skip)->pos = C;
+		
+		//if(p.onSide(sphere->pos) == SIDE_FRONT)
+		{
+			CONTACT(contact, contacts_num*skip)->normal = p._normal;
+		}
+		//else
+		//{
+		//	CONTACT(contact, contacts_num*skip)->normal =-p._normal;
+		//}
+		
+		CONTACT(contact, contacts_num*skip)->depth = depth;
+		CONTACT(contact, contacts_num*skip)->g1 = o1;
+		CONTACT(contact, contacts_num*skip)->g2 = o2;
+		
+		contacts_num++;
 	}
 	
 	return contacts_num;
 }
 
-int	dSphereInLeaf(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip, int leafnum)
+int	dCollideBSPSurfaceSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip, int contacts_num, const dxBSP::dBSPSurface &surf)
+{
+	dIASSERT(skip >= (int)sizeof(dContactGeom));
+	dIASSERT(o1->type == dBSPClass);
+	dIASSERT(o2->type == dSphereClass);
+	
+	if(surf.indexes.empty())
+		return contacts_num;
+
+	// for each triangle in the surface
+	for(unsigned int i=0; i<(surf.indexes.size()/3); i++)
+	{
+		#if DEBUG
+		try
+		{
+		#endif
+			
+		vec3_c vertexes[3] = 
+		{
+			surf.vertexes.at(surf.indexes[i+0]),
+			surf.vertexes.at(surf.indexes[i+1]),
+			surf.vertexes.at(surf.indexes[i+2])
+		};
+		
+		contacts_num = dCollideBSPTriangleSphere(o1, o2, flags, contact, skip, contacts_num, vertexes, surf.planes[i]);
+		
+		#if DEBUG
+		}
+		catch(...)
+		{
+			Com_Error(ERR_DROP, "dCollideBSPSurfaceSphere: exception occured");
+		}
+		#endif
+	}
+	
+	return contacts_num;
+}
+
+int	dCollideBSPLeafSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip, int leafnum)
 {
 	dIASSERT(skip >= (int)sizeof(dContactGeom));
 	dIASSERT(o1->type == dBSPClass);
@@ -2245,29 +2568,34 @@ int	dSphereInLeaf(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int 
 	
 	const dxBSP::dBSPLeaf& leaf = bsp->leafs[leafnum];
 	
-//	if(!(leaf.contents & trace_contents))
-//		return;
+#if 0
+	if(leaf.area < 0)
+	{
+		Com_Printf("dSphereInLeaf: leaf %i in bad area %i\n", leafnum, leaf.area);
+		return 0;
+	}
+#endif
+	//if(leaf.cluster == -1)
+	//	return 0;
+	
+	//if(!(leaf.contents & trace_contents))
+	//	return;
 
 	int contacts_num = 0;
-	for(int i=0; i<leaf.brushes_num; i++)
+	for(int i=0; i<leaf.surfaces_num; i++)
 	{
-		dxBSP::dBSPBrush& brush = bsp->brushes[bsp->leafbrushes[leaf.brushes_first + i]];
+		//dxBSP::dBSPBrush& brush = bsp->brushes[bsp->leafbrushes[leaf.brushes_first + i]];
+		dxBSP::dBSPSurface& surf = bsp->surfaces[bsp->leafsurfaces[leaf.surfaces_first + i]];
 		
-		if(brush.checkcount == bsp->checkcount)
-			continue;	// already checked this brush in another leaf
+		//if(surf.checkcount == bsp->checkcount)
+		//	continue;	// already checked this brush in another leaf
 			
-		brush.checkcount = bsp->checkcount;
+		//surf.checkcount = bsp->checkcount;
 		
-//		if(!(brush.contents & trace_contents))
-//			continue;
+		//if(!(brush.contents & trace_contents))
+		//	continue;
 		
-		contacts_num += dSphereInBrush(o1, o2, flags, contact, skip, brush);
-		
-		if(contacts_num)
-			return contacts_num;
-		
-//		if(!trace_trace.fraction)
-//			return;
+		contacts_num = dCollideBSPSurfaceSphere(o1, o2, flags, contact, skip, contacts_num, surf);
 	}
 	
 	return contacts_num;
@@ -2494,49 +2822,45 @@ int	dCollideBSPSphere(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, 
 	dxSphere *sphere = (dxSphere*)o2;
 	
 	cbbox_c aabb;
-	aabb._mins[0] = sphere->aabb[0] - 1.0f;
-	aabb._maxs[0] = sphere->aabb[1] + 1.0f;
-	aabb._mins[1] = sphere->aabb[2] - 1.0f;
-	aabb._maxs[1] = sphere->aabb[3] + 1.0f;
-	aabb._mins[2] = sphere->aabb[4] - 1.0f;
-	aabb._maxs[2] = sphere->aabb[5] + 1.0f;
+	aabb._mins[0] = sphere->aabb[0];// - 1.0f;
+	aabb._maxs[0] = sphere->aabb[1];// + 1.0f;
+	aabb._mins[1] = sphere->aabb[2];// - 1.0f;
+	aabb._maxs[1] = sphere->aabb[3];// + 1.0f;
+	aabb._mins[2] = sphere->aabb[4];// - 1.0f;
+	aabb._maxs[2] = sphere->aabb[5];// + 1.0f;
 	
 	bsp->checkcount++;
 	
 	int contacts_num = 0;
 
 #if 0
-	dArray<int> leafs;
+	std::deque<int> leafs;
 	dBoxLeafnums(bsp, aabb, leafs, 0);
 	if(!leafs.size())
 	{
-		Com_Error(ERR_DROP, "dCollideBSPSphere: no BSP leaves hit");
+		Com_Error(ERR_DROP, "dCollideBSPSphere: no BSP leaves touching");
 		return 0;
 	}
 	else
 	{
-		Com_Printf("\ndCollideBSPSphere: sphere touches %i leaves\n", leafs.size());
+		//Com_Printf("\ndCollideBSPSphere: sphere touches %i leaves\n", leafs.size());
 	}
 
-	for(int i=0; i<leafs.size(); i++)
+	for(std::deque<int>::const_iterator ir = leafs.begin(); ir != leafs.end(); ++ir)
 	{
-		contacts_num += dSphereInLeaf(o1, o2, flags, contact, skip, leafs[i]);
+		contacts_num += dCollideBSPLeafSphere(o1, o2, flags, contact, skip, *ir);
 	}
 #else
-	int leaf_num = dPointInLeaf(bsp, vec3_c(o2->pos), 0);
+	int leaf_num = dPointInLeaf(bsp, o2->pos, 0);
 	
-//	Com_Printf("dCollideBSPSphere: sphere in leave %i\n", leaf_num);
+//	Com_Printf("dCollideBSPSphere: sphere in leaf %i, area %i, cluster %i\n", leaf_num, bsp->leafs[leaf_num].area, bsp->leafs[leaf_num].cluster);
 	
 	if(leaf_num != -1)
-		contacts_num += dSphereInLeaf(o1, o2, flags, contact, skip, leaf_num);
+		contacts_num += dCollideBSPLeafSphere(o1, o2, flags, contact, skip, leaf_num);
 #endif
-	if(!contacts_num)
+	if(contacts_num)
 	{
-//		Com_Printf("dCollideBSPSphere: no contacts\n");
-	}
-	else
-	{
-//		Com_Printf("dCollideBSPSphere: %i contacts\n", contacts_num);
+		Com_Printf("dCollideBSPSphere: %i contacts\n", contacts_num);
 	}
 	
 	return contacts_num;
@@ -2608,14 +2932,15 @@ int	dCollideBSPCCylinder(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contac
 	return 0;
 }
 
-int dCollideBSPCylinder (dxGeom *o1, dxGeom *o2, int flags,
-		      dContactGeom *contact, int skip)
+int	dCollideBSPCylinder(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
 {
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dBSPClass);
-  dIASSERT (o2->type == dCylinderClass);
-  dDEBUGMSG ("");
-  return 0;
+	dIASSERT(skip >= (int)sizeof(dContactGeom));
+	dIASSERT(o1->type == dBSPClass);
+	dIASSERT(o2->type == dCylinderClass);
+	dDEBUGMSG("");
+	
+	//TODO
+	return 0;
 }
 
 int	dCollideBSPPlane(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
@@ -2629,14 +2954,14 @@ int	dCollideBSPPlane(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, i
 	return 0;
 }
 
-int dCollideBSPRay (dxGeom *o1, dxGeom *o2, int flags,
-		      dContactGeom *contact, int skip)
+int	dCollideBSPRay(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
 {
-  dIASSERT (skip >= (int)sizeof(dContactGeom));
-  dIASSERT (o1->type == dBSPClass);
-  dIASSERT (o2->type == dRayClass);
-  dDEBUGMSG ("");
-  return 0;
+	dIASSERT(skip >= (int)sizeof(dContactGeom));
+	dIASSERT(o1->type == dBSPClass);
+	dIASSERT(o2->type == dRayClass);
+	dDEBUGMSG("");
+	
+	//TODO
+	return 0;
 }
-#endif
 

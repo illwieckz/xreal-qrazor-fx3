@@ -990,7 +990,7 @@ void	G_InitDynamics()
 	
 //	g_ode_space_world = new d_simple_space_c(g_ode_space_toplevel->getId());
 
-//	g_ode_testplane = new d_plane_c(g_ode_space_toplevel->getId(), vec3_c(0.0, 0.0, 1.0), 0.0);
+//	g_ode_testplane = new d_plane_c(g_ode_space_toplevel->getId(), vec3_c(0.0, 0.0, 1.0), 64.0);
 	
 	g_ode_contact_group = new d_joint_group_c();
 }
@@ -1081,7 +1081,7 @@ static void	G_TopLevelCollisionCallback(void *data, dGeomID o1, dGeomID o2)
 		if(int contacts_num = dCollide(o1, o2, contacts_max, &contacts[0].geom, sizeof(dContact)))
 		{
 			// sort contacts by penetration depth
-			qsort(contacts, contacts_num, sizeof(dContact), G_SortByContactGeomDepthFunc);
+			//qsort(contacts, contacts_num, sizeof(dContact), G_SortByContactGeomDepthFunc);
 		
 			// two entities have touched so run their touch functions
 			g_entity_c *e1 = (g_entity_c*)dGeomGetData(o1);
@@ -1139,9 +1139,9 @@ void	G_RunDynamics(float step_size)
 {
 	g_ode_space_toplevel->collide(NULL, G_TopLevelCollisionCallback);
 	
-//	g_ode_world->step(step_size);
+	g_ode_world->step(step_size);
 //	g_ode_world->stepFast(step_size, 10);
-	g_ode_world->stepQuick(step_size);
+//	g_ode_world->stepQuick(step_size);
 	
 	g_ode_contact_group->empty();
 }
@@ -1324,12 +1324,13 @@ void		G_SetWorldModel(g_entity_c *ent, const std::string &name)
 	}
 #else
 
-#if 0
+#if 1
 	if(X_strequal("*0", name.c_str()) && g_ode_bsp)
 	{
 		g_ode_bsp->setData(ent);
 		ent->_geoms.push_back(g_ode_bsp);
 	}
+	/*
 	else if(model->vertexes.size() && model->indexes.size())
 	{
 		d_geom_c *geom = new d_trimesh_c(g_ode_space_toplevel->getId(), model->vertexes, model->indexes);
@@ -1337,6 +1338,7 @@ void		G_SetWorldModel(g_entity_c *ent, const std::string &name)
 		geom->setData(ent);
 		ent->_geoms.push_back(geom);
 	}
+	*/
 #endif
 	
 #endif

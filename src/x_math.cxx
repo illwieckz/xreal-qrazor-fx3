@@ -432,10 +432,16 @@ void	matrix_c::copyTranspose(matrix_c &out) const
 
 void	matrix_c::transpose()
 {
+	/*
 					std::swap(_m[0][1], _m[1][0]);	std::swap(_m[0][2], _m[2][0]);	std::swap(_m[0][3], _m[3][0]);
 	std::swap(_m[1][0], _m[0][1]);					std::swap(_m[1][2], _m[2][1]);	std::swap(_m[1][3], _m[3][1]);
 	std::swap(_m[2][0], _m[0][2]);	std::swap(_m[2][1], _m[1][2]);					std::swap(_m[2][3], _m[3][2]);
 	std::swap(_m[3][0], _m[0][3]);	std::swap(_m[3][1], _m[1][3]);	std::swap(_m[3][2], _m[2][3]);
+	*/
+	
+					std::swap(_m[0][1], _m[1][0]);	std::swap(_m[0][2], _m[2][0]);	std::swap(_m[0][3], _m[3][0]);
+									std::swap(_m[1][2], _m[2][1]);	std::swap(_m[1][3], _m[3][1]);
+													std::swap(_m[2][3], _m[3][2]);
 }
 	
 void	matrix_c::setupXRotation(vec_t deg)
@@ -803,7 +809,61 @@ matrix_c	matrix_c::operator - (const matrix_c &m) const
 	
 matrix_c	matrix_c::operator * (const matrix_c &m) const
 {
-#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_3DNOW)
+	/*
+					std::swap(_m[0][1], _m[1][0]);	std::swap(_m[0][2], _m[2][0]);	std::swap(_m[0][3], _m[3][0]);
+									std::swap(_m[1][2], _m[2][1]);	std::swap(_m[1][3], _m[3][1]);
+													std::swap(_m[2][3], _m[3][2]);
+	*/
+	
+#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_SSE) && 0
+	matrix_c out;
+	asm volatile
+	(						// reg[0]			| reg[1]		| reg[2]		| reg[3]
+	// load transpose into XMM registers
+	"movlps		(%%eax),	%%xmm4\n"	// _m[0][0]			| _m[0][1]		| -			| -
+	"movhps		16(%%eax),	%%xmm4\n"	// _m[0][0]			| _m[0][1]		| _m[1][0]		| _m[1][1]
+	"movlps		32(%%eax),	%%xmm3\n"	// _m[2][0]			| _m[2][1]		| -			| -
+	"movhps		48(%%eax),	%%xmm3\n"	// _m[2][0]			| _m[2][1]		| _m[3][0]		| _m[3][1]
+	
+	"movups		%%xmm4,		%%xmm5\n"	// _m[0][0]			| _m[0][1]		| _m[1][0]		| _m[1][1]
+	
+	"shufps		$0x88, %%xmm3,	%%xmm4\n"	// _m[2][0]			| _m[2][1]		| _m[3][0]		| _m[3][1]
+	
+	#error TODO matrix_c	matrix_c::operator * (const matrix_c &m) const for SSE
+	
+	"movups		(%%eax),	%%xmm0\n"	// _m[0][0]			| _m[0][1]		| _m[0][2]		| _m[0][3]
+	"movups		16(%%eax),	%%xmm1\n"	// _m[1][0]			| _m[1][1]		| _m[1][2]		| _m[1][3]
+	"movups		32(%%eax),	%%xmm2\n"	// _m[2][0]			| _m[2][1]		| _m[2][2]		| _m[2][3]
+	"movups		48(%%eax),	%%xmm3\n"	// _m[3][0]			| _m[3][1]		| _m[3][2]		| _m[3][3]
+
+//	"movups		(%%edx),	%%xmm4\n"	// v[0]				| v[1]			| v[2]			| v[3]
+	"movss		(%%edx),	%%xmm4\n"	// v[0]				| -			| -			| -
+	"movss		4(%%edx),	%%xmm5\n"	// v[1]				| -			| -			| -
+	"movss		8(%%edx),	%%xmm6\n"	// v[2]				| -			| -			| -
+	"movss		12(%%edx),	%%xmm6\n"	// v[3]				| -			| -			| -
+	
+//	"shufps		$0x00, %%xmm4,	%%xmm4\n"	// v[0]				| v[0]			| v[0]			| v[0]
+//	"shufps		$0x00, %%xmm5,	%%xmm5\n"	// v[1]				| v[1]			| v[1]			| v[1]
+//	"shufps		$0x00, %%xmm6,	%%xmm6\n"	// v[2]				| v[2]			| v[2]			| v[2]
+	
+//	"xorps		%%xmm5,		%%xmm6\n"	// -				| -			| -			| -
+	
+	"mulps		%%xmm4,		%%xmm0\n"	// _m[0][0]*v[0]		| _m[0][1]*v[1]		| _m[0][2]*v[2]		| _m[0][3]*v[3]
+	"mulps		%%xmm5,		%%xmm1\n"	// _m[1][0]*v[0]		| _m[1][1]*v[1]		| _m[1][2]*v[2]		| _m[1][3]*v[3]
+	"mulps		%%xmm6,		%%xmm2\n"	// _m[2][0]*v[0]		| _m[2][1]*v[1]		| _m[2][2]*v[2]		| _m[2][3]*v[3]
+	"mulps		%%xmm7,		%%xmm3\n"	// _m[3][0]*v[0]		| _m[3][1]*v[1]		| _m[3][2]*v[2]		| _m[3][3]*v[3]
+	
+	"addps		%%xmm1,		%%xmm0\n"	// _m[0][0]*v[0]+_m[1][0]*v[1]	| _m[0][1]*v[0]+_m[1][1]*v[1]	| _m[0][2]*v[0]+_m[1][2]*v[1]	| _m[0][3]*v[0]+_m[1][3]*v[1]
+	"addps		%%xmm2,		%%xmm0\n"	// _m[0][0]*v[0]+_m[1][0]*v[1]+_m[2][0]*v[2]	| _m[0][1]*v[0]+_m[1][1]*v[1]	| _m[0][2]*v[0]+_m[1][2]*v[1]	| _m[0][3]*v[0]+_m[1][3]*v[1]
+	"addps		%%xmm3,		%%xmm0\n"
+	
+	"movups		%%xmm0,		(%%ecx)\n"
+	:
+	: "a"(&_m[0][0]), "d"(&m._m[0][0]), "c"(&out._m[0][0])
+	: "memory"
+	);
+	return out;
+#elif defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_3DNOW)
 	matrix_c out;
 	femms();
 	asm volatile

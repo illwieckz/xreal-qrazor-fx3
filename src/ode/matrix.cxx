@@ -313,9 +313,9 @@ void dLDLTRemove (vec_t **A, const int *p, vec_t *L, vec_t *d,
   int i;
   dAASSERT(A && p && L && d && n1 > 0 && n2 > 0 && r >= 0 && r < n2 &&
 	   n1 >= n2 && nskip >= n1);
-  #ifndef dNODEBUG
+#if DEBUG
   for (i=0; i<n2; i++) dIASSERT(p[i] >= 0 && p[i] < n1);
-  #endif
+#endif
 
   if (r==n2-1) {
     return;		// deleting last row/col is easy
