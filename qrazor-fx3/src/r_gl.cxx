@@ -1522,8 +1522,8 @@ void	XGL_InitExtensions()
 	if(strstr(gl_config.extensions_string, "GL_ARB_multitexture"))
 	{
 		ri.Com_Printf("...using GL_ARB_multitexture\n");
-		dllActiveTextureARB = (void (GLAPIENTRY*) (GLenum texture)) XGL_GetSymbol("glActiveTextureARB");
-		dllClientActiveTextureARB = (void (GLAPIENTRY*) (GLenum texture)) XGL_GetSymbol("glClientActiveTextureARB");
+		dllActiveTextureARB = (void (GLAPIENTRY*) (GLenum texture)) xglGetProcAddress("glActiveTextureARB");
+		dllClientActiveTextureARB = (void (GLAPIENTRY*) (GLenum texture)) xglGetProcAddress("glClientActiveTextureARB");
 		gl_config.arb_multitexture = true;
 	}
 	else
@@ -1534,7 +1534,7 @@ void	XGL_InitExtensions()
 	if(strstr(gl_config.extensions_string, "GL_ARB_transpose_matrix"))
 	{
 		ri.Com_Printf("...using GL_ARB_tranpose_matrix\n");
-		dllLoadTransposeMatrixfARB = (void (GLAPIENTRY*) (const GLfloat *m)) XGL_GetSymbol("glLoadTransposeMatrixf");
+		dllLoadTransposeMatrixfARB = (void (GLAPIENTRY*) (const GLfloat *m)) xglGetProcAddress("glLoadTransposeMatrixf");
 		gl_config.arb_multitexture = true;
 	}
 	else
@@ -1566,17 +1566,17 @@ void	XGL_InitExtensions()
 			ri.Com_Printf("...using GL_ARB_vertex_buffer_object\n");
 			gl_config.arb_vertex_buffer_object = true;
 			
-			xglBindBufferARB = (void (GLAPIENTRY*) (GLenum, GLuint)) XGL_GetSymbol("glBindBufferARB");
-			xglDeleteBuffersARB = (void (GLAPIENTRY*) (GLsizei, const GLuint *)) XGL_GetSymbol("glDeleteBuffersARB");
-			xglGenBuffersARB = (void (GLAPIENTRY*) (GLsizei, GLuint *)) XGL_GetSymbol("glGenBuffersARB");
-			xglIsBufferARB = (GLboolean (GLAPIENTRY*) (GLuint)) XGL_GetSymbol("glIsBufferARB");
-			xglBufferDataARB = (void (GLAPIENTRY*) (GLenum, GLsizeiptrARB, const GLvoid *, GLenum)) XGL_GetSymbol("glBufferDataARB");
-			xglBufferSubDataARB = (void (GLAPIENTRY*) (GLenum, GLintptrARB, GLsizeiptrARB, const GLvoid *)) XGL_GetSymbol("glBufferSubDataARB");
-			xglGetBufferSubDataARB = (void (GLAPIENTRY*) (GLenum, GLintptrARB, GLsizeiptrARB, GLvoid *)) XGL_GetSymbol("glGetBufferSubDataARB");
-			xglMapBufferARB = (GLvoid* (GLAPIENTRY*) (GLenum, GLenum)) XGL_GetSymbol("glMapBufferARB");
-			xglUnmapBufferARB = (GLboolean (GLAPIENTRY*) (GLenum)) XGL_GetSymbol("glUnmapBufferARB");
-			xglGetBufferParameterivARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLint *)) XGL_GetSymbol("glGetBufferParameterivARB");
-			xglGetBufferPointervARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLvoid* *)) XGL_GetSymbol("glGetBufferPointervARB");
+			xglBindBufferARB = (void (GLAPIENTRY*) (GLenum, GLuint)) xglGetProcAddress("glBindBufferARB");
+			xglDeleteBuffersARB = (void (GLAPIENTRY*) (GLsizei, const GLuint *)) xglGetProcAddress("glDeleteBuffersARB");
+			xglGenBuffersARB = (void (GLAPIENTRY*) (GLsizei, GLuint *)) xglGetProcAddress("glGenBuffersARB");
+			xglIsBufferARB = (GLboolean (GLAPIENTRY*) (GLuint)) xglGetProcAddress("glIsBufferARB");
+			xglBufferDataARB = (void (GLAPIENTRY*) (GLenum, GLsizeiptrARB, const GLvoid *, GLenum)) xglGetProcAddress("glBufferDataARB");
+			xglBufferSubDataARB = (void (GLAPIENTRY*) (GLenum, GLintptrARB, GLsizeiptrARB, const GLvoid *)) xglGetProcAddress("glBufferSubDataARB");
+			xglGetBufferSubDataARB = (void (GLAPIENTRY*) (GLenum, GLintptrARB, GLsizeiptrARB, GLvoid *)) xglGetProcAddress("glGetBufferSubDataARB");
+			xglMapBufferARB = (GLvoid* (GLAPIENTRY*) (GLenum, GLenum)) xglGetProcAddress("glMapBufferARB");
+			xglUnmapBufferARB = (GLboolean (GLAPIENTRY*) (GLenum)) xglGetProcAddress("glUnmapBufferARB");
+			xglGetBufferParameterivARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLint *)) xglGetProcAddress("glGetBufferParameterivARB");
+			xglGetBufferPointervARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLvoid* *)) xglGetProcAddress("glGetBufferPointervARB");
 		}
 		else
 		{
@@ -1595,14 +1595,14 @@ void	XGL_InitExtensions()
 			ri.Com_Printf("...using GL_ARB_occlusion_query\n");
 			gl_config.arb_occlusion_query = true;
 			
-			xglGenQueriesARB = (void (GLAPIENTRY*) (GLsizei, GLuint *)) XGL_GetSymbol("glGenQueriesARB");
-			xglDeleteQueriesARB = (void (GLAPIENTRY*) (GLsizei, const GLuint *)) XGL_GetSymbol("glDeleteQueriesARB");
-			xglIsQueryARB = (GLboolean (GLAPIENTRY*) (GLuint)) XGL_GetSymbol("glIsQueryARB");
-			xglBeginQueryARB = (void (GLAPIENTRY*) (GLenum, GLuint)) XGL_GetSymbol("glBeginQueryARB");
-			xglEndQueryARB = (void (GLAPIENTRY*) (GLenum)) XGL_GetSymbol("glEndQueryARB");
-			xglGetQueryivARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLint *)) XGL_GetSymbol("glGetQueryivARB");
-			xglGetQueryObjectivARB = (void (GLAPIENTRY*) (GLuint, GLenum, GLint *)) XGL_GetSymbol("glGetQueryObjectivARB");
-			xglGetQueryObjectuivARB = (void (GLAPIENTRY*) (GLuint, GLenum, GLuint *)) XGL_GetSymbol("glGetQueryObjectuivARB");
+			xglGenQueriesARB = (void (GLAPIENTRY*) (GLsizei, GLuint *)) xglGetProcAddress("glGenQueriesARB");
+			xglDeleteQueriesARB = (void (GLAPIENTRY*) (GLsizei, const GLuint *)) xglGetProcAddress("glDeleteQueriesARB");
+			xglIsQueryARB = (GLboolean (GLAPIENTRY*) (GLuint)) xglGetProcAddress("glIsQueryARB");
+			xglBeginQueryARB = (void (GLAPIENTRY*) (GLenum, GLuint)) xglGetProcAddress("glBeginQueryARB");
+			xglEndQueryARB = (void (GLAPIENTRY*) (GLenum)) xglGetProcAddress("glEndQueryARB");
+			xglGetQueryivARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLint *)) xglGetProcAddress("glGetQueryivARB");
+			xglGetQueryObjectivARB = (void (GLAPIENTRY*) (GLuint, GLenum, GLint *)) xglGetProcAddress("glGetQueryObjectivARB");
+			xglGetQueryObjectuivARB = (void (GLAPIENTRY*) (GLuint, GLenum, GLuint *)) xglGetProcAddress("glGetQueryObjectuivARB");
 		}
 		else
 		{
@@ -1636,7 +1636,7 @@ void	XGL_InitExtensions()
 		if(r_ext_texture3D->getValue())
 		{
 			ri.Com_Printf("...using GL_EXT_texture3D\n");
-			dllTexImage3DEXT = (void (GLAPIENTRY*) (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels)) XGL_GetSymbol("glTexImage3DEXT");
+			dllTexImage3DEXT = (void (GLAPIENTRY*) (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels)) xglGetProcAddress("glTexImage3DEXT");
 			gl_config.ext_texture3D = true;
 		}
 		else
@@ -1654,8 +1654,8 @@ void	XGL_InitExtensions()
 		if(r_ext_compiled_vertex_array->getValue())
 		{
 			ri.Com_Printf("...using GL_EXT_compiled_vertex_array\n");
-			xglLockArraysEXT = (void (GLAPIENTRY*) (GLint first, GLsizei count)) XGL_GetSymbol("glLockArraysEXT");
-			xglUnlockArraysEXT = (void (GLAPIENTRY*) (void)) XGL_GetSymbol("glUnlockArraysEXT");
+			xglLockArraysEXT = (void (GLAPIENTRY*) (GLint first, GLsizei count)) xglGetProcAddress("glLockArraysEXT");
+			xglUnlockArraysEXT = (void (GLAPIENTRY*) (void)) xglGetProcAddress("glUnlockArraysEXT");
 			gl_config.ext_compiled_vertex_array = true;
 		}
 		else
@@ -1673,7 +1673,7 @@ void	XGL_InitExtensions()
 		if(r_ext_draw_range_elements->getValue())
 		{
 			ri.Com_Printf("...using GL_EXT_draw_range_elements\n");
-			dllDrawRangeElementsEXT = (void (GLAPIENTRY*) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices)) XGL_GetSymbol("glDrawRangeElementsEXT");
+			dllDrawRangeElementsEXT = (void (GLAPIENTRY*) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices)) xglGetProcAddress("glDrawRangeElementsEXT");
 			gl_config.ext_draw_range_elements = true;
 		}
 		else
