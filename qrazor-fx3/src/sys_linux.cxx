@@ -217,10 +217,10 @@ void 	Sys_PushEvents()
 	byte*		data;
 	int		data_size;
 	
-	while((length = Sys_GetPacket(packet, sizeof(packet), adr)) != -1)
+	while((length = Sys_GetPacket(packet, sizeof(packet), adr)) >= 0)
 	{
 		data_size = sizeof(adr) + length;
-		data = (byte*)Com_Alloc(data_size);
+		data = new byte[data_size];
 		
 		memcpy(data, &adr, sizeof(adr));
 		memcpy((byte*)data + sizeof(adr), packet, length);

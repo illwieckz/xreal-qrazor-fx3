@@ -445,7 +445,7 @@ void 		G_RunEntity(g_entity_c *ent);
 void		G_InitDynamics();
 void		G_ShutdownDynamics();
 
-void		G_RunDynamics();
+void		G_RunDynamics(float step_size);
 
 trace_t		G_RayTrace(const vec3_c &start, const vec3_c &end);
 trace_t		G_RayTrace(const vec3_c &origin, const vec3_c &dir, vec_t length);

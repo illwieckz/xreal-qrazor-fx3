@@ -1137,13 +1137,13 @@ static void	G_NearCallback(void *data, dGeomID o1, dGeomID o2)
 	}// dGeomIsSpace
 }	
 
-void	G_RunDynamics()
+void	G_RunDynamics(float step_size)
 {
 	g_ode_space->collide(NULL, G_NearCallback);
 	
-	g_ode_world->step(FRAMETIME);
-//	g_ode_world->stepFast(FRAMETIME, 10);
-//	g_ode_world->stepQuick(FRAMETIME);
+//	g_ode_world->step(step_size);
+//	g_ode_world->stepFast(step_size, 10);
+	g_ode_world->stepQuick(step_size);
 	
 	g_ode_contact_group->empty();
 }

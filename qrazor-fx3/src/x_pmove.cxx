@@ -633,64 +633,54 @@ static void	PM_AirMove()
 }
 */
 
-/*
-static void	PM_CatagorizePosition()
+void	PM_CheckOnGround(const vec3_c &point)
 {
-	vec3_t		point;
-	int			cont;
-	trace_t		trace;
-	int			sample1;
-	int			sample2;
-
-	// if the player hull point one unit down is solid, the player
-	// is on ground
-
-	// see if standing on something solid	
-	point[0] = pml.origin[0];
-	point[1] = pml.origin[1];
-	point[2] = pml.origin[2] - 0.25;
-	
-	
-	if (pml.velocity[2] > 180) //!!ZOID changed from 100 to 180 (ramp accel)
+	if(pml.velocity_linear[2] > 180)	//!!ZOID changed from 100 to 180 (ramp accel)
 	{
 		pm->s.pm_flags &= ~PMF_ON_GROUND;
 		pm->groundentity = NULL;
 	}
 	else
 	{
-		trace = pm->trace (pml.origin, pm->bbox, point);
+		trace_t trace = pm->rayTrace(pml.origin, vec3_c(0, 0, -1), 18);
+		
+		/*
 		pml.groundplane = trace.plane;
 		pml.groundshader = trace.surface;
 		pml.groundcontents = trace.contents;
-
-		if (!trace.ent || (trace.plane._normal[2] < PM_MIN_STEP_NORMAL && !trace.startsolid) )
+		*/
+		
+		//if(!trace.ent || (trace.plane._normal[2] < PM_MIN_STEP_NORMAL && !trace.startsolid))
+		if(trace.nohit)
 		{
 			pm->groundentity = NULL;
 			pm->s.pm_flags &= ~PMF_ON_GROUND;
 		}
 		else
 		{
-			pm->groundentity = trace.ent;
+			//pm->groundentity = trace.ent;
+			pm->groundentity = NULL;
 
 			// hitting solid ground will end a waterjump
-			if (pm->s.pm_flags & PMF_TIME_WATERJUMP)
+			if(pm->s.pm_flags & PMF_TIME_WATERJUMP)
 			{
 				pm->s.pm_flags &= ~(PMF_TIME_WATERJUMP | PMF_TIME_LAND | PMF_TIME_TELEPORT);
 				pm->s.pm_time = 0;
 			}
 
-			if (! (pm->s.pm_flags & PMF_ON_GROUND) )
+			if(!(pm->s.pm_flags & PMF_ON_GROUND))
 			{	
 				// just hit the ground
 				pm->s.pm_flags |= PMF_ON_GROUND;
 
 #if 1				
 				// don't do landing time if we were just going down a slope
-				if (pml.velocity[2] < -200)
+				if(pml.velocity_linear[2] < -200)
 				{
 					pm->s.pm_flags |= PMF_TIME_LAND;
+					
 					// don't allow another jump for a little while
-					if (pml.velocity[2] < -400)
+					if(pml.velocity_linear[2] < -400)
 						pm->s.pm_time = 25;	
 					else
 						pm->s.pm_time = 18;
@@ -700,43 +690,58 @@ static void	PM_CatagorizePosition()
 		}
 
 #if 0
-		if (trace.fraction < 1.0 && trace.ent && pml.velocity[2] < 0)
+		if(trace.fraction < 1.0 && trace.ent && pml.velocity[2] < 0)
 			pml.velocity[2] = 0;
 #endif
-
 	}
+}
 
-	//
-	// get waterlevel, accounting for ducking
-	//
+void	PM_CheckWaterLevel(vec3_c &point)
+{
 	pm->waterlevel = 0;
 	pm->watertype = 0;
 
-	sample2 = (int)(pm->viewheight - pm->bbox._mins[2]);
-	sample1 = sample2 / 2;
+	int sample2 = (int)(pm->viewheight - pm->bbox._mins[2]);
+	int sample1 = sample2 / 2;
 
 	point[2] = pml.origin[2] + pm->bbox._mins[2] + 1;	
-	cont = pm->pointcontents (point);
+	int cont = pm->pointContents(point);
 
-	if (cont & MASK_WATER)
+	if(cont & MASK_WATER)
 	{
 		pm->watertype = cont;
 		pm->waterlevel = 1;
 		point[2] = pml.origin[2] + pm->bbox._mins[2] + sample1;
-		cont = pm->pointcontents (point);
+		cont = pm->pointContents(point);
 		
-		if (cont & MASK_WATER)
+		if(cont & MASK_WATER)
 		{
 			pm->waterlevel = 2;
 			point[2] = pml.origin[2] + pm->bbox._mins[2] + sample2;
-			cont = pm->pointcontents (point);
+			cont = pm->pointContents(point);
 			
-			if (cont & MASK_WATER)
+			if(cont & MASK_WATER)
 				pm->waterlevel = 3;
 		}
 	}
 }
-*/
+
+void	PM_CatagorizePosition()
+{
+	vec3_c		point;
+	
+	// if the player hull point one unit down is solid, the player
+	// is on ground
+
+	// see if standing on something solid
+	point[0] = pml.origin[0];
+	point[1] = pml.origin[1];
+	point[2] = pml.origin[2] - 0.25;
+	
+	PM_CheckOnGround(point);
+	
+	PM_CheckWaterLevel(point);
+}
 
 /*
 static void	PM_CheckJump()
@@ -1230,15 +1235,15 @@ void 	Com_Pmove(pmove_t *pmove)
 	
 	PM_RollMove();
 	
-	//PM_FlyMove(true);
+ 	PM_FlyMove(true);
 	
-	/*
-	if(pm->snapinitial)
-		PM_InitialSnapPosition();
+// 	if(pm->snapinitial)
+// 		PM_InitialSnapPosition();
 
 	// set groundentity, watertype, and waterlevel
-	PM_CatagorizePosition();
+//	PM_CatagorizePosition();
 
+	/*
 	if(pm->s.pm_type == PM_DEAD)
 		PM_DeadMove();
 

@@ -467,7 +467,10 @@ public:
 	float			_jumppad_time;
 	
 	// ode
-	d_amotor_joint_c	_joint_amotor;		// to keep player straight upwards
+// 	d_amotor_joint_c	_joint_amotor;		// to keep player straight upwards
+	d_sphere_c*		_sphere;
+// 	d_ray_c*		_ray;
+// 	d_box_c*		_box;
 };
 
 

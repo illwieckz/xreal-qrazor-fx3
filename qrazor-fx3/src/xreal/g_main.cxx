@@ -571,7 +571,6 @@ void 	G_RunFrame()
 	G_ClientBeginServerFrames();
 
 	
-	
 	//
 	// treat each object in turn
 	// even the world gets a chance to think
@@ -601,7 +600,7 @@ void 	G_RunFrame()
 	//
 	// apply ODE dynamics
 	//
-	G_RunDynamics();
+	G_RunDynamics(FRAMETIME);
 	
 	
 	//
