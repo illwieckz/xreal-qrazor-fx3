@@ -121,6 +121,7 @@ xreal_data_MTR_files = [
 'data/xreal/materials/vp_materials.mtr',
 'data/xreal/materials/washroom.mtr',
 'data/xreal/materials/weapons.mtr',
+'data/xreal/materials/z13d3dm1.mtr',
 'data/xreal/materials/z13d3dm2.mtr',
 'data/xreal/materials/zgraeme.mtr',
 'data/xreal/materials/shaderlist.txt' ]
