@@ -707,7 +707,7 @@ void	g_func_rotating_c::use(g_entity_c *other, g_entity_c *activator)
 	if(!avel.isZero())
 	{
 		_s.index_sound = 0;
-		_body->setAngularVel(vec3_c(0, 0, 0));
+		_body->setAngularVel(vec3_c(0.0, 0, 0));
 		//self->touch = NULL;
 	}
 	else

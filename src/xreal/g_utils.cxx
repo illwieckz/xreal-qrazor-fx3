@@ -399,9 +399,9 @@ vec_t*	tv(float x, float y, float z)
 
 
 static const vec3_c VEC_UP(0, -1, 0);
-static const vec3_c MOVEDIR_UP(0, 0, 1);
-static const vec3_c VEC_DOWN(0, -2, 0);
-static const vec3_c MOVEDIR_DOWN(0, 0, -1);
+static const vec3_c MOVEDIR_UP(0.0, 0, 1);
+static const vec3_c VEC_DOWN(0.0, -2, 0);
+static const vec3_c MOVEDIR_DOWN(0.0, 0, -1);
 
 void	G_SetMovedir(quaternion_c &quat, vec3_c &movedir)
 {

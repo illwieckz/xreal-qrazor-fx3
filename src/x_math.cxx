@@ -37,13 +37,13 @@ const vec_t		X_infinity = std::numeric_limits<double>::infinity();
 const vec_t		X_infinity = std::numeric_limits<float>::infinity();
 #endif
 
-const vec3_c		vec3_origin(0, 0, 0);
+const vec3_c		vec3_origin(REAL(0.0), REAL(0.0), REAL(0.0));
 
 
-const matrix_c		matrix_identity(	1, 0, 0, 0, 
-						0, 1, 0, 0,
-						0, 0, 1, 0,
-						0, 0, 0, 1	);
+const matrix_c		matrix_identity(	REAL(1.0), REAL(0.0), REAL(0.0), REAL(0.0), 
+						REAL(0.0), REAL(1.0), REAL(0.0), REAL(0.0),
+						REAL(0.0), REAL(0.0), REAL(1.0), REAL(0.0),
+						REAL(0.0), REAL(0.0), REAL(0.0), REAL(1.0)	);
 						
 const quaternion_c	quat_identity(0, 0, 0, 1);
 
@@ -61,23 +61,243 @@ const vec4_c	color_grey_med	(0.5, 0.5, 0.5, 1);
 const vec4_c	color_grey_dark	(0.25, 0.25, 0.25, 1);
 
 
-
-float	X_RSqrt(float number)
+#if defined(__GNUC__) && defined(SIMD_3DNOW)
+inline void	femms()
 {
-	int i;
-	float x2, y;
+	asm volatile("femms");
+}
+#endif
 
-	if (number == 0.0)
-		return 0.0;
+// reciprocal
+vec_t	X_recip(vec_t in)
+{
+#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD)
+	
+	#if defined(SIMD_SSE)
+	#error X_recip not implemented for SSE
 
-	x2 = number * 0.5f;
-	y = number;
-	i = * (int *) &y;		// evil floating point bit level hacking
-	i = 0x5f3759df - (i >> 1);	// what the fuck?
-	y = * (float *) &i;
-	y = y * (1.5f - (x2 * y * y));	// this can be done a second time
+	#elif defined(SIMD_3DNOW)
+	// Tr3B -
+		vec_t out;
+		femms();
+		asm volatile
+		(
+		"movd		(%%eax),	%%mm0\n"
+		"pfrcp		%%mm0,		%%mm1\n"	// (approx)
+		"pfrcpit1	%%mm1,		%%mm0\n"	// (intermediate)
+		"pfrcpit2	%%mm1,		%%mm0\n"	// (full 24-bit)
+		"movd		%%mm0,		(%%edx)\n"	// out := mm0[low]
+		:
+		: "a"(&in), "d"(&out)
+		: "memory"
+		);
+		femms();
+		return out;
 
-	return y;
+	#elif defined(SIMD_BUILTIN)
+	#error X_recip not implemented for GCC BUILTIN SIMD
+
+	#endif
+
+#elif defined(DOUBLEVEC_T)
+	return (1.0/(in));
+#else
+	return ((float)(1.0f/(in)));
+#endif
+}
+
+// square root
+vec_t	X_sqrt(vec_t in)
+{
+#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD)
+	
+	#if defined(SIMD_SSE)
+	#error X_recip not implemented for SSE
+
+	#elif defined(SIMD_3DNOW)
+	// Tr3B - see 3DNow! Technology Manual p.62
+		vec_t out;
+		femms();
+		asm volatile
+		(
+		"movd		(%%eax),	%%mm0\n"	// 0		|	a
+		"pfrsqrt	%%mm0,		%%mm1\n"	// 1/sqrt(in)	|	1/sqrt(a)	(approx)
+		#if 1	// Newton-Raphson iteration
+		"movq		%%mm1,		%%mm2\n"	//	X_0 = 1/sqrt(a)			(approx)
+		"pfmul		%%mm1,		%%mm1\n"	// X_0*X_0	|	X_0*X_0		step 1
+		"punpckldq	%%mm0,		%%mm0\n"	// a		|	a		(MMX instruction)
+		"pfrsqit1	%%mm0,		%%mm1\n"	//	intermediate			step 2
+		"pfrcpit2	%%mm2,		%%mm1\n"	// 1/sqrt(a) (full 24-bit precision)	step 3
+		#endif
+		"pfmul		%%mm1,		%%mm0\n"	// sqrt(a)	|	sqrt(a)
+		"movd		%%mm0,		(%%edx)\n"
+		:
+		: "a"(&in), "d"(&out)
+		: "memory"
+		);
+		femms();
+		return out;
+
+	#elif defined(SIMD_BUILTIN)
+	#error X_recip not implemented for GCC BUILTIN SIMD
+
+	#endif
+
+#elif defined(DOUBLEVEC_T)
+	return sqrt(in);
+#else
+	return ((float)sqrtf(float(in)));
+#endif
+}
+
+// reciprocal square root
+vec_t	X_recipsqrt(vec_t in)
+{
+#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD) && 0
+	
+	#if defined(SIMD_SSE)
+	#error X_recip not implemented for SSE
+
+	#elif defined(SIMD_3DNOW)
+		vec_t out;
+		asm volatile
+		(
+		"movd		(%%eax),	%%mm0\n"	// 0		|	a
+		"pfrsqrt	%%mm0,		%%mm1\n"	// 1/sqrt(in)	|	1/sqrt(a)	(approx)
+		//"movq		%%mm1,		%%mm2\n"	//	X_0 = 1/sqrt(a)			(approx)
+		//"pfmul		%%mm1,		%%mm1\n"	// X_0*X_0	|	X_0*X_0		step 1
+		//"punpckldq	%%mm0,		%%mm0\n"	// a		|	a		(MMX instruction)
+		"pfrsqit1	%%mm1,		%%mm0\n"	//	intermediate			step 2
+		"pfrcpit2	%%mm1,		%%mm0\n"	// 1/sqrt(a) (full precision)		step 3
+		//"pfmul		%%mm1,		%%mm0\n"	// sqrt(a)	|	sqrt(a)
+		"movd		%%mm0,		(%%edx)\n"
+		:
+		: "a"(&in), "d"(&out)
+		: "memory"
+		);
+		femms();
+		return out;
+
+	#elif defined(SIMD_BUILTIN)
+	#error X_recip not implemented for GCC BUILTIN SIMD
+
+	#endif
+
+#elif defined(DOUBLEVEC_T)
+	return (1.0/sqrt(in));
+#else
+	return ((float)(1.0f/sqrtf(float(in))));
+#endif
+}
+
+vec_t	vec3_c::length() const
+{
+#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD)
+	
+	#if defined(SIMD_SSE)
+	#error X_recip not implemented for SSE
+
+	#elif defined(SIMD_3DNOW)
+		vec_t out;
+		femms();
+		asm volatile
+		(						// lo						|	hi
+		"movq		(%%eax),	%%mm0\n"	// _v[0]					|	_v[1]
+		"movd		8(%%eax),	%%mm1\n"	// _v[2]					|	-
+		// mm0[lo] = dot product(this)
+		"pfmul		%%mm0,		%%mm0\n"	// _v[0]*_v[0]					|	_v[1]*_v[1]
+		"pfmul		%%mm1,		%%mm1\n"	// _v[2]*_v[2]					|	-
+		"pfacc		%%mm0,		%%mm0\n"	// _v[0]*v._v[0]+_v[1]*v._v[1]			|	-
+		"pfadd		%%mm1,		%%mm0\n"	// _v[0]*v._v[0]+_v[1]*v._v[1]+_v[2]*v._v[2]	|	-
+		// mm0[lo] = sqrt(mm0[lo])
+		"pfrsqrt	%%mm0,		%%mm1\n"	// 1/sqrt(a)	|	1/sqrt(a)	(approx)
+		
+		"movq		%%mm1,		%%mm2\n"	//	X_0 = 1/sqrt(a)			(approx)
+		"pfmul		%%mm1,		%%mm1\n"	// X_0*X_0	|	X_0*X_0		step 1
+		"punpckldq	%%mm0,		%%mm0\n"	// a		|	a		(MMX instruction)
+		"pfrsqit1	%%mm0,		%%mm1\n"	//	intermediate			step 2
+		"pfrcpit2	%%mm2,		%%mm1\n"	// 1/sqrt(a) (full 24-bit precision)	step 3
+		
+		"pfmul		%%mm1,		%%mm0\n"	// sqrt(a)	|	sqrt(a)
+		
+		"movd		%%mm0,		(%%edx)\n"	// out := mm0[lo]
+		:
+		: "a"(&_v[0]), "d"(&out)
+		: "memory"
+		);
+		femms();
+		return out;
+
+	#elif defined(SIMD_BUILTIN)
+	#error X_recip not implemented for GCC BUILTIN SIMD
+
+	#endif
+#else
+	return X_sqrt(_v[0]*_v[0] + _v[1]*_v[1] + _v[2]*_v[2]);
+#endif
+}
+
+vec_t	vec3_c::normalize()
+{
+	vec_t len = _v[0]*_v[0] + _v[1]*_v[1] + _v[2]*_v[2];
+	
+	if(len)
+	{
+		len = X_sqrt(len);
+		
+		_v[0] /= len;
+		_v[1] /= len;
+		_v[2] /= len;
+	}
+	
+	return len;
+}
+
+vec_t	vec3_c::dotProduct(const vec3_c &v) const
+{
+#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD)
+	
+	#if defined(SIMD_SSE)
+	#error X_recip not implemented for SSE
+
+	#elif defined(SIMD_3DNOW)
+		vec_t out;
+		femms();
+		asm volatile
+		(						// lo						|	hi
+		"movq		(%%eax),	%%mm0\n"	// _v[0]					|	_v[1]
+		"movq		(%%edx),	%%mm2\n"	// v._v[0]					|	v._v[1]
+		"movd		8(%%eax),	%%mm1\n"	// _v[2]					|	-
+		"movd		8(%%edx),	%%mm3\n"	// v._v[2]					|	-
+			
+		"pfmul		%%mm2,		%%mm0\n"	// _v[0]*v._v[0]				|	_v[1]*v._v[1]
+		"pfmul		%%mm3,		%%mm1\n"	// _v[2]*v._v[2]				|	-
+		"pfacc		%%mm0,		%%mm0\n"	// _v[0]*v._v[0]+_v[1]*v._v[1]			|	-
+		"pfadd		%%mm1,		%%mm0\n"	// _v[0]*v._v[0]+_v[1]*v._v[1]+_v[2]*v._v[2]	|	-
+		"movd		%%mm0,		(%%ecx)\n"	// out := mm2[lo]
+		:
+		: "a"(&_v[0]), "d"(&v._v[0]), "c"(&out)
+		: "memory"
+		);
+		femms();
+		return out;
+
+	#elif defined(SIMD_BUILTIN)
+	#error X_recip not implemented for GCC BUILTIN SIMD
+
+	#endif
+#else
+	return  (_v[0]*v._v[0] + _v[1]*v._v[1] + _v[2]*v._v[2]);
+#endif
+}
+
+vec3_c&	vec3_c::crossProduct(const vec3_c &v1, const vec3_c &v2)
+{
+	_v[0] = v1._v[1]*v2._v[2] - v1._v[2]*v2._v[1];
+	_v[1] = v1._v[2]*v2._v[0] - v1._v[0]*v2._v[2];
+	_v[2] = v1._v[0]*v2._v[1] - v1._v[1]*v2._v[0];
+	
+	return *this;
 }
 
 void	vec3_c::snap()
@@ -103,6 +323,24 @@ void	vec3_c::snap()
 const char*	vec3_c::toString() const
 {
 	return va("(%i %i %i)", (int)_v[0], (int)_v[1], (int)_v[2]);
+}
+
+vec3_c&	vec3_c::operator = (const vec3_c &v)
+{
+	_v[0] = v._v[0];
+	_v[1] = v._v[1];
+	_v[2] = v._v[2];
+	
+	return *this;
+}
+		
+vec3_c&	vec3_c::operator = (const vec_t *v)
+{
+	_v[0] = v[0];
+	_v[1] = v[1];
+	_v[2] = v[2];
+	
+	return *this;
 }
 
 
@@ -265,6 +503,7 @@ void	matrix_c::fromAngles(vec_t pitch, vec_t yaw, vec_t roll)
 	_m[3][0]= 0;			_m[3][1]= 0;				_m[3][2]= 0;				_m[3][3]= 1;
 }
 
+/*
 void	matrix_c::fromEulerAngles(vec_t phi, vec_t theta, vec_t psi)
 {
 	vec_t sphi,cphi,stheta,ctheta,spsi,cpsi;
@@ -283,6 +522,7 @@ void	matrix_c::fromEulerAngles(vec_t phi, vec_t theta, vec_t psi)
 	_m[2][0]=cpsi*stheta*cphi + spsi*sphi;	_m[2][1]=spsi*stheta*cphi - cpsi*sphi;	_m[2][2]=ctheta*cphi;		_m[2][3]=0.0f;
 	_m[3][0]=0.0f;				_m[3][1]=0.0f;				_m[3][2]=0.0f;			_m[3][3]=1.0f;
 }
+*/
 	
 void	matrix_c::fromVectorsFLU(const vec3_c &forward, const vec3_c &left, const vec3_c &up)
 {
@@ -514,10 +754,14 @@ const char*	matrix_c::toString() const
 		
 bool	matrix_c::operator == (const matrix_c &m) const
 {
+//#if defined(__GNUC__) && !defined(DOUBLE_VEC_T)
+//	return (_ms[0] == m._ms[0] && _ms[1] == m._ms[1] && _ms[2] == m._ms[2] && _ms[3] == m._ms[3]);
+//#else
 	return	(	_m[0][0]==m._m[0][0] && _m[0][1]==m._m[0][1] && _m[0][2]==m._m[0][2] && _m[0][3]==m._m[0][3] &&
 			_m[1][0]==m._m[1][0] && _m[1][1]==m._m[1][1] && _m[1][2]==m._m[1][2] && _m[1][3]==m._m[1][3] &&
 			_m[2][0]==m._m[2][0] && _m[2][1]==m._m[2][1] && _m[2][2]==m._m[2][2] && _m[2][3]==m._m[2][3] &&
 			_m[3][0]==m._m[3][0] && _m[3][1]==m._m[3][1] && _m[3][2]==m._m[3][2] && _m[3][3]==m._m[3][3]	);
+//#endif
 }
 
 matrix_c	matrix_c::operator + (const matrix_c &m) const
@@ -538,6 +782,41 @@ matrix_c	matrix_c::operator - (const matrix_c &m) const
 	
 matrix_c	matrix_c::operator * (const matrix_c &m) const
 {
+#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD) && 0
+	
+#if defined(SIMD_SSE)
+#error matrix_c::operator * (const vec4_c &v) not implemented for SSE
+
+#elif defined(SIMD_3DNOW)
+	matrix_c out;
+	femms();
+	asm volatile
+	(						//	LOW				|	HIGH
+	// row 0 of this
+	"movq		(%%eax),	%%mm0\n"	//	_m[0][0]			|	_m[0][1]
+	"movq		8(%%eax),	%%mm2\n"	//	_m[0][2]			|	_m[0][3]
+	"movq		%%mm0,		%%mm1\n"
+	"movq		%%mm2,		%%mm3\n"
+	
+	"punpckldq	%%mm0,		%%mm0\n"
+	"punpckldq	%%mm2,		%%mm2\n"
+	"punpckhdq	%%mm1,		%%mm1\n"
+	"punpckhdq	%%mm3,		%%mm3\n"
+	
+	//TODO
+	:
+	: "a"(&_m[0][0]), "d"(&m._m[0][0]), "c"(&out._m[0][0])
+	: "memory"
+	);
+	femms();
+	return out;
+
+#elif defined(SIMD_BUILTIN)
+#error matrix_c::operator * (const vec4_c &v) not implemented for GCC BUILTIN SIMD
+
+#endif
+
+#else
 	return matrix_c(	_m[0][0]*m._m[0][0] + _m[0][1]*m._m[1][0] + _m[0][2]*m._m[2][0] + _m[0][3]*m._m[3][0]	,
 				_m[0][0]*m._m[0][1] + _m[0][1]*m._m[1][1] + _m[0][2]*m._m[2][1] + _m[0][3]*m._m[3][1]	,
 				_m[0][0]*m._m[0][2] + _m[0][1]*m._m[1][2] + _m[0][2]*m._m[2][2] + _m[0][3]*m._m[3][2]	,
@@ -557,19 +836,200 @@ matrix_c	matrix_c::operator * (const matrix_c &m) const
 				_m[3][0]*m._m[0][1] + _m[3][1]*m._m[1][1] + _m[3][2]*m._m[2][1] + _m[3][3]*m._m[3][1]	,
 				_m[3][0]*m._m[0][2] + _m[3][1]*m._m[1][2] + _m[3][2]*m._m[2][2] + _m[3][3]*m._m[3][2]	,
 				_m[3][0]*m._m[0][3] + _m[3][1]*m._m[1][3] + _m[3][2]*m._m[2][3] + _m[3][3]*m._m[3][3]	);
+#endif
 }
 
-/*	
+vec3_c	matrix_c::operator * (const vec3_c &v) const
+{
+#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD)
+	
+#if defined(SIMD_SSE)
+#error matrix_c::operator * (const vec3_c &v) not implemented for SSE
+
+#elif defined(SIMD_3DNOW)
+	vec3_c out(false);
+	femms();
+	asm volatile
+	(
+	"movq		(%%edx),	%%mm0\n"	// mm0	v[0]	|	v[1]
+	"movd		8(%%edx),	%%mm1\n"	// mm1	v[2]
+	// row 0
+	"movq		(%%eax),	%%mm2\n"	// mm2	_m[0][0]	|	_m[0][1]
+	"movd		8(%%eax),	%%mm3\n"	// mm3	_m[0][2]
+	
+	"pfmul		%%mm0,		%%mm2\n"	// mm2	_m[0][0]*v[0]	|	_m[0][1]*v[1]
+	"pfmul		%%mm1,		%%mm3\n"	// mm3	_m[0][2]*v[2]
+	"pfadd		%%mm3,		%%mm2\n"	// mm2	_m[0][0]*v[0] + _m[0][2]*v[2]	| _m[0][1]*v[1]
+	// row 1
+	"movq		16(%%eax),	%%mm3\n"	// mm3	_m[1][0]	|	_m[1][1]
+	"movd		24(%%eax),	%%mm4\n"	// mm4	_m[1][2]
+	
+	"pfmul		%%mm0,		%%mm3\n"	// mm3	_m[1][0]*v[0]	|	_m[1][1]*v[1]
+	"pfmul		%%mm1,		%%mm4\n"	// mm4	_m[1][2]*v[2]
+	"pfadd		%%mm4,		%%mm3\n"	// mm3	_m[1][0]*v[0] + _m[1][2]*v[2]	| _m[0][1]*v[1]
+	// save
+	"pfacc		%%mm3,		%%mm2\n"
+	"movq		%%mm2,		(%%ecx)\n"
+	// row 2
+	"movq		32(%%eax),	%%mm2\n"	// mm2	_m[2][0]	|	_m[2][1]
+	"movd		40(%%eax),	%%mm3\n"	// mm3	_m[2][2]
+	
+	"pfmul		%%mm0,		%%mm2\n"	// mm2	_m[2][0]*v[0]	|	_m[2][1]*v[1]
+	"pfmul		%%mm1,		%%mm3\n"	// mm3	_m[2][2]*v[2]
+	"pfadd		%%mm3,		%%mm2\n"	// mm2	_m[2][0]*v[0] + _m[2][2]*v[2]	| _m[2][1]*v[1]
+	"pfacc		%%mm2,		%%mm2\n"
+	"movq		%%mm2,		8(%%ecx)\n"
+	:
+	: "a"(&_m[0][0]), "d"((vec_t*)v), "c"((vec_t*)out)
+	: "memory"
+	);
+	femms();
+	return out;
+
+#elif defined(SIMD_BUILTIN)
+#error matrix_c::operator * (const vec3_c &v) not implemented for GCC BUILTIN SIMD
+
+#endif
+
+#else
+	// ~ 50 ASM instructions
+	return vec3_c(	_m[0][0]*v[0] + _m[0][1]*v[1] + _m[0][2]*v[2],
+			_m[1][0]*v[0] + _m[1][1]*v[1] + _m[1][2]*v[2],
+			_m[2][0]*v[0] + _m[2][1]*v[1] + _m[2][2]*v[2]	);
+#endif
+}
+	
+vec4_c	matrix_c::operator * (const vec4_c &v) const
+{
+#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD)
+	
+#if defined(SIMD_SSE)
+#error matrix_c::operator * (const vec4_c &v) not implemented for SSE
+
+#elif defined(SIMD_3DNOW)
+	vec4_c out(false);
+	femms();
+	asm volatile
+	(						//	LOW				|	HIGH
+	"movq		(%%edx),	%%mm0\n"	//	[0]				|	v[1]
+	"movq		8(%%edx),	%%mm1\n"	//	v[2]				|	v[3]
+	
+	"movq		(%%eax),	%%mm2\n"	//	_m[0][0]			|	_m[0][1]
+	"movq		8(%%eax),	%%mm3\n"	//	_m[0][2]			|	_m[0][3]
+	"pfmul		%%mm0,		%%mm2\n"	//	_m[0][0]*v[0]			|	_m[0][1]*v[1]
+	"pfmul		%%mm1,		%%mm3\n"	//	_m[0][2]*v[2]			|	_m[0][3]*v[3]
+	"pfadd		%%mm2,		%%mm3\n"	//	_m[0][2]*v[2] + _m[0][0]*v[0]	| _m[0][3]*v[3] + _m[0][1]*v[1]
+	
+	"movq		16(%%eax),	%%mm4\n"	//	_m[1][0]			|	_m[1][1]
+	"movq		24(%%eax),	%%mm5\n"	//	_m[1][2]			|	_m[1][3]
+	"pfmul		%%mm0,		%%mm4\n"	//	_m[1][0]*v[0]			|	_m[1][1]*v[1]
+	"pfmul		%%mm1,		%%mm5\n"	//	_m[1][2]*v[2]			|	_m[1][3]*v[3]
+	"pfadd		%%mm4,		%%mm5\n"	//	_m[1][2]*v[2] + _m[1][0]*v[0]	| _m[1][3]*v[3] + _m[1][1]*v[1]
+	
+	"pfacc		%%mm5,		%%mm3\n"	// _m[0][2]*v[2] + _m[0][0]*v[0] + _m[0][3]*v[3] + _m[0][1]*v[1]	|	_m[1][2]*v[2] + _m[1][0]*v[0] + _m[1][3]*v[3] + _m[1][1]*v[1]
+	"movq		%%mm3,		(%%ecx)\n"	// out[0] := mm3[low], out[1] := mm3[high]
+	
+	"movq		32(%%eax),	%%mm2\n"	//	_m[2][0]			|	_m[2][1]
+	"movq		40(%%eax),	%%mm3\n"	//	_m[2][2]			|	_m[2][3]
+	"pfmul		%%mm0,		%%mm2\n"	//	_m[2][0]*v[0]			|	_m[2][1]*v[1]
+	"pfmul		%%mm1,		%%mm3\n"	//	_m[2][2]*v[2]			|	_m[2][3]*v[3]
+	"pfadd		%%mm2,		%%mm3\n"	//	_m[2][2]*v[2] + _m[2][0]*v[0]	| _m[2][3]*v[3] + _m[2][1]*v[1]
+	
+	"movq		48(%%eax),	%%mm4\n"	//	_m[3][0]			|	_m[3][1]
+	"movq		56(%%eax),	%%mm5\n"	//	_m[3][2]			|	_m[3][3]
+	"pfmul		%%mm0,		%%mm4\n"	//	_m[3][0]*v[0]			|	_m[3][1]*v[1]
+	"pfmul		%%mm1,		%%mm5\n"	//	_m[3][2]*v[2]			|	_m[3][3]*v[3]
+	"pfadd		%%mm4,		%%mm5\n"	//	_m[3][2]*v[2] + _m[3][0]*v[0]	| _m[3][3]*v[3] + _m[3][1]*v[1]
+	
+	"pfacc		%%mm5,		%%mm3\n"	// _m[2][2]*v[2] + _m[2][0]*v[0] + _m[2][3]*v[3] + _m[2][1]*v[1]	|	_m[3][2]*v[2] + _m[3][0]*v[0] + _m[3][3]*v[3] + _m[3][1]*v[1]
+	"movq		%%mm3,		8(%%ecx)\n"	// out[2] := mm3[low], out[3] := mm3[high]
+	:
+	: "a"(&_m[0][0]), "d"((vec_t*)v), "c"((vec_t*)out)
+	: "memory"
+	);
+	femms();
+	return out;
+
+#elif defined(SIMD_BUILTIN)
+#error matrix_c::operator * (const vec4_c &v) not implemented for GCC BUILTIN SIMD
+
+#endif
+
+#else
+	// ~ 80 ASM instructions
+	return vec4_c(	_m[0][0]*v[0] + _m[0][1]*v[1] + _m[0][2]*v[2] + _m[0][3]*v[3],
+			_m[1][0]*v[0] + _m[1][1]*v[1] + _m[1][2]*v[2] + _m[1][3]*v[3],
+			_m[2][0]*v[0] + _m[2][1]*v[1] + _m[2][2]*v[2] + _m[2][3]*v[3],
+			_m[3][0]*v[0] + _m[3][1]*v[1] + _m[3][2]*v[2] + _m[3][3]*v[3]	);
+#endif
+}
+
 matrix_c&	matrix_c::operator = (const matrix_c &m)
 {
+#if defined(__GNUC__) && !defined(DOUBLE_VEC_T) && defined(SIMD)
+	
+#if defined(SIMD_SSE)
+	asm volatile
+	(
+	//FIXME figure out why movaps breaks at runtime
+	"movups		(%%edx),	%%xmm0\n"
+	"movups		0x10(%%edx),	%%xmm1\n"
+	"movups		0x20(%%edx),	%%xmm2\n"
+	"movups		0x30(%%edx),	%%xmm3\n"
+	
+	"movups		%%xmm0,		(%%eax)\n"
+	"movups		%%xmm1,		0x10(%%eax)\n"
+	"movups		%%xmm2,		0x20(%%eax)\n"
+	"movups		%%xmm3,		0x30(%%eax)\n"
+	:
+	: "a"((float*)&_m[0][0]), "d"((float*)&m._m[0][0])
+	: "memory"
+	);
+	
+#elif defined(SIMD_3DNOW)
+	femms();
+	asm volatile
+	(
+	//
+	"movq		(%%edx),	%%mm0\n"	// mm0	_m[0][0]	| _m[0][1]
+	"movq		8(%%edx),	%%mm1\n"	// mm1	_m[0][2]	| _m[0][3]
+	"movq		16(%%edx),	%%mm2\n"	// mm2	_m[1][0]	| _m[1][1]
+	"movq		24(%%edx),	%%mm3\n"	// mm3	_m[1][2]	| _m[1][3]
+	"movq		32(%%edx),	%%mm4\n"	// mm4	_m[2][0]	| _m[2][1]
+	"movq		40(%%edx),	%%mm5\n"	// mm5	_m[2][2]	| _m[2][3]
+	"movq		48(%%edx),	%%mm6\n"	// mm6	_m[3][0]	| _m[3][1]
+	"movq		56(%%edx),	%%mm7\n"	// mm7	_m[3][2]	| _m[3][3]
+	
+	"movq		%%mm0,		(%%eax)\n"
+	"movq		%%mm1,		8(%%eax)\n"
+	"movq		%%mm2,		16(%%eax)\n"
+	"movq		%%mm3,		24(%%eax)\n"
+	"movq		%%mm4,		32(%%eax)\n"
+	"movq		%%mm5,		40(%%eax)\n"
+	"movq		%%mm6,		48(%%eax)\n"
+	"movq		%%mm7,		56(%%eax)\n"
+	:
+	: "a"((float*)&_m[0][0]), "d"((float*)&m._m[0][0])
+	: "memory"
+	);
+	femms();
+	
+#elif defined(SIMD_BUILTIN)
+	_ms[0] = m._ms[0];
+	_ms[1] = m._ms[1];
+	_ms[2] = m._ms[2];
+	_ms[3] = m._ms[3];
+	
+#endif
+
+#else
 	_m[0][0]=m._m[0][0];	_m[0][1]=m._m[0][1];	_m[0][2]=m._m[0][2];	_m[0][3]=m._m[0][3];
 	_m[1][0]=m._m[1][0];	_m[1][1]=m._m[1][1];	_m[1][2]=m._m[1][2];	_m[1][3]=m._m[1][3];
 	_m[2][0]=m._m[2][0];	_m[2][1]=m._m[2][1];	_m[2][2]=m._m[2][2];	_m[2][3]=m._m[2][3];
 	_m[3][0]=m._m[3][0];	_m[3][1]=m._m[3][1];	_m[3][2]=m._m[3][2];	_m[3][3]=m._m[3][3];
-		
+#endif
 	return *this;
 }
-*/
 
 
 	
