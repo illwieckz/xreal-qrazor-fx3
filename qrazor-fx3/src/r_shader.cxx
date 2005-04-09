@@ -230,7 +230,7 @@ public:
 	
 	r_shader_cache_c(const std::string &name, const std::string &path, unsigned int offset_begin, unsigned int offset_end)
 	{
-		_name = Com_StripExtension(name);
+		_name = name;
 		_path = path;
 		_offset_begin = offset_begin;
 		_offset_end = offset_end;
@@ -249,8 +249,8 @@ private:
 };
 
 
-static std::vector<r_shader_c*>		r_shaders;
-static std::vector<r_shader_cache_c*>	r_shaders_cache;	
+static std::vector<r_shader_c*>			r_shaders;
+static std::map<std::string, r_shader_cache_c*>	r_shaders_cache;	
 
 
 
@@ -1282,34 +1282,30 @@ struct r_shader_precache_grammar_t : public boost::spirit::grammar<r_shader_prec
 
 static r_shader_cache_c*	R_FindShaderCache(const std::string &name)
 {
-	//ri.Com_DPrintf ("R_FindShaderCache: '%s'\n", cache_name);
+	std::string name_short = X_strlwr(Com_StripExtension(name));
 	
-	std::string name_short = Com_StripExtension(name);
-		
-	for(std::vector<r_shader_cache_c*>::const_iterator ir = r_shaders_cache.begin(); ir != r_shaders_cache.end(); ++ir)
-	{
-		if(X_strcaseequal(name_short.c_str(), (*ir)->getName()))
-			return (*ir);
-	}
+	std::map<std::string, r_shader_cache_c*>::const_iterator ir = r_shaders_cache.find(name_short);
+	
+	if(ir != r_shaders_cache.end())
+		return ir->second;
 
 	return NULL;
 }
 
-static r_shader_cache_c*	R_GetShaderCache(const std::string &cache_name, const std::string &cache_path, unsigned int offset_begin, unsigned int offset_end)
+static r_shader_cache_c*	R_GetShaderCache(const std::string &name, const std::string &cache_path, unsigned int offset_begin, unsigned int offset_end)
 {
-	r_shader_cache_c	*cache;
+	std::string cache_name = X_strlwr(Com_StripExtension(name));
+
+	r_shader_cache_c *cache = R_FindShaderCache(cache_name);
 	
 	//ri.Com_DPrintf("R_GetShaderCache: '%s' '%s' '%i' '%i'\n", cache_name.c_str(), cache_path.c_str(), offset_begin, offset_end);
-	
-	cache = R_FindShaderCache(cache_name);
 	
 	if(cache)
 		return cache;
 
 	cache = new r_shader_cache_c(cache_name, cache_path, offset_begin, offset_end);
 
-	// link the variable in
-	r_shaders_cache.push_back(cache);	
+	r_shaders_cache.insert(std::make_pair(cache_name, cache));
 
 	return cache;
 }
@@ -2060,7 +2056,13 @@ void	R_ShutdownShaders()
 	X_purge<std::vector<r_shader_c*> >(r_shaders);
 	r_shaders.clear();
 		
-	X_purge<std::vector<r_shader_cache_c*> >(r_shaders_cache);
+//	X_purge<std::vector<r_shader_cache_c*> >(r_shaders_cache);
+	for(std::map<std::string, r_shader_cache_c*>::const_iterator ir = r_shaders_cache.begin(); ir != r_shaders_cache.end(); ++ir)
+	{
+		r_shader_cache_c* cache = ir->second;
+		
+		delete cache;
+	}
 	r_shaders_cache.clear();
 }
 
@@ -2115,14 +2117,11 @@ void	R_ShaderList_f()
 
 void	R_ShaderCacheList_f()
 {
-	r_shader_cache_c*	cache;
-	
-
 	ri.Com_Printf("------------------\n");
 	
-	for(std::vector<r_shader_cache_c*>::const_iterator ir = r_shaders_cache.begin(); ir != r_shaders_cache.end(); ++ir)
+	for(std::map<std::string, r_shader_cache_c*>::const_iterator ir = r_shaders_cache.begin(); ir != r_shaders_cache.end(); ++ir)
 	{
-		cache = *ir;
+		r_shader_cache_c* cache = ir->second;
 		
 		ri.Com_Printf("'%s' '%s' '%i' '%i'\n", cache->getName(), cache->getPath(), cache->getBeginOffset(), cache->getEndOffset());
 	}
