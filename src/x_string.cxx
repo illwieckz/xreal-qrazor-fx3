@@ -30,19 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // xreal --------------------------------------------------------------------
 
 
-int 	X_stricmp(const char *s1, const char *s2)
-{
-#if defined(WIN32)
-	return _stricmp (s1, s2);
-#else
-	return strcasecmp (s1, s2);
-#endif
-}
 
-bool	X_strequal(const char *a, const char *b)
-{
-	return (strcmp (a, b) == 0);
-}
 
 bool	X_strcaseequal(const char *a, const char *b)
 {
@@ -61,17 +49,6 @@ bool	X_strcaseequal(const char *a, const char *b)
 	
 	return (strcasecmp (a, b) == 0);
 }
-
-bool	X_strnequal(const char *a, const char *b, unsigned int c)
-{
-	return (strncmp (a, b, c) == 0);
-}
-
-bool	X_strncaseequal(const char *a, const char *b, unsigned int c)
-{
-	return (strncasecmp (a, b, c) == 0);
-}
-
 
 int 	X_strncasecmp(const char *s1, const char *s2, int n)
 {
@@ -98,11 +75,6 @@ int 	X_strncasecmp(const char *s1, const char *s2, int n)
 	} while (c1);
 	
 	return 0;		// strings are equal
-}
-
-int 	X_strcasecmp(const char *s1, const char *s2)
-{
-	return X_strncasecmp (s1, s2, 99999);
 }
 
 char*	X_strlwr(char *s)
