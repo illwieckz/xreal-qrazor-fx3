@@ -500,14 +500,18 @@ struct s_shader_grammar_t : public boost::spirit::grammar<s_shader_grammar_t>
 static bool	S_ParseShader(s_shader_c *shader, const char* begin, const char *end)
 {
 	s_current_shader = shader;
-	
-	std::string s(begin, end);
-	
-	//ri.Com_Printf("%s\n", s.c_str());
 
 	s_shader_grammar_t	grammar;
 	
-	boost::spirit::parse_info<> info = boost::spirit::parse(begin, end, grammar, boost::spirit::space_p);
+	boost::spirit::parse_info<> info = boost::spirit::parse
+	(
+		begin,
+		end,
+		grammar,
+		boost::spirit::space_p ||
+		boost::spirit::comment_p("/*", "*/") ||
+		boost::spirit::comment_p("//")
+	);
 	
 	return info.full;
 }
