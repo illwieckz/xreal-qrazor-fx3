@@ -757,6 +757,10 @@ typedef struct
 
 #define BSP_PVS_HEADERSIZE	8
 
+#define MIN_WORLD_COORD			(-65536)
+#define	MAX_WORLD_COORD			(65536)
+#define WORLD_SIZE			(MAX_WORLD_COORD - MIN_WORLD_COORD)
+
 
 enum bsp_surface_type_t
 {
