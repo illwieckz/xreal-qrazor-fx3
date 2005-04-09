@@ -18,11 +18,17 @@ qrazor_fx_map_src = [
 'src/unzip.cxx',
 'src/cl_null.cxx',
 'src/sv_null.cxx',
+'src/map_brush.cxx',
+'src/map_bsp.cxx',
 'src/map_bspfile.cxx',
 'src/map_entity.cxx',
 'src/map_main.cxx',
 'src/map_map.cxx',
-'src/map_winding.cxx' ]
+'src/map_patch.cxx',
+'src/map_portal.cxx',
+'src/map_shader.cxx',
+'src/map_winding.cxx',
+'src/map_xmap.cxx' ]
 
 qrazor_fx_map_env = env.Copy()
 
