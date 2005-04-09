@@ -39,13 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 
-std::vector<map_brush_c>		map_brushes;
-
-std::vector<map_brush_side_c>		map_brushsides;
-
 //brush_texture_t		side_brushtextures[MAX_MAP_SIDES];
-
-std::vector<cplane_c>	map_planes;
 
 aabb_c			map_bbox;
 
@@ -62,7 +56,7 @@ int		c_clipbrushes;
 
 static int	CreateNewFloatPlane(const cplane_c &p)
 {
-	cplane_c	planes[2];
+	cplane_c*	planes[2];
 
 	if(p._normal.length() < 0.5)
 		Com_Error(ERR_FATAL, "CreateNewFloatPlane: bad normal");
@@ -76,13 +70,13 @@ static int	CreateNewFloatPlane(const cplane_c &p)
 	//p->dist = dist;
 	//p->type = (p+1)->type = PlaneTypeForNormal(p._normal);
 	
-	planes[0] = p;
-	planes[1] = p;
+	planes[0] = new cplane_c(p);
+	planes[1] = new cplane_c(p);
 	
 	//VectorSubtract (vec3_origin, normal, (p+1)._normal);
 	//(p+1)->dist = -dist;
 	
-	planes[1].negate();
+	planes[1]->negate();
 
 	//nummapplanes += 2;
 
@@ -112,7 +106,7 @@ static int	FindFloatPlane(cplane_c &p)
 	
 	for(unsigned int i=0; i<map_planes.size(); i++)
 	{
-		if(p == map_planes[i])
+		if(p == *map_planes[i])
 			return i;
 	}
 
@@ -813,8 +807,20 @@ static bool	ParseMapEntity(char **data_p)
 */
 
 static map_entity_c*	map_entity;
+
+static map_brush_c*		map_brush;
+static map_brush_side_c*		map_brushside;
+static cplane_c*				map_plane;
+static std::string				map_shader;
+
 static std::string		map_key;
 static std::string		map_value;
+
+static float		map_float0;
+static float		map_float1;
+static float		map_float2;
+static float		map_float3;
+
 
 static void	MAP_Version(int version)
 {
@@ -838,7 +844,34 @@ static void	MAP_FinishEntity(char const* begin, char const* end)
 
 static void	MAP_BrushDef3(char const* begin, char const* end)
 {
-	Com_Printf("MAP_BrushDef3() '%s'\n", std::string(begin, end).c_str());
+	Com_Printf("MAP_BrushDef3()\n");
+	
+	map_brush = new map_brush_c(entities.size()-1);
+	map_brushes.push_back(map_brush);
+	
+	map_entity->addBrush(map_brush);
+}
+
+static void	MAP_BrushDef3Side(char const* begin, char const* end)
+{
+	Com_Printf("MAP_BrushDef3Side()\n");
+	
+	map_brushside = new map_brush_side_c();
+	map_brushsides.push_back(map_brushside);
+	
+	map_brushside->setPlane(map_plane);
+	map_brushside->setShader(map_shader);
+	
+	map_brush->addSide(map_brushside);
+}
+
+static void	MAP_PlaneEQ(char const* begin, char const* end)
+{
+	Com_Printf("MAP_PlaneEQ()\n");
+	
+	map_planes.push_back(new cplane_c(map_float0, map_float1, map_float2, -map_float3));
+	
+	
 }
 
 static void	MAP_KeyValueInfo(char const* begin, char const* end)
@@ -879,13 +912,58 @@ struct map_grammar_t : public boost::spirit::grammar<map_grammar_t>
 				
 			primitive
 				=	boost::spirit::ch_p('{') >>
-					brushDef3[&MAP_BrushDef3] >>
+					brushDef3 >>
 					boost::spirit::ch_p('}')
 				;
 				
 			brushDef3
-				=	boost::spirit::str_p("brushDef3") >>
-					skip_block;
+				=	boost::spirit::str_p("brushDef3")[&MAP_BrushDef3] >>
+					boost::spirit::ch_p('{') >>
+					+brushDef3_side[&MAP_BrushDef3Side] >>
+					boost::spirit::ch_p('}')
+				;
+				
+			brushDef3_side
+				=	plane_eq[&MAP_PlaneEQ] >>
+					tex_mat >>
+					shader >>
+					detail_flags
+				;
+				
+			plane_eq
+				=	boost::spirit::ch_p('(') >>
+					boost::spirit::real_p[boost::spirit::assign(map_float0)] >>
+					boost::spirit::real_p[boost::spirit::assign(map_float1)] >>
+					boost::spirit::real_p[boost::spirit::assign(map_float2)] >>
+					boost::spirit::real_p[boost::spirit::assign(map_float3)] >>
+					boost::spirit::ch_p(')')
+				;
+				
+			tex_mat
+				=	boost::spirit::ch_p('(') >>
+					boost::spirit::ch_p('(') >>
+					boost::spirit::real_p[boost::spirit::assign(map_float0)] >>
+					boost::spirit::real_p[boost::spirit::assign(map_float1)] >>
+					boost::spirit::real_p[boost::spirit::assign(map_float2)] >>
+					boost::spirit::ch_p(')') >>
+					boost::spirit::ch_p('(') >>
+					boost::spirit::real_p[boost::spirit::assign(map_float0)] >>
+					boost::spirit::real_p[boost::spirit::assign(map_float1)] >>
+					boost::spirit::real_p[boost::spirit::assign(map_float2)] >>
+					boost::spirit::ch_p(')') >>
+					boost::spirit::ch_p(')')
+				;
+				
+			detail_flags
+				=	boost::spirit::int_p >>
+					boost::spirit::int_p >>
+					boost::spirit::int_p
+				;
+				
+			shader
+				=	boost::spirit::ch_p('\"') >>
+					boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - boost::spirit::ch_p('\"')][boost::spirit::assign(map_shader)] >>
+					boost::spirit::ch_p('\"')
 				;
 				
 			key_value
@@ -913,6 +991,11 @@ struct map_grammar_t : public boost::spirit::grammar<map_grammar_t>
 						entity,
 							primitive,
 								brushDef3,
+									brushDef3_side,
+										plane_eq,
+										tex_mat,
+										shader,
+										detail_flags,
 							key_value,
 						expression;
 		
@@ -966,7 +1049,7 @@ void	LoadMapFile(const std::string &filename)
 	
 	for(unsigned int i=0; i<entities[0].getBrushes().size(); i++)
 	{
-		map_bbox.mergeWith(map_brushes[i].getAABB());
+		map_bbox.mergeWith(map_brushes[i]->getAABB());
 	}
 
 	Com_Printf("%5i brushes\n",	map_brushes.size());
