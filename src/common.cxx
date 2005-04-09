@@ -1110,7 +1110,7 @@ void 	Com_Init(int argc, char **argv)
 	fixedtime	= Cvar_Get("fixedtime", "0", 0);
 	logfile_active	= Cvar_Get("logfile", "0", 0);
 	showtrace	= Cvar_Get("showtrace", "0", 0);
-#ifdef DEDICATED_ONLY
+#if defined(DEDICATED_ONLY) || defined(BSPCOMPILER_ONLY)
 	dedicated	= Cvar_Get("dedicated", "1", CVAR_INIT);
 #else
 	dedicated	= Cvar_Get("dedicated", "0", CVAR_INIT);
@@ -1127,7 +1127,7 @@ void 	Com_Init(int argc, char **argv)
 
 #ifdef DEDICATED_ONLY
 	Sys_InitNet(true);
-#elif ! defined(BSPCOMPILER_ONLY)
+#elif !defined(BSPCOMPILER_ONLY)
 	Sys_InitNet(false);
 #endif
 	
@@ -1142,7 +1142,8 @@ void 	Com_Init(int argc, char **argv)
 
 	// add + commands from command line
 	if(!Cbuf_AddLateCommands())
-	{	
+	{
+		#ifndef BSPCOMPILER_ONLY	
 		// if the user didn't give any commands, run default action
 		if(!dedicated->getInteger())
 			Cbuf_AddText("toggleconsole\n");
@@ -1150,6 +1151,7 @@ void 	Com_Init(int argc, char **argv)
 			Cbuf_AddText("dedicated_start\n");
 			
 		Cbuf_Execute();
+		#endif
 	}
 	else
 	{	// the user asked for something explicit
