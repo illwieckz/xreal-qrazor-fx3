@@ -38,6 +38,11 @@ int		cm_traces;
 int		cm_brush_traces;
 
 
+std::vector<map_brush_c*>	map_brushes;
+std::vector<map_brush_side_c*>	map_brushsides;
+std::vector<cplane_c*>		map_planes;
+
+
 static void	BSPInfo_f()
 {
 	if(Cmd_Argc() != 2)

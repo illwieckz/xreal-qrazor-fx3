@@ -96,11 +96,32 @@ public:
 class map_brush_side_c
 {
 public:
-	void			setPlaneNum(int value)		{_plane_num = value;}
-	int			getPlaneNum(int value) const 	{return _plane_num;}
+	inline map_brush_side_c()
+	{
+		_plane		= NULL;
+		
+		_tex_mat.identity();
+		
+		_winding	= NULL;
+		
+		_shader		= NULL;
+		
+		_visible	= false;
+		_tested		= false;
+		_bevel		= false;
+		_culled		= false;
+	}
+
+	void			setPlane(cplane_c *p)		{_plane = p;}
+	const cplane_c*		getPlane() const 		{return _plane;}
+	
+	void			setShader(const std::string& s)	{/*TODO load shader;*/}
 
 private:
-	int			_plane_num;
+//	vec3_c			_plane_pts[3];
+//	cplane_c		_plane_equation;
+	cplane_c*		_plane;
+	
 	matrix_c		_tex_mat;
 	
 	winding_c*		_winding;
@@ -117,12 +138,17 @@ private:
 class map_brush_c
 {
 public:
-	//TODO
-	const aabb_c&		getAABB() const	{return _aabb;}
-private:
-	vec3_c			_plane_pts[3];
-	cplane_c		_plane_equation;
+	inline map_brush_c(int entity_num)
+	{
+		_entity_num	= entity_num;
+	}
 	
+	void			addSide(map_brush_side_c* side)	{_sides.push_back(side);}
+
+	int			getEntityNum() const	{return _entity_num;}
+	const aabb_c&		getAABB() const		{return _aabb;}
+	
+private:
 	int			_entity_num;
 	int			_brush_num;
 
@@ -144,6 +170,7 @@ class map_entity_c
 {
 	friend void	UnparseEntities();
 public:
+	void		addBrush(map_brush_c* b)	{_brushes.push_back(b);}
 	const std::vector<map_brush_c*>&	getBrushes() const	{return _brushes;}
 
 	void 		setKeyValue(const std::string &key, const std::string &value);
@@ -259,6 +286,10 @@ public:
 	vec3_t			mins, maxs;
 };
 
+
+extern std::vector<map_brush_c*>	map_brushes;
+extern std::vector<map_brush_side_c*>	map_brushsides;
+extern std::vector<cplane_c*>		map_planes;
 
 
 //
