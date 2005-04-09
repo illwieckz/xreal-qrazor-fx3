@@ -47,11 +47,44 @@ class portal_t;
 #endif
 
 
-class winding_t
+class winding_c
 {
 public:
-	int			numpoints;
-	vec3_t			p[4];		// variable sized
+	winding_c(int points);
+	winding_c(const vec3_c &normal, vec_t dist);
+	~winding_c();
+	
+	void		calcPlane(cplane_c &plane) const;
+	vec_t		calcArea() const;
+	void		calcAABB(aabb_c &aabb) const;
+	void		calcCenter(vec3_c &center) const;
+	bool		isTiny() const;
+	
+	//! Reverse vertex order
+	void		reverse();
+	
+	//! Splits winding by split plane
+	void		clip(const cplane_c &split, winding_c **front, winding_c **back, vec_t epsilon = ON_EPSILON) const;
+	//! Returns the fragment of in that is on the front side of the cliping plane.
+	winding_c*	chop(const cplane_c &split) const;
+	// frees the original if clipped
+//	void		chopWindingInPlace(winding_c **w, vec3_t normal, vec_t dist, vec_t epsilon);
+
+	void		removeColinearPoints();
+	
+	//! Check for errors in this winding and abort if any
+	void		check() const;
+	
+	plane_side_e	onPlaneSide(const cplane_c &p) const	{return onPlaneSide(p._normal, p._dist);}
+	plane_side_e	onPlaneSide(const vec3_c &normal, vec_t dist) const;
+	
+	//! Print to console
+	void		toString() const;
+	
+//	winding_c*	CopyWinding(winding_c *w);
+
+private:
+	std::vector<vec3_c>	_p;
 };
 
 class map_shader_c
@@ -70,7 +103,7 @@ private:
 	int			_plane_num;
 	matrix_c		_tex_mat;
 	
-	winding_t*		_winding;
+	winding_c*		_winding;
 //	side_t*			_original;		// bspbrush_t sides will reference the mapbrush_t sides
 	
 	map_shader_c*		_shader;
@@ -155,7 +188,7 @@ public:
 	int			planenum;
 	int			contents;	// faces in different contents can't merge
 	int			outputnumber;
-	winding_t*		w;
+	winding_c*		w;
 	int			numpoints;
 	bool			badstartvert;	// tjunctions cannot be fixed without a midpoint vertex
 	int			vertexnums[MAXEDGES];
@@ -211,7 +244,7 @@ public:
 	node_t*			onnode;		// NULL = outside box
 	node_t*			nodes[2];		// [0] = front side of plane
 	portal_t*		next[2];
-	winding_t*		winding;
+	winding_c*		winding;
 
 	bool			sidefound;		// false if ->side hasn't been checked
 	map_brush_side_c*	side;			// NULL = non-visible
@@ -291,30 +324,6 @@ void		UnparseEntities();
 // map_map.cxx
 //
 void		LoadMapFile(const std::string &filename);
-
-
-//
-// map_winding.cxx
-//
-winding_t*	AllocWinding(int points);
-vec_t		WindingArea(winding_t *w);
-void		WindingCenter(winding_t *w, vec3_t center);
-void		ClipWindingEpsilon(winding_t *in, vec3_t normal, vec_t dist, vec_t epsilon, winding_t **front, winding_t **back);
-winding_t*	ChopWinding(winding_t *in, vec3_t normal, vec_t dist);
-winding_t*	CopyWinding(winding_t *w);
-winding_t*	ReverseWinding(winding_t *w);
-winding_t*	BaseWindingForPlane(vec3_t normal, vec_t dist);
-void		CheckWinding(winding_t *w);
-void		WindingPlane(winding_t *w, vec3_c &normal, vec_t &dist);
-void		RemoveColinearPoint(winding_t *w);
-int		WindingOnPlaneSide(winding_t *w, vec3_t normal, vec_t dist);
-void		FreeWinding(winding_t *w);
-void		WindingBounds(winding_t *w, vec3_t mins, vec3_t maxs);
-
-void		ChopWindingInPlace(winding_t **w, vec3_t normal, vec_t dist, vec_t epsilon);
-// frees the original if clipped
-
-void		pw(winding_t *w);
 
 
 
