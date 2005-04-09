@@ -90,7 +90,7 @@ void 	map_entity_c::getVector3ForKey(const std::string &key, vec3_c &v) const
 
 void	map_entity_c::toString() const
 {
-	Com_Printf("------- entity -------\n");
+//	Com_Printf("------- entity -------\n");
 	
 	Com_Printf("%i brushes\n", _brushes.size());
 	

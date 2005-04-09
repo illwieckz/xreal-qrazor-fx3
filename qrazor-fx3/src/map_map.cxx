@@ -830,7 +830,7 @@ static void	MAP_Version(int version)
 
 static void	MAP_NewEntity(char begin)
 {
-	Com_Printf("parsing entity %i ...\n", entities.size());
+	Com_Printf("------- parsing entity %i -------\n", entities.size());
 	
 	entities.push_back(map_entity_c());
 	
@@ -844,7 +844,7 @@ static void	MAP_FinishEntity(char const* begin, char const* end)
 
 static void	MAP_BrushDef3(char const* begin, char const* end)
 {
-	Com_Printf("MAP_BrushDef3()\n");
+//	Com_Printf("MAP_BrushDef3()\n");
 	
 	map_brush = new map_brush_c(entities.size()-1);
 	map_brushes.push_back(map_brush);
@@ -854,7 +854,7 @@ static void	MAP_BrushDef3(char const* begin, char const* end)
 
 static void	MAP_BrushDef3Side(char const* begin, char const* end)
 {
-	Com_Printf("MAP_BrushDef3Side()\n");
+//	Com_Printf("MAP_BrushDef3Side()\n");
 	
 	map_brushside = new map_brush_side_c();
 	map_brushsides.push_back(map_brushside);
@@ -867,7 +867,7 @@ static void	MAP_BrushDef3Side(char const* begin, char const* end)
 
 static void	MAP_PlaneEQ(char const* begin, char const* end)
 {
-	Com_Printf("MAP_PlaneEQ()\n");
+//	Com_Printf("MAP_PlaneEQ()\n");
 	
 	map_planes.push_back(new cplane_c(map_float0, map_float1, map_float2, -map_float3));
 	
@@ -1011,6 +1011,7 @@ void	LoadMapFile(const std::string &filename)
 				
 	Com_Printf("------- LoadMapFile -------\n");
 	
+	// load buffer
 	VFS_FLoad(filename, (void **)&buf);
 	if(!buf)
 	{
@@ -1019,9 +1020,19 @@ void	LoadMapFile(const std::string &filename)
 	}
 	Com_Printf("loading '%s' ...\n", filename.c_str());
 
+	// clear globals
+	X_purge(map_brushes);
+	map_brushes.clear();
+	
+	X_purge(map_brushsides);
 	map_brushsides.clear();
+	
+	X_purge(map_planes);
+	map_planes.clear();
+	
 	entities.clear();
 	
+	// parse map
 	map_grammar_t	grammar;
 	
 	boost::spirit::parse_info<> info = boost::spirit::parse

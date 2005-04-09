@@ -46,7 +46,6 @@ class portal_t;
 #define	ON_EPSILON	0.1
 #endif
 
-
 class winding_c
 {
 public:
@@ -90,7 +89,17 @@ private:
 class map_shader_c
 {
 public:
+	map_shader_c(const std::string &name);
+
+	inline const char*	getName() const			{return _name.c_str();}
 	//TODO
+	
+private:
+	std::string	_name;
+	
+	//TODO surface flags
+	
+	//TODO content flags
 };
 
 class map_brush_side_c
@@ -115,7 +124,7 @@ public:
 	void			setPlane(cplane_c *p)		{_plane = p;}
 	const cplane_c*		getPlane() const 		{return _plane;}
 	
-	void			setShader(const std::string& s)	{/*TODO load shader;*/}
+	void			setShader(const std::string& s);
 
 private:
 //	vec3_c			_plane_pts[3];
@@ -133,6 +142,10 @@ private:
 	bool			_tested;		// this plane allready checked as a split
 	bool			_bevel;			// don't ever use for bsp splitting
 	bool			_culled;
+	
+	//TODO content flags
+	
+	//TODO compile flags
 };
 
 class map_brush_c
@@ -357,7 +370,17 @@ void		UnparseEntities();
 void		LoadMapFile(const std::string &filename);
 
 
+//
+// map_shader.cxx
+//
+void		Map_InitShaders();
+void		Map_ShutdownShaders();
 
+map_shader_c*	Map_FindShader(const std::string &name);
+
+void		Map_ShaderList_f();
+void		Map_ShaderCacheList_f();
+void		Map_ShaderSearch_f();
 
 
 #endif // MAP_LOCAL_H
