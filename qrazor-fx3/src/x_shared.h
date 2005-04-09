@@ -328,6 +328,62 @@ void 		Com_Error(err_type_e type, const char *fmt, ...);
 unsigned	Com_BlockChecksum(void *buffer, int length);
 
 
+
+inline int	X_stricmp(const char *s1, const char *s2)
+{
+#if defined(WIN32)
+	return _stricmp(s1, s2);
+#else
+	return strcasecmp(s1, s2);
+#endif
+}
+
+inline int 	X_strcasecmp(const char *s1, const char *s2)
+{
+//	return X_strncasecmp (s1, s2, 99999);
+	return X_stricmp(s1, s2);
+}
+
+inline bool	X_strequal(const char *a, const char *b)
+{
+	return (strcmp (a, b) == 0);
+}
+
+bool	X_strcaseequal(const char *a, const char *b);
+
+inline bool	X_strnequal(const char *a, const char *b, unsigned int c)
+{
+	return (strncmp (a, b, c) == 0);
+}
+
+inline bool	X_strncaseequal(const char *a, const char *b, unsigned int c)
+{
+	return (strncasecmp (a, b, c) == 0);
+}
+
+int 	X_strncasecmp(const char *s1, const char *s2, int n);
+
+char*	X_strlwr(char *s);
+
+std::string	X_strlwr(const std::string &s);
+
+char*	X_strupr(char *s);
+
+void	X_strncpyz(char *dest, const char *src, int size);
+
+
+
+// Tr3B - non-case-sensitive compare function object
+class strcasecmp_c : public std::binary_function<std::string, std::string, bool>
+{
+public:
+	bool operator()(const std::string &x, const std::string &y)
+	{
+		return X_strcasecmp(x.c_str(), y.c_str()) < 0;
+	}
+};
+
+
 // Tr3B - delete all slots != NULL
 template<class seq>
 inline void	X_purge(seq& c)
@@ -351,6 +407,7 @@ inline int	X_asz(T (&)[size])
 {
 	return size;
 }
+
 
 
 
@@ -442,33 +499,6 @@ struct VFILE
 	void*			file;
 };
 
-
-/*
-================================================================================
-			LIBRARY REPLACEMENT FUNCTIONS
-================================================================================
-*/
-bool	X_strequal(const char *a, const char *b);
-
-bool	X_strcaseequal(const char *a, const char *b);
-
-bool	X_strnequal(const char *a, const char *b, unsigned int c);
-
-bool	X_strncaseequal(const char *a, const char *b, unsigned int c);
-
-int 	X_stricmp(const char *s1, const char *s2);
-
-int 	X_strcasecmp(const char *s1, const char *s2);
-
-int 	X_strncasecmp(const char *s1, const char *s2, int n);
-
-char*	X_strlwr(char *s);
-
-std::string	X_strlwr(const std::string &s);
-
-char*	X_strupr(char *s);
-
-void	X_strncpyz(char *dest, const char *src, int size);
 
 /*
 ================================================================================
