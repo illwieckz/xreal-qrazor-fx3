@@ -126,8 +126,8 @@ enum angles_indexes_e
 enum plane_side_e
 {
 	SIDE_FRONT		= 0,
-	SIDE_ON			= 2,
 	SIDE_BACK		= 1,
+	SIDE_ON			= 2,
 	SIDE_CROSS		= 3
 };
 
