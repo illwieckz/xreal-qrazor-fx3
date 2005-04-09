@@ -41,8 +41,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 
-static int					cmd_alias_count;		// for detecting runaway loops
-static std::map<std::string, std::string>	cmd_alias_map;
+static int						cmd_alias_count;		// for detecting runaway loops
+static std::map<std::string, std::string, strcasecmp_c>	cmd_alias_map;
 
 static bool		cmd_wait;
 
@@ -399,7 +399,7 @@ static void 	Cmd_Alias_f()
 static std::vector<std::string>	cmd_argv;
 static std::string		cmd_args;
 
-static std::map<std::string, void (*)()>	cmd_functions_map;		// possible commands to execute
+static std::map<std::string, void (*)(), strcasecmp_c>	cmd_functions_map;		// possible commands to execute
 
 int	Cmd_Argc()
 {
@@ -690,13 +690,10 @@ void	Cmd_ExecuteString(const std::string &text)
 
 static void	Cmd_List_f()
 {
-	int		i;
-	std::map<std::string, void (*)()>::iterator fir;
-	
-	for(i=0, fir=cmd_functions_map.begin(); fir != cmd_functions_map.end(); i++, fir++)
-		Com_Printf("%s\n", fir->first.c_str());
+	for(std::map<std::string, void (*)()>::iterator ir = cmd_functions_map.begin(); ir != cmd_functions_map.end(); ++ir)
+		Com_Printf("'%s'\n", ir->first.c_str());
 
-	Com_Printf("%i commands\n", i);
+	Com_Printf("%i commands\n", cmd_functions_map.size());
 }
 
 /*

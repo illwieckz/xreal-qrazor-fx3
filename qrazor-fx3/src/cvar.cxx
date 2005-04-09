@@ -33,8 +33,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "vfs.h"
 
 
-bool					cvar_userinfo_modified;
-static std::map<std::string, cvar_t*>	cvar_map;
+bool							cvar_userinfo_modified;
+static std::map<std::string, cvar_t*, strcasecmp_c>	cvar_map;
 
 static bool	Cvar_InfoValidate(const std::string &s)
 {
