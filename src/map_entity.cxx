@@ -103,9 +103,6 @@ void	map_entity_c::toString() const
 	}
 }
 
-
-std::vector<map_entity_c>	entities;
-
 /*
 void	StripTrailing(char *e)
 {
@@ -240,11 +237,11 @@ void	UnparseEntities()
 {
 	std::string	entitystring;
 
-	for(std::vector<map_entity_c>::const_iterator eir = entities.begin(); eir != entities.end(); ++eir)
+	for(std::vector<map_entity_c*>::const_iterator eir = map_entities.begin(); eir != map_entities.end(); ++eir)
 	{
 		entitystring += "{\n";
 				
-		for(std::map<std::string, std::string>::const_iterator ir = (*eir)._epairs.begin(); ir != (*eir)._epairs.end(); ++ir)
+		for(std::map<std::string, std::string>::const_iterator ir = (*eir)->_epairs.begin(); ir != (*eir)->_epairs.end(); ++ir)
 		{
 			entitystring += '\"';
 			entitystring += ir->first;	// key

@@ -44,12 +44,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 aabb_c			map_bbox;
 
 
-int		c_boxbevels;
-int		c_edgebevels;
-
-int		c_areaportals;
-
-int		c_clipbrushes;
+static int		c_detailbrushes;
+static int		c_boxbevels;
+static int		c_edgebevels;
+static int		c_areaportals;
 
 
 
@@ -100,10 +98,8 @@ static int	CreateNewFloatPlane(const cplane_c &p)
 }
 
 
-static int	FindFloatPlane(cplane_c &p)
+static int	FindFloatPlane(const cplane_c &p)
 {
-	p.snap();
-	
 	for(unsigned int i=0; i<map_planes.size(); i++)
 	{
 		if(p == *map_planes[i])
@@ -115,10 +111,17 @@ static int	FindFloatPlane(cplane_c &p)
 
 int	PlaneFromPoints(const vec3_c &p0, const vec3_c &p1, const vec3_c &p2)
 {
-	cplane_c p;
-	
-	p.fromThreePointForm(p0, p1, p2);
+	cplane_c p(p0, p1, p2);
+	p.snap();
 
+	return FindFloatPlane(p);
+}
+
+int	PlaneFromEquation(float f0, float f1, float f2, float f3)
+{
+	cplane_c p(f0, f1, f2, f3);
+	p.snap();
+	
 	return FindFloatPlane(p);
 }
 
@@ -830,11 +833,10 @@ static void	MAP_Version(int version)
 
 static void	MAP_NewEntity(char begin)
 {
-	Com_Printf("------- parsing entity %i -------\n", entities.size());
+	Com_Printf("------- parsing entity %i -------\n", map_entities.size());
 	
-	entities.push_back(map_entity_c());
-	
-	map_entity = &entities[entities.size()-1];
+	map_entity = new map_entity_c();
+	map_entities.push_back(map_entity);
 }
 
 static void	MAP_FinishEntity(char const* begin, char const* end)
@@ -846,7 +848,7 @@ static void	MAP_BrushDef3(char const* begin, char const* end)
 {
 //	Com_Printf("MAP_BrushDef3()\n");
 	
-	map_brush = new map_brush_c(entities.size()-1);
+	map_brush = new map_brush_c(map_entities.size()-1);
 	map_brushes.push_back(map_brush);
 	
 	map_entity->addBrush(map_brush);
@@ -869,9 +871,9 @@ static void	MAP_PlaneEQ(char const* begin, char const* end)
 {
 //	Com_Printf("MAP_PlaneEQ()\n");
 	
-	map_planes.push_back(new cplane_c(map_float0, map_float1, map_float2, -map_float3));
-	
-	
+//	map_planes.push_back(new cplane_c(map_float0, map_float1, map_float2, -map_float3));
+
+	PlaneFromEquation(map_float0, map_float1, map_float2, -map_float3);
 }
 
 static void	MAP_KeyValueInfo(char const* begin, char const* end)
@@ -1030,7 +1032,8 @@ void	LoadMapFile(const std::string &filename)
 	X_purge(map_planes);
 	map_planes.clear();
 	
-	entities.clear();
+	X_purge(map_entities);
+	map_entities.clear();
 	
 	// parse map
 	map_grammar_t	grammar;
@@ -1049,7 +1052,7 @@ void	LoadMapFile(const std::string &filename)
 		Com_Error(ERR_FATAL, "LoadMapFile: parsing failed");
 	}
 
-	if(entities.empty())
+	if(map_entities.empty())
 	{
 		Com_Error(ERR_FATAL, "LoadMapFile: no entities");
 		return;
@@ -1058,20 +1061,20 @@ void	LoadMapFile(const std::string &filename)
 	// compute world bounding box
 	map_bbox.clear();
 	
-	for(unsigned int i=0; i<entities[0].getBrushes().size(); i++)
+	for(uint_t i=0; i<map_entities[0]->getBrushes().size(); i++)
 	{
 		map_bbox.mergeWith(map_brushes[i]->getAABB());
 	}
 
-	Com_Printf("%5i brushes\n",	map_brushes.size());
-	Com_Printf("%5i clipbrushes\n",	c_clipbrushes);
-	Com_Printf("%5i total sides\n",	map_brushsides.size());
-	Com_Printf("%5i boxbevels\n",	c_boxbevels);
-	Com_Printf("%5i edgebevels\n",	c_edgebevels);
-	Com_Printf("%5i entities\n",	entities.size());
-	Com_Printf("%5i planes\n",	map_planes.size());
-	Com_Printf("%5i areaportals\n",	c_areaportals);
-	Com_Printf("size: %s\n",	map_bbox.toString());
+	Com_Printf("%5i total brushes\n",	map_brushes.size());
+	Com_Printf("%5i detail brushes\n",	c_detailbrushes);
+	Com_Printf("%5i total sides\n",		map_brushsides.size());
+	Com_Printf("%5i boxbevels\n",		c_boxbevels);
+	Com_Printf("%5i edgebevels\n",		c_edgebevels);
+	Com_Printf("%5i entities\n",		map_entities.size());
+	Com_Printf("%5i planes\n",		map_planes.size());
+	Com_Printf("%5i areaportals\n",		c_areaportals);
+	Com_Printf("size: %s\n",		map_bbox.toString());
 
 	VFS_FFree(buf);
 }

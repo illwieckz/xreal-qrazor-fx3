@@ -299,7 +299,7 @@ public:
 	vec3_t			mins, maxs;
 };
 
-
+extern std::vector<map_entity_c*>	map_entities;
 extern std::vector<map_brush_c*>	map_brushes;
 extern std::vector<map_brush_side_c*>	map_brushsides;
 extern std::vector<cplane_c*>		map_planes;
@@ -358,8 +358,6 @@ void		PrintBSPFileSizes();
 //
 // map_entity.cxx
 //
-extern std::vector<map_entity_c>	entities;
-
 //void		ParseEntities();
 void		UnparseEntities();
 
