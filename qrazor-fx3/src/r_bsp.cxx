@@ -377,6 +377,16 @@ int	r_bsptree_c::pointInCluster(const vec3_c &p)
 		return -1;
 }
 
+int	r_bsptree_c::pointInArea(const vec3_c &p)
+{
+	r_bsptree_leaf_c *leaf = pointInLeaf(p);
+	
+	if(leaf)
+		return leaf->area;
+	else
+		return -1;
+}
+
 bool	r_bsptree_c::pointIsVisible(const vec3_c &p)
 {
 	//TODO
@@ -1649,6 +1659,9 @@ void 	r_bsptree_c::markLeaves()
 					
 				if(leaf->area < 0)
 					continue;
+					
+				if((leaf->area >= 0) && (leaf->area < (int)r_newrefdef.areabits.size()) && !r_newrefdef.areabits[leaf->area])
+					continue;	// not visible
 		
 				if(vis[leaf->cluster >> 3] & (1 << (leaf->cluster & 7)))
 				{

@@ -369,8 +369,8 @@ enum
 	FRUSTUM_TOP,
 	FRUSTUM_NEAR,
 	FRUSTUM_FAR,
-	FRUSTUM_PLANES		= 4,
-	FRUSTUM_CLIPALL		= 1 | 2 | 4 | 8 //| 16 //| 32
+	FRUSTUM_PLANES		= 5,
+	FRUSTUM_CLIPALL		= 1 | 2 | 4 | 8 | 16 //| 32
 };
 
 
@@ -1493,8 +1493,8 @@ public:
 	
 	r_bsptree_leaf_c*	pointInLeaf(const vec3_c &p);
 	int			pointInCluster(const vec3_c &p);
+	int			pointInArea(const vec3_c &p);
 	bool			pointIsVisible(const vec3_c &p);
-//	r_bsptree_area_c*	pointInArea(const vec3_c &p);
 
 	// Fills in a list of all the leafs touched
 private:

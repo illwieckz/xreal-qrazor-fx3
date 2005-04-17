@@ -228,6 +228,7 @@ void	CL_InitClientGame()
 	
 	import.CM_PointContents			= CM_PointContents;
 	import.CM_TransformedPointContents	= CM_TransformedPointContents;
+	import.CM_PointAreanum			= CM_PointAreanum;
 	
 	import.CL_GetTime		= CL_GetTime;
 	import.CL_SetTime		= CL_SetTime;

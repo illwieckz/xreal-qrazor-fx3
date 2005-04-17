@@ -314,31 +314,7 @@ void	Map_ShutdownShaders()
 }
 
 
-void	Map_ShaderList_f()
-{
-	Com_Printf("------------------\n");
 
-	for(std::map<std::string, map_shader_c*>::iterator ir = map_shaders.begin(); ir != map_shaders.end(); ++ir)
-	{
-		Com_Printf("%s\n", ir->first.c_str());
-	}
-	
-	Com_Printf("Total shaders count: %i\n", map_shaders.size());
-}
-
-void	Map_ShaderCacheList_f()
-{
-	Com_Printf("------------------\n");
-	
-	for(std::map<std::string, map_shader_cache_c*>::const_iterator ir = map_shaders_cache.begin(); ir != map_shaders_cache.end(); ++ir)
-	{
-		map_shader_cache_c* cache = ir->second;
-		
-		Com_Printf("'%s' '%s' '%i' '%i'\n", ir->first.c_str(), cache->getPath(), cache->getBeginOffset(), cache->getEndOffset());
-	}
-	
-	Com_Printf("Total shaders caches count: %i\n", map_shaders_cache.size());
-}
 
 
 static void	Map_Unknown_sc(char const* begin, char const* end)
@@ -496,6 +472,32 @@ map_shader_c*	Map_FindShader(const std::string &name)
 	}
 }
 
+
+void	Map_ShaderList_f()
+{
+	Com_Printf("------------------\n");
+
+	for(std::map<std::string, map_shader_c*>::iterator ir = map_shaders.begin(); ir != map_shaders.end(); ++ir)
+	{
+		Com_Printf("%s\n", ir->first.c_str());
+	}
+	
+	Com_Printf("Total shaders count: %i\n", map_shaders.size());
+}
+
+void	Map_ShaderCacheList_f()
+{
+	Com_Printf("------------------\n");
+	
+	for(std::map<std::string, map_shader_cache_c*>::const_iterator ir = map_shaders_cache.begin(); ir != map_shaders_cache.end(); ++ir)
+	{
+		map_shader_cache_c* cache = ir->second;
+		
+		Com_Printf("'%s' '%s' '%i' '%i'\n", ir->first.c_str(), cache->getPath(), cache->getBeginOffset(), cache->getEndOffset());
+	}
+	
+	Com_Printf("Total shaders caches count: %i\n", map_shaders_cache.size());
+}
 
 void	Map_ShaderSearch_f()
 {

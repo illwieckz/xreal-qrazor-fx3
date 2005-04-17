@@ -48,7 +48,8 @@ r_animation_iface_a(shared.animation)
 	
 	setupTransform();
 	
-	_subs = std::vector<r_entity_sub_c>(getModel()->getMeshesNum());
+	if(getModel())
+		_subs = std::vector<r_entity_sub_c>(getModel()->getMeshesNum());
 	
 	//ri.Com_DPrintf("r_entity_c::ctor: %i sub entities\n", _subs.size());
 	

@@ -363,7 +363,11 @@ void	CG_RenderView()
 
 void	CG_Viewpos_f()
 {
-	trap_Com_Printf("%s : %i\n", cg.refdef.view_origin.toString(), (int)cg.refdef.view_angles[YAW]);
+	trap_Com_Printf("origin %s yaw %3i area %i\n"
+		,cg.refdef.view_origin.toString()
+		,(int)cg.refdef.view_angles[YAW]
+		,trap_CM_PointAreanum(cg.refdef.view_origin)
+		);
 }
 
 void 	CG_InitView()
