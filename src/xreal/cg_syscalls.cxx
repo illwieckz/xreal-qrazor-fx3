@@ -398,6 +398,10 @@ int		trap_CM_TransformedPointContents(const vec3_c &p, int headnode, const vec3_
 	return cgi.CM_TransformedPointContents(p, headnode, origin, quat);
 }
 
+int		trap_CM_PointAreanum(const vec3_c &p)
+{
+	return cgi.CM_PointAreanum(p);
+}
 
 int		trap_CL_GetTime()
 {

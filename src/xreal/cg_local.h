@@ -642,6 +642,7 @@ void		trap_CM_EndRegistration();
 	
 int		trap_CM_PointContents(const vec3_c &p, int headnode);
 int		trap_CM_TransformedPointContents(const vec3_c &p, int headnode, const vec3_c &origin, const quaternion_c &quat);
+int		trap_CM_PointAreanum(const vec3_c &p);
 	
 int		trap_CL_GetTime();
 void		trap_CL_SetTime(int time);

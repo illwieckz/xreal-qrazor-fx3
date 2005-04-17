@@ -146,7 +146,7 @@ void 	SV_Multicast(const vec3_c &origin, multicast_type_e to)
 	//byte*		mask;
 	//int		leafnum, cluster;
 	bool		reliable = false;
-	int		area1, area2;
+	int		area1;//, area2;
 	
 
 	if(to != MULTICAST_ALL_R && to != MULTICAST_ALL)
@@ -187,7 +187,7 @@ void 	SV_Multicast(const vec3_c &origin, multicast_type_e to)
 	}
 
 	// send the data to all relevent clients
-	for(std::vector<sv_client_c*>::const_iterator ir = svs.clients.begin(); ir != svs.clients.end(); ir++)
+	for(std::vector<sv_client_c*>::const_iterator ir = svs.clients.begin(); ir != svs.clients.end(); ++ir)
 	{
 		sv_client_c *cl = *ir;
 	
@@ -200,6 +200,7 @@ void 	SV_Multicast(const vec3_c &origin, multicast_type_e to)
 		if(cl->getState() != CS_SPAWNED && !reliable)
 			continue;
 
+		/*
 		//if(mask)
 		{
 		//	leafnum = CM_PointLeafnum(client->entity->_s.origin);
@@ -213,6 +214,7 @@ void 	SV_Multicast(const vec3_c &origin, multicast_type_e to)
 			//if(mask && (!(mask[cluster>>3] & (1<<(cluster&7)) ) ) )
 			//	continue;
 		}
+		*/
 
 		if(reliable)
 			cl->netchan.message.writeMessage(sv.multicast);

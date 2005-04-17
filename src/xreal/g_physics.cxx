@@ -1135,7 +1135,7 @@ static void	G_TopLevelCollisionCallback(void *data, dGeomID o1, dGeomID o2)
 				contacts[i].surface.bounce_vel = 0.1;
 				contacts[i].surface.soft_cfm = 0.0001;
 				
-				#if 1
+				#if 0
 				trap_SV_WriteBits(SVC_TEMP_ENTITY, svc_bitcount);
 				trap_SV_WriteByte(TE_CONTACT);
 				trap_SV_WritePosition(contacts[i].geom._origin);

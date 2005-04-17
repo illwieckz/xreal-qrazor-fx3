@@ -206,6 +206,7 @@ typedef struct
 	
 	int		(*CM_PointContents)(const vec3_c &p, int headnode);
 	int		(*CM_TransformedPointContents)(const vec3_c &p, int headnode, const vec3_c &origin, const quaternion_c &quat);
+	int		(*CM_PointAreanum)(const vec3_c &p);
 	
 	int		(*CL_GetTime)();
 	void		(*CL_SetTime)(int time);

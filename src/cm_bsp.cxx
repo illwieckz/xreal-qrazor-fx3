@@ -2081,13 +2081,13 @@ bool	CM_AreasConnected(int area1, int area2)
 		return true;
 	
 	if(area1 > (int)cm_areas.size() || area2 > (int)cm_areas.size())
-		Com_Error (ERR_DROP, "CM_AreasConnected: areas out of range");
+		Com_Error(ERR_DROP, "CM_AreasConnected: areas out of range");
 
 	if(cm_areas[area1].numareaportals[area2])
 		return true;
 	
 	// area 0 is not used
-	for(uint_t i=1; i<cm_areas.size(); i++)
+	for(uint_t i=0; i<cm_areas.size(); i++)
 	{
 		if(cm_areas[i].numareaportals[area1] && cm_areas[i].numareaportals[area2])
 			return true;
@@ -2109,7 +2109,7 @@ This is used by the client refreshes to cull visibility
 */
 void	CM_WriteAreaBits(boost::dynamic_bitset<byte> &bits, int area)
 {
-	if(cm_noareas->getInteger() || area <= 0)
+	if(cm_noareas->getInteger() || area <= -1)
 	{	
 		// for debugging, send everything
 		bits = boost::dynamic_bitset<byte>(cm_areas.size());
@@ -2121,7 +2121,7 @@ void	CM_WriteAreaBits(boost::dynamic_bitset<byte> &bits, int area)
 		bits.reset();
 
 		// area 0 is the void and should not be visible
-		for(uint_t i=1; i<cm_areas.size(); i++)
+		for(uint_t i=0; i<cm_areas.size(); i++)
 		{
 			if((int)i == area || CM_AreasConnected(i, area))
 				bits[i] = true;

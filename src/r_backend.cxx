@@ -333,7 +333,6 @@ static void 	RB_SetupFrustum()
 {
 	// http://www2.ravensoft.com/users/ggribb/plane%20extraction.pdf
 	
-	// this is ok because the model matrix is the identity matrix
 	matrix_c& m = gl_state.matrix_model_view_projection;
 //	matrix_c m = gl_state.matrix_projection * gl_state.matrix_view;
 
@@ -377,7 +376,7 @@ static void 	RB_SetupFrustum()
 	r_frustum[FRUSTUM_TOP].setType();
 	r_frustum[FRUSTUM_TOP].setSignBits();
 	
-#if 0
+#if 1
 	// near
 	r_frustum[FRUSTUM_NEAR]._normal[0]	=  m[3][0] + m[2][0];
 	r_frustum[FRUSTUM_NEAR]._normal[1]	=  m[3][1] + m[2][1];
@@ -2205,7 +2204,7 @@ void	RB_RenderCommands()
 	//
 	// sort commands
 	//
-	qsort(&r_current_scene->cmds[0], r_current_scene->cmds_num, sizeof(r_command_t), RB_SortByCommandDistanceFunc);
+	//qsort(&r_current_scene->cmds[0], r_current_scene->cmds_num, sizeof(r_command_t), RB_SortByCommandDistanceFunc);
 	
 	qsort(&r_current_scene->cmds_translucent[0], r_current_scene->cmds_translucent_num, sizeof(r_command_t), R_TranslucentCommandSortFunc);
 	
