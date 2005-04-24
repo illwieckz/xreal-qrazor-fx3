@@ -57,11 +57,8 @@ static cplane_c*	CreateNewFloatPlane(const cplane_c &p)
 	if(p._normal.length() < 0.5)
 		Com_Error(ERR_FATAL, "CreateNewFloatPlane: bad normal");
 		
-	cplane_c* planes[2];
-	planes[0] = new cplane_c(p);
-	planes[1] = new cplane_c(p);
-	
-	planes[1]->negate();
+	cplane_c* plane_pos = new cplane_c(p._normal, p._dist);
+	cplane_c* plane_neg = new cplane_c(-p._normal, -p._dist);
 
 	// allways put axial planes facing positive first
 	if(p.getType() < 3)
@@ -69,15 +66,15 @@ static cplane_c*	CreateNewFloatPlane(const cplane_c &p)
 		if(p._normal[0] < 0 || p._normal[1] < 0 || p._normal[2] < 0)
 		{
 			// flip order
-			map_planes.push_back(planes[1]);
-			map_planes.push_back(planes[0]);
+			map_planes.push_back(plane_neg);
+			map_planes.push_back(plane_pos);
 			
 			return map_planes[map_planes.size() - 1];
 		}
 	}
 	
-	map_planes.push_back(planes[0]);
-	map_planes.push_back(planes[1]);
+	map_planes.push_back(plane_pos);
+	map_planes.push_back(plane_neg);
 
 	return map_planes[map_planes.size() - 2];
 }
@@ -95,18 +92,20 @@ static int	FindFloatPlane(const cplane_c &p)
 }
 */
 
-cplane_c*	FindFloatPlane(const cplane_c &p)
+cplane_c*	FindFloatPlane(const cplane_c &plane)
 {
-	for(std::vector<cplane_c*>::const_iterator ir = map_planes.begin(); ir != map_planes.end(); ++ir)
+	for(std::vector<cplane_c*>::const_iterator i = map_planes.begin(); i != map_planes.end(); ++i)
 	{
-		if(*ir == NULL)
+		cplane_c* p = *i;
+	
+		if(p == NULL)
 			continue;
 			
-		if(p == *(*ir))
-			return *ir;
+		if(plane == *p)
+			return p;
 	}
 
-	return CreateNewFloatPlane(p);
+	return CreateNewFloatPlane(plane);
 }
 
 cplane_c*	PlaneFromPoints(const vec3_c &p0, const vec3_c &p1, const vec3_c &p2)
@@ -121,6 +120,7 @@ cplane_c*	PlaneFromEquation(float f0, float f1, float f2, float f3)
 {
 	cplane_c p(f0, f1, f2, f3);
 	p.snap();
+//	Com_Printf("PlaneFromEquation: %s\n", p.toString());
 	
 	return FindFloatPlane(p);
 }
@@ -798,9 +798,13 @@ static void	MAP_PlaneEQ(char const* begin, char const* end)
 {
 //	Com_Printf("MAP_PlaneEQ()\n");
 	
-//	map_planes.push_back(new cplane_c(map_float0, map_float1, map_float2, -map_float3));
+//	map_plane = new cplane_c(map_float0, map_float1, map_float2, -map_float3);
+//	map_plane->snap();
+//	map_planes.push_back(map_plane);
 
 	map_plane = PlaneFromEquation(map_float0, map_float1, map_float2, -map_float3);
+	
+//	Com_Printf("MAP_PlaneEQ: %s\n", map_plane->toString());
 }
 
 static void	MAP_KeyValueInfo(char const* begin, char const* end)

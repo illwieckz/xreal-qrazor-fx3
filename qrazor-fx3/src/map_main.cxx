@@ -76,12 +76,26 @@ static void	BSP_f()
 }
 
 
+static void	Map_PlaneList_f()
+{
+	Com_Printf("------------------\n");
+
+	for(std::vector<cplane_c*>::const_iterator i = map_planes.begin(); i != map_planes.end(); ++i)
+	{
+		Com_Printf("%s\n", (*i)->toString());
+	}
+	
+	Com_Printf("Total planes count: %i\n", map_planes.size());
+}
+
 void	Map_Init()
 {
 	Com_Printf("------- Map_Init -------\n");
 
 	Cmd_AddCommand("bspinfo",		BSPInfo_f);
 	Cmd_AddCommand("bsp",			BSP_f);
+	
+	Cmd_AddCommand("planelist",		Map_PlaneList_f);
 	
 	Cmd_AddCommand("shaderlist",		Map_ShaderList_f);
 	Cmd_AddCommand("shadercachelist",	Map_ShaderCacheList_f);

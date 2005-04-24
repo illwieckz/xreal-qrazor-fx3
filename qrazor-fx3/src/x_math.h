@@ -1951,6 +1951,8 @@ public:
 	
 	bool	operator == (const cplane_c &p) const;
 	
+	inline cplane_c	operator - () const;
+	
 	inline vec_t	operator [] (const int index) const;
 
 	inline vec_t&	operator [] (const int index);
@@ -2141,6 +2143,11 @@ inline vec3_c	cplane_c::closest(const vec3_c &v) const
 	vec_t d = distance(v);
 	
 	return v - (_normal * d);
+}
+
+inline cplane_c	cplane_c::operator - () const
+{
+	return cplane_c(_normal, _dist);
 }
 
 inline vec_t	cplane_c::operator [] (const int index) const

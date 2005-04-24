@@ -48,6 +48,8 @@ void	map_brushside_c::translate(const vec3_c &v)
 }
 
 
+
+
 void	map_brush_c::translate(const vec3_c &v)
 {
 	for(map_brushside_i i = _sides.begin(); i != _sides.end(); ++i)
@@ -58,56 +60,76 @@ void	map_brush_c::translate(const vec3_c &v)
 	}
 }
 
-/*
-================
-MakeBrushWindings
-
-makes basewindigs for sides and mins / maxs for the brush
-================
-*/
 bool	map_brush_c::createWindings()
 {
 	for(map_brushside_i i = _sides.begin(); i != _sides.end(); ++i)
 	{
-		map_brushside_p s = *i;
+		const cplane_c* p = (*i)->getPlane();
 		
-		cplane_c* p = s->getPlane();
+		//Com_DPrintf("map_brush_c::createWindings: %s\n", p->toString());
+		winding_p w = new winding_c(*p);
+		//w->toString();
 		
-		winding_c* w = new winding_c(p->_normal, p->_dist);
-		
-		for(map_brushside_i j = _sides.begin(); j != _sides.end(); ++j)
+		for(map_brushside_i j = _sides.begin(); j != _sides.end() && w; ++j)
 		{
-			if(*i == *j)
+			if(i == j)
 				continue;
-						
+			
 			if((*j)->isBevel())
 				continue;
 				
-			//p = &mapplanes[ob->original_sides[j].planenum^1]; 
-			
 			p = (*j)->getPlane();
 			
-			w->chop(*p); //CLIP_EPSILON);
+			// flip the plane, because we want to keep the back side
+			cplane_c pneg = -(*p);
+			
+			if(w)
+			{
+				if(!w->chopInPlace(pneg, 0)) //CLIP_EPSILON);
+				{
+					delete w;
+					w = NULL;
+				}
+				else
+				{
+					//Com_Printf("map_brush_c::createWindings: winding has %i points\n", w->getPoints().size());
+					w->toString();
+				}
+			}
 		}
-
 		
-		s->setWinding(w);
-		s->isVisible(true);
+		(*i)->setWinding(w);
 	}
 	
+	return calcAABB();
+}
+
+bool	map_brush_c::calcAABB()
+{
 	_aabb.clear();
 	
-	//TODO calc bounding box
-
-	/*
-	for (i=0 ; i<3 ; i++)
+	for(map_brushside_i i = _sides.begin(); i != _sides.end(); ++i)
 	{
-		if (ob->mins[0] < -4096 || ob->maxs[0] > 4096)
-			printf ("entity %i, brush %i: bounds out of range\n", ob->entitynum, ob->brushnum);
-		if (ob->mins[0] > 4096 || ob->maxs[0] < -4096)
-			printf ("entity %i, brush %i: no visible sides on brush\n", ob->entitynum, ob->brushnum);
+		winding_p w = (*i)->getWinding();
+		
+		if(!w)
+			continue;
+	
+		//_aabb.mergeWith(w->calcAABB());
+		const std::vector<vec3_c>& p = w->getPoints();
+		for(std::vector<vec3_c>::const_iterator j = p.begin(); j != p.end(); ++j)
+		{
+			_aabb.addPoint(*j);
+		}
 	}
-	*/
-
+	
+	for(int i=0; i<3; i++)
+	{
+		if(_aabb._mins[i] < MIN_WORLD_COORD || _aabb._maxs[i] > MAX_WORLD_COORD || _aabb._mins[i] >= _aabb._maxs[i] )
+			return false;
+	}
+	
 	return true;
 }
+
+

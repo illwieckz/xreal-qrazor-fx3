@@ -41,7 +41,6 @@ int	c_removed;
 
 #define	BOGUS_RANGE	WORLD_SIZE
 
-
 winding_c::winding_c(int points)
 {
 	if(points >= MAX_POINTS_ON_WINDING)
@@ -61,26 +60,42 @@ winding_c::winding_c(int points)
 
 winding_c::winding_c(const vec3_c &normal, vec_t dist)
 {
-	int		i, x;
-	vec_t		max, v;
-	vec3_c		org, vright, vup;
-	
+	initFromPlane(normal, dist);
+}
+
+winding_c::winding_c(const cplane_c &p)
+{
+	initFromPlane(p._normal, p._dist);
+}
+
+winding_c::~winding_c()
+{
+	//if(numthreads == 1)
+		c_active_windings--;
+}
+
+void	winding_c::initFromPlane(const vec3_c &normal, vec_t dist)
+{
+	Com_DPrintf("winding_c::initFromPlane: (%i %i %i %i)\n", (int)normal[0], (int)normal[1], (int)normal[2], (int)dist);
+
 	// find the major axis
-	max = -BOGUS_RANGE;
-	x = -1;
-	for(i=0; i<3; i++)
+	vec_t max = -BOGUS_RANGE;
+	int x = -1;
+	for(int i=0; i<3; i++)
 	{
-		v = X_fabs(normal[i]);
+		vec_t v = X_fabs(normal[i]);
+		
 		if(v > max)
 		{
 			x = i;
 			max = v;
 		}
 	}
-	if(x==-1)
-		Com_Error(ERR_FATAL, "BaseWindingForPlane: no axis found");
+	
+	if(x == -1)
+		Com_Error(ERR_FATAL, "winding_c::ctor: no axis found");
 		
-	vup.clear();
+	vec3_c vup;
 	switch(x)
 	{
 		case 0:
@@ -92,12 +107,13 @@ winding_c::winding_c(const vec3_c &normal, vec_t dist)
 			break;
 	}
 
-	v = vup.dotProduct(normal);
-	Vector3_MA(vup, -v, normal, vup);
+	vec_t dot = vup.dotProduct(normal);
+	Vector3_MA(vup, -dot, normal, vup);
 	vup.normalize();
 		
-	org = normal * dist;
+	vec3_c org = normal * dist;
 	
+	vec3_c vright;
 	vright.crossProduct(vup, normal);
 	
 	vup *= MAX_WORLD_COORD;
@@ -111,29 +127,19 @@ winding_c::winding_c(const vec3_c &normal, vec_t dist)
 		c_winding_allocs++;
 		c_winding_points += 4;
 		c_active_windings++;
-		if (c_active_windings > c_peak_windings)
+		if(c_active_windings > c_peak_windings)
 			c_peak_windings = c_active_windings;
 	}
 	
-	_p[0] = org - vright + vup;
-	_p[1] = org + vright + vup;
-	_p[2] = org + vright - vup;
-	_p[3] = org - vright - vup;
+	_p[0] = (org - vright) + vup;
+	_p[1] = (org + vright) + vup;
+	_p[2] = (org + vright) - vup;
+	_p[3] = (org - vright) - vup;
 }
 
-winding_c::~winding_c()
+cplane_c	winding_c::calcPlane() const
 {
-	if(*(unsigned*)this == 0xdeaddead)
-		Com_Error(ERR_FATAL, "winding_c::dtor: freed a freed winding");
-	*(unsigned*)this = 0xdeaddead;
-
-	//if(numthreads == 1)
-		c_active_windings--;
-}
-
-void	winding_c::calcPlane(cplane_c &plane) const
-{
-	plane.fromThreePointForm(_p[0], _p[1], _p[2]);
+	return cplane_c(_p[0], _p[1], _p[2]);
 }
 
 vec_t	winding_c::calcArea() const
@@ -152,24 +158,30 @@ vec_t	winding_c::calcArea() const
 	return total;
 }
 
-void	winding_c::calcAABB(aabb_c &aabb) const
+aabb_c	winding_c::calcAABB() const
 {
+	aabb_c aabb;
 	aabb.clear();
 
 	for(uint_t i=0; i<_p.size(); i++)
 	{
 		aabb.addPoint(_p[i]);
 	}
+	
+	return aabb;
 }
 
-void	winding_c::calcCenter(vec3_c &center) const
+vec3_c	winding_c::calcCenter() const
 {
-	center.clear();
+	vec3_c center;
+	
 	for(uint_t i=0; i<_p.size(); i++)
 		center += _p[i];
 
 	vec_t scale = X_recip(_p.size());
 	center *= scale;
+	
+	return center;
 }
 
 bool	winding_c::isTiny() const
@@ -222,7 +234,7 @@ void	winding_c::clip(const cplane_c &split, winding_c **front, winding_c **back,
 	vec_t		dists[MAX_POINTS_ON_WINDING+4];
 	int		sides[MAX_POINTS_ON_WINDING+4];
 	int		counts[3];
-	static	vec_t	dot;		// VC 4.2 optimizer bug if not static
+	vec_t		dot;
 	uint_t		i, j;
 	vec3_c		mid;
 	winding_c	*f, *b;
@@ -233,14 +245,13 @@ void	winding_c::clip(const cplane_c &split, winding_c **front, winding_c **back,
 	// determine sides for each point
 	for(i=0; i<_p.size(); i++)
 	{
-		vec_t d = split._normal.dotProduct(_p[i]) - split._dist;
-		dists[i] = d;
+		vec_t dist = dists[i] = split.distance(_p[i]);
 		
-		if(d > epsilon)
+		if(dist > epsilon)
 		{
 			sides[i] = SIDE_FRONT;
 		}
-		else if(d < -epsilon)
+		else if(dist < -epsilon)
 		{
 			sides[i] = SIDE_BACK;
 		}
@@ -255,12 +266,13 @@ void	winding_c::clip(const cplane_c &split, winding_c **front, winding_c **back,
 	
 	*front = *back = NULL;
 
-	if(!counts[0])
+	if(counts[SIDE_FRONT] <= 0)
 	{
 		*back = new winding_c(*this);
 		return;
 	}
-	if(!counts[1])
+	
+	if(counts[SIDE_BACK] <= 0)
 	{
 		*front = new winding_c(*this);
 		return;
@@ -268,8 +280,8 @@ void	winding_c::clip(const cplane_c &split, winding_c **front, winding_c **back,
 
 	maxpts = _p.size() + 4;	// cant use counts[0]+2 because of fp grouping errors
 
-	*front = f = new winding_c(maxpts);
-	*back = b = new winding_c(maxpts);
+	*front = f = new winding_c();
+	*back = b = new winding_c();
 		
 	for(i=0; i<_p.size(); i++)
 	{
@@ -338,33 +350,29 @@ winding_c*	winding_c::chop(const cplane_c &split) const
 	return f;
 }
 
-/*
-void	winding_c::chop(winding_t **inout, vec3_t normal, vec_t dist, vec_t epsilon)
+bool	winding_c::chopInPlace(const cplane_c &split, vec_t epsilon)
 {
-	winding_t	*in;
 	vec_t		dists[MAX_POINTS_ON_WINDING+4];
 	int		sides[MAX_POINTS_ON_WINDING+4];
 	int		counts[3];
-	static	vec_t	dot;		// VC 4.2 optimizer bug if not static
 	uint_t		i, j;
-	vec_t	*p1, *p2;
-	vec3_t		mid;
-	winding_t	*f;
-	int		maxpts;
-
-	in = *inout;
+	vec3_c		mid;
+	
 	counts[0] = counts[1] = counts[2] = 0;
 
 	// determine sides for each point
 	for(i=0; i<_p.size(); i++)
 	{
-		dot = Vector3_DotProduct (in->p[i], normal);
-		dot -= dist;
-		dists[i] = dot;
-		if (dot > epsilon)
+		vec_t dist = dists[i] = split.distance(_p[i]);
+		
+		if(dist > epsilon)
+		{
 			sides[i] = SIDE_FRONT;
-		else if (dot < -epsilon)
+		}
+		else if(dist < -epsilon)
+		{
 			sides[i] = SIDE_BACK;
+		}
 		else
 		{
 			sides[i] = SIDE_ON;
@@ -373,69 +381,72 @@ void	winding_c::chop(winding_t **inout, vec3_t normal, vec_t dist, vec_t epsilon
 	}
 	sides[i] = sides[0];
 	dists[i] = dists[0];
-	
-	if (!counts[0])
+
+	if(!counts[SIDE_FRONT])
 	{
-		FreeWinding (in);
-		*inout = NULL;
-		return;
+		return false;
 	}
-	if (!counts[1])
-		return;		// inout stays the same
-
-	maxpts = in->numpoints+4;	// cant use counts[0]+2 because
-								// of fp grouping errors
-
-	f = AllocWinding (maxpts);
-		
-	for (i=0 ; i<in->numpoints ; i++)
+	
+	if(!counts[SIDE_BACK])
 	{
-		p1 = in->p[i];
+		return true;
+	}
+
+	uint_t maxpts = _p.size() + 4;	// cant use counts[0]+2 because of fp grouping errors
+	std::vector<vec3_c> p;
 		
-		if (sides[i] == SIDE_ON)
+	for(i=0; i<_p.size(); i++)
+	{
+		const vec3_c& p1 = _p[i];
+		
+		if(sides[i] == SIDE_ON)
 		{
-			Vector3_Copy(p1, f->p[f->numpoints]);
-			f->numpoints++;
+			p.push_back(p1);
 			continue;
 		}
 	
-		if (sides[i] == SIDE_FRONT)
+		if(sides[i] == SIDE_FRONT)
 		{
-			Vector3_Copy(p1, f->p[f->numpoints]);
-			f->numpoints++;
+			p.push_back(p1);
 		}
 
-		if (sides[i+1] == SIDE_ON || sides[i+1] == sides[i])
+		if(sides[i+1] == SIDE_ON || sides[i+1] == sides[i])
 			continue;
 			
 		// generate a split point
-		p2 = in->p[(i+1)%in->numpoints];
+		const vec3_c& p2 = _p[(i+1) % _p.size()];
 		
-		dot = dists[i] / (dists[i]-dists[i+1]);
-		for (j=0 ; j<3 ; j++)
-		{	// avoid round off error when possible
-			if (normal[j] == 1)
-				mid[j] = dist;
-			else if (normal[j] == -1)
-				mid[j] = -dist;
+		vec_t dot = dists[i] / (dists[i] - dists[i+1]);
+		for(j=0; j<3; j++)
+		{
+			// avoid round off error when possible
+			if(split._normal[j] == 1)
+			{
+				mid[j] = split._dist;
+			}
+			else if(split._normal[j] == -1)
+			{
+				mid[j] = -split._dist;
+			}
 			else
-				mid[j] = p1[j] + dot*(p2[j]-p1[j]);
+			{
+				mid[j] = p1[j] + dot*(p2[j] - p1[j]);
+			}
 		}
 			
-		Vector3_Copy (mid, f->p[f->numpoints]);
-		f->numpoints++;
+		p.push_back(mid);
 	}
 	
-	if(f->numpoints > maxpts)
-		Com_Error(ERR_FATAL, "ClipWinding: points exceeded estimate");
+	if(p.size() > maxpts)
+		Com_Error(ERR_FATAL, "winding_c::chopInPlace: points exceeded estimate");
 		
-	if(f->numpoints > MAX_POINTS_ON_WINDING)
-		Com_Error(ERR_FATAL, "ClipWinding: MAX_POINTS_ON_WINDING");
-
-	FreeWinding(in);
-	*inout = f;
+	if(p.size() > MAX_POINTS_ON_WINDING)
+		Com_Error(ERR_FATAL, "winding_c::chopInPlace: MAX_POINTS_ON_WINDING exceeded");
+		
+	
+	_p = p;
+	return true;
 }
-*/
 
 
 void	winding_c::removeColinearPoints()
@@ -476,7 +487,6 @@ void	winding_c::check() const
 	vec3_c	dir, edgenormal;
 	vec_t	area;
 	
-	cplane_c plane;
 //	vec3_c	facenormal;
 //	vec_t	facedist;
 
@@ -487,7 +497,7 @@ void	winding_c::check() const
 	if(area < 1.0)
 		Com_Error(ERR_FATAL, "winding_c::check: %f area", area);
 
-	calcPlane(plane);
+	cplane_c plane = calcPlane();
 	
 	for(i=0; i<_p.size(); i++)
 	{
@@ -568,10 +578,9 @@ plane_side_e	winding_c::onPlaneSide(const vec3_c &normal, vec_t dist) const
 
 void	winding_c::toString() const
 {
-	Com_Printf("%i", _p.size());
+	Com_Printf("------- winding pts %i -------\n", _p.size());
 	for(uint_t i=0 ; i<_p.size(); i++)
-		Com_Printf(", (%5.1f, %5.1f, %5.1f)", _p[i][0], _p[i][1], _p[i][2]);
-	Com_Printf("\n");
+		Com_Printf("(%5.1f, %5.1f, %5.1f)\n", _p[i][0], _p[i][1], _p[i][2]);
 }
 
 
