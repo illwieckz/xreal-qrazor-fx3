@@ -52,31 +52,16 @@ static int		c_areaportals;
 
 
 
-static int	CreateNewFloatPlane(const cplane_c &p)
+static cplane_c*	CreateNewFloatPlane(const cplane_c &p)
 {
-	cplane_c*	planes[2];
-
 	if(p._normal.length() < 0.5)
 		Com_Error(ERR_FATAL, "CreateNewFloatPlane: bad normal");
 		
-	// create a new plane
-	//if(nummapplanes+2 > MAX_MAP_PLANES)
-	//	Com_Error(ERR_FATAL, "MAX_MAP_PLANES");
-
-	//p = &mapplanes[nummapplanes];
-	//Vector3_Copy(normal, p->normal);
-	//p->dist = dist;
-	//p->type = (p+1)->type = PlaneTypeForNormal(p._normal);
-	
+	cplane_c* planes[2];
 	planes[0] = new cplane_c(p);
 	planes[1] = new cplane_c(p);
 	
-	//VectorSubtract (vec3_origin, normal, (p+1)._normal);
-	//(p+1)->dist = -dist;
-	
 	planes[1]->negate();
-
-	//nummapplanes += 2;
 
 	// allways put axial planes facing positive first
 	if(p.getType() < 3)
@@ -87,17 +72,17 @@ static int	CreateNewFloatPlane(const cplane_c &p)
 			map_planes.push_back(planes[1]);
 			map_planes.push_back(planes[0]);
 			
-			return map_planes.size() - 1;
+			return map_planes[map_planes.size() - 1];
 		}
 	}
 	
 	map_planes.push_back(planes[0]);
 	map_planes.push_back(planes[1]);
 
-	return map_planes.size() - 2;
+	return map_planes[map_planes.size() - 2];
 }
 
-
+/*
 static int	FindFloatPlane(const cplane_c &p)
 {
 	for(unsigned int i=0; i<map_planes.size(); i++)
@@ -108,8 +93,23 @@ static int	FindFloatPlane(const cplane_c &p)
 
 	return CreateNewFloatPlane(p);
 }
+*/
 
-int	PlaneFromPoints(const vec3_c &p0, const vec3_c &p1, const vec3_c &p2)
+cplane_c*	FindFloatPlane(const cplane_c &p)
+{
+	for(std::vector<cplane_c*>::const_iterator ir = map_planes.begin(); ir != map_planes.end(); ++ir)
+	{
+		if(*ir == NULL)
+			continue;
+			
+		if(p == *(*ir))
+			return *ir;
+	}
+
+	return CreateNewFloatPlane(p);
+}
+
+cplane_c*	PlaneFromPoints(const vec3_c &p0, const vec3_c &p1, const vec3_c &p2)
 {
 	cplane_c p(p0, p1, p2);
 	p.snap();
@@ -117,7 +117,7 @@ int	PlaneFromPoints(const vec3_c &p0, const vec3_c &p1, const vec3_c &p2)
 	return FindFloatPlane(p);
 }
 
-int	PlaneFromEquation(float f0, float f1, float f2, float f3)
+cplane_c*	PlaneFromEquation(float f0, float f1, float f2, float f3)
 {
 	cplane_c p(f0, f1, f2, f3);
 	p.snap();
@@ -320,58 +320,7 @@ void AddBrushBevels (mapbrush_t *b)
 */
 
 
-/*
-================
-MakeBrushWindings
 
-makes basewindigs for sides and mins / maxs for the brush
-================
-*/
-/*
-bool MakeBrushWindings (mapbrush_t *ob)
-{
-	int			i, j;
-	winding_t	*w;
-	side_t		*side;
-	plane_t		*plane;
-
-	ClearBounds (ob->mins, ob->maxs);
-
-	for (i=0 ; i<ob->numsides ; i++)
-	{
-		plane = &mapplanes[ob->original_sides[i].planenum];
-		w = BaseWindingForPlane (plane->normal, plane->dist);
-		for (j=0 ; j<ob->numsides && w; j++)
-		{
-			if (i == j)
-				continue;
-			if (ob->original_sides[j].bevel)
-				continue;
-			plane = &mapplanes[ob->original_sides[j].planenum^1];
-			ChopWindingInPlace (&w, plane->normal, plane->dist, 0); //CLIP_EPSILON);
-		}
-
-		side = &ob->original_sides[i];
-		side->winding = w;
-		if (w)
-		{
-			side->visible = true;
-			for (j=0 ; j<w->numpoints ; j++)
-				AddPointToBounds (w->p[j], ob->mins, ob->maxs);
-		}
-	}
-
-	for (i=0 ; i<3 ; i++)
-	{
-		if (ob->mins[0] < -4096 || ob->maxs[0] > 4096)
-			printf ("entity %i, brush %i: bounds out of range\n", ob->entitynum, ob->brushnum);
-		if (ob->mins[0] > 4096 || ob->maxs[0] < -4096)
-			printf ("entity %i, brush %i: no visible sides on brush\n", ob->entitynum, ob->brushnum);
-	}
-
-	return true;
-}
-*/
 
 /*
 =================
@@ -652,30 +601,6 @@ void	MoveBrushesToWorld(entity_t *mapent)
 */
 
 /*
-static void	AdjustBrushesForOrigin(entity_t &ent)
-{
-	for(std::vector<mapbrush_t*>::const_iterator ir = ent.brushes.begin(); ir != ent.brushes.end(); ++ir)
-	{
-		mapbrush_t* b = *ir;
-		
-		for(int j=0; j<b->sides_num; j++)
-		{
-			side_t &s = b->sides[j];
-			
-			vec_t newdist = map_planes[s.planenum]._dist - map_planes[s.planenum]._normal.dotProduct(ent.origin);
-			
-			map_planes[s.planenum]._dist = newdist;
-			
-			s.planenum = FindFloatPlane(map_planes[s.planenum]);
-			//s->texinfo = TexinfoForBrushTexture (&mapplanes[s->planenum], &side_brushtextures[s-brushsides], mapent->origin);
-		}
-			
-		//TODO
-		//MakeBrushWindings(b);
-	}
-}
-
-
 static void	ParseBrushDefPrimitive(entity_t &ent, char **data_p)
 {
 	//TODO
@@ -811,8 +736,8 @@ static bool	ParseMapEntity(char **data_p)
 
 static map_entity_c*	map_entity;
 
-static map_brush_c*		map_brush;
-static map_brush_side_c*		map_brushside;
+static map_brush_p		map_brush;
+static map_brushside_p			map_brushside;
 static cplane_c*				map_plane;
 static std::string				map_shader;
 
@@ -841,6 +766,8 @@ static void	MAP_NewEntity(char begin)
 
 static void	MAP_FinishEntity(char const* begin, char const* end)
 {
+	map_entity->finish();
+
 	map_entity->toString();
 }
 
@@ -848,7 +775,7 @@ static void	MAP_BrushDef3(char const* begin, char const* end)
 {
 //	Com_Printf("MAP_BrushDef3()\n");
 	
-	map_brush = new map_brush_c(map_entities.size()-1);
+	map_brush = map_brush_p(new map_brush_c(map_entities.size()-1));
 	map_brushes.push_back(map_brush);
 	
 	map_entity->addBrush(map_brush);
@@ -858,7 +785,7 @@ static void	MAP_BrushDef3Side(char const* begin, char const* end)
 {
 //	Com_Printf("MAP_BrushDef3Side()\n");
 	
-	map_brushside = new map_brush_side_c();
+	map_brushside = map_brushside_p(new map_brushside_c());
 	map_brushsides.push_back(map_brushside);
 	
 	map_brushside->setPlane(map_plane);
@@ -873,7 +800,7 @@ static void	MAP_PlaneEQ(char const* begin, char const* end)
 	
 //	map_planes.push_back(new cplane_c(map_float0, map_float1, map_float2, -map_float3));
 
-	PlaneFromEquation(map_float0, map_float1, map_float2, -map_float3);
+	map_plane = PlaneFromEquation(map_float0, map_float1, map_float2, -map_float3);
 }
 
 static void	MAP_KeyValueInfo(char const* begin, char const* end)

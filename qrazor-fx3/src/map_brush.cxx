@@ -31,8 +31,83 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // xreal --------------------------------------------------------------------
 
 
-void	map_brush_side_c::setShader(const std::string& s)
+void	map_brushside_c::setShader(const std::string& s)
 {
 	_shader = Map_FindShader(s);
 }
 
+
+void	map_brushside_c::translate(const vec3_c &v)
+{
+	_plane->translate(v);
+	
+	//vec_t newdist = s->getPlane()->_dist - map_planes[s.planenum]._normal.dotProduct(_origin);
+	//map_planes[s.planenum]._dist = newdist;
+	//s.planenum = FindFloatPlane(map_planes[s.planenum]);
+	//s->texinfo = TexinfoForBrushTexture (&mapplanes[s->planenum], &side_brushtextures[s-brushsides], mapent->origin);
+}
+
+
+void	map_brush_c::translate(const vec3_c &v)
+{
+	for(map_brushside_i i = _sides.begin(); i != _sides.end(); ++i)
+	{
+		map_brushside_p s = *i;
+		
+		s->translate(v);
+	}
+}
+
+/*
+================
+MakeBrushWindings
+
+makes basewindigs for sides and mins / maxs for the brush
+================
+*/
+bool	map_brush_c::createWindings()
+{
+	for(map_brushside_i i = _sides.begin(); i != _sides.end(); ++i)
+	{
+		map_brushside_p s = *i;
+		
+		cplane_c* p = s->getPlane();
+		
+		winding_c* w = new winding_c(p->_normal, p->_dist);
+		
+		for(map_brushside_i j = _sides.begin(); j != _sides.end(); ++j)
+		{
+			if(*i == *j)
+				continue;
+						
+			if((*j)->isBevel())
+				continue;
+				
+			//p = &mapplanes[ob->original_sides[j].planenum^1]; 
+			
+			p = (*j)->getPlane();
+			
+			w->chop(*p); //CLIP_EPSILON);
+		}
+
+		
+		s->setWinding(w);
+		s->isVisible(true);
+	}
+	
+	_aabb.clear();
+	
+	//TODO calc bounding box
+
+	/*
+	for (i=0 ; i<3 ; i++)
+	{
+		if (ob->mins[0] < -4096 || ob->maxs[0] > 4096)
+			printf ("entity %i, brush %i: bounds out of range\n", ob->entitynum, ob->brushnum);
+		if (ob->mins[0] > 4096 || ob->maxs[0] < -4096)
+			printf ("entity %i, brush %i: no visible sides on brush\n", ob->entitynum, ob->brushnum);
+	}
+	*/
+
+	return true;
+}

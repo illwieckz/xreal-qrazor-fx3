@@ -1,6 +1,10 @@
 
 debugportals
 {
+	nolightmap
+	nomarks
+	nonsolid
+	noshadows
 	translucent
 	twosided
 	               
@@ -17,6 +21,10 @@ debugportals
 
 debugareaportals
 {
+	nolightmap
+	nomarks
+	nonsolid
+	noshadows
 	translucent
 	twosided
 	               

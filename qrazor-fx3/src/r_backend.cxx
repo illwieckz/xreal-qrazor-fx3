@@ -3475,7 +3475,7 @@ void	RB_AddCommand(	r_entity_c*		entity,
 			r_current_scene->cmds_num++;
 		}
 			
-		if(entity_shader->stage_lightmap && (infokey >= 0) && !light && r_images_lm.size() && r_lightmap->getInteger())
+		if(r_lightmap->getInteger() && entity_shader->stage_lightmap && (infokey >= 0) && !light && r_images_lm.size())
 			cmd->_light_map = true;
 		else
 			cmd->_light_map = false;
