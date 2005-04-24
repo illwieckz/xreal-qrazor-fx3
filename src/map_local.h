@@ -52,14 +52,17 @@ class portal_t;
 class winding_c
 {
 public:
-	winding_c(int points);
+	winding_c(int points = 0);
 	winding_c(const vec3_c &normal, vec_t dist);
+	winding_c(const cplane_c &base);
 	~winding_c();
 	
-	void		calcPlane(cplane_c &plane) const;
+	void		initFromPlane(const vec3_c &normal, vec_t dist);
+	
+	cplane_c	calcPlane() const;
 	vec_t		calcArea() const;
-	void		calcAABB(aabb_c &aabb) const;
-	void		calcCenter(vec3_c &center) const;
+	aabb_c		calcAABB() const;
+	vec3_c		calcCenter() const;
 	bool		isTiny() const;
 	
 	//! Reverse vertex order
@@ -69,8 +72,8 @@ public:
 	void		clip(const cplane_c &split, winding_c **front, winding_c **back, vec_t epsilon = ON_EPSILON) const;
 	//! Returns the fragment of in that is on the front side of the cliping plane.
 	winding_c*	chop(const cplane_c &split) const;
-	// frees the original if clipped
-//	void		chopWindingInPlace(winding_c **w, vec3_t normal, vec_t dist, vec_t epsilon);
+	//! Changes the original if clipped
+	bool		chopInPlace(const cplane_c &split, vec_t epsilon = ON_EPSILON);
 
 	void		removeColinearPoints();
 	
@@ -135,7 +138,7 @@ public:
 	void			translate(const vec3_c& v);
 
 	void			setPlane(cplane_c *p)		{_plane = p;}
-	cplane_c*		getPlane() const 		{return _plane;}
+	const cplane_c*		getPlane() const 		{return _plane;}
 	
 	void			setWinding(winding_p w)		{_winding = w;}
 	winding_p		getWinding() const		{return _winding;}
@@ -193,7 +196,9 @@ public:
 	
 	void			addSide(map_brushside_p side)	{_sides.push_back(side);}
 	void			translate(const vec3_c &v);
+	//! Returns false if the brush doesn't enclose a valid volume.
 	bool			createWindings();
+	bool			calcAABB();
 
 	int			getEntityNum() const	{return _entity_num;}
 	const aabb_c&		getAABB() const		{return _aabb;}
@@ -237,6 +242,7 @@ public:
 	const char*	getValueForKey(const std::string &key) const;
 	vec_t		getFloatForKey(const std::string &key) const;
 	void 		getVector3ForKey(const std::string &key, vec3_c &v) const;
+	void		hasKey(const std::string &key) const;
 	
 	void		toString() const;
 

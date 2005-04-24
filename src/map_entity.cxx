@@ -42,12 +42,19 @@ void	map_entity_c::finish()
 
 void	map_entity_c::adjustBrushesForOrigin()
 {
+	std::string classname = getValueForKey("classname");
+	
+	if(classname != "worldspawn")
+	{
+		for(map_brush_ci i = _brushes.begin(); i != _brushes.end(); ++i)
+		{
+			(*i)->translate(-_origin);
+		}
+	}
+	
 	for(map_brush_ci i = _brushes.begin(); i != _brushes.end(); ++i)
 	{
-		map_brush_p b = *i;
-		
-		b->translate(-_origin);
-		//b->createWindings();
+		(*i)->createWindings();
 	}
 }
 
