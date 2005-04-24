@@ -1,7 +1,7 @@
 /// ============================================================================
 /*
 Copyright (C) 1997-2001 Id Software, Inc.
-Copyright (C) 2004 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2005 Robert Beckebans <trebor_7@users.sourceforge.net>
 Please see the file "AUTHORS" for a list of contributors
 
 This program is free software; you can redistribute it and/or
@@ -28,9 +28,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "config.h"
 #endif
 // system -------------------------------------------------------------------
+#include <boost/shared_ptr.hpp>
 #include <map>
+
 // qrazor-fx ----------------------------------------------------------------
 #include "files.h"
+
 // xreal --------------------------------------------------------------------
 
 
@@ -77,6 +80,8 @@ public:
 	plane_side_e	onPlaneSide(const cplane_c &p) const	{return onPlaneSide(p._normal, p._dist);}
 	plane_side_e	onPlaneSide(const vec3_c &normal, vec_t dist) const;
 	
+	const std::vector<vec3_c>&	getPoints() const	{return _p;}
+	
 	//! Print to console
 	void		toString() const;
 	
@@ -85,6 +90,12 @@ public:
 private:
 	std::vector<vec3_c>	_p;
 };
+typedef winding_c*			winding_p;
+typedef std::vector<winding_p>		winding_v;
+typedef winding_v::iterator		winding_i;
+typedef winding_v::const_iterator	winding_ci;
+
+
 
 class map_shader_c
 {
@@ -102,10 +113,10 @@ private:
 	//TODO content flags
 };
 
-class map_brush_side_c
+class map_brushside_c
 {
 public:
-	inline map_brush_side_c()
+	inline map_brushside_c()
 	{
 		_plane		= NULL;
 		
@@ -120,11 +131,28 @@ public:
 		_bevel		= false;
 		_culled		= false;
 	}
+	
+	void			translate(const vec3_c& v);
 
 	void			setPlane(cplane_c *p)		{_plane = p;}
-	const cplane_c*		getPlane() const 		{return _plane;}
+	cplane_c*		getPlane() const 		{return _plane;}
+	
+	void			setWinding(winding_p w)		{_winding = w;}
+	winding_p		getWinding() const		{return _winding;}
 	
 	void			setShader(const std::string& s);
+	
+	bool			isVisible() const		{return _visible;}
+	void			isVisible(bool b)		{_visible = b;}
+	
+	bool			isTested() const		{return _tested;}
+	void			isTested(bool b)		{_tested = b;}
+	
+	bool			isBevel() const			{return _bevel;}
+	void			isBevel(bool b)			{_bevel = b;}
+	
+	bool			isCulled() const		{return _culled;}
+	void			isCulled(bool b)		{_culled = b;}
 
 private:
 //	vec3_c			_plane_pts[3];
@@ -148,6 +176,13 @@ private:
 	//TODO compile flags
 };
 
+//typedef boost::shared_ptr<map_brushside_c>	map_brushside_p;
+typedef map_brushside_c*			map_brushside_p;
+typedef std::vector<map_brushside_p>		map_brushside_v;
+typedef map_brushside_v::iterator		map_brushside_i;
+typedef map_brushside_v::const_iterator		map_brushside_ci;
+
+
 class map_brush_c
 {
 public:
@@ -156,7 +191,9 @@ public:
 		_entity_num	= entity_num;
 	}
 	
-	void			addSide(map_brush_side_c* side)	{_sides.push_back(side);}
+	void			addSide(map_brushside_p side)	{_sides.push_back(side);}
+	void			translate(const vec3_c &v);
+	bool			createWindings();
 
 	int			getEntityNum() const	{return _entity_num;}
 	const aabb_c&		getAABB() const		{return _aabb;}
@@ -169,8 +206,14 @@ private:
 	
 	aabb_c			_aabb;
 
-	std::vector<map_brush_side_c*>	_sides;
+	map_brushside_v		_sides;
 };
+//typedef boost::shared_ptr<map_brush_c>	map_brush_p;
+typedef map_brush_c*			map_brush_p;
+typedef std::vector<map_brush_p>	map_brush_v;
+typedef map_brush_v::iterator		map_brush_i;
+typedef map_brush_v::const_iterator	map_brush_ci;
+
 
 class map_patch_c
 {
@@ -183,8 +226,11 @@ class map_entity_c
 {
 	friend void	UnparseEntities();
 public:
-	void		addBrush(map_brush_c* b)	{_brushes.push_back(b);}
-	const std::vector<map_brush_c*>&	getBrushes() const	{return _brushes;}
+	void		finish();
+	void		adjustBrushesForOrigin();
+
+	void		addBrush(map_brush_p b)		{_brushes.push_back(b);}
+	const map_brush_v&	getBrushes() const	{return _brushes;}
 
 	void 		setKeyValue(const std::string &key, const std::string &value);
 	// will return "" if not present
@@ -197,7 +243,7 @@ public:
 private:
 	vec3_c					_origin;
 	
-	std::vector<map_brush_c*>		_brushes;
+	map_brush_v				_brushes;
 	std::vector<map_patch_c*>		_patches;
 	
 	std::map<std::string, std::string>	_epairs;
@@ -207,7 +253,7 @@ private:
 	int					_portalareas[2];
 };
 
-
+/*
 #define	PLANENUM_LEAF		-1
 
 #define	MAXEDGES		20
@@ -243,10 +289,9 @@ public:
 	
 	vec3_t			mins, maxs;
 	int			side, testside;		// side of node during construction
-	map_brush_c*		original;
+	map_brush_p		original;
 	
-	int			sides_num;
-	map_brush_side_c	sides[6];			// variably sized
+	map_brushside_v		sides;			// variably sized
 };
 
 
@@ -263,7 +308,7 @@ public:
 
 	// nodes only
 	bool			detail_seperator;	// a detail brush caused the split
-	map_brush_side_c*	side;			// the side that created the node
+	map_brushside_p		side;			// the side that created the node
 	node_t*			children[2];
 	face_t*			faces;
 
@@ -287,7 +332,7 @@ public:
 	winding_c*		winding;
 
 	bool			sidefound;		// false if ->side hasn't been checked
-	map_brush_side_c*	side;			// NULL = non-visible
+	map_brushside_p		side;			// NULL = non-visible
 	face_t*			face[2];		// output face in bsp file
 };
 
@@ -299,9 +344,11 @@ public:
 	vec3_t			mins, maxs;
 };
 
+*/
+
 extern std::vector<map_entity_c*>	map_entities;
-extern std::vector<map_brush_c*>	map_brushes;
-extern std::vector<map_brush_side_c*>	map_brushsides;
+extern map_brush_v			map_brushes;
+extern map_brushside_v			map_brushsides;
 extern std::vector<cplane_c*>		map_planes;
 
 

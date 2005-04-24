@@ -39,8 +39,8 @@ int		cm_brush_traces;
 
 
 std::vector<map_entity_c*>	map_entities;
-std::vector<map_brush_c*>	map_brushes;
-std::vector<map_brush_side_c*>	map_brushsides;
+map_brush_v			map_brushes;
+map_brushside_v			map_brushsides;
 std::vector<cplane_c*>		map_planes;
 
 

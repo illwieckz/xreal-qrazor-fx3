@@ -33,8 +33,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // xreal --------------------------------------------------------------------
 
 
+void	map_entity_c::finish()
+{
+	getVector3ForKey("origin", _origin);
 
+	adjustBrushesForOrigin();
+}
 
+void	map_entity_c::adjustBrushesForOrigin()
+{
+	for(map_brush_ci i = _brushes.begin(); i != _brushes.end(); ++i)
+	{
+		map_brush_p b = *i;
+		
+		b->translate(-_origin);
+		//b->createWindings();
+	}
+}
 
 void	map_entity_c::setKeyValue(const std::string &key, const std::string &value)
 {
@@ -103,128 +118,6 @@ void	map_entity_c::toString() const
 	}
 }
 
-/*
-void	StripTrailing(char *e)
-{
-	char	*s;
-
-	s = e + strlen(e)-1;
-	while(s >= e && *s <= 32)
-	{
-		*s = 0;
-		s--;
-	}
-}
-*/
-
-/*
-std::pair<std::string, std::string>	ParseEpair(char **data_p)
-{
-	
-	epair_t	*e;
-
-	e = malloc (sizeof(epair_t));
-	memset (e, 0, sizeof(epair_t));
-	
-	if (strlen(token) >= MAX_KEY-1)
-		Error ("ParseEpar: token too long");
-	e->key = copystring(token);
-	GetToken (false);
-	if (strlen(token) >= MAX_VALUE-1)
-		Error ("ParseEpar: token too long");
-	e->value = copystring(token);
-
-	// strip trailing spaces
-	StripTrailing (e->key);
-	StripTrailing (e->value);
-
-	return e;
-	
-	std::pair<std::string, std::string>	epair;	
-}
-*/
-
-
-/*
-bool	ParseEntity(char **data_p)
-{
-	entity_t	mapent;
-
-	char*		token;
-	
-	std::string	key;
-	std::string	value;
-	
-
-	token = Com_Parse(data_p, true);
-	if(!token[0])
-		return false;
-
-	if(!X_strequal(token, "{"))
-		Com_Error(ERR_FATAL, "ParseEntity: found '%s' instead of {", token);
-	
-	while(true)
-	{
-		token = Com_Parse(data_p);
-		
-		if(!token[0])
-		{
-			Com_Error(ERR_FATAL, "EOF without closing brace");
-			return false;
-		}
-		
-		if(!token[0] || X_strequal(token, "}"))
-			break;
-		
-		key = token;
-		
-		token = Com_Parse(data_p);
-		
-		std::string value = token;
-		
-		if(!*data_p)
-			Com_Error(ERR_FATAL, "ParseEntity: EOF without closing brace");
-
-		if(token[0] == '}')
-			Com_Error(ERR_FATAL, "ParseEntity: closing brace without data");
-		
-		
-		mapent.epairs.insert(make_pair(key, value));
-	};
-	
-	entities.push_back(mapent);
-	
-	return true;
-}
-*/
-
-/*
-================
-ParseEntities
-
-Parses the dentdata string into entities
-================
-*/
-/*
-void	ParseEntities()
-{
-	entities.clear();
-	
-	std::string entdata;
-	for(unsigned int i=0; i<dentdata.size(); i++)
-	{
-		entdata += dentdata[i];
-	}
-	
-	char *data_p = (char*) entdata.c_str();
-	
-	Com_Printf("ParseEntities:\n%s\n", entdata.c_str());
-
-	while(ParseEntity(&data_p))
-	{
-	}
-}
-*/
 
 /*
 ================

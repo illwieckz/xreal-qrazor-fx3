@@ -2042,9 +2042,10 @@ inline void	cplane_c::translate(const vec3_c &v)
 {
 //	translate(v[0], v[1], v[2]);
 	
-	vec3_c tmp = vec3_c(_normal[0]*_dist+v[0], _normal[1]*_dist+v[1], _normal[2]*_dist+v[2]);
-	
+	vec3_c tmp = _normal * _dist + v;
 	_dist = tmp.dotProduct(v);
+
+//	_dist = _dist - _normal.dotProduct(v);
 }
 
 inline void	cplane_c::rotate(const vec3_c &angles)
