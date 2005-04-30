@@ -2147,7 +2147,7 @@ inline vec3_c	cplane_c::closest(const vec3_c &v) const
 
 inline cplane_c	cplane_c::operator - () const
 {
-	return cplane_c(_normal, _dist);
+	return cplane_c(-_normal, -_dist);
 }
 
 inline vec_t	cplane_c::operator [] (const int index) const

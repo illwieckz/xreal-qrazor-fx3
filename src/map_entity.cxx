@@ -110,7 +110,7 @@ void 	map_entity_c::getVector3ForKey(const std::string &key, vec3_c &v) const
 }
 
 
-void	map_entity_c::toString() const
+void	map_entity_c::print() const
 {
 //	Com_Printf("------- entity -------\n");
 	
