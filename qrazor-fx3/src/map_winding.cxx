@@ -76,7 +76,7 @@ winding_c::~winding_c()
 
 void	winding_c::initFromPlane(const vec3_c &normal, vec_t dist)
 {
-	Com_DPrintf("winding_c::initFromPlane: (%i %i %i %i)\n", (int)normal[0], (int)normal[1], (int)normal[2], (int)dist);
+//	Com_DPrintf("winding_c::initFromPlane: (%i %i %i %i)\n", (int)normal[0], (int)normal[1], (int)normal[2], (int)dist);
 
 	// find the major axis
 	vec_t max = -BOGUS_RANGE;
@@ -358,12 +358,14 @@ bool	winding_c::chopInPlace(const cplane_c &split, vec_t epsilon)
 	uint_t		i, j;
 	vec3_c		mid;
 	
+//	Com_DPrintf("winding_c::chopInPlace: split plane %s\n", split.toString());
+	
 	counts[0] = counts[1] = counts[2] = 0;
 
 	// determine sides for each point
 	for(i=0; i<_p.size(); i++)
 	{
-		vec_t dist = dists[i] = split.distance(_p[i]);
+		vec_t dist = dists[i] = split._normal.dotProduct(_p[i]) - split._dist;
 		
 		if(dist > epsilon)
 		{
@@ -576,7 +578,7 @@ plane_side_e	winding_c::onPlaneSide(const vec3_c &normal, vec_t dist) const
 }
 
 
-void	winding_c::toString() const
+void	winding_c::print() const
 {
 	Com_Printf("------- winding pts %i -------\n", _p.size());
 	for(uint_t i=0 ; i<_p.size(); i++)

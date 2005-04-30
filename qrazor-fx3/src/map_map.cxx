@@ -768,7 +768,7 @@ static void	MAP_FinishEntity(char const* begin, char const* end)
 {
 	map_entity->finish();
 
-	map_entity->toString();
+	map_entity->print();
 }
 
 static void	MAP_BrushDef3(char const* begin, char const* end)
@@ -1005,7 +1005,7 @@ void	LoadMapFile(const std::string &filename)
 	Com_Printf("%5i entities\n",		map_entities.size());
 	Com_Printf("%5i planes\n",		map_planes.size());
 	Com_Printf("%5i areaportals\n",		c_areaportals);
-	Com_Printf("size: %s\n",		map_bbox.toString());
+	Com_Printf("total world size: %s\n",	map_bbox.toString());
 
 	VFS_FFree(buf);
 }

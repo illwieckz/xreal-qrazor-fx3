@@ -86,7 +86,7 @@ public:
 	const std::vector<vec3_c>&	getPoints() const	{return _p;}
 	
 	//! Print to console
-	void		toString() const;
+	void		print() const;
 	
 //	winding_c*	CopyWinding(winding_c *w);
 
@@ -244,7 +244,7 @@ public:
 	void 		getVector3ForKey(const std::string &key, vec3_c &v) const;
 	void		hasKey(const std::string &key) const;
 	
-	void		toString() const;
+	void		print() const;
 
 private:
 	vec3_c					_origin;

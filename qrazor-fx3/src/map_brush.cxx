@@ -66,9 +66,7 @@ bool	map_brush_c::createWindings()
 	{
 		const cplane_c* p = (*i)->getPlane();
 		
-		//Com_DPrintf("map_brush_c::createWindings: %s\n", p->toString());
 		winding_p w = new winding_c(*p);
-		//w->toString();
 		
 		for(map_brushside_i j = _sides.begin(); j != _sides.end() && w; ++j)
 		{
@@ -81,7 +79,7 @@ bool	map_brush_c::createWindings()
 			p = (*j)->getPlane();
 			
 			// flip the plane, because we want to keep the back side
-			cplane_c pneg = -(*p);
+			const cplane_c pneg = -(*p);
 			
 			if(w)
 			{
@@ -90,12 +88,16 @@ bool	map_brush_c::createWindings()
 					delete w;
 					w = NULL;
 				}
-				else
-				{
-					//Com_Printf("map_brush_c::createWindings: winding has %i points\n", w->getPoints().size());
-					w->toString();
-				}
 			}
+		}
+		
+		if(w)
+		{
+			//w->print();
+		}
+		else
+		{
+			Com_DPrintf("map_brush_c::createWindings: killed winding\n");
 		}
 		
 		(*i)->setWinding(w);
@@ -115,12 +117,7 @@ bool	map_brush_c::calcAABB()
 		if(!w)
 			continue;
 	
-		//_aabb.mergeWith(w->calcAABB());
-		const std::vector<vec3_c>& p = w->getPoints();
-		for(std::vector<vec3_c>::const_iterator j = p.begin(); j != p.end(); ++j)
-		{
-			_aabb.addPoint(*j);
-		}
+		_aabb.mergeWith(w->calcAABB());
 	}
 	
 	for(int i=0; i<3; i++)
