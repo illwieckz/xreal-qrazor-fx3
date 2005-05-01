@@ -377,7 +377,7 @@ void	X_strncpyz(char *dest, const char *src, int size);
 class strcasecmp_c : public std::binary_function<std::string, std::string, bool>
 {
 public:
-	bool operator()(const std::string &x, const std::string &y)
+	bool operator()(const std::string &x, const std::string &y) const
 	{
 		return X_strcasecmp(x.c_str(), y.c_str()) < 0;
 	}
@@ -905,6 +905,16 @@ enum
 // usercmd_t is sent to the server each client frame
 struct usercmd_t
 {
+	inline usercmd_t()
+	{
+		msec		= 0;
+		buttons		= 0;
+		
+		forwardmove	= 0;
+		sidemove	= 0;
+		upmove		= 0;
+	}
+
 	inline void clear()
 	{
 		msec		= 0;
