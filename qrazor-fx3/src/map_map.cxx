@@ -37,17 +37,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "vfs.h"
 
 
-
-
-//brush_texture_t		side_brushtextures[MAX_MAP_SIDES];
+namespace map
+{
 
 aabb_c			map_bbox;
-
-
-static int		c_detailbrushes;
-static int		c_boxbevels;
-static int		c_edgebevels;
-static int		c_areaportals;
 
 
 
@@ -66,17 +59,17 @@ static cplane_c*	CreateNewFloatPlane(const cplane_c &p)
 		if(p._normal[0] < 0 || p._normal[1] < 0 || p._normal[2] < 0)
 		{
 			// flip order
-			map_planes.push_back(plane_neg);
-			map_planes.push_back(plane_pos);
+			planes.push_back(plane_neg);
+			planes.push_back(plane_pos);
 			
-			return map_planes[map_planes.size() - 1];
+			return planes[planes.size() - 1];
 		}
 	}
 	
-	map_planes.push_back(plane_pos);
-	map_planes.push_back(plane_neg);
+	planes.push_back(plane_pos);
+	planes.push_back(plane_neg);
 
-	return map_planes[map_planes.size() - 2];
+	return planes[planes.size() - 2];
 }
 
 /*
@@ -94,7 +87,7 @@ static int	FindFloatPlane(const cplane_c &p)
 
 cplane_c*	FindFloatPlane(const cplane_c &plane)
 {
-	for(std::vector<cplane_c*>::const_iterator i = map_planes.begin(); i != map_planes.end(); ++i)
+	for(std::vector<cplane_c*>::const_iterator i = planes.begin(); i != planes.end(); ++i)
 	{
 		cplane_c* p = *i;
 	
@@ -124,46 +117,6 @@ cplane_c*	PlaneFromEquation(float f0, float f1, float f2, float f3)
 	
 	return FindFloatPlane(p);
 }
-
-
-/*
-int	SetBrushContents(mapbrush_t *b)
-{
-	int			contents;
-	side_t*			s;
-	int			i;
-	int			trans;
-
-	s = &b->sides[0];
-	contents = s->contents;
-	trans = texinfo[s->texinfo].flags;
-	for (i=1 ; i<b->numsides ; i++, s++)
-	{
-		s = &b->original_sides[i];
-		trans |= texinfo[s->texinfo].flags;
-		if (s->contents != contents)
-		{
-			printf ("Entity %i, Brush %i: mixed face contents\n"
-				, b->entitynum, b->brushnum);
-			break;
-		}
-	}
-
-	// if any side is translucent, mark the contents
-	// and change solid to window
-	if ( trans & (SURF_TRANS33|SURF_TRANS66) )
-	{
-		contents |= CONTENTS_TRANSLUCENT;
-		if (contents & CONTENTS_SOLID)
-		{
-			contents &= ~CONTENTS_SOLID;
-			contents |= CONTENTS_WINDOW;
-		}
-	}
-
-	return contents;
-}
-*/
 
 
 
@@ -734,10 +687,10 @@ static bool	ParseMapEntity(char **data_p)
 }
 */
 
-static map_entity_c*	map_entity;
+static entity_c*	map_entity;
 
-static map_brush_p		map_brush;
-static map_brushside_p			map_brushside;
+static brush_p			map_brush;
+static brushside_p			map_brushside;
 static cplane_c*				map_plane;
 static std::string				map_shader;
 
@@ -758,10 +711,10 @@ static void	MAP_Version(int version)
 
 static void	MAP_NewEntity(char begin)
 {
-	Com_Printf("------- parsing entity %i -------\n", map_entities.size());
+	Com_Printf("------- parsing entity %i -------\n", entities.size());
 	
-	map_entity = new map_entity_c();
-	map_entities.push_back(map_entity);
+	map_entity = new entity_c();
+	entities.push_back(map_entity);
 }
 
 static void	MAP_FinishEntity(char const* begin, char const* end)
@@ -775,8 +728,8 @@ static void	MAP_BrushDef3(char const* begin, char const* end)
 {
 //	Com_Printf("MAP_BrushDef3()\n");
 	
-	map_brush = map_brush_p(new map_brush_c(map_entities.size()-1));
-	map_brushes.push_back(map_brush);
+	map_brush = brush_p(new brush_c(entities.size()-1));
+	brushes.push_back(map_brush);
 	
 	map_entity->addBrush(map_brush);
 }
@@ -785,8 +738,8 @@ static void	MAP_BrushDef3Side(char const* begin, char const* end)
 {
 //	Com_Printf("MAP_BrushDef3Side()\n");
 	
-	map_brushside = map_brushside_p(new map_brushside_c());
-	map_brushsides.push_back(map_brushside);
+	map_brushside = brushside_p(new brushside_c());
+	brushsides.push_back(map_brushside);
 	
 	map_brushside->setPlane(map_plane);
 	map_brushside->setShader(map_shader);
@@ -954,17 +907,17 @@ void	LoadMapFile(const std::string &filename)
 	Com_Printf("loading '%s' ...\n", filename.c_str());
 
 	// clear globals
-	X_purge(map_brushes);
-	map_brushes.clear();
+	X_purge(brushes);
+	brushes.clear();
 	
-	X_purge(map_brushsides);
-	map_brushsides.clear();
+	X_purge(brushsides);
+	brushsides.clear();
 	
-	X_purge(map_planes);
-	map_planes.clear();
+	X_purge(planes);
+	planes.clear();
 	
-	X_purge(map_entities);
-	map_entities.clear();
+	X_purge(entities);
+	entities.clear();
 	
 	// parse map
 	map_grammar_t	grammar;
@@ -983,7 +936,7 @@ void	LoadMapFile(const std::string &filename)
 		Com_Error(ERR_FATAL, "LoadMapFile: parsing failed");
 	}
 
-	if(map_entities.empty())
+	if(entities.empty())
 	{
 		Com_Error(ERR_FATAL, "LoadMapFile: no entities");
 		return;
@@ -992,22 +945,24 @@ void	LoadMapFile(const std::string &filename)
 	// compute world bounding box
 	map_bbox.clear();
 	
-	for(uint_t i=0; i<map_entities[0]->getBrushes().size(); i++)
+	for(uint_t i=0; i<entities[0]->getBrushes().size(); i++)
 	{
-		map_bbox.mergeWith(map_brushes[i]->getAABB());
+		map_bbox.mergeWith(brushes[i]->getAABB());
 	}
 
-	Com_Printf("%5i total brushes\n",	map_brushes.size());
-	Com_Printf("%5i detail brushes\n",	c_detailbrushes);
-	Com_Printf("%5i total sides\n",		map_brushsides.size());
-	Com_Printf("%5i boxbevels\n",		c_boxbevels);
-	Com_Printf("%5i edgebevels\n",		c_edgebevels);
-	Com_Printf("%5i entities\n",		map_entities.size());
-	Com_Printf("%5i planes\n",		map_planes.size());
+	Com_Printf("%5i entities\n",		entities.size());
+	Com_Printf("%5i structural shapes\n",	c_structural);
+	Com_Printf("%5i detail shapes\n",	c_detail);
 	Com_Printf("%5i areaportals\n",		c_areaportals);
+	Com_Printf("%5i brushes\n",		brushes.size());
+	Com_Printf("%5i brush sides\n",		brushsides.size());
+//	Com_Printf("%5i patches\n",		patches.size());
+//	Com_Printf("%5i boxbevels\n",		c_boxbevels);
+//	Com_Printf("%5i edgebevels\n",		c_edgebevels);
+	Com_Printf("%5i planes\n",		planes.size());
 	Com_Printf("total world size: %s\n",	map_bbox.toString());
 
 	VFS_FFree(buf);
 }
 
-
+} // namespace map

@@ -36,7 +36,31 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // xreal --------------------------------------------------------------------
 
+namespace map
+{
 
+enum
+{
+	C_SOLID				= (1<<0),
+	C_TRANSLUCENT			= (1<<1),
+	C_STRUCTURAL			= (1<<2),
+	C_HINT				= (1<<3),
+	C_NODRAW			= (1<<4),
+	C_LIGHTGRID			= (1<<5),
+	C_ALPHASHADOW			= (1<<6),
+	C_LIGHTFILTER			= (1<<7),
+	C_VERTEXLIT			= (1<<8),
+	C_LIQUID			= (1<<9),
+	C_FOG				= (1<<10),
+	C_SKY				= (1<<11),
+	C_ORIGIN			= (1<<12),
+	C_AREAPORTAL			= (1<<13),
+	C_ANTIPORTAL			= (1<<14),		// like hint, but doesn't generate portals
+	C_SKIP				= (1<<15),		// like hint, but skips this face (doesn't split bsp)
+	C_NOMARKS			= (1<<16),		// no decals
+	
+	C_DETAIL			= 0x08000000		// THIS MUST BE THE SAME AS IN RADIANT!
+};
 
 class face_t;
 class portal_t;
@@ -56,9 +80,7 @@ public:
 	winding_c(const vec3_c &normal, vec_t dist);
 	winding_c(const cplane_c &base);
 	~winding_c();
-	
-	void		initFromPlane(const vec3_c &normal, vec_t dist);
-	
+
 	cplane_c	calcPlane() const;
 	vec_t		calcArea() const;
 	aabb_c		calcAABB() const;
@@ -91,6 +113,8 @@ public:
 //	winding_c*	CopyWinding(winding_c *w);
 
 private:
+	void		initFromPlane(const vec3_c &normal, vec_t dist);
+
 	std::vector<vec3_c>	_p;
 };
 typedef winding_c*			winding_p;
@@ -99,27 +123,98 @@ typedef winding_v::iterator		winding_i;
 typedef winding_v::const_iterator	winding_ci;
 
 
+class contentflags_a
+{
+protected:
+	contentflags_a()
+	{
+		_contentflags		= X_CONT_NONE;
+	}
+	
+public:
+	inline int	getContentFlags() const			{return _contentflags;}
+	inline void	setContentFlags(int flags)		{_contentflags = flags;}
+	inline bool	hasContentFlags(int flags) const 	{return _contentflags & flags;}
+	inline void	addContentFlags(int flags)		{_contentflags |= flags;}
+	inline void	delContentFlags(int flags)		{_contentflags &= ~flags;}
 
-class map_shader_c
+private:
+	int		_contentflags;
+};
+
+class surfaceflags_a
+{
+protected:
+	surfaceflags_a()
+	{
+		_surfaceflags		= X_SURF_NONE;
+	}
+	
+public:
+	inline int	getSurfaceFlags() const			{return _surfaceflags;}
+	inline void	setSurfaceFlags(int flags)		{_surfaceflags = flags;}
+	inline bool	hasSurfaceFlags(int flags) const 	{return _surfaceflags & flags;}
+	inline void	addSurfaceFlags(int flags)		{_surfaceflags |= flags;}
+	inline void	delSurfaceFlags(int flags)		{_surfaceflags &= ~flags;}
+	
+private:
+	int		_surfaceflags;
+};
+
+
+class compileflags_a
+{
+protected:
+	compileflags_a()
+	{
+		_compileflags		= C_SOLID;
+	}
+	
+public:
+	inline int	getCompileFlags() const			{return _compileflags;}
+	inline void	setCompileFlags(int flags)		{_compileflags = flags;}
+	inline bool	hasCompileFlags(int flags) const 	{return _compileflags & flags;}
+	inline void	addCompileFlags(int flags)		{_compileflags |= flags;}
+	inline void	delCompileFlags(int flags)		{_compileflags &= ~flags;}
+
+private:
+	int		_compileflags;
+};
+
+
+class shader_c :
+public contentflags_a,
+public surfaceflags_a,
+public compileflags_a
 {
 public:
-	map_shader_c(const std::string &name);
+	shader_c(const std::string &name);
 
 	inline const char*	getName() const			{return _name.c_str();}
-	//TODO
 	
 private:
 	std::string	_name;
-	
-	//TODO surface flags
-	
-	//TODO content flags
+};
+typedef shader_c*			shader_p;
+//typedef std::vector<shader_p>		shader_v;
+//typedef std::vector<shader_p>		shader_v;
+//typedef winding_v::iterator		winding_i;
+//typedef winding_v::const_iterator	winding_ci;
+
+
+class shape_a
+{
+protected:
+	virtual ~shape_a()
+	{
+	}
+	virtual void		calcContents() = 0;
 };
 
-class map_brushside_c
+class brushside_c
 {
 public:
-	inline map_brushside_c()
+	inline brushside_c()
 	{
 		_plane		= NULL;
 		
@@ -144,6 +239,7 @@ public:
 	winding_p		getWinding() const		{return _winding;}
 	
 	void			setShader(const std::string& s);
+	const shader_p		getShader() const		{return _shader;}
 	
 	bool			isVisible() const		{return _visible;}
 	void			isVisible(bool b)		{_visible = b;}
@@ -167,7 +263,7 @@ private:
 	winding_c*		_winding;
 //	side_t*			_original;		// bspbrush_t sides will reference the mapbrush_t sides
 	
-	map_shader_c*		_shader;
+	shader_c*		_shader;
 	
 	bool			_visible;		// choose visble planes first
 	bool			_tested;		// this plane allready checked as a split
@@ -179,23 +275,31 @@ private:
 	//TODO compile flags
 };
 
-//typedef boost::shared_ptr<map_brushside_c>	map_brushside_p;
-typedef map_brushside_c*			map_brushside_p;
-typedef std::vector<map_brushside_p>		map_brushside_v;
-typedef map_brushside_v::iterator		map_brushside_i;
-typedef map_brushside_v::const_iterator		map_brushside_ci;
+//typedef boost::shared_ptr<brushside_c>	brushside_p;
+typedef brushside_c*				brushside_p;
+typedef std::vector<brushside_p>		brushside_v;
+typedef brushside_v::iterator			brushside_i;
+typedef brushside_v::const_iterator		brushside_ci;
 
 
-class map_brush_c
+class brush_c :
+public contentflags_a,
+public compileflags_a,
+public shape_a
 {
 public:
-	inline map_brush_c(int entity_num)
+	inline brush_c(int entity_num)
 	{
 		_entity_num	= entity_num;
+		_detail		= false;
+		_opaque		= true;
 	}
 	
-	void			addSide(map_brushside_p side)	{_sides.push_back(side);}
+	void			calcContents();
+	
+	void			addSide(brushside_p side)	{_sides.push_back(side);}
 	void			translate(const vec3_c &v);
+	
 	//! Returns false if the brush doesn't enclose a valid volume.
 	bool			createWindings();
 	bool			calcAABB();
@@ -203,39 +307,58 @@ public:
 	int			getEntityNum() const	{return _entity_num;}
 	const aabb_c&		getAABB() const		{return _aabb;}
 	
+	bool			isDetail() const		{return _detail;}
+	void			isDetail(bool b)		{_detail = b;}
+	
+	bool			isOpaque() const		{return _opaque;}
+	void			isOpaque(bool b)		{_opaque = b;}
+	
 private:
 	int			_entity_num;
 	int			_brush_num;
-
-	int			_contents;
 	
 	aabb_c			_aabb;
 
-	map_brushside_v		_sides;
+	brushside_v		_sides;
+	
+	bool			_detail;
+	bool			_opaque;
 };
-//typedef boost::shared_ptr<map_brush_c>	map_brush_p;
-typedef map_brush_c*			map_brush_p;
-typedef std::vector<map_brush_p>	map_brush_v;
-typedef map_brush_v::iterator		map_brush_i;
-typedef map_brush_v::const_iterator	map_brush_ci;
+//typedef boost::shared_ptr<brush_c>	brush_p;
+typedef brush_c*			brush_p;
+typedef std::vector<brush_p>		brush_v;
+typedef brush_v::iterator		brush_i;
+typedef brush_v::const_iterator		brush_ci;
 
 
-class map_patch_c
+class patch_c :
+public contentflags_a,
+public compileflags_a,
+public shape_a
 {
 public:
 	//TODO
 };
+typedef patch_c*			patch_p;
+typedef std::vector<patch_p>		patch_v;
+typedef patch_v::iterator		patch_i;
+typedef patch_v::const_iterator		patch_ci;
 
 
-class map_entity_c
+class entity_c
 {
 	friend void	UnparseEntities();
 public:
 	void		finish();
-	void		adjustBrushesForOrigin();
+	
+	//! Creates a full bsp + surfaces for the worldspawn entity
+	void		processWorldModel();
+	
+	//! Creates bsp + surfaces for other brush models
+	void		processSubModel();
 
-	void		addBrush(map_brush_p b)		{_brushes.push_back(b);}
-	const map_brush_v&	getBrushes() const	{return _brushes;}
+	void		addBrush(brush_p b)		{_brushes.push_back(b);}
+	const brush_v&	getBrushes() const		{return _brushes;}
 
 	void 		setKeyValue(const std::string &key, const std::string &value);
 	// will return "" if not present
@@ -244,20 +367,37 @@ public:
 	void 		getVector3ForKey(const std::string &key, vec3_c &v) const;
 	void		hasKey(const std::string &key) const;
 	
+	bool		isWorldSpawn() const;
+	
 	void		print() const;
-
+	
+protected:
+	
 private:
+	void		calcShapeContents();
+	void		adjustBrushesForOrigin();
+
 	vec3_c					_origin;
 	
-	map_brush_v				_brushes;
-	std::vector<map_patch_c*>		_patches;
+	brush_v					_brushes;
+	patch_v					_patches;
 	
-	std::map<std::string, std::string>	_epairs;
+	typedef std::map<std::string, std::string, strcasecmp_c>	epairs_t;
+	typedef epairs_t::iterator					epairs_i;
+	typedef epairs_t::const_iterator				epairs_ci;
+	epairs_t				_epairs;
 
 	// only valid for func_areaportals
-	int					_areaportalnum;
-	int					_portalareas[2];
+//	int					_areaportalnum;
+//	int					_portalareas[2];
 };
+//typedef boost::shared_ptr<map_entity_c>	map_entity_p;
+typedef entity_c*			entity_p;
+typedef std::vector<entity_p>		entity_v;
+typedef entity_v::iterator		entity_i;
+typedef entity_v::const_iterator	entity_ci;
+
+
 
 /*
 #define	PLANENUM_LEAF		-1
@@ -352,10 +492,16 @@ public:
 
 */
 
-extern std::vector<map_entity_c*>	map_entities;
-extern map_brush_v			map_brushes;
-extern map_brushside_v			map_brushsides;
-extern std::vector<cplane_c*>		map_planes;
+
+extern entity_v				entities;
+extern brush_v				brushes;
+extern brushside_v			brushsides;
+extern std::vector<cplane_c*>		planes;
+
+
+extern int		c_structural;
+extern int		c_detail;
+extern int		c_areaportals;
 
 
 //
@@ -424,14 +570,16 @@ void		LoadMapFile(const std::string &filename);
 //
 // map_shader.cxx
 //
-void		Map_InitShaders();
-void		Map_ShutdownShaders();
+void		InitShaders();
+void		ShutdownShaders();
 
-map_shader_c*	Map_FindShader(const std::string &name);
+shader_c*	FindShader(const std::string &name);
 
-void		Map_ShaderList_f();
-void		Map_ShaderCacheList_f();
-void		Map_ShaderSearch_f();
+void		ShaderList_f();
+void		ShaderCacheList_f();
+void		ShaderSearch_f();
+
+} // namespace map
 
 
 #endif // MAP_LOCAL_H

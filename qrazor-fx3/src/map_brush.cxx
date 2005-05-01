@@ -30,14 +30,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // xreal --------------------------------------------------------------------
 
-
-void	map_brushside_c::setShader(const std::string& s)
+namespace map
 {
-	_shader = Map_FindShader(s);
+
+void	brushside_c::setShader(const std::string& s)
+{
+	_shader = FindShader(s);
 }
 
 
-void	map_brushside_c::translate(const vec3_c &v)
+void	brushside_c::translate(const vec3_c &v)
 {
 	_plane->translate(v);
 	
@@ -50,25 +52,61 @@ void	map_brushside_c::translate(const vec3_c &v)
 
 
 
-void	map_brush_c::translate(const vec3_c &v)
+void	brush_c::translate(const vec3_c &v)
 {
-	for(map_brushside_i i = _sides.begin(); i != _sides.end(); ++i)
+	for(brushside_i i = _sides.begin(); i != _sides.end(); ++i)
 	{
-		map_brushside_p s = *i;
+		brushside_p s = *i;
 		
 		s->translate(v);
 	}
 }
 
-bool	map_brush_c::createWindings()
+void	brush_c::calcContents()
 {
-	for(map_brushside_i i = _sides.begin(); i != _sides.end(); ++i)
+	for(brushside_ci i = _sides.begin(); i != _sides.end(); ++i)
+	{
+		const shader_p s = (*i)->getShader();
+		
+		addContentFlags(s->getContentFlags());
+		addCompileFlags(s->getCompileFlags());
+	}
+	
+	if(hasCompileFlags(C_DETAIL))
+	{
+		_detail = true;
+		c_detail++;
+	}
+	else
+	{
+		_detail = false;
+		c_structural++;
+	}
+	
+	if(hasCompileFlags(C_TRANSLUCENT))
+	{
+		_opaque = false;
+	}
+	else
+	{
+		_opaque = true;
+	}
+	
+	if(hasCompileFlags(C_AREAPORTAL))
+	{
+		c_areaportals++;
+	}
+}
+
+bool	brush_c::createWindings()
+{
+	for(brushside_i i = _sides.begin(); i != _sides.end(); ++i)
 	{
 		const cplane_c* p = (*i)->getPlane();
 		
 		winding_p w = new winding_c(*p);
 		
-		for(map_brushside_i j = _sides.begin(); j != _sides.end() && w; ++j)
+		for(brushside_i j = _sides.begin(); j != _sides.end() && w; ++j)
 		{
 			if(i == j)
 				continue;
@@ -106,11 +144,11 @@ bool	map_brush_c::createWindings()
 	return calcAABB();
 }
 
-bool	map_brush_c::calcAABB()
+bool	brush_c::calcAABB()
 {
 	_aabb.clear();
 	
-	for(map_brushside_i i = _sides.begin(); i != _sides.end(); ++i)
+	for(brushside_i i = _sides.begin(); i != _sides.end(); ++i)
 	{
 		winding_p w = (*i)->getWinding();
 		
@@ -129,4 +167,4 @@ bool	map_brush_c::calcAABB()
 	return true;
 }
 
-
+} // namespace map

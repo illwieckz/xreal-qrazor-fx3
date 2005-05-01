@@ -36,8 +36,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //#include "bspfile.h"
 //#include "scriplib.h"
 
-void	GetLeafNums();
-
+namespace map
+{
 
 std::vector<bsp_dentdata_t>	dentdata;
 
@@ -564,5 +564,5 @@ void	PrintBSPFileSizes()
 	//Com_Printf("%6i entities\n", entities.size());
 }
 
-
+} // namespace map
 
