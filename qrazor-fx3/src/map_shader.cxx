@@ -547,7 +547,6 @@ struct shader_grammar_t : public boost::spirit::grammar<shader_grammar_t>
 
 static bool	ParseShader(shader_c *shader, const char* begin, const char *end)
 {
-#if 1
 	shader_grammar_t grammar(shader);
 	
 	boost::spirit::parse_info<> info = boost::spirit::parse
@@ -561,9 +560,6 @@ static bool	ParseShader(shader_c *shader, const char* begin, const char *end)
 	);
 	
 	return info.full;
-#else
-	return false;
-#endif
 }
 
 static shader_c*	LoadShader(const std::string &name)
