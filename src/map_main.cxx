@@ -37,11 +37,17 @@ int		cm_pointcontents;
 int		cm_traces;
 int		cm_brush_traces;
 
+namespace map
+{
 
-std::vector<map_entity_c*>	map_entities;
-map_brush_v			map_brushes;
-map_brushside_v			map_brushsides;
-std::vector<cplane_c*>		map_planes;
+entity_v			entities;
+brush_v				brushes;
+brushside_v			brushsides;
+std::vector<cplane_c*>		planes;
+
+int		c_structural = 0;
+int		c_detail = 0;
+int		c_areaportals = 0;
 
 
 static void	BSPInfo_f()
@@ -59,6 +65,17 @@ static void	BSPInfo_f()
 	PrintBSPFileSizes();
 }
 
+static void	ProcessModels()
+{
+	for(entity_i i = entities.begin(); i != entities.end(); ++i)
+	{
+		if((*i)->isWorldSpawn())
+			(*i)->processWorldModel();
+		else
+			(*i)->processSubModel();
+	}
+}
+
 static void	BSP_f()
 {
 	if(Cmd_Argc() != 2)
@@ -72,36 +89,39 @@ static void	BSP_f()
 	//TODO
 	
 	LoadMapFile(filename);
-	//SetModelNumbers();
+	
+	ProcessModels();
 }
 
 
-static void	Map_PlaneList_f()
+static void	PlaneList_f()
 {
 	Com_Printf("------------------\n");
 
-	for(std::vector<cplane_c*>::const_iterator i = map_planes.begin(); i != map_planes.end(); ++i)
+	for(std::vector<cplane_c*>::const_iterator i = planes.begin(); i != planes.end(); ++i)
 	{
 		Com_Printf("%s\n", (*i)->toString());
 	}
 	
-	Com_Printf("Total planes count: %i\n", map_planes.size());
+	Com_Printf("Total planes count: %i\n", planes.size());
 }
+
+} // namespace map
 
 void	Map_Init()
 {
 	Com_Printf("------- Map_Init -------\n");
 
-	Cmd_AddCommand("bspinfo",		BSPInfo_f);
-	Cmd_AddCommand("bsp",			BSP_f);
+	Cmd_AddCommand("bspinfo",		map::BSPInfo_f);
+	Cmd_AddCommand("bsp",			map::BSP_f);
 	
-	Cmd_AddCommand("planelist",		Map_PlaneList_f);
+	Cmd_AddCommand("planelist",		map::PlaneList_f);
 	
-	Cmd_AddCommand("shaderlist",		Map_ShaderList_f);
-	Cmd_AddCommand("shadercachelist",	Map_ShaderCacheList_f);
-	Cmd_AddCommand("shadersearch",		Map_ShaderSearch_f);
+	Cmd_AddCommand("shaderlist",		map::ShaderList_f);
+	Cmd_AddCommand("shadercachelist",	map::ShaderCacheList_f);
+	Cmd_AddCommand("shadersearch",		map::ShaderSearch_f);
 	
-	Map_InitShaders();
+	map::InitShaders();
 	
 	//TODO
 }
@@ -110,7 +130,7 @@ void	Map_Shutdown()
 {
 	Com_Printf("------- Map_Shutdown -------\n");
 	
-	Map_ShutdownShaders();
+	map::ShutdownShaders();
 	
 	//TODO
 }

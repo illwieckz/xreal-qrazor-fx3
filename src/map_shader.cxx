@@ -34,30 +34,28 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // xreal --------------------------------------------------------------------
 
-
-
-static std::map<std::string, map_shader_c*, strcasecmp_c>	map_shaders;
-
-map_shader_c::map_shader_c(const std::string &name)
+namespace map
 {
-	_name	= name;
+
+static std::map<std::string, shader_c*, strcasecmp_c>	shaders;
+
+
+shader_c::shader_c(const std::string &name)
+{
+	_name			= name;
 	
-	map_shaders.insert(std::make_pair(name, this));
+	shaders.insert(std::make_pair(name, this));
 }
 
-
-
-
-
-class map_shader_cache_c
+class shader_cache_c
 {
 private:
-	map_shader_cache_c();
-	map_shader_cache_c(const map_shader_cache_c &cache);
+	shader_cache_c();
+	shader_cache_c(const shader_cache_c &cache);
 
 public:
 	
-	map_shader_cache_c(const std::string &name, const std::string &path, unsigned int offset_begin, unsigned int offset_end)
+	shader_cache_c(const std::string &name, const std::string &path, unsigned int offset_begin, unsigned int offset_end)
 	{
 		_name = X_strlwr(Com_StripExtension(name));
 		_path = path;
@@ -76,71 +74,75 @@ private:
 	unsigned int	_offset_begin;
 	unsigned int	_offset_end;
 };
+typedef shader_cache_c*			shader_cache_p;
+typedef std::map<std::string, shader_cache_p, strcasecmp_c>	shader_caches_t;
+typedef shader_caches_t::iterator				shader_caches_i;
+typedef shader_caches_t::const_iterator				shader_caches_ci;
 
-static std::map<std::string, map_shader_cache_c*, strcasecmp_c>	map_shaders_cache;
+static shader_caches_t						shaders_cache;
 
 
-static std::string			map_sp_filename;
-static char*				map_sp_data = NULL;
+static std::string			sp_filename;
+static char*				sp_data = NULL;
 
-static std::string			map_sp_shader_name;
-static uint_t 				map_sp_shader_offset_begin;
-static uint_t				map_sp_shader_offset_end;
+static std::string			sp_shader_name;
+static uint_t 				sp_shader_offset_begin;
+static uint_t				sp_shader_offset_end;
 
-static std::string			map_sp_table_name;
+static std::string			sp_table_name;
 
-static map_shader_cache_c*	Map_GetShaderCache(const std::string &cache_name, const std::string &cache_path, unsigned int offset_begin, unsigned int offset_end);
+static shader_cache_c*	GetShaderCache(const std::string &cache_name, const std::string &cache_path, unsigned int offset_begin, unsigned int offset_end);
 
-static void	Map_ShaderName(const char* begin, const char* end)
+static void	ShaderName(const char* begin, const char* end)
 {
-	map_sp_shader_name = std::string(begin, end);
-	map_sp_shader_offset_begin = (end+1) - map_sp_data;
+	sp_shader_name = std::string(begin, end);
+	sp_shader_offset_begin = (end+1) - sp_data;
 	
-	//ri.Com_Printf("shader name: '%s'\n", map_sp_shader_name.c_str());
+	//ri.Com_Printf("shader name: '%s'\n", sp_shader_name.c_str());
 }
 
-static void	Map_PrecacheShader(const char *begin, const char* end)
+static void	PrecacheShader(const char *begin, const char* end)
 {
-	map_sp_shader_offset_end = end - map_sp_data;
+	sp_shader_offset_end = end - sp_data;
 	
-	Map_GetShaderCache(map_sp_shader_name, map_sp_filename, map_sp_shader_offset_begin, map_sp_shader_offset_end);
+	GetShaderCache(sp_shader_name, sp_filename, sp_shader_offset_begin, sp_shader_offset_end);
 }
 
-static void	Map_TableName(const char* begin, const char* end)
+static void	TableName(const char* begin, const char* end)
 {
-	map_sp_table_name = X_strlwr(std::string(begin, end));
+	sp_table_name = X_strlwr(std::string(begin, end));
 }
 
-static void	Map_ClampTable(const char* begin, const char* end)
+static void	ClampTable(const char* begin, const char* end)
 {
-//	map_sp_table.flags |= SHADER_TABLE_CLAMP;
+//	sp_table.flags |= SHADER_TABLE_CLAMP;
 }
 
-static void	Map_SnapTable(const char* begin, const char* end)
+static void	SnapTable(const char* begin, const char* end)
 {
-//	map_sp_table.flags |= SHADER_TABLE_SNAP;
+//	sp_table.flags |= SHADER_TABLE_SNAP;
 }
 
-static void	Map_ClearTable(const char begin)
+static void	ClearTable(const char begin)
 {
-//	map_sp_table.flags = 0;
-//	map_sp_table.values.clear();
+//	sp_table.flags = 0;
+//	sp_table.values.clear();
 }
 
-static void	Map_CreateTable(const char* begin, const char* end)
+static void	CreateTable(const char* begin, const char* end)
 {
-//	Com_Printf("   creating table '%s' ...\n", map_sp_table_name.c_str());
+//	Com_Printf("   creating table '%s' ...\n", sp_table_name.c_str());
 	
-//	map_shader_table_symbols_p.add(map_sp_table_name.c_str(), map_tables.size());
-//	map_tables.push_back(map_sp_table);
+//	map_shader_table_symbols_p.add(sp_table_name.c_str(), map_tables.size());
+//	map_tables.push_back(sp_table);
 }
 
-struct map_shader_precache_grammar_t : public boost::spirit::grammar<map_shader_precache_grammar_t>
+struct shader_precache_grammar_t : public boost::spirit::grammar<shader_precache_grammar_t>
 {
 	template <typename ScannerT>
 	struct definition
 	{
-        	definition(map_shader_precache_grammar_t const& self)
+        	definition(shader_precache_grammar_t const& self)
 		{
 			// start grammar definition
 			skip_tobracket
@@ -155,8 +157,8 @@ struct map_shader_precache_grammar_t : public boost::spirit::grammar<map_shader_
 				
 			table
 				=	boost::spirit::nocase_d[boost::spirit::str_p("table")] >>
-					boost::spirit::lexeme_d[boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - (boost::spirit::space_p | boost::spirit::ch_p('{'))]][&Map_TableName] >>
-					boost::spirit::ch_p('{')[&Map_ClearTable] >>
+					boost::spirit::lexeme_d[boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - (boost::spirit::space_p | boost::spirit::ch_p('{'))]][&TableName] >>
+					boost::spirit::ch_p('{')[&ClearTable] >>
 					*(table_clamp | table_snap) >>
 					boost::spirit::ch_p('{') >>
 					boost::spirit::list_p(boost::spirit::lexeme_d[boost::spirit::real_p], ',') >>
@@ -165,22 +167,22 @@ struct map_shader_precache_grammar_t : public boost::spirit::grammar<map_shader_
 				;
 				
 			table_clamp
-				=	boost::spirit::str_p("clamp")[&Map_ClampTable]
+				=	boost::spirit::str_p("clamp")[&ClampTable]
 				;
 				
 			table_snap
-				=	boost::spirit::str_p("snap")[&Map_SnapTable]
+				=	boost::spirit::str_p("snap")[&SnapTable]
 				;
 				
 			shader
-				=	boost::spirit::lexeme_d[boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - (boost::spirit::space_p | boost::spirit::ch_p('{'))]][&Map_ShaderName] >>
+				=	boost::spirit::lexeme_d[boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - (boost::spirit::space_p | boost::spirit::ch_p('{'))]][&ShaderName] >>
 					boost::spirit::ch_p('{') >> 
 					*(skip_block | skip_tobracket) >>
 					boost::spirit::ch_p('}')
 				;
 				
 			expression
-				=	*(table[&Map_CreateTable] | shader[&Map_PrecacheShader])
+				=	*(table[&CreateTable] | shader[&PrecacheShader])
 				;
 				
 			// end grammar definiton
@@ -199,47 +201,39 @@ struct map_shader_precache_grammar_t : public boost::spirit::grammar<map_shader_
 	};
 };
 
-static map_shader_cache_c*	Map_FindShaderCache(const std::string &name)
+static shader_cache_c*	FindShaderCache(const std::string &name)
 {
-//	Com_DPrintf("Map_FindShaderCache: '%s'\n", name.c_str());
+//	Com_DPrintf("FindShaderCache: '%s'\n", name.c_str());
 	
 //	std::string name_short = X_strlwr(Com_StripExtension(name));
 
 	std::string name_short = Com_StripExtension(name);
 	
-	std::map<std::string, map_shader_cache_c*>::const_iterator ir = map_shaders_cache.find(name_short);
+	std::map<std::string, shader_cache_c*>::const_iterator ir = shaders_cache.find(name_short);
 	
-	if(ir != map_shaders_cache.end())
+	if(ir != shaders_cache.end())
 		return ir->second;
-	
-	/*
-	for(std::vector<map_shader_cache_c*>::const_iterator ir = map_shaders_cache.begin(); ir != map_shaders_cache.end(); ++ir)
-	{
-		if(X_strcaseequal(name_short.c_str(), (*ir)->getName()))
-			return (*ir);
-	}
-	*/
 
 	return NULL;
 }
 
-static map_shader_cache_c*	Map_GetShaderCache(const std::string &name, const std::string &cache_path, unsigned int offset_begin, unsigned int offset_end)
+static shader_cache_c*	GetShaderCache(const std::string &name, const std::string &cache_path, unsigned int offset_begin, unsigned int offset_end)
 {
 	std::string cache_name = X_strlwr(Com_StripExtension(name));
 
-	map_shader_cache_c* cache = Map_FindShaderCache(cache_name);
+	shader_cache_c* cache = FindShaderCache(cache_name);
 	
 	if(cache)
 		return cache;
 
-	cache = new map_shader_cache_c(cache_name, cache_path, offset_begin, offset_end);
+	cache = new shader_cache_c(cache_name, cache_path, offset_begin, offset_end);
 
-	map_shaders_cache.insert(std::make_pair(cache_name, cache));
+	shaders_cache.insert(std::make_pair(cache_name, cache));
 
 	return cache;
 }
 
-static void	Map_PrecacheShaderFile(const std::string &filename)
+static void	PrecacheShaderFile(const std::string &filename)
 {
 	char*	data = NULL;
 	int	len;
@@ -253,9 +247,9 @@ static void	Map_PrecacheShaderFile(const std::string &filename)
 	
 	Com_Printf("precaching '%s' ...\n", filename.c_str());
 	
-	map_sp_filename = filename;
-	map_sp_data = data;
-	map_shader_precache_grammar_t	grammar;
+	sp_filename = filename;
+	sp_data = data;
+	shader_precache_grammar_t	grammar;
 	
 	boost::spirit::parse_info<> info = boost::spirit::parse
 	(
@@ -268,16 +262,16 @@ static void	Map_PrecacheShaderFile(const std::string &filename)
 	
 	if(!info.full)
 	{
-		Com_Error(ERR_DROP, "Map_PrecacheShaderFile: failed parsing '%s'\n", filename.c_str());
+		Com_Error(ERR_DROP, "PrecacheShaderFile: failed parsing '%s'\n", filename.c_str());
 	}
 	
 	VFS_FFree(data);
 }
 
 
-void	Map_InitShaders()
+void	InitShaders()
 {
-	Com_Printf("------- Map_InitShaders -------\n");
+	Com_Printf("------- map::InitShaders -------\n");
 
 	std::vector<std::string>	shadernames;
 
@@ -285,49 +279,106 @@ void	Map_InitShaders()
 	{
 		for(std::vector<std::string>::const_iterator ir = shadernames.begin(); ir != shadernames.end(); ++ir)
 		{
-			Map_PrecacheShaderFile(*ir);
+			PrecacheShaderFile(*ir);
 		}
 	}
 }
 
-void	Map_ShutdownShaders()
+void	ShutdownShaders()
 {
-	Com_Printf("------- Map_ShutdownShaders -------\n");
+	Com_Printf("------- map::ShutdownShaders -------\n");
 
-//	X_purge(map_shaders);
-	for(std::map<std::string, map_shader_c*>::const_iterator ir = map_shaders.begin(); ir != map_shaders.end(); ++ir)
+	for(std::map<std::string, shader_c*>::const_iterator ir = shaders.begin(); ir != shaders.end(); ++ir)
 	{
-		map_shader_c* shader = ir->second;
+		shader_c* shader = ir->second;
 		
 		delete shader;
 	}
-	map_shaders.clear();
-		
-//	X_purge(map_shaders_cache);
-	for(std::map<std::string, map_shader_cache_c*>::const_iterator ir = map_shaders_cache.begin(); ir != map_shaders_cache.end(); ++ir)
+	shaders.clear();
+	
+	for(std::map<std::string, shader_cache_c*>::const_iterator ir = shaders_cache.begin(); ir != shaders_cache.end(); ++ir)
 	{
-		map_shader_cache_c* cache = ir->second;
+		shader_cache_c* cache = ir->second;
 		
 		delete cache;
 	}
-	map_shaders_cache.clear();
+	shaders_cache.clear();
 }
 
 
 
 
 
-static void	Map_Unknown_sc(char const* begin, char const* end)
+class shader_action_a
 {
-	Com_Printf("unknown shader command: '%s'\n", std::string(begin, end).c_str());
-}
+private:
+	shader_action_a();
+	
+protected:
+	shader_action_a(shader_p shader)
+	: _shader(shader)
+	{
+	}
+	
+	shader_p _shader;
+};
 
-struct map_shader_grammar_t : public boost::spirit::grammar<map_shader_grammar_t>
+class nodraw_c :
+public shader_action_a
+{
+public:
+	nodraw_c(shader_p shader)
+	: shader_action_a(shader)
+	{
+	}
+
+	template<typename iterator_T>
+	void	operator()(iterator_T begin, iterator_T end) const
+	{
+		Com_Printf("nodraw_c::()\n");
+		
+		_shader->addSurfaceFlags(X_SURF_NODRAW);
+	}
+};
+
+class areaportal_c :
+public shader_action_a
+{
+public:
+	areaportal_c(shader_p shader)
+	: shader_action_a(shader)
+	{
+	}
+
+	template<typename iterator_T>
+	void	operator()(iterator_T begin, iterator_T end) const
+	{
+		Com_Printf("areaportal_c::()\n");
+		
+		_shader->addContentFlags(X_CONT_AREAPORTAL);
+		_shader->delContentFlags(X_CONT_SOLID);
+		
+		_shader->addCompileFlags(C_AREAPORTAL | C_TRANSLUCENT);
+		_shader->delCompileFlags(C_SOLID);
+	}
+};
+
+class unknown_c
+{
+public:
+	template<typename iterator_T>
+	void	operator()(iterator_T begin, iterator_T end) const
+	{
+		Com_Printf("unknown shader command: '%s'\n", std::string(begin, end).c_str());
+	}
+};
+
+struct shader_grammar_t : public boost::spirit::grammar<shader_grammar_t>
 {
 	template <typename ScannerT>
 	struct definition
 	{
-        	definition(map_shader_grammar_t const& self)
+        	definition(shader_grammar_t const& self)
 		{
 			// start grammar definition
 			restofline
@@ -338,23 +389,107 @@ struct map_shader_grammar_t : public boost::spirit::grammar<map_shader_grammar_t
 				=	restofline
 				;
 				
-			skip_tobracket
-				=	boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - (boost::spirit::ch_p('{') | boost::spirit::ch_p('}'))]
-				;
-				
 			skip_block
 				=	boost::spirit::ch_p('{') >>
-					skip_tobracket >>
+					boost::spirit::refactor_unary_d[+boost::spirit::anychar_p - boost::spirit::ch_p('}')] >>
 					boost::spirit::ch_p('}')
 				;
 			
 			shader_command
-				=	cxx_comment		|
+				=	qer_editorimage_sc		|
+					qer_trans_sc			|
+					surfaceparm			|
+					colormap_sc			|
+					diffusemap_sc			|
+					bumpmap_sc			|
+					specularmap_sc			|
+					heathazemap_sc			|
+					lightmap_sc			|
+					deluxemap_sc			|
+					reflectionmap_sc		|
+					refractionmap_sc		|
+					dispersionmap_sc		|
+					liquidmap_sc			|
 					unknown_sc
 				;
 				
+			qer_editorimage_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("qer_editorimage")] >> skip_restofline
+				;
+			
+			qer_trans_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("qer_trans")] >> boost::spirit::real_p
+				;
+				
+			colormap_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("colormap")] >> restofline
+				;
+			
+			diffusemap_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("diffusemap")] >> restofline
+				;
+			
+			bumpmap_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("bumpmap")] >> restofline
+				;
+			
+			specularmap_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("specularmap")] >> restofline
+				;
+				
+			heathazemap_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("heathazemap")] >> restofline
+				;
+			
+			lightmap_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("lightmap")] >> restofline
+				;
+				
+			deluxemap_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("deluxemap")] >> restofline
+				;
+				
+			reflectionmap_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("reflectionmap")] >> restofline
+				;
+			
+			refractionmap_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("refractionmap")] >> restofline
+				;
+				
+			dispersionmap_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("dispersionmap")] >> restofline
+				;
+			
+			liquidmap_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("liquidmap")] >> restofline
+				;
+				
+			surfaceparm
+				=	areaportal_sc			|
+					nodraw_sc			|
+					nolightmap_sc			|
+					nonsolid_sc
+				;
+			
+			areaportal_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("areaportal")][areaportal_c(self._shader)]
+				;
+				
+			nodraw_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("nodraw")][nodraw_c(self._shader)]
+				;
+				
+			nolightmap_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("nolightmap")]
+				;
+				
+			nonsolid_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("nonsolid")]
+				;
+				
 			unknown_sc
-				=	restofline[&Map_Unknown_sc]
+				=	restofline[unknown_c()]
 				;
 				
 			shader_stage
@@ -371,12 +506,29 @@ struct map_shader_grammar_t : public boost::spirit::grammar<map_shader_grammar_t
 			// end grammar definiton
 		}
 		
-		boost::spirit::rule<ScannerT>	cxx_comment,
-						restofline,
+		boost::spirit::rule<ScannerT>	restofline,
 						skip_restofline,
 						skip_tobracket,
 						skip_block,
 						shader_command,
+							qer_editorimage_sc,
+							qer_trans_sc,
+							surfaceparm,
+								areaportal_sc,
+								nodraw_sc,
+								nolightmap_sc,
+								nonsolid_sc,
+							colormap_sc,
+							diffusemap_sc,
+							bumpmap_sc,
+							specularmap_sc,
+							heathazemap_sc,
+							lightmap_sc,
+							deluxemap_sc,
+							reflectionmap_sc,
+							refractionmap_sc,
+							dispersionmap_sc,
+							liquidmap_sc,
 							unknown_sc,
 						shader_stage,
 						expression;
@@ -384,15 +536,19 @@ struct map_shader_grammar_t : public boost::spirit::grammar<map_shader_grammar_t
 		boost::spirit::rule<ScannerT> const&
 		start() const { return expression; }
 	};
+	
+	shader_grammar_t(shader_p shader)
+	: _shader(shader)
+	{
+	}
+	shader_p _shader;
 };
 
 
-static bool	Map_ParseShader(map_shader_c *shader, const char* begin, const char *end)
+static bool	ParseShader(shader_c *shader, const char* begin, const char *end)
 {
 #if 1
-	//map_current_shader = shader;
-
-	map_shader_grammar_t	grammar;
+	shader_grammar_t grammar(shader);
 	
 	boost::spirit::parse_info<> info = boost::spirit::parse
 	(
@@ -410,15 +566,15 @@ static bool	Map_ParseShader(map_shader_c *shader, const char* begin, const char 
 #endif
 }
 
-static map_shader_c*	Map_LoadShader(const std::string &name)
+static shader_c*	LoadShader(const std::string &name)
 {
-	map_shader_c*		shader = NULL;
-	map_shader_cache_c*	cache = NULL;
+	shader_c*		shader = NULL;
+	shader_cache_c*		cache = NULL;
 	char*			buf = NULL;
 	
- 	shader = new map_shader_c(name);
+ 	shader = new shader_c(name);
 	
-	cache = Map_FindShaderCache(name);
+	cache = FindShaderCache(name);
 	
 	if(cache)
 	{	
@@ -433,13 +589,13 @@ static map_shader_c*	Map_LoadShader(const std::string &name)
 		{
 			Com_Printf("loading custom shader '%s' ...\n", name.c_str());
 				
-			if(Map_ParseShader(shader, buf + cache->getBeginOffset(), buf + cache->getEndOffset()))
+			if(ParseShader(shader, buf + cache->getBeginOffset(), buf + cache->getEndOffset()))
 			{
 				//ri.Com_Printf("R_LoadShader: parsing succeeded\n");
 			}
 			else
 			{
-				Com_Printf("Map_LoadShader: parsing failed\n");
+				Com_Printf("map::LoadShader: parsing failed\n");
 			}
 		
 			VFS_FFree(buf);
@@ -450,67 +606,67 @@ static map_shader_c*	Map_LoadShader(const std::string &name)
 }
 
 
-map_shader_c*	Map_FindShader(const std::string &name)
+shader_c*	FindShader(const std::string &name)
 {
   	if(!name.length())
 	{	
-		Com_Error(ERR_FATAL, "Map_FindShader: empty name");
+		Com_Error(ERR_FATAL, "map::FindShader: empty name");
 		return NULL;
 	}
 	
 	std::string name_short = X_strlwr(Com_StripExtension(name));
 	
-	std::map<std::string, map_shader_c*>::const_iterator ir = map_shaders.find(name_short);
+	std::map<std::string, shader_c*>::const_iterator ir = shaders.find(name_short);
 	
-	if(ir != map_shaders.end())
+	if(ir != shaders.end())
 	{
 		return ir->second;
 	}
 	else
 	{
-		return Map_LoadShader(name_short);
+		return LoadShader(name_short);
 	}
 }
 
 
-void	Map_ShaderList_f()
+void	ShaderList_f()
 {
 	Com_Printf("------------------\n");
 
-	for(std::map<std::string, map_shader_c*>::iterator ir = map_shaders.begin(); ir != map_shaders.end(); ++ir)
+	for(std::map<std::string, shader_c*>::iterator ir = shaders.begin(); ir != shaders.end(); ++ir)
 	{
 		Com_Printf("%s\n", ir->first.c_str());
 	}
 	
-	Com_Printf("Total shaders count: %i\n", map_shaders.size());
+	Com_Printf("Total shaders count: %i\n", shaders.size());
 }
 
-void	Map_ShaderCacheList_f()
+void	ShaderCacheList_f()
 {
 	Com_Printf("------------------\n");
 	
-	for(std::map<std::string, map_shader_cache_c*>::const_iterator ir = map_shaders_cache.begin(); ir != map_shaders_cache.end(); ++ir)
+	for(std::map<std::string, shader_cache_c*>::const_iterator ir = shaders_cache.begin(); ir != shaders_cache.end(); ++ir)
 	{
-		map_shader_cache_c* cache = ir->second;
+		shader_cache_c* cache = ir->second;
 		
 		Com_Printf("'%s' '%s' '%i' '%i'\n", ir->first.c_str(), cache->getPath(), cache->getBeginOffset(), cache->getEndOffset());
 	}
 	
-	Com_Printf("Total shaders caches count: %i\n", map_shaders_cache.size());
+	Com_Printf("Total shaders caches count: %i\n", shaders_cache.size());
 }
 
-void	Map_ShaderSearch_f()
+void	ShaderSearch_f()
 {
-	map_shader_cache_c*	cache = NULL;	
+	shader_cache_c*	cache = NULL;	
 	
 	if(Cmd_Argc() != 2)
 	{
 		Com_Printf("usage: shadersearch <shader>\n");
 		return;
-	}  	
-  
- 	cache = Map_FindShaderCache(Cmd_Argv(1));
-	
+	}
+
+	cache = FindShaderCache(Cmd_Argv(1));
+
 	if(cache)
 	{
 		Com_Printf("'%s' '%s' '%i' '%i'\n", cache->getName(), cache->getPath(), cache->getBeginOffset(), cache->getEndOffset());
@@ -520,3 +676,6 @@ void	Map_ShaderSearch_f()
 		Com_Printf("shader: '%s' not found\n", Cmd_Argv(1));
 	}
 }
+
+} // namespace map
+

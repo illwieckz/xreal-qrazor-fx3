@@ -30,6 +30,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "common.h"
 
 // xreal --------------------------------------------------------------------
+
+namespace map
+{
+
 // counters are only bumped when running single threaded,
 // because they are an awefull coherence problem
 int	c_active_windings;
@@ -537,7 +541,7 @@ void	winding_c::check() const
 			d = _p[j].dotProduct(edgenormal);
 			
 			if(d > edgedist)
-				Com_Error(ERR_FATAL, "CheckWinding: non-convex");
+				Com_Error(ERR_FATAL, "winding_c::check: non-convex");
 		}
 	}
 }
@@ -598,3 +602,5 @@ winding_t*	CopyWinding(winding_t *w)
 	return c;
 }
 */
+
+} // namespace map
