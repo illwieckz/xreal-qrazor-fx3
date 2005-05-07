@@ -72,6 +72,18 @@ void	brush_c::calcContents()
 		addCompileFlags(s->getCompileFlags());
 	}
 	
+	// prefer structural shapes over detail shapes if mixed compile flags
+	if(hasCompileFlags(C_DETAIL | C_STRUCTURAL))
+	{
+		delCompileFlags(C_DETAIL);
+	}
+	
+	// default all translucent shapes into detail shapes if not explicit structural
+	if(hasCompileFlags(C_TRANSLUCENT) && !hasCompileFlags(C_STRUCTURAL))
+	{
+		addCompileFlags(C_DETAIL);
+	}
+	
 	if(hasCompileFlags(C_DETAIL))
 	{
 		_detail = true;

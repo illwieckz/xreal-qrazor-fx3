@@ -76,11 +76,11 @@ static void	ProcessModels()
 	}
 }
 
-static void	BSP_f()
+static void	Map2BSP_f()
 {
 	if(Cmd_Argc() != 2)
 	{
-		Com_Printf("usage : bsp <levelname>\n");
+		Com_Printf("usage : map2bsp <levelname>\n");
 		return;
 	}
 	
@@ -113,7 +113,7 @@ void	Map_Init()
 	Com_Printf("------- Map_Init -------\n");
 
 	Cmd_AddCommand("bspinfo",		map::BSPInfo_f);
-	Cmd_AddCommand("bsp",			map::BSP_f);
+	Cmd_AddCommand("map2bsp",		map::Map2BSP_f);
 	
 	Cmd_AddCommand("planelist",		map::PlaneList_f);
 	
