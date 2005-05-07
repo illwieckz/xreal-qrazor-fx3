@@ -62,8 +62,6 @@ enum
 	C_DETAIL			= 0x08000000		// THIS MUST BE THE SAME AS IN RADIANT!
 };
 
-class face_t;
-class portal_t;
 
 
 #define	MAX_POINTS_ON_WINDING	64
@@ -345,6 +343,46 @@ typedef patch_v::iterator		patch_i;
 typedef patch_v::const_iterator		patch_ci;
 
 
+class face_c
+{
+public:
+	//TODO
+};
+typedef face_c*				face_p;
+typedef std::vector<face_p>		face_v;
+typedef face_v::iterator		face_i;
+typedef face_v::const_iterator		face_ci;
+
+
+class node_c
+{
+public:
+	//TODO
+};
+typedef node_c*				node_p;
+typedef std::vector<node_p>		node_v;
+typedef node_v::iterator		node_i;
+typedef node_v::const_iterator		node_ci;
+
+
+class tree_c
+{
+public:
+	face_v		buildStructuralFaceList() const;
+	void		buildBSP(const face_v& faces);
+	void		buildPortals();
+
+private:
+//	node_t*			headnode;
+//	node_t			outside_node;
+//	vec3_t			mins, maxs;
+};
+typedef tree_c*				tree_p;
+typedef std::vector<tree_p>		tree_v;
+typedef tree_v::iterator		tree_i;
+typedef tree_v::const_iterator		tree_ci;
+
+
 class entity_c
 {
 	friend void	UnparseEntities();
@@ -396,8 +434,6 @@ typedef entity_c*			entity_p;
 typedef std::vector<entity_p>		entity_v;
 typedef entity_v::iterator		entity_i;
 typedef entity_v::const_iterator	entity_ci;
-
-
 
 /*
 #define	PLANENUM_LEAF		-1
@@ -482,13 +518,7 @@ public:
 	face_t*			face[2];		// output face in bsp file
 };
 
-class tree_t
-{
-public:
-	node_t*			headnode;
-	node_t			outside_node;
-	vec3_t			mins, maxs;
-};
+
 
 */
 

@@ -29,3 +29,25 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "map_local.h"
 
 // xreal --------------------------------------------------------------------
+
+namespace map
+{
+
+face_v	tree_c::buildStructuralFaceList() const
+{
+	//TODO
+	return face_v();
+}
+
+void	tree_c::buildBSP(const face_v& faces)
+{
+	//TODO
+}
+
+void	tree_c::buildPortals()
+{
+	//TODO
+}
+
+} // namespace map
+
