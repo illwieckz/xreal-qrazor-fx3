@@ -448,6 +448,22 @@ protected:
 	}
 };
 
+class skip_c :
+public shader_action_a
+{
+public:
+	skip_c(shader_p shader)
+	: shader_action_a(shader)
+	{
+	}
+
+protected:
+	void	action() const
+	{
+		_shader->addCompileFlags(C_SKIP);
+	}
+};
+
 class structural_c :
 public shader_action_a
 {
@@ -542,6 +558,65 @@ struct shader_grammar_t : public boost::spirit::grammar<shader_grammar_t>
 				=	boost::spirit::nocase_d[boost::spirit::str_p("qer_trans")] >> boost::spirit::real_p
 				;
 				
+			surfaceparm
+				=	!(boost::spirit::nocase_d[boost::spirit::str_p("surfaceparm")]) >>
+					areaportal_sc			|
+					detail_sc			|
+					forceopaque_sc			|
+					nodraw_sc			|
+					nolightmap_sc			|
+					nomarks_sc			|
+					noshadows_sc			|
+					nonsolid_sc			|
+					skip_sc				|
+					structural_sc			|
+					translucent_sc
+				;
+			
+			areaportal_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("areaportal")][areaportal_c(self._shader)]
+				;
+				
+			detail_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("detail")][detail_c(self._shader)]
+				;
+				
+			forceopaque_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("forceopaque")]
+				;
+				
+			nodraw_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("nodraw")][nodraw_c(self._shader)]
+				;
+				
+			nolightmap_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("nolightmap")]
+				;
+				
+			nomarks_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("nomarks")][nomarks_c(self._shader)]
+				;
+				
+			nonsolid_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("nonsolid")][nonsolid_c(self._shader)]
+				;
+				
+			noshadows_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("noshadows")][noshadows_c(self._shader)]
+				;
+			
+			skip_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("skip")][skip_c(self._shader)]
+				;
+				
+			structural_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("structural")][structural_c(self._shader)]
+				;
+				
+			translucent_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("translucent")][translucent_c(self._shader)]
+				;
+				
 			colormap_sc
 				=	boost::spirit::nocase_d[boost::spirit::str_p("colormap")] >> restofline
 				;
@@ -586,54 +661,6 @@ struct shader_grammar_t : public boost::spirit::grammar<shader_grammar_t>
 				=	boost::spirit::nocase_d[boost::spirit::str_p("liquidmap")] >> restofline
 				;
 				
-			surfaceparm
-				=	areaportal_sc			|
-					detail_sc			|
-					nodraw_sc			|
-					nolightmap_sc			|
-					nomarks_sc			|
-					noshadows_sc			|
-					nonsolid_sc			|
-					structural_sc			|
-					translucent_sc
-				;
-			
-			areaportal_sc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("areaportal")][areaportal_c(self._shader)]
-				;
-				
-			detail_sc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("detail")][detail_c(self._shader)]
-				;
-				
-			nodraw_sc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("nodraw")][nodraw_c(self._shader)]
-				;
-				
-			nolightmap_sc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("nolightmap")][nonsolid_c(self._shader)]
-				;
-				
-			nomarks_sc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("nomarks")][nomarks_c(self._shader)]
-				;
-				
-			nonsolid_sc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("nonsolid")]
-				;
-				
-			noshadows_sc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("noshadows")][noshadows_c(self._shader)]
-				;
-				
-			structural_sc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("structural")][structural_c(self._shader)]
-				;
-				
-			translucent_sc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("translucent")][translucent_c(self._shader)]
-				;
-				
 			unknown_sc
 				=	restofline[unknown_c()]
 				;
@@ -662,11 +689,13 @@ struct shader_grammar_t : public boost::spirit::grammar<shader_grammar_t>
 							surfaceparm,
 								areaportal_sc,
 								detail_sc,
+								forceopaque_sc,
 								nodraw_sc,
 								nolightmap_sc,
 								nomarks_sc,
 								nonsolid_sc,
 								noshadows_sc,
+								skip_sc,
 								structural_sc,
 								translucent_sc,
 							colormap_sc,

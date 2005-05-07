@@ -45,6 +45,12 @@ void	entity_c::finish()
 
 void	entity_c::processWorldModel()
 {
+	tree_p tree = new tree_c();
+	
+	face_v faces = tree->buildStructuralFaceList();
+	tree->buildBSP(faces);
+	tree->buildPortals();
+	
 	//TODO
 }
 
