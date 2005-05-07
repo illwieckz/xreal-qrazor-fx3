@@ -320,7 +320,62 @@ protected:
 	{
 	}
 	
+	virtual void	action() const = 0;
+	
+public:
+	template<typename value_T>
+	void	operator()(value_T const& val) const
+	{
+		action();
+	}
+	
+	template<typename iterator_T>
+	void	operator()(iterator_T const& begin, iterator_T const& end) const
+	{
+		action();
+	}
+	
+protected:
 	shader_p _shader;
+};
+
+
+class areaportal_c :
+public shader_action_a
+{
+public:
+	areaportal_c(shader_p shader)
+	: shader_action_a(shader)
+	{
+	}
+
+protected:
+	void	action() const
+	{
+		_shader->addContentFlags(X_CONT_AREAPORTAL);
+		_shader->delContentFlags(X_CONT_SOLID);
+		
+		_shader->addCompileFlags(C_AREAPORTAL | C_TRANSLUCENT);
+		_shader->delCompileFlags(C_SOLID);
+	}
+};
+
+class detail_c :
+public shader_action_a
+{
+public:
+	detail_c(shader_p shader)
+	: shader_action_a(shader)
+	{
+	}
+
+protected:
+	void	action() const
+	{
+		_shader->addContentFlags(X_CONT_DETAIL);
+		
+		_shader->addCompileFlags(C_DETAIL);
+	}
 };
 
 class nodraw_c :
@@ -332,34 +387,100 @@ public:
 	{
 	}
 
-	template<typename iterator_T>
-	void	operator()(iterator_T begin, iterator_T end) const
+protected:
+	void	action() const
 	{
-		Com_Printf("nodraw_c::()\n");
-		
 		_shader->addSurfaceFlags(X_SURF_NODRAW);
 	}
 };
 
-class areaportal_c :
+class nomarks_c :
 public shader_action_a
 {
 public:
-	areaportal_c(shader_p shader)
+	nomarks_c(shader_p shader)
 	: shader_action_a(shader)
 	{
 	}
 
-	template<typename iterator_T>
-	void	operator()(iterator_T begin, iterator_T end) const
+protected:
+	void	action() const
 	{
-		Com_Printf("areaportal_c::()\n");
+		_shader->addSurfaceFlags(X_SURF_NOMARKS);
 		
-		_shader->addContentFlags(X_CONT_AREAPORTAL);
+		_shader->addCompileFlags(C_NOMARKS);
+	}
+};
+
+class nonsolid_c :
+public shader_action_a
+{
+public:
+	nonsolid_c(shader_p shader)
+	: shader_action_a(shader)
+	{
+	}
+
+protected:
+	void	action() const
+	{
 		_shader->delContentFlags(X_CONT_SOLID);
 		
-		_shader->addCompileFlags(C_AREAPORTAL | C_TRANSLUCENT);
+		_shader->addSurfaceFlags(X_SURF_NONSOLID);
+		
 		_shader->delCompileFlags(C_SOLID);
+	}
+};
+
+class noshadows_c :
+public shader_action_a
+{
+public:
+	noshadows_c(shader_p shader)
+	: shader_action_a(shader)
+	{
+	}
+
+protected:
+	void	action() const
+	{
+		_shader->addSurfaceFlags(X_SURF_NOSHADOWS);
+	}
+};
+
+class structural_c :
+public shader_action_a
+{
+public:
+	structural_c(shader_p shader)
+	: shader_action_a(shader)
+	{
+	}
+
+protected:
+	void	action() const
+	{
+		_shader->addContentFlags(X_CONT_STRUCTURAL);
+		
+		_shader->addCompileFlags(C_STRUCTURAL);
+	}
+};
+
+class translucent_c :
+public shader_action_a
+{
+public:
+	translucent_c(shader_p shader)
+	: shader_action_a(shader)
+	{
+	}
+
+protected:
+	void	action() const
+	{
+		_shader->addContentFlags(X_CONT_TRANSLUCENT);
+		
+		_shader->addCompileFlags(C_TRANSLUCENT);
 	}
 };
 
@@ -467,13 +588,22 @@ struct shader_grammar_t : public boost::spirit::grammar<shader_grammar_t>
 				
 			surfaceparm
 				=	areaportal_sc			|
+					detail_sc			|
 					nodraw_sc			|
 					nolightmap_sc			|
-					nonsolid_sc
+					nomarks_sc			|
+					noshadows_sc			|
+					nonsolid_sc			|
+					structural_sc			|
+					translucent_sc
 				;
 			
 			areaportal_sc
 				=	boost::spirit::nocase_d[boost::spirit::str_p("areaportal")][areaportal_c(self._shader)]
+				;
+				
+			detail_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("detail")][detail_c(self._shader)]
 				;
 				
 			nodraw_sc
@@ -481,11 +611,27 @@ struct shader_grammar_t : public boost::spirit::grammar<shader_grammar_t>
 				;
 				
 			nolightmap_sc
-				=	boost::spirit::nocase_d[boost::spirit::str_p("nolightmap")]
+				=	boost::spirit::nocase_d[boost::spirit::str_p("nolightmap")][nonsolid_c(self._shader)]
+				;
+				
+			nomarks_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("nomarks")][nomarks_c(self._shader)]
 				;
 				
 			nonsolid_sc
 				=	boost::spirit::nocase_d[boost::spirit::str_p("nonsolid")]
+				;
+				
+			noshadows_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("noshadows")][noshadows_c(self._shader)]
+				;
+				
+			structural_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("structural")][structural_c(self._shader)]
+				;
+				
+			translucent_sc
+				=	boost::spirit::nocase_d[boost::spirit::str_p("translucent")][translucent_c(self._shader)]
 				;
 				
 			unknown_sc
@@ -515,9 +661,14 @@ struct shader_grammar_t : public boost::spirit::grammar<shader_grammar_t>
 							qer_trans_sc,
 							surfaceparm,
 								areaportal_sc,
+								detail_sc,
 								nodraw_sc,
 								nolightmap_sc,
+								nomarks_sc,
 								nonsolid_sc,
+								noshadows_sc,
+								structural_sc,
+								translucent_sc,
 							colormap_sc,
 							diffusemap_sc,
 							bumpmap_sc,
