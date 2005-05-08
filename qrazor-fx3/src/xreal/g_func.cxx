@@ -502,7 +502,7 @@ void Use_Plat (g_entity_c *ent, g_entity_c *other, g_entity_c *activator)
 */
 
 /*
-void Touch_Plat_Center (g_entity_c *ent, g_entity_c *other, cplane_c *plane, csurface_t *surf)
+void Touch_Plat_Center (g_entity_c *ent, g_entity_c *other, plane_c *plane, csurface_t *surf)
 {
 	if (!other->r.client)
 		return;
@@ -687,7 +687,7 @@ void	g_func_rotating_c::blocked(g_entity_c *other)
 
 
 
-bool	g_func_rotating_c::touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf)
+bool	g_func_rotating_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
 {
 	if(!(_spawnflags & 16))
 		return true;
@@ -852,7 +852,7 @@ void	g_func_button_c::use(g_entity_c *other, g_entity_c *activator)
 }
 
 
-bool	g_func_button_c::touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf)
+bool	g_func_button_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
 {
 	if(!other->_r.isclient)
 		return true;
@@ -1137,7 +1137,7 @@ void	g_func_door_c::blocked(g_entity_c *other)
 	}
 }
 
-bool	g_func_door_c::touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf)
+bool	g_func_door_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
 {
 	if(!other->_r.isclient)
 		return true;

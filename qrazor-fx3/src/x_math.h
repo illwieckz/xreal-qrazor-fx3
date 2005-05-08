@@ -1894,16 +1894,16 @@ inline aabb_c&	aabb_c::operator = (const vec_t aabb[6])
 
 
 
-class cplane_c
+class plane_c
 {
 public:
-	inline cplane_c();
+	inline plane_c();
 	
-	inline cplane_c(vec_t x, vec_t y, vec_t z, vec_t dist);
+	inline plane_c(vec_t x, vec_t y, vec_t z, vec_t dist);
 	
-	inline cplane_c(const vec3_c &normal, vec_t dist);
+	inline plane_c(const vec3_c &normal, vec_t dist);
 	
-	inline cplane_c(const vec3_c &v1, const vec3_c &v2, const vec3_c &v3);
+	inline plane_c(const vec3_c &v1, const vec3_c &v2, const vec3_c &v3);
 
 	bool	fromThreePointForm(const vec3_c &v1, const vec3_c &v2, const vec3_c &v3);
 	
@@ -1949,15 +1949,15 @@ public:
 	
 	const char*	toString() const;
 	
-	bool	operator == (const cplane_c &p) const;
+	bool	operator == (const plane_c &p) const;
 	
-	inline cplane_c	operator - () const;
+	inline plane_c	operator - () const;
 	
 	inline vec_t	operator [] (const int index) const;
 
 	inline vec_t&	operator [] (const int index);
 	
-	inline cplane_c&	operator = (const cplane_c &p);
+	inline plane_c&	operator = (const plane_c &p);
 	
 //private:
 	vec3_c		_normal;
@@ -1970,7 +1970,7 @@ private:
 };
 
 
-inline cplane_c::cplane_c()
+inline plane_c::plane_c()
 {
 	/*
 	_normal.set(0, 0, 1);
@@ -1981,22 +1981,22 @@ inline cplane_c::cplane_c()
 	*/
 }
 
-inline cplane_c::cplane_c(vec_t x, vec_t y, vec_t z, vec_t dist)
+inline plane_c::plane_c(vec_t x, vec_t y, vec_t z, vec_t dist)
 {
 	set(x, y, z, dist);
 }
 	
-inline cplane_c::cplane_c(const vec3_c &normal, vec_t dist)
+inline plane_c::plane_c(const vec3_c &normal, vec_t dist)
 {
 	set(normal, dist);
 }
 	
-inline cplane_c::cplane_c(const vec3_c &v1, const vec3_c &v2, const vec3_c &v3)
+inline plane_c::plane_c(const vec3_c &v1, const vec3_c &v2, const vec3_c &v3)
 {
 	fromThreePointForm(v1, v2, v3);
 }
 	
-inline void	cplane_c::set(const vec3_c &normal, const vec_t dist)
+inline void	plane_c::set(const vec3_c &normal, const vec_t dist)
 {
 	_normal = normal;
 	_dist = dist;
@@ -2007,7 +2007,7 @@ inline void	cplane_c::set(const vec3_c &normal, const vec_t dist)
 }
 
 
-inline void	cplane_c::set(vec_t x, vec_t y, vec_t z, vec_t dist)
+inline void	plane_c::set(vec_t x, vec_t y, vec_t z, vec_t dist)
 {
 	_normal.set(x, y, z);
 	_dist = dist;
@@ -2017,7 +2017,7 @@ inline void	cplane_c::set(vec_t x, vec_t y, vec_t z, vec_t dist)
 	setSignBits();
 }
 	
-inline void	cplane_c::negate()
+inline void	plane_c::negate()
 {
 	_normal.negate();
 	_dist = -_dist;
@@ -2026,13 +2026,13 @@ inline void	cplane_c::negate()
 	setSignBits();
 }
 
-inline	plane_type_e	cplane_c::getType() const
+inline	plane_type_e	plane_c::getType() const
 {
 	return _type;
 }
 
 /*
-inline void	cplane_c::translate(vec_t x, vec_t y, vec_t z)
+inline void	plane_c::translate(vec_t x, vec_t y, vec_t z)
 {
 	vec3_c tmp = vec3_c(_normal[0]*_dist+x, _normal[1]*_dist+y, _normal[2]*_dist+z);
 	
@@ -2040,7 +2040,7 @@ inline void	cplane_c::translate(vec_t x, vec_t y, vec_t z)
 }
 */
 
-inline void	cplane_c::translate(const vec3_c &v)
+inline void	plane_c::translate(const vec3_c &v)
 {
 //	translate(v[0], v[1], v[2]);
 	
@@ -2050,7 +2050,7 @@ inline void	cplane_c::translate(const vec3_c &v)
 //	_dist = _dist - _normal.dotProduct(v);
 }
 
-inline void	cplane_c::rotate(const vec3_c &angles)
+inline void	plane_c::rotate(const vec3_c &angles)
 {
 	_normal.rotate(angles);
 	
@@ -2058,7 +2058,7 @@ inline void	cplane_c::rotate(const vec3_c &angles)
 	setSignBits();
 }
 
-inline void	cplane_c::rotate(const matrix_c &m)
+inline void	plane_c::rotate(const matrix_c &m)
 {
 	_normal.rotate(m);
 	
@@ -2066,7 +2066,7 @@ inline void	cplane_c::rotate(const matrix_c &m)
 	setSignBits();
 }
 	
-inline void	cplane_c::rotate(const quaternion_c &quat)
+inline void	plane_c::rotate(const quaternion_c &quat)
 {
 	_normal.rotate(quat);
 	
@@ -2074,7 +2074,7 @@ inline void	cplane_c::rotate(const quaternion_c &quat)
 	setSignBits();
 }
 	
-inline vec_t	cplane_c::snap()
+inline vec_t	plane_c::snap()
 {
 	_normal.snap();
 
@@ -2087,7 +2087,7 @@ inline vec_t	cplane_c::snap()
 	return _dist;
 }
 	
-inline vec_t	cplane_c::distance(const vec3_c &v) const
+inline vec_t	plane_c::distance(const vec3_c &v) const
 {
 	vec_t d;
 	
@@ -2099,12 +2099,12 @@ inline vec_t	cplane_c::distance(const vec3_c &v) const
 	return d;
 }
 
-inline vec_t	cplane_c::distance(const vec3_c &center, vec_t radius) const
+inline vec_t	plane_c::distance(const vec3_c &center, vec_t radius) const
 {	
 	return distance(center) -radius;
 }
 	
-inline plane_side_e	cplane_c::onSide(const vec3_c &v) const
+inline plane_side_e	plane_c::onSide(const vec3_c &v) const
 {	
 	vec_t d = distance(v);
 	
@@ -2117,7 +2117,7 @@ inline plane_side_e	cplane_c::onSide(const vec3_c &v) const
 		return SIDE_BACK;
 }
 	
-inline plane_side_e	cplane_c::onSide(const vec3_c &center, vec_t radius) const
+inline plane_side_e	plane_c::onSide(const vec3_c &center, vec_t radius) const
 {	
 	vec_t d = distance(center);
 	
@@ -2130,7 +2130,7 @@ inline plane_side_e	cplane_c::onSide(const vec3_c &center, vec_t radius) const
 		return SIDE_FRONT;
 }
 
-inline vec3_c	cplane_c::intersect(const vec3_c &v1, const vec3_c &v2)
+inline vec3_c	plane_c::intersect(const vec3_c &v1, const vec3_c &v2)
 {
 	vec3_c v = v1 - v2;
 	float sect = -distance(v1) / _normal.dotProduct(v);
@@ -2138,19 +2138,19 @@ inline vec3_c	cplane_c::intersect(const vec3_c &v1, const vec3_c &v2)
 	return v1 + v;
 }
 
-inline vec3_c	cplane_c::closest(const vec3_c &v) const
+inline vec3_c	plane_c::closest(const vec3_c &v) const
 {
 	vec_t d = distance(v);
 	
 	return v - (_normal * d);
 }
 
-inline cplane_c	cplane_c::operator - () const
+inline plane_c	plane_c::operator - () const
 {
-	return cplane_c(-_normal, -_dist);
+	return plane_c(-_normal, -_dist);
 }
 
-inline vec_t	cplane_c::operator [] (const int index) const
+inline vec_t	plane_c::operator [] (const int index) const
 {
 	switch(index)
 	{
@@ -2161,12 +2161,12 @@ inline vec_t	cplane_c::operator [] (const int index) const
 		case 3:
 			return _dist;
 		default:
-			Com_Error(ERR_FATAL, "cplane_c::operator []: bad index %i", index);
+			Com_Error(ERR_FATAL, "plane_c::operator []: bad index %i", index);
 			return 0;
 	}
 }
 
-inline vec_t&	cplane_c::operator [] (const int index)
+inline vec_t&	plane_c::operator [] (const int index)
 {
 	switch(index)
 	{
@@ -2177,12 +2177,12 @@ inline vec_t&	cplane_c::operator [] (const int index)
 		case 3:
 			return _dist;
 		default:
-			Com_Error(ERR_FATAL, "cplane_c::operator []: bad index %i", index);
+			Com_Error(ERR_FATAL, "plane_c::operator []: bad index %i", index);
 			return _dist;
 	}
 }
 
-inline cplane_c&	cplane_c::operator = (const cplane_c &p)
+inline plane_c&	plane_c::operator = (const plane_c &p)
 {
 	_normal		= p._normal;
 	_dist		= p._dist;

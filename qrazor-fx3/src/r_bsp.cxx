@@ -936,7 +936,7 @@ void	r_bsptree_c::loadPlanes(const byte *buffer, const bsp_lump_t *l)
 {
 	int			i, j;
 
-	cplane_c		*out;
+	plane_c		*out;
 	bsp_dplane_t 	*in;
 	int			count;
 	
@@ -950,7 +950,7 @@ void	r_bsptree_c::loadPlanes(const byte *buffer, const bsp_lump_t *l)
 	if(l->filelen % sizeof(*in))
 		ri.Com_Error(ERR_DROP, "r_bsptree_c::loadPlanes: funny lump size in %s", _name.c_str());
 	count = l->filelen / sizeof(*in);
-	out = new cplane_c[count];	
+	out = new plane_c[count];	
 	
 	_planes_num = count;
 	_planes = out;

@@ -514,7 +514,7 @@ void	dGeomBSPAddPlane(dGeomID g, vec_t a, vec_t b, vec_t c, vec_t d)
 	dUASSERT(g && g->type == dBSPClass, "argument not a BSP");
 	dxBSP *bsp = (dxBSP*)g;
 	
-	cplane_c p;
+	plane_c p;
 	p.set(a, b, c, d);
 	
 	bsp->planes.push_back(p);
@@ -2726,7 +2726,7 @@ static bool	_cldTestSeparatingAxes(const vec3_c vertexes[3])
   return false;
 }
 
-static int	dCollideBSPTriangleBox(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, const vec3_c vertexes[3], const cplane_c &p)
+static int	dCollideBSPTriangleBox(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, const vec3_c vertexes[3], const plane_c &p)
 {
 	dIASSERT(o1->type == dBSPClass);
 	dIASSERT(o2->type == dBoxClass);
@@ -2759,7 +2759,7 @@ static int	dCollideBSPTriangleBox(dxGeom *o1, dxGeom *o2, int flags, std::vector
 }
 
 
-static bool	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, const vec3_c vertexes[3], const cplane_c &p, bool planar, bool cw)
+static bool	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, std::vector<dContact> &contacts, const vec3_c vertexes[3], const plane_c &p, bool planar, bool cw)
 {
 	dIASSERT(o1->type == dBSPClass);
 	dIASSERT(o2->type == dSphereClass);
@@ -2872,7 +2872,7 @@ static bool	dCollideBSPTriangleSphere(dxGeom *o1, dxGeom *o2, int flags, std::ve
 		//En.negate();
 		
 		// create edge plane
-		cplane_c Ep(En, En.dotProduct(Av));
+		plane_c Ep(En, En.dotProduct(Av));
 		
 		// distance between sphere and edge plane
 		vec_t d = Ep.distance(sphere->pos, sphere->radius);

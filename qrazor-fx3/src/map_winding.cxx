@@ -62,12 +62,17 @@ winding_c::winding_c(int points)
 	_p = std::vector<vec3_c>(points, vec3_origin);
 }
 
+winding_c::winding_c(const winding_c &w)
+{
+	_p = w._p;
+}
+
 winding_c::winding_c(const vec3_c &normal, vec_t dist)
 {
 	initFromPlane(normal, dist);
 }
 
-winding_c::winding_c(const cplane_c &p)
+winding_c::winding_c(const plane_c &p)
 {
 	initFromPlane(p._normal, p._dist);
 }
@@ -141,9 +146,9 @@ void	winding_c::initFromPlane(const vec3_c &normal, vec_t dist)
 	_p[3] = (org - vright) - vup;
 }
 
-cplane_c	winding_c::calcPlane() const
+plane_c	winding_c::calcPlane() const
 {
-	return cplane_c(_p[0], _p[1], _p[2]);
+	return plane_c(_p[0], _p[1], _p[2]);
 }
 
 vec_t	winding_c::calcArea() const
@@ -233,7 +238,7 @@ void	winding_c::reverse()
 }
 
 
-void	winding_c::clip(const cplane_c &split, winding_c **front, winding_c **back, vec_t epsilon) const
+void	winding_c::clip(const plane_c &split, winding_c **front, winding_c **back, vec_t epsilon) const
 {
 	vec_t		dists[MAX_POINTS_ON_WINDING+4];
 	int		sides[MAX_POINTS_ON_WINDING+4];
@@ -343,7 +348,7 @@ void	winding_c::clip(const cplane_c &split, winding_c **front, winding_c **back,
 		Com_Error(ERR_FATAL, "winding_c::clip: MAX_POINTS_ON_WINDING exceeded");
 }
 
-winding_c*	winding_c::chop(const cplane_c &split) const
+winding_c*	winding_c::chop(const plane_c &split) const
 {
 	winding_c	*f = NULL, *b = NULL;
 
@@ -354,7 +359,7 @@ winding_c*	winding_c::chop(const cplane_c &split) const
 	return f;
 }
 
-bool	winding_c::chopInPlace(const cplane_c &split, vec_t epsilon)
+bool	winding_c::chopInPlace(const plane_c &split, vec_t epsilon)
 {
 	vec_t		dists[MAX_POINTS_ON_WINDING+4];
 	int		sides[MAX_POINTS_ON_WINDING+4];
@@ -503,7 +508,7 @@ void	winding_c::check() const
 	if(area < 1.0)
 		Com_Error(ERR_FATAL, "winding_c::check: %f area", area);
 
-	cplane_c plane = calcPlane();
+	plane_c plane = calcPlane();
 	
 	for(i=0; i<_p.size(); i++)
 	{

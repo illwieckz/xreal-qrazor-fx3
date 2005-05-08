@@ -94,7 +94,7 @@ public:
 	g_func_rotating_c();
 	
 	virtual void	blocked(g_entity_c *other);
-	virtual bool	touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf);
+	virtual bool	touch(g_entity_c *other, const plane_c &plane, csurface_c *surf);
 	virtual void	use(g_entity_c *other, g_entity_c *activator);
 	
 	virtual void	activate();
@@ -107,7 +107,7 @@ public:
 	g_func_button_c();
 	
 	virtual void	think();
-	virtual bool	touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf);
+	virtual bool	touch(g_entity_c *other, const plane_c &plane, csurface_c *surf);
 	virtual void	use(g_entity_c *other, g_entity_c *activator);
 	virtual void	die(g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point);
 	
@@ -128,7 +128,7 @@ public:
 	
 	virtual void	think();
 	virtual void	blocked(g_entity_c *other);
-	virtual bool	touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf);
+	virtual bool	touch(g_entity_c *other, const plane_c &plane, csurface_c *surf);
 	virtual void	use(g_entity_c *other, g_entity_c *activator);
 	virtual void	die(g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point);
 	

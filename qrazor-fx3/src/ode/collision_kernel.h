@@ -194,7 +194,7 @@ struct dxPlane : public dxGeom
 	void	computeAABB();
 	
 //	vec_t		p[4];
-	cplane_c	p;
+	plane_c	p;
 };
 
 
@@ -225,7 +225,7 @@ struct dxBSP : public dxGeom
 			children[1]	= 0;
 		}
 	
-		cplane_c*	plane;		// split plane
+		plane_c*	plane;		// split plane
 		int 		children[2];	// negative numbers are leafs
 	};
 	
@@ -256,7 +256,7 @@ struct dxBSP : public dxGeom
 	
 		int			shader_num;
 	
-		cplane_c		plane;			// BSPST_PLANAR only
+		plane_c			plane;			// BSPST_PLANAR only
 	
 		//int			mesh_cp[2];		// BSPST_BEZIER only
 	
@@ -266,7 +266,7 @@ struct dxBSP : public dxGeom
 		
 		// per triangle data
 		std::vector<index_t>	indexes;
-		std::vector<cplane_c>	planes;
+		std::vector<plane_c>	planes;
 	
 		int			checkcount;
 	};
@@ -282,14 +282,14 @@ struct dxBSP : public dxGeom
 	
 	struct dBSPBrushSide
 	{
-		cplane_c* plane;
+		plane_c* plane;
 	};
 	*/
 	
 	dVector3			side;	// side lengths (x,y,z) for AABB
 	std::vector<dBSPNode>		nodes;
 	std::vector<dBSPLeaf>		leafs;
-	std::vector<cplane_c>		planes;
+	std::vector<plane_c>		planes;
 //	std::vector<dBSPBrush>		brushes;
 //	std::vector<dBSPBrushSide>	brushsides;
 //	std::vector<int>		leafbrushes;

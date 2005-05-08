@@ -458,7 +458,7 @@ int	r_mesh_c::cap()
 				r_wedge_t e1 = *it;
 				edges_unmatched.erase(it);
 
-				planes.push_back(cplane_c(vertexes[e0.v[0]], vertexes[e1.v[0]], vertexes[e0.v[1]]));
+				planes.push_back(plane_c(vertexes[e0.v[0]], vertexes[e1.v[0]], vertexes[e0.v[1]]));
 				//triangles.push_back(Triangle(e0.v[0], e1.v[0], e0.v[1], 0, 0, 0, 0, 0));
 
 				unsigned int plane = planes.size() - 1;
@@ -476,7 +476,7 @@ int	r_mesh_c::cap()
 				r_wedge_t e1 = *it;
 				edges_unmatched.erase(it);
 
-				planes.push_back(cplane_c(vertexes[e0.v[0]], vertexes[e1.v[1]], vertexes[e0.v[1]]));
+				planes.push_back(plane_c(vertexes[e0.v[0]], vertexes[e1.v[1]], vertexes[e0.v[1]]));
 				//triangles.push_back(Triangle(e0.v[0], e1.v[1], e0.v[1], 0, 0, 0, 0, 0));
 
 				unsigned int plane = planes.size() - 1;
@@ -501,7 +501,7 @@ void	r_mesh_c::calcEdges()
 	// but check first to see if it's already there
 	for(unsigned int i=0; i<indexes.size(); i += 3)
 	{
-		planes.push_back(cplane_c(vertexes[indexes[0]], vertexes[indexes[1]], vertexes[indexes[2]]));
+		planes.push_back(plane_c(vertexes[indexes[0]], vertexes[indexes[1]], vertexes[indexes[2]]));
 
 		addEdge(indexes[0], indexes[1], i);
 		addEdge(indexes[1], indexes[2], i);

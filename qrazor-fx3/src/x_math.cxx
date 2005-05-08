@@ -2119,7 +2119,7 @@ const char*	aabb_c::toString() const
 
 
 
-bool	cplane_c::fromThreePointForm(const vec3_c &v0, const vec3_c &v1, const vec3_c &v2)
+bool	plane_c::fromThreePointForm(const vec3_c &v0, const vec3_c &v1, const vec3_c &v2)
 {
 	// build directional vectors
 	vec3_c edge0 = v1 - v0;
@@ -2143,7 +2143,7 @@ bool	cplane_c::fromThreePointForm(const vec3_c &v0, const vec3_c &v1, const vec3
 	return true;
 }
 
-void	cplane_c::setType()
+void	plane_c::setType()
 {
 	if(_normal[0] == REAL(1.0))
 	{
@@ -2182,7 +2182,7 @@ void	cplane_c::setType()
 	_type = PLANE_ANYZ;
 }
 
-void	cplane_c::setSignBits()
+void	plane_c::setSignBits()
 {
 	// for fast box on planeside test
 
@@ -2198,7 +2198,7 @@ void	cplane_c::setSignBits()
 		_signbits |= 1<<2;
 }
 
-void	cplane_c::normalize()
+void	plane_c::normalize()
 {
 	vec_t len = _normal.length();
 	
@@ -2213,7 +2213,7 @@ void	cplane_c::normalize()
 	}
 }
 
-plane_side_e	cplane_c::onSide(const aabb_c &bbox, bool use_signbits) const
+plane_side_e	plane_c::onSide(const aabb_c &bbox, bool use_signbits) const
 {	
 	// fast axial cases
 	if(_type <= PLANE_Z)
@@ -2312,12 +2312,12 @@ plane_side_e	cplane_c::onSide(const aabb_c &bbox, bool use_signbits) const
 
 	
 	
-const char*	cplane_c::toString() const
+const char*	plane_c::toString() const
 {
 	return va("(%i %i %i %i)", (int)_normal[0], (int)_normal[1], (int)_normal[2], (int)_dist);
 }
 	
-bool	cplane_c::operator == (const cplane_c &p) const
+bool	plane_c::operator == (const plane_c &p) const
 {
 #if 1
 		if(	X_fabs(p._normal[0] - _normal[0]) < NORMAL_EPSILON
