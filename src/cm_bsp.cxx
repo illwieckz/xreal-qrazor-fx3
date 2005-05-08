@@ -42,7 +42,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 struct cnode_t
 {
-	cplane_c*		plane;
+	plane_c*		plane;
 	int			children[2];		// negative numbers are leafs
 };
 
@@ -70,7 +70,7 @@ struct cshader_t
 
 struct cbrushside_t
 {
-	cplane_c*		plane;
+	plane_c*		plane;
 	cshader_t*		shader;
 //	cshader_t*		shader;
 };
@@ -93,7 +93,7 @@ struct csurface_t
 	
 	int			shader_num;
 	
-	cplane_c		plane;			// BSPST_PLANAR only
+	plane_c		plane;			// BSPST_PLANAR only
 	
 	int			mesh_cp[2];		// BSPST_BEZIER only
 	
@@ -152,7 +152,7 @@ static std::vector<cbrushside_t>	cm_brushsides;
 
 static std::vector<cshader_t>		cm_shaders;
 
-static std::vector<cplane_c>		cm_planes;
+static std::vector<plane_c>		cm_planes;
 
 static std::vector<cnode_t>		cm_nodes;
 
@@ -203,7 +203,7 @@ static cvar_t*	cm_use_meshes;
 static cvar_t*	cm_subdivisions;
 
 
-static cplane_c*	box_planes;
+static plane_c*	box_planes;
 static int		box_headnode;
 //static cbrush_t*	box_brush;
 //static cleaf_t*		box_leaf;
@@ -247,7 +247,7 @@ static int		mark_fragments_num;
 static int		mark_fragments_max;
 static cfragment_t*	mark_fragments;
 
-static cplane_c		mark_planes[6];
+static plane_c		mark_planes[6];
 
 static int		mark_checkcount;
 */
@@ -801,7 +801,7 @@ static void	CM_LoadPlanes(bsp_lump_t *l, d_bsp_c* bsp)
 //	if(count > MAX_BSP_PLANES)
 //		Com_Error (ERR_DROP, "CM_LoadPlanes: BSP has too many planes");
 
-	cm_planes = std::vector<cplane_c>(count);
+	cm_planes = std::vector<plane_c>(count);
 
 	for(i=0; i<count; i++, in++)
 	{		
@@ -937,8 +937,8 @@ static void	CM_InitBoxHull()
 		cm_nodes.push_back(cnode_t());
 		cm_brushsides.push_back(cbrushside_t());	
 		
-		cm_planes.push_back(cplane_c());
-		cm_planes.push_back(cplane_c());
+		cm_planes.push_back(plane_c());
+		cm_planes.push_back(plane_c());
 	}
 		
 	cm_brushes.push_back(cbrush_t());
@@ -988,7 +988,7 @@ static void	CM_InitBoxHull()
 			c->children[side^1] = -1 - (cm_leafs.size() -1);
 		
 		// planes
-		cplane_c* p = &box_planes[i*2];
+		plane_c* p = &box_planes[i*2];
 		p->_type = (plane_type_e)(i>>1);
 		p->_normal.clear();
 		p->_normal[i>>1] = 1;
@@ -1185,7 +1185,7 @@ static int	CM_PointLeafnum_r(const vec3_c &p, int num)
 {
 	float		d;
 	cnode_t		*node;
-	cplane_c	*plane;
+	plane_c	*plane;
 
 	while(num >= 0)
 	{
@@ -1337,7 +1337,7 @@ int	CM_TransformedPointContents(const vec3_c &p, int headnode, const vec3_c &ori
 void	CM_ClipBoxToBrush(const aabb_c &bbox, const vec3_c &p1, const vec3_c &p2, trace_t &trace, const cbrush_t &brush)
 {
 	int			i, j;
-	cplane_c	*plane, *clipplane;
+	plane_c	*plane, *clipplane;
 	float		enterfrac, leavefrac;
 	vec3_c		ofs, ofs_ext;
 	float		d1, d2;
@@ -1459,7 +1459,7 @@ void	CM_ClipBoxToBrush(const aabb_c &bbox, const vec3_c &p1, const vec3_c &p2, t
 void	CM_TestBoxInBrush(const aabb_c &bbox, const vec3_c &p1, trace_t &trace, const cbrush_t &brush)
 {
 	int			i, j;
-	cplane_c	*plane;
+	plane_c	*plane;
 	vec3_c		ofs;
 	float		d1;
 	cbrushside_t	*side;
@@ -1506,7 +1506,7 @@ void	CM_TestBoxInBrush(const aabb_c &bbox, const vec3_c &p1, trace_t &trace, con
 void	CM_TestBoxInMesh(const aabb_c &bbox, const vec3_c &p1, trace_t *trace, cmesh_t *mesh, cshader_t *shader)
 {
 	int			i;
-	cplane_c	*plane;
+	plane_c	*plane;
 	vec3_c		ofs;
 	float		d1;
 	
@@ -1515,7 +1515,7 @@ void	CM_TestBoxInMesh(const aabb_c &bbox, const vec3_c &p1, trace_t *trace, cmes
 	vec3_c		n0, n1, n2;
 	vec3_c		normal;
 	vec_t		dist;
-	cplane_c	p;
+	plane_c	p;
 
 	if(!mesh->vertexes_num || mesh->indexes_num)
 		return;
@@ -1743,7 +1743,7 @@ static void	CM_TestInLeaf(int leafnum)
 static void	CM_HullCheck_r(int num, float p1f, float p2f, const vec3_c &p1, const vec3_c &p2)
 {
 	cnode_t		*node;
-	cplane_c	*plane;
+	plane_c	*plane;
 	float		t1, t2, offset;
 	float		frac, frac2;
 	float		idist;

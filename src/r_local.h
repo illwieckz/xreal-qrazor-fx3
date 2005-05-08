@@ -381,17 +381,17 @@ public:
 	bool	cull(const vec3_c &center, vec_t radius, int clipmask = FRUSTUM_CLIPALL) const;
 	bool	cull(const vec3_c &origin, int clipmask = FRUSTUM_CLIPALL) const;
 
-	inline const cplane_c&	operator [] (const int index) const
+	inline const plane_c&	operator [] (const int index) const
 	{
 		return _planes[index];
 	}
 
-	inline cplane_c&	operator [] (const int index)
+	inline plane_c&	operator [] (const int index)
 	{
 		return _planes[index];
 	}
 private:
-	cplane_c	_planes[FRUSTUM_PLANES];
+	plane_c		_planes[FRUSTUM_PLANES];
 };
 
 
@@ -555,7 +555,7 @@ public:
 	std::vector<uint_t>		triangles;	// triangle numbers
 	std::vector<index_t>		indexes;	// raw triangle indices data for OpenGL
 	std::vector<vec3_c>		normals_tri;
-	std::vector<cplane_c>		planes;
+	std::vector<plane_c>		planes;
 	std::vector<r_wedge_t>		edges;
 	std::list<r_wedge_t>		edges_unmatched;
 	
@@ -886,7 +886,7 @@ public:
 	inline r_shader_c*		getShader() const	{return _shaderref ? _shaderref->getShader() : NULL;}
 	
 	inline bsp_surface_type_t	getFaceType() const	{return _facetype;}
-	inline const cplane_c&		getPlane() const	{return _plane;}
+	inline const plane_c&		getPlane() const	{return _plane;}
 	
 	inline uint_t			getLightMapNum() const	{return _lightmap;}
 
@@ -898,7 +898,7 @@ private:
 	r_model_shader_c*	_shaderref;
 
 	bsp_surface_type_t	_facetype;
-	cplane_c		_plane;			// if BSPST_PLANAR
+	plane_c			_plane;			// if BSPST_PLANAR
 	int			_lightmap;		// if BSP surface
 };
 
@@ -1350,7 +1350,7 @@ class r_bsptree_node_c :
 public r_node_c
 {
 public:
-	cplane_c*		plane;
+	plane_c*		plane;
 	r_tree_elem_c*		children[2];
 };
 	
@@ -1384,7 +1384,7 @@ public:
 	
 	vec3_c			center;
 	aabb_c			bbox;
-	cplane_c		plane;
+	plane_c			plane;
 	
 	std::vector<vec3_c>	points;
 	std::vector<vec3_c>	points_inner;
@@ -1408,7 +1408,7 @@ class r_proctree_node_c :
 public r_node_c
 {
 public:
-	cplane_c		plane;
+	plane_c			plane;
 	int			children[2];
 };
 */
@@ -1434,7 +1434,7 @@ public:
 	
 	inline int	getArea(int side) const		{return _areas[side];}
 	
-	inline const cplane_c&	getPlane() const	{return _plane;}
+	inline const plane_c&	getPlane() const	{return _plane;}
 	
 	inline const r_frustum_c& getFrustum() const	{return _frustum;}
 	
@@ -1443,7 +1443,7 @@ private:
 
 	int			_areas[2];
 
-	cplane_c		_plane;
+	plane_c			_plane;
 	
 	std::vector<vec3_c>	_vertexes_original;
 	std::vector<vec3_c>	_vertexes;
@@ -1566,7 +1566,7 @@ private:
 	std::vector<index_t>			_indexes;
 
 	int					_planes_num;
-	cplane_c*				_planes;
+	plane_c*				_planes;
 	
 	std::vector<byte>			_pvs;
 	std::vector<boost::dynamic_bitset<byte> >
@@ -2195,7 +2195,7 @@ extern bool		r_mirror_view;	// if true, lock pvs
 
 extern bool		r_envmap;
 
-extern cplane_c		r_clipplane;
+extern plane_c		r_clipplane;
 
 
 

@@ -91,7 +91,7 @@ void	g_projectile_bolt_c::think()
 }
 
 
-bool	g_projectile_bolt_c::touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf)
+bool	g_projectile_bolt_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
 {
 	if(other == _r.owner)
 		return false;
@@ -242,7 +242,7 @@ void	g_projectile_grenade_c::think()
 
 
 
-bool	g_projectile_grenade_c::touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf)
+bool	g_projectile_grenade_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
 {
 	if(other == _r.owner)
 		return false;
@@ -401,7 +401,7 @@ void	g_projectile_rocket_c::think()
 	*/
 }
 
-bool	g_projectile_rocket_c::touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf)
+bool	g_projectile_rocket_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
 {
 	if(other == _r.owner)
 		return false;
@@ -411,7 +411,7 @@ bool	g_projectile_rocket_c::touch(g_entity_c *other, const cplane_c &plane, csur
 		
  	trap_Com_Printf("g_projectile_rocket_c::touch: touching entity %i '%s'\n", other->_s.getNumber(), other->getClassName());
 	
-	if(surf && surf->hasFlags(X_CONT_AREAPORTAL))
+	if(surf && surf->hasContents(X_CONT_AREAPORTAL))
 	{
 		trap_Com_Printf("g_projectile_rocket_c::touch: touching areaportal\n");
 	}

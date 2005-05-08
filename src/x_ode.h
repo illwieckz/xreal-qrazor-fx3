@@ -884,7 +884,7 @@ public:
 	
 	void	setLengths(const vec3_c &v)			{dGeomBSPSetLengths(_id, v[0], v[1], v[2]);}
 	
-	void	addPlane(const cplane_c &p)			{dGeomBSPAddPlane(_id, p._normal[0], p._normal[1], p._normal[2], p._dist);}
+	void	addPlane(const plane_c &p)			{dGeomBSPAddPlane(_id, p._normal[0], p._normal[1], p._normal[2], p._dist);}
 //	void	addBrush(int sides_first, int sides_num)	{dGeomBSPAddBrush(_id, sides_first, sides_num);}
 //	void	addBrushSide(int plane_num)			{dGeomBSPAddBrushSide(_id, plane_num);}
 //	void	addLeafBrush(int num)				{dGeomBSPAddLeafBrush(_id, num);}

@@ -45,13 +45,13 @@ aabb_c			map_bbox;
 
 
 
-static cplane_c*	CreateNewFloatPlane(const cplane_c &p)
+static plane_p	CreateNewFloatPlane(const plane_c &p)
 {
 	if(p._normal.length() < 0.5)
 		Com_Error(ERR_FATAL, "CreateNewFloatPlane: bad normal");
 		
-	cplane_c* plane_pos = new cplane_c(p._normal, p._dist);
-	cplane_c* plane_neg = new cplane_c(-p._normal, -p._dist);
+	plane_c* plane_pos = new plane_c(p._normal, p._dist);
+	plane_c* plane_neg = new plane_c(-p._normal, -p._dist);
 
 	// allways put axial planes facing positive first
 	if(p.getType() < 3)
@@ -73,7 +73,7 @@ static cplane_c*	CreateNewFloatPlane(const cplane_c &p)
 }
 
 /*
-static int	FindFloatPlane(const cplane_c &p)
+static int	FindFloatPlane(const plane_c &p)
 {
 	for(unsigned int i=0; i<map_planes.size(); i++)
 	{
@@ -85,11 +85,11 @@ static int	FindFloatPlane(const cplane_c &p)
 }
 */
 
-cplane_c*	FindFloatPlane(const cplane_c &plane)
+plane_p	FindFloatPlane(const plane_c &plane)
 {
-	for(std::vector<cplane_c*>::const_iterator i = planes.begin(); i != planes.end(); ++i)
+	for(plane_ci i = planes.begin(); i != planes.end(); ++i)
 	{
-		cplane_c* p = *i;
+		plane_p p = *i;
 	
 		if(p == NULL)
 			continue;
@@ -101,17 +101,17 @@ cplane_c*	FindFloatPlane(const cplane_c &plane)
 	return CreateNewFloatPlane(plane);
 }
 
-cplane_c*	PlaneFromPoints(const vec3_c &p0, const vec3_c &p1, const vec3_c &p2)
+plane_p	PlaneFromPoints(const vec3_c &p0, const vec3_c &p1, const vec3_c &p2)
 {
-	cplane_c p(p0, p1, p2);
+	plane_c p(p0, p1, p2);
 	p.snap();
 
 	return FindFloatPlane(p);
 }
 
-cplane_c*	PlaneFromEquation(float f0, float f1, float f2, float f3)
+plane_p	PlaneFromEquation(float f0, float f1, float f2, float f3)
 {
-	cplane_c p(f0, f1, f2, f3);
+	plane_c p(f0, f1, f2, f3);
 	p.snap();
 //	Com_Printf("PlaneFromEquation: %s\n", p.toString());
 	
@@ -691,7 +691,7 @@ static entity_c*	map_entity;
 
 static brush_p			map_brush;
 static brushside_p			map_brushside;
-static cplane_c*				map_plane;
+static plane_c*				map_plane;
 static std::string				map_shader;
 
 static std::string		map_key;
@@ -751,7 +751,7 @@ static void	MAP_PlaneEQ(char const* begin, char const* end)
 {
 //	Com_Printf("MAP_PlaneEQ()\n");
 	
-//	map_plane = new cplane_c(map_float0, map_float1, map_float2, -map_float3);
+//	map_plane = new plane_c(map_float0, map_float1, map_float2, -map_float3);
 //	map_plane->snap();
 //	map_planes.push_back(map_plane);
 

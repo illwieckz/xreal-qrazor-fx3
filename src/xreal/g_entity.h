@@ -97,7 +97,7 @@ public:
 	
 	virtual void	think() {};
 	virtual void	blocked(g_entity_c *other) {};
-	virtual bool	touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf) {return true;}
+	virtual bool	touch(g_entity_c *other, const plane_c &plane, csurface_c *surf) {return true;}
 	virtual void	use(g_entity_c *other, g_entity_c *activator) {};
 	virtual void	pain(g_entity_c *other, float kick, int damage) {};
 	virtual void	die(g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point) {};		//TODO rename to ::killed

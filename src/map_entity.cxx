@@ -47,7 +47,7 @@ void	entity_c::processWorldModel()
 {
 	tree_p tree = new tree_c();
 	
-	face_v faces = tree->buildStructuralFaceList();
+	face_v faces = tree->buildStructuralFaceList(_brushes);
 	tree->buildBSP(faces);
 	tree->buildPortals();
 	

@@ -114,7 +114,7 @@ bool		r_mirror_view = false;	// if true, lock pvs
 
 bool		r_envmap = false;
 
-cplane_c	r_clipplane;
+plane_c		r_clipplane;
 
 
 

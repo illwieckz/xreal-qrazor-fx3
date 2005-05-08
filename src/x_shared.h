@@ -873,7 +873,7 @@ struct trace_t
 	vec_t			fraction;	// 0.0 = start, 1.0 = end
 	vec_t			depth;		// penetration depth
 	vec3_c			pos;		// final position
-	cplane_c		plane;		// surface normal at impact
+	plane_c			plane;		// surface normal at impact
 	csurface_c*		surface;	// surface hit
 	
 	uint_t			pos_flags;

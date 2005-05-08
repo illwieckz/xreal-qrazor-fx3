@@ -319,7 +319,7 @@ r_interaction_c*	r_light_c::createInteraction(r_entity_c* ent, const r_mesh_c *m
 		
 #else
 		// triangle planes interaction test
-		cplane_c p;
+		plane_c p;
 		p.fromThreePointForm(v0, v1, v2);
 		
 		aabb_c aabb;

@@ -114,7 +114,7 @@ bool	brush_c::createWindings()
 {
 	for(brushside_i i = _sides.begin(); i != _sides.end(); ++i)
 	{
-		const cplane_c* p = (*i)->getPlane();
+		const plane_p p = (*i)->getPlane();
 		
 		winding_p w = new winding_c(*p);
 		
@@ -126,10 +126,10 @@ bool	brush_c::createWindings()
 			if((*j)->isBevel())
 				continue;
 				
-			p = (*j)->getPlane();
+			const plane_p p2 = (*j)->getPlane();
 			
 			// flip the plane, because we want to keep the back side
-			const cplane_c pneg = -(*p);
+			const plane_c pneg = -(*p2);
 			
 			if(w)
 			{

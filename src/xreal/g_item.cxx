@@ -1075,7 +1075,7 @@ void	g_item_dropable_c::think()
 	}
 }
 
-bool	g_item_dropable_c::touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf)
+bool	g_item_dropable_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
 {
 #if 0
 	bool	taken;
@@ -1189,7 +1189,7 @@ void	g_item_spawnable_c::think()
 	//	_remove = true;
 }
 
-bool	g_item_spawnable_c::touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf)
+bool	g_item_spawnable_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
 {
 	//TODO
 	return true;

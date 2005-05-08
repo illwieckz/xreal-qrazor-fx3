@@ -50,7 +50,7 @@ void 	g_trigger_c::init()
 }
 
 
-bool	g_trigger_c::touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf)
+bool	g_trigger_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
 {
 	return false;
 }
@@ -113,7 +113,7 @@ void	g_trigger_multiple_c::use(g_entity_c *other, g_entity_c *activator)
 }
 
 
-bool	g_trigger_multiple_c::touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf)
+bool	g_trigger_multiple_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
 {
 	if(other->_r.isclient)
 	{
@@ -561,7 +561,7 @@ void	g_trigger_push_c::think()
 	//_movedir[2] = time * gravity;	
 }
 
-bool	g_trigger_push_c::touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf)
+bool	g_trigger_push_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
 {
 	if(!other)
 		return false;
@@ -653,7 +653,7 @@ g_trigger_hurt_c::g_trigger_hurt_c()
 	//TODO
 }
 
-bool	g_trigger_hurt_c::touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf)
+bool	g_trigger_hurt_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
 {
 	int		dflags;
 
@@ -746,7 +746,7 @@ g_trigger_gravity_c::g_trigger_gravity_c()
 }
 
 
-bool	g_trigger_gravity_c::touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf)
+bool	g_trigger_gravity_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
 {
 	other->_gravity = _gravity;
 	
@@ -799,7 +799,7 @@ void	g_trigger_teleport_c::think()
 }
 
 
-bool	g_trigger_teleport_c::touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf)
+bool	g_trigger_teleport_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
 {
 	g_entity_c		*dest;
 	g_player_c		*player;
@@ -902,7 +902,7 @@ g_trigger_door_c::g_trigger_door_c()
 	_r.inuse	= true;
 }
 
-bool	g_trigger_door_c::touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf)
+bool	g_trigger_door_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
 {
 	if(other->_health <= 0)
 		return false;

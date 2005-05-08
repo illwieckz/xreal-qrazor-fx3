@@ -1117,7 +1117,7 @@ static void	G_TopLevelCollisionCallback(void *data, dGeomID o1, dGeomID o2)
 				const vec3_c& point = contacts[0].geom._origin;
 				const vec3_c& normal = contacts[0].geom._normal;
 								
-				cplane_c plane(normal, normal.dotProduct(point));
+				plane_c plane(normal, normal.dotProduct(point));
 				
 				if(!e1->touch(e2, plane, surf))
 					return;

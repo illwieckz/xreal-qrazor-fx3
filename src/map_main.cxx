@@ -43,7 +43,7 @@ namespace map
 entity_v			entities;
 brush_v				brushes;
 brushside_v			brushsides;
-std::vector<cplane_c*>		planes;
+plane_v				planes;
 
 int		c_structural = 0;
 int		c_detail = 0;
@@ -98,7 +98,7 @@ static void	PlaneList_f()
 {
 	Com_Printf("------------------\n");
 
-	for(std::vector<cplane_c*>::const_iterator i = planes.begin(); i != planes.end(); ++i)
+	for(plane_ci i = planes.begin(); i != planes.end(); ++i)
 	{
 		Com_Printf("%s\n", (*i)->toString());
 	}

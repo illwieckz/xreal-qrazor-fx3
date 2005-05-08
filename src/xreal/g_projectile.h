@@ -48,7 +48,7 @@ public:
 	g_projectile_bolt_c(g_entity_c *activator, const vec3_c &start, const vec3_c &dir, int damage, vec_t speed);
 	
 	virtual void	think();
-	virtual bool	touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf);
+	virtual bool	touch(g_entity_c *other, const plane_c &plane, csurface_c *surf);
 };
 
 
@@ -58,7 +58,7 @@ public:
 	g_projectile_grenade_c(g_entity_c *activator, const vec3_c &start, const vec3_c &dir, int damage, int speed, float timer, float damage_radius);
 	
 	virtual void	think();
-	virtual bool	touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf);
+	virtual bool	touch(g_entity_c *other, const plane_c &plane, csurface_c *surf);
 };
 
 
@@ -68,7 +68,7 @@ public:
 	g_projectile_rocket_c(g_entity_c *activator, const vec3_c &origin, const quaternion_c &quat, int damage, int speed, float damage_radius, float radius_damage);
 	
 	virtual void	think();
-	virtual bool	touch(g_entity_c *other, const cplane_c &plane, csurface_c *surf);
+	virtual bool	touch(g_entity_c *other, const plane_c &plane, csurface_c *surf);
 	
 private:
 	void		explode();

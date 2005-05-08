@@ -63,6 +63,27 @@ enum
 };
 
 
+typedef plane_c*				plane_p;
+typedef std::vector<plane_p>			plane_v;
+typedef plane_v::iterator			plane_i;
+typedef plane_v::const_iterator			plane_ci;
+
+class plane_iface_a
+{
+protected:
+	inline plane_iface_a()
+	{
+		_plane		= NULL;
+	}
+	
+public:
+	void			setPlane(plane_p p)		{_plane = p;}
+	plane_p			getPlane() const 		{return _plane;}
+
+protected:
+	plane_p			_plane;	
+};
+
 
 #define	MAX_POINTS_ON_WINDING	64
 
@@ -75,11 +96,12 @@ class winding_c
 {
 public:
 	winding_c(int points = 0);
+	winding_c(const winding_c &w);
 	winding_c(const vec3_c &normal, vec_t dist);
-	winding_c(const cplane_c &base);
+	winding_c(const plane_c &base);
 	~winding_c();
 
-	cplane_c	calcPlane() const;
+	plane_c		calcPlane() const;
 	vec_t		calcArea() const;
 	aabb_c		calcAABB() const;
 	vec3_c		calcCenter() const;
@@ -89,18 +111,18 @@ public:
 	void		reverse();
 	
 	//! Splits winding by split plane
-	void		clip(const cplane_c &split, winding_c **front, winding_c **back, vec_t epsilon = ON_EPSILON) const;
+	void		clip(const plane_c &split, winding_c **front, winding_c **back, vec_t epsilon = ON_EPSILON) const;
 	//! Returns the fragment of in that is on the front side of the cliping plane.
-	winding_c*	chop(const cplane_c &split) const;
+	winding_c*	chop(const plane_c &split) const;
 	//! Changes the original if clipped
-	bool		chopInPlace(const cplane_c &split, vec_t epsilon = ON_EPSILON);
+	bool		chopInPlace(const plane_c &split, vec_t epsilon = ON_EPSILON);
 
 	void		removeColinearPoints();
 	
 	//! Check for errors in this winding and abort if any
 	void		check() const;
 	
-	plane_side_e	onPlaneSide(const cplane_c &p) const	{return onPlaneSide(p._normal, p._dist);}
+	plane_side_e	onPlaneSide(const plane_c &p) const	{return onPlaneSide(p._normal, p._dist);}
 	plane_side_e	onPlaneSide(const vec3_c &normal, vec_t dist) const;
 	
 	const std::vector<vec3_c>&	getPoints() const	{return _p;}
@@ -119,6 +141,23 @@ typedef winding_c*			winding_p;
 typedef std::vector<winding_p>		winding_v;
 typedef winding_v::iterator		winding_i;
 typedef winding_v::const_iterator	winding_ci;
+
+class winding_iface_a
+{
+protected:
+	inline winding_iface_a()
+	{
+		_winding	= NULL;
+	}
+	
+public:
+	void			setWinding(winding_p w)		{_winding = w;}
+	winding_p		getWinding() const		{return _winding;}
+
+protected:
+	winding_p		_winding;
+};
+
 
 
 class contentflags_a
@@ -209,7 +248,9 @@ protected:
 	virtual void		calcContents() = 0;
 };
 
-class brushside_c
+class brushside_c :
+public plane_iface_a,
+public winding_iface_a
 {
 public:
 	inline brushside_c()
@@ -229,12 +270,6 @@ public:
 	}
 	
 	void			translate(const vec3_c& v);
-
-	void			setPlane(cplane_c *p)		{_plane = p;}
-	const cplane_c*		getPlane() const 		{return _plane;}
-	
-	void			setWinding(winding_p w)		{_winding = w;}
-	winding_p		getWinding() const		{return _winding;}
 	
 	void			setShader(const std::string& s);
 	const shader_p		getShader() const		{return _shader;}
@@ -252,16 +287,11 @@ public:
 	void			isCulled(bool b)		{_culled = b;}
 
 private:
-//	vec3_c			_plane_pts[3];
-//	cplane_c		_plane_equation;
-	cplane_c*		_plane;
+	plane_p			_plane;
 	
 	matrix_c		_tex_mat;
 	
-	winding_c*		_winding;
-//	side_t*			_original;		// bspbrush_t sides will reference the mapbrush_t sides
-	
-	shader_c*		_shader;
+	shader_p		_shader;
 	
 	bool			_visible;		// choose visble planes first
 	bool			_tested;		// this plane allready checked as a split
@@ -304,6 +334,7 @@ public:
 
 	int			getEntityNum() const	{return _entity_num;}
 	const aabb_c&		getAABB() const		{return _aabb;}
+	const brushside_v&	getSides() const	{return _sides;}
 	
 	bool			isDetail() const		{return _detail;}
 	void			isDetail(bool b)		{_detail = b;}
@@ -343,10 +374,14 @@ typedef patch_v::iterator		patch_i;
 typedef patch_v::const_iterator		patch_ci;
 
 
-class face_c
+class face_c :
+public plane_iface_a,
+public winding_iface_a,
+public compileflags_a
 {
 public:
-	//TODO
+	face_c(plane_p plane, winding_p w, int compileflags);
+	~face_c();
 };
 typedef face_c*				face_p;
 typedef std::vector<face_p>		face_v;
@@ -368,14 +403,17 @@ typedef node_v::const_iterator		node_ci;
 class tree_c
 {
 public:
-	face_v		buildStructuralFaceList() const;
+	tree_c();
+
+	face_v		buildStructuralFaceList(const brush_v& brushes) const;
 	void		buildBSP(const face_v& faces);
 	void		buildPortals();
 
 private:
-//	node_t*			headnode;
-//	node_t			outside_node;
-//	vec3_t			mins, maxs;
+	
+	node_p			_node_head;
+	node_c			_node_outside;
+	aabb_c			_aabb;
 };
 typedef tree_c*				tree_p;
 typedef std::vector<tree_p>		tree_v;
@@ -507,7 +545,7 @@ public:
 class portal_t
 {
 public:
-	cplane_c		plane;
+	plane_c		plane;
 	node_t*			onnode;		// NULL = outside box
 	node_t*			nodes[2];		// [0] = front side of plane
 	portal_t*		next[2];
@@ -526,7 +564,7 @@ public:
 extern entity_v				entities;
 extern brush_v				brushes;
 extern brushside_v			brushsides;
-extern std::vector<cplane_c*>		planes;
+extern plane_v				planes;
 
 
 extern int		c_structural;
