@@ -3,11 +3,6 @@ import SCons
 import SCons.Errors
 
 #
-# Misc global variables
-#
-INSTALL = '#install'
-
-#
 # Misc helper functions
 #
 def mkdirs(newdir, mode=0777):
@@ -57,12 +52,13 @@ opts.Add(EnumOption('debug', 'Set to >= 1 to build for debug', '0', allowed_valu
 opts.Add(EnumOption('optimize', 'Set to >= 1 to build with general optimizations', '2', allowed_values=('0', '1', '2', '3')))
 opts.Add(EnumOption('simd', 'Choose special CPU register optimizations', 'none', allowed_values=('none', 'sse', '3dnow')))
 #opts.Add(EnumOption('cpu', 'Set to 1 to build with special CPU register optimizations', 'i386', allowed_values=('i386', 'athlon-xp', 'pentium4')))
+opts.Add(PathOption('PKGDATADIR', 'base path', '.'))
 
-if sys.platform == 'linux2' or sys.platform == 'linux-i386':
-	opts.Add(XPathOption('PKGDATADIR', 'Installation path', '/usr/games/share/qrazor-fx'))
-	
-elif sys.platform == 'win32':
-	opts.Add(XPathOption('PKGDATADIR', 'Installation path', 'C:/QRazor-FX'))
+#if sys.platform == 'linux2' or sys.platform == 'linux-i386':
+#	opts.Add(XPathOption('PKGDATADIR', 'Installation path', '/usr/games/share/qrazor-fx'))
+#	
+#elif sys.platform == 'win32':
+#	opts.Add(XPathOption('PKGDATADIR', 'Installation path', 'C:/QRazor-FX'))
 
 
 #
@@ -80,7 +76,6 @@ Help(opts.GenerateHelpText(env))
 # Set common C++ flags
 #
 print 'compiling for platform ', sys.platform
-print 'installation path ', INSTALL
 
 env.Append(CXXFLAGS = '-pipe')
 
@@ -206,8 +201,7 @@ env = conf.Finish()
 # Save options
 opts.Save('qrazor.conf', env)
 
-Export('INSTALL env')
-#SConscript('SConscript_ode')
+Export('env')
 SConscript('SConscript_qrazor-fx-server', build_dir='build/server', duplicate=0)
 SConscript('SConscript_qrazor-fx-client', build_dir='build/client', duplicate=0)
 SConscript('SConscript_qrazor-fx-map', build_dir='build/map', duplicate=0)

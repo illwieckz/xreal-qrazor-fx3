@@ -69,9 +69,10 @@ our little project:
                               everything.
 - 'scons simd=<option>'     = Where <option> is either 3dnow, sse or none. Leave 
                               it to the default ('none') on your first compile.
-- 'scons PKGDATADIR=<path>' = By default this is 'C:\QRazor-FX'. And the whole
+- 'scons PKGDATADIR=<path>' = This is where the engine looks for data files.
+                              By default this is '.' or the current dir. And the whole
                               stuff needs to be copied there after a compile to 
-                              run. So if you rather want your XreaL to reside 
+                              run. So if you rather want your XreaL to reside
                               elsewhere on your HDD you better suppy a path here.
                               
 Please notice that SCons is able to remember its settings. So you don't have to supply
@@ -85,18 +86,14 @@ Also you can supply more than one commandline parameter at once
 
 It compiled? Woohoo!
 ^^^^^^^^^^^^^^^^^^^^
-All the XreaL stuff is now in 'qrazor-fx3\install'. Somehow we couldn't figure out
-how to automatically install with scons until now :). So you have to copy the stuff 
-by hand. Copy all stuff from the 'qrazor-fx3\install' dir to the one you you supplied
-as PKGDATADIR to scons or to the default dir (C:\QRazor-FX) if you did not supply one.
-You also have to copy the pk4 files from your Doom3\base dir over to C:\QRazor-FX\xreal.
-Now leech a new pak file from our sf.net files directory. 
-http://xreal.sourceforge.net/files/pak009.pk4
+All the XreaL stuff is now in 'qrazor-fx3\bin'. You also have to copy the pk4 files from 
+your 'Doom3\base' dir over to 'qrazor-fx3\bin\xreal'. Now leech a new pak file from our
+sf.net files directory. http://xreal.sourceforge.net/files/xpak000.pk4
 It contains a font, some maps and a config file. As i tried this Windows was so nice to
-rename the file from pak009.pk4 to pak009.zip. Thats not intended so check if the name
+rename the file from xpak000.pk4 to xpak000.zip. Thats not intended so check if the name
 is correct and rename the file if neccessary. It also goes to the directory with the
 Doom3 pak files (guess you knew that ;)).
-So, what I do now is I open 2 more commandlines. I CD to the C:\QRazor-FX dir in both.
+So, what I do now is I open 2 more commandlines. I CD to the 'qrazor-fx3\bin' dir in both.
 Now enter 'QRazor-FX-Server +map game/mp/d3dm1' in one of the commandlines. The server 
 should start up loading the supplied map. (theres also d3dm2 and d3dm3 in that pak file)
 In the other commandline execute 'QRazor-FX-Client +set vid_mode 3' (3 is 640x480).

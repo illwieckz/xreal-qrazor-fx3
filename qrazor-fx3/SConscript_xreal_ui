@@ -37,8 +37,8 @@ xreal_ui_env = env.Copy()
 xreal_ui_env.SharedLibrary('ui', xreal_ui_src)
 
 if sys.platform == 'linux2':
-	xreal_ui_env.InstallAs('#install/xreal/ui.so', 'libui.so')
+	xreal_ui_env.InstallAs('#bin/xreal/ui.so', 'libui.so')
 
 elif sys.platform == 'win32':
-	xreal_ui_env.InstallAs('#install/xreal/ui.dll', 'ui.dll')
+	xreal_ui_env.InstallAs('#bin/xreal/ui.dll', 'ui.dll')
 

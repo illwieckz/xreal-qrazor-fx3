@@ -16,7 +16,7 @@ textures/q2_skies/unit1
 	
 	{
 //		blend		add		// so transparent windows can draw on top of it
-		cameraCubeMap	cubemaps/unit1
+		cameraCubeMap	env/unit1
 		texgen		skybox
 	}
 }

@@ -229,10 +229,14 @@ static void	WinError()
 }
 */
 
-char*	Sys_ExpandSquiggle(const char *in)
+const char*	Sys_GetHomeDir()
 {
-	//TODO ?
-	return "";
+	const char* home = getenv("HOMEPATH");
+	
+	if(!home)
+		return ".";
+	else
+		return (std::string(home) + "/" + ".qrazor-fx").c_str();
 }
 
 int	Sys_Milliseconds()

@@ -69,7 +69,7 @@ std::string Sys_GetError();
 
 char*	Sys_GetClipboardData();
 
-char*	Sys_ExpandSquiggle(const char *in);
+const char*	Sys_GetHomeDir();
 
 int	Sys_Milliseconds();
 void	Sys_Mkdir(const std::string &path);

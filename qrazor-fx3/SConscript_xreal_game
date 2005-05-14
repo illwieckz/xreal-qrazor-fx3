@@ -68,8 +68,8 @@ xreal_game_env = env.Copy()
 xreal_game_env.SharedLibrary('game', xreal_game_src, LIBS=['m'])
 
 if sys.platform == 'linux2':
-	xreal_game_env.InstallAs('#install/xreal/game.so', 'libgame.so')
+	xreal_game_env.InstallAs('#bin/xreal/game.so', 'libgame.so')
 
 elif sys.platform == 'win32':
-	xreal_game_env.InstallAs('#install/xreal/game.dll', 'game.dll')
+	xreal_game_env.InstallAs('#bin/xreal/game.dll', 'game.dll')
 

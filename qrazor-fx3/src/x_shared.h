@@ -156,6 +156,11 @@ inline void	operator delete (void *ptr)
 #ifdef _WIN32
 	#define BUILDHOST		"Win32"
 	#define VERSION			"0.3.5"
+	
+	#ifndef VFS_PKGDATADIR
+		#define VFS_PKGDATADIR		"."
+	#endif
+	
 	#define VFS_USERDATADIR		VFS_PKGDATADIR
 	#define VFS_PKGLIBDIR		VFS_PKGDATADIR
 #endif

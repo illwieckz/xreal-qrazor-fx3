@@ -441,7 +441,7 @@ void 	VFS_Init()
 	//
 	// userdir
 	//
-	vfs_userdatadir = Cvar_Get("vfs_userdatadir", Sys_ExpandSquiggle(va("%s", VFS_USERDATADIR)), CVAR_ARCHIVE);
+	vfs_userdatadir = Cvar_Get("vfs_userdatadir", std::string(Sys_GetHomeDir()), CVAR_ARCHIVE);
 	
 	//
 	// sharedir <path>
@@ -579,6 +579,8 @@ std::string	VFS_Gamedir()
 
 void 	VFS_ExecAutoexec()
 {
+	//FIXME
+	/*
 	std::string dir;
 	std::string name;
 
@@ -590,9 +592,10 @@ void 	VFS_ExecAutoexec()
 		name = "%s/%s/autoexec.cfg", std::string(vfs_basedir->getString()) + "/" + VFS_BASEDIRNAME + "/autoexec.cfg"; 
 		
 	if((Sys_FindFirst(name, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM)).length())
-		Cbuf_AddText("exec autoexec.cfg\n");
+		Cbuf_AddText("exec %s\n", name.c_str());
 		
 	Sys_FindClose();
+	*/
 }
 
 void 	VFS_CheckForChanges()
