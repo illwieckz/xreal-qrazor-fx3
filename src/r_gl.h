@@ -2630,9 +2630,19 @@ extern void (GLAPIENTRY* qglLoadTransposeMatrixfARB)(const GLfloat *m, const cha
 
 
 /// GL_ARB_vertex_program ======================================================
-extern void (GLAPIENTRY* xglVertexAttribPointerARB) (GLuint, GLint, GLenum, GLboolean, GLsizei, const GLvoid *);
-extern void (GLAPIENTRY* xglEnableVertexAttribArrayARB) (GLuint);
-extern void (GLAPIENTRY* xglDisableVertexAttribArrayARB) (GLuint);
+extern void (GLAPIENTRY* qglVertexAttribPointerARB)(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer, const char *filename, int line);
+#define			 xglVertexAttribPointerARB(index, size, type, normalized, stride, pointer) \
+			 qglVertexAttribPointerARB(index, size, type, normalized, stride, pointer, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglEnableVertexAttribArrayARB)(GLuint index, const char *filename, int line);
+#define			 xglEnableVertexAttribArrayARB(index) \
+			 qglEnableVertexAttribArrayARB(index, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglDisableVertexAttribArrayARB)(GLuint index, const char *filename, int line);
+#define			 xglDisableVertexAttribArrayARB(index) \
+			 qglDisableVertexAttribArrayARB(index, __FILE__, __LINE__)
+
+/*
 extern void (GLAPIENTRY* xglProgramStringARB) (GLenum, GLenum, GLsizei, const GLvoid *);
 extern void (GLAPIENTRY* xglBindProgramARB) (GLenum, GLuint);
 extern void (GLAPIENTRY* xglDeleteProgramsARB) (GLsizei, const GLuint *);
@@ -2648,7 +2658,7 @@ extern void (GLAPIENTRY* xglGetProgramStringARB) (GLenum, GLenum, GLvoid *);
 extern void (GLAPIENTRY* xglGetVertexAttribfvARB) (GLuint, GLenum, GLfloat *);
 extern void (GLAPIENTRY* xglGetVertexAttribPointervARB) (GLuint, GLenum, GLvoid* *);
 extern GLboolean (GLAPIENTRY* xglIsProgramARB) (GLuint);
-
+*/
 
 /// GL_ARB_vertex_buffer_object ================================================
 typedef ptrdiff_t GLintptrARB;

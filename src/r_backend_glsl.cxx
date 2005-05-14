@@ -1593,26 +1593,6 @@ void		RB_CheckOpenGLExtensions()
 	RB_CheckOpenGLExtension("GL_ARB_fragment_shader");
 	RB_CheckOpenGLExtension("GL_ARB_shading_language_100");
 	
-	/// GL_ARB_vertex_program
-	xglVertexAttribPointerARB = (void (GLAPIENTRY*) (GLuint, GLint, GLenum, GLboolean, GLsizei, const GLvoid *)) xglGetProcAddress("glVertexAttribPointerARB");
-	xglEnableVertexAttribArrayARB = (void (GLAPIENTRY*) (GLuint)) xglGetProcAddress("glEnableVertexAttribArrayARB");
-	xglDisableVertexAttribArrayARB = (void (GLAPIENTRY*) (GLuint)) xglGetProcAddress("glDisableVertexAttribArrayARB");
-//	xglProgramStringARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLsizei, const GLvoid *)) XGL_GetSymbol("glProgramStringARB");
-//	xglBindProgramARB = (void (GLAPIENTRY*) (GLenum, GLuint)) XGL_GetSymbol("glBindProgramARB");
-//	xglDeleteProgramsARB = (void (GLAPIENTRY*) (GLsizei, const GLuint *)) XGL_GetSymbol("glDeleteProgramsARB");
-//	xglGenProgramsARB = (void (GLAPIENTRY*) (GLsizei, GLuint *)) XGL_GetSymbol("glGenProgramsARB");
-//	xglProgramEnvParameter4fARB = (void (GLAPIENTRY*) (GLenum, GLuint, GLfloat, GLfloat, GLfloat, GLfloat)) XGL_GetSymbol("glProgramEnvParameter4fARB");
-//	xglProgramEnvParameter4fvARB = (void (GLAPIENTRY*) (GLenum, GLuint, const GLfloat *)) XGL_GetSymbol("glProgramEnvParameter4fvARB");
-//	xglProgramLocalParameter4fARB = (void (GLAPIENTRY*) (GLenum, GLuint, GLfloat, GLfloat, GLfloat, GLfloat)) XGL_GetSymbol("glProgramLocalParameter4fARB");
-//	xglProgramLocalParameter4fvARB = (void (GLAPIENTRY*) (GLenum, GLuint, const GLfloat *)) XGL_GetSymbol("glProgramLocalParameter4fvARB");
-//	xglGetProgramEnvParameterfvARB = (void (GLAPIENTRY*) (GLenum, GLuint, GLfloat *)) XGL_GetSymbol("glGetProgramEnvParameterfvARB");
-//	xglGetProgramLocalParameterfvARB = (void (GLAPIENTRY*) (GLenum, GLuint, GLfloat *)) XGL_GetSymbol("glGetProgramLocalParameterfvARB");
-//	xglGetProgramivARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLint *)) XGL_GetSymbol("glGetProgramivARB");
-//	xglGetProgramStringARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLvoid *)) XGL_GetSymbol("glGetProgramStringARB");
-//	xglGetVertexAttribfvARB = (void (GLAPIENTRY*) (GLuint, GLenum, GLfloat *)) XGL_GetSymbol("glGetVertexAttribfvARB");
-//	xglGetVertexAttribPointervARB = (void (GLAPIENTRY*) (GLuint, GLenum, GLvoid* *)) XGL_GetSymbol("glGetVertexAttribPointervARB");
-//	xglIsProgramARB = (GLboolean (GLAPIENTRY*) (GLuint)) XGL_GetSymbol("glIsProgramARB");
-	
 	/// GL_ARB_shader_objects
 	xglDeleteObjectARB = (void (GLAPIENTRY*) (GLhandleARB)) xglGetProcAddress("glDeleteObjectARB");
 	xglGetHandleARB = (GLhandleARB (GLAPIENTRY*) (GLenum)) xglGetProcAddress("glGetHandleARB");
