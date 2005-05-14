@@ -101,7 +101,7 @@ After some printouts the client window should pop up and it either shows the con
 or you can pull it down with the console key (~ or ^). Type 'connect localhost' in the
 console and qrazor should connect to the server. To move around use the Arrow keys and
 the mouse. Enter 'noclip' into the console first or you cannot move.
-That should be all for now. QRazor-FX is set up and running. Look into the pak009.pk4
+That should be all for now. QRazor-FX is set up and running. Look into the xpak000.pk4
 for the default.cfg and the keys that are bound there.
 
 Cheers...
