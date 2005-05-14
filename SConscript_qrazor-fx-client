@@ -79,10 +79,10 @@ if sys.platform == 'linux2':
 	#qrazor_fx_client_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm', 'jpeg'])
 	qrazor_fx_client_env.Append(LIBS=['dl', 'z', 'openal', 'm'])
 	qrazor_fx_client_env.Program('qrazor-fx-client', qrazor_fx_client_src)
-	qrazor_fx_client_env.Install('#install', 'qrazor-fx-client')
+	qrazor_fx_client_env.Install('#bin', 'qrazor-fx-client')
 
 elif sys.platform == 'win32':
 	qrazor_fx_client_src += ['src/sys_win.cxx', 'src/in_win.cxx', 'src/vid_dll.cxx']
 	qrazor_fx_client_env.Append(LIBS=['z', 'alut', 'openal32', 'm', 'wsock32', 'winmm'])
 	qrazor_fx_client_env.Program('QRazor-FX-Client', qrazor_fx_client_src)
-	qrazor_fx_client_env.Install('#install', 'QRazor-FX-Client.exe')
+	qrazor_fx_client_env.Install('#bin', 'QRazor-FX-Client.exe')

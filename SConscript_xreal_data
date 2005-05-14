@@ -1,6 +1,6 @@
 import os, string, sys
 
-Import('INSTALL env')
+Import('env')
 
 xreal_data_GLSL_files = [
 'data/xreal/glsl/generic_vp.glsl',
@@ -139,8 +139,7 @@ xreal_data_MTR_files = [
 'data/xreal/materials/shaderlist.txt' ]
 
 xreal_data_env = env.Copy()
-xreal_data_env.Install('#install/xreal/glsl', xreal_data_GLSL_files)
-xreal_data_env.Install('#install/xreal/materials', xreal_data_MTR_files)
-#xreal_data_env.Install(INSTALL + '/xreal/materials', ['data/xreal/materials/tr3b.mtr'])
+xreal_data_env.Install('#bin/xreal/glsl', xreal_data_GLSL_files)
+xreal_data_env.Install('#bin/xreal/materials', xreal_data_MTR_files)
 
 

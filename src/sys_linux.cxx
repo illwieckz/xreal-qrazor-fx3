@@ -343,25 +343,14 @@ int 	main(int argc, char **argv)
 
 
 
-char*	Sys_ExpandSquiggle(const char *in)
+const char*	Sys_GetHomeDir()
 {
-	char*	home;
-	char	home_e[MAX_OSPATH];
+	const char* home = getenv("HOME");
 	
-	home = 	getenv("HOME");
-	
-		
-	if(home)
-	{
-		Com_sprintf (home_e, sizeof (home_e), "%s/%s", home, in+2);
-	}
+	if(!home)
+		return ".";
 	else
-		return "";
-	
-	
-	strcpy (home, home_e);
-	
-	return home;
+		return (std::string(home) + "/" + ".qrazor-fx").c_str();
 }
 
 int	Sys_Milliseconds()
