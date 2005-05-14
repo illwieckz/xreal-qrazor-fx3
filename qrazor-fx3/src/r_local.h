@@ -2629,6 +2629,7 @@ struct glconfig_t
 	bool		arb_multitexture;
 	bool		arb_transpose_matrix;
 	bool		arb_texture_compression;
+	bool		arb_vertex_program;
 	bool		arb_vertex_buffer_object;
 	bool		arb_occlusion_query;
 	bool		arb_texture_rectangle;

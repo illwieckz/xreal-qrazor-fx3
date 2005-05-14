@@ -821,12 +821,12 @@ void (GLAPIENTRY* qglLoadTransposeMatrixfARB)(const GLfloat *m, const char *file
 
 static void (GLAPIENTRY* dllLoadTransposeMatrixfARB)(const GLfloat *m);
 
-void GLAPIENTRY stdLoadTransposeMatrixfARB(const GLfloat *m, const char *filename, int line)
+static void GLAPIENTRY stdLoadTransposeMatrixfARB(const GLfloat *m, const char *filename, int line)
 {
 	dllLoadTransposeMatrixfARB(m);
 }
 
-void GLAPIENTRY dbgLoadTransposeMatrixfARB(const GLfloat *m, const char *filename, int line)
+static void GLAPIENTRY dbgLoadTransposeMatrixfARB(const GLfloat *m, const char *filename, int line)
 {
 	dllLoadTransposeMatrixfARB(m);
 	XGL_CheckForError_(filename, line);
@@ -834,9 +834,45 @@ void GLAPIENTRY dbgLoadTransposeMatrixfARB(const GLfloat *m, const char *filenam
 
 
 /// GL_ARB_vertex_program ======================================================
-void (GLAPIENTRY* xglVertexAttribPointerARB) (GLuint, GLint, GLenum, GLboolean, GLsizei, const GLvoid *);
-void (GLAPIENTRY* xglEnableVertexAttribArrayARB) (GLuint);
-void (GLAPIENTRY* xglDisableVertexAttribArrayARB) (GLuint);
+void (GLAPIENTRY* qglVertexAttribPointerARB)(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer, const char *filename, int line);
+void (GLAPIENTRY* qglEnableVertexAttribArrayARB)(GLuint index, const char *filename, int line);
+void (GLAPIENTRY* qglDisableVertexAttribArrayARB)(GLuint index, const char *filename, int line);
+
+static void (GLAPIENTRY* dllVertexAttribPointerARB)(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer);
+static void (GLAPIENTRY* dllEnableVertexAttribArrayARB)(GLuint index);
+static void (GLAPIENTRY* dllDisableVertexAttribArrayARB)(GLuint index);
+
+static void GLAPIENTRY stdVertexAttribPointerARB(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer, const char *filename, int line)
+{
+	dllVertexAttribPointerARB(index, size, type, normalized, stride, pointer);
+}
+static void GLAPIENTRY stdEnableVertexAttribArrayARB(GLuint index, const char *filename, int line)
+{
+	dllEnableVertexAttribArrayARB(index);
+}
+static void GLAPIENTRY stdDisableVertexAttribArrayARB(GLuint index, const char *filename, int line)
+{
+	dllDisableVertexAttribArrayARB(index);
+}
+
+static void GLAPIENTRY dbgVertexAttribPointerARB(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer, const char *filename, int line)
+{
+	dllVertexAttribPointerARB(index, size, type, normalized, stride, pointer);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgEnableVertexAttribArrayARB(GLuint index, const char *filename, int line)
+{
+	dllEnableVertexAttribArrayARB(index);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgDisableVertexAttribArrayARB(GLuint index, const char *filename, int line)
+{
+	dllDisableVertexAttribArrayARB(index);
+	XGL_CheckForError_(filename, line);
+}
+
+
+/*
 void (GLAPIENTRY* xglProgramStringARB) (GLenum, GLenum, GLsizei, const GLvoid *);
 void (GLAPIENTRY* xglBindProgramARB) (GLenum, GLuint);
 void (GLAPIENTRY* xglDeleteProgramsARB) (GLsizei, const GLuint *);
@@ -852,7 +888,7 @@ void (GLAPIENTRY* xglGetProgramStringARB) (GLenum, GLenum, GLvoid *);
 void (GLAPIENTRY* xglGetVertexAttribfvARB) (GLuint, GLenum, GLfloat *);
 void (GLAPIENTRY* xglGetVertexAttribPointervARB) (GLuint, GLenum, GLvoid* *);
 GLboolean (GLAPIENTRY* xglIsProgramARB) (GLuint);
-
+*/
 
 /// GL_ARB_vertex_buffer_object ================================================
 void (GLAPIENTRY* xglBindBufferARB) (GLenum, GLuint);
@@ -1163,31 +1199,19 @@ void	XGL_Shutdown()
 	qglGenTextures						= NULL;
 	
 	qglActiveTextureARB					= NULL;
+	qglClientActiveTextureARB				= NULL;
 	dllActiveTextureARB					= NULL;
-	
-	qglActiveTextureARB					= NULL;
-	dllActiveTextureARB					= NULL;
+	dllClientActiveTextureARB				= NULL;
 	
 	qglLoadTransposeMatrixfARB				= NULL;
 	dllLoadTransposeMatrixfARB				= NULL;
 	
-	xglVertexAttribPointerARB				= NULL;
-	xglEnableVertexAttribArrayARB				= NULL;
-	xglDisableVertexAttribArrayARB				= NULL;
-	xglProgramStringARB					= NULL;
-	xglBindProgramARB					= NULL;
-	xglDeleteProgramsARB					= NULL;
-	xglGenProgramsARB					= NULL;
-	xglProgramEnvParameter4fARB				= NULL;
-	xglProgramEnvParameter4fvARB				= NULL;
-	xglProgramLocalParameter4fARB				= NULL;
-	xglProgramLocalParameter4fvARB				= NULL;
-	xglGetProgramEnvParameterfvARB				= NULL;
-	xglGetProgramLocalParameterfvARB			= NULL;
-	xglGetProgramivARB					= NULL;
-	xglGetProgramStringARB					= NULL;
-	xglGetVertexAttribfvARB					= NULL;
-	xglGetVertexAttribPointervARB				= NULL;
+	qglVertexAttribPointerARB				= NULL;
+	qglEnableVertexAttribArrayARB				= NULL;
+	qglDisableVertexAttribArrayARB				= NULL;
+	dllVertexAttribPointerARB				= NULL;
+	dllEnableVertexAttribArrayARB				= NULL;
+	dllDisableVertexAttribArrayARB				= NULL;
 
 	xglBindBufferARB					= NULL;
 	xglDeleteBuffersARB					= NULL;
@@ -1535,6 +1559,7 @@ void	XGL_InitExtensions()
 	gl_config.arb_multitexture = false;
 	gl_config.arb_transpose_matrix = false;
 	gl_config.arb_texture_compression = false;
+	gl_config.arb_vertex_program = false;
 	gl_config.arb_vertex_buffer_object = false;
 	gl_config.arb_occlusion_query = false;
 	gl_config.arb_texture_rectangle = false;
@@ -1561,7 +1586,7 @@ void	XGL_InitExtensions()
 	{
 		ri.Com_Printf("...using GL_ARB_tranpose_matrix\n");
 		dllLoadTransposeMatrixfARB = (void (GLAPIENTRY*) (const GLfloat *m)) xglGetProcAddress("glLoadTransposeMatrixf");
-		gl_config.arb_multitexture = true;
+		gl_config.arb_transpose_matrix = true;
 	}
 	else
 	{
@@ -1583,6 +1608,36 @@ void	XGL_InitExtensions()
 	else
 	{
 		ri.Com_Printf("...GL_ARB_texture_compression not found\n");
+	}
+	
+	if(strstr(gl_config.extensions_string, "GL_ARB_vertex_program"))
+	{
+		ri.Com_Printf("...using GL_ARB_vertex_program\n");
+		/// GL_ARB_vertex_program
+		dllVertexAttribPointerARB = (void (GLAPIENTRY*) (GLuint, GLint, GLenum, GLboolean, GLsizei, const GLvoid *)) xglGetProcAddress("glVertexAttribPointerARB");
+		dllEnableVertexAttribArrayARB = (void (GLAPIENTRY*) (GLuint)) xglGetProcAddress("glEnableVertexAttribArrayARB");
+		dllDisableVertexAttribArrayARB = (void (GLAPIENTRY*) (GLuint)) xglGetProcAddress("glDisableVertexAttribArrayARB");
+		
+//	xglProgramStringARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLsizei, const GLvoid *)) XGL_GetSymbol("glProgramStringARB");
+//	xglBindProgramARB = (void (GLAPIENTRY*) (GLenum, GLuint)) XGL_GetSymbol("glBindProgramARB");
+//	xglDeleteProgramsARB = (void (GLAPIENTRY*) (GLsizei, const GLuint *)) XGL_GetSymbol("glDeleteProgramsARB");
+//	xglGenProgramsARB = (void (GLAPIENTRY*) (GLsizei, GLuint *)) XGL_GetSymbol("glGenProgramsARB");
+//	xglProgramEnvParameter4fARB = (void (GLAPIENTRY*) (GLenum, GLuint, GLfloat, GLfloat, GLfloat, GLfloat)) XGL_GetSymbol("glProgramEnvParameter4fARB");
+//	xglProgramEnvParameter4fvARB = (void (GLAPIENTRY*) (GLenum, GLuint, const GLfloat *)) XGL_GetSymbol("glProgramEnvParameter4fvARB");
+//	xglProgramLocalParameter4fARB = (void (GLAPIENTRY*) (GLenum, GLuint, GLfloat, GLfloat, GLfloat, GLfloat)) XGL_GetSymbol("glProgramLocalParameter4fARB");
+//	xglProgramLocalParameter4fvARB = (void (GLAPIENTRY*) (GLenum, GLuint, const GLfloat *)) XGL_GetSymbol("glProgramLocalParameter4fvARB");
+//	xglGetProgramEnvParameterfvARB = (void (GLAPIENTRY*) (GLenum, GLuint, GLfloat *)) XGL_GetSymbol("glGetProgramEnvParameterfvARB");
+//	xglGetProgramLocalParameterfvARB = (void (GLAPIENTRY*) (GLenum, GLuint, GLfloat *)) XGL_GetSymbol("glGetProgramLocalParameterfvARB");
+//	xglGetProgramivARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLint *)) XGL_GetSymbol("glGetProgramivARB");
+//	xglGetProgramStringARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLvoid *)) XGL_GetSymbol("glGetProgramStringARB");
+//	xglGetVertexAttribfvARB = (void (GLAPIENTRY*) (GLuint, GLenum, GLfloat *)) XGL_GetSymbol("glGetVertexAttribfvARB");
+//	xglGetVertexAttribPointervARB = (void (GLAPIENTRY*) (GLuint, GLenum, GLvoid* *)) XGL_GetSymbol("glGetVertexAttribPointervARB");
+//	xglIsProgramARB = (GLboolean (GLAPIENTRY*) (GLuint)) XGL_GetSymbol("glIsProgramARB");
+		gl_config.arb_vertex_program = true;
+	}
+	else
+	{
+		ri.Com_Error(ERR_FATAL, "...GL_ARB_vertex_program not found");
 	}
 	
 	if(strstr(gl_config.extensions_string, "GL_ARB_vertex_buffer_object"))
@@ -1807,6 +1862,10 @@ void	XGL_EnableDebugging(bool enable)
 		
 		qglLoadTransposeMatrixfARB				= dbgLoadTransposeMatrixfARB;
 		
+		qglVertexAttribPointerARB				= dbgVertexAttribPointerARB;
+		qglEnableVertexAttribArrayARB				= dbgEnableVertexAttribArrayARB;
+		qglDisableVertexAttribArrayARB				= dbgDisableVertexAttribArrayARB;
+		
 		qglTexImage3DEXT					= dbgTexImage3DEXT;
 		
 		qglDrawRangeElementsEXT					= dbgDrawRangeElementsEXT;
@@ -1885,6 +1944,10 @@ void	XGL_EnableDebugging(bool enable)
 		qglClientActiveTextureARB				= stdClientActiveTextureARB;
 		
 		qglLoadTransposeMatrixfARB				= stdLoadTransposeMatrixfARB;
+		
+		qglVertexAttribPointerARB				= stdVertexAttribPointerARB;
+		qglEnableVertexAttribArrayARB				= stdEnableVertexAttribArrayARB;
+		qglDisableVertexAttribArrayARB				= stdDisableVertexAttribArrayARB;
 		
 		qglTexImage3DEXT					= stdTexImage3DEXT;
 		
