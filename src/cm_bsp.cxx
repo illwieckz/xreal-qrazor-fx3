@@ -1011,7 +1011,7 @@ d_bsp_c*	CM_BeginRegistration(const std::string &name, bool clientload, unsigned
 	std::string		full_name = "maps/" + name + ".bsp";
 	static unsigned		last_checksum;
 
-	cm_noareas	= Cvar_Get("cm_noareas", "0", CVAR_NONE);
+	cm_noareas	= Cvar_Get("cm_noareas", "1", CVAR_NONE);
 	cm_use_brushes	= Cvar_Get("cm_use_brushes", "1", CVAR_NONE);
 	cm_use_patches	= Cvar_Get("cm_use_patches", "0", CVAR_NONE);
 	cm_use_meshes	= Cvar_Get("cm_use_meshes", "0", CVAR_NONE);
