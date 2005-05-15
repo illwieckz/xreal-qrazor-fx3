@@ -290,7 +290,18 @@ static void	CL_ParseServerData(bitmessage_c &msg)
 
 	// set gamedir
 	if(!cls.demo_playback && str.length())
+	{
 		Cvar_Set("vfs_game", str);
+		VFS_Restart();
+		
+		//TODO restart game dlls
+		
+		//TODO restart renderer
+		//VID_Shutdown();
+		//VID_Init();
+		
+		//TODO restart sound engine
+	}
 	cl.gamedir = str;
 
 	// parse player entity number

@@ -1698,7 +1698,7 @@ void	CL_Frame(int msec)
 	CL_CheckForResend();
 
 	// allow rendering DLL change
-//	VID_CheckChanges();
+	VID_CheckChanges();
 //	if(!cl.refresh_prepped && cls.state == CA_ACTIVE)
 //		cge->CG_PrepRefresh();
 

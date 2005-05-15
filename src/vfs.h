@@ -39,7 +39,6 @@ void	VFS_Restart();
 void	VFS_SetGamedir(const std::string &dir);
 std::string	VFS_Gamedir();
 void	VFS_ExecAutoexec();
-void	VFS_CheckForChanges();
 
 std::vector<std::string>	VFS_ListFiles(const std::string &dir, const std::string &extension);
 
