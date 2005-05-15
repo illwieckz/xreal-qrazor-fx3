@@ -202,7 +202,7 @@ void dMatrix::makeRandom (vec_t range)
 {
   for (int i=0; i<n; i++) {
     for (int j=0; j<m; j++)
-      data[i*m+j] = (dRanvec_t()*REAL(2.0)-REAL(1.0))*range;
+      data[i*m+j] = (X_frand()*REAL(2.0)-REAL(1.0))*range;
   }
 }
 

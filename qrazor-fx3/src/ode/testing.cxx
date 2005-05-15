@@ -165,7 +165,7 @@ extern "C" void dTestMatrixComparison()
   vec_t A[50*50];
 
   // make first sequence
-  unsigned long seed = dRandGetSeed();
+  unsigned long seed = X_randGetSeed();
   for (i=1; i<49; i++) {
     dMakeRandomMatrix (A,i,i+1,1.0);
     mc.nextMatrix (A,i,i+1,0,"A%d",i);
@@ -176,7 +176,7 @@ extern "C" void dTestMatrixComparison()
 
   // test identical sequence
   dSetDebugHandler (&myDebug);
-  dRandSetSeed (seed);
+  X_randSetSeed (seed);
   if (setjmp (jump_buffer)) {
     printf ("\tFAILED (1)\n");
   }
@@ -191,7 +191,7 @@ extern "C" void dTestMatrixComparison()
   dSetDebugHandler (orig_debug);
 
   // test broken sequences (with matrix error)
-  dRandSetSeed (seed);
+  X_randSetSeed (seed);
   volatile int passcount = 0;
   for (i=1; i<49; i++) {
     if (setjmp (jump_buffer)) {
@@ -209,7 +209,7 @@ extern "C" void dTestMatrixComparison()
   printf ("\t%s (2)\n",(passcount == 48) ? "passed" : "FAILED");
 
   // test broken sequences (with name error)
-  dRandSetSeed (seed);
+  X_randSetSeed (seed);
   passcount = 0;
   for (i=1; i<49; i++) {
     if (setjmp (jump_buffer)) {
@@ -227,7 +227,7 @@ extern "C" void dTestMatrixComparison()
 
   // test identical sequence again
   dSetDebugHandler (&myDebug);
-  dRandSetSeed (seed);
+  X_randSetSeed (seed);
   if (setjmp (jump_buffer)) {
     printf ("\tFAILED (4)\n");
   }

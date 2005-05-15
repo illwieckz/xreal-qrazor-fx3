@@ -25,55 +25,6 @@
 #include "matrix.h"
 
 //****************************************************************************
-// random numbers
-
-static unsigned long seed = 0;
-
-unsigned long dRand()
-{
-  seed = (1664525L*seed + 1013904223L) & 0xffffffff;
-  return seed;
-}
-
-
-unsigned long  dRandGetSeed()
-{
-  return seed;
-}
-
-
-void dRandSetSeed (unsigned long s)
-{
-  seed = s;
-}
-
-
-int dTestRand()
-{
-  unsigned long oldseed = seed;
-  int ret = 1;
-  seed = 0;
-  if (dRand() != 0x3c6ef35f || dRand() != 0x47502932 ||
-      dRand() != 0xd1ccf6e9 || dRand() != 0xaaf95334 ||
-      dRand() != 0x6252e503) ret = 0;
-  seed = oldseed;
-  return ret;
-}
-
-
-int dRandInt (int n)
-{
-  double a = double(n) / 4294967296.0;
-  return (int) (double(dRand()) * a);
-}
-
-
-vec_t dRanvec_t()
-{
-  return ((vec_t) dRand()) / ((vec_t) 0xffffffff);
-}
-
-//****************************************************************************
 // matrix utility stuff
 
 void dPrintMatrix (const vec_t *A, int n, int m, char *fmt, FILE *f)
@@ -90,7 +41,7 @@ void dPrintMatrix (const vec_t *A, int n, int m, char *fmt, FILE *f)
 void dMakeRandomVector (vec_t *A, int n, vec_t range)
 {
   int i;
-  for (i=0; i<n; i++) A[i] = (dRanvec_t()*REAL(2.0)-REAL(1.0))*range;
+  for (i=0; i<n; i++) A[i] = (X_frand()*REAL(2.0)-REAL(1.0))*range;
 }
 
 
@@ -100,7 +51,7 @@ void dMakeRandomMatrix (vec_t *A, int n, int m, vec_t range)
   int skip = dPAD(m);
   dSetZero (A,n*skip);
   for (i=0; i<n; i++) {
-    for (j=0; j<m; j++) A[i*skip+j] = (dRanvec_t()*REAL(2.0)-REAL(1.0))*range;
+    for (j=0; j<m; j++) A[i*skip+j] = (X_frand()*REAL(2.0)-REAL(1.0))*range;
   }
 }
 

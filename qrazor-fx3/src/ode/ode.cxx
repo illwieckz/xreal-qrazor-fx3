@@ -1485,7 +1485,7 @@ extern "C" void dTestDataStructures()
   checkWorld (w);
 
   for (;;) {
-    if (nb < NUM && dRanvec_t() > 0.5) {
+    if (nb < NUM && X_frand() > 0.5) {
       DO(printf ("creating body\n"));
       body[nb] = dBodyCreate (w);
       DO(printf ("\t--> %p\n",body[nb]));
@@ -1493,9 +1493,9 @@ extern "C" void dTestDataStructures()
       checkWorld (w);
       DO(printf ("%d BODIES, %d JOINTS\n",nb,nj));
     }
-    if (nj < NUM && nb > 2 && dRanvec_t() > 0.5) {
-      dBodyID b1 = body [dRand() % nb];
-      dBodyID b2 = body [dRand() % nb];
+    if (nj < NUM && nb > 2 && X_frand() > 0.5) {
+      dBodyID b1 = body [X_rand() % nb];
+      dBodyID b2 = body [X_rand() % nb];
       if (b1 != b2) {
 	DO(printf ("creating joint, attaching to %p,%p\n",b1,b2));
 	joint[nj] = dJointCreateBall (w,0);
@@ -1507,19 +1507,19 @@ extern "C" void dTestDataStructures()
 	DO(printf ("%d BODIES, %d JOINTS\n",nb,nj));
       }
     }
-    if (nj > 0 && nb > 2 && dRanvec_t() > 0.5) {
-      dBodyID b1 = body [dRand() % nb];
-      dBodyID b2 = body [dRand() % nb];
+    if (nj > 0 && nb > 2 && X_frand() > 0.5) {
+      dBodyID b1 = body [X_rand() % nb];
+      dBodyID b2 = body [X_rand() % nb];
       if (b1 != b2) {
-	int k = dRand() % nj;
+	int k = X_rand() % nj;
 	DO(printf ("reattaching joint %p\n",joint[k]));
 	dJointAttach (joint[k],b1,b2);
 	checkWorld (w);
 	DO(printf ("%d BODIES, %d JOINTS\n",nb,nj));
       }
     }
-    if (nb > 0 && dRanvec_t() > 0.5) {
-      int k = dRand() % nb;
+    if (nb > 0 && X_frand() > 0.5) {
+      int k = X_rand() % nb;
       DO(printf ("destroying body %p\n",body[k]));
       dBodyDestroy (body[k]);
       checkWorld (w);
@@ -1527,8 +1527,8 @@ extern "C" void dTestDataStructures()
       nb--;
       DO(printf ("%d BODIES, %d JOINTS\n",nb,nj));
     }
-    if (nj > 0 && dRanvec_t() > 0.5) {
-      int k = dRand() % nj;
+    if (nj > 0 && X_frand() > 0.5) {
+      int k = X_rand() % nj;
       DO(printf ("destroying joint %p\n",joint[k]));
       dJointDestroy (joint[k]);
       checkWorld (w);
