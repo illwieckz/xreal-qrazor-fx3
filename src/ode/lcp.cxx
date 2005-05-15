@@ -1931,7 +1931,7 @@ extern "C" void dTestSolveLCP()
     dMultiply2 (A,A2,A2,n,n,n);
     dMakeRandomMatrix (x,n,1,1.0);
     dMultiply0 (b,A,x,n,n,1);
-    for (i=0; i<n; i++) b[i] += (dRanvec_t()*REAL(0.2))-REAL(0.1);
+    for (i=0; i<n; i++) b[i] += (X_frand()*REAL(0.2))-REAL(0.1);
 
     // choose `nub' in the range 0..n-1
     int nub = 50; //dRandInt (n);
@@ -1943,8 +1943,8 @@ extern "C" void dTestSolveLCP()
     //for (i=nub; i<n; i++) hi[i] = X_infinity;
     //for (i=nub; i<n; i++) lo[i] = -X_infinity;
     //for (i=nub; i<n; i++) hi[i] = 0;
-    for (i=nub; i<n; i++) lo[i] = -(dRanvec_t()*REAL(1.0))-REAL(0.01);
-    for (i=nub; i<n; i++) hi[i] =  (dRanvec_t()*REAL(1.0))+REAL(0.01);
+    for (i=nub; i<n; i++) lo[i] = -(X_frand()*REAL(1.0))-REAL(0.01);
+    for (i=nub; i<n; i++) hi[i] =  (X_frand()*REAL(1.0))+REAL(0.01);
 
     // set a few limits to lo=hi=0
     /*

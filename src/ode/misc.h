@@ -27,27 +27,6 @@
 
 #include "common.h"
 
-
-/* return 1 if the random number generator is working. */
-int dTestRand(void);
-
-/* return next 32 bit random number. this uses a not-very-random linear
- * congruential method.
- */
-unsigned long dRand(void);
-
-/* get and set the current random number seed. */
-unsigned long  dRandGetSeed(void);
-void dRandSetSeed (unsigned long s);
-
-/* return a random integer between 0..n-1. the distribution will get worse
- * as n approaches 2^32.
- */
-int dRandInt (int n);
-
-/* return a random real number between 0..1 */
-vec_t dRanvec_t(void);
-
 /* print out a matrix */
 #ifdef __cplusplus
 void dPrintMatrix (const vec_t *A, int n, int m, char *fmt = "%10.4f ",
@@ -71,6 +50,5 @@ vec_t dMaxDifference (const vec_t *A, const vec_t *B, int n, int m);
 /* return the maximum element difference between the lower triangle of two
  * n*n matrices */
 vec_t dMaxDifferenceLowerTriangle (const vec_t *A, const vec_t *B, int n);
-
 
 #endif

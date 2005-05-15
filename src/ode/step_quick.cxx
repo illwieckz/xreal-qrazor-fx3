@@ -423,7 +423,7 @@ static void SOR_LCP (int m, int nb, vec_tMutablePtr J, int *jb, dxBody * const *
                 if ((iteration & 7) == 0) {
 			for (i=1; i<m; ++i) {
 				IndexError tmp = order[i];
-				int swapi = dRandInt(i+1);
+				int swapi = X_irand(i+1);
 				order[i] = order[swapi];
 				order[swapi] = tmp;
 			}
