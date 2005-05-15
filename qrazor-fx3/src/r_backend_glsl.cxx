@@ -667,55 +667,55 @@ void	rb_program_c::setVertexAttribs(const r_command_t *cmd)
 void	rb_program_c::enableVertexAttribs()
 {
 	if(_vflags & VATTRIB_VERTEX)
-		xglEnableClientState(GL_VERTEX_ARRAY);			RB_CheckForError();
+		xglEnableClientState(GL_VERTEX_ARRAY);
 		
 	if(_vflags & VATTRIB_TEX0)
-		xglEnableVertexAttribArrayARB(7);			RB_CheckForError();
+		xglEnableVertexAttribArrayARB(7);
 		
 	if(_vflags & VATTRIB_TEX1)
-		xglEnableVertexAttribArrayARB(8);			RB_CheckForError();
+		xglEnableVertexAttribArrayARB(8);
 		
 	if(_vflags & VATTRIB_TANGENT)
-		xglEnableVertexAttribArrayARB(4);			RB_CheckForError();
+		xglEnableVertexAttribArrayARB(4);
 	
 	if(_vflags & VATTRIB_BINORMAL)
-		xglEnableVertexAttribArrayARB(5);			RB_CheckForError();
+		xglEnableVertexAttribArrayARB(5);
 		
 	if(_vflags & VATTRIB_NORMAL)
-		xglEnableClientState(GL_NORMAL_ARRAY);			RB_CheckForError();
+		xglEnableClientState(GL_NORMAL_ARRAY);
 		
 	if(_vflags & VATTRIB_LIGHT)
-		xglEnableVertexAttribArrayARB(6);			RB_CheckForError();
+		xglEnableVertexAttribArrayARB(6);
 		
 	if(_vflags & VATTRIB_COLOR)
-		xglEnableClientState(GL_COLOR_ARRAY);			RB_CheckForError();
+		xglEnableClientState(GL_COLOR_ARRAY);
 }
 
 void	rb_program_c::disableVertexAttribs()
 {
 	if(_vflags & VATTRIB_VERTEX)
-		xglDisableClientState(GL_VERTEX_ARRAY);			RB_CheckForError();
+		xglDisableClientState(GL_VERTEX_ARRAY);
 		
 	if(_vflags & VATTRIB_TEX0)
-		xglDisableVertexAttribArrayARB(7);			RB_CheckForError();
+		xglDisableVertexAttribArrayARB(7);
 		
 	if(_vflags & VATTRIB_TEX1)
-		xglDisableVertexAttribArrayARB(8);			RB_CheckForError();
+		xglDisableVertexAttribArrayARB(8);
 		
 	if(_vflags & VATTRIB_TANGENT)
-		xglDisableVertexAttribArrayARB(4);			RB_CheckForError();
+		xglDisableVertexAttribArrayARB(4);
 	
 	if(_vflags & VATTRIB_BINORMAL)
-		xglDisableVertexAttribArrayARB(5);			RB_CheckForError();
+		xglDisableVertexAttribArrayARB(5);
 		
 	if(_vflags & VATTRIB_NORMAL)
-		xglDisableClientState(GL_NORMAL_ARRAY);			RB_CheckForError();
+		xglDisableClientState(GL_NORMAL_ARRAY);
 		
 	if(_vflags & VATTRIB_LIGHT)
-		xglDisableVertexAttribArrayARB(6);			RB_CheckForError();
+		xglDisableVertexAttribArrayARB(6);
 		
 	if(_vflags & VATTRIB_COLOR)
-		xglDisableClientState(GL_COLOR_ARRAY);			RB_CheckForError();
+		xglDisableClientState(GL_COLOR_ARRAY);
 }
 
 
@@ -1794,12 +1794,22 @@ void		RB_RenderCommand_generic(const r_command_t *cmd,			const r_shader_stage_c 
 
 void		RB_EnableShader_zfill()
 {
-	rb_program_zfill->enable();	RB_CheckForError();
+//	rb_program_zfill->enable();	RB_CheckForError();
+
+	xglEnableClientState(GL_VERTEX_ARRAY);			RB_CheckForError();
+
+	RB_SelectTexture(GL_TEXTURE0);	
+	xglEnableClientState(GL_TEXTURE_COORD_ARRAY);		RB_CheckForError();
 }
 
 void		RB_DisableShader_zfill()
 {
-	rb_program_zfill->disable();	RB_CheckForError();
+//	rb_program_zfill->disable();	RB_CheckForError();
+
+	xglDisableClientState(GL_VERTEX_ARRAY);			RB_CheckForError();
+
+	RB_SelectTexture(GL_TEXTURE0);
+	xglDisableClientState(GL_TEXTURE_COORD_ARRAY);		RB_CheckForError();
 }
 
 void		RB_RenderCommand_zfill(const r_command_t *cmd,				const r_shader_stage_c *stage)
@@ -1808,7 +1818,39 @@ void		RB_RenderCommand_zfill(const r_command_t *cmd,				const r_shader_stage_c *
 
 //	RB_EnableShaderStageStates(cmd->getEntity(), stage);
 
-	rb_program_zfill->setVertexAttribs(cmd);
+//	rb_program_zfill->setVertexAttribs(cmd);
+
+	if(gl_config.arb_vertex_buffer_object && cmd->getEntityMesh()->vbo_array_buffer)
+	{
+		xglBindBufferARB(GL_ARRAY_BUFFER_ARB, cmd->getEntityMesh()->vbo_array_buffer);	RB_CheckForError();
+		
+#if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+		xglVertexPointer(3, GL_FLOAT, 16, VBO_BUFFER_OFFSET(cmd->getEntityMesh()->vbo_vertexes_ofs));		RB_CheckForError();
+#else
+		xglVertexPointer(3, GL_FLOAT, 0, VBO_BUFFER_OFFSET(cmd->getEntityMesh()->vbo_vertexes_ofs));		RB_CheckForError();
+#endif
+		RB_SelectTexture(GL_TEXTURE0);
+		xglTexCoordPointer(2, GL_FLOAT, 0, VBO_BUFFER_OFFSET(cmd->getEntityMesh()->vbo_texcoords_ofs));		RB_CheckForError();
+	}
+	else
+	{
+		if(gl_config.arb_vertex_buffer_object)
+		{
+			gl_state.current_vbo_array_buffer = 0;
+			gl_state.current_vbo_vertexes_ofs = 0;
+			
+			xglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);	RB_CheckForError();
+		}
+		
+#if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+		xglVertexPointer(3, GL_FLOAT, 16, &(cmd->getEntityMesh()->vertexes[0]));	RB_CheckForError();
+#else
+		xglVertexPointer(3, GL_FLOAT, 0, &(cmd->getEntityMesh()->vertexes[0]));		RB_CheckForError();
+#endif
+		
+		RB_SelectTexture(GL_TEXTURE0);
+		xglTexCoordPointer(2, GL_FLOAT, 0, &(cmd->getEntityMesh()->texcoords[0]));	RB_CheckForError();
+	}
 
 	if(stage->flags & SHADER_STAGE_ALPHATEST)
 	{
