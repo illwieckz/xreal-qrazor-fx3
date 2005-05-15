@@ -1209,8 +1209,6 @@ void	Com_Frame(int msec)
 	Com_EventLoop();
 	
 	Cbuf_Execute();
-	
-	VFS_CheckForChanges();
 
 	if(com_speeds->getInteger())
 		time_before = Sys_Milliseconds();

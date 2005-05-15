@@ -441,23 +441,23 @@ void 	VFS_Init()
 	//
 	// userdir
 	//
-	vfs_userdatadir = Cvar_Get("vfs_userdatadir", std::string(Sys_GetHomeDir()), CVAR_ARCHIVE);
+	vfs_userdatadir = Cvar_Get("vfs_userdatadir", std::string(Sys_GetHomeDir()), CVAR_NONE);
 	
 	//
 	// sharedir <path>
 	//	
-	vfs_pkgdatadir = Cvar_Get("vfs_pkgdatadir", VFS_PKGDATADIR, CVAR_ARCHIVE);
+	vfs_pkgdatadir = Cvar_Get("vfs_pkgdatadir", VFS_PKGDATADIR, CVAR_NONE);
 
 	//
 	// basedir <path>
 	// allows the game to run from outside the data tree
 	//
-	vfs_basedir = Cvar_Get("vfs_basedir", VFS_BASEDIRNAME, CVAR_ARCHIVE); 
+	vfs_basedir = Cvar_Get("vfs_basedir", VFS_BASEDIRNAME, CVAR_NONE); 
 	
 	//
 	// libdir
 	//
-	vfs_pkglibdir = Cvar_Get("vfs_pkglibdir", VFS_PKGLIBDIR, CVAR_ARCHIVE);
+	vfs_pkglibdir = Cvar_Get("vfs_pkglibdir", VFS_PKGLIBDIR, CVAR_NONE);
 	
 	
 	//
@@ -494,15 +494,7 @@ void 	VFS_Shutdown()
 {	
 	Com_Printf("------- VFS_Shutdown -------\n");
 
-	//
-	// clear searchpaths
-	//
-	for(std::vector<searchpath_c*>::iterator ir = vfs_searchpaths.begin(); ir != vfs_searchpaths.end(); ir++)
-	{
-		if(*ir)
-			delete *ir;
-		*ir = NULL;
-	}
+	X_purge(vfs_searchpaths);
 	vfs_searchpaths.clear();
 		
 	Cmd_RemoveCommand("path");
@@ -577,7 +569,7 @@ std::string	VFS_Gamedir()
 		return VFS_BASEDIRNAME;
 }
 
-void 	VFS_ExecAutoexec()
+void	VFS_ExecAutoexec()
 {
 	//FIXME
 	/*
@@ -598,18 +590,7 @@ void 	VFS_ExecAutoexec()
 	*/
 }
 
-void 	VFS_CheckForChanges()
-{
-	if(vfs_game->isModified())
-	{
-		vfs_game->isModified(false);
-		
-		VFS_Restart();
-	}
-}
-
-
-int 	VFS_FOpenByMode (const std::string &filename, VFILE *stream, vfs_mode_e mode)
+int	VFS_FOpenByMode (const std::string &filename, VFILE *stream, vfs_mode_e mode)
 {
 	int 	size;
 	bool	sync = false;
