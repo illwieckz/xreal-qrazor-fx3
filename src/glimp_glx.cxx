@@ -916,6 +916,7 @@ int	GLimp_SetMode(int *pwidth, int *pheight, int mode, bool fullscreen)
 			ri.Com_Printf("...using SGIX_pbuffer\n");
 			
 			xglXCreateGLXPbufferSGIX = (GLXPbuffer (*)(Display *dpy, GLXFBConfig config, unsigned int width, unsigned int height, const int *attrib_list)) XGL_GetSymbol("glXCreateGLXPbufferSGIX");
+			xglXDestroyGLXPbufferSGIX = (void (*)(Display *, GLXPbufferSGIX)) XGL_GetSymbol("glXDestroyGLXPbufferSGIX");
 			xglXQueryGLXPbufferSGIX = (void (*)(Display *dpy, GLXPbuffer pbuf, int attribute, unsigned int *value)) XGL_GetSymbol("glXQueryGLXPbufferSGIX");
 			sys_gl.sgix_pbuffer = true;
 		}
@@ -1156,6 +1157,9 @@ static void	GLimp_ParsePbufferModeString(const std::string &mode_string, std::ve
 void	GLimp_InitPbuffer(bool shared_context, bool shared_objects)
 {
 	gl_state.active_pbuffer = false;
+	
+	sys_pbuffer.shared_ctx = shared_context;
+	sys_pbuffer.shared_objects = shared_objects;
 
 	if(!sys_gl.sgix_fbconfig || !sys_gl.sgix_pbuffer)
 		return;
@@ -1305,6 +1309,32 @@ void	GLimp_InitPbuffer(bool shared_context, bool shared_objects)
 	xglXQueryGLXPbufferSGIX(sys_pbuffer.dpy, sys_pbuffer.pbuffer, GLX_HEIGHT, &sys_pbuffer.height);
 	    
 	ri.Com_Printf("GLimp_InitPbuffer: created a %d x %d pbuffer\n", sys_pbuffer.width, sys_pbuffer.height);
+}
+
+void	GLimp_ShutdownPbuffer()
+{
+	GLimp_DeactivatePbuffer();
+
+	if(!sys_gl.sgix_fbconfig || !sys_gl.sgix_pbuffer)
+	{
+		gl_state.active_pbuffer = false;
+		return;
+	}
+	
+	if(sys_pbuffer.ctx && !sys_pbuffer.shared_ctx)
+	{
+		xglXDestroyContext(sys_pbuffer.dpy, sys_pbuffer.ctx);
+	}
+	
+	if(sys_pbuffer.pbuffer)
+	{
+		xglXDestroyGLXPbufferSGIX(sys_pbuffer.dpy, sys_pbuffer.pbuffer);
+	}
+	
+	gl_state.active_pbuffer = false;
+	sys_pbuffer.dpy = NULL;
+	sys_pbuffer.pbuffer = 0;
+	sys_pbuffer.ctx = NULL;
 }
 
 void	GLimp_ActivatePbuffer()

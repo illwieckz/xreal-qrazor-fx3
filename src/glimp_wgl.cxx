@@ -646,3 +646,8 @@ void	GLimp_InitPbuffer(bool shared_context, bool shared_objects)
 {
 	//TODO
 }
+
+void	GLimp_ShutdownPbuffer()
+{
+	//TODO
+}

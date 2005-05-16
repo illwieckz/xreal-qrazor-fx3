@@ -2831,6 +2831,7 @@ extern GLXContext	(*xglXCreateContextWithConfigSGIX)(Display *dpy, GLXFBConfigSG
 
 /// SGIX_pbuffer functions =====================================================
 extern GLXPbuffer	(*xglXCreateGLXPbufferSGIX)(Display *dpy, GLXFBConfig config, unsigned int width, unsigned int height, const int *attrib_list);
+extern void		(*xglXDestroyGLXPbufferSGIX)(Display *, GLXPbufferSGIX);
 extern void		(*xglXQueryGLXPbufferSGIX)(Display *dpy, GLXPbuffer pbuf, int attribute, unsigned int *value);
 
 #endif	// __linux__
