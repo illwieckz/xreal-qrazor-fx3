@@ -191,6 +191,7 @@ extern const vec_t		X_infinity;
 extern const vec3_c		vec3_origin;		// null vector
 
 extern const matrix_c		matrix_identity;
+extern const matrix_c		matrix_zero;
 
 extern const quaternion_c	quat_identity;
 
@@ -1147,19 +1148,13 @@ public:
 	void	identity();
 	
 	void	zero();
-	
-	void	copyTo(matrix_c &out)const ; 
-		
-	void	copyRotateOnly(matrix_c &out) const;
-	
-	void	copyTranslateOnly(matrix_c &out) const;
-	
-	void	copyTranspose(matrix_c &out) const;
 
 	void	transpose();
 #if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
 	void	transposeIntoXMM() const;
 #endif
+	void	transposeTo(matrix_c &m) const;
+
 	void	setupXRotation(vec_t deg);
 
 	void	setupYRotation(vec_t deg);

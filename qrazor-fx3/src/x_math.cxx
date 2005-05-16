@@ -45,6 +45,11 @@ const matrix_c		matrix_identity(	REAL(1.0), REAL(0.0), REAL(0.0), REAL(0.0),
 						REAL(0.0), REAL(0.0), REAL(1.0), REAL(0.0),
 						REAL(0.0), REAL(0.0), REAL(0.0), REAL(1.0)	);
 						
+const matrix_c		matrix_zero(		REAL(0.0), REAL(0.0), REAL(0.0), REAL(0.0), 
+						REAL(0.0), REAL(0.0), REAL(0.0), REAL(0.0),
+						REAL(0.0), REAL(0.0), REAL(0.0), REAL(0.0),
+						REAL(0.0), REAL(0.0), REAL(0.0), REAL(0.0)	);
+						
 const quaternion_c	quat_identity(0, 0, 0, 1);
 
 
@@ -379,64 +384,40 @@ matrix_c::matrix_c(	vec_t m00, vec_t m01, vec_t m02, vec_t m03,
 	
 void	matrix_c::identity()
 {
-	_m[0][0]=1.0f;	_m[0][1]=0.0f;	_m[0][2]=0.0f;	_m[0][3]=0.0f;
-	_m[1][0]=0.0f;	_m[1][1]=1.0f;	_m[1][2]=0.0f;	_m[1][3]=0.0f;
-	_m[2][0]=0.0f;	_m[2][1]=0.0f;	_m[2][2]=1.0f;	_m[2][3]=0.0f;
-	_m[3][0]=0.0f;	_m[3][1]=0.0f;	_m[3][2]=0.0f;	_m[3][3]=1.0f;
+	*this = matrix_identity;
 }
 	
 void	matrix_c::zero()
 {
-	_m[0][0]=0.0f;	_m[0][1]=0.0f;	_m[0][2]=0.0f;	_m[0][3]=0.0f;
-	_m[1][0]=0.0f;	_m[1][1]=0.0f;	_m[1][2]=0.0f;	_m[1][3]=0.0f;
-	_m[2][0]=0.0f;	_m[2][1]=0.0f;	_m[2][2]=0.0f;	_m[2][3]=0.0f;
-	_m[3][0]=0.0f;	_m[3][1]=0.0f;	_m[3][2]=0.0f;	_m[3][3]=0.0f;
+	*this = matrix_zero;
 }
 	
-void	matrix_c::copyTo(matrix_c &out) const
-{
-	out._m[0][0]=_m[0][0];	out._m[0][1]=_m[0][1];	out._m[0][2]=_m[0][2];	out._m[0][3]=_m[0][3];
-	out._m[1][0]=_m[1][0];	out._m[1][1]=_m[1][1];	out._m[1][2]=_m[1][2];	out._m[1][3]=_m[1][3];
-	out._m[2][0]=_m[2][0];	out._m[2][1]=_m[2][1];	out._m[2][2]=_m[2][2];	out._m[2][3]=_m[2][3];
-	out._m[3][0]=_m[3][0];	out._m[3][1]=_m[3][1];	out._m[3][2]=_m[3][2];	out._m[3][3]=_m[3][3];
-}
-	
-void	matrix_c::copyRotateOnly(matrix_c &out) const
-{
-	out._m[0][0]=_m[0][0];	out._m[0][1]=_m[0][1];	out._m[0][2]=_m[0][2];	out._m[0][3]=0.0f;
-	out._m[1][0]=_m[1][0];	out._m[1][1]=_m[1][1];	out._m[1][2]=_m[1][2];	out._m[1][3]=0.0f;
-	out._m[2][0]=_m[2][0];	out._m[2][1]=_m[2][1];	out._m[2][2]=_m[2][2];	out._m[2][3]=0.0f;
-	out._m[3][0]=_m[3][0];	out._m[3][1]=_m[3][1];	out._m[3][2]=_m[3][2];	out._m[3][3]=1.0f;
-}
-	
-void	matrix_c::copyTranslateOnly(matrix_c &out) const
-{
-	out._m[0][0]=1.0f;	out._m[0][1]=0.0f;	out._m[0][2]=0.0f;	out._m[0][3]=_m[0][3];
-	out._m[1][0]=0.0f;	out._m[1][1]=1.0f;	out._m[1][2]=0.0f;	out._m[1][3]=_m[1][3];
-	out._m[2][0]=0.0f;	out._m[2][1]=0.0f;	out._m[2][2]=1.0f;	out._m[2][3]=_m[2][3];
-	out._m[3][0]=0.0f;	out._m[3][1]=0.0f;	out._m[3][2]=0.0f;	out._m[3][3]=1.0f;
-}
-	
-void	matrix_c::copyTranspose(matrix_c &out) const
-{
-	out._m[0][0]=_m[0][0];	out._m[0][1]=_m[1][0];	out._m[0][2]=_m[2][0];	out._m[0][3]=_m[3][0];
-	out._m[1][0]=_m[0][1];	out._m[1][1]=_m[1][1];	out._m[1][2]=_m[2][1];	out._m[1][3]=_m[3][1];
-	out._m[2][0]=_m[0][2];	out._m[2][1]=_m[1][2];	out._m[2][2]=_m[2][2];	out._m[2][3]=_m[3][2];
-	out._m[3][0]=_m[0][3];	out._m[3][1]=_m[1][3];	out._m[3][2]=_m[2][3];	out._m[3][3]=_m[3][3];
-}
-
 void	matrix_c::transpose()
 {
-	/*
-					std::swap(_m[0][1], _m[1][0]);	std::swap(_m[0][2], _m[2][0]);	std::swap(_m[0][3], _m[3][0]);
-	std::swap(_m[1][0], _m[0][1]);					std::swap(_m[1][2], _m[2][1]);	std::swap(_m[1][3], _m[3][1]);
-	std::swap(_m[2][0], _m[0][2]);	std::swap(_m[2][1], _m[1][2]);					std::swap(_m[2][3], _m[3][2]);
-	std::swap(_m[3][0], _m[0][3]);	std::swap(_m[3][1], _m[1][3]);	std::swap(_m[3][2], _m[2][3]);
-	*/
+#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+	// transpose the matrix into the xmm4-7
+	transposeIntoXMM();
 	
-					std::swap(_m[0][1], _m[1][0]);	std::swap(_m[0][2], _m[2][0]);	std::swap(_m[0][3], _m[3][0]);
-									std::swap(_m[1][2], _m[2][1]);	std::swap(_m[1][3], _m[3][1]);
-													std::swap(_m[2][3], _m[3][2]);
+	asm volatile
+	(
+	"movups		%%xmm4,		(%%eax)\n"
+	"movups		%%xmm5,		0x10(%%eax)\n"
+	"movups		%%xmm6,		0x20(%%eax)\n"
+	"movups		%%xmm7,		0x30(%%eax)\n"
+	:
+	: "a"(&_m[0][0])
+	: "memory"
+	);
+#else
+	std::swap(_m[0][1], _m[1][0]);
+	std::swap(_m[0][2], _m[2][0]);
+	std::swap(_m[0][3], _m[3][0]);
+	
+	std::swap(_m[1][2], _m[2][1]);
+	std::swap(_m[1][3], _m[3][1]);
+	
+	std::swap(_m[2][3], _m[3][2]);
+#endif
 }
 
 #if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
@@ -478,6 +459,30 @@ void	matrix_c::transposeIntoXMM() const
 	);
 }
 #endif
+
+void	matrix_c::transposeTo(matrix_c &out) const
+{
+#if defined(__GNUC__) && !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
+	// transpose the matrix into the xmm4-7
+	transposeIntoXMM();
+	
+	asm volatile
+	(
+	"movups		%%xmm4,		(%%eax)\n"
+	"movups		%%xmm5,		0x10(%%eax)\n"
+	"movups		%%xmm6,		0x20(%%eax)\n"
+	"movups		%%xmm7,		0x30(%%eax)\n"
+	:
+	: "a"(&out._m[0][0])
+	: "memory"
+	);
+#else
+	out._m[0][0]=_m[0][0];	out._m[0][1]=_m[1][0];	out._m[0][2]=_m[2][0];	out._m[0][3]=_m[3][0];
+	out._m[1][0]=_m[0][1];	out._m[1][1]=_m[1][1];	out._m[1][2]=_m[2][1];	out._m[1][3]=_m[3][1];
+	out._m[2][0]=_m[0][2];	out._m[2][1]=_m[1][2];	out._m[2][2]=_m[2][2];	out._m[2][3]=_m[3][2];
+	out._m[3][0]=_m[0][3];	out._m[3][1]=_m[1][3];	out._m[3][2]=_m[2][3];	out._m[3][3]=_m[3][3];
+#endif
+}
 	
 void	matrix_c::setupXRotation(vec_t deg)
 {
@@ -564,33 +569,12 @@ void	matrix_c::fromAngles(vec_t pitch, vec_t yaw, vec_t roll)
 	_m[2][0]=(vec_t)(-sp);		_m[2][1]=(vec_t)(sr*cp);		_m[2][2]=(vec_t)(cr*cp);		_m[2][3]= 0;
 	_m[3][0]= 0;			_m[3][1]= 0;				_m[3][2]= 0;				_m[3][3]= 1;
 }
-
-/*
-void	matrix_c::fromEulerAngles(vec_t phi, vec_t theta, vec_t psi)
-{
-	vec_t sphi,cphi,stheta,ctheta,spsi,cpsi;
-	
-	sphi = X_sin(phi);
-	cphi = X_cos(phi);
-	
-	stheta = X_sin(theta);
-	ctheta = X_cos(theta);
-	
-	spsi = X_sin(psi);
-	cpsi = X_cos(psi);
-	
-	_m[0][0]=cpsi*ctheta;			_m[0][1]=spsi*ctheta;			_m[0][2]=-stheta;		_m[0][3]=0.0f;
-	_m[1][0]=cpsi*stheta*sphi - spsi*cphi;	_m[1][1]=spsi*stheta*sphi + cpsi*cphi;	_m[1][2]=ctheta*sphi;		_m[1][3]=0.0f;
-	_m[2][0]=cpsi*stheta*cphi + spsi*sphi;	_m[2][1]=spsi*stheta*cphi - cpsi*sphi;	_m[2][2]=ctheta*cphi;		_m[2][3]=0.0f;
-	_m[3][0]=0.0f;				_m[3][1]=0.0f;				_m[3][2]=0.0f;			_m[3][3]=1.0f;
-}
-*/
 	
 void	matrix_c::fromVectorsFLU(const vec3_c &forward, const vec3_c &left, const vec3_c &up)
 {
 	_m[0][0]=forward[0];	_m[0][1]=left[0];	_m[0][2]=up[0];	_m[0][3]=0; 
-	_m[1][0]=forward[0];	_m[1][1]=left[0];	_m[1][2]=up[0];	_m[1][3]=0;
-	_m[2][0]=forward[0];	_m[2][1]=left[0];	_m[2][2]=up[0];	_m[2][3]=0;
+	_m[1][0]=forward[1];	_m[1][1]=left[1];	_m[1][2]=up[1];	_m[1][3]=0;
+	_m[2][0]=forward[2];	_m[2][1]=left[2];	_m[2][2]=up[2];	_m[2][3]=0;
 	_m[3][0]=0;		_m[3][1]=0;		_m[3][2]=0;	_m[3][3]=1;
 }
 	
@@ -612,8 +596,8 @@ void	matrix_c::toVectorsFLU(vec3_c &forward, vec3_c &left, vec3_c &up) const
 void	matrix_c::fromVectorsFRU(const vec3_c &forward, const vec3_c &right, const vec3_c &up)
 {
 	_m[0][0]=forward[0];	_m[0][1]=-right[0];	_m[0][2]=up[0];	_m[0][3]=0;
-	_m[1][0]=forward[0];	_m[1][1]=-right[0];	_m[1][2]=up[0];	_m[1][3]=0;
-	_m[2][0]=forward[0];	_m[2][1]=-right[0];	_m[2][2]=up[0];	_m[2][3]=0;
+	_m[1][0]=forward[1];	_m[1][1]=-right[1];	_m[1][2]=up[1];	_m[1][3]=0;
+	_m[2][0]=forward[2];	_m[2][1]=-right[2];	_m[2][2]=up[2];	_m[2][3]=0;
 	_m[3][0]=0;		_m[3][1]=0;		_m[3][2]=0;	_m[3][3]=1;
 }
 	
@@ -2679,25 +2663,14 @@ void 	RotatePointAroundVector(vec3_c &dst, const vec3_c &dir, const vec3_c &poin
 	matrix_c	tmpmat;
 	matrix_c	rot;
 	
-	vec3_c	vr, vup, vf;
+	vec3_c	vr(false), vup(false), vf(false);
 
 	vf = dir;
 	Vector3_Perpendicular(vr, vf);
 	vup.crossProduct(vr, vf);
 
-#if 1
-	m[0][0] = vr[0];	m[0][1] = vup[0];	m[0][2] = vf[0];	m[0][3]=0;
-	m[1][0] = vr[1];	m[1][1] = vup[1];	m[1][2] = vf[1];	m[1][3]=0;
-	m[2][0] = vr[2];	m[2][1] = vup[2];	m[2][2] = vf[2];	m[2][3]=0;
-	m[3][0] = 0;		m[3][1] = 0;		m[3][2] = 0;		m[3][3]=1;
-#else
-	//m.identity();
-	m[0] = vf;
-	m[1] = vr;	m[1].negate();
-	m[2] = vup;
-#endif
-	
-	m.copyTranspose(im);
+	m.fromVectorsFLU(vr, vup, vf);
+	m.transposeTo(im);
 
 	zrot.setupZRotation(degrees);
 	
