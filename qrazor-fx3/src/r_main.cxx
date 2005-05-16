@@ -1678,6 +1678,8 @@ void 	R_Shutdown()
 
 	R_ShutdownImages();
 	
+	GLimp_ShutdownPbuffer();
+	
 	GLimp_Shutdown();
 	
 	XGL_Shutdown();

@@ -2695,6 +2695,7 @@ int		GLimp_SetMode(int *pwidth, int *pheight, int mode, bool fullscreen);
 void		GLimp_AppActivate(bool active);
 void		GLimp_Gamma();
 void		GLimp_InitPbuffer(bool share_contexts, bool share_objects);
+void		GLimp_ShutdownPbuffer();
 void		GLimp_ActivatePbuffer();
 void		GLimp_DeactivatePbuffer();
 void		GLimp_EnableLogging(bool enable);

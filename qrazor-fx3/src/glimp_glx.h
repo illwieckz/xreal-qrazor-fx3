@@ -154,6 +154,7 @@ typedef XID GLXDrawable;
 typedef XID GLXPbuffer;
 typedef XID GLXWindow;
 typedef XID GLXFBConfigID;
+typedef XID GLXPbufferSGIX;
 
 typedef struct __GLXcontextRec *GLXContext;
 
@@ -207,6 +208,9 @@ struct sys_pbuffer_t
 
 	uint_t			width;
 	uint_t			height;
+	
+	bool			shared_ctx;
+	bool			shared_objects;
 	
 	Display*		dpy_old;
 	GLXPbuffer		pbuffer_old;

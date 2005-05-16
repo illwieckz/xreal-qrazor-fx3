@@ -1094,6 +1094,7 @@ GLXContext		(*xglXCreateContextWithConfigSGIX)(Display *dpy, GLXFBConfigSGIX con
 
 /// SGIX_pbuffer functions =====================================================
 GLXPbuffer		(*xglXCreateGLXPbufferSGIX)(Display *dpy, GLXFBConfig config, unsigned int width, unsigned int height, const int *attrib_list);
+void			(*xglXDestroyGLXPbufferSGIX)(Display *, GLXPbufferSGIX);
 void			(*xglXQueryGLXPbufferSGIX)(Display *dpy, GLXPbuffer pbuf, int attribute, unsigned int *value);
 
 #endif	// __linux__
@@ -1351,6 +1352,7 @@ void	XGL_Shutdown()
 	xglXCreateContextWithConfigSGIX				= NULL;
 
 	xglXCreateGLXPbufferSGIX				= NULL;
+	xglXDestroyGLXPbufferSGIX				= NULL;
 	xglXQueryGLXPbufferSGIX					= NULL;
 #endif // __linux__
 
