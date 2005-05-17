@@ -25,6 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /// includes ===================================================================
 // system -------------------------------------------------------------------
+#include <boost/lexical_cast.hpp>
+
 // qrazor-fx ----------------------------------------------------------------
 #include "cl_local.h"
 
@@ -473,9 +475,21 @@ void	CLC_SendConnectPacket()
 
 	//Netchan_OutOfBandPrint(adr, "connect %i %i %i \"%s\"\n", PROTOCOL_VERSION, port, cls.challenge, Cvar_Userinfo());
 	
+	std::string str = "connect "
+			+ boost::lexical_cast<std::string>(PROTOCOL_VERSION)
+			+ " "
+			+ boost::lexical_cast<std::string>(port)
+			+ " "
+			+ boost::lexical_cast<std::string>(cls.challenge)
+			+ " "
+			+ std::string(Cvar_Userinfo());
+			
+	Com_DPrintf("CLC_SendConnectPacket: string '%s'\n", str.c_str());
+	
 	bitmessage_c msg(MAX_PACKETLEN*8);
 	msg.writeLong(-1);	// -1 sequence means out of band
-	msg.writeString(va("connect %i %i %i \"%s\"", PROTOCOL_VERSION, port, cls.challenge, Cvar_Userinfo()));
+	msg.writeString(str);
+//	msg.writeString(va("connect %i %i %i \"%s\"", PROTOCOL_VERSION, port, cls.challenge, Cvar_Userinfo()));
 	
 	//Huff_CompressPacket(&msg, 12);
 	
