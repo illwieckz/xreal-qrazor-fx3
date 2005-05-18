@@ -374,7 +374,7 @@ bool	winding_c::chopInPlace(const plane_c &split, vec_t epsilon)
 	// determine sides for each point
 	for(i=0; i<_p.size(); i++)
 	{
-		vec_t dist = dists[i] = split._normal.dotProduct(_p[i]) - split._dist;
+		vec_t dist = dists[i] = split.distance(_p[i]);
 		
 		if(dist > epsilon)
 		{
@@ -393,12 +393,12 @@ bool	winding_c::chopInPlace(const plane_c &split, vec_t epsilon)
 	sides[i] = sides[0];
 	dists[i] = dists[0];
 
-	if(!counts[SIDE_FRONT])
+	if(counts[SIDE_FRONT] <= 0)
 	{
 		return false;
 	}
 	
-	if(!counts[SIDE_BACK])
+	if(counts[SIDE_BACK] <= 0)
 	{
 		return true;
 	}

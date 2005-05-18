@@ -48,6 +48,7 @@ plane_v				planes;
 int		c_structural = 0;
 int		c_detail = 0;
 int		c_areaportals = 0;
+int		c_faceleafs = 0;
 
 
 static void	BSPInfo_f()

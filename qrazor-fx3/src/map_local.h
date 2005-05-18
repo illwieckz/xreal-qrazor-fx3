@@ -87,6 +87,8 @@ protected:
 
 #define	MAX_POINTS_ON_WINDING	64
 
+#define	CLIP_EPSILON	0.1f
+
 // you can define on_epsilon in the makefile as tighter
 #ifndef	ON_EPSILON
 #define	ON_EPSILON	0.1
@@ -389,15 +391,39 @@ typedef face_v::iterator		face_i;
 typedef face_v::const_iterator		face_ci;
 
 
-class node_c
-{
-public:
-	//TODO
-};
+class node_c;
 typedef node_c*				node_p;
 typedef std::vector<node_p>		node_v;
 typedef node_v::iterator		node_i;
 typedef node_v::const_iterator		node_ci;
+
+class node_c :
+public plane_iface_a	// if _plane == NULL then leaf node
+{
+public:
+	node_c(const aabb_c &aabb, node_p parent = NULL);
+	
+	void			splitAABB(const plane_c& p);
+	
+	void			setFrontChild(node_p child)	{_children[SIDE_FRONT] = child;}
+	node_p			getFrontChild() const		{return _children[SIDE_FRONT];}
+	
+	void			setBackChild(node_p child)	{_children[SIDE_BACK] = child;}
+	node_p			getBackChild() const		{return _children[SIDE_BACK];}
+	
+	const aabb_c&		getAABB() const		{return _aabb;}
+	
+private:
+	// shared
+	node_p			_parent;
+	aabb_c			_aabb;
+	
+	// nodes only
+	node_p			_children[2];
+	
+	// leafs only
+};
+
 
 
 class tree_c
@@ -406,13 +432,15 @@ public:
 	tree_c();
 
 	face_v		buildStructuralFaceList(const brush_v& brushes) const;
-	void		buildBSP(const face_v& faces);
+	void		buildBSP(face_v& faces);
+	face_i		selectSplitFace(node_p node, face_v& faces) const;
+	void		buildFaceTree_r(node_p node, face_v& faces);
 	void		buildPortals();
 
 private:
 	
 	node_p			_node_head;
-	node_c			_node_outside;
+//	node_c			_node_outside;
 	aabb_c			_aabb;
 };
 typedef tree_c*				tree_p;
@@ -570,6 +598,7 @@ extern plane_v				planes;
 extern int		c_structural;
 extern int		c_detail;
 extern int		c_areaportals;
+extern int		c_faceleafs;
 
 
 //
