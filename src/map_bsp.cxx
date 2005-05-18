@@ -54,6 +54,25 @@ face_c::~face_c()
 }
 
 
+node_c::node_c(const aabb_c& aabb, node_p parent)
+{
+	_parent		= parent;
+	_aabb		= aabb;
+	
+	_children[SIDE_FRONT]	= NULL;
+	_children[SIDE_BACK]	= NULL;
+}
+
+void	node_c::splitAABB(const plane_c& p)
+{
+	if(p.getType() <= PLANE_Z)
+	{
+		_aabb._mins[p.getType()] = p._dist;
+		_aabb._maxs[p.getType()] = p._dist;
+	}
+}
+
+
 
 tree_c::tree_c()
 {
@@ -96,7 +115,7 @@ face_v	tree_c::buildStructuralFaceList(const brush_v& brushes) const
 	return faces;
 }
 
-void	tree_c::buildBSP(const face_v& faces)
+void	tree_c::buildBSP(face_v& faces)
 {
 	Com_DPrintf("------- tree_c::buildBSP -------\n");
 	
@@ -111,9 +130,104 @@ void	tree_c::buildBSP(const face_v& faces)
 	}
 	Com_DPrintf("%i faces\n", faces.size());
 	
-//	_node_head = new node_c(_aabb);
+	_node_head = new node_c(_aabb);
 	
-	//TODO
+	c_faceleafs = 0;
+	buildFaceTree_r(_node_head, faces);
+	Com_DPrintf("%i faceleafs\n", c_faceleafs);
+}
+
+face_i	tree_c::selectSplitFace(node_p node, face_v& faces) const
+{
+	//TODO some BSP heuristic
+
+	return faces.end();
+}
+
+void	tree_c::buildFaceTree_r(node_p node, face_v& faces)
+{
+	face_i split_selected = selectSplitFace(node, faces);
+	if(split_selected == faces.end())
+	{
+		// this is a leaf node
+		node->setPlane(NULL);
+		c_faceleafs++;
+		return;
+	}
+	
+	// partition the faces
+	plane_p		split_plane = (*split_selected)->getPlane();
+	node->setPlane(split_plane);
+	
+	// multiple surfaces, so split all the polysurfaces into front and back lists
+	face_v faces_front;
+	face_v faces_back;
+	
+	for(face_i i = split_selected; i != faces.end(); ++i)
+	{
+		face_p split = (*i);
+		
+		if(split->getPlane() == node->getPlane())
+		{
+			delete split;
+			continue;
+		}
+		
+		plane_p		split_plane = split->getPlane();
+		winding_p	split_winding = split->getWinding();
+		
+		plane_side_e side = split_winding->onPlaneSide(split_plane->_normal, split_plane->_dist);
+		
+		winding_p	winding_front = NULL;
+		winding_p	winding_back = NULL;
+		
+		switch(side)
+		{
+			case SIDE_FRONT:
+			{
+				faces_front.push_back(split);
+				break;
+			}
+			case SIDE_BACK:
+			{
+				faces_back.push_back(split);
+				break;
+			}
+			case SIDE_CROSS:
+			{
+				split_winding->clip(*split_plane, &winding_front, &winding_back, CLIP_EPSILON * 2);
+				
+				if(winding_front)
+				{
+					face_p face = new face_c(split_plane, winding_front, 0);
+					faces_front.push_back(face);
+				}
+				
+				if(winding_back)
+				{
+					face_p face = new face_c(split_plane, winding_back, 0);
+					faces_back.push_back(face);
+				}
+				
+				delete split;
+			}
+			
+			default:
+				break;
+		}
+	}
+	
+	node_p child_front = new node_c(node->getAABB(), node);
+	node_p child_back = new node_c(node->getAABB(), node);
+	
+	child_front->splitAABB(*split_plane);
+	child_back->splitAABB(*split_plane);
+	
+	node->setFrontChild(child_front);
+	node->setBackChild(child_back);
+	
+	buildFaceTree_r(child_front, faces_front);
+	buildFaceTree_r(child_back, faces_back);
 }
 
 void	tree_c::buildPortals()
