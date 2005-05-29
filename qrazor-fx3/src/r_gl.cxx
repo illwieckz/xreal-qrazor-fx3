@@ -891,6 +891,135 @@ GLboolean (GLAPIENTRY* xglIsProgramARB) (GLuint);
 */
 
 /// GL_ARB_vertex_buffer_object ================================================
+void (GLAPIENTRY* qglBindBufferARB)(GLenum target, GLuint buffer, const char *filename, int line);
+void (GLAPIENTRY* qglDeleteBuffersARB)(GLsizei n, const GLuint *buffers, const char *filename, int line);
+void (GLAPIENTRY* qglGenBuffersARB)(GLsizei n, GLuint *buffers, const char *filename, int line);
+GLboolean (GLAPIENTRY* qglIsBufferARB)(GLuint buffer, const char *filename, int line);
+void (GLAPIENTRY* qglBufferDataARB)(GLenum target, GLsizeiptrARB size, const GLvoid *data, GLenum usage, const char *filename, int line);
+void (GLAPIENTRY* qglBufferSubDataARB)(GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid *data, const char *filename, int line);
+void (GLAPIENTRY* qglGetBufferSubDataARB)(GLenum target, GLintptrARB offset, GLsizeiptrARB size, GLvoid *data, const char *filename, int line);
+GLvoid* (GLAPIENTRY* qglMapBufferARB)(GLenum target, GLenum access, const char *filename, int line);
+GLboolean (GLAPIENTRY* qglUnmapBufferARB)(GLenum target, const char *filename, int line);
+void (GLAPIENTRY* qglGetBufferParameterivARB)(GLenum target, GLenum pname, GLint *params, const char *filename, int line);
+void (GLAPIENTRY* qglGetBufferPointervARB)(GLenum target, GLenum pname, GLvoid* *params, const char *filename, int line);
+
+static void (GLAPIENTRY* dllBindBufferARB)(GLenum target, GLuint buffer);
+static void (GLAPIENTRY* dllDeleteBuffersARB)(GLsizei n, const GLuint *buffers);
+static void (GLAPIENTRY* dllGenBuffersARB)(GLsizei n, GLuint *buffers);
+static GLboolean (GLAPIENTRY* dllIsBufferARB)(GLuint buffer);
+static void (GLAPIENTRY* dllBufferDataARB)(GLenum target, GLsizeiptrARB size, const GLvoid *data, GLenum usage);
+static void (GLAPIENTRY* dllBufferSubDataARB)(GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid *data);
+static void (GLAPIENTRY* dllGetBufferSubDataARB)(GLenum target, GLintptrARB offset, GLsizeiptrARB size, GLvoid *data);
+static GLvoid* (GLAPIENTRY* dllMapBufferARB)(GLenum target, GLenum access);
+static GLboolean (GLAPIENTRY* dllUnmapBufferARB)(GLenum target);
+static void (GLAPIENTRY* dllGetBufferParameterivARB)(GLenum target, GLenum pname, GLint *params);
+static void (GLAPIENTRY* dllGetBufferPointervARB)(GLenum target, GLenum pname, GLvoid* *params);
+
+static void GLAPIENTRY stdBindBufferARB(GLenum target, GLuint buffer, const char *filename, int line)
+{
+	dllBindBufferARB(target, buffer);
+}
+static void GLAPIENTRY stdDeleteBuffersARB(GLsizei n, const GLuint *buffers, const char *filename, int line)
+{
+	dllDeleteBuffersARB(n, buffers);
+}
+static void GLAPIENTRY stdGenBuffersARB(GLsizei n, GLuint *buffers, const char *filename, int line)
+{
+	dllGenBuffersARB(n, buffers);
+}
+static GLboolean GLAPIENTRY stdIsBufferARB(GLuint buffer, const char *filename, int line)
+{
+	return dllIsBufferARB(buffer);
+}
+static void GLAPIENTRY stdBufferDataARB(GLenum target, GLsizeiptrARB size, const GLvoid *data, GLenum usage, const char *filename, int line)
+{
+	dllBufferDataARB(target, size, data, usage);
+}
+static void GLAPIENTRY stdBufferSubDataARB(GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid *data, const char *filename, int line)
+{
+	dllBufferSubDataARB(target, offset, size, data);
+}
+static void GLAPIENTRY stdGetBufferSubDataARB(GLenum target, GLintptrARB offset, GLsizeiptrARB size, GLvoid *data, const char *filename, int line)
+{
+	dllGetBufferSubDataARB(target, offset, size, data);
+}
+static GLvoid* GLAPIENTRY stdMapBufferARB(GLenum target, GLenum access, const char *filename, int line)
+{
+	return dllMapBufferARB(target, access);
+}
+static GLboolean GLAPIENTRY stdUnmapBufferARB(GLenum target, const char *filename, int line)
+{
+	return dllUnmapBufferARB(target);
+}
+static void GLAPIENTRY stdGetBufferParameterivARB(GLenum target, GLenum pname, GLint *params, const char *filename, int line)
+{
+	dllGetBufferParameterivARB(target, pname, params);
+}
+static void GLAPIENTRY stdGetBufferPointervARB(GLenum target, GLenum pname, GLvoid* *params, const char *filename, int line)
+{
+	dllGetBufferPointervARB(target, pname, params);
+}
+
+static void GLAPIENTRY dbgBindBufferARB(GLenum target, GLuint buffer, const char *filename, int line)
+{
+	dllBindBufferARB(target, buffer);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgDeleteBuffersARB(GLsizei n, const GLuint *buffers, const char *filename, int line)
+{
+	dllDeleteBuffersARB(n, buffers);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgGenBuffersARB(GLsizei n, GLuint *buffers, const char *filename, int line)
+{
+	dllGenBuffersARB(n, buffers);
+	XGL_CheckForError_(filename, line);
+}
+static GLboolean GLAPIENTRY dbgIsBufferARB(GLuint buffer, const char *filename, int line)
+{
+	GLboolean b = dllIsBufferARB(buffer);
+	XGL_CheckForError_(filename, line);
+	return b;
+}
+static void GLAPIENTRY dbgBufferDataARB(GLenum target, GLsizeiptrARB size, const GLvoid *data, GLenum usage, const char *filename, int line)
+{
+	dllBufferDataARB(target, size, data, usage);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgBufferSubDataARB(GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid *data, const char *filename, int line)
+{
+	dllBufferSubDataARB(target, offset, size, data);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgGetBufferSubDataARB(GLenum target, GLintptrARB offset, GLsizeiptrARB size, GLvoid *data, const char *filename, int line)
+{
+	dllGetBufferSubDataARB(target, offset, size, data);
+	XGL_CheckForError_(filename, line);
+}
+static GLvoid* GLAPIENTRY dbgMapBufferARB(GLenum target, GLenum access, const char *filename, int line)
+{
+	GLvoid* p = dllMapBufferARB(target, access);
+	XGL_CheckForError_(filename, line);
+	return p;
+}
+static GLboolean GLAPIENTRY dbgUnmapBufferARB(GLenum target, const char *filename, int line)
+{
+	GLboolean b = dllUnmapBufferARB(target);
+	XGL_CheckForError_(filename, line);
+	return b;
+}
+static void GLAPIENTRY dbgGetBufferParameterivARB(GLenum target, GLenum pname, GLint *params, const char *filename, int line)
+{
+	dllGetBufferParameterivARB(target, pname, params);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgGetBufferPointervARB(GLenum target, GLenum pname, GLvoid* *params, const char *filename, int line)
+{
+	dllGetBufferPointervARB(target, pname, params);
+	XGL_CheckForError_(filename, line);
+}
+
+/*
 void (GLAPIENTRY* xglBindBufferARB) (GLenum, GLuint);
 void (GLAPIENTRY* xglDeleteBuffersARB) (GLsizei, const GLuint *);
 void (GLAPIENTRY* xglGenBuffersARB) (GLsizei, GLuint *);
@@ -902,6 +1031,7 @@ GLvoid* (GLAPIENTRY* xglMapBufferARB) (GLenum, GLenum);
 GLboolean (GLAPIENTRY* xglUnmapBufferARB) (GLenum);
 void (GLAPIENTRY* xglGetBufferParameterivARB) (GLenum, GLenum, GLint *);
 void (GLAPIENTRY* xglGetBufferPointervARB) (GLenum, GLenum, GLvoid* *);
+*/
 
 
 /// GL_ARB_occlusion_query =====================================================
@@ -1214,17 +1344,28 @@ void	XGL_Shutdown()
 	dllEnableVertexAttribArrayARB				= NULL;
 	dllDisableVertexAttribArrayARB				= NULL;
 
-	xglBindBufferARB					= NULL;
-	xglDeleteBuffersARB					= NULL;
-	xglGenBuffersARB					= NULL;
-	xglIsBufferARB						= NULL;
-	xglBufferDataARB					= NULL;
-	xglBufferSubDataARB					= NULL;
-	xglGetBufferSubDataARB					= NULL;
-	xglMapBufferARB						= NULL;
-	xglUnmapBufferARB					= NULL;
-	xglGetBufferParameterivARB				= NULL;
-	xglGetBufferPointervARB					= NULL;
+	qglBindBufferARB					= NULL;
+	qglDeleteBuffersARB					= NULL;
+	qglGenBuffersARB					= NULL;
+	qglIsBufferARB						= NULL;
+	qglBufferDataARB					= NULL;
+	qglBufferSubDataARB					= NULL;
+	qglGetBufferSubDataARB					= NULL;
+	qglMapBufferARB						= NULL;
+	qglUnmapBufferARB					= NULL;
+	qglGetBufferParameterivARB				= NULL;
+	qglGetBufferPointervARB					= NULL;
+	dllBindBufferARB					= NULL;
+	dllDeleteBuffersARB					= NULL;
+	dllGenBuffersARB					= NULL;
+	dllIsBufferARB						= NULL;
+	dllBufferDataARB					= NULL;
+	dllBufferSubDataARB					= NULL;
+	dllGetBufferSubDataARB					= NULL;
+	dllMapBufferARB						= NULL;
+	dllUnmapBufferARB					= NULL;
+	dllGetBufferParameterivARB				= NULL;
+	dllGetBufferPointervARB					= NULL;
 	
 	xglGenQueriesARB					= NULL;
 	xglDeleteQueriesARB					= NULL;
@@ -1649,17 +1790,17 @@ void	XGL_InitExtensions()
 			ri.Com_Printf("...using GL_ARB_vertex_buffer_object\n");
 			gl_config.arb_vertex_buffer_object = true;
 			
-			xglBindBufferARB = (void (GLAPIENTRY*) (GLenum, GLuint)) xglGetProcAddress("glBindBufferARB");
-			xglDeleteBuffersARB = (void (GLAPIENTRY*) (GLsizei, const GLuint *)) xglGetProcAddress("glDeleteBuffersARB");
-			xglGenBuffersARB = (void (GLAPIENTRY*) (GLsizei, GLuint *)) xglGetProcAddress("glGenBuffersARB");
-			xglIsBufferARB = (GLboolean (GLAPIENTRY*) (GLuint)) xglGetProcAddress("glIsBufferARB");
-			xglBufferDataARB = (void (GLAPIENTRY*) (GLenum, GLsizeiptrARB, const GLvoid *, GLenum)) xglGetProcAddress("glBufferDataARB");
-			xglBufferSubDataARB = (void (GLAPIENTRY*) (GLenum, GLintptrARB, GLsizeiptrARB, const GLvoid *)) xglGetProcAddress("glBufferSubDataARB");
-			xglGetBufferSubDataARB = (void (GLAPIENTRY*) (GLenum, GLintptrARB, GLsizeiptrARB, GLvoid *)) xglGetProcAddress("glGetBufferSubDataARB");
-			xglMapBufferARB = (GLvoid* (GLAPIENTRY*) (GLenum, GLenum)) xglGetProcAddress("glMapBufferARB");
-			xglUnmapBufferARB = (GLboolean (GLAPIENTRY*) (GLenum)) xglGetProcAddress("glUnmapBufferARB");
-			xglGetBufferParameterivARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLint *)) xglGetProcAddress("glGetBufferParameterivARB");
-			xglGetBufferPointervARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLvoid* *)) xglGetProcAddress("glGetBufferPointervARB");
+			dllBindBufferARB = (void (GLAPIENTRY*) (GLenum, GLuint)) xglGetProcAddress("glBindBufferARB");
+			dllDeleteBuffersARB = (void (GLAPIENTRY*) (GLsizei, const GLuint *)) xglGetProcAddress("glDeleteBuffersARB");
+			dllGenBuffersARB = (void (GLAPIENTRY*) (GLsizei, GLuint *)) xglGetProcAddress("glGenBuffersARB");
+			dllIsBufferARB = (GLboolean (GLAPIENTRY*) (GLuint)) xglGetProcAddress("glIsBufferARB");
+			dllBufferDataARB = (void (GLAPIENTRY*) (GLenum, GLsizeiptrARB, const GLvoid *, GLenum)) xglGetProcAddress("glBufferDataARB");
+			dllBufferSubDataARB = (void (GLAPIENTRY*) (GLenum, GLintptrARB, GLsizeiptrARB, const GLvoid *)) xglGetProcAddress("glBufferSubDataARB");
+			dllGetBufferSubDataARB = (void (GLAPIENTRY*) (GLenum, GLintptrARB, GLsizeiptrARB, GLvoid *)) xglGetProcAddress("glGetBufferSubDataARB");
+			dllMapBufferARB = (GLvoid* (GLAPIENTRY*) (GLenum, GLenum)) xglGetProcAddress("glMapBufferARB");
+			dllUnmapBufferARB = (GLboolean (GLAPIENTRY*) (GLenum)) xglGetProcAddress("glUnmapBufferARB");
+			dllGetBufferParameterivARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLint *)) xglGetProcAddress("glGetBufferParameterivARB");
+			dllGetBufferPointervARB = (void (GLAPIENTRY*) (GLenum, GLenum, GLvoid* *)) xglGetProcAddress("glGetBufferPointervARB");
 		}
 		else
 		{
@@ -1868,6 +2009,18 @@ void	XGL_EnableDebugging(bool enable)
 		qglEnableVertexAttribArrayARB				= dbgEnableVertexAttribArrayARB;
 		qglDisableVertexAttribArrayARB				= dbgDisableVertexAttribArrayARB;
 		
+		qglBindBufferARB					= dbgBindBufferARB;
+		qglDeleteBuffersARB					= dbgDeleteBuffersARB;
+		qglGenBuffersARB					= dbgGenBuffersARB;
+		qglIsBufferARB						= dbgIsBufferARB;
+		qglBufferDataARB					= dbgBufferDataARB;
+		qglBufferSubDataARB					= dbgBufferSubDataARB;
+		qglGetBufferSubDataARB					= dbgGetBufferSubDataARB;
+		qglMapBufferARB						= dbgMapBufferARB;
+		qglUnmapBufferARB					= dbgUnmapBufferARB;
+		qglGetBufferParameterivARB				= dbgGetBufferParameterivARB;
+		qglGetBufferPointervARB					= dbgGetBufferPointervARB;
+		
 		qglTexImage3DEXT					= dbgTexImage3DEXT;
 		
 		qglDrawRangeElementsEXT					= dbgDrawRangeElementsEXT;
@@ -1950,6 +2103,18 @@ void	XGL_EnableDebugging(bool enable)
 		qglVertexAttribPointerARB				= stdVertexAttribPointerARB;
 		qglEnableVertexAttribArrayARB				= stdEnableVertexAttribArrayARB;
 		qglDisableVertexAttribArrayARB				= stdDisableVertexAttribArrayARB;
+		
+		qglBindBufferARB					= stdBindBufferARB;
+		qglDeleteBuffersARB					= stdDeleteBuffersARB;
+		qglGenBuffersARB					= stdGenBuffersARB;
+		qglIsBufferARB						= stdIsBufferARB;
+		qglBufferDataARB					= stdBufferDataARB;
+		qglBufferSubDataARB					= stdBufferSubDataARB;
+		qglGetBufferSubDataARB					= stdGetBufferSubDataARB;
+		qglMapBufferARB						= stdMapBufferARB;
+		qglUnmapBufferARB					= stdUnmapBufferARB;
+		qglGetBufferParameterivARB				= stdGetBufferParameterivARB;
+		qglGetBufferPointervARB					= stdGetBufferPointervARB;
 		
 		qglTexImage3DEXT					= stdTexImage3DEXT;
 		

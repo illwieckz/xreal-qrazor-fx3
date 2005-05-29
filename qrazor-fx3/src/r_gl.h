@@ -2664,17 +2664,49 @@ extern GLboolean (GLAPIENTRY* xglIsProgramARB) (GLuint);
 typedef ptrdiff_t GLintptrARB;
 typedef ptrdiff_t GLsizeiptrARB;
 
-extern void (GLAPIENTRY* xglBindBufferARB) (GLenum, GLuint);
-extern void (GLAPIENTRY* xglDeleteBuffersARB) (GLsizei, const GLuint *);
-extern void (GLAPIENTRY* xglGenBuffersARB) (GLsizei, GLuint *);
-extern GLboolean (GLAPIENTRY* xglIsBufferARB) (GLuint);
-extern void (GLAPIENTRY* xglBufferDataARB) (GLenum, GLsizeiptrARB, const GLvoid *, GLenum);
-extern void (GLAPIENTRY* xglBufferSubDataARB) (GLenum, GLintptrARB, GLsizeiptrARB, const GLvoid *);
-extern void (GLAPIENTRY* xglGetBufferSubDataARB) (GLenum, GLintptrARB, GLsizeiptrARB, GLvoid *);
-extern GLvoid* (GLAPIENTRY* xglMapBufferARB) (GLenum, GLenum);
-extern GLboolean (GLAPIENTRY* xglUnmapBufferARB) (GLenum);
-extern void (GLAPIENTRY* xglGetBufferParameterivARB) (GLenum, GLenum, GLint *);
-extern void (GLAPIENTRY* xglGetBufferPointervARB) (GLenum, GLenum, GLvoid* *);
+extern void (GLAPIENTRY* qglBindBufferARB)(GLenum target, GLuint buffer, const char *filename, int line);
+#define			 xglBindBufferARB(target, buffer) \
+			 qglBindBufferARB(target, buffer, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglDeleteBuffersARB)(GLsizei n, const GLuint *buffers, const char *filename, int line);
+#define			 xglDeleteBuffersARB(n, buffers) \
+			 qglDeleteBuffersARB(n, buffers, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglGenBuffersARB)(GLsizei n, GLuint *buffers, const char *filename, int line);
+#define			 xglGenBuffersARB(n, buffers) \
+			 qglGenBuffersARB(n, buffers, __FILE__, __LINE__)
+
+extern GLboolean (GLAPIENTRY* qglIsBufferARB)(GLuint buffer, const char *filename, int line);
+#define			      xglIsBufferARB(buffer) \
+			      qglIsBufferARB(buffer, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglBufferDataARB)(GLenum target, GLsizeiptrARB size, const GLvoid *data, GLenum usage, const char *filename, int line);
+#define			 xglBufferDataARB(target, size, data, usage) \
+			 qglBufferDataARB(target, size, data, usage, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglBufferSubDataARB)(GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid *data, const char *filename, int line);
+#define			 xglBufferSubDataARB(target, offset, size, data) \
+			 qglBufferSubDataARB(target, offset, size, data, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglGetBufferSubDataARB)(GLenum target, GLintptrARB offset, GLsizeiptrARB size, GLvoid *data, const char *filename, int line);
+#define			 xglGetBufferSubDataARB(target, offset, size, data) \
+			 qglGetBufferSubDataARB(target, offset, size, data, __FILE__, __LINE__)
+
+extern GLvoid* (GLAPIENTRY* qglMapBufferARB)(GLenum target, GLenum access, const char *filename, int line);
+#define			    xglMapBufferARB(target, access) \
+			    qglMapBufferARB(target, access, __FILE__, __LINE__)
+
+extern GLboolean (GLAPIENTRY* qglUnmapBufferARB)(GLenum target, const char *filename, int line);
+#define			      xglUnmapBufferARB(target) \
+			      qglUnmapBUfferARB(target, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglGetBufferParameterivARB)(GLenum target, GLenum pname, GLint *params, const char *filename, int line);
+#define			 xglGetBufferParameterivARB(target, pname, params) \
+			 qglGetBufferParameterivARB(target, pname, params, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglGetBufferPointervARB)(GLenum target, GLenum pname, GLvoid* *params, const char *filename, int line);
+#define			 xglGetBufferPointervARB(target, pname, params) \
+			 qglGetBufferPointervARB(target, pname, params, __FILE__, __LINE__)
 
 
 /// GL_ARB_occlusion_query =====================================================
