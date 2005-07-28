@@ -55,7 +55,7 @@ private:
 protected:
 	u_view_origin_a(GLhandleARB handle)
 	{
-		_u_view_origin	= xglGetUniformLocationARB(handle, "u_view_origin");	RB_CheckForError();
+		_u_view_origin	= xglGetUniformLocationARB(handle, "u_view_origin");
 	}
 	
 public:
@@ -67,13 +67,13 @@ public:
 	void	setUniform_view_origin_inObjectSpace(const r_command_t *cmd)
 	{
 		vec3_c view_origin = cmd->getEntity()->getTransform().affineInverse() * (r_origin - cmd->getEntity()->getShared().origin);
-		xglUniform3fARB(_u_view_origin, view_origin[0], view_origin[1], view_origin[2]);	RB_CheckForError();
+		xglUniform3fARB(_u_view_origin, view_origin[0], view_origin[1], view_origin[2]);
 	}
 	
 	void	setUniform_view_origin_inWorldSpace(const r_command_t *cmd)
 	{
 		const vec3_c& view_origin = r_origin;
-		xglUniform3fARB(_u_view_origin, view_origin[0], view_origin[1], view_origin[2]);	RB_CheckForError();
+		xglUniform3fARB(_u_view_origin, view_origin[0], view_origin[1], view_origin[2]);
 	}
 	
 private:
@@ -89,7 +89,7 @@ private:
 protected:
 	u_light_origin_a(GLhandleARB handle)
 	{
-		_u_light_origin	= xglGetUniformLocationARB(handle, "u_light_origin");	RB_CheckForError();
+		_u_light_origin	= xglGetUniformLocationARB(handle, "u_light_origin");
 	}
 	
 public:
@@ -97,7 +97,7 @@ public:
 	void	setUniform_light_origin(const r_command_t *cmd)
 	{
 		vec3_c light_origin = cmd->getEntity()->getTransform().affineInverse() * (cmd->getLight()->getOrigin() - cmd->getEntity()->getShared().origin);
-		xglUniform3fARB(_u_light_origin, light_origin[0], light_origin[1], light_origin[2]);	RB_CheckForError();
+		xglUniform3fARB(_u_light_origin, light_origin[0], light_origin[1], light_origin[2]);
 	}
 	
 private:
@@ -113,7 +113,7 @@ private:
 protected:
 	u_light_color_a(GLhandleARB handle)
 	{
-		_u_light_color	= xglGetUniformLocationARB(handle, "u_light_color");	RB_CheckForError();
+		_u_light_color	= xglGetUniformLocationARB(handle, "u_light_color");
 	}
 	
 public:
@@ -121,7 +121,7 @@ public:
 	{
 		vec4_c light_color;
 		RB_ModifyColor(cmd->getLight()->getShared(), stage_attenuationmap_xy, light_color);
-		xglUniform3fARB(_u_light_color, light_color[0], light_color[1], light_color[2]);	RB_CheckForError();
+		xglUniform3fARB(_u_light_color, light_color[0], light_color[1], light_color[2]);
 	}
 	
 private:
@@ -137,14 +137,14 @@ private:
 protected:
 	u_bump_scale_a(GLhandleARB handle)
 	{
-		_u_bump_scale	= xglGetUniformLocationARB(handle, "u_bump_scale");	RB_CheckForError();
+		_u_bump_scale	= xglGetUniformLocationARB(handle, "u_bump_scale");
 	}
 	
 public:
 	void	setUniform_bump_scale(const r_command_t *cmd, const r_shader_stage_c *stage_bumpmap)
 	{
 		float bump_scale = RB_Evaluate(cmd->getEntity()->getShared(), stage_bumpmap->bump_scale, 1.0);
-		xglUniform1fARB(_u_bump_scale,	bump_scale);	RB_CheckForError();
+		xglUniform1fARB(_u_bump_scale,	bump_scale);
 	}
 	
 private:
@@ -160,21 +160,21 @@ private:
 protected:
 	u_parallax_a(GLhandleARB handle)
 	{
-		_u_height_scale	= xglGetUniformLocationARB(handle, "u_height_scale");	RB_CheckForError();
-		_u_height_bias	= xglGetUniformLocationARB(handle, "u_height_bias");	RB_CheckForError();
+		_u_height_scale	= xglGetUniformLocationARB(handle, "u_height_scale");
+		_u_height_bias	= xglGetUniformLocationARB(handle, "u_height_bias");
 	}
 	
 public:
 	void	setUniform_height_scale(const r_command_t *cmd, const r_shader_stage_c *stage_bumpmap)
 	{
 		float height_scale = RB_Evaluate(cmd->getEntity()->getShared(), stage_bumpmap->height_scale, 0.05);
-		xglUniform1fARB(_u_height_scale, height_scale);	RB_CheckForError();
+		xglUniform1fARB(_u_height_scale, height_scale);
 	}
 	
 	void	setUniform_height_bias(const r_command_t *cmd, const r_shader_stage_c *stage_bumpmap)
 	{
 		float height_bias = RB_Evaluate(cmd->getEntity()->getShared(), stage_bumpmap->height_bias, 0.0);//-0.02);
-		xglUniform1fARB(_u_height_bias, height_bias);	RB_CheckForError();
+		xglUniform1fARB(_u_height_bias, height_bias);
 	}
 	
 private:
@@ -191,14 +191,14 @@ private:
 protected:
 	u_specular_exponent_a(GLhandleARB handle)
 	{
-		_u_specular_exponent	= xglGetUniformLocationARB(handle, "u_specular_exponent");	RB_CheckForError();
+		_u_specular_exponent	= xglGetUniformLocationARB(handle, "u_specular_exponent");
 	}
 	
 public:
 	void	setUniform_specular_exponent(const r_command_t *cmd, const r_shader_stage_c *stage_specularmap)
 	{
 		float specular_exponent = X_max(0, RB_Evaluate(cmd->getEntity()->getShared(), stage_specularmap->specular_exponent, 32.0));
-		xglUniform1fARB(_u_specular_exponent, specular_exponent);	RB_CheckForError();
+		xglUniform1fARB(_u_specular_exponent, specular_exponent);
 	}
 	
 private:
@@ -214,14 +214,14 @@ private:
 protected:
 	u_refraction_index_a(GLhandleARB handle)
 	{
-		_u_refraction_index	= xglGetUniformLocationARB(handle, "u_refraction_index");	RB_CheckForError();
+		_u_refraction_index	= xglGetUniformLocationARB(handle, "u_refraction_index");
 	}
 	
 public:
 	void	setUniform_refraction_index(const r_command_t *cmd, const r_shader_stage_c *stage)
 	{
 		float refraction_index = RB_Evaluate(cmd->getEntity()->getShared(), stage->refraction_index, 1.0);
-		xglUniform1fARB(_u_refraction_index, refraction_index);		RB_CheckForError();
+		xglUniform1fARB(_u_refraction_index, refraction_index);
 	}
 	
 private:
@@ -237,7 +237,7 @@ private:
 protected:
 	u_eta_ratio_a(GLhandleARB handle)
 	{
-		_u_eta_ratio	= xglGetUniformLocationARB(handle, "u_eta_ratio");	RB_CheckForError();
+		_u_eta_ratio	= xglGetUniformLocationARB(handle, "u_eta_ratio");
 	}
 	
 public:
@@ -245,7 +245,7 @@ public:
 	{
 		float eta	= RB_Evaluate(cmd->getEntity()->getShared(), stage->eta, 1.1);
 		float eta_delta	= RB_Evaluate(cmd->getEntity()->getShared(), stage->eta_delta, -0.02);
-		xglUniform3fARB(_u_eta_ratio, eta, eta + eta_delta, eta + (eta_delta * 2));	RB_CheckForError();
+		xglUniform3fARB(_u_eta_ratio, eta, eta + eta_delta, eta + (eta_delta * 2));
 	}
 	
 private:
@@ -261,28 +261,28 @@ private:
 protected:
 	u_fresnel_a(GLhandleARB handle)
 	{
-		_u_fresnel_power	= xglGetUniformLocationARB(handle, "u_fresnel_power");	RB_CheckForError();
-		_u_fresnel_scale	= xglGetUniformLocationARB(handle, "u_fresnel_scale");	RB_CheckForError();
-		_u_fresnel_bias		= xglGetUniformLocationARB(handle, "u_fresnel_bias");	RB_CheckForError();
+		_u_fresnel_power	= xglGetUniformLocationARB(handle, "u_fresnel_power");
+		_u_fresnel_scale	= xglGetUniformLocationARB(handle, "u_fresnel_scale");
+		_u_fresnel_bias		= xglGetUniformLocationARB(handle, "u_fresnel_bias");
 	}
 	
 public:
 	void	setUniform_fresnel_power(const r_command_t *cmd, const r_shader_stage_c *stage)
 	{
 		float fresnel_power = RB_Evaluate(cmd->getEntity()->getShared(), stage->fresnel_power, 2.0);
-		xglUniform1fARB(_u_fresnel_power, fresnel_power);	RB_CheckForError();
+		xglUniform1fARB(_u_fresnel_power, fresnel_power);
 	}
 	
 	void	setUniform_fresnel_scale(const r_command_t *cmd, const r_shader_stage_c *stage)
 	{
 		float fresnel_scale = RB_Evaluate(cmd->getEntity()->getShared(), stage->fresnel_scale, 2.0);
-		xglUniform1fARB(_u_fresnel_scale, fresnel_scale);	RB_CheckForError();
+		xglUniform1fARB(_u_fresnel_scale, fresnel_scale);
 	}
 	
 	void	setUniform_fresnel_bias(const r_command_t *cmd, const r_shader_stage_c *stage)
 	{
 		float fresnel_bias = RB_Evaluate(cmd->getEntity()->getShared(), stage->fresnel_bias, 1.0);
-		xglUniform1fARB(_u_fresnel_bias, fresnel_bias);		RB_CheckForError();
+		xglUniform1fARB(_u_fresnel_bias, fresnel_bias);
 	}
 	
 private:
@@ -300,19 +300,19 @@ private:
 protected:
 	u_frame_buffer_a(GLhandleARB handle)
 	{
-		_u_fbuf_scale	= xglGetUniformLocationARB(handle, "u_fbuf_scale");	RB_CheckForError();
-		_u_npot_scale	= xglGetUniformLocationARB(handle, "u_npot_scale");	RB_CheckForError();
+		_u_fbuf_scale	= xglGetUniformLocationARB(handle, "u_fbuf_scale");
+		_u_npot_scale	= xglGetUniformLocationARB(handle, "u_npot_scale");
 	}
 	
 public:
 	void	setUniform_fbuf_scale(const r_command_t *cmd)
 	{
-		xglUniform2fARB(_u_fbuf_scale, X_recip((float)vid.width), X_recip((float)vid.height));	RB_CheckForError();
+		xglUniform2fARB(_u_fbuf_scale, X_recip((float)vid.width), X_recip((float)vid.height));
 	}
 	
 	void	setUniform_npot_scale(const r_command_t *cmd)
 	{
-		xglUniform2fARB(_u_npot_scale, (float)vid.width/(float)r_img_currentrender->getWidth(), (float)vid.height/(float)r_img_currentrender->getHeight());	RB_CheckForError();
+		xglUniform2fARB(_u_npot_scale, (float)vid.width/(float)r_img_currentrender->getWidth(), (float)vid.height/(float)r_img_currentrender->getHeight());
 	}
 	
 private:
@@ -329,14 +329,14 @@ private:
 protected:
 	u_deform_magnitude_a(GLhandleARB handle)
 	{
-		_u_deform_magnitude	= xglGetUniformLocationARB(handle, "u_deform_magnitude");	RB_CheckForError();
+		_u_deform_magnitude	= xglGetUniformLocationARB(handle, "u_deform_magnitude");
 	}
 	
 public:
 	void	setUniform_deform_magnitude(const r_command_t *cmd, const r_shader_stage_c *stage)
 	{
 		float value = X_max(0, RB_Evaluate(cmd->getEntity()->getShared(), stage->deform_magnitude, 1.0));
-		xglUniform1fARB(_u_deform_magnitude, value);	RB_CheckForError();
+		xglUniform1fARB(_u_deform_magnitude, value);
 	}
 	
 private:
@@ -352,21 +352,21 @@ private:
 protected:
 	u_fog_a(GLhandleARB handle)
 	{
-		_u_fog_density	= xglGetUniformLocationARB(handle, "u_fog_density");	RB_CheckForError();
-		_u_fog_color	= xglGetUniformLocationARB(handle, "u_fog_color");	RB_CheckForError();
+		_u_fog_density	= xglGetUniformLocationARB(handle, "u_fog_density");
+		_u_fog_color	= xglGetUniformLocationARB(handle, "u_fog_color");
 	}
 	
 public:
 	void	setUniform_fog_density(const r_command_t *cmd, const r_shader_stage_c *stage)
 	{
-		xglUniform1fARB(_u_fog_density, 0.00125f);	RB_CheckForError();
+		xglUniform1fARB(_u_fog_density, 0.00125f);
 	}
 	
 	void	setUniform_fog_color(const r_command_t *cmd, const r_shader_stage_c *stage)
 	{
 		vec4_c color = color_blue;
 		//RB_ModifyColor(cmd->getLight()->getShared(), stage, light_color);
-		xglUniform4fARB(_u_fog_color, color[0], color[1], color[2], color[3]);	RB_CheckForError();
+		xglUniform4fARB(_u_fog_color, color[0], color[1], color[2], color[3]);
 	}
 	
 private:
@@ -425,7 +425,7 @@ private:
 
 rb_program_c::rb_program_c(const std::string &name, uint_t vflags, bool fragment_shader)
 {
-	_handle = xglCreateProgramObjectARB();	RB_CheckForError();
+	_handle = xglCreateProgramObjectARB();
 	_vflags = vflags;
 	
 	loadShader("glsl/" + name + "_vp.glsl", GL_VERTEX_SHADER_ARB);
@@ -434,25 +434,28 @@ rb_program_c::rb_program_c(const std::string &name, uint_t vflags, bool fragment
 		loadShader("glsl/" + name + "_fp.glsl", GL_FRAGMENT_SHADER_ARB);
 	
 //	if(_vflags & VATTRIB_VERTEX)
-//		xglBindAttribLocationARB(_handle, 0, "attr_Vertex");	RB_CheckForError();
+//		xglBindAttribLocationARB(_handle, 0, "attr_Vertex");
 	
 	if(_vflags & VATTRIB_TEX0)
-		xglBindAttribLocationARB(_handle, 7, "attr_TexCoord0");	RB_CheckForError();
+		xglBindAttribLocationARB(_handle, 8, "attr_TexCoord0");
 	
 	if(_vflags & VATTRIB_TEX1)
-		xglBindAttribLocationARB(_handle, 8, "attr_TexCoord1");	RB_CheckForError();
+		xglBindAttribLocationARB(_handle, 9, "attr_TexCoord1");
 		
 	if(_vflags & VATTRIB_TANGENT)
-		xglBindAttribLocationARB(_handle, 4, "attr_Tangent");	RB_CheckForError();
+		xglBindAttribLocationARB(_handle, 10, "attr_Tangent");
 		
 	if(_vflags & VATTRIB_BINORMAL)
-		xglBindAttribLocationARB(_handle, 5, "attr_Binormal");	RB_CheckForError();
+		xglBindAttribLocationARB(_handle, 11, "attr_Binormal");
+
+//	if(_vflags & VATTRIB_NORMAL)
+//		xglBindAttribLocationARB(_handle, 2, "attr_Color");
 		
 	if(_vflags & VATTRIB_LIGHT)
-		xglBindAttribLocationARB(_handle, 6, "attr_Light");	RB_CheckForError();
+		xglBindAttribLocationARB(_handle, 12, "attr_Light");
 		
 //	if(_vflags & VATTRIB_COLOR)
-//		xglBindAttribLocationARB(_handle, 6, "attr_Color");	RB_CheckForError();
+//		xglBindAttribLocationARB(_handle, 3, "attr_Color");
 	
 	link();
 	validate();
@@ -494,8 +497,6 @@ void	rb_program_c::loadShader(const std::string &name, GLenum shader_type)
 	xglDeleteObjectARB(shader);
 	
 	ri.VFS_FFree(buffer);
-	
-	RB_CheckForError();
 }
 
 void	rb_program_c::link()
@@ -524,18 +525,14 @@ void	rb_program_c::validate()
 
 void	rb_program_c::enable()
 {
-	RB_CheckForError();
-
-	xglUseProgramObjectARB(_handle);//	RB_CheckForError();
+	xglUseProgramObjectARB(_handle);
 	
 	enableVertexAttribs();
 }
 
 void	rb_program_c::disable()
 {
-	RB_CheckForError();
-
-	xglUseProgramObjectARB(0);//	RB_CheckForError();
+	xglUseProgramObjectARB(0);
 	
 	disableVertexAttribs();
 }
@@ -550,7 +547,7 @@ void	rb_program_c::setVertexAttribs(const r_command_t *cmd)
 		if(	(gl_state.current_vbo_array_buffer == entity_mesh->vbo_array_buffer) &&
 			(gl_state.current_vbo_vertexes_ofs == entity_mesh->vbo_vertexes_ofs)	)
 		{
-			xglBindBufferARB(GL_ARRAY_BUFFER_ARB, entity_mesh->vbo_array_buffer);	RB_CheckForError();
+			xglBindBufferARB(GL_ARRAY_BUFFER_ARB, entity_mesh->vbo_array_buffer);
 			return;
 		}
 		else
@@ -560,53 +557,51 @@ void	rb_program_c::setVertexAttribs(const r_command_t *cmd)
 		}
 		*/
 	
-		xglBindBufferARB(GL_ARRAY_BUFFER_ARB, entity_mesh->vbo_array_buffer);	RB_CheckForError();
+		xglBindBufferARB(GL_ARRAY_BUFFER_ARB, entity_mesh->vbo_array_buffer);
 		
 		if(_vflags & VATTRIB_VERTEX)
-//			xglVertexAttribPointerARB(0, 3, GL_FLOAT, 0, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_vertexes_ofs));	RB_CheckForError();
 #if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
-			xglVertexPointer(3, GL_FLOAT, 16, VBO_BUFFER_OFFSET(entity_mesh->vbo_vertexes_ofs));			RB_CheckForError();
+			xglVertexPointer(3, GL_FLOAT, 16, VBO_BUFFER_OFFSET(entity_mesh->vbo_vertexes_ofs));
 #else
-			xglVertexPointer(3, GL_FLOAT, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_vertexes_ofs));			RB_CheckForError();
+			xglVertexPointer(3, GL_FLOAT, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_vertexes_ofs));
 #endif
 			
 		if(_vflags & VATTRIB_TEX0)
-			xglVertexAttribPointerARB(7, 2, GL_FLOAT, 0, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_texcoords_ofs));	RB_CheckForError();		
+			xglVertexAttribPointerARB(8, 2, GL_FLOAT, 0, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_texcoords_ofs));
 			
 		if(_vflags & VATTRIB_TEX1)
-			xglVertexAttribPointerARB(8, 2, GL_FLOAT, 0, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_texcoords_lm_ofs));	RB_CheckForError();
+			xglVertexAttribPointerARB(9, 2, GL_FLOAT, 0, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_texcoords_lm_ofs));
 		
 		if(_vflags & VATTRIB_TANGENT)
 #if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
-			xglVertexAttribPointerARB(4, 3, GL_FLOAT, 0, 16, VBO_BUFFER_OFFSET(entity_mesh->vbo_tangents_ofs));	RB_CheckForError();
+			xglVertexAttribPointerARB(10, 3, GL_FLOAT, 0, 16, VBO_BUFFER_OFFSET(entity_mesh->vbo_tangents_ofs));
 #else
-			xglVertexAttribPointerARB(4, 3, GL_FLOAT, 0, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_tangents_ofs));	RB_CheckForError();
+			xglVertexAttribPointerARB(10, 3, GL_FLOAT, 0, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_tangents_ofs));
 #endif
 		
 		if(_vflags & VATTRIB_BINORMAL)
 #if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
-			xglVertexAttribPointerARB(5, 3, GL_FLOAT, 0, 16, VBO_BUFFER_OFFSET(entity_mesh->vbo_binormals_ofs));	RB_CheckForError();
+			xglVertexAttribPointerARB(11, 3, GL_FLOAT, 0, 16, VBO_BUFFER_OFFSET(entity_mesh->vbo_binormals_ofs));
 #else
-			xglVertexAttribPointerARB(5, 3, GL_FLOAT, 0, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_binormals_ofs));	RB_CheckForError();
+			xglVertexAttribPointerARB(11, 3, GL_FLOAT, 0, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_binormals_ofs));
 #endif
 			
 		if(_vflags & VATTRIB_NORMAL)
-//			xglVertexAttribPointerARB(5, 3, GL_FLOAT, 0, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_normals_ofs));	RB_CheckForError();
 #if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
-			xglNormalPointer(GL_FLOAT, 16, VBO_BUFFER_OFFSET(entity_mesh->vbo_normals_ofs));			RB_CheckForError();
+			xglNormalPointer(GL_FLOAT, 16, VBO_BUFFER_OFFSET(entity_mesh->vbo_normals_ofs));
 #else
-			xglNormalPointer(GL_FLOAT, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_normals_ofs));				RB_CheckForError();
+			xglNormalPointer(GL_FLOAT, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_normals_ofs));
 #endif
 
 		if(_vflags & VATTRIB_LIGHT)
 #if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
-			xglVertexAttribPointerARB(6, 3, GL_FLOAT, 0, 16, VBO_BUFFER_OFFSET(entity_mesh->vbo_lights_ofs));	RB_CheckForError();
+			xglVertexAttribPointerARB(12, 3, GL_FLOAT, 0, 16, VBO_BUFFER_OFFSET(entity_mesh->vbo_lights_ofs));
 #else
-			xglVertexAttribPointerARB(6, 3, GL_FLOAT, 0, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_lights_ofs));	RB_CheckForError();
+			xglVertexAttribPointerARB(12, 3, GL_FLOAT, 0, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_lights_ofs));
 #endif
 		
 		if(_vflags & VATTRIB_COLOR)
-			xglColorPointer(4, GL_FLOAT, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_colors_ofs));			RB_CheckForError();
+			xglColorPointer(4, GL_FLOAT, 0, VBO_BUFFER_OFFSET(entity_mesh->vbo_colors_ofs));
 	}
 	else
 	{
@@ -615,52 +610,52 @@ void	rb_program_c::setVertexAttribs(const r_command_t *cmd)
 			gl_state.current_vbo_array_buffer = 0;
 			gl_state.current_vbo_vertexes_ofs = 0;
 			
-			xglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);	RB_CheckForError();
+			xglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 		}
 		
 		if(_vflags & VATTRIB_VERTEX)
 #if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
-			xglVertexPointer(3, GL_FLOAT, 16, &(entity_mesh->vertexes[0]));				RB_CheckForError();
+			xglVertexPointer(3, GL_FLOAT, 16, &(entity_mesh->vertexes[0]));
 #else
-			xglVertexPointer(3, GL_FLOAT, 0, &(entity_mesh->vertexes[0]));				RB_CheckForError();
+			xglVertexPointer(3, GL_FLOAT, 0, &(entity_mesh->vertexes[0]));
 #endif
 		
 		if(_vflags & VATTRIB_TEX0)
-			xglVertexAttribPointerARB(7, 2, GL_FLOAT, 0, 0, &(entity_mesh->texcoords[0]));		RB_CheckForError();
+			xglVertexAttribPointerARB(8, 2, GL_FLOAT, 0, 0, &(entity_mesh->texcoords[0]));
 			
 		if(_vflags & VATTRIB_TEX1)
-			xglVertexAttribPointerARB(8, 2, GL_FLOAT, 0, 0, &(entity_mesh->texcoords_lm[0]));	RB_CheckForError();
+			xglVertexAttribPointerARB(9, 2, GL_FLOAT, 0, 0, &(entity_mesh->texcoords_lm[0]));
 		
 		if(_vflags & VATTRIB_TANGENT)
 #if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
-			xglVertexAttribPointerARB(4, 3, GL_FLOAT, 0, 16, &(entity_mesh->tangents[0]));		RB_CheckForError();
+			xglVertexAttribPointerARB(10, 3, GL_FLOAT, 0, 16, &(entity_mesh->tangents[0]));
 #else
-			xglVertexAttribPointerARB(4, 3, GL_FLOAT, 0, 0, &(entity_mesh->tangents[0]));		RB_CheckForError();
+			xglVertexAttribPointerARB(10, 3, GL_FLOAT, 0, 0, &(entity_mesh->tangents[0]));
 #endif
 		
 		if(_vflags & VATTRIB_BINORMAL)
 #if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
-			xglVertexAttribPointerARB(5, 3, GL_FLOAT, 0, 16, &(entity_mesh->binormals[0]));		RB_CheckForError();
+			xglVertexAttribPointerARB(11, 3, GL_FLOAT, 0, 16, &(entity_mesh->binormals[0]));
 #else
-			xglVertexAttribPointerARB(5, 3, GL_FLOAT, 0, 0, &(entity_mesh->binormals[0]));		RB_CheckForError();
+			xglVertexAttribPointerARB(11, 3, GL_FLOAT, 0, 0, &(entity_mesh->binormals[0]));
 #endif
 		
 		if(_vflags & VATTRIB_NORMAL)
 #if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
-			xglNormalPointer(GL_FLOAT, 16, &(entity_mesh->normals[0]));				RB_CheckForError();
+			xglNormalPointer(GL_FLOAT, 16, &(entity_mesh->normals[0]));
 #else
-			xglNormalPointer(GL_FLOAT, 0, &(entity_mesh->normals[0]));				RB_CheckForError();
+			xglNormalPointer(GL_FLOAT, 0, &(entity_mesh->normals[0]));
 #endif
 
 		if(_vflags & VATTRIB_LIGHT)
 #if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
-			xglVertexAttribPointerARB(6, 3, GL_FLOAT, 0, 16, &(entity_mesh->lights[0]));		RB_CheckForError();
+			xglVertexAttribPointerARB(12, 3, GL_FLOAT, 0, 16, &(entity_mesh->lights[0]));
 #else
-			xglVertexAttribPointerARB(6, 3, GL_FLOAT, 0, 0, &(entity_mesh->lights[0]));		RB_CheckForError();
+			xglVertexAttribPointerARB(12, 3, GL_FLOAT, 0, 0, &(entity_mesh->lights[0]));
 #endif
 			
 		if(_vflags & VATTRIB_COLOR)
-			xglColorPointer(4, GL_FLOAT, 0, &(entity_mesh->colors[0]));				RB_CheckForError();
+			xglColorPointer(4, GL_FLOAT, 0, &(entity_mesh->colors[0]));
 	}
 }
 
@@ -670,22 +665,22 @@ void	rb_program_c::enableVertexAttribs()
 		xglEnableClientState(GL_VERTEX_ARRAY);
 		
 	if(_vflags & VATTRIB_TEX0)
-		xglEnableVertexAttribArrayARB(7);
-		
-	if(_vflags & VATTRIB_TEX1)
 		xglEnableVertexAttribArrayARB(8);
 		
+	if(_vflags & VATTRIB_TEX1)
+		xglEnableVertexAttribArrayARB(9);
+		
 	if(_vflags & VATTRIB_TANGENT)
-		xglEnableVertexAttribArrayARB(4);
+		xglEnableVertexAttribArrayARB(10);
 	
 	if(_vflags & VATTRIB_BINORMAL)
-		xglEnableVertexAttribArrayARB(5);
+		xglEnableVertexAttribArrayARB(11);
 		
 	if(_vflags & VATTRIB_NORMAL)
 		xglEnableClientState(GL_NORMAL_ARRAY);
 		
 	if(_vflags & VATTRIB_LIGHT)
-		xglEnableVertexAttribArrayARB(6);
+		xglEnableVertexAttribArrayARB(12);
 		
 	if(_vflags & VATTRIB_COLOR)
 		xglEnableClientState(GL_COLOR_ARRAY);
@@ -697,22 +692,22 @@ void	rb_program_c::disableVertexAttribs()
 		xglDisableClientState(GL_VERTEX_ARRAY);
 		
 	if(_vflags & VATTRIB_TEX0)
-		xglDisableVertexAttribArrayARB(7);
-		
-	if(_vflags & VATTRIB_TEX1)
 		xglDisableVertexAttribArrayARB(8);
 		
+	if(_vflags & VATTRIB_TEX1)
+		xglDisableVertexAttribArrayARB(9);
+		
 	if(_vflags & VATTRIB_TANGENT)
-		xglDisableVertexAttribArrayARB(4);
+		xglDisableVertexAttribArrayARB(10);
 	
 	if(_vflags & VATTRIB_BINORMAL)
-		xglDisableVertexAttribArrayARB(5);
+		xglDisableVertexAttribArrayARB(11);
 		
 	if(_vflags & VATTRIB_NORMAL)
 		xglDisableClientState(GL_NORMAL_ARRAY);
 		
 	if(_vflags & VATTRIB_LIGHT)
-		xglDisableVertexAttribArrayARB(6);
+		xglDisableVertexAttribArrayARB(12);
 		
 	if(_vflags & VATTRIB_COLOR)
 		xglDisableClientState(GL_COLOR_ARRAY);
@@ -731,14 +726,14 @@ public:
 	:rb_program_c("generic", VATTRIB_VERTEX | VATTRIB_TEX0, false)
 	{
 /*
-		_u_colormap	= xglGetUniformLocationARB(getHandle(), "u_colormap");	RB_CheckForError();
-		_u_color	= xglGetUniformLocationARB(getHandle(), "u_color");	RB_CheckForError();
+		_u_colormap	= xglGetUniformLocationARB(getHandle(), "u_colormap");
+		_u_color	= xglGetUniformLocationARB(getHandle(), "u_color");
 		
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());
 		
-		xglUniform1iARB(_u_colormap, 0);	RB_CheckForError();
+		xglUniform1iARB(_u_colormap, 0);
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);
 */
 	}
 
@@ -754,21 +749,19 @@ class rb_zfill_c : public rb_program_c
 {
 public:
 	rb_zfill_c()
-	:rb_program_c("zfill", VATTRIB_VERTEX | VATTRIB_TEX0, false)
+	:rb_program_c("zfill", VATTRIB_VERTEX | VATTRIB_TEX0, true)
 	{
-	/*
-		_u_colormap	= xglGetUniformLocationARB(getHandle(), "u_colormap");	RB_CheckForError();
+		_u_colormap	= xglGetUniformLocationARB(getHandle(), "u_colormap");
 
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());
 		
-		xglUniform1iARB(_u_colormap, 0);	RB_CheckForError();
+		xglUniform1iARB(_u_colormap, 0);
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
-	*/
+		xglUseProgramObjectARB(0);
 	}
 
 private:
-//	uint_t		_u_colormap;
+	uint_t		_u_colormap;
 };
 
 
@@ -778,17 +771,17 @@ public:
 	rb_lighting_R_c()
 	:rb_program_c("lighting_R", VATTRIB_VERTEX | VATTRIB_TEX0 | VATTRIB_TEX1 | VATTRIB_NORMAL)
 	{
-		_u_diffusemap	= xglGetUniformLocationARB(getHandle(), "u_diffusemap");	RB_CheckForError();
-		_u_lightmap	= xglGetUniformLocationARB(getHandle(), "u_lightmap");		RB_CheckForError();
-		_u_deluxemap	= xglGetUniformLocationARB(getHandle(), "u_deluxemap");		RB_CheckForError();
+		_u_diffusemap	= xglGetUniformLocationARB(getHandle(), "u_diffusemap");	
+		_u_lightmap	= xglGetUniformLocationARB(getHandle(), "u_lightmap");		
+		_u_deluxemap	= xglGetUniformLocationARB(getHandle(), "u_deluxemap");		
 		
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_diffusemap, 0);	RB_CheckForError();
-		xglUniform1iARB(_u_lightmap, 1);	RB_CheckForError();
-		xglUniform1iARB(_u_deluxemap, 2);	RB_CheckForError();
+		xglUniform1iARB(_u_diffusemap, 0);	
+		xglUniform1iARB(_u_lightmap, 1);	
+		xglUniform1iARB(_u_deluxemap, 2);	
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 
 private:
@@ -805,19 +798,19 @@ public:
 	:rb_program_c("lighting_RB", VATTRIB_VERTEX | VATTRIB_TEX0 | VATTRIB_TEX1 | VATTRIB_TANGENT | VATTRIB_BINORMAL | VATTRIB_NORMAL),
 	u_bump_scale_a(getHandle())
 	{
-		_u_diffusemap	= xglGetUniformLocationARB(getHandle(), "u_diffusemap");	RB_CheckForError();
-		_u_bumpmap	= xglGetUniformLocationARB(getHandle(), "u_bumpmap");		RB_CheckForError();
-		_u_lightmap	= xglGetUniformLocationARB(getHandle(), "u_lightmap");		RB_CheckForError();
-		_u_deluxemap	= xglGetUniformLocationARB(getHandle(), "u_deluxemap");		RB_CheckForError();
+		_u_diffusemap	= xglGetUniformLocationARB(getHandle(), "u_diffusemap");	
+		_u_bumpmap	= xglGetUniformLocationARB(getHandle(), "u_bumpmap");		
+		_u_lightmap	= xglGetUniformLocationARB(getHandle(), "u_lightmap");		
+		_u_deluxemap	= xglGetUniformLocationARB(getHandle(), "u_deluxemap");		
 		
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_diffusemap, 0);	RB_CheckForError();
-		xglUniform1iARB(_u_bumpmap, 1);		RB_CheckForError();
-		xglUniform1iARB(_u_lightmap, 2);	RB_CheckForError();
-		xglUniform1iARB(_u_deluxemap, 3);	RB_CheckForError();
+		xglUniform1iARB(_u_diffusemap, 0);	
+		xglUniform1iARB(_u_bumpmap, 1);		
+		xglUniform1iARB(_u_lightmap, 2);	
+		xglUniform1iARB(_u_deluxemap, 3);	
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 	
 private:
@@ -841,19 +834,19 @@ public:
 	u_bump_scale_a(getHandle()),
 	u_parallax_a(getHandle())
 	{
-		_u_diffusemap	= xglGetUniformLocationARB(getHandle(), "u_diffusemap");	RB_CheckForError();
-		_u_bumpmap	= xglGetUniformLocationARB(getHandle(), "u_bumpmap");		RB_CheckForError();
-		_u_lightmap	= xglGetUniformLocationARB(getHandle(), "u_lightmap");		RB_CheckForError();
-		_u_deluxemap	= xglGetUniformLocationARB(getHandle(), "u_deluxemap");		RB_CheckForError();
+		_u_diffusemap	= xglGetUniformLocationARB(getHandle(), "u_diffusemap");
+		_u_bumpmap	= xglGetUniformLocationARB(getHandle(), "u_bumpmap");
+		_u_lightmap	= xglGetUniformLocationARB(getHandle(), "u_lightmap");
+		_u_deluxemap	= xglGetUniformLocationARB(getHandle(), "u_deluxemap");
 		
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_diffusemap, 0);	RB_CheckForError();
-		xglUniform1iARB(_u_bumpmap, 1);		RB_CheckForError();
-		xglUniform1iARB(_u_lightmap, 2);	RB_CheckForError();
-		xglUniform1iARB(_u_deluxemap, 3);	RB_CheckForError();
+		xglUniform1iARB(_u_diffusemap, 0);	
+		xglUniform1iARB(_u_bumpmap, 1);		
+		xglUniform1iARB(_u_lightmap, 2);	
+		xglUniform1iARB(_u_deluxemap, 3);	
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 
 private:
@@ -879,21 +872,21 @@ public:
 	u_parallax_a(getHandle()),
 	u_specular_exponent_a(getHandle())
 	{
-		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");	RB_CheckForError();
-		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");		RB_CheckForError();
-		_u_specularmap		= xglGetUniformLocationARB(getHandle(), "u_specularmap");	RB_CheckForError();
-		_u_lightmap		= xglGetUniformLocationARB(getHandle(), "u_lightmap");		RB_CheckForError();
-		_u_deluxemap		= xglGetUniformLocationARB(getHandle(), "u_deluxemap");		RB_CheckForError();
+		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");	
+		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");		
+		_u_specularmap		= xglGetUniformLocationARB(getHandle(), "u_specularmap");	
+		_u_lightmap		= xglGetUniformLocationARB(getHandle(), "u_lightmap");		
+		_u_deluxemap		= xglGetUniformLocationARB(getHandle(), "u_deluxemap");		
 		
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_diffusemap, 0);	RB_CheckForError();
-		xglUniform1iARB(_u_bumpmap, 1);		RB_CheckForError();
-		xglUniform1iARB(_u_specularmap, 2);	RB_CheckForError();
-		xglUniform1iARB(_u_lightmap, 3);	RB_CheckForError();
-		xglUniform1iARB(_u_deluxemap, 4);	RB_CheckForError();
+		xglUniform1iARB(_u_diffusemap, 0);	
+		xglUniform1iARB(_u_bumpmap, 1);		
+		xglUniform1iARB(_u_specularmap, 2);	
+		xglUniform1iARB(_u_lightmap, 3);	
+		xglUniform1iARB(_u_deluxemap, 4);	
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 	
 private:
@@ -918,21 +911,21 @@ public:
 	u_bump_scale_a(getHandle()),
 	u_specular_exponent_a(getHandle())
 	{
-		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");	RB_CheckForError();
-		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");		RB_CheckForError();
-		_u_specularmap		= xglGetUniformLocationARB(getHandle(), "u_specularmap");	RB_CheckForError();
-		_u_lightmap		= xglGetUniformLocationARB(getHandle(), "u_lightmap");		RB_CheckForError();
-		_u_deluxemap		= xglGetUniformLocationARB(getHandle(), "u_deluxemap");		RB_CheckForError();
+		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");	
+		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");		
+		_u_specularmap		= xglGetUniformLocationARB(getHandle(), "u_specularmap");	
+		_u_lightmap		= xglGetUniformLocationARB(getHandle(), "u_lightmap");		
+		_u_deluxemap		= xglGetUniformLocationARB(getHandle(), "u_deluxemap");		
 		
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_diffusemap, 0);	RB_CheckForError();
-		xglUniform1iARB(_u_bumpmap, 1);		RB_CheckForError();
-		xglUniform1iARB(_u_specularmap, 2);	RB_CheckForError();
-		xglUniform1iARB(_u_lightmap, 3);	RB_CheckForError();
-		xglUniform1iARB(_u_deluxemap, 4);	RB_CheckForError();
+		xglUniform1iARB(_u_diffusemap, 0);	
+		xglUniform1iARB(_u_bumpmap, 1);		
+		xglUniform1iARB(_u_specularmap, 2);	
+		xglUniform1iARB(_u_lightmap, 3);	
+		xglUniform1iARB(_u_deluxemap, 4);	
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 
 private:
@@ -951,13 +944,13 @@ public:
 	rb_lighting_D_vstatic_c()
 	:rb_program_c("lighting_D_vstatic", VATTRIB_VERTEX | VATTRIB_TEX0 | VATTRIB_NORMAL | VATTRIB_LIGHT | VATTRIB_COLOR)
 	{
-		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		RB_CheckForError();
+		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		
 		
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_diffusemap,		0);	RB_CheckForError();
+		xglUniform1iARB(_u_diffusemap,		0);	
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 
 private:
@@ -974,15 +967,15 @@ public:
 	:rb_program_c("lighting_DB_vstatic", VATTRIB_VERTEX | VATTRIB_TEX0 | VATTRIB_TANGENT | VATTRIB_BINORMAL | VATTRIB_NORMAL | VATTRIB_LIGHT | VATTRIB_COLOR),
 	u_bump_scale_a(getHandle())
 	{
-		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		RB_CheckForError();
-		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");			RB_CheckForError();
+		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		
+		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");			
 				
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_diffusemap,		0);	RB_CheckForError();
-		xglUniform1iARB(_u_bumpmap,		1);	RB_CheckForError();
+		xglUniform1iARB(_u_diffusemap,		0);	
+		xglUniform1iARB(_u_bumpmap,		1);	
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 
 private:
@@ -1004,15 +997,15 @@ public:
 	u_bump_scale_a(getHandle()),
 	u_parallax_a(getHandle())
 	{
-		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		RB_CheckForError();
-		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");			RB_CheckForError();
+		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		
+		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");			
 				
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_diffusemap,		0);	RB_CheckForError();
-		xglUniform1iARB(_u_bumpmap,		1);	RB_CheckForError();
+		xglUniform1iARB(_u_diffusemap,		0);	
+		xglUniform1iARB(_u_bumpmap,		1);	
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 
 private:
@@ -1036,17 +1029,17 @@ public:
 	u_parallax_a(getHandle()),
 	u_specular_exponent_a(getHandle())
 	{
-		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		RB_CheckForError();
-		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");			RB_CheckForError();
-		_u_specularmap		= xglGetUniformLocationARB(getHandle(), "u_specularmap");		RB_CheckForError();
+		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		
+		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");			
+		_u_specularmap		= xglGetUniformLocationARB(getHandle(), "u_specularmap");		
 				
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_diffusemap,		0);	RB_CheckForError();
-		xglUniform1iARB(_u_bumpmap,		1);	RB_CheckForError();
-		xglUniform1iARB(_u_specularmap,		2);	RB_CheckForError();
+		xglUniform1iARB(_u_diffusemap,		0);	
+		xglUniform1iARB(_u_bumpmap,		1);	
+		xglUniform1iARB(_u_specularmap,		2);	
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 
 private:
@@ -1069,17 +1062,17 @@ public:
 	u_bump_scale_a(getHandle()),
 	u_specular_exponent_a(getHandle())
 	{
-		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		RB_CheckForError();
-		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");			RB_CheckForError();
-		_u_specularmap		= xglGetUniformLocationARB(getHandle(), "u_specularmap");		RB_CheckForError();
+		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		
+		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");			
+		_u_specularmap		= xglGetUniformLocationARB(getHandle(), "u_specularmap");		
 				
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_diffusemap,		0);	RB_CheckForError();
-		xglUniform1iARB(_u_bumpmap,		1);	RB_CheckForError();
-		xglUniform1iARB(_u_specularmap,		2);	RB_CheckForError();
+		xglUniform1iARB(_u_diffusemap,		0);	
+		xglUniform1iARB(_u_bumpmap,		1);	
+		xglUniform1iARB(_u_specularmap,		2);	
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 
 private:
@@ -1100,22 +1093,21 @@ public:
 	u_light_origin_a(getHandle()),
 	u_light_color_a(getHandle())
 	{
-		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		RB_CheckForError();
-		_u_attenuationmap_xy	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_xy");		RB_CheckForError();
-		_u_attenuationmap_z	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_z");		RB_CheckForError();
-//		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube");	RB_CheckForError();
-//		_u_shadowmap		= xglGetUniformLocationARB(getHandle(), "u_shadowmap");			RB_CheckForError();
-				
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());
+
+		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");
+		_u_attenuationmap_xy	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_xy");
+		_u_attenuationmap_z	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_z");
+//		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube")
+//		_u_shadowmap		= xglGetUniformLocationARB(getHandle(), "u_shadowmap");
 		
+		xglUniform1iARB(_u_diffusemap,		0);
+		xglUniform1iARB(_u_attenuationmap_xy,	1);
+		xglUniform1iARB(_u_attenuationmap_z,	2);
+//		xglUniform1iARB(_u_attenuationmap_cube,	3);
+//		xglUniform1iARB(_u_shadowmap,		4);
 		
-		xglUniform1iARB(_u_diffusemap,		0);	RB_CheckForError();
-		xglUniform1iARB(_u_attenuationmap_xy,	1);	RB_CheckForError();
-		xglUniform1iARB(_u_attenuationmap_z,	2);	RB_CheckForError();
-//		xglUniform1iARB(_u_attenuationmap_cube,	3);	RB_CheckForError();
-//		xglUniform1iARB(_u_shadowmap,		4);	RB_CheckForError();
-		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);
 	}
 
 private:
@@ -1138,17 +1130,17 @@ public:
 	u_light_origin_a(getHandle()),
 	u_light_color_a(getHandle())
 	{
-		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		RB_CheckForError();
-		_u_attenuationmap_xy	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_xy");		RB_CheckForError();
-		_u_shadowmap		= xglGetUniformLocationARB(getHandle(), "u_shadowmap");			RB_CheckForError();
+		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		
+		_u_attenuationmap_xy	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_xy");		
+		_u_shadowmap		= xglGetUniformLocationARB(getHandle(), "u_shadowmap");			
 				
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_diffusemap,		0);	RB_CheckForError();
-		xglUniform1iARB(_u_attenuationmap_xy,	1);	RB_CheckForError();
-		xglUniform1iARB(_u_shadowmap,		2);	RB_CheckForError();
+		xglUniform1iARB(_u_diffusemap,		0);	
+		xglUniform1iARB(_u_attenuationmap_xy,	1);	
+		xglUniform1iARB(_u_shadowmap,		2);	
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 
 private:
@@ -1171,21 +1163,21 @@ public:
 	u_light_color_a(getHandle()),
 	u_bump_scale_a(getHandle())
 	{
-		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		RB_CheckForError();
-		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");			RB_CheckForError();
-		_u_attenuationmap_xy	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_xy");		RB_CheckForError();
-		_u_attenuationmap_z	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_z");		RB_CheckForError();
-//		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube");	RB_CheckForError();
+		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		
+		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");			
+		_u_attenuationmap_xy	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_xy");		
+		_u_attenuationmap_z	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_z");		
+//		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube");	
 				
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_diffusemap,		0);	RB_CheckForError();
-		xglUniform1iARB(_u_bumpmap,		1);	RB_CheckForError();
-		xglUniform1iARB(_u_attenuationmap_xy,	2);	RB_CheckForError();
-		xglUniform1iARB(_u_attenuationmap_z,	3);	RB_CheckForError();
-//		xglUniform1iARB(_u_attenuationmap_cube,	4);	RB_CheckForError();
+		xglUniform1iARB(_u_diffusemap,		0);	
+		xglUniform1iARB(_u_bumpmap,		1);	
+		xglUniform1iARB(_u_attenuationmap_xy,	2);	
+		xglUniform1iARB(_u_attenuationmap_z,	3);	
+//		xglUniform1iARB(_u_attenuationmap_cube,	4);	
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 
 private:
@@ -1214,21 +1206,21 @@ public:
 	u_bump_scale_a(getHandle()),
 	u_parallax_a(getHandle())
 	{
-		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		RB_CheckForError();
-		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");			RB_CheckForError();
-		_u_attenuationmap_xy	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_xy");		RB_CheckForError();
-		_u_attenuationmap_z	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_z");		RB_CheckForError();
-//		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube");	RB_CheckForError();
+		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		
+		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");			
+		_u_attenuationmap_xy	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_xy");		
+		_u_attenuationmap_z	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_z");		
+//		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube");	
 				
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_diffusemap,		0);	RB_CheckForError();
-		xglUniform1iARB(_u_bumpmap,		1);	RB_CheckForError();
-		xglUniform1iARB(_u_attenuationmap_xy,	2);	RB_CheckForError();
-		xglUniform1iARB(_u_attenuationmap_z,	3);	RB_CheckForError();
-//		xglUniform1iARB(_u_attenuationmap_cube,	4);	RB_CheckForError();
+		xglUniform1iARB(_u_diffusemap,		0);	
+		xglUniform1iARB(_u_bumpmap,		1);	
+		xglUniform1iARB(_u_attenuationmap_xy,	2);	
+		xglUniform1iARB(_u_attenuationmap_z,	3);	
+//		xglUniform1iARB(_u_attenuationmap_cube,	4);	
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 
 private:
@@ -1259,23 +1251,23 @@ public:
 	u_parallax_a(getHandle()),
 	u_specular_exponent_a(getHandle())
 	{
-		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		RB_CheckForError();
-		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");			RB_CheckForError();
-		_u_specularmap		= xglGetUniformLocationARB(getHandle(), "u_specularmap");		RB_CheckForError();
-		_u_attenuationmap_xy	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_xy");		RB_CheckForError();
-		_u_attenuationmap_z	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_z");		RB_CheckForError();
-//		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube");	RB_CheckForError();
+		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		
+		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");			
+		_u_specularmap		= xglGetUniformLocationARB(getHandle(), "u_specularmap");		
+		_u_attenuationmap_xy	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_xy");		
+		_u_attenuationmap_z	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_z");		
+//		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube");	
 				
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_diffusemap,		0);	RB_CheckForError();
-		xglUniform1iARB(_u_bumpmap,		1);	RB_CheckForError();
-		xglUniform1iARB(_u_specularmap,		2);	RB_CheckForError();
-		xglUniform1iARB(_u_attenuationmap_xy,	3);	RB_CheckForError();
-		xglUniform1iARB(_u_attenuationmap_z,	4);	RB_CheckForError();
-//		xglUniform1iARB(_u_attenuationmap_cube,	5);	RB_CheckForError();
+		xglUniform1iARB(_u_diffusemap,		0);	
+		xglUniform1iARB(_u_bumpmap,		1);	
+		xglUniform1iARB(_u_specularmap,		2);	
+		xglUniform1iARB(_u_attenuationmap_xy,	3);	
+		xglUniform1iARB(_u_attenuationmap_z,	4);	
+//		xglUniform1iARB(_u_attenuationmap_cube,	5);	
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 
 private:
@@ -1305,23 +1297,23 @@ public:
 	u_bump_scale_a(getHandle()),
 	u_specular_exponent_a(getHandle())
 	{
-		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		RB_CheckForError();
-		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");			RB_CheckForError();
-		_u_specularmap		= xglGetUniformLocationARB(getHandle(), "u_specularmap");		RB_CheckForError();
-		_u_attenuationmap_xy	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_xy");		RB_CheckForError();
-		_u_attenuationmap_z	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_z");		RB_CheckForError();
-//		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube");	RB_CheckForError();
+		_u_diffusemap		= xglGetUniformLocationARB(getHandle(), "u_diffusemap");		
+		_u_bumpmap		= xglGetUniformLocationARB(getHandle(), "u_bumpmap");			
+		_u_specularmap		= xglGetUniformLocationARB(getHandle(), "u_specularmap");		
+		_u_attenuationmap_xy	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_xy");		
+		_u_attenuationmap_z	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_z");		
+//		_u_attenuationmap_cube	= xglGetUniformLocationARB(getHandle(), "u_attenuationmap_cube");	
 				
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_diffusemap,		0);	RB_CheckForError();
-		xglUniform1iARB(_u_bumpmap,		1);	RB_CheckForError();
-		xglUniform1iARB(_u_specularmap,		2);	RB_CheckForError();
-		xglUniform1iARB(_u_attenuationmap_xy,	3);	RB_CheckForError();
-		xglUniform1iARB(_u_attenuationmap_z,	4);	RB_CheckForError();
-//		xglUniform1iARB(_u_attenuationmap_cube,	5);	RB_CheckForError();
+		xglUniform1iARB(_u_diffusemap,		0);	
+		xglUniform1iARB(_u_bumpmap,		1);	
+		xglUniform1iARB(_u_specularmap,		2);	
+		xglUniform1iARB(_u_attenuationmap_xy,	3);	
+		xglUniform1iARB(_u_attenuationmap_z,	4);	
+//		xglUniform1iARB(_u_attenuationmap_cube,	5);	
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 
 private:
@@ -1345,15 +1337,15 @@ public:
 	u_frame_buffer_a(getHandle()),
 	u_fog_a(getHandle())
 	{
-		_u_currentrendermap	= xglGetUniformLocationARB(getHandle(), "u_currentrendermap");	RB_CheckForError();
-//		_u_heathazemap		= xglGetUniformLocationARB(getHandle(), "u_heathazemap");	RB_CheckForError();
+		_u_currentrendermap	= xglGetUniformLocationARB(getHandle(), "u_currentrendermap");	
+//		_u_heathazemap		= xglGetUniformLocationARB(getHandle(), "u_heathazemap");	
 		
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_currentrendermap, 0);	RB_CheckForError();
-//		xglUniform1iARB(_u_heathazemap, 1);		RB_CheckForError();
+		xglUniform1iARB(_u_currentrendermap, 0);	
+//		xglUniform1iARB(_u_heathazemap, 1);		
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 
 private:
@@ -1371,13 +1363,13 @@ public:
 	:rb_program_c("reflection_C", VATTRIB_VERTEX | VATTRIB_NORMAL),
 	u_view_origin_a(getHandle())
 	{
-		_u_colormap	= xglGetUniformLocationARB(getHandle(), "u_colormap");	RB_CheckForError();
+		_u_colormap	= xglGetUniformLocationARB(getHandle(), "u_colormap");	
 		
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_colormap, 0);	RB_CheckForError();
+		xglUniform1iARB(_u_colormap, 0);	
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 	
 private:
@@ -1398,13 +1390,13 @@ public:
 	u_refraction_index_a(getHandle()),
 	u_fresnel_a(getHandle())
 	{
-		_u_colormap	= xglGetUniformLocationARB(getHandle(), "u_colormap");	RB_CheckForError();
+		_u_colormap	= xglGetUniformLocationARB(getHandle(), "u_colormap");	
 		
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_colormap, 0);	RB_CheckForError();
+		xglUniform1iARB(_u_colormap, 0);	
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 	
 private:
@@ -1425,13 +1417,13 @@ public:
 	u_eta_ratio_a(getHandle()),
 	u_fresnel_a(getHandle())
 	{
-		_u_colormap	= xglGetUniformLocationARB(getHandle(), "u_colormap");	RB_CheckForError();
+		_u_colormap	= xglGetUniformLocationARB(getHandle(), "u_colormap");	
 		
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_colormap, 0);	RB_CheckForError();
+		xglUniform1iARB(_u_colormap, 0);	
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 	
 private:
@@ -1448,13 +1440,13 @@ public:
 	:rb_program_c("liquid_C", VATTRIB_VERTEX | VATTRIB_NORMAL),
 	u_view_origin_a(getHandle())
 	{
-		_u_colormap	= xglGetUniformLocationARB(getHandle(), "u_colormap");	RB_CheckForError();
+		_u_colormap	= xglGetUniformLocationARB(getHandle(), "u_colormap");	
 		
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_colormap, 0);	RB_CheckForError();
+		xglUniform1iARB(_u_colormap, 0);	
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 	
 private:
@@ -1471,13 +1463,13 @@ public:
 	:rb_program_c("skybox", VATTRIB_VERTEX | VATTRIB_NORMAL),
 	u_view_origin_a(getHandle())
 	{
-		_u_colormap	= xglGetUniformLocationARB(getHandle(), "u_colormap");	RB_CheckForError();
+		_u_colormap	= xglGetUniformLocationARB(getHandle(), "u_colormap");	
 		
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_colormap, 0);	RB_CheckForError();
+		xglUniform1iARB(_u_colormap, 0);	
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 	
 private:
@@ -1494,13 +1486,13 @@ public:
 	:rb_program_c("skycloud", VATTRIB_VERTEX | VATTRIB_TEX0),
 	u_view_origin_a(getHandle())
 	{
-		_u_cloudmap	= xglGetUniformLocationARB(getHandle(), "u_cloudmap");	RB_CheckForError();
+		_u_cloudmap	= xglGetUniformLocationARB(getHandle(), "u_cloudmap");	
 		
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_cloudmap, 0);	RB_CheckForError();
+		xglUniform1iARB(_u_cloudmap, 0);	
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 	
 private:
@@ -1521,15 +1513,15 @@ public:
 	u_frame_buffer_a(getHandle()),
 	u_bump_scale_a(getHandle())
 	{
-		_u_currentrendermap	= xglGetUniformLocationARB(getHandle(), "u_currentrendermap");	RB_CheckForError();
-		_u_heathazemap		= xglGetUniformLocationARB(getHandle(), "u_heathazemap");	RB_CheckForError();
+		_u_currentrendermap	= xglGetUniformLocationARB(getHandle(), "u_currentrendermap");	
+		_u_heathazemap		= xglGetUniformLocationARB(getHandle(), "u_heathazemap");	
 		
-		xglUseProgramObjectARB(getHandle());	RB_CheckForError();
+		xglUseProgramObjectARB(getHandle());	
 		
-		xglUniform1iARB(_u_currentrendermap, 0);	RB_CheckForError();
-		xglUniform1iARB(_u_heathazemap, 1);		RB_CheckForError();
+		xglUniform1iARB(_u_currentrendermap, 0);	
+		xglUniform1iARB(_u_heathazemap, 1);		
 		
-		xglUseProgramObjectARB(0);	RB_CheckForError();
+		xglUseProgramObjectARB(0);	
 	}
 
 private:
@@ -1538,8 +1530,8 @@ private:
 };
 
 
-static rb_generic_c*			rb_program_generic = NULL;
-static rb_zfill_c*			rb_program_zfill = NULL;
+//static rb_generic_c*			rb_program_generic = NULL;
+//static rb_zfill_c*			rb_program_zfill = NULL;
 
 static rb_lighting_R_c*			rb_program_lighting_R = NULL;
 static rb_lighting_RB_c*		rb_program_lighting_RB = NULL;
@@ -1645,8 +1637,8 @@ void		RB_InitGPUShaders()
 {
 	ri.Com_Printf("------- RB_InitGPUShaders (GLSL) -------\n");
 	
-	rb_program_generic			= new rb_generic_c();
-	rb_program_zfill			= new rb_zfill_c();
+//	rb_program_generic			= new rb_generic_c();
+//	rb_program_zfill			= new rb_zfill_c();
 	
 	rb_program_lighting_R			= new rb_lighting_R_c();
 	rb_program_lighting_RB			= new rb_lighting_RB_c();
@@ -1682,8 +1674,8 @@ void		RB_InitGPUShaders()
 
 void		RB_ShutdownGPUShaders()
 {
-	delete rb_program_generic;
-	delete rb_program_zfill;
+//	delete rb_program_generic;
+//	delete rb_program_zfill;
 	
 	delete rb_program_lighting_R;
 	delete rb_program_lighting_RB;
@@ -1720,24 +1712,24 @@ void		RB_ShutdownGPUShaders()
 
 void		RB_EnableShader_generic()
 {
-//	rb_program_generic->enable();		RB_CheckForError();
+//	rb_program_generic->enable();
 
-	xglEnableClientState(GL_VERTEX_ARRAY);			RB_CheckForError();
+	xglEnableClientState(GL_VERTEX_ARRAY);	
 
 	RB_SelectTexture(GL_TEXTURE0);	
-	xglEnableClientState(GL_TEXTURE_COORD_ARRAY);		RB_CheckForError();
-	xglEnable(GL_TEXTURE_2D);		RB_CheckForError();
+	xglEnableClientState(GL_TEXTURE_COORD_ARRAY);	
+	xglEnable(GL_TEXTURE_2D);
 }
 
 void		RB_DisableShader_generic()
 {
-//	rb_program_generic->disable();		RB_CheckForError();
+//	rb_program_generic->disable();
 
-	xglDisableClientState(GL_VERTEX_ARRAY);			RB_CheckForError();
+	xglDisableClientState(GL_VERTEX_ARRAY);
 
 	RB_SelectTexture(GL_TEXTURE0);
-	xglDisableClientState(GL_TEXTURE_COORD_ARRAY);		RB_CheckForError();
-	xglDisable(GL_TEXTURE_2D);		RB_CheckForError();
+	xglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	xglDisable(GL_TEXTURE_2D);
 }
 
 void		RB_RenderCommand_generic(const r_command_t *cmd,			const r_shader_stage_c *stage)
@@ -1748,15 +1740,15 @@ void		RB_RenderCommand_generic(const r_command_t *cmd,			const r_shader_stage_c 
 
 	if(gl_config.arb_vertex_buffer_object && cmd->getEntityMesh()->vbo_array_buffer)
 	{
-		xglBindBufferARB(GL_ARRAY_BUFFER_ARB, cmd->getEntityMesh()->vbo_array_buffer);	RB_CheckForError();
+		xglBindBufferARB(GL_ARRAY_BUFFER_ARB, cmd->getEntityMesh()->vbo_array_buffer);	
 		
 #if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
-		xglVertexPointer(3, GL_FLOAT, 16, VBO_BUFFER_OFFSET(cmd->getEntityMesh()->vbo_vertexes_ofs));		RB_CheckForError();
+		xglVertexPointer(3, GL_FLOAT, 16, VBO_BUFFER_OFFSET(cmd->getEntityMesh()->vbo_vertexes_ofs));		
 #else
-		xglVertexPointer(3, GL_FLOAT, 0, VBO_BUFFER_OFFSET(cmd->getEntityMesh()->vbo_vertexes_ofs));		RB_CheckForError();
+		xglVertexPointer(3, GL_FLOAT, 0, VBO_BUFFER_OFFSET(cmd->getEntityMesh()->vbo_vertexes_ofs));		
 #endif
 		RB_SelectTexture(GL_TEXTURE0);
-		xglTexCoordPointer(2, GL_FLOAT, 0, VBO_BUFFER_OFFSET(cmd->getEntityMesh()->vbo_texcoords_ofs));		RB_CheckForError();
+		xglTexCoordPointer(2, GL_FLOAT, 0, VBO_BUFFER_OFFSET(cmd->getEntityMesh()->vbo_texcoords_ofs));		
 	}
 	else
 	{
@@ -1765,26 +1757,26 @@ void		RB_RenderCommand_generic(const r_command_t *cmd,			const r_shader_stage_c 
 			gl_state.current_vbo_array_buffer = 0;
 			gl_state.current_vbo_vertexes_ofs = 0;
 			
-			xglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);	RB_CheckForError();
+			xglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);	
 		}
 		
 #if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
-		xglVertexPointer(3, GL_FLOAT, 16, &(cmd->getEntityMesh()->vertexes[0]));	RB_CheckForError();
+		xglVertexPointer(3, GL_FLOAT, 16, &(cmd->getEntityMesh()->vertexes[0]));	
 #else
-		xglVertexPointer(3, GL_FLOAT, 0, &(cmd->getEntityMesh()->vertexes[0]));		RB_CheckForError();
+		xglVertexPointer(3, GL_FLOAT, 0, &(cmd->getEntityMesh()->vertexes[0]));		
 #endif
 		
 		RB_SelectTexture(GL_TEXTURE0);
-		xglTexCoordPointer(2, GL_FLOAT, 0, &(cmd->getEntityMesh()->texcoords[0]));	RB_CheckForError();
+		xglTexCoordPointer(2, GL_FLOAT, 0, &(cmd->getEntityMesh()->texcoords[0]));	
 	}
 	
-	RB_ModifyTextureMatrix(cmd->getEntity(), stage);	RB_CheckForError();
+	RB_ModifyTextureMatrix(cmd->getEntity(), stage);	
 	RB_Bind(stage->image);
 
 	// set gl_Color
 	vec4_c color;
 	RB_ModifyColor(cmd->getEntity()->getShared(), stage, color);
-	xglColor4fv(color);	RB_CheckForError();
+	xglColor4fv(color);	
 
 	RB_FlushMesh(cmd);
 	
@@ -1794,22 +1786,22 @@ void		RB_RenderCommand_generic(const r_command_t *cmd,			const r_shader_stage_c 
 
 void		RB_EnableShader_zfill()
 {
-//	rb_program_zfill->enable();	RB_CheckForError();
+//	rb_program_zfill->enable();	
 
-	xglEnableClientState(GL_VERTEX_ARRAY);			RB_CheckForError();
+	xglEnableClientState(GL_VERTEX_ARRAY);			
 
 	RB_SelectTexture(GL_TEXTURE0);	
-	xglEnableClientState(GL_TEXTURE_COORD_ARRAY);		RB_CheckForError();
+	xglEnableClientState(GL_TEXTURE_COORD_ARRAY);		
 }
 
 void		RB_DisableShader_zfill()
 {
-//	rb_program_zfill->disable();	RB_CheckForError();
+//	rb_program_zfill->disable();	
 
-	xglDisableClientState(GL_VERTEX_ARRAY);			RB_CheckForError();
+	xglDisableClientState(GL_VERTEX_ARRAY);			
 
 	RB_SelectTexture(GL_TEXTURE0);
-	xglDisableClientState(GL_TEXTURE_COORD_ARRAY);		RB_CheckForError();
+	xglDisableClientState(GL_TEXTURE_COORD_ARRAY);		
 }
 
 void		RB_RenderCommand_zfill(const r_command_t *cmd,				const r_shader_stage_c *stage)
@@ -1822,15 +1814,15 @@ void		RB_RenderCommand_zfill(const r_command_t *cmd,				const r_shader_stage_c *
 
 	if(gl_config.arb_vertex_buffer_object && cmd->getEntityMesh()->vbo_array_buffer)
 	{
-		xglBindBufferARB(GL_ARRAY_BUFFER_ARB, cmd->getEntityMesh()->vbo_array_buffer);	RB_CheckForError();
+		xglBindBufferARB(GL_ARRAY_BUFFER_ARB, cmd->getEntityMesh()->vbo_array_buffer);	
 		
 #if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
-		xglVertexPointer(3, GL_FLOAT, 16, VBO_BUFFER_OFFSET(cmd->getEntityMesh()->vbo_vertexes_ofs));		RB_CheckForError();
+		xglVertexPointer(3, GL_FLOAT, 16, VBO_BUFFER_OFFSET(cmd->getEntityMesh()->vbo_vertexes_ofs));		
 #else
-		xglVertexPointer(3, GL_FLOAT, 0, VBO_BUFFER_OFFSET(cmd->getEntityMesh()->vbo_vertexes_ofs));		RB_CheckForError();
+		xglVertexPointer(3, GL_FLOAT, 0, VBO_BUFFER_OFFSET(cmd->getEntityMesh()->vbo_vertexes_ofs));		
 #endif
 		RB_SelectTexture(GL_TEXTURE0);
-		xglTexCoordPointer(2, GL_FLOAT, 0, VBO_BUFFER_OFFSET(cmd->getEntityMesh()->vbo_texcoords_ofs));		RB_CheckForError();
+		xglTexCoordPointer(2, GL_FLOAT, 0, VBO_BUFFER_OFFSET(cmd->getEntityMesh()->vbo_texcoords_ofs));		
 	}
 	else
 	{
@@ -1839,17 +1831,17 @@ void		RB_RenderCommand_zfill(const r_command_t *cmd,				const r_shader_stage_c *
 			gl_state.current_vbo_array_buffer = 0;
 			gl_state.current_vbo_vertexes_ofs = 0;
 			
-			xglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);	RB_CheckForError();
+			xglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);	
 		}
 		
 #if !defined(DOUBLEVEC_T) && defined(SIMD_SSE)
-		xglVertexPointer(3, GL_FLOAT, 16, &(cmd->getEntityMesh()->vertexes[0]));	RB_CheckForError();
+		xglVertexPointer(3, GL_FLOAT, 16, &(cmd->getEntityMesh()->vertexes[0]));	
 #else
-		xglVertexPointer(3, GL_FLOAT, 0, &(cmd->getEntityMesh()->vertexes[0]));		RB_CheckForError();
+		xglVertexPointer(3, GL_FLOAT, 0, &(cmd->getEntityMesh()->vertexes[0]));		
 #endif
 		
 		RB_SelectTexture(GL_TEXTURE0);
-		xglTexCoordPointer(2, GL_FLOAT, 0, &(cmd->getEntityMesh()->texcoords[0]));	RB_CheckForError();
+		xglTexCoordPointer(2, GL_FLOAT, 0, &(cmd->getEntityMesh()->texcoords[0]));	
 	}
 
 	if(stage->flags & SHADER_STAGE_ALPHATEST)
@@ -1860,7 +1852,7 @@ void		RB_RenderCommand_zfill(const r_command_t *cmd,				const r_shader_stage_c *
 	
 		RB_ModifyTextureMatrix(cmd->getEntity(), stage);
 		RB_Bind(stage->image);
-		xglEnable(GL_TEXTURE_2D);		RB_CheckForError();
+		xglEnable(GL_TEXTURE_2D);		
 	}
 	else
 	{
@@ -1878,7 +1870,7 @@ void		RB_RenderCommand_zfill(const r_command_t *cmd,				const r_shader_stage_c *
 	if(stage->flags & SHADER_STAGE_ALPHATEST)
 	{
 		xglDisable(GL_ALPHA_TEST);
-		xglDisable(GL_TEXTURE_2D);		RB_CheckForError();
+		xglDisable(GL_TEXTURE_2D);		
 	}
 	
 //	RB_DisableShaderStageStates(cmd->getEntity(), stage);
@@ -1887,12 +1879,12 @@ void		RB_RenderCommand_zfill(const r_command_t *cmd,				const r_shader_stage_c *
 
 void		RB_EnableShader_lighting_R()
 {
-	rb_program_lighting_R->enable();	RB_CheckForError();
+	rb_program_lighting_R->enable();	
 }
 
 void		RB_DisableShader_lighting_R()
 {
-	rb_program_lighting_R->disable();	RB_CheckForError();
+	rb_program_lighting_R->disable();	
 }
 
 void		RB_RenderCommand_lighting_R(const r_command_t *cmd,			const r_shader_stage_c *stage_diffusemap,
@@ -1923,12 +1915,12 @@ void		RB_RenderCommand_lighting_R(const r_command_t *cmd,			const r_shader_stage
 			
 void		RB_EnableShader_lighting_RB()
 {
-	rb_program_lighting_RB->enable();	RB_CheckForError();
+	rb_program_lighting_RB->enable();	
 }
 
 void		RB_DisableShader_lighting_RB()
 {
-	rb_program_lighting_RB->disable();	RB_CheckForError();
+	rb_program_lighting_RB->disable();	
 }
 
 void		RB_RenderCommand_lighting_RB(const r_command_t *cmd,			const r_shader_stage_c *stage_diffusemap,
@@ -1966,12 +1958,12 @@ void		RB_RenderCommand_lighting_RB(const r_command_t *cmd,			const r_shader_stag
 
 void		RB_EnableShader_lighting_RBH()
 {
-	rb_program_lighting_RBH->enable();	RB_CheckForError();
+	rb_program_lighting_RBH->enable();	
 }
 
 void		RB_DisableShader_lighting_RBH()
 {
-	rb_program_lighting_RBH->disable();	RB_CheckForError();
+	rb_program_lighting_RBH->disable();	
 }
 
 void		RB_RenderCommand_lighting_RBH(const r_command_t *cmd,			const r_shader_stage_c *stage_diffusemap,
@@ -2012,12 +2004,12 @@ void		RB_RenderCommand_lighting_RBH(const r_command_t *cmd,			const r_shader_sta
 
 void		RB_EnableShader_lighting_RBHS()
 {
-	rb_program_lighting_RBHS->enable();	RB_CheckForError();
+	rb_program_lighting_RBHS->enable();	
 }
 
 void		RB_DisableShader_lighting_RBHS()
 {
-	rb_program_lighting_RBHS->disable();	RB_CheckForError();
+	rb_program_lighting_RBHS->disable();	
 }
 
 void		RB_RenderCommand_lighting_RBHS(const r_command_t *cmd,			const r_shader_stage_c *stage_diffusemap,
@@ -2064,12 +2056,12 @@ void		RB_RenderCommand_lighting_RBHS(const r_command_t *cmd,			const r_shader_st
 									
 void		RB_EnableShader_lighting_RBS()
 {
-	rb_program_lighting_RBS->enable();	RB_CheckForError();
+	rb_program_lighting_RBS->enable();	
 }
 
 void		RB_DisableShader_lighting_RBS()
 {
-	rb_program_lighting_RBS->disable();	RB_CheckForError();
+	rb_program_lighting_RBS->disable();	
 }
 
 void		RB_RenderCommand_lighting_RBS(const r_command_t *cmd,			const r_shader_stage_c *stage_diffusemap,
@@ -2114,12 +2106,12 @@ void		RB_RenderCommand_lighting_RBS(const r_command_t *cmd,			const r_shader_sta
 
 void		RB_EnableShader_lighting_D_vstatic()
 {
-	rb_program_lighting_D_vstatic->enable();	RB_CheckForError();
+	rb_program_lighting_D_vstatic->enable();	
 }
 
 void		RB_DisableShader_lighting_D_vstatic()
 {
-	rb_program_lighting_D_vstatic->disable();	RB_CheckForError();
+	rb_program_lighting_D_vstatic->disable();	
 }
 
 void		RB_RenderCommand_lighting_D_vstatic(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap)
@@ -2141,12 +2133,12 @@ void		RB_RenderCommand_lighting_D_vstatic(const r_command_t *cmd,		const r_shade
 
 void		RB_EnableShader_lighting_DB_vstatic()
 {
-	rb_program_lighting_DB_vstatic->enable();	RB_CheckForError();
+	rb_program_lighting_DB_vstatic->enable();	
 }
 
 void		RB_DisableShader_lighting_DB_vstatic()
 {
-	rb_program_lighting_DB_vstatic->disable();	RB_CheckForError();
+	rb_program_lighting_DB_vstatic->disable();	
 }
 
 void		RB_RenderCommand_lighting_DB_vstatic(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
@@ -2174,12 +2166,12 @@ void		RB_RenderCommand_lighting_DB_vstatic(const r_command_t *cmd,		const r_shad
 
 void		RB_EnableShader_lighting_DBH_vstatic()
 {
-	rb_program_lighting_DBH_vstatic->enable();	RB_CheckForError();
+	rb_program_lighting_DBH_vstatic->enable();	
 }
 
 void		RB_DisableShader_lighting_DBH_vstatic()
 {
-	rb_program_lighting_DBH_vstatic->disable();	RB_CheckForError();
+	rb_program_lighting_DBH_vstatic->disable();	
 }
 
 void		RB_RenderCommand_lighting_DBH_vstatic(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
@@ -2211,12 +2203,12 @@ void		RB_RenderCommand_lighting_DBH_vstatic(const r_command_t *cmd,		const r_sha
 
 void		RB_EnableShader_lighting_DBHS_vstatic()
 {
-	rb_program_lighting_DBHS_vstatic->enable();	RB_CheckForError();
+	rb_program_lighting_DBHS_vstatic->enable();	
 }
 
 void		RB_DisableShader_lighting_DBHS_vstatic()
 {
-	rb_program_lighting_DBHS_vstatic->disable();	RB_CheckForError();
+	rb_program_lighting_DBHS_vstatic->disable();	
 }
 
 void		RB_RenderCommand_lighting_DBHS_vstatic(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
@@ -2254,12 +2246,12 @@ void		RB_RenderCommand_lighting_DBHS_vstatic(const r_command_t *cmd,		const r_sh
 
 void		RB_EnableShader_lighting_DBS_vstatic()
 {
-	rb_program_lighting_DBS_vstatic->enable();	RB_CheckForError();
+	rb_program_lighting_DBS_vstatic->enable();	
 }
 
 void		RB_DisableShader_lighting_DBS_vstatic()
 {
-	rb_program_lighting_DBS_vstatic->disable();	RB_CheckForError();
+	rb_program_lighting_DBS_vstatic->disable();	
 }
 
 void		RB_RenderCommand_lighting_DBS_vstatic(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
@@ -2295,12 +2287,12 @@ void		RB_RenderCommand_lighting_DBS_vstatic(const r_command_t *cmd,		const r_sha
 
 void		RB_EnableShader_lighting_D_omni()
 {
-	rb_program_lighting_D_omni->enable();	RB_CheckForError();
+	rb_program_lighting_D_omni->enable();	
 }
 
 void		RB_DisableShader_lighting_D_omni()
 {
-	rb_program_lighting_D_omni->disable();	RB_CheckForError();
+	rb_program_lighting_D_omni->disable();	
 }
 
 void		RB_RenderCommand_lighting_D_omni(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
@@ -2309,7 +2301,7 @@ void		RB_RenderCommand_lighting_D_omni(const r_command_t *cmd,		const r_shader_s
 											const r_shader_stage_c *stage_attenuationmap_cube)
 {
 	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap);
-		
+
 	rb_program_lighting_D_omni->setVertexAttribs(cmd);
 	
 	RB_SelectTexture(GL_TEXTURE0);
@@ -2346,12 +2338,12 @@ void		RB_RenderCommand_lighting_D_omni(const r_command_t *cmd,		const r_shader_s
 											
 void		RB_EnableShader_lighting_D_proj()
 {
-	rb_program_lighting_D_proj->enable();	RB_CheckForError();
+	rb_program_lighting_D_proj->enable();	
 }
 
 void		RB_DisableShader_lighting_D_proj()
 {
-	rb_program_lighting_D_proj->disable();	RB_CheckForError();
+	rb_program_lighting_D_proj->disable();	
 }
 
 void		RB_RenderCommand_lighting_D_proj(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
@@ -2385,12 +2377,12 @@ void		RB_RenderCommand_lighting_D_proj(const r_command_t *cmd,		const r_shader_s
 
 void		RB_EnableShader_lighting_DB_omni()
 {
-	rb_program_lighting_DB_omni->enable();	RB_CheckForError();
+	rb_program_lighting_DB_omni->enable();	
 }
 
 void		RB_DisableShader_lighting_DB_omni()
 {
-	rb_program_lighting_DB_omni->disable();	RB_CheckForError();
+	rb_program_lighting_DB_omni->disable();	
 }
 
 void		RB_RenderCommand_lighting_DB_omni(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
@@ -2437,12 +2429,12 @@ void		RB_RenderCommand_lighting_DB_omni(const r_command_t *cmd,		const r_shader_
 
 void		RB_EnableShader_lighting_DBH_omni()
 {
-	rb_program_lighting_DBH_omni->enable();		RB_CheckForError();
+	rb_program_lighting_DBH_omni->enable();		
 }
 
 void		RB_DisableShader_lighting_DBH_omni()
 {
-	rb_program_lighting_DBH_omni->disable();	RB_CheckForError();
+	rb_program_lighting_DBH_omni->disable();	
 }
 
 void		RB_RenderCommand_lighting_DBH_omni(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
@@ -2492,12 +2484,12 @@ void		RB_RenderCommand_lighting_DBH_omni(const r_command_t *cmd,		const r_shader
 
 void		RB_EnableShader_lighting_DBHS_omni()
 {
-	rb_program_lighting_DBHS_omni->enable();	RB_CheckForError();
+	rb_program_lighting_DBHS_omni->enable();	
 }
 
 void		RB_DisableShader_lighting_DBHS_omni()
 {
-	rb_program_lighting_DBHS_omni->disable();	RB_CheckForError();
+	rb_program_lighting_DBHS_omni->disable();	
 }
 
 void		RB_RenderCommand_lighting_DBHS_omni(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
@@ -2553,12 +2545,12 @@ void		RB_RenderCommand_lighting_DBHS_omni(const r_command_t *cmd,		const r_shade
 								
 void		RB_EnableShader_lighting_DBS_omni()
 {
-	rb_program_lighting_DBS_omni->enable();		RB_CheckForError();
+	rb_program_lighting_DBS_omni->enable();		
 }
 
 void		RB_DisableShader_lighting_DBS_omni()
 {
-	rb_program_lighting_DBS_omni->disable();	RB_CheckForError();
+	rb_program_lighting_DBS_omni->disable();	
 }
 
 void		RB_RenderCommand_lighting_DBS_omni(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
@@ -2613,12 +2605,12 @@ void		RB_RenderCommand_lighting_DBS_omni(const r_command_t *cmd,		const r_shader
 
 void		RB_EnableShader_fog_uniform()
 {
-	rb_program_fog_uniform->enable();		RB_CheckForError();
+	rb_program_fog_uniform->enable();		
 }
 
 void		RB_DisableShader_fog_uniform()
 {
-	rb_program_fog_uniform->disable();	RB_CheckForError();
+	rb_program_fog_uniform->disable();	
 }
 
 void		RB_RenderCommand_fog_uniform(const r_command_t *cmd,		const r_shader_stage_c *stage)
@@ -2647,12 +2639,12 @@ void		RB_RenderCommand_fog_uniform(const r_command_t *cmd,		const r_shader_stage
 
 void		RB_EnableShader_reflection_C()
 {
-	rb_program_reflection_C->enable();	RB_CheckForError();
+	rb_program_reflection_C->enable();	
 }
 
 void		RB_DisableShader_reflection_C()
 {
-	rb_program_reflection_C->disable();	RB_CheckForError();
+	rb_program_reflection_C->disable();	
 }
 
 void		RB_RenderCommand_reflection_C(const r_command_t *cmd,			const r_shader_stage_c *stage_colormap)
@@ -2677,12 +2669,12 @@ void		RB_RenderCommand_reflection_C(const r_command_t *cmd,			const r_shader_sta
 
 void		RB_EnableShader_refraction_C()
 {
-	rb_program_refraction_C->enable();	RB_CheckForError();
+	rb_program_refraction_C->enable();	
 }
 
 void		RB_DisableShader_refraction_C()
 {
-	rb_program_refraction_C->disable();	RB_CheckForError();
+	rb_program_refraction_C->disable();	
 }
 
 void		RB_RenderCommand_refraction_C(const r_command_t *cmd,			const r_shader_stage_c *stage_colormap)
@@ -2711,12 +2703,12 @@ void		RB_RenderCommand_refraction_C(const r_command_t *cmd,			const r_shader_sta
 
 void		RB_EnableShader_dispersion_C()
 {
-	rb_program_dispersion_C->enable();	RB_CheckForError();
+	rb_program_dispersion_C->enable();	
 }
 
 void		RB_DisableShader_dispersion_C()
 {
-	rb_program_dispersion_C->disable();	RB_CheckForError();
+	rb_program_dispersion_C->disable();	
 }
 
 void		RB_RenderCommand_dispersion_C(const r_command_t *cmd,			const r_shader_stage_c *stage_colormap)
@@ -2745,12 +2737,12 @@ void		RB_RenderCommand_dispersion_C(const r_command_t *cmd,			const r_shader_sta
 
 void		RB_EnableShader_liquid_C()
 {
-	rb_program_liquid_C->enable();		RB_CheckForError();
+	rb_program_liquid_C->enable();		
 }
 
 void		RB_DisableShader_liquid_C()
 {
-	rb_program_liquid_C->disable();		RB_CheckForError();
+	rb_program_liquid_C->disable();		
 }
 
 void		RB_RenderCommand_liquid_C(const r_command_t *cmd,			const r_shader_stage_c *stage_colormap)
@@ -2775,12 +2767,12 @@ void		RB_RenderCommand_liquid_C(const r_command_t *cmd,			const r_shader_stage_c
 
 void		RB_EnableShader_skybox()
 {
-	rb_program_skybox->enable();	RB_CheckForError();
+	rb_program_skybox->enable();	
 }
 
 void		RB_DisableShader_skybox()
 {
-	rb_program_skybox->disable();	RB_CheckForError();
+	rb_program_skybox->disable();	
 }
 
 void		RB_RenderCommand_skybox(const r_command_t *cmd,			const r_shader_stage_c *stage_skyboxmap)
@@ -2805,12 +2797,12 @@ void		RB_RenderCommand_skybox(const r_command_t *cmd,			const r_shader_stage_c *
 
 void	RB_EnableShader_skycloud()
 {
-	rb_program_skycloud->enable();	RB_CheckForError();
+	rb_program_skycloud->enable();	
 }
 
 void	RB_DisableShader_skycloud()
 {
-	rb_program_skycloud->disable();	RB_CheckForError();
+	rb_program_skycloud->disable();	
 }
 
 void		RB_RenderCommand_skycloud(const r_command_t *cmd,		const r_shader_stage_c *stage_skycloudmap)
@@ -2832,12 +2824,12 @@ void		RB_RenderCommand_skycloud(const r_command_t *cmd,		const r_shader_stage_c 
 
 void	RB_EnableShader_heathaze()
 {
-	rb_program_heathaze->enable();		RB_CheckForError();
+	rb_program_heathaze->enable();
 }
 
 void	RB_DisableShader_heathaze()
 {
-	rb_program_heathaze->disable();		RB_CheckForError();
+	rb_program_heathaze->disable();
 }
 
 void	RB_RenderCommand_heathaze(const r_command_t *cmd, const r_shader_stage_c *stage_heathazemap)

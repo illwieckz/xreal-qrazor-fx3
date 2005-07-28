@@ -117,20 +117,6 @@ void	r_image_c::bind(bool force) const
 
 	gl_state.current_tmu_images[gl_state.current_tmu] = texnum;
 	
-	/*
-	switch(target)
-	{
-		case GL_TEXTURE_1D:
-		case GL_TEXTURE_2D:
-		case GL_TEXTURE_3D:
-		case GL_TEXTURE_CUBE_MAP_ARB:
-			break;
-		
-		default:
-			ri.Com_Error(ERR_FATAL, "r_image_c::bind: bad target for texture '%s' '%i'", image->getName(), texnum);
-	}
-	*/
-	
 	xglBindTexture(target, texnum);
 	
 	if(_roq)

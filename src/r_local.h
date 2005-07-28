@@ -2313,6 +2313,7 @@ extern cvar_t	*r_ext_compiled_vertex_array;
 extern cvar_t	*r_ext_draw_range_elements;
 extern cvar_t	*r_ext_texture_filter_anisotropic;
 extern cvar_t	*r_ext_texture_filter_anisotropic_level;
+extern cvar_t	*r_ext_framebuffer_object;
 
 extern cvar_t	*r_sgix_fbconfig;
 extern cvar_t	*r_sgix_pbuffer;
@@ -2638,6 +2639,7 @@ struct glconfig_t
 	bool		ext_compiled_vertex_array;
 	bool		ext_draw_range_elements;
 	bool		ext_texture_filter_anisotropic;
+	bool		ext_framebuffer_object;
 };
 
 struct glstate_t

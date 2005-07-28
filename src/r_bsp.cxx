@@ -115,8 +115,8 @@ r_bsptree_c::r_bsptree_c(const std::string &name)
 			}
 		}
 		
-		xglGenBuffersARB(1, &_vbo_array_buffer);		RB_CheckForError();
-		xglGenBuffersARB(1, &_vbo_element_array_buffer);	RB_CheckForError();
+		xglGenBuffersARB(1, &_vbo_array_buffer);
+		xglGenBuffersARB(1, &_vbo_element_array_buffer);
 	
 		
 		uint_t		indexes_size = indexes_num * sizeof(index_t);
@@ -207,12 +207,12 @@ r_bsptree_c::r_bsptree_c(const std::string &name)
 		}
 		
 		
-		xglBindBufferARB(GL_ARRAY_BUFFER_ARB, _vbo_array_buffer);	RB_CheckForError();
-		xglBufferDataARB(GL_ARRAY_BUFFER_ARB, data_size, data, GL_STATIC_DRAW_ARB);	RB_CheckForError();
+		xglBindBufferARB(GL_ARRAY_BUFFER_ARB, _vbo_array_buffer);
+		xglBufferDataARB(GL_ARRAY_BUFFER_ARB, data_size, data, GL_STATIC_DRAW_ARB);
 		Com_Free(data);
 				
-		xglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, _vbo_element_array_buffer);	RB_CheckForError();
-		xglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexes_size, indexes, GL_STATIC_DRAW_ARB);	RB_CheckForError();
+		xglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, _vbo_element_array_buffer);
+		xglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexes_size, indexes, GL_STATIC_DRAW_ARB);
 		Com_Free(indexes);
 	}
 	else
