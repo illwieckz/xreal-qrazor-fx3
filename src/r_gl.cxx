@@ -1191,6 +1191,201 @@ void (GLAPIENTRY* xglProgramNamedParameter4fNV) (GLuint, GLsizei, const GLubyte 
 void (GLAPIENTRY* xglProgramNamedParameter4fvNV) (GLuint, GLsizei, const GLubyte *, const GLfloat *);
 void (GLAPIENTRY* xglGetProgramNamedParameterfvNV) (GLuint, GLsizei, const GLubyte *, GLfloat *);
 
+/// GL_EXT_framebuffer_object ==================================================
+GLboolean (GLAPIENTRY* qglIsRenderbufferEXT)(GLuint renderbuffer, const char *filename, int line);
+void (GLAPIENTRY* qglBindRenderbufferEXT)(GLenum target, GLuint renderbuffer, const char *filename, int line);
+void (GLAPIENTRY* qglDeleteRenderbuffersEXT)(GLsizei n, const GLuint *renderbuffers, const char *filename, int line);
+void (GLAPIENTRY* qglGenRenderbuffersEXT)(GLsizei n, GLuint *renderbuffers, const char *filename, int line);
+void (GLAPIENTRY* qglRenderbufferStorageEXT)(GLenum target, GLenum internalformat, GLsizei width, GLsizei height, const char *filename, int line);
+void (GLAPIENTRY* qglGetRenderbufferParameterivEXT)(GLenum target, GLenum pname, GLint *params, const char *filename, int line);
+GLboolean (GLAPIENTRY* qglIsFramebufferEXT)(GLuint framebuffer, const char *filename, int line);
+void (GLAPIENTRY* qglBindFramebufferEXT)(GLenum target, GLuint framebuffer, const char *filename, int line);
+void (GLAPIENTRY* qglDeleteFramebuffersEXT)(GLsizei n, const GLuint *framebuffers, const char *filename, int line);
+void (GLAPIENTRY* qglGenFramebuffersEXT)(GLsizei n, GLuint *framebuffers, const char *filename, int line);
+GLenum (GLAPIENTRY* qglCheckFramebufferStatusEXT)(GLenum target, const char *filename, int line);
+void (GLAPIENTRY* qglFramebufferTexture1DEXT)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, const char *filename, int line);
+void (GLAPIENTRY* qglFramebufferTexture2DEXT)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, const char *filename, int line);
+void (GLAPIENTRY* qglFramebufferTexture3DEXT)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset, const char *filename, int line);
+void (GLAPIENTRY* qglFramebufferRenderbufferEXT)(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer, const char *filename, int line);
+void (GLAPIENTRY* qglGetFramebufferAttachmentParameterivEXT)(GLenum target, GLenum attachment, GLenum pname, GLint *params, const char *filename, int line);
+void (GLAPIENTRY* qglGenerateMipmapEXT)(GLenum target, const char *filename, int line);
+
+static GLboolean (GLAPIENTRY* dllIsRenderbufferEXT)(GLuint renderbuffer);
+static void (GLAPIENTRY* dllBindRenderbufferEXT)(GLenum target, GLuint renderbuffer);
+static void (GLAPIENTRY* dllDeleteRenderbuffersEXT)(GLsizei n, const GLuint *renderbuffers);
+static void (GLAPIENTRY* dllGenRenderbuffersEXT)(GLsizei n, GLuint *renderbuffers);
+static void (GLAPIENTRY* dllRenderbufferStorageEXT)(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+static void (GLAPIENTRY* dllGetRenderbufferParameterivEXT)(GLenum target, GLenum pname, GLint *params);
+static GLboolean (GLAPIENTRY* dllIsFramebufferEXT)(GLuint framebuffer);
+static void (GLAPIENTRY* dllBindFramebufferEXT)(GLenum target, GLuint framebuffer);
+static void (GLAPIENTRY* dllDeleteFramebuffersEXT)(GLsizei n, const GLuint *framebuffers);
+static void (GLAPIENTRY* dllGenFramebuffersEXT)(GLsizei n, GLuint *framebuffers);
+static GLenum (GLAPIENTRY* dllCheckFramebufferStatusEXT)(GLenum target);
+static void (GLAPIENTRY* dllFramebufferTexture1DEXT)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+static void (GLAPIENTRY* dllFramebufferTexture2DEXT)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+static void (GLAPIENTRY* dllFramebufferTexture3DEXT)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset);
+static void (GLAPIENTRY* dllFramebufferRenderbufferEXT)(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
+static void (GLAPIENTRY* dllGetFramebufferAttachmentParameterivEXT)(GLenum target, GLenum attachment, GLenum pname, GLint *params);
+static void (GLAPIENTRY* dllGenerateMipmapEXT)(GLenum target);
+
+static GLboolean GLAPIENTRY stdIsRenderbufferEXT(GLuint renderbuffer, const char *filename, int line)
+{
+	return dllIsRenderbufferEXT(renderbuffer);
+}
+static void GLAPIENTRY stdBindRenderbufferEXT(GLenum target, GLuint renderbuffer, const char *filename, int line)
+{
+	dllBindRenderbufferEXT(target, renderbuffer);
+}
+static void GLAPIENTRY stdDeleteRenderbuffersEXT(GLsizei n, const GLuint *renderbuffers, const char *filename, int line)
+{
+	dllDeleteRenderbuffersEXT(n, renderbuffers);
+}
+static void GLAPIENTRY stdGenRenderbuffersEXT(GLsizei n, GLuint *renderbuffers, const char *filename, int line)
+{
+	dllGenRenderbuffersEXT(n, renderbuffers);
+}
+static void GLAPIENTRY stdRenderbufferStorageEXT(GLenum target, GLenum internalformat, GLsizei width, GLsizei height, const char *filename, int line)
+{
+	dllRenderbufferStorageEXT(target, internalformat, width, height);
+}
+static void GLAPIENTRY stdGetRenderbufferParameterivEXT(GLenum target, GLenum pname, GLint *params, const char *filename, int line)
+{
+	dllGetRenderbufferParameterivEXT(target, pname, params);
+}
+static GLboolean GLAPIENTRY stdIsFramebufferEXT(GLuint framebuffer, const char *filename, int line)
+{
+	return dllIsFramebufferEXT(framebuffer);
+}
+static void GLAPIENTRY stdBindFramebufferEXT(GLenum target, GLuint framebuffer, const char *filename, int line)
+{
+	dllBindFramebufferEXT(target, framebuffer);
+}
+static void GLAPIENTRY stdDeleteFramebuffersEXT(GLsizei n, const GLuint *framebuffers, const char *filename, int line)
+{
+	dllDeleteFramebuffersEXT(n, framebuffers);
+}
+static void GLAPIENTRY stdGenFramebuffersEXT(GLsizei n, GLuint *framebuffers, const char *filename, int line)
+{
+	dllGenFramebuffersEXT(n, framebuffers);
+}
+static GLenum GLAPIENTRY stdCheckFramebufferStatusEXT(GLenum target, const char *filename, int line)
+{
+	return dllCheckFramebufferStatusEXT(target);
+}
+static void GLAPIENTRY stdFramebufferTexture1DEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, const char *filename, int line)
+{
+	dllFramebufferTexture1DEXT(target, attachment, textarget, texture, level);
+}
+static void GLAPIENTRY stdFramebufferTexture2DEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, const char *filename, int line)
+{
+	dllFramebufferTexture2DEXT(target, attachment, textarget, texture, level);
+}
+static void GLAPIENTRY stdFramebufferTexture3DEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset, const char *filename, int line)
+{
+	dllFramebufferTexture3DEXT(target, attachment, textarget, texture, level, zoffset);
+}
+static void GLAPIENTRY stdFramebufferRenderbufferEXT(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer, const char *filename, int line)
+{
+	dllFramebufferRenderbufferEXT(target, attachment, renderbuffertarget, renderbuffer);
+}
+static void GLAPIENTRY stdGetFramebufferAttachmentParameterivEXT(GLenum target, GLenum attachment, GLenum pname, GLint *params, const char *filename, int line)
+{
+	dllGetFramebufferAttachmentParameterivEXT(target, attachment, pname, params);
+}
+static void GLAPIENTRY stdGenerateMipmapEXT(GLenum target, const char *filename, int line)
+{
+	dllGenerateMipmapEXT(target);
+}
+
+static GLboolean GLAPIENTRY dbgIsRenderbufferEXT(GLuint renderbuffer, const char *filename, int line)
+{
+	GLboolean b = dllIsRenderbufferEXT(renderbuffer);
+	XGL_CheckForError_(filename, line);
+	return b;
+}
+static void GLAPIENTRY dbgBindRenderbufferEXT(GLenum target, GLuint renderbuffer, const char *filename, int line)
+{
+	dllBindRenderbufferEXT(target, renderbuffer);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgDeleteRenderbuffersEXT(GLsizei n, const GLuint *renderbuffers, const char *filename, int line)
+{
+	dllDeleteRenderbuffersEXT(n, renderbuffers);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgGenRenderbuffersEXT(GLsizei n, GLuint *renderbuffers, const char *filename, int line)
+{
+	dllGenRenderbuffersEXT(n, renderbuffers);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgRenderbufferStorageEXT(GLenum target, GLenum internalformat, GLsizei width, GLsizei height, const char *filename, int line)
+{
+	dllRenderbufferStorageEXT(target, internalformat, width, height);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgGetRenderbufferParameterivEXT(GLenum target, GLenum pname, GLint *params, const char *filename, int line)
+{
+	dllGetRenderbufferParameterivEXT(target, pname, params);
+	XGL_CheckForError_(filename, line);
+}
+static GLboolean GLAPIENTRY dbgIsFramebufferEXT(GLuint framebuffer, const char *filename, int line)
+{
+	GLboolean b = dllIsFramebufferEXT(framebuffer);
+	XGL_CheckForError_(filename, line);
+	return b;
+}
+static void GLAPIENTRY dbgBindFramebufferEXT(GLenum target, GLuint framebuffer, const char *filename, int line)
+{
+	dllBindFramebufferEXT(target, framebuffer);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgDeleteFramebuffersEXT(GLsizei n, const GLuint *framebuffers, const char *filename, int line)
+{
+	dllDeleteFramebuffersEXT(n, framebuffers);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgGenFramebuffersEXT(GLsizei n, GLuint *framebuffers, const char *filename, int line)
+{
+	dllGenFramebuffersEXT(n, framebuffers);
+	XGL_CheckForError_(filename, line);
+}
+static GLenum GLAPIENTRY dbgCheckFramebufferStatusEXT(GLenum target, const char *filename, int line)
+{
+	GLenum e = dllCheckFramebufferStatusEXT(target);
+	XGL_CheckForError_(filename, line);
+	return e;
+}
+static void GLAPIENTRY dbgFramebufferTexture1DEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, const char *filename, int line)
+{
+	dllFramebufferTexture1DEXT(target, attachment, textarget, texture, level);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgFramebufferTexture2DEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, const char *filename, int line)
+{
+	dllFramebufferTexture2DEXT(target, attachment, textarget, texture, level);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgFramebufferTexture3DEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset, const char *filename, int line)
+{
+	dllFramebufferTexture3DEXT(target, attachment, textarget, texture, level, zoffset);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgFramebufferRenderbufferEXT(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer, const char *filename, int line)
+{
+	dllFramebufferRenderbufferEXT(target, attachment, renderbuffertarget, renderbuffer);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgGetFramebufferAttachmentParameterivEXT(GLenum target, GLenum attachment, GLenum pname, GLint *params, const char *filename, int line)
+{
+	dllGetFramebufferAttachmentParameterivEXT(target, attachment, pname, params);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgGenerateMipmapEXT(GLenum target, const char *filename, int line)
+{
+	dllGenerateMipmapEXT(target);
+	XGL_CheckForError_(filename, line);
+}
+
 
 #ifdef __linux__
 /// GLX 1.0 functions ==========================================================
@@ -1467,6 +1662,41 @@ void	XGL_Shutdown()
 	xglProgramNamedParameter4fNV				= NULL;
 	xglProgramNamedParameter4fvNV				= NULL;
 	xglGetProgramNamedParameterfvNV				= NULL;
+
+	qglIsRenderbufferEXT					= NULL;
+	qglBindRenderbufferEXT					= NULL;
+	qglDeleteRenderbuffersEXT				= NULL;
+	qglGenRenderbuffersEXT					= NULL;
+	qglRenderbufferStorageEXT				= NULL;
+	qglGetRenderbufferParameterivEXT			= NULL;
+	qglIsFramebufferEXT					= NULL;
+	qglBindFramebufferEXT					= NULL;
+	qglDeleteFramebuffersEXT				= NULL;
+	qglGenFramebuffersEXT					= NULL;
+	qglCheckFramebufferStatusEXT				= NULL;
+	qglFramebufferTexture1DEXT				= NULL;
+	qglFramebufferTexture2DEXT				= NULL;
+	qglFramebufferTexture3DEXT				= NULL;
+	qglFramebufferRenderbufferEXT				= NULL;
+	qglGetFramebufferAttachmentParameterivEXT		= NULL;
+	qglGenerateMipmapEXT					= NULL;
+	dllIsRenderbufferEXT					= NULL;
+	dllBindRenderbufferEXT					= NULL;
+	dllDeleteRenderbuffersEXT				= NULL;
+	dllGenRenderbuffersEXT					= NULL;
+	dllRenderbufferStorageEXT				= NULL;
+	dllGetRenderbufferParameterivEXT			= NULL;
+	dllIsFramebufferEXT					= NULL;
+	dllBindFramebufferEXT					= NULL;
+	dllDeleteFramebuffersEXT				= NULL;
+	dllGenFramebuffersEXT					= NULL;
+	dllCheckFramebufferStatusEXT				= NULL;
+	dllFramebufferTexture1DEXT				= NULL;
+	dllFramebufferTexture2DEXT				= NULL;
+	dllFramebufferTexture3DEXT				= NULL;
+	dllFramebufferRenderbufferEXT				= NULL;
+	dllGetFramebufferAttachmentParameterivEXT		= NULL;
+	dllGenerateMipmapEXT					= NULL;
 	
 #ifdef __linux__
 	xglXChooseVisual					= NULL;
@@ -1710,7 +1940,8 @@ void	XGL_InitExtensions()
 	gl_config.ext_texture3D = false;
 	gl_config.ext_compiled_vertex_array = false;
 	gl_config.ext_draw_range_elements = false;
-	gl_config.ext_texture_filter_anisotropic = false;	
+	gl_config.ext_texture_filter_anisotropic = false;
+	gl_config.ext_framebuffer_object = false;	
 
 
 	if(strstr(gl_config.extensions_string, "GL_ARB_multitexture"))
@@ -1926,6 +2157,40 @@ void	XGL_InitExtensions()
 	{
 		ri.Com_Printf("...GL_EXT_texture_filter_anisotropic not found\n");
 	}
+
+	if(strstr(gl_config.extensions_string, "GL_EXT_framebuffer_object"))
+	{
+		if(r_ext_framebuffer_object->getInteger())
+		{
+			ri.Com_Printf("...using GL_EXT_framebuffer_object\n");
+			dllIsRenderbufferEXT = (GLboolean (GLAPIENTRY*)(GLuint renderbuffer)) xglGetProcAddress("glIsRenderbufferEXT");
+			dllBindRenderbufferEXT = (void (GLAPIENTRY*)(GLenum target, GLuint renderbuffer)) xglGetProcAddress("glBindRenderbufferEXT");
+			dllDeleteRenderbuffersEXT = (void (GLAPIENTRY*)(GLsizei n, const GLuint *renderbuffers)) xglGetProcAddress("glDeleteRenderbuffersEXT");
+			dllGenRenderbuffersEXT = (void (GLAPIENTRY*)(GLsizei n, GLuint *renderbuffers)) xglGetProcAddress("glGenRenderbuffersEXT");
+			dllRenderbufferStorageEXT = (void (GLAPIENTRY*)(GLenum target, GLenum internalformat, GLsizei width, GLsizei height)) xglGetProcAddress("glRenderbufferStorageEXT");
+			dllGetRenderbufferParameterivEXT = (void (GLAPIENTRY*)(GLenum target, GLenum pname, GLint *params)) xglGetProcAddress("glGetRenderbufferParameterivEXT");
+			dllIsFramebufferEXT = (GLboolean (GLAPIENTRY*)(GLuint framebuffer)) xglGetProcAddress("glIsFramebufferEXT");
+			dllBindFramebufferEXT = (void (GLAPIENTRY*)(GLenum target, GLuint framebuffer)) xglGetProcAddress("glBindFramebufferEXT");
+			dllDeleteFramebuffersEXT = (void (GLAPIENTRY*)(GLsizei n, const GLuint *framebuffers)) xglGetProcAddress("glDeleteFramebuffersEXT");
+			dllGenFramebuffersEXT = (void (GLAPIENTRY*)(GLsizei n, GLuint *framebuffers)) xglGetProcAddress("glGenFramebuffersEXT");
+			dllCheckFramebufferStatusEXT = (GLenum (GLAPIENTRY*)(GLenum target)) xglGetProcAddress("glCheckFramebufferStatusEXT");
+			dllFramebufferTexture1DEXT = (void (GLAPIENTRY*)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)) xglGetProcAddress("glFramebufferTexture1DEXT");
+			dllFramebufferTexture2DEXT = (void (GLAPIENTRY*)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)) xglGetProcAddress("glFramebufferTexture2DEXT");
+			dllFramebufferTexture3DEXT = (void (GLAPIENTRY*)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset)) xglGetProcAddress("glFramebufferTexture3DEXT");
+			dllFramebufferRenderbufferEXT = (void (GLAPIENTRY*)(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)) xglGetProcAddress("glFramebufferRenderbufferEXT");
+			dllGetFramebufferAttachmentParameterivEXT = (void (GLAPIENTRY*)(GLenum target, GLenum attachment, GLenum pname, GLint *params)) xglGetProcAddress("glGetFramebufferAttachmentParameterivEXT");
+			dllGenerateMipmapEXT = (void (GLAPIENTRY*)(GLenum target)) xglGetProcAddress("glGenerateMipmapEXT");
+			gl_config.ext_framebuffer_object = true;
+		}
+		else
+		{
+			ri.Com_Printf("...ignoring GL_EXT_framebuffer_object\n");
+		}
+	}
+	else
+	{
+		ri.Com_Printf("...GL_EXT_framebuffer_object not found\n");
+	}
 }
 
 void	XGL_EnableDebugging(bool enable)
@@ -2024,6 +2289,24 @@ void	XGL_EnableDebugging(bool enable)
 		qglTexImage3DEXT					= dbgTexImage3DEXT;
 		
 		qglDrawRangeElementsEXT					= dbgDrawRangeElementsEXT;
+
+		qglIsRenderbufferEXT					= dbgIsRenderbufferEXT;
+		qglBindRenderbufferEXT					= dbgBindRenderbufferEXT;
+		qglDeleteRenderbuffersEXT				= dbgDeleteRenderbuffersEXT;
+		qglGenRenderbuffersEXT					= dbgGenRenderbuffersEXT;
+		qglRenderbufferStorageEXT				= dbgRenderbufferStorageEXT;
+		qglGetRenderbufferParameterivEXT			= dbgGetRenderbufferParameterivEXT;
+		qglIsFramebufferEXT					= dbgIsFramebufferEXT;
+		qglBindFramebufferEXT					= dbgBindFramebufferEXT;
+		qglDeleteFramebuffersEXT				= dbgDeleteFramebuffersEXT;
+		qglGenFramebuffersEXT					= dbgGenFramebuffersEXT;
+		qglCheckFramebufferStatusEXT				= dbgCheckFramebufferStatusEXT;
+		qglFramebufferTexture1DEXT				= dbgFramebufferTexture1DEXT;
+		qglFramebufferTexture2DEXT				= dbgFramebufferTexture2DEXT;
+		qglFramebufferTexture3DEXT				= dbgFramebufferTexture3DEXT;
+		qglFramebufferRenderbufferEXT				= dbgFramebufferRenderbufferEXT;
+		qglGetFramebufferAttachmentParameterivEXT		= dbgGetFramebufferAttachmentParameterivEXT;
+		qglGenerateMipmapEXT					= dbgGenerateMipmapEXT;
 	}
 	else
 	{
@@ -2119,6 +2402,24 @@ void	XGL_EnableDebugging(bool enable)
 		qglTexImage3DEXT					= stdTexImage3DEXT;
 		
 		qglDrawRangeElementsEXT					= stdDrawRangeElementsEXT;
+
+		qglIsRenderbufferEXT					= stdIsRenderbufferEXT;
+		qglBindRenderbufferEXT					= stdBindRenderbufferEXT;
+		qglDeleteRenderbuffersEXT				= stdDeleteRenderbuffersEXT;
+		qglGenRenderbuffersEXT					= stdGenRenderbuffersEXT;
+		qglRenderbufferStorageEXT				= stdRenderbufferStorageEXT;
+		qglGetRenderbufferParameterivEXT			= stdGetRenderbufferParameterivEXT;
+		qglIsFramebufferEXT					= stdIsFramebufferEXT;
+		qglBindFramebufferEXT					= stdBindFramebufferEXT;
+		qglDeleteFramebuffersEXT				= stdDeleteFramebuffersEXT;
+		qglGenFramebuffersEXT					= stdGenFramebuffersEXT;
+		qglCheckFramebufferStatusEXT				= stdCheckFramebufferStatusEXT;
+		qglFramebufferTexture1DEXT				= stdFramebufferTexture1DEXT;
+		qglFramebufferTexture2DEXT				= stdFramebufferTexture2DEXT;
+		qglFramebufferTexture3DEXT				= stdFramebufferTexture3DEXT;
+		qglFramebufferRenderbufferEXT				= stdFramebufferRenderbufferEXT;
+		qglGetFramebufferAttachmentParameterivEXT		= stdGetFramebufferAttachmentParameterivEXT;
+		qglGenerateMipmapEXT					= stdGenerateMipmapEXT;
 	}
 }
 

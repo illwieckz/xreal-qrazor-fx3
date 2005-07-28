@@ -1914,7 +1914,56 @@ typedef void GLvoid;
 #define GL_PROGRAM_ERROR_STRING_NV        0x8874
 #endif
 
-
+#ifndef GL_EXT_framebuffer_object
+#define GL_INVALID_FRAMEBUFFER_OPERATION_EXT 0x0506
+#define GL_MAX_RENDERBUFFER_SIZE_EXT      0x84E8
+#define GL_FRAMEBUFFER_BINDING_EXT        0x8CA6
+#define GL_RENDERBUFFER_BINDING_EXT       0x8CA7
+#define GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE_EXT 0x8CD0
+#define GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME_EXT 0x8CD1
+#define GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL_EXT 0x8CD2
+#define GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE_EXT 0x8CD3
+#define GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET_EXT 0x8CD4
+#define GL_FRAMEBUFFER_COMPLETE_EXT       0x8CD5
+#define GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENTS_EXT 0x8CD6
+#define GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT 0x8CD7
+#define GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT 0x8CD8
+#define GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT 0x8CD9
+#define GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT 0x8CDA
+#define GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT 0x8CDB
+#define GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT 0x8CDC
+#define GL_FRAMEBUFFER_UNSUPPORTED_EXT    0x8CDD
+#define GL_FRAMEBUFFER_STATUS_ERROR_EXT   0x8CDE
+#define GL_MAX_COLOR_ATTACHMENTS_EXT      0x8CDF
+#define GL_COLOR_ATTACHMENT0_EXT          0x8CE0
+#define GL_COLOR_ATTACHMENT1_EXT          0x8CE1
+#define GL_COLOR_ATTACHMENT2_EXT          0x8CE2
+#define GL_COLOR_ATTACHMENT3_EXT          0x8CE3
+#define GL_COLOR_ATTACHMENT4_EXT          0x8CE4
+#define GL_COLOR_ATTACHMENT5_EXT          0x8CE5
+#define GL_COLOR_ATTACHMENT6_EXT          0x8CE6
+#define GL_COLOR_ATTACHMENT7_EXT          0x8CE7
+#define GL_COLOR_ATTACHMENT8_EXT          0x8CE8
+#define GL_COLOR_ATTACHMENT9_EXT          0x8CE9
+#define GL_COLOR_ATTACHMENT10_EXT         0x8CEA
+#define GL_COLOR_ATTACHMENT11_EXT         0x8CEB
+#define GL_COLOR_ATTACHMENT12_EXT         0x8CEC
+#define GL_COLOR_ATTACHMENT13_EXT         0x8CED
+#define GL_COLOR_ATTACHMENT14_EXT         0x8CEE
+#define GL_COLOR_ATTACHMENT15_EXT         0x8CEF
+#define GL_DEPTH_ATTACHMENT_EXT           0x8D00
+#define GL_STENCIL_ATTACHMENT_EXT         0x8D20
+#define GL_FRAMEBUFFER_EXT                0x8D40
+#define GL_RENDERBUFFER_EXT               0x8D41
+#define GL_RENDERBUFFER_WIDTH_EXT         0x8D42
+#define GL_RENDERBUFFER_HEIGHT_EXT        0x8D43
+#define GL_RENDERBUFFER_INTERNAL_FORMAT_EXT 0x8D44
+#define GL_STENCIL_INDEX_EXT              0x8D45
+#define GL_STENCIL_INDEX1_EXT             0x8D46
+#define GL_STENCIL_INDEX4_EXT             0x8D47
+#define GL_STENCIL_INDEX8_EXT             0x8D48
+#define GL_STENCIL_INDEX16_EXT            0x8D49
+#endif
 
 
 /// OpenGL 1.1 functions =======================================================
@@ -2831,6 +2880,76 @@ extern void (GLAPIENTRY* xglProgramNamedParameter4fvNV) (GLuint, GLsizei, const 
 extern void (GLAPIENTRY* xglGetProgramNamedParameterfvNV) (GLuint, GLsizei, const GLubyte *, GLfloat *);
 
 
+/// GL_EXT_framebuffer_object ==================================================
+extern GLboolean (GLAPIENTRY* qglIsRenderbufferEXT)(GLuint renderbuffer, const char *filename, int line);
+#define			      xglIsRenderbufferEXT(renderbuffer) \
+			      qglIsRenderbufferEXT(renderbuffer, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglBindRenderbufferEXT)(GLenum target, GLuint renderbuffer, const char *filename, int line);
+#define			 xglBindRenderbufferEXT(target, renderbuffer) \
+			 qglBindRenderbufferEXT(target, renderbuffer, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglDeleteRenderbuffersEXT)(GLsizei n, const GLuint *renderbuffers, const char *filename, int line);
+#define			 xglDeleteRenderbuffersEXT(n, renderbuffers) \
+			 qglDeleteRenderbuffersEXT(n, renderbuffers, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglGenRenderbuffersEXT)(GLsizei n, GLuint *renderbuffers, const char *filename, int line);
+#define			 xglGenRenderbuffersEXT(n, renderbuffers) \
+			 qglGenRenderbuffersEXT(n, renderbuffers, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglRenderbufferStorageEXT)(GLenum target, GLenum internalformat, GLsizei width, GLsizei height, const char *filename, int line);
+#define			 xglRenderbufferStorageEXT(target, internalformat, width, height) \
+			 qglRenderbufferStorageEXT(target, internalformat, width, height, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglGetRenderbufferParameterivEXT)(GLenum target, GLenum pname, GLint *params, const char *filename, int line);
+#define			 xglGetRenderbufferParameterivEXT(target, pname, params) \
+			 qglGetRenderbufferParameterivEXT(target, pname, params, __FILE__, __LINE__)
+
+extern GLboolean (GLAPIENTRY* qglIsFramebufferEXT)(GLuint framebuffer, const char *filename, int line);
+#define			      xglIsFramebufferEXT(framebuffer) \
+			      qglIsFramebufferEXT(framebuffer, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglBindFramebufferEXT)(GLenum target, GLuint framebuffer, const char *filename, int line);
+#define			 xglBindFramebufferEXT(target, framebuffer) \
+			 qglBindFramebufferEXT(target, framebuffer, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglDeleteFramebuffersEXT)(GLsizei n, const GLuint *framebuffers, const char *filename, int line);
+#define			 xglDeleteFramebuffersEXT(n, framebuffers) \
+			 qglDeleteFramebuffersEXT(n, framebuffers, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglGenFramebuffersEXT)(GLsizei n, GLuint *framebuffers, const char *filename, int line);
+#define			 xglGenFramebuffersEXT(n, framebuffers) \
+			 qglGenFramebuffersEXT(n, framebuffers, __FILE__, __LINE__)
+
+extern GLenum (GLAPIENTRY* qglCheckFramebufferStatusEXT)(GLenum target, const char *filename, int line);
+#define			   xglCheckFramebufferStatusEXT(target) \
+			   qglCheckFramebufferStatusEXT(target, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglFramebufferTexture1DEXT)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, const char *filename, int line);
+#define			 xglFramebufferTexture1DEXT(target, attachment, textarget, texture, level) \
+			 qglFramebufferTexture1DEXT(target, attachment, textarget, texture, level, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglFramebufferTexture2DEXT)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, const char *filename, int line);
+#define			 xglFramebufferTexture2DEXT(target, attachment, textarget, texture, level) \
+			 qglFramebufferTexture2DEXT(target, attachment, textarget, texture, level, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglFramebufferTexture3DEXT)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset, const char *filename, int line);
+#define			 xglFramebufferTexture3DEXT(target, attachment, textarget, texture, level, zoffset) \
+			 qglFramebufferTexture3DEXT(target, attachment, textarget, texture, level, zoffset, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglFramebufferRenderbufferEXT)(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer, const char *filename, int line);
+#define			 xglFramebufferRenderbufferEXT(target, attachment, renderbuffertarget, renderbuffer) \
+			 qglFramebufferRenderbufferEXT(target, attachment, renderbuffertarget, renderbuffer, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglGetFramebufferAttachmentParameterivEXT)(GLenum target, GLenum attachment, GLenum pname, GLint *params, const char *filename, int line);
+#define			 xglGetFramebufferAttachmentParameterivEXT(target, attachment, pname, params) \
+			 qglGetFramebufferAttachmentParameterivEXT(target, attachment, pname, params, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglGenerateMipmapEXT)(GLenum target, const char *filename, int line);
+#define			 xglGenerateMipmapEXT(target) \
+			 qglGenerateMipmapEXT(target, __FILE__, __LINE__)
+
+
 #ifdef __linux__
 /// GLX 1.0 functions ==========================================================
 extern XVisualInfo* 	(*xglXChooseVisual)(Display *dpy, int screen, int *attribList);
@@ -2889,8 +3008,6 @@ void		XGL_CheckForError_(const std::string &file, int line);
 #else
 #define		XGL_CheckForError()
 #endif
-
-#define		RB_CheckForError()
 
 // interface for wgl/glxGetProcAddress, use this to load OpenGL extensions
 void*		xglGetProcAddress(const char *symbolname);
