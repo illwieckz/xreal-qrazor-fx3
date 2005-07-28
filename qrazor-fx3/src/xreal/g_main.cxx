@@ -164,7 +164,7 @@ is loaded.
 */
 static void	G_InitGame()
 {
-	trap_Com_Printf ("======= G_InitGame \"XreaL\" =======\n");
+	trap_Com_Printf("======= G_InitGame \"XreaL\" =======\n");
 
 	gun_x = trap_Cvar_Get ("gun_x", "0", 0);
 	gun_y = trap_Cvar_Get ("gun_y", "0", 0);
@@ -236,13 +236,16 @@ static void	G_InitGame()
 	}
 		
 	globals.entities = &g_entities;
-	
 	trap_Com_Printf("G_InitGame: entities num: %i\n", g_entities.size());
+	
+//	G_InitPythonVM();
 }
 
 static void 	G_ShutdownGame()
 {
 	trap_Com_Printf("======= G_ShutdownGame \"XreaL\" =======\n");
+	
+//	G_ShutdownPythonVM();
 
 	G_ShutdownEntities();
 	
