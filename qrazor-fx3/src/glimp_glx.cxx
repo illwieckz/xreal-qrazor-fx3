@@ -1005,12 +1005,8 @@ void	GLimp_EndFrame()
 {
 	//ri.Com_Printf("GLimp_EndFrame:\n");
 	
-	RB_CheckForError();
-	
 	xglFlush();
 	xglXSwapBuffers(sys_gl.dpy, sys_gl.win);
-	
-	RB_CheckForError();
 }
 
 void	GLimp_AppActivate(bool active)
