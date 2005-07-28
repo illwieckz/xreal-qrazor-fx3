@@ -239,6 +239,7 @@ cvar_t	*r_ext_compiled_vertex_array;
 cvar_t	*r_ext_draw_range_elements;
 cvar_t	*r_ext_texture_filter_anisotropic;
 cvar_t	*r_ext_texture_filter_anisotropic_level;
+cvar_t	*r_ext_framebuffer_object;
 
 cvar_t	*r_sgix_fbconfig;
 cvar_t	*r_sgix_pbuffer;
@@ -1036,23 +1037,23 @@ static void 	R_RenderScene(const r_refdef_t &fd, r_scene_t &scene)
 //	RB_Clear();
 #endif
 
-	R_SetupFrame();			RB_CheckForError();
+	R_SetupFrame();
 	
-	RB_SetupGL3D();			RB_CheckForError();
+	RB_SetupGL3D();
 	
-	R_DrawWorld();			RB_CheckForError();
+	R_DrawWorld();
 	
 	R_AddEntitiesToBuffer();
 	
 	RB_RenderCommands();
 		
-	R_DrawLightDebuggingInfo();	RB_CheckForError();
+	R_DrawLightDebuggingInfo();
 	
-	R_DrawEntityDebuggingInfo();	RB_CheckForError();
+	R_DrawEntityDebuggingInfo();
 	
-	R_DrawContactDebuggingInfo();	RB_CheckForError();
+	R_DrawContactDebuggingInfo();
 	
-	R_DrawAreaPortals();		RB_CheckForError();
+	R_DrawAreaPortals();
 		
 //	R_AddPolysToBuffer();
 		
@@ -1104,16 +1105,16 @@ void	R_BeginFrame()
 		XGL_EnableDebugging((bool)r_debug->getInteger());
 	}
 
-	GLimp_BeginFrame();	RB_CheckForError();
+	GLimp_BeginFrame();
 	
 	// assign shader time
 	RB_SetShaderTime(ri.Sys_Milliseconds() * 0.001f);
 	
 	// go into 2D mode
-	RB_SetupGL2D();		RB_CheckForError();
+	RB_SetupGL2D();
 		
 	// clear screen if desired
-	RB_Clear();		RB_CheckForError();
+	RB_Clear();
 }
 
 /*
@@ -1131,16 +1132,16 @@ void 	R_RenderFrame(const r_refdef_t &fd)
 	if(r_speeds->getInteger())
 		time_start = ri.Sys_Milliseconds();
 		
-	RB_BeginBackendFrame();		RB_CheckForError();
+	RB_BeginBackendFrame();
 	
 	r_mirror_view = false;
 	r_portal_view = false;
 		
 	R_RenderScene(fd, r_scene_main);
 	
-	RB_SetupGL2D();			RB_CheckForError();
+	RB_SetupGL2D();
 		
-	RB_EndBackendFrame();		RB_CheckForError();
+	RB_EndBackendFrame();
 	
 	if(r_speeds->getInteger())
 		time_end = ri.Sys_Milliseconds();
@@ -1184,14 +1185,10 @@ void 	R_RenderFrame(const r_refdef_t &fd)
 
 void	R_EndFrame()
 {
-	RB_CheckForError();
-
 	if(r_video_export->getInteger())
 		R_WriteVideoScreenShot();
 		
-	GLimp_EndFrame();	
-	
-	RB_CheckForError();
+	GLimp_EndFrame();
 }
 
 static void	R_EnvMap_f()
@@ -1410,6 +1407,7 @@ static void 	R_Register()
 	r_ext_draw_range_elements = ri.Cvar_Get("r_ext_draw_range_elements", "1", CVAR_ARCHIVE);
 	r_ext_texture_filter_anisotropic = ri.Cvar_Get("r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE);
 	r_ext_texture_filter_anisotropic_level = ri.Cvar_Get("r_ext_texture_filter_anisotropic_level", "1", CVAR_ARCHIVE);
+	r_ext_framebuffer_object = ri.Cvar_Get("r_ext_framebuffer_object", "1", CVAR_ARCHIVE);
 
 	r_sgix_fbconfig		= ri.Cvar_Get("r_sgix_fbconfig", "1", CVAR_ARCHIVE);
 	r_sgix_pbuffer		= ri.Cvar_Get("r_sgix_pbuffer", "1", CVAR_ARCHIVE);
@@ -1585,11 +1583,11 @@ bool 	R_Init(void *hinstance, void *hWnd)
 	XGL_InitExtensions();
 	
 	// setup shadow mapping support
-	GLimp_InitPbuffer(false, true);		RB_CheckForError();
-	GLimp_ActivatePbuffer();		RB_CheckForError();
+	GLimp_InitPbuffer(false, true);
+	GLimp_ActivatePbuffer();
 //	xglClearColor(0.6, 0.1, 0.91, 0.0);
-	xglClearColor(0.3, 0.3, 0.3, 1.0);	RB_CheckForError();
-	xglEnable(GL_DEPTH_TEST);		RB_CheckForError();
+	xglClearColor(0.3, 0.3, 0.3, 1.0);
+	xglEnable(GL_DEPTH_TEST);
 	{
 		//TODO recode
 		
@@ -1601,32 +1599,32 @@ bool 	R_Init(void *hinstance, void *hWnd)
         	else
 			vid_depth_format = GL_DEPTH_COMPONENT24_ARB;
 	}
-	GLimp_DeactivatePbuffer();		RB_CheckForError();
+	GLimp_DeactivatePbuffer();
 
 	// setup image system
-	R_InitImages();				RB_CheckForError();
+	R_InitImages();
 		
         // setup Q3A style shader system
-	R_InitShaders();			RB_CheckForError();
+	R_InitShaders();
 	
 	// setup skin system
-	R_InitSkins();				RB_CheckForError();
+	R_InitSkins();
 
 	// setup MD5 animation system
-	R_InitAnimations();			RB_CheckForError();
+	R_InitAnimations();
 	
 	// setup quad indices for 2d drawing
 	R_InitQuadIndexes();
 
 	// setup default images
-	R_InitDraw();				RB_CheckForError();
+	R_InitDraw();
 	
 	R_InitEntities();
 	
 	R_InitLights();
 	
-	R_InitParticles();			RB_CheckForError();
-	R_InitPolys();				RB_CheckForError();
+	R_InitParticles();
+	R_InitPolys();
 	
 	// setup sky
 	//R_InitSkyDome();
@@ -1635,9 +1633,7 @@ bool 	R_Init(void *hinstance, void *hWnd)
 	//R_InitTree();
 	
 	// setup OpenGL renderer backend
-	RB_InitBackend();			RB_CheckForError();
-	
-	RB_CheckForError();
+	RB_InitBackend();
 	
 	ri.Com_Printf("------- R_Init completed-------\n");
 

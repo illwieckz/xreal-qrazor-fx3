@@ -55,13 +55,13 @@ void	RB_InitBackend()
 {
 	ri.Com_Printf("------- RB_InitBackend -------\n");
 	
-	xglClearColor(0.0, 0.0, 0.0, 1.0);	RB_CheckForError();
-//	xglClearColor(0.3, 0.3, 0.3, 1.0);	RB_CheckForError();
-	xglColor4fv(color_white);	RB_CheckForError();
+	xglClearColor(0.0, 0.0, 0.0, 1.0);
+//	xglClearColor(0.3, 0.3, 0.3, 1.0);
+	xglColor4fv(color_white);
 	
 	//xglEnable(GL_DEPTH_TEST);
 	
-	xglDisable(GL_TEXTURE_2D);	RB_CheckForError();
+	xglDisable(GL_TEXTURE_2D);
 
 	//xglDisable(GL_DEPTH_TEST);
 	//xglDisable(GL_CULL_FACE);
@@ -71,8 +71,8 @@ void	RB_InitBackend()
 	
 	//xglShadeModel(GL_SMOOTH);
 	gl_state.polygon_mode = GL_FILL;
-        xglPolygonMode(GL_FRONT_AND_BACK, gl_state.polygon_mode);	RB_CheckForError();
-	xglPolygonOffset(-1, -2);	RB_CheckForError();
+        xglPolygonMode(GL_FRONT_AND_BACK, gl_state.polygon_mode);
+	xglPolygonOffset(-1, -2);
 		
 	rb_arrays_locked = false;
 
@@ -697,9 +697,9 @@ void	RB_PushMesh(r_mesh_c *mesh, bool create_vbo_array_buffer, bool create_vbo_e
 				index_ptr++;
 			}
 		
-			xglGenBuffersARB(1, &mesh->vbo_element_array_buffer);	RB_CheckForError();
-			xglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, mesh->vbo_element_array_buffer);	RB_CheckForError();
-			xglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, mesh->indexes.size() * sizeof(index_t), indexes, GL_STATIC_DRAW_ARB);	RB_CheckForError();
+			xglGenBuffersARB(1, &mesh->vbo_element_array_buffer);
+			xglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, mesh->vbo_element_array_buffer);
+			xglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, mesh->indexes.size() * sizeof(index_t), indexes, GL_STATIC_DRAW_ARB);
 			
 			Com_Free(indexes);
 		}
@@ -758,9 +758,9 @@ void	RB_PushMesh(r_mesh_c *mesh, bool create_vbo_array_buffer, bool create_vbo_e
 				return;
 			}
 			
-			xglGenBuffersARB(1, (GLuint*)&mesh->vbo_array_buffer);	RB_CheckForError();	
-			xglBindBufferARB(GL_ARRAY_BUFFER_ARB, mesh->vbo_array_buffer);	RB_CheckForError();
-        		xglBufferDataARB(GL_ARRAY_BUFFER_ARB, data_size, data, GL_STATIC_DRAW_ARB);	RB_CheckForError();
+			xglGenBuffersARB(1, (GLuint*)&mesh->vbo_array_buffer);
+			xglBindBufferARB(GL_ARRAY_BUFFER_ARB, mesh->vbo_array_buffer);
+        		xglBufferDataARB(GL_ARRAY_BUFFER_ARB, data_size, data, GL_STATIC_DRAW_ARB);
 		
 			Com_Free(data);
 		}
@@ -775,23 +775,23 @@ void	RB_FlushMesh(const r_command_t *cmd)
 
 	if(gl_config.arb_vertex_buffer_object && gl_config.ext_draw_range_elements && mesh->vbo_element_array_buffer && !light_indexes)
 	{
-		xglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, mesh->vbo_element_array_buffer);	RB_CheckForError();
+		xglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, mesh->vbo_element_array_buffer);
 	
-		xglDrawRangeElementsEXT(GL_TRIANGLES, 0, mesh->vertexes.size(), mesh->indexes.size(), GL_UNSIGNED_INT, VBO_BUFFER_OFFSET(mesh->vbo_indexes_ofs));	RB_CheckForError();
+		xglDrawRangeElementsEXT(GL_TRIANGLES, 0, mesh->vertexes.size(), mesh->indexes.size(), GL_UNSIGNED_INT, VBO_BUFFER_OFFSET(mesh->vbo_indexes_ofs));
 	}
 	else
 	{
 		if(gl_config.arb_vertex_buffer_object)
-			xglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);	RB_CheckForError();
+			xglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 	
 		if(light_indexes)
 		{
-			xglDrawElements(GL_TRIANGLES, light_indexes->size(), GL_UNSIGNED_INT, &((*light_indexes)[0]));	RB_CheckForError();
+			xglDrawElements(GL_TRIANGLES, light_indexes->size(), GL_UNSIGNED_INT, &((*light_indexes)[0]));
 			c_triangles += light_indexes->size() / 3;
 		}
 		else
 		{
-			xglDrawElements(GL_TRIANGLES, mesh->indexes.size(), GL_UNSIGNED_INT, &(mesh->indexes[0]));	RB_CheckForError();
+			xglDrawElements(GL_TRIANGLES, mesh->indexes.size(), GL_UNSIGNED_INT, &(mesh->indexes[0]));
 			c_triangles += mesh->indexes.size() / 3;
 		}
 	}
@@ -822,119 +822,6 @@ void	RB_UnlockArrays()
 		rb_arrays_locked = false;
 	}
 }
-
-
-/*
-static void	RB_DrawTriangleOutlines(const r_mesh_c *mesh)
-{
-	xglDisable(GL_DEPTH_TEST);
-	
-	xglColor4fv(color_white);
-
-	xglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-	// setup parameters
-	if(gl_config.arb_vertex_buffer_object && mesh->vbo_array_buffer)
-	{
-		xglBindBufferARB(GL_ARRAY_BUFFER_ARB, mesh->vbo_array_buffer);				RB_CheckForError();
-		
-		xglVertexPointer(3, GL_FLOAT, 0, VBO_BUFFER_OFFSET(mesh->vbo_vertexes_ofs));
-	}
-	else
-	{
-		if(gl_config.arb_vertex_buffer_object)
-			xglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);		RB_CheckForError();
-			
-		xglVertexPointer(3, GL_FLOAT, 0, &(mesh->vertexes[0]));
-	}		
-	
-	// activate states
-	xglEnableClientState(GL_VERTEX_ARRAY);
-
-	// draw stuff
-	if(gl_config.arb_vertex_buffer_object && mesh->vbo_element_array_buffer)
-	{
-		xglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, mesh->vbo_element_array_buffer);	RB_CheckForError();
-	
-		xglDrawRangeElements(GL_TRIANGLES, 0, mesh->vertexes.size(), mesh->indexes.size(), GL_UNSIGNED_INT, VBO_BUFFER_OFFSET(mesh->vbo_indexes_ofs));	RB_CheckForError();
-	}
-	else
-	{
-		if(gl_config.arb_vertex_buffer_object)
-			xglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);	RB_CheckForError();
-	
-		xglDrawElements(GL_TRIANGLES, mesh->indexes.size(), GL_UNSIGNED_INT, &(mesh->indexes[0]));	RB_CheckForError();
-	}
-
-	rb_triangles_counter += mesh->indexes.size() / 3;
-
-	
-	// shutdown states
-	xglDisableClientState(GL_VERTEX_ARRAY);
-	
-	rb_flushes_counter++;
-
-	xglPolygonMode(GL_FRONT_AND_BACK, gl_state.polygon_mode);
-	
-	xglEnable(GL_DEPTH_TEST);
-}
-
-
-static void	RB_DrawNormals(const r_mesh_c *mesh)
-{
-	vec3_t	normal;
-	
-	xglColor4fv(color_blue);
-	
-	xglBegin(GL_LINES);
-	unsigned int size = mesh->vertexes.size();
-	for(unsigned int i=0; i<size; i++)
-	{
-		Vector3_Add((vec_t*)mesh->vertexes[i], (vec_t*)mesh->normals[i], normal);
-		
-		xglVertex3fv(mesh->vertexes[i]);
-		xglVertex3fv((float*)normal);
-	}
-	xglEnd();
-}
-
-static void	RB_DrawTangents(const r_mesh_c *mesh)
-{
-	vec3_t	tangent;
-	
-	xglColor4fv(color_red);
-	
-	xglBegin(GL_LINES);
-	unsigned int size = mesh->vertexes.size();
-	for(unsigned int i=0; i<size; i++)
-	{
-		Vector3_Add((vec_t*)mesh->vertexes[i], (vec_t*)mesh->tangents[i], tangent);
-		
-		xglVertex3fv(mesh->vertexes[i]);
-		xglVertex3fv((float*)tangent);
-	}
-	xglEnd();
-}
-
-static void	RB_DrawBinormals(const r_mesh_c *mesh)
-{
-	vec3_t	binormal;
-	
-	xglColor4fv(color_green);
-	
-	xglBegin(GL_LINES);
-	unsigned int size = mesh->vertexes.size();
-	for(unsigned int i=0; i<size; i++)
-	{
-		Vector3_Add((vec_t*)mesh->vertexes[i], (vec_t*)mesh->binormals[i], binormal);
-		
-		xglVertex3fv(mesh->vertexes[i]);
-		xglVertex3fv((float*)binormal);
-	}
-	xglEnd();
-}
-*/
-
 
 void	RB_EnableShaderStates(const r_shader_c *shader)
 {
@@ -1529,12 +1416,10 @@ void	RB_ModifyColor(const r_entity_t &shared, const r_shader_stage_c *stage, vec
 
 void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 {
-	RB_CheckForError();
-
 	const r_shader_c*	entity_shader	= cmd->getEntityShader();
 	const r_shader_c*	light_shader	= cmd->getLightShader();
 
-	RB_EnableShaderStates(entity_shader);	RB_CheckForError();
+	RB_EnableShaderStates(entity_shader);
 
 	//
 	// call the apropiate flush function
@@ -2050,9 +1935,7 @@ void	RB_RenderCommand(const r_command_t *cmd, r_render_type_e type)
 		
 	} // switch
 	
-	RB_CheckForError();
-	
-	RB_DisableShaderStates(entity_shader);	RB_CheckForError();
+	RB_DisableShaderStates(entity_shader);
 }
 
 
@@ -2191,8 +2074,6 @@ void	RB_RenderCommands()
 {
 	uint_t		i, j;
 	r_command_t*	cmd = NULL;
-
-	RB_CheckForError();
 	
 	//
 	// FIXME
@@ -2228,7 +2109,7 @@ void	RB_RenderCommands()
 		cmd->getEntityModel()->draw(cmd, RENDER_TYPE_ZFILL);
 	}
 	RB_DisableShader_zfill();
-	
+
 	xglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	xglDepthMask(GL_FALSE);
 	
@@ -2903,7 +2784,7 @@ void	RB_RenderCommands()
 	
 		//qsort(&r_current_scene->cmds_light[0], r_current_scene->cmds_light_num, sizeof(r_command_t), RB_SortByEntityMeshVertexBufferOffsetFunc);
 		
-		qsort(&r_current_scene->cmds_light[0], r_current_scene->cmds_light_num, sizeof(r_command_t), RB_SortByLightFunc);
+		//qsort(&r_current_scene->cmds_light[0], r_current_scene->cmds_light_num, sizeof(r_command_t), RB_SortByLightFunc);
 		
 		if(r_lighting_omni->getInteger())
 		{
@@ -3086,7 +2967,7 @@ void	RB_RenderCommands()
 				if(light->getType() == LIGHT_OMNI)
 					continue;
 				
-				#if 1
+				#if 0
 				if(!light->isShadowed())
 				{
 					// update shadowmap
