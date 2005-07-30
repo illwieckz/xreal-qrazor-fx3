@@ -31,10 +31,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 std::vector<r_model_c*>	r_models;
 
-unsigned int		r_registration_sequence;
-
-
-
 
 
 
@@ -50,7 +46,7 @@ r_model_c::r_model_c(const std::string &name, byte *buffer, uint_t buffer_size, 
 	
 //	_aabb.clear();
 	
-	setRegistrationSequence();
+	setRegistrationCount();
 }
 
 r_model_c::~r_model_c()
@@ -115,7 +111,7 @@ r_model_c*	R_FindModel(const std::string &name)
 		
 		if(mod->getName() == name)
 		{
-			mod->setRegistrationSequence();
+			mod->setRegistrationCount();
 			return mod;
 		}
 	}
@@ -224,7 +220,7 @@ Specifies the model that will be used as the world
 */
 void 	R_BeginRegistration(const std::string &model)
 {
-	r_registration_sequence++;
+	r_registrationcount++;
 	
 	//ri.Com_Printf("R_BeginRegistration: %s\n", model.c_str());
 		
@@ -284,12 +280,12 @@ r_model_c*	R_GetModelByNum(int num)
 
 static void	R_FreeUnusedModels()
 {
-	for(std::vector<r_model_c*>::iterator ir = r_models.begin(); ir != r_models.end(); ir++)
+	for(std::vector<r_model_c*>::iterator ir = r_models.begin(); ir != r_models.end(); ++ir)
 	{
 		if(!*ir)
 			continue;
 		
-		if((*ir)->getRegistrationSequence() != r_registration_sequence)
+		if(!(*ir)->isRegistered())
 		{
 			ri.Com_Printf("deleting model '%s' ...\n", (*ir)->getName());
 				

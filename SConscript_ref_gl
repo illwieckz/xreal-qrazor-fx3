@@ -12,6 +12,7 @@ ref_gl_src = [
 'src/r_command.cxx',
 'src/r_draw.cxx',
 'src/r_entity.cxx',
+'src/r_fbo.cxx',
 'src/r_frustum.cxx',
 'src/r_gl.cxx',
 'src/r_image.cxx',

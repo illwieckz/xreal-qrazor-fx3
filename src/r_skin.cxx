@@ -139,7 +139,7 @@ r_model_skin_c*	R_FindSkin(const std::string &name)
 		
 		if(X_strcaseequal(name.c_str(), skin->getName()))
 		{
-			skin->setRegistrationSequence();
+			skin->setRegistrationCount();
 			return skin;
 		}
 	}
@@ -191,7 +191,7 @@ void	R_FreeUnusedSkins()
 		if(!skin)
 			continue;
 		
-		if(skin->getRegistrationSequence() == r_registration_sequence)
+		if(skin->isRegistered())
 		{
 			skin->updateShaders();
 			continue;		// used this sequence

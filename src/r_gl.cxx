@@ -2160,7 +2160,7 @@ void	XGL_InitExtensions()
 
 	if(strstr(gl_config.extensions_string, "GL_EXT_framebuffer_object"))
 	{
-		if(r_ext_framebuffer_object->getInteger())
+		//if(r_ext_framebuffer_object->getInteger())
 		{
 			ri.Com_Printf("...using GL_EXT_framebuffer_object\n");
 			dllIsRenderbufferEXT = (GLboolean (GLAPIENTRY*)(GLuint renderbuffer)) xglGetProcAddress("glIsRenderbufferEXT");
@@ -2182,14 +2182,14 @@ void	XGL_InitExtensions()
 			dllGenerateMipmapEXT = (void (GLAPIENTRY*)(GLenum target)) xglGetProcAddress("glGenerateMipmapEXT");
 			gl_config.ext_framebuffer_object = true;
 		}
-		else
-		{
-			ri.Com_Printf("...ignoring GL_EXT_framebuffer_object\n");
-		}
+		//else
+		//{
+		//	ri.Com_Printf("...ignoring GL_EXT_framebuffer_object\n");
+		//}
 	}
 	else
 	{
-		ri.Com_Printf("...GL_EXT_framebuffer_object not found\n");
+		ri.Com_Error(ERR_FATAL, "...GL_EXT_framebuffer_object not found");
 	}
 }
 
