@@ -402,14 +402,32 @@ typedef float							r_node_data_t;
 typedef std::string::const_iterator				r_iterator_t;
 typedef boost::spirit::node_val_data_factory<r_node_data_t>	r_factory_t;
 
-extern uint_t		r_registration_sequence;
+extern uint_t		r_registrationcount;
 extern uint_t		r_framecount;
 extern uint_t		r_visframecount;			// bumped when going to a new PVS
 extern uint_t		r_lightframecount;			// bumped when walking down the BSP by a new dynamic light
 extern uint_t		r_shadowframecount;			// bumped when rendering shadow maps
 extern uint_t		r_checkcount;				// bumped when box runs against BSP leaves to collect them
 
-class r_image_c
+
+class r_registrationcount_iface_a
+{
+protected:
+	r_registrationcount_iface_a()
+	{
+	}
+	
+public:
+	inline void	setRegistrationCount()		{_registrationcount = r_registrationcount;}
+	inline void	resetRegistrationCount()	{_registrationcount = 0;}
+	inline bool	isRegistered() const	{return r_registrationcount == _registrationcount;}
+	
+protected:
+	uint_t		_registrationcount;
+};
+
+class r_image_c :
+public r_registrationcount_iface_a
 {
 public:
 	r_image_c(uint_t target, const std::string &name, uint_t width, uint_t height, uint_t flags, roq_info_t *roq, bool global = true);
@@ -426,9 +444,6 @@ public:
 	
 	inline uint_t		getId() const			{return _id;}
 	
-	inline uint_t		getRegistrationSequence()	{return _registration_sequence;}
-	inline void		setRegistrationSequence()	{_registration_sequence = r_registration_sequence;}
-	
 	inline bool		hasVideo() const		{return _roq ? true : false;}
 	
 	void			bind(bool force = false) const;
@@ -444,8 +459,50 @@ private:
 	uint_t			_height;
 	uint_t			_flags;
 	uint_t			_id;
-	uint_t			_registration_sequence;
 	roq_info_t*		_roq;
+};
+
+
+class r_renderbuffer_c :
+public r_registrationcount_iface_a
+{
+public:
+	r_renderbuffer_c();
+	~r_renderbuffer_c();
+
+	void			validate() const;
+	void			bind() const;
+	void			getParameteriv(GLenum pname, GLint *params) const;
+
+	inline uint_t		getId() const			{return _id;}
+
+private:
+	uint_t			_target;
+	uint_t			_id;
+};
+
+class r_framebuffer_c :
+public r_registrationcount_iface_a
+{
+public:
+	r_framebuffer_c();
+	~r_framebuffer_c();
+
+	void			validate() const;
+	void			bind() const;
+	void			checkStatus() const;
+
+	void			createTexture1D(GLenum attachment, GLenum textarget, GLuint texture, GLint level) const;
+	void			createTexture2D(GLenum attachment, GLenum textarget, GLuint texture, GLint level) const;
+	void			createTexture3D(GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset) const;
+	void			renderBuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer) const;
+	void			getAttachmentParameteriv(GLenum attachment, GLenum pname, GLint *params) const;
+	
+	inline uint_t		getId() const			{return _id;}
+
+private:
+	uint_t			_target;
+	uint_t			_id;
 };
 
 struct r_tcmod_t
@@ -642,7 +699,8 @@ public:
 };
 
 
-class r_shader_c
+class r_shader_c :
+public r_registrationcount_iface_a
 {
 public:
 	r_shader_c(const std::string &name, r_shader_type_e type);
@@ -670,9 +728,6 @@ public:
 	inline void			setORFlags(uint_t flags)	{_flags |= flags;}
 	inline void			removeFlags(uint_t flags)	{_flags &= ~flags;}
 	
-	inline uint_t			getRegistrationSequence()	{return _registration_sequence;}
-	inline void			setRegistrationSequence()	{_registration_sequence = r_registration_sequence;}
-	
 private:
 	std::string			_name;
 	r_shader_type_e			_type;
@@ -681,7 +736,6 @@ private:
 	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	_sort;
 	r_shader_deform_type_e		_deform;
 	uint_t				_flags;
-	uint_t				_registration_sequence;
 	
 public:
 	// used if material shader
@@ -729,19 +783,17 @@ private:
 	uint_t			_contents;
 };
 
-class r_model_skin_c
+class r_model_skin_c :
+public r_registrationcount_iface_a
 {
 public:
 	r_model_skin_c(const std::string &name)
 	{
 		_name = name;
-		_registration_sequence = r_registration_sequence;
+		setRegistrationCount();
 	}
 
 	inline const char*	getName() const	{return _name.c_str();}
-	
-	inline uint_t		getRegistrationSequence()	{return _registration_sequence;}
-	inline void		setRegistrationSequence()	{_registration_sequence = r_registration_sequence;}
 	
 	inline void		addShader(const std::string &meshname, r_shader_c *shader)
 	{
@@ -763,14 +815,13 @@ public:
 	{
 		for(std::map<std::string, r_shader_c*>::iterator ir = _shaders.begin(); ir != _shaders.end(); ir++)
 		{
-			ir->second->setRegistrationSequence();
+			ir->second->setRegistrationCount();
 		}
 	}
 	
 
 private:
 	std::string		_name;
-	unsigned int		_registration_sequence;
 	std::map<std::string, r_shader_c*>	_shaders;
 };
 
@@ -1733,7 +1784,8 @@ struct r_skel_bone_t
 	std::vector<r_skel_bone_t*>	childrens;
 };
 
-class r_skel_animation_c
+class r_skel_animation_c :
+public r_registrationcount_iface_a
 {
 public:
 	r_skel_animation_c(const std::string &name, byte *buffer, uint_t buffer_size);
@@ -1742,15 +1794,12 @@ public:
 	virtual void		load()				{}
 	
 	inline const char*	getName() const			{return _name.c_str();}
-	inline uint_t		getRegistrationSequence() const	{return _registration_sequence;}
-	inline void		setRegistrationSequence()	{_registration_sequence = r_registration_sequence;}
 	
 	inline uint_t		getFramesNum() const		{return _frames.size();}
 	inline uint_t		getChannelsNum() const		{return _channels.size();}
 
 private:
 	std::string		_name;
-	uint_t			_registration_sequence;
 
 protected:
 	byte*			_buffer;
@@ -1802,8 +1851,9 @@ public:
 //
 // model classes
 //
-class r_model_c : 
-public r_aabb_iface_a
+class r_model_c :
+public r_aabb_iface_a,
+public r_registrationcount_iface_a
 {
 public:
 	//
@@ -1831,8 +1881,6 @@ public:
 	// access
 	//
 	const char*	getName() const			{return _name.c_str();}
-	unsigned int	getRegistrationSequence() const	{return _registration_sequence;}
-	void		setRegistrationSequence()	{_registration_sequence = r_registration_sequence;}
 	r_mod_type_t	getType() const			{return _type;}
 	
 	void		addMesh(r_mesh_c* mesh)			{_meshes.push_back(mesh);}
@@ -1844,7 +1892,6 @@ public:
 	
 private:
 	std::string	_name;
-	uint_t		_registration_sequence;
 protected:
 	r_mod_type_t	_type;
 	byte*		_buffer;	// for loading
@@ -1855,7 +1902,8 @@ protected:
 };
 
 
-class r_static_model_c : public r_model_c
+class r_static_model_c :
+public r_model_c
 {
 public:
 	//
@@ -1874,7 +1922,8 @@ public:
 };
 
 
-class r_ase_model_c : public r_static_model_c
+class r_ase_model_c :
+public r_static_model_c
 {
 public:
 	//
@@ -1899,7 +1948,8 @@ private:
 };
 
 
-class r_alias_model_c : public r_model_c
+class r_alias_model_c :
+public r_model_c
 {
 public:
 	//
@@ -1927,7 +1977,8 @@ protected:
 
 
 
-class r_md2_model_c : public r_alias_model_c
+class r_md2_model_c :
+public r_alias_model_c
 {
 public:
 	//
@@ -1943,7 +1994,8 @@ public:
 };
 
 
-class r_md3_model_c : public r_alias_model_c
+class r_md3_model_c :
+public r_alias_model_c
 {
 public:
 	//
@@ -1959,7 +2011,8 @@ public:
 };
 
 /*
-class r_mdc_model_c : public r_alias_model_c
+class r_mdc_model_c :
+public r_alias_model_c
 {
 public:
 	//
@@ -1976,7 +2029,8 @@ public:
 */
 
 
-class r_skel_model_c : public r_model_c
+class r_skel_model_c :
+public r_model_c
 {
 public:
 	//
@@ -2010,7 +2064,8 @@ protected:
 };
 
 /*
-class r_mds_model_c : public r_skel_model_c
+class r_mds_model_c :
+public r_skel_model_c
 {
 public:
 	//
@@ -2026,7 +2081,8 @@ public:
 };
 */
 
-class r_md5_model_c : public r_skel_model_c
+class r_md5_model_c :
+public r_skel_model_c
 {
 public:
 	//
@@ -2046,7 +2102,7 @@ private:
 };
 
 
-class r_bsp_model_c : 
+class r_bsp_model_c :
 public r_model_c
 { 
 	friend class r_bsptree_c;
@@ -2126,6 +2182,10 @@ extern r_image_c*	r_img_currentrender;
 extern r_image_c*	r_img_currentrender_depth;
 extern r_image_c*	r_img_currentenvironment;
 
+extern r_framebuffer_c*		r_fb_lightview;
+extern r_renderbuffer_c*	r_rb_lightview_color;
+extern r_renderbuffer_c*	r_rb_lightview_depth;
+
 extern r_shader_c*	r_shader_currentrender;
 
 
@@ -2136,6 +2196,9 @@ extern r_frustum_c	r_frustum;
 
 extern std::vector<r_image_c*>	r_images;
 extern std::vector<r_image_c*>	r_images_lm;	// lightmap images
+
+extern std::vector<r_renderbuffer_c*>	r_renderbuffers;
+extern std::vector<r_framebuffer_c*>	r_framebuffers;
 
 extern int		r_filter_min;
 extern int		r_filter_max;
@@ -2434,6 +2497,13 @@ void		R_ShutdownEntities();
 
 int		R_GetNumForEntity(r_entity_c *ent);
 r_entity_c*	R_GetEntityByNum(int num);
+
+
+//
+// r_fbo.cxx
+//
+void		R_InitFBOs();
+void		R_ShutdownFBOs();
 
 
 //

@@ -66,6 +66,7 @@ r_scene_t*	r_current_scene;
 
 r_frustum_c	r_frustum;
 
+uint_t		r_registrationcount;	// used for level load
 uint_t		r_framecount;		// used for dlight push checking
 uint_t		r_visframecount;	// bumped when going to a new PVS
 uint_t		r_lightframecount;
@@ -576,6 +577,7 @@ static void	R_ScreenShot()
 	ri.Com_Printf("wrote '%s'\n", checkname.c_str());
 }
 
+/*
 void	R_WritePbuffer()
 {
 	int		i;
@@ -608,6 +610,7 @@ void	R_WritePbuffer()
 	
 //	ri.Com_Printf("wrote '%s'\n", checkname.c_str());
 }
+*/
 
 
 static void	R_WriteVideoScreenShot() 
@@ -1019,10 +1022,12 @@ void	R_DrawAreaPortals()
 	r_world_tree->drawAreaPortals();
 }
 
+/*
 void	R_DrawPbufferTest(int x, int y, int w, int h)
 {
 	R_DrawStretchPic(x, y, w, h, 0, 0, 1, -1, color_white, r_shader_currentrender);
 }
+*/
 
 static void 	R_RenderScene(const r_refdef_t &fd, r_scene_t &scene)
 {
@@ -1583,6 +1588,7 @@ bool 	R_Init(void *hinstance, void *hWnd)
 	XGL_InitExtensions();
 	
 	// setup shadow mapping support
+	/*
 	GLimp_InitPbuffer(false, true);
 	GLimp_ActivatePbuffer();
 //	xglClearColor(0.6, 0.1, 0.91, 0.0);
@@ -1600,6 +1606,10 @@ bool 	R_Init(void *hinstance, void *hWnd)
 			vid_depth_format = GL_DEPTH_COMPONENT24_ARB;
 	}
 	GLimp_DeactivatePbuffer();
+	*/
+
+	// setup FBOs
+	R_InitFBOs();
 
 	// setup image system
 	R_InitImages();
@@ -1673,8 +1683,10 @@ void 	R_Shutdown()
 	R_ShutdownShaders();
 
 	R_ShutdownImages();
+
+	R_ShutdownFBOs();
 	
-	GLimp_ShutdownPbuffer();
+//	GLimp_ShutdownPbuffer();
 	
 	GLimp_Shutdown();
 	

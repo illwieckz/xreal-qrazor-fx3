@@ -60,7 +60,7 @@ r_image_c::r_image_c(uint_t target, const std::string &name, uint_t width, uint_
 	
 	xglGenTextures(1, &_id);
 	
-	_registration_sequence	= r_registration_sequence;
+	setRegistrationCount();
 	_roq			= roq;
 	
 	// find free image slot
@@ -749,6 +749,7 @@ static void	R_Init3DAttenuationImage(int atten_volume_size)
 
 static void	R_InitLightViewDepthImage()
 {
+	/*
 	ri.Com_Printf("regenerating '_lightview_depth' ...\n");
 
 	r_image_c *image = new r_image_c(GL_TEXTURE_2D, "_lightview_depth", vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), IMAGE_NONE, NULL);
@@ -768,25 +769,35 @@ static void	R_InitLightViewDepthImage()
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
 	
 	r_img_lightview_depth = image;
+	*/
 }
 
 static void	R_InitLightViewColorImage()
 {
 	ri.Com_Printf("regenerating '_lightview_color' ...\n");
 
-	r_image_c *image = new r_image_c(GL_TEXTURE_2D, "_lightview_color", vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), IMAGE_NONE, NULL);
+	r_fb_lightview->bind();
+
+	r_image_c *image = new r_image_c(GL_TEXTURE_2D, "_lightview_color", 256, 256, IMAGE_NONE, NULL);
 	
 	image->bind();
 
 	xglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->getWidth(), image->getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 	
-	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, r_filter_max);
+	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, r_filter_max);
 	
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	r_fb_lightview->createTexture2D(GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, image->getId(), 0);
 	
 	r_img_lightview_color = image;
+
+	xglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
 
 static void	R_InitCurrentRenderColorImage()
@@ -889,8 +900,6 @@ void	R_InitImages()
 {
 	ri.Com_Printf("------- R_InitImages -------\n");
 	
-	r_registration_sequence = 1;
-	
 	//
 	// support for dynamic maximum texture size
 	//
@@ -932,10 +941,12 @@ void	R_InitImages()
 
 void	R_ShutdownImages()
 {
-	X_purge<std::vector<r_image_c*> >(r_images);
+	ri.Com_Printf("------- R_ShutdownImages -------\n");
+
+	X_purge(r_images);
 	r_images.clear();
 	
-	X_purge<std::vector<r_image_c*> >(r_images_lm);
+	X_purge(r_images_lm);
 	r_images_lm.clear();
 }
 
@@ -1886,7 +1897,7 @@ r_image_c*	R_FindImage(const std::string &name, uint_t flags, r_image_upload_typ
 		
 		if(X_strcaseequal(name_short.c_str(), image->getName()))
 		{
-			image->setRegistrationSequence();
+			image->setRegistrationCount();
 			return image;
 		}
 	}
@@ -2083,35 +2094,35 @@ will be freed.
 */
 void	R_FreeUnusedImages()
 {
-	r_img_default->setRegistrationSequence();
-	r_img_white->setRegistrationSequence();
-	r_img_black->setRegistrationSequence();
-	r_img_flat->setRegistrationSequence();
-	r_img_quadratic->setRegistrationSequence();
+	r_img_default->setRegistrationCount();
+	r_img_white->setRegistrationCount();
+	r_img_black->setRegistrationCount();
+	r_img_flat->setRegistrationCount();
+	r_img_quadratic->setRegistrationCount();
 	
-	r_img_cubemap_white->setRegistrationSequence();
-	r_img_cubemap_normal->setRegistrationSequence();
-	r_img_cubemap_sky->setRegistrationSequence();
+	r_img_cubemap_white->setRegistrationCount();
+	r_img_cubemap_normal->setRegistrationCount();
+	r_img_cubemap_sky->setRegistrationCount();
 	
-	r_img_nofalloff->setRegistrationSequence();
-//	r_img_attenuation_3d->setRegistrationSequence();
+	r_img_nofalloff->setRegistrationCount();
+//	r_img_attenuation_3d->setRegistrationCount();
 	
-	r_img_lightview_depth->setRegistrationSequence();
-	r_img_lightview_color->setRegistrationSequence();
+//	r_img_lightview_depth->setRegistrationCount();
+	r_img_lightview_color->setRegistrationCount();
 	
-	r_img_currentrender->setRegistrationSequence();
-	r_img_currentrender_depth->setRegistrationSequence();
+	r_img_currentrender->setRegistrationCount();
+	r_img_currentrender_depth->setRegistrationCount();
 	
-	r_img_currentenvironment->setRegistrationSequence();
+	r_img_currentenvironment->setRegistrationCount();
 	
-	for(std::vector<r_image_c*>::iterator ir = r_images.begin(); ir != r_images.end(); ir++)
+	for(std::vector<r_image_c*>::iterator ir = r_images.begin(); ir != r_images.end(); ++ir)
 	{
 		r_image_c *image = *ir;
 		
 		if(!image)
 			continue;
 		
-		if(image->getRegistrationSequence() == r_registration_sequence)
+		if(image->isRegistered())
 			continue;		// used this sequence
 		
 		delete image;

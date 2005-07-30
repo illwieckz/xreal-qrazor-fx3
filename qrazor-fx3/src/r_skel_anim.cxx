@@ -37,7 +37,7 @@ static std::vector<r_skel_animation_c*>	r_animations;
 r_skel_animation_c::r_skel_animation_c(const std::string &name, byte *buffer, uint_t buffer_size)
 {
 	_name = name;
-	_registration_sequence = r_registration_sequence;
+	setRegistrationCount();
 	
 	_buffer = buffer;
 	_buffer_size = buffer_size;
@@ -224,7 +224,7 @@ r_skel_animation_c*	R_FindAnimation(const std::string &name)
 		
 		if(X_strcaseequal(name.c_str(), anim->getName()))
 		{
-			anim->setRegistrationSequence();
+			anim->setRegistrationCount();
 			return anim;
 		}
 	}
@@ -273,7 +273,7 @@ void	R_FreeUnusedAnimations()
 		if(!anim)
 			continue;
 		
-		if(anim->getRegistrationSequence() == r_registration_sequence)
+		if(anim->isRegistered())
 			continue;		// used this sequence
 				
 		delete anim;

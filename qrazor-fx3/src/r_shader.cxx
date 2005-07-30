@@ -199,7 +199,7 @@ r_shader_c::r_shader_c(const std::string &name, r_shader_type_e type)
 	
 	_flags	= 0;
 	
-	setRegistrationSequence();
+	setRegistrationCount();
 	
 	stage_diffusemap	= NULL;
 	stage_bumpmap		= NULL;
@@ -1198,7 +1198,7 @@ static void	R_ClearTable(const char begin)
 
 static void	R_CreateTable(const char* begin, const char* end)
 {
-	ri.Com_Printf("   creating table '%s' ...\n", r_sp_table_name.c_str());
+	//ri.Com_Printf("   creating table '%s' ...\n", r_sp_table_name.c_str());
 	
 	//for(std::vector<float>::iterator ir = r_sp_table.values.begin(); ir != r_sp_table.values.end(); ++ir)
 	//	ri.Com_Printf("%f ");
@@ -2068,7 +2068,7 @@ void	R_ShutdownShaders()
 
 void	R_FreeUnusedShaders()
 {
-	r_shader_currentrender->setRegistrationSequence();
+	r_shader_currentrender->setRegistrationCount();
 
 	for(std::vector<r_shader_c*>::iterator ir = r_shaders.begin(); ir != r_shaders.end(); ++ir)
 	{
@@ -2077,7 +2077,7 @@ void	R_FreeUnusedShaders()
 		if(!shader)
 			continue;		// free shader slot
 				
-		if(shader->getRegistrationSequence() != r_registration_sequence)
+		if(!shader->isRegistered())
 		{
 			delete shader;
 			*ir = NULL;
@@ -2089,7 +2089,7 @@ void	R_FreeUnusedShaders()
 			r_shader_stage_c* stage = *ir2;
 			
 			if(stage->image)
-				stage->image->setRegistrationSequence();
+				stage->image->setRegistrationCount();
 		}
 	}
 }
@@ -2392,7 +2392,7 @@ r_shader_c*	R_FindShader(const std::string &name, r_shader_type_e type)
 		
 		if(X_strcaseequal(name_short.c_str(), shader->getName()))
 		{
-			shader->setRegistrationSequence();
+			shader->setRegistrationCount();
 			return shader;
 		}
 	}

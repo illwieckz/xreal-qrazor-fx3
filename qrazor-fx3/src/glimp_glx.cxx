@@ -1152,6 +1152,8 @@ static void	GLimp_ParsePbufferModeString(const std::string &mode_string, std::ve
 
 void	GLimp_InitPbuffer(bool shared_context, bool shared_objects)
 {
+	ri.Com_Printf("------- GLimp_InitPbuffer -------\n");
+
 	gl_state.active_pbuffer = false;
 	
 	sys_pbuffer.shared_ctx = shared_context;
@@ -1309,6 +1311,8 @@ void	GLimp_InitPbuffer(bool shared_context, bool shared_objects)
 
 void	GLimp_ShutdownPbuffer()
 {
+	ri.Com_Printf("------- GLimp_ShutdownPbuffer -------\n");
+
 	GLimp_DeactivatePbuffer();
 
 	if(!sys_gl.sgix_fbconfig || !sys_gl.sgix_pbuffer)
