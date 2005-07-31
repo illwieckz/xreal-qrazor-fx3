@@ -110,8 +110,6 @@ void	RB_InitBackend()
 	r_scene_portal.cmds_translucent_num	= 0;
 	r_scene_portal.cmds_translucent		= std::vector<r_command_t>(r_cmds_translucent_max->getInteger());
 	
-	RB_CheckOpenGLExtensions();
-	
 	RB_InitGPUShaders();
 }
 
@@ -799,6 +797,7 @@ void	RB_FlushMesh(const r_command_t *cmd)
 	c_draws++;
 }
 
+/*
 void	RB_LockArrays(int vertexes_num)
 {
 	if(rb_arrays_locked)
@@ -810,7 +809,9 @@ void	RB_LockArrays(int vertexes_num)
 		rb_arrays_locked = true;
 	}
 }
+*/
 
+/*
 void	RB_UnlockArrays()
 {
 	if(!rb_arrays_locked)
@@ -822,6 +823,7 @@ void	RB_UnlockArrays()
 		rb_arrays_locked = false;
 	}
 }
+*/
 
 void	RB_EnableShaderStates(const r_shader_c *shader)
 {
@@ -2927,7 +2929,7 @@ void	RB_RenderCommands()
 						continue;
 				
 					if(cmd->getLight()->getType() == LIGHT_PROJ)
-							continue;
+						continue;
 			
 					if(/*cmd->getLightShader()->getLightType() == SHADER_LIGHT_AMBIENT ||*/ cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
 						continue;
@@ -2971,7 +2973,8 @@ void	RB_RenderCommands()
 				if(!light->isShadowed())
 				{
 					// update shadowmap
-					GLimp_ActivatePbuffer();
+					//GLimp_ActivatePbuffer();
+					r_fb_lightview->bind();
 					
 					xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
@@ -2994,7 +2997,7 @@ void	RB_RenderCommands()
 					xglDepthMask(GL_TRUE);
 					
 					// setup viewport
-					xglViewport(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
+					xglViewport(0, 0, 256, 256);
 					
 					// setup perspective projection
 					matrix_c& m = gl_state.matrix_projection = light->getShadowMapProjection() * gl_state.matrix_quake_to_opengl;
@@ -3043,8 +3046,8 @@ void	RB_RenderCommands()
 					
 					// copy to texture
 					//RB_SelectTexture(GL_TEXTURE0_ARB);
-					r_img_lightview_depth->bind(true);
-					xglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
+					//r_img_lightview_depth->bind(true);
+					//xglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
 					
 					//xglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 					//xglDepthMask(GL_FALSE);
@@ -3064,6 +3067,9 @@ void	RB_RenderCommands()
 						continue;
 				
 					if(!cmd->getEntity()->isVisible())
+						continue;
+
+					if(cmd->getLight()->getType() == LIGHT_OMNI)
 						continue;
 			
 					if(cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)

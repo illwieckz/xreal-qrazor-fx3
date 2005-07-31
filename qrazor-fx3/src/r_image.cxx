@@ -793,11 +793,11 @@ static void	R_InitLightViewColorImage()
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	r_fb_lightview->createTexture2D(GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, image->getId(), 0);
-	
-	r_img_lightview_color = image;
+	r_fb_lightview->attachTexture2D(GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, image->getId(), 0);
+	r_fb_lightview->checkStatus();
+	r_fb_lightview->unbind();
 
-	xglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	r_img_lightview_color = image;
 }
 
 static void	R_InitCurrentRenderColorImage()

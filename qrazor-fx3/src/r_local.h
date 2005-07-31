@@ -490,11 +490,12 @@ public:
 
 	void			validate() const;
 	void			bind() const;
+	void			unbind() const;
 	void			checkStatus() const;
 
-	void			createTexture1D(GLenum attachment, GLenum textarget, GLuint texture, GLint level) const;
-	void			createTexture2D(GLenum attachment, GLenum textarget, GLuint texture, GLint level) const;
-	void			createTexture3D(GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset) const;
+	void			attachTexture1D(GLenum attachment, GLenum textarget, GLuint texture, GLint level) const;
+	void			attachTexture2D(GLenum attachment, GLenum textarget, GLuint texture, GLint level) const;
+	void			attachTexture3D(GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset) const;
 	void			renderBuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer) const;
 	void			getAttachmentParameteriv(GLenum attachment, GLenum pname, GLint *params) const;
 	
@@ -2437,8 +2438,8 @@ void		RB_TextureMode(const std::string &string);
 void		RB_PushMesh(r_mesh_c *mesh, bool create_vbo_array_buffer, bool create_vbo_element_array_buffer);
 void		RB_FlushMesh(const r_command_t *cmd);
 
-void		RB_LockArrays(int vertexes_num);
-void		RB_UnlockArrays();
+//void		RB_LockArrays(int vertexes_num);
+//void		RB_UnlockArrays();
 
 void		RB_EnableShaderStates(const r_shader_c *shader);
 void		RB_DisableShaderStates(const r_shader_c *shader);
@@ -2703,6 +2704,10 @@ struct glconfig_t
 	bool		arb_vertex_program;
 	bool		arb_vertex_buffer_object;
 	bool		arb_occlusion_query;
+	bool		arb_shader_objects;
+	bool		arb_vertex_shader;
+	bool		arb_fragment_shader;
+	bool		arb_shading_language_100;
 	bool		arb_texture_rectangle;
 	
 	bool		ext_texture3D;
