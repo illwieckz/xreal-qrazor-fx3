@@ -1565,74 +1565,6 @@ static rb_skycloud_c*			rb_program_skycloud = NULL;
 static rb_heathaze_c*			rb_program_heathaze = NULL;
 
 
-static void	RB_CheckOpenGLExtension(const std::string &name)
-{
-	if(!strstr(gl_config.extensions_string, name.c_str()))
-	{
-		ri.Com_Error(ERR_FATAL, "RB_CheckOpenGLExtensions: %s needed by GLSL backend", name.c_str());
-	}
-	else
-	{
-		ri.Com_Printf("...using %s\n", name.c_str());
-	}
-}
-
-void		RB_CheckOpenGLExtensions()
-{
-	RB_CheckOpenGLExtension("GL_ARB_vertex_program");
-	RB_CheckOpenGLExtension("GL_ARB_shader_objects");
-	RB_CheckOpenGLExtension("GL_ARB_vertex_shader");
-	RB_CheckOpenGLExtension("GL_ARB_fragment_shader");
-	RB_CheckOpenGLExtension("GL_ARB_shading_language_100");
-	
-	/// GL_ARB_shader_objects
-	xglDeleteObjectARB = (void (GLAPIENTRY*) (GLhandleARB)) xglGetProcAddress("glDeleteObjectARB");
-	xglGetHandleARB = (GLhandleARB (GLAPIENTRY*) (GLenum)) xglGetProcAddress("glGetHandleARB");
-	xglDetachObjectARB = (void (GLAPIENTRY*) (GLhandleARB, GLhandleARB)) xglGetProcAddress("glDetachObjectARB");
-	xglCreateShaderObjectARB = (GLhandleARB (GLAPIENTRY*) (GLenum)) xglGetProcAddress("glCreateShaderObjectARB");
-	xglShaderSourceARB = (void (GLAPIENTRY*) (GLhandleARB, GLsizei, const GLcharARB* *, const GLint *)) xglGetProcAddress("glShaderSourceARB");
-	xglCompileShaderARB = (void (GLAPIENTRY*) (GLhandleARB)) xglGetProcAddress("glCompileShaderARB");
-	xglCreateProgramObjectARB = (GLhandleARB (GLAPIENTRY*) (void)) xglGetProcAddress("glCreateProgramObjectARB");
-	xglAttachObjectARB = (void (GLAPIENTRY*) (GLhandleARB, GLhandleARB)) xglGetProcAddress("glAttachObjectARB");
-	xglLinkProgramARB = (void (GLAPIENTRY*) (GLhandleARB)) xglGetProcAddress("glLinkProgramARB");
-	xglUseProgramObjectARB = (void (GLAPIENTRY*) (GLhandleARB)) xglGetProcAddress("glUseProgramObjectARB");
-	xglValidateProgramARB = (void (GLAPIENTRY*) (GLhandleARB)) xglGetProcAddress("glValidateProgramARB");
-	xglUniform1fARB = (void (GLAPIENTRY*) (GLint, GLfloat)) xglGetProcAddress("glUniform1fARB");
-	xglUniform2fARB = (void (GLAPIENTRY*) (GLint, GLfloat, GLfloat)) xglGetProcAddress("glUniform2fARB");
-	xglUniform3fARB = (void (GLAPIENTRY*) (GLint, GLfloat, GLfloat, GLfloat)) xglGetProcAddress("glUniform3fARB");
-	xglUniform4fARB = (void (GLAPIENTRY*) (GLint, GLfloat, GLfloat, GLfloat, GLfloat)) xglGetProcAddress("glUniform4fARB");
-	xglUniform1iARB = (void (GLAPIENTRY*) (GLint, GLint)) xglGetProcAddress("glUniform1iARB");
-	xglUniform2iARB = (void (GLAPIENTRY*) (GLint, GLint, GLint)) xglGetProcAddress("glUniform2iARB");
-	xglUniform3iARB = (void (GLAPIENTRY*) (GLint, GLint, GLint, GLint)) xglGetProcAddress("glUniform3iARB");
-	xglUniform4iARB = (void (GLAPIENTRY*) (GLint, GLint, GLint, GLint, GLint)) xglGetProcAddress("glUniform4iARB");
-	xglUniform1fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLfloat *)) xglGetProcAddress("glUniform1fvARB");
-	xglUniform2fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLfloat *)) xglGetProcAddress("glUniform2fvARB");
-	xglUniform3fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLfloat *)) xglGetProcAddress("glUniform3fvARB");
-	xglUniform4fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLfloat *)) xglGetProcAddress("glUniform4fvARB");
-	xglUniform1ivARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLint *)) xglGetProcAddress("glUniform1ivARB");
-	xglUniform2ivARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLint *)) xglGetProcAddress("glUniform2ivARB");
-	xglUniform3ivARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLint *)) xglGetProcAddress("glUniform3ivARB");
-	xglUniform4ivARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLint *)) xglGetProcAddress("glUniform4ivARB");
-	xglUniformMatrix2fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, GLboolean, const GLfloat *)) xglGetProcAddress("glUniformMatrix2fvARB");
-	xglUniformMatrix3fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, GLboolean, const GLfloat *)) xglGetProcAddress("glUniformMatrix3fvARB");
-	xglUniformMatrix4fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, GLboolean, const GLfloat *)) xglGetProcAddress("glUniformMatrix4fvARB");
-	xglGetObjectParameterfvARB = (void (GLAPIENTRY*) (GLhandleARB, GLenum, GLfloat *)) xglGetProcAddress("glGetObjectParameterfvARB");
-	xglGetObjectParameterivARB = (void (GLAPIENTRY*) (GLhandleARB, GLenum, GLint *)) xglGetProcAddress("glGetObjectParameterivARB");
-	xglGetInfoLogARB = (void (GLAPIENTRY*) (GLhandleARB, GLsizei, GLsizei *, GLcharARB *)) xglGetProcAddress("glGetInfoLogARB");
-	xglGetAttachedObjectsARB = (void (GLAPIENTRY*) (GLhandleARB, GLsizei, GLsizei *, GLhandleARB *)) xglGetProcAddress("glGetAttachedObjectsARB");
-	xglGetUniformLocationARB = (GLint (GLAPIENTRY*) (GLhandleARB, const GLcharARB *)) xglGetProcAddress("glGetUniformLocationARB");
-	xglGetActiveUniformARB = (void (GLAPIENTRY*) (GLhandleARB, GLuint, GLsizei, GLsizei *, GLint *, GLenum *, GLcharARB *)) xglGetProcAddress("glGetActiveUniformARB");
-	xglGetUniformfvARB = (void (GLAPIENTRY*) (GLhandleARB, GLint, GLfloat *)) xglGetProcAddress("glGetUniformfvARB");
-	xglGetUniformivARB = (void (GLAPIENTRY*) (GLhandleARB, GLint, GLint *)) xglGetProcAddress("glGetUniformivARB");
-	xglGetShaderSourceARB = (void (GLAPIENTRY*) (GLhandleARB, GLsizei, GLsizei *, GLcharARB *)) xglGetProcAddress("glGetShaderSourceARB");
-
-	/// GL_ARB_vertex_shader
-	xglBindAttribLocationARB = (void (GLAPIENTRY*) (GLhandleARB, GLuint, const GLcharARB *)) xglGetProcAddress("glBindAttribLocationARB");
-	xglGetActiveAttribARB = (void (GLAPIENTRY*) (GLhandleARB, GLuint, GLsizei, GLsizei *, GLint *, GLenum *, GLcharARB *)) xglGetProcAddress("glGetActiveAttribARB");
-	xglGetAttribLocationARB = (GLint (GLAPIENTRY*) (GLhandleARB, const GLcharARB *)) xglGetProcAddress("glGetAttribLocationARB");
-}
-
-
 void		RB_InitGPUShaders()
 {
 	ri.Com_Printf("------- RB_InitGPUShaders (GLSL) -------\n");
@@ -2300,7 +2232,7 @@ void		RB_RenderCommand_lighting_D_omni(const r_command_t *cmd,		const r_shader_s
 											const r_shader_stage_c *stage_attenuationmap_z,
 											const r_shader_stage_c *stage_attenuationmap_cube)
 {
-	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap);
+//	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 
 	rb_program_lighting_D_omni->setVertexAttribs(cmd);
 	
@@ -2333,7 +2265,7 @@ void		RB_RenderCommand_lighting_D_omni(const r_command_t *cmd,		const r_shader_s
 	
 	RB_FlushMesh(cmd);
 	
-	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap);
+//	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 }
 											
 void		RB_EnableShader_lighting_D_proj()

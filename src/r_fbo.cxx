@@ -102,12 +102,18 @@ r_framebuffer_c::~r_framebuffer_c()
 
 void	r_framebuffer_c::validate() const
 {
-	//TODO
+	if(!xglIsRenderbufferEXT(_id))
+		ri.Com_Error(ERR_DROP, "r_framebuffer_c::validate: failed");
 }
 
 void	r_framebuffer_c::bind() const
 {
 	xglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _id);
+}
+
+void	r_framebuffer_c::unbind() const
+{
+	xglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
 
 void	r_framebuffer_c::checkStatus() const
@@ -153,17 +159,17 @@ void	r_framebuffer_c::checkStatus() const
 	}
 }
 
-void	r_framebuffer_c::createTexture1D(GLenum attachment, GLenum textarget, GLuint texture, GLint level) const
+void	r_framebuffer_c::attachTexture1D(GLenum attachment, GLenum textarget, GLuint texture, GLint level) const
 {
 	xglFramebufferTexture1DEXT(GL_FRAMEBUFFER_EXT, attachment, textarget, texture, level);
 }
 
-void	r_framebuffer_c::createTexture2D(GLenum attachment, GLenum textarget, GLuint texture, GLint level) const
+void	r_framebuffer_c::attachTexture2D(GLenum attachment, GLenum textarget, GLuint texture, GLint level) const
 {
 	xglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, attachment, textarget, texture, level);
 }
 
-void	r_framebuffer_c::createTexture3D(GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset) const
+void	r_framebuffer_c::attachTexture3D(GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset) const
 {
 	xglFramebufferTexture3DEXT(GL_FRAMEBUFFER_EXT, attachment, textarget, texture, level, zoffset);
 }

@@ -1049,51 +1049,460 @@ void (GLAPIENTRY* xglGetQueryObjectuivARB) (GLuint, GLenum, GLuint *);
 typedef char GLcharARB;			/* native character */
 typedef unsigned int GLhandleARB;	/* shader object handle */
 
-void (GLAPIENTRY* xglDeleteObjectARB) (GLhandleARB);
-GLhandleARB (GLAPIENTRY* xglGetHandleARB) (GLenum);
-void (GLAPIENTRY* xglDetachObjectARB) (GLhandleARB, GLhandleARB);
-GLhandleARB (GLAPIENTRY* xglCreateShaderObjectARB) (GLenum);
-void (GLAPIENTRY* xglShaderSourceARB) (GLhandleARB, GLsizei, const GLcharARB* *, const GLint *);
-void (GLAPIENTRY* xglCompileShaderARB) (GLhandleARB);
-GLhandleARB (GLAPIENTRY* xglCreateProgramObjectARB) (void);
-void (GLAPIENTRY* xglAttachObjectARB) (GLhandleARB, GLhandleARB);
-void (GLAPIENTRY* xglLinkProgramARB) (GLhandleARB);
-void (GLAPIENTRY* xglUseProgramObjectARB) (GLhandleARB);
-void (GLAPIENTRY* xglValidateProgramARB) (GLhandleARB);
-void (GLAPIENTRY* xglUniform1fARB) (GLint, GLfloat);
-void (GLAPIENTRY* xglUniform2fARB) (GLint, GLfloat, GLfloat);
-void (GLAPIENTRY* xglUniform3fARB) (GLint, GLfloat, GLfloat, GLfloat);
-void (GLAPIENTRY* xglUniform4fARB) (GLint, GLfloat, GLfloat, GLfloat, GLfloat);
-void (GLAPIENTRY* xglUniform1iARB) (GLint, GLint);
-void (GLAPIENTRY* xglUniform2iARB) (GLint, GLint, GLint);
-void (GLAPIENTRY* xglUniform3iARB) (GLint, GLint, GLint, GLint);
-void (GLAPIENTRY* xglUniform4iARB) (GLint, GLint, GLint, GLint, GLint);
-void (GLAPIENTRY* xglUniform1fvARB) (GLint, GLsizei, const GLfloat *);
-void (GLAPIENTRY* xglUniform2fvARB) (GLint, GLsizei, const GLfloat *);
-void (GLAPIENTRY* xglUniform3fvARB) (GLint, GLsizei, const GLfloat *);
-void (GLAPIENTRY* xglUniform4fvARB) (GLint, GLsizei, const GLfloat *);
-void (GLAPIENTRY* xglUniform1ivARB) (GLint, GLsizei, const GLint *);
-void (GLAPIENTRY* xglUniform2ivARB) (GLint, GLsizei, const GLint *);
-void (GLAPIENTRY* xglUniform3ivARB) (GLint, GLsizei, const GLint *);
-void (GLAPIENTRY* xglUniform4ivARB) (GLint, GLsizei, const GLint *);
-void (GLAPIENTRY* xglUniformMatrix2fvARB) (GLint, GLsizei, GLboolean, const GLfloat *);
-void (GLAPIENTRY* xglUniformMatrix3fvARB) (GLint, GLsizei, GLboolean, const GLfloat *);
-void (GLAPIENTRY* xglUniformMatrix4fvARB) (GLint, GLsizei, GLboolean, const GLfloat *);
-void (GLAPIENTRY* xglGetObjectParameterfvARB) (GLhandleARB, GLenum, GLfloat *);
-void (GLAPIENTRY* xglGetObjectParameterivARB) (GLhandleARB, GLenum, GLint *);
-void (GLAPIENTRY* xglGetInfoLogARB) (GLhandleARB, GLsizei, GLsizei *, GLcharARB *);
-void (GLAPIENTRY* xglGetAttachedObjectsARB) (GLhandleARB, GLsizei, GLsizei *, GLhandleARB *);
-GLint (GLAPIENTRY* xglGetUniformLocationARB) (GLhandleARB, const GLcharARB *);
-void (GLAPIENTRY* xglGetActiveUniformARB) (GLhandleARB, GLuint, GLsizei, GLsizei *, GLint *, GLenum *, GLcharARB *);
-void (GLAPIENTRY* xglGetUniformfvARB) (GLhandleARB, GLint, GLfloat *);
-void (GLAPIENTRY* xglGetUniformivARB) (GLhandleARB, GLint, GLint *);
-void (GLAPIENTRY* xglGetShaderSourceARB) (GLhandleARB, GLsizei, GLsizei *, GLcharARB *);
+void (GLAPIENTRY* qglDeleteObjectARB)(GLhandleARB obj, const char *filename, int line);
+GLhandleARB (GLAPIENTRY* qglGetHandleARB)(GLenum pname, const char *filename, int line);
+void (GLAPIENTRY* qglDetachObjectARB)(GLhandleARB containerObj, GLhandleARB attachedObj, const char *filename, int line);
+GLhandleARB (GLAPIENTRY* qglCreateShaderObjectARB)(GLenum shaderType, const char *filename, int line);
+void (GLAPIENTRY* qglShaderSourceARB)(GLhandleARB shaderObj, GLsizei count, const GLcharARB* *string, const GLint *length, const char *filename, int line);
+void (GLAPIENTRY* qglCompileShaderARB)(GLhandleARB shaderObj, const char *filename, int line);
+GLhandleARB (GLAPIENTRY* qglCreateProgramObjectARB)(const char *filename, int line);
+void (GLAPIENTRY* qglAttachObjectARB)(GLhandleARB containerObj, GLhandleARB obj, const char *filename, int line);
+void (GLAPIENTRY* qglLinkProgramARB)(GLhandleARB programObj, const char *filename, int line);
+void (GLAPIENTRY* qglUseProgramObjectARB)(GLhandleARB programObj, const char *filename, int line);
+void (GLAPIENTRY* qglValidateProgramARB)(GLhandleARB programObj, const char *filename, int line);
+void (GLAPIENTRY* qglUniform1fARB)(GLint location, GLfloat v0, const char *filename, int line);
+void (GLAPIENTRY* qglUniform2fARB)(GLint location, GLfloat v0, GLfloat v1, const char *filename, int line);
+void (GLAPIENTRY* qglUniform3fARB)(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, const char *filename, int line);
+void (GLAPIENTRY* qglUniform4fARB)(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3, const char *filename, int line);
+void (GLAPIENTRY* qglUniform1iARB)(GLint location, GLint v0, const char *filename, int line);
+void (GLAPIENTRY* qglUniform2iARB)(GLint location, GLint v0, GLint v1, const char *filename, int line);
+void (GLAPIENTRY* qglUniform3iARB)(GLint location, GLint v0, GLint v1, GLint v2, const char *filename, int line);
+void (GLAPIENTRY* qglUniform4iARB)(GLint location, GLint v0, GLint v1, GLint v2, GLint v3, const char *filename, int line);
+void (GLAPIENTRY* qglUniform2fvARB)(GLint location, GLsizei count, const GLfloat *value, const char *filename, int line);
+void (GLAPIENTRY* qglUniform3fvARB)(GLint location, GLsizei count, const GLfloat *value, const char *filename, int line);
+void (GLAPIENTRY* qglUniform4fvARB)(GLint location, GLsizei count, const GLfloat *value, const char *filename, int line);
+void (GLAPIENTRY* qglUniform2ivARB)(GLint location, GLsizei count, const GLint *value, const char *filename, int line);
+void (GLAPIENTRY* qglUniform3ivARB)(GLint location, GLsizei count, const GLint *value, const char *filename, int line);
+void (GLAPIENTRY* qglUniform4ivARB)(GLint location, GLsizei count, const GLint *value, const char *filename, int line);
+void (GLAPIENTRY* qglUniformMatrix2fvARB)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value, const char *filename, int line);
+void (GLAPIENTRY* qglUniformMatrix3fvARB)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value, const char *filename, int line);
+void (GLAPIENTRY* qglUniformMatrix4fvARB)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value, const char *filename, int line);
+void (GLAPIENTRY* qglGetObjectParameterfvARB)(GLhandleARB obj, GLenum pname, GLfloat *params, const char *filename, int line);
+void (GLAPIENTRY* qglGetObjectParameterivARB)(GLhandleARB obj, GLenum pname, GLint *params, const char *filename, int line);
+void (GLAPIENTRY* qglGetInfoLogARB)(GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *infoLog, const char *filename, int line);
+void (GLAPIENTRY* qglGetAttachedObjectsARB)(GLhandleARB containerObj, GLsizei maxCount, GLsizei *count, GLhandleARB *obj, const char *filename, int line);
+GLint (GLAPIENTRY* qglGetUniformLocationARB)(GLhandleARB programObj, const GLcharARB *name, const char *filename, int line);
+void (GLAPIENTRY* qglGetActiveUniformARB)(GLhandleARB programObj, GLuint index, GLsizei maxIndex, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name, const char *filename, int line);
+void (GLAPIENTRY* qglGetUniformfvARB)(GLhandleARB programObj, GLint location, GLfloat *params, const char *filename, int line);
+void (GLAPIENTRY* qglGetUniformivARB)(GLhandleARB programObj, GLint location, GLint *params, const char *filename, int line);
+void (GLAPIENTRY* qglGetShaderSourceARB)(GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *source, const char *filename, int line);
+
+static void (GLAPIENTRY* dllDeleteObjectARB)(GLhandleARB obj);
+GLhandleARB (GLAPIENTRY* dllGetHandleARB)(GLenum pname);
+static void (GLAPIENTRY* dllDetachObjectARB)(GLhandleARB containerObj, GLhandleARB attachedObj);
+GLhandleARB (GLAPIENTRY* dllCreateShaderObjectARB)(GLenum shaderType);
+static void (GLAPIENTRY* dllShaderSourceARB)(GLhandleARB shaderObj, GLsizei count, const GLcharARB* *string, const GLint *length);
+static void (GLAPIENTRY* dllCompileShaderARB)(GLhandleARB shaderObj);
+GLhandleARB (GLAPIENTRY* dllCreateProgramObjectARB)();
+static void (GLAPIENTRY* dllAttachObjectARB)(GLhandleARB containerObj, GLhandleARB obj);
+static void (GLAPIENTRY* dllLinkProgramARB)(GLhandleARB programObj);
+static void (GLAPIENTRY* dllUseProgramObjectARB)(GLhandleARB programObj);
+static void (GLAPIENTRY* dllValidateProgramARB)(GLhandleARB programObj);
+static void (GLAPIENTRY* dllUniform1fARB)(GLint, GLfloat);
+static void (GLAPIENTRY* dllUniform2fARB)(GLint, GLfloat, GLfloat);
+static void (GLAPIENTRY* dllUniform3fARB)(GLint, GLfloat, GLfloat, GLfloat);
+static void (GLAPIENTRY* dllUniform4fARB)(GLint, GLfloat, GLfloat, GLfloat, GLfloat);
+static void (GLAPIENTRY* dllUniform1iARB)(GLint, GLint);
+static void (GLAPIENTRY* dllUniform2iARB)(GLint, GLint, GLint);
+static void (GLAPIENTRY* dllUniform3iARB)(GLint, GLint, GLint, GLint);
+static void (GLAPIENTRY* dllUniform4iARB)(GLint, GLint, GLint, GLint, GLint);
+static void (GLAPIENTRY* dllUniform2fvARB)(GLint, GLsizei, const GLfloat *);
+static void (GLAPIENTRY* dllUniform3fvARB)(GLint, GLsizei, const GLfloat *);
+static void (GLAPIENTRY* dllUniform4fvARB)(GLint, GLsizei, const GLfloat *);
+static void (GLAPIENTRY* dllUniform2ivARB)(GLint, GLsizei, const GLint *);
+static void (GLAPIENTRY* dllUniform3ivARB)(GLint, GLsizei, const GLint *);
+static void (GLAPIENTRY* dllUniform4ivARB)(GLint, GLsizei, const GLint *);
+static void (GLAPIENTRY* dllUniformMatrix2fvARB)(GLint, GLsizei, GLboolean, const GLfloat *);
+static void (GLAPIENTRY* dllUniformMatrix3fvARB)(GLint, GLsizei, GLboolean, const GLfloat *);
+static void (GLAPIENTRY* dllUniformMatrix4fvARB)(GLint, GLsizei, GLboolean, const GLfloat *);
+static void (GLAPIENTRY* dllGetObjectParameterfvARB)(GLhandleARB, GLenum, GLfloat *);
+static void (GLAPIENTRY* dllGetObjectParameterivARB)(GLhandleARB, GLenum, GLint *);
+static void (GLAPIENTRY* dllGetInfoLogARB)(GLhandleARB, GLsizei, GLsizei *, GLcharARB *);
+static void (GLAPIENTRY* dllGetAttachedObjectsARB)(GLhandleARB, GLsizei, GLsizei *, GLhandleARB *);
+static GLint (GLAPIENTRY* dllGetUniformLocationARB)(GLhandleARB, const GLcharARB *);
+static void (GLAPIENTRY* dllGetActiveUniformARB)(GLhandleARB, GLuint, GLsizei, GLsizei *, GLint *, GLenum *, GLcharARB *);
+static void (GLAPIENTRY* dllGetUniformfvARB)(GLhandleARB, GLint, GLfloat *);
+static void (GLAPIENTRY* dllGetUniformivARB)(GLhandleARB, GLint, GLint *);
+static void (GLAPIENTRY* dllGetShaderSourceARB)(GLhandleARB, GLsizei, GLsizei *, GLcharARB *);
+
+static void GLAPIENTRY stdDeleteObjectARB(GLhandleARB obj, const char *filename, int line)
+{
+	dllDeleteObjectARB(obj);
+}
+GLhandleARB GLAPIENTRY stdGetHandleARB(GLenum pname, const char *filename, int line)
+{
+	return dllGetHandleARB(pname);
+}
+static void GLAPIENTRY stdDetachObjectARB(GLhandleARB containerObj, GLhandleARB attachedObj, const char *filename, int line)
+{
+	dllDetachObjectARB(containerObj, attachedObj);
+}
+GLhandleARB GLAPIENTRY stdCreateShaderObjectARB(GLenum shaderType, const char *filename, int line)
+{
+	return dllCreateShaderObjectARB(shaderType);
+}
+static void GLAPIENTRY stdShaderSourceARB(GLhandleARB shaderObj, GLsizei count, const GLcharARB* *string, const GLint *length, const char *filename, int line)
+{
+	dllShaderSourceARB(shaderObj, count, string, length);
+}
+static void GLAPIENTRY stdCompileShaderARB(GLhandleARB shaderObj, const char *filename, int line)
+{
+	dllCompileShaderARB(shaderObj);
+}
+GLhandleARB GLAPIENTRY stdCreateProgramObjectARB(const char *filename, int line)
+{
+	return dllCreateProgramObjectARB();
+}
+static void GLAPIENTRY stdAttachObjectARB(GLhandleARB containerObj, GLhandleARB obj, const char *filename, int line)
+{
+	dllAttachObjectARB(containerObj, obj);
+}
+static void GLAPIENTRY stdLinkProgramARB(GLhandleARB programObj, const char *filename, int line)
+{
+	dllLinkProgramARB(programObj);
+}
+static void GLAPIENTRY stdUseProgramObjectARB(GLhandleARB programObj, const char *filename, int line)
+{
+	dllUseProgramObjectARB(programObj);
+}
+static void GLAPIENTRY stdValidateProgramARB(GLhandleARB programObj, const char *filename, int line)
+{
+	dllValidateProgramARB(programObj);
+}
+static void GLAPIENTRY stdUniform1fARB(GLint location, GLfloat v0, const char *filename, int line)
+{
+	dllUniform1fARB(location, v0);
+}
+static void GLAPIENTRY stdUniform2fARB(GLint location, GLfloat v0, GLfloat v1, const char *filename, int line)
+{
+	dllUniform2fARB(location, v0, v1);
+}
+static void GLAPIENTRY stdUniform3fARB(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, const char *filename, int line)
+{
+	dllUniform3fARB(location, v0, v1, v2);
+}
+static void GLAPIENTRY stdUniform4fARB(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3, const char *filename, int line)
+{
+	dllUniform4fARB(location, v0, v1, v2, v3);
+}
+static void GLAPIENTRY stdUniform1iARB(GLint location, GLint v0, const char *filename, int line)
+{
+	dllUniform1iARB(location, v0);
+}
+static void GLAPIENTRY stdUniform2iARB(GLint location, GLint v0, GLint v1, const char *filename, int line)
+{
+	dllUniform2iARB(location, v0, v1);
+}
+static void GLAPIENTRY stdUniform3iARB(GLint location, GLint v0, GLint v1, GLint v2, const char *filename, int line)
+{
+	dllUniform3iARB(location, v0, v1, v2);
+}
+static void GLAPIENTRY stdUniform4iARB(GLint location, GLint v0, GLint v1, GLint v2, GLint v3, const char *filename, int line)
+{
+	dllUniform4iARB(location, v0, v1, v2, v3);
+}
+static void GLAPIENTRY stdUniform2fvARB(GLint location, GLsizei count, const GLfloat *value, const char *filename, int line)
+{
+	dllUniform2fvARB(location, count, value);
+}
+static void GLAPIENTRY stdUniform3fvARB(GLint location, GLsizei count, const GLfloat *value, const char *filename, int line)
+{
+	dllUniform3fvARB(location, count, value);
+}
+static void GLAPIENTRY stdUniform4fvARB(GLint location, GLsizei count, const GLfloat *value, const char *filename, int line)
+{
+	dllUniform4fvARB(location, count, value);
+}
+static void GLAPIENTRY stdUniform2ivARB(GLint location, GLsizei count, const GLint *value, const char *filename, int line)
+{
+	dllUniform2ivARB(location, count, value);
+}
+static void GLAPIENTRY stdUniform3ivARB(GLint location, GLsizei count, const GLint *value, const char *filename, int line)
+{
+	dllUniform3ivARB(location, count, value);
+}
+static void GLAPIENTRY stdUniform4ivARB(GLint location, GLsizei count, const GLint *value, const char *filename, int line)
+{
+	dllUniform4ivARB(location, count, value);
+}
+static void GLAPIENTRY stdUniformMatrix2fvARB(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value, const char *filename, int line)
+{
+	dllUniformMatrix2fvARB(location, count, transpose, value);
+}
+static void GLAPIENTRY stdUniformMatrix3fvARB(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value, const char *filename, int line)
+{
+	dllUniformMatrix3fvARB(location, count, transpose, value);
+}
+static void GLAPIENTRY stdUniformMatrix4fvARB(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value, const char *filename, int line)
+{
+	dllUniformMatrix4fvARB(location, count, transpose, value);
+}
+static void GLAPIENTRY stdGetObjectParameterfvARB(GLhandleARB obj, GLenum pname, GLfloat *params, const char *filename, int line)
+{
+	dllGetObjectParameterfvARB(obj, pname, params);
+}
+static void GLAPIENTRY stdGetObjectParameterivARB(GLhandleARB obj, GLenum pname, GLint *params, const char *filename, int line)
+{
+	dllGetObjectParameterivARB(obj, pname, params);
+}
+static void GLAPIENTRY stdGetInfoLogARB(GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *infoLog, const char *filename, int line)
+{
+	dllGetInfoLogARB(obj, maxLength, length, infoLog);
+}
+static void GLAPIENTRY stdGetAttachedObjectsARB(GLhandleARB containerObj, GLsizei maxCount, GLsizei *count, GLhandleARB *obj, const char *filename, int line)
+{
+	dllGetAttachedObjectsARB(containerObj, maxCount, count, obj);
+}
+static GLint GLAPIENTRY stdGetUniformLocationARB(GLhandleARB programObj, const GLcharARB *name, const char *filename, int line)
+{
+	return dllGetUniformLocationARB(programObj, name);
+}
+static void GLAPIENTRY stdGetActiveUniformARB(GLhandleARB programObj, GLuint index, GLsizei maxIndex, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name, const char *filename, int line)
+{
+	dllGetActiveUniformARB(programObj, index, maxIndex, length, size, type, name);
+}
+static void GLAPIENTRY stdGetUniformfvARB(GLhandleARB programObj, GLint location, GLfloat *params, const char *filename, int line)
+{
+	dllGetUniformfvARB(programObj, location, params);
+}
+static void GLAPIENTRY stdGetUniformivARB(GLhandleARB programObj, GLint location, GLint *params, const char *filename, int line)
+{
+	dllGetUniformivARB(programObj, location, params);
+}
+static void GLAPIENTRY stdGetShaderSourceARB(GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *source, const char *filename, int line)
+{
+	dllGetShaderSourceARB(obj, maxLength, length, source);
+}
+
+static void GLAPIENTRY dbgDeleteObjectARB(GLhandleARB obj, const char *filename, int line)
+{
+	dllDeleteObjectARB(obj);
+	XGL_CheckForError_(filename, line);
+}
+GLhandleARB GLAPIENTRY dbgGetHandleARB(GLenum pname, const char *filename, int line)
+{
+	GLhandleARB h = dllGetHandleARB(pname);
+	XGL_CheckForError_(filename, line);
+	return h;
+}
+static void GLAPIENTRY dbgDetachObjectARB(GLhandleARB containerObj, GLhandleARB attachedObj, const char *filename, int line)
+{
+	dllDetachObjectARB(containerObj, attachedObj);
+	XGL_CheckForError_(filename, line);
+}
+GLhandleARB GLAPIENTRY dbgCreateShaderObjectARB(GLenum shaderType, const char *filename, int line)
+{
+	GLhandleARB h = dllCreateShaderObjectARB(shaderType);
+	XGL_CheckForError_(filename, line);
+	return h;
+}
+static void GLAPIENTRY dbgShaderSourceARB(GLhandleARB shaderObj, GLsizei count, const GLcharARB* *string, const GLint *length, const char *filename, int line)
+{
+	dllShaderSourceARB(shaderObj, count, string, length);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgCompileShaderARB(GLhandleARB shaderObj, const char *filename, int line)
+{
+	dllCompileShaderARB(shaderObj);
+	XGL_CheckForError_(filename, line);
+}
+GLhandleARB GLAPIENTRY dbgCreateProgramObjectARB(const char *filename, int line)
+{
+	GLhandleARB h = dllCreateProgramObjectARB();
+	XGL_CheckForError_(filename, line);
+	return h;
+}
+static void GLAPIENTRY dbgAttachObjectARB(GLhandleARB containerObj, GLhandleARB obj, const char *filename, int line)
+{
+	dllAttachObjectARB(containerObj, obj);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgLinkProgramARB(GLhandleARB programObj, const char *filename, int line)
+{
+	dllLinkProgramARB(programObj);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgUseProgramObjectARB(GLhandleARB programObj, const char *filename, int line)
+{
+	dllUseProgramObjectARB(programObj);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgValidateProgramARB(GLhandleARB programObj, const char *filename, int line)
+{
+	dllValidateProgramARB(programObj);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgUniform1fARB(GLint location, GLfloat v0, const char *filename, int line)
+{
+	dllUniform1fARB(location, v0);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgUniform2fARB(GLint location, GLfloat v0, GLfloat v1, const char *filename, int line)
+{
+	dllUniform2fARB(location, v0, v1);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgUniform3fARB(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, const char *filename, int line)
+{
+	dllUniform3fARB(location, v0, v1, v2);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgUniform4fARB(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3, const char *filename, int line)
+{
+	dllUniform4fARB(location, v0, v1, v2, v3);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgUniform1iARB(GLint location, GLint v0, const char *filename, int line)
+{
+	dllUniform1iARB(location, v0);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgUniform2iARB(GLint location, GLint v0, GLint v1, const char *filename, int line)
+{
+	dllUniform2iARB(location, v0, v1);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgUniform3iARB(GLint location, GLint v0, GLint v1, GLint v2, const char *filename, int line)
+{
+	dllUniform3iARB(location, v0, v1, v2);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgUniform4iARB(GLint location, GLint v0, GLint v1, GLint v2, GLint v3, const char *filename, int line)
+{
+	dllUniform4iARB(location, v0, v1, v2, v3);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgUniform2fvARB(GLint location, GLsizei count, const GLfloat *value, const char *filename, int line)
+{
+	dllUniform2fvARB(location, count, value);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgUniform3fvARB(GLint location, GLsizei count, const GLfloat *value, const char *filename, int line)
+{
+	dllUniform3fvARB(location, count, value);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgUniform4fvARB(GLint location, GLsizei count, const GLfloat *value, const char *filename, int line)
+{
+	dllUniform4fvARB(location, count, value);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgUniform2ivARB(GLint location, GLsizei count, const GLint *value, const char *filename, int line)
+{
+	dllUniform2ivARB(location, count, value);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgUniform3ivARB(GLint location, GLsizei count, const GLint *value, const char *filename, int line)
+{
+	dllUniform3ivARB(location, count, value);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgUniform4ivARB(GLint location, GLsizei count, const GLint *value, const char *filename, int line)
+{
+	dllUniform4ivARB(location, count, value);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgUniformMatrix2fvARB(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value, const char *filename, int line)
+{
+	dllUniformMatrix2fvARB(location, count, transpose, value);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgUniformMatrix3fvARB(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value, const char *filename, int line)
+{
+	dllUniformMatrix3fvARB(location, count, transpose, value);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgUniformMatrix4fvARB(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value, const char *filename, int line)
+{
+	dllUniformMatrix4fvARB(location, count, transpose, value);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgGetObjectParameterfvARB(GLhandleARB obj, GLenum pname, GLfloat *params, const char *filename, int line)
+{
+	dllGetObjectParameterfvARB(obj, pname, params);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgGetObjectParameterivARB(GLhandleARB obj, GLenum pname, GLint *params, const char *filename, int line)
+{
+	dllGetObjectParameterivARB(obj, pname, params);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgGetInfoLogARB(GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *infoLog, const char *filename, int line)
+{
+	dllGetInfoLogARB(obj, maxLength, length, infoLog);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgGetAttachedObjectsARB(GLhandleARB containerObj, GLsizei maxCount, GLsizei *count, GLhandleARB *obj, const char *filename, int line)
+{
+	dllGetAttachedObjectsARB(containerObj, maxCount, count, obj);
+	XGL_CheckForError_(filename, line);
+}
+static GLint GLAPIENTRY dbgGetUniformLocationARB(GLhandleARB programObj, const GLcharARB *name, const char *filename, int line)
+{
+	GLint i = dllGetUniformLocationARB(programObj, name);
+	XGL_CheckForError_(filename, line);
+	return i;
+}
+static void GLAPIENTRY dbgGetActiveUniformARB(GLhandleARB programObj, GLuint index, GLsizei maxIndex, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name, const char *filename, int line)
+{
+	dllGetActiveUniformARB(programObj, index, maxIndex, length, size, type, name);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgGetUniformfvARB(GLhandleARB programObj, GLint location, GLfloat *params, const char *filename, int line)
+{
+	dllGetUniformfvARB(programObj, location, params);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgGetUniformivARB(GLhandleARB programObj, GLint location, GLint *params, const char *filename, int line)
+{
+	dllGetUniformivARB(programObj, location, params);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgGetShaderSourceARB(GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *source, const char *filename, int line)
+{
+	dllGetShaderSourceARB(obj, maxLength, length, source);
+	XGL_CheckForError_(filename, line);
+}
 
 
 /// GL_ARB_vertex_shader =======================================================
-void (GLAPIENTRY* xglBindAttribLocationARB) (GLhandleARB, GLuint, const GLcharARB *);
-void (GLAPIENTRY* xglGetActiveAttribARB) (GLhandleARB, GLuint, GLsizei, GLsizei *, GLint *, GLenum *, GLcharARB *);
-GLint (GLAPIENTRY* xglGetAttribLocationARB) (GLhandleARB, const GLcharARB *);
+void (GLAPIENTRY* qglBindAttribLocationARB)(GLhandleARB programObj, GLuint index, const GLcharARB *name, const char *filename, int line);
+void (GLAPIENTRY* qglGetActiveAttribARB)(GLhandleARB programObj, GLuint index, GLsizei maxLength, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name, const char *filename, int line);
+GLint (GLAPIENTRY* qglGetAttribLocationARB)(GLhandleARB programObj, const GLcharARB *name, const char *filename, int line);
+
+static void (GLAPIENTRY* dllBindAttribLocationARB)(GLhandleARB, GLuint, const GLcharARB *);
+static void (GLAPIENTRY* dllGetActiveAttribARB)(GLhandleARB, GLuint, GLsizei, GLsizei *, GLint *, GLenum *, GLcharARB *);
+static GLint (GLAPIENTRY* dllGetAttribLocationARB)(GLhandleARB, const GLcharARB *);
+
+static void GLAPIENTRY stdBindAttribLocationARB(GLhandleARB programObj, GLuint index, const GLcharARB *name, const char *filename, int line)
+{
+	dllBindAttribLocationARB(programObj, index, name);
+}
+static void GLAPIENTRY stdGetActiveAttribARB(GLhandleARB programObj, GLuint index, GLsizei maxLength, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name, const char *filename, int line)
+{
+	dllGetActiveAttribARB(programObj, index, maxLength, length, size, type, name);
+}
+static GLint GLAPIENTRY stdGetAttribLocationARB(GLhandleARB programObj, const GLcharARB *name, const char *filename, int line)
+{
+	return dllGetAttribLocationARB(programObj, name);
+}
+
+static void GLAPIENTRY dbgBindAttribLocationARB(GLhandleARB programObj, GLuint index, const GLcharARB *name, const char *filename, int line)
+{
+	dllBindAttribLocationARB(programObj, index, name);
+	XGL_CheckForError_(filename, line);
+}
+static void GLAPIENTRY dbgGetActiveAttribARB(GLhandleARB programObj, GLuint index, GLsizei maxLength, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name, const char *filename, int line)
+{
+	dllGetActiveAttribARB(programObj, index, maxLength, length, size, type, name);
+	XGL_CheckForError_(filename, line);
+}
+static GLint GLAPIENTRY dbgGetAttribLocationARB(GLhandleARB programObj, const GLcharARB *name, const char *filename, int line)
+{
+	GLint i = dllGetAttribLocationARB(programObj, name);
+	XGL_CheckForError_(filename, line);
+	return i;
+}
 
 
 /// GL_EXT_texture3D ===========================================================
@@ -1121,9 +1530,10 @@ static void GLAPIENTRY dbgTexImage3DEXT(GLenum target, GLint level, GLint intern
 
 
 /// GL_EXT_compiled_vertex_array ===============================================
+/*
 void (GLAPIENTRY* xglLockArraysEXT) (GLint, GLsizei);
 void (GLAPIENTRY* xglUnlockArraysEXT) (void);
-
+*/
 
 /// GL_EXT_draw_range_elements =================================================
 void (GLAPIENTRY* qglDrawRangeElementsEXT)(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices, const char *filename, int line);
@@ -1150,6 +1560,7 @@ static void GLAPIENTRY dbgDrawRangeElementsEXT(GLenum mode, GLuint start, GLuint
 
 
 /// GL_NV_vertex_program2 ======================================================
+/*
 GLboolean (GLAPIENTRY* xglAreProgramsResidentNV) (GLsizei, const GLuint *, GLboolean *);
 void (GLAPIENTRY* xglBindProgramNV) (GLenum, GLuint);
 void (GLAPIENTRY* xglDeleteProgramsNV) (GLsizei, const GLuint *);
@@ -1184,12 +1595,14 @@ void (GLAPIENTRY* xglVertexAttribs1fvNV) (GLuint, GLsizei, const GLfloat *);
 void (GLAPIENTRY* xglVertexAttribs2fvNV) (GLuint, GLsizei, const GLfloat *);
 void (GLAPIENTRY* xglVertexAttribs3fvNV) (GLuint, GLsizei, const GLfloat *);
 void (GLAPIENTRY* xglVertexAttribs4fvNV) (GLuint, GLsizei, const GLfloat *);
-
+*/
 
 /// GL_NV_fragment_program =====================================================
+/*
 void (GLAPIENTRY* xglProgramNamedParameter4fNV) (GLuint, GLsizei, const GLubyte *, GLfloat, GLfloat, GLfloat, GLfloat);
 void (GLAPIENTRY* xglProgramNamedParameter4fvNV) (GLuint, GLsizei, const GLubyte *, const GLfloat *);
 void (GLAPIENTRY* xglGetProgramNamedParameterfvNV) (GLuint, GLsizei, const GLubyte *, GLfloat *);
+*/
 
 /// GL_EXT_framebuffer_object ==================================================
 GLboolean (GLAPIENTRY* qglIsRenderbufferEXT)(GLuint renderbuffer, const char *filename, int line);
@@ -1571,59 +1984,100 @@ void	XGL_Shutdown()
 	xglGetQueryObjectivARB					= NULL;
 	xglGetQueryObjectuivARB					= NULL;
 	
-	xglDeleteObjectARB					= NULL;
-	xglGetHandleARB						= NULL;
-	xglDetachObjectARB					= NULL;
-	xglCreateShaderObjectARB				= NULL;
-	xglShaderSourceARB					= NULL;
-	xglCompileShaderARB					= NULL;
-	xglCreateProgramObjectARB				= NULL;
-	xglAttachObjectARB					= NULL;
-	xglLinkProgramARB					= NULL;
-	xglUseProgramObjectARB					= NULL;
-	xglValidateProgramARB					= NULL;
-	xglUniform1fARB						= NULL;
-	xglUniform2fARB						= NULL;
-	xglUniform3fARB						= NULL;
-	xglUniform4fARB						= NULL;
-	xglUniform1iARB						= NULL;
-	xglUniform2iARB						= NULL;
-	xglUniform3iARB						= NULL;
-	xglUniform4iARB						= NULL;
-	xglUniform1fvARB					= NULL;
-	xglUniform2fvARB					= NULL;
-	xglUniform3fvARB					= NULL;
-	xglUniform4fvARB					= NULL;
-	xglUniform1ivARB					= NULL;
-	xglUniform2ivARB					= NULL;
-	xglUniform3ivARB					= NULL;
-	xglUniform4ivARB					= NULL;
-	xglUniformMatrix2fvARB					= NULL;
-	xglUniformMatrix3fvARB					= NULL;
-	xglUniformMatrix4fvARB					= NULL;
-	xglGetObjectParameterfvARB				= NULL;
-	xglGetObjectParameterivARB				= NULL;
-	xglGetInfoLogARB					= NULL;
-	xglGetAttachedObjectsARB				= NULL;
-	xglGetUniformLocationARB				= NULL;
-	xglGetActiveUniformARB					= NULL;
-	xglGetUniformfvARB					= NULL;
-	xglGetUniformivARB					= NULL;
-	xglGetShaderSourceARB					= NULL;
+	qglDeleteObjectARB					= NULL;
+	qglGetHandleARB						= NULL;
+	qglDetachObjectARB					= NULL;
+	qglCreateShaderObjectARB				= NULL;
+	qglShaderSourceARB					= NULL;
+	qglCompileShaderARB					= NULL;
+	qglCreateProgramObjectARB				= NULL;
+	qglAttachObjectARB					= NULL;
+	qglLinkProgramARB					= NULL;
+	qglUseProgramObjectARB					= NULL;
+	qglValidateProgramARB					= NULL;
+	qglUniform1fARB						= NULL;
+	qglUniform2fARB						= NULL;
+	qglUniform3fARB						= NULL;
+	qglUniform4fARB						= NULL;
+	qglUniform1iARB						= NULL;
+	qglUniform2iARB						= NULL;
+	qglUniform3iARB						= NULL;
+	qglUniform4iARB						= NULL;
+	qglUniform2fvARB					= NULL;
+	qglUniform3fvARB					= NULL;
+	qglUniform4fvARB					= NULL;
+	qglUniform2ivARB					= NULL;
+	qglUniform3ivARB					= NULL;
+	qglUniform4ivARB					= NULL;
+	qglUniformMatrix2fvARB					= NULL;
+	qglUniformMatrix3fvARB					= NULL;
+	qglUniformMatrix4fvARB					= NULL;
+	qglGetObjectParameterfvARB				= NULL;
+	qglGetObjectParameterivARB				= NULL;
+	qglGetInfoLogARB					= NULL;
+	qglGetAttachedObjectsARB				= NULL;
+	qglGetUniformLocationARB				= NULL;
+	qglGetActiveUniformARB					= NULL;
+	qglGetUniformfvARB					= NULL;
+	qglGetUniformivARB					= NULL;
+	qglGetShaderSourceARB					= NULL;
+	dllDeleteObjectARB					= NULL;
+	dllGetHandleARB						= NULL;
+	dllDetachObjectARB					= NULL;
+	dllCreateShaderObjectARB				= NULL;
+	dllShaderSourceARB					= NULL;
+	dllCompileShaderARB					= NULL;
+	dllCreateProgramObjectARB				= NULL;
+	dllAttachObjectARB					= NULL;
+	dllLinkProgramARB					= NULL;
+	dllUseProgramObjectARB					= NULL;
+	dllValidateProgramARB					= NULL;
+	dllUniform1fARB						= NULL;
+	dllUniform2fARB						= NULL;
+	dllUniform3fARB						= NULL;
+	dllUniform4fARB						= NULL;
+	dllUniform1iARB						= NULL;
+	dllUniform2iARB						= NULL;
+	dllUniform3iARB						= NULL;
+	dllUniform4iARB						= NULL;
+	dllUniform2fvARB					= NULL;
+	dllUniform3fvARB					= NULL;
+	dllUniform4fvARB					= NULL;
+	dllUniform2ivARB					= NULL;
+	dllUniform3ivARB					= NULL;
+	dllUniform4ivARB					= NULL;
+	dllUniformMatrix2fvARB					= NULL;
+	dllUniformMatrix3fvARB					= NULL;
+	dllUniformMatrix4fvARB					= NULL;
+	dllGetObjectParameterfvARB				= NULL;
+	dllGetObjectParameterivARB				= NULL;
+	dllGetInfoLogARB					= NULL;
+	dllGetAttachedObjectsARB				= NULL;
+	dllGetUniformLocationARB				= NULL;
+	dllGetActiveUniformARB					= NULL;
+	dllGetUniformfvARB					= NULL;
+	dllGetUniformivARB					= NULL;
+	dllGetShaderSourceARB					= NULL;
 
-	xglBindAttribLocationARB				= NULL;
-	xglGetActiveAttribARB					= NULL;
-	xglGetAttribLocationARB					= NULL;
+	qglBindAttribLocationARB				= NULL;
+	qglGetActiveAttribARB					= NULL;
+	qglGetAttribLocationARB					= NULL;
+	dllBindAttribLocationARB				= NULL;
+	dllGetActiveAttribARB					= NULL;
+	dllGetAttribLocationARB					= NULL;
 	
 	qglTexImage3DEXT					= NULL;
 	dllTexImage3DEXT					= NULL;
 
+	/*
 	xglLockArraysEXT					= NULL;
 	xglUnlockArraysEXT					= NULL;
+	*/
 	
 	qglDrawRangeElementsEXT					= NULL;
 	dllDrawRangeElementsEXT					= NULL;
 	
+	/*
 	xglAreProgramsResidentNV				= NULL;
 	xglBindProgramNV					= NULL;
 	xglDeleteProgramsNV					= NULL;
@@ -1658,10 +2112,13 @@ void	XGL_Shutdown()
 	xglVertexAttribs2fvNV					= NULL;
 	xglVertexAttribs3fvNV					= NULL;
 	xglVertexAttribs4fvNV					= NULL;
+	*/
 	
+	/*
 	xglProgramNamedParameter4fNV				= NULL;
 	xglProgramNamedParameter4fvNV				= NULL;
 	xglGetProgramNamedParameterfvNV				= NULL;
+	*/
 
 	qglIsRenderbufferEXT					= NULL;
 	qglBindRenderbufferEXT					= NULL;
@@ -1935,6 +2392,10 @@ void	XGL_InitExtensions()
 	gl_config.arb_vertex_program = false;
 	gl_config.arb_vertex_buffer_object = false;
 	gl_config.arb_occlusion_query = false;
+	gl_config.arb_shader_objects = false;
+	gl_config.arb_vertex_shader = false;
+	gl_config.arb_fragment_shader = false;
+	gl_config.arb_shading_language_100 = false;
 	gl_config.arb_texture_rectangle = false;
 	
 	gl_config.ext_texture3D = false;
@@ -2068,6 +2529,86 @@ void	XGL_InitExtensions()
 	{
 		ri.Com_Printf("...GL_ARB_occlusion_query not found\n");
 	}
+
+	if(strstr(gl_config.extensions_string, "GL_ARB_shader_objects"))
+	{
+		ri.Com_Printf("...using GL_ARB_shader_objects\n");
+		dllDeleteObjectARB = (void (GLAPIENTRY*) (GLhandleARB)) xglGetProcAddress("glDeleteObjectARB");
+		dllGetHandleARB = (GLhandleARB (GLAPIENTRY*) (GLenum)) xglGetProcAddress("glGetHandleARB");
+		dllDetachObjectARB = (void (GLAPIENTRY*) (GLhandleARB, GLhandleARB)) xglGetProcAddress("glDetachObjectARB");
+		dllCreateShaderObjectARB = (GLhandleARB (GLAPIENTRY*) (GLenum)) xglGetProcAddress("glCreateShaderObjectARB");
+		dllShaderSourceARB = (void (GLAPIENTRY*) (GLhandleARB, GLsizei, const GLcharARB* *, const GLint *)) xglGetProcAddress("glShaderSourceARB");
+		dllCompileShaderARB = (void (GLAPIENTRY*) (GLhandleARB)) xglGetProcAddress("glCompileShaderARB");
+		dllCreateProgramObjectARB = (GLhandleARB (GLAPIENTRY*) (void)) xglGetProcAddress("glCreateProgramObjectARB");
+		dllAttachObjectARB = (void (GLAPIENTRY*) (GLhandleARB, GLhandleARB)) xglGetProcAddress("glAttachObjectARB");
+		dllLinkProgramARB = (void (GLAPIENTRY*) (GLhandleARB)) xglGetProcAddress("glLinkProgramARB");
+		dllUseProgramObjectARB = (void (GLAPIENTRY*) (GLhandleARB)) xglGetProcAddress("glUseProgramObjectARB");
+		dllValidateProgramARB = (void (GLAPIENTRY*) (GLhandleARB)) xglGetProcAddress("glValidateProgramARB");
+		dllUniform1fARB = (void (GLAPIENTRY*) (GLint, GLfloat)) xglGetProcAddress("glUniform1fARB");
+		dllUniform2fARB = (void (GLAPIENTRY*) (GLint, GLfloat, GLfloat)) xglGetProcAddress("glUniform2fARB");
+		dllUniform3fARB = (void (GLAPIENTRY*) (GLint, GLfloat, GLfloat, GLfloat)) xglGetProcAddress("glUniform3fARB");
+		dllUniform4fARB = (void (GLAPIENTRY*) (GLint, GLfloat, GLfloat, GLfloat, GLfloat)) xglGetProcAddress("glUniform4fARB");
+		dllUniform1iARB = (void (GLAPIENTRY*) (GLint, GLint)) xglGetProcAddress("glUniform1iARB");
+		dllUniform2iARB = (void (GLAPIENTRY*) (GLint, GLint, GLint)) xglGetProcAddress("glUniform2iARB");
+		dllUniform3iARB = (void (GLAPIENTRY*) (GLint, GLint, GLint, GLint)) xglGetProcAddress("glUniform3iARB");
+		dllUniform4iARB = (void (GLAPIENTRY*) (GLint, GLint, GLint, GLint, GLint)) xglGetProcAddress("glUniform4iARB");
+		dllUniform2fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLfloat *)) xglGetProcAddress("glUniform2fvARB");
+		dllUniform3fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLfloat *)) xglGetProcAddress("glUniform3fvARB");
+		dllUniform4fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLfloat *)) xglGetProcAddress("glUniform4fvARB");
+		dllUniform2ivARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLint *)) xglGetProcAddress("glUniform2ivARB");
+		dllUniform3ivARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLint *)) xglGetProcAddress("glUniform3ivARB");
+		dllUniform4ivARB = (void (GLAPIENTRY*) (GLint, GLsizei, const GLint *)) xglGetProcAddress("glUniform4ivARB");
+		dllUniformMatrix2fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, GLboolean, const GLfloat *)) xglGetProcAddress("glUniformMatrix2fvARB");
+		dllUniformMatrix3fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, GLboolean, const GLfloat *)) xglGetProcAddress("glUniformMatrix3fvARB");
+		dllUniformMatrix4fvARB = (void (GLAPIENTRY*) (GLint, GLsizei, GLboolean, const GLfloat *)) xglGetProcAddress("glUniformMatrix4fvARB");
+		dllGetObjectParameterfvARB = (void (GLAPIENTRY*) (GLhandleARB, GLenum, GLfloat *)) xglGetProcAddress("glGetObjectParameterfvARB");
+		dllGetObjectParameterivARB = (void (GLAPIENTRY*) (GLhandleARB, GLenum, GLint *)) xglGetProcAddress("glGetObjectParameterivARB");
+		dllGetInfoLogARB = (void (GLAPIENTRY*) (GLhandleARB, GLsizei, GLsizei *, GLcharARB *)) xglGetProcAddress("glGetInfoLogARB");
+		dllGetAttachedObjectsARB = (void (GLAPIENTRY*) (GLhandleARB, GLsizei, GLsizei *, GLhandleARB *)) xglGetProcAddress("glGetAttachedObjectsARB");
+		dllGetUniformLocationARB = (GLint (GLAPIENTRY*) (GLhandleARB, const GLcharARB *)) xglGetProcAddress("glGetUniformLocationARB");
+		dllGetActiveUniformARB = (void (GLAPIENTRY*) (GLhandleARB, GLuint, GLsizei, GLsizei *, GLint *, GLenum *, GLcharARB *)) 	xglGetProcAddress("glGetActiveUniformARB");
+		dllGetUniformfvARB = (void (GLAPIENTRY*) (GLhandleARB, GLint, GLfloat *)) xglGetProcAddress("glGetUniformfvARB");
+		dllGetUniformivARB = (void (GLAPIENTRY*) (GLhandleARB, GLint, GLint *)) xglGetProcAddress("glGetUniformivARB");
+		dllGetShaderSourceARB = (void (GLAPIENTRY*) (GLhandleARB, GLsizei, GLsizei *, GLcharARB *)) xglGetProcAddress("glGetShaderSourceARB");
+		gl_config.arb_shader_objects = true;
+	}
+	else
+	{
+		ri.Com_Error(ERR_FATAL, "...GL_ARB_shader_objects not found");
+	}
+
+	if(strstr(gl_config.extensions_string, "GL_ARB_vertex_shader"))
+	{
+		ri.Com_Printf("...using GL_ARB_vertex_shader\n");
+		dllBindAttribLocationARB = (void (GLAPIENTRY*) (GLhandleARB, GLuint, const GLcharARB *)) xglGetProcAddress("glBindAttribLocationARB");
+		dllGetActiveAttribARB = (void (GLAPIENTRY*) (GLhandleARB, GLuint, GLsizei, GLsizei *, GLint *, GLenum *, GLcharARB *)) 	xglGetProcAddress("glGetActiveAttribARB");
+		dllGetAttribLocationARB = (GLint (GLAPIENTRY*) (GLhandleARB, const GLcharARB *)) xglGetProcAddress("glGetAttribLocationARB");
+		gl_config.arb_vertex_shader = true;
+	}
+	else
+	{
+		ri.Com_Error(ERR_FATAL, "...GL_ARB_vertex_shader not found");
+	}
+
+	if(strstr(gl_config.extensions_string, "GL_ARB_fragment_shader"))
+	{
+		ri.Com_Printf("...using GL_ARB_fragment_shader\n");
+		gl_config.arb_fragment_shader = true;
+	}
+	else
+	{
+		ri.Com_Error(ERR_FATAL, "...GL_ARB_fragment_shader not found");
+	}
+
+	if(strstr(gl_config.extensions_string, "GL_ARB_shading_language_100"))
+	{
+		ri.Com_Printf("...using GL_ARB_shading_language_100\n");
+		gl_config.arb_shading_language_100 = true;
+	}
+	else
+	{
+		ri.Com_Error(ERR_FATAL, "...GL_ARB_shading_language_100");
+	}
 	
 	if(strstr(gl_config.extensions_string, "GL_ARB_texture_rectangle"))
 	{
@@ -2104,6 +2645,7 @@ void	XGL_InitExtensions()
 		ri.Com_Printf("...GL_EXT_texture3D not found\n");
 	}
 	
+	/*
 	if(strstr(gl_config.extensions_string, "GL_EXT_compiled_vertex_array"))
 	{
 		if(r_ext_compiled_vertex_array->getInteger())
@@ -2122,6 +2664,7 @@ void	XGL_InitExtensions()
 	{
 		ri.Com_Printf("...GL_EXT_compiled_vertex_array not found\n");
 	}
+	*/
 	
 	if(strstr(gl_config.extensions_string, "GL_EXT_draw_range_elements"))
 	{
@@ -2285,6 +2828,48 @@ void	XGL_EnableDebugging(bool enable)
 		qglUnmapBufferARB					= dbgUnmapBufferARB;
 		qglGetBufferParameterivARB				= dbgGetBufferParameterivARB;
 		qglGetBufferPointervARB					= dbgGetBufferPointervARB;
+
+		qglDeleteObjectARB					= dbgDeleteObjectARB;
+		qglGetHandleARB						= dbgGetHandleARB;
+		qglDetachObjectARB					= dbgDetachObjectARB;
+		qglCreateShaderObjectARB				= dbgCreateShaderObjectARB;
+		qglShaderSourceARB					= dbgShaderSourceARB;
+		qglCompileShaderARB					= dbgCompileShaderARB;
+		qglCreateProgramObjectARB				= dbgCreateProgramObjectARB;
+		qglAttachObjectARB					= dbgAttachObjectARB;
+		qglLinkProgramARB					= dbgLinkProgramARB;
+		qglUseProgramObjectARB					= dbgUseProgramObjectARB;
+		qglValidateProgramARB					= dbgValidateProgramARB;
+		qglUniform1fARB						= dbgUniform1fARB;
+		qglUniform2fARB						= dbgUniform2fARB;
+		qglUniform3fARB						= dbgUniform3fARB;
+		qglUniform4fARB						= dbgUniform4fARB;
+		qglUniform1iARB						= dbgUniform1iARB;
+		qglUniform2iARB						= dbgUniform2iARB;
+		qglUniform3iARB						= dbgUniform3iARB;
+		qglUniform4iARB						= dbgUniform4iARB;
+		qglUniform2fvARB					= dbgUniform2fvARB;
+		qglUniform3fvARB					= dbgUniform3fvARB;
+		qglUniform4fvARB					= dbgUniform4fvARB;
+		qglUniform2ivARB					= dbgUniform2ivARB;
+		qglUniform3ivARB					= dbgUniform3ivARB;
+		qglUniform4ivARB					= dbgUniform4ivARB;
+		qglUniformMatrix2fvARB					= dbgUniformMatrix2fvARB;
+		qglUniformMatrix3fvARB					= dbgUniformMatrix3fvARB;
+		qglUniformMatrix4fvARB					= dbgUniformMatrix4fvARB;
+		qglGetObjectParameterfvARB				= dbgGetObjectParameterfvARB;
+		qglGetObjectParameterivARB				= dbgGetObjectParameterivARB;
+		qglGetInfoLogARB					= dbgGetInfoLogARB;
+		qglGetAttachedObjectsARB				= dbgGetAttachedObjectsARB;
+		qglGetUniformLocationARB				= dbgGetUniformLocationARB;
+		qglGetActiveUniformARB					= dbgGetActiveUniformARB;
+		qglGetUniformfvARB					= dbgGetUniformfvARB;
+		qglGetUniformivARB					= dbgGetUniformivARB;
+		qglGetShaderSourceARB					= dbgGetShaderSourceARB;
+
+		qglBindAttribLocationARB				= dbgBindAttribLocationARB;
+		qglGetActiveAttribARB					= dbgGetActiveAttribARB;
+		qglGetAttribLocationARB					= dbgGetAttribLocationARB;
 		
 		qglTexImage3DEXT					= dbgTexImage3DEXT;
 		
@@ -2398,6 +2983,48 @@ void	XGL_EnableDebugging(bool enable)
 		qglUnmapBufferARB					= stdUnmapBufferARB;
 		qglGetBufferParameterivARB				= stdGetBufferParameterivARB;
 		qglGetBufferPointervARB					= stdGetBufferPointervARB;
+
+		qglDeleteObjectARB					= stdDeleteObjectARB;
+		qglGetHandleARB						= stdGetHandleARB;
+		qglDetachObjectARB					= stdDetachObjectARB;
+		qglCreateShaderObjectARB				= stdCreateShaderObjectARB;
+		qglShaderSourceARB					= stdShaderSourceARB;
+		qglCompileShaderARB					= stdCompileShaderARB;
+		qglCreateProgramObjectARB				= stdCreateProgramObjectARB;
+		qglAttachObjectARB					= stdAttachObjectARB;
+		qglLinkProgramARB					= stdLinkProgramARB;
+		qglUseProgramObjectARB					= stdUseProgramObjectARB;
+		qglValidateProgramARB					= stdValidateProgramARB;
+		qglUniform1fARB						= stdUniform1fARB;
+		qglUniform2fARB						= stdUniform2fARB;
+		qglUniform3fARB						= stdUniform3fARB;
+		qglUniform4fARB						= stdUniform4fARB;
+		qglUniform1iARB						= stdUniform1iARB;
+		qglUniform2iARB						= stdUniform2iARB;
+		qglUniform3iARB						= stdUniform3iARB;
+		qglUniform4iARB						= stdUniform4iARB;
+		qglUniform2fvARB					= stdUniform2fvARB;
+		qglUniform3fvARB					= stdUniform3fvARB;
+		qglUniform4fvARB					= stdUniform4fvARB;
+		qglUniform2ivARB					= stdUniform2ivARB;
+		qglUniform3ivARB					= stdUniform3ivARB;
+		qglUniform4ivARB					= stdUniform4ivARB;
+		qglUniformMatrix2fvARB					= stdUniformMatrix2fvARB;
+		qglUniformMatrix3fvARB					= stdUniformMatrix3fvARB;
+		qglUniformMatrix4fvARB					= stdUniformMatrix4fvARB;
+		qglGetObjectParameterfvARB				= stdGetObjectParameterfvARB;
+		qglGetObjectParameterivARB				= stdGetObjectParameterivARB;
+		qglGetInfoLogARB					= stdGetInfoLogARB;
+		qglGetAttachedObjectsARB				= stdGetAttachedObjectsARB;
+		qglGetUniformLocationARB				= stdGetUniformLocationARB;
+		qglGetActiveUniformARB					= stdGetActiveUniformARB;
+		qglGetUniformfvARB					= stdGetUniformfvARB;
+		qglGetUniformivARB					= stdGetUniformivARB;
+		qglGetShaderSourceARB					= stdGetShaderSourceARB;
+
+		qglBindAttribLocationARB				= stdBindAttribLocationARB;
+		qglGetActiveAttribARB					= stdGetActiveAttribARB;
+		qglGetAttribLocationARB					= stdGetAttribLocationARB;
 		
 		qglTexImage3DEXT					= stdTexImage3DEXT;
 		

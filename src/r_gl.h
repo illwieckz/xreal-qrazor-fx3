@@ -2773,51 +2773,168 @@ extern void (GLAPIENTRY* xglGetQueryObjectuivARB) (GLuint, GLenum, GLuint *);
 typedef char GLcharARB;			/* native character */
 typedef unsigned int GLhandleARB;	/* shader object handle */
 
-extern void (GLAPIENTRY* xglDeleteObjectARB) (GLhandleARB);
-extern GLhandleARB (GLAPIENTRY* xglGetHandleARB) (GLenum);
-extern void (GLAPIENTRY* xglDetachObjectARB) (GLhandleARB, GLhandleARB);
-extern GLhandleARB (GLAPIENTRY* xglCreateShaderObjectARB) (GLenum);
-extern void (GLAPIENTRY* xglShaderSourceARB) (GLhandleARB, GLsizei, const GLcharARB* *, const GLint *);
-extern void (GLAPIENTRY* xglCompileShaderARB) (GLhandleARB);
-extern GLhandleARB (GLAPIENTRY* xglCreateProgramObjectARB) (void);
-extern void (GLAPIENTRY* xglAttachObjectARB) (GLhandleARB, GLhandleARB);
-extern void (GLAPIENTRY* xglLinkProgramARB) (GLhandleARB);
-extern void (GLAPIENTRY* xglUseProgramObjectARB) (GLhandleARB);
-extern void (GLAPIENTRY* xglValidateProgramARB) (GLhandleARB);
-extern void (GLAPIENTRY* xglUniform1fARB) (GLint, GLfloat);
-extern void (GLAPIENTRY* xglUniform2fARB) (GLint, GLfloat, GLfloat);
-extern void (GLAPIENTRY* xglUniform3fARB) (GLint, GLfloat, GLfloat, GLfloat);
-extern void (GLAPIENTRY* xglUniform4fARB) (GLint, GLfloat, GLfloat, GLfloat, GLfloat);
-extern void (GLAPIENTRY* xglUniform1iARB) (GLint, GLint);
-extern void (GLAPIENTRY* xglUniform2iARB) (GLint, GLint, GLint);
-extern void (GLAPIENTRY* xglUniform3iARB) (GLint, GLint, GLint, GLint);
-extern void (GLAPIENTRY* xglUniform4iARB) (GLint, GLint, GLint, GLint, GLint);
-extern void (GLAPIENTRY* xglUniform1fvARB) (GLint, GLsizei, const GLfloat *);
-extern void (GLAPIENTRY* xglUniform2fvARB) (GLint, GLsizei, const GLfloat *);
-extern void (GLAPIENTRY* xglUniform3fvARB) (GLint, GLsizei, const GLfloat *);
-extern void (GLAPIENTRY* xglUniform4fvARB) (GLint, GLsizei, const GLfloat *);
-extern void (GLAPIENTRY* xglUniform1ivARB) (GLint, GLsizei, const GLint *);
-extern void (GLAPIENTRY* xglUniform2ivARB) (GLint, GLsizei, const GLint *);
-extern void (GLAPIENTRY* xglUniform3ivARB) (GLint, GLsizei, const GLint *);
-extern void (GLAPIENTRY* xglUniform4ivARB) (GLint, GLsizei, const GLint *);
-extern void (GLAPIENTRY* xglUniformMatrix2fvARB) (GLint, GLsizei, GLboolean, const GLfloat *);
-extern void (GLAPIENTRY* xglUniformMatrix3fvARB) (GLint, GLsizei, GLboolean, const GLfloat *);
-extern void (GLAPIENTRY* xglUniformMatrix4fvARB) (GLint, GLsizei, GLboolean, const GLfloat *);
-extern void (GLAPIENTRY* xglGetObjectParameterfvARB) (GLhandleARB, GLenum, GLfloat *);
-extern void (GLAPIENTRY* xglGetObjectParameterivARB) (GLhandleARB, GLenum, GLint *);
-extern void (GLAPIENTRY* xglGetInfoLogARB) (GLhandleARB, GLsizei, GLsizei *, GLcharARB *);
-extern void (GLAPIENTRY* xglGetAttachedObjectsARB) (GLhandleARB, GLsizei, GLsizei *, GLhandleARB *);
-extern GLint (GLAPIENTRY* xglGetUniformLocationARB) (GLhandleARB, const GLcharARB *);
-extern void (GLAPIENTRY* xglGetActiveUniformARB) (GLhandleARB, GLuint, GLsizei, GLsizei *, GLint *, GLenum *, GLcharARB *);
-extern void (GLAPIENTRY* xglGetUniformfvARB) (GLhandleARB, GLint, GLfloat *);
-extern void (GLAPIENTRY* xglGetUniformivARB) (GLhandleARB, GLint, GLint *);
-extern void (GLAPIENTRY* xglGetShaderSourceARB) (GLhandleARB, GLsizei, GLsizei *, GLcharARB *);
+extern void (GLAPIENTRY* qglDeleteObjectARB)(GLhandleARB obj, const char *filename, int line);
+#define			 xglDeleteObjectARB(obj) \
+			 qglDeleteObjectARB(obj, __FILE__, __LINE__)
+
+extern GLhandleARB (GLAPIENTRY* qglGetHandleARB)(GLenum pname, const char *filename, int line);
+#define				xglGetHandleARB(pname) \
+				qglGetHandleARB(pname, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglDetachObjectARB)(GLhandleARB containerObj, GLhandleARB attachedObj, const char *filename, int line);
+#define			 xglDetachObjectARB(containerObj, attachedObj) \
+			 qglDetachObjectARB(containerObj, attachedObj, __FILE__, __LINE__)
+
+extern GLhandleARB (GLAPIENTRY* qglCreateShaderObjectARB)(GLenum shaderType, const char *filename, int line);
+#define				xglCreateShaderObjectARB(shaderType) \
+				qglCreateShaderObjectARB(shaderType, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglShaderSourceARB)(GLhandleARB shaderObj, GLsizei count, const GLcharARB* *string, const GLint *length, const char *filename, int line);
+#define			 xglShaderSourceARB(shaderObj, count, string, length) \
+			 qglShaderSourceARB(shaderObj, count, string, length, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglCompileShaderARB)(GLhandleARB shaderObj, const char *filename, int line);
+#define			 xglCompileShaderARB(shaderObj) \
+			 qglCompileShaderARB(shaderObj, __FILE__, __LINE__)
+
+extern GLhandleARB (GLAPIENTRY* qglCreateProgramObjectARB)(const char *filename, int line);
+#define				xglCreateProgramObjectARB() \
+				qglCreateProgramObjectARB(__FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglAttachObjectARB)(GLhandleARB containerObj, GLhandleARB obj, const char *filename, int line);
+#define			 xglAttachObjectARB(containerObj, obj) \
+			 qglAttachObjectARB(containerObj, obj, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglLinkProgramARB)(GLhandleARB programObj, const char *filename, int line);
+#define			 xglLinkProgramARB(programObj) \
+			 qglLinkProgramARB(programObj, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglUseProgramObjectARB)(GLhandleARB programObj, const char *filename, int line);
+#define			 xglUseProgramObjectARB(programObj) \
+			 qglUseProgramObjectARB(programObj, __FILE__, __LINE__)
+
+
+extern void (GLAPIENTRY* qglValidateProgramARB)(GLhandleARB programObj, const char *filename, int line);
+#define			 xglValidateProgramARB(programObj) \
+			 qglValidateProgramARB(programObj, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglUniform1fARB)(GLint location, GLfloat v0, const char *filename, int line);
+#define			 xglUniform1fARB(location, v0) \
+			 qglUniform1fARB(location, v0, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglUniform2fARB)(GLint location, GLfloat v0, GLfloat v1, const char *filename, int line);
+#define			 xglUniform2fARB(location, v0, v1) \
+			 qglUniform2fARB(location, v0, v1, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglUniform3fARB)(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, const char *filename, int line);
+#define			 xglUniform3fARB(location, v0, v1, v2) \
+			 qglUniform3fARB(location, v0, v1, v2, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglUniform4fARB)(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3, const char *filename, int line);
+#define			 xglUniform4fARB(location, v0, v1, v2, v3) \
+			 qglUniform4fARB(location, v0, v1, v2, v3, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglUniform1iARB)(GLint location, GLint v0, const char *filename, int line);
+#define			 xglUniform1iARB(location, v0) \
+			 qglUniform1iARB(location, v0, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglUniform2iARB)(GLint location, GLint v0, GLint v1, const char *filename, int line);
+#define			 xglUniform2iARB(location, v0, v1) \
+			 qglUniform2iARB(location, v0, v1, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglUniform3iARB)(GLint location, GLint v0, GLint v1, GLint v2, const char *filename, int line);
+#define			 xglUniform3iARB(location, v0, v1, v2) \
+			 qglUniform3iARB(location, v0, v1, v2__FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglUniform4iARB)(GLint location, GLint v0, GLint v1, GLint v2, GLint v3, const char *filename, int line);
+#define			 xglUniform4iARB(location, v0, v1, v2, v3) \
+			 qglUniform4iARB(location, v0, v1, v2, v3, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglUniform2fvARB)(GLint location, GLsizei count, const GLfloat *value, const char *filename, int line);
+#define			 xglUniform2fvARB(location, count, value) \
+			 qglUniform2fvARB(location, count, value, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglUniform3fvARB)(GLint location, GLsizei count, const GLfloat *value, const char *filename, int line);
+#define			 xglUniform3fvARB(location, count, value) \
+			 qglUniform3fvARB(location, count, value, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglUniform4fvARB)(GLint location, GLsizei count, const GLfloat *value, const char *filename, int line);
+#define			 xglUniform4fvARB(location, count, value) \
+			 qglUniform4fvARB(location, count, value, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglUniform2ivARB)(GLint location, GLsizei count, const GLint *value, const char *filename, int line);
+#define			 xglUniform2ivARB(location, count, value) \
+			 qglUniform2ivARB(location, count, value, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglUniform3ivARB)(GLint location, GLsizei count, const GLint *value, const char *filename, int line);
+#define			 xglUniform3ivARB(location, count, value) \
+			 qglUniform3ivARB(location, count, value, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglUniform4ivARB)(GLint location, GLsizei count, const GLint *value, const char *filename, int line);
+#define			 xglUniform4ivARB(location, count, value) \
+			 qglUniform4ivARB(location, count, value, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglUniformMatrix2fvARB)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value, const char *filename, int line);
+#define			 xglUniformMatrix2fvARB(location, count, transpose, value) \
+			 qglUniformMatrix2fvARB(location, count, transpose, value, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglUniformMatrix3fvARB)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value, const char *filename, int line);
+#define			 xglUniformMatrix3fvARB(location, count, transpose, value) \
+			 qglUniformMatrix3fvARB(location, count, transpose, value, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglUniformMatrix4fvARB)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value, const char *filename, int line);
+#define			 xglUniformMatrix4fvARB(location, count, transpose, value) \
+			 qglUniformMatrix4fvARB(location, count, transpose, value, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglGetObjectParameterfvARB)(GLhandleARB obj, GLenum pname, GLfloat *params, const char *filename, int line);
+#define			 xglGetObjectParameterfvARB(obj, pname, params) \
+			 qglGetObjectParameterfvARB(obj, pname, params, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglGetObjectParameterivARB)(GLhandleARB obj, GLenum pname, GLint *params, const char *filename, int line);
+#define			 xglGetObjectParameterivARB(obj, pname, params) \
+			 qglGetObjectParameterivARB(obj, pname, params, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglGetInfoLogARB)(GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *infoLog, const char *filename, int line);
+#define			 xglGetInfoLogARB(obj, maxLength, length, infoLog) \
+			 qglGetInfoLogARB(obj, maxLength, length, infoLog, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglGetAttachedObjectsARB)(GLhandleARB containerObj, GLsizei maxCount, GLsizei *count, GLhandleARB *obj, const char *filename, int line);
+#define			 xglGetAttachedObjectsARB(containerObj, maxCount, count, obj) \
+			 qglGetAttachedObjectsARB(containerObj, maxCount, count, obj, __FILE__, __LINE__)
+
+extern GLint (GLAPIENTRY* qglGetUniformLocationARB)(GLhandleARB programObj, const GLcharARB *name, const char *filename, int line);
+#define			  xglGetUniformLocationARB(programObj, name) \
+			  qglGetUniformLocationARB(programObj, name, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglGetActiveUniformARB)(GLhandleARB programObj, GLuint index, GLsizei maxIndex, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name, const char *filename, int line);
+#define			 xglGetActiveUniformARB(programObj, index, maxIndex, length, size, type, name) \
+			 qglGetActiveUniformARB(programObj, index, maxIndex, length, size, type, name, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglGetUniformfvARB)(GLhandleARB programObj, GLint location, GLfloat *params, const char *filename, int line);
+#define			 xglGetUniformfvARB(programObj, location, params) \
+			 qglGetUniformfvARB(programObj, location, params, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglGetUniformivARB)(GLhandleARB programObj, GLint location, GLint *params, const char *filename, int line);
+#define			 xglGetUniformivARB(programObj, location, params) \
+			 qglGetUniformivARB(programObj, location, params, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglGetShaderSourceARB)(GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *source, const char *filename, int line);
+#define			 xglGetShaderSourceARB(obj, maxLength, length, source) \
+			 qglGetShaderSourceARB(obj, maxLength, length, source, __FILE__, __LINE__)
 
 
 /// GL_ARB_vertex_shader =======================================================
-extern void (GLAPIENTRY* xglBindAttribLocationARB) (GLhandleARB, GLuint, const GLcharARB *);
-extern void (GLAPIENTRY* xglGetActiveAttribARB) (GLhandleARB, GLuint, GLsizei, GLsizei *, GLint *, GLenum *, GLcharARB *);
-extern GLint (GLAPIENTRY* xglGetAttribLocationARB) (GLhandleARB, const GLcharARB *);
+extern void (GLAPIENTRY* qglBindAttribLocationARB)(GLhandleARB programObj, GLuint index, const GLcharARB *name, const char *filename, int line);
+#define			 xglBindAttribLocationARB(programObj, index, name) \
+			 qglBindAttribLocationARB(programObj, index, name, __FILE__, __LINE__)
+
+extern void (GLAPIENTRY* qglGetActiveAttribARB)(GLhandleARB programObj, GLuint index, GLsizei maxLength, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name, const char *filename, int line);
+#define			 xglGetActiveAttribARB(programObj, index, maxLength, length, size, type, name) \
+			 qglGetActiveAttribARB(programObj, index, maxLength, length, size, type, name, __FILE__, __LINE__)
+
+extern GLint (GLAPIENTRY* qglGetAttribLocationARB)(GLhandleARB programObj, const GLcharARB *name, const char *filename, int line);
+#define			  xglGetAttribLocationARB(programObj, name) \
+			  qglGetAttribLocationARB(programObj, name, __FILE__, __LINE__)
 
 
 /// GL_EXT_texture3D ===========================================================
@@ -2833,11 +2950,13 @@ extern void (GLAPIENTRY* qglDrawRangeElementsEXT)(GLenum mode, GLuint start, GLu
 
 
 /// GL_EXT_compiled_vertex_array ===============================================
-extern void (GLAPIENTRY* xglLockArraysEXT) (GLint, GLsizei);
-extern void (GLAPIENTRY* xglUnlockArraysEXT) (void);
-
+/*
+extern void (GLAPIENTRY* xglLockArraysEXT)(GLint, GLsizei);
+extern void (GLAPIENTRY* xglUnlockArraysEXT)();
+*/
 
 /// GL_NV_vertex_program2 ======================================================
+/*
 extern GLboolean (GLAPIENTRY* xglAreProgramsResidentNV) (GLsizei, const GLuint *, GLboolean *);
 extern void (GLAPIENTRY* xglBindProgramNV) (GLenum, GLuint);
 extern void (GLAPIENTRY* xglDeleteProgramsNV) (GLsizei, const GLuint *);
@@ -2872,13 +2991,14 @@ extern void (GLAPIENTRY* xglVertexAttribs1fvNV) (GLuint, GLsizei, const GLfloat 
 extern void (GLAPIENTRY* xglVertexAttribs2fvNV) (GLuint, GLsizei, const GLfloat *);
 extern void (GLAPIENTRY* xglVertexAttribs3fvNV) (GLuint, GLsizei, const GLfloat *);
 extern void (GLAPIENTRY* xglVertexAttribs4fvNV) (GLuint, GLsizei, const GLfloat *);
-
+*/
 
 /// GL_NV_fragment_program =====================================================
+/*
 extern void (GLAPIENTRY* xglProgramNamedParameter4fNV) (GLuint, GLsizei, const GLubyte *, GLfloat, GLfloat, GLfloat, GLfloat);
 extern void (GLAPIENTRY* xglProgramNamedParameter4fvNV) (GLuint, GLsizei, const GLubyte *, const GLfloat *);
 extern void (GLAPIENTRY* xglGetProgramNamedParameterfvNV) (GLuint, GLsizei, const GLubyte *, GLfloat *);
-
+*/
 
 /// GL_EXT_framebuffer_object ==================================================
 extern GLboolean (GLAPIENTRY* qglIsRenderbufferEXT)(GLuint renderbuffer, const char *filename, int line);
