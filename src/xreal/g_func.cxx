@@ -113,8 +113,9 @@ g_func_c::g_func_c()
 //
 void	g_func_c::calcMove(const vec3_c &dest, int endfunc)
 {
+#if defined(ODE)
 	_body->setLinearVel(vec3_origin);
-	
+#endif
 	_moveinfo.dir = dest - _s.origin;
 	_moveinfo.remaining_distance = _moveinfo.dir.normalize();
 	_moveinfo.endfunc = endfunc;
@@ -153,7 +154,9 @@ void	g_func_c::beginMove()
 		return;
 	}
 	
+#if defined(ODE)
 	_body->setLinearVel(_moveinfo.dir * _moveinfo.speed);
+#endif
 	
 	frames = floor((_moveinfo.remaining_distance / _moveinfo.speed) / FRAMETIME);
 	_moveinfo.remaining_distance -= frames * _moveinfo.speed * FRAMETIME;
@@ -171,7 +174,9 @@ void	g_func_c::finishMove()
 		return;
 	}
 
+#if defined(ODE)
 	_body->setLinearVel(_moveinfo.dir * (_moveinfo.remaining_distance / FRAMETIME));
+#endif
 	
 	_nextthink = level.time + FRAMETIME;
 
@@ -180,7 +185,9 @@ void	g_func_c::finishMove()
 
 void	g_func_c::clearMove()
 {
+#if defined(ODE)
 	_body->setLinearVel(vec3_origin);
+#endif
 }
 
 //void	Think_AccelMove (g_entity_c *ent);
@@ -702,18 +709,28 @@ bool	g_func_rotating_c::touch(g_entity_c *other, const plane_c &plane, csurface_
 
 void	g_func_rotating_c::use(g_entity_c *other, g_entity_c *activator)
 {
-	vec3_c avel = _body->getAngularVel();
+	vec3_c avel = _s.velocity_angular;
 	
 	if(!avel.isZero())
 	{
 		_s.index_sound = 0;
+		
+		#if defined(ODE)
 		_body->setAngularVel(vec3_c(0.0, 0, 0));
+		#else
+		_s.velocity_angular.clear();
+		#endif
 		//self->touch = NULL;
 	}
 	else
 	{
 		_s.index_sound = _moveinfo.sound_middle;
+		
+		#if defined(ODE)
 		_body->setAngularVel(_movedir * _speed);
+		#else
+		_s.velocity_angular = _movedir * _speed;
+		#endif
 		
 		//if (self->spawnflags & 16)
 		//	self->touch = rotating_touch;
@@ -889,6 +906,7 @@ void	g_func_button_c::activate()
 
 	_r.inuse = true;
 	
+#if defined(ODE)
 	// setup rigid body
 	_body->setPosition(_s.origin);
 	_body->setQuaternion(_s.quat);
@@ -898,6 +916,7 @@ void	g_func_button_c::activate()
 	G_SetWorldModel(this, _model);
 	
 	_body->setGravityMode(0);
+#endif
 	
 	G_SetMovedir(_s.quat, _movedir);
 	
@@ -1232,12 +1251,14 @@ void	g_func_door_c::activate()
 		_moveinfo.sound_middle = trap_SV_SoundIndex("doors/dr1_mid.wav");
 		_moveinfo.sound_end = trap_SV_SoundIndex("doors/dr1_end.wav");
 	}
-	
+
+#if defined(ODE)
 	// setup rigid body
 	_body->setPosition(_s.origin);
 	_body->setQuaternion(_s.quat);
 	//_body->setLinearVel(_velocity);
 	_body->setGravityMode(0);
+#endif
 		
 	// setup geom
 	//G_SetWorldModel(this, _model);

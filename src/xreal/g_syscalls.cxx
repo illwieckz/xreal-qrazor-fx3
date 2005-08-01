@@ -199,9 +199,9 @@ int	trap_SV_LightIndex(const std::string &name)
 }
 
 // collision detection
-d_bsp_c*	trap_CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum, dSpaceID space)
+void	trap_CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum)
 {
-	return gi.CM_BeginRegistration(name, clientload, checksum, space);
+	gi.CM_BeginRegistration(name, clientload, checksum);
 }
 
 cmodel_c*	trap_CM_RegisterModel(const std::string &name)

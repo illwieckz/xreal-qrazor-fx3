@@ -1085,7 +1085,7 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 
 	pm.cmd = cmd;
 
-	pm.rayTrace = G_RayTrace;
+	pm.rayTrace = NULL;//G_RayTrace;
 	pm.boxTrace = PM_Trace;	// adds default parms
 	pm.pointContents = G_PointContents;
 	

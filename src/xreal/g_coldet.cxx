@@ -118,9 +118,13 @@ void	G_ClearWorld(const std::string &map)
 {
 	unsigned	checksum;
 	
+#if defined(ODE)
 	d_bsp_c* bsp = trap_CM_BeginRegistration(map, false, &checksum, g_ode_space_toplevel->getId());
 	if(bsp)
 		g_ode_bsp = bsp;
+#else
+	trap_CM_BeginRegistration(map, false, &checksum);
+#endif
 	
 	trap_SV_SetConfigString(CS_MAPCHECKSUM, va("%i", checksum));
 	

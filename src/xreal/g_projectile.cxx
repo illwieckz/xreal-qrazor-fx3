@@ -66,6 +66,7 @@ g_projectile_bolt_c::g_projectile_bolt_c(g_entity_c *activator, const vec3_c &st
 	_nextthink = level.time + 2;	// die after 2 seconds
 	_dmg = damage;
 	
+#if defined(ODE)
 	// setup ODE rigid body
 	_body->setPosition(start);
 	_body->setQuaternion(_s.quat);
@@ -83,6 +84,7 @@ g_projectile_bolt_c::g_projectile_bolt_c(g_entity_c *activator, const vec3_c &st
 	geom->setCollideBits(MASK_SHOT);
 	
 	_geoms.push_back(geom);
+#endif
 }
 
 void	g_projectile_bolt_c::think()
@@ -106,8 +108,10 @@ bool	g_projectile_bolt_c::touch(g_entity_c *other, const plane_c &plane, csurfac
 
 	if(other->_takedamage)
 	{
+		#if defined(ODE)
 		updateVelocity();
-	
+		#endif
+
 		// damage the other entity
 		other->takeDamage(this, (g_entity_c*)_r.owner, _s.velocity_linear, _s.origin, plane._normal, _dmg, 1, DAMAGE_ENERGY, MOD_BLASTER);
 	}
@@ -173,8 +177,10 @@ g_projectile_grenade_c::g_projectile_grenade_c(g_entity_c *activator, const vec3
 	_dmg_radius = damage_radius;
 	_classname = "grenade";
 	
+#if defined(ODE)
 	_body->setLinearVel(_s.velocity_linear);
 	_body->setAngularVel(300, 300, 300);
+#endif
 }
 
 void	g_projectile_grenade_c::think()
@@ -359,11 +365,13 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 	
 	_speed = speed;
 	_nextthink = level.time + 30;	//level.time + FRAMETIME;
+	_movetype = MOVETYPE_NOCLIP;
 	_dmg = damage;
 	_radius_dmg = (int)radius_damage;
 	_dmg_radius = damage_radius;
 	_classname = "rocket";
 	
+#if defined(ODE)
 	// setup rigid body
 	_body->setPosition(_s.origin);
 	_body->setQuaternion(_s.quat);
@@ -385,6 +393,7 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 	geom->setCollideBits(MASK_SHOT);
 	
 	_geoms.push_back(geom);
+#endif
 }
 
 void	g_projectile_rocket_c::think()
@@ -427,7 +436,10 @@ bool	g_projectile_rocket_c::touch(g_entity_c *other, const plane_c &plane, csurf
 
 	if(other->_takedamage)
 	{
+		#if defined(ODE)
 		updateVelocity();
+		#endif
+
 		other->takeDamage(this, (g_entity_c*)_r.owner, _s.velocity_linear, _s.origin, plane._normal, _dmg, 0, 0, MOD_ROCKET);
 	}
 	

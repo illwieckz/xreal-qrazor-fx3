@@ -324,10 +324,11 @@ struct cg_static_t
 	//TODO
 };
 
-
+#if defined(ODE)
 extern d_world_c*		cg_ode_world;
 extern d_space_c*		cg_ode_space;
 extern d_joint_group_c*		cg_ode_contact_group;
+#endif
 
 //
 // cvars
@@ -464,9 +465,10 @@ void	CG_ParticleTrail(cg_particle_type_e type, const vec3_c &start, const vec3_c
 //
 // g_physics.cxx
 //
+#if defined(ODE)
 void	CG_InitDynamics();
 void	CG_ShutdownDynamics();
-
+#endif
 
 //
 // cg_player.cxx
@@ -636,7 +638,7 @@ void		trap_S_BeginRegistration();
 int		trap_S_RegisterSound(const std::string &name);
 void		trap_S_EndRegistration();
 	
-d_bsp_c*	trap_CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum, dSpaceID space);
+void		trap_CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum);
 cmodel_c*	trap_CM_RegisterModel(const std::string &name);
 void		trap_CM_EndRegistration();
 	

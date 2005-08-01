@@ -132,10 +132,11 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 	_waterlevel	= 0;
 		
 	_item		= NULL;			// for bonus items
-		
+
+#if defined(ODE)		
 	_body		= NULL;
 	_space		= NULL;			// used only when we need a group of geoms
-
+#endif
 
 	//
 	// find free entity slot
@@ -237,11 +238,13 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 	//
 	// set rigid body
 	//
+#if defined(ODE)
 	if(create_rigid_body)
 	{
 		_body = new d_body_c(g_ode_world->getId());
 		_body->setData(this);
 	}
+#endif
 }
 
 
@@ -263,6 +266,7 @@ g_entity_c::~g_entity_c()
 	//
 	// clear dynamics
 	//
+#if defined(ODE)
 	for(std::vector<d_geom_c*>::iterator ir = _geoms.begin(); ir != _geoms.end(); ++ir)
 	{
 		if((*ir)->isEnabled())
@@ -278,6 +282,7 @@ g_entity_c::~g_entity_c()
 		delete _body;
 		_body = NULL;
 	}
+#endif
 }
 
 void 	g_entity_c::takeDamage(g_entity_c *inflictor, g_entity_c *attacker, vec3_t dir, vec3_t point, vec3_t normal, int damage, int knockback, int dflags, int mod)
@@ -331,8 +336,10 @@ void 	g_entity_c::takeDamage(g_entity_c *inflictor, g_entity_c *attacker, vec3_t
 
 			Vector3_Scale(dir, 500.0 * (float)knockback / mass, kvel);
 
+			#if defined(ODE)
 			if(_body)
 				_body->addForce(kvel);
+			#endif
 		}
 	}
 
@@ -363,7 +370,8 @@ void 	g_entity_c::takeDamage(g_entity_c *inflictor, g_entity_c *attacker, vec3_t
 void	g_entity_c::remove()
 {
 	_r.inuse = false;
-		
+	
+#if defined(ODE)	
 	for(std::vector<d_geom_c*>::iterator ir = _geoms.begin(); ir != _geoms.end(); ++ir)
 	{
 		(*ir)->disable();
@@ -371,6 +379,7 @@ void	g_entity_c::remove()
 		
 	if(_body)
 		_body->disable();
+#endif
 		
 	_remove = true;	// ready to destroy
 }
@@ -408,6 +417,7 @@ void	g_entity_c::updateField(const std::string &key)
 		setField(key, value);
 }
 
+#if defined(ODE)
 void	g_entity_c::updateOrigin()
 {
 	if(_body)
@@ -424,6 +434,68 @@ void	g_entity_c::updateVelocity()
 {
 	if(_body)
 		_s.velocity_linear = _body->getLinearVel();
+}
+#endif
+
+
+void	g_entity_c::runPhysics()
+{
+	//trap_Com_Printf("G_RunEntity: %s\n", ent->classname);
+
+	if(_r.isclient)
+		return;
+
+	switch(_movetype)
+	{
+		case MOVETYPE_PUSH:
+		case MOVETYPE_STOP:
+			//G_Physics_Pusher(ent);
+			break;
+			
+		case MOVETYPE_NONE:
+			//G_Physics_None(ent);
+			break;
+			
+		case MOVETYPE_NOCLIP:
+			runPhysicsNoclip();
+			break;
+			
+		case MOVETYPE_STEP:
+			//G_Physics_Step(ent);
+			break;
+			
+		case MOVETYPE_TOSS:
+		case MOVETYPE_BOUNCE:
+		case MOVETYPE_FLY:
+		case MOVETYPE_FLYMISSILE:
+			//G_Physics_Toss(ent);
+			break;
+			
+		//case MOVETYPE_ODE_TOSS:
+			//G_ODE_Toss(ent);
+			//break;
+			
+		default:
+			trap_Com_Error(ERR_DROP, "runPhysics: bad movetype %i", _movetype);
+	}
+}
+
+/*
+=============
+A moving object that doesn't obey physics
+=============
+*/
+void	g_entity_c::runPhysicsNoclip()
+{
+	// regular thinking
+	if(!runThink())
+		return;
+	
+//	Vector3_MA(_s.angles, FRAMETIME, ent->_avelocity, ent->_s.angles);
+	_s.origin += _s.velocity_linear * FRAMETIME;
+
+	//FIXME
+//	link();
 }
 
 /*

@@ -44,9 +44,11 @@ void 	g_trigger_c::init()
 	G_SetModel(this, _model);
 	_r.svflags = SVF_NOCLIENT;
 	
+#if defined(ODE)
 	_body->setPosition(_s.origin);
 	_body->setQuaternion(_s.quat);
 	_body->setGravityMode(0);
+#endif
 }
 
 
@@ -199,10 +201,12 @@ void	g_trigger_multiple_c::activate()
 
 	if(!(_angles == vec3_origin))
 		G_SetMovedir(_s.quat, _movedir);
-		
+	
+#if defined(ODE)	
 	_body->setPosition(_s.origin);
 	_body->setQuaternion(_s.quat);
 	_body->setGravityMode(0);
+#endif
 
 	G_SetModel(this, _model);
 }
@@ -817,7 +821,11 @@ bool	g_trigger_teleport_c::touch(g_entity_c *other, const plane_c &plane, csurfa
 	}
 
 	// unlink to make sure it can't possibly interfere with KillBox
+#if defined(ODE)
 	player->_body->setPosition(dest->_s.origin);
+#else
+	player->_s.origin = dest->_s.origin;
+#endif
 	player->_s.event = EV_PLAYER_TELEPORT;
 
 	// clear the velocity and hold them in place briefly

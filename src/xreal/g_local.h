@@ -29,7 +29,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // xreal --------------------------------------------------------------------
 // shared -------------------------------------------------------------------
 #include "../x_shared.h"
+
+#if defined(ODE)
 #include "../x_ode.h"
+#endif
+
 #include "../x_protocol.h"
 
 
@@ -79,7 +83,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define FL_RESPAWN			0x80000000	// used for item respawning
 
 
-#if 1
+#if 0
 #define	FRAMETIME		0.02
 #else
 #define FRAMETIME		0.1
@@ -280,13 +284,14 @@ extern g_entity_c*			g_world;
 extern std::vector<sv_entity_c*>	g_entities;
 extern std::vector<g_item_c*>		g_items;
 
+#if defined(ODE)
 extern d_world_c*		g_ode_world;
 extern d_space_c*		g_ode_space_toplevel;
 //extern d_space_c*		g_ode_space_world;
 extern d_bsp_c*			g_ode_bsp;
 extern d_plane_c*		g_ode_testplane;
 extern d_joint_group_c*		g_ode_contact_group;
-
+#endif
 
 #define random()	((rand () & 0x7fff) / ((float)0x7fff))
 #define crandom()	(2.0 * (random() - 0.5))
@@ -438,6 +443,7 @@ void		DeathmatchScoreboard(g_entity_c *ent);
 //
 // g_phys.cxx
 //
+#if defined(ODE)
 void		G_InitDynamics();
 void		G_ShutdownDynamics();
 
@@ -445,6 +451,7 @@ void		G_RunDynamics(float step_size);
 
 trace_t		G_RayTrace(const vec3_c &start, const vec3_c &end);
 trace_t		G_RayTrace(const vec3_c &origin, const vec3_c &dir, vec_t length);
+#endif
 
 cmodel_c*	G_SetModel(g_entity_c *ent, const std::string &name);
 void		G_SetWorldModel(g_entity_c *ent, const std::string &name);
@@ -570,7 +577,7 @@ int		trap_SV_SoundIndex(const std::string &name);
 int		trap_SV_LightIndex(const std::string &name);
 
 // collision detection
-d_bsp_c*	trap_CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum, dSpaceID space);
+void		trap_CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum);
 cmodel_c*	trap_CM_RegisterModel(const std::string &name);
 cskel_animation_c*	trap_CM_RegisterAnimation(const std::string &name);
 cmodel_c*	trap_CM_GetModelByNum(int num);

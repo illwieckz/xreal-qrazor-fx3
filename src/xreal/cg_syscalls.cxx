@@ -374,9 +374,9 @@ void		trap_S_EndRegistration()
 }
 
 
-d_bsp_c*	trap_CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum, dSpaceID space)
+void	trap_CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum)
 {
-	return cgi.CM_BeginRegistration(name, clientload, checksum, space);
+	cgi.CM_BeginRegistration(name, clientload, checksum);
 }
 
 cmodel_c*	trap_CM_RegisterModel(const std::string &name)

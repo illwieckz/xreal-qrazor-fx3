@@ -834,6 +834,7 @@ static void	PM_FlyMove(bool doclip)
 	pml.velocity_angular[2] = 0;
 }
 
+/*
 void	PM_RollMove()
 {
 	vec3_c forward(false), right(false);
@@ -858,6 +859,7 @@ void	PM_RollMove()
 	
 	pml.velocity_angular[2] = 0;
 }
+*/
 
 static void	PM_CheckDuck()
 {
@@ -883,7 +885,6 @@ static void	PM_CheckDuck()
 		if(pm->s.pm_flags & PMF_DUCKED)
 		{
 			// try to stand up
-			#if 1
 			pm->bbox._maxs[2] = 32;
 			
 			trace_t trace = pm->boxTrace(pml.origin, pm->bbox, pml.origin);
@@ -892,15 +893,6 @@ static void	PM_CheckDuck()
 			{
 				pm->s.pm_flags &= ~PMF_DUCKED;
 			}
-			#else
-			trace_t trace = pm->rayTrace(pml.origin, vec3_c(0, 0.0f, 1), 32);
-			
-			if(trace.nohit)
-			{
-				pm->bbox._maxs[2] = 32;
-				pm->s.pm_flags &= ~PMF_DUCKED;
-			}
-			#endif
 		}
 	}
 

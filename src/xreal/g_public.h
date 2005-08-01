@@ -28,7 +28,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // xreal --------------------------------------------------------------------
 // shared -------------------------------------------------------------------
 #include "../x_shared.h"
+
+#if defined(ODE)
 #include "../x_ode.h"
+#endif
 
 // xg_public.h -- game dll information visible to server
 
@@ -174,7 +177,7 @@ typedef struct
 	int		(*SV_LightIndex)(const std::string &name);
 
 	// collision detection
-	d_bsp_c*		(*CM_BeginRegistration)(const std::string &name, bool clientload, unsigned *checksum, dSpaceID space);
+	void			(*CM_BeginRegistration)(const std::string &name, bool clientload, unsigned *checksum);
 	cmodel_c*		(*CM_RegisterModel)(const std::string &name);
 	cskel_animation_c*	(*CM_RegisterAnimation)(const std::string &name);
 	cmodel_c*		(*CM_GetModelByNum)(int num);
