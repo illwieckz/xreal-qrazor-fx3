@@ -1069,8 +1069,11 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	else
 		_r.ps.pmove.pm_type = PM_NORMAL;
 
-	// FIXME use real world gravity
+#if defined(ODE)
 	_r.ps.pmove.gravity = (9.81 * 32.0 * 2.3) * g_gravity->getValue();
+#else
+	_r.ps.pmove.gravity = g_gravity->getValue();
+#endif
 	pm.s = _r.ps.pmove; 
 
 	pm.s.origin = _s.origin;
@@ -1159,8 +1162,8 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	_watertype = pm.watertype;
 	_groundentity = (g_entity_c*)pm.groundentity;
 	
-	//if(pm.groundentity)
-	//	_groundentity_linkcount = pm.groundentity->_r.linkcount;
+	if(pm.groundentity)
+		_groundentity_linkcount = ((g_entity_c*)pm.groundentity)->_r.linkcount;
 
 	if(_deadflag)
 	{

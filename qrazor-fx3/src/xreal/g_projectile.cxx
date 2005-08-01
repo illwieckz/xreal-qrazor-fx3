@@ -365,7 +365,7 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 	
 	_speed = speed;
 	_nextthink = level.time + 30;	//level.time + FRAMETIME;
-	_movetype = MOVETYPE_NOCLIP;
+	_movetype = MOVETYPE_FLYMISSILE;
 	_dmg = damage;
 	_radius_dmg = (int)radius_damage;
 	_dmg_radius = damage_radius;

@@ -176,7 +176,11 @@ static void	G_InitGame()
 	sv_rollspeed = trap_Cvar_Get ("sv_rollspeed", "200", 0);
 	sv_rollangle = trap_Cvar_Get ("sv_rollangle", "2", 0);
 	
+#if defined(ODE)
 	g_gravity = trap_Cvar_Get("g_gravity", "1", CVAR_SERVERINFO);
+#else
+	g_gravity = trap_Cvar_Get("g_gravity", "800", CVAR_SERVERINFO);
+#endif
 	
 	sv_maxvelocity = trap_Cvar_Get ("sv_maxvelocity", "2000", 0);
 
