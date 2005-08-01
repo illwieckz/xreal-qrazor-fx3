@@ -115,6 +115,7 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 	_enemy		= NULL;
 	_activator	= NULL;
 	_groundentity	= NULL;
+	_groundentity_linkcount = 0;
 	
 	_teamchain	= NULL;
 	_teammaster	= NULL;
@@ -468,7 +469,7 @@ void	g_entity_c::runPhysics()
 		case MOVETYPE_BOUNCE:
 		case MOVETYPE_FLY:
 		case MOVETYPE_FLYMISSILE:
-			//G_Physics_Toss(ent);
+			runPhysicsToss();
 			break;
 			
 		//case MOVETYPE_ODE_TOSS:
@@ -479,6 +480,358 @@ void	g_entity_c::runPhysics()
 			trap_Com_Error(ERR_DROP, "runPhysics: bad movetype %i", _movetype);
 	}
 }
+
+
+void	g_entity_c::addGravity()
+{
+	_s.velocity_linear[2] -= _gravity * g_gravity->getValue() * FRAMETIME;
+}
+
+void	g_entity_c::applyLinearVelocity()
+{
+	_s.origin += _s.velocity_linear * FRAMETIME;
+}
+
+void	g_entity_c::applyAngularVelocity()
+{
+	//TODO
+	//Vector3_MA(ent->_s.angles, FRAMETIME, ent->_avelocity, ent->_s.angles);
+}
+
+g_entity_c*	g_entity_c::checkPosition()
+{
+	trace_t	trace;
+	int		mask;
+
+	if(_r.clipmask)
+		mask = _r.clipmask;
+	else
+		mask = MASK_SOLID;
+	trace = G_Trace(_s.origin, _r.bbox, _s.origin, this, mask);
+	
+	if(trace.startsolid)
+		return (g_entity_c*)g_world;
+		
+	return NULL;
+}
+
+void	g_entity_c::checkVelocity()
+{
+	// bound velocity
+	vec_t scale = _s.velocity_linear.length();
+	
+	if((scale > sv_maxvelocity->getValue()) && (scale))
+	{
+		scale = sv_maxvelocity->getValue() / scale;
+			
+		_s.velocity_linear *= scale;
+	}
+}
+
+/*
+==================
+ClipVelocity
+
+Slide off of the impacting object
+returns the blocked flags (1 = floor, 2 = step / wall)
+==================
+*/
+#define	STOP_EPSILON	0.1
+int	g_entity_c::clipVelocity(const vec3_c &in, const vec3_c &normal, vec3_c &out, float overbounce)
+{
+	float	backoff;
+	float	change;
+	int		i, blocked;
+	
+	blocked = 0;
+	
+	if(normal[2] > 0)
+		blocked |= 1;		// floor
+		
+	if(!normal[2])
+		blocked |= 2;		// step
+	
+	backoff = normal.dotProduct(in) * overbounce;
+
+	for(i=0; i<3; i++)
+	{
+		change = normal[i]*backoff;
+		
+		out[i] = in[i] - change;
+		
+		if(out[i] > -STOP_EPSILON && out[i] < STOP_EPSILON)
+			out[i] = 0;
+	}
+
+	return blocked;
+}
+
+
+/*
+==================
+SV_Impact
+
+Two entities have touched, so run their touch functions
+==================
+*/
+void	g_entity_c::impact(const trace_t &trace)
+{
+	
+//	cplane_t	backplane;
+
+	g_entity_c *other = (g_entity_c*)trace.ent;
+
+	//trap_Com_Printf("SV_Impact: %s %s\n", e1->_classname, e2->_classname);
+	
+	if(!other)
+		return;
+	
+	if(_r.solid != SOLID_NOT)
+		touch(other, trace.plane, trace.surface);
+
+	if(other->_r.solid != SOLID_NOT)
+		other->touch(this, -trace.plane, NULL);
+}
+
+/*
+============
+SV_PushEntity
+
+Does not change the entities velocity at all
+============
+*/
+trace_t	g_entity_c::push(const vec3_c &push)
+{
+	trace_t	trace;
+	int	mask;
+
+	vec3_c start = _s.origin;
+	vec3_c end = start + push;;
+
+retry:
+	if(_r.clipmask)
+		mask = _r.clipmask;
+	else
+		mask = MASK_SOLID;
+
+	trace = G_Trace(start, _r.bbox, end, this, mask);
+	
+	_s.origin = trace.pos;
+	link();
+
+	if(trace.fraction != 1.0)
+	{
+		impact(trace);
+
+		// if the pushed entity went away and the pusher is still there
+		if(!((g_entity_c*)trace.ent)->_r.inuse && _r.inuse)
+		{
+			// move the pusher back and try again
+			_s.origin = start;
+			link();
+			goto retry;
+		}
+	}
+
+//	if(_r.inuse)
+//		G_TouchTriggers(this);
+
+	return trace;
+}					
+
+
+struct pushed_t
+{
+	g_entity_c	*ent;
+	vec3_c		origin;
+	quaternion_c	quat;
+	vec_t		deltayaw;
+};
+pushed_t	g_pushed[MAX_ENTITIES], *pushed_p;
+g_entity_c	*obstacle;
+
+/*
+============
+SV_Push
+
+Objects need to be moved back on a failed push,
+otherwise riders would continue to slide.
+
+//FIXME rewrite this mess in a clean way
+============
+*/
+bool	g_entity_c::push2(vec3_c &move, vec3_c &amove)
+{
+	g_entity_c		*check, *block;
+	vec3_c		mins, maxs;
+	pushed_t	*p;
+	vec3_c		org, org2, move2, forward, right, up;
+
+	// clamp the move to 1/8 units, so the position will
+	// be accurate for client side prediction
+	for(int i=0; i<3; i++)
+	{
+		float	temp;
+		temp = move[i]*8.0;
+		if(temp > 0.0)
+			temp += 0.5;
+		else
+			temp -= 0.5;
+		move[i] = 0.125 * (int)temp;
+	}
+
+	// find the bounding box
+	for(int i=0; i<3; i++)
+	{
+		mins[i] = _r.bbox_abs._mins[i] + move[i];
+		maxs[i] = _r.bbox_abs._maxs[i] + move[i];
+	}
+
+	// we need this for pushing things later
+	Vector3_Subtract(vec3_origin, amove, org);
+	Angles_ToVectors(org, forward, right, up);
+
+	// save the pusher's original position
+	pushed_p->ent = this;
+	pushed_p->origin = _s.origin;
+	pushed_p->quat = _s.quat;
+	
+	//if (pusher->getClient())
+	//	pushed_p->deltayaw = pusher->getClient()->ps.pmove.delta_angles[YAW];
+	pushed_p++;
+
+	// move the pusher to it's final position
+	_s.origin += move;
+	_s.quat.multiplyRotation(amove);
+	link();
+
+	// see if any solid entities are inside the final position
+	for(int e = 1; e < (int)g_entities.size(); e++)
+	{
+		check = (g_entity_c*)g_entities[e];
+		
+		if(!check)
+			continue;
+	
+		if (!check->_r.inuse)
+			continue;
+			
+		if (check->_movetype == MOVETYPE_PUSH
+		|| check->_movetype == MOVETYPE_STOP
+		|| check->_movetype == MOVETYPE_NONE
+		|| check->_movetype == MOVETYPE_NOCLIP)
+			continue;
+
+		//if (!check->r.area.prev)
+		if(!check->_r.islinked)
+			continue;		// not linked in anywhere
+
+		// if the entity is standing on the pusher, it will definitely be moved
+		if (check->_groundentity != this)
+		{
+			// see if the ent needs to be tested
+			if ( check->_r.bbox_abs._mins[0] >= maxs[0]
+			|| check->_r.bbox_abs._mins[1] >= maxs[1]
+			|| check->_r.bbox_abs._mins[2] >= maxs[2]
+			|| check->_r.bbox_abs._maxs[0] <= mins[0]
+			|| check->_r.bbox_abs._maxs[1] <= mins[1]
+			|| check->_r.bbox_abs._maxs[2] <= mins[2] )
+				continue;
+
+			// see if the ent's bbox is inside the pusher's final position
+			if(!check->checkPosition())
+				continue;
+		}
+
+		if((_movetype == MOVETYPE_PUSH) || (check->_groundentity == this))
+		{
+			// move this entity
+			pushed_p->ent = check;
+			pushed_p->origin = check->_s.origin;
+			pushed_p->quat = check->_s.quat;
+			pushed_p++;
+
+			// try moving the contacted entity 
+			check->_s.origin += move;
+			
+			if(_r.isclient)
+			{	
+				// FIXME: doesn't rotate monsters?
+				//check->_ps.pmove.delta_angles[YAW] += amove[YAW];
+			}
+
+			// figure movement due to the pusher's amove
+			Vector3_Subtract(check->_s.origin, _s.origin, org);
+			org2[0] = Vector3_DotProduct(org, forward);
+			org2[1] = -Vector3_DotProduct(org, right);
+			org2[2] = Vector3_DotProduct(org, up);
+			Vector3_Subtract(org2, org, move2);
+			Vector3_Add(check->_s.origin, move2, check->_s.origin);
+
+			// may have pushed them off an edge
+			if(check->_groundentity != this)
+				check->_groundentity = NULL;
+
+			block = check->checkPosition();
+			if(!block)
+			{
+				// pushed ok
+				check->link();
+				// impact?
+				continue;
+			}
+
+			// if it is ok to leave in the old position, do it
+			// this is only relevent for riding entities, not pushed
+			// FIXME: this doesn't acount for rotation
+			check->_s.origin -= move;
+			block = check->checkPosition();
+			if(!block)
+			{
+				pushed_p--;
+				continue;
+			}
+		}
+		
+		// save off the obstacle so we can call the block function
+		obstacle = check;
+
+		// move back any entities we already moved
+		// go backwards, so if the same entity was pushed
+		// twice, it goes back to the original position
+		for(p=pushed_p-1; p>=g_pushed; p--)
+		{
+			p->ent->_s.origin = p->origin;
+			p->ent->_s.quat = p->quat;
+			
+			//if (p->ent->getClient())
+			//{
+			//	p->ent->getClient()->ps.pmove.delta_angles[YAW] = p->deltayaw;
+			//}
+			p->ent->link();
+		}
+		return false;
+	}
+
+//FIXME: is there a better way to handle this?
+	// see if anything we moved has touched a trigger
+//	for (p=pushed_p-1 ; p>=pushed ; p--)
+//		G_TouchTriggers (p->ent);
+
+	return true;
+}
+
+/*
+=============
+Non moving objects can only think
+=============
+*/
+void	g_entity_c::runPhysicsNone()
+{
+	// regular thinking
+	runThink();
+}
+
 
 /*
 =============
@@ -491,12 +844,111 @@ void	g_entity_c::runPhysicsNoclip()
 	if(!runThink())
 		return;
 	
-//	Vector3_MA(_s.angles, FRAMETIME, ent->_avelocity, ent->_s.angles);
-	_s.origin += _s.velocity_linear * FRAMETIME;
+	applyAngularVelocity();
+	applyLinearVelocity();
 
-	//FIXME
-//	link();
+	link();
 }
+
+/*
+=============
+SV_Physics_Toss
+
+Toss, bounce, and fly movement.  When onground, do nothing.
+=============
+*/
+void	g_entity_c::runPhysicsToss()
+{
+	// regular thinking
+	runThink();
+
+	// if not a team captain, so movement will be handled elsewhere
+	if(_flags & FL_TEAMSLAVE)
+		return;
+
+	if(_s.velocity_linear[2] > 0)
+		_groundentity = NULL;
+
+	// check for the groundentity going away
+	if(_groundentity)
+	{
+		if(!_groundentity->_r.inuse)
+			_groundentity = NULL;
+	}
+
+
+	// if onground, return without moving
+	if(_groundentity)
+		return;
+
+	vec3_c old_origin = _s.origin;
+
+	checkVelocity();
+
+	// add gravity
+	if(_movetype != MOVETYPE_FLY && _movetype != MOVETYPE_FLYMISSILE)
+		addGravity();
+
+	// move angles
+	applyAngularVelocity();
+
+	// move origin
+	vec3_c move = _s.velocity_linear * FRAMETIME;
+	trace_t trace = push(move);
+	if(!_r.inuse)
+		return;
+
+	if(trace.fraction < 1)
+	{
+		vec_t backoff;
+
+		if(_movetype == MOVETYPE_BOUNCE)
+			backoff = 1.5;
+		else
+			backoff = 1;
+
+		clipVelocity(_s.velocity_linear, trace.plane._normal, _s.velocity_linear, backoff);
+
+		// stop if on ground
+		if(trace.plane._normal[2] > 0.7)
+		{		
+			if(_s.velocity_linear[2] < 60 || _movetype != MOVETYPE_BOUNCE)
+			{
+				_groundentity = (g_entity_c*)trace.ent;
+				_groundentity_linkcount = ((g_entity_c*)trace.ent)->_r.linkcount;
+				_s.velocity_linear.clear();
+				_s.velocity_angular.clear();
+			}
+		}
+
+		//if (ent->touch)
+		//	ent->touch (ent, trace.ent, &trace.plane, trace.surface);
+	}
+	
+	// check for water transition
+	bool wasinwater = (_watertype & MASK_WATER);
+	_watertype = trap_CM_PointContents(_s.origin, 0);
+	bool isinwater = _watertype & MASK_WATER;
+
+	if(isinwater)
+		_waterlevel = 1;
+	else
+		_waterlevel = 0;
+
+	if(!wasinwater && isinwater)
+		trap_SV_StartSound(old_origin, g_world, CHAN_AUTO, trap_SV_SoundIndex("misc/h2ohit1.wav"), 1, 1, 0);
+		
+	else if(wasinwater && !isinwater)
+		trap_SV_StartSound(_s.origin, g_world, CHAN_AUTO, trap_SV_SoundIndex("misc/h2ohit1.wav"), 1, 1, 0);
+
+	// move teamslaves
+	for(g_entity_c* slave = _teamchain; slave; slave = slave->_teamchain)
+	{
+		slave->_s.origin = _s.origin;
+		slave->link();
+	}
+}
+
 
 /*
 =============

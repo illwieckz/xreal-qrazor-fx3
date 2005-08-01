@@ -132,7 +132,19 @@ public:
 	// update physical state in Q2/Q3A style
 	void		runPhysics();
 private:
+	void		addGravity();
+	void		applyLinearVelocity();
+	void		applyAngularVelocity();
+	g_entity_c*	checkPosition();
+	void		checkVelocity();
+	int		clipVelocity(const vec3_c &in, const vec3_c &normal, vec3_c &out, float overbounce);
+	void		impact(const trace_t &trace);
+	trace_t		push(const vec3_c &push);
+	bool		push2(vec3_c &move, vec3_c &amove);
+
+	void		runPhysicsNone();
 	void		runPhysicsNoclip();
+	void		runPhysicsToss();
 public:
 	// run think() function if necessary
 	bool		runThink();
@@ -222,6 +234,7 @@ public:
 	g_entity_c*	_enemy;
 	g_entity_c*	_activator;
 	g_entity_c*	_groundentity;
+	int		_groundentity_linkcount;
 	
 	g_entity_c*	_teamchain;
 	g_entity_c*	_teammaster;
