@@ -1026,16 +1026,19 @@ g_item_dropable_c::g_item_dropable_c(g_player_c *player, g_item_c *item, const v
 	_classname = item->getClassname();
 	_item = item;
 	_spawnflags = DROPPED_ITEM;
-	_movetype = MOVETYPE_ODE_TOSS;
-	//_movetype = MOVETYPE_TOSS;
-	
+//	_movetype = MOVETYPE_ODE_TOSS;
+	_movetype = MOVETYPE_TOSS;
+
+	G_SetModel(this, _item->getWorldModel());
+
+#if defined(ODE)
 	// setup rigid body
 	_body->setPosition(position);
 	_body->setQuaternion(orientation);
 	_body->setLinearVel(velocity);
 //	_body->setGravityMode(1);
 	
-	/*cmodel_c *model = */G_SetModel(this, _item->getWorldModel());
+	/*cmodel_c *model = */
 	
 	// setup mass
 	dMass m;
@@ -1053,6 +1056,7 @@ g_item_dropable_c::g_item_dropable_c(g_player_c *player, g_item_c *item, const v
 	geom->setCollideBits(MASK_SOLID);
 	
 	_geoms.push_back(geom);
+#endif
 }
 
 g_item_dropable_c::~g_item_dropable_c()
@@ -1197,13 +1201,16 @@ bool	g_item_spawnable_c::touch(g_entity_c *other, const plane_c &plane, csurface
 
 void	g_item_spawnable_c::activate()
 {
+	G_SetModel(this, _item->getWorldModel());
+
+#if defined(ODE)
 	// setup rigid body
 	_body->setPosition(_s.origin);
 	_body->setQuaternion(_s.quat);
 	_body->setGravityMode(0);
 	_body->disable();
 	
-	/*cmodel_c* model = */G_SetModel(this, _item->getWorldModel());
+	/*cmodel_c* model = */
 	
 	// setup mass
 	//dMass m;
@@ -1219,6 +1226,7 @@ void	g_item_spawnable_c::activate()
 	geom->setData(this);
 	
 	_geoms.push_back(geom);
+#endif
 }
 
 

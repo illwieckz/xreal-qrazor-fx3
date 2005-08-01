@@ -31,7 +31,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // system -------------------------------------------------------------------
 // shared -------------------------------------------------------------------
 #include "../x_shared.h"
+
+#if defined(ODE)
 #include "../x_ode.h"
+#endif
+
 #include "../x_protocol.h"
 
 // qrazor-fx ----------------------------------------------------------------
@@ -200,7 +204,7 @@ typedef struct
 	int		(*S_RegisterSound)(const std::string &name);
 	void		(*S_EndRegistration)();
 	
-	d_bsp_c*	(*CM_BeginRegistration)(const std::string &name, bool clientload, unsigned *checksum, dSpaceID space);
+	void		(*CM_BeginRegistration)(const std::string &name, bool clientload, unsigned *checksum);
 	cmodel_c*	(*CM_RegisterModel)(const std::string &name);
 	void		(*CM_EndRegistration)();
 	

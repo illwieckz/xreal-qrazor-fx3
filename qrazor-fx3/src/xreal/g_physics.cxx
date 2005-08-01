@@ -638,26 +638,7 @@ static void	G_Physics_None(g_entity_c *ent)
 }
 */
 
-/*
-=============
-A moving object that doesn't obey physics
-=============
-*/
-/*
-static void	G_Physics_Noclip(g_entity_c *ent)
-{
-	// regular thinking
-	if(!G_RunThink(ent))
-		return;
-	
-	//Vector3_MA(ent->_s.angles, FRAMETIME, ent->_avelocity, ent->_s.angles);
-	//Vector3_MA(ent->_s.origin, FRAMETIME, ent->_velocity, ent->_s.origin);
-	
-	ent->_s.origin = ent->_body->getPosition();
 
-	//trap_SV_LinkEdict(ent);
-}
-*/
 
 /*
 ==============================================================================
@@ -930,48 +911,9 @@ static void	G_Physics_Step(g_entity_c *ent)
 }
 */
 
-/*
-void	G_RunEntity(g_entity_c *ent)
-{
-	//trap_Com_Printf("G_RunEntity: %s\n", ent->classname);
-
-	switch(ent->_movetype)
-	{
-		case MOVETYPE_PUSH:
-		case MOVETYPE_STOP:
-			//G_Physics_Pusher(ent);
-			break;
-			
-		case MOVETYPE_NONE:
-			//G_Physics_None(ent);
-			break;
-			
-		case MOVETYPE_NOCLIP:
-			//G_Physics_Noclip(ent);
-			break;
-			
-		case MOVETYPE_STEP:
-			//G_Physics_Step(ent);
-			break;
-			
-		case MOVETYPE_TOSS:
-		case MOVETYPE_BOUNCE:
-		case MOVETYPE_FLY:
-		case MOVETYPE_FLYMISSILE:
-			//G_Physics_Toss(ent);
-			break;
-			
-		case MOVETYPE_ODE_TOSS:
-			//G_ODE_Toss(ent);
-			break;
-			
-		default:
-			trap_Com_Error (ERR_DROP, "G_RunEntity: bad movetype %i", ent->_movetype);
-	}
-}
-*/
 
 
+#if defined(ODE)
 void	G_InitDynamics()
 {
 	g_ode_world = new d_world_c();
@@ -1275,7 +1217,7 @@ trace_t	G_RayTrace(const vec3_c &start, const vec3_c &dir, vec_t length)
 	
 	return g_ray_trace;
 }
-
+#endif // defined(ODE)
 
 /*
 =================
@@ -1351,7 +1293,7 @@ void		G_SetWorldModel(g_entity_c *ent, const std::string &name)
 	}
 #else
 
-#if 1
+#if defined(ODE)
 	if(X_strequal("*0", name.c_str()) && g_ode_bsp)
 	{
 		g_ode_bsp->setData(ent);

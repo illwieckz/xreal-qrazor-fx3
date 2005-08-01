@@ -27,7 +27,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // system -------------------------------------------------------------------
 // shared -------------------------------------------------------------------
 #include "../x_shared.h"
+
+#if defined(ODE)
 #include "../x_ode.h"
+#endif
 
 // xreal --------------------------------------------------------------------
 #include "g_public.h"
@@ -48,7 +51,7 @@ enum movetype_t
 	MOVETYPE_TOSS,			// gravity
 	MOVETYPE_FLYMISSILE,		// extra size to monsters
 	MOVETYPE_BOUNCE,
-	MOVETYPE_ODE_TOSS
+//	MOVETYPE_ODE_TOSS
 };
 
 
@@ -120,13 +123,17 @@ public:
 	void		updateField(const std::string &key);
 	
 	// helper functions to update the entity network state
+#if defined(ODE)
 	void		updateOrigin();
 	void		updateRotation();
 	void		updateVelocity();
+#endif
 	
-	//TODO update physical state
+	// update physical state in Q2/Q3A style
 	void		runPhysics();
-	
+private:
+	void		runPhysicsNoclip();
+public:
 	// run think() function if necessary
 	bool		runThink();
 	
@@ -238,13 +245,16 @@ public:
 
 	g_item_c*	_item;				// for bonus items
 
-		
+	//
+	// experimental Open Dynamics Engine stuff
+	//
+
 	// rigid body
-	d_body_c*		_body;
+//	d_body_c*		_body;
 
 	// collision detection
-	d_space_c*		_space;			// used only when we need a group of geoms
-	std::vector<d_geom_c*>	_geoms;
+//	d_space_c*		_space;			// used only when we need a group of geoms
+//	std::vector<d_geom_c*>	_geoms;
 //	std::map<d_geom_c*, g_geom_info_c*>	_geoms;
 };
 

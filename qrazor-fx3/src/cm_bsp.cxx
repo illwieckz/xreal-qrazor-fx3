@@ -429,7 +429,7 @@ static void	CM_CreateBezierMesh(const bsp_dsurface_t *in, cmesh_t &mesh)
 	}
 }
 
-static void	CM_LoadSurfaces(bsp_lump_t *l, d_bsp_c *bsp)
+static void	CM_LoadSurfaces(bsp_lump_t *l)//, d_bsp_c *bsp)
 {
 	bsp_dsurface_t		*in;
 	int			i, count;
@@ -495,12 +495,12 @@ static void	CM_LoadSurfaces(bsp_lump_t *l, d_bsp_c *bsp)
 				Com_Error(ERR_DROP, "CM_LoadSurfaces: bad surface type %i", out.face_type);
 		}
 		
-		if(bsp)
-			bsp->addSurface(out.face_type, out.shader_num, out.mesh.vertexes, out.mesh.indexes);
+		//if(bsp)
+		//	bsp->addSurface(out.face_type, out.shader_num, out.mesh.vertexes, out.mesh.indexes);
 	}
 }
 
-static void	CM_LoadLeafSurfaces(bsp_lump_t *l, d_bsp_c *bsp)
+static void	CM_LoadLeafSurfaces(bsp_lump_t *l)//, d_bsp_c *bsp)
 {
 	Com_DPrintf("loading leaf surfaces ...\n");
 	
@@ -523,12 +523,12 @@ static void	CM_LoadLeafSurfaces(bsp_lump_t *l, d_bsp_c *bsp)
 		
 		cm_leafsurfaces[i] = j;
 		
-		if(bsp)
-			bsp->addLeafSurface(j);
+		//if(bsp)
+		//	bsp->addLeafSurface(j);
 	}
 }
 
-static void	CM_LoadModels(bsp_lump_t *l, d_bsp_c *bsp)
+static void	CM_LoadModels(bsp_lump_t *l)//, d_bsp_c *bsp)
 {
 	bsp_dmodel_t		*in;
 	//cleaf_t		*leaf;
@@ -630,11 +630,11 @@ static void	CM_LoadModels(bsp_lump_t *l, d_bsp_c *bsp)
 	}
 	
 	// set bsp size for AABB and assign it to the model
-	if(bsp)
-		bsp->setLengths(cm_models[0]->getAABB().size());
+	//if(bsp)
+	//	bsp->setLengths(cm_models[0]->getAABB().size());
 }
 
-static void	CM_LoadShaders(bsp_lump_t *l, d_bsp_c *bsp)
+static void	CM_LoadShaders(bsp_lump_t *l)//, d_bsp_c *bsp)
 {
 	bsp_dshader_t		*in;
 	int			i, count;
@@ -660,13 +660,13 @@ static void	CM_LoadShaders(bsp_lump_t *l, d_bsp_c *bsp)
 		cm_shaders[i].flags = flags;
 		cm_shaders[i].contents = contents;
 		
-		if(bsp)
-			bsp->addShader(flags, contents);
+		//if(bsp)
+		//	bsp->addShader(flags, contents);
 	}
 }
 
 
-static void	CM_LoadNodes(bsp_lump_t *l, d_bsp_c *bsp)
+static void	CM_LoadNodes(bsp_lump_t *l)//, d_bsp_c *bsp)
 {
 	bsp_dnode_t	*in;	
 	
@@ -695,13 +695,13 @@ static void	CM_LoadNodes(bsp_lump_t *l, d_bsp_c *bsp)
 			out.children[j] = LittleLong(in->children[j]);
 		}
 		
-		if(bsp)
-			bsp->addNode(LittleLong(in->plane_num), out.children[0], out.children[1]);
+		//if(bsp)
+		//	bsp->addNode(LittleLong(in->plane_num), out.children[0], out.children[1]);
 	}
 
 }
 
-static void	CM_LoadBrushes(bsp_lump_t *l, d_bsp_c *bsp)
+static void	CM_LoadBrushes(bsp_lump_t *l)//, d_bsp_c *bsp)
 {
 	Com_DPrintf("loading brushes ...\n");
 	
@@ -727,7 +727,7 @@ static void	CM_LoadBrushes(bsp_lump_t *l, d_bsp_c *bsp)
 	}
 }
 
-static void	CM_LoadLeafs(bsp_lump_t *l, d_bsp_c *bsp)
+static void	CM_LoadLeafs(bsp_lump_t *l)//, d_bsp_c *bsp)
 {
 	bsp_dleaf_t 	*in;
 	//cbrush_t		*brush;
@@ -773,12 +773,12 @@ static void	CM_LoadLeafs(bsp_lump_t *l, d_bsp_c *bsp)
 		if(out.area >= (int)cm_areas.size())
 			cm_areas.push_back(carea_t());
 		
-		if(bsp)
-			bsp->addLeaf(out.leafsurfaces_first, out.leafsurfaces_num, out.leafbrushes_first, out.leafbrushes_num, out.cluster, out.area);
+		//if(bsp)
+		//	bsp->addLeaf(out.leafsurfaces_first, out.leafsurfaces_num, out.leafbrushes_first, out.leafbrushes_num, out.cluster, out.area);
 	}
 }
 
-static void	CM_LoadPlanes(bsp_lump_t *l, d_bsp_c* bsp)
+static void	CM_LoadPlanes(bsp_lump_t *l)//, d_bsp_c* bsp)
 {
 	int			i, j;
 	bsp_dplane_t 	*in;
@@ -814,12 +814,12 @@ static void	CM_LoadPlanes(bsp_lump_t *l, d_bsp_c* bsp)
 		
 		cm_planes[i].set(normal, dist);
 		
-		if(bsp)
-			bsp->addPlane(cm_planes[i]);
+		//if(bsp)
+		//	bsp->addPlane(cm_planes[i]);
 	}
 }
 
-static void	CM_LoadLeafBrushes(bsp_lump_t *l, d_bsp_c* bsp)
+static void	CM_LoadLeafBrushes(bsp_lump_t *l)//, d_bsp_c* bsp)
 {
 	Com_DPrintf("loading leafbrushes ...\n");
 	
@@ -844,7 +844,7 @@ static void	CM_LoadLeafBrushes(bsp_lump_t *l, d_bsp_c* bsp)
 	}
 }
 
-static void	CM_LoadBrushSides(bsp_lump_t *l, d_bsp_c* bsp)
+static void	CM_LoadBrushSides(bsp_lump_t *l)//, d_bsp_c* bsp)
 {
 	Com_DPrintf("loading brushsides ...\n");
 	
@@ -1002,7 +1002,7 @@ static void	CM_InitBoxHull()
 }
 
 
-d_bsp_c*	CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum, dSpaceID space)
+void	CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum)//, dSpaceID space)
 {
 	unsigned*		buf;
 	int			i;
@@ -1025,7 +1025,7 @@ d_bsp_c*	CM_BeginRegistration(const std::string &name, bool clientload, unsigned
 		{
 			CM_FloodAreaConnections();
 		}
-		return NULL;		// still have the right version
+		return;// NULL;		// still have the right version
 	}
 
 	// free old stuff
@@ -1065,24 +1065,25 @@ d_bsp_c*	CM_BeginRegistration(const std::string &name, bool clientload, unsigned
 	Com_DPrintf("CM_BeginRegistration: loading %s into heap ...\n", full_name.c_str());
 	
 	// create ODE BSP collision geom
+	/*
 	d_bsp_c* bsp = NULL;
 	if(space != 0)
 		bsp = new d_bsp_c(space);
-
+	*/
 	
-	CM_LoadShaders(&header.lumps[BSP_LUMP_SHADERS], bsp);
-	CM_LoadPlanes(&header.lumps[BSP_LUMP_PLANES], bsp);
-	CM_LoadLeafBrushes(&header.lumps[BSP_LUMP_LEAFBRUSHES], bsp);
-	CM_LoadBrushes(&header.lumps[BSP_LUMP_BRUSHES], bsp);
-	CM_LoadBrushSides(&header.lumps[BSP_LUMP_BRUSHSIDES], bsp);
+	CM_LoadShaders(&header.lumps[BSP_LUMP_SHADERS]);//, bsp);
+	CM_LoadPlanes(&header.lumps[BSP_LUMP_PLANES]);//, bsp);
+	CM_LoadLeafBrushes(&header.lumps[BSP_LUMP_LEAFBRUSHES]);//, bsp);
+	CM_LoadBrushes(&header.lumps[BSP_LUMP_BRUSHES]);//, bsp);
+	CM_LoadBrushSides(&header.lumps[BSP_LUMP_BRUSHSIDES]);//, bsp);
 	CM_LoadVertexes(&header.lumps[BSP_LUMP_VERTEXES]);
 	CM_LoadNormals(&header.lumps[BSP_LUMP_VERTEXES]);
 	CM_LoadIndexes(&header.lumps[BSP_LUMP_INDEXES]);
-	CM_LoadSurfaces(&header.lumps[BSP_LUMP_SURFACES], bsp);
-	CM_LoadLeafSurfaces(&header.lumps[BSP_LUMP_LEAFSURFACES], bsp);
-	CM_LoadLeafs(&header.lumps[BSP_LUMP_LEAFS], bsp);
-	CM_LoadNodes(&header.lumps[BSP_LUMP_NODES], bsp);
-	CM_LoadModels(&header.lumps[BSP_LUMP_MODELS], bsp);
+	CM_LoadSurfaces(&header.lumps[BSP_LUMP_SURFACES]);//, bsp);
+	CM_LoadLeafSurfaces(&header.lumps[BSP_LUMP_LEAFSURFACES]);//, bsp);
+	CM_LoadLeafs(&header.lumps[BSP_LUMP_LEAFS]);//, bsp);
+	CM_LoadNodes(&header.lumps[BSP_LUMP_NODES]);//, bsp);
+	CM_LoadModels(&header.lumps[BSP_LUMP_MODELS]);//, bsp);
 	CM_LoadVisibility(&header.lumps[BSP_LUMP_VISIBILITY]);
 	CM_LoadEntityString(&header.lumps[BSP_LUMP_ENTITIES]);
 
@@ -1096,7 +1097,7 @@ d_bsp_c*	CM_BeginRegistration(const std::string &name, bool clientload, unsigned
 	
 	CM_InitBoxHull();
 	
-	return bsp;
+	//return bsp;
 }
 
 

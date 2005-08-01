@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "cg_local.h"
 
 
-
+#if defined(ODE)
 void	CG_InitDynamics()
 {
 	cg_ode_world = new d_world_c();
@@ -59,6 +59,7 @@ void	CG_ShutdownDynamics()
 	delete cg_ode_world;
 	cg_ode_world = NULL;	
 }
+#endif
 
 #if 0
 static void	CG_NearCallback(void *data, dGeomID o1, dGeomID o2)

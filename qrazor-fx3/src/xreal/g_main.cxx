@@ -47,12 +47,14 @@ g_entity_c*			g_world;
 std::vector<sv_entity_c*>	g_entities;
 std::vector<g_item_c*>		g_items;
 
+#if defined(ODE)
 d_world_c*			g_ode_world = NULL;
 d_space_c*			g_ode_space_toplevel = NULL;
 //d_space_c*			g_ode_space_world = NULL;
 d_bsp_c*			g_ode_bsp = NULL;
 d_plane_c*			g_ode_testplane = NULL;
 d_joint_group_c*		g_ode_contact_group = NULL;
+#endif
 
 cvar_t	*deathmatch;
 cvar_t	*coop;
@@ -224,7 +226,9 @@ static void	G_InitGame()
 	
 	G_InitItems();
 	
+#if defined(ODE)
 	G_InitDynamics();	// ODE
+#endif
 	
 	BG_InitPhysics();	// Tr3B - new custom physics engine
 	
@@ -250,8 +254,10 @@ static void 	G_ShutdownGame()
 	G_ShutdownEntities();
 	
 	G_ShutdownItems();
-	
+
+#if defined(ODE)
 	G_ShutdownDynamics();
+#endif
 	
 	BG_ShutdownPhysics();
 }
@@ -570,27 +576,19 @@ void 	G_RunFrame()
 	// for debugging, check if ODE hangs anywhere
 //	trap_Com_Printf("G_RunFrame: %i\n", level.framenum); 
 
-	//
 	// exit intermissions
-	//
 	if(level.intermission_exit)
 	{
 		G_ExitLevel();
 		return;
 	}
 	
-	
-	//
 	// prepare all active players for serverframe
-	//
 	G_ClientBeginServerFrames();
 
-	
-	//
 	// treat each object in turn
 	// even the world gets a chance to think
 	// apply forces to the bodies as necessary
-	//
 	for(unsigned int i=0; i<g_entities.size(); i++)
 	{
 		ent = (g_entity_c*)g_entities[i];
@@ -604,21 +602,20 @@ void 	G_RunFrame()
 		//trap_Com_Printf("G_RunFrame: running %s %i ...\n", ent->_classname.c_str(), ent->_s.number);
 			
 		//ent->_s.origin2 = ent->_s.origin;
+
+		//TODO
+		//ent->checkGroundEntity();
 		
-		ent->runThink();
+		ent->runPhysics();
 	}
 	
 	
-	//
 	// apply ODE dynamics
-	//
+#if defined(ODE)
 	G_RunDynamics(FRAMETIME);
 	
-	
-	//
 	// update network entity states and area information for network culling
 	// update entity states with applied dynamics from the rigid bodies
-	//
 	for(unsigned int i=0; i<g_entities.size(); i++)
 	{
 		ent = (g_entity_c*) g_entities[i];
@@ -661,29 +658,18 @@ void 	G_RunFrame()
 		ent->_s.origin2.clear();
 		*/
 	}
+#endif // defined(ODE)
 	
-
-	//
 	// see if it is time to end a deathmatch
-	//
 	G_CheckDMRules();
 
-
-	//
 	// see if needpass needs updated
-	//
 	G_CheckNeedPass();
 
-
-	//
 	// build the playerstate_t structures for all players
-	//
 	G_ClientEndServerFrames();
 	
-	
-	//
 	// kill entities that can be removed
-	//
 	G_RemoveUnneededEntities();
 }
 

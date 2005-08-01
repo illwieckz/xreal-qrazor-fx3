@@ -65,12 +65,11 @@ cg_export_t	cg_globals;
 cg_state_t	cg;
 cg_static_t	cgs;
 
-
+#if defined(ODE)
 d_world_c*		cg_ode_world;
 d_space_c*		cg_ode_space;
 d_joint_group_c*	cg_ode_contact_group;
-
-
+#endif
 
 
 void	CG_ParseLayout(bitmessage_c &msg)
@@ -232,9 +231,11 @@ static void	CG_InitClientGame()
 	// initialize subsystems
 	//
 	CG_InitScreen();
-	
+
+#if defined(ODE)
 	CG_InitDynamics();
-	
+#endif
+
 	CG_InitView();
 	
 	CG_InitWeapon();
@@ -264,7 +265,9 @@ static void	CG_InitClientGame()
 
 static void	CG_ShutdownClientGame()
 {
+#if defined(ODE)
 	CG_ShutdownDynamics();
+#endif
 }
 
 
@@ -298,7 +301,7 @@ static void	CG_UpdateConfig(int index, const std::string &configstring)
 		trap_Com_Printf("CG_UpdateConfig: map '%s'\n", mapname.c_str());
 		
 		unsigned	map_checksum;		// for detecting cheater maps
-		trap_CM_BeginRegistration(mapname, true, &map_checksum, 0);
+		trap_CM_BeginRegistration(mapname, true, &map_checksum);
 		
 		if((int)map_checksum != atoi(trap_CL_GetConfigString(CS_MAPCHECKSUM)))
 		{
