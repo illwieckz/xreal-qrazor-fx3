@@ -60,28 +60,9 @@ enum movetype_t
 //
 class g_item_c;
 
-/*
-class g_geom_info_c
-{
-public:
-	g_geom_info_c(g_entity_c *ent, cmodel_c *model, csurface_c *surf)
-	{
-		_ent	= ent;
-		_model	= model;
-		_surf	= surf;
-	}
-	
-	g_entity_c*	getEntity() const	{return _ent;}
-	cmodel_c*	getModel() const	{return _model;}
-	csurface_c*	getSurface() const	{return _surf;}
-	
-private:
-	g_entity_c*	_ent;
-	cmodel_c*	_model;
-	csurface_c*	_surf;
-};
-*/
-
+typedef std::map<std::string, std::string, strcasecmp_c>	epairs_t;
+typedef epairs_t::iterator					epairs_i;
+typedef epairs_t::const_iterator				epairs_ci;
 
 class g_entity_c :
 public sv_entity_c, 
@@ -98,6 +79,9 @@ private:
 	
 public:
 	
+	// think if necessary and update physical state in Q2/Q3A style
+	virtual void	run();
+
 	virtual void	think() {};
 	virtual void	blocked(g_entity_c *other) {};
 	virtual bool	touch(g_entity_c *other, const plane_c &plane, csurface_c *surf) {return true;}
@@ -116,7 +100,7 @@ public:
 	// destroy this entity at the end of the current or next frame
 	void		remove();
 	
-	void		setEPairs(const std::map<std::string, std::string> &epairs);
+	void		setEPairs(const epairs_t &epairs);
 	bool		hasEPair(const std::string &key);
 	const char*	valueForKey(const std::string &key);
 	
@@ -129,8 +113,6 @@ public:
 	void		updateVelocity();
 #endif
 	
-	// update physical state in Q2/Q3A style
-	void		runPhysics();
 private:
 	void		addGravity();
 	void		applyLinearVelocity();
@@ -169,7 +151,7 @@ private:
 	bool		_remove;			// don't kill objects using delete, just do _remove = true;
 	float		_spawntime;			// only set by constructor
 	
-	std::map<std::string, std::string>	_epairs;
+	epairs_t	_epairs;
 
 protected:
 	std::string	_classname;
@@ -187,6 +169,7 @@ public:
 	float		_angle;				// set in qe3, -1 = up, -2 = down
 	matrix_c	_rotation;
 	
+	// targeting variables
 	std::string	_target;
 	std::string	_target1;
 	std::string	_target2;
@@ -198,6 +181,7 @@ public:
 	std::string	_combattarget;
 	g_entity_c*	_target_ent;
 
+	// mover variables
 	float		_speed;
 	float		_accel;
 	float		_decel;
@@ -233,6 +217,8 @@ public:
 	g_entity_c*	_chain;
 	g_entity_c*	_enemy;
 	g_entity_c*	_activator;
+
+	// ground variables
 	g_entity_c*	_groundentity;
 	int		_groundentity_linkcount;
 	
@@ -252,6 +238,7 @@ public:
 	float		_delay;				// before firing targets
 	float		_random;
 
+	// underwater variables
 	int		_watertype;
 	int		_waterlevel;
 

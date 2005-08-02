@@ -47,9 +47,9 @@ Parses an edict out of the given string, returning the new position
 ed should be a properly initialized empty edict.
 ====================
 */
-void	g_field_iface_a::setFields(const std::map<std::string, std::string> &map)
+void	g_field_iface_a::setFields(const std::map<std::string, std::string, strcasecmp_c> &map)
 {
-	for(std::map<std::string, std::string>::const_iterator ir = map.begin(); ir != map.end(); ++ir)
+	for(std::map<std::string, std::string, strcasecmp_c>::const_iterator ir = map.begin(); ir != map.end(); ++ir)
 	{
 		setField(ir->first, ir->second);
 	}

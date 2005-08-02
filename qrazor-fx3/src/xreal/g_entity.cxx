@@ -286,6 +286,54 @@ g_entity_c::~g_entity_c()
 #endif
 }
 
+void	g_entity_c::run()
+{
+	//trap_Com_Printf("G_RunEntity: %s\n", ent->classname);
+
+	if(!_r.inuse)
+		return;
+
+	if(_r.isclient)
+		return;
+
+	// regular thinking
+	runThink();
+
+	switch(_movetype)
+	{
+		case MOVETYPE_PUSH:
+		case MOVETYPE_STOP:
+			//G_Physics_Pusher(ent);
+			break;
+			
+		case MOVETYPE_NONE:
+			runPhysicsNone();
+			break;
+			
+		case MOVETYPE_NOCLIP:
+			runPhysicsNoclip();
+			break;
+			
+		case MOVETYPE_STEP:
+			//G_Physics_Step(ent);
+			break;
+			
+		case MOVETYPE_TOSS:
+		case MOVETYPE_BOUNCE:
+		case MOVETYPE_FLY:
+		case MOVETYPE_FLYMISSILE:
+			runPhysicsToss();
+			break;
+			
+		//case MOVETYPE_ODE_TOSS:
+			//G_ODE_Toss(ent);
+			//break;
+			
+		default:
+			trap_Com_Error(ERR_DROP, "runPhysics: bad movetype %i", _movetype);
+	}
+}
+
 void 	g_entity_c::takeDamage(g_entity_c *inflictor, g_entity_c *attacker, vec3_t dir, vec3_t point, vec3_t normal, int damage, int knockback, int dflags, int mod)
 {
 	int			take;
@@ -385,16 +433,16 @@ void	g_entity_c::remove()
 	_remove = true;	// ready to destroy
 }
 
-void	g_entity_c::setEPairs(const std::map<std::string, std::string> &epairs)
+void	g_entity_c::setEPairs(const epairs_t &epairs)
 {
 	_epairs = epairs;
 }
 
 bool	g_entity_c::hasEPair(const std::string &key)
 {
-	std::map<std::string, std::string>::iterator ir = _epairs.find(key);
+	epairs_ci i = _epairs.find(key);
 	
-	if(ir != _epairs.end())
+	if(i != _epairs.end())
 		return true;
 		
 	return false;
@@ -402,10 +450,10 @@ bool	g_entity_c::hasEPair(const std::string &key)
 
 const char*	g_entity_c::valueForKey(const std::string &key)
 {
-	std::map<std::string, std::string>::iterator ir = _epairs.find(key);
+	epairs_ci i = _epairs.find(key);
 	
-	if(ir != _epairs.end())
-		return ir->second.c_str();
+	if(i != _epairs.end())
+		return i->second.c_str();
 	
 	return "";
 }
@@ -438,50 +486,6 @@ void	g_entity_c::updateVelocity()
 }
 #endif
 
-
-void	g_entity_c::runPhysics()
-{
-	//trap_Com_Printf("G_RunEntity: %s\n", ent->classname);
-
-	if(_r.isclient)
-		return;
-
-	switch(_movetype)
-	{
-		case MOVETYPE_PUSH:
-		case MOVETYPE_STOP:
-			//G_Physics_Pusher(ent);
-			break;
-			
-		case MOVETYPE_NONE:
-			//G_Physics_None(ent);
-			break;
-			
-		case MOVETYPE_NOCLIP:
-			runPhysicsNoclip();
-			break;
-			
-		case MOVETYPE_STEP:
-			//G_Physics_Step(ent);
-			break;
-			
-		case MOVETYPE_TOSS:
-		case MOVETYPE_BOUNCE:
-		case MOVETYPE_FLY:
-		case MOVETYPE_FLYMISSILE:
-			runPhysicsToss();
-			break;
-			
-		//case MOVETYPE_ODE_TOSS:
-			//G_ODE_Toss(ent);
-			//break;
-			
-		default:
-			trap_Com_Error(ERR_DROP, "runPhysics: bad movetype %i", _movetype);
-	}
-}
-
-
 void	g_entity_c::addGravity()
 {
 	_s.velocity_linear[2] -= _gravity * g_gravity->getValue() * FRAMETIME;
@@ -500,17 +504,18 @@ void	g_entity_c::applyAngularVelocity()
 
 g_entity_c*	g_entity_c::checkPosition()
 {
-	trace_t	trace;
-	int		mask;
-
+	int	mask;
 	if(_r.clipmask)
 		mask = _r.clipmask;
 	else
 		mask = MASK_SOLID;
-	trace = G_Trace(_s.origin, _r.bbox, _s.origin, this, mask);
+	
+	trace_t trace = G_Trace(_s.origin, _r.bbox, _s.origin, this, mask);
 	
 	if(trace.startsolid)
+	{
 		return (g_entity_c*)g_world;
+	}
 		
 	return NULL;
 }
@@ -828,8 +833,7 @@ Non moving objects can only think
 */
 void	g_entity_c::runPhysicsNone()
 {
-	// regular thinking
-	runThink();
+	// DO NOTHING
 }
 
 
@@ -840,10 +844,6 @@ A moving object that doesn't obey physics
 */
 void	g_entity_c::runPhysicsNoclip()
 {
-	// regular thinking
-	if(!runThink())
-		return;
-	
 	applyAngularVelocity();
 	applyLinearVelocity();
 
@@ -859,9 +859,6 @@ Toss, bounce, and fly movement.  When onground, do nothing.
 */
 void	g_entity_c::runPhysicsToss()
 {
-	// regular thinking
-	runThink();
-
 	// if not a team captain, so movement will be handled elsewhere
 	if(_flags & FL_TEAMSLAVE)
 		return;

@@ -600,9 +600,6 @@ void 	G_RunFrame()
 		if(!ent)
 			continue;
 			
-		if(!ent->_r.inuse)
-			continue;
-			
 		//trap_Com_Printf("G_RunFrame: running %s %i ...\n", ent->_classname.c_str(), ent->_s.number);
 			
 		//ent->_s.origin2 = ent->_s.origin;
@@ -610,7 +607,7 @@ void 	G_RunFrame()
 		//TODO
 		//ent->checkGroundEntity();
 		
-		ent->runPhysics();
+		ent->run();
 	}
 	
 	

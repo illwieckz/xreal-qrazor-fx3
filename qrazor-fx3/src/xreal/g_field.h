@@ -99,7 +99,7 @@ protected:
 public:
 	void			addField(const g_field_c &f);
 	void			setField(const std::string &key, const std::string &value);
-	void			setFields(const std::map<std::string, std::string> &epairs);
+	void			setFields(const std::map<std::string, std::string, strcasecmp_c> &epairs);
 	
 //	virtual void		writeToStream(VFILE *stream) = 0;
 //	virtual void		readFromStream(VFILE *stream) = 0;
