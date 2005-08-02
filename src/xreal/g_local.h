@@ -471,9 +471,6 @@ void 		G_SaveClientData();
 //
 // g_coldet.cxx
 //
-//
-// sv_world.cxx
-//
 
 //
 // high level object sorting to reduce interaction tests

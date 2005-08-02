@@ -258,7 +258,7 @@ Parses an edict out of the given string, returning the new position
 ed should be a properly initialized empty edict.
 ====================
 */
-static char*	G_ParseEntity(char *data, std::map<std::string, std::string> &map)
+static char*	G_ParseEntity(char *data, epairs_t &epairs)
 {
 	std::string		key;
 	std::string		value;
@@ -302,7 +302,7 @@ static char*	G_ParseEntity(char *data, std::map<std::string, std::string> &map)
 			
 		value = token;
 
-		map.insert(std::make_pair(key, value));
+		epairs.insert(std::make_pair(key, value));
 	}
 
 	return data;
@@ -420,7 +420,7 @@ void	G_SpawnEntities(const std::string &mapname, char *entities, const std::stri
 	int		spawned;
 	float		skill_level;
 	
-	std::map<std::string, std::string>	epairs;
+	epairs_t	epairs;
 	
 		
 	//trap_Com_Printf("G_SpawnEntities:\n");
@@ -469,7 +469,7 @@ void	G_SpawnEntities(const std::string &mapname, char *entities, const std::stri
 			
 		entities = G_ParseEntity(entities, epairs);
 			
-		std::map<std::string, std::string>::const_iterator ir = epairs.find("classname");
+		epairs_ci ir = epairs.find("classname");
 			
 		if(ir != epairs.end())
 			classname = ir->second.c_str();

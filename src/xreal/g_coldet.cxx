@@ -308,7 +308,6 @@ void	G_LinkEntity(g_entity_c *ent)
 	{	
 		// assume we missed some leafs, and mark by headnode
 		ent->_r.clusters.clear();
-		
 		ent->_r.headnode = topnode;
 	}
 	else
