@@ -398,6 +398,11 @@ int		trap_CM_TransformedPointContents(const vec3_c &p, int headnode, const vec3_
 	return cgi.CM_TransformedPointContents(p, headnode, origin, quat);
 }
 
+trace_t		trap_CM_BoxTrace(const vec3_c &start, const vec3_c &end, const aabb_c &bbox, int headnode, int brushmask)
+{
+	return cgi.CM_BoxTrace(start, end, bbox, headnode, brushmask);
+}
+
 int		trap_CM_PointAreanum(const vec3_c &p)
 {
 	return cgi.CM_PointAreanum(p);

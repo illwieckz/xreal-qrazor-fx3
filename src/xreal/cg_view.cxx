@@ -289,6 +289,56 @@ static void	CG_CalcViewValues()
 	cg.v_blend = ps->blend;
 }
 
+static void	CG_ThirdPerson_CameraUpdate()
+{
+	if(!cg_thirdperson->getInteger())
+		return;
+
+	float	dist, f, r;
+	vec3_c	dest, stop;
+	vec3_c	chase_dest;
+	trace_t	trace;
+	
+	aabb_c aabb;
+	aabb._mins.set(-4,-4,-4);
+	aabb._maxs.set( 4, 4, 4);
+
+	// calc exact destination
+	chase_dest = cg.refdef.view_origin;
+	r = DEGTORAD(cg_thirdperson_angle->getValue());
+	f = -cos(r);
+	r = -sin(r);
+	chase_dest += cg.v_forward * (cg_thirdperson_range->getValue() * f);
+	chase_dest += cg.v_right * (cg_thirdperson_range->getValue() * r);
+	chase_dest[2] += 8;
+
+	// find the spot the player is looking at
+	dest = cg.refdef.view_origin + cg.v_forward*512.0;
+	trace = CG_Trace(cg.refdef.view_origin, aabb, dest, MASK_SOLID, trap_CL_GetPlayerNum()+1);
+
+	// calculate pitch to look at the same spot from camera
+	stop = trace.pos - cg.refdef.view_origin;
+	dist = sqrt(stop[0] * stop[0] + stop[1] * stop[1]);
+	if(dist < 1)
+		dist = 1;
+	cg.refdef.view_angles[PITCH] = RADTODEG(-atan2(stop[2], dist));
+	cg.refdef.view_angles[YAW] -= cg_thirdperson_angle->getValue();
+	Angles_ToVectors(cg.refdef.view_angles, cg.v_forward, cg.v_right, cg.v_up);
+
+	// move towards destination
+	trace = CG_Trace(cg.refdef.view_origin, aabb, chase_dest, MASK_SOLID, trap_CL_GetPlayerNum()+1);
+
+	if(trace.fraction != 1.0)
+	{
+		stop = trace.pos;
+		stop[2] += (1.0 - trace.fraction) * 32;
+		trace = CG_Trace(cg.refdef.view_origin, aabb, stop, MASK_SOLID, trap_CL_GetPlayerNum()+1);
+		chase_dest = trace.pos;
+	}
+
+	cg.refdef.view_origin = chase_dest;
+}
+
 void	CG_RenderView()
 {
 	if(trap_CLS_GetConnectionState() != CA_ACTIVE)
@@ -320,6 +370,8 @@ void	CG_RenderView()
 		CG_CalcViewValues();
 		
 		CG_UpdateEntities();
+
+		CG_ThirdPerson_CameraUpdate();
 		
 		cg.refdef.x = scr_vrect.x;
 		cg.refdef.y = scr_vrect.y;

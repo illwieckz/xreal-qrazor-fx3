@@ -31,58 +31,53 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 void	CG_CheckPredictionError()
 {
-#if 0
-	int		frame;
-	vec3_c		delta;
-
-	if(!cg_predict->value || (trap_cl->frame.playerstate.pmove.pm_flags & PMF_NO_PREDICTION))
+	if(!cg_predict->getValue() || (cg.frame.playerstate.pmove.pm_flags & PMF_NO_PREDICTION))
 		return;
 
 	// calculate the last usercmd_t we sent that the server has processed
-	frame = trap_cls->netchan.getIncomingAcknowledged();
-	frame &= (CMD_BACKUP-1);
+	int incoming_ack, outgoing_seq;
+	
+	trap_CLS_GetCurrentNetState(incoming_ack, outgoing_seq);
+	incoming_ack &= CMD_MASK;
 
 	// compare what the server returned with what we had predicted it to be
-	delta = trap_cl->frame.playerstate.pmove.origin - trap_cl->predicted_origins[frame];
+	vec3_c delta = cg.frame.playerstate.pmove.origin - cg.predicted_origins[incoming_ack];
 
 	// save the prediction error for interpolation
 	if(fabs(delta[0]) > 128*8 || fabs(delta[1]) > 128*8 || fabs(delta[2]) > 128*8)
 	{	
 		// a teleport or something
-		trap_cl->prediction_error.clear();
+		cg.prediction_error.clear();
 	}
 	else
 	{
-		if(cg_showmiss->value && (delta[0] || delta[1] || delta[2]))
-			Com_Printf("prediction miss on %i: %i\n", trap_cl->frame.serverframe, delta[0] + delta[1] + delta[2]);
+		if(cg_showmiss->getInteger() && (delta[0] || delta[1] || delta[2]))
+			Com_Printf("prediction miss on %i: %i\n", cg.frame.serverframe, delta[0] + delta[1] + delta[2]);
 
-		trap_cl->predicted_origins[frame] = trap_cl->frame.playerstate.pmove.origin;
+		cg.predicted_origins[incoming_ack] = cg.frame.playerstate.pmove.origin;
 
 		// save for error interpolation
-		trap_cl->prediction_error = delta * 0.125;
+		cg.prediction_error = delta * (1.0/16.0);
 	}
-#endif
 }
 
-/*
-static void	CG_ClipMoveToEntities(const vec3_c &start, const cbbox_c &bbox, const vec3_c &end, trace_t *tr, int contentmask, int ignore)
+static void	CG_ClipMoveToEntities(const vec3_c &start, const aabb_c &bbox, const vec3_c &end, trace_t *tr, int contentmask, int ignore)
 {
-	int			i, x, zd, zu;
-	trace_t		trace;
-	int			headnode;
-	vec_t		*angles;
-	entity_c	*ent;
-	int			num;
-	cmodel_t		*cmodel;
-	
-	cbbox_c	bbox2;
+//	int		i, x, zd, zu;
+//	trace_t		trace;
+//	int		headnode;
+//	vec_t		*angles;
+//	cmodel_t	*cmodel;	
+//	cbbox_c		bbox2;
 
-	for(i=0; i<trap_cl->frame.entities_num; i++)
+	for(int i=0; i<cg.frame.entities_num; i++)
 	{
-		num = (trap_cl->frame.entities_parse_index + i)&(MAX_PARSE_ENTITIES-1);
-		ent = &cg.entities_parse[num];
+		entity_state_t *state;
+		state = &cg.entities_parse[(cg.frame.entities_first + i) % MAX_ENTITIES];
 
-		if(!ent->_s.solid)
+		//TODO
+		/*
+		if(!state->solid)
 			continue;
 
 		if(ent->_s.getNumber() == ignore)
@@ -135,30 +130,34 @@ static void	CG_ClipMoveToEntities(const vec3_c &start, const cbbox_c &bbox, cons
 		}
 		else if (trace.startsolid)
 			tr->startsolid = true;
+		*/
 	}
 }
-*/
 
-/*
-trace_t	CG_Trace(const vec3_c &start, const cbbox_c &bbox, const vec3_c &end, int contentmask, int ignore)
+
+trace_t	CG_Trace(const vec3_c &start, const aabb_c &aabb, const vec3_c &end, int contentmask, int ignore)
 {
 	trace_t	t;
 
 	// check against world
-	t = trap_CM_BoxTrace(start, end, bbox, 0, contentmask);
+	t = trap_CM_BoxTrace(start, end, aabb, 0, contentmask);
 	
+	/*
 	if(t.fraction < 1.0)
 	{
 		t.ent = (entity_c*)1;
 		//Com_Printf("CG_Trace: t.fraction < 1.0\n");
 	}
+	*/
+
+	if(t.fraction == 0.0)
+		return t;		// blocked by world
 
 	// check all other solid models
-	CG_ClipMoveToEntities(start, bbox, end, &t, contentmask, ignore);
+	CG_ClipMoveToEntities(start, aabb, end, &t, contentmask, ignore);
 
 	return t;
 }
-*/
 
 /*
 static trace_t	CG_PMTrace(const vec3_c &start, const cbbox_c &bbox, const vec3_c &end)

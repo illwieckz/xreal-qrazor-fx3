@@ -54,6 +54,9 @@ cvar_t	*cg_showlayout;
 cvar_t	*cg_printspeed;
 cvar_t	*cg_paused;
 cvar_t	*cg_gravity;
+cvar_t	*cg_thirdperson;
+cvar_t	*cg_thirdperson_angle;
+cvar_t	*cg_thirdperson_range;
 
 
 //
@@ -222,6 +225,9 @@ static void	CG_InitClientGame()
 	cg_printspeed		= trap_Cvar_Get("cg_printspeed", "8", CVAR_NONE);
 	cg_paused		= trap_Cvar_Get("paused", "0", CVAR_NONE);
 	cg_gravity		= trap_Cvar_Get("cg_gravity", "1", CVAR_NONE);
+	cg_thirdperson		= trap_Cvar_Get("cg_thirdperson", "0", CVAR_CHEAT );
+	cg_thirdperson_angle	= trap_Cvar_Get("cg_thirdperson_angle", "0", CVAR_NONE);
+	cg_thirdperson_range	= trap_Cvar_Get("cg_thirdperson_range", "70", CVAR_NONE);
 	
 //	trap_Cmd_AddCommand("skins", 		CG_Skins_f);
 	trap_Cmd_AddCommand("snd_restart",	CG_Snd_Restart_f);
