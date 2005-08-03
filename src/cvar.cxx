@@ -26,6 +26,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // system -------------------------------------------------------------------
 #include <map>
 
+#include <boost/spirit/core.hpp>
+#include <boost/spirit/utility.hpp>
+
 // xreal --------------------------------------------------------------------
 #include "cvar.h"
 #include "common.h"
@@ -144,9 +147,13 @@ If the variable already exists, the value will not be set
 The flags will be or'ed in if the variable exists.
 ============
 */
-cvar_t*	Cvar_Get(const std::string &name, const std::string &value, uint_t flags)
+cvar_t*	Cvar_Get(const std::string &name, const std::string &values, uint_t flags)
 {
-	cvar_t	*var;
+	cvar_t*				var = NULL;
+	std::string 			value;
+	std::vector<std::string>	vvalues;
+
+//	Com_Printf("Cvar_Get: '%s' '%s' '%i' values\n", name.c_str(), values.c_str(), flags);
 	
 	if(name.empty())
 	{
@@ -163,13 +170,50 @@ cvar_t*	Cvar_Get(const std::string &name, const std::string &value, uint_t flags
 		}
 	}
 
+	// parse values
+	boost::spirit::parse_info<> info = boost::spirit::parse(values.c_str(),
+	(
+		// start grammar
+		boost::spirit::list_p((*boost::spirit::anychar_p)[boost::spirit::append(vvalues)], ',')
+		// end grammar	
+		)
+		, boost::spirit::space_p
+	);
+
+	if(!info.full)
+	{
+		Com_Printf("Cvar_Get: parsing of '%s' for '%s' failed", values.c_str(), name.c_str());
+		return NULL;
+	}
+
+//	Com_Printf("Cvar_Get: '%s' has %i values\n", name.c_str(), vvalues.size());
+
+	if(vvalues.empty())
+	{
+		Com_Printf("Cvar_Get: '%s' has no values\n", name.c_str());
+		return NULL;
+	}
+	value = vvalues[0];
+
 	var = Cvar_FindVar(name);
 	if(var)
 	{
 		var->_flags |= flags;
+
+		if(!vvalues.empty() && vvalues.size() != var->_values.size())
+		{
+			// add all new values
+			for(std::vector<std::string>::const_iterator i = vvalues.begin(); i != vvalues.end(); ++i)
+			{
+				std::vector<std::string>::const_iterator j = std::find(var->_values.begin(), var->_values.end(), *i);
+			
+				if(j == var->_values.end())
+					var->_values.push_back(*i);
+			}
+		}
+
 		return var;
 	}
-
 
 	if(flags & (CVAR_USERINFO | CVAR_SERVERINFO))
 	{
@@ -178,10 +222,10 @@ cvar_t*	Cvar_Get(const std::string &name, const std::string &value, uint_t flags
 			Com_Printf("Cvar_Get: invalid info cvar value\n");
 			return NULL;
 		}
-	}
+	}	
 
 	// create new var
-	var = new cvar_t(name, value, flags);
+	var = new cvar_t(name, value, vvalues, flags);
 
 	// link the variable in
 	cvar_map.insert(make_pair(name, var));
@@ -189,16 +233,46 @@ cvar_t*	Cvar_Get(const std::string &name, const std::string &value, uint_t flags
 	return var;
 }
 
-cvar_t*	Cvar_Set2(const std::string &name, const std::string &value, uint_t flags, bool force)
+cvar_t*	Cvar_Set2(const std::string &name, const std::string &values, uint_t flags, bool force)
 {
-	cvar_t	*var;
+	cvar_t*				var = NULL;
+	std::string 			value;
+	std::vector<std::string>	vvalues;
 
 	var = Cvar_FindVar(name);
 	if(!var)
 	{	
 		// create it
-		return Cvar_Get(name, value, flags);
+		return Cvar_Get(name, values, flags);
 	}
+
+	// parse values
+	boost::spirit::parse_info<> info = boost::spirit::parse(values.c_str(),
+	(
+		// start grammar
+		boost::spirit::list_p((*boost::spirit::anychar_p)[boost::spirit::append(vvalues)], ',')
+		// end grammar	
+		)
+		, boost::spirit::space_p
+	);
+
+	if(!info.full)
+	{
+		Com_Printf("Cvar_Set2: parsing of '%s' for '%s' failed", values.c_str(), name.c_str());
+		return var;
+	}
+
+//	Com_Printf("Cvar_Set2: '%s' has %i values\n", name.c_str(), vvalues.size());
+
+	if(vvalues.empty())
+	{
+		Com_Printf("Cvar_Set2: '%s' has no values\n", name.c_str());
+		//return var;
+	}
+	value = vvalues[0];
+	
+	if(vvalues.size() == 1)
+		vvalues.clear();
 
 	if(var->_flags & (CVAR_USERINFO | CVAR_SERVERINFO))
 	{
@@ -242,7 +316,6 @@ cvar_t*	Cvar_Set2(const std::string &name, const std::string &value, uint_t flag
 			*/
 		}
 
-
 		if(var->_flags & CVAR_LATCH)
 		{
 			if(var->_string_latched.length())
@@ -275,6 +348,18 @@ cvar_t*	Cvar_Set2(const std::string &name, const std::string &value, uint_t flag
 		}
 	}
 
+	if(!vvalues.empty() && vvalues.size() != var->_values.size())
+	{
+		// add all new values
+		for(std::vector<std::string>::const_iterator i = vvalues.begin(); i != vvalues.end(); ++i)
+		{
+			std::vector<std::string>::const_iterator j = std::find(var->_values.begin(), var->_values.end(), *i);
+			
+			if(j == var->_values.end())
+				var->_values.push_back(*i);
+		}
+	}
+
 	if(value == var->_string)
 		return var;		// not changed
 
@@ -282,7 +367,6 @@ cvar_t*	Cvar_Set2(const std::string &name, const std::string &value, uint_t flag
 
 	if(var->_flags & CVAR_USERINFO)
 		cvar_userinfo_modified = true;	// transmit at next oportunity
-	
 	
 	var->_string = value;
 	var->_value = atof(value.c_str());
@@ -383,6 +467,19 @@ bool 	Cvar_Command()
 		{
 			Com_Printf(" latched: \"%s" S_COLOR_WHITE "\"", var->_string_latched.c_str());
 		}
+
+		if(var->_values.size() > 1)
+		{
+			Com_Printf(" values: ");
+			for(uint_t i=0; i<var->_values.size(); i++)
+			{
+				if(i != var->_values.size()-1)
+					Com_Printf("\"%s\", ", var->_values[i].c_str()); 
+				else
+					Com_Printf("\"%s\"", var->_values[i].c_str()); 
+			}
+		}
+
 		Com_Printf("\n");
 		return true;
 	}
@@ -472,7 +569,10 @@ void 	Cvar_Toggle_f()
 		return;
 	}
 
-	Cvar_SetInteger(var->getName(), !var->getInteger());
+//	if(var->hasValues())
+		Cvar_Set(var->getName(), var->getNextString());
+//	else
+//		Cvar_SetInteger(var->getName(), !var->getInteger());
 }
 
 void 	Cvar_Add_f()
@@ -596,7 +696,7 @@ with the archive flag set to true.
 */
 void 	Cvar_WriteVars(VFILE *stream)
 {
-	for(std::map<std::string, cvar_t*>::const_iterator ir = cvar_map.begin(); ir != cvar_map.end(); ir++)
+	for(std::map<std::string, cvar_t*>::const_iterator ir = cvar_map.begin(); ir != cvar_map.end(); ++ir)
 	{
 		cvar_t *var = ir->second;
 		
@@ -605,12 +705,15 @@ void 	Cvar_WriteVars(VFILE *stream)
 			
 		if(var->hasFlags(CVAR_ARCHIVE))
 		{
-			VFS_FPrintf(stream, "set %s \"%s\"\n", var->getName(), var->getString());
+			//if(var->hasValues())
+			//	VFS_FPrintf(stream, "set %s \"%s:%s\"\n", var->getName(), var->getString(), var->getValues());
+			//else
+				VFS_FPrintf(stream, "set %s \"%s\"\n", var->getName(), var->getString());
 		}
 	}
 }
 
-
+/*
 void 	Cvar_WriteLatchedVars(VFILE *stream)
 {
 	char	name[MAX_OSPATH], string[128];
@@ -641,10 +744,11 @@ void 	Cvar_WriteLatchedVars(VFILE *stream)
 		VFS_FWrite(string, sizeof(string), stream);
 	}
 }
+*/
 
 void 	Cvar_List_f()
 {
-	for(std::map<std::string, cvar_t*>::const_iterator ir = cvar_map.begin(); ir != cvar_map.end(); ir++)
+	for(std::map<std::string, cvar_t*>::const_iterator ir = cvar_map.begin(); ir != cvar_map.end(); ++ir)
 	{
 		cvar_t *var = ir->second;
 		
@@ -695,7 +799,7 @@ static const char*	Cvar_InfoString(uint_t bits)
 {
 	info_c	info;
 	
-	for(std::map<std::string, cvar_t*>::const_iterator ir = cvar_map.begin(); ir != cvar_map.end(); ir++)
+	for(std::map<std::string, cvar_t*>::const_iterator ir = cvar_map.begin(); ir != cvar_map.end(); ++ir)
 	{
 		cvar_t *var = ir->second;
 			

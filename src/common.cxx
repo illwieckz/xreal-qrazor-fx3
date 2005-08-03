@@ -1104,12 +1104,12 @@ void 	Com_Init(int argc, char **argv)
 	Cmd_AddCommand("benchmath", Com_BenchMath_f);
 	
 
-	com_speeds	= Cvar_Get("com_speeds", "0", 0);
-	developer	= Cvar_Get("developer", "1", 0);
-	timescale	= Cvar_Get("timescale", "1", 0);
-	fixedtime	= Cvar_Get("fixedtime", "0", 0);
-	logfile_active	= Cvar_Get("logfile", "0", 0);
-	showtrace	= Cvar_Get("showtrace", "0", 0);
+	com_speeds	= Cvar_Get("com_speeds", "0", CVAR_NONE);
+	developer	= Cvar_Get("developer", "1,2,0", CVAR_NONE);
+	timescale	= Cvar_Get("timescale", "1", CVAR_NONE);
+	fixedtime	= Cvar_Get("fixedtime", "0", CVAR_NONE);
+	logfile_active	= Cvar_Get("logfile", "0", CVAR_NONE);
+	showtrace	= Cvar_Get("showtrace", "0", CVAR_NONE);
 #if defined(DEDICATED_ONLY) || defined(BSPCOMPILER_ONLY)
 	dedicated	= Cvar_Get("dedicated", "1", CVAR_INIT);
 #else

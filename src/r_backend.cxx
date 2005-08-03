@@ -2142,7 +2142,7 @@ void	RB_RenderCommands()
 	
 		if(r_bump_mapping->getInteger())
 		{
-			if(r_parallax->getInteger() && r_gloss->getInteger())
+			if(r_parallax->getInteger() && r_specular->getInteger())
 			{
 				RB_EnableShader_lighting_RBHS();
 				
@@ -2262,7 +2262,7 @@ void	RB_RenderCommands()
 				
 				RB_DisableShader_lighting_DBH_vstatic();
 			}
-			else if(r_gloss->getInteger())
+			else if(r_specular->getInteger())
 			{
 				RB_EnableShader_lighting_RBS();
 				
@@ -2792,7 +2792,7 @@ void	RB_RenderCommands()
 		{
 			if(r_bump_mapping->getInteger())
 			{
-				if(r_parallax->getInteger() && r_gloss->getInteger())
+				if(r_parallax->getInteger() && r_specular->getInteger())
 				{
 					RB_EnableShader_lighting_DBHS_omni();
 					for(i=0, cmd = &r_current_scene->cmds_light[0]; i<r_current_scene->cmds_light_num; i++, cmd++)
@@ -2854,7 +2854,7 @@ void	RB_RenderCommands()
 					}
 					RB_DisableShader_lighting_DBH_omni();
 				}
-				else if(r_gloss->getInteger())
+				else if(r_specular->getInteger())
 				{
 					RB_EnableShader_lighting_DBS_omni();
 					for(i=0, cmd = &r_current_scene->cmds_light[0]; i<r_current_scene->cmds_light_num; i++, cmd++)
