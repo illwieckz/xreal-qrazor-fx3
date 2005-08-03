@@ -37,11 +37,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "cg_public.h"
 
 
-
-
-#define MAX_SUSTAINS		32
-
-
 #define	PARTICLE_GRAVITY	40
 #define INSTANT_PARTICLE	-10000.0
 
@@ -219,6 +214,7 @@ struct cg_light_t
 };
 */
 
+/*
 struct cg_sustain_t
 {
 	int		id;
@@ -233,7 +229,7 @@ struct cg_sustain_t
 	int		magnitude;
 	void		(*think)(cg_sustain_t *self);
 };
-
+*/
 
 struct cg_particle_t
 {
@@ -352,6 +348,9 @@ extern cvar_t	*cg_showlayout;
 extern cvar_t	*cg_printspeed;
 extern cvar_t	*cg_paused;
 extern cvar_t	*cg_gravity;
+extern	cvar_t	*cg_thirdperson;
+extern	cvar_t	*cg_thirdperson_angle;
+extern	cvar_t	*cg_thirdperson_range;
 
 
 
@@ -489,6 +488,8 @@ void	CG_ParseClientinfo(int player);
 #define IGNORE_WORLD		0
 #define IGNORE_PLAYER		cgi.cl->playernum+1
 */
+
+trace_t	CG_Trace(const vec3_c &start, const aabb_c &aabb, const vec3_c &end, int contentmask, int ignore);
 
 void 	CG_PredictMovement();
 void 	CG_CheckPredictionError();
@@ -644,6 +645,7 @@ void		trap_CM_EndRegistration();
 	
 int		trap_CM_PointContents(const vec3_c &p, int headnode);
 int		trap_CM_TransformedPointContents(const vec3_c &p, int headnode, const vec3_c &origin, const quaternion_c &quat);
+trace_t		trap_CM_BoxTrace(const vec3_c &start, const vec3_c &end, const aabb_c &bbox, int headnode, int brushmask);
 int		trap_CM_PointAreanum(const vec3_c &p);
 	
 int		trap_CL_GetTime();

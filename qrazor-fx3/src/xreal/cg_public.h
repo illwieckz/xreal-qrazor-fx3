@@ -210,6 +210,7 @@ typedef struct
 	
 	int		(*CM_PointContents)(const vec3_c &p, int headnode);
 	int		(*CM_TransformedPointContents)(const vec3_c &p, int headnode, const vec3_c &origin, const quaternion_c &quat);
+	trace_t		(*CM_BoxTrace)(const vec3_c &start, const vec3_c &end, const aabb_c &bbox, int headnode, int brushmask);
 	int		(*CM_PointAreanum)(const vec3_c &p);
 	
 	int		(*CL_GetTime)();

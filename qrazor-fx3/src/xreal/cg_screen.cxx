@@ -318,7 +318,7 @@ void 	CG_DrawNet()
 	
 	trap_CLS_GetCurrentNetState(incoming_ack, outgoing_seq);
 
-	if(outgoing_seq - incoming_ack < (CMD_BACKUP-1))
+	if(outgoing_seq - incoming_ack < CMD_MASK)
 		return;
 
 	trap_R_DrawPic(scr_vrect.x+64, scr_vrect.y, 32, 32, color_white, trap_R_RegisterPic("gfx/2d/net"));
