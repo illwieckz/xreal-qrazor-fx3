@@ -114,6 +114,10 @@ public:
 #endif
 	
 private:
+	// run think() function if necessary
+	bool		runThink();
+
+	// physics helper functions
 	void		addGravity();
 	void		applyLinearVelocity();
 	void		applyAngularVelocity();
@@ -124,12 +128,11 @@ private:
 	trace_t		push(const vec3_c &push);
 	bool		push2(vec3_c &move, vec3_c &amove);
 
+	// physics controller types
 	void		runPhysicsNone();
 	void		runPhysicsNoclip();
 	void		runPhysicsToss();
 public:
-	// run think() function if necessary
-	bool		runThink();
 	
 	// collision detection
 	void		link();

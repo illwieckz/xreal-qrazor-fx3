@@ -486,6 +486,31 @@ void	g_entity_c::updateVelocity()
 }
 #endif
 
+
+/*
+=============
+G_RunThink
+
+Runs thinking code for this frame if necessary
+=============
+*/
+bool	g_entity_c::runThink()
+{
+	float thinktime = _nextthink;
+	
+	if(thinktime <= 0)
+		return true;
+		
+	if(thinktime > level.time + 0.001)
+		return true;
+	
+	_nextthink = 0;
+	
+	think();
+
+	return false;
+}
+
 void	g_entity_c::addGravity()
 {
 	_s.velocity_linear[2] -= _gravity * g_gravity->getValue() * FRAMETIME;
@@ -947,29 +972,7 @@ void	g_entity_c::runPhysicsToss()
 }
 
 
-/*
-=============
-G_RunThink
 
-Runs thinking code for this frame if necessary
-=============
-*/
-bool	g_entity_c::runThink()
-{
-	float thinktime = _nextthink;
-	
-	if(thinktime <= 0)
-		return true;
-		
-	if(thinktime > level.time + 0.001)
-		return true;
-	
-	_nextthink = 0;
-	
-	think();
-
-	return false;
-}
 
 void	g_entity_c::link()
 {
