@@ -573,42 +573,65 @@ enum
 class cvar_t
 {
 private:
-	friend cvar_t*	Cvar_Get(const std::string &name, const std::string &value, uint_t flags);
+	friend cvar_t*	Cvar_Get(const std::string &name, const std::string &values, uint_t flags);
 	friend cvar_t*	Cvar_Set2(const std::string &name, const std::string &value, uint_t flags, bool force);
 	friend void 	Cvar_SetLatchedVars();
 	friend bool 	Cvar_Command();
 	
-	cvar_t(const std::string &name, const std::string &value, uint_t flags)
+	cvar_t(const std::string &name, const std::string &value, const std::vector<std::string> &values, uint_t flags)
 	{
+		assert(values.size());
+
 		_name			= name;
+		_values			= values;
+		_index			= 0;
 		_string			= value;
-		_string_reset		= value;
 		_string_latched		= "";
 		_flags			= flags;
 		_modified		= true;
-		_modification_count	= 1;
 		_value			= atof(value.c_str());
 		_integer		= atoi(value.c_str());
 	}
 public:
 	inline const char*	getName() const			{return _name.c_str();}
 	inline const char*	getString() const		{return _string.c_str();}
-	inline const char*	getResetString() const		{return _string_reset.c_str();}
+	inline const char*	getResetString() const		{return _values[0].c_str();}
+	inline const char*	getNextString()
+	{
+		_index	= (_index+1) % _values.size();
+		return _values[_index].c_str();
+	}
+	//! return values as comma separated list
+	inline const char*	getValues() const
+	{
+		std::string s;
+		for(uint_t i=0; i<_values.size(); i++)
+		{
+			s += _values[i];
+
+			if(i != _values.size()-1)
+				s += ",";
+		}
+		return s.c_str();
+	}
+	inline uint_t		getValuesNum() const		{return _values.size();}
+	inline bool		hasValues() const		{return !_values.empty();}
 	
 	inline uint_t		getFlags() const		{return _flags;}
 	inline bool		hasFlags(uint_t flag) const	{return _flags & flag;}
 	
 	inline bool		isModified() const		{return _modified;}
-	inline void		isModified(bool val)		{_modified = val; _modification_count++;}
-	inline uint_t		getModificationCount() const	{return _modification_count;}
+	inline void		isModified(bool val)		{_modified = val;}
 	
 	inline float		getValue() const		{return _value;}
 	inline int		getInteger() const		{return _integer;}
 	
 private:	
 	std::string	_name;
+	std::vector<std::string>	
+			_values;
+	uint_t		_index;
 	std::string	_string;
-	std::string	_string_reset;
 	std::string	_string_latched;	// for CVAR_LATCH vars
 	uint_t		_flags;
 	bool		_modified;		// set each time the cvar is changed

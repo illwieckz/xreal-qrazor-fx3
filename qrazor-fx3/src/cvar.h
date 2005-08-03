@@ -29,6 +29,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "config.h"
 #endif
 // system -------------------------------------------------------------------
+#include <boost/array.hpp>
+
 // qrazor-fx ----------------------------------------------------------------
 // xreal --------------------------------------------------------------------
 // shared -------------------------------------------------------------------
@@ -51,11 +53,13 @@ extern bool			cvar_userinfo_modified;
 // this is set each time a CVAR_USERINFO variable is changed
 // so that the client knows to send it to the server
 
+//cvar_t*	Cvar_Get(const std::string &name, const std::string values[], uint_t flags);
 
-cvar_t*	Cvar_Get(const std::string &name, const std::string &value, uint_t flags);
+cvar_t*	Cvar_Get(const std::string &name, const std::string &values, uint_t flags);
 // creates the variable if it doesn't exist, or returns the existing one
 // if it exists, the value will not be changed, but flags will be ORed in
 // that allows variables to be unarchived without needing bitflags
+// values should be passed as a comma separated string
 
 cvar_t*	Cvar_Set(const std::string &name, const std::string &value);
 // will create the variable if it doesn't exist
@@ -100,7 +104,7 @@ void 	Cvar_WriteVars(VFILE *stream);
 // appends lines containing "set variable value" for all variables
 // with the archive flag set to true.
 
-void 	Cvar_WriteLatchedVars(VFILE *stream);
+//void 	Cvar_WriteLatchedVars(VFILE *stream);
 // write all CVAR_LATCH cvars
 // these will be things like coop, skill, deathmatch, etc
 
