@@ -209,7 +209,7 @@ cmodel_c*	trap_CM_RegisterModel(const std::string &name)
 	return gi.CM_RegisterModel(name);
 }
 
-cskel_animation_c*	trap_CM_RegisterAnimation(const std::string &name)
+animation_c*	trap_CM_RegisterAnimation(const std::string &name)
 {
 	return gi.CM_RegisterAnimation(name);
 }

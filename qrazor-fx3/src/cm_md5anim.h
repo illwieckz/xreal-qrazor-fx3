@@ -34,12 +34,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // xreal --------------------------------------------------------------------
 
 
-class cskel_animation_md5_c : public cskel_animation_c
+class animation_md5_c : public animation_c
 {
 public:
-	cskel_animation_md5_c(const std::string &name);
-	
-	void	loadChannels(char **data_p);
+	animation_md5_c(const std::string &name, int frames, int joints, int components, int framerate);
 };
 
 

@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // shared -------------------------------------------------------------------
 #include "../x_shared.h"
+#include "../x_panim.h"
 
 // xreal --------------------------------------------------------------------
 #include "g_entity.h"
@@ -280,7 +281,7 @@ private:
 	bool		isStepping();
 	
 	bool		scanAnimations(const std::string &model);
-	int		scanAnimation(const std::string &name);
+	animation_c*	scanAnimation(const std::string &name);
 
 public:
 	// item handling
@@ -314,8 +315,12 @@ private:
 	void		say_f(bool team, bool arg0);
 	void		playerList_f();
 	void		players_f();
-	void		score_f();	
-	
+	void		score_f();
+
+	// animation switching helpers for development
+	void		animNext_f();
+	void		animPrev_f();
+	void		animReset_f();
 
 public:
 	// weapon handling
@@ -422,6 +427,8 @@ public:
 	float			_air_finished;
 
 	// animation vars
+	std::map<uint_t, animation_c*>	_anims;
+
 	int			_anim_priority;
 	
 	bool			_anim_duck;
@@ -440,9 +447,6 @@ public:
 	int			_anim_time;
 	
 	int			_anim_lastsent;
-	
-	std::map<std::string, int>	_anims;		// key = name, value = time
-	
 
 	// powerup timers
 	float			_quad_framenum;

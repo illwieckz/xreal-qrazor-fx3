@@ -562,7 +562,7 @@ int		trap_SV_LightIndex(const std::string &name);
 // collision detection
 void		trap_CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum);
 cmodel_c*	trap_CM_RegisterModel(const std::string &name);
-cskel_animation_c*	trap_CM_RegisterAnimation(const std::string &name);
+animation_c*	trap_CM_RegisterAnimation(const std::string &name);
 cmodel_c*	trap_CM_GetModelByNum(int num);
 int		trap_CM_LeafContents(int leafnum);
 int		trap_CM_LeafCluster(int leafnum);

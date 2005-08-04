@@ -36,7 +36,7 @@ g_item_c::~g_item_c()
 	//DO NOTHING
 }
 
-cskel_animation_c*	g_item_c::registerAnimation(const std::string &name)
+animation_c*	g_item_c::registerAnimation(const std::string &name)
 {
 	_precaches.push_back(name);
 	return trap_CM_RegisterAnimation(name);

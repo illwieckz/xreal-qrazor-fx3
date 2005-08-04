@@ -136,7 +136,7 @@ public:
 protected:
 	
 	// helper function
-	cskel_animation_c*	registerAnimation(const std::string &name);
+	animation_c*		registerAnimation(const std::string &name);
 	
 
 	std::string			_classname;	// spawning name
@@ -185,40 +185,40 @@ public:
 	virtual void	weaponThink(g_player_c *player);
 	
 	const char*	getActivateAnimationName()		{return _anim_activate->getName();}
-	float		getActivateAnimationStartTime()		{return _anim_activate->getStartTime();}
-	float		getActivateAnimationEndTime()		{return _anim_activate->getEndTime();}
-	int		getActivateAnimationFirstFrame()	{return _anim_activate->getFirstFrame();}
-	int		getActivateAnimationLastFrame()		{return _anim_activate->getLastFrame();}
+	int		getActivateAnimationFramesNum()		{return _anim_activate->getFramesNum();}
+	int		getActivateAnimationFrameRate()		{return _anim_activate->getFrameRate();}
+//	int		getActivateAnimationFirstFrame()	{return _anim_activate->getFirstFrame();}
+//	int		getActivateAnimationLastFrame()		{return _anim_activate->getLastFrame();}
 	
 	const char*	getIdleAnimationName()			{return _anim_idle->getName();}
-	float		getIdleAnimationStartTime()		{return _anim_idle->getStartTime();}
-	float		getIdleAnimationEndTime()		{return _anim_idle->getEndTime();}
-	int		getIdleAnimationFirstFrame()		{return _anim_idle->getFirstFrame();}
-	int		getIdleAnimationLastFrame()		{return _anim_idle->getLastFrame();}
+	int		getIdleAnimationFramesNum()		{return _anim_idle->getFramesNum();}
+	int		getIdleAnimationFrameRate()		{return _anim_idle->getFrameRate();}
+//	int		getIdleAnimationFirstFrame()		{return _anim_idle->getFirstFrame();}
+//	int		getIdleAnimationLastFrame()		{return _anim_idle->getLastFrame();}
 	
 	const char*	getAttack1AnimationName()		{return _anim_attack1->getName();}
-	float		getAttack1AnimationStartTime()		{return _anim_attack1->getStartTime();}
-	float		getAttack1AnimationEndTime()		{return _anim_attack1->getEndTime();}
-	int		getAttack1AnimationFirstFrame()		{return _anim_attack1->getFirstFrame();}
-	int		getAttack1AnimationLastFrame()		{return _anim_attack1->getLastFrame();}
+	int		getAttack1AnimationFramesNum()		{return _anim_attack1->getFramesNum();}
+	int		getAttack1AnimationFrameRate()		{return _anim_attack1->getFrameRate();}
+//	int		getAttack1AnimationFirstFrame()		{return _anim_attack1->getFirstFrame();}
+//	int		getAttack1AnimationLastFrame()		{return _anim_attack1->getLastFrame();}
 
 	const char*	getReloadAnimationName()		{return _anim_reload->getName();}
-	float		getReloadAnimationStartTime()		{return _anim_reload->getStartTime();}
-	float		getReloadAnimationEndTime()		{return _anim_reload->getEndTime();}
-	int		getReloadAnimationFirstFrame()		{return _anim_reload->getFirstFrame();}
-	int		getReloadAnimationLastFrame()		{return _anim_reload->getLastFrame();}
+	int		getReloadAnimationFramesNum()		{return _anim_reload->getFramesNum();}
+	int		getReloadAnimationFrameRate()		{return _anim_reload->getFrameRate();}
+//	int		getReloadAnimationFirstFrame()		{return _anim_reload->getFirstFrame();}
+//	int		getReloadAnimationLastFrame()		{return _anim_reload->getLastFrame();}
 	
 	const char*	getNoAmmoAnimationName()		{return _anim_noammo->getName();}
-	float		getNoAmmoAnimationStartTime()		{return _anim_noammo->getStartTime();}
-	float		getNoAmmoAnimationEndTime()		{return _anim_noammo->getEndTime();}
-	int		getNoAmmoAnimationFirstFrame()		{return _anim_noammo->getFirstFrame();}
-	int		getNoAmmoAnimationLastFrame()		{return _anim_noammo->getLastFrame();}
+	int		getNoAmmoAnimationFramesNum()		{return _anim_noammo->getFramesNum();}
+	int		getNoAmmoAnimationFrameRate()		{return _anim_noammo->getFrameRate();}
+//	int		getNoAmmoAnimationFirstFrame()		{return _anim_noammo->getFirstFrame();}
+//	int		getNoAmmoAnimationLastFrame()		{return _anim_noammo->getLastFrame();}
 	
 	const char*	getDeActivateAnimationName()		{return _anim_deactivate->getName();}
-	float		getDeActivateAnimationStartTime()	{return _anim_deactivate->getStartTime();}
-	float		getDeActivateAnimationEndTime()		{return _anim_deactivate->getEndTime();}
-	int		getDeActivateAnimationFirstFrame()	{return _anim_deactivate->getFirstFrame();}
-	int		getDeActivateAnimationLastFrame()	{return _anim_deactivate->getLastFrame();}
+	int		getDeActivateAnimationFramesNum()	{return _anim_deactivate->getFramesNum();}
+	int		getDeActivateAnimationFrameRate()	{return _anim_deactivate->getFrameRate();}
+//	int		getDeActivateAnimationFirstFrame()	{return _anim_deactivate->getFirstFrame();}
+//	int		getDeActivateAnimationLastFrame()	{return _anim_deactivate->getLastFrame();}
 	
 
 	virtual void	attack1(g_player_c *player)		{};
@@ -226,19 +226,19 @@ public:
 	virtual void	reload(g_player_c *player)		{};
 	
 protected:		
-	cskel_animation_c*		_anim_activate;
+	animation_c*		_anim_activate;
 	
-	cskel_animation_c*		_anim_idle;
+	animation_c*		_anim_idle;
 	
-	cskel_animation_c*		_anim_attack1;
-	cskel_animation_c*		_anim_attack2;
-	cskel_animation_c*		_anim_attack3;
-	cskel_animation_c*		_anim_attack4;
+	animation_c*		_anim_attack1;
+	animation_c*		_anim_attack2;
+	animation_c*		_anim_attack3;
+	animation_c*		_anim_attack4;
 	
-	cskel_animation_c*		_anim_reload;
-	cskel_animation_c*		_anim_noammo;
+	animation_c*		_anim_reload;
+	animation_c*		_anim_noammo;
 	
-	cskel_animation_c*		_anim_deactivate;
+	animation_c*		_anim_deactivate;
 };
 
 

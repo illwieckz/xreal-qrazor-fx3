@@ -68,8 +68,8 @@ console
 //	}
 	{
 //		blend		blend
-//		map		textures/black.tga
-		map		_currentrender
+		map		textures/black.tga
+//		map		_currentrender
 //		map		menu/demo/logo_bg.tga
 //		linear		// no mip maps
 //		scroll		time * 0.3 , time * .3

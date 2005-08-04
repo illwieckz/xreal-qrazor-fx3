@@ -39,14 +39,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //d_bsp_c*		CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum, dSpaceID space);
 void			CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum);
 cmodel_c*		CM_RegisterModel(const std::string &name);
-cskel_animation_c*	CM_RegisterAnimation(const std::string &name);
+animation_c*		CM_RegisterAnimation(const std::string &name);
 void			CM_EndRegistration();
 
 cmodel_c*		CM_GetModelByName(const std::string &name);
 cmodel_c*		CM_GetModelByNum(int num);
 
-cskel_animation_c*	CM_GetAnimationByName(const std::string &name);
-cskel_animation_c*	CM_GetAnimationByNum(int num);
+animation_c*		CM_GetAnimationByName(const std::string &name);
+animation_c*		CM_GetAnimationByNum(int num);
 
 int			CM_LeafContents(int leafnum);
 int			CM_LeafCluster(int leafnum);
