@@ -602,10 +602,11 @@ static void	PM_CheckOnGround()
 
 static void	PM_CheckWaterLevel()
 {
+	//FIXME replace MINS_Z
 	pm->watertype = 0;
 	pm->waterlevel = 0;
 
-	vec3_c point(pml.origin[0], pml.origin[1], pml.origin[2] + MINS_Z + 1);	
+	vec3_c point(pml.origin[0], pml.origin[1], pml.origin[2] - 23);	
 	int cont = pm->pointContents(point);
 
 	if(cont & MASK_WATER)
@@ -865,7 +866,7 @@ static void	PM_CheckDuck()
 {
 	pm->bbox._mins[0] = -16;
 	pm->bbox._mins[1] = -16;
-	pm->bbox._mins[2] = MINS_Z;
+	pm->bbox._mins[2] = 0;
 
 	pm->bbox._maxs[0] = 16;
 	pm->bbox._maxs[1] = 16;
@@ -885,7 +886,7 @@ static void	PM_CheckDuck()
 		if(pm->s.pm_flags & PMF_DUCKED)
 		{
 			// try to stand up
-			pm->bbox._maxs[2] = 32;
+			pm->bbox._maxs[2] = 56;
 			
 			trace_t trace = pm->boxTrace(pml.origin, pm->bbox, pml.origin);
 			
@@ -903,7 +904,7 @@ static void	PM_CheckDuck()
 	}
 	else
 	{
-		pm->bbox._maxs[2] = 32;
+		pm->bbox._maxs[2] = 56;
 		pm->viewheight = VIEWHEIGHT_DEFAULT;
 	}
 }
@@ -1100,7 +1101,7 @@ static void	PM_DropTimers()
 ================
 Com_Pmove
 
-Can be called by either the server or the client
+Can be called by either the server game or the client game
 ================
 */
 void 	Com_Pmove(pmove_t *pmove)
