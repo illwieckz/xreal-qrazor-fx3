@@ -1517,6 +1517,7 @@ public:
 class r_tree_c
 {
 public:
+	virtual ~r_tree_c()					{}
 	virtual void		precacheLight(r_light_c *light) = 0;
 	virtual void		update() = 0;
 	virtual void		draw() = 0;
