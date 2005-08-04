@@ -160,6 +160,12 @@ void	r_skel_model_c::drawFrameLerp(const r_command_t *cmd, r_render_type_e type)
 				mesh->vertexes[i] += (bone->origin + (bone->quat * weight->position)) * weight->weight;
 			}
 		}
+
+		if(cmd->getEntity()->getShared().flags & RF_FULLBRIGHT)
+		{
+			for(uint_t i=0; i<mesh->vertexes.size(); i++)
+				mesh->lights[i] = mesh->normals[i];
+		}
 	}
 	else
 	{

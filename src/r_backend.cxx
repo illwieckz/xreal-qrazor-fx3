@@ -2087,7 +2087,7 @@ void	RB_RenderCommands()
 	//
 	// sort commands
 	//
-	//qsort(&r_current_scene->cmds[0], r_current_scene->cmds_num, sizeof(r_command_t), RB_SortByCommandDistanceFunc);
+//	qsort(&r_current_scene->cmds[0], r_current_scene->cmds_num, sizeof(r_command_t), RB_SortByCommandDistanceFunc);
 	
 	qsort(&r_current_scene->cmds_translucent[0], r_current_scene->cmds_translucent_num, sizeof(r_command_t), R_TranslucentCommandSortFunc);
 	

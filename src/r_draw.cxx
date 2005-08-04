@@ -34,7 +34,7 @@ static r_mesh_c		r_draw_mesh;
 
 void 	R_InitDraw()
 {
-	r_draw_mesh.fillVertexes(4);
+	r_draw_mesh.fillVertexes(4, false, false);
 
 	r_draw_mesh.indexes = r_quad_indexes;
 }

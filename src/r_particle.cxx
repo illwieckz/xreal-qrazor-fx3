@@ -34,7 +34,7 @@ static r_mesh_c			r_part_mesh;
 
 void 	R_InitParticles()
 {
-	r_part_mesh.fillVertexes(4);
+	r_part_mesh.fillVertexes(4, false, false);
 	
 	r_part_mesh.indexes = r_quad_indexes;
 	

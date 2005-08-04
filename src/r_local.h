@@ -578,7 +578,7 @@ public:
 	r_mesh_c();
 	virtual ~r_mesh_c();
 	
-	void		fillVertexes(int vertexes_num, bool with_lightmap_texcoords = false, bool with_light_vectors = false);
+	void		fillVertexes(int vertexes_num, bool with_lightmap_texcoords, bool with_light_vectors);
 	bool		isNotValid() const;
 	void		calcTangentSpaces();
 	void		calcTangentSpaces2();
