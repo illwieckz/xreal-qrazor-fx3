@@ -196,7 +196,7 @@ void	r_lwo_model_c::load()
 				
 		if(mesh->indexes.size())
 		{
-			mesh->fillVertexes(vertexes.size());
+			mesh->fillVertexes(vertexes.size(), false, true);
 			mesh->vertexes = vertexes;
 			
 			for(uint_t i=0; i<mesh->vertexes.size(); i++)

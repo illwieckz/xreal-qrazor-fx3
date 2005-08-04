@@ -1298,7 +1298,7 @@ static void	R_BenchCalcTangentSpaces_f()
 	if(!vertexes_num)
 		vertexes_num = 10000;
 	
-	m.fillVertexes(vertexes_num);
+	m.fillVertexes(vertexes_num, false, false);
 	
 	m.indexes = std::vector<index_t>(vertexes_num*6);
 	for(uint_t i=0; i<m.indexes.size(); i++)

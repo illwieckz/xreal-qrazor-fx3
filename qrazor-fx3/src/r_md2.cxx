@@ -170,7 +170,7 @@ void	r_md2_model_c::load()
 	}
 
 	// create lerp vertices for the mesh
-	poutmesh->fillVertexes(vertexes_num);
+	poutmesh->fillVertexes(vertexes_num, false, true);
 	
 	
 	// remap remaining indexes

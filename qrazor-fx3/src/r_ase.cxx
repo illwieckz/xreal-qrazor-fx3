@@ -158,6 +158,7 @@ static void	R_ASE_PushVertex(char const* begin, char const* end)
 	r_ase_mesh->tangents.push_back(vec3_c());
 	r_ase_mesh->binormals.push_back(vec3_c());
 	r_ase_mesh->normals.push_back(vec3_c());
+	r_ase_mesh->lights.push_back(vec3_c());
 	r_ase_mesh->colors.push_back(vec4_c());
 }
 

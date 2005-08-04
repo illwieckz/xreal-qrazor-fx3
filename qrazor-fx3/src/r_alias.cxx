@@ -260,7 +260,7 @@ void	r_alias_model_c::drawFrameLerp(const r_command_t *cmd, r_render_type_e type
 	//
 	if(type != RENDER_TYPE_SHADOWING)
 	{
-		for(unsigned int i=0; i<mesh->vertexes.size(); i++)
+		for(uint_t i=0; i<mesh->vertexes.size(); i++)
 		{
 			mesh->vertexes[i] = move;	
 			vec3_c tmp(false); tmp.lerp(mesh_frame_old->vertexes[i], mesh_frame->vertexes[i], r_newrefdef.lerp);
@@ -277,6 +277,12 @@ void	r_alias_model_c::drawFrameLerp(const r_command_t *cmd, r_render_type_e type
 		
 			mesh->normals[i].lerp(mesh_frame_old->normals[i], mesh_frame->normals[i], r_newrefdef.lerp);
 			mesh->normals[i].normalize();
+		}
+
+		if(cmd->getEntity()->getShared().flags & RF_FULLBRIGHT)
+		{
+			for(uint_t i=0; i<mesh->vertexes.size(); i++)
+				mesh->lights[i] = mesh->normals[i];
 		}
 	}
 	else
