@@ -531,7 +531,8 @@ static void	R_InitNormalizationCubeMapImage(int size)
 
 	int		i;
 	int 		x, y;
-	float		vector[3];
+	//float		vector[3];
+	vec3_c		vector;
 	int		format;
 	int		format_internal;
 	

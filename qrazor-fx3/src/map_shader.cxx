@@ -319,6 +319,9 @@ protected:
 	: _shader(shader)
 	{
 	}
+	virtual ~shader_action_a()
+	{
+	}
 	
 	virtual void	action() const = 0;
 	

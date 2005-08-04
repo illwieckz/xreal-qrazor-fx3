@@ -185,7 +185,7 @@ g_projectile_grenade_c::g_projectile_grenade_c(g_entity_c *activator, const vec3
 
 void	g_projectile_grenade_c::think()
 {
-	vec3_t		origin;
+	vec3_c		origin;
 	int		mod;
 
 	//if (_r.owner->getClient())
@@ -195,8 +195,8 @@ void	g_projectile_grenade_c::think()
 	if (_enemy)
 	{
 		float	points;
-		vec3_t	v;
-		vec3_t	dir;
+		vec3_c	v;
+		vec3_c	dir;
 
 		Vector3_Add (_enemy->_r.bbox._mins, _enemy->_r.bbox._maxs, v);
 		Vector3_MA (_enemy->_s.origin, 0.5, v, v);
