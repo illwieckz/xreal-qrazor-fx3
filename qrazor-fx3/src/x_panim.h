@@ -1,7 +1,6 @@
 /// ============================================================================
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
-Copyright (C) 2004 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2005 Robert Beckebans <trebor_7@users.sourceforge.net>
 Please see the file "AUTHORS" for a list of contributors
 
 This program is free software; you can redistribute it and/or
@@ -40,35 +39,35 @@ enum player_anim_type_t
 	PLAYER_ANIM_IDLE_UP,
 	PLAYER_ANIM_IDLE_DOWN,
 	
-	PLAYER_ANIM_CROUCH_IDLE,
+//	PLAYER_ANIM_CROUCH_IDLE,
 //	PLAYER_ANIM_CROUCH_DOWN,
 //	PLAYER_ANIM_CROUCH_UP,
 //	PLAYER_ANIM_CROUCH_WALK,
 	
-	PLAYER_ANIM_WALK_FORWARD,
-	PLAYER_ANIM_WALK_BACKWARD,
-	PLAYER_ANIM_WALK_RIGHT,
-	PLAYER_ANIM_WALK_LEFT,
+//	PLAYER_ANIM_WALK_FORWARD,
+//	PLAYER_ANIM_WALK_BACKWARD,
+//	PLAYER_ANIM_WALK_RIGHT,
+//	PLAYER_ANIM_WALK_LEFT,
 	
-	PLAYER_ANIM_JUMP,
+//	PLAYER_ANIM_JUMP,
 	
-	PLAYER_ANIM_LAND_SOFT,
-	PLAYER_ANIM_LAND_HARD,
+//	PLAYER_ANIM_LAND_SOFT,
+//	PLAYER_ANIM_LAND_HARD,
 	
-	PLAYER_ANIM_RUN,
+//	PLAYER_ANIM_RUN,
 	
 //	PLAYER_ANIM_SWIM,
 	
-	PLAYER_ANIM_ATTACK1,
+//	PLAYER_ANIM_ATTACK1,
 //	PLAYER_ANIM_ATTACK2,
 	
 //	PLAYER_ANIM_GESTURE,
 	
-	PLAYER_ANIM_PAIN1,
+//	PLAYER_ANIM_PAIN1,
 //	PLAYER_ANIM_PAIN2,
 //	PLAYER_ANIM_PAIN3,
 	
-	PLAYER_ANIM_DEATH1,
+//	PLAYER_ANIM_DEATH1,
 //	PLAYER_ANIM_DEATH2,
 //	PLAYER_ANIM_DEATH3
 };

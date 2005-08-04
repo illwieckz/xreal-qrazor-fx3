@@ -35,28 +35,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 #include "../x_protocol.h"
-
-
-// define GAME_INCLUDE so that game.h does not define the
-// short, server-visible g_client_c and g_entity_c structures,
-// because we define the full size ones in this file
-#define	GAME_INCLUDE
 #include "g_public.h"
+#include "bg_public.h"
 
-
-// xg_local.h -- local definitions for the XeaL game module
-
-
-// the "gameversion" client command will print this plus compile date
-#define	GAMEVERSION	"XreaL"
-
-
-
+// g_local.h -- local definitions for the XeaL game module
 
 // view pitching times
 #define DAMAGE_TIME		0.5
 #define	FALL_TIME		0.3
-
 
 // edict->spawnflags
 // these are set with checkboxes on each entity in the map editor

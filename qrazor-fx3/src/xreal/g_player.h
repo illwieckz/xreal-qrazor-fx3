@@ -271,7 +271,7 @@ private:
 	void		calcViewOffset();
 	void		calcGunOffset();
 	void		calcBlend();
-	void		addBlend(float r, float g, float b, float a, float *v_blend);
+	void		addBlend(float r, float g, float b, float a, vec4_c &v_blend);
 	
 	// animation handling
 	bool		isDucking();

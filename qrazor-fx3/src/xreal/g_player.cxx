@@ -1060,8 +1060,8 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	if(_movetype == MOVETYPE_NOCLIP)
 		_r.ps.pmove.pm_type = PM_SPECTATOR;
 			
-	else if(_s.index_model != 255)
-		_r.ps.pmove.pm_type = PM_GIB;
+//	else if(_s.index_model != 255)
+//		_r.ps.pmove.pm_type = PM_GIB;
 			
 	else if(_deadflag)
 		_r.ps.pmove.pm_type = PM_DEAD;
@@ -1230,6 +1230,8 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 		}
 		else if(!_weapon_thunk)
 		{
+			trap_Com_DPrintf("g_player_c::clientThink: attack\n");
+
 			// shoot !
 			_weapon_thunk = true;
 			thinkWeapon();
@@ -1925,6 +1927,8 @@ void	g_player_c::putClientInServer()
 	_air_finished = level.time + 12;
 	_r.clipmask = MASK_PLAYERSOLID;
 	//_model = "players/male/tris.md2";
+	_s.index_model = trap_SV_ModelIndex("models/players/marine/mpplayer.md5mesh");
+	_s.index_animation = trap_SV_AnimationIndex("models/players/marine/fists_idle.md5anim");
 	_waterlevel = 0;
 	_watertype = 0;
 	_flags &= ~FL_NO_KNOCKBACK;
@@ -1956,8 +1960,7 @@ void	g_player_c::putClientInServer()
 
 	// clear entity state values
 	_s.effects = 0;
-	_s.index_model = 255;		// will use the skin specified model
-		
+//	_s.index_model = 255;		// will use the skin specified model	
 	
 	_anim_priority = ANIM_BASIC;
 	
@@ -2790,8 +2793,8 @@ void	g_player_c::updateFallingDamage()
 	vec3_t	dir;
 		
 	
-	if(_s.index_model != 255)
-		return;		// not in the player model
+//	if(_s.index_model != 255)
+//		return;		// not in the player model
 
 	if(_movetype == MOVETYPE_NOCLIP)
 		return;
@@ -2908,7 +2911,7 @@ void	g_player_c::updateDamageFeedback()
 		
 
 	// start a pain animation if still in the player model
-	if(_anim_priority < ANIM_PAIN && _s.index_model == 255)
+	if(_anim_priority < ANIM_PAIN)// && _s.index_model == 255)
 	{
 		static int		i;
 
@@ -2923,8 +2926,8 @@ void	g_player_c::updateDamageFeedback()
 				
 				//TODO PAIN1 animation
 				
-				_anim_current = PLAYER_ANIM_PAIN1;
-				_anim_time = PLAYER_ANIM_UPPER_PAIN1_TIME;
+				//_anim_current = PLAYER_ANIM_PAIN1;
+				//_anim_time = PLAYER_ANIM_UPPER_PAIN1_TIME;
 				break;
 			
 			/*
@@ -3132,13 +3135,15 @@ void	g_player_c::updateClientSound()
 
 void	g_player_c::updateClientFrame()
 {
+	_s.frame = ++_s.frame % 27;
+
 	//bool	duck, run, swim;
 	//bool	update_upper, update_lower;
 	
 	//int	final[PLAYER_BODY_PARTS_NUM];
 
-	if((_s.index_model != 255) || (_r.svflags & SVF_NOCLIENT))
-		return;		// not in the player model
+	//if((_s.index_model != 255) || (_r.svflags & SVF_NOCLIENT))
+	//	return;		// not in the player model
 	
 	/*	
 	if(_anim_priority == ANIM_DEATH)
@@ -3178,7 +3183,7 @@ void	g_player_c::updateClientFrame()
 	//
 	// set frame
 	//
-	_s.frame = 0;
+	//_s.frame = 0;
 	
 	
 	/*
@@ -3423,19 +3428,15 @@ void	g_player_c::calcViewOffset()
 
 	// absolutely bound offsets
 	// so the view can never be outside the player box
-	X_clamp(v[0], -14, 14);
-	X_clamp(v[1], -14, 14);
-	X_clamp(v[2], -22, 30);
+	X_clamp(v[0],-14, 14);
+	X_clamp(v[1],-14, 14);
+	X_clamp(v[2], MINS_Z+1, VIEWHEIGHT_DEFAULT-1);
 	
 	_r.ps.view_offset = v;
 }
 
 void	g_player_c::calcGunOffset()
 {
-	int	i;
-	float	delta;
-	
-	
 	// gun angles from bobbing
 	_r.ps.gun_angles[ROLL] = _xyspeed * _bob_fracsin * 0.005;
 	_r.ps.gun_angles[YAW] = _xyspeed * _bob_fracsin * 0.01;
@@ -3448,9 +3449,9 @@ void	g_player_c::calcGunOffset()
 	_r.ps.gun_angles[PITCH] = _xyspeed * _bob_fracsin * 0.005;
 
 	// gun angles from delta movement
-	for (i=0 ; i<3 ; i++)
+	for(int i=0; i<3; i++)
 	{
-		delta = _oldviewangles[i] - _r.ps.view_angles[i];
+		vec_t delta = _oldviewangles[i] - _r.ps.view_angles[i];
 		
 		if(delta > 180)
 			delta -= 360;
@@ -3471,7 +3472,7 @@ void	g_player_c::calcGunOffset()
 	//ent->ps->gunorigin[2] += bob;
 
 	// gun_x / gun_y / gun_z are development tools
-	for(i=0 ; i<3 ; i++)
+	for(int i=0; i<3; i++)
 	{
 		_r.ps.gun_offset[i] += _v_forward[i]*(gun_y->getValue());
 		_r.ps.gun_offset[i] += _v_right[i]*gun_x->getValue();
@@ -3504,8 +3505,8 @@ void	g_player_c::calcBlend()
 	else if(contents & X_CONT_SLIME)
 		addBlend(0.0, 0.1, 0.05, 0.6, _r.ps.blend);
 		
-	//else if(contents & X_CONT_WATER)
-	//	addBlend(0.5, 0.3, 0.2, 0.4, _r.ps.blend);
+	else if(contents & X_CONT_WATER)
+		addBlend(0.5, 0.3, 0.2, 0.4, _r.ps.blend);
 
 	// add for powerups
 	if (_quad_framenum > level.framenum)
@@ -3566,7 +3567,7 @@ void	g_player_c::calcBlend()
 		_bonus_alpha = 0;
 }
 
-void	g_player_c::addBlend(float r, float g, float b, float a, float *v_blend)
+void	g_player_c::addBlend(float r, float g, float b, float a, vec4_c &v_blend)
 {
 	float	a2, a3;
 
@@ -3638,8 +3639,8 @@ bool	g_player_c::isStepping()
 
 bool	g_player_c::scanAnimations(const std::string &model)
 {
-/*
-	FIXME
+#if 0
+	trap_Com_Printf("g_player_c::scanAnimations: scanning animations for");
 	
 	for(const player_anim_t *anim=player_anims; anim->name; anim++)
 	{
@@ -3657,7 +3658,7 @@ bool	g_player_c::scanAnimations(const std::string &model)
 		
 		_anims.insert(make_pair(name, 0));
 	}
-*/
+#endif
 	return true;
 }
 
