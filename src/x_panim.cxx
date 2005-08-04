@@ -32,10 +32,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 const player_anim_t player_anims[] = 
 {
-	{"idle",		PLAYER_ANIM_IDLE},
-	{"idle_up",		PLAYER_ANIM_IDLE_UP},
-	{"idle_down",		PLAYER_ANIM_IDLE_DOWN},
-	
+	{"fists_idle",		PLAYER_ANIM_FISTS_IDLE},
+	{"fists_idle_up",	PLAYER_ANIM_FISTS_IDLE_UP},
+	{"fists_idle_down",	PLAYER_ANIM_FISTS_IDLE_DOWN},
 	
 //	{"crouch_idle",		PLAYER_ANIM_CROUCH_IDLE},
 //	{"crouch_down",		PLAYER_ANIM_CROUCH_DOWN},

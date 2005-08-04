@@ -175,6 +175,7 @@ A generic function to handle the basics of weapon thinking
 */
 void	g_item_weapon_c::weaponThink(g_player_c *player)
 {
+#if 0
 	if(player->_deadflag || player->_s.index_model != 255) // VWep animations screw up corpses
 		return;
 		
@@ -366,6 +367,7 @@ void	g_item_weapon_c::weaponThink(g_player_c *player)
 			break;
 		}
 	}
+#endif
 }
 
 

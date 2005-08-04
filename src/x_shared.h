@@ -807,72 +807,40 @@ public:
 	std::vector<csurface_c>		surfaces;
 };
 
-
-
-enum chan_attrib_type_t
-{
-	CHANNEL_ATTRIB_X,
-	CHANNEL_ATTRIB_Y,
-	CHANNEL_ATTRIB_Z,
-	CHANNEL_ATTRIB_PITCH,
-	CHANNEL_ATTRIB_YAW,
-	CHANNEL_ATTRIB_ROLL
-};
-
-struct cskel_channel_t
-{
-	std::string		joint;
-	
-	chan_attrib_type_t	attribute;
-	
-	float			time_start;
-	float			time_end;
-	float			time_fps;
-	
-	int			strings;
-	int			range[2];
-	
-	std::vector<float>	keys;
-};
-
-class cskel_animation_c
+class animation_c
 {
 public:
-	cskel_animation_c(const std::string &name)
+	animation_c(const std::string &name, int frames, int joints, int components, int framerate)
 	{
-		Com_DPrintf("loading collisionAnimation '%s' ...\n", name.c_str());
-	
-		_name = name;
+		_name		= name;
+		_num_frames	= frames;
+		_num_joints	= joints;
+		_frame_rate	= framerate;
 	}
 	
-	virtual ~cskel_animation_c()
-	{
-		X_purge<std::vector<cskel_channel_t*> >(_channels);
-	}
+	virtual ~animation_c()						{}
 	
 	inline const char*	getName() const				{return _name.c_str();}
 	
 	inline uint_t		getRegistrationSequence() const		{return _registration_sequence;}
 	inline void		setRegistrationSequence(uint_t seq)	{_registration_sequence = seq;}
 	
-	inline float		getStartTime() const			{return _time_start;}
-	inline float		getEndTime() const			{return _time_end;}
+	inline int		getFramesNum() const			{return _num_frames;}
+	inline int		getJointsNum() const			{return _num_joints;}
+	inline int		getComponentsNum() const		{return _num_components;}
 	
-	inline int		getFirstFrame() const			{return _frame_first;}
-	inline int		getLastFrame() const			{return _frame_last;}
+	inline int		getFrameRate() const			{return _frame_rate;}
 
 private:
 	std::string		_name;
 	uint_t			_registration_sequence;
 
-protected:
-	float			_time_start;
-	float			_time_end;
-	
-	int			_frame_first;
-	int			_frame_last;
+//public:
+	int			_num_frames;
+	int			_num_joints;	
+	int			_num_components;
 
-	std::vector<cskel_channel_t*>	_channels;
+	int			_frame_rate;
 };
 
 /*

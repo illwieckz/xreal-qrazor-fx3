@@ -66,7 +66,7 @@ void	CG_AddEntity(int newnum, const entity_state_t *state)
 	switch(cent->prev.type)
 	{
 		case ET_GENERIC:
-		//case ET_PLAYER:
+		case ET_PLAYER:
 		case ET_FUNC_STATIC:
 		case ET_PROJECTILE_ROCKET:
 			CG_AddGenericEntity(cent);
@@ -139,7 +139,7 @@ void	CG_RemoveEntity(int newnum, const entity_state_t *state)
 	switch(cent->prev.type)
 	{
 		case ET_GENERIC:
-		//case ET_PLAYER:
+		case ET_PLAYER:
 		case ET_FUNC_STATIC:
 		case ET_PROJECTILE_ROCKET:
 			CG_RemoveGenericEntity(cent);
@@ -627,7 +627,7 @@ void	CG_UpdateEntities()
 		switch(cent->prev.type)
 		{
 			case ET_GENERIC:
-			//case ET_PLAYER:
+			case ET_PLAYER:
  			case ET_FUNC_STATIC:
 			case ET_PROJECTILE_ROCKET:
 				CG_UpdateGenericEntity(cent);

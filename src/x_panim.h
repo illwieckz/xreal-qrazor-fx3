@@ -33,11 +33,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // qrazor-fx ----------------------------------------------------------------
 // xreal --------------------------------------------------------------------
 
-enum player_anim_type_t
+enum //player_anim_type_e
 {
-	PLAYER_ANIM_IDLE,
-	PLAYER_ANIM_IDLE_UP,
-	PLAYER_ANIM_IDLE_DOWN,
+	PLAYER_ANIM_FISTS_IDLE,
+
+	PLAYER_ANIM_FIRST			= PLAYER_ANIM_FISTS_IDLE,
+
+	PLAYER_ANIM_FISTS_IDLE_UP,
+	PLAYER_ANIM_FISTS_IDLE_DOWN,
 	
 //	PLAYER_ANIM_CROUCH_IDLE,
 //	PLAYER_ANIM_CROUCH_DOWN,
@@ -70,6 +73,10 @@ enum player_anim_type_t
 //	PLAYER_ANIM_DEATH1,
 //	PLAYER_ANIM_DEATH2,
 //	PLAYER_ANIM_DEATH3
+
+	PLAYER_ANIM_LAST			= PLAYER_ANIM_FISTS_IDLE_DOWN,
+
+	PLAYER_ANIMS_NUM
 };
 
 

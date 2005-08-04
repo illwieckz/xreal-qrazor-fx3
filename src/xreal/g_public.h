@@ -179,7 +179,7 @@ typedef struct
 	// collision detection
 	void			(*CM_BeginRegistration)(const std::string &name, bool clientload, unsigned *checksum);
 	cmodel_c*		(*CM_RegisterModel)(const std::string &name);
-	cskel_animation_c*	(*CM_RegisterAnimation)(const std::string &name);
+	animation_c*		(*CM_RegisterAnimation)(const std::string &name);
 	cmodel_c*		(*CM_GetModelByNum)(int num);
 	int			(*CM_LeafContents)(int leafnum);
 	int			(*CM_LeafCluster)(int leafnum);

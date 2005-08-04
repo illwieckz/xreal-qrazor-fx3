@@ -25,8 +25,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /// includes ===================================================================
 // system -------------------------------------------------------------------
 // shared -------------------------------------------------------------------
-#include "../x_panim.h"
-
 // xreal --------------------------------------------------------------------
 #include "g_local.h"
 #include "g_player.h"
@@ -161,6 +159,8 @@ g_player_c::g_player_c()
 	_air_finished		= 0;
 
 	// animation vars
+//	memset(_anims, 0, sizeof(_anims));
+
 	_anim_priority		= 0;
 	
 	_anim_duck		= false;
@@ -931,7 +931,7 @@ void	g_player_c::clientCommand()
 	if(level.intermission_time)
 		return;
 
-	if(X_stricmp (cmd, "use") == 0)
+	if(X_stricmp(cmd, "use") == 0)
 		use_f();
 		
 	else if(X_stricmp(cmd, "drop") == 0)
@@ -999,6 +999,15 @@ void	g_player_c::clientCommand()
 		
 	else if(X_stricmp(cmd, "playerlist") == 0)
 		playerList_f();
+
+	else if(X_stricmp(cmd, "animnext") == 0)
+		animNext_f();
+
+	else if(X_stricmp(cmd, "animprev") == 0)
+		animPrev_f();
+
+	else if(X_stricmp(cmd, "animreset") == 0)
+		animReset_f();
 				
 	else	// anything that doesn't match a command will be a chat
 		say_f(false, true);
@@ -1964,7 +1973,7 @@ void	g_player_c::putClientInServer()
 	
 	_anim_priority = ANIM_BASIC;
 	
-	_anim_current = PLAYER_ANIM_IDLE;
+	_anim_current = PLAYER_ANIM_FISTS_IDLE;
 	
 	//_anim_time = 0;
 	
@@ -3135,7 +3144,7 @@ void	g_player_c::updateClientSound()
 
 void	g_player_c::updateClientFrame()
 {
-	_s.frame = ++_s.frame % 27;
+	_s.frame = ++_s.frame % _anims[_anim_current]->getFramesNum();
 
 	//bool	duck, run, swim;
 	//bool	update_upper, update_lower;
@@ -3639,12 +3648,11 @@ bool	g_player_c::isStepping()
 
 bool	g_player_c::scanAnimations(const std::string &model)
 {
-#if 0
-	trap_Com_Printf("g_player_c::scanAnimations: scanning animations for");
+	trap_Com_Printf("g_player_c::scanAnimations(%s): scanning animations for %s ...\n", model.c_str(), _pers.netname);
 	
-	for(const player_anim_t *anim=player_anims; anim->name; anim++)
+	for(uint_t i=0; i<PLAYER_ANIMS_NUM; i++)
 	{
-		std::string name = "models/players/" + model + "/" + std::string(anim->name) + ".md5anim";
+		std::string name = "models/players/" + model + "/" + std::string(player_anims[i].name) + ".md5anim";
 		
 		if(trap_VFS_FLoad(name, NULL) <= 0)
 		{
@@ -3652,21 +3660,20 @@ bool	g_player_c::scanAnimations(const std::string &model)
 			return false;
 		}
 		
-		//trap_Com_Printf("adding '%s'\n", name.c_str());
-		
-		scanAnimation(name);
-		
-		_anims.insert(make_pair(name, 0));
+		trap_Com_Printf("setting '%s' ...\n", name.c_str());
+		_anims[i] = scanAnimation(name);
 	}
-#endif
+
 	return true;
 }
 
-int	g_player_c::scanAnimation(const std::string &name)
+animation_c*	g_player_c::scanAnimation(const std::string &name)
 {
-	//TODO
-	
-	return 0;
+	// tell client to load animation
+	trap_SV_AnimationIndex(name);
+
+	// return proper animation pointer
+	return trap_CM_RegisterAnimation(name);
 }
 
 void 	g_player_c::selectNextItem(int item_flags)
@@ -4341,7 +4348,7 @@ void	g_player_c::weapReload_f()
 	_weapon_state = WEAPON_RELOADING;
 	//_weapon_update = level.time;
 	_r.ps.gun_model_index = trap_SV_ModelIndex(_pers.weapon->getViewModel());
-	_r.ps.gun_anim_frame = _pers.weapon->getReloadAnimationFirstFrame();
+	_r.ps.gun_anim_frame = 0;//_pers.weapon->getReloadAnimationFirstFrame();
 	_r.ps.gun_anim_index = trap_SV_AnimationIndex(_pers.weapon->getReloadAnimationName());
 	
 	_pers.weapon->reload(this);
@@ -4501,7 +4508,7 @@ void 	g_player_c::wave_f()
 			//_anim_end = FRAME_point12;
 			
 			//_s.frame = (PLAYER_ANIM_UPPER_GESTURE & 0x3F);
-			_anim_current = PLAYER_ANIM_IDLE;
+			_anim_current = PLAYER_ANIM_FISTS_IDLE;
 			_anim_time = PLAYER_ANIM_UPPER_GESTURE_TIME;
 			break;
 	}
@@ -4656,6 +4663,23 @@ void	g_player_c::score_f()
 	DeathmatchScoreboard(this);
 }
 
+void	g_player_c::animNext_f()
+{
+	_anim_current = X_bound(PLAYER_ANIM_FIRST, _anim_current+1, PLAYER_ANIM_LAST);
+	_s.index_animation = trap_SV_AnimationIndex(_anims[_anim_current]->getName());
+}
+
+void	g_player_c::animPrev_f()
+{
+	_anim_current = X_bound(PLAYER_ANIM_FIRST, _anim_current-1, PLAYER_ANIM_LAST);
+	_s.index_animation = trap_SV_AnimationIndex(_anims[_anim_current]->getName());
+}
+
+void	g_player_c::animReset_f()
+{
+	_s.frame = 0;
+}
+
 
 /*
 =================
@@ -4729,13 +4753,13 @@ void	g_player_c::changeWeapon()
 	_weapon_state = WEAPON_ACTIVATING;
 	_weapon_update = level.time;
 	_r.ps.gun_model_index = trap_SV_ModelIndex(_pers.weapon->getViewModel());
-	_r.ps.gun_anim_frame = _pers.weapon->getActivateAnimationFirstFrame();
+	_r.ps.gun_anim_frame = 0;//_pers.weapon->getActivateAnimationFirstFrame();
 	_r.ps.gun_anim_index = trap_SV_AnimationIndex(_pers.weapon->getActivateAnimationName());
 	
 
 	// FIXME
 	_anim_priority = ANIM_PAIN;
-	_anim_current = PLAYER_ANIM_IDLE;
+	_anim_current = PLAYER_ANIM_FISTS_IDLE;
 	_anim_time = PLAYER_ANIM_UPPER_FLIPIN_TIME;
 }
 
