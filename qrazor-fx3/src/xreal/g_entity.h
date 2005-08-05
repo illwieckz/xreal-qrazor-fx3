@@ -198,13 +198,19 @@ public:
 	float		_yaw_speed;
 	float		_ideal_yaw;
 
-	float		_nextthink;			// time when this entity will think again	
 
-	float		_touch_debounce_time;		// are all these legit?  do we need more/less of them?
-	float		_pain_debounce_time;
-	float		_damage_debounce_time;
-	float		_fly_sound_debounce_time;	// move to clientinfo
-	float		_last_move_time;
+	// timing variables
+	int		_nextthink;			// time when this entity will think again
+
+	int		_time_wait;
+	int		_time_delay;			// before firing targets
+	int		_time_random;
+
+	int		_time_touch_debounce;		// are all these legit?  do we need more/less of them?
+	int		_time_pain_debounce;
+	int		_time_damage_debounce;
+	int		_time_fly_sound_debounce;	// move to clientinfo
+	int		_time_last_move;
 
 	int		_health;
 	int		_max_health;
@@ -235,11 +241,6 @@ public:
 	int		_noise_index2;
 	float		_volume;
 	float		_attenuation;
-
-	// timing variables
-	float		_wait;
-	float		_delay;				// before firing targets
-	float		_random;
 
 	// underwater variables
 	int		_watertype;

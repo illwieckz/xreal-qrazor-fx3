@@ -63,7 +63,7 @@ g_projectile_bolt_c::g_projectile_bolt_c(g_entity_c *activator, const vec3_c &st
 	
 	// setup values private to game code and this entity
 	_classname = "bolt";
-	_nextthink = level.time + 2;	// die after 2 seconds
+	_nextthink = level.time + 2000;	// die after 2 seconds
 	_dmg = damage;
 	
 #if defined(ODE)
@@ -145,7 +145,7 @@ bool	g_projectile_bolt_c::touch(g_entity_c *other, const plane_c &plane, csurfac
 				GRENADE PROJECTILE
 ================================================================================
 */
-g_projectile_grenade_c::g_projectile_grenade_c(g_entity_c *activator, const vec3_c &start, const vec3_c &aimdir, int damage, int speed, float timer, float damage_radius)
+g_projectile_grenade_c::g_projectile_grenade_c(g_entity_c *activator, const vec3_c &start, const vec3_c &aimdir, int damage, int speed, int timer, float damage_radius)
 {
 	//trap_Com_Printf("g_projectile_grenade_c::ctor:\n");
 
@@ -365,7 +365,7 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 	_r.owner = activator;
 	
 	_speed = speed;
-	_nextthink = level.time + 30;	//level.time + FRAMETIME;
+	_nextthink = level.time + 30000;	//level.time + FRAMETIME;
 //	_movetype = MOVETYPE_NOCLIP;
 	_movetype = MOVETYPE_FLYMISSILE;
 	_dmg = damage;

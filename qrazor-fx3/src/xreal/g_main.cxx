@@ -36,8 +36,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 game_export_t	globals;
 
-g_game_locals_c		game;
-g_level_locals_c	level;
+g_game_c	game;
+g_level_c	level;
 
 
 
@@ -490,7 +490,7 @@ static void	G_CheckDMRules()
 
 	if(timelimit->getInteger())
 	{
-		if(level.time >= timelimit->getInteger()*60)
+		if(level.time >= timelimit->getInteger()*60000)
 		{
 			trap_SV_BPrintf(PRINT_HIGH, "Timelimit hit.\n");
 			G_EndDMLevel();
@@ -567,7 +567,7 @@ static void	G_RemoveUnneededEntities()
 ================
 G_RunFrame
 
-Advances the world by 0.1 seconds
+Advances the world by 100 milliseconds
 ================
 */
 void 	G_RunFrame()

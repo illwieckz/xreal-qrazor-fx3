@@ -91,7 +91,7 @@ public:
 	virtual void	activate();
 
 private:
-	float		_timestamp;
+	int		_timestamp;
 };
 
 

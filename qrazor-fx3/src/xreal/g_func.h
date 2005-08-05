@@ -52,7 +52,7 @@ struct moveinfo_t
 	float		decel;
 	float		distance;
 
-	float		wait;
+	int		wait;
 
 	// state data
 	int		state;

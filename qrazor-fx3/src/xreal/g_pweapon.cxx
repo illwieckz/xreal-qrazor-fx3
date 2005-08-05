@@ -270,7 +270,7 @@ void	g_item_weapon_c::weaponThink(g_player_c *player)
 					if (level.time >= player->_pain_debounce_time)
 					{
 						trap_SV_StartSound(NULL, ent, CHAN_VOICE, trap_SV_SoundIndex("weapons/noammo.wav"), 1, ATTN_NORM, 0);
-						player->_pain_debounce_time = level.time + 1;
+						player->_pain_debounce_time = level.time + 1000;
 					}
 					*/
 				
@@ -401,7 +401,7 @@ void	weapon_grenade_fire(g_entity_c *ent, bool held)
 	if (! ( (int)dmflags->getInteger() & DF_INFINITE_AMMO ) )
 		ent->_pers.inventory[ent->getAmmoIndex()]--;
 
-	ent->_grenade_time = level.time + 1.0;
+	ent->_grenade_time = level.time + 1000;
 
 	if(ent->deadflag || ent->s.modelindex != 255) // VWep animations screw up corpses
 	{
@@ -456,7 +456,7 @@ void Weapon_Grenade (g_entity_c *ent)
 				if (level.time >= ent->pain_debounce_time)
 				{
 					trap_SV_StartSound(NULL, ent, CHAN_VOICE, trap_SV_SoundIndex("weapons/noammo.wav"), 1, ATTN_NORM, 0);
-					ent->pain_debounce_time = level.time + 1;
+					ent->pain_debounce_time = level.time + 1000;
 				}
 				NoAmmoWeaponChange (ent);
 			}
@@ -483,7 +483,7 @@ void Weapon_Grenade (g_entity_c *ent)
 		{
 			if (!ent->_grenade_time)
 			{
-				ent->_grenade_time = level.time + GRENADE_TIMER + 0.2;
+				ent->_grenade_time = level.time + GRENADE_TIMER + 200;
 				ent->_weapon_sound = trap_SV_SoundIndex("weapons/hgrenc1b.wav");
 			}
 
@@ -1026,7 +1026,7 @@ void	g_item_weapon_hyper_blaster_c::fire(g_player_c *ent)
 			if (level.time >= ent->_pain_debounce_time)
 			{
 				trap_SV_StartSound(NULL, ent, CHAN_VOICE, trap_SV_SoundIndex("weapons/noammo.wav"), 1, ATTN_NORM, 0);
-				ent->_pain_debounce_time = level.time + 1;
+				ent->_pain_debounce_time = level.time + 1000;
 			}
 			ent->noAmmoWeaponChange();
 		}
@@ -1152,7 +1152,7 @@ void	g_item_weapon_machinegun_c::fire(g_player_c *ent)
 		if (level.time >= ent->_pain_debounce_time)
 		{
 			trap_SV_StartSound(NULL, ent, CHAN_VOICE, trap_SV_SoundIndex("weapons/noammo.wav"), 1, ATTN_NORM, 0);
-			ent->_pain_debounce_time = level.time + 1;
+			ent->_pain_debounce_time = level.time + 1000;
 		}
 		ent->noAmmoWeaponChange();
 		return;
@@ -1329,7 +1329,7 @@ void	g_item_weapon_chaingun_c::fire(g_player_c *ent)
 		if (level.time >= ent->_pain_debounce_time)
 		{
 			trap_SV_StartSound(NULL, ent, CHAN_VOICE, trap_SV_SoundIndex("weapons/noammo.wav"), 1, ATTN_NORM, 0);
-			ent->_pain_debounce_time = level.time + 1;
+			ent->_pain_debounce_time = level.time + 1000;
 		}
 		ent->noAmmoWeaponChange();
 		return;

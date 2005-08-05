@@ -71,7 +71,7 @@ g_trigger_multiple_c::g_trigger_multiple_c()
 // the wait time has passed, so set back up for another activation
 void	g_trigger_multiple_c::think()
 {
-	if(_wait > 0)
+	if(_time_wait > 0)
 	{
 		_nextthink = 0;
 	}
@@ -92,10 +92,10 @@ static void	multi_trigger(g_entity_c *ent)
 
 	G_UseTargets(ent, ent->_activator);
 
-	if(ent->_wait > 0)
+	if(ent->_time_wait > 0)
 	{
 		//ent->think = multi_wait;
-		ent->_nextthink = level.time + ent->_wait;
+		ent->_nextthink = level.time + ent->_time_wait;
 	}
 	else
 	{	// we can't just remove (self) here, because this is a touch function
@@ -180,8 +180,8 @@ void	g_trigger_multiple_c::activate()
 	else if (_sounds == 3)
 		_noise_index = trap_SV_SoundIndex("misc/trigger1.wav");
 	
-	if (!_wait)
-		_wait = 0.2;
+	if(!_time_wait)
+		_time_wait = 200;
 		
 	//ent->touch = Touch_Multi;
 	_movetype = MOVETYPE_NONE;
@@ -249,7 +249,7 @@ void	g_trigger_once_c::activate()
 		trap_Com_Printf("fixed TRIGGERED flag on %s at %s\n", _classname.c_str(), Vector3_String(v));
 	}
 
-	_wait = -1;
+	_time_wait = -1;
 	
 	_r.inuse = true;
 
@@ -262,8 +262,8 @@ void	g_trigger_once_c::activate()
 	else if (_sounds == 3)
 		_noise_index = trap_SV_SoundIndex("misc/trigger1.wav");
 	
-	if (!_wait)
-		_wait = 0.2;
+	if(!_time_wait)
+		_time_wait = 200;
 		
 	//ent->touch = Touch_Multi;
 	_movetype = MOVETYPE_NONE;
@@ -339,7 +339,7 @@ void trigger_key_use (g_entity_c *self, g_entity_c *other, g_entity_c *activator
 	{
 		if (level.time < self->touch_debounce_time)
 			return;
-		self->touch_debounce_time = level.time + 5.0;
+		self->touch_debounce_time = level.time + 5000;
 		trap_SV_CenterPrintf (activator, "You need the %s", self->item->getPickupName());
 		trap_SV_StartSound (NULL, activator, CHAN_AUTO, trap_SV_SoundIndex ("misc/keytry.wav"), 1, ATTN_NORM, 0);
 		return;
@@ -668,7 +668,7 @@ bool	g_trigger_hurt_c::touch(g_entity_c *other, const plane_c &plane, csurface_c
 		return false;
 
 	if(_spawnflags & 16)
-		_timestamp = level.time + 1;
+		_timestamp = level.time + 1000;
 	else
 		_timestamp = level.time + FRAMETIME;
 
@@ -918,10 +918,10 @@ bool	g_trigger_door_c::touch(g_entity_c *other, const plane_c &plane, csurface_c
 	if(!other->_r.isclient)
 		return false;
 
-	if(level.time < _touch_debounce_time)
+	if(level.time < _time_touch_debounce)
 		return false;
 		
-	_touch_debounce_time = level.time + 1.0;
+	_time_touch_debounce = level.time + 1000;
 
 	((g_entity_c*)_r.owner)->use(other, other);
 	

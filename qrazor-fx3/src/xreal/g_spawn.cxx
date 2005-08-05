@@ -142,15 +142,15 @@ spawn_t	spawns[] = {
 //	{"func_flare",			SP_func_flare},
 
 //	{"trigger_always",		SP_trigger_always},
-	{"trigger_once",		SP_trigger_once},
-	{"trigger_multiple",		SP_trigger_multiple},
+//	{"trigger_once",		SP_trigger_once},
+//	{"trigger_multiple",		SP_trigger_multiple},
 //	{"trigger_relay",		SP_trigger_relay},
 //	{"trigger_push",		SP_trigger_push},
-	{"trigger_hurt",		SP_trigger_hurt},
+//	{"trigger_hurt",		SP_trigger_hurt},
 //	{"trigger_key",			SP_trigger_key},
 //	{"trigger_counter",		SP_trigger_counter},
 //	{"trigger_elevator",		SP_trigger_elevator},
-	{"trigger_gravity",		SP_trigger_gravity},
+//	{"trigger_gravity",		SP_trigger_gravity},
 //	{"trigger_teleport",		SP_trigger_teleport},
 
 	{"target_speaker",		SP_target_speaker},
@@ -176,10 +176,7 @@ spawn_t	spawns[] = {
 	{"light",			SP_light},
 	{"rt_light",			SP_light},
 
-	{"misc_teleporter_dest",	SP_target_teleport},
 	{"speaker",			SP_target_speaker},
-	
-//	{"ode_box",			SP_ode_box},
 
 	{NULL, NULL}
 };

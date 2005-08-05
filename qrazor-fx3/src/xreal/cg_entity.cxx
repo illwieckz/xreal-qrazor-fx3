@@ -231,6 +231,13 @@ void	CG_UpdateOrigin(const cg_entity_t *cent, r_entity_t &rent, bool &update)
 
 void	CG_UpdateFrame(const cg_entity_t *cent, r_entity_t &rent, bool &update)
 {
+	if(cent->prev.index_animation != cent->current.index_animation)
+	{
+		rent.frame = cent->current.frame;
+		rent.frame_old = cent->current.frame;
+		update = true;
+	}
+
 	const uint_t& effects = cent->current.effects;
 	
 	if(effects & EF_AUTOANIM_TOGGLE_01_2)

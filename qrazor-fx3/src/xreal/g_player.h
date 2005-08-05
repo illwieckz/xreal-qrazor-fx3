@@ -377,6 +377,36 @@ private:
 	bool			_showhelpicon;
 
 	int			_ammo_index;
+
+	// animation vars
+	std::map<uint_t, animation_c*>	_anims;
+
+	int			_anim_current;
+	double			_anim_time;
+
+	int			_anim_priority;
+	
+	bool			_anim_duck;
+	bool			_anim_run;
+	bool			_anim_swim;
+	
+	bool			_anim_jump;
+	bool			_anim_jump_prestep;
+	int			_anim_jump_style;
+	
+	int			_anim_moveflags;
+	int			_anim_moveflags_old;
+	
+	int			_anim_lastsent;
+
+
+	// timers
+	int			_time_pickup_msg;
+	int			_time_respawn;		// can respawn when time > this
+	int			_time_jumppad;
+	int			_time_next_drown;
+	int			_time_air_finished;
+	int			_time_fall;
 	
 public:
 	client_persistant_t	_pers;
@@ -409,7 +439,6 @@ public:
 	float			_v_dmg_roll;
 	float			_v_dmg_pitch;
 	float			_v_dmg_time;		// damage kicks
-	float			_fall_time;
 	float			_fall_value;		// for view drop on fall
 	float			_damage_alpha;
 	float			_bonus_alpha;
@@ -418,35 +447,10 @@ public:
 	vec3_c			_oldviewangles;
 	vec3_c			_oldvelocity;
 
-	float			_next_drown_time;
 	int			_old_waterlevel;
 	int			_breather_sound;
 
 	int			_machinegun_shots;	// for weapon raising
-	
-	float			_air_finished;
-
-	// animation vars
-	std::map<uint_t, animation_c*>	_anims;
-
-	int			_anim_priority;
-	
-	bool			_anim_duck;
-	bool			_anim_run;
-	bool			_anim_swim;
-	
-	bool			_anim_jump;
-	bool			_anim_jump_prestep;
-	int			_anim_jump_style;
-	
-	int			_anim_moveflags;
-	int			_anim_moveflags_old;
-	
-	int			_anim_current;
-		
-	int			_anim_time;
-	
-	int			_anim_lastsent;
 
 	// powerup timers
 	float			_quad_framenum;
@@ -463,11 +467,6 @@ public:
 	float			_flood_locktill;	// locked from talking
 	float			_flood_when[10];	// when messages were said
 	int			_flood_whenhead;	// head pointer for when said	
-
-	// timers
-	float			_pickup_msg_time;
-	float			_respawn_time;		// can respawn when time > this
-	float			_jumppad_time;
 	
 	// ode
 // 	d_amotor_joint_c	_joint_amotor;		// to keep player straight upwards

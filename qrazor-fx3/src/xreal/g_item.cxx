@@ -768,7 +768,7 @@ bool Pickup_Health (g_entity_c *ent, g_entity_c *other)
 	if (ent->style & HEALTH_TIMED)
 	{
 		ent->think = MegaHealth_think;
-		ent->nextthink = level.time + 5;
+		ent->nextthink = level.time + 5000;
 		ent->r.owner = other;
 		ent->flags |= FL_RESPAWN;
 		ent->r.svflags |= SVF_NOCLIENT;
@@ -1020,7 +1020,7 @@ g_item_dropable_c::g_item_dropable_c(g_player_c *player, g_item_c *item, const v
 //	_r.size = _r.bbox.size();
 	_r.solid = SOLID_TRIGGER;
 	
-//	_nextthink = level.time + 30;
+//	_nextthink = level.time + 30000;
 	_nextthink = level.time + FRAMETIME;
 	
 	_classname = item->getClassname();
@@ -1067,7 +1067,7 @@ g_item_dropable_c::~g_item_dropable_c()
 
 void	g_item_dropable_c::think()
 {
-	if(deathmatch->getInteger() && (level.time >= (getSpawnTime() + 30)))
+	if(deathmatch->getInteger() && (level.time >= (getSpawnTime() + 30000)))
 	{
 		remove();
 	}
@@ -1183,7 +1183,7 @@ g_item_spawnable_c::g_item_spawnable_c(g_item_c *item)
 	_r.solid = SOLID_TRIGGER;
 	_movetype = MOVETYPE_TOSS;
 	_r.owner = g_world;
-	_nextthink = level.time + 30;
+	_nextthink = level.time + 30000;
 }
 
 
@@ -1496,7 +1496,7 @@ void	G_SpawnItem(g_entity_c **entity, g_item_c *item)
 	*entity = ent;
 	
 	ent->_item = item;
-	//ent->nextthink = level.time + 2 * FRAMETIME;    // items start after other solids
+	//ent->nextthink = level.time + 2000 * FRAMETIME;    // items start after other solids
 	//ent->think = droptofloor;
 	ent->_s.effects = item->getWorldModelFlags();
 	ent->_s.renderfx = RF_GLOW;
