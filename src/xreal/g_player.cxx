@@ -114,6 +114,31 @@ g_player_c::g_player_c()
 	_showhelpicon		= false;
 
 	_ammo_index		= 0;
+
+	_anim_current		= 0;
+	_anim_time		= 0;
+
+	_anim_priority		= 0;
+	
+	_anim_duck		= false;
+	_anim_run		= false;
+	_anim_swim		= false;
+	
+	_anim_jump		= false;
+	_anim_jump_prestep	= false;
+	_anim_jump_style	= false;
+	
+	_anim_moveflags		= 0;
+	_anim_moveflags_old	= 0;
+	
+	_anim_lastsent		= 0;
+
+	_time_next_drown	= 0;
+	_time_pickup_msg	= 0;
+	_time_respawn		= 0;
+	_time_jumppad		= 0;
+	_time_air_finished	= 0;
+	_time_fall		= 0;
 	
 	_pers.clear();
 	_resp.clear();
@@ -141,7 +166,6 @@ g_player_c::g_player_c()
 	_v_dmg_roll		= 0;
 	_v_dmg_pitch		= 0;
 	_v_dmg_time		= 0;
-	_fall_time		= 0;
 	_fall_value		= 0;
 	_damage_alpha		= 0;
 	_bonus_alpha		= 0;
@@ -149,36 +173,11 @@ g_player_c::g_player_c()
 	
 	_oldviewangles.clear();
 	_oldvelocity.clear();
-
-	_next_drown_time	= 0;
+	
 	_old_waterlevel		= 0;
 	_breather_sound		= 0;
 
 	_machinegun_shots	= 0;
-	
-	_air_finished		= 0;
-
-	// animation vars
-//	memset(_anims, 0, sizeof(_anims));
-
-	_anim_priority		= 0;
-	
-	_anim_duck		= false;
-	_anim_run		= false;
-	_anim_swim		= false;
-	
-	_anim_jump		= false;
-	_anim_jump_prestep	= false;
-	_anim_jump_style	= false;
-	
-	_anim_moveflags		= 0;
-	_anim_moveflags_old	= 0;
-	
-	_anim_current		= 0;
-	
-	_anim_time		= 0;
-	
-	_anim_lastsent		= 0;
 	
 	_quad_framenum		= 0;
 	_invincible_framenum	= 0;
@@ -192,10 +191,6 @@ g_player_c::g_player_c()
 	_flood_locktill		= 0;
 	memset(_flood_when, 0, sizeof(_flood_when));
 	_flood_whenhead		= 0;
-	
-	_pickup_msg_time	= 0;
-	_respawn_time		= 0;
-	_jumppad_time		= 0;
 
 	// setup ODE rigid body
 //	_body->setPosition(start);
@@ -270,7 +265,7 @@ void	g_player_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, ve
 
 	if(!_deadflag)
 	{
-		_respawn_time = level.time + 1.0;
+		_time_respawn = level.time + 1000;
 		
 		lookAtKiller(inflictor, attacker);
 		
@@ -486,7 +481,7 @@ void	g_player_c::takeDamage(g_entity_c *inflictor, g_entity_c *attacker, vec3_t 
 		if (targ->_pain_debounce_time < level.time)
 		{
 			trap_SV_StartSound (NULL, targ, CHAN_ITEM, trap_SV_SoundIndex("items/protect4.wav"), 1, ATTN_NORM, 0);
-			targ->_pain_debounce_time = level.time + 2;
+			targ->_pain_debounce_time = level.time + 2000;
 		}
 		
 		take = 0;
@@ -1054,7 +1049,7 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 		_r.ps.pmove.pm_type = PM_FREEZE;
 		
 		// can exit intermission after five seconds
-		if(level.time > level.intermission_time + 5.0 && (cmd.buttons & BUTTON_ANY))
+		if(level.time > level.intermission_time + 5000 && (cmd.buttons & BUTTON_ANY))
 			level.intermission_exit = true;
 			
 		return;
@@ -1933,7 +1928,7 @@ void	g_player_c::putClientInServer()
 	_mass = 200;
 	_r.solid = SOLID_BBOX;
 	_deadflag = DEAD_NO;
-	_air_finished = level.time + 12;
+	_time_air_finished = level.time + 12000;
 	_r.clipmask = MASK_PLAYERSOLID;
 	//_model = "players/male/tris.md2";
 	_s.index_model = trap_SV_ModelIndex("models/players/marine/mpplayer.md5mesh");
@@ -2004,7 +1999,7 @@ void	g_player_c::putClientInServer()
 	_s.origin = spawn_origin;
 	
 	//TODO warmup time
-	_nextthink = level.time + 1;	// wait one second
+	_nextthink = level.time + 1000;	// wait one second
 
 	// spawn a spectator
 	if(_pers.spectator) 
@@ -2074,7 +2069,7 @@ void	g_player_c::respawn()
 		_r.ps.pmove.pm_flags = PMF_TIME_TELEPORT;
 		_r.ps.pmove.pm_time = 14;
 
-		_respawn_time = level.time;
+		_time_respawn = level.time;
 		return;
 	}
 }
@@ -2156,7 +2151,7 @@ void	g_player_c::respawnAsSpectator()
 		_r.ps.pmove.pm_time = 14;
 	}
 
-	_respawn_time = level.time;
+	_time_respawn = level.time;
 
 	if(_pers.spectator) 
 		trap_SV_BPrintf(PRINT_HIGH, "%s has moved to the sidelines\n", _pers.netname);
@@ -2183,7 +2178,7 @@ void	g_player_c::beginServerFrame()
 	if(level.intermission_time)
 		return;
 
-	if(deathmatch->getInteger() && _pers.spectator != _resp.spectator && (level.time - _respawn_time) >= 5)
+	if(deathmatch->getInteger() && _pers.spectator != _resp.spectator && (level.time - _time_respawn) >= 5)
 	{
 		respawnAsSpectator();
 		return;
@@ -2198,7 +2193,7 @@ void	g_player_c::beginServerFrame()
 	if(_deadflag)
 	{
 		// wait for any button just going down
-		if(level.time > _respawn_time)
+		if(level.time > _time_respawn)
 		{
 			// in deathmatch, only wait for attack button
 			if(deathmatch->getInteger())
@@ -2441,7 +2436,7 @@ void	g_player_c::updateStats()
 	//
 	// pickup message
 	//
-	if(level.time > _pickup_msg_time)
+	if(level.time > _time_pickup_msg)
 	{
 		_r.ps.stats[STAT_PICKUP_ICON] = 0;
 		_r.ps.stats[STAT_PICKUP_STRING] = 0;
@@ -2624,7 +2619,7 @@ void	g_player_c::updateWorldEffects()
 	
 	if(_movetype == MOVETYPE_NOCLIP)
 	{
-		_air_finished = level.time + 12;	// don't need air
+		_time_air_finished = level.time + 12000;	// don't need air
 		return;
 	}
 
@@ -2654,7 +2649,7 @@ void	g_player_c::updateWorldEffects()
 		_flags |= FL_INWATER;
 
 		// clear damage_debounce, so the pain sound will play immediately
-		_damage_debounce_time = level.time - 1;
+		_time_damage_debounce = level.time - 1000;
 	}
 
 
@@ -2684,14 +2679,14 @@ void	g_player_c::updateWorldEffects()
 	//
 	if(old_waterlevel == 3 && waterlevel != 3)
 	{
-		if(_air_finished < level.time)
+		if(_time_air_finished < level.time)
 		{	
 			// gasp for air
 			trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex("player/gasp1.wav"), 1, ATTN_NORM, 0);
 			
 			//PlayerNoise(current_player, current_player->_s.origin, PNOISE_SELF);
 		}
-		else  if(_air_finished < level.time + 11)
+		else  if(_time_air_finished < level.time + 11000)
 		{	
 			// just break surface
 			trap_SV_StartSound (NULL, this, CHAN_VOICE, trap_SV_SoundIndex("player/gasp2.wav"), 1, ATTN_NORM, 0);
@@ -2707,7 +2702,7 @@ void	g_player_c::updateWorldEffects()
 		// breather or envirosuit give air
 		if(breather || envirosuit)
 		{
-			_air_finished = level.time + 10;
+			_time_air_finished = level.time + 10000;
 
 			if(((int)(_breather_framenum - level.framenum) % 25) == 0)
 			{
@@ -2724,12 +2719,12 @@ void	g_player_c::updateWorldEffects()
 		}
 
 		// if out of air, start drowning
-		if(_air_finished < level.time)
+		if(_time_air_finished < level.time)
 		{
 			// drown!
-			if(_next_drown_time < level.time && _health > 0)
+			if(_time_next_drown < level.time && _health > 0)
 			{
-				_next_drown_time = level.time + 1;
+				_time_next_drown = level.time + 1000;
 
 				// take more damage the longer underwater
 				_dmg += 2;
@@ -2747,7 +2742,7 @@ void	g_player_c::updateWorldEffects()
 				else
 					trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex("*gurp2.wav"), 1, ATTN_NORM, 0);
 
-				_pain_debounce_time = level.time;
+				_time_pain_debounce = level.time;
 
 				takeDamage(((g_entity_c*)g_entities[0]), ((g_entity_c*)g_entities[0]), vec3_origin, _s.origin, vec3_origin, _dmg, 0, DAMAGE_NO_ARMOR, MOD_WATER);
 			}
@@ -2755,7 +2750,7 @@ void	g_player_c::updateWorldEffects()
 	}
 	else
 	{
-		_air_finished = level.time + 12;
+		_time_air_finished = level.time + 12000;
 		_dmg = 2;
 	}
 
@@ -2767,14 +2762,14 @@ void	g_player_c::updateWorldEffects()
 	{
 		if(_watertype & X_CONT_LAVA)
 		{
-			if(_health > 0 && _pain_debounce_time <= level.time && _invincible_framenum < level.framenum)
+			if(_health > 0 && _time_pain_debounce <= level.time && _invincible_framenum < level.framenum)
 			{
 				if(rand()&1)
 					trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex("player/burn1.wav"), 1, ATTN_NORM, 0);
 				else
 					trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex("player/burn2.wav"), 1, ATTN_NORM, 0);
 				
-				_pain_debounce_time = level.time + 1;
+				_time_pain_debounce = level.time + 1000;
 			}
 
 			if(envirosuit)	// take 1/3 damage with envirosuit
@@ -2823,11 +2818,11 @@ void	g_player_c::updateFallingDamage()
 
 
         // scale delta if was pushed by jump pad
-	if(_jumppad_time && _jumppad_time < level.time )
+	if(_time_jumppad && _time_jumppad < level.time )
 	{
-		delta /= (1 + level.time - _jumppad_time) * 0.5;
+		delta /= (1000 + level.time - _time_jumppad) * 0.5;
 		
-		_jumppad_time = 0;
+		_time_jumppad = 0;
 	}
 	
 	
@@ -2852,10 +2847,10 @@ void	g_player_c::updateFallingDamage()
 
 	_fall_value = delta*0.5;
 	
-	if (_fall_value > 40)
+	if(_fall_value > 40)
 		_fall_value = 40;
 		
-	_fall_time = level.time + FALL_TIME;
+	_time_fall = level.time + FALL_TIME;
 
 	if(delta > 30)
 	{
@@ -2866,7 +2861,7 @@ void	g_player_c::updateFallingDamage()
 			else
 				_s.event = EV_PLAYER_FALL_MEDIUM;
 		}
-		_pain_debounce_time = level.time;	// no normal pain sound
+		_time_pain_debounce = level.time;	// no normal pain sound
 		damage = (int)((delta-30)/2);
 		
 		if(damage < 1)
@@ -2900,8 +2895,6 @@ void	g_player_c::updateDamageFeedback()
 	static	vec3_t	acolor = {1.0, 1.0, 1.0};
 	static	vec3_t	bcolor = {1.0, 0.0, 0.0};
 
-	
-	
 	// flash the backgrounds behind the status numbers
 	_r.ps.stats[STAT_FLASHES] = 0;
 	
@@ -2969,10 +2962,10 @@ void	g_player_c::updateDamageFeedback()
 
 
 	// play an apropriate pain sound
-	if((level.time > _pain_debounce_time) && !(_flags & FL_ULTRAMANMODE) && (_invincible_framenum <= level.framenum))
+	if((level.time > _time_pain_debounce) && !(_flags & FL_ULTRAMANMODE) && (_invincible_framenum <= level.framenum))
 	{
 		r = 1 + (rand()&1);
-		_pain_debounce_time = level.time + 0.7;
+		_time_pain_debounce = level.time + 700;
 		
 		if(_health < 25)
 			l = 25;
@@ -3016,9 +3009,7 @@ void	g_player_c::updateDamageFeedback()
 	_damage_blend = v;
 
 
-	//
 	// calculate view angle kicks
-	//
 	kick = abs(_damage_knockback);
 	
 	if(kick && _health > 0)	// kick of 0 means no view adjust at all
@@ -3043,9 +3034,7 @@ void	g_player_c::updateDamageFeedback()
 		_v_dmg_time = level.time + DAMAGE_TIME;
 	}
 
-	//
 	// clear totals
-	//
 	_damage_blood = 0;
 	_damage_armor = 0;
 	_damage_parmor = 0;
@@ -3144,6 +3133,10 @@ void	g_player_c::updateClientSound()
 
 void	g_player_c::updateClientFrame()
 {
+//	_anim_time = (1.0f) / (float);
+//	_anim_time_current = level.time;
+//	_anim_time_last = level.time;
+
 	_s.frame = ++_s.frame % _anims[_anim_current]->getFramesNum();
 
 	//bool	duck, run, swim;
@@ -3386,7 +3379,7 @@ void	g_player_c::calcViewOffset()
 		_r.ps.kick_angles[ROLL] += ratio * _v_dmg_roll;
 	
 		// add pitch based on fall kick
-		ratio = (_fall_time - level.time) / FALL_TIME;
+		ratio = (_time_fall - level.time) / FALL_TIME;
 		if (ratio < 0)
 			ratio = 0;
 		_r.ps.kick_angles[PITCH] += ratio * _fall_value;
@@ -3421,7 +3414,7 @@ void	g_player_c::calcViewOffset()
 	v[2] += _v_height;
 
 	// add fall height
-	ratio = (_fall_time - level.time) / FALL_TIME;
+	ratio = (_time_fall - level.time) / FALL_TIME;
 	if(ratio < 0)
 		ratio = 0;
 	v[2] -= ratio * _fall_value * 0.4;
@@ -3648,7 +3641,7 @@ bool	g_player_c::isStepping()
 
 bool	g_player_c::scanAnimations(const std::string &model)
 {
-	trap_Com_Printf("g_player_c::scanAnimations(%s): scanning animations for %s ...\n", model.c_str(), _pers.netname);
+	trap_Com_Printf("g_player_c::scanAnimations('%s') from '%s' ...\n", model.c_str(), _pers.netname);
 	
 	for(uint_t i=0; i<PLAYER_ANIMS_NUM; i++)
 	{
@@ -3660,7 +3653,7 @@ bool	g_player_c::scanAnimations(const std::string &model)
 			return false;
 		}
 		
-		trap_Com_Printf("setting '%s' ...\n", name.c_str());
+		//trap_Com_Printf("setting '%s' ...\n", name.c_str());
 		_anims[i] = scanAnimation(name);
 	}
 
@@ -4362,7 +4355,7 @@ Cmd_Kill_f
 */
 void	g_player_c::kill_f()
 {
-	if((level.time - _respawn_time) < 5)
+	if((level.time - _time_respawn) < 5000)
 		return;
 		
 	_flags &= ~FL_ULTRAMANMODE;

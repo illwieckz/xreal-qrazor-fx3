@@ -55,7 +55,7 @@ public:
 class g_projectile_grenade_c : public g_projectile_c
 {
 public:
-	g_projectile_grenade_c(g_entity_c *activator, const vec3_c &start, const vec3_c &dir, int damage, int speed, float timer, float damage_radius);
+	g_projectile_grenade_c(g_entity_c *activator, const vec3_c &start, const vec3_c &dir, int damage, int speed, int timer, float damage_radius);
 	
 	virtual void	think();
 	virtual bool	touch(g_entity_c *other, const plane_c &plane, csurface_c *surf);

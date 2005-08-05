@@ -38,105 +38,105 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 	//
 	// create default values
 	//
-	_s.shaderparms[0] = 1.0;
-	_s.shaderparms[1] = 1.0;
-	_s.shaderparms[2] = 1.0;
-	_s.shaderparms[3] = 1.0;
-	_s.shaderparms[4] = 1.0;
-	_s.shaderparms[5] = 1.0;
-	_s.shaderparms[6] = 1.0;
-// 	_s.shaderparms[7] = 1.0; 
+	_s.shaderparms[0]	= 1.0;
+	_s.shaderparms[1]	= 1.0;
+	_s.shaderparms[2]	= 1.0;
+	_s.shaderparms[3]	= 1.0;
+	_s.shaderparms[4]	= 1.0;
+	_s.shaderparms[5]	= 1.0;
+	_s.shaderparms[6]	= 1.0;
+// 	_s.shaderparms[7]	= 1.0; 
 	
-	_r.inuse	= false;
-	_r.headnode	= 0;			// unused if num_clusters != -1
+	_r.inuse		= false;
+	_r.headnode		= 0;			// unused if num_clusters != -1
 	
-	_r.area		= 0;
-	_r.area2	= 0;
-	_r.areaportal	= 0;
+	_r.area			= 0;
+	_r.area2		= 0;
+	_r.areaportal		= 0;
 
-	_r.svflags	= SVF_NONE;		// SVF_NOCLIENT, SVF_DEADMONSTER, SVF_MONSTER, etc
+	_r.svflags		= SVF_NONE;		// SVF_NOCLIENT, SVF_DEADMONSTER, SVF_MONSTER, etc
 	_r.bbox.zero();
 	_r.size.clear();			// bbox size
-	_r.solid	= SOLID_NOT;
-	_r.clipmask	= 0;
+	_r.solid		= SOLID_NOT;
+	_r.clipmask		= 0;
 	
-	_r.owner	= NULL;
+	_r.owner		= NULL;
 	
-	_r.isclient	= false;
-	_r.isbot	= false;
+	_r.isclient		= false;
+	_r.isbot		= false;
 	_r.ps.clear();				// communicated by server to clients
 	//_r.ping;
 	
-	_remove		= false;
-	_spawntime	= level.time;
-	_classname	= "noclass";
-	_movetype	= MOVETYPE_NONE;
-	_flags		= 0;
-	_spawnflags	= 0;
+	_remove			= false;
+	_spawntime		= level.time;
+	_classname		= "noclass";
+	_movetype		= MOVETYPE_NONE;
+	_flags			= 0;
+	_spawnflags		= 0;
 
 	_angles.clear();
-	_angle		= 0;				// set in qe3, -1 = up, -2 = down
+	_angle			= 0;				// set in qe3, -1 = up, -2 = down
 	_rotation.identity();
 	
-	_target_ent	= NULL;
+	_target_ent		= NULL;
 
-	_speed		= 0;
-	_accel		= 0;
-	_decel		= 0;
+	_speed			= 0;
+	_accel			= 0;
+	_decel			= 0;
 	_movedir.clear();
 	
-	_mass		= 0;
-	_gravity	= 1.0;
+	_mass			= 0;
+	_gravity		= 1.0;
 
-	_goalentity	= 0;
-	_yaw_speed	= 0;
-	_ideal_yaw	= 0;
+	_goalentity		= 0;
+	_yaw_speed		= 0;
+	_ideal_yaw		= 0;
 
-	_nextthink	= 0;			// time when this entity will think again	
+	_nextthink		= 0;			// time when this entity will think again
 
-	_touch_debounce_time	= 0;		// are all these legit?  do we need more/less of them?
-	_pain_debounce_time	= 0;
-	_damage_debounce_time	= 0;
-	_fly_sound_debounce_time	= 0;
-	_last_move_time	= 0;
+	_time_wait		= 0;
+	_time_delay		= 0;
+	_time_random		= 0;	
 
-	_health		= 0;
-	_max_health	= 0;
-	_deadflag	= 0;
+	_time_touch_debounce	= 0;		// are all these legit?  do we need more/less of them?
+	_time_pain_debounce	= 0;
+	_time_damage_debounce	= 0;
+	_time_fly_sound_debounce	= 0;
+	_time_last_move		= 0;
 
-	_takedamage	= 0;
-	_dmg		= 0;
-	_radius_dmg	= 0;
-	_dmg_radius	= 0;
-	_sounds		= 0;			// make this a spawntemp var?
-	_count		= 0;
+	_health			= 0;
+	_max_health		= 0;
+	_deadflag		= 0;
 
-	_chain		= NULL;
-	_enemy		= NULL;
-	_activator	= NULL;
-	_groundentity	= NULL;
+	_takedamage		= 0;
+	_dmg			= 0;
+	_radius_dmg		= 0;
+	_dmg_radius		= 0;
+	_sounds			= 0;			// make this a spawntemp var?
+	_count			= 0;
+
+	_chain			= NULL;
+	_enemy			= NULL;
+	_activator		= NULL;
+	_groundentity		= NULL;
 	_groundentity_linkcount = 0;
 	
-	_teamchain	= NULL;
-	_teammaster	= NULL;
+	_teamchain		= NULL;
+	_teammaster		= NULL;
 
-	_noise_index	= 0;
-	_noise_index2	= 0;
-	_volume		= 0;
-	_attenuation	= 0;
-	
-	_wait		= 0;
-	_delay		= 0;
-	_random		= 0;
+	_noise_index		= 0;
+	_noise_index2		= 0;
+	_volume			= 0;
+	_attenuation		= 0;
 
-	_watertype	= 0;
-	_waterlevel	= 0;
+	_watertype		= 0;
+	_waterlevel		= 0;
 		
-	_item		= NULL;			// for bonus items
+	_item			= NULL;			// for bonus items
 
 #if defined(ODE)		
-	_body		= NULL;
-	_space		= NULL;			// used only when we need a group of geoms
+	_body			= NULL;
+	_space			= NULL;			// used only when we need a group of geoms
 #endif
 
 	//
@@ -204,9 +204,9 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 	addField(g_field_c("combattarget", &_combattarget, F_STRING));
 	addField(g_field_c("message", &_message, F_STRING));
 	addField(g_field_c("team", &_team, F_STRING));
-	addField(g_field_c("wait", &_wait, F_FLOAT));
-	addField(g_field_c("delay", &_delay, F_FLOAT));
-	addField(g_field_c("random", &_random, F_FLOAT));
+//	addField(g_field_c("wait", &_time_wait, F_INT));
+//	addField(g_field_c("delay", &_time_delay, F_INT));
+//	addField(g_field_c("random", &_time_random, F_INT));
 	
 	addField(g_field_c("count", &_count, F_INT));
 	addField(g_field_c("health", &_health, F_INT));
@@ -501,7 +501,7 @@ bool	g_entity_c::runThink()
 	if(thinktime <= 0)
 		return true;
 		
-	if(thinktime > level.time + 0.001)
+	if(thinktime > level.time + 1)
 		return true;
 	
 	_nextthink = 0;

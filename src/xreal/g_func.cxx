@@ -146,8 +146,6 @@ void	g_func_c::calcMove(const vec3_c &dest, int endfunc)
 
 void	g_func_c::beginMove()
 {
-	float	frames;
-
 	if((_moveinfo.speed * FRAMETIME) >= _moveinfo.remaining_distance)
 	{
 		finishMove();
@@ -158,7 +156,7 @@ void	g_func_c::beginMove()
 	_body->setLinearVel(_moveinfo.dir * _moveinfo.speed);
 #endif
 	
-	frames = floor((_moveinfo.remaining_distance / _moveinfo.speed) / FRAMETIME);
+	int frames = (int)floor((_moveinfo.remaining_distance / _moveinfo.speed) / FRAMETIME);
 	_moveinfo.remaining_distance -= frames * _moveinfo.speed * FRAMETIME;
 	
 	_nextthink = level.time + (frames * FRAMETIME);
@@ -431,7 +429,7 @@ void plat_hit_top (g_entity_c *ent)
 	ent->moveinfo.state = STATE_TOP;
 
 	ent->think = plat_go_down;
-	ent->nextthink = level.time + 3;
+	ent->nextthink = level.time + 3000;
 }
 */
 
@@ -521,7 +519,7 @@ void Touch_Plat_Center (g_entity_c *ent, g_entity_c *other, plane_c *plane, csur
 	if (ent->moveinfo.state == STATE_BOTTOM)
 		plat_go_up (ent);
 	else if (ent->moveinfo.state == STATE_TOP)
-		ent->nextthink = level.time + 1;	// the player is still on the plat, so delay going down
+		ent->nextthink = level.time + 1000;	// the player is still on the plat, so delay going down
 }
 */
 
@@ -935,8 +933,8 @@ void	g_func_button_c::activate()
 	if(!_decel)
 		_decel = _speed;
 
-	if(!_wait)
-		_wait = 3;
+	if(!_time_wait)
+		_time_wait = 3000;
 		
 	if(!_lip)
 		_lip = 4;
@@ -967,7 +965,7 @@ void	g_func_button_c::activate()
 	_moveinfo.speed = _speed;
 	_moveinfo.accel = _accel;
 	_moveinfo.decel = _decel;
-	_moveinfo.wait = _wait;
+	_moveinfo.wait = _time_wait;
 	_moveinfo.start_origin = _pos1;
 	_moveinfo.start_quat = _s.quat;
 	_moveinfo.end_origin = _pos2;
@@ -1161,12 +1159,12 @@ bool	g_func_door_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *s
 	if(!other->_r.isclient)
 		return true;
 
-	if(level.time < _touch_debounce_time)
+	if(level.time < _time_touch_debounce)
 		return true;
 		
 	trap_Com_Printf("g_func_door_c::touch: origin %s\n", _s.origin.toString());
 		
-	_touch_debounce_time = level.time + 5.0;
+	_time_touch_debounce = level.time + 5000;
 
 	trap_SV_CenterPrintf(other, "%s", _message.c_str());
 	trap_SV_StartSound(NULL, other, CHAN_AUTO, trap_SV_SoundIndex("misc/talk1.wav"), 1, ATTN_NORM, 0);
@@ -1292,8 +1290,8 @@ void	g_func_door_c::activate()
 	if(!_decel)
 		_decel = _speed;
 
-	if(!_wait)
-		_wait = 3;
+	if(!_time_wait)
+		_time_wait = 3000;
 		
 	if(!_lip)
 		_lip = 8;
@@ -1339,7 +1337,7 @@ void	g_func_door_c::activate()
 	_moveinfo.speed = _speed;
 	_moveinfo.accel = _accel;
 	_moveinfo.decel = _decel;
-	_moveinfo.wait = _wait;
+	_moveinfo.wait = _time_wait;
 	_moveinfo.start_origin = _pos1;
 	_moveinfo.start_quat = _s.quat;
 	_moveinfo.end_origin = _pos2;
@@ -1843,7 +1841,7 @@ void train_blocked (g_entity_c *self, g_entity_c *other)
 
 	if (!self->dmg)
 		return;
-	self->touch_debounce_time = level.time + 0.5;
+	self->touch_debounce_time = level.time + 500;
 	T_Damage (other, self, self, vec3_origin, other->s.origin, vec3_origin, self->dmg, 1, 0, MOD_CRUSH);
 }
 */
@@ -2295,7 +2293,7 @@ void door_secret_use (g_entity_c *self, g_entity_c *other, g_entity_c *activator
 /*
 void door_secret_move1 (g_entity_c *self)
 {
-	self->nextthink = level.time + 1.0;
+	self->nextthink = level.time + 1000;
 	self->think = door_secret_move2;
 }
 */
@@ -2366,7 +2364,7 @@ void door_secret_blocked  (g_entity_c *self, g_entity_c *other)
 
 	if (level.time < self->touch_debounce_time)
 		return;
-	self->touch_debounce_time = level.time + 0.5;
+	self->touch_debounce_time = level.time + 500;
 
 	T_Damage (other, self, self, vec3_origin, other->s.origin, vec3_origin, self->dmg, 1, 0, MOD_CRUSH);
 }

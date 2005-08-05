@@ -41,8 +41,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // g_local.h -- local definitions for the XeaL game module
 
 // view pitching times
-#define DAMAGE_TIME		0.5
-#define	FALL_TIME		0.3
+#define DAMAGE_TIME		500
+#define	FALL_TIME		300
 
 // edict->spawnflags
 // these are set with checkboxes on each entity in the map editor
@@ -71,8 +71,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #if 0
 #define	FRAMETIME		0.02
+#elif 0
+#define	FRAMETIME		(1.0/25.0)
 #else
-#define FRAMETIME		0.1
+#define FRAMETIME		100
 #endif
 
 
@@ -177,7 +179,7 @@ class g_target_changelevel_c;
 // it should be initialized at dll load time, and read/written to
 // the server.ssv file for savegames
 //
-class g_game_locals_c
+class g_game_c
 {
 public:
 	// can't store spawnpoint in level, because
@@ -199,11 +201,11 @@ public:
 // this structure is cleared as each map is entered
 // it is read/written to the level.sav file for savegames
 //
-class g_level_locals_c //: public g_field_interface_c
+class g_level_c //: public g_field_interface_c
 {
 public:			
 	int		framenum;
-	float		time;
+	int		time;
 
 	std::string	level_name;			// the descriptive name (Outer Base, etc)
 	std::string	mapname;			// the server name (base1, etc)
@@ -221,8 +223,8 @@ public:
 
 
 
-extern	g_game_locals_c		game;
-extern	g_level_locals_c	level;
+extern	g_game_c	game;
+extern	g_level_c	level;
 
 
 

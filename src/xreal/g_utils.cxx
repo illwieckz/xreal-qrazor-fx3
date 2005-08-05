@@ -291,20 +291,15 @@ void	G_UseTargets(g_entity_c *ent, g_entity_c *activator)
 {
 	g_entity_c	*target;
 
-	//
 	// check for a delay
-	//
-	if(ent->_delay)
+	if(ent->_time_delay)
 	{
 		// create a temp object to fire at a later time
 		new g_target_delay_c(ent, activator);
 		return;
 	}
 	
-	
-	//
 	// print the message
-	//
 	if(ent->_message.length())
 	{
 		trap_SV_CenterPrintf(activator, "%s", ent->_message.c_str());
@@ -316,9 +311,7 @@ void	G_UseTargets(g_entity_c *ent, g_entity_c *activator)
 	}
 
 
-	//
 	// kill killtargets
-	//
 	if(ent->_killtarget.length())
 	{
 		target = NULL;
@@ -335,10 +328,7 @@ void	G_UseTargets(g_entity_c *ent, g_entity_c *activator)
 		}
 	}
 
-
-	//
 	// fire targets
-	//
 	if(ent->_target.length())
 	{
 		target = NULL;

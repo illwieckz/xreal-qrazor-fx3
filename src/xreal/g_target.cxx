@@ -180,8 +180,6 @@ g_target_explosion_c::g_target_explosion_c()
 
 void	g_target_explosion_c::think()
 {
-	float		save;
-
 	trap_SV_WriteBits(SVC_TEMP_ENTITY, svc_bitcount);
 	trap_SV_WriteByte(TE_EXPLOSION1);
 	trap_SV_WritePosition(_s.origin);
@@ -189,10 +187,10 @@ void	g_target_explosion_c::think()
 
 	//T_RadiusDamage(this, _activator, _dmg, NULL, _dmg+40, MOD_EXPLOSIVE);
 
-	save = _delay;
-	_delay = 0;
+	int save = _time_delay;
+	_time_delay = 0;
 	G_UseTargets(this, _activator);
-	_delay = save;
+	_time_delay = save;
 }
 
 
@@ -201,13 +199,13 @@ void	g_target_explosion_c::use(g_entity_c *other, g_entity_c *activator)
 {
 	_activator = activator;
 
-	if(!_delay)
+	if(!_time_delay)
 	{
 		think();
 		return;
 	}
 
-	_nextthink = level.time + _delay;
+	_nextthink = level.time + _time_delay;
 }
 
 void	g_target_explosion_c::activate()
@@ -490,7 +488,7 @@ void target_earthquake_think (edict_t *self)
 	if (self->last_move_time < level.time)
 	{
 		trap_SV_StartSound (self->s.origin, self, CHAN_AUTO, self->noise_index, 1.0, ATTN_NONE, 0);
-		self->last_move_time = level.time + 0.5;
+		self->last_move_time = level.time + 500;
 	}
 
 	for (i=1; i < g_edicts.size(); i++)
@@ -611,7 +609,7 @@ g_target_delay_c::g_target_delay_c(g_entity_c *ent, g_entity_c *activator)
 	_r.inuse	= true;
 	
 	_classname = "DelayedUse";
-	_nextthink = level.time + ent->_delay;
+	_nextthink = level.time + ent->_time_delay;
 	//target->think = Think_Delay;
 	
 	_activator = activator;	

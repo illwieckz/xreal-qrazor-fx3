@@ -61,7 +61,7 @@ g_debris_c::g_debris_c(g_entity_c *ent, const std::string &modelname, float spee
 	_avelocity[1] = random()*600;
 	_avelocity[2] = random()*600;
 	*/
-	_nextthink = level.time + 5 + random()*5;
+	_nextthink = level.time + 5000 + (int)((random()*5)*1000);
 	
 	_takedamage = DAMAGE_YES;
 }

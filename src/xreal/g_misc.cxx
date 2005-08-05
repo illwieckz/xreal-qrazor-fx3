@@ -79,7 +79,7 @@ void gib_think (g_entity_c *self)
 	if (self->s.frame == 10)
 	{
 		self->think = G_FreeEdict;
-		self->nextthink = level.time + 8 + random()*10;
+		self->nextthink = level.time + 8000 + random()*10;
 	}
 }
 */
@@ -165,7 +165,7 @@ void ThrowGib (g_entity_c *self, char *gibname, int damage, int type)
 	gib->avelocity[2] = random()*600;
 
 	gib->think = G_FreeEdict;
-	gib->nextthink = level.time + 10 + random()*10;
+	gib->nextthink = level.time + 10000 + random()*10;
 
 	trap_SV_LinkEdict (gib);
 }
