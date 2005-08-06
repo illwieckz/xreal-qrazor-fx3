@@ -179,7 +179,7 @@ void	bitmessage_c::writeBits(const boost::dynamic_bitset<byte> &bits)
 
 void	bitmessage_c::writeBits(int bits, int bits_num)
 {
-	if(!bits_num || bits_num < -31 || bits_num > 32)
+	if(bits_num == 0 || bits_num < -31 || bits_num > 32)
 		Com_Error(ERR_FATAL, "message_c::writeBits: bad bits number %i", bits_num);
 		
 	if(bits_num < 0)
@@ -1138,7 +1138,7 @@ bool	bitmessage_c::readBit()
 
 int	bitmessage_c::readBits(int bits_num)
 {
-	if(!bits_num || bits_num < -31 || bits_num > 32)
+	if(bits_num == 0 || bits_num < -31 || bits_num > 32)
 		Com_Error(ERR_FATAL, "bitmessage_c::readBits: bad bits number %i", bits_num);
 		
 	if(bits_num < 0)
@@ -1167,8 +1167,8 @@ void	bitmessage_c::readBits(int bits_num, boost::dynamic_bitset<byte> &bits)
 //	if(bits_num < 0)
 //		bits_num = -bits_num;
 
-	if(!bits_num)
-		Com_Error(ERR_FATAL, "bitmessage_c::readBits: bad bits number %i", bits_num);
+//	if(!bits_num)
+//		Com_Error(ERR_FATAL, "bitmessage_c::readBits: bad bits number %i", bits_num);
 		
 	bits = boost::dynamic_bitset<byte>(bits_num);
 
