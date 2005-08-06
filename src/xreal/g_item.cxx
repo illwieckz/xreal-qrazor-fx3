@@ -1004,20 +1004,20 @@ void	g_item_power_armor_c::drop(g_entity_c *ent, g_item_c *item)
 
 g_item_dropable_c::g_item_dropable_c(g_player_c *player, g_item_c *item, const vec3_c &position, const quaternion_c &orientation, const vec3_c &velocity)
 {
-	//trap_Com_DPrintf("%s is dropping item %s\n", player->_pers.netname, item->getWorldModel());
+	trap_Com_DPrintf("'%s' is dropping item '%s'\n", player->_pers.netname, item->getClassname());
 
 	_s.origin = position;
 	_s.origin2.set(0, 0, 8);
 	_s.index_model = trap_SV_ModelIndex(item->getWorldModel());
-	_s.index_animation = trap_SV_AnimationIndex(item->getWorldModelAnimation());	
+//	_s.index_animation = trap_SV_AnimationIndex(item->getWorldModelAnimation());	
 	_s.effects = item->getWorldModelFlags();
 	_s.renderfx = RF_AUTOANIM;
 
 	_r.inuse = true;
 	_r.owner = this;
-//	_r.bbox._mins.set(-15, -15, -15);
-//	_r.bbox._maxs.set( 15,  15,  15);
-//	_r.size = _r.bbox.size();
+	_r.bbox._mins.set(-15, -15, -15);
+	_r.bbox._maxs.set( 15,  15,  15);
+	_r.size = _r.bbox.size();
 	_r.solid = SOLID_TRIGGER;
 	
 //	_nextthink = level.time + 30000;
@@ -1029,7 +1029,7 @@ g_item_dropable_c::g_item_dropable_c(g_player_c *player, g_item_c *item, const v
 //	_movetype = MOVETYPE_ODE_TOSS;
 	_movetype = MOVETYPE_TOSS;
 
-	G_SetModel(this, _item->getWorldModel());
+	setModel(_item->getWorldModel());
 
 #if defined(ODE)
 	// setup rigid body
@@ -1079,7 +1079,7 @@ void	g_item_dropable_c::think()
 	}
 }
 
-bool	g_item_dropable_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
+bool	g_item_dropable_c::touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf)
 {
 #if 0
 	bool	taken;
@@ -1167,23 +1167,23 @@ bool	g_item_dropable_c::touch(g_entity_c *other, const plane_c &plane, csurface_
 */
 g_item_spawnable_c::g_item_spawnable_c(g_item_c *item)
 {
-	_r.inuse = true;
 	
-	_classname = item->getClassname();
-	_item = item;
 	_s.effects = item->getWorldModelFlags();
 	_s.renderfx = RF_NONE;
 	
-	G_SetModel(this, item->getWorldModel());
-	
+	_r.inuse = true;
 	_r.bbox._mins.set(-15, -15, -15);
 	_r.bbox._maxs.set( 15,  15,  15);
 	_r.size = _r.bbox.size();
-	
 	_r.solid = SOLID_TRIGGER;
-	_movetype = MOVETYPE_TOSS;
 	_r.owner = g_world;
+	
+	_classname = item->getClassname();
+	_item = item;
+	_movetype = MOVETYPE_TOSS;
 	_nextthink = level.time + 30000;
+
+	setModel(item->getWorldModel());
 }
 
 
@@ -1193,7 +1193,7 @@ void	g_item_spawnable_c::think()
 	//	_remove = true;
 }
 
-bool	g_item_spawnable_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
+bool	g_item_spawnable_c::touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf)
 {
 	//TODO
 	return true;
@@ -1201,7 +1201,7 @@ bool	g_item_spawnable_c::touch(g_entity_c *other, const plane_c &plane, csurface
 
 void	g_item_spawnable_c::activate()
 {
-	G_SetModel(this, _item->getWorldModel());
+	setModel(_item->getWorldModel());
 
 #if defined(ODE)
 	// setup rigid body

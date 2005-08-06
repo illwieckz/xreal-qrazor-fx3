@@ -41,7 +41,7 @@ public:
 
 	void	init();
 	
-	virtual bool	touch(g_entity_c *other, const plane_c &plane, csurface_c *surf);
+	virtual bool	touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf);
 	
 };
 
@@ -52,7 +52,7 @@ public:
 	g_trigger_multiple_c();
 	
 	virtual void	think();
-	virtual bool	touch(g_entity_c *other, const plane_c &plane, csurface_c *surf);
+	virtual bool	touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf);
 	virtual void	use(g_entity_c *other, g_entity_c *activator);
 	
 	virtual void	activate();
@@ -74,7 +74,7 @@ public:
 	g_trigger_push_c();
 	
 	virtual void	think();
-	virtual bool	touch(g_entity_c *other, const plane_c &plane, csurface_c *surf);
+	virtual bool	touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf);
 	
 	virtual void	activate();
 };
@@ -85,7 +85,7 @@ class g_trigger_hurt_c : public g_trigger_c
 public:
 	g_trigger_hurt_c();
 	
-	virtual bool	touch(g_entity_c *other, const plane_c &plane, csurface_c *surf);
+	virtual bool	touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf);
 	virtual void	use(g_entity_c *other, g_entity_c *activator);
 	
 	virtual void	activate();
@@ -100,7 +100,7 @@ class g_trigger_gravity_c : public g_trigger_c
 public:
 	g_trigger_gravity_c();
 	
-	virtual bool	touch(g_entity_c *other, const plane_c &plane, csurface_c *surf);
+	virtual bool	touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf);
 	
 	virtual void	activate();
 };
@@ -111,7 +111,7 @@ class g_trigger_door_c : public g_trigger_c
 public:
 	g_trigger_door_c();	// helper entity for func_door*
 	
-	virtual bool	touch(g_entity_c *other, const plane_c &plane, csurface_c *surf);
+	virtual bool	touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf);
 };
 
 
@@ -122,7 +122,7 @@ public:
 	g_trigger_teleport_c();
 	
 	virtual void	think();
-	virtual bool	touch(g_entity_c *other, const plane_c &plane, csurface_c *surf);
+	virtual bool	touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf);
 	
 	virtual void	activate();
 };

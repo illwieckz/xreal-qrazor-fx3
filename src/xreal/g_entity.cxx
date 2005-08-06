@@ -617,10 +617,10 @@ void	g_entity_c::impact(const trace_t &trace)
 		return;
 	
 	if(_r.solid != SOLID_NOT)
-		touch(other, trace.plane, trace.surface);
+		touch(other, &trace.plane, trace.surface);
 
 	if(other->_r.solid != SOLID_NOT)
-		other->touch(this, -trace.plane, NULL);
+		other->touch(this, NULL, NULL);
 }
 
 /*
@@ -991,7 +991,24 @@ bool	g_entity_c::inFront(const g_entity_c *other)
 
 void	g_entity_c::touchTriggers()
 {
-	//TODO
+	// dead things don't activate triggers!
+	if((_r.isclient || (_r.svflags & SVF_CORPSE)) && (_health <= 0))
+		return;
+
+	std::vector<g_entity_c*>	touchlist;
+	int num = G_AreaEdicts(_r.bbox, touchlist, MAX_ENTITIES, AREA_TRIGGERS);
+
+	// be careful, it is possible to have an entity in this
+	// list removed before we get to it (killtriggered)
+	for(int i=0; i<num; i++)
+	{
+		g_entity_c* other = touchlist[i];
+
+		if(!other->_r.inuse)
+			continue;
+
+		other->touch(this, NULL, NULL);
+	}
 }
 
 bool	g_entity_c::killBox()
@@ -1018,11 +1035,43 @@ bool	g_entity_c::killBox()
 	return true;	// all clear
 }
 
+void	g_entity_c::setModel()
+{
+	setModel(_model);
+}
+
+void	g_entity_c::setModel(const std::string &name)
+{
+	if(name.empty())
+		Com_Error(ERR_DROP, "g_entity_c::setModel: empty name");
+	
+	trap_Com_DPrintf("g_entity_c::setModel: '%s'\n", name.c_str());
+
+	// set entity state
+	_s.index_model = trap_SV_ModelIndex(name);
+	
+	cmodel_c* model = trap_CM_RegisterModel(name);
+	
+	if(model)
+	{		
+		_r.bbox = model->getAABB();
+		_r.size = _r.bbox.size();
+	}
+	else
+	{
+		_r.bbox._maxs.set( 16.0, 16.0, 16.0);
+		_r.bbox._mins.set(-16.0,-16.0,-16.0);
+		_r.size = _r.bbox.size();
+	}
+
+	link();
+}
+
 void	G_ShutdownEntities()
 {
 	trap_Com_Printf("G_ShutdownEntities: %i edict slots left\n", g_entities.size());
 	
-	for(std::vector<sv_entity_c*>::iterator ir = g_entities.begin(); ir != g_entities.end(); ir++)
+	for(std::vector<sv_entity_c*>::iterator ir = g_entities.begin(); ir != g_entities.end(); ++ir)
 	{
 		g_entity_c *ent = (g_entity_c*) *ir;
 		

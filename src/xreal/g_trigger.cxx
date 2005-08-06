@@ -40,9 +40,11 @@ void 	g_trigger_c::init()
 		G_SetMovedir(_s.quat, _movedir);
 
 	_r.solid = SOLID_TRIGGER;
-	_movetype = MOVETYPE_NONE;
-	G_SetModel(this, _model);
 	_r.svflags = SVF_NOCLIENT;
+
+	_movetype = MOVETYPE_NONE;
+
+	setModel();
 	
 #if defined(ODE)
 	_body->setPosition(_s.origin);
@@ -52,7 +54,7 @@ void 	g_trigger_c::init()
 }
 
 
-bool	g_trigger_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
+bool	g_trigger_c::touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf)
 {
 	return false;
 }
@@ -115,7 +117,7 @@ void	g_trigger_multiple_c::use(g_entity_c *other, g_entity_c *activator)
 }
 
 
-bool	g_trigger_multiple_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
+bool	g_trigger_multiple_c::touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf)
 {
 	if(other->_r.isclient)
 	{
@@ -201,14 +203,14 @@ void	g_trigger_multiple_c::activate()
 
 	if(!(_angles == vec3_origin))
 		G_SetMovedir(_s.quat, _movedir);
+
+	setModel();
 	
 #if defined(ODE)	
 	_body->setPosition(_s.origin);
 	_body->setQuaternion(_s.quat);
 	_body->setGravityMode(0);
 #endif
-
-	G_SetModel(this, _model);
 }
 
 
@@ -284,7 +286,7 @@ void	g_trigger_once_c::activate()
 	if (!(_angles == vec3_origin))
 		G_SetMovedir(_s.quat, _movedir);
 
-	G_SetModel (this, _model);
+	setModel();
 }
 
 void SP_trigger_once(g_entity_c **entity)
@@ -565,7 +567,7 @@ void	g_trigger_push_c::think()
 	//_movedir[2] = time * gravity;	
 }
 
-bool	g_trigger_push_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
+bool	g_trigger_push_c::touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf)
 {
 	if(!other)
 		return false;
@@ -657,7 +659,7 @@ g_trigger_hurt_c::g_trigger_hurt_c()
 	//TODO
 }
 
-bool	g_trigger_hurt_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
+bool	g_trigger_hurt_c::touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf)
 {
 	int		dflags;
 
@@ -750,7 +752,7 @@ g_trigger_gravity_c::g_trigger_gravity_c()
 }
 
 
-bool	g_trigger_gravity_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
+bool	g_trigger_gravity_c::touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf)
 {
 	other->_gravity = _gravity;
 	
@@ -803,7 +805,7 @@ void	g_trigger_teleport_c::think()
 }
 
 
-bool	g_trigger_teleport_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
+bool	g_trigger_teleport_c::touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf)
 {
 	g_entity_c		*dest;
 	g_player_c		*player;
@@ -866,7 +868,7 @@ void	g_trigger_teleport_c::activate()
 	
 	_nextthink = level.time + FRAMETIME;
 	
-	G_SetWorldModel(this, _model);
+	setModel();
 	
 	//G_SetModel(this, "models/objects/dmspot/tris.md2");
 	//_s.skinnum = 1;
@@ -910,7 +912,7 @@ g_trigger_door_c::g_trigger_door_c()
 	_r.inuse	= true;
 }
 
-bool	g_trigger_door_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
+bool	g_trigger_door_c::touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf)
 {
 	if(other->_health <= 0)
 		return false;

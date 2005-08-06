@@ -1042,17 +1042,17 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 		_r.ps.view_angles = pm.viewangles;
 	}
 
-//	link();
+	link();
 
 	if(_movetype != MOVETYPE_NOCLIP)
 		touchTriggers();
 
-	// FIXME touch other objects
-	/*
-	for(i=0; i<(int)pm.touchents.size(); i++)
+	// touch other objects
+	for(uint_t i=0; i<pm.touchents.size(); i++)
 	{
-		other = (g_entity_c*) pm.touchents[i];
+		g_entity_c* other = (g_entity_c*) pm.touchents[i];
 		
+		uint_t j;
 		for(j=0; j<i; j++)
 			if(pm.touchents[j] == other)
 				break;
@@ -1061,7 +1061,6 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 				
 		other->touch(this, NULL, NULL);
 	}
-	*/
 
 	_buttons_old = _buttons;
 	_buttons = cmd.buttons;
@@ -1962,16 +1961,16 @@ void	g_player_c::putClientInServer()
 		_resp.spectator = false;
 	}
 
-//	unlink();
-/*
+	unlink();
+
 	if(!killBox())
 	{
 		// could't spawn in?
 		trap_Com_Printf("g_player_c::putClientInServer: could not spawn '%s' at %s\n", _pers.netname, _s.origin.toString());
 	}
-*/	
-//	trap_Com_Printf("g_player_c::putClientInServer: linking '%s'\n", _pers.netname);
-//	link();
+
+	trap_Com_Printf("g_player_c::putClientInServer: linking '%s' into world\n", _pers.netname);
+	link();
 
 	// force the current weapon up
 	_newweapon = _pers.weapon;

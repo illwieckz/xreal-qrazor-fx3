@@ -443,12 +443,12 @@ static void	G_AreaEdicts_r(g_areanode_c *node, area_type_e type)
 		G_AreaEdicts_r(node->children[1], type);
 }
 
-int	G_AreaEdicts(const aabb_c &bbox, std::vector<g_entity_c*> &list, area_type_e type)
+int	G_AreaEdicts(const aabb_c &bbox, std::vector<g_entity_c*> &list, int max, area_type_e type)
 {
 	g_area_bbox = bbox;
 	g_area_list = &list;
 	g_area_count = 0;
-	g_area_maxcount = list.size();
+	g_area_maxcount = max;
 
 	G_AreaEdicts_r(g_areanodes, type);
 
@@ -529,44 +529,71 @@ void	G_SetAreaPortalState(g_entity_c *ent, bool open)
 }
 */
 
+/*
+================
+G_HullForEntity
+
+Returns a headnode that can be used for testing or clipping an
+object of mins/maxs size.
+Offset is filled in to contain the adjustment that must be added to the
+testing object's origin to get a point to use with the returned hull.
+================
+*/
+static cmodel_c*	G_HullForEntity(g_entity_c *ent)
+{
+	// decide which clipping hull to use, based on the size
+	if(ent->_r.solid == SOLID_BSP)
+	{	
+		// explicit hulls in the BSP model
+		cmodel_c* cmodel = trap_CM_RegisterModel(ent->_model);
+
+		if(!cmodel)
+			Com_Error(ERR_FATAL, "G_HullForEntity: MOVETYPE_PUSH with a non bsp model");
+
+		return cmodel;
+	}
+	
+	// create a temp hull from bounding box sizes
+	return trap_CM_ModelForBox(ent->_r.bbox);
+}
+
+
 int	G_PointContents(const vec3_c &p)
 {
-#if 0
-	static std::vector<g_entity_c*>	touch(MAX_ENTITIES);
-	g_entity_c*		hit = NULL;
 	int			contents, c2=0;
-	int			headnode;
 	
-	aabb_c		bbox;
+	aabb_c aabb;
 	
-	bbox._mins = p;
-	bbox._maxs = p;
+	aabb._mins = p;
+	aabb._maxs = p;
 
 	// get base contents from world
-	contents = trap_CM_PointContents(p, 0);
+	contents = g_world_cmodel->pointContents(p);
 
 	// or in contents from all the other entities
-	int num = G_AreaEdicts(bbox, touch, AREA_SOLID);
+	std::vector<g_entity_c*> touch;
+	int num = G_AreaEdicts(aabb, touch, MAX_ENTITIES, AREA_SOLID);
 
 	for(int i=0; i<num; i++)
 	{
-		hit = touch[i];
+		g_entity_c* hit = touch[i];
 
 		// might intersect, so do an exact clip
-		headnode = G_HullForEntity(hit);
+		cmodel_c* cmodel = G_HullForEntity(hit);
 
+		// boxes don't rotate
+		quaternion_c quat;
 		if(hit->_r.solid != SOLID_BSP)
-			hit->_s.quat.identity();	// boxes don't rotate
+			quat = quat_identity;
+		else
+			quat = hit->_s.quat;
 	
-		c2 = trap_CM_TransformedPointContents(p, headnode, hit->_s.origin, hit->_s.quat);
+		c2 = cmodel->pointContents(p, hit->_s.origin, quat);
 
 		contents |= c2;
 	}
 
 	return contents;
-#else
-	return g_world_cmodel->pointContents(p);
-#endif
 }
 
 class g_clip_c
@@ -610,42 +637,14 @@ void	g_clip_c::traceBounds()
 	}
 }
 
-/*
-================
-G_HullForEntity
-
-Returns a headnode that can be used for testing or clipping an
-object of mins/maxs size.
-Offset is filled in to contain the adjustment that must be added to the
-testing object's origin to get a point to use with the returned hull.
-================
-*/
-cmodel_c*	G_HullForEntity(g_entity_c *ent)
-{
-	// decide which clipping hull to use, based on the size
-	if(ent->_r.solid == SOLID_BSP)
-	{	
-		// explicit hulls in the BSP model
-		cmodel_c* cmodel = trap_CM_RegisterModel(ent->_model);
-
-		if(!cmodel)
-			Com_Error(ERR_FATAL, "G_HullForEntity: MOVETYPE_PUSH with a non bsp model");
-
-		return cmodel;
-	}
-	
-	// create a temp hull from bounding box sizes
-	return trap_CM_ModelForBox(ent->_r.bbox);
-}
-
 
 void	g_clip_c::moveToEntities()
 {
-	static std::vector<g_entity_c*>	touchlist(MAX_ENTITIES);
+	std::vector<g_entity_c*>	touchlist;
 	g_entity_c*		touch;
 	trace_t			trace;
 
-	int num = G_AreaEdicts(_bbox_abs, touchlist, AREA_SOLID);
+	int num = G_AreaEdicts(_bbox_abs, touchlist, MAX_ENTITIES, AREA_SOLID);
 
 	// be careful, it is possible to have an entity in this
 	// list removed before we get to it (killtriggered)
@@ -675,12 +674,16 @@ void	g_clip_c::moveToEntities()
 			continue;
 
 		// might intersect, so do an exact clip
-		//cmodel_c* box = G_HullForEntity(touch);
+		cmodel_c* cmodel = G_HullForEntity(touch);
 		
-		if(touch->_r.solid != SOLID_BSP)	//FIXME
-			touch->_s.quat.identity();	// boxes don't rotate
+		// boxes don't rotate
+		quaternion_c quat;
+		if(touch->_r.solid != SOLID_BSP)
+			quat = quat_identity;
+		else
+			quat = touch->_s.quat;
 
-		trace = g_world_cmodel->traceOBB(_start, _end, _bbox, _contentmask, touch->_s.origin, touch->_s.quat);
+		trace = cmodel->traceOBB(_start, _end, _bbox, _contentmask, touch->_s.origin, quat);
 		
 		if(trace.allsolid || trace.startsolid || trace.fraction < _trace.fraction)
 		{
@@ -719,7 +722,7 @@ trace_t	G_Trace(const vec3_c &start, const aabb_c &aabb, const vec3_c &end, g_en
 
 	// clip to world
 	clip._trace = g_world_cmodel->traceAABB(start, end, aabb, contentmask);
-//	clip._trace.ent = g_world;
+	clip._trace.ent = g_world;
 //	clip._trace.fraction = 1.0;
 
 //	if(clip._trace.fraction == 0.0)
@@ -728,10 +731,9 @@ trace_t	G_Trace(const vec3_c &start, const aabb_c &aabb, const vec3_c &end, g_en
 //	if(clip._trace.fraction == 1.0)
 //		trap_Com_Printf("G_Trace: full move");
 	
-//	if(clip._trace.fraction == 0)
+	if(clip._trace.fraction == 0)
 		return clip._trace;		// blocked by the world
 
-/*
 	clip._contentmask = contentmask;
 	clip._start = start;
 	clip._end = end;
@@ -745,5 +747,4 @@ trace_t	G_Trace(const vec3_c &start, const aabb_c &aabb, const vec3_c &end, g_en
 	clip.moveToEntities();
 
 	return clip._trace;
-*/
 }

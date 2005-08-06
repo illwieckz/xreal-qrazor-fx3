@@ -471,7 +471,7 @@ void	g_world_c::activate()
 	}
 	*/	
 		
-	G_SetWorldModel(this, "*0");
+	setModel("*0");
 //	G_SetWorldModel(this, "worldMap");
 
 //	delete g_ode_bsp; 

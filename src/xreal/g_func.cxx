@@ -692,7 +692,7 @@ void	g_func_rotating_c::blocked(g_entity_c *other)
 
 
 
-bool	g_func_rotating_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
+bool	g_func_rotating_c::touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf)
 {
 	if(!(_spawnflags & 16))
 		return true;
@@ -784,7 +784,7 @@ void	g_func_rotating_c::activate()
 	if (_spawnflags & 128)
 		_s.effects |= EF_AUTOANIM_10;
 
-	G_SetModel(this, _model);
+	setModel(_model);
 }
 
 void	SP_func_rotating(g_entity_c **entity)
@@ -867,7 +867,7 @@ void	g_func_button_c::use(g_entity_c *other, g_entity_c *activator)
 }
 
 
-bool	g_func_button_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
+bool	g_func_button_c::touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf)
 {
 	if(!other->_r.isclient)
 		return true;
@@ -1154,7 +1154,7 @@ void	g_func_door_c::blocked(g_entity_c *other)
 	}
 }
 
-bool	g_func_door_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
+bool	g_func_door_c::touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf)
 {
 	if(!other->_r.isclient)
 		return true;
@@ -2473,7 +2473,7 @@ void	g_func_killbox_c::use(g_entity_c *other, g_entity_c *activator)
 void	g_func_killbox_c::activate()
 {
 	_r.inuse = true;
-	G_SetModel(this, _model);
+	setModel();
 }
 
 
@@ -2523,34 +2523,7 @@ void	g_func_static_c::activate()
 		return;
 	}
 	
-#if 1
-//	_s.index_model = trap_SV_ModelIndex(_model);
-	G_SetModel(this, _model);
-#else
-	cmodel_c *model = G_SetModel(this, _model);
-	
-	// setup rigid body
-//	_body->setPosition(_s.origin);
-//	_body->setQuaternion(_s.quat);
-//	_body->setGravityMode(0);
-	
-	// setup collision
-	g_geom_info_c *geom_info = new g_geom_info_c(this, model, NULL);
-	
-	d_geom_c *geom = new d_box_c(g_ode_space->getId(), _r.size * 0.5);
-//	d_geom_c *geom = new d_trimesh_c(g_ode_space->getId(), model->vertexes, model->indexes);
-//	d_geom_c *geom = new d_sphere_c(g_ode_space->getId(), _r.bbox._maxs[0]);
-	
-//	geom->disable();
-//	geom->setBody(_body->getId());
-//	geom->setPosition(_s.origin);
-//	geom->setQuaternion(_s.quat);
-	geom->setData(geom_info);
-	geom->setCollideBits(MASK_SOLID);
-//	geom->enable();
-	
-	_geoms.insert(std::make_pair(geom, geom_info));
-#endif
+	setModel();
 }
 
 

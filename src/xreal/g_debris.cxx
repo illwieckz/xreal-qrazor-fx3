@@ -41,7 +41,7 @@ g_debris_c::g_debris_c(g_entity_c *ent, const std::string &modelname, float spee
 {
 	_r.inuse = true;
 	
-	G_SetModel(this, modelname);
+	setModel(modelname);
 	
 	_s.origin = origin;
 	

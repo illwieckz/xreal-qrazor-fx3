@@ -93,7 +93,7 @@ void	g_projectile_bolt_c::think()
 }
 
 
-bool	g_projectile_bolt_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
+bool	g_projectile_bolt_c::touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf)
 {
 	if(other == _r.owner)
 		return false;
@@ -113,7 +113,7 @@ bool	g_projectile_bolt_c::touch(g_entity_c *other, const plane_c &plane, csurfac
 		#endif
 
 		// damage the other entity
-		other->takeDamage(this, (g_entity_c*)_r.owner, _s.velocity_linear, _s.origin, plane._normal, _dmg, 1, DAMAGE_ENERGY, MOD_BLASTER);
+		other->takeDamage(this, (g_entity_c*)_r.owner, _s.velocity_linear, _s.origin, plane->_normal, _dmg, 1, DAMAGE_ENERGY, MOD_BLASTER);
 	}
 	else
 	{
@@ -121,7 +121,7 @@ bool	g_projectile_bolt_c::touch(g_entity_c *other, const plane_c &plane, csurfac
 		trap_SV_WriteBits(SVC_TEMP_ENTITY, svc_bitcount);
 		trap_SV_WriteByte(TE_BLASTER);
 		trap_SV_WritePosition(_s.origin);
-		trap_SV_WriteDir(plane._normal);
+		trap_SV_WriteDir(plane->_normal);
 			
 		trap_SV_Multicast(_s.origin, MULTICAST_PVS);
 	}
@@ -248,7 +248,7 @@ void	g_projectile_grenade_c::think()
 
 
 
-bool	g_projectile_grenade_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
+bool	g_projectile_grenade_c::touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf)
 {
 	if(other == _r.owner)
 		return false;
@@ -412,7 +412,7 @@ void	g_projectile_rocket_c::think()
 	*/
 }
 
-bool	g_projectile_rocket_c::touch(g_entity_c *other, const plane_c &plane, csurface_c *surf)
+bool	g_projectile_rocket_c::touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf)
 {
 	if(other == _r.owner)
 		return false;
@@ -442,7 +442,7 @@ bool	g_projectile_rocket_c::touch(g_entity_c *other, const plane_c &plane, csurf
 		updateVelocity();
 		#endif
 
-		other->takeDamage(this, (g_entity_c*)_r.owner, _s.velocity_linear, _s.origin, plane._normal, _dmg, 0, 0, MOD_ROCKET);
+		other->takeDamage(this, (g_entity_c*)_r.owner, _s.velocity_linear, _s.origin, plane->_normal, _dmg, 0, 0, MOD_ROCKET);
 	}
 	
 	G_RadiusDamage(this, (g_entity_c*)_r.owner, _radius_dmg, other, _dmg_radius, MOD_R_SPLASH);

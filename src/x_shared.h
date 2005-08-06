@@ -744,14 +744,14 @@ public:
 		_contents	= contents;
 	}
 	
-	inline const std::vector<vec3_c>&	getVertexes() const		{return _vertexes;}
-	inline const std::vector<index_t>&	getIndexes() const		{return _indexes;}
+	inline const std::vector<vec3_c>&	getVertexes() const			{return _vertexes;}
+	inline const std::vector<index_t>&	getIndexes() const			{return _indexes;}
 	
-	inline uint_t				getFlags() const		{return _flags;}
-	inline bool				hasFlags(uint_t flags)		{return _flags & flags;}
+	inline uint_t				getFlags() const			{return _flags;}
+	inline bool				hasFlags(uint_t flags) const		{return _flags & flags;}
 	
-	inline uint_t				getContents() const		{return _contents;}
-	inline bool				hasContents(uint_t contents)	{return _contents & contents;}
+	inline uint_t				getContents() const			{return _contents;}
+	inline bool				hasContents(uint_t contents) const	{return _contents & contents;}
 	
 	
 private:
