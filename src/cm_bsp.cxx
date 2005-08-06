@@ -40,6 +40,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	MAX_CM_VISIBILITY	(MAX_BSP_VISIBILITY)
 
 
+std::vector<cmodel_c*>		cm_models;
+
 class cmodel_box_c :
 public cmodel_c
 {
@@ -127,13 +129,36 @@ struct csurface_t
 
 struct cbrush_t
 {
+	int			getContents(const vec3_c &p) const;
+
 	int			contents;
-	
-	int			sides_first;
-	int			sides_num;
+
+	std::vector<cbrushside_t*>
+				sides;	
+//	int			sides_first;
+//	int			sides_num;
 	
 	int			checkcount;		// to avoid repeated testings
 };
+
+int	cbrush_t::getContents(const vec3_c &p) const
+{
+	uint_t j;
+		
+	//for(j=0; j<sides_num; j++)
+	for(j=0; j<sides.size(); j++)
+	{
+		const cbrushside_t* brushside = sides[j]; //sides_first + j];
+				
+		if(brushside->plane->distance(p) > 0)
+			break;
+	}
+		
+	if(j == sides.size())
+		return contents;
+	else
+		return X_CONT_NONE;
+}
 
 struct cpatch_t
 {
@@ -174,18 +199,22 @@ public:
 	cmodel_bsp_c(const std::string &name, byte *buffer, uint_t buffer_size, const bsp_dheader_t &header);
 	
 	virtual void	load()				{}
-	virtual int	leafContents(int leafnum) const	{return X_CONT_NONE;}
-	virtual int	leafCluster(int leafnum) const	{return -1;}
-	virtual int	leafArea(int leafnum) const	{return -1;}
+	virtual int	leafContents(int leafnum) const;
+	virtual int	leafCluster(int leafnum) const;
+	virtual int	leafArea(int leafnum) const;
 
 	virtual const char*	entityString() const;
 
-	// returns an ORed contents mask
-	virtual int	pointContents(const vec3_c &p) const	{return X_CONT_NONE;}
-	virtual int	pointContents(const vec3_c &p, const vec3_c &origin, const quaternion_c &quat) const	{return X_CONT_NONE;}
+private:
+	void		pointLeafnum_r(const vec3_c &p, int nodenum, int &leafnum) const;
 
-	virtual int	pointLeafnum(const vec3_c &p) const	{return -1;}
-	virtual int	pointAreanum(const vec3_c &p) const	{return -1;}
+public:
+	// returns an ORed contents mask
+	virtual int	pointContents(const vec3_c &p) const;
+	virtual int	pointContents(const vec3_c &p, const vec3_c &origin, const quaternion_c &quat) const;
+
+	virtual int	pointLeafnum(const vec3_c &p) const;
+	virtual int	pointAreanum(const vec3_c &p) const;
 
 	// trace AABB
 	virtual trace_t	trace(const vec3_c &start, const vec3_c &end, const aabb_c &aabb, int brushmask) const
@@ -219,213 +248,439 @@ public:
 	
 private:
 
+	void		loadShaders(const bsp_lump_t &l);
+	void		loadPlanes(const bsp_lump_t &l);
+	void		loadLeafBrushes(const bsp_lump_t &l);
+	void		loadBrushes(const bsp_lump_t &l);
+	void		loadBrushSides(const bsp_lump_t &l);
+	void		loadVertexes(const bsp_lump_t &l);
+	void		loadNormals(const bsp_lump_t &l);
+	void		loadIndexes(const bsp_lump_t &l);
+	
+	void		createMesh(const bsp_dsurface_t *in, cmesh_t &mesh);
+	void		createBezierMesh(const bsp_dsurface_t *in, cmesh_t &mesh);
+	void		loadSurfaces(const bsp_lump_t &l);
+	
+	void		loadLeafSurfaces(const bsp_lump_t &l);
+	void		loadLeafs(const bsp_lump_t &l);
+	void		loadNodes(const bsp_lump_t &l);
+	void		loadModels(const bsp_lump_t &l);
+	void		loadVisibility(const bsp_lump_t &l);
 	void		loadEntityString(const bsp_lump_t &l);
 
-	std::string	_entitystring;
+
+	std::vector<cshader_t>		_shaders;
+	std::vector<plane_c>		_planes;
+
+	std::vector<cbrushside_t>	_brushsides;
+
+	std::vector<cnode_t>		_nodes;
+
+	std::vector<cleaf_t>		_leafs;
+
+	std::vector<int>		_leafsurfaces;
+	std::vector<int>		_leafbrushes;
+
+	std::vector<cbrush_t>		_brushes;
+
+	std::vector<byte>		_pvs;
+	int				_pvs_clusters_num;
+	int				_pvs_clusters_size;
+
+	std::vector<carea_t>		_areas;
+
+	std::vector<vec3_c>		_vertexes;
+	std::vector<vec3_c>		_normals;
+	std::vector<index_t>		_indexes;
+
+	std::vector<csurface_t>		_surfaces;
+
+	std::string			_entitystring;
 };
 
 cmodel_bsp_c::cmodel_bsp_c(const std::string &name, byte *buffer, uint_t buffer_size, const bsp_dheader_t &header)
 :cmodel_c(name, buffer, buffer_size)
 {
 
-//	CM_LoadShaders(&header.lumps[BSP_LUMP_SHADERS]);//, bsp);
-//	CM_LoadPlanes(&header.lumps[BSP_LUMP_PLANES]);//, bsp);
-//	CM_LoadLeafBrushes(&header.lumps[BSP_LUMP_LEAFBRUSHES]);//, bsp);
-//	CM_LoadBrushes(&header.lumps[BSP_LUMP_BRUSHES]);//, bsp);
-//	CM_LoadBrushSides(&header.lumps[BSP_LUMP_BRUSHSIDES]);//, bsp);
-//	CM_LoadVertexes(&header.lumps[BSP_LUMP_VERTEXES]);
-//	CM_LoadNormals(&header.lumps[BSP_LUMP_VERTEXES]);
-//	CM_LoadIndexes(&header.lumps[BSP_LUMP_INDEXES]);
-//	CM_LoadSurfaces(&header.lumps[BSP_LUMP_SURFACES]);//, bsp);
-//	CM_LoadLeafSurfaces(&header.lumps[BSP_LUMP_LEAFSURFACES]);//, bsp);
-//	CM_LoadLeafs(&header.lumps[BSP_LUMP_LEAFS]);//, bsp);
-//	CM_LoadNodes(&header.lumps[BSP_LUMP_NODES]);//, bsp);
-//	CM_LoadModels(&header.lumps[BSP_LUMP_MODELS]);//, bsp);
-//	CM_LoadVisibility(&header.lumps[BSP_LUMP_VISIBILITY]);
+	loadShaders(header.lumps[BSP_LUMP_SHADERS]);//, bsp);
+	loadPlanes(header.lumps[BSP_LUMP_PLANES]);//, bsp);
+	loadLeafBrushes(header.lumps[BSP_LUMP_LEAFBRUSHES]);//, bsp);
+	loadBrushSides(header.lumps[BSP_LUMP_BRUSHSIDES]);//, bsp);
+	loadBrushes(header.lumps[BSP_LUMP_BRUSHES]);//, bsp);
+	loadVertexes(header.lumps[BSP_LUMP_VERTEXES]);
+	loadNormals(header.lumps[BSP_LUMP_VERTEXES]);
+	loadIndexes(header.lumps[BSP_LUMP_INDEXES]);
+	loadSurfaces(header.lumps[BSP_LUMP_SURFACES]);//, bsp);
+	loadLeafSurfaces(header.lumps[BSP_LUMP_LEAFSURFACES]);//, bsp);
+	loadLeafs(header.lumps[BSP_LUMP_LEAFS]);//, bsp);
+	loadNodes(header.lumps[BSP_LUMP_NODES]);//, bsp);
+	loadModels(header.lumps[BSP_LUMP_MODELS]);//, bsp);
+	loadVisibility(header.lumps[BSP_LUMP_VISIBILITY]);
 	loadEntityString(header.lumps[BSP_LUMP_ENTITIES]);
 
 //	floodAreaConnections();
 }
 
-static std::string			cm_name;
-
-static std::vector<cbrushside_t>	cm_brushsides;
-
-static std::vector<cshader_t>		cm_shaders;
-
-static std::vector<plane_c>		cm_planes;
-
-static std::vector<cnode_t>		cm_nodes;
-
-static std::vector<cleaf_t>		cm_leafs;
+int	cmodel_bsp_c::leafContents(int leafnum) const
+{
+	if(leafnum < 0 || leafnum >= (int)_leafs.size())
+		Com_Error(ERR_DROP, "cmodel_bsp_c::leafContents: out of range %i", leafnum);
 	
-static std::vector<int>			cm_leafbrushes;
-static std::vector<int>			cm_leafsurfaces;
+	return _leafs[leafnum].contents;
+}
 
-static std::vector<cbrush_t>		cm_brushes;
+int	cmodel_bsp_c::leafCluster(int leafnum) const
+{
+	if(leafnum < 0 || leafnum >= (int)_leafs.size())
+		Com_Error(ERR_DROP, "cmodel_bsp_c::leafCluster: out of range %i", leafnum);
+	
+	return _leafs[leafnum].cluster;
+}
 
-std::vector<cmodel_c*>			cm_models;
+int	cmodel_bsp_c::leafArea(int leafnum) const
+{
+	if(leafnum < 0 || leafnum >= (int)_leafs.size())
+		Com_Error(ERR_DROP, "cmodel_bsp_c::leafArea: out of range %i", leafnum);
+	
+	return _leafs[leafnum].area;
+}
 
-
-static std::vector<byte>		cm_pvs;
-static int				cm_pvs_clusters_num;
-static int				cm_pvs_clusters_size;
-//static byte				cm_visibility[MAX_CM_VISIBILITY];
-//static bsp_dvis_t*			cm_pvs = (bsp_dvis_t *)cm_visibility;
-
-static cshader_t			cm_nullshader;
-
-static std::vector<carea_t>		cm_areas;
-
-static std::vector<vec3_c>		cm_vertexes;
-static std::vector<vec3_c>		cm_normals;
-static std::vector<index_t>		cm_indexes;
-
-static std::vector<csurface_t>		cm_surfaces;
-
-
+const char*	cmodel_bsp_c::entityString() const
+{
+	return _entitystring.c_str();
+}
 
 
-int		cm_pointcontents;
-int		cm_traces;
-int		cm_brush_traces;
-int		cm_mesh_traces;
-int		cm_surf_traces;
+void	cmodel_bsp_c::pointLeafnum_r(const vec3_c &p, int nodenum, int &leafnum) const
+{
+//	cm_pointcontents++;		// optimize counter
+	
+	if(nodenum < 0)
+	{
+		leafnum = -1 -nodenum;
+		
+		if(leafnum < 0 || leafnum >= (int)_leafs.size())
+		{
+			Com_Error(ERR_DROP, "cmodel_bsp_c::pointLeafnum_r: bad leafnum %i", leafnum);
+		}
+		return;
+	}
+
+	try
+	{
+		const cnode_t& node = _nodes.at(nodenum);
+
+		if(!node.plane)
+		{
+			Com_Error(ERR_DROP, "cmodel_bsp_c::pointLeafnum_r: bad node %i", nodenum);
+		}
+
+		plane_side_e s = node.plane->onSide(p);
+
+		switch(s)
+		{
+			case SIDE_FRONT:
+			{
+				pointLeafnum_r(p, node.children[SIDE_FRONT], leafnum);
+				break;
+			}
+
+			case SIDE_BACK:
+			{
+				pointLeafnum_r(p, node.children[SIDE_BACK], leafnum);
+				break;
+			}
+
+			default:
+				break;
+		}
+	}
+	catch(...)
+	{
+		Com_Error(ERR_DROP, "cmodel_bsp_c::pointLeafnum_r: exception thrown");
+	}
+}
 
 
-static byte*	cm_base;
+int	cmodel_bsp_c::pointContents(const vec3_c &p) const
+{
+	int	contents = X_CONT_NONE;
+	
+	try
+	{
+		const cleaf_t& leaf = _leafs.at(pointLeafnum(p));
+	
+		for(int i=0; i<leaf.leafbrushes_num; i++)
+		{
+			const cbrush_t& brush = _brushes[_leafbrushes[leaf.leafbrushes_first + i]];
+		
+			// check if brush actually adds something to contents
+			if((contents & brush.contents) == brush.contents )
+				continue;
 
-static cvar_t*	cm_noareas;
-static cvar_t*	cm_use_brushes;
-static cvar_t*	cm_use_patches;
-static cvar_t*	cm_use_meshes;
-static cvar_t*	cm_subdivisions;
-
-static cmodel_box_c		box_cmodel;
-//static plane_c		box_planes[6];
-//static int			box_headnode = 0;
-//static cbrush_t		box_brush;
-//static cleaf_t		box_leaf;
-
-// box tracing
-// 1/32 epsilon to keep floating point happy
-#define	CLIP_EPSILON	(0.03125)
-
-static int		cm_checkcount;
-
-static vec3_c		trace_start;		// replace this by a ray
-static vec3_c		trace_end;
-
-static aabb_c		trace_bbox;
-static aabb_c		trace_bbox_abs;
-
-static vec3_c		trace_extents;
-
-static trace_t		trace_trace;
-static int		trace_contents;
-static bool		trace_ispoint;		// optimized case
-
+			contents |= brush.getContents(p);
+		}
+	}
+	catch(...)
+	{
+		Com_Error(ERR_DROP, "CM_PointContents: exception thrown");
+	}
+	
+	return contents;
+}
 
 /*
-// fragment clipping
-#define	MAX_FRAGMENT_VERTEXES	128
-static vec3_c		mark_origin;
-static vec3_c		mark_normal;
-static vec_t		mark_radius;
+==================
+CM_TransformedPointContents
 
-static int		mark_vertexes_num;
-static int		mark_vertexes_max;
-static vec3_c*		mark_vertexes;
-
-static int		mark_fragments_num;
-static int		mark_fragments_max;
-static cfragment_t*	mark_fragments;
-
-static plane_c		mark_planes[6];
-
-static int		mark_checkcount;
+Handles offseting and rotation of the end points for moving and
+rotating entities
+==================
 */
-
-
-static void	CM_FloodAreaConnections();
-
-
-void	CM_LoadVertexes(bsp_lump_t *l)
+int	cmodel_bsp_c::pointContents(const vec3_c &p, const vec3_c &origin, const quaternion_c &quat) const
 {
-	bsp_dvertex_t	*in;
-	int			i, j, count;
+	// subtract origin offset
+	vec3_c p_l = p - origin;
+
+	// rotate start and end into the models frame of reference
+	if(quat != quat_identity)
+	{
+		p_l.rotate(quat);
+	}
 	
+	return pointContents(p_l);
+}
+
+int	cmodel_bsp_c::pointLeafnum(const vec3_c &p) const
+{
+	int leafnum = 0;
+	pointLeafnum_r(p, 0, leafnum);
+	return leafnum;
+}
+
+int	cmodel_bsp_c::pointAreanum(const vec3_c &p) const
+{
+	int leafnum = pointLeafnum(p);
+	int areanum = leafArea(leafnum);
+	
+	return areanum;
+}
+
+void	cmodel_bsp_c::loadShaders(const bsp_lump_t &l)//, d_bsp_c *bsp)
+{
+	Com_DPrintf("loading shaders ...\n");
+
+	bsp_dshader_t* in = (bsp_dshader_t*)(_buffer + l.fileofs);
+	if(l.filelen % sizeof(*in))
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadShaders: funny lump size");
+	int count = l.filelen / sizeof(*in);
+	
+	if(count < 1)
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadShaders: BSP with no shaders");
+
+	_shaders = std::vector<cshader_t>(count);
+
+	for(int i=0; i<count; i++, in++)
+	{
+		uint_t flags	= LittleLong(in->flags);
+		uint_t contents = LittleLong(in->contents);
+	
+		_shaders[i].flags = flags;
+		_shaders[i].contents = contents;
+		
+		//if(bsp)
+		//	bsp->addShader(flags, contents);
+	}
+}
+
+void	cmodel_bsp_c::loadPlanes(const bsp_lump_t &l)//, d_bsp_c* bsp)
+{
+	vec3_c	normal;
+	float	dist;	
+	
+	Com_DPrintf("loading planes ...\n");
+	
+	bsp_dplane_t* in = (bsp_dplane_t*)(_buffer + l.fileofs);
+	if(l.filelen % sizeof(*in))
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadPlanes: funny lump size");
+	int count = l.filelen / sizeof(*in);
+
+	if(count < 1)
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadPlanes: BSP with no planes");
+	
+	// need to save space for box planes
+//	if(count > MAX_BSP_PLANES)
+//		Com_Error (ERR_DROP, "cmodel_bsp_c::loadPlanes: BSP has too many planes");
+
+	_planes = std::vector<plane_c>(count);
+
+	for(int i=0; i<count; i++, in++)
+	{		
+		for(int j=0; j<3; j++)
+		{
+			normal[j] = LittleFloat(in->normal[j]);
+		}
+		
+		dist = LittleFloat(in->dist);
+		
+		_planes[i].set(normal, dist);
+		
+		//if(bsp)
+		//	bsp->addPlane(cm_planes[i]);
+	}
+}
+
+void	cmodel_bsp_c::loadLeafBrushes(const bsp_lump_t &l)//, d_bsp_c* bsp)
+{
+	Com_DPrintf("loading leafbrushes ...\n");
+	
+	int *in = (int*)(_buffer + l.fileofs);
+	if(l.filelen % sizeof(*in))
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadLeafBrushes: funny lump size");
+	int count = l.filelen / sizeof(*in);
+
+	if(count < 1)
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadLeafBrushes: BSP with no leafbrushes");
+	
+	_leafbrushes = std::vector<int>(count);
+	
+	for(int i=0; i<count; i++, in++)
+	{
+		int& out = _leafbrushes[i];
+		
+		out = LittleLong(*in);
+		
+		//if(bsp)
+		//	bsp->addLeafBrush(out);
+	}
+}
+
+void	cmodel_bsp_c::loadBrushSides(const bsp_lump_t &l)//, d_bsp_c* bsp)
+{
+	Com_DPrintf("loading brushsides ...\n");
+	
+	bsp_dbrushside_t *in = (bsp_dbrushside_t*)(_buffer + l.fileofs);
+	if(l.filelen % sizeof(*in))
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadBrushSides: funny lump size");
+	int count = l.filelen / sizeof(*in);
+
+	_brushsides = std::vector<cbrushside_t>(count);
+
+	for(int i=0; i<count; i++, in++)
+	{
+		cbrushside_t& out = _brushsides[i];
+	
+		out.plane = &_planes[LittleLong(in->plane_num)];
+		
+		int shader_num = LittleLong(in->shader_num);
+		
+		if(shader_num < 0 || shader_num >= (int)_shaders.size())
+			Com_Error(ERR_DROP, "cmodel_bsp_c::loadBrushSides: Bad brushside shadernum %i", shader_num);
+		
+		out.shader = &_shaders[shader_num];
+		
+		//if(bsp)
+		//	bsp->addBrushSide(LittleLong(in->plane_num));
+	}
+}
+
+void	cmodel_bsp_c::loadBrushes(const bsp_lump_t &l)//, d_bsp_c *bsp)
+{
+	Com_DPrintf("loading brushes ...\n");
+	
+	bsp_dbrush_t *in = (bsp_dbrush_t*)(_buffer + l.fileofs);
+	if(l.filelen % sizeof(*in))
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadBrushes: funny lump size");
+	int count = l.filelen / sizeof(*in);
+
+	_brushes = std::vector<cbrush_t>(count);
+
+	for(int i=0; i<count; i++, in++)
+	{
+		cbrush_t &out = _brushes[i];
+		
+		int shader_num = LittleLong(in->shader_num);
+		
+		out.contents = _shaders[shader_num].contents;
+		
+		int sides_first = LittleLong(in->sides_first);
+		int sides_num = LittleLong(in->sides_num);
+
+		for(int j=0; j<sides_num; j++)
+		{
+			out.sides.push_back(&_brushsides[sides_first + j]);
+		}
+		
+		//if(bsp)
+		//	bsp->addBrush(out.sides_first, out.sides_num);
+	}
+}
+
+void	cmodel_bsp_c::loadVertexes(const bsp_lump_t &l)
+{
 	Com_DPrintf("loading vertexes ...\n");
 	
-	in = (bsp_dvertex_t*)(cm_base + l->fileofs);
-	if(l->filelen % sizeof(*in))
-		Com_Error(ERR_DROP, "CM_LoadVertexes: funny lump size");
-	count = l->filelen / sizeof(*in);
+	bsp_dvertex_t* in = (bsp_dvertex_t*)(_buffer + l.fileofs);
+	if(l.filelen % sizeof(*in))
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadVertexes: funny lump size");
+	int count = l.filelen / sizeof(*in);
 
 	if(count < 1)
-		Com_Error(ERR_DROP, "CM_LoadVertexes: BSP with no vertexes");
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadVertexes: BSP with no vertexes");
 			
-	cm_vertexes = std::vector<vec3_c>(count);
+	_vertexes = std::vector<vec3_c>(count);
 	
-	for(i=0; i<count; i++, in++)
+	for(int i=0; i<count; i++, in++)
 	{
-		for(j=0; j<3; j++)
-			cm_vertexes[i][j] = LittleFloat(in->position[j]);
+		for(int j=0; j<3; j++)
+			_vertexes[i][j] = LittleFloat(in->position[j]);
 	}
 }
 
-void	CM_LoadNormals(bsp_lump_t *l)
-{
-	bsp_dvertex_t	*in;
-	int			i, j, count;
-	
+void	cmodel_bsp_c::loadNormals(const bsp_lump_t &l)
+{	
 	Com_DPrintf("loading normals ...\n");
 	
-	in = (bsp_dvertex_t*)(cm_base + l->fileofs);
-	if(l->filelen % sizeof(*in))
-		Com_Error(ERR_DROP, "CM_LoadNormals: funny lump size");
-	count = l->filelen / sizeof(*in);
+	bsp_dvertex_t* in = (bsp_dvertex_t*)(_buffer + l.fileofs);
+	if(l.filelen % sizeof(*in))
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadNormals: funny lump size");
+	int count = l.filelen / sizeof(*in);
 
 	if(count < 1)
-		Com_Error(ERR_DROP, "CM_LoadNormals: BSP with no vertexes");
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadNormals: BSP with no vertexes");
 			
-	cm_normals = std::vector<vec3_c>(count);
+	_normals = std::vector<vec3_c>(count);
 	
-	for(i=0; i<count; i++, in++)
+	for(int i=0; i<count; i++, in++)
 	{
-		for(j=0; j<3; j++)
-			cm_normals[i][j] = LittleFloat(in->normal[j]);
+		for(int j=0; j<3; j++)
+			_normals[i][j] = LittleFloat(in->normal[j]);
 		
-		cm_normals[i].normalize();
+		_normals[i].normalize();
 	}
 }
 
-
-void	CM_LoadIndexes(bsp_lump_t *l)
+void	cmodel_bsp_c::loadIndexes(const bsp_lump_t &l)
 {
-	int		*in;
-	int			i, count;
-	
 	Com_DPrintf("loading indexes ...\n");
 	
-	in = (int*)(cm_base + l->fileofs);
-	if(l->filelen % sizeof(*in))
-		Com_Error(ERR_DROP, "CM_LoadIndexes: funny lump size");
-	count = l->filelen / sizeof(*in);
+	int* in = (int*)(_buffer + l.fileofs);
+	if(l.filelen % sizeof(*in))
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadIndexes: funny lump size");
+	int count = l.filelen / sizeof(*in);
 
 	if(count < 1)
-		Com_Error(ERR_DROP, "CM_LoadIndexes: BSP with no indexes");
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadIndexes: BSP with no indexes");
 			
-	cm_indexes = std::vector<index_t>(count);
+	_indexes = std::vector<index_t>(count);
 	
-	for(i=0; i<count; i++)
+	for(int i=0; i<count; i++)
 	{
-		cm_indexes[i] = LittleLong(in[i]);
+		_indexes[i] = LittleLong(in[i]);
 	}
 }
 
-
-void	CM_CreateMesh(const bsp_dsurface_t *in, cmesh_t &mesh)
+void	cmodel_bsp_c::createMesh(const bsp_dsurface_t *in, cmesh_t &mesh)
 {
 	int vertexes_first = LittleLong(in->vertexes_first);
 	int vertexes_num = LittleLong(in->vertexes_num);
@@ -435,8 +690,8 @@ void	CM_CreateMesh(const bsp_dsurface_t *in, cmesh_t &mesh)
 			
 	for(int j=0; j<vertexes_num; j++)
 	{
-		mesh.vertexes[j] = cm_vertexes[vertexes_first + j];
-		mesh.normals[j] = cm_normals[vertexes_first + j];
+		mesh.vertexes[j] = _vertexes[vertexes_first + j];
+		mesh.normals[j] = _normals[vertexes_first + j];
 	}
 				
 	int indexes_num = LittleLong(in->indexes_num);
@@ -445,11 +700,11 @@ void	CM_CreateMesh(const bsp_dsurface_t *in, cmesh_t &mesh)
 	mesh.indexes = std::vector<index_t>(indexes_num);
 	for(int j=0; j<indexes_num; j++)
 	{
-		mesh.indexes[j] = cm_indexes[indexes_first + j];
+		mesh.indexes[j] = _indexes[indexes_first + j];
 	}
 }
 
-void	CM_CreateBezierMesh(const bsp_dsurface_t *in, cmesh_t &mesh)
+void	cmodel_bsp_c::createBezierMesh(const bsp_dsurface_t *in, cmesh_t &mesh)
 {
 	int		step[2];
 	int 		size[2];
@@ -460,17 +715,11 @@ void	CM_CreateBezierMesh(const bsp_dsurface_t *in, cmesh_t &mesh)
 	int		vertexes_first;
 	int		vertexes_num;
 	
-	int		subdivlevel;
-	
 	mesh_cp[0] = LittleLong(in->mesh_cp[0]);
 	mesh_cp[1] = LittleLong(in->mesh_cp[1]);
 	
 	if(!mesh_cp[0] || !mesh_cp[1])
 		return;
-	
-	subdivlevel = cm_subdivisions->getInteger();
-	if(subdivlevel < 1)
-		subdivlevel = 1;
 	
 	vertexes_first = LittleLong(in->vertexes_first);
 	vertexes_num = LittleLong(in->vertexes_num);
@@ -479,11 +728,11 @@ void	CM_CreateBezierMesh(const bsp_dsurface_t *in, cmesh_t &mesh)
 	
 	for(i=0; i<vertexes_num; i++)
 	{
-		cm_vertexes[vertexes_first +i].copyTo(vertexes[i]);
+		_vertexes[vertexes_first +i].copyTo(vertexes[i]);
 	}
 	
 	// find degree of subdivision
-	Curve_GetFlatness(subdivlevel, &(vertexes[0]), mesh_cp, flat);
+	Curve_GetFlatness(1, &(vertexes[0]), mesh_cp, flat);
 	
 	// allocate space for mesh
 	step[0] = (1 << flat[0]);		//step u
@@ -523,26 +772,23 @@ void	CM_CreateBezierMesh(const bsp_dsurface_t *in, cmesh_t &mesh)
 	}
 }
 
-void	CM_LoadSurfaces(bsp_lump_t *l)//, d_bsp_c *bsp)
+void	cmodel_bsp_c::loadSurfaces(const bsp_lump_t &l)//, d_bsp_c *bsp)
 {
-	bsp_dsurface_t		*in;
-	int			i, count;
-	
 	Com_DPrintf("loading surfaces ...\n");
 	
-	in = (bsp_dsurface_t*)(cm_base + l->fileofs);
-	if (l->filelen % sizeof(*in))
-		Com_Error(ERR_DROP, "CM_LoadSurfaces: funny lump size");
-	count = l->filelen / sizeof(*in);
+	bsp_dsurface_t* in = (bsp_dsurface_t*)(_buffer + l.fileofs);
+	if(l.filelen % sizeof(*in))
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadSurfaces: funny lump size");
+	int count = l.filelen / sizeof(*in);
 
 	if(count < 1)
-		Com_Error(ERR_DROP, "CM_LoadSurfaces: BSP with no surfaces");
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadSurfaces: BSP with no surfaces");
 
-	cm_surfaces = std::vector<csurface_t>(count);
+	_surfaces = std::vector<csurface_t>(count);
 	
-	for(i=0; i<count; i++, in++)
+	for(int i=0; i<count; i++, in++)
 	{
-		csurface_t & out = cm_surfaces[i];
+		csurface_t & out = _surfaces[i];
 		
 		out.face_type = (bsp_surface_type_t)LittleLong(in->face_type);
 		
@@ -552,7 +798,7 @@ void	CM_LoadSurfaces(bsp_lump_t *l)//, d_bsp_c *bsp)
 		{
 			case BSPST_PLANAR:
 			{
-				 CM_CreateMesh(in, out.mesh);
+				createMesh(in, out.mesh);
 			
 				//vec3_c	origin;
 				vec3_c	normal;
@@ -573,20 +819,20 @@ void	CM_LoadSurfaces(bsp_lump_t *l)//, d_bsp_c *bsp)
 			
 			case BSPST_MESH:
 			{
-				CM_CreateMesh(in, out.mesh);
+				createMesh(in, out.mesh);
 				break;
 			}
 			
 			case BSPST_BEZIER:
 			{
-				CM_CreateBezierMesh(in, out.mesh);
+				createBezierMesh(in, out.mesh);
 				break;
 			}
 			
 			case BSPST_BAD:
 			case BSPST_FLARE:
 			default:
-				Com_Error(ERR_DROP, "CM_LoadSurfaces: bad surface type %i", out.face_type);
+				Com_Error(ERR_DROP, "cmodel_bsp_c::loadSurfaces: bad surface type %i", out.face_type);
 		}
 		
 		//if(bsp)
@@ -594,54 +840,133 @@ void	CM_LoadSurfaces(bsp_lump_t *l)//, d_bsp_c *bsp)
 	}
 }
 
-void	CM_LoadLeafSurfaces(bsp_lump_t *l)//, d_bsp_c *bsp)
+void	cmodel_bsp_c::loadLeafSurfaces(const bsp_lump_t &l)//, d_bsp_c *bsp)
 {
 	Com_DPrintf("loading leaf surfaces ...\n");
 	
-	int* in = (int*)(cm_base + l->fileofs);
-	if(l->filelen % sizeof(*in))
-		Com_Error(ERR_DROP, "CM_LoadLeafSurfaces: funny lump size");
-	int count = l->filelen / sizeof(*in);
+	int* in = (int*)(_buffer + l.fileofs);
+	if(l.filelen % sizeof(*in))
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadLeafSurfaces: funny lump size");
+	int count = l.filelen / sizeof(*in);
 
 	if(count < 1)
-		Com_Error(ERR_DROP, "CM_LoadLeafSurfaces: BSP with no faces");
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadLeafSurfaces: BSP with no faces");
 
-	cm_leafsurfaces = std::vector<int>(count);
+	_leafsurfaces = std::vector<int>(count);
 	
 	for(int i=0; i<count; i++)
 	{
 		int j = LittleLong(in[i]);
 		
-		if(j<0 || j >= (int)cm_surfaces.size())
-			Com_Error(ERR_DROP, "CM_LoadLeafSurfaces: bad surface number %i", j);
+		if(j<0 || j >= (int)_surfaces.size())
+			Com_Error(ERR_DROP, "cmodel_bsp_c::loadLeafSurfaces: bad surface number %i", j);
 		
-		cm_leafsurfaces[i] = j;
+		_leafsurfaces[i] = j;
 		
 		//if(bsp)
 		//	bsp->addLeafSurface(j);
 	}
 }
 
-void	CM_LoadModels(bsp_lump_t *l)//, d_bsp_c *bsp)
+void	cmodel_bsp_c::loadLeafs(const bsp_lump_t &l)//, d_bsp_c *bsp)
 {
-	bsp_dmodel_t		*in;
-	//cleaf_t		*leaf;
-	//int			*leafbrush;
+	Com_DPrintf("loading leafs ...\n");
 	
-	Com_DPrintf("loading models ...\n");
-
-	in = (bsp_dmodel_t*)(cm_base + l->fileofs);
-	if(l->filelen % sizeof(*in))
-		Com_Error(ERR_DROP, "CM_LoadModels: funny lump size");
-	int count = l->filelen / sizeof(*in);
+	bsp_dleaf_t* in = (bsp_dleaf_t*)(_buffer + l.fileofs);
+	if(l.filelen % sizeof(*in))
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadLeafs: funny lump size");
+	int count = l.filelen / sizeof(*in);
 
 	if(count < 1)
-		Com_Error(ERR_DROP, "CM_LoadModels: BSP with no models");
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadLeafs: BSP with no leafs");
 
+	_leafs = std::vector<cleaf_t>(count);	
 
 	for(int i=0; i<count; i++, in++)
 	{
-		cmodel_c *model = new cmodel_c(va("*%i", i), NULL, 0);
+		cleaf_t &out = _leafs[i];
+		
+		out.contents = 0;
+		out.cluster = LittleLong(in->cluster);
+		out.area = LittleLong(in->area);
+		
+		out.leafsurfaces_first = LittleLong(in->leafsurfaces_first);
+		out.leafsurfaces_num = LittleLong(in->leafsurfaces_num);
+		
+		out.leafbrushes_first = LittleLong(in->leafbrushes_first);
+		out.leafbrushes_num = LittleLong(in->leafbrushes_num);
+		
+		//out->leafpatches_first
+		//out->leafpatches_num
+
+		// OR brushes' contents
+		for(int j=0; j<out.leafbrushes_num; j++)
+		{
+			cbrush_t& brush = _brushes[_leafbrushes[out.leafbrushes_first + j]];
+			out.contents |= brush.contents;
+		}
+
+		// TODO OR patches' contents
+		
+		if(out.area >= (int)_areas.size())
+			_areas.push_back(carea_t());
+		
+		//if(bsp)
+		//	bsp->addLeaf(out.leafsurfaces_first, out.leafsurfaces_num, out.leafbrushes_first, out.leafbrushes_num, out.cluster, out.area);
+	}
+}
+
+void	cmodel_bsp_c::loadNodes(const bsp_lump_t &l)//, d_bsp_c *bsp)
+{
+	Com_DPrintf("loading nodes ...\n");
+	
+	bsp_dnode_t* in = (bsp_dnode_t*)(_buffer + l.fileofs);
+	if(l.filelen % sizeof(*in))
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadNodes: funny lump size");
+	int count = l.filelen / sizeof(*in);
+
+	if(count < 1)
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadNodes: BSP has no nodes");
+	
+	_nodes = std::vector<cnode_t>(count);
+	
+	for(int i=0; i<count; i++,in++)
+	{
+		cnode_t &out = _nodes[i];
+	
+		out.plane = &_planes[LittleLong(in->plane_num)];
+		
+		out.children[SIDE_FRONT] = LittleLong(in->children[SIDE_FRONT]);
+		out.children[SIDE_BACK] = LittleLong(in->children[SIDE_BACK]);
+		
+		//if(bsp)
+		//	bsp->addNode(LittleLong(in->plane_num), out.children[0], out.children[1]);
+	}
+
+}
+
+void	cmodel_bsp_c::loadModels(const bsp_lump_t &l)//, d_bsp_c *bsp)
+{
+	Com_DPrintf("loading models ...\n");
+
+	bsp_dmodel_t* in = (bsp_dmodel_t*)(_buffer + l.fileofs);
+	if(l.filelen % sizeof(*in))
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadModels: funny lump size");
+	int count = l.filelen / sizeof(*in);
+
+	if(count < 1)
+		Com_Error(ERR_DROP, "cmodel_bsp_c::loadModels: BSP with no models");
+
+	for(int i=0; i<count; i++, in++)
+	{
+		cmodel_c *cmodel;
+
+		if(i == 0)
+			cmodel = this;
+		else
+			cmodel = new cmodel_c(va("*%i", i), NULL, 0);
+		
+		cm_models.push_back(cmodel);
 			
 		int	modelsurfaces_first = LittleLong(in->modelsurfaces_first);
 		int	modelsurfaces_num = LittleLong(in->modelsurfaces_num);
@@ -652,29 +977,29 @@ void	CM_LoadModels(bsp_lump_t *l)//, d_bsp_c *bsp)
 		
 		for(int j=0; j<modelsurfaces_num; j++)
 		{
-			csurface_t &surf = cm_surfaces[modelsurfaces_first + j];
+			csurface_t &surf = _surfaces[modelsurfaces_first + j];
 	
-			cshader_t &shader = cm_shaders[surf.shader_num];			
+			cshader_t &shader = _shaders[surf.shader_num];			
 			
 			if(shader.flags & (X_SURF_NOIMPACT | X_SURF_NONSOLID))
 				continue;
 			
 			for(std::vector<vec3_c>::const_iterator ir = surf.mesh.vertexes.begin(); ir != surf.mesh.vertexes.end(); ir++)
 			{
-				model->vertexes.push_back(*ir);
+				cmodel->vertexes.push_back(*ir);
 			}
 			
 			
 			for(std::vector<index_t>::const_iterator ir = surf.mesh.indexes.begin(); ir != surf.mesh.indexes.end(); ir++)
 			{
-				model->indexes.push_back(vertexes_counter + *ir);
+				cmodel->indexes.push_back(vertexes_counter + *ir);
 			}
 			
 			
 			vertexes_counter += surf.mesh.vertexes.size();
 		}
 		
-		reverse(model->indexes.begin(), model->indexes.end());
+		reverse(cmodel->indexes.begin(), cmodel->indexes.end());
 #else		
 		for(int j=0; j<modelsurfaces_num; j++)
 		{
@@ -716,11 +1041,9 @@ void	CM_LoadModels(bsp_lump_t *l)//, d_bsp_c *bsp)
 		for(int j=0; j<3; j++)
 		{	
 			// spread the mins / maxs by a pixel
-			model->_aabb._mins[j] = LittleFloat(in->mins[j]);
-			model->_aabb._maxs[j] = LittleFloat(in->maxs[j]);
+			cmodel->_aabb._mins[j] = LittleFloat(in->mins[j]);
+			cmodel->_aabb._maxs[j] = LittleFloat(in->maxs[j]);
 		}
-		
-		cm_models.push_back(model);
 	}
 	
 	// set bsp size for AABB and assign it to the model
@@ -728,272 +1051,38 @@ void	CM_LoadModels(bsp_lump_t *l)//, d_bsp_c *bsp)
 	//	bsp->setLengths(cm_models[0]->getAABB().size());
 }
 
-void	CM_LoadShaders(bsp_lump_t *l)//, d_bsp_c *bsp)
-{
-	bsp_dshader_t		*in;
-	int			i, count;
-	
-	
-	Com_DPrintf("loading shaders ...\n");
-
-	in = (bsp_dshader_t*)(cm_base + l->fileofs);
-	if (l->filelen % sizeof(*in))
-		Com_Error(ERR_DROP, "CM_LoadShaders: funny lump size");
-	count = l->filelen / sizeof(*in);
-	
-	if(count < 1)
-		Com_Error(ERR_DROP, "CM_LoadShaders: BSP with no shaders");
-
-	cm_shaders = std::vector<cshader_t>(count);
-
-	for(i=0; i<count; i++, in++)
-	{
-		uint_t flags	= LittleLong(in->flags);
-		uint_t contents = LittleLong(in->contents);
-	
-		cm_shaders[i].flags = flags;
-		cm_shaders[i].contents = contents;
-		
-		//if(bsp)
-		//	bsp->addShader(flags, contents);
-	}
-}
-
-
-void	CM_LoadNodes(bsp_lump_t *l)//, d_bsp_c *bsp)
-{
-	Com_DPrintf("loading nodes ...\n");
-	
-	bsp_dnode_t* in = (bsp_dnode_t*)(cm_base + l->fileofs);
-	if(l->filelen % sizeof(*in))
-		Com_Error(ERR_DROP, "CM_LoadNodes: funny lump size");
-	int count = l->filelen / sizeof(*in);
-
-	if(count < 1)
-		Com_Error(ERR_DROP, "CM_LoadNodes: BSP has no nodes");
-	
-	cm_nodes = std::vector<cnode_t>(count);
-	
-	for(int i=0; i<count; i++,in++)
-	{
-		cnode_t &out = cm_nodes[i];
-	
-		out.plane = &cm_planes[LittleLong(in->plane_num)];
-		
-		out.children[SIDE_FRONT] = LittleLong(in->children[SIDE_FRONT]);
-		out.children[SIDE_BACK] = LittleLong(in->children[SIDE_BACK]);
-		
-		//if(bsp)
-		//	bsp->addNode(LittleLong(in->plane_num), out.children[0], out.children[1]);
-	}
-
-}
-
-void	CM_LoadBrushes(bsp_lump_t *l)//, d_bsp_c *bsp)
-{
-	Com_DPrintf("loading brushes ...\n");
-	
-	bsp_dbrush_t *in = (bsp_dbrush_t*)(cm_base + l->fileofs);
-	if(l->filelen % sizeof(*in))
-		Com_Error(ERR_DROP, "CM_LoadBrushes: funny lump size");
-	int count = l->filelen / sizeof(*in);
-
-	cm_brushes = std::vector<cbrush_t>(count);
-
-	for(int i=0; i<count; i++, in++)
-	{
-		cbrush_t &out = cm_brushes[i];
-		
-		int shader_num = LittleLong(in->shader_num);
-		
-		out.contents = cm_shaders[shader_num].contents;
-		out.sides_first = LittleLong(in->sides_first);
-		out.sides_num = LittleLong(in->sides_num);
-		
-		//if(bsp)
-		//	bsp->addBrush(out.sides_first, out.sides_num);
-	}
-}
-
-void	CM_LoadLeafs(bsp_lump_t *l)//, d_bsp_c *bsp)
-{
-	bsp_dleaf_t 	*in;
-	int			count;
-	
-	Com_DPrintf("loading leafs ...\n");
-	
-	in = (bsp_dleaf_t*)(cm_base + l->fileofs);
-	if (l->filelen % sizeof(*in))
-		Com_Error(ERR_DROP, "CM_LoadLeafs: funny lump size");
-	count = l->filelen / sizeof(*in);
-
-	if(count < 1)
-		Com_Error(ERR_DROP, "CM_LoadLeafs: BSP with no leafs");
-
-	cm_leafs = std::vector<cleaf_t>(count);	
-
-	for(int i=0; i<count; i++, in++)
-	{
-		cleaf_t &out = cm_leafs[i];
-		
-		out.contents = 0;
-		out.cluster = LittleLong(in->cluster);
-		out.area = LittleLong(in->area);
-		
-		out.leafsurfaces_first = LittleLong(in->leafsurfaces_first);
-		out.leafsurfaces_num = LittleLong(in->leafsurfaces_num);
-		
-		out.leafbrushes_first = LittleLong(in->leafbrushes_first);
-		out.leafbrushes_num = LittleLong(in->leafbrushes_num);
-		
-		//out->leafpatches_first
-		//out->leafpatches_num
-
-		// OR brushes' contents
-		for(int j=0; j<out.leafbrushes_num; j++)
-		{
-			cbrush_t& brush = cm_brushes[cm_leafbrushes[out.leafbrushes_first + j]];
-			out.contents |= brush.contents;
-		}
-
-		// TODO OR patches' contents
-		
-		if(out.area >= (int)cm_areas.size())
-			cm_areas.push_back(carea_t());
-		
-		//if(bsp)
-		//	bsp->addLeaf(out.leafsurfaces_first, out.leafsurfaces_num, out.leafbrushes_first, out.leafbrushes_num, out.cluster, out.area);
-	}
-}
-
-void	CM_LoadPlanes(bsp_lump_t *l)//, d_bsp_c* bsp)
-{
-	int			i, j;
-	bsp_dplane_t 	*in;
-	int			count;
-	vec3_c	normal;
-	float	dist;
-	
-	
-	Com_DPrintf("loading planes ...\n");
-	
-	in = (bsp_dplane_t*)(cm_base + l->fileofs);
-	if(l->filelen % sizeof(*in))
-		Com_Error(ERR_DROP, "CM_LoadPlanes: funny lump size");
-	count = l->filelen / sizeof(*in);
-
-	if(count < 1)
-		Com_Error(ERR_DROP, "CM_LoadPlanes: BSP with no planes");
-	
-	// need to save space for box planes
-//	if(count > MAX_BSP_PLANES)
-//		Com_Error (ERR_DROP, "CM_LoadPlanes: BSP has too many planes");
-
-	cm_planes = std::vector<plane_c>(count);
-
-	for(i=0; i<count; i++, in++)
-	{		
-		for(j=0; j<3; j++)
-		{
-			normal[j] = LittleFloat(in->normal[j]);
-		}
-		
-		dist = LittleFloat(in->dist);
-		
-		cm_planes[i].set(normal, dist);
-		
-		//if(bsp)
-		//	bsp->addPlane(cm_planes[i]);
-	}
-}
-
-void	CM_LoadLeafBrushes(bsp_lump_t *l)//, d_bsp_c* bsp)
-{
-	Com_DPrintf("loading leafbrushes ...\n");
-	
-	int *in = (int*)(cm_base + l->fileofs);
-	if(l->filelen % sizeof(*in))
-		Com_Error(ERR_DROP, "CM_LoadLeafBrushes: funny lump size");
-	int count = l->filelen / sizeof(*in);
-
-	if(count < 1)
-		Com_Error(ERR_DROP, "CM_LoadLeafBrushes: BSP with no leafbrushes");
-	
-	cm_leafbrushes = std::vector<int>(count);
-	
-	for(int i=0; i<count; i++, in++)
-	{
-		int& out = cm_leafbrushes[i];
-		
-		out = LittleLong(*in);
-		
-		//if(bsp)
-		//	bsp->addLeafBrush(out);
-	}
-}
-
-void	CM_LoadBrushSides(bsp_lump_t *l)//, d_bsp_c* bsp)
-{
-	Com_DPrintf("loading brushsides ...\n");
-	
-	bsp_dbrushside_t *in = (bsp_dbrushside_t*)(cm_base + l->fileofs);
-	if(l->filelen % sizeof(*in))
-		Com_Error(ERR_DROP, "CM_LoadBrushSides: funny lump size");
-	int count = l->filelen / sizeof(*in);
-
-	cm_brushsides = std::vector<cbrushside_t>(count);
-
-	for(int i=0; i<count; i++, in++)
-	{
-		cbrushside_t& out = cm_brushsides[i];
-	
-		out.plane = &cm_planes[LittleLong(in->plane_num)];
-		
-		uint_t shader_num = LittleLong(in->shader_num);
-		
-		if(shader_num >= cm_shaders.size())
-			Com_Error(ERR_DROP, "CM_LoadBrushSides: Bad brushside shadernum");
-		
-		out.shader = &cm_shaders[shader_num];
-		
-		//if(bsp)
-		//	bsp->addBrushSide(LittleLong(in->plane_num));
-	}
-}
-
-void	CM_LoadVisibility(bsp_lump_t *l)
+void	cmodel_bsp_c::loadVisibility(const bsp_lump_t &l)
 {
 	Com_DPrintf("loading visibility ...\n");
 	
-	int pvs_size = l->filelen - BSP_PVS_HEADERSIZE;
+	int pvs_size = l.filelen - BSP_PVS_HEADERSIZE;
 	
 	Com_DPrintf("PVS data size: %i\n", pvs_size);
 	
 	if(pvs_size <= 0)
 	{
-		cm_pvs.clear();
+		_pvs.clear();
 		return;
 	}
 	
-	cm_pvs = std::vector<byte>(pvs_size, 0);
+	_pvs = std::vector<byte>(pvs_size, 0);
 	
 	for(int i=0; i<pvs_size; i++)
 	{
-		cm_pvs[i] = cm_base[l->fileofs + BSP_PVS_HEADERSIZE + i];
+		_pvs[i] = _buffer[l.fileofs + BSP_PVS_HEADERSIZE + i];
 	}
 	
-	cm_pvs_clusters_num  = LittleLong(((int*)((byte*)cm_base + l->fileofs))[0]);
-	cm_pvs_clusters_size = LittleLong(((int*)((byte*)cm_base + l->fileofs))[1]);
+	_pvs_clusters_num  = LittleLong(((int*)((byte*)_buffer + l.fileofs))[0]);
+	_pvs_clusters_size = LittleLong(((int*)((byte*)_buffer + l.fileofs))[1]);
 	
 
 	/*
-	memcpy(cm_visibility, ((byte*)cm_base + l->fileofs), l->filelen);
+	memcpy(cm_visibility, ((byte*)_buffer + l.fileofs), l.filelen);
 
 	cm_pvs->clusters_num = LittleLong(cm_pvs->clusters_num);
 	cm_pvs->cluster_size = LittleLong(cm_pvs->cluster_size);
 	*/
 }
-
 
 void	cmodel_bsp_c::loadEntityString(const bsp_lump_t &l)
 {
@@ -1008,6 +1097,73 @@ void	cmodel_bsp_c::loadEntityString(const bsp_lump_t &l)
 	
 	_entitystring = X_strlwr(_entitystring);
 }
+
+
+static std::string			cm_name;
+static cshader_t			cm_nullshader;
+
+int		cm_pointcontents;
+int		cm_traces;
+int		cm_brush_traces;
+int		cm_mesh_traces;
+int		cm_surf_traces;
+
+static cvar_t*	cm_noareas;
+static cvar_t*	cm_use_brushes;
+static cvar_t*	cm_use_patches;
+static cvar_t*	cm_use_meshes;
+static cvar_t*	cm_subdivisions;
+
+static cmodel_box_c		box_cmodel;
+//static plane_c		box_planes[6];
+//static int			box_headnode = 0;
+//static cbrush_t		box_brush;
+//static cleaf_t		box_leaf;
+
+// box tracing
+// 1/32 epsilon to keep floating point happy
+#define	CLIP_EPSILON	(0.03125)
+
+//static int		cm_checkcount;
+
+static vec3_c		trace_start;		// replace this by a ray
+static vec3_c		trace_end;
+
+static aabb_c		trace_bbox;
+static aabb_c		trace_bbox_abs;
+
+static vec3_c		trace_extents;
+
+static trace_t		trace_trace;
+//static int		trace_contents;
+//static bool		trace_ispoint;		// optimized case
+
+
+/*
+// fragment clipping
+#define	MAX_FRAGMENT_VERTEXES	128
+static vec3_c		mark_origin;
+static vec3_c		mark_normal;
+static vec_t		mark_radius;
+
+static int		mark_vertexes_num;
+static int		mark_vertexes_max;
+static vec3_c*		mark_vertexes;
+
+static int		mark_fragments_num;
+static int		mark_fragments_max;
+static cfragment_t*	mark_fragments;
+
+static plane_c		mark_planes[6];
+
+static int		mark_checkcount;
+*/
+
+
+static void	CM_FloodAreaConnections();
+
+
+
 
 /*
 ===================
@@ -1125,16 +1281,6 @@ cmodel_c*	CM_BeginRegistration(const std::string &name, bool clientload, unsigne
 	// free old stuff
 	X_purge(cm_models);
 	cm_models.clear();
-	
-	cm_planes.clear();
-	cm_nodes.clear();
-	cm_leafs.clear();
-	
-	cm_pvs.clear();
-	cm_areas.clear();
-		
-	cm_vertexes.clear();
-	cm_indexes.clear();
 
 	// load the file
 	length = VFS_FLoad(full_name, (void **)&buf);
@@ -1153,7 +1299,6 @@ cmodel_c*	CM_BeginRegistration(const std::string &name, bool clientload, unsigne
 	if(header.version != BSP_VERSION)
 		Com_Error(ERR_DROP, "CM_BeginRegistration: %s has wrong version number (%i should be %i)", full_name.c_str(), header.version, BSP_VERSION);
 
-	cm_base = (byte*)buf;
 	cm_name = name;
 
 	Com_DPrintf("CM_BeginRegistration: loading %s into heap ...\n", full_name.c_str());
@@ -1176,7 +1321,7 @@ cmodel_c*	CM_BeginRegistration(const std::string &name, bool clientload, unsigne
 }
 
 
-
+/*
 int	CM_ClusterSize()
 {
 	return cm_pvs.size() ? cm_pvs_clusters_size : (MAX_CM_LEAFS / 8);
@@ -1186,46 +1331,11 @@ int	CM_NumClusters()
 {
 	return cm_pvs_clusters_num;
 }
-
+*/
 
 int	CM_NumModels()
 {
 	return cm_models.size();
-}
-
-
-const char*	cmodel_bsp_c::entityString() const
-{
-	return _entitystring.c_str();
-}
-
-
-int	CM_LeafContents(int leafnum)
-{
-	if(leafnum < 0 || leafnum >= (int)cm_leafs.size())
-		Com_Error(ERR_DROP, "CM_LeafContents: out of range %i", leafnum);
-	
-	return cm_leafs[leafnum].contents;
-}
-
-int	CM_LeafCluster(int leafnum)
-{
-	if(cm_leafs.empty())	// may be called without level loaded
-		return -1;
-
-	if(leafnum < 0 || leafnum >= (int)cm_leafs.size())
-		Com_Error(ERR_DROP, "CM_LeafCluster: out of range %i", leafnum);
-	
-	return cm_leafs[leafnum].cluster;
-}
-
-
-int	CM_LeafArea(int leafnum)
-{
-	if(leafnum < 0 || leafnum >= (int)cm_leafs.size())
-		Com_Error(ERR_DROP, "CM_LeafArea: out of range %i", leafnum);
-	
-	return cm_leafs[leafnum].area;
 }
 
 
@@ -1258,88 +1368,8 @@ cmodel_c*	CM_ModelForBox(const aabb_c & bbox)
 	return &box_cmodel;
 }
 
-static void	CM_PointLeafnum_r(const vec3_c &p, int nodenum, int &leafnum)
-{
-	cm_pointcontents++;		// optimize counter
-	
-	if(nodenum < 0)
-	{
-		leafnum = -1 -nodenum;
-		
-		if(leafnum < 0 || leafnum >= (int)cm_leafs.size())
-		{
-			Com_Error(ERR_DROP, "CM_PointLeafnum_r: bad leafnum %i", leafnum);
-		}
-		return;
-	}
-
-	try
-	{
-	
-		const cnode_t& node = cm_nodes.at(nodenum);
-
-		if(!node.plane)
-		{
-			Com_Error(ERR_DROP, "CM_PointLeafnum_r: bad node %i", nodenum);
-		}
-
-		#if 1
-		plane_side_e s = node.plane->onSide(p);
-
-		switch(s)
-		{
-			case SIDE_FRONT:
-			{
-				CM_PointLeafnum_r(p, node.children[SIDE_FRONT], leafnum);
-				break;
-			}
-
-			case SIDE_BACK:
-			{
-				CM_PointLeafnum_r(p, node.children[SIDE_BACK], leafnum);
-				break;
-			}
-
-			default:
-				break;
-		}
-		#else
-		vec_t d = node.plane->_normal.dotProduct(p) - node.plane->_dist;
-
-		if(d >= 0.0)
-			CM_PointLeafnum_r(p, node.children[SIDE_FRONT], leafnum);
-		else
-			CM_PointLeafnum_r(p, node.children[SIDE_BACK], leafnum);
-		#endif
-	}
-	catch(...)
-	{
-		Com_Error(ERR_DROP, "CM_PointLeafnum_r: exception thrown");
-	}
-}
-
-int	CM_PointLeafnum(const vec3_c &p)
-{
-	if(!cm_planes.size())
-		return 0;		// sound may call this without map loaded
-	
-	int leafnum = 0;
-	CM_PointLeafnum_r(p, 0, leafnum);
-	return leafnum;
-}
 
 
-
-int	CM_PointAreanum(const vec3_c &p)
-{
-	if(!cm_nodes.size())
-		return 0;		// sound may call this without map loaded
-	
-	int leafnum = CM_PointLeafnum(p);
-	int areanum = CM_LeafArea(leafnum);
-	
-	return areanum;
-}
 
 /*
 =============
@@ -1348,6 +1378,7 @@ CM_BoxLeafnums
 Fills in a list of all the leafs touched
 =============
 */
+/*
 static void	CM_BoxLeafnums_r(int nodenum, const aabb_c &aabb, std::vector<int> &list, int &topnode, int max)
 {
 	if(nodenum < 0)
@@ -1405,7 +1436,9 @@ static void	CM_BoxLeafnums_r(int nodenum, const aabb_c &aabb, std::vector<int> &
 		Com_Error(ERR_DROP, "CM_BoxLeafnums_r: exception thrown");
 	}
 }
+*/
 
+/*
 int	CM_BoxLeafnums(const aabb_c &aabb, std::vector<int> &list, int max)
 {
 //	if(!list.empty())
@@ -1417,69 +1450,9 @@ int	CM_BoxLeafnums(const aabb_c &aabb, std::vector<int> &list, int max)
 
 	return topnode;
 }
-
-int	CM_PointContents(const vec3_c &p, const cmodel_c* cmodel)
-{
-	int	contents = X_CONT_NONE;
-	
-	if(!cm_nodes.size())	// map not loaded
-		return 0;
-	
-	try
-	{
-		const cleaf_t& leaf = cm_leafs.at(CM_PointLeafnum(p));
-	
-		for(int i=0; i<leaf.leafbrushes_num; i++)
-		{
-			const cbrush_t& brush = cm_brushes[cm_leafbrushes[leaf.leafbrushes_first + i]];
-		
-			int j;
-		
-			for(j=0; j<brush.sides_num; j++)
-			{
-				const cbrushside_t& brushside = cm_brushsides[brush.sides_first + j];
-				
-				if(brushside.plane->distance(p) > 0)
-					break;
-			}
-		
-			if(j == brush.sides_num)
-				contents |= brush.contents;
-		}
-	}
-	catch(...)
-	{
-		Com_Error(ERR_DROP, "CM_PointContents: exception thrown");
-	}
-	
-	return contents;
-}
+*/
 
 /*
-==================
-CM_TransformedPointContents
-
-Handles offseting and rotation of the end points for moving and
-rotating entities
-==================
-*/
-int	CM_TransformedPointContents(const vec3_c &p, const cmodel_c* cmodel, const vec3_c &origin, const quaternion_c &quat)
-{
-	if(!cm_nodes.size())	//map not loaded
-		return 0;
-	
-	// subtract origin offset
-	vec3_c p_l = p - origin;
-
-	// rotate start and end into the models frame of reference
-	if(cmodel && cmodel != &box_cmodel && (quat != quat_identity))
-	{
-		p_l.rotate(quat);
-	}
-	
-	return CM_PointContents(p_l, cmodel);
-}
-
 void	CM_ClipBoxToBrush(const aabb_c &bbox, const vec3_c &p1, const vec3_c &p2, trace_t &trace, const cbrush_t &brush)
 {
 	int			i, j;
@@ -1601,7 +1574,9 @@ void	CM_ClipBoxToBrush(const aabb_c &bbox, const vec3_c &p1, const vec3_c &p2, t
 		}
 	}
 }
+*/
 
+/*
 void	CM_TestBoxInBrush(const aabb_c &bbox, const vec3_c &p1, trace_t &trace, const cbrush_t &brush)
 {
 	int			i, j;
@@ -1647,6 +1622,7 @@ void	CM_TestBoxInBrush(const aabb_c &bbox, const vec3_c &p1, trace_t &trace, con
 	trace.pos_contents = 0;
 	trace.neg_contents = brush.contents;
 }
+*/
 
 /*
 void	CM_TestBoxInMesh(const aabb_c &bbox, const vec3_c &p1, trace_t *trace, cmesh_t *mesh, cshader_t *shader)
@@ -1717,6 +1693,7 @@ void	CM_TestBoxInMesh(const aabb_c &bbox, const vec3_c &p1, trace_t *trace, cmes
 }
 */
 
+/*
 static void	CM_TraceToLeaf(int leafnum)
 {
 	const cleaf_t& leaf = cm_leafs[leafnum];
@@ -1746,7 +1723,6 @@ static void	CM_TraceToLeaf(int leafnum)
 		}
 	}
 	
-	/*	
 	if(cm_use_patches->integer)
 	{
 		// trace line against all patches in the leaf
@@ -1798,10 +1774,11 @@ static void	CM_TraceToLeaf(int leafnum)
 				return;
 		}
 	}
-	*/
+
 }
+*/
 
-
+/*
 static void	CM_TestInLeaf(int leafnum)
 {
 	const cleaf_t& leaf = cm_leafs[leafnum];
@@ -1831,7 +1808,6 @@ static void	CM_TestInLeaf(int leafnum)
 		}
 	}
 	
-	/*
 	if(cm_use_patches->integer)
 	{
 		// trace line against all patches in the leaf
@@ -1883,9 +1859,10 @@ static void	CM_TestInLeaf(int leafnum)
 				return;
 		}
 	}
-	*/
 }
+*/
 
+/*
 static void	CM_HullCheck_r(int num, float p1f, float p2f, const vec3_c &p1, const vec3_c &p2)
 {
 	cnode_t		*node;
@@ -1994,9 +1971,9 @@ static void	CM_HullCheck_r(int num, float p1f, float p2f, const vec3_c &p1, cons
 
 	CM_HullCheck_r(node->children[side^1], midf, p2f, mid, p2);
 }
+*/
 
-
-
+/*
 trace_t	CM_BoxTrace(const vec3_c &start, const vec3_c &end, const aabb_c &bbox, const cmodel_c* cmodel, int brushmask)
 {
 	vec3_c	p;
@@ -2094,7 +2071,7 @@ trace_t	CM_BoxTrace(const vec3_c &start, const vec3_c &end, const aabb_c &bbox, 
 	
 	return trace_trace;
 }
-
+*/
 
 
 /*
@@ -2105,6 +2082,7 @@ Handles offseting and rotation of the end points for moving and
 rotating entities
 ==================
 */
+/*
 trace_t	CM_TransformedBoxTrace(const vec3_c &start, const vec3_c &end,
 						const aabb_c &bbox,
 						const cmodel_c* cmodel, int brushmask, 
@@ -2148,7 +2126,9 @@ trace_t	CM_TransformedBoxTrace(const vec3_c &start, const vec3_c &end,
 	
 	return trace;
 }
+*/
 
+/*
 byte*	CM_ClusterPVS(int cluster)
 {
 	if(cluster < 0 || cluster >= cm_pvs_clusters_num || cm_pvs.empty())
@@ -2167,9 +2147,11 @@ byte*	CM_ClusterPVS(int cluster)
 	
 	return data;
 }
+*/
 
 static void	CM_FloodAreaConnections()
 {
+/*
 	// area 0 is the void and not considered
 	for(uint_t i=1; i<cm_areas.size(); i++)
 	{
@@ -2180,18 +2162,22 @@ static void	CM_FloodAreaConnections()
 	}
 
 	Com_DPrintf("%i areas flooded\n", cm_areas.size());
+*/
 }
 
-
+/*
 int	CM_GetClosestAreaPortal(const vec3_c &p)
 {
 	return -1;
 }
+*/
 
+/*
 bool	CM_GetAreaPortalState(int portal)
 {
 	return false;
 }
+*/
 
 void	CM_SetAreaPortalState(int portal, bool open)
 {
@@ -2212,6 +2198,7 @@ void	CM_SetAreaPortalState(int portal, bool open)
 */
 }
 
+/*
 bool	CM_AreasConnected(int area1, int area2)
 {
 	if(cm_noareas->getInteger())
@@ -2232,7 +2219,7 @@ bool	CM_AreasConnected(int area1, int area2)
 	
 	return false;
 }
-
+*/
 
 /*
 =================
@@ -2246,6 +2233,7 @@ This is used by the client refreshes to cull visibility
 */
 void	CM_WriteAreaBits(boost::dynamic_bitset<byte> &bits, int area)
 {
+#if 0
 	if(cm_noareas->getInteger() || area <= -1)
 	{	
 		// for debugging, send everything
@@ -2264,9 +2252,13 @@ void	CM_WriteAreaBits(boost::dynamic_bitset<byte> &bits, int area)
 				bits[i] = true;
 		}
 	}
+#else
+	bits = boost::dynamic_bitset<byte>(0);
+	bits.set();
+#endif
 }
 
-
+/*
 void	CM_MergeAreaBits(byte *buffer, int area)
 {
 	// area 0 is not used
@@ -2276,7 +2268,7 @@ void	CM_MergeAreaBits(byte *buffer, int area)
 			buffer[i>>3] |= 1<<(i&7);
 	}
 }
-
+*/
 
 /*
 =============
@@ -2286,6 +2278,7 @@ Returns true if any leaf under headnode has a cluster that
 is potentially visible
 =============
 */
+/*
 bool	CM_HeadnodeVisible(int nodenum, byte *visbits)
 {
 	int		leafnum;
@@ -2313,8 +2306,7 @@ bool	CM_HeadnodeVisible(int nodenum, byte *visbits)
 	
 	return CM_HeadnodeVisible(node->children[1], visbits);
 }
-
-
+*/
 
 /*
 static void	CM_ClipFragmentToSurface(csurface_t *surf)
