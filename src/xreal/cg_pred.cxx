@@ -140,7 +140,7 @@ trace_t	CG_Trace(const vec3_c &start, const aabb_c &aabb, const vec3_c &end, int
 	trace_t	t;
 
 	// check against world
-	t = cg.world_cmodel->trace(start, end, aabb, contentmask);
+	t = cg.world_cmodel->traceAABB(start, end, aabb, contentmask);
 	
 	/*
 	if(t.fraction < 1.0)

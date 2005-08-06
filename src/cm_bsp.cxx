@@ -39,8 +39,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	MAX_CM_LEAFS		(MAX_BSP_LEAFS)
 #define	MAX_CM_VISIBILITY	(MAX_BSP_VISIBILITY)
 
+// box tracing
+// 1/32 epsilon to keep floating point happy
+#define	CLIP_EPSILON	(0.03125)
+
 
 std::vector<cmodel_c*>		cm_models;
+static int			cm_checkcount = 0;
+
+int		cm_pointcontents;
+int		cm_traces;
+int		cm_brush_traces;
+int		cm_mesh_traces;
+int		cm_surf_traces;
+
 
 class cmodel_box_c :
 public cmodel_c
@@ -130,6 +142,18 @@ struct csurface_t
 struct cbrush_t
 {
 	int			getContents(const vec3_c &p) const;
+	
+	void			testBox
+	(
+		const vec3_c &start, const aabb_c &aabb,
+		trace_t &trace
+	);
+
+	void			clipBox
+	(
+		const vec3_c &start, const vec3_c &end, const aabb_c &aabb,
+		trace_t &trace
+	);
 
 	int			contents;
 
@@ -144,11 +168,10 @@ struct cbrush_t
 int	cbrush_t::getContents(const vec3_c &p) const
 {
 	uint_t j;
-		
-	//for(j=0; j<sides_num; j++)
+
 	for(j=0; j<sides.size(); j++)
 	{
-		const cbrushside_t* brushside = sides[j]; //sides_first + j];
+		const cbrushside_t* brushside = sides[j];
 				
 		if(brushside->plane->distance(p) > 0)
 			break;
@@ -158,6 +181,180 @@ int	cbrush_t::getContents(const vec3_c &p) const
 		return contents;
 	else
 		return X_CONT_NONE;
+}
+
+void	cbrush_t::testBox
+(
+	const vec3_c &start, const aabb_c &aabb,
+	trace_t &trace
+)
+{
+	plane_c	*plane;
+	vec3_c		ofs;
+	float		d1;
+	cbrushside_t	*side;
+
+	if(!sides.size())
+		return;
+
+	for(uint_t i=0; i<sides.size(); i++)
+	{
+		side = sides[i];
+		plane = side->plane;
+
+		// general box case
+
+		// push the plane out apropriately for mins/maxs
+
+		// FIXME: use signbits into 8 way lookup for each mins/maxs
+		for(uint_t j=0; j<3; j++)
+		{
+			if(plane->_normal[j] < 0)
+				ofs[j] = aabb._maxs[j];
+			else
+				ofs[j] = aabb._mins[j];
+		}
+		
+		ofs += start;
+		
+		d1 = plane->distance(ofs);
+
+		// if completely in front of face, no intersection
+		if(d1 > 0)
+			return;
+	}
+
+	// inside this brush
+	trace.startsolid = trace.allsolid = true;
+	trace.fraction = 0;
+	trace.pos_flags = X_SURF_NONE;
+	trace.pos_contents = X_CONT_NONE;
+	trace.neg_contents = contents;
+}
+
+void	cbrush_t::clipBox
+(
+	const vec3_c &p1, const vec3_c &p2, const aabb_c &aabb,
+	trace_t &trace
+)
+{
+	plane_c	*plane, *clipplane;
+	float		enterfrac, leavefrac;
+	vec3_c		ofs, ofs_ext;
+	float		d1, d2;
+	bool		getout, startout;
+	float		f;
+	cbrushside_t	*side, *leadside;
+
+	enterfrac = -1;
+	leavefrac = 1;
+	clipplane = NULL;
+
+	if(!sides.size())
+		return;
+
+//	cm_brush_traces++;
+
+	getout = false;
+	startout = false;
+	leadside = NULL;
+
+	for(uint_t i=0; i<sides.size(); i++)
+	{
+		side = sides[i];
+		plane = side->plane;
+
+		// FIXME: special case for axial
+
+		if(!aabb.isZero())
+		{	// general box case
+
+			// push the plane out apropriately for mins/maxs
+
+			// FIXME: use signbits into 8 way lookup for each mins/maxs
+			for(int j=0; j<3; j++)
+			{
+				if(plane->_normal[j] < 0)
+					ofs[j] = aabb._maxs[j];
+				else
+					ofs[j] = aabb._mins[j];
+			}
+					
+			ofs_ext = ofs + p1; 
+			d1 = plane->distance(ofs_ext);
+			
+			ofs_ext = ofs + p2;
+			d2 = plane->distance(ofs_ext);	
+		}
+		else
+		{	// special point case
+			d1 = plane->distance(p1);
+			d2 = plane->distance(p2);
+		}
+		
+		
+		if(d2 > 0)
+			getout = true;	// endpoint is not in solid
+		
+		if(d1 > 0)
+			startout = true;
+
+		// if completely in front of face, no intersection
+		if(d1 > 0 && d2 >= d1)
+			return;
+
+		if(d1 <= 0 && d2 <= 0)
+			continue;
+
+		// crosses face
+		if(d1 > d2)
+		{	
+			// enter
+			f = (d1-CLIP_EPSILON) / (d1-d2);
+			
+			if(f > enterfrac)
+			{
+				enterfrac = f;
+				clipplane = plane;
+				leadside = side;
+			}
+		}
+		else
+		{	
+			// leave
+			f = (d1+CLIP_EPSILON) / (d1-d2);
+			
+			if(f < leavefrac)
+				leavefrac = f;
+		}
+	}
+
+	if(!startout)
+	{	
+		// original point was inside brush
+		trace.startsolid = true;
+		
+		if(!getout)
+			trace.allsolid = true;
+		
+		return;
+	}
+	
+	if(enterfrac < leavefrac)
+	{
+		if(enterfrac > -1 && enterfrac < trace.fraction)
+		{
+			if(enterfrac < 0)
+				enterfrac = 0;
+			
+			trace.fraction = enterfrac;
+			trace.plane = *clipplane;
+			//trace->surface = leadside->shader;
+			trace.pos_flags = leadside->shader->flags;
+			trace.pos_contents = leadside->shader->contents;
+			trace.neg_contents = contents;
+		}
+	}
 }
 
 struct cpatch_t
@@ -216,27 +413,53 @@ public:
 	virtual int	pointLeafnum(const vec3_c &p) const;
 	virtual int	pointAreanum(const vec3_c &p) const;
 
-	// trace AABB
-	virtual trace_t	trace(const vec3_c &start, const vec3_c &end, const aabb_c &aabb, int brushmask) const
-	{
-		trace_t tr;
-		tr.fraction = 1.0;
-		tr.pos = end;
-		return tr;
-	}
+private:
+	void		testInLeaf
+	(
+		int leafnum, 
+		const vec3_c &start, const vec3_c &end, const aabb_c &aabb,
+		int mask, 
+		trace_t &trace
+	);
 
-	// trace OBB
-	virtual trace_t	trace(const vec3_c &start, const vec3_c &end, const aabb_c &aabb, int brushmask,
-							const vec3_c &origin, const quaternion_c &quat) const
-	{
-		trace_t tr;
-		tr.fraction = 1.0;
-		tr.pos = end;
-		return tr;
-	}
+	void		traceToLeaf
+	(
+		int leafnum,
+		const vec3_c &start, const vec3_c &end, const aabb_c &aabb,
+		int mask,
+		trace_t &trace
+	);
 
+	void		hullCheck_r
+	(
+		int nodenum,
+		float p1f, float p2f,
+		const vec3_c &p1, const vec3_c &p2, const vec3_c &extents,
+		const vec3_c &start, const vec3_c &end, const aabb_c &aabb,
+		int mask,
+		trace_t &trace
+	);
+	
+public:
+	virtual trace_t	traceAABB
+	(
+		const vec3_c &start, const vec3_c &end, const aabb_c &aabb, 
+		int mask
+	);
+
+	virtual trace_t	traceOBB
+	(
+		const vec3_c &start, const vec3_c &end, const aabb_c &aabb, 
+		int mask,
+		const vec3_c &origin, const quaternion_c &quat
+	);
+
+private:
+	void		boxLeafnums_r(int nodenum, const aabb_c &aabb, std::vector<int> &list, int &topnode, int max) const;
+
+public:
 	// returns topnode
-	virtual int	boxLeafnums(const aabb_c &bbox, std::vector<int> &list, int max) const {return -1;}
+	virtual int	boxLeafnums(const aabb_c &bbox, std::vector<int> &list, int max) const;
 
 	// returns NULL if bad cluster
 	virtual byte*	clusterPVS(int cluster)	const	{return NULL;}
@@ -301,7 +524,6 @@ private:
 cmodel_bsp_c::cmodel_bsp_c(const std::string &name, byte *buffer, uint_t buffer_size, const bsp_dheader_t &header)
 :cmodel_c(name, buffer, buffer_size)
 {
-
 	loadShaders(header.lumps[BSP_LUMP_SHADERS]);//, bsp);
 	loadPlanes(header.lumps[BSP_LUMP_PLANES]);//, bsp);
 	loadLeafBrushes(header.lumps[BSP_LUMP_LEAFBRUSHES]);//, bsp);
@@ -465,6 +687,550 @@ int	cmodel_bsp_c::pointAreanum(const vec3_c &p) const
 	
 	return areanum;
 }
+
+
+void	cmodel_bsp_c::testInLeaf
+(
+	int leafnum, 
+	const vec3_c &start, const vec3_c &end, const aabb_c &aabb,
+	int mask, 
+	trace_t &trace
+)
+{
+	const cleaf_t& leaf = _leafs[leafnum];
+	
+	if(!(leaf.contents & mask))
+		return;
+	
+//	if(cm_use_brushes->getInteger())
+	{
+		// trace line against all brushes in the leaf
+		for(int i=0; i<leaf.leafbrushes_num; i++)
+		{
+			cbrush_t& brush = _brushes[_leafbrushes[leaf.leafbrushes_first + i]];
+		
+			if(brush.checkcount == cm_checkcount)
+				continue;	// already checked this brush in another leaf
+		
+			brush.checkcount = cm_checkcount;
+
+			if(!(brush.contents & mask))
+				continue;
+		
+			brush.testBox(start, aabb, trace);
+		
+			if(!trace.fraction)
+				return;
+		}
+	}
+	
+	/*
+	if(cm_use_patches->integer)
+	{
+		// trace line against all patches in the leaf
+		for(int i=0; i<leaf->leafpatches_num; i++)
+		{
+			cpatch_t *patch = &cm_patches[cm_leafpatches[leaf->leafpatches_first + i]];
+		
+			if(patch->checkcount == cm_checkcount)
+				continue;	// already checked this patch in another leaf
+		
+			patch->checkcount = cm_checkcount;
+
+			if(!(patch->shader->contents & trace_contents))
+				continue;
+		
+			if(!patch->bbox_abs.intersect(trace_bbox_abs))
+				continue;
+		
+			for(int j=0; j<patch->brushes_num; j++)
+			{
+				CM_TestBoxInBrush(trace_bbox, trace_start, &trace_trace, &patch->brushes[j]);
+			
+				if(!trace_trace.fraction)
+					return;
+			}
+		}
+	}
+	
+	if(cm_use_meshes->integer)
+	{
+		// trace line against all surfaces in the leaf
+		for(int i=0; i<leaf->leafsurfaces_num; i++)
+		{
+			csurface_t *surf = &cm_surfaces[cm_leafsurfaces[leaf->leafsurfaces_first + i]];
+		
+			if(surf->checkcount == cm_checkcount)
+				continue;	// already checked this brush in another leaf
+			
+			surf->checkcount = cm_checkcount;
+		
+			cshader_t *shader = &cm_shaders[surf->shader_num];
+		
+			if(!(shader->contents & trace_contents))
+				continue;
+		
+			CM_TestBoxInMesh(trace_bbox, trace_start, &trace_trace, surf->mesh, shader);
+		
+			if(!trace_trace.fraction)
+				return;
+		}
+	}
+	*/
+}
+
+void	cmodel_bsp_c::traceToLeaf
+(
+	int leafnum, 
+	const vec3_c &start, const vec3_c &end, const aabb_c &aabb,
+	int mask, 
+	trace_t &trace
+)
+{
+	const cleaf_t& leaf = _leafs[leafnum];
+	
+	if(!(leaf.contents & mask))
+		return;
+	
+//	if(cm_use_brushes->getInteger())
+	{
+		// trace line against all brushes in the leaf
+		for(int i=0; i<leaf.leafbrushes_num; i++)
+		{
+			cbrush_t& brush = _brushes[_leafbrushes[leaf.leafbrushes_first + i]];
+		
+			if(brush.checkcount == cm_checkcount)
+				continue;	// already checked this brush in another leaf
+		
+			brush.checkcount = cm_checkcount;
+
+			if(!(brush.contents & mask))
+				continue;
+		
+			brush.clipBox(start, end, aabb, trace);
+		
+			if(!trace.fraction)
+				return;
+		}
+	}
+	
+	/*
+	if(cm_use_patches->integer)
+	{
+		// trace line against all patches in the leaf
+		for(int i=0; i<leaf->leafpatches_num; i++)
+		{
+			cpatch_t *patch = &cm_patches[cm_leafpatches[leaf->leafpatches_first + i]];
+		
+			if(patch->checkcount == cm_checkcount)
+				continue;	// already checked this patch in another leaf
+			
+			patch->checkcount = cm_checkcount;
+
+			if(!(patch->shader->contents & trace_contents))
+				continue;
+		
+			if(!patch->bbox_abs.intersect(trace_bbox_abs))
+				continue;
+		
+			for(int j=0; j<patch->brushes_num; j++)
+			{
+				CM_ClipBoxToPatch(trace_bbox, trace_start, trace_end, &trace_trace, &patch->brushes[j]);
+			
+				if(!trace_trace.fraction)
+					return;
+			}
+		}
+	}
+	
+	if(cm_use_meshes->integer)
+	{
+		// trace line against all surfaces in the leaf
+		for(int i=0; i<leaf->leafsurfaces_num; i++)
+		{
+			csurface_t *surf = &cm_surfaces[cm_leafsurfaces[leaf->leafsurfaces_first + i]];
+		
+			if(surf->checkcount == cm_checkcount)
+				continue;	// already checked this brush in another leaf
+		
+			surf->checkcount = cm_checkcount;
+		
+			cshader_t *shader = &cm_shaders[surf->shader_num];
+		
+			if(!(shader->contents & trace_contents))
+				continue;
+		
+			CM_ClipBoxToMesh(trace_bbox, trace_start, trace_end, &trace_trace, surf->mesh, shader);
+		
+			if(!trace_trace.fraction)
+				return;
+		}
+	}
+	*/
+}
+
+void	cmodel_bsp_c::hullCheck_r
+(
+	int nodenum, 
+	float p1f, float p2f, 
+	const vec3_c &p1, const vec3_c &p2, const vec3_c &extents,
+	const vec3_c &start, const vec3_c &end, const aabb_c &aabb,
+	int mask,
+	trace_t &trace
+)
+{
+	cnode_t		*node;
+	plane_c	*plane;
+	float		t1, t2, offset;
+	float		frac, frac2;
+	float		idist;
+	int		i;
+	vec3_t		mid;
+	int		side;
+	float		midf;
+
+	if(trace.fraction <= p1f)
+		return;		// already hit something nearer
+
+	// if < 0, we are in a leaf node
+	if(nodenum < 0)
+	{
+		traceToLeaf(-1 - nodenum, start, end, aabb, mask, trace);
+		return;
+	}
+
+	//
+	// find the point distances to the seperating plane
+	// and the offset for the size of the box
+	//
+	node = &_nodes[nodenum];
+	plane = node->plane;
+
+	if(plane->getType() < 3)
+	{
+		t1 = p1[plane->getType()] - plane->_dist;
+		t2 = p2[plane->getType()] - plane->_dist;
+		
+		offset = extents[plane->getType()];
+	}
+	else
+	{
+		t1 = plane->_normal.dotProduct(p1) - plane->_dist;
+		t2 = plane->_normal.dotProduct(p2) - plane->_dist;
+		
+		if(aabb.isZero())
+			offset = 0;
+		else
+		{
+			offset = 	fabs(extents[0]*plane->_normal[0]) +
+					fabs(extents[1]*plane->_normal[1]) +
+					fabs(extents[2]*plane->_normal[2]);
+		}
+	}
+
+
+	// see which sides we need to consider
+	if(t1 >= offset && t2 >= offset)
+	{
+		hullCheck_r
+		(
+			node->children[SIDE_FRONT], 
+			p1f, p2f, p1, p2, extents,
+			start, end, aabb,
+			mask,
+			trace
+		);
+		return;
+	}
+	
+	if(t1 < -offset && t2 < -offset)
+	{
+		hullCheck_r
+		(
+			node->children[SIDE_BACK], 
+			p1f, p2f, p1, p2, extents,
+			start, end, aabb,
+			mask,
+			trace
+		);
+		return;
+	}
+
+	// put the crosspoint CLIP_EPSILON pixels on the near side
+	if(t1 < t2)
+	{
+		idist = 1.0/(t1-t2);
+		side = 1;
+		frac2 = (t1 + offset + CLIP_EPSILON)*idist;
+		frac  = (t1 - offset + CLIP_EPSILON)*idist;
+	}
+	else if(t1 > t2)
+	{
+		idist = 1.0/(t1-t2);
+		side = 0;
+		frac2 = (t1 - offset - CLIP_EPSILON)*idist;
+		frac  = (t1 + offset + CLIP_EPSILON)*idist;
+	}
+	else
+	{
+		side = 0;
+		frac = 1;
+		frac2 = 0;
+	}
+
+	// move up to the node
+	X_clamp(frac, 0, 1);
+		
+	midf = p1f + (p2f - p1f)*frac;
+	
+	for(i=0; i<3; i++)
+		mid[i] = p1[i] + frac*(p2[i] - p1[i]);
+
+//	hullCheck_r(node->children[side], p1f, midf, p1, mid);
+	hullCheck_r
+	(
+		node->children[side], 
+		p1f, midf, p1, mid, extents,
+		start, end, aabb,
+		mask,
+		trace
+	);
+
+
+	// go past the node
+	X_clamp(frac2, 0, 1);
+		
+	midf = p1f + (p2f - p1f)*frac2;
+	
+	for(i=0; i<3; i++)
+		mid[i] = p1[i] + frac2*(p2[i] - p1[i]);
+
+//	hullCheck_r(node->children[side^1], midf, p2f, mid, p2);
+	hullCheck_r
+	(
+		node->children[side^1], 
+		midf, p2f, mid, p2, extents,
+		start, end, aabb,
+		mask,
+		trace
+	);
+}
+
+
+trace_t	cmodel_bsp_c::traceAABB
+(
+	const vec3_c &start, const vec3_c &end, const aabb_c &aabb,
+	int mask
+)
+{
+	cm_checkcount++;		// for multi-check avoidance
+	cm_traces++;			// for statistics, may be zeroed
+
+	// fill in a default trace
+	trace_t trace;
+	trace.fraction = 1.0;
+
+	
+	// build a bounding box of the entire move
+	/*
+	Tr3B - move this to class cmodel_inline_c::trace() ...
+
+	vec3_c	p;
+	aabb_c	aabb_w;
+	aabb_w.clear();
+	
+	p = start + aabb._mins;
+	aabb_w.addPoint(p);
+	
+	p = start + aabb._maxs;
+	aabb_w.addPoint(p);
+	
+	p = end + aabb._mins;
+	aabb_w.addPoint(p);
+	
+	p = end + aabb._maxs;
+	aabb_w.addPoint(p);
+	*/
+	
+	// check for position test special case
+	if(start == end)
+	{
+		std::vector<int> leafs;
+
+		aabb_c	c;
+		c._mins = start + aabb._mins - vec3_c(1.0, 1.0, 1.0);
+		c._maxs = start + aabb._maxs + vec3_c(1.0, 1.0, 1.0);
+
+		boxLeafnums(c, leafs, 1024);
+		
+		for(std::vector<int>::const_iterator ir = leafs.begin(); ir != leafs.end(); ++ir)
+		{
+			testInLeaf(*ir, start, end, aabb, mask, trace);
+			
+			if(trace.allsolid)
+				break;
+		}
+		
+		trace.pos = start;
+		
+		return trace;
+	}
+
+	// check for point special case
+	vec3_c extents;
+	if(!aabb.isZero())
+	{
+		extents[0] = -aabb._mins[0] > aabb._maxs[0] ? -aabb._mins[0] : aabb._maxs[0];
+		extents[1] = -aabb._mins[1] > aabb._maxs[1] ? -aabb._mins[1] : aabb._maxs[1];
+		extents[2] = -aabb._mins[2] > aabb._maxs[2] ? -aabb._mins[2] : aabb._maxs[2];
+	}
+
+	// general sweeping through world
+	hullCheck_r
+	(
+		0,
+		0, 1, start, end, extents,
+		start, end, aabb,
+		mask,
+		trace
+	);
+
+	// set final position
+	if(trace.fraction == 1.0)
+	{
+		trace.pos = end;
+	}
+	else
+	{
+		trace.pos = start + ((end - start) * trace.fraction);
+	}
+	
+	return trace;
+}
+
+
+/*
+==================
+CM_TransformedBoxTrace
+
+Handles offseting and rotation of the end points for moving and
+rotating entities
+==================
+*/
+trace_t	cmodel_bsp_c::traceOBB
+(
+	const vec3_c &start, const vec3_c &end, const aabb_c &aabb,
+	int mask, 
+	const vec3_c &origin, const quaternion_c &quat
+)
+{
+	// subtract origin offset
+	vec3_c start_l = start - origin;
+	vec3_c end_l = end - origin;
+
+	// rotate start and end into the models frame of reference
+	if((quat != quat_identity))
+	{
+		start_l.rotate(quat);
+		end_l.rotate(quat);
+	}
+
+	// sweep the box through the model
+	trace_t trace = traceAABB(start_l, end_l, aabb, mask);
+
+	if((quat != quat_identity) && trace.fraction != 1.0)
+	{
+		// FIXME: figure out how to do this with existing angles
+		//a = angles;
+		//a.negate();
+		//trace.plane.rotate(a);
+		quaternion_c q = quat;
+		q.inverse();
+		trace.plane.rotate(q);
+	}
+	
+	trace.pos = start + ((end - start) * trace.fraction);
+	
+	return trace;
+}
+
+
+/*
+=============
+CM_BoxLeafnums
+
+Fills in a list of all the leafs touched
+=============
+*/
+void	cmodel_bsp_c::boxLeafnums_r(int nodenum, const aabb_c &aabb, std::vector<int> &list, int &topnode, int max) const
+{
+	if(nodenum < 0)
+	{
+		int leafnum = -1 -nodenum;
+		
+		if(leafnum < 0 || leafnum >= (int)_leafs.size())
+		{
+			Com_Error(ERR_DROP, "cmodel_bsp_c::boxLeafnums_r: bad leafnum %i", leafnum);
+		}
+
+		if((int)list.size() < max)
+			list.push_back(leafnum);
+		return;
+	}
+
+	try
+	{
+		const cnode_t& node = _nodes.at(nodenum);
+
+		plane_side_e s = node.plane->onSide(aabb);
+
+		switch(s)
+		{
+			case SIDE_FRONT:
+			{
+				boxLeafnums_r(node.children[0], aabb, list, topnode, max);
+				break;
+			}
+
+			case SIDE_BACK:
+			{
+				boxLeafnums_r(node.children[1], aabb, list, topnode, max);
+				break;
+			}
+
+			case SIDE_CROSS:
+			{
+				// go down both
+				if(topnode == -1)
+					topnode = nodenum;
+			
+				boxLeafnums_r(node.children[0], aabb, list, topnode, max);
+				boxLeafnums_r(node.children[1], aabb, list, topnode, max);
+				break;
+			}
+
+			default:
+				break;
+		}
+	}
+	catch(...)
+	{
+		Com_Error(ERR_DROP, "cmodel_bsp_c::boxLeafnums_r: exception thrown");
+	}
+}
+
+int	cmodel_bsp_c::boxLeafnums(const aabb_c &aabb, std::vector<int> &list, int max) const
+{
+//	if(!list.empty())
+	list.clear();
+
+	int topnode = -1;
+
+	boxLeafnums_r(0, aabb, list, topnode, max);
+
+	return topnode;
+}
+
 
 void	cmodel_bsp_c::loadShaders(const bsp_lump_t &l)//, d_bsp_c *bsp)
 {
@@ -1102,12 +1868,6 @@ void	cmodel_bsp_c::loadEntityString(const bsp_lump_t &l)
 static std::string			cm_name;
 static cshader_t			cm_nullshader;
 
-int		cm_pointcontents;
-int		cm_traces;
-int		cm_brush_traces;
-int		cm_mesh_traces;
-int		cm_surf_traces;
-
 static cvar_t*	cm_noareas;
 static cvar_t*	cm_use_brushes;
 static cvar_t*	cm_use_patches;
@@ -1120,11 +1880,7 @@ static cmodel_box_c		box_cmodel;
 //static cbrush_t		box_brush;
 //static cleaf_t		box_leaf;
 
-// box tracing
-// 1/32 epsilon to keep floating point happy
-#define	CLIP_EPSILON	(0.03125)
 
-//static int		cm_checkcount;
 
 static vec3_c		trace_start;		// replace this by a ray
 static vec3_c		trace_end;
@@ -1371,258 +2127,11 @@ cmodel_c*	CM_ModelForBox(const aabb_c & bbox)
 
 
 
-/*
-=============
-CM_BoxLeafnums
 
-Fills in a list of all the leafs touched
-=============
-*/
-/*
-static void	CM_BoxLeafnums_r(int nodenum, const aabb_c &aabb, std::vector<int> &list, int &topnode, int max)
-{
-	if(nodenum < 0)
-	{
-		int leafnum = -1 -nodenum;
-		
-		if(leafnum < 0 || leafnum >= (int)cm_leafs.size())
-		{
-			Com_Error(ERR_DROP, "CM_BoxLeafnums_r: bad leafnum %i", leafnum);
-		}
 
-		if((int)list.size() < max)
-			list.push_back(leafnum);
-		return;
-	}
 
-	try
-	{
-	
-		const cnode_t& node = cm_nodes.at(nodenum);
 
-		plane_side_e s = node.plane->onSide(aabb);
 
-		switch(s)
-		{
-			case SIDE_FRONT:
-			{
-				CM_BoxLeafnums_r(node.children[0], aabb, list, topnode, max);
-				break;
-			}
-
-			case SIDE_BACK:
-			{
-				CM_BoxLeafnums_r(node.children[1], aabb, list, topnode, max);
-				break;
-			}
-
-			case SIDE_CROSS:
-			{
-				// go down both
-				if(topnode == -1)
-					topnode = nodenum;
-			
-				CM_BoxLeafnums_r(node.children[0], aabb, list, topnode, max);
-				CM_BoxLeafnums_r(node.children[1], aabb, list, topnode, max);
-				break;
-			}
-
-			default:
-				break;
-		}
-	}
-	catch(...)
-	{
-		Com_Error(ERR_DROP, "CM_BoxLeafnums_r: exception thrown");
-	}
-}
-*/
-
-/*
-int	CM_BoxLeafnums(const aabb_c &aabb, std::vector<int> &list, int max)
-{
-//	if(!list.empty())
-	list.clear();
-
-	int topnode = -1;
-
-	CM_BoxLeafnums_r(0, aabb, list, topnode, max);
-
-	return topnode;
-}
-*/
-
-/*
-void	CM_ClipBoxToBrush(const aabb_c &bbox, const vec3_c &p1, const vec3_c &p2, trace_t &trace, const cbrush_t &brush)
-{
-	int			i, j;
-	plane_c	*plane, *clipplane;
-	float		enterfrac, leavefrac;
-	vec3_c		ofs, ofs_ext;
-	float		d1, d2;
-	bool		getout, startout;
-	float		f;
-	cbrushside_t	*side, *leadside;
-
-	enterfrac = -1;
-	leavefrac = 1;
-	clipplane = NULL;
-
-	if(!brush.sides_num)
-		return;
-
-	cm_brush_traces++;
-
-	getout = false;
-	startout = false;
-	leadside = NULL;
-
-	for(i=0; i<brush.sides_num; i++)
-	{
-		side = &cm_brushsides[brush.sides_first + i];
-		plane = side->plane;
-
-		// FIXME: special case for axial
-
-		if(!trace_ispoint)
-		{	// general box case
-
-			// push the plane out apropriately for mins/maxs
-
-			// FIXME: use signbits into 8 way lookup for each mins/maxs
-			for(j=0; j<3; j++)
-			{
-				if(plane->_normal[j] < 0)
-					ofs[j] = bbox._maxs[j];
-				else
-					ofs[j] = bbox._mins[j];
-			}
-					
-			ofs_ext = ofs + p1; 
-			d1 = plane->distance(ofs_ext);
-			
-			ofs_ext = ofs + p2;
-			d2 = plane->distance(ofs_ext);	
-		}
-		else
-		{	// special point case
-			d1 = plane->distance(p1);
-			d2 = plane->distance(p2);
-		}
-		
-		
-		if(d2 > 0)
-			getout = true;	// endpoint is not in solid
-		
-		if(d1 > 0)
-			startout = true;
-
-		// if completely in front of face, no intersection
-		if(d1 > 0 && d2 >= d1)
-			return;
-
-		if(d1 <= 0 && d2 <= 0)
-			continue;
-
-		// crosses face
-		if(d1 > d2)
-		{	
-			// enter
-			f = (d1-CLIP_EPSILON) / (d1-d2);
-			
-			if(f > enterfrac)
-			{
-				enterfrac = f;
-				clipplane = plane;
-				leadside = side;
-			}
-		}
-		else
-		{	
-			// leave
-			f = (d1+CLIP_EPSILON) / (d1-d2);
-			
-			if(f < leavefrac)
-				leavefrac = f;
-		}
-	}
-
-	if(!startout)
-	{	
-		// original point was inside brush
-		trace.startsolid = true;
-		
-		if(!getout)
-			trace.allsolid = true;
-		
-		return;
-	}
-	
-	if(enterfrac < leavefrac)
-	{
-		if(enterfrac > -1 && enterfrac < trace.fraction)
-		{
-			if(enterfrac < 0)
-				enterfrac = 0;
-			
-			trace.fraction = enterfrac;
-			trace.plane = *clipplane;
-			//trace->surface = leadside->shader;
-			trace.pos_flags = leadside->shader->flags;
-			trace.pos_contents = leadside->shader->contents;
-			trace.neg_contents = brush.contents;
-		}
-	}
-}
-*/
-
-/*
-void	CM_TestBoxInBrush(const aabb_c &bbox, const vec3_c &p1, trace_t &trace, const cbrush_t &brush)
-{
-	int			i, j;
-	plane_c	*plane;
-	vec3_c		ofs;
-	float		d1;
-	cbrushside_t	*side;
-
-	if(!brush.sides_num)
-		return;
-
-	for(i=0; i<brush.sides_num; i++)
-	{
-		side = &cm_brushsides[brush.sides_first + i];
-		plane = side->plane;
-
-		// general box case
-
-		// push the plane out apropriately for mins/maxs
-
-		// FIXME: use signbits into 8 way lookup for each mins/maxs
-		for(j=0; j<3; j++)
-		{
-			if(plane->_normal[j] < 0)
-				ofs[j] = bbox._maxs[j];
-			else
-				ofs[j] = bbox._mins[j];
-		}
-		
-		ofs += p1;
-		
-		d1 = plane->distance(ofs);
-
-		// if completely in front of face, no intersection
-		if(d1 > 0)
-			return;
-	}
-
-	// inside this brush
-	trace.startsolid = trace.allsolid = true;
-	trace.fraction = 0;
-	trace.pos_flags = 0;
-	trace.pos_contents = 0;
-	trace.neg_contents = brush.contents;
-}
-*/
 
 /*
 void	CM_TestBoxInMesh(const aabb_c &bbox, const vec3_c &p1, trace_t *trace, cmesh_t *mesh, cshader_t *shader)
@@ -1778,355 +2287,7 @@ static void	CM_TraceToLeaf(int leafnum)
 }
 */
 
-/*
-static void	CM_TestInLeaf(int leafnum)
-{
-	const cleaf_t& leaf = cm_leafs[leafnum];
-	
-	if(!(leaf.contents & trace_contents))
-		return;
-	
-	if(cm_use_brushes->getInteger())
-	{
-		// trace line against all brushes in the leaf
-		for(int i=0; i<leaf.leafbrushes_num; i++)
-		{
-			cbrush_t& brush = cm_brushes[cm_leafbrushes[leaf.leafbrushes_first + i]];
-		
-			if(brush.checkcount == cm_checkcount)
-				continue;	// already checked this brush in another leaf
-		
-			brush.checkcount = cm_checkcount;
 
-			if(!(brush.contents & trace_contents))
-				continue;
-		
-			CM_TestBoxInBrush(trace_bbox, trace_start, trace_trace, brush);
-		
-			if(!trace_trace.fraction)
-				return;
-		}
-	}
-	
-	if(cm_use_patches->integer)
-	{
-		// trace line against all patches in the leaf
-		for(int i=0; i<leaf->leafpatches_num; i++)
-		{
-			cpatch_t *patch = &cm_patches[cm_leafpatches[leaf->leafpatches_first + i]];
-		
-			if(patch->checkcount == cm_checkcount)
-				continue;	// already checked this patch in another leaf
-		
-			patch->checkcount = cm_checkcount;
-
-			if(!(patch->shader->contents & trace_contents))
-				continue;
-		
-			if(!patch->bbox_abs.intersect(trace_bbox_abs))
-				continue;
-		
-			for(int j=0; j<patch->brushes_num; j++)
-			{
-				CM_TestBoxInBrush(trace_bbox, trace_start, &trace_trace, &patch->brushes[j]);
-			
-				if(!trace_trace.fraction)
-					return;
-			}
-		}
-	}
-	
-	if(cm_use_meshes->integer)
-	{
-		// trace line against all surfaces in the leaf
-		for(int i=0; i<leaf->leafsurfaces_num; i++)
-		{
-			csurface_t *surf = &cm_surfaces[cm_leafsurfaces[leaf->leafsurfaces_first + i]];
-		
-			if(surf->checkcount == cm_checkcount)
-				continue;	// already checked this brush in another leaf
-			
-			surf->checkcount = cm_checkcount;
-		
-			cshader_t *shader = &cm_shaders[surf->shader_num];
-		
-			if(!(shader->contents & trace_contents))
-				continue;
-		
-			CM_TestBoxInMesh(trace_bbox, trace_start, &trace_trace, surf->mesh, shader);
-		
-			if(!trace_trace.fraction)
-				return;
-		}
-	}
-}
-*/
-
-/*
-static void	CM_HullCheck_r(int num, float p1f, float p2f, const vec3_c &p1, const vec3_c &p2)
-{
-	cnode_t		*node;
-	plane_c	*plane;
-	float		t1, t2, offset;
-	float		frac, frac2;
-	float		idist;
-	int		i;
-	vec3_t		mid;
-	int		side;
-	float		midf;
-
-	if(trace_trace.fraction <= p1f)
-		return;		// already hit something nearer
-
-	// if < 0, we are in a leaf node
-	if(num < 0)
-	{
-		CM_TraceToLeaf(-1 - num);
-		return;
-	}
-
-	//
-	// find the point distances to the seperating plane
-	// and the offset for the size of the box
-	//
-	node = &cm_nodes[num];
-	plane = node->plane;
-
-	if(plane->getType() < 3)
-	{
-		t1 = p1[plane->getType()] - plane->_dist;
-		t2 = p2[plane->getType()] - plane->_dist;
-		
-		offset = trace_extents[plane->getType()];
-	}
-	else
-	{
-		t1 = plane->_normal.dotProduct(p1) - plane->_dist;
-		t2 = plane->_normal.dotProduct(p2) - plane->_dist;
-		
-		if(trace_ispoint)
-			offset = 0;
-		else
-		{
-			offset = 	fabs(trace_extents[0]*plane->_normal[0]) +
-					fabs(trace_extents[1]*plane->_normal[1]) +
-					fabs(trace_extents[2]*plane->_normal[2]);
-		}
-	}
-
-
-	// see which sides we need to consider
-	if(t1 >= offset && t2 >= offset)
-	{
-		CM_HullCheck_r(node->children[0], p1f, p2f, p1, p2);
-		return;
-	}
-	
-	if(t1 < -offset && t2 < -offset)
-	{
-		CM_HullCheck_r(node->children[1], p1f, p2f, p1, p2);
-		return;
-	}
-
-	// put the crosspoint CLIP_EPSILON pixels on the near side
-	if(t1 < t2)
-	{
-		idist = 1.0/(t1-t2);
-		side = 1;
-		frac2 = (t1 + offset + CLIP_EPSILON)*idist;
-		frac  = (t1 - offset + CLIP_EPSILON)*idist;
-	}
-	else if(t1 > t2)
-	{
-		idist = 1.0/(t1-t2);
-		side = 0;
-		frac2 = (t1 - offset - CLIP_EPSILON)*idist;
-		frac  = (t1 + offset + CLIP_EPSILON)*idist;
-	}
-	else
-	{
-		side = 0;
-		frac = 1;
-		frac2 = 0;
-	}
-
-	// move up to the node
-	X_clamp(frac, 0, 1);
-		
-	midf = p1f + (p2f - p1f)*frac;
-	
-	for(i=0; i<3; i++)
-		mid[i] = p1[i] + frac*(p2[i] - p1[i]);
-
-	CM_HullCheck_r(node->children[side], p1f, midf, p1, mid);
-
-
-	// go past the node
-	X_clamp(frac2, 0, 1);
-		
-	midf = p1f + (p2f - p1f)*frac2;
-	
-	for(i=0; i<3; i++)
-		mid[i] = p1[i] + frac2*(p2[i] - p1[i]);
-
-	CM_HullCheck_r(node->children[side^1], midf, p2f, mid, p2);
-}
-*/
-
-/*
-trace_t	CM_BoxTrace(const vec3_c &start, const vec3_c &end, const aabb_c &bbox, const cmodel_c* cmodel, int brushmask)
-{
-	vec3_c	p;
-
-	cm_checkcount++;		// for multi-check avoidance
-
-	cm_traces++;			// for statistics, may be zeroed
-
-	// fill in a default trace
-	memset(&trace_trace, 0, sizeof(trace_trace));
-	trace_trace.fraction = 1;
-	trace_trace.surface = NULL;//&cm_nullshader;
-
-	if(cm_nodes.empty())	// map not loaded
-		return trace_trace;
-
-	trace_contents = brushmask;
-	trace_start = start;
-	trace_end = end;
-	
-	trace_bbox = bbox;
-	
-	// build a bounding box of the entire move
-	trace_bbox_abs.clear();
-	
-	p = start + trace_bbox._mins;
-	trace_bbox_abs.addPoint(p);
-	
-	p = start + trace_bbox._maxs;
-	trace_bbox_abs.addPoint(p);
-	
-	p = end + trace_bbox._mins;
-	trace_bbox_abs.addPoint(p);
-	
-	p = end + trace_bbox._maxs;
-	trace_bbox_abs.addPoint(p);
-	
-	// check for position test special case
-	if(start == end)
-	{
-		std::vector<int> leafs;
-
-		aabb_c		c;
-
-		c._mins = start + bbox._mins;
-		c._maxs = start + bbox._maxs;
-		
-		for(int i=0; i<3; i++)
-		{
-			c._mins[i] -= 1;
-			c._maxs[i] += 1;
-		}
-
-		CM_BoxLeafnums(c, leafs, 1024);
-		
-		for(std::vector<int>::const_iterator ir = leafs.begin(); ir != leafs.end(); ++ir)
-		{
-			CM_TestInLeaf(*ir);
-			
-			if(trace_trace.allsolid)
-				break;
-		}
-		
-		trace_trace.pos = start;
-		
-		return trace_trace;
-	}
-
-	// check for point special case
-	if(bbox.isZero())
-	{
-		trace_ispoint = true;
-		trace_extents.clear();
-	}
-	else
-	{
-		trace_ispoint = false;
-		trace_extents[0] = -bbox._mins[0] > bbox._maxs[0] ? -bbox._mins[0] : bbox._maxs[0];
-		trace_extents[1] = -bbox._mins[1] > bbox._maxs[1] ? -bbox._mins[1] : bbox._maxs[1];
-		trace_extents[2] = -bbox._mins[2] > bbox._maxs[2] ? -bbox._mins[2] : bbox._maxs[2];
-	}
-
-	// general sweeping through world
-//	CM_HullCheck_r(headnode, 0, 1, start, end);
-	CM_HullCheck_r(0, 0, 1, start, end);
-
-	if(trace_trace.fraction == 1.0)
-	{
-		trace_trace.pos = end;
-	}
-	else
-	{
-		trace_trace.pos = start + ((end - start) * trace_trace.fraction);
-	}
-	
-	return trace_trace;
-}
-*/
-
-
-/*
-==================
-CM_TransformedBoxTrace
-
-Handles offseting and rotation of the end points for moving and
-rotating entities
-==================
-*/
-/*
-trace_t	CM_TransformedBoxTrace(const vec3_c &start, const vec3_c &end,
-						const aabb_c &bbox,
-						const cmodel_c* cmodel, int brushmask, 
-						const vec3_c &origin, const quaternion_c &quat)
-{
-	trace_t		trace;
-	vec3_c		start_l(false), end_l(false);
-	bool	rotated;
-
-	// subtract origin offset
-	start_l = start - origin;
-	end_l = end - origin;
-
-	// rotate start and end into the models frame of reference
-	if(cmodel && cmodel != &box_cmodel && (quat != quat_identity))
-		rotated = true;
-	else
-		rotated = false;
-
-	if(rotated)
-	{
-		start_l.rotate(quat);
-		end_l.rotate(quat);
-	}
-
-	// sweep the box through the model
-	trace = CM_BoxTrace(start_l, end_l, bbox, cmodel, brushmask);
-
-	if(rotated && trace.fraction != 1.0)
-	{
-		// FIXME: figure out how to do this with existing angles
-		//a = angles;
-		//a.negate();
-		//trace.plane.rotate(a);
-		quaternion_c q = quat;
-		q.inverse();
-		trace.plane.rotate(q);
-	}
-	
-	trace.pos = start + ((end - start) * trace_trace.fraction);
-	
-	return trace;
-}
-*/
 
 /*
 byte*	CM_ClusterPVS(int cluster)

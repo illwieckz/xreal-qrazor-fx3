@@ -680,7 +680,7 @@ void	g_clip_c::moveToEntities()
 		if(touch->_r.solid != SOLID_BSP)	//FIXME
 			touch->_s.quat.identity();	// boxes don't rotate
 
-		trace = g_world_cmodel->trace(_start, _end, _bbox, _contentmask, touch->_s.origin, touch->_s.quat);
+		trace = g_world_cmodel->traceOBB(_start, _end, _bbox, _contentmask, touch->_s.origin, touch->_s.quat);
 		
 		if(trace.allsolid || trace.startsolid || trace.fraction < _trace.fraction)
 		{
@@ -718,7 +718,7 @@ trace_t	G_Trace(const vec3_c &start, const aabb_c &aabb, const vec3_c &end, g_en
 	g_clip_c clip;
 
 	// clip to world
-	clip._trace = g_world_cmodel->trace(start, end, aabb, contentmask);
+	clip._trace = g_world_cmodel->traceAABB(start, end, aabb, contentmask);
 //	clip._trace.ent = g_world;
 //	clip._trace.fraction = 1.0;
 
