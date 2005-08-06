@@ -389,7 +389,7 @@ public:
 	~g_item_dropable_c();
 	
 	virtual void	think();
-	virtual bool	touch(g_entity_c *other, const plane_c &plane, csurface_c *surf);
+	virtual bool	touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf);
 };
 
 
@@ -399,7 +399,7 @@ public:
 	g_item_spawnable_c(g_item_c *item);
 	
 	virtual void	think();
-	virtual bool	touch(g_entity_c *other, const plane_c &plane, csurface_c *surf);
+	virtual bool	touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf);
 	virtual void	activate();
 };
 

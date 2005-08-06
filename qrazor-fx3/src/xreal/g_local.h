@@ -441,9 +441,6 @@ trace_t		G_RayTrace(const vec3_c &start, const vec3_c &end);
 trace_t		G_RayTrace(const vec3_c &origin, const vec3_c &dir, vec_t length);
 #endif
 
-cmodel_c*	G_SetModel(g_entity_c *ent, const std::string &name);
-void		G_SetWorldModel(g_entity_c *ent, const std::string &name);
-
 
 //
 // g_main.cxx
@@ -475,7 +472,7 @@ void		G_SetAreaPortalState(g_entity_c *ent, bool open);
 // test.
 // returns the number of pointers filled in
 // ??? does this always return the world?
-int 		G_AreaEdicts(const aabb_c &bbox, std::vector<g_entity_c*> &list, area_type_e type);
+int 		G_AreaEdicts(const aabb_c &bbox, std::vector<g_entity_c*> &list, int max, area_type_e type);
 
 //
 // functions that interact with everything apropriate

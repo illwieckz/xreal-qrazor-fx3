@@ -745,44 +745,9 @@ trace_t	G_RayTrace(const vec3_c &start, const vec3_c &dir, vec_t length)
 }
 #endif // defined(ODE)
 
+
+
 /*
-=================
-SV_SetModel
-
-Also sets mins and maxs for inline bmodels
-=================
-*/
-cmodel_c*	G_SetModel(g_entity_c *ent, const std::string &name)
-{
-	if(name.empty())
-		Com_Error(ERR_DROP, "G_SetModel: empty name");
-	
-//	Com_Printf("G_SetModel: '%s'\n", name.c_str());
-
-	ent->_s.index_model = trap_SV_ModelIndex(name);
-	
-	cmodel_c* model = trap_CM_RegisterModel(name);
-	
-	if(model)
-	{
-		
-//		ent->_geom = new d_trimesh_c(g_ode_space->getId(), model->vertexes, model->indexes);
-//		ent->_geom->setBody(ent->_body->getId());
-//		ent->_geom->setData(ent);
-		
-		ent->_r.bbox = model->getAABB();
-		ent->_r.size = ent->_r.bbox.size();
-	}
-	else
-	{
-		ent->_r.bbox._maxs.set( 16.0, 16.0, 16.0);
-		ent->_r.bbox._mins.set(-16.0,-16.0,-16.0);
-		ent->_r.size = ent->_r.bbox.size();
-	}
-	
-	return model;
-}
-
 void		G_SetWorldModel(g_entity_c *ent, const std::string &name)
 {
 	if(name.empty())
@@ -807,7 +772,7 @@ void		G_SetWorldModel(g_entity_c *ent, const std::string &name)
 	{
 		csurface_c& surf = *ir;
 		
-		//if(surf.hasFlags(/*SURF_NOIMPACT |*/ X_SURF_NONSOLID))
+		//if(surf.hasFlags(SURF_NOIMPACT | X_SURF_NONSOLID))
 		//	continue;
 		
 		g_geom_info_c *geom_info = new g_geom_info_c(ent, model, &surf);
@@ -826,15 +791,7 @@ void		G_SetWorldModel(g_entity_c *ent, const std::string &name)
 		g_ode_bsp->setCollideBits(X_CONT_SOLID);
 		ent->_geoms.push_back(g_ode_bsp);
 	}
-	/*
-	else if(model->vertexes.size() && model->indexes.size())
-	{
-		d_geom_c *geom = new d_trimesh_c(g_ode_space_toplevel->getId(), model->vertexes, model->indexes);
-		//d_geom_c *geom = new d_box_c(g_ode_space_toplevel->getId(), model->getBBox().size());
-		geom->setData(ent);
-		ent->_geoms.push_back(geom);
-	}
-	*/
+
 #endif
 	
 #endif
@@ -842,4 +799,4 @@ void		G_SetWorldModel(g_entity_c *ent, const std::string &name)
 	ent->_r.bbox = model->getAABB();
 	ent->_r.size = ent->_r.bbox.size();
 }
-
+*/
