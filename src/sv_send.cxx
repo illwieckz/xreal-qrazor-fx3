@@ -146,20 +146,23 @@ void 	SV_Multicast(const vec3_c &origin, multicast_type_e to)
 	//byte*		mask;
 	//int		leafnum, cluster;
 	bool		reliable = false;
-	int		area1;//, area2;
+//	int		area1;//, area2;
 	
+//	cmodel_c* cworld = CM_GetModelByNum(0);
 
+	/*
 	if(to != MULTICAST_ALL_R && to != MULTICAST_ALL)
 	{
 		//leafnum = CM_PointLeafnum(origin);
 		//area1 = CM_LeafArea(leafnum);
-		area1 = CM_PointAreanum(origin);
+		area1 = cworld->pointAreanum(origin);
 	}
 	else
 	{
 		//leafnum = 0;	// just to avoid compiler warnings
 		area1 = 0;
 	}
+	*/
 	
 	switch(to)
 	{

@@ -176,6 +176,8 @@ void	CG_ClearState()
 	memset(cg.model_draw, -1, sizeof(cg.model_draw));
 	memset(cg.model_clip, 0, sizeof(cg.model_clip));
 
+	cg.world_cmodel			= NULL;
+
 	memset(cg.shader_precache, -1, sizeof(cg.shader_precache));
 	memset(cg.animation_precache, -1, sizeof(cg.animation_precache));
 	memset(cg.sound_precache, -1, sizeof(cg.sound_precache));
@@ -307,7 +309,7 @@ static void	CG_UpdateConfig(int index, const std::string &configstring)
 		trap_Com_Printf("CG_UpdateConfig: map '%s'\n", mapname.c_str());
 		
 		unsigned	map_checksum;		// for detecting cheater maps
-		trap_CM_BeginRegistration(mapname, true, &map_checksum);
+		cg.world_cmodel = trap_CM_BeginRegistration(mapname, true, &map_checksum);
 		
 		if((int)map_checksum != atoi(trap_CL_GetConfigString(CS_MAPCHECKSUM)))
 		{

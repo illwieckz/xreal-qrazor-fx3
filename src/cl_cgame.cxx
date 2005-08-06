@@ -226,11 +226,6 @@ void	CL_InitClientGame()
 	import.CM_RegisterModel			= CM_RegisterModel;
 	import.CM_EndRegistration		= CM_EndRegistration;
 	
-	import.CM_PointContents			= CM_PointContents;
-	import.CM_TransformedPointContents	= CM_TransformedPointContents;
-	import.CM_BoxTrace			= CM_BoxTrace;
-	import.CM_PointAreanum			= CM_PointAreanum;
-	
 	import.CL_GetTime		= CL_GetTime;
 	import.CL_SetTime		= CL_SetTime;
 	import.CL_GetConfigString	= CL_GetConfigString;

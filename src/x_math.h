@@ -1891,6 +1891,8 @@ inline aabb_c&	aabb_c::operator = (const vec_t aabb[6])
 
 class plane_c
 {
+	friend void	CM_InitBoxHull();
+
 public:
 	inline plane_c();
 	

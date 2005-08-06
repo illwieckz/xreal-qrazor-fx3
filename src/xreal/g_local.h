@@ -269,6 +269,7 @@ extern	g_level_c	level;
 extern	int	meansOfDeath;
 
 extern g_entity_c*			g_world;
+extern cmodel_c*			g_world_cmodel;
 extern std::vector<sv_entity_c*>	g_entities;
 extern std::vector<g_item_c*>		g_items;
 
@@ -365,7 +366,6 @@ void 		G_SpawnItem(g_entity_c **ent, g_item_c *item);
 //
 // g_utils.cxx
 //
-bool		G_KillBox(g_entity_c *ent);
 void		G_ProjectSource(const vec3_c &point, const vec3_c &distance, const vec3_c &forward, const vec3_c &right, vec3_c &result);
 bool		G_InFront(g_entity_c *self, g_entity_c *other);
 bool		G_IsVisible(g_entity_c *self, g_entity_c *other);
@@ -467,19 +467,6 @@ void 		G_SaveClientData();
 // called to load the world model, before linking any entities
 void 		G_ClearWorld(const std::string &map);
 
-// call before removing an entity, and before trying to move one,
-// so it doesn't clip against itself
-void 		G_UnlinkEntity(g_entity_c *ent);
-
-
-// Needs to be called any time an entity changes origin, mins, maxs,
-// or solid.  Automatically unlinks if needed.
-// sets ent->v.absmin and ent->v.absmax
-// sets ent->leafnums[] for pvs determination even if the entity
-// is not solid
-void 		G_LinkEntity(g_entity_c *ent);
-
-
 void		G_SetAreaPortalState(g_entity_c *ent, bool open);
 
 // fills in a table of edict pointers with edicts that have bounding boxes
@@ -562,29 +549,12 @@ int		trap_SV_SoundIndex(const std::string &name);
 int		trap_SV_LightIndex(const std::string &name);
 
 // collision detection
-void		trap_CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum);
+cmodel_c*	trap_CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum);
 cmodel_c*	trap_CM_RegisterModel(const std::string &name);
 animation_c*	trap_CM_RegisterAnimation(const std::string &name);
 cmodel_c*	trap_CM_GetModelByNum(int num);
-int		trap_CM_LeafContents(int leafnum);
-int		trap_CM_LeafCluster(int leafnum);
-int		trap_CM_LeafArea(int leafnum);
 int		trap_CM_NumModels();
-int		trap_CM_HeadnodeForBox(const aabb_c& bbox);
-int		trap_CM_PointContents(const vec3_c &p, int headnode);
-int		trap_CM_TransformedPointContents(const vec3_c &p, int headnode, const vec3_c &origin, const quaternion_c &quat);
-trace_t		trap_CM_BoxTrace(const vec3_c &start, const vec3_c &end, const aabb_c &bbox, int headnode, int brushmask);
-trace_t		trap_CM_TransformedBoxTrace(const vec3_c &start, const vec3_c &end,
-						const aabb_c &bbox,
-						int headnode, int brushmask, 
-						const vec3_c &origin, const quaternion_c &quat);
-int		trap_CM_PointLeafnum(const vec3_c &p);
-int		trap_CM_PointAreanum(const vec3_c &p);
-int		trap_CM_BoxLeafnums(const aabb_c &bbox, std::deque<int> &list, int headnode);
-int		trap_CM_GetClosestAreaPortal(const vec3_c &p);
-bool		trap_CM_GetAreaPortalState(int portal);
-void		trap_CM_SetAreaPortalState(int portal, bool open);
-bool		trap_CM_AreasConnected(int area1, int area2);
+cmodel_c*	trap_CM_ModelForBox(const aabb_c& aabb);
 
 // network messaging
 void		trap_SV_Multicast(const vec3_c &origin, multicast_type_e to);

@@ -306,6 +306,8 @@ struct cg_state_t
 	//
 	int		model_draw[MAX_MODELS];
 	cmodel_c*	model_clip[MAX_MODELS];
+	
+	cmodel_c*	world_cmodel;
 
 	int		shader_precache[MAX_SHADERS];
 	int		animation_precache[MAX_ANIMATIONS];
@@ -639,14 +641,9 @@ void		trap_S_BeginRegistration();
 int		trap_S_RegisterSound(const std::string &name);
 void		trap_S_EndRegistration();
 	
-void		trap_CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum);
+cmodel_c*	trap_CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum);
 cmodel_c*	trap_CM_RegisterModel(const std::string &name);
 void		trap_CM_EndRegistration();
-	
-int		trap_CM_PointContents(const vec3_c &p, int headnode);
-int		trap_CM_TransformedPointContents(const vec3_c &p, int headnode, const vec3_c &origin, const quaternion_c &quat);
-trace_t		trap_CM_BoxTrace(const vec3_c &start, const vec3_c &end, const aabb_c &bbox, int headnode, int brushmask);
-int		trap_CM_PointAreanum(const vec3_c &p);
 	
 int		trap_CL_GetTime();
 void		trap_CL_SetTime(int time);

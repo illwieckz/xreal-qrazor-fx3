@@ -204,14 +204,9 @@ typedef struct
 	int		(*S_RegisterSound)(const std::string &name);
 	void		(*S_EndRegistration)();
 	
-	void		(*CM_BeginRegistration)(const std::string &name, bool clientload, unsigned *checksum);
+	cmodel_c*	(*CM_BeginRegistration)(const std::string &name, bool clientload, unsigned *checksum);
 	cmodel_c*	(*CM_RegisterModel)(const std::string &name);
 	void		(*CM_EndRegistration)();
-	
-	int		(*CM_PointContents)(const vec3_c &p, int headnode);
-	int		(*CM_TransformedPointContents)(const vec3_c &p, int headnode, const vec3_c &origin, const quaternion_c &quat);
-	trace_t		(*CM_BoxTrace)(const vec3_c &start, const vec3_c &end, const aabb_c &bbox, int headnode, int brushmask);
-	int		(*CM_PointAreanum)(const vec3_c &p);
 	
 	int		(*CL_GetTime)();
 	void		(*CL_SetTime)(int time);

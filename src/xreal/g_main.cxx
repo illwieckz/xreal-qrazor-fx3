@@ -43,7 +43,8 @@ g_level_c	level;
 
 int meansOfDeath;
 
-g_entity_c*			g_world;
+g_entity_c*			g_world = NULL;
+cmodel_c*			g_world_cmodel = NULL;
 std::vector<sv_entity_c*>	g_entities;
 std::vector<g_item_c*>		g_items;
 

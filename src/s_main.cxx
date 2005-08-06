@@ -109,8 +109,9 @@ void	s_source_c::setBuffer(s_buffer_c *buffer)
 
 void	s_source_c::setPosition(const vec3_c &v)
 {
-	int leafnum = CM_PointLeafnum(v);
-	_cluster = CM_LeafCluster(leafnum);
+	cmodel_c* cworld = CM_GetModelByNum(0);
+	int leafnum = cworld->pointLeafnum(v);
+	_cluster = cworld->leafCluster(leafnum);
 
 	// convert from Quake coords to OpenAL coords
 	_position[0] = v[1];

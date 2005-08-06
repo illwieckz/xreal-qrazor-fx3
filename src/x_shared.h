@@ -762,6 +762,45 @@ private:
 	uint_t			_contents;
 };
 
+
+class entity_c;
+
+// a trace is returned when a box is swept through the world
+struct trace_t
+{
+	inline trace_t()
+	{
+		allsolid	= false;
+		startsolid	= false;
+		fraction	= 0.0;
+		surface		= NULL;
+
+		pos_flags	= X_SURF_NONE;
+		pos_contents	= X_CONT_NONE;
+
+		neg_flags	= X_SURF_NONE;
+		neg_contents	= X_CONT_NONE;
+
+		ent		= NULL;
+	}
+
+	bool			allsolid;	// if true, plane is not valid
+	bool			startsolid;	// if true, the initial point was in a solid area
+	vec_t			fraction;	// 0.0 = start, 1.0 = end
+	vec3_c			pos;		// final position
+	plane_c			plane;		// surface normal at impact
+	csurface_c*		surface;	// surface hit
+	
+	uint_t			pos_flags;
+	uint_t			pos_contents;
+	
+	uint_t			neg_flags;
+	uint_t			neg_contents;	// contents on other side of surface hit
+	
+	entity_c*		ent;		// entity that was hit, not set by CM_ functions or collision model
+};
+
+
 class cmodel_c
 {
 public:
@@ -772,9 +811,51 @@ public:
 		_buffer_size = buffer_size;
 	}
 	
-	virtual ~cmodel_c()			{}
+	virtual ~cmodel_c()				{}
 	
-	virtual void	load()			{}
+	virtual void	load()				{}
+	virtual int	leafContents(int leafnum) const	{return X_CONT_NONE;}
+	virtual int	leafCluster(int leafnum) const	{return -1;}
+	virtual int	leafArea(int leafnum) const	{return -1;}
+
+	virtual const char*	entityString() const	{return "";}
+
+	// returns an ORed contents mask
+	virtual int	pointContents(const vec3_c &p) const	{return X_CONT_NONE;}
+	virtual int	pointContents(const vec3_c &p, const vec3_c &origin, const quaternion_c &quat) const	{return X_CONT_NONE;}
+
+	virtual int	pointLeafnum(const vec3_c &p) const	{return -1;}
+	virtual int	pointAreanum(const vec3_c &p) const	{return -1;}
+
+	// trace AABB
+	virtual trace_t	trace(const vec3_c &start, const vec3_c &end, const aabb_c &aabb, int brushmask) const
+	{
+		trace_t tr;
+		tr.fraction = 1.0;
+		tr.pos = end;
+		return tr;
+	}
+
+	// trace OBB
+	virtual trace_t	trace(const vec3_c &start, const vec3_c &end, const aabb_c &aabb, int brushmask,
+							const vec3_c &origin, const quaternion_c &quat) const
+	{
+		trace_t tr;
+		tr.fraction = 1.0;
+		tr.pos = end;
+		return tr;
+	}
+
+	// returns topnode
+	virtual int	boxLeafnums(const aabb_c &bbox, std::vector<int> &list, int max) const {return -1;}
+
+	// returns NULL if bad cluster
+	virtual byte*	clusterPVS(int cluster)	const	{return NULL;}
+
+	virtual int	getClosestAreaPortal(const vec3_c &p) const		{return -1;}
+	virtual bool	getAreaPortalState(int portal) const			{return true;}
+	virtual void	setAreaPortalState(int portal, bool open) const		{}
+	virtual bool	areasConnected(int area1, int area2) const		{return true;}
 	
 	inline const char*	getName() const				{return _name.c_str();}
 	inline uint_t		getRegistrationSequence() const		{return _registration_sequence;}
@@ -843,51 +924,8 @@ private:
 	int			_frame_rate;
 };
 
-/*
-class bg_rigid_body_c;
-class bg_geom_c;
-struct contact_t
-{
-	vec3_c			origin;
-	vec3_c			normal;		// direction
-	vec_t			depth;		// penetration depth
-	
-	bg_geom_c*		g1, g2;		// colliding geometric objects
-};
-*/
 
-class entity_c;
-
-//
-// a trace is returned when a box is swept through the world
-//
-struct trace_t
-{
-	bool			nohit;		// if true, didn't hit anything
-	bool			allsolid;	// if true, plane is not valid
-	bool			startsolid;	// if true, the initial point was in a solid area
-	vec_t			fraction;	// 0.0 = start, 1.0 = end
-	vec_t			depth;		// penetration depth
-	vec3_c			pos;		// final position
-	plane_c			plane;		// surface normal at impact
-	csurface_c*		surface;	// surface hit
-	
-	uint_t			pos_flags;
-	uint_t			pos_contents;
-	
-	uint_t			neg_flags;
-	uint_t			neg_contents;	// contents on other side of surface hit
-	
-//	std::vector<dContact>	contacts;	// contacts to affect rigid bodies
-	
-	entity_c*		ent;		// entity that was hit, not set by CM_ functions
-};
-
-
-
-//
 // button bits
-//
 enum
 {
 	BUTTON_ATTACK		= (1<<0),

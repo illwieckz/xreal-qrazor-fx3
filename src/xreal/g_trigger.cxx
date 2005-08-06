@@ -852,7 +852,7 @@ bool	g_trigger_teleport_c::touch(g_entity_c *other, const plane_c &plane, csurfa
 	player->setViewAngles(vec3_origin);
 
 	// kill anything at the destination
-	G_KillBox(player);
+	player->killBox();
 	
 	return false;
 }

@@ -1598,6 +1598,7 @@ can just be stored out and get a proper clipping hull structure.
 */
 static void	CM_InitBoxHull()
 {
+#if 0
 	int			i;
 	int			side;
 	cnode_t		*c;
@@ -1657,7 +1658,8 @@ static void	CM_InitBoxHull()
 		p->_type = (plane_type_t)(3 + (i>>1));
 		p->_normal.clear();
 		p->_normal[i>>1] = -1;
-	}	
+	}
+#endif	
 }
 
 
@@ -1671,6 +1673,7 @@ BSP trees instead of being compared directly.
 */
 int	CM_HeadnodeForBox(const cbbox_c & bbox)
 {
+#if 0
 	box_planes[0]._dist	=  bbox._maxs[0];
 	box_planes[1]._dist	= -bbox._maxs[0];
 	box_planes[2]._dist	=  bbox._mins[0];
@@ -1685,7 +1688,7 @@ int	CM_HeadnodeForBox(const cbbox_c & bbox)
 	box_planes[9]._dist	= -bbox._maxs[2];
 	box_planes[10]._dist	=  bbox._mins[2];
 	box_planes[11]._dist	= -bbox._mins[2];
-
+#endif
 	return box_headnode;
 }
 
