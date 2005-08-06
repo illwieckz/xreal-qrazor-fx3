@@ -1605,7 +1605,7 @@ void	CL_InitLocal()
 	// userinfo
 	//
 	info_password		= Cvar_Get("password", "", CVAR_USERINFO);
-	info_spectator		= Cvar_Get("spectator", "0", CVAR_USERINFO);
+	info_spectator		= Cvar_Get("spectator", "1", CVAR_USERINFO);
 	name			= Cvar_Get("name", "unnamed", CVAR_USERINFO | CVAR_ARCHIVE);
 	
 	//std::string skin_name	= std::string(DEFAULT_PLAYERMODEL) + "/" + std::string(DEFAULT_PLAYERSKIN);
