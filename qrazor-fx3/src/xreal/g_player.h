@@ -65,11 +65,12 @@ enum player_anim_priority_t
 // Jalisk0 - movement flags for animation control
 enum
 {
-	ANIMMOVE_FRONT		= (1<<0),		//Player is pressing fordward
-	ANIMMOVE_BACK		= (1<<1),		//Player is pressing backpedal
-	ANIMMOVE_LEFT		= (1<<2),		//Player is pressing sideleft
-	ANIMMOVE_RIGHT		= (1<<3),		//Player is pressing sideright
-	ANIMMOVE_WALK		= (1<<4)		//Player is pressing the walk key
+	ANIMMOVE_FRONT		= (1<<0),		// player is pressing fordward
+	ANIMMOVE_BACK		= (1<<1),		// player is pressing backpedal
+	ANIMMOVE_LEFT		= (1<<2),		// player is pressing sideleft
+	ANIMMOVE_RIGHT		= (1<<3),		// player is pressing sideright
+	ANIMMOVE_WALK		= (1<<4),		// player is pressing the walk key
+	ANIMMOVE_DUCK		= (1<<5)		// player is crouching
 };
 
 enum weapon_state_t
@@ -243,6 +244,7 @@ private:
 	void		selectSpawnPoint(vec3_c &origin, vec3_c &angles);
 	
 	// client setup
+	void		clearAllButPersistant();
 	void 		initClientPersistant();
 	void		initClientResp();
 	void		fetchClientEntData();

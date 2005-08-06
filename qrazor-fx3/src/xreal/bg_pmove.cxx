@@ -808,25 +808,9 @@ static void	PM_FlyMove(bool doclip)
 	}
 	else
 	{
-#if 0
-		trace_t trace = pm->rayTrace(pml.origin, wishdir, (pml.velocity_linear * pml.frametime).length() + 16);
-		
-		//pml.origin = trace.endpos;
-		
-		if(trace.nohit)
-		{
-			pml.origin += pml.velocity_linear * pml.frametime;
-		}
-		else
-		{
-			pml.origin = trace.pos;
-			//pml.origin += wishdir * trace.depth;
-		}
-#else
 		trace_t trace = pm->boxTrace(pml.origin, pm->bbox, (pml.origin + (pml.velocity_linear * pml.frametime)));
 		
 		pml.origin = trace.pos;
-#endif
 	}
 	
 	
@@ -1133,7 +1117,7 @@ void 	Com_Pmove(pmove_t *pmove)
 	{
 		pm->viewheight = 22;
 	
-		PM_FlyMove(false);
+		PM_FlyMove(true);
 		PM_SnapPosition();
 		return;
 	}

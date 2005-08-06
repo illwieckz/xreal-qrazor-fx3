@@ -65,8 +65,6 @@ static std::vector<g_entity_c*>*	g_area_list;
 static int				g_area_count;
 static int				g_area_maxcount;
 
-static int G_HullForEntity(g_entity_c *ent);
-
 
 /*
 ===============
@@ -75,15 +73,9 @@ G_CreateAreaNode
 Builds a uniformly subdivided tree for the given world size
 ===============
 */
-static g_areanode_c*	G_CreateAreaNode(int depth, const aabb_c &bbox)
+static g_areanode_c*	G_CreateAreaNode_r(int depth, const aabb_c &aabb)
 {
-	g_areanode_c	*anode;
-	vec3_c		size;
-	
-	aabb_c	bbox1, bbox2;
-
-	anode = &g_areanodes[g_areanodes_num];
-	g_areanodes_num++;
+	g_areanode_c *anode = &g_areanodes[g_areanodes_num++];
 	
 	anode->trigger_entities.clear();
 	anode->solid_entities.clear();
@@ -95,27 +87,30 @@ static g_areanode_c*	G_CreateAreaNode(int depth, const aabb_c &bbox)
 		return anode;
 	}
 	
-	size = bbox._maxs - bbox._mins;
+	vec3_c size = aabb._maxs - aabb._mins;
 	if(size[0] > size[1])
 		anode->axis = 0;
 	else
 		anode->axis = 1;
 	
-	anode->dist = 0.5 * (bbox._maxs[anode->axis] + bbox._mins[anode->axis]);
+	anode->dist = 0.5 * (aabb._maxs[anode->axis] + aabb._mins[anode->axis]);
 	
-	bbox1 = bbox;
-	bbox2 = bbox;
+	aabb_c aabb1 = aabb;
+	aabb_c aabb2 = aabb;
 	
-	bbox1._maxs[anode->axis] = bbox2._mins[anode->axis] = anode->dist;
+	aabb1._maxs[anode->axis] = aabb2._mins[anode->axis] = anode->dist;
 	
-	anode->children[0] = G_CreateAreaNode(depth+1, bbox2);
-	anode->children[1] = G_CreateAreaNode(depth+1, bbox1);
+	anode->children[0] = G_CreateAreaNode_r(depth+1, aabb2);
+	anode->children[1] = G_CreateAreaNode_r(depth+1, aabb1);
 
 	return anode;
 }
 
 void	G_ClearWorld(const std::string &map)
 {
+	trap_Com_Printf("------- G_ClearWorld(%s) -------\n", map.c_str());
+
+	// load map
 	unsigned	checksum;
 	
 #if defined(ODE)
@@ -123,18 +118,19 @@ void	G_ClearWorld(const std::string &map)
 	if(bsp)
 		g_ode_bsp = bsp;
 #else
-	trap_CM_BeginRegistration(map, false, &checksum);
+	g_world_cmodel = trap_CM_BeginRegistration(map, false, &checksum);
 #endif
 	
+	// tell client to load map
 	trap_SV_SetConfigString(CS_MAPCHECKSUM, va("%i", checksum));
 	
 	for(int i=0; i<trap_CM_NumModels(); i++)
 	{		
-		cmodel_c *model = trap_CM_GetModelByNum(i);
-		
-		trap_SV_SetConfigString(CS_MODELS+i, model->getName());
+		cmodel_c *cmodel = trap_CM_GetModelByNum(i);
+		trap_SV_SetConfigString(CS_MODELS+i, cmodel->getName());
 	}
 
+	// clear area nodes
 	int		i;
 	g_areanode_c*	node;
 	
@@ -143,9 +139,8 @@ void	G_ClearWorld(const std::string &map)
 	
 	g_areanodes_num = 0;
 	
-	cmodel_c* model = trap_CM_GetModelByNum(0); 
-	
-	G_CreateAreaNode(0, model->getAABB());
+	// build area nodes
+	G_CreateAreaNode_r(0, g_world_cmodel->getAABB());
 }
 
 
@@ -169,44 +164,48 @@ static void	G_UnlinkEntity_r(g_areanode_c *node, g_entity_c *ent)
 	G_UnlinkEntity_r(node->children[1], ent);
 }
 
-void	G_UnlinkEntity(g_entity_c *ent)
+void	g_entity_c::unlink()
 {
-	if(!ent->_r.islinked)
+	if(!_r.islinked)
 		return;		// not linked in anywhere
 	
-	G_UnlinkEntity_r(g_areanodes, ent);
+	G_UnlinkEntity_r(g_areanodes, this);
 	
-	ent->_r.islinked = false;
+	_r.islinked = false;
 	
-	//if(ent->_r.islinked)
-	//	Com_Error(ERR_FATAL, "G_UnlinkEdict: entity still linked");
+//	if(_r.islinked)
+//		trap_Com_Error(ERR_FATAL, "g_entity_c::unlink: entity still linked");
 }
 
-#define MAX_TOTAL_ENT_LEAFS		128
-void	G_LinkEntity(g_entity_c *ent)
+enum
+{
+	MAX_ENT_LEAFS		= 128,
+	MAX_ENT_CLUSTERS	= 16
+};
+
+void	g_entity_c::link()
 {
 	g_areanode_c	*node;
-	static std::deque<int>	leafs;
-	static std::deque<int>	clusters;
+	static std::vector<int>		leafs;
+	static std::deque<int>		clusters;
 	
-	int			i, j, k=0;
 	int			area;
 	int			topnode;
 
-	if(ent->_r.islinked)
-		G_UnlinkEntity(ent);	// unlink from old position
+	if(_r.islinked)
+		unlink();	// unlink from old position
 		
-	if(ent == g_world)
+	if(this == g_world)
 		return;		// don't add the world
 
-	if(!ent->_r.inuse)
+	if(!_r.inuse)
 		return;
 
 	// set the size
-	ent->_r.size = ent->_r.bbox._maxs - ent->_r.bbox._mins;
+	_r.size = _r.bbox._maxs - _r.bbox._mins;
 	
 	// encode the size into the entity_state for client prediction
-	/*
+	/* FIXME
 	if(ent->_r.solid == SOLID_BBOX && !(ent->_r.svflags & SVF_CORPSE))
 	{
 		// assume that x/y are equal and symetric
@@ -231,7 +230,8 @@ void	G_LinkEntity(g_entity_c *ent)
 		ent->_s.solid = 0;
 	*/
 	
-	if(ent->_r.solid == SOLID_BBOX && !(ent->_r.svflags & SVF_CORPSE))
+	/*
+	if(_r.solid == SOLID_BBOX && !(ent->_r.svflags & SVF_CORPSE))
 	{
 		ent->_s.vectors[0] = ent->_r.bbox._mins;
 		ent->_s.vectors[1] = ent->_r.bbox._maxs;
@@ -241,127 +241,133 @@ void	G_LinkEntity(g_entity_c *ent)
 		ent->_s.vectors[0].clear();
 		ent->_s.vectors[1].clear();	// a solid_bbox will never create this value
 	}
+	*/
 
 	// set the abs box
-	if(ent->_r.solid == SOLID_BSP && (ent->_s.quat != quat_identity))
+	if(_r.solid == SOLID_BSP && (_s.quat != quat_identity))
 	{	
 		// expand for rotation
-		float		radius;
+		vec_t radius = _r.bbox.radius();
 		
-		radius = ent->_r.bbox.radius();
-		
-		for(i=0; i<3; i++)
+		for(int i=0; i<3; i++)
 		{
-			ent->_r.bbox_abs._mins[i] = ent->_s.origin[i] - radius;
-			ent->_r.bbox_abs._maxs[i] = ent->_s.origin[i] + radius;
+			_r.bbox_abs._mins[i] = _s.origin[i] - radius;
+			_r.bbox_abs._maxs[i] = _s.origin[i] + radius;
 		}
 	}
 	else
 	{	
 		// normal
-		Vector3_Add(ent->_s.origin, ent->_r.bbox._mins, ent->_r.bbox_abs._mins);	
-		Vector3_Add(ent->_s.origin, ent->_r.bbox._maxs, ent->_r.bbox_abs._maxs);
+		_r.bbox_abs._mins = _s.origin + _r.bbox._mins;	
+		_r.bbox_abs._maxs = _s.origin + _r.bbox._maxs;
 	}
 
 	// because movement is clipped an epsilon away from an actual edge,
 	// we must fully check even when bounding boxes don't quite touch
-	ent->_r.bbox_abs._mins[0] -= 1;
-	ent->_r.bbox_abs._mins[1] -= 1;
-	ent->_r.bbox_abs._mins[2] -= 1;
+	_r.bbox_abs._mins[0] -= 1;
+	_r.bbox_abs._mins[1] -= 1;
+	_r.bbox_abs._mins[2] -= 1;
 	
-	ent->_r.bbox_abs._maxs[0] += 1;
-	ent->_r.bbox_abs._maxs[1] += 1;
-	ent->_r.bbox_abs._maxs[2] += 1;
+	_r.bbox_abs._maxs[0] += 1;
+	_r.bbox_abs._maxs[1] += 1;
+	_r.bbox_abs._maxs[2] += 1;
 
 	// link to PVS leafs
-	ent->_r.area = 0;
-	ent->_r.area2 = 0;
+	_r.area = 0;
+	_r.area2 = 0;
 
 	//get all leafs, including solids
-	topnode = trap_CM_BoxLeafnums(ent->_r.bbox_abs, leafs, 0);
+	topnode = g_world_cmodel->boxLeafnums(_r.bbox_abs, leafs, MAX_ENT_LEAFS);
 	
+//	trap_Com_DPrintf("g_entity_c::link: touching %i leafs\n", leafs.size());
+//	for(uint_t i=0; i<leafs.size(); i++)
+//		trap_Com_DPrintf("%i ", i);
+//	trap_Com_DPrintf("\n");
+
 	clusters.resize(leafs.size());
 
 	// set areas
-	for(i=0; i<(int)leafs.size(); i++)
+	for(uint_t i=0; i<leafs.size(); i++)
 	{
-		clusters[i] = trap_CM_LeafCluster(leafs[i]);
-		area = trap_CM_LeafArea(leafs[i]);
+		clusters[i] = g_world_cmodel->leafCluster(leafs[i]);
+		area = g_world_cmodel->leafArea(leafs[i]);
 		
 		if(area)
 		{
 			// doors may legally straggle two areas,
 			// but nothing should evern need more than that
-			if(ent->_r.area && ent->_r.area != area)
+			if(_r.area && _r.area != area)
 			{
-				if(ent->_r.area2 && ent->_r.area2 != area)
-					trap_Com_DPrintf("Object touching 3 areas at %f %f %f\n", ent->_r.bbox_abs._mins[0], ent->_r.bbox_abs._mins[1], ent->_r.bbox_abs._mins[2]);
+				if(_r.area2 && _r.area2 != area)
+					trap_Com_DPrintf("Object touching 3 areas at %s\n", _r.bbox_abs._mins.toString());
 				
-				ent->_r.area2 = area;
+				_r.area2 = area;
 			}
 			else
-				ent->_r.area = area;
+			{
+				_r.area = area;
+			}
 		}
 	}
 
-	if(leafs.size() >= MAX_TOTAL_ENT_LEAFS)
+	if(leafs.size() >= MAX_ENT_LEAFS)
 	{	
 		// assume we missed some leafs, and mark by headnode
-		ent->_r.clusters.clear();
-		ent->_r.headnode = topnode;
+		_r.clusters.clear();
+		_r.headnode = topnode;
 	}
 	else
 	{
-		ent->_r.clusters.resize(clusters.size());
+		//_r.clusters.resize(clusters.size());
+		_r.clusters.clear();
 		
-		for(i=0, k=0; i<(int)leafs.size(); i++)
+		for(uint_t i=0; i<leafs.size(); i++)
 		{
 			if(clusters[i] == -1)
 				continue;		// not a visible leaf
 			
+			uint_t j;
 			for(j=0; j<i; j++)
 				if(clusters[j] == clusters[i])
 					break;
 				
 			if(j == i)
 			{
-				/*
-				if(ent->_r.clusters_num == MAX_ENT_CLUSTERS)
+				if(_r.clusters.size() == MAX_ENT_CLUSTERS)
 				{	
 					// assume we missed some leafs, and mark by headnode
-					ent->_r.clusters_num = -1;
-					ent->_r.headnode = topnode;
+					_r.clusters.clear();
+					_r.headnode = topnode;
 					break;
 				}
-				*/
 
-				ent->_r.clusters[k++] = clusters[i];
+				_r.clusters.push_back(clusters[i]);
 			}
 		}
 	}
 
 	// if first time, make sure old_origin is valid
-	if(!ent->_r.linkcount)
+	if(!_r.linkcount)
 	{
 		//FIXME
-		ent->_s.origin2 = ent->_s.origin;
+		//_s.origin2 = _s.origin;
 	}
-	ent->_r.linkcount++;
+	_r.linkcount++;
 
-	if(ent->_r.solid == SOLID_NOT)
+	if(_r.solid == SOLID_NOT)
 		return;
 
 	// find the first node that the ent's box crosses
 	node = g_areanodes;
-	while(1)
+	while(true)
 	{
 		if(node->axis == -1)
 			break;
 		
-		if(ent->_r.bbox_abs._mins[node->axis] > node->dist)
+		if(_r.bbox_abs._mins[node->axis] > node->dist)
 			node = node->children[0];
 		
-		else if(ent->_r.bbox_abs._maxs[node->axis] < node->dist)
+		else if(_r.bbox_abs._maxs[node->axis] < node->dist)
 			node = node->children[1];
 		
 		else
@@ -369,13 +375,14 @@ void	G_LinkEntity(g_entity_c *ent)
 	}
 	
 	// link it in	
-	if(ent->_r.solid == SOLID_TRIGGER)
-		node->trigger_entities.push_back(ent);
+	if(_r.solid == SOLID_TRIGGER)
+		node->trigger_entities.push_back(this);
 	else
-		node->solid_entities.push_back(ent);
-		
-	ent->_r.islinked = true;
+		node->solid_entities.push_back(this);
 
+//	trap_Com_DPrintf("g_entity_c::link: linked entity %i\n", _s.getNumber());
+		
+	_r.islinked = true;
 }
 
 
@@ -390,8 +397,7 @@ static void	G_AreaEdicts_r(g_areanode_c *node, area_type_e type)
 
 			if(check->_r.solid == SOLID_NOT)
 				continue;		// deactivated
-		
-		
+	
 			if(!check->_r.bbox_abs.intersect(g_area_bbox))
 				continue;		// not touching
 
@@ -412,7 +418,6 @@ static void	G_AreaEdicts_r(g_areanode_c *node, area_type_e type)
 
 			if(check->_r.solid == SOLID_NOT)
 				continue;		// deactivated
-		
 		
 			if(!check->_r.bbox_abs.intersect(g_area_bbox))
 				continue;		// not touching
@@ -436,6 +441,18 @@ static void	G_AreaEdicts_r(g_areanode_c *node, area_type_e type)
 	
 	if(g_area_bbox._mins[node->axis] < node->dist)
 		G_AreaEdicts_r(node->children[1], type);
+}
+
+int	G_AreaEdicts(const aabb_c &bbox, std::vector<g_entity_c*> &list, area_type_e type)
+{
+	g_area_bbox = bbox;
+	g_area_list = &list;
+	g_area_count = 0;
+	g_area_maxcount = list.size();
+
+	G_AreaEdicts_r(g_areanodes, type);
+
+	return g_area_count;
 }
 
 void	G_SetAreaPortalState(g_entity_c *ent, bool open)
@@ -473,19 +490,6 @@ void	G_SetAreaPortalState(g_entity_c *ent, bool open)
 	CM_SetAreaPortalState(ent->_r.area, ent->_r.area2, open);
 #endif
 }
-
-int	G_AreaEdicts(const aabb_c &bbox, std::vector<g_entity_c*> &list, area_type_e type)
-{
-	g_area_bbox = bbox;
-	g_area_list = &list;
-	g_area_count = 0;
-	g_area_maxcount = list.size();
-
-	G_AreaEdicts_r(g_areanodes, type);
-
-	return g_area_count;
-}
-
 
 /*
 void	G_SetAreaPortalState(g_entity_c *ent, bool open)
@@ -527,6 +531,7 @@ void	G_SetAreaPortalState(g_entity_c *ent, bool open)
 
 int	G_PointContents(const vec3_c &p)
 {
+#if 0
 	static std::vector<g_entity_c*>	touch(MAX_ENTITIES);
 	g_entity_c*		hit = NULL;
 	int			contents, c2=0;
@@ -559,21 +564,51 @@ int	G_PointContents(const vec3_c &p)
 	}
 
 	return contents;
+#else
+	return g_world_cmodel->pointContents(p);
+#endif
 }
 
-struct moveclip_t
+class g_clip_c
 {
-	aabb_c		bbox_abs;	// enclose the test object along entire move
+public:
+	g_clip_c();
+	void		traceBounds();
+	void		moveToEntities();
+
+	aabb_c		_bbox_abs;	// enclose the test object along entire move
+	aabb_c		_bbox;		// size of the moving object
 	
-	aabb_c		bbox;		// size of the moving object
-	
-	vec3_c		start, end;
-	trace_t		trace;
-	g_entity_c*	passedict;
-	int		contentmask;
+	vec3_c		_start;
+	vec3_c		_end;
+	trace_t		_trace;
+	g_entity_c*	_passedict;
+	int		_contentmask;
 };
 
+g_clip_c::g_clip_c()
+{
+	_passedict = NULL;
+	_contentmask = X_CONT_NONE;
+}
 
+
+void	g_clip_c::traceBounds()
+{
+	for(int i=0; i<3; i++)
+	{
+		if(_end[i] > _start[i])
+		{
+			_bbox_abs._mins[i] = _start[i] + _bbox._mins[i] - 1;
+			_bbox_abs._maxs[i] = _end[i] + _bbox._maxs[i] + 1;
+		}
+		else
+		{
+			_bbox_abs._mins[i] = _end[i] + _bbox._mins[i] - 1;
+			_bbox_abs._maxs[i] = _start[i] + _bbox._maxs[i] + 1;
+		}
+	}
+}
 
 /*
 ================
@@ -585,101 +620,85 @@ Offset is filled in to contain the adjustment that must be added to the
 testing object's origin to get a point to use with the returned hull.
 ================
 */
-int	G_HullForEntity(g_entity_c *ent)
+cmodel_c*	G_HullForEntity(g_entity_c *ent)
 {
 	// decide which clipping hull to use, based on the size
 	if(ent->_r.solid == SOLID_BSP)
 	{	
 		// explicit hulls in the BSP model
-		cmodel_c* model = trap_CM_RegisterModel(ent->_model);
+		cmodel_c* cmodel = trap_CM_RegisterModel(ent->_model);
 
-		if(!model)
+		if(!cmodel)
 			Com_Error(ERR_FATAL, "G_HullForEntity: MOVETYPE_PUSH with a non bsp model");
 
-		return model->_headnode;
+		return cmodel;
 	}
 	
 	// create a temp hull from bounding box sizes
-	return trap_CM_HeadnodeForBox(ent->_r.bbox);
+	return trap_CM_ModelForBox(ent->_r.bbox);
 }
 
 
-
-void	G_ClipMoveToEntities(moveclip_t *clip)
+void	g_clip_c::moveToEntities()
 {
 	static std::vector<g_entity_c*>	touchlist(MAX_ENTITIES);
 	g_entity_c*		touch;
 	trace_t			trace;
-	int			headnode;
 
-	int num = G_AreaEdicts(clip->bbox_abs, touchlist, AREA_SOLID);
+	int num = G_AreaEdicts(_bbox_abs, touchlist, AREA_SOLID);
 
 	// be careful, it is possible to have an entity in this
 	// list removed before we get to it (killtriggered)
-	for(int i=0;i<num; i++)
+	for(int i=0; i<num; i++)
 	{
 		touch = touchlist[i];
 		
 		if(touch->_r.solid == SOLID_NOT)
 			continue;
 		
-		if(touch == clip->passedict)
+		if(touch == _passedict)
 			continue;
 		
-		if(clip->trace.allsolid)
+		if(_trace.allsolid)
 			return;
 		
-		if(clip->passedict)
+		if(_passedict)
 		{
-		 	if(touch->_r.owner == clip->passedict)
+		 	if(touch->_r.owner == _passedict)
 				continue;	// don't clip against own missiles
 			
-			if(clip->passedict->_r.owner == touch)
+			if(_passedict->_r.owner == touch)
 				continue;	// don't clip against owner
 		}
 
-		if(!(clip->contentmask & X_CONT_CORPSE) && (touch->_r.svflags & SVF_CORPSE))
-				continue;
+		if(!(_contentmask & X_CONT_CORPSE) && (touch->_r.svflags & SVF_CORPSE))
+			continue;
 
 		// might intersect, so do an exact clip
-		headnode = G_HullForEntity(touch);
+		//cmodel_c* box = G_HullForEntity(touch);
 		
 		if(touch->_r.solid != SOLID_BSP)	//FIXME
 			touch->_s.quat.identity();	// boxes don't rotate
 
-		trace = trap_CM_TransformedBoxTrace(clip->start, clip->end, clip->bbox, headnode,  clip->contentmask, touch->_s.origin, touch->_s.quat);
+		trace = g_world_cmodel->trace(_start, _end, _bbox, _contentmask, touch->_s.origin, touch->_s.quat);
 		
-		if(trace.allsolid || trace.startsolid || trace.fraction < clip->trace.fraction)
+		if(trace.allsolid || trace.startsolid || trace.fraction < _trace.fraction)
 		{
 			trace.ent = touch;
 			
-		 	if(clip->trace.startsolid)
+		 	if(_trace.startsolid)
 			{
-				clip->trace = trace;
-				clip->trace.startsolid = true;
+				_trace = trace;
+				_trace.startsolid = true;
 			}
 			else
-				clip->trace = trace;
+			{
+				_trace = trace;
+			}
 		}
 		else if(trace.startsolid)
-			clip->trace.startsolid = true;
-	}
-}
-
-
-void	G_TraceBounds(const vec3_c &start, const aabb_c &bbox, const vec3_c &end, aabb_c &bbox_abs)
-{
-	for(int i=0; i<3; i++)
-	{
-		if(end[i] > start[i])
 		{
-			bbox_abs._mins[i] = start[i] + bbox._mins[i] - 1;
-			bbox_abs._maxs[i] = end[i] + bbox._maxs[i] + 1;
-		}
-		else
-		{
-			bbox_abs._mins[i] = end[i] + bbox._mins[i] - 1;
-			bbox_abs._maxs[i] = start[i] + bbox._maxs[i] + 1;
+			_trace.startsolid = true;
 		}
 	}
 }
@@ -694,32 +713,37 @@ Passedict and edicts owned by passedict are explicitly not checked.
 
 ==================
 */
-trace_t	G_Trace(const vec3_c &start, const aabb_c &bbox, const vec3_c &end, g_entity_c *passedict, int contentmask)
+trace_t	G_Trace(const vec3_c &start, const aabb_c &aabb, const vec3_c &end, g_entity_c *passedict, int contentmask)
 {
-	moveclip_t	clip;
-	
-	memset(&clip, 0, sizeof(moveclip_t));
+	g_clip_c clip;
 
 	// clip to world
-	clip.trace = trap_CM_BoxTrace(start, end, bbox, 0, contentmask);
-	clip.trace.ent = g_world;
-	
-	//if(clip.trace.fraction == 0)
-		return clip.trace;		// blocked by the world
+	clip._trace = g_world_cmodel->trace(start, end, aabb, contentmask);
+//	clip._trace.ent = g_world;
+//	clip._trace.fraction = 1.0;
 
-	/*
-	clip.contentmask = contentmask;
-	clip.start = start;
-	clip.end = end;
-	clip.bbox = bbox;
-	clip.passedict = passedict;
+//	if(clip._trace.fraction == 0.0)
+//		trap_Com_Printf("G_Trace: blocked by world");
+
+//	if(clip._trace.fraction == 1.0)
+//		trap_Com_Printf("G_Trace: full move");
+	
+//	if(clip._trace.fraction == 0)
+		return clip._trace;		// blocked by the world
+
+/*
+	clip._contentmask = contentmask;
+	clip._start = start;
+	clip._end = end;
+	clip._bbox = aabb;
+	clip._passedict = passedict;
 	
 	// create the bounding box of the entire move
-	G_TraceBounds(start, clip.bbox, end, clip.bbox_abs);
+	clip.traceBounds();
 
 	// clip to other solid entities
-	G_ClipMoveToEntities(&clip);
+	clip.moveToEntities();
 
-	return clip.trace;
-	*/
+	return clip._trace;
+*/
 }

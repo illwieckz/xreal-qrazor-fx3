@@ -41,11 +41,10 @@ void	G_ProjectSource(const vec3_c &point, const vec3_c &distance, const vec3_c &
 
 bool 	G_AreasConnected(const vec3_c &p1, const vec3_c &p2)
 {
-	int area1 = trap_CM_PointAreanum(p1);
-
-	int area2 = trap_CM_PointAreanum(p2);
+	int area1 = g_world_cmodel->pointAreanum(p1);
+	int area2 = g_world_cmodel->pointAreanum(p2);
 	
-	if(!trap_CM_AreasConnected(area1, area2))
+	if(!g_world_cmodel->areasConnected(area1, area2))
 		return false;		// a door blocks sight
 	
 	return true;
@@ -483,45 +482,6 @@ void	vectoangles(vec3_t value1, vec3_t angles)
 }
 
 
-
-
-
-
-/*
-=================
-KillBox
-
-Kills all entities that would touch the proposed new positioning
-of ent.  Ent should be unlinked before calling this!
-=================
-*/
-bool	G_KillBox(g_entity_c *ent)
-{
-#if 0
-	trace_t		tr;
-	
-	trap_Com_Printf("G_KillBox: %s\n", ent->_classname.c_str());
-
-	while(1)
-	{
-		tr = trap_SV_Trace(ent->_s.origin, ent->_r.bbox, ent->_s.origin, NULL, MASK_PLAYERSOLID);
-		
-		if(!tr.ent)
-			break;
-
-		// nail it
-		((g_entity_c*)tr.ent)->takeDamage(ent, ent, vec3_origin, ent->_s.origin, vec3_origin, 100000, 0, DAMAGE_NO_PROTECTION, MOD_TELEFRAG);
-
-		// if we didn't kill it, fail
-		if(tr.ent->_r.solid)
-			return false;
-	}
-
-	return true;		// all clear
-#else
-	return false;
-#endif
-}
 
 
 

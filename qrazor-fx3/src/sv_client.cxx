@@ -39,12 +39,34 @@ sv_client_c::sv_client_c(const netadr_t &adr, int qport, int challenge)
 
 	_state = CS_CONNECTED;
 	
-	_datagram = bitmessage_c(toBits(MAX_MSGLEN), true);
+	memset(_name, 0, sizeof(_name));
+	_rate			= 0;
+	_messagelevel		= 0;
 	
-	_lastmessage_time = svs.realtime;	// don't timeout
-	_lastconnect_time = svs.realtime;
+	_entity			= 0;
+
+	_lastframe		= 0;
+
+	_command_time		= 0;
+
+	memset(_frame_latency, 0, sizeof(_frame_latency));
+	_ping			= 9999;
+
+	memset(_message_size, 0, sizeof(_message_size));
+	_surpress_count		= 0;
 	
-	_challenge = challenge;
+	_datagram		= bitmessage_c(toBits(MAX_MSGLEN), true);
+
+	//_frames[UPDATE_BACKUP];			// updates can be delta'd from here
+
+	_download		= NULL;
+	_download_size		= 0;
+	_download_count		= 0;
+
+	_lastmessage_time	= svs.realtime;	// don't timeout
+	_lastconnect_time	= svs.realtime;
+
+	_challenge		= challenge;
 }
 	
 sv_client_c::~sv_client_c()
@@ -188,7 +210,8 @@ void	sv_client_c::buildFrame()
 	frame.senttime = svs.realtime; // save it for ping calc later
 
 	// find the client's PVS
-	_entity->_r.area = CM_PointAreanum(_entity->_r.ps.pmove.origin + _entity->_r.ps.view_offset);
+	cmodel_c* world = CM_GetModelByNum(0);
+	_entity->_r.area = world->pointAreanum(_entity->_r.ps.pmove.origin + _entity->_r.ps.view_offset);
 	
 	//Com_Printf("SV_BuildClientFrame: client area %i\n", area);
 
@@ -384,9 +407,7 @@ static void	SV_MergePVS(const vec3_c &org)
 bool	sv_client_c::cullEntity(sv_entity_c *ent, byte *bitvector)
 {
 	/*
-	ent->_r.headnode = 0;
-
-	CM_BoxLeafnums(ent->_r.bbox, NULL, 0, &ent->_r.headnode);
+	ent->_r.headnode = CM_BoxLeafnums(ent->_r.bbox, NULL, 0);
 	
 	if(!CM_HeadnodeVisible(ent->_r.headnode, bitvector))
 		return true;

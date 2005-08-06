@@ -134,21 +134,28 @@ private:
 	void		runPhysicsToss();
 public:
 	
-	// collision detection
+	// Needs to be called any time an entity changes origin, mins, maxs,
+	// or solid.  Automatically unlinks if needed.
+	// sets _r.bbox_abs
+	// sets ent->leafnums[] for pvs determination even if the entity is not solid
 	void		link();
+
+	// Call before removing an entity, and before trying to move one,
+	// so it doesn't clip against itself
 	void		unlink();
 	
 	// check if other entity is visible to this
 	bool		inFront(const g_entity_c *other);
+	void		touchTriggers();
+
+	// Kills all entities that would touch the proposed new positioning of ent.
+	// this entity should be unlinked before calling this!
+	bool		killBox();
 	
 	bool		getRemove() const	{return _remove;}	// called only by G_RemoveUnneededEntities
 									// at the end of every frame
-									
 	float		getSpawnTime() const	{return _spawntime;}
-	
 	const char*	getClassName() const	{return _classname.c_str();}
-	
-	//TODO	
 
 private:
 	bool		_remove;			// don't kill objects using delete, just do _remove = true;
@@ -193,11 +200,10 @@ public:
 	float		_mass;
 	float		_gravity;			// per entity gravity multiplier (1.0 is normal)
 								// use for lowgrav artifact, flares
-
+	// misc
 	g_entity_c*	_goalentity;
 	float		_yaw_speed;
 	float		_ideal_yaw;
-
 
 	// timing variables
 	int		_nextthink;			// time when this entity will think again
@@ -234,8 +240,6 @@ public:
 	g_entity_c*	_teamchain;
 	g_entity_c*	_teammaster;
 
-	
-
 	// general sound stuff
 	int		_noise_index;
 	int		_noise_index2;
@@ -246,20 +250,19 @@ public:
 	int		_watertype;
 	int		_waterlevel;
 
-
 	g_item_c*	_item;				// for bonus items
 
-	//
 	// experimental Open Dynamics Engine stuff
-	//
+#if defined(ODE)
 
 	// rigid body
-//	d_body_c*		_body;
+	d_body_c*		_body;
 
 	// collision detection
-//	d_space_c*		_space;			// used only when we need a group of geoms
-//	std::vector<d_geom_c*>	_geoms;
-//	std::map<d_geom_c*, g_geom_info_c*>	_geoms;
+	d_space_c*		_space;			// used only when we need a group of geoms
+	std::vector<d_geom_c*>	_geoms;
+	std::map<d_geom_c*, g_geom_info_c*>	_geoms;
+#endif
 };
 
 

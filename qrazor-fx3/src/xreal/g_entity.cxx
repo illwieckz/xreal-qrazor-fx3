@@ -539,7 +539,7 @@ g_entity_c*	g_entity_c::checkPosition()
 	
 	if(trace.startsolid)
 	{
-		return (g_entity_c*)g_world;
+		return g_world;
 	}
 		
 	return NULL;
@@ -949,7 +949,7 @@ void	g_entity_c::runPhysicsToss()
 	
 	// check for water transition
 	bool wasinwater = (_watertype & MASK_WATER);
-	_watertype = trap_CM_PointContents(_s.origin, 0);
+	_watertype = g_world_cmodel->pointContents(_s.origin);
 	bool isinwater = _watertype & MASK_WATER;
 
 	if(isinwater)
@@ -971,19 +971,6 @@ void	g_entity_c::runPhysicsToss()
 	}
 }
 
-
-
-
-void	g_entity_c::link()
-{
-	G_LinkEntity(this);
-}
-
-void	g_entity_c::unlink()
-{
-	G_UnlinkEntity(this);
-}
-
 bool	g_entity_c::inFront(const g_entity_c *other)
 {
 	vec3_c		forward, right, up;
@@ -1000,6 +987,35 @@ bool	g_entity_c::inFront(const g_entity_c *other)
 		return true;
 	else
 		return false;
+}
+
+void	g_entity_c::touchTriggers()
+{
+	//TODO
+}
+
+bool	g_entity_c::killBox()
+{
+	trace_t trace;
+	
+	trap_Com_Printf("g_entity_c::killBox: '%s'\n", _classname.c_str());
+
+	while(1)
+	{
+		trace = G_Trace(_s.origin, _r.bbox, _s.origin, NULL, MASK_PLAYERSOLID);
+		
+		if(trace.fraction == 1.0)
+			break;
+
+		// nail it
+		((g_entity_c*)trace.ent)->takeDamage(this, this, vec3_origin, _s.origin, vec3_origin, 100000, 0, DAMAGE_NO_PROTECTION, MOD_TELEFRAG);
+
+		// if we didn't kill it, fail
+		if(((g_entity_c*)trace.ent)->_r.solid)
+			return false;
+	}
+
+	return true;	// all clear
 }
 
 void	G_ShutdownEntities()

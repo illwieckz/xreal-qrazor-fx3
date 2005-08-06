@@ -91,106 +91,8 @@ g_player_c::g_player_c()
 {
 	_s.type = ET_PLAYER;
 	
-	_v_angles.clear();		// aiming direction
-	_v_forward.clear();
-	_v_right.clear();
-	_v_up.clear();
-	_v_quat.identity();
-	
-	_v_height		= 0;		
-	
-	_xyspeed		= 0;
-	
-	_bob_time		= 0;
-	_bob_move		= 0;
-	_bob_cycle		= 0;		
-	_bob_fracsin		= 0;		
-	
-	_old_pmove.clear();
-	
-	_showscores		= false;
-	_showinventory		= false;
-	_showhelp		= false;
-	_showhelpicon		= false;
-
-	_ammo_index		= 0;
-
-	_anim_current		= 0;
-	_anim_time		= 0;
-
-	_anim_priority		= 0;
-	
-	_anim_duck		= false;
-	_anim_run		= false;
-	_anim_swim		= false;
-	
-	_anim_jump		= false;
-	_anim_jump_prestep	= false;
-	_anim_jump_style	= false;
-	
-	_anim_moveflags		= 0;
-	_anim_moveflags_old	= 0;
-	
-	_anim_lastsent		= 0;
-
-	_time_next_drown	= 0;
-	_time_pickup_msg	= 0;
-	_time_respawn		= 0;
-	_time_jumppad		= 0;
-	_time_air_finished	= 0;
-	_time_fall		= 0;
-	
 	_pers.clear();
-	_resp.clear();
-
-	_buttons		= 0;
-	_buttons_old		= 0;
-	_buttons_latched	= 0;	
-
-	_damage_armor		= 0;
-	_damage_parmor		= 0;
-	_damage_blood		= 0;
-	_damage_knockback	= 0;
-	_damage_from.clear();
-	
-	_killer_yaw		= 0;
-	
-	_newweapon		= NULL;
-	_weapon_state		= WEAPON_ACTIVATING;
-	_weapon_update		= 0;
-	_weapon_thunk		= false;
-	_weapon_fired		= false;
-			
-	_kick_angles.clear();
-	_kick_origin.clear();
-	_v_dmg_roll		= 0;
-	_v_dmg_pitch		= 0;
-	_v_dmg_time		= 0;
-	_fall_value		= 0;
-	_damage_alpha		= 0;
-	_bonus_alpha		= 0;
-	_damage_blend.clear();
-	
-	_oldviewangles.clear();
-	_oldvelocity.clear();
-	
-	_old_waterlevel		= 0;
-	_breather_sound		= 0;
-
-	_machinegun_shots	= 0;
-	
-	_quad_framenum		= 0;
-	_invincible_framenum	= 0;
-	_breather_framenum	= 0;
-	_enviro_framenum	= 0;
-	
-	_grenade_blew_up	= 0;
-	_grenade_time		= 0;
-	_weapon_sound		= 0;
-
-	_flood_locktill		= 0;
-	memset(_flood_when, 0, sizeof(_flood_when));
-	_flood_whenhead		= 0;
+	clearAllButPersistant();
 
 	// setup ODE rigid body
 //	_body->setPosition(start);
@@ -291,9 +193,7 @@ void	g_player_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, ve
 		}
 	}
 
-	//
 	// remove powerups
-	//
 	_quad_framenum = 0;
 	_invincible_framenum = 0;
 	_breather_framenum = 0;
@@ -365,7 +265,7 @@ void	g_player_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, ve
 					//_anim_time = PLAYER_ANIM_BOTH_DEATH3_TIME;
 					break;
 			}
-			trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex(va("*death%i.wav", (rand()%4)+1)), 1, ATTN_NORM, 0);
+			//trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex(va("*death%i.wav", (rand()%4)+1)), 1, ATTN_NORM, 0);
 		}
 	}
 
@@ -1025,12 +925,12 @@ trace_t	PM_Trace(const vec3_c &start, const aabb_c &bbox, const vec3_c &end)
 static g_entity_c*	pm_passent;
 
 // pmove doesn't need to know about passent and contentmask
-static trace_t	PM_Trace(const vec3_c &start, const aabb_c &bbox, const vec3_c &end)
+static trace_t	PM_Trace(const vec3_c &start, const aabb_c &aabb, const vec3_c &end)
 {
 	if(pm_passent->_health > 0)
-		return G_Trace(start, bbox, end, pm_passent, MASK_PLAYERSOLID);
+		return G_Trace(start, aabb, end, pm_passent, MASK_PLAYERSOLID);
 	else
-		return G_Trace(start, bbox, end, pm_passent, MASK_DEADSOLID);
+		return G_Trace(start, aabb, end, pm_passent, MASK_DEADSOLID);
 }
 
 
@@ -1086,6 +986,7 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 
 	if(memcmp(&_old_pmove, &pm.s, sizeof(pm.s)))
 	{
+		//FIXME
 		pm.snapinitial = true;
 		//trap_Com_DPrintf("G_ClientThink: pmove changed!\n");
 	}
@@ -1106,55 +1007,15 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	// save results of pmove
 	_r.ps.pmove = pm.s;
 	_old_pmove = pm.s;
-	
-	// update ODE body
-// 	_body->setRotation(pm.viewangles);
-	
-	/*
-	if(!(_r.ps.pmove.pm_flags & PMF_ON_GROUND))
-	{
-  		_body->setLinearVel(pm.s.velocity_linear);
-//		_body->addForce(pm.s.velocity_linear);
-	}
-	else
-	{
-		_body->setAngularVel(pm.s.velocity_angular);
-// 		_body->addTorque(pm.s.velocity_angular);
-	}
-	*/
-
-// 	_body->setLinearVel(pm.s.velocity_linear);
-// 	_body->setAngularVel(pm.s.velocity_angular);
-
-	/*
-	float step_size = cmd.msec * 0.001;
-	
-	if((level.time + step_size) <= ((level.framenum+1) * FRAMETIME))
-	{
-		G_RunDynamics(cmd.msec * step_size);
-		level.time += step_size;
-	}
-	*/
 
 	// update entity network state
  	_s.origin = pm.s.origin;
  	_s.velocity_linear = pm.s.velocity_linear;
  	_s.velocity_angular = pm.s.velocity_angular;
-
-//	_s.origin = _body->getPosition();
-//	_s.velocity_linear = _body->getLinearVel();
-//	_s.velocity_angular = _body->getAngularVel();
 	
-//	_r.bbox = pm.bbox;
-	
-	// update estimated collision detection space
-//	_space->setPosition(_s.origin);
-//	_space->setRotation(pm.viewangles);
-//	_space->setQuaternion(_s.quat);
+	_r.bbox = pm.bbox;
 
-	_resp.cmd_angles[0] = cmd.angles[0];
-	_resp.cmd_angles[1] = cmd.angles[1];
-	_resp.cmd_angles[2] = cmd.angles[2];
+	_resp.cmd_angles = cmd.angles;
 
 	if(_groundentity && !pm.groundentity && (pm.cmd.upmove >= 10) && (pm.waterlevel == 0))
 	{
@@ -1183,11 +1044,10 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 
 //	link();
 
-//	if(_movetype != MOVETYPE_NOCLIP)
-//		G_TouchTriggers(this);
+	if(_movetype != MOVETYPE_NOCLIP)
+		touchTriggers();
 
-	
-	// touch other objects
+	// FIXME touch other objects
 	/*
 	for(i=0; i<(int)pm.touchents.size(); i++)
 	{
@@ -1224,6 +1084,9 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	if(cmd.buttons & BUTTON_WALK)
 		_anim_moveflags |= ANIMMOVE_WALK;
 
+	if(_r.ps.pmove.pm_flags & PMF_DUCKED)
+		_anim_moveflags |= ANIMMOVE_DUCK;
+
 	
 	// fire weapon from final position if needed
 	if(_buttons_latched & BUTTON_ATTACK  || _buttons_latched & BUTTON_ATTACK2)
@@ -1234,8 +1097,6 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 		}
 		else if(!_weapon_thunk)
 		{
-			trap_Com_DPrintf("g_player_c::clientThink: attack\n");
-
 			// shoot !
 			_weapon_thunk = true;
 			thinkWeapon();
@@ -1792,12 +1653,112 @@ void	g_player_c::selectSpawnPoint(vec3_c &origin, vec3_c &angles)
 	}
 
 	origin = spot->_s.origin;
-	origin[2] += 16;
-	
 	angles = spot->_angles;
 }
 
 
+void	g_player_c::clearAllButPersistant()
+{
+	_v_angles.clear();		// aiming direction
+	_v_forward.clear();
+	_v_right.clear();
+	_v_up.clear();
+	_v_quat.identity();
+	
+	_v_height		= 0;		
+	
+	_xyspeed		= 0;
+	
+	_bob_time		= 0;
+	_bob_move		= 0;
+	_bob_cycle		= 0;		
+	_bob_fracsin		= 0;		
+	
+	_old_pmove.clear();
+	
+	_showscores		= false;
+	_showinventory		= false;
+	_showhelp		= false;
+	_showhelpicon		= false;
+
+	_ammo_index		= 0;
+
+	_anim_current		= 0;
+	_anim_time		= 0;
+
+	_anim_priority		= 0;
+	
+	_anim_duck		= false;
+	_anim_run		= false;
+	_anim_swim		= false;
+	
+	_anim_jump		= false;
+	_anim_jump_prestep	= false;
+	_anim_jump_style	= false;
+	
+	_anim_moveflags		= 0;
+	_anim_moveflags_old	= 0;
+	
+	_anim_lastsent		= 0;
+
+	_time_next_drown	= 0;
+	_time_pickup_msg	= 0;
+	_time_respawn		= 0;
+	_time_jumppad		= 0;
+	_time_air_finished	= 0;
+	_time_fall		= 0;
+	
+	_resp.clear();
+
+	_buttons		= 0;
+	_buttons_old		= 0;
+	_buttons_latched	= 0;	
+
+	_damage_armor		= 0;
+	_damage_parmor		= 0;
+	_damage_blood		= 0;
+	_damage_knockback	= 0;
+	_damage_from.clear();
+	
+	_killer_yaw		= 0;
+	
+	_newweapon		= NULL;
+	_weapon_state		= WEAPON_ACTIVATING;
+	_weapon_update		= 0;
+	_weapon_thunk		= false;
+	_weapon_fired		= false;
+			
+	_kick_angles.clear();
+	_kick_origin.clear();
+	_v_dmg_roll		= 0;
+	_v_dmg_pitch		= 0;
+	_v_dmg_time		= 0;
+	_fall_value		= 0;
+	_damage_alpha		= 0;
+	_bonus_alpha		= 0;
+	_damage_blend.clear();
+	
+	_oldviewangles.clear();
+	_oldvelocity.clear();
+	
+	_old_waterlevel		= 0;
+	_breather_sound		= 0;
+
+	_machinegun_shots	= 0;
+	
+	_quad_framenum		= 0;
+	_invincible_framenum	= 0;
+	_breather_framenum	= 0;
+	_enviro_framenum	= 0;
+	
+	_grenade_blew_up	= 0;
+	_grenade_time		= 0;
+	_weapon_sound		= 0;
+
+	_flood_locktill		= 0;
+	memset(_flood_when, 0, sizeof(_flood_when));
+	_flood_whenhead		= 0;
+}
 
 /*
 ==============
@@ -1861,21 +1822,15 @@ a deathmatch.
 */
 void	g_player_c::putClientInServer()
 {
-	vec3_c	mins(-16, -16, -24);
-	vec3_c	maxs(16, 16, 32);
-	
 	vec3_c	spawn_origin;
 	vec3_c	spawn_angles;
 
-	client_persistant_t	saved;
 	client_respawn_t	resp;
 
 	// find a spawn point
 	// do it before setting health back up, so farthest
 	// ranging doesn't count this client
-	selectSpawnPoint(spawn_origin, spawn_angles);
-
-	
+	selectSpawnPoint(spawn_origin, spawn_angles);	
 
 	// deathmatch wipes most client data every spawn
 	if(deathmatch->getInteger())
@@ -1905,10 +1860,7 @@ void	g_player_c::putClientInServer()
 	}
 
 	// clear everything but the persistant data
-	
-	saved = _pers;
-	//memset(getClient(), 0, sizeof(*getClient()));	//FIXME do a g_client_c::clear() function
-	_pers = saved;
+	clearAllButPersistant();
 	
 	if(_pers.health <= 0)
 		initClientPersistant();
@@ -1919,27 +1871,25 @@ void	g_player_c::putClientInServer()
 	fetchClientEntData();
 
 	// clear entity values
+	_r.inuse = true;
+	_r.solid = SOLID_BBOX;
+	_r.clipmask = MASK_PLAYERSOLID;
+	_r.bbox._mins.set(-15, -15, 0);
+	_r.bbox._maxs.set(15, 15, 70);
+	_r.svflags &= ~SVF_CORPSE;
+
 	_groundentity = NULL;
 	_takedamage = DAMAGE_AIM;
 	_movetype = MOVETYPE_WALK;
-	_v_height = 22;
-	_r.inuse = true;
+	_v_height = VIEWHEIGHT_DEFAULT;
 	_classname = "player";
 	_mass = 200;
-	_r.solid = SOLID_BBOX;
 	_deadflag = DEAD_NO;
 	_time_air_finished = level.time + 12000;
-	_r.clipmask = MASK_PLAYERSOLID;
 	//_model = "players/male/tris.md2";
-	_s.index_model = trap_SV_ModelIndex("models/players/marine/mpplayer.md5mesh");
-	_s.index_animation = trap_SV_AnimationIndex("models/players/marine/fists_idle.md5anim");
 	_waterlevel = 0;
 	_watertype = 0;
 	_flags &= ~FL_NO_KNOCKBACK;
-	_r.svflags &= ~SVF_CORPSE;
-
-	_r.bbox._mins = mins;
-	_r.bbox._maxs = maxs;
 
 	// clear playerstate values
 	_r.ps.clear();
@@ -1963,45 +1913,40 @@ void	g_player_c::putClientInServer()
 	_r.ps.gun_anim_index = trap_SV_AnimationIndex(_pers.weapon->getActivateAnimationName());
 
 	// clear entity state values
-	_s.effects = 0;
+//	_s.clear();
+//	_s.type = ET_PLAYER;
 //	_s.index_model = 255;		// will use the skin specified model	
+	_s.index_model = trap_SV_ModelIndex("models/players/marine/mpplayer.md5mesh");
+	_s.index_animation = trap_SV_AnimationIndex("models/players/marine/fists_idle.md5anim");
+	_s.index_light = 0;
+	_s.frame = 0;
+	_s.effects = 0;
 	
 	_anim_priority = ANIM_BASIC;
-	
 	_anim_current = PLAYER_ANIM_FISTS_IDLE;
-	
-	//_anim_time = 0;
-	
+//	_anim_time = 0;
 	_anim_lastsent = -1; 
 
-	//_s.frame = 0;
+	// set origin
+	_s.origin = spawn_origin;
+	_s.origin[2] += 1.0;	// make sure off ground
+	
+//	_r.ps.pmove.origin = spawn_origin;
 
-	// set the delta angle
-	_r.ps.pmove.delta_angles = spawn_angles - _resp.cmd_angles;
-
+	// set angles
 	_angles[PITCH] = 0;
 	_angles[YAW] = spawn_angles[YAW];
 	_angles[ROLL] = 0;
-	
-	_s.quat.fromAngles(_angles);
-	
-	_r.ps.view_angles = _angles;
-	//_v_angles = _angles;
-	setViewAngles(_angles);
-	
-	
-	//trap_Com_Printf("g_player_c::putClientInServer: at %s\n", spawn_origin.toString());
-	
-	_r.ps.pmove.origin[0] = spawn_origin[0];
-	_r.ps.pmove.origin[1] = spawn_origin[1];
-	_r.ps.pmove.origin[2] = spawn_origin[2];
-	
-	_s.origin = spawn_origin;
-	
-	//TODO warmup time
-	_nextthink = level.time + 1000;	// wait one second
 
-	// spawn a spectator
+	_s.quat.fromAngles(_angles);
+	_r.ps.view_angles = _angles;
+	setViewAngles(_angles);
+
+	// set the delta angle
+	_r.ps.pmove.delta_angles = _angles - _resp.cmd_angles;
+	
+
+	// check if spawning a spectator
 	if(_pers.spectator) 
 	{
 		_resp.spectator = true;
@@ -2010,40 +1955,26 @@ void	g_player_c::putClientInServer()
 		_r.solid = SOLID_NOT;
 		_r.svflags |= SVF_NOCLIENT;
 		_r.ps.gun_model_index = 0;
-		
-		
-//  		_body->setPosition(spawn_origin);
-//  		_body->setLinearVel(0, 0, 0);
-//  		_body->setAngularVel(0, 0, 0);
-//  		_body->setGravityMode(0);
-//  		_body->enable();
-		
-//		_space->disable();
-		
 		return;
 	}
 	else
-	{
-//  		_body->setPosition(spawn_origin);
-//  		_body->setLinearVel(0, 0, 0);
-//  		_body->setAngularVel(0, 0, 0);
-//  		_body->setGravityMode(1);
-//  		_body->enable();
-		
-//		_space->enable();
-		
+	{		
 		_resp.spectator = false;
 	}
 
-	if(!G_KillBox(this))
-	{	
+//	unlink();
+/*
+	if(!killBox())
+	{
 		// could't spawn in?
-		//trap_Com_Printf("G_PutClientInServer: could not spawn %s\n", ent->_pers.netname);
+		trap_Com_Printf("g_player_c::putClientInServer: could not spawn '%s' at %s\n", _pers.netname, _s.origin.toString());
 	}
+*/	
+//	trap_Com_Printf("g_player_c::putClientInServer: linking '%s'\n", _pers.netname);
+//	link();
 
 	// force the current weapon up
 	_newweapon = _pers.weapon;
-	
 	changeWeapon();
 }
 
@@ -4683,7 +4614,7 @@ Called by ClientBeginServerFrame and ClientThink
 */
 void	g_player_c::thinkWeapon()
 {
-	//trap_Com_Printf("g_player_c::thinkWeapon:\n");
+//	trap_Com_DPrintf("g_player_c::thinkWeapon() from '%s'\n", _pers.netname);
 
 	// if just died, put the weapon away
 	if(_health < 1)

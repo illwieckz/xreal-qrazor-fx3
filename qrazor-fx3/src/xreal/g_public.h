@@ -177,29 +177,12 @@ typedef struct
 	int		(*SV_LightIndex)(const std::string &name);
 
 	// collision detection
-	void			(*CM_BeginRegistration)(const std::string &name, bool clientload, unsigned *checksum);
+	cmodel_c*		(*CM_BeginRegistration)(const std::string &name, bool clientload, unsigned *checksum);
 	cmodel_c*		(*CM_RegisterModel)(const std::string &name);
 	animation_c*		(*CM_RegisterAnimation)(const std::string &name);
 	cmodel_c*		(*CM_GetModelByNum)(int num);
-	int			(*CM_LeafContents)(int leafnum);
-	int			(*CM_LeafCluster)(int leafnum);
-	int			(*CM_LeafArea)(int leafnum);
 	int			(*CM_NumModels)();
-	int			(*CM_HeadnodeForBox)(const aabb_c& bbox);
-	int			(*CM_PointContents)(const vec3_c &p, int headnode);
-	int			(*CM_TransformedPointContents)(const vec3_c &p, int headnode, const vec3_c &origin, const quaternion_c &quat);
-	trace_t			(*CM_BoxTrace)(const vec3_c &start, const vec3_c &end, const aabb_c &bbox, int headnode, int brushmask);
-	trace_t			(*CM_TransformedBoxTrace)(const vec3_c &start, const vec3_c &end,
-						const aabb_c &bbox,
-						int headnode, int brushmask, 
-						const vec3_c &origin, const quaternion_c &quat);
-	int			(*CM_PointLeafnum)(const vec3_c &p);
-	int			(*CM_PointAreanum)(const vec3_c &p);
-	int			(*CM_BoxLeafnums)(const aabb_c &bbox, std::deque<int> &list, int headnode);
-	int			(*CM_GetClosestAreaPortal)(const vec3_c &p);
-	bool			(*CM_GetAreaPortalState)(int portal);
-	void			(*CM_SetAreaPortalState)(int portal, bool open);
-	bool			(*CM_AreasConnected)(int area1, int area2);
+	cmodel_c*		(*CM_ModelForBox)(const aabb_c& aabb);
 
 	// network messaging
 	void		(*SV_Multicast)(const vec3_c &origin, multicast_type_e to);

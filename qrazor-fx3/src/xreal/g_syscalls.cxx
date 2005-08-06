@@ -199,9 +199,9 @@ int	trap_SV_LightIndex(const std::string &name)
 }
 
 // collision detection
-void	trap_CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum)
+cmodel_c*	trap_CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum)
 {
-	gi.CM_BeginRegistration(name, clientload, checksum);
+	return gi.CM_BeginRegistration(name, clientload, checksum);
 }
 
 cmodel_c*	trap_CM_RegisterModel(const std::string &name)
@@ -219,87 +219,14 @@ cmodel_c*	trap_CM_GetModelByNum(int num)
 	return gi.CM_GetModelByNum(num);
 }
 
-int	trap_CM_LeafContents(int leafnum)
-{
-	return gi.CM_LeafContents(leafnum);
-}
-
-int	trap_CM_LeafCluster(int leafnum)
-{
-	return gi.CM_LeafCluster(leafnum);
-}
-
-int	trap_CM_LeafArea(int leafnum)
-{
-	return gi.CM_LeafArea(leafnum);
-}
-
 int	trap_CM_NumModels()
 {
 	return gi.CM_NumModels();
 }
 
-int	trap_CM_HeadnodeForBox(const aabb_c& bbox)
+cmodel_c*	trap_CM_ModelForBox(const aabb_c& aabb)
 {
-	return gi.CM_HeadnodeForBox(bbox);
-}
-
-int	trap_CM_PointContents(const vec3_c &p, int headnode)
-{
-	return gi.CM_PointContents(p, headnode);
-}
-
-int	trap_CM_TransformedPointContents(const vec3_c &p, int headnode, const vec3_c &origin, const quaternion_c &quat)
-{
-	return gi.CM_TransformedPointContents(p, headnode, origin, quat);
-}
-
-trace_t	trap_CM_BoxTrace(const vec3_c &start, const vec3_c &end, const aabb_c &bbox, int headnode, int brushmask)
-{
-	return gi.CM_BoxTrace(start, end, bbox, headnode, brushmask);
-}
-
-trace_t	trap_CM_TransformedBoxTrace(const vec3_c &start, const vec3_c &end,
-					const aabb_c &bbox,
-					int headnode, int brushmask, 
-					const vec3_c &origin, const quaternion_c &quat)
-{
-	return gi.CM_TransformedBoxTrace(start, end, bbox, headnode, brushmask, origin, quat);
-}
-
-int	trap_CM_PointLeafnum(const vec3_c &p)
-{
-	return gi.CM_PointLeafnum(p);
-}
-
-int	trap_CM_PointAreanum(const vec3_c &p)
-{
-	return gi.CM_PointAreanum(p);
-}
-
-int	trap_CM_BoxLeafnums(const aabb_c &bbox, std::deque<int> &list, int headnode)
-{
-	return gi.CM_BoxLeafnums(bbox, list, headnode);
-}
-
-int	trap_CM_GetClosestAreaPortal(const vec3_c &p)
-{
-	return gi.CM_GetClosestAreaPortal(p);
-}
-
-bool	trap_CM_GetAreaPortalState(int portal)
-{
-	return gi.CM_GetAreaPortalState(portal);
-}
-
-void	trap_CM_SetAreaPortalState(int portal, bool open)
-{
-	gi.CM_SetAreaPortalState(portal, open);
-}
-
-bool	trap_CM_AreasConnected(int area1, int area2)
-{
-	return gi.CM_AreasConnected(area1, area2);
+	return gi.CM_ModelForBox(aabb);
 }
 
 

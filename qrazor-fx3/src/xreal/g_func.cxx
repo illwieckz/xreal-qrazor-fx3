@@ -1276,7 +1276,7 @@ void	g_func_door_c::activate()
 	_movetype = MOVETYPE_PUSH;
 	_r.solid = SOLID_BSP;
 	
-	_r.areaportal = trap_CM_GetClosestAreaPortal(_s.origin);		
+	_r.areaportal = g_world_cmodel->getClosestAreaPortal(_s.origin);
 
 	if(!_speed)
 		_speed = 100;
@@ -1576,7 +1576,7 @@ void 	g_func_door_c::useAreaportals(bool open)
 	if(_flags & FL_TEAMSLAVE)
 		return;
 		
-	trap_CM_SetAreaPortalState(_r.areaportal, open);
+	g_world_cmodel->setAreaPortalState(_r.areaportal, open);
 }
 
 
@@ -2466,7 +2466,7 @@ g_func_killbox_c::g_func_killbox_c()
 
 void	g_func_killbox_c::use(g_entity_c *other, g_entity_c *activator)
 {
-	G_KillBox(this);
+	killBox();
 }
 
 

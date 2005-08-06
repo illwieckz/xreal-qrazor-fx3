@@ -374,9 +374,9 @@ void		trap_S_EndRegistration()
 }
 
 
-void	trap_CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum)
+cmodel_c*	trap_CM_BeginRegistration(const std::string &name, bool clientload, unsigned *checksum)
 {
-	cgi.CM_BeginRegistration(name, clientload, checksum);
+	return cgi.CM_BeginRegistration(name, clientload, checksum);
 }
 
 cmodel_c*	trap_CM_RegisterModel(const std::string &name)
@@ -386,26 +386,6 @@ cmodel_c*	trap_CM_RegisterModel(const std::string &name)
 void		trap_CM_EndRegistration()
 {
 	cgi.CM_EndRegistration();
-}
-
-int		trap_CM_PointContents(const vec3_c &p, int headnode)
-{
-	return cgi.CM_PointContents(p, headnode);
-}
-
-int		trap_CM_TransformedPointContents(const vec3_c &p, int headnode, const vec3_c &origin, const quaternion_c &quat)
-{
-	return cgi.CM_TransformedPointContents(p, headnode, origin, quat);
-}
-
-trace_t		trap_CM_BoxTrace(const vec3_c &start, const vec3_c &end, const aabb_c &bbox, int headnode, int brushmask)
-{
-	return cgi.CM_BoxTrace(start, end, bbox, headnode, brushmask);
-}
-
-int		trap_CM_PointAreanum(const vec3_c &p)
-{
-	return cgi.CM_PointAreanum(p);
 }
 
 int		trap_CL_GetTime()
