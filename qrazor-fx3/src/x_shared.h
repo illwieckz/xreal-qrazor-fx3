@@ -827,8 +827,11 @@ public:
 	virtual int	pointLeafnum(const vec3_c &p) const	{return -1;}
 	virtual int	pointAreanum(const vec3_c &p) const	{return -1;}
 
-	// trace AABB
-	virtual trace_t	trace(const vec3_c &start, const vec3_c &end, const aabb_c &aabb, int brushmask) const
+	virtual trace_t	traceAABB
+	(
+		const vec3_c &start, const vec3_c &end, const aabb_c &aabb, 
+		int mask
+	)
 	{
 		trace_t tr;
 		tr.fraction = 1.0;
@@ -836,9 +839,12 @@ public:
 		return tr;
 	}
 
-	// trace OBB
-	virtual trace_t	trace(const vec3_c &start, const vec3_c &end, const aabb_c &aabb, int brushmask,
-							const vec3_c &origin, const quaternion_c &quat) const
+	virtual trace_t	traceOBB
+	(
+		const vec3_c &start, const vec3_c &end, const aabb_c &aabb, 
+		int mask,
+		const vec3_c &origin, const quaternion_c &quat
+	)
 	{
 		trace_t tr;
 		tr.fraction = 1.0;
