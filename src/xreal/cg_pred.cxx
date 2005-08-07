@@ -239,7 +239,7 @@ void	CG_PredictMovement()
 		trap_CL_GetUserCommand(frame, cmd);
 		pm.cmd = cmd;
 		
-		Com_Pmove(&pm);
+		BG_PMove(&pm);
 
 		// save for debug checking
 		cg.predicted_origins[frame] = pm.s.origin;
