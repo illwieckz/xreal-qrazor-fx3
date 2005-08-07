@@ -776,7 +776,7 @@ static void 	SV_RunGameFrame()
 	// has the "current" frame
 	sv.framenum++;
 	
-	sv.time = sv.framenum * 100;
+	sv.time = sv.framenum * FRAMETIME;
 
 	// don't run if paused
 	if(!sv_paused->getInteger() || maxclients->getInteger() > 1)
@@ -821,12 +821,12 @@ void 	SV_Frame(int msec)
 	if(!sv_timedemo->getInteger() && svs.realtime < (int)sv.time)
 	{
 		// never let the time get too far off
-		if(sv.time - svs.realtime > 100)
+		if(sv.time - svs.realtime > FRAMETIME)
 		{
 			if(sv_showclamp->getInteger())
 				Com_Printf("sv lowclamp\n");
 				
-			svs.realtime = sv.time - 100;
+			svs.realtime = sv.time - FRAMETIME;
 		}
 		Sys_SleepNet(sv.time - svs.realtime);
 		return;

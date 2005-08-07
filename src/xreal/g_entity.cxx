@@ -996,11 +996,11 @@ void	g_entity_c::touchTriggers()
 		return;
 
 	std::vector<g_entity_c*>	touchlist;
-	int num = G_AreaEdicts(_r.bbox, touchlist, MAX_ENTITIES, AREA_TRIGGERS);
+	G_AreaEdicts(_r.bbox, touchlist, MAX_ENTITIES, AREA_TRIGGERS);
 
 	// be careful, it is possible to have an entity in this
 	// list removed before we get to it (killtriggered)
-	for(int i=0; i<num; i++)
+	for(uint_t i=0; i<touchlist.size(); i++)
 	{
 		g_entity_c* other = touchlist[i];
 

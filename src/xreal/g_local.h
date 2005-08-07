@@ -69,16 +69,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define FL_RESPAWN			0x80000000	// used for item respawning
 
 
-#if 0
-#define	FRAMETIME		0.02
-#elif 0
-#define	FRAMETIME		(1.0/25.0)
-#else
-#define FRAMETIME		100
-#endif
-
-
-
 enum
 {
 	DAMAGE_NO,
@@ -472,7 +462,7 @@ void		G_SetAreaPortalState(g_entity_c *ent, bool open);
 // test.
 // returns the number of pointers filled in
 // ??? does this always return the world?
-int 		G_AreaEdicts(const aabb_c &bbox, std::vector<g_entity_c*> &list, int max, area_type_e type);
+void		G_AreaEdicts(const aabb_c &bbox, std::vector<g_entity_c*> &list, int max, area_type_e type);
 
 //
 // functions that interact with everything apropriate
