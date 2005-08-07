@@ -513,18 +513,18 @@ bool	g_entity_c::runThink()
 
 void	g_entity_c::addGravity()
 {
-	_s.velocity_linear[2] -= _gravity * g_gravity->getValue() * FRAMETIME;
+	_s.velocity_linear[2] -= _gravity * g_gravity->getValue() * FRAMETIME * 0.001;
 }
 
 void	g_entity_c::applyLinearVelocity()
 {
-	_s.origin += _s.velocity_linear * FRAMETIME;
+	_s.origin += _s.velocity_linear * FRAMETIME * 0.001;
 }
 
 void	g_entity_c::applyAngularVelocity()
 {
-	//TODO
-	//Vector3_MA(ent->_s.angles, FRAMETIME, ent->_avelocity, ent->_s.angles);
+	//FIXME: test this
+	_s.quat.multiplyRotation(_s.velocity_angular * FRAMETIME * 0.001);
 }
 
 g_entity_c*	g_entity_c::checkPosition()
@@ -663,8 +663,8 @@ retry:
 		}
 	}
 
-//	if(_r.inuse)
-//		G_TouchTriggers(this);
+	if(_r.inuse)
+		touchTriggers();
 
 	return trace;
 }					
@@ -752,7 +752,6 @@ bool	g_entity_c::push2(vec3_c &move, vec3_c &amove)
 		|| check->_movetype == MOVETYPE_NOCLIP)
 			continue;
 
-		//if (!check->r.area.prev)
 		if(!check->_r.islinked)
 			continue;		// not linked in anywhere
 
@@ -787,7 +786,7 @@ bool	g_entity_c::push2(vec3_c &move, vec3_c &amove)
 			if(_r.isclient)
 			{	
 				// FIXME: doesn't rotate monsters?
-				//check->_ps.pmove.delta_angles[YAW] += amove[YAW];
+				check->_r.ps.pmove.delta_angles[YAW] += amove[YAW];
 			}
 
 			// figure movement due to the pusher's amove
@@ -845,8 +844,8 @@ bool	g_entity_c::push2(vec3_c &move, vec3_c &amove)
 
 //FIXME: is there a better way to handle this?
 	// see if anything we moved has touched a trigger
-//	for (p=pushed_p-1 ; p>=pushed ; p--)
-//		G_TouchTriggers (p->ent);
+	for(p=pushed_p-1; p>=g_pushed; p--)
+		p->ent->touchTriggers();
 
 	return true;
 }
@@ -915,7 +914,7 @@ void	g_entity_c::runPhysicsToss()
 	applyAngularVelocity();
 
 	// move origin
-	vec3_c move = _s.velocity_linear * FRAMETIME;
+	vec3_c move = _s.velocity_linear * FRAMETIME * 0.001;
 	trace_t trace = push(move);
 	if(!_r.inuse)
 		return;
@@ -996,7 +995,7 @@ void	g_entity_c::touchTriggers()
 		return;
 
 	std::vector<g_entity_c*>	touchlist;
-	G_AreaEdicts(_r.bbox, touchlist, MAX_ENTITIES, AREA_TRIGGERS);
+	G_AreaEntities(_r.bbox, touchlist, MAX_ENTITIES, AREA_TRIGGERS);
 
 	// be careful, it is possible to have an entity in this
 	// list removed before we get to it (killtriggered)

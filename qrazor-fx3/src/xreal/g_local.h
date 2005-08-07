@@ -462,7 +462,7 @@ void		G_SetAreaPortalState(g_entity_c *ent, bool open);
 // test.
 // returns the number of pointers filled in
 // ??? does this always return the world?
-void		G_AreaEdicts(const aabb_c &bbox, std::vector<g_entity_c*> &list, int max, area_type_e type);
+void		G_AreaEntities(const aabb_c &bbox, std::vector<g_entity_c*> &list, int max, area_type_e type);
 
 //
 // functions that interact with everything apropriate

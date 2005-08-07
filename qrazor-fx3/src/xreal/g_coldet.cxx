@@ -379,7 +379,7 @@ void	g_entity_c::link()
 }
 
 
-static void	G_AreaEdicts_r(g_areanode_c *node, const aabb_c &aabb, std::vector<g_entity_c*> &list, int max, area_type_e type)
+static void	G_AreaEntities_r(g_areanode_c *node, const aabb_c &aabb, std::vector<g_entity_c*> &list, int max, area_type_e type)
 {
 	// touch linked edicts
 	if(type == AREA_SOLID)
@@ -396,7 +396,7 @@ static void	G_AreaEdicts_r(g_areanode_c *node, const aabb_c &aabb, std::vector<g
 
 			if((int)list.size() == max)
 			{
-				Com_Printf("G_AreaEdicts_r: maximum reached %i %i\n", list.size(), node->solid_entities.size());
+				Com_Printf("G_AreaEntities_r: maximum reached %i %i\n", list.size(), node->solid_entities.size());
 				return;
 			}
 
@@ -417,7 +417,7 @@ static void	G_AreaEdicts_r(g_areanode_c *node, const aabb_c &aabb, std::vector<g
 
 			if((int)list.size() == max)
 			{
-				Com_Printf("G_AreaEdicts_r: maximum reached %i %i\n", list.size(), node->trigger_entities.size());
+				Com_Printf("G_AreaEntities_r: maximum reached %i %i\n", list.size(), node->trigger_entities.size());
 				return;
 			}
 
@@ -430,15 +430,15 @@ static void	G_AreaEdicts_r(g_areanode_c *node, const aabb_c &aabb, std::vector<g
 
 	// recurse down both sides
 	if(aabb._maxs[node->axis] > node->dist)
-		G_AreaEdicts_r(node->children[0], aabb, list, max, type);
+		G_AreaEntities_r(node->children[0], aabb, list, max, type);
 	
 	if(aabb._mins[node->axis] < node->dist)
-		G_AreaEdicts_r(node->children[1], aabb, list, max, type);
+		G_AreaEntities_r(node->children[1], aabb, list, max, type);
 }
 
-void	G_AreaEdicts(const aabb_c &aabb, std::vector<g_entity_c*> &list, int max, area_type_e type)
+void	G_AreaEntities(const aabb_c &aabb, std::vector<g_entity_c*> &list, int max, area_type_e type)
 {
-	G_AreaEdicts_r(g_areanodes, aabb, list, max, type);
+	G_AreaEntities_r(g_areanodes, aabb, list, max, type);
 }
 
 void	G_SetAreaPortalState(g_entity_c *ent, bool open)
@@ -558,7 +558,7 @@ int	G_PointContents(const vec3_c &p)
 
 	// or in contents from all the other entities
 	std::vector<g_entity_c*> touch;
-	G_AreaEdicts(aabb, touch, MAX_ENTITIES, AREA_SOLID);
+	G_AreaEntities(aabb, touch, MAX_ENTITIES, AREA_SOLID);
 
 	for(uint_t i=0; i<touch.size(); i++)
 	{
@@ -630,7 +630,7 @@ void	g_clip_c::moveToEntities()
 	g_entity_c*		touch;
 	trace_t			trace;
 
-	G_AreaEdicts(_bbox_abs, touchlist, MAX_ENTITIES, AREA_SOLID);
+	G_AreaEntities(_bbox_abs, touchlist, MAX_ENTITIES, AREA_SOLID);
 
 	// be careful, it is possible to have an entity in this
 	// list removed before we get to it (killtriggered)
