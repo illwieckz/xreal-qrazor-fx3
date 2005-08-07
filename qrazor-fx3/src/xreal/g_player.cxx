@@ -992,7 +992,7 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	{
 		//FIXME
 		pm.snapinitial = true;
-		//trap_Com_DPrintf("G_ClientThink: pmove changed!\n");
+//s		trap_Com_DPrintf("g_player_c::clientThink: pmove changed!\n");
 	}
 
 	pm.cmd = cmd;
@@ -1004,7 +1004,7 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 //	trap_Com_DPrintf("G_ClientThink: performing pmove ...\n");
 
 	// perform a pmove
-	Com_Pmove(&pm); 
+	BG_PMove(&pm); 
 	
 //	trap_Com_DPrintf("G_ClientThink: performed pmove\n");
 

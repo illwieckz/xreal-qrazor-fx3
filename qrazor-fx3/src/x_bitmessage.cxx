@@ -1475,7 +1475,7 @@ void	bitmessage_c::readDeltaEntity(const entity_state_t *from, entity_state_t *t
 	}
 
 	if(readBit())
-		to->type = (entity_type_e)readByte();
+		to->type = readByte();
 	
 	if(readBit())
 		readVec3(to->origin);
@@ -1567,7 +1567,7 @@ void	bitmessage_c::readDeltaPlayerState(const player_state_t *from, player_state
 	// parse the pmove_state_t
 	//
 	if(readBit())
-		to->pmove.pm_type = (pm_type_e) readByte();
+		to->pmove.pm_type = readByte();
 
 	if(readBit())
 		readVec3(to->pmove.origin);

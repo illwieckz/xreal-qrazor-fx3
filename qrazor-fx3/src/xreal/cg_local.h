@@ -35,6 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // xreal --------------------------------------------------------------------
 #include "cg_public.h"
+#include "bg_public.h"
 
 
 #define	PARTICLE_GRAVITY	40

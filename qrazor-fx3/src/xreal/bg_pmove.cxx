@@ -917,16 +917,14 @@ static void	PM_DeadMove()
 static bool	PM_GoodPosition()
 {
 	trace_t	trace;
-	vec3_t	origin, end;
-	int		i;
+	vec3_c	origin, end;
 
-	if (pm->s.pm_type == PM_SPECTATOR)
+	if(pm->s.pm_type == PM_SPECTATOR)
 		return true;
 
-	for (i=0; i<3; i++)
-		origin[i] = end[i] = pm->s.origin[i]*0.125;
+	origin[i] = end[i] = pm->s.origin[i];// mul 0.125;
 
-	trace = pm->trace(origin, pm->bbox, end);
+	trace = pm->boxTrace(origin, pm->bbox, end);
 
 	return !trace.allsolid;
 }
@@ -998,33 +996,31 @@ static void	PM_SnapPosition()
 	//Com_Printf("using previous_origin\n");	
 }
 
-/*
+
 static void	PM_InitialSnapPosition()
 {
-	int        x, y, z;
-	//short      base[3];
-	vec3_t	     base;
-	static const int offset[3] = { 0, -1, 1 };
+/*
+	static const vec_t offset[3] = {0, -1, 1};
 
-	Vector3_Copy(pm->s.origin, base);
+	vec3_c base = pm->s.origin;
 
-	for(z=0; z<3; z++) 
+	for(int z=0; z<3; z++) 
 	{
-		pm->s.origin[2] = base[2] + offset[ z ];
+		pm->s.origin[2] = base[2] + offset[z];
 		
-		for(y=0; y<3; y++) 
+		for(int y=0; y<3; y++) 
 		{
 			pm->s.origin[1] = base[1] + offset[ y ];
 			
-			for(x=0; x<3; x++) 
+			for(int x=0; x<3; x++) 
 			{
 				pm->s.origin[0] = base[0] + offset[ x ];
 				
 				if(PM_GoodPosition())
 				{
-					pml.origin[0] = pm->s.origin[0]*0.125;
-					pml.origin[1] = pm->s.origin[1]*0.125;
-					pml.origin[2] = pm->s.origin[2]*0.125;
+					pml.origin[0] = pm->s.origin[0];// mul 0.125;
+					pml.origin[1] = pm->s.origin[1];// mul 0.125;
+					pml.origin[2] = pm->s.origin[2];// mul 0.125;
 					
 					pml.origin_prev = pm->s.origin;
 					return;
@@ -1033,9 +1029,9 @@ static void	PM_InitialSnapPosition()
 		}
 	}
 
-	Com_Printf("Bad InitialSnapPosition\n");
-}
+	trap_Com_Printf("Bad InitialSnapPosition\n");
 */
+}
 
 
 static void	PM_UpdateViewAngles()
@@ -1081,14 +1077,7 @@ static void	PM_DropTimers()
 	}
 }
 
-/*
-================
-Com_Pmove
-
-Can be called by either the server game or the client game
-================
-*/
-void 	Com_Pmove(pmove_t *pmove)
+void 	BG_PMove(pmove_t *pmove)
 {
 	pm = pmove;
 
@@ -1135,8 +1124,8 @@ void 	Com_Pmove(pmove_t *pmove)
 	// set mins, maxs, and viewheight
 	PM_CheckDuck();
 	
-//	if(pm->snapinitial)
-//		PM_InitialSnapPosition();
+	if(pm->snapinitial)
+		PM_InitialSnapPosition();
 
 	// set groundentity
 	PM_CheckOnGround();
