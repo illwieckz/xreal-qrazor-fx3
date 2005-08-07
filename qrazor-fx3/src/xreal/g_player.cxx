@@ -1125,15 +1125,15 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 void	g_player_c::lookAtKiller(g_entity_c *inflictor, g_entity_c *attacker)
 {
 #if 0
-	vec3_t		dir;
+	vec3_c		dir;
 
-	if(attacker && attacker != g_entities[0] && attacker != this)
+	if(attacker && attacker != g_world && attacker != this)
 	{
-		Vector3_Subtract(attacker->_s.origin, _s.origin, dir);
+		dir = attacker->_s.origin - _s.origin;
 	}
-	else if(inflictor && inflictor != g_entities[0] && inflictor != this)
+	else if(inflictor && inflictor != g_world && inflictor != this)
 	{
-		Vector3_Subtract(inflictor->_s.origin, _s.origin, dir);
+		dir = inflictor->_s.origin - _s.origin, dir;
 	}
 	else
 	{
@@ -1937,17 +1937,15 @@ void	g_player_c::putClientInServer()
 //	_r.ps.pmove.origin = spawn_origin;
 
 	// set angles
-	_angles[PITCH] = 0;
-	_angles[YAW] = spawn_angles[YAW];
-	_angles[ROLL] = 0;
+	spawn_angles[PITCH] = 0;
+	spawn_angles[ROLL] = 0;
 
-	_s.quat.fromAngles(_angles);
-	_r.ps.view_angles = _angles;
-	setViewAngles(_angles);
+	_s.quat.fromAngles(spawn_angles);
+	_r.ps.view_angles = spawn_angles;
+	setViewAngles(spawn_angles);
 
 	// set the delta angle
-	_r.ps.pmove.delta_angles = _angles - _resp.cmd_angles;
-	
+//	_r.ps.pmove.delta_angles = spawn_angles - _resp.cmd_angles;
 
 	// check if spawning a spectator
 	if(_pers.spectator) 

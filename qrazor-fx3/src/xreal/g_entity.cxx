@@ -726,7 +726,7 @@ bool	g_entity_c::push2(vec3_c &move, vec3_c &amove)
 	pushed_p->origin = _s.origin;
 	pushed_p->quat = _s.quat;
 	
-	//if (pusher->getClient())
+	//if(pusher->getClient())
 	//	pushed_p->deltayaw = pusher->getClient()->ps.pmove.delta_angles[YAW];
 	pushed_p++;
 
@@ -786,7 +786,7 @@ bool	g_entity_c::push2(vec3_c &move, vec3_c &amove)
 			if(_r.isclient)
 			{	
 				// FIXME: doesn't rotate monsters?
-				check->_r.ps.pmove.delta_angles[YAW] += amove[YAW];
+				//check->_r.ps.pmove.delta_angles[YAW] += amove[YAW];
 			}
 
 			// figure movement due to the pusher's amove
