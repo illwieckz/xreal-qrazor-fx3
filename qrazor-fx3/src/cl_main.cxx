@@ -678,7 +678,7 @@ static void	CL_ClearClientState()
 		cl.frames[i].clear();
 	}
 
-	cl.viewangles.clear();
+	cl.view_angles.clear();
 
 	cl.time				= 0;			// this is the time value that the client
 								// is rendering at.  always <= cls.realtime

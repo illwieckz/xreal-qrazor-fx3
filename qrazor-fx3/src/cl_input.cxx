@@ -251,12 +251,12 @@ static void	CL_AdjustAngles()
 
 	if(!(in_strafe.state & 1))
 	{
-		cl.viewangles[YAW] -= speed*cl_yawspeed->getValue() * CL_KeyState(&in_right);
-		cl.viewangles[YAW] += speed*cl_yawspeed->getValue() * CL_KeyState(&in_left);
+		cl.view_angles[YAW] -= speed*cl_yawspeed->getValue() * CL_KeyState(&in_right);
+		cl.view_angles[YAW] += speed*cl_yawspeed->getValue() * CL_KeyState(&in_left);
 	}
 	
-	cl.viewangles[PITCH] -= speed*cl_pitchspeed->getValue() * CL_KeyState(&in_lookup);
-	cl.viewangles[PITCH] += speed*cl_pitchspeed->getValue() * CL_KeyState(&in_lookdown);
+	cl.view_angles[PITCH] -= speed*cl_pitchspeed->getValue() * CL_KeyState(&in_lookup);
+	cl.view_angles[PITCH] += speed*cl_pitchspeed->getValue() * CL_KeyState(&in_lookdown);
 }
 
 /*
@@ -272,7 +272,7 @@ static void	CL_BaseMove(usercmd_t &cmd)
 	
 	cmd.clear();
 	
-	cmd.angles = cl.viewangles;
+	cmd.angles = cl.view_angles;
 	
 	if(in_strafe.state & 1)
 	{
@@ -322,8 +322,8 @@ static void	CL_MouseMove()
 	in_mx = (int)(in_mx * m_sensitivity->getValue());
 	in_my = (int)(in_my * m_sensitivity->getValue());
 
-	cl.viewangles[YAW]	-= m_yaw->getValue() * in_mx;
-	cl.viewangles[PITCH]	+= m_pitch->getValue() * in_my;
+	cl.view_angles[YAW]	-= m_yaw->getValue() * in_mx;
+	cl.view_angles[PITCH]	+= m_pitch->getValue() * in_my;
 
 	in_mx = in_my = 0;
 }
@@ -337,17 +337,17 @@ static void	CL_ClampPitch()
 	if(pitch > 180)
 		pitch -= 360;
 
-	if(cl.viewangles[PITCH] + pitch < -360)
-		cl.viewangles[PITCH] += 360; // wrapped
+	if(cl.view_angles[PITCH] + pitch < -360)
+		cl.view_angles[PITCH] += 360; // wrapped
 		
-	if(cl.viewangles[PITCH] + pitch > 360)
-		cl.viewangles[PITCH] -= 360; // wrapped
+	if(cl.view_angles[PITCH] + pitch > 360)
+		cl.view_angles[PITCH] -= 360; // wrapped
 
-	if(cl.viewangles[PITCH] + pitch > 89)
-		cl.viewangles[PITCH] = 89 - pitch;
+	if(cl.view_angles[PITCH] + pitch > 89)
+		cl.view_angles[PITCH] = 89 - pitch;
 		
-	if(cl.viewangles[PITCH] + pitch < -89)
-		cl.viewangles[PITCH] = -89 - pitch;
+	if(cl.view_angles[PITCH] + pitch < -89)
+		cl.view_angles[PITCH] = -89 - pitch;
 }
 
 static void	CL_FinishMove(usercmd_t &cmd)
@@ -377,7 +377,7 @@ static void	CL_FinishMove(usercmd_t &cmd)
 	
 	CL_ClampPitch();
 	
-	cmd.angles = cl.viewangles;
+	cmd.angles = cl.view_angles;
 }
 
 static usercmd_t&	CL_CreateCmd()
@@ -402,7 +402,7 @@ static usercmd_t&	CL_CreateCmd()
 
 void	IN_CenterView()
 {
-	cl.viewangles[PITCH] = -cl.frame.playerstate.pmove.delta_angles[PITCH];
+	cl.view_angles[PITCH] = -cl.frame.playerstate.pmove.delta_angles[PITCH];
 }
 
 void	CL_InitInput()

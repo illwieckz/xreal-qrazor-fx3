@@ -97,7 +97,7 @@ struct client_state_t
 	// the server sends a delta each frame which is added to the locally
 	// tracked view angles to account for standing on rotating objects,
 	// and teleport direction changes
-	vec3_c		viewangles;
+	vec3_c		view_angles;
 
 	int		time;			// this is the time value that the client
 								// is rendering at.  always <= cls.realtime
