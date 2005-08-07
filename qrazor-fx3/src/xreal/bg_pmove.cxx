@@ -1117,7 +1117,7 @@ void 	Com_Pmove(pmove_t *pmove)
 	{
 		pm->viewheight = 22;
 	
-		PM_FlyMove(true);
+		PM_FlyMove(false);
 		PM_SnapPosition();
 		return;
 	}
