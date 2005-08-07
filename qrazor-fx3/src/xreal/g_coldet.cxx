@@ -59,13 +59,6 @@ public:
 g_areanode_c	g_areanodes[AREA_NODES];
 int		g_areanodes_num;
 
-
-static aabb_c				g_area_bbox;
-static std::vector<g_entity_c*>*	g_area_list;
-static int				g_area_count;
-static int				g_area_maxcount;
-
-
 /*
 ===============
 G_CreateAreaNode
@@ -386,7 +379,7 @@ void	g_entity_c::link()
 }
 
 
-static void	G_AreaEdicts_r(g_areanode_c *node, area_type_e type)
+static void	G_AreaEdicts_r(g_areanode_c *node, const aabb_c &aabb, std::vector<g_entity_c*> &list, int max, area_type_e type)
 {
 	// touch linked edicts
 	if(type == AREA_SOLID)
@@ -398,16 +391,16 @@ static void	G_AreaEdicts_r(g_areanode_c *node, area_type_e type)
 			if(check->_r.solid == SOLID_NOT)
 				continue;		// deactivated
 	
-			if(!check->_r.bbox_abs.intersect(g_area_bbox))
+			if(!check->_r.bbox_abs.intersect(aabb))
 				continue;		// not touching
 
-			if(g_area_count == g_area_maxcount)
+			if((int)list.size() == max)
 			{
-				Com_Printf("G_AreaEdicts_r: MAXCOUNT %i %i\n", g_area_count, node->solid_entities.size());
+				Com_Printf("G_AreaEdicts_r: maximum reached %i %i\n", list.size(), node->solid_entities.size());
 				return;
 			}
 
-			(*g_area_list)[g_area_count++] = check;
+			list.push_back(check);
 		}
 	}
 	else
@@ -419,16 +412,16 @@ static void	G_AreaEdicts_r(g_areanode_c *node, area_type_e type)
 			if(check->_r.solid == SOLID_NOT)
 				continue;		// deactivated
 		
-			if(!check->_r.bbox_abs.intersect(g_area_bbox))
+			if(!check->_r.bbox_abs.intersect(aabb))
 				continue;		// not touching
 
-			if(g_area_count == g_area_maxcount)
+			if((int)list.size() == max)
 			{
-				Com_Printf("G_AreaEdicts_r: MAXCOUNT %i %i\n", g_area_count, node->trigger_entities.size());
+				Com_Printf("G_AreaEdicts_r: maximum reached %i %i\n", list.size(), node->trigger_entities.size());
 				return;
 			}
 
-			(*g_area_list)[g_area_count++] = check;
+			list.push_back(check);
 		}
 	}
 
@@ -436,23 +429,16 @@ static void	G_AreaEdicts_r(g_areanode_c *node, area_type_e type)
 		return;		// terminal node
 
 	// recurse down both sides
-	if(g_area_bbox._maxs[node->axis] > node->dist)
-		G_AreaEdicts_r(node->children[0], type);
+	if(aabb._maxs[node->axis] > node->dist)
+		G_AreaEdicts_r(node->children[0], aabb, list, max, type);
 	
-	if(g_area_bbox._mins[node->axis] < node->dist)
-		G_AreaEdicts_r(node->children[1], type);
+	if(aabb._mins[node->axis] < node->dist)
+		G_AreaEdicts_r(node->children[1], aabb, list, max, type);
 }
 
-int	G_AreaEdicts(const aabb_c &bbox, std::vector<g_entity_c*> &list, int max, area_type_e type)
+void	G_AreaEdicts(const aabb_c &aabb, std::vector<g_entity_c*> &list, int max, area_type_e type)
 {
-	g_area_bbox = bbox;
-	g_area_list = &list;
-	g_area_count = 0;
-	g_area_maxcount = max;
-
-	G_AreaEdicts_r(g_areanodes, type);
-
-	return g_area_count;
+	G_AreaEdicts_r(g_areanodes, aabb, list, max, type);
 }
 
 void	G_SetAreaPortalState(g_entity_c *ent, bool open)
@@ -572,9 +558,9 @@ int	G_PointContents(const vec3_c &p)
 
 	// or in contents from all the other entities
 	std::vector<g_entity_c*> touch;
-	int num = G_AreaEdicts(aabb, touch, MAX_ENTITIES, AREA_SOLID);
+	G_AreaEdicts(aabb, touch, MAX_ENTITIES, AREA_SOLID);
 
-	for(int i=0; i<num; i++)
+	for(uint_t i=0; i<touch.size(); i++)
 	{
 		g_entity_c* hit = touch[i];
 
@@ -644,11 +630,11 @@ void	g_clip_c::moveToEntities()
 	g_entity_c*		touch;
 	trace_t			trace;
 
-	int num = G_AreaEdicts(_bbox_abs, touchlist, MAX_ENTITIES, AREA_SOLID);
+	G_AreaEdicts(_bbox_abs, touchlist, MAX_ENTITIES, AREA_SOLID);
 
 	// be careful, it is possible to have an entity in this
 	// list removed before we get to it (killtriggered)
-	for(int i=0; i<num; i++)
+	for(uint_t i=0; i<touchlist.size(); i++)
 	{
 		touch = touchlist[i];
 		

@@ -37,8 +37,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define	GAME_API_VERSION	9
 
-// edict->svflags
+#if 0
+#define	FRAMETIME		41
+#else
+#define FRAMETIME		100
+#endif
 
+// edict->svflags
 enum
 {
 	SVF_NONE		= 0,
