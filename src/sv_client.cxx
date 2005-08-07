@@ -668,16 +668,11 @@ The current net_message is parsed for the given client
 */
 void	sv_client_c::executeMessage(bitmessage_c &msg)
 {
-	usercmd_t	nullcmd;
 	usercmd_t	oldest, oldcmd, newcmd;
 	
 	int		net_drop;
 	int		stringCmdCount;
-	
-//	int		checksum;
-//	int		checksum_offset;
-//	int		checksum_calculated;
-	
+		
 	bool		move_issued;
 	int		lastframe;
 
@@ -746,11 +741,6 @@ void	sv_client_c::executeMessage(bitmessage_c &msg)
 
 				move_issued = true;
 				
-				/*
-				checksum = msg.readLong();
-				checksum_offset = msg.getCurSize();
-				*/
-				
 				lastframe = msg.readLong();
 				if(lastframe != _lastframe)
 				{
@@ -762,9 +752,7 @@ void	sv_client_c::executeMessage(bitmessage_c &msg)
 					}
 				}
 				
-				nullcmd.clear();
-				
-				msg.readDeltaUsercmd(&nullcmd, &oldest);
+				msg.readDeltaUsercmd(&null_usercmd, &oldest);
 				msg.readDeltaUsercmd(&oldest, &oldcmd);
 				msg.readDeltaUsercmd(&oldcmd, &newcmd);
 
@@ -773,21 +761,6 @@ void	sv_client_c::executeMessage(bitmessage_c &msg)
 					_lastframe = -1;
 					break;
 				}
-				
-				// if the checksum fails, ignore the rest of the packet
-				/*
-				//calculatedChecksum = Com_BlockSequenceCRCByte(&msg[checksumIndex + 1], msg.getBytesReadCount() - checksumIndex - 1, netchan.getIncomingSequence());
-				checksum_calculated = msg.calcCheckSum(checksum_offset);
-
-				if(checksum_calculated != checksum)
-				{
-					Com_DPrintf("Failed command checksum for %s (%d != %d)/%d\n",	_name, 
-													checksum_calculated, 
-													checksum,
-													netchan.getIncomingSequence());
-					return;
-				}
-				*/
 
 				if(!sv_paused->getInteger())
 				{

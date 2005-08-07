@@ -307,27 +307,6 @@ static void	CL_BaseMove(usercmd_t &cmd)
 	}
 }
 
-
-static void	CL_MouseMove()
-{
-	if(m_filter->getInteger())
-	{
-		in_mx = (int)((in_mx_old + in_mx) * 0.5);
-		in_my = (int)((in_my_old + in_my) * 0.5);
-	}
-
-	in_mx_old = in_mx;
-	in_my_old = in_my;
-
-	in_mx = (int)(in_mx * m_sensitivity->getValue());
-	in_my = (int)(in_my * m_sensitivity->getValue());
-
-	cl.view_angles[YAW]	-= m_yaw->getValue() * in_mx;
-	cl.view_angles[PITCH]	+= m_pitch->getValue() * in_my;
-
-	in_mx = in_my = 0;
-}
-
 static void	CL_ClampPitch()
 {
 	float	pitch;
@@ -348,6 +327,30 @@ static void	CL_ClampPitch()
 		
 	if(cl.view_angles[PITCH] + pitch < -89)
 		cl.view_angles[PITCH] = -89 - pitch;
+}
+
+static void	CL_MouseMove(usercmd_t &cmd)
+{
+	if(m_filter->getInteger())
+	{
+		in_mx = (int)((in_mx_old + in_mx) * 0.5);
+		in_my = (int)((in_my_old + in_my) * 0.5);
+	}
+
+	in_mx_old = in_mx;
+	in_my_old = in_my;
+
+	in_mx = (int)(in_mx * m_sensitivity->getValue());
+	in_my = (int)(in_my * m_sensitivity->getValue());
+
+	cl.view_angles[YAW]	-= m_yaw->getValue() * in_mx;
+	cl.view_angles[PITCH]	+= m_pitch->getValue() * in_my;
+
+	in_mx = in_my = 0;
+
+	CL_ClampPitch();
+	
+	cmd.angles = cl.view_angles;
 }
 
 static void	CL_FinishMove(usercmd_t &cmd)
@@ -373,11 +376,17 @@ static void	CL_FinishMove(usercmd_t &cmd)
 		cmd.buttons |= BUTTON_ANY;
 
 	// send milliseconds of time to apply the move
-	cmd.msec = X_bound(0, cls.frametime, 250);
-	
-	CL_ClampPitch();
-	
-	cmd.angles = cl.view_angles;
+#if 0
+	cmd.msec = X_bound(0, cls.frametime, 200);
+#else
+	static int extramsec = 0;
+	extramsec += cls.frametime;
+	int ms = extramsec;
+	extramsec -= ms;	// fractional part is left for next frame
+	if(ms > 250)
+		ms = 100;		// time was unreasonable
+	cmd.msec = ms;
+#endif
 }
 
 static usercmd_t&	CL_CreateCmd()
@@ -392,7 +401,7 @@ static usercmd_t&	CL_CreateCmd()
 	// get basic movement from keyboard
 	CL_BaseMove(cmd);
 
-	CL_MouseMove();
+	CL_MouseMove(cmd);
 
 	CL_FinishMove(cmd);
 	
@@ -471,7 +480,6 @@ void	CL_SendCmd()
 {
 	int		i;
 	usercmd_t	*cmd, *oldcmd;
-	usercmd_t	nullcmd;
 
 	// build a command even if not connected
 
@@ -508,10 +516,6 @@ void	CL_SendCmd()
 	// begin a client move command
 	msg.writeBits(CLC_MOVE, clc_bitcount);
 
-	// save the position for a checksum byte
-//	int checksum_index = msg.getCurSize();
-//	msg.writeLong(0);	// dummy value
-
 	// let the server know what the last frame we
 	// got was, so the next message can be delta compressed
 	if(!cl.frame.valid || cls.demo_waiting)
@@ -523,8 +527,7 @@ void	CL_SendCmd()
 	// if the last packet was dropped, it can be recovered
 	i = (cls.netchan.getOutgoingSequence()-2) & CMD_MASK;
 	cmd = &cl.cmds[i];
-	nullcmd.clear();
-	msg.writeDeltaUsercmd(&nullcmd, cmd);
+	msg.writeDeltaUsercmd(&null_usercmd, cmd);
 	oldcmd = cmd;
 
 	i = (cls.netchan.getOutgoingSequence()-1) & CMD_MASK;
@@ -535,15 +538,6 @@ void	CL_SendCmd()
 	i = (cls.netchan.getOutgoingSequence()) & CMD_MASK;
 	cmd = &cl.cmds[i];
 	msg.writeDeltaUsercmd(oldcmd, cmd);
-
-	// calculate a checksum over the move commands
-//	msg[checksum_index] = Com_BlockSequenceCRCByte(&msg[checksumIndex + 1], msg.getCurSize() - checksumIndex - 1, cls.netchan.getOutgoingSequence());
-
-//	int checksum = msg.calcCheckSum(8+32);
-//	uint_t size = msg.getCurSize();
-//	msg.setCurSize(checksum_index);
-//	msg.writeLong(checksum);
-//	msg.setCurSize(size);
 	
 	// deliver the message
 	cls.netchan.transmit(msg);
