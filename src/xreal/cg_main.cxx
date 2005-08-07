@@ -217,7 +217,7 @@ static void	CG_InitClientGame()
 	cg_noskins		= trap_Cvar_Get("cg_noskins", "0", 0);
 	cg_showclamp		= trap_Cvar_Get("showclamp", "0", 0);
 	cg_shownet		= trap_Cvar_Get("shownet", "0", 0);
-	cg_predict		= trap_Cvar_Get("cg_predict", "0", 0);
+	cg_predict		= trap_Cvar_Get("cg_predict", "0,1", CVAR_NONE);
 	cg_showmiss		= trap_Cvar_Get("cg_showmiss", "0", 0);
 	cg_viewsize		= trap_Cvar_Get("cg_viewsize", "100", CVAR_ARCHIVE);
 	cg_centertime		= trap_Cvar_Get("cg_centertime", "2.5", 0);
@@ -323,7 +323,6 @@ static void	CG_UpdateConfig(int index, const std::string &configstring)
 		//if(trap_CL_GetRefreshPrepped())
 		{
 			cg.model_draw[index-CS_MODELS] = trap_R_RegisterModel(configstring);
-			
 			cg.model_clip[index-CS_MODELS] = trap_CM_RegisterModel(configstring);
 		}
 	}
