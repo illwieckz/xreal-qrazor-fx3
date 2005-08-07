@@ -159,110 +159,94 @@ trace_t	CG_Trace(const vec3_c &start, const aabb_c &aabb, const vec3_c &end, int
 	return t;
 }
 
-/*
-static trace_t	CG_PMTrace(const vec3_c &start, const cbbox_c &bbox, const vec3_c &end)
+static trace_t	CG_PMTrace(const vec3_c &start, const aabb_c &aabb, const vec3_c &end)
 {
-	return CG_Trace(start, bbox, end, MASK_PLAYERSOLID, IGNORE_PLAYER);
+	return CG_Trace(start, aabb, end, MASK_PLAYERSOLID, trap_CL_GetPlayerNum()+1);
 }
-*/
 
-/*
-static int	CG_PMpointcontents(const vec3_c &point)
+
+static int	CG_PMPointContents(const vec3_c &point)
 {
-	int			i;
-	
-	entity_c*	ent_state;
-	int		ent_num;
-	
-	cmodel_t	*cmodel;
-	int		contents;
+//	cmodel_c* cmodel = trap_CM_GetModelByNum(0);
+	int contents = cg.world_cmodel->pointContents(point);
 
-	contents = trap_CM_PointContents(point, 0);
-
-
-	for(i=0; i<trap_cl->frame.entities_num; i++)
+	for(int i=0; i<cg.frame.entities_num; i++)
 	{
-		ent_num = (trap_cl->frame.entities_parse_index + i) & (MAX_PARSE_ENTITIES-1);
-		ent_state = &cg.entities_parse[ent_num];
+		entity_state_t *state = &cg.entities_parse[(cg.frame.entities_first + i) % MAX_ENTITIES];
+		//cg_entity_t *cent = &cg.entities[state->getNumber()];
 
-		if(ent_state->_s.solid != 31) // special value for bmodel
-			continue;
+		//FIXME
+		//if(state->_s.solid != 31) // special value for bmodel
+		//	continue;
 
-		cmodel = trap_cl->model_clip[ent_state->_s.modelindex];
+		cmodel_c* cmodel = cg.model_clip[state->index_model];
 		
 		if(!cmodel)
 			continue;
 
-		contents |= trap_CM_TransformedPointContents(point, cmodel->headnode, ent_state->_s.origin, ent_state->_s.angles);
+		contents |= cmodel->pointContents(point, state->origin, state->quat);
 	}
 
 	return contents;
 }
-*/
 
-/*
-cl.predicted_origin[0] = cl.frame.playerstate.pmove.origin[0];
-cl.predicted_origin[1] = cl.frame.playerstate.pmove.origin[1];
-cl.predicted_origin[2] = cl.frame.playerstate.pmove.origin[2];
-			
-cl.predicted_angles = cl.frame.playerstate.view_angles;
-*/
 
 void	CG_PredictMovement()
 {
-#if 0
 	int			ack, current;
 	int			frame;
 	int			oldframe;
-	usercmd_t	*cmd;
-	pmove_t		pm;
+	usercmd_t		cmd;
+	pmove_t			pm;
 	int			step;
 	float			step_old;
 	int			oldz;
 
-	if(trap_cls->state != CA_ACTIVE)
+	if(trap_CLS_GetConnectionState() != CA_ACTIVE)
 		return;
 		
-	if(!cg_predict->value || (trap_cl->frame.playerstate.pmove.pm_flags & PMF_NO_PREDICTION))
+	if(!cg_predict->getInteger() || (cg.frame.playerstate.pmove.pm_flags & PMF_NO_PREDICTION))
 	{	
 		// just set angles
-		trap_cl->predicted_angles = trap_cl->viewangles + trap_cl->frame.playerstate.pmove.delta_angles;
+		usercmd_t cmd;
+		trap_CL_GetCurrentUserCommand(cmd);
+
+		cg.predicted_angles = cmd.angles + cg.frame.playerstate.pmove.delta_angles;
 		return;
 	}
 
-	ack = trap_cls->netchan.getIncomingAcknowledged();
-	current = trap_cls->netchan.getOutgoingSequence();
+	trap_CLS_GetCurrentNetState(ack, current);
 
 	// if we are too far out of date, just freeze
 	if(current - ack >= CMD_BACKUP)
 	{
-		if(cg_showmiss->value)
-			Com_Printf("exceeded CMD_BACKUP\n");
+		if(cg_showmiss->getInteger())
+			trap_Com_Printf("exceeded CMD_BACKUP\n");
 		return;	
 	}
 
 	// copy current state to pmove
 	pm.clear();
-	pm.trace = CG_PMTrace;
-	pm.pointcontents = CG_PMpointcontents;
-	//pm_airaccelerate = atof(trap_cl->configstrings[CS_AIRACCEL]);	//FIXME
-	pm.s = trap_cl->frame.playerstate.pmove;
+	pm.boxTrace = CG_PMTrace;
+	pm.pointContents = CG_PMPointContents;
+//	pm.airaccelerate = atof(trap_CL_GetConfigString(CS_AIRACCEL])); FIXME
+	pm.s = cg.frame.playerstate.pmove;
 
 	// run frames
 	while(++ack < current)
 	{
-		frame = ack & (CMD_BACKUP-1);
-		cmd = &trap_cl->cmds[frame];
-
-		pm.cmd = *cmd;
-		trap_Com_Pmove(&pm);
+		frame = ack & CMD_MASK;
+		trap_CL_GetUserCommand(frame, cmd);
+		pm.cmd = cmd;
+		
+		Com_Pmove(&pm);
 
 		// save for debug checking
-		trap_cl->predicted_origins[frame] = pm.s.origin;
+		cg.predicted_origins[frame] = pm.s.origin;
 	}
 
-	oldframe = (ack-2) & (CMD_BACKUP-1);
-	oldz = (int)trap_cl->predicted_origins[oldframe][2];
+	oldframe = (ack-2) & CMD_MASK;
+	oldz = (int)cg.predicted_origins[oldframe][2];
 	step = (int)(pm.s.origin[2] - oldz);
 	
 	if(step > 63 && step < 160 && (pm.s.pm_flags & PMF_ON_GROUND))
@@ -272,22 +256,15 @@ void	CG_PredictMovement()
 		//if(trap_cls->realtime - trap_cl->predicted_step_time < 150)
 		//	step_old = trap_cl->predicted_step_time * (150 - (trap_cls->realtime - trap_cl->predicted_step_time)) * (1.0/150);
 		
-		trap_cl->predicted_step = step_old + step;
-		trap_cl->predicted_step_time = (int)(trap_cls->realtime - trap_cls->frametime / 2);
+		cg.predicted_step = step_old + step;
+		cg.predicted_step_time = (int)(trap_CLS_GetRealTime() - trap_CLS_GetFrameTime() / 2);
 	}
 
 
 	// copy results out for rendering
-	trap_cl->predicted_origin = pm.s.origin;
+	cg.predicted_origin = pm.s.origin;
+	cg.predicted_angles = pm.viewangles;
+//	cg.predicted_velocity = pm.s.velocity_linear;
+//	cg.predicted_velocity_angular = pm.s.velocity_angular;
 
-	trap_cl->predicted_angles = pm.viewangles;
-#else
-	usercmd_t cmd;
-	
-	trap_CL_GetCurrentUserCommand(cmd);
-
-	// just set angles
-	cg.predicted_angles = cmd.angles + cg.frame.playerstate.pmove.delta_angles;
-	return;
-#endif
 }
