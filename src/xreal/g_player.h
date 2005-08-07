@@ -324,6 +324,9 @@ private:
 	void		animPrev_f();
 	void		animReset_f();
 
+	// projectile testing
+	void		spawnRocket_f();
+
 public:
 	// weapon handling
 	void		thinkWeapon();

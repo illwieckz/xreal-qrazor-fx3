@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "g_player.h"
 #include "g_item.h"
 #include "g_target.h"
+#include "g_projectile.h"
 
 
 /*QUAKED info_player_start (1 0 0) (-16 -16 -24) (16 16 32)
@@ -903,6 +904,9 @@ void	g_player_c::clientCommand()
 
 	else if(X_stricmp(cmd, "animreset") == 0)
 		animReset_f();
+
+	else if(X_stricmp(cmd, "spawnrocket") == 0)
+		spawnRocket_f();
 				
 	else	// anything that doesn't match a command will be a chat
 		say_f(false, true);
@@ -2750,7 +2754,7 @@ void	g_player_c::updateFallingDamage()
         // scale delta if was pushed by jump pad
 	if(_time_jumppad && _time_jumppad < level.time )
 	{
-		delta /= (1000 + level.time - _time_jumppad) * 0.5;
+		delta /= (1000 + level.time - _time_jumppad) * 0.5 * 0.001;
 		
 		_time_jumppad = 0;
 	}
@@ -3309,7 +3313,7 @@ void	g_player_c::calcViewOffset()
 		_r.ps.kick_angles[ROLL] += ratio * _v_dmg_roll;
 	
 		// add pitch based on fall kick
-		ratio = (_time_fall - level.time) / FALL_TIME;
+		ratio = ((_time_fall - level.time) / FALL_TIME);// * 0.001;
 		if (ratio < 0)
 			ratio = 0;
 		_r.ps.kick_angles[PITCH] += ratio * _fall_value;
@@ -3344,7 +3348,7 @@ void	g_player_c::calcViewOffset()
 	v[2] += _v_height;
 
 	// add fall height
-	ratio = (_time_fall - level.time) / FALL_TIME;
+	ratio = ((_time_fall - level.time) / FALL_TIME);// * 0.001;
 	if(ratio < 0)
 		ratio = 0;
 	v[2] -= ratio * _fall_value * 0.4;
@@ -4601,6 +4605,19 @@ void	g_player_c::animPrev_f()
 void	g_player_c::animReset_f()
 {
 	_s.frame = 0;
+}
+
+void	g_player_c::spawnRocket_f()
+{
+	vec3_c	start;
+	vec3_c	offset(24, 8, _v_height - 8);
+	
+	projectSource(offset, start);
+	
+	_kick_origin = _v_forward * -2;
+	_kick_angles[0] = -1;
+
+	new g_projectile_rocket_c(this, start, _v_quat, 150, 20, 120, 120);
 }
 
 
