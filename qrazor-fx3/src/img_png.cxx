@@ -67,6 +67,7 @@ void 	IMG_LoadPNG(const std::string &name, byte **pic, int *width, int *height, 
 	if(png_sig_cmp(png_buffer, 0, 8))
 	{
 		ri.Com_Printf("IMG_LoadPNG: png file %s has bad ident\n", name.c_str());
+		ri.VFS_FFree((void*)png_buffer);
 		return;
 	}
 	
@@ -75,6 +76,7 @@ void 	IMG_LoadPNG(const std::string &name, byte **pic, int *width, int *height, 
 	if(!png_ptr)
 	{
 		ri.Com_Printf("IMG_LoadPNG: png_create_read_struct() failed\n");
+		ri.VFS_FFree((void*)png_buffer);
 		return;
 	}
 
@@ -83,6 +85,7 @@ void 	IMG_LoadPNG(const std::string &name, byte **pic, int *width, int *height, 
 	{
         	png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
 		ri.Com_Printf("IMG_LoadPNG: png_create_info_struct() failed\n");
+		ri.VFS_FFree((void*)png_buffer);
 		return;
 	}
 
@@ -91,6 +94,7 @@ void 	IMG_LoadPNG(const std::string &name, byte **pic, int *width, int *height, 
 	{
         	png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 		ri.Com_Printf("IMG_LoadPNG: second png_create_info_struct() failed\n");
+		ri.VFS_FFree((void*)png_buffer);
 		return;
 	}
 	
@@ -98,6 +102,7 @@ void 	IMG_LoadPNG(const std::string &name, byte **pic, int *width, int *height, 
 	{
         	png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 		ri.Com_Printf("IMG_LoadPNG: png_jmpbuf() failed\n");
+		ri.VFS_FFree((void*)png_buffer);
 		return;
 	}
 	
@@ -140,6 +145,7 @@ void 	IMG_LoadPNG(const std::string &name, byte **pic, int *width, int *height, 
 	png_data = new png_byte[row_bytes * png_height];
 	if(png_data == NULL)
         {
+		ri.VFS_FFree((void*)png_buffer);
 		ri.Com_Error(ERR_DROP, "IMG_LoadPNG: Not enough RAM\n");
 		return;
         }
@@ -148,6 +154,7 @@ void 	IMG_LoadPNG(const std::string &name, byte **pic, int *width, int *height, 
 	row_pointers = (png_bytepp) Com_Alloc((png_height) * sizeof(png_bytep));
 	if(row_pointers == NULL)
         {
+		ri.VFS_FFree((void*)png_buffer);
 		ri.Com_Error(ERR_DROP, "IMG_LoadPNG: Not enough RAM\n");
 		return;
         }

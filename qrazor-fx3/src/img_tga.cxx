@@ -109,12 +109,14 @@ void 	IMG_LoadTGA(const std::string &name, byte **pic, int *width, int *height, 
 	if(targa_header.image_type != 2 && targa_header.image_type != 10) 
 	{
 		ri.Com_Printf("IMG_LoadTGA: Only type 2 and 10 targa images supported but not %i\n", targa_header.image_type);
+		ri.VFS_FFree(buffer);
 		return;
 	}
 
 	if(targa_header.colormap_type != 0 || (targa_header.pixel_size != 32 && targa_header.pixel_size != 24))
 	{
 		ri.Com_Printf("IMG_LoadTGA: Only 32 or 24 bit images supported (no colormaps)\n");
+		ri.VFS_FFree(buffer);
 		return;
 	}
 
@@ -325,6 +327,7 @@ void 	IMG_LoadTGAGrey(const std::string &name, byte **pic, int *width, int *heig
 	if(targa_header.image_type != 1 && targa_header.image_type != 3)
 	{
 		ri.Com_Printf("IMG_LoadTGAGrey: Only type 1 and 3 targa images supported but not %i\n", targa_header.image_type);
+		ri.VFS_FFree(buffer);
 		return;
 	}
 
