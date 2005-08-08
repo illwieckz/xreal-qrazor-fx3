@@ -2224,7 +2224,7 @@ static bool	R_ParseShader(r_shader_c *shader, const char* begin, const char *end
 
 	r_shader_grammar_t	grammar;
 	
-	boost::spirit::parse_info<r_iterator_t> info = boost::spirit::parse
+	boost::spirit::parse_info<> info = boost::spirit::parse
 	(
 		begin,
 		end,
