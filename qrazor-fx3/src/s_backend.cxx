@@ -821,9 +821,13 @@ void	S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forw
 	// paint in the channels
 	//
 	cmodel_c* cworld = CM_GetModelByNum(0);
-	int leafnum = cworld->pointLeafnum(origin);
-	int cluster = cworld->leafCluster(leafnum);
-	byte* pvs = cworld->clusterPVS(cluster);
+	byte *pvs = NULL;
+	if(cworld)
+	{
+		int leafnum = cworld->pointLeafnum(origin);
+		int cluster = cworld->leafCluster(leafnum);
+		pvs = cworld->clusterPVS(cluster);
+	}
 	
 	for(std::vector<s_source_c*>::const_iterator ir = s_sources.begin(); ir != s_sources.end(); ++ir)
 	{

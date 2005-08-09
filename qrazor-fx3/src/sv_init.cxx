@@ -244,8 +244,8 @@ void 	SV_SpawnServer(const std::string &server, char *spawnpoint, bool attractlo
 	Com_SetServerState(sv.state);
 
 	// load and spawn all other entities
-	cmodel_c* world = CM_GetModelByNum(0);
-	ge->G_SpawnEntities(sv.name, (char*)world->entityString(), spawnpoint);
+	cmodel_c* cworld = CM_GetModelByNum(0);
+	ge->G_SpawnEntities(sv.name, (char*)cworld->entityString(), spawnpoint);
 
 	// run two frames to allow everything to settle
 	ge->G_RunFrame();

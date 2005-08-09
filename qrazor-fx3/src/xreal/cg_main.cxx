@@ -218,7 +218,7 @@ static void	CG_InitClientGame()
 	cg_showclamp		= trap_Cvar_Get("showclamp", "0", 0);
 	cg_shownet		= trap_Cvar_Get("shownet", "0", 0);
 	cg_predict		= trap_Cvar_Get("cg_predict", "0,1", CVAR_NONE);
-	cg_showmiss		= trap_Cvar_Get("cg_showmiss", "0", 0);
+	cg_showmiss		= trap_Cvar_Get("cg_showmiss", "1,0", CVAR_NONE);
 	cg_viewsize		= trap_Cvar_Get("cg_viewsize", "100", CVAR_ARCHIVE);
 	cg_centertime		= trap_Cvar_Get("cg_centertime", "2.5", 0);
 	cg_showturtle		= trap_Cvar_Get("cg_showturtle", "0", 0);
