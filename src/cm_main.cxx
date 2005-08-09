@@ -137,7 +137,7 @@ cmodel_c*	CM_GetModelByNum(int num)
 {
 	if(num < 0 || num >= (int)cm_models.size())
 	{
-		Com_Error(ERR_DROP, "CM_GetModelbyNum: bad number %i", num);
+		//Com_Error(ERR_DROP, "CM_GetModelbyNum: bad number %i", num);
 		return NULL;
 	}
 	

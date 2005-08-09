@@ -200,7 +200,7 @@ void	sv_client_c::buildFrame()
 {
 	if(!_entity->_r.isclient)
 	{
-		Com_Printf("SV_BuildClientFrame: _entity->_r.isclient is false for entity %i\n", SV_GetNumForEntity(_entity));
+		Com_Printf("sv_client_c::buildFrame: _entity->_r.isclient is false for entity %i\n", SV_GetNumForEntity(_entity));
 		return;		// not in game yet
 	}
 
@@ -210,8 +210,11 @@ void	sv_client_c::buildFrame()
 	frame.senttime = svs.realtime; // save it for ping calc later
 
 	// find the client's PVS
-	cmodel_c* world = CM_GetModelByNum(0);
-	_entity->_r.area = world->pointAreanum(_entity->_r.ps.pmove.origin + _entity->_r.ps.view_offset);
+	cmodel_c* cworld = CM_GetModelByNum(0);
+	if(!cworld)
+		Com_Printf("sv_client_c::buildFrame: no world loaded\n");
+	else
+		_entity->_r.area = cworld->pointAreanum(_entity->_r.ps.pmove.origin + _entity->_r.ps.view_offset);
 	
 	//Com_Printf("SV_BuildClientFrame: client area %i\n", area);
 
