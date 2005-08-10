@@ -424,36 +424,35 @@ g_world_c::~g_world_c()
 
 void	g_world_c::activate()
 {
-	g_entity_c *ent = this;
-	
-	ent->_movetype = MOVETYPE_PUSH;
-	ent->_r.solid = SOLID_BSP;
-	ent->_r.inuse = true;			// since the world doesn't use G_Spawn()
-	ent->_s.index_model = 1;		// world model is always index 1
+	_r.solid = SOLID_BSP;
+	_r.inuse = true;			// since the world doesn't use G_Spawn()
+	_s.index_model = 1;		// world model is always index 1
+
+	_movetype = MOVETYPE_PUSH;
 
 	// set configstrings for items
-	G_SetItemNames();
+//	G_SetItemNames();
 
 	if(_nextmap.length())
 		level.nextmap = _nextmap;
 
 	// make some data visible to the server
-	if(ent->_message.length() && ent->_message[0])
+	if(_message.length())
 	{
-		//trap_Com_Printf("g_world_c::activate: message '%s'\n", ent->_message.c_str());
+		trap_Com_Printf("g_world_c::activate: message '%s'\n", _message.c_str());
 		
-		trap_SV_SetConfigString(CS_MAPMESSAGE, ent->_message);
-		level.level_name = ent->_message;
+		trap_SV_SetConfigString(CS_MAPMESSAGE, _message);
+		level.level_name = _message;
 	}
 	else
+	{
 		level.level_name = level.mapname;
+	}
 
-
-	//trap_SV_Configstring (CS_CDTRACK, va("%i", ent->sounds) );
+//	trap_SV_Configstring (CS_CDTRACK, va("%i", ent->sounds) );
 
 	trap_SV_SetConfigString(CS_MAXCLIENTS, va("%i", maxclients->getInteger()));
 
-	
 	// status bar program	//TODO use client side GUIs based on XUL scripting
 	if(deathmatch->getValue())
 		trap_SV_SetConfigString(CS_STATUSBAR, dm_statusbar);
@@ -464,14 +463,14 @@ void	g_world_c::activate()
 	if(_gravity)
 	{
 		trap_Cvar_SetValue("g_gravity", _gravity);
-		
 		vec3_c gravity(0, 0, (-9.81 * 32) * g_gravity->value);
-
 		g_ode_world->setGravity(gravity);
 	}
 	*/	
 		
-	setModel("*0");
+//	setModel("*0");
+//	unlink();
+
 //	G_SetWorldModel(this, "worldMap");
 
 //	delete g_ode_bsp; 

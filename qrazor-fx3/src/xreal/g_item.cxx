@@ -30,18 +30,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "g_local.h"
 
 
-
+/*
 g_item_c::~g_item_c()
 {
 	//DO NOTHING
 }
+*/
 
+/*
 animation_c*	g_item_c::registerAnimation(const std::string &name)
 {
 	_precaches.push_back(name);
 	return trap_CM_RegisterAnimation(name);
 }
-
+*/
 
 /*
 ================================================================================
@@ -129,6 +131,7 @@ public:
 				AMMO
 ================================================================================
 */
+/*
 class g_item_ammo_c : public g_item_c
 {
 public:
@@ -141,35 +144,39 @@ public:
 	virtual bool	pickup(g_entity_c *ent, g_player_c *other);
 	virtual void	drop(g_player_c *player);
 };
+*/
 
-
+/*
 class g_item_ammo_shells_c : public g_item_ammo_c
 {
 public:
 	g_item_ammo_shells_c();
 };
+*/
 
-
+/*
 class g_item_ammo_bullets_c : public g_item_ammo_c
 {
 public:
 	g_item_ammo_bullets_c();
 };
+*/
 
-
+/*
 class g_item_ammo_cells_c : public g_item_ammo_c
 {
 public:
 	g_item_ammo_cells_c();
 };
+*/
 
-
+/*
 class g_item_ammo_rockets_c : public g_item_ammo_c
 {
 public:
 	g_item_ammo_rockets_c();
 };
-
+*/
 
 /*
 class g_item_ammo_grenades_c : public g_item_ammo_c
@@ -179,12 +186,13 @@ public:
 };
 */
 
-
+/*
 class g_item_ammo_slugs_c : public g_item_ammo_c
 {
 public:
 	g_item_ammo_slugs_c();
 };
+*/
 
 
 /*
@@ -193,6 +201,7 @@ public:
 ================================================================================
 */
 
+/*
 class g_item_dummy_c : public g_item_c
 {
 public:
@@ -219,8 +228,9 @@ public:
 		_tag			= AMMO_SHELLS;
 	}
 };
+*/
 
-
+/*
 gitem_armor_t jacketarmor_info	= { 25,  50, .30, .00, ARMOR_JACKET};
 gitem_armor_t combatarmor_info	= { 50, 100, .60, .30, ARMOR_COMBAT};
 gitem_armor_t bodyarmor_info	= {100, 200, .80, .60, ARMOR_BODY};
@@ -228,9 +238,9 @@ gitem_armor_t bodyarmor_info	= {100, 200, .80, .60, ARMOR_BODY};
 
 #define HEALTH_IGNORE_MAX	1
 #define HEALTH_TIMED		2
+*/
 
-
-
+/*
 int	G_GetNumForItem(g_item_c *item)
 {
 	if(!item)
@@ -248,17 +258,11 @@ int	G_GetNumForItem(g_item_c *item)
 	trap_Com_Error(ERR_DROP, "G_GetNumForItem: bad pointer\n");
 	return -1;
 }
+*/
 
-
+/*
 g_item_c*	G_GetItemByNum(int num)
 {
-	/*
-	if (index == 0 || index >= game.num_items)
-		return NULL;
-
-	return &itemlist[index]
-	*/
-
 	if(num < 0 || num >= (int)g_items.size())
 	{
 		//trap_Com_Error(ERR_DROP, "G_GetItemByNum: bad number %i\n", num);
@@ -267,7 +271,9 @@ g_item_c*	G_GetItemByNum(int num)
 
 	return g_items[num];
 }
+*/
 
+/*
 g_item_c*	G_FindItem(const std::string &pickup_name)
 {
 	for(std::vector<g_item_c*>::const_iterator ir = g_items.begin(); ir != g_items.end(); ir++)
@@ -284,8 +290,9 @@ g_item_c*	G_FindItem(const std::string &pickup_name)
 	trap_Com_Error(ERR_DROP, "G_FindItem: no item '%s'\n", pickup_name.c_str());
 	return NULL;
 }
+*/
 
-
+/*
 g_item_c*	G_FindItemByClassname(const std::string &classname)
 {
 	for(std::vector<g_item_c*>::const_iterator ir = g_items.begin(); ir != g_items.end(); ir++)
@@ -302,9 +309,7 @@ g_item_c*	G_FindItemByClassname(const std::string &classname)
 	trap_Com_Error(ERR_DROP, "G_FindItemByClassname: no item '%s'\n", classname.c_str());
 	return NULL;
 }
-
-
-
+*/
 
 /*
 void	DoRespawn (g_entity_c *ent)
@@ -335,7 +340,7 @@ void	DoRespawn (g_entity_c *ent)
 }
 */
 
-
+/*
 void	SetRespawn (g_entity_c *ent, float delay)
 {
 #if 0
@@ -349,10 +354,8 @@ void	SetRespawn (g_entity_c *ent, float delay)
 	ent->remove();
 #endif
 }
+*/
 
-
-
-//======================================================================
 
 /*
 bool	Pickup_Powerup(g_entity_c *ent, g_player_c *other)
@@ -665,9 +668,7 @@ bool Pickup_Key (g_entity_c *ent, g_entity_c *other)
 }
 */
 
-//======================================================================
-
-
+/*
 bool	g_item_ammo_c::pickup(g_entity_c *ent, g_player_c *other)
 {
 	int			oldcount;
@@ -699,7 +700,9 @@ bool	g_item_ammo_c::pickup(g_entity_c *ent, g_player_c *other)
 		SetRespawn(ent, 30);
 	return true;
 }
+*/
 
+/*
 void	g_item_ammo_c::drop(g_player_c *player)
 {
 	g_entity_c	*dropped;
@@ -729,9 +732,7 @@ void	g_item_ammo_c::drop(g_player_c *player)
 	
 	player->validateSelectedItem();
 }
-
-
-//======================================================================
+*/
 
 /*
 void MegaHealth_think (g_entity_c *self)
@@ -1001,7 +1002,7 @@ void	g_item_power_armor_c::drop(g_entity_c *ent, g_item_c *item)
 				DROPABLE ITEM
 ================================================================================
 */
-
+/*
 g_item_dropable_c::g_item_dropable_c(g_player_c *player, g_item_c *item, const vec3_c &position, const quaternion_c &orientation, const vec3_c &velocity)
 {
 	trap_Com_DPrintf("'%s' is dropping item '%s'\n", player->_pers.netname, item->getClassname());
@@ -1038,7 +1039,6 @@ g_item_dropable_c::g_item_dropable_c(g_player_c *player, g_item_c *item, const v
 	_body->setLinearVel(velocity);
 //	_body->setGravityMode(1);
 	
-	/*cmodel_c *model = */
 	
 	// setup mass
 	dMass m;
@@ -1058,13 +1058,16 @@ g_item_dropable_c::g_item_dropable_c(g_player_c *player, g_item_c *item, const v
 	_geoms.push_back(geom);
 #endif
 }
+*/
 
+/*
 g_item_dropable_c::~g_item_dropable_c()
 {
 	//delete _geom;
 }
+*/
 
-
+/*
 void	g_item_dropable_c::think()
 {
 	if(deathmatch->getInteger() && (level.time >= (getSpawnTime() + 30000)))
@@ -1078,10 +1081,11 @@ void	g_item_dropable_c::think()
 		_nextthink = level.time + FRAMETIME;
 	}
 }
+*/
 
+/*
 bool	g_item_dropable_c::touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf)
 {
-#if 0
 	bool	taken;
 	
 	if (other == _r.owner)
@@ -1150,11 +1154,10 @@ bool	g_item_dropable_c::touch(g_entity_c *other, const plane_c *plane, const csu
 		else
 			_remove = true;
 	}
-#endif
 
 	return true;
 }
-
+*/
 
 
 
@@ -1165,9 +1168,9 @@ bool	g_item_dropable_c::touch(g_entity_c *other, const plane_c *plane, const csu
 				SPAWNABLE ITEM
 ================================================================================
 */
+/*
 g_item_spawnable_c::g_item_spawnable_c(g_item_c *item)
 {
-	
 	_s.effects = item->getWorldModelFlags();
 	_s.renderfx = RF_NONE;
 	
@@ -1185,20 +1188,25 @@ g_item_spawnable_c::g_item_spawnable_c(g_item_c *item)
 
 	setModel(item->getWorldModel());
 }
+*/
 
-
+/*
 void	g_item_spawnable_c::think()
 {
 	//if(deathmatch->getInteger())
 	//	_remove = true;
 }
+*/
 
+/*
 bool	g_item_spawnable_c::touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf)
 {
 	//TODO
 	return true;
 }
+*/
 
+/*
 void	g_item_spawnable_c::activate()
 {
 	setModel(_item->getWorldModel());
@@ -1209,8 +1217,6 @@ void	g_item_spawnable_c::activate()
 	_body->setQuaternion(_s.quat);
 	_body->setGravityMode(0);
 	_body->disable();
-	
-	/*cmodel_c* model = */
 	
 	// setup mass
 	//dMass m;
@@ -1228,7 +1234,7 @@ void	g_item_spawnable_c::activate()
 	_geoms.push_back(geom);
 #endif
 }
-
+*/
 
 
 /*
@@ -1329,6 +1335,7 @@ This will be called for each item spawned in a level,
 and for each item in each client's inventory.
 ===============
 */
+/*
 void	G_PrecacheItem(g_item_c *item)
 {
 	if(!item)
@@ -1413,6 +1420,7 @@ void	G_PrecacheItem(g_item_c *item)
 			trap_SV_SoundIndex(s);
 	}
 }
+*/
 
 /*
 ============
@@ -1424,11 +1432,12 @@ Items can't be immediately dropped to floor, because they might
 be on an entity that hasn't spawned yet.
 ============
 */
+/*
 void	G_SpawnItem(g_entity_c **entity, g_item_c *item)
 {
 	G_PrecacheItem(item);
 
-	/*
+#if 0
 	if (ent->_spawnflags)
 	{
 		if (strcmp(ent->_classname, "key_power_cube") != 0)
@@ -1437,10 +1446,8 @@ void	G_SpawnItem(g_entity_c **entity, g_item_c *item)
 			trap_Com_Printf("%s at %s has invalid spawnflags set\n", ent->_classname, Vector3_String(ent->_s.origin));
 		}
 	}
-	*/
 
 	// some items will be prevented in deathmatch
-	/*
 	if(deathmatch->getInteger())
 	{
 		if(dmflags->getInteger() & DF_NO_ARMOR )
@@ -1480,18 +1487,14 @@ void	G_SpawnItem(g_entity_c **entity, g_item_c *item)
 			}
 		}
 	}
-	*/
 
 	
 	// don't let them drop items that stay in a coop game
-	/*
 	if ((coop->value) && (item->flags & IT_STAY_COOP))
 	{
 		item->drop = NULL;
 	}
-	*/
-	
-#if 0
+
 	g_entity_c *ent =  new g_item_spawnable_c;	//(g_entity_c*)g_edicts[0];
 	*entity = ent;
 	
@@ -1509,7 +1512,7 @@ void	G_SpawnItem(g_entity_c **entity, g_item_c *item)
 	*entity = ent;
 #endif
 }
-
+*/
 
 
 
@@ -1674,7 +1677,7 @@ g_item_power_shield_c::g_item_power_shield_c()
 
 
 
-
+/*
 g_item_ammo_shells_c::g_item_ammo_shells_c()
 {
 	_classname 	= "ammo_shells";
@@ -1697,8 +1700,9 @@ g_item_ammo_shells_c::g_item_ammo_shells_c()
 	_info		= NULL;
 	_tag		= AMMO_SHELLS;
 }
+*/
 
-
+/*
 g_item_ammo_bullets_c::g_item_ammo_bullets_c()
 {
 	_classname 	= "ammo_bullets";
@@ -1721,8 +1725,9 @@ g_item_ammo_bullets_c::g_item_ammo_bullets_c()
 	_info		= NULL;
 	_tag		= AMMO_BULLETS;
 }
+*/
 
-
+/*
 g_item_ammo_cells_c::g_item_ammo_cells_c()
 {
 	_classname 	= "ammo_cells";
@@ -1745,7 +1750,9 @@ g_item_ammo_cells_c::g_item_ammo_cells_c()
 	_info		= NULL;
 	_tag		= AMMO_CELLS;
 }
+*/
 
+/*
 g_item_ammo_rockets_c::g_item_ammo_rockets_c()
 {
 	_classname 	= "ammo_rockets";
@@ -1768,6 +1775,7 @@ g_item_ammo_rockets_c::g_item_ammo_rockets_c()
 	_info		= NULL;
 	_tag		= AMMO_ROCKETS;
 }
+*/
 
 /*
 g_item_ammo_grenades_c::g_item_ammo_grenades_c()
@@ -1796,6 +1804,7 @@ g_item_ammo_grenades_c::g_item_ammo_grenades_c()
 }
 */
 
+/*
 g_item_ammo_slugs_c::g_item_ammo_slugs_c()
 {
 	_classname 	= "ammo_slugs";
@@ -1818,8 +1827,7 @@ g_item_ammo_slugs_c::g_item_ammo_slugs_c()
 	_info		= NULL;
 	_tag		= AMMO_SLUGS;
 }
-
-
+*/
 
 
 #if 0
@@ -2520,11 +2528,10 @@ void SP_item_health_mega (g_entity_c *self)
 }
 */
 
+/*
 void	G_InitItems()
 {
-	//
-	// ARMOR
-	//
+	// armor
 	//g_items.push_back(new g_item_armor_body_c);
 	//g_items.push_back(new g_item_armor_combat_c);
 	//g_items.push_back(new g_item_armor_jacket_c);
@@ -2533,9 +2540,7 @@ void	G_InitItems()
 	//g_items.push_back(new g_item_power_screen_c);
 	//g_items.push_back(new g_item_power_shield_c);
 	
-	//
-	// WEAPONS 
-	//
+	// weapons 
 	g_items.push_back(new g_item_weapon_blaster_c);
 	g_items.push_back(new g_item_weapon_shotgun_c);
 	//g_items.push_back(new g_item_weapon_super_shotgun_c);
@@ -2551,10 +2556,8 @@ void	G_InitItems()
 	//g_items.push_back(new g_item_weapon_sidewinder_c);
 	
 	//g_items.push_back(new g_item_weapon_nailgun_c);
-	
-	//
-	// AMMO
-	//
+
+	// ammo
 	g_items.push_back(new g_item_ammo_shells_c);
 	g_items.push_back(new g_item_ammo_bullets_c);
 	g_items.push_back(new g_item_ammo_cells_c);
@@ -2562,9 +2565,10 @@ void	G_InitItems()
 //	g_items.push_back(new g_item_ammo_grenades_c);
 	g_items.push_back(new g_item_ammo_slugs_c);
 }
+*/
 
 
-
+/*
 void	G_ShutdownItems()
 {
 	for(std::vector<g_item_c*>::const_iterator ir = g_items.begin(); ir != g_items.end(); ir++)
@@ -2576,9 +2580,9 @@ void	G_ShutdownItems()
 		
 	g_items.clear();
 }
+*/
 
-
-
+/*
 void	G_SetItemNames()
 {
 	for(unsigned int i=0; i<g_items.size(); i++)
@@ -2588,11 +2592,10 @@ void	G_SetItemNames()
 		trap_SV_SetConfigString(CS_ITEMS+i, item->getPickupName());
 	}
 
-	/*
 	jacket_armor_index = G_GetNumForItem(G_FindItem("Jacket Armor"));
 	combat_armor_index = G_GetNumForItem(G_FindItem("Combat Armor"));
 	body_armor_index   = G_GetNumForItem(G_FindItem("Body Armor"));
 	power_screen_index = G_GetNumForItem(G_FindItem("Power Screen"));
 	power_shield_index = G_GetNumForItem(G_FindItem("Power Shield"));
-	*/
 }
+*/

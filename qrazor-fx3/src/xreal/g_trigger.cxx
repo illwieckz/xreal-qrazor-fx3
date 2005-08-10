@@ -849,7 +849,7 @@ bool	g_trigger_teleport_c::touch(g_entity_c *other, const plane_c *plane, const 
 	*/
 
 	// set angles
-	player->_r.ps.pmove.delta_angles = dest->_angles - player->_resp.cmd_angles;
+//	player->_r.ps.pmove.delta_angles = dest->_angles - player->_resp.cmd_angles;
 
 	player->setViewAngles(vec3_origin);
 

@@ -55,10 +55,7 @@ enum movetype_t
 };
 
 
-//
-// forward declarations
-//
-class g_item_c;
+//class g_item_c;
 
 typedef std::map<std::string, std::string, strcasecmp_c>	epairs_t;
 typedef epairs_t::iterator					epairs_i;
@@ -252,7 +249,7 @@ public:
 	int		_watertype;
 	int		_waterlevel;
 
-	g_item_c*	_item;				// for bonus items
+//	g_item_c*	_item;				// for bonus items
 
 	// experimental Open Dynamics Engine stuff
 #if defined(ODE)

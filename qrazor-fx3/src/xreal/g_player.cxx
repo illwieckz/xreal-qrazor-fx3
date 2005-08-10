@@ -183,12 +183,12 @@ void	g_player_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, ve
 
 		// clear inventory
 		// this is kind of ugly, but it's how we want to handle keys in coop
-		for(unsigned int i=0; i<g_items.size(); i++)
+		for(int i=0; i<MAX_ITEMS; i++)
 		{
-			g_item_c *item = g_items[i];
+			//g_item_c *item = g_items[i];
 			
-			if(coop->getInteger() && item->getFlags() & IT_KEY)
-				_resp.coop_respawn.inventory[i] = _pers.inventory[i];
+			//if(coop->getInteger() && item->getFlags() & IT_KEY)
+			//	_resp.coop_respawn.inventory[i] = _pers.inventory[i];
 				
 			_pers.inventory[i] = 0;
 		}
@@ -1414,13 +1414,8 @@ void	G_SaveClientData()
 		
 		if(!player->_r.inuse)
 			continue;
-			
-		player->_pers.health = player->_health;
-		player->_pers.max_health = player->_max_health;
-		player->_pers.saved_flags = (player->_flags & (FL_ULTRAMANMODE|FL_NOTARGET|FL_POWER_ARMOR));
 		
-		if(coop->getInteger())
-			player->_pers.score = player->_resp.score;
+		player->saveClientData();
 	}
 }
 
@@ -1662,6 +1657,12 @@ void	g_player_c::selectSpawnPoint(vec3_c &origin, vec3_c &angles)
 
 void	g_player_c::clearAllButPersistant()
 {
+	_resp.clear();
+
+	_buttons		= 0;
+	_buttons_old		= 0;
+	_buttons_latched	= 0;
+
 	_v_angles.clear();		// aiming direction
 	_v_forward.clear();
 	_v_right.clear();
@@ -1710,12 +1711,10 @@ void	g_player_c::clearAllButPersistant()
 	_time_jumppad		= 0;
 	_time_air_finished	= 0;
 	_time_fall		= 0;
-	
-	_resp.clear();
 
-	_buttons		= 0;
-	_buttons_old		= 0;
-	_buttons_latched	= 0;	
+	_flood_locktill		= 0;
+	memset(_flood_when, 0, sizeof(_flood_when));
+	_flood_whenhead		= 0;	
 
 	_damage_armor		= 0;
 	_damage_parmor		= 0;
@@ -1757,10 +1756,6 @@ void	g_player_c::clearAllButPersistant()
 	_grenade_blew_up	= 0;
 	_grenade_time		= 0;
 	_weapon_sound		= 0;
-
-	_flood_locktill		= 0;
-	memset(_flood_when, 0, sizeof(_flood_when));
-	_flood_whenhead		= 0;
 }
 
 /*
@@ -1775,12 +1770,12 @@ void	g_player_c::initClientPersistant()
 {
 	_pers.clear();
 
-	g_item_c *item = G_FindItem("blaster");
+//	g_item_c *item = G_FindItem("blaster");
 
-	_pers.selected_item = G_GetNumForItem(item);
-	_pers.inventory[_pers.selected_item] = 1;
+//	_pers.selected_item = G_GetNumForItem(item);
+//	_pers.inventory[_pers.selected_item] = 1;
 
-	_pers.weapon = (g_item_weapon_c*)item;
+//	_pers.weapon = (g_item_weapon_c*)item;
 
 	_pers.health		= 100;
 	_pers.max_health	= 100;
@@ -1912,8 +1907,8 @@ void	g_player_c::putClientInServer()
 			_r.ps.fov = 160;
 	}
 
-	_r.ps.gun_model_index = trap_SV_ModelIndex(_pers.weapon->getViewModel());
-	_r.ps.gun_anim_index = trap_SV_AnimationIndex(_pers.weapon->getActivateAnimationName());
+//	_r.ps.gun_model_index = trap_SV_ModelIndex(_pers.weapon->getViewModel());
+//	_r.ps.gun_anim_index = trap_SV_AnimationIndex(_pers.weapon->getActivateAnimationName());
 
 	// clear entity state values
 //	_s.clear();
@@ -2281,7 +2276,7 @@ void	g_player_c::endServerFrame()
 	// if the scoreboard is up, update it
 	if(_showscores && !(level.framenum & 31))
 	{
-		DeathmatchScoreboardMessage();
+		deathmatchScoreBoardMessage();
 		trap_SV_Unicast(this, false);
 	}
 	
@@ -2293,6 +2288,21 @@ void	g_player_c::endServerFrame()
 	
 }
 
+void	g_player_c::resetHealth()
+{
+	if(_health > _pers.max_health)
+			_health = _pers.max_health;
+}
+
+void	g_player_c::saveClientData()
+{
+	_pers.health = _health;
+	_pers.max_health = _max_health;
+	_pers.saved_flags = (_flags & (FL_ULTRAMANMODE|FL_NOTARGET|FL_POWER_ARMOR));
+		
+	if(coop->getInteger())
+		_pers.score = _resp.score;
+}
 
 void	g_player_c::updateStats()
 {
@@ -2410,8 +2420,8 @@ void	g_player_c::updateStats()
 	//
 	if (_pers.selected_item == -1)
 		_r.ps.stats[STAT_SELECTED_ICON] = 0;
-	else
-		_r.ps.stats[STAT_SELECTED_ICON] = trap_SV_ShaderIndex (g_items[_pers.selected_item]->getIcon());
+	//else
+	//	_r.ps.stats[STAT_SELECTED_ICON] = trap_SV_ShaderIndex(g_items[_pers.selected_item]->getIcon());
 
 	_r.ps.stats[STAT_SELECTED_ITEM] = _pers.selected_item;
 
@@ -2449,9 +2459,9 @@ void	g_player_c::updateStats()
 	//
 	// help icon / current weapon if not shown
 	//
-	if((_pers.hand == CENTER_HANDED || _r.ps.fov > 91) && _pers.weapon)
-		_r.ps.stats[STAT_HELPICON] = trap_SV_ShaderIndex (_pers.weapon->getIcon());
-	else
+	//if((_pers.hand == CENTER_HANDED || _r.ps.fov > 91) && _pers.weapon)
+	//	_r.ps.stats[STAT_HELPICON] = trap_SV_ShaderIndex(_pers.weapon->getIcon());
+	//else
 		_r.ps.stats[STAT_HELPICON] = 0;
 
 	_r.ps.stats[STAT_SPECTATOR] = 0;
@@ -3041,6 +3051,7 @@ void	g_player_c::updateClientEvent()
 
 void	g_player_c::updateClientSound()
 {
+	/*
 	const char	*weap;
 	
 	if(_pers.weapon)
@@ -3061,6 +3072,7 @@ void	g_player_c::updateClientSound()
 		_s.index_sound = _weapon_sound;
 	else
 		_s.index_sound = 0;
+	*/
 }
 
 void	g_player_c::updateClientFrame()
@@ -3603,9 +3615,9 @@ animation_c*	g_player_c::scanAnimation(const std::string &name)
 
 void 	g_player_c::selectNextItem(int item_flags)
 {
+	/*
 	int		i, index;
 	g_item_c*	item;
-
 
 	// scan  for the next valid one
 	for(i=1; i<=MAX_ITEMS; i++)
@@ -3626,6 +3638,7 @@ void 	g_player_c::selectNextItem(int item_flags)
 		_pers.selected_item = index;
 		return;
 	}
+	*/
 
 	_pers.selected_item = -1;
 }
@@ -3633,9 +3646,9 @@ void 	g_player_c::selectNextItem(int item_flags)
 
 void 	g_player_c::selectPrevItem(int item_flags)
 {
+	/*
 	int		i, index;
 	g_item_c*	item;
-
 	
 	// scan  for the next valid one
 	for(i=1; i<=MAX_ITEMS; i++)
@@ -3656,6 +3669,7 @@ void 	g_player_c::selectPrevItem(int item_flags)
 		_pers.selected_item = index;
 		return;
 	}
+	*/
 
 	_pers.selected_item = -1;
 }
@@ -3670,6 +3684,7 @@ void	g_player_c::validateSelectedItem()
 	selectNextItem(-1);
 }
 
+/*
 g_entity_c*	g_player_c::dropItem(g_item_c *item)
 {
 	vec3_c	forward, right, up;
@@ -3694,9 +3709,7 @@ g_entity_c*	g_player_c::dropItem(g_item_c *item)
 
 	return dropped;
 }
-
-
-
+*/
 
 
 /*
@@ -3708,12 +3721,9 @@ Give items to a client
 */
 void 	g_player_c::give_f()
 {
-	const char		*name;
-	g_item_c	*it;
-	int			index;
-	
-	bool	give_all;
-	//g_entity_c		*it_ent;
+	const char*	name;
+	bool		give_all;
+//	g_entity_c*	item;
 
 	if(deathmatch->getValue() && !sv_cheats->getValue())
 	{
@@ -3739,6 +3749,7 @@ void 	g_player_c::give_f()
 			return;
 	}
 
+#if 0
 	if(give_all || X_stricmp(name, "weapons") == 0)
 	{
 		for(unsigned int i=0; i<g_items.size(); i++)
@@ -3757,7 +3768,9 @@ void 	g_player_c::give_f()
 		if(!give_all)
 			return;
 	}
+#endif
 
+#if 0
 	if(give_all || X_stricmp(name, "ammo") == 0)
 	{
 		for(unsigned int i=0; i<g_items.size(); i++)
@@ -3776,7 +3789,9 @@ void 	g_player_c::give_f()
 		if(!give_all)
 			return;
 	}
-	
+#endif
+
+#if 0
 	if(give_all || X_stricmp(name, "dummy") == 0)
 	{
 		for(unsigned int i=0; i<g_items.size(); i++)
@@ -3795,9 +3810,10 @@ void 	g_player_c::give_f()
 		if(!give_all)
 			return;
 	}
+#endif
 
 #if 0
-	if (give_all || X_stricmp(name, "armor") == 0)
+	if(give_all || X_stricmp(name, "armor") == 0)
 	{
 		gitem_armor_t	*info;
 
@@ -3835,6 +3851,7 @@ void 	g_player_c::give_f()
 	}
 #endif
 
+#if 0
 	if(give_all)
 	{
 		for(unsigned int i=0; i<g_items.size(); i++)
@@ -3892,6 +3909,7 @@ void 	g_player_c::give_f()
 			delete it_ent;
 		*/
 	}
+#endif
 }
 
 
@@ -4000,6 +4018,7 @@ Use an inventory item
 */
 void 	g_player_c::use_f()
 {
+	/*
 	int			index;
 	g_item_c		*item;
 	const char		*s;
@@ -4028,6 +4047,7 @@ void 	g_player_c::use_f()
 	}
 
 	item->use(this);
+	*/
 }
 
 
@@ -4040,6 +4060,7 @@ Drop an inventory item
 */
 void	g_player_c::drop_f()
 {
+	/*
 	int			index;
 	g_item_c		*item;
 	const char		*s;
@@ -4068,6 +4089,7 @@ void	g_player_c::drop_f()
 	}
 
 	item->drop(this);
+	*/
 }
 
 
@@ -4078,6 +4100,7 @@ Cmd_Inven_f
 */
 void 	g_player_c::inven_f()
 {
+	/*
 	_showscores = false;
 	_showhelp = false;
 
@@ -4095,6 +4118,7 @@ void 	g_player_c::inven_f()
 		trap_SV_WriteShort(_pers.inventory[i]);
 	}
 	trap_SV_Unicast(this, true);
+	*/
 }
 
 /*
@@ -4104,6 +4128,7 @@ Cmd_InvUse_f
 */
 void 	g_player_c::invUse_f()
 {
+	/*
 	g_item_c	*item;
 
 	validateSelectedItem();
@@ -4123,6 +4148,7 @@ void 	g_player_c::invUse_f()
 	}
 	
 	item->use(this);
+	*/
 }
 
 /*
@@ -4132,6 +4158,7 @@ Cmd_InvDrop_f
 */
 void 	g_player_c::invDrop_f()
 {
+	/*
 	g_item_c		*item;
 
 	validateSelectedItem();
@@ -4151,6 +4178,7 @@ void 	g_player_c::invDrop_f()
 	}
 	
 	item->drop(this);
+	*/
 }
 
 
@@ -4161,6 +4189,7 @@ Cmd_WeapPrev_f
 */
 void	g_player_c::weapPrev_f()
 {
+	/*
 	int			i, index;
 	g_item_c		*item;
 	int			selected_weapon;
@@ -4192,6 +4221,7 @@ void	g_player_c::weapPrev_f()
 		if(_pers.weapon == item)
 			return;	// successful
 	}
+	*/
 }
 
 /*
@@ -4201,6 +4231,7 @@ Cmd_WeapNext_f
 */
 void 	g_player_c::weapNext_f()
 {
+	/*
 	if(!_pers.weapon)
 		return;
 
@@ -4227,6 +4258,7 @@ void 	g_player_c::weapNext_f()
 		if(_pers.weapon == item)
 			return;	// successful
 	}
+	*/
 }
 
 /*
@@ -4236,6 +4268,7 @@ Cmd_WeapLast_f
 */
 void	g_player_c::weapLast_f()
 {
+	/*
 	int			index;
 	g_item_c		*item;
 
@@ -4257,10 +4290,12 @@ void	g_player_c::weapLast_f()
 		return;
 		
 	item->use(this);
+	*/
 }
 
 void	g_player_c::weapReload_f()
 {
+	/*
 	if(!_pers.weapon)
 		return;
 		
@@ -4277,6 +4312,7 @@ void	g_player_c::weapReload_f()
 	_r.ps.gun_anim_index = trap_SV_AnimationIndex(_pers.weapon->getReloadAnimationName());
 	
 	_pers.weapon->reload(this);
+	*/
 }
 
 
@@ -4585,7 +4621,7 @@ void	g_player_c::score_f()
 	}
 
 	_showscores = true;
-	DeathmatchScoreboard(this);
+	deathmatchScoreBoard();
 }
 
 void	g_player_c::animNext_f()
@@ -4619,6 +4655,92 @@ void	g_player_c::spawnRocket_f()
 }
 
 
+void	g_player_c::deathmatchScoreBoardMessage()
+{
+	char		entry[1024];
+	char		string[1400];
+	int		stringlength;
+	int		i, j, k;
+	int		sorted[MAX_CLIENTS];
+	int		sortedscores[MAX_CLIENTS];
+	int		score, total;
+
+	int		x, y;
+	g_player_c	*player;
+
+
+	// sort the clients by score
+	total = 0;
+	for(i=0; i<game.maxclients; i++)
+	{
+		player = (g_player_c*)g_entities[1+i];
+		
+		if(!player->_r.inuse || player->_resp.spectator)
+			continue;
+			
+		score = player->_resp.score;
+		
+		for(j=0; j<total; j++)
+		{
+			if(score > sortedscores[j])
+				break;
+		}
+		for(k=total; k>j ; k--)
+		{
+			sorted[k] = sorted[k-1];
+			sortedscores[k] = sortedscores[k-1];
+		}
+		sorted[j] = i;
+		sortedscores[j] = score;
+		total++;
+	}
+
+
+	// print level name and exit rules
+	string[0] = 0;
+	stringlength = strlen(string);
+
+	// add the clients in sorted order
+	if(total > 12)
+		total = 12;
+
+	for(i=0; i<total; i++)
+	{
+		player = (g_player_c*)g_entities[1 + sorted[i]];
+
+		x = (i>=6) ? 160 : 0;
+		y = 32 + 32 * (i%6);
+
+		// send the layout						
+		Com_sprintf(entry, sizeof(entry), "client %i %i %i %i %i %i ", x, y, sorted[i], player->_resp.score, player->_r.ping, (level.framenum - player->_resp.enterframe)/600);
+		j = strlen(entry);
+	
+		if(stringlength + j > 1024)
+			break;
+			
+		strcpy(string + stringlength, entry);
+		stringlength += j;
+	}
+
+	trap_SV_WriteBits(SVC_LAYOUT, svc_bitcount);
+	trap_SV_WriteString(string);
+}
+
+
+/*
+==================
+DeathmatchScoreboard
+
+Draw instead of help message.
+Note that it isn't that hard to overflow the 1400 byte message limit!
+==================
+*/
+void	g_player_c::deathmatchScoreBoard()
+{
+	deathmatchScoreBoardMessage();
+	trap_SV_Unicast(this, true);
+}
+
 /*
 =================
 Think_Weapon
@@ -4628,7 +4750,8 @@ Called by ClientBeginServerFrame and ClientThink
 */
 void	g_player_c::thinkWeapon()
 {
-//	trap_Com_DPrintf("g_player_c::thinkWeapon() from '%s'\n", _pers.netname);
+	/*
+	trap_Com_DPrintf("g_player_c::thinkWeapon() from '%s'\n", _pers.netname);
 
 	// if just died, put the weapon away
 	if(_health < 1)
@@ -4649,6 +4772,7 @@ void	g_player_c::thinkWeapon()
 			
 		_pers.weapon->weaponThink(this);
 	}
+	*/
 }
 
 /*
@@ -4671,6 +4795,7 @@ void	g_player_c::changeWeapon()
 	}
 	*/
 
+	/*
 	_pers.lastweapon = _pers.weapon;
 	_pers.weapon = _newweapon;
 	_newweapon = NULL;
@@ -4699,10 +4824,12 @@ void	g_player_c::changeWeapon()
 	_anim_priority = ANIM_PAIN;
 	_anim_current = PLAYER_ANIM_FISTS_IDLE;
 	_anim_time = PLAYER_ANIM_UPPER_FLIPIN_TIME;
+	*/
 }
 
 void	g_player_c::tossWeapon()
 {
+	/*
 	g_item_c	*item;
 	g_entity_c	*drop;
 	bool	quad;
@@ -4736,6 +4863,7 @@ void	g_player_c::tossWeapon()
 		_v_angles[YAW] += spread;
 		drop->_spawnflags = DROPPED_PLAYER_ITEM;
 	}
+	*/
 
 	/*
 	if (quad)
@@ -4761,6 +4889,7 @@ void	g_player_c::incWeaponFrame(float time)
 	}
 }
 
+/*
 bool	g_player_c::addAmmo(g_item_c *item, int count)
 {
 	int			index;
@@ -4799,7 +4928,7 @@ bool	g_player_c::addAmmo(g_item_c *item, int count)
 
 	return true;
 }
-
+*/
 
 void	g_player_c::noAmmoWeaponChange()
 {
@@ -4841,7 +4970,7 @@ void	g_player_c::noAmmoWeaponChange()
 	}
 	*/
 	
-	_newweapon = (g_item_weapon_c*)G_FindItem("blaster");
+//	_newweapon = (g_item_weapon_c*)G_FindItem("blaster");
 }
 
 
@@ -4917,11 +5046,15 @@ void	g_player_c::moveToIntermission()
 	// add the layout
 	if(deathmatch->getInteger() || coop->getInteger())
 	{
-		DeathmatchScoreboardMessage();
+		deathmatchScoreBoardMessage();
 		trap_SV_Unicast(this, true);
 	}
 }
 
+bool	g_player_c::hitFragLimit() const
+{
+	return _resp.score >= fraglimit->getInteger();
+}
 
 
 

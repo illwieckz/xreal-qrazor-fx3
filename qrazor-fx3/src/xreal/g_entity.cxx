@@ -132,7 +132,7 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 	_watertype		= 0;
 	_waterlevel		= 0;
 		
-	_item			= NULL;			// for bonus items
+//	_item			= NULL;			// for bonus items
 
 #if defined(ODE)		
 	_body			= NULL;
@@ -227,7 +227,7 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 	addField(g_field_c("chain", &_chain, F_EDICT, FFL_NOSPAWN));
 	
 	//need for item field in edict struct, FFL_SPAWNTEMP item will be skipped on saves
-	addField(g_field_c("item", &_item, F_ITEM, FFL_SPAWNTEMP));	
+//	addField(g_field_c("item", &_item, F_ITEM, FFL_SPAWNTEMP));	
 	
 	
 	//

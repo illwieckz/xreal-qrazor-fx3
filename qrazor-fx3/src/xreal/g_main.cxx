@@ -46,7 +46,7 @@ int meansOfDeath;
 g_entity_c*			g_world = NULL;
 cmodel_c*			g_world_cmodel = NULL;
 std::vector<sv_entity_c*>	g_entities;
-std::vector<g_item_c*>		g_items;
+//std::vector<g_item_c*>	g_items;
 
 #if defined(ODE)
 d_world_c*			g_ode_world = NULL;
@@ -224,17 +224,12 @@ static void	G_InitGame()
 	// dm map list
 	sv_maplist = trap_Cvar_Get ("sv_maplist", "", 0);
 
-	
 	// initialize all client entities for this game
 	game.maxclients = maxclients->getInteger();
-
-	
-	G_InitItems();
 	
 #if defined(ODE)
 	G_InitDynamics();	// ODE
 #endif
-	
 	BG_InitPhysics();	// Tr3B - new custom physics engine
 	
 	g_world = new g_world_c();
@@ -257,13 +252,9 @@ static void 	G_ShutdownGame()
 //	G_ShutdownPythonVM();
 
 	G_ShutdownEntities();
-	
-	G_ShutdownItems();
-
 #if defined(ODE)
 	G_ShutdownDynamics();
 #endif
-	
 	BG_ShutdownPhysics();
 }
 
@@ -508,7 +499,7 @@ static void	G_CheckDMRules()
 			if(!player->_r.inuse)
 				continue;
 
-			if(player->_resp.score >= fraglimit->getInteger())
+			if(player->hitFragLimit())
 			{
 				trap_SV_BPrintf(PRINT_HIGH, "Fraglimit hit.\n");
 				G_EndDMLevel();
@@ -539,8 +530,7 @@ static void 	G_ExitLevel()
 		if(!player->_r.inuse)
 			continue;
 			
-		if(player->_health > player->_pers.max_health)
-			player->_health = player->_pers.max_health;
+		player->resetHealth();
 	}
 
 }
