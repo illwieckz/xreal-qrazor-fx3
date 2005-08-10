@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "g_entity.h"
 
 
-
+/*
 struct gitem_armor_t
 {
 	int		base_count;
@@ -42,7 +42,7 @@ struct gitem_armor_t
 	float		energy_protection;
 	int		armor;
 };
-
+*/
 
 // g_item_c->flags
 enum item_flags_e
@@ -77,33 +77,18 @@ enum
 	WEAP_NAILGUN
 };
 
-//
-// forward declarations
-//
 class g_player_c;
 
-
-
+/*
 class g_item_c
 {
 public:
-	//
-	// constructor / destructor
-	//
 	virtual ~g_item_c();
 	
-	
-	//
-	// virtual functions
-	//
 	virtual bool	pickup(g_entity_c *ent, g_entity_c *player_c)	{return false;}
 	virtual void	use(g_player_c *player)				{}
 	virtual void	drop(g_player_c *player)			{}
 	
-		
-	//
-	// access
-	//
 	const char*	getClassname()			{return _classname.c_str();}
 	
 	bool		hasPickup()			{return _has_pickup;}
@@ -169,10 +154,11 @@ protected:
 
 	std::vector<std::string>	_precaches;		// string of all models, sounds, and images this item will use
 };
+*/
 
-
-
-class g_item_weapon_c : public g_item_c
+/*
+class g_item_weapon_c :
+public g_item_c
 {
 public:
 	g_item_weapon_c();
@@ -240,8 +226,9 @@ protected:
 	
 	animation_c*		_anim_deactivate;
 };
+*/
 
-
+/*
 class g_item_weapon_blaster_c : public g_item_weapon_c
 {
 public:
@@ -250,7 +237,9 @@ public:
 	virtual void	attack1(g_player_c *ent);
 	virtual void	reload(g_player_c *ent);
 };
+*/
 
+/*
 class g_item_weapon_shotgun_c : public g_item_weapon_c
 {
 public:
@@ -258,6 +247,7 @@ public:
 	
 	virtual void	attack1(g_player_c *ent);
 };
+*/
 
 /*
 class g_item_weapon_super_shotgun_c : public g_item_weapon_c
@@ -381,7 +371,7 @@ public:
 */
 
 
-
+/*
 class g_item_dropable_c : public g_entity_c
 {
 public:
@@ -391,8 +381,9 @@ public:
 	virtual void	think();
 	virtual bool	touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf);
 };
+*/
 
-
+/*
 class g_item_spawnable_c : public g_entity_c
 {
 public:
@@ -402,6 +393,6 @@ public:
 	virtual bool	touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf);
 	virtual void	activate();
 };
-
+*/
 
 #endif // G_ITEM_H

@@ -84,12 +84,8 @@ enum weapon_state_t
 };
 
 
-
-//
-// forward declarations
-//
-class g_item_c;
-class g_item_weapon_c;
+//class g_item_c;
+//class g_item_weapon_c;
 
 
 // client data that stays across multiple level loads
@@ -148,8 +144,8 @@ struct client_persistant_t
 	int			max_cells;
 	int			max_slugs;
 
-	g_item_weapon_c*	weapon;
-	g_item_weapon_c*	lastweapon;
+	g_entity_c*		weapon;
+	g_entity_c*		lastweapon;
 
 	int			score;				// for calculating total unit score in coop game
 
@@ -184,19 +180,13 @@ struct client_respawn_t
 
 
 
-class g_player_c : public g_entity_c
+class g_player_c :
+public g_entity_c
 {
 public:
-	//
-	// constructor / destructor
-	//
 	g_player_c();
 	virtual ~g_player_c();
 	
-		
-	//
-	// virtual functions
-	//
 //	virtual void		pain(g_entity_c *other, float kick, int damage);
 	virtual void		die(g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point);
 	
@@ -204,148 +194,145 @@ public:
 	virtual void		takeDamage(	g_entity_c *inflictor, 	g_entity_c *attacker,
 						vec3_t dir, vec3_t point, vec3_t normal,
 						int damage, int knockback, int dflags, int mod	);
-						
-	
-	
-	//
-	// functions
-	//
-	
+
 	// game exporting functions
 public:
-	bool		clientConnect(info_c &userinfo);
-	void		clientBegin();
+	bool			clientConnect(info_c &userinfo);
+	void			clientBegin();
 private:
-	void		clientBeginDeathmatch();
+	void			clientBeginDeathmatch();
 public:
-	void		clientUserinfoChanged(info_c &userinfo);
-	void		clientDisconnect();
-	void		clientCommand();
-	void		clientThink(const usercmd_t &cmd);
-	
+	void			clientUserinfoChanged(info_c &userinfo);
+	void			clientDisconnect();
+	void			clientCommand();
+	void			clientThink(const usercmd_t &cmd);
 	
 private:
 	// misc
-	void		lookAtKiller(g_entity_c *inflictor, g_entity_c *attacker);
-	bool		isFemale();
-	bool		isNeutral();
-	void		clientObituary(g_entity_c *inflictor, g_entity_c *attacker);
+	void			lookAtKiller(g_entity_c *inflictor, g_entity_c *attacker);
+	bool			isFemale();
+	bool			isNeutral();
+	void			clientObituary(g_entity_c *inflictor, g_entity_c *attacker);
 	
 public:
-	void		moveToIntermission();
+	void			moveToIntermission();
+	bool			hitFragLimit() const;
 	
 private:	
 	// spawnpoint selection
-	float		rangeFromSpot(g_entity_c *spot);
-	g_entity_c*	selectRandomDeathmatchSpawnPoint();
-	g_entity_c*	selectFarthestDeathmatchSpawnPoint();
-	g_entity_c*	selectDeathmatchSpawnPoint();
-	g_entity_c*	selectCoopSpawnPoint();
-	void		selectSpawnPoint(vec3_c &origin, vec3_c &angles);
+	float			rangeFromSpot(g_entity_c *spot);
+	g_entity_c*		selectRandomDeathmatchSpawnPoint();
+	g_entity_c*		selectFarthestDeathmatchSpawnPoint();
+	g_entity_c*		selectDeathmatchSpawnPoint();
+	g_entity_c*		selectCoopSpawnPoint();
+	void			selectSpawnPoint(vec3_c &origin, vec3_c &angles);
 	
 	// client setup
-	void		clearAllButPersistant();
-	void 		initClientPersistant();
-	void		initClientResp();
-	void		fetchClientEntData();
-	void		putClientInServer();
+	void			clearAllButPersistant();
+	void 			initClientPersistant();
+	void			initClientResp();
+	void			fetchClientEntData();
+	void			putClientInServer();
 
 public:
-	void		respawn();
-	void		respawnAsSpectator();
+	void			respawn();
+	void			respawnAsSpectator();
 	
-public:
-	void		beginServerFrame();
-	void		endServerFrame();
+	void			beginServerFrame();
+	void			endServerFrame();
+
+	void			resetHealth();
+	void			saveClientData();
 
 private:
-	// endServerFrame specific functions	
-	void		updateStats();
-	void		updateSpectatorStats();
-	void		checkChaseStats();
-	void		updateWorldEffects();
-	void		updateFallingDamage();
-	void		updateDamageFeedback();
-	void		updateClientEffects();
-	void		updateClientEvent();
-	void		updateClientSound();
-	void		updateClientFrame();
-	float		calcRoll(const vec3_c &angles, const vec3_c &velocity);
-	void		calcViewOffset();
-	void		calcGunOffset();
-	void		calcBlend();
-	void		addBlend(float r, float g, float b, float a, vec4_c &v_blend);
+	// endServerFrame specific functions
+	void			updateStats();
+	void			updateSpectatorStats();
+	void			checkChaseStats();
+	void			updateWorldEffects();
+	void			updateFallingDamage();
+	void			updateDamageFeedback();
+	void			updateClientEffects();
+	void			updateClientEvent();
+	void			updateClientSound();
+	void			updateClientFrame();
+	float			calcRoll(const vec3_c &angles, const vec3_c &velocity);
+	void			calcViewOffset();
+	void			calcGunOffset();
+	void			calcBlend();
+	void			addBlend(float r, float g, float b, float a, vec4_c &v_blend);
 	
 	// animation handling
-	bool		isDucking();
-	bool		isRunning();
-	bool		isSwimming();
-	bool		isStepping();
+	bool			isDucking();
+	bool			isRunning();
+	bool			isSwimming();
+	bool			isStepping();
 	
-	bool		scanAnimations(const std::string &model);
-	animation_c*	scanAnimation(const std::string &name);
+	bool			scanAnimations(const std::string &model);
+	animation_c*		scanAnimation(const std::string &name);
 
 public:
 	// item handling
-	void		selectNextItem(int item_flags);
-	void		selectPrevItem(int item_flags);
-	void		validateSelectedItem();
-	g_entity_c*	dropItem(g_item_c *item);	
+	void			selectNextItem(int item_flags);
+	void			selectPrevItem(int item_flags);
+	void			validateSelectedItem();
+//	g_entity_c*		dropItem(g_item_c *item);
 
 private:
 	// client commands
-	void		give_f();
-	void		ultraman_f();
-	void		notarget_f();
-	void		noclip_f();
+	void			give_f();
+	void			ultraman_f();
+	void			notarget_f();
+	void			noclip_f();
 	
-	void		use_f();
-	void		drop_f();
+	void			use_f();
+	void			drop_f();
 	
-	void		inven_f();
-	void		invUse_f();
-	void		invDrop_f();
+	void			inven_f();
+	void			invUse_f();
+	void			invDrop_f();
 	
-	void		weapPrev_f();
-	void		weapNext_f();
-	void		weapLast_f();
-	void		weapReload_f();
+	void			weapPrev_f();
+	void			weapNext_f();
+	void			weapLast_f();
+	void			weapReload_f();
 	
-	void		kill_f();
-	void		putAway_f();
-	void		wave_f();
-	void		say_f(bool team, bool arg0);
-	void		playerList_f();
-	void		players_f();
-	void		score_f();
+	void			kill_f();
+	void			putAway_f();
+	void			wave_f();
+	void			say_f(bool team, bool arg0);
+	void			playerList_f();
+	void			players_f();
+	void			score_f();
 
 	// animation switching helpers for development
-	void		animNext_f();
-	void		animPrev_f();
-	void		animReset_f();
+	void			animNext_f();
+	void			animPrev_f();
+	void			animReset_f();
 
 	// projectile testing
-	void		spawnRocket_f();
+	void			spawnRocket_f();
+
+	// scoreboard transmission
+	void			deathmatchScoreBoardMessage();
+	void			deathmatchScoreBoard();
 
 public:
 	// weapon handling
-	void		thinkWeapon();
-	void		changeWeapon();
-	void		tossWeapon();
-	void		incWeaponFrame(float time = (1.0/24.0));
+	void			thinkWeapon();
+	void			changeWeapon();
+	void			tossWeapon();
+	void			incWeaponFrame(float time = (1.0/24.0));
 		
-	bool		addAmmo(g_item_c *item, int count);
-	void		noAmmoWeaponChange();
+//	bool			addAmmo(g_item_c *item, int count);
+	void			noAmmoWeaponChange();
 	
-	void		projectSource(const vec3_c &offset, vec3_c &result);
-	//void		projectSource(const vec3_c &point, const vec3_c &offset, const vec3_c &forward, const vec3_c &right, vec3_c &result);
+	void			projectSource(const vec3_c &offset, vec3_c &result);
+	//void			projectSource(const vec3_c &point, const vec3_c &offset, const vec3_c &forward, const vec3_c &right, vec3_c &result);
 	
 	
 	void			setViewAngles(const vec3_c &angles);
 	
-	//
-	// access
-	//
 	const vec3_c&		getViewAngles() const		{return _v_angles;}
 	const vec3_c&		getViewForward() const		{return _v_forward;}
 	const vec3_c&		getViewRight() const		{return _v_right;}
@@ -355,10 +342,17 @@ public:
 	
 	const int		getAmmoIndex() const		{return _ammo_index;}
 	
-	//
-	// members
-	//
 private:
+	client_persistant_t	_pers;
+	client_respawn_t	_resp;
+
+	// cmd input
+	std::deque<usercmd_t>	_cmds;
+	int			_buttons;
+	int			_buttons_old;
+	int			_buttons_latched;
+
+	// view related variables
 	vec3_c			_v_angles;		// aiming direction
 	vec3_c			_v_forward;
 	vec3_c			_v_right;
@@ -374,7 +368,7 @@ private:
 	int			_bob_cycle;		// odd cycles are right foot going forward
 	float			_bob_fracsin;		// sin(bobfrac*M_PI)
 	
-	pmove_state_t		_old_pmove;	// for detecting out-of-pmove changes
+	pmove_state_t		_old_pmove;		// for detecting out-of-pmove changes
 	
 	bool			_showscores;		// set layout stat
 	bool			_showinventory;		// set layout stat
@@ -404,7 +398,6 @@ private:
 	
 	int			_anim_lastsent;
 
-
 	// timers
 	int			_time_pickup_msg;
 	int			_time_respawn;		// can respawn when time > this
@@ -412,16 +405,11 @@ private:
 	int			_time_next_drown;
 	int			_time_air_finished;
 	int			_time_fall;
-	
-public:
-	client_persistant_t	_pers;
-	client_respawn_t	_resp;
 
-	// cmd input
-	std::deque<usercmd_t>	_cmds;
-	int			_buttons;
-	int			_buttons_old;
-	int			_buttons_latched;	
+	// flood protection
+	float			_flood_locktill;	// locked from talking
+	float			_flood_when[10];	// when messages were said
+	int			_flood_whenhead;	// head pointer for when said
 
 	// sum up damage over an entire frame, so
 	// shotgun blasts give a single big kick
@@ -433,7 +421,7 @@ public:
 
 	float			_killer_yaw;		// when dead, look at killer
 	
-	g_item_weapon_c*	_newweapon;
+	g_entity_c*		_newweapon;
 	weapon_state_t		_weapon_state;
 	float			_weapon_update;		// last time the player state gun frame was changed
 	bool			_weapon_thunk;
@@ -450,7 +438,7 @@ public:
 	vec3_c			_damage_blend;
 	
 	vec3_c			_oldviewangles;
-	vec3_c			_oldvelocity;
+	vec3_c			_oldvelocity;		// tells us if the player stopped immediatly and should take damage
 
 	int			_old_waterlevel;
 	int			_breather_sound;
@@ -466,12 +454,7 @@ public:
 	// grenade specific
 	bool			_grenade_blew_up;
 	float			_grenade_time;
-	int			_weapon_sound;
-
-	// flood protection
-	float			_flood_locktill;	// locked from talking
-	float			_flood_when[10];	// when messages were said
-	int			_flood_whenhead;	// head pointer for when said	
+	int			_weapon_sound;	
 	
 	// ode
 // 	d_amotor_joint_c	_joint_amotor;		// to keep player straight upwards

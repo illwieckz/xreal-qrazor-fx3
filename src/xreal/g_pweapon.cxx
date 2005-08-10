@@ -39,19 +39,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 
-
+/*
 g_item_weapon_c::g_item_weapon_c()
 {
 	_has_pickup		= true;
 	_has_use		= true;
 	_has_drop		= true;
 }
+*/
 
+/*
 g_item_weapon_c::~g_item_weapon_c()
 {
 	//TODO
 }
+*/
 
+/*
 bool	g_item_weapon_c::pickup(g_entity_c *ent, g_player_c *other)
 {
 	int			index;
@@ -98,7 +102,7 @@ bool	g_item_weapon_c::pickup(g_entity_c *ent, g_player_c *other)
 
 	return true;
 }
-
+*/
 
 
 
@@ -111,6 +115,7 @@ Use_Weapon
 Make the weapon ready if there is ammo
 ================
 */
+/*
 void	g_item_weapon_c::use(g_player_c *player)
 {
 	int			ammo_index;
@@ -141,9 +146,9 @@ void	g_item_weapon_c::use(g_player_c *player)
 	// change to this weapon when down
 	player->_newweapon = this;
 }
+*/
 
-
-
+/*
 void	g_item_weapon_c::drop(g_player_c *player)
 {
 	int		index;
@@ -164,7 +169,7 @@ void	g_item_weapon_c::drop(g_player_c *player)
 	
 	player->_pers.inventory[index]--;
 }
-
+*/
 
 /*
 ================
@@ -173,9 +178,10 @@ Weapon_Generic
 A generic function to handle the basics of weapon thinking
 ================
 */
+
+#if 0
 void	g_item_weapon_c::weaponThink(g_player_c *player)
 {
-#if 0
 	if(player->_deadflag || player->_s.index_model != 255) // VWep animations screw up corpses
 		return;
 		
@@ -367,8 +373,8 @@ void	g_item_weapon_c::weaponThink(g_player_c *player)
 			break;
 		}
 	}
-#endif
 }
+#endif
 
 
 /*
@@ -783,6 +789,7 @@ static void	Blaster_Fire(g_player_c *ent, vec3_t g_offset, int damage, bool hype
 				BLASTER
 ================================================================================
 */
+/*
 g_item_weapon_blaster_c::g_item_weapon_blaster_c()
 {
 	_classname 	= "weapon_blaster";
@@ -824,7 +831,9 @@ g_item_weapon_blaster_c::g_item_weapon_blaster_c()
 	
 	_anim_deactivate	= registerAnimation("models/md5/weapons/pistol_view/put_away.md5anim");
 }
+*/
 
+/*
 void	g_item_weapon_blaster_c::attack1(g_player_c *player)
 {
 	//trap_Com_Printf("g_item_weapon_blaster_c::attack1:\n");
@@ -847,11 +856,14 @@ void	g_item_weapon_blaster_c::attack1(g_player_c *player)
 //	new g_projectile_bolt_c(ent, start, forward, damage, 1000.0);
 	new g_projectile_rocket_c(player, start, player->getViewQuaternion(), damage, 100, 120, 120);
 }
+*/
 
+/*
 void	g_item_weapon_blaster_c::reload(g_player_c *ent)
 {
 
 }
+*/
 
 
 /*
@@ -859,7 +871,7 @@ void	g_item_weapon_blaster_c::reload(g_player_c *ent)
 				SHOTGUN
 ================================================================================
 */
-
+/*
 g_item_weapon_shotgun_c::g_item_weapon_shotgun_c()
 {
 	_classname		= "weapon_shotgun";
@@ -910,7 +922,9 @@ g_item_weapon_shotgun_c::g_item_weapon_shotgun_c()
 	
 	_anim_deactivate	= registerAnimation("models/md5/weapons/shotgun_view/lower.md5anim");
 }
+*/
 
+/*
 void	g_item_weapon_shotgun_c::attack1(g_player_c *ent)
 {
 #if 0
@@ -959,7 +973,7 @@ void	g_item_weapon_shotgun_c::attack1(g_player_c *ent)
 		ent->_pers.inventory[ent->getAmmoIndex()]--;
 #endif
 }
-
+*/
 
 /*
 ================================================================================

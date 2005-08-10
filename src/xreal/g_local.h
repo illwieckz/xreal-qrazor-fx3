@@ -261,7 +261,7 @@ extern	int	meansOfDeath;
 extern g_entity_c*			g_world;
 extern cmodel_c*			g_world_cmodel;
 extern std::vector<sv_entity_c*>	g_entities;
-extern std::vector<g_item_c*>		g_items;
+//extern std::vector<g_item_c*>		g_items;
 
 #if defined(ODE)
 extern d_world_c*		g_ode_world;
@@ -335,20 +335,20 @@ void		G_ShutdownEntities();
 //
 // g_item.cxx
 //
-int		G_GetNumForItem(g_item_c *item);
-g_item_c*	G_GetItemByNum (int num);
+//int		G_GetNumForItem(g_item_c *item);
+//g_item_c*	G_GetItemByNum (int num);
 
-void		G_PrecacheItem (g_item_c *it);
-void		G_InitItems();
-void		G_ShutdownItems();
-void		G_SetItemNames();
+//void		G_PrecacheItem (g_item_c *it);
+//void		G_InitItems();
+//void		G_ShutdownItems();
+//void		G_SetItemNames();
 
-g_item_c*	G_FindItem(const std::string &pickup_name);
-g_item_c*	G_FindItemByClassname(const std::string &classname);
+//g_item_c*	G_FindItem(const std::string &pickup_name);
+//g_item_c*	G_FindItemByClassname(const std::string &classname);
 
-void 		SetRespawn(g_entity_c *ent, float delay);
+//void 		SetRespawn(g_entity_c *ent, float delay);
 
-void 		G_SpawnItem(g_entity_c **ent, g_item_c *item);
+//void 		G_SpawnItem(g_entity_c **ent, g_item_c *item);
 //int 		ArmorIndex(g_entity_c *ent);
 //int 		PowerArmorType(g_entity_c *ent);
 
@@ -414,8 +414,6 @@ bool 		SV_FilterPacket(const char *from);
 // g_hud.cxx
 //
 void 		G_BeginIntermission(const g_target_changelevel_c *target);
-void 		DeathmatchScoreboardMessage();
-void		DeathmatchScoreboard(g_entity_c *ent);
 
 
 //

@@ -34,7 +34,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 void	G_BeginIntermission(const g_target_changelevel_c *target)
 {
-	int		i, n;
 	g_entity_c	*spot;
 	g_player_c	*player;
 
@@ -43,10 +42,8 @@ void	G_BeginIntermission(const g_target_changelevel_c *target)
 
 	game.autosaved = false;
 
-	//
 	// respawn any dead clients
-	//
-	for(i=0; i<maxclients->getInteger(); i++)
+	for(int i=0; i<maxclients->getInteger(); i++)
 	{
 		player = (g_player_c*)g_entities[1+i];
 		
@@ -64,7 +61,7 @@ void	G_BeginIntermission(const g_target_changelevel_c *target)
 	{
 		if (coop->getInteger())
 		{
-			for(i=0; i<maxclients->getInteger(); i++)
+			for(int i=0; i<maxclients->getInteger(); i++)
 			{
 				player = (g_player_c*)g_entities[1+i];
 				
@@ -72,11 +69,13 @@ void	G_BeginIntermission(const g_target_changelevel_c *target)
 					continue;
 					
 				// strip players of all keys between units
-				for(n=0; n < (int)g_items.size()/*MAX_ITEMS*/; n++)
+				/*
+				for(int n=0; n < (int)g_items.size(); n++)
 				{
 					if(g_items[n]->getFlags() & IT_KEY)
 						player->_pers.inventory[n] = 0;
 				}
+				*/
 			}
 		}
 	}
@@ -91,10 +90,7 @@ void	G_BeginIntermission(const g_target_changelevel_c *target)
 
 	level.intermission_exit = false;
 
-
-	//
 	// find an intermission spot
-	//
 	spot = G_FindByClassName(NULL, "info_player_intermission");
 	if(!spot)
 	{	
@@ -106,8 +102,8 @@ void	G_BeginIntermission(const g_target_changelevel_c *target)
 	}
 	else
 	{	// chose one of four spots
-		i = rand() & 3;
-		while(i--)
+		int r = rand() & 3;
+		while(r--)
 		{
 			spot = G_FindByClassName(spot, "info_player_intermission");
 			
@@ -119,11 +115,8 @@ void	G_BeginIntermission(const g_target_changelevel_c *target)
 	level.intermission_origin = spot->_s.origin;
 	level.intermission_angles = spot->_angles;
 
-
-	//
 	// move all clients to the intermission point
-	//
-	for(i=0; i<maxclients->getInteger(); i++)
+	for(int i=0; i<maxclients->getInteger(); i++)
 	{
 		player = (g_player_c*)g_entities[1+i];
 		
@@ -132,102 +125,6 @@ void	G_BeginIntermission(const g_target_changelevel_c *target)
 			
 		player->moveToIntermission();
 	}
-}
-
-
-void	DeathmatchScoreboardMessage()
-{
-	char		entry[1024];
-	char		string[1400];
-	int		stringlength;
-	int		i, j, k;
-	int		sorted[MAX_CLIENTS];
-	int		sortedscores[MAX_CLIENTS];
-	int		score, total;
-
-	int		x, y;
-	
-	g_player_c	*player;
-
-
-	//
-	// sort the clients by score
-	//
-	total = 0;
-	for(i=0; i<game.maxclients; i++)
-	{
-		player = (g_player_c*)g_entities[1+i];
-		
-		if(!player->_r.inuse || player->_resp.spectator)
-			continue;
-			
-		score = player->_resp.score;
-		
-		for(j=0; j<total; j++)
-		{
-			if(score > sortedscores[j])
-				break;
-		}
-		for(k=total; k>j ; k--)
-		{
-			sorted[k] = sorted[k-1];
-			sortedscores[k] = sortedscores[k-1];
-		}
-		sorted[j] = i;
-		sortedscores[j] = score;
-		total++;
-	}
-
-
-	//
-	// print level name and exit rules
-	//
-	string[0] = 0;
-
-	stringlength = strlen(string);
-
-
-	//
-	// add the clients in sorted order
-	//
-	if(total > 12)
-		total = 12;
-
-	for(i=0; i<total; i++)
-	{
-		player = (g_player_c*)g_entities[1 + sorted[i]];
-
-		x = (i>=6) ? 160 : 0;
-		y = 32 + 32 * (i%6);
-
-		// send the layout						
-		Com_sprintf(entry, sizeof(entry), "client %i %i %i %i %i %i ", x, y, sorted[i], player->_resp.score, player->_r.ping, (level.framenum - player->_resp.enterframe)/600);
-		j = strlen(entry);
-	
-		if(stringlength + j > 1024)
-			break;
-			
-		strcpy(string + stringlength, entry);
-		stringlength += j;
-	}
-
-	trap_SV_WriteBits(SVC_LAYOUT, svc_bitcount);
-	trap_SV_WriteString(string);
-}
-
-
-/*
-==================
-DeathmatchScoreboard
-
-Draw instead of help message.
-Note that it isn't that hard to overflow the 1400 byte message limit!
-==================
-*/
-void	DeathmatchScoreboard(g_entity_c *ent)
-{
-	DeathmatchScoreboardMessage();
-	trap_SV_Unicast(ent, true);
 }
 
 
