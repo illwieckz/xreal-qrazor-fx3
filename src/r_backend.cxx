@@ -55,8 +55,8 @@ void	RB_InitBackend()
 {
 	ri.Com_Printf("------- RB_InitBackend -------\n");
 	
-	xglClearColor(0.0, 0.0, 0.0, 1.0);
-//	xglClearColor(0.3, 0.3, 0.3, 1.0);
+//	xglClearColor(0.0, 0.0, 0.0, 1.0);
+	xglClearColor(0.3, 0.3, 0.3, 1.0);
 	xglColor4fv(color_white);
 	
 	//xglEnable(GL_DEPTH_TEST);
@@ -2099,7 +2099,7 @@ void	RB_RenderCommands()
 	//
 	// draw solid meshes into zbuffer
 	//
-	xglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+//	xglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	xglDepthMask(GL_TRUE);
 	
 	RB_EnableShader_zfill();
@@ -2112,7 +2112,7 @@ void	RB_RenderCommands()
 	}
 	RB_DisableShader_zfill();
 
-	xglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+//	xglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	xglDepthMask(GL_FALSE);
 	
 	
