@@ -36,6 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // the "gameversion" client command will print this plus compile date
 #define	GAMEVERSION	"XreaL"
 
+
 enum
 {
 	
@@ -44,7 +45,6 @@ enum
 	VIEWHEIGHT_CROUCH	= 24,
 	VIEWHEIGHT_DEAD		= 12
 };
-
 
 enum
 {
@@ -125,32 +125,6 @@ struct pmove_t
 void	BG_PMove(pmove_t *pmove);
 
 
-// entity_state_t->effects
-// Effects are things handled on the client side (lights, particles, frame animations)
-// that happen constantly on the given entity.
-// An entity that has effects will be sent to the client
-// even if it has a zero index model.
-enum
-{
-	EF_NONE				= 0,
-	EF_ROTATE			= (1<<0),		// rotate (bonus items)
-	EF_GIB				= (1<<1),		// leave a trail
-	EF_BLASTER			= (1<<2),		// redlight + trail
-	EF_ROCKET			= (1<<3),		// redlight + trail
-	EF_GRENADE			= (1<<4),
-	EF_HYPERBLASTER			= (1<<5),
-	EF_BFG				= (1<<6),
-	EF_COLOR_SHELL			= (1<<7),
-	EF_AUTOANIM_TOGGLE_01_2		= (1<<8),		// automatically cycle between frames 0 and 1 at 2 hz
-	EF_AUTOANIM_TOGGLE_23_2		= (1<<9),		// automatically cycle between frames 2 and 3 at 2 hz
-	EF_AUTOANIM_1			= (1<<10),		// automatically cycle through all frames at 1hz
-	EF_AUTOANIM_2			= (1<<11),		// automatically cycle through all frames at 2hz
-	EF_AUTOANIM_10			= (1<<12),		// automatically cycle through all frames at 10hz
-	EF_AUTOANIM_24			= (1<<13),		// automatically cycle through all frames at 24hz
-	EF_QUAD				= (1<<14),
-	EF_DLIGHT			= (1<<15)
-};
-
 // splash types
 enum
 {
@@ -184,11 +158,11 @@ enum
 	MZ_HYPERBLASTER,
 	MZ_ITEMRESPAWN,
 	
-	MZ_SIDEWINDER//,
-	
-	//MZ_SILENCED		= 128		// bit flag ORed with one of the above numbers
+	MZ_SIDEWINDER
 };
 
+
+// entity_state_t->type values
 enum entity_type_e
 {
 	ET_GENERIC,
@@ -208,8 +182,35 @@ enum entity_type_e
 };
 
 
+// entity_state_t->effects
+// Effects are things handled on the client side (lights, particles, frame animations)
+// that happen constantly on the given entity.
+// An entity that has effects will be sent to the client
+// even if it has a zero index model.
+enum
+{
+	EF_NONE				= 0,
+	EF_ROTATE			= (1<<0),		// rotate (bonus items)
+	EF_GIB				= (1<<1),		// leave a trail
+	EF_BLASTER			= (1<<2),		// redlight + trail
+	EF_ROCKET			= (1<<3),		// redlight + trail
+	EF_GRENADE			= (1<<4),
+	EF_HYPERBLASTER			= (1<<5),
+	EF_BFG				= (1<<6),
+	EF_COLOR_SHELL			= (1<<7),
+	EF_AUTOANIM_TOGGLE_01_2		= (1<<8),		// automatically cycle between frames 0 and 1 at 2 hz
+	EF_AUTOANIM_TOGGLE_23_2		= (1<<9),		// automatically cycle between frames 2 and 3 at 2 hz
+	EF_AUTOANIM_1			= (1<<10),		// automatically cycle through all frames at 1hz
+	EF_AUTOANIM_2			= (1<<11),		// automatically cycle through all frames at 2hz
+	EF_AUTOANIM_10			= (1<<12),		// automatically cycle through all frames at 10hz
+	EF_AUTOANIM_24			= (1<<13),		// automatically cycle through all frames at 24hz
+	EF_QUAD				= (1<<14),
+	EF_DLIGHT			= (1<<15)
+};
+
+
 // entity_state_t->event values
-// ertity events are for effects that take place reletive
+// entity events are for effects that take place reletive
 // to an existing entities origin.  Very network efficient.
 // All muzzle flashes really should be converted to events...
 enum entity_event_e
@@ -249,6 +250,44 @@ enum entity_event_e
 	EV_ROCKET_SCRATCH,
 	EV_ROCKET_EXPLOSION,
 	EV_ROCKET_EXPLOSION_UNDERWATER
+};
+
+enum
+{
+	ITEM_HEALTH,
+	ITEM_HEALTH_SUPER,
+
+	ITEM_QUAD,
+
+	ITEM_ARMOR,
+	ITEM_ARMOR_BODY,
+
+	ITEM_WEAPON_SHOTGUN,
+	ITEM_WEAPON_ROCKETLAUNCHER,
+
+	ITEM_AMMO_SHELLS,
+	ITEM_AMMO_ROCKETS
+};
+
+// dmflags->value flags
+enum
+{
+	DF_NO_HEALTH		= (1<<0),
+	DF_NO_ITEMS		= (1<<1),
+	DF_WEAPONS_STAY		= (1<<2),
+	DF_NO_FALLING		= (1<<3),
+	DF_INSTANT_ITEMS	= (1<<4),
+	DF_SAME_LEVEL		= (1<<5),
+	DF_SKINTEAMS		= (1<<6),
+	DF_MODELTEAMS		= (1<<7),
+	DF_NO_FRIENDLY_FIRE	= (1<<8),
+	DF_SPAWN_FARTHEST	= (1<<9),
+	DF_FORCE_RESPAWN	= (1<<10),
+	DF_NO_ARMOR		= (1<<11),
+	DF_ALLOW_EXIT		= (1<<12),
+	DF_INFINITE_AMMO	= (1<<13),
+	DF_QUAD_DROP		= (1<<14),
+	DF_FIXED_FOV		= (1<<15)
 };
 
 #endif // BG_PUBLIC_H

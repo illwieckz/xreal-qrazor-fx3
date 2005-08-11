@@ -35,7 +35,7 @@ void	CG_ParseInventory(bitmessage_c &msg)
 }
 
 
-static void	CG_DrawInvString(int x, int y, const vec4_c &color, char *string)
+void	CG_DrawInvString(int x, int y, const vec4_c &color, char *string)
 {
 	while(*string)
 	{
@@ -45,15 +45,14 @@ static void	CG_DrawInvString(int x, int y, const vec4_c &color, char *string)
 	}
 }
 
-
 void	CG_SetStringHighBit(char *s)
 {
 	while (*s)
 		*s++ |= 128;
 }
 
+/*
 #define	DISPLAY_ITEMS	17
-
 void	CG_DrawInventory()
 {
 	int		i, j;
@@ -137,5 +136,5 @@ void	CG_DrawInventory()
 		y += 8;
 	}
 }
-
+*/
 

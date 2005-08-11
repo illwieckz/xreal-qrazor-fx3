@@ -1090,59 +1090,33 @@ enum
 	MAX_STATS
 };
 
-
-// dmflags->value flags
-//Tr3B - TODO replace this flags by cvars
-#define	DF_NO_HEALTH		0x00000001	// 1
-#define	DF_NO_ITEMS		0x00000002	// 2
-#define	DF_WEAPONS_STAY		0x00000004	// 4
-#define	DF_NO_FALLING		0x00000008	// 8
-#define	DF_INSTANT_ITEMS	0x00000010	// 16
-#define	DF_SAME_LEVEL		0x00000020	// 32
-#define DF_SKINTEAMS		0x00000040	// 64
-#define DF_MODELTEAMS		0x00000080	// 128
-#define DF_NO_FRIENDLY_FIRE	0x00000100	// 256
-#define	DF_SPAWN_FARTHEST	0x00000200	// 512
-#define DF_FORCE_RESPAWN	0x00000400	// 1024
-#define DF_NO_ARMOR		0x00000800	// 2048
-#define DF_ALLOW_EXIT		0x00001000	// 4096
-#define DF_INFINITE_AMMO	0x00002000	// 8192
-#define DF_QUAD_DROP		0x00004000	// 16384
-#define DF_FIXED_FOV		0x00008000	// 32768
-
-
 /*
 ================================================================================
 			NETCODE ELEMENTS
 ================================================================================
 */
 
-
-//
 // config strings are a general means of communication from
 // the server to all connected clients.
 // Each config string can be at most MAX_QPATH characters.
 //
-#define	CS_MAPCHECKSUM		0		// for catching cheater maps
-#define	CS_MAPNAME		1
-#define CS_MAPMESSAGE		2
-#define CS_MAPTRACK		3
-#define	CS_SKY			4
-#define	CS_STATUSBAR		5		// display program string
-
-#define CS_AIRACCEL		29		// air acceleration control
-
-#define	CS_MAXCLIENTS		30
-#define	CS_MODELS		31
-#define	CS_SHADERS		(CS_MODELS+MAX_MODELS)
-#define CS_ANIMATIONS		(CS_SHADERS+MAX_SHADERS)
-#define	CS_SOUNDS		(CS_ANIMATIONS+MAX_ANIMATIONS)
-#define CS_LIGHTS		(CS_SOUNDS+MAX_SOUNDS)
-#define	CS_ITEMS		(CS_LIGHTS+MAX_LIGHTS)
-#define	CS_PLAYERSKINS		(CS_ITEMS+MAX_ITEMS)
-#define CS_GENERAL		(CS_PLAYERSKINS+MAX_CLIENTS)
-#define	MAX_CONFIGSTRINGS	(CS_GENERAL+MAX_GENERAL)
-
+enum
+{
+	CS_MAPCHECKSUM		= 0,		// for catching cheater maps
+	CS_MAPNAME,
+	CS_MAPMESSAGE,
+	CS_MAPMUSIC,
+	CS_STATUSBAR,				// display program string
+	CS_MAXCLIENTS		= 30,
+	CS_MODELS		= 31,
+	CS_SHADERS		= CS_MODELS+MAX_MODELS,
+	CS_ANIMATIONS		= CS_SHADERS+MAX_SHADERS,
+	CS_SOUNDS		= CS_ANIMATIONS+MAX_ANIMATIONS,
+	CS_LIGHTS		= CS_SOUNDS+MAX_SOUNDS,
+	CS_PLAYERSKINS		= CS_LIGHTS+MAX_LIGHTS,
+	CS_GENERAL		= CS_PLAYERSKINS+MAX_CLIENTS,
+	MAX_CONFIGSTRINGS	= CS_GENERAL+MAX_GENERAL
+};
 
 enum solid_e
 {
