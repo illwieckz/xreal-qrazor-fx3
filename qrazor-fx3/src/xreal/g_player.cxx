@@ -148,7 +148,7 @@ void	g_player_c::pain(g_entity_c *other, float kick, int damage)
 }
 */
 
-void	g_player_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point)
+void	g_player_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, const vec3_c &point)
 {
 // 	_body->setAngularVel(0, 0, 0);
 
@@ -2758,15 +2758,12 @@ void	g_player_c::updateFallingDamage()
 	}
 	delta = delta*delta * 0.0001;
 
-
         // scale delta if was pushed by jump pad
 	if(_time_jumppad && _time_jumppad < level.time )
 	{
 		delta /= (1000 + level.time - _time_jumppad) * 0.5 * 0.001;
-		
 		_time_jumppad = 0;
-	}
-	
+	}	
 	
 	// never take falling damage if completely underwater
 	if(_waterlevel == 3)

@@ -118,6 +118,7 @@ spawn_t	spawns[] = {
 
 	{"info_player_start",		SP_info_player_start},
 	{"info_player_deathmatch",	SP_info_player_deathmatch},
+//	{"info_player_teleport",	SP_trigger_teleport},
 //	{"info_player_coop",		SP_info_player_coop},
 	{"info_notnull",		SP_target_position},
 	{"info_null",			SP_target_position},
@@ -145,7 +146,7 @@ spawn_t	spawns[] = {
 //	{"trigger_once",		SP_trigger_once},
 //	{"trigger_multiple",		SP_trigger_multiple},
 //	{"trigger_relay",		SP_trigger_relay},
-//	{"trigger_push",		SP_trigger_push},
+	{"trigger_push",		SP_trigger_push},
 //	{"trigger_hurt",		SP_trigger_hurt},
 //	{"trigger_key",			SP_trigger_key},
 //	{"trigger_counter",		SP_trigger_counter},
@@ -153,7 +154,7 @@ spawn_t	spawns[] = {
 //	{"trigger_gravity",		SP_trigger_gravity},
 //	{"trigger_teleport",		SP_trigger_teleport},
 
-	{"target_speaker",		SP_target_speaker},
+//	{"target_speaker",		SP_target_speaker},
 //	{"target_explosion",		SP_target_explosion},
 //	{"target_changelevel",		SP_target_changelevel},
 //	{"target_splash",		SP_target_splash},
@@ -175,7 +176,7 @@ spawn_t	spawns[] = {
 
 	{"light",			SP_light},
 
-	{"speaker",			SP_target_speaker},
+//	{"speaker",			SP_target_speaker},
 
 	{NULL, NULL}
 };
@@ -192,42 +193,12 @@ static g_entity_c*	G_CallEntitySpawn(const std::string &classname)
 	spawn_t		*s;
 	g_entity_c	*ent = NULL;
 	
-	
 	if(!classname.length())
 	{
-		trap_Com_Printf("G_CallEntitySpawn: NULL classname\n");
+		trap_Com_Printf("G_CallEntitySpawn: empty classname\n");
 		return NULL;
 	}
-	
-	//trap_Com_Printf ("G_CallEntitySpawn: %s\n", classname);
 
-	//
-	// check item spawn functions
-	//
-#if 0
-	for(std::vector<g_item_c*>::const_iterator ir = g_items.begin(); ir != g_items.end(); ir++)
-	{
-		g_item_c *item = *ir;
-		
-		if(!item)
-			continue;
-	
-		if(!item->getClassname())
-			continue;
-		
-		
-		if(X_strcaseequal(item->getClassname(), classname.c_str()))
-		{
-			// found it
-			G_SpawnItem(&ent, item);
-			return ent;
-		}
-	}
-#endif
-
-	//
-	// check normal spawn functions
-	//
 	for(s=spawns; s->name; s++)
 	{
 		if(!X_stricmp(s->name, classname.c_str()))
@@ -265,9 +236,7 @@ static char*	G_ParseEntity(char *data, epairs_t &epairs)
 	// go through all the dictionary pairs
 	while(true)
 	{	
-		//
 		// parse key
-		//
 		token = Com_Parse(&data);
 		
 		if(token[0] == '}')
@@ -278,9 +247,7 @@ static char*	G_ParseEntity(char *data, epairs_t &epairs)
 
 		key = token;
 	
-		//
-		// parse value	
-		//
+		// parse value
 		token = Com_Parse(&data);
 		
 		if(!data)
@@ -470,8 +437,7 @@ void	G_SpawnEntities(const std::string &mapname, char *entities, const std::stri
 		if(ir != epairs.end())
 			classname = ir->second.c_str();
 		else
-			classname = NULL;
-			
+			classname = "";
 			
 		ent = G_CallEntitySpawn(classname);
 						
@@ -482,25 +448,24 @@ void	G_SpawnEntities(const std::string &mapname, char *entities, const std::stri
 		}
 		else
 		{
-			trap_Com_Printf("spawned '%s'\n", classname);
+			ent->setEPairs(epairs);	
+			ent->setFields(epairs);
+
+			// HACK
+			/*
+			name = G_ValueForKey( epairs, "name" );
+			model = G_ValueForKey( epairs, "model" );
+			if( name[ 0 ] != '\0' && model[ 0 ] != '\0' && strcmp( name, model ) == 0 )
+				ent->_s.origin.clear();
+			*/
+		
+			ent->updateField("rotation");
+			ent->activate();
+			
+			trap_Com_Printf("spawned id=%i classname='%s' name='%s'\n", ent->_s.getNumber(), classname, ent->getValueForKey("name"));
 			spawned++;
 		}
-		
-		ent->setEPairs(epairs);	
-		ent->setFields(epairs);
-		
-		// HACK
-		/*
-		name = G_ValueForKey( epairs, "name" );
-		model = G_ValueForKey( epairs, "model" );
-		if( name[ 0 ] != '\0' && model[ 0 ] != '\0' && strcmp( name, model ) == 0 )
-			ent->_s.origin.clear();
-		*/
-		
-		ent->updateField("rotation");
-		
-		ent->activate();
-			
+
 
 		// remove things (except the world) from different skill levels or deathmatch
 		if(ent != g_entities[0])

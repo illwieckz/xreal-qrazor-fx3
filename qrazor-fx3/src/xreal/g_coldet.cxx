@@ -438,6 +438,8 @@ static void	G_AreaEntities_r(g_areanode_c *node, const aabb_c &aabb, std::vector
 
 void	G_AreaEntities(const aabb_c &aabb, std::vector<g_entity_c*> &list, int max, area_type_e type)
 {
+	list.clear();
+
 	G_AreaEntities_r(g_areanodes, aabb, list, max, type);
 }
 
@@ -549,7 +551,6 @@ int	G_PointContents(const vec3_c &p)
 	int			contents, c2=0;
 	
 	aabb_c aabb;
-	
 	aabb._mins = p;
 	aabb._maxs = p;
 

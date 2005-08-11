@@ -78,28 +78,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define DOOR_X_AXIS		64
 #define DOOR_Y_AXIS		128
 
-enum
-{
-	// move interface
-	THINK_BEGIN_MOVE,
-	THINK_FINISH_MOVE,
-	
-	// func_button
-	THINK_PUSH_BUTTON,
-	THINK_RETURN_BUTTON,
-	THINK_FINISH_BUTTON,
-	
-	// func_door
-	THINK_CALC_MOVE_SPEED,
-	THINK_SPAWN_DOOR_TRIGGER,
-	THINK_HIT_TOP,
-	THINK_HIT_BOTTOM,
-	THINK_GO_DOWN
-};
-
-
-
-
 g_func_c::g_func_c()
 {
 	addField(g_field_c("lip", &_lip, F_INT));
@@ -128,7 +106,7 @@ void	g_func_c::calcMove(const vec3_c &dest, int endfunc)
 		}
 		else
 		{
-			_nextthink = level.time + FRAMETIME;
+			_time_nextthink = level.time + FRAMETIME;
 			//ent->think = Move_Begin;
 			_thinktype = THINK_BEGIN_MOVE;
 		}
@@ -159,7 +137,7 @@ void	g_func_c::beginMove()
 	int frames = (int)floor((_moveinfo.remaining_distance / _moveinfo.speed) / FRAMETIME);
 	_moveinfo.remaining_distance -= frames * _moveinfo.speed * FRAMETIME;
 	
-	_nextthink = level.time + (frames * FRAMETIME);
+	_time_nextthink = level.time + (frames * FRAMETIME);
 
 	_thinktype = THINK_FINISH_MOVE;
 }
@@ -176,7 +154,7 @@ void	g_func_c::finishMove()
 	_body->setLinearVel(_moveinfo.dir * (_moveinfo.remaining_distance / FRAMETIME));
 #endif
 	
-	_nextthink = level.time + FRAMETIME;
+	_time_nextthink = level.time + FRAMETIME;
 
 	_thinktype = _moveinfo.endfunc;	//THINK_FINISH_MOVE;
 }
@@ -884,7 +862,7 @@ bool	g_func_button_c::touch(g_entity_c *other, const plane_c *plane, const csurf
 
 
 
-void	g_func_button_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point)
+void	g_func_button_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, const vec3_c &point)
 {
 	if(!_health)
 		return;
@@ -1009,7 +987,7 @@ void	g_func_button_c::wait()
 	
 	if(_moveinfo.wait >= 0)
 	{
-		_nextthink = level.time + _moveinfo.wait;
+		_time_nextthink = level.time + _moveinfo.wait;
 		//_think = button_return;
 		_thinktype = THINK_RETURN_BUTTON;
 	}
@@ -1214,7 +1192,7 @@ void	g_func_door_c::use(g_entity_c *other, g_entity_c *activator)
 
 
 
-void	g_func_door_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point)
+void	g_func_door_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, const vec3_c &point)
 {
 	g_entity_c	*ent;
 
@@ -1353,7 +1331,7 @@ void	g_func_door_c::activate()
 	if(!_team.length())
 		_teammaster = this;
 
-	_nextthink = level.time + FRAMETIME;
+	_time_nextthink = level.time + FRAMETIME;
 	
 	if (_health || _targetname.length())
 		_thinktype = THINK_CALC_MOVE_SPEED;
@@ -1385,7 +1363,7 @@ void 	g_func_door_c::hitTop()
 	{
 		//self->_think = door_go_down;
 		_thinktype = THINK_GO_DOWN;
-		_nextthink = level.time + _moveinfo.wait;
+		_time_nextthink = level.time + _moveinfo.wait;
 	}
 }
 
@@ -1532,7 +1510,7 @@ void	g_func_door_c::goUp(g_entity_c *activator)
 	{	
 		// reset top wait time
 		if(_moveinfo.wait >= 0)
-			_nextthink = level.time + _moveinfo.wait;
+			_time_nextthink = level.time + _moveinfo.wait;
 		return;
 	}
 	

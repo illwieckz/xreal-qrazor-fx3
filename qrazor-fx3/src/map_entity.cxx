@@ -90,25 +90,42 @@ const char*	entity_c::getValueForKey(const std::string &key) const
 
 vec_t	entity_c::getFloatForKey(const std::string &key) const
 {
-	const char *k = getValueForKey(key);
-	return atof(k);
+	epairs_ci i = _epairs.find(key);
+	
+	if(i != _epairs.end())
+	{
+		return atof(i->second.c_str());
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 void 	entity_c::getVector3ForKey(const std::string &key, vec3_c &v) const
 {
-	const char *k;
-	double	v1, v2, v3;
+	epairs_ci i = _epairs.find(key);
+	
+	if(i != _epairs.end())
+	{
+		const char *k = i->second.c_str();
+		double	v1, v2, v3;
 
-	k = getValueForKey(key);
+		k = getValueForKey(key);
 	
-	// scanf into doubles, then assign, so it is vec_t size independent
-	v1 = v2 = v3 = 0;
+		// scanf into doubles, then assign, so it is vec_t size independent
+		v1 = v2 = v3 = 0;
 	
-	sscanf(k, "%lf %lf %lf", &v1, &v2, &v3);
+		sscanf(k, "%lf %lf %lf", &v1, &v2, &v3);
 	
-	v[0] = v1;
-	v[1] = v2;
-	v[2] = v3;
+		v[0] = v1;
+		v[1] = v2;
+		v[2] = v3;
+	}
+	else
+	{
+		v = vec3_origin;
+	}
 }
 
 bool	entity_c::isWorldSpawn() const

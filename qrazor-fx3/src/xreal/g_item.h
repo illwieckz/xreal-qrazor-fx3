@@ -79,10 +79,11 @@ enum
 
 class g_player_c;
 
-/*
-class g_item_c
+class g_item_c : public
+g_entity_c
 {
 public:
+	g_item_c();
 	virtual ~g_item_c();
 	
 	virtual bool	pickup(g_entity_c *ent, g_entity_c *player_c)	{return false;}
@@ -119,7 +120,11 @@ public:
 	const std::vector<std::string>&	getPrecaches()	{return _precaches;}
 
 protected:
-	
+	enum
+	{
+		THINK_PICKUP
+	};	
+
 	// helper function
 	animation_c*		registerAnimation(const std::string &name);
 	
@@ -154,7 +159,6 @@ protected:
 
 	std::vector<std::string>	_precaches;		// string of all models, sounds, and images this item will use
 };
-*/
 
 /*
 class g_item_weapon_c :

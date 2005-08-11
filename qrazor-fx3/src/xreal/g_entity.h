@@ -78,13 +78,15 @@ public:
 	
 	// think if necessary and update physical state in Q2/Q3A style
 	virtual void	run();
+	virtual bool	runThink();
+	virtual void	runPhysics();
 
 	virtual void	think() {};
 	virtual void	blocked(g_entity_c *other) {};
 	virtual bool	touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf) {return true;}
 	virtual void	use(g_entity_c *other, g_entity_c *activator) {};
 	virtual void	pain(g_entity_c *other, float kick, int damage) {};
-	virtual void	die(g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point) {};		//TODO rename to ::killed
+	virtual void	die(g_entity_c *inflictor, g_entity_c *attacker, int damage, const vec3_c &point) {};		//TODO rename to ::killed
 	
 	// called by G_SpawnEntities
 	virtual void	activate() {};
@@ -97,9 +99,16 @@ public:
 	// destroy this entity at the end of the current or next frame
 	void		remove();
 	
+
+	// dictionary functions
 	void		setEPairs(const epairs_t &epairs);
-	bool		hasEPair(const std::string &key);
-	const char*	valueForKey(const std::string &key);
+	bool		hasKey(const std::string &key) const;
+	// returns "" if not present
+	const char*	getValueForKey(const std::string &key) const;
+	// returns 0 if not present
+	vec_t		getFloatForKey(const std::string &key) const;
+	// assigns vec3_origin if not present
+	void 		getVector3ForKey(const std::string &key, vec3_c &v) const;
 	
 	void		updateField(const std::string &key);
 	
@@ -110,16 +119,13 @@ public:
 	void		updateVelocity();
 #endif
 	
-private:
-	// run think() function if necessary
-	bool		runThink();
-
 	// physics helper functions
 	void		addGravity();
 	void		applyLinearVelocity();
 	void		applyAngularVelocity();
 	g_entity_c*	checkPosition();
 	void		checkVelocity();
+	void		checkGround();
 	int		clipVelocity(const vec3_c &in, const vec3_c &normal, vec3_c &out, float overbounce);
 	void		impact(const trace_t &trace);
 	trace_t		push(const vec3_c &push);
@@ -153,12 +159,12 @@ public:
 	
 	bool		getRemove() const	{return _remove;}	// called only by G_RemoveUnneededEntities
 									// at the end of every frame
-	float		getSpawnTime() const	{return _spawntime;}
+	float		getSpawnTime() const	{return _time_spawn;}
 	const char*	getClassName() const	{return _classname.c_str();}
 
 private:
 	bool		_remove;			// don't kill objects using delete, just do _remove = true;
-	float		_spawntime;			// only set by constructor
+	float		_time_spawn;			// only set by constructor
 	
 	epairs_t	_epairs;
 
@@ -166,6 +172,7 @@ protected:
 	std::string	_classname;
 
 public:	
+	int		_thinktype;
 	movetype_t	_movetype;
 	int		_flags;
 
@@ -205,7 +212,7 @@ public:
 	float		_ideal_yaw;
 
 	// timing variables
-	int		_nextthink;			// time when this entity will think again
+	int		_time_nextthink;		// time when this entity will think again
 
 	int		_time_wait;
 	int		_time_delay;			// before firing targets

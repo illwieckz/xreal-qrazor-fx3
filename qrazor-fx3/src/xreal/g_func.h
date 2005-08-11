@@ -67,7 +67,8 @@ struct moveinfo_t
 
 
 
-class g_func_c : public g_entity_c
+class g_func_c :
+public g_entity_c
 {
 public:
 	g_func_c();
@@ -78,7 +79,25 @@ public:
 	void	clearMove();
 	
 protected:
-	int		_thinktype;
+	enum
+	{
+		// move interface
+		THINK_BEGIN_MOVE,
+		THINK_FINISH_MOVE,
+	
+		// func_button
+		THINK_PUSH_BUTTON,
+		THINK_RETURN_BUTTON,
+		THINK_FINISH_BUTTON,
+	
+		// func_door
+		THINK_CALC_MOVE_SPEED,
+		THINK_SPAWN_DOOR_TRIGGER,
+		THINK_HIT_TOP,
+		THINK_HIT_BOTTOM,
+		THINK_GO_DOWN
+	};
+
 	int		_lip;
 	
 	vec3_c		_pos1;
@@ -88,7 +107,8 @@ public:
 };
 
 
-class g_func_rotating_c : public g_func_c
+class g_func_rotating_c :
+public g_func_c
 {
 public:
 	g_func_rotating_c();
@@ -101,7 +121,8 @@ public:
 };
 
 
-class g_func_button_c : public g_func_c
+class g_func_button_c :
+public g_func_c
 {
 public:
 	g_func_button_c();
@@ -109,7 +130,7 @@ public:
 	virtual void	think();
 	virtual bool	touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf);
 	virtual void	use(g_entity_c *other, g_entity_c *activator);
-	virtual void	die(g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point);
+	virtual void	die(g_entity_c *inflictor, g_entity_c *attacker, int damage, const vec3_c &point);
 	
 	virtual void	activate();
 	
@@ -121,7 +142,8 @@ private:
 };
 
 
-class g_func_door_c : public g_func_c
+class g_func_door_c :
+public g_func_c
 {
 public:
 	g_func_door_c();
@@ -130,7 +152,7 @@ public:
 	virtual void	blocked(g_entity_c *other);
 	virtual bool	touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf);
 	virtual void	use(g_entity_c *other, g_entity_c *activator);
-	virtual void	die(g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point);
+	virtual void	die(g_entity_c *inflictor, g_entity_c *attacker, int damage, const vec3_c &point);
 	
 	virtual void	activate();
 	
@@ -149,7 +171,8 @@ private:
 };
 
 
-class g_func_killbox_c : public g_func_c
+class g_func_killbox_c :
+public g_func_c
 {
 public:
 	g_func_killbox_c();
@@ -160,7 +183,8 @@ public:
 };
 
 
-class g_func_static_c : public g_entity_c
+class g_func_static_c :
+public g_entity_c
 {
 public:
 	g_func_static_c();
@@ -169,7 +193,8 @@ public:
 };
 
 /*
-class g_func_flare_c : public g_entity_c
+class g_func_flare_c :
+public g_entity_c
 {
 public:
 	g_func_flare_c();
@@ -180,7 +205,8 @@ public:
 
 
 /*
-class g_ode_box_c : public g_entity_c
+class g_ode_box_c :
+public g_entity_c
 {
 public:
 	g_ode_box_c();

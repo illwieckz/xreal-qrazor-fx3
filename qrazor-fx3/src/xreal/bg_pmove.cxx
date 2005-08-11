@@ -28,11 +28,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../x_shared.h"
 #include "bg_local.h"
 
-
-#define	PM_STEPSIZE			18
-#define	PM_STOP_EPSILON			0.1
-#define	PM_MIN_STEP_NORMAL		0.7		// can't step up onto very steep slopes
-#define	PM_MAX_CLIP_PLANES		5
+static const int PM_STEPSIZE = 18;
+//static const vec_t PM_STOP_EPSILON = 0.1;
+static const vec_t PM_MIN_STEP_NORMAL = 0.7;		// can't step up onto very steep slopes
+static const int PM_MAX_CLIP_PLANES = 5;
+static const vec_t PM_OVERCLIP = 1.001f;
 
 
 // all of the locals will be zeroed before each
@@ -46,6 +46,8 @@ struct pml_t
 	
 	vec3_c		velocity_linear;	// full float precision
 	vec3_c		velocity_angular;
+
+	vec_t		impact_speed;
 
 	vec3_c		forward, right, up;
 	float		frametime;		// in seconds
@@ -62,18 +64,50 @@ static pml_t	pml;
 
 
 // movement parameters
-static float	pm_stopspeed = 100;
-static float	pm_maxspeed = 300;
-static float	pm_duckspeed = 100;
+static vec_t	pm_stopspeed = 100.0;
+static vec_t	pm_maxspeed = 300.0;
+//static vec_t	pm_duckspeed = 100.0;
 
-static float	pm_accelerate = 10;
-static float	pm_airaccelerate = 0;
-static float	pm_wateraccelerate = 6;
+static vec_t	pm_accelerate = 10.0;
+static vec_t	pm_airaccelerate = 1.0;
+static vec_t	pm_wateraccelerate = 5.0;
+vec_t		pm_flyaccelerate = 8.0;
 
-static float	pm_friction = 6;
-static float	pm_waterfriction = 1;
-static float	pm_airfriction = 3;
+static vec_t	pm_friction = 6.0;
+static vec_t	pm_waterfriction = 1.0;
+static vec_t	pm_airfriction = 3.0;
+static vec_t	pm_spectatorfriction = 5.0;
 
+
+static void	PM_AddTouchEntity(entity_c* ent)
+{
+	if(!ent)
+		return;
+
+	std::deque<entity_c*>::const_iterator ir = std::find(pm->touchents.begin(), pm->touchents.end(), static_cast<entity_c*>(ent));
+
+	if(ir == pm->touchents.end())
+		pm->touchents.push_back(ent);
+}
+
+static float	PM_CmdScale(const usercmd_t &cmd)
+{
+	int max = abs((int)cmd.forwardmove);
+	
+	if(abs((int)cmd.sidemove) > max)
+		max = abs((int)cmd.sidemove);
+		
+	if(abs((int)cmd.upmove) > max)
+		max = abs((int)cmd.upmove);
+	
+	if(max <= 0)
+		return 0;
+		
+	float total = X_sqrt(cmd.forwardmove*cmd.forwardmove + cmd.sidemove*cmd.sidemove + cmd.upmove*cmd.upmove);
+	float scale = (float)320 * max / (127.0 * total);
+	
+	return scale;
+}
 
 /*
 ==================
@@ -82,11 +116,10 @@ PM_ClipVelocity
 Slide off of the impacting object
 ==================
 */
-static void	PM_ClipVelocity(const vec3_c &in, const vec3_c &normal, vec3_t out, vec_t overbounce)
+static void	PM_ClipVelocity(const vec3_c &in, const vec3_c &normal, vec3_c &out, vec_t overbounce)
 {
 	vec_t backoff = in.dotProduct(normal) * overbounce;
 	
-	/*
 	if(backoff < 0)
 	{
 		backoff *= overbounce;
@@ -95,72 +128,105 @@ static void	PM_ClipVelocity(const vec3_c &in, const vec3_c &normal, vec3_t out, 
 	{
 		backoff /= overbounce;
 	}
-	*/
 
 	for(int i=0; i<3; i++)
 	{
 		vec_t change = normal[i] * backoff;
-		
+	
 		out[i] = in[i] - change;
 		
-		if(out[i] > -PM_STOP_EPSILON && out[i] < PM_STOP_EPSILON)
-			out[i] = 0;
+		//if(out[i] > -PM_STOP_EPSILON && out[i] < PM_STOP_EPSILON)
+		//	out[i] = 0;
 	}
 }
 
 /*
 ==================
 PM_SlideMove
+
+Returns qtrue if the velocity was clipped in some way
 ==================
 */
-void	PM_SlideMove()
+bool	PM_SlideMove(bool gravity)
 {
 	int		bumpcount, numbumps;
 	vec3_c		dir;
 	float		d;
 	int		numplanes;
-	vec3_t		planes[PM_MAX_CLIP_PLANES];
-	vec3_t		primal_velocity;
-	int		i, j;
-	trace_t	trace;
-	vec3_t		end;
+	vec3_c		planes[PM_MAX_CLIP_PLANES];
+	int		i, j=0, k;
+	trace_t		trace;
+	vec3_c		end;
 	float		time_left;
+	
+	vec3_c		velocity_primal;
+	vec3_c		velocity_end;
+	vec3_c		velocity_clip;
+	vec3_c		velocity_clip_end;
 	
 	numbumps = 4;
 	
-	Vector3_Copy(pml.velocity_linear, primal_velocity);
-	numplanes = 0;
+	velocity_primal = pml.velocity_linear;
+
+	if(gravity)
+	{
+		velocity_end = pml.velocity_linear;
+		velocity_end[2] -= pm->s.gravity * pml.frametime;
+		pml.velocity_linear[2] = (pml.velocity_linear[2] + velocity_end[2]) * 0.5;
+		velocity_primal[2] = velocity_end[2];
+		
+		if(pml.ground_plane)
+		{
+			// slide along the ground plane
+			PM_ClipVelocity(pml.velocity_linear, pml.ground_trace.plane._normal, pml.velocity_linear, PM_OVERCLIP);
+		}
+	}
 	
 	time_left = pml.frametime;
 
+	// never turn against the ground plane
+	if(pml.ground_plane)
+	{
+		numplanes = 1;
+		planes[0] = pml.ground_trace.plane._normal;
+	}
+	else
+	{
+		numplanes = 0;
+	}
+
+	// never turn against original velocity
+	planes[numplanes] = pml.velocity_linear;
+	planes[numplanes].normalize();
+	numplanes++;
+
 	for(bumpcount=0; bumpcount<numbumps; bumpcount++)
 	{
-		Vector3_MA(pml.origin, time_left, pml.velocity_linear, end);
+		end = pml.origin + pml.velocity_linear * time_left;
 
+		// see if we can make it there
 		trace = pm->boxTrace(pml.origin, pm->bbox, end);
 
 		if(trace.allsolid)
 		{
 			// entity is trapped in another solid
 			pml.velocity_linear[2] = 0;	// don't build up falling damage
-			return;
+			return true;
 		}
 
 		if(trace.fraction > 0)
 		{
 			// actually covered some distance
 			pml.origin = trace.pos;
-			numplanes = 0;
 		}
 
 		if(trace.fraction == 1)
+		{
 			 break;		// moved the entire distance
+		}
 
 		// save entity for contact
-		if(trace.ent)
-		{
-			pm->touchents.push_back(trace.ent);
-		}
+		PM_AddTouchEntity(trace.ent);
 		
 		time_left -= time_left * trace.fraction;
 
@@ -169,74 +235,125 @@ void	PM_SlideMove()
 		{	
 			// this shouldn't really happen
 			pml.velocity_linear.clear();
-			break;
+			return true;
 		}
 
-		Vector3_Copy(trace.plane._normal, planes[numplanes]);
-		numplanes++;
+		// if this is the same plane we hit before, nudge velocity
+		// out along it, which fixes some epsilon issues with
+		// non-axial planes
+		for(i=0; i<numplanes; i++)
+		{
+			if(trace.plane._normal.dotProduct(planes[i]) > 0.99)
+			{
+				pml.velocity_linear += trace.plane._normal;
+				break;
+			}
+		}
 
+		if(i<numplanes)
+		{
+			continue;
+		}
+
+		planes[numplanes] = trace.plane._normal;
+		numplanes++;
 
 		// modify original_velocity so it parallels all of the clip planes
 		for(i=0; i<numplanes; i++)
 		{
-			PM_ClipVelocity(pml.velocity_linear, planes[i], pml.velocity_linear, 1.01);
+			vec_t into = pml.velocity_linear.dotProduct(planes[i]);
+			if(into >= 0.1)
+				continue;
+
+			// see how hard we are hitting things
+			if(-into > pml.impact_speed) 
+			{
+				pml.impact_speed = -into;
+			}
+
+			// slide along the plane
+			PM_ClipVelocity(pml.velocity_linear, planes[i], velocity_clip, PM_OVERCLIP);
+
+			// slide along the plane
+			PM_ClipVelocity(velocity_end, planes[i], velocity_clip_end, PM_OVERCLIP);
 			
+			// see if there is a second plane that the new move enters
 			for(j=0; j<numplanes; j++)
 			{
-				if(j != i)
+				if(j == i)
+					continue;
+
+				if(velocity_clip.dotProduct(planes[j]) >= 0.1)
+					continue;	// move doesn't interact with the plane
+				
+
+				// try clipping the move to the plane
+				PM_ClipVelocity(velocity_clip, planes[j], velocity_clip, PM_OVERCLIP);
+				PM_ClipVelocity(velocity_clip_end, planes[j], velocity_clip_end, PM_OVERCLIP);
+
+				// see if it goes back into the first clip plane
+				if(velocity_clip.dotProduct(planes[i]) >= 0)
+					continue;
+
+				// slide the original velocity along the crease
+				dir.crossProduct(planes[i], planes[j]);
+				dir.normalize();
+				
+				d = dir.dotProduct(pml.velocity_linear);
+				velocity_clip = dir * d;
+
+				d = dir.dotProduct(velocity_end);
+				velocity_clip_end = dir * d;
+
+				// see if there is a third plane the the new move enters
+				for(k=0; k<numplanes; k++)
 				{
-					if(pml.velocity_linear.dotProduct(planes[j]) < 0)
-						break;	// not ok
+					if(k==i || k==j)
+						continue;
+					
+					if(velocity_clip.dotProduct(planes[k]) >= 0.1)
+						continue;	// move doesn't interact with the plane
+
+					// stop dead at a tripple plane interaction
+					pml.velocity_linear.clear();
+					return true;
 				}
 			}
-						
-			if(j == numplanes)
-				break;
-		}
-		
-		if(i != numplanes)
-		{
-			// go along this plane
-		}
-		else
-		{	
-			// go along the crease
-			if(numplanes != 2)
-			{
-				pml.velocity_linear.clear();
-				break;
-			}
-			
-			dir.crossProduct(planes[0], planes[1]);
-			d = pml.velocity_linear.dotProduct(dir);
-			pml.velocity_linear = dir * d;
-		}
 
-		//
-		// if velocity is against the original velocity, stop dead
-		// to avoid tiny occilations in sloping corners
-		//
-		if(pml.velocity_linear.dotProduct(primal_velocity) <= 0)
-		{
-			pml.velocity_linear.clear();
+			// if we have fixed all interactions, try another move
+			pml.velocity_linear = velocity_clip;
+			velocity_end = velocity_clip_end;
 			break;
 		}
 	}
 
+	if(gravity)
+		pml.velocity_linear = velocity_end;
+
+	// don't change velocity if in a timer (FIXME: is this correct?)
 	if(pm->s.pm_time)
-	{
-		pml.velocity_linear = primal_velocity;
-	}
+		pml.velocity_linear = velocity_primal;
+
+	return (bumpcount != 0);
 }
 
 
-static void 	PM_StepSlideMove()
+static void 	PM_StepSlideMove(bool gravity)
 {
-#if 1
 	const vec3_c start_o = pml.origin;
 	const vec3_c start_v = pml.velocity_linear;
 
-	PM_SlideMove();
+	if(PM_SlideMove(gravity) == 0)
+		return;		// we got exactly where we wanted to go first try
+
+	vec3_c down = start_o;
+	down[2] -= PM_STEPSIZE;
+	
+	trace_t trace = pm->boxTrace(start_o, pm->bbox, down);
+
+	// never step up when you still have up velocity
+	if(start_v[2] > 0 && (trace.fraction == 1.0 || trace.plane._normal.dotProduct(vec3_c(0.0, 0.0, 1.0)) < PM_MIN_STEP_NORMAL))
+		return;
 	
 	const vec3_c down_o = pml.origin;
 	const vec3_c down_v = pml.velocity_linear;
@@ -244,40 +361,40 @@ static void 	PM_StepSlideMove()
 	vec3_c up = start_o;
 	up[2] += PM_STEPSIZE;
 
-	trace_t trace = pm->boxTrace(up, pm->bbox, up);
+	// test the player position if they were a stepheight higher
+	trace = pm->boxTrace(start_o, pm->bbox, up);
 	if(trace.allsolid)
 		return;		// can't step up
 
+	vec_t step_size = trace.pos[2] - start_o[2];	
+
 	// try sliding above
-	pml.origin = up;
+	pml.origin = trace.pos;
 	pml.velocity_linear = start_v;
 
-	PM_SlideMove();
+	PM_SlideMove(gravity);
 
 	// push down the final amount
-	vec3_c down = pml.origin;
-	down[2] -= PM_STEPSIZE;
+	down = start_o;
+	down[2] -= step_size;
 	
-	trace = pm->boxTrace(pml.origin, pm->bbox, down);
-	
+	trace = pm->boxTrace(start_o, pm->bbox, down);
 	if(!trace.allsolid)
 	{
 		pml.origin = trace.pos;
 	}
-	
-#if 0
-	Vector3_Subtract (pml.origin, up, delta);
-	up_dist = Vector3_DotProduct (delta, start_v);
 
-	Vector3_Subtract (down_o, start_o, delta);
-	down_dist = Vector3_DotProduct (delta, start_v);
-#else
+	if(trace.fraction == 1.0)
+	{
+		PM_ClipVelocity(pml.velocity_linear, trace.plane._normal, pml.velocity_linear, PM_OVERCLIP);
+	}
+	
+	/*
 	up = pml.origin;
 
 	// decide which one went farther
    	vec_t down_dist = (down_o[0] - start_o[0])*(down_o[0] - start_o[0]) + (down_o[1] - start_o[1])*(down_o[1] - start_o[1]);
 	vec_t up_dist = (up[0] - start_o[0])*(up[0] - start_o[0]) + (up[1] - start_o[1])*(up[1] - start_o[1]);
-#endif
 
 	if(down_dist > up_dist || trace.plane._normal[2] < PM_MIN_STEP_NORMAL)
 	{
@@ -288,7 +405,7 @@ static void 	PM_StepSlideMove()
 	
 	//!! special case, if we were walking along a plane, then we need to copy the Z over
 	pml.velocity_linear[2] = down_v[2];
-#endif
+*/
 }
 
 
@@ -301,8 +418,11 @@ Handles both ground friction and water friction
 */
 static void 	PM_Friction()
 {
+	// ignore slope movement
+	if(pml.walking)
+		pml.velocity_linear[2] = 0;
+
 	vec_t speed = pml.velocity_linear.length();
-	
 	if(speed < 1.0)
 	{
 		pml.velocity_linear[0] = 0;
@@ -324,17 +444,29 @@ static void 	PM_Friction()
 	}
 
 	// apply water friction
-	if(pm->waterlevel >= 1 && !pml.ladder)
+	if(pm->waterlevel >= 2 && !pml.ladder)
 	{
 		drop += speed * pm_waterfriction * pm->waterlevel * pml.frametime;
+	}
+
+	// apply spectator friction
+	if(pm->s.pm_type == PM_SPECTATOR)
+	{
+		drop += speed * pm_spectatorfriction * pml.frametime;
 	}
 		
 	// scale the velocity
 	vec_t newspeed = speed - drop;
-	newspeed = X_max(0, newspeed);
-	newspeed /= speed;
-	
-	pml.velocity_linear.scale(newspeed);
+	if(newspeed <= 0)
+	{
+		newspeed = 0;
+		pml.velocity_linear.clear();
+	}
+	else
+	{
+		newspeed /= speed;
+		pml.velocity_linear *= newspeed;
+	}
 }
 
 
@@ -353,10 +485,16 @@ void	PM_AirFriction()
 
 		// scale the velocity
 		vec_t newspeed = speed - drop;
-		newspeed = X_max(0, newspeed);
-		newspeed /= speed;
-		
-		pml.velocity_linear.scale(newspeed);
+		if(newspeed <= 0)
+		{
+			newspeed = 0;
+			pml.velocity_linear.clear();
+		}
+		else
+		{
+			newspeed /= speed;
+			pml.velocity_linear *= newspeed;
+		}
 	}
 }
 
@@ -370,7 +508,7 @@ Handles user intended acceleration
 */
 static void	PM_Accelerate(const vec3_c &wishdir, vec_t wishspeed, vec_t accel)
 {
-	vec_t		addspeed, accelspeed, currentspeed;
+	vec_t	addspeed, accelspeed, currentspeed;
 
 	currentspeed = pml.velocity_linear.dotProduct(wishdir);
 	addspeed = wishspeed - currentspeed;
@@ -388,7 +526,7 @@ static void	PM_Accelerate(const vec3_c &wishdir, vec_t wishspeed, vec_t accel)
 
 static void	PM_AirAccelerate(const vec3_c &wishdir, vec_t wishspeed, vec_t accel)
 {
-	vec_t		addspeed, accelspeed, currentspeed, wishspd = wishspeed;
+	vec_t	addspeed, accelspeed, currentspeed, wishspd = wishspeed;
 		
 	if(wishspd > 30)
 		wishspd = 30;
@@ -408,11 +546,9 @@ static void	PM_AirAccelerate(const vec3_c &wishdir, vec_t wishspeed, vec_t accel
 	pml.velocity_linear += (wishdir * accelspeed);
 }
 
-static void	PM_AddCurrents(vec3_t	wishvel)
+static void	PM_AddCurrents(vec3_c &wishvel)
 {
-	//
 	// account for ladders
-	//
 	if(pml.ladder && fabs(pml.velocity_linear[2]) <= 200)
 	{
 		if((pm->viewangles[PITCH] <= -15) && (pm->cmd.forwardmove > 0))
@@ -435,11 +571,24 @@ static void	PM_AddCurrents(vec3_t	wishvel)
 	}
 }
 
+static void	PM_WaterJumpMove()
+{
+	PM_StepSlideMove(true);
+
+	// waterjump has no control, but falls
+	pml.velocity_linear[2] -= pm->s.gravity * pml.frametime;
+		
+	if(pml.velocity_linear[2] < 0)
+	{
+		// cancel as soon as we are falling down again
+		pm->s.pm_flags &= ~(PMF_TIME_WATERJUMP | PMF_TIME_LAND | PMF_TIME_TELEPORT);
+		pm->s.pm_time = 0;
+	}
+}
+
 static void	PM_WaterMove()
 {
-	//
 	// user intentions
-	//
 	vec3_c wishvel = pml.forward*pm->cmd.forwardmove + pml.right*pm->cmd.sidemove;
 
 	if(!pm->cmd.forwardmove && !pm->cmd.sidemove && !pm->cmd.upmove)
@@ -463,12 +612,51 @@ static void	PM_WaterMove()
 
 	PM_Accelerate(wishdir, wishspeed, pm_wateraccelerate);
 
-	PM_StepSlideMove();
+	PM_StepSlideMove(true);
 }
 
 
 static void	PM_AirMove()
 {
+	vec3_c		wishvel;
+	vec3_c		wishdir;
+	float		wishspeed;
+
+	// normal slowdown
+	PM_Friction();
+
+	vec_t scale = PM_CmdScale(pm->cmd);
+
+	// project moves down to flat plane
+	pml.forward[2] = 0;
+	pml.forward.normalize();
+
+	pml.right[2] = 0;
+	pml.right.normalize();
+
+	wishvel = (pml.forward * pm->cmd.forwardmove) + (pml.right * pm->cmd.sidemove);
+	
+	wishdir = wishvel;
+	wishspeed = wishdir.normalize();
+	wishspeed *= scale;
+
+	// not on ground, so little effect on velocity
+	if(pm_airaccelerate)
+		PM_AirAccelerate(wishdir, wishspeed, pm_airaccelerate);
+	else
+		PM_Accelerate(wishdir, wishspeed, 1.0);
+		
+	// we may have a ground plane that is very steep, even
+	// though we don't have a groundentity
+	// slide along the steep plane
+	if(pml.ground_plane)
+	{
+		PM_ClipVelocity(pml.velocity_linear, pml.ground_trace.plane._normal, pml.velocity_linear, PM_OVERCLIP);
+	}
+
+	PM_StepSlideMove(true);
+
+	/*
 	vec3_c wishvel = pml.forward*pm->cmd.forwardmove + pml.right*pm->cmd.sidemove;
 	wishvel[2] = 0;
 
@@ -477,9 +665,7 @@ static void	PM_AirMove()
 	vec3_c wishdir = wishvel;
 	vec_t wishspeed = wishdir.normalize();
 	
-	//
 	// clamp to server defined max speed
-	//
 	vec_t maxspeed = (pm->s.pm_flags & PMF_DUCKED) ? pm_duckspeed : pm_maxspeed;
 
 	if(wishspeed > maxspeed)
@@ -511,7 +697,7 @@ static void	PM_AirMove()
 			}
 		}
 		
-		PM_StepSlideMove();
+		PM_StepSlideMove(false);
 	}
 	else if(pml.walking)
 	{	
@@ -534,7 +720,7 @@ static void	PM_AirMove()
 		if(!pml.velocity_linear[0] && !pml.velocity_linear[1])
 			return;
 		
-		PM_StepSlideMove();
+		PM_StepSlideMove(false);
 	}
 	else
 	{	
@@ -546,28 +732,57 @@ static void	PM_AirMove()
 		
 		// add gravity
 		pml.velocity_linear[2] -= pm->s.gravity * pml.frametime;
-		PM_StepSlideMove();
+		PM_StepSlideMove(false);
 	}
+	*/
 }
 
 static void	PM_CheckOnGround()
 {
-	vec3_c point(pml.origin[0], pml.origin[1], pml.origin[2] - 0.25);	
+	vec3_c point(pml.origin[0], pml.origin[1], pml.origin[2] - 0.25);
 		
 	trace_t trace = pm->boxTrace(pml.origin, pm->bbox, point);
 	pml.ground_trace = trace;
-		
-	if(!trace.ent || (trace.plane._normal[2] < PM_MIN_STEP_NORMAL && !trace.startsolid))
-	//if(trace.nohit)
+
+	// if the trace didn't hit anything, we are in free fall
+	if(!trace.ent || trace.fraction == 1)
 	{
 		pm->groundentity = NULL;
 		pm->s.pm_flags &= ~PMF_ON_GROUND;
+		
 		pml.walking = false;
+		pml.ground_plane = false;
+		return;
+	}
+
+	// check if getting thrown off the ground
+	if(pml.velocity_linear[2] > 0 && pml.velocity_linear.dotProduct(trace.plane._normal[2]> 10))
+	{
+		pm->groundentity = NULL;
+		pm->s.pm_flags &= ~PMF_ON_GROUND;
+
+		pml.walking = false;
+		pml.ground_plane = false;
+		return;
+	}
+
+	// slopes that are too steep will not be considered onground
+	if(trace.plane._normal[2] < PM_MIN_STEP_NORMAL)
+	{
+		// FIXME: if they can't slide down the slope, let them
+		// walk (sharp crevices)
+		pm->groundentity = NULL;
+		pm->s.pm_flags &= ~PMF_ON_GROUND;
+	
+		pml.walking = false;
+		pml.ground_plane = true;
 		return;
 	}
 	
 	pm->groundentity = trace.ent;
+	
 	pml.walking = true;
+	pml.ground_plane = true;
 		
 	// hitting solid ground will end a waterjump
 	if(pm->s.pm_flags & PMF_TIME_WATERJUMP)
@@ -594,19 +809,20 @@ static void	PM_CheckOnGround()
 		}
 	}
 
-#if 0
+#if 0	// don't reset the z velocity for slopes
 	if(trace.fraction < 1.0 && trace.ent && pml.velocity[2] < 0)
 		pml.velocity[2] = 0;
 #endif
+
+	PM_AddTouchEntity(trace.ent);
 }
 
 static void	PM_CheckWaterLevel()
 {
-	//FIXME replace MINS_Z
 	pm->watertype = 0;
 	pm->waterlevel = 0;
 
-	vec3_c point(pml.origin[0], pml.origin[1], pml.origin[2] - 23);	
+	vec3_c point(pml.origin[0], pml.origin[1], pml.origin[2] - MINS_Z + 1);	
 	int cont = pm->pointContents(point);
 
 	if(cont & MASK_WATER)
@@ -635,33 +851,33 @@ static void	PM_CheckWaterLevel()
 	}
 }
 
-static void	PM_CheckJump()
+static bool	PM_CheckJump()
 {
 	if(pm->s.pm_flags & PMF_TIME_LAND)
 	{	
 		// hasn't been long enough since landing to jump again
-		return;
+		return false;
 	}
 
 	if(pm->cmd.upmove < 10)
 	{	
 		// not holding jump
 		pm->s.pm_flags &= ~PMF_JUMP_HELD;
-		return;
+		return false;
 	}
 
 	// must wait for jump to be released
 	if(pm->s.pm_flags & PMF_JUMP_HELD)
-		return;
+		return false;
 
 	if(pm->s.pm_type == PM_DEAD)
-		return;
+		return false;
 
 	if(pm->waterlevel >= 2)
 	{	
 		// swimming, not jumping
 		pm->groundentity = NULL;
-#if 1
+#if 0
 		if(pml.velocity_linear[2] <= -300)
 			return;
 
@@ -674,23 +890,26 @@ static void	PM_CheckJump()
 		else
 			pml.velocity_linear[2] = 50;
 #endif
-		return;
+		return false;
 	}
 
 	if(pm->groundentity == NULL)
-		return;		// in air, so no effect
+		return false;		// in air, so no effect
 
 	pm->s.pm_flags |= PMF_JUMP_HELD;
 	pm->groundentity = NULL;
 	
 	pml.velocity_linear[2] += 270;
 	pml.walking = false;
+	pml.ground_plane = false;
 	
 	if(pml.velocity_linear[2] < 270)
 		pml.velocity_linear[2] = 270;
+
+	return true;
 }
 
-static void	PM_CheckSpecialMovement()
+void	PM_CheckSpecialMovement()
 {
 	vec3_c	spot;
 	int	cont;
@@ -737,28 +956,38 @@ static void	PM_CheckSpecialMovement()
 	pm->s.pm_time = 255;
 }
 
-
-float	PM_CmdScale(const usercmd_t &cmd)
+static void	PM_FlyMove()
 {
-	int max = (int)X_fabs(cmd.forwardmove);
-	
-	if(X_fabs(cmd.sidemove) > max)
-		max = (int)X_fabs(cmd.sidemove);
-		
-	if(X_fabs(cmd.upmove) > max)
-		max = (int)X_fabs(cmd.upmove);
-	
-	if(max <= 0)
-		return 0;
-		
-	float total = X_sqrt(cmd.forwardmove*cmd.forwardmove + cmd.sidemove*cmd.sidemove + cmd.upmove*cmd.upmove);
-	float scale = (float)pml.velocity_linear.length() * max / (127.0 * total);
-	
-	return scale;
-}
+#if 1
+	// similar to q3a style
+	vec3_c		wishvel;
+	vec3_c		wishdir;
+	float		wishspeed;
 
-static void	PM_FlyMove(bool doclip)
-{
+	// normal slowdown
+	PM_Friction();
+
+	vec_t scale = PM_CmdScale(pm->cmd);
+
+	// user intentions
+	wishvel = ((pml.forward * pm->cmd.forwardmove) * scale) + ((pml.right * pm->cmd.sidemove) * scale);
+	wishvel[2] += pm->cmd.upmove * scale;
+
+	wishdir = wishvel;
+	wishspeed = wishdir.normalize();
+
+	PM_Accelerate(wishdir, wishspeed, pm_flyaccelerate);
+
+//	PM_StepSlideMove(false);
+
+	pml.origin += pml.velocity_linear * pml.frametime;
+	
+	pml.velocity_angular[0] = 0;
+	pml.velocity_angular[1] = 0;
+	pml.velocity_angular[2] = 0;
+
+#else
+	// old quake2 way
 	float	currentspeed, addspeed, accelspeed;
 	vec3_c		wishvel;
 	vec3_c		wishdir;
@@ -768,7 +997,7 @@ static void	PM_FlyMove(bool doclip)
 	// friction
 	PM_AirFriction();
 	
-	scale = 1.0; //PM_CmdScale(pm->cmd);
+	scale = PM_CmdScale(pm->cmd);
 
 	// user intentions
 	pml.forward.normalize();
@@ -802,21 +1031,12 @@ static void	PM_FlyMove(bool doclip)
 	wishdir.normalize();
 
 	// move
-	if(!doclip)
-	{
-		pml.origin += pml.velocity_linear * pml.frametime;
-	}
-	else
-	{
-		trace_t trace = pm->boxTrace(pml.origin, pm->bbox, (pml.origin + (pml.velocity_linear * pml.frametime)));
-		
-		pml.origin = trace.pos;
-	}
-	
+	pml.origin += pml.velocity_linear * pml.frametime;
 	
 	pml.velocity_angular[0] = 0;
 	pml.velocity_angular[1] = 0;
 	pml.velocity_angular[2] = 0;
+#endif
 }
 
 /*
@@ -848,16 +1068,18 @@ void	PM_RollMove()
 
 static void	PM_CheckDuck()
 {
-	pm->bbox._mins[0] = -16;
-	pm->bbox._mins[1] = -16;
+	pm->bbox._mins[0] = -15;
+	pm->bbox._mins[1] = -15;
 	pm->bbox._mins[2] = 0;
 
-	pm->bbox._maxs[0] = 16;
-	pm->bbox._maxs[1] = 16;
+	pm->bbox._maxs[0] = 15;
+	pm->bbox._maxs[1] = 15;
 
 	if(pm->s.pm_type == PM_DEAD)
 	{
+		pm->viewheight = VIEWHEIGHT_DEAD;
 		pm->s.pm_flags |= PMF_DUCKED;
+		return;
 	}
 	else if(pm->cmd.upmove < 0 && (pm->s.pm_flags & PMF_ON_GROUND))
 	{	
@@ -888,10 +1110,77 @@ static void	PM_CheckDuck()
 	}
 	else
 	{
-		pm->bbox._maxs[2] = 56;
+		pm->bbox._maxs[2] = 64;
 		pm->viewheight = VIEWHEIGHT_DEFAULT;
 	}
 }
+
+static void	PM_WalkMove()
+{
+	if(pm->waterlevel > 2 && pml.forward.dotProduct(pml.ground_trace.plane._normal) > 0)
+	{
+		// start swimming
+		PM_WaterMove();
+		return;
+	}
+
+	if(PM_CheckJump())
+	{
+		if(pm->waterlevel > 1)
+			PM_WaterMove();
+		else
+			PM_AirMove();
+		
+		return;
+	}
+
+	vec3_c		wishvel;
+	vec3_c		wishdir;
+	float		wishspeed;
+
+	// normal slowdown
+	PM_Friction();
+
+	vec_t scale = PM_CmdScale(pm->cmd);
+
+	// project moves down to flat plane
+	pml.forward[2] = 0;
+	pml.right[2] = 0;
+
+	// project the forward and right directions onto the ground plane
+	PM_ClipVelocity(pml.forward, pml.ground_trace.plane._normal, pml.forward, PM_OVERCLIP);
+	PM_ClipVelocity(pml.right, pml.ground_trace.plane._normal, pml.right, PM_OVERCLIP);
+
+	pml.forward.normalize();
+	pml.right.normalize();
+
+	wishvel = (pml.forward * pm->cmd.forwardmove) + (pml.right * pm->cmd.sidemove);
+	
+	wishdir = wishvel;
+	wishspeed = wishdir.normalize();
+	wishspeed *= scale;
+
+//	if(pm_airaccelerate)
+//		PM_AirAccelerate(wishdir, wishspeed, pm_accelerate);
+//	else
+		PM_Accelerate(wishdir, wishspeed, pm_accelerate);
+
+	vec_t speed = pml.velocity_linear.length();
+
+	// slide along the ground plane
+	PM_ClipVelocity(pml.velocity_linear, pml.ground_trace.plane._normal, pml.velocity_linear, PM_OVERCLIP);
+
+	// don't decrease velocity when going up or down a slope
+	pml.velocity_linear.normalize();
+	pml.velocity_linear *= speed;
+
+	// don't do anything if standing still
+	if(!pml.velocity_linear[0] && !pml.velocity_linear[1])
+		return;
+
+	PM_StepSlideMove(false);
+}
+
 static void	PM_DeadMove()
 {
 	float	forward;
@@ -997,7 +1286,7 @@ static void	PM_SnapPosition()
 }
 
 
-static void	PM_InitialSnapPosition()
+void	PM_InitialSnapPosition()
 {
 /*
 	static const vec_t offset[3] = {0, -1, 1};
@@ -1060,21 +1349,26 @@ static void	PM_UpdateViewAngles()
 
 static void	PM_DropTimers()
 {
+	// drop misc timing counter
 	if(pm->s.pm_time)
 	{
 		int msec = pm->cmd.msec >> 3;
 		
 		if(!msec)
 			msec = 1;
-		
+
 		if(msec >= pm->s.pm_time) 
 		{
 			pm->s.pm_flags &= ~(PMF_TIME_WATERJUMP | PMF_TIME_LAND | PMF_TIME_TELEPORT);
 			pm->s.pm_time = 0;
 		}
 		else
+		{
 			pm->s.pm_time -= msec;
+		}
 	}
+
+	//TODO drop animation counter
 }
 
 void 	BG_PMove(pmove_t *pmove)
@@ -1085,7 +1379,7 @@ void 	BG_PMove(pmove_t *pmove)
 	pm->touchents.clear();
 	pm->viewangles.clear();
 	pm->viewheight = 0;
-	pm->groundentity = 0;
+	pm->groundentity = NULL;
 	pm->watertype = 0;
 	pm->waterlevel = 0;
 
@@ -1104,9 +1398,8 @@ void 	BG_PMove(pmove_t *pmove)
 
 	if(pm->s.pm_type == PM_SPECTATOR)
 	{
-		pm->viewheight = 22;
-	
-		PM_FlyMove(false);
+		PM_CheckDuck();	
+		PM_FlyMove();
 		PM_SnapPosition();
 		return;
 	}
@@ -1120,24 +1413,23 @@ void 	BG_PMove(pmove_t *pmove)
 
 	if(pm->s.pm_type == PM_FREEZE)
 		return;		// no movement at all
+
+	// set watertype, and waterlevel
+	PM_CheckWaterLevel();
 	
 	// set mins, maxs, and viewheight
 	PM_CheckDuck();
-	
-	if(pm->snapinitial)
-		PM_InitialSnapPosition();
 
 	// set groundentity
 	PM_CheckOnGround();
-	
-	// set watertype, and waterlevel
-	PM_CheckWaterLevel();
 
 	if(pm->s.pm_type == PM_DEAD)
+	{
 		PM_DeadMove();
+	}
 
 	// check for special movement like on ladders
-	PM_CheckSpecialMovement();
+//	PM_CheckSpecialMovement();
 
 	// drop timing counters
 	PM_DropTimers();
@@ -1147,47 +1439,39 @@ void 	BG_PMove(pmove_t *pmove)
 		// teleport pause stays exactly in place
 	}
 	else if(pm->s.pm_flags & PMF_TIME_WATERJUMP)
-	{	
-		// waterjump has no control, but falls
-		pml.velocity_linear[2] -= pm->s.gravity * pml.frametime;
-		
-		if(pml.velocity_linear[2] < 0)
-		{
-			// cancel as soon as we are falling down again
-			pm->s.pm_flags &= ~(PMF_TIME_WATERJUMP | PMF_TIME_LAND | PMF_TIME_TELEPORT);
-			pm->s.pm_time = 0;
-		}
-
-		PM_StepSlideMove();
+	{
+		PM_WaterJumpMove();
+	}
+	else if(pm->waterlevel > 1)
+	{
+		// swimming
+		PM_WaterMove();
+	}
+	else if(pml.walking)
+	{
+		PM_WalkMove();
 	}
 	else
 	{
-		PM_CheckJump();
-
-		PM_Friction();
-
-		if(pm->waterlevel >= 2)
-		{
-			PM_WaterMove();
-		}
-		else 
-		{
-			vec3_c angles = pm->viewangles;
-			
-			if(angles[PITCH] > 180)
-				angles[PITCH] = angles[PITCH] - 360;
-			angles[PITCH] /= 3;
-
-			Angles_ToVectors(angles, pml.forward, pml.right, pml.up);
-
-			PM_AirMove();
-		}
+		// airborne
+		PM_AirMove();
 	}
+
+//	TODO PM_Animate();
 
 	// set groundentity, watertype, and waterlevel for final spot
 	PM_CheckOnGround();
 	PM_CheckWaterLevel();
 	
+	// weapon animations
+//	TODO PM_Weapons();
+
+	// footstep events / legs animations
+//	TODO PM_FootSteps();
+
+	// entering / leaving water splashes
+//	TODO PM_WaterEvents();
+
 	PM_SnapPosition();
 }
 
