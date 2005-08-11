@@ -122,7 +122,7 @@ void	g_target_speaker_c::activate()
 {
 	if(_s_shader.empty())
 	{
-		trap_Com_Printf("target_speaker with no sound shader set at %s\n", Vector3_String(_s.origin));
+		trap_Com_Printf("target_speaker with no sound shader set at %s\n", _s.origin.toString());
 		remove();
 		return;
 	}
@@ -205,7 +205,7 @@ void	g_target_explosion_c::use(g_entity_c *other, g_entity_c *activator)
 		return;
 	}
 
-	_nextthink = level.time + _time_delay;
+	_time_nextthink = level.time + _time_delay;
 }
 
 void	g_target_explosion_c::activate()
@@ -609,7 +609,7 @@ g_target_delay_c::g_target_delay_c(g_entity_c *ent, g_entity_c *activator)
 	_r.inuse	= true;
 	
 	_classname = "DelayedUse";
-	_nextthink = level.time + ent->_time_delay;
+	_time_nextthink = level.time + ent->_time_delay;
 	//target->think = Think_Delay;
 	
 	_activator = activator;	

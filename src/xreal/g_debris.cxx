@@ -61,7 +61,7 @@ g_debris_c::g_debris_c(g_entity_c *ent, const std::string &modelname, float spee
 	_avelocity[1] = random()*600;
 	_avelocity[2] = random()*600;
 	*/
-	_nextthink = level.time + 5000 + (int)((random()*5)*1000);
+	_time_nextthink = level.time + 5000 + (int)((random()*5)*1000);
 	
 	_takedamage = DAMAGE_YES;
 }
@@ -71,7 +71,7 @@ void	g_debris_c::think()
 	remove();
 }
 
-void	g_debris_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point)
+void	g_debris_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, const vec3_c &point)
 {
 	remove();
 }

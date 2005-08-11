@@ -280,24 +280,21 @@ static void	CL_BaseMove(usercmd_t &cmd)
 		cmd.sidemove -= cl_sidespeed->getValue() * CL_KeyState(&in_left);
 	}
 
-	cmd.sidemove += cl_sidespeed->getValue() * CL_KeyState(&in_moveright);
-	cmd.sidemove -= cl_sidespeed->getValue() * CL_KeyState(&in_moveleft);
+	cmd.sidemove += /*cl_sidespeed->getValue()*/ 127 * CL_KeyState(&in_moveright);
+	cmd.sidemove -= /*cl_sidespeed->getValue()*/ 127 * CL_KeyState(&in_moveleft);
 
-	cmd.upmove += cl_upspeed->getValue() * CL_KeyState(&in_up);
-	cmd.upmove -= cl_upspeed->getValue() * CL_KeyState(&in_down);
+	cmd.upmove += /*cl_upspeed->getValue()*/ 127 * CL_KeyState(&in_up);
+	cmd.upmove -= /*cl_upspeed->getValue()*/ 127 * CL_KeyState(&in_down);
 
-	cmd.forwardmove += cl_forwardspeed->getValue() * CL_KeyState(&in_forward);
-	cmd.forwardmove -= cl_forwardspeed->getValue() * CL_KeyState(&in_back);
+	cmd.forwardmove += /*cl_forwardspeed->getValue()*/ 127 * CL_KeyState(&in_forward);
+	cmd.forwardmove -= /*cl_forwardspeed->getValue()*/ 127 * CL_KeyState(&in_back);
 
-
-	//
 	// adjust for speed key / running
-	//
 	if((in_speed.state & 1) ^ cl_run->getInteger())
 	{
-		cmd.forwardmove *= 2;
-		cmd.sidemove *= 2;
-		cmd.upmove *= 2;
+		//cmd.forwardmove *= 2;
+		//cmd.sidemove *= 2;
+		//cmd.upmove *= 2;
 		
 		cmd.buttons &= ~BUTTON_WALK;
 	}
@@ -305,6 +302,10 @@ static void	CL_BaseMove(usercmd_t &cmd)
 	{
 		cmd.buttons |= BUTTON_WALK;
 	}
+
+	X_clamp(cmd.forwardmove, -127, 127);
+	X_clamp(cmd.sidemove, -127, 127);
+	X_clamp(cmd.upmove, -127, 127);
 }
 
 static void	CL_ClampPitch()

@@ -112,8 +112,8 @@ void	g_light_c::think()
 	}
 	*/
 
-	// HACK HACK HACK
 #if 0
+	// HACK HACK HACK
 	if(X_strcaseequal(_texture.c_str(), "lights/dotsCubeLight"))
 //	if(X_strcaseequal(_texture.c_str(), "lights/fanlightgrate"))
 	{
@@ -122,7 +122,7 @@ void	g_light_c::think()
 	}
 #endif
 
-	_nextthink = level.time + FRAMETIME;
+	_time_nextthink = level.time + FRAMETIME;
 }
 
 /*
@@ -132,7 +132,7 @@ void	g_light_c::touch(g_entity_c *other, cplane_c *plane, csurface_c *surf)
 }
 */
 
-void	g_light_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point)
+void	g_light_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, const vec3_c &point)
 {
 	trap_Com_Printf("g_light_c::die: inflictor '%s'\n", inflictor->getClassName());
 
@@ -222,33 +222,7 @@ void	g_light_c::activate()
 		_takedamage = DAMAGE_YES;
 	}
 	
-	/*
-		// setup ODE collision
-		g_geom_info_c *geom_info = new g_geom_info_c(this, NULL, NULL);
-	
-		d_geom_c *geom = new d_box_c(g_ode_space->getId(), _s.vectors[0] * 0.5);
-		geom->setPosition(_s.origin);
-		geom->setQuaternion(_s.quat);
-		geom->setData(geom_info);
-	
-		_geoms.insert(std::make_pair(geom, geom_info));
-	*/
-	
-	
-	
-	
-	// setup ODE rigid body
-	/*
-	_body->setPosition(_s.origin);
-	_body->setQuaternion(_s.quat);
-	_body->setGravityMode(0);
-	
-	dMass m;
-	dMassSetSphereTotal(&m, 0.1, 8);
-	_body->setMass(&m);
-	*/
-	
-	_nextthink = level.time + FRAMETIME;
+	_time_nextthink = level.time + FRAMETIME;
 }
 
 void	SP_light(g_entity_c **entity)

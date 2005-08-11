@@ -183,12 +183,14 @@ struct client_respawn_t
 class g_player_c :
 public g_entity_c
 {
+	friend class g_trigger_push_c;
+
 public:
 	g_player_c();
 	virtual ~g_player_c();
 	
 //	virtual void		pain(g_entity_c *other, float kick, int damage);
-	virtual void		die(g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point);
+	virtual void		die(g_entity_c *inflictor, g_entity_c *attacker, int damage, const vec3_c &point);
 	
 	virtual std::string	clientTeam();
 	virtual void		takeDamage(	g_entity_c *inflictor, 	g_entity_c *attacker,

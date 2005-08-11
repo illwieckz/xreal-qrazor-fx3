@@ -68,8 +68,9 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 	//_r.ping;
 	
 	_remove			= false;
-	_spawntime		= level.time;
+	_time_spawn		= level.time;
 	_classname		= "noclass";
+	_thinktype		= 0;
 	_movetype		= MOVETYPE_NONE;
 	_flags			= 0;
 	_spawnflags		= 0;
@@ -92,7 +93,7 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 	_yaw_speed		= 0;
 	_ideal_yaw		= 0;
 
-	_nextthink		= 0;			// time when this entity will think again
+	_time_nextthink		= 0;		// time when this entity will think again
 
 	_time_wait		= 0;
 	_time_delay		= 0;
@@ -299,6 +300,36 @@ void	g_entity_c::run()
 	// regular thinking
 	runThink();
 
+	// regular physics
+	runPhysics();
+}
+
+/*
+=============
+G_RunThink
+
+Runs thinking code for this frame if necessary
+=============
+*/
+bool	g_entity_c::runThink()
+{
+	float thinktime = _time_nextthink;
+	
+	if(thinktime <= 0)
+		return true;
+		
+	if(thinktime > level.time + 1)
+		return true;
+	
+	_time_nextthink = 0;
+	
+	think();
+
+	return false;
+}
+
+void	g_entity_c::runPhysics()
+{
 	switch(_movetype)
 	{
 		case MOVETYPE_PUSH:
@@ -438,7 +469,7 @@ void	g_entity_c::setEPairs(const epairs_t &epairs)
 	_epairs = epairs;
 }
 
-bool	g_entity_c::hasEPair(const std::string &key)
+bool	g_entity_c::hasKey(const std::string &key) const
 {
 	epairs_ci i = _epairs.find(key);
 	
@@ -448,19 +479,61 @@ bool	g_entity_c::hasEPair(const std::string &key)
 	return false;
 }
 
-const char*	g_entity_c::valueForKey(const std::string &key)
+const char*	g_entity_c::getValueForKey(const std::string &key) const
 {
 	epairs_ci i = _epairs.find(key);
 	
 	if(i != _epairs.end())
+	{
 		return i->second.c_str();
+	}
+	else
+	{
+		return "";
+	}
+}
+
+vec_t	g_entity_c::getFloatForKey(const std::string &key) const
+{
+	epairs_ci i = _epairs.find(key);
 	
-	return "";
+	if(i != _epairs.end())
+	{
+		return atof(i->second.c_str());
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+void 	g_entity_c::getVector3ForKey(const std::string &key, vec3_c &v) const
+{
+	epairs_ci i = _epairs.find(key);
+	
+	if(i != _epairs.end())
+	{
+		const char *k = i->second.c_str();
+		double	v1, v2, v3;
+	
+		// scanf into doubles, then assign, so it is vec_t size independent
+		v1 = v2 = v3 = 0;
+	
+		sscanf(k, "%lf %lf %lf", &v1, &v2, &v3);
+	
+		v[0] = v1;
+		v[1] = v2;
+		v[2] = v3;
+	}
+	else
+	{
+		v = vec3_origin;
+	}
 }
 
 void	g_entity_c::updateField(const std::string &key)
 {
-	const char* value = valueForKey(key);
+	const char* value = getValueForKey(key);
 	
 	if(value[0] != '\0')
 		setField(key, value);
@@ -487,30 +560,6 @@ void	g_entity_c::updateVelocity()
 #endif
 
 
-/*
-=============
-G_RunThink
-
-Runs thinking code for this frame if necessary
-=============
-*/
-bool	g_entity_c::runThink()
-{
-	float thinktime = _nextthink;
-	
-	if(thinktime <= 0)
-		return true;
-		
-	if(thinktime > level.time + 1)
-		return true;
-	
-	_nextthink = 0;
-	
-	think();
-
-	return false;
-}
-
 void	g_entity_c::addGravity()
 {
 	_s.velocity_linear[2] -= _gravity * g_gravity->getValue() * FRAMETIME * 0.001;
@@ -523,7 +572,6 @@ void	g_entity_c::applyLinearVelocity()
 
 void	g_entity_c::applyAngularVelocity()
 {
-	//FIXME: test this
 	_s.quat.multiplyRotation(_s.velocity_angular * FRAMETIME * 0.001);
 }
 
@@ -743,7 +791,7 @@ bool	g_entity_c::push2(vec3_c &move, vec3_c &amove)
 		if(!check)
 			continue;
 	
-		if (!check->_r.inuse)
+		if(!check->_r.inuse)
 			continue;
 			
 		if (check->_movetype == MOVETYPE_PUSH
@@ -756,10 +804,10 @@ bool	g_entity_c::push2(vec3_c &move, vec3_c &amove)
 			continue;		// not linked in anywhere
 
 		// if the entity is standing on the pusher, it will definitely be moved
-		if (check->_groundentity != this)
+		if(check->_groundentity != this)
 		{
 			// see if the ent needs to be tested
-			if ( check->_r.bbox_abs._mins[0] >= maxs[0]
+			if(check->_r.bbox_abs._mins[0] >= maxs[0]
 			|| check->_r.bbox_abs._mins[1] >= maxs[1]
 			|| check->_r.bbox_abs._mins[2] >= maxs[2]
 			|| check->_r.bbox_abs._maxs[0] <= mins[0]
@@ -995,7 +1043,10 @@ void	g_entity_c::touchTriggers()
 		return;
 
 	std::vector<g_entity_c*>	touchlist;
-	G_AreaEntities(_r.bbox, touchlist, MAX_ENTITIES, AREA_TRIGGERS);
+	G_AreaEntities(_r.bbox_abs, touchlist, MAX_ENTITIES, AREA_TRIGGERS);
+
+//	if(touchlist.size())
+//		trap_Com_DPrintf("g_entity_c::touchTriggers: touching %i triggers\n", touchlist.size());
 
 	// be careful, it is possible to have an entity in this
 	// list removed before we get to it (killtriggered)
@@ -1005,6 +1056,8 @@ void	g_entity_c::touchTriggers()
 
 		if(!other->_r.inuse)
 			continue;
+
+//		trap_Com_DPrintf("g_entity_c::touchTriggers: touching id=%i\n", other->_s.getNumber());
 
 		other->touch(this, NULL, NULL);
 	}
@@ -1043,8 +1096,6 @@ void	g_entity_c::setModel(const std::string &name)
 {
 	if(name.empty())
 		Com_Error(ERR_DROP, "g_entity_c::setModel: empty name");
-	
-	trap_Com_DPrintf("g_entity_c::setModel: '%s'\n", name.c_str());
 
 	// set entity state
 	_s.index_model = trap_SV_ModelIndex(name);
@@ -1063,12 +1114,18 @@ void	g_entity_c::setModel(const std::string &name)
 		_r.size = _r.bbox.size();
 	}
 
+//	trap_Com_DPrintf("g_entity_c::setModel('%s')\n", name.c_str());
+	trap_Com_DPrintf("g_entity_c::setModel('%s'): aabb %s\n", _model.c_str(), _r.bbox.toString());
+	trap_Com_DPrintf("g_entity_c::setModel('%s'): size %s\n", _model.c_str(), _r.size.toString());
+
+//	trap_Com_DPrintf("g_entity_c::setModel('%s'): aabb before linking %s\n", _model.c_str(), _r.bbox.toString());
 	link();
+//	trap_Com_DPrintf("g_entity_c::setModel('%s'): aabb after linking %s\n", _model.c_str(), _r.bbox.toString());
 }
 
 void	G_ShutdownEntities()
 {
-	trap_Com_Printf("G_ShutdownEntities: %i edict slots left\n", g_entities.size());
+	trap_Com_Printf("G_ShutdownEntities: %i entity slots left\n", g_entities.size());
 	
 	for(std::vector<sv_entity_c*>::iterator ir = g_entities.begin(); ir != g_entities.end(); ++ir)
 	{

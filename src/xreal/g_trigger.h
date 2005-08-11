@@ -34,7 +34,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 
-class g_trigger_c : public g_entity_c
+class g_trigger_c :
+public g_entity_c
 {
 public:
 //	g_trigger_c();
@@ -46,7 +47,8 @@ public:
 };
 
 
-class g_trigger_multiple_c : public g_trigger_c
+class g_trigger_multiple_c :
+public g_trigger_c
 {
 public:
 	g_trigger_multiple_c();
@@ -59,7 +61,8 @@ public:
 };
 
 
-class g_trigger_once_c : public g_trigger_multiple_c
+class g_trigger_once_c :
+public g_trigger_multiple_c
 {
 public:
 	
@@ -68,7 +71,8 @@ public:
 
 
 
-class g_trigger_push_c : public g_trigger_c
+class g_trigger_push_c :
+public g_trigger_c
 {
 public:
 	g_trigger_push_c();
@@ -80,7 +84,8 @@ public:
 };
 
 
-class g_trigger_hurt_c : public g_trigger_c
+class g_trigger_hurt_c :
+public g_trigger_c
 {
 public:
 	g_trigger_hurt_c();
@@ -95,7 +100,8 @@ private:
 };
 
 
-class g_trigger_gravity_c : public g_trigger_c
+class g_trigger_gravity_c :
+public g_trigger_c
 {
 public:
 	g_trigger_gravity_c();
@@ -106,7 +112,8 @@ public:
 };
 
 
-class g_trigger_door_c : public g_trigger_c
+class g_trigger_door_c :
+public g_trigger_c
 {
 public:
 	g_trigger_door_c();	// helper entity for func_door*
@@ -116,7 +123,8 @@ public:
 
 
 
-class g_trigger_teleport_c : public g_trigger_c
+class g_trigger_teleport_c :
+public g_trigger_c
 {
 public:
 	g_trigger_teleport_c();

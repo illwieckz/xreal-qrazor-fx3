@@ -63,7 +63,7 @@ g_projectile_bolt_c::g_projectile_bolt_c(g_entity_c *activator, const vec3_c &st
 	
 	// setup values private to game code and this entity
 	_classname = "bolt";
-	_nextthink = level.time + 2000;	// die after 2 seconds
+	_time_nextthink = level.time + 2000;	// die after 2 seconds
 	_dmg = damage;
 	
 #if defined(ODE)
@@ -170,9 +170,8 @@ g_projectile_grenade_c::g_projectile_grenade_c(g_entity_c *activator, const vec3
 	_r.bbox.zero();
 	_s.index_model = trap_SV_ModelIndex ("models/ammo/grenade1.md3");
 	_r.owner = activator;
-	//touch = Grenade_Touch;
-	_nextthink = level.time + timer;
-	//grenade->think = Grenade_Explode;
+	
+	_time_nextthink = level.time + timer;
 	_dmg = damage;
 	_dmg_radius = damage_radius;
 	_classname = "grenade";
@@ -365,7 +364,7 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 	_r.owner = activator;
 	
 	_speed = speed;
-	_nextthink = level.time + 30000;	//level.time + FRAMETIME;
+	_time_nextthink = level.time + 30000;	//level.time + FRAMETIME;
 //	_movetype = MOVETYPE_NOCLIP;
 	_movetype = MOVETYPE_FLYMISSILE;
 	_dmg = damage;
@@ -452,7 +451,7 @@ bool	g_projectile_rocket_c::touch(g_entity_c *other, const plane_c *plane, const
 	else
 		_s.event = EV_ROCKET_EXPLOSION;
 	
-	_nextthink = level.time + FRAMETIME;
+	_time_nextthink = level.time + FRAMETIME;
 	
 	return true;
 }

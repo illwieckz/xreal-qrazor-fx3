@@ -39,7 +39,7 @@ public:
 	g_debris_c(g_entity_c *ent, const std::string &modelname, float speed, const vec3_c &origin);
 	
 	virtual void	think();
-	virtual void	die(g_entity_c *inflictor, g_entity_c *attacker, int damage, vec3_t point);
+	virtual void	die(g_entity_c *inflictor, g_entity_c *attacker, int damage, const vec3_c &point);
 };
 
 

@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 void 	g_trigger_c::init()
 {
-	if(!(_angles == vec3_origin))
+	if(_angles != vec3_origin)
 		G_SetMovedir(_s.quat, _movedir);
 
 	_r.solid = SOLID_TRIGGER;
@@ -75,7 +75,7 @@ void	g_trigger_multiple_c::think()
 {
 	if(_time_wait > 0)
 	{
-		_nextthink = 0;
+		_time_nextthink = 0;
 	}
 	else
 	{
@@ -89,7 +89,7 @@ void	g_trigger_multiple_c::think()
 // so wait for the delay time before firing
 static void	multi_trigger(g_entity_c *ent)
 {
-	if(ent->_nextthink)
+	if(ent->_time_nextthink)
 		return;		// already been triggered
 
 	G_UseTargets(ent, ent->_activator);
@@ -97,14 +97,14 @@ static void	multi_trigger(g_entity_c *ent)
 	if(ent->_time_wait > 0)
 	{
 		//ent->think = multi_wait;
-		ent->_nextthink = level.time + ent->_time_wait;
+		ent->_time_nextthink = level.time + ent->_time_wait;
 	}
 	else
 	{	// we can't just remove (self) here, because this is a touch function
 		// called while looping through area links...
 		
 		//ent->touch = NULL;
-		ent->_nextthink = level.time + FRAMETIME;
+		ent->_time_nextthink = level.time + FRAMETIME;
 		//ent->think = G_FreeEdict;
 	}
 }
@@ -526,16 +526,9 @@ g_trigger_push_c::g_trigger_push_c()
 
 void	g_trigger_push_c::think()
 {
-	//float	height, gravity, time, forward;
-        //float	dist;
-
-	//trap_Com_Printf("g_trigger_push_c::think\n\n");
-
-	vec3_c origin = _r.bbox._mins + _r.bbox._maxs;
-	origin.scale(0.5);
+	trap_Com_Printf("g_trigger_push_c::think()\n");
 
 	g_entity_c *target = G_PickTarget(_target);
-
 	if(!target)
 	{
 		trap_Com_Error(ERR_DROP, "g_trigger_push_c::think: can't find target '%s'\n", _target.c_str());
@@ -543,28 +536,26 @@ void	g_trigger_push_c::think()
 		return;
 	}
 
-	/*
-	height = target->_s.origin[2] - origin[2];
-	gravity = fabs(g_gravity->value);
-	time = X_sqrt(2.0f * (height / gravity));
+	vec3_c origin = (_r.bbox_abs._mins + _r.bbox_abs._maxs) * 0.5;
+
+	vec_t height = X_fabs(target->_s.origin[2] - origin[2]);
+	vec_t gravity = X_fabs(g_gravity->getValue());
+	vec_t time = X_sqrt(height / (0.5 * gravity));
 
 	if(!time)
 	{
 		remove();
 		return;
 	}
-	*/
-
+	
 	// set s.origin2 to the push velocity
 	_movedir =  target->_s.origin - origin;
-	_movedir.normalize();
-	//_movedir[2] = 0;
-	//dist = _movedir.normalize();
+	_movedir[2] = 0;
+	vec_t dist = _movedir.normalize();
 
-	//forward = dist / time;
-	//_movedir.scale(forward);
-
-	//_movedir[2] = time * gravity;	
+	vec_t f = dist / time;
+	_movedir.scale(f);
+	_movedir[2] = time * gravity;
 }
 
 bool	g_trigger_push_c::touch(g_entity_c *other, const plane_c *plane, const csurface_c *surf)
@@ -577,23 +568,26 @@ bool	g_trigger_push_c::touch(g_entity_c *other, const plane_c *plane, const csur
 	{
 		Vector3_Scale(_movedir, _speed * 10, other->_velocity);
 	}
-	else if(other->_health > 0 && other->_r.isclient)
+	else
 	*/
+	if(other->_health > 0 && other->_r.isclient)
 	{
-		//trap_Com_Printf("g_trigger_push_c::touching client\n");
-	
-		// set actors speed
-		//other->_velocity = _movedir;
+		//trap_Com_Printf("g_trigger_push_c::touch: touching client\n");
+
+		g_player_c* player = (g_player_c*)other;
+
+		// add to player's velocity speed
+		player->_s.velocity_linear = _movedir;// * 0.3;
 		//other->_body->addForce(_movedir * 10);
 		//other->_body->addForce(_movedir * (_speed*10));
 		//other->_body->setLinearVel(_movedir * _speed);
 		//Vector3_Scale (self->movedir, self->speed * 10, other->velocity);
 
 		// no prediction
-		//other->getClient()->jumppad_time = level.time;
+		player->_time_jumppad = level.time;
 		
 		// don't take falling damage immediately from this
-		//other->getClient()->oldvelocity = other->_velocity;
+		player->_oldvelocity = player->_s.velocity_linear;
 		
 		/*	
 		if(other->_fly_sound_debounce_time < level.time)
@@ -616,7 +610,7 @@ void	g_trigger_push_c::activate()
 
 	init();
 	
-	_nextthink = level.time + FRAMETIME;
+	_time_nextthink = level.time + FRAMETIME;
 	
 	//if (!self->speed)
 	//	self->speed = 1000;
@@ -862,13 +856,20 @@ bool	g_trigger_teleport_c::touch(g_entity_c *other, const plane_c *plane, const 
 
 void	g_trigger_teleport_c::activate()
 {
-	init();
+//	init();
+
+	if(_angles != vec3_origin)
+		G_SetMovedir(_s.quat, _movedir);
 
 	_r.inuse = true;
+	_r.solid = SOLID_TRIGGER;
+	_r.svflags = SVF_NOCLIENT;
+
+	_movetype = MOVETYPE_NONE;
 	
-	_nextthink = level.time + FRAMETIME;
+	_time_nextthink = level.time + FRAMETIME;
 	
-	setModel();
+//	setModel();
 	
 	//G_SetModel(this, "models/objects/dmspot/tris.md2");
 	//_s.skinnum = 1;
