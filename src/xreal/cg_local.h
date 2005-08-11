@@ -434,7 +434,7 @@ void 	CG_ParseMuzzleFlash(bitmessage_c &msg);
 //
 void	CG_ParseInventory(bitmessage_c &msg);
 void	CG_KeyInventory(int key);
-void	CG_DrawInventory();
+//void	CG_DrawInventory();
 
 
 //

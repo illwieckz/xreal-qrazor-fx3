@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // system -------------------------------------------------------------------
 // xreal --------------------------------------------------------------------
 #include "ui_local.h"
-
+#include "bg_public.h"
 
 static char dmoptions_statusbar[128];
 

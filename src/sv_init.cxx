@@ -197,6 +197,7 @@ void 	SV_SpawnServer(const std::string &server, char *spawnpoint, bool attractlo
 	strcpy(sv.configstrings[CS_MAPNAME], server.c_str());
 	
 	// set air acceleration
+	/*
 	if(Cvar_VariableValue("deathmatch"))
 	{
 		sprintf(sv.configstrings[CS_AIRACCEL], "%g", sv_airaccelerate->getValue());
@@ -205,6 +206,7 @@ void 	SV_SpawnServer(const std::string &server, char *spawnpoint, bool attractlo
 	{
 		strcpy(sv.configstrings[CS_AIRACCEL], "0");
 	}
+	*/
 
 	// leave slots at start for clients only
 	//FIXME
