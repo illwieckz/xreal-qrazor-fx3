@@ -1812,7 +1812,9 @@ public:
 	std::vector<r_skel_channel_t*>	_channels;
 };
 
-class r_md5_animation_c : public r_skel_animation_c
+
+class r_md5_animation_c :
+public r_skel_animation_c
 {
 public:
 	r_md5_animation_c(const std::string &name, byte *buffer, uint_t buffer_size);
@@ -1838,7 +1840,8 @@ struct r_skel_weight_t
 };
 
 
-class r_skel_mesh_c : public r_mesh_c
+class r_skel_mesh_c :
+public r_mesh_c
 {
 public:
 	std::vector<int>		weights_first;		// for each vertex
@@ -1938,15 +1941,6 @@ public:
 	// virtual functions
 	//
 	virtual void	load();
-	
-private:
-	void		loadMaterials(char **data_p);
-	void		loadMaterial(char **data_p);
-	void		skipDiffuseMap(char **data_p);
-	void		skipSubMaterial(char **data_p);
-	
-	void		loadGeomObject(char **data_p);
-	void		loadMesh(char **data_p);
 };
 
 
@@ -2097,10 +2091,6 @@ public:
 	// virtual functions
 	//
 	virtual void	load();
-	
-private:
-	void		loadBones(char **data_p);
-	void		loadMeshes(char **data_p);
 };
 
 
