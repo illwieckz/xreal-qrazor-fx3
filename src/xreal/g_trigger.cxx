@@ -538,8 +538,8 @@ void	g_trigger_push_c::think()
 
 	vec3_c origin = (_r.bbox_abs._mins + _r.bbox_abs._maxs) * 0.5;
 
-	vec_t height = X_fabs(target->_s.origin[2] - origin[2]);
-	vec_t gravity = X_fabs(g_gravity->getValue());
+	vec_t height = target->_s.origin[2] - origin[2];
+	vec_t gravity = g_gravity->getValue();
 	vec_t time = X_sqrt(height / (0.5 * gravity));
 
 	if(!time)
@@ -548,13 +548,13 @@ void	g_trigger_push_c::think()
 		return;
 	}
 	
-	// set s.origin2 to the push velocity
+	// set the push velocity
 	_movedir =  target->_s.origin - origin;
 	_movedir[2] = 0;
 	vec_t dist = _movedir.normalize();
 
 	vec_t f = dist / time;
-	_movedir.scale(f);
+	_movedir *= f;
 	_movedir[2] = time * gravity;
 }
 
@@ -611,9 +611,6 @@ void	g_trigger_push_c::activate()
 	init();
 	
 	_time_nextthink = level.time + FRAMETIME;
-	
-	//if (!self->speed)
-	//	self->speed = 1000;
 }
 
 /*QUAKED trigger_push (.5 .5 .5) ? PUSH_ONCE
