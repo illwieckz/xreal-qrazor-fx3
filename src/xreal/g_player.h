@@ -370,8 +370,6 @@ private:
 	int			_bob_cycle;		// odd cycles are right foot going forward
 	float			_bob_fracsin;		// sin(bobfrac*M_PI)
 	
-	pmove_state_t		_old_pmove;		// for detecting out-of-pmove changes
-	
 	bool			_showscores;		// set layout stat
 	bool			_showinventory;		// set layout stat
 	bool			_showhelp;

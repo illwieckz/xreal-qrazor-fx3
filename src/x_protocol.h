@@ -35,7 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 
-#define	PROTOCOL_VERSION	62
+#define	PROTOCOL_VERSION	63
 
 #define	UPDATE_BACKUP		32	// copies of entity_state_t to keep buffered, must be power of two
 #define	UPDATE_MASK		(UPDATE_BACKUP-1)

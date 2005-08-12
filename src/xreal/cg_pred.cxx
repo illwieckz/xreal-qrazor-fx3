@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 void	CG_CheckPredictionError()
 {
-	if(!cg_predict->getValue() || (cg.frame.playerstate.pmove.pm_flags & PMF_NO_PREDICTION))
+	if(!cg_predict->getValue() || (cg.frame.playerstate.pm_flags & PMF_NO_PREDICTION))
 		return;
 
 	// calculate the last usercmd_t we sent that the server has processed
@@ -41,7 +41,7 @@ void	CG_CheckPredictionError()
 	incoming_ack &= CMD_MASK;
 
 	// compare what the server returned with what we had predicted it to be
-	vec3_c delta = cg.frame.playerstate.pmove.origin - cg.predicted_origins[incoming_ack];
+	vec3_c delta = cg.frame.playerstate.origin - cg.predicted_origins[incoming_ack];
 
 	// save the prediction error for interpolation
 	if(fabs(delta[0]) > 128*8 || fabs(delta[1]) > 128*8 || fabs(delta[2]) > 128*8)
@@ -54,7 +54,7 @@ void	CG_CheckPredictionError()
 		if(cg_showmiss->getInteger() && (delta[0] || delta[1] || delta[2]))
 			Com_Printf("prediction miss on %i: %i\n", cg.frame.serverframe, delta[0] + delta[1] + delta[2]);
 
-		cg.predicted_origins[incoming_ack] = cg.frame.playerstate.pmove.origin;
+		cg.predicted_origins[incoming_ack] = cg.frame.playerstate.origin;
 
 		// save for error interpolation
 		cg.prediction_error = delta * (1.0/16.0);
@@ -205,13 +205,13 @@ void	CG_PredictMovement()
 	if(trap_CLS_GetConnectionState() != CA_ACTIVE)
 		return;
 		
-	if(!cg_predict->getInteger() || (cg.frame.playerstate.pmove.pm_flags & PMF_NO_PREDICTION))
+	if(!cg_predict->getInteger() || (cg.frame.playerstate.pm_flags & PMF_NO_PREDICTION))
 	{	
 		// just set angles
 		usercmd_t cmd;
 		trap_CL_GetCurrentUserCommand(cmd);
 
-		cg.predicted_angles = cmd.angles + cg.frame.playerstate.pmove.delta_angles;
+		cg.predicted_angles = cmd.angles + cg.frame.playerstate.delta_angles;
 		return;
 	}
 
@@ -230,7 +230,7 @@ void	CG_PredictMovement()
 	pm.boxTrace = CG_PMTrace;
 	pm.pointContents = CG_PMPointContents;
 //	pm.airaccelerate = atof(trap_CL_GetConfigString(CS_AIRACCEL])); FIXME
-	pm.s = cg.frame.playerstate.pmove;
+	pm.ps = &cg.frame.playerstate;
 
 	// run frames
 	while(++ack < current)
@@ -242,14 +242,14 @@ void	CG_PredictMovement()
 		BG_PMove(&pm);
 
 		// save for debug checking
-		cg.predicted_origins[frame] = pm.s.origin;
+		cg.predicted_origins[frame] = pm.ps->origin;
 	}
 
 	oldframe = (ack-2) & CMD_MASK;
 	oldz = (int)cg.predicted_origins[oldframe][2];
-	step = (int)(pm.s.origin[2] - oldz);
+	step = (int)(pm.ps->origin[2] - oldz);
 	
-	if(step > 63 && step < 160 && (pm.s.pm_flags & PMF_ON_GROUND))
+	if(step > 63 && step < 160 && (pm.ps->pm_flags & PMF_ON_GROUND))
 	{
 		step_old = 0;
 		
@@ -262,7 +262,7 @@ void	CG_PredictMovement()
 
 
 	// copy results out for rendering
-	cg.predicted_origin = pm.s.origin;
+	cg.predicted_origin = pm.ps->origin;
 	cg.predicted_angles = pm.viewangles;
 //	cg.predicted_velocity = pm.s.velocity_linear;
 //	cg.predicted_velocity_angular = pm.s.velocity_angular;

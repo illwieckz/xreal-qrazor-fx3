@@ -826,8 +826,8 @@ bool	g_trigger_teleport_c::touch(g_entity_c *other, const plane_c *plane, const 
 
 	// clear the velocity and hold them in place briefly
 	//player->_velocity.clear();
-	player->_r.ps.pmove.pm_time = 160>>3;		// hold time
-	player->_r.ps.pmove.pm_flags |= PMF_TIME_TELEPORT;
+	player->_r.ps.pm_time = 160>>3;		// hold time
+	player->_r.ps.pm_flags |= PMF_TIME_TELEPORT;
 
 	// draw the teleport splash at source and on the player
 	/*

@@ -214,7 +214,7 @@ void	sv_client_c::buildFrame()
 	if(!cworld)
 		Com_Printf("sv_client_c::buildFrame: no world loaded\n");
 	else
-		_entity->_r.area = cworld->pointAreanum(_entity->_r.ps.pmove.origin + _entity->_r.ps.view_offset);
+		_entity->_r.area = cworld->pointAreanum(_entity->_r.ps.origin + _entity->_r.ps.view_offset);
 	
 	//Com_Printf("SV_BuildClientFrame: client area %i\n", area);
 

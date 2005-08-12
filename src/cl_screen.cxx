@@ -242,7 +242,7 @@ static void 	SCR_TimeRefresh_f()
 	refdef.width = VID_GetWidth();
 	refdef.height = VID_GetHeight();
 	refdef.setFOV(90);
-	refdef.view_origin = cl.frame.playerstate.view_offset + (cl.frame.playerstate.pmove.origin * (1.0/16.0));
+	refdef.view_origin = cl.frame.playerstate.view_offset + (cl.frame.playerstate.origin * (1.0/16.0));
 
 	start = Sys_Milliseconds();
 

@@ -951,7 +951,7 @@ struct usercmd_t
 		buttons		= 0;
 		
 		forwardmove	= 0;
-		sidemove	= 0;
+		rightmove	= 0;
 		upmove		= 0;
 	}
 
@@ -963,7 +963,7 @@ struct usercmd_t
 		angles.clear();
 		
 		forwardmove	= 0;
-		sidemove	= 0;
+		rightmove	= 0;
 		upmove		= 0;
 	}
 
@@ -972,9 +972,9 @@ struct usercmd_t
 	
 	vec3_c	angles;
 	
-	float	forwardmove;
-	float	sidemove;
-	float	upmove;
+	char	forwardmove;
+	char	rightmove;
+	char	upmove;
 };
 
 extern const usercmd_t	null_usercmd;
@@ -1249,50 +1249,19 @@ public:
 extern const entity_state_t	null_entity_state;
 
 
-// pmove_state_t is the information necessary for client side movement
+
+// player_state_t is the information needed for client side movement
 // prediction
 // this structure needs to be communicated bit-accurate
-// from the server to the client to guarantee that
-// prediction stays in sync, so no floats are used.
+// from the server to the client to guarantee that prediction stays in sync, 
 // if any part of the game code modifies this struct, it
 // will result in a prediction error of some degree.
-struct pmove_state_t
-{
-	inline void	clear()
-	{
-		pm_type		= 0;
-		
-		origin.clear();
-		velocity_linear.clear();
-		velocity_angular.clear();
-		
-		pm_flags	= 0;
-		pm_time		= 0;
-		
-		gravity		= 0;
-		
-		delta_angles.clear();
-	}
-	
-	int		pm_type;
 
-	vec3_c		origin;
-	vec3_c		velocity_linear;
-	vec3_c		velocity_angular;
-	
-	byte		pm_flags;		// ducked, jump_held, etc
-	byte		pm_time;		// each unit = 8 ms
-	
-	float		gravity;
-	
-	vec3_c		delta_angles;		// add to command angles to get view direction
-						// changed by spawns, rotating objects, and teleporters
-};
+// you can't add anything to this without modifying the code in msg.c
 
-// player_state_t is the information needed in addition to pmove_state_t
-// to rendered a view.  There will only be 10 player_state_t sent each second,
-// but the number of pmove_state_t changes will be reletive to client
-// frame rates
+// player_state_t is a full superset of entityState_t as it is used by players,
+// so if a player_state_t is transmitted, the entity_state_t can be fully derived
+// from it.
 class player_state_t // : public entity state
 {
 public:
@@ -1301,9 +1270,39 @@ public:
 		clear();
 	}
 
+	inline void	clearPMove()
+	{
+		pm_type			= 0;
+		
+		origin.clear();
+		velocity_linear.clear();
+		velocity_angular.clear();
+		
+		pm_flags		= 0;
+		pm_time			= 0;
+		
+		gravity			= 0;
+
+		speed_cmd		= 320;
+		speed_stop		= 100;
+		speed_max		= 400;
+
+		accelerate		= 10;
+		accelerate_water	= 5;
+		accelerate_air		= 1;
+		accelerate_spectator	= 8;
+
+		friction		= 6;
+		friction_water		= 1;
+		friction_air		= 3;
+		friction_spectator	= 5;
+		
+		delta_angles.clear();
+	}
+
 	inline void	clear()
 	{
-		pmove.clear();
+		clearPMove();
 		
 		view_angles.clear();
 		view_offset.clear();
@@ -1325,14 +1324,40 @@ public:
 		memset(stats, 0, sizeof(stats));
 	}
 
-	pmove_state_t	pmove;		// for prediction
+	int		pm_type;
+
+	vec3_c		origin;
+	vec3_c		velocity_linear;
+	vec3_c		velocity_angular;
+	
+	byte		pm_flags;			// ducked, jump_held, etc
+	byte		pm_time;			// each unit = 8 ms
+	
+	int		gravity;
+	
+	int		speed_cmd;			// for cmd scale
+	int		speed_stop;
+	int		speed_max;
+
+	int		accelerate;
+	int		accelerate_water;
+	int		accelerate_air;
+	int		accelerate_spectator;
+
+	int		friction;
+	int		friction_water;
+	int		friction_air;
+	int		friction_spectator;
+	
+	vec3_c		delta_angles;			// add to command angles to get view direction
+							// changed by spawns, rotating objects, and teleporters
 
 	// these fields do not need to be communicated bit-precise
-	vec3_c		view_angles;	// for fixed views
-	vec3_c		view_offset;	// add to pmovestate->origin
+	vec3_c		view_angles;			// for fixed views
+	vec3_c		view_offset;			// add to pmovestate->origin
 	
-	vec3_c		kick_angles;	// add to view direction to get render angles
-					// set by weapon kicks, pain effects, etc
+	vec3_c		kick_angles;			// add to view direction to get render angles
+							// set by weapon kicks, pain effects, etc
 
 	vec3_c		gun_angles;
 	vec3_c		gun_offset;
@@ -1340,13 +1365,16 @@ public:
 	int		gun_anim_frame;
 	int		gun_anim_index;
 
-	vec4_c		blend;		// rgba full screen effect
+	vec4_c		blend;				// rgba full screen effect
 	
-	float		fov;		// horizontal field of view
+	float		fov;				// horizontal field of view
 
-	int		rdflags;	// refdef flags
+	int		rdflags;			// refdef flags
 
-	short		stats[MAX_STATS];	// fast status bar updates
+	int		stats[MAX_STATS];		// fast status bar updates
+//	int		persistant[MAX_PERSISTANT];	// stats that aren't cleared on death
+//	int		powerups[MAX_POWERUPS];		// level.time that the powerup runs out
+//	int		ammo[MAX_WEAPONS];
 };
 
 extern const player_state_t	null_player_state;

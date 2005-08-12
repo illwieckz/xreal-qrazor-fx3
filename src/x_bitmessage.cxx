@@ -540,17 +540,17 @@ void 	bitmessage_c::writeDeltaUsercmd(const usercmd_t *from, const usercmd_t *to
 	if(to->forwardmove != from->forwardmove)
 	{
 		writeBit(true);
-		writeFloat(to->forwardmove);
+		writeBits(to->forwardmove, 8);
 	}
 	else
 	{
 		writeBit(false);
 	}
 	
-	if(to->sidemove != from->sidemove)
+	if(to->rightmove != from->rightmove)
 	{
 		writeBit(true);
-		writeFloat(to->sidemove);
+		writeBits(to->rightmove, 8);
 	}
 	else
 	{
@@ -560,7 +560,7 @@ void 	bitmessage_c::writeDeltaUsercmd(const usercmd_t *from, const usercmd_t *to
 	if(to->upmove != from->upmove)
 	{
 		writeBit(true);
-		writeFloat(to->upmove);
+		writeBits(to->upmove, 8);
 	}
 	else
 	{
@@ -884,91 +884,198 @@ void	bitmessage_c::writeDeltaPlayerState(const player_state_t *from, const playe
 	//
 	// write the pmove_state_t
 	//
-	if(to->pmove.pm_type != from->pmove.pm_type)
+	if(to->pm_type != from->pm_type)
 	{
 		writeBit(true);
-		writeByte(to->pmove.pm_type);
+		writeByte(to->pm_type);
 	}
 	else
 	{
 		writeBit(false);
 	}
 
-	if(to->pmove.origin != from->pmove.origin)
+	if(to->origin != from->origin)
 	{
 		writeBit(true);
-		writeVec3(to->pmove.origin);
+		writeVec3(to->origin);
 	}
 	else
 	{
 		writeBit(false);
 	}
 
-	if(to->pmove.velocity_linear != from->pmove.velocity_linear)
+	if(to->velocity_linear != from->velocity_linear)
 	{
 		writeBit(true);
-		writeVec3(to->pmove.velocity_linear);
+		writeVec3(to->velocity_linear);
 	}
 	else
 	{
 		writeBit(false);
 	}
 	
-	if(to->pmove.velocity_angular != from->pmove.velocity_angular)
+	if(to->velocity_angular != from->velocity_angular)
 	{
 		writeBit(true);
-		writeVec3(to->pmove.velocity_angular);
+		writeVec3(to->velocity_angular);
 	}
 	else
 	{
 		writeBit(false);
 	}
 	
-	if(to->pmove.pm_flags != from->pmove.pm_flags)
+	if(to->pm_flags != from->pm_flags)
 	{
 		writeBit(true);
-		writeByte(to->pmove.pm_flags);
+		writeByte(to->pm_flags);
 	}
 	else
 	{
 		writeBit(false);
 	}
 
-	if(to->pmove.pm_time != from->pmove.pm_time)
+	if(to->pm_time != from->pm_time)
 	{
 		writeBit(true);
-		writeByte(to->pmove.pm_time);
+		writeByte(to->pm_time);
 	}
 	else
 	{
 		writeBit(false);
 	}
 
-	if(to->pmove.gravity != from->pmove.gravity)
+	if(to->gravity != from->gravity)
 	{
 		writeBit(true);
-		writeFloat(to->pmove.gravity);
+		writeShort(to->gravity);
 	}
 	else
 	{
 		writeBit(false);
 	}
 
-	if(to->pmove.delta_angles != from->pmove.delta_angles)
+	if(to->speed_cmd != from->speed_cmd)
 	{
 		writeBit(true);
-		writeAngle(to->pmove.delta_angles[0]);
-		writeAngle(to->pmove.delta_angles[1]);
-		writeAngle(to->pmove.delta_angles[2]);
+		writeShort(to->speed_cmd);
+	}
+	else
+	{
+		writeBit(false);
+	}
+
+	if(to->speed_stop != from->speed_stop)
+	{
+		writeBit(true);
+		writeShort(to->speed_stop);
 	}
 	else
 	{
 		writeBit(false);
 	}
 	
-	//
-	// write the rest of the player_state_t
-	//
+	if(to->speed_max != from->speed_max)
+	{
+		writeBit(true);
+		writeShort(to->speed_max);
+	}
+	else
+	{
+		writeBit(false);
+	}
+	
+	if(to->accelerate != from->accelerate)
+	{
+		writeBit(true);
+		writeShort(to->accelerate);
+	}
+	else
+	{
+		writeBit(false);
+	}
+
+	if(to->accelerate_water != from->accelerate_water)
+	{
+		writeBit(true);
+		writeShort(to->accelerate_water);
+	}
+	else
+	{
+		writeBit(false);
+	}
+
+	if(to->accelerate_air != from->accelerate_air)
+	{
+		writeBit(true);
+		writeShort(to->accelerate_air);
+	}
+	else
+	{
+		writeBit(false);
+	}
+
+	if(to->accelerate_spectator != from->accelerate_spectator)
+	{
+		writeBit(true);
+		writeShort(to->accelerate_spectator);
+	}
+	else
+	{
+		writeBit(false);
+	}
+	
+	if(to->friction != from->friction)
+	{
+		writeBit(true);
+		writeShort(to->friction);
+	}
+	else
+	{
+		writeBit(false);
+	}
+
+	if(to->friction_water != from->friction_water)
+	{
+		writeBit(true);
+		writeShort(to->friction_water);
+	}
+	else
+	{
+		writeBit(false);
+	}
+
+	if(to->friction_air != from->friction_air)
+	{
+		writeBit(true);
+		writeShort(to->friction_air);
+	}
+	else
+	{
+		writeBit(false);
+	}
+	
+	if(to->friction_spectator != from->friction_spectator)
+	{
+		writeBit(true);
+		writeShort(to->friction_spectator);
+	}
+	else
+	{
+		writeBit(false);
+	}
+
+	if(to->delta_angles != from->delta_angles)
+	{
+		writeBit(true);
+		writeAngle(to->delta_angles[0]);
+		writeAngle(to->delta_angles[1]);
+		writeAngle(to->delta_angles[2]);
+	}
+	else
+	{
+		writeBit(false);
+	}
+	
 	if(to->view_angles != from->view_angles)
 	{
 		writeBit(true);
@@ -1444,13 +1551,13 @@ void	bitmessage_c::readDeltaUsercmd(const usercmd_t *from, usercmd_t *to)
 		
 	// read movement
 	if(readBit())
-		to->forwardmove = readFloat();
+		to->forwardmove = readBits(8);
 		
 	if(readBit())
-		to->sidemove = readFloat();
+		to->rightmove = readBits(8);
 		
 	if(readBit())
-		to->upmove = readFloat();	
+		to->upmove = readBits(8);
 }
 
 
@@ -1563,43 +1670,67 @@ void	bitmessage_c::readDeltaPlayerState(const player_state_t *from, player_state
 	// set everything to the state we are delta'ing from
 	*to = *from;
 	
-	//
-	// parse the pmove_state_t
-	//
 	if(readBit())
-		to->pmove.pm_type = readByte();
+		to->pm_type = readByte();
 
 	if(readBit())
-		readVec3(to->pmove.origin);
+		readVec3(to->origin);
 
 	if(readBit())
-		readVec3(to->pmove.velocity_linear);
+		readVec3(to->velocity_linear);
 		
 	if(readBit())
-		readVec3(to->pmove.velocity_angular);
+		readVec3(to->velocity_angular);
 		
 	if(readBit())
-		to->pmove.pm_flags = readByte();
+		to->pm_flags = readByte();
 
 	if(readBit())
-		to->pmove.pm_time = readByte();
+		to->pm_time = readByte();
 
 	if(readBit())
-		to->pmove.gravity = readFloat();
+		to->gravity = readShort();
+
+	if(readBit())
+		to->speed_cmd = readShort();
+
+	if(readBit())
+		to->speed_stop = readShort();
+
+	if(readBit())
+		to->speed_max = readShort();
+
+	if(readBit())
+		to->accelerate = readShort();
+	
+	if(readBit())
+		to->accelerate_water = readShort();
+
+	if(readBit())
+		to->accelerate_air = readShort();
+
+	if(readBit())
+		to->accelerate_spectator = readShort();
+
+	if(readBit())
+		to->friction = readShort();
+
+	if(readBit())
+		to->friction_water = readShort();
+
+	if(readBit())
+		to->friction_air = readShort();
+
+	if(readBit())
+		to->friction_spectator = readShort();
 
 	if(readBit())
 	{
-		to->pmove.delta_angles[0] = readAngle();
-		to->pmove.delta_angles[1] = readAngle();
-		to->pmove.delta_angles[1] = readAngle();
+		to->delta_angles[0] = readAngle();
+		to->delta_angles[1] = readAngle();
+		to->delta_angles[1] = readAngle();
 	}
 
-//	if(cl.attractloop)	FIXME
-//		to->pmove.pm_type = PM_FREEZE;		// demo playback
-
-	//
-	// parse the rest of the player_to_t
-	//
 	if(readBit())
 	{		
 		to->view_angles[0] = readAngle();
