@@ -958,12 +958,9 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 			
 		return;
 	}
-	
-	pm_passent = this;
 
-	// set up for pmove
-	pmove_t	pm;
-	pm.clear();
+	// set up for pmove	
+	pm_passent = this;
 
 	if(_movetype == MOVETYPE_NOCLIP)
 		_r.ps.pm_type = PM_SPECTATOR;
@@ -982,57 +979,55 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 #else
 	_r.ps.gravity = g_gravity->getInteger();
 #endif
-	pm.ps = &_r.ps;
 
-	pm.ps->origin = _s.origin;
-	pm.ps->velocity_linear = _s.velocity_linear;
-	pm.ps->velocity_angular = _s.velocity_angular;
+	_r.ps.origin = _s.origin;
+	_r.ps.velocity_linear = _s.velocity_linear;
+	_r.ps.velocity_angular = _s.velocity_angular;
 
-	pm.cmd = cmd;
-
-	pm.rayTrace = NULL;//G_RayTrace;
-	pm.boxTrace = PM_Trace;	// adds default parms
-	pm.pointContents = G_PointContents;
+	player_move_c pm(cmd, &_r.ps, PM_Trace, G_PointContents);
 	
 //	trap_Com_DPrintf("G_ClientThink: performing pmove ...\n");
 
 	// perform a pmove
-	BG_PMove(&pm); 
+	pm.runPMove(); 
 	
 //	trap_Com_DPrintf("G_ClientThink: performed pmove\n");
 
 	// update entity network state
- 	_s.origin = pm.ps->origin;
- 	_s.velocity_linear = pm.ps->velocity_linear;
- 	_s.velocity_angular = pm.ps->velocity_angular;
+ 	_s.origin = _r.ps.origin;
+ 	_s.velocity_linear = _r.ps.velocity_linear;
+ 	_s.velocity_angular = _r.ps.velocity_angular;
 	
-	_r.bbox = pm.bbox;
+	_r.bbox = pm.getAABB();
 
 	_resp.cmd_angles = cmd.angles;
 
+	/*
 	if(_groundentity && !pm.groundentity && (pm.cmd.upmove >= 10) && (pm.waterlevel == 0))
 	{
 		//trap_SV_StartSound(NULL, this, CHAN_VOICE, trap_SV_SoundIndex("*jump1.wav"), 1, ATTN_NORM, 0);
 	}
+	*/
 
-	_v_height = pm.viewheight;
-	_waterlevel = pm.waterlevel;
-	_watertype = pm.watertype;
-	_groundentity = (g_entity_c*)pm.groundentity;
+	_v_height = pm.getViewHeight();
+	_waterlevel = pm.getWaterLevel();
+	_watertype = pm.getWaterType();
+	_groundentity = (g_entity_c*)pm.getGroundEntity();
 	
-	if(pm.groundentity)
-		_groundentity_linkcount = ((g_entity_c*)pm.groundentity)->_r.linkcount;
+	if(_groundentity)
+		_groundentity_linkcount = _groundentity->_r.linkcount;
 
 	if(_deadflag)
 	{
 		_r.ps.view_angles[ROLL] = 40;
 		_r.ps.view_angles[PITCH] = -15;
 		_r.ps.view_angles[YAW] = _killer_yaw;
+
+		//setViewAngles(_r.ps.view_angles);
 	}
 	else
 	{
-		setViewAngles(pm.viewangles);
-		_r.ps.view_angles = pm.viewangles;
+		setViewAngles(_r.ps.view_angles);
 	}
 
 	link();
@@ -1041,13 +1036,14 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 		touchTriggers();
 
 	// touch other objects
-	for(uint_t i=0; i<pm.touchents.size(); i++)
+	const std::deque<entity_c*>& touchents = pm.getTouchEntities();
+	for(uint_t i=0; i<touchents.size(); i++)
 	{
-		g_entity_c* other = (g_entity_c*) pm.touchents[i];
+		g_entity_c* other = (g_entity_c*) touchents[i];
 		
 		uint_t j;
 		for(j=0; j<i; j++)
-			if(pm.touchents[j] == other)
+			if(touchents[j] == other)
 				break;
 		if(j != i)
 			continue;	// duplicated
@@ -2166,9 +2162,6 @@ void	g_player_c::endServerFrame()
 
 	Angles_ToVectors(_v_angles, _v_forward, _v_right, _v_up);
 
-	// burn from lava, etc
-	updateWorldEffects();
-
 	// set model angles from view angles so other things in
 	// the world can tell which direction you are looking
 	if(_v_angles[PITCH] > 180)
@@ -2214,6 +2207,9 @@ void	g_player_c::endServerFrame()
 
 	_bob_cycle = (int)bobtime;
 	_bob_fracsin = fabs(sin(bobtime*M_PI));
+
+	// burn from lava, etc
+	updateWorldEffects();
 
 	// detect hitting the floor
 	updateFallingDamage();
@@ -3509,7 +3505,15 @@ void	g_player_c::addBlend(float r, float g, float b, float a, vec4_c &v_blend)
 	v_blend[3] = a2;
 }
 
-bool	g_player_c::isDucking()
+bool	g_player_c::isOnGround() const
+{
+	if(_r.ps.pm_flags & PMF_ON_GROUND)
+		return true;
+	else
+		return false;
+}
+
+bool	g_player_c::isDucking() const
 {
 	if(_r.ps.pm_flags & PMF_DUCKED)
 		return true;
@@ -3517,7 +3521,7 @@ bool	g_player_c::isDucking()
 		return false;
 }
 
-bool	g_player_c::isRunning()
+bool	g_player_c::isRunning() const
 {
 	if(_xyspeed)
 		return true;
@@ -3525,7 +3529,7 @@ bool	g_player_c::isRunning()
 		return false;
 }
 
-bool	g_player_c::isSwimming()
+bool	g_player_c::isSwimming() const
 {
 	if(_waterlevel > 2)
 		return true;
@@ -3539,8 +3543,7 @@ bool	g_player_c::isSwimming()
 	return false;
 }
 
-#define PM_STEPSIZE	18
-bool	g_player_c::isStepping()
+bool	g_player_c::isStepping() const
 {
 	/*
 	vec3_c	point;

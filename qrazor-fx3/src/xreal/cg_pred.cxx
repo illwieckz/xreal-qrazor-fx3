@@ -159,13 +159,13 @@ trace_t	CG_Trace(const vec3_c &start, const aabb_c &aabb, const vec3_c &end, int
 	return t;
 }
 
-static trace_t	CG_PMTrace(const vec3_c &start, const aabb_c &aabb, const vec3_c &end)
+trace_t	CG_PMTrace(const vec3_c &start, const aabb_c &aabb, const vec3_c &end)
 {
 	return CG_Trace(start, aabb, end, MASK_PLAYERSOLID, trap_CL_GetPlayerNum()+1);
 }
 
 
-static int	CG_PMPointContents(const vec3_c &point)
+int	CG_PMPointContents(const vec3_c &point)
 {
 //	cmodel_c* cmodel = trap_CM_GetModelByNum(0);
 	int contents = cg.world_cmodel->pointContents(point);
@@ -193,11 +193,11 @@ static int	CG_PMPointContents(const vec3_c &point)
 
 void	CG_PredictMovement()
 {
+#if 0
 	int			ack, current;
 	int			frame;
 	int			oldframe;
 	usercmd_t		cmd;
-	pmove_t			pm;
 	int			step;
 	float			step_old;
 	int			oldz;
@@ -225,31 +225,26 @@ void	CG_PredictMovement()
 		return;	
 	}
 
-	// copy current state to pmove
-	pm.clear();
-	pm.boxTrace = CG_PMTrace;
-	pm.pointContents = CG_PMPointContents;
-//	pm.airaccelerate = atof(trap_CL_GetConfigString(CS_AIRACCEL])); FIXME
-	pm.ps = &cg.frame.playerstate;
-
 	// run frames
 	while(++ack < current)
 	{
 		frame = ack & CMD_MASK;
 		trap_CL_GetUserCommand(frame, cmd);
-		pm.cmd = cmd;
+
+		// copy current state to pmove
+		player_move_c pm(cmd, &cg.frame.playerstate, CG_PMTrace, CG_PMPointContents);
 		
-		BG_PMove(&pm);
+		pm.runPMove();
 
 		// save for debug checking
-		cg.predicted_origins[frame] = pm.ps->origin;
+		cg.predicted_origins[frame] = cg.frame.playerstate.origin;
 	}
 
 	oldframe = (ack-2) & CMD_MASK;
 	oldz = (int)cg.predicted_origins[oldframe][2];
-	step = (int)(pm.ps->origin[2] - oldz);
+	step = (int)(cg.frame.playerstate.origin[2] - oldz);
 	
-	if(step > 63 && step < 160 && (pm.ps->pm_flags & PMF_ON_GROUND))
+	if(step > 63 && step < 160 && (cg.frame.playerstate.pm_flags & PMF_ON_GROUND))
 	{
 		step_old = 0;
 		
@@ -260,11 +255,20 @@ void	CG_PredictMovement()
 		cg.predicted_step_time = (int)(trap_CLS_GetRealTime() - trap_CLS_GetFrameTime() / 2);
 	}
 
-
 	// copy results out for rendering
-	cg.predicted_origin = pm.ps->origin;
-	cg.predicted_angles = pm.viewangles;
+	cg.predicted_origin = cg.frame.playerstate.origin;
+	cg.predicted_angles = cg.frame.playerstate.view_angles;
 //	cg.predicted_velocity = pm.s.velocity_linear;
 //	cg.predicted_velocity_angular = pm.s.velocity_angular;
+#else
+	if(trap_CLS_GetConnectionState() != CA_ACTIVE)
+		return;
+		
+	// just set angles
+	usercmd_t cmd;
+	trap_CL_GetCurrentUserCommand(cmd);
 
+	cg.predicted_angles = cmd.angles + cg.frame.playerstate.delta_angles;
+	return;
+#endif
 }

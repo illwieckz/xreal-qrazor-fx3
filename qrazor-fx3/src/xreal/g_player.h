@@ -265,10 +265,11 @@ private:
 	void			addBlend(float r, float g, float b, float a, vec4_c &v_blend);
 	
 	// animation handling
-	bool			isDucking();
-	bool			isRunning();
-	bool			isSwimming();
-	bool			isStepping();
+	bool			isOnGround() const;
+	bool			isDucking() const;
+	bool			isRunning() const;
+	bool			isSwimming() const;
+	bool			isStepping() const;
 	
 	bool			scanAnimations(const std::string &model);
 	animation_c*		scanAnimation(const std::string &name);
