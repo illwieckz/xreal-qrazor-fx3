@@ -221,9 +221,9 @@ static void	CG_CalcViewValues()
 
 	
 	// see if the player entity was teleported this frame
-	if(	   fabs(ps_old->pmove.origin[0] - ps->pmove.origin[0]) > 256
-		|| fabs(ps_old->pmove.origin[1] - ps->pmove.origin[1]) > 256
-		|| fabs(ps_old->pmove.origin[2] - ps->pmove.origin[2]) > 256	)
+	if(	   fabs(ps_old->origin[0] - ps->origin[0]) > 256
+		|| fabs(ps_old->origin[1] - ps->origin[1]) > 256
+		|| fabs(ps_old->origin[2] - ps->origin[2]) > 256	)
 	{
 		ps_old = ps;		// don't interpolate
 	}
@@ -232,7 +232,7 @@ static void	CG_CalcViewValues()
 	lerp = cg.frame_lerp;
 
 	// calculate the origin
-	if(cg_predict->getInteger() && !(cg.frame.playerstate.pmove.pm_flags & PMF_NO_PREDICTION))
+	if(cg_predict->getInteger() && !(cg.frame.playerstate.pm_flags & PMF_NO_PREDICTION))
 	{
 		// use predicted values
 		unsigned	delta;
@@ -254,13 +254,16 @@ static void	CG_CalcViewValues()
 	else
 	{	// just use interpolated values
 		for(int i=0; i<3; i++)
-			cg.refdef.view_origin[i] = ps_old->pmove.origin[i] + ps_old->view_offset[i] 
-			+ lerp * (ps->pmove.origin[i] + ps->view_offset[i] 
-				- (ps_old->pmove.origin[i] + ps_old->view_offset[i]));
+		{
+			cg.refdef.view_origin[i] = 
+			ps_old->origin[i] + 
+			ps_old->view_offset[i] + 
+			lerp * (ps->origin[i] + ps->view_offset[i] - (ps_old->origin[i] + ps_old->view_offset[i]));
+		}
 	}
 
 	// if not running a demo or on a locked frame, add the local angle movement
-	if(cg.frame.playerstate.pmove.pm_type < PM_DEAD)
+	if(cg.frame.playerstate.pm_type < PM_DEAD)
 	{
 		// use predicted values
 		cg.refdef.view_angles = cg.predicted_angles;
@@ -283,7 +286,7 @@ static void	CG_CalcViewValues()
 	cg.refdef.fov_x = ps_old->fov + lerp * (ps->fov - ps_old->fov);
 	
 	// interpolate linear velocity
-	cg.v_velocity.lerp(ps_old->pmove.velocity_linear, ps->pmove.velocity_linear, lerp);
+	cg.v_velocity.lerp(ps_old->velocity_linear, ps->velocity_linear, lerp);
 
 	// don't interpolate blend color
 	cg.v_blend = ps->blend;

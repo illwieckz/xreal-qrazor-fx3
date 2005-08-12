@@ -172,7 +172,7 @@ void	g_player_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, co
 		
 		lookAtKiller(inflictor, attacker);
 		
-		_r.ps.pmove.pm_type = PM_DEAD;
+		_r.ps.pm_type = PM_DEAD;
 		
 		clientObituary(inflictor, attacker);
 		
@@ -224,7 +224,7 @@ void	g_player_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, co
 			i = (i+1)%3;
 			// start a death animation
 			_anim_priority = ANIM_DEATH;
-			if(_r.ps.pmove.pm_flags & PMF_DUCKED)
+			if(_r.ps.pm_flags & PMF_DUCKED)
 			{
 				//_anim_current[PLAYER_BODY_PART_HEAD] = PLAYER_ANIM_HEAD_IDLE;
 				//_anim_current[PLAYER_BODY_PART_UPPER] = PLAYER_ANIM_UPPER_DEATH3;
@@ -567,7 +567,7 @@ void	g_player_c::clientBegin()
 		// connecting to the server, which is different than the
 		// state when the game is saved, so we need to compensate
 		// with deltaangles
-		_r.ps.pmove.delta_angles = _r.ps.view_angles;
+		_r.ps.delta_angles = _r.ps.view_angles;
 	}
 	else
 	{
@@ -950,7 +950,7 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 {
 	if(level.intermission_time)
 	{
-		_r.ps.pmove.pm_type = PM_FREEZE;
+		_r.ps.pm_type = PM_FREEZE;
 		
 		// can exit intermission after five seconds
 		if(level.time > level.intermission_time + 5000 && (cmd.buttons & BUTTON_ANY))
@@ -966,34 +966,27 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	pm.clear();
 
 	if(_movetype == MOVETYPE_NOCLIP)
-		_r.ps.pmove.pm_type = PM_SPECTATOR;
+		_r.ps.pm_type = PM_SPECTATOR;
 			
 //	else if(_s.index_model != 255)
 //		_r.ps.pmove.pm_type = PM_GIB;
 			
 	else if(_deadflag)
-		_r.ps.pmove.pm_type = PM_DEAD;
+		_r.ps.pm_type = PM_DEAD;
 			
 	else
-		_r.ps.pmove.pm_type = PM_NORMAL;
+		_r.ps.pm_type = PM_NORMAL;
 
 #if defined(ODE)
-	_r.ps.pmove.gravity = (9.81 * 32.0 * 2.3) * g_gravity->getValue();
+	_r.ps.gravity = (9.81 * 32.0 * 2.3) * g_gravity->getValue();
 #else
-	_r.ps.pmove.gravity = g_gravity->getValue();
+	_r.ps.gravity = g_gravity->getInteger();
 #endif
-	pm.s = _r.ps.pmove; 
+	pm.ps = &_r.ps;
 
-	pm.s.origin = _s.origin;
-	pm.s.velocity_linear = _s.velocity_linear;
-	pm.s.velocity_angular = _s.velocity_angular;
-
-	if(memcmp(&_old_pmove, &pm.s, sizeof(pm.s)))
-	{
-		//FIXME
-		pm.snapinitial = true;
-//s		trap_Com_DPrintf("g_player_c::clientThink: pmove changed!\n");
-	}
+	pm.ps->origin = _s.origin;
+	pm.ps->velocity_linear = _s.velocity_linear;
+	pm.ps->velocity_angular = _s.velocity_angular;
 
 	pm.cmd = cmd;
 
@@ -1008,14 +1001,10 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	
 //	trap_Com_DPrintf("G_ClientThink: performed pmove\n");
 
-	// save results of pmove
-	_r.ps.pmove = pm.s;
-	_old_pmove = pm.s;
-
 	// update entity network state
- 	_s.origin = pm.s.origin;
- 	_s.velocity_linear = pm.s.velocity_linear;
- 	_s.velocity_angular = pm.s.velocity_angular;
+ 	_s.origin = pm.ps->origin;
+ 	_s.velocity_linear = pm.ps->velocity_linear;
+ 	_s.velocity_angular = pm.ps->velocity_angular;
 	
 	_r.bbox = pm.bbox;
 
@@ -1079,15 +1068,15 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	else if (cmd.forwardmove > 1)
 		_anim_moveflags |= ANIMMOVE_FRONT;
 
-	if(cmd.sidemove < -1)
+	if(cmd.rightmove < -1)
 		_anim_moveflags |= ANIMMOVE_LEFT;
-	else if(cmd.sidemove > 1)
+	else if(cmd.rightmove > 1)
 		_anim_moveflags |= ANIMMOVE_RIGHT;
 
 	if(cmd.buttons & BUTTON_WALK)
 		_anim_moveflags |= ANIMMOVE_WALK;
 
-	if(_r.ps.pmove.pm_flags & PMF_DUCKED)
+	if(_r.ps.pm_flags & PMF_DUCKED)
 		_anim_moveflags |= ANIMMOVE_DUCK;
 
 	
@@ -1110,13 +1099,15 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	{
 		if(cmd.upmove >= 10)
 		{
-			if(!(_r.ps.pmove.pm_flags & PMF_JUMP_HELD))
+			if(!(_r.ps.pm_flags & PMF_JUMP_HELD))
 			{
-				_r.ps.pmove.pm_flags |= PMF_JUMP_HELD;
+				_r.ps.pm_flags |= PMF_JUMP_HELD;
 			}
 		}
 		else
-			_r.ps.pmove.pm_flags &= ~PMF_JUMP_HELD;
+		{
+			_r.ps.pm_flags &= ~PMF_JUMP_HELD;
+		}
 	}
 }
 
@@ -1669,16 +1660,14 @@ void	g_player_c::clearAllButPersistant()
 	_v_up.clear();
 	_v_quat.identity();
 	
-	_v_height		= 0;		
+	_v_height		= 0;
 	
 	_xyspeed		= 0;
 	
 	_bob_time		= 0;
 	_bob_move		= 0;
-	_bob_cycle		= 0;		
-	_bob_fracsin		= 0;		
-	
-	_old_pmove.clear();
+	_bob_cycle		= 0;
+	_bob_fracsin		= 0;
 	
 	_showscores		= false;
 	_showinventory		= false;
@@ -1993,8 +1982,8 @@ void	g_player_c::respawn()
 		//TODO add teleport effect via temp entity
 
 		// hold in place briefly
-		_r.ps.pmove.pm_flags = PMF_TIME_TELEPORT;
-		_r.ps.pmove.pm_time = 14;
+		_r.ps.pm_flags = PMF_TIME_TELEPORT;
+		_r.ps.pm_time = 14;
 
 		_time_respawn = level.time;
 		return;
@@ -2074,8 +2063,8 @@ void	g_player_c::respawnAsSpectator()
 		trap_SV_Multicast(_s.origin, MULTICAST_PVS);
 
 		// hold in place briefly
-		_r.ps.pmove.pm_flags = PMF_TIME_TELEPORT;
-		_r.ps.pmove.pm_time = 14;
+		_r.ps.pm_flags = PMF_TIME_TELEPORT;
+		_r.ps.pm_time = 14;
 	}
 
 	_time_respawn = level.time;
@@ -2160,13 +2149,9 @@ void	g_player_c::endServerFrame()
 	// If it wasn't updated here, the view position would lag a frame
 	// behind the body position when pushed -- "sinking into plats"
 	
-//  	_r.ps.pmove.origin = _body->getPosition();
-//  	_r.ps.pmove.velocity_linear = _body->getLinearVel();
-//  	_r.ps.pmove.velocity_angular = _body->getAngularVel();
-	
-	_r.ps.pmove.origin = _s.origin;
-	_r.ps.pmove.velocity_linear = _s.velocity_linear;
-	_r.ps.pmove.velocity_angular = _s.velocity_angular;
+	_r.ps.origin = _s.origin;
+	_r.ps.velocity_linear = _s.velocity_linear;
+	_r.ps.velocity_angular = _s.velocity_angular;
 
 	// If the end of unit layout is displayed, don't give
 	// the player any normal movement attributes
@@ -2183,7 +2168,6 @@ void	g_player_c::endServerFrame()
 
 	// burn from lava, etc
 	updateWorldEffects();
-
 
 	// set model angles from view angles so other things in
 	// the world can tell which direction you are looking
@@ -2225,7 +2209,7 @@ void	g_player_c::endServerFrame()
 	
 	bobtime = (_bob_time += _bob_move);
 
-	if(_r.ps.pmove.pm_flags & PMF_DUCKED)
+	if(_r.ps.pm_flags & PMF_DUCKED)
 		bobtime *= 4;
 
 	_bob_cycle = (int)bobtime;
@@ -3334,13 +3318,13 @@ void	g_player_c::calcViewOffset()
 
 		// add angles based on bob
 		delta = _bob_fracsin * bob_pitch->getValue() * _xyspeed;
-		if (_r.ps.pmove.pm_flags & PMF_DUCKED)
+		if (_r.ps.pm_flags & PMF_DUCKED)
 			delta *= 6;		// crouching
 			
 		_r.ps.kick_angles[PITCH] += delta;
 		delta = _bob_fracsin * bob_roll->getValue() * _xyspeed;
 		
-		if(_r.ps.pmove.pm_flags & PMF_DUCKED)
+		if(_r.ps.pm_flags & PMF_DUCKED)
 			delta *= 6;		// crouching
 		if(_bob_cycle & 1)
 			delta = -delta;
@@ -3527,7 +3511,7 @@ void	g_player_c::addBlend(float r, float g, float b, float a, vec4_c &v_blend)
 
 bool	g_player_c::isDucking()
 {
-	if(_r.ps.pmove.pm_flags & PMF_DUCKED)
+	if(_r.ps.pm_flags & PMF_DUCKED)
 		return true;
 	else
 		return false;
@@ -5015,13 +4999,13 @@ void	g_player_c::moveToIntermission()
 		
 	_s.origin = level.intermission_origin;
 	
-	_r.ps.pmove.origin[0] = level.intermission_origin[0];
-	_r.ps.pmove.origin[1] = level.intermission_origin[1];
-	_r.ps.pmove.origin[2] = level.intermission_origin[2];
+	_r.ps.origin[0] = level.intermission_origin[0];
+	_r.ps.origin[1] = level.intermission_origin[1];
+	_r.ps.origin[2] = level.intermission_origin[2];
 	
 	_r.ps.view_angles = level.intermission_angles;
 	
-	_r.ps.pmove.pm_type = PM_FREEZE;
+	_r.ps.pm_type = PM_FREEZE;
 	_r.ps.gun_model_index = 0;
 	_r.ps.blend[3] = 0;
 	_r.ps.rdflags &= ~RDF_UNDERWATER;

@@ -73,7 +73,8 @@ struct pmove_t
 {
 	inline void	clear()
 	{
-		s.clear();
+		ps		= NULL;
+		//ps->clearPMove();
 		
 		cmd.clear();
 		snapinitial	 = false;
@@ -96,7 +97,7 @@ struct pmove_t
 	}
 
 	// state (in / out)
-	pmove_state_t	s;
+	player_state_t*	ps;
 
 	// command (in)
 	usercmd_t	cmd;

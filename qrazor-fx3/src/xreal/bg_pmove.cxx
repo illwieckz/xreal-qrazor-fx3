@@ -62,23 +62,6 @@ struct pml_t
 static pmove_t*	pm;
 static pml_t	pml;
 
-
-// movement parameters
-static vec_t	pm_stopspeed = 100.0;
-static vec_t	pm_maxspeed = 300.0;
-//static vec_t	pm_duckspeed = 100.0;
-
-static vec_t	pm_accelerate = 10.0;
-static vec_t	pm_airaccelerate = 1.0;
-static vec_t	pm_wateraccelerate = 5.0;
-vec_t		pm_flyaccelerate = 8.0;
-
-static vec_t	pm_friction = 6.0;
-static vec_t	pm_waterfriction = 1.0;
-static vec_t	pm_airfriction = 3.0;
-static vec_t	pm_spectatorfriction = 5.0;
-
-
 static void	PM_AddTouchEntity(entity_c* ent)
 {
 	if(!ent)
@@ -90,20 +73,30 @@ static void	PM_AddTouchEntity(entity_c* ent)
 		pm->touchents.push_back(ent);
 }
 
+
+/*
+============
+PM_CmdScale
+
+Returns the scale factor to apply to cmd movements
+This allows the clients to use axial -127 to 127 values for all directions
+without getting a sqrt(2) distortion in speed.
+============
+*/
 static float	PM_CmdScale(const usercmd_t &cmd)
 {
-	int max = abs((int)cmd.forwardmove);
+	int max = abs(cmd.forwardmove);
 	
-	if(abs((int)cmd.sidemove) > max)
-		max = abs((int)cmd.sidemove);
+	if(abs(cmd.rightmove) > max)
+		max = abs(cmd.rightmove);
 		
-	if(abs((int)cmd.upmove) > max)
-		max = abs((int)cmd.upmove);
+	if(abs(cmd.upmove) > max)
+		max = abs(cmd.upmove);
 	
 	if(max <= 0)
 		return 0;
 		
-	float total = X_sqrt(cmd.forwardmove*cmd.forwardmove + cmd.sidemove*cmd.sidemove + cmd.upmove*cmd.upmove);
+	float total = X_sqrt(cmd.forwardmove*cmd.forwardmove + cmd.rightmove*cmd.rightmove + cmd.upmove*cmd.upmove);
 	float scale = (float)320 * max / (127.0 * total);
 	
 	return scale;
@@ -171,7 +164,7 @@ bool	PM_SlideMove(bool gravity)
 	if(gravity)
 	{
 		velocity_end = pml.velocity_linear;
-		velocity_end[2] -= pm->s.gravity * pml.frametime;
+		velocity_end[2] -= pm->ps->gravity * pml.frametime;
 		pml.velocity_linear[2] = (pml.velocity_linear[2] + velocity_end[2]) * 0.5;
 		velocity_primal[2] = velocity_end[2];
 		
@@ -331,7 +324,7 @@ bool	PM_SlideMove(bool gravity)
 		pml.velocity_linear = velocity_end;
 
 	// don't change velocity if in a timer (FIXME: is this correct?)
-	if(pm->s.pm_time)
+	if(pm->ps->pm_time)
 		pml.velocity_linear = velocity_primal;
 
 	return (bumpcount != 0);
@@ -438,21 +431,21 @@ static void 	PM_Friction()
 	{
 		if(pml.walking && !(pml.ground_trace.pos_flags & X_SURF_SLICK) || pml.ladder)
 		{
-			vec_t control = speed < pm_stopspeed ? pm_stopspeed : speed;
-			drop += control * pm_friction * pml.frametime;
+			vec_t control = speed < pm->ps->speed_stop ? pm->ps->speed_stop : speed;
+			drop += control * pm->ps->friction * pml.frametime;
 		}
 	}
 
 	// apply water friction
 	if(pm->waterlevel >= 2 && !pml.ladder)
 	{
-		drop += speed * pm_waterfriction * pm->waterlevel * pml.frametime;
+		drop += speed * pm->ps->friction_water * pm->waterlevel * pml.frametime;
 	}
 
 	// apply spectator friction
-	if(pm->s.pm_type == PM_SPECTATOR)
+	if(pm->ps->pm_type == PM_SPECTATOR)
 	{
-		drop += speed * pm_spectatorfriction * pml.frametime;
+		drop += speed * pm->ps->friction_spectator * pml.frametime;
 	}
 		
 	// scale the velocity
@@ -480,8 +473,8 @@ void	PM_AirFriction()
 	}
 	else
 	{
-		vec_t control = speed < pm_stopspeed ? pm_stopspeed : speed;
-		vec_t drop = control * pm_airfriction * pml.frametime;
+		vec_t control = speed < pm->ps->speed_stop ? pm->ps->speed_stop : speed;
+		vec_t drop = control * pm->ps->friction_air * pml.frametime;
 
 		// scale the velocity
 		vec_t newspeed = speed - drop;
@@ -576,22 +569,22 @@ static void	PM_WaterJumpMove()
 	PM_StepSlideMove(true);
 
 	// waterjump has no control, but falls
-	pml.velocity_linear[2] -= pm->s.gravity * pml.frametime;
+	pml.velocity_linear[2] -= pm->ps->gravity * pml.frametime;
 		
 	if(pml.velocity_linear[2] < 0)
 	{
 		// cancel as soon as we are falling down again
-		pm->s.pm_flags &= ~(PMF_TIME_WATERJUMP | PMF_TIME_LAND | PMF_TIME_TELEPORT);
-		pm->s.pm_time = 0;
+		pm->ps->pm_flags &= ~(PMF_TIME_WATERJUMP | PMF_TIME_LAND | PMF_TIME_TELEPORT);
+		pm->ps->pm_time = 0;
 	}
 }
 
 static void	PM_WaterMove()
 {
 	// user intentions
-	vec3_c wishvel = pml.forward*pm->cmd.forwardmove + pml.right*pm->cmd.sidemove;
+	vec3_c wishvel = pml.forward*pm->cmd.forwardmove + pml.right*pm->cmd.rightmove;
 
-	if(!pm->cmd.forwardmove && !pm->cmd.sidemove && !pm->cmd.upmove)
+	if(!pm->cmd.forwardmove && !pm->cmd.rightmove && !pm->cmd.upmove)
 		wishvel[2] -= 60;		// drift towards bottom
 	else
 		wishvel[2] += pm->cmd.upmove;
@@ -601,16 +594,16 @@ static void	PM_WaterMove()
 	vec3_c wishdir = wishvel;
 	vec_t wishspeed = wishdir.normalize();
 
-	if(wishspeed > pm_maxspeed)
+	if(wishspeed > pm->ps->speed_max)
 	{
-		wishspeed = pm_maxspeed / wishspeed;
+		wishspeed = pm->ps->speed_max / wishspeed;
 		wishvel *= wishspeed;
-		wishspeed = pm_maxspeed;
+		wishspeed = pm->ps->speed_max;
 	}
 	
 	wishspeed *= 0.5;
 
-	PM_Accelerate(wishdir, wishspeed, pm_wateraccelerate);
+	PM_Accelerate(wishdir, wishspeed, pm->ps->accelerate_water);
 
 	PM_StepSlideMove(true);
 }
@@ -634,15 +627,15 @@ static void	PM_AirMove()
 	pml.right[2] = 0;
 	pml.right.normalize();
 
-	wishvel = (pml.forward * pm->cmd.forwardmove) + (pml.right * pm->cmd.sidemove);
+	wishvel = (pml.forward * pm->cmd.forwardmove) + (pml.right * pm->cmd.rightmove);
 	
 	wishdir = wishvel;
 	wishspeed = wishdir.normalize();
 	wishspeed *= scale;
 
 	// not on ground, so little effect on velocity
-	if(pm_airaccelerate)
-		PM_AirAccelerate(wishdir, wishspeed, pm_airaccelerate);
+	if(pm->ps->accelerate_air)
+		PM_AirAccelerate(wishdir, wishspeed, pm->ps->accelerate_air);
 	else
 		PM_Accelerate(wishdir, wishspeed, 1.0);
 		
@@ -666,7 +659,7 @@ static void	PM_AirMove()
 	vec_t wishspeed = wishdir.normalize();
 	
 	// clamp to server defined max speed
-	vec_t maxspeed = (pm->s.pm_flags & PMF_DUCKED) ? pm_duckspeed : pm_maxspeed;
+	vec_t maxspeed = (pm->ps->pm_flags & PMF_DUCKED) ? pm_duckspeed : pm_maxspeed;
 
 	if(wishspeed > maxspeed)
 	{
@@ -683,14 +676,14 @@ static void	PM_AirMove()
 		{
 			if(pml.velocity_linear[2] > 0)
 			{
-				pml.velocity_linear[2] -= pm->s.gravity * pml.frametime;
+				pml.velocity_linear[2] -= pm->ps->gravity * pml.frametime;
 				
 				if(pml.velocity_linear[2] < 0)
 					pml.velocity_linear[2]  = 0;
 			}
 			else
 			{
-				pml.velocity_linear[2] += pm->s.gravity * pml.frametime;
+				pml.velocity_linear[2] += pm->ps->gravity * pml.frametime;
 				
 				if(pml.velocity_linear[2] > 0)
 					pml.velocity_linear[2]  = 0;
@@ -707,13 +700,13 @@ static void	PM_AirMove()
 		PM_Accelerate(wishdir, wishspeed, pm_accelerate);
 
 		//fix for negative trigger_gravity fields
-		if(pm->s.gravity > 0)
+		if(pm->ps->gravity > 0)
 		{
 			pml.velocity_linear[2] = 0;
 		}
 		else
 		{
-			pml.velocity_linear[2] -= pm->s.gravity * pml.frametime;
+			pml.velocity_linear[2] -= pm->ps->gravity * pml.frametime;
 		}
 
 		
@@ -731,7 +724,7 @@ static void	PM_AirMove()
 			PM_Accelerate(wishdir, wishspeed, 1);
 		
 		// add gravity
-		pml.velocity_linear[2] -= pm->s.gravity * pml.frametime;
+		pml.velocity_linear[2] -= pm->ps->gravity * pml.frametime;
 		PM_StepSlideMove(false);
 	}
 	*/
@@ -748,7 +741,7 @@ static void	PM_CheckOnGround()
 	if(!trace.ent || trace.fraction == 1)
 	{
 		pm->groundentity = NULL;
-		pm->s.pm_flags &= ~PMF_ON_GROUND;
+		pm->ps->pm_flags &= ~PMF_ON_GROUND;
 		
 		pml.walking = false;
 		pml.ground_plane = false;
@@ -759,7 +752,7 @@ static void	PM_CheckOnGround()
 	if(pml.velocity_linear[2] > 0 && pml.velocity_linear.dotProduct(trace.plane._normal[2]> 10))
 	{
 		pm->groundentity = NULL;
-		pm->s.pm_flags &= ~PMF_ON_GROUND;
+		pm->ps->pm_flags &= ~PMF_ON_GROUND;
 
 		pml.walking = false;
 		pml.ground_plane = false;
@@ -772,7 +765,7 @@ static void	PM_CheckOnGround()
 		// FIXME: if they can't slide down the slope, let them
 		// walk (sharp crevices)
 		pm->groundentity = NULL;
-		pm->s.pm_flags &= ~PMF_ON_GROUND;
+		pm->ps->pm_flags &= ~PMF_ON_GROUND;
 	
 		pml.walking = false;
 		pml.ground_plane = true;
@@ -785,27 +778,27 @@ static void	PM_CheckOnGround()
 	pml.ground_plane = true;
 		
 	// hitting solid ground will end a waterjump
-	if(pm->s.pm_flags & PMF_TIME_WATERJUMP)
+	if(pm->ps->pm_flags & PMF_TIME_WATERJUMP)
 	{
-		pm->s.pm_flags &= ~(PMF_TIME_WATERJUMP | PMF_TIME_LAND | PMF_TIME_TELEPORT);
-		pm->s.pm_time = 0;
+		pm->ps->pm_flags &= ~(PMF_TIME_WATERJUMP | PMF_TIME_LAND | PMF_TIME_TELEPORT);
+		pm->ps->pm_time = 0;
 	}
 
-	if(!(pm->s.pm_flags & PMF_ON_GROUND))
+	if(!(pm->ps->pm_flags & PMF_ON_GROUND))
 	{	
 		// just hit the ground
-		pm->s.pm_flags |= PMF_ON_GROUND;
+		pm->ps->pm_flags |= PMF_ON_GROUND;
 
 		// don't do landing time if we were just going down a slope
 		if(pml.velocity_linear[2] < -200)
 		{
-			pm->s.pm_flags |= PMF_TIME_LAND;
+			pm->ps->pm_flags |= PMF_TIME_LAND;
 				
 			// don't allow another jump for a little while
 			if(pml.velocity_linear[2] < -400)
-				pm->s.pm_time = 25;	
+				pm->ps->pm_time = 25;	
 			else
-				pm->s.pm_time = 18;
+				pm->ps->pm_time = 18;
 		}
 	}
 
@@ -853,7 +846,7 @@ static void	PM_CheckWaterLevel()
 
 static bool	PM_CheckJump()
 {
-	if(pm->s.pm_flags & PMF_TIME_LAND)
+	if(pm->ps->pm_flags & PMF_TIME_LAND)
 	{	
 		// hasn't been long enough since landing to jump again
 		return false;
@@ -862,15 +855,15 @@ static bool	PM_CheckJump()
 	if(pm->cmd.upmove < 10)
 	{	
 		// not holding jump
-		pm->s.pm_flags &= ~PMF_JUMP_HELD;
+		pm->ps->pm_flags &= ~PMF_JUMP_HELD;
 		return false;
 	}
 
 	// must wait for jump to be released
-	if(pm->s.pm_flags & PMF_JUMP_HELD)
+	if(pm->ps->pm_flags & PMF_JUMP_HELD)
 		return false;
 
-	if(pm->s.pm_type == PM_DEAD)
+	if(pm->ps->pm_type == PM_DEAD)
 		return false;
 
 	if(pm->waterlevel >= 2)
@@ -896,7 +889,7 @@ static bool	PM_CheckJump()
 	if(pm->groundentity == NULL)
 		return false;		// in air, so no effect
 
-	pm->s.pm_flags |= PMF_JUMP_HELD;
+	pm->ps->pm_flags |= PMF_JUMP_HELD;
 	pm->groundentity = NULL;
 	
 	pml.velocity_linear[2] += 270;
@@ -916,7 +909,7 @@ void	PM_CheckSpecialMovement()
 	vec3_c	flatforward;
 	trace_t	trace;
 
-	if(pm->s.pm_time)
+	if(pm->ps->pm_time)
 		return;
 
 	pml.ladder = false;
@@ -952,8 +945,8 @@ void	PM_CheckSpecialMovement()
 	pml.velocity_linear = flatforward * 50;
 	pml.velocity_linear[2] = 350;
 
-	pm->s.pm_flags |= PMF_TIME_WATERJUMP;
-	pm->s.pm_time = 255;
+	pm->ps->pm_flags |= PMF_TIME_WATERJUMP;
+	pm->ps->pm_time = 255;
 }
 
 static void	PM_FlyMove()
@@ -970,13 +963,13 @@ static void	PM_FlyMove()
 	vec_t scale = PM_CmdScale(pm->cmd);
 
 	// user intentions
-	wishvel = ((pml.forward * pm->cmd.forwardmove) * scale) + ((pml.right * pm->cmd.sidemove) * scale);
+	wishvel = ((pml.forward * pm->cmd.forwardmove) * scale) + ((pml.right * pm->cmd.rightmove) * scale);
 	wishvel[2] += pm->cmd.upmove * scale;
 
 	wishdir = wishvel;
 	wishspeed = wishdir.normalize();
 
-	PM_Accelerate(wishdir, wishspeed, pm_flyaccelerate);
+	PM_Accelerate(wishdir, wishspeed, pm->ps->accelerate_spectator);
 
 //	PM_StepSlideMove(false);
 
@@ -1075,21 +1068,21 @@ static void	PM_CheckDuck()
 	pm->bbox._maxs[0] = 15;
 	pm->bbox._maxs[1] = 15;
 
-	if(pm->s.pm_type == PM_DEAD)
+	if(pm->ps->pm_type == PM_DEAD)
 	{
 		pm->viewheight = VIEWHEIGHT_DEAD;
-		pm->s.pm_flags |= PMF_DUCKED;
+		pm->ps->pm_flags |= PMF_DUCKED;
 		return;
 	}
-	else if(pm->cmd.upmove < 0 && (pm->s.pm_flags & PMF_ON_GROUND))
+	else if(pm->cmd.upmove < 0 && (pm->ps->pm_flags & PMF_ON_GROUND))
 	{	
 		// duck
-		pm->s.pm_flags |= PMF_DUCKED;
+		pm->ps->pm_flags |= PMF_DUCKED;
 	}
 	else
 	{	
 		// stand up if possible
-		if(pm->s.pm_flags & PMF_DUCKED)
+		if(pm->ps->pm_flags & PMF_DUCKED)
 		{
 			// try to stand up
 			pm->bbox._maxs[2] = 56;
@@ -1098,12 +1091,12 @@ static void	PM_CheckDuck()
 			
 			if(!trace.allsolid)
 			{
-				pm->s.pm_flags &= ~PMF_DUCKED;
+				pm->ps->pm_flags &= ~PMF_DUCKED;
 			}
 		}
 	}
 
-	if(pm->s.pm_flags & PMF_DUCKED)
+	if(pm->ps->pm_flags & PMF_DUCKED)
 	{
 		pm->bbox._maxs[2] = 16;
 		pm->viewheight = VIEWHEIGHT_CROUCH;
@@ -1154,16 +1147,13 @@ static void	PM_WalkMove()
 	pml.forward.normalize();
 	pml.right.normalize();
 
-	wishvel = (pml.forward * pm->cmd.forwardmove) + (pml.right * pm->cmd.sidemove);
+	wishvel = (pml.forward * pm->cmd.forwardmove) + (pml.right * pm->cmd.rightmove);
 	
 	wishdir = wishvel;
 	wishspeed = wishdir.normalize();
 	wishspeed *= scale;
 
-//	if(pm_airaccelerate)
-//		PM_AirAccelerate(wishdir, wishspeed, pm_accelerate);
-//	else
-		PM_Accelerate(wishdir, wishspeed, pm_accelerate);
+	PM_Accelerate(wishdir, wishspeed, pm->ps->accelerate);
 
 	vec_t speed = pml.velocity_linear.length();
 
@@ -1208,10 +1198,10 @@ static bool	PM_GoodPosition()
 	trace_t	trace;
 	vec3_c	origin, end;
 
-	if(pm->s.pm_type == PM_SPECTATOR)
+	if(pm->ps->pm_type == PM_SPECTATOR)
 		return true;
 
-	origin[i] = end[i] = pm->s.origin[i];// mul 0.125;
+	origin[i] = end[i] = pm->ps->origin[i];// mul 0.125;
 
 	trace = pm->boxTrace(origin, pm->bbox, end);
 
@@ -1241,7 +1231,7 @@ static void	PM_SnapPosition()
 	// snap velocity to eigths
 	/*
 	for(i=0; i<3; i++)
-		pm->s.velocity[i] = (int)(pml.velocity[i]*8);
+		pm->ps->velocity[i] = (int)(pml.velocity[i]*8);
 
 	for(i=0; i<3; i++)
 	{
@@ -1250,24 +1240,24 @@ static void	PM_SnapPosition()
 		else 
 			sign[i] = -1;
 		
-		pm->s.origin[i] = (int)(pml.origin[i]*8);
+		pm->ps->origin[i] = (int)(pml.origin[i]*8);
 		
-		if(pm->s.origin[i]*0.125 == pml.origin[i])
+		if(pm->ps->origin[i]*0.125 == pml.origin[i])
 			sign[i] = 0;
 	}
-	Vector3_Copy(pm->s.origin, base);
+	Vector3_Copy(pm->ps->origin, base);
 
 	// try all combinations
 	for(j=0; j<8; j++)
 	{
 		bits = jitterbits[j];
 		
-		Vector3_Copy(base, pm->s.origin);
+		Vector3_Copy(base, pm->ps->origin);
 		
 		for(i=0; i<3; i++)
 		{
 			if(bits & (1<<i) )
-				pm->s.origin[i] += sign[i];
+				pm->ps->origin[i] += sign[i];
 		}
 
 		if(PM_GoodPosition())
@@ -1275,13 +1265,13 @@ static void	PM_SnapPosition()
 	}
 	*/
 	
-	pm->s.origin = pml.origin;
-	pm->s.velocity_linear = pml.velocity_linear;
-	pm->s.velocity_angular = pml.velocity_angular;
+	pm->ps->origin = pml.origin;
+	pm->ps->velocity_linear = pml.velocity_linear;
+	pm->ps->velocity_angular = pml.velocity_angular;
 
 	// go back to the last position
-	//pm->s.origin = pml.origin_prev;
-	//Vector3_Clear (pm->s.velocity);
+	//pm->ps->origin = pml.origin_prev;
+	//Vector3_Clear (pm->ps->velocity);
 	//Com_Printf("using previous_origin\n");	
 }
 
@@ -1291,27 +1281,27 @@ void	PM_InitialSnapPosition()
 /*
 	static const vec_t offset[3] = {0, -1, 1};
 
-	vec3_c base = pm->s.origin;
+	vec3_c base = pm->ps->origin;
 
 	for(int z=0; z<3; z++) 
 	{
-		pm->s.origin[2] = base[2] + offset[z];
+		pm->ps->origin[2] = base[2] + offset[z];
 		
 		for(int y=0; y<3; y++) 
 		{
-			pm->s.origin[1] = base[1] + offset[ y ];
+			pm->ps->origin[1] = base[1] + offset[ y ];
 			
 			for(int x=0; x<3; x++) 
 			{
-				pm->s.origin[0] = base[0] + offset[ x ];
+				pm->ps->origin[0] = base[0] + offset[ x ];
 				
 				if(PM_GoodPosition())
 				{
-					pml.origin[0] = pm->s.origin[0];// mul 0.125;
-					pml.origin[1] = pm->s.origin[1];// mul 0.125;
-					pml.origin[2] = pm->s.origin[2];// mul 0.125;
+					pml.origin[0] = pm->ps->origin[0];// mul 0.125;
+					pml.origin[1] = pm->ps->origin[1];// mul 0.125;
+					pml.origin[2] = pm->ps->origin[2];// mul 0.125;
 					
-					pml.origin_prev = pm->s.origin;
+					pml.origin_prev = pm->ps->origin;
 					return;
 				}
 			}
@@ -1325,16 +1315,16 @@ void	PM_InitialSnapPosition()
 
 static void	PM_UpdateViewAngles()
 {
-	if(pm->s.pm_flags & PMF_TIME_TELEPORT)
+	if(pm->ps->pm_flags & PMF_TIME_TELEPORT)
 	{
-		pm->viewangles[YAW] = pm->cmd.angles[YAW] + pm->s.delta_angles[YAW];
+		pm->viewangles[YAW] = pm->cmd.angles[YAW] + pm->ps->delta_angles[YAW];
 		pm->viewangles[PITCH] = 0;
 		pm->viewangles[ROLL] = 0;
 	}
 	else
 	{
 		// circularly clamp the angles with deltas
-		pm->viewangles = pm->cmd.angles + pm->s.delta_angles;
+		pm->viewangles = pm->cmd.angles + pm->ps->delta_angles;
 	
 		// don't let the player look up or down more than 90 degrees
 		if(pm->viewangles[PITCH] > 89 && pm->viewangles[PITCH] < 180)
@@ -1350,21 +1340,21 @@ static void	PM_UpdateViewAngles()
 static void	PM_DropTimers()
 {
 	// drop misc timing counter
-	if(pm->s.pm_time)
+	if(pm->ps->pm_time)
 	{
 		int msec = pm->cmd.msec >> 3;
 		
 		if(!msec)
 			msec = 1;
 
-		if(msec >= pm->s.pm_time) 
+		if(msec >= pm->ps->pm_time) 
 		{
-			pm->s.pm_flags &= ~(PMF_TIME_WATERJUMP | PMF_TIME_LAND | PMF_TIME_TELEPORT);
-			pm->s.pm_time = 0;
+			pm->ps->pm_flags &= ~(PMF_TIME_WATERJUMP | PMF_TIME_LAND | PMF_TIME_TELEPORT);
+			pm->ps->pm_time = 0;
 		}
 		else
 		{
-			pm->s.pm_time -= msec;
+			pm->ps->pm_time -= msec;
 		}
 	}
 
@@ -1387,16 +1377,16 @@ void 	BG_PMove(pmove_t *pmove)
 	memset(&pml, 0, sizeof(pml));
 
 	// convert origin and velocity to float values
-	pml.origin		= pml.origin_prev = pm->s.origin;
-	pml.velocity_linear	= pm->s.velocity_linear;
-	pml.velocity_angular	= pm->s.velocity_angular;
+	pml.origin		= pml.origin_prev = pm->ps->origin;
+	pml.velocity_linear	= pm->ps->velocity_linear;
+	pml.velocity_angular	= pm->ps->velocity_angular;
 
 	// convert command time
 	pml.frametime = pm->cmd.msec * 0.001;
 
 	PM_UpdateViewAngles();
 
-	if(pm->s.pm_type == PM_SPECTATOR)
+	if(pm->ps->pm_type == PM_SPECTATOR)
 	{
 		PM_CheckDuck();	
 		PM_FlyMove();
@@ -1404,14 +1394,14 @@ void 	BG_PMove(pmove_t *pmove)
 		return;
 	}
 	
-	if(pm->s.pm_type >= PM_DEAD)
+	if(pm->ps->pm_type >= PM_DEAD)
 	{
 		pm->cmd.forwardmove = 0;
-		pm->cmd.sidemove = 0;
+		pm->cmd.rightmove = 0;
 		pm->cmd.upmove = 0;
 	}
 
-	if(pm->s.pm_type == PM_FREEZE)
+	if(pm->ps->pm_type == PM_FREEZE)
 		return;		// no movement at all
 
 	// set watertype, and waterlevel
@@ -1423,7 +1413,7 @@ void 	BG_PMove(pmove_t *pmove)
 	// set groundentity
 	PM_CheckOnGround();
 
-	if(pm->s.pm_type == PM_DEAD)
+	if(pm->ps->pm_type == PM_DEAD)
 	{
 		PM_DeadMove();
 	}
@@ -1434,11 +1424,11 @@ void 	BG_PMove(pmove_t *pmove)
 	// drop timing counters
 	PM_DropTimers();
 
-	if(pm->s.pm_flags & PMF_TIME_TELEPORT)
+	if(pm->ps->pm_flags & PMF_TIME_TELEPORT)
 	{	
 		// teleport pause stays exactly in place
 	}
-	else if(pm->s.pm_flags & PMF_TIME_WATERJUMP)
+	else if(pm->ps->pm_flags & PMF_TIME_WATERJUMP)
 	{
 		PM_WaterJumpMove();
 	}
