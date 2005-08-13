@@ -560,7 +560,7 @@ void	r_skel_model_c::updateBones_r(const r_entity_c *ent, int bone_index)
 		if(channel->components_bits & COMPONENT_BIT_TY)
 		{
 			origin_old[1] = frame_old->components[channel->components_offset+components_applied];
-		origin_new[1] = frame_new->components[channel->components_offset+components_applied];
+			origin_new[1] = frame_new->components[channel->components_offset+components_applied];
 			components_applied++;
 		}	
 		if(channel->components_bits & COMPONENT_BIT_TZ)

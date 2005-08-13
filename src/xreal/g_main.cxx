@@ -57,48 +57,50 @@ d_plane_c*			g_ode_testplane = NULL;
 d_joint_group_c*		g_ode_contact_group = NULL;
 #endif
 
-cvar_t	*deathmatch;
-cvar_t	*coop;
-cvar_t	*dmflags;
-cvar_t	*skill;
-cvar_t	*fraglimit;
-cvar_t	*timelimit;
-cvar_t	*password;
-cvar_t	*spectator_password;
-cvar_t	*needpass;
+
+cvar_t	*dedicated;
 cvar_t	*maxclients;
 cvar_t	*maxspectators;
-cvar_t	*g_select_empty;
-cvar_t	*dedicated;
 
-cvar_t	*filterban;
-
+cvar_t	*g_deathmatch;
+cvar_t	*g_coop;
+cvar_t	*g_skill;
+cvar_t	*g_cheats;
+cvar_t	*g_dmflags;
+cvar_t	*g_fraglimit;
+cvar_t	*g_timelimit;
+cvar_t	*g_password;
+cvar_t	*g_spectator_password;
+cvar_t	*g_needpass;
 cvar_t	*g_gravity;
-cvar_t	*sv_maxvelocity;
+cvar_t	*g_maxvelocity;
+cvar_t	*g_filterban;
+cvar_t	*g_flood_msgs;
+cvar_t	*g_flood_persecond;
+cvar_t	*g_flood_waitdelay;
+cvar_t	*g_maplist;
 
-cvar_t	*sv_rollspeed;
-cvar_t	*sv_rollangle;
-cvar_t	*gun_x;
-cvar_t	*gun_y;
-cvar_t	*gun_z;
-
-cvar_t	*run_pitch;
-cvar_t	*run_roll;
-cvar_t	*bob_up;
-cvar_t	*bob_pitch;
-cvar_t	*bob_roll;
-
-cvar_t	*sv_cheats;
-
-cvar_t	*flood_msgs;
-cvar_t	*flood_persecond;
-cvar_t	*flood_waitdelay;
-
-cvar_t	*sv_maplist;
-
-
-
-
+cvar_t	*pm_gun_x;
+cvar_t	*pm_gun_y;
+cvar_t	*pm_gun_z;
+cvar_t	*pm_rollspeed;
+cvar_t	*pm_rollangle;
+cvar_t	*pm_run_pitch;
+cvar_t	*pm_run_roll;
+cvar_t	*pm_bob_up;
+cvar_t	*pm_bob_pitch;
+cvar_t	*pm_bob_roll;
+cvar_t	*pm_speed_cmd;
+cvar_t	*pm_speed_stop;
+cvar_t	*pm_speed_max;
+cvar_t	*pm_accelerate;
+cvar_t	*pm_accelerate_water;
+cvar_t	*pm_accelerate_air;
+cvar_t	*pm_accelerate_spectator;
+cvar_t	*pm_friction;
+cvar_t	*pm_friction_water;
+cvar_t	*pm_friction_air;
+cvar_t	*pm_friction_spectator;
 
 
 void 	G_RunFrame();
@@ -169,60 +171,57 @@ static void	G_InitGame()
 {
 	trap_Com_Printf("======= G_InitGame \"XreaL\" =======\n");
 
-	gun_x = trap_Cvar_Get ("gun_x", "0", 0);
-	gun_y = trap_Cvar_Get ("gun_y", "0", 0);
-	gun_z = trap_Cvar_Get ("gun_z", "0", 0);
+	trap_Cvar_Get("gamename", GAMEVERSION , CVAR_SERVERINFO | CVAR_LATCH);
+	trap_Cvar_Get("gamedate", __DATE__ , CVAR_SERVERINFO | CVAR_LATCH);
 
-	//FIXME: sv_ prefix is wrong for these
-	sv_rollspeed = trap_Cvar_Get ("sv_rollspeed", "200", 0);
-	sv_rollangle = trap_Cvar_Get ("sv_rollangle", "2", 0);
-	
+	dedicated		= trap_Cvar_Get("dedicated", "0", CVAR_INIT);
+	maxclients		= trap_Cvar_Get("maxclients", "4", CVAR_SERVERINFO | CVAR_LATCH);
+	maxspectators		= trap_Cvar_Get("maxspectators", "4", CVAR_SERVERINFO);
+
+	g_deathmatch		= trap_Cvar_Get("g_deathmatch", "0", CVAR_LATCH);
+	g_coop			= trap_Cvar_Get("g_coop", "0", CVAR_LATCH);
+	g_skill			= trap_Cvar_Get("g_skill", "1", CVAR_LATCH);
+	g_cheats		= trap_Cvar_Get("g_cheats", "0", CVAR_SERVERINFO | CVAR_LATCH);
+	g_dmflags		= trap_Cvar_Get("g_dmflags", "0", CVAR_SERVERINFO);
+	g_fraglimit		= trap_Cvar_Get("g_fraglimit", "0", CVAR_SERVERINFO);
+	g_timelimit		= trap_Cvar_Get("g_timelimit", "0", CVAR_SERVERINFO);
+	g_password		= trap_Cvar_Get("g_password", "", CVAR_USERINFO);
+	g_spectator_password	= trap_Cvar_Get("g_spectator_password", "", CVAR_USERINFO);
+	g_needpass		= trap_Cvar_Get("g_needpass", "0", CVAR_SERVERINFO);
 #if defined(ODE)
-	g_gravity = trap_Cvar_Get("g_gravity", "1", CVAR_SERVERINFO);
+	g_gravity		= trap_Cvar_Get("g_gravity", "1", CVAR_SERVERINFO);
 #else
-	g_gravity = trap_Cvar_Get("g_gravity", "800", CVAR_SERVERINFO);
+	g_gravity		= trap_Cvar_Get("g_gravity", "800", CVAR_SERVERINFO);
 #endif
+	g_maxvelocity		= trap_Cvar_Get("g_maxvelocity", "2000", CVAR_NONE);
+	g_filterban		= trap_Cvar_Get("g_filterban", "1", CVAR_NONE);
+	g_flood_msgs		= trap_Cvar_Get("g_flood_msgs", "4", CVAR_NONE);
+	g_flood_persecond	= trap_Cvar_Get("g_flood_persecond", "4", CVAR_NONE);
+	g_flood_waitdelay	= trap_Cvar_Get("g_flood_waitdelay", "10", CVAR_NONE);
+	g_maplist		= trap_Cvar_Get("g_maplist", "", CVAR_NONE);
+
+	pm_gun_x		= trap_Cvar_Get("pm_gun_x", "0", CVAR_NONE);
+	pm_gun_y		= trap_Cvar_Get("pm_gun_y", "0", CVAR_NONE);
+	pm_gun_z		= trap_Cvar_Get("pm_gun_z", "0", CVAR_NONE);
+	pm_rollspeed		= trap_Cvar_Get("pm_rollspeed", "200", CVAR_NONE);
+	pm_rollangle		= trap_Cvar_Get("pm_rollangle", "2", CVAR_NONE);
+	pm_run_pitch		= trap_Cvar_Get("pm_run_pitch", "0.002", CVAR_NONE);
+	pm_run_roll		= trap_Cvar_Get("pm_run_roll", "0.005", CVAR_NONE);
+	pm_bob_up		= trap_Cvar_Get("pm_bob_up", "0.005", CVAR_NONE);
+	pm_bob_pitch		= trap_Cvar_Get("pm_bob_pitch", "0.002", CVAR_NONE);
+	pm_bob_roll		= trap_Cvar_Get("pm_bob_roll", "0.002", CVAR_NONE);
+	pm_speed_cmd		= trap_Cvar_Get("pm_speed_cmd", "320", CVAR_NONE);
+	pm_speed_stop		= trap_Cvar_Get("pm_speed_stop", "100", CVAR_NONE);
+	pm_speed_max		= trap_Cvar_Get("pm_speed_max", "400", CVAR_NONE);
+	pm_accelerate		= trap_Cvar_Get("pm_accelerate", "10", CVAR_NONE);
+	pm_accelerate_water	= trap_Cvar_Get("pm_accelerate_water", "5", CVAR_NONE);
+	pm_accelerate_air	= trap_Cvar_Get("pm_accelerate_air", "1", CVAR_NONE);
+	pm_accelerate_spectator	= trap_Cvar_Get("pm_accelerate_spectator", "8", CVAR_NONE);
+	pm_friction		= trap_Cvar_Get("pm_friction", "6", CVAR_NONE);
+	pm_friction_water	= trap_Cvar_Get("pm_friction_water", "1", CVAR_NONE);
+	pm_friction_air		= trap_Cvar_Get("pm_friction_air", "3", CVAR_NONE);
+	pm_friction_spectator	= trap_Cvar_Get("pm_friction_spectator", "5", CVAR_NONE);
 	
-	sv_maxvelocity = trap_Cvar_Get ("sv_maxvelocity", "2000", 0);
-
-	// noset vars
-	dedicated = trap_Cvar_Get ("dedicated", "0", CVAR_INIT);
-
-	// latched vars
-	sv_cheats = trap_Cvar_Get ("cheats", "0", CVAR_SERVERINFO|CVAR_LATCH);
-	trap_Cvar_Get ("gamename", GAMEVERSION , CVAR_SERVERINFO | CVAR_LATCH);
-	trap_Cvar_Get ("gamedate", __DATE__ , CVAR_SERVERINFO | CVAR_LATCH);
-
-	maxclients = trap_Cvar_Get ("maxclients", "4", CVAR_SERVERINFO | CVAR_LATCH);
-	maxspectators = trap_Cvar_Get ("maxspectators", "4", CVAR_SERVERINFO);
-	deathmatch = trap_Cvar_Get ("deathmatch", "0", CVAR_LATCH);
-	coop = trap_Cvar_Get ("coop", "0", CVAR_LATCH);
-	skill = trap_Cvar_Get ("skill", "1", CVAR_LATCH);
-
-	// change anytime vars
-	dmflags = trap_Cvar_Get ("dmflags", "0", CVAR_SERVERINFO);
-	fraglimit = trap_Cvar_Get ("fraglimit", "0", CVAR_SERVERINFO);
-	timelimit = trap_Cvar_Get ("timelimit", "0", CVAR_SERVERINFO);
-	password = trap_Cvar_Get ("password", "", CVAR_USERINFO);
-	spectator_password = trap_Cvar_Get ("spectator_password", "", CVAR_USERINFO);
-	needpass = trap_Cvar_Get ("needpass", "0", CVAR_SERVERINFO);
-	filterban = trap_Cvar_Get ("filterban", "1", 0);
-
-	g_select_empty = trap_Cvar_Get ("g_select_empty", "0", CVAR_ARCHIVE);
-
-	run_pitch = trap_Cvar_Get ("run_pitch", "0.002", 0);
-	run_roll = trap_Cvar_Get ("run_roll", "0.005", 0);
-	bob_up  = trap_Cvar_Get ("bob_up", "0.005", 0);
-	bob_pitch = trap_Cvar_Get ("bob_pitch", "0.002", 0);
-	bob_roll = trap_Cvar_Get ("bob_roll", "0.002", 0);
-
-	// flood control
-	flood_msgs = trap_Cvar_Get ("flood_msgs", "4", 0);
-	flood_persecond = trap_Cvar_Get ("flood_persecond", "4", 0);
-	flood_waitdelay = trap_Cvar_Get ("flood_waitdelay", "10", 0);
-
-	// dm map list
-	sv_maplist = trap_Cvar_Get ("sv_maplist", "", 0);
 
 	// initialize all client entities for this game
 	game.maxclients = maxclients->getInteger();
@@ -392,16 +391,16 @@ static void	G_EndDMLevel()
 	static const char *seps = " ,\n\r";
 
 	// stay on same level flag
-	if(dmflags->getInteger() & DF_SAME_LEVEL)
+	if(g_dmflags->getInteger() & DF_SAME_LEVEL)
 	{
 		G_BeginIntermission(G_CreateTargetChangeLevel(level.mapname));
 		return;
 	}
 
 	// see if it's in the map list
-	if(!X_strequal(sv_maplist->getString(), ""))
+	if(!X_strequal(g_maplist->getString(), ""))
 	{
-		s = strdup(sv_maplist->getString());
+		s = strdup(g_maplist->getString());
 		f = NULL;
 		t = strtok(s, seps);
 		while(t != NULL)
@@ -455,20 +454,20 @@ static void	G_CheckNeedPass()
 
 	// if password or spectator_password has changed, update needpass
 	// as needed
-	if(password->isModified() || spectator_password->isModified()) 
+	if(g_password->isModified() || g_spectator_password->isModified()) 
 	{
-		password->isModified(false);
-		spectator_password->isModified(false);
+		g_password->isModified(false);
+		g_spectator_password->isModified(false);
 
 		need = 0;
 
-		if(!X_strequal(password->getString(), "") && X_stricmp(password->getString(), "none"))
+		if(!X_strequal(g_password->getString(), "") && X_stricmp(g_password->getString(), "none"))
 			need |= 1;
 			
-		if(!X_strequal(spectator_password->getString(), "") && X_stricmp(spectator_password->getString(), "none"))
+		if(!X_strequal(g_spectator_password->getString(), "") && X_stricmp(g_spectator_password->getString(), "none"))
 			need |= 2;
 
-		trap_Cvar_Set("needpass", va("%d", need));
+		trap_Cvar_Set("g_needpass", va("%d", need));
 	}
 }
 
@@ -477,12 +476,12 @@ static void	G_CheckDMRules()
 	if(level.intermission_time)
 		return;
 
-	if(!deathmatch->getInteger())
+	if(!g_deathmatch->getInteger())
 		return;
 
-	if(timelimit->getInteger())
+	if(g_timelimit->getInteger())
 	{
-		if(level.time >= timelimit->getInteger()*60000)
+		if(level.time >= g_timelimit->getInteger()*60000)
 		{
 			trap_SV_BPrintf(PRINT_HIGH, "Timelimit hit.\n");
 			G_EndDMLevel();
@@ -490,7 +489,7 @@ static void	G_CheckDMRules()
 		}
 	}
 
-	if(fraglimit->getInteger())
+	if(g_fraglimit->getInteger())
 	{
 		for(int i=0 ; i<maxclients->getInteger(); i++)
 		{

@@ -143,9 +143,9 @@ bool 	SV_FilterPacket(const char *from)
 
 	for (i=0 ; i<numipfilters ; i++)
 		if ( (in & ipfilters[i].mask) == ipfilters[i].compare)
-			return filterban->getInteger();
+			return g_filterban->getInteger();
 
-	return !filterban->getInteger();
+	return !g_filterban->getInteger();
 }
 
 
@@ -238,7 +238,7 @@ void 	SVCmd_WriteIP_f()
 		return;
 	}
 	
-	fprintf(f, "set filterban %d\n", filterban->getInteger());
+	fprintf(f, "set filterban %d\n", g_filterban->getInteger());
 
 	for (i=0 ; i<numipfilters ; i++)
 	{
@@ -264,19 +264,19 @@ void	G_ServerCommand()
 
 	cmd = trap_Cmd_Argv(1);
 	
-	if (X_stricmp (cmd, "test") == 0)
+	if(X_stricmp (cmd, "test") == 0)
 		Svcmd_Test_f ();
 		
-	else if (X_stricmp (cmd, "addip") == 0)
+	else if(X_stricmp (cmd, "addip") == 0)
 		SVCmd_AddIP_f ();
 		
-	else if (X_stricmp (cmd, "removeip") == 0)
+	else if(X_stricmp (cmd, "removeip") == 0)
 		SVCmd_RemoveIP_f ();
 		
-	else if (X_stricmp (cmd, "listip") == 0)
+	else if(X_stricmp (cmd, "listip") == 0)
 		SVCmd_ListIP_f ();
 		
-	else if (X_stricmp (cmd, "writeip") == 0)
+	else if(X_stricmp (cmd, "writeip") == 0)
 		SVCmd_WriteIP_f ();
 		
 	else

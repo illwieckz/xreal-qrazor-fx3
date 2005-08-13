@@ -59,7 +59,7 @@ void	G_BeginIntermission(const g_target_changelevel_c *target)
 
 	if(level.changemap.find("*"))
 	{
-		if (coop->getInteger())
+		if(g_coop->getInteger())
 		{
 			for(int i=0; i<maxclients->getInteger(); i++)
 			{
@@ -81,7 +81,7 @@ void	G_BeginIntermission(const g_target_changelevel_c *target)
 	}
 	else
 	{
-		if(!deathmatch->getInteger())
+		if(!g_deathmatch->getInteger())
 		{
 			level.intermission_exit = true;		// go immediately to the next level
 			return;

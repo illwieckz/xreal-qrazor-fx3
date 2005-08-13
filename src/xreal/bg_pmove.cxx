@@ -203,7 +203,7 @@ float	player_move_c::commandScale()
 		return 0;
 		
 	float total = X_sqrt(_cmd.forwardmove*_cmd.forwardmove + _cmd.rightmove*_cmd.rightmove + _cmd.upmove*_cmd.upmove);
-	float scale = (float)320 * max / (127.0 * total);
+	float scale = (float)_ps->speed_cmd * max / (127.0 * total);
 	
 	return scale;
 }
@@ -606,35 +606,6 @@ void	player_move_c::applyFriction()
 }
 
 
-void	player_move_c::applyAirFriction()
-{
-	vec_t speed = _ps->velocity_linear.length();
-	
-	if(speed < 1)
-	{
-		_ps->velocity_linear.clear();
-	}
-	else
-	{
-		vec_t control = speed < _ps->speed_stop ? _ps->speed_stop : speed;
-		vec_t drop = control * _ps->friction_air * _frametime;
-
-		// scale the velocity
-		vec_t newspeed = speed - drop;
-		if(newspeed <= 0)
-		{
-			newspeed = 0;
-			_ps->velocity_linear.clear();
-		}
-		else
-		{
-			newspeed /= speed;
-			_ps->velocity_linear *= newspeed;
-		}
-	}
-}
-
-
 /*
 ==============
 PM_Accelerate
@@ -642,7 +613,7 @@ PM_Accelerate
 Handles user intended acceleration
 ==============
 */
-void	player_move_c::accelerate(const vec3_c &wishdir, vec_t wishspeed, vec_t accel)
+void	player_move_c::applyAcceleration(const vec3_c &wishdir, vec_t wishspeed, vec_t accel)
 {
 	vec_t	addspeed, accelspeed, currentspeed;
 
@@ -657,28 +628,6 @@ void	player_move_c::accelerate(const vec3_c &wishdir, vec_t wishspeed, vec_t acc
 	if(accelspeed > addspeed)
 		accelspeed = addspeed;
 		
-	_ps->velocity_linear += (wishdir * accelspeed);
-}
-
-void	player_move_c::airAccelerate(const vec3_c &wishdir, vec_t wishspeed, vec_t accel)
-{
-	vec_t	addspeed, accelspeed, currentspeed, wishspd = wishspeed;
-		
-	if(wishspd > 30)
-		wishspd = 30;
-	
-	currentspeed = _ps->velocity_linear.dotProduct(wishdir);
-	
-	addspeed = wishspd - currentspeed;
-	
-	if(addspeed <= 0)
-		return;
-	
-	accelspeed = accel * wishspeed * _frametime;
-	
-	if(accelspeed > addspeed)
-		accelspeed = addspeed;
-	
 	_ps->velocity_linear += (wishdir * accelspeed);
 }
 
@@ -758,7 +707,7 @@ void	player_move_c::waterMove()
 
 	//TODO swim scale
 
-	accelerate(wishdir, wishspeed, _ps->accelerate_water);
+	applyAcceleration(wishdir, wishspeed, _ps->accelerate_water);
 
 	//TODO check slopes
 
@@ -821,7 +770,7 @@ void	player_move_c::airMove()
 	wishspeed *= scale;
 
 	// not on ground, so little effect on velocity
-	airAccelerate(wishdir, wishspeed, _ps->accelerate_air);
+	applyAcceleration(wishdir, wishspeed, _ps->accelerate_air);
 		
 	// we may have a ground plane that is very steep, even
 	// though we don't have a groundentity
@@ -934,7 +883,7 @@ void	player_move_c::spectatorMove()
 	wishdir = wishvel;
 	wishspeed = wishdir.normalize();
 
-	accelerate(wishdir, wishspeed, _ps->accelerate_spectator);
+	applyAcceleration(wishdir, wishspeed, _ps->accelerate_spectator);
 
 	stepSlideMove(false);
 
@@ -1357,7 +1306,7 @@ void	player_move_c::walkMove()
 
 	//TODO clamp the speed lower if wading or walking on the bottom
 
-	accelerate(wishdir, wishspeed, _ps->accelerate);
+	applyAcceleration(wishdir, wishspeed, _ps->accelerate);
 
 	vec_t speed = _ps->velocity_linear.length();
 

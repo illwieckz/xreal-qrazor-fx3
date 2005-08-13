@@ -454,7 +454,7 @@ void	g_world_c::activate()
 	trap_SV_SetConfigString(CS_MAXCLIENTS, va("%i", maxclients->getInteger()));
 
 	// status bar program	//TODO use client side GUIs based on XUL scripting
-	if(deathmatch->getValue())
+	if(g_deathmatch->getValue())
 		trap_SV_SetConfigString(CS_STATUSBAR, dm_statusbar);
 	else
 		trap_SV_SetConfigString(CS_STATUSBAR, "");

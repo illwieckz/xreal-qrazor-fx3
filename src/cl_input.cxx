@@ -72,11 +72,6 @@ static int	in_my;
 static int	in_mx_old;
 static int	in_my_old;
 
-
-static cvar_t*	cl_upspeed;
-static cvar_t*	cl_forwardspeed;
-static cvar_t*	cl_sidespeed;
-
 static cvar_t*	cl_yawspeed;
 static cvar_t*	cl_pitchspeed;
 
@@ -419,10 +414,6 @@ void	IN_CenterView()
 
 void	CL_InitInput()
 {
-	cl_upspeed		= Cvar_Get("cl_upspeed", "200", CVAR_NONE);
-	cl_forwardspeed		= Cvar_Get("cl_forwardspeed", "200", CVAR_NONE);
-	cl_sidespeed		= Cvar_Get("cl_sidespeed", "200", CVAR_NONE);
-	
 	cl_yawspeed		= Cvar_Get("cl_yawspeed", "140", CVAR_NONE);
 	cl_pitchspeed		= Cvar_Get("cl_pitchspeed", "150", CVAR_NONE);
 	
@@ -435,7 +426,6 @@ void	CL_InitInput()
 	m_yaw			= Cvar_Get("m_yaw", "0.022", CVAR_ARCHIVE);
 	m_forward		= Cvar_Get("m_forward", "1", 0);
 	m_side			= Cvar_Get("m_side", "1", 0);
-	
 	
 
 	Cmd_AddCommand("centerview",	IN_CenterView);

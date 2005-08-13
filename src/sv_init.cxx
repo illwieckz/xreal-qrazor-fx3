@@ -195,18 +195,6 @@ void 	SV_SpawnServer(const std::string &server, char *spawnpoint, bool attractlo
 
 	// save name for levels that don't set message
 	strcpy(sv.configstrings[CS_MAPNAME], server.c_str());
-	
-	// set air acceleration
-	/*
-	if(Cvar_VariableValue("deathmatch"))
-	{
-		sprintf(sv.configstrings[CS_AIRACCEL], "%g", sv_airaccelerate->getValue());
-	}
-	else
-	{
-		strcpy(sv.configstrings[CS_AIRACCEL], "0");
-	}
-	*/
 
 	// leave slots at start for clients only
 	//FIXME
@@ -298,22 +286,22 @@ void 	SV_InitGame()
 
 	svs.initialized = true;
 
-	if(Cvar_VariableValue("coop") && Cvar_VariableValue ("deathmatch"))
+	if(Cvar_VariableValue("g_coop") && Cvar_VariableValue("g_deathmatch"))
 	{
 		Com_Printf("Deathmatch and Coop both set, disabling Coop\n");
-		Cvar_Set2("coop", "0",  CVAR_SERVERINFO | CVAR_LATCH, true);
+		Cvar_Set2("g_coop", "0",  CVAR_SERVERINFO | CVAR_LATCH, true);
 	}
 
 	// dedicated servers are can't be single player and are usually DM
 	// so unless they explicity set coop, force it to deathmatch
 	if(dedicated->getInteger())
 	{
-		if(!Cvar_VariableValue ("coop"))
-			Cvar_Set2("deathmatch", "1",  CVAR_SERVERINFO | CVAR_LATCH, true);
+		if(!Cvar_VariableValue("g_coop"))
+			Cvar_Set2("g_deathmatch", "1",  CVAR_SERVERINFO | CVAR_LATCH, true);
 	}
 
 	// init clients
-	if(Cvar_VariableValue("deathmatch"))
+	if(Cvar_VariableValue("g_deathmatch"))
 	{
 		if(maxclients->getInteger() <= 1)
 			Cvar_Set2("maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH, true);
@@ -321,7 +309,7 @@ void 	SV_InitGame()
 		else if(maxclients->getInteger() > MAX_CLIENTS)
 			Cvar_Set2("maxclients", va("%i", MAX_CLIENTS), CVAR_SERVERINFO | CVAR_LATCH, true);
 	}
-	else if(Cvar_VariableValue("coop"))
+	else if(Cvar_VariableValue("g_coop"))
 	{
 		if(maxclients->getInteger() <= 1 || maxclients->getInteger() > 4)
 			Cvar_Set2("maxclients", "4", CVAR_SERVERINFO | CVAR_LATCH, true);

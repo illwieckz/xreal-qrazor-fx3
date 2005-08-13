@@ -1259,7 +1259,7 @@ void	g_func_door_c::activate()
 	if(!_speed)
 		_speed = 100;
 		
-	if(deathmatch->getInteger())
+	if(g_deathmatch->getInteger())
 		_speed *= 2;
 	
 	if(!_accel)

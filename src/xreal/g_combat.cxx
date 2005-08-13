@@ -35,7 +35,7 @@ bool 	G_OnSameTeam(g_entity_c *ent1, g_entity_c *ent2)
 	std::string	ent1Team;
 	std::string	ent2Team;
 
-	if(!((int)(dmflags->getInteger()) & (DF_MODELTEAMS | DF_SKINTEAMS)))
+	if(!((int)(g_dmflags->getInteger()) & (DF_MODELTEAMS | DF_SKINTEAMS)))
 		return false;
 
 	ent1Team = ent1->clientTeam();
