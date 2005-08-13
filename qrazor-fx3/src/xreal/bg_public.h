@@ -276,10 +276,7 @@ private:
 	void				stepSlideMove(bool gravity);
 	
 	void				applyFriction();
-	void				applyAirFriction();
-
-	void				accelerate(const vec3_c &wishdir, vec_t wishspeed, vec_t accel);
-	void				airAccelerate(const vec3_c &wishdir, vec_t wishspeed, vec_t accel);
+	void				applyAcceleration(const vec3_c &wishdir, vec_t wishspeed, vec_t accel);
 
 	void				addCurrents(vec3_c &wishvel);
 

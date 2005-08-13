@@ -51,7 +51,7 @@ potential spawning position for deathmatch games
 
 void SP_info_player_deathmatch(g_entity_c **entity)
 {
-	if(!deathmatch->getInteger())
+	if(!g_deathmatch->getInteger())
 		return;
 	
 	g_entity_c *ent = new g_target_teleport_c();
@@ -287,7 +287,7 @@ std::string	g_player_c::clientTeam()
 	if(!p)
 		return value;
 
-	if(dmflags->getInteger() & DF_MODELTEAMS)
+	if(g_dmflags->getInteger() & DF_MODELTEAMS)
 	{
 		*p = 0;
 		return value;
@@ -311,11 +311,11 @@ void	g_player_c::takeDamage(g_entity_c *inflictor, g_entity_c *attacker, vec3_t 
 	// friendly fire avoidance
 	// if enabled you can't hurt teammates (but you can hurt yourself)
 	// knockback still occurs
-	if((this != attacker) && ((deathmatch->getInteger() && (dmflags->getInteger() & (DF_MODELTEAMS | DF_SKINTEAMS))) || coop->getInteger()))
+	if((this != attacker) && ((g_deathmatch->getInteger() && (g_dmflags->getInteger() & (DF_MODELTEAMS | DF_SKINTEAMS))) || g_coop->getInteger()))
 	{
 		if(G_OnSameTeam(this, attacker))
 		{
-			if(dmflags->getInteger() & DF_NO_FRIENDLY_FIRE)
+			if(g_dmflags->getInteger() & DF_NO_FRIENDLY_FIRE)
 				damage = 0;
 			else
 				mod |= MOD_FRIENDLY_FIRE;
@@ -324,7 +324,7 @@ void	g_player_c::takeDamage(g_entity_c *inflictor, g_entity_c *attacker, vec3_t 
 	meansOfDeath = mod;
 
 	// easy mode takes half damage
-	if(skill->getInteger() == 0 && deathmatch->getInteger() == 0)
+	if(g_skill->getInteger() == 0 && g_deathmatch->getInteger() == 0)
 	{
 		damage *= (int)0.5;
 		if(!damage)
@@ -462,13 +462,9 @@ loadgames will.
 */
 bool	g_player_c::clientConnect(info_c &userinfo)
 {
-	//g_entity_c*	ent = (g_entity_c*)entity;
-	
 	const char	*value;
 
-	//
 	// check to see if they are on the banned IP list
-	//
 	value = userinfo.getValueForKey("ip");
 	if(SV_FilterPacket(value))
 	{
@@ -476,23 +472,21 @@ bool	g_player_c::clientConnect(info_c &userinfo)
 		return false;
 	}
 
-	//
 	// check for a spectator
-	//
 	value = userinfo.getValueForKey("spectator");
-	if(deathmatch->getInteger() && *value && strcmp(value, "0"))
+	if(g_deathmatch->getInteger() && *value && strcmp(value, "0"))
 	{
 		int i, numspec;
 
-		if(!X_strequal(spectator_password->getString(), "") && !X_strequal(spectator_password->getString(), "none") && !X_strequal(spectator_password->getString(), value)) 
+		if(!X_strequal(g_spectator_password->getString(), "") && !X_strequal(g_spectator_password->getString(), "none") && !X_strequal(g_spectator_password->getString(), value)) 
 		{
 			userinfo.setValueForKey("rejmsg", "Spectator password required or incorrect.");
 			return false;
 		}
 
 		// count spectators
-		for(i=numspec=0; i < maxclients->getInteger(); i++)
-			if (g_entities[i+1]->_r.inuse && ((g_player_c*)g_entities[i+1])->_pers.spectator)
+		for(i=numspec=0; i<maxclients->getInteger(); i++)
+			if(g_entities[i+1]->_r.inuse && ((g_player_c*)g_entities[i+1])->_pers.spectator)
 				numspec++;
 
 		if(numspec >= maxspectators->getInteger()) 
@@ -505,17 +499,15 @@ bool	g_player_c::clientConnect(info_c &userinfo)
 	{
 		// check for a password
 		value = userinfo.getValueForKey("password");
-		if(!X_strequal(password->getString(), "") && !X_strequal(password->getString(), "none") && !X_strequal(password->getString(), value)) 
+		if(!X_strequal(g_password->getString(), "") && !X_strequal(g_password->getString(), "none") && !X_strequal(g_password->getString(), value)) 
 		{
 			userinfo.setValueForKey("rejmsg", "Password required or incorrect.");
 			return false;
 		}
 	}
 
-	//
 	// they can connect
-	//
-	//trap_Com_Printf("G_ClientConnect: ent->s.number %i\n", ent->s.number);
+//	trap_Com_Printf("G_ClientConnect: ent->s.number %i\n", ent->s.number);
 	_r.isclient = true;
 
 	// if there is already a body waiting for us (a loadgame), just
@@ -553,7 +545,7 @@ void	g_player_c::clientBegin()
 	if(!_r.isclient)
 		trap_Com_Error(ERR_DROP, "g_player_c::clientBegin: got no client");
 
-	if(deathmatch->getInteger())
+	if(g_deathmatch->getInteger())
 	{
 		clientBeginDeathmatch();
 		return;
@@ -670,7 +662,7 @@ void	g_player_c::clientUserinfoChanged(info_c &userinfo)
 	s = userinfo.getValueForKey("spectator");
 	
 	// spectators are only supported in deathmatch
-	if(deathmatch->getInteger() && *s && strcmp(s, "0"))
+	if(g_deathmatch->getInteger() && *s && strcmp(s, "0"))
 		_pers.spectator = true;
 	else
 		_pers.spectator = false;
@@ -688,7 +680,7 @@ void	g_player_c::clientUserinfoChanged(info_c &userinfo)
 	trap_SV_SetConfigString(CS_PLAYERSKINS + playernum, va("%s\\%s", _pers.netname, s));
 
 	// fov
-	if(deathmatch->getInteger() && (dmflags->getInteger() & DF_FIXED_FOV))
+	if(g_deathmatch->getInteger() && (g_dmflags->getInteger() & DF_FIXED_FOV))
 	{
 		_r.ps.fov = 90;
 	}
@@ -974,15 +966,30 @@ void	g_player_c::clientThink(const usercmd_t &cmd)
 	else
 		_r.ps.pm_type = PM_NORMAL;
 
+
+	_r.ps.origin = _s.origin;
+	_r.ps.velocity_linear = _s.velocity_linear;
+	_r.ps.velocity_angular = _s.velocity_angular;
+
 #if defined(ODE)
 	_r.ps.gravity = (9.81 * 32.0 * 2.3) * g_gravity->getValue();
 #else
 	_r.ps.gravity = g_gravity->getInteger();
 #endif
 
-	_r.ps.origin = _s.origin;
-	_r.ps.velocity_linear = _s.velocity_linear;
-	_r.ps.velocity_angular = _s.velocity_angular;
+	_r.ps.speed_cmd = pm_speed_cmd->getInteger();
+	_r.ps.speed_stop = pm_speed_stop->getInteger();
+	_r.ps.speed_max = pm_speed_max->getInteger();
+
+	_r.ps.accelerate = pm_accelerate->getInteger();
+	_r.ps.accelerate_water = pm_accelerate_water->getInteger();
+	_r.ps.accelerate_air = pm_accelerate_air->getInteger();
+	_r.ps.accelerate_spectator = pm_accelerate_spectator->getInteger();
+
+	_r.ps.friction = pm_friction->getInteger();
+	_r.ps.friction_water = pm_friction_water->getInteger();
+	_r.ps.friction_air = pm_friction_air->getInteger();
+	_r.ps.friction_spectator = pm_friction_spectator->getInteger();
 
 	player_move_c pm(cmd, &_r.ps, PM_Trace, G_PointContents);
 	
@@ -1179,22 +1186,22 @@ bool	g_player_c::isNeutral()
 
 void	g_player_c::clientObituary(g_entity_c *inflictor, g_entity_c *attacker)
 {
-	int			mod;
-	char		*message;
-	char		*message2;
+	int	mod;
+	char*	message;
+	char*	message2;
 	bool	ff;
 
-	if(coop->getInteger() && attacker->_r.isclient)
+	if(g_coop->getInteger() && attacker->_r.isclient)
 		meansOfDeath |= MOD_FRIENDLY_FIRE;
 
-	if(deathmatch->getInteger() || coop->getInteger())
+	if(g_deathmatch->getInteger() || g_coop->getInteger())
 	{
 		ff = meansOfDeath & MOD_FRIENDLY_FIRE;
 		mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
 		message = NULL;
 		message2 = "";
 
-		switch (mod)
+		switch(mod)
 		{
 		case MOD_SUICIDE:
 			message = "suicides";
@@ -1234,7 +1241,7 @@ void	g_player_c::clientObituary(g_entity_c *inflictor, g_entity_c *attacker)
 			break;
 		}
 		
-		if (attacker == this)
+		if(attacker == this)
 		{
 			switch (mod)
 			{
@@ -1276,7 +1283,7 @@ void	g_player_c::clientObituary(g_entity_c *inflictor, g_entity_c *attacker)
 		{
 			trap_SV_BPrintf (PRINT_MEDIUM, "%s %s.\n", _pers.netname, message);
 			
-			if(deathmatch->getInteger())
+			if(g_deathmatch->getInteger())
 				_resp.score--;
 				
 			_enemy = NULL;
@@ -1363,9 +1370,9 @@ void	g_player_c::clientObituary(g_entity_c *inflictor, g_entity_c *attacker)
 			{
 				trap_SV_BPrintf (PRINT_MEDIUM,"%s %s %s%s\n", _pers.netname, message, ((g_player_c*)attacker)->_pers.netname, message2);
 				
-				if (deathmatch->getInteger())
+				if(g_deathmatch->getInteger())
 				{
-					if (ff)
+					if(ff)
 						((g_player_c*)attacker)->_resp.score--;
 					else
 						((g_player_c*)attacker)->_resp.score++;
@@ -1375,9 +1382,9 @@ void	g_player_c::clientObituary(g_entity_c *inflictor, g_entity_c *attacker)
 		}
 	}
 
-	trap_SV_BPrintf (PRINT_MEDIUM,"%s died.\n", _pers.netname);
+	trap_SV_BPrintf(PRINT_MEDIUM,"%s died.\n", _pers.netname);
 	
-	if (deathmatch->getInteger())
+	if(g_deathmatch->getInteger())
 		_resp.score--;
 }
 
@@ -1604,10 +1611,10 @@ void	g_player_c::selectSpawnPoint(vec3_c &origin, vec3_c &angles)
 {
 	g_entity_c	*spot = NULL;
 
-	if(deathmatch->getInteger())
+	if(g_deathmatch->getInteger())
 		spot = selectDeathmatchSpawnPoint();
 		
-	else if(coop->getInteger())
+	else if(g_coop->getInteger())
 		spot = selectCoopSpawnPoint();
 
 	// find a single player start spot
@@ -1791,7 +1798,7 @@ void	g_player_c::fetchClientEntData()
 	_max_health = _pers.max_health;
 	_flags |= _pers.saved_flags;
 	
-	if(coop->getInteger())
+	if(g_coop->getInteger())
 		_resp.score = _pers.score;
 }
 
@@ -1816,7 +1823,7 @@ void	g_player_c::putClientInServer()
 	selectSpawnPoint(spawn_origin, spawn_angles);	
 
 	// deathmatch wipes most client data every spawn
-	if(deathmatch->getInteger())
+	if(g_deathmatch->getInteger())
 	{
 		info_c	userinfo = _pers.userinfo;
 
@@ -1825,7 +1832,7 @@ void	g_player_c::putClientInServer()
 		initClientPersistant();
 		clientUserinfoChanged(userinfo); 
 	}
-	else if(coop->getInteger())
+	else if(g_coop->getInteger())
 	{
 		info_c	userinfo = _pers.userinfo;
 
@@ -1877,7 +1884,7 @@ void	g_player_c::putClientInServer()
 	// clear playerstate values
 	_r.ps.clear();
 
-	if(deathmatch->getInteger() && (dmflags->getInteger() & DF_FIXED_FOV))
+	if(g_deathmatch->getInteger() && (g_dmflags->getInteger() & DF_FIXED_FOV))
 	{
 		_r.ps.fov = 90;
 	}
@@ -1962,7 +1969,7 @@ void	g_player_c::putClientInServer()
 
 void	g_player_c::respawn()
 {
-	if(deathmatch->getInteger() || coop->getInteger())
+	if(g_deathmatch->getInteger() || g_coop->getInteger())
 	{
 		// spectator's don't leave bodies
 		//if (self->movetype != MOVETYPE_NOCLIP)
@@ -2001,7 +2008,7 @@ void	g_player_c::respawnAsSpectator()
 	{
 		const char *value = _pers.userinfo.getValueForKey("spectator");
 		
-		if(!X_strequal(spectator_password->getString(), "") && !X_strequal(spectator_password->getString(), "none") && !X_strequal(spectator_password->getString(), value))
+		if(!X_strequal(g_spectator_password->getString(), "") && !X_strequal(g_spectator_password->getString(), "none") && !X_strequal(g_spectator_password->getString(), value))
 		{
 			trap_SV_CPrintf(this, PRINT_HIGH, "Spectator password incorrect.\n");
 			_pers.spectator = false;
@@ -2012,7 +2019,7 @@ void	g_player_c::respawnAsSpectator()
 		}
 
 		// count spectators
-		for(i=1, numspec=0; i <= maxclients->getInteger(); i++)
+		for(i=1, numspec=0; i<=maxclients->getInteger(); i++)
 			if(g_entities[i]->_r.inuse && ((g_player_c*)g_entities[i])->_pers.spectator)
 				numspec++;
 
@@ -2032,7 +2039,7 @@ void	g_player_c::respawnAsSpectator()
 		// he must have the right password
 		const char *value = _pers.userinfo.getValueForKey("password");
 		
-		if(!X_strequal(password->getString(), "") && !X_strequal(password->getString(), "none") && !X_strequal(password->getString(), value))
+		if(!X_strequal(g_password->getString(), "") && !X_strequal(g_password->getString(), "none") && !X_strequal(g_password->getString(), value))
 		{
 			trap_SV_CPrintf(this, PRINT_HIGH, "Password incorrect.\n");
 			_pers.spectator = true;
@@ -2090,7 +2097,7 @@ void	g_player_c::beginServerFrame()
 	if(level.intermission_time)
 		return;
 
-	if(deathmatch->getInteger() && _pers.spectator != _resp.spectator && (level.time - _time_respawn) >= 5)
+	if(g_deathmatch->getInteger() && _pers.spectator != _resp.spectator && (level.time - _time_respawn) >= 5)
 	{
 		respawnAsSpectator();
 		return;
@@ -2108,12 +2115,12 @@ void	g_player_c::beginServerFrame()
 		if(level.time > _time_respawn)
 		{
 			// in deathmatch, only wait for attack button
-			if(deathmatch->getInteger())
+			if(g_deathmatch->getInteger())
 				buttonMask = BUTTON_ATTACK;
 			else
 				buttonMask = -1;
 
-			if((_buttons_latched & buttonMask) || (deathmatch->getInteger() && (dmflags->getInteger() & DF_FORCE_RESPAWN)))
+			if((_buttons_latched & buttonMask) || (g_deathmatch->getInteger() && (g_dmflags->getInteger() & DF_FORCE_RESPAWN)))
 			{
 				respawn();
 				_buttons_latched = 0;
@@ -2280,7 +2287,7 @@ void	g_player_c::saveClientData()
 	_pers.max_health = _max_health;
 	_pers.saved_flags = (_flags & (FL_ULTRAMANMODE|FL_NOTARGET|FL_POWER_ARMOR));
 		
-	if(coop->getInteger())
+	if(g_coop->getInteger())
 		_pers.score = _resp.score;
 }
 
@@ -2411,7 +2418,7 @@ void	g_player_c::updateStats()
 	//
 	_r.ps.stats[STAT_LAYOUTS] = 0;
 
-	if(deathmatch->getInteger())
+	if(g_deathmatch->getInteger())
 	{
 		if(_pers.health <= 0 || level.intermission_time || _showscores)
 			_r.ps.stats[STAT_LAYOUTS] |= 1;
@@ -2787,7 +2794,7 @@ void	g_player_c::updateFallingDamage()
 			damage = 1;
 		Vector3_Set(dir, 0, 0, 1);
 
-		if(!deathmatch->getInteger() || !(dmflags->getInteger() & DF_NO_FALLING))
+		if(!g_deathmatch->getInteger() || !(g_dmflags->getInteger() & DF_NO_FALLING))
 			takeDamage(((g_entity_c*)g_entities[0]), ((g_entity_c*)g_entities[0]), dir, _s.origin, vec3_origin, damage, 0, 0, MOD_FALLING);
 	}
 	else
@@ -3239,10 +3246,10 @@ float	g_player_c::calcRoll(const vec3_c &angles, const vec3_c &velocity)
 	sign = side < 0 ? -1 : 1;
 	side = fabs(side);
 	
-	value = sv_rollangle->getValue();
+	value = pm_rollangle->getValue();
 
-	if(side < sv_rollspeed->getValue())
-		side = side * value / sv_rollspeed->getValue();
+	if(side < pm_rollspeed->getValue())
+		side = side * value / pm_rollspeed->getValue();
 	else
 		side = value;
 	
@@ -3307,21 +3314,22 @@ void	g_player_c::calcViewOffset()
 
 		// add angles based on velocity
 		delta = _s.velocity_linear.dotProduct(_v_forward);
-		_r.ps.kick_angles[PITCH] += delta*run_pitch->getValue();
+		_r.ps.kick_angles[PITCH] += delta * pm_run_pitch->getValue();
 		
 		delta = _s.velocity_linear.dotProduct(_v_right);
-		_r.ps.kick_angles[ROLL] += delta*run_roll->getValue();
+		_r.ps.kick_angles[ROLL] += delta * pm_run_roll->getValue();
 
 		// add angles based on bob
-		delta = _bob_fracsin * bob_pitch->getValue() * _xyspeed;
-		if (_r.ps.pm_flags & PMF_DUCKED)
+		delta = _bob_fracsin * pm_bob_pitch->getValue() * _xyspeed;
+		if(_r.ps.pm_flags & PMF_DUCKED)
 			delta *= 6;		// crouching
 			
 		_r.ps.kick_angles[PITCH] += delta;
-		delta = _bob_fracsin * bob_roll->getValue() * _xyspeed;
+		delta = _bob_fracsin * pm_bob_roll->getValue() * _xyspeed;
 		
 		if(_r.ps.pm_flags & PMF_DUCKED)
 			delta *= 6;		// crouching
+		
 		if(_bob_cycle & 1)
 			delta = -delta;
 			
@@ -3341,7 +3349,7 @@ void	g_player_c::calcViewOffset()
 	v[2] -= ratio * _fall_value * 0.4;
 
 	// add bob height
-	bob = _bob_fracsin * _xyspeed * bob_up->getValue();
+	bob = _bob_fracsin * _xyspeed * pm_bob_up->getValue();
 	if(bob > 6)
 		bob = 6;
 	v[2] += bob;
@@ -3397,9 +3405,9 @@ void	g_player_c::calcGunOffset()
 	// gun_x / gun_y / gun_z are development tools
 	for(int i=0; i<3; i++)
 	{
-		_r.ps.gun_offset[i] += _v_forward[i]*(gun_y->getValue());
-		_r.ps.gun_offset[i] += _v_right[i]*gun_x->getValue();
-		_r.ps.gun_offset[i] += _v_up[i]* (-gun_z->getValue());
+		_r.ps.gun_offset[i] += _v_forward[i] * pm_gun_y->getValue();
+		_r.ps.gun_offset[i] += _v_right[i] * pm_gun_x->getValue();
+		_r.ps.gun_offset[i] += _v_up[i] * pm_gun_z->getValue();
 	}
 }
 
@@ -3709,9 +3717,9 @@ void 	g_player_c::give_f()
 	bool		give_all;
 //	g_entity_c*	item;
 
-	if(deathmatch->getValue() && !sv_cheats->getValue())
+	if(g_deathmatch->getValue() && !g_cheats->getInteger())
 	{
-		trap_SV_CPrintf(this, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
+		trap_SV_CPrintf(this, PRINT_HIGH, "You must run the server with '+set g_cheats 1' to enable this command.\n");
 		return;
 	}
 
@@ -3910,9 +3918,9 @@ void	g_player_c::ultraman_f()
 {
 	char	*msg;
 
-	if(deathmatch->getValue() && !sv_cheats->getValue())
+	if(g_deathmatch->getValue() && !g_cheats->getValue())
 	{
-		trap_SV_CPrintf(this, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
+		trap_SV_CPrintf(this, PRINT_HIGH, "You must run the server with '+set g_cheats 1' to enable this command.\n");
 		return;
 	}
 
@@ -3940,7 +3948,7 @@ void 	g_player_c::notarget_f()
 {
 	char	*msg;
 
-	if(deathmatch->getValue() && !sv_cheats->getValue())
+	if(g_deathmatch->getValue() && !g_cheats->getValue())
 	{
 		trap_SV_CPrintf(this, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
 		return;
@@ -3966,30 +3974,22 @@ argv(0) noclip
 */
 void 	g_player_c::noclip_f()
 {
-	char	*msg;
-
-	if(deathmatch->getValue() && !sv_cheats->getValue())
+	if(g_deathmatch->getValue() && !g_cheats->getValue())
 	{
-		trap_SV_CPrintf(this, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
+		trap_SV_CPrintf(this, PRINT_HIGH, "You must run the server with '+set g_cheats 1' to enable this command.\n");
 		return;
 	}
 
-	if(_movetype == MOVETYPE_NOCLIP)//!_space->isEnabled())
+	if(_movetype == MOVETYPE_NOCLIP)
 	{
 		_movetype = MOVETYPE_WALK;
-//		_body->setGravityMode(1);
-//		_space->enable();
-		msg = "noclip OFF\n";
+		trap_SV_CPrintf(this, PRINT_HIGH, "noclip OFF\n");
 	}
 	else
 	{
 		_movetype = MOVETYPE_NOCLIP;
-//		_body->setGravityMode(0);
-//		_space->disable();
-		msg = "noclip ON\n";
+		trap_SV_CPrintf(this, PRINT_HIGH, "noclip ON\n");
 	}
-
-	trap_SV_CPrintf(this, PRINT_HIGH, msg);
 }
 
 
@@ -4475,7 +4475,7 @@ void 	g_player_c::say_f(bool team, bool arg0)
 	if(trap_Cmd_Argc () < 2 && !arg0)
 		return;
 
-	if(!(dmflags->getInteger() & (DF_MODELTEAMS | DF_SKINTEAMS)))
+	if(!(g_dmflags->getInteger() & (DF_MODELTEAMS | DF_SKINTEAMS)))
 		team = false;
 
 	if(team)
@@ -4507,7 +4507,7 @@ void 	g_player_c::say_f(bool team, bool arg0)
 
 	strcat(text, "\n");
 
-	if(flood_msgs->getInteger()) 
+	if(g_flood_msgs->getInteger()) 
 	{
 		//cl = ent->getClient();
 
@@ -4517,16 +4517,16 @@ void 	g_player_c::say_f(bool team, bool arg0)
 			return;
         	}
         
-		i = _flood_whenhead - flood_msgs->getInteger() + 1;
+		i = _flood_whenhead - g_flood_msgs->getInteger() + 1;
         	
 		if(i < 0)
         		i = (sizeof(_flood_when)/sizeof(_flood_when[0])) + i;
 		
-		if(_flood_when[i] && level.time - _flood_when[i] < flood_persecond->getInteger()) 
+		if(_flood_when[i] && level.time - _flood_when[i] < g_flood_persecond->getInteger()) 
 		{
-			_flood_locktill = level.time + flood_waitdelay->getInteger();
+			_flood_locktill = level.time + g_flood_waitdelay->getInteger();
 			
-			trap_SV_CPrintf(this, PRINT_CHAT, "Flood protection:  You can't talk for %d seconds.\n", (int)flood_waitdelay->getInteger());
+			trap_SV_CPrintf(this, PRINT_CHAT, "Flood protection:  You can't talk for %d seconds.\n", g_flood_waitdelay->getInteger());
 			return;
         	}	
 		
@@ -4536,7 +4536,6 @@ void 	g_player_c::say_f(bool team, bool arg0)
 
 	if(dedicated->getInteger())
 		trap_SV_CPrintf(NULL, PRINT_CHAT, "%s", text);
-
 
 	for(j=1; j<=game.maxclients; j++)
 	{
@@ -4595,7 +4594,7 @@ void	g_player_c::score_f()
 	_showinventory = false;
 	_showhelp = false;
 
-	if(!deathmatch->getInteger() && !coop->getInteger())
+	if(!g_deathmatch->getInteger() && !g_coop->getInteger())
 		return;
 
 	if(_showscores)
@@ -4997,7 +4996,7 @@ void	g_player_c::setViewAngles(const vec3_c &angles)
 
 void	g_player_c::moveToIntermission()
 {
-	if(deathmatch->getInteger() || coop->getInteger())
+	if(g_deathmatch->getInteger() || g_coop->getInteger())
 		_showscores = true;
 		
 	_s.origin = level.intermission_origin;
@@ -5028,7 +5027,7 @@ void	g_player_c::moveToIntermission()
 	_r.solid = SOLID_NOT;
 
 	// add the layout
-	if(deathmatch->getInteger() || coop->getInteger())
+	if(g_deathmatch->getInteger() || g_coop->getInteger())
 	{
 		deathmatchScoreBoardMessage();
 		trap_SV_Unicast(this, true);
@@ -5037,7 +5036,7 @@ void	g_player_c::moveToIntermission()
 
 bool	g_player_c::hitFragLimit() const
 {
-	return _resp.score >= fraglimit->getInteger();
+	return _resp.score >= g_fraglimit->getInteger();
 }
 
 

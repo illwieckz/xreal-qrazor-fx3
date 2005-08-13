@@ -377,11 +377,11 @@ void 	g_entity_c::takeDamage(g_entity_c *inflictor, g_entity_c *attacker, vec3_t
 	// friendly fire avoidance
 	// if enabled you can't hurt teammates (but you can hurt yourself)
 	// knockback still occurs
-	if((this != attacker) && ((deathmatch->getInteger() && (dmflags->getInteger() & (DF_MODELTEAMS | DF_SKINTEAMS))) || coop->getInteger()))
+	if((this != attacker) && ((g_deathmatch->getInteger() && (g_dmflags->getInteger() & (DF_MODELTEAMS | DF_SKINTEAMS))) || g_coop->getInteger()))
 	{
 		if(G_OnSameTeam(this, attacker))
 		{
-			if(dmflags->getInteger() & DF_NO_FRIENDLY_FIRE)
+			if(g_dmflags->getInteger() & DF_NO_FRIENDLY_FIRE)
 				damage = 0;
 			else
 				mod |= MOD_FRIENDLY_FIRE;
@@ -598,9 +598,9 @@ void	g_entity_c::checkVelocity()
 	// bound velocity
 	vec_t scale = _s.velocity_linear.length();
 	
-	if((scale > sv_maxvelocity->getValue()) && (scale))
+	if((scale > g_maxvelocity->getValue()) && (scale))
 	{
-		scale = sv_maxvelocity->getValue() / scale;
+		scale = g_maxvelocity->getValue() / scale;
 			
 		_s.velocity_linear *= scale;
 	}

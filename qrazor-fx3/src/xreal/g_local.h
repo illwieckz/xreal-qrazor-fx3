@@ -275,42 +275,49 @@ extern d_joint_group_c*		g_ode_contact_group;
 #define random()	((rand () & 0x7fff) / ((float)0x7fff))
 #define crandom()	(2.0 * (random() - 0.5))
 
-extern	cvar_t	*deathmatch;
-extern	cvar_t	*coop;
-extern	cvar_t	*dmflags;
-extern	cvar_t	*skill;
-extern	cvar_t	*fraglimit;
-extern	cvar_t	*timelimit;
-extern	cvar_t	*password;
-extern	cvar_t	*spectator_password;
-extern	cvar_t	*needpass;
-extern	cvar_t	*g_select_empty;
-extern	cvar_t	*dedicated;
+extern cvar_t	*dedicated;
+extern cvar_t	*maxclients;
+extern cvar_t	*maxspectators;
 
-extern	cvar_t	*filterban;
+extern cvar_t	*g_deathmatch;
+extern cvar_t	*g_coop;
+extern cvar_t	*g_skill;
+extern cvar_t	*g_cheats;
+extern cvar_t	*g_dmflags;
+extern cvar_t	*g_fraglimit;
+extern cvar_t	*g_timelimit;
+extern cvar_t	*g_password;
+extern cvar_t	*g_spectator_password;
+extern cvar_t	*g_needpass;
+extern cvar_t	*g_gravity;
+extern cvar_t	*g_maxvelocity;
+extern cvar_t	*g_filterban;
+extern cvar_t	*g_flood_msgs;
+extern cvar_t	*g_flood_persecond;
+extern cvar_t	*g_flood_waitdelay;
+extern cvar_t	*g_maplist;
 
-extern	cvar_t	*g_gravity;
-extern	cvar_t	*sv_maxvelocity;
-
-extern	cvar_t	*gun_x, *gun_y, *gun_z;
-extern	cvar_t	*sv_rollspeed;
-extern	cvar_t	*sv_rollangle;
-
-extern	cvar_t	*run_pitch;
-extern	cvar_t	*run_roll;
-extern	cvar_t	*bob_up;
-extern	cvar_t	*bob_pitch;
-extern	cvar_t	*bob_roll;
-
-extern	cvar_t	*sv_cheats;
-extern	cvar_t	*maxclients;
-extern	cvar_t	*maxspectators;
-
-extern	cvar_t	*flood_msgs;
-extern	cvar_t	*flood_persecond;
-extern	cvar_t	*flood_waitdelay;
-
-extern	cvar_t	*sv_maplist;
+extern cvar_t	*pm_gun_x;
+extern cvar_t	*pm_gun_y;
+extern cvar_t	*pm_gun_z;
+extern cvar_t	*pm_rollspeed;
+extern cvar_t	*pm_rollangle;
+extern cvar_t	*pm_run_pitch;
+extern cvar_t	*pm_run_roll;
+extern cvar_t	*pm_bob_up;
+extern cvar_t	*pm_bob_pitch;
+extern cvar_t	*pm_bob_roll;
+extern cvar_t	*pm_speed_cmd;
+extern cvar_t	*pm_speed_stop;
+extern cvar_t	*pm_speed_max;
+extern cvar_t	*pm_accelerate;
+extern cvar_t	*pm_accelerate_water;
+extern cvar_t	*pm_accelerate_air;
+extern cvar_t	*pm_accelerate_spectator;
+extern cvar_t	*pm_friction;
+extern cvar_t	*pm_friction_water;
+extern cvar_t	*pm_friction_air;
+extern cvar_t	*pm_friction_spectator;
 
 
 // item spawnflags

@@ -385,9 +385,7 @@ void	G_SpawnEntities(const std::string &mapname, char *entities, const std::stri
 	
 	epairs_t	epairs;
 	
-		
-	//trap_Com_Printf("G_SpawnEntities:\n");
-	skill_level = floorf(skill->getInteger());
+	skill_level = floorf(g_skill->getInteger());
 	
 	if(skill_level < 0)
 		skill_level = 0;
@@ -395,14 +393,12 @@ void	G_SpawnEntities(const std::string &mapname, char *entities, const std::stri
 	if(skill_level > 3)
 		skill_level = 3;
 		
-	if(skill->getInteger() != skill_level)
-		trap_Cvar_ForceSet("skill", va("%f", skill_level));
+	if(g_skill->getInteger() != skill_level)
+		trap_Cvar_ForceSet("g_skill", va("%f", skill_level));
 
 	G_SaveClientData();
 
-	//trap_Z_FreeTags (TAG_LEVEL);
-
-	//memset (&level, 0, sizeof(level));
+	//memset(&level, 0, sizeof(level));
 			
 	level.mapname = mapname;
 	game.spawnpoint = spawnpoint;
@@ -470,7 +466,7 @@ void	G_SpawnEntities(const std::string &mapname, char *entities, const std::stri
 		// remove things (except the world) from different skill levels or deathmatch
 		if(ent != g_entities[0])
 		{
-			if(deathmatch->getInteger())
+			if(g_deathmatch->getInteger())
 			{
 				if(ent->_spawnflags & SPAWNFLAG_NOT_DEATHMATCH)
 				{
@@ -482,9 +478,9 @@ void	G_SpawnEntities(const std::string &mapname, char *entities, const std::stri
 			else
 			{
 				if( /* ((coop->getInteger()) && (ent->spawnflags & SPAWNFLAG_NOT_COOP)) || */
-					((skill->getInteger() == 0) && (ent->_spawnflags & SPAWNFLAG_NOT_EASY)) ||
-					((skill->getInteger() == 1) && (ent->_spawnflags & SPAWNFLAG_NOT_MEDIUM)) ||
-					(((skill->getInteger() == 2) || (skill->getInteger() == 3)) && (ent->_spawnflags & SPAWNFLAG_NOT_HARD))
+					((g_skill->getInteger() == 0) && (ent->_spawnflags & SPAWNFLAG_NOT_EASY)) ||
+					((g_skill->getInteger() == 1) && (ent->_spawnflags & SPAWNFLAG_NOT_MEDIUM)) ||
+					(((g_skill->getInteger() == 2) || (g_skill->getInteger() == 3)) && (ent->_spawnflags & SPAWNFLAG_NOT_HARD))
 					)
 					{
 						delete ent;
