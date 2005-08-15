@@ -2232,7 +2232,7 @@ void		RB_RenderCommand_lighting_D_omni(const r_command_t *cmd,		const r_shader_s
 											const r_shader_stage_c *stage_attenuationmap_z,
 											const r_shader_stage_c *stage_attenuationmap_cube)
 {
-//	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap);
+	RB_EnableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 
 	rb_program_lighting_D_omni->setVertexAttribs(cmd);
 	
@@ -2245,9 +2245,9 @@ void		RB_RenderCommand_lighting_D_omni(const r_command_t *cmd,		const r_shader_s
 	RB_Bind(stage_attenuationmap_xy->image);
 	
 	RB_SelectTexture(GL_TEXTURE2);
-	xglMatrixMode(GL_TEXTURE);
-	xglLoadIdentity();
-	xglMatrixMode(GL_MODELVIEW);
+//	xglMatrixMode(GL_TEXTURE);
+//	xglLoadIdentity();
+//	xglMatrixMode(GL_MODELVIEW);
 	RB_Bind(stage_attenuationmap_z->image);
 	
 //	RB_SelectTexture(GL_TEXTURE3);
@@ -2265,7 +2265,7 @@ void		RB_RenderCommand_lighting_D_omni(const r_command_t *cmd,		const r_shader_s
 	
 	RB_FlushMesh(cmd);
 	
-//	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap);
+	RB_DisableShaderStageStates(cmd->getEntity(), stage_diffusemap);
 }
 											
 void		RB_EnableShader_lighting_D_proj()
@@ -2340,9 +2340,9 @@ void		RB_RenderCommand_lighting_DB_omni(const r_command_t *cmd,		const r_shader_
 	RB_Bind(stage_attenuationmap_xy->image);
 	
 	RB_SelectTexture(GL_TEXTURE3);
-	xglMatrixMode(GL_TEXTURE);
-	xglLoadIdentity();
-	xglMatrixMode(GL_MODELVIEW);
+//	xglMatrixMode(GL_TEXTURE);
+//	xglLoadIdentity();
+//	xglMatrixMode(GL_MODELVIEW);
 	RB_Bind(stage_attenuationmap_z->image);
 	
 //	RB_SelectTexture(GL_TEXTURE4);
@@ -2392,9 +2392,9 @@ void		RB_RenderCommand_lighting_DBH_omni(const r_command_t *cmd,		const r_shader
 	RB_Bind(stage_attenuationmap_xy->image);
 	
 	RB_SelectTexture(GL_TEXTURE3);
-	xglMatrixMode(GL_TEXTURE);
-	xglLoadIdentity();
-	xglMatrixMode(GL_MODELVIEW);
+//	xglMatrixMode(GL_TEXTURE);
+//	xglLoadIdentity();
+//	xglMatrixMode(GL_MODELVIEW);
 	RB_Bind(stage_attenuationmap_z->image);
 	
 //	RB_SelectTexture(GL_TEXTURE4);
@@ -2452,9 +2452,9 @@ void		RB_RenderCommand_lighting_DBHS_omni(const r_command_t *cmd,		const r_shade
 	RB_Bind(stage_attenuationmap_xy->image);
 	
 	RB_SelectTexture(GL_TEXTURE4);
-	xglMatrixMode(GL_TEXTURE);
-	xglLoadIdentity();
-	xglMatrixMode(GL_MODELVIEW);
+//	xglMatrixMode(GL_TEXTURE);
+//	xglLoadIdentity();
+//	xglMatrixMode(GL_MODELVIEW);
 	RB_Bind(stage_attenuationmap_z->image);
 	
 //	RB_SelectTexture(GL_TEXTURE5);
@@ -2513,9 +2513,9 @@ void		RB_RenderCommand_lighting_DBS_omni(const r_command_t *cmd,		const r_shader
 	RB_Bind(stage_attenuationmap_xy->image);
 	
 	RB_SelectTexture(GL_TEXTURE4);
-	xglMatrixMode(GL_TEXTURE);
-	xglLoadIdentity();
-	xglMatrixMode(GL_MODELVIEW);
+//	xglMatrixMode(GL_TEXTURE);
+//	xglLoadIdentity();
+//	xglMatrixMode(GL_MODELVIEW);
 	RB_Bind(stage_attenuationmap_z->image);
 	
 //	RB_SelectTexture(GL_TEXTURE5);
