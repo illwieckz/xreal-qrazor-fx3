@@ -267,7 +267,7 @@ typedef struct
 	void		(*CG_DrawString)(int x, int y, const vec4_c &color, int flags, const char *s);
 	
 	// screen
-	void		(*CG_CenterPrint)(const char *str);
+	void		(*CG_CenterPrint)(const std::string &str);
 	
 	// client information
 	void		(*CG_ParseClientinfo)(int player);	

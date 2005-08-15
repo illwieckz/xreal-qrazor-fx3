@@ -42,9 +42,9 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 	_s.shaderparms[1]	= 1.0;
 	_s.shaderparms[2]	= 1.0;
 	_s.shaderparms[3]	= 1.0;
-	_s.shaderparms[4]	= 1.0;
-	_s.shaderparms[5]	= 1.0;
-	_s.shaderparms[6]	= 1.0;
+	_s.shaderparms[4]	= 0.0;
+	_s.shaderparms[5]	= 0.0;
+	_s.shaderparms[6]	= 0.0;
 // 	_s.shaderparms[7]	= 1.0; 
 	
 	_r.inuse		= false;

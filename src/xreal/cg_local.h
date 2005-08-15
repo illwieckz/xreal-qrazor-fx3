@@ -507,7 +507,8 @@ void	CG_InitScreen();
 
 void	CG_SizeUp();
 void	CG_SizeDown();
-void	CG_CenterPrint(const char *str);
+void	CG_CenterPrint(const std::string &str);
+void 	CG_CheckDrawCenterString();
 
 void 	CG_CalcVrect();
 void 	CG_TileClear();

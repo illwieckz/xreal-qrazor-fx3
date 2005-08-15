@@ -56,19 +56,20 @@ Called for important messages that should stay in the center of the screen
 for a few moments
 ==============
 */
-void 	CG_CenterPrint(const char *str)
+void 	CG_CenterPrint(const std::string &str)
 {
 	const char*	s;
 	char		line[64];
 	int		i, j, l;
 
-	strncpy(scr_centerstring, str, sizeof(scr_centerstring)-1);
+	strncpy(scr_centerstring, str.c_str(), sizeof(scr_centerstring)-1);
 	scr_centertime_off = cg_centertime->getValue();
 	scr_centertime_start = trap_CL_GetTime();
 
 	// count the number of lines for centering
 	scr_center_lines = 1;
-	s = str;
+	s = str.c_str();
+
 	while(*s)
 	{
 		if(*s == '\n')
@@ -79,17 +80,17 @@ void 	CG_CenterPrint(const char *str)
 	// echo it to the console
 	trap_Com_Printf("\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n");
 
-	s = str;
+	s = str.c_str();
 	do	
 	{
-	// scan the width of the line
-		for (l=0 ; l<40 ; l++)
-			if (s[l] == '\n' || !s[l])
+		// scan the width of the line
+		for(l=0; l<40 ; l++)
+			if(s[l] == '\n' || !s[l])
 				break;
-		for (i=0 ; i<(40-l)/2 ; i++)
+		for(i=0; i<(40-l)/2; i++)
 			line[i] = ' ';
 
-		for (j=0 ; j<l ; j++)
+		for(j=0; j<l; j++)
 		{
 			line[i++] = s[j];
 		}
@@ -97,21 +98,21 @@ void 	CG_CenterPrint(const char *str)
 		line[i] = '\n';
 		line[i+1] = 0;
 
-		trap_Com_Printf ("%s", line);
+		trap_Com_Printf("%s", line);
 
-		while (*s && *s != '\n')
+		while(*s && *s != '\n')
 			s++;
 
-		if (!*s)
+		if(!*s)
 			break;
 		s++;		// skip the \n
-	} while (1);
+	} while(true);
 	trap_Com_Printf("\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n");
 	trap_Con_ClearNotify ();
 }
 
 
-void 	CG_DrawCenterString()
+static void 	CG_DrawCenterString()
 {
 	char	*start;
 	int		l;
@@ -125,7 +126,7 @@ void 	CG_DrawCenterString()
 	scr_erase_center = 0;
 	start = scr_centerstring;
 
-	if (scr_center_lines <= 4)
+	if(scr_center_lines <= 4)
 		y = (int)(trap_VID_GetHeight()*0.35);
 	else
 		y = 48;
@@ -155,14 +156,14 @@ void 	CG_DrawCenterString()
 	} while (1);
 }
 
-void 	CG_CheckDrawCenterString (void)
+void 	CG_CheckDrawCenterString()
 {	
 	scr_centertime_off -= trap_CLS_GetFrameTime();
 	
-	if (scr_centertime_off <= 0)
+	if(scr_centertime_off <= 0)
 		return;
 
-	CG_DrawCenterString ();
+	CG_DrawCenterString();
 }
 
 
