@@ -3087,13 +3087,17 @@ void	XGL_CheckForError_(const std::string &file, int line)
 			case GL_TABLE_TOO_LARGE:
 				errstr = "GL_TABLE_TOO_LARGE";
 				break;
+
+			case GL_INVALID_FRAMEBUFFER_OPERATION_EXT:
+				errstr = "GL_INVALID_FRAMEBUFFER_OPERATION_EXT";
+				break;
 			
 			default:
 				errstr = "unknown error";
 		}
 		
-#if 0
-		ri.Com_Error(ERR_FATAL, "XGL_CheckForError: %s in file %s, line %i", errstr, file.c_str(), line);
+#if 1
+		ri.Com_Error(ERR_FATAL, "OpenGL error: %s in file %s, line %i", errstr, file.c_str(), line);
 #else
 		ri.Com_Printf("OpenGL error: %s in file %s, line %i\n", errstr, file.c_str(), line);
 #endif

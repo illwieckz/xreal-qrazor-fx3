@@ -776,14 +776,14 @@ static void	R_InitLightViewDepthImage()
 static void	R_InitLightViewColorImage()
 {
 	ri.Com_Printf("regenerating '_lightview_color' ...\n");
-
+/*
 	r_fb_lightview->bind();
 
-	r_image_c *image = new r_image_c(GL_TEXTURE_2D, "_lightview_color", 256, 256, IMAGE_NONE, NULL);
+	r_image_c *image = new r_image_c(GL_TEXTURE_2D, "_lightview_color", r_fb_lightview->getWidth(), r_fb_lightview->getHeight(), IMAGE_NONE, NULL);
 	
 	image->bind();
 
-	xglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->getWidth(), image->getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	xglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image->getWidth(), image->getHeight(), 0, GL_RGBA, GL_FLOAT, NULL);
 	
 //	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 //	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -794,11 +794,12 @@ static void	R_InitLightViewColorImage()
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	xglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	r_fb_lightview->attachTexture2D(GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, image->getId(), 0);
+	r_fb_lightview->attachTexture2D(GL_COLOR_ATTACHMENT0_EXT, image->getTarget(), image->getId(), 0);
 	r_fb_lightview->checkStatus();
 	r_fb_lightview->unbind();
 
 	r_img_lightview_color = image;
+*/
 }
 
 static void	R_InitCurrentRenderColorImage()

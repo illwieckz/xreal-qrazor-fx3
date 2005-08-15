@@ -472,6 +472,7 @@ public:
 
 	void			validate() const;
 	void			bind() const;
+	void			storage(GLenum internalformat, GLsizei width, GLsizei height) const;
 	void			getParameteriv(GLenum pname, GLint *params) const;
 
 	inline uint_t		getId() const			{return _id;}
@@ -485,7 +486,7 @@ class r_framebuffer_c :
 public r_registrationcount_iface_a
 {
 public:
-	r_framebuffer_c();
+	r_framebuffer_c(uint_t width, uint_t height);
 	~r_framebuffer_c();
 
 	void			validate() const;
@@ -496,14 +497,19 @@ public:
 	void			attachTexture1D(GLenum attachment, GLenum textarget, GLuint texture, GLint level) const;
 	void			attachTexture2D(GLenum attachment, GLenum textarget, GLuint texture, GLint level) const;
 	void			attachTexture3D(GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset) const;
-	void			renderBuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer) const;
+	void			attachRenderBuffer(GLenum attachment, GLuint renderbuffer) const;
 	void			getAttachmentParameteriv(GLenum attachment, GLenum pname, GLint *params) const;
 	
 	inline uint_t		getId() const			{return _id;}
 
+	inline uint_t		getWidth() const		{return _width;}
+	inline uint_t		getHeight() const 		{return _height;}
+
 private:
 	uint_t			_target;
 	uint_t			_id;
+	uint_t			_width;
+	uint_t			_height;
 };
 
 struct r_tcmod_t
@@ -2177,6 +2183,7 @@ extern r_image_c*	r_img_currentenvironment;
 extern r_framebuffer_c*		r_fb_lightview;
 extern r_renderbuffer_c*	r_rb_lightview_color;
 extern r_renderbuffer_c*	r_rb_lightview_depth;
+extern r_renderbuffer_c*	r_rb_lightview_stencil;
 
 extern r_shader_c*	r_shader_currentrender;
 

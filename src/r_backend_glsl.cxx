@@ -2296,7 +2296,7 @@ void		RB_RenderCommand_lighting_D_proj(const r_command_t *cmd,		const r_shader_s
 
 //	RB_SelectTexture(GL_TEXTURE2);
 //	RB_ModifyProjShadowTextureMatrix(cmd);
-//	r_img_lightview_depth->bind(true);
+//	r_img_lightview_color->bind(true);
 	
 	rb_program_lighting_D_proj->setUniform_light_origin(cmd);
 	rb_program_lighting_D_proj->setUniform_light_color(cmd, stage_attenuationmap_xy);

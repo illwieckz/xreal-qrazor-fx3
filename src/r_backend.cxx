@@ -123,6 +123,7 @@ void	RB_ShutdownBackend()
 void	RB_BeginBackendFrame()
 {
 	// draw buffer
+	/*
 	if(r_drawbuffer->isModified())
 	{
 		r_drawbuffer->isModified(false);
@@ -133,6 +134,7 @@ void	RB_BeginBackendFrame()
 			xglDrawBuffer(GL_BACK);
 		
 	}
+	*/
 	
 	// texturemode
 	if(r_texturemode->isModified())
@@ -509,6 +511,8 @@ void	RB_SetupGL3D()
 		xglEnable(GL_CLIP_PLANE0);
 	}
 
+	xglDrawBuffer(GL_BACK);
+
 	xglEnable(GL_SCISSOR_TEST);
 	xglScissor(gl_state.vrect_viewport.x, gl_state.vrect_viewport.y, gl_state.vrect_viewport.width, gl_state.vrect_viewport.height);
 		
@@ -543,7 +547,7 @@ void 	RB_Clear()
 		xglClear(GL_STENCIL_BUFFER_BIT);
 	}
 #else
-	xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// | GL_STENCIL_BUFFER_BIT);
 #endif
 	
 	r_depthmin = 0;
@@ -631,7 +635,7 @@ void 	RB_TextureMode(const std::string &string)
 
 	if(!string.length())
 	{
-		ri.Com_Printf ("RB_TextureMode: NULL parameter\n");
+		ri.Com_Printf("RB_TextureMode: NULL parameter\n");
 		return;
 	}
 
@@ -644,7 +648,7 @@ void 	RB_TextureMode(const std::string &string)
 
 	if(i == X_asz(gl_modes))
 	{
-		ri.Com_Printf ("RB_TextureMode: bad filter name %s\n", string.c_str());
+		ri.Com_Printf("RB_TextureMode: bad filter name %s\n", string.c_str());
 		return;
 	}
 
@@ -2577,206 +2581,6 @@ void	RB_RenderCommands()
 	if(r_lighting->getInteger())
 	{
 		//
-		// update shadow maps
-		//
-		#if 0
-		GLimp_ActivatePbuffer();
-		
-		xglDisable(GL_SCISSOR_TEST);
-		//xglEnable(GL_SCISSOR_TEST);
-		//xglScissor(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
-		
-		//if(r_newrefdef.flip_y ^ r_newrefdef.flip_z)
-		//	xglFrontFace(GL_CW);
-		//else
-		//	xglFrontFace(GL_CCW);
-	
-		xglEnable(GL_DEPTH_TEST);
-		xglDepthFunc(GL_LEQUAL);
-		xglDepthMask(GL_TRUE);
-	
-		xglEnable(GL_CULL_FACE);
-		xglCullFace(GL_FRONT);
-	
-		xglPolygonMode(GL_FRONT_AND_BACK, gl_state.polygon_mode);
-		
-		xglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-		xglDepthMask(GL_TRUE);
-
-		for(i=0; i<r_lights.size(); i++)
-		{
-			r_light_c* light = r_lights[i];
-		
-			if(!light)
-				continue;
-			
-			if(!light->isVisible())
-				continue;
-				
-			xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-				
-			switch(light->getType())
-			{
-				#if 0
-				case LIGHT_OMNI:
-				{
-					if(r_lighting_omni->getInteger() <= 0)
-						continue;
-						
-					r_refdef_t refdef;
-					refdef.x = 0;
-					refdef.y = 0;
-					refdef.width = vid_pbuffer_width->getInteger();
-					refdef.height = vid_pbuffer_height->getInteger();
-					refdef.setFOV(90);
-					refdef.view_angles.set(0, 0, 90);
-					refdef.flip_x = false;
-					refdef.flip_y = false;
-					refdef.flip_z = false;
-					
-					RB_SetupViewPort(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
-					
-					RB_SetupPerspectiveProjectionMatrix(refdef);
-					
-					RB_SetupViewMatrix(light->getOrigin(), refdef.view_angles);
-					
-					xglPolygonOffset(2.5f, 10.0f);
-					xglEnable(GL_POLYGON_OFFSET_FILL);
-					
-					RB_EnableShader_depth_to_rgba();
-					for(i=0, cmd = &r_current_scene->cmds_light[0]; i<r_current_scene->cmds_light_num; i++, cmd++)
-					{
-						if(cmd->getLight() != light)
-							continue;
-							
-						if(!cmd->getEntity()->isVisible())
-							continue;
-				
-						if(cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
-							continue;
-							
-						cmd->getEntityModel()->draw(cmd, RENDER_TYPE_DEPTH_TO_RGBA);
-					}
-					RB_DisableShader_depth_to_rgba();
-		
-					xglDisable(GL_POLYGON_OFFSET_FILL);
-									
-					//RB_SelectTexture(GL_TEXTURE0_ARB);
-					light->getShadowMap()->bind(true);
-					xglCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB, 0, 0, 0, 0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
-					
-					#if 0
-					if(r_shadows_export->getInteger())
-					{
-						byte* buffer = new byte[vid_pbuffer_width->getInteger() * vid_pbuffer_height->getInteger() * 3];
-						xglReadPixels(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), GL_RGB, GL_UNSIGNED_BYTE, buffer);
-						IMG_WriteTGA(va("shadowmaps/light_%04d_px.tga", i), buffer,vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), 3);
-						delete [] buffer;
-					}
-					#endif
-					break;
-				}
-				#endif
-				
-				#if 1
-				case LIGHT_PROJ:
-				{
-					if(r_lighting_proj->getInteger() <= 0)
-						continue;
-				
-					// setup viewport
-					xglViewport(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
-					
-					// setup perspective projection
-					matrix_c& m = gl_state.matrix_projection = light->getShadowMapProjection() * gl_state.matrix_quake_to_opengl;
-					
-					xglMatrixMode(GL_PROJECTION);
-					xglLoadTransposeMatrixfARB(&m[0][0]);
-					xglMatrixMode(GL_MODELVIEW);
-					
-					// setup view
-					gl_state.matrix_view = light->getView();
-					
-					RB_SetupModelviewMatrix(matrix_identity, true);
-					
-					//RB_SetupFrustum();
-					
-					//xglPolygonOffset(2.5f, 10.0f);
-					//xglEnable(GL_POLYGON_OFFSET_FILL);
-					
-					RB_EnableShader_zfill();
-					for(j=0, cmd = &r_current_scene->cmds_light[0]; j<r_current_scene->cmds_light_num; j++, cmd++)
-					{
-						if(cmd->getLight() != light)
-							continue;
-							
-						if(!cmd->getEntity()->isVisible())
-							continue;
-							
-						if(cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
-							continue;
-							
-						cmd->getEntityModel()->draw(cmd, RENDER_TYPE_ZFILL);
-					}
-					RB_DisableShader_zfill();
-					
-					/*
-					RB_EnableShader_lighting_D_proj();
-					for(j=0, cmd = &r_current_scene->cmds_light[0]; j<r_current_scene->cmds_light_num; j++, cmd++)
-					{
-						if(cmd->getLight() != light)
-							continue;
-					
-						if(!cmd->getEntity()->isVisible())
-							continue;
-				
-						if(cmd->getLightShader()->getLightType() == SHADER_LIGHT_FOG)
-							continue;
-							
-						cmd->getEntityModel()->draw(cmd, RENDER_TYPE_LIGHTING_D_proj);
-					}
-					RB_DisableShader_lighting_D_proj();
-					*/
-					
-					//xglDisable(GL_POLYGON_OFFSET_FILL);
-					
-					#if 1
-					if(r_shadows_export->getInteger())
-					{
-						byte* buffer = new byte[vid_pbuffer_width->getInteger() * vid_pbuffer_height->getInteger() * 3];
-						xglReadPixels(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), GL_RGB, GL_UNSIGNED_BYTE, buffer);
-						IMG_WriteTGA(va("shadowmaps/light_%04d.tga", i), buffer,vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), 3);
-						delete [] buffer;
-					}
-					#endif
-					
-					//RB_SelectTexture(GL_TEXTURE0_ARB);
-					light->getShadowMap()->bind(true);
-					xglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger());
-					break;
-				}
-				#endif
-				
-				default:
-					break;
-			}
-		}
-	
-		xglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		xglDepthMask(GL_FALSE);
-		
-		GLimp_DeactivatePbuffer();
-		
-		if(r_shadows_export->getInteger())
-		{
-			ri.Cvar_SetValue("r_shadows_export", 0);
-		}
-		
-		// reset view
-		RB_SetupGL3D();
-		#endif
-
-		//
 		// omni-directional lighting
 		//
 		r_shadowframecount++;
@@ -2973,10 +2777,10 @@ void	RB_RenderCommands()
 				if(!light->isShadowed())
 				{
 					// update shadowmap
-					//GLimp_ActivatePbuffer();
 					r_fb_lightview->bind();
-					
-					xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+					xglDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
+					r_fb_lightview->checkStatus();
+					xglClear(GL_DEPTH_BUFFER_BIT);
 		
 					xglDisable(GL_SCISSOR_TEST);
 					//xglEnable(GL_SCISSOR_TEST);
@@ -2992,12 +2796,12 @@ void	RB_RenderCommands()
 	
 					xglPolygonMode(GL_FRONT_AND_BACK, gl_state.polygon_mode);
 		
-					//xglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-					xglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+					xglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+					//xglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 					xglDepthMask(GL_TRUE);
 					
 					// setup viewport
-					xglViewport(0, 0, 256, 256);
+					xglViewport(0, 0, r_img_lightview_color->getWidth(), r_img_lightview_color->getHeight());
 					
 					// setup perspective projection
 					matrix_c& m = gl_state.matrix_projection = light->getShadowMapProjection() * gl_state.matrix_quake_to_opengl;
@@ -3037,9 +2841,9 @@ void	RB_RenderCommands()
 					#if 0
 					if(r_shadows_export->getInteger())
 					{
-						byte* buffer = new byte[vid_pbuffer_width->getInteger() * vid_pbuffer_height->getInteger() * 3];
-						xglReadPixels(0, 0, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, buffer);
-						IMG_WriteTGA(va("shadowmaps/light_%04d.tga", i), buffer,vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger(), 3);
+						byte* buffer = new byte[r_img_lightview_color->getWidth() * r_img_lightview_color->getHeight() * 3];
+						xglReadPixels(0, 0, r_img_lightview_color->getWidth(), r_img_lightview_color->getHeight(), GL_RGB, GL_UNSIGNED_BYTE, buffer);
+						IMG_WriteTGA(va("shadowmaps/light_%04d.tga", i), buffer, r_img_lightview_color->getWidth(), r_img_lightview_color->getHeight(), 3);
 						delete [] buffer;
 					}
 					#endif
@@ -3052,7 +2856,7 @@ void	RB_RenderCommands()
 					//xglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 					//xglDepthMask(GL_FALSE);
 		
-					GLimp_DeactivatePbuffer();
+					r_fb_lightview->unbind();
 		
 					// reset view
 					RB_SetupGL3D();
