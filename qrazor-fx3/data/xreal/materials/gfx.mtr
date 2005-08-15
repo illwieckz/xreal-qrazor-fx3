@@ -53,7 +53,7 @@ fonts/chromechars
 currentRender
 {
 	{
-		map		_currentRender
+		map		_lightview
 		maskDepth
 		colored
 	}
@@ -70,6 +70,7 @@ console
 //		blend		blend
 		map		textures/black.tga
 //		map		_currentrender
+//		map		_lightview
 //		map		menu/demo/logo_bg.tga
 //		linear		// no mip maps
 //		scroll		time * 0.3 , time * .3

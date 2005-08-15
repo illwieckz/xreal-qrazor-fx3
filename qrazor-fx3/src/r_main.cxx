@@ -1021,12 +1021,10 @@ void	R_DrawAreaPortals()
 	r_world_tree->drawAreaPortals();
 }
 
-/*
-void	R_DrawPbufferTest(int x, int y, int w, int h)
+void	R_DrawFBOTest(int x, int y, int w, int h)
 {
 	R_DrawStretchPic(x, y, w, h, 0, 0, 1, -1, color_white, r_shader_currentrender);
 }
-*/
 
 static void 	R_RenderScene(const r_refdef_t &fd, r_scene_t &scene)
 {
@@ -1034,13 +1032,14 @@ static void 	R_RenderScene(const r_refdef_t &fd, r_scene_t &scene)
 	r_current_scene = &scene;
 	
 #if 0
-	GLimp_ActivatePbuffer();
-		
-	xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	
-//	RB_Clear();
-#endif
+//	RB_SelectTexture(GL_TEXTURE0);
+//	xglBindTexture(GL_TEXTURE_2D, 0);
 
+	r_fb_lightview->bind();
+	xglDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
+	r_fb_lightview->checkStatus();
+//	xglClear(GL_COLOR_BUFFER_BIT);// | GL_DEPTH_BUFFER_BIT);// | GL_STENCIL_BUFFER_BIT);
+#endif
 	R_SetupFrame();
 	
 	RB_SetupGL3D();
@@ -1057,25 +1056,18 @@ static void 	R_RenderScene(const r_refdef_t &fd, r_scene_t &scene)
 	
 	R_DrawContactDebuggingInfo();
 	
-	R_DrawAreaPortals();
+//	R_DrawAreaPortals();
 		
 //	R_AddPolysToBuffer();
 		
 //	R_DrawParticles();
-	
-#if 0
-	// update _currentRender image
-	r_img_currentrender->copyFromContext();
-#endif
-
-//	R_WritePbuffer();
 
 #if 0
-	GLimp_DeactivatePbuffer();
-	
+	r_fb_lightview->unbind();
 	xglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	
-//	RB_Clear();
+	xglDrawBuffer(GL_BACK);
+	RB_SetupGL2D();
+	R_DrawFBOTest(0, 0, vid.width, vid.height);
 #endif
 }
 
@@ -1339,7 +1331,7 @@ static void 	R_Register()
 	r_drawpostprocess	= ri.Cvar_Get("r_drawpostprocess", "1,0", CVAR_NONE);
 	r_lerpmodels 		= ri.Cvar_Get("r_lerpmodels", "1,0", CVAR_NONE);
 	r_speeds 		= ri.Cvar_Get("r_speeds", "0,1", CVAR_NONE);
-	r_debug			= ri.Cvar_Get("r_debug", "0,1", CVAR_NONE);
+	r_debug			= ri.Cvar_Get("r_debug", "1,0", CVAR_NONE);
 	r_log	 		= ri.Cvar_Get("r_log", "0,1", CVAR_NONE);
 	r_shadows 		= ri.Cvar_Get("r_shadows", "0", CVAR_ARCHIVE );
 	r_shadows_alpha		= ri.Cvar_Get("r_shadows_alpha", "0.5", CVAR_ARCHIVE);

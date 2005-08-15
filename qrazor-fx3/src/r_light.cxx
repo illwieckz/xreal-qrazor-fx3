@@ -219,7 +219,7 @@ void	r_light_c::setupShadowMapProjection()
 			double r = n * tan(90 * M_PI / 360.0);
 			double l = -r;
 	
-			double t = n * tan(CalcFOV(90, vid_pbuffer_width->getInteger(), vid_pbuffer_height->getInteger()) * M_PI / 360.0);
+			double t = n * tan(CalcFOV(90, r_img_lightview_color->getWidth(), r_img_lightview_color->getHeight()) * M_PI / 360.0);
 			double b = -t;
 	
 			RB_OpenGLFrustum(_shadowmap_projection, l, r, b, t, n, f);

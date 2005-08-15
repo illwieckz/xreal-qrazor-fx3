@@ -1407,6 +1407,10 @@ static void	R_FindMaterialShaderStageImage(r_shader_c *shader, r_shader_stage_c 
 					{
 						image = r_img_currentrender;
 					}
+					else if(X_strcaseequal(stage->image_name.c_str(), "_lightview"))
+					{
+						image = r_img_lightview_color;
+					}
 					else
 					{
 						image = R_FindImage(stage->image_name, imageflags, IMAGE_UPLOAD_COLORMAP);
