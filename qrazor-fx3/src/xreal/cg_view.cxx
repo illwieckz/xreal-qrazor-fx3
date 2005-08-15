@@ -408,7 +408,7 @@ void	CG_RenderView()
 
 	//CG_DrawNet();
 		
-	//CG_CheckDrawCenterString();
+	CG_CheckDrawCenterString();
 			
 	CG_DrawFPS();
 
