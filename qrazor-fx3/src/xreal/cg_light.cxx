@@ -208,28 +208,22 @@ void	CG_AddPacketLight(cg_entity_t *cent, entity_state_t *state)
 
 void	CG_AddLightEntity(const cg_entity_t *cent)
 {
-	r_entity_t rent;
+	r_light_t rlight;
 
 	if(!cent->current.index_light)
 		trap_Com_Error(ERR_DROP, "CG_AddLightEntity: bad light index");
 
-	rent.custom_light = cg.light_precache[cent->current.index_light];
+	rlight.custom_light = cg.light_precache[cent->current.index_light];
 	
-	rent.shader_parms[0] = cent->current.shaderparms[0];
-	rent.shader_parms[1] = cent->current.shaderparms[1];
-	rent.shader_parms[2] = cent->current.shaderparms[2];
-	rent.shader_parms[3] = cent->current.shaderparms[3];
-	rent.shader_parms[4] = cent->current.shaderparms[4];
-	rent.shader_parms[5] = cent->current.shaderparms[5];
-	rent.shader_parms[6] = cent->current.shaderparms[6];
-	rent.shader_parms[7] = cent->current.shaderparms[7];
+	rlight.origin = cent->current.origin;
+	rlight.quat = cent->current.quat;
 	
-	rent.origin = cent->current.origin;
-	rent.quat = cent->current.quat;
-	
-	rent.center = cent->current.origin2;
-	
-	rent.flags = cent->current.renderfx;
+	rlight.center = cent->current.origin2;
+
+	rlight.flags = cent->current.renderfx;
+
+	for(int i=0; i<MAX_SHADERPARMS; i++)
+		rlight.shader_parms[i] = cent->current.shader_parms[i];
 	
 	/*
 	if(cent->current.index_sound)
@@ -251,9 +245,11 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 		{
 			//trap_Com_DPrintf("adding omni-directional light ...\n");
 			
-			rent.radius = cent->current.vectors[0];
+			rlight.type = LIGHT_OMNI;
+
+			rlight.radius = cent->current.vectors[0];
 			
-			rent.radius_aabb.clear();
+			rlight.radius_aabb.clear();
 			
 			// compute bbox vertices in light space
 			vec3_c vert0( cent->current.vectors[0][0], -cent->current.vectors[0][1], -cent->current.vectors[0][2]);
@@ -277,46 +273,48 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 			vert7.rotate(cent->current.quat);
 			
 			// transform vertices into world space and add them to the light world aabb
-			rent.radius_aabb.addPoint(cent->current.origin + vert0);
-			rent.radius_aabb.addPoint(cent->current.origin + vert1);
-			rent.radius_aabb.addPoint(cent->current.origin + vert2);
-			rent.radius_aabb.addPoint(cent->current.origin + vert3);
-			rent.radius_aabb.addPoint(cent->current.origin + vert4);
-			rent.radius_aabb.addPoint(cent->current.origin + vert5);
-			rent.radius_aabb.addPoint(cent->current.origin + vert6);
-			rent.radius_aabb.addPoint(cent->current.origin + vert7);
+			rlight.radius_aabb.addPoint(cent->current.origin + vert0);
+			rlight.radius_aabb.addPoint(cent->current.origin + vert1);
+			rlight.radius_aabb.addPoint(cent->current.origin + vert2);
+			rlight.radius_aabb.addPoint(cent->current.origin + vert3);
+			rlight.radius_aabb.addPoint(cent->current.origin + vert4);
+			rlight.radius_aabb.addPoint(cent->current.origin + vert5);
+			rlight.radius_aabb.addPoint(cent->current.origin + vert6);
+			rlight.radius_aabb.addPoint(cent->current.origin + vert7);
 			
-			rent.radius_value = rent.radius_aabb.radius();
+			rlight.radius_value = rlight.radius_aabb.radius();
 			
-			trap_R_AddLight(cent->current.getNumber(), rent, LIGHT_OMNI);
+			trap_R_AddDeltaLight(cent->current.getNumber(), rlight);
 			break;
 		}
 				
 		case ET_LIGHT_PROJ:
 		{
 			//trap_Com_DPrintf("adding projective light ...\n");
+
+			rlight.type = LIGHT_PROJ;
 			
-			rent.target = cent->current.vectors[0];
-			rent.right = cent->current.vectors[1];
-			rent.up = cent->current.vectors[2];
+			rlight.target = cent->current.vectors[0];
+			rlight.right = cent->current.vectors[1];
+			rlight.up = cent->current.vectors[2];
 			
-			rent.target.rotate(cent->current.quat);
-			rent.right.rotate(cent->current.quat);
-			rent.up.rotate(cent->current.quat);
+			rlight.target.rotate(cent->current.quat);
+			rlight.right.rotate(cent->current.quat);
+			rlight.up.rotate(cent->current.quat);
 			
-			rent.radius_aabb.clear();
+			rlight.radius_aabb.clear();
 			
-			rent.radius_aabb.addPoint(rent.origin + rent.target);
+			rlight.radius_aabb.addPoint(rlight.origin + rlight.target);
 			
-			rent.radius_aabb.addPoint(rent.origin + rent.right);
-			rent.radius_aabb.addPoint(rent.origin - rent.right);
+			rlight.radius_aabb.addPoint(rlight.origin + rlight.right);
+			rlight.radius_aabb.addPoint(rlight.origin - rlight.right);
 			
-			rent.radius_aabb.addPoint(rent.origin + rent.up);
-			rent.radius_aabb.addPoint(rent.origin - rent.up);
+			rlight.radius_aabb.addPoint(rlight.origin + rlight.up);
+			rlight.radius_aabb.addPoint(rlight.origin - rlight.up);
 		
-			rent.radius_value = rent.radius_aabb.radius();
+			rlight.radius_value = rlight.radius_aabb.radius();
 			
-			trap_R_AddLight(cent->current.getNumber(), rent, LIGHT_PROJ);
+			trap_R_AddDeltaLight(cent->current.getNumber(), rlight);
 			break;
 		}
 		
@@ -327,27 +325,25 @@ void	CG_AddLightEntity(const cg_entity_t *cent)
 
 void	CG_UpdateLightEntity(const cg_entity_t *cent)
 {
-	r_entity_t	rent;
+	r_light_t	rlight;
 	bool		update = false;
 	
-	CG_UpdateOrigin(cent, rent, update);
+	CG_UpdateOrigin(cent, rlight, update);
 	
-	CG_UpdateRotation(cent, rent, update);
-	
-// 	CG_UpdateModel(cent, rent, update);
-	
- 	CG_UpdateLightShader(cent, rent, update);
-	
-	CG_UpdateShaderParms(cent, rent, update);
+	CG_UpdateRotation(cent, rlight, update);
 
-// 	CG_UpdateFrame(cent, rent, update);	
+	CG_UpdateRenderFXFlags(cent, rlight, update);
+
+	CG_UpdateShaderParms(cent, rlight, update);
 	
-	CG_UpdateRenderFXFlags(cent, rent, update);
+ 	CG_UpdateLightShader(cent, rlight, update);
 	
 	switch(cent->current.type)
 	{
 		case ET_LIGHT_OMNI:
 		{
+			rlight.type = LIGHT_OMNI;
+
 			if(cent->prev.vectors[0] != cent->current.vectors[0])
 			{
 				update = true;
@@ -355,73 +351,75 @@ void	CG_UpdateLightEntity(const cg_entity_t *cent)
 			
 			if(update)
 			{
-				rent.radius.lerp(cent->prev.vectors[0], cent->current.vectors[0], cg.frame_lerp);
+				rlight.radius.lerp(cent->prev.vectors[0], cent->current.vectors[0], cg.frame_lerp);
 		
-				rent.radius_aabb.clear();
+				rlight.radius_aabb.clear();
 			
 				// compute bbox vertices in light space
-				vec3_c vert0( rent.radius[0], -rent.radius[1], -rent.radius[2]);
-				vec3_c vert1( rent.radius[0], -rent.radius[1],  rent.radius[2]);
-				vec3_c vert2(-rent.radius[0], -rent.radius[1],  rent.radius[2]);
-				vec3_c vert3(-rent.radius[0], -rent.radius[1], -rent.radius[2]);
+				vec3_c vert0( rlight.radius[0], -rlight.radius[1], -rlight.radius[2]);
+				vec3_c vert1( rlight.radius[0], -rlight.radius[1],  rlight.radius[2]);
+				vec3_c vert2(-rlight.radius[0], -rlight.radius[1],  rlight.radius[2]);
+				vec3_c vert3(-rlight.radius[0], -rlight.radius[1], -rlight.radius[2]);
 	
-				vec3_c vert4( rent.radius[0],  rent.radius[1], -rent.radius[2]);
-				vec3_c vert5( rent.radius[0],  rent.radius[1],  rent.radius[2]);
-				vec3_c vert6(-rent.radius[0],  rent.radius[1],  rent.radius[2]);
-				vec3_c vert7(-rent.radius[0],  rent.radius[1], -rent.radius[2]);
+				vec3_c vert4( rlight.radius[0],  rlight.radius[1], -rlight.radius[2]);
+				vec3_c vert5( rlight.radius[0],  rlight.radius[1],  rlight.radius[2]);
+				vec3_c vert6(-rlight.radius[0],  rlight.radius[1],  rlight.radius[2]);
+				vec3_c vert7(-rlight.radius[0],  rlight.radius[1], -rlight.radius[2]);
 			
 				// rotate vertices in light space
-				vert0.rotate(rent.quat);
-				vert1.rotate(rent.quat);
-				vert2.rotate(rent.quat);
-				vert3.rotate(rent.quat);
-				vert4.rotate(rent.quat);
-				vert5.rotate(rent.quat);
-				vert6.rotate(rent.quat);
-				vert7.rotate(rent.quat);
+				vert0.rotate(rlight.quat);
+				vert1.rotate(rlight.quat);
+				vert2.rotate(rlight.quat);
+				vert3.rotate(rlight.quat);
+				vert4.rotate(rlight.quat);
+				vert5.rotate(rlight.quat);
+				vert6.rotate(rlight.quat);
+				vert7.rotate(rlight.quat);
 			
 				// transform vertices into world space and add them to the light world aabb
-				rent.radius_aabb.addPoint(rent.origin + vert0);
-				rent.radius_aabb.addPoint(rent.origin + vert1);
-				rent.radius_aabb.addPoint(rent.origin + vert2);
-				rent.radius_aabb.addPoint(rent.origin + vert3);
-				rent.radius_aabb.addPoint(rent.origin + vert4);
-				rent.radius_aabb.addPoint(rent.origin + vert5);
-				rent.radius_aabb.addPoint(rent.origin + vert6);
-				rent.radius_aabb.addPoint(rent.origin + vert7);
+				rlight.radius_aabb.addPoint(rlight.origin + vert0);
+				rlight.radius_aabb.addPoint(rlight.origin + vert1);
+				rlight.radius_aabb.addPoint(rlight.origin + vert2);
+				rlight.radius_aabb.addPoint(rlight.origin + vert3);
+				rlight.radius_aabb.addPoint(rlight.origin + vert4);
+				rlight.radius_aabb.addPoint(rlight.origin + vert5);
+				rlight.radius_aabb.addPoint(rlight.origin + vert6);
+				rlight.radius_aabb.addPoint(rlight.origin + vert7);
 			
-				rent.radius_value = rent.radius_aabb.radius();
+				rlight.radius_value = rlight.radius_aabb.radius();
 			
 				trap_Com_DPrintf("updating omni-directional light ...\n");
-				trap_R_UpdateLight(cent->current.getNumber(), rent, LIGHT_OMNI);
+				trap_R_UpdateDeltaLight(cent->current.getNumber(), rlight);
 			}
 			break;
 		}
 				
 		case ET_LIGHT_PROJ:
 		{
-			rent.target.lerp(cent->prev.vectors[0], cent->current.vectors[0], cg.frame_lerp);
-			rent.right.lerp(cent->prev.vectors[1], cent->current.vectors[1], cg.frame_lerp);
-			rent.up.lerp(cent->prev.vectors[2], cent->current.vectors[2], cg.frame_lerp);
+			rlight.type = LIGHT_PROJ;
+
+			rlight.target.lerp(cent->prev.vectors[0], cent->current.vectors[0], cg.frame_lerp);
+			rlight.right.lerp(cent->prev.vectors[1], cent->current.vectors[1], cg.frame_lerp);
+			rlight.up.lerp(cent->prev.vectors[2], cent->current.vectors[2], cg.frame_lerp);
 			
-			rent.target.rotate(rent.quat);
-			rent.right.rotate(rent.quat);
-			rent.up.rotate(rent.quat);
+			rlight.target.rotate(rlight.quat);
+			rlight.right.rotate(rlight.quat);
+			rlight.up.rotate(rlight.quat);
 			
-			rent.radius_aabb.clear();
+			rlight.radius_aabb.clear();
 			
-			rent.radius_aabb.addPoint(rent.origin + rent.target);
+			rlight.radius_aabb.addPoint(rlight.origin + rlight.target);
 			
-			rent.radius_aabb.addPoint(rent.origin + rent.right);
-			rent.radius_aabb.addPoint(rent.origin - rent.right);
+			rlight.radius_aabb.addPoint(rlight.origin + rlight.right);
+			rlight.radius_aabb.addPoint(rlight.origin - rlight.right);
 			
-			rent.radius_aabb.addPoint(rent.origin + rent.up);
-			rent.radius_aabb.addPoint(rent.origin - rent.up);
+			rlight.radius_aabb.addPoint(rlight.origin + rlight.up);
+			rlight.radius_aabb.addPoint(rlight.origin - rlight.up);
 		
-			rent.radius_value = rent.radius_aabb.radius();
+			rlight.radius_value = rlight.radius_aabb.radius();
 			
 			trap_Com_DPrintf("updating projective light ...\n");
-			trap_R_UpdateLight(cent->current.getNumber(), rent, LIGHT_PROJ);
+			trap_R_UpdateDeltaLight(cent->current.getNumber(), rlight);
 			break;
 		}
 		
@@ -434,7 +432,7 @@ void	CG_RemoveLightEntity(const cg_entity_t *cent)
 {
 	//trap_Com_DPrintf("removing light ...\n");
 
-	trap_R_RemoveLight(cent->prev.getNumber());
+	trap_R_RemoveDeltaLight(cent->prev.getNumber());
 }
 
 

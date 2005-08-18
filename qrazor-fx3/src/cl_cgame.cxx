@@ -175,13 +175,13 @@ void	CL_InitClientGame()
 	
 	import.R_ClearScene		= re.R_ClearScene;
 	
-	import.R_AddEntity		= re.R_AddEntity;
-	import.R_UpdateEntity		= re.R_UpdateEntity;
-	import.R_RemoveEntity		= re.R_RemoveEntity;
+	import.R_AddDeltaEntity		= re.R_AddDeltaEntity;
+	import.R_UpdateDeltaEntity	= re.R_UpdateDeltaEntity;
+	import.R_RemoveDeltaEntity	= re.R_RemoveDeltaEntity;
 	
-	import.R_AddLight		= re.R_AddLight;
-	import.R_UpdateLight		= re.R_UpdateLight;
-	import.R_RemoveLight		= re.R_RemoveLight;
+	import.R_AddDeltaLight		= re.R_AddDeltaLight;
+	import.R_UpdateDeltaLight	= re.R_UpdateDeltaLight;
+	import.R_RemoveDeltaLight	= re.R_RemoveDeltaLight;
 	
 	import.R_AddParticle		= re.R_AddParticle;
 	import.R_AddPoly		= re.R_AddPoly;

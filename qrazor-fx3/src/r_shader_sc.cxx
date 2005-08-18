@@ -29,8 +29,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // xreal --------------------------------------------------------------------
 
-bool	R_ParseExpressionToAST(r_iterator_t begin, r_iterator_t end, boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> &info);
-bool	R_ParseExpressionToAST(const std::string &exp, boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> &info);
+bool	R_ParseExpressionToAST(r_iterator_t begin, r_iterator_t end, r_expression_t &exp);
+bool	R_ParseExpressionToAST(const std::string &str, r_expression_t &exp);
 void	R_Map_stc(char const* begin, char const *end);
 
 extern r_shader_c*		r_current_shader;
@@ -198,7 +198,7 @@ void	R_NoEnvMap_sc(char const* begin, char const* end)
 
 void	R_SortSubview_sc(char const* begin, char const* end)
 {
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> sort;
+	r_expression_t sort;
 	R_ParseExpressionToAST("-2.0", sort);
 	
 	r_current_shader->setSort(sort);
@@ -206,7 +206,7 @@ void	R_SortSubview_sc(char const* begin, char const* end)
 
 void	R_SortOpaque_sc(char const* begin, char const* end)
 {
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> sort;
+	r_expression_t sort;
 	R_ParseExpressionToAST("-1.0", sort);
 	
 	r_current_shader->setSort(sort);
@@ -214,7 +214,7 @@ void	R_SortOpaque_sc(char const* begin, char const* end)
 
 void	R_SortDecal_sc(char const* begin, char const* end)
 {
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> sort;
+	r_expression_t sort;
 	R_ParseExpressionToAST("4.0", sort);
 	
 	r_current_shader->setSort(sort);
@@ -222,7 +222,7 @@ void	R_SortDecal_sc(char const* begin, char const* end)
 
 void	R_SortFar_sc(char const* begin, char const* end)
 {
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> sort;
+	r_expression_t sort;
 	R_ParseExpressionToAST("0.0", sort);
 	
 	r_current_shader->setSort(sort);
@@ -230,7 +230,7 @@ void	R_SortFar_sc(char const* begin, char const* end)
 
 void	R_SortMedium_sc(char const* begin, char const* end)
 {
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> sort;
+	r_expression_t sort;
 	R_ParseExpressionToAST("1.0", sort);
 	
 	r_current_shader->setSort(sort);
@@ -238,7 +238,7 @@ void	R_SortMedium_sc(char const* begin, char const* end)
 
 void	R_SortClose_sc(char const* begin, char const* end)
 {
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> sort;
+	r_expression_t sort;
 	R_ParseExpressionToAST("2.0", sort);
 	
 	r_current_shader->setSort(sort);
@@ -246,7 +246,7 @@ void	R_SortClose_sc(char const* begin, char const* end)
 
 void	R_SortAlmostNearest_sc(char const* begin, char const* end)
 {
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> sort;
+	r_expression_t sort;
 	R_ParseExpressionToAST("5.0", sort);
 	
 	r_current_shader->setSort(sort);
@@ -254,7 +254,7 @@ void	R_SortAlmostNearest_sc(char const* begin, char const* end)
 
 void	R_SortNearest_sc(char const* begin, char const* end)
 {
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> sort;
+	r_expression_t sort;
 	R_ParseExpressionToAST("6.0", sort);
 	
 	r_current_shader->setSort(sort);
@@ -262,7 +262,7 @@ void	R_SortNearest_sc(char const* begin, char const* end)
 
 void	R_SortPostProcess_sc(char const* begin, char const* end)
 {
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> sort;
+	r_expression_t sort;
 	R_ParseExpressionToAST("7.0", sort);
 	
 	r_current_shader->setSort(sort);
@@ -272,7 +272,7 @@ void	R_Sort_sc(char const* begin, char const* end)
 {
 	std::string	exp(begin, end);
 
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> sort;
+	r_expression_t sort;
 	
 	if(R_ParseExpressionToAST(exp.begin(), exp.end(), sort))
 	{

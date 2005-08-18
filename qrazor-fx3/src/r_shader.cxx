@@ -132,13 +132,14 @@ void	R_StageAttenuationMapXYZ_stc(char const* begin, char const *end);
 void	R_StageAttenuationMapCube_stc(char const* begin, char const *end);
 
 
-bool	R_ParseExpressionToAST(r_iterator_t begin, r_iterator_t end, boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> &info);
-void	R_DumpASTToXML(const std::string &str, const boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> &info);
+bool	R_ParseExpressionToAST(r_iterator_t begin, r_iterator_t end, r_expression_t &exp);
+void	R_DumpASTToXML(const r_expression_t &exp);
 
 void	R_Map_stc(char const* begin, char const *end);
 
 r_shader_parameter_symbols_t r_shader_parameter_symbols_p;
 r_shader_table_symbols_t r_shader_table_symbols_p;
+r_shader_generic_rules_t r_shader_generic_rules;
 
 r_shader_c*		r_current_shader;
 r_shader_stage_c*	r_current_stage;
@@ -1198,11 +1199,11 @@ static void	R_ClearTable(const char begin)
 
 static void	R_CreateTable(const char* begin, const char* end)
 {
-	//ri.Com_Printf("   creating table '%s' ...\n", r_sp_table_name.c_str());
+//	ri.Com_Printf("   creating table '%s' with index %i ...\n", r_sp_table_name.c_str(), r_tables.size());
 	
-	//for(std::vector<float>::iterator ir = r_sp_table.values.begin(); ir != r_sp_table.values.end(); ++ir)
-	//	ri.Com_Printf("%f ");
-	//ri.Com_Printf("\n");
+//	for(std::vector<float>::iterator i = r_sp_table.values.begin(); i != r_sp_table.values.end(); ++i)
+//		ri.Com_Printf("%f ", *i);
+//	ri.Com_Printf("\n");
 	
 	r_shader_table_symbols_p.add(r_sp_table_name.c_str(), r_tables.size());
 	r_tables.push_back(r_sp_table);
@@ -2157,18 +2158,18 @@ void	R_ShaderSearch_f()
 
 void	R_SpiritTest_f()
 {
-	const std::string exp = ri.Cmd_Args();
+	const std::string str = ri.Cmd_Args();
 	
 #if 1
-	r_entity_t dummy;
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> info;
+	r_shared_t	dummy_shaderparms;
+	r_expression_t	exp;
 		
-	if(R_ParseExpressionToAST(exp.begin(), exp.end(), info))
+	if(R_ParseExpressionToAST(str.begin(), str.end(), exp))
 	{
-		R_DumpASTToXML(exp, info);
+		R_DumpASTToXML(exp);
 	
 		Com_Printf("parsing succeeded\n");
-		Com_Printf("result: %f\n", RB_Evaluate(dummy, info, -1.0));
+		Com_Printf("result: %f\n", RB_Evaluate(dummy_shaderparms, exp, -1.0));
 	}
 	else
 	{

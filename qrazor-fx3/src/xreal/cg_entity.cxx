@@ -221,12 +221,12 @@ void	CG_GetEntitySoundOrigin(int ent, vec3_c &org)
 
 
 
-void	CG_UpdateOrigin(const cg_entity_t *cent, r_entity_t &rent, bool &update)
+void	CG_UpdateOrigin(const cg_entity_t *cent, r_shared_t &shared, bool &update)
 {
 	if(cent->prev.origin != cent->current.origin)
 		update = true;
 	
-	rent.origin.lerp(cent->prev.origin, cent->current.origin, cg.frame_lerp);
+	shared.origin.lerp(cent->prev.origin, cent->current.origin, cg.frame_lerp);
 }
 
 void	CG_UpdateFrame(const cg_entity_t *cent, r_entity_t &rent, bool &update)
@@ -287,7 +287,7 @@ void	CG_UpdateFrame(const cg_entity_t *cent, r_entity_t &rent, bool &update)
 	}
 }
 
-void	CG_UpdateRotation(const cg_entity_t *cent, r_entity_t &rent, bool &update)
+void	CG_UpdateRotation(const cg_entity_t *cent, r_shared_t &shared, bool &update)
 {
 	if((cent->current.effects & EF_ROTATE) || cent->prev.quat != cent->current.quat)
 		update = true;
@@ -297,11 +297,11 @@ void	CG_UpdateRotation(const cg_entity_t *cent, r_entity_t &rent, bool &update)
 		// some bonus items auto-rotate
 		float autorotate = anglemod(trap_CL_GetTime()/10);
 		vec3_c angles(0, autorotate, 0);
-		rent.quat.fromAngles(angles);
+		shared.quat.fromAngles(angles);
 	}
 	else
 	{
-		rent.quat.slerp(cent->prev.quat, cent->current.quat, cg.frame_lerp);
+		shared.quat.slerp(cent->prev.quat, cent->current.quat, cg.frame_lerp);
 	}
 }
 
@@ -359,31 +359,31 @@ void	CG_UpdateShader(const cg_entity_t *cent, r_entity_t &rent, bool &update)
 	rent.custom_shader = cg.shader_precache[cent->current.index_shader];
 }
 
-void	CG_UpdateLightShader(const cg_entity_t *cent, r_entity_t &rent, bool &update)
+void	CG_UpdateShaderParms(const cg_entity_t *cent, r_shared_t &shared, bool &update)
 {
-	if(cg.light_precache[cent->prev.index_light] != cg.light_precache[cent->current.index_light])
-		update = true;
-		
-	rent.custom_light = cg.light_precache[cent->current.index_light];
-}
-
-void	CG_UpdateShaderParms(const cg_entity_t *cent, r_entity_t &rent, bool &update)
-{
-	for(int i=0; i<8; i++)
+	for(int i=0; i<MAX_SHADERPARMS; i++)
 	{
-		if(cent->prev.shaderparms[i] != cent->current.shaderparms[i])
+		if(cent->prev.shader_parms[i] != cent->current.shader_parms[i])
 			update = true;
 			
-		rent.shader_parms[i] = cent->current.shaderparms[i];
+		shared.shader_parms[i] = cent->current.shader_parms[i];
 	}
 }
 
-void	CG_UpdateRenderFXFlags(const cg_entity_t *cent, r_entity_t &rent, bool &update)
+void	CG_UpdateRenderFXFlags(const cg_entity_t *cent, r_shared_t &shared, bool &update)
 {
 	if(cent->prev.renderfx != cent->current.renderfx)
 		update = true;
 	
-	rent.flags = cent->current.renderfx;
+	shared.flags = cent->current.renderfx;
+}
+
+void	CG_UpdateLightShader(const cg_entity_t *cent, r_light_t &rlight, bool &update)
+{
+	if(cg.light_precache[cent->prev.index_light] != cg.light_precache[cent->current.index_light])
+		update = true;
+		
+	rlight.custom_light = cg.light_precache[cent->current.index_light];
 }
 
 void	CG_AddGenericEntity(const cg_entity_t *cent)
@@ -403,9 +403,6 @@ void	CG_AddGenericEntity(const cg_entity_t *cent)
 		
 	if(cent->current.index_shader)
 		rent.custom_shader = cg.shader_precache[cent->current.index_shader];
-		
-	for(int i=0; i<8; i++)
-		rent.shader_parms[i] = cent->current.shaderparms[i];
 	
 	rent.origin = cent->current.origin;
 	rent.quat = cent->current.quat;
@@ -414,14 +411,28 @@ void	CG_AddGenericEntity(const cg_entity_t *cent)
 	rent.frame_old = cent->current.frame;
 	
 	rent.flags = cent->current.renderfx;
+
+	for(int i=0; i<MAX_SHADERPARMS; i++)
+		rent.shader_parms[i] = cent->current.shader_parms[i];
 	
-	trap_R_AddEntity(cent->current.getNumber(), rent);
+	trap_R_AddDeltaEntity(cent->current.getNumber(), rent);
 
 	if(cent->current.index_light && !cent->current.vectors[0].isZero())
 	{
-		rent.custom_light = cg.light_precache[cent->current.index_light];
+		r_light_t	rlight;
+
+		rlight.type = LIGHT_OMNI;
+
+		rlight.custom_light = cg.light_precache[cent->current.index_light];
+		
+		rlight.origin = cent->current.origin;
+		rlight.quat = cent->current.quat;
+
+		rlight.flags = cent->current.renderfx;
 	
-		rent.radius_aabb.clear();
+		rlight.radius = cent->current.vectors[0];
+
+		rlight.radius_aabb.clear();
 			
 		// compute bbox vertices in light space
 		vec3_c vert0( cent->current.vectors[0][0], -cent->current.vectors[0][1], -cent->current.vectors[0][2]);
@@ -445,18 +456,21 @@ void	CG_AddGenericEntity(const cg_entity_t *cent)
 		vert7.rotate(cent->current.quat);
 			
 		// transform vertices into world space and add them to the light world aabb
-		rent.radius_aabb.addPoint(cent->current.origin + vert0);
-		rent.radius_aabb.addPoint(cent->current.origin + vert1);
-		rent.radius_aabb.addPoint(cent->current.origin + vert2);
-		rent.radius_aabb.addPoint(cent->current.origin + vert3);
-		rent.radius_aabb.addPoint(cent->current.origin + vert4);
-		rent.radius_aabb.addPoint(cent->current.origin + vert5);
-		rent.radius_aabb.addPoint(cent->current.origin + vert6);
-		rent.radius_aabb.addPoint(cent->current.origin + vert7);
+		rlight.radius_aabb.addPoint(cent->current.origin + vert0);
+		rlight.radius_aabb.addPoint(cent->current.origin + vert1);
+		rlight.radius_aabb.addPoint(cent->current.origin + vert2);
+		rlight.radius_aabb.addPoint(cent->current.origin + vert3);
+		rlight.radius_aabb.addPoint(cent->current.origin + vert4);
+		rlight.radius_aabb.addPoint(cent->current.origin + vert5);
+		rlight.radius_aabb.addPoint(cent->current.origin + vert6);
+		rlight.radius_aabb.addPoint(cent->current.origin + vert7);
 			
-		rent.radius_value = rent.radius_aabb.radius();
+		rlight.radius_value = rlight.radius_aabb.radius();
+
+		for(int i=0; i<MAX_SHADERPARMS; i++)
+			rlight.shader_parms[i] = cent->current.shader_parms[i];
 			
-		trap_R_AddLight(cent->current.getNumber(), rent, LIGHT_OMNI);
+		trap_R_AddDeltaLight(cent->current.getNumber(), rlight);
 	}
 }
 
@@ -484,11 +498,9 @@ void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 	CG_UpdateRenderFXFlags(cent, rent, update);
 	
 	if(update)
-		trap_R_UpdateEntity(cent->current.getNumber(), rent);
+		trap_R_UpdateDeltaEntity(cent->current.getNumber(), rent);
 		
 //	update = false;
-	
-	CG_UpdateLightShader(cent, rent, update);
 	
 	if(cent->prev.vectors[0] != cent->current.vectors[0])
 	{
@@ -497,20 +509,32 @@ void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 	
 	if(cent->current.index_light && !cent->current.vectors[0].isZero() && update)
 	{
-		rent.radius.lerp(cent->prev.vectors[0], cent->current.vectors[0], cg.frame_lerp);
+		r_light_t	rlight;
+
+		rlight.type = LIGHT_OMNI;
+
+		CG_UpdateLightShader(cent, rlight, update);
 		
-		rent.radius_aabb.clear();
+		CG_UpdateOrigin(cent, rlight, update);
+	
+		CG_UpdateRotation(cent, rlight, update);
+
+		CG_UpdateRenderFXFlags(cent, rlight, update);
+
+		rlight.radius.lerp(cent->prev.vectors[0], cent->current.vectors[0], cg.frame_lerp);
+		
+		rlight.radius_aabb.clear();
 			
 		// compute bbox vertices in light space
-		vec3_c vert0( rent.radius[0], -rent.radius[1], -rent.radius[2]);
-		vec3_c vert1( rent.radius[0], -rent.radius[1],  rent.radius[2]);
-		vec3_c vert2(-rent.radius[0], -rent.radius[1],  rent.radius[2]);
-		vec3_c vert3(-rent.radius[0], -rent.radius[1], -rent.radius[2]);
+		vec3_c vert0( rlight.radius[0], -rlight.radius[1], -rlight.radius[2]);
+		vec3_c vert1( rlight.radius[0], -rlight.radius[1],  rlight.radius[2]);
+		vec3_c vert2(-rlight.radius[0], -rlight.radius[1],  rlight.radius[2]);
+		vec3_c vert3(-rlight.radius[0], -rlight.radius[1], -rlight.radius[2]);
 	
-		vec3_c vert4( rent.radius[0],  rent.radius[1], -rent.radius[2]);
-		vec3_c vert5( rent.radius[0],  rent.radius[1],  rent.radius[2]);
-		vec3_c vert6(-rent.radius[0],  rent.radius[1],  rent.radius[2]);
-		vec3_c vert7(-rent.radius[0],  rent.radius[1], -rent.radius[2]);
+		vec3_c vert4( rlight.radius[0],  rlight.radius[1], -rlight.radius[2]);
+		vec3_c vert5( rlight.radius[0],  rlight.radius[1],  rlight.radius[2]);
+		vec3_c vert6(-rlight.radius[0],  rlight.radius[1],  rlight.radius[2]);
+		vec3_c vert7(-rlight.radius[0],  rlight.radius[1], -rlight.radius[2]);
 			
 		// rotate vertices in light space
 		vert0.rotate(rent.quat);
@@ -523,18 +547,20 @@ void	CG_UpdateGenericEntity(const cg_entity_t *cent)
 		vert7.rotate(rent.quat);
 			
 		// transform vertices into world space and add them to the light world aabb
-		rent.radius_aabb.addPoint(rent.origin + vert0);
-		rent.radius_aabb.addPoint(rent.origin + vert1);
-		rent.radius_aabb.addPoint(rent.origin + vert2);
-		rent.radius_aabb.addPoint(rent.origin + vert3);
-		rent.radius_aabb.addPoint(rent.origin + vert4);
-		rent.radius_aabb.addPoint(rent.origin + vert5);
-		rent.radius_aabb.addPoint(rent.origin + vert6);
-		rent.radius_aabb.addPoint(rent.origin + vert7);
+		rlight.radius_aabb.addPoint(rlight.origin + vert0);
+		rlight.radius_aabb.addPoint(rlight.origin + vert1);
+		rlight.radius_aabb.addPoint(rlight.origin + vert2);
+		rlight.radius_aabb.addPoint(rlight.origin + vert3);
+		rlight.radius_aabb.addPoint(rlight.origin + vert4);
+		rlight.radius_aabb.addPoint(rlight.origin + vert5);
+		rlight.radius_aabb.addPoint(rlight.origin + vert6);
+		rlight.radius_aabb.addPoint(rlight.origin + vert7);
 			
-		rent.radius_value = rent.radius_aabb.radius();
+		rlight.radius_value = rlight.radius_aabb.radius();
+
+		CG_UpdateShaderParms(cent, rlight, update);
 	
-		trap_R_UpdateLight(cent->current.getNumber(), rent, LIGHT_OMNI);
+		trap_R_UpdateDeltaLight(cent->current.getNumber(), rlight);
 	}
 }
 
@@ -542,8 +568,8 @@ void	CG_RemoveGenericEntity(const cg_entity_t *cent)
 {
 //	trap_Com_DPrintf("removing generic entity %i ...\n", cent->prev.getNumber());
 
-	trap_R_RemoveEntity(cent->prev.getNumber());
-	trap_R_RemoveLight(cent->prev.getNumber());
+	trap_R_RemoveDeltaEntity(cent->prev.getNumber());
+	trap_R_RemoveDeltaLight(cent->prev.getNumber());
 	
 	if(cent->prev.index_sound)
 		trap_S_StopLoopSound(cent->prev.getNumber());

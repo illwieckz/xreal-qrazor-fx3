@@ -331,7 +331,7 @@ int 	main(int argc, char **argv)
 		{
 			Com_Frame(time);
 		}
-		catch(std::exception e)
+		catch(std::exception &e)
 		{
 			Com_Error(ERR_FATAL, "exception thrown: '%s'", e.what()); 
 		}

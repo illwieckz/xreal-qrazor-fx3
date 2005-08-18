@@ -398,14 +398,16 @@ void	CG_EndFrame(int entities_num);
 
 void	CG_GetEntitySoundOrigin(int ent, vec3_c &org);
 
-void	CG_UpdateOrigin(const cg_entity_t *cent, r_entity_t &rent, bool &update);
+void	CG_UpdateOrigin(const cg_entity_t *cent, r_shared_t &shared, bool &update);
+void	CG_UpdateRotation(const cg_entity_t *cent, r_shared_t &shared, bool &update);
+void	CG_UpdateRenderFXFlags(const cg_entity_t *cent, r_shared_t &shared, bool &update);
+void	CG_UpdateShaderParms(const cg_entity_t *cent, r_shared_t &shared, bool &update);
+
 void	CG_UpdateFrame(const cg_entity_t *cent, r_entity_t &rent, bool &update);
-void	CG_UpdateRotation(const cg_entity_t *cent, r_entity_t &rent, bool &update);
 void	CG_UpdateModel(const cg_entity_t *cent, r_entity_t &rent, bool &update);
 void	CG_UpdateShader(const cg_entity_t *cent, r_entity_t &rent, bool &update);
-void	CG_UpdateLightShader(const cg_entity_t *cent, r_entity_t &rent, bool &update);
-void	CG_UpdateShaderParms(const cg_entity_t *cent, r_entity_t &rent, bool &update);
-void	CG_UpdateRenderFXFlags(const cg_entity_t *cent, r_entity_t &rent, bool &update);
+
+void	CG_UpdateLightShader(const cg_entity_t *cent, r_light_t &rlight, bool &update);
 
 void	CG_AddGenericEntity(const cg_entity_t *cent);
 void	CG_UpdateGenericEntity(const cg_entity_t *cent);
@@ -590,13 +592,13 @@ void		trap_R_DrawFill(int x, int y, int w, int h, const vec4_c &color);
 	
 void		trap_R_ClearScene();
 	
-void		trap_R_AddEntity(int index, const r_entity_t &shared);
-void		trap_R_UpdateEntity(int index, const r_entity_t &shared);
-void		trap_R_RemoveEntity(int index);
+void		trap_R_AddDeltaEntity(int index, const r_entity_t &shared);
+void		trap_R_UpdateDeltaEntity(int index, const r_entity_t &shared);
+void		trap_R_RemoveDeltaEntity(int index);
 	
-void		trap_R_AddLight(int index, const r_entity_t &shared, r_light_type_t type);
-void		trap_R_UpdateLight(int index, const r_entity_t &shared, r_light_type_t type);
-void		trap_R_RemoveLight(int index);
+void		trap_R_AddDeltaLight(int index, const r_light_t &shared);
+void		trap_R_UpdateDeltaLight(int index, const r_light_t &shared);
+void		trap_R_RemoveDeltaLight(int index);
 	
 void		trap_R_AddParticle(const r_particle_t &part);
 void		trap_R_AddPoly(const r_poly_t &poly);

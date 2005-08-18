@@ -859,7 +859,7 @@ void	R_DrawLightDebuggingInfo()
 			if(!light)
 				continue;
 				
-			const r_entity_t& s = light->getShared();
+			const r_light_t& s = light->getShared();
 				
 			light->getTransform().toVectorsFRU(vf, vr, vu);
 				
@@ -1726,9 +1726,9 @@ static void	R_ClearScene()
 //	r_contacts.clear();
 }
 
-static void	R_AddEntity(int index, const r_entity_t &shared)
+static void	R_AddDeltaEntity(int index, const r_entity_t &shared)
 {
-//	ri.Com_DPrintf("R_AddEntity(%i)\n", index);
+//	ri.Com_DPrintf("R_AddDeltaEntity(%i)\n", index);
 	
 	r_entity_c* ent = R_GetEntityByNum(index);
 	
@@ -1740,9 +1740,9 @@ static void	R_AddEntity(int index, const r_entity_t &shared)
 	r_entities[index] = ent;
 }
 
-static void	R_UpdateEntity(int index, const r_entity_t &shared)
+static void	R_UpdateDeltaEntity(int index, const r_entity_t &shared)
 {
-//	ri.Com_DPrintf("R_UpdateEntity(%i)\n", index);
+//	ri.Com_DPrintf("R_UpdateDeltaEntity(%i)\n", index);
 
 	r_entity_c* ent = R_GetEntityByNum(index);
 	
@@ -1754,9 +1754,9 @@ static void	R_UpdateEntity(int index, const r_entity_t &shared)
 	r_entities[index] = ent;
 }
 
-static void	R_RemoveEntity(int index)
+static void	R_RemoveDeltaEntity(int index)
 {
-//	ri.Com_DPrintf("R_RemoveEntity(%i)\n", index);
+//	ri.Com_DPrintf("R_RemoveDeltaEntity(%i)\n", index);
 
 	r_entity_c* ent = R_GetEntityByNum(index);
 	
@@ -1767,38 +1767,38 @@ static void	R_RemoveEntity(int index)
 }
 
 
-static void	R_AddLight(int index, const r_entity_t &shared, r_light_type_t type)
+static void	R_AddDeltaLight(int index, const r_light_t &shared)
 {
-//	ri.Com_DPrintf("R_AddLight(%i)\n", index);
+//	ri.Com_DPrintf("R_AddDeltaLight(%i)\n", index);
 	
 	r_light_c* light = R_GetLightByNum(index);
 	
 	if(light)
 		delete light;
 		
-	light = new r_light_c(shared, type);
+	light = new r_light_c(shared);
 	
 	r_lights[index] = light;
 }
 
-static void	R_UpdateLight(int index, const r_entity_t &shared, r_light_type_t type)
+static void	R_UpdateDeltaLight(int index, const r_light_t &shared)
 {
-//	ri.Com_DPrintf("R_UpdateLight(%i)\n", index);
+//	ri.Com_DPrintf("R_UpdateDeltaLight(%i)\n", index);
 
 	r_light_c* light = R_GetLightByNum(index);
 	
 	if(light)
-		light->update(shared, type);
+		light->update(shared);
 	else
-		light = new r_light_c(shared, type);
+		light = new r_light_c(shared);
 	
 	r_lights[index] = light;
 	
 }
 
-static void	R_RemoveLight(int index)
+static void	R_RemoveDeltaLight(int index)
 {
-//	ri.Com_DPrintf("R_RemoveLight(%i)\n", index);
+//	ri.Com_DPrintf("R_RemoveDeltaLight(%i)\n", index);
 
 	r_light_c* light = R_GetLightByNum(index);
 	
@@ -1872,13 +1872,13 @@ ref_export_t 	GetRefAPI(ref_import_t rimp)
 	
 	re.R_ClearScene			= R_ClearScene;
 	
-	re.R_AddEntity			= R_AddEntity;
-	re.R_UpdateEntity		= R_UpdateEntity;
-	re.R_RemoveEntity		= R_RemoveEntity;
+	re.R_AddDeltaEntity		= R_AddDeltaEntity;
+	re.R_UpdateDeltaEntity		= R_UpdateDeltaEntity;
+	re.R_RemoveDeltaEntity		= R_RemoveDeltaEntity;
 	
-	re.R_AddLight			= R_AddLight;
-	re.R_UpdateLight		= R_UpdateLight;
-	re.R_RemoveLight		= R_RemoveLight;
+	re.R_AddDeltaLight		= R_AddDeltaLight;
+	re.R_UpdateDeltaLight		= R_UpdateDeltaLight;
+	re.R_RemoveDeltaLight		= R_RemoveDeltaLight;
 	
 	re.R_AddParticle		= R_AddParticle;
 	re.R_AddPoly			= R_AddPoly;
