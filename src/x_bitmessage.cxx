@@ -768,86 +768,6 @@ void 	bitmessage_c::writeDeltaEntity(const entity_state_t *from, const entity_st
 		writeBit(false);
 	}
 		
-	if(to->shaderparms[0] != from->shaderparms[0])
-	{
-		writeBit(true);
-		writeFloat(to->shaderparms[0]);
-	}
-	else
-	{
-		writeBit(false);
-	}
-		
-	if(to->shaderparms[1] != from->shaderparms[1])
-	{
-		writeBit(true);
-		writeFloat(to->shaderparms[1]);
-	}
-	else
-	{
-		writeBit(false);
-	}
-		
-	if(to->shaderparms[2] != from->shaderparms[2])
-	{
-		writeBit(true);
-		writeFloat(to->shaderparms[2]);
-	}
-	else
-	{
-		writeBit(false);
-	}
-		
-	if(to->shaderparms[3] != from->shaderparms[3])
-	{
-		writeBit(true);
-		writeFloat(to->shaderparms[3]);
-	}
-	else
-	{
-		writeBit(false);
-	}
-		
-	if(to->shaderparms[4] != from->shaderparms[4])
-	{
-		writeBit(true);
-		writeFloat(to->shaderparms[4]);
-	}
-	else
-	{
-		writeBit(false);
-	}
-	
-	if(to->shaderparms[5] != from->shaderparms[5])
-	{
-		writeBit(true);
-		writeFloat(to->shaderparms[5]);
-	}
-	else
-	{
-		writeBit(false);
-	}
-		
-	if(to->shaderparms[6] != from->shaderparms[6])
-	{
-		writeBit(true);
-		writeFloat(to->shaderparms[6]);
-	}
-	else
-	{
-		writeBit(false);
-	}
-		
-	if(to->shaderparms[7] != from->shaderparms[7])
-	{
-		writeBit(true);
-		writeFloat(to->shaderparms[7]);
-	}
-	else
-	{
-		writeBit(false);
-	}
-		
 	if(to->vectors[0] != from->vectors[0])
 	{
 		writeBit(true);
@@ -876,7 +796,20 @@ void 	bitmessage_c::writeDeltaEntity(const entity_state_t *from, const entity_st
 	else
 	{
 		writeBit(false);
-	}	
+	}
+
+	for(int i=0; i<MAX_SHADERPARMS; i++)
+	{
+		if(to->shader_parms[i] != from->shader_parms[i])
+		{
+			writeBit(true);
+			writeFloat(to->shader_parms[i]);
+		}
+		else
+		{
+			writeBit(false);
+		}
+	}
 }
 
 void	bitmessage_c::writeDeltaPlayerState(const player_state_t *from, const player_state_t *to)
@@ -1632,30 +1565,6 @@ void	bitmessage_c::readDeltaEntity(const entity_state_t *from, entity_state_t *t
 		to->event = 0;
 		
 	if(readBit())
-		to->shaderparms[0] = readFloat();
-		
-	if(readBit())
-		to->shaderparms[1] = readFloat();
-		
-	if(readBit())
-		to->shaderparms[2] = readFloat();
-		
-	if(readBit())
-		to->shaderparms[3] = readFloat();
-		
-	if(readBit())
-		to->shaderparms[4] = readFloat();
-	
-	if(readBit())
-		to->shaderparms[5] = readFloat();
-		
-	if(readBit())
-		to->shaderparms[6] = readFloat();
-		
-	if(readBit())
-		to->shaderparms[7] = readFloat();
-		
-	if(readBit())
 		readVec3(to->vectors[0]);
 		
 	if(readBit())
@@ -1663,6 +1572,12 @@ void	bitmessage_c::readDeltaEntity(const entity_state_t *from, entity_state_t *t
 		
 	if(readBit())
 		readVec3(to->vectors[2]);
+
+	for(int i=0; i<MAX_SHADERPARMS; i++)
+	{
+		if(readBit())
+			to->shader_parms[i] = readFloat();
+	}
 }
 
 void	bitmessage_c::readDeltaPlayerState(const player_state_t *from, player_state_t *to)

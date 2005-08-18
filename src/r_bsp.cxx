@@ -439,14 +439,15 @@ void	r_bsptree_c::boxLeafs_r(const aabb_c &aabb, std::vector<r_bsptree_leaf_c*> 
 	}
 }
 
-void	r_bsptree_c::boxLeafs(const aabb_c &bbox, std::vector<r_bsptree_leaf_c*> &leafs)
+void	r_bsptree_c::boxLeafs(const aabb_c &aabb, std::vector<r_bsptree_leaf_c*> &leafs)
 {
 	if(_nodes.empty())
 		return;
 		
 	r_checkcount++;
-		
-	boxLeafs_r(bbox, leafs, _nodes[0]);
+	
+	leafs.clear();
+	boxLeafs_r(aabb, leafs, _nodes[0]);
 }
 
 void	r_bsptree_c::precacheLight(r_light_c *light)

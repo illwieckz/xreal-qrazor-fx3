@@ -25,13 +25,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /// includes ===================================================================
 // system -------------------------------------------------------------------
-/*
-#include <string>
-#include <vector>
-#include <list>
-#include <deque>
-#include <map>
-*/
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/utility.hpp>
 #include <boost/spirit/symbols/symbols.hpp>
@@ -316,13 +309,29 @@ enum
 {
 	SHADER_GENERIC_RULE_REAL		= 1,
 	SHADER_GENERIC_RULE_PARM,
-	SHADER_GENERIC_RULE_TABLE_EVAL,
-	SHADER_GENERIC_RULE_TABLE_INDEX,
-	SHADER_GENERIC_RULE_TABLE_VALUE,
+	SHADER_GENERIC_RULE_TABLE,
 	SHADER_GENERIC_RULE_FACTOR,
 	SHADER_GENERIC_RULE_TERM,
 	SHADER_GENERIC_RULE_EXPRESSION
 };
+
+struct r_shader_generic_rules_t
+{
+	r_shader_generic_rules_t()
+	{
+		map[SHADER_GENERIC_RULE_REAL]		= "real";
+		map[SHADER_GENERIC_RULE_PARM]		= "parm";
+		map[SHADER_GENERIC_RULE_TABLE]		= "table";
+		map[SHADER_GENERIC_RULE_FACTOR]		= "factor";
+		map[SHADER_GENERIC_RULE_TERM]		= "term";
+		map[SHADER_GENERIC_RULE_EXPRESSION]	= "expression";
+	}
+
+	std::map<boost::spirit::parser_id, std::string>	map;
+};
+
+extern r_shader_generic_rules_t r_shader_generic_rules;
+
 
 enum
 {
@@ -397,10 +406,15 @@ private:
 
 
 
-typedef float							r_node_data_t;
+typedef float								r_node_data_t;
+typedef std::string::const_iterator					r_iterator_t;
+typedef boost::spirit::node_val_data_factory<r_node_data_t>		r_factory_t;
 
-typedef std::string::const_iterator				r_iterator_t;
-typedef boost::spirit::node_val_data_factory<r_node_data_t>	r_factory_t;
+struct r_expression_t
+{
+	std::string							str;
+	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	info;
+};
 
 extern uint_t		r_registrationcount;
 extern uint_t		r_framecount;
@@ -524,11 +538,11 @@ struct r_tcmod_t
 		type	= SHADER_TCMOD_NONE;
 	}
 
-	r_shader_tcmod_type_e						type;
+	r_shader_tcmod_type_e	type;
 	
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	x;	// generic AST expression
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	y;
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	z;
+	r_expression_t		x;	// generic AST expression
+	r_expression_t		y;
+	r_expression_t		z;
 };
 
 
@@ -659,42 +673,42 @@ public:
 	r_shader_material_stage_type_e	type;
 	r_shader_light_stage_type_e	type_light;
 	
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	condition;
+	r_expression_t			condition;
 	
 	uint_t				flags;
 	
 	uint_t				blend_src;
 	uint_t				blend_dst;
 	
-	r_rgbgen_type_e							rgb_gen;
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	red;
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	green;
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	blue;
+	r_rgbgen_type_e			rgb_gen;
+	r_expression_t			red;
+	r_expression_t			green;
+	r_expression_t			blue;
 	
-	r_alphagen_type_e						alpha_gen;
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	alpha;
+	r_alphagen_type_e		alpha_gen;
+	r_expression_t			alpha;
 	
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	alpha_ref;
+	r_expression_t			alpha_ref;
 			
-	std::vector<r_tcmod_t>						tcmod_cmds;
+	std::vector<r_tcmod_t>		tcmod_cmds;
 	
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	bump_scale;
+	r_expression_t			bump_scale;
 	
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	height_scale;
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	height_bias;
+	r_expression_t			height_scale;
+	r_expression_t			height_bias;
 	
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	specular_exponent;
+	r_expression_t			specular_exponent;
 	
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	refraction_index;
+	r_expression_t			refraction_index;
 	
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	fresnel_power;
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	fresnel_scale;
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	fresnel_bias;
+	r_expression_t			fresnel_power;
+	r_expression_t			fresnel_scale;
+	r_expression_t			fresnel_bias;
 	
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	eta;
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	eta_delta;
+	r_expression_t			eta;
+	r_expression_t			eta_delta;
 	
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	deform_magnitude;
+	r_expression_t			deform_magnitude;
 	
 	bool				make_intensity;
 	bool				make_alpha;
@@ -719,9 +733,8 @@ public:
 	inline r_shader_light_type_e	getLightType() const		{return _type_light;}
 	inline void			setLightType(r_shader_light_type_e type)	{_type_light = type;}
 	
-	inline const boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>&
-					getSort() const			{return _sort;}
-	inline void			setSort(boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>& sort)
+	inline const r_expression_t&	getSort() const			{return _sort;}
+	inline void			setSort(const r_expression_t& sort)
 	{
 		_sort = sort;
 	}
@@ -740,7 +753,7 @@ private:
 	r_shader_type_e			_type;
 	r_shader_light_type_e		_type_light;	// only used if shader is a light shader
 	
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t>	_sort;
+	r_expression_t			_sort;
 	r_shader_deform_type_e		_deform;
 	uint_t				_flags;
 	
@@ -1007,11 +1020,10 @@ protected:
 	}
 	
 public:
-	void		updateVis(const r_entity_t &shared);
-	
 	inline int	getCluster() const		{return _cluster;}
 	inline const std::vector<r_bsptree_leaf_c*>&	getLeafs() const	{return _leafs;}
 	
+	/*
 	inline const std::vector<int>&			getAreas() const	{return _areas;}
 	inline void	addArea(int areanum)
 	{
@@ -1025,12 +1037,12 @@ public:
 		
 		return (ir != _areas.end());
 	}
-	
+	*/
 	
 protected:
 	int				_cluster;
 	std::vector<r_bsptree_leaf_c*>	_leafs;
-	std::vector<int>		_areas;
+//	std::vector<int>		_areas;
 };
 
 class r_occlusion_iface_a
@@ -1229,10 +1241,11 @@ public r_occlusion_iface_a
 
 public:
 //	r_light_c();
-	r_light_c(const r_entity_t &shared, r_light_type_t type);
+	r_light_c(const r_light_t &shared);
 	~r_light_c();
 	
-	void			update(const r_entity_t &shared, r_light_type_t type);
+	void			update(const r_light_t &shared);
+	void			updateVis();
 
 	void			setupTransform();
 	void			setupAttenuation();
@@ -1243,8 +1256,8 @@ public:
 	
 	r_interaction_c*	createInteraction(r_entity_c* ent, const r_mesh_c *mesh);
 	
-	inline const r_entity_t&	getShared() const	{return _s;}
-	inline r_light_type_t		getType() const		{return _type;}
+	inline const r_light_t&		getShared() const	{return _s;}
+	inline r_light_type_t		getType() const		{return _s.type;}
 	
 	inline const vec3_c&		getOrigin() const	{return _origin;}
 	
@@ -1273,8 +1286,7 @@ public:
 	
 
 private:
-	r_entity_t		_s;
-	r_light_type_t		_type;
+	r_light_t		_s;
 	
 	vec3_c			_origin;
 		
@@ -1557,9 +1569,9 @@ public:
 
 	// Fills in a list of all the leafs touched
 private:
-	void			boxLeafs_r(const aabb_c &bbox, std::vector<r_bsptree_leaf_c*> &leafs, r_tree_elem_c *elem);
+	void			boxLeafs_r(const aabb_c &aabb, std::vector<r_bsptree_leaf_c*> &leafs, r_tree_elem_c *elem);
 public:
-	void			boxLeafs(const aabb_c &bbox, std::vector<r_bsptree_leaf_c*> &leafs);
+	void			boxLeafs(const aabb_c &aabb, std::vector<r_bsptree_leaf_c*> &leafs);
 	
 private:
 	void			loadVisibility(const byte *buffer, const bsp_lump_t *l);
@@ -2444,14 +2456,14 @@ void		RB_DisableShaderStates(const r_shader_c *shader);
 void		RB_EnableShaderStageStates(const r_entity_c *ent, const r_shader_stage_c *stage);
 void		RB_DisableShaderStageStates(const r_entity_c *ent, const r_shader_stage_c *stage);
 
-float		RB_Evaluate(const r_entity_t &shared, const boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> &info, float default_value);
+float		RB_Evaluate(const r_shared_t &shared, const r_expression_t &exp, float default_value);
 
 void		RB_ModifyTextureMatrix(const r_entity_c *ent, const r_shader_stage_c *stage);
 void		RB_ModifyOmniLightTextureMatrix(const r_command_t *cmd, const r_shader_stage_c *stage);
 void		RB_ModifyOmniLightCubeTextureMatrix(const r_command_t *cmd, const r_shader_stage_c *stage);
 void		RB_ModifyProjLightTextureMatrix(const r_command_t *cmd, const r_shader_stage_c *stage);
 void		RB_ModifyProjShadowTextureMatrix(const r_command_t *cmd);
-void		RB_ModifyColor(const r_entity_t &shared, const r_shader_stage_c *stage, vec4_c &color);
+void		RB_ModifyColor(const r_shared_t &shared, const r_shader_stage_c *stage, vec4_c &color);
 
 void		RB_RenderCommand(const r_command_t *cmd, r_render_type_e type);
 void		RB_RenderCommands();

@@ -931,6 +931,53 @@ private:
 };
 
 
+enum
+{
+	SHADERPARM_RED			= 0,
+	SHADERPARM_GREEN		= 1,
+	SHADERPARM_BLUE			= 2,
+	SHADERPARM_ALPHA		= 3,
+	SHADERPARM_TIMESCALE		= 4,
+	SHADERPARM_TIMEOFFSET		= 4,
+	SHADERPARM_DIVERSITY		= 5,
+	SHADERPARM_MODE			= 7,
+	SHADERPARM_TIME_OF_DEATH	= 7,
+	MAX_SHADERPARMS			= 14
+};
+
+class shaderparms_iface_a
+{
+protected:
+	inline shaderparms_iface_a()
+	{
+		clearShaderParms();
+	}
+
+public:
+
+	inline void	clearShaderParms()
+	{
+		shader_parms[SHADERPARM_RED]	= 1.0;
+		shader_parms[SHADERPARM_GREEN]	= 1.0;
+		shader_parms[SHADERPARM_BLUE]	= 1.0;
+		shader_parms[SHADERPARM_ALPHA]	= 1.0;
+		shader_parms[4]			= 0.0;
+		shader_parms[5]			= 0.0;
+		shader_parms[6]			= 0.0;
+		shader_parms[7]			= 0.0;
+		shader_parms[8]			= 0.0;
+		shader_parms[9]			= 0.0;
+		shader_parms[10]		= 0.0;
+		shader_parms[11]		= 0.0;
+		shader_parms[12]		= 0.0;
+		shader_parms[13]		= 0.0;
+	}
+	
+	// renderer material shaders want these
+	float	shader_parms[MAX_SHADERPARMS];
+};
+
+
 // button bits
 enum
 {
@@ -1132,7 +1179,8 @@ enum solid_e
 // entity_state_t is the information conveyed from the server
 // in an update message about entities that the client will
 // need to render in some way
-class entity_state_t
+class entity_state_t :
+public shaderparms_iface_a
 {
 	friend class g_entity_c;
 	friend class message_c;
@@ -1156,15 +1204,6 @@ public:
 		renderfx	= RF_NONE;
 				
 		event		= 0;
-		
-		shaderparms[0]	= 0;
-		shaderparms[1]	= 0;
-		shaderparms[2]	= 0;
-		shaderparms[3]	= 0;
-		shaderparms[4]	= 0;
-		shaderparms[5]	= 0;
-		shaderparms[6]	= 0;
-		shaderparms[7]	= 0;
 	}
 	
 	inline void	clear()
@@ -1193,15 +1232,6 @@ public:
 		renderfx	= RF_NONE;
 				
 		event		= 0;
-		
-		shaderparms[0]	= 0;
-		shaderparms[1]	= 0;
-		shaderparms[2]	= 0;
-		shaderparms[3]	= 0;
-		shaderparms[4]	= 0;
-		shaderparms[5]	= 0;
-		shaderparms[6]	= 0;
-		shaderparms[7]	= 0;
 		
 		vectors[0].clear();
 		vectors[1].clear();
@@ -1240,8 +1270,6 @@ public:
 	byte		event;			// impulse events -- muzzle flashes, footsteps, etc
 							// events only go out for a single frame, they
 							// are automatically cleared each frame
-							
-	float		shaderparms[8];		// renderer material shaders want these
 	
 	vec3_c		vectors[3];		// misc vectors. e.g. used by lights
 };

@@ -30,9 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // shared -------------------------------------------------------------------
 #include "x_shared.h"
 
-
-#define	MAX_REFLIGHTS		MAX_LIGHTS
-#define	MAX_REFENTITIES		MAX_ENTITIES*2
 #define	MAX_PARTICLES		4096
 #define MAX_PARTICLE_FRAMES	32
 #define MAX_POLY_VERTEXES	3000
@@ -47,64 +44,92 @@ enum r_light_type_t
 	LIGHT_PROJ
 };
 
-class r_entity_t
+class r_shared_t :
+public shaderparms_iface_a
 {
 public:
-	inline r_entity_t()
+	inline r_shared_t()
 	{
 		scale.set(1.0, 1.0, 1.0);
-	
-		model		= -1;
-		animation	= -1;
-		
-		custom_shader	= -1;
-		custom_skin	= -1;
-		custom_light	= -1;
-		
-		shader_parms[0]	= 1;
-		shader_parms[1]	= 1;
-		shader_parms[2]	= 1;
-		shader_parms[3]	= 1;
-		shader_parms[4]	= 0;
-		shader_parms[5]	= 0;
-		shader_parms[6]	= 0;
-		shader_parms[7]	= 0;
-		shader_sound	= 0;
-		
-		frame		= 0;
-		frame_old	= 0;
-		
-		radius_value	= 0;
-		
+
 		flags		= RF_NONE;
 	}
-	
+
 	inline void	clear()
 	{
 		origin.clear();
 		quat.identity();
 		scale.set(1.0, 1.0, 1.0);
+
+		flags		= RF_NONE;
+	}
+
+	// transform
+	vec3_c			origin;
+	quaternion_c		quat;
+	vec3_c			scale;
 	
+	// special renderfx
+	uint_t			flags;
+};
+
+class r_entity_t :
+public r_shared_t
+{
+public:
+	inline r_entity_t()
+	{
 		model		= -1;
 		animation	= -1;
 		
 		custom_shader	= -1;
 		custom_skin	= -1;
-		custom_light	= -1;
+
+		frame		= 0;
+		frame_old	= 0;
+	}
+	
+	inline void	clear()
+	{
+		model		= -1;
+		animation	= -1;
 		
-		shader_parms[0]	= 1;
-		shader_parms[1]	= 1;
-		shader_parms[2]	= 1;
-		shader_parms[3]	= 1;
-		shader_parms[4]	= 0;
-		shader_parms[5]	= 0;
-		shader_parms[6]	= 0;
-		shader_parms[7]	= 0;
-		shader_sound	= 0;
+		custom_shader	= -1;
+		custom_skin	= -1;
 		
 		frame		= 0;
 		frame_old	= 0;
-		
+	}
+	
+	int			model;			// opaque type outside refresh
+	int			animation;
+	
+	int			custom_shader;		// -1 for inline shader
+	int			custom_skin;		// -1 for inline skin
+	
+	int			frame;
+	int			frame_old;
+};
+
+class r_light_t :
+public r_shared_t
+{
+public:
+	inline r_light_t()
+	{
+		type		= LIGHT_OMNI;
+
+		custom_light	= -1;
+
+		radius_value	= 0;
+	}
+
+	inline void	clear()
+	{
+		type		= LIGHT_OMNI;
+
+		custom_light	= -1;
+
 		radius.clear();
 		radius_aabb.zero();
 		radius_value	= 0;
@@ -113,30 +138,12 @@ public:
 		target.clear();
 		right.clear();
 		up.clear();
-		
-		flags		= RF_NONE;
 	}
-	
-	// transform
-	vec3_c			origin;
-	quaternion_c		quat;
-	vec3_c			scale;
-	
-	// entity specific
-	int			model;			// opaque type outside refresh
-	int			animation;
-	
-	int			custom_shader;		// -1 for inline shader
-	int			custom_skin;		// -1 for inline skin
+
+	r_light_type_t 		type;
+
 	int			custom_light;		// -1 for inline skin
-		
-	float			shader_parms[8];	// needed by shader system
-	float			shader_sound;		// needed by shader system
-	
-	int			frame;
-	int			frame_old;
-	
-	// light specific
+
 	vec3_c			radius;
 	aabb_c			radius_aabb;
 	float			radius_value;
@@ -145,9 +152,6 @@ public:
 	vec3_c			target;
 	vec3_c			right;
 	vec3_c			up;
-	
-	// misc
-	uint_t			flags;		// renderfx
 };
 
 struct r_particle_t
@@ -301,13 +305,13 @@ typedef struct
 	
 	void		(*R_ClearScene)();
 	
-	void		(*R_AddEntity)(int index, const r_entity_t &shared);
-	void		(*R_UpdateEntity)(int index, const r_entity_t &shared);
-	void		(*R_RemoveEntity)(int index);
+	void		(*R_AddDeltaEntity)(int index, const r_entity_t &shared);
+	void		(*R_UpdateDeltaEntity)(int index, const r_entity_t &shared);
+	void		(*R_RemoveDeltaEntity)(int index);
 	
-	void		(*R_AddLight)(int index, const r_entity_t &shared, r_light_type_t type);
-	void		(*R_UpdateLight)(int index, const r_entity_t &shared, r_light_type_t type);
-	void		(*R_RemoveLight)(int index);
+	void		(*R_AddDeltaLight)(int index, const r_light_t &shared);
+	void		(*R_UpdateDeltaLight)(int index, const r_light_t &shared);
+	void		(*R_RemoveDeltaLight)(int index);
 	
 	void		(*R_AddParticle)(const r_particle_t &part);
 	void		(*R_AddPoly)(const r_poly_t &poly);

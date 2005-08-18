@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // xreal --------------------------------------------------------------------
 
-bool	R_ParseExpressionToAST(r_iterator_t begin, r_iterator_t end, boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> &info);
+bool	R_ParseExpressionToAST(r_iterator_t begin, r_iterator_t end, r_expression_t &exp);
 
 bool	R_ParseExpressionToStringVector(const std::string &exp, std::vector<std::string> &v, bool skip_space = true);
 bool	R_SplitExpression(const std::string &exp, std::string &exp0, std::string &exp1, bool skip_space = true);
@@ -45,7 +45,7 @@ void	R_If_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> condition;
+	r_expression_t condition;
 	
 	if(R_ParseExpressionToAST(exp.begin(), exp.end(), condition))
 	{
@@ -200,7 +200,7 @@ void	R_RGBA_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> rgba;
+	r_expression_t rgba;
 	
 	if(R_ParseExpressionToAST(exp.begin(), exp.end(), rgba))
 	{
@@ -223,7 +223,7 @@ void	R_RGB_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> rgb;
+	r_expression_t rgb;
 	
 	if(R_ParseExpressionToAST(exp.begin(), exp.end(), rgb))
 	{
@@ -243,7 +243,7 @@ void	R_Red_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> red;
+	r_expression_t red;
 	
 	if(R_ParseExpressionToAST(exp.begin(), exp.end(), red))
 	{
@@ -261,7 +261,7 @@ void	R_Green_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> green;
+	r_expression_t green;
 	
 	if(R_ParseExpressionToAST(exp.begin(), exp.end(), green))
 	{
@@ -279,7 +279,7 @@ void	R_Blue_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 	
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> blue;
+	r_expression_t blue;
 	
 	if(R_ParseExpressionToAST(exp.begin(), exp.end(), blue))
 	{
@@ -297,7 +297,7 @@ void	R_Alpha_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> alpha;
+	r_expression_t alpha;
 	
 	if(R_ParseExpressionToAST(exp.begin(), exp.end(), alpha))
 	{
@@ -315,7 +315,7 @@ void	R_AlphaTest_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 	
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> alpharef;
+	r_expression_t alpharef;
 	
 	if(R_ParseExpressionToAST(exp.begin(), exp.end(), alpharef))
 	{
@@ -333,7 +333,7 @@ void	R_Scale3D_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 		
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> x, y, z;
+	r_expression_t x, y, z;
 	
 	std::string exp0, exp1, exp2;
 
@@ -369,7 +369,7 @@ void	R_Scale_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 		
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> x, y;
+	r_expression_t x, y;
 	
 	std::string exp0, exp1;
 
@@ -400,7 +400,7 @@ void	R_CenterScale_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 		
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> x, y;
+	r_expression_t x, y;
 	
 	std::string exp0, exp1;
 
@@ -431,7 +431,7 @@ void	R_Scroll_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 	
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> x, y;
+	r_expression_t x, y;
 	
 	std::string exp0, exp1;
 
@@ -462,7 +462,7 @@ void	R_Rotate_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 	
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> x;
+	r_expression_t x;
 	
 	if(R_ParseExpressionToAST(exp.begin(), exp.end(), x))
 	{
@@ -484,7 +484,7 @@ void	R_Translate_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 		
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> x, y;
+	r_expression_t x, y;
 	
 	std::string exp0, exp1;
 
@@ -515,7 +515,7 @@ void	R_BumpScale_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> bump_scale;
+	r_expression_t bump_scale;
 	
 	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), bump_scale))
 		ri.Com_Printf("R_BumpScale_stc: parsing failed\n");
@@ -527,7 +527,7 @@ void	R_HeightScale_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> height_scale;
+	r_expression_t height_scale;
 	
 	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), height_scale))
 		ri.Com_Printf("R_HeightScale_stc: parsing failed\n");
@@ -539,7 +539,7 @@ void	R_HeightBias_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> height_bias;
+	r_expression_t height_bias;
 	
 	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), height_bias))
 		ri.Com_Printf("R_HeightBias_stc: parsing failed\n");
@@ -551,7 +551,7 @@ void	R_SpecularExponent_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> specular_exponent;
+	r_expression_t specular_exponent;
 	
 	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), specular_exponent))
 		ri.Com_Printf("R_SpecularExponent_stc: parsing failed\n");
@@ -563,7 +563,7 @@ void	R_RefractionIndex_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> refraction_index;
+	r_expression_t refraction_index;
 	
 	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), refraction_index))
 		ri.Com_Printf("R_RefractionIndex_stc: parsing failed\n");
@@ -575,7 +575,7 @@ void	R_FresnelPower_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> fresnel_power;
+	r_expression_t fresnel_power;
 	
 	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), fresnel_power))
 		ri.Com_Printf("R_FresnelPower_stc: parsing failed\n");
@@ -587,7 +587,7 @@ void	R_FresnelScale_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> fresnel_scale;
+	r_expression_t fresnel_scale;
 	
 	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), fresnel_scale))
 		ri.Com_Printf("R_FresnelScale_stc: parsing failed\n");
@@ -599,7 +599,7 @@ void	R_FresnelBias_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> fresnel_bias;
+	r_expression_t fresnel_bias;
 	
 	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), fresnel_bias))
 		ri.Com_Printf("R_FresnelBias_stc: parsing failed\n");
@@ -611,7 +611,7 @@ void	R_EtaDelta_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> eta_delta;
+	r_expression_t eta_delta;
 	
 	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), eta_delta))
 		ri.Com_Printf("R_EtaDelta_stc: parsing failed\n");
@@ -623,7 +623,7 @@ void	R_Eta_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> eta;
+	r_expression_t eta;
 	
 	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), eta))
 		ri.Com_Printf("R_Eta_stc: parsing failed\n");
@@ -635,7 +635,7 @@ void	R_DeformMagnitude_stc(char const* begin, char const *end)
 {
 	std::string	exp(begin, end);
 
-	boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> mag;
+	r_expression_t mag;
 	
 	if(!R_ParseExpressionToAST(exp.begin(), exp.end(), mag))
 		ri.Com_Printf("R_DeformMagnitude_stc: parsing failed\n");

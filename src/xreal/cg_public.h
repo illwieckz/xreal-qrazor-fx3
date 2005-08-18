@@ -151,13 +151,13 @@ typedef struct
 	
 	void		(*R_ClearScene)();
 	
-	void		(*R_AddEntity)(int index, const r_entity_t &shared);
-	void		(*R_UpdateEntity)(int index, const r_entity_t &shared);
-	void		(*R_RemoveEntity)(int index);
+	void		(*R_AddDeltaEntity)(int index, const r_entity_t &shared);
+	void		(*R_UpdateDeltaEntity)(int index, const r_entity_t &shared);
+	void		(*R_RemoveDeltaEntity)(int index);
 	
-	void		(*R_AddLight)(int index, const r_entity_t &shared, r_light_type_t type);
-	void		(*R_UpdateLight)(int index, const r_entity_t &shared, r_light_type_t type);
-	void		(*R_RemoveLight)(int index);
+	void		(*R_AddDeltaLight)(int index, const r_light_t &shared);
+	void		(*R_UpdateDeltaLight)(int index, const r_light_t &shared);
+	void		(*R_RemoveDeltaLight)(int index);
 	
 	void		(*R_AddParticle)(const r_particle_t &part);
 	void		(*R_AddPoly)(const r_poly_t &poly);

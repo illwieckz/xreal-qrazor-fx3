@@ -1784,17 +1784,15 @@ void		RB_RenderCommand_zfill(const r_command_t *cmd,				const r_shader_stage_c *
 	
 		RB_ModifyTextureMatrix(cmd->getEntity(), stage);
 		RB_Bind(stage->image);
-		xglEnable(GL_TEXTURE_2D);		
+		xglEnable(GL_TEXTURE_2D);
 	}
 	else
 	{
-		/*
-		xglMatrixMode(GL_TEXTURE);
-		xglLoadIdentity();
-		xglMatrixMode(GL_MODELVIEW);
+		//xglMatrixMode(GL_TEXTURE);
+		//xglLoadIdentity();
+		//xglMatrixMode(GL_MODELVIEW);
 
-		RB_Bind(r_img_black);
-		*/
+		//RB_Bind(r_img_black);
 	}
 	
 	RB_FlushMesh(cmd);

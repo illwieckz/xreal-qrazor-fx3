@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /// includes ===================================================================
 // system -------------------------------------------------------------------
+#include <exception>
+
 // qrazor-fx ----------------------------------------------------------------
 #include "r_local.h"
 #include "r_backend.h"
@@ -926,23 +928,23 @@ void	RB_DisableShaderStageStates(const r_entity_c *ent, const r_shader_stage_c *
 	}
 }
 
-
-static float	RB_EvalExpression(const r_entity_t &shared, boost::spirit::tree_match<r_iterator_t, r_factory_t>::const_tree_iterator const & i)
+static float	RB_EvalExpression_r(const r_shared_t &shared, boost::spirit::tree_match<r_iterator_t, r_factory_t>::const_tree_iterator const & i)
 {
 	c_expressions++;
 
-	//ri.Com_Printf("RB_EvalExpression: i->value = %s i->children.size() = %i\n", std::string(i->value.begin(), i->value.end()).c_str(), i->children.size());
+	//ri.Com_Printf("RB_EvalExpression_r: rule = '%s' value = '%s : %f' children = %i\n", r_shader_generic_rules.map[i->value.id()].c_str(), std::string(i->value.begin(), i->value.end()).c_str(), i->value.value(), i->children.size());
 
 	if(i->value.id() == SHADER_GENERIC_RULE_REAL)
 	{
 		if(i->children.size() != 0)
-			ri.Com_Error(ERR_DROP, "RB_EvalExpression: rule 'GENERIC_REAL' has %i children = '%s'", i->children.size(), std::string(i->value.begin(), i->value.end()).c_str());
+			throw std::runtime_error(va("RB_EvalExpression_r: real rule has %i children = '%s'", i->children.size(), std::string(i->value.begin(), i->value.end()).c_str()));
 				
 		return i->value.value();
 	}
 	else if(i->value.id() == SHADER_GENERIC_RULE_PARM)
 	{
-		assert(i->children.size() == 0);
+		if(i->children.size() != 0)
+				throw std::runtime_error(va("RB_EvalExpression_r: parm rule has bad children number %i != 0", i->children.size()));
 		
 		switch((r_shader_parms_e)i->value.value())
 		{
@@ -950,16 +952,16 @@ static float	RB_EvalExpression(const r_entity_t &shared, boost::spirit::tree_mat
 				return rb_shader_time;
 			
 			case SHADER_PARM_PARM0:
-				return shared.shader_parms[0];
+				return shared.shader_parms[SHADERPARM_RED];
 				
 			case SHADER_PARM_PARM1:
-				return shared.shader_parms[1];
+				return shared.shader_parms[SHADERPARM_GREEN];
 				
 			case SHADER_PARM_PARM2:
-				return shared.shader_parms[2];
+				return shared.shader_parms[SHADERPARM_BLUE];
 			
 			case SHADER_PARM_PARM3:
-				return shared.shader_parms[3];
+				return shared.shader_parms[SHADERPARM_ALPHA];
 				
 			case SHADER_PARM_PARM4:
 				return shared.shader_parms[4];
@@ -992,178 +994,221 @@ static float	RB_EvalExpression(const r_entity_t &shared, boost::spirit::tree_mat
 				return X_crand();
 				
 			default:
-				ri.Com_Error(ERR_FATAL, "RB_EvalExpression: unknown parm '%s'\n", std::string(i->value.begin(), i->value.end()).c_str());
+				throw std::runtime_error(va("RB_EvalExpression_r: unknown parm '%s'", std::string(i->value.begin(), i->value.end()).c_str()));
 				return 0;
 		}
 	}
-	else if(i->value.id() == SHADER_GENERIC_RULE_TABLE_EVAL)
-	{
-		/*
-		const r_table_t& table = r_tables[(uint_t)RB_EvalExpression(shared, i->children.begin())];
+	else if(i->value.id() == SHADER_GENERIC_RULE_TABLE)
+	{		
+		if(i->children.size() != 1)
+			throw std::runtime_error(va("RB_EvalExpression_r: table rule has bad children number %i != 1", i->children.size()));
+		
+		const r_table_t& table = r_tables[(uint_t)i->value.value()];
 		const std::vector<float>& values = table.values;
 		
-		float idx_value = RB_EvalExpression(shared, i->children.begin()+1);
+		const int values_num = (int)values.size();
+		const float child = RB_EvalExpression_r(shared, i->children.begin());
 		
-		uint_t idx_int = (uint_t)((float)floorf(values.size() * idx_value)) % values.size();
+		const float index = child * values_num; 	// float index into the table´s elements
+		const float lerp = index - floorf(index);	// being inbetween two elements of the table
 		
-		return values[idx_int];
-		*/
-		
-		const r_table_t& table = r_tables[(uint_t)RB_EvalExpression(shared, i->children.begin())];
-		const std::vector<float>& values = table.values;
-		
-		const int num_values = (int)values.size();
-		float index = RB_EvalExpression(shared, i->children.begin()+1) * num_values; // float index into the table´s elements
-		float frac = floorf(index);	// integer index
-		
-		int idx = (int)frac;
-		frac = index - frac;	// being inbetween two elements of the table
-		int nextidx = idx+1;
+		int index_old = (int)index;
+		int index_cur = (int)index + 1;
 		
 		if(table.flags & SHADER_TABLE_CLAMP)
 		{
 			// clamp indices to table-range
-			X_clamp(idx, 0, num_values-1);
-			
-			X_clamp(nextidx, 0, num_values-1);
+			X_clamp(index_old, 0, values_num-1);
+			X_clamp(index_cur, 0, values_num-1);
 		}
 		else
 		{
 			// wrap around indices
-			idx %= num_values;
-			nextidx %= num_values;
+			index_old %= values_num;
+			index_cur %= values_num;
 		}
 		
+		float value;
+
 		if(table.flags & SHADER_TABLE_SNAP)
 		{
-			return values[idx];
+			// use fixed value
+			value = values[index_old];
 		}
+		else
+		{
+			// lerp value
+			value = values[index_old] + ((values[index_cur] - values[index_old]) * lerp);
+		}
+
+		//ri.Com_Printf("table = %i values = %i child value = %f final value = %f\n", (uint_t)i->value.value(), values.size(), child, value);
 		
-		return values[nextidx]*frac + values[idx]*(1.0f-frac);	// linearily interpolate
-	}
-	else if(i->value.id() == SHADER_GENERIC_RULE_TABLE_INDEX)
-	{		
-		return i->value.value();
-		
-	}
-	else if(i->value.id() == SHADER_GENERIC_RULE_TABLE_VALUE)
-	{	
-		return RB_EvalExpression(shared, i->children.begin());
+		return value;
 	}
 	else if(i->value.id() == SHADER_GENERIC_RULE_FACTOR)
 	{
 		if(*i->value.begin() == '+')
 		{
-			assert(i->children.size() == 1);
-			return RB_EvalExpression(shared, i->children.begin());
+			if(i->children.size() != 1)
+				throw std::runtime_error(va("RB_EvalExpression_r: factor rule has bad children number %i != 1", i->children.size()));
+
+			return RB_EvalExpression_r(shared, i->children.begin());
 		}
 		else if(*i->value.begin() == '-')
 		{
-			assert(i->children.size() == 1);
-			return - RB_EvalExpression(shared, i->children.begin());
+			if(i->children.size() != 1)
+				throw std::runtime_error(va("RB_EvalExpression_r: factor rule has bad children number %i != 1", i->children.size()));
+
+			return -RB_EvalExpression_r(shared, i->children.begin());
 		}
 		else
 		{
-			ri.Com_Error(ERR_FATAL, "RB_EvalExpression: unknown factor '%s'\n", *i->value.begin());
+			throw std::runtime_error(va("RB_EvalExpression_r: unknown factor '%s'", *i->value.begin()));
 		}
 	}
 	else if(i->value.id() == SHADER_GENERIC_RULE_TERM)
 	{
 		if(*i->value.begin() == '*')
 		{
-			assert(i->children.size() == 2);
-			return RB_EvalExpression(shared, i->children.begin()) * RB_EvalExpression(shared, i->children.begin()+1);
+			if(i->children.size() != 2)
+				throw std::runtime_error(va("RB_EvalExpression_r: * operator has bad children number %i != 2", i->children.size()));
+			
+			return RB_EvalExpression_r(shared, i->children.begin()) * RB_EvalExpression_r(shared, i->children.begin()+1);
 		}
 		else if(*i->value.begin() == '/')
 		{
-			assert(i->children.size() == 2);
-			return RB_EvalExpression(shared, i->children.begin()) / RB_EvalExpression(shared, i->children.begin()+1);
+			if(i->children.size() != 2)
+				throw std::runtime_error(va("RB_EvalExpression_r: / operator has bad children number %i != 2", i->children.size()));
+
+			return RB_EvalExpression_r(shared, i->children.begin()) / RB_EvalExpression_r(shared, i->children.begin()+1);
 		}
 		else if(*i->value.begin() == '%')
 		{
-			assert(i->children.size() == 2);
-			return static_cast<int>(RB_EvalExpression(shared, i->children.begin())) % static_cast<int>(RB_EvalExpression(shared, i->children.begin()+1));
+			if(i->children.size() != 2)
+				throw std::runtime_error(va("RB_EvalExpression_r: % operator has bad children number %i != 2", i->children.size()));
+
+			return static_cast<int>(RB_EvalExpression_r(shared, i->children.begin())) % static_cast<int>(RB_EvalExpression_r(shared, i->children.begin()+1));
 		}
 		else if(*i->value.begin() == '<' && *(i->value.begin()+1) == '=')
 		{
-			assert(i->children.size() == 2);
-			return (RB_EvalExpression(shared, i->children.begin()) <= RB_EvalExpression(shared, i->children.begin()+1)) ? 1.0 : 0.0;
+			if(i->children.size() != 2)
+				throw std::runtime_error(va("RB_EvalExpression_r: <= operator has bad children number %i != 2", i->children.size()));
+
+			return (RB_EvalExpression_r(shared, i->children.begin()) <= RB_EvalExpression_r(shared, i->children.begin()+1)) ? 1.0 : 0.0;
 		}
 		else if(*i->value.begin() == '<')
 		{
-			assert(i->children.size() == 2);
-			return (RB_EvalExpression(shared, i->children.begin()) < RB_EvalExpression(shared, i->children.begin()+1)) ? 1.0 : 0.0;
+			if(i->children.size() != 2)
+				throw std::runtime_error(va("RB_EvalExpression_r: < operator has bad children number %i != 2", i->children.size()));
+
+			return (RB_EvalExpression_r(shared, i->children.begin()) < RB_EvalExpression_r(shared, i->children.begin()+1)) ? 1.0 : 0.0;
 		}
 		else if(*i->value.begin() == '>' && *(i->value.begin()+1) == '=')
 		{
-			assert(i->children.size() == 2);
-			return (RB_EvalExpression(shared, i->children.begin()) >= RB_EvalExpression(shared, i->children.begin()+1)) ? 1.0 : 0.0;
+			if(i->children.size() != 2)
+				throw std::runtime_error(va("RB_EvalExpression_r: >= operator has bad children number %i != 2", i->children.size()));
+			
+			return (RB_EvalExpression_r(shared, i->children.begin()) >= RB_EvalExpression_r(shared, i->children.begin()+1)) ? 1.0 : 0.0;
 		}
 		else if(*i->value.begin() == '>')
 		{
-			assert(i->children.size() == 2);
-			return (RB_EvalExpression(shared, i->children.begin()) > RB_EvalExpression(shared, i->children.begin()+1)) ? 1.0 : 0.0;
+			if(i->children.size() != 2)
+				throw std::runtime_error(va("RB_EvalExpression_r: > operator has bad children number %i != 2", i->children.size()));
+
+			return (RB_EvalExpression_r(shared, i->children.begin()) > RB_EvalExpression_r(shared, i->children.begin()+1)) ? 1.0 : 0.0;
 		}
 		else if(*i->value.begin() == '=' && *(i->value.begin()+1) == '=')
 		{
-			assert(i->children.size() == 2);
-			return (RB_EvalExpression(shared, i->children.begin()) == RB_EvalExpression(shared, i->children.begin()+1)) ? 1.0 : 0.0;
+			if(i->children.size() != 2)
+				throw std::runtime_error(va("RB_EvalExpression_r: == operator has bad children number %i != 2", i->children.size()));
+
+			return (RB_EvalExpression_r(shared, i->children.begin()) == RB_EvalExpression_r(shared, i->children.begin()+1)) ? 1.0 : 0.0;
 		}
 		else if(*i->value.begin() == '!' && *(i->value.begin()+1) == '=')
 		{
-			assert(i->children.size() == 2);
-			return (RB_EvalExpression(shared, i->children.begin()) != RB_EvalExpression(shared, i->children.begin()+1)) ? 1.0 : 0.0;
+			if(i->children.size() != 2)
+				throw std::runtime_error(va("RB_EvalExpression_r: != operator has bad children number %i != 2", i->children.size()));
+
+			return (RB_EvalExpression_r(shared, i->children.begin()) != RB_EvalExpression_r(shared, i->children.begin()+1)) ? 1.0 : 0.0;
 		}
 		else if(*i->value.begin() == '&' && *(i->value.begin()+1) == '&')
 		{
-			assert(i->children.size() == 2);
-			return (RB_EvalExpression(shared, i->children.begin()) && RB_EvalExpression(shared, i->children.begin()+1)) ? 1.0 : 0.0;
+			if(i->children.size() != 2)
+				throw std::runtime_error(va("RB_EvalExpression_r: && operator has bad children number %i != 2", i->children.size()));
+
+			return (RB_EvalExpression_r(shared, i->children.begin()) && RB_EvalExpression_r(shared, i->children.begin()+1)) ? 1.0 : 0.0;
 		}
 		else if(*i->value.begin() == '|' && *(i->value.begin()+1) == '|')
 		{
-			assert(i->children.size() == 2);
-			return (RB_EvalExpression(shared, i->children.begin()) || RB_EvalExpression(shared, i->children.begin()+1)) ? 1.0 : 0.0;
+			if(i->children.size() != 2)
+				throw std::runtime_error(va("RB_EvalExpression_r: || operator has bad children number %i != 2", i->children.size()));
+
+			return (RB_EvalExpression_r(shared, i->children.begin()) || RB_EvalExpression_r(shared, i->children.begin()+1)) ? 1.0 : 0.0;
 		}
 		else
 		{
-			ri.Com_Error(ERR_FATAL, "RB_EvalExpression: unknown term '%s'\n", *i->value.begin());
+			throw std::runtime_error(va("RB_EvalExpression_r: unknown term '%s'", *i->value.begin()));
 		}
 	}	
 	else if(i->value.id() == SHADER_GENERIC_RULE_EXPRESSION)
 	{
 		if(*i->value.begin() == '+')
 		{
-			assert(i->children.size() == 2);
-			return RB_EvalExpression(shared, i->children.begin()) + RB_EvalExpression(shared, i->children.begin()+1);
+			if(i->children.size() != 2)
+				throw std::runtime_error(va("RB_EvalExpression_r: expression rule has bad children number %i != 2", i->children.size()));
+
+			return RB_EvalExpression_r(shared, i->children.begin()) + RB_EvalExpression_r(shared, i->children.begin()+1);
 		}
 		else if(*i->value.begin() == '-')
 		{
-			assert(i->children.size() == 2);
-			return RB_EvalExpression(shared, i->children.begin()) - RB_EvalExpression(shared, i->children.begin()+1);
+			if(i->children.size() != 2)
+				throw std::runtime_error(va("RB_EvalExpression_r: expression rule has bad children number %i != 2", i->children.size()));
+
+			return RB_EvalExpression_r(shared, i->children.begin()) - RB_EvalExpression_r(shared, i->children.begin()+1);
 		}
 		else
 		{
-			ri.Com_Error(ERR_FATAL, "RB_EvalExpression: unknown expression '%s'\n", *i->value.begin());
+			throw std::runtime_error(va("RB_EvalExpression_r: unknown expression '%s'", std::string(i->value.begin(), i->value.end()).c_str()));
 		}
 	}
 	else
 	{
-		ri.Com_Error(ERR_FATAL, "RB_EvalExpression: unknown id");
+		throw std::runtime_error("RB_EvalExpression_r: unknown rule");
 	}
 	
 	return 0;
 }
 
-float	RB_Evaluate(const r_entity_t &shared, const boost::spirit::tree_parse_info<r_iterator_t, r_factory_t> &info, float default_value)
+void	R_DumpASTToXML(const r_expression_t &exp);
+
+float	RB_Evaluate(const r_shared_t &shared, const r_expression_t &exp, float default_value)
 {
-	if(info.full && r_evalexpressions->getInteger())
-		return RB_EvalExpression(shared, info.trees.begin());
+	if(exp.info.full && r_evalexpressions->getInteger())
+	{
+		float result = 0;
+
+		try
+		{
+			result = RB_EvalExpression_r(shared, exp.info.trees.begin());
+		}
+		catch(std::exception &e)
+		{
+			//R_DumpASTToXML(exp);
+			//ri.Com_Error(ERR_FATAL, "RB_Evaluate: exception caught while evaluating:\n'%s'\n'%s'", exp.str.c_str(), e.what());
+			ri.Com_Printf("RB_Evaluate: exception caught while evaluating:\n'%s'\n'%s'", exp.str.c_str(), e.what());
+			return default_value;
+		}
+
+		return result;
+	}
 	else
+	{
 		return default_value;
+	}
 }
 
 
-static bool	RB_SetupTCModMatrix(const r_entity_t &shared, const r_shader_stage_c *stage, matrix_c &m)
+static bool	RB_SetupTCModMatrix(const r_shared_t &shared, const r_shader_stage_c *stage, matrix_c &m)
 {
 	m = matrix_identity;
 	
@@ -1366,33 +1411,28 @@ void	RB_ModifyProjShadowTextureMatrix(const r_command_t *cmd)
 }
 
 
-void	RB_ModifyColor(const r_entity_t &shared, const r_shader_stage_c *stage, vec4_c &color)
+void	RB_ModifyColor(const r_shared_t &shared, const r_shader_stage_c *stage, vec4_c &color)
 {
 	switch(stage->rgb_gen)
 	{
-		
 		case SHADER_RGB_GEN_IDENTITY:
-//		case SHADER_RGB_GEN_CUSTOM:
-//		case SHADER_RGB_GEN_ENTITY:
 			color[0] = 1.0;
 			color[1] = 1.0;
 			color[2] = 1.0;
 			break;	
-#if 1
-		case SHADER_RGB_GEN_CUSTOM:
-			color[0] = X_bound(0.0, RB_Evaluate(shared, stage->red, shared.shader_parms[0]), 1.0);
-			color[1] = X_bound(0.0, RB_Evaluate(shared, stage->green, shared.shader_parms[1]), 1.0);
-			color[2] = X_bound(0.0, RB_Evaluate(shared, stage->blue, shared.shader_parms[2]), 1.0);
-			break;
-#endif
 
-#if 1
-		case SHADER_RGB_GEN_ENTITY:
-			color[0] = X_bound(0.0, shared.shader_parms[0], 1.0);
-			color[1] = X_bound(0.0, shared.shader_parms[1], 1.0);
-			color[2] = X_bound(0.0, shared.shader_parms[2], 1.0);
+		case SHADER_RGB_GEN_CUSTOM:
+			color[0] = X_bound(0.0, RB_Evaluate(shared, stage->red, shared.shader_parms[SHADERPARM_RED]), 1.0);
+			color[1] = X_bound(0.0, RB_Evaluate(shared, stage->green, shared.shader_parms[SHADERPARM_GREEN]), 1.0);
+			color[2] = X_bound(0.0, RB_Evaluate(shared, stage->blue, shared.shader_parms[SHADERPARM_BLUE]), 1.0);
 			break;
-#endif		
+
+		case SHADER_RGB_GEN_ENTITY:
+			color[0] = X_bound(0.0, shared.shader_parms[SHADERPARM_RED], 1.0);
+			color[1] = X_bound(0.0, shared.shader_parms[SHADERPARM_GREEN], 1.0);
+			color[2] = X_bound(0.0, shared.shader_parms[SHADERPARM_BLUE], 1.0);
+			break;
+
 		default:
 			ri.Com_Error(ERR_DROP, "RB_ModifyColor: rgbgen mode %i not supported", stage->rgb_gen);
 			break;
@@ -1405,11 +1445,11 @@ void	RB_ModifyColor(const r_entity_t &shared, const r_shader_stage_c *stage, vec
 			break;
 			
 		case SHADER_ALPHA_GEN_CUSTOM:
-			color[3] = X_bound(0.0, RB_Evaluate(shared, stage->alpha, 1.0), 1.0);
+			color[3] = X_bound(0.0, RB_Evaluate(shared, stage->alpha, shared.shader_parms[SHADERPARM_ALPHA]), 1.0);
 			break;
 		
 		case SHADER_ALPHA_GEN_ENTITY:
-			color[3] = X_bound(0.0, shared.shader_parms[3], 1.0);
+			color[3] = X_bound(0.0, shared.shader_parms[SHADERPARM_ALPHA], 1.0);
 			break;
 			
 		default:
@@ -3095,7 +3135,7 @@ void	RB_AddCommand(	r_entity_c*		entity,
 	}
 #endif
 	
-	r_command_t *cmd = NULL, *cmd2 = NULL, *cmd3 = NULL;
+	r_command_t *cmd = NULL;
 	
 	if(light && entity_shader->stage_diffusemap)
 	{
@@ -3201,12 +3241,6 @@ void	RB_AddCommand(	r_entity_c*		entity,
 	cmd->_infokey		= infokey;
 	
 	cmd->_distance		= distance;
-		
-	if(cmd2)
-		*cmd2 = *cmd;
-		
-	if(cmd3)
-		*cmd3 = *cmd;
 }
 
 

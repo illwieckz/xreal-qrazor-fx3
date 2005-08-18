@@ -61,10 +61,10 @@ r_light_c::r_light_c()
 }
 */
 
-r_light_c::r_light_c(const r_entity_t &shared, r_light_type_t type)
+r_light_c::r_light_c(const r_light_t &shared)
 :r_occlusion_iface_a()
 {
-	update(shared, type);
+	update(shared);
 }
 
 r_light_c::~r_light_c()
@@ -72,10 +72,9 @@ r_light_c::~r_light_c()
 	// TODO
 }
 
-void	r_light_c::update(const r_entity_t &shared, r_light_type_t type)
+void	r_light_c::update(const r_light_t &shared)
 {
 	_s = shared;
-	_type = type;
 	
 	_origin = _s.origin + _s.quat * _s.center;
 	
@@ -95,7 +94,7 @@ void	r_light_c::update(const r_entity_t &shared, r_light_type_t type)
 		if(!r_world_tree && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
 			ri.Com_Error(ERR_DROP, "r_light_c::ctor: NULL worldmodel");
 	
-		updateVis(_s);
+		updateVis();
 		
 		r_world_tree->precacheLight(this);
 		
@@ -133,9 +132,42 @@ void	r_light_c::update(const r_entity_t &shared, r_light_type_t type)
 	}
 	else
 	{
-		updateVis(_s);
-	
+		updateVis();
+
 		_cluster = -1;
+	}
+}
+
+void	r_light_c::updateVis()
+{
+	if(_s.flags & RF_STATIC)
+	{
+		r_world_tree->boxLeafs(_s.radius_aabb, _leafs);
+		/*
+		for(std::vector<r_bsptree_leaf_c*>::iterator ir = _leafs.begin(); ir != _leafs.end(); ++ir)
+		{
+			r_bsptree_leaf_c *leaf = *ir;
+			
+			if(leaf->cluster < 0)
+				continue;
+			
+			addArea(leaf->area);
+		}
+		*/
+	}
+	else
+	{
+		r_bsptree_leaf_c* leaf = r_world_tree->pointInLeaf(_s.origin);
+		if(leaf)
+		{
+			_cluster = leaf->cluster;
+			
+			//addArea(leaf->area);
+		}
+		else
+		{
+			_cluster = -1;
+		}
 	}
 }
 
@@ -158,7 +190,7 @@ void	r_light_c::setupAttenuation()
 
 void	r_light_c::setupProjection()
 {
-	switch(_type)
+	switch(_s.type)
 	{
 		case LIGHT_OMNI:
 		{
@@ -195,7 +227,7 @@ void	r_light_c::setupProjection()
 		}
 		
 		default:
-			ri.Com_Error(ERR_DROP, "r_light_c::setupProjection: bad entity type %i", _type);
+			ri.Com_Error(ERR_DROP, "r_light_c::setupProjection: bad entity type %i", _s.type);
 	}
 }
 
@@ -206,7 +238,7 @@ void	r_light_c::setupFrustum()
 
 void	r_light_c::setupShadowMapProjection()
 {
-	switch(_type)
+	switch(_s.type)
 	{
 		case LIGHT_OMNI:
 			break;
@@ -227,13 +259,13 @@ void	r_light_c::setupShadowMapProjection()
 		}
 		
 		default:
-			ri.Com_Error(ERR_DROP, "r_light_c::setupShadowMapProjection: bad entity type %i", _type);
+			ri.Com_Error(ERR_DROP, "r_light_c::setupShadowMapProjection: bad entity type %i", _s.type);
 	}
 }
 
 void	r_light_c::setupShadowMapView()
 {
-	switch(_type)
+	switch(_s.type)
 	{
 		case LIGHT_OMNI:
 			break;
@@ -253,7 +285,7 @@ void	r_light_c::setupShadowMapView()
 		}
 		
 		default:
-			ri.Com_Error(ERR_DROP, "r_light_c::setupShadowMapView: bad entity type %i", _type);
+			ri.Com_Error(ERR_DROP, "r_light_c::setupShadowMapView: bad entity type %i", _s.type);
 	}
 }
 

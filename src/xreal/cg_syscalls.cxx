@@ -198,35 +198,35 @@ void		trap_R_ClearScene()
 }
 
 	
-void		trap_R_AddEntity(int index, const r_entity_t &shared)
+void		trap_R_AddDeltaEntity(int index, const r_entity_t &shared)
 {
-	cgi.R_AddEntity(index, shared);
+	cgi.R_AddDeltaEntity(index, shared);
 }
 
-void		trap_R_UpdateEntity(int index, const r_entity_t &shared)
+void		trap_R_UpdateDeltaEntity(int index, const r_entity_t &shared)
 {
-	cgi.R_UpdateEntity(index, shared);
+	cgi.R_UpdateDeltaEntity(index, shared);
 }
 
-void		trap_R_RemoveEntity(int index)
+void		trap_R_RemoveDeltaEntity(int index)
 {
-	cgi.R_RemoveEntity(index);
+	cgi.R_RemoveDeltaEntity(index);
 }
 
 
-void		trap_R_AddLight(int index, const r_entity_t &shared, r_light_type_t type)
+void		trap_R_AddDeltaLight(int index, const r_light_t &shared)
 {
-	cgi.R_AddLight(index, shared, type);
+	cgi.R_AddDeltaLight(index, shared);
 }
 
-void		trap_R_UpdateLight(int index, const r_entity_t &shared, r_light_type_t type)
+void		trap_R_UpdateDeltaLight(int index, const r_light_t &shared)
 {
-	cgi.R_UpdateLight(index, shared, type);
+	cgi.R_UpdateDeltaLight(index, shared);
 }
 
-void		trap_R_RemoveLight(int index)
+void		trap_R_RemoveDeltaLight(int index)
 {
-	cgi.R_RemoveLight(index);
+	cgi.R_RemoveDeltaLight(index);
 }
 
 
