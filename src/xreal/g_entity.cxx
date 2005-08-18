@@ -38,14 +38,14 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 	//
 	// create default values
 	//
-	_s.shaderparms[0]	= 1.0;
-	_s.shaderparms[1]	= 1.0;
-	_s.shaderparms[2]	= 1.0;
-	_s.shaderparms[3]	= 1.0;
-	_s.shaderparms[4]	= 0.0;
-	_s.shaderparms[5]	= 0.0;
-	_s.shaderparms[6]	= 0.0;
-// 	_s.shaderparms[7]	= 1.0; 
+	_s.shader_parms[SHADERPARM_RED]		= 1.0;
+	_s.shader_parms[SHADERPARM_GREEN]	= 1.0;
+	_s.shader_parms[SHADERPARM_BLUE]	= 1.0;
+	_s.shader_parms[SHADERPARM_ALPHA]	= 1.0;
+//	_s.shader_parms[4]			= 0.0;
+//	_s.shader_parms[5]			= 0.0;
+//	_s.shader_parms[6]			= 0.0;
+// 	_s.shader_parms[7]			= 1.0; 
 	
 	_r.inuse		= false;
 	_r.headnode		= 0;			// unused if num_clusters != -1
@@ -171,16 +171,16 @@ g_entity_c::g_entity_c(bool create_rigid_body)
 	addField(g_field_c("angles",&_s.quat, F_ANGLES_TO_QUATERNION));
 	addField(g_field_c("rotation", &_s.quat, F_ROTATION_TO_QUATERNION));
 	
-	addField(g_field_c("_color", &_s.shaderparms[0], F_VECTOR));
+	addField(g_field_c("_color", &_s.shader_parms[0], F_VECTOR));
 
-	addField(g_field_c("shaderparm0", &_s.shaderparms[0], F_FLOAT));
-	addField(g_field_c("shaderparm1", &_s.shaderparms[1], F_FLOAT));
-	addField(g_field_c("shaderparm2", &_s.shaderparms[2], F_FLOAT));
-	addField(g_field_c("shaderparm3", &_s.shaderparms[3], F_FLOAT));
-	addField(g_field_c("shaderparm4", &_s.shaderparms[4], F_FLOAT));
-	addField(g_field_c("shaderparm5", &_s.shaderparms[5], F_FLOAT));
-	addField(g_field_c("shaderparm6", &_s.shaderparms[6], F_FLOAT));
-	addField(g_field_c("shaderparm7", &_s.shaderparms[7], F_FLOAT));
+	addField(g_field_c("shaderparm0", &_s.shader_parms[0], F_FLOAT));
+	addField(g_field_c("shaderparm1", &_s.shader_parms[1], F_FLOAT));
+	addField(g_field_c("shaderparm2", &_s.shader_parms[2], F_FLOAT));
+	addField(g_field_c("shaderparm3", &_s.shader_parms[3], F_FLOAT));
+	addField(g_field_c("shaderparm4", &_s.shader_parms[4], F_FLOAT));
+	addField(g_field_c("shaderparm5", &_s.shader_parms[5], F_FLOAT));
+	addField(g_field_c("shaderparm6", &_s.shader_parms[6], F_FLOAT));
+	addField(g_field_c("shaderparm7", &_s.shader_parms[7], F_FLOAT));
 
 	// shared between server and game
 //	addField(g_field_c("networksync", &_r.networksync, F_BOOL));

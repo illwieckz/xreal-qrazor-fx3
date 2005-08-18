@@ -47,9 +47,9 @@ g_projectile_bolt_c::g_projectile_bolt_c(g_entity_c *activator, const vec3_c &st
 	_s.quat.fromAngles(_angles);	// set rotation
 	
 	_s.vectors[0].set(50, 50, 50);	// light radius
-	_s.shaderparms[0] = color_yellow[0];	// light color
-	_s.shaderparms[1] = color_yellow[1];	// light color
-	_s.shaderparms[2] = color_yellow[2];	// light color
+	_s.shader_parms[SHADERPARM_RED] = color_yellow[0];	// light color
+	_s.shader_parms[SHADERPARM_GREEN] = color_yellow[1];	// light color
+	_s.shader_parms[SHADERPARM_BLUE] = color_yellow[2];	// light color
 	
 //	_s.index_model = trap_SV_ModelIndex("models/items/projectiles/rocket.md3");
 //	_s.index_sound = trap_SV_SoundIndex("sounds/e1/we_ionflyby.wav");
@@ -341,10 +341,7 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 	_s.velocity_angular.set(0, 0, 30);
 	
 	_s.vectors[0].set(150, 150, 150);
-	_s.shaderparms[0] = 1.0;	//color_white[0];	// light color
-	_s.shaderparms[1] = 1.0;	//color_white[1];	// light color
-	_s.shaderparms[2] = 0.75;	//color_white[2];	// light color
-	_s.shaderparms[3] = 1.0;	//color_white[3];	// light color
+
 //	_s.index_model = trap_SV_ModelIndex("models/weapons/rocketlauncher/rocket.lwo");
 	_s.index_model = trap_SV_ModelIndex("models/ammo/rocket/rocket.md3");
 //	_s.index_shader = trap_SV_ShaderIndex("noshader");
@@ -354,9 +351,15 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 //	_s.index_light = trap_SV_LightIndex("lights/biground1");
 	_s.index_light = trap_SV_LightIndex("lights/round");	// good
 //	_s.index_light = trap_SV_LightIndex("lights/defaultcubelight");
-	
+
 //	_s.effects |= EF_ROCKET;
 	_s.renderfx = RF_FULLBRIGHT | RF_NOSHADOW;
+
+	_s.shader_parms[SHADERPARM_RED] = 1.0;	//color_white[0];	// light color
+	_s.shader_parms[SHADERPARM_GREEN] = 1.0;	//color_white[1];	// light color
+	_s.shader_parms[SHADERPARM_BLUE] = 0.75;	//color_white[2];	// light color
+	_s.shader_parms[SHADERPARM_ALPHA] = 1.0;	//color_white[3];	// light color
+	
 	_r.inuse = true;
 	_r.clipmask = MASK_SHOT;
 	_r.solid = SOLID_BBOX;

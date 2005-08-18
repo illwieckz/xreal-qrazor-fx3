@@ -139,8 +139,8 @@ void	g_light_c::die(g_entity_c *inflictor, g_entity_c *attacker, int damage, con
 	_health = _max_health;
 	_takedamage = DAMAGE_NO;
 	
-	_s.shaderparms[6] = 1.0;
-	_s.shaderparms[7] = 0.0;
+	_s.shader_parms[6] = 1.0;
+	_s.shader_parms[7] = 0.0;
 }
 
 
