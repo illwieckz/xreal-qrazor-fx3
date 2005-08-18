@@ -53,7 +53,7 @@ fonts/chromechars
 currentRender
 {
 	{
-		map		_lightview
+		map		_currentrender
 		maskDepth
 		colored
 	}

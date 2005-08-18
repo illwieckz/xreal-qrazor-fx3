@@ -1299,8 +1299,8 @@ lights/round_sin
 		forceHighQuality
 		map			lights/round.tga
 		red 		( sintable [Parm4 + (time * Parm3)] ) * Parm0
-		green 		( sintable [Parm4 + (time * Parm3)] ) * Parm1
-		blue 		( sintable [Parm4 + (time * Parm3)] ) * Parm2
+		green 		sintable [Parm4 + (time * Parm3)] * Parm1
+		blue 		sintable [Parm4 + (time * Parm3)] * Parm2
 		zeroclamp
 	}
 }
@@ -1310,9 +1310,9 @@ lights/round_strobe
 	{
 		forceHighQuality
 		map		lights/round.tga
-		red 		( blinktable2 [Parm4 + (time * (6 * Parm3)) ]) * Parm0
-		green 		( blinktable2 [Parm4 + (time * (6 * Parm3)) ]) * Parm1
-		blue 		( blinktable2 [Parm4 + (time * (6 * Parm3)) ]) * Parm2
+		red 		blinktable2 [Parm4 + (time * (6 * Parm3)) ] * Parm0
+		green 		blinktable2 [Parm4 + (time * (6 * Parm3)) ] * Parm1
+		blue 		blinktable2 [Parm4 + (time * (6 * Parm3)) ] * Parm2
 		zeroclamp
 	}
 }
