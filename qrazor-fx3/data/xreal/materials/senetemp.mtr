@@ -7089,7 +7089,7 @@ textures/decals/fanvent
 	qer_editorimage		textures/decals/fanvent.tga
 	twoSided
 	noshadows
-	translucent
+//	translucent
 	{
 		blend		diffusemap
 		map 		textures/decals/fanvent_d.tga
