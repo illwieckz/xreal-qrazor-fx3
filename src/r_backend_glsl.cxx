@@ -81,6 +81,29 @@ private:
 };
 
 
+class u_ambient_a
+{
+private:
+	u_ambient_a();
+	
+protected:
+	u_ambient_a(GLhandleARB handle)
+	{
+		_u_ambient_color	= xglGetUniformLocationARB(handle, "u_ambient_color");
+	}
+	
+public:
+	void	setUniform_ambient_color()
+	{
+		vec4_c color = vec4_c(0.3, 0.3, 0.3, 1.0);
+		xglUniform3fARB(_u_ambient_color, color[0], color[1], color[2]);
+	}
+	
+private:
+	uint_t		_u_ambient_color;
+};
+
+
 class u_light_origin_a
 {
 private:
@@ -1084,12 +1107,14 @@ private:
 
 class rb_lighting_D_omni_c :
 public rb_program_c,
+//public u_ambient_a,
 public u_light_origin_a,
 public u_light_color_a
 {
 public:
 	rb_lighting_D_omni_c()
 	:rb_program_c("lighting_D_omni", VATTRIB_VERTEX | VATTRIB_TEX0 | VATTRIB_NORMAL),
+//	u_ambient_a(getHandle()),
 	u_light_origin_a(getHandle()),
 	u_light_color_a(getHandle())
 	{
@@ -2217,12 +2242,12 @@ void		RB_RenderCommand_lighting_DBS_vstatic(const r_command_t *cmd,		const r_sha
 
 void		RB_EnableShader_lighting_D_omni()
 {
-	rb_program_lighting_D_omni->enable();	
+	rb_program_lighting_D_omni->enable();
 }
 
 void		RB_DisableShader_lighting_D_omni()
 {
-	rb_program_lighting_D_omni->disable();	
+	rb_program_lighting_D_omni->disable();
 }
 
 void		RB_RenderCommand_lighting_D_omni(const r_command_t *cmd,		const r_shader_stage_c *stage_diffusemap,
@@ -2258,6 +2283,7 @@ void		RB_RenderCommand_lighting_D_omni(const r_command_t *cmd,		const r_shader_s
 //	xglMatrixMode(GL_MODELVIEW);
 //	cmd->getLight()->getShadowMap()->bind();
 	
+//	rb_program_lighting_D_omni->setUniform_ambient_color();
 	rb_program_lighting_D_omni->setUniform_light_origin(cmd);
 	rb_program_lighting_D_omni->setUniform_light_color(cmd, stage_attenuationmap_xy);
 	
