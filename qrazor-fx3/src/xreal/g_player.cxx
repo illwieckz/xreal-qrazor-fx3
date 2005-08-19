@@ -2143,8 +2143,6 @@ and right after spawning
 */
 void	g_player_c::endServerFrame()
 {
-	float	bobtime;
-	
 	// If the origin or velocity have changed since ClientThink(),
 	// update the pmove values.  This will happen when the client
 	// is pushed by a bmodel or kicked by an explosion.
@@ -2187,33 +2185,31 @@ void	g_player_c::endServerFrame()
 	// all cyclic walking effects
 	_xyspeed = X_sqrt(_s.velocity_linear[0]*_s.velocity_linear[0] + _s.velocity_linear[1]*_s.velocity_linear[1]);
 
-	//if(_xyspeed < 5)
+	if(_xyspeed < 5)
 	{
 		_bob_move = 0;
 		_bob_time = 0;	// start at beginning of cycle again
 	}
-	/*
 	else if(_groundentity)
 	{	
 		// so bobbing only cycles when on ground
 		if(_xyspeed > 210)
-			_bob_move = 0.25;
+			_bob_move = 250;
 			
 		else if(_xyspeed > 100)
-			_bob_move = 0.125;
+			_bob_move = 125;
 			
 		else
-			_bob_move = 0.0625;
+			_bob_move = 63;
 	}
-	*/
 	
-	bobtime = (_bob_time += _bob_move);
+	int bobcyle = (_bob_time += _bob_move);
 
 	if(_r.ps.pm_flags & PMF_DUCKED)
-		bobtime *= 4;
+		bobcyle *= 4;
 
-	_bob_cycle = (int)bobtime;
-	_bob_fracsin = fabs(sin(bobtime*M_PI));
+	_bob_cycle = bobcyle;
+	_bob_fracsin = fabs(sin((bobcyle*0.001)*M_PI));
 
 	// burn from lava, etc
 	updateWorldEffects();
@@ -3028,7 +3024,7 @@ void	g_player_c::updateClientEvent()
 
 	if(_groundentity && _xyspeed > 225)
 	{
-		if((int)(_bob_time + _bob_move) != _bob_cycle)
+		if((_bob_time + _bob_move) != _bob_cycle)
 			_s.event = EV_PLAYER_FOOTSTEP;
 	}
 }
@@ -3502,7 +3498,7 @@ void	g_player_c::addBlend(float r, float g, float b, float a, vec4_c &v_blend)
 {
 	float	a2, a3;
 
-	if (a <= 0)
+	if(a <= 0)
 		return;
 	a2 = v_blend[3] + (1-v_blend[3])*a;	// new total alpha
 	a3 = v_blend[3]/a2;		// fraction of color from old

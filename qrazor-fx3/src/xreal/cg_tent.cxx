@@ -102,9 +102,6 @@ int		cl_mod_bfg_explo;
 
 void	CG_RegisterTEntSounds()
 {
-	char	name[MAX_QPATH];
-
-
 	cl_sfx_ric1 = trap_S_RegisterSound("world/ric1.wav");
 	cl_sfx_ric2 = trap_S_RegisterSound("world/ric2.wav");
 	cl_sfx_ric3 = trap_S_RegisterSound("world/ric3.wav");
@@ -120,12 +117,6 @@ void	CG_RegisterTEntSounds()
 	trap_S_RegisterSound("player/land1.wav");
 	trap_S_RegisterSound("player/fall2.wav");
 	trap_S_RegisterSound("player/fall1.wav");
-
-	for(int i=0; i<4; i++)
-	{
-		Com_sprintf(name, sizeof(name), "sound/player/step%i.wav", i+1);
-		cl_sfx_footsteps[i] = trap_S_RegisterSound(name);
-	}
 }
 
 void	CG_RegisterTEntModels()

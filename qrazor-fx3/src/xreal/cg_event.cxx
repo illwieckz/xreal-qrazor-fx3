@@ -31,6 +31,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 cg_sound_c	cg_sfx_rocket_impact("rocket_impact");
 
+cg_sound_c	cg_sfx_footsteps[] =
+{
+	cg_sound_c("sound/player/footsteps/step1.wav"),
+	cg_sound_c("sound/player/footsteps/step2.wav"),
+	cg_sound_c("sound/player/footsteps/step3.wav"),
+	cg_sound_c("sound/player/footsteps/step4.wav")
+};
 
 /*
 ==============
@@ -41,7 +48,6 @@ An entity has just been parsed that has an event value
 the female events are there for backwards compatability
 ==============
 */
-extern int	cl_sfx_footsteps[4];
 
 void	CG_EntityEvent(const cg_entity_t *cent)
 {
@@ -67,8 +73,7 @@ void	CG_EntityEvent(const cg_entity_t *cent)
 		//	break;
 	
 		case EV_PLAYER_FOOTSTEP:
-			if(cg_footsteps->getValue())
-				trap_S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_BODY, cl_sfx_footsteps[rand()&3]);
+			trap_S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_BODY, cg_sfx_footsteps[rand() & 3].getHandle());
 			break;
 	
 		case EV_PLAYER_FALL_SHORT:

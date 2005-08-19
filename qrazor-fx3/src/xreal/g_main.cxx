@@ -61,6 +61,7 @@ d_joint_group_c*		g_ode_contact_group = NULL;
 cvar_t	*dedicated;
 cvar_t	*maxclients;
 cvar_t	*maxspectators;
+cvar_t	*g_time_frame;
 
 cvar_t	*g_deathmatch;
 cvar_t	*g_coop;
@@ -177,6 +178,7 @@ static void	G_InitGame()
 	dedicated		= trap_Cvar_Get("dedicated", "0", CVAR_INIT);
 	maxclients		= trap_Cvar_Get("maxclients", "4", CVAR_SERVERINFO | CVAR_LATCH);
 	maxspectators		= trap_Cvar_Get("maxspectators", "4", CVAR_SERVERINFO);
+	g_time_frame		= trap_Cvar_Get("sv_time_frame", "41", CVAR_NONE);
 
 	g_deathmatch		= trap_Cvar_Get("g_deathmatch", "0", CVAR_LATCH);
 	g_coop			= trap_Cvar_Get("g_coop", "0", CVAR_LATCH);
@@ -241,14 +243,14 @@ static void	G_InitGame()
 	globals.entities = &g_entities;
 	trap_Com_Printf("G_InitGame: entities num: %i\n", g_entities.size());
 	
-//	G_InitPythonVM();
+	G_InitPythonVM();
 }
 
 static void 	G_ShutdownGame()
 {
 	trap_Com_Printf("======= G_ShutdownGame \"XreaL\" =======\n");
 	
-//	G_ShutdownPythonVM();
+	G_ShutdownPythonVM();
 
 	G_ShutdownEntities();
 #if defined(ODE)
@@ -553,17 +555,8 @@ static void	G_RemoveUnneededEntities()
 	}
 }
 
-/*
-================
-G_RunFrame
-
-Advances the world by 100 milliseconds
-================
-*/
 void 	G_RunFrame()
 {
-	g_entity_c	*ent;
-
 	level.framenum++;
 	level.time = level.framenum * FRAMETIME;
 	
@@ -585,7 +578,7 @@ void 	G_RunFrame()
 	// apply forces to the bodies as necessary
 	for(unsigned int i=0; i<g_entities.size(); i++)
 	{
-		ent = (g_entity_c*)g_entities[i];
+		g_entity_c* ent = (g_entity_c*)g_entities[i];
 		
 		if(!ent)
 			continue;
@@ -609,7 +602,7 @@ void 	G_RunFrame()
 	// update entity states with applied dynamics from the rigid bodies
 	for(unsigned int i=0; i<g_entities.size(); i++)
 	{
-		ent = (g_entity_c*) g_entities[i];
+		g_entity_c* ent = (g_entity_c*) g_entities[i];
 		
 		if(!ent)
 			continue;
