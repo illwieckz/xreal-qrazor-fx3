@@ -395,6 +395,8 @@ void	CG_RenderView()
 	
 	// clear any dirty part of the background
 	//CG_TileClear();
+
+	//CG_DrawBloom();
 		
 	CG_DrawCrosshair();
 		
