@@ -156,19 +156,21 @@ extern netadr_t		master_adr[MAX_MASTERS];	// address of the master server
 extern server_static_t	svs;				// persistant server info
 extern server_t		sv;					// local server
 
+extern cvar_t*		maxclients;
+
 extern cvar_t*		sv_shownet;
 extern cvar_t*		sv_paused;
-extern cvar_t*		maxclients;
 extern cvar_t*		sv_noreload;			// don't reload level state when reentering
-extern cvar_t*		sv_airaccelerate;		// don't reload level state when reentering
+extern cvar_t*		sv_time_demo;
+extern cvar_t*		sv_time_out;			// seconds without any message
+extern cvar_t*		sv_time_zombie;
+extern cvar_t*		sv_time_enforce;
 
 extern cvar_t*		sv_allow_download;
 extern cvar_t*		sv_allow_download_players;
 extern cvar_t*		sv_allow_download_models;
 extern cvar_t*		sv_allow_download_sounds;
-extern cvar_t*		sv_allow_download_maps;							
-																																// development tool
-extern cvar_t*		sv_enforcetime;
+extern cvar_t*		sv_allow_download_maps;
 
 
 

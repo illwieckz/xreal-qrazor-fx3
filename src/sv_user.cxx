@@ -466,7 +466,7 @@ void	sv_client_c::think(const usercmd_t &cmd)
 {
 	_command_time -= cmd.msec;
 
-	if(_command_time < 0 && sv_enforcetime->getInteger())
+	if(_command_time < 0 && sv_time_enforce->getInteger())
 	{
 		Com_DPrintf("SV_ClientThink: command time underflow from '%s'\n", _name);
 		return;

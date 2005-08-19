@@ -35,36 +35,27 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 netadr_t	master_adr[MAX_MASTERS];	// address of group servers
 
-cvar_t	*sv_shownet;
-cvar_t	*sv_paused;
-cvar_t	*sv_timedemo;
+cvar_t*	maxclients;
+cvar_t*	rcon_password;			// password for remote server commands
 
-cvar_t	*sv_enforcetime;
+cvar_t*	sv_showclamp;
+cvar_t*	sv_shownet;
+cvar_t*	sv_paused;
+cvar_t*	sv_noreload;			// don't reload level state when reentering
+cvar_t*	sv_time_demo;
+cvar_t*	sv_time_out;			// seconds without any message
+cvar_t*	sv_time_zombie;			// seconds to sink messages after disconnect
+cvar_t*	sv_time_enforce;
+cvar_t*	sv_time_frame;
+cvar_t*	sv_hostname;
+cvar_t*	sv_public;			// should heartbeats be sent
+cvar_t*	sv_reconnect_limit;		// minimum seconds between connect messages
 
-cvar_t	*timeout;				// seconds without any message
-cvar_t	*zombietime;			// seconds to sink messages after disconnect
-
-cvar_t	*rcon_password;			// password for remote server commands
-
-cvar_t	*sv_allow_download;
-cvar_t	*sv_allow_download_players;
-cvar_t	*sv_allow_download_models;
-cvar_t	*sv_allow_download_sounds;
-cvar_t	*sv_allow_download_maps;
-
-cvar_t	*sv_airaccelerate;
-
-cvar_t	*sv_noreload;			// don't reload level state when reentering
-
-cvar_t	*maxclients;			// FIXME: rename sv_maxclients
-cvar_t	*sv_showclamp;
-
-cvar_t	*hostname;
-cvar_t	*public_server;			// should heartbeats be sent
-
-cvar_t	*sv_reconnect_limit;	// minimum seconds between connect messages
-
-
+cvar_t*	sv_allow_download;
+cvar_t*	sv_allow_download_players;
+cvar_t*	sv_allow_download_models;
+cvar_t*	sv_allow_download_sounds;
+cvar_t*	sv_allow_download_maps;
 
 
 
@@ -160,7 +151,7 @@ static void 	SVC_Info(const netadr_t &adr)
 
 	if(version != PROTOCOL_VERSION)
 	{
-		Com_sprintf(string, sizeof(string), "%s: wrong version\n", hostname->getString(), sizeof(string));
+		Com_sprintf(string, sizeof(string), "%s: wrong version\n", sv_hostname->getString(), sizeof(string));
 	}
 	else
 	{
@@ -176,7 +167,7 @@ static void 	SVC_Info(const netadr_t &adr)
 				count++;
 		}
 
-		Com_sprintf(string, sizeof(string), "%16s %8s %2i/%2i\n", hostname->getString(), sv.name.c_str(), count, maxclients->getInteger());
+		Com_sprintf(string, sizeof(string), "%16s %8s %2i/%2i\n", sv_hostname->getString(), sv.name.c_str(), count, maxclients->getInteger());
 	}
 
 	Netchan_OutOfBandPrint(adr, "info\n%s", string);
@@ -713,8 +704,8 @@ static void 	SV_CheckTimeouts()
 	int			droppoint;
 	int			zombiepoint;
 
-	droppoint = (int)(svs.realtime - 1000*timeout->getValue());
-	zombiepoint = (int)(svs.realtime - 1000*zombietime->getValue());
+	droppoint = (int)(svs.realtime - 1000*sv_time_out->getValue());
+	zombiepoint = (int)(svs.realtime - 1000*sv_time_zombie->getValue());
 
 	for(std::vector<sv_client_c*>::const_iterator ir = svs.clients.begin(); ir != svs.clients.end(); ir++)
 	{
@@ -818,7 +809,7 @@ void 	SV_Frame(int msec)
 //	SV_ReadPackets();
 
 	// move autonomous things around if enough time has passed
-	if(!sv_timedemo->getInteger() && svs.realtime < (int)sv.time)
+	if(!sv_time_demo->getInteger() && svs.realtime < (int)sv.time)
 	{
 		// never let the time get too far off
 		if(sv.time - svs.realtime > FRAMETIME)
@@ -872,7 +863,7 @@ void 	Master_Heartbeat()
 		return;		// only dedicated servers send heartbeats
 
 	// pgm post3.19 change, cvar pointer not validated before dereferencing
-	if(!public_server || !public_server->getInteger())
+	if(!sv_public || !sv_public->getInteger())
 		return;		// a private dedicated game
 
 	// check for time wraparound
@@ -912,7 +903,7 @@ void 	Master_Shutdown()
 		return;		// only dedicated servers send heartbeats
 
 	// pgm post3.19 change, cvar pointer not validated before dereferencing
-	if(!public_server || !public_server->getInteger())
+	if(!sv_public || !sv_public->getInteger())
 		return;		// a private dedicated game
 
 	// send to group master
@@ -944,7 +935,6 @@ void 	SV_Init()
 	
 	SV_InitOperatorCommands();
 
-	rcon_password = Cvar_Get("rcon_password", "", 0);
 	Cvar_Get("g_deathmatch", "1", CVAR_LATCH);
 	Cvar_Get("g_skill", "1", 0);
 	Cvar_Get("g_coop", "0", CVAR_LATCH);
@@ -955,28 +945,26 @@ void 	SV_Init()
 	Cvar_Get("protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO | CVAR_INIT);;
 	
 	maxclients			= Cvar_Get("maxclients", "1", CVAR_SERVERINFO | CVAR_LATCH);
-	hostname			= Cvar_Get("hostname", "noname", CVAR_SERVERINFO | CVAR_ARCHIVE);
-	timeout				= Cvar_Get("timeout", "125", 0);
-	zombietime			= Cvar_Get("zombietime", "2", 0);
+	rcon_password			= Cvar_Get("rcon_password", "", 0);
 	sv_showclamp			= Cvar_Get("showclamp", "0", CVAR_NONE);
+
 	sv_shownet			= Cvar_Get("sv_shownet", "0", CVAR_NONE);
-	sv_paused			= Cvar_Get("paused", "0", 0);
-	sv_timedemo			= Cvar_Get("timedemo", "0", 0);
-	sv_enforcetime			= Cvar_Get("sv_enforcetime", "0", 0);
+	sv_paused			= Cvar_Get("paused", "0", CVAR_NONE);
+	sv_noreload			= Cvar_Get("sv_noreload", "0", CVAR_NONE);
+	sv_time_demo			= Cvar_Get("timedemo", "0", CVAR_NONE);
+	sv_time_out			= Cvar_Get("sv_time_out", "125", CVAR_NONE);
+	sv_time_zombie			= Cvar_Get("sv_time_zombie", "2", CVAR_NONE);
+	sv_time_enforce			= Cvar_Get("sv_time_enforce", "0", CVAR_NONE);
+	sv_time_frame			= Cvar_Get("sv_fps", "100", CVAR_LATCH);
+	sv_hostname			= Cvar_Get("sv_hostname", "noname", CVAR_SERVERINFO | CVAR_ARCHIVE);
+	sv_public			= Cvar_Get("sv_public", "0", CVAR_NONE);
+	sv_reconnect_limit		= Cvar_Get("sv_reconnect_limit", "3", CVAR_ARCHIVE);
 	
 	sv_allow_download 		= Cvar_Get("allow_download", "1", CVAR_ARCHIVE | CVAR_SERVERINFO);
 	sv_allow_download_players  	= Cvar_Get("allow_download_players", "0", CVAR_ARCHIVE | CVAR_SERVERINFO);
 	sv_allow_download_models 	= Cvar_Get("allow_download_models", "1", CVAR_ARCHIVE | CVAR_SERVERINFO);
 	sv_allow_download_sounds 	= Cvar_Get("allow_download_sounds", "1", CVAR_ARCHIVE | CVAR_SERVERINFO);
 	sv_allow_download_maps		= Cvar_Get("allow_download_maps", "1", CVAR_ARCHIVE | CVAR_SERVERINFO);
-
-	sv_noreload			= Cvar_Get("sv_noreload", "0", 0);
-
-	sv_airaccelerate		= Cvar_Get("sv_airaccelerate", "0", CVAR_LATCH);
-
-	public_server			= Cvar_Get("public", "0", 0);
-
-	sv_reconnect_limit		= Cvar_Get("sv_reconnect_limit", "3", CVAR_ARCHIVE);
 }
 
 /*
