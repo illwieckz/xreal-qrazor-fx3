@@ -767,7 +767,7 @@ static void 	SV_RunGameFrame()
 	// has the "current" frame
 	sv.framenum++;
 	
-	sv.time = sv.framenum * FRAMETIME;
+	sv.time = sv.framenum * sv_time_frame->getInteger();
 
 	// don't run if paused
 	if(!sv_paused->getInteger() || maxclients->getInteger() > 1)
@@ -805,19 +805,26 @@ void 	SV_Frame(int msec)
 	// check timeouts
 	SV_CheckTimeouts();
 
-	// get packets from clients
-//	SV_ReadPackets();
+	// clamp fps
+	if(sv_time_frame->getInteger() < 20)
+	{
+		Cvar_Set("sv_time_frame", "20");
+	}
+	else if(sv_time_frame->getInteger() > 100)
+	{
+		Cvar_Set("sv_time_frame", "100");
+	}
 
 	// move autonomous things around if enough time has passed
 	if(!sv_time_demo->getInteger() && svs.realtime < (int)sv.time)
 	{
 		// never let the time get too far off
-		if(sv.time - svs.realtime > FRAMETIME)
+		if(sv.time - svs.realtime > sv_time_frame->getInteger())
 		{
 			if(sv_showclamp->getInteger())
 				Com_Printf("sv lowclamp\n");
 				
-			svs.realtime = sv.time - FRAMETIME;
+			svs.realtime = sv.time - sv_time_frame->getInteger();
 		}
 		Sys_SleepNet(sv.time - svs.realtime);
 		return;
@@ -955,7 +962,7 @@ void 	SV_Init()
 	sv_time_out			= Cvar_Get("sv_time_out", "125", CVAR_NONE);
 	sv_time_zombie			= Cvar_Get("sv_time_zombie", "2", CVAR_NONE);
 	sv_time_enforce			= Cvar_Get("sv_time_enforce", "0", CVAR_NONE);
-	sv_time_frame			= Cvar_Get("sv_fps", "100", CVAR_LATCH);
+	sv_time_frame			= Cvar_Get("sv_time_frame", "100", CVAR_NONE);
 	sv_hostname			= Cvar_Get("sv_hostname", "noname", CVAR_SERVERINFO | CVAR_ARCHIVE);
 	sv_public			= Cvar_Get("sv_public", "0", CVAR_NONE);
 	sv_reconnect_limit		= Cvar_Get("sv_reconnect_limit", "3", CVAR_ARCHIVE);

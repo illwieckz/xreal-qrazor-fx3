@@ -400,7 +400,7 @@ void	CG_RenderView()
 		
 	CG_DrawCrosshair();
 		
-	//CG_DrawBlend();
+	CG_DrawBlend();
 	
 	//CG_DrawStats();
 			

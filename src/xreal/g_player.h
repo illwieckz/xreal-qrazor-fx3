@@ -366,8 +366,8 @@ private:
 	
 	float			_xyspeed;
 	
-	float			_bob_time;		// so off-ground doesn't change it
-	float			_bob_move;
+	int			_bob_time;		// so off-ground doesn't change it
+	int			_bob_move;
 	int			_bob_cycle;		// odd cycles are right foot going forward
 	float			_bob_fracsin;		// sin(bobfrac*M_PI)
 	

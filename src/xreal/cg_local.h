@@ -524,6 +524,8 @@ void	CG_DrawCrosshair();
 void	CG_DrawChar(int x, int y, int num, const vec4_c &color, int flags);
 void	CG_DrawString(int x, int y, const vec4_c &color, int flags, const char *s);
 
+void	CG_DrawBlend();
+
 
 
 //

@@ -40,6 +40,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // g_local.h -- local definitions for the XeaL game module
 
+#define	FRAMETIME		(g_time_frame->getInteger())
+
 // view pitching times
 #define DAMAGE_TIME		500
 #define	FALL_TIME		300
@@ -191,7 +193,7 @@ public:
 // this structure is cleared as each map is entered
 // it is read/written to the level.sav file for savegames
 //
-class g_level_c //: public g_field_interface_c
+class g_level_c
 {
 public:			
 	int		framenum;
@@ -278,6 +280,7 @@ extern d_joint_group_c*		g_ode_contact_group;
 extern cvar_t	*dedicated;
 extern cvar_t	*maxclients;
 extern cvar_t	*maxspectators;
+extern cvar_t	*g_time_frame;
 
 extern cvar_t	*g_deathmatch;
 extern cvar_t	*g_coop;
@@ -491,8 +494,8 @@ trace_t		G_Trace(const vec3_c &start, const aabb_c &bbox, const vec3_c &end, g_e
 //
 // g_python.cxx
 //
-//void		G_InitPythonVM();
-//void		G_ShutdownPythonVM();
+void		G_InitPythonVM();
+void		G_ShutdownPythonVM();
 
 
 //
