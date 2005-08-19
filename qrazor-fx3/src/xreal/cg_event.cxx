@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "cg_local.h"
 
 
-
+cg_sound_c	cg_sfx_rocket_impact("rocket_impact");
 
 
 /*
@@ -92,7 +92,7 @@ void	CG_EntityEvent(const cg_entity_t *cent)
 		case EV_ROCKET_EXPLOSION:
 		{
 			//trap_Com_Printf("CG_EntityEvent(EV_ROCKET_EXPLOSION)\n");
-			trap_S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_AUTO, trap_S_RegisterSound("rocket_impact"));
+			trap_S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_AUTO, cg_sfx_rocket_impact.getHandle());
 			break;
 		}
 			

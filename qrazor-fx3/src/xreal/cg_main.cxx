@@ -64,15 +64,88 @@ cvar_t	*cg_thirdperson_range;
 //
 cg_export_t	cg_globals;
 
-
 cg_state_t	cg;
-cg_static_t	cgs;
+
+cg_shader_c	cg_shader_crosshairs[] =
+{
+	cg_shader_c("crosshairs/ch1"),
+	cg_shader_c("crosshairs/ch2"),
+	cg_shader_c("crosshairs/ch3"),
+	cg_shader_c("crosshairs/ch4"),
+	cg_shader_c("crosshairs/ch5"),
+	cg_shader_c("crosshairs/ch6"),
+	cg_shader_c("crosshairs/ch7"),
+	cg_shader_c("crosshairs/ch8"),
+	cg_shader_c("crosshairs/ch9"),
+	cg_shader_c("crosshairs/ch10"),
+	cg_shader_c("crosshairs/ch11"),
+	cg_shader_c("crosshairs/ch12"),
+	cg_shader_c("crosshairs/ch13"),
+	cg_shader_c("crosshairs/ch14"),
+	cg_shader_c("crosshairs/ch15"),
+	cg_shader_c("crosshairs/ch16"),
+	cg_shader_c("crosshairs/ch17"),
+	cg_shader_c("crosshairs/ch18"),
+	cg_shader_c("crosshairs/ch19"),
+	cg_shader_c("crosshairs/ch20")
+};
+
+cg_shader_c	cg_shader_numbers_digi[] = 
+{
+	cg_shader_c("numbers/digital/zero_32b"),
+	cg_shader_c("numbers/digital/one_32b"),
+	cg_shader_c("numbers/digital/two_32b"),
+	cg_shader_c("numbers/digital/three_32b"),
+	cg_shader_c("numbers/digital/four_32b"),
+	cg_shader_c("numbers/digital/five_32b"),
+	cg_shader_c("numbers/digital/six_32b"),
+	cg_shader_c("numbers/digital/seven_32b"),
+	cg_shader_c("numbers/digital/eight_32b"),
+	cg_shader_c("numbers/digital/nine_32b"),
+	cg_shader_c("numbers/digital/minus_32b"),
+};
 
 #if defined(ODE)
 d_world_c*		cg_ode_world;
 d_space_c*		cg_ode_space;
 d_joint_group_c*	cg_ode_contact_group;
 #endif
+
+
+
+cg_shader_c::cg_shader_c(const std::string &name)
+{
+	_name	= name;
+	_handle	= -1;
+}
+	
+int	cg_shader_c::getHandle()
+{
+	if(_handle == -1)
+	{
+		_handle = trap_R_RegisterPic(_name);
+	}
+
+	return _handle;
+}
+
+
+cg_sound_c::cg_sound_c(const std::string &name)
+{
+	_name	= name;
+	_handle	= -1;
+}
+	
+int	cg_sound_c::getHandle()
+{
+	if(_handle == -1)
+	{
+		_handle = trap_S_RegisterSound(_name);
+	}
+
+	return _handle;
+}
+
 
 
 void	CG_ParseLayout(bitmessage_c &msg)

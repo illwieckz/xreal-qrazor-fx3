@@ -435,20 +435,7 @@ void 	CG_TileClear()
 
 
 #define STAT_MINUS		10	// num frame for '-' stats digit
-char		*sb_nums[11] = 
-{
-	"numbers/digital/zero_32b",
-	"numbers/digital/one_32b",
-	"numbers/digital/two_32b",
-	"numbers/digital/three_32b",
-	"numbers/digital/four_32b",
-	"numbers/digital/five_32b",
-	"numbers/digital/six_32b",
-	"numbers/digital/seven_32b",
-	"numbers/digital/eight_32b",
-	"numbers/digital/nine_32b",
-	"numbers/digital/minus_32b"
-};
+
 
 #define	ICON_WIDTH	24
 #define	ICON_HEIGHT	24
@@ -543,21 +530,27 @@ static void 	CG_DrawField(int x, int y, const vec4_c &color, int width, int valu
 	if (width > 5)
 		width = 5;
 
-	Com_sprintf (num, sizeof(num), "%i", value);
+	Com_sprintf(num, sizeof(num), "%i", value);
 	l = strlen(num);
 	if (l > width)
 		l = width;
 	x += 2 + CHAR_MEDIUM_WIDTH*(width - l);
 
 	ptr = num;
-	while (*ptr && l)
+	while(*ptr && l)
 	{
-		if (*ptr == '-')
+		if(*ptr == '-')
 			frame = STAT_MINUS;
 		else
 			frame = *ptr -'0';
 
-		trap_R_DrawStretchPic(x, y, CHAR_MEDIUM_WIDTH, CHAR_MEDIUM_WIDTH, 0, 0, 1, 1, color, trap_R_RegisterPic(sb_nums[frame]));
+		trap_R_DrawStretchPic
+		(
+			x, y, CHAR_MEDIUM_WIDTH, CHAR_MEDIUM_WIDTH,
+			0, 0, 1, 1,
+			color,
+			cg_shader_numbers_digi[frame].getHandle()
+		);
 		x += CHAR_MEDIUM_WIDTH;
 		ptr++;
 		l--;
@@ -586,44 +579,17 @@ static void 	CG_DrawField(int x, int y, int w, int h, const vec4_c &color, int w
 	ptr = num;
 	while (*ptr && l)
 	{
-		if (*ptr == '-')
+		if(*ptr == '-')
 			frame = STAT_MINUS;
 		else
 			frame = *ptr -'0';
 
-		trap_R_DrawStretchPic(x, y, w, h, 0, 0, 1, 1, color, trap_R_RegisterPic(sb_nums[frame]));
+		trap_R_DrawStretchPic(x, y, w, h, 0, 0, 1, 1, color, cg_shader_numbers_digi[frame].getHandle());
 		x += w;
 		ptr++;
 		l--;
 	}
 }
-
-
-
-/*
-===============
-CG_TouchPics
-
-Allows rendering code to cache all needed sbar graphics
-===============
-*/
-void 	CG_RegisterPics()
-{
-	for(int j=0; j<11; j++)
-		trap_R_RegisterPic(sb_nums[j]);
-
-	
-	if(cg_crosshair->getInteger())
-	{
-		//if(cg_crosshair->getInteger() > 3 || cg_crosshair->getInteger() < 0)
-		//	cg_crosshair->getInteger() = 3;
-
-		std::string filename = va("crosshairs/crosshair_%i", cg_crosshair->getInteger());
-		
-		cg.media.shader_crosshair = trap_R_RegisterPic(filename);
-	}
-}
-
 
 void	CG_DrawModel(int x, int y, int w, int h, int model, int shader, const vec3_c &origin, const vec3_c &angles)
 {
@@ -1080,30 +1046,24 @@ void	CG_DrawCrosshair()
 	if(trap_CLS_GetConnectionState() != CA_ACTIVE)
 		return;
 
-	if(!cg_crosshair->getInteger())
-		return;
-
 	if(cg_crosshair_size->getInteger() <= 0)
 		return;
 
-	if(cg_crosshair->isModified())
-	{
-		cg_crosshair->isModified(false);
-		//CG_RegisterPics();
-		
-		std::string filename = va("crosshairs/crosshair_%i", cg_crosshair->getInteger());
-		
-		cg.media.shader_crosshair = trap_R_RegisterPic(filename);
-	}
+	int index = cg_crosshair->getInteger() -1;
 
+	if(index < 0 || index >= 20)
+		return;
 
-	trap_R_DrawStretchPic(	scr_vrect.x + ((scr_vrect.width - cg_crosshair_size->getInteger())>>1),
-				scr_vrect.y + ((scr_vrect.height - cg_crosshair_size->getInteger())>>1),
-				cg_crosshair_size->getInteger(),
-				cg_crosshair_size->getInteger(),
-				0, 0, 1, 1,
-				color_white,
-				cg.media.shader_crosshair	);
+	trap_R_DrawStretchPic
+	(	
+		scr_vrect.x + ((scr_vrect.width - cg_crosshair_size->getInteger())>>1),
+		scr_vrect.y + ((scr_vrect.height - cg_crosshair_size->getInteger())>>1),
+		cg_crosshair_size->getInteger(),
+		cg_crosshair_size->getInteger(),
+		0, 0, 1, 1,
+		color_white,
+		cg_shader_crosshairs[index].getHandle()
+	);
 }
 
 

@@ -250,12 +250,30 @@ struct cg_particle_t
 	r_particle_t		shared;
 };
 
-
-struct cg_media_t
+class cg_shader_c
 {
-	int		shader_crosshair;
+public:
+	cg_shader_c(const std::string &name);
+	
+	int	getHandle();
+
+private:
+	std::string	_name;
+	int		_handle;
 };
 
+
+class cg_sound_c
+{
+public:
+	cg_sound_c(const std::string &name);
+	
+	int	getHandle();
+
+private:
+	std::string	_name;
+	int		_handle;
+};
 
 struct cg_state_t
 {
@@ -285,26 +303,18 @@ struct cg_state_t
 
 	vec3_c		v_velocity;
 	vec3_c		v_forward, v_right, v_up;	// set when refdef.angles is set
-	vec4_c		v_blend;
-	
-	
-	cg_media_t	media;
-	
+	vec4_c		v_blend;	
 	
 	client_info_t	clientinfo[MAX_CLIENTS];
 	client_info_t	baseclientinfo;
 	
 	//vweaponinfo_t	vweapon;
 	
-	//
 	// transient data from server
-	//
 	char		layout[1024];		// general 2D overlay
 	int		inventory[MAX_ITEMS];
 	
-	//
 	// locally derived information from server state
-	//
 	int		model_draw[MAX_MODELS];
 	cmodel_c*	model_clip[MAX_MODELS];
 	
@@ -316,12 +326,6 @@ struct cg_state_t
 	int		light_precache[MAX_LIGHTS];
 };
 
-
-
-struct cg_static_t
-{
-	//TODO
-};
 
 #if defined(ODE)
 extern d_world_c*		cg_ode_world;
@@ -364,9 +368,9 @@ extern cg_export_t	cg_globals;
 extern vrect_t		scr_vrect;		// position of render window
 
 extern cg_state_t	cg;
-extern cg_static_t	cgs;
 
-
+extern cg_shader_c	cg_shader_crosshairs[];
+extern cg_shader_c	cg_shader_numbers_digi[];
 
 
 //
@@ -516,8 +520,6 @@ void 	CG_CalcVrect();
 void 	CG_TileClear();
 void 	CG_DrawFPS();
 void	CG_DrawCrosshair();
-
-void	CG_RegisterPics();
 
 void	CG_DrawChar(int x, int y, int num, const vec4_c &color, int flags);
 void	CG_DrawString(int x, int y, const vec4_c &color, int flags, const char *s);
