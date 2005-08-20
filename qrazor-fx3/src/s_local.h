@@ -116,6 +116,8 @@ public:
 	
 	bool		isLoopSound() const		{return _looping;}
 	
+	//bool		isLocalSound() const		{return _local;}
+	
 	int		getEntityNum() const		{return _entity;}
 	void		setEntityNum(int num)		{_entity = num;}
 	

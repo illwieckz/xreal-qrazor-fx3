@@ -250,6 +250,9 @@ bool	s_source_c::isStopped() const
 
 void	s_source_c::play()
 {
+	if(s_show->getInteger())
+		Com_Printf("s_source_c::play: %i\n", _entity);
+
 	alSourcePlay(_id);	S_CheckForError();
 			
 	_activated = true;
