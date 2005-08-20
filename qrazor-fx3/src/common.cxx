@@ -967,9 +967,7 @@ void 	Com_Init(int argc, char **argv)
 	Cbuf_AddEarlyCommands(true);
 	Cbuf_Execute();
 
-	//
 	// init commands and vars
-	//
     	Cmd_AddCommand("error", Com_Error_f);
 	Cmd_AddCommand("mathcheck", Com_MathCheck_f);
 	Cmd_AddCommand("sortcheck", Com_SortCheck_f);
