@@ -48,6 +48,11 @@ struct console_t
 	int 	linewidth;		// characters across screen
 	int	totallines;		// total lines in console scrollback
 
+	float	xadjust;		// for wide aspect screens
+
+	float	displayFrac;		// aproaches finalFrac at scr_conspeed
+	float	finalFrac;		// 0.0 to 1.0 lines of console to display
+
 	float	cursorspeed;
 
 	int	vislines;
