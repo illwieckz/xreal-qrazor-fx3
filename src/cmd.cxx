@@ -577,7 +577,7 @@ void 	Cmd_TokenizeString(const std::string &string)
 void	Cmd_AddCommand(const std::string &name, void (*cmd)())
 {	
 	// fail if the command is a variable name
-	if(Cvar_VariableString(name.c_str()))
+	if(Cvar_VariableString(name.c_str())[0])
 	{
 		Com_Printf("Cmd_AddCommand: %s already defined as a var\n", name.c_str());
 		return;
