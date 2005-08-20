@@ -783,7 +783,7 @@ void	S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forw
 	// paint in the channels
 	cmodel_c* cworld = CM_GetModelByNum(0);
 	const byte *pvs = NULL;
-	if(cworld)
+	if(cworld && cls.state == CA_ACTIVE)
 	{
 		int leafnum = cworld->pointLeafnum(origin);
 		int cluster = cworld->leafCluster(leafnum);
@@ -839,10 +839,12 @@ void	S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forw
 		}
 		else
 		{
+			// only listen to non-looping sounds
 			if(source->isPlaying())
-				continue;
-			
-			source->play();
+			{
+				if(source->isLoopSound())
+					source->pause();
+			}
 		}
 	}
 	
