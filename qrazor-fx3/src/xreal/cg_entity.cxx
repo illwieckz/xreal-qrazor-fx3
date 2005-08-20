@@ -55,8 +55,7 @@ void	CG_AddEntity(int newnum, const entity_state_t *state)
 				(
 					cent->current.origin, 
 					cent->current.velocity_linear, 
-					cent->current.getNumber(), 
-					CHAN_AUTO, 
+					cent->current.getNumber(),
 					cg.sound_precache[cent->current.index_sound]
 				);
 			}
@@ -322,7 +321,6 @@ void	CG_UpdateSound(const cg_entity_t *cent)
 			cent->current.origin,
 			cent->current.velocity_linear,
 			cent->current.getNumber(),
-			CHAN_AUTO,
 			cg.sound_precache[cent->current.index_sound]
 		);
 	}
@@ -333,7 +331,6 @@ void	CG_UpdateSound(const cg_entity_t *cent)
 			cent->current.origin,
 			cent->current.velocity_linear,
 			cent->current.getNumber(),
-			CHAN_AUTO,
 			cg.sound_precache[cent->current.index_sound]
 		);
 	}

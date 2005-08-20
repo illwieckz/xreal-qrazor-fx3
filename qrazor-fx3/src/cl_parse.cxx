@@ -426,7 +426,7 @@ static void	CL_ParseStartSoundPacket(bitmessage_c &msg)
 		pos = NULL;
 	}
 
-	S_StartSound(pos, ent, channel, S_RegisterSound(cl.configstrings[CS_SOUNDS + sound_num]));//, volume, attenuation, ofs);
+	S_StartSound(pos, S_RegisterSound(cl.configstrings[CS_SOUNDS + sound_num]));//, volume, attenuation, ofs);
 }       
 
 

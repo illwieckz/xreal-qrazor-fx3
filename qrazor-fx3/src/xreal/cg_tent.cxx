@@ -299,13 +299,13 @@ void	CG_ParseTEnt(bitmessage_c &msg)
 			// impact sound
 			cnt = rand()&15;
 			if(cnt == 1)
-				trap_S_StartSound(pos, 0, 0, cl_sfx_ric1);
+				trap_S_StartSound(pos, cl_sfx_ric1);
 				
 			else if(cnt == 2)
-				trap_S_StartSound(pos, 0, 0, cl_sfx_ric2);
+				trap_S_StartSound(pos, cl_sfx_ric2);
 				
 			else if(cnt == 3)
-				trap_S_StartSound(pos, 0, 0, cl_sfx_ric3);
+				trap_S_StartSound(pos, cl_sfx_ric3);
 		}
 
 		break;
@@ -328,7 +328,7 @@ void	CG_ParseTEnt(bitmessage_c &msg)
 			CG_ParticleSpray(PART_SPARK2, pos, dir, color, 40);
 		}
 		//FIXME : replace or remove this sound
-		trap_S_StartSound(pos, 0, 0, cl_sfx_lashit);
+		trap_S_StartSound(pos, cl_sfx_lashit);
 		break;
 		
 	case TE_SHOTGUN:			// bullet hitting wall
@@ -337,7 +337,7 @@ void	CG_ParseTEnt(bitmessage_c &msg)
 		
 		//CG_ParticleEffect (pos, dir, 0, 20);
 		color.set(0.5, 0.5, 0.5, 1);
-		CG_ParticleSpray (PART_SPARK2, pos, dir, color, 20);
+		CG_ParticleSpray(PART_SPARK2, pos, dir, color, 20);
 		CG_SmokeAndFlash(pos);
 		break;
 
@@ -361,13 +361,13 @@ void	CG_ParseTEnt(bitmessage_c &msg)
 		
 			r = rand() & 3;
 			if(r == 0)
-				trap_S_StartSound(pos, 0, 0, cl_sfx_spark5);
+				trap_S_StartSound(pos, cl_sfx_spark5);
 				
 			else if (r == 1)
-				trap_S_StartSound(pos, 0, 0, cl_sfx_spark6);
+				trap_S_StartSound(pos, cl_sfx_spark6);
 				
 			else
-				trap_S_StartSound(pos, 0, 0, cl_sfx_spark7);
+				trap_S_StartSound(pos, cl_sfx_spark7);
 		}
 		else
 		{
@@ -428,7 +428,7 @@ void	CG_ParseTEnt(bitmessage_c &msg)
 		//CG_RailTrail (pos, pos2);
 		CG_ParticleTrail(PART_RAIL, pos, pos2, color, 0.05);
 		
-		trap_S_StartSound (pos2, 0, 0, cl_sfx_railg);
+		trap_S_StartSound(pos2, cl_sfx_railg);
 		break;
 
 	case TE_EXPLOSION2:
@@ -454,9 +454,9 @@ void	CG_ParseTEnt(bitmessage_c &msg)
 		
 		CG_ExplosionParticles(pos);
 		if (type == TE_GRENADE_EXPLOSION_WATER)
-			trap_S_StartSound (pos, 0, 0, cl_sfx_watrexp);
+			trap_S_StartSound(pos, cl_sfx_watrexp);
 		else
-			trap_S_StartSound (pos, 0, 0, cl_sfx_grenexp);
+			trap_S_StartSound(pos, cl_sfx_grenexp);
 		break;
 	
 	case TE_EXPLOSION1:
@@ -486,11 +486,11 @@ void	CG_ParseTEnt(bitmessage_c &msg)
 		
 		if(type == TE_ROCKET_EXPLOSION_WATER)
 		{
-			trap_S_StartSound(pos, 0, 0, cl_sfx_watrexp);
+			trap_S_StartSound(pos, cl_sfx_watrexp);
 		}
 		else
 		{
-			trap_S_StartSound(pos, 0, 0, cl_sfx_rockexp);
+			trap_S_StartSound(pos, cl_sfx_rockexp);
 			
 			CG_ParticleSpray(PART_EXPSMOKE, pos, dir, color, 1024);
 		}

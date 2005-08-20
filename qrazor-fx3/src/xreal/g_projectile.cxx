@@ -338,7 +338,7 @@ g_projectile_rocket_c::g_projectile_rocket_c(g_entity_c *activator, const vec3_c
 	vec3_c forward(false), right(false), up(false); 
 	quat.toVectorsFRU(forward, right, up);
 	_s.velocity_linear = forward * speed;
-	_s.velocity_angular.set(0, 0, 30);
+	_s.velocity_angular.set(0, 0, -50);
 	
 	_s.vectors[0].set(150, 150, 150);
 

@@ -64,19 +64,18 @@ s_buffer_c::~s_buffer_c()
 }
 
 
-s_source_c::s_source_c(int entity_num, int entity_channel)
+s_source_c::s_source_c(int entity)
 {
 	alGenSources(1, &_id);	S_CheckForError();
 
-	_entity_num	= entity_num;
-	_entity_channel = entity_channel;
+	_entity = entity;
 	
 	_cluster = -1;
 	
 	_activated = false;
 
 	if(s_show->getInteger())
-		Com_Printf("s_source_c::ctor: %i %i\n", _entity_num, _entity_channel);
+		Com_Printf("s_source_c::ctor: %i\n", _entity);
 	
 	// find free sound source slot
 	std::vector<s_source_c*>::iterator ir = find(s_sources.begin(), s_sources.end(), static_cast<s_source_c*>(NULL));
@@ -90,7 +89,7 @@ s_source_c::s_source_c(int entity_num, int entity_channel)
 s_source_c::~s_source_c()
 {
 	if(s_show->getInteger())
-		Com_Printf("s_source_c::dtor: %i %i\n", _entity_num, _entity_channel);
+		Com_Printf("s_source_c::dtor: %i\n", _entity);
 
 	stop();
 
@@ -114,6 +113,9 @@ void	s_source_c::setPosition(const vec3_c &v)
 	{
 		int leafnum = cworld->pointLeafnum(v);
 		_cluster = cworld->leafCluster(leafnum);
+
+		//if(s_show->getInteger())
+			//Com_Printf("s_source_c::setPosition: %i %i\n", leafnum, _cluster);
 	}
 	else
 	{
@@ -280,7 +282,6 @@ cvar_t	*s_testsound;
 
 cvar_t	*s_backend;
 
-cvar_t	*s_loki_attenuation_scale;
 cvar_t	*s_ext_vorbis;
 cvar_t	*s_ext_mp3;
 
@@ -361,7 +362,6 @@ void	S_Init()
 #endif
 		
 		// openal extensions
-		s_loki_attenuation_scale	= Cvar_Get("s_loki_attenuation_scale", "1", CVAR_ARCHIVE);
 		s_ext_vorbis 			= Cvar_Get("s_ext_vorbis", "1", CVAR_ARCHIVE);
 		s_ext_mp3			= Cvar_Get("s_ext_mp3", "1", CVAR_ARCHIVE);
 		

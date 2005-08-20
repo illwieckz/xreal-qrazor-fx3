@@ -87,27 +87,8 @@ void	S_CheckForError_(const char *filename, int line)
 
 static void	S_CheckOpenALExtensions()
 {
-	al_config.loki_attenuation_scale = false;
 	al_config.ext_vorbis = false;
 	al_config.ext_mp3 = false;
-	
-	if(strstr(al_config.extensions_string, "AL_LOKI_attenuation_scale"))
-	{
-		if(s_loki_attenuation_scale->getInteger())
-		{
-			Com_Printf("...using AL_LOKI_attenuation_scale\n");
-			al_config.loki_attenuation_scale = true;
-		}
-		else
-		{
-			Com_Printf("...ignoring AL_LOKI_attenuation_scale\n");
-		}
-	}
-	else
-	{
-		Com_Printf("...AL_LOKI_attenuation_scale not found\n");
-	}
-	
 	
 	if(strstr(al_config.extensions_string, "AL_EXT_vorbis"))
 	{
@@ -546,22 +527,13 @@ if pos is NULL, the sound will be dynamically sourced from the entity
 Entchannel 0 will never override a playing sound
 ====================
 */
-void	S_StartSound(const vec3_c &origin, int ent_num, int ent_channel, int sound)
+void	S_StartSound(const vec3_c &origin, int sound)
 {
 	if(!s_initialized)
 		return;
 
 	if(sound == -1)
 		return;
-
-	//if (sfx->name[0] == '*')
-	//	sfx = S_RegisterSexedSound(&cl_entities[entnum].current, sfx->name);
-
-	// make sure the sound is loaded
-	//sc = S_FindSound(sfx);
-	//if (!sc)
-	//	return;		// couldn't load the sound's data
-	
 	
 	s_shader_c *shader = S_GetShaderByNum(sound);
 	if(!shader)
@@ -570,7 +542,7 @@ void	S_StartSound(const vec3_c &origin, int ent_num, int ent_channel, int sound)
 		return;
 	}
 	
-	shader->createSource(origin, vec3_origin, ent_num, ent_channel, false);
+	shader->createSource(origin, vec3_origin, 0, false);
 }
 
 
@@ -586,11 +558,11 @@ void	S_StartLocalSound(const std::string &name)
 		return;
 	}
 	
-	S_StartSound(s_origin, cl.playernum+1, 0, sound);
+	S_StartSound(s_origin, sound);
 }
 
 
-void	S_StartLoopSound(const vec3_c &origin, const vec3_c &velocity, int entity_num, int entity_channel, int sound)
+void	S_StartLoopSound(const vec3_c &origin, const vec3_c &velocity, int entity, int sound)
 {
 	if(!s_initialized)
 		return;
@@ -614,14 +586,14 @@ void	S_StartLoopSound(const vec3_c &origin, const vec3_c &velocity, int entity_n
 		if(!source)
 			continue;
 	
-		if(source->getEntityNum() == entity_num)
+		if(source->getEntityNum() == entity && source->isLoopSound())
 			return;
 	}
 	
-	shader->createSource(origin, vec3_origin, entity_num, entity_channel, true);
+	shader->createSource(origin, velocity, entity, true);
 }
 
-void	S_UpdateLoopSound(const vec3_c &origin, const vec3_c &velocity, int entity_num, int entity_channel, int sound)
+void	S_UpdateLoopSound(const vec3_c &origin, const vec3_c &velocity, int entity, int sound)
 {
 	for(std::vector<s_source_c*>::iterator ir = s_sources.begin(); ir != s_sources.end(); ++ir)
 	{
@@ -630,7 +602,7 @@ void	S_UpdateLoopSound(const vec3_c &origin, const vec3_c &velocity, int entity_
 		if(!source)
 			continue;
 	
-		if(source->getEntityNum() == entity_num)
+		if(source->getEntityNum() == entity)
 		{
 			(*ir)->setPosition(origin);
 			(*ir)->setVelocity(velocity);
@@ -648,12 +620,12 @@ void	S_UpdateLoopSound(const vec3_c &origin, const vec3_c &velocity, int entity_
 		return;
 	}
 	
-	shader->createSource(origin, vec3_origin, entity_num, entity_channel, true);
+	shader->createSource(origin, velocity, entity, true);
 	
 //	Com_DPrintf("S_UpdateLoopSound: couldn't find sound source with entity %i\n", entity_num);
 }
 
-void	S_StopLoopSound(int entity_num)
+void	S_StopLoopSound(int entity)
 {
 	for(std::vector<s_source_c*>::iterator ir = s_sources.begin(); ir != s_sources.end(); ++ir)
 	{
@@ -662,7 +634,7 @@ void	S_StopLoopSound(int entity_num)
 		if(!source)
 			continue;
 	
-		if(source->getEntityNum() == entity_num && source->isLoopSound())
+		if(source->getEntityNum() == entity && source->isLoopSound())
 		{
 			source->stop();
 		
@@ -729,10 +701,7 @@ void	S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forw
 		
 	S_CheckForError();
 	
-	
-	//
 	// setup listener origin
-	//
 	s_origin = origin;
 	
 	// convert listener origin to openal format
@@ -745,9 +714,7 @@ void	S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forw
 	alListenerfv(AL_POSITION, al_listener_origin);		S_CheckForError();
 	
 	
-	//
 	// setup listener velocity
-	//
 	vec3_c al_listener_velocity;
 	al_listener_velocity[0] =  s_velocity[1];
 	al_listener_velocity[1] =  s_velocity[2];
@@ -756,10 +723,8 @@ void	S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forw
 		
 	alListenerfv(AL_VELOCITY, al_listener_velocity);	S_CheckForError();
 	
-		
-	//
+	
 	// setup listener orientation
-	//
 	s_forward = v_forward;
 	s_right = v_right;
 	s_up = v_up;
@@ -794,9 +759,7 @@ void	S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forw
 	}
 	*/
 	
-	//
 	// kill stopped sound sources
-	//
 	for(std::vector<s_source_c*>::iterator ir = s_sources.begin(); ir != s_sources.end(); ++ir)
 	{
 		s_source_c *source = *ir;
@@ -817,11 +780,9 @@ void	S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forw
 	S_CheckForError();
 
 
-	//
 	// paint in the channels
-	//
 	cmodel_c* cworld = CM_GetModelByNum(0);
-	byte *pvs = NULL;
+	const byte *pvs = NULL;
 	if(cworld)
 	{
 		int leafnum = cworld->pointLeafnum(origin);
@@ -829,7 +790,7 @@ void	S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forw
 		pvs = cworld->clusterPVS(cluster);
 	}
 	
-	for(std::vector<s_source_c*>::const_iterator ir = s_sources.begin(); ir != s_sources.end(); ++ir)
+	for(std::vector<s_source_c*>::iterator ir = s_sources.begin(); ir != s_sources.end(); ++ir)
 	{
 		s_source_c *source = *ir;
 		
@@ -860,7 +821,20 @@ void	S_Update(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forw
 						if(source->isLoopSound())
 							source->pause();
 					}
+					else if(!source->isLoopSound())
+					{
+						// kill source
+						delete source;
+						*ir = NULL;
+					}
 				}
+			}
+			else
+			{
+				if(source->isPlaying())
+					continue;
+			
+				source->play();
 			}
 		}
 		else
