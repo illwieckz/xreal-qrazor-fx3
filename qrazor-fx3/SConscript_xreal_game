@@ -54,7 +54,7 @@ xreal_game_src = [
 'src/xreal/g_physics.cxx',
 'src/xreal/g_player.cxx',
 'src/xreal/g_projectile.cxx',
-'src/xreal/g_python.cxx',
+#'src/xreal/g_python.cxx',
 'src/xreal/g_pweapon.cxx',
 'src/xreal/g_spawn.cxx',
 'src/xreal/g_svcmds.cxx',
@@ -68,10 +68,10 @@ xreal_game_src = [
 xreal_game_env = env.Copy()
 
 if sys.platform == 'linux2':
-	xreal_game_env.Append(CXXFLAGS='-I/usr/include/python2.3')
-	xreal_game_env.Append(LINKFLAGS='-L/usr/lib/python2.3/config -lpython2.3 -lm')
-	xreal_game_env.SharedLibrary('game', xreal_game_src, LIBS=['python2.3', 'pthread', 'util', 'boost_python', 'm'])
-	#xreal_game_env.SharedLibrary('game', xreal_game_src, LIBS=['m'])
+	#xreal_game_env.Append(CXXFLAGS='-I/usr/include/python2.3')
+	#xreal_game_env.Append(LINKFLAGS='-L/usr/lib/python2.3/config -lpython2.3 -lm')
+	#xreal_game_env.SharedLibrary('game', xreal_game_src, LIBS=['python2.3', 'pthread', 'util', 'boost_python', 'm'])
+	xreal_game_env.SharedLibrary('game', xreal_game_src, LIBS=['m'])
 	xreal_game_env.InstallAs('#bin/xreal/game.so', 'libgame.so')
 
 elif sys.platform == 'win32':

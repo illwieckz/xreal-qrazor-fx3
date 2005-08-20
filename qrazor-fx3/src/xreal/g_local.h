@@ -494,8 +494,8 @@ trace_t		G_Trace(const vec3_c &start, const aabb_c &bbox, const vec3_c &end, g_e
 //
 // g_python.cxx
 //
-void		G_InitPythonVM();
-void		G_ShutdownPythonVM();
+//void		G_InitPythonVM();
+//void		G_ShutdownPythonVM();
 
 
 //
