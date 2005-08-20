@@ -4630,7 +4630,7 @@ void	g_player_c::spawnRocket_f()
 	_kick_origin = _v_forward * -2;
 	_kick_angles[0] = -1;
 
-	new g_projectile_rocket_c(this, start, _v_quat, 150, 20, 120, 120);
+	new g_projectile_rocket_c(this, start, _v_quat, 150, 100, 120, 120);
 }
 
 

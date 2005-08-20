@@ -462,7 +462,7 @@ public:
 	virtual int	boxLeafnums(const aabb_c &bbox, std::vector<int> &list, int max) const;
 
 	// returns NULL if bad cluster
-	virtual byte*	clusterPVS(int cluster)	const	{return NULL;}
+	virtual const byte*	clusterPVS(int cluster)	const;
 
 	virtual int	getClosestAreaPortal(const vec3_c &p) const		{return -1;}
 	virtual bool	getAreaPortalState(int portal) const			{return true;}
@@ -675,7 +675,7 @@ int	cmodel_bsp_c::pointContents(const vec3_c &p, const vec3_c &origin, const qua
 
 int	cmodel_bsp_c::pointLeafnum(const vec3_c &p) const
 {
-	int leafnum = 0;
+	int leafnum = -1;
 	pointLeafnum_r(p, 0, leafnum);
 	return leafnum;
 }
@@ -1229,6 +1229,24 @@ int	cmodel_bsp_c::boxLeafnums(const aabb_c &aabb, std::vector<int> &list, int ma
 	boxLeafnums_r(0, aabb, list, topnode, max);
 
 	return topnode;
+}
+
+const byte*	cmodel_bsp_c::clusterPVS(int cluster) const
+{
+	if(cluster < 0 || cluster >= _pvs_clusters_num || _pvs.empty())
+		return NULL;
+	
+	try
+	{
+		const byte *data =  &(_pvs.at(cluster * _pvs_clusters_size));
+		return data;
+	}
+	catch(...)
+	{
+		Com_Error(ERR_DROP, "cmodel_bsp_c::clusterPVS: exception occured");
+	}
+	
+	return NULL;
 }
 
 
@@ -2289,26 +2307,6 @@ static void	CM_TraceToLeaf(int leafnum)
 
 
 
-/*
-byte*	CM_ClusterPVS(int cluster)
-{
-	if(cluster < 0 || cluster >= cm_pvs_clusters_num || cm_pvs.empty())
-		return NULL;
-	
-	byte *data = NULL;
-	
-	try
-	{
-		data =  &(cm_pvs.at(cluster * cm_pvs_clusters_size));
-	}
-	catch(...)
-	{
-		Com_Error(ERR_DROP, "CM_ClusterPVS: exception occured");
-	}
-	
-	return data;
-}
-*/
 
 static void	CM_FloodAreaConnections()
 {

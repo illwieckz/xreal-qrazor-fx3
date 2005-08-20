@@ -84,7 +84,7 @@ void	s_shader_c::createDefaultBuffer()
 		_buffers.push_back(buffer);
 }
 
-void	s_shader_c::createSource(const vec3_c &origin, const vec3_c &velocity, int entity_num, int entity_channel, bool looping)
+void	s_shader_c::createSource(const vec3_c &origin, const vec3_c &velocity, int entity, bool looping)
 {
 	// select random buffer
 	s_buffer_c *buffer = selectRandomBuffer();
@@ -95,7 +95,7 @@ void	s_shader_c::createSource(const vec3_c &origin, const vec3_c &velocity, int 
 	}
 
 
-	s_source_c *source = new s_source_c(entity_num, entity_channel);
+	s_source_c *source = new s_source_c(entity);
 	
 	source->setBuffer(buffer);
 	

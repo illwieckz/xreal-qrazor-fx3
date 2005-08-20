@@ -81,7 +81,7 @@ private:
 class s_source_c
 {
 public:
-	s_source_c(int entity_num, int entity_channel);
+	s_source_c(int entity);
 	
 	~s_source_c();
 	
@@ -116,11 +116,8 @@ public:
 	
 	bool		isLoopSound() const		{return _looping;}
 	
-	int		getEntityNum() const		{return _entity_num;}
-	void		setEntityNum(int num)		{_entity_num = num;}
-	
-	int		getEntityChannel() const	{return _entity_channel;}
-	void		setEntityChannel(int channel)	{_entity_channel = channel;}
+	int		getEntityNum() const		{return _entity;}
+	void		setEntityNum(int num)		{_entity = num;}
 	
 	int		getCluster() const		{return _cluster;}
 	
@@ -135,8 +132,7 @@ private:
 	vec3_c		_velocity;		// same here
 	bool		_looping;		// from entity_state_t::sound
 	
-	int		_entity_num;		// to allow overriding a specific sound
-	int		_entity_channel;
+	int		_entity;
 	
 	int		_cluster;
 	
@@ -162,7 +158,10 @@ public:
 	
 	s_sound_type_t	getType() const			{return _type;}
 	
-	void		setVolume(float volume)		{_gain = X_max(0.0, (60.0 + volume)/60.0);}
+	void		setVolume(float volume)
+	{
+		_gain = X_bound(0.0, (40.0 + volume) * 0.01, 1.5);
+	}
 	
 	void		setGain(float gain)		{_gain = gain;}
 	void		setMinGain(float gain)		{_gain_min = gain;}
@@ -181,7 +180,7 @@ public:
 	void		createDefaultBuffer();		// called if no shader cache was found
 	
 	// will be called every time a shader is running
-	void		createSource(const vec3_c &origin, const vec3_c &velocity, int ent_num, int ent_channel, bool looping);
+	void		createSource(const vec3_c &origin, const vec3_c &velocity, int entity, bool looping);
 		
 private:
 	s_buffer_c*	selectRandomBuffer();
@@ -215,7 +214,6 @@ struct alconfig_t
 	const char*	extensions_string;
 	
 	// save here what extensions are currently available
-	bool		loki_attenuation_scale;
 	bool		ext_vorbis;
 	bool		ext_mp3;
 };
@@ -232,7 +230,6 @@ extern cvar_t	*s_testsound;
 
 extern cvar_t	*s_backend;
 
-extern cvar_t	*s_loki_attenuation_scale;
 extern cvar_t	*s_ext_vorbis;
 extern cvar_t	*s_ext_mp3;
 

@@ -191,11 +191,11 @@ typedef struct
 	void		(*S_Init)();
 	void		(*S_Shutdown)();
 	
-	void		(*S_StartSound)(const vec3_c &origin, int ent_num, int ent_channel, int sound);
+	void		(*S_StartSound)(const vec3_c &origin, int sound);
 	
-	void		(*S_StartLoopSound)(const vec3_c &origin, const vec3_c &velocity, int ent_num, int ent_channel, int sound);
-	void		(*S_UpdateLoopSound)(const vec3_c &origin, const vec3_c &velocity, int ent_num, int ent_channel, int sound);
-	void		(*S_StopLoopSound)(int ent_num);
+	void		(*S_StartLoopSound)(const vec3_c &origin, const vec3_c &velocity, int entity, int sound);
+	void		(*S_UpdateLoopSound)(const vec3_c &origin, const vec3_c &velocity, int entity, int sound);
+	void		(*S_StopLoopSound)(int entity);
 	
 	void		(*S_StopAllSounds)();
 	void		(*S_Update)(const vec3_c &origin, const vec3_c &velocity, const vec3_c &v_forward, const vec3_c &v_right, const vec3_c &v_up);

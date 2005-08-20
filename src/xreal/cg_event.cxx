@@ -63,7 +63,7 @@ void	CG_EntityEvent(const cg_entity_t *cent)
 			break;
 	
 		case EV_ITEM_RESPAWN:
-			trap_S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_WEAPON, trap_S_RegisterSound("items/respawn1.wav"));
+			trap_S_StartSound(cent->current.origin, trap_S_RegisterSound("items/respawn1.wav"));
 			CG_ParticleSpray(PART_RESPAWN, cent->current.origin, dir, color, 64);
 			break;
 		
@@ -73,11 +73,11 @@ void	CG_EntityEvent(const cg_entity_t *cent)
 		//	break;
 	
 		case EV_PLAYER_FOOTSTEP:
-			trap_S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_BODY, cg_sfx_footsteps[rand() & 3].getHandle());
+			trap_S_StartSound(cent->current.origin, cg_sfx_footsteps[rand() & 3].getHandle());
 			break;
 	
 		case EV_PLAYER_FALL_SHORT:
-			trap_S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_AUTO, trap_S_RegisterSound("player/land1.wav"));
+			trap_S_StartSound(cent->current.origin, trap_S_RegisterSound("player/land1.wav"));
 			break;
 
 		#if 0	
@@ -97,7 +97,7 @@ void	CG_EntityEvent(const cg_entity_t *cent)
 		case EV_ROCKET_EXPLOSION:
 		{
 			//trap_Com_Printf("CG_EntityEvent(EV_ROCKET_EXPLOSION)\n");
-			trap_S_StartSound(cent->current.origin, cent->current.getNumber(), CHAN_AUTO, cg_sfx_rocket_impact.getHandle());
+			trap_S_StartSound(cent->current.origin, cg_sfx_rocket_impact.getHandle());
 			break;
 		}
 			

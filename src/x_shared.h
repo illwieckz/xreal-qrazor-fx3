@@ -856,7 +856,7 @@ public:
 	virtual int	boxLeafnums(const aabb_c &bbox, std::vector<int> &list, int max) const {return -1;}
 
 	// returns NULL if bad cluster
-	virtual byte*	clusterPVS(int cluster)	const	{return NULL;}
+	virtual const byte*	clusterPVS(int cluster)	const	{return NULL;}
 
 	virtual int	getClosestAreaPortal(const vec3_c &p) const		{return -1;}
 	virtual bool	getAreaPortalState(int portal) const			{return true;}

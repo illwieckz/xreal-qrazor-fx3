@@ -328,24 +328,24 @@ void		trap_S_Shutdown()
 	cgi.S_Shutdown();
 }
 	
-void		trap_S_StartSound(const vec3_c &origin, int ent_num, int ent_channel, int sound)
+void		trap_S_StartSound(const vec3_c &origin, int sound)
 {
-	cgi.S_StartSound(origin, ent_num, ent_channel, sound);
+	cgi.S_StartSound(origin, sound);
 }
 
-void		trap_S_StartLoopSound(const vec3_c &origin, const vec3_c &velocity, int entity_num, int entity_channel, int sound)
+void		trap_S_StartLoopSound(const vec3_c &origin, const vec3_c &velocity, int entity, int sound)
 {
-	cgi.S_StartLoopSound(origin, velocity, entity_num, entity_channel, sound);
+	cgi.S_StartLoopSound(origin, velocity, entity, sound);
 }
 
-void		trap_S_UpdateLoopSound(const vec3_c &origin, const vec3_c &velocity, int entity_num, int entity_channel, int sound)
+void		trap_S_UpdateLoopSound(const vec3_c &origin, const vec3_c &velocity, int entity, int sound)
 {
-	cgi.S_UpdateLoopSound(origin, velocity, entity_num, entity_channel, sound);
+	cgi.S_UpdateLoopSound(origin, velocity, entity, sound);
 }
 
-void		trap_S_StopLoopSound(int entity_num)
+void		trap_S_StopLoopSound(int entity)
 {
-	cgi.S_StopLoopSound(entity_num);
+	cgi.S_StopLoopSound(entity);
 }
 
 void		trap_S_StopAllSounds()
