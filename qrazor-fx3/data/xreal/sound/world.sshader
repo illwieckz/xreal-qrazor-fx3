@@ -1,8 +1,0 @@
-
-sound/world/portal01
-{
-//	minGain		0.13
-//	maxGain		1.0
-	
-	buffer		sound/world/portal01.wav
-}
