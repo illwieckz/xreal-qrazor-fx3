@@ -139,7 +139,7 @@ int Sys_XTimeToSysTime (unsigned long xtime)
 #endif
 
 //#if 0 // bk001215 - see snapvector.nasm for replacement
-#if (defined __APPLE__) // rcg010206 - using this for PPC builds...
+#if defined(__APPLE__) || (defined(__linux__) && defined(C_ONLY)) // rcg010206 - using this for PPC builds...
 long fastftol( float f ) { // bk001213 - from win32/win_shared.c
   //static int tmp;
   //	__asm fld f
