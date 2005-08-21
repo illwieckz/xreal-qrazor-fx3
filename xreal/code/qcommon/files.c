@@ -2836,6 +2836,8 @@ if the full version is not found
 ===================
 */
 static void FS_SetRestrictions( void ) {
+// Tr3B - outcommented to allow base game running without id media
+#if 0
 	searchpath_t	*path;
 
 #ifndef PRE_RELEASE_DEMO
@@ -2885,6 +2887,7 @@ static void FS_SetRestrictions( void ) {
 			}
 		}
 	}
+#endif
 }
 
 /*
