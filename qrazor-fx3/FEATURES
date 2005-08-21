@@ -1,0 +1,52 @@
+renderer
+-ARB backend which implements all used Cg shaders using GL_ARB_vertex_program and GL_ARB_fragment_program
+-NV3X backend which implements all used Cg shaders using NV_vertex_program2 and NV_fragment_program
+-Q3A BSP support
+-skeletal animation with animation blending
+-custom Doom3 like material shader language for surface materials and lights
+-different render modes like diffuse per-pixel lighting or specular tangent-space bumpmapping
+-basic Doom3 .proc support
+-md2 model loader
+-md3 model loader
+-md5 model loader
+-partly mds model loader, needs to be fixed
+-partly mdc model loader, needs also to be fixed
+-tga image loader
+-jpg image loader
+-png image loader
+-deluxe mapping (invented by Randy Reddig the founder of the q3map2 BSP compiler) which allows static N dot L lighting for saving GPU power and radiosity based lighting
+-new improved bump mapping techniques that combine deluxe mapping with parallax bump mapping and dynamic lighting
+-different modes of environment mapping like reflection, refraction and dispersion
+
+client user interface
+-splitted menu code into a separate module
+
+client game
+-splitted client game specific code into a separate module
+
+client
+-cleaned up code
+-OpenAL sound engine with an OpenAL specific sound shader language support
+-support for different kinds of .wav files
+-support for .ogg and .mp3 files
+
+server
+-cleaned up code
+-clients are handled object oriented
+
+server game
+-game can allocate game objects dynamically
+-object oriented c++ gamecode rewrite
+-partly support for q3a player animations
+-removed single player code for clean code base
+-replaced collision code with ODE's geometric collision objects
+-ODE based rigid body physics
+
+common
+-new virtual filesystem with support for .pk3 files
+-improved cvar system
+-improved cmd system
+-recoded many parts in c++ to make it more flexible and safe
+-new math classes for linear algebra like vec2_c vec3_c vec4_c matrix_c quaternion_c
+
+
