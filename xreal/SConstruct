@@ -8,10 +8,10 @@ import SCons.Errors
 opts = Options('quake3.conf')
 opts.Add(BoolOption('warnings', 'Set to 1 to compile with -Wall -Werror', 1))
 opts.Add(EnumOption('debug', 'Set to >= 1 to build for debug', '0', allowed_values=('0', '1', '2', '3')))
-opts.Add(EnumOption('optimize', 'Set to >= 1 to build with general optimizations', '2', allowed_values=('0', '1', '2', '3')))
+opts.Add(EnumOption('optimize', 'Set to >= 1 to build with general optimizations', '2', allowed_values=('0', '1', '2', '3', '4', '5', '6')))
 opts.Add(EnumOption('simd', 'Choose special CPU register optimizations', 'none', allowed_values=('none', 'sse', '3dnow')))
-#opts.Add(EnumOption('cpu', 'Set to 1 to build with special CPU register optimizations', 'i386', allowed_values=('i386', 'athlon-xp', 'pentium4')))
-opts.Add(BoolOption('missionpack', 'Set to 1 to compile with Team Arena Missionpack code', 1))
+opts.Add(EnumOption('cpu', 'Set to 1 to build with special CPU register optimizations', 'i386', allowed_values=('i386', 'athlon-xp', 'pentium4')))
+opts.Add(BoolOption('xreal', 'Set to 1 to compile with XreaL gamecode modifications', 1))
 
 #
 # Initialize compiler environment base
@@ -36,9 +36,15 @@ if env['warnings'] == 1:
 
 if env['debug'] != '0':
 	env.Append(CCFLAGS = '-ggdb${debug} -DDEBUG=${debug}')
+else:
+	env.Append(CCFLAGS = '-DNDEBUG')
 
 if env['optimize'] != '0':
-	env.Append(CCFLAGS = '-O${optimize}')
+	env.Append(CCFLAGS = '-O${optimize} -fomit-frame-pointer -ffast-math -falign-loops=2 -falign-jumps=2 -falign-functions=2 -fno-strict-aliasing -fstrength-reduce')
+
+
+if env['cpu'] == 'athlon-xp':
+	env.Append(CCFLAGS = '-march=athlon-xp')
 
 
 if env['simd'] == 'sse':

@@ -38,14 +38,18 @@ game_src = [
 'code/game/q_shared.c'
 ]
 
-game_env = env.Copy()
+dll_src = [
+'code/game/g_syscalls.c',
+]
 
-if game_env['missionpack'] == 1:
-	game_env.Append(CCFLAGS='-DMISSIONPACK')
+game_env = env.Copy()
+game_env.Append(CCFLAGS='-DMISSIONPACK')
+
+if env['xreal']:
+	game_env.Append(CCFLAGS='-DXREAL')
 
 if sys.platform == 'linux2':
-	game_src += ['code/game/g_syscalls.c']
-	game_env.SharedLibrary('game', game_src)
+	game_env.SharedLibrary('game', [game_src, dll_src])
 	game_env.InstallAs('#bin/base/qagamei386.so', 'libgame.so')
 
 elif sys.platform == 'win32':

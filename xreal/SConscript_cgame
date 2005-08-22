@@ -2,8 +2,6 @@ import os, string, sys
 
 Import('env')
 
-cgame_env = env.Copy()
-
 # the file with vmMain function MUST be the first one of the list
 cgame_src = [
 'code/cgame/cg_main.c',
@@ -31,15 +29,25 @@ cgame_src = [
 'code/cgame/cg_weapons.c'
 ]
 
-if cgame_env['missionpack'] == 1:
-	cgame_env.Append(CCFLAGS='-DMISSIONPACK')
-	cgame_src += ['code/cgame/cg_newdraw.c', 'code/ui/ui_shared.c']
+ta_src = [
+'code/cgame/cg_newdraw.c',
+'code/ui/ui_shared.c'
+]
+
+dll_src = [
+'code/cgame/cg_syscalls.c'
+]
+
+cgame_env = env.Copy()
+cgame_env.Append(CCFLAGS='-DMISSIONPACK')
+
+if env['xreal']:
+	cgame_env.Append(CCFLAGS='-DXREAL')
 
 if sys.platform == 'linux2':
-	cgame_src += ['code/cgame/cg_syscalls.c']
-	cgame_env.SharedLibrary('cgame', cgame_src)
+	cgame_env.SharedLibrary('cgame', [cgame_src, ta_src, dll_src])
 	cgame_env.InstallAs('#bin/base/cgamei386.so', 'libcgame.so')
 
 elif sys.platform == 'win32':
-	game_env.InstallAs('#bin/base/cgamex86.dll', 'cgame.dll')
+	cgame_env.InstallAs('#bin/base/cgamex86.dll', 'cgame.dll')
 
