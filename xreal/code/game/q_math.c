@@ -551,6 +551,27 @@ void VectorRotate( vec3_t in, vec3_t matrix[3], vec3_t out )
 */
 float Q_rsqrt( float number )
 {
+	float y;
+#if id386_3dnow && defined __GNUC__
+//#error Q_rqsrt
+	asm volatile
+	(
+	"femms\n"
+	"movd		(%%eax),	%%mm0\n"	// 0					|	a
+	
+	"pfrsqrt	%%mm0,		%%mm1\n"	// 1/sqrt(in)			| 1/sqrt(in)	(approx)
+	"movq		%%mm1,		%%mm2\n"	// 1/sqrt(in)			| 1/sqrt(in)	(approx)
+	"pfmul		%%mm1,		%%mm1\n"	// (1/sqrt(in))²		| (1/sqrt(in))²	step 1
+	"pfrsqit1	%%mm0,		%%mm1\n"	// intermediate					step 2
+	"pfrcpit2	%%mm2,		%%mm1\n"	// 1/sqrt(in) (full 24-bit precision)		step 3
+	
+	"movd		%%mm1,		(%%edx)\n"
+	"femms\n"
+	:
+	: "a"( &number ), "d"( &y )
+	: "memory"
+	);
+#else
 	long i;
 	float x2, y;
 	const float threehalfs = 1.5F;
@@ -568,6 +589,7 @@ float Q_rsqrt( float number )
 	assert( !isnan(y) ); // bk010122 - FPE?
 #endif
 #endif
+#endif // id386_3dnow
 	return y;
 }
 
@@ -1092,6 +1114,45 @@ void AddPointToBounds( const vec3_t v, vec3_t mins, vec3_t maxs ) {
 
 
 vec_t VectorNormalize( vec3_t v ) {
+#if id386_3dnow && defined __GNUC__
+//#error VectorNormalize
+	vec_t	length;
+	asm volatile
+	(									// lo											| hi
+	"femms\n"
+	"movq		(%%eax),	%%mm0\n"	// _v[0]										| _v[1]
+	"movd		8(%%eax),	%%mm1\n"	// _v[2]										| -
+	// mm0[lo] = dot product(this)
+	"pfmul		%%mm0,		%%mm0\n"	// _v[0]*_v[0]									| _v[1]*_v[1]
+	"pfmul		%%mm1,		%%mm1\n"	// _v[2]*_v[2]									| -
+	"pfacc		%%mm0,		%%mm0\n"	// _v[0]*v._v[0]+_v[1]*v._v[1]					| -
+	"pfadd		%%mm1,		%%mm0\n"	// _v[0]*v._v[0]+_v[1]*v._v[1]+_v[2]*v._v[2]	| -
+	// mm0[lo] = sqrt(mm0[lo])
+	"pfrsqrt	%%mm0,		%%mm1\n"	// 1/sqrt(dot)									| 1/sqrt(dot)		(approx)
+	"movq		%%mm1,		%%mm2\n"	// 1/sqrt(dot)									| 1/sqrt(dot)		(approx)
+	"pfmul		%%mm1,		%%mm1\n"	// (1/sqrt(dot))²								| (1/sqrt(dot))²	step 1
+	"punpckldq	%%mm0,		%%mm0\n"	// dot											| dot			(MMX instruction)
+	"pfrsqit1	%%mm0,		%%mm1\n"	// intermediate									| intermediate		step 2
+	"pfrcpit2	%%mm2,		%%mm1\n"	// 1/sqrt(dot) (full 24-bit precision)			| 1/sqrt(dot)		step 3
+	"pfmul		%%mm1,		%%mm0\n"	// sqrt(dot)									| sqrt(dot)
+	// len = mm0[lo]
+	"movd		%%mm0,		(%%edx)\n"
+	// load this into registers
+	"movq		(%%eax),	%%mm2\n"	// _v[0]										| _v[1]
+	"movd		8(%%eax),	%%mm3\n"	// _v[2]										| -
+	// scale this by the reciprocal square root
+	"pfmul		%%mm1,		%%mm2\n"	// _v[0]*1/sqrt(dot)							| _v[1]*1/sqrt(dot)
+	"pfmul		%%mm1,		%%mm3\n"	// _v[2]*1/sqrt(dot)							| -
+	// store scaled vector
+	"movq		%%mm2,		(%%eax)\n"
+	"movd		%%mm3,		8(%%eax)\n"
+	"femms\n"
+	:
+	: "a"( v ), "d"( &length )
+	: "memory"
+	);
+	return length;
+#else
 	// NOTE: TTimo - Apple G4 altivec source uses double?
 	float	length, ilength;
 
@@ -1106,6 +1167,7 @@ vec_t VectorNormalize( vec3_t v ) {
 	}
 		
 	return length;
+#endif
 }
 
 vec_t VectorNormalize2( const vec3_t v, vec3_t out) {

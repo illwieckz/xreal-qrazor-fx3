@@ -100,8 +100,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // this is the define for determining if we have an asm version of a C function
 #if (defined _M_IX86 || defined __i386__) && !defined __sun__  && !defined __LCC__
 #define id386	1
+#if defined SIMD_3DNOW
+#define id386_3dnow  1
+#else
+#define id386_3dnow  0
+#endif
+#if defined SIMD_SSE
+#define id386_sse  1
+#else
+#define id386_sse  0
+#endif
 #else
 #define id386	0
+#define id386_3dnow  0
+#define id386_sse    0
 #endif
 
 #if (defined(powerc) || defined(powerpc) || defined(ppc) || defined(__ppc) || defined(__ppc__)) && !defined(C_ONLY)
