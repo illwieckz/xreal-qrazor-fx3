@@ -177,6 +177,7 @@ if sys.platform == 'linux2':
 	quake3_env.Append(LIBPATH='/usr/X11R6/lib')
 	quake3_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm', 'jpeg'])
 	quake3_env.Append(LIBS=['dl', 'z', 'm'])
+	#quake3_env.Append(LIBS=['asound'])
 	quake3_env.Program('quake3.x86', [quake3_src, unix_src, linux_src, vm_src])
 	quake3_env.Install('#bin', 'quake3.x86')
 
