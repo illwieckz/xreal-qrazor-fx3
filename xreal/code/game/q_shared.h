@@ -618,7 +618,7 @@ signed short ClampShort( int i );
 int DirToByte( vec3_t dir );
 void ByteToDir( int b, vec3_t dir );
 
-#if	1
+#if 0
 
 #define DotProduct(x,y)			((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
 #define VectorSubtract(a,b,c)	((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1],(c)[2]=(a)[2]-(b)[2])
@@ -657,9 +657,9 @@ typedef struct {
 
 #define	SnapVector(v) {v[0]=((int)(v[0]));v[1]=((int)(v[1]));v[2]=((int)(v[2]));}
 // just in case you do't want to use the macros
-vec_t _DotProduct( const vec3_t v1, const vec3_t v2 );
-void _VectorSubtract( const vec3_t veca, const vec3_t vecb, vec3_t out );
-void _VectorAdd( const vec3_t veca, const vec3_t vecb, vec3_t out );
+vec_t _DotProduct( const vec3_t a, const vec3_t b );
+void _VectorSubtract( const vec3_t a, const vec3_t b, vec3_t out );
+void _VectorAdd( const vec3_t a, const vec3_t b, vec3_t out );
 void _VectorCopy( const vec3_t in, vec3_t out );
 void _VectorScale( const vec3_t in, float scale, vec3_t out );
 void _VectorMA( const vec3_t veca, float scale, const vec3_t vecb, vec3_t vecc );
@@ -682,11 +682,66 @@ static ID_INLINE int VectorCompare( const vec3_t v1, const vec3_t v2 ) {
 }
 
 static ID_INLINE vec_t VectorLength( const vec3_t v ) {
+#if id386_3dnow && defined __GNUC__
+//#error VectorLength
+	vec_t out;
+	asm volatile
+	(									// lo									| hi
+	"femms\n"
+	"movq		(%%eax),	%%mm0\n"	// v[0]									| v[1]
+	"movd		8(%%eax),	%%mm1\n"	// v[2]									| -
+	// mm0[lo] = dot product(this)
+	"pfmul		%%mm0,		%%mm0\n"	// v[0]*v[0]							| v[1]*v[1]
+	"pfmul		%%mm1,		%%mm1\n"	// v[2]*v[2]							| -
+	"pfacc		%%mm0,		%%mm0\n"	// v[0]*v[0]+v[1]*v[1]					| -
+	"pfadd		%%mm1,		%%mm0\n"	// v[0]*v[0]+v[1]*v[1]+v[2]*v[2]		| -
+	// mm0[lo] = sqrt(mm0[lo])
+	"pfrsqrt	%%mm0,		%%mm1\n"	// 1/sqrt(dot)							| 1/sqrt(dot)		(approx)
+	"movq		%%mm1,		%%mm2\n"	// 1/sqrt(dot)							| 1/sqrt(dot)		(approx)
+	"pfmul		%%mm1,		%%mm1\n"	// (1/sqrt(dot))²						| (1/sqrt(dot))²	step 1
+	"pfrsqit1	%%mm0,		%%mm1\n"	// intermediate												step 2
+	"pfrcpit2	%%mm2,		%%mm1\n"	// 1/sqrt(dot) (full 24-bit precision)						step 3
+	"pfmul		%%mm1,		%%mm0\n"	// sqrt(dot)
+	// out = mm0[lo]
+	"movd		%%mm0,		(%%edx)\n"
+	"femms\n"
+	:
+	: "a"( v ), "d"( &out )
+	: "memory"
+	);
+	return out;
+#else
 	return (vec_t)sqrt (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+#endif
 }
 
 static ID_INLINE vec_t VectorLengthSquared( const vec3_t v ) {
+#if id386_3dnow && defined __GNUC__
+//#error VectorLengthSquared
+	vec_t out;
+	asm volatile
+	(									// lo								| hi
+	"femms\n"
+	"movq		(%%eax),	%%mm0\n"	// v[0]								| v[1]
+	"movq		(%%eax),	%%mm2\n"	// v[0]								| v[1]
+	"movd		8(%%eax),	%%mm1\n"	// v[2]								| -
+	"movd		8(%%eax),	%%mm3\n"	// v[2]								| -
+		
+	"pfmul		%%mm2,		%%mm0\n"	// v[0]*v[0]						| v[1]*v[1]
+	"pfmul		%%mm3,		%%mm1\n"	// v[2]*v[2]						| -
+	"pfacc		%%mm0,		%%mm0\n"	// v[0]*v[0]+v[1]*v[1]				| -
+	"pfadd		%%mm1,		%%mm0\n"	// v[0]*v[0]+v[1]*v[1]+v[2]*v[2]	| -
+	
+	"movd		%%mm0,		(%%edx)\n"	// out = mm2[lo]
+	"femms\n"
+	:
+	: "a"( v ), "d"(&out)
+	: "memory"
+	);
+	return out;
+#else
 	return (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+#endif
 }
 
 static ID_INLINE vec_t Distance( const vec3_t p1, const vec3_t p2 ) {

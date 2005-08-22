@@ -555,14 +555,14 @@ float Q_rsqrt( float number )
 #if id386_3dnow && defined __GNUC__
 //#error Q_rqsrt
 	asm volatile
-	(
+	(									// lo					| hi
 	"femms\n"
-	"movd		(%%eax),	%%mm0\n"	// 0					|	a
+	"movd		(%%eax),	%%mm0\n"	// in					|	-
 	
 	"pfrsqrt	%%mm0,		%%mm1\n"	// 1/sqrt(in)			| 1/sqrt(in)	(approx)
 	"movq		%%mm1,		%%mm2\n"	// 1/sqrt(in)			| 1/sqrt(in)	(approx)
-	"pfmul		%%mm1,		%%mm1\n"	// (1/sqrt(in))²		| (1/sqrt(in))²	step 1
-	"pfrsqit1	%%mm0,		%%mm1\n"	// intermediate					step 2
+	"pfmul		%%mm1,		%%mm1\n"	// (1/sqrt(in))²		| (1/sqrt(in))²		step 1
+	"pfrsqit1	%%mm0,		%%mm1\n"	// intermediate								step 2
 	"pfrcpit2	%%mm2,		%%mm1\n"	// 1/sqrt(in) (full 24-bit precision)		step 3
 	
 	"movd		%%mm1,		(%%edx)\n"
@@ -573,7 +573,7 @@ float Q_rsqrt( float number )
 	);
 #else
 	long i;
-	float x2, y;
+	float x2;
 	const float threehalfs = 1.5F;
 
 	x2 = number * 0.5F;
@@ -1118,31 +1118,31 @@ vec_t VectorNormalize( vec3_t v ) {
 //#error VectorNormalize
 	vec_t	length;
 	asm volatile
-	(									// lo											| hi
+	(									// lo									| hi
 	"femms\n"
-	"movq		(%%eax),	%%mm0\n"	// _v[0]										| _v[1]
-	"movd		8(%%eax),	%%mm1\n"	// _v[2]										| -
+	"movq		(%%eax),	%%mm0\n"	// v[0]									| v[1]
+	"movd		8(%%eax),	%%mm1\n"	// v[2]									| -
 	// mm0[lo] = dot product(this)
-	"pfmul		%%mm0,		%%mm0\n"	// _v[0]*_v[0]									| _v[1]*_v[1]
-	"pfmul		%%mm1,		%%mm1\n"	// _v[2]*_v[2]									| -
-	"pfacc		%%mm0,		%%mm0\n"	// _v[0]*v._v[0]+_v[1]*v._v[1]					| -
-	"pfadd		%%mm1,		%%mm0\n"	// _v[0]*v._v[0]+_v[1]*v._v[1]+_v[2]*v._v[2]	| -
+	"pfmul		%%mm0,		%%mm0\n"	// v[0]*v[0]							| v[1]*v[1]
+	"pfmul		%%mm1,		%%mm1\n"	// v[2]*v[2]							| -
+	"pfacc		%%mm0,		%%mm0\n"	// v[0]*v[0]+v[1]*v[1]					| -
+	"pfadd		%%mm1,		%%mm0\n"	// v[0]*v[0]+v[1]*v[1]+v[2]*v[2]		| -
 	// mm0[lo] = sqrt(mm0[lo])
-	"pfrsqrt	%%mm0,		%%mm1\n"	// 1/sqrt(dot)									| 1/sqrt(dot)		(approx)
-	"movq		%%mm1,		%%mm2\n"	// 1/sqrt(dot)									| 1/sqrt(dot)		(approx)
-	"pfmul		%%mm1,		%%mm1\n"	// (1/sqrt(dot))²								| (1/sqrt(dot))²	step 1
-	"punpckldq	%%mm0,		%%mm0\n"	// dot											| dot			(MMX instruction)
-	"pfrsqit1	%%mm0,		%%mm1\n"	// intermediate									| intermediate		step 2
-	"pfrcpit2	%%mm2,		%%mm1\n"	// 1/sqrt(dot) (full 24-bit precision)			| 1/sqrt(dot)		step 3
-	"pfmul		%%mm1,		%%mm0\n"	// sqrt(dot)									| sqrt(dot)
+	"pfrsqrt	%%mm0,		%%mm1\n"	// 1/sqrt(dot)							| 1/sqrt(dot)		(approx)
+	"movq		%%mm1,		%%mm2\n"	// 1/sqrt(dot)							| 1/sqrt(dot)		(approx)
+	"pfmul		%%mm1,		%%mm1\n"	// (1/sqrt(dot))²						| (1/sqrt(dot))²	step 1
+	"punpckldq	%%mm0,		%%mm0\n"	// dot									| dot			(MMX instruction)
+	"pfrsqit1	%%mm0,		%%mm1\n"	// intermediate							| intermediate		step 2
+	"pfrcpit2	%%mm2,		%%mm1\n"	// 1/sqrt(dot) (full 24-bit precision)	| 1/sqrt(dot)		step 3
+	"pfmul		%%mm1,		%%mm0\n"	// sqrt(dot)							| sqrt(dot)
 	// len = mm0[lo]
 	"movd		%%mm0,		(%%edx)\n"
 	// load this into registers
-	"movq		(%%eax),	%%mm2\n"	// _v[0]										| _v[1]
-	"movd		8(%%eax),	%%mm3\n"	// _v[2]										| -
+	"movq		(%%eax),	%%mm2\n"	// v[0]									| v[1]
+	"movd		8(%%eax),	%%mm3\n"	// v[2]									| -
 	// scale this by the reciprocal square root
-	"pfmul		%%mm1,		%%mm2\n"	// _v[0]*1/sqrt(dot)							| _v[1]*1/sqrt(dot)
-	"pfmul		%%mm1,		%%mm3\n"	// _v[2]*1/sqrt(dot)							| -
+	"pfmul		%%mm1,		%%mm2\n"	// v[0]*1/sqrt(dot)						| v[1]*1/sqrt(dot)
+	"pfmul		%%mm1,		%%mm3\n"	// v[2]*1/sqrt(dot)						| -
 	// store scaled vector
 	"movq		%%mm2,		(%%eax)\n"
 	"movd		%%mm3,		8(%%eax)\n"
@@ -1203,32 +1203,151 @@ void _VectorMA( const vec3_t veca, float scale, const vec3_t vecb, vec3_t vecc) 
 }
 
 
-vec_t _DotProduct( const vec3_t v1, const vec3_t v2 ) {
-	return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
+vec_t _DotProduct( const vec3_t a, const vec3_t b ) {
+#if id386_3dnow && defined __GNUC__
+//#error _DotProduct
+	vec_t out;
+	asm volatile
+	(									// lo								| hi
+	"femms\n"
+	"movq		(%%eax),	%%mm0\n"	// a[0]								| a[1]
+	"movq		(%%edx),	%%mm2\n"	// b[0]								| b[1]
+	"movd		8(%%eax),	%%mm1\n"	// a[2]								| -
+	"movd		8(%%edx),	%%mm3\n"	// b[2]								| -
+		
+	"pfmul		%%mm2,		%%mm0\n"	// a[0]*b[0]						| a[1]*b[1]
+	"pfmul		%%mm3,		%%mm1\n"	// a[2]*b[2]						| -
+	"pfacc		%%mm0,		%%mm0\n"	// a[0]*b[0]+a[1]*b[1]				| -
+	"pfadd		%%mm1,		%%mm0\n"	// a[0]*b[0]+a[1]*b[1]+a[2]*b[2]	| -
+	
+	"movd		%%mm0,		(%%ecx)\n"	// out = mm2[lo]
+	"femms\n"
+	:
+	: "a"( a ), "d"( b ), "c"( &out )
+	: "memory"
+	);
+	return out;
+#else
+	return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+#endif
 }
 
-void _VectorSubtract( const vec3_t veca, const vec3_t vecb, vec3_t out ) {
-	out[0] = veca[0]-vecb[0];
-	out[1] = veca[1]-vecb[1];
-	out[2] = veca[2]-vecb[2];
+void _VectorSubtract( const vec3_t a, const vec3_t b, vec3_t out ) {
+#if id386_3dnow && defined __GNUC__
+	asm volatile
+	(									// lo								| hi
+	"femms\n"
+	"movq		(%%eax),	%%mm0\n"	// a[0]								| a[1]
+	"movq		(%%edx),	%%mm2\n"	// b[0]								| b[1]
+	"movd		8(%%eax),	%%mm1\n"	// a[2]								| -
+	"movd		8(%%edx),	%%mm3\n"	// b[2]								| -
+		
+	"pfsub		%%mm2,		%%mm0\n"	// a[0]-b[0]						| a[1]-b[1]
+	"pfsub		%%mm3,		%%mm1\n"	// a[2]-b[2]						| -
+	
+	"movq		%%mm0,		(%%ecx)\n"
+	"movd		%%mm1,		8(%%ecx)\n"
+	"femms\n"
+	:
+	: "a"( a ), "d"( b ), "c"( out )
+	: "memory"
+	);
+#else
+	out[0] = a[0]-b[0];
+	out[1] = a[1]-b[1];
+	out[2] = a[2]-b[2];
+#endif
 }
 
-void _VectorAdd( const vec3_t veca, const vec3_t vecb, vec3_t out ) {
-	out[0] = veca[0]+vecb[0];
-	out[1] = veca[1]+vecb[1];
-	out[2] = veca[2]+vecb[2];
+void _VectorAdd( const vec3_t a, const vec3_t b, vec3_t out ) {
+#if id386_3dnow && defined __GNUC__
+	asm volatile
+	(									// lo								| hi
+	"femms\n"
+	"movq		(%%eax),	%%mm0\n"	// a[0]								| a[1]
+	"movq		(%%edx),	%%mm2\n"	// b[0]								| b[1]
+	"movd		8(%%eax),	%%mm1\n"	// a[2]								| -
+	"movd		8(%%edx),	%%mm3\n"	// b[2]								| -
+		
+	"pfadd		%%mm2,		%%mm0\n"	// a[0]+b[0]						| a[1]+b[1]
+	"pfadd		%%mm3,		%%mm1\n"	// a[2]+b[2]						| -
+	
+	"movq		%%mm0,		(%%ecx)\n"
+	"movd		%%mm1,		8(%%ecx)\n"
+	"femms\n"
+	:
+	: "a"( a ), "d"( b ), "c"( out )
+	: "memory"
+	);
+#else
+	out[0] = a[0]+b[0];
+	out[1] = a[1]+b[1];
+	out[2] = a[2]+b[2];
+#endif
 }
 
 void _VectorCopy( const vec3_t in, vec3_t out ) {
+#if id386_3dnow && defined __GNUC__
+	asm volatile
+	(									// lo								| hi
+	"femms\n"
+	"movq		(%%eax),	%%mm0\n"	// in[0]							| in[1]
+	"movd		8(%%eax),	%%mm1\n"	// in[2]							| -
+	
+	"movq		%%mm0,		(%%edx)\n"
+	"movd		%%mm1,		8(%%edx)\n"
+	"femms\n"
+	:
+	: "a"( in ), "d"( out )
+	: "memory"
+	);
+/*
+#elif id386_sse && defined __GNUC__
+//#error _VectorCopysse
+	asm volatile
+	(
+	"movups		(%%eax),	%%xmm0\n"
+	"movups		%%xmm0,		(%%edx)\n"
+	:
+	: "a"( in ), "d"( out )
+	: "memory"
+	);
+*/
+#else
 	out[0] = in[0];
 	out[1] = in[1];
 	out[2] = in[2];
+#endif
 }
 
 void _VectorScale( const vec3_t in, vec_t scale, vec3_t out ) {
+#if id386_3dnow && defined __GNUC__ && 0
+	vec_t out;
+	asm volatile
+	(									// lo									| hi
+	"femms\n"
+	"movq		(%%eax),	%%mm0\n"	// in[0]								| in[1]
+	"movd		8(%%eax),	%%mm1\n"	// in[2]								| -
+	"movd		(%%edx),	%%mm2\n"	// scale								| -
+	
+	"punpckhdq	%%mm2,		%%mm2\n"	// scale								| scale
+	
+	"pfmul		%%mm2,		%%mm0\n"	// in[0]*scale							| in[1]*scale
+	"pfmul		%%mm2,		%%mm1\n"	// in[2]*scale							| -
+	
+	"movq		%%mm0,		(%%ecx)\n"
+	"movd		%%mm1,		8(%%ecx)\n"
+	"femms\n"
+	:
+	: "a"( in ), "d"( &scale ), "c"( out )
+	: "memory"
+	);
+	return out;
+#else
 	out[0] = in[0]*scale;
 	out[1] = in[1]*scale;
 	out[2] = in[2]*scale;
+#endif
 }
 
 void Vector4Scale( const vec4_t in, vec_t scale, vec4_t out ) {
