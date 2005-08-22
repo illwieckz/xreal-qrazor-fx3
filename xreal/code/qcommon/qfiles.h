@@ -126,16 +126,16 @@ typedef struct _TargaHeader {
 #define	MD3_XYZ_SCALE		(1.0/64)
 
 typedef struct md3Frame_s {
-	vec3_t		bounds[2];
-	vec3_t		localOrigin;
+	float		bounds[2][3];
+	float		localOrigin[3];
 	float		radius;
 	char		name[16];
 } md3Frame_t;
 
 typedef struct md3Tag_s {
 	char		name[MAX_QPATH];	// tag name
-	vec3_t		origin;
-	vec3_t		axis[3];
+	float		origin[3];
+	float		axis[3][3];
 } md3Tag_t;
 
 /*
@@ -222,12 +222,12 @@ MD4 file format
 
 typedef struct {
 	int			boneIndex;		// these are indexes into the boneReferences,
-	float		   boneWeight;		// not the global per-frame bone list
-	vec3_t		offset;
+	float		boneWeight;		// not the global per-frame bone list
+	float		offset[3];
 } md4Weight_t;
 
 typedef struct {
-	vec3_t		normal;
+	float		normal[3];
 	vec2_t		texCoords;
 	int			numWeights;
 	md4Weight_t	weights[1];		// variable sized
@@ -268,8 +268,8 @@ typedef struct {
 } md4Bone_t;
 
 typedef struct {
-	vec3_t		bounds[2];			// bounds of all surfaces of all LOD's for this frame
-	vec3_t		localOrigin;		// midpoint of bounds, used for sphere cull
+	float		bounds[2][3];		// bounds of all surfaces of all LOD's for this frame
+	float		localOrigin[3];		// midpoint of bounds, used for sphere cull
 	float		radius;				// dist from localOrigin to corner
 	md4Bone_t	bones[1];			// [numBones]
 } md4Frame_t;
@@ -447,10 +447,10 @@ typedef struct {
 } dfog_t;
 
 typedef struct {
-	vec3_t		xyz;
+	float		xyz[3];
 	float		st[2];
 	float		lightmap[2];
-	vec3_t		normal;
+	float		normal[3];
 	byte		color[4];
 } drawVert_t;
 
@@ -477,8 +477,8 @@ typedef struct {
 	int			lightmapX, lightmapY;
 	int			lightmapWidth, lightmapHeight;
 
-	vec3_t		lightmapOrigin;
-	vec3_t		lightmapVecs[3];	// for patches, [0] and [1] are lodbounds
+	float		lightmapOrigin[3];
+	float		lightmapVecs[3][3];	// for patches, [0] and [1] are lodbounds
 
 	int			patchWidth;
 	int			patchHeight;
