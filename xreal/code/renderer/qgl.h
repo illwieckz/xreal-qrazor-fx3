@@ -76,19 +76,58 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 
-//===========================================================================
+#ifndef GL_ARB_multitexture
+#define GL_TEXTURE0_ARB                   0x84C0
+#define GL_TEXTURE1_ARB                   0x84C1
+#define GL_TEXTURE2_ARB                   0x84C2
+#define GL_TEXTURE3_ARB                   0x84C3
+#define GL_TEXTURE4_ARB                   0x84C4
+#define GL_TEXTURE5_ARB                   0x84C5
+#define GL_TEXTURE6_ARB                   0x84C6
+#define GL_TEXTURE7_ARB                   0x84C7
+#define GL_TEXTURE8_ARB                   0x84C8
+#define GL_TEXTURE9_ARB                   0x84C9
+#define GL_TEXTURE10_ARB                  0x84CA
+#define GL_TEXTURE11_ARB                  0x84CB
+#define GL_TEXTURE12_ARB                  0x84CC
+#define GL_TEXTURE13_ARB                  0x84CD
+#define GL_TEXTURE14_ARB                  0x84CE
+#define GL_TEXTURE15_ARB                  0x84CF
+#define GL_TEXTURE16_ARB                  0x84D0
+#define GL_TEXTURE17_ARB                  0x84D1
+#define GL_TEXTURE18_ARB                  0x84D2
+#define GL_TEXTURE19_ARB                  0x84D3
+#define GL_TEXTURE20_ARB                  0x84D4
+#define GL_TEXTURE21_ARB                  0x84D5
+#define GL_TEXTURE22_ARB                  0x84D6
+#define GL_TEXTURE23_ARB                  0x84D7
+#define GL_TEXTURE24_ARB                  0x84D8
+#define GL_TEXTURE25_ARB                  0x84D9
+#define GL_TEXTURE26_ARB                  0x84DA
+#define GL_TEXTURE27_ARB                  0x84DB
+#define GL_TEXTURE28_ARB                  0x84DC
+#define GL_TEXTURE29_ARB                  0x84DD
+#define GL_TEXTURE30_ARB                  0x84DE
+#define GL_TEXTURE31_ARB                  0x84DF
+#define GL_ACTIVE_TEXTURE_ARB             0x84E0
+#define GL_CLIENT_ACTIVE_TEXTURE_ARB      0x84E1
+#define GL_MAX_TEXTURE_UNITS_ARB          0x84E2
+#endif
 
-/*
-** multitexture extension definitions
-*/
-#define GL_ACTIVE_TEXTURE_ARB               0x84E0
-#define GL_CLIENT_ACTIVE_TEXTURE_ARB        0x84E1
-#define GL_MAX_ACTIVE_TEXTURES_ARB          0x84E2
+#ifndef GL_ARB_transpose_matrix
+#define GL_TRANSPOSE_MODELVIEW_MATRIX_ARB 0x84E3
+#define GL_TRANSPOSE_PROJECTION_MATRIX_ARB 0x84E4
+#define GL_TRANSPOSE_TEXTURE_MATRIX_ARB   0x84E5
+#define GL_TRANSPOSE_COLOR_MATRIX_ARB     0x84E6
+#endif
 
-#define GL_TEXTURE0_ARB                     0x84C0
-#define GL_TEXTURE1_ARB                     0x84C1
-#define GL_TEXTURE2_ARB                     0x84C2
-#define GL_TEXTURE3_ARB                     0x84C3
+#ifndef GL_S3_s3tc
+#define GL_RGB_S3TC                       0x83A0
+#define GL_RGB4_S3TC                      0x83A1
+#define GL_RGBA_S3TC                      0x83A2
+#define GL_RGBA4_S3TC                     0x83A3
+#endif
+
 
 // NOTE: some Linux platforms would need those prototypes
 #if defined(MACOS_X)
@@ -135,24 +174,96 @@ typedef void (APIENTRY * PFNGLACTIVETEXTUREARBPROC) (GLenum target);
 typedef void (APIENTRY * PFNGLCLIENTACTIVETEXTUREARBPROC) (GLenum target);
 #endif
 
-/*
-** extension constants
-*/
-
-
-// S3TC compression constants
-#define GL_RGB_S3TC							0x83A0
-#define GL_RGB4_S3TC						0x83A1
-
-
 // extensions will be function pointers on all platforms
 
+// GL_ARB_multitexture
 extern	void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t );
 extern	void ( APIENTRY * qglActiveTextureARB )( GLenum texture );
 extern	void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture );
 
-extern	void ( APIENTRY * qglLockArraysEXT) (GLint, GLint);
-extern	void ( APIENTRY * qglUnlockArraysEXT) (void);
+// GL_ARB_transpose_matrix
+extern	void ( APIENTRY * qglLoadTransposeMatrixfARB )( const GLfloat *m );
+
+// GL_ARB_vertex_program
+extern void ( APIENTRY * qglVertexAttribPointerARB )( GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer );
+extern void ( APIENTRY * qglEnableVertexAttribArrayARB )( GLuint index );
+extern void ( APIENTRY * qglDisableVertexAttribArrayARB )( GLuint index );
+
+// GL_ARB_vertex_buffer_object
+//typedef ptrdiff_t GLintptrARB;
+//typedef ptrdiff_t GLsizeiptrARB;
+
+extern void ( APIENTRY * qglBindBufferARB )( GLenum target, GLuint buffer );
+extern void ( APIENTRY * qglDeleteBuffersARB )( GLsizei n, const GLuint *buffers );
+extern void ( APIENTRY * qglGenBuffersARB )( GLsizei n, GLuint *buffers );
+extern GLboolean ( APIENTRY * qglIsBufferARB )( GLuint buffer );
+extern void ( APIENTRY * qglBufferDataARB )( GLenum target, GLsizeiptrARB size, const GLvoid *data, GLenum usage );
+extern void ( APIENTRY * qglBufferSubDataARB )( GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid *data );
+extern void ( APIENTRY * qglGetBufferSubDataARB )( GLenum target, GLintptrARB offset, GLsizeiptrARB size, GLvoid *data );
+extern GLvoid* ( APIENTRY * qglMapBufferARB )( GLenum target, GLenum access );
+extern GLboolean ( APIENTRY * qglUnmapBufferARB )( GLenum target );
+extern void ( APIENTRY * qglGetBufferParameterivARB )( GLenum target, GLenum pname, GLint *params );
+extern void ( APIENTRY * qglGetBufferPointervARB )( GLenum target, GLenum pname, GLvoid* *params );
+
+// GL_ARB_occlusion_query
+extern void ( APIENTRY * qglGenQueriesARB )(GLsizei, GLuint * ); 
+extern void ( APIENTRY * qglDeleteQueriesARB )( GLsizei, const GLuint * ); 
+extern GLboolean ( APIENTRY * qglIsQueryARB )( GLuint ); 
+extern void ( APIENTRY * qglBeginQueryARB )( GLenum, GLuint ); 
+extern void ( APIENTRY * qglEndQueryARB )( GLenum ); 
+extern void ( APIENTRY * qglGetQueryivARB )( GLenum, GLenum, GLint * ); 
+extern void ( APIENTRY * qglGetQueryObjectivARB ) ( GLuint, GLenum, GLint * ); 
+extern void ( APIENTRY * qglGetQueryObjectuivARB ) ( GLuint, GLenum, GLuint * ); 
+
+// GL_ARB_shader_objects
+//typedef char GLcharARB;			/* native character */
+//typedef unsigned int GLhandleARB;	/* shader object handle */
+
+extern void ( APIENTRY * qglDeleteObjectARB )( GLhandleARB obj );
+extern GLhandleARB ( APIENTRY * qglGetHandleARB )( GLenum pname );
+extern void ( APIENTRY * qglDetachObjectARB )( GLhandleARB containerObj, GLhandleARB attachedObj );
+extern GLhandleARB ( APIENTRY * qglCreateShaderObjectARB )( GLenum shaderType );
+extern void ( APIENTRY * qglShaderSourceARB )( GLhandleARB shaderObj, GLsizei count, const GLcharARB* *string, const GLint *length ); extern void ( APIENTRY * qglCompileShaderARB )( GLhandleARB shaderObj );
+extern GLhandleARB ( APIENTRY * qglCreateProgramObjectARB )( const char *filename, int line ); 
+extern void ( APIENTRY * qglAttachObjectARB )( GLhandleARB containerObj, GLhandleARB obj );
+extern void ( APIENTRY * qglLinkProgramARB )( GLhandleARB programObj );
+extern void ( APIENTRY * qglUseProgramObjectARB )( GLhandleARB programObj );
+extern void ( APIENTRY * qglValidateProgramARB )( GLhandleARB programObj );
+extern void ( APIENTRY * qglUniform1fARB )( GLint location, GLfloat v0 );
+extern void ( APIENTRY * qglUniform2fARB )( GLint location, GLfloat v0, GLfloat v1 );
+extern void ( APIENTRY * qglUniform3fARB )( GLint location, GLfloat v0, GLfloat v1, GLfloat v2 );
+extern void ( APIENTRY * qglUniform4fARB )( GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3 );
+extern void ( APIENTRY * qglUniform1iARB )( GLint location, GLint v0 );
+extern void ( APIENTRY * qglUniform2iARB )( GLint location, GLint v0, GLint v1 );
+extern void ( APIENTRY * qglUniform3iARB )( GLint location, GLint v0, GLint v1, GLint v2 );
+extern void ( APIENTRY * qglUniform4iARB )( GLint location, GLint v0, GLint v1, GLint v2, GLint v3 );
+extern void ( APIENTRY * qglUniform2fvARB )( GLint location, GLsizei count, const GLfloat *value );
+extern void ( APIENTRY * qglUniform3fvARB )( GLint location, GLsizei count, const GLfloat *value );
+extern void ( APIENTRY * qglUniform4fvARB )( GLint location, GLsizei count, const GLfloat *value );
+extern void ( APIENTRY * qglUniform2ivARB )( GLint location, GLsizei count, const GLint *value );
+extern void ( APIENTRY * qglUniform3ivARB )( GLint location, GLsizei count, const GLint *value );
+extern void ( APIENTRY * qglUniform4ivARB )( GLint location, GLsizei count, const GLint *value );
+extern void ( APIENTRY * qglUniformMatrix2fvARB )( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value );
+extern void ( APIENTRY * qglUniformMatrix3fvARB )( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value );
+extern void ( APIENTRY * qglUniformMatrix4fvARB )( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value );
+extern void ( APIENTRY * qglGetObjectParameterfvARB )( GLhandleARB obj, GLenum pname, GLfloat *params );
+extern void ( APIENTRY * qglGetObjectParameterivARB )( GLhandleARB obj, GLenum pname, GLint *params );
+extern void ( APIENTRY * qglGetInfoLogARB )( GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *infoLog );
+extern void ( APIENTRY * qglGetAttachedObjectsARB )( GLhandleARB containerObj, GLsizei maxCount, GLsizei *count, GLhandleARB *obj );
+extern GLint ( APIENTRY * qglGetUniformLocationARB )( GLhandleARB programObj, const GLcharARB *name );
+extern void ( APIENTRY * qglGetActiveUniformARB )( GLhandleARB programObj, GLuint index, GLsizei maxIndex, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name );
+extern void ( APIENTRY * qglGetUniformfvARB )( GLhandleARB programObj, GLint location, GLfloat *params );
+extern void ( APIENTRY * qglGetUniformivARB )( GLhandleARB programObj, GLint location, GLint *params );
+extern void ( APIENTRY * qglGetShaderSourceARB )( GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *source );
+
+// GL_ARB_vertex_shader
+extern void ( APIENTRY * qglBindAttribLocationARB )( GLhandleARB programObj, GLuint index, const GLcharARB *name );
+extern void ( APIENTRY * qglGetActiveAttribARB )( GLhandleARB programObj, GLuint index, GLsizei maxLength, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name );
+extern GLint ( APIENTRY * qglGetAttribLocationARB )( GLhandleARB programObj, const GLcharARB *name );
+
+// GL_EXT_compiled_vertex_array
+extern	void ( APIENTRY * qglLockArraysEXT )( GLint, GLint ); 
+extern	void ( APIENTRY * qglUnlockArraysEXT )( void ); 
 
 //===========================================================================
 

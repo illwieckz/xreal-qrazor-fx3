@@ -1237,15 +1237,15 @@ static void GLW_InitExtensions( void )
   {
     if ( r_ext_multitexture->value )
     {
-      qglMultiTexCoord2fARB = ( PFNGLMULTITEXCOORD2FARBPROC ) dlsym( glw_state.OpenGLLib, "glMultiTexCoord2fARB" );
-      qglActiveTextureARB = ( PFNGLACTIVETEXTUREARBPROC ) dlsym( glw_state.OpenGLLib, "glActiveTextureARB" );
-      qglClientActiveTextureARB = ( PFNGLCLIENTACTIVETEXTUREARBPROC ) dlsym( glw_state.OpenGLLib, "glClientActiveTextureARB" );
+      qglMultiTexCoord2fARB = ( PFNGLMULTITEXCOORD2FARBPROC ) qwglGetProcAddress( "glMultiTexCoord2fARB" );
+      qglActiveTextureARB = ( PFNGLACTIVETEXTUREARBPROC ) qwglGetProcAddress( "glActiveTextureARB" );
+      qglClientActiveTextureARB = ( PFNGLCLIENTACTIVETEXTUREARBPROC ) qwglGetProcAddress( "glClientActiveTextureARB" );
 
       if ( qglActiveTextureARB )
       {
-        qglGetIntegerv( GL_MAX_ACTIVE_TEXTURES_ARB, &glConfig.maxActiveTextures );
+        qglGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, &glConfig.maxTextureUnits );
 
-        if ( glConfig.maxActiveTextures > 1 )
+        if ( glConfig.maxTextureUnits > 1 )
         {
           ri.Printf( PRINT_ALL, "...using GL_ARB_multitexture\n" );
         } else
@@ -1271,8 +1271,8 @@ static void GLW_InitExtensions( void )
     if ( r_ext_compiled_vertex_array->value )
     {
       ri.Printf( PRINT_ALL, "...using GL_EXT_compiled_vertex_array\n" );
-      qglLockArraysEXT = ( void ( APIENTRY * )( int, int ) ) dlsym( glw_state.OpenGLLib, "glLockArraysEXT" );
-      qglUnlockArraysEXT = ( void ( APIENTRY * )( void ) ) dlsym( glw_state.OpenGLLib, "glUnlockArraysEXT" );
+      qglLockArraysEXT = ( void ( APIENTRY * )( int, int ) ) qwglGetProcAddress( "glLockArraysEXT" );
+      qglUnlockArraysEXT = ( void ( APIENTRY * )( void ) ) qwglGetProcAddress( "glUnlockArraysEXT" );
       if (!qglLockArraysEXT || !qglUnlockArraysEXT)
       {
         ri.Error (ERR_FATAL, "bad getprocaddress");

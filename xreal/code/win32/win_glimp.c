@@ -1034,9 +1034,9 @@ static void GLW_InitExtensions( void )
 
 			if ( qglActiveTextureARB )
 			{
-				qglGetIntegerv( GL_MAX_ACTIVE_TEXTURES_ARB, &glConfig.maxActiveTextures );
+				qglGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, &glConfig.maxTextureUnits );
 
-				if ( glConfig.maxActiveTextures > 1 )
+				if ( glConfig.maxTextureUnits > 1 )
 				{
 					ri.Printf( PRINT_ALL, "...using GL_ARB_multitexture\n" );
 				}
