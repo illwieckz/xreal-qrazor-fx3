@@ -1183,8 +1183,11 @@ int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen )
 /*
 ** GLW_InitExtensions
 */
+// Tr3B - use this function like those other GLW_InitExtensions implementations
+void *qwglGetProcAddress(char *symbol);
+
 static void GLW_InitExtensions( void )
-{
+{	
   if ( !r_allowExtensions->integer )
   {
     ri.Printf( PRINT_ALL, "*** IGNORING OPENGL EXTENSIONS ***\n" );
