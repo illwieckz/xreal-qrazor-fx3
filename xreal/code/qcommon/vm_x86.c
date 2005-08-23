@@ -51,6 +51,7 @@ static	int		pc = 0;
 
 static	int		*instructionPointers = NULL;
 
+// Tr3B - FTOL_PTR outcommented
 //#define FTOL_PTR
 
 #ifdef _WIN32
@@ -73,20 +74,7 @@ int qftol( void );     // bk001213 - label, see unix/ftol.nasm
 int qftol027F( void ); // bk001215 - fixed FPU control variants
 int qftol037F( void );
 int qftol0E7F( void ); // bk010102 - fixed bogus bits (duh)
-int qftol0F7F( void )  // Tr3B - FIXME rewrite to GAS
-{
-	/*
-	__asm__("qftol0F7F:\
-			fnstcw [fpucw]\
-			fldcw  [cw0F7F]  
-			fistp dword [temp]
-			fldcw  [fpucw]
-			mov eax, [temp]
-			ret
-	)
-	*/
-}
-
+int qftol0F7F( void );
 
 static	int		ftolPtr = (int)qftol0F7F;
 #endif // FTOL_PTR

@@ -165,6 +165,11 @@ vm_src = [
 'code/qcommon/vm_x86.c'
 ]
 
+asm_src = [
+'code/unix/ftol.nasm',
+#'code/unix/snapvector.asm'
+]
+
 quake3_env.Append(CCFLAGS='-DBOTLIB')
 quake3_env.Append(CCFLAGS='-DC_ONLY')
 #quake3_env.Append(CCFLAGS='-DDLL_ONLY')
@@ -173,7 +178,6 @@ if sys.platform == 'linux2':
 	#quake3_env.Append(CCFLAGS='-Di386')
 	#quake3_env.Append(CCFLAGS='-DELF -x assembler-with-cpp')
 	#quake3_env.Append(CCFLAGS='-masm=intel')
-	#quake3_src += ['code$(B)/client/ftol.o $(B)/client/snapvector.o TODO add ?
 	quake3_env.Append(LIBPATH='/usr/X11R6/lib')
 	quake3_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm', 'jpeg'])
 	quake3_env.Append(LIBS=['dl', 'z', 'm'])
