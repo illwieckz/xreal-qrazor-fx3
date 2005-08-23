@@ -29,7 +29,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //==================================================================
 
 // the "gameversion" client command will print this plus compile date
+#if defined XREAL
 #define	GAMEVERSION	"XreaL"
+#else
+#define	GAMEVERSION	"baseq3"
+#endif
 
 #define BODY_QUEUE_SIZE		8
 

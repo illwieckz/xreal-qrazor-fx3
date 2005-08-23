@@ -44,4 +44,4 @@ scripts = [
 'scripts/tim.shader'
 ]
 
-env.Install('#bin/base/scripts', scripts)
+env.Install('#bin/xreal/scripts', scripts)

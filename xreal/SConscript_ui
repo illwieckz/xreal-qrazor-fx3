@@ -80,17 +80,15 @@ ui_assets = [
 
 ui_env = env.Copy()
 ui_env.Append(CCFLAGS='-DMISSIONPACK')
-
-if env['xreal']:
-	ui_env.Append(CCFLAGS='-DXREAL')
+ui_env.Append(CCFLAGS='-DXREAL')
 
 if sys.platform == 'linux2':
 	#ui_env.Append(CXXFLAGS='`xml2-config --cflags`')
 	#ui_env.Append(LINKFLAGS='`xml2-config --libs`')
 	ui_env.SharedLibrary('ui', [ui_src, dll_src])
-	ui_env.InstallAs('#bin/base/uii386.so', 'libui.so')
-	ui_env.Install('#bin/base/ui', ui_assets)
+	ui_env.InstallAs('#bin/xreal/uii386.so', 'libui.so')
+	ui_env.Install('#bin/xreal/ui', ui_assets)
 
 elif sys.platform == 'win32':
-	ui_env.InstallAs('#bin/base/uix86.dll', 'ui.dll')
+	ui_env.InstallAs('#bin/xreal/uix86.dll', 'ui.dll')
 
