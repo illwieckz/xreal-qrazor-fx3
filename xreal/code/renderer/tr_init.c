@@ -80,6 +80,7 @@ cvar_t	*r_ext_gamma_control;
 cvar_t	*r_ext_multitexture;
 cvar_t	*r_ext_compiled_vertex_array;
 cvar_t	*r_ext_texture_env_add;
+cvar_t	*r_ext_transpose_matrix;
 
 cvar_t	*r_ignoreGLErrors;
 cvar_t	*r_logFile;
@@ -148,10 +149,15 @@ int		max_polys;
 cvar_t	*r_maxpolyverts;
 int		max_polyverts;
 
+// GL_ARB_multitexture
 void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t );
 void ( APIENTRY * qglActiveTextureARB )( GLenum texture );
 void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture );
 
+// GL_ARB_transpose_matrix
+void ( APIENTRY * qglLoadTransposeMatrixfARB )( const GLfloat *m );
+
+// GL_EXT_compiled_vertex_array
 void ( APIENTRY * qglLockArraysEXT)( GLint, GLint);
 void ( APIENTRY * qglUnlockArraysEXT) ( void );
 
@@ -868,6 +874,7 @@ void R_Register( void )
 #else
 	r_ext_texture_env_add = ri.Cvar_Get( "r_ext_texture_env_add", "1", CVAR_ARCHIVE | CVAR_LATCH);
 #endif
+	r_ext_transpose_matrix = ri.Cvar_Get( "r_ext_transpose_matrix", "1", CVAR_ARCHIVE | CVAR_LATCH );
 
 	r_picmip = ri.Cvar_Get ("r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_roundImagesDown = ri.Cvar_Get ("r_roundImagesDown", "1", CVAR_ARCHIVE | CVAR_LATCH );
