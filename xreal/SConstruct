@@ -35,7 +35,7 @@ print 'compiling for platform ', sys.platform
 env.Append(CCFLAGS = '-pipe -fsigned-char')
 
 if env['warnings'] == 1:
-	env.Append(CCFLAGS = '-Wall')
+	env.Append(CCFLAGS = '-Wall -Werror')
 
 if env['debug'] != '0':
 	env.Append(CCFLAGS = '-ggdb${debug} -DDEBUG=${debug}')

@@ -45,8 +45,6 @@ quake3_src = [
 'code/game/q_math.c',
 'code/game/q_shared.c',
 'code/qcommon/unzip.c',
-'code/qcommon/vm.c',
-'code/qcommon/vm_interpreted.c',
 'code/botlib/be_aas_bspq3.c',
 'code/botlib/be_aas_cluster.c',
 'code/botlib/be_aas_debug.c',
@@ -162,7 +160,9 @@ linux_src = [
 'code/unix/linux_snd.c']
 
 vm_src = [
-'code/unix/vm_x86.c'
+'code/qcommon/vm.c',
+'code/qcommon/vm_interpreted.c',
+'code/qcommon/vm_x86.c'
 ]
 
 quake3_env.Append(CCFLAGS='-DBOTLIB')
