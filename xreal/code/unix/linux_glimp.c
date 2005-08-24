@@ -1267,38 +1267,38 @@ static void GLW_InitExtensions( void )
   {
     ri.Printf( PRINT_ALL, "...GL_ARB_multitexture not found\n" );
   }
+
+	// GL_ARB_transpose_matrix
+	qglLoadTransposeMatrixfARB = NULL;
+	if ( Q_stristr( glConfig.extensions_string, "GL_ARB_transpose_matrix" ) ) {
+		if ( r_ext_transpose_matrix->value ) {
+			qglLoadTransposeMatrixfARB = ( PFNGLLOADTRANSPOSEMATRIXFARBPROC ) qwglGetProcAddress( "glLoadTransposeMatrixfARB" );
+			ri.Printf( PRINT_ALL, "...using GL_ARB_transpose_matrix\n" );
+		} else {
+			ri.Printf( PRINT_ALL, "...ignoring GL_ARB_transpose_matrix\n" );
+		}
+	} else {
+		ri.Printf( PRINT_ALL, "...GL_ARB_transpose_matrix not found\n" );
+	}
   
-  // GL_ARB_transpose_matrix
-  qglLoadTransposeMatrixfARB = NULL;
-  if ( Q_stristr( glConfig.extensions_string, "GL_ARB_transpose_matrix" ) ) {
-	  if ( r_ext_transpose_matrix->value ) {
-		  qglLoadTransposeMatrixfARB = ( PFNGLLOADTRANSPOSEMATRIXFARBPROC ) qwglGetProcAddress( "glLoadTransposeMatrixfARB" );
-		  ri.Printf( PRINT_ALL, "...using GL_ARB_transpose_matrix\n" );
-	  } else {
-		  ri.Printf( PRINT_ALL, "...ignoring GL_ARB_transpose_matrix\n" );
-	  }
-  } else {
-	  ri.Printf( PRINT_ALL, "...GL_ARB_transpose_matrix not found\n" );
-  }
-  
-  // GL_ARB_vertex_program
-  glConfig.vertexProgramAvailable = qfalse;
-  qglVertexAttribPointerARB = NULL;
-  qglEnableVertexAttribArrayARB = NULL;
-  qglDisableVertexAttribArrayARB = NULL;
-  if ( Q_stristr( glConfig.extensions_string, "GL_ARB_vertex_program" ) ) {
-	  if ( r_ext_vertex_program->value ) {
-		  qglVertexAttribPointerARB = ( PFNGLVERTEXATTRIBPOINTERARBPROC ) qwglGetProcAddress( "glVertexAttribPointerARB" );
-		  qglEnableVertexAttribArrayARB = ( PFNGLENABLEVERTEXATTRIBARRAYARBPROC ) qwglGetProcAddress( "glEnableVertexAttribArrayARB" );
-		  qglDisableVertexAttribArrayARB = ( PFNGLDISABLEVERTEXATTRIBARRAYARBPROC ) qwglGetProcAddress( "glDisableVertexAttribArrayARB" );
-		  glConfig.vertexProgramAvailable = qtrue;
-		  ri.Printf( PRINT_ALL, "...using GL_ARB_vertex_program\n" );
-	  } else {
-		  ri.Printf( PRINT_ALL, "...ignoring GL_ARB_vertex_program\n" );
-	  }
-  } else {
-	  ri.Printf( PRINT_ALL, "...GL_ARB_vertex_program not found\n" );
-  }
+	// GL_ARB_vertex_program
+	glConfig.vertexProgramAvailable = qfalse;
+	qglVertexAttribPointerARB = NULL;
+	qglEnableVertexAttribArrayARB = NULL;
+	qglDisableVertexAttribArrayARB = NULL;
+	if ( Q_stristr( glConfig.extensions_string, "GL_ARB_vertex_program" ) ) {
+		if ( r_ext_vertex_program->value ) {
+			qglVertexAttribPointerARB = ( PFNGLVERTEXATTRIBPOINTERARBPROC ) qwglGetProcAddress( "glVertexAttribPointerARB" );
+			qglEnableVertexAttribArrayARB = ( PFNGLENABLEVERTEXATTRIBARRAYARBPROC ) qwglGetProcAddress( "glEnableVertexAttribArrayARB" );
+			qglDisableVertexAttribArrayARB = ( PFNGLDISABLEVERTEXATTRIBARRAYARBPROC ) qwglGetProcAddress( "glDisableVertexAttribArrayARB" );
+			glConfig.vertexProgramAvailable = qtrue;
+			ri.Printf( PRINT_ALL, "...using GL_ARB_vertex_program\n" );
+			} else {
+				ri.Printf( PRINT_ALL, "...ignoring GL_ARB_vertex_program\n" );
+		}
+	} else {
+		ri.Printf( PRINT_ALL, "...GL_ARB_vertex_program not found\n" );
+	}
 
   // GL_EXT_compiled_vertex_array
   if ( Q_stristr( glConfig.extensions_string, "GL_EXT_compiled_vertex_array" ) )
