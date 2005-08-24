@@ -151,9 +151,9 @@ void RB_SurfaceAnim( md4Surface_t *surface ) {
 		tess.xyz[baseVertex + j][1] = tempVert[1];
 		tess.xyz[baseVertex + j][2] = tempVert[2];
 
-		tess.normal[baseVertex + j][0] = tempNormal[0];
-		tess.normal[baseVertex + j][1] = tempNormal[1];
-		tess.normal[baseVertex + j][2] = tempNormal[2];
+		tess.normals[baseVertex + j][0] = tempNormal[0];
+		tess.normals[baseVertex + j][1] = tempNormal[1];
+		tess.normals[baseVertex + j][2] = tempNormal[2];
 
 		tess.texCoords[baseVertex + j][0][0] = v->texCoords[0];
 		tess.texCoords[baseVertex + j][0][1] = v->texCoords[1];

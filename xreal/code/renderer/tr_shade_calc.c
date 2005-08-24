@@ -121,7 +121,7 @@ void RB_CalcDeformVertexes( deformStage_t *ds )
 	vec3_t	offset;
 	float	scale;
 	float	*xyz = ( float * ) tess.xyz;
-	float	*normal = ( float * ) tess.normal;
+	float	*normal = ( float * ) tess.normals;
 	float	*table;
 
 	if ( ds->deformationWave.frequency == 0 )
@@ -170,7 +170,7 @@ void RB_CalcDeformNormals( deformStage_t *ds ) {
 	int i;
 	float	scale;
 	float	*xyz = ( float * ) tess.xyz;
-	float	*normal = ( float * ) tess.normal;
+	float	*normal = ( float * ) tess.normals;
 
 	for ( i = 0; i < tess.numVertexes; i++, xyz += 4, normal += 4 ) {
 		scale = 0.98f;
@@ -202,7 +202,7 @@ void RB_CalcBulgeVertexes( deformStage_t *ds ) {
 	int i;
 	const float *st = ( const float * ) tess.texCoords[0];
 	float		*xyz = ( float * ) tess.xyz;
-	float		*normal = ( float * ) tess.normal;
+	float		*normal = ( float * ) tess.normals;
 	float		now;
 
 	now = backEnd.refdef.time * ds->bulgeSpeed * 0.001f;
@@ -271,7 +271,7 @@ void DeformText( const char *text ) {
 	height[0] = 0;
 	height[1] = 0;
 	height[2] = -1;
-	CrossProduct( tess.normal[0], height, width );
+	CrossProduct( tess.normals[0], height, width );
 
 	// find the midpoint of the box
 	VectorClear( mid );
@@ -893,7 +893,7 @@ void RB_CalcEnvironmentTexCoords( float *st )
 	float		d;
 
 	v = tess.xyz[0];
-	normal = tess.normal[0];
+	normal = tess.normals[0];
 
 	for (i = 0 ; i < tess.numVertexes ; i++, v += 4, normal += 4, st += 2 ) 
 	{
@@ -1047,7 +1047,7 @@ void RB_CalcSpecularAlpha( unsigned char *alphas ) {
 	int			numVertexes;
 
 	v = tess.xyz[0];
-	normal = tess.normal[0];
+	normal = tess.normals[0];
 
 	alphas += 3;
 
@@ -1149,7 +1149,7 @@ void RB_CalcDiffuseColor( unsigned char *colors )
 #endif
 
 	v = tess.xyz[0];
-	normal = tess.normal[0];
+	normal = tess.normals[0];
 
 #if idppc_altivec
 	normalPerm = vec_lvsl(0,normal);

@@ -293,17 +293,17 @@ static void DrawTangentSpaces (shaderCommands_t *input) {
 	for (i = 0 ; i < input->numVertexes ; i++) {
 		qglColor3f (1,0,0);
 		qglVertex3fv (input->xyz[i]);
-		VectorMA (input->xyz[i], 2, input->tangent[i], temp);
+		VectorMA (input->xyz[i], 2, input->tangents[i], temp);
 		qglVertex3fv (temp);
 		
 		qglColor3f (0,1,0);
 		qglVertex3fv (input->xyz[i]);
-		VectorMA (input->xyz[i], 2, input->binormal[i], temp);
+		VectorMA (input->xyz[i], 2, input->binormals[i], temp);
 		qglVertex3fv (temp);
 		
 		qglColor3f (0,0,1);
 		qglVertex3fv (input->xyz[i]);
-		VectorMA (input->xyz[i], 2, input->normal[i], temp);
+		VectorMA (input->xyz[i], 2, input->normals[i], temp);
 		qglVertex3fv (temp);
 	}
 	qglEnd ();
@@ -330,7 +330,7 @@ static void DrawNormals (shaderCommands_t *input) {
 	qglBegin (GL_LINES);
 	for (i = 0 ; i < input->numVertexes ; i++) {
 		qglVertex3fv (input->xyz[i]);
-		VectorMA (input->xyz[i], 2, input->normal[i], temp);
+		VectorMA (input->xyz[i], 2, input->normals[i], temp);
 		qglVertex3fv (temp);
 	}
 	qglEnd ();

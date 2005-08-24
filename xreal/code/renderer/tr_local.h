@@ -387,7 +387,9 @@ typedef struct shader_s {
 
 	fogPass_t	fogPass;				// draw a blended pass, possibly with depth test equals
 
-	qboolean	needsNormal;			// not all shaders will need all data to be gathered
+	qboolean	needsTangent;			// not all shaders will need all data to be gathered
+	qboolean	needsBinormal;
+	qboolean	needsNormal;
 	qboolean	needsST1;
 	qboolean	needsST2;
 	qboolean	needsColor;
@@ -566,6 +568,16 @@ typedef struct srfFlare_s {
 	vec3_t			color;
 } srfFlare_t;
 
+typedef struct {
+	vec3_t		xyz;
+	vec2_t		st;
+	vec2_t		lightmap;
+	vec3_t		tangent;
+	vec3_t		binormal;
+	vec3_t		normal;
+	byte		color[4];
+} srfVert_t;
+
 typedef struct srfGridMesh_s {
 	surfaceType_t	surfaceType;
 
@@ -589,12 +601,12 @@ typedef struct srfGridMesh_s {
 	int				width, height;
 	float			*widthLodError;
 	float			*heightLodError;
-	drawVert_t		verts[1];		// variable sized
+	srfVert_t		verts[1];		// variable sized
 } srfGridMesh_t;
 
 
 
-#define	VERTEXSIZE	8
+#define	VERTEXSIZE	17	//3+2+2+1+3+3+3
 typedef struct {
 	surfaceType_t	surfaceType;
 	cplane_t	plane;
@@ -602,12 +614,12 @@ typedef struct {
 	// dynamic lighting information
 	int			dlightBits[SMP_FRAMES];
 
-	// triangle definitions (no normals at points)
+	// triangle definitions
 	int			numPoints;
 	int			numIndices;
 	int			ofsIndices;
-	float		points[1][VERTEXSIZE];	// variable sized
-										// there is a variable length list of indices here also
+	float		points[1][VERTEXSIZE];		// variable sized
+											// there is a variable length list of indices here also
 } srfSurfaceFace_t;
 
 
@@ -628,7 +640,7 @@ typedef struct {
 	int				*indexes;
 
 	int				numVerts;
-	drawVert_t		*verts;
+	srfVert_t		*verts;
 } srfTriangles_t;
 
 
@@ -1128,6 +1140,11 @@ int R_CullLocalPointAndRadius( vec3_t origin, float radius );
 
 void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms, orientationr_t *or );
 
+void R_CalcTangentSpace( vec3_t tangent, vec3_t binormal, vec3_t normal,
+						const vec3_t v0, const vec3_t v1, const vec3_t v2,
+						const vec2_t t0, const vec2_t t1, const vec2_t t2,
+						const vec3_t n	);
+
 /*
 ** GL wrapper/helper functions
 */
@@ -1276,9 +1293,9 @@ typedef struct shaderCommands_s
 {
 	glIndex_t	indexes[SHADER_MAX_INDEXES];
 	vec4_t		xyz[SHADER_MAX_VERTEXES];
-	vec4_t		tangent[SHADER_MAX_VERTEXES];
-	vec4_t		binormal[SHADER_MAX_VERTEXES];
-	vec4_t		normal[SHADER_MAX_VERTEXES];
+	vec4_t		tangents[SHADER_MAX_VERTEXES];
+	vec4_t		binormals[SHADER_MAX_VERTEXES];
+	vec4_t		normals[SHADER_MAX_VERTEXES];
 	vec2_t		texCoords[SHADER_MAX_VERTEXES][2];
 	color4ub_t	vertexColors[SHADER_MAX_VERTEXES];
 	int			vertexDlightBits[SHADER_MAX_VERTEXES];
@@ -1398,7 +1415,7 @@ CURVE TESSELATION
 #define PATCH_STITCHING
 
 srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
-								drawVert_t points[MAX_PATCH_SIZE*MAX_PATCH_SIZE] );
+								srfVert_t points[MAX_PATCH_SIZE*MAX_PATCH_SIZE] );
 srfGridMesh_t *R_GridInsertColumn( srfGridMesh_t *grid, int column, int row, vec3_t point, float loderror );
 srfGridMesh_t *R_GridInsertRow( srfGridMesh_t *grid, int row, int column, vec3_t point, float loderror );
 void R_FreeSurfaceGridMesh( srfGridMesh_t *grid );
