@@ -1277,6 +1277,53 @@ static void GLW_InitExtensions( void )
 	{
 		ri.Printf( PRINT_ALL, "...WGL_3DFX_gamma_control not found\n" );
 	}
+	
+		// GL_EXT_framebuffer_object
+	glConfig.framebufferObjectAvailable = qfalse;
+	qglIsRenderbufferEXT = NULL;
+	qglBindRenderbufferEXT = NULL;
+	qglDeleteRenderbuffersEXT = NULL;
+	qglGenRenderbuffersEXT = NULL;
+	qglRenderbufferStorageEXT = NULL;
+	qglGetRenderbufferParameterivEXT = NULL;
+	qglIsFramebufferEXT = NULL;
+	qglBindFramebufferEXT = NULL;
+	qglDeleteFramebuffersEXT = NULL;
+	qglGenFramebuffersEXT = NULL;
+	qglCheckFramebufferStatusEXT = NULL;
+	qglFramebufferTexture1DEXT = NULL;
+	qglFramebufferTexture2DEXT = NULL;
+	qglFramebufferTexture3DEXT = NULL;
+	qglFramebufferRenderbufferEXT = NULL;
+	qglGetFramebufferAttachmentParameterivEXT = NULL;
+	qglGenerateMipmapEXT = NULL;
+	if ( Q_stristr( glConfig.extensions_string, "GL_EXT_framebuffer_object" ) ) {
+		if ( r_ext_framebuffer_object->value ) {
+			qglIsRenderbufferEXT = ( PFNGLISRENDERBUFFEREXTPROC ) qwglGetProcAddress( "glIsRenderbufferEXT" );
+			qglBindRenderbufferEXT = ( PFNGLBINDRENDERBUFFEREXTPROC ) qwglGetProcAddress( "glBindRenderbufferEXT" );
+			qglDeleteRenderbuffersEXT = ( PFNGLDELETERENDERBUFFERSEXTPROC ) qwglGetProcAddress( "glDeleteRenderbuffersEXT" );
+			qglGenRenderbuffersEXT = ( PFNGLGENRENDERBUFFERSEXTPROC ) qwglGetProcAddress( "glGenRenderbuffersEXT" );
+			qglRenderbufferStorageEXT = ( PFNGLRENDERBUFFERSTORAGEEXTPROC ) qwglGetProcAddress( "glRenderbufferStorageEXT" );
+			qglGetRenderbufferParameterivEXT = ( PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC ) qwglGetProcAddress( "glGetRenderbufferParameterivEXT" );
+			qglIsFramebufferEXT = ( PFNGLISFRAMEBUFFEREXTPROC ) qwglGetProcAddress( "glIsFramebufferEXT" );
+			qglBindFramebufferEXT = ( PFNGLBINDFRAMEBUFFEREXTPROC ) qwglGetProcAddress( "glBindFramebufferEXT" );
+			qglDeleteFramebuffersEXT = ( PFNGLDELETEFRAMEBUFFERSEXTPROC ) qwglGetProcAddress( "glDeleteFramebuffersEXT" );
+			qglGenFramebuffersEXT = ( PFNGLGENFRAMEBUFFERSEXTPROC ) qwglGetProcAddress( "glGenFramebuffersEXT" );
+			qglCheckFramebufferStatusEXT = ( PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC ) qwglGetProcAddress( "glCheckFramebufferStatusEXT" );
+			qglFramebufferTexture1DEXT = ( PFNGLFRAMEBUFFERTEXTURE1DEXTPROC ) qwglGetProcAddress( "glFramebufferTexture1DEXT" );
+			qglFramebufferTexture2DEXT = ( PFNGLFRAMEBUFFERTEXTURE2DEXTPROC ) qwglGetProcAddress( "glFramebufferTexture2DEXT" );
+			qglFramebufferTexture3DEXT = ( PFNGLFRAMEBUFFERTEXTURE3DEXTPROC ) qwglGetProcAddress( "glFramebufferTexture3DEXT" );
+			qglFramebufferRenderbufferEXT = ( PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC ) qwglGetProcAddress( "glFramebufferRenderbufferEXT" );
+			qglGetFramebufferAttachmentParameterivEXT = ( PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC ) qwglGetProcAddress( "glGetFramebufferAttachmentParameterivEXT" );
+			qglGenerateMipmapEXT = ( PFNGLGENERATEMIPMAPEXTPROC ) qwglGetProcAddress( "glGenerateMipmapEXT" );
+			glConfig.framebufferObjectAvailable = qtrue;
+			ri.Printf( PRINT_ALL, "...using GL_EXT_framebuffer_object\n" );
+		} else {
+			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_framebuffer_object\n" );
+		}
+	} else {
+		ri.Printf( PRINT_ALL, "...GL_EXT_framebuffer_object not found\n" );
+	}
 }
 
 /*

@@ -190,6 +190,7 @@ typedef struct {
 	qboolean				vertexShaderAvailable;
 	qboolean				fragmentShaderAvailable;
 	qboolean				shadingLanguage100Available;
+	qboolean				framebufferObjectAvailable;
 
 	int						vidWidth, vidHeight;
 	// aspect is the screen's physical width / height, which may be different

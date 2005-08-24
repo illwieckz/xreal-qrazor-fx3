@@ -265,8 +265,28 @@ extern void ( APIENTRY * qglGetActiveAttribARB )( GLhandleARB programObj, GLuint
 extern GLint ( APIENTRY * qglGetAttribLocationARB )( GLhandleARB programObj, const GLcharARB *name );
 
 // GL_EXT_compiled_vertex_array
-extern	void ( APIENTRY * qglLockArraysEXT )( GLint, GLint ); 
-extern	void ( APIENTRY * qglUnlockArraysEXT )( void ); 
+extern	void ( APIENTRY * qglLockArraysEXT )( GLint, GLint );
+extern	void ( APIENTRY * qglUnlockArraysEXT )( void );
+
+// GL_EXT_framebuffer_object
+extern GLboolean ( APIENTRY * qglIsRenderbufferEXT )( GLuint renderbuffer );
+extern void ( APIENTRY * qglBindRenderbufferEXT )( GLenum target, GLuint renderbuffer );
+extern void ( APIENTRY * qglDeleteRenderbuffersEXT )( GLsizei n, const GLuint *renderbuffers );
+extern void ( APIENTRY * qglGenRenderbuffersEXT )( GLsizei n, GLuint *renderbuffers );
+extern void ( APIENTRY * qglRenderbufferStorageEXT )( GLenum target, GLenum internalformat, GLsizei width, GLsizei height );
+extern void ( APIENTRY * qglGetRenderbufferParameterivEXT )( GLenum target, GLenum pname, GLint *params );
+extern GLboolean ( APIENTRY * qglIsFramebufferEXT )( GLuint framebuffer );
+extern void ( APIENTRY * qglBindFramebufferEXT )( GLenum target, GLuint framebuffer );
+extern void ( APIENTRY * qglDeleteFramebuffersEXT )( GLsizei n, const GLuint *framebuffers );
+extern void ( APIENTRY * qglGenFramebuffersEXT )( GLsizei n, GLuint *framebuffers );
+extern GLenum ( APIENTRY * qglCheckFramebufferStatusEXT )( GLenum target );
+extern void ( APIENTRY * qglFramebufferTexture1DEXT )( GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level );
+extern void ( APIENTRY * qglFramebufferTexture2DEXT )( GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level );
+extern void ( APIENTRY * qglFramebufferTexture3DEXT )( GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset );
+extern void ( APIENTRY * qglFramebufferRenderbufferEXT )( GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer );
+extern void ( APIENTRY * qglGetFramebufferAttachmentParameterivEXT )( GLenum target, GLenum attachment, GLenum pname, GLint *params );
+extern void ( APIENTRY * qglGenerateMipmapEXT )( GLenum target );
+
 
 //===========================================================================
 

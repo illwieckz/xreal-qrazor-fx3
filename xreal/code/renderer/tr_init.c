@@ -86,6 +86,7 @@ cvar_t	*r_ext_shader_objects;
 cvar_t	*r_ext_vertex_shader;
 cvar_t	*r_ext_fragment_shader;
 cvar_t	*r_ext_shading_language_100;
+cvar_t	*r_ext_framebuffer_object;
 
 cvar_t	*r_ignoreGLErrors;
 cvar_t	*r_logFile;
@@ -213,6 +214,25 @@ GLint ( APIENTRY * qglGetAttribLocationARB )( GLhandleARB programObj, const GLch
 // GL_EXT_compiled_vertex_array
 void ( APIENTRY * qglLockArraysEXT)( GLint, GLint);
 void ( APIENTRY * qglUnlockArraysEXT) ( void );
+
+// GL_EXT_framebuffer_object
+GLboolean ( APIENTRY * qglIsRenderbufferEXT )( GLuint renderbuffer );
+void ( APIENTRY * qglBindRenderbufferEXT )( GLenum target, GLuint renderbuffer );
+void ( APIENTRY * qglDeleteRenderbuffersEXT )( GLsizei n, const GLuint *renderbuffers );
+void ( APIENTRY * qglGenRenderbuffersEXT )( GLsizei n, GLuint *renderbuffers );
+void ( APIENTRY * qglRenderbufferStorageEXT )( GLenum target, GLenum internalformat, GLsizei width, GLsizei height );
+void ( APIENTRY * qglGetRenderbufferParameterivEXT )( GLenum target, GLenum pname, GLint *params );
+GLboolean ( APIENTRY * qglIsFramebufferEXT )( GLuint framebuffer );
+void ( APIENTRY * qglBindFramebufferEXT )( GLenum target, GLuint framebuffer );
+void ( APIENTRY * qglDeleteFramebuffersEXT )( GLsizei n, const GLuint *framebuffers );
+void ( APIENTRY * qglGenFramebuffersEXT )( GLsizei n, GLuint *framebuffers );
+GLenum ( APIENTRY * qglCheckFramebufferStatusEXT )( GLenum target );
+void ( APIENTRY * qglFramebufferTexture1DEXT )( GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level );
+void ( APIENTRY * qglFramebufferTexture2DEXT )( GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level );
+void ( APIENTRY * qglFramebufferTexture3DEXT )( GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset );
+void ( APIENTRY * qglFramebufferRenderbufferEXT )( GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer );
+void ( APIENTRY * qglGetFramebufferAttachmentParameterivEXT )( GLenum target, GLenum attachment, GLenum pname, GLint *params );
+void ( APIENTRY * qglGenerateMipmapEXT )( GLenum target );
 
 static void AssertCvarRange( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral )
 {
@@ -933,6 +953,7 @@ void R_Register( void )
 	r_ext_vertex_shader = ri.Cvar_Get( "r_ext_vertex_shader", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ext_fragment_shader = ri.Cvar_Get( "r_ext_fragment_shader", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ext_shading_language_100 = ri.Cvar_Get( "r_ext_shading_language_100", "1", CVAR_ARCHIVE | CVAR_LATCH );
+	r_ext_framebuffer_object = ri.Cvar_Get( "r_ext_framebuffer_object", "1", CVAR_ARCHIVE | CVAR_LATCH );
 
 	r_picmip = ri.Cvar_Get ("r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_roundImagesDown = ri.Cvar_Get ("r_roundImagesDown", "1", CVAR_ARCHIVE | CVAR_LATCH );
