@@ -82,6 +82,10 @@ cvar_t	*r_ext_compiled_vertex_array;
 cvar_t	*r_ext_texture_env_add;
 cvar_t	*r_ext_transpose_matrix;
 cvar_t	*r_ext_vertex_program;
+cvar_t	*r_ext_shader_objects;
+cvar_t	*r_ext_vertex_shader;
+cvar_t	*r_ext_fragment_shader;
+cvar_t	*r_ext_shading_language_100;
 
 cvar_t	*r_ignoreGLErrors;
 cvar_t	*r_logFile;
@@ -162,6 +166,49 @@ void ( APIENTRY * qglLoadTransposeMatrixfARB )( const GLfloat *m );
 void ( APIENTRY * qglVertexAttribPointerARB )( GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer );
 void ( APIENTRY * qglEnableVertexAttribArrayARB )( GLuint index );
 void ( APIENTRY * qglDisableVertexAttribArrayARB )( GLuint index );
+
+// GL_ARB_shader_objects
+void ( APIENTRY * qglDeleteObjectARB )( GLhandleARB obj );
+GLhandleARB ( APIENTRY * qglGetHandleARB )( GLenum pname );
+void ( APIENTRY * qglDetachObjectARB )( GLhandleARB containerObj, GLhandleARB attachedObj );
+GLhandleARB ( APIENTRY * qglCreateShaderObjectARB )( GLenum shaderType );
+void ( APIENTRY * qglShaderSourceARB )( GLhandleARB shaderObj, GLsizei count, const GLcharARB* *string, const GLint *length ); void ( APIENTRY * qglCompileShaderARB )( GLhandleARB shaderObj );
+GLhandleARB ( APIENTRY * qglCreateProgramObjectARB )( void ); 
+void ( APIENTRY * qglAttachObjectARB )( GLhandleARB containerObj, GLhandleARB obj );
+void ( APIENTRY * qglLinkProgramARB )( GLhandleARB programObj );
+void ( APIENTRY * qglUseProgramObjectARB )( GLhandleARB programObj );
+void ( APIENTRY * qglValidateProgramARB )( GLhandleARB programObj );
+void ( APIENTRY * qglUniform1fARB )( GLint location, GLfloat v0 );
+void ( APIENTRY * qglUniform2fARB )( GLint location, GLfloat v0, GLfloat v1 );
+void ( APIENTRY * qglUniform3fARB )( GLint location, GLfloat v0, GLfloat v1, GLfloat v2 );
+void ( APIENTRY * qglUniform4fARB )( GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3 );
+void ( APIENTRY * qglUniform1iARB )( GLint location, GLint v0 );
+void ( APIENTRY * qglUniform2iARB )( GLint location, GLint v0, GLint v1 );
+void ( APIENTRY * qglUniform3iARB )( GLint location, GLint v0, GLint v1, GLint v2 );
+void ( APIENTRY * qglUniform4iARB )( GLint location, GLint v0, GLint v1, GLint v2, GLint v3 );
+void ( APIENTRY * qglUniform2fvARB )( GLint location, GLsizei count, const GLfloat *value );
+void ( APIENTRY * qglUniform3fvARB )( GLint location, GLsizei count, const GLfloat *value );
+void ( APIENTRY * qglUniform4fvARB )( GLint location, GLsizei count, const GLfloat *value );
+void ( APIENTRY * qglUniform2ivARB )( GLint location, GLsizei count, const GLint *value );
+void ( APIENTRY * qglUniform3ivARB )( GLint location, GLsizei count, const GLint *value );
+void ( APIENTRY * qglUniform4ivARB )( GLint location, GLsizei count, const GLint *value );
+void ( APIENTRY * qglUniformMatrix2fvARB )( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value );
+void ( APIENTRY * qglUniformMatrix3fvARB )( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value );
+void ( APIENTRY * qglUniformMatrix4fvARB )( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value );
+void ( APIENTRY * qglGetObjectParameterfvARB )( GLhandleARB obj, GLenum pname, GLfloat *params );
+void ( APIENTRY * qglGetObjectParameterivARB )( GLhandleARB obj, GLenum pname, GLint *params );
+void ( APIENTRY * qglGetInfoLogARB )( GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *infoLog );
+void ( APIENTRY * qglGetAttachedObjectsARB )( GLhandleARB containerObj, GLsizei maxCount, GLsizei *count, GLhandleARB *obj );
+GLint ( APIENTRY * qglGetUniformLocationARB )( GLhandleARB programObj, const GLcharARB *name );
+void ( APIENTRY * qglGetActiveUniformARB )( GLhandleARB programObj, GLuint index, GLsizei maxIndex, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name );
+void ( APIENTRY * qglGetUniformfvARB )( GLhandleARB programObj, GLint location, GLfloat *params );
+void ( APIENTRY * qglGetUniformivARB )( GLhandleARB programObj, GLint location, GLint *params );
+void ( APIENTRY * qglGetShaderSourceARB )( GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *source );
+
+// GL_ARB_vertex_shader
+void ( APIENTRY * qglBindAttribLocationARB )( GLhandleARB programObj, GLuint index, const GLcharARB *name );
+void ( APIENTRY * qglGetActiveAttribARB )( GLhandleARB programObj, GLuint index, GLsizei maxLength, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name );
+GLint ( APIENTRY * qglGetAttribLocationARB )( GLhandleARB programObj, const GLcharARB *name );
 
 // GL_EXT_compiled_vertex_array
 void ( APIENTRY * qglLockArraysEXT)( GLint, GLint);
@@ -882,6 +929,10 @@ void R_Register( void )
 #endif
 	r_ext_transpose_matrix = ri.Cvar_Get( "r_ext_transpose_matrix", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ext_vertex_program = ri.Cvar_Get( "r_ext_vertex_program", "1", CVAR_ARCHIVE | CVAR_LATCH );
+	r_ext_shader_objects = ri.Cvar_Get( "r_ext_shader_objects", "1", CVAR_ARCHIVE | CVAR_LATCH );
+	r_ext_vertex_shader = ri.Cvar_Get( "r_ext_vertex_shader", "1", CVAR_ARCHIVE | CVAR_LATCH );
+	r_ext_fragment_shader = ri.Cvar_Get( "r_ext_fragment_shader", "1", CVAR_ARCHIVE | CVAR_LATCH );
+	r_ext_shading_language_100 = ri.Cvar_Get( "r_ext_shading_language_100", "1", CVAR_ARCHIVE | CVAR_LATCH );
 
 	r_picmip = ri.Cvar_Get ("r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_roundImagesDown = ri.Cvar_Get ("r_roundImagesDown", "1", CVAR_ARCHIVE | CVAR_LATCH );

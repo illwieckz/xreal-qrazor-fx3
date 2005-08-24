@@ -221,13 +221,13 @@ extern void ( APIENTRY * qglGetQueryObjectuivARB ) ( GLuint, GLenum, GLuint * );
 // GL_ARB_shader_objects
 //typedef char GLcharARB;			/* native character */
 //typedef unsigned int GLhandleARB;	/* shader object handle */
-/*
+
 extern void ( APIENTRY * qglDeleteObjectARB )( GLhandleARB obj );
 extern GLhandleARB ( APIENTRY * qglGetHandleARB )( GLenum pname );
 extern void ( APIENTRY * qglDetachObjectARB )( GLhandleARB containerObj, GLhandleARB attachedObj );
 extern GLhandleARB ( APIENTRY * qglCreateShaderObjectARB )( GLenum shaderType );
 extern void ( APIENTRY * qglShaderSourceARB )( GLhandleARB shaderObj, GLsizei count, const GLcharARB* *string, const GLint *length ); extern void ( APIENTRY * qglCompileShaderARB )( GLhandleARB shaderObj );
-extern GLhandleARB ( APIENTRY * qglCreateProgramObjectARB )( const char *filename, int line ); 
+extern GLhandleARB ( APIENTRY * qglCreateProgramObjectARB )( void ); 
 extern void ( APIENTRY * qglAttachObjectARB )( GLhandleARB containerObj, GLhandleARB obj );
 extern void ( APIENTRY * qglLinkProgramARB )( GLhandleARB programObj );
 extern void ( APIENTRY * qglUseProgramObjectARB )( GLhandleARB programObj );
@@ -258,14 +258,11 @@ extern void ( APIENTRY * qglGetActiveUniformARB )( GLhandleARB programObj, GLuin
 extern void ( APIENTRY * qglGetUniformfvARB )( GLhandleARB programObj, GLint location, GLfloat *params );
 extern void ( APIENTRY * qglGetUniformivARB )( GLhandleARB programObj, GLint location, GLint *params );
 extern void ( APIENTRY * qglGetShaderSourceARB )( GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *source );
-*/
 
 // GL_ARB_vertex_shader
-/*
 extern void ( APIENTRY * qglBindAttribLocationARB )( GLhandleARB programObj, GLuint index, const GLcharARB *name );
 extern void ( APIENTRY * qglGetActiveAttribARB )( GLhandleARB programObj, GLuint index, GLsizei maxLength, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name );
 extern GLint ( APIENTRY * qglGetAttribLocationARB )( GLhandleARB programObj, const GLcharARB *name );
-*/
 
 // GL_EXT_compiled_vertex_array
 extern	void ( APIENTRY * qglLockArraysEXT )( GLint, GLint ); 

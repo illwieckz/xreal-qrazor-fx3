@@ -1090,6 +1090,138 @@ static void GLW_InitExtensions( void )
 	} else {
 		ri.Printf( PRINT_ALL, "...GL_ARB_vertex_program not found\n" );
 	}
+	
+	// GL_ARB_shader_objects
+	glConfig.shaderObjectsAvailable = qfalse;
+	qglDeleteObjectARB = NULL;
+	qglGetHandleARB = NULL;
+	qglDetachObjectARB = NULL;
+	qglCreateShaderObjectARB = NULL;
+	qglShaderSourceARB = NULL;
+	qglCompileShaderARB = NULL;
+	qglCreateProgramObjectARB = NULL;
+	qglAttachObjectARB = NULL;
+	qglLinkProgramARB = NULL;
+	qglUseProgramObjectARB = NULL;
+	qglValidateProgramARB = NULL;
+	qglUniform1fARB = NULL;
+	qglUniform2fARB = NULL;
+	qglUniform3fARB = NULL;
+	qglUniform4fARB = NULL;
+	qglUniform1iARB = NULL;
+	qglUniform2iARB = NULL;
+	qglUniform3iARB = NULL;
+	qglUniform4iARB = NULL;
+	qglUniform2fvARB = NULL;
+	qglUniform3fvARB = NULL;
+	qglUniform4fvARB = NULL;
+	qglUniform2ivARB = NULL;
+	qglUniform3ivARB = NULL;
+	qglUniform4ivARB = NULL;
+	qglUniformMatrix2fvARB = NULL;
+	qglUniformMatrix3fvARB = NULL;
+	qglUniformMatrix4fvARB = NULL;
+	qglGetObjectParameterfvARB = NULL;
+	qglGetObjectParameterivARB = NULL;
+	qglGetInfoLogARB = NULL;
+	qglGetAttachedObjectsARB = NULL;
+	qglGetUniformLocationARB = NULL;
+	qglGetActiveUniformARB = NULL;
+	qglGetUniformfvARB = NULL;
+	qglGetUniformivARB = NULL;
+	qglGetShaderSourceARB = NULL;
+	if ( Q_stristr( glConfig.extensions_string, "GL_ARB_shader_objects" ) ) {
+		if ( r_ext_shader_objects->value ) {
+			qglDeleteObjectARB = ( PFNGLDELETEOBJECTARBPROC ) qwglGetProcAddress( "glDeleteObjectARB" );
+			qglGetHandleARB = ( PFNGLGETHANDLEARBPROC ) qwglGetProcAddress( "glGetHandleARB" );
+			qglDetachObjectARB = ( PFNGLDETACHOBJECTARBPROC ) qwglGetProcAddress( "glDetachObjectARB" );
+			qglCreateShaderObjectARB = ( PFNGLCREATESHADEROBJECTARBPROC ) qwglGetProcAddress( "glCreateShaderObjectARB" );
+			qglShaderSourceARB = ( PFNGLSHADERSOURCEARBPROC ) qwglGetProcAddress( "glShaderSourceARB" );
+			qglCompileShaderARB = ( PFNGLCOMPILESHADERARBPROC ) qwglGetProcAddress( "glCompileShaderARB" );
+			qglCreateProgramObjectARB = ( PFNGLCREATEPROGRAMOBJECTARBPROC ) qwglGetProcAddress( "glCreateProgramObjectARB" );
+			qglAttachObjectARB = ( PFNGLATTACHOBJECTARBPROC ) qwglGetProcAddress( "glAttachObjectARB" );
+			qglLinkProgramARB = ( PFNGLLINKPROGRAMARBPROC ) qwglGetProcAddress( "glLinkProgramARB" );
+			qglUseProgramObjectARB = ( PFNGLUSEPROGRAMOBJECTARBPROC ) qwglGetProcAddress( "glUseProgramObjectARB" );
+			qglValidateProgramARB = ( PFNGLVALIDATEPROGRAMARBPROC ) qwglGetProcAddress( "glValidateProgramARB" );
+			qglUniform1fARB = ( PFNGLUNIFORM1FARBPROC ) qwglGetProcAddress( "glUniform1fARB" );
+			qglUniform2fARB = ( PFNGLUNIFORM2FARBPROC ) qwglGetProcAddress( "glUniform2fARB" );
+			qglUniform3fARB = ( PFNGLUNIFORM3FARBPROC ) qwglGetProcAddress( "glUniform3fARB" );
+			qglUniform4fARB = ( PFNGLUNIFORM4FARBPROC ) qwglGetProcAddress( "glUniform4fARB" );
+			qglUniform1iARB = ( PFNGLUNIFORM1IARBPROC ) qwglGetProcAddress( "glUniform1iARB" );
+			qglUniform2iARB = ( PFNGLUNIFORM2IARBPROC ) qwglGetProcAddress( "glUniform2iARB" );
+			qglUniform3iARB = ( PFNGLUNIFORM3IARBPROC ) qwglGetProcAddress( "glUniform3iARB" );
+			qglUniform4iARB = ( PFNGLUNIFORM4IARBPROC ) qwglGetProcAddress( "glUniform4iARB" );
+			qglUniform2fvARB = ( PFNGLUNIFORM2FVARBPROC ) qwglGetProcAddress( "glUniform2fvARB" );
+			qglUniform3fvARB = ( PFNGLUNIFORM3FVARBPROC ) qwglGetProcAddress( "glUniform3fvARB" );
+			qglUniform4fvARB = ( PFNGLUNIFORM4FVARBPROC ) qwglGetProcAddress( "glUniform4fvARB" );
+			qglUniform2ivARB = ( PFNGLUNIFORM2IVARBPROC ) qwglGetProcAddress( "glUniform2ivARB" );
+			qglUniform3ivARB = ( PFNGLUNIFORM3IVARBPROC ) qwglGetProcAddress( "glUniform3ivARB" );
+			qglUniform4ivARB = ( PFNGLUNIFORM4IVARBPROC ) qwglGetProcAddress( "glUniform4ivARB" );
+			qglUniformMatrix2fvARB = ( PFNGLUNIFORMMATRIX2FVARBPROC ) qwglGetProcAddress( "glUniformMatrix2fvARB" );
+			qglUniformMatrix3fvARB = ( PFNGLUNIFORMMATRIX3FVARBPROC ) qwglGetProcAddress( "glUniformMatrix3fvARB" );
+			qglUniformMatrix4fvARB = ( PFNGLUNIFORMMATRIX4FVARBPROC ) qwglGetProcAddress( "glUniformMatrix4fvARB" );
+			qglGetObjectParameterfvARB = ( PFNGLGETOBJECTPARAMETERFVARBPROC ) qwglGetProcAddress( "glGetObjectParameterfvARB" );
+			qglGetObjectParameterivARB = ( PFNGLGETOBJECTPARAMETERIVARBPROC ) qwglGetProcAddress( "glGetObjectParameterivARB" );
+			qglGetInfoLogARB = ( PFNGLGETINFOLOGARBPROC ) qwglGetProcAddress( "glGetInfoLogARB" );
+			qglGetAttachedObjectsARB = ( PFNGLGETATTACHEDOBJECTSARBPROC ) qwglGetProcAddress( "glGetAttachedObjectsARB" );
+			qglGetUniformLocationARB = ( PFNGLGETUNIFORMLOCATIONARBPROC ) qwglGetProcAddress( "glGetUniformLocationARB" );
+			qglGetActiveUniformARB = ( PFNGLGETACTIVEUNIFORMARBPROC ) qwglGetProcAddress( "glGetActiveUniformARB" );
+			qglGetUniformfvARB = ( PFNGLGETUNIFORMFVARBPROC ) qwglGetProcAddress( "glGetUniformfvARB" );
+			qglGetUniformivARB = ( PFNGLGETUNIFORMIVARBPROC ) qwglGetProcAddress( "glGetUniformivARB" );
+			qglGetShaderSourceARB = ( PFNGLGETSHADERSOURCEARBPROC ) qwglGetProcAddress( "glGetShaderSourceARB" );
+			glConfig.shaderObjectsAvailable = qtrue;
+			ri.Printf( PRINT_ALL, "...using GL_ARB_shader_objects\n" );
+			} else {
+				ri.Printf( PRINT_ALL, "...ignoring GL_ARB_shader_objects\n" );
+		}
+	} else {
+		ri.Printf( PRINT_ALL, "...GL_ARB_shader_objects not found\n" );
+	}
+	
+	// GL_ARB_vertex_shader
+	glConfig.vertexShaderAvailable = qfalse;
+	qglBindAttribLocationARB = NULL;
+	qglGetActiveAttribARB = NULL;
+	qglGetAttribLocationARB = NULL;
+	if ( Q_stristr( glConfig.extensions_string, "GL_ARB_vertex_shader" ) ) {
+		if ( r_ext_vertex_shader->value ) {
+			qglBindAttribLocationARB = ( PFNGLBINDATTRIBLOCATIONARBPROC ) qwglGetProcAddress( "glBindAttribLocationARB" );
+			qglGetActiveAttribARB = ( PFNGLGETACTIVEATTRIBARBPROC ) qwglGetProcAddress( "glGetActiveAttribARB" );
+			qglGetAttribLocationARB = ( PFNGLGETATTRIBLOCATIONARBPROC ) qwglGetProcAddress( "glGetAttribLocationARB" );
+			glConfig.vertexShaderAvailable = qtrue;
+			ri.Printf( PRINT_ALL, "...using GL_ARB_vertex_shader\n" );
+			} else {
+				ri.Printf( PRINT_ALL, "...ignoring GL_ARB_vertex_shader\n" );
+		}
+	} else {
+		ri.Printf( PRINT_ALL, "...GL_ARB_vertex_shader not found\n" );
+	}
+	
+	// GL_ARB_fragment_shader
+	glConfig.fragmentShaderAvailable = qfalse;
+	if ( Q_stristr( glConfig.extensions_string, "GL_ARB_fragment_shader" ) ) {
+		if ( r_ext_fragment_shader->value ) {
+			glConfig.fragmentShaderAvailable = qtrue;
+			ri.Printf( PRINT_ALL, "...using GL_ARB_fragment_shader\n" );
+			} else {
+				ri.Printf( PRINT_ALL, "...ignoring GL_ARB_fragment_shader\n" );
+		}
+	} else {
+		ri.Printf( PRINT_ALL, "...GL_ARB_fragment_shader not found\n" );
+	}
+	
+	// GL_ARB_shading_language_100
+	glConfig.shadingLanguage100Available = qfalse;
+	if ( Q_stristr( glConfig.extensions_string, "GL_ARB_shading_language_100" ) ) {
+		if ( r_ext_shading_language_100->value ) {
+			glConfig.shadingLanguage100Available = qtrue;
+			ri.Printf( PRINT_ALL, "...using GL_ARB_shading_language_100\n" );
+			} else {
+				ri.Printf( PRINT_ALL, "...ignoring GL_ARB_shading_language_100\n" );
+		}
+	} else {
+		ri.Printf( PRINT_ALL, "...GL_ARB_shading_language_100 not found\n" );
+	}
 
 	// GL_EXT_compiled_vertex_array
 	qglLockArraysEXT = NULL;

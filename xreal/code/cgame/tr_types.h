@@ -186,6 +186,10 @@ typedef struct {
 	textureCompression_t	textureCompression;
 	qboolean				textureEnvAddAvailable;
 	qboolean				vertexProgramAvailable;
+	qboolean				shaderObjectsAvailable;
+	qboolean				vertexShaderAvailable;
+	qboolean				fragmentShaderAvailable;
+	qboolean				shadingLanguage100Available;
 
 	int						vidWidth, vidHeight;
 	// aspect is the screen's physical width / height, which may be different

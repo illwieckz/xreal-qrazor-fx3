@@ -1033,6 +1033,10 @@ extern cvar_t	*r_ext_compiled_vertex_array;
 extern cvar_t	*r_ext_texture_env_add;
 extern cvar_t	*r_ext_transpose_matrix;
 extern cvar_t	*r_ext_vertex_program;
+extern cvar_t	*r_ext_shader_objects;
+extern cvar_t	*r_ext_vertex_shader;
+extern cvar_t	*r_ext_fragment_shader;
+extern cvar_t	*r_ext_shading_language_100;
 
 extern	cvar_t	*r_nobind;						// turns off binding to appropriate textures
 extern	cvar_t	*r_singleShader;				// make most world faces use default shader
