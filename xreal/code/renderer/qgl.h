@@ -192,7 +192,7 @@ extern void ( APIENTRY * qglDisableVertexAttribArrayARB )( GLuint index );
 // GL_ARB_vertex_buffer_object
 //typedef ptrdiff_t GLintptrARB;
 //typedef ptrdiff_t GLsizeiptrARB;
-
+/*
 extern void ( APIENTRY * qglBindBufferARB )( GLenum target, GLuint buffer );
 extern void ( APIENTRY * qglDeleteBuffersARB )( GLsizei n, const GLuint *buffers );
 extern void ( APIENTRY * qglGenBuffersARB )( GLsizei n, GLuint *buffers );
@@ -204,8 +204,10 @@ extern GLvoid* ( APIENTRY * qglMapBufferARB )( GLenum target, GLenum access );
 extern GLboolean ( APIENTRY * qglUnmapBufferARB )( GLenum target );
 extern void ( APIENTRY * qglGetBufferParameterivARB )( GLenum target, GLenum pname, GLint *params );
 extern void ( APIENTRY * qglGetBufferPointervARB )( GLenum target, GLenum pname, GLvoid* *params );
+*/
 
 // GL_ARB_occlusion_query
+/*
 extern void ( APIENTRY * qglGenQueriesARB )(GLsizei, GLuint * ); 
 extern void ( APIENTRY * qglDeleteQueriesARB )( GLsizei, const GLuint * ); 
 extern GLboolean ( APIENTRY * qglIsQueryARB )( GLuint ); 
@@ -214,11 +216,12 @@ extern void ( APIENTRY * qglEndQueryARB )( GLenum );
 extern void ( APIENTRY * qglGetQueryivARB )( GLenum, GLenum, GLint * ); 
 extern void ( APIENTRY * qglGetQueryObjectivARB ) ( GLuint, GLenum, GLint * ); 
 extern void ( APIENTRY * qglGetQueryObjectuivARB ) ( GLuint, GLenum, GLuint * ); 
+*/
 
 // GL_ARB_shader_objects
 //typedef char GLcharARB;			/* native character */
 //typedef unsigned int GLhandleARB;	/* shader object handle */
-
+/*
 extern void ( APIENTRY * qglDeleteObjectARB )( GLhandleARB obj );
 extern GLhandleARB ( APIENTRY * qglGetHandleARB )( GLenum pname );
 extern void ( APIENTRY * qglDetachObjectARB )( GLhandleARB containerObj, GLhandleARB attachedObj );
@@ -255,11 +258,14 @@ extern void ( APIENTRY * qglGetActiveUniformARB )( GLhandleARB programObj, GLuin
 extern void ( APIENTRY * qglGetUniformfvARB )( GLhandleARB programObj, GLint location, GLfloat *params );
 extern void ( APIENTRY * qglGetUniformivARB )( GLhandleARB programObj, GLint location, GLint *params );
 extern void ( APIENTRY * qglGetShaderSourceARB )( GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *source );
+*/
 
 // GL_ARB_vertex_shader
+/*
 extern void ( APIENTRY * qglBindAttribLocationARB )( GLhandleARB programObj, GLuint index, const GLcharARB *name );
 extern void ( APIENTRY * qglGetActiveAttribARB )( GLhandleARB programObj, GLuint index, GLsizei maxLength, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name );
 extern GLint ( APIENTRY * qglGetAttribLocationARB )( GLhandleARB programObj, const GLcharARB *name );
+*/
 
 // GL_EXT_compiled_vertex_array
 extern	void ( APIENTRY * qglLockArraysEXT )( GLint, GLint ); 
