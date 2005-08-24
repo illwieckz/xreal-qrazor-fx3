@@ -274,6 +274,42 @@ static void DrawTris (shaderCommands_t *input) {
 	qglDepthRange( 0, 1 );
 }
 
+/*
+================
+DrawTangentSpaces
+
+Draws vertex tangent spaces for debugging
+================
+*/
+static void DrawTangentSpaces (shaderCommands_t *input) {
+	int		i;
+	vec3_t	temp;
+
+	GL_Bind( tr.whiteImage );
+	qglDepthRange( 0, 0 );	// never occluded
+	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
+
+	qglBegin (GL_LINES);
+	for (i = 0 ; i < input->numVertexes ; i++) {
+		qglColor3f (1,0,0);
+		qglVertex3fv (input->xyz[i]);
+		VectorMA (input->xyz[i], 2, input->tangent[i], temp);
+		qglVertex3fv (temp);
+		
+		qglColor3f (0,1,0);
+		qglVertex3fv (input->xyz[i]);
+		VectorMA (input->xyz[i], 2, input->binormal[i], temp);
+		qglVertex3fv (temp);
+		
+		qglColor3f (0,0,1);
+		qglVertex3fv (input->xyz[i]);
+		VectorMA (input->xyz[i], 2, input->normal[i], temp);
+		qglVertex3fv (temp);
+	}
+	qglEnd ();
+
+	qglDepthRange( 0, 1 );
+}
 
 /*
 ================
@@ -1353,6 +1389,10 @@ void RB_EndSurface( void ) {
 	if ( r_shownormals->integer ) {
 		DrawNormals (input);
 	}
+	if ( r_showTangentSpaces->integer ) {
+		DrawTangentSpaces (input);
+	}
+	
 	// clear shader so we can tell we don't have any unclosed surfaces
 	tess.numIndexes = 0;
 

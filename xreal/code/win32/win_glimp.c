@@ -1073,7 +1073,7 @@ static void GLW_InitExtensions( void )
 	}
 
 	// GL_ARB_vertex_program
-	glConfig.vertexProgramAvailable = qfalse;
+	glConfig2.vertexProgramAvailable = qfalse;
 	qglVertexAttribPointerARB = NULL;
 	qglEnableVertexAttribArrayARB = NULL;
 	qglDisableVertexAttribArrayARB = NULL;
@@ -1082,7 +1082,7 @@ static void GLW_InitExtensions( void )
 			qglVertexAttribPointerARB = ( PFNGLVERTEXATTRIBPOINTERARBPROC ) qwglGetProcAddress( "glVertexAttribPointerARB" );
 			qglEnableVertexAttribArrayARB = ( PFNGLENABLEVERTEXATTRIBARRAYARBPROC ) qwglGetProcAddress( "glEnableVertexAttribArrayARB" );
 			qglDisableVertexAttribArrayARB = ( PFNGLDISABLEVERTEXATTRIBARRAYARBPROC ) qwglGetProcAddress( "glDisableVertexAttribArrayARB" );
-			glConfig.vertexProgramAvailable = qtrue;
+			glConfig2.vertexProgramAvailable = qtrue;
 			ri.Printf( PRINT_ALL, "...using GL_ARB_vertex_program\n" );
 			} else {
 				ri.Printf( PRINT_ALL, "...ignoring GL_ARB_vertex_program\n" );
@@ -1092,7 +1092,7 @@ static void GLW_InitExtensions( void )
 	}
 	
 	// GL_ARB_shader_objects
-	glConfig.shaderObjectsAvailable = qfalse;
+	glConfig2.shaderObjectsAvailable = qfalse;
 	qglDeleteObjectARB = NULL;
 	qglGetHandleARB = NULL;
 	qglDetachObjectARB = NULL;
@@ -1169,7 +1169,7 @@ static void GLW_InitExtensions( void )
 			qglGetUniformfvARB = ( PFNGLGETUNIFORMFVARBPROC ) qwglGetProcAddress( "glGetUniformfvARB" );
 			qglGetUniformivARB = ( PFNGLGETUNIFORMIVARBPROC ) qwglGetProcAddress( "glGetUniformivARB" );
 			qglGetShaderSourceARB = ( PFNGLGETSHADERSOURCEARBPROC ) qwglGetProcAddress( "glGetShaderSourceARB" );
-			glConfig.shaderObjectsAvailable = qtrue;
+			glConfig2.shaderObjectsAvailable = qtrue;
 			ri.Printf( PRINT_ALL, "...using GL_ARB_shader_objects\n" );
 			} else {
 				ri.Printf( PRINT_ALL, "...ignoring GL_ARB_shader_objects\n" );
@@ -1179,7 +1179,7 @@ static void GLW_InitExtensions( void )
 	}
 	
 	// GL_ARB_vertex_shader
-	glConfig.vertexShaderAvailable = qfalse;
+	glConfig2.vertexShaderAvailable = qfalse;
 	qglBindAttribLocationARB = NULL;
 	qglGetActiveAttribARB = NULL;
 	qglGetAttribLocationARB = NULL;
@@ -1188,7 +1188,7 @@ static void GLW_InitExtensions( void )
 			qglBindAttribLocationARB = ( PFNGLBINDATTRIBLOCATIONARBPROC ) qwglGetProcAddress( "glBindAttribLocationARB" );
 			qglGetActiveAttribARB = ( PFNGLGETACTIVEATTRIBARBPROC ) qwglGetProcAddress( "glGetActiveAttribARB" );
 			qglGetAttribLocationARB = ( PFNGLGETATTRIBLOCATIONARBPROC ) qwglGetProcAddress( "glGetAttribLocationARB" );
-			glConfig.vertexShaderAvailable = qtrue;
+			glConfig2.vertexShaderAvailable = qtrue;
 			ri.Printf( PRINT_ALL, "...using GL_ARB_vertex_shader\n" );
 			} else {
 				ri.Printf( PRINT_ALL, "...ignoring GL_ARB_vertex_shader\n" );
@@ -1198,10 +1198,10 @@ static void GLW_InitExtensions( void )
 	}
 	
 	// GL_ARB_fragment_shader
-	glConfig.fragmentShaderAvailable = qfalse;
+	glConfig2.fragmentShaderAvailable = qfalse;
 	if ( Q_stristr( glConfig.extensions_string, "GL_ARB_fragment_shader" ) ) {
 		if ( r_ext_fragment_shader->value ) {
-			glConfig.fragmentShaderAvailable = qtrue;
+			glConfig2.fragmentShaderAvailable = qtrue;
 			ri.Printf( PRINT_ALL, "...using GL_ARB_fragment_shader\n" );
 			} else {
 				ri.Printf( PRINT_ALL, "...ignoring GL_ARB_fragment_shader\n" );
@@ -1211,10 +1211,10 @@ static void GLW_InitExtensions( void )
 	}
 	
 	// GL_ARB_shading_language_100
-	glConfig.shadingLanguage100Available = qfalse;
+	glConfig2.shadingLanguage100Available = qfalse;
 	if ( Q_stristr( glConfig.extensions_string, "GL_ARB_shading_language_100" ) ) {
 		if ( r_ext_shading_language_100->value ) {
-			glConfig.shadingLanguage100Available = qtrue;
+			glConfig2.shadingLanguage100Available = qtrue;
 			ri.Printf( PRINT_ALL, "...using GL_ARB_shading_language_100\n" );
 			} else {
 				ri.Printf( PRINT_ALL, "...ignoring GL_ARB_shading_language_100\n" );
@@ -1279,7 +1279,7 @@ static void GLW_InitExtensions( void )
 	}
 	
 		// GL_EXT_framebuffer_object
-	glConfig.framebufferObjectAvailable = qfalse;
+	glConfig2.framebufferObjectAvailable = qfalse;
 	qglIsRenderbufferEXT = NULL;
 	qglBindRenderbufferEXT = NULL;
 	qglDeleteRenderbuffersEXT = NULL;
@@ -1316,7 +1316,7 @@ static void GLW_InitExtensions( void )
 			qglFramebufferRenderbufferEXT = ( PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC ) qwglGetProcAddress( "glFramebufferRenderbufferEXT" );
 			qglGetFramebufferAttachmentParameterivEXT = ( PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC ) qwglGetProcAddress( "glGetFramebufferAttachmentParameterivEXT" );
 			qglGenerateMipmapEXT = ( PFNGLGENERATEMIPMAPEXTPROC ) qwglGetProcAddress( "glGenerateMipmapEXT" );
-			glConfig.framebufferObjectAvailable = qtrue;
+			glConfig2.framebufferObjectAvailable = qtrue;
 			ri.Printf( PRINT_ALL, "...using GL_EXT_framebuffer_object\n" );
 		} else {
 			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_framebuffer_object\n" );
@@ -1747,6 +1747,7 @@ void GLimp_Shutdown( void )
 	QGL_Shutdown();
 
 	memset( &glConfig, 0, sizeof( glConfig ) );
+	memset( &glConfig2, 0, sizeof( glConfig2 ) );
 	memset( &glState, 0, sizeof( glState ) );
 }
 

@@ -848,19 +848,19 @@ typedef struct {
 // all state modified by the back end is seperated
 // from the front end state
 typedef struct {
-	int			smpFrame;
-	trRefdef_t	refdef;
-	viewParms_t	viewParms;
-	orientationr_t	or;
-	backEndCounters_t	pc;
-	qboolean	isHyperspace;
-	trRefEntity_t	*currentEntity;
-	qboolean	skyRenderedThisView;	// flag for drawing sun
+	int						smpFrame;
+	trRefdef_t				refdef;
+	viewParms_t				viewParms;
+	orientationr_t			or;
+	backEndCounters_t		pc;
+	qboolean				isHyperspace;
+	trRefEntity_t*			currentEntity;
+	qboolean				skyRenderedThisView;	// flag for drawing sun
 
-	qboolean	projection2D;	// if qtrue, drawstretchpic doesn't need to change modes
-	byte		color2D[4];
-	qboolean	vertexes2D;		// shader needs to be finished
-	trRefEntity_t	entity2D;	// currentEntity will point at this when doing 2D rendering
+	qboolean				projection2D;	// if qtrue, drawstretchpic doesn't need to change modes
+	byte					color2D[4];
+	qboolean				vertexes2D;		// shader needs to be finished
+	trRefEntity_t			entity2D;	// currentEntity will point at this when doing 2D rendering
 } backEndState_t;
 
 /*
@@ -962,6 +962,7 @@ typedef struct {
 extern backEndState_t	backEnd;
 extern trGlobals_t	tr;
 extern glconfig_t	glConfig;		// outside of TR since it shouldn't be cleared during ref re-init
+extern glconfig2_t	glConfig2;
 extern glstate_t	glState;		// outside of TR since it shouldn't be cleared during ref re-init
 
 
@@ -1061,6 +1062,7 @@ extern	cvar_t	*r_logFile;						// number of frames to emit GL logs
 extern	cvar_t	*r_showtris;					// enables wireframe rendering of the world
 extern	cvar_t	*r_showsky;						// forces sky in front of all surfaces
 extern	cvar_t	*r_shownormals;					// draws wireframe normals
+extern	cvar_t	*r_showTangentSpaces;			// draws wireframe tangents, binormals and normals
 extern	cvar_t	*r_clear;						// force screen clear every frame
 
 extern	cvar_t	*r_shadows;						// controls shadows: 0 = none, 1 = blur, 2 = stencil, 3 = black planar projection
@@ -1274,6 +1276,8 @@ typedef struct shaderCommands_s
 {
 	glIndex_t	indexes[SHADER_MAX_INDEXES];
 	vec4_t		xyz[SHADER_MAX_VERTEXES];
+	vec4_t		tangent[SHADER_MAX_VERTEXES];
+	vec4_t		binormal[SHADER_MAX_VERTEXES];
 	vec4_t		normal[SHADER_MAX_VERTEXES];
 	vec2_t		texCoords[SHADER_MAX_VERTEXES][2];
 	color4ub_t	vertexColors[SHADER_MAX_VERTEXES];
@@ -1284,7 +1288,7 @@ typedef struct shaderCommands_s
 	color4ub_t	constantColor255[SHADER_MAX_VERTEXES];
 
 	shader_t	*shader;
-  float   shaderTime;
+	float		shaderTime;
 	int			fogNum;
 
 	int			dlightBits;	// or together of all vertexDlightBits

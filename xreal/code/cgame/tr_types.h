@@ -185,12 +185,6 @@ typedef struct {
 	qboolean				deviceSupportsGamma;
 	textureCompression_t	textureCompression;
 	qboolean				textureEnvAddAvailable;
-	qboolean				vertexProgramAvailable;
-	qboolean				shaderObjectsAvailable;
-	qboolean				vertexShaderAvailable;
-	qboolean				fragmentShaderAvailable;
-	qboolean				shadingLanguage100Available;
-	qboolean				framebufferObjectAvailable;
 
 	int						vidWidth, vidHeight;
 	// aspect is the screen's physical width / height, which may be different
@@ -207,6 +201,16 @@ typedef struct {
 	qboolean				stereoEnabled;
 	qboolean				smpActive;		// dual processor
 } glconfig_t;
+
+// Tr3B - add any new variables here to not break compatibility with qvm dlls
+typedef struct {
+	qboolean				vertexProgramAvailable;
+	qboolean				shaderObjectsAvailable;
+	qboolean				vertexShaderAvailable;
+	qboolean				fragmentShaderAvailable;
+	qboolean				shadingLanguage100Available;
+	qboolean				framebufferObjectAvailable;
+} glconfig2_t;
 
 // FIXME: VM should be OS agnostic .. in theory
 
