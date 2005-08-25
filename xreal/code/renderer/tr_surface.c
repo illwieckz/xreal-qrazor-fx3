@@ -819,6 +819,7 @@ void RB_SurfaceMesh(md3Surface_t *surface) {
 		// FIXME: fill in lightmapST for completeness?
 	}
 	
+#if 1
 	// Tr3B - calc tangent spaces
 	{
 		int			i;
@@ -873,7 +874,7 @@ void RB_SurfaceMesh(md3Surface_t *surface) {
 		VectorArrayNormalize((vec4_t *)tess.binormals[tess.numVertexes], numVertexes);
 		VectorArrayNormalize((vec4_t *)tess.normals[tess.numVertexes], numVertexes);
 	}
-
+#endif
 	tess.numIndexes += numIndexes;
 	tess.numVertexes += surface->numVerts;
 }

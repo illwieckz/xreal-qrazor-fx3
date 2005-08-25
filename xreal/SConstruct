@@ -47,7 +47,7 @@ if env['optimize'] != '0':
 
 
 if env['cpu'] == 'athlon-xp':
-	env.Append(CCFLAGS = '-march=athlon-xp -msse -mfpmath=sse')
+	env.Append(CCFLAGS = '-march=athlon-xp') # -msse -mfpmath=sse')
 
 
 if env['simd'] == 'sse':
