@@ -617,9 +617,14 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				return qfalse;
 			}
 
-			if ( !Q_stricmp( token, "$whiteimage" ) )
+			if ( !Q_stricmp( token, "$whiteimage" ) || !Q_stricmp( token, "$white" ) )
 			{
 				stage->bundle[0].image[0] = tr.whiteImage;
+				continue;
+			}
+			if ( !Q_stricmp( token, "$blackimage" ) || !Q_stricmp( token, "$black" ) )
+			{
+				stage->bundle[0].image[0] = tr.blackImage;
 				continue;
 			}
 			else if ( !Q_stricmp( token, "$lightmap" ) )

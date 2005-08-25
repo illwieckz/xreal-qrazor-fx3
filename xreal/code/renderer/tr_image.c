@@ -2092,6 +2092,10 @@ void R_CreateBuiltinImages( void ) {
 	// we use a solid white image instead of disabling texturing
 	Com_Memset( data, 255, sizeof( data ) );
 	tr.whiteImage = R_CreateImage("*white", (byte *)data, 8, 8, qfalse, qfalse, GL_REPEAT );
+	
+	// we use a solid white image instead of disabling texturing
+	Com_Memset( data, 0, sizeof( data ) );
+	tr.blackImage = R_CreateImage("*black", (byte *)data, 8, 8, qfalse, qfalse, GL_REPEAT );
 
 	// with overbright bits active, we need an image which is some fraction of full color,
 	// for default lightmaps, etc

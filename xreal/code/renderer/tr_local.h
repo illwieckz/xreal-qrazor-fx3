@@ -907,6 +907,7 @@ typedef struct {
 	image_t					*dlightImage;	// inverse-quare highlight for projective adding
 	image_t					*flareImage;
 	image_t					*whiteImage;			// full of 0xff
+	image_t					*blackImage;			// full of 0x0
 	image_t					*identityLightImage;	// full of tr.identityLightByte
 
 	shader_t				*defaultShader;
