@@ -53,7 +53,7 @@ void R_CalcTangentSpace( vec3_t tangent, vec3_t binormal, vec3_t normal,
 						const vec2_t t0, const vec2_t t1, const vec2_t t2,
 						const vec3_t n	)
 {
-#if 0
+#if 1
 	vec3_t cp, e0, e1;
 	VectorSet( e0, v1[0] - v0[0], t1[0] - t0[0], t1[1] - t0[1] );
 	VectorSet( e1, v2[0] - v0[0], t2[0] - t0[0], t2[1] - t0[1] );

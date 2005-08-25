@@ -114,8 +114,8 @@ menubacknologo
 	nomipmaps
        
         {
-               map gfx/colors/black.tga
-	       //map textures/sfx/proto_zzzdrk.tga
+               map $black
+			   //map textures/sfx/proto_zzzdrk.tga
                // tcMod turb 0 .1 0 .9
                // tcmod scale .2 .2
                // tcMod scroll .02  0.7
