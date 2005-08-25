@@ -39,11 +39,11 @@ dll_src = [
 ]
 
 cgame_env = env.Copy()
-cgame_env.Append(CCFLAGS='-DMISSIONPACK')
+#cgame_env.Append(CCFLAGS='-DMISSIONPACK')
 cgame_env.Append(CCFLAGS='-DXREAL')
 
 if sys.platform == 'linux2':
-	cgame_env.SharedLibrary('cgame', [cgame_src, ta_src, dll_src])
+	cgame_env.SharedLibrary('cgame', [cgame_src, dll_src])
 	cgame_env.InstallAs('#bin/xreal/cgamei386.so', 'libcgame.so')
 
 elif sys.platform == 'win32':
