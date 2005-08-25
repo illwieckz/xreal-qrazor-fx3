@@ -223,9 +223,11 @@ RB_SurfaceTriangles
 void RB_SurfaceTriangles( srfTriangles_t *srf ) {
 	int			i;
 	srfVert_t	*dv;
-	float		*xyz, *normal, *texCoords;
+	float		*xyz, *tangent, *binormal, *normal, *texCoords;
 	byte		*color;
 	int			dlightBits;
+	qboolean	needsTangent;
+	qboolean	needsBinormal;
 	qboolean	needsNormal;
 
 	dlightBits = srf->dlightBits[backEnd.smpFrame];
@@ -242,15 +244,31 @@ void RB_SurfaceTriangles( srfTriangles_t *srf ) {
 
 	dv = srf->verts;
 	xyz = tess.xyz[ tess.numVertexes ];
+	tangent = tess.tangents[ tess.numVertexes ];
+	binormal = tess.binormals[ tess.numVertexes ];
 	normal = tess.normals[ tess.numVertexes ];
 	texCoords = tess.texCoords[ tess.numVertexes ][0];
 	color = tess.vertexColors[ tess.numVertexes ];
+	needsTangent = tess.shader->needsTangent;
+	needsBinormal = tess.shader->needsBinormal;
 	needsNormal = tess.shader->needsNormal;
 
-	for ( i = 0 ; i < srf->numVerts ; i++, dv++, xyz += 4, normal += 4, texCoords += 4, color += 4 ) {
+	for ( i = 0 ; i < srf->numVerts ; i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, color += 4 ) {
 		xyz[0] = dv->xyz[0];
 		xyz[1] = dv->xyz[1];
 		xyz[2] = dv->xyz[2];
+		
+		if ( needsTangent ) {
+			tangent[0] = dv->tangent[0];
+			tangent[1] = dv->tangent[1];
+			tangent[2] = dv->tangent[2];
+		}
+		
+		if ( needsBinormal ) {
+			binormal[0] = dv->binormal[0];
+			binormal[1] = dv->binormal[1];
+			binormal[2] = dv->binormal[2];
+		}
 
 		if ( needsNormal ) {
 			normal[0] = dv->normal[0];
@@ -772,9 +790,8 @@ void RB_SurfaceMesh(md3Surface_t *surface) {
 	float			backlerp;
 	int				*triangles;
 	float			*texCoords;
-	int				indexes;
-	int				Bob, Doug;
-	int				numVerts;
+	int				numVertexes;
+	int				numIndexes;
 
 	if (  backEnd.currentEntity->e.oldframe == backEnd.currentEntity->e.frame ) {
 		backlerp = 0;
@@ -787,25 +804,78 @@ void RB_SurfaceMesh(md3Surface_t *surface) {
 	LerpMeshVertexes (surface, backlerp);
 
 	triangles = (int *) ((byte *)surface + surface->ofsTriangles);
-	indexes = surface->numTriangles * 3;
-	Bob = tess.numIndexes;
-	Doug = tess.numVertexes;
-	for (j = 0 ; j < indexes ; j++) {
-		tess.indexes[Bob + j] = Doug + triangles[j];
+	numIndexes = surface->numTriangles * 3;
+	for (j = 0 ; j < numIndexes ; j++) {
+		tess.indexes[tess.numIndexes + j] = tess.numVertexes + triangles[j];
 	}
-	tess.numIndexes += indexes;
+	
 
 	texCoords = (float *) ((byte *)surface + surface->ofsSt);
 
-	numVerts = surface->numVerts;
-	for ( j = 0; j < numVerts; j++ ) {
-		tess.texCoords[Doug + j][0][0] = texCoords[j*2+0];
-		tess.texCoords[Doug + j][0][1] = texCoords[j*2+1];
+	numVertexes = surface->numVerts;
+	for ( j = 0; j < numVertexes; j++ ) {
+		tess.texCoords[tess.numVertexes + j][0][0] = texCoords[j*2+0];
+		tess.texCoords[tess.numVertexes + j][0][1] = texCoords[j*2+1];
 		// FIXME: fill in lightmapST for completeness?
 	}
+	
+	// Tr3B - calc tangent spaces
+	{
+		int			i;
+		vec3_t		faceNormal;
+		vec3_t		udir, vdir;
+		float		*v;
+		const float	*v0, *v1, *v2;
+		const float	*t0, *t1, *t2;
+		vec3_t		tangent;
+		vec3_t		binormal;
+		vec3_t		normal;
+		int			*indices;
+	
+		for ( i = 0 ; i < numVertexes ; i++ ) {
+			VectorClear( tess.tangents[tess.numVertexes + i] );
+			VectorClear( tess.binormals[tess.numVertexes + i] );
+			VectorClear( tess.normals[tess.numVertexes + i] );
+		}
+			
+		for ( i = 0, indices = tess.indexes + tess.numIndexes ; i < numIndexes ; i += 3, indices += 3) {
+			v0 = tess.xyz[indices[0]];
+			v1 = tess.xyz[indices[1]];
+			v2 = tess.xyz[indices[2]];
+	
+			t0 = tess.texCoords[indices[0]][0];
+			t1 = tess.texCoords[indices[1]][0];
+			t2 = tess.texCoords[indices[2]][0];
+		
+			// compute the face normal based on vertex points
+			VectorSubtract( v2, v0, udir );
+			VectorSubtract( v1, v0, vdir );
+			CrossProduct( udir, vdir, faceNormal );
+			
+			// compute the face normal based on vertex normals
+			//VectorClear( faceNormal );
+			//VectorAdd( faceNormal, tess.normals[indices[0]], faceNormal );
+			//VectorAdd( faceNormal, tess.normals[indices[1]], faceNormal );
+			//VectorAdd( faceNormal, tess.normals[indices[2]], faceNormal );
+			
+			VectorNormalize( faceNormal );
+				
+			R_CalcTangentSpace( tangent, binormal, normal, v0, v1, v2, t0, t1, t2, faceNormal );
+				
+			for( j = 0; j < 3; j++ ) {
+				v = tess.tangents[indices[j]];	VectorAdd( v, tangent, v );
+				v = tess.binormals[indices[j]];	VectorAdd( v, binormal, v );
+				v = tess.normals[indices[j]];	VectorAdd( v, normal, v );
+			}
+		}
+		
+		VectorArrayNormalize((vec4_t *)tess.tangents[tess.numVertexes], numVertexes);
+		VectorArrayNormalize((vec4_t *)tess.binormals[tess.numVertexes], numVertexes);
+		VectorArrayNormalize((vec4_t *)tess.normals[tess.numVertexes], numVertexes);
+	}
 
+	tess.numIndexes += numIndexes;
 	tess.numVertexes += surface->numVerts;
-
 }
 
 
@@ -1063,7 +1133,7 @@ void RB_SurfaceGrid( srfGridMesh_t *cv ) {
 					int		v1, v2, v3, v4;
 			
 					// vertex order to be reckognized as tristrips
-					v1 = numVertexes + i*lodWidth + j + 1;
+					v1 = tess.numVertexes + i*lodWidth + j + 1;
 					v2 = v1 - 1;
 					v3 = v2 + lodWidth;
 					v4 = v3 + 1;
@@ -1079,7 +1149,7 @@ void RB_SurfaceGrid( srfGridMesh_t *cv ) {
 				}
 			}
 		}
-		
+#if 1
 		// Tr3B - calc tangent spaces
 		{
 			vec3_t		faceNormal;
@@ -1089,46 +1159,51 @@ void RB_SurfaceGrid( srfGridMesh_t *cv ) {
 			const float	*t0, *t1, *t2;
 			vec3_t		tangent;
 			vec3_t		binormal;
-			vec3_t		normal;
+			vec3_t		normal2;
 			int			*indices;
 		
 			for ( i = 0 ; i < ( rows * lodWidth ) ; i++ ) {
 				VectorClear( tess.tangents[tess.numVertexes + i] );
 				VectorClear( tess.binormals[tess.numVertexes + i] );
-				//VectorClear( tess.normals[tess.numVertexes + i] );
+				VectorClear( tess.normals[tess.numVertexes + i] );
 			}
 			
 			for ( i = 0, indices = tess.indexes + tess.numIndexes ; i < numIndexes ; i += 3, indices += 3) {
-				v0 = tess.xyz[tess.numVertexes + indices[0]];
-				v1 = tess.xyz[tess.numVertexes + indices[1]];
-				v2 = tess.xyz[tess.numVertexes + indices[2]];
+				v0 = tess.xyz[indices[0]];
+				v1 = tess.xyz[indices[1]];
+				v2 = tess.xyz[indices[2]];
 		
-				t0 = tess.texCoords[tess.numVertexes + indices[0]][0];
-				t1 = tess.texCoords[tess.numVertexes + indices[1]][0];
-				t2 = tess.texCoords[tess.numVertexes + indices[2]][0];
+				t0 = tess.texCoords[indices[0]][0];
+				t1 = tess.texCoords[indices[1]][0];
+				t2 = tess.texCoords[indices[2]][0];
 			
 				// compute the face normal based on vertex points
 				VectorSubtract( v2, v0, udir );
 				VectorSubtract( v1, v0, vdir );
 				CrossProduct( udir, vdir, faceNormal );
+				
+				// compute the face normal based on vertex normals
+				VectorClear( faceNormal );
+				//VectorAdd( faceNormal, tess.normals[indices[0]], faceNormal );
+				//VectorAdd( faceNormal, tess.normals[indices[1]], faceNormal );
+				//VectorAdd( faceNormal, tess.normals[indices[2]], faceNormal );
+				
 				VectorNormalize( faceNormal );
 				
-				R_CalcTangentSpace( tangent, binormal, normal, v0, v1, v2, t0, t1, t2, faceNormal );
+				R_CalcTangentSpace( tangent, binormal, normal2, v0, v1, v2, t0, t1, t2, faceNormal );
 				
 				for( j = 0; j < 3; j++ ) {
-					v = tess.tangents[tess.numVertexes + indices[j]];	VectorAdd( v, tangent, v );
-					v = tess.binormals[tess.numVertexes + indices[j]];	VectorAdd( v, binormal, v );
-					//v = tess.normals[tess.numVertexes + indices[j]];	VectorAdd( v, normal, v );
+					v = tess.tangents[indices[j]];	VectorAdd( v, tangent, v );
+					v = tess.binormals[indices[j]];	VectorAdd( v, binormal, v );
+					v = tess.normals[indices[j]];	VectorAdd( v, normal, v );
 				}
 			}
 			
-			for ( i = 0 ; i < ( rows * lodWidth ) ; i++ ) {
-				VectorNormalize( tess.tangents[tess.numVertexes + i] );
-				VectorNormalize( tess.binormals[tess.numVertexes + i] );
-				//VectorNormalize( tess.normals[tess.numVertexes + i] );
-			}
+			VectorArrayNormalize( ( vec4_t *) tess.tangents[tess.numVertexes], rows * lodWidth );
+			VectorArrayNormalize( ( vec4_t *) tess.binormals[tess.numVertexes], rows * lodWidth );
+			VectorArrayNormalize( ( vec4_t *) tess.normals[tess.numVertexes],  rows * lodWidth);
 		}
-
+#endif
 		tess.numIndexes += numIndexes;
 		tess.numVertexes += rows * lodWidth;
 

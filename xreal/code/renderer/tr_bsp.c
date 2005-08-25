@@ -533,6 +533,63 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 			ri.Error( ERR_DROP, "Bad index in triangle surface" );
 		}
 	}
+	
+	// Tr3B - calc tangent spaces
+	{
+		vec3_t		faceNormal;
+		vec3_t		udir, vdir;
+		float		*v;
+		const float	*v0, *v1, *v2;
+		const float	*t0, *t1, *t2;
+		vec3_t		tangent;
+		vec3_t		binormal;
+		vec3_t		normal;
+		int			*indices;
+		
+		for ( i = 0 ; i < numVerts ; i++ ) {
+			VectorClear( tri->verts[i].tangent );
+			VectorClear( tri->verts[i].binormal );
+			VectorClear( tri->verts[i].normal );
+		}
+	
+		indices = tri->indexes;
+		for ( i = 0 ; i < numIndexes ; i += 3, indices += 3) {
+			v0 = tri->verts[indices[0]].xyz;
+			v1 = tri->verts[indices[1]].xyz;
+			v2 = tri->verts[indices[2]].xyz;
+			
+			t0 = tri->verts[indices[0]].st;
+			t1 = tri->verts[indices[1]].st;
+			t2 = tri->verts[indices[2]].st;
+			
+			// compute the face normal based on vertex points
+			VectorSubtract( v2, v0, udir );
+			VectorSubtract( v1, v0, vdir );
+			CrossProduct( udir, vdir, faceNormal );
+				
+			// compute the face normal based on vertex normals
+			//VectorClear( faceNormal );
+			//VectorAdd( faceNormal, tess.normals[tess.numVertexes + indices[0]], faceNormal );
+			//VectorAdd( faceNormal, tess.normals[tess.numVertexes + indices[1]], faceNormal );
+			//VectorAdd( faceNormal, tess.normals[tess.numVertexes + indices[2]], faceNormal );
+			
+			VectorNormalize( faceNormal );
+			
+			R_CalcTangentSpace( tangent, binormal, normal, v0, v1, v2, t0, t1, t2, faceNormal );
+		
+			for( j = 0; j < 3; j++ ) {
+				v = tri->verts[indices[j]].tangent;		VectorAdd( v, tangent, v );
+				v = tri->verts[indices[j]].binormal;	VectorAdd( v, binormal, v );
+				v = tri->verts[indices[j]].normal;		VectorAdd( v, normal, v );
+			}
+		}
+	
+		for ( i = 0 ; i < numVerts ; i++ ) {
+			VectorNormalize( tri->verts[i].tangent );
+			VectorNormalize( tri->verts[i].binormal );
+			VectorNormalize( tri->verts[i].normal );
+		}
+	}
 }
 
 /*
