@@ -1037,7 +1037,9 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.energyMarkShader = trap_R_RegisterShader( "gfx/damage/plasma_mrk" );
 	cgs.media.shadowMarkShader = trap_R_RegisterShader( "markShadow" );
 	cgs.media.wakeMarkShader = trap_R_RegisterShader( "wake" );
-	cgs.media.bloodMarkShader = trap_R_RegisterShader( "bloodMark" );
+	cgs.media.bloodMark1Shader = trap_R_RegisterShader( "bloodMark1" );
+	cgs.media.bloodMark2Shader = trap_R_RegisterShader( "bloodMark2" );
+	cgs.media.bloodMark3Shader = trap_R_RegisterShader( "bloodMark3" );
 
 	// register the inline models
 	cgs.numInlineModels = trap_CM_NumInlineModels();

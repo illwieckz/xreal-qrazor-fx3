@@ -966,7 +966,7 @@ gfx/misc/tracer
 // their "contribution" can be damped down in fog volumes
 // with distance
 
-bloodMark
+bloodMark1
 {
 	nopicmip			// make sure a border remains
 	polygonOffset
@@ -981,6 +981,30 @@ bloodMark
 	}
 }
 
+bloodMark2
+{
+	nopicmip			// make sure a border remains
+	polygonOffset
+	{
+		clampmap textures/decals/blood_splat02.tga
+		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
+		rgbGen		vertex;
+		alphaGen	vertex
+	}
+}
+
+bloodMark3
+{
+	nopicmip			// make sure a border remains
+	polygonOffset
+	{
+		clampmap textures/decals/blood_splat03.tga
+		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
+		rgbGen		vertex;
+		alphaGen	vertex
+	}
+}
+
 bloodTrail
 {
         
@@ -989,7 +1013,7 @@ bloodTrail
 	{
 		//clampmap gfx/misc/blood.tga
 		//clampmap gfx/damage/blood_spurt.tga
-		clampmap textures/particles/blood.tga
+		clampmap textures/particles/blood2.tga
 		//blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
 		rgbGen		vertex
@@ -1492,6 +1516,46 @@ bloodExplosion		// spurt of blood at point of impact
 	{
 		animmap 5 models/weaphits/blood201.tga models/weaphits/blood202.tga models/weaphits/blood203.tga models/weaphits/blood204.tga models/weaphits/blood205.tga
 		blendfunc blend
+	}
+}
+
+lightningBoltNew
+{
+	cull none
+	{
+		map gfx/misc/lightning3new.tga
+		blendFunc GL_ONE GL_ONE
+		rgbgen wave sin 1 0.5 0 7.1
+		tcmod scale  2 1
+		tcMod scroll -5 0
+	}
+	{
+		map gfx/misc/lightning3new.tga
+		blendFunc GL_ONE GL_ONE
+		rgbgen wave sin 1 0.8 0 8.1
+		tcmod scale  -1.3 -1
+		tcMod scroll -7.2 0
+	}
+}
+
+
+lightningBoltNewNPM
+{
+	nopicmip
+	cull none
+	{
+		map gfx/misc/lightning3newNPM.tga
+		blendFunc GL_ONE GL_ONE
+		rgbgen wave sin 1 0.5 0 7.1
+		tcmod scale  2 1
+		tcMod scroll -5 0
+	}
+	{
+		map gfx/misc/lightning3newNPM.tga
+		blendFunc GL_ONE GL_ONE
+		rgbgen wave sin 1 0.8 0 8.1
+		tcmod scale  -1.3 -1
+		tcMod scroll -7.2 0
 	}
 }
 
