@@ -26,8 +26,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // $Author$
 // $Date$
 // $Log$
-// Revision 1.1  2005/08/21 10:12:21  trebor_7
-// Initial revision
+// Revision 1.2  2005/08/26 17:36:24  trebor_7
+// converted to unix format
+//
+// Revision 1.1.1.1  2005/08/21 10:12:21  trebor_7
+// Initial import.
 //
 // Revision 1.1.1.4  2000/01/18 00:17:10  ttimo
 // merging in for RC
