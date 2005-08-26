@@ -814,10 +814,13 @@ viewBloodBlend
 	sort	nearest
 	{
 		//map models/weaphits/blood201.tga
-                map gfx/damage/blood_screen.tga
-		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-		rgbGen identityLighting
-		alphaGen vertex
+        //map gfx/damage/blood_screen.tga
+        map textures/particles/blood2.tga
+		//blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
+		//rgbGen identityLighting
+		rgbGen		vertex
+		alphaGen	vertex
 	}
 }
 
@@ -968,10 +971,13 @@ bloodMark
 	nopicmip			// make sure a border remains
 	polygonOffset
 	{
-		clampmap gfx/damage/blood_stain.tga
-		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-		rgbGen identityLighting
-		alphaGen vertex
+		//clampmap gfx/damage/blood_stain.tga
+		clampmap textures/decals/blood_splat01.tga
+		//blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
+		//rgbGen identityLighting
+		rgbGen		vertex;
+		alphaGen	vertex
 	}
 }
 
@@ -982,8 +988,10 @@ bloodTrail
 	entityMergable		// allow all the sprites to be merged together
 	{
 		//clampmap gfx/misc/blood.tga
-                clampmap gfx/damage/blood_spurt.tga
-		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		//clampmap gfx/damage/blood_spurt.tga
+		clampmap textures/particles/blood.tga
+		//blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
 		rgbGen		vertex
 		alphaGen	vertex
 	}
