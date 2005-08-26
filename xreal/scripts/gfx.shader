@@ -1031,11 +1031,11 @@ gfx/damage/bullet_mrk
 	}
 }
 
-gfx/damage/burn_med_mrk
+burnMark
 {
 	polygonOffset
 	{
-		map gfx/damage/burn_med_mrk.tga
+		map textures/decals/explo_burn01.tga
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
 		rgbGen exactVertex
 	}
