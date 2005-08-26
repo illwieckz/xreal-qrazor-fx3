@@ -12,9 +12,6 @@ opts.Add(EnumOption('optimize', 'Set to >= 1 to build with general optimizations
 opts.Add(EnumOption('simd', 'Choose special CPU register optimizations', 'none', allowed_values=('none', 'sse', '3dnow')))
 opts.Add(EnumOption('cpu', 'Set to 1 to build with special CPU register optimizations', 'i386', allowed_values=('i386', 'athlon-xp', 
 'pentium4')))
-opts.Add(BoolOption('q3a', 'Set to 1 to compile with Q3A game support', 1))
-opts.Add(BoolOption('ta', 'Set to 1 to compile with Team Arena game support', 1))
-opts.Add(BoolOption('xreal', 'Set to 1 to compile with XreaL game support', 1))
 
 #
 # Initialize compiler environment base
@@ -161,20 +158,8 @@ opts.Save('quake3.conf', env)
 Export('env')
 
 SConscript('SConscript_quake3', build_dir='build/quake3', duplicate=0)
-
-if env['q3a'] == 1:
-	SConscript('SConscript_q3a_cgame', build_dir='build/q3a/cgame', duplicate=0)
-	SConscript('SConscript_q3a_game', build_dir='build/q3a/game', duplicate=0)
-	SConscript('SConscript_q3a_ui', build_dir='build/q3a/ui', duplicate=0)
-	
-if env['ta'] == 1:
-	SConscript('SConscript_ta_cgame', build_dir='build/ta/cgame', duplicate=0)
-	SConscript('SConscript_ta_game', build_dir='build/ta/game', duplicate=0)
-	SConscript('SConscript_ta_ui', build_dir='build/ta/ui', duplicate=0)
-
-if env['xreal'] == 1:
-	SConscript('SConscript_cgame', build_dir='build/cgame', duplicate=0)
-	SConscript('SConscript_game', build_dir='build/game', duplicate=0)
-	SConscript('SConscript_ui', build_dir='build/ui', duplicate=0)
-	SConscript('SConscript_scripts')
+SConscript('SConscript_cgame', build_dir='build/cgame', duplicate=0)
+SConscript('SConscript_game', build_dir='build/game', duplicate=0)
+SConscript('SConscript_ui', build_dir='build/ui', duplicate=0)
+SConscript('SConscript_scripts')
 
