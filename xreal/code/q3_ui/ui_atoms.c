@@ -189,7 +189,7 @@ void UI_LerpColor(vec4_t a, vec4_t b, vec4_t c, float t)
 UI_DrawProportionalString2
 =================
 */
-static int	propMap[128][3] = {
+int	propMap1[128][3] = {
 {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1},
 {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1},
 
@@ -299,7 +299,7 @@ static int	propMap[128][3] = {
 {0, 0, -1}		// DEL
 };
 
-static int propMapB[26][3] = {
+static int propMap2[26][3] = {
 {11, 12, 33},
 {49, 12, 31},
 {85, 12, 31},
@@ -331,9 +331,112 @@ static int propMapB[26][3] = {
 {158, 139, 25},
 };
 
-#define PROPB_GAP_WIDTH		4
-#define PROPB_SPACE_WIDTH	12
-#define PROPB_HEIGHT		36
+#define PROP2_GAP_WIDTH		4
+#define PROP2_SPACE_WIDTH	12
+#define PROP2_HEIGHT		36
+
+static int	propMap3[128][3] = {
+{0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1},
+{0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1},
+{0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1},
+{0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1},
+{0, 0, PROP_SPACE_WIDTH}, 	// SPACE
+{3, 0, 5}, 	// !
+{11, 0, 10}, 	// "
+{24, 0, 13}, 	// #
+{40, 0, 11}, 	// $
+{54, 0, 20}, 	// %
+{77, 0, 14}, 	// &
+{94, 0, 8}, 	// '
+{105, 0, 8}, 	// (
+{116, 0, 8}, 	// )
+{127, 0, 9}, 	// *
+{139, 0, 21}, 	// +
+{163, 0, 8}, 	// ,
+{174, 0, 9}, 	// -
+{186, 0, 8}, 	// .
+{197, 0, 10}, 	// /
+{210, 0, 23}, 	// 0
+{236, 0, 8}, 	// 1
+{247, 0, 14}, 	// 2
+{264, 0, 12}, 	// 3
+{279, 0, 17}, 	// 4
+{299, 0, 12}, 	// 5
+{314, 0, 15}, 	// 6
+{332, 0, 13}, 	// 7
+{348, 0, 16}, 	// 8
+{367, 0, 15}, 	// 9
+{385, 0, 7}, 	// :
+{395, 0, 8}, 	// ;
+{406, 0, 7}, 	// <
+{416, 0, 19}, 	// =
+{438, 0, 7}, 	// >
+{448, 0, 11}, 	// ?
+{462, 0, 22}, 	// @
+{487, 0, 23}, 	// A
+{0, 36, 20}, 	// B
+{23, 36, 21}, 	// C
+{47, 36, 21}, 	// D
+{71, 36, 21}, 	// E
+{95, 36, 18}, 	// F
+{116, 36, 22}, 	// G
+{141, 36, 22}, 	// H
+{166, 36, 8}, 	// I
+{177, 36, 10}, 	// J
+{190, 36, 23}, 	// K
+{216, 36, 19}, 	// L
+{238, 36, 23}, 	// M
+{264, 36, 21}, 	// N
+{288, 36, 24}, 	// O
+{315, 36, 19}, 	// P
+{337, 36, 22}, 	// Q
+{362, 36, 21}, 	// R
+{386, 36, 16}, 	// S
+{405, 36, 18}, 	// T
+{426, 36, 23}, 	// U
+{452, 36, 24}, 	// V
+{479, 36, 26}, 	// W
+{0, 72, 23}, 	// X
+{26, 72, 20}, 	// Y
+{49, 72, 17}, 	// Z
+{69, 72, 6}, 	// [
+{78, 72, 12}, 	// '\'
+{93, 72, 7}, 	// ]
+{103, 72, 12}, 	// ^
+{118, 72, 14}, 	// _
+{135, 72, 6}, 	// `
+{144, 72, 14}, 	// a
+{161, 72, 12}, 	// b
+{176, 72, 13}, 	// c
+{192, 72, 13}, 	// d
+{208, 72, 13}, 	// e
+{224, 72, 12}, 	// f
+{239, 72, 14}, 	// g
+{256, 72, 13}, 	// h
+{272, 72, 6}, 	// i
+{281, 72, 7}, 	// j
+{291, 72, 14}, 	// k
+{308, 72, 12}, 	// l
+{323, 72, 15}, 	// m
+{341, 72, 13}, 	// n
+{357, 72, 15}, 	// o
+{375, 72, 12}, 	// p
+{390, 72, 15}, 	// q
+{408, 72, 13}, 	// r
+{424, 72, 10}, 	// s
+{437, 72, 12}, 	// t
+{452, 72, 15}, 	// u
+{470, 72, 15}, 	// v
+{488, 72, 18}, 	// w
+{0, 108, 15}, 	// x
+{18, 108, 13}, 	// y
+{34, 108, 12}, 	// z
+{49, 108, 5}, 	// {
+{57, 108, 8}, 	// |
+{68, 108, 5}, 	// }
+{76, 108, 22}, 	// ~
+{0, 0, -1} 	// DEL
+};
 
 // bk001205 - code below duplicated in cgame/cg_drawtools.c
 // bk001205 - FIXME: does this belong in ui_shared.c?
@@ -366,18 +469,18 @@ static void UI_DrawBannerString2( int x, int y, const char* str, vec4_t color )
 	{
 		ch = *s & 127;
 		if ( ch == ' ' ) {
-			ax += ((float)PROPB_SPACE_WIDTH + (float)PROPB_GAP_WIDTH)* uis.scale;
+			ax += ((float)PROP2_SPACE_WIDTH + (float)PROP2_GAP_WIDTH)* uis.scale;
 		}
 		else if ( ch >= 'A' && ch <= 'Z' ) {
 			ch -= 'A';
-			fcol = (float)propMapB[ch][0] / 256.0f;
-			frow = (float)propMapB[ch][1] / 256.0f;
-			fwidth = (float)propMapB[ch][2] / 256.0f;
-			fheight = (float)PROPB_HEIGHT / 256.0f;
-			aw = (float)propMapB[ch][2] * uis.scale;
-			ah = (float)PROPB_HEIGHT * uis.scale;
-			trap_R_DrawStretchPic( ax, ay, aw, ah, fcol, frow, fcol+fwidth, frow+fheight, uis.charsetPropB );
-			ax += (aw + (float)PROPB_GAP_WIDTH * uis.scale);
+			fcol = (float)propMap2[ch][0] / 256.0f;
+			frow = (float)propMap2[ch][1] / 256.0f;
+			fwidth = (float)propMap2[ch][2] / 256.0f;
+			fheight = (float)PROP2_HEIGHT / 256.0f;
+			aw = (float)propMap2[ch][2] * uis.scale;
+			ah = (float)PROP2_HEIGHT * uis.scale;
+			trap_R_DrawStretchPic( ax, ay, aw, ah, fcol, frow, fcol+fwidth, frow+fheight, uis.charsetProp2 );
+			ax += (aw + (float)PROP2_GAP_WIDTH * uis.scale);
 		}
 		s++;
 	}
@@ -397,14 +500,14 @@ void UI_DrawBannerString( int x, int y, const char* str, int style, vec4_t color
 	while ( *s ) {
 		ch = *s;
 		if ( ch == ' ' ) {
-			width += PROPB_SPACE_WIDTH;
+			width += PROP2_SPACE_WIDTH;
 		}
 		else if ( ch >= 'A' && ch <= 'Z' ) {
-			width += propMapB[ch - 'A'][2] + PROPB_GAP_WIDTH;
+			width += propMap2[ch - 'A'][2] + PROP2_GAP_WIDTH;
 		}
 		s++;
 	}
-	width -= PROPB_GAP_WIDTH;
+	width -= PROP2_GAP_WIDTH;
 
 	switch( style & UI_FORMATMASK ) {
 		case UI_CENTER:
@@ -440,7 +543,7 @@ int UI_ProportionalStringWidth( const char* str ) {
 	width = 0;
 	while ( *s ) {
 		ch = *s & 127;
-		charWidth = propMap[ch][2];
+		charWidth = propMap3[ch][2];
 		if ( charWidth != -1 ) {
 			width += charWidth;
 			width += PROP_GAP_WIDTH;
@@ -478,12 +581,16 @@ static void UI_DrawProportionalString2( int x, int y, const char* str, vec4_t co
 		if ( ch == ' ' ) {
 			aw = (float)PROP_SPACE_WIDTH * uis.scale * sizeScale;
 		}
-		else if ( propMap[ch][2] != -1 ) {
-			fcol = (float)propMap[ch][0] / 256.0f;
-			frow = (float)propMap[ch][1] / 256.0f;
-			fwidth = (float)propMap[ch][2] / 256.0f;
+		else if ( propMap3[ch][2] != -1 ) {
+			//fcol = (float)propMap[ch][0] / 256.0f;
+			//frow = (float)propMap[ch][1] / 256.0f;
+			//fwidth = (float)propMap[ch][2] / 256.0f;
+			//fheight = (float)PROP_HEIGHT / 256.0f;
+			fcol = (float)propMap3[ch][0] / 512.0f;
+			frow = (float)propMap3[ch][1] / 256.0f;
+			fwidth = (float)propMap3[ch][2] / 512.0f;
 			fheight = (float)PROP_HEIGHT / 256.0f;
-			aw = (float)propMap[ch][2] * uis.scale * sizeScale;
+			aw = (float)propMap3[ch][2] * uis.scale * sizeScale;
 			ah = (float)PROP_HEIGHT * uis.scale * sizeScale;
 			trap_R_DrawStretchPic( ax, ay, aw, ah, fcol, frow, fcol+fwidth, frow+fheight, charset );
 		}
@@ -540,7 +647,7 @@ void UI_DrawProportionalString( int x, int y, const char* str, int style, vec4_t
 	if ( style & UI_DROPSHADOW ) {
 		drawcolor[0] = drawcolor[1] = drawcolor[2] = 0;
 		drawcolor[3] = color[3];
-		UI_DrawProportionalString2( x+2, y+2, str, drawcolor, sizeScale, uis.charsetProp );
+		UI_DrawProportionalString2( x+2, y+2, str, drawcolor, sizeScale, uis.charsetProp3 );
 	}
 
 	if ( style & UI_INVERSE ) {
@@ -548,7 +655,7 @@ void UI_DrawProportionalString( int x, int y, const char* str, int style, vec4_t
 		drawcolor[1] = color[1] * 0.7;
 		drawcolor[2] = color[2] * 0.7;
 		drawcolor[3] = color[3];
-		UI_DrawProportionalString2( x, y, str, drawcolor, sizeScale, uis.charsetProp );
+		UI_DrawProportionalString2( x, y, str, drawcolor, sizeScale, uis.charsetProp3 );
 		return;
 	}
 
@@ -557,17 +664,17 @@ void UI_DrawProportionalString( int x, int y, const char* str, int style, vec4_t
 		drawcolor[1] = color[1] * 0.7;
 		drawcolor[2] = color[2] * 0.7;
 		drawcolor[3] = color[3];
-		UI_DrawProportionalString2( x, y, str, color, sizeScale, uis.charsetProp );
+		UI_DrawProportionalString2( x, y, str, color, sizeScale, uis.charsetProp3 );
 
 		drawcolor[0] = color[0];
 		drawcolor[1] = color[1];
 		drawcolor[2] = color[2];
 		drawcolor[3] = 0.5 + 0.5 * sin( uis.realtime / PULSE_DIVISOR );
-		UI_DrawProportionalString2( x, y, str, drawcolor, sizeScale, uis.charsetPropGlow );
+		UI_DrawProportionalString2( x, y, str, drawcolor, sizeScale, uis.charsetProp3Glow );
 		return;
 	}
 
-	UI_DrawProportionalString2( x, y, str, color, sizeScale, uis.charsetProp );
+	UI_DrawProportionalString2( x, y, str, color, sizeScale, uis.charsetProp3 );
 }
 
 /*

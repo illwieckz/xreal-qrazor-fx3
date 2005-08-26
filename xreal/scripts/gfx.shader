@@ -63,20 +63,24 @@ console
 	nomipmaps
     
         {
-		map gfx/misc/console01.tga
+				map gfx/misc/console04.tga
                 blendFunc GL_ONE GL_ZERO
-                tcMod scroll .02  0
-                tcmod scale 2 1
-	}
+                tcMod scroll 5.1  0.2
+                tcmod scale .8 1
+                //tcMod scroll 7.1  0.2
+                //tcmod scale .8 1
+		}
         {
-                map gfx/misc/console02.tga
+                map gfx/misc/console01.tga
                 //map textures/sfx/firegorre3.tga
                 blendFunc add
                 tcMod turb 0 .1 0 .1
-                tcMod scale 2 1
+                tcMod scale 1 0.5
                 tcmod scroll 0.2  .1
-	} 
-
+                //tcMod scroll -.01  -.02 
+                //tcmod scale .02 .01
+                //tcmod rotate 3
+		}
 }
 
 menuback
@@ -1190,6 +1194,17 @@ gfx/2d/bigchars
 	nomipmaps
 	{
 		map gfx/2d/bigchars.tga
+		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		rgbgen vertex
+	}
+}
+
+gfx/2d/chromechars
+{
+	nopicmip
+	nomipmaps
+	{
+		map gfx/2d/chromechars.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 		rgbgen vertex
 	}

@@ -541,9 +541,11 @@ typedef struct {
 	qhandle_t			menuBackShader;
 	qhandle_t			menuBackNoLogoShader;
 	qhandle_t			charset;
-	qhandle_t			charsetProp;
-	qhandle_t			charsetPropGlow;
-	qhandle_t			charsetPropB;
+	qhandle_t			charsetProp1;
+	qhandle_t			charsetProp1Glow;
+	qhandle_t			charsetProp2;
+	qhandle_t			charsetProp3;
+	qhandle_t			charsetProp3Glow;
 	qhandle_t			cursor;
 	qhandle_t			rb_on;
 	qhandle_t			rb_off;

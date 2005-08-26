@@ -44,8 +44,8 @@ SETUP MENU
 #define ID_SYSTEMCONFIG			12
 #define ID_GAME					13
 #define ID_CDKEY				14
-#define ID_LOAD					15
-#define ID_SAVE					16
+//#define ID_LOAD					15
+//#define ID_SAVE					16
 #define ID_DEFAULTS				17
 #define ID_BACK					18
 
@@ -183,7 +183,7 @@ static void UI_SetupMenu_Init( void ) {
 	setupMenuInfo.framer.width  					= 256;
 	setupMenuInfo.framer.height  					= 334;
 
-	y = 134;
+	y = 100;
 	setupMenuInfo.setupplayer.generic.type			= MTYPE_PTEXT;
 	setupMenuInfo.setupplayer.generic.flags			= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
 	setupMenuInfo.setupplayer.generic.x				= 320;
@@ -247,7 +247,7 @@ static void UI_SetupMenu_Init( void ) {
 		setupMenuInfo.load.generic.y					= y;
 		setupMenuInfo.load.generic.id					= ID_LOAD;
 		setupMenuInfo.load.generic.callback				= UI_SetupMenu_Event; 
-		setupMenuInfo.load.string						= "LOAD";
+		setupMenuInfo.load.string						= "LOAD CONFIG";
 		setupMenuInfo.load.color						= color_red;
 		setupMenuInfo.load.style						= UI_CENTER;
 
@@ -258,7 +258,7 @@ static void UI_SetupMenu_Init( void ) {
 		setupMenuInfo.save.generic.y					= y;
 		setupMenuInfo.save.generic.id					= ID_SAVE;
 		setupMenuInfo.save.generic.callback				= UI_SetupMenu_Event; 
-		setupMenuInfo.save.string						= "SAVE";
+		setupMenuInfo.save.string						= "SAVE CONFIG";
 		setupMenuInfo.save.color						= color_red;
 		setupMenuInfo.save.style						= UI_CENTER;
 #endif

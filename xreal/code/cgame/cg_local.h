@@ -654,9 +654,11 @@ typedef struct {
 // stored in the clientInfo_t, itemInfo_t, weaponInfo_t, and powerupInfo_t
 typedef struct {
 	qhandle_t	charsetShader;
-	qhandle_t	charsetProp;
-	qhandle_t	charsetPropGlow;
-	qhandle_t	charsetPropB;
+	qhandle_t	charsetProp1;
+	qhandle_t	charsetProp1Glow;
+	qhandle_t	charsetProp2;
+	qhandle_t	charsetProp3;
+	qhandle_t	charsetProp3Glow;
 	qhandle_t	whiteShader;
 
 	qhandle_t	redCubeModel;

@@ -1322,7 +1322,7 @@ void Menu_AddItem( menuframework_s *menu, void *item )
 				break;
 
 			default:
-				trap_Error( va("Menu_Init: unknown type %d", itemptr->type) );
+				trap_Error( va("Menu_Init: '%s' has unknown type %d", itemptr->name, itemptr->type) );
 		}
 	}
 
@@ -1713,13 +1713,15 @@ Menu_Cache
 */
 void Menu_Cache( void )
 {
-	uis.charset			= trap_R_RegisterShaderNoMip( "gfx/2d/bigchars" );
-	uis.charsetProp		= trap_R_RegisterShaderNoMip( "menu/art/font1_prop.tga" );
-	uis.charsetPropGlow	= trap_R_RegisterShaderNoMip( "menu/art/font1_prop_glo.tga" );
-	uis.charsetPropB	= trap_R_RegisterShaderNoMip( "menu/art/font2_prop.tga" );
-	uis.cursor          = trap_R_RegisterShaderNoMip( "menu/art/3_cursor2" );
-	uis.rb_on           = trap_R_RegisterShaderNoMip( "menu/art/switch_on" );
-	uis.rb_off          = trap_R_RegisterShaderNoMip( "menu/art/switch_off" );
+	uis.charset				= trap_R_RegisterShaderNoMip( "gfx/2d/bigchars" );
+	uis.charsetProp1		= trap_R_RegisterShaderNoMip( "menu/art/font1_prop.tga" );
+	uis.charsetProp1Glow	= trap_R_RegisterShaderNoMip( "menu/art/font1_prop_glo.tga" );
+	uis.charsetProp2		= trap_R_RegisterShaderNoMip( "menu/art/font2_prop.tga" );
+	uis.charsetProp3		= trap_R_RegisterShaderNoMip( "menu/art/font3_prop.tga" );
+	uis.charsetProp3Glow	= trap_R_RegisterShaderNoMip( "menu/art/font3_prop_glo.tga" );
+	uis.cursor          	= trap_R_RegisterShaderNoMip( "menu/art/3_cursor2" );
+	uis.rb_on           	= trap_R_RegisterShaderNoMip( "menu/art/switch_on" );
+	uis.rb_off          	= trap_R_RegisterShaderNoMip( "menu/art/switch_off" );
 
 	uis.whiteShader = trap_R_RegisterShaderNoMip( "white" );
 	if ( uis.glconfig.hardwareType == GLHW_RAGEPRO ) {

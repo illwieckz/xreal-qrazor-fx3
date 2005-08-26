@@ -37,7 +37,7 @@ MAIN MENU
 #define ID_SETUP				12
 #define ID_DEMOS				13
 #define ID_CINEMATICS			14
-#define ID_TEAMARENA		15
+#define ID_TEAMARENA			15
 #define ID_MODS					16
 #define ID_EXIT					17
 
@@ -366,6 +366,7 @@ void UI_MainMenu( void ) {
 	s_main.cinematics.style					= style;
 
 	if (UI_TeamArenaExists()) {
+		/*	Tr3B - don't need it
 		teamArena = qtrue;
 		y += MAIN_MENU_VERTICAL_SPACING;
 		s_main.teamArena.generic.type			= MTYPE_PTEXT;
@@ -377,6 +378,7 @@ void UI_MainMenu( void ) {
 		s_main.teamArena.string					= "TEAM ARENA";
 		s_main.teamArena.color					= color_red;
 		s_main.teamArena.style					= style;
+		*/
 	}
 
 	y += MAIN_MENU_VERTICAL_SPACING;
