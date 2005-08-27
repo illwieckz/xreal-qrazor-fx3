@@ -886,7 +886,7 @@ static void GLW_InitExtensions( void )
 
 	// GL_ARB_transpose_matrix
 	qglLoadTransposeMatrixfARB = NULL;
-	if ( Q_stristr( glConfig2.extensions_string, "GL_ARB_transpose_matrix" ) ) {
+	if ( strstr( glConfig2.extensions_string, "GL_ARB_transpose_matrix" ) ) {
 		if ( r_ext_transpose_matrix->value ) {
 			qglLoadTransposeMatrixfARB = ( PFNGLLOADTRANSPOSEMATRIXFARBPROC ) qwglGetProcAddress( "glLoadTransposeMatrixfARB" );
 		  ri.Printf( PRINT_ALL, "...using GL_ARB_transpose_matrix\n" );
@@ -902,7 +902,7 @@ static void GLW_InitExtensions( void )
 	qglVertexAttribPointerARB = NULL;
 	qglEnableVertexAttribArrayARB = NULL;
 	qglDisableVertexAttribArrayARB = NULL;
-	if ( Q_stristr( glConfig.extensions_string, "GL_ARB_vertex_program" ) ) {
+	if ( strstr( glConfig.extensions_string, "GL_ARB_vertex_program" ) ) {
 		if ( r_ext_vertex_program->value ) {
 			qglVertexAttribPointerARB = ( PFNGLVERTEXATTRIBPOINTERARBPROC ) qwglGetProcAddress( "glVertexAttribPointerARB" );
 			qglEnableVertexAttribArrayARB = ( PFNGLENABLEVERTEXATTRIBARRAYARBPROC ) qwglGetProcAddress( "glEnableVertexAttribArrayARB" );
@@ -955,7 +955,7 @@ static void GLW_InitExtensions( void )
 	qglGetUniformfvARB = NULL;
 	qglGetUniformivARB = NULL;
 	qglGetShaderSourceARB = NULL;
-	if ( Q_stristr( glConfig.extensions_string, "GL_ARB_shader_objects" ) ) {
+	if ( strstr( glConfig.extensions_string, "GL_ARB_shader_objects" ) ) {
 		if ( r_ext_shader_objects->value ) {
 			qglDeleteObjectARB = ( PFNGLDELETEOBJECTARBPROC ) qwglGetProcAddress( "glDeleteObjectARB" );
 			qglGetHandleARB = ( PFNGLGETHANDLEARBPROC ) qwglGetProcAddress( "glGetHandleARB" );
@@ -1008,7 +1008,7 @@ static void GLW_InitExtensions( void )
 	qglBindAttribLocationARB = NULL;
 	qglGetActiveAttribARB = NULL;
 	qglGetAttribLocationARB = NULL;
-	if ( Q_stristr( glConfig.extensions_string, "GL_ARB_vertex_shader" ) ) {
+	if ( strstr( glConfig.extensions_string, "GL_ARB_vertex_shader" ) ) {
 		if ( r_ext_vertex_shader->value ) {
 			qglBindAttribLocationARB = ( PFNGLBINDATTRIBLOCATIONARBPROC ) qwglGetProcAddress( "glBindAttribLocationARB" );
 			qglGetActiveAttribARB = ( PFNGLGETACTIVEATTRIBARBPROC ) qwglGetProcAddress( "glGetActiveAttribARB" );
@@ -1024,7 +1024,7 @@ static void GLW_InitExtensions( void )
 	
 	// GL_ARB_fragment_shader
 	glConfig2.fragmentShaderAvailable = qfalse;
-	if ( Q_stristr( glConfig.extensions_string, "GL_ARB_fragment_shader" ) ) {
+	if ( strstr( glConfig.extensions_string, "GL_ARB_fragment_shader" ) ) {
 		if ( r_ext_fragment_shader->value ) {
 			glConfig2.fragmentShaderAvailable = qtrue;
 			ri.Printf( PRINT_ALL, "...using GL_ARB_fragment_shader\n" );
@@ -1037,7 +1037,7 @@ static void GLW_InitExtensions( void )
 	
 	// GL_ARB_shading_language_100
 	glConfig2.shadingLanguage100Available = qfalse;
-	if ( Q_stristr( glConfig.extensions_string, "GL_ARB_shading_language_100" ) ) {
+	if ( strstr( glConfig.extensions_string, "GL_ARB_shading_language_100" ) ) {
 		if ( r_ext_shading_language_100->value ) {
 			glConfig2.shadingLanguage100Available = qtrue;
 			ri.Printf( PRINT_ALL, "...using GL_ARB_shading_language_100\n" );
@@ -1106,7 +1106,7 @@ static void GLW_InitExtensions( void )
 	qglFramebufferRenderbufferEXT = NULL;
 	qglGetFramebufferAttachmentParameterivEXT = NULL;
 	qglGenerateMipmapEXT = NULL;
-	if ( Q_stristr( glConfig.extensions_string, "GL_EXT_framebuffer_object" ) ) {
+	if ( strstr( glConfig.extensions_string, "GL_EXT_framebuffer_object" ) ) {
 		if ( r_ext_framebuffer_object->value ) {
 			qglIsRenderbufferEXT = ( PFNGLISRENDERBUFFEREXTPROC ) qwglGetProcAddress( "glIsRenderbufferEXT" );
 			qglBindRenderbufferEXT = ( PFNGLBINDRENDERBUFFEREXTPROC ) qwglGetProcAddress( "glBindRenderbufferEXT" );
