@@ -154,14 +154,13 @@ CG_FragmentBounceMark
 ================
 */
 void CG_FragmentBounceMark( localEntity_t *le, trace_t *trace ) {
-	int			radius;
+	int			radius, r = 0;
+	qhandle_t	h;
 
 	if ( le->leMarkType == LEMT_BLOOD ) {
 
 		radius = 16 + (rand()&31);
-		
-		int r = rand()&3;
-		qhandle_t h;
+		r = rand()&3;
 		
 		if ( r == 0 ) {
 			h = cgs.media.bloodMark1Shader;
