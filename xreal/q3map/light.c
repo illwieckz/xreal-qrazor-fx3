@@ -845,7 +845,7 @@ void LightingAtSample( vec3_t origin, vec3_t normal, vec3_t color,
 	light_t		*light;
 	trace_t		trace;
 	float		angle;
-	float		add;
+	float		add = 0;
 	float		dist;
 	vec3_t		dir;
 
@@ -1204,7 +1204,7 @@ void TraceLtm( int num ) {
 	traceWork_t	tw;
 	vec3_t		average;
 	int			count;
-	mesh_t		srcMesh, *mesh, *subdivided;
+	mesh_t		srcMesh, *mesh = NULL, *subdivided;
 	shaderInfo_t	*si;
 	static float	nudge[2][9] = {
 		{ 0, -1, 0, 1, -1, 1, -1, 0, 1 },

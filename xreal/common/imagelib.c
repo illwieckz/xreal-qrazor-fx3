@@ -649,10 +649,10 @@ void LoadBMP (const char *filename, byte **pic, byte **palette, int *width, int 
     int		bfSize; 
     int		bfOffBits; 
 	int		structSize;
-    int		bcWidth; 
-    int     bcHeight; 
-    int	    bcPlanes; 
-    int		bcBitCount; 
+    int		bcWidth = 0; 
+    int     bcHeight = 0; 
+    int	    bcPlanes = 0; 
+    int		bcBitCount = 0; 
 	byte	bcPalette[1024];
 	qboolean	flipped;
 

@@ -763,7 +763,7 @@ void	ParseRawBrush( ) {
 	shaderInfo_t	*si;
 	// old brushes
 	vec_t		shift[2];
-	vec_t		rotate;
+	vec_t		rotate = 0;
 	vec_t		scale[2];
 	char		name[MAX_QPATH];
 	char		shader[MAX_QPATH];

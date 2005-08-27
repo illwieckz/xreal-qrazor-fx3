@@ -162,4 +162,5 @@ SConscript('SConscript_cgame', build_dir='build/cgame', duplicate=0)
 SConscript('SConscript_game', build_dir='build/game', duplicate=0)
 SConscript('SConscript_ui', build_dir='build/ui', duplicate=0)
 SConscript('SConscript_scripts')
+SConscript('SConscript_q3map', build_dir='build/q3map', duplicate=0)
 

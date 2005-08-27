@@ -20,13 +20,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#include "cmdlib.h"
-#include "mathlib.h"
-#include "scriplib.h"
-#include "polylib.h"
-#include "imagelib.h"
-#include "threads.h"
-#include "bspfile.h"
+#include "../common/cmdlib.h"
+#include "../common/mathlib.h"
+#include "../common/scriplib.h"
+#include "../common/polylib.h"
+#include "../common/imagelib.h"
+#include "../common/threads.h"
+#include "../common/bspfile.h"
+
 #include "shaders.h"
 #include "mesh.h"
 

@@ -68,7 +68,7 @@ extern int myargc;
 extern char **myargv;
 
 char *strupr (char *in);
-char *strlower (char *in);
+char *strlwr (char *in);
 int Q_strncasecmp( const char *s1, const char *s2, int n );
 int Q_stricmp( const char *s1, const char *s2 );
 void Q_getwd( char *out );

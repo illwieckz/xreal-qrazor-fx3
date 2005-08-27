@@ -22,10 +22,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <string.h>
 #include <math.h>
-#include "cmdlib.h"
-#include "mathlib.h"
-#include "imagelib.h"
-#include "scriplib.h"
+#include "../common/cmdlib.h"
+#include "../common/mathlib.h"
+#include "../common/imagelib.h"
+#include "../common/scriplib.h"
 
 #ifdef _TTIMOBUILD
 #include "../common/qfiles.h"
@@ -125,7 +125,7 @@ byte* LoadImageFile(char *filename, qboolean *bTGA)
   *bTGA = qtrue;
   if (FileExists(filename))
   {
-    LoadFileBlock(filename, &buffer);
+    LoadFileBlock(filename, (void**)&buffer);
   }
 #ifdef _WIN32
   else
@@ -141,7 +141,7 @@ byte* LoadImageFile(char *filename, qboolean *bTGA)
     filename[nLen-1] = 'g';
     if (FileExists(filename))
     {
-      LoadFileBlock(filename, &buffer);
+      LoadFileBlock(filename, (void**)&buffer);
     }
 #ifdef _WIN32
     else

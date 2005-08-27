@@ -1,0 +1,55 @@
+import os, string, sys
+
+Import('env')
+
+q3map_src = [
+'q3map/brush.c',
+'q3map/brush_primit.c',
+'q3map/bsp.c',
+'q3map/facebsp.c',
+'q3map/fog.c',
+#'q3map/gldraw.c',
+'q3map/glfile.c',
+'q3map/leakfile.c',
+'q3map/light.c',
+'q3map/light_trace.c',
+'q3map/lightmaps.c',
+'q3map/lightv.c',
+'q3map/map.c',
+'q3map/mesh.c',
+'q3map/misc_model.c',
+'q3map/nodraw.c',
+'q3map/patch.c',
+'q3map/portals.c',
+'q3map/prtfile.c',
+'q3map/shaders.c',
+'q3map/soundv.c',
+'q3map/surface.c',
+'q3map/terrain.c',
+'q3map/tjunction.c',
+'q3map/tree.c',
+'q3map/vis.c',
+'q3map/visflow.c',
+'q3map/writebsp.c',
+'common/cmdlib.c',
+'common/mathlib.c',
+'common/polylib.c',
+'common/aselib.c',
+'common/imagelib.c',
+'common/scriplib.c',
+'common/threads.c',
+'common/bspfile.c',
+'common/mutex.c'
+]
+
+q3map_env = env.Copy()
+
+if sys.platform == 'linux2':
+	q3map_env.Append(LIBS=['z', 'm'])
+	q3map_env.Program('q3map.x86', q3map_src)
+	q3map_env.Install('#bin', 'q3map.x86')
+
+#elif sys.platform == 'win32':
+	#quake3_env.Append(LIBS=['z', 'alut', 'openal32', 'm', 'wsock32', 'winmm'])
+	#quake3_env.Program('Quake3', quake3_src)
+	#quake3_env.Install('#bin', 'Quake3.exe')

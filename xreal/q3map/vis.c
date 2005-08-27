@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // vis.c
 
 #include "vis.h"
-#include "threads.h"
+#include "../common/threads.h"
 #include "stdlib.h"
 #ifdef _WIN32
 #include "../libs/pakstuff.h"

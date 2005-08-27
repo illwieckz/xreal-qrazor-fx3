@@ -120,7 +120,7 @@ byte *LoadAlphaMap( int *num_layers, int *alphawidth, int *alphaheight ) {
 
 	ExtractFileExtension( alphamapname, ext);
 	if ( !Q_stricmp( ext, "tga" ) ) {
-		Load32BitImage( ExpandGamePath( alphamapname ), &alphamap32, &width, &height );
+		Load32BitImage( ExpandGamePath( alphamapname ), ( unsigned** )&alphamap32, &width, &height );
 
 		size = width * height;
 		alphamap = malloc( size );
@@ -295,7 +295,7 @@ static void SideAsTristrip( terrainSurf_t *surf, int *index, int num ) {
 	int					i;
 	int					rotate;
 	int					numIndices;
-	int					ni;
+	int					ni = 0;
 	int					a, b, c;
 	int					indices[ MAX_INDICES ];
 

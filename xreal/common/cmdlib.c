@@ -178,8 +178,9 @@ UINT wm_BroadcastCommand = -1;
 void _printf( const char *format, ... ) {
 	va_list argptr;
   char text[4096];
+#ifdef WIN32
   ATOM a;
-
+#endif
 	va_start (argptr,format);
 	vsprintf (text, format, argptr);
 	va_end (argptr);
@@ -398,6 +399,7 @@ void Q_getwd (char *out)
    _getcwd (out, 256);
    strcat (out, "\\");
 #else
+#include <unistd.h>
    getwd (out);
    strcat (out, "/");
 #endif
@@ -568,7 +570,7 @@ char *strupr (char *start)
 	return start;
 }
 
-char *strlower (char *start)
+char *strlwr (char *start)
 {
 	char	*in;
 	in = start;

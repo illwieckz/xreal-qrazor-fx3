@@ -20,14 +20,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-
-#include "cmdlib.h"
-#include "mathlib.h"
-#include "bspfile.h"
-#include "imagelib.h"
-#include "threads.h"
-#include "mutex.h"
-#include "scriplib.h"
+#include "../common/cmdlib.h"
+#include "../common/mathlib.h"
+#include "../common/bspfile.h"
+#include "../common/imagelib.h"
+#include "../common/threads.h"
+#include "../common/mutex.h"
+#include "../common/scriplib.h"
 
 #include "shaders.h"
 #include "mesh.h"
@@ -4634,7 +4633,7 @@ void VL_FloodLight(vlight_t *light)
 		case LIGHT_POINTFAKESURFACE:
 		{
 			float value;
-			int n, axis;
+			int n, axis = 0;
 			vec3_t v, vecs[2];
 
 			if ( light->atten_disttype == LDAT_LINEAR )
@@ -4770,11 +4769,12 @@ void VL_TestLightLeafs(void)
 			continue;
 		leafnum = VL_LightLeafnum(light->origin);
 		leaf = &dleafs[leafnum];
-		if (leaf->cluster == -1)
+		if (leaf->cluster == -1) {
 			if (light->type == LIGHT_POINTRADIAL)
 				qprintf("light in solid at %1.1f %1.1f %1.1f\n", light->origin[0], light->origin[1], light->origin[2]);
 			else if (light->type == LIGHT_POINTSPOT)
 				qprintf("spot light in solid at %1.1f %1.1f %1.1f\n", light->origin[0], light->origin[1], light->origin[2]);
+		}
 	}
 }
 

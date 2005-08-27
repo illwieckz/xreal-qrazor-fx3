@@ -811,7 +811,7 @@ static void SurfaceAsTristrip( dsurface_t *ds ) {
 	int					i;
 	int					rotate;
 	int					numIndices;
-	int					ni;
+	int					ni = 0;
 	int					a, b, c;
 	int					indices[MAX_INDICES];
 
