@@ -2494,20 +2494,27 @@ models/players/crash/crash_t
 //	models/players/doom subfolder			//
 //******************************************************//
 
+models/players/doom/doom
+{
+	{
+		diffuseMap models/players/doom/doom_rgba.tga
+		normalMap models/players/doom/doom_norm.tga
+	}
+}
+
 models/players/doom/doom_f
 {
 	{
 		map models/players/doom/doom_f.tga	
-                rgbGen lightingDiffuse		
+        rgbGen lightingDiffuse		
 	}
-        {
+	{
 		
 		map models/players/doom/doom_fx.tga
 		tcGen environment
 		rgbGen lightingDiffuse
 		blendfunc gl_ONE gl_ONE 		
 	}
-	
 }
 
 models/players/doom/f_doom
@@ -2802,16 +2809,16 @@ models/players/major/daemia
 //******************************************************//
 
 models/players/mynx/mynx_shiny
-{      
- 
-        {
-                map textures/sfx/specular5.tga            
-                blendFunc GL_ONE GL_ZERO
-                tcGen environment
-	}  
-        {
-		map models/players/mynx/mynx_shiny.tga
-                blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+{
+//  {
+//                map textures/sfx/specular5.tga            
+//                blendFunc GL_ONE GL_ZERO
+//                tcGen environment
+//	}  
+    {
+		diffuseMap models/players/mynx/mynx.tga
+		normalMap models/players/mynx/mynx_norm.tga
+		//blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 		rgbGen lightingDiffuse
 	}
                 
@@ -4712,6 +4719,23 @@ models/weapons2/railgun/railgun4
 //******************************************************//
 //	models/weapons2/rocketl subfolder		//
 //******************************************************//
+
+models/weapons2/rocketl/rocketl
+{
+	{
+		diffusemap models/weapons2/rocketl/rocketl.tga
+		normalmap models/weapons2/rocketl/rocketl4_n.tga
+		rgbGen lightingDiffuse
+	}
+}
+
+models/weapons2/rocketl/rocketl2
+{
+	{
+		diffusemap models/weapons2/rocketl/rocketl2.tga
+		rgbGen lightingDiffuse
+	}
+}
 
 models/weapons2/rocketl/f_rocketl
 {

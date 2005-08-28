@@ -37,6 +37,7 @@ cvar_t	*r_railCoreWidth;
 cvar_t	*r_railSegmentLength;
 
 cvar_t	*r_ignoreFastPath;
+cvar_t	*r_bumpMapping;
 
 cvar_t	*r_verbose;
 cvar_t	*r_ignore;
@@ -116,6 +117,7 @@ cvar_t	*r_showtris;
 cvar_t	*r_showsky;
 cvar_t	*r_shownormals;
 cvar_t	*r_showTangentSpaces;
+cvar_t	*r_showDeluxels;
 cvar_t	*r_finish;
 cvar_t	*r_clear;
 cvar_t	*r_swapInterval;
@@ -988,7 +990,8 @@ void R_Register( void )
 #else        
 	r_smp = ri.Cvar_Get( "r_smp", "0", CVAR_ARCHIVE | CVAR_LATCH);
 #endif
-	r_ignoreFastPath = ri.Cvar_Get( "r_ignoreFastPath", "1", CVAR_ARCHIVE | CVAR_LATCH );
+	r_ignoreFastPath = ri.Cvar_Get( "r_ignoreFastPath", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_bumpMapping = ri.Cvar_Get( "r_bumpMapping", "1", CVAR_ARCHIVE | CVAR_LATCH );
 
 	//
 	// temporary latched variables that can only change over a restart
@@ -1069,8 +1072,9 @@ void R_Register( void )
 	r_nobind = ri.Cvar_Get ("r_nobind", "0", CVAR_CHEAT);
 	r_showtris = ri.Cvar_Get ("r_showtris", "0", CVAR_CHEAT);
 	r_showsky = ri.Cvar_Get ("r_showsky", "0", CVAR_CHEAT);
-	r_shownormals = ri.Cvar_Get ("r_shownormals", "0", CVAR_CHEAT);
-	r_showTangentSpaces = ri.Cvar_Get ("r_showTangentSpaces", "0", CVAR_CHEAT);
+	r_shownormals = ri.Cvar_Get ( "r_shownormals", "0", CVAR_CHEAT );
+	r_showTangentSpaces = ri.Cvar_Get ( "r_showTangentSpaces", "0", CVAR_CHEAT );
+	r_showDeluxels = ri.Cvar_Get ( "r_showDeluxels", "0", CVAR_CHEAT );
 	r_clear = ri.Cvar_Get ("r_clear", "0", CVAR_CHEAT);
 	r_offsetFactor = ri.Cvar_Get( "r_offsetfactor", "-1", CVAR_CHEAT );
 	r_offsetUnits = ri.Cvar_Get( "r_offsetunits", "-2", CVAR_CHEAT );
@@ -1174,6 +1178,8 @@ void R_Init( void ) {
 	R_ToggleSmpFrame();
 
 	InitOpenGL();
+	
+	RB_InitGPUShaders();
 
 	R_InitImages();
 
@@ -1217,6 +1223,7 @@ void RE_Shutdown( qboolean destroyWindow ) {
 		R_SyncRenderThread();
 		R_ShutdownCommandBuffers();
 		R_DeleteTextures();
+		RB_ShutdownGPUShaders();
 	}
 
 	R_DoneFreeType();

@@ -606,9 +606,71 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 			break;
 		}
 		//
-		// map <name>
+		// diffuseMap <name>
 		//
-		else if ( !Q_stricmp( token, "map" ) )
+		else if ( !Q_stricmp( token, "diffuseMap" ) )
+		{
+			token = COM_ParseExt( text, qfalse );
+			if ( !token[0] )
+			{
+				ri.Printf( PRINT_WARNING, "WARNING: missing parameter for 'diffusemap' keyword in shader '%s'\n", shader.name );
+				return qfalse;
+			}
+
+			if ( !Q_stricmp( token, "$whiteimage" ) || !Q_stricmp( token, "$white" ) )
+			{
+				stage->bundle[0].image[0] = tr.whiteImage;
+				continue;
+			}
+			if ( !Q_stricmp( token, "$blackimage" ) || !Q_stricmp( token, "$black" ) )
+			{
+				stage->bundle[0].image[0] = tr.blackImage;
+				continue;
+			}
+			else
+			{
+				shader.hasDiffuseMap = qtrue;
+				stage->bundle[0].image[0] = R_FindImageFile( token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT, qfalse );
+				if ( !stage->bundle[0].image[0] )
+				{
+					ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
+					return qfalse;
+				}
+			}
+		}
+		//
+		// normalMap <name>
+		//
+		else if ( !Q_stricmp( token, "normalMap" ) )
+		{
+			token = COM_ParseExt( text, qfalse );
+			if ( !token[0] )
+			{
+				ri.Printf( PRINT_WARNING, "WARNING: missing parameter for 'diffusemap' keyword in shader '%s'\n", shader.name );
+				return qfalse;
+			}
+
+			/*
+			if ( !Q_stricmp( token, "$flat" ) )
+			{
+				stage->bundle[0].image[0] = tr.flatImage;
+				continue;
+			}
+			else */
+			{
+				shader.hasNormalMap = qtrue;
+				stage->bundle[1].image[0] = R_FindImageFile( token, /*!shader.noMipMaps*/ qfalse , !shader.noPicMip, GL_REPEAT, qtrue );
+				if ( !stage->bundle[1].image[0] )
+				{
+					ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
+					return qfalse;
+				}
+			}
+		}
+		//
+		// colorMap <name>
+		//
+		else if ( !Q_stricmp( token, "colorMap" ) || !Q_stricmp( token, "map" ) )
 		{
 			token = COM_ParseExt( text, qfalse );
 			if ( !token[0] )
@@ -639,7 +701,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 			}
 			else
 			{
-				stage->bundle[0].image[0] = R_FindImageFile( token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT );
+				stage->bundle[0].image[0] = R_FindImageFile( token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT, qfalse );
 				if ( !stage->bundle[0].image[0] )
 				{
 					ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
@@ -659,7 +721,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				return qfalse;
 			}
 
-			stage->bundle[0].image[0] = R_FindImageFile( token, !shader.noMipMaps, !shader.noPicMip, GL_CLAMP );
+			stage->bundle[0].image[0] = R_FindImageFile( token, !shader.noMipMaps, !shader.noPicMip, GL_CLAMP, qfalse );
 			if ( !stage->bundle[0].image[0] )
 			{
 				ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
@@ -689,7 +751,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				}
 				num = stage->bundle[0].numImageAnimations;
 				if ( num < MAX_IMAGE_ANIMATIONS ) {
-					stage->bundle[0].image[num] = R_FindImageFile( token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT );
+					stage->bundle[0].image[num] = R_FindImageFile( token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT, qfalse );
 					if ( !stage->bundle[0].image[num] )
 					{
 						ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
@@ -1232,7 +1294,7 @@ static void ParseSkyParms( char **text ) {
 		for (i=0 ; i<6 ; i++) {
 			Com_sprintf( pathname, sizeof(pathname), "%s_%s.tga"
 				, token, suf[i] );
-			shader.sky.outerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_CLAMP );
+			shader.sky.outerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_CLAMP, qfalse );
 			if ( !shader.sky.outerbox[i] ) {
 				shader.sky.outerbox[i] = tr.defaultImage;
 			}
@@ -1262,7 +1324,7 @@ static void ParseSkyParms( char **text ) {
 		for (i=0 ; i<6 ; i++) {
 			Com_sprintf( pathname, sizeof(pathname), "%s_%s.tga"
 				, token, suf[i] );
-			shader.sky.innerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_REPEAT );
+			shader.sky.innerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_REPEAT, qfalse );
 			if ( !shader.sky.innerbox[i] ) {
 				shader.sky.innerbox[i] = tr.defaultImage;
 			}
@@ -1633,15 +1695,27 @@ static void ComputeStageIteratorFunc( void )
 	//
 	// see if this should go into the sky path
 	//
-	if ( shader.isSky )
-	{
+	if ( shader.isSky ) {
 		shader.optimalStageIteratorFunc = RB_StageIteratorSky;
 		goto done;
 	}
 
-	if ( r_ignoreFastPath->integer )
-	{
+	if ( r_ignoreFastPath->integer ) {
 		return;
+	}
+	
+	//
+	// see if this can go into the per pixel lit fast path
+	//
+	if ( glConfig2.shadingLanguage100Available ) {
+		if ( shader.hasDiffuseMap )	{
+			if ( shader.hasNormalMap && r_bumpMapping->integer ) {
+				shader.optimalStageIteratorFunc = RB_StageIteratorPerPixelLit_DB;
+			} else {
+				shader.optimalStageIteratorFunc = RB_StageIteratorPerPixelLit_D;
+			}
+			return;
+		}
 	}
 
 	//
@@ -1661,7 +1735,10 @@ static void ComputeStageIteratorFunc( void )
 						{
 							if ( !shader.numDeforms )
 							{
-								shader.optimalStageIteratorFunc = RB_StageIteratorVertexLitTexture;
+								if ( glConfig2.shadingLanguage100Available )
+									shader.optimalStageIteratorFunc = RB_StageIteratorPerPixelLit_D;
+								else
+									shader.optimalStageIteratorFunc = RB_StageIteratorVertexLitTexture;
 								goto done;
 							}
 						}
@@ -2492,7 +2569,7 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 	//
 	Q_strncpyz( fileName, name, sizeof( fileName ) );
 	COM_DefaultExtension( fileName, sizeof( fileName ), ".tga" );
-	image = R_FindImageFile( fileName, mipRawImage, mipRawImage, mipRawImage ? GL_REPEAT : GL_CLAMP );
+	image = R_FindImageFile( fileName, mipRawImage, mipRawImage, mipRawImage ? GL_REPEAT : GL_CLAMP, qfalse );
 	if ( !image ) {
 		ri.Printf( PRINT_DEVELOPER, "Couldn't find image for shader %s\n", name );
 		shader.defaultShader = qtrue;
@@ -2826,6 +2903,8 @@ void	R_ShaderList_f (void) {
 			ri.Printf( PRINT_ALL, "lmmt" );
 		} else if ( shader->optimalStageIteratorFunc == RB_StageIteratorVertexLitTexture ) {
 			ri.Printf( PRINT_ALL, "vlt " );
+		} else if ( shader->optimalStageIteratorFunc == RB_StageIteratorPerPixelLit_D ) {
+			ri.Printf( PRINT_ALL, "pplD " );
 		} else {
 			ri.Printf( PRINT_ALL, "    " );
 		}

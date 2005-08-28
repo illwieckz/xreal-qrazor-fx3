@@ -1,0 +1,12 @@
+import os, string, sys
+
+Import('env')
+
+files = [
+'glsl/lighting_D_direct_vp.glsl',
+'glsl/lighting_D_direct_fp.glsl',
+'glsl/lighting_DB_direct_vp.glsl',
+'glsl/lighting_DB_direct_fp.glsl'
+]
+
+env.Install('#bin/xreal/glsl', files)

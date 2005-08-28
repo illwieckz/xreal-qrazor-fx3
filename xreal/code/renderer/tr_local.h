@@ -296,6 +296,7 @@ typedef struct {
 	qboolean		isLightmap;
 	qboolean		vertexLightmap;
 	qboolean		isVideoMap;
+	qboolean		isNormalMap;
 } textureBundle_t;
 
 #define NUM_TEXTURE_BUNDLES 2
@@ -393,6 +394,9 @@ typedef struct shader_s {
 	qboolean	needsST1;
 	qboolean	needsST2;
 	qboolean	needsColor;
+	
+	qboolean	hasDiffuseMap;
+	qboolean	hasNormalMap;
 
 	int			numDeforms;
 	deformStage_t	deforms[MAX_SHADER_DEFORMS];
@@ -402,20 +406,20 @@ typedef struct shader_s {
 
 	void		(*optimalStageIteratorFunc)( void );
 
-  float clampTime;                                  // time this shader is clamped to
-  float timeOffset;                                 // current time offset for this shader
+	float		clampTime;				// time this shader is clamped to
+	float		timeOffset;				// current time offset for this shader
 
-  int numStates;                                    // if non-zero this is a state shader
-  struct shader_s *currentShader;                   // current state if this is a state shader
-  struct shader_s *parentShader;                    // current state if this is a state shader
-  int currentState;                                 // current state index for cycle purposes
-  long expireTime;                                  // time in milliseconds this expires
+	int			numStates;				// if non-zero this is a state shader
+	struct shader_s *currentShader;		// current state if this is a state shader
+	struct shader_s *parentShader;		// current state if this is a state shader
+	int			currentState;			// current state index for cycle purposes
+	long		expireTime;				// time in milliseconds this expires
 
-  struct shader_s *remappedShader;                  // current shader this one is remapped too
+	struct shader_s *remappedShader;	// current shader this one is remapped too
 
-  int shaderStates[MAX_STATES_PER_SHADER];          // index to valid shader states
+	int 		shaderStates[MAX_STATES_PER_SHADER];	// index to valid shader states
 
-	struct	shader_s	*next;
+	struct shader_s	*next;
 } shader_t;
 
 typedef struct shaderState_s {
@@ -425,6 +429,23 @@ typedef struct shaderState_s {
   int cycleTime;                  // time this cycle lasts, <= 0 is forever
   shader_t *shader;
 } shaderState_t;
+
+// Tr3B - shaderProgram_t represents a pair of one
+// GLSL vertex and one GLSL fragment shader
+typedef struct shaderProgram_s {
+
+	GLhandleARB		program;
+	int				attribs;		// vertex array attributes
+	
+	// uniform parameters
+	GLint			u_DiffuseMap;
+	GLint			u_NormalMap;
+	
+	GLint			u_AmbientColor;
+	GLint			u_LightDir;
+	GLint			u_LightColor;
+
+} shaderProgram_t;
 
 
 // trRefdef_t holds everything that comes in refdef_t,
@@ -925,6 +946,9 @@ typedef struct {
 	int						currentEntityNum;
 	int						shiftedEntityNum;	// currentEntityNum << QSORT_ENTITYNUM_SHIFT
 	model_t					*currentModel;
+	
+	shaderProgram_t			lightShader_D_direct;
+	shaderProgram_t			lightShader_DB_direct;
 
 	viewParms_t				viewParms;
 
@@ -992,6 +1016,7 @@ extern cvar_t	*r_railSegmentLength;
 extern cvar_t	*r_ignore;				// used for debugging anything
 extern cvar_t	*r_verbose;				// used for verbose debug spew
 extern cvar_t	*r_ignoreFastPath;		// allows us to ignore our Tess fast paths
+extern cvar_t	*r_bumpMapping;
 
 extern cvar_t	*r_znear;				// near Z clip plane
 
@@ -1076,6 +1101,7 @@ extern	cvar_t	*r_showtris;					// enables wireframe rendering of the world
 extern	cvar_t	*r_showsky;						// forces sky in front of all surfaces
 extern	cvar_t	*r_shownormals;					// draws wireframe normals
 extern	cvar_t	*r_showTangentSpaces;			// draws wireframe tangents, binormals and normals
+extern	cvar_t	*r_showDeluxels;				// draws wireframe deluxels
 extern	cvar_t	*r_clear;						// force screen clear every frame
 
 extern	cvar_t	*r_shadows;						// controls shadows: 0 = none, 1 = blur, 2 = stencil, 3 = black planar projection
@@ -1209,10 +1235,10 @@ qboolean	R_GetEntityToken( char *buffer, int size );
 model_t		*R_AllocModel( void );
 
 void    	R_Init( void );
-image_t		*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode );
+image_t		*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode, qboolean normalmap );
 
 image_t		*R_CreateImage( const char *name, const byte *pic, int width, int height, qboolean mipmap
-					, qboolean allowPicmip, int wrapClampMode );
+					, qboolean allowPicmip, int wrapClampMode, qboolean normalmap );
 qboolean	R_GetModeInfo( int *width, int *height, float *windowAspect, int mode );
 
 void		R_SetColorMappings( void );
@@ -1297,6 +1323,7 @@ typedef struct shaderCommands_s
 	vec4_t		tangents[SHADER_MAX_VERTEXES];
 	vec4_t		binormals[SHADER_MAX_VERTEXES];
 	vec4_t		normals[SHADER_MAX_VERTEXES];
+	vec4_t		deluxels[SHADER_MAX_VERTEXES];
 	vec2_t		texCoords[SHADER_MAX_VERTEXES][2];
 	color4ub_t	vertexColors[SHADER_MAX_VERTEXES];
 	int			vertexDlightBits[SHADER_MAX_VERTEXES];
@@ -1327,9 +1354,14 @@ void RB_EndSurface(void);
 void RB_CheckOverflow( int verts, int indexes );
 #define RB_CHECKOVERFLOW(v,i) if (tess.numVertexes + (v) >= SHADER_MAX_VERTEXES || tess.numIndexes + (i) >= SHADER_MAX_INDEXES ) {RB_CheckOverflow(v,i);}
 
+void RB_InitGPUShaders( void );
+void RB_ShutdownGPUShaders( void );
+
 void RB_StageIteratorGeneric( void );
 void RB_StageIteratorSky( void );
 void RB_StageIteratorVertexLitTexture( void );
+void RB_StageIteratorPerPixelLit_D( void );
+void RB_StageIteratorPerPixelLit_DB( void );
 void RB_StageIteratorLightmappedMultitexture( void );
 
 void RB_AddQuadStamp( vec3_t origin, vec3_t left, vec3_t up, byte *color );
@@ -1491,6 +1523,8 @@ void	RB_CalcColorFromEntity( unsigned char *dstColors );
 void	RB_CalcColorFromOneMinusEntity( unsigned char *dstColors );
 void	RB_CalcSpecularAlpha( unsigned char *alphas );
 void	RB_CalcDiffuseColor( unsigned char *colors );
+
+void	RB_CalcDeluxels( void );
 
 /*
 =============================================================

@@ -1203,3 +1203,16 @@ void RB_CalcDiffuseColor( unsigned char *colors )
 	}
 }
 
+void RB_CalcDeluxels( void ) {
+
+	int				i;
+	trRefEntity_t	*ent = backEnd.currentEntity;
+	float			*deluxel = ( float * ) tess.deluxels;
+
+	for ( i = 0; i < tess.numVertexes; i++, deluxel += 4 ) {
+		
+		VectorCopy( ent->lightDir, deluxel );
+//		VectorCopy( ent->directedLight, directedLight );	
+		VectorNormalizeFast( deluxel );
+	}
+}
