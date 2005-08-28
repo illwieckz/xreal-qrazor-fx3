@@ -269,7 +269,7 @@ static void StartServer_GametypeEvent( void* ptr, int event ) {
 		}
 
 		Q_strncpyz( s_startserver.maplist[s_startserver.nummaps], Info_ValueForKey( info, "map"), MAX_NAMELENGTH );
-		Q_strupr( s_startserver.maplist[s_startserver.nummaps] );
+		Q_strlwr( s_startserver.maplist[s_startserver.nummaps] );
 		s_startserver.mapGamebits[s_startserver.nummaps] = gamebits;
 		s_startserver.nummaps++;
 	}
