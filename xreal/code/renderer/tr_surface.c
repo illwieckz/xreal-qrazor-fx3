@@ -632,7 +632,6 @@ static void LerpMeshVertexes (md3Surface_t *surf, float backlerp)
 	float	oldXyzScale, newXyzScale;
 	float	oldNormalScale, newNormalScale;
 	int		vertNum;
-	unsigned lat, lng;
 	int		numVerts;
 
 	outXyz = tess.xyz[tess.numVertexes];
@@ -649,6 +648,7 @@ static void LerpMeshVertexes (md3Surface_t *surf, float backlerp)
 
 	if ( backlerp == 0 ) {
 #if idppc_altivec
+		unsigned lat, lng;
 		vector signed short newNormalsVec0;
 		vector signed short newNormalsVec1;
 		vector signed int newNormalsIntVec;
@@ -715,7 +715,8 @@ static void LerpMeshVertexes (md3Surface_t *surf, float backlerp)
 			outXyz[0] = newXyz[0] * newXyzScale;
 			outXyz[1] = newXyz[1] * newXyzScale;
 			outXyz[2] = newXyz[2] * newXyzScale;
-
+			
+			/* Tr3B - well will calculate the normals anyway for tangent space creation, so save speed
 			lat = ( newNormals[0] >> 8 ) & 0xff;
 			lng = ( newNormals[0] & 0xff );
 			lat *= (FUNCTABLE_SIZE/256);
@@ -728,6 +729,7 @@ static void LerpMeshVertexes (md3Surface_t *surf, float backlerp)
 			outNormal[0] = tr.sinTable[(lat+(FUNCTABLE_SIZE/4))&FUNCTABLE_MASK] * tr.sinTable[lng];
 			outNormal[1] = tr.sinTable[lat] * tr.sinTable[lng];
 			outNormal[2] = tr.sinTable[(lng+(FUNCTABLE_SIZE/4))&FUNCTABLE_MASK];
+			*/
 		}
 #endif
 	} else {
@@ -745,13 +747,14 @@ static void LerpMeshVertexes (md3Surface_t *surf, float backlerp)
 			oldXyz += 4, newXyz += 4, oldNormals += 4, newNormals += 4,
 			outXyz += 4, outNormal += 4) 
 		{
-			vec3_t uncompressedOldNormal, uncompressedNewNormal;
+			//vec3_t uncompressedOldNormal, uncompressedNewNormal;
 
 			// interpolate the xyz
 			outXyz[0] = oldXyz[0] * oldXyzScale + newXyz[0] * newXyzScale;
 			outXyz[1] = oldXyz[1] * oldXyzScale + newXyz[1] * newXyzScale;
 			outXyz[2] = oldXyz[2] * oldXyzScale + newXyz[2] * newXyzScale;
 
+			/* Tr3B - well will calculate the normals anyway for tangent space creation, so save speed
 			// FIXME: interpolate lat/long instead?
 			lat = ( newNormals[0] >> 8 ) & 0xff;
 			lng = ( newNormals[0] & 0xff );
@@ -775,8 +778,9 @@ static void LerpMeshVertexes (md3Surface_t *surf, float backlerp)
 			outNormal[2] = uncompressedOldNormal[2] * oldNormalScale + uncompressedNewNormal[2] * newNormalScale;
 
 //			VectorNormalize (outNormal);
+			*/
 		}
-    	VectorArrayNormalize((vec4_t *)tess.normals[tess.numVertexes], numVerts);
+//    	VectorArrayNormalize((vec4_t *)tess.normals[tess.numVertexes], numVerts);
    	}
 }
 
@@ -936,7 +940,7 @@ void RB_SurfaceFace( srfSurfaceFace_t *surf ) {
 	}
 
 	if ( tess.shader->needsNormal ) {
-#if 0
+#if 1
 		for ( i = 0, v = surf->points[0], ndx = tess.numVertexes; i < numPoints; i++, v += VERTEXSIZE, ndx++ ) {
 			VectorCopy( &v[14], tess.normals[ndx] );
 		}
@@ -1160,7 +1164,7 @@ void RB_SurfaceGrid( srfGridMesh_t *cv ) {
 			const float	*t0, *t1, *t2;
 			vec3_t		tangent;
 			vec3_t		binormal;
-			vec3_t		normal2;
+			vec3_t		normal;
 			int			*indices;
 		
 			for ( i = 0 ; i < ( rows * lodWidth ) ; i++ ) {
@@ -1184,14 +1188,14 @@ void RB_SurfaceGrid( srfGridMesh_t *cv ) {
 				CrossProduct( udir, vdir, faceNormal );
 				
 				// compute the face normal based on vertex normals
-				VectorClear( faceNormal );
+				//VectorClear( faceNormal );
 				//VectorAdd( faceNormal, tess.normals[indices[0]], faceNormal );
 				//VectorAdd( faceNormal, tess.normals[indices[1]], faceNormal );
 				//VectorAdd( faceNormal, tess.normals[indices[2]], faceNormal );
 				
 				VectorNormalize( faceNormal );
 				
-				R_CalcTangentSpace( tangent, binormal, normal2, v0, v1, v2, t0, t1, t2, faceNormal );
+				R_CalcTangentSpace( tangent, binormal, normal, v0, v1, v2, t0, t1, t2, faceNormal );
 				
 				for( j = 0; j < 3; j++ ) {
 					v = tess.tangents[indices[j]];	VectorAdd( v, tangent, v );
