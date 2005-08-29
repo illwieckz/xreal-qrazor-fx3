@@ -74,6 +74,7 @@ static void RB_LoadGPUShader( GLhandleARB program, const char *name, GLenum shad
 	GLcharARB	*buffer = NULL;
 	int			size;
 	GLint		compiled;
+	GLhandleARB shader;
 	
 	if ( shaderType == GL_VERTEX_SHADER_ARB) {
 		Com_sprintf( filename, sizeof( filename ), "glsl/%s_vp.glsl", name );
@@ -87,7 +88,7 @@ static void RB_LoadGPUShader( GLhandleARB program, const char *name, GLenum shad
 		ri.Error( ERR_DROP, "Couldn't load %s", filename );
 	}
 	
-	GLhandleARB shader = qglCreateShaderObjectARB( shaderType );
+	shader = qglCreateShaderObjectARB( shaderType );
 	qglShaderSourceARB( shader, 1, (const GLcharARB**)&buffer, &size );
 	
 	// compile shader
