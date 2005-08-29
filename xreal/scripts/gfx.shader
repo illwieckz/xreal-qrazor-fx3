@@ -976,7 +976,7 @@ bloodMark1
 		//blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
 		//rgbGen identityLighting
-		rgbGen		vertex;
+		rgbGen		vertex
 		alphaGen	vertex
 	}
 }
@@ -988,7 +988,7 @@ bloodMark2
 	{
 		clampmap textures/decals/blood_splat02.tga
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
-		rgbGen		vertex;
+		rgbGen		vertex
 		alphaGen	vertex
 	}
 }
@@ -1000,7 +1000,7 @@ bloodMark3
 	{
 		clampmap textures/decals/blood_splat03.tga
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
-		rgbGen		vertex;
+		rgbGen		vertex
 		alphaGen	vertex
 	}
 }
