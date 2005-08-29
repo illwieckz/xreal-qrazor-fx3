@@ -1,0 +1,10 @@
+renderer
+- new extension GL_ARB_transpose_matrix
+- new extension GL_ARB_vertex_program
+- new extension GL_ARB_shader_objects
+- new extension GL_ARB_vertex_shader
+- new extension GL_ARB_fragment_shader
+- new extension GL_ARB_shading_language_100
+- new extension GL_EXT_framebuffer_object
+- basic GLSL rendering capabilities in renderer backend
+- tangent space calculations for bump mapping
