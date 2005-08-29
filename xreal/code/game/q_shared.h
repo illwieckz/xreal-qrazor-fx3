@@ -102,6 +102,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define id386	1
 #if defined SIMD_3DNOW
 #define id386_3dnow  1
+#if defined __GNUC__
+inline void	femms() {
+	asm volatile("femms");
+}
+#endif
 #else
 #define id386_3dnow  0
 #endif
@@ -501,6 +506,9 @@ typedef vec_t vec3_t[3];
 typedef vec_t vec4_t[4];
 typedef vec_t vec5_t[5];
 
+typedef vec_t axis_t[3][3];
+typedef vec_t matrix_t[4][4];
+
 typedef	int	fixed4_t;
 typedef	int	fixed8_t;
 typedef	int	fixed16_t;
@@ -685,9 +693,9 @@ static ID_INLINE vec_t VectorLength( const vec3_t v ) {
 #if id386_3dnow && defined __GNUC__ && 0
 //#error VectorLength
 	vec_t out;
+	femms();
 	asm volatile
 	(									// lo									| hi
-	"femms\n"
 	"movq		(%%eax),	%%mm0\n"	// v[0]									| v[1]
 	"movd		8(%%eax),	%%mm1\n"	// v[2]									| -
 	// mm0[lo] = dot product(this)
@@ -704,11 +712,11 @@ static ID_INLINE vec_t VectorLength( const vec3_t v ) {
 	"pfmul		%%mm1,		%%mm0\n"	// sqrt(dot)
 	// out = mm0[lo]
 	"movd		%%mm0,		(%%edx)\n"
-	"femms\n"
 	:
 	: "a"( v ), "d"( &out )
 	: "memory"
 	);
+	femms();
 	return out;
 #else
 	return (vec_t)sqrt (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
@@ -719,9 +727,9 @@ static ID_INLINE vec_t VectorLengthSquared( const vec3_t v ) {
 #if id386_3dnow && defined __GNUC__ && 0
 //#error VectorLengthSquared
 	vec_t out;
+	femms();
 	asm volatile
 	(									// lo								| hi
-	"femms\n"
 	"movq		(%%eax),	%%mm0\n"	// v[0]								| v[1]
 	"movq		(%%eax),	%%mm2\n"	// v[0]								| v[1]
 	"movd		8(%%eax),	%%mm1\n"	// v[2]								| -
@@ -733,11 +741,11 @@ static ID_INLINE vec_t VectorLengthSquared( const vec3_t v ) {
 	"pfadd		%%mm1,		%%mm0\n"	// v[0]*v[0]+v[1]*v[1]+v[2]*v[2]	| -
 	
 	"movd		%%mm0,		(%%edx)\n"	// out = mm2[lo]
-	"femms\n"
 	:
 	: "a"( v ), "d"(&out)
 	: "memory"
 	);
+	femms();
 	return out;
 #else
 	return (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
@@ -844,10 +852,32 @@ void MakeNormalVectors( const vec3_t forward, vec3_t right, vec3_t up );
 
 //int	PlaneTypeForNormal (vec3_t normal);
 
-void MatrixMultiply(float in1[3][3], float in2[3][3], float out[3][3]);
+void AxisMultiply(float in1[3][3], float in2[3][3], float out[3][3]);
 void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
 void PerpendicularVector( vec3_t dst, const vec3_t src );
 
+void MatrixIdentity( matrix_t m );
+void MatrixClear( matrix_t m );
+void MatrixCopy( matrix_t in, matrix_t out );
+void MatrixTransposeIntoXMM( matrix_t m );
+void MatrixTranspose( const matrix_t in, matrix_t out );
+void MatrixSetupXRotation( matrix_t m, vec_t degrees );
+void MatrixSetupYRotation( matrix_t m, vec_t degrees );
+void MatrixSetupZRotation( matrix_t m, vec_t degrees );
+void MatrixSetupRotation( matrix_t m, vec_t x, vec_t y, vec_t z, vec_t degrees );
+void MatrixSetupTranslation( matrix_t m, vec_t x, vec_t y, vec_t z );
+void MatrixsetupScale( matrix_t m, vec_t x, vec_t y, vec_t z );
+void MatrixMultiply( matrix_t m1, matrix_t m2, matrix_t out );
+void MatrixMultiplyRotation( matrix_t m, vec_t pitch, vec_t yaw, vec_t roll );
+void MatrixMultiplyTranslation( matrix_t m, vec_t x, vec_t y, vec_t z );
+void MatrixMultiplyScale( matrix_t m, vec_t x, vec_t y, vec_t z );
+void MatrixFromAngles( matrix_t m, vec_t pitch, vec_t yaw, vec_t roll );
+void MatrixFromVectorsFLU( matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up );
+void MatrixFromVectorsFRU( matrix_t m, const vec3_t forward, const vec3_t right, const vec3_t up );
+void MatrixToVectorsFLU( const matrix_t m, vec3_t forward, vec3_t left, vec3_t up );
+void MatrixToVectorsFRU( const matrix_t m, vec3_t forward, vec3_t right, vec3_t up );
+void MatrixLerp( const matrix_t from, const matrix_t to, vec_t f, matrix_t out );
+void MatrixAffineInverse( const matrix_t in, matrix_t out );
 
 //=============================================
 

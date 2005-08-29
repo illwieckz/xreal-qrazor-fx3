@@ -386,8 +386,8 @@ void RotatePointAroundVector( vec3_t dst, const vec3_t dir, const vec3_t point,
 	zrot[1][0] = -sin( rad );
 	zrot[1][1] = cos( rad );
 
-	MatrixMultiply( m, zrot, tmpmat );
-	MatrixMultiply( tmpmat, im, rot );
+	AxisMultiply( m, zrot, tmpmat );
+	AxisMultiply( tmpmat, im, rot );
 
 	for ( i = 0; i < 3; i++ ) {
 		dst[i] = rot[i][0] * point[0] + rot[i][1] * point[1] + rot[i][2] * point[2];
@@ -554,9 +554,9 @@ float Q_rsqrt( float number )
 	float y;
 #if id386_3dnow && defined __GNUC__
 //#error Q_rqsrt
+	femms();
 	asm volatile
 	(									// lo					| hi
-	"femms\n"
 	"movd		(%%eax),	%%mm0\n"	// in					|	-
 	
 	"pfrsqrt	%%mm0,		%%mm1\n"	// 1/sqrt(in)			| 1/sqrt(in)	(approx)
@@ -566,11 +566,11 @@ float Q_rsqrt( float number )
 	"pfrcpit2	%%mm2,		%%mm1\n"	// 1/sqrt(in) (full 24-bit precision)		step 3
 	
 	"movd		%%mm1,		(%%edx)\n"
-	"femms\n"
 	:
 	: "a"( &number ), "d"( &y )
 	: "memory"
 	);
+	femms();
 #else
 	long i;
 	float x2;
@@ -1117,9 +1117,9 @@ vec_t VectorNormalize( vec3_t v ) {
 #if id386_3dnow && defined __GNUC__
 //#error VectorNormalize
 	vec_t	length;
+	femms();
 	asm volatile
 	(									// lo									| hi
-	"femms\n"
 	"movq		(%%eax),	%%mm0\n"	// v[0]									| v[1]
 	"movd		8(%%eax),	%%mm1\n"	// v[2]									| -
 	// mm0[lo] = dot product(this)
@@ -1146,11 +1146,11 @@ vec_t VectorNormalize( vec3_t v ) {
 	// store scaled vector
 	"movq		%%mm2,		(%%eax)\n"
 	"movd		%%mm3,		8(%%eax)\n"
-	"femms\n"
 	:
 	: "a"( v ), "d"( &length )
 	: "memory"
 	);
+	femms();
 	return length;
 #else
 	// NOTE: TTimo - Apple G4 altivec source uses double?
@@ -1207,9 +1207,9 @@ vec_t _DotProduct( const vec3_t a, const vec3_t b ) {
 #if id386_3dnow && defined __GNUC__ && 0
 //#error _DotProduct
 	vec_t out;
+	femms();
 	asm volatile
 	(									// lo								| hi
-	"femms\n"
 	"movq		(%%eax),	%%mm0\n"	// a[0]								| a[1]
 	"movq		(%%edx),	%%mm2\n"	// b[0]								| b[1]
 	"movd		8(%%eax),	%%mm1\n"	// a[2]								| -
@@ -1221,11 +1221,11 @@ vec_t _DotProduct( const vec3_t a, const vec3_t b ) {
 	"pfadd		%%mm1,		%%mm0\n"	// a[0]*b[0]+a[1]*b[1]+a[2]*b[2]	| -
 	
 	"movd		%%mm0,		(%%ecx)\n"	// out = mm2[lo]
-	"femms\n"
 	:
 	: "a"( a ), "d"( b ), "c"( &out )
 	: "memory"
 	);
+	femms();
 	return out;
 #else
 	return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
@@ -1234,9 +1234,9 @@ vec_t _DotProduct( const vec3_t a, const vec3_t b ) {
 
 void _VectorSubtract( const vec3_t a, const vec3_t b, vec3_t out ) {
 #if id386_3dnow && defined __GNUC__ && 0
+	femms();
 	asm volatile
 	(									// lo								| hi
-	"femms\n"
 	"movq		(%%eax),	%%mm0\n"	// a[0]								| a[1]
 	"movq		(%%edx),	%%mm2\n"	// b[0]								| b[1]
 	"movd		8(%%eax),	%%mm1\n"	// a[2]								| -
@@ -1247,11 +1247,11 @@ void _VectorSubtract( const vec3_t a, const vec3_t b, vec3_t out ) {
 	
 	"movq		%%mm0,		(%%ecx)\n"
 	"movd		%%mm1,		8(%%ecx)\n"
-	"femms\n"
 	:
 	: "a"( a ), "d"( b ), "c"( out )
 	: "memory"
 	);
+	femms();
 #else
 	out[0] = a[0]-b[0];
 	out[1] = a[1]-b[1];
@@ -1261,9 +1261,9 @@ void _VectorSubtract( const vec3_t a, const vec3_t b, vec3_t out ) {
 
 void _VectorAdd( const vec3_t a, const vec3_t b, vec3_t out ) {
 #if id386_3dnow && defined __GNUC__ && 0
+	femms();
 	asm volatile
 	(									// lo								| hi
-	"femms\n"
 	"movq		(%%eax),	%%mm0\n"	// a[0]								| a[1]
 	"movq		(%%edx),	%%mm2\n"	// b[0]								| b[1]
 	"movd		8(%%eax),	%%mm1\n"	// a[2]								| -
@@ -1274,11 +1274,11 @@ void _VectorAdd( const vec3_t a, const vec3_t b, vec3_t out ) {
 	
 	"movq		%%mm0,		(%%ecx)\n"
 	"movd		%%mm1,		8(%%ecx)\n"
-	"femms\n"
 	:
 	: "a"( a ), "d"( b ), "c"( out )
 	: "memory"
 	);
+	femms();
 #else
 	out[0] = a[0]+b[0];
 	out[1] = a[1]+b[1];
@@ -1288,19 +1288,19 @@ void _VectorAdd( const vec3_t a, const vec3_t b, vec3_t out ) {
 
 void _VectorCopy( const vec3_t in, vec3_t out ) {
 #if id386_3dnow && defined __GNUC__ && 0
+	femms();
 	asm volatile
 	(									// lo								| hi
-	"femms\n"
 	"movq		(%%eax),	%%mm0\n"	// in[0]							| in[1]
 	"movd		8(%%eax),	%%mm1\n"	// in[2]							| -
 	
 	"movq		%%mm0,		(%%edx)\n"
 	"movd		%%mm1,		8(%%edx)\n"
-	"femms\n"
 	:
 	: "a"( in ), "d"( out )
 	: "memory"
 	);
+	femms();
 /*
 #elif id386_sse && defined __GNUC__
 //#error _VectorCopysse
@@ -1323,9 +1323,9 @@ void _VectorCopy( const vec3_t in, vec3_t out ) {
 void _VectorScale( const vec3_t in, vec_t scale, vec3_t out ) {
 #if id386_3dnow && defined __GNUC__ && 0
 	vec_t out;
+	femms();
 	asm volatile
 	(									// lo									| hi
-	"femms\n"
 	"movq		(%%eax),	%%mm0\n"	// in[0]								| in[1]
 	"movd		8(%%eax),	%%mm1\n"	// in[2]								| -
 	"movd		(%%edx),	%%mm2\n"	// scale								| -
@@ -1337,11 +1337,11 @@ void _VectorScale( const vec3_t in, vec_t scale, vec3_t out ) {
 	
 	"movq		%%mm0,		(%%ecx)\n"
 	"movd		%%mm1,		8(%%ecx)\n"
-	"femms\n"
 	:
 	: "a"( in ), "d"( &scale ), "c"( out )
 	: "memory"
 	);
+	femms();
 	return out;
 #else
 	out[0] = in[0]*scale;
@@ -1389,30 +1389,16 @@ int	PlaneTypeForNormal (vec3_t normal) {
 */
 
 
-/*
-================
-MatrixMultiply
-================
-*/
-void MatrixMultiply(float in1[3][3], float in2[3][3], float out[3][3]) {
-	out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] +
-				in1[0][2] * in2[2][0];
-	out[0][1] = in1[0][0] * in2[0][1] + in1[0][1] * in2[1][1] +
-				in1[0][2] * in2[2][1];
-	out[0][2] = in1[0][0] * in2[0][2] + in1[0][1] * in2[1][2] +
-				in1[0][2] * in2[2][2];
-	out[1][0] = in1[1][0] * in2[0][0] + in1[1][1] * in2[1][0] +
-				in1[1][2] * in2[2][0];
-	out[1][1] = in1[1][0] * in2[0][1] + in1[1][1] * in2[1][1] +
-				in1[1][2] * in2[2][1];
-	out[1][2] = in1[1][0] * in2[0][2] + in1[1][1] * in2[1][2] +
-				in1[1][2] * in2[2][2];
-	out[2][0] = in1[2][0] * in2[0][0] + in1[2][1] * in2[1][0] +
-				in1[2][2] * in2[2][0];
-	out[2][1] = in1[2][0] * in2[0][1] + in1[2][1] * in2[1][1] +
-				in1[2][2] * in2[2][1];
-	out[2][2] = in1[2][0] * in2[0][2] + in1[2][1] * in2[1][2] +
-				in1[2][2] * in2[2][2];
+void AxisMultiply(float in1[3][3], float in2[3][3], float out[3][3]) {
+	out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] + in1[0][2] * in2[2][0];
+	out[0][1] = in1[0][0] * in2[0][1] + in1[0][1] * in2[1][1] + in1[0][2] * in2[2][1];
+	out[0][2] = in1[0][0] * in2[0][2] + in1[0][1] * in2[1][2] + in1[0][2] * in2[2][2];
+	out[1][0] = in1[1][0] * in2[0][0] + in1[1][1] * in2[1][0] + in1[1][2] * in2[2][0];
+	out[1][1] = in1[1][0] * in2[0][1] + in1[1][1] * in2[1][1] + in1[1][2] * in2[2][1];
+	out[1][2] = in1[1][0] * in2[0][2] + in1[1][1] * in2[1][2] + in1[1][2] * in2[2][2];
+	out[2][0] = in1[2][0] * in2[0][0] + in1[2][1] * in2[1][0] + in1[2][2] * in2[2][0];
+	out[2][1] = in1[2][0] * in2[0][1] + in1[2][1] * in2[1][1] + in1[2][2] * in2[2][1];
+	out[2][2] = in1[2][0] * in2[0][2] + in1[2][1] * in2[1][2] + in1[2][2] * in2[2][2];
 }
 
 
@@ -1486,4 +1472,438 @@ void PerpendicularVector( vec3_t dst, const vec3_t src )
 	VectorNormalize( dst );
 }
 
+void MatrixIdentity( matrix_t m ) {
+	m[0][0] = 1;	m[0][1] = 0;	m[0][2] = 0;	m[0][3] = 0;
+	m[1][0] = 0;	m[1][1] = 1;	m[1][2] = 0;	m[1][3] = 0;
+	m[2][0] = 0;	m[2][1] = 0;	m[2][2] = 1;	m[2][3] = 0;
+	m[3][0] = 0;	m[3][1] = 0;	m[3][2] = 0;	m[3][3] = 1;
+}
 
+void MatrixClear( matrix_t m ) {
+	m[0][0] = 0;	m[0][1] = 0;	m[0][2] = 0;	m[0][3] = 0;
+	m[1][0] = 0;	m[1][1] = 0;	m[1][2] = 0;	m[1][3] = 0;
+	m[2][0] = 0;	m[2][1] = 0;	m[2][2] = 0;	m[2][3] = 0;
+	m[3][0] = 0;	m[3][1] = 0;	m[3][2] = 0;	m[3][3] = 0;
+}
+
+void MatrixCopy( matrix_t in, matrix_t out ) {
+#if id386_sse && defined __GNUC__
+	asm volatile
+	(
+	"movups		(%%edx),		%%xmm0\n"
+	"movups		0x10(%%edx),	%%xmm1\n"
+	"movups		0x20(%%edx),	%%xmm2\n"
+	"movups		0x30(%%edx),	%%xmm3\n"
+	
+	"movups		%%xmm0,			(%%eax)\n"
+	"movups		%%xmm1,			0x10(%%eax)\n"
+	"movups		%%xmm2,			0x20(%%eax)\n"
+	"movups		%%xmm3,			0x30(%%eax)\n"
+	:
+	: "a"( &out[0][0] ), "d"( &in[0][0])
+	: "memory"
+	);
+#elif id386_3dnow && defined __GNUC__
+	femms();
+	asm volatile
+	(
+	"movq		(%%edx),	%%mm0\n"
+	"movq		8(%%edx),	%%mm1\n"
+	"movq		16(%%edx),	%%mm2\n"
+	"movq		24(%%edx),	%%mm3\n"
+	"movq		32(%%edx),	%%mm4\n"
+	"movq		40(%%edx),	%%mm5\n"
+	"movq		48(%%edx),	%%mm6\n"
+	"movq		56(%%edx),	%%mm7\n"
+	
+	"movq		%%mm0,		(%%eax)\n"
+	"movq		%%mm1,		8(%%eax)\n"
+	"movq		%%mm2,		16(%%eax)\n"
+	"movq		%%mm3,		24(%%eax)\n"
+	"movq		%%mm4,		32(%%eax)\n"
+	"movq		%%mm5,		40(%%eax)\n"
+	"movq		%%mm6,		48(%%eax)\n"
+	"movq		%%mm7,		56(%%eax)\n"
+	:
+	: "a"( &out[0][0]), "d"( &in[0][0] )
+	: "memory"
+	);
+	femms();
+#else
+	out[0][0] = in[0][0];	out[0][1] = in[0][1];	out[0][2] = in[0][2];	out[0][3] = in[0][3];
+	out[1][0] = in[1][0];	out[1][1] = in[1][1];	out[1][2] = in[1][2];	out[1][3] = in[1][3];
+	out[2][0] = in[2][0];	out[2][1] = in[2][1];	out[2][2] = in[2][2];	out[2][3] = in[2][3];
+	out[3][0] = in[3][0];	out[3][1] = in[3][1];	out[3][2] = in[3][2];	out[3][3] = in[3][3];
+#endif
+}
+
+void MatrixTransposeIntoXMM( matrix_t m ) {
+#if id386_sse && defined __GNUC__
+	asm volatile
+	(										// reg[0]			| reg[1]		| reg[2]		| reg[3]
+	// load transpose into XMM registers
+	"movlps		(%%eax),	%%xmm4\n"		// m[0][0]			| m[0][1]		| -			| -
+	"movhps		16(%%eax),	%%xmm4\n"		// m[0][0]			| m[0][1]		| m[1][0]		| m[1][1]
+	
+	"movlps		32(%%eax),	%%xmm3\n"		// m[2][0]			| m[2][1]		| -			| -
+	"movhps		48(%%eax),	%%xmm3\n"		// m[2][0]			| m[2][1]		| m[3][0]		| m[3][1]
+	
+	"movups		%%xmm4,		%%xmm5\n"		// m[0][0]			| m[0][1]		| m[1][0]		| m[1][1]
+	
+	// 0x88 = 10 00 | 10 00 <-> 00 10 | 00 10	   xmm4[00]			  xmm4[10]		  xmm3[00]		  xmm3[10]
+	"shufps		$0x88, %%xmm3,	%%xmm4\n"	// m[0][0]			| m[1][0]		| m[2][0]		| m[3][0]
+	
+	// 0xDD = 11 01 | 11 01 <-> 01 11 | 01 11	   xmm5[01]			  xmm5[11]		  xmm3[01]		  xmm3[11]
+	"shufps		$0xDD, %%xmm3,	%%xmm5\n"	// m[0][1]			| m[1][1]		| m[2][1]		| m[3][1]
+	
+	"movlps		8(%%eax),	%%xmm6\n"		// m[0][2]			| m[0][3]		| -			| -
+	"movhps		24(%%eax),	%%xmm6\n"		// m[0][2]			| m[0][3]		| m[1][2]		| m[1][3]
+	
+	"movlps		40(%%eax),	%%xmm3\n"		// m[2][2]			| m[2][3]		| -			| -
+	"movhps		56(%%eax),	%%xmm3\n"		// m[2][2]			| m[2][3]		| m[3][2]		| m[3][3]
+	
+	"movups		%%xmm6,		%%xmm7\n"		// m[0][2]			| m[0][3]		| m[1][2]		| m[1][3]
+	
+	// 0x88 = 10 00 | 10 00 <-> 00 10 | 00 10	   xmm6[00]			  xmm6[10]		  xmm3[00]		  xmm3[10]
+	"shufps		$0x88, %%xmm3,	%%xmm6\n"	// m[0][2]			| m[1][2]		| m[2][2]		| m[3][2]
+	
+	// 0xDD = 11 01 | 11 01 <-> 01 11 | 01 11	   xmm7[01]			  xmm7[11]		  xmm3[01]		  xmm3[11]
+	"shufps		$0xDD, %%xmm3,	%%xmm7\n"	// m[0][3]			| m[1][3]		| m[2][3]		| m[3][3]
+	:
+	: "a"( &m[0][0] )
+	: "memory"
+	);
+#endif
+}
+
+void MatrixTranspose( const matrix_t in, matrix_t out ) {
+#if id386_sse && defined __GNUC__
+	// transpose the matrix into the xmm4-7
+	MatrixTransposeIntoXMM();
+	
+	asm volatile
+	(
+	"movups		%%xmm4,		(%%eax)\n"
+	"movups		%%xmm5,		0x10(%%eax)\n"
+	"movups		%%xmm6,		0x20(%%eax)\n"
+	"movups		%%xmm7,		0x30(%%eax)\n"
+	:
+	: "a"( &out[0][0] )
+	: "memory"
+	);
+#else
+	out[0][0] = in[0][0];	out[0][1] = in[1][0];	out[0][2] = in[2][0];	out[0][3] = in[3][0];
+	out[1][0] = in[0][1];	out[1][1] = in[1][1];	out[1][2] = in[2][1];	out[1][3] = in[3][1];
+	out[2][0] = in[0][2];	out[2][1] = in[1][2];	out[2][2] = in[2][2];	out[2][3] = in[3][2];
+	out[3][0] = in[0][3];	out[3][1] = in[1][3];	out[3][2] = in[2][3];	out[3][3] = in[3][3];
+#endif
+}
+
+void MatrixSetupXRotation( matrix_t m, vec_t degrees ) {
+	vec_t a = DEG2RAD( degrees );
+	
+	m[0][0] = 0;	m[0][1] =0;			m[0][2] = 0;		m[0][3] = 0;
+	m[1][0] = 0;	m[1][1] = cos(a);	m[1][2] =-sin(a);	m[1][3] = 0;
+	m[2][0] = 0;	m[2][1] = sin(a);	m[2][2] = cos(a);	m[2][3] = 0;
+	m[3][0] = 0;	m[3][1] =0;			m[3][2] = 0;		m[3][3] = 1;
+}
+
+void MatrixSetupYRotation( matrix_t m, vec_t degrees ) {
+	vec_t a = DEG2RAD( degrees );
+
+	m[0][0] = cos(a);	m[0][1] = 0;		m[0][2] = sin(a);	m[0][3] = 0;
+	m[1][0] = 0;		m[1][1] = 1;		m[1][2] = 0;		m[1][3] = 0;
+	m[2][0] =-sin(a);	m[2][1] = 0;		m[2][2] = cos(a);	m[2][3] = 0;
+	m[3][0] = 0;		m[3][1] = 0;		m[3][2] = 0;		m[3][3] = 1;
+}
+
+void MatrixSetupZRotation( matrix_t m, vec_t degrees ) {
+	vec_t a = DEG2RAD( degrees );
+	
+	m[0][0] = cos(a);	m[0][1] =-sin(a);	m[0][2] = 0;		m[0][3] =0;
+	m[1][0] = sin(a);	m[1][1] = cos(a);	m[1][2] = 0;		m[1][3] =0;
+	m[2][0] = 0;		m[2][1] = 0;		m[2][2] = 1;		m[2][3] =0;
+	m[3][0] = 0;		m[3][1] = 0;		m[3][2] = 0;		m[3][3] =1;
+}
+
+void MatrixSetupTranslation( matrix_t m, vec_t x, vec_t y, vec_t z ) {
+	m[0][0] = 1;	m[0][1] = 0;	m[0][2] = 0;	m[0][3] = x;
+	m[1][0] = 0;	m[1][1] = 1;	m[1][2] = 0;	m[1][3] = y;
+	m[2][0] = 0;	m[2][1] = 0;	m[2][2] = 1;	m[2][3] = z;
+	m[3][0] = 0;	m[3][1] = 0;	m[3][2] = 0;	m[3][3] = 1;
+}
+
+void MatrixSetupScale( matrix_t m, vec_t x, vec_t y, vec_t z ) {
+	m[0][0] = x;	m[0][1] = 0;	m[0][2] = 0;	m[0][3] = 0;
+	m[1][0] = 0;	m[1][1] = y;	m[1][2] = 0;	m[1][3] = 0;
+	m[2][0] = 0;	m[2][1] = 0;	m[2][2] = z;	m[2][3] = 0;
+	m[3][0] = 0;	m[3][1] = 0;	m[3][2] = 0;	m[3][3] = 1;
+}
+
+void MatrixMultiply( matrix_t a, matrix_t b, matrix_t out ) {
+#if id386_sse && defined __GNUC__
+	asm volatile
+	(
+	// load m2 into the xmm4-7
+	"movups		(%%edx),	%%xmm4\n"		// b[0][0]			| b[0][1]			| b[0][2]			| b[0][3]
+	"movups		16(%%edx),	%%xmm5\n"		// b[1][0]			| b[1][1]			| b[1][2]			| b[1][3]
+	"movups		32(%%edx),	%%xmm6\n"		// b[2][0]			| b[2][1]			| b[2][2]			| b[2][3]
+	"movups		48(%%edx),	%%xmm7\n"		// b[3][0]			| b[3][1]			| b[3][2]			| b[3][3]
+	
+	
+	// calculate first row of out
+	"movups		(%%eax),	%%xmm0\n"		// a[0][0]			| a[0][1]			| a[0][2]			| a[0][3]	
+	"movups		%%xmm0,		%%xmm1\n"		// a[0][0]			| a[0][1]			| a[0][2]			| a[0][3]
+	"movups		%%xmm0,		%%xmm2\n"		// a[0][0]			| a[0][1]			| a[0][2]			| a[0][3]
+	"movups		%%xmm0,		%%xmm3\n"		// a[0][0]			| a[0][1]			| a[0][2]			| a[0][3]
+		
+	// 0x00 = 00 00 | 00 00 <-> 00 00 | 00 00	   xmmx[00]			  xmmx[00]			  xmmx[00]			  xmmx[00]
+	"shufps		$0x00, %%xmm0,	%%xmm0\n"	// a[0][0]			| a[0][0]			| a[0][0]			| a[0][0]
+	
+	// 0x55 = 01 01 | 01 01 <-> 01 01 | 01 01	   xmm1[01]			  xmm1[01]			  xmm1[01]			  xmm1[01]
+	"shufps		$0x55, %%xmm1,	%%xmm1\n"	// a[0][1]			| a[0][1]			| a[0][1]			| a[0][1]
+	
+	// 0xAA = 10 10 | 10 10 <-> 10 10 | 10 10	   xmm2[10]			  xmm2[10]			  xmm2[10]			  xmm2[10]
+	"shufps		$0xAA, %%xmm2,	%%xmm2\n"	// a[0][2]			| a[0][2]			| a[0][2]			| a[0][2]
+	
+	// 0xFF = 11 11 | 11 11 <-> 11 11 | 11 11	   xmm3[11]			  xmm3[11]			  xmm3[11]			  xmm3[11]
+	"shufps		$0xFF, %%xmm3,	%%xmm3\n"	// a[0][3]			| a[0][3]			| a[0][3]			| a[0][3]
+	
+	"mulps		%%xmm4,		%%xmm0\n"		// a[0][0]*b[0][0]		| a[0][0]*b[0][1]		| a[0][0]*b[0][2]		| a[0][0]*b[0][3]
+	"mulps		%%xmm5,		%%xmm1\n"		// a[0][1]*b[1][0]		| a[0][1]*b[1][1]		| a[0][1]*b[1][2]		| a[0][1]*b[1][3]
+	"mulps		%%xmm6,		%%xmm2\n"		// a[0][2]*b[2][0]		| a[0][2]*b[2][1]		| a[0][2]*b[2][2]		| a[0][2]*b[2][3]
+	"mulps		%%xmm7,		%%xmm3\n"		// a[0][3]*b[3][0]		| a[0][3]*b[3][1]		| a[0][3]*b[3][2]		| a[0][3]*b[3][3]
+	
+	"addps		%%xmm0,		%%xmm1\n"		// a[0][0]*b[0][0]+		| a[0][0]*b[0][1]+		| a[0][0]*b[0][2]+		| a[0][0]*b[0][3]+
+											// a[0][1]*b[1][0]		| a[0][1]*b[1][1]		| a[0][1]*b[1][2]		| a[0][1]*b[1][3]
+	
+	"addps		%%xmm1,		%%xmm2\n"		// a[0][0]*b[0][0]+		| a[0][0]*b[0][1]+		| a[0][0]*b[0][2]+		| a[0][0]*b[0][3]+
+											// a[0][1]*b[1][0]+		| a[0][1]*b[1][1]+		| a[0][1]*b[1][2]+		| a[0][1]*b[1][3]+
+											// a[0][2]*b[2][0]		| a[0][2]*b[2][1]		| a[0][2]*b[2][2]		| a[0][2]*b[2][3]
+							
+	"addps		%%xmm2,		%%xmm3\n"		// a[0][0]*b[0][0]+		| a[0][0]*b[0][1]+		| a[0][0]*b[0][2]+		| a[0][0]*b[0][3]+
+											// a[0][1]*b[1][0]+		| a[0][1]*b[1][1]+		| a[0][1]*b[1][2]+		| a[0][1]*b[1][3]+
+											// a[0][2]*b[2][0]+		| a[0][2]*b[2][1]+		| a[0][2]*b[2][2]+		| a[0][2]*b[2][3]+
+											// a[0][3]*b[3][0]		| a[0][3]*b[3][1]		| a[0][3]*b[3][2]		| a[0][3]*b[3][3]
+	
+	"movups		%%xmm3,		(%%ecx)\n"
+	
+	// calculate second row of out
+	"movups		16(%%eax),	%%xmm0\n"
+	"movups		%%xmm0,		%%xmm1\n"
+	"movups		%%xmm0,		%%xmm2\n"
+	"movups		%%xmm0,		%%xmm3\n"
+		
+	"shufps		$0x00, %%xmm0,	%%xmm0\n"
+	"shufps		$0x55, %%xmm1,	%%xmm1\n"
+	"shufps		$0xAA, %%xmm2,	%%xmm2\n"
+	"shufps		$0xFF, %%xmm3,	%%xmm3\n"
+
+	"mulps		%%xmm4,		%%xmm0\n"
+	"mulps		%%xmm5,		%%xmm1\n"
+	"mulps		%%xmm6,		%%xmm2\n"
+	"mulps		%%xmm7,		%%xmm3\n"
+	
+	"addps		%%xmm0,		%%xmm1\n"
+	"addps		%%xmm1,		%%xmm2\n"
+	"addps		%%xmm2,		%%xmm3\n"
+	
+	"movups		%%xmm3,		16(%%ecx)\n"
+	
+	// calculate third row of out
+	"movups		32(%%eax),	%%xmm0\n"
+	"movups		%%xmm0,		%%xmm1\n"
+	"movups		%%xmm0,		%%xmm2\n"
+	"movups		%%xmm0,		%%xmm3\n"
+		
+	"shufps		$0x00, %%xmm0,	%%xmm0\n"
+	"shufps		$0x55, %%xmm1,	%%xmm1\n"
+	"shufps		$0xAA, %%xmm2,	%%xmm2\n"
+	"shufps		$0xFF, %%xmm3,	%%xmm3\n"
+
+	"mulps		%%xmm4,		%%xmm0\n"
+	"mulps		%%xmm5,		%%xmm1\n"
+	"mulps		%%xmm6,		%%xmm2\n"
+	"mulps		%%xmm7,		%%xmm3\n"
+	
+	"addps		%%xmm0,		%%xmm1\n"
+	"addps		%%xmm1,		%%xmm2\n"
+	"addps		%%xmm2,		%%xmm3\n"
+	
+	"movups		%%xmm3,		32(%%ecx)\n"
+	
+	// calculate fourth row of out
+	"movups		48(%%eax),	%%xmm0\n"
+	"movups		%%xmm0,		%%xmm1\n"
+	"movups		%%xmm0,		%%xmm2\n"
+	"movups		%%xmm0,		%%xmm3\n"
+		
+	"shufps		$0x00, %%xmm0,	%%xmm0\n"
+	"shufps		$0x55, %%xmm1,	%%xmm1\n"
+	"shufps		$0xAA, %%xmm2,	%%xmm2\n"
+	"shufps		$0xFF, %%xmm3,	%%xmm3\n"
+
+	"mulps		%%xmm4,		%%xmm0\n"
+	"mulps		%%xmm5,		%%xmm1\n"
+	"mulps		%%xmm6,		%%xmm2\n"
+	"mulps		%%xmm7,		%%xmm3\n"
+	
+	"addps		%%xmm0,		%%xmm1\n"
+	"addps		%%xmm1,		%%xmm2\n"
+	"addps		%%xmm2,		%%xmm3\n"
+	
+	"movups		%%xmm3,		48(%%ecx)\n"
+	:
+	: "a"( &a[0][0] ), "d"( &b[0][0] ), "c"( out[0][0] )
+	: "memory"
+	);
+#else
+	out[0][0] = a[0][0]*b[0][0] + a[0][1]*b[1][0] + a[0][2]*b[2][0] + a[0][3]*b[3][0];
+	out[0][1] = a[0][0]*b[0][1] + a[0][1]*b[1][1] + a[0][2]*b[2][1] + a[0][3]*b[3][1];
+	out[0][2] = a[0][0]*b[0][2] + a[0][1]*b[1][2] + a[0][2]*b[2][2] + a[0][3]*b[3][2];
+	out[0][3] = a[0][0]*b[0][3] + a[0][1]*b[1][3] + a[0][2]*b[2][3] + a[0][3]*b[3][3];
+				
+	out[1][0] = a[1][0]*b[0][0] + a[1][1]*b[1][0] + a[1][2]*b[2][0] + a[1][3]*b[3][0];
+	out[1][1] = a[1][0]*b[0][1] + a[1][1]*b[1][1] + a[1][2]*b[2][1] + a[1][3]*b[3][1];
+	out[1][2] = a[1][0]*b[0][2] + a[1][1]*b[1][2] + a[1][2]*b[2][2] + a[1][3]*b[3][2];
+	out[1][3] = a[1][0]*b[0][3] + a[1][1]*b[1][3] + a[1][2]*b[2][3] + a[1][3]*b[3][3];
+				
+	out[2][0] = a[2][0]*b[0][0] + a[2][1]*b[1][0] + a[2][2]*b[2][0] + a[2][3]*b[3][0];
+	out[2][1] = a[2][0]*b[0][1] + a[2][1]*b[1][1] + a[2][2]*b[2][1] + a[2][3]*b[3][1];
+	out[2][2] = a[2][0]*b[0][2] + a[2][1]*b[1][2] + a[2][2]*b[2][2] + a[2][3]*b[3][2];
+	out[2][3] = a[2][0]*b[0][3] + a[2][1]*b[1][3] + a[2][2]*b[2][3] + a[2][3]*b[3][3];
+					
+	out[3][0] = a[3][0]*b[0][0] + a[3][1]*b[1][0] + a[3][2]*b[2][0] + a[3][3]*b[3][0];
+	out[3][1] = a[3][0]*b[0][1] + a[3][1]*b[1][1] + a[3][2]*b[2][1] + a[3][3]*b[3][1];
+	out[3][2] = a[3][0]*b[0][2] + a[3][1]*b[1][2] + a[3][2]*b[2][2] + a[3][3]*b[3][2];
+	out[3][3] = a[3][0]*b[0][3] + a[3][1]*b[1][3] + a[3][2]*b[2][3] + a[3][3]*b[3][3];
+#endif
+}
+
+void MatrixMultiplyRotation( matrix_t m, vec_t pitch, vec_t yaw, vec_t roll ) {
+	matrix_t tmp, rot;
+	
+	MatrixCopy( m , tmp );
+	MatrixFromAngles( rot, pitch, yaw, roll );
+	MatrixMultiply( tmp, rot, m );
+}
+void MatrixMultiplyTranslation( matrix_t m, vec_t x, vec_t y, vec_t z ) {
+	matrix_t tmp, trans;
+	
+	MatrixCopy( m , tmp );
+	MatrixSetupTranslation( trans, x, y, z );
+	MatrixMultiply( tmp, trans, m );
+}
+
+void MatrixMultiplyScale( matrix_t m, vec_t x, vec_t y, vec_t z ) {
+	matrix_t tmp, scale;
+	
+	MatrixCopy( m , tmp );
+	MatrixSetupScale( scale, x, y, z );
+	MatrixMultiply( tmp, scale, m );
+}
+
+void MatrixFromAngles( matrix_t m, vec_t pitch, vec_t yaw, vec_t roll ) {
+	static float		sr, sp, sy, cr, cp, cy;
+	// static to help MS compiler fp bugs
+
+	sp = sin( DEG2RAD( pitch ) );
+	cp = cos( DEG2RAD( pitch ) );
+	
+	sy = sin( DEG2RAD( yaw ) );
+	cy = cos( DEG2RAD( yaw ) );
+	
+	sr = sin( DEG2RAD( roll ) );
+	cr = cos( DEG2RAD( roll ) );
+
+	m[0][0] = cp*cy;	m[0][1] = (sr*sp*cy+cr*-sy);	m[0][2] = (cr*sp*cy+-sr*-sy);	m[0][3] = 0;
+	m[1][0] = cp*sy;	m[1][1] = (sr*sp*sy+cr*cy);		m[1][2] = (cr*sp*sy+-sr*cy);	m[1][3] = 0;
+	m[2][0] = -sp;		m[2][1] = sr*cp;				m[2][2] = cr*cp;				m[2][3] = 0;
+	m[3][0] = 0;		m[3][1] = 0;					m[3][2] = 0;					m[3][3] = 1;
+
+}
+
+void MatrixFromVectorsFLU( matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up ) {
+	m[0][0] = forward[0];	m[0][1] = left[0];	m[0][2] = up[0];	m[0][3] = 0;
+	m[1][0] = forward[1];	m[1][1] = left[1];	m[1][2] = up[1];	m[1][3] = 0;
+	m[2][0] = forward[2];	m[2][1] = left[2];	m[2][2] = up[2];	m[2][3] = 0;
+	m[3][0] = 0;			m[3][1] =0;			m[3][2] = 0;		m[3][3] = 1;
+}
+
+void MatrixFromVectorsFRU( matrix_t m, const vec3_t forward, const vec3_t right, const vec3_t up ) {
+	m[0][0] = forward[0];	m[0][1] =-right[0];	m[0][2] = up[0];	m[0][3] = 0;
+	m[1][0] = forward[1];	m[1][1] =-right[1];	m[1][2] = up[1];	m[1][3] = 0;
+	m[2][0] = forward[2];	m[2][1] =-right[2];	m[2][2] = up[2];	m[2][3] = 0;
+	m[3][0] = 0;			m[3][1] =0;			m[3][2] = 0;		m[3][3] = 1;
+}
+
+void MatrixToVectorsFLU( const matrix_t m, vec3_t forward, vec3_t left, vec3_t up ) {
+	forward[0] = m[0][0];	// cp*cy;
+	forward[1] = m[1][0];	// cp*sy;
+	forward[2] = m[2][0];	//-sp;
+	
+	left[0] = m[0][1];	// sr*sp*cy+cr*-sy;
+	left[1] = m[1][1];	// sr*sp*sy+cr*cy;
+	left[2] = m[2][1];	// sr*cp;
+
+	up[0] = m[0][2];	// cr*sp*cy+-sr*-sy;
+	up[1] = m[1][2];	// cr*sp*sy+-sr*cy;
+	up[2] = m[2][2];	// cr*cp;
+}
+
+void MatrixToVectorsFRU( const matrix_t m, vec3_t forward, vec3_t right, vec3_t up ) {
+	forward[0] = m[0][0];
+	forward[1] = m[1][0];
+	forward[2] = m[2][0];
+	
+	right[0] =-m[0][1];
+	right[1] =-m[1][1];
+	right[2] =-m[2][1];
+
+	up[0] = m[0][2];
+	up[1] = m[1][2];
+	up[2] = m[2][2];
+}
+
+void MatrixLerp( const matrix_t from, const matrix_t to, vec_t f, matrix_t out ) {
+	out[0][0] = from[0][0] + (to[0][0] - from[0][0]) * f;
+	out[0][1] = from[0][1] + (to[0][1] - from[0][1]) * f;
+	out[0][2] = from[0][2] + (to[0][2] - from[0][2]) * f;
+	out[0][3] = from[0][3] + (to[0][3] - from[0][3]) * f;
+		
+	out[1][0] = from[1][0] + (to[1][0] - from[1][0]) * f;
+	out[1][1] = from[1][1] + (to[1][1] - from[1][1]) * f;
+	out[1][2] = from[1][2] + (to[1][2] - from[1][2]) * f;
+	out[1][3] = from[1][3] + (to[1][3] - from[1][3]) * f;
+		
+	out[2][0] = from[2][0] + (to[2][0] - from[2][0]) * f;
+	out[2][1] = from[2][1] + (to[2][1] - from[2][1]) * f;
+	out[2][2] = from[2][2] + (to[2][2] - from[2][2]) * f;
+	out[2][3] = from[2][3] + (to[2][3] - from[2][3]) * f;
+		
+	out[3][0] = from[3][0] + (to[3][0] - from[3][0]) * f;
+	out[3][1] = from[3][1] + (to[3][1] - from[3][1]) * f;
+	out[3][2] = from[3][2] + (to[3][2] - from[3][2]) * f;
+	out[3][3] = from[3][3] + (to[3][3] - from[3][3]) * f;
+}
+
+// Tr3B - recoded from Tenebrae2 into row major style
+void MatrixAffineInverse( const matrix_t in, matrix_t out ) {
+	vec_t tx, ty, tz;
+
+	// The rotational part of the matrix is simply the transpose of the original matrix.
+	out[0][0] = in[0][0];	out[0][1] = in[1][0];	out[0][2] = in[2][0];
+	out[1][0] = in[0][1];	out[1][1] = in[1][1];	out[1][2] = in[2][1];
+	out[2][0] = in[0][2];	out[2][1] = in[1][2];	out[2][2] = in[2][2];
+	out[3][0] = 0;			out[3][1] = 0;			out[3][2] = 0;			out[3][3] = 1;
+		
+	// The translation components of the original matrix.
+	tx = in[0][3];
+	ty = in[1][3];
+	tz = in[2][3];
+		
+	// Rresult = -(Tm * Rm) to get the translation part of the inverse
+	out[0][3] = -(in[0][0]*tx + in[1][0]*ty + in[2][0]*tz);
+	out[1][3] = -(in[0][1]*tx + in[1][1]*ty + in[2][1]*tz);
+	out[2][3] = -(in[0][2]*tx + in[1][2]*ty + in[2][2]*tz);
+}

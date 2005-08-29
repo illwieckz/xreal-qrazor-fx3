@@ -2905,6 +2905,8 @@ void	R_ShaderList_f (void) {
 			ri.Printf( PRINT_ALL, "vlt " );
 		} else if ( shader->optimalStageIteratorFunc == RB_StageIteratorPerPixelLit_D ) {
 			ri.Printf( PRINT_ALL, "pplD " );
+		} else if ( shader->optimalStageIteratorFunc == RB_StageIteratorPerPixelLit_DB ) {
+			ri.Printf( PRINT_ALL, "pplDB " );
 		} else {
 			ri.Printf( PRINT_ALL, "    " );
 		}
