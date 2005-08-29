@@ -83,13 +83,13 @@ void R_CalcTangentSpace( vec3_t tangent, vec3_t binormal, vec3_t normal,
 		binormal[2]	= -cp[2] / cp[0];
 	}
 
-	VectorNormalize( tangent );
-	VectorNormalize( binormal );
+	VectorNormalizeFast( tangent );
+	VectorNormalizeFast( binormal );
 	
 	// normal...
 	// compute the cross product TxB
 	CrossProduct( tangent, binormal, normal );
-	VectorNormalize( normal );
+	VectorNormalizeFast( normal );
 	
 	// Gram-Schmidt orthogonalization process for B
 	// compute the cross product B=NxT to obtain 

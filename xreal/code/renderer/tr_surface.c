@@ -1100,6 +1100,8 @@ void RB_SurfaceGrid( srfGridMesh_t *cv ) {
 				texCoords[1] = dv->st[1];
 				texCoords[2] = dv->lightmap[0];
 				texCoords[3] = dv->lightmap[1];
+				
+				/* Tr3B - save speed, we will recalculate these later
 				if ( needsTangent ) {
 					tangent[0] = dv->tangent[0];
 					tangent[1] = dv->tangent[1];
@@ -1115,6 +1117,7 @@ void RB_SurfaceGrid( srfGridMesh_t *cv ) {
 					normal[1] = dv->normal[1];
 					normal[2] = dv->normal[2];
 				}
+				*/
 				* ( unsigned int * ) color = * ( unsigned int * ) dv->color;
 				*vDlightBits++ = dlightBits;
 				xyz += 4;
