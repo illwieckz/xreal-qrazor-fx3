@@ -1204,7 +1204,7 @@ void _VectorMA( const vec3_t veca, float scale, const vec3_t vecb, vec3_t vecc) 
 
 
 vec_t _DotProduct( const vec3_t a, const vec3_t b ) {
-#if id386_3dnow && defined __GNUC__
+#if id386_3dnow && defined __GNUC__ && 0
 //#error _DotProduct
 	vec_t out;
 	asm volatile
@@ -1233,7 +1233,7 @@ vec_t _DotProduct( const vec3_t a, const vec3_t b ) {
 }
 
 void _VectorSubtract( const vec3_t a, const vec3_t b, vec3_t out ) {
-#if id386_3dnow && defined __GNUC__
+#if id386_3dnow && defined __GNUC__ && 0
 	asm volatile
 	(									// lo								| hi
 	"femms\n"
@@ -1260,7 +1260,7 @@ void _VectorSubtract( const vec3_t a, const vec3_t b, vec3_t out ) {
 }
 
 void _VectorAdd( const vec3_t a, const vec3_t b, vec3_t out ) {
-#if id386_3dnow && defined __GNUC__
+#if id386_3dnow && defined __GNUC__ && 0
 	asm volatile
 	(									// lo								| hi
 	"femms\n"
@@ -1287,7 +1287,7 @@ void _VectorAdd( const vec3_t a, const vec3_t b, vec3_t out ) {
 }
 
 void _VectorCopy( const vec3_t in, vec3_t out ) {
-#if id386_3dnow && defined __GNUC__
+#if id386_3dnow && defined __GNUC__ && 0
 	asm volatile
 	(									// lo								| hi
 	"femms\n"

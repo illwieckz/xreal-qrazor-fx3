@@ -682,7 +682,7 @@ static ID_INLINE int VectorCompare( const vec3_t v1, const vec3_t v2 ) {
 }
 
 static ID_INLINE vec_t VectorLength( const vec3_t v ) {
-#if id386_3dnow && defined __GNUC__
+#if id386_3dnow && defined __GNUC__ && 0
 //#error VectorLength
 	vec_t out;
 	asm volatile
@@ -716,7 +716,7 @@ static ID_INLINE vec_t VectorLength( const vec3_t v ) {
 }
 
 static ID_INLINE vec_t VectorLengthSquared( const vec3_t v ) {
-#if id386_3dnow && defined __GNUC__
+#if id386_3dnow && defined __GNUC__ && 0
 //#error VectorLengthSquared
 	vec_t out;
 	asm volatile
