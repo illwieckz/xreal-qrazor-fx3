@@ -1472,19 +1472,34 @@ void PerpendicularVector( vec3_t dst, const vec3_t src )
 	VectorNormalize( dst );
 }
 
+
+
 void MatrixIdentity( matrix_t m ) {
-	m[0][0] = 1;	m[0][1] = 0;	m[0][2] = 0;	m[0][3] = 0;
-	m[1][0] = 0;	m[1][1] = 1;	m[1][2] = 0;	m[1][3] = 0;
+	/*
+	m[0]	= 1;	m[1] = 0;		m[2] = 0;		m[3] = 0;
+	m[4]	= 0;	m[1][1] = 1;	m[1][2] = 0;	m[1][3] = 0;
 	m[2][0] = 0;	m[2][1] = 0;	m[2][2] = 1;	m[2][3] = 0;
 	m[3][0] = 0;	m[3][1] = 0;	m[3][2] = 0;	m[3][3] = 1;
+	*/
+	m[ 0] = 1;	m[ 4] = 0;	m[ 8] = 0;	m[12] = 0;
+	m[ 1] = 0;	m[ 5] = 1;	m[ 9] = 0;	m[13] = 0;
+	m[ 2] = 0;	m[ 6] = 0;	m[10] = 1;	m[14] = 0;
+	m[ 3] = 0;	m[ 7] = 0;	m[11] = 0;	m[15] = 1;
 }
 
 void MatrixClear( matrix_t m ) {
+	/*
 	m[0][0] = 0;	m[0][1] = 0;	m[0][2] = 0;	m[0][3] = 0;
 	m[1][0] = 0;	m[1][1] = 0;	m[1][2] = 0;	m[1][3] = 0;
 	m[2][0] = 0;	m[2][1] = 0;	m[2][2] = 0;	m[2][3] = 0;
 	m[3][0] = 0;	m[3][1] = 0;	m[3][2] = 0;	m[3][3] = 0;
+	*/
+	m[ 0] = 0;	m[ 4] = 0;	m[ 8] = 0;	m[12] = 0;
+	m[ 1] = 0;	m[ 5] = 0;	m[ 9] = 0;	m[13] = 0;
+	m[ 2] = 0;	m[ 6] = 0;	m[10] = 0;	m[14] = 0;
+	m[ 3] = 0;	m[ 7] = 0;	m[11] = 0;	m[15] = 0;
 }
+
 
 void MatrixCopy( matrix_t in, matrix_t out ) {
 #if id386_sse && defined __GNUC__
@@ -1500,7 +1515,7 @@ void MatrixCopy( matrix_t in, matrix_t out ) {
 	"movups		%%xmm2,			0x20(%%eax)\n"
 	"movups		%%xmm3,			0x30(%%eax)\n"
 	:
-	: "a"( &out[0][0] ), "d"( &in[0][0])
+	: "a"( out ), "d"( in )
 	: "memory"
 	);
 #elif id386_3dnow && defined __GNUC__
@@ -1525,15 +1540,21 @@ void MatrixCopy( matrix_t in, matrix_t out ) {
 	"movq		%%mm6,		48(%%eax)\n"
 	"movq		%%mm7,		56(%%eax)\n"
 	:
-	: "a"( &out[0][0]), "d"( &in[0][0] )
+	: "a"( out ), "d"( in )
 	: "memory"
 	);
 	femms();
 #else
+	/*
 	out[0][0] = in[0][0];	out[0][1] = in[0][1];	out[0][2] = in[0][2];	out[0][3] = in[0][3];
 	out[1][0] = in[1][0];	out[1][1] = in[1][1];	out[1][2] = in[1][2];	out[1][3] = in[1][3];
 	out[2][0] = in[2][0];	out[2][1] = in[2][1];	out[2][2] = in[2][2];	out[2][3] = in[2][3];
 	out[3][0] = in[3][0];	out[3][1] = in[3][1];	out[3][2] = in[3][2];	out[3][3] = in[3][3];
+	*/
+	out[ 0] = in[ 0];	out[ 4] = in[ 4];	out[ 8] = in[ 8];	out[12] = in[12];
+	out[ 1] = in[ 1];	out[ 5] = in[ 5];	out[ 9] = in[ 9];	out[13] = in[13];
+	out[ 2] = in[ 2];	out[ 6] = in[ 6];	out[10] = in[10];	out[14] = in[14];
+	out[ 3] = in[ 3];	out[ 7] = in[ 7];	out[11] = in[11];	out[15] = in[15];
 #endif
 }
 
@@ -1570,13 +1591,13 @@ void MatrixTransposeIntoXMM( matrix_t m ) {
 	// 0xDD = 11 01 | 11 01 <-> 01 11 | 01 11	   xmm7[01]			  xmm7[11]		  xmm3[01]		  xmm3[11]
 	"shufps		$0xDD, %%xmm3,	%%xmm7\n"	// m[0][3]			| m[1][3]		| m[2][3]		| m[3][3]
 	:
-	: "a"( &m[0][0] )
+	: "a"( m )
 	: "memory"
 	);
 #endif
 }
 
-void MatrixTranspose( const matrix_t in, matrix_t out ) {
+void MatrixTranspose( matrix_t in, matrix_t out ) {
 #if id386_sse && defined __GNUC__
 	// transpose the matrix into the xmm4-7
 	MatrixTransposeIntoXMM();
@@ -1588,103 +1609,136 @@ void MatrixTranspose( const matrix_t in, matrix_t out ) {
 	"movups		%%xmm6,		0x20(%%eax)\n"
 	"movups		%%xmm7,		0x30(%%eax)\n"
 	:
-	: "a"( &out[0][0] )
+	: "a"( out )
 	: "memory"
 	);
 #else
+	/*
 	out[0][0] = in[0][0];	out[0][1] = in[1][0];	out[0][2] = in[2][0];	out[0][3] = in[3][0];
 	out[1][0] = in[0][1];	out[1][1] = in[1][1];	out[1][2] = in[2][1];	out[1][3] = in[3][1];
 	out[2][0] = in[0][2];	out[2][1] = in[1][2];	out[2][2] = in[2][2];	out[2][3] = in[3][2];
 	out[3][0] = in[0][3];	out[3][1] = in[1][3];	out[3][2] = in[2][3];	out[3][3] = in[3][3];
+	*/
+	out[ 0] = in[ 0];	out[ 1] = in[ 4];	out[ 2] = in[ 8];	out[ 3] = in[12];
+	out[ 4] = in[ 1];	out[ 5] = in[ 5];	out[ 6] = in[ 9];	out[ 7] = in[13];
+	out[ 8] = in[ 2];	out[ 9] = in[ 6];	out[10] = in[10];	out[11] = in[14];
+	out[12] = in[ 3];	out[13] = in[ 7];	out[14] = in[11];	out[15] = in[15];
 #endif
 }
 
 void MatrixSetupXRotation( matrix_t m, vec_t degrees ) {
 	vec_t a = DEG2RAD( degrees );
-	
-	m[0][0] = 0;	m[0][1] =0;			m[0][2] = 0;		m[0][3] = 0;
+	/*
+	m[0][0] = 1;	m[0][1] =0;			m[0][2] = 0;		m[0][3] = 0;
 	m[1][0] = 0;	m[1][1] = cos(a);	m[1][2] =-sin(a);	m[1][3] = 0;
 	m[2][0] = 0;	m[2][1] = sin(a);	m[2][2] = cos(a);	m[2][3] = 0;
 	m[3][0] = 0;	m[3][1] =0;			m[3][2] = 0;		m[3][3] = 1;
+	*/
+	m[ 0] = 1;	m[ 4] = 0;		m[ 8] = 0;		m[12] = 0;
+	m[ 1] = 0;	m[ 5] = cos(a);	m[ 9] =-sin(a);	m[13] = 0;
+	m[ 2] = 0;	m[ 6] = sin(a);	m[10] = cos(a);	m[14] = 0;
+	m[ 3] = 0;	m[ 7] = 0;		m[11] = 0;		m[15] = 1;
 }
 
 void MatrixSetupYRotation( matrix_t m, vec_t degrees ) {
 	vec_t a = DEG2RAD( degrees );
-
+	/*
 	m[0][0] = cos(a);	m[0][1] = 0;		m[0][2] = sin(a);	m[0][3] = 0;
 	m[1][0] = 0;		m[1][1] = 1;		m[1][2] = 0;		m[1][3] = 0;
 	m[2][0] =-sin(a);	m[2][1] = 0;		m[2][2] = cos(a);	m[2][3] = 0;
 	m[3][0] = 0;		m[3][1] = 0;		m[3][2] = 0;		m[3][3] = 1;
+	*/
+	m[ 0] = cos(a);	m[ 4] = 0;	m[ 8] = sin(a);	m[12] = 0;
+	m[ 1] = 0;		m[ 5] = 1;	m[ 9] = 0;		m[13] = 0;
+	m[ 2] =-sin(a);	m[ 6] = 0;	m[10] = cos(a);	m[14] = 0;
+	m[ 3] = 0;		m[ 7] = 0;	m[11] = 0;		m[15] = 1;
 }
 
 void MatrixSetupZRotation( matrix_t m, vec_t degrees ) {
 	vec_t a = DEG2RAD( degrees );
-	
+	/*
 	m[0][0] = cos(a);	m[0][1] =-sin(a);	m[0][2] = 0;		m[0][3] =0;
 	m[1][0] = sin(a);	m[1][1] = cos(a);	m[1][2] = 0;		m[1][3] =0;
 	m[2][0] = 0;		m[2][1] = 0;		m[2][2] = 1;		m[2][3] =0;
 	m[3][0] = 0;		m[3][1] = 0;		m[3][2] = 0;		m[3][3] =1;
+	*/
+	m[ 0] = cos(a);	m[ 4] =-sin(a);	m[ 8] = 0;	m[12] = 0;
+	m[ 1] = sin(a);	m[ 5] = cos(a);	m[ 9] = 0;	m[13] = 0;
+	m[ 2] = 0;		m[ 6] = 0;		m[10] = 1;	m[14] = 0;
+	m[ 3] = 0;		m[ 7] = 0;		m[11] = 0;	m[15] = 1;
 }
 
 void MatrixSetupTranslation( matrix_t m, vec_t x, vec_t y, vec_t z ) {
+	/*
 	m[0][0] = 1;	m[0][1] = 0;	m[0][2] = 0;	m[0][3] = x;
 	m[1][0] = 0;	m[1][1] = 1;	m[1][2] = 0;	m[1][3] = y;
 	m[2][0] = 0;	m[2][1] = 0;	m[2][2] = 1;	m[2][3] = z;
 	m[3][0] = 0;	m[3][1] = 0;	m[3][2] = 0;	m[3][3] = 1;
+	*/
+	m[ 0] = 1;	m[ 4] = 0;	m[ 8] = 0;	m[12] = x;
+	m[ 1] = 0;	m[ 5] = 1;	m[ 9] = 0;	m[13] = y;
+	m[ 2] = 0;	m[ 6] = 0;	m[10] = 1;	m[14] = z;
+	m[ 3] = 0;	m[ 7] = 0;	m[11] = 0;	m[15] = 1;
 }
 
 void MatrixSetupScale( matrix_t m, vec_t x, vec_t y, vec_t z ) {
+	/*
 	m[0][0] = x;	m[0][1] = 0;	m[0][2] = 0;	m[0][3] = 0;
 	m[1][0] = 0;	m[1][1] = y;	m[1][2] = 0;	m[1][3] = 0;
 	m[2][0] = 0;	m[2][1] = 0;	m[2][2] = z;	m[2][3] = 0;
 	m[3][0] = 0;	m[3][1] = 0;	m[3][2] = 0;	m[3][3] = 1;
+	*/
+	m[ 0] = x;	m[ 4] = 0;	m[ 8] = 0;	m[12] = 0;
+	m[ 1] = 0;	m[ 5] = y;	m[ 9] = 0;	m[13] = 0;
+	m[ 2] = 0;	m[ 6] = 0;	m[10] = z;	m[14] = 0;
+	m[ 3] = 0;	m[ 7] = 0;	m[11] = 0;	m[15] = 1;
 }
 
-void MatrixMultiply( matrix_t a, matrix_t b, matrix_t out ) {
+void MatrixMultiply( const matrix_t a, const matrix_t b, matrix_t out ) {
 #if id386_sse && defined __GNUC__
 	asm volatile
 	(
 	// load m2 into the xmm4-7
-	"movups		(%%edx),	%%xmm4\n"		// b[0][0]			| b[0][1]			| b[0][2]			| b[0][3]
-	"movups		16(%%edx),	%%xmm5\n"		// b[1][0]			| b[1][1]			| b[1][2]			| b[1][3]
-	"movups		32(%%edx),	%%xmm6\n"		// b[2][0]			| b[2][1]			| b[2][2]			| b[2][3]
-	"movups		48(%%edx),	%%xmm7\n"		// b[3][0]			| b[3][1]			| b[3][2]			| b[3][3]
+	"movups		(%%edx),	%%xmm4\n"		// a[0][0]			| a[0][1]			| a[0][2]			| a[0][3]
+	"movups		16(%%edx),	%%xmm5\n"		// a[1][0]			| a[1][1]			| a[1][2]			| a[1][3]
+	"movups		32(%%edx),	%%xmm6\n"		// a[2][0]			| a[2][1]			| a[2][2]			| a[2][3]
+	"movups		48(%%edx),	%%xmm7\n"		// a[3][0]			| a[3][1]			| a[3][2]			| a[3][3]
 	
 	
 	// calculate first row of out
-	"movups		(%%eax),	%%xmm0\n"		// a[0][0]			| a[0][1]			| a[0][2]			| a[0][3]	
-	"movups		%%xmm0,		%%xmm1\n"		// a[0][0]			| a[0][1]			| a[0][2]			| a[0][3]
-	"movups		%%xmm0,		%%xmm2\n"		// a[0][0]			| a[0][1]			| a[0][2]			| a[0][3]
-	"movups		%%xmm0,		%%xmm3\n"		// a[0][0]			| a[0][1]			| a[0][2]			| a[0][3]
+	"movups		(%%eax),	%%xmm0\n"		// b[0][0]			| b[0][1]			| b[0][2]			| b[0][3]	
+	"movups		%%xmm0,		%%xmm1\n"		// b[0][0]			| b[0][1]			| b[0][2]			| b[0][3]
+	"movups		%%xmm0,		%%xmm2\n"		// b[0][0]			| b[0][1]			| b[0][2]			| b[0][3]
+	"movups		%%xmm0,		%%xmm3\n"		// b[0][0]			| b[0][1]			| b[0][2]			| b[0][3]
 		
 	// 0x00 = 00 00 | 00 00 <-> 00 00 | 00 00	   xmmx[00]			  xmmx[00]			  xmmx[00]			  xmmx[00]
-	"shufps		$0x00, %%xmm0,	%%xmm0\n"	// a[0][0]			| a[0][0]			| a[0][0]			| a[0][0]
+	"shufps		$0x00, %%xmm0,	%%xmm0\n"	// b[0][0]			| b[0][0]			| b[0][0]			| b[0][0]
 	
 	// 0x55 = 01 01 | 01 01 <-> 01 01 | 01 01	   xmm1[01]			  xmm1[01]			  xmm1[01]			  xmm1[01]
-	"shufps		$0x55, %%xmm1,	%%xmm1\n"	// a[0][1]			| a[0][1]			| a[0][1]			| a[0][1]
+	"shufps		$0x55, %%xmm1,	%%xmm1\n"	// b[0][1]			| b[0][1]			| b[0][1]			| b[0][1]
 	
 	// 0xAA = 10 10 | 10 10 <-> 10 10 | 10 10	   xmm2[10]			  xmm2[10]			  xmm2[10]			  xmm2[10]
-	"shufps		$0xAA, %%xmm2,	%%xmm2\n"	// a[0][2]			| a[0][2]			| a[0][2]			| a[0][2]
+	"shufps		$0xAA, %%xmm2,	%%xmm2\n"	// b[0][2]			| b[0][2]			| b[0][2]			| b[0][2]
 	
 	// 0xFF = 11 11 | 11 11 <-> 11 11 | 11 11	   xmm3[11]			  xmm3[11]			  xmm3[11]			  xmm3[11]
-	"shufps		$0xFF, %%xmm3,	%%xmm3\n"	// a[0][3]			| a[0][3]			| a[0][3]			| a[0][3]
+	"shufps		$0xFF, %%xmm3,	%%xmm3\n"	// b[0][3]			| b[0][3]			| b[0][3]			| b[0][3]
 	
-	"mulps		%%xmm4,		%%xmm0\n"		// a[0][0]*b[0][0]		| a[0][0]*b[0][1]		| a[0][0]*b[0][2]		| a[0][0]*b[0][3]
-	"mulps		%%xmm5,		%%xmm1\n"		// a[0][1]*b[1][0]		| a[0][1]*b[1][1]		| a[0][1]*b[1][2]		| a[0][1]*b[1][3]
-	"mulps		%%xmm6,		%%xmm2\n"		// a[0][2]*b[2][0]		| a[0][2]*b[2][1]		| a[0][2]*b[2][2]		| a[0][2]*b[2][3]
-	"mulps		%%xmm7,		%%xmm3\n"		// a[0][3]*b[3][0]		| a[0][3]*b[3][1]		| a[0][3]*b[3][2]		| a[0][3]*b[3][3]
+	"mulps		%%xmm4,		%%xmm0\n"		// b[0][0]*a[0][0]		| b[0][0]*a[0][1]		| b[0][0]*a[0][2]		| b[0][0]*a[0][3]
+	"mulps		%%xmm5,		%%xmm1\n"		// b[0][1]*a[1][0]		| b[0][1]*a[1][1]		| b[0][1]*a[1][2]		| b[0][1]*a[1][3]
+	"mulps		%%xmm6,		%%xmm2\n"		// b[0][2]*a[2][0]		| b[0][2]*a[2][1]		| b[0][2]*a[2][2]		| b[0][2]*a[2][3]
+	"mulps		%%xmm7,		%%xmm3\n"		// b[0][3]*a[3][0]		| b[0][3]*a[3][1]		| b[0][3]*a[3][2]		| b[0][3]*a[3][3]
 	
-	"addps		%%xmm0,		%%xmm1\n"		// a[0][0]*b[0][0]+		| a[0][0]*b[0][1]+		| a[0][0]*b[0][2]+		| a[0][0]*b[0][3]+
-											// a[0][1]*b[1][0]		| a[0][1]*b[1][1]		| a[0][1]*b[1][2]		| a[0][1]*b[1][3]
+	"addps		%%xmm0,		%%xmm1\n"		// b[0][0]*a[0][0]+		| b[0][0]*a[0][1]+		| b[0][0]*a[0][2]+		| b[0][0]*a[0][3]+
+											// b[0][1]*a[1][0]		| b[0][1]*a[1][1]		| b[0][1]*a[1][2]		| b[0][1]*a[1][3]
 	
-	"addps		%%xmm1,		%%xmm2\n"		// a[0][0]*b[0][0]+		| a[0][0]*b[0][1]+		| a[0][0]*b[0][2]+		| a[0][0]*b[0][3]+
-											// a[0][1]*b[1][0]+		| a[0][1]*b[1][1]+		| a[0][1]*b[1][2]+		| a[0][1]*b[1][3]+
-											// a[0][2]*b[2][0]		| a[0][2]*b[2][1]		| a[0][2]*b[2][2]		| a[0][2]*b[2][3]
+	"addps		%%xmm1,		%%xmm2\n"		// b[0][0]*a[0][0]+		| b[0][0]*a[0][1]+		| b[0][0]*a[0][2]+		| b[0][0]*a[0][3]+
+											// b[0][1]*a[1][0]+		| b[0][1]*a[1][1]+		| b[0][1]*a[1][2]+		| b[0][1]*a[1][3]+
+											// b[0][2]*a[2][0]		| b[0][2]*a[2][1]		| b[0][2]*a[2][2]		| b[0][2]*a[2][3]
 							
-	"addps		%%xmm2,		%%xmm3\n"		// a[0][0]*b[0][0]+		| a[0][0]*b[0][1]+		| a[0][0]*b[0][2]+		| a[0][0]*b[0][3]+
-											// a[0][1]*b[1][0]+		| a[0][1]*b[1][1]+		| a[0][1]*b[1][2]+		| a[0][1]*b[1][3]+
-											// a[0][2]*b[2][0]+		| a[0][2]*b[2][1]+		| a[0][2]*b[2][2]+		| a[0][2]*b[2][3]+
-											// a[0][3]*b[3][0]		| a[0][3]*b[3][1]		| a[0][3]*b[3][2]		| a[0][3]*b[3][3]
+	"addps		%%xmm2,		%%xmm3\n"		// b[0][0]*a[0][0]+		| b[0][0]*a[0][1]+		| b[0][0]*a[0][2]+		| b[0][0]*a[0][3]+
+											// b[0][1]*a[1][0]+		| b[0][1]*a[1][1]+		| b[0][1]*a[1][2]+		| b[0][1]*a[1][3]+
+											// b[0][2]*a[2][0]+		| b[0][2]*a[2][1]+		| b[0][2]*a[2][2]+		| b[0][2]*a[2][3]+
+											// b[0][3]*a[3][0]		| b[0][3]*a[3][1]		| b[0][3]*a[3][2]		| b[0][3]*a[3][3]
 	
 	"movups		%%xmm3,		(%%ecx)\n"
 	
@@ -1754,29 +1808,29 @@ void MatrixMultiply( matrix_t a, matrix_t b, matrix_t out ) {
 	
 	"movups		%%xmm3,		48(%%ecx)\n"
 	:
-	: "a"( &a[0][0] ), "d"( &b[0][0] ), "c"( out[0][0] )
+	: "a"( a ), "d"( b ), "c"( out )
 	: "memory"
 	);
 #else
-	out[0][0] = a[0][0]*b[0][0] + a[0][1]*b[1][0] + a[0][2]*b[2][0] + a[0][3]*b[3][0];
-	out[0][1] = a[0][0]*b[0][1] + a[0][1]*b[1][1] + a[0][2]*b[2][1] + a[0][3]*b[3][1];
-	out[0][2] = a[0][0]*b[0][2] + a[0][1]*b[1][2] + a[0][2]*b[2][2] + a[0][3]*b[3][2];
-	out[0][3] = a[0][0]*b[0][3] + a[0][1]*b[1][3] + a[0][2]*b[2][3] + a[0][3]*b[3][3];
-				
-	out[1][0] = a[1][0]*b[0][0] + a[1][1]*b[1][0] + a[1][2]*b[2][0] + a[1][3]*b[3][0];
-	out[1][1] = a[1][0]*b[0][1] + a[1][1]*b[1][1] + a[1][2]*b[2][1] + a[1][3]*b[3][1];
-	out[1][2] = a[1][0]*b[0][2] + a[1][1]*b[1][2] + a[1][2]*b[2][2] + a[1][3]*b[3][2];
-	out[1][3] = a[1][0]*b[0][3] + a[1][1]*b[1][3] + a[1][2]*b[2][3] + a[1][3]*b[3][3];
-				
-	out[2][0] = a[2][0]*b[0][0] + a[2][1]*b[1][0] + a[2][2]*b[2][0] + a[2][3]*b[3][0];
-	out[2][1] = a[2][0]*b[0][1] + a[2][1]*b[1][1] + a[2][2]*b[2][1] + a[2][3]*b[3][1];
-	out[2][2] = a[2][0]*b[0][2] + a[2][1]*b[1][2] + a[2][2]*b[2][2] + a[2][3]*b[3][2];
-	out[2][3] = a[2][0]*b[0][3] + a[2][1]*b[1][3] + a[2][2]*b[2][3] + a[2][3]*b[3][3];
-					
-	out[3][0] = a[3][0]*b[0][0] + a[3][1]*b[1][0] + a[3][2]*b[2][0] + a[3][3]*b[3][0];
-	out[3][1] = a[3][0]*b[0][1] + a[3][1]*b[1][1] + a[3][2]*b[2][1] + a[3][3]*b[3][1];
-	out[3][2] = a[3][0]*b[0][2] + a[3][1]*b[1][2] + a[3][2]*b[2][2] + a[3][3]*b[3][2];
-	out[3][3] = a[3][0]*b[0][3] + a[3][1]*b[1][3] + a[3][2]*b[2][3] + a[3][3]*b[3][3];
+	out[ 0] = b[ 0]*a[ 0] + b[ 1]*a[ 4] + b[ 2]*a[ 8] + b[ 3]*a[12];
+	out[ 1] = b[ 0]*a[ 1] + b[ 1]*a[ 5] + b[ 2]*a[ 9] + b[ 3]*a[13];
+	out[ 2] = b[ 0]*a[ 2] + b[ 1]*a[ 6] + b[ 2]*a[10] + b[ 3]*a[14];
+	out[ 3] = b[ 0]*a[ 3] + b[ 1]*a[ 7] + b[ 2]*a[11] + b[ 3]*a[15];
+	
+	out[ 4] = b[ 4]*a[ 0] + b[ 5]*a[ 4] + b[ 6]*a[ 8] + b[ 7]*a[12];
+	out[ 5] = b[ 4]*a[ 1] + b[ 5]*a[ 5] + b[ 6]*a[ 9] + b[ 7]*a[13];
+	out[ 6] = b[ 4]*a[ 2] + b[ 5]*a[ 6] + b[ 6]*a[10] + b[ 7]*a[14];
+	out[ 7] = b[ 4]*a[ 3] + b[ 5]*a[ 7] + b[ 6]*a[11] + b[ 7]*a[15];
+	
+	out[ 8] = b[ 8]*a[ 0] + b[ 9]*a[ 4] + b[10]*a[ 8] + b[11]*a[12];
+	out[ 9] = b[ 8]*a[ 1] + b[ 9]*a[ 5] + b[10]*a[ 9] + b[11]*a[13];
+	out[10] = b[ 8]*a[ 2] + b[ 9]*a[ 6] + b[10]*a[10] + b[11]*a[14];
+	out[11] = b[ 8]*a[ 3] + b[ 9]*a[ 7] + b[10]*a[11] + b[11]*a[15];
+	
+	out[12] = b[12]*a[ 0] + b[13]*a[ 4] + b[14]*a[ 8] + b[15]*a[12];
+	out[13] = b[12]*a[ 1] + b[13]*a[ 5] + b[14]*a[ 9] + b[15]*a[13];
+	out[14] = b[12]*a[ 2] + b[13]*a[ 6] + b[14]*a[10] + b[15]*a[14];
+	out[15] = b[12]*a[ 3] + b[13]*a[ 7] + b[14]*a[11] + b[15]*a[15];
 #endif
 }
 
@@ -1785,14 +1839,15 @@ void MatrixMultiplyRotation( matrix_t m, vec_t pitch, vec_t yaw, vec_t roll ) {
 	
 	MatrixCopy( m , tmp );
 	MatrixFromAngles( rot, pitch, yaw, roll );
-	MatrixMultiply( tmp, rot, m );
+	
+	MatrixMultiply( rot, tmp, m );
 }
 void MatrixMultiplyTranslation( matrix_t m, vec_t x, vec_t y, vec_t z ) {
 	matrix_t tmp, trans;
 	
 	MatrixCopy( m , tmp );
 	MatrixSetupTranslation( trans, x, y, z );
-	MatrixMultiply( tmp, trans, m );
+	MatrixMultiply( trans, tmp, m );
 }
 
 void MatrixMultiplyScale( matrix_t m, vec_t x, vec_t y, vec_t z ) {
@@ -1800,7 +1855,7 @@ void MatrixMultiplyScale( matrix_t m, vec_t x, vec_t y, vec_t z ) {
 	
 	MatrixCopy( m , tmp );
 	MatrixSetupScale( scale, x, y, z );
-	MatrixMultiply( tmp, scale, m );
+	MatrixMultiply( scale, tmp, m );
 }
 
 void MatrixFromAngles( matrix_t m, vec_t pitch, vec_t yaw, vec_t roll ) {
@@ -1816,55 +1871,74 @@ void MatrixFromAngles( matrix_t m, vec_t pitch, vec_t yaw, vec_t roll ) {
 	sr = sin( DEG2RAD( roll ) );
 	cr = cos( DEG2RAD( roll ) );
 
+	/*
 	m[0][0] = cp*cy;	m[0][1] = (sr*sp*cy+cr*-sy);	m[0][2] = (cr*sp*cy+-sr*-sy);	m[0][3] = 0;
 	m[1][0] = cp*sy;	m[1][1] = (sr*sp*sy+cr*cy);		m[1][2] = (cr*sp*sy+-sr*cy);	m[1][3] = 0;
 	m[2][0] = -sp;		m[2][1] = sr*cp;				m[2][2] = cr*cp;				m[2][3] = 0;
 	m[3][0] = 0;		m[3][1] = 0;					m[3][2] = 0;					m[3][3] = 1;
-
+	*/
+	
+	m[ 0] = cp*cy;	m[ 4] = (sr*sp*cy+cr*-sy);	m[ 8] = (cr*sp*cy+-sr*-sy);	m[12] = 0;
+	m[ 1] = cp*sy;	m[ 5] = (sr*sp*sy+cr*cy);	m[ 9] = (cr*sp*sy+-sr*cy);	m[13] = 0;
+	m[ 2] = -sp;	m[ 6] = sr*cp;				m[10] = cr*cp;				m[14] = 0;
+	m[ 3] = 0;		m[ 7] = 0;					m[11] = 0;					m[15] = 1;
 }
 
 void MatrixFromVectorsFLU( matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up ) {
+	/*
 	m[0][0] = forward[0];	m[0][1] = left[0];	m[0][2] = up[0];	m[0][3] = 0;
 	m[1][0] = forward[1];	m[1][1] = left[1];	m[1][2] = up[1];	m[1][3] = 0;
 	m[2][0] = forward[2];	m[2][1] = left[2];	m[2][2] = up[2];	m[2][3] = 0;
 	m[3][0] = 0;			m[3][1] =0;			m[3][2] = 0;		m[3][3] = 1;
+	*/
+	m[ 0] = forward[0];	m[ 4] = left[0];	m[ 8] = up[0];	m[12] = 0;
+	m[ 1] = forward[1];	m[ 5] = left[1];	m[ 9] = up[1];	m[13] = 0;
+	m[ 2] = forward[2];	m[ 6] = left[2];	m[10] = up[2];	m[14] = 0;
+	m[ 3] = 0;			m[ 7] = 0;			m[11] = 0;		m[15] = 1;
 }
 
 void MatrixFromVectorsFRU( matrix_t m, const vec3_t forward, const vec3_t right, const vec3_t up ) {
+	/*
 	m[0][0] = forward[0];	m[0][1] =-right[0];	m[0][2] = up[0];	m[0][3] = 0;
 	m[1][0] = forward[1];	m[1][1] =-right[1];	m[1][2] = up[1];	m[1][3] = 0;
 	m[2][0] = forward[2];	m[2][1] =-right[2];	m[2][2] = up[2];	m[2][3] = 0;
 	m[3][0] = 0;			m[3][1] =0;			m[3][2] = 0;		m[3][3] = 1;
+	*/
+	m[ 0] = forward[0];	m[ 4] =-right[0];	m[ 8] = up[0];	m[12] = 0;
+	m[ 1] = forward[1];	m[ 5] =-right[1];	m[ 9] = up[1];	m[13] = 0;
+	m[ 2] = forward[2];	m[ 6] =-right[2];	m[10] = up[2];	m[14] = 0;
+	m[ 3] = 0;			m[ 7] = 0;			m[11] = 0;		m[15] = 1;
 }
 
 void MatrixToVectorsFLU( const matrix_t m, vec3_t forward, vec3_t left, vec3_t up ) {
-	forward[0] = m[0][0];	// cp*cy;
-	forward[1] = m[1][0];	// cp*sy;
-	forward[2] = m[2][0];	//-sp;
+	forward[0] = m[ 0];	// cp*cy;
+	forward[1] = m[ 1];	// cp*sy;
+	forward[2] = m[ 2];	//-sp;
 	
-	left[0] = m[0][1];	// sr*sp*cy+cr*-sy;
-	left[1] = m[1][1];	// sr*sp*sy+cr*cy;
-	left[2] = m[2][1];	// sr*cp;
+	left[0] = m[ 4];	// sr*sp*cy+cr*-sy;
+	left[1] = m[ 5];	// sr*sp*sy+cr*cy;
+	left[2] = m[ 6];	// sr*cp;
 
-	up[0] = m[0][2];	// cr*sp*cy+-sr*-sy;
-	up[1] = m[1][2];	// cr*sp*sy+-sr*cy;
-	up[2] = m[2][2];	// cr*cp;
+	up[0] = m[ 8];	// cr*sp*cy+-sr*-sy;
+	up[1] = m[ 9];	// cr*sp*sy+-sr*cy;
+	up[2] = m[10];	// cr*cp;
 }
 
 void MatrixToVectorsFRU( const matrix_t m, vec3_t forward, vec3_t right, vec3_t up ) {
-	forward[0] = m[0][0];
-	forward[1] = m[1][0];
-	forward[2] = m[2][0];
+	forward[0] = m[ 0];
+	forward[1] = m[ 1];
+	forward[2] = m[ 2];
 	
-	right[0] =-m[0][1];
-	right[1] =-m[1][1];
-	right[2] =-m[2][1];
+	right[0] =-m[ 4];
+	right[1] =-m[ 5];
+	right[2] =-m[ 6];
 
-	up[0] = m[0][2];
-	up[1] = m[1][2];
-	up[2] = m[2][2];
+	up[0] = m[ 8];
+	up[1] = m[ 9];
+	up[2] = m[10];
 }
 
+/*
 void MatrixLerp( const matrix_t from, const matrix_t to, vec_t f, matrix_t out ) {
 	out[0][0] = from[0][0] + (to[0][0] - from[0][0]) * f;
 	out[0][1] = from[0][1] + (to[0][1] - from[0][1]) * f;
@@ -1886,8 +1960,10 @@ void MatrixLerp( const matrix_t from, const matrix_t to, vec_t f, matrix_t out )
 	out[3][2] = from[3][2] + (to[3][2] - from[3][2]) * f;
 	out[3][3] = from[3][3] + (to[3][3] - from[3][3]) * f;
 }
+*/
 
 // Tr3B - recoded from Tenebrae2 into row major style
+/*
 void MatrixAffineInverse( const matrix_t in, matrix_t out ) {
 	vec_t tx, ty, tz;
 
@@ -1907,3 +1983,4 @@ void MatrixAffineInverse( const matrix_t in, matrix_t out ) {
 	out[1][3] = -(in[0][1]*tx + in[1][1]*ty + in[2][1]*tz);
 	out[2][3] = -(in[0][2]*tx + in[1][2]*ty + in[2][2]*tz);
 }
+*/

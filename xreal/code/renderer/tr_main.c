@@ -25,14 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 trGlobals_t		tr;
 
-static float	s_flipMatrix[16] = {
-	// convert from our coordinate system (looking down X)
-	// to OpenGL's coordinate system (looking down -Z)
-	0, 0, -1, 0,
-	-1, 0, 0, 0,
-	0, 1, 0, 0,
-	0, 0, 0, 1
-};
+extern const float	s_flipMatrix[16];
 
 
 refimport_t	ri;
@@ -352,26 +345,6 @@ void R_TransformClipToWindow( const vec4_t clip, const viewParms_t *view, vec4_t
 
 
 /*
-==========================
-myGlMultMatrix
-
-==========================
-*/
-void myGlMultMatrix( const float *a, const float *b, float *out ) {
-	int		i, j;
-
-	for ( i = 0 ; i < 4 ; i++ ) {
-		for ( j = 0 ; j < 4 ; j++ ) {
-			out[ i * 4 + j ] =
-				a [ i * 4 + 0 ] * b [ 0 * 4 + j ]
-				+ a [ i * 4 + 1 ] * b [ 1 * 4 + j ]
-				+ a [ i * 4 + 2 ] * b [ 2 * 4 + j ]
-				+ a [ i * 4 + 3 ] * b [ 3 * 4 + j ];
-		}
-	}
-}
-
-/*
 =================
 R_RotateForEntity
 
@@ -397,27 +370,25 @@ void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms,
 	VectorCopy( ent->e.axis[1], or->axis[1] );
 	VectorCopy( ent->e.axis[2], or->axis[2] );
 
-	glMatrix[0] = or->axis[0][0];
-	glMatrix[4] = or->axis[1][0];
-	glMatrix[8] = or->axis[2][0];
-	glMatrix[12] = or->origin[0];
-
-	glMatrix[1] = or->axis[0][1];
-	glMatrix[5] = or->axis[1][1];
-	glMatrix[9] = or->axis[2][1];
-	glMatrix[13] = or->origin[1];
-
-	glMatrix[2] = or->axis[0][2];
-	glMatrix[6] = or->axis[1][2];
+	glMatrix[ 0] = or->axis[0][0];
+	glMatrix[ 1] = or->axis[0][1];
+	glMatrix[ 2] = or->axis[0][2];
+	
+	glMatrix[ 4] = or->axis[1][0];
+	glMatrix[ 5] = or->axis[1][1];
+	glMatrix[ 6] = or->axis[1][2];
+	
+	glMatrix[ 8] = or->axis[2][0];
+	glMatrix[ 9] = or->axis[2][1];
 	glMatrix[10] = or->axis[2][2];
+	
+	glMatrix[12] = or->origin[0];
+	glMatrix[13] = or->origin[1];
 	glMatrix[14] = or->origin[2];
 
-	glMatrix[3] = 0;
-	glMatrix[7] = 0;
-	glMatrix[11] = 0;
-	glMatrix[15] = 1;
+	glMatrix[ 3] = 0;	glMatrix[ 7] = 0;	glMatrix[11] = 0;	glMatrix[15] = 1;
 
-	myGlMultMatrix( glMatrix, viewParms->world.modelMatrix, or->modelMatrix );
+	MatrixMultiply( viewParms->world.modelMatrix, glMatrix, or->modelMatrix );
 
 	// calculate the viewer origin in the model's space
 	// needed for fog, specular, and environment mapping
@@ -461,6 +432,7 @@ void R_RotateForViewer (void)
 	// transform by the camera placement
 	VectorCopy( tr.viewParms.or.origin, origin );
 
+	// Tr3B - this calculates the affine inverse of the camera transform matrix
 	viewerMatrix[0] = tr.viewParms.or.axis[0][0];
 	viewerMatrix[4] = tr.viewParms.or.axis[0][1];
 	viewerMatrix[8] = tr.viewParms.or.axis[0][2];
@@ -476,14 +448,11 @@ void R_RotateForViewer (void)
 	viewerMatrix[10] = tr.viewParms.or.axis[2][2];
 	viewerMatrix[14] = -origin[0] * viewerMatrix[2] + -origin[1] * viewerMatrix[6] + -origin[2] * viewerMatrix[10];
 
-	viewerMatrix[3] = 0;
-	viewerMatrix[7] = 0;
-	viewerMatrix[11] = 0;
-	viewerMatrix[15] = 1;
+	viewerMatrix[3] = 0;	viewerMatrix[7] = 0;	viewerMatrix[11] = 0;	viewerMatrix[15] = 1;
 
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
-	myGlMultMatrix( viewerMatrix, s_flipMatrix, tr.or.modelMatrix );
+	MatrixMultiply( s_flipMatrix, viewerMatrix, tr.or.modelMatrix );
 
 	tr.viewParms.world = tr.or;
 
