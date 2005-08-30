@@ -1755,8 +1755,8 @@ static void ComputeStageIteratorFunc( void )
 	{
 		if ( ( stages[0].rgbGen == CGEN_IDENTITY ) && ( stages[0].alphaGen == AGEN_IDENTITY ) )
 		{
-			if ( stages[0].bundle[0].tcGen == TCGEN_TEXTURE && 
-				stages[0].bundle[1].tcGen == TCGEN_LIGHTMAP )
+			if (	stages[0].bundle[0].tcGen == TCGEN_TEXTURE && 
+					stages[0].bundle[1].tcGen == TCGEN_LIGHTMAP )
 			{
 				if ( !shader.polygonOffset )
 				{

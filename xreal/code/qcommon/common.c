@@ -2342,6 +2342,51 @@ static void Com_WriteCDKey( const char *filename, const char *ikey ) {
 }
 #endif
 
+static void Com_PrintMatrix( const matrix_t m) {
+	Com_Printf( "%i %i %i %i\n"
+				"%i %i %i %i\n"
+				"%i %i %i %i\n"
+				"%i %i %i %i\n\n"	, (int)m[ 0], (int)m[ 1], (int)m[ 2], (int)m[ 3]
+									, (int)m[ 4], (int)m[ 5], (int)m[ 6], (int)m[ 7]
+									, (int)m[ 8], (int)m[ 9], (int)m[10], (int)m[11]
+									, (int)m[12], (int)m[13], (int)m[14], (int)m[15] );
+}
+
+static void Com_MathTest_f( void )
+{
+	matrix_t	q2gl = {
+	// convert from our coordinate system (looking down X)
+	// to OpenGL's coordinate system (looking down -Z)
+	0, 0, -1, 0,
+	-1, 0, 0, 0,
+	0, 1, 0, 0,
+	0, 0, 0, 1
+	};
+	
+	matrix_t m = {
+	0, 4, 8, 12,
+	1, 5, 9, 13,
+	2, 6, 10, 14,
+	3, 7, 11, 15
+	};
+	
+	matrix_t r;
+	matrix_t gl2q;
+	matrix_t tmp;
+	
+	Com_PrintMatrix( q2gl );
+	Com_PrintMatrix( m );
+	
+	MatrixMultiply( q2gl, m, r );
+	Com_PrintMatrix( r );
+								
+	MatrixAffineInverse( q2gl, gl2q );
+	Com_PrintMatrix( gl2q );
+	
+	MatrixCopy( r, tmp );
+	MatrixMultiply( gl2q, tmp , r );
+	Com_PrintMatrix( r );
+}
 
 /*
 =================
@@ -2457,6 +2502,8 @@ void Com_Init( char *commandLine ) {
 	Cmd_AddCommand ("quit", Com_Quit_f);
 	Cmd_AddCommand ("changeVectors", MSG_ReportChangeVectors_f );
 	Cmd_AddCommand ("writeconfig", Com_WriteConfig_f );
+	
+	Cmd_AddCommand( "mathtest", Com_MathTest_f );
 
 	s = va("%s %s %s", Q3_VERSION, CPUSTRING, __DATE__ );
 	com_version = Cvar_Get ("version", s, CVAR_ROM | CVAR_SERVERINFO );

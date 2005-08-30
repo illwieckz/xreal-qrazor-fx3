@@ -811,14 +811,24 @@ void RB_CalcFogTexCoords( float *st ) {
 	fog_t		*fog;
 	vec3_t		local;
 	vec4_t		fogDistanceVector, fogDepthVector;
+	matrix_t	modelViewMatrix;
+	extern float	s_flipMatrix[16];
 
 	fog = tr.world->fogs + tess.fogNum;
 
 	// all fogging distance is based on world Z units
 	VectorSubtract( backEnd.or.origin, backEnd.viewParms.or.origin, local );
-	fogDistanceVector[0] = -backEnd.or.modelViewMatrix[ 2];
-	fogDistanceVector[1] = -backEnd.or.modelViewMatrix[ 6];
-	fogDistanceVector[2] = -backEnd.or.modelViewMatrix[10];
+	
+	// Tr3B - FIXME replace fog
+	MatrixMultiply( s_flipMatrix, backEnd.or.modelViewMatrix, modelViewMatrix );
+	fogDistanceVector[0] = -modelViewMatrix[ 2];
+	fogDistanceVector[1] = -modelViewMatrix[ 6];
+	fogDistanceVector[2] = -modelViewMatrix[10];
+	
+//	fogDistanceVector[0] =-backEnd.or.modelViewMatrix[ 8];
+//	fogDistanceVector[1] =-backEnd.or.modelViewMatrix[ 9];
+//	fogDistanceVector[2] =-backEnd.or.modelViewMatrix[10];
+	
 	fogDistanceVector[3] = DotProduct( local, backEnd.viewParms.or.axis[0] );
 
 	// scale the fog vectors based on the fog's thickness
@@ -829,12 +839,18 @@ void RB_CalcFogTexCoords( float *st ) {
 
 	// rotate the gradient vector for this orientation
 	if ( fog->hasSurface ) {
-		fogDepthVector[0] = fog->surface[0] * backEnd.or.axis[0][0] + 
-			fog->surface[1] * backEnd.or.axis[0][1] + fog->surface[2] * backEnd.or.axis[0][2];
-		fogDepthVector[1] = fog->surface[0] * backEnd.or.axis[1][0] + 
-			fog->surface[1] * backEnd.or.axis[1][1] + fog->surface[2] * backEnd.or.axis[1][2];
-		fogDepthVector[2] = fog->surface[0] * backEnd.or.axis[2][0] + 
-			fog->surface[1] * backEnd.or.axis[2][1] + fog->surface[2] * backEnd.or.axis[2][2];
+		fogDepthVector[0] = fog->surface[0] * backEnd.or.axis[0][0] +
+							fog->surface[1] * backEnd.or.axis[0][1] +
+							fog->surface[2] * backEnd.or.axis[0][2];
+							
+		fogDepthVector[1] = fog->surface[0] * backEnd.or.axis[1][0] +
+							fog->surface[1] * backEnd.or.axis[1][1] +
+							fog->surface[2] * backEnd.or.axis[1][2];
+							
+		fogDepthVector[2] = fog->surface[0] * backEnd.or.axis[2][0] +
+							fog->surface[1] * backEnd.or.axis[2][1] +
+							fog->surface[2] * backEnd.or.axis[2][2];
+							
 		fogDepthVector[3] = -fog->surface[3] + DotProduct( backEnd.or.origin, fog->surface );
 
 		eyeT = DotProduct( backEnd.or.viewOrigin, fogDepthVector ) + fogDepthVector[3];
