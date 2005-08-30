@@ -858,9 +858,9 @@ void PerpendicularVector( vec3_t dst, const vec3_t src );
 
 void MatrixIdentity( matrix_t m );
 void MatrixClear( matrix_t m );
-void MatrixCopy( matrix_t in, matrix_t out );
+void MatrixCopy( const matrix_t in, matrix_t out );
 void MatrixTransposeIntoXMM( matrix_t m );
-void MatrixTranspose( matrix_t in, matrix_t out );
+void MatrixTranspose( const matrix_t in, matrix_t out );
 void MatrixSetupXRotation( matrix_t m, vec_t degrees );
 void MatrixSetupYRotation( matrix_t m, vec_t degrees );
 void MatrixSetupZRotation( matrix_t m, vec_t degrees );
@@ -877,7 +877,8 @@ void MatrixFromVectorsFRU( matrix_t m, const vec3_t forward, const vec3_t right,
 void MatrixToVectorsFLU( const matrix_t m, vec3_t forward, vec3_t left, vec3_t up );
 void MatrixToVectorsFRU( const matrix_t m, vec3_t forward, vec3_t right, vec3_t up );
 //void MatrixLerp( const matrix_t from, const matrix_t to, vec_t f, matrix_t out );
-//void MatrixAffineInverse( const matrix_t in, matrix_t out );
+void MatrixSetupTransform( matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up, const vec3_t origin );
+void MatrixAffineInverse( const matrix_t in, matrix_t out );
 
 //=============================================
 

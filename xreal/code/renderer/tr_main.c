@@ -25,7 +25,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 trGlobals_t		tr;
 
-extern const float	s_flipMatrix[16];
+static const float	s_flipMatrix[16] = {
+	// convert from our coordinate system (looking down X)
+	// to OpenGL's coordinate system (looking down -Z)
+	0, 0, -1, 0,
+	-1, 0, 0, 0,
+	0, 1, 0, 0,
+	0, 0, 0, 1
+};
 
 
 refimport_t	ri;
@@ -353,11 +360,9 @@ Does NOT produce any GL calls
 Called by both the front end and the back end
 =================
 */
-void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms,
-					   orientationr_t *or ) {
-	float	glMatrix[16];
-	vec3_t	delta;
-	float	axisLength;
+void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms, orientationr_t *or ) {
+	vec3_t		delta;
+	float		axisLength;
 
 	if ( ent->e.reType != RT_MODEL ) {
 		*or = viewParms->world;
@@ -369,26 +374,14 @@ void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms,
 	VectorCopy( ent->e.axis[0], or->axis[0] );
 	VectorCopy( ent->e.axis[1], or->axis[1] );
 	VectorCopy( ent->e.axis[2], or->axis[2] );
-
-	glMatrix[ 0] = or->axis[0][0];
-	glMatrix[ 1] = or->axis[0][1];
-	glMatrix[ 2] = or->axis[0][2];
 	
-	glMatrix[ 4] = or->axis[1][0];
-	glMatrix[ 5] = or->axis[1][1];
-	glMatrix[ 6] = or->axis[1][2];
-	
-	glMatrix[ 8] = or->axis[2][0];
-	glMatrix[ 9] = or->axis[2][1];
-	glMatrix[10] = or->axis[2][2];
-	
-	glMatrix[12] = or->origin[0];
-	glMatrix[13] = or->origin[1];
-	glMatrix[14] = or->origin[2];
+	MatrixSetupTransform(
+		or->transformMatrix, 
+		or->axis[0], or->axis[1], or->axis[2],
+		or->origin
+	);
 
-	glMatrix[ 3] = 0;	glMatrix[ 7] = 0;	glMatrix[11] = 0;	glMatrix[15] = 1;
-
-	MatrixMultiply( viewParms->world.modelMatrix, glMatrix, or->modelMatrix );
+	MatrixMultiply( viewParms->world.viewMatrix, or->transformMatrix, or->modelViewMatrix );
 
 	// calculate the viewer origin in the model's space
 	// needed for fog, specular, and environment mapping
@@ -418,44 +411,25 @@ R_RotateForViewer
 Sets up the modelview matrix for a given viewParm
 =================
 */
-void R_RotateForViewer (void) 
+void R_RotateForViewer( void )
 {
-	float	viewerMatrix[16];
-	vec3_t	origin;
-
 	Com_Memset (&tr.or, 0, sizeof(tr.or));
 	tr.or.axis[0][0] = 1;
 	tr.or.axis[1][1] = 1;
 	tr.or.axis[2][2] = 1;
 	VectorCopy (tr.viewParms.or.origin, tr.or.viewOrigin);
 
-	// transform by the camera placement
-	VectorCopy( tr.viewParms.or.origin, origin );
-
-	// Tr3B - this calculates the affine inverse of the camera transform matrix
-	viewerMatrix[0] = tr.viewParms.or.axis[0][0];
-	viewerMatrix[4] = tr.viewParms.or.axis[0][1];
-	viewerMatrix[8] = tr.viewParms.or.axis[0][2];
-	viewerMatrix[12] = -origin[0] * viewerMatrix[0] + -origin[1] * viewerMatrix[4] + -origin[2] * viewerMatrix[8];
-
-	viewerMatrix[1] = tr.viewParms.or.axis[1][0];
-	viewerMatrix[5] = tr.viewParms.or.axis[1][1];
-	viewerMatrix[9] = tr.viewParms.or.axis[1][2];
-	viewerMatrix[13] = -origin[0] * viewerMatrix[1] + -origin[1] * viewerMatrix[5] + -origin[2] * viewerMatrix[9];
-
-	viewerMatrix[2] = tr.viewParms.or.axis[2][0];
-	viewerMatrix[6] = tr.viewParms.or.axis[2][1];
-	viewerMatrix[10] = tr.viewParms.or.axis[2][2];
-	viewerMatrix[14] = -origin[0] * viewerMatrix[2] + -origin[1] * viewerMatrix[6] + -origin[2] * viewerMatrix[10];
-
-	viewerMatrix[3] = 0;	viewerMatrix[7] = 0;	viewerMatrix[11] = 0;	viewerMatrix[15] = 1;
-
-	// convert from our coordinate system (looking down X)
-	// to OpenGL's coordinate system (looking down -Z)
-	MatrixMultiply( s_flipMatrix, viewerMatrix, tr.or.modelMatrix );
-
+	// transform by the camera placement	
+	MatrixSetupTransform( 
+		tr.or.transformMatrix, 
+		tr.viewParms.or.axis[0], tr.viewParms.or.axis[1], tr.viewParms.or.axis[2],
+		tr.viewParms.or.origin
+	);
+	
+	MatrixAffineInverse( tr.or.transformMatrix, tr.or.viewMatrix );
+	MatrixCopy( tr.or.viewMatrix, tr.or.modelViewMatrix );
+	
 	tr.viewParms.world = tr.or;
-
 }
 
 /*
@@ -529,9 +503,10 @@ R_SetupProjection
 ===============
 */
 void R_SetupProjection( void ) {
-	float	xmin, xmax, ymin, ymax;
-	float	width, height, depth;
-	float	zNear, zFar;
+	float		xmin, xmax, ymin, ymax;
+	float		width, height, depth;
+	float		zNear, zFar;
+	matrix_t	projectionMatrix;
 
 	// dynamically compute far clip plane distance
 	SetFarClip();
@@ -552,25 +527,29 @@ void R_SetupProjection( void ) {
 	height = ymax - ymin;
 	depth = zFar - zNear;
 
-	tr.viewParms.projectionMatrix[0] = 2 * zNear / width;
-	tr.viewParms.projectionMatrix[4] = 0;
-	tr.viewParms.projectionMatrix[8] = ( xmax + xmin ) / width;	// normally 0
-	tr.viewParms.projectionMatrix[12] = 0;
+	projectionMatrix[0] = 2 * zNear / width;
+	projectionMatrix[4] = 0;
+	projectionMatrix[8] = ( xmax + xmin ) / width;	// normally 0
+	projectionMatrix[12] = 0;
 
-	tr.viewParms.projectionMatrix[1] = 0;
-	tr.viewParms.projectionMatrix[5] = 2 * zNear / height;
-	tr.viewParms.projectionMatrix[9] = ( ymax + ymin ) / height;	// normally 0
-	tr.viewParms.projectionMatrix[13] = 0;
+	projectionMatrix[1] = 0;
+	projectionMatrix[5] = 2 * zNear / height;
+	projectionMatrix[9] = ( ymax + ymin ) / height;	// normally 0
+	projectionMatrix[13] = 0;
 
-	tr.viewParms.projectionMatrix[2] = 0;
-	tr.viewParms.projectionMatrix[6] = 0;
-	tr.viewParms.projectionMatrix[10] = -( zFar + zNear ) / depth;
-	tr.viewParms.projectionMatrix[14] = -2 * zFar * zNear / depth;
+	projectionMatrix[2] = 0;
+	projectionMatrix[6] = 0;
+	projectionMatrix[10] = -( zFar + zNear ) / depth;
+	projectionMatrix[14] = -2 * zFar * zNear / depth;
 
-	tr.viewParms.projectionMatrix[3] = 0;
-	tr.viewParms.projectionMatrix[7] = 0;
-	tr.viewParms.projectionMatrix[11] = -1;
-	tr.viewParms.projectionMatrix[15] = 0;
+	projectionMatrix[3] = 0;
+	projectionMatrix[7] = 0;
+	projectionMatrix[11] = -1;
+	projectionMatrix[15] = 0;
+	
+	// convert from our coordinate system (looking down X)
+	// to OpenGL's coordinate system (looking down -Z)
+	MatrixMultiply( projectionMatrix, s_flipMatrix, tr.viewParms.projectionMatrix );
 }
 
 /*
@@ -912,7 +891,7 @@ static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128
 		int j;
 		unsigned int pointFlags = 0;
 
-		R_TransformModelToClip( tess.xyz[i], tr.or.modelMatrix, tr.viewParms.projectionMatrix, eye, clip );
+		R_TransformModelToClip( tess.xyz[i], tr.or.modelViewMatrix, tr.viewParms.projectionMatrix, eye, clip );
 
 		for ( j = 0; j < 3; j++ )
 		{

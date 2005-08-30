@@ -1501,7 +1501,7 @@ void MatrixClear( matrix_t m ) {
 }
 
 
-void MatrixCopy( matrix_t in, matrix_t out ) {
+void MatrixCopy( const matrix_t in, matrix_t out ) {
 #if id386_sse && defined __GNUC__
 	asm volatile
 	(
@@ -1597,7 +1597,7 @@ void MatrixTransposeIntoXMM( matrix_t m ) {
 #endif
 }
 
-void MatrixTranspose( matrix_t in, matrix_t out ) {
+void MatrixTranspose( const matrix_t in, matrix_t out ) {
 #if id386_sse && defined __GNUC__
 	// transpose the matrix into the xmm4-7
 	MatrixTransposeIntoXMM();
@@ -1695,7 +1695,7 @@ void MatrixSetupScale( matrix_t m, vec_t x, vec_t y, vec_t z ) {
 }
 
 void MatrixMultiply( const matrix_t a, const matrix_t b, matrix_t out ) {
-#if id386_sse && defined __GNUC__
+#if 1 //id386_sse && defined __GNUC__
 	asm volatile
 	(
 	// load m2 into the xmm4-7
@@ -1808,7 +1808,7 @@ void MatrixMultiply( const matrix_t a, const matrix_t b, matrix_t out ) {
 	
 	"movups		%%xmm3,		48(%%ecx)\n"
 	:
-	: "a"( a ), "d"( b ), "c"( out )
+	: "a"( b ), "d"( a ), "c"( out )
 	: "memory"
 	);
 #else
@@ -1962,25 +1962,42 @@ void MatrixLerp( const matrix_t from, const matrix_t to, vec_t f, matrix_t out )
 }
 */
 
-// Tr3B - recoded from Tenebrae2 into row major style
-/*
-void MatrixAffineInverse( const matrix_t in, matrix_t out ) {
-	vec_t tx, ty, tz;
 
-	// The rotational part of the matrix is simply the transpose of the original matrix.
-	out[0][0] = in[0][0];	out[0][1] = in[1][0];	out[0][2] = in[2][0];
-	out[1][0] = in[0][1];	out[1][1] = in[1][1];	out[1][2] = in[2][1];
-	out[2][0] = in[0][2];	out[2][1] = in[1][2];	out[2][2] = in[2][2];
-	out[3][0] = 0;			out[3][1] = 0;			out[3][2] = 0;			out[3][3] = 1;
-		
-	// The translation components of the original matrix.
-	tx = in[0][3];
-	ty = in[1][3];
-	tz = in[2][3];
-		
-	// Rresult = -(Tm * Rm) to get the translation part of the inverse
-	out[0][3] = -(in[0][0]*tx + in[1][0]*ty + in[2][0]*tz);
-	out[1][3] = -(in[0][1]*tx + in[1][1]*ty + in[2][1]*tz);
-	out[2][3] = -(in[0][2]*tx + in[1][2]*ty + in[2][2]*tz);
+void MatrixSetupTransform( matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up, const vec3_t origin ) {
+	m[ 0] = forward[0];	m[ 4] = left[0];	m[ 8] = up[0];	m[12] = origin[0];
+	m[ 1] = forward[1];	m[ 5] = left[1];	m[ 9] = up[1];	m[13] = origin[1];
+	m[ 2] = forward[2];	m[ 6] = left[2];	m[10] = up[2];	m[14] = origin[2];
+	m[ 3] = 0;			m[ 7] = 0;			m[11] = 0;		m[15] = 1;
 }
-*/
+
+void MatrixAffineInverse( const matrix_t in, matrix_t out ) {
+#if 0
+	// Tr3B - ripped from renderer
+	out[ 0] = in[ 0];
+	out[ 4] = in[ 1];
+	out[ 8] = in[ 2];
+	out[12] = -in[12] * out[0] + -in[13] * out[4] + -in[14] * out[8];
+
+	out[ 1] = in[ 4];
+	out[ 5] = in[ 5];
+	out[ 9] = in[ 6];
+	out[13] = -in[12] * out[1] + -in[13] * out[5] + -in[14] * out[9];
+
+	out[ 2] = in[ 8];
+	out[ 6] = in[ 9];
+	out[10] = in[10];
+	out[14] = -in[12] * out[2] + -in[13] * out[6] + -in[14] * out[10];
+
+	out[3] = 0;	out[7] = 0;	out[11] = 0;	out[15] = 1;
+#else
+	// Tr3B - cleaned up
+	out[ 0] = in[ 0];	out[ 4] = in[ 1];	out[ 8] = in[ 2];
+	out[ 1] = in[ 4];	out[ 5] = in[ 5];	out[ 9] = in[ 6];
+	out[ 2] = in[ 8];	out[ 6] = in[ 9];	out[10] = in[10];
+	out[ 3] = 0;		out[ 7] = 0;		out[11] = 0;		out[15] = 1;
+	
+	out[12] = -( in[12] * out[ 0] + in[13] * out[ 4] + in[14] * out[ 8] );
+	out[13] = -( in[12] * out[ 1] + in[13] * out[ 5] + in[14] * out[ 9] );
+	out[14] = -( in[12] * out[ 2] + in[13] * out[ 6] + in[14] * out[10] );
+#endif
+}

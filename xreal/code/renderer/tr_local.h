@@ -84,10 +84,12 @@ typedef struct {
 
 
 typedef struct {
-	vec3_t		origin;			// in world coordinates
-	vec3_t		axis[3];		// orientation in world
-	vec3_t		viewOrigin;		// viewParms->or.origin in local coordinates
-	float		modelMatrix[16];
+	vec3_t		origin;				// in world coordinates
+	vec3_t		axis[3];			// orientation in world
+	vec3_t		viewOrigin;			// viewParms->or.origin in local coordinates
+	matrix_t	transformMatrix;	// transforms object to world: either used by camera, model or light
+	matrix_t	viewMatrix;			// affine inverse of transform matrix to transform other objects into this space
+	matrix_t	modelViewMatrix;	// only used by models, camera viewMatrix * transformMatrix
 } orientationr_t;
 
 typedef struct image_s {

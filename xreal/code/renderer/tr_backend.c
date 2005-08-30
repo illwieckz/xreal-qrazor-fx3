@@ -25,15 +25,6 @@ backEndData_t	*backEndData[SMP_FRAMES];
 backEndState_t	backEnd;
 
 
-const float	s_flipMatrix[16] = {
-	// convert from our coordinate system (looking down X)
-	// to OpenGL's coordinate system (looking down -Z)
-	0, 0, -1, 0,
-	-1, 0, 0, 0,
-	0, 1, 0, 0,
-	0, 0, 0, 1
-};
-
 
 /*
 ** GL_Bind
@@ -500,11 +491,11 @@ void RB_BeginDrawingView (void) {
 		plane2[2] = DotProduct (backEnd.viewParms.or.axis[2], plane);
 		plane2[3] = DotProduct (plane, backEnd.viewParms.or.origin) - plane[3];
 
-		qglLoadMatrixf( s_flipMatrix );
-		qglClipPlane (GL_CLIP_PLANE0, plane2);
-		qglEnable (GL_CLIP_PLANE0);
+		qglLoadIdentity();
+		qglClipPlane( GL_CLIP_PLANE0, plane2 );
+		qglEnable( GL_CLIP_PLANE0 );
 	} else {
-		qglDisable (GL_CLIP_PLANE0);
+		qglDisable( GL_CLIP_PLANE0 );
 	}
 }
 
@@ -622,7 +613,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.or );
 			}
 
-			qglLoadMatrixf( backEnd.or.modelMatrix );
+			qglLoadMatrixf( backEnd.or.modelViewMatrix );
 
 			//
 			// change depthrange if needed
@@ -651,7 +642,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	}
 
 	// go back to the world modelview matrix
-	qglLoadMatrixf( backEnd.viewParms.world.modelMatrix );
+	qglLoadMatrixf( backEnd.viewParms.world.modelViewMatrix );
 	if ( depthRange ) {
 		qglDepthRange (0, 1);
 	}

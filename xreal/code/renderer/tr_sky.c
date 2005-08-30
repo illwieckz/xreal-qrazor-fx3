@@ -708,7 +708,7 @@ void RB_DrawSun( void ) {
 	if ( !r_drawSun->integer ) {
 		return;
 	}
-	qglLoadMatrixf( backEnd.viewParms.world.modelMatrix );
+	qglLoadMatrixf( backEnd.viewParms.world.modelViewMatrix );
 	qglTranslatef (backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2]);
 
 	dist = 	backEnd.viewParms.zFar / 1.75;		// div sqrt(3)
