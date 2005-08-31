@@ -865,6 +865,52 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 			}
 		}
 		//
+		// stage <type>
+		//
+		else if ( !Q_stricmp( token, "stage" ) )
+		{
+			token = COM_ParseExt( text, qfalse );
+			if ( token[0] == 0 )
+			{
+				ri.Printf( PRINT_WARNING, "WARNING: missing parameters for stage in shader '%s'\n", shader.name );
+				continue;
+			}
+
+			if ( !Q_stricmp( token, "color" ) )
+			{
+				stage->type = ST_COLOR;
+			}
+			else if ( !Q_stricmp( token, "lighting" ) )
+			{
+				stage->type = ST_LIGHTING;
+			}
+			else if ( !Q_stricmp( token, "reflection" ) )
+			{
+				stage->type = ST_REFLECTION;
+			}
+			else if ( !Q_stricmp( token, "refraction" ) )
+			{
+				stage->type = ST_REFRACTION;
+			}
+			else if ( !Q_stricmp( token, "dispersion" ) )
+			{
+				stage->type = ST_DISPERSION;
+			}
+			else if ( !Q_stricmp( token, "heathaze" ) )
+			{
+				stage->type = ST_HEATHAZE;
+			}
+			else if ( !Q_stricmp( token, "liquid" ) )
+			{
+				stage->type = ST_LIQUID;
+			}
+			else
+			{
+				ri.Printf( PRINT_WARNING, "WARNING: unknown stage parameter '%s' in shader '%s'\n", token, shader.name );
+				continue;
+			}
+		}
+		//
 		// rgbGen
 		//
 		else if ( !Q_stricmp( token, "rgbGen" ) )
@@ -2082,7 +2128,7 @@ static shader_t *GeneratePermanentShader( void ) {
 		newShader->stages[i] = ri.Hunk_Alloc( sizeof( stages[i] ), h_low );
 		*newShader->stages[i] = stages[i];
 
-		for ( b = 0 ; b < NUM_TEXTURE_BUNDLES ; b++ ) {
+		for ( b = 0 ; b < MAX_TEXTURE_BUNDLES ; b++ ) {
 			size = newShader->stages[i]->bundle[b].numTexMods * sizeof( texModInfo_t );
 			newShader->stages[i]->bundle[b].texMods = ri.Hunk_Alloc( size, h_low );
 			Com_Memcpy( newShader->stages[i]->bundle[b].texMods, stages[i].bundle[b].texMods, size );
@@ -2227,7 +2273,7 @@ static shader_t *FinishShader( void ) {
 			break;
 		}
 
-    // check for a missing texture
+		// check for a missing texture
 		if ( !pStage->bundle[0].image[0] ) {
 			ri.Printf( PRINT_WARNING, "Shader %s has a stage with no image\n", shader.name );
 			pStage->active = qfalse;

@@ -255,7 +255,6 @@ typedef struct {
 	float		bulgeSpeed;
 } deformStage_t;
 
-
 typedef struct {
 	texMod_t		type;
 
@@ -284,7 +283,7 @@ typedef struct {
 #define	MAX_IMAGE_ANIMATIONS	8
 
 typedef struct {
-	image_t			*image[MAX_IMAGE_ANIMATIONS];
+	image_t*		image[MAX_IMAGE_ANIMATIONS];
 	int				numImageAnimations;
 	float			imageAnimationSpeed;
 
@@ -292,21 +291,42 @@ typedef struct {
 	vec3_t			tcGenVectors[2];
 
 	int				numTexMods;
-	texModInfo_t	*texMods;
+	texModInfo_t*	texMods;
 
 	int				videoMapHandle;
 	qboolean		isLightmap;
 	qboolean		vertexLightmap;
 	qboolean		isVideoMap;
 	qboolean		isNormalMap;
+	qboolean		isSpecularMap;
 } textureBundle_t;
 
-#define NUM_TEXTURE_BUNDLES 2
+typedef enum {
+	TB_COLORMAP				= 0,
+	TB_LIGHTMAP				= 1,
+	TB_DELUXEMAP			= 2,
+	TB_DIFFUSEMAP			= 0,
+	TB_NORMALMAP			= 1,
+	TB_SPECULARMAP			= 2,
+	MAX_TEXTURE_BUNDLES		= 3
+} textureBundleIndexes_t;
+
+typedef enum {
+	ST_COLOR,				// vanilla Q3A style shader treatening
+	ST_LIGHTING,			// new Doom3 style interpretation
+	ST_REFLECTION,			// cubeMap based reflection
+	ST_REFRACTION,
+	ST_DISPERSION,
+	ST_HEATHAZE,			// heatHaze post process effect
+	ST_LIQUID				// reflective water shader
+} stageType_t;
 
 typedef struct {
+	stageType_t		type;
+
 	qboolean		active;
 	
-	textureBundle_t	bundle[NUM_TEXTURE_BUNDLES];
+	textureBundle_t	bundle[MAX_TEXTURE_BUNDLES];
 
 	waveForm_t		rgbWave;
 	colorGen_t		rgbGen;
@@ -1315,7 +1335,7 @@ typedef byte color4ub_t[4];
 typedef struct stageVars
 {
 	color4ub_t	colors[SHADER_MAX_VERTEXES];
-	vec2_t		texcoords[NUM_TEXTURE_BUNDLES][SHADER_MAX_VERTEXES];
+	vec2_t		texcoords[MAX_TEXTURE_BUNDLES][SHADER_MAX_VERTEXES];
 } stageVars_t;
 
 typedef struct shaderCommands_s 

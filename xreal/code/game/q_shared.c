@@ -295,6 +295,7 @@ string will be returned if the next token is
 a newline.
 ==============
 */
+/*
 static char *SkipWhitespace( char *data, qboolean *hasNewLines ) {
 	int c;
 
@@ -311,6 +312,7 @@ static char *SkipWhitespace( char *data, qboolean *hasNewLines ) {
 
 	return data;
 }
+*/
 
 int COM_Compress( char *data_p ) {
 	char *in, *out;
@@ -382,73 +384,85 @@ int COM_Compress( char *data_p ) {
 
 char *COM_ParseExt( char **data_p, qboolean allowLineBreaks )
 {
-	int c = 0, len;
-	qboolean hasNewLines = qfalse;
-	char *data;
+	int			len;
+	qboolean	hasNewLines = qfalse;
+	char		*data;
 
 	data = *data_p;
 	len = 0;
 	com_token[0] = 0;
 
 	// make sure incoming data is valid
-	if ( !data )
+	if( !data )
 	{
 		*data_p = NULL;
 		return com_token;
 	}
 
-	while ( 1 )
+	while( 1 )
 	{
 		// skip whitespace
-		data = SkipWhitespace( data, &hasNewLines );
-		if ( !data )
+		for( ; data[0] <= ' ' ; data++ )
+		{
+			if( !data[0] )
+			{
+				data = NULL;
+				break;
+			}
+			if( data[0] == '\n' )
+			{
+				com_lines++;
+				hasNewLines = qtrue;
+			}
+		}
+		
+		if( !data )
 		{
 			*data_p = NULL;
 			return com_token;
 		}
-		if ( hasNewLines && !allowLineBreaks )
+		if( hasNewLines && !allowLineBreaks )
 		{
 			*data_p = data;
 			return com_token;
 		}
 
-		c = *data;
-
 		// skip double slash comments
-		if ( c == '/' && data[1] == '/' )
+		if( data[0] == '/' && data[1] == '/' )
 		{
 			data += 2;
-			while (*data && *data != '\n') {
+			while( *data && *data != '\n')
+			{
 				data++;
 			}
 		}
 		// skip /* */ comments
-		else if ( c=='/' && data[1] == '*' ) 
+		else if( data[0] =='/' && data[1] == '*' ) 
 		{
 			data += 2;
-			while ( *data && ( *data != '*' || data[1] != '/' ) ) 
+			while( *data && ( *data != '*' || data[1] != '/' ) ) 
 			{
 				data++;
 			}
-			if ( *data ) 
+			if( *data ) 
 			{
 				data += 2;
 			}
 		}
 		else
 		{
+			// a real token to parse
 			break;
 		}
 	}
 
 	// handle quoted strings
-	if (c == '\"')
+	if( data[0] == '\"' )
 	{
-		data++;
-		while (1)
+		while( 1 )
 		{
-			c = *data++;
-			if (c=='\"' || !c)
+			data++;
+			if( data[0] =='\"' || !data[0] )
 			{
 				com_token[len] = 0;
 				*data_p = ( char * ) data;
@@ -456,7 +470,7 @@ char *COM_ParseExt( char **data_p, qboolean allowLineBreaks )
 			}
 			if (len < MAX_TOKEN_CHARS)
 			{
-				com_token[len] = c;
+				com_token[len] = data[0];
 				len++;
 			}
 		}
@@ -465,18 +479,17 @@ char *COM_ParseExt( char **data_p, qboolean allowLineBreaks )
 	// parse a regular word
 	do
 	{
-		if (len < MAX_TOKEN_CHARS)
+		if( len < MAX_TOKEN_CHARS )
 		{
-			com_token[len] = c;
+			com_token[len] = data[0];
 			len++;
 		}
 		data++;
-		c = *data;
-		if ( c == '\n' )
+		if( data[0] == '\n' )
 			com_lines++;
-	} while (c>32);
+	} while( data[0] > 32 );
 
-	if (len == MAX_TOKEN_CHARS)
+	if( len == MAX_TOKEN_CHARS )
 	{
 //		Com_Printf ("Token exceeded %i chars, discarded.\n", MAX_TOKEN_CHARS);
 		len = 0;

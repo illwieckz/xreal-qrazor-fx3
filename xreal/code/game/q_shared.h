@@ -884,14 +884,14 @@ void MatrixAffineInverse( const matrix_t in, matrix_t out );
 
 float Com_Clamp( float min, float max, float value );
 
-char	*COM_SkipPath( char *pathname );
+char*	COM_SkipPath( char *pathname );
 void	COM_StripExtension( const char *in, char *out );
 void	COM_DefaultExtension( char *path, int maxSize, const char *extension );
 
 void	COM_BeginParseSession( const char *name );
 int		COM_GetCurrentParseLine( void );
-char	*COM_Parse( char **data_p );
-char	*COM_ParseExt( char **data_p, qboolean allowLineBreak );
+char*	COM_Parse( char **data_p );
+char*	COM_ParseExt( char **data_p, qboolean allowLineBreak );
 int		COM_Compress( char *data_p );
 void	COM_ParseError( char *format, ... );
 void	COM_ParseWarning( char *format, ... );

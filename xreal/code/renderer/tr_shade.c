@@ -1233,7 +1233,7 @@ static void ComputeTexCoords( shaderStage_t *pStage ) {
 	int		i;
 	int		b;
 
-	for ( b = 0; b < NUM_TEXTURE_BUNDLES; b++ ) {
+	for ( b = 0; b < MAX_TEXTURE_BUNDLES; b++ ) {
 		int tm;
 
 		//
