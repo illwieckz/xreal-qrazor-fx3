@@ -183,17 +183,17 @@ static int R_DlightFace(srfSurfaceFace_t * face, int dlightBits)
 {
 	float           d;
 	int             i;
-	dlight_t       *dl;
+	trRefDlight_t  *dl;
 
-	for(i = 0; i < tr.refdef.num_dlights; i++)
+	for(i = 0; i < tr.refdef.numDlights; i++)
 	{
 		if(!(dlightBits & (1 << i)))
 		{
 			continue;
 		}
 		dl = &tr.refdef.dlights[i];
-		d = DotProduct(dl->origin, face->plane.normal) - face->plane.dist;
-		if(d < -dl->radius || d > dl->radius)
+		d = DotProduct(dl->l.origin, face->plane.normal) - face->plane.dist;
+		if(d < -dl->l.radius || d > dl->l.radius)
 		{
 			// dlight doesn't reach the plane
 			dlightBits &= ~(1 << i);
@@ -212,21 +212,21 @@ static int R_DlightFace(srfSurfaceFace_t * face, int dlightBits)
 static int R_DlightGrid(srfGridMesh_t * grid, int dlightBits)
 {
 	int             i;
-	dlight_t       *dl;
+	trRefDlight_t  *dl;
 
-	for(i = 0; i < tr.refdef.num_dlights; i++)
+	for(i = 0; i < tr.refdef.numDlights; i++)
 	{
 		if(!(dlightBits & (1 << i)))
 		{
 			continue;
 		}
 		dl = &tr.refdef.dlights[i];
-		if(dl->origin[0] - dl->radius > grid->meshBounds[1][0]
-		   || dl->origin[0] + dl->radius < grid->meshBounds[0][0]
-		   || dl->origin[1] - dl->radius > grid->meshBounds[1][1]
-		   || dl->origin[1] + dl->radius < grid->meshBounds[0][1]
-		   || dl->origin[2] - dl->radius > grid->meshBounds[1][2]
-		   || dl->origin[2] + dl->radius < grid->meshBounds[0][2])
+		if(dl->l.origin[0] - dl->l.radius > grid->meshBounds[1][0]
+		   || dl->l.origin[0] + dl->l.radius < grid->meshBounds[0][0]
+		   || dl->l.origin[1] - dl->l.radius > grid->meshBounds[1][1]
+		   || dl->l.origin[1] + dl->l.radius < grid->meshBounds[0][1]
+		   || dl->l.origin[2] - dl->l.radius > grid->meshBounds[1][2]
+		   || dl->l.origin[2] + dl->l.radius < grid->meshBounds[0][2])
 		{
 			// dlight doesn't reach the bounds
 			dlightBits &= ~(1 << i);
@@ -252,7 +252,7 @@ static int R_DlightTrisurf(srfTriangles_t * surf, int dlightBits)
 	int             i;
 	dlight_t       *dl;
 
-	for(i = 0; i < tr.refdef.num_dlights; i++)
+	for(i = 0; i < tr.refdef.numDlights; i++)
 	{
 		if(!(dlightBits & (1 << i)))
 		{
@@ -492,21 +492,21 @@ static void R_RecursiveWorldNode(mnode_t * node, int planeBits, int dlightBits)
 		{
 			int             i;
 
-			for(i = 0; i < tr.refdef.num_dlights; i++)
+			for(i = 0; i < tr.refdef.numDlights; i++)
 			{
-				dlight_t       *dl;
+				trRefDlight_t  *dl;
 				float           dist;
 
 				if(dlightBits & (1 << i))
 				{
 					dl = &tr.refdef.dlights[i];
-					dist = DotProduct(dl->origin, node->plane->normal) - node->plane->dist;
+					dist = DotProduct(dl->l.origin, node->plane->normal) - node->plane->dist;
 
-					if(dist > -dl->radius)
+					if(dist > -dl->l.radius)
 					{
 						newDlights[0] |= (1 << i);
 					}
-					if(dist < dl->radius)
+					if(dist < dl->l.radius)
 					{
 						newDlights[1] |= (1 << i);
 					}
@@ -568,7 +568,6 @@ static void R_RecursiveWorldNode(mnode_t * node, int planeBits, int dlightBits)
 			mark++;
 		}
 	}
-
 }
 
 
@@ -766,9 +765,9 @@ void R_AddWorldSurfaces(void)
 	ClearBounds(tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]);
 
 	// perform frustum culling and add all the potentially visible surfaces
-	if(tr.refdef.num_dlights > 32)
+	if(tr.refdef.numDlights > 32)
 	{
-		tr.refdef.num_dlights = 32;
+		tr.refdef.numDlights = 32;
 	}
-	R_RecursiveWorldNode(tr.world->nodes, 15, (1 << tr.refdef.num_dlights) - 1);
+	R_RecursiveWorldNode(tr.world->nodes, 15, (1 << tr.refdef.numDlights) - 1);
 }

@@ -165,7 +165,7 @@ gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
 	else
 		from++;
 
-	for ( ; from < &g_entities[level.num_entities] ; from++)
+	for ( ; from < &g_entities[level.numEntities] ; from++)
 	{
 		if (!from->inuse)
 			continue;
@@ -396,7 +396,7 @@ gentity_t *G_Spawn( void ) {
 		// if we go through all entities and can't find one to free,
 		// override the normal minimum times before use
 		e = &g_entities[MAX_CLIENTS];
-		for ( i = MAX_CLIENTS ; i<level.num_entities ; i++, e++) {
+		for ( i = MAX_CLIENTS ; i<level.numEntities ; i++, e++) {
 			if ( e->inuse ) {
 				continue;
 			}
@@ -423,10 +423,10 @@ gentity_t *G_Spawn( void ) {
 	}
 	
 	// open up a new slot
-	level.num_entities++;
+	level.numEntities++;
 
 	// let the server system know that there are more entities
-	trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
+	trap_LocateGameData( level.gentities, level.numEntities, sizeof( gentity_t ), 
 		&level.clients[0].ps, sizeof( level.clients[0] ) );
 
 	G_InitGentity( e );
@@ -443,7 +443,7 @@ qboolean G_EntitiesFree( void ) {
 	gentity_t	*e;
 
 	e = &g_entities[MAX_CLIENTS];
-	for ( i = MAX_CLIENTS; i < level.num_entities; i++, e++) {
+	for ( i = MAX_CLIENTS; i < level.numEntities; i++, e++) {
 		if ( e->inuse ) {
 			continue;
 		}

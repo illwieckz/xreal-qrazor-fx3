@@ -62,15 +62,15 @@ static void SV_EmitPacketEntities( clientSnapshot_t *from, clientSnapshot_t *to,
 	if ( !from ) {
 		from_num_entities = 0;
 	} else {
-		from_num_entities = from->num_entities;
+		from_num_entities = from->numEntities;
 	}
 
 	newent = NULL;
 	oldent = NULL;
 	newindex = 0;
 	oldindex = 0;
-	while ( newindex < to->num_entities || oldindex < from_num_entities ) {
-		if ( newindex >= to->num_entities ) {
+	while ( newindex < to->numEntities || oldindex < from_num_entities ) {
+		if ( newindex >= to->numEntities ) {
 			newnum = 9999;
 		} else {
 			newent = &svs.snapshotEntities[(to->first_entity+newindex) % svs.numSnapshotEntities];
@@ -310,7 +310,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 
 	c_fullsend = 0;
 
-	for ( e = 0 ; e < sv.num_entities ; e++ ) {
+	for ( e = 0 ; e < sv.numEntities ; e++ ) {
 		ent = SV_GentityNum(e);
 
 		// never send entities that aren't linked in
@@ -456,7 +456,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	Com_Memset( frame->areabits, 0, sizeof( frame->areabits ) );
 
   // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=62
-	frame->num_entities = 0;
+	frame->numEntities = 0;
 	
 	clent = client->gentity;
 	if ( !clent || client->state == CS_ZOMBIE ) {
@@ -499,7 +499,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	}
 
 	// copy the entity states out
-	frame->num_entities = 0;
+	frame->numEntities = 0;
 	frame->first_entity = svs.nextSnapshotEntities;
 	for ( i = 0 ; i < entityNumbers.numSnapshotEntities ; i++ ) {
 		ent = SV_GentityNum(entityNumbers.snapshotEntities[i]);
@@ -510,7 +510,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 		if ( svs.nextSnapshotEntities >= 0x7FFFFFFE ) {
 			Com_Error(ERR_FATAL, "svs.nextSnapshotEntities wrapped");
 		}
-		frame->num_entities++;
+		frame->numEntities++;
 	}
 }
 

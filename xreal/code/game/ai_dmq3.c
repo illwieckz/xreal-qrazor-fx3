@@ -3781,7 +3781,7 @@ int BotModelMinsMaxs(int modelindex, int eType, int contents, vec3_t mins, vec3_
 	int i;
 
 	ent = &g_entities[0];
-	for (i = 0; i < level.num_entities; i++, ent++) {
+	for (i = 0; i < level.numEntities; i++, ent++) {
 		if ( !ent->inuse ) {
 			continue;
 		}
@@ -5305,7 +5305,7 @@ void BotSetEntityNumForGoalWithModel(bot_goal_t *goal, int eType, char *modelnam
 
 	modelindex = G_ModelIndex( modelname );
 	ent = &g_entities[0];
-	for (i = 0; i < level.num_entities; i++, ent++) {
+	for (i = 0; i < level.numEntities; i++, ent++) {
 		if ( !ent->inuse ) {
 			continue;
 		}
@@ -5334,7 +5334,7 @@ void BotSetEntityNumForGoal(bot_goal_t *goal, char *classname) {
 	vec3_t dir;
 
 	ent = &g_entities[0];
-	for (i = 0; i < level.num_entities; i++, ent++) {
+	for (i = 0; i < level.numEntities; i++, ent++) {
 		if ( !ent->inuse ) {
 			continue;
 		}

@@ -607,7 +607,7 @@ int EntityInPVS( int client, int entityNum ) {
 
 	cl = &svs.clients[client];
 	frame = &cl->frames[cl->netchan.outgoingSequence & PACKET_MASK];
-	for ( i = 0; i < frame->num_entities; i++ )	{
+	for ( i = 0; i < frame->numEntities; i++ )	{
 		if ( svs.snapshotEntities[(frame->first_entity + i) % svs.numSnapshotEntities].number == entityNum ) {
 			return qtrue;
 		}
@@ -627,7 +627,7 @@ int SV_BotGetSnapshotEntity( int client, int sequence ) {
 
 	cl = &svs.clients[client];
 	frame = &cl->frames[cl->netchan.outgoingSequence & PACKET_MASK];
-	if (sequence < 0 || sequence >= frame->num_entities) {
+	if (sequence < 0 || sequence >= frame->numEntities) {
 		return -1;
 	}
 	return svs.snapshotEntities[(frame->first_entity + sequence) % svs.numSnapshotEntities].number;

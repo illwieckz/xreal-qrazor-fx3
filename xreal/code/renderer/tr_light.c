@@ -39,14 +39,14 @@ Used by both the front end (for DlightBmodel) and
 the back end (before doing the lighting calculation)
 ===============
 */
-void R_TransformDlights(int count, dlight_t * dl, orientationr_t * or)
+void R_TransformDlights(int count, trRefDlight_t * dl, orientationr_t * or)
 {
 	int             i;
 	vec3_t          temp;
 
 	for(i = 0; i < count; i++, dl++)
 	{
-		VectorSubtract(dl->origin, or->origin, temp);
+		VectorSubtract(dl->l.origin, or->origin, temp);
 		dl->transformed[0] = DotProduct(temp, or->axis[0]);
 		dl->transformed[1] = DotProduct(temp, or->axis[1]);
 		dl->transformed[2] = DotProduct(temp, or->axis[2]);
@@ -63,26 +63,26 @@ Determine which dynamic lights may effect this bmodel
 void R_DlightBmodel(bmodel_t * bmodel)
 {
 	int             i, j;
-	dlight_t       *dl;
+	trRefDlight_t  *dl;
 	int             mask;
 	msurface_t     *surf;
 
 	// transform all the lights
-	R_TransformDlights(tr.refdef.num_dlights, tr.refdef.dlights, &tr.or);
+	R_TransformDlights(tr.refdef.numDlights, tr.refdef.dlights, &tr.or);
 
 	mask = 0;
-	for(i = 0; i < tr.refdef.num_dlights; i++)
+	for(i = 0; i < tr.refdef.numDlights; i++)
 	{
 		dl = &tr.refdef.dlights[i];
 
 		// see if the point is close enough to the bounds to matter
 		for(j = 0; j < 3; j++)
 		{
-			if(dl->transformed[j] - bmodel->bounds[1][j] > dl->radius)
+			if(dl->transformed[j] - bmodel->bounds[1][j] > dl->l.radius)
 			{
 				break;
 			}
-			if(bmodel->bounds[0][j] - dl->transformed[j] > dl->radius)
+			if(bmodel->bounds[0][j] - dl->transformed[j] > dl->l.radius)
 			{
 				break;
 			}
@@ -323,7 +323,7 @@ by the Calc_* functions
 void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 {
 	int             i;
-	dlight_t       *dl;
+	trRefDlight_t  *dl;
 	float           power;
 	vec3_t          dir;
 	float           d;
@@ -379,20 +379,20 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 	d = VectorLength(ent->directedLight);
 	VectorScale(ent->lightDir, d, lightDir);
 
-	for(i = 0; i < refdef->num_dlights; i++)
+	for(i = 0; i < refdef->numDlights; i++)
 	{
 		dl = &refdef->dlights[i];
-		VectorSubtract(dl->origin, lightOrigin, dir);
+		VectorSubtract(dl->l.origin, lightOrigin, dir);
 		d = VectorNormalize(dir);
 
-		power = DLIGHT_AT_RADIUS * (dl->radius * dl->radius);
+		power = DLIGHT_AT_RADIUS * (dl->l.radius * dl->l.radius);
 		if(d < DLIGHT_MINIMUM_RADIUS)
 		{
 			d = DLIGHT_MINIMUM_RADIUS;
 		}
 		d = power / (d * d);
 
-		VectorMA(ent->directedLight, d, dl->color, ent->directedLight);
+		VectorMA(ent->directedLight, d, dl->l.color, ent->directedLight);
 		VectorMA(lightDir, d, dir, lightDir);
 	}
 

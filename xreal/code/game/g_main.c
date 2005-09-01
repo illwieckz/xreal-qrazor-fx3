@@ -278,7 +278,7 @@ void G_FindTeams( void ) {
 
 	c = 0;
 	c2 = 0;
-	for ( i=1, e=g_entities+i ; i < level.num_entities ; i++,e++ ){
+	for ( i=1, e=g_entities+i ; i < level.numEntities ; i++,e++ ){
 		if (!e->inuse)
 			continue;
 		if (!e->team)
@@ -288,7 +288,7 @@ void G_FindTeams( void ) {
 		e->teammaster = e;
 		c++;
 		c2++;
-		for (j=i+1, e2=e+1 ; j < level.num_entities ; j++,e2++)
+		for (j=i+1, e2=e+1 ; j < level.numEntities ; j++,e2++)
 		{
 			if (!e2->inuse)
 				continue;
@@ -466,10 +466,10 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	// always leave room for the max number of clients,
 	// even if they aren't all used, so numbers inside that
 	// range are NEVER anything but clients
-	level.num_entities = MAX_CLIENTS;
+	level.numEntities = MAX_CLIENTS;
 
 	// let the server system know where the entites are
-	trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
+	trap_LocateGameData( level.gentities, level.numEntities, sizeof( gentity_t ), 
 		&level.clients[0].ps, sizeof( level.clients[0] ) );
 
 	// reserve some spots for dead player bodies
@@ -1734,7 +1734,7 @@ int start, end;
 	//
 	start = trap_Milliseconds();
 	ent = &g_entities[0];
-	for (i=0 ; i<level.num_entities ; i++, ent++) {
+	for (i=0 ; i<level.numEntities ; i++, ent++) {
 		if ( !ent->inuse ) {
 			continue;
 		}

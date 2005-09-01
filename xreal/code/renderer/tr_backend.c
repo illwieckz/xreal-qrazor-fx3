@@ -629,7 +629,7 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs)
 				// set up the dynamic lighting if needed
 				if(backEnd.currentEntity->needDlights)
 				{
-					R_TransformDlights(backEnd.refdef.num_dlights, backEnd.refdef.dlights,
+					R_TransformDlights(backEnd.refdef.numDlights, backEnd.refdef.dlights,
 									   &backEnd.or);
 				}
 
@@ -647,7 +647,7 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs)
 				// we have to reset the shaderTime as well otherwise image animations on
 				// the world (like water) continue with the wrong frame
 				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
-				R_TransformDlights(backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.or);
+				R_TransformDlights(backEnd.refdef.numDlights, backEnd.refdef.dlights, &backEnd.or);
 			}
 
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);

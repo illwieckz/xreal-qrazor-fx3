@@ -341,7 +341,7 @@ typedef struct {
 
 	struct gentity_s	*gentities;
 	int			gentitySize;
-	int			num_entities;		// current number, <= MAX_GENTITIES
+	int			numEntities;		// current number, <= MAX_GENTITIES
 
 	int			warmupTime;			// restart match at this time
 

@@ -858,7 +858,7 @@ static void ProjectDlightTexture(void)
 	vec3_t          floatColor;
 	float           modulate;
 
-	if(!backEnd.refdef.num_dlights)
+	if(!backEnd.refdef.numDlights)
 	{
 		return;
 	}
@@ -872,9 +872,9 @@ static void ProjectDlightTexture(void)
 	zero = (vector float)vec_splat_s8(0);
 #endif
 
-	for(l = 0; l < backEnd.refdef.num_dlights; l++)
+	for(l = 0; l < backEnd.refdef.numDlights; l++)
 	{
-		dlight_t       *dl;
+		trRefDlight_t       *dl;
 
 		if(!(tess.dlightBits & (1 << l)))
 		{
@@ -891,12 +891,12 @@ static void ProjectDlightTexture(void)
 #else
 		VectorCopy(dl->transformed, origin);
 #endif
-		radius = dl->radius;
+		radius = dl->l.radius;
 		scale = 1.0f / radius;
 
-		floatColor[0] = dl->color[0] * 255.0f;
-		floatColor[1] = dl->color[1] * 255.0f;
-		floatColor[2] = dl->color[2] * 255.0f;
+		floatColor[0] = dl->l.color[0] * 255.0f;
+		floatColor[1] = dl->l.color[1] * 255.0f;
+		floatColor[2] = dl->l.color[2] * 255.0f;
 #if idppc_altivec
 		floatColorVec0 = vec_ld(0, floatColor);
 		floatColorVec1 = vec_ld(11, floatColor);

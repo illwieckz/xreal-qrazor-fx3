@@ -256,8 +256,6 @@ RE_AddDynamicLightToScene
 */
 void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r, float g, float b, int additive)
 {
-	dlight_t       *dl;
-
 	if(!tr.registered)
 	{
 		return;
@@ -275,13 +273,15 @@ void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r, float
 	{
 		return;
 	}
-	dl = &backEndData[tr.smpFrame]->dlights[r_numdlights++];
-	VectorCopy(org, dl->origin);
-	dl->radius = intensity;
-	dl->color[0] = r;
-	dl->color[1] = g;
-	dl->color[2] = b;
-	dl->additive = additive;
+	
+	VectorCopy(org, backEndData[tr.smpFrame]->dlights[r_numdlights].l.origin);
+	backEndData[tr.smpFrame]->dlights[r_numdlights].l.radius = intensity;
+	backEndData[tr.smpFrame]->dlights[r_numdlights].l.color[0] = r;
+	backEndData[tr.smpFrame]->dlights[r_numdlights].l.color[1] = g;
+	backEndData[tr.smpFrame]->dlights[r_numdlights].l.color[2] = b;
+	backEndData[tr.smpFrame]->dlights[r_numdlights].additive = additive;
+	
+	r_numdlights++;
 }
 
 /*
@@ -388,10 +388,10 @@ void RE_RenderScene(const refdef_t * fd)
 	tr.refdef.numDrawSurfs = r_firstSceneDrawSurf;
 	tr.refdef.drawSurfs = backEndData[tr.smpFrame]->drawSurfs;
 
-	tr.refdef.num_entities = r_numentities - r_firstSceneEntity;
+	tr.refdef.numEntities = r_numentities - r_firstSceneEntity;
 	tr.refdef.entities = &backEndData[tr.smpFrame]->entities[r_firstSceneEntity];
 
-	tr.refdef.num_dlights = r_numdlights - r_firstSceneDlight;
+	tr.refdef.numDlights = r_numdlights - r_firstSceneDlight;
 	tr.refdef.dlights = &backEndData[tr.smpFrame]->dlights[r_firstSceneDlight];
 
 	tr.refdef.numPolys = r_numpolys - r_firstScenePoly;
@@ -401,7 +401,7 @@ void RE_RenderScene(const refdef_t * fd)
 	// dlights if it needs to be disabled or if vertex lighting is enabled
 	if(r_dynamiclight->integer == 0 || r_vertexLight->integer == 1 || glConfig.hardwareType == GLHW_PERMEDIA2)
 	{
-		tr.refdef.num_dlights = 0;
+		tr.refdef.numDlights = 0;
 	}
 
 	// a single frame may have multiple scenes draw inside it --

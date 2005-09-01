@@ -72,7 +72,7 @@ typedef struct {
 	// the game virtual machine will update these on init and changes
 	sharedEntity_t	*gentities;
 	int				gentitySize;
-	int				num_entities;		// current number, <= MAX_GENTITIES
+	int				numEntities;		// current number, <= MAX_GENTITIES
 
 	playerState_t	*gameClients;
 	int				gameClientSize;		// will be > sizeof(playerState_t) due to game private data
@@ -88,7 +88,7 @@ typedef struct {
 	int				areabytes;
 	byte			areabits[MAX_MAP_AREA_BYTES];		// portalarea visibility bits
 	playerState_t	ps;
-	int				num_entities;
+	int				numEntities;
 	int				first_entity;		// into the circular sv_packet_entities[]
 										// the entities MUST be in increasing state number
 										// order, otherwise the delta compression will fail

@@ -770,7 +770,7 @@ qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, int entityNum,
 	// locate the portal entity closest to this plane.
 	// origin will be the origin of the portal, origin2 will be
 	// the origin of the camera
-	for(i = 0; i < tr.refdef.num_entities; i++)
+	for(i = 0; i < tr.refdef.numEntities; i++)
 	{
 		e = &tr.refdef.entities[i];
 		if(e->e.reType != RT_PORTALSURFACE)
@@ -895,7 +895,7 @@ static qboolean IsMirror(const drawSurf_t * drawSurf, int entityNum)
 	// locate the portal entity closest to this plane.
 	// origin will be the origin of the portal, origin2 will be
 	// the origin of the camera
-	for(i = 0; i < tr.refdef.num_entities; i++)
+	for(i = 0; i < tr.refdef.numEntities; i++)
 	{
 		e = &tr.refdef.entities[i];
 		if(e->e.reType != RT_PORTALSURFACE)
@@ -1455,7 +1455,7 @@ void R_AddEntitySurfaces(void)
 		return;
 	}
 
-	for(tr.currentEntityNum = 0; tr.currentEntityNum < tr.refdef.num_entities; tr.currentEntityNum++)
+	for(tr.currentEntityNum = 0; tr.currentEntityNum < tr.refdef.numEntities; tr.currentEntityNum++)
 	{
 		ent = tr.currentEntity = &tr.refdef.entities[tr.currentEntityNum];
 
