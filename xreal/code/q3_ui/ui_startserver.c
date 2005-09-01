@@ -1049,8 +1049,8 @@ static void ServerOptions_InitBotNames( void ) {
 		s_serveroptions.playerType[4].curvalue = 2;
 		s_serveroptions.playerType[5].curvalue = 2;
 
-		Q_strncpyz( s_serveroptions.playerNameBuffers[6], "sarge", 16 );
-		Q_strncpyz( s_serveroptions.playerNameBuffers[7], "grunt", 16 );
+		Q_strncpyz( s_serveroptions.playerNameBuffers[6], "visor", 16 );
+		Q_strncpyz( s_serveroptions.playerNameBuffers[7], "doom", 16 );
 		Q_strncpyz( s_serveroptions.playerNameBuffers[8], "major", 16 );
 		if( s_serveroptions.gametype == GT_TEAM ) {
 			Q_strncpyz( s_serveroptions.playerNameBuffers[9], "visor", 16 );
