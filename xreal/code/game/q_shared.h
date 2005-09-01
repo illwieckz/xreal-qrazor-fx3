@@ -706,7 +706,7 @@ static ID_INLINE vec_t VectorLength( const vec3_t v ) {
 	// mm0[lo] = sqrt(mm0[lo])
 	"pfrsqrt	%%mm0,		%%mm1\n"	// 1/sqrt(dot)							| 1/sqrt(dot)		(approx)
 	"movq		%%mm1,		%%mm2\n"	// 1/sqrt(dot)							| 1/sqrt(dot)		(approx)
-	"pfmul		%%mm1,		%%mm1\n"	// (1/sqrt(dot))²						| (1/sqrt(dot))²	step 1
+	"pfmul		%%mm1,		%%mm1\n"	// (1/sqrt(dot))?						| (1/sqrt(dot))?	step 1
 	"pfrsqit1	%%mm0,		%%mm1\n"	// intermediate												step 2
 	"pfrcpit2	%%mm2,		%%mm1\n"	// 1/sqrt(dot) (full 24-bit precision)						step 3
 	"pfmul		%%mm1,		%%mm0\n"	// sqrt(dot)
@@ -859,7 +859,7 @@ void PerpendicularVector( vec3_t dst, const vec3_t src );
 void MatrixIdentity( matrix_t m );
 void MatrixClear( matrix_t m );
 void MatrixCopy( const matrix_t in, matrix_t out );
-void MatrixTransposeIntoXMM( matrix_t m );
+void MatrixTransposeIntoXMM( const matrix_t m );
 void MatrixTranspose( const matrix_t in, matrix_t out );
 void MatrixSetupXRotation( matrix_t m, vec_t degrees );
 void MatrixSetupYRotation( matrix_t m, vec_t degrees );

@@ -561,7 +561,7 @@ float Q_rsqrt( float number )
 	
 	"pfrsqrt	%%mm0,		%%mm1\n"	// 1/sqrt(in)			| 1/sqrt(in)	(approx)
 	"movq		%%mm1,		%%mm2\n"	// 1/sqrt(in)			| 1/sqrt(in)	(approx)
-	"pfmul		%%mm1,		%%mm1\n"	// (1/sqrt(in))²		| (1/sqrt(in))²		step 1
+	"pfmul		%%mm1,		%%mm1\n"	// (1/sqrt(in))?		| (1/sqrt(in))?		step 1
 	"pfrsqit1	%%mm0,		%%mm1\n"	// intermediate								step 2
 	"pfrcpit2	%%mm2,		%%mm1\n"	// 1/sqrt(in) (full 24-bit precision)		step 3
 	
@@ -1130,7 +1130,7 @@ vec_t VectorNormalize( vec3_t v ) {
 	// mm0[lo] = sqrt(mm0[lo])
 	"pfrsqrt	%%mm0,		%%mm1\n"	// 1/sqrt(dot)							| 1/sqrt(dot)		(approx)
 	"movq		%%mm1,		%%mm2\n"	// 1/sqrt(dot)							| 1/sqrt(dot)		(approx)
-	"pfmul		%%mm1,		%%mm1\n"	// (1/sqrt(dot))²						| (1/sqrt(dot))²	step 1
+	"pfmul		%%mm1,		%%mm1\n"	// (1/sqrt(dot))?						| (1/sqrt(dot))?	step 1
 	"punpckldq	%%mm0,		%%mm0\n"	// dot									| dot			(MMX instruction)
 	"pfrsqit1	%%mm0,		%%mm1\n"	// intermediate							| intermediate		step 2
 	"pfrcpit2	%%mm2,		%%mm1\n"	// 1/sqrt(dot) (full 24-bit precision)	| 1/sqrt(dot)		step 3
@@ -1558,7 +1558,7 @@ void MatrixCopy( const matrix_t in, matrix_t out ) {
 #endif
 }
 
-void MatrixTransposeIntoXMM( matrix_t m ) {
+void MatrixTransposeIntoXMM( const matrix_t m ) {
 #if id386_sse && defined __GNUC__
 	asm volatile
 	(										// reg[0]			| reg[1]		| reg[2]		| reg[3]
@@ -1600,7 +1600,7 @@ void MatrixTransposeIntoXMM( matrix_t m ) {
 void MatrixTranspose( const matrix_t in, matrix_t out ) {
 #if id386_sse && defined __GNUC__
 	// transpose the matrix into the xmm4-7
-	MatrixTransposeIntoXMM();
+	MatrixTransposeIntoXMM(in);
 	
 	asm volatile
 	(
@@ -1695,7 +1695,7 @@ void MatrixSetupScale( matrix_t m, vec_t x, vec_t y, vec_t z ) {
 }
 
 void MatrixMultiply( const matrix_t a, const matrix_t b, matrix_t out ) {
-#if 1 //id386_sse && defined __GNUC__
+#if id386_sse && defined __GNUC__
 	asm volatile
 	(
 	// load m2 into the xmm4-7
