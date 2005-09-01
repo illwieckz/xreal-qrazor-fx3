@@ -106,6 +106,13 @@ typedef struct {
 	float		rotation;
 } refEntity_t;
 
+typedef struct
+{
+	vec3_t          origin;
+	vec3_t          color;		// range from 0.0 to 1.0, should be color normalized
+	float           radius;
+} refDlight_t;
+
 
 #define	MAX_RENDER_STRINGS			8
 #define	MAX_RENDER_STRING_LENGTH	32
