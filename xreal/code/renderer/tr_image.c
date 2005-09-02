@@ -638,7 +638,7 @@ static void Upload32(     unsigned *data,
 						  qboolean mipmap, 
 						  qboolean picmip, 
 						  qboolean lightMap,
-						  qboolean normalmap,
+						  qboolean normalMap,
 						  int *format, 
 						  int *pUploadWidth, int *pUploadHeight )
 {
@@ -713,7 +713,7 @@ static void Upload32(     unsigned *data,
 	c = width * height;
 	scan = ((byte *) data);
 	samples = 3;
-	if(!lightMap)
+	if(!lightMap && !normalMap)
 	{
 		for(i = 0; i < c; i++)
 		{
@@ -811,7 +811,10 @@ static void Upload32(     unsigned *data,
 		Com_Memcpy(scaledBuffer, data, width * height * 4);
 	}
 
-	R_LightScaleTexture(scaledBuffer, scaled_width, scaled_height, !mipmap);
+	if(!normalMap)
+	{
+		R_LightScaleTexture(scaledBuffer, scaled_width, scaled_height, !mipmap);
+	}
 
 	*pUploadWidth = scaled_width;
 	*pUploadHeight = scaled_height;
@@ -827,7 +830,7 @@ static void Upload32(     unsigned *data,
 		miplevel = 0;
 		while(scaled_width > 1 || scaled_height > 1)
 		{
-			if(normalmap)
+			if(normalMap)
 				R_MipNormalMap((byte *) scaledBuffer, scaled_width, scaled_height);
 			else
 				R_MipMap((byte *) scaledBuffer, scaled_width, scaled_height);
@@ -840,7 +843,7 @@ static void Upload32(     unsigned *data,
 				scaled_height = 1;
 			miplevel++;
 
-			if(r_colorMipLevels->integer)
+			if(r_colorMipLevels->integer && !normalMap)
 			{
 				R_BlendOverTexture((byte *) scaledBuffer, scaled_width * scaled_height,
 								   mipBlendColors[miplevel]);

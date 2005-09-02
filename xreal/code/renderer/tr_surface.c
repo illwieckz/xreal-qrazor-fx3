@@ -851,7 +851,6 @@ void RB_SurfaceMesh(md3Surface_t * surface)
 		tess.indexes[tess.numIndexes + j] = tess.numVertexes + triangles[j];
 	}
 
-
 	texCoords = (float *)((byte *) surface + surface->ofsSt);
 
 	numVertexes = surface->numVerts;

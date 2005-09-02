@@ -646,22 +646,22 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 
 			if(!Q_stricmp(token, "$whiteimage") || !Q_stricmp(token, "$white"))
 			{
-				stage->bundle[0].image[0] = tr.whiteImage;
+				stage->bundle[TB_DIFFUSEMAP].image[0] = tr.whiteImage;
 				continue;
 			}
 			if(!Q_stricmp(token, "$blackimage") || !Q_stricmp(token, "$black"))
 			{
-				stage->bundle[0].image[0] = tr.blackImage;
+				stage->bundle[TB_DIFFUSEMAP].image[0] = tr.blackImage;
 				continue;
 			}
 			else
 			{
 				shader.hasDiffuseMap = qtrue;
-				stage->bundle[0].image[0] =
+				stage->bundle[TB_DIFFUSEMAP].image[0] =
 					R_FindImageFile(token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT, qfalse);
-				if(!stage->bundle[0].image[0])
+				if(!stage->bundle[TB_DIFFUSEMAP].image[0])
 				{
-					ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n",
+					ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find diffusemap '%s' in shader '%s'\n",
 							  token, shader.name);
 					return qfalse;
 				}
@@ -676,7 +676,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			if(!token[0])
 			{
 				ri.Printf(PRINT_WARNING,
-						  "WARNING: missing parameter for 'diffusemap' keyword in shader '%s'\n",
+						  "WARNING: missing parameter for 'normalmap' keyword in shader '%s'\n",
 						  shader.name);
 				return qfalse;
 			}
@@ -690,11 +690,48 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			   else */
 			{
 				shader.hasNormalMap = qtrue;
-				stage->bundle[1].image[0] =
-					R_FindImageFile(token, /*!shader.noMipMaps */ qfalse, !shader.noPicMip, GL_REPEAT, qtrue);
-				if(!stage->bundle[1].image[0])
+				stage->bundle[TB_NORMALMAP].image[0] =
+					R_FindImageFile(token, /*!shader.noMipMaps*/ qfalse, !shader.noPicMip, GL_REPEAT, qtrue);
+				if(!stage->bundle[TB_NORMALMAP].image[0])
 				{
-					ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n",
+					ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find normalmap '%s' in shader '%s'\n",
+							  token, shader.name);
+					return qfalse;
+				}
+			}
+		}
+		//
+		// specularMap <name>
+		//
+		else if(!Q_stricmp(token, "specularMap"))
+		{
+			token = COM_ParseExt(text, qfalse);
+			if(!token[0])
+			{
+				ri.Printf(PRINT_WARNING,
+						  "WARNING: missing parameter for 'diffusemap' keyword in shader '%s'\n",
+						  shader.name);
+				return qfalse;
+			}
+
+			if(!Q_stricmp(token, "$whiteimage") || !Q_stricmp(token, "$white"))
+			{
+				stage->bundle[TB_SPECULARMAP].image[0] = tr.whiteImage;
+				continue;
+			}
+			if(!Q_stricmp(token, "$blackimage") || !Q_stricmp(token, "$black"))
+			{
+				stage->bundle[TB_SPECULARMAP].image[0] = tr.blackImage;
+				continue;
+			}
+			else
+			{
+				shader.hasSpecularMap = qtrue;
+				stage->bundle[TB_SPECULARMAP].image[0] =
+					R_FindImageFile(token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT, qfalse);
+				if(!stage->bundle[TB_SPECULARMAP].image[0])
+				{
+					ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find specularmap '%s' in shader '%s'\n",
 							  token, shader.name);
 					return qfalse;
 				}
@@ -715,34 +752,34 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 
 			if(!Q_stricmp(token, "$whiteimage") || !Q_stricmp(token, "$white"))
 			{
-				stage->bundle[0].image[0] = tr.whiteImage;
+				stage->bundle[TB_COLORMAP].image[0] = tr.whiteImage;
 				continue;
 			}
 			if(!Q_stricmp(token, "$blackimage") || !Q_stricmp(token, "$black"))
 			{
-				stage->bundle[0].image[0] = tr.blackImage;
+				stage->bundle[TB_COLORMAP].image[0] = tr.blackImage;
 				continue;
 			}
 			else if(!Q_stricmp(token, "$lightmap"))
 			{
-				stage->bundle[0].isLightmap = qtrue;
+				stage->bundle[TB_COLORMAP].isLightmap = qtrue;
 				if(shader.lightmapIndex < 0)
 				{
-					stage->bundle[0].image[0] = tr.whiteImage;
+					stage->bundle[TB_COLORMAP].image[0] = tr.whiteImage;
 				}
 				else
 				{
-					stage->bundle[0].image[0] = tr.lightmaps[shader.lightmapIndex];
+					stage->bundle[TB_COLORMAP].image[0] = tr.lightmaps[shader.lightmapIndex];
 				}
 				continue;
 			}
 			else
 			{
-				stage->bundle[0].image[0] =
+				stage->bundle[TB_COLORMAP].image[0] =
 					R_FindImageFile(token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT, qfalse);
-				if(!stage->bundle[0].image[0])
+				if(!stage->bundle[TB_COLORMAP].image[0])
 				{
-					ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n",
+					ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find colormap '%s' in shader '%s'\n",
 							  token, shader.name);
 					return qfalse;
 				}
@@ -761,9 +798,9 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 				return qfalse;
 			}
 
-			stage->bundle[0].image[0] =
+			stage->bundle[TB_COLORMAP].image[0] =
 				R_FindImageFile(token, !shader.noMipMaps, !shader.noPicMip, GL_CLAMP, qfalse);
-			if(!stage->bundle[0].image[0])
+			if(!stage->bundle[TB_COLORMAP].image[0])
 			{
 				ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n",
 						  token, shader.name);
@@ -782,7 +819,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 						  shader.name);
 				return qfalse;
 			}
-			stage->bundle[0].imageAnimationSpeed = atof(token);
+			stage->bundle[TB_COLORMAP].imageAnimationSpeed = atof(token);
 
 			// parse up to MAX_IMAGE_ANIMATIONS animations
 			while(1)
@@ -794,19 +831,19 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 				{
 					break;
 				}
-				num = stage->bundle[0].numImageAnimations;
+				num = stage->bundle[TB_COLORMAP].numImageAnimations;
 				if(num < MAX_IMAGE_ANIMATIONS)
 				{
-					stage->bundle[0].image[num] =
+					stage->bundle[TB_COLORMAP].image[num] =
 						R_FindImageFile(token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT, qfalse);
-					if(!stage->bundle[0].image[num])
+					if(!stage->bundle[TB_COLORMAP].image[num])
 					{
 						ri.Printf(PRINT_WARNING,
 								  "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token,
 								  shader.name);
 						return qfalse;
 					}
-					stage->bundle[0].numImageAnimations++;
+					stage->bundle[TB_COLORMAP].numImageAnimations++;
 				}
 			}
 		}
@@ -819,12 +856,12 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 						  "WARNING: missing parameter for 'videoMmap' keyword in shader '%s'\n", shader.name);
 				return qfalse;
 			}
-			stage->bundle[0].videoMapHandle =
+			stage->bundle[TB_COLORMAP].videoMapHandle =
 				ri.CIN_PlayCinematic(token, 0, 0, 256, 256, (CIN_loop | CIN_silent | CIN_shader));
-			if(stage->bundle[0].videoMapHandle != -1)
+			if(stage->bundle[TB_COLORMAP].videoMapHandle != -1)
 			{
-				stage->bundle[0].isVideoMap = qtrue;
-				stage->bundle[0].image[0] = tr.scratchImage[stage->bundle[0].videoMapHandle];
+				stage->bundle[TB_COLORMAP].isVideoMap = qtrue;
+				stage->bundle[TB_COLORMAP].image[0] = tr.scratchImage[stage->bundle[0].videoMapHandle];
 			}
 		}
 		//
@@ -1901,7 +1938,14 @@ static void ComputeStageIteratorFunc(void)
 		{
 			if(shader.hasNormalMap && r_bumpMapping->integer)
 			{
-				shader.optimalStageIteratorFunc = RB_StageIteratorPerPixelLit_DB;
+				if(shader.hasSpecularMap && r_specular->integer)
+				{
+					shader.optimalStageIteratorFunc = RB_StageIteratorPerPixelLit_DBS;
+				}
+				else
+				{
+					shader.optimalStageIteratorFunc = RB_StageIteratorPerPixelLit_DB;
+				}
 			}
 			else
 			{
@@ -1928,10 +1972,7 @@ static void ComputeStageIteratorFunc(void)
 						{
 							if(!shader.numDeforms)
 							{
-								if(glConfig2.shadingLanguage100Available)
-									shader.optimalStageIteratorFunc = RB_StageIteratorPerPixelLit_D;
-								else
-									shader.optimalStageIteratorFunc = RB_StageIteratorVertexLitTexture;
+								shader.optimalStageIteratorFunc = RB_StageIteratorVertexLitTexture;
 								goto done;
 							}
 						}
@@ -3266,6 +3307,10 @@ void R_ShaderList_f(void)
 		else if(shader->optimalStageIteratorFunc == RB_StageIteratorPerPixelLit_DB)
 		{
 			ri.Printf(PRINT_ALL, "pplDB ");
+		}
+		else if(shader->optimalStageIteratorFunc == RB_StageIteratorPerPixelLit_DBS)
+		{
+			ri.Printf(PRINT_ALL, "pplDBS ");
 		}
 		else
 		{

@@ -53,7 +53,7 @@ void R_CalcTangentSpace(vec3_t tangent, vec3_t binormal, vec3_t normal,
 						const vec2_t t0, const vec2_t t1, const vec2_t t2,
 						const vec3_t n)
 {
-#if 1
+#if 0
 	vec3_t          cp, e0, e1;
 
 	VectorSet(e0, v1[0] - v0[0], t1[0] - t0[0], t1[1] - t0[1]);
@@ -87,13 +87,13 @@ void R_CalcTangentSpace(vec3_t tangent, vec3_t binormal, vec3_t normal,
 		binormal[2] = -cp[2] / cp[0];
 	}
 
-	VectorNormalizeFast(tangent);
-	VectorNormalizeFast(binormal);
+	VectorNormalize(tangent);
+	VectorNormalize(binormal);
 
 	// normal...
 	// compute the cross product TxB
 	CrossProduct(tangent, binormal, normal);
-	VectorNormalizeFast(normal);
+	VectorNormalize(normal);
 
 	// Gram-Schmidt orthogonalization process for B
 	// compute the cross product B=NxT to obtain 
@@ -298,7 +298,8 @@ R_LocalNormalToWorld
 
 =================
 */
-void R_LocalNormalToWorld (vec3_t local, vec3_t world) {
+void R_LocalNormalToWorld(vec3_t local, vec3_t world)
+{
 	world[0] = local[0] * tr.or.axis[0][0] + local[1] * tr.or.axis[1][0] + local[2] * tr.or.axis[2][0];
 	world[1] = local[0] * tr.or.axis[0][1] + local[1] * tr.or.axis[1][1] + local[2] * tr.or.axis[2][1];
 	world[2] = local[0] * tr.or.axis[0][2] + local[1] * tr.or.axis[1][2] + local[2] * tr.or.axis[2][2];
@@ -310,7 +311,8 @@ R_LocalPointToWorld
 
 =================
 */
-void R_LocalPointToWorld (vec3_t local, vec3_t world) {
+void R_LocalPointToWorld(vec3_t local, vec3_t world)
+{
 	world[0] = local[0] * tr.or.axis[0][0] + local[1] * tr.or.axis[1][0] + local[2] * tr.or.axis[2][0] + tr.or.origin[0];
 	world[1] = local[0] * tr.or.axis[0][1] + local[1] * tr.or.axis[1][1] + local[2] * tr.or.axis[2][1] + tr.or.origin[1];
 	world[2] = local[0] * tr.or.axis[0][2] + local[1] * tr.or.axis[1][2] + local[2] * tr.or.axis[2][2] + tr.or.origin[2];
@@ -408,7 +410,7 @@ void R_RotateForEntity(const trRefEntity_t * ent, const viewParms_t * viewParms,
 	VectorCopy(ent->e.axis[2], or->axis[2]);
 
 	MatrixSetupTransform(or->transformMatrix, or->axis[0], or->axis[1], or->axis[2], or->origin);
-
+	MatrixAffineInverse(or->transformMatrix, or->viewMatrix);
 	MatrixMultiply(viewParms->world.viewMatrix, or->transformMatrix, or->modelViewMatrix);
 
 	// calculate the viewer origin in the model's space

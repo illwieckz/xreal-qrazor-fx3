@@ -446,6 +446,7 @@ typedef struct shader_s
 
 	qboolean        hasDiffuseMap;
 	qboolean        hasNormalMap;
+	qboolean        hasSpecularMap;
 
 	int             numDeforms;
 	deformStage_t   deforms[MAX_SHADER_DEFORMS];
@@ -491,10 +492,14 @@ typedef struct shaderProgram_s
 	// uniform parameters
 	GLint           u_DiffuseMap;
 	GLint           u_NormalMap;
+	GLint			u_SpecularMap;
 
+	GLint			u_ViewOrigin;
 	GLint           u_AmbientColor;
 	GLint           u_LightDir;
 	GLint           u_LightColor;
+	GLint			u_BumpScale;
+	GLint			u_SpecularExponent;
 
 } shaderProgram_t;
 
@@ -928,7 +933,7 @@ typedef struct
 // the renderer front end should never modify glstate_t
 typedef struct
 {
-	int             currenttextures[2];
+	int             currenttextures[16];
 	int             currenttmu;
 	qboolean        finishCalled;
 	int             texEnv[2];
@@ -1025,6 +1030,7 @@ typedef struct
 
 	shaderProgram_t lightShader_D_direct;
 	shaderProgram_t lightShader_DB_direct;
+	shaderProgram_t lightShader_DBS_direct;
 
 	viewParms_t     viewParms;
 
@@ -1093,6 +1099,7 @@ extern cvar_t  *r_ignore;		// used for debugging anything
 extern cvar_t  *r_verbose;		// used for verbose debug spew
 extern cvar_t  *r_ignoreFastPath;	// allows us to ignore our Tess fast paths
 extern cvar_t  *r_bumpMapping;
+extern cvar_t  *r_specular;
 
 extern cvar_t  *r_znear;		// near Z clip plane
 
@@ -1239,6 +1246,7 @@ void            R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int fo
 #define	CULL_OUT	2			// completely outside the clipping planes
 void            R_LocalNormalToWorld(vec3_t local, vec3_t world);
 void            R_LocalPointToWorld(vec3_t local, vec3_t world);
+void			R_WorldToLocal(vec3_t world, vec3_t local);
 int             R_CullLocalBox(vec3_t bounds[2]);
 int             R_CullPointAndRadius(vec3_t origin, float radius);
 int             R_CullLocalPointAndRadius(vec3_t origin, float radius);
@@ -1444,6 +1452,7 @@ void            RB_StageIteratorSky(void);
 void            RB_StageIteratorVertexLitTexture(void);
 void            RB_StageIteratorPerPixelLit_D(void);
 void            RB_StageIteratorPerPixelLit_DB(void);
+void            RB_StageIteratorPerPixelLit_DBS(void);
 void            RB_StageIteratorLightmappedMultitexture(void);
 
 void            RB_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, byte * color);
