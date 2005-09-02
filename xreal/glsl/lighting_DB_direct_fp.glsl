@@ -25,8 +25,8 @@ uniform sampler2D	u_NormalMap;
 uniform vec3		u_AmbientColor;
 uniform vec3		u_LightDir;
 uniform vec3		u_LightColor;
+//uniform float		u_BumpScale;
 
-varying vec3		var_Normal;
 varying vec2		var_TexDiffuse;
 varying mat3		var_OS2TSMatrix;
 
@@ -37,14 +37,14 @@ void	main()
 	
 	// compute normal in tangent space from normalmap
 	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexDiffuse).xyz - 0.5);
-//	N.z *= u_bump_scale;
+//	N.z *= u_BumpScale;
 	N = normalize(N);
 	
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
 	
 	// compute the light term
-	vec3 light = u_AmbientColor +  u_LightColor * clamp(dot(N, L), 0.0, 1.0);
+	vec3 light = u_AmbientColor + u_LightColor * clamp(dot(N, L), 0.0, 1.0);
 	clamp(light, 0.0, 1.0);
 	
 	// compute final color

@@ -40,7 +40,7 @@ void	main()
 	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
 	
 	// compute the light term
-	vec3 light = u_AmbientColor + u_LightColor * dot(N, L);
+	vec3 light = u_AmbientColor + u_LightColor * clamp(dot(N, L), 0.0, 1.0);
 	clamp(light, 0.0, 1.0);
 	
 	// compute final color
