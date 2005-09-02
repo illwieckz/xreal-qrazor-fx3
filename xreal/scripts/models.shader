@@ -2496,9 +2496,14 @@ models/players/crash/crash_t
 
 models/players/doom/doom
 {
+	cull disable
+
 	{
-		diffuseMap models/players/doom/doom_rgba.tga
+		stage lighting
+		diffuseMap models/players/doom/doom.tga
 		normalMap models/players/doom/doom_norm.tga
+		specularMap models/players/doom/doom_rgba.tga
+		//rgbGen lightingDiffuse
 	}
 }
 
@@ -2816,6 +2821,7 @@ models/players/mynx/mynx_shiny
 //                tcGen environment
 //	}  
     {
+    	stage lighting
 		diffuseMap models/players/mynx/mynx.tga
 		normalMap models/players/mynx/mynx_norm.tga
 		//blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
@@ -4723,17 +4729,21 @@ models/weapons2/railgun/railgun4
 models/weapons2/rocketl/rocketl
 {
 	{
-		diffusemap models/weapons2/rocketl/rocketl.tga
-		normalmap models/weapons2/rocketl/rocketl4_n.tga
-		rgbGen lightingDiffuse
+		stage lighting
+		diffuseMap models/weapons2/rocketl/rocketl.tga
+		normalMap models/weapons2/rocketl/rocketl3_n.tga
+		//specularMap models/weapons2/rocketl/rocketl3_s.tga
+		//rgbGen lightingDiffuse
 	}
 }
 
 models/weapons2/rocketl/rocketl2
 {
 	{
-		diffusemap models/weapons2/rocketl/rocketl2.tga
-		rgbGen lightingDiffuse
+		stage lighting
+		diffuseMap models/weapons2/rocketl/rocketl2.tga
+		normalMap models/weapons2/rocketl/rocketl3_n.tga
+		//rgbGen lightingDiffuse
 	}
 }
 
