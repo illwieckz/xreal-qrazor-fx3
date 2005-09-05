@@ -2496,14 +2496,11 @@ models/players/crash/crash_t
 
 models/players/doom/doom
 {
-	cull disable
-
 	{
-		stage lighting
 		diffuseMap models/players/doom/doom.tga
 		normalMap models/players/doom/doom_norm.tga
 		specularMap models/players/doom/doom_rgba.tga
-		//rgbGen lightingDiffuse
+		rgbGen lightingDiffuse
 	}
 }
 
@@ -4618,6 +4615,16 @@ models/weapons2/lightning/trail2
 //	models/weapons2/machinegun subfolder		//
 //******************************************************//
 
+models/weapons2/machinegun/machinegun
+{
+	{
+		diffuseMap models/weapons2/machinegun/machinegun_big.tga
+		normalMap models/weapons2/machinegun/machinegun_norm.tga
+		specularMap models/weapons2/machinegun/machinegun_s.tga
+		rgbGen lightingDiffuse
+	}
+}
+
 models/weapons2/machinegun/f_machinegun
 {
 	sort additive
@@ -4729,21 +4736,19 @@ models/weapons2/railgun/railgun4
 models/weapons2/rocketl/rocketl
 {
 	{
-		stage lighting
 		diffuseMap models/weapons2/rocketl/rocketl.tga
 		normalMap models/weapons2/rocketl/rocketl3_n.tga
 		//specularMap models/weapons2/rocketl/rocketl3_s.tga
-		//rgbGen lightingDiffuse
+		rgbGen lightingDiffuse
 	}
 }
 
 models/weapons2/rocketl/rocketl2
 {
 	{
-		stage lighting
 		diffuseMap models/weapons2/rocketl/rocketl2.tga
 		normalMap models/weapons2/rocketl/rocketl3_n.tga
-		//rgbGen lightingDiffuse
+		rgbGen lightingDiffuse
 	}
 }
 
