@@ -44,8 +44,8 @@ cgame_env = env.Copy()
 
 if sys.platform == 'linux2':
 	cgame_env.SharedLibrary('cgame', [cgame_src, dll_src])
-	cgame_env.InstallAs('#bin/base/cgamei386.so', 'libcgame.so')
+	cgame_env.InstallAs('#base/cgamei386.so', 'libcgame.so')
 
 elif sys.platform == 'win32':
-	cgame_env.InstallAs('#bin/base/cgamex86.dll', 'cgame.dll')
+	cgame_env.InstallAs('#base/cgamex86.dll', 'cgame.dll')
 

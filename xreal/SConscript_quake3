@@ -183,10 +183,10 @@ if sys.platform == 'linux2':
 	quake3_env.Append(LIBS=['dl', 'z', 'm'])
 	#quake3_env.Append(LIBS=['asound'])
 	quake3_env.Program('quake3.x86', [quake3_src, unix_src, linux_src, vm_src])
-	quake3_env.Install('#bin', 'quake3.x86')
+	quake3_env.Install('#', 'quake3.x86')
 
 elif sys.platform == 'win32':
 	quake3_src += ['src/sys_win.cxx', 'src/in_win.cxx', 'src/vid_dll.cxx']
 	quake3_env.Append(LIBS=['z', 'openal32', 'm', 'wsock32', 'winmm'])
 	quake3_env.Program('Quake3', quake3_src)
-	quake3_env.Install('#bin', 'Quake3.exe')
+	quake3_env.Install('#', 'Quake3.exe')

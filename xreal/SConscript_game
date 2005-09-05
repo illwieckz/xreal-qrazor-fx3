@@ -48,8 +48,8 @@ game_env = env.Copy()
 
 if sys.platform == 'linux2':
 	game_env.SharedLibrary('game', [game_src, dll_src])
-	game_env.InstallAs('#bin/base/qagamei386.so', 'libgame.so')
+	game_env.InstallAs('#base/qagamei386.so', 'libgame.so')
 
 elif sys.platform == 'win32':
-	game_env.InstallAs('#bin/base/qagamex86.dll', 'game.dll')
+	game_env.InstallAs('#base/qagamex86.dll', 'game.dll')
 

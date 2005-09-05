@@ -58,65 +58,6 @@ dll_src = [
 'code/ui/ui_syscalls.c'
 ]
 
-ui_assets = [
-'ui/hud.txt',
-'ui/hud2.txt',
-'ui/ingame.txt',
-'ui/menus.txt',
-'ui/menudef.h',
-'ui/addfilter.menu',
-'ui/cdkey.menu',
-'ui/cinematicmenu.menu',
-'ui/connect.menu',
-'ui/controls.menu',
-'ui/createfavorite.menu',
-'ui/createserver.menu',
-'ui/credit.menu',
-'ui/default.menu',
-'ui/demo.menu',
-'ui/demo_quit.menu',
-'ui/endofgame.menu',
-'ui/error.menu',
-'ui/fight.menu',
-'ui/filter.menu',
-'ui/findplayer.menu',
-'ui/help.menu',
-'ui/hud.menu',
-'ui/ingame.menu',
-'ui/ingame_about.menu',
-'ui/ingame_addbot.menu',
-'ui/ingame_callvote.menu',
-'ui/ingame_controls.menu',
-'ui/ingame_join.menu',
-'ui/ingame_leave.menu',
-'ui/ingame_options.menu',
-'ui/ingame_orders.menu',
-'ui/ingame_player.menu',
-'ui/ingame_system.menu',
-'ui/ingame_vote.menu',
-'ui/joinserver.menu',
-'ui/main.menu',
-'ui/min_hud.menu',
-'ui/mod.menu',
-'ui/options.menu',
-'ui/ordershelp.menu',
-'ui/password.menu',
-'ui/player.menu',
-'ui/powerup.menu',
-'ui/punkbuster.menu',
-'ui/quake3.menu',
-'ui/quit.menu',
-'ui/quitcredit.menu',
-'ui/resetscore.menu',
-'ui/score.menu',
-'ui/serverinfo.menu',
-'ui/setup.menu',
-'ui/skirmish.menu',
-'ui/system.menu',
-'ui/teamscore.menu',
-'ui/vid_restart.menu'
-]
-
 ui_env = env.Copy()
 #ui_env.Append(CCFLAGS='-DMISSIONPACK')
 #ui_env.Append(CCFLAGS='-DXREAL')
@@ -125,9 +66,8 @@ if sys.platform == 'linux2':
 	#ui_env.Append(CXXFLAGS='`xml2-config --cflags`')
 	#ui_env.Append(LINKFLAGS='`xml2-config --libs`')
 	ui_env.SharedLibrary('ui', [ui_src, dll_src])
-	ui_env.InstallAs('#bin/base/uii386.so', 'libui.so')
-	ui_env.Install('#bin/base/ui', ui_assets)
+	ui_env.InstallAs('#base/uii386.so', 'libui.so')
 
 elif sys.platform == 'win32':
-	ui_env.InstallAs('#bin/xreal/uix86.dll', 'ui.dll')
+	ui_env.InstallAs('#base/uix86.dll', 'ui.dll')
 
