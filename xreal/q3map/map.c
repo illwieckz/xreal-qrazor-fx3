@@ -1059,6 +1059,21 @@ qboolean	ParseMapEntity (void) {
 
 	if (!GetToken (qtrue))
 		return qfalse;
+	
+	// Tr3B - Doom3 mods: Version 2 check
+	if( !strcmp( token, "Version" ) )
+	{
+		if( !GetToken( qfalse) )
+			return qfalse;
+		
+		if( atoi( token ) != 2 )
+		{
+			Sys_Printf( "WARNING: ParseEntity: bad version number.\n");
+			return qfalse;
+		}
+	
+		return qtrue;
+	}
 
 	if (strcmp (token, "{") )
 	{
