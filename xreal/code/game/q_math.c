@@ -1307,7 +1307,8 @@ void _VectorMA(const vec3_t veca, float scale, const vec3_t vecb, vec3_t vecc)
 
 
 
-vec_t _DotProduct( const vec3_t a, const vec3_t b ) {
+vec_t _DotProduct(const vec3_t a, const vec3_t b)
+{
 #if id386_3dnow && defined __GNUC__ && 0
 //#error _DotProduct
 	vec_t out;
@@ -1326,7 +1327,7 @@ vec_t _DotProduct( const vec3_t a, const vec3_t b ) {
 	
 	"movd		%%mm0,		(%%ecx)\n"	// out = mm2[lo]
 	:
-	: "a"( a ), "d"( b ), "c"( &out )
+	: "a"(a), "d"(b), "c"(&out)
 	: "memory"
 	);
 	femms();
@@ -1336,7 +1337,8 @@ vec_t _DotProduct( const vec3_t a, const vec3_t b ) {
 #endif
 }
 
-void _VectorSubtract( const vec3_t a, const vec3_t b, vec3_t out ) {
+void _VectorSubtract(const vec3_t a, const vec3_t b, vec3_t out)
+{
 #if id386_3dnow && defined __GNUC__ && 0
 	femms();
 	asm volatile
@@ -1352,7 +1354,7 @@ void _VectorSubtract( const vec3_t a, const vec3_t b, vec3_t out ) {
 	"movq		%%mm0,		(%%ecx)\n"
 	"movd		%%mm1,		8(%%ecx)\n"
 	:
-	: "a"( a ), "d"( b ), "c"( out )
+	: "a"(a), "d"(b), "c"(out)
 	: "memory"
 	);
 	femms();
@@ -1363,7 +1365,8 @@ void _VectorSubtract( const vec3_t a, const vec3_t b, vec3_t out ) {
 #endif
 }
 
-void _VectorAdd( const vec3_t a, const vec3_t b, vec3_t out ) {
+void _VectorAdd(const vec3_t a, const vec3_t b, vec3_t out)
+{
 #if id386_3dnow && defined __GNUC__ && 0
 	femms();
 	asm volatile
@@ -1379,7 +1382,7 @@ void _VectorAdd( const vec3_t a, const vec3_t b, vec3_t out ) {
 	"movq		%%mm0,		(%%ecx)\n"
 	"movd		%%mm1,		8(%%ecx)\n"
 	:
-	: "a"( a ), "d"( b ), "c"( out )
+	: "a"(a), "d"(b), "c"(out)
 	: "memory"
 	);
 	femms();
@@ -1390,7 +1393,8 @@ void _VectorAdd( const vec3_t a, const vec3_t b, vec3_t out ) {
 #endif
 }
 
-void _VectorCopy( const vec3_t in, vec3_t out ) {
+void _VectorCopy(const vec3_t in, vec3_t out)
+{
 #if id386_3dnow && defined __GNUC__ && 0
 	femms();
 	asm volatile
@@ -1401,7 +1405,7 @@ void _VectorCopy( const vec3_t in, vec3_t out ) {
 	"movq		%%mm0,		(%%edx)\n"
 	"movd		%%mm1,		8(%%edx)\n"
 	:
-	: "a"( in ), "d"( out )
+	: "a"(in), "d"(out)
 	: "memory"
 	);
 	femms();
@@ -1424,7 +1428,8 @@ void _VectorCopy( const vec3_t in, vec3_t out ) {
 #endif
 }
 
-void _VectorScale( const vec3_t in, vec_t scale, vec3_t out ) {
+void _VectorScale(const vec3_t in, vec_t scale, vec3_t out)
+{
 #if id386_3dnow && defined __GNUC__ && 0
 	vec_t out;
 	femms();
@@ -1442,7 +1447,7 @@ void _VectorScale( const vec3_t in, vec_t scale, vec3_t out ) {
 	"movq		%%mm0,		(%%ecx)\n"
 	"movd		%%mm1,		8(%%ecx)\n"
 	:
-	: "a"( in ), "d"( &scale ), "c"( out )
+	: "a"(in), "d"(&scale), "c"(out)
 	: "memory"
 	);
 	femms();
@@ -1454,19 +1459,22 @@ void _VectorScale( const vec3_t in, vec_t scale, vec3_t out ) {
 #endif
 }
 
-void Vector4Scale( const vec4_t in, vec_t scale, vec4_t out ) {
-	out[0] = in[0]*scale;
-	out[1] = in[1]*scale;
-	out[2] = in[2]*scale;
-	out[3] = in[3]*scale;
+void Vector4Scale(const vec4_t in, vec_t scale, vec4_t out)
+{
+	out[0] = in[0] * scale;
+	out[1] = in[1] * scale;
+	out[2] = in[2] * scale;
+	out[3] = in[3] * scale;
 }
 
 
-int Q_log2( int val ) {
-	int answer;
+int Q_log2(int val)
+{
+	int             answer;
 
 	answer = 0;
-	while ( ( val>>=1 ) != 0 ) {
+	while((val >>= 1) != 0)
+	{
 		answer++;
 	}
 	return answer;
@@ -1493,7 +1501,9 @@ int	PlaneTypeForNormal (vec3_t normal) {
 */
 
 
-void AxisMultiply(float in1[3][3], float in2[3][3], float out[3][3]) {
+
+void AxisMultiply(float in1[3][3], float in2[3][3], float out[3][3])
+{
 	out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] + in1[0][2] * in2[2][0];
 	out[0][1] = in1[0][0] * in2[0][1] + in1[0][1] * in2[1][1] + in1[0][2] * in2[2][1];
 	out[0][2] = in1[0][0] * in2[0][2] + in1[0][1] * in2[1][2] + in1[0][2] * in2[2][2];
@@ -1582,7 +1592,8 @@ void PerpendicularVector(vec3_t dst, const vec3_t src)
 
 
 
-void MatrixIdentity( matrix_t m ) {
+void MatrixIdentity(matrix_t m)
+{
 	/*
 	m[0]	= 1;	m[1] = 0;		m[2] = 0;		m[3] = 0;
 	m[4]	= 0;	m[1][1] = 1;	m[1][2] = 0;	m[1][3] = 0;
@@ -1595,7 +1606,8 @@ void MatrixIdentity( matrix_t m ) {
 	m[ 3] = 0;	m[ 7] = 0;	m[11] = 0;	m[15] = 1;
 }
 
-void MatrixClear( matrix_t m ) {
+void MatrixClear(matrix_t m)
+{
 	/*
 	m[0][0] = 0;	m[0][1] = 0;	m[0][2] = 0;	m[0][3] = 0;
 	m[1][0] = 0;	m[1][1] = 0;	m[1][2] = 0;	m[1][3] = 0;
@@ -1609,7 +1621,8 @@ void MatrixClear( matrix_t m ) {
 }
 
 
-void MatrixCopy( const matrix_t in, matrix_t out ) {
+void MatrixCopy(const matrix_t in, matrix_t out)
+{
 #if id386_sse && defined __GNUC__
 	asm volatile
 	(
@@ -1666,7 +1679,8 @@ void MatrixCopy( const matrix_t in, matrix_t out ) {
 #endif
 }
 
-void MatrixTransposeIntoXMM( const matrix_t m ) {
+void MatrixTransposeIntoXMM(const matrix_t m)
+{
 #if id386_sse && defined __GNUC__
 	asm volatile
 	(										// reg[0]			| reg[1]		| reg[2]		| reg[3]
@@ -1705,7 +1719,8 @@ void MatrixTransposeIntoXMM( const matrix_t m ) {
 #endif
 }
 
-void MatrixTranspose( const matrix_t in, matrix_t out ) {
+void MatrixTranspose(const matrix_t in, matrix_t out)
+{
 #if id386_sse && defined __GNUC__
 	// transpose the matrix into the xmm4-7
 	MatrixTransposeIntoXMM(in);
@@ -1734,7 +1749,8 @@ void MatrixTranspose( const matrix_t in, matrix_t out ) {
 #endif
 }
 
-void MatrixSetupXRotation( matrix_t m, vec_t degrees ) {
+void MatrixSetupXRotation(matrix_t m, vec_t degrees)
+{
 	vec_t a = DEG2RAD( degrees );
 	/*
 	m[0][0] = 1;	m[0][1] =0;			m[0][2] = 0;		m[0][3] = 0;
@@ -1748,7 +1764,8 @@ void MatrixSetupXRotation( matrix_t m, vec_t degrees ) {
 	m[ 3] = 0;	m[ 7] = 0;		m[11] = 0;		m[15] = 1;
 }
 
-void MatrixSetupYRotation( matrix_t m, vec_t degrees ) {
+void MatrixSetupYRotation(matrix_t m, vec_t degrees)
+{
 	vec_t a = DEG2RAD( degrees );
 	/*
 	m[0][0] = cos(a);	m[0][1] = 0;		m[0][2] = sin(a);	m[0][3] = 0;
@@ -1762,7 +1779,8 @@ void MatrixSetupYRotation( matrix_t m, vec_t degrees ) {
 	m[ 3] = 0;		m[ 7] = 0;	m[11] = 0;		m[15] = 1;
 }
 
-void MatrixSetupZRotation( matrix_t m, vec_t degrees ) {
+void MatrixSetupZRotation(matrix_t m, vec_t degrees)
+{
 	vec_t a = DEG2RAD( degrees );
 	/*
 	m[0][0] = cos(a);	m[0][1] =-sin(a);	m[0][2] = 0;		m[0][3] =0;
@@ -1776,7 +1794,8 @@ void MatrixSetupZRotation( matrix_t m, vec_t degrees ) {
 	m[ 3] = 0;		m[ 7] = 0;		m[11] = 0;	m[15] = 1;
 }
 
-void MatrixSetupTranslation( matrix_t m, vec_t x, vec_t y, vec_t z ) {
+void MatrixSetupTranslation(matrix_t m, vec_t x, vec_t y, vec_t z)
+{
 	/*
 	m[0][0] = 1;	m[0][1] = 0;	m[0][2] = 0;	m[0][3] = x;
 	m[1][0] = 0;	m[1][1] = 1;	m[1][2] = 0;	m[1][3] = y;
@@ -1789,7 +1808,8 @@ void MatrixSetupTranslation( matrix_t m, vec_t x, vec_t y, vec_t z ) {
 	m[ 3] = 0;	m[ 7] = 0;	m[11] = 0;	m[15] = 1;
 }
 
-void MatrixSetupScale( matrix_t m, vec_t x, vec_t y, vec_t z ) {
+void MatrixSetupScale(matrix_t m, vec_t x, vec_t y, vec_t z)
+{
 	/*
 	m[0][0] = x;	m[0][1] = 0;	m[0][2] = 0;	m[0][3] = 0;
 	m[1][0] = 0;	m[1][1] = y;	m[1][2] = 0;	m[1][3] = 0;
@@ -1802,7 +1822,8 @@ void MatrixSetupScale( matrix_t m, vec_t x, vec_t y, vec_t z ) {
 	m[ 3] = 0;	m[ 7] = 0;	m[11] = 0;	m[15] = 1;
 }
 
-void MatrixMultiply( const matrix_t a, const matrix_t b, matrix_t out ) {
+void MatrixMultiply(const matrix_t a, const matrix_t b, matrix_t out)
+{
 #if id386_sse && defined __GNUC__
 	asm volatile
 	(
@@ -1942,42 +1963,50 @@ void MatrixMultiply( const matrix_t a, const matrix_t b, matrix_t out ) {
 #endif
 }
 
-void MatrixMultiplyRotation( matrix_t m, vec_t pitch, vec_t yaw, vec_t roll ) {
-	matrix_t tmp, rot;
-	
-	MatrixCopy( m , tmp );
-	MatrixFromAngles( rot, pitch, yaw, roll );
-	
-	MatrixMultiply( rot, tmp, m );
-}
-void MatrixMultiplyTranslation( matrix_t m, vec_t x, vec_t y, vec_t z ) {
-	matrix_t tmp, trans;
-	
-	MatrixCopy( m , tmp );
-	MatrixSetupTranslation( trans, x, y, z );
-	MatrixMultiply( trans, tmp, m );
+void MatrixMultiplyRotation(matrix_t m, vec_t pitch, vec_t yaw, vec_t roll)
+{
+	matrix_t        tmp, rot;
+
+	MatrixCopy(m, tmp);
+	MatrixFromAngles(rot, pitch, yaw, roll);
+
+	MatrixMultiply(rot, tmp, m);
 }
 
-void MatrixMultiplyScale( matrix_t m, vec_t x, vec_t y, vec_t z ) {
-	matrix_t tmp, scale;
-	
-	MatrixCopy( m , tmp );
-	MatrixSetupScale( scale, x, y, z );
-	MatrixMultiply( scale, tmp, m );
+void MatrixMultiplyTranslation(matrix_t m, vec_t x, vec_t y, vec_t z)
+{
+	matrix_t        tmp, trans;
+
+	MatrixCopy(m, tmp);
+	MatrixSetupTranslation(trans, x, y, z);
+	MatrixMultiply(trans, tmp, m);
 }
 
-void MatrixFromAngles( matrix_t m, vec_t pitch, vec_t yaw, vec_t roll ) {
-	static float		sr, sp, sy, cr, cp, cy;
+void MatrixMultiplyScale(matrix_t m, vec_t x, vec_t y, vec_t z)
+{
+	matrix_t        tmp, scale;
+
+	MatrixCopy(m, tmp);
+	MatrixSetupScale(scale, x, y, z);
+	MatrixMultiply(scale, tmp, m);
+}
+
+
+void MatrixFromAngles(matrix_t m, vec_t pitch, vec_t yaw, vec_t roll)
+{
+	static float    sr, sp, sy, cr, cp, cy;
+
 	// static to help MS compiler fp bugs
 
-	sp = sin( DEG2RAD( pitch ) );
-	cp = cos( DEG2RAD( pitch ) );
-	
-	sy = sin( DEG2RAD( yaw ) );
-	cy = cos( DEG2RAD( yaw ) );
-	
-	sr = sin( DEG2RAD( roll ) );
-	cr = cos( DEG2RAD( roll ) );
+	sp = sin(DEG2RAD(pitch));
+	cp = cos(DEG2RAD(pitch));
+
+	sy = sin(DEG2RAD(yaw));
+	cy = cos(DEG2RAD(yaw));
+
+	sr = sin(DEG2RAD(roll));
+	cr = cos(DEG2RAD(roll));
+
 
 	/*
 	m[0][0] = cp*cy;	m[0][1] = (sr*sp*cy+cr*-sy);	m[0][2] = (cr*sp*cy+-sr*-sy);	m[0][3] = 0;
@@ -1992,7 +2021,8 @@ void MatrixFromAngles( matrix_t m, vec_t pitch, vec_t yaw, vec_t roll ) {
 	m[ 3] = 0;		m[ 7] = 0;					m[11] = 0;					m[15] = 1;
 }
 
-void MatrixFromVectorsFLU( matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up ) {
+void MatrixFromVectorsFLU(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up)
+{
 	/*
 	m[0][0] = forward[0];	m[0][1] = left[0];	m[0][2] = up[0];	m[0][3] = 0;
 	m[1][0] = forward[1];	m[1][1] = left[1];	m[1][2] = up[1];	m[1][3] = 0;
@@ -2005,7 +2035,8 @@ void MatrixFromVectorsFLU( matrix_t m, const vec3_t forward, const vec3_t left, 
 	m[ 3] = 0;			m[ 7] = 0;			m[11] = 0;		m[15] = 1;
 }
 
-void MatrixFromVectorsFRU( matrix_t m, const vec3_t forward, const vec3_t right, const vec3_t up ) {
+void MatrixFromVectorsFRU(matrix_t m, const vec3_t forward, const vec3_t right, const vec3_t up)
+{
 	/*
 	m[0][0] = forward[0];	m[0][1] =-right[0];	m[0][2] = up[0];	m[0][3] = 0;
 	m[1][0] = forward[1];	m[1][1] =-right[1];	m[1][2] = up[1];	m[1][3] = 0;
@@ -2018,7 +2049,8 @@ void MatrixFromVectorsFRU( matrix_t m, const vec3_t forward, const vec3_t right,
 	m[ 3] = 0;			m[ 7] = 0;			m[11] = 0;		m[15] = 1;
 }
 
-void MatrixToVectorsFLU( const matrix_t m, vec3_t forward, vec3_t left, vec3_t up ) {
+void MatrixToVectorsFLU(const matrix_t m, vec3_t forward, vec3_t left, vec3_t up)
+{
 	forward[0] = m[ 0];	// cp*cy;
 	forward[1] = m[ 1];	// cp*sy;
 	forward[2] = m[ 2];	//-sp;
@@ -2032,7 +2064,8 @@ void MatrixToVectorsFLU( const matrix_t m, vec3_t forward, vec3_t left, vec3_t u
 	up[2] = m[10];	// cr*cp;
 }
 
-void MatrixToVectorsFRU( const matrix_t m, vec3_t forward, vec3_t right, vec3_t up ) {
+void MatrixToVectorsFRU(const matrix_t m, vec3_t forward, vec3_t right, vec3_t up)
+{
 	forward[0] = m[ 0];
 	forward[1] = m[ 1];
 	forward[2] = m[ 2];
@@ -2071,14 +2104,17 @@ void MatrixLerp( const matrix_t from, const matrix_t to, vec_t f, matrix_t out )
 */
 
 
-void MatrixSetupTransform( matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up, const vec3_t origin ) {
+void MatrixSetupTransform(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up,
+						  const vec3_t origin)
+{
 	m[ 0] = forward[0];	m[ 4] = left[0];	m[ 8] = up[0];	m[12] = origin[0];
 	m[ 1] = forward[1];	m[ 5] = left[1];	m[ 9] = up[1];	m[13] = origin[1];
 	m[ 2] = forward[2];	m[ 6] = left[2];	m[10] = up[2];	m[14] = origin[2];
 	m[ 3] = 0;			m[ 7] = 0;			m[11] = 0;		m[15] = 1;
 }
 
-void MatrixAffineInverse( const matrix_t in, matrix_t out ) {
+void MatrixAffineInverse(const matrix_t in, matrix_t out)
+{
 #if 0
 	// Tr3B - ripped from renderer
 	out[ 0] = in[ 0];
@@ -2110,7 +2146,8 @@ void MatrixAffineInverse( const matrix_t in, matrix_t out ) {
 #endif
 }
 
-void MatrixTransformNormal( const matrix_t m, const vec3_t in, vec3_t out ) {
+void MatrixTransformNormal(const matrix_t m, const vec3_t in, vec3_t out)
+{
 	out[ 0] = m[ 0]*in[ 0] + m[ 4]*in[ 1] + m[ 8]*in[ 2];
 	out[ 1] = m[ 1]*in[ 0] + m[ 5]*in[ 1] + m[ 9]*in[ 2];
 	out[ 2] = m[ 2]*in[ 0] + m[ 6]*in[ 1] + m[10]*in[ 2];
