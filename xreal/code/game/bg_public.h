@@ -25,11 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // because games can change separately from the main system version, we need a
 // second version that must match between game and cgame
 
-#if defined XREAL
 #define	GAME_VERSION		"XreaL"
-#else
-#define GAME_VERSION		"baseq3-1"
-#endif
 
 #define	DEFAULT_GRAVITY		800
 #define	GIB_HEALTH			-40
