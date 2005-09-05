@@ -40,7 +40,7 @@ else:
 	env.Append(CCFLAGS = '-DNDEBUG')
 
 if env['optimize'] != '0':
-	env.Append(CCFLAGS = '-O${optimize} -fomit-frame-pointer -ffast-math -falign-loops=2 -falign-jumps=2 -falign-functions=2 -fno-strict-aliasing -fstrength-reduce')
+	env.Append(CCFLAGS = '-O${optimize} -ffast-math -fno-strict-aliasing -funroll-loops')
 
 
 if env['cpu'] == 'athlon-xp':

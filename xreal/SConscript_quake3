@@ -187,6 +187,6 @@ if sys.platform == 'linux2':
 
 elif sys.platform == 'win32':
 	quake3_src += ['src/sys_win.cxx', 'src/in_win.cxx', 'src/vid_dll.cxx']
-	quake3_env.Append(LIBS=['z', 'alut', 'openal32', 'm', 'wsock32', 'winmm'])
+	quake3_env.Append(LIBS=['z', 'openal32', 'm', 'wsock32', 'winmm'])
 	quake3_env.Program('Quake3', quake3_src)
 	quake3_env.Install('#bin', 'Quake3.exe')
