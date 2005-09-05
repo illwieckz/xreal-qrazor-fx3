@@ -514,7 +514,7 @@ issues.
 
 #define	MAX_FILE_HANDLES	64
 
-#define BASEGAME "baseq3"
+#define BASEGAME "base"
 
 qboolean FS_Initialized();
 

@@ -11,4 +11,4 @@ files = [
 'glsl/lighting_DBS_direct_fp.glsl'
 ]
 
-env.Install('#bin/xreal/glsl', files)
+env.Install('#bin/base/glsl', files)
