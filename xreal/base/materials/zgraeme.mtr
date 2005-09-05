@@ -1,0 +1,131 @@
+//================textures/zaphod shader stats==============================================
+//
+// Total # of shaders : 13
+// Working shaders: 0
+// Broken/CommentedOut shaders: 13
+//=======================================================================================
+
+
+table spark_neontable1 { { 1.3, 0, 0, 0, 0, 1.3, 0, 0, 0, 0, 1.3, 0, 0, 1.1, .075, 1.15, 1.22, 1.3, 1.3, 1.45, 1.52, .6, .67, .75, .82, .9, .95, 1, 0, 0, 0, .3, 0, 0, 0, 0, 0, 0, 0, .3, 0, 0, 0, 0, 0, 0, 0, 0, 1, .6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, .3, 0, 0, 0, 0 } }
+
+//textures/zaphod/bfg.TGA
+//{
+//	qer_editorimage	textures/zaphod/bfg.TGA
+//	diffusemap		textures/zaphod/bfg.TGA
+//}
+
+//textures/zaphod/f_bfg.TGA
+//{
+//	qer_editorimage	textures/zaphod/f_bfg.TGA
+//	translucent
+//	noShadows
+//	{ if ( parm4 != 0 )
+//		blend add
+//		map		textures/zaphod/f_bfg.TGA
+//	}
+//}
+
+//textures/zaphod/f_plasma.TGA
+//{
+//	qer_editorimage	textures/zaphod/f_plasma.TGA
+//	translucent
+//	noShadows
+//	{ if ( parm4 != 0 )
+//		blend add
+//		map		textures/zaphod/f_plasma.TGA
+//	}
+//}
+
+//textures/zaphod/f_rocketl.TGA
+//{
+//	qer_editorimage	textures/zaphod/f_rocketl.TGA
+//	translucent
+//	noShadows
+//	{ if ( parm4 != 0 )
+//		blend add
+//		map		textures/zaphod/f_rocketl.TGA
+//	}
+//}
+
+//textures/zaphod/f_shotgun.TGA
+//{
+//	qer_editorimage	textures/zaphod/f_shotgun.TGA
+//	translucent
+//	noShadows
+//	{ if ( parm4 != 0 )
+//		blend add
+//		map		textures/zaphod/f_shotgun.TGA
+//	}
+//}
+
+//textures/zaphod/f_vulcan.TGA
+//{
+//	qer_editorimage	textures/zaphod/f_vulcan.TGA
+//	translucent
+//	noShadows
+//	{ if ( parm4 != 0 )
+//		blend add
+//		map		textures/zaphod/f_vulcan.TGA
+//	}
+//}
+
+//textures/zaphod/plasma.TGA
+//{
+//	qer_editorimage	textures/zaphod/plasma.TGA
+//	diffusemap		textures/zaphod/plasma.TGA
+//}
+
+//textures/zaphod/plasma_glass.TGA
+//{
+//	qer_editorimage	textures/zaphod/plasma_glass.TGA
+//	translucent
+//	noShadows
+//	{
+//		blend add
+//		map		textures/zaphod/plasma_glass.TGA
+//	}
+//}
+
+//textures/zaphod/plasma_glo.TGA
+//{
+//	qer_editorimage	textures/zaphod/plasma_glo.TGA
+//	translucent
+//	noShadows
+//	{
+//		blend add
+//		map	textures/zaphod/plasma_glo.TGA
+//		rgb  sintable [time] + 2.5
+//	}
+//}
+
+//textures/zaphod/rocketl.TGA
+//{
+//	qer_editorimage	textures/zaphod/rocketl.TGA
+//	diffusemap		textures/zaphod/rocketl.TGA
+//}
+
+//textures/zaphod/shotgun.TGA
+//{
+//	qer_editorimage	textures/zaphod/shotgun.TGA
+//	diffusemap		textures/zaphod/shotgun.TGA
+//}
+
+//textures/zaphod/shotgun_laser.TGA
+//{
+//	qer_editorimage	textures/zaphod/shotgun_laser.TGA
+//	translucent
+//	noShadows
+//	{
+//		blend add
+//		map		textures/zaphod/shotgun_laser.TGA
+//	}
+//}
+
+//textures/zaphod/vulcan.TGA
+//{
+//	qer_editorimage	textures/zaphod/vulcan.TGA
+//	diffusemap		textures/zaphod/vulcan.TGA
+//}
+
+
+//Verified good complete by Eutectic - Sep 15-04
