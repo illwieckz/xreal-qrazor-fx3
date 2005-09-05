@@ -2357,9 +2357,20 @@ void R_CreateBuiltinImages(void)
 	Com_Memset(data, 255, sizeof(data));
 	tr.whiteImage = R_CreateImage("*white", (byte *) data, 8, 8, qfalse, qfalse, GL_REPEAT, qfalse);
 
-	// we use a solid white image instead of disabling texturing
+	// we use a solid black image instead of disabling texturing
 	Com_Memset(data, 0, sizeof(data));
 	tr.blackImage = R_CreateImage("*black", (byte *) data, 8, 8, qfalse, qfalse, GL_REPEAT, qfalse);
+
+	// generate a default normalmap with a zero heightmap
+	for(x = 0; x < DEFAULT_SIZE; x++)
+	{
+		for(y = 0; y < DEFAULT_SIZE; y++)
+		{
+			data[y][x][0] = data[y][x][1] = data[y][x][2] = 128;
+			data[y][x][3] = 0;
+		}
+	}
+	tr.flatImage = R_CreateImage("*flat", (byte *) data, 8, 8, qfalse, qfalse, GL_REPEAT, qtrue);
 
 	// with overbright bits active, we need an image which is some fraction of full color,
 	// for default lightmaps, etc

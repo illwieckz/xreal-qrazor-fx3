@@ -463,9 +463,7 @@ void RB_BeginDrawingView(void)
 	// 2D images again
 	backEnd.projection2D = qfalse;
 
-	//
 	// set the modelview matrix for the viewer
-	//
 	SetViewportAndScissor();
 
 	// ensures that depth writes are enabled for the depth clear
@@ -532,12 +530,8 @@ void RB_BeginDrawingView(void)
 
 #define	MAC_EVENT_PUMP_MSEC		5
 
-/*
-==================
-RB_RenderDrawSurfList
-==================
-*/
-void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs)
+
+void RB_RenderDrawSurfListFull(drawSurf_t * drawSurfs, int numDrawSurfs)
 {
 	shader_t       *shader, *oldShader;
 	int             fogNum, oldFogNum;
@@ -548,6 +542,9 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs)
 	drawSurf_t     *drawSurf;
 	int             oldSort;
 	float           originalTime;
+	
+	// save original time for entity shader offsets
+	originalTime = backEnd.refdef.floatTime;
 
 #ifdef __MACOS__
 	int             macEventTime;
@@ -559,12 +556,6 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs)
 	macEventTime = ri.Milliseconds() + MAC_EVENT_PUMP_MSEC;
 #endif
 
-	// save original time for entity shader offsets
-	originalTime = backEnd.refdef.floatTime;
-
-	// clear the z buffer, set the modelview, etc
-	RB_BeginDrawingView();
-
 	// draw everything
 	oldEntityNum = -1;
 	backEnd.currentEntity = &tr.worldEntity;
@@ -575,7 +566,6 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs)
 	oldSort = -1;
 	depthRange = qfalse;
 
-	backEnd.pc.c_surfaces += numDrawSurfs;
 
 	for(i = 0, drawSurf = drawSurfs; i < numDrawSurfs; i++, drawSurf++)
 	{
@@ -588,7 +578,6 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs)
 		oldSort = drawSurf->sort;
 		R_DecomposeSort(drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted);
 
-		//
 		// change the tess parameters if needed
 		// a "entityMergable" shader is a shader that can have surfaces from seperate
 		// entities merged into a single batch, like smoke and blood puff sprites
@@ -615,9 +604,7 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs)
 			oldDlighted = dlighted;
 		}
 
-		//
 		// change the modelview matrix if needed
-		//
 		if(entityNum != oldEntityNum)
 		{
 			depthRange = qfalse;
@@ -659,9 +646,7 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs)
 
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
-			//
 			// change depthrange if needed
-			//
 			if(oldDepthRange != depthRange)
 			{
 				if(depthRange)
@@ -696,6 +681,168 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs)
 	{
 		qglDepthRange(0, 1);
 	}
+}
+
+
+void RB_RenderDrawSurfListZFill(drawSurf_t * drawSurfs, int numDrawSurfs)
+{
+	shader_t       *shader, *oldShader;
+	int             fogNum, oldFogNum;
+	int             entityNum, oldEntityNum;
+	int             dlighted, oldDlighted;
+	qboolean        depthRange, oldDepthRange;
+	int             i;
+	drawSurf_t     *drawSurf;
+	int             oldSort;
+	float           originalTime;
+	
+	// save original time for entity shader offsets
+	originalTime = backEnd.refdef.floatTime;
+
+	// draw everything
+	oldEntityNum = -1;
+	backEnd.currentEntity = &tr.worldEntity;
+	oldShader = NULL;
+	oldFogNum = -1;
+	oldDepthRange = qfalse;
+	oldDlighted = qfalse;
+	oldSort = -1;
+	depthRange = qfalse;
+	
+//	tess.zfillOnly = qtrue;
+
+	for(i = 0, drawSurf = drawSurfs; i < numDrawSurfs; i++, drawSurf++)
+	{
+		if(drawSurf->sort == oldSort)
+		{
+			// fast path, same as previous sort
+			rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
+			continue;
+		}
+		oldSort = drawSurf->sort;
+		R_DecomposeSort(drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted);
+		
+		// change the tess parameters if needed
+		// a "entityMergable" shader is a shader that can have surfaces from seperate
+		// entities merged into a single batch, like smoke and blood puff sprites
+		if(shader != oldShader || fogNum != oldFogNum || dlighted != oldDlighted
+		   || (entityNum != oldEntityNum && !shader->entityMergable))
+		{
+			if(oldShader != NULL)
+			{
+				RB_EndSurface();
+			}
+			RB_BeginSurface(shader, fogNum);
+			oldShader = shader;
+			oldFogNum = fogNum;
+			oldDlighted = dlighted;
+		}
+		
+		// Tr3B - skip all translucent surfaces that don't matter for zfill only pass
+		if(shader->sort > SS_OPAQUE)
+			continue;
+
+		// change the modelview matrix if needed
+		if(entityNum != oldEntityNum)
+		{
+			depthRange = qfalse;
+
+			if(entityNum != ENTITYNUM_WORLD)
+			{
+				backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
+				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
+				// we have to reset the shaderTime as well otherwise image animations start
+				// from the wrong frame
+				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+
+				// set up the transformation matrix
+				R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
+
+				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
+				{
+					// hack the depth range to prevent view model from poking into walls
+					depthRange = qtrue;
+				}
+			}
+			else
+			{
+				backEnd.currentEntity = &tr.worldEntity;
+				backEnd.refdef.floatTime = originalTime;
+				backEnd.or = backEnd.viewParms.world;
+				// we have to reset the shaderTime as well otherwise image animations on
+				// the world (like water) continue with the wrong frame
+				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+			}
+
+			qglLoadMatrixf(backEnd.or.modelViewMatrix);
+
+			// change depthrange if needed
+			if(oldDepthRange != depthRange)
+			{
+				if(depthRange)
+				{
+					qglDepthRange(0, 0.3);
+				}
+				else
+				{
+					qglDepthRange(0, 1);
+				}
+				oldDepthRange = depthRange;
+			}
+
+			oldEntityNum = entityNum;
+		}
+
+		// add the triangles for this surface
+		rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
+	}
+
+	backEnd.refdef.floatTime = originalTime;
+
+	// draw the contents of the last shader batch
+	if(oldShader != NULL)
+	{
+		RB_EndSurface();
+	}
+
+	// go back to the world modelview matrix
+	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+	if(depthRange)
+	{
+		qglDepthRange(0, 1);
+	}
+}
+
+
+/*
+==================
+RB_RenderDrawSurfList
+==================
+*/
+void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs)
+{
+	// clear the z buffer, set the modelview, etc
+	RB_BeginDrawingView();
+	
+	backEnd.pc.c_surfaces += numDrawSurfs;
+	
+#if 1
+	// draw everything (the old way)
+	RB_RenderDrawSurfListFull(drawSurfs, numDrawSurfs);
+#else
+	// lay down z buffer
+	RB_RenderDrawSurfListZFill(drawSurfs, numDrawSurfs);
+
+	// TODO render shadows
+	
+	// TODO render light interactions
+	
+	// TODO render light scale hack
+	
+	// TODO render translucent stuff
+	
+	// TODO render post process effects
+#endif
 
 #if 0
 	RB_DrawSun();

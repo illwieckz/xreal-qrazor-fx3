@@ -408,12 +408,12 @@ static void APIENTRY R_ArrayElementDiscrete(GLint index)
 	qglColor4ubv(tess.svars.colors[index]);
 	if(glState.currenttmu)
 	{
-		qglMultiTexCoord2fARB(0, tess.svars.texcoords[0][index][0], tess.svars.texcoords[0][index][1]);
-		qglMultiTexCoord2fARB(1, tess.svars.texcoords[1][index][0], tess.svars.texcoords[1][index][1]);
+		qglMultiTexCoord2fARB(0, tess.svars.texCoords[0][index][0], tess.svars.texCoords[0][index][1]);
+		qglMultiTexCoord2fARB(1, tess.svars.texCoords[1][index][0], tess.svars.texCoords[1][index][1]);
 	}
 	else
 	{
-		qglTexCoord2fv(tess.svars.texcoords[0][index]);
+		qglTexCoord2fv(tess.svars.texCoords[0][index]);
 	}
 	qglVertex3fv(tess.xyz[index]);
 }
@@ -784,7 +784,8 @@ void RB_BeginSurface(shader_t * shader, int fogNum)
 	tess.dlightBits = 0;		// will be OR'd in by surface functions
 	tess.xstages = state->stages;
 	tess.numPasses = state->numUnfoggedPasses;
-	tess.currentStageIteratorFunc = state->optimalStageIteratorFunc;
+//	tess.currentStageIteratorFunc = state->optimalStageIteratorFunc;
+	tess.currentStageIteratorFunc = state->isSky ? RB_StageIteratorSky : RB_StageIteratorGeneric;
 
 	tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
 	if(tess.shader->clampTime && tess.shaderTime >= tess.shader->clampTime)
@@ -822,7 +823,7 @@ static void DrawMultitextured(shaderCommands_t * input, int stage)
 	// base
 	//
 	GL_SelectTexture(0);
-	qglTexCoordPointer(2, GL_FLOAT, 0, input->svars.texcoords[0]);
+	qglTexCoordPointer(2, GL_FLOAT, 0, input->svars.texCoords[0]);
 	R_BindAnimatedImage(&pStage->bundle[0]);
 
 	//
@@ -841,7 +842,7 @@ static void DrawMultitextured(shaderCommands_t * input, int stage)
 		GL_TexEnv(tess.shader->multitextureEnv);
 	}
 
-	qglTexCoordPointer(2, GL_FLOAT, 0, input->svars.texcoords[1]);
+	qglTexCoordPointer(2, GL_FLOAT, 0, input->svars.texCoords[1]);
 
 	R_BindAnimatedImage(&pStage->bundle[1]);
 
@@ -1134,7 +1135,7 @@ static void RB_FogPass(void)
 	qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.svars.colors);
 
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texcoords[0]);
+	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[0]);
 
 	fog = tr.world->fogs + tess.fogNum;
 
@@ -1143,7 +1144,7 @@ static void RB_FogPass(void)
 		*(int *)&tess.svars.colors[i] = fog->colorInt;
 	}
 
-	RB_CalcFogTexCoords((float *)tess.svars.texcoords[0]);
+	RB_CalcFogTexCoords((float *)tess.svars.texCoords[0]);
 
 	GL_Bind(tr.fogImage);
 
@@ -1381,39 +1382,41 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 		//
 		// generate the texture coordinates
 		//
-		switch (pStage->bundle[b].tcGen)
+		switch(pStage->bundle[b].tcGen)
 		{
+			case TCGEN_SKIP:
+				break;
 			case TCGEN_IDENTITY:
-				Com_Memset(tess.svars.texcoords[b], 0, sizeof(float) * 2 * tess.numVertexes);
+				Com_Memset(tess.svars.texCoords[b], 0, sizeof(float) * 2 * tess.numVertexes);
 				break;
 			case TCGEN_TEXTURE:
 				for(i = 0; i < tess.numVertexes; i++)
 				{
-					tess.svars.texcoords[b][i][0] = tess.texCoords[i][0][0];
-					tess.svars.texcoords[b][i][1] = tess.texCoords[i][0][1];
+					tess.svars.texCoords[b][i][0] = tess.texCoords[i][0][0];
+					tess.svars.texCoords[b][i][1] = tess.texCoords[i][0][1];
 				}
 				break;
 			case TCGEN_LIGHTMAP:
 				for(i = 0; i < tess.numVertexes; i++)
 				{
-					tess.svars.texcoords[b][i][0] = tess.texCoords[i][1][0];
-					tess.svars.texcoords[b][i][1] = tess.texCoords[i][1][1];
+					tess.svars.texCoords[b][i][0] = tess.texCoords[i][1][0];
+					tess.svars.texCoords[b][i][1] = tess.texCoords[i][1][1];
 				}
 				break;
 			case TCGEN_VECTOR:
 				for(i = 0; i < tess.numVertexes; i++)
 				{
-					tess.svars.texcoords[b][i][0] =
+					tess.svars.texCoords[b][i][0] =
 						DotProduct(tess.xyz[i], pStage->bundle[b].tcGenVectors[0]);
-					tess.svars.texcoords[b][i][1] =
+					tess.svars.texCoords[b][i][1] =
 						DotProduct(tess.xyz[i], pStage->bundle[b].tcGenVectors[1]);
 				}
 				break;
 			case TCGEN_FOG:
-				RB_CalcFogTexCoords((float *)tess.svars.texcoords[b]);
+				RB_CalcFogTexCoords((float *)tess.svars.texCoords[b]);
 				break;
 			case TCGEN_ENVIRONMENT_MAPPED:
-				RB_CalcEnvironmentTexCoords((float *)tess.svars.texcoords[b]);
+				RB_CalcEnvironmentTexCoords((float *)tess.svars.texCoords[b]);
 				break;
 			case TCGEN_BAD:
 				return;
@@ -1424,7 +1427,11 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 		//
 		for(tm = 0; tm < pStage->bundle[b].numTexMods; tm++)
 		{
-			switch (pStage->bundle[b].texMods[tm].type)
+			// Tr3B - for multiple images per shader stage
+			if(pStage->bundle[b].tcGen == TCGEN_SKIP)
+				continue;
+			
+			switch(pStage->bundle[b].texMods[tm].type)
 			{
 				case TMOD_NONE:
 					tm = TR_MAX_TEXMODS;	// break out of for loop
@@ -1432,37 +1439,37 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 
 				case TMOD_TURBULENT:
 					RB_CalcTurbulentTexCoords(&pStage->bundle[b].texMods[tm].wave,
-											  (float *)tess.svars.texcoords[b]);
+											  (float *)tess.svars.texCoords[b]);
 					break;
 
 				case TMOD_ENTITY_TRANSLATE:
 					RB_CalcScrollTexCoords(backEnd.currentEntity->e.shaderTexCoord,
-										   (float *)tess.svars.texcoords[b]);
+										   (float *)tess.svars.texCoords[b]);
 					break;
 
 				case TMOD_SCROLL:
 					RB_CalcScrollTexCoords(pStage->bundle[b].texMods[tm].scroll,
-										   (float *)tess.svars.texcoords[b]);
+										   (float *)tess.svars.texCoords[b]);
 					break;
 
 				case TMOD_SCALE:
 					RB_CalcScaleTexCoords(pStage->bundle[b].texMods[tm].scale,
-										  (float *)tess.svars.texcoords[b]);
+										  (float *)tess.svars.texCoords[b]);
 					break;
 
 				case TMOD_STRETCH:
 					RB_CalcStretchTexCoords(&pStage->bundle[b].texMods[tm].wave,
-											(float *)tess.svars.texcoords[b]);
+											(float *)tess.svars.texCoords[b]);
 					break;
 
 				case TMOD_TRANSFORM:
 					RB_CalcTransformTexCoords(&pStage->bundle[b].texMods[tm],
-											  (float *)tess.svars.texcoords[b]);
+											  (float *)tess.svars.texCoords[b]);
 					break;
 
 				case TMOD_ROTATE:
 					RB_CalcRotateTexCoords(pStage->bundle[b].texMods[tm].rotateSpeed,
-										   (float *)tess.svars.texcoords[b]);
+										   (float *)tess.svars.texCoords[b]);
 					break;
 
 				default:
@@ -1511,7 +1518,7 @@ static void RB_IterateStagesGeneric(shaderCommands_t * input)
 		{
 			if(!setArraysOnce)
 			{
-				qglTexCoordPointer(2, GL_FLOAT, 0, input->svars.texcoords[0]);
+				qglTexCoordPointer(2, GL_FLOAT, 0, input->svars.texCoords[0]);
 			}
 
 			//
@@ -1605,7 +1612,7 @@ void RB_StageIteratorGeneric(void)
 		qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.svars.colors);
 
 		qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texcoords[0]);
+		qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[0]);
 	}
 
 	//
@@ -2173,22 +2180,16 @@ void RB_EndSurface(void)
 		return;
 	}
 
-	//
 	// update performance counters
-	//
 	backEnd.pc.c_shaders++;
 	backEnd.pc.c_vertexes += tess.numVertexes;
 	backEnd.pc.c_indexes += tess.numIndexes;
 	backEnd.pc.c_totalIndexes += tess.numIndexes * tess.numPasses;
 
-	//
 	// call off to shader specific tess end function
-	//
 	tess.currentStageIteratorFunc();
 
-	//
 	// draw debugging stuff
-	//
 	if(r_showtris->integer)
 	{
 		DrawTris(input);
@@ -2205,6 +2206,41 @@ void RB_EndSurface(void)
 	{
 		DrawDeluxels(input);
 	}
+
+	// clear shader so we can tell we don't have any unclosed surfaces
+	tess.numIndexes = 0;
+
+	GLimp_LogComment("----------\n");
+}
+
+void RB_EndSurfaceZFill(void)
+{
+	shaderCommands_t *input;
+
+	input = &tess;
+
+	if(input->numIndexes == 0)
+	{
+		return;
+	}
+
+	if(input->indexes[SHADER_MAX_INDEXES - 1] != 0)
+	{
+		ri.Error(ERR_DROP, "RB_EndSurface() - SHADER_MAX_INDEXES hit");
+	}
+	if(input->xyz[SHADER_MAX_VERTEXES - 1][0] != 0)
+	{
+		ri.Error(ERR_DROP, "RB_EndSurface() - SHADER_MAX_VERTEXES hit");
+	}
+
+	// update performance counters
+	backEnd.pc.c_shaders++;
+	backEnd.pc.c_vertexes += tess.numVertexes;
+	backEnd.pc.c_indexes += tess.numIndexes;
+	backEnd.pc.c_totalIndexes += tess.numIndexes * tess.numPasses;
+
+	// call off to shader specific tess end function
+	tess.currentStageIteratorFunc();
 
 	// clear shader so we can tell we don't have any unclosed surfaces
 	tess.numIndexes = 0;

@@ -646,17 +646,19 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 
 			if(!Q_stricmp(token, "$whiteimage") || !Q_stricmp(token, "$white"))
 			{
+				stage->bundle[TB_DIFFUSEMAP].isDiffuseMap = qtrue;
 				stage->bundle[TB_DIFFUSEMAP].image[0] = tr.whiteImage;
 				continue;
 			}
 			if(!Q_stricmp(token, "$blackimage") || !Q_stricmp(token, "$black"))
 			{
+				stage->bundle[TB_DIFFUSEMAP].isDiffuseMap = qtrue;
 				stage->bundle[TB_DIFFUSEMAP].image[0] = tr.blackImage;
 				continue;
 			}
 			else
 			{
-				shader.hasDiffuseMap = qtrue;
+				stage->bundle[TB_DIFFUSEMAP].isDiffuseMap = qtrue;
 				stage->bundle[TB_DIFFUSEMAP].image[0] =
 					R_FindImageFile(token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT, qfalse);
 				if(!stage->bundle[TB_DIFFUSEMAP].image[0])
@@ -681,15 +683,16 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 				return qfalse;
 			}
 
-			/*
-			   if ( !Q_stricmp( token, "$flat" ) )
-			   {
-			   stage->bundle[0].image[0] = tr.flatImage;
-			   continue;
-			   }
-			   else */
+			if(!Q_stricmp(token, "$flatimage") || !Q_stricmp(token, "$flat"))
 			{
-				shader.hasNormalMap = qtrue;
+				stage->bundle[TB_NORMALMAP].isNormalMap = qtrue;
+				stage->bundle[TB_NORMALMAP].image[0] = tr.flatImage;
+				continue;
+			}
+			else
+			{
+				stage->bundle[TB_NORMALMAP].isNormalMap = qtrue;
+				stage->bundle[TB_NORMALMAP].tcGen = TCGEN_SKIP;
 				stage->bundle[TB_NORMALMAP].image[0] =
 					R_FindImageFile(token, /*!shader.noMipMaps*/ qfalse, !shader.noPicMip, GL_REPEAT, qtrue);
 				if(!stage->bundle[TB_NORMALMAP].image[0])
@@ -716,17 +719,20 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 
 			if(!Q_stricmp(token, "$whiteimage") || !Q_stricmp(token, "$white"))
 			{
+				stage->bundle[TB_SPECULARMAP].isSpecularMap = qtrue;
 				stage->bundle[TB_SPECULARMAP].image[0] = tr.whiteImage;
 				continue;
 			}
 			if(!Q_stricmp(token, "$blackimage") || !Q_stricmp(token, "$black"))
 			{
+				stage->bundle[TB_SPECULARMAP].isSpecularMap = qtrue;
 				stage->bundle[TB_SPECULARMAP].image[0] = tr.blackImage;
 				continue;
 			}
 			else
 			{
-				shader.hasSpecularMap = qtrue;
+				stage->bundle[TB_SPECULARMAP].isSpecularMap = qtrue;
+				stage->bundle[TB_SPECULARMAP].tcGen = TCGEN_SKIP;
 				stage->bundle[TB_SPECULARMAP].image[0] =
 					R_FindImageFile(token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT, qfalse);
 				if(!stage->bundle[TB_SPECULARMAP].image[0])
@@ -1911,6 +1917,7 @@ See if we can use on of the simple fastpath stage functions,
 otherwise set to the generic stage function
 ===================
 */
+/*
 static void ComputeStageIteratorFunc(void)
 {
 	shader.optimalStageIteratorFunc = RB_StageIteratorGeneric;
@@ -1930,33 +1937,7 @@ static void ComputeStageIteratorFunc(void)
 	}
 
 	//
-	// see if this can go into the per pixel lit fast path
-	//
-	if(glConfig2.shadingLanguage100Available)
-	{
-		if(shader.hasDiffuseMap)
-		{
-			if(shader.hasNormalMap && r_bumpMapping->integer)
-			{
-				if(shader.hasSpecularMap && r_specular->integer)
-				{
-					shader.optimalStageIteratorFunc = RB_StageIteratorPerPixelLit_DBS;
-				}
-				else
-				{
-					shader.optimalStageIteratorFunc = RB_StageIteratorPerPixelLit_DB;
-				}
-			}
-			else
-			{
-				shader.optimalStageIteratorFunc = RB_StageIteratorPerPixelLit_D;
-			}
-			return;
-		}
-	}
-
-	//
-	// see if this can go into the vertex lit fast path
+	// see if this can go into the vertex lit or per pixel lit fast path
 	//
 	if(shader.numUnfoggedPasses == 1)
 	{
@@ -1972,8 +1953,30 @@ static void ComputeStageIteratorFunc(void)
 						{
 							if(!shader.numDeforms)
 							{
-								shader.optimalStageIteratorFunc = RB_StageIteratorVertexLitTexture;
-								goto done;
+								if(glConfig2.shadingLanguage100Available)
+								{
+									if(stages[0].bundle[TB_NORMALMAP].isNormalMap && r_bumpMapping->integer)
+									{
+										if(stages[0].bundle[TB_SPECULARMAP].isSpecularMap && r_specular->integer)
+										{
+											shader.optimalStageIteratorFunc = RB_StageIteratorPerPixelLit_DBS;
+										}
+										else
+										{
+											shader.optimalStageIteratorFunc = RB_StageIteratorPerPixelLit_DB;
+										}
+									}
+									else
+									{
+										shader.optimalStageIteratorFunc = RB_StageIteratorPerPixelLit_D;
+									}
+									goto done;
+								}
+								else
+								{
+									shader.optimalStageIteratorFunc = RB_StageIteratorVertexLitTexture;
+									goto done;
+								}
 							}
 						}
 					}
@@ -2009,6 +2012,7 @@ static void ComputeStageIteratorFunc(void)
   done:
 	return;
 }
+*/
 
 typedef struct
 {
@@ -2487,25 +2491,19 @@ static shader_t *FinishShader(void)
 	hasLightmapStage = qfalse;
 	vertexLightmap = qfalse;
 
-	//
 	// set sky stuff appropriate
-	//
 	if(shader.isSky)
 	{
 		shader.sort = SS_ENVIRONMENT;
 	}
 
-	//
 	// set polygon offset
-	//
 	if(shader.polygonOffset && !shader.sort)
 	{
 		shader.sort = SS_DECAL;
 	}
 
-	//
 	// set appropriate stage information
-	//
 	for(stage = 0; stage < MAX_SHADER_STAGES; stage++)
 	{
 		shaderStage_t  *pStage = &stages[stage];
@@ -2514,18 +2512,62 @@ static shader_t *FinishShader(void)
 		{
 			break;
 		}
-
-		// check for a missing texture
-		if(!pStage->bundle[0].image[0])
+		
+		// check if we have directional diffuse lighting
+		if(pStage->rgbGen == CGEN_LIGHTING_DIFFUSE)
 		{
-			ri.Printf(PRINT_WARNING, "Shader %s has a stage with no image\n", shader.name);
-			pStage->active = qfalse;
-			continue;
+			pStage->type = ST_LIGHTING;
+			pStage->bundle[TB_DIFFUSEMAP].isDiffuseMap = qtrue;
 		}
 
-		//
+		// check for a missing texture
+		switch(pStage->type)
+		{
+			case ST_COLOR:
+			default:
+			{
+				if(!pStage->bundle[TB_COLORMAP].image[0])
+				{
+					ri.Printf(PRINT_WARNING, "Shader %s has a color stage with no image\n", shader.name);
+					pStage->active = qfalse;
+					continue;
+				}
+				break;
+			}
+			
+			case ST_LIGHTING:
+			{
+				if(!pStage->bundle[TB_DIFFUSEMAP].image[0])
+				{
+					ri.Printf(PRINT_WARNING, "Shader %s has a lighting stage with no diffusemap\n", shader.name);
+					//pStage->active = qfalse;
+					//continue;
+					pStage->bundle[TB_DIFFUSEMAP].isDiffuseMap = qtrue;
+					pStage->bundle[TB_DIFFUSEMAP].image[0] = tr.defaultImage;
+				}
+				
+				if(!pStage->bundle[TB_NORMALMAP].image[0])
+				{
+					ri.Printf(PRINT_WARNING, "Shader %s has a lighting stage with no normalmap\n", shader.name);
+					//pStage->active = qfalse;
+					//continue;
+					//pStage->bundle[TB_NORMALMAP].isNormalMap = qtrue;
+					//pStage->bundle[TB_NORMALMAP].image[0] = tr.flatImage;
+				}
+				
+				if(!pStage->bundle[TB_SPECULARMAP].image[0])
+				{
+					ri.Printf(PRINT_WARNING, "Shader %s has a lighting stage with no normalmap\n", shader.name);
+					//pStage->active = qfalse;
+					//continue;
+					//pStage->bundle[TB_SPECULARMAP].isSpecularMap = qtrue;
+					//pStage->bundle[TB_SPECULARMAP].image[0] = tr.blackImage;
+				}
+				break;
+			}
+		}
+
 		// ditch this stage if it's detail and detail textures are disabled
-		//
 		if(pStage->isDetail && !r_detailTextures->integer)
 		{
 			if(stage < (MAX_SHADER_STAGES - 1))
@@ -2536,25 +2578,46 @@ static shader_t *FinishShader(void)
 			continue;
 		}
 
-		//
 		// default texture coordinate generation
-		//
-		if(pStage->bundle[0].isLightmap)
+		switch(pStage->type)
 		{
-			if(pStage->bundle[0].tcGen == TCGEN_BAD)
+			case ST_COLOR:
 			{
-				pStage->bundle[0].tcGen = TCGEN_LIGHTMAP;
+				if(pStage->bundle[0].isLightmap)
+				{
+					if(pStage->bundle[0].tcGen == TCGEN_BAD)
+					{
+						pStage->bundle[0].tcGen = TCGEN_LIGHTMAP;
+					}
+					hasLightmapStage = qtrue;
+				}
+				else
+				{
+					if(pStage->bundle[0].tcGen == TCGEN_BAD)
+					{
+						pStage->bundle[0].tcGen = TCGEN_TEXTURE;
+					}
+				}
+				break;
 			}
-			hasLightmapStage = qtrue;
-		}
-		else
-		{
-			if(pStage->bundle[0].tcGen == TCGEN_BAD)
+			
+			case ST_LIGHTING:
 			{
-				pStage->bundle[0].tcGen = TCGEN_TEXTURE;
+				if(pStage->bundle[TB_DIFFUSEMAP].tcGen == TCGEN_BAD)
+				{
+					pStage->bundle[TB_DIFFUSEMAP].tcGen = TCGEN_TEXTURE;
+				}
+				pStage->bundle[TB_NORMALMAP].tcGen = TCGEN_SKIP;
+				pStage->bundle[TB_SPECULARMAP].tcGen = TCGEN_SKIP;
+				break;	
+			}
+		
+			default:
+			{
+				break;	
 			}
 		}
-
+		
 
 		// not a true lightmap but we want to leave existing 
 		// behaviour in place and not print out a warning
@@ -2563,10 +2626,7 @@ static shader_t *FinishShader(void)
 		//}
 
 
-
-		//
 		// determine sort order and fog color adjustment
-		//
 		if((pStage->stateBits & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)) &&
 		   (stages[0].stateBits & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)))
 		{
@@ -2624,9 +2684,7 @@ static shader_t *FinishShader(void)
 		shader.sort = SS_OPAQUE;
 	}
 
-	//
 	// if we are in r_vertexLight mode, never use a lightmap texture
-	//
 	if(stage > 1 &&
 	   ((r_vertexLight->integer && !r_uiFullScreen->integer) || glConfig.hardwareType == GLHW_PERMEDIA2))
 	{
@@ -2635,9 +2693,7 @@ static shader_t *FinishShader(void)
 		hasLightmapStage = qfalse;
 	}
 
-	//
 	// look for multitexture potential
-	//
 	if(stage > 1 && CollapseMultitexture())
 	{
 		stage--;
@@ -2658,9 +2714,7 @@ static shader_t *FinishShader(void)
 	}
 
 
-	//
 	// compute number of passes
-	//
 	shader.numUnfoggedPasses = stage;
 
 	// fogonly shaders don't have any normal passes
@@ -2670,7 +2724,7 @@ static shader_t *FinishShader(void)
 	}
 
 	// determine which stage iterator function is appropriate
-	ComputeStageIteratorFunc();
+//	ComputeStageIteratorFunc();
 
 	return GeneratePermanentShader();
 }
@@ -3284,6 +3338,7 @@ void R_ShaderList_f(void)
 			ri.Printf(PRINT_ALL, "  ");
 		}
 
+		/*
 		if(shader->optimalStageIteratorFunc == RB_StageIteratorGeneric)
 		{
 			ri.Printf(PRINT_ALL, "gen ");
@@ -3313,6 +3368,7 @@ void R_ShaderList_f(void)
 			ri.Printf(PRINT_ALL, "pplDBS ");
 		}
 		else
+		*/
 		{
 			ri.Printf(PRINT_ALL, "    ");
 		}

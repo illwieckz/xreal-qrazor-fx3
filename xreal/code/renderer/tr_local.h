@@ -218,6 +218,7 @@ typedef enum
 typedef enum
 {
 	TCGEN_BAD,
+	TCGEN_SKIP,
 	TCGEN_IDENTITY,				// clear to 0,0
 	TCGEN_LIGHTMAP,
 	TCGEN_TEXTURE,
@@ -316,6 +317,7 @@ typedef struct
 	qboolean        isLightmap;
 	qboolean        vertexLightmap;
 	qboolean        isVideoMap;
+	qboolean		isDiffuseMap;
 	qboolean        isNormalMap;
 	qboolean        isSpecularMap;
 } textureBundle_t;
@@ -444,17 +446,13 @@ typedef struct shader_s
 	qboolean        needsST2;
 	qboolean        needsColor;
 
-	qboolean        hasDiffuseMap;
-	qboolean        hasNormalMap;
-	qboolean        hasSpecularMap;
-
 	int             numDeforms;
 	deformStage_t   deforms[MAX_SHADER_DEFORMS];
 
 	int             numUnfoggedPasses;
 	shaderStage_t  *stages[MAX_SHADER_STAGES];
 
-	void            (*optimalStageIteratorFunc) (void);
+//	void            (*optimalStageIteratorFunc) (void);
 
 	float           clampTime;	// time this shader is clamped to
 	float           timeOffset;	// current time offset for this shader
@@ -1010,6 +1008,7 @@ typedef struct
 	image_t        *flareImage;
 	image_t        *whiteImage;	// full of 0xff
 	image_t        *blackImage;	// full of 0x0
+	image_t        *flatImage; // use this as default normalmap
 	image_t        *identityLightImage;	// full of tr.identityLightByte
 
 	shader_t       *defaultShader;
@@ -1402,7 +1401,7 @@ typedef byte    color4ub_t[4];
 typedef struct stageVars
 {
 	color4ub_t      colors[SHADER_MAX_VERTEXES];
-	vec2_t          texcoords[MAX_TEXTURE_BUNDLES][SHADER_MAX_VERTEXES];
+	vec2_t          texCoords[MAX_TEXTURE_BUNDLES][SHADER_MAX_VERTEXES];
 } stageVars_t;
 
 typedef struct shaderCommands_s
