@@ -273,6 +273,28 @@ int MapPlaneFromPoints (vec3_t p0, vec3_t p1, vec3_t p2) {
 }
 
 
+int MapPlaneFromEquation( vec4_t plane )
+{
+	vec3_t	normal;
+	vec_t	dist;
+	vec_t	mag;
+	
+	dist = -plane[3];
+	
+	mag = VectorNormalize( plane, normal );
+	
+	if(mag)
+		plane[3] /= mag;
+		
+	SnapPlane( normal, &dist );
+	
+	/* Tr3B: debug it*/
+//	Sys_FPrintf( SYS_VRB, "MapPlaneFromEquation: (%i %i %i %i)\n", (int)normal[0], (int)normal[1], (int)normal[2], (int)dist);
+		
+	return FindFloatPlane( normal, dist );
+}
+
+
 //====================================================================
 
 /*
@@ -759,6 +781,7 @@ NOTE : it would be "cleaner" to have seperate functions to parse between old and
 void	ParseRawBrush( ) {
 	side_t		*side;
 	vec3_t		planepts[3];
+	vec4_t		planeEquation;
 	int			planenum;
 	shaderInfo_t	*si;
 	// old brushes
@@ -772,7 +795,7 @@ void	ParseRawBrush( ) {
 	buildBrush->numsides = 0;
 	buildBrush->detail = qfalse;
 
-	if (g_bBrushPrimit==BPRIMIT_NEWBRUSHES)
+	if (g_bBrushPrimit==BPRIMIT_NEWBRUSHES || g_bBrushPrimit == BPRIMIT_D3BRUSHES)
 		MatchToken( "{" );
 
 	do
@@ -782,7 +805,7 @@ void	ParseRawBrush( ) {
 		if (!strcmp (token, "}") )
 			break;
 		//Timo : brush primitive : here we may have to jump over brush epairs ( only used in editor )
-		if (g_bBrushPrimit==BPRIMIT_NEWBRUSHES)
+		if (g_bBrushPrimit==BPRIMIT_NEWBRUSHES || g_bBrushPrimit == BPRIMIT_D3BRUSHES)
 		{
 			do
 			{
@@ -803,12 +826,20 @@ void	ParseRawBrush( ) {
 		memset( side, 0, sizeof( *side ) );
 		buildBrush->numsides++;
 
-		// read the three point plane definition
-		Parse1DMatrix( 3, planepts[0] );
-		Parse1DMatrix( 3, planepts[1] );
-		Parse1DMatrix( 3, planepts[2] );
+		if(g_bBrushPrimit == BPRIMIT_D3BRUSHES)
+		{
+			// read the plane equation
+			Parse1DMatrix( 4, planeEquation );
+		}
+		else
+		{
+			// read the three point plane definition
+			Parse1DMatrix( 3, planepts[0] );
+			Parse1DMatrix( 3, planepts[1] );
+			Parse1DMatrix( 3, planepts[2] );
+		}
 
-		if (g_bBrushPrimit==BPRIMIT_NEWBRUSHES)
+		if (g_bBrushPrimit==BPRIMIT_NEWBRUSHES || g_bBrushPrimit == BPRIMIT_D3BRUSHES)
 			// read the texture matrix
 			Parse2DMatrix( 2, 3, (float *)side->texMat );
 
@@ -865,7 +896,10 @@ void	ParseRawBrush( ) {
 
 
 		// find the plane number
-		planenum = MapPlaneFromPoints (planepts[0], planepts[1], planepts[2]);
+		if( g_bBrushPrimit == BPRIMIT_D3BRUSHES )
+			planenum = MapPlaneFromEquation( planeEquation );
+		else
+			planenum = MapPlaneFromPoints (planepts[0], planepts[1], planepts[2]);
 		side->planenum = planenum;
 
 		if (g_bBrushPrimit==BPRIMIT_OLDBRUSHES)
@@ -874,7 +908,7 @@ void	ParseRawBrush( ) {
 
 	} while (1);
 
-	if (g_bBrushPrimit==BPRIMIT_NEWBRUSHES)
+	if (g_bBrushPrimit==BPRIMIT_NEWBRUSHES || g_bBrushPrimit == BPRIMIT_D3BRUSHES)
 	{
 		UnGetToken();
 		MatchToken( "}" );
@@ -1068,7 +1102,7 @@ qboolean	ParseMapEntity (void) {
 		
 		if( atoi( token ) != 2 )
 		{
-			Sys_Printf( "WARNING: ParseEntity: bad version number.\n");
+			_printf( "WARNING: ParseEntity: bad version number.\n");
 			return qfalse;
 		}
 	
@@ -1109,6 +1143,15 @@ qboolean	ParseMapEntity (void) {
 				if (g_bBrushPrimit==BPRIMIT_OLDBRUSHES)
 					Error("old brush format not allowed in new brush format map");
 				g_bBrushPrimit=BPRIMIT_NEWBRUSHES;
+				// parse brush primitive
+				ParseBrush();
+			}
+			else if( !strcmp( token, "brushDef3" ) )
+			{
+				if( g_bBrushPrimit == BPRIMIT_OLDBRUSHES )
+					Error( "Old brush format not allowed in new brush format map" );
+				g_bBrushPrimit = BPRIMIT_D3BRUSHES;
+				
 				// parse brush primitive
 				ParseBrush();
 			}
