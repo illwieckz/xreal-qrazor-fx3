@@ -3717,20 +3717,19 @@ models/powerups/ammo/machammo2
 
 models/powerups/ammo/plasammo
 {
-       {
-	        map textures/effects/envmapplas.tga
-                //tcmod scale 3 3
-                tcmod rotate 350
-                tcmod scroll 3 1
+	{
+		map textures/effects/envmapplas.tga
+		//tcmod scale 3 3
+		tcMod rotate 350
+		tcMod scroll 3 1
 		//tcGen environment
-		blendfunc GL_ONE GL_ZERO
-                rgbGen identity
-       }
-       {
-	        map models/powerups/ammo/plasammo.tga
-		blendfunc blend
-                rgbGen lightingDiffuse
-       }
+		rgbGen identity
+	}
+	{
+		diffuseMap models/powerups/ammo/plasammo.tga
+		rgbGen lightingDiffuse
+		alphaFunc GE128
+	}
 }
 
 models/powerups/ammo/plasammo1
@@ -4639,6 +4638,16 @@ models/weapons2/machinegun/f_machinegun
 //	models/weapons2/plasma subfolder		//
 //******************************************************//
 
+models/weapons2/plasma/plasma
+{
+	{
+		diffuseMap models/weapons2/plasma/plasma.tga
+		normalMap models/weapons2/plasma/plasma_n.tga
+		specularMap models/weapons2/plasma/plasma_s.tga
+		rgbGen lightingDiffuse
+	}
+}
+
 models/weapons2/plasma/f_plasma
 {
 	cull disable
@@ -4651,13 +4660,13 @@ models/weapons2/plasma/f_plasma
 
 models/weapons2/plasma/plasma_glass
 {
-
 	{
 		map textures/effects/tinfxb.tga
 		tcGen environment
-                tcMod scroll .01 .02
+		tcMod scroll .01 .02
 		blendfunc GL_ONE GL_ONE
 		rgbGen lightingDiffuse
+		//rgbGen identity
 	}
 }
 
