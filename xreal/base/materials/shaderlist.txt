@@ -1,7 +1,7 @@
 aaduffyTest
 alphalabs
-andy.mtr
-atest.mtr
+andy
+atest
 base_door
 base_floor
 base_light
@@ -61,6 +61,6 @@ tim
 tools
 vehicles
 video
-washroom
-weapons
+//washroom
+//weapons
 zgraeme

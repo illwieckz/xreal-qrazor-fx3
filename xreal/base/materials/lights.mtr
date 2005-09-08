@@ -135,27 +135,25 @@ lights/roundfire2
 	}
 }
 
-/*
-lights/popanimlight
-{
-
-	
-	{
-		forceHighQuality
-		map textures/particles/rocketstripsmall.tga
-		red 1
-		blue 0
-		green .5
-
-		scale 1 / 32 , 1
-		scroll table32[ time * 1.6 ] , 0
-		//rotate	( time * -.2 )
-		zeroclamp
-	}
-
-
-}
-*/
+// lights/popanimlight
+// {
+// 
+// 	
+// 	{
+// 		forceHighQuality
+// 		map textures/particles/rocketstripsmall.tga
+// 		red 1
+// 		blue 0
+// 		green .5
+// 
+// 		scale 1 / 32 , 1
+// 		scroll table32[ time * 1.6 ] , 0
+// 		//rotate	( time * -.2 )
+// 		zeroclamp
+// 	}
+// 
+// 
+// }
 
 lights/dropship
 {	
@@ -190,18 +188,17 @@ lights/falloff_exp2
 	}
 }
 
-/*
-lights/end_cin
-{	
-	{
-		forceHighQuality
-		map lights/end_cin
-		colored
-		zeroclamp
-		
-	}
-}
-*/
+
+// lights/end_cin
+// {	
+// 	{
+// 		forceHighQuality
+// 		map lights/end_cin
+// 		colored
+// 		zeroclamp
+// 		
+// 	}
+// }
 
 lights/headlights
 {	
@@ -251,19 +248,17 @@ lights/cloudscroll3
 	}
 }
 
-/*
-lights/cloudturn
-{	
-	{
-		forceHighQuality
-		map	lights/cloudturn
-		colored
-		rotate	time * -.03
-		zeroClamp
-		
-	}
-}
-*/
+// lights/cloudturn
+// {	
+// 	{
+// 		forceHighQuality
+// 		map	lights/cloudturn
+// 		colored
+// 		rotate	time * -.03
+// 		zeroClamp
+// 		
+// 	}
+// }
 
 lights/stormy1
 {	
@@ -315,28 +310,26 @@ lights/square_strobe_slow
 	}
 }
 
-/*
-lights/tempspectrum
-{
-	lightFalloffImage	makeintensity( lights/squarelight1a.tga )
-	spectrum 2
-	{
-		forceHighQuality
-		map lights/tempspectrum1.tga
-		colored
-		rotate		time
-		zeroClamp
-	}
-	{
-		forceHighQuality
-		map lights/tempspectrum2.tga
-		colored
-		rotate		time*-.5
-		zeroClamp
-	}
-
-}
-*/
+// lights/tempspectrum
+// {
+// 	lightFalloffImage	makeintensity( lights/squarelight1a.tga )
+// 	spectrum 2
+// 	{
+// 		forceHighQuality
+// 		map lights/tempspectrum1.tga
+// 		colored
+// 		rotate		time
+// 		zeroClamp
+// 	}
+// 	{
+// 		forceHighQuality
+// 		map lights/tempspectrum2.tga
+// 		colored
+// 		rotate		time*-.5
+// 		zeroClamp
+// 	}
+// 
+// }
 
 lights/spectrum2Light_round
 {
@@ -429,17 +422,17 @@ lights/newalphagrate1
 	}
 }
 
-/*
-lights/newalphagrate2
-{	
-	{
-		forceHighQuality
-		map	lights/newalphagrate2
-		colored
-		zeroClamp
-	}
-}
-*/
+
+// lights/newalphagrate2
+// {	
+// 	{
+// 		forceHighQuality
+// 		map	lights/newalphagrate2
+// 		colored
+// 		zeroClamp
+// 	}
+// }
+
 
 lights/newalphagrate3
 {	
@@ -563,19 +556,19 @@ lights/biground1_parmsndflicker
 	}
 }
 
-/*
-lights/flashlight4eric
-{
-	{
-		forceHighQuality
-		map	lights/flashlight4eric.tga
-		
-		zeroClamp
-		//colored
-		//rgb		eyestable[ time * .05 ] 
-	}
-}
-*/
+
+// lights/flashlight4eric
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/flashlight4eric.tga
+// 		
+// 		zeroClamp
+// 		//colored
+// 		//rgb		eyestable[ time * .05 ] 
+// 	}
+// }
+
 
 lights/grate8
 {	
@@ -688,19 +681,17 @@ lights/vivlight
 
 }
 
-/*
-lights/fullambient
-{
-	ambientLight
-	lightFalloffImage	makeintensity( lights/squarelight1c.tga )
-	{
-		forceHighQuality
-		map lights/fullambient.tga
-		colored
-		zeroClamp
-	}
-}
-*/
+// lights/fullambient
+// {
+// 	ambientLight
+// 	lightFalloffImage	makeintensity( lights/squarelight1c.tga )
+// 	{
+// 		forceHighQuality
+// 		map lights/fullambient.tga
+// 		colored
+// 		zeroClamp
+// 	}
+// }
 
 lights/grate6
 {	
@@ -736,18 +727,16 @@ lights/triangle1
 	}
 }
 
-/*
-lights/mch
-{	
-
-	{
-		forceHighQuality
-		map	lights/mch.tga
-		colored
-		zeroClamp
-	}
-}
-*/
+// lights/mch
+// {	
+// 
+// 	{
+// 		forceHighQuality
+// 		map	lights/mch.tga
+// 		colored
+// 		zeroClamp
+// 	}
+// }
 
 lights/rred
 {	
@@ -760,19 +749,17 @@ lights/rred
 	}
 }
 
-/*
-lights/pentflame
-{	
-
-	{
-		forceHighQuality
-		map	lights/pentflame.tga
-		colored
-		rotate	time * .2
-		zeroClamp
-	}
-}
-*/
+// lights/pentflame
+// {	
+// 
+// 	{
+// 		forceHighQuality
+// 		map	lights/pentflame.tga
+// 		colored
+// 		rotate	time * .2
+// 		zeroClamp
+// 	}
+// }
 
 lights/pentagram
 {	
@@ -811,19 +798,17 @@ lights/impflash
 	}
 }
 
-/*
-lights/redspawnflash
-{
-	{
-		forceHighQuality		
-		map lights/redspawnflash.tga
-		zeroClamp
-		rotate	time * 3.7
-		colored
-		//rgb		flickerblink[ time * 1 ]
-	}
-}
-*/
+// lights/redspawnflash
+// {
+// 	{
+// 		forceHighQuality		
+// 		map lights/redspawnflash.tga
+// 		zeroClamp
+// 		rotate	time * 3.7
+// 		colored
+// 		//rgb		flickerblink[ time * 1 ]
+// 	}
+// }
 
 lights/spectrumspawn30
 {
@@ -875,29 +860,27 @@ lights/baronflash
 	}
 }
 
-/*
-lights/flashlight4
-{
-	{
-		forceHighQuality
-		map	lights/flashlight4.tga
-		
-		zeroClamp
-		//colored
-		//rgb		eyestable[ time * .05 ] 
-	}
-}
-
-lights/default3DLight		// just for research
-{
-	{
-		forceHighQuality
-		map _cubicLight
-		colored
-		zeroClamp
-	}
-}
-*/
+// lights/flashlight4
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/flashlight4.tga
+// 		
+// 		zeroClamp
+// 		//colored
+// 		//rgb		eyestable[ time * .05 ] 
+// 	}
+// }
+// 
+// lights/default3DLight		// just for research
+// {
+// 	{
+// 		forceHighQuality
+// 		map _cubicLight
+// 		colored
+// 		zeroClamp
+// 	}
+// }
 
 lights/defaultPointLight
 {
@@ -991,17 +974,15 @@ lights/ambientLight2
 
 //parm 3=flicker speed	parm 4=offset
 
-/*
-lights/nofalloff
-{
-	{
-		forceHighQuality
-		map	lights/nofalloff.tga
-		colored
-		zeroClamp
-	}
-}
-*/
+// lights/nofalloff
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/nofalloff.tga
+// 		colored
+// 		zeroClamp
+// 	}
+// }
 
 lights/qcfloorvent01x
 {
@@ -1040,19 +1021,17 @@ lights/floorpgrate
 	}
 }
 
-/*
-lights/qc_comj
-{
-	{
-		forceHighQuality
-		map	lights/qc_comj.tga
-		colored
-		rgb		eyestable[ time * 1.1 ]
-		zeroClamp
-		rotate	time * 0.2
-	}
-}
-*/
+// lights/qc_comj
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/qc_comj.tga
+// 		colored
+// 		rgb		eyestable[ time * 1.1 ]
+// 		zeroClamp
+// 		rotate	time * 0.2
+// 	}
+// }
 
 lights/blamplight2
 {	
@@ -1350,18 +1329,16 @@ lights/round_flicker
 	}
 }
 
-/*
-lights/mlight01
 
-{
-	{
-		forceHighQuality
-		map	lights/mlight01.tga
-		colored
-		zeroClamp
-	}
-}
-*/
+// lights/mlight01
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/mlight01.tga
+// 		colored
+// 		zeroClamp
+// 	}
+// }
 
 lights/blur_cv
 {
@@ -1554,46 +1531,45 @@ lights/spot01_global
 	}
 }
 
-/*
-lights/flash
-{
-	{
-		forceHighQuality
-		map	lights/light.tga
-		rgb		flashtable[ time ]
-		zeroClamp
-	}
-}
 
-lights/onewaydown
-{	//falloff only goes in one direction.  should get rid of this once planar lights are implemented.
-	{
-		forceHighQuality
-		map	makeintensity( lights/onewaydown.tga )
-		zeroClamp
-	}
-}
-
-lights/oneway
-{	//falloff only goes in one direction.  should get rid of this once planar lights are implemented.
-	{
-		forceHighQuality
-		map	makeintensity( lights/oneway.tga )
-		zeroClamp
-	}
-}
-
-lights/blinds02
-{
-	{
-		forceHighQuality
-		map	lights/blinds02.tga
-		colored
-		rgb		eyestable[ time * .01 ]
-		zeroClamp
-	}
-}
-*/
+// lights/flash
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/light.tga
+// 		rgb		flashtable[ time ]
+// 		zeroClamp
+// 	}
+// }
+// 
+// lights/onewaydown
+// {	//falloff only goes in one direction.  should get rid of this once planar lights are implemented.
+// 	{
+// 		forceHighQuality
+// 		map	makeintensity( lights/onewaydown.tga )
+// 		zeroClamp
+// 	}
+// }
+// 
+// lights/oneway
+// {	//falloff only goes in one direction.  should get rid of this once planar lights are implemented.
+// 	{
+// 		forceHighQuality
+// 		map	makeintensity( lights/oneway.tga )
+// 		zeroClamp
+// 	}
+// }
+// 
+// lights/blinds02
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/blinds02.tga
+// 		colored
+// 		rgb		eyestable[ time * .01 ]
+// 		zeroClamp
+// 	}
+// }
 
 lights/duolight02
 {
@@ -1657,27 +1633,26 @@ lights/blamplighte3
 	}
 }
 
-/*
-lights/triangle
-{	
-	{
-		forceHighQuality
-		map	makeintensity( lights/triangle.tga )
-		colored
-		zeroClamp
-	}
-}
+// lights/triangle
+// {	
+// 	{
+// 		forceHighQuality
+// 		map	makeintensity( lights/triangle.tga )
+// 		colored
+// 		zeroClamp
+// 	}
+// }
+// 
+// lights/squarelight_split
+// {	
+// 	{
+// 		forceHighQuality
+// 		map	makeintensity( lights/squarelight_split.tga )
+// 		colored
+// 		zeroClamp
+// 	}
+// }
 
-lights/squarelight_split
-{	
-	{
-		forceHighQuality
-		map	makeintensity( lights/squarelight_split.tga )
-		colored
-		zeroClamp
-	}
-}
-*/
 
 lights/squarelight1a
 {	
@@ -1689,29 +1664,27 @@ lights/squarelight1a
 	}
 }
 
-/*
-lights/mars_light
-{
-	{
-		forceHighQuality
-		map	lights/mars.tga
-		colored
-		rgb		eyestable[ time * 1 ]
-		zeroClamp
-	}
-}
-
-lights/brucedemo1
-{
-	{
-		forceHighQuality
-		map	lights/crap02.tga
-		colored
-		//rgb		blinktable[ time * 1.6 ]
-		zeroClamp
-	}
-}
-*/
+// lights/mars_light
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/mars.tga
+// 		colored
+// 		rgb		eyestable[ time * 1 ]
+// 		zeroClamp
+// 	}
+// }
+// 
+// lights/brucedemo1
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/crap02.tga
+// 		colored
+// 		//rgb		blinktable[ time * 1.6 ]
+// 		zeroClamp
+// 	}
+// }
 
 lights/brucedemo2
 {
@@ -1724,18 +1697,16 @@ lights/brucedemo2
 	}
 }
 
-/*
-lights/floorvent01blue
-{
-	{
-		forceHighQuality
-		map	lights/floorvent01blue.tga
-		colored
-		rgb		eyestable[ time * .8 ]
-		zeroClamp
-	}
-}
-*/
+// lights/floorvent01blue
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/floorvent01blue.tga
+// 		colored
+// 		rgb		eyestable[ time * .8 ]
+// 		zeroClamp
+// 	}
+// }
 
 lights/floorvent01int
 {
@@ -1774,55 +1745,53 @@ lights/jethro_spot1
 	}
 }
 
-/*
-lights/floorvent02
-{
-	{
-		forceHighQuality
-		map	lights/floorvent01.tga
-		colored
-		rotate	time * .2
-		zeroClamp
-	}
-}
-
-lights/sarge_spot1
-{
-	{
-		forceHighQuality
-		map	lights/floorvent01.tga
-		colored
-		rgb		sargetable1[ time * .05 ]
-		//translate time *.2, time * 7
-		rotate	time * .2
-		zeroClamp
-	}
-}
-
-lights/sarge_spot2
-{
-	{
-		forceHighQuality
-		map	lights/flashlight.tga
-		colored
-		rgb		sargetable2[ time * .05 ]
-		rotate	time * .01
-		zeroClamp
-	}
-}
-
-lights/sarge_spot3
-{
-	{
-		forceHighQuality
-		map	lights/crap01.tga
-		colored
-		rgb		sargetable3[ time * .05 ]
-		rotate	time * 2
-		zeroClamp
-	}
-}
-*/
+// lights/floorvent02
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/floorvent01.tga
+// 		colored
+// 		rotate	time * .2
+// 		zeroClamp
+// 	}
+// }
+// 
+// lights/sarge_spot1
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/floorvent01.tga
+// 		colored
+// 		rgb		sargetable1[ time * .05 ]
+// 		//translate time *.2, time * 7
+// 		rotate	time * .2
+// 		zeroClamp
+// 	}
+// }
+// 
+// lights/sarge_spot2
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/flashlight.tga
+// 		colored
+// 		rgb		sargetable2[ time * .05 ]
+// 		rotate	time * .01
+// 		zeroClamp
+// 	}
+// }
+// 
+// lights/sarge_spot3
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/crap01.tga
+// 		colored
+// 		rgb		sargetable3[ time * .05 ]
+// 		rotate	time * 2
+// 		zeroClamp
+// 	}
+// }
 
 lights/grate4
 {
@@ -1835,18 +1804,18 @@ lights/grate4
 	}
 }
 
-/*
-lights/floorvent01
-{
-	{
-		forceHighQuality
-		map	lights/floorvent01.tga
-		colored
-		rgb		eyestable[ time * 1 ]
-		zeroClamp
-	}
-}
-*/
+
+// lights/floorvent01
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/floorvent01.tga
+// 		colored
+// 		rgb		eyestable[ time * 1 ]
+// 		zeroClamp
+// 	}
+// }
+
 
 lights/floorvent01x
 {
@@ -1859,72 +1828,70 @@ lights/floorvent01x
 	}
 }
 
-/*
-lights/crap01
-{
-	{
-		forceHighQuality
-		map	lights/crap01.tga
-		colored
-		rgb		eyestable[ time * .1 ]
-		zeroclamp
-	}
-}
-
-lights/senescrollight
-{
-	{
-		forceHighQuality
-		//slowpass
-		map	lights/senescrollight.tga
-		translate		( senescrollightable [Parm4 + (time * (0.1 * Parm3)) ]) , 0
-		red 		( senescrollightableA [Parm4 + (time * (0.1 * Parm3)) ]) * Parm0
-		green		( senescrollightableA [Parm4 + (time * (0.1 * Parm3)) ]) * Parm1
-		blue		( senescrollightableA [Parm4 + (time * (0.1 * Parm3)) ]) * Parm2
-
-		zeroclamp
-	}
-	{
-		forceHighQuality
-		//fastpass
-		map	lights/senescrollight.tga
-		translate		( senescrollightable [Parm4 + (time * (2 * Parm3)) ]) , 0
-		red 		( senescrollightableA [Parm4 + (time * (2 * Parm3)) ]) * Parm0
-		green		( senescrollightableA [Parm4 + (time * (2 * Parm3)) ]) * Parm1
-		blue		( senescrollightableA [Parm4 + (time * (2 * Parm3)) ]) * Parm2
-		zeroclamp
-	}
-}
-
-lights/squarelight1blue
-{
-	{
-		forceHighQuality
-		map	lights/squarelight1blue.tga
-		zeroclamp
-	}
-}
-
-lights/squarelight2a
-{
-	{
-		forceHighQuality
-		map	lights/squarelight2.tga
-		rgb		flashtable[ time ]
-		zeroclamp
-	}
-}
-
-lights/squarelight2
-{
-	{
-		forceHighQuality
-		map	lights/squarelight2.tga
-//		rgb		flashtable[ time ]
-		zeroclamp
-	}
-}
-*/
+// lights/crap01
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/crap01.tga
+// 		colored
+// 		rgb		eyestable[ time * .1 ]
+// 		zeroclamp
+// 	}
+// }
+// 
+// lights/senescrollight
+// {
+// 	{
+// 		forceHighQuality
+// 		//slowpass
+// 		map	lights/senescrollight.tga
+// 		translate		( senescrollightable [Parm4 + (time * (0.1 * Parm3)) ]) , 0
+// 		red 		( senescrollightableA [Parm4 + (time * (0.1 * Parm3)) ]) * Parm0
+// 		green		( senescrollightableA [Parm4 + (time * (0.1 * Parm3)) ]) * Parm1
+// 		blue		( senescrollightableA [Parm4 + (time * (0.1 * Parm3)) ]) * Parm2
+// 
+// 		zeroclamp
+// 	}
+// 	{
+// 		forceHighQuality
+// 		//fastpass
+// 		map	lights/senescrollight.tga
+// 		translate		( senescrollightable [Parm4 + (time * (2 * Parm3)) ]) , 0
+// 		red 		( senescrollightableA [Parm4 + (time * (2 * Parm3)) ]) * Parm0
+// 		green		( senescrollightableA [Parm4 + (time * (2 * Parm3)) ]) * Parm1
+// 		blue		( senescrollightableA [Parm4 + (time * (2 * Parm3)) ]) * Parm2
+// 		zeroclamp
+// 	}
+// }
+// 
+// lights/squarelight1blue
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/squarelight1blue.tga
+// 		zeroclamp
+// 	}
+// }
+// 
+// lights/squarelight2a
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/squarelight2.tga
+// 		rgb		flashtable[ time ]
+// 		zeroclamp
+// 	}
+// }
+// 
+// lights/squarelight2
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/squarelight2.tga
+// //		rgb		flashtable[ time ]
+// 		zeroclamp
+// 	}
+// }
 
 lights/twopass
 {
@@ -2031,107 +1998,105 @@ lights/xray02
 	}
 }
 
-/*
-lights/flashlight3
-{
-	{
-		forceHighQuality
-		map	lights/flashlight3.tga
-		zeroClamp
-		colored
-                rotate	time * .01
-	}
-}
-
-lights/flashlight3blue
-{
-	{
-		forceHighQuality
-		map	lights/flashlight3blue.tga
-		zeroClamp
-		colored
-                rotate	time * .01
-	}
-}	
-
-lights/grate3
-{
-	{
-		forceHighQuality
-		map lights/grate3.tga
-		zeroclamp
-		colored
-	}
-}
-
-lights/grate3x
-{
-	{
-		forceHighQuality
-		map lights/grate3x.tga
-		zeroclamp
-		colored
-	}
-}
-
-lights/bluetex2xlight
-{
-	{
-		forceHighQuality
-		map lights/bluetex2xlight.tga
-		zeroclamp
-		colored
-	}
-}
-
-lights/xray01
-{
-	{
-		forceHighQuality
-		map	lights/xray01.tga
-		zeroClamp
-		colored
-		rotate	time * 1
-	}
-	{
-		forceHighQuality
-		map	lights/xray01.tga
-		zeroClamp
-		colored
-		rotate	time * -3
-	}
-}
-
-lights/spot08
-{
-	{
-		forceHighQuality
-		map	lights/spot08.tga
-		zeroClamp
-		colored
-	}
-}
-
-lights/blur
-{
-	{
-		forceHighQuality
-		map	lights/blur.tga
-		zeroClamp
-		colored
-	}
-}
-
-lights/blur2
-{
-	{
-		forceHighQuality
-		map	lights/blur2.tga
-		zeroClamp
-		colored
-	}
-}
-*/
+// lights/flashlight3
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/flashlight3.tga
+// 		zeroClamp
+// 		colored
+//                 rotate	time * .01
+// 	}
+// }
+// 
+// lights/flashlight3blue
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/flashlight3blue.tga
+// 		zeroClamp
+// 		colored
+//                 rotate	time * .01
+// 	}
+// }	
+// 
+// lights/grate3
+// {
+// 	{
+// 		forceHighQuality
+// 		map lights/grate3.tga
+// 		zeroclamp
+// 		colored
+// 	}
+// }
+// 
+// lights/grate3x
+// {
+// 	{
+// 		forceHighQuality
+// 		map lights/grate3x.tga
+// 		zeroclamp
+// 		colored
+// 	}
+// }
+// 
+// lights/bluetex2xlight
+// {
+// 	{
+// 		forceHighQuality
+// 		map lights/bluetex2xlight.tga
+// 		zeroclamp
+// 		colored
+// 	}
+// }
+// 
+// lights/xray01
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/xray01.tga
+// 		zeroClamp
+// 		colored
+// 		rotate	time * 1
+// 	}
+// 	{
+// 		forceHighQuality
+// 		map	lights/xray01.tga
+// 		zeroClamp
+// 		colored
+// 		rotate	time * -3
+// 	}
+// }
+// 
+// lights/spot08
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/spot08.tga
+// 		zeroClamp
+// 		colored
+// 	}
+// }
+// 
+// lights/blur
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/blur.tga
+// 		zeroClamp
+// 		colored
+// 	}
+// }
+// 
+// lights/blur2
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/blur2.tga
+// 		zeroClamp
+// 		colored
+// 	}
+// }
 
 lights/rspot01drk
 {
@@ -2144,18 +2109,16 @@ lights/rspot01drk
 	}
 }
 
-/*
-lights/flashlight
-{
-	{
-		forceHighQuality
-		map	lights/flashlight.tga
-		
-		zeroClamp
-		colored
-	}
-}
-*/
+// lights/flashlight
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/flashlight.tga
+// 		
+// 		zeroClamp
+// 		colored
+// 	}
+// }
 
 lights/flashlight2
 {
@@ -2187,27 +2150,26 @@ lights/spot02
 	}
 }
 
-/*
-lights/stainedglass
-{
-	{
-		forceHighQuality
-		map	lights/stainedglass3.tga
-		zeroClamp
-		colored
-	}
-}
 
-lights/blurlight3
-{
-	{
-		forceHighQuality
-		map	lights/blur3.tga
-		zeroClamp
-		colored
-	}
-}
-*/
+// lights/stainedglass
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/stainedglass3.tga
+// 		zeroClamp
+// 		colored
+// 	}
+// }
+// 
+// lights/blurlight3
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/blur3.tga
+// 		zeroClamp
+// 		colored
+// 	}
+// }
 
 lights/redlight01
 {
@@ -2248,209 +2210,203 @@ lightspectrum
 	}
 }
 
-/*
-_spotlight
-{
-	{
-		forceHighQuality
-		map	_spotlight
-		zeroClamp
-		colored 
-	}
-}
-
-_pointLight1
-{
-	{
-		forceHighQuality
-		map	_pointLight1
-		zeroClamp
-		colored 
-	}
-}
-
-_pointLight2
-{
-	{
-		forceHighQuality
-		map	_pointLight2
-		zeroClamp
-		colored 
-	}
-}
-
-_pointLight3
-{
-	{
-		forceHighQuality
-		map	_pointLight3
-		zeroClamp
-		colored 
-	}
-}
-
-lights/windowLight
-{
-	{
-		forceHighQuality
-		map	lights/window
-		zeroClamp
-	}
-}
-
-lights/rotatingLight
-{
-	{
-		forceHighQuality
-		map	lights/spot05
-		zeroClamp
-		colored
-		rotate	time * 0.05
-	}
-}
-
-lights/swingingLight
-{
-	{
-		forceHighQuality
-		map	lights/spot05
-		//zeroClamp
-		colored
-		rotate	time * 3
-		scale	speaker_1[ time ] *0.75 + 0.25, speaker_1[ time ] *0.75 + 0.25
-		zeroClamp
-	}
-}
-
-lights/scalingLight
-{
-	{
-		forceHighQuality
-		map	lights/spot05
-		zeroClamp
-		colored
-		scale	scaleTable[time] * 0.25 + 0.75, scaleTable[time] * 0.25 + 0.75
-	}
-}
-
-lights/scaleRotateLight
-{
-	{
-		forceHighQuality
-		map	lights/spot05
-		zeroClamp
-		colored
-		scale	scaleTable[time], 2
-		rotate	time * 0.2
-	}
-}
-
-lights/rotateScaleLight
-{
-	{
-		forceHighQuality
-		map	lights/spot05
-		zeroClamp
-		colored
-		rotate	time * 0.2
-		scale	scaleTable[time], 2
-	}
-}
-*/
+// _spotlight
+// {
+// 	{
+// 		forceHighQuality
+// 		map	_spotlight
+// 		zeroClamp
+// 		colored 
+// 	}
+// }
+// 
+// _pointLight1
+// {
+// 	{
+// 		forceHighQuality
+// 		map	_pointLight1
+// 		zeroClamp
+// 		colored 
+// 	}
+// }
+// 
+// _pointLight2
+// {
+// 	{
+// 		forceHighQuality
+// 		map	_pointLight2
+// 		zeroClamp
+// 		colored 
+// 	}
+// }
+// 
+// _pointLight3
+// {
+// 	{
+// 		forceHighQuality
+// 		map	_pointLight3
+// 		zeroClamp
+// 		colored 
+// 	}
+// }
+// 
+// lights/windowLight
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/window
+// 		zeroClamp
+// 	}
+// }
+// 
+// lights/rotatingLight
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/spot05
+// 		zeroClamp
+// 		colored
+// 		rotate	time * 0.05
+// 	}
+// }
+// 
+// lights/swingingLight
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/spot05
+// 		//zeroClamp
+// 		colored
+// 		rotate	time * 3
+// 		scale	speaker_1[ time ] *0.75 + 0.25, speaker_1[ time ] *0.75 + 0.25
+// 		zeroClamp
+// 	}
+// }
+// 
+// lights/scalingLight
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/spot05
+// 		zeroClamp
+// 		colored
+// 		scale	scaleTable[time] * 0.25 + 0.75, scaleTable[time] * 0.25 + 0.75
+// 	}
+// }
+// 
+// lights/scaleRotateLight
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/spot05
+// 		zeroClamp
+// 		colored
+// 		scale	scaleTable[time], 2
+// 		rotate	time * 0.2
+// 	}
+// }
+// 
+// lights/rotateScaleLight
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/spot05
+// 		zeroClamp
+// 		colored
+// 		rotate	time * 0.2
+// 		scale	scaleTable[time], 2
+// 	}
+// }
 
 table shearTable { { -1, 0, 1, 0 } }
 
-/*
-lights/shearingLight
-{
-	{
-		forceHighQuality
-		map	lights/spot05
-		zeroClamp
-		colored
-		// shrink it down so we can distort it without
-		// going out of bounds
-		scale	2, 2
-		rotate	time * 0.2
-		// now shear it side to side
-		shear	shearTable[time] * 0.5, 0
-	}
-}
-
-lights/translatingLight
-{
-	{
-		forceHighQuality
-		map	lights/spot05
-		zeroClamp
-		colored
-
-		// there is enough border in the texture to let us move it this small
-		// amount without needing a downscale
-
-		// use two different scale values so the period of jitter doesn't seem so short
-		translate	0.05 * scaleTable[time], 0.05 * scaleTable[time*0.7]
-	}
-}
-*/
+// lights/shearingLight
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/spot05
+// 		zeroClamp
+// 		colored
+// 		// shrink it down so we can distort it without
+// 		// going out of bounds
+// 		scale	2, 2
+// 		rotate	time * 0.2
+// 		// now shear it side to side
+// 		shear	shearTable[time] * 0.5, 0
+// 	}
+// }
+// 
+// lights/translatingLight
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/spot05
+// 		zeroClamp
+// 		colored
+// 
+// 		// there is enough border in the texture to let us move it this small
+// 		// amount without needing a downscale
+// 
+// 		// use two different scale values so the period of jitter doesn't seem so short
+// 		translate	0.05 * scaleTable[time], 0.05 * scaleTable[time*0.7]
+// 	}
+// }
 
 table calRedTable { { 1, 0, 0 } }
 table calGreenTable { { 0, 1, 0 } }
 table calBlueTable { { 0, 0, 1 } }
 
-/*
-lights/colorAnimatingLight
-{
-	{
-		forceHighQuality
-		map	lights/spot05
-		zeroClamp
-		red		calRedTable[time*0.5]
-		green	calGreenTable[time*0.5]
-		blue	calBlueTable[time*0.5]
-	}
-}
-
-lights/doubleLight
-{
-	{
-		forceHighQuality
-		map	lights/spot07
-		zeroClamp
-		colored
-		rotate	time * 0.05
-	}
-	{
-		forceHighQuality
-		map	lights/spot05
-		zeroClamp
-		colored
-		scale	2, 2
-		shear	shearTable[time] * 2, 0
-		rotate	time * -0.05
-	}
-}
-
-lights/testFalloff
-{	// this is just a double bump for demonstrating custom falloffs
-	{
-		forceHighQuality
-		map	makeintensity( lights/testFalloff.tga )
-		zeroClamp
-	}
-}
-
-lights/xambient
-{
-	// xian's ambient texture volume thingy
-	{
-		forceHighQuality
-		map makeintensity (lights/xambient.tga)
-		zeroClamp
-		colored
-	}
-}
-*/
+// lights/colorAnimatingLight
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/spot05
+// 		zeroClamp
+// 		red		calRedTable[time*0.5]
+// 		green	calGreenTable[time*0.5]
+// 		blue	calBlueTable[time*0.5]
+// 	}
+// }
+// 
+// lights/doubleLight
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/spot07
+// 		zeroClamp
+// 		colored
+// 		rotate	time * 0.05
+// 	}
+// 	{
+// 		forceHighQuality
+// 		map	lights/spot05
+// 		zeroClamp
+// 		colored
+// 		scale	2, 2
+// 		shear	shearTable[time] * 2, 0
+// 		rotate	time * -0.05
+// 	}
+// }
+// 
+// lights/testFalloff
+// {	// this is just a double bump for demonstrating custom falloffs
+// 	{
+// 		forceHighQuality
+// 		map	makeintensity( lights/testFalloff.tga )
+// 		zeroClamp
+// 	}
+// }
+// 
+// lights/xambient
+// {
+// 	// xian's ambient texture volume thingy
+// 	{
+// 		forceHighQuality
+// 		map makeintensity (lights/xambient.tga)
+// 		zeroClamp
+// 		colored
+// 	}
+// }
 
 lights/xfalloff
 {
@@ -2529,7 +2485,7 @@ lights/duffysquarelight
 lights/xianspecial
 {	
 	
-	{if  ( (time + parm4) * Parm3 < 1.0 )
+	{ if  ( (time + parm4) * Parm3 < 1.0 )
 		forceHighQuality	
 		map	lights/squareishlight.tga
 		red		blinktable[ (time + parm4) * Parm3 ] * Parm0
@@ -2537,7 +2493,7 @@ lights/xianspecial
 		blue	blinktable[ (time + parm4) * Parm3 ] * Parm2
 		zeroClamp
 	}
-	{if  ( (time + parm4) * Parm3 >= 1.0 )
+	{ if  ( (time + parm4) * Parm3 >= 1.0 )
 		forceHighQuality
 		map	lights/squareishlight.tga
 		red		xianjittertable[ (time + parm4) * Parm3 - 1.0] * Parm0
@@ -2549,7 +2505,7 @@ lights/xianspecial
 
 lights/xianspecial_stages
 {	
-	{if ( parm7 == 0 )
+	{ if ( parm7 == 0 )
 		forceHighQuality
 		map	lights/squareishlight.tga
 		red		xianjittertable_low[ (time + parm4) * Parm3 ] * Parm0
@@ -2558,7 +2514,7 @@ lights/xianspecial_stages
 		zeroClamp
 	}
 
-	{if ( parm7 == 1)
+	{ if ( parm7 == 1)
 		forceHighQuality
 		map	lights/squareishlight.tga
 		red		blinktable[ (time + parm4) * Parm3 ] * Parm0
@@ -2566,7 +2522,7 @@ lights/xianspecial_stages
 		blue	blinktable[ (time + parm4) * Parm3 ] * Parm2
 		zeroClamp
 	}
-	{if  ( (time + parm4) * Parm3 >= 1.0 )
+	{ if  ( (time + parm4) * Parm3 >= 1.0 )
 		forceHighQuality
 		map	lights/squareishlight.tga
 		red		xianjittertable_hi[ (time + parm4) * Parm3 - 1.0] * Parm0
@@ -2576,47 +2532,43 @@ lights/xianspecial_stages
 	}
 }
 
-/*
-lights/medical_laserb
-{
-	{
-		forceHighQuality
-		map	lights/medicallaserb.tga
-		//translate	time * 0 , time *0.05
-		
-		
-	}
-}
-
-lights/medical_laser
-{
-	{
-		forceHighQuality
-		map	lights/medicallaser.tga
-		rotate	time *-0.035
-		zeroClamp
-		colored
-	}
-}
-*/
+// lights/medical_laserb
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/medicallaserb.tga
+// 		//translate	time * 0 , time *0.05
+// 		
+// 		
+// 	}
+// }
+// 
+// lights/medical_laser
+// {
+// 	{
+// 		forceHighQuality
+// 		map	lights/medicallaser.tga
+// 		rotate	time *-0.035
+// 		zeroClamp
+// 		colored
+// 	}
+// }
 
 //**************************************************Moved from duffyTest.mtr - start*****************************************************
 
 
 table slightdim { { 0.9, 1 } }
 
-/*
-lights/wlevel
-{
-	{
-		map	lights/patest.tga
-		colored
-		rgb		slightdim[ time * 0.01 ]
-		zeroClamp
-	}
-
-}
-*/
+// lights/wlevel
+// {
+// 	{
+// 		map	lights/patest.tga
+// 		colored
+// 		rgb		slightdim[ time * 0.01 ]
+// 		zeroClamp
+// 	}
+// 
+// }
 
 //**************************************************Moved from duffyTest.mtr - end*****************************************************
 
@@ -2640,18 +2592,16 @@ lights/newalphagrate1_flicker
 	}
 }
 
-/*
-lights/newalphagrate2_flicker
-{	
-	{
-		map	lights/newalphagrate2
-		red 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm0
-		green 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm1
-		blue 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm2
-		zeroclamp
-	}
-}
-*/
+// lights/newalphagrate2_flicker
+// {	
+// 	{
+// 		map	lights/newalphagrate2
+// 		red 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm0
+// 		green 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm1
+// 		blue 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm2
+// 		zeroclamp
+// 	}
+// }
 
 lights/newalphagrate3_flicker
 {	
@@ -2810,19 +2760,17 @@ lights/newalphagrate1_snd
 	}
 }
 
-/*
-lights/newalphagrate2_snd
-{	
-	{
-
-		map	lights/newalphagrate2
-		red 		sound * Parm0
-		green 		sound * Parm1
-		blue 		sound * Parm2
-		zeroClamp
-	}
-}
-*/
+// lights/newalphagrate2_snd
+// {	
+// 	{
+// 
+// 		map	lights/newalphagrate2
+// 		red 		sound * Parm0
+// 		green 		sound * Parm1
+// 		blue 		sound * Parm2
+// 		zeroClamp
+// 	}
+// }
 
 lights/newalphagrate3b_snd
 {	
@@ -3135,14 +3083,14 @@ lights/square_builduplight2
 
 lights/squarelight_breakable
 {
-	{if ( parm7 == 0 )
+	{ if ( parm7 == 0 )
 		map		lights/squarelight1.tga
 		red 		sound * Parm0
 		green 		sound * Parm1
 		blue 		sound * Parm2
 		zeroclamp
 	}
-	{if ( parm7 != 0 )
+	{ if ( parm7 != 0 )
 		map		lights/squarelight1.tga
 		red 		sound * Parm0
 		green 		sound * Parm1
@@ -3155,12 +3103,12 @@ lights/squarelight_breakable
 
 lights/squarelight_breakable_off
 {
-	{if ( parm7 == 0 )
+	{ if ( parm7 == 0 )
 		map	lights/squarelight1.tga
 		colored
 		zeroclamp
 	}
-	{if ( parm7 != 0 )
+	{ if ( parm7 != 0 )
 		map	lights/squarelight1.tga
 		zeroClamp
 		colored
@@ -3174,12 +3122,12 @@ lights/squarelight_breakable_off
 //malsswinglight for alpha lab
 lights/swinglight_breakable_off_1
 {
-	{if ( parm7 == 0 )
+	{ if ( parm7 == 0 )
 		map	lights/spot01.tga
 		colored
 		zeroclamp
 	}
-	{if ( parm7 != 0 )
+	{ if ( parm7 != 0 )
 		map	lights/spot01.tga
 		zeroClamp
 		colored

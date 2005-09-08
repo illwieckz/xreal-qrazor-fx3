@@ -1360,26 +1360,25 @@ models/particles/tracer/tracer1
 
 }
 
-/*
-models/particles/tracer/tracer2
 
-{
-	
-	noSelfShadow
-	translucent
-	noShadows
-	twosided
-	deform sprite
-	{
-		blend add
-		map models/particles/tracer/tracer2.tga
-		
-		zeroclamp
-	}
+// models/particles/tracer/tracer2
+// {
+// 	
+// 	noSelfShadow
+// 	translucent
+// 	noShadows
+// 	twosided
+// 	deform sprite
+// 	{
+// 		blend add
+// 		map models/particles/tracer/tracer2.tga
+// 		
+// 		zeroclamp
+// 	}
+// 
+// 
+// }
 
-
-}
-*/
 
 
 //textures/particles/hkball
@@ -2424,14 +2423,14 @@ textures/particles/duffybolt_white
 		translate	time * -0.6, 0
 		vertexcolor
 	}
-/*	
-	{
-		blend		add
-		map			textures/particles/duffybeam.tga
-		translate	time * 0.5, 0
-		vertexcolor
-	}	
-*/	
+	
+// 	{
+// 		blend		add
+// 		map			textures/particles/duffybeam.tga
+// 		translate	time * 0.5, 0
+// 		vertexcolor
+// 	}	
+
 }
 
 //textures/particles/duffyboltvert_white

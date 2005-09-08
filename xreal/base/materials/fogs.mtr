@@ -29,36 +29,34 @@ fogs/basicFog
 // in a given direction without caring about the viewer position
 
 
-/*
-fogs/sentest
-{
-	blendLight
-	noShadows
-	lightFalloffImage		shapes/pitFalloff2.tga	
-	{
-		blend		blend		
-		map			shapes/alphaSquare.tga
-		alphazeroclamp
-		colored
-	}
-}
-
-
-fogs/pitFog
-{
-	blendLight
-	noShadows
-	lightFalloffImage		shapes/pitFalloff.tga	// white in color channel, 
-											// alpha ramps from 0 to 255, then stays at 255 a bit,
-											// than has another 0 at the other end
-	{
-		blend		blend		// alpha blend on surfaces
-		map			shapes/alphaSquare.tga		// solid white in color, single pixel alpha border
-		alphazeroclamp			// make sure it doesn't bleed over the edges
-		colored					// take rgba from entity shaderparms
-	}
-}
-*/
+// fogs/sentest
+// {
+// 	blendLight
+// 	noShadows
+// 	lightFalloffImage		shapes/pitFalloff2.tga	
+// 	{
+// 		blend		blend		
+// 		map			shapes/alphaSquare.tga
+// 		alphazeroclamp
+// 		colored
+// 	}
+// }
+// 
+// 
+// fogs/pitFog
+// {
+// 	blendLight
+// 	noShadows
+// 	lightFalloffImage		shapes/pitFalloff.tga	// white in color channel, 
+// 											// alpha ramps from 0 to 255, then stays at 255 a bit,
+// 											// than has another 0 at the other end
+// 	{
+// 		blend		blend		// alpha blend on surfaces
+// 		map			shapes/alphaSquare.tga		// solid white in color, single pixel alpha border
+// 		alphazeroclamp			// make sure it doesn't bleed over the edges
+// 		colored					// take rgba from entity shaderparms
+// 	}
+// }
 
 fogs/pitFog_to_black
 {

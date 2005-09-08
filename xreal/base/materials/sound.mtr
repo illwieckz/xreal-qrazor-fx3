@@ -59,11 +59,11 @@ lights/duolight02_snd_cv
 	}
 }
 
-/***
- DO NOT EVER CHANGE THE BELOW SHADER ! (lights/squarelight1_snd)
- IT WORKS ! Copy it and create a new entry if you must.
- -Xian
-***/
+
+//  DO NOT EVER CHANGE THE BELOW SHADER ! (lights/squarelight1_snd)
+//  IT WORKS ! Copy it and create a new entry if you must.
+//  -Xian
+
 
 lights/squarelight1_snd
 {	
@@ -183,14 +183,14 @@ lights/squarelight_breakable_softer
 
 lights/blamplight_still_cv_breakable_softer
 {
-	{if ( parm7 == 0 )
+	{ if ( parm7 == 0 )
 		map	lights/blamplight_cv.tga
 		red 		( 0.75 + ( 0.25 * sound ) ) * Parm0
 		green		( 0.75 + ( 0.25 * sound ) ) * Parm1
 		blue 		( 0.75 + ( 0.25 * sound ) ) * Parm2
 		zeroclamp
 	}
-	{if ( parm7 != 0 )
+	{ if ( parm7 != 0 )
 		map	lights/blamplight_cv.tga
 		red 		( 0.75 + ( 0.25 * sound ) ) * Parm0
 		green		( 0.75 + ( 0.25 * sound ) ) * Parm0

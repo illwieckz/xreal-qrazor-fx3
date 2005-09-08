@@ -608,31 +608,31 @@ textures/enpro/enwall9
 	diffusemap			textures/enpro/enwall9
 	specularmap			textures/enpro/enwall9_s
 }
-/**
-textures/enpro/enwall8a6
-{
-	qer_editorimage		textures/enpro/enwall8a6
-	bumpmap				textures/enpro/enwall8a_local
-	{
-		blend			diffusemap			
-		map				textures/enpro/enwall8a6
-		scale			0.5,1
-	}
-	{
-		blend			specularmap			
-		map				textures/enpro/enwall8a6_s
-		scale			0.5,1
-	}
-}
 
-textures/enpro/enwall8a5
-{
-	qer_editorimage		textures/enpro/enwall8a5
-	bumpmap				textures/enpro/enwall8_local
-	diffusemap			textures/enpro/enwall8a5
-	specularmap			textures/enpro/enwall8a5_s
-}
-**/
+// textures/enpro/enwall8a6
+// {
+// 	qer_editorimage		textures/enpro/enwall8a6
+// 	bumpmap				textures/enpro/enwall8a_local
+// 	{
+// 		blend			diffusemap			
+// 		map				textures/enpro/enwall8a6
+// 		scale			0.5,1
+// 	}
+// 	{
+// 		blend			specularmap			
+// 		map				textures/enpro/enwall8a6_s
+// 		scale			0.5,1
+// 	}
+// }
+// 
+// textures/enpro/enwall8a5
+// {
+// 	qer_editorimage		textures/enpro/enwall8a5
+// 	bumpmap				textures/enpro/enwall8_local
+// 	diffusemap			textures/enpro/enwall8a5
+// 	specularmap			textures/enpro/enwall8a5_s
+// }
+
 textures/enpro/enwall8a4
 {
 	qer_editorimage		textures/enpro/enwall8a4

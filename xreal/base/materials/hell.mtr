@@ -1163,37 +1163,33 @@ textures/hell/lava1movenoshadow
 	}
  }
 
-/*
-
-textures/hell/lava1movenoshadow
-{
-	qer_editorimage		textures/hell/lava1.tga
-	 noSelfShadow
-	    noshadows
-	    	
-	{
-		blend 		diffusemap
-		map		textures/hell/lava1.tga
-		translate	time * 0 , time * -0.1
-	} 
-	{
-		blend 		bumpmap
-		map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
-		translate	time * 0 , time * -0.1
-	} 
-	{
-		blend 		specularmap
-		map		textures/hell/lava1_s.tga
-	}   
-	{
-		blend add
-		map textures/hell/lava1fx.tga
-		rgb		fireballtable[ time * .5 ]
-		translate	time * 0 , time * -0.1
-	}
- }
-
-*/
+// textures/hell/lava1movenoshadow
+// {
+// 	qer_editorimage		textures/hell/lava1.tga
+// 	 noSelfShadow
+// 	    noshadows
+// 	    	
+// 	{
+// 		blend 		diffusemap
+// 		map		textures/hell/lava1.tga
+// 		translate	time * 0 , time * -0.1
+// 	} 
+// 	{
+// 		blend 		bumpmap
+// 		map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+// 		translate	time * 0 , time * -0.1
+// 	} 
+// 	{
+// 		blend 		specularmap
+// 		map		textures/hell/lava1_s.tga
+// 	}   
+// 	{
+// 		blend add
+// 		map textures/hell/lava1fx.tga
+// 		rgb		fireballtable[ time * .5 ]
+// 		translate	time * 0 , time * -0.1
+// 	}
+//  }
 
 textures/hell/dirt02sharprock02noshadow
 {
@@ -1630,36 +1626,34 @@ textures/hell/blood_stream1
 //		specularmap	    textures/hell/bushes_s.tga
 //}
 
-/*
-models/kenneth/tunnel
-{
-        noSelfShadow
-		//unsmoothedTangents
-renderbump  -size 2048 1024 -trace .2  -colorMap -aa 2 models/kenneth/tunnel_local.tga models/kenneth/tunnel_hi.lwo
-
-
-
-        	
-		//  bumpmap		addnormals( models/kenneth/tunnel_local.tga, heightmap( models/kenneth/tunnel_h.tga, 7 ) )
-	{ 
-            blend	bumpmap
-	 		map	addnormals( models/kenneth/tunnel_local.tga, heightmap( models/kenneth/tunnel_h.tga, 7 ) )
-			translate	time * -.1 , time * -0.1
-	}
-	{ 
-            blend	diffusemap
-	 		map	models/kenneth/tunnel.tga
-			translate	time * .047 , time * .03
-	}
-	{ 
-        	blend	specularmap
-	 		map	models/kenneth/tunnel_s.tga
-			//translate	time * .02 , time * -0.4
-	}
-   
-    
-}
-*/
+// models/kenneth/tunnel
+// {
+//         noSelfShadow
+// 		//unsmoothedTangents
+// renderbump  -size 2048 1024 -trace .2  -colorMap -aa 2 models/kenneth/tunnel_local.tga models/kenneth/tunnel_hi.lwo
+// 
+// 
+// 
+//         	
+// 		//  bumpmap		addnormals( models/kenneth/tunnel_local.tga, heightmap( models/kenneth/tunnel_h.tga, 7 ) )
+// 	{ 
+//             blend	bumpmap
+// 	 		map	addnormals( models/kenneth/tunnel_local.tga, heightmap( models/kenneth/tunnel_h.tga, 7 ) )
+// 			translate	time * -.1 , time * -0.1
+// 	}
+// 	{ 
+//             blend	diffusemap
+// 	 		map	models/kenneth/tunnel.tga
+// 			translate	time * .047 , time * .03
+// 	}
+// 	{ 
+//         	blend	specularmap
+// 	 		map	models/kenneth/tunnel_s.tga
+// 			//translate	time * .02 , time * -0.4
+// 	}
+//    
+//     
+// }
 
 textures/hell/wood1
 {
@@ -4817,7 +4811,7 @@ textures/hell/cracked1_lavascroll
 		scale		2,2
 		vertexColor
 	}
-	{//black verts
+	{ //black verts
 		blend		bumpmap
 		map		    addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
 		scale		2,2
@@ -4864,7 +4858,7 @@ textures/hell/hhconcrete_bustage
 	stone
 	noSelfShadow
     noshadows
-	{//white verts
+	{ //white verts
 		blend 		bumpmap
 		map		    addnormals( textures/hell/hhconcrete_local.tga, heightmap( textures/hell/hhconcrete_h.tga, 8 ) )
 		scale		0.5,0.5
@@ -4882,7 +4876,7 @@ textures/hell/hhconcrete_bustage
 		vertexColor
 	}
 
-	{//black verts
+	{ //black verts
 		blend		bumpmap
 		map		    textures/hell/bustage_local
 	}
@@ -4901,7 +4895,7 @@ textures/hell/hhconcrete_bustage
 textures/hell/lavascroll_lava21hell_hub
 {
 	qer_editorimage		textures/hell/lavascroll_lava21hell_hub
-	{//white verts
+	{ //white verts
 		blend 		bumpmap
 		map		    textures/hell/hhlava_local.tga
 		translate	time * 0 , time * -0.02
@@ -4928,7 +4922,7 @@ textures/hell/lavascroll_lava21hell_hub
 		vertexColor
 	}
 
-	{//black verts
+	{ //black verts
 		blend		bumpmap
 		map		    addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
 		scale		2,2
@@ -5162,26 +5156,26 @@ textures/hell/lfwall27alava
 		map			textures/hell/lfwall27alava_s
 		inverseVertexColor
 	}
-/*	{
-		map			textures/hell/lfwall27alava_add
-		scale		.5,.5
-		maskcolor
-	}
-	{
-		blend		gl_dst_alpha , gl_one
-		map			textures/hell/lfwall27alava_add
-		scale		.5,.5
-		translate	time*.1,time*.1
-		rgb			ember1[time*.1]
-		inverseVertexColor
-	}
-	{
-		blend		gl_dst_alpha , gl_one
-		map			textures/hell/lfwall27alava_add
-		scale		.5,.5
-		translate	time*.02,time*-.1
-		inverseVertexColor
-	}*/
+// 	{
+// 		map			textures/hell/lfwall27alava_add
+// 		scale		.5,.5
+// 		maskcolor
+// 	}
+// 	{
+// 		blend		gl_dst_alpha , gl_one
+// 		map			textures/hell/lfwall27alava_add
+// 		scale		.5,.5
+// 		translate	time*.1,time*.1
+// 		rgb			ember1[time*.1]
+// 		inverseVertexColor
+// 	}
+// 	{
+// 		blend		gl_dst_alpha , gl_one
+// 		map			textures/hell/lfwall27alava_add
+// 		scale		.5,.5
+// 		translate	time*.02,time*-.1
+// 		inverseVertexColor
+// 	}
 }
 
 

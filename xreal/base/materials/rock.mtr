@@ -558,7 +558,7 @@ textures/rock/sharprock_dark_cracked1
 		map			textures/rock/sharprock_dark_s
 		vertexColor
 	}
-	{//black verts
+	{ //black verts
 		blend 		bumpmap
 		map			addnormals( textures/hell/cracked1_local.tga, heightmap( textures/hell/cracked1_h.tga, 6 ) )
 		scale		2,2

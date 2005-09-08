@@ -2317,15 +2317,14 @@ textures/sfx/refract {
 		rgba refract[ time * 0.4 ] * 0.5
 		scroll	sintable[time * 0.08], time * 1.14
 	}
-/*	
-	{
-	 	 blend	blend
-		map textures/particles/smokepuff.tga
-		//scroll 0, time * 0.1
-		alpha refract[ time * 0.1 ] * 0.2
-		//scale	 16 , 16
-	}
-*/	
+	
+// 	{
+// 	 	 blend	blend
+// 		map textures/particles/smokepuff.tga
+// 		//scroll 0, time * 0.1
+// 		alpha refract[ time * 0.1 ] * 0.2
+// 		//scale	 16 , 16
+// 	}
 }
 
 

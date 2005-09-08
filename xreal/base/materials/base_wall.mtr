@@ -12,7 +12,7 @@ table senetable3 { { 1, .9, .5, .8, .4, 1, .5, 1, 0, .5, 1, .4, .9, 0 } }
 table bfgguy_Vtable { { .35, 1 } }
 table senescrollightable2 { { .25, 1, 0, 0 } }
 table flickertable { { 1, .75 } }
-table mattyzaptable  {{0, 0, 0,0, 0, 0,0, 0, 0, 0,1,1  } }
+table mattyzaptable  { { 0, 0, 0,0, 0, 0,0, 0, 0, 0,1,1  } }
 
 textures/base_wall/lfwall10_zap
 {
@@ -2244,19 +2244,18 @@ textures/base_wall/a_snpanel15_d02
 //	specularmap		textures/base_wall/a_lfwall13a_s
 //}
 
-/*  duplicate shader
-textures/base_wall/lfwall12b2
-{
-	qer_editorimage	textures/base_wall/lfwall12b2
-	{
-		blend		bumpmap			
-		map			textures/base_wall/lfwall12b_local
-		
-	}
-	diffusemap		textures/base_wall/lfwall12b2
-	specularmap		textures/base_wall/lfwall12b_s
-}
-*/
+//  duplicate shader
+//textures/base_wall/lfwall12b2
+//{
+//	qer_editorimage	textures/base_wall/lfwall12b2
+//	{
+//		blend		bumpmap			
+//		map			textures/base_wall/lfwall12b_local
+//		
+//	}
+//	diffusemap		textures/base_wall/lfwall12b2
+//	specularmap		textures/base_wall/lfwall12b_s
+//}
 
 //textures/base_wall/a_lfwall12a2
 //{
@@ -4802,17 +4801,15 @@ textures/base_wall/lfwall27a
 	specularmap		textures/base_wall/lfwall27a_s
 }
 
-/*
-textures/base_wall/lfwall27
-{
-	{
-		blend			bumpmap			
-		map				addnormals (textures/base_wall/lfwall27_local, heightmap (textures/base_wall/lfwall27_bmp.tga,4) ) 
-	}
-		diffusemap		textures/base_wall/lfwall27
-		specularmap		textures/base_wall/lfwall27_s
-}
-*/
+//textures/base_wall/lfwall27
+//{
+//	{
+//		blend			bumpmap			
+//		map				addnormals (textures/base_wall/lfwall27_local, heightmap (textures/base_wall/lfwall27_bmp.tga,4) ) 
+//	}
+//		diffusemap		textures/base_wall/lfwall27
+//		specularmap		textures/base_wall/lfwall27_s
+//}
 
 textures/base_wall/lfwall26
 {
@@ -5145,13 +5142,12 @@ textures/base_wall/lfwall14b
 //	specularmap		textures/base_wall/lfwall14a_s
 //}
 
-/*textures/base_wall/lfwall14				//Big 1024 X 256 lfwall4 layout
-{
-		bumpmap			textures/base_wall/lfwall14_local
-		diffusemap		textures/base_wall/lfwall14
-		specularmap		textures/base_wall/lfwall14_s
-}
-*/
+//textures/base_wall/lfwall14				//Big 1024 X 256 lfwall4 layout
+//{
+//		bumpmap			textures/base_wall/lfwall14_local
+//		diffusemap		textures/base_wall/lfwall14
+//		specularmap		textures/base_wall/lfwall14_s
+//}
 
 //textures/base_wall/lfwall13g5
 //{
@@ -5183,7 +5179,7 @@ textures/base_wall/lfwall13g3_fire
 	bumpmap			textures/base_wall/lfwall13g_local
 	diffusemap		textures/base_wall/lfwall13g3
 	specularmap		textures/base_wall/lfwall13g3_s
-	{if ( global1 != 1 )
+	{ if ( global1 != 1 )
 		blend		add
 		map			models/mapobjects/enpro/dm_cylinder2_add
 		//rotate		time
@@ -5193,7 +5189,7 @@ textures/base_wall/lfwall13g3_fire
 		green		.85 * (1 - global1)
 		blue		.85 * (1 - global1)
 	}
-	{if ( global1 != 1 )
+	{ if ( global1 != 1 )
 		blend		add
 		map			models/mapobjects/enpro/dm_cylinder2_add
 		translate	time * -1, time
@@ -5364,25 +5360,25 @@ textures/base_wall/lfwall12a2
 //	specularmap		textures/base_wall/lfwall12a_s
 //}
 
-/*textures/base_wall/lfwall13
-{
-		qer_editorimage	textures/base_wall/lfwall13
-		bumpmap			textures/base_wall/lfwall13_local
-		diffusemap		textures/base_wall/lfwall13
-		specularmap		textures/base_wall/lfwall13_s
-}
+//textures/base_wall/lfwall13
+//{
+//		qer_editorimage	textures/base_wall/lfwall13
+//		bumpmap			textures/base_wall/lfwall13_local
+//		diffusemap		textures/base_wall/lfwall13
+//		specularmap		textures/base_wall/lfwall13_s
+//}
 
-textures/base_wall/lfwall12
-{
-		{
-			blend		bumpmap			
-			map			textures/base_wall/lfwall12_local
-			
-		}
-		diffusemap		textures/base_wall/lfwall12
-		specularmap		textures/base_wall/lfwall12_s
-}
-*/
+//textures/base_wall/lfwall12
+//{
+//		{
+//			blend		bumpmap			
+//			map			textures/base_wall/lfwall12_local
+//			
+//		}
+//		diffusemap		textures/base_wall/lfwall12
+//		specularmap		textures/base_wall/lfwall12_s
+//}
+
 //textures/base_wall/lfwall11c
 //{
 //	qer_editorimage textures/base_wall/lfwall11c
@@ -5755,13 +5751,13 @@ textures/base_wall/sopanel34
 	specularmap			textures/base_wall/sopanel34_s.tga
 }
 
-/*textures/base_wall/sopanel33b
-{
-	qer_editorimage		textures/base_wall/sopanel33b.tga
-	bumpmap				textures/base_wall/sopanel33b_local.tga
-	diffusemap			textures/base_wall/sopanel33b.tga
-	specularmap			textures/base_wall/sopanel33b_s.tga
-}*/
+//textures/base_wall/sopanel33b
+//{
+//	qer_editorimage		textures/base_wall/sopanel33b.tga
+//	bumpmap				textures/base_wall/sopanel33b_local.tga
+//	diffusemap			textures/base_wall/sopanel33b.tga
+//	specularmap			textures/base_wall/sopanel33b_s.tga
+//}
 
 textures/base_wall/sopanel33a
 {
@@ -6107,37 +6103,37 @@ textures/base_wall/sopanel19_broken
 textures/base_wall/sopanel19a
 {
 	qer_editorimage	textures/base_wall/sopanel19a.tga
-	{if ( parm7 == 0 )
+	{ if ( parm7 == 0 )
 			blend	bumpmap			
 			map		textures/base_wall/sopanel19_local.tga
 	}
-	{if ( parm7 == 0 )
+	{ if ( parm7 == 0 )
 		blend		diffusemap		
 		map			textures/base_wall/sopanel19a.tga
 	}
-	{if ( parm7 == 0 )
+	{ if ( parm7 == 0 )
 		blend		specularmap		
 		map			textures/base_wall/sopanel19_s.tga
 	}
-	{if ( parm7 == 0 )
+	{ if ( parm7 == 0 )
 		blend		add
 		map			textures/base_wall/sopanel19a_add.tga
 		colored
 	}
 	//
-	{if ( parm7 != 0 )
+	{ if ( parm7 != 0 )
 			blend	bumpmap			
 			map		textures/base_wall/sopanel19_local.tga
 	}
-	{if ( parm7 != 0 )
+	{ if ( parm7 != 0 )
 		blend		diffusemap		
 		map			textures/base_wall/sopanel19a2.tga
 	}
-	{if ( parm7 != 0 )
+	{ if ( parm7 != 0 )
 		blend		specularmap		
 		map			textures/base_wall/sopanel19a2_s.tga
 	}
-	{if ( parm7 != 0 )
+	{ if ( parm7 != 0 )
 		blend		add
 		map			textures/base_wall/sopanel19a2_add.tga
 		colored
@@ -6162,21 +6158,20 @@ textures/base_wall/sopanel19
 		map		textures/base_wall/sopanel19_add.tga
 	}
 
-/**
-	{if ( parm7 != 0 )
-		blend		bumpmap
-		map		addnormals(textures/base_wall/sopanel19_local.tga, heightmap (textures/base_wall/sopanel19_bmp2.tga, 4 ) )
-	}
-	{if ( parm7 != 0 )
-		blend		specularmap
-		map		textures/base_wall/sopanel19_s2.tga
-	}
-	{if ( parm7 != 0 )
-		blend		add
-		map		textures/base_wall/sopanel19_add2.tga
-		colored
-	}
-**/
+
+//	{ if ( parm7 != 0 )
+//		blend		bumpmap
+//		map		addnormals(textures/base_wall/sopanel19_local.tga, heightmap (textures/base_wall/sopanel19_bmp2.tga, 4 ) )
+//	}
+//	{ if ( parm7 != 0 )
+//		blend		specularmap
+//		map		textures/base_wall/sopanel19_s2.tga
+//	}
+//	{ if ( parm7 != 0 )
+//		blend		add
+//		map		textures/base_wall/sopanel19_add2.tga
+//		colored
+//	}
 }
 
 textures/base_wall/sopanel18_shadow
@@ -7458,15 +7453,13 @@ textures/base_wall/skpanel17a_d
 	specularmap		textures/base_wall/skpanel17_s.tga
 }
 
-/**
-textures/base_wall/skpanel17
-{
-	qer_editorimage		textures/base_wall/skpanel17.tga
-	bumpmap			textures/base_wall/skpanel17_local.tga
-	diffusemap		textures/base_wall/skpanel17_d.tga
-	specularmap		textures/base_wall/skpanel17_s.tga
-}
-**/
+//textures/base_wall/skpanel17
+//{
+//	qer_editorimage		textures/base_wall/skpanel17.tga
+//	bumpmap			textures/base_wall/skpanel17_local.tga
+//	diffusemap		textures/base_wall/skpanel17_d.tga
+//	specularmap		textures/base_wall/skpanel17_s.tga
+//}
 
 textures/base_wall/skpanel16a
 {

@@ -171,7 +171,8 @@ textures/cameraView1
 //
 //}
 
-material particles/flowingblood {
+particles/flowingblood
+{
 	noSelfShadow
 	//noShadows
 	//twosided
@@ -203,11 +204,11 @@ material particles/flowingblood {
 			vertexcolor
 			
 	}
-
 }
 
 
-guisurfs/guipreview {
+guisurfs/guipreview
+{
 	qer_editorimage	textures/editor/entitygui.tga
 	guiSurf	guis/mainmenu.gui
 }
@@ -260,46 +261,43 @@ guisurfs/guiremap8
 	discrete
 }
 
-/*
-guisurfs/moongui_1
-{	
-	qer_editorimage	guisurfaces/guisurface.tga
-	guiSurf badgui
-	discrete
-}
+//guisurfs/moongui_1
+//{	
+//	qer_editorimage	guisurfaces/guisurface.tga
+//	guiSurf badgui
+//	discrete
+//}
 
-guisurfs/pattest
-{	
-	qer_editorimage	guisurfs/guisurface.tga
-	guiSurf guis/patd/po.gui
-	discrete
-}
+//guisurfs/pattest
+//{	
+//	qer_editorimage	guisurfs/guisurface.tga
+//	guiSurf guis/patd/po.gui
+//	discrete
+//}
 
-guisurfs/testgui
-{	
-	qer_editorimage	guisurfaces/guisurface.tga
-	guiSurf guis/patd/po.gui
-	discrete
-	description "A test gui surface"
-}
+//guisurfs/testgui
+//{	
+//	qer_editorimage	guisurfaces/guisurface.tga
+//	guiSurf guis/patd/po.gui
+//	discrete
+//	description "A test gui surface"
+//}
 
-guisurfs/videopanel_1
-{	
-	qer_editorimage	guisurfs/guisurface.tga
-	guiSurf badgui
-	discrete
-}
+//guisurfs/videopanel_1
+//{	
+//	qer_editorimage	guisurfs/guisurface.tga
+//	guiSurf badgui
+//	discrete
+//}
 
-guisurfs/wallpanel_1
-{	
-	qer_editorimage	guisurfaces/guisurface.tga
-	guiSurf badgui
-	discrete
-}
-*/
+//guisurfs/wallpanel_1
+//{	
+//	qer_editorimage	guisurfaces/guisurface.tga
+//	guiSurf badgui
+//	discrete
+//}
 
-//*************************************************Moved from object.mtr - start*******************************************************
-
+// Moved from object.mtr - start
 
 textures/gui/remap1
 {
@@ -338,20 +336,18 @@ guisurfs/hazard1
 	discrete
 }
 
-/*
-guisurfs/hazard2
-{	
-	qer_editorimage	guisurfs/guisurface.tga
-	guiSurf guis/doors/pressure1.gui
-	discrete
-}
-*/
+//guisurfs/hazard2
+//{	
+//	qer_editorimage	guisurfs/guisurface.tga
+//	guiSurf guis/doors/pressure1.gui
+//	discrete
+//}
 
 
-//*************************************************Moved from object.mtr - end*******************************************************
+// *************************************************Moved from object.mtr - end*******************************************************
 
 
-//*************************************************Moved from sfx.mtr - start*******************************************************
+// *************************************************Moved from sfx.mtr - start*******************************************************
 
 
 //textures\guisurfaces\monglass2
@@ -395,28 +391,26 @@ guisurfs/hazard2
 
 
 
-//*************************************************Moved from sfx.mtr - end*******************************************************
+// *************************************************Moved from sfx.mtr - end*******************************************************
 
 
-//*************************************************Moved from duffyTest.mtr - start*******************************************************
+// *************************************************Moved from duffyTest.mtr - start*******************************************************
 
-/*
-__test/blink
-{
-	qer_editorimage 	textures/base_wall/blupaintedmetalcomp
-}
-*/
+//__test/blink
+//{
+//	qer_editorimage 	textures/base_wall/blupaintedmetalcomp
+//}
 
-__test/blink223
-{
-	qer_editorimage 	textures/lab/medtile01_d.tga
-}
+//test/blink223
+//{
+//	qer_editorimage 	textures/lab/medtile01_d.tga
+//}
 
 
-//*************************************************Moved from duffyTest.mtr - end*******************************************************
+// Moved from duffyTest.mtr
 
 
-//******************* _emptyname shader from rich_is_bored************************************
+// ******************* _emptyname shader from rich_is_bored************************************
 
 _emptyname
 {
@@ -426,4 +420,4 @@ _emptyname
 
 
 
-//Verified good complete by Eutectic - Nov 29-04
+// Verified good complete by Eutectic - Nov 29-04
