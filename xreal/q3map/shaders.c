@@ -325,6 +325,29 @@ static void ParseShaderFile( const char *filename ) {
 		if ( !GetToken( qtrue ) ) {
 			break;
 		}
+		
+		// skip shader tables
+		if( !Q_stricmp( token, "table" ) )
+		{
+			qboolean firstBracket = qfalse;
+		
+			while( 1 )
+			{
+				if( !GetToken( qtrue ) )
+					break;
+				if( strstr( token, "}" ) )
+				{
+					if( firstBracket )
+						break;
+					else
+					{
+						firstBracket = qtrue;
+					}
+				}
+			}
+			
+			continue;
+		}
 
 		si = AllocShaderInfo();
 		strcpy( si->shader, token );

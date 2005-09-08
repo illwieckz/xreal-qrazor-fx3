@@ -1666,6 +1666,40 @@ static void ParseSurfaceParm(char **text)
 	}
 }
 
+static void ParseDiffuseMap(shaderStage_t * stage, char **text)
+{
+	char           *token;
+	
+	stage->active = qtrue;
+	
+	token = COM_ParseExt(text, qfalse);
+	if(!token[0])
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: missing parameter for 'diffusemap' shader keyword in shader '%s'\n", shader.name);
+		return;
+	}
+
+	if(!Q_stricmp(token, "$whiteimage") || !Q_stricmp(token, "$white"))
+	{
+		stage->bundle[TB_DIFFUSEMAP].isDiffuseMap = qtrue;
+		stage->bundle[TB_DIFFUSEMAP].image[0] = tr.whiteImage;
+	}
+	if(!Q_stricmp(token, "$blackimage") || !Q_stricmp(token, "$black"))
+	{
+		stage->bundle[TB_DIFFUSEMAP].isDiffuseMap = qtrue;
+		stage->bundle[TB_DIFFUSEMAP].image[0] = tr.blackImage;
+	}
+	else
+	{
+		stage->bundle[TB_DIFFUSEMAP].isDiffuseMap = qtrue;
+		stage->bundle[TB_DIFFUSEMAP].image[0] = R_FindImageFile(token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT, qfalse);
+		if(!stage->bundle[TB_DIFFUSEMAP].image[0])
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find diffusemap '%s' in shader '%s'\n", token, shader.name);
+		}
+	}
+}
+
 /*
 =================
 ParseShader
@@ -1880,6 +1914,13 @@ static qboolean ParseShader(char **text)
 			ParseSort(text);
 			continue;
 		}
+		// diffuseMap
+		else if(!Q_stricmp(token, "sort"))
+		{
+			ParseDiffuseMap(&stages[s], text);
+			s++;
+			continue;
+		}
 		else
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: unknown general shader parameter '%s' in '%s'\n", token,
@@ -1917,7 +1958,6 @@ See if we can use on of the simple fastpath stage functions,
 otherwise set to the generic stage function
 ===================
 */
-/*
 static void ComputeStageIteratorFunc(void)
 {
 	shader.optimalStageIteratorFunc = RB_StageIteratorGeneric;
@@ -2012,7 +2052,6 @@ static void ComputeStageIteratorFunc(void)
   done:
 	return;
 }
-*/
 
 typedef struct
 {
@@ -2548,7 +2587,7 @@ static shader_t *FinishShader(void)
 				
 				if(!pStage->bundle[TB_NORMALMAP].image[0])
 				{
-					ri.Printf(PRINT_WARNING, "Shader %s has a lighting stage with no normalmap\n", shader.name);
+					//ri.Printf(PRINT_WARNING, "Shader %s has a lighting stage with no normalmap\n", shader.name);
 					//pStage->active = qfalse;
 					//continue;
 					//pStage->bundle[TB_NORMALMAP].isNormalMap = qtrue;
@@ -2557,7 +2596,7 @@ static shader_t *FinishShader(void)
 				
 				if(!pStage->bundle[TB_SPECULARMAP].image[0])
 				{
-					ri.Printf(PRINT_WARNING, "Shader %s has a lighting stage with no normalmap\n", shader.name);
+					//ri.Printf(PRINT_WARNING, "Shader %s has a lighting stage with no specularmap\n", shader.name);
 					//pStage->active = qfalse;
 					//continue;
 					//pStage->bundle[TB_SPECULARMAP].isSpecularMap = qtrue;
@@ -2724,7 +2763,7 @@ static shader_t *FinishShader(void)
 	}
 
 	// determine which stage iterator function is appropriate
-//	ComputeStageIteratorFunc();
+	ComputeStageIteratorFunc();
 
 	return GeneratePermanentShader();
 }
@@ -3338,7 +3377,6 @@ void R_ShaderList_f(void)
 			ri.Printf(PRINT_ALL, "  ");
 		}
 
-		/*
 		if(shader->optimalStageIteratorFunc == RB_StageIteratorGeneric)
 		{
 			ri.Printf(PRINT_ALL, "gen ");
@@ -3368,7 +3406,6 @@ void R_ShaderList_f(void)
 			ri.Printf(PRINT_ALL, "pplDBS ");
 		}
 		else
-		*/
 		{
 			ri.Printf(PRINT_ALL, "    ");
 		}
@@ -3461,6 +3498,7 @@ static void ScanAndLoadShaderFiles(void)
 	{
 		// pointer to the first shader file
 		p = buffers[i];
+		
 		// look for label
 		while(1)
 		{
@@ -3469,11 +3507,20 @@ static void ScanAndLoadShaderFiles(void)
 			{
 				break;
 			}
-
+#if 0
+			// skip shader tables
+			if(!Q_stricmp(token, "table"))
+			{
+				SkipBracedSection(&p);
+				continue;
+			}
+#endif
 			hash = generateHashValue(token, MAX_SHADERTEXT_HASH);
 			shaderTextHashTableSizes[hash]++;
 			size++;
+			
 			SkipBracedSection(&p);
+			
 			// if we passed the pointer to the next shader file
 			if(i < numShaders - 1)
 			{
@@ -3501,6 +3548,7 @@ static void ScanAndLoadShaderFiles(void)
 	{
 		// pointer to the first shader file
 		p = buffers[i];
+		
 		// look for label
 		while(1)
 		{
@@ -3510,11 +3558,19 @@ static void ScanAndLoadShaderFiles(void)
 			{
 				break;
 			}
-
+#if 0
+			// skip shader tables
+			if(!Q_stricmp(token, "table"))
+			{
+				SkipBracedSection(&p);
+				continue;
+			}
+#endif
 			hash = generateHashValue(token, MAX_SHADERTEXT_HASH);
 			shaderTextHashTable[hash][shaderTextHashTableSizes[hash]++] = oldp;
 
 			SkipBracedSection(&p);
+			
 			// if we passed the pointer to the next shader file
 			if(i < numShaders - 1)
 			{
@@ -3525,9 +3581,6 @@ static void ScanAndLoadShaderFiles(void)
 			}
 		}
 	}
-
-	return;
-
 }
 
 
