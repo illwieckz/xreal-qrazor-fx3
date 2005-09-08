@@ -249,6 +249,14 @@ PARSING
 ============================================================================
 */
 
+// multiple character punctuation tokens
+const char *punctuation[] =
+{
+	"+=", "-=",  "*=",  "/=", "&=", "|=", "++", "--",
+	"&&", "||",  "<=",  ">=", "==", "!=",
+	NULL
+};
+
 static char     com_token[MAX_TOKEN_CHARS];
 static char     com_parsename[MAX_TOKEN_CHARS];
 static int      com_lines;
@@ -264,7 +272,7 @@ int COM_GetCurrentParseLine(void)
 	return com_lines;
 }
 
-char           *COM_Parse(char **data_p)
+char *COM_Parse(char **data_p)
 {
 	return COM_ParseExt(data_p, qtrue);
 }
@@ -305,7 +313,7 @@ string will be returned if the next token is
 a newline.
 ==============
 */
-static char    *SkipWhitespace(char *data, qboolean * hasNewLines)
+static char *SkipWhitespace(char *data, qboolean * hasNewLines)
 {
 	int             c;
 
@@ -424,6 +432,12 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 	int             c = 0, len;
 	qboolean        hasNewLines = qfalse;
 	char           *data;
+//	const char    **punc;
+	
+	if(!data_p)
+	{
+		Com_Error(ERR_FATAL, "Com_ParseExt: NULL data_p");
+	}
 
 	data = *data_p;
 	len = 0;
@@ -436,10 +450,10 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 		return com_token;
 	}
 
+	// skip whitespace
 	while(1)
 	{
-		// skip whitespace
-		data = SkipWhitespace( data, &hasNewLines );
+		data = SkipWhitespace(data, &hasNewLines);
 		if(!data)
 		{
 			*data_p = NULL;
@@ -477,6 +491,7 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 		}
 		else
 		{
+			// a real token to parse
 			break;
 		}
 	}
@@ -488,18 +503,115 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 		while(1)
 		{
 			c = *data++;
-			if(c == '\"' || !c)
+			
+			if((c == '\\') && (*data == '\"'))
+			{
+				// allow quoted strings to use \" to indicate the " character
+				data++;
+			}
+			else if(c == '\"' || !c)
 			{
 				com_token[len] = 0;
 				*data_p = (char *)data;
 				return com_token;
 			}
-			if(len < MAX_TOKEN_CHARS)
+			else if(*data == '\n')
+			{
+				com_lines++;
+			}
+			
+			if(len < MAX_TOKEN_CHARS -1)
 			{
 				com_token[len] = c;
 				len++;
 			}
 		}
+	}
+	
+	// check for a number
+	// is this parsing of negative numbers going to cause expression problems
+	if(	(c >= '0' && c <= '9') || (c == '-' && data[ 1 ] >= '0' && data[ 1 ] <= '9') ||
+		(c == '.' && data[1] >= '0' && data[1] <= '9')	)
+	{
+		do
+		{
+			if(len < MAX_TOKEN_CHARS - 1)
+			{
+				com_token[len] = c;
+				len++;
+			}
+			data++;
+
+			c = *data;
+		} while((c >= '0' && c <= '9') || c == '.' );
+
+		// parse the exponent
+		if(c == 'e' || c == 'E')
+		{
+			if(len < MAX_TOKEN_CHARS - 1)
+			{
+				com_token[len] = c;
+				len++;
+			}
+			data++;
+			c = *data;
+
+			if(c == '-' || c == '+')
+			{
+				if(len < MAX_TOKEN_CHARS - 1)
+				{
+					com_token[len] = c;
+					len++;
+				}
+				data++;
+				c = *data;
+			}
+
+			do 
+			{
+				if(len < MAX_TOKEN_CHARS - 1) 
+				{
+					com_token[len] = c;
+					len++;
+				}
+				data++;
+
+				c = *data;
+			} while(c >= '0' && c <= '9');
+		}
+
+		if(len == MAX_TOKEN_CHARS)
+		{
+			len = 0;
+		}
+		com_token[len] = 0;
+
+		*data_p = (char *)data;
+		return com_token;
+	}
+
+#if 1
+	// check for character punctuation
+	if(
+		*data == '\n'	||
+		*data == '{'	||
+		*data == '}'	||
+		*data == ')'	||
+		*data == '('	||
+		*data == ']'	||
+		*data == '['	||
+		*data == '\''	||
+		*data == ':'	||
+		*data == ','	||
+		*data == ';'
+	)
+	{
+		// single character punctuation
+		com_token[0] = *data;
+		com_token[1] = 0;
+		data++;
+		*data_p = (char *)data;
+		return com_token;
 	}
 
 	// parse a regular word
@@ -511,9 +623,12 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 			len++;
 		}
 		data++;
+		
 		c = *data;
+		
 		if(c == '\n')
 			com_lines++;
+		
 	} while(c > 32);
 
 	if(len == MAX_TOKEN_CHARS)
@@ -525,6 +640,78 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 
 	*data_p = (char *)data;
 	return com_token;
+#else
+	// check for a regular word
+	// we still allow forward and back slashes in name tokens for pathnames
+	// and also colons for drive letters
+	if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || c == '/' || c == '\\')
+	{
+		do
+		{
+			if(len < MAX_TOKEN_CHARS - 1)
+			{
+				com_token[len] = c;
+				len++;
+			}
+			data++;
+			
+			c = *data;
+		}
+		while
+		(
+			(c >= 'a' && c <= 'z')	||
+			(c >= 'A' && c <= 'Z')	||
+			 c == '_' 				||
+			(c >= '0' && c <= '9')	||
+			 c == '/'				||
+			 c == '\\'				||
+			 c == ':'				||
+			 c == '.'
+		);
+
+		if(len == MAX_TOKEN_CHARS)
+		{
+			len = 0;
+		}
+		com_token[len] = 0;
+
+		*data_p = (char *) data;
+		return com_token;
+	}
+	
+	// check for multi-character punctuation token
+	for(punc = punctuation; *punc ; punc++)
+	{
+		int		l;
+		int		j;
+
+		l = strlen(*punc);
+		for(j = 0; j < l ; j++)
+		{
+			if(data[j] != (*punc)[j])
+			{
+				break;
+			}
+		}
+		if(j == l)
+		{
+			// a valid multi-character punctuation
+			memcpy(com_token, *punc, l);
+			com_token[l] = 0;
+			data += l;
+			*data_p = (char *)data;
+			return com_token;
+		}
+	}
+
+	// single character punctuation
+	com_token[0] = *data;
+	com_token[1] = 0;
+	data++;
+	*data_p = (char *)data;
+
+	return com_token;
+#endif
 }
 
 
