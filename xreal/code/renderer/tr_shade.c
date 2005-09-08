@@ -1507,51 +1507,49 @@ static void RB_IterateStagesGeneric(shaderCommands_t * input)
 			qglColorPointer(4, GL_UNSIGNED_BYTE, 0, input->svars.colors);
 		}
 
-		//
-		// do multitexture
-		//
-		if(pStage->type == ST_COLOR && pStage->bundle[1].image[0] != 0)
+		switch(pStage->type)
 		{
-			DrawMultitextured(input, stage);
-		}
-		else
-		{
-			if(!setArraysOnce)
+			case ST_COLOR:
+			default:
 			{
-				qglTexCoordPointer(2, GL_FLOAT, 0, input->svars.texCoords[0]);
-			}
+				if(pStage->bundle[1].image[0] != 0)
+				{
+					DrawMultitextured(input, stage);
+				}
+				else
+				{
+					if(!setArraysOnce)
+					{
+						qglTexCoordPointer(2, GL_FLOAT, 0, input->svars.texCoords[0]);
+					}
 
-			//
-			// set state
-			//
-			if(pStage->bundle[0].vertexLightmap &&
-			   ((r_vertexLight->integer && !r_uiFullScreen->integer) ||
-				glConfig.hardwareType == GLHW_PERMEDIA2) && r_lightmap->integer)
-			{
-				GL_Bind(tr.whiteImage);
-			}
-			else
-			{
-				R_BindAnimatedImage(&pStage->bundle[0]);
+					// set state
+					R_BindAnimatedImage(&pStage->bundle[0]);
+			
+					GL_State(pStage->stateBits);
+
+					R_DrawElements(input->numIndexes, input->indexes);
+				}
+				break;
 			}
 			
 			/*
-			if(pStage->type == ST_LIGHTING)
+			case ST_LIGHTING:
 			{
-				GL_TexEnv(GL_REPLACE);
+				//TODO
+				break;
+			}
+			
+			case ST_HEATHAZE:
+			{
+				//TODO
+				break;
 			}
 			*/
-
-			GL_State(pStage->stateBits);
-
-			//
-			// draw
-			//
-			R_DrawElements(input->numIndexes, input->indexes);
 		}
+		
 		// allow skipping out to show just lightmaps during development
-		if(r_lightmap->integer &&
-		   (pStage->bundle[0].isLightmap || pStage->bundle[1].isLightmap || pStage->bundle[0].vertexLightmap))
+		if(r_lightmap->integer && (pStage->bundle[0].isLightmap || pStage->bundle[1].isLightmap))
 		{
 			break;
 		}

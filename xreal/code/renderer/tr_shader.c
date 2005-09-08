@@ -2413,6 +2413,7 @@ pass, trying to guess which is the correct one to best aproximate
 what it is supposed to look like.
 =================
 */
+/*
 static void VertexLightingCollapse(void)
 {
 	int             stage;
@@ -2512,6 +2513,7 @@ static void VertexLightingCollapse(void)
 		Com_Memset(pStage, 0, sizeof(*pStage));
 	}
 }
+*/
 
 /*
 =========================
@@ -2656,13 +2658,6 @@ static shader_t *FinishShader(void)
 				break;	
 			}
 		}
-		
-
-		// not a true lightmap but we want to leave existing 
-		// behaviour in place and not print out a warning
-		//if (pStage->rgbGen == CGEN_VERTEX) {
-		//  vertexLightmap = qtrue;
-		//}
 
 
 		// determine sort order and fog color adjustment
@@ -2723,15 +2718,6 @@ static shader_t *FinishShader(void)
 		shader.sort = SS_OPAQUE;
 	}
 
-	// if we are in r_vertexLight mode, never use a lightmap texture
-	if(stage > 1 &&
-	   ((r_vertexLight->integer && !r_uiFullScreen->integer) || glConfig.hardwareType == GLHW_PERMEDIA2))
-	{
-		VertexLightingCollapse();
-		stage = 1;
-		hasLightmapStage = qfalse;
-	}
-
 	// look for multitexture potential
 	if(stage > 1 && CollapseMultitexture())
 	{
@@ -2740,16 +2726,8 @@ static shader_t *FinishShader(void)
 
 	if(shader.lightmapIndex >= 0 && !hasLightmapStage)
 	{
-		if(vertexLightmap)
-		{
-			ri.Printf(PRINT_DEVELOPER, "WARNING: shader '%s' has VERTEX forced lightmap!\n", shader.name);
-		}
-		else
-		{
-			ri.Printf(PRINT_DEVELOPER, "WARNING: shader '%s' has lightmap but no lightmap stage!\n",
-					  shader.name);
-			shader.lightmapIndex = LIGHTMAP_NONE;
-		}
+		ri.Printf(PRINT_DEVELOPER, "WARNING: shader '%s' has lightmap but no lightmap stage!\n", shader.name);
+		shader.lightmapIndex = LIGHTMAP_NONE;
 	}
 
 

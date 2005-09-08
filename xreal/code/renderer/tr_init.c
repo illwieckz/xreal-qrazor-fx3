@@ -104,7 +104,6 @@ cvar_t         *r_texturebits;
 cvar_t         *r_drawBuffer;
 cvar_t         *r_glDriver;
 cvar_t         *r_lightmap;
-cvar_t         *r_vertexLight;
 cvar_t         *r_uiFullScreen;
 cvar_t         *r_shadows;
 cvar_t         *r_flares;
@@ -969,10 +968,7 @@ void GfxInfo_f(void)
 	ri.Printf(PRINT_ALL, "compiled vertex arrays: %s\n", enablestrings[qglLockArraysEXT != 0]);
 	ri.Printf(PRINT_ALL, "texenv add: %s\n", enablestrings[glConfig.textureEnvAddAvailable != 0]);
 	ri.Printf(PRINT_ALL, "compressed textures: %s\n", enablestrings[glConfig.textureCompression != TC_NONE]);
-	if(r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2)
-	{
-		ri.Printf(PRINT_ALL, "HACK: using vertex lightmap approximation\n");
-	}
+
 	if(glConfig.hardwareType == GLHW_RAGEPRO)
 	{
 		ri.Printf(PRINT_ALL, "HACK: ragePro approximations\n");
@@ -1042,7 +1038,6 @@ void R_Register(void)
 	r_customheight = ri.Cvar_Get("r_customheight", "1024", CVAR_ARCHIVE | CVAR_LATCH);
 	r_customaspect = ri.Cvar_Get("r_customaspect", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_simpleMipMaps = ri.Cvar_Get("r_simpleMipMaps", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_vertexLight = ri.Cvar_Get("r_vertexLight", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_uiFullScreen = ri.Cvar_Get("r_uifullscreen", "0", 0);
 	r_subdivisions = ri.Cvar_Get("r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH);
 #if (defined(MACOS_X) || defined(__linux__)) && defined(SMP)

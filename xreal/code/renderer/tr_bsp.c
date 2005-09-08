@@ -162,12 +162,6 @@ static void R_LoadLightmaps(lump_t * l)
 		tr.numLightmaps++;
 	}
 
-	// if we are in r_vertexLight mode, we don't need the lightmaps at all
-	if(r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2)
-	{
-		return;
-	}
-
 	for(i = 0; i < tr.numLightmaps; i++)
 	{
 		// expand the 24 bit on-disk to 32 bit
@@ -296,11 +290,6 @@ static shader_t *ShaderForShaderNum(int shaderNum, int lightmapNum)
 		ri.Error(ERR_DROP, "ShaderForShaderNum: bad num %i", shaderNum);
 	}
 	dsh = &s_worldData.shaders[shaderNum];
-
-	if(r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2)
-	{
-		lightmapNum = LIGHTMAP_BY_VERTEX;
-	}
 
 	if(r_fullbright->integer)
 	{
@@ -2101,10 +2090,12 @@ void R_LoadEntities(lump_t * l)
 				break;
 			}
 			*s++ = 0;
+			/*
 			if(r_vertexLight->integer)
 			{
 				R_RemapShader(value, s, "0");
 			}
+			*/
 			continue;
 		}
 		// check for remapping of shaders

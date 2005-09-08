@@ -398,8 +398,8 @@ void RE_RenderScene(const refdef_t * fd)
 	tr.refdef.polys = &backEndData[tr.smpFrame]->polys[r_firstScenePoly];
 
 	// turn off dynamic lighting globally by clearing all the
-	// dlights if it needs to be disabled or if vertex lighting is enabled
-	if(r_dynamiclight->integer == 0 || r_vertexLight->integer == 1 || glConfig.hardwareType == GLHW_PERMEDIA2)
+	// dlights if it needs to be disabled
+	if(r_dynamiclight->integer == 0)
 	{
 		tr.refdef.numDlights = 0;
 	}
