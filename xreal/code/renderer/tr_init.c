@@ -108,6 +108,7 @@ cvar_t         *r_uiFullScreen;
 cvar_t         *r_shadows;
 cvar_t         *r_flares;
 cvar_t         *r_mode;
+cvar_t         *r_collapseMultitexture;
 cvar_t         *r_nobind;
 cvar_t         *r_singleShader;
 cvar_t         *r_roundImagesDown;
@@ -1016,6 +1017,7 @@ void R_Register(void)
 	r_ext_shading_language_100 = ri.Cvar_Get("r_ext_shading_language_100", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_framebuffer_object = ri.Cvar_Get("r_ext_framebuffer_object", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
+	r_collapseMultitexture = ri.Cvar_Get("r_collapseMultitexture", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_picmip = ri.Cvar_Get("r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_roundImagesDown = ri.Cvar_Get("r_roundImagesDown", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_colorMipLevels = ri.Cvar_Get("r_colorMipLevels", "0", CVAR_LATCH);

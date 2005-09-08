@@ -2107,13 +2107,19 @@ static qboolean CollapseMultitexture(void)
 	int             i;
 	textureBundle_t tmpBundle;
 
-	if(!qglActiveTextureARB)
+	if(!qglActiveTextureARB || !r_collapseMultitexture->integer)
 	{
 		return qfalse;
 	}
 
 	// make sure both stages are active
 	if(!stages[0].active || !stages[1].active)
+	{
+		return qfalse;
+	}
+	
+	// make sure both stages are color stages and have to special interpretation
+	if(stages[0].type != ST_COLOR || stages[1].type != ST_COLOR)
 	{
 		return qfalse;
 	}
@@ -2206,9 +2212,7 @@ static qboolean CollapseMultitexture(void)
 	stages[0].stateBits &= ~(GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS);
 	stages[0].stateBits |= collapse[i].multitextureBlend;
 
-	//
 	// move down subsequent shaders
-	//
 	memmove(&stages[1], &stages[2], sizeof(stages[0]) * (MAX_SHADER_STAGES - 2));
 	Com_Memset(&stages[MAX_SHADER_STAGES - 1], 0, sizeof(stages[0]));
 
@@ -2527,10 +2531,8 @@ static shader_t *FinishShader(void)
 {
 	int             stage;
 	qboolean        hasLightmapStage;
-	qboolean        vertexLightmap;
 
 	hasLightmapStage = qfalse;
-	vertexLightmap = qfalse;
 
 	// set sky stuff appropriate
 	if(shader.isSky)

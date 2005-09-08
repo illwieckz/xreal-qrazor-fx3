@@ -1162,6 +1162,7 @@ extern cvar_t  *r_ext_shading_language_100;
 extern cvar_t  *r_ext_framebuffer_object;
 
 extern cvar_t  *r_nobind;		// turns off binding to appropriate textures
+extern cvar_t  *r_collapseMultitexture;
 extern cvar_t  *r_singleShader;	// make most world faces use default shader
 extern cvar_t  *r_roundImagesDown;
 extern cvar_t  *r_colorMipLevels;	// development aid to see texture mip usage
