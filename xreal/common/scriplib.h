@@ -30,26 +30,26 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	MAXTOKEN	1024
 
-extern	char	token[MAXTOKEN];
-extern	char	*scriptbuffer,*script_p,*scriptend_p;
-extern	int		grabbed;
-extern	int		scriptline;
-extern	qboolean	endofscript;
+extern char     token[MAXTOKEN];
+extern char    *scriptbuffer, *script_p, *scriptend_p;
+extern int      grabbed;
+extern int      scriptline;
+extern qboolean endofscript;
 
 
-void LoadScriptFile( const char *filename );
-void ParseFromMemory (char *buffer, int size);
+void            LoadScriptFile(const char *filename);
+void            ParseFromMemory(char *buffer, int size);
 
-qboolean GetToken (qboolean crossline);
-void UnGetToken (void);
-qboolean TokenAvailable (void);
+qboolean        GetToken(qboolean crossline);
+void            UnGetToken(void);
+qboolean        TokenAvailable(void);
 
-void MatchToken( char *match );
+void            MatchToken(char *match);
 
-void Parse1DMatrix (int x, vec_t *m);
-void Parse2DMatrix (int y, int x, vec_t *m);
-void Parse3DMatrix (int z, int y, int x, vec_t *m);
+void            Parse1DMatrix(int x, vec_t * m);
+void            Parse2DMatrix(int y, int x, vec_t * m);
+void            Parse3DMatrix(int z, int y, int x, vec_t * m);
 
-void Write1DMatrix (FILE *f, int x, vec_t *m);
-void Write2DMatrix (FILE *f, int y, int x, vec_t *m);
-void Write3DMatrix (FILE *f, int z, int y, int x, vec_t *m);
+void            Write1DMatrix(FILE * f, int x, vec_t * m);
+void            Write2DMatrix(FILE * f, int y, int x, vec_t * m);
+void            Write3DMatrix(FILE * f, int z, int y, int x, vec_t * m);

@@ -62,8 +62,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 typedef struct
 {
-	vec3_t		normal;
-	float		dist;
+	vec3_t          normal;
+	float           dist;
 } plane_t;
 
 #define MAX_POINTS_ON_WINDING	64
@@ -72,59 +72,59 @@ typedef struct
 
 typedef struct
 {
-	int		numpoints;
-	vec3_t	points[MAX_POINTS_ON_FIXED_WINDING];			// variable sized
+	int             numpoints;
+	vec3_t          points[MAX_POINTS_ON_FIXED_WINDING];	// variable sized
 } winding_t;
 
 typedef struct
 {
-	plane_t		plane;	// normal pointing into neighbor
-	int			leaf;	// neighbor
-	winding_t	*winding;
-	vec3_t		origin;	// for fast clip testing
-	float		radius;
+	plane_t         plane;		// normal pointing into neighbor
+	int             leaf;		// neighbor
+	winding_t      *winding;
+	vec3_t          origin;		// for fast clip testing
+	float           radius;
 } lportal_t;
 
 #define	MAX_PORTALS_ON_LEAF		128
 typedef struct lleaf_s
 {
-	int			numportals;
-	lportal_t	*portals[MAX_PORTALS_ON_LEAF];
+	int             numportals;
+	lportal_t      *portals[MAX_PORTALS_ON_LEAF];
 	//
-	int			numSurfaces;
-	int			firstSurface;
+	int             numSurfaces;
+	int             firstSurface;
 } lleaf_t;
 
 typedef struct lFacet_s
 {
-	int		num;
-	plane_t	plane;
-	vec3_t	points[4];				//
-	int		numpoints;
-	float	lightmapCoords[4][2];
-	plane_t boundaries[4];			// negative is outside the bounds
-	float	textureMatrix[2][4];	// texture coordinates for translucency
-	float	lightmapMatrix[2][4];	// lightmap texture coordinates
-	vec3_t	mins;
-	int		x, y, width, height;
+	int             num;
+	plane_t         plane;
+	vec3_t          points[4];	//
+	int             numpoints;
+	float           lightmapCoords[4][2];
+	plane_t         boundaries[4];	// negative is outside the bounds
+	float           textureMatrix[2][4];	// texture coordinates for translucency
+	float           lightmapMatrix[2][4];	// lightmap texture coordinates
+	vec3_t          mins;
+	int             x, y, width, height;
 } lFacet_t;
 
 typedef struct lsurfaceTest_s
 {
-	vec3_t			mins, maxs;
-	vec3_t			origin;
-	float			radius;
-	qboolean		patch;			// true if this is a patch
-	qboolean		trisoup;		// true if this is a triangle soup
-	int				numFacets;
-	lFacet_t		*facets;
-	mesh_t			*detailMesh;	// detailed mesh with points for each lmp
-	shaderInfo_t	*shader;		// for translucency
-	mutex_t			*mutex;
-	int				numvolumes;		// number of volumes casted at this surface
+	vec3_t          mins, maxs;
+	vec3_t          origin;
+	float           radius;
+	qboolean        patch;		// true if this is a patch
+	qboolean        trisoup;	// true if this is a triangle soup
+	int             numFacets;
+	lFacet_t       *facets;
+	mesh_t         *detailMesh;	// detailed mesh with points for each lmp
+	shaderInfo_t   *shader;		// for translucency
+	mutex_t        *mutex;
+	int             numvolumes;	// number of volumes casted at this surface
 	//
-	int				always_tracelight;
-	int				always_vsound;
+	int             always_tracelight;
+	int             always_vsound;
 } lsurfaceTest_t;
 
 //volume types
@@ -135,24 +135,24 @@ typedef struct lsurfaceTest_s
 
 typedef struct lightvolume_s
 {
-	int num;
-	int cluster;							//cluster this light volume started in
-	plane_t endplane;						//end plane
-	plane_t farplane;						//original end plane
-	vec3_t points[MAX_POINTS_ON_WINDING];	//end winding points
-	plane_t planes[MAX_POINTS_ON_WINDING];	//volume bounding planes
-	int numplanes;							//number of volume bounding planes
-	int type;								//light volume type
+	int             num;
+	int             cluster;	//cluster this light volume started in
+	plane_t         endplane;	//end plane
+	plane_t         farplane;	//original end plane
+	vec3_t          points[MAX_POINTS_ON_WINDING];	//end winding points
+	plane_t         planes[MAX_POINTS_ON_WINDING];	//volume bounding planes
+	int             numplanes;	//number of volume bounding planes
+	int             type;		//light volume type
 	//list with translucent surfaces the volume went through
-	int transFacets[MAX_TRANSLUCENTFACETS];
-	int transSurfaces[MAX_TRANSLUCENTFACETS];
-	int numtransFacets;
+	int             transFacets[MAX_TRANSLUCENTFACETS];
+	int             transSurfaces[MAX_TRANSLUCENTFACETS];
+	int             numtransFacets;
 	//clusters already tested
-	byte clusterTested[MAX_CLUSTERS/8];
+	byte            clusterTested[MAX_CLUSTERS / 8];
 	//facets already tested
-	byte facetTested[MAX_FACETS/8];
-	int facetNum;			//number of the facet blocking the light in this volume
-	int surfaceNum;			//number of the surface blocking the light in this volume
+	byte            facetTested[MAX_FACETS / 8];
+	int             facetNum;	//number of the facet blocking the light in this volume
+	int             surfaceNum;	//number of the surface blocking the light in this volume
 } lightvolume_t;
 
 //light types
@@ -175,77 +175,77 @@ typedef struct lightvolume_s
 
 typedef struct vsound_s
 {
-	vec3_t origin;				//light origin, for point lights
-	winding_t w;				//light winding, for area lights
-	vec4_t plane;				//light winding plane
-	vec3_t normal;				//direction of the light
-	int type;					//light type
-	vec3_t color;				//light color
-	qboolean twosided;			//radiates light at both sides of the winding
-	int style;					//light style (not used)
-	int atten_disttype;			//light distance attenuation type
-	int atten_angletype;		//light angle attenuation type
-	float atten_distscale;		//distance attenuation scale
-	float atten_anglescale;		//angle attenuation scale
-	float radiusByDist;			//radius by distance for spot lights
-	float photons;				//emitted photons
-	float intensity;			//intensity
-	vec3_t emitColor;			//full out-of-gamut value (not used)
-	struct shaderInfo_s	*si;	//shader info
-	int insolid;				//set when light is in solid
+	vec3_t          origin;		//light origin, for point lights
+	winding_t       w;			//light winding, for area lights
+	vec4_t          plane;		//light winding plane
+	vec3_t          normal;		//direction of the light
+	int             type;		//light type
+	vec3_t          color;		//light color
+	qboolean        twosided;	//radiates light at both sides of the winding
+	int             style;		//light style (not used)
+	int             atten_disttype;	//light distance attenuation type
+	int             atten_angletype;	//light angle attenuation type
+	float           atten_distscale;	//distance attenuation scale
+	float           atten_anglescale;	//angle attenuation scale
+	float           radiusByDist;	//radius by distance for spot lights
+	float           photons;	//emitted photons
+	float           intensity;	//intensity
+	vec3_t          emitColor;	//full out-of-gamut value (not used)
+	struct shaderInfo_s *si;	//shader info
+	int             insolid;	//set when light is in solid
 } vsound_t;
 
-static float	lightLinearScale			= 1.0 / 8000;
-static float	lightPointScale				= 7500;
-static float	lightAreaScale				= 0.25;
-static float	lightFormFactorValueScale	= 3;
-static int		lightDefaultSubdivide		= 999;		// vary by surface size?
-static vec3_t	lightAmbientColor;
+static float    lightLinearScale = 1.0 / 8000;
+static float    lightPointScale = 7500;
+static float    lightAreaScale = 0.25;
+static float    lightFormFactorValueScale = 3;
+static int      lightDefaultSubdivide = 999;	// vary by surface size?
+static vec3_t   lightAmbientColor;
 
-static int			portalclusters, numportals, numfaces;
-static lleaf_t		*leafs;
-static lportal_t	*portals;
-static int			numvsounds = 0;
-static vsound_t	*vsounds[MAX_LIGHTS];
-static int			nostitching = 0;
-static int			noalphashading = 0;
-static int			nocolorshading = 0;
-static int			nobackfaceculling = 0;
-static int			defaulttracelight = 0;
-static int			radiosity = 0;
-static int			radiosity_scale;
+static int      portalclusters, numportals, numfaces;
+static lleaf_t *leafs;
+static lportal_t *portals;
+static int      numvsounds = 0;
+static vsound_t *vsounds[MAX_LIGHTS];
+static int      nostitching = 0;
+static int      noalphashading = 0;
+static int      nocolorshading = 0;
+static int      nobackfaceculling = 0;
+static int      defaulttracelight = 0;
+static int      radiosity = 0;
+static int      radiosity_scale;
 
-static int				clustersurfaces[MAX_MAP_LEAFFACES];
-static int				numclustersurfaces = 0;
-static lsurfaceTest_t	*lsurfaceTest[MAX_MAP_DRAW_SURFS];
-static int				numfacets;
-static float			lightmappixelarea[MAX_MAP_LIGHTING/3];
-static float			*lightFloats;//[MAX_MAP_LIGHTING];
+static int      clustersurfaces[MAX_MAP_LEAFFACES];
+static int      numclustersurfaces = 0;
+static lsurfaceTest_t *lsurfaceTest[MAX_MAP_DRAW_SURFS];
+static int      numfacets;
+static float    lightmappixelarea[MAX_MAP_LIGHTING / 3];
+static float   *lightFloats;	//[MAX_MAP_LIGHTING];
 
 // from polylib.c
-winding_t	*AllocWinding (int points);
-void		FreeWinding (winding_t *w);
-void		WindingCenter (winding_t *w, vec3_t center);
-void		WindingBounds (winding_t *w, vec3_t mins, vec3_t maxs);
-vec_t		WindingArea (winding_t *w);
-winding_t	*BaseWindingForPlane (vec3_t normal, vec_t dist);
-void		ClipWindingEpsilon (winding_t *in, vec3_t normal, vec_t dist, 
-				vec_t epsilon, winding_t **front, winding_t **back);
-winding_t	*ReverseWinding (winding_t *w);
+winding_t      *AllocWinding(int points);
+void            FreeWinding(winding_t * w);
+void            WindingCenter(winding_t * w, vec3_t center);
+void            WindingBounds(winding_t * w, vec3_t mins, vec3_t maxs);
+vec_t           WindingArea(winding_t * w);
+winding_t      *BaseWindingForPlane(vec3_t normal, vec_t dist);
+void            ClipWindingEpsilon(winding_t * in, vec3_t normal, vec_t dist,
+								   vec_t epsilon, winding_t ** front, winding_t ** back);
+winding_t      *ReverseWinding(winding_t * w);
 
 // from light.c
-extern char		source[1024];
-extern vec3_t	surfaceOrigin[ MAX_MAP_DRAW_SURFS ];
-extern int		entitySurface[ MAX_MAP_DRAW_SURFS ];
-extern int		samplesize;
-extern qboolean	patchshadows;
-extern vec3_t	gridSize;
+extern char     source[1024];
+extern vec3_t   surfaceOrigin[MAX_MAP_DRAW_SURFS];
+extern int      entitySurface[MAX_MAP_DRAW_SURFS];
+extern int      samplesize;
+extern qboolean patchshadows;
+extern vec3_t   gridSize;
 
-float PointToPolygonFormFactor( const vec3_t point, const vec3_t normal, const winding_t *w );
-void ColorToBytes( const float *color, byte *colorBytes );
-void CountLightmaps( void );
-void GridAndVertexLighting( void );
-void SetEntityOrigins( void );
+float           PointToPolygonFormFactor(const vec3_t point, const vec3_t normal, const winding_t * w);
+void            ColorToBytes(const float *color, byte * colorBytes);
+void            CountLightmaps(void);
+void            GridAndVertexLighting(void);
+void            SetEntityOrigins(void);
 
 
 //#define DEBUGNET
@@ -254,7 +254,7 @@ void SetEntityOrigins( void );
 
 #include "l_net.h"
 
-socket_t *debug_socket;
+socket_t       *debug_socket;
 
 /*
 =====================
@@ -263,15 +263,15 @@ DebugNet_Setup
 */
 void DebugNet_Setup(void)
 {
-	address_t address;
-	int i;
+	address_t       address;
+	int             i;
 
 	Net_Setup();
 	Net_StringToAddress("127.0.0.1:28000", &address);
-	for (i = 0; i < 10; i++)
+	for(i = 0; i < 10; i++)
 	{
 		debug_socket = Net_Connect(&address, 28005 + i);
-		if (debug_socket)
+		if(debug_socket)
 			break;
 	}
 }
@@ -283,9 +283,9 @@ DebugNet_Shutdown
 */
 void DebugNet_Shutdown(void)
 {
-	netmessage_t msg;
+	netmessage_t    msg;
 
-	if (debug_socket)
+	if(debug_socket)
 	{
 		NMSG_Clear(&msg);
 		NMSG_WriteByte(&msg, 1);
@@ -303,12 +303,12 @@ DebugNet_RemoveAllPolys
 */
 void DebugNet_RemoveAllPolys(void)
 {
-	netmessage_t msg;
+	netmessage_t    msg;
 
-	if (!debug_socket)
+	if(!debug_socket)
 		return;
 	NMSG_Clear(&msg);
-	NMSG_WriteByte(&msg, 2);		//remove all debug polys
+	NMSG_WriteByte(&msg, 2);	//remove all debug polys
 	Net_Send(debug_socket, &msg);
 }
 
@@ -317,18 +317,18 @@ void DebugNet_RemoveAllPolys(void)
 DebugNet_DrawWinding
 =====================
 */
-void DebugNet_DrawWinding(winding_t *w, int color)
+void DebugNet_DrawWinding(winding_t * w, int color)
 {
-	netmessage_t msg;
-	int i;
+	netmessage_t    msg;
+	int             i;
 
-	if (!debug_socket)
+	if(!debug_socket)
 		return;
 	NMSG_Clear(&msg);
-	NMSG_WriteByte(&msg, 0);				//draw a winding
-	NMSG_WriteByte(&msg, w->numpoints);		//number of points
-	NMSG_WriteLong(&msg, color);			//color
-	for (i = 0; i < w->numpoints; i++)
+	NMSG_WriteByte(&msg, 0);	//draw a winding
+	NMSG_WriteByte(&msg, w->numpoints);	//number of points
+	NMSG_WriteLong(&msg, color);	//color
+	for(i = 0; i < w->numpoints; i++)
 	{
 		NMSG_WriteFloat(&msg, w->points[i][0]);
 		NMSG_WriteFloat(&msg, w->points[i][1]);
@@ -344,13 +344,13 @@ DebugNet_DrawLine
 */
 void DebugNet_DrawLine(vec3_t p1, vec3_t p2, int color)
 {
-	netmessage_t msg;
+	netmessage_t    msg;
 
-	if (!debug_socket)
+	if(!debug_socket)
 		return;
 	NMSG_Clear(&msg);
-	NMSG_WriteByte(&msg, 1);				//draw a line
-	NMSG_WriteLong(&msg, color);			//color
+	NMSG_WriteByte(&msg, 1);	//draw a line
+	NMSG_WriteLong(&msg, color);	//color
 	NMSG_WriteFloat(&msg, p1[0]);
 	NMSG_WriteFloat(&msg, p1[1]);
 	NMSG_WriteFloat(&msg, p1[2]);
@@ -365,31 +365,33 @@ void DebugNet_DrawLine(vec3_t p1, vec3_t p2, int color)
 DebugNet_DrawMesh
 =====================
 */
-void DebugNet_DrawMesh(mesh_t *mesh)
+void DebugNet_DrawMesh(mesh_t * mesh)
 {
-	int i, j;
-	float dot;
-	drawVert_t	*v1, *v2, *v3, *v4;
-	winding_t winding;
-	plane_t plane;
-	vec3_t d1, d2;
+	int             i, j;
+	float           dot;
+	drawVert_t     *v1, *v2, *v3, *v4;
+	winding_t       winding;
+	plane_t         plane;
+	vec3_t          d1, d2;
 
-	for ( i = 0 ; i < mesh->width - 1 ; i++ ) {
-		for ( j = 0 ; j < mesh->height - 1 ; j++ ) {
+	for(i = 0; i < mesh->width - 1; i++)
+	{
+		for(j = 0; j < mesh->height - 1; j++)
+		{
 
 			v1 = mesh->verts + j * mesh->width + i;
 			v2 = v1 + 1;
 			v3 = v1 + mesh->width + 1;
 			v4 = v1 + mesh->width;
 
-			VectorSubtract( v4->xyz, v1->xyz, d1 );
-			VectorSubtract( v3->xyz, v1->xyz, d2 );
-			CrossProduct( d2, d1, plane.normal );
-			if ( VectorNormalize( plane.normal, plane.normal ) != 0 )
+			VectorSubtract(v4->xyz, v1->xyz, d1);
+			VectorSubtract(v3->xyz, v1->xyz, d2);
+			CrossProduct(d2, d1, plane.normal);
+			if(VectorNormalize(plane.normal, plane.normal) != 0)
 			{
-				plane.dist = DotProduct( v1->xyz, plane.normal );
+				plane.dist = DotProduct(v1->xyz, plane.normal);
 				dot = DotProduct(plane.normal, v2->xyz) - plane.dist;
-				if (fabs(dot) < 0.1)
+				if(fabs(dot) < 0.1)
 				{
 					VectorCopy(v1->xyz, winding.points[0]);
 					VectorCopy(v4->xyz, winding.points[1]);
@@ -420,26 +422,26 @@ void DebugNet_DrawMesh(mesh_t *mesh)
 VS_DrawLightVolume
 =====================
 */
-int VS_ChopWinding (winding_t *in, plane_t *split, float epsilon);
+int             VS_ChopWinding(winding_t * in, plane_t * split, float epsilon);
 
-void VS_DrawLightVolume(vsound_t *light, lightvolume_t *volume)
+void VS_DrawLightVolume(vsound_t * light, lightvolume_t * volume)
 {
-	winding_t w;
-	int i;
-	vec3_t p2, invsound;
+	winding_t       w;
+	int             i;
+	vec3_t          p2, invsound;
 
 	memcpy(w.points, volume->points, volume->numplanes * sizeof(vec3_t));
 	w.numpoints = volume->numplanes;
 	DebugNet_DrawWinding(&w, 2);
 
-	if (volume->type == VOLUME_DIRECTED)
+	if(volume->type == VOLUME_DIRECTED)
 	{
 		VectorCopy(light->normal, invsound);
 		VectorInverse(invsound);
-		for (i = 0; i < volume->numplanes; i++)
+		for(i = 0; i < volume->numplanes; i++)
 		{
 			VectorCopy(volume->points[i], w.points[0]);
-			VectorCopy(volume->points[(i+1) % volume->numplanes], w.points[1]);
+			VectorCopy(volume->points[(i + 1) % volume->numplanes], w.points[1]);
 			VectorMA(w.points[1], MAX_WORLD_COORD, invsound, w.points[2]);
 			VectorMA(w.points[0], MAX_WORLD_COORD, invsound, w.points[3]);
 			w.numpoints = 4;
@@ -453,10 +455,10 @@ void VS_DrawLightVolume(vsound_t *light, lightvolume_t *volume)
 		//
 		VectorCopy(light->origin, w.points[0]);
 		w.numpoints = 3;
-		for (i = 0; i < volume->numplanes; i++)
+		for(i = 0; i < volume->numplanes; i++)
 		{
 			VectorCopy(volume->points[i], w.points[1]);
-			VectorCopy(volume->points[(i+1) % volume->numplanes], w.points[2]);
+			VectorCopy(volume->points[(i + 1) % volume->numplanes], w.points[2]);
 			VS_ChopWinding(&w, &volume->endplane, 0);
 			DebugNet_DrawWinding(&w, 2);
 			VectorMA(volume->points[i], 8, volume->planes[i].normal, p2);
@@ -472,31 +474,31 @@ VS_DrawLightmapPixel
 */
 void VS_DrawLightmapPixel(int surfaceNum, int x, int y, int color)
 {
-	winding_t w;
-	dsurface_t *ds;
-	mesh_t *mesh;
+	winding_t       w;
+	dsurface_t     *ds;
+	mesh_t         *mesh;
 
 	ds = &drawSurfaces[surfaceNum];
 
-	if (ds->surfaceType == MST_PATCH)
+	if(ds->surfaceType == MST_PATCH)
 	{
 		mesh = lsurfaceTest[surfaceNum]->detailMesh;
-		VectorCopy( mesh->verts[(y-ds->lightmapY)*mesh->width+x-ds->lightmapX].xyz, w.points[0]);
-		VectorCopy( mesh->verts[(y+1-ds->lightmapY)*mesh->width+x-ds->lightmapX].xyz, w.points[1]);
-		VectorCopy( mesh->verts[(y+1-ds->lightmapY)*mesh->width+x+1-ds->lightmapX].xyz, w.points[2]);
-		VectorCopy( mesh->verts[(y-ds->lightmapY)*mesh->width+x+1-ds->lightmapX].xyz, w.points[3]);
+		VectorCopy(mesh->verts[(y - ds->lightmapY) * mesh->width + x - ds->lightmapX].xyz, w.points[0]);
+		VectorCopy(mesh->verts[(y + 1 - ds->lightmapY) * mesh->width + x - ds->lightmapX].xyz, w.points[1]);
+		VectorCopy(mesh->verts[(y + 1 - ds->lightmapY) * mesh->width + x + 1 - ds->lightmapX].xyz, w.points[2]);
+		VectorCopy(mesh->verts[(y - ds->lightmapY) * mesh->width + x + 1 - ds->lightmapX].xyz, w.points[3]);
 		w.numpoints = 4;
 	}
 	else
 	{
-		VectorMA(ds->lightmapOrigin, (float) x - LIGHTMAP_PIXELSHIFT - ds->lightmapX, ds->lightmapVecs[0], w.points[0]);
-		VectorMA(w.points[0], (float) y - LIGHTMAP_PIXELSHIFT - ds->lightmapY, ds->lightmapVecs[1], w.points[0]);
-		VectorMA(ds->lightmapOrigin, (float) x - LIGHTMAP_PIXELSHIFT - ds->lightmapX, ds->lightmapVecs[0], w.points[1]);
-		VectorMA(w.points[1], (float) y - LIGHTMAP_PIXELSHIFT + 1 - ds->lightmapY, ds->lightmapVecs[1], w.points[1]);
-		VectorMA(ds->lightmapOrigin, (float) x - LIGHTMAP_PIXELSHIFT + 1 - ds->lightmapX, ds->lightmapVecs[0], w.points[2]);
-		VectorMA(w.points[2], (float) y - LIGHTMAP_PIXELSHIFT + 1 - ds->lightmapY, ds->lightmapVecs[1], w.points[2]);
-		VectorMA(ds->lightmapOrigin, (float) x - LIGHTMAP_PIXELSHIFT + 1 - ds->lightmapX, ds->lightmapVecs[0], w.points[3]);
-		VectorMA(w.points[3], (float) y - LIGHTMAP_PIXELSHIFT - ds->lightmapY, ds->lightmapVecs[1], w.points[3]);
+		VectorMA(ds->lightmapOrigin, (float)x - LIGHTMAP_PIXELSHIFT - ds->lightmapX, ds->lightmapVecs[0], w.points[0]);
+		VectorMA(w.points[0], (float)y - LIGHTMAP_PIXELSHIFT - ds->lightmapY, ds->lightmapVecs[1], w.points[0]);
+		VectorMA(ds->lightmapOrigin, (float)x - LIGHTMAP_PIXELSHIFT - ds->lightmapX, ds->lightmapVecs[0], w.points[1]);
+		VectorMA(w.points[1], (float)y - LIGHTMAP_PIXELSHIFT + 1 - ds->lightmapY, ds->lightmapVecs[1], w.points[1]);
+		VectorMA(ds->lightmapOrigin, (float)x - LIGHTMAP_PIXELSHIFT + 1 - ds->lightmapX, ds->lightmapVecs[0], w.points[2]);
+		VectorMA(w.points[2], (float)y - LIGHTMAP_PIXELSHIFT + 1 - ds->lightmapY, ds->lightmapVecs[1], w.points[2]);
+		VectorMA(ds->lightmapOrigin, (float)x - LIGHTMAP_PIXELSHIFT + 1 - ds->lightmapX, ds->lightmapVecs[0], w.points[3]);
+		VectorMA(w.points[3], (float)y - LIGHTMAP_PIXELSHIFT - ds->lightmapY, ds->lightmapVecs[1], w.points[3]);
 		w.numpoints = 4;
 	}
 	DebugNet_DrawWinding(&w, color);
@@ -509,10 +511,10 @@ VS_DrawPortals
 */
 void VS_DrawPortals(void)
 {
-	int j;
-	lportal_t *p;
+	int             j;
+	lportal_t      *p;
 
-	for (j = 0; j < numportals * 2; j++)
+	for(j = 0; j < numportals * 2; j++)
 	{
 		p = portals + j;
 		DebugNet_DrawWinding(p->winding, 1);
@@ -526,48 +528,48 @@ VS_DrawLeaf
 */
 void VS_DrawLeaf(int cluster)
 {
-	int i;
-	lleaf_t *leaf;
-	lportal_t *p;
+	int             i;
+	lleaf_t        *leaf;
+	lportal_t      *p;
 
 	leaf = &leafs[cluster];
-	for (i = 0; i < leaf->numportals; i++)
+	for(i = 0; i < leaf->numportals; i++)
 	{
 		p = leaf->portals[i];
 		DebugNet_DrawWinding(p->winding, 1);
 	}
 }
 
-#endif //DEBUGNET
+#endif							//DEBUGNET
 
 /*
 =============
 VS_SplitWinding
 =============
 */
-int VS_SplitWinding (winding_t *in, winding_t *back, plane_t *split, float epsilon)
+int VS_SplitWinding(winding_t * in, winding_t * back, plane_t * split, float epsilon)
 {
-	vec_t	dists[128];
-	int		sides[128];
-	int		counts[3];
-	vec_t	dot;
-	int		i, j;
-	vec_t	*p1, *p2;
-	vec3_t	mid;
-	winding_t out;
-	winding_t	*neww;
+	vec_t           dists[128];
+	int             sides[128];
+	int             counts[3];
+	vec_t           dot;
+	int             i, j;
+	vec_t          *p1, *p2;
+	vec3_t          mid;
+	winding_t       out;
+	winding_t      *neww;
 
 	counts[0] = counts[1] = counts[2] = 0;
 
 	// determine sides for each point
-	for (i=0 ; i<in->numpoints ; i++)
+	for(i = 0; i < in->numpoints; i++)
 	{
-		dot = DotProduct (in->points[i], split->normal);
+		dot = DotProduct(in->points[i], split->normal);
 		dot -= split->dist;
 		dists[i] = dot;
-		if (dot > epsilon)
+		if(dot > epsilon)
 			sides[i] = SIDE_FRONT;
-		else if (dot < -epsilon)
+		else if(dot < -epsilon)
 			sides[i] = SIDE_BACK;
 		else
 		{
@@ -576,98 +578,98 @@ int VS_SplitWinding (winding_t *in, winding_t *back, plane_t *split, float epsil
 		counts[sides[i]]++;
 	}
 
-	if (!counts[SIDE_BACK])
+	if(!counts[SIDE_BACK])
 	{
-		if (!counts[SIDE_FRONT])
+		if(!counts[SIDE_FRONT])
 			return SIDE_ON;
 		else
 			return SIDE_FRONT;
 	}
-	
-	if (!counts[SIDE_FRONT])
+
+	if(!counts[SIDE_FRONT])
 	{
 		return SIDE_BACK;
 	}
 
 	sides[i] = sides[0];
 	dists[i] = dists[0];
-	
+
 	neww = &out;
 
 	neww->numpoints = 0;
 	back->numpoints = 0;
 
-	for (i=0 ; i<in->numpoints ; i++)
+	for(i = 0; i < in->numpoints; i++)
 	{
 		p1 = in->points[i];
 
-		if (neww->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
+		if(neww->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
 		{
 			_printf("WARNING: VS_SplitWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
-			return SIDE_FRONT;		// can't chop -- fall back to original
+			return SIDE_FRONT;	// can't chop -- fall back to original
 		}
-		if (back->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
+		if(back->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
 		{
 			_printf("WARNING: VS_SplitWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return SIDE_FRONT;
 		}
 
-		if (sides[i] == SIDE_ON)
+		if(sides[i] == SIDE_ON)
 		{
-			VectorCopy (p1, neww->points[neww->numpoints]);
+			VectorCopy(p1, neww->points[neww->numpoints]);
 			neww->numpoints++;
-			VectorCopy (p1, back->points[back->numpoints]);
+			VectorCopy(p1, back->points[back->numpoints]);
 			back->numpoints++;
 			continue;
-		}
-	
-		if (sides[i] == SIDE_FRONT)
-		{
-			VectorCopy (p1, neww->points[neww->numpoints]);
-			neww->numpoints++;
-		}
-		if (sides[i] == SIDE_BACK)
-		{
-			VectorCopy (p1, back->points[back->numpoints]);
-			back->numpoints++;
-		}
-		
-		if (sides[i+1] == SIDE_ON || sides[i+1] == sides[i])
-			continue;
-			
-		if (neww->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
-		{
-			_printf("WARNING: VS_SplitWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
-			return SIDE_FRONT;		// can't chop -- fall back to original
 		}
 
-		if (back->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
+		if(sides[i] == SIDE_FRONT)
+		{
+			VectorCopy(p1, neww->points[neww->numpoints]);
+			neww->numpoints++;
+		}
+		if(sides[i] == SIDE_BACK)
+		{
+			VectorCopy(p1, back->points[back->numpoints]);
+			back->numpoints++;
+		}
+
+		if(sides[i + 1] == SIDE_ON || sides[i + 1] == sides[i])
+			continue;
+
+		if(neww->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
 		{
 			_printf("WARNING: VS_SplitWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
-			return SIDE_FRONT;		// can't chop -- fall back to original
+			return SIDE_FRONT;	// can't chop -- fall back to original
+		}
+
+		if(back->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
+		{
+			_printf("WARNING: VS_SplitWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
+			return SIDE_FRONT;	// can't chop -- fall back to original
 		}
 
 		// generate a split point
-		p2 = in->points[(i+1)%in->numpoints];
-		
-		dot = dists[i] / (dists[i]-dists[i+1]);
-		for (j=0 ; j<3 ; j++)
-		{	// avoid round off error when possible
-			if (split->normal[j] == 1)
+		p2 = in->points[(i + 1) % in->numpoints];
+
+		dot = dists[i] / (dists[i] - dists[i + 1]);
+		for(j = 0; j < 3; j++)
+		{						// avoid round off error when possible
+			if(split->normal[j] == 1)
 				mid[j] = split->dist;
-			else if (split->normal[j] == -1)
+			else if(split->normal[j] == -1)
 				mid[j] = -split->dist;
 			else
-				mid[j] = p1[j] + dot*(p2[j]-p1[j]);
+				mid[j] = p1[j] + dot * (p2[j] - p1[j]);
 		}
-			
-		VectorCopy (mid, neww->points[neww->numpoints]);
+
+		VectorCopy(mid, neww->points[neww->numpoints]);
 		neww->numpoints++;
-		VectorCopy (mid, back->points[back->numpoints]);
+		VectorCopy(mid, back->points[back->numpoints]);
 		back->numpoints++;
 	}
 	memcpy(in, &out, sizeof(winding_t));
-	
+
 	return SIDE_CROSS;
 }
 
@@ -678,29 +680,29 @@ VS_LinkSurfaceIntoCluster
 */
 void VS_LinkSurfaceIntoCluster(int cluster, int surfaceNum)
 {
-	lleaf_t *leaf;
-	int i;
+	lleaf_t        *leaf;
+	int             i;
 
 	leaf = &leafs[cluster];
 
-	for (i = 0; i < leaf->numSurfaces; i++)
+	for(i = 0; i < leaf->numSurfaces; i++)
 	{
-		if (clustersurfaces[leaf->firstSurface + i] == surfaceNum)
+		if(clustersurfaces[leaf->firstSurface + i] == surfaceNum)
 			return;
 	}
-	for (i = numclustersurfaces; i > leaf->firstSurface + leaf->numSurfaces; i--)
-		clustersurfaces[i] = clustersurfaces[i-1];
-	for (i = 0; i < portalclusters; i++)
+	for(i = numclustersurfaces; i > leaf->firstSurface + leaf->numSurfaces; i--)
+		clustersurfaces[i] = clustersurfaces[i - 1];
+	for(i = 0; i < portalclusters; i++)
 	{
-		if (i == cluster)
+		if(i == cluster)
 			continue;
-		if (leafs[i].firstSurface >= leaf->firstSurface + leaf->numSurfaces)
+		if(leafs[i].firstSurface >= leaf->firstSurface + leaf->numSurfaces)
 			leafs[i].firstSurface++;
 	}
 	clustersurfaces[leaf->firstSurface + leaf->numSurfaces] = surfaceNum;
 	leaf->numSurfaces++;
 	numclustersurfaces++;
-	if (numclustersurfaces >= MAX_MAP_LEAFFACES)
+	if(numclustersurfaces >= MAX_MAP_LEAFFACES)
 		Error("MAX_MAP_LEAFFACES");
 }
 
@@ -709,13 +711,13 @@ void VS_LinkSurfaceIntoCluster(int cluster, int surfaceNum)
 VS_R_LinkSurface
 =====================
 */
-void VS_R_LinkSurface(int nodenum, int surfaceNum, winding_t *w)
+void VS_R_LinkSurface(int nodenum, int surfaceNum, winding_t * w)
 {
-	int leafnum, cluster, res;
-	dnode_t *node;
-	dplane_t *plane;
-	winding_t back;
-	plane_t split;
+	int             leafnum, cluster, res;
+	dnode_t        *node;
+	dplane_t       *plane;
+	winding_t       back;
+	plane_t         split;
 
 	while(nodenum >= 0)
 	{
@@ -724,17 +726,17 @@ void VS_R_LinkSurface(int nodenum, int surfaceNum, winding_t *w)
 
 		VectorCopy(plane->normal, split.normal);
 		split.dist = plane->dist;
-		res = VS_SplitWinding (w, &back, &split, 0.1);
+		res = VS_SplitWinding(w, &back, &split, 0.1);
 
-		if (res == SIDE_FRONT)
+		if(res == SIDE_FRONT)
 		{
 			nodenum = node->children[0];
 		}
-		else if (res == SIDE_BACK)
+		else if(res == SIDE_BACK)
 		{
 			nodenum = node->children[1];
 		}
-		else if (res == SIDE_ON)
+		else if(res == SIDE_ON)
 		{
 			memcpy(&back, w, sizeof(winding_t));
 			VS_R_LinkSurface(node->children[1], surfaceNum, &back);
@@ -748,7 +750,7 @@ void VS_R_LinkSurface(int nodenum, int surfaceNum, winding_t *w)
 	}
 	leafnum = -nodenum - 1;
 	cluster = dleafs[leafnum].cluster;
-	if (cluster != -1)
+	if(cluster != -1)
 	{
 		VS_LinkSurfaceIntoCluster(cluster, surfaceNum);
 	}
@@ -763,17 +765,17 @@ maybe link each facet seperately instead of the test surfaces?
 */
 void VS_LinkSurfaces(void)
 {
-	int i, j;
+	int             i, j;
 	lsurfaceTest_t *test;
-	lFacet_t *facet;
-	winding_t winding;
+	lFacet_t       *facet;
+	winding_t       winding;
 
-	for ( i = 0 ; i < numDrawSurfaces ; i++ )
+	for(i = 0; i < numDrawSurfaces; i++)
 	{
-		test = lsurfaceTest[ i ];
-		if (!test)
+		test = lsurfaceTest[i];
+		if(!test)
 			continue;
-		for (j = 0; j < test->numFacets; j++)
+		for(j = 0; j < test->numFacets; j++)
 		{
 			facet = &test->facets[j];
 			memcpy(winding.points, facet->points, facet->numpoints * sizeof(vec3_t));
@@ -788,14 +790,16 @@ void VS_LinkSurfaces(void)
 VS_TextureMatrixFromPoints
 =====================
 */
-void VS_TextureMatrixFromPoints( lFacet_t *f, drawVert_t *a, drawVert_t *b, drawVert_t *c ) {
-	int			i, j;
-	float		t;
-	float		m[3][4];
-	float		s;
+void VS_TextureMatrixFromPoints(lFacet_t * f, drawVert_t * a, drawVert_t * b, drawVert_t * c)
+{
+	int             i, j;
+	float           t;
+	float           m[3][4];
+	float           s;
 
 	// This is an incredibly stupid way of solving a three variable equation
-	for ( i = 0 ; i < 2 ; i++ ) {
+	for(i = 0; i < 2; i++)
+	{
 
 		m[0][0] = a->xyz[0];
 		m[0][1] = a->xyz[1];
@@ -812,14 +816,19 @@ void VS_TextureMatrixFromPoints( lFacet_t *f, drawVert_t *a, drawVert_t *b, draw
 		m[2][2] = c->xyz[2];
 		m[2][3] = c->st[i];
 
-		if ( fabs(m[1][0]) > fabs(m[0][0]) && fabs(m[1][0]) > fabs(m[2][0]) ) {
-			for ( j = 0 ; j < 4 ; j ++ ) {
+		if(fabs(m[1][0]) > fabs(m[0][0]) && fabs(m[1][0]) > fabs(m[2][0]))
+		{
+			for(j = 0; j < 4; j++)
+			{
 				t = m[0][j];
 				m[0][j] = m[1][j];
 				m[1][j] = t;
 			}
-		} else if ( fabs(m[2][0]) > fabs(m[0][0]) && fabs(m[2][0]) > fabs(m[1][0]) ) {
-			for ( j = 0 ; j < 4 ; j ++ ) {
+		}
+		else if(fabs(m[2][0]) > fabs(m[0][0]) && fabs(m[2][0]) > fabs(m[1][0]))
+		{
+			for(j = 0; j < 4; j++)
+			{
 				t = m[0][j];
 				m[0][j] = m[2][j];
 				m[2][j] = t;
@@ -844,8 +853,10 @@ void VS_TextureMatrixFromPoints( lFacet_t *f, drawVert_t *a, drawVert_t *b, draw
 		m[2][2] -= m[0][2] * s;
 		m[2][3] -= m[0][3] * s;
 
-		if ( fabs(m[2][1]) > fabs(m[1][1]) ) {
-			for ( j = 0 ; j < 4 ; j ++ ) {
+		if(fabs(m[2][1]) > fabs(m[1][1]))
+		{
+			for(j = 0; j < 4; j++)
+			{
 				t = m[1][j];
 				m[1][j] = m[2][j];
 				m[2][j] = t;
@@ -858,7 +869,7 @@ void VS_TextureMatrixFromPoints( lFacet_t *f, drawVert_t *a, drawVert_t *b, draw
 		m[1][2] *= s;
 		m[1][3] *= s;
 
-		s = m[2][1];// / m[1][1];
+		s = m[2][1];			// / m[1][1];
 		m[2][0] -= m[1][0] * s;
 		m[2][1] -= m[1][1] * s;
 		m[2][2] -= m[1][2] * s;
@@ -897,40 +908,46 @@ void VS_TextureMatrixFromPoints( lFacet_t *f, drawVert_t *a, drawVert_t *b, draw
 VS_LightmapMatrixFromPoints
 =====================
 */
-void VS_LightmapMatrixFromPoints( dsurface_t *dsurf, shaderInfo_t *si, lFacet_t *f, drawVert_t *a, drawVert_t *b, drawVert_t *c ) {
-	int			i, j;
-	float		t;
-	float		m[3][4], al, bl, cl;
-	float		s;
-	int			h, w, ssize;
-	vec3_t		mins, maxs, delta, size, planeNormal;
-	drawVert_t	*verts;
-	static int	message;
+void VS_LightmapMatrixFromPoints(dsurface_t * dsurf, shaderInfo_t * si, lFacet_t * f, drawVert_t * a, drawVert_t * b,
+								 drawVert_t * c)
+{
+	int             i, j;
+	float           t;
+	float           m[3][4], al, bl, cl;
+	float           s;
+	int             h, w, ssize;
+	vec3_t          mins, maxs, delta, size, planeNormal;
+	drawVert_t     *verts;
+	static int      message;
 
 	// vertex-lit triangle model
-	if ( dsurf->surfaceType == MST_TRIANGLE_SOUP ) {
+	if(dsurf->surfaceType == MST_TRIANGLE_SOUP)
+	{
 		return;
 	}
-	
-	if ( dsurf->lightmapNum < 0 ) {
-		return;		// doesn't need lighting
+
+	if(dsurf->lightmapNum < 0)
+	{
+		return;					// doesn't need lighting
 	}
 
 	VectorClear(f->mins);
-	if (dsurf->surfaceType != MST_PATCH)
+	if(dsurf->surfaceType != MST_PATCH)
 	{
 		ssize = samplesize;
-		if (si->lightmapSampleSize)
+		if(si->lightmapSampleSize)
 			ssize = si->lightmapSampleSize;
-		ClearBounds( mins, maxs );
+		ClearBounds(mins, maxs);
 		verts = &drawVerts[dsurf->firstVert];
-		for ( i = 0 ; i < dsurf->numVerts ; i++ ) {
-			AddPointToBounds( verts[i].xyz, mins, maxs );
+		for(i = 0; i < dsurf->numVerts; i++)
+		{
+			AddPointToBounds(verts[i].xyz, mins, maxs);
 		}
 		// round to the lightmap resolution
-		for ( i = 0 ; i < 3 ; i++ ) {
-			mins[i] = ssize * floor( mins[i] / ssize );
-			maxs[i] = ssize * ceil( maxs[i] / ssize );
+		for(i = 0; i < 3; i++)
+		{
+			mins[i] = ssize * floor(mins[i] / ssize);
+			maxs[i] = ssize * ceil(maxs[i] / ssize);
 			f->mins[i] = mins[i];
 			size[i] = (maxs[i] - mins[i]) / ssize + 1;
 		}
@@ -940,111 +957,130 @@ void VS_LightmapMatrixFromPoints( dsurface_t *dsurf, shaderInfo_t *si, lFacet_t 
 		VectorClear(f->lightmapMatrix[1]);
 		f->lightmapMatrix[1][3] = 0;
 
-		planeNormal[0] = fabs( dsurf->lightmapVecs[2][0] );
-		planeNormal[1] = fabs( dsurf->lightmapVecs[2][1] );
-		planeNormal[2] = fabs( dsurf->lightmapVecs[2][2] );
+		planeNormal[0] = fabs(dsurf->lightmapVecs[2][0]);
+		planeNormal[1] = fabs(dsurf->lightmapVecs[2][1]);
+		planeNormal[2] = fabs(dsurf->lightmapVecs[2][2]);
 
-		if ( planeNormal[0] >= planeNormal[1] && planeNormal[0] >= planeNormal[2] ) {
+		if(planeNormal[0] >= planeNormal[1] && planeNormal[0] >= planeNormal[2])
+		{
 			w = size[1];
 			h = size[2];
 			f->lightmapMatrix[0][1] = 1.0 / ssize;
 			f->lightmapMatrix[1][2] = 1.0 / ssize;
-		} else if ( planeNormal[1] >= planeNormal[0] && planeNormal[1] >= planeNormal[2] ) {
+		}
+		else if(planeNormal[1] >= planeNormal[0] && planeNormal[1] >= planeNormal[2])
+		{
 			w = size[0];
 			h = size[2];
 			f->lightmapMatrix[0][0] = 1.0 / ssize;
 			f->lightmapMatrix[1][2] = 1.0 / ssize;
-		} else {
+		}
+		else
+		{
 			w = size[0];
 			h = size[1];
 			f->lightmapMatrix[0][0] = 1.0 / ssize;
 			f->lightmapMatrix[1][1] = 1.0 / ssize;
 		}
-		if ( w > LIGHTMAP_WIDTH ) {
-			VectorScale ( f->lightmapMatrix[0], (float)LIGHTMAP_SIZE/w, f->lightmapMatrix[0] );
+		if(w > LIGHTMAP_WIDTH)
+		{
+			VectorScale(f->lightmapMatrix[0], (float)LIGHTMAP_SIZE / w, f->lightmapMatrix[0]);
 		}
-		
-		if ( h > LIGHTMAP_HEIGHT ) {
-			VectorScale ( f->lightmapMatrix[1], (float)LIGHTMAP_SIZE/h, f->lightmapMatrix[1] );
+
+		if(h > LIGHTMAP_HEIGHT)
+		{
+			VectorScale(f->lightmapMatrix[1], (float)LIGHTMAP_SIZE / h, f->lightmapMatrix[1]);
 		}
 		VectorSubtract(a->xyz, f->mins, delta);
-		s = (DotProduct( delta, f->lightmapMatrix[0] ) + dsurf->lightmapX + 0.5) / LIGHTMAP_SIZE;
-		if ( fabs(s - a->lightmap[0]) > 0.01 ) {
-			_printf( "Bad lightmapMatrix" );
+		s = (DotProduct(delta, f->lightmapMatrix[0]) + dsurf->lightmapX + 0.5) / LIGHTMAP_SIZE;
+		if(fabs(s - a->lightmap[0]) > 0.01)
+		{
+			_printf("Bad lightmapMatrix");
 		}
-		t = (DotProduct( delta, f->lightmapMatrix[1] ) + dsurf->lightmapY + 0.5) / LIGHTMAP_SIZE;
-		if ( fabs(t - a->lightmap[1]) > 0.01 ) {
-			_printf( "Bad lightmapMatrix" );
+		t = (DotProduct(delta, f->lightmapMatrix[1]) + dsurf->lightmapY + 0.5) / LIGHTMAP_SIZE;
+		if(fabs(t - a->lightmap[1]) > 0.01)
+		{
+			_printf("Bad lightmapMatrix");
 		}
 		VectorSubtract(b->xyz, f->mins, delta);
-		s = (DotProduct( delta, f->lightmapMatrix[0] ) + dsurf->lightmapX + 0.5) / LIGHTMAP_SIZE;
-		if ( fabs(s - b->lightmap[0]) > 0.01 ) {
-			_printf( "Bad lightmapMatrix" );
+		s = (DotProduct(delta, f->lightmapMatrix[0]) + dsurf->lightmapX + 0.5) / LIGHTMAP_SIZE;
+		if(fabs(s - b->lightmap[0]) > 0.01)
+		{
+			_printf("Bad lightmapMatrix");
 		}
-		t = (DotProduct( delta, f->lightmapMatrix[1] ) + dsurf->lightmapY + 0.5) / LIGHTMAP_SIZE;
-		if ( fabs(t - b->lightmap[1]) > 0.01 ) {
-			_printf( "Bad lightmapMatrix" );
+		t = (DotProduct(delta, f->lightmapMatrix[1]) + dsurf->lightmapY + 0.5) / LIGHTMAP_SIZE;
+		if(fabs(t - b->lightmap[1]) > 0.01)
+		{
+			_printf("Bad lightmapMatrix");
 		}
 		VectorSubtract(c->xyz, f->mins, delta);
-		s = (DotProduct( delta, f->lightmapMatrix[0] ) + dsurf->lightmapX + 0.5) / LIGHTMAP_SIZE;
-		if ( fabs(s - c->lightmap[0]) > 0.01 ) {
-			_printf( "Bad lightmapMatrix" );
+		s = (DotProduct(delta, f->lightmapMatrix[0]) + dsurf->lightmapX + 0.5) / LIGHTMAP_SIZE;
+		if(fabs(s - c->lightmap[0]) > 0.01)
+		{
+			_printf("Bad lightmapMatrix");
 		}
-		t = (DotProduct( delta, f->lightmapMatrix[1] ) + dsurf->lightmapY + 0.5) / LIGHTMAP_SIZE;
-		if ( fabs(t - c->lightmap[1]) > 0.01 ) {
-			_printf( "Bad lightmapMatrix" );
+		t = (DotProduct(delta, f->lightmapMatrix[1]) + dsurf->lightmapY + 0.5) / LIGHTMAP_SIZE;
+		if(fabs(t - c->lightmap[1]) > 0.01)
+		{
+			_printf("Bad lightmapMatrix");
 		}
 		VectorAdd(f->mins, surfaceOrigin[dsurf - drawSurfaces], f->mins);
 		return;
 	}
 	// This is an incredibly stupid way of solving a three variable equation
-	for ( i = 0 ; i < 2 ; i++ ) {
+	for(i = 0; i < 2; i++)
+	{
 
-		if (i)
-			al = a->lightmap[i] - ((float) dsurf->lightmapY + 0.5) / LIGHTMAP_SIZE;
+		if(i)
+			al = a->lightmap[i] - ((float)dsurf->lightmapY + 0.5) / LIGHTMAP_SIZE;
 		else
-			al = a->lightmap[i] - ((float) dsurf->lightmapX + 0.5) / LIGHTMAP_SIZE;
+			al = a->lightmap[i] - ((float)dsurf->lightmapX + 0.5) / LIGHTMAP_SIZE;
 
 		m[0][0] = a->xyz[0] - f->mins[0];
 		m[0][1] = a->xyz[1] - f->mins[1];
 		m[0][2] = a->xyz[2] - f->mins[2];
 		m[0][3] = al;
 
-		if (i)
-			bl = b->lightmap[i] - ((float) dsurf->lightmapY + 0.5) / LIGHTMAP_SIZE;
+		if(i)
+			bl = b->lightmap[i] - ((float)dsurf->lightmapY + 0.5) / LIGHTMAP_SIZE;
 		else
-			bl = b->lightmap[i] - ((float) dsurf->lightmapX + 0.5) / LIGHTMAP_SIZE;
+			bl = b->lightmap[i] - ((float)dsurf->lightmapX + 0.5) / LIGHTMAP_SIZE;
 
 		m[1][0] = b->xyz[0] - f->mins[0];
 		m[1][1] = b->xyz[1] - f->mins[1];
 		m[1][2] = b->xyz[2] - f->mins[2];
 		m[1][3] = bl;
 
-		if (i)
-			cl = c->lightmap[i] - ((float) dsurf->lightmapY + 0.5) / LIGHTMAP_SIZE;
+		if(i)
+			cl = c->lightmap[i] - ((float)dsurf->lightmapY + 0.5) / LIGHTMAP_SIZE;
 		else
-			cl = c->lightmap[i] - ((float) dsurf->lightmapX + 0.5) / LIGHTMAP_SIZE;
+			cl = c->lightmap[i] - ((float)dsurf->lightmapX + 0.5) / LIGHTMAP_SIZE;
 
 		m[2][0] = c->xyz[0] - f->mins[0];
 		m[2][1] = c->xyz[1] - f->mins[1];
 		m[2][2] = c->xyz[2] - f->mins[2];
 		m[2][3] = cl;
 
-		if ( fabs(m[1][0]) > fabs(m[0][0]) && fabs(m[1][0]) >= fabs(m[2][0]) ) {
-			for ( j = 0 ; j < 4 ; j ++ ) {
+		if(fabs(m[1][0]) > fabs(m[0][0]) && fabs(m[1][0]) >= fabs(m[2][0]))
+		{
+			for(j = 0; j < 4; j++)
+			{
 				t = m[0][j];
 				m[0][j] = m[1][j];
 				m[1][j] = t;
 			}
-		} else if ( fabs(m[2][0]) > fabs(m[0][0]) && fabs(m[2][0]) >= fabs(m[1][0]) ) {
-			for ( j = 0 ; j < 4 ; j ++ ) {
+		}
+		else if(fabs(m[2][0]) > fabs(m[0][0]) && fabs(m[2][0]) >= fabs(m[1][0]))
+		{
+			for(j = 0; j < 4; j++)
+			{
 				t = m[0][j];
 				m[0][j] = m[2][j];
 				m[2][j] = t;
 			}
 		}
 
-		if (m[0][0])
+		if(m[0][0])
 		{
 			s = 1.0 / m[0][0];
 			m[0][0] *= s;
@@ -1065,15 +1101,17 @@ void VS_LightmapMatrixFromPoints( dsurface_t *dsurf, shaderInfo_t *si, lFacet_t 
 			m[2][3] -= m[0][3] * s;
 		}
 
-		if ( fabs(m[2][1]) > fabs(m[1][1]) ) {
-			for ( j = 0 ; j < 4 ; j ++ ) {
+		if(fabs(m[2][1]) > fabs(m[1][1]))
+		{
+			for(j = 0; j < 4; j++)
+			{
 				t = m[1][j];
 				m[1][j] = m[2][j];
 				m[2][j] = t;
 			}
 		}
 
-		if (m[1][1])
+		if(m[1][1])
 		{
 			s = 1.0 / m[1][1];
 			m[1][0] *= s;
@@ -1088,7 +1126,7 @@ void VS_LightmapMatrixFromPoints( dsurface_t *dsurf, shaderInfo_t *si, lFacet_t 
 			m[2][3] -= m[1][3] * s;
 		}
 
-		if (m[2][2])
+		if(m[2][2])
 		{
 			s = 1.0 / m[2][2];
 			m[2][0] *= s;
@@ -1104,24 +1142,27 @@ void VS_LightmapMatrixFromPoints( dsurface_t *dsurf, shaderInfo_t *si, lFacet_t 
 		f->lightmapMatrix[i][3] = 0;
 
 		VectorSubtract(a->xyz, f->mins, delta);
-		s = fabs( DotProduct( delta, f->lightmapMatrix[i] ) - al );
-		if ( s > 0.01 ) {
-			if (!message)
-				_printf( "Bad lightmapMatrix\n" );
+		s = fabs(DotProduct(delta, f->lightmapMatrix[i]) - al);
+		if(s > 0.01)
+		{
+			if(!message)
+				_printf("Bad lightmapMatrix\n");
 			message = qtrue;
 		}
 		VectorSubtract(b->xyz, f->mins, delta);
-		s = fabs( DotProduct( delta, f->lightmapMatrix[i] ) - bl );
-		if ( s > 0.01 ) {
-			if (!message)
-				_printf( "Bad lightmapMatrix\n" );
+		s = fabs(DotProduct(delta, f->lightmapMatrix[i]) - bl);
+		if(s > 0.01)
+		{
+			if(!message)
+				_printf("Bad lightmapMatrix\n");
 			message = qtrue;
 		}
 		VectorSubtract(c->xyz, f->mins, delta);
-		s = fabs( DotProduct( delta, f->lightmapMatrix[i] ) - cl );
-		if ( s > 0.01 ) {
-			if (!message)
-				_printf( "Bad lightmapMatrix\n" );
+		s = fabs(DotProduct(delta, f->lightmapMatrix[i]) - cl);
+		if(s > 0.01)
+		{
+			if(!message)
+				_printf("Bad lightmapMatrix\n");
 			message = qtrue;
 		}
 		VectorAdd(f->mins, surfaceOrigin[dsurf - drawSurfaces], f->mins);
@@ -1136,28 +1177,28 @@ Plane_Equal
 #define	NORMAL_EPSILON	0.0001
 #define	DIST_EPSILON	0.02
 
-static int Plane_Equal(plane_t *a, plane_t *b, int flip)
+static int Plane_Equal(plane_t * a, plane_t * b, int flip)
 {
-	vec3_t normal;
-	float dist;
+	vec3_t          normal;
+	float           dist;
 
-	if (flip) {
-		normal[0] = - b->normal[0];
-		normal[1] = - b->normal[1];
-		normal[2] = - b->normal[2];
-		dist = - b->dist;
+	if(flip)
+	{
+		normal[0] = -b->normal[0];
+		normal[1] = -b->normal[1];
+		normal[2] = -b->normal[2];
+		dist = -b->dist;
 	}
-	else {
+	else
+	{
 		normal[0] = b->normal[0];
 		normal[1] = b->normal[1];
 		normal[2] = b->normal[2];
 		dist = b->dist;
 	}
-	if (
-	   fabs(a->normal[0] - normal[0]) < NORMAL_EPSILON
-	&& fabs(a->normal[1] - normal[1]) < NORMAL_EPSILON
-	&& fabs(a->normal[2] - normal[2]) < NORMAL_EPSILON
-	&& fabs(a->dist - dist) < DIST_EPSILON )
+	if(fabs(a->normal[0] - normal[0]) < NORMAL_EPSILON
+	   && fabs(a->normal[1] - normal[1]) < NORMAL_EPSILON
+	   && fabs(a->normal[2] - normal[2]) < NORMAL_EPSILON && fabs(a->dist - dist) < DIST_EPSILON)
 		return qtrue;
 	return qfalse;
 }
@@ -1167,17 +1208,19 @@ static int Plane_Equal(plane_t *a, plane_t *b, int flip)
 VS_PlaneFromPoints
 =============
 */
-qboolean VS_PlaneFromPoints( plane_t *plane, const vec3_t a, const vec3_t b, const vec3_t c ) {
-	vec3_t	d1, d2;
+qboolean VS_PlaneFromPoints(plane_t * plane, const vec3_t a, const vec3_t b, const vec3_t c)
+{
+	vec3_t          d1, d2;
 
-	VectorSubtract( b, a, d1 );
-	VectorSubtract( c, a, d2 );
-	CrossProduct( d2, d1, plane->normal );
-	if ( VectorNormalize( plane->normal, plane->normal ) == 0 ) {
+	VectorSubtract(b, a, d1);
+	VectorSubtract(c, a, d2);
+	CrossProduct(d2, d1, plane->normal);
+	if(VectorNormalize(plane->normal, plane->normal) == 0)
+	{
 		return qfalse;
 	}
 
-	plane->dist = DotProduct( a, plane->normal );
+	plane->dist = DotProduct(a, plane->normal);
 	return qtrue;
 }
 
@@ -1186,14 +1229,15 @@ qboolean VS_PlaneFromPoints( plane_t *plane, const vec3_t a, const vec3_t b, con
 VS_GenerateBoundaryForPoints
 =====================
 */
-void VS_GenerateBoundaryForPoints( plane_t *boundary, plane_t *plane, vec3_t a, vec3_t b ) {
-	vec3_t	d1;
+void VS_GenerateBoundaryForPoints(plane_t * boundary, plane_t * plane, vec3_t a, vec3_t b)
+{
+	vec3_t          d1;
 
 	// make a perpendicular vector to the edge and the surface
-	VectorSubtract( a, b, d1 );
-	CrossProduct( plane->normal, d1, boundary->normal );
-	VectorNormalize( boundary->normal, boundary->normal );
-	boundary->dist = DotProduct( a, boundary->normal );
+	VectorSubtract(a, b, d1);
+	CrossProduct(plane->normal, d1, boundary->normal);
+	VectorNormalize(boundary->normal, boundary->normal);
+	boundary->dist = DotProduct(a, boundary->normal);
 }
 
 /*
@@ -1201,22 +1245,25 @@ void VS_GenerateBoundaryForPoints( plane_t *boundary, plane_t *plane, vec3_t a, 
 VS_GenerateFacetFor3Points
 =====================
 */
-qboolean VS_GenerateFacetFor3Points( dsurface_t *dsurf, shaderInfo_t *si, lFacet_t *f, drawVert_t *a, drawVert_t *b, drawVert_t *c ) {
+qboolean VS_GenerateFacetFor3Points(dsurface_t * dsurf, shaderInfo_t * si, lFacet_t * f, drawVert_t * a, drawVert_t * b,
+									drawVert_t * c)
+{
 	//
-	vec3_t dir;
-	int i;
+	vec3_t          dir;
+	int             i;
 
 	// if we can't generate a valid plane for the points, ignore the facet
-	if ( !VS_PlaneFromPoints( &f->plane, a->xyz, b->xyz, c->xyz ) ) {
+	if(!VS_PlaneFromPoints(&f->plane, a->xyz, b->xyz, c->xyz))
+	{
 		f->numpoints = 0;
 		return qfalse;
 	}
 
 	f->num = numfacets++;
 
-	VectorAdd( a->xyz, surfaceOrigin[dsurf - drawSurfaces], f->points[0] );
-	VectorAdd( b->xyz, surfaceOrigin[dsurf - drawSurfaces], f->points[1] );
-	VectorAdd( c->xyz, surfaceOrigin[dsurf - drawSurfaces], f->points[2] );
+	VectorAdd(a->xyz, surfaceOrigin[dsurf - drawSurfaces], f->points[0]);
+	VectorAdd(b->xyz, surfaceOrigin[dsurf - drawSurfaces], f->points[1]);
+	VectorAdd(c->xyz, surfaceOrigin[dsurf - drawSurfaces], f->points[2]);
 
 	f->lightmapCoords[0][0] = a->lightmap[0];
 	f->lightmapCoords[0][1] = a->lightmap[1];
@@ -1225,19 +1272,19 @@ qboolean VS_GenerateFacetFor3Points( dsurface_t *dsurf, shaderInfo_t *si, lFacet
 	f->lightmapCoords[2][0] = c->lightmap[0];
 	f->lightmapCoords[2][1] = c->lightmap[1];
 
-	VS_GenerateBoundaryForPoints( &f->boundaries[0], &f->plane, f->points[0], f->points[1] );
-	VS_GenerateBoundaryForPoints( &f->boundaries[1], &f->plane, f->points[1], f->points[2] );
-	VS_GenerateBoundaryForPoints( &f->boundaries[2], &f->plane, f->points[2], f->points[0] );
+	VS_GenerateBoundaryForPoints(&f->boundaries[0], &f->plane, f->points[0], f->points[1]);
+	VS_GenerateBoundaryForPoints(&f->boundaries[1], &f->plane, f->points[1], f->points[2]);
+	VS_GenerateBoundaryForPoints(&f->boundaries[2], &f->plane, f->points[2], f->points[0]);
 
-	for (i = 0; i < 3; i++)
+	for(i = 0; i < 3; i++)
 	{
-		VectorSubtract(f->points[(i+1)%3], f->points[i], dir);
-		if (VectorLength(dir) < 0.1)
+		VectorSubtract(f->points[(i + 1) % 3], f->points[i], dir);
+		if(VectorLength(dir) < 0.1)
 			return qfalse;
 	}
 
-	VS_TextureMatrixFromPoints( f, a, b, c );
-	VS_LightmapMatrixFromPoints( dsurf, si, f, a, b, c );
+	VS_TextureMatrixFromPoints(f, a, b, c);
+	VS_LightmapMatrixFromPoints(dsurf, si, f, a, b, c);
 
 	f->numpoints = 3;
 
@@ -1252,38 +1299,44 @@ Attempts to use four points as a planar quad
 =====================
 */
 #define	PLANAR_EPSILON	0.1
-qboolean VS_GenerateFacetFor4Points( dsurface_t *dsurf, shaderInfo_t *si, lFacet_t *f, drawVert_t *a, drawVert_t *b, drawVert_t *c, drawVert_t *d ) {
-	float	dist;
-	vec3_t dir;
-	int i;
-	plane_t plane;
+qboolean VS_GenerateFacetFor4Points(dsurface_t * dsurf, shaderInfo_t * si, lFacet_t * f, drawVert_t * a, drawVert_t * b,
+									drawVert_t * c, drawVert_t * d)
+{
+	float           dist;
+	vec3_t          dir;
+	int             i;
+	plane_t         plane;
 
 	// if we can't generate a valid plane for the points, ignore the facet
-	if ( !VS_PlaneFromPoints( &f->plane, a->xyz, b->xyz, c->xyz ) ) {
+	if(!VS_PlaneFromPoints(&f->plane, a->xyz, b->xyz, c->xyz))
+	{
 		f->numpoints = 0;
 		return qfalse;
 	}
 
 	// if the fourth point is also on the plane, we can make a quad facet
-	dist = DotProduct( d->xyz, f->plane.normal ) - f->plane.dist;
-	if ( fabs( dist ) > PLANAR_EPSILON ) {
+	dist = DotProduct(d->xyz, f->plane.normal) - f->plane.dist;
+	if(fabs(dist) > PLANAR_EPSILON)
+	{
 		f->numpoints = 0;
 		return qfalse;
 	}
 
-	VectorAdd( a->xyz, surfaceOrigin[dsurf - drawSurfaces], f->points[0] );
-	VectorAdd( b->xyz, surfaceOrigin[dsurf - drawSurfaces], f->points[1] );
-	VectorAdd( c->xyz, surfaceOrigin[dsurf - drawSurfaces], f->points[2] );
-	VectorAdd( d->xyz, surfaceOrigin[dsurf - drawSurfaces], f->points[3] );
+	VectorAdd(a->xyz, surfaceOrigin[dsurf - drawSurfaces], f->points[0]);
+	VectorAdd(b->xyz, surfaceOrigin[dsurf - drawSurfaces], f->points[1]);
+	VectorAdd(c->xyz, surfaceOrigin[dsurf - drawSurfaces], f->points[2]);
+	VectorAdd(d->xyz, surfaceOrigin[dsurf - drawSurfaces], f->points[3]);
 
-	for (i = 1; i < 4; i++)
+	for(i = 1; i < 4; i++)
 	{
-		if ( !VS_PlaneFromPoints( &plane, f->points[i], f->points[(i+1) % 4], f->points[(i+2) % 4]) ) {
+		if(!VS_PlaneFromPoints(&plane, f->points[i], f->points[(i + 1) % 4], f->points[(i + 2) % 4]))
+		{
 			f->numpoints = 0;
 			return qfalse;
 		}
 
-		if (!Plane_Equal(&f->plane, &plane, qfalse)) {
+		if(!Plane_Equal(&f->plane, &plane, qfalse))
+		{
 			f->numpoints = 0;
 			return qfalse;
 		}
@@ -1298,20 +1351,20 @@ qboolean VS_GenerateFacetFor4Points( dsurface_t *dsurf, shaderInfo_t *si, lFacet
 	f->lightmapCoords[3][0] = d->lightmap[0];
 	f->lightmapCoords[3][1] = d->lightmap[1];
 
-	VS_GenerateBoundaryForPoints( &f->boundaries[0], &f->plane, f->points[0], f->points[1] );
-	VS_GenerateBoundaryForPoints( &f->boundaries[1], &f->plane, f->points[1], f->points[2] );
-	VS_GenerateBoundaryForPoints( &f->boundaries[2], &f->plane, f->points[2], f->points[3] );
-	VS_GenerateBoundaryForPoints( &f->boundaries[3], &f->plane, f->points[3], f->points[0] );
+	VS_GenerateBoundaryForPoints(&f->boundaries[0], &f->plane, f->points[0], f->points[1]);
+	VS_GenerateBoundaryForPoints(&f->boundaries[1], &f->plane, f->points[1], f->points[2]);
+	VS_GenerateBoundaryForPoints(&f->boundaries[2], &f->plane, f->points[2], f->points[3]);
+	VS_GenerateBoundaryForPoints(&f->boundaries[3], &f->plane, f->points[3], f->points[0]);
 
-	for (i = 0; i < 4; i++)
+	for(i = 0; i < 4; i++)
 	{
-		VectorSubtract(f->points[(i+1)%4], f->points[i], dir);
-		if (VectorLength(dir) < 0.1)
+		VectorSubtract(f->points[(i + 1) % 4], f->points[i], dir);
+		if(VectorLength(dir) < 0.1)
 			return qfalse;
 	}
 
-	VS_TextureMatrixFromPoints( f, a, b, c );
-	VS_LightmapMatrixFromPoints( dsurf, si, f, a, b, c );
+	VS_TextureMatrixFromPoints(f, a, b, c);
+	VS_LightmapMatrixFromPoints(dsurf, si, f, a, b, c);
 
 	f->num = numfacets++;
 	f->numpoints = 4;
@@ -1324,13 +1377,14 @@ qboolean VS_GenerateFacetFor4Points( dsurface_t *dsurf, shaderInfo_t *si, lFacet
 VS_SphereFromBounds
 ===============
 */
-void VS_SphereFromBounds( vec3_t mins, vec3_t maxs, vec3_t origin, float *radius ) {
-	vec3_t		temp;
+void VS_SphereFromBounds(vec3_t mins, vec3_t maxs, vec3_t origin, float *radius)
+{
+	vec3_t          temp;
 
-	VectorAdd( mins, maxs, origin );
-	VectorScale( origin, 0.5, origin );
-	VectorSubtract( maxs, origin, temp );
-	*radius = VectorLength( temp );
+	VectorAdd(mins, maxs, origin);
+	VectorScale(origin, 0.5, origin);
+	VectorSubtract(maxs, origin, temp);
+	*radius = VectorLength(temp);
 }
 
 /*
@@ -1338,39 +1392,44 @@ void VS_SphereFromBounds( vec3_t mins, vec3_t maxs, vec3_t origin, float *radius
 VS_FacetsForTriangleSurface
 ====================
 */
-void VS_FacetsForTriangleSurface( dsurface_t *dsurf, shaderInfo_t *si, lsurfaceTest_t *test ) {
-	int			i;
-	drawVert_t	*v1, *v2, *v3, *v4;
-	int			count;
-	int			i1, i2, i3, i4, i5, i6;
+void VS_FacetsForTriangleSurface(dsurface_t * dsurf, shaderInfo_t * si, lsurfaceTest_t * test)
+{
+	int             i;
+	drawVert_t     *v1, *v2, *v3, *v4;
+	int             count;
+	int             i1, i2, i3, i4, i5, i6;
 
 	test->patch = qfalse;
-	if (dsurf->surfaceType == MST_TRIANGLE_SOUP)
+	if(dsurf->surfaceType == MST_TRIANGLE_SOUP)
 		test->trisoup = qtrue;
 	else
 		test->trisoup = qfalse;
 	test->numFacets = dsurf->numIndexes / 3;
-	test->facets = malloc( sizeof( test->facets[0] ) * test->numFacets );
+	test->facets = malloc(sizeof(test->facets[0]) * test->numFacets);
 	test->shader = si;
 
 	count = 0;
-	for ( i = 0 ; i < test->numFacets ; i++ ) {
-		i1 = drawIndexes[ dsurf->firstIndex + i*3 ];
-		i2 = drawIndexes[ dsurf->firstIndex + i*3 + 1 ];
-		i3 = drawIndexes[ dsurf->firstIndex + i*3 + 2 ];
+	for(i = 0; i < test->numFacets; i++)
+	{
+		i1 = drawIndexes[dsurf->firstIndex + i * 3];
+		i2 = drawIndexes[dsurf->firstIndex + i * 3 + 1];
+		i3 = drawIndexes[dsurf->firstIndex + i * 3 + 2];
 
-		v1 = &drawVerts[ dsurf->firstVert + i1 ];
-		v2 = &drawVerts[ dsurf->firstVert + i2 ];
-		v3 = &drawVerts[ dsurf->firstVert + i3 ];
+		v1 = &drawVerts[dsurf->firstVert + i1];
+		v2 = &drawVerts[dsurf->firstVert + i2];
+		v3 = &drawVerts[dsurf->firstVert + i3];
 
 		// try and make a quad out of two triangles
-		if ( i != test->numFacets - 1 ) {
-			i4 = drawIndexes[ dsurf->firstIndex + i*3 + 3 ];
-			i5 = drawIndexes[ dsurf->firstIndex + i*3 + 4 ];
-			i6 = drawIndexes[ dsurf->firstIndex + i*3 + 5 ];
-			if ( i4 == i3 && i5 == i2 ) {
-				v4 = &drawVerts[ dsurf->firstVert + i6 ];
-				if ( VS_GenerateFacetFor4Points( dsurf, si, &test->facets[count], v1, v2, v4, v3 ) ) {
+		if(i != test->numFacets - 1)
+		{
+			i4 = drawIndexes[dsurf->firstIndex + i * 3 + 3];
+			i5 = drawIndexes[dsurf->firstIndex + i * 3 + 4];
+			i6 = drawIndexes[dsurf->firstIndex + i * 3 + 5];
+			if(i4 == i3 && i5 == i2)
+			{
+				v4 = &drawVerts[dsurf->firstVert + i6];
+				if(VS_GenerateFacetFor4Points(dsurf, si, &test->facets[count], v1, v2, v4, v3))
+				{
 					count++;
 					i++;		// skip next tri
 					continue;
@@ -1378,10 +1437,11 @@ void VS_FacetsForTriangleSurface( dsurface_t *dsurf, shaderInfo_t *si, lsurfaceT
 			}
 		}
 
-		if (VS_GenerateFacetFor3Points( dsurf, si, &test->facets[count], v1, v2, v3 )) {
+		if(VS_GenerateFacetFor3Points(dsurf, si, &test->facets[count], v1, v2, v3))
+		{
 			count++;
 		}
-	}		
+	}
 
 	// we may have turned some pairs into quads
 	test->numFacets = count;
@@ -1392,45 +1452,49 @@ void VS_FacetsForTriangleSurface( dsurface_t *dsurf, shaderInfo_t *si, lsurfaceT
 VS_FacetsForPatch
 ====================
 */
-void VS_FacetsForPatch( dsurface_t *dsurf, int surfaceNum, shaderInfo_t *si, lsurfaceTest_t *test ) {
-	int			i, j, x, y;
-	drawVert_t	*v1, *v2, *v3, *v4;
-	int			count, ssize;
-	mesh_t		mesh;
-	mesh_t		*subdivided, *detailmesh, *newmesh;
-	int widthtable[LIGHTMAP_SIZE], heighttable[LIGHTMAP_SIZE];
+void VS_FacetsForPatch(dsurface_t * dsurf, int surfaceNum, shaderInfo_t * si, lsurfaceTest_t * test)
+{
+	int             i, j, x, y;
+	drawVert_t     *v1, *v2, *v3, *v4;
+	int             count, ssize;
+	mesh_t          mesh;
+	mesh_t         *subdivided, *detailmesh, *newmesh;
+	int             widthtable[LIGHTMAP_SIZE], heighttable[LIGHTMAP_SIZE];
 
 	mesh.width = dsurf->patchWidth;
 	mesh.height = dsurf->patchHeight;
-	mesh.verts = &drawVerts[ dsurf->firstVert ];
+	mesh.verts = &drawVerts[dsurf->firstVert];
 
-	newmesh = SubdivideMesh( mesh, 8, 999 );
-	PutMeshOnCurve( *newmesh );
-	MakeMeshNormals( *newmesh );
+	newmesh = SubdivideMesh(mesh, 8, 999);
+	PutMeshOnCurve(*newmesh);
+	MakeMeshNormals(*newmesh);
 
-	subdivided = RemoveLinearMeshColumnsRows( newmesh );
+	subdivided = RemoveLinearMeshColumnsRows(newmesh);
 	FreeMesh(newmesh);
 
-	//	DebugNet_RemoveAllPolys();
-	//	DebugNet_DrawMesh(subdivided);
+	//  DebugNet_RemoveAllPolys();
+	//  DebugNet_DrawMesh(subdivided);
 
 	ssize = samplesize;
-	if (si->lightmapSampleSize)
+	if(si->lightmapSampleSize)
 		ssize = si->lightmapSampleSize;
 
-	if ( dsurf->lightmapNum >= 0 ) {
+	if(dsurf->lightmapNum >= 0)
+	{
 
-		detailmesh = SubdivideMeshQuads( subdivided, ssize, LIGHTMAP_SIZE, widthtable, heighttable);
+		detailmesh = SubdivideMeshQuads(subdivided, ssize, LIGHTMAP_SIZE, widthtable, heighttable);
 		test->detailMesh = detailmesh;
 
 		// DebugNet_RemoveAllPolys();
 		// DebugNet_DrawMesh(detailmesh);
 
-		if ( detailmesh->width != dsurf->lightmapWidth || detailmesh->height != dsurf->lightmapHeight ) {
-			Error( "Mesh lightmap miscount");
+		if(detailmesh->width != dsurf->lightmapWidth || detailmesh->height != dsurf->lightmapHeight)
+		{
+			Error("Mesh lightmap miscount");
 		}
 	}
-	else {
+	else
+	{
 		test->detailMesh = NULL;
 		memset(widthtable, 0, sizeof(widthtable));
 		memset(heighttable, 0, sizeof(heighttable));
@@ -1438,36 +1502,43 @@ void VS_FacetsForPatch( dsurface_t *dsurf, int surfaceNum, shaderInfo_t *si, lsu
 
 	test->patch = qtrue;
 	test->trisoup = qfalse;
-	test->numFacets = ( subdivided->width - 1 ) * ( subdivided->height - 1 ) * 2;
-	test->facets = malloc( sizeof( test->facets[0] ) * test->numFacets );
+	test->numFacets = (subdivided->width - 1) * (subdivided->height - 1) * 2;
+	test->facets = malloc(sizeof(test->facets[0]) * test->numFacets);
 	test->shader = si;
 
 	count = 0;
 	x = 0;
-	for ( i = 0 ; i < subdivided->width - 1 ; i++ ) {
+	for(i = 0; i < subdivided->width - 1; i++)
+	{
 		y = 0;
-		for ( j = 0 ; j < subdivided->height - 1 ; j++ ) {
+		for(j = 0; j < subdivided->height - 1; j++)
+		{
 
 			v1 = subdivided->verts + j * subdivided->width + i;
 			v2 = v1 + 1;
 			v3 = v1 + subdivided->width + 1;
 			v4 = v1 + subdivided->width;
 
-			if ( VS_GenerateFacetFor4Points( dsurf, si, &test->facets[count], v1, v4, v3, v2 ) ) {
+			if(VS_GenerateFacetFor4Points(dsurf, si, &test->facets[count], v1, v4, v3, v2))
+			{
 				test->facets[count].x = x;
 				test->facets[count].y = y;
 				test->facets[count].width = widthtable[i];
 				test->facets[count].height = heighttable[j];
 				count++;
-			} else {
-				if (VS_GenerateFacetFor3Points( dsurf, si, &test->facets[count], v1, v4, v3 )) {
+			}
+			else
+			{
+				if(VS_GenerateFacetFor3Points(dsurf, si, &test->facets[count], v1, v4, v3))
+				{
 					test->facets[count].x = x;
 					test->facets[count].y = y;
 					test->facets[count].width = widthtable[i];
 					test->facets[count].height = heighttable[j];
 					count++;
 				}
-				if (VS_GenerateFacetFor3Points( dsurf, si, &test->facets[count], v1, v3, v2 )) {
+				if(VS_GenerateFacetFor3Points(dsurf, si, &test->facets[count], v1, v3, v2))
+				{
 					test->facets[count].x = x;
 					test->facets[count].y = y;
 					test->facets[count].width = widthtable[i];
@@ -1489,59 +1560,67 @@ void VS_FacetsForPatch( dsurface_t *dsurf, int surfaceNum, shaderInfo_t *si, lsu
 VS_InitSurfacesForTesting
 =====================
 */
-void VS_InitSurfacesForTesting( void ) {
+void VS_InitSurfacesForTesting(void)
+{
 
-	int				i, j, k;
-	dsurface_t		*dsurf;
-	lsurfaceTest_t	*test;
-	shaderInfo_t	*si;
-	lFacet_t		*facet;
+	int             i, j, k;
+	dsurface_t     *dsurf;
+	lsurfaceTest_t *test;
+	shaderInfo_t   *si;
+	lFacet_t       *facet;
 
-	for ( i = 0 ; i < numDrawSurfaces ; i++ ) {
+	for(i = 0; i < numDrawSurfaces; i++)
+	{
 		// don't light the entity surfaces with vsound
-		if ( entitySurface[i] )
+		if(entitySurface[i])
 			continue;
 		//
-		dsurf = &drawSurfaces[ i ];
-		if ( !dsurf->numIndexes && !dsurf->patchWidth ) {
+		dsurf = &drawSurfaces[i];
+		if(!dsurf->numIndexes && !dsurf->patchWidth)
+		{
 			continue;
 		}
 
-		si = ShaderInfoForShader( dshaders[ dsurf->shaderNum].shader );
+		si = ShaderInfoForShader(dshaders[dsurf->shaderNum].shader);
 		// if the surface is translucent and does not cast an alpha shadow
-		if ( (si->contents & CONTENTS_TRANSLUCENT) && !(si->surfaceFlags & SURF_ALPHASHADOW) ) {
+		if((si->contents & CONTENTS_TRANSLUCENT) && !(si->surfaceFlags & SURF_ALPHASHADOW))
+		{
 			// if the surface has no lightmap
-			if ( dsurf->lightmapNum < 0 )
+			if(dsurf->lightmapNum < 0)
 				continue;
 		}
 
-		test = malloc( sizeof( *test ) );
-		memset(test, 0, sizeof( *test ));
+		test = malloc(sizeof(*test));
+		memset(test, 0, sizeof(*test));
 		test->mutex = MutexAlloc();
 		test->numvolumes = 0;
-		if (si->forceTraceLight)
+		if(si->forceTraceLight)
 			test->always_tracelight = qtrue;
-		else if (si->forceVLight)
+		else if(si->forceVLight)
 			test->always_vsound = qtrue;
 		lsurfaceTest[i] = test;
 
-		if ( dsurf->surfaceType == MST_TRIANGLE_SOUP || dsurf->surfaceType == MST_PLANAR ) {
-			VS_FacetsForTriangleSurface( dsurf, si, test );
-		} else if ( dsurf->surfaceType == MST_PATCH ) {
-			VS_FacetsForPatch( dsurf, i, si, test );
+		if(dsurf->surfaceType == MST_TRIANGLE_SOUP || dsurf->surfaceType == MST_PLANAR)
+		{
+			VS_FacetsForTriangleSurface(dsurf, si, test);
 		}
-		if (numfacets >= MAX_FACETS)
+		else if(dsurf->surfaceType == MST_PATCH)
+		{
+			VS_FacetsForPatch(dsurf, i, si, test);
+		}
+		if(numfacets >= MAX_FACETS)
 			Error("numfacets >= MAX_FACETS (%d)", MAX_FACETS);
 
-		ClearBounds( test->mins, test->maxs );
-		for (j = 0; j < test->numFacets; j++)
+		ClearBounds(test->mins, test->maxs);
+		for(j = 0; j < test->numFacets; j++)
 		{
 			facet = &test->facets[j];
-			for ( k = 0 ; k < facet->numpoints; k++) {
-				AddPointToBounds( facet->points[k], test->mins, test->maxs );
+			for(k = 0; k < facet->numpoints; k++)
+			{
+				AddPointToBounds(facet->points[k], test->mins, test->maxs);
 			}
 		}
-		VS_SphereFromBounds( test->mins, test->maxs, test->origin, &test->radius );
+		VS_SphereFromBounds(test->mins, test->maxs, test->origin, &test->radius);
 	}
 	_printf("%6d facets\n", numfacets);
 	_printf("linking surfaces...\n");
@@ -1553,29 +1632,29 @@ void VS_InitSurfacesForTesting( void ) {
 VS_ChopWinding
 =============
 */
-int VS_ChopWinding (winding_t *in, plane_t *split, float epsilon)
+int VS_ChopWinding(winding_t * in, plane_t * split, float epsilon)
 {
-	vec_t	dists[128];
-	int		sides[128];
-	int		counts[3];
-	vec_t	dot;
-	int		i, j;
-	vec_t	*p1, *p2;
-	vec3_t	mid;
-	winding_t out;
-	winding_t	*neww;
+	vec_t           dists[128];
+	int             sides[128];
+	int             counts[3];
+	vec_t           dot;
+	int             i, j;
+	vec_t          *p1, *p2;
+	vec3_t          mid;
+	winding_t       out;
+	winding_t      *neww;
 
 	counts[0] = counts[1] = counts[2] = 0;
 
 	// determine sides for each point
-	for (i=0 ; i<in->numpoints ; i++)
+	for(i = 0; i < in->numpoints; i++)
 	{
-		dot = DotProduct (in->points[i], split->normal);
+		dot = DotProduct(in->points[i], split->normal);
 		dot -= split->dist;
 		dists[i] = dot;
-		if (dot > epsilon)
+		if(dot > epsilon)
 			sides[i] = SIDE_FRONT;
-		else if (dot < -epsilon)
+		else if(dot < -epsilon)
 			sides[i] = SIDE_BACK;
 		else
 		{
@@ -1584,77 +1663,77 @@ int VS_ChopWinding (winding_t *in, plane_t *split, float epsilon)
 		counts[sides[i]]++;
 	}
 
-	if (!counts[SIDE_BACK])
+	if(!counts[SIDE_BACK])
 	{
-		if (!counts[SIDE_FRONT])
+		if(!counts[SIDE_FRONT])
 			return SIDE_ON;
 		else
 			return SIDE_FRONT;
 	}
-	
-	if (!counts[SIDE_FRONT])
+
+	if(!counts[SIDE_FRONT])
 	{
 		return SIDE_BACK;
 	}
 
 	sides[i] = sides[0];
 	dists[i] = dists[0];
-	
+
 	neww = &out;
 
 	neww->numpoints = 0;
 
-	for (i=0 ; i<in->numpoints ; i++)
+	for(i = 0; i < in->numpoints; i++)
 	{
 		p1 = in->points[i];
 
-		if (neww->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
+		if(neww->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
 		{
 			_printf("WARNING: VS_ChopWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
-			return SIDE_FRONT;		// can't chop -- fall back to original
+			return SIDE_FRONT;	// can't chop -- fall back to original
 		}
 
-		if (sides[i] == SIDE_ON)
+		if(sides[i] == SIDE_ON)
 		{
-			VectorCopy (p1, neww->points[neww->numpoints]);
+			VectorCopy(p1, neww->points[neww->numpoints]);
 			neww->numpoints++;
 			continue;
 		}
-	
-		if (sides[i] == SIDE_FRONT)
+
+		if(sides[i] == SIDE_FRONT)
 		{
-			VectorCopy (p1, neww->points[neww->numpoints]);
+			VectorCopy(p1, neww->points[neww->numpoints]);
 			neww->numpoints++;
 		}
-		
-		if (sides[i+1] == SIDE_ON || sides[i+1] == sides[i])
+
+		if(sides[i + 1] == SIDE_ON || sides[i + 1] == sides[i])
 			continue;
-			
-		if (neww->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
+
+		if(neww->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
 		{
 			_printf("WARNING: VS_ChopWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
-			return SIDE_FRONT;		// can't chop -- fall back to original
+			return SIDE_FRONT;	// can't chop -- fall back to original
 		}
 
 		// generate a split point
-		p2 = in->points[(i+1)%in->numpoints];
-		
-		dot = dists[i] / (dists[i]-dists[i+1]);
-		for (j=0 ; j<3 ; j++)
-		{	// avoid round off error when possible
-			if (split->normal[j] == 1)
+		p2 = in->points[(i + 1) % in->numpoints];
+
+		dot = dists[i] / (dists[i] - dists[i + 1]);
+		for(j = 0; j < 3; j++)
+		{						// avoid round off error when possible
+			if(split->normal[j] == 1)
 				mid[j] = split->dist;
-			else if (split->normal[j] == -1)
+			else if(split->normal[j] == -1)
 				mid[j] = -split->dist;
 			else
-				mid[j] = p1[j] + dot*(p2[j]-p1[j]);
+				mid[j] = p1[j] + dot * (p2[j] - p1[j]);
 		}
-			
-		VectorCopy (mid, neww->points[neww->numpoints]);
+
+		VectorCopy(mid, neww->points[neww->numpoints]);
 		neww->numpoints++;
 	}
 	memcpy(in, &out, sizeof(winding_t));
-	
+
 	return SIDE_CROSS;
 }
 
@@ -1665,30 +1744,30 @@ VS_ChopWindingWithBrush
   returns all winding fragments outside the brush
 =============
 */
-int VS_ChopWindingWithBrush(winding_t *w, dbrush_t *brush, winding_t *outwindings, int maxout)
+int VS_ChopWindingWithBrush(winding_t * w, dbrush_t * brush, winding_t * outwindings, int maxout)
 {
-	int i, res, numout;
-	winding_t front, back;
-	plane_t plane;
+	int             i, res, numout;
+	winding_t       front, back;
+	plane_t         plane;
 
 	numout = 0;
 	memcpy(front.points, w->points, w->numpoints * sizeof(vec3_t));
 	front.numpoints = w->numpoints;
-	for (i = 0; i < brush->numSides; i++)
+	for(i = 0; i < brush->numSides; i++)
 	{
-		VectorCopy(dplanes[ dbrushsides[ brush->firstSide + i ].planeNum ].normal, plane.normal);
+		VectorCopy(dplanes[dbrushsides[brush->firstSide + i].planeNum].normal, plane.normal);
 		VectorInverse(plane.normal);
-		plane.dist = -dplanes[ dbrushsides[ brush->firstSide + i ].planeNum ].dist;
+		plane.dist = -dplanes[dbrushsides[brush->firstSide + i].planeNum].dist;
 		res = VS_SplitWinding(&front, &back, &plane, 0.1);
-		if (res == SIDE_BACK || res == SIDE_ON)
+		if(res == SIDE_BACK || res == SIDE_ON)
 		{
 			memcpy(outwindings[0].points, w->points, w->numpoints * sizeof(vec3_t));
 			outwindings[0].numpoints = w->numpoints;
-			return 1;	//did not intersect
+			return 1;			//did not intersect
 		}
-		if (res != SIDE_FRONT)
+		if(res != SIDE_FRONT)
 		{
-			if (numout >= maxout)
+			if(numout >= maxout)
 			{
 				_printf("WARNING: VS_ChopWindingWithBrush: more than %d windings\n", maxout);
 				return 0;
@@ -1706,60 +1785,58 @@ int VS_ChopWindingWithBrush(winding_t *w, dbrush_t *brush, winding_t *outwinding
 VS_WindingAreaOutsideBrushes
 =============
 */
-float VS_WindingAreaOutsideBrushes(winding_t *w, int *brushnums, int numbrushes)
+float VS_WindingAreaOutsideBrushes(winding_t * w, int *brushnums, int numbrushes)
 {
-	int i, j, numwindings[2], n;
-	winding_t windingsbuf[2][64];
-	dbrush_t *brush;
-	float area;
+	int             i, j, numwindings[2], n;
+	winding_t       windingsbuf[2][64];
+	dbrush_t       *brush;
+	float           area;
 
 	memcpy(windingsbuf[0][0].points, w->points, w->numpoints * sizeof(vec3_t));
 	windingsbuf[0][0].numpoints = w->numpoints;
 	numwindings[0] = 1;
-	for (i = 0; i < numbrushes; i++)
+	for(i = 0; i < numbrushes; i++)
 	{
 		brush = &dbrushes[brushnums[i]];
-		if (!(dshaders[brush->shaderNum].contentFlags & (
-					CONTENTS_LAVA
-					| CONTENTS_SLIME
-					| CONTENTS_WATER
-					| CONTENTS_FOG
-					| CONTENTS_AREAPORTAL
-					| CONTENTS_PLAYERCLIP
-					| CONTENTS_MONSTERCLIP
-					| CONTENTS_CLUSTERPORTAL
-					| CONTENTS_DONOTENTER
-					| CONTENTS_BODY
-					| CONTENTS_CORPSE
-					| CONTENTS_TRANSLUCENT
-					| CONTENTS_TRIGGER
-					| CONTENTS_NODROP) ) &&
-			(dshaders[brush->shaderNum].contentFlags & CONTENTS_SOLID) )
+		if(!(dshaders[brush->shaderNum].contentFlags & (CONTENTS_LAVA
+														| CONTENTS_SLIME
+														| CONTENTS_WATER
+														| CONTENTS_FOG
+														| CONTENTS_AREAPORTAL
+														| CONTENTS_PLAYERCLIP
+														| CONTENTS_MONSTERCLIP
+														| CONTENTS_CLUSTERPORTAL
+														| CONTENTS_DONOTENTER
+														| CONTENTS_BODY
+														| CONTENTS_CORPSE
+														| CONTENTS_TRANSLUCENT
+														| CONTENTS_TRIGGER
+														| CONTENTS_NODROP)) &&
+		   (dshaders[brush->shaderNum].contentFlags & CONTENTS_SOLID))
 		{
 			numwindings[!(i & 1)] = 0;
-			for (j = 0; j < numwindings[i&1]; j++)
+			for(j = 0; j < numwindings[i & 1]; j++)
 			{
-				n = VS_ChopWindingWithBrush(&windingsbuf[i&1][j], brush,
-											&windingsbuf[!(i&1)][numwindings[!(i&1)]],
-											64 - numwindings[!(i&1)]);
-				numwindings[!(i&1)] += n;
+				n = VS_ChopWindingWithBrush(&windingsbuf[i & 1][j], brush,
+											&windingsbuf[!(i & 1)][numwindings[!(i & 1)]], 64 - numwindings[!(i & 1)]);
+				numwindings[!(i & 1)] += n;
 			}
-			if (!numwindings[!(i&1)])
+			if(!numwindings[!(i & 1)])
 				return 0;
 		}
 		else
 		{
-			for (j = 0; j < numwindings[i&1]; j++)
+			for(j = 0; j < numwindings[i & 1]; j++)
 			{
-				windingsbuf[!(i&1)][j] = windingsbuf[i&1][j];
+				windingsbuf[!(i & 1)][j] = windingsbuf[i & 1][j];
 			}
-			numwindings[!(i&1)] = numwindings[i&1];
+			numwindings[!(i & 1)] = numwindings[i & 1];
 		}
 	}
 	area = 0;
-	for (j = 0; j < numwindings[i&1]; j++)
+	for(j = 0; j < numwindings[i & 1]; j++)
 	{
-		area += WindingArea(&windingsbuf[i&1][j]);
+		area += WindingArea(&windingsbuf[i & 1][j]);
 	}
 	return area;
 }
@@ -1769,15 +1846,15 @@ float VS_WindingAreaOutsideBrushes(winding_t *w, int *brushnums, int numbrushes)
 VS_R_WindingAreaOutsideSolid
 =============
 */
-float VS_R_WindingAreaOutsideSolid(winding_t *w, vec3_t normal, int nodenum)
+float VS_R_WindingAreaOutsideSolid(winding_t * w, vec3_t normal, int nodenum)
 {
-	int leafnum, res;
-	float area;
-	dnode_t *node;
-	dleaf_t *leaf;
-	dplane_t *plane;
-	winding_t back;
-	plane_t split;
+	int             leafnum, res;
+	float           area;
+	dnode_t        *node;
+	dleaf_t        *leaf;
+	dplane_t       *plane;
+	winding_t       back;
+	plane_t         split;
 
 	area = 0;
 	while(nodenum >= 0)
@@ -1787,19 +1864,19 @@ float VS_R_WindingAreaOutsideSolid(winding_t *w, vec3_t normal, int nodenum)
 
 		VectorCopy(plane->normal, split.normal);
 		split.dist = plane->dist;
-		res = VS_SplitWinding (w, &back, &split, 0.1);
+		res = VS_SplitWinding(w, &back, &split, 0.1);
 
-		if (res == SIDE_FRONT)
+		if(res == SIDE_FRONT)
 		{
 			nodenum = node->children[0];
 		}
-		else if (res == SIDE_BACK)
+		else if(res == SIDE_BACK)
 		{
 			nodenum = node->children[1];
 		}
-		else if (res == SIDE_ON)
+		else if(res == SIDE_ON)
 		{
-			if (DotProduct(normal, plane->normal) > 0)
+			if(DotProduct(normal, plane->normal) > 0)
 				nodenum = node->children[0];
 			else
 				nodenum = node->children[1];
@@ -1812,7 +1889,7 @@ float VS_R_WindingAreaOutsideSolid(winding_t *w, vec3_t normal, int nodenum)
 	}
 	leafnum = -nodenum - 1;
 	leaf = &dleafs[leafnum];
-	if (leaf->cluster != -1)
+	if(leaf->cluster != -1)
 	{
 		area += VS_WindingAreaOutsideBrushes(w, &dleafbrushes[leaf->firstLeafBrush], leaf->numLeafBrushes);
 	}
@@ -1824,7 +1901,7 @@ float VS_R_WindingAreaOutsideSolid(winding_t *w, vec3_t normal, int nodenum)
 VS_WindingAreaOutsideSolid
 =============
 */
-float VS_WindingAreaOutsideSolid(winding_t *w, vec3_t normal)
+float VS_WindingAreaOutsideSolid(winding_t * w, vec3_t normal)
 {
 	return VS_R_WindingAreaOutsideSolid(w, normal, 0);
 }
@@ -1834,16 +1911,16 @@ float VS_WindingAreaOutsideSolid(winding_t *w, vec3_t normal)
 VS_ChopWindingWithFacet
 =============
 */
-float VS_ChopWindingWithFacet(winding_t *w, lFacet_t *facet)
+float VS_ChopWindingWithFacet(winding_t * w, lFacet_t * facet)
 {
-	int i;
+	int             i;
 
-	for (i = 0; i < facet->numpoints; i++)
+	for(i = 0; i < facet->numpoints; i++)
 	{
-		if (VS_ChopWinding(w, &facet->boundaries[i], 0) == SIDE_BACK)
+		if(VS_ChopWinding(w, &facet->boundaries[i], 0) == SIDE_BACK)
 			return 0;
 	}
-	if (nostitching)
+	if(nostitching)
 		return WindingArea(w);
 	else
 		return VS_WindingAreaOutsideSolid(w, facet->plane.normal);
@@ -1858,65 +1935,64 @@ nice brute force ;)
 */
 void VS_CalcVisibleLightmapPixelArea(void)
 {
-	int				i, j, x, y, k;
-	dsurface_t		*ds;
-	lsurfaceTest_t	*test;
-	mesh_t			*mesh;
-	winding_t w, tmpw;
-	float area;
+	int             i, j, x, y, k;
+	dsurface_t     *ds;
+	lsurfaceTest_t *test;
+	mesh_t         *mesh;
+	winding_t       w, tmpw;
+	float           area;
 
 	_printf("calculating visible lightmap pixel area...\n");
-	for ( i = 0 ; i < numDrawSurfaces ; i++ )
+	for(i = 0; i < numDrawSurfaces; i++)
 	{
-		test = lsurfaceTest[ i ];
-		if (!test)
+		test = lsurfaceTest[i];
+		if(!test)
 			continue;
-		ds = &drawSurfaces[ i ];
+		ds = &drawSurfaces[i];
 
-		if ( ds->lightmapNum < 0 )
+		if(ds->lightmapNum < 0)
 			continue;
 
-		for (y = 0; y < ds->lightmapHeight; y++)
+		for(y = 0; y < ds->lightmapHeight; y++)
 		{
-			for (x = 0; x < ds->lightmapWidth; x++)
+			for(x = 0; x < ds->lightmapWidth; x++)
 			{
-				if (ds->surfaceType == MST_PATCH)
+				if(ds->surfaceType == MST_PATCH)
 				{
-					if (y == ds->lightmapHeight-1)
+					if(y == ds->lightmapHeight - 1)
 						continue;
-					if (x == ds->lightmapWidth-1)
+					if(x == ds->lightmapWidth - 1)
 						continue;
 					mesh = lsurfaceTest[i]->detailMesh;
-					VectorCopy( mesh->verts[y*mesh->width+x].xyz, w.points[0]);
-					VectorCopy( mesh->verts[(y+1)*mesh->width+x].xyz, w.points[1]);
-					VectorCopy( mesh->verts[(y+1)*mesh->width+x+1].xyz, w.points[2]);
-					VectorCopy( mesh->verts[y*mesh->width+x+1].xyz, w.points[3]);
+					VectorCopy(mesh->verts[y * mesh->width + x].xyz, w.points[0]);
+					VectorCopy(mesh->verts[(y + 1) * mesh->width + x].xyz, w.points[1]);
+					VectorCopy(mesh->verts[(y + 1) * mesh->width + x + 1].xyz, w.points[2]);
+					VectorCopy(mesh->verts[y * mesh->width + x + 1].xyz, w.points[3]);
 					w.numpoints = 4;
-					if (nostitching)
+					if(nostitching)
 						area = WindingArea(&w);
 					else
-						area = VS_WindingAreaOutsideSolid(&w, mesh->verts[y*mesh->width+x].normal);
+						area = VS_WindingAreaOutsideSolid(&w, mesh->verts[y * mesh->width + x].normal);
 				}
 				else
 				{
-					VectorMA(ds->lightmapOrigin, (float) x - LIGHTMAP_PIXELSHIFT, ds->lightmapVecs[0], w.points[0]);
-					VectorMA(w.points[0], (float) y - LIGHTMAP_PIXELSHIFT, ds->lightmapVecs[1], w.points[0]);
-					VectorMA(ds->lightmapOrigin, (float) x - LIGHTMAP_PIXELSHIFT, ds->lightmapVecs[0], w.points[3]);
-					VectorMA(w.points[3], (float) y - LIGHTMAP_PIXELSHIFT + 1, ds->lightmapVecs[1], w.points[3]);
-					VectorMA(ds->lightmapOrigin, (float) x - LIGHTMAP_PIXELSHIFT + 1, ds->lightmapVecs[0], w.points[2]);
-					VectorMA(w.points[2], (float) y - LIGHTMAP_PIXELSHIFT + 1, ds->lightmapVecs[1], w.points[2]);
-					VectorMA(ds->lightmapOrigin, (float) x - LIGHTMAP_PIXELSHIFT + 1, ds->lightmapVecs[0], w.points[1]);
-					VectorMA(w.points[1], (float) y - LIGHTMAP_PIXELSHIFT, ds->lightmapVecs[1], w.points[1]);
+					VectorMA(ds->lightmapOrigin, (float)x - LIGHTMAP_PIXELSHIFT, ds->lightmapVecs[0], w.points[0]);
+					VectorMA(w.points[0], (float)y - LIGHTMAP_PIXELSHIFT, ds->lightmapVecs[1], w.points[0]);
+					VectorMA(ds->lightmapOrigin, (float)x - LIGHTMAP_PIXELSHIFT, ds->lightmapVecs[0], w.points[3]);
+					VectorMA(w.points[3], (float)y - LIGHTMAP_PIXELSHIFT + 1, ds->lightmapVecs[1], w.points[3]);
+					VectorMA(ds->lightmapOrigin, (float)x - LIGHTMAP_PIXELSHIFT + 1, ds->lightmapVecs[0], w.points[2]);
+					VectorMA(w.points[2], (float)y - LIGHTMAP_PIXELSHIFT + 1, ds->lightmapVecs[1], w.points[2]);
+					VectorMA(ds->lightmapOrigin, (float)x - LIGHTMAP_PIXELSHIFT + 1, ds->lightmapVecs[0], w.points[1]);
+					VectorMA(w.points[1], (float)y - LIGHTMAP_PIXELSHIFT, ds->lightmapVecs[1], w.points[1]);
 					w.numpoints = 4;
 					area = 0;
-					for (j = 0; j < test->numFacets; j++)
+					for(j = 0; j < test->numFacets; j++)
 					{
 						memcpy(&tmpw, &w, sizeof(winding_t));
 						area += VS_ChopWindingWithFacet(&tmpw, &test->facets[j]);
 					}
 				}
-				k = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
-						* LIGHTMAP_WIDTH + ds->lightmapX + x;
+				k = (ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
 				lightmappixelarea[k] = area;
 			}
 		}
@@ -1930,75 +2006,68 @@ VS_FindAdjacentSurface
 */
 int VS_FindAdjacentSurface(int surfaceNum, int facetNum, vec3_t p1, vec3_t p2, int *sNum, int *fNum, int *point)
 {
-	int i, j, k;
+	int             i, j, k;
 	lsurfaceTest_t *test;
-	lFacet_t *facet;
-	dsurface_t *ds;
-	float *fp1, *fp2;
-	vec3_t dir;
-	plane_t *facetplane;
-	//	winding_t w;
+	lFacet_t       *facet;
+	dsurface_t     *ds;
+	float          *fp1, *fp2;
+	vec3_t          dir;
+	plane_t        *facetplane;
+
+	//  winding_t w;
 
 	facetplane = &lsurfaceTest[surfaceNum]->facets[facetNum].plane;
-	//	DebugNet_RemoveAllPolys();
-	//	memcpy(w.points, lsurfaceTest[surfaceNum]->facets[facetNum].points,
-	//			lsurfaceTest[surfaceNum]->facets[facetNum].numpoints * sizeof(vec3_t));
-	//	w.numpoints = lsurfaceTest[surfaceNum]->facets[facetNum].numpoints;
-	//	DebugNet_DrawWinding(&w, 2);
-	for ( i = 0 ; i < numDrawSurfaces ; i++ )
+	//  DebugNet_RemoveAllPolys();
+	//  memcpy(w.points, lsurfaceTest[surfaceNum]->facets[facetNum].points,
+	//          lsurfaceTest[surfaceNum]->facets[facetNum].numpoints * sizeof(vec3_t));
+	//  w.numpoints = lsurfaceTest[surfaceNum]->facets[facetNum].numpoints;
+	//  DebugNet_DrawWinding(&w, 2);
+	for(i = 0; i < numDrawSurfaces; i++)
 	{
-		if (i == surfaceNum)
+		if(i == surfaceNum)
 			continue;
-		test = lsurfaceTest[ i ];
-		if (!test)
+		test = lsurfaceTest[i];
+		if(!test)
 			continue;
-		if (test->trisoup)// || test->patch)
+		if(test->trisoup)		// || test->patch)
 			continue;
 		ds = &drawSurfaces[i];
-		if ( ds->lightmapNum < 0 )
+		if(ds->lightmapNum < 0)
 			continue;
 		//if this surface is not even near the edge
 		VectorSubtract(p1, test->origin, dir);
-		if (fabs(dir[0]) > test->radius ||
-			fabs(dir[1]) > test->radius ||
-			fabs(dir[1]) > test->radius)
+		if(fabs(dir[0]) > test->radius || fabs(dir[1]) > test->radius || fabs(dir[1]) > test->radius)
 		{
 			VectorSubtract(p2, test->origin, dir);
-			if (fabs(dir[0]) > test->radius ||
-				fabs(dir[1]) > test->radius ||
-				fabs(dir[1]) > test->radius)
+			if(fabs(dir[0]) > test->radius || fabs(dir[1]) > test->radius || fabs(dir[1]) > test->radius)
 			{
 				continue;
 			}
 		}
 		//
-		for (j = 0; j < test->numFacets; j++)
+		for(j = 0; j < test->numFacets; j++)
 		{
 			facet = &test->facets[j];
 			//
 			//if (!Plane_Equal(&facet->plane, facetplane, qfalse))
-			if (DotProduct(facet->plane.normal, facetplane->normal) < 0.9)
+			if(DotProduct(facet->plane.normal, facetplane->normal) < 0.9)
 			{
-				if (!test->trisoup && !test->patch)
+				if(!test->trisoup && !test->patch)
 					break;
 				continue;
 			}
 			//
-			for (k = 0; k < facet->numpoints; k++)
+			for(k = 0; k < facet->numpoints; k++)
 			{
 				fp1 = facet->points[k];
-				if (fabs(p2[0] - fp1[0]) < 0.1 &&
-					fabs(p2[1] - fp1[1]) < 0.1 &&
-					fabs(p2[2] - fp1[2]) < 0.1)
+				if(fabs(p2[0] - fp1[0]) < 0.1 && fabs(p2[1] - fp1[1]) < 0.1 && fabs(p2[2] - fp1[2]) < 0.1)
 				{
-					fp2 = facet->points[(k+1) % facet->numpoints];
-					if (fabs(p1[0] - fp2[0]) < 0.1 &&
-						fabs(p1[1] - fp2[1]) < 0.1 &&
-						fabs(p1[2] - fp2[2]) < 0.1)
+					fp2 = facet->points[(k + 1) % facet->numpoints];
+					if(fabs(p1[0] - fp2[0]) < 0.1 && fabs(p1[1] - fp2[1]) < 0.1 && fabs(p1[2] - fp2[2]) < 0.1)
 					{
-						//	memcpy(w.points, facet->points, facet->numpoints * sizeof(vec3_t));
-						//	w.numpoints = facet->numpoints;
-						//	DebugNet_DrawWinding(&w, 1);
+						//  memcpy(w.points, facet->points, facet->numpoints * sizeof(vec3_t));
+						//  w.numpoints = facet->numpoints;
+						//  DebugNet_DrawWinding(&w, 1);
 						*sNum = i;
 						*fNum = j;
 						*point = k;
@@ -2006,25 +2075,25 @@ int VS_FindAdjacentSurface(int surfaceNum, int facetNum, vec3_t p1, vec3_t p2, i
 					}
 				}
 				/*
-				else if (fabs(p1[0] - fp1[0]) < 0.1 &&
-					fabs(p1[1] - fp1[1]) < 0.1 &&
-					fabs(p1[2] - fp1[2]) < 0.1)
-				{
-					fp2 = facet->points[(k+1) % facet->numpoints];
-					if (fabs(p2[0] - fp2[0]) < 0.1 &&
-						fabs(p2[1] - fp2[1]) < 0.1 &&
-						fabs(p2[2] - fp2[2]) < 0.1)
-					{
-						//	memcpy(w.points, facet->points, facet->numpoints * sizeof(vec3_t));
-						//	w.numpoints = facet->numpoints;
-						//	DebugNet_DrawWinding(&w, 1);
-						*sNum = i;
-						*fNum = j;
-						*point = k;
-						return qtrue;
-					}
-				}
-				//*/
+				   else if (fabs(p1[0] - fp1[0]) < 0.1 &&
+				   fabs(p1[1] - fp1[1]) < 0.1 &&
+				   fabs(p1[2] - fp1[2]) < 0.1)
+				   {
+				   fp2 = facet->points[(k+1) % facet->numpoints];
+				   if (fabs(p2[0] - fp2[0]) < 0.1 &&
+				   fabs(p2[1] - fp2[1]) < 0.1 &&
+				   fabs(p2[2] - fp2[2]) < 0.1)
+				   {
+				   //   memcpy(w.points, facet->points, facet->numpoints * sizeof(vec3_t));
+				   //   w.numpoints = facet->numpoints;
+				   //   DebugNet_DrawWinding(&w, 1);
+				   *sNum = i;
+				   *fNum = j;
+				   *point = k;
+				   return qtrue;
+				   }
+				   }
+				   // */
 			}
 		}
 	}
@@ -2040,72 +2109,72 @@ this code is used to smoothen lightmaps across surface edges
 */
 void VS_SmoothenLightmapEdges(void)
 {
-	int i, j, k, coords1[2][2];
-	float coords2[2][2];
-	int x1, y1, xinc1, yinc1, k1, k2;
-	float x2, y2, xinc2, yinc2, length;
-	int surfaceNum, facetNum, point;
+	int             i, j, k, coords1[2][2];
+	float           coords2[2][2];
+	int             x1, y1, xinc1, yinc1, k1, k2;
+	float           x2, y2, xinc2, yinc2, length;
+	int             surfaceNum, facetNum, point;
 	lsurfaceTest_t *test;
-	lFacet_t *facet1, *facet2;
-	dsurface_t *ds1, *ds2;
-	float *p[2], s, t, *color1, *color2;
-	vec3_t dir, cross;
+	lFacet_t       *facet1, *facet2;
+	dsurface_t     *ds1, *ds2;
+	float          *p[2], s, t, *color1, *color2;
+	vec3_t          dir, cross;
 
-	for ( i = 0 ; i < numDrawSurfaces ; i++ )
+	for(i = 0; i < numDrawSurfaces; i++)
 	{
-		test = lsurfaceTest[ i ];
-		if (!test)
+		test = lsurfaceTest[i];
+		if(!test)
 			continue;
-		if (test->trisoup)// || test->patch)
+		if(test->trisoup)		// || test->patch)
 			continue;
 		ds1 = &drawSurfaces[i];
-		if ( ds1->lightmapNum < 0 )
+		if(ds1->lightmapNum < 0)
 			continue;
-		for (j = 0; j < test->numFacets; j++)
+		for(j = 0; j < test->numFacets; j++)
 		{
 			facet1 = &test->facets[j];
 			//
-			for (k = 0; k < facet1->numpoints; k++)
+			for(k = 0; k < facet1->numpoints; k++)
 			{
 				p[0] = facet1->points[k];
-				p[1] = facet1->points[(k+1)%facet1->numpoints];
+				p[1] = facet1->points[(k + 1) % facet1->numpoints];
 				//
 				coords1[0][0] = facet1->lightmapCoords[k][0] * LIGHTMAP_SIZE;
 				coords1[0][1] = facet1->lightmapCoords[k][1] * LIGHTMAP_SIZE;
-				coords1[1][0] = facet1->lightmapCoords[(k+1)%facet1->numpoints][0] * LIGHTMAP_SIZE;
-				coords1[1][1] = facet1->lightmapCoords[(k+1)%facet1->numpoints][1] * LIGHTMAP_SIZE;
-				if (coords1[0][0] >= LIGHTMAP_SIZE)
-					coords1[0][0] = LIGHTMAP_SIZE-1;
-				if (coords1[0][1] >= LIGHTMAP_SIZE)
-					coords1[0][1] = LIGHTMAP_SIZE-1;
-				if (coords1[1][0] >= LIGHTMAP_SIZE)
-					coords1[1][0] = LIGHTMAP_SIZE-1;
-				if (coords1[1][1] >= LIGHTMAP_SIZE)
-					coords1[1][1] = LIGHTMAP_SIZE-1;
+				coords1[1][0] = facet1->lightmapCoords[(k + 1) % facet1->numpoints][0] * LIGHTMAP_SIZE;
+				coords1[1][1] = facet1->lightmapCoords[(k + 1) % facet1->numpoints][1] * LIGHTMAP_SIZE;
+				if(coords1[0][0] >= LIGHTMAP_SIZE)
+					coords1[0][0] = LIGHTMAP_SIZE - 1;
+				if(coords1[0][1] >= LIGHTMAP_SIZE)
+					coords1[0][1] = LIGHTMAP_SIZE - 1;
+				if(coords1[1][0] >= LIGHTMAP_SIZE)
+					coords1[1][0] = LIGHTMAP_SIZE - 1;
+				if(coords1[1][1] >= LIGHTMAP_SIZE)
+					coords1[1][1] = LIGHTMAP_SIZE - 1;
 				// try one row or column further because on flat faces the lightmap can
 				// extend beyond the edge
 				VectorSubtract(p[1], p[0], dir);
 				VectorNormalize(dir, dir);
 				CrossProduct(dir, facet1->plane.normal, cross);
 				//
-				if (coords1[0][0] - coords1[1][0] == 0)
+				if(coords1[0][0] - coords1[1][0] == 0)
 				{
-					s = DotProduct( cross, facet1->lightmapMatrix[0] );
+					s = DotProduct(cross, facet1->lightmapMatrix[0]);
 					coords1[0][0] += s < 0 ? 1 : -1;
 					coords1[1][0] += s < 0 ? 1 : -1;
-					if (coords1[0][0] < ds1->lightmapX || coords1[0][0] >= ds1->lightmapX + ds1->lightmapWidth)
+					if(coords1[0][0] < ds1->lightmapX || coords1[0][0] >= ds1->lightmapX + ds1->lightmapWidth)
 					{
 						coords1[0][0] += s < 0 ? -1 : 1;
 						coords1[1][0] += s < 0 ? -1 : 1;
 					}
 					length = fabs(coords1[1][1] - coords1[0][1]);
 				}
-				else if (coords1[0][1] - coords1[1][1] == 0)
+				else if(coords1[0][1] - coords1[1][1] == 0)
 				{
-					t = DotProduct( cross, facet1->lightmapMatrix[1] );
+					t = DotProduct(cross, facet1->lightmapMatrix[1]);
 					coords1[0][1] += t < 0 ? 1 : -1;
 					coords1[1][1] += t < 0 ? 1 : -1;
-					if (coords1[0][1] < ds1->lightmapY || coords1[0][1] >= ds1->lightmapY + ds1->lightmapHeight)
+					if(coords1[0][1] < ds1->lightmapY || coords1[0][1] >= ds1->lightmapY + ds1->lightmapHeight)
 					{
 						coords1[0][1] += t < 0 ? -1 : 1;
 						coords1[1][1] += t < 0 ? -1 : 1;
@@ -2121,52 +2190,56 @@ void VS_SmoothenLightmapEdges(void)
 				x1 = coords1[0][0];
 				y1 = coords1[0][1];
 				xinc1 = coords1[1][0] - coords1[0][0];
-				if (xinc1 < 0) xinc1 = -1;
-				if (xinc1 > 0) xinc1 = 1;
+				if(xinc1 < 0)
+					xinc1 = -1;
+				if(xinc1 > 0)
+					xinc1 = 1;
 				yinc1 = coords1[1][1] - coords1[0][1];
-				if (yinc1 < 0) yinc1 = -1;
-				if (yinc1 > 0) yinc1 = 1;
+				if(yinc1 < 0)
+					yinc1 = -1;
+				if(yinc1 > 0)
+					yinc1 = 1;
 				// the edge should be parallell to one of the lightmap axis
-				if (xinc1 != 0 && yinc1 != 0)
+				if(xinc1 != 0 && yinc1 != 0)
 					continue;
 				//
-				if (!VS_FindAdjacentSurface(i, j, p[0], p[1], &surfaceNum, &facetNum, &point))
+				if(!VS_FindAdjacentSurface(i, j, p[0], p[1], &surfaceNum, &facetNum, &point))
 					continue;
 				//
 				ds2 = &drawSurfaces[surfaceNum];
 				facet2 = &lsurfaceTest[surfaceNum]->facets[facetNum];
-				coords2[0][0] = facet2->lightmapCoords[(point+1)%facet2->numpoints][0] * LIGHTMAP_SIZE;
-				coords2[0][1] = facet2->lightmapCoords[(point+1)%facet2->numpoints][1] * LIGHTMAP_SIZE;
+				coords2[0][0] = facet2->lightmapCoords[(point + 1) % facet2->numpoints][0] * LIGHTMAP_SIZE;
+				coords2[0][1] = facet2->lightmapCoords[(point + 1) % facet2->numpoints][1] * LIGHTMAP_SIZE;
 				coords2[1][0] = facet2->lightmapCoords[point][0] * LIGHTMAP_SIZE;
 				coords2[1][1] = facet2->lightmapCoords[point][1] * LIGHTMAP_SIZE;
-				if (coords2[0][0] >= LIGHTMAP_SIZE)
-					coords2[0][0] = LIGHTMAP_SIZE-1;
-				if (coords2[0][1] >= LIGHTMAP_SIZE)
-					coords2[0][1] = LIGHTMAP_SIZE-1;
-				if (coords2[1][0] >= LIGHTMAP_SIZE)
-					coords2[1][0] = LIGHTMAP_SIZE-1;
-				if (coords2[1][1] >= LIGHTMAP_SIZE)
-					coords2[1][1] = LIGHTMAP_SIZE-1;
+				if(coords2[0][0] >= LIGHTMAP_SIZE)
+					coords2[0][0] = LIGHTMAP_SIZE - 1;
+				if(coords2[0][1] >= LIGHTMAP_SIZE)
+					coords2[0][1] = LIGHTMAP_SIZE - 1;
+				if(coords2[1][0] >= LIGHTMAP_SIZE)
+					coords2[1][0] = LIGHTMAP_SIZE - 1;
+				if(coords2[1][1] >= LIGHTMAP_SIZE)
+					coords2[1][1] = LIGHTMAP_SIZE - 1;
 				//
 				x2 = coords2[0][0];
 				y2 = coords2[0][1];
 				xinc2 = coords2[1][0] - coords2[0][0];
-				if (length)
+				if(length)
 					xinc2 = xinc2 / length;
 				yinc2 = coords2[1][1] - coords2[0][1];
-				if (length)
+				if(length)
 					yinc2 = yinc2 / length;
 				// the edge should be parallell to one of the lightmap axis
-				if ((int) xinc2 != 0 && (int) yinc2 != 0)
+				if((int)xinc2 != 0 && (int)yinc2 != 0)
 					continue;
 				//
 				while(1)
 				{
-					k1 = ( ds1->lightmapNum * LIGHTMAP_HEIGHT + y1) * LIGHTMAP_WIDTH + x1;
-					k2 = ( ds2->lightmapNum * LIGHTMAP_HEIGHT + ((int) y2)) * LIGHTMAP_WIDTH + ((int) x2);
-					color1 = lightFloats + k1*3;
-					color2 = lightFloats + k2*3;
-					if (lightmappixelarea[k1] < 0.01)
+					k1 = (ds1->lightmapNum * LIGHTMAP_HEIGHT + y1) * LIGHTMAP_WIDTH + x1;
+					k2 = (ds2->lightmapNum * LIGHTMAP_HEIGHT + ((int)y2)) * LIGHTMAP_WIDTH + ((int)x2);
+					color1 = lightFloats + k1 * 3;
+					color2 = lightFloats + k2 * 3;
+					if(lightmappixelarea[k1] < 0.01)
 					{
 						color1[0] = color2[0];
 						color1[1] = color2[1];
@@ -2174,26 +2247,25 @@ void VS_SmoothenLightmapEdges(void)
 					}
 					else
 					{
-						color1[0] = (float) color2[0] * 0.7 + (float) color1[0] * 0.3;
-						color1[1] = (float) color2[1] * 0.7 + (float) color1[1] * 0.3;
-						color1[2] = (float) color2[2] * 0.7 + (float) color1[2] * 0.3;
+						color1[0] = (float)color2[0] * 0.7 + (float)color1[0] * 0.3;
+						color1[1] = (float)color2[1] * 0.7 + (float)color1[1] * 0.3;
+						color1[2] = (float)color2[2] * 0.7 + (float)color1[2] * 0.3;
 					}
 					//
-					if (x1 == coords1[1][0] &&
-						y1 == coords1[1][1])
+					if(x1 == coords1[1][0] && y1 == coords1[1][1])
 						break;
 					x1 += xinc1;
 					y1 += yinc1;
 					x2 += xinc2;
 					y2 += yinc2;
-					if (x2 < ds2->lightmapX)
+					if(x2 < ds2->lightmapX)
 						x2 = ds2->lightmapX;
-					if (x2 >= ds2->lightmapX + ds2->lightmapWidth)
-						x2 = ds2->lightmapX + ds2->lightmapWidth-1;
-					if (y2 < ds2->lightmapY)
+					if(x2 >= ds2->lightmapX + ds2->lightmapWidth)
+						x2 = ds2->lightmapX + ds2->lightmapWidth - 1;
+					if(y2 < ds2->lightmapY)
 						y2 = ds2->lightmapY;
-					if (y2 >= ds2->lightmapY + ds2->lightmapHeight)
-						y2 = ds2->lightmapY + ds2->lightmapHeight-1;
+					if(y2 >= ds2->lightmapY + ds2->lightmapHeight)
+						y2 = ds2->lightmapY + ds2->lightmapHeight - 1;
 				}
 			}
 		}
@@ -2207,26 +2279,26 @@ VS_FixLightmapEdges
 */
 void VS_FixLightmapEdges(void)
 {
-	int				i, j, x, y, k, foundvalue, height, width, index;
-	int				pos, top, bottom;
-	dsurface_t		*ds;
-	lsurfaceTest_t	*test;
-	float			color[3];
-	float			*ptr;
-	byte filled[(LIGHTMAP_SIZE+1) * (LIGHTMAP_SIZE+1) / 8];
-	float lightmap_edge_epsilon;
+	int             i, j, x, y, k, foundvalue, height, width, index;
+	int             pos, top, bottom;
+	dsurface_t     *ds;
+	lsurfaceTest_t *test;
+	float           color[3];
+	float          *ptr;
+	byte            filled[(LIGHTMAP_SIZE + 1) * (LIGHTMAP_SIZE + 1) / 8];
+	float           lightmap_edge_epsilon;
 
 	lightmap_edge_epsilon = 0.1 * samplesize;
-	for ( i = 0 ; i < numDrawSurfaces ; i++ )
+	for(i = 0; i < numDrawSurfaces; i++)
 	{
-		test = lsurfaceTest[ i ];
-		if (!test)
+		test = lsurfaceTest[i];
+		if(!test)
 			continue;
-		ds = &drawSurfaces[ i ];
+		ds = &drawSurfaces[i];
 
-		if ( ds->lightmapNum < 0 )
+		if(ds->lightmapNum < 0)
 			continue;
-		if (ds->surfaceType == MST_PATCH)
+		if(ds->surfaceType == MST_PATCH)
 		{
 			height = ds->lightmapHeight - 1;
 			width = ds->lightmapWidth - 1;
@@ -2237,136 +2309,130 @@ void VS_FixLightmapEdges(void)
 			width = ds->lightmapWidth;
 		}
 		memset(filled, 0, sizeof(filled));
-//		printf("\n");
-		for (x = 0; x < width; x++)
+//      printf("\n");
+		for(x = 0; x < width; x++)
 		{
-			for (y = 0; y < height; y++)
+			for(y = 0; y < height; y++)
 			{
-				k = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
-						* LIGHTMAP_WIDTH + ds->lightmapX + x;
-				if (lightmappixelarea[k] > lightmap_edge_epsilon)
+				k = (ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
+				if(lightmappixelarea[k] > lightmap_edge_epsilon)
 				{
 					index = (ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
 					filled[index >> 3] |= 1 << (index & 7);
-//					printf("*");
+//                  printf("*");
 				}
-//				else
-//					printf("_");
+//              else
+//                  printf("_");
 			}
-//			printf("\n");
+//          printf("\n");
 		}
-		for (y = 0; y < height; y++)
+		for(y = 0; y < height; y++)
 		{
 			pos = -2;
-			for (x = 0; x < width; x++)
+			for(x = 0; x < width; x++)
 			{
 				index = (ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
-				if (pos == -2)
+				if(pos == -2)
 				{
-					if (filled[index >> 3] & (1 << (index & 7)))
+					if(filled[index >> 3] & (1 << (index & 7)))
 						pos = -1;
 				}
-				else if (pos == -1)
+				else if(pos == -1)
 				{
-					if (!(filled[index >> 3] & (1 << (index & 7))))
+					if(!(filled[index >> 3] & (1 << (index & 7))))
 						pos = x - 1;
 				}
 				else
 				{
-					if (filled[index >> 3] & (1 << (index & 7)))
+					if(filled[index >> 3] & (1 << (index & 7)))
 					{
-						bottom = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
-							* LIGHTMAP_WIDTH + ds->lightmapX + pos;
-						top = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
-							* LIGHTMAP_WIDTH + ds->lightmapX + x;
-						for (j = 0; j < (x - pos + 1) / 2; j++)
+						bottom = (ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + pos;
+						top = (ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
+						for(j = 0; j < (x - pos + 1) / 2; j++)
 						{
-							k = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
+							k = (ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
 								* LIGHTMAP_WIDTH + ds->lightmapX + pos + j + 1;
 							index = (ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + pos + j + 1;
 							filled[index >> 3] |= 1 << (index & 7);
-							(lightFloats + k*3)[0] = (lightFloats + top*3)[0];
-							(lightFloats + k*3)[1] = (lightFloats + top*3)[1];
-							(lightFloats + k*3)[2] = (lightFloats + top*3)[2];
-							k = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
+							(lightFloats + k * 3)[0] = (lightFloats + top * 3)[0];
+							(lightFloats + k * 3)[1] = (lightFloats + top * 3)[1];
+							(lightFloats + k * 3)[2] = (lightFloats + top * 3)[2];
+							k = (ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
 								* LIGHTMAP_WIDTH + ds->lightmapX + x - j - 1;
 							index = (ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x - j - 1;
 							filled[index >> 3] |= 1 << (index & 7);
-							(lightFloats + k*3)[0] = (lightFloats + bottom*3)[0];
-							(lightFloats + k*3)[1] = (lightFloats + bottom*3)[1];
-							(lightFloats + k*3)[2] = (lightFloats + bottom*3)[2];
+							(lightFloats + k * 3)[0] = (lightFloats + bottom * 3)[0];
+							(lightFloats + k * 3)[1] = (lightFloats + bottom * 3)[1];
+							(lightFloats + k * 3)[2] = (lightFloats + bottom * 3)[2];
 						}
 						pos = -1;
 					}
 				}
 			}
 		}
-		for (x = 0; x < width; x++)
+		for(x = 0; x < width; x++)
 		{
 			pos = -2;
-			for (y = 0; y < height; y++)
+			for(y = 0; y < height; y++)
 			{
 				index = (ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
-				if (pos == -2)
+				if(pos == -2)
 				{
-					if (filled[index >> 3] & (1 << (index & 7)))
+					if(filled[index >> 3] & (1 << (index & 7)))
 						pos = -1;
 				}
-				else if (pos == -1)
+				else if(pos == -1)
 				{
-					if (!(filled[index >> 3] & (1 << (index & 7))))
+					if(!(filled[index >> 3] & (1 << (index & 7))))
 						pos = y - 1;
 				}
 				else
 				{
-					if (filled[index >> 3] & (1 << (index & 7)))
+					if(filled[index >> 3] & (1 << (index & 7)))
 					{
-						bottom = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + pos)
-							* LIGHTMAP_WIDTH + ds->lightmapX + x;
-						top = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
-							* LIGHTMAP_WIDTH + ds->lightmapX + x;
-						for (j = 0; j < (y - pos + 1) / 2; j++)
+						bottom = (ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + pos) * LIGHTMAP_WIDTH + ds->lightmapX + x;
+						top = (ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
+						for(j = 0; j < (y - pos + 1) / 2; j++)
 						{
-							k = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + pos + j + 1)
+							k = (ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + pos + j + 1)
 								* LIGHTMAP_WIDTH + ds->lightmapX + x;
 							index = (ds->lightmapY + pos + j + 1) * LIGHTMAP_WIDTH + ds->lightmapX + x;
 							filled[index >> 3] |= 1 << (index & 7);
-							(lightFloats + k*3)[0] = (lightFloats + top*3)[0];
-							(lightFloats + k*3)[1] = (lightFloats + top*3)[1];
-							(lightFloats + k*3)[2] = (lightFloats + top*3)[2];
-							k = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y - j - 1)
+							(lightFloats + k * 3)[0] = (lightFloats + top * 3)[0];
+							(lightFloats + k * 3)[1] = (lightFloats + top * 3)[1];
+							(lightFloats + k * 3)[2] = (lightFloats + top * 3)[2];
+							k = (ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y - j - 1)
 								* LIGHTMAP_WIDTH + ds->lightmapX + x;
 							index = (ds->lightmapY + y - j - 1) * LIGHTMAP_WIDTH + ds->lightmapX + x;
 							filled[index >> 3] |= 1 << (index & 7);
-							(lightFloats + k*3)[0] = (lightFloats + bottom*3)[0];
-							(lightFloats + k*3)[1] = (lightFloats + bottom*3)[1];
-							(lightFloats + k*3)[2] = (lightFloats + bottom*3)[2];
+							(lightFloats + k * 3)[0] = (lightFloats + bottom * 3)[0];
+							(lightFloats + k * 3)[1] = (lightFloats + bottom * 3)[1];
+							(lightFloats + k * 3)[2] = (lightFloats + bottom * 3)[2];
 						}
 						pos = -1;
 					}
 				}
 			}
 		}
-		for (y = 0; y < height; y++)
+		for(y = 0; y < height; y++)
 		{
 			foundvalue = qfalse;
-			for (x = 0; x < width; x++)
+			for(x = 0; x < width; x++)
 			{
-				k = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
-						* LIGHTMAP_WIDTH + ds->lightmapX + x;
+				k = (ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
 				index = (ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
-				if (foundvalue)
+				if(foundvalue)
 				{
-					if (filled[index >> 3] & (1 << (index & 7)))
+					if(filled[index >> 3] & (1 << (index & 7)))
 					{
-						ptr = lightFloats + k*3;
+						ptr = lightFloats + k * 3;
 						color[0] = ptr[0];
 						color[1] = ptr[1];
 						color[2] = ptr[2];
 					}
 					else
 					{
-						ptr = lightFloats + k*3;
+						ptr = lightFloats + k * 3;
 						ptr[0] = color[0];
 						ptr[1] = color[1];
 						ptr[2] = color[2];
@@ -2375,9 +2441,9 @@ void VS_FixLightmapEdges(void)
 				}
 				else
 				{
-					if (filled[index >> 3] & (1 << (index & 7)))
+					if(filled[index >> 3] & (1 << (index & 7)))
 					{
-						ptr = lightFloats + k*3;
+						ptr = lightFloats + k * 3;
 						color[0] = ptr[0];
 						color[1] = ptr[1];
 						color[2] = ptr[2];
@@ -2386,23 +2452,22 @@ void VS_FixLightmapEdges(void)
 				}
 			}
 			foundvalue = qfalse;
-			for (x = width-1; x >= 0; x--)
+			for(x = width - 1; x >= 0; x--)
 			{
-				k = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
-						* LIGHTMAP_WIDTH + ds->lightmapX + x;
+				k = (ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
 				index = (ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
-				if (foundvalue)
+				if(foundvalue)
 				{
-					if (filled[index >> 3] & (1 << (index & 7)))
+					if(filled[index >> 3] & (1 << (index & 7)))
 					{
-						ptr = lightFloats + k*3;
+						ptr = lightFloats + k * 3;
 						color[0] = ptr[0];
 						color[1] = ptr[1];
 						color[2] = ptr[2];
 					}
 					else
 					{
-						ptr = lightFloats + k*3;
+						ptr = lightFloats + k * 3;
 						ptr[0] = color[0];
 						ptr[1] = color[1];
 						ptr[2] = color[2];
@@ -2411,9 +2476,9 @@ void VS_FixLightmapEdges(void)
 				}
 				else
 				{
-					if (filled[index >> 3] & (1 << (index & 7)))
+					if(filled[index >> 3] & (1 << (index & 7)))
 					{
-						ptr = lightFloats + k*3;
+						ptr = lightFloats + k * 3;
 						color[0] = ptr[0];
 						color[1] = ptr[1];
 						color[2] = ptr[2];
@@ -2422,26 +2487,25 @@ void VS_FixLightmapEdges(void)
 				}
 			}
 		}
-		for (x = 0; x < width; x++)
+		for(x = 0; x < width; x++)
 		{
 			foundvalue = qfalse;
-			for (y = 0; y < height; y++)
+			for(y = 0; y < height; y++)
 			{
-				k = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
-						* LIGHTMAP_WIDTH + ds->lightmapX + x;
+				k = (ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
 				index = (ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
-				if (foundvalue)
+				if(foundvalue)
 				{
-					if (filled[index >> 3] & (1 << (index & 7)))
+					if(filled[index >> 3] & (1 << (index & 7)))
 					{
-						ptr = lightFloats + k*3;
+						ptr = lightFloats + k * 3;
 						color[0] = ptr[0];
 						color[1] = ptr[1];
 						color[2] = ptr[2];
 					}
 					else
 					{
-						ptr = lightFloats + k*3;
+						ptr = lightFloats + k * 3;
 						ptr[0] = color[0];
 						ptr[1] = color[1];
 						ptr[2] = color[2];
@@ -2450,9 +2514,9 @@ void VS_FixLightmapEdges(void)
 				}
 				else
 				{
-					if (filled[index >> 3] & (1 << (index & 7)))
+					if(filled[index >> 3] & (1 << (index & 7)))
 					{
-						ptr = lightFloats + k*3;
+						ptr = lightFloats + k * 3;
 						color[0] = ptr[0];
 						color[1] = ptr[1];
 						color[2] = ptr[2];
@@ -2461,23 +2525,22 @@ void VS_FixLightmapEdges(void)
 				}
 			}
 			foundvalue = qfalse;
-			for (y = height-1; y >= 0; y--)
+			for(y = height - 1; y >= 0; y--)
 			{
-				k = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
-						* LIGHTMAP_WIDTH + ds->lightmapX + x;
+				k = (ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
 				index = (ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
-				if (foundvalue)
+				if(foundvalue)
 				{
-					if (filled[index >> 3] & (1 << (index & 7)))
+					if(filled[index >> 3] & (1 << (index & 7)))
 					{
-						ptr = lightFloats + k*3;
+						ptr = lightFloats + k * 3;
 						color[0] = ptr[0];
 						color[1] = ptr[1];
 						color[2] = ptr[2];
 					}
 					else
 					{
-						ptr = lightFloats + k*3;
+						ptr = lightFloats + k * 3;
 						ptr[0] = color[0];
 						ptr[1] = color[1];
 						ptr[2] = color[2];
@@ -2486,9 +2549,9 @@ void VS_FixLightmapEdges(void)
 				}
 				else
 				{
-					if (filled[index >> 3] & (1 << (index & 7)))
+					if(filled[index >> 3] & (1 << (index & 7)))
 					{
-						ptr = lightFloats + k*3;
+						ptr = lightFloats + k * 3;
 						color[0] = ptr[0];
 						color[1] = ptr[1];
 						color[2] = ptr[2];
@@ -2497,55 +2560,53 @@ void VS_FixLightmapEdges(void)
 				}
 			}
 		}
-		if (ds->surfaceType == MST_PATCH)
+		if(ds->surfaceType == MST_PATCH)
 		{
-			x = ds->lightmapWidth-1;
-			for (y = 0; y < ds->lightmapHeight; y++)
+			x = ds->lightmapWidth - 1;
+			for(y = 0; y < ds->lightmapHeight; y++)
 			{
-				k = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
-						* LIGHTMAP_WIDTH + ds->lightmapX + x;
-				ptr = lightFloats + k*3;
-				ptr[0] = (lightFloats + (k-1)*3)[0];
-				ptr[1] = (lightFloats + (k-1)*3)[1];
-				ptr[2] = (lightFloats + (k-1)*3)[2];
+				k = (ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
+				ptr = lightFloats + k * 3;
+				ptr[0] = (lightFloats + (k - 1) * 3)[0];
+				ptr[1] = (lightFloats + (k - 1) * 3)[1];
+				ptr[2] = (lightFloats + (k - 1) * 3)[2];
 			}
-			y = ds->lightmapHeight-1;
-			for (x = 0; x < ds->lightmapWidth; x++)
+			y = ds->lightmapHeight - 1;
+			for(x = 0; x < ds->lightmapWidth; x++)
 			{
-				k = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
-						* LIGHTMAP_WIDTH + ds->lightmapX + x;
-				ptr = lightFloats + k*3;
-				ptr[0] = (lightFloats + (k-LIGHTMAP_WIDTH)*3)[0];
-				ptr[1] = (lightFloats + (k-LIGHTMAP_WIDTH)*3)[1];
-				ptr[2] = (lightFloats + (k-LIGHTMAP_WIDTH)*3)[2];
+				k = (ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
+				ptr = lightFloats + k * 3;
+				ptr[0] = (lightFloats + (k - LIGHTMAP_WIDTH) * 3)[0];
+				ptr[1] = (lightFloats + (k - LIGHTMAP_WIDTH) * 3)[1];
+				ptr[2] = (lightFloats + (k - LIGHTMAP_WIDTH) * 3)[2];
 			}
 		}
 		/*
-		//colored debug edges
-		if (ds->surfaceType == MST_PATCH)
-		{
-			x = ds->lightmapWidth-1;
-			for (y = 0; y < ds->lightmapHeight; y++)
-			{
-				k = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
-						* LIGHTMAP_WIDTH + ds->lightmapX + x;
-				ptr = lightFloats + k*3;
-				ptr[0] = 255;
-				ptr[1] = 0;
-				ptr[2] = 0;
-			}
-			y = ds->lightmapHeight-1;
-			for (x = 0; x < ds->lightmapWidth; x++)
-			{
-				k = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
-						* LIGHTMAP_WIDTH + ds->lightmapX + x;
-				ptr = lightFloats + k*3;
-				ptr[0] = 0;
-				ptr[1] = 255;
-				ptr[2] = 0;
-			}
-		}
-		//*/
+		   //colored debug edges
+		   if (ds->surfaceType == MST_PATCH)
+		   {
+		   x = ds->lightmapWidth-1;
+		   for (y = 0; y < ds->lightmapHeight; y++)
+		   {
+		   k = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
+		   * LIGHTMAP_WIDTH + ds->lightmapX + x;
+		   ptr = lightFloats + k*3;
+		   ptr[0] = 255;
+		   ptr[1] = 0;
+		   ptr[2] = 0;
+		   }
+		   y = ds->lightmapHeight-1;
+		   for (x = 0; x < ds->lightmapWidth; x++)
+		   {
+		   k = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
+		   * LIGHTMAP_WIDTH + ds->lightmapX + x;
+		   ptr = lightFloats + k*3;
+		   ptr[0] = 0;
+		   ptr[1] = 255;
+		   ptr[2] = 0;
+		   }
+		   }
+		   // */
 	}
 	//
 	VS_SmoothenLightmapEdges();
@@ -2558,49 +2619,47 @@ VS_ShiftPatchLightmaps
 */
 void VS_ShiftPatchLightmaps(void)
 {
-	int				i, j, x, y, k;
-	drawVert_t		*verts;
-	dsurface_t		*ds;
-	lsurfaceTest_t	*test;
-	float			*ptr;
+	int             i, j, x, y, k;
+	drawVert_t     *verts;
+	dsurface_t     *ds;
+	lsurfaceTest_t *test;
+	float          *ptr;
 
-	for ( i = 0 ; i < numDrawSurfaces ; i++ )
+	for(i = 0; i < numDrawSurfaces; i++)
 	{
-		test = lsurfaceTest[ i ];
-		if (!test)
+		test = lsurfaceTest[i];
+		if(!test)
 			continue;
-		ds = &drawSurfaces[ i ];
+		ds = &drawSurfaces[i];
 
-		if ( ds->lightmapNum < 0 )
+		if(ds->lightmapNum < 0)
 			continue;
-		if (ds->surfaceType != MST_PATCH)
+		if(ds->surfaceType != MST_PATCH)
 			continue;
-		for (x = ds->lightmapWidth; x > 0; x--)
+		for(x = ds->lightmapWidth; x > 0; x--)
 		{
-			for (y = 0; y <= ds->lightmapHeight; y++)
+			for(y = 0; y <= ds->lightmapHeight; y++)
 			{
-				k = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
-						* LIGHTMAP_WIDTH + ds->lightmapX + x;
-				ptr = lightFloats + k*3;
-				ptr[0] = (lightFloats + (k-1)*3)[0];
-				ptr[1] = (lightFloats + (k-1)*3)[1];
-				ptr[2] = (lightFloats + (k-1)*3)[2];
+				k = (ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
+				ptr = lightFloats + k * 3;
+				ptr[0] = (lightFloats + (k - 1) * 3)[0];
+				ptr[1] = (lightFloats + (k - 1) * 3)[1];
+				ptr[2] = (lightFloats + (k - 1) * 3)[2];
 			}
 		}
-		for (y = ds->lightmapHeight; y > 0; y--)
+		for(y = ds->lightmapHeight; y > 0; y--)
 		{
-			for (x = 0; x <= ds->lightmapWidth; x++)
+			for(x = 0; x <= ds->lightmapWidth; x++)
 			{
-				k = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
-						* LIGHTMAP_WIDTH + ds->lightmapX + x;
-				ptr = lightFloats + k*3;
-				ptr[0] = (lightFloats + (k-LIGHTMAP_WIDTH)*3)[0];
-				ptr[1] = (lightFloats + (k-LIGHTMAP_WIDTH)*3)[1];
-				ptr[2] = (lightFloats + (k-LIGHTMAP_WIDTH)*3)[2];
+				k = (ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
+				ptr = lightFloats + k * 3;
+				ptr[0] = (lightFloats + (k - LIGHTMAP_WIDTH) * 3)[0];
+				ptr[1] = (lightFloats + (k - LIGHTMAP_WIDTH) * 3)[1];
+				ptr[2] = (lightFloats + (k - LIGHTMAP_WIDTH) * 3)[2];
 			}
 		}
-		verts = &drawVerts[ ds->firstVert ];
-		for ( j = 0 ; j < ds->patchHeight * ds->patchWidth; j++ )
+		verts = &drawVerts[ds->firstVert];
+		for(j = 0; j < ds->patchHeight * ds->patchWidth; j++)
 		{
 			verts[j].lightmap[0] += 0.5 / LIGHTMAP_WIDTH;
 			verts[j].lightmap[1] += 0.5 / LIGHTMAP_HEIGHT;
@@ -2617,11 +2676,11 @@ VS_StoreLightmap
 */
 void VS_StoreLightmap(void)
 {
-	int				i, x, y, k;
-	dsurface_t		*ds;
-	lsurfaceTest_t	*test;
-	float			*src;
-	byte			*dst;
+	int             i, x, y, k;
+	dsurface_t     *ds;
+	lsurfaceTest_t *test;
+	float          *src;
+	byte           *dst;
 
 	_printf("storing lightmaps...\n");
 	//fix lightmap edges before storing them
@@ -2631,25 +2690,24 @@ void VS_StoreLightmap(void)
 	VS_ShiftPatchLightmaps();
 #endif
 	//
-	for ( i = 0 ; i < numDrawSurfaces ; i++ )
+	for(i = 0; i < numDrawSurfaces; i++)
 	{
-		test = lsurfaceTest[ i ];
-		if (!test)
+		test = lsurfaceTest[i];
+		if(!test)
 			continue;
-		ds = &drawSurfaces[ i ];
+		ds = &drawSurfaces[i];
 
-		if ( ds->lightmapNum < 0 )
+		if(ds->lightmapNum < 0)
 			continue;
 
-		for (y = 0; y < ds->lightmapHeight; y++)
+		for(y = 0; y < ds->lightmapHeight; y++)
 		{
-			for (x = 0; x < ds->lightmapWidth; x++)
+			for(x = 0; x < ds->lightmapWidth; x++)
 			{
-				k = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y)
-						* LIGHTMAP_WIDTH + ds->lightmapX + x;
-				VectorAdd((lightFloats + k*3), lightAmbientColor, (lightFloats + k*3));
-				src = &lightFloats[k*3];
-				dst = lightBytes + k*3;
+				k = (ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
+				VectorAdd((lightFloats + k * 3), lightAmbientColor, (lightFloats + k * 3));
+				src = &lightFloats[k * 3];
+				dst = lightBytes + k * 3;
 				ColorToBytes(src, dst);
 			}
 		}
@@ -2690,30 +2748,30 @@ int	PointInLeafnum(vec3_t point)
 VS_PointInLeafnum_r
 =============
 */
-int	VS_PointInLeafnum_r(vec3_t point, int nodenum)
+int VS_PointInLeafnum_r(vec3_t point, int nodenum)
 {
-	int leafnum;
-	vec_t	dist;
-	dnode_t	*node;
-	dplane_t	*plane;
+	int             leafnum;
+	vec_t           dist;
+	dnode_t        *node;
+	dplane_t       *plane;
 
-	while (nodenum >= 0)
+	while(nodenum >= 0)
 	{
 		node = &dnodes[nodenum];
 		plane = &dplanes[node->planeNum];
-		dist = DotProduct (point, plane->normal) - plane->dist;
-		if (dist > 0.1)
+		dist = DotProduct(point, plane->normal) - plane->dist;
+		if(dist > 0.1)
 		{
 			nodenum = node->children[0];
 		}
-		else if (dist < -0.1)
+		else if(dist < -0.1)
 		{
 			nodenum = node->children[1];
 		}
 		else
 		{
 			leafnum = VS_PointInLeafnum_r(point, node->children[0]);
-			if (dleafs[leafnum].cluster != -1)
+			if(dleafs[leafnum].cluster != -1)
 				return leafnum;
 			nodenum = node->children[1];
 		}
@@ -2728,7 +2786,7 @@ int	VS_PointInLeafnum_r(vec3_t point, int nodenum)
 VS_PointInLeafnum
 =============
 */
-int	VS_PointInLeafnum(vec3_t point)
+int VS_PointInLeafnum(vec3_t point)
 {
 	return VS_PointInLeafnum_r(point, 0);
 }
@@ -2741,37 +2799,37 @@ VS_LightLeafnum
 int VS_LightLeafnum(vec3_t point)
 {
 	/*
-	int leafnum;
-	dleaf_t *leaf;
-	float x, y, z;
-	vec3_t test;
+	   int leafnum;
+	   dleaf_t *leaf;
+	   float x, y, z;
+	   vec3_t test;
 
-	leafnum = VS_PointInLeafnum(point);
-	leaf = &dleafs[leafnum];
-	if (leaf->cluster != -1)
-		return leafnum;
-	for (z = 1; z >= -1; z -= 1)
-	{
-		for (x = 1; x >= -1; x -= 1)
-		{
-			for (y = 1; y >= -1; y -= 1)
-			{
-				VectorCopy(point, test);
-				test[0] += x;
-				test[1] += y;
-				test[2] += z;
-				leafnum = VS_PointInLeafnum(test);
-				leaf = &dleafs[leafnum];
-				if (leaf->cluster != -1)
-				{
-					VectorCopy(test, point);
-					return leafnum;
-				}
-			}
-		}
-	}
-	return leafnum;
-	*/
+	   leafnum = VS_PointInLeafnum(point);
+	   leaf = &dleafs[leafnum];
+	   if (leaf->cluster != -1)
+	   return leafnum;
+	   for (z = 1; z >= -1; z -= 1)
+	   {
+	   for (x = 1; x >= -1; x -= 1)
+	   {
+	   for (y = 1; y >= -1; y -= 1)
+	   {
+	   VectorCopy(point, test);
+	   test[0] += x;
+	   test[1] += y;
+	   test[2] += z;
+	   leafnum = VS_PointInLeafnum(test);
+	   leaf = &dleafs[leafnum];
+	   if (leaf->cluster != -1)
+	   {
+	   VectorCopy(test, point);
+	   return leafnum;
+	   }
+	   }
+	   }
+	   }
+	   return leafnum;
+	 */
 	return VS_PointInLeafnum(point);
 }
 
@@ -2779,8 +2837,8 @@ int VS_LightLeafnum(vec3_t point)
 
 #ifdef LIGHTPOLYS
 
-winding_t *lightwindings[MAX_MAP_DRAW_SURFS];
-int numlightwindings;
+winding_t      *lightwindings[MAX_MAP_DRAW_SURFS];
+int             numlightwindings;
 
 /*
 =============
@@ -2789,8 +2847,9 @@ VS_DrawLightWindings
 */
 void VS_DrawLightWindings(void)
 {
-	int i;
-	for (i = 0; i < numlightwindings; i++)
+	int             i;
+
+	for(i = 0; i < numlightwindings; i++)
 	{
 #ifdef DEBUGNET
 		DebugNet_DrawWinding(lightwindings[i], 1);
@@ -2803,30 +2862,30 @@ void VS_DrawLightWindings(void)
 VS_LightSurfaceWithVolume
 =============
 */
-void VS_LightSurfaceWithVolume(int surfaceNum, int facetNum, vsound_t *light, lightvolume_t *volume)
+void VS_LightSurfaceWithVolume(int surfaceNum, int facetNum, vsound_t * light, lightvolume_t * volume)
 {
-	winding_t *w;
+	winding_t      *w;
 	lsurfaceTest_t *test;
-	lFacet_t *facet;
-	int i;
+	lFacet_t       *facet;
+	int             i;
 
-	test = lsurfaceTest[ surfaceNum ];
-	facet = &test->facets[ facetNum ];
+	test = lsurfaceTest[surfaceNum];
+	facet = &test->facets[facetNum];
 
 	//
 	w = (winding_t *) malloc(sizeof(winding_t));
 	memcpy(w->points, facet->points, sizeof(vec3_t) * facet->numpoints);
 	w->numpoints = facet->numpoints;
 
-	for (i = 0; i < volume->numplanes; i++)
+	for(i = 0; i < volume->numplanes; i++)
 	{
 		//if totally on the back
-		if (VS_ChopWinding(w, &volume->planes[i], 0.01) == SIDE_BACK)
+		if(VS_ChopWinding(w, &volume->planes[i], 0.01) == SIDE_BACK)
 			return;
 	}
 	lightwindings[numlightwindings] = w;
 	numlightwindings++;
-	if (numlightwindings >= MAX_MAP_DRAW_SURFS)
+	if(numlightwindings >= MAX_MAP_DRAW_SURFS)
 		Error("MAX_LIGHTWINDINGS");
 }
 
@@ -2951,25 +3010,25 @@ FIXME:  don't use a lightmap pixel origin but use the four corner points
 		to map part of a translucent surface onto the lightmap pixel
 =============
 */
-void VS_GetFilter(vsound_t *light, lightvolume_t *volume, vec3_t lmp, vec3_t filter)
+void VS_GetFilter(vsound_t * light, lightvolume_t * volume, vec3_t lmp, vec3_t filter)
 {
-	lFacet_t *facet;
+	lFacet_t       *facet;
 	lsurfaceTest_t *test;
-	float d, d1, d2, frac, s, t, ns;
-	int i, j, is, it, b;
-	int x, y, u, v, numsamples, radius, color[4], largest;
-	byte *image;
-	vec3_t point, origin, total;
+	float           d, d1, d2, frac, s, t, ns;
+	int             i, j, is, it, b;
+	int             x, y, u, v, numsamples, radius, color[4], largest;
+	byte           *image;
+	vec3_t          point, origin, total;
 
 	VectorSet(filter, 1, 1, 1);
 
-	if (noalphashading)
+	if(noalphashading)
 		return;
 
-	if (volume->numtransFacets <= 0)
+	if(volume->numtransFacets <= 0)
 		return;
 
-	if (light->type == LIGHT_SURFACEDIRECTED)
+	if(light->type == LIGHT_SURFACEDIRECTED)
 	{
 		// project the light map pixel origin onto the area light source plane
 		d = DotProduct(lmp, light->normal) - DotProduct(light->normal, light->w.points[0]);
@@ -2979,47 +3038,51 @@ void VS_GetFilter(vsound_t *light, lightvolume_t *volume, vec3_t lmp, vec3_t fil
 	{
 		VectorCopy(light->origin, origin);
 	}
-	for (i = 0; i < volume->numtransFacets; i++)
+	for(i = 0; i < volume->numtransFacets; i++)
 	{
-		test = lsurfaceTest[ volume->transSurfaces[i] ];
-		facet = &test->facets[ volume->transFacets[i] ];
+		test = lsurfaceTest[volume->transSurfaces[i]];
+		facet = &test->facets[volume->transFacets[i]];
 		// if this surface does not cast an alpha shadow
-		if ( !(test->shader->surfaceFlags & SURF_ALPHASHADOW) )
+		if(!(test->shader->surfaceFlags & SURF_ALPHASHADOW))
 			continue;
 		// if there are no texture pixel available
-		if ( !test->shader->pixels ) {
+		if(!test->shader->pixels)
+		{
 			continue;
 		}
 		//
-		d1 = DotProduct( origin, facet->plane.normal) - facet->plane.dist;
-		d2 = DotProduct( lmp, facet->plane.normal ) - facet->plane.dist;
+		d1 = DotProduct(origin, facet->plane.normal) - facet->plane.dist;
+		d2 = DotProduct(lmp, facet->plane.normal) - facet->plane.dist;
 		// this should never happen because the light volume went through the facet
-		if ( ( d1 < 0 ) == ( d2 < 0 ) ) {
+		if((d1 < 0) == (d2 < 0))
+		{
 			continue;
 		}
 		// calculate the crossing point
-		frac = d1 / ( d1 - d2 );
+		frac = d1 / (d1 - d2);
 
-		for ( j = 0 ; j < 3 ; j++ ) {
-			point[j] = origin[j] + frac * ( lmp[j] - origin[j] );
+		for(j = 0; j < 3; j++)
+		{
+			point[j] = origin[j] + frac * (lmp[j] - origin[j]);
 		}
 
-		s = DotProduct( point, facet->textureMatrix[0] ) + facet->textureMatrix[0][3];
-		t = DotProduct( point, facet->textureMatrix[1] ) + facet->textureMatrix[1][3];
-		if (s < 0)
+		s = DotProduct(point, facet->textureMatrix[0]) + facet->textureMatrix[0][3];
+		t = DotProduct(point, facet->textureMatrix[1]) + facet->textureMatrix[1][3];
+		if(s < 0)
 			s = 0;
-		if (t < 0)
+		if(t < 0)
 			t = 0;
 
-		s = s - floor( s );
-		t = t - floor( t );
+		s = s - floor(s);
+		t = t - floor(t);
 
 		is = s * test->shader->width;
 		it = t * test->shader->height;
 
 		//if old style alpha shading
-		if (nocolorshading) {
-			image = test->shader->pixels + 4 * ( it * test->shader->width + is );
+		if(nocolorshading)
+		{
+			image = test->shader->pixels + 4 * (it * test->shader->width + is);
 
 			// alpha filter
 			b = image[3];
@@ -3027,42 +3090,44 @@ void VS_GetFilter(vsound_t *light, lightvolume_t *volume, vec3_t lmp, vec3_t fil
 			// alpha test makes this a binary option
 			b = b < 128 ? 0 : 255;
 
-			filter[0] = filter[0] * (255-b) / 255;
-			filter[1] = filter[1] * (255-b) / 255;
-			filter[2] = filter[2] * (255-b) / 255;
+			filter[0] = filter[0] * (255 - b) / 255;
+			filter[1] = filter[1] * (255 - b) / 255;
+			filter[2] = filter[2] * (255 - b) / 255;
 		}
-		else {
+		else
+		{
 			VectorClear(total);
 			numsamples = 0;
 			radius = 2;
-			for ( u = -radius; u <= radius; u++ )
+			for(u = -radius; u <= radius; u++)
 			{
 				x = is + u;
-				if ( x < 0 || x >= test->shader->width)
+				if(x < 0 || x >= test->shader->width)
 					continue;
-				for ( v = -radius; v <= radius; v++ )
+				for(v = -radius; v <= radius; v++)
 				{
 					y = it + v;
-					if ( y < 0 || y >= test->shader->height)
+					if(y < 0 || y >= test->shader->height)
 						continue;
 
-					image = test->shader->pixels + 4 * ( y * test->shader->width + x );
+					image = test->shader->pixels + 4 * (y * test->shader->width + x);
 					color[0] = image[0];
 					color[1] = image[1];
 					color[2] = image[2];
 					largest = 0;
-					for (j = 0; j < 3; j++)
-						if (image[j] > largest)
+					for(j = 0; j < 3; j++)
+						if(image[j] > largest)
 							largest = image[j];
-					if (largest <= 0 || image[3] == 0) {
+					if(largest <= 0 || image[3] == 0)
+					{
 						color[0] = 255;
 						color[1] = 255;
 						color[2] = 255;
 						largest = 255;
 					}
-					total[0] += ((float) color[0]/largest) * (255-image[3]) / 255.0;
-					total[1] += ((float) color[1]/largest) * (255-image[3]) / 255.0;
-					total[2] += ((float) color[2]/largest) * (255-image[3]) / 255.0;
+					total[0] += ((float)color[0] / largest) * (255 - image[3]) / 255.0;
+					total[1] += ((float)color[1] / largest) * (255 - image[3]) / 255.0;
+					total[2] += ((float)color[2] / largest) * (255 - image[3]) / 255.0;
 					numsamples++;
 				}
 			}
@@ -3080,48 +3145,50 @@ void VS_GetFilter(vsound_t *light, lightvolume_t *volume, vec3_t lmp, vec3_t fil
 VS_LightSurfaceWithVolume
 =============
 */
-void VS_LightSurfaceWithVolume( int surfaceNum, int facetNum, vsound_t *light, lightvolume_t *volume )
+void VS_LightSurfaceWithVolume(int surfaceNum, int facetNum, vsound_t * light, lightvolume_t * volume)
 {
-	int i;
-	dsurface_t	*ds;
-	lFacet_t *facet;
+	int             i;
+	dsurface_t     *ds;
+	lFacet_t       *facet;
 	lsurfaceTest_t *test;
-	winding_t w;
-	vec3_t base, dir, delta, normal, filter, origin;
-	int min_x[LIGHTMAP_SIZE+2], max_x[LIGHTMAP_SIZE+2];
-	int min_y, max_y, k, x, y, n;
-	float *color, distscale;
-	float d, add, angle, dist, area, insidearea, coords[MAX_POINTS_ON_WINDING+1][2];
-	mesh_t *mesh;
-	byte polygonedges[(LIGHTMAP_SIZE+1) * (LIGHTMAP_SIZE+1) / 8];
+	winding_t       w;
+	vec3_t          base, dir, delta, normal, filter, origin;
+	int             min_x[LIGHTMAP_SIZE + 2], max_x[LIGHTMAP_SIZE + 2];
+	int             min_y, max_y, k, x, y, n;
+	float          *color, distscale;
+	float           d, add, angle, dist, area, insidearea, coords[MAX_POINTS_ON_WINDING + 1][2];
+	mesh_t         *mesh;
+	byte            polygonedges[(LIGHTMAP_SIZE + 1) * (LIGHTMAP_SIZE + 1) / 8];
 
 
 	ds = &drawSurfaces[surfaceNum];
 
 	// vertex-lit triangle model
-	if ( ds->surfaceType == MST_TRIANGLE_SOUP ) {
+	if(ds->surfaceType == MST_TRIANGLE_SOUP)
+	{
 		return;
 	}
-	
-	if ( ds->lightmapNum < 0 ) {
-		return;		// doesn't need lighting
+
+	if(ds->lightmapNum < 0)
+	{
+		return;					// doesn't need lighting
 	}
 
-	test = lsurfaceTest[ surfaceNum ];
-	facet = &test->facets[ facetNum ];
+	test = lsurfaceTest[surfaceNum];
+	facet = &test->facets[facetNum];
 
-	if (defaulttracelight && !test->always_vsound)
+	if(defaulttracelight && !test->always_vsound)
 		return;
-	if (test->always_tracelight)
+	if(test->always_tracelight)
 		return;
 
 	memcpy(w.points, facet->points, sizeof(vec3_t) * facet->numpoints);
 	w.numpoints = facet->numpoints;
 
-	for (i = 0; i < volume->numplanes; i++)
+	for(i = 0; i < volume->numplanes; i++)
 	{
 		//if totally on the back
-		if (VS_ChopWinding(&w, &volume->planes[i], 0.01) == SIDE_BACK)
+		if(VS_ChopWinding(&w, &volume->planes[i], 0.01) == SIDE_BACK)
 			return;
 	}
 
@@ -3130,16 +3197,16 @@ void VS_LightSurfaceWithVolume( int surfaceNum, int facetNum, vsound_t *light, l
 
 	test->numvolumes++;
 
-	if (ds->surfaceType == MST_PATCH)
+	if(ds->surfaceType == MST_PATCH)
 	{
 		// FIXME: reduce size and don't mark all as edge
 		min_y = ds->lightmapY + facet->y;
 		max_y = ds->lightmapY + facet->y + facet->height - 1;
-		for (y = min_y; y <= max_y; y++)
+		for(y = min_y; y <= max_y; y++)
 		{
 			min_x[y] = ds->lightmapX + facet->x;
 			max_x[y] = ds->lightmapX + facet->x + facet->width - 1;
-			for (x = min_x[y]; x <= max_x[y]; x++)
+			for(x = min_x[y]; x <= max_x[y]; x++)
 			{
 				n = y * LIGHTMAP_SIZE + x;
 				polygonedges[n >> 3] |= 1 << (n & 7);
@@ -3148,53 +3215,53 @@ void VS_LightSurfaceWithVolume( int surfaceNum, int facetNum, vsound_t *light, l
 	}
 	else
 	{
-		for (i = 0; i < w.numpoints; i++)
+		for(i = 0; i < w.numpoints; i++)
 		{
-			float	s, t;
+			float           s, t;
 
-			if (i >= MAX_POINTS_ON_WINDING)
+			if(i >= MAX_POINTS_ON_WINDING)
 				_printf("coords overflow\n");
-			if (ds->surfaceType != MST_PATCH)
+			if(ds->surfaceType != MST_PATCH)
 			{
 				VectorSubtract(w.points[i], facet->mins, delta);
-				s = DotProduct( delta, facet->lightmapMatrix[0] ) + ds->lightmapX + 0.5;
-				t = DotProduct( delta, facet->lightmapMatrix[1] ) + ds->lightmapY + 0.5;
-				if (s >= LIGHTMAP_SIZE)
+				s = DotProduct(delta, facet->lightmapMatrix[0]) + ds->lightmapX + 0.5;
+				t = DotProduct(delta, facet->lightmapMatrix[1]) + ds->lightmapY + 0.5;
+				if(s >= LIGHTMAP_SIZE)
 					s = LIGHTMAP_SIZE - 0.5;
-				if (s < 0)
+				if(s < 0)
 					s = 0;
-				if (t >= LIGHTMAP_SIZE)
+				if(t >= LIGHTMAP_SIZE)
 					t = LIGHTMAP_SIZE - 0.5;
-				if (t < 0)
+				if(t < 0)
 					t = 0;
 				coords[i][0] = s;
 				coords[i][1] = t;
 			}
 			else
 			{
-				s = DotProduct( w.points[i], facet->lightmapMatrix[0] ) + facet->lightmapMatrix[0][3];
-				t = DotProduct( w.points[i], facet->lightmapMatrix[1] ) + facet->lightmapMatrix[1][3];
+				s = DotProduct(w.points[i], facet->lightmapMatrix[0]) + facet->lightmapMatrix[0][3];
+				t = DotProduct(w.points[i], facet->lightmapMatrix[1]) + facet->lightmapMatrix[1][3];
 
-				s = s - floor( s );
-				t = t - floor( t );
+				s = s - floor(s);
+				t = t - floor(t);
 
-				coords[i][0] = ds->lightmapX + s * LIGHTMAP_SIZE;// + 0.5;
-				coords[i][1] = ds->lightmapY + t * LIGHTMAP_SIZE;// + 0.5;
+				coords[i][0] = ds->lightmapX + s * LIGHTMAP_SIZE;	// + 0.5;
+				coords[i][1] = ds->lightmapY + t * LIGHTMAP_SIZE;	// + 0.5;
 
-				if (coords[i][0] >= LIGHTMAP_SIZE)
+				if(coords[i][0] >= LIGHTMAP_SIZE)
 					coords[i][0] -= LIGHTMAP_SIZE;
-				if (coords[i][1] >= LIGHTMAP_SIZE)
+				if(coords[i][1] >= LIGHTMAP_SIZE)
 					coords[i][1] -= LIGHTMAP_SIZE;
-				if (coords[i][0] < ds->lightmapX)
+				if(coords[i][0] < ds->lightmapX)
 					coords[i][0] = ds->lightmapX;
-				if (coords[i][1] < ds->lightmapY)
+				if(coords[i][1] < ds->lightmapY)
 					coords[i][1] = ds->lightmapY;
 			}
 			x = coords[i][0];
 			y = coords[i][1];
-			if (x < ds->lightmapX || x >= LIGHTMAP_SIZE)
+			if(x < ds->lightmapX || x >= LIGHTMAP_SIZE)
 				_printf("VS_LightSurfaceWithVolume: x outside lightmap\n");
-			if (y < ds->lightmapY || y >= LIGHTMAP_SIZE)
+			if(y < ds->lightmapY || y >= LIGHTMAP_SIZE)
 				_printf("VS_LightSurfaceWithVolume: y outside lightmap\n");
 		}
 		coords[i][0] = coords[0][0];
@@ -3203,7 +3270,7 @@ void VS_LightSurfaceWithVolume( int surfaceNum, int facetNum, vsound_t *light, l
 		//
 		min_y = LIGHTMAP_SIZE;
 		max_y = 0;
-		for (i = 0; i < LIGHTMAP_SIZE; i++)
+		for(i = 0; i < LIGHTMAP_SIZE; i++)
 		{
 			min_x[i] = LIGHTMAP_SIZE;
 			max_x[i] = 0;
@@ -3216,33 +3283,33 @@ void VS_LightSurfaceWithVolume( int surfaceNum, int facetNum, vsound_t *light, l
 		// this is necesary because we need all lightmap pixels totally or partly
 		// inside the light volume. these lightmap pixels are only lit for the part
 		// that they are inside the light volume.
-		for (i = 0; i < w.numpoints; i++)
+		for(i = 0; i < w.numpoints; i++)
 		{
-			float xf, yf, dx, dy, xstep, ystep, xfrac, yfrac;
-			int xinc, yinc;
+			float           xf, yf, dx, dy, xstep, ystep, xfrac, yfrac;
+			int             xinc, yinc;
 
 			xf = coords[i][0];
 			yf = coords[i][1];
-			dx = coords[i+1][0] - xf;
-			dy = coords[i+1][1] - yf;
+			dx = coords[i + 1][0] - xf;
+			dy = coords[i + 1][1] - yf;
 			//
-			x = (int) xf;
-			y = (int) yf;
+			x = (int)xf;
+			y = (int)yf;
 			//
-			if (y < min_y)
+			if(y < min_y)
 				min_y = y;
-			if (y > max_y)
+			if(y > max_y)
 				max_y = y;
 			//
-			if (fabs(dx) > fabs(dy))
+			if(fabs(dx) > fabs(dy))
 			{
-				if (dx > 0)
+				if(dx > 0)
 				{
 					// y fraction at integer x below fractional x
 					yfrac = yf + (floor(xf) - xf) * dy / dx;
 					xinc = 1;
 				}
-				else if (dx < 0)
+				else if(dx < 0)
 				{
 					// y fraction at integer x above fractional x
 					yfrac = yf + (floor(xf) + 1 - xf) * dy / dx;
@@ -3254,51 +3321,51 @@ void VS_LightSurfaceWithVolume( int surfaceNum, int facetNum, vsound_t *light, l
 					xinc = 0;
 				}
 				// step in y direction per 1 unit in x direction
-				if (dx)
+				if(dx)
 					ystep = dy / fabs(dx);
 				else
 					ystep = 0;
 				while(1)
 				{
-					if (x < ds->lightmapX || x >= LIGHTMAP_SIZE)
+					if(x < ds->lightmapX || x >= LIGHTMAP_SIZE)
 						_printf("VS_LightSurfaceWithVolume: x outside lightmap\n");
-					if (y < ds->lightmapY || y >= LIGHTMAP_SIZE)
+					if(y < ds->lightmapY || y >= LIGHTMAP_SIZE)
 						_printf("VS_LightSurfaceWithVolume: y outside lightmap\n");
 					//
 					n = y * LIGHTMAP_SIZE + x;
 					polygonedges[n >> 3] |= 1 << (n & 7);
-					if (x < min_x[y])
+					if(x < min_x[y])
 						min_x[y] = x;
-					if (x > max_x[y])
+					if(x > max_x[y])
 						max_x[y] = x;
-					if (x == (int) coords[i+1][0])
+					if(x == (int)coords[i + 1][0])
 						break;
 					yfrac += ystep;
-					if (dy > 0)
+					if(dy > 0)
 					{
-						if (yfrac > (float) y + 1)
+						if(yfrac > (float)y + 1)
 						{
 							y += 1;
 							//
 							n = y * LIGHTMAP_SIZE + x;
 							polygonedges[n >> 3] |= 1 << (n & 7);
-							if (x < min_x[y])
+							if(x < min_x[y])
 								min_x[y] = x;
-							if (x > max_x[y])
+							if(x > max_x[y])
 								max_x[y] = x;
 						}
 					}
 					else
 					{
-						if (yfrac < (float) y)
+						if(yfrac < (float)y)
 						{
 							y -= 1;
 							//
 							n = y * LIGHTMAP_SIZE + x;
 							polygonedges[n >> 3] |= 1 << (n & 7);
-							if (x < min_x[y])
+							if(x < min_x[y])
 								min_x[y] = x;
-							if (x > max_x[y])
+							if(x > max_x[y])
 								max_x[y] = x;
 						}
 					}
@@ -3307,13 +3374,13 @@ void VS_LightSurfaceWithVolume( int surfaceNum, int facetNum, vsound_t *light, l
 			}
 			else
 			{
-				if (dy > 0)
+				if(dy > 0)
 				{
 					//x fraction at integer y below fractional y
 					xfrac = xf + (floor(yf) - yf) * dx / dy;
 					yinc = 1;
 				}
-				else if (dy < 0)
+				else if(dy < 0)
 				{
 					//x fraction at integer y above fractional y
 					xfrac = xf + (floor(yf) + 1 - yf) * dx / dy;
@@ -3325,51 +3392,51 @@ void VS_LightSurfaceWithVolume( int surfaceNum, int facetNum, vsound_t *light, l
 					yinc = 0;
 				}
 				// step in x direction per 1 unit in y direction
-				if (dy)
+				if(dy)
 					xstep = dx / fabs(dy);
 				else
 					xstep = 0;
 				while(1)
 				{
-					if (x < ds->lightmapX || x >= LIGHTMAP_SIZE)
+					if(x < ds->lightmapX || x >= LIGHTMAP_SIZE)
 						_printf("VS_LightSurfaceWithVolume: x outside lightmap\n");
-					if (y < ds->lightmapY || y >= LIGHTMAP_SIZE)
+					if(y < ds->lightmapY || y >= LIGHTMAP_SIZE)
 						_printf("VS_LightSurfaceWithVolume: y outside lightmap\n");
 					//
 					n = y * LIGHTMAP_SIZE + x;
 					polygonedges[n >> 3] |= 1 << (n & 7);
-					if (x < min_x[y])
+					if(x < min_x[y])
 						min_x[y] = x;
-					if (x > max_x[y])
+					if(x > max_x[y])
 						max_x[y] = x;
-					if (y == (int) coords[i+1][1])
+					if(y == (int)coords[i + 1][1])
 						break;
 					xfrac += xstep;
-					if (dx > 0)
+					if(dx > 0)
 					{
-						if (xfrac > (float) x + 1)
+						if(xfrac > (float)x + 1)
 						{
 							x += 1;
 							//
 							n = y * LIGHTMAP_SIZE + x;
 							polygonedges[n >> 3] |= 1 << (n & 7);
-							if (x < min_x[y])
+							if(x < min_x[y])
 								min_x[y] = x;
-							if (x > max_x[y])
+							if(x > max_x[y])
 								max_x[y] = x;
 						}
 					}
 					else
 					{
-						if (xfrac < (float) x)
+						if(xfrac < (float)x)
 						{
 							x -= 1;
 							//
 							n = y * LIGHTMAP_SIZE + x;
 							polygonedges[n >> 3] |= 1 << (n & 7);
-							if (x < min_x[y])
+							if(x < min_x[y])
 								min_x[y] = x;
-							if (x > max_x[y])
+							if(x > max_x[y])
 								max_x[y] = x;
 						}
 					}
@@ -3379,113 +3446,133 @@ void VS_LightSurfaceWithVolume( int surfaceNum, int facetNum, vsound_t *light, l
 		}
 	}
 	// map light onto the lightmap
-	for (y = min_y; y <= max_y; y++)
+	for(y = min_y; y <= max_y; y++)
 	{
-		for (x = min_x[y]; x <= max_x[y]; x++)
+		for(x = min_x[y]; x <= max_x[y]; x++)
 		{
-			if (ds->surfaceType == MST_PATCH)
+			if(ds->surfaceType == MST_PATCH)
 			{
 				mesh = test->detailMesh;
-				VectorCopy( mesh->verts[(y-ds->lightmapY)*mesh->width+x-ds->lightmapX].xyz, base);
-				VectorCopy( mesh->verts[(y-ds->lightmapY)*mesh->width+x-ds->lightmapX].normal, normal);
+				VectorCopy(mesh->verts[(y - ds->lightmapY) * mesh->width + x - ds->lightmapX].xyz, base);
+				VectorCopy(mesh->verts[(y - ds->lightmapY) * mesh->width + x - ds->lightmapX].normal, normal);
 				//VectorCopy(facet->plane.normal, normal);
 			}
 			else
 			{
-				VectorMA(ds->lightmapOrigin, (float) x - ds->lightmapX, ds->lightmapVecs[0], base);
-				VectorMA(base, (float) y - ds->lightmapY, ds->lightmapVecs[1], base);
+				VectorMA(ds->lightmapOrigin, (float)x - ds->lightmapX, ds->lightmapVecs[0], base);
+				VectorMA(base, (float)y - ds->lightmapY, ds->lightmapVecs[1], base);
 				VectorCopy(facet->plane.normal, normal);
 			}
-			if (light->type == LIGHT_POINTSPOT)
+			if(light->type == LIGHT_POINTSPOT)
 			{
-				float	distByNormal;
-				vec3_t	pointAtDist;
-				float	radiusAtDist;
-				float	sampleRadius;
-				vec3_t	distToSample;
-				float	coneScale;
+				float           distByNormal;
+				vec3_t          pointAtDist;
+				float           radiusAtDist;
+				float           sampleRadius;
+				vec3_t          distToSample;
+				float           coneScale;
 
-				VectorSubtract( light->origin, base, dir );
+				VectorSubtract(light->origin, base, dir);
 
-				distByNormal = -DotProduct( dir, light->normal );
-				if ( distByNormal < 0 ) {
+				distByNormal = -DotProduct(dir, light->normal);
+				if(distByNormal < 0)
+				{
 					continue;
 				}
-				VectorMA( light->origin, distByNormal, light->normal, pointAtDist );
+				VectorMA(light->origin, distByNormal, light->normal, pointAtDist);
 				radiusAtDist = light->radiusByDist * distByNormal;
 
-				VectorSubtract( base, pointAtDist, distToSample );
-				sampleRadius = VectorLength( distToSample );
+				VectorSubtract(base, pointAtDist, distToSample);
+				sampleRadius = VectorLength(distToSample);
 
-				if ( sampleRadius >= radiusAtDist ) {
-					continue;		// outside the cone
+				if(sampleRadius >= radiusAtDist)
+				{
+					continue;	// outside the cone
 				}
-				if ( sampleRadius <= radiusAtDist - 32 ) {
+				if(sampleRadius <= radiusAtDist - 32)
+				{
 					coneScale = 1.0;	// fully inside
-				} else {
-					coneScale = ( radiusAtDist - sampleRadius ) / 32.0;
 				}
-				
-				dist = VectorNormalize( dir, dir );
+				else
+				{
+					coneScale = (radiusAtDist - sampleRadius) / 32.0;
+				}
+
+				dist = VectorNormalize(dir, dir);
 				// clamp the distance to prevent super hot spots
-				if ( dist < 16 ) {
+				if(dist < 16)
+				{
 					dist = 16;
 				}
-				angle = DotProduct( normal, dir );
-				if (angle > 1)
+				angle = DotProduct(normal, dir);
+				if(angle > 1)
 					angle = 1;
-				if (angle > 0) {
-					if ( light->atten_angletype == LAAT_QUADRATIC ) {
+				if(angle > 0)
+				{
+					if(light->atten_angletype == LAAT_QUADRATIC)
+					{
 						angle = 1 - angle;
 						angle *= angle;
 						angle = 1 - angle;
 					}
-					else if ( light->atten_angletype == LAAT_DOUBLEQUADRATIC ) {
+					else if(light->atten_angletype == LAAT_DOUBLEQUADRATIC)
+					{
 						angle = 1 - angle;
 						angle *= angle * angle;
 						angle = 1 - angle;
 					}
 				}
-				if (light->atten_anglescale > 0) {
+				if(light->atten_anglescale > 0)
+				{
 					angle /= light->atten_anglescale;
-					if (angle > 1)
+					if(angle > 1)
 						angle = 1;
 				}
-				if (light->atten_distscale > 0) {
+				if(light->atten_distscale > 0)
+				{
 					distscale = light->atten_distscale;
 				}
-				else {
+				else
+				{
 					distscale = 1;
 				}
 				//
-				if ( light->atten_disttype == LDAT_NOSCALE ) {
+				if(light->atten_disttype == LDAT_NOSCALE)
+				{
 					add = angle * coneScale;
 				}
-				else if ( light->atten_disttype == LDAT_LINEAR ) {
+				else if(light->atten_disttype == LDAT_LINEAR)
+				{
 					add = angle * light->photons * lightLinearScale * coneScale - dist * distscale;
-					if ( add < 0 ) {
+					if(add < 0)
+					{
 						add = 0;
 					}
 				}
-				else {
-					add = light->photons / ( dist * dist * distscale) * angle * coneScale;
+				else
+				{
+					add = light->photons / (dist * dist * distscale) * angle * coneScale;
 				}
-				if (add <= 1.0)
+				if(add <= 1.0)
 					continue;
 			}
-			else if (light->type == LIGHT_POINTFAKESURFACE)
+			else if(light->type == LIGHT_POINTFAKESURFACE)
 			{
 				// calculate the contribution
-				add = PointToPolygonFormFactor( base, normal, &light->w );
-				if ( add <= 0 ) {
-					if ( light->twosided ) {
+				add = PointToPolygonFormFactor(base, normal, &light->w);
+				if(add <= 0)
+				{
+					if(light->twosided)
+					{
 						add = -add;
-					} else {
+					}
+					else
+					{
 						continue;
 					}
 				}
 			}
-			else if (light->type == LIGHT_SURFACEDIRECTED)
+			else if(light->type == LIGHT_SURFACEDIRECTED)
 			{
 				//VectorCopy(light->normal, dir);
 				//VectorInverse(dir);
@@ -3494,129 +3581,157 @@ void VS_LightSurfaceWithVolume( int surfaceNum, int facetNum, vsound_t *light, l
 				VectorMA(base, -d, light->normal, origin);
 				VectorSubtract(origin, base, dir);
 				dist = VectorNormalize(dir, dir);
-				if ( dist < 16 ) {
+				if(dist < 16)
+				{
 					dist = 16;
 				}
 				//
-				angle = DotProduct( normal, dir );
-				if (angle > 1)
+				angle = DotProduct(normal, dir);
+				if(angle > 1)
 					angle = 1;
-				if (angle > 0) {
-					if ( light->atten_angletype == LAAT_QUADRATIC ) {
+				if(angle > 0)
+				{
+					if(light->atten_angletype == LAAT_QUADRATIC)
+					{
 						angle = 1 - angle;
 						angle *= angle;
 						angle = 1 - angle;
 					}
-					else if ( light->atten_angletype == LAAT_DOUBLEQUADRATIC ) {
+					else if(light->atten_angletype == LAAT_DOUBLEQUADRATIC)
+					{
 						angle = 1 - angle;
 						angle *= angle * angle;
 						angle = 1 - angle;
 					}
 				}
-				if (light->atten_anglescale > 0) {
+				if(light->atten_anglescale > 0)
+				{
 					angle /= light->atten_anglescale;
-					if (angle > 1)
+					if(angle > 1)
 						angle = 1;
 				}
-				if (light->atten_distscale > 0) {
+				if(light->atten_distscale > 0)
+				{
 					distscale = light->atten_distscale;
 				}
-				else {
+				else
+				{
 					distscale = 1;
 				}
-				if ( light->atten_disttype == LDAT_NOSCALE ) {
+				if(light->atten_disttype == LDAT_NOSCALE)
+				{
 					add = angle;
 				}
-				else if ( light->atten_disttype == LDAT_LINEAR ) {
+				else if(light->atten_disttype == LDAT_LINEAR)
+				{
 					add = angle * light->photons * lightLinearScale - dist * distscale;
-					if ( add < 0 ) {
+					if(add < 0)
+					{
 						add = 0;
 					}
-				} else { //default quadratic
-					add = light->photons / ( dist * dist * distscale) * angle;
 				}
-				if (add <= 0)
+				else
+				{				//default quadratic
+					add = light->photons / (dist * dist * distscale) * angle;
+				}
+				if(add <= 0)
 					continue;
 			}
-			else //normal radial point light
+			else				//normal radial point light
 			{
 				VectorSubtract(light->origin, base, dir);
 				dist = VectorNormalize(dir, dir);
-				if ( dist < 16 ) {
+				if(dist < 16)
+				{
 					dist = 16;
 				}
-				angle = DotProduct( normal, dir );
-				if (angle > 1)
+				angle = DotProduct(normal, dir);
+				if(angle > 1)
 					angle = 1;
-				if (angle > 0) {
-					if ( light->atten_angletype == LAAT_QUADRATIC ) {
+				if(angle > 0)
+				{
+					if(light->atten_angletype == LAAT_QUADRATIC)
+					{
 						angle = 1 - angle;
 						angle *= angle;
 						angle = 1 - angle;
 					}
-					else if ( light->atten_angletype == LAAT_DOUBLEQUADRATIC ) {
+					else if(light->atten_angletype == LAAT_DOUBLEQUADRATIC)
+					{
 						angle = 1 - angle;
 						angle *= angle * angle;
 						angle = 1 - angle;
 					}
 				}
-				if (light->atten_anglescale > 0) {
+				if(light->atten_anglescale > 0)
+				{
 					angle /= light->atten_anglescale;
-					if (angle > 1)
+					if(angle > 1)
 						angle = 1;
 				}
-				if (light->atten_distscale > 0) {
+				if(light->atten_distscale > 0)
+				{
 					distscale = light->atten_distscale;
 				}
-				else {
+				else
+				{
 					distscale = 1;
 				}
-				if ( light->atten_disttype == LDAT_NOSCALE ) {
+				if(light->atten_disttype == LDAT_NOSCALE)
+				{
 					add = angle;
 				}
-				else if ( light->atten_disttype == LDAT_LINEAR ) {
+				else if(light->atten_disttype == LDAT_LINEAR)
+				{
 					add = angle * light->photons * lightLinearScale - dist * distscale;
-					if ( add < 0 ) {
+					if(add < 0)
+					{
 						add = 0;
 					}
-				} else {
-					add = light->photons / ( dist * dist * distscale) * angle;
 				}
-				if (add <= 1.0)
+				else
+				{
+					add = light->photons / (dist * dist * distscale) * angle;
+				}
+				if(add <= 1.0)
 					continue;
 			}
 			//
 			k = (ds->lightmapNum * LIGHTMAP_HEIGHT + y) * LIGHTMAP_WIDTH + x;
 			//if on one of the edges
 			n = y * LIGHTMAP_SIZE + x;
-			if ((polygonedges[n >> 3] & (1 << (n & 7)) ))
+			if((polygonedges[n >> 3] & (1 << (n & 7))))
 			{
 				// multiply 'add' by the relative area being lit of the total visible lightmap pixel area
 				//
 				// first create a winding for the lightmap pixel
-				if (ds->surfaceType == MST_PATCH)
+				if(ds->surfaceType == MST_PATCH)
 				{
 					mesh = test->detailMesh;
-					if (y-ds->lightmapY >= mesh->height-1)
+					if(y - ds->lightmapY >= mesh->height - 1)
 						_printf("y outside mesh\n");
-					if (x-ds->lightmapX >= mesh->width-1)
+					if(x - ds->lightmapX >= mesh->width - 1)
 						_printf("x outside mesh\n");
-					VectorCopy( mesh->verts[(y-ds->lightmapY)*mesh->width+x-ds->lightmapX].xyz, w.points[0]);
-					VectorCopy( mesh->verts[(y+1-ds->lightmapY)*mesh->width+x-ds->lightmapX].xyz, w.points[1]);
-					VectorCopy( mesh->verts[(y+1-ds->lightmapY)*mesh->width+x+1-ds->lightmapX].xyz, w.points[2]);
-					VectorCopy( mesh->verts[(y-ds->lightmapY)*mesh->width+x+1-ds->lightmapX].xyz, w.points[3]);
+					VectorCopy(mesh->verts[(y - ds->lightmapY) * mesh->width + x - ds->lightmapX].xyz, w.points[0]);
+					VectorCopy(mesh->verts[(y + 1 - ds->lightmapY) * mesh->width + x - ds->lightmapX].xyz, w.points[1]);
+					VectorCopy(mesh->verts[(y + 1 - ds->lightmapY) * mesh->width + x + 1 - ds->lightmapX].xyz, w.points[2]);
+					VectorCopy(mesh->verts[(y - ds->lightmapY) * mesh->width + x + 1 - ds->lightmapX].xyz, w.points[3]);
 					w.numpoints = 4;
 				}
 				else
 				{
-					VectorMA(ds->lightmapOrigin, (float) x - LIGHTMAP_PIXELSHIFT - ds->lightmapX, ds->lightmapVecs[0], w.points[0]);
-					VectorMA(w.points[0], (float) y - LIGHTMAP_PIXELSHIFT - ds->lightmapY, ds->lightmapVecs[1], w.points[0]);
-					VectorMA(ds->lightmapOrigin, (float) x - LIGHTMAP_PIXELSHIFT - ds->lightmapX, ds->lightmapVecs[0], w.points[1]);
-					VectorMA(w.points[1], (float) y - LIGHTMAP_PIXELSHIFT + 1 - ds->lightmapY, ds->lightmapVecs[1], w.points[1]);
-					VectorMA(ds->lightmapOrigin, (float) x - LIGHTMAP_PIXELSHIFT + 1 - ds->lightmapX, ds->lightmapVecs[0], w.points[2]);
-					VectorMA(w.points[2], (float) y - LIGHTMAP_PIXELSHIFT + 1 - ds->lightmapY, ds->lightmapVecs[1], w.points[2]);
-					VectorMA(ds->lightmapOrigin, (float) x - LIGHTMAP_PIXELSHIFT + 1 - ds->lightmapX, ds->lightmapVecs[0], w.points[3]);
-					VectorMA(w.points[3], (float) y - LIGHTMAP_PIXELSHIFT - ds->lightmapY, ds->lightmapVecs[1], w.points[3]);
+					VectorMA(ds->lightmapOrigin, (float)x - LIGHTMAP_PIXELSHIFT - ds->lightmapX, ds->lightmapVecs[0],
+							 w.points[0]);
+					VectorMA(w.points[0], (float)y - LIGHTMAP_PIXELSHIFT - ds->lightmapY, ds->lightmapVecs[1], w.points[0]);
+					VectorMA(ds->lightmapOrigin, (float)x - LIGHTMAP_PIXELSHIFT - ds->lightmapX, ds->lightmapVecs[0],
+							 w.points[1]);
+					VectorMA(w.points[1], (float)y - LIGHTMAP_PIXELSHIFT + 1 - ds->lightmapY, ds->lightmapVecs[1], w.points[1]);
+					VectorMA(ds->lightmapOrigin, (float)x - LIGHTMAP_PIXELSHIFT + 1 - ds->lightmapX, ds->lightmapVecs[0],
+							 w.points[2]);
+					VectorMA(w.points[2], (float)y - LIGHTMAP_PIXELSHIFT + 1 - ds->lightmapY, ds->lightmapVecs[1], w.points[2]);
+					VectorMA(ds->lightmapOrigin, (float)x - LIGHTMAP_PIXELSHIFT + 1 - ds->lightmapX, ds->lightmapVecs[0],
+							 w.points[3]);
+					VectorMA(w.points[3], (float)y - LIGHTMAP_PIXELSHIFT - ds->lightmapY, ds->lightmapVecs[1], w.points[3]);
 					w.numpoints = 4;
 				}
 				//
@@ -3624,20 +3739,20 @@ void VS_LightSurfaceWithVolume( int surfaceNum, int facetNum, vsound_t *light, l
 				//
 				//area = WindingArea(&w);
 				area = lightmappixelarea[k];
-				if (area <= 0)
+				if(area <= 0)
 					continue;
 				// chop the lightmap pixel winding with the light volume
-				for (i = 0; i < volume->numplanes; i++)
+				for(i = 0; i < volume->numplanes; i++)
 				{
 					//if totally on the back
-					if (VS_ChopWinding(&w, &volume->planes[i], 0) == SIDE_BACK)
+					if(VS_ChopWinding(&w, &volume->planes[i], 0) == SIDE_BACK)
 						break;
 				}
 				// if the lightmap pixel is partly inside the light volume
-				if (i >= volume->numplanes)
+				if(i >= volume->numplanes)
 				{
 					insidearea = WindingArea(&w);
-					if (insidearea <= 0)
+					if(insidearea <= 0)
 						i = 0;
 					add = add * insidearea / area;
 				}
@@ -3650,7 +3765,7 @@ void VS_LightSurfaceWithVolume( int surfaceNum, int facetNum, vsound_t *light, l
 			// get the light filter from all the translucent surfaces the light volume went through
 			VS_GetFilter(light, volume, base, filter);
 			//
-			color = &lightFloats[k*3];
+			color = &lightFloats[k * 3];
 			color[0] += add * light->color[0] * filter[0];
 			color[1] += add * light->color[1] * filter[1];
 			color[2] += add * light->color[2] * filter[2];
@@ -3667,28 +3782,28 @@ void VS_LightSurfaceWithVolume( int surfaceNum, int facetNum, vsound_t *light, l
 VS_SplitLightVolume
 =============
 */
-int VS_SplitLightVolume(lightvolume_t *volume, lightvolume_t *back, plane_t *split, float epsilon)
+int VS_SplitLightVolume(lightvolume_t * volume, lightvolume_t * back, plane_t * split, float epsilon)
 {
-	lightvolume_t f, b;
-	vec_t	dists[128];
-	int		sides[128];
-	int		counts[3];
-	vec_t	dot;
-	int		i, j;
-	vec_t	*p1, *p2;
-	vec3_t	mid;
+	lightvolume_t   f, b;
+	vec_t           dists[128];
+	int             sides[128];
+	int             counts[3];
+	vec_t           dot;
+	int             i, j;
+	vec_t          *p1, *p2;
+	vec3_t          mid;
 
 	counts[0] = counts[1] = counts[2] = 0;
 
 	// determine sides for each point
-	for (i = 0; i < volume->numplanes; i++)
+	for(i = 0; i < volume->numplanes; i++)
 	{
-		dot = DotProduct (volume->points[i], split->normal);
+		dot = DotProduct(volume->points[i], split->normal);
 		dot -= split->dist;
 		dists[i] = dot;
-		if (dot > epsilon)
+		if(dot > epsilon)
 			sides[i] = SIDE_FRONT;
-		else if (dot < -epsilon)
+		else if(dot < -epsilon)
 			sides[i] = SIDE_BACK;
 		else
 		{
@@ -3697,50 +3812,50 @@ int VS_SplitLightVolume(lightvolume_t *volume, lightvolume_t *back, plane_t *spl
 		counts[sides[i]]++;
 	}
 
-	if (!counts[1])
-		return 0;		// completely on front side
-	
-	if (!counts[0])
-		return 1;		// completely on back side
+	if(!counts[1])
+		return 0;				// completely on front side
+
+	if(!counts[0])
+		return 1;				// completely on back side
 
 	sides[i] = sides[0];
 	dists[i] = dists[0];
-	
+
 	f.numplanes = 0;
 	b.numplanes = 0;
 
-	for (i = 0; i < volume->numplanes; i++)
+	for(i = 0; i < volume->numplanes; i++)
 	{
 		p1 = volume->points[i];
 
-		if (f.numplanes >= MAX_POINTS_ON_FIXED_WINDING)
+		if(f.numplanes >= MAX_POINTS_ON_FIXED_WINDING)
 		{
 			_printf("WARNING: VS_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
-			return 0;		// can't chop -- fall back to original
+			return 0;			// can't chop -- fall back to original
 		}
-		if (b.numplanes >= MAX_POINTS_ON_FIXED_WINDING)
+		if(b.numplanes >= MAX_POINTS_ON_FIXED_WINDING)
 		{
 			_printf("WARNING: VS_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
-			return 0;		// can't chop -- fall back to original
+			return 0;			// can't chop -- fall back to original
 		}
 
-		if (sides[i] == SIDE_ON)
+		if(sides[i] == SIDE_ON)
 		{
 			VectorCopy(p1, f.points[f.numplanes]);
 			VectorCopy(p1, b.points[b.numplanes]);
-			if (sides[i+1] == SIDE_BACK)
+			if(sides[i + 1] == SIDE_BACK)
 			{
 				f.planes[f.numplanes] = *split;
 				b.planes[b.numplanes] = volume->planes[i];
 			}
-			else if (sides[i+1] == SIDE_FRONT)
+			else if(sides[i + 1] == SIDE_FRONT)
 			{
 				f.planes[f.numplanes] = volume->planes[i];
 				b.planes[b.numplanes] = *split;
 				VectorInverse(b.planes[b.numplanes].normal);
 				b.planes[b.numplanes].dist = -b.planes[b.numplanes].dist;
 			}
-			else //this shouldn't happen
+			else				//this shouldn't happen
 			{
 				f.planes[f.numplanes] = *split;
 				b.planes[b.numplanes] = *split;
@@ -3751,51 +3866,51 @@ int VS_SplitLightVolume(lightvolume_t *volume, lightvolume_t *back, plane_t *spl
 			b.numplanes++;
 			continue;
 		}
-	
-		if (sides[i] == SIDE_FRONT)
+
+		if(sides[i] == SIDE_FRONT)
 		{
-			VectorCopy (p1, f.points[f.numplanes]);
+			VectorCopy(p1, f.points[f.numplanes]);
 			f.planes[f.numplanes] = volume->planes[i];
 			f.numplanes++;
 		}
-		if (sides[i] == SIDE_BACK)
+		if(sides[i] == SIDE_BACK)
 		{
-			VectorCopy (p1, b.points[b.numplanes]);
+			VectorCopy(p1, b.points[b.numplanes]);
 			b.planes[b.numplanes] = volume->planes[i];
 			b.numplanes++;
 		}
-		
-		if (sides[i+1] == SIDE_ON || sides[i+1] == sides[i])
+
+		if(sides[i + 1] == SIDE_ON || sides[i + 1] == sides[i])
 			continue;
-			
-		if (f.numplanes >= MAX_POINTS_ON_FIXED_WINDING)
+
+		if(f.numplanes >= MAX_POINTS_ON_FIXED_WINDING)
 		{
 			_printf("WARNING: VS_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
-			return 0;		// can't chop -- fall back to original
+			return 0;			// can't chop -- fall back to original
 		}
-		if (b.numplanes >= MAX_POINTS_ON_FIXED_WINDING)
+		if(b.numplanes >= MAX_POINTS_ON_FIXED_WINDING)
 		{
 			_printf("WARNING: VS_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
-			return 0;		// can't chop -- fall back to original
+			return 0;			// can't chop -- fall back to original
 		}
 
 		// generate a split point
-		p2 = volume->points[(i+1)%volume->numplanes];
-		
-		dot = dists[i] / (dists[i]-dists[i+1]);
-		for (j=0 ; j<3 ; j++)
-		{	// avoid round off error when possible
-			if (split->normal[j] == 1)
+		p2 = volume->points[(i + 1) % volume->numplanes];
+
+		dot = dists[i] / (dists[i] - dists[i + 1]);
+		for(j = 0; j < 3; j++)
+		{						// avoid round off error when possible
+			if(split->normal[j] == 1)
 				mid[j] = split->dist;
-			else if (split->normal[j] == -1)
+			else if(split->normal[j] == -1)
 				mid[j] = -split->dist;
 			else
-				mid[j] = p1[j] + dot*(p2[j]-p1[j]);
+				mid[j] = p1[j] + dot * (p2[j] - p1[j]);
 		}
 
-		VectorCopy (mid, f.points[f.numplanes]);
+		VectorCopy(mid, f.points[f.numplanes]);
 		VectorCopy(mid, b.points[b.numplanes]);
-		if (sides[i+1] == SIDE_BACK)
+		if(sides[i + 1] == SIDE_BACK)
 		{
 			f.planes[f.numplanes] = *split;
 			b.planes[b.numplanes] = volume->planes[i];
@@ -3825,54 +3940,52 @@ int VS_SplitLightVolume(lightvolume_t *volume, lightvolume_t *back, plane_t *spl
 VS_PlaneForEdgeToWinding
 =============
 */
-void VS_PlaneForEdgeToWinding(vec3_t p1, vec3_t p2, winding_t *w, int windingonfront, plane_t *plane)
+void VS_PlaneForEdgeToWinding(vec3_t p1, vec3_t p2, winding_t * w, int windingonfront, plane_t * plane)
 {
-	int i, j;
-	float length, d;
-	vec3_t v1, v2;
+	int             i, j;
+	float           length, d;
+	vec3_t          v1, v2;
 
 	VectorSubtract(p2, p1, v1);
-	for (i = 0; i < w->numpoints; i++)
+	for(i = 0; i < w->numpoints; i++)
 	{
-		VectorSubtract (w->points[i], p1, v2);
+		VectorSubtract(w->points[i], p1, v2);
 
-		plane->normal[0] = v1[1]*v2[2] - v1[2]*v2[1];
-		plane->normal[1] = v1[2]*v2[0] - v1[0]*v2[2];
-		plane->normal[2] = v1[0]*v2[1] - v1[1]*v2[0];
-			
+		plane->normal[0] = v1[1] * v2[2] - v1[2] * v2[1];
+		plane->normal[1] = v1[2] * v2[0] - v1[0] * v2[2];
+		plane->normal[2] = v1[0] * v2[1] - v1[1] * v2[0];
+
 		// if points don't make a valid plane, skip it
-		length = plane->normal[0] * plane->normal[0]
-					+ plane->normal[1] * plane->normal[1]
-					+ plane->normal[2] * plane->normal[2];
-			
-		if (length < ON_EPSILON)
+		length = plane->normal[0] * plane->normal[0] + plane->normal[1] * plane->normal[1] + plane->normal[2] * plane->normal[2];
+
+		if(length < ON_EPSILON)
 			continue;
 
-		length = 1/sqrt(length);
-			
+		length = 1 / sqrt(length);
+
 		plane->normal[0] *= length;
 		plane->normal[1] *= length;
 		plane->normal[2] *= length;
 
-		plane->dist = DotProduct (w->points[i], plane->normal);
+		plane->dist = DotProduct(w->points[i], plane->normal);
 		//
-		for (j = 0; j < w->numpoints; j++)
+		for(j = 0; j < w->numpoints; j++)
 		{
-			if (j == i)
+			if(j == i)
 				continue;
 			d = DotProduct(w->points[j], plane->normal) - plane->dist;
-			if (windingonfront)
+			if(windingonfront)
 			{
-				if (d < -ON_EPSILON)
+				if(d < -ON_EPSILON)
 					break;
 			}
 			else
 			{
-				if (d > ON_EPSILON)
+				if(d > ON_EPSILON)
 					break;
 			}
 		}
-		if (j >= w->numpoints)
+		if(j >= w->numpoints)
 			return;
 	}
 }
@@ -3882,22 +3995,22 @@ void VS_PlaneForEdgeToWinding(vec3_t p1, vec3_t p2, winding_t *w, int windingonf
 VS_R_CastLightAtSurface
 =============
 */
-void VS_R_FloodLight(vsound_t *light, lightvolume_t *volume, int cluster, int firstportal);
+void            VS_R_FloodLight(vsound_t * light, lightvolume_t * volume, int cluster, int firstportal);
 
-void VS_R_CastLightAtSurface(vsound_t *light, lightvolume_t *volume)
+void VS_R_CastLightAtSurface(vsound_t * light, lightvolume_t * volume)
 {
 	lsurfaceTest_t *test;
-	int i, n;
+	int             i, n;
 
 	// light the surface with this volume
 	VS_LightSurfaceWithVolume(volume->surfaceNum, volume->facetNum, light, volume);
 	//
-	test = lsurfaceTest[ volume->surfaceNum ];
+	test = lsurfaceTest[volume->surfaceNum];
 	// if this is not a translucent surface
-	if ( !(test->shader->surfaceFlags & SURF_ALPHASHADOW) && !(test->shader->contents & CONTENTS_TRANSLUCENT))
+	if(!(test->shader->surfaceFlags & SURF_ALPHASHADOW) && !(test->shader->contents & CONTENTS_TRANSLUCENT))
 		return;
 	//
-	if (volume->numtransFacets >= MAX_TRANSLUCENTFACETS)
+	if(volume->numtransFacets >= MAX_TRANSLUCENTFACETS)
 		Error("a light valume went through more than %d translucent facets", MAX_TRANSLUCENTFACETS);
 	//add this translucent surface to the list
 	volume->transSurfaces[volume->numtransFacets] = volume->surfaceNum;
@@ -3905,9 +4018,9 @@ void VS_R_CastLightAtSurface(vsound_t *light, lightvolume_t *volume)
 	volume->numtransFacets++;
 	//clear the tested facets except the translucent ones
 	memset(volume->facetTested, 0, sizeof(volume->facetTested));
-	for (i = 0; i < volume->numtransFacets; i++)
+	for(i = 0; i < volume->numtransFacets; i++)
 	{
-		test = lsurfaceTest[ volume->transSurfaces[i] ];
+		test = lsurfaceTest[volume->transSurfaces[i]];
 		n = test->facets[volume->transFacets[i]].num;
 		volume->facetTested[n >> 3] |= 1 << (n & 7);
 	}
@@ -3916,7 +4029,7 @@ void VS_R_CastLightAtSurface(vsound_t *light, lightvolume_t *volume)
 	volume->surfaceNum = -1;
 	volume->facetNum = 0;
 	VS_R_FloodLight(light, volume, volume->cluster, 0);
-	if (volume->surfaceNum >= 0)
+	if(volume->surfaceNum >= 0)
 	{
 		VS_R_CastLightAtSurface(light, volume);
 	}
@@ -3927,17 +4040,17 @@ void VS_R_CastLightAtSurface(vsound_t *light, lightvolume_t *volume)
 VS_R_SplitLightVolume
 =============
 */
-static int numvolumes = 0;
+static int      numvolumes = 0;
 
-int VS_R_SplitLightVolume(vsound_t *light, lightvolume_t *volume, plane_t *split, int cluster, int firstportal)
+int VS_R_SplitLightVolume(vsound_t * light, lightvolume_t * volume, plane_t * split, int cluster, int firstportal)
 {
-	lightvolume_t back;
-	int res;
+	lightvolume_t   back;
+	int             res;
 
 	//
 	res = VS_SplitLightVolume(volume, &back, split, 0.1);
 	// if the volume was split
-	if (res == 2)
+	if(res == 2)
 	{
 		memcpy(back.clusterTested, volume->clusterTested, sizeof(back.clusterTested));
 		memcpy(back.facetTested, volume->facetTested, sizeof(back.facetTested));
@@ -3948,7 +4061,7 @@ int VS_R_SplitLightVolume(vsound_t *light, lightvolume_t *volume, plane_t *split
 		back.type = volume->type;
 		back.cluster = volume->cluster;
 		back.farplane = volume->farplane;
-		if (volume->numtransFacets > 0)
+		if(volume->numtransFacets > 0)
 		{
 			memcpy(back.transFacets, volume->transFacets, sizeof(back.transFacets));
 			memcpy(back.transSurfaces, volume->transSurfaces, sizeof(back.transSurfaces));
@@ -3958,7 +4071,7 @@ int VS_R_SplitLightVolume(vsound_t *light, lightvolume_t *volume, plane_t *split
 		// flood the volume at the back of the split plane
 		VS_R_FloodLight(light, &back, cluster, firstportal);
 		// if the back volume hit a surface
-		if (back.surfaceNum >= 0)
+		if(back.surfaceNum >= 0)
 		{
 			VS_R_CastLightAtSurface(light, &back);
 		}
@@ -3971,116 +4084,116 @@ int VS_R_SplitLightVolume(vsound_t *light, lightvolume_t *volume, plane_t *split
 VS_R_FloodLight
 =============
 */
-void VS_R_FloodLight(vsound_t *light, lightvolume_t *volume, int cluster, int firstportal)
+void VS_R_FloodLight(vsound_t * light, lightvolume_t * volume, int cluster, int firstportal)
 {
-	int i, j, k, res, surfaceNum, backfaceculled, testculled;
-	float d;
-	winding_t winding, tmpwinding;
-	lleaf_t *leaf;
-	lportal_t *p;
+	int             i, j, k, res, surfaceNum, backfaceculled, testculled;
+	float           d;
+	winding_t       winding, tmpwinding;
+	lleaf_t        *leaf;
+	lportal_t      *p;
 	lsurfaceTest_t *test;
-	lFacet_t *facet;
-	vec3_t dir1, dir2;
-	plane_t plane;
+	lFacet_t       *facet;
+	vec3_t          dir1, dir2;
+	plane_t         plane;
 
-	//	DebugNet_RemoveAllPolys();
-	//	VS_DrawLightVolume(light, volume);
+	//  DebugNet_RemoveAllPolys();
+	//  VS_DrawLightVolume(light, volume);
 
 	// if the first portal is not zero then we've checked all occluders in this leaf already
-	if (firstportal == 0)
+	if(firstportal == 0)
 	{
 		// check all potential occluders in this leaf
-		for (i = 0; i < leafs[cluster].numSurfaces; i++)
+		for(i = 0; i < leafs[cluster].numSurfaces; i++)
 		{
 			surfaceNum = clustersurfaces[leafs[cluster].firstSurface + i];
 			//
-			test = lsurfaceTest[ surfaceNum ];
-			if ( !test )
+			test = lsurfaceTest[surfaceNum];
+			if(!test)
 				continue;
 			//
 			testculled = qfalse;
 			// use surface as an occluder
-			for (j = 0; j < test->numFacets; j++)
+			for(j = 0; j < test->numFacets; j++)
 			{
 				// use each facet as an occluder
 				facet = &test->facets[j];
 				//
-				//	memcpy(winding.points, facet->points, sizeof(vec3_t) * facet->numpoints);
-				//	winding.numpoints = facet->numpoints;
-				//	DebugNet_DrawWinding(&winding, 5);
+				//  memcpy(winding.points, facet->points, sizeof(vec3_t) * facet->numpoints);
+				//  winding.numpoints = facet->numpoints;
+				//  DebugNet_DrawWinding(&winding, 5);
 				//
 				// if the facet was tested already
-				if ( volume->facetTested[facet->num >> 3] & (1 << (facet->num & 7)) )
+				if(volume->facetTested[facet->num >> 3] & (1 << (facet->num & 7)))
 					continue;
 				volume->facetTested[facet->num >> 3] |= 1 << (facet->num & 7);
 				// backface culling for planar surfaces
 				backfaceculled = qfalse;
-				if (!test->patch && !test->trisoup)
+				if(!test->patch && !test->trisoup)
 				{
-					if (volume->type == VOLUME_NORMAL)
+					if(volume->type == VOLUME_NORMAL)
 					{
 						// facet backface culling
 						d = DotProduct(light->origin, facet->plane.normal) - facet->plane.dist;
-						if (d < 0)
+						if(d < 0)
 						{
 							// NOTE: this doesn't work too great because of sometimes very bad tesselation
-							//		of surfaces that are supposed to be flat
+							//      of surfaces that are supposed to be flat
 							// FIXME: to work around this problem we should make sure that all facets
-							//		created from planar surfaces use the lightmapVecs normal vector
+							//      created from planar surfaces use the lightmapVecs normal vector
 							/*
-							if ( !test->shader->twoSided )
-							{
-								// skip all other facets of this surface as well because they are in the same plane
-								for (k = 0; k < test->numFacets; k++)
-								{
-									facet = &test->facets[k];
-									volume->facetTested[facet->num >> 3] |= 1 << (facet->num & 7);
-								}
-							}*/
+							   if ( !test->shader->twoSided )
+							   {
+							   // skip all other facets of this surface as well because they are in the same plane
+							   for (k = 0; k < test->numFacets; k++)
+							   {
+							   facet = &test->facets[k];
+							   volume->facetTested[facet->num >> 3] |= 1 << (facet->num & 7);
+							   }
+							   } */
 							backfaceculled = qtrue;
 						}
 					}
 					else
 					{
 						// FIXME: if all light source winding points are at the back of the facet
-						//			plane then backfaceculled = qtrue
+						//          plane then backfaceculled = qtrue
 					}
 				}
-				else // backface culling per facet for patches and triangle soups
+				else			// backface culling per facet for patches and triangle soups
 				{
-					if (volume->type == VOLUME_NORMAL)
+					if(volume->type == VOLUME_NORMAL)
 					{
 						// facet backface culling
 						d = DotProduct(light->origin, facet->plane.normal) - facet->plane.dist;
-						if (d < 0)
+						if(d < 0)
 							backfaceculled = qtrue;
 					}
 					else
 					{
 						// FIXME: if all light source winding points are at the back of the facet
-						//			plane then backfaceculled = qtrue
+						//          plane then backfaceculled = qtrue
 					}
 				}
 				/* chopping does this already
-				// check if this facet is totally or partly in front of the volume end plane
-				for (k = 0; k < facet->numpoints; k++)
-				{
-					d = DotProduct(volume->endplane.normal, facet->points[k]) - volume->endplane.dist;
-					if (d > ON_EPSILON)
-						break;
-				}
-				// if this facet is outside the light volume
-				if (k >= facet->numpoints)
-					continue;
-				*/
+				   // check if this facet is totally or partly in front of the volume end plane
+				   for (k = 0; k < facet->numpoints; k++)
+				   {
+				   d = DotProduct(volume->endplane.normal, facet->points[k]) - volume->endplane.dist;
+				   if (d > ON_EPSILON)
+				   break;
+				   }
+				   // if this facet is outside the light volume
+				   if (k >= facet->numpoints)
+				   continue;
+				 */
 				//
-				if (backfaceculled)
+				if(backfaceculled)
 				{
 					// if the facet is not two sided
-					if ( !nobackfaceculling && !test->shader->twoSided )
+					if(!nobackfaceculling && !test->shader->twoSided)
 						continue;
 					// flip the winding
-					for (k = 0; k < facet->numpoints; k++)
+					for(k = 0; k < facet->numpoints; k++)
 						VectorCopy(facet->points[k], winding.points[facet->numpoints - k - 1]);
 					winding.numpoints = facet->numpoints;
 				}
@@ -4090,26 +4203,26 @@ void VS_R_FloodLight(vsound_t *light, lightvolume_t *volume, int cluster, int fi
 					winding.numpoints = facet->numpoints;
 				}
 				//
-				if (!testculled)
+				if(!testculled)
 				{
 					testculled = qtrue;
 					// fast check if the surface sphere is totally behind the volume end plane
 					d = DotProduct(volume->endplane.normal, test->origin) - volume->endplane.dist;
-					if (d < -test->radius)
+					if(d < -test->radius)
 					{
-						for (k = 0; k < test->numFacets; k++)
+						for(k = 0; k < test->numFacets; k++)
 						{
 							facet = &test->facets[k];
 							volume->facetTested[facet->num >> 3] |= 1 << (facet->num & 7);
 						}
 						break;
 					}
-					for (k = 0; k < volume->numplanes; k++)
+					for(k = 0; k < volume->numplanes; k++)
 					{
 						d = DotProduct(volume->planes[k].normal, test->origin) - volume->planes[k].dist;
-						if (d < - test->radius)
+						if(d < -test->radius)
 						{
-							for (k = 0; k < test->numFacets; k++)
+							for(k = 0; k < test->numFacets; k++)
 							{
 								facet = &test->facets[k];
 								volume->facetTested[facet->num >> 3] |= 1 << (facet->num & 7);
@@ -4117,52 +4230,52 @@ void VS_R_FloodLight(vsound_t *light, lightvolume_t *volume, int cluster, int fi
 							break;
 						}
 					}
-					if (k < volume->numplanes)
+					if(k < volume->numplanes)
 						break;
 				}
 				//NOTE: we have to chop the facet winding with the volume end plane because
-				//		the faces in Q3 are not stitched together nicely
+				//      the faces in Q3 are not stitched together nicely
 				res = VS_ChopWinding(&winding, &volume->endplane, 0.01);
 				// if the facet is on or at the back of the volume end plane
-				if (res == SIDE_BACK || res == SIDE_ON)
+				if(res == SIDE_BACK || res == SIDE_ON)
 					continue;
 				// check if the facet winding is totally or partly inside the light volume
 				memcpy(&tmpwinding, &winding, sizeof(winding_t));
-				for (k = 0; k < volume->numplanes; k++)
+				for(k = 0; k < volume->numplanes; k++)
 				{
 					res = VS_ChopWinding(&tmpwinding, &volume->planes[k], 0.01);
-					if (res == SIDE_BACK || res == SIDE_ON)
+					if(res == SIDE_BACK || res == SIDE_ON)
 						break;
 				}
 				// if no part of the light volume is occluded by this facet
-				if (k < volume->numplanes)
+				if(k < volume->numplanes)
 					continue;
 				//
-				for (k = 0; k < winding.numpoints; k++)
+				for(k = 0; k < winding.numpoints; k++)
 				{
-					if (volume->type == VOLUME_DIRECTED)
+					if(volume->type == VOLUME_DIRECTED)
 					{
-						VectorSubtract(winding.points[(k+1) % winding.numpoints], winding.points[k], dir1);
+						VectorSubtract(winding.points[(k + 1) % winding.numpoints], winding.points[k], dir1);
 						CrossProduct(light->normal, dir1, plane.normal);
 						VectorNormalize(plane.normal, plane.normal);
 						plane.dist = DotProduct(plane.normal, winding.points[k]);
 					}
 					else
 					{
-						VectorSubtract(winding.points[(k+1) % winding.numpoints], winding.points[k], dir1);
+						VectorSubtract(winding.points[(k + 1) % winding.numpoints], winding.points[k], dir1);
 						VectorSubtract(light->origin, winding.points[k], dir2);
 						CrossProduct(dir1, dir2, plane.normal);
 						VectorNormalize(plane.normal, plane.normal);
 						plane.dist = DotProduct(plane.normal, winding.points[k]);
 					}
 					res = VS_R_SplitLightVolume(light, volume, &plane, cluster, 0);
-					if (res == 1)
-						break; //the facet wasn't really inside the volume
+					if(res == 1)
+						break;	//the facet wasn't really inside the volume
 				}
-				if (k >= winding.numpoints)
+				if(k >= winding.numpoints)
 				{
 					volume->endplane = facet->plane;
-					if (backfaceculled)
+					if(backfaceculled)
 					{
 						VectorInverse(volume->endplane.normal);
 						volume->endplane.dist = -volume->endplane.dist;
@@ -4177,83 +4290,83 @@ void VS_R_FloodLight(vsound_t *light, lightvolume_t *volume, int cluster, int fi
 	volume->clusterTested[cluster >> 3] |= 1 << (cluster & 7);
 	// flood light through the portals of the current leaf
 	leaf = &leafs[cluster];
-	for (i = firstportal; i < leaf->numportals; i++)
+	for(i = firstportal; i < leaf->numportals; i++)
 	{
 		p = leaf->portals[i];
 		//
-		//	memcpy(&winding, p->winding, sizeof(winding_t));
-		//	DebugNet_DrawWinding(&winding, 5);
+		//  memcpy(&winding, p->winding, sizeof(winding_t));
+		//  DebugNet_DrawWinding(&winding, 5);
 		// if already flooded into the cluster this portal leads to
-		if ( volume->clusterTested[p->leaf >> 3] & (1 << (p->leaf & 7)) )
+		if(volume->clusterTested[p->leaf >> 3] & (1 << (p->leaf & 7)))
 			continue;
 		//
-		if (volume->type == VOLUME_NORMAL)
+		if(volume->type == VOLUME_NORMAL)
 		{
 			// portal backface culling
 			d = DotProduct(light->origin, p->plane.normal) - p->plane.dist;
-			if (d > 0) // portal plane normal points into neighbour cluster
+			if(d > 0)			// portal plane normal points into neighbour cluster
 				continue;
 		}
 		else
 		{
 			// FIXME: if all light source winding points are at the back of this portal
-			//			plane then there's no need to flood through
+			//          plane then there's no need to flood through
 		}
 		// check if this portal is totally or partly in front of the volume end plane
 		// fast check with portal sphere
 		d = DotProduct(volume->endplane.normal, p->origin) - volume->endplane.dist;
-		if (d < -p->radius)
+		if(d < -p->radius)
 			continue;
-		for (j = 0; j < p->winding->numpoints; j++)
+		for(j = 0; j < p->winding->numpoints; j++)
 		{
 			d = DotProduct(volume->endplane.normal, p->winding->points[j]) - volume->endplane.dist;
-			if (d > -0.01)
+			if(d > -0.01)
 				break;
 		}
 		// if this portal is totally behind the light volume end plane
-		if (j >= p->winding->numpoints)
+		if(j >= p->winding->numpoints)
 			continue;
 		//distance from point light to portal
 		d = DotProduct(p->plane.normal, light->origin) - p->plane.dist;
 		// only check if a point light is Not *on* the portal
-		if (volume->type != VOLUME_NORMAL || fabs(d) > 0.1)
+		if(volume->type != VOLUME_NORMAL || fabs(d) > 0.1)
 		{
 			// check if the portal is partly or totally inside the light volume
 			memcpy(&winding, p->winding, sizeof(winding_t));
-			for (j = 0; j < volume->numplanes; j++)
+			for(j = 0; j < volume->numplanes; j++)
 			{
 				res = VS_ChopWinding(&winding, &volume->planes[j], 0.01);
-				if (res == SIDE_BACK || res == SIDE_ON)
+				if(res == SIDE_BACK || res == SIDE_ON)
 					break;
 			}
 			// if the light volume does not go through this portal at all
-			if (j < volume->numplanes)
+			if(j < volume->numplanes)
 				continue;
 		}
 		// chop the light volume with the portal
-		for (k = 0; k < p->winding->numpoints; k++)
+		for(k = 0; k < p->winding->numpoints; k++)
 		{
-			if (volume->type == VOLUME_DIRECTED)
+			if(volume->type == VOLUME_DIRECTED)
 			{
-				VectorSubtract(p->winding->points[(k+1) % p->winding->numpoints], p->winding->points[k], dir1);
+				VectorSubtract(p->winding->points[(k + 1) % p->winding->numpoints], p->winding->points[k], dir1);
 				CrossProduct(light->normal, dir1, plane.normal);
 				VectorNormalize(plane.normal, plane.normal);
 				plane.dist = DotProduct(plane.normal, p->winding->points[k]);
 			}
 			else
 			{
-				VectorSubtract(p->winding->points[(k+1) % p->winding->numpoints], p->winding->points[k], dir1);
+				VectorSubtract(p->winding->points[(k + 1) % p->winding->numpoints], p->winding->points[k], dir1);
 				VectorSubtract(light->origin, p->winding->points[k], dir2);
 				CrossProduct(dir1, dir2, plane.normal);
 				VectorNormalize(plane.normal, plane.normal);
 				plane.dist = DotProduct(plane.normal, p->winding->points[k]);
 			}
-			res = VS_R_SplitLightVolume(light, volume, &plane, cluster, i+1);
-			if (res == 1)
-				break; //volume didn't really go through the portal
+			res = VS_R_SplitLightVolume(light, volume, &plane, cluster, i + 1);
+			if(res == 1)
+				break;			//volume didn't really go through the portal
 		}
 		// if the light volume went through the portal
-		if (k >= p->winding->numpoints)
+		if(k >= p->winding->numpoints)
 		{
 			// flood through the portal
 			VS_R_FloodLight(light, volume, p->leaf, 0);
@@ -4266,7 +4379,7 @@ void VS_R_FloodLight(vsound_t *light, lightvolume_t *volume, int cluster, int fi
 VS_R_FloodAreaSpotLight
 =============
 */
-void VS_FloodAreaSpotLight(vsound_t *light, winding_t *w, int leafnum)
+void VS_FloodAreaSpotLight(vsound_t * light, winding_t * w, int leafnum)
 {
 }
 
@@ -4275,13 +4388,13 @@ void VS_FloodAreaSpotLight(vsound_t *light, winding_t *w, int leafnum)
 VS_R_SubdivideAreaSpotLight
 =============
 */
-void VS_R_SubdivideAreaSpotLight(vsound_t *light, int nodenum, winding_t *w)
+void VS_R_SubdivideAreaSpotLight(vsound_t * light, int nodenum, winding_t * w)
 {
-	int leafnum, res;
-	dnode_t *node;
-	dplane_t *plane;
-	winding_t back;
-	plane_t split;
+	int             leafnum, res;
+	dnode_t        *node;
+	dplane_t       *plane;
+	winding_t       back;
+	plane_t         split;
 
 	while(nodenum >= 0)
 	{
@@ -4290,17 +4403,17 @@ void VS_R_SubdivideAreaSpotLight(vsound_t *light, int nodenum, winding_t *w)
 
 		VectorCopy(plane->normal, split.normal);
 		split.dist = plane->dist;
-		res = VS_SplitWinding (w, &back, &split, 0.1);
+		res = VS_SplitWinding(w, &back, &split, 0.1);
 
-		if (res == SIDE_FRONT)
+		if(res == SIDE_FRONT)
 		{
 			nodenum = node->children[0];
 		}
-		else if (res == SIDE_BACK)
+		else if(res == SIDE_BACK)
 		{
 			nodenum = node->children[1];
 		}
-		else if (res == SIDE_ON)
+		else if(res == SIDE_ON)
 		{
 			memcpy(&back, w, sizeof(winding_t));
 			VS_R_SubdivideAreaSpotLight(light, node->children[1], &back);
@@ -4313,7 +4426,7 @@ void VS_R_SubdivideAreaSpotLight(vsound_t *light, int nodenum, winding_t *w)
 		}
 	}
 	leafnum = -nodenum - 1;
-	if (dleafs[leafnum].cluster != -1)
+	if(dleafs[leafnum].cluster != -1)
 	{
 		VS_FloodAreaSpotLight(light, w, leafnum);
 	}
@@ -4324,7 +4437,7 @@ void VS_R_SubdivideAreaSpotLight(vsound_t *light, int nodenum, winding_t *w)
 VS_R_FloodRadialAreaLight
 =============
 */
-void VS_FloodRadialAreaLight(vsound_t *light, winding_t *w, int leafnum)
+void VS_FloodRadialAreaLight(vsound_t * light, winding_t * w, int leafnum)
 {
 }
 
@@ -4333,13 +4446,13 @@ void VS_FloodRadialAreaLight(vsound_t *light, winding_t *w, int leafnum)
 VS_R_SubdivideRadialAreaLight
 =============
 */
-void VS_R_SubdivideRadialAreaLight(vsound_t *light, int nodenum, winding_t *w)
+void VS_R_SubdivideRadialAreaLight(vsound_t * light, int nodenum, winding_t * w)
 {
-	int leafnum, res;
-	dnode_t *node;
-	dplane_t *plane;
-	winding_t back;
-	plane_t split;
+	int             leafnum, res;
+	dnode_t        *node;
+	dplane_t       *plane;
+	winding_t       back;
+	plane_t         split;
 
 	while(nodenum >= 0)
 	{
@@ -4348,17 +4461,17 @@ void VS_R_SubdivideRadialAreaLight(vsound_t *light, int nodenum, winding_t *w)
 
 		VectorCopy(plane->normal, split.normal);
 		split.dist = plane->dist;
-		res = VS_SplitWinding (w, &back, &split, 0.1);
+		res = VS_SplitWinding(w, &back, &split, 0.1);
 
-		if (res == SIDE_FRONT)
+		if(res == SIDE_FRONT)
 		{
 			nodenum = node->children[0];
 		}
-		else if (res == SIDE_BACK)
+		else if(res == SIDE_BACK)
 		{
 			nodenum = node->children[1];
 		}
-		else if (res == SIDE_ON)
+		else if(res == SIDE_ON)
 		{
 			memcpy(&back, w, sizeof(winding_t));
 			VS_R_SubdivideRadialAreaLight(light, node->children[1], &back);
@@ -4371,7 +4484,7 @@ void VS_R_SubdivideRadialAreaLight(vsound_t *light, int nodenum, winding_t *w)
 		}
 	}
 	leafnum = -nodenum - 1;
-	if (dleafs[leafnum].cluster != -1)
+	if(dleafs[leafnum].cluster != -1)
 	{
 		VS_FloodRadialAreaLight(light, w, leafnum);
 	}
@@ -4382,31 +4495,31 @@ void VS_R_SubdivideRadialAreaLight(vsound_t *light, int nodenum, winding_t *w)
 VS_R_FloodDirectedLight
 =============
 */
-void VS_FloodDirectedLight(vsound_t *light, winding_t *w, int leafnum)
+void VS_FloodDirectedLight(vsound_t * light, winding_t * w, int leafnum)
 {
-	int i;
-	float dist;
-	lightvolume_t volume;
-	vec3_t dir;
+	int             i;
+	float           dist;
+	lightvolume_t   volume;
+	vec3_t          dir;
 
-	if (light->atten_disttype == LDAT_NOSCALE)
+	if(light->atten_disttype == LDAT_NOSCALE)
 	{
 		// light travels without decrease in intensity over distance
 		dist = MAX_WORLD_COORD;
 	}
 	else
 	{
-		if ( light->atten_disttype == LDAT_LINEAR )
+		if(light->atten_disttype == LDAT_LINEAR)
 			dist = light->photons * lightLinearScale;
 		else
 			dist = sqrt(light->photons);
 	}
 
 	memset(&volume, 0, sizeof(lightvolume_t));
-	for (i = 0; i < w->numpoints; i++)
+	for(i = 0; i < w->numpoints; i++)
 	{
 		VectorMA(w->points[i], dist, light->normal, volume.points[i]);
-		VectorSubtract(w->points[(i+1)%w->numpoints], w->points[i], dir);
+		VectorSubtract(w->points[(i + 1) % w->numpoints], w->points[i], dir);
 		CrossProduct(light->normal, dir, volume.planes[i].normal);
 		VectorNormalize(volume.planes[i].normal, volume.planes[i].normal);
 		volume.planes[i].dist = DotProduct(volume.planes[i].normal, w->points[i]);
@@ -4420,7 +4533,7 @@ void VS_FloodDirectedLight(vsound_t *light, winding_t *w, int leafnum)
 	volume.type = VOLUME_DIRECTED;
 	volume.cluster = dleafs[leafnum].cluster;
 	VS_R_FloodLight(light, &volume, volume.cluster, 0);
-	if (volume.surfaceNum >= 0)
+	if(volume.surfaceNum >= 0)
 	{
 		VS_R_CastLightAtSurface(light, &volume);
 	}
@@ -4431,13 +4544,13 @@ void VS_FloodDirectedLight(vsound_t *light, winding_t *w, int leafnum)
 VS_R_SubdivideDirectedAreaLight
 =============
 */
-void VS_R_SubdivideDirectedAreaLight(vsound_t *light, int nodenum, winding_t *w)
+void VS_R_SubdivideDirectedAreaLight(vsound_t * light, int nodenum, winding_t * w)
 {
-	int leafnum, res;
-	dnode_t *node;
-	dplane_t *plane;
-	winding_t back;
-	plane_t split;
+	int             leafnum, res;
+	dnode_t        *node;
+	dplane_t       *plane;
+	winding_t       back;
+	plane_t         split;
 
 	while(nodenum >= 0)
 	{
@@ -4446,17 +4559,17 @@ void VS_R_SubdivideDirectedAreaLight(vsound_t *light, int nodenum, winding_t *w)
 
 		VectorCopy(plane->normal, split.normal);
 		split.dist = plane->dist;
-		res = VS_SplitWinding (w, &back, &split, 0.1);
+		res = VS_SplitWinding(w, &back, &split, 0.1);
 
-		if (res == SIDE_FRONT)
+		if(res == SIDE_FRONT)
 		{
 			nodenum = node->children[0];
 		}
-		else if (res == SIDE_BACK)
+		else if(res == SIDE_BACK)
 		{
 			nodenum = node->children[1];
 		}
-		else if (res == SIDE_ON)
+		else if(res == SIDE_ON)
 		{
 			memcpy(&back, w, sizeof(winding_t));
 			VS_R_SubdivideDirectedAreaLight(light, node->children[1], &back);
@@ -4469,7 +4582,7 @@ void VS_R_SubdivideDirectedAreaLight(vsound_t *light, int nodenum, winding_t *w)
 		}
 	}
 	leafnum = -nodenum - 1;
-	if (dleafs[leafnum].cluster != -1)
+	if(dleafs[leafnum].cluster != -1)
 	{
 		VS_FloodDirectedLight(light, w, leafnum);
 	}
@@ -4480,16 +4593,16 @@ void VS_R_SubdivideDirectedAreaLight(vsound_t *light, int nodenum, winding_t *w)
 VS_FloodLight
 =============
 */
-void VS_FloodLight(vsound_t *light)
+void VS_FloodLight(vsound_t * light)
 {
-	lightvolume_t volume;
-	dleaf_t *leaf;
-	int leafnum, i, j, k, dir[2][4] = {{1, 1, -1, -1}, {1, -1, -1, 1}};
-	float a, step, dist, radius, windingdist;
-	vec3_t vec, r, p, temp;
-	winding_t winding;
+	lightvolume_t   volume;
+	dleaf_t        *leaf;
+	int             leafnum, i, j, k, dir[2][4] = { {1, 1, -1, -1}, {1, -1, -1, 1} };
+	float           a, step, dist, radius, windingdist;
+	vec3_t          vec, r, p, temp;
+	winding_t       winding;
 
-	switch(light->type)
+	switch (light->type)
 	{
 		case LIGHT_POINTRADIAL:
 		{
@@ -4500,52 +4613,54 @@ void VS_FloodLight(vsound_t *light)
 			// create 6 volumes shining in the axis directions
 			// what about: 4 tetrahedrons instead?
 			//
-			if ( light->atten_disttype == LDAT_LINEAR )
+			if(light->atten_disttype == LDAT_LINEAR)
 				dist = light->photons * lightLinearScale;
 			else
 				dist = sqrt(light->photons);
 			//always put the winding at a large distance to avoid epsilon issues
 			windingdist = MAX_WORLD_COORD;
-			if (dist > windingdist)
+			if(dist > windingdist)
 				windingdist = dist;
 			//
 			leafnum = VS_LightLeafnum(light->origin);
 			leaf = &dleafs[leafnum];
-			if (leaf->cluster == -1)
+			if(leaf->cluster == -1)
 			{
 				light->insolid = qtrue;
 				break;
 			}
 			// for each axis
-			for (i = 0; i < 3; i++)
+			for(i = 0; i < 3; i++)
 			{
 				// for both directions on the axis
-				for (j = -1; j <= 1; j += 2)
+				for(j = -1; j <= 1; j += 2)
 				{
 					memset(&volume, 0, sizeof(lightvolume_t));
 					volume.numplanes = 0;
-					for (k = 0; k < 4; k ++)
+					for(k = 0; k < 4; k++)
 					{
 						volume.points[volume.numplanes][i] = light->origin[i] + j * windingdist;
-						volume.points[volume.numplanes][(i+1)%3] = light->origin[(i+1)%3] + dir[0][k] * windingdist;
-						volume.points[volume.numplanes][(i+2)%3] = light->origin[(i+2)%3] + dir[1][k] * windingdist;
+						volume.points[volume.numplanes][(i + 1) % 3] = light->origin[(i + 1) % 3] + dir[0][k] * windingdist;
+						volume.points[volume.numplanes][(i + 2) % 3] = light->origin[(i + 2) % 3] + dir[1][k] * windingdist;
 						volume.numplanes++;
 					}
-					if (j >= 0)
+					if(j >= 0)
 					{
 						VectorCopy(volume.points[0], temp);
 						VectorCopy(volume.points[2], volume.points[0]);
 						VectorCopy(temp, volume.points[2]);
 					}
-					for (k = 0; k < volume.numplanes; k++)
+					for(k = 0; k < volume.numplanes; k++)
 					{
-						VS_PlaneFromPoints(&volume.planes[k], light->origin, volume.points[(k+1)%volume.numplanes], volume.points[k]);
+						VS_PlaneFromPoints(&volume.planes[k], light->origin, volume.points[(k + 1) % volume.numplanes],
+										   volume.points[k]);
 					}
 					VectorCopy(light->origin, temp);
-					temp[i] += (float) j * dist;
+					temp[i] += (float)j *dist;
+
 					VectorClear(volume.endplane.normal);
 					volume.endplane.normal[i] = -j;
-					volume.endplane.dist = DotProduct(volume.endplane.normal, temp); //DotProduct(volume.endplane.normal, volume.points[0]);
+					volume.endplane.dist = DotProduct(volume.endplane.normal, temp);	//DotProduct(volume.endplane.normal, volume.points[0]);
 					volume.farplane = volume.endplane;
 					volume.cluster = leaf->cluster;
 					volume.surfaceNum = -1;
@@ -4554,7 +4669,7 @@ void VS_FloodLight(vsound_t *light)
 					memset(volume.facetTested, 0, sizeof(volume.facetTested));
 					memset(volume.clusterTested, 0, sizeof(volume.clusterTested));
 					VS_R_FloodLight(light, &volume, leaf->cluster, 0);
-					if (volume.surfaceNum >= 0)
+					if(volume.surfaceNum >= 0)
 					{
 						VS_R_CastLightAtSurface(light, &volume);
 					}
@@ -4570,14 +4685,14 @@ void VS_FloodLight(vsound_t *light)
 			//
 			// what about using brushes to shape spot lights? that'd be pretty cool
 			//
-			if ( light->atten_disttype == LDAT_LINEAR )
+			if(light->atten_disttype == LDAT_LINEAR)
 				dist = light->photons * lightLinearScale;
 			else
 				dist = sqrt(light->photons);
 			dist *= 2;
 			//
 			windingdist = 4096;
-			if (dist > windingdist)
+			if(dist > windingdist)
 				windingdist = dist;
 			//take 8 times the cone radius because the spotlight also lights outside the cone
 			radius = 8 * windingdist * light->radiusByDist;
@@ -4585,16 +4700,16 @@ void VS_FloodLight(vsound_t *light)
 			memset(&volume, 0, sizeof(lightvolume_t));
 			leafnum = VS_LightLeafnum(light->origin);
 			leaf = &dleafs[leafnum];
-			if (leaf->cluster == -1)
+			if(leaf->cluster == -1)
 			{
 				light->insolid = qtrue;
 				break;
 			}
 			//
 			VectorClear(vec);
-			for (i = 0; i < 3; i++)
+			for(i = 0; i < 3; i++)
 			{
-				if (light->normal[i] > -0.9 && light->normal[i] < 0.9)
+				if(light->normal[i] > -0.9 && light->normal[i] < 0.9)
 				{
 					vec[i] = 1;
 					break;
@@ -4604,21 +4719,21 @@ void VS_FloodLight(vsound_t *light)
 			VectorScale(r, radius, p);
 			volume.numplanes = 0;
 			step = 45;
-			for (a = step / 2; a < 360 + step / 2; a += step)
+			for(a = step / 2; a < 360 + step / 2; a += step)
 			{
 				RotatePointAroundVector(volume.points[volume.numplanes], light->normal, p, a);
 				VectorAdd(light->origin, volume.points[volume.numplanes], volume.points[volume.numplanes]);
 				VectorMA(volume.points[volume.numplanes], windingdist, light->normal, volume.points[volume.numplanes]);
 				volume.numplanes++;
 			}
-			for (i = 0; i < volume.numplanes; i++)
+			for(i = 0; i < volume.numplanes; i++)
 			{
-				VS_PlaneFromPoints(&volume.planes[i], light->origin, volume.points[(i+1)%volume.numplanes], volume.points[i]);
+				VS_PlaneFromPoints(&volume.planes[i], light->origin, volume.points[(i + 1) % volume.numplanes], volume.points[i]);
 			}
 			VectorMA(light->origin, dist, light->normal, temp);
 			VectorCopy(light->normal, volume.endplane.normal);
 			VectorInverse(volume.endplane.normal);
-			volume.endplane.dist = DotProduct(volume.endplane.normal, temp);//DotProduct(volume.endplane.normal, volume.points[0]);
+			volume.endplane.dist = DotProduct(volume.endplane.normal, temp);	//DotProduct(volume.endplane.normal, volume.points[0]);
 			volume.farplane = volume.endplane;
 			volume.cluster = leaf->cluster;
 			volume.surfaceNum = -1;
@@ -4627,7 +4742,7 @@ void VS_FloodLight(vsound_t *light)
 			memset(volume.facetTested, 0, sizeof(volume.facetTested));
 			memset(volume.clusterTested, 0, sizeof(volume.clusterTested));
 			VS_R_FloodLight(light, &volume, leaf->cluster, 0);
-			if (volume.surfaceNum >= 0)
+			if(volume.surfaceNum >= 0)
 			{
 				VS_R_CastLightAtSurface(light, &volume);
 			}
@@ -4635,63 +4750,64 @@ void VS_FloodLight(vsound_t *light)
 		}
 		case LIGHT_POINTFAKESURFACE:
 		{
-			float value;
-			int n, axis = 0;
-			vec3_t v, vecs[2];
+			float           value;
+			int             n, axis = 0;
+			vec3_t          v, vecs[2];
 
-			if ( light->atten_disttype == LDAT_LINEAR )
+			if(light->atten_disttype == LDAT_LINEAR)
 				dist = light->photons * lightLinearScale;
 			else
 				dist = sqrt(light->photons);
 			//always put the winding at a large distance to avoid epsilon issues
 			windingdist = 4096;
-			if (dist > windingdist)
+			if(dist > windingdist)
 				windingdist = dist;
 			//
 			VectorMA(light->origin, 0.1, light->normal, light->origin);
 			//
 			leafnum = VS_LightLeafnum(light->origin);
 			leaf = &dleafs[leafnum];
-			if (leaf->cluster == -1)
+			if(leaf->cluster == -1)
 			{
 				light->insolid = qtrue;
 				break;
 			}
 			value = 0;
-			for (i = 0; i < 3; i++)
+			for(i = 0; i < 3; i++)
 			{
-				if (fabs(light->normal[i]) > value)
+				if(fabs(light->normal[i]) > value)
 				{
 					value = fabs(light->normal[i]);
 					axis = i;
 				}
 			}
-			for (i = 0; i < 2; i++)
+			for(i = 0; i < 2; i++)
 			{
 				VectorClear(v);
 				v[(axis + 1 + i) % 3] = 1;
 				CrossProduct(light->normal, v, vecs[i]);
 			}
 			//cast 4 volumes at the front of the surface
-			for (i = -1; i <= 1; i += 2)
+			for(i = -1; i <= 1; i += 2)
 			{
-				for (j = -1; j <= 1; j += 2)
+				for(j = -1; j <= 1; j += 2)
 				{
-					for (n = 0; n < 2; n++)
+					for(n = 0; n < 2; n++)
 					{
 						memset(&volume, 0, sizeof(lightvolume_t));
 						volume.numplanes = 3;
 						VectorMA(light->origin, i * windingdist, vecs[0], volume.points[(i == j) == n]);
 						VectorMA(light->origin, j * windingdist, vecs[1], volume.points[(i != j) == n]);
 						VectorMA(light->origin, windingdist, light->normal, volume.points[2]);
-						for (k = 0; k < volume.numplanes; k++)
+						for(k = 0; k < volume.numplanes; k++)
 						{
-							VS_PlaneFromPoints(&volume.planes[k], light->origin, volume.points[(k+1)%volume.numplanes], volume.points[k]);
+							VS_PlaneFromPoints(&volume.planes[k], light->origin, volume.points[(k + 1) % volume.numplanes],
+											   volume.points[k]);
 						}
 						VS_PlaneFromPoints(&volume.endplane, volume.points[0], volume.points[1], volume.points[2]);
 						VectorMA(light->origin, dist, light->normal, temp);
 						volume.endplane.dist = DotProduct(volume.endplane.normal, temp);
-						if (DotProduct(light->origin, volume.endplane.normal) - volume.endplane.dist > 0)
+						if(DotProduct(light->origin, volume.endplane.normal) - volume.endplane.dist > 0)
 							break;
 					}
 					volume.farplane = volume.endplane;
@@ -4703,7 +4819,7 @@ void VS_FloodLight(vsound_t *light)
 					memset(volume.clusterTested, 0, sizeof(volume.clusterTested));
 
 					VS_R_FloodLight(light, &volume, leaf->cluster, 0);
-					if (volume.surfaceNum >= 0)
+					if(volume.surfaceNum >= 0)
 					{
 						VS_R_CastLightAtSurface(light, &volume);
 					}
@@ -4760,22 +4876,22 @@ VS_TestLightLeafs
 */
 void VS_TestLightLeafs(void)
 {
-	int leafnum, i;
-	vsound_t *light;
-	dleaf_t *leaf;
+	int             leafnum, i;
+	vsound_t       *light;
+	dleaf_t        *leaf;
 
-	for (i = 0; i < numvsounds; i++)
+	for(i = 0; i < numvsounds; i++)
 	{
 		light = vsounds[i];
-		if (light->type != LIGHT_POINTRADIAL &&
-			light->type != LIGHT_POINTSPOT)
+		if(light->type != LIGHT_POINTRADIAL && light->type != LIGHT_POINTSPOT)
 			continue;
 		leafnum = VS_LightLeafnum(light->origin);
 		leaf = &dleafs[leafnum];
-		if (leaf->cluster == -1) {
-			if (light->type == LIGHT_POINTRADIAL)
+		if(leaf->cluster == -1)
+		{
+			if(light->type == LIGHT_POINTRADIAL)
 				qprintf("light in solid at %1.1f %1.1f %1.1f\n", light->origin[0], light->origin[1], light->origin[2]);
-			else if (light->type == LIGHT_POINTSPOT)
+			else if(light->type == LIGHT_POINTSPOT)
 				qprintf("spot light in solid at %1.1f %1.1f %1.1f\n", light->origin[0], light->origin[1], light->origin[2]);
 		}
 	}
@@ -4788,34 +4904,34 @@ VS_DoForcedTraceLight
 =============
 */
 // from light.c
-void TraceLtm( int num );
+void            TraceLtm(int num);
 
 void VS_DoForcedTraceLight(int num)
 {
-	dsurface_t		*ds;
-	shaderInfo_t	*si;
+	dsurface_t     *ds;
+	shaderInfo_t   *si;
 
 	ds = &drawSurfaces[num];
 
-	if ( ds->surfaceType == MST_TRIANGLE_SOUP )
+	if(ds->surfaceType == MST_TRIANGLE_SOUP)
 		return;
 
-	if ( ds->lightmapNum < 0 )
+	if(ds->lightmapNum < 0)
 		return;
 
 	// always light entity surfaces with the old light algorithm
-	if ( !entitySurface[num] )
+	if(!entitySurface[num])
 	{
-		si = ShaderInfoForShader( dshaders[ ds->shaderNum].shader );
+		si = ShaderInfoForShader(dshaders[ds->shaderNum].shader);
 
-		if (defaulttracelight)
+		if(defaulttracelight)
 		{
-			if (si->forceVLight)
+			if(si->forceVLight)
 				return;
 		}
 		else
 		{
-			if (!si->forceTraceLight)
+			if(!si->forceTraceLight)
 				return;
 		}
 	}
@@ -4830,69 +4946,74 @@ VS_DoForcedTraceLightSurfaces
 */
 void VS_DoForcedTraceLightSurfaces(void)
 {
-	_printf( "forced trace light\n" );
-	RunThreadsOnIndividual( numDrawSurfaces, qtrue, VS_DoForcedTraceLight );
+	_printf("forced trace light\n");
+	RunThreadsOnIndividual(numDrawSurfaces, qtrue, VS_DoForcedTraceLight);
 }
 
-float *oldLightFloats;
+float          *oldLightFloats;
 
 /*
 =============
 VS_SurfaceRadiosity
 =============
 */
-void VS_SurfaceRadiosity( int num ) {
-	dsurface_t		*ds;
-	mesh_t			*mesh;
-	shaderInfo_t	*si;
+void VS_SurfaceRadiosity(int num)
+{
+	dsurface_t     *ds;
+	mesh_t         *mesh;
+	shaderInfo_t   *si;
 	lsurfaceTest_t *test;
-	int x, y, k;
-	vec3_t base, normal;
-	float *color, area;
-	vsound_t vsound;
+	int             x, y, k;
+	vec3_t          base, normal;
+	float          *color, area;
+	vsound_t        vsound;
 
 	ds = &drawSurfaces[num];
 
-	if ( ds->lightmapNum < 0 ) {
-		return;		// doesn't have a lightmap
+	if(ds->lightmapNum < 0)
+	{
+		return;					// doesn't have a lightmap
 	}
 
 	// vertex-lit triangle model
-	if ( ds->surfaceType == MST_TRIANGLE_SOUP ) {
+	if(ds->surfaceType == MST_TRIANGLE_SOUP)
+	{
 		return;
 	}
 
-	si = ShaderInfoForShader( dshaders[ ds->shaderNum].shader );
-	test = lsurfaceTest[ num ];
+	si = ShaderInfoForShader(dshaders[ds->shaderNum].shader);
+	test = lsurfaceTest[num];
 
-	if (!test) {
+	if(!test)
+	{
 		return;
 	}
 
-	for (x = 0; x < ds->lightmapWidth; x++) {
-		for (y = 0; y < ds->lightmapHeight; y++) {
+	for(x = 0; x < ds->lightmapWidth; x++)
+	{
+		for(y = 0; y < ds->lightmapHeight; y++)
+		{
 			//
-			k = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y) 
-							* LIGHTMAP_WIDTH + ds->lightmapX + x;
+			k = (ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
 			area = lightmappixelarea[k];
-			if (area <= 0)
+			if(area <= 0)
 				continue;
 			//
-			if (ds->surfaceType == MST_PATCH)
+			if(ds->surfaceType == MST_PATCH)
 			{
 				mesh = test->detailMesh;
-				VectorCopy( mesh->verts[y*mesh->width+x].xyz, base);
-				VectorCopy( mesh->verts[y*mesh->width+x].normal, normal);
+				VectorCopy(mesh->verts[y * mesh->width + x].xyz, base);
+				VectorCopy(mesh->verts[y * mesh->width + x].normal, normal);
 			}
 			else
 			{
-				VectorMA(ds->lightmapOrigin, (float) x, ds->lightmapVecs[0], base);
-				VectorMA(base, (float) y, ds->lightmapVecs[1], base);
+				VectorMA(ds->lightmapOrigin, (float)x, ds->lightmapVecs[0], base);
+				VectorMA(base, (float)y, ds->lightmapVecs[1], base);
 				VectorCopy(test->facets[0].plane.normal, normal);
 			}
 			// create ligth from base
 			memset(&vsound, 0, sizeof(vsound_t));
-			color = &oldLightFloats[k*3];
+			color = &oldLightFloats[k * 3];
 			// a few units away from the surface
 			VectorMA(base, 5, normal, vsound.origin);
 			ColorNormalize(color, vsound.color);
@@ -4905,9 +5026,9 @@ void VS_SurfaceRadiosity( int num ) {
 			// only one thread at a time may write to the lightmap of this surface
 			MutexLock(test->mutex);
 			// don't light the lightmap pixel itself
-			lightFloats[k*3] = oldLightFloats[k*3];
-			lightFloats[k*3+1] = oldLightFloats[k*3+1];
-			lightFloats[k*3+2] = oldLightFloats[k*3+2];
+			lightFloats[k * 3] = oldLightFloats[k * 3];
+			lightFloats[k * 3 + 1] = oldLightFloats[k * 3 + 1];
+			lightFloats[k * 3 + 2] = oldLightFloats[k * 3 + 2];
 			//
 			MutexUnlock(test->mutex);
 		}
@@ -4921,13 +5042,14 @@ VS_Radiosity
 this aint working real well but it's fun to play with.
 =============
 */
-void VS_Radiosity(void) {
+void VS_Radiosity(void)
+{
 
 	oldLightFloats = lightFloats;
-	lightFloats = (float *) malloc(numLightBytes * sizeof(float));
+	lightFloats = (float *)malloc(numLightBytes * sizeof(float));
 	memcpy(lightFloats, oldLightFloats, numLightBytes * sizeof(float));
 	_printf("%7i surfaces\n", numDrawSurfaces);
-	RunThreadsOnIndividual( numDrawSurfaces, qtrue, VS_SurfaceRadiosity );
+	RunThreadsOnIndividual(numDrawSurfaces, qtrue, VS_SurfaceRadiosity);
 	free(oldLightFloats);
 }
 
@@ -4938,41 +5060,43 @@ VS_LightWorld
 */
 void VS_LightWorld(void)
 {
-	int i, numcastedvolumes, numvsoundsinsolid;
-	float f;
+	int             i, numcastedvolumes, numvsoundsinsolid;
+	float           f;
 
 	// find the optional world ambient
-	GetVectorForKey( &entities[0], "_color", lightAmbientColor );
-	f = FloatForKey( &entities[0], "ambient" );
-	VectorScale( lightAmbientColor, f, lightAmbientColor );
+	GetVectorForKey(&entities[0], "_color", lightAmbientColor);
+	f = FloatForKey(&entities[0], "ambient");
+	VectorScale(lightAmbientColor, f, lightAmbientColor);
 	/*
-	_printf("\r%6d lights out of %d", 0, numvsounds);
-	for (i = 0; i < numvsounds; i++)
-	{
-		_printf("\r%6d", i);
-		VS_FloodLight(vsounds[i]);
-	}
-	_printf("\r%6d lights out of %d\n", i, numvsounds);
-	*/
+	   _printf("\r%6d lights out of %d", 0, numvsounds);
+	   for (i = 0; i < numvsounds; i++)
+	   {
+	   _printf("\r%6d", i);
+	   VS_FloodLight(vsounds[i]);
+	   }
+	   _printf("\r%6d lights out of %d\n", i, numvsounds);
+	 */
 	_printf("%7i lights\n", numvsounds);
-	RunThreadsOnIndividual( numvsounds, qtrue, VS_FloodLightThread );
+	RunThreadsOnIndividual(numvsounds, qtrue, VS_FloodLightThread);
 
 	numcastedvolumes = 0;
-	for ( i = 0 ; i < numDrawSurfaces ; i++ ) {
-		if (lsurfaceTest[i])
+	for(i = 0; i < numDrawSurfaces; i++)
+	{
+		if(lsurfaceTest[i])
 			numcastedvolumes += lsurfaceTest[i]->numvolumes;
 	}
 	_printf("%7i light volumes casted\n", numcastedvolumes);
 	numvsoundsinsolid = 0;
-	for (i = 0; i < numvsounds; i++)
+	for(i = 0; i < numvsounds; i++)
 	{
-		if (vsounds[i]->insolid)
+		if(vsounds[i]->insolid)
 			numvsoundsinsolid++;
 	}
 	_printf("%7i lights in solid\n", numvsoundsinsolid);
 	//
 	radiosity_scale = 1;
-	for (i = 0; i < radiosity; i++) {
+	for(i = 0; i < radiosity; i++)
+	{
 		VS_Radiosity();
 		radiosity_scale <<= 1;
 	}
@@ -4987,67 +5111,72 @@ void VS_LightWorld(void)
 VS_CreateEntitySpeakers
 =============
 */
-entity_t *FindTargetEntity( const char *target );
+entity_t       *FindTargetEntity(const char *target);
 
-void VS_CreateEntitySpeakers (void)
+void VS_CreateEntitySpeakers(void)
 {
-	int		i, c_entityLights;
-	vsound_t	*dl;
-	entity_t	*e, *e2;
-	const char	*name;
-	const char	*target;
-	vec3_t	dest;
-	const char	*_color;
-	float	intensity;
-	int		spawnflags;
+	int             i, c_entityLights;
+	vsound_t       *dl;
+	entity_t       *e, *e2;
+	const char     *name;
+	const char     *target;
+	vec3_t          dest;
+	const char     *_color;
+	float           intensity;
+	int             spawnflags;
 
 	//
 	c_entityLights = 0;
 	_printf("Creating entity lights...\n");
 	//
-	for ( i = 0 ; i < num_entities ; i++ ) {
+	for(i = 0; i < num_entities; i++)
+	{
 		e = &entities[i];
-		name = ValueForKey (e, "classname");
-		if (strncmp (name, "speaker", 7))
+		name = ValueForKey(e, "classname");
+		if(strncmp(name, "speaker", 7))
 			continue;
 
 		dl = malloc(sizeof(*dl));
-		memset (dl, 0, sizeof(*dl));
+		memset(dl, 0, sizeof(*dl));
 
-		spawnflags = FloatForKey (e, "spawnflags");
-		if ( spawnflags & 1 ) {
+		spawnflags = FloatForKey(e, "spawnflags");
+		if(spawnflags & 1)
+		{
 			dl->atten_disttype = LDAT_LINEAR;
 		}
-		if ( spawnflags & 2 ) {
+		if(spawnflags & 2)
+		{
 			dl->atten_disttype = LDAT_NOSCALE;
 		}
-		if ( spawnflags & 4 ) {
+		if(spawnflags & 4)
+		{
 			dl->atten_angletype = LAAT_QUADRATIC;
 		}
-		if ( spawnflags & 8 ) {
+		if(spawnflags & 8)
+		{
 			dl->atten_angletype = LAAT_DOUBLEQUADRATIC;
 		}
 
 		dl->atten_distscale = FloatForKey(e, "atten_distscale");
 		dl->atten_anglescale = FloatForKey(e, "atten_anglescale");
 
-		GetVectorForKey (e, "origin", dl->origin);
-		dl->style = FloatForKey (e, "_style");
-		if (!dl->style)
-			dl->style = FloatForKey (e, "style");
-		if (dl->style < 0)
+		GetVectorForKey(e, "origin", dl->origin);
+		dl->style = FloatForKey(e, "_style");
+		if(!dl->style)
+			dl->style = FloatForKey(e, "style");
+		if(dl->style < 0)
 			dl->style = 0;
 
-		intensity = FloatForKey (e, "light");
-		if (!intensity)
-			intensity = FloatForKey (e, "_light");
-		if (!intensity)
+		intensity = FloatForKey(e, "light");
+		if(!intensity)
+			intensity = FloatForKey(e, "_light");
+		if(!intensity)
 			intensity = 300;
-		_color = ValueForKey (e, "_color");
-		if (_color && _color[0])
+		_color = ValueForKey(e, "_color");
+		if(_color && _color[0])
 		{
-			sscanf (_color, "%f %f %f", &dl->color[0],&dl->color[1],&dl->color[2]);
-			ColorNormalize (dl->color, dl->color);
+			sscanf(_color, "%f %f %f", &dl->color[0], &dl->color[1], &dl->color[2]);
+			ColorNormalize(dl->color, dl->color);
 		}
 		else
 			dl->color[0] = dl->color[1] = dl->color[2] = 1.0;
@@ -5058,25 +5187,31 @@ void VS_CreateEntitySpeakers (void)
 		dl->type = LIGHT_POINTRADIAL;
 
 		// lights with a target will be spotlights
-		target = ValueForKey (e, "target");
+		target = ValueForKey(e, "target");
 
-		if ( target[0] ) {
-			float	radius;
-			float	dist;
+		if(target[0])
+		{
+			float           radius;
+			float           dist;
 
-			e2 = FindTargetEntity (target);
-			if (!e2) {
-				_printf ("WARNING: light at (%i %i %i) has missing target\n",
-				(int)dl->origin[0], (int)dl->origin[1], (int)dl->origin[2]);
-			} else {
-				GetVectorForKey (e2, "origin", dest);
-				VectorSubtract (dest, dl->origin, dl->normal);
-				dist = VectorNormalize (dl->normal, dl->normal);
-				radius = FloatForKey (e, "radius");
-				if ( !radius ) {
+			e2 = FindTargetEntity(target);
+			if(!e2)
+			{
+				_printf("WARNING: light at (%i %i %i) has missing target\n",
+						(int)dl->origin[0], (int)dl->origin[1], (int)dl->origin[2]);
+			}
+			else
+			{
+				GetVectorForKey(e2, "origin", dest);
+				VectorSubtract(dest, dl->origin, dl->normal);
+				dist = VectorNormalize(dl->normal, dl->normal);
+				radius = FloatForKey(e, "radius");
+				if(!radius)
+				{
 					radius = 64;
 				}
-				if ( !dist ) {
+				if(!dist)
+				{
 					dist = 64;
 				}
 				dl->radiusByDist = (radius + 16) / dist;
@@ -5094,84 +5229,90 @@ void VS_CreateEntitySpeakers (void)
 VS_SubdivideAreaLight
 ==================
 */
-void VS_SubdivideAreaLight( shaderInfo_t *ls, winding_t *w, vec3_t normal, 
-						float areaSubdivide, qboolean backsplash ) {
-	float			area, value, intensity;
-	vsound_t			*dl, *dl2;
-	vec3_t			mins, maxs;
-	int				axis;
-	winding_t		*front, *back;
-	vec3_t			planeNormal;
-	float			planeDist;
+void VS_SubdivideAreaLight(shaderInfo_t * ls, winding_t * w, vec3_t normal, float areaSubdivide, qboolean backsplash)
+{
+	float           area, value, intensity;
+	vsound_t       *dl, *dl2;
+	vec3_t          mins, maxs;
+	int             axis;
+	winding_t      *front, *back;
+	vec3_t          planeNormal;
+	float           planeDist;
 
-	if ( !w ) {
+	if(!w)
+	{
 		return;
 	}
 
-	WindingBounds( w, mins, maxs );
+	WindingBounds(w, mins, maxs);
 
 	// check for subdivision
-	for ( axis = 0 ; axis < 3 ; axis++ ) {
-		if ( maxs[axis] - mins[axis] > areaSubdivide ) {
-			VectorClear( planeNormal );
+	for(axis = 0; axis < 3; axis++)
+	{
+		if(maxs[axis] - mins[axis] > areaSubdivide)
+		{
+			VectorClear(planeNormal);
 			planeNormal[axis] = 1;
-			planeDist = ( maxs[axis] + mins[axis] ) * 0.5;
-			ClipWindingEpsilon ( w, planeNormal, planeDist, ON_EPSILON, &front, &back );
-			VS_SubdivideAreaLight( ls, front, normal, areaSubdivide, qfalse );
-			VS_SubdivideAreaLight( ls, back, normal, areaSubdivide, qfalse );
-			FreeWinding( w );
+			planeDist = (maxs[axis] + mins[axis]) * 0.5;
+			ClipWindingEpsilon(w, planeNormal, planeDist, ON_EPSILON, &front, &back);
+			VS_SubdivideAreaLight(ls, front, normal, areaSubdivide, qfalse);
+			VS_SubdivideAreaLight(ls, back, normal, areaSubdivide, qfalse);
+			FreeWinding(w);
 			return;
 		}
 	}
 
 	// create a light from this
-	area = WindingArea (w);
-	if ( area <= 0 || area > 20000000 ) {
+	area = WindingArea(w);
+	if(area <= 0 || area > 20000000)
+	{
 		return;
 	}
 
 	dl = malloc(sizeof(*dl));
-	memset (dl, 0, sizeof(*dl));
+	memset(dl, 0, sizeof(*dl));
 	dl->type = LIGHT_POINTFAKESURFACE;
 
-	WindingCenter( w, dl->origin );
+	WindingCenter(w, dl->origin);
 	memcpy(dl->w.points, w->points, sizeof(vec3_t) * w->numpoints);
 	dl->w.numpoints = w->numpoints;
-	VectorCopy ( normal, dl->normal);
-	VectorCopy ( normal, dl->plane);
-	dl->plane[3] = DotProduct( dl->origin, normal );
+	VectorCopy(normal, dl->normal);
+	VectorCopy(normal, dl->plane);
+	dl->plane[3] = DotProduct(dl->origin, normal);
 
 	value = ls->value;
 	intensity = value * area * lightAreaScale;
-	VectorAdd( dl->origin, dl->normal, dl->origin );
+	VectorAdd(dl->origin, dl->normal, dl->origin);
 
-	VectorCopy( ls->color, dl->color );
+	VectorCopy(ls->color, dl->color);
 
 	dl->photons = intensity;
 
 	// emitColor is irrespective of the area
-	VectorScale( ls->color, value*lightFormFactorValueScale*lightAreaScale, dl->emitColor );
+	VectorScale(ls->color, value * lightFormFactorValueScale * lightAreaScale, dl->emitColor);
 	//
 	VectorCopy(dl->emitColor, dl->color);
 
 	dl->si = ls;
 
-	if ( ls->contents & CONTENTS_FOG ) {
+	if(ls->contents & CONTENTS_FOG)
+	{
 		dl->twosided = qtrue;
 	}
 
 	vsounds[numvsounds++] = dl;
 
 	// optionally create a point backsplash light
-	if ( backsplash && ls->backsplashFraction > 0 ) {
+	if(backsplash && ls->backsplashFraction > 0)
+	{
 
 		dl2 = malloc(sizeof(*dl));
-		memset (dl2, 0, sizeof(*dl2));
+		memset(dl2, 0, sizeof(*dl2));
 		dl2->type = LIGHT_POINTRADIAL;
 
-		VectorMA( dl->origin, ls->backsplashDistance, normal, dl2->origin );
+		VectorMA(dl->origin, ls->backsplashDistance, normal, dl2->origin);
 
-		VectorCopy( ls->color, dl2->color );
+		VectorCopy(ls->color, dl2->color);
 
 		dl2->photons = dl->photons * ls->backsplashFraction;
 		dl2->si = ls;
@@ -5185,36 +5326,42 @@ void VS_SubdivideAreaLight( shaderInfo_t *ls, winding_t *w, vec3_t normal,
 VS_CreateFakeSurfaceLights
 ==================
 */
-void VS_CreateFakeSurfaceLights( void ) {
-	int				i, j, side;
-	dsurface_t		*ds;
-	shaderInfo_t	*ls;
-	winding_t		*w;
-	lFacet_t		*f;
-	vsound_t			*dl;
-	vec3_t			origin;
-	drawVert_t		*dv;
-	int				c_surfaceLights;
-	float			lightSubdivide;
-	vec3_t			normal;
+void VS_CreateFakeSurfaceLights(void)
+{
+	int             i, j, side;
+	dsurface_t     *ds;
+	shaderInfo_t   *ls;
+	winding_t      *w;
+	lFacet_t       *f;
+	vsound_t       *dl;
+	vec3_t          origin;
+	drawVert_t     *dv;
+	int             c_surfaceLights;
+	float           lightSubdivide;
+	vec3_t          normal;
 
 
 	c_surfaceLights = 0;
-	_printf ("Creating surface lights...\n");
+	_printf("Creating surface lights...\n");
 
-	for ( i = 0 ; i < numDrawSurfaces ; i++ ) {
+	for(i = 0; i < numDrawSurfaces; i++)
+	{
 		// see if this surface is light emiting
 		ds = &drawSurfaces[i];
 
-		ls = ShaderInfoForShader( dshaders[ ds->shaderNum].shader );
-		if ( ls->value == 0 ) {
+		ls = ShaderInfoForShader(dshaders[ds->shaderNum].shader);
+		if(ls->value == 0)
+		{
 			continue;
 		}
 
 		// determine how much we need to chop up the surface
-		if ( ls->lightSubdivide ) {
+		if(ls->lightSubdivide)
+		{
 			lightSubdivide = ls->lightSubdivide;
-		} else {
+		}
+		else
+		{
 			lightSubdivide = lightDefaultSubdivide;
 		}
 
@@ -5222,38 +5369,44 @@ void VS_CreateFakeSurfaceLights( void ) {
 
 		// an autosprite shader will become
 		// a point light instead of an area light
-		if ( ls->autosprite ) {
+		if(ls->autosprite)
+		{
 			// autosprite geometry should only have four vertexes
-			if ( lsurfaceTest[i] ) {
+			if(lsurfaceTest[i])
+			{
 				// curve or misc_model
 				f = lsurfaceTest[i]->facets;
-				if ( lsurfaceTest[i]->numFacets != 1 || f->numpoints != 4 ) {
-					_printf( "WARNING: surface at (%i %i %i) has autosprite shader but isn't a quad\n",
-						(int)f->points[0], (int)f->points[1], (int)f->points[2] );
+				if(lsurfaceTest[i]->numFacets != 1 || f->numpoints != 4)
+				{
+					_printf("WARNING: surface at (%i %i %i) has autosprite shader but isn't a quad\n",
+							(int)f->points[0], (int)f->points[1], (int)f->points[2]);
 				}
-				VectorAdd( f->points[0], f->points[1], origin );
-				VectorAdd( f->points[2], origin, origin );
-				VectorAdd( f->points[3], origin, origin );
-				VectorScale( origin, 0.25, origin );
-			} else {
+				VectorAdd(f->points[0], f->points[1], origin);
+				VectorAdd(f->points[2], origin, origin);
+				VectorAdd(f->points[3], origin, origin);
+				VectorScale(origin, 0.25, origin);
+			}
+			else
+			{
 				// normal polygon
-				dv = &drawVerts[ ds->firstVert ];
-				if ( ds->numVerts != 4 ) {
-					_printf( "WARNING: surface at (%i %i %i) has autosprite shader but %i verts\n",
-						(int)dv->xyz[0], (int)dv->xyz[1], (int)dv->xyz[2] );
+				dv = &drawVerts[ds->firstVert];
+				if(ds->numVerts != 4)
+				{
+					_printf("WARNING: surface at (%i %i %i) has autosprite shader but %i verts\n",
+							(int)dv->xyz[0], (int)dv->xyz[1], (int)dv->xyz[2]);
 					continue;
 				}
 
-				VectorAdd( dv[0].xyz, dv[1].xyz, origin );
-				VectorAdd( dv[2].xyz, origin, origin );
-				VectorAdd( dv[3].xyz, origin, origin );
-				VectorScale( origin, 0.25, origin );
+				VectorAdd(dv[0].xyz, dv[1].xyz, origin);
+				VectorAdd(dv[2].xyz, origin, origin);
+				VectorAdd(dv[3].xyz, origin, origin);
+				VectorScale(origin, 0.25, origin);
 			}
 
 			dl = malloc(sizeof(*dl));
-			memset (dl, 0, sizeof(*dl));
-			VectorCopy( origin, dl->origin );
-			VectorCopy( ls->color, dl->color );
+			memset(dl, 0, sizeof(*dl));
+			VectorCopy(origin, dl->origin);
+			VectorCopy(ls->color, dl->color);
 			dl->photons = ls->value * lightPointScale;
 			dl->type = LIGHT_POINTRADIAL;
 			vsounds[numvsounds++] = dl;
@@ -5261,50 +5414,58 @@ void VS_CreateFakeSurfaceLights( void ) {
 		}
 
 		// possibly create for both sides of the polygon
-		for ( side = 0 ; side <= ls->twoSided ; side++ ) {
+		for(side = 0; side <= ls->twoSided; side++)
+		{
 			// create area lights
-			if ( lsurfaceTest[i] ) {
+			if(lsurfaceTest[i])
+			{
 				// curve or misc_model
-				for ( j = 0 ; j < lsurfaceTest[i]->numFacets ; j++ ) {
+				for(j = 0; j < lsurfaceTest[i]->numFacets; j++)
+				{
 					f = lsurfaceTest[i]->facets + j;
-					w = AllocWinding( f->numpoints );
+					w = AllocWinding(f->numpoints);
 					w->numpoints = f->numpoints;
-					memcpy( w->points, f->points, f->numpoints * 12 );
+					memcpy(w->points, f->points, f->numpoints * 12);
 
-					VectorCopy( f->plane.normal, normal );
-					if ( side ) {
-						winding_t	*t;
+					VectorCopy(f->plane.normal, normal);
+					if(side)
+					{
+						winding_t      *t;
 
 						t = w;
-						w = ReverseWinding( t );
-						FreeWinding( t );
-						VectorSubtract( vec3_origin, normal, normal );
+						w = ReverseWinding(t);
+						FreeWinding(t);
+						VectorSubtract(vec3_origin, normal, normal);
 					}
-					VS_SubdivideAreaLight( ls, w, normal, lightSubdivide, qtrue );
+					VS_SubdivideAreaLight(ls, w, normal, lightSubdivide, qtrue);
 				}
-			} else {
+			}
+			else
+			{
 				// normal polygon
 
-				w = AllocWinding( ds->numVerts );
+				w = AllocWinding(ds->numVerts);
 				w->numpoints = ds->numVerts;
-				for ( j = 0 ; j < ds->numVerts ; j++ ) {
-					VectorCopy( drawVerts[ds->firstVert+j].xyz, w->points[j] );
+				for(j = 0; j < ds->numVerts; j++)
+				{
+					VectorCopy(drawVerts[ds->firstVert + j].xyz, w->points[j]);
 				}
-				VectorCopy( ds->lightmapVecs[2], normal );
-				if ( side ) {
-					winding_t	*t;
+				VectorCopy(ds->lightmapVecs[2], normal);
+				if(side)
+				{
+					winding_t      *t;
 
 					t = w;
-					w = ReverseWinding( t );
-					FreeWinding( t );
-					VectorSubtract( vec3_origin, normal, normal );
+					w = ReverseWinding(t);
+					FreeWinding(t);
+					VectorSubtract(vec3_origin, normal, normal);
 				}
-				VS_SubdivideAreaLight( ls, w, normal, lightSubdivide, qtrue );
+				VS_SubdivideAreaLight(ls, w, normal, lightSubdivide, qtrue);
 			}
 		}
 	}
 
-	_printf( "%7i light emitting surfaces\n", c_surfaceLights );
+	_printf("%7i light emitting surfaces\n", c_surfaceLights);
 }
 
 
@@ -5313,28 +5474,28 @@ void VS_CreateFakeSurfaceLights( void ) {
 VS_WindingForBrushSide
 ==================
 */
-winding_t *VS_WindingForBrushSide(dbrush_t *brush, int side, winding_t *w)
+winding_t      *VS_WindingForBrushSide(dbrush_t * brush, int side, winding_t * w)
 {
-	int i, res;
-	winding_t *tmpw;
-	plane_t plane;
+	int             i, res;
+	winding_t      *tmpw;
+	plane_t         plane;
 
-	VectorCopy(dplanes[ dbrushsides[ brush->firstSide + side ].planeNum ].normal, plane.normal);
+	VectorCopy(dplanes[dbrushsides[brush->firstSide + side].planeNum].normal, plane.normal);
 	VectorInverse(plane.normal);
-	plane.dist = -dplanes[ dbrushsides[ brush->firstSide + side ].planeNum ].dist;
-	tmpw = BaseWindingForPlane( plane.normal, plane.dist );
+	plane.dist = -dplanes[dbrushsides[brush->firstSide + side].planeNum].dist;
+	tmpw = BaseWindingForPlane(plane.normal, plane.dist);
 	memcpy(w->points, tmpw->points, sizeof(vec3_t) * tmpw->numpoints);
 	w->numpoints = tmpw->numpoints;
 
-	for (i = 0; i < brush->numSides; i++)
+	for(i = 0; i < brush->numSides; i++)
 	{
-		if (i == side)
+		if(i == side)
 			continue;
-		VectorCopy(dplanes[ dbrushsides[ brush->firstSide + i ].planeNum ].normal, plane.normal);
+		VectorCopy(dplanes[dbrushsides[brush->firstSide + i].planeNum].normal, plane.normal);
 		VectorInverse(plane.normal);
-		plane.dist = -dplanes[ dbrushsides[ brush->firstSide + i ].planeNum ].dist;
+		plane.dist = -dplanes[dbrushsides[brush->firstSide + i].planeNum].dist;
 		res = VS_ChopWinding(w, &plane, 0.1);
-		if (res == SIDE_BACK)
+		if(res == SIDE_BACK)
 			return NULL;
 	}
 	return w;
@@ -5347,13 +5508,13 @@ VS_CreateSkyLights
 */
 void VS_CreateSkyLights(void)
 {
-	int				i, j, c_skyLights;
-	dbrush_t		*b;
-	shaderInfo_t	*si;
-	dbrushside_t	*s;
-	vsound_t		*dl;
-	vec3_t sunColor, sunDir = { 0.45, 0.3, 0.9 };
-	float d;
+	int             i, j, c_skyLights;
+	dbrush_t       *b;
+	shaderInfo_t   *si;
+	dbrushside_t   *s;
+	vsound_t       *dl;
+	vec3_t          sunColor, sunDir = { 0.45, 0.3, 0.9 };
+	float           d;
 
 	VectorNormalize(sunDir, sunDir);
 	VectorInverse(sunDir);
@@ -5361,37 +5522,42 @@ void VS_CreateSkyLights(void)
 	c_skyLights = 0;
 	_printf("Creating sky lights...\n");
 	// find the sky shader
-	for ( i = 0 ; i < numDrawSurfaces ; i++ ) {
-		si = ShaderInfoForShader( dshaders[ drawSurfaces[i].shaderNum ].shader );
-		if ( si->surfaceFlags & SURF_SKY ) {
-			VectorCopy( si->sunLight, sunColor );
-			VectorCopy( si->sunDirection, sunDir );
+	for(i = 0; i < numDrawSurfaces; i++)
+	{
+		si = ShaderInfoForShader(dshaders[drawSurfaces[i].shaderNum].shader);
+		if(si->surfaceFlags & SURF_SKY)
+		{
+			VectorCopy(si->sunLight, sunColor);
+			VectorCopy(si->sunDirection, sunDir);
 			VectorInverse(sunDir);
 			break;
 		}
 	}
 
 	// find the brushes
-	for ( i = 0 ; i < numbrushes ; i++ ) {
+	for(i = 0; i < numbrushes; i++)
+	{
 		b = &dbrushes[i];
-		for ( j = 0 ; j < b->numSides ; j++ ) {
-			s = &dbrushsides[ b->firstSide + j ];
-			if ( dshaders[ s->shaderNum ].surfaceFlags & SURF_SKY ) {
+		for(j = 0; j < b->numSides; j++)
+		{
+			s = &dbrushsides[b->firstSide + j];
+			if(dshaders[s->shaderNum].surfaceFlags & SURF_SKY)
+			{
 				//if this surface doesn't face in the same direction as the sun
-				d = DotProduct(dplanes[ s->planeNum ].normal, sunDir);
-				if (d <= 0)
+				d = DotProduct(dplanes[s->planeNum].normal, sunDir);
+				if(d <= 0)
 					continue;
 				//
 				dl = malloc(sizeof(*dl));
-				memset (dl, 0, sizeof(*dl));
+				memset(dl, 0, sizeof(*dl));
 				VectorCopy(sunColor, dl->color);
 				VectorCopy(sunDir, dl->normal);
-				VectorCopy(dplanes[ s->planeNum ].normal, dl->plane);
-				dl->plane[3] = dplanes[ s->planeNum ].dist;
+				VectorCopy(dplanes[s->planeNum].normal, dl->plane);
+				dl->plane[3] = dplanes[s->planeNum].dist;
 				dl->type = LIGHT_SURFACEDIRECTED;
 				dl->atten_disttype = LDAT_NOSCALE;
 				VS_WindingForBrushSide(b, j, &dl->w);
-//				DebugNet_DrawWinding(&dl->w, 2);
+//              DebugNet_DrawWinding(&dl->w, 2);
 				//
 				vsounds[numvsounds++] = dl;
 				c_skyLights++;
@@ -5406,32 +5572,32 @@ void VS_CreateSkyLights(void)
 VS_SetPortalSphere
 ==================
 */
-void VS_SetPortalSphere (lportal_t *p)
+void VS_SetPortalSphere(lportal_t * p)
 {
-	int		i;
-	vec3_t	total, dist;
-	winding_t	*w;
-	float	r, bestr;
+	int             i;
+	vec3_t          total, dist;
+	winding_t      *w;
+	float           r, bestr;
 
 	w = p->winding;
-	VectorCopy (vec3_origin, total);
-	for (i=0 ; i<w->numpoints ; i++)
+	VectorCopy(vec3_origin, total);
+	for(i = 0; i < w->numpoints; i++)
 	{
-		VectorAdd (total, w->points[i], total);
+		VectorAdd(total, w->points[i], total);
 	}
-	
-	for (i=0 ; i<3 ; i++)
+
+	for(i = 0; i < 3; i++)
 		total[i] /= w->numpoints;
 
-	bestr = 0;		
-	for (i=0 ; i<w->numpoints ; i++)
+	bestr = 0;
+	for(i = 0; i < w->numpoints; i++)
 	{
-		VectorSubtract (w->points[i], total, dist);
-		r = VectorLength (dist);
-		if (r > bestr)
+		VectorSubtract(w->points[i], total, dist);
+		r = VectorLength(dist);
+		if(r > bestr)
 			bestr = r;
 	}
-	VectorCopy (total, p->origin);
+	VectorCopy(total, p->origin);
 	p->radius = bestr;
 }
 
@@ -5440,16 +5606,16 @@ void VS_SetPortalSphere (lportal_t *p)
 VS_PlaneFromWinding
 ==================
 */
-void VS_PlaneFromWinding (winding_t *w, plane_t *plane)
+void VS_PlaneFromWinding(winding_t * w, plane_t * plane)
 {
-	vec3_t		v1, v2;
+	vec3_t          v1, v2;
 
 	//calc plane
-	VectorSubtract (w->points[2], w->points[1], v1);
-	VectorSubtract (w->points[0], w->points[1], v2);
-	CrossProduct (v2, v1, plane->normal);
-	VectorNormalize (plane->normal, plane->normal);
-	plane->dist = DotProduct (w->points[0], plane->normal);
+	VectorSubtract(w->points[2], w->points[1], v1);
+	VectorSubtract(w->points[0], w->points[1], v2);
+	CrossProduct(v2, v1, plane->normal);
+	VectorNormalize(plane->normal, plane->normal);
+	plane->dist = DotProduct(w->points[0], plane->normal);
 }
 
 /*
@@ -5457,18 +5623,18 @@ void VS_PlaneFromWinding (winding_t *w, plane_t *plane)
 VS_AllocWinding
 ==================
 */
-winding_t *VS_AllocWinding (int points)
+winding_t      *VS_AllocWinding(int points)
 {
-	winding_t	*w;
-	int			size;
-	
-	if (points > MAX_POINTS_ON_WINDING)
-		Error ("NewWinding: %i points", points);
-	
-	size = (int)((winding_t *)0)->points[points];
-	w = malloc (size);
-	memset (w, 0, size);
-	
+	winding_t      *w;
+	int             size;
+
+	if(points > MAX_POINTS_ON_WINDING)
+		Error("NewWinding: %i points", points);
+
+	size = (int)((winding_t *) 0)->points[points];
+	w = malloc(size);
+	memset(w, 0, size);
+
 	return w;
 }
 
@@ -5477,116 +5643,115 @@ winding_t *VS_AllocWinding (int points)
 VS_LoadPortals
 ============
 */
-void VS_LoadPortals (char *name)
+void VS_LoadPortals(char *name)
 {
-	int			i, j, hint;
-	lportal_t	*p;
-	lleaf_t		*l;
-	char		magic[80];
-	FILE		*f;
-	int			numpoints;
-	winding_t	*w;
-	int			leafnums[2];
-	plane_t		plane;
+	int             i, j, hint;
+	lportal_t      *p;
+	lleaf_t        *l;
+	char            magic[80];
+	FILE           *f;
+	int             numpoints;
+	winding_t      *w;
+	int             leafnums[2];
+	plane_t         plane;
+
 	//
-	
-	if (!strcmp(name,"-"))
+
+	if(!strcmp(name, "-"))
 		f = stdin;
 	else
 	{
 		f = fopen(name, "r");
-		if (!f)
-			Error ("LoadPortals: couldn't read %s\n",name);
+		if(!f)
+			Error("LoadPortals: couldn't read %s\n", name);
 	}
 
-	if (fscanf (f,"%79s\n%i\n%i\n%i\n",magic, &portalclusters, &numportals, &numfaces) != 4)
-		Error ("LoadPortals: failed to read header");
-	if (strcmp(magic, PORTALFILE))
-		Error ("LoadPortals: not a portal file");
+	if(fscanf(f, "%79s\n%i\n%i\n%i\n", magic, &portalclusters, &numportals, &numfaces) != 4)
+		Error("LoadPortals: failed to read header");
+	if(strcmp(magic, PORTALFILE))
+		Error("LoadPortals: not a portal file");
 
-	_printf ("%6i portalclusters\n", portalclusters);
-	_printf ("%6i numportals\n", numportals);
-	_printf ("%6i numfaces\n", numfaces);
+	_printf("%6i portalclusters\n", portalclusters);
+	_printf("%6i numportals\n", numportals);
+	_printf("%6i numfaces\n", numfaces);
 
-	if (portalclusters >= MAX_CLUSTERS)
-		Error ("more than %d clusters in portal file\n", MAX_CLUSTERS);
+	if(portalclusters >= MAX_CLUSTERS)
+		Error("more than %d clusters in portal file\n", MAX_CLUSTERS);
 
 	// each file portal is split into two memory portals
-	portals = malloc(2*numportals*sizeof(lportal_t));
-	memset (portals, 0, 2*numportals*sizeof(lportal_t));
-	
-	leafs = malloc(portalclusters*sizeof(lleaf_t));
-	memset (leafs, 0, portalclusters*sizeof(lleaf_t));
+	portals = malloc(2 * numportals * sizeof(lportal_t));
+	memset(portals, 0, 2 * numportals * sizeof(lportal_t));
 
-	for (i=0, p=portals ; i<numportals ; i++)
+	leafs = malloc(portalclusters * sizeof(lleaf_t));
+	memset(leafs, 0, portalclusters * sizeof(lleaf_t));
+
+	for(i = 0, p = portals; i < numportals; i++)
 	{
-		if (fscanf (f, "%i %i %i ", &numpoints, &leafnums[0], &leafnums[1]) != 3)
-			Error ("LoadPortals: reading portal %i", i);
-		if (numpoints > MAX_POINTS_ON_WINDING)
-			Error ("LoadPortals: portal %i has too many points", i);
-		if ( (unsigned)leafnums[0] > portalclusters
-		|| (unsigned)leafnums[1] > portalclusters)
-			Error ("LoadPortals: reading portal %i", i);
-		if (fscanf (f, "%i ", &hint) != 1)
-			Error ("LoadPortals: reading hint state");
-		
-		w = p->winding = VS_AllocWinding (numpoints);
+		if(fscanf(f, "%i %i %i ", &numpoints, &leafnums[0], &leafnums[1]) != 3)
+			Error("LoadPortals: reading portal %i", i);
+		if(numpoints > MAX_POINTS_ON_WINDING)
+			Error("LoadPortals: portal %i has too many points", i);
+		if((unsigned)leafnums[0] > portalclusters || (unsigned)leafnums[1] > portalclusters)
+			Error("LoadPortals: reading portal %i", i);
+		if(fscanf(f, "%i ", &hint) != 1)
+			Error("LoadPortals: reading hint state");
+
+		w = p->winding = VS_AllocWinding(numpoints);
 		w->numpoints = numpoints;
-		
-		for (j=0 ; j<numpoints ; j++)
+
+		for(j = 0; j < numpoints; j++)
 		{
-			double	v[3];
-			int		k;
+			double          v[3];
+			int             k;
 
 			// scanf into double, then assign to vec_t
 			// so we don't care what size vec_t is
-			if (fscanf (f, "(%lf %lf %lf ) "
-			, &v[0], &v[1], &v[2]) != 3)
-				Error ("LoadPortals: reading portal %i", i);
-			for (k=0 ; k<3 ; k++)
+			if(fscanf(f, "(%lf %lf %lf ) ", &v[0], &v[1], &v[2]) != 3)
+				Error("LoadPortals: reading portal %i", i);
+			for(k = 0; k < 3; k++)
 				w->points[j][k] = v[k];
 		}
-		fscanf (f, "\n");
-		
+		fscanf(f, "\n");
+
 		// calc plane
-		VS_PlaneFromWinding (w, &plane);
+		VS_PlaneFromWinding(w, &plane);
 
 		// create forward portal
 		l = &leafs[leafnums[0]];
-		if (l->numportals == MAX_PORTALS_ON_LEAF)
-			Error ("Leaf with too many portals");
+		if(l->numportals == MAX_PORTALS_ON_LEAF)
+			Error("Leaf with too many portals");
 		l->portals[l->numportals] = p;
 		l->numportals++;
-		
+
 		p->winding = w;
-		VectorSubtract (vec3_origin, plane.normal, p->plane.normal);
+		VectorSubtract(vec3_origin, plane.normal, p->plane.normal);
 		p->plane.dist = -plane.dist;
 		p->leaf = leafnums[1];
-		VS_SetPortalSphere (p);
+		VS_SetPortalSphere(p);
 		p++;
-		
+
 		// create backwards portal
 		l = &leafs[leafnums[1]];
-		if (l->numportals == MAX_PORTALS_ON_LEAF)
-			Error ("Leaf with too many portals");
+		if(l->numportals == MAX_PORTALS_ON_LEAF)
+			Error("Leaf with too many portals");
 		l->portals[l->numportals] = p;
 		l->numportals++;
-		
+
 		p->winding = VS_AllocWinding(w->numpoints);
 		p->winding->numpoints = w->numpoints;
-		for (j=0 ; j<w->numpoints ; j++)
+		for(j = 0; j < w->numpoints; j++)
 		{
-			VectorCopy (w->points[w->numpoints-1-j], p->winding->points[j]);
+			VectorCopy(w->points[w->numpoints - 1 - j], p->winding->points[j]);
 		}
 
 		p->plane = plane;
 		p->leaf = leafnums[0];
-		VS_SetPortalSphere (p);
+		VS_SetPortalSphere(p);
 		p++;
 
 	}
-	
-	fclose (f);
+
+	fclose(f);
 }
 
 /*
@@ -5594,60 +5759,87 @@ void VS_LoadPortals (char *name)
 VLightMain
 ============
 */
-int VSoundMain (int argc, char **argv) {
-	int			i;
-	double		start, end;
-	const char	*value;
+int VSoundMain(int argc, char **argv)
+{
+	int             i;
+	double          start, end;
+	const char     *value;
 
-	_printf ("----- VLighting ----\n");
+	_printf("----- VLighting ----\n");
 
-	for (i=1 ; i<argc ; i++) {
-		if (!strcmp(argv[i],"-v")) {
+	for(i = 1; i < argc; i++)
+	{
+		if(!strcmp(argv[i], "-v"))
+		{
 			verbose = qtrue;
-		} else if (!strcmp(argv[i],"-threads")) {
-			numthreads = atoi (argv[i+1]);
+		}
+		else if(!strcmp(argv[i], "-threads"))
+		{
+			numthreads = atoi(argv[i + 1]);
 			_printf("num threads = %d\n", numthreads);
 			i++;
-		} else if (!strcmp(argv[i],"-area")) {
-			lightAreaScale *= atof(argv[i+1]);
-			_printf ("area light scaling at %f\n", lightAreaScale);
+		}
+		else if(!strcmp(argv[i], "-area"))
+		{
+			lightAreaScale *= atof(argv[i + 1]);
+			_printf("area light scaling at %f\n", lightAreaScale);
 			i++;
-		} else if (!strcmp(argv[i],"-point")) {
-			lightPointScale *= atof(argv[i+1]);
-			_printf ("point light scaling at %f\n", lightPointScale);
+		}
+		else if(!strcmp(argv[i], "-point"))
+		{
+			lightPointScale *= atof(argv[i + 1]);
+			_printf("point light scaling at %f\n", lightPointScale);
 			i++;
-		} else if (!strcmp(argv[i], "-samplesize")) {
-			samplesize = atoi(argv[i+1]);
-			if (samplesize < 1) samplesize = 1;
+		}
+		else if(!strcmp(argv[i], "-samplesize"))
+		{
+			samplesize = atoi(argv[i + 1]);
+			if(samplesize < 1)
+				samplesize = 1;
 			i++;
 			_printf("lightmap sample size is %dx%d units\n", samplesize, samplesize);
-		} else if (!strcmp(argv[i], "-nostitching")) {
+		}
+		else if(!strcmp(argv[i], "-nostitching"))
+		{
 			nostitching = qtrue;
 			_printf("no stitching = true\n");
-		} else if (!strcmp(argv[i], "-noalphashading")) {
+		}
+		else if(!strcmp(argv[i], "-noalphashading"))
+		{
 			noalphashading = qtrue;
 			_printf("no alpha shading = true\n");
-		} else if (!strcmp(argv[i], "-nocolorshading")) {
+		}
+		else if(!strcmp(argv[i], "-nocolorshading"))
+		{
 			nocolorshading = qtrue;
 			_printf("old style alpha shading = true\n");
-		} else if (!strcmp(argv[i], "-nobackfaceculling")) {
+		}
+		else if(!strcmp(argv[i], "-nobackfaceculling"))
+		{
 			nobackfaceculling = qtrue;
 			_printf("no backface culling = true\n");
-		} else if (!strcmp(argv[i], "-tracelight")) {
+		}
+		else if(!strcmp(argv[i], "-tracelight"))
+		{
 			defaulttracelight = qtrue;
 			_printf("default trace light = true\n");
-		} else if (!strcmp(argv[i], "-radiosity")) {
-			radiosity = atoi(argv[i+1]);
+		}
+		else if(!strcmp(argv[i], "-radiosity"))
+		{
+			radiosity = atoi(argv[i + 1]);
 			_printf("radiosity = %d\n", radiosity);
 			i++;
-		} else {
+		}
+		else
+		{
 			break;
 		}
 	}
 
-	ThreadSetDefault ();
+	ThreadSetDefault();
 
-	if (i != argc - 1) {
+	if(i != argc - 1)
+	{
 		_printf("usage: q3map -vsound [-<switch> [-<switch> ...]] <mapname>\n"
 				"\n"
 				"Switches:\n"
@@ -5665,33 +5857,34 @@ int VSoundMain (int argc, char **argv) {
 		exit(0);
 	}
 
-	SetQdirFromPath (argv[i]);	
+	SetQdirFromPath(argv[i]);
 
 #ifdef _WIN32
 	InitPakFile(gamedir, NULL);
 #endif
 
-	strcpy (source, ExpandArg(argv[i]));
-	StripExtension (source);
-	DefaultExtension (source, ".bsp");
+	strcpy(source, ExpandArg(argv[i]));
+	StripExtension(source);
+	DefaultExtension(source, ".bsp");
 
 	LoadShaderInfo();
 
-	_printf ("reading %s\n", source);
+	_printf("reading %s\n", source);
 
-	LoadBSPFile (source);
+	LoadBSPFile(source);
 	ParseEntities();
 
-	value = ValueForKey( &entities[0], "gridsize" );
-	if (strlen(value)) {
-		sscanf( value, "%f %f %f", &gridSize[0], &gridSize[1], &gridSize[2] );
+	value = ValueForKey(&entities[0], "gridsize");
+	if(strlen(value))
+	{
+		sscanf(value, "%f %f %f", &gridSize[0], &gridSize[1], &gridSize[2]);
 		_printf("grid size = {%1.1f, %1.1f, %1.1f}\n", gridSize[0], gridSize[1], gridSize[2]);
 	}
 
 	CountLightmaps();
 
-	StripExtension (source);
-	DefaultExtension (source, ".prt");
+	StripExtension(source);
+	DefaultExtension(source, ".prt");
 
 	VS_LoadPortals(source);
 
@@ -5707,7 +5900,7 @@ int VSoundMain (int argc, char **argv) {
 
 	start = clock();
 
-	lightFloats = (float *) malloc(numLightBytes * sizeof(float));
+	lightFloats = (float *)malloc(numLightBytes * sizeof(float));
 	memset(lightFloats, 0, numLightBytes * sizeof(float));
 
 	VS_InitSurfacesForTesting();
@@ -5724,15 +5917,15 @@ int VSoundMain (int argc, char **argv) {
 	VS_LightWorld();
 
 #ifndef LIGHTPOLYS
-	StripExtension (source);
-	DefaultExtension (source, ".bsp");
-	_printf ("writing %s\n", source);
-	WriteBSPFile (source);
+	StripExtension(source);
+	DefaultExtension(source, ".bsp");
+	_printf("writing %s\n", source);
+	WriteBSPFile(source);
 #endif
 
 	end = clock();
 
-	_printf ("%5.2f seconds elapsed\n", (end-start) / CLK_TCK);
+	_printf("%5.2f seconds elapsed\n", (end - start) / CLK_TCK);
 
 #ifdef LIGHTPOLYS
 	VS_DrawLightWindings();

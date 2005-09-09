@@ -26,27 +26,32 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 EmitShader
 ============
 */
-int	EmitShader( const char *shader ) {
-	int				i;
-	shaderInfo_t	*si;
+int EmitShader(const char *shader)
+{
+	int             i;
+	shaderInfo_t   *si;
 
-	if ( !shader ) {
+	if(!shader)
+	{
 		shader = "noshader";
 	}
 
-	for ( i = 0 ; i < numShaders ; i++ ) {
-		if ( !Q_stricmp( shader, dshaders[i].shader ) ) {
+	for(i = 0; i < numShaders; i++)
+	{
+		if(!Q_stricmp(shader, dshaders[i].shader))
+		{
 			return i;
 		}
 	}
 
-	if ( i == MAX_MAP_SHADERS ) {
-		Error( "MAX_MAP_SHADERS" );
+	if(i == MAX_MAP_SHADERS)
+	{
+		Error("MAX_MAP_SHADERS");
 	}
 	numShaders++;
-	strcpy( dshaders[i].shader, shader );
+	strcpy(dshaders[i].shader, shader);
 
-	si = ShaderInfoForShader( shader );
+	si = ShaderInfoForShader(shader);
 	dshaders[i].surfaceFlags = si->surfaceFlags;
 	dshaders[i].contentFlags = si->contents;
 
@@ -62,17 +67,17 @@ There is no oportunity to discard planes, because all of the original
 brushes will be saved in the map.
 ============
 */
-void EmitPlanes (void)
+void EmitPlanes(void)
 {
-	int			i;
-	dplane_t	*dp;
-	plane_t		*mp;
+	int             i;
+	dplane_t       *dp;
+	plane_t        *mp;
 
 	mp = mapplanes;
-	for (i=0 ; i<nummapplanes ; i++, mp++)
+	for(i = 0; i < nummapplanes; i++, mp++)
 	{
 		dp = &dplanes[numplanes];
-		VectorCopy ( mp->normal, dp->normal);
+		VectorCopy(mp->normal, dp->normal);
 		dp->dist = mp->dist;
 		numplanes++;
 	}
@@ -85,15 +90,15 @@ void EmitPlanes (void)
 EmitLeaf
 ==================
 */
-void EmitLeaf (node_t *node)
+void EmitLeaf(node_t * node)
 {
-	dleaf_t				*leaf_p;
-	bspbrush_t			*b;
-	drawSurfRef_t		*dsr;
+	dleaf_t        *leaf_p;
+	bspbrush_t     *b;
+	drawSurfRef_t  *dsr;
 
 	// emit a leaf
-	if (numleafs >= MAX_MAP_LEAFS)
-		Error ("MAX_MAP_LEAFS");
+	if(numleafs >= MAX_MAP_LEAFS)
+		Error("MAX_MAP_LEAFS");
 
 	leaf_p = &dleafs[numleafs];
 	numleafs++;
@@ -103,17 +108,19 @@ void EmitLeaf (node_t *node)
 
 	//
 	// write bounding box info
-	//	
-	VectorCopy (node->mins, leaf_p->mins);
-	VectorCopy (node->maxs, leaf_p->maxs);
-	
+	//  
+	VectorCopy(node->mins, leaf_p->mins);
+	VectorCopy(node->maxs, leaf_p->maxs);
+
 	//
 	// write the leafbrushes
 	//
 	leaf_p->firstLeafBrush = numleafbrushes;
-	for ( b = node->brushlist ; b ; b = b->next ) {
-		if ( numleafbrushes >= MAX_MAP_LEAFBRUSHES ) {
-			Error( "MAX_MAP_LEAFBRUSHES" );
+	for(b = node->brushlist; b; b = b->next)
+	{
+		if(numleafbrushes >= MAX_MAP_LEAFBRUSHES)
+		{
+			Error("MAX_MAP_LEAFBRUSHES");
 		}
 		dleafbrushes[numleafbrushes] = b->original->outputNumber;
 		numleafbrushes++;
@@ -123,17 +130,19 @@ void EmitLeaf (node_t *node)
 	//
 	// write the surfaces visible in this leaf
 	//
-	if ( node->opaque ) {
-		return;		// no leaffaces in solids
+	if(node->opaque)
+	{
+		return;					// no leaffaces in solids
 	}
-	
+
 	// add the drawSurfRef_t drawsurfs
 	leaf_p->firstLeafSurface = numleafsurfaces;
-	for ( dsr = node->drawSurfReferences ; dsr ; dsr = dsr->nextRef ) {
-		if ( numleafsurfaces >= MAX_MAP_LEAFFACES)
-			Error ("MAX_MAP_LEAFFACES");
+	for(dsr = node->drawSurfReferences; dsr; dsr = dsr->nextRef)
+	{
+		if(numleafsurfaces >= MAX_MAP_LEAFFACES)
+			Error("MAX_MAP_LEAFFACES");
 		dleafsurfaces[numleafsurfaces] = dsr->outputNumber;
-		numleafsurfaces++;			
+		numleafsurfaces++;
 	}
 
 
@@ -146,44 +155,44 @@ void EmitLeaf (node_t *node)
 EmitDrawNode_r
 ============
 */
-int EmitDrawNode_r (node_t *node)
+int EmitDrawNode_r(node_t * node)
 {
-	dnode_t	*n;
-	int		i;
+	dnode_t        *n;
+	int             i;
 
-	if (node->planenum == PLANENUM_LEAF)
+	if(node->planenum == PLANENUM_LEAF)
 	{
-		EmitLeaf (node);
+		EmitLeaf(node);
 		return -numleafs;
 	}
 
-	// emit a node	
-	if (numnodes == MAX_MAP_NODES)
-		Error ("MAX_MAP_NODES");
+	// emit a node  
+	if(numnodes == MAX_MAP_NODES)
+		Error("MAX_MAP_NODES");
 	n = &dnodes[numnodes];
 	numnodes++;
 
-	VectorCopy (node->mins, n->mins);
-	VectorCopy (node->maxs, n->maxs);
+	VectorCopy(node->mins, n->mins);
+	VectorCopy(node->maxs, n->maxs);
 
-	if (node->planenum & 1)
-		Error ("WriteDrawNodes_r: odd planenum");
+	if(node->planenum & 1)
+		Error("WriteDrawNodes_r: odd planenum");
 	n->planeNum = node->planenum;
 
 	//
 	// recursively output the other nodes
-	//	
-	for (i=0 ; i<2 ; i++)
+	//  
+	for(i = 0; i < 2; i++)
 	{
-		if (node->children[i]->planenum == PLANENUM_LEAF)
+		if(node->children[i]->planenum == PLANENUM_LEAF)
 		{
 			n->children[i] = -(numleafs + 1);
-			EmitLeaf (node->children[i]);
+			EmitLeaf(node->children[i]);
 		}
 		else
 		{
-			n->children[i] = numnodes;	
-			EmitDrawNode_r (node->children[i]);
+			n->children[i] = numnodes;
+			EmitDrawNode_r(node->children[i]);
 		}
 	}
 
@@ -199,18 +208,20 @@ int EmitDrawNode_r (node_t *node)
 SetModelNumbers
 ============
 */
-void SetModelNumbers (void)
+void SetModelNumbers(void)
 {
-	int		i;
-	int		models;
-	char	value[10];
+	int             i;
+	int             models;
+	char            value[10];
 
 	models = 1;
-	for ( i=1 ; i<num_entities ; i++ ) {
-		if ( entities[i].brushes || entities[i].patches ) {
-			sprintf ( value, "*%i", models );
+	for(i = 1; i < num_entities; i++)
+	{
+		if(entities[i].brushes || entities[i].patches)
+		{
+			sprintf(value, "*%i", models);
 			models++;
-			SetKeyValue (&entities[i], "model", value);
+			SetKeyValue(&entities[i], "model", value);
 		}
 	}
 
@@ -222,44 +233,44 @@ SetLightStyles
 ============
 */
 #define	MAX_SWITCHED_LIGHTS	32
-void SetLightStyles (void)
+void SetLightStyles(void)
 {
-	int		stylenum;
-	const char	*t;
-	entity_t	*e;
-	int		i, j;
-	char	value[10];
-	char	lighttargets[MAX_SWITCHED_LIGHTS][64];
+	int             stylenum;
+	const char     *t;
+	entity_t       *e;
+	int             i, j;
+	char            value[10];
+	char            lighttargets[MAX_SWITCHED_LIGHTS][64];
 
 
 	// any light that is controlled (has a targetname)
 	// must have a unique style number generated for it
 
 	stylenum = 0;
-	for (i=1 ; i<num_entities ; i++)
+	for(i = 1; i < num_entities; i++)
 	{
 		e = &entities[i];
 
-		t = ValueForKey (e, "classname");
-		if (Q_strncasecmp (t, "light", 5))
+		t = ValueForKey(e, "classname");
+		if(Q_strncasecmp(t, "light", 5))
 			continue;
-		t = ValueForKey (e, "targetname");
-		if (!t[0])
+		t = ValueForKey(e, "targetname");
+		if(!t[0])
 			continue;
-		
+
 		// find this targetname
-		for (j=0 ; j<stylenum ; j++)
-			if (!strcmp (lighttargets[j], t))
+		for(j = 0; j < stylenum; j++)
+			if(!strcmp(lighttargets[j], t))
 				break;
-		if (j == stylenum)
+		if(j == stylenum)
 		{
-			if (stylenum == MAX_SWITCHED_LIGHTS)
-				Error ("stylenum == MAX_SWITCHED_LIGHTS");
-			strcpy (lighttargets[j], t);
+			if(stylenum == MAX_SWITCHED_LIGHTS)
+				Error("stylenum == MAX_SWITCHED_LIGHTS");
+			strcpy(lighttargets[j], t);
 			stylenum++;
 		}
-		sprintf (value, "%i", 32 + j);
-		SetKeyValue (e, "style", value);
+		sprintf(value, "%i", 32 + j);
+		SetKeyValue(e, "style", value);
 	}
 
 }
@@ -271,7 +282,8 @@ void SetLightStyles (void)
 BeginBSPFile
 ==================
 */
-void BeginBSPFile( void ) {
+void BeginBSPFile(void)
+{
 	// these values may actually be initialized
 	// if the file existed when loaded, so clear them explicitly
 	nummodels = 0;
@@ -291,16 +303,17 @@ void BeginBSPFile( void ) {
 EndBSPFile
 ============
 */
-void EndBSPFile( void ) {
-	char	path[1024];
+void EndBSPFile(void)
+{
+	char            path[1024];
 
-	EmitPlanes ();
-	UnparseEntities ();
+	EmitPlanes();
+	UnparseEntities();
 
 	// write the map
-	sprintf (path, "%s.bsp", source);
-	_printf ("Writing %s\n", path);
-	WriteBSPFile (path);
+	sprintf(path, "%s.bsp", source);
+	_printf("Writing %s\n", path);
+	WriteBSPFile(path);
 }
 
 
@@ -311,37 +324,43 @@ void EndBSPFile( void ) {
 EmitBrushes
 ============
 */
-void EmitBrushes ( bspbrush_t *brushes ) {
-	int				j;
-	dbrush_t		*db;
-	bspbrush_t		*b;
-	dbrushside_t	*cp;
+void EmitBrushes(bspbrush_t * brushes)
+{
+	int             j;
+	dbrush_t       *db;
+	bspbrush_t     *b;
+	dbrushside_t   *cp;
 
-	for ( b = brushes ; b ; b = b->next ) {
-		if ( numbrushes == MAX_MAP_BRUSHES ) {
-			Error( "MAX_MAP_BRUSHES" );
+	for(b = brushes; b; b = b->next)
+	{
+		if(numbrushes == MAX_MAP_BRUSHES)
+		{
+			Error("MAX_MAP_BRUSHES");
 		}
 		b->outputNumber = numbrushes;
 		db = &dbrushes[numbrushes];
 		numbrushes++;
 
-		db->shaderNum = EmitShader( b->contentShader->shader );
+		db->shaderNum = EmitShader(b->contentShader->shader);
 		db->firstSide = numbrushsides;
 
 		// don't emit any generated backSide sides
 		db->numSides = 0;
-		for ( j=0 ; j<b->numsides ; j++ ) {
-			if ( b->sides[j].backSide ) {
+		for(j = 0; j < b->numsides; j++)
+		{
+			if(b->sides[j].backSide)
+			{
 				continue;
 			}
-			if ( numbrushsides == MAX_MAP_BRUSHSIDES ) {
-				Error( "MAX_MAP_BRUSHSIDES ");
+			if(numbrushsides == MAX_MAP_BRUSHSIDES)
+			{
+				Error("MAX_MAP_BRUSHSIDES ");
 			}
 			cp = &dbrushsides[numbrushsides];
 			db->numSides++;
 			numbrushsides++;
 			cp->planeNum = b->sides[j].planenum;
-			cp->shaderNum = EmitShader( b->sides[j].shaderInfo->shader );
+			cp->shaderNum = EmitShader(b->sides[j].shaderInfo->shader);
 		}
 	}
 
@@ -353,16 +372,18 @@ void EmitBrushes ( bspbrush_t *brushes ) {
 BeginModel
 ==================
 */
-void BeginModel( void ) {
-	dmodel_t	*mod;
-	bspbrush_t	*b;
-	entity_t	*e;
-	vec3_t		mins, maxs;
-	parseMesh_t	*p;
-	int			i;
+void BeginModel(void)
+{
+	dmodel_t       *mod;
+	bspbrush_t     *b;
+	entity_t       *e;
+	vec3_t          mins, maxs;
+	parseMesh_t    *p;
+	int             i;
 
-	if ( nummodels == MAX_MAP_MODELS ) {
-		Error( "MAX_MAP_MODELS" );
+	if(nummodels == MAX_MAP_MODELS)
+	{
+		Error("MAX_MAP_MODELS");
 	}
 	mod = &dmodels[nummodels];
 
@@ -371,28 +392,32 @@ void BeginModel( void ) {
 	//
 	e = &entities[entity_num];
 
-	ClearBounds (mins, maxs);
-	for ( b = e->brushes ; b ; b = b->next ) {
-		if ( !b->numsides ) {
-			continue;	// not a real brush (origin brush, etc)
+	ClearBounds(mins, maxs);
+	for(b = e->brushes; b; b = b->next)
+	{
+		if(!b->numsides)
+		{
+			continue;			// not a real brush (origin brush, etc)
 		}
-		AddPointToBounds (b->mins, mins, maxs);
-		AddPointToBounds (b->maxs, mins, maxs);
+		AddPointToBounds(b->mins, mins, maxs);
+		AddPointToBounds(b->maxs, mins, maxs);
 	}
 
-	for ( p = e->patches ; p ; p = p->next ) {
-		for ( i = 0 ; i < p->mesh.width * p->mesh.height ; i++ ) {
-			AddPointToBounds( p->mesh.verts[i].xyz, mins, maxs );
+	for(p = e->patches; p; p = p->next)
+	{
+		for(i = 0; i < p->mesh.width * p->mesh.height; i++)
+		{
+			AddPointToBounds(p->mesh.verts[i].xyz, mins, maxs);
 		}
 	}
 
-	VectorCopy (mins, mod->mins);
-	VectorCopy (maxs, mod->maxs);
+	VectorCopy(mins, mod->mins);
+	VectorCopy(maxs, mod->maxs);
 
 	mod->firstSurface = numDrawSurfaces;
 	mod->firstBrush = numbrushes;
 
-	EmitBrushes( e->brushes );
+	EmitBrushes(e->brushes);
 }
 
 
@@ -403,16 +428,16 @@ void BeginModel( void ) {
 EndModel
 ==================
 */
-void EndModel( node_t *headnode ) {
-	dmodel_t	*mod;
+void EndModel(node_t * headnode)
+{
+	dmodel_t       *mod;
 
-	qprintf ("--- EndModel ---\n");
+	qprintf("--- EndModel ---\n");
 
 	mod = &dmodels[nummodels];
-	EmitDrawNode_r (headnode);
+	EmitDrawNode_r(headnode);
 	mod->numSurfaces = numDrawSurfaces - mod->firstSurface;
 	mod->numBrushes = numbrushes - mod->firstBrush;
 
 	nummodels++;
 }
-
