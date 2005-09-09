@@ -1958,6 +1958,7 @@ See if we can use on of the simple fastpath stage functions,
 otherwise set to the generic stage function
 ===================
 */
+/*
 static void ComputeStageIteratorFunc(void)
 {
 	shader.optimalStageIteratorFunc = RB_StageIteratorGeneric;
@@ -2052,6 +2053,7 @@ static void ComputeStageIteratorFunc(void)
   done:
 	return;
 }
+*/
 
 typedef struct
 {
@@ -2743,7 +2745,7 @@ static shader_t *FinishShader(void)
 	}
 
 	// determine which stage iterator function is appropriate
-	ComputeStageIteratorFunc();
+//	ComputeStageIteratorFunc();
 
 	return GeneratePermanentShader();
 }
@@ -3365,6 +3367,7 @@ void R_ShaderList_f(void)
 		{
 			ri.Printf(PRINT_ALL, "sky ");
 		}
+		/*
 		else if(shader->optimalStageIteratorFunc == RB_StageIteratorLightmappedMultitexture)
 		{
 			ri.Printf(PRINT_ALL, "lmmt");
@@ -3385,6 +3388,7 @@ void R_ShaderList_f(void)
 		{
 			ri.Printf(PRINT_ALL, "pplDBS ");
 		}
+		*/
 		else
 		{
 			ri.Printf(PRINT_ALL, "    ");

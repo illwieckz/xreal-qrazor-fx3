@@ -41,17 +41,6 @@ enum
 //  ATTR_INDEX_COLOR        = 3
 };
 
-enum
-{
-	ATTR_VERTEX = (1 << 0),
-	ATTR_TEXCOORD0 = (1 << 1),
-	ATTR_TEXCOORD1 = (1 << 2),
-	ATTR_TANGENT = (1 << 3),
-	ATTR_BINORMAL = (1 << 4),
-	ATTR_NORMAL = (1 << 5),
-	ATTR_DELUXEL = (1 << 6),
-	ATTR_COLOR = (1 << 7)
-};
 
 static char    *RB_PrintInfoLog(GLhandleARB object)
 {
@@ -147,37 +136,39 @@ static void RB_ValidateProgram(GLhandleARB program)
 	}
 }
 
-static void RB_InitGPUShader(shaderProgram_t * program, const char *name, int attribs)
+static void RB_InitGPUShader(shaderProgram_t * program, const char *name, int attribs, qboolean fragmentShader)
 {
 
 	program->program = qglCreateProgramObjectARB();
 	program->attribs = attribs;
 
 	RB_LoadGPUShader(program->program, name, GL_VERTEX_SHADER_ARB);
-	RB_LoadGPUShader(program->program, name, GL_FRAGMENT_SHADER_ARB);
+	
+	if(fragmentShader)
+		RB_LoadGPUShader(program->program, name, GL_FRAGMENT_SHADER_ARB);
 
 //  if( attribs & ATTRVERTEX )
 //      qglBindAttribLocationARB( program->program, ATTR_INDEX_VERTEX, "attr_Vertex");
 
-	if(attribs & ATTR_TEXCOORD0)
+	if(attribs & GLCS_TEXCOORD0)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD0, "attr_TexCoord0");
 
-	if(attribs & ATTR_TEXCOORD1)
+	if(attribs & GLCS_TEXCOORD1)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD1, "attr_TexCoord1");
 
-	if(attribs & ATTR_TANGENT)
+	if(attribs & GLCS_TANGENT)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_TANGENT, "attr_Tangent");
 
-	if(attribs & ATTR_BINORMAL)
+	if(attribs & GLCS_BINORMAL)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_BINORMAL, "attr_Binormal");
 
-//  if( attribs & ATTR_NORMAL )
+//  if( attribs & GLCS_NORMAL )
 //      qglBindAttribLocationARB( program->program, ATTR_INDEX_NORMAL, "attr_Color");
 
-	if(attribs & ATTR_DELUXEL)
+	if(attribs & GLCS_DELUXEL)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_DELUXEL, "attr_Deluxel");
 
-//  if( attribs & ATTR_COLOR )
+//  if( attribs & GLCS_COLOR )
 //      qglBindAttribLocationARB( program->program, ATTR_INDEX_COLOR, "attr_Color");
 
 	RB_LinkProgram(program->program);
@@ -186,17 +177,31 @@ static void RB_InitGPUShader(shaderProgram_t * program, const char *name, int at
 
 void RB_InitGPUShaders(void)
 {
-
 	ri.Printf(PRINT_ALL, "------- RB_InitGPUShaders -------\n");
 
 	if(!glConfig2.shadingLanguage100Available)
 		return;
+	
+	//
+	// simple single texture rendering
+	//
+	RB_InitGPUShader(&tr.genericShader_single,
+					  "generic_single",
+					  GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_COLOR, qtrue);
+
+	tr.genericShader_single.u_ColorMap =
+			qglGetUniformLocationARB(tr.genericShader_single.program, "u_ColorMap");
+
+	qglUseProgramObjectARB(tr.genericShader_single.program);
+	qglUniform1iARB(tr.genericShader_single.u_ColorMap, 0);
+	qglUseProgramObjectARB(0);
 
 	//
 	// simple directional lighting ( Q3A style )
 	//
 	RB_InitGPUShader(&tr.lightShader_D_direct,
-					 "lighting_D_direct", ATTR_VERTEX | ATTR_TEXCOORD0 | ATTR_NORMAL);
+					 "lighting_D_direct",
+					 GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_NORMAL, qtrue);
 
 	tr.lightShader_D_direct.u_DiffuseMap =
 		qglGetUniformLocationARB(tr.lightShader_D_direct.program, "u_DiffuseMap");
@@ -216,7 +221,7 @@ void RB_InitGPUShaders(void)
 	//
 	RB_InitGPUShader(&tr.lightShader_DB_direct,
 					 "lighting_DB_direct",
-					 ATTR_VERTEX | ATTR_TEXCOORD0 | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL);
+					 GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
 
 	tr.lightShader_DB_direct.u_DiffuseMap =
 		qglGetUniformLocationARB(tr.lightShader_DB_direct.program, "u_DiffuseMap");
@@ -241,7 +246,7 @@ void RB_InitGPUShaders(void)
 	//
 	RB_InitGPUShader(&tr.lightShader_DBS_direct,
 					 "lighting_DBS_direct",
-					 ATTR_VERTEX | ATTR_TEXCOORD0 | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL);
+					 GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
 
 	tr.lightShader_DBS_direct.u_DiffuseMap =
 		qglGetUniformLocationARB(tr.lightShader_DBS_direct.program, "u_DiffuseMap");
@@ -275,6 +280,14 @@ void RB_ShutdownGPUShaders(void)
 
 	if(!glConfig2.shadingLanguage100Available)
 		return;
+	
+	GL_Program(0);
+	
+	if(tr.genericShader_single.program)
+	{
+		qglDeleteObjectARB(tr.genericShader_single.program);
+		tr.genericShader_single.program = 0;
+	}
 
 	if(tr.lightShader_D_direct.program)
 	{
@@ -295,64 +308,67 @@ void RB_ShutdownGPUShaders(void)
 	}
 }
 
-static void RB_EnableVertexAttribs(int attribs)
+static void GL_ClientState(unsigned long stateBits)
 {
+	unsigned long   diff = stateBits ^ glState.glClientStateBits;
 
-//	if(attribs & ATTR_VERTEX)
-//		qglEnableClientState(GL_VERTEX_ARRAY);
-
-	if(attribs & ATTR_TEXCOORD0)
+	if(!diff)
+	{
+		return;
+	}
+	
+	/*
+	if(diff & GLCS_VERTEX)
+		qglEnableClientState(GL_VERTEX_ARRAY);
+	else
+		qglDisableClientState(GL_VERTEX_ARRAY);
+	*/
+	
+	if(diff & GLCS_TEXCOORD)
+		qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	else
+		qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	
+	if(diff & GLCS_TEXCOORD0)
 		qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD0);
-
-	if(attribs & ATTR_TEXCOORD1)
-		qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD1);
-
-	if(attribs & ATTR_TANGENT)
-		qglEnableVertexAttribArrayARB(ATTR_INDEX_TANGENT);
-
-	if(attribs & ATTR_BINORMAL)
-		qglEnableVertexAttribArrayARB(ATTR_INDEX_BINORMAL);
-
-	if(attribs & ATTR_NORMAL)
-		qglEnableClientState(GL_NORMAL_ARRAY);
-
-	if(attribs & ATTR_DELUXEL)
-		qglEnableVertexAttribArrayARB(ATTR_INDEX_DELUXEL);
-
-	if(attribs & ATTR_COLOR)
-		qglEnableClientState(GL_COLOR_ARRAY);
-}
-
-void RB_DisableVertexAttribs(int attribs)
-{
-
-//	if(attribs & ATTR_VERTEX)
-//		qglDisableClientState(GL_VERTEX_ARRAY);
-
-	if(attribs & ATTR_TEXCOORD0)
+	else
 		qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD0);
 
-	if(attribs & ATTR_TEXCOORD1)
+	if(diff & GLCS_TEXCOORD1)
+		qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD1);
+	else
 		qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD1);
 
-	if(attribs & ATTR_TANGENT)
+	if(diff & GLCS_TANGENT)
+		qglEnableVertexAttribArrayARB(ATTR_INDEX_TANGENT);
+	else
 		qglDisableVertexAttribArrayARB(ATTR_INDEX_TANGENT);
 
-	if(attribs & ATTR_BINORMAL)
+	if(diff & GLCS_BINORMAL)
+		qglEnableVertexAttribArrayARB(ATTR_INDEX_BINORMAL);
+	else
 		qglDisableVertexAttribArrayARB(ATTR_INDEX_BINORMAL);
 
-	if(attribs & ATTR_NORMAL)
+	if(diff & GLCS_NORMAL)
+		qglEnableClientState(GL_NORMAL_ARRAY);
+	else
 		qglDisableClientState(GL_NORMAL_ARRAY);
 
-	if(attribs & ATTR_DELUXEL)
+	if(diff & GLCS_DELUXEL)
+		qglEnableVertexAttribArrayARB(ATTR_INDEX_DELUXEL);
+	else
 		qglDisableVertexAttribArrayARB(ATTR_INDEX_DELUXEL);
 
-	if(attribs & ATTR_COLOR)
+	if(diff & GLCS_COLOR)
+		qglEnableClientState(GL_COLOR_ARRAY);
+	else
 		qglDisableClientState(GL_COLOR_ARRAY);
+	
+	glState.glClientStateBits = stateBits;
 }
 
 
-static void RB_SetVertexAttribs(int attribs)
+static void GL_SetVertexAttribs()
 {
 	/*
 	   if( glConfig2.vertexBufferObjectAvailable && input->vbo_array_buffer ) {
@@ -369,28 +385,31 @@ static void RB_SetVertexAttribs(int attribs)
 	   }
 	 */
 
-//	if(attribs & ATTR_VERTEX)
+//	if(attribs & GLCS_VERTEX)
 //		qglVertexPointer(3, GL_FLOAT, 16, tess.xyz);
-
-	if(attribs & ATTR_TEXCOORD0)
+	
+	if(glState.glClientStateBits & GLCS_TEXCOORD)
+		qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[0]);
+	
+	if(glState.glClientStateBits & GLCS_TEXCOORD0)
 		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[0]);
 
-	if(attribs & ATTR_TEXCOORD1)
+	if(glState.glClientStateBits & GLCS_TEXCOORD1)
 		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[1]);
 
-	if(attribs & ATTR_TANGENT)
+	if(glState.glClientStateBits & GLCS_TANGENT)
 		qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, tess.tangents);
 
-	if(attribs & ATTR_BINORMAL)
+	if(glState.glClientStateBits & GLCS_BINORMAL)
 		qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, tess.binormals);
 
-	if(attribs & ATTR_NORMAL)
+	if(glState.glClientStateBits & GLCS_NORMAL)
 		qglNormalPointer(GL_FLOAT, 16, tess.normals);
 
-	if(attribs & ATTR_DELUXEL)
+	if(glState.glClientStateBits & GLCS_DELUXEL)
 		qglVertexAttribPointerARB(ATTR_INDEX_DELUXEL, 3, GL_FLOAT, 0, 16, tess.deluxels);
 
-	if(attribs & ATTR_COLOR)
+	if(glState.glClientStateBits & GLCS_COLOR)
 		qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.svars.colors);
 }
 
@@ -585,7 +604,6 @@ SURFACE SHADERS
 */
 
 shaderCommands_t tess;
-//static qboolean setArraysOnce;
 
 
 /*
@@ -639,10 +657,8 @@ static void DrawTris(shaderCommands_t * input)
 	qglColor3f(1, 1, 1);
 
 	GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
+	GL_ClientState(GLCS_VERTEX);
 	qglDepthRange(0, 0);
-
-	qglDisableClientState(GL_COLOR_ARRAY);
-	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	qglVertexPointer(3, GL_FLOAT, 16, input->xyz);	// padded for SIMD
 
@@ -783,8 +799,8 @@ void RB_BeginSurface(shader_t * shader, int fogNum)
 	tess.dlightBits = 0;		// will be OR'd in by surface functions
 	tess.xstages = state->stages;
 	tess.numPasses = state->numUnfoggedPasses;
-	tess.currentStageIteratorFunc = state->optimalStageIteratorFunc;
-//	tess.currentStageIteratorFunc = state->isSky ? RB_StageIteratorSky : RB_StageIteratorGeneric;
+//	tess.currentStageIteratorFunc = state->optimalStageIteratorFunc;
+	tess.currentStageIteratorFunc = state->isSky ? RB_StageIteratorSky : RB_StageIteratorGeneric;
 
 	tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
 	if(tess.shader->clampTime && tess.shaderTime >= tess.shader->clampTime)
@@ -793,27 +809,27 @@ void RB_BeginSurface(shader_t * shader, int fogNum)
 	}
 }
 
-
-static void DrawSingleTextured(int stage)
+static void RenderGeneric_single_FFP(int stage)
 {
+#if 1
 	shaderStage_t  *pStage;
 
 	pStage = tess.xstages[stage];
 	
-	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[0]);
+	GL_Program(0);
 	
-	qglEnableClientState(GL_COLOR_ARRAY);
-	qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.svars.colors);
+	GL_SelectTexture(0);
 	
 	GL_State(pStage->stateBits);
+	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
+	GL_SetVertexAttribs();
 
 	R_BindAnimatedImage(&pStage->bundle[0]);
 
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
-	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	qglDisableClientState(GL_COLOR_ARRAY);
+	GL_ClientState(GLCS_DEFAULT);
+#endif
 }
 
 /*
@@ -826,19 +842,22 @@ t0 = most upstream according to spec
 t1 = most downstream according to spec
 ===================
 */
-static void DrawMultiTextured(int stage)
+static void RenderGeneric_multi_FFP(int stage)
 {
+#if 0
 	shaderStage_t  *pStage;
 
 	pStage = tess.xstages[stage];
-
-	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[0]);
 	
-	qglEnableClientState(GL_COLOR_ARRAY);
-	qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.svars.colors);
+	GL_Program(0);
+	
+	GL_SelectTexture(0);
 	
 	GL_State(pStage->stateBits);
+	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
+
+	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[0]);
+	qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.svars.colors);
 
 	// this is an ugly hack to work around a GeForce driver
 	// bug with multitexture and clip planes
@@ -853,9 +872,10 @@ static void DrawMultiTextured(int stage)
 
 	// lightmap/secondary pass
 	GL_SelectTexture(1);
-	qglEnable(GL_TEXTURE_2D);
 	
+	qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[1]);
 
 	if(r_lightmap->integer)
@@ -871,18 +891,43 @@ static void DrawMultiTextured(int stage)
 
 	R_DrawElements(tess.numIndexes, tess.indexes);
 
-	// disable texturing on TEXTURE1, then select TEXTURE0
+	// disable texturing on TEXTURE1
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglDisable(GL_TEXTURE_2D);
-
-	GL_SelectTexture(0);
-	
-	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	qglDisableClientState(GL_COLOR_ARRAY);
+#endif
 }
 
-static void DrawPerPixelLit_D(int stage)
+void RenderGeneric_single(int stage)
 {
+	shaderStage_t  *pStage;
+
+	pStage = tess.xstages[stage];
+	
+	GL_State(pStage->stateBits);
+	
+	// enable shader, set arrays
+	GL_Program(tr.genericShader_single.program);
+	GL_ClientState(tr.genericShader_single.attribs);
+	GL_SetVertexAttribs();
+
+	// bind colormap
+	GL_SelectTexture(0);
+	R_BindAnimatedImage(&pStage->bundle[TB_COLORMAP]);
+	
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+	GL_ClientState(GLCS_DEFAULT);
+//	GL_Program(0);
+}
+
+void RenderGeneric_multi(int stage)
+{
+	//TODO	
+}
+
+void RenderLighting_D_direct(int stage)
+{
+#if 1
 	shaderStage_t  *pStage;
 
 	vec4_t          ambientLight;
@@ -893,12 +938,11 @@ static void DrawPerPixelLit_D(int stage)
 	pStage = tess.xstages[stage];
 	
 	GL_State(pStage->stateBits);
-
-	// enable shader, set arrays
-	qglUseProgramObjectARB(tr.lightShader_D_direct.program);
 	
-	RB_EnableVertexAttribs(tr.lightShader_D_direct.attribs);
-	RB_SetVertexAttribs(tr.lightShader_D_direct.attribs);
+	// enable shader, set arrays
+	GL_Program(tr.lightShader_D_direct.program);
+	GL_ClientState(tr.lightShader_D_direct.attribs);
+	GL_SetVertexAttribs();
 
 	// set uniforms
 	VectorScale(ent->ambientLight, (1.0 / 255.0) * 0.3, ambientLight);
@@ -907,26 +951,25 @@ static void DrawPerPixelLit_D(int stage)
 	ClampColor(directedLight);
 	VectorCopy(ent->lightDir, lightDir);
 	
-	qglUniform3fARB(tr.lightShader_D_direct.u_AmbientColor, ambientLight[0], ambientLight[1],
-					ambientLight[2]);
+	qglUniform3fARB(tr.lightShader_D_direct.u_AmbientColor, ambientLight[0], ambientLight[1], ambientLight[2]);
 	qglUniform3fARB(tr.lightShader_D_direct.u_LightDir, lightDir[0], lightDir[1], lightDir[2]);
-	qglUniform3fARB(tr.lightShader_D_direct.u_LightColor, directedLight[0], directedLight[1],
-					directedLight[2]);
+	qglUniform3fARB(tr.lightShader_D_direct.u_LightColor, directedLight[0], directedLight[1], directedLight[2]);
 
-
-	// bind TMU
+	// bind diffusemap
+	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
-
-	// disable GPU shader
-	RB_DisableVertexAttribs(tr.lightShader_D_direct.attribs);
-	qglUseProgramObjectARB(0);
+	
+	GL_ClientState(GLCS_DEFAULT);
+//	GL_Program(0);
+#endif
 }
 
 
-static void DrawPerPixelLit_DB(int stage)
+static void RenderLighting_DB_direct(int stage)
 {
+#if 1
 	shaderStage_t  *pStage;
 
 	vec4_t          ambientLight;
@@ -935,14 +978,13 @@ static void DrawPerPixelLit_DB(int stage)
 	trRefEntity_t  *ent = backEnd.currentEntity;
 	
 	pStage = tess.xstages[stage];
-
-	// enable shader, set arrays
-	qglUseProgramObjectARB(tr.lightShader_DB_direct.program);
-	
-	RB_EnableVertexAttribs(tr.lightShader_DB_direct.attribs);
-	RB_SetVertexAttribs(tr.lightShader_DB_direct.attribs);
 	
 	GL_State(pStage->stateBits);
+	
+	// enable shader, set arrays
+	GL_Program(tr.lightShader_DB_direct.program);
+	GL_ClientState(tr.lightShader_DB_direct.attribs);
+	GL_SetVertexAttribs();
 
 	// set uniforms
 	VectorScale(ent->ambientLight, (1.0 / 255.0) * 0.3, ambientLight);
@@ -951,11 +993,9 @@ static void DrawPerPixelLit_DB(int stage)
 	ClampColor(directedLight);
 	VectorCopy(ent->lightDir, lightDir);
 	
-	qglUniform3fARB(tr.lightShader_DB_direct.u_AmbientColor, ambientLight[0], ambientLight[1],
-					ambientLight[2]);
+	qglUniform3fARB(tr.lightShader_DB_direct.u_AmbientColor, ambientLight[0], ambientLight[1], ambientLight[2]);
 	qglUniform3fARB(tr.lightShader_DB_direct.u_LightDir, lightDir[0], lightDir[1], lightDir[2]);
-	qglUniform3fARB(tr.lightShader_DB_direct.u_LightColor, directedLight[0], directedLight[1],
-					directedLight[2]);
+	qglUniform3fARB(tr.lightShader_DB_direct.u_LightColor, directedLight[0], directedLight[1], directedLight[2]);
 
 
 	// bind diffusemap
@@ -967,16 +1007,67 @@ static void DrawPerPixelLit_DB(int stage)
 	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
-
-	// clean up
+	
 	GL_SelectTexture(0);
-	RB_DisableVertexAttribs(tr.lightShader_DB_direct.attribs);
-	qglUseProgramObjectARB(0);
+	GL_ClientState(GLCS_DEFAULT);
+//	GL_Program(0);
+#endif
 }
 
-static void DrawPerPixelLit_DBS(int stage)
+static void RenderLighting_DBS_direct(int stage)
 {
-	//TODO
+#if 1
+	shaderStage_t  *pStage;
+
+	vec3_t			viewOrigin;
+	vec4_t          ambientLight;
+	vec3_t          lightDir;
+	vec4_t          directedLight;
+	trRefEntity_t  *ent = backEnd.currentEntity;
+	
+	pStage = tess.xstages[stage];
+	
+	GL_State(pStage->stateBits);
+
+	// enable shader, set arrays
+	GL_Program(tr.lightShader_DBS_direct.program);
+	GL_ClientState(tr.lightShader_DBS_direct.attribs);
+	GL_SetVertexAttribs();
+
+	// set uniforms
+	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
+	VectorScale(ent->ambientLight, (1.0 / 255.0) * 0.3, ambientLight);
+	ClampColor(ambientLight);
+	VectorScale(ent->directedLight, 1.0 / 255.0, directedLight);
+	ClampColor(directedLight);
+	VectorCopy(ent->lightDir, lightDir);
+	
+	qglUniform3fARB(tr.lightShader_DBS_direct.u_AmbientColor, ambientLight[0], ambientLight[1], ambientLight[2]);
+	qglUniform3fARB(tr.lightShader_DBS_direct.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	qglUniform3fARB(tr.lightShader_DBS_direct.u_LightDir, lightDir[0], lightDir[1], lightDir[2]);
+	qglUniform3fARB(tr.lightShader_DBS_direct.u_LightColor, directedLight[0], directedLight[1], directedLight[2]);
+//	qglUniform1fARB(tr.lightShader_DBS_direct.u_BumpScale, 1.0);
+	qglUniform1fARB(tr.lightShader_DBS_direct.u_SpecularExponent, 32.0);
+
+
+	// bind diffusemap
+	GL_SelectTexture(0);
+	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+	
+	// bind normalmap
+	GL_SelectTexture(1);
+	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
+	
+	// bind specularmap
+	GL_SelectTexture(2);
+	GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
+	
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+	GL_SelectTexture(0);
+	GL_ClientState(GLCS_DEFAULT);
+//	GL_Program(0);
+#endif
 }
 
 
@@ -987,7 +1078,7 @@ ProjectDlightTexture
 Perform dynamic lighting with another rendering pass
 ===================
 */
-static void ProjectDlightTexture(void)
+void ProjectDlightTexture(void)
 {
 #if 0
 	int             i, l;
@@ -1248,14 +1339,19 @@ Blends a fog texture on top of everything else
 */
 static void RB_FogPass(void)
 {
+#if 0
 	fog_t          *fog;
 	int             i;
+	
+	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
 
+	/*	
 	qglEnableClientState(GL_COLOR_ARRAY);
 	qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.svars.colors);
 
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[0]);
+	*/
 
 	fog = tr.world->fogs + tess.fogNum;
 
@@ -1278,6 +1374,7 @@ static void RB_FogPass(void)
 	}
 
 	R_DrawElements(tess.numIndexes, tess.indexes);
+#endif
 }
 
 
@@ -1626,13 +1723,29 @@ static void RB_IterateStagesGeneric()
 			case ST_COLOR:
 			default:
 			{
-				if(pStage->bundle[1].image[0] != 0)
+#if 0
+				if(glConfig2.shadingLanguage100Available)
 				{
-					DrawMultiTextured(stage);
+					if(pStage->bundle[1].image[0] != 0)
+					{
+						RenderGeneric_multi(stage);
+					}
+					else
+					{
+						RenderGeneric_single(stage);
+					}
 				}
 				else
+#endif
 				{
-					DrawSingleTextured(stage);
+					if(pStage->bundle[1].image[0] != 0)
+					{
+						RenderGeneric_multi_FFP(stage);
+					}
+					else
+					{
+						RenderGeneric_single_FFP(stage);
+					}
 				}
 				break;
 			}
@@ -1645,21 +1758,21 @@ static void RB_IterateStagesGeneric()
 					{
 						if(pStage->bundle[TB_SPECULARMAP].isSpecularMap && r_specular->integer)
 						{
-							DrawPerPixelLit_DBS(stage);
+							RenderLighting_DBS_direct(stage);
 						}
 						else
 						{
-							DrawPerPixelLit_DB(stage);
+							RenderLighting_DB_direct(stage);
 						}
 					}
 					else
 					{
-						DrawPerPixelLit_D(stage);
+						RenderLighting_D_direct(stage);
 					}
 				}
 				else
 				{
-					DrawSingleTextured(stage);
+					RenderGeneric_single_FFP(stage);
 				}
 				
 				break;
@@ -1680,6 +1793,15 @@ static void RB_IterateStagesGeneric()
 			break;
 		}
 	}
+	
+	// disable any GLSL shaders
+//	GL_Program(0);
+	
+	// switch back to default TMU
+	GL_SelectTexture(0);
+	
+	// reset client state
+	GL_ClientState(GLCS_DEFAULT);
 }
 
 
@@ -1747,8 +1869,6 @@ void RB_StageIteratorGeneric(void)
 
 
 /*
-** RB_StageIteratorVertexLitTexture
-*/
 void RB_StageIteratorVertexLitTexture(void)
 {
 	shaderCommands_t *input;
@@ -1870,13 +1990,6 @@ void RB_StageIteratorPerPixelLit_D(void)
 	qglUniform3fARB(tr.lightShader_D_direct.u_LightColor, directedLight[0], directedLight[1],
 					directedLight[2]);
 
-	/*
-	if(qglLockArraysEXT)
-	{
-		qglLockArraysEXT(0, tess.numVertexes);
-		GLimp_LogComment("glLockArraysEXT\n");
-	}
-	*/
 
 	// call special shade routine
 	R_BindAnimatedImage(&tess.xstages[0]->bundle[TB_DIFFUSEMAP]);
@@ -1897,15 +2010,6 @@ void RB_StageIteratorPerPixelLit_D(void)
 	{
 		RB_FogPass();
 	}
-
-	// unlock arrays
-	/*
-	if(qglUnlockArraysEXT)
-	{
-		qglUnlockArraysEXT();
-		GLimp_LogComment("glUnlockArraysEXT\n");
-	}
-	*/
 }
 
 
@@ -1956,14 +2060,6 @@ void RB_StageIteratorPerPixelLit_DB(void)
 					directedLight[2]);
 //	qglUniform1fARB(tr.lightShader_DB_direct.u_BumpScale, 1.0);
 
-	/*
-	if(qglLockArraysEXT)
-	{
-		qglLockArraysEXT(0, tess.numVertexes);
-		GLimp_LogComment("glLockArraysEXT\n");
-	}
-	*/
-
 	// call special shade routine
 	GL_SelectTexture(0);
 	R_BindAnimatedImage(&tess.xstages[0]->bundle[TB_DIFFUSEMAP]);
@@ -1992,15 +2088,6 @@ void RB_StageIteratorPerPixelLit_DB(void)
 	{
 		RB_FogPass();
 	}
-
-	// unlock arrays
-	/*
-	if(qglUnlockArraysEXT)
-	{
-		qglUnlockArraysEXT();
-		GLimp_LogComment("glUnlockArraysEXT\n");
-	}
-	*/
 }
 
 void RB_StageIteratorPerPixelLit_DBS(void)
@@ -2054,14 +2141,6 @@ void RB_StageIteratorPerPixelLit_DBS(void)
 //	qglUniform1fARB(tr.lightShader_DBS_direct.u_BumpScale, 1.0);
 	qglUniform1fARB(tr.lightShader_DBS_direct.u_SpecularExponent, 32.0);
 
-	/*
-	if(qglLockArraysEXT)
-	{
-		qglLockArraysEXT(0, tess.numVertexes);
-		GLimp_LogComment("glLockArraysEXT\n");
-	}
-	*/
-
 	// call special shade routine
 	GL_SelectTexture(0);
 	R_BindAnimatedImage(&tess.xstages[0]->bundle[TB_DIFFUSEMAP]);
@@ -2092,15 +2171,6 @@ void RB_StageIteratorPerPixelLit_DBS(void)
 	{
 		RB_FogPass();
 	}
-
-	// unlock arrays
-	/*
-	if(qglUnlockArraysEXT)
-	{
-		qglUnlockArraysEXT();
-		GLimp_LogComment("glUnlockArraysEXT\n");
-	}
-	*/
 }
 
 //#define   REPLACE_MODE
@@ -2215,6 +2285,7 @@ void RB_StageIteratorLightmappedMultitexture(void)
 		GLimp_LogComment("glUnlockArraysEXT\n");
 	}
 }
+*/
 
 /*
 ** RB_EndSurface

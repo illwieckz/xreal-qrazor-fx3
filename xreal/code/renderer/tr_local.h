@@ -487,6 +487,7 @@ typedef struct shaderProgram_s
 	int             attribs;	// vertex array attributes
 
 	// uniform parameters
+	GLint			u_ColorMap;
 	GLint           u_DiffuseMap;
 	GLint           u_NormalMap;
 	GLint			u_SpecularMap;
@@ -936,6 +937,8 @@ typedef struct
 	int             texEnv[2];
 	int             faceCulling;
 	unsigned long   glStateBits;
+	unsigned long	glClientStateBits;
+	GLhandleARB		currentProgram;
 } glstate_t;
 
 
@@ -1026,6 +1029,7 @@ typedef struct
 	int             shiftedEntityNum;	// currentEntityNum << QSORT_ENTITYNUM_SHIFT
 	model_t        *currentModel;
 
+	shaderProgram_t genericShader_single;
 	shaderProgram_t lightShader_D_direct;
 	shaderProgram_t lightShader_DB_direct;
 	shaderProgram_t lightShader_DBS_direct;
@@ -1260,6 +1264,7 @@ void            R_CalcTangentSpace(vec3_t tangent, vec3_t binormal, vec3_t norma
 ** GL wrapper/helper functions
 */
 void            GL_Bind(image_t * image);
+void            GL_Program(GLhandleARB program);
 void            GL_SetDefaultState(void);
 void            GL_SelectTexture(int unit);
 void            GL_TextureMode(const char *string);
@@ -1302,6 +1307,23 @@ void            GL_Cull(int cullType);
 #define		GLS_ATEST_BITS						0x70000000
 
 #define GLS_DEFAULT			GLS_DEPTHMASK_TRUE
+
+
+enum
+{
+	GLCS_VERTEX			= (1 << 0),
+	GLCS_TEXCOORD		= (1 << 1),
+	GLCS_TEXCOORD0		= (1 << 2),
+	GLCS_TEXCOORD1		= (1 << 3),
+	GLCS_TANGENT		= (1 << 4),
+	GLCS_BINORMAL		= (1 << 5),
+	GLCS_NORMAL			= (1 << 6),
+	GLCS_DELUXEL		= (1 << 7),
+	GLCS_COLOR			= (1 << 8),
+	
+	GLCS_DEFAULT		= GLCS_VERTEX
+};
+
 
 void            RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * data, int client,
 							  qboolean dirty);
@@ -1447,11 +1469,11 @@ void            RB_ShutdownGPUShaders(void);
 
 void            RB_StageIteratorGeneric(void);
 void            RB_StageIteratorSky(void);
-void            RB_StageIteratorVertexLitTexture(void);
-void            RB_StageIteratorPerPixelLit_D(void);
-void            RB_StageIteratorPerPixelLit_DB(void);
-void            RB_StageIteratorPerPixelLit_DBS(void);
-void            RB_StageIteratorLightmappedMultitexture(void);
+//void            RB_StageIteratorVertexLitTexture(void);
+//void            RB_StageIteratorPerPixelLit_D(void);
+//void            RB_StageIteratorPerPixelLit_DB(void);
+//void            RB_StageIteratorPerPixelLit_DBS(void);
+//void            RB_StageIteratorLightmappedMultitexture(void);
 
 void            RB_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, byte * color);
 void            RB_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, byte * color, float s1, float t1,

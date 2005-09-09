@@ -56,6 +56,18 @@ void GL_Bind(image_t * image)
 	}
 }
 
+void GL_Program(GLhandleARB program)
+{
+	if(glConfig2.shadingLanguage100Available)
+	{
+		if(glState.currentProgram != program)
+		{
+			glState.currentProgram = program;
+			qglUseProgramObjectARB(program);
+		}
+	}
+}
+
 /*
 ** GL_SelectTexture
 */
@@ -739,7 +751,7 @@ void RB_RenderDrawSurfListZFill(drawSurf_t * drawSurfs, int numDrawSurfs)
 		}
 		
 		// Tr3B - skip all translucent surfaces that don't matter for zfill only pass
-		if(shader->sort > SS_OPAQUE)
+		if(shader->sort > SS_OPAQUE && shader->isSky == qfalse)
 			continue;
 
 		// change the modelview matrix if needed

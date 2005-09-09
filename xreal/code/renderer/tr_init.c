@@ -852,12 +852,14 @@ void GL_SetDefaultState(void)
 		GL_TextureMode(r_textureMode->string);
 		GL_TexEnv(GL_MODULATE);
 		qglDisable(GL_TEXTURE_2D);
+		//qglEnable(GL_TEXTURE_2D);
 		GL_SelectTexture(0);
 	}
 
-	qglEnable(GL_TEXTURE_2D);
 	GL_TextureMode(r_textureMode->string);
 	GL_TexEnv(GL_MODULATE);
+//	qglDisable(GL_TEXTURE_2D);
+	qglEnable(GL_TEXTURE_2D);
 
 	qglShadeModel(GL_SMOOTH);
 	qglDepthFunc(GL_LEQUAL);
@@ -866,10 +868,10 @@ void GL_SetDefaultState(void)
 	// arrays are enabled and disabled around the compiled vertex array call
 	qglEnableClientState(GL_VERTEX_ARRAY);
 
-	//
 	// make sure our GL state vector is set correctly
-	//
 	glState.glStateBits = GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE;
+	glState.glClientStateBits = GLCS_DEFAULT;
+	glState.currentProgram = 0;
 
 	qglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	qglDepthMask(GL_TRUE);
