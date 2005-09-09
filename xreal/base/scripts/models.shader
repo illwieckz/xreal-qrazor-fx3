@@ -3727,6 +3727,8 @@ models/powerups/ammo/plasammo
 	}
 	{
 		diffuseMap models/powerups/ammo/plasammo.tga
+		normalMap models/powerups/ammo/plasammo_n.tga
+		specularMap models/powerups/ammo/plasammo_s.tga
 		rgbGen lightingDiffuse
 		alphaFunc GE128
 	}
@@ -4642,7 +4644,7 @@ models/weapons2/plasma/plasma
 {
 	{
 		diffuseMap models/weapons2/plasma/plasma.tga
-		normalMap models/weapons2/plasma/plasma_n.tga
+		normalMap models/weapons2/plasma/plasma_n2.tga
 		specularMap models/weapons2/plasma/plasma_s.tga
 		rgbGen lightingDiffuse
 	}
