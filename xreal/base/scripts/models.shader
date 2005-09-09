@@ -4748,8 +4748,8 @@ models/weapons2/rocketl/rocketl
 {
 	{
 		diffuseMap models/weapons2/rocketl/rocketl.tga
-		normalMap models/weapons2/rocketl/rocketl3_n.tga
-		//specularMap models/weapons2/rocketl/rocketl3_s.tga
+		normalMap models/weapons2/rocketl/rocketl_n.tga
+		specularMap models/weapons2/rocketl/rocketl_s.tga
 		rgbGen lightingDiffuse
 	}
 }
@@ -4758,7 +4758,8 @@ models/weapons2/rocketl/rocketl2
 {
 	{
 		diffuseMap models/weapons2/rocketl/rocketl2.tga
-		normalMap models/weapons2/rocketl/rocketl3_n.tga
+		normalMap models/weapons2/rocketl/rocketl2_n.tga
+		specularMap models/weapons2/rocketl/rocketl2_s.tga
 		rgbGen lightingDiffuse
 	}
 }
