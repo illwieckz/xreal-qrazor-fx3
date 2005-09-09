@@ -1339,19 +1339,11 @@ Blends a fog texture on top of everything else
 */
 static void RB_FogPass(void)
 {
-#if 0
+#if 1
 	fog_t          *fog;
 	int             i;
 	
 	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
-
-	/*	
-	qglEnableClientState(GL_COLOR_ARRAY);
-	qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.svars.colors);
-
-	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[0]);
-	*/
 
 	fog = tr.world->fogs + tess.fogNum;
 
