@@ -921,7 +921,11 @@ void ParseRawBrush()
 		}
 
 		// find default flags and values
-		sprintf(shader, "textures/%s", name);
+		if(!Q_strncasecmp(name, "textures/", 9))
+			sprintf(shader, "%s", name);
+		else
+			sprintf(shader, "textures/%s", name);
+		
 		si = ShaderInfoForShader(shader);
 		side->shaderInfo = si;
 		side->surfaceFlags = si->surfaceFlags;
@@ -1211,7 +1215,12 @@ qboolean ParseMapEntity(void)
 			if(!strcmp(token, "patchDef2"))
 			{
 				numMapPatches++;
-				ParsePatch();
+				ParsePatch(qfalse);
+			}
+			else if(!strcmp(token, "patchDef3"))
+			{
+				numMapPatches++;
+				ParsePatch(qtrue);
 			}
 			else if(!strcmp(token, "terrainDef"))
 			{

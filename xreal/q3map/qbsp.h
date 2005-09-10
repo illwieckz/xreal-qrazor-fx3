@@ -395,7 +395,7 @@ void            FreeTreePortals_r(node_t * node);
 extern int      numMapPatches;
 
 mapDrawSurface_t *DrawSurfaceForMesh(mesh_t * m);
-void            ParsePatch(void);
+void            ParsePatch(qboolean patchDef3);
 mesh_t         *SubdivideMesh(mesh_t in, float maxError, float minLength);
 void            PatchMapDrawSurfs(entity_t * e);
 

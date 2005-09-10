@@ -86,12 +86,12 @@ ParsePatch
 Creates a mapDrawSurface_t from the patch text
 =================
 */
-void ParsePatch(void)
+void ParsePatch(qboolean patchDef3)
 {
-	vec_t           info[5];
+	vec_t           info[7];
 	int             i, j;
 	parseMesh_t    *pm;
-	char            texture[MAX_QPATH];
+	char            name[MAX_QPATH];
 	char            shader[MAX_QPATH];
 	mesh_t          m;
 	drawVert_t     *verts;
@@ -101,18 +101,22 @@ void ParsePatch(void)
 
 	// get texture
 	GetToken(qtrue);
-	strcpy(texture, token);
+	strcpy(name, token);
 
 	// save the shader name for retexturing
 	if(numMapIndexedShaders == MAX_MAP_BRUSHSIDES)
 	{
 		Error("MAX_MAP_BRUSHSIDES");
 	}
-	strcpy(mapIndexedShaders[numMapIndexedShaders], texture);
+	strcpy(mapIndexedShaders[numMapIndexedShaders], name);
 	numMapIndexedShaders++;
 
 
-	Parse1DMatrix(5, info);
+	if(patchDef3)
+		Parse1DMatrix(7, info);
+	else
+		Parse1DMatrix(5, info);
+	
 	m.width = info[0];
 	m.height = info[1];
 	m.verts = verts = malloc(m.width * m.height * sizeof(m.verts[0]));
@@ -156,7 +160,11 @@ void ParsePatch(void)
 	pm = malloc(sizeof(*pm));
 	memset(pm, 0, sizeof(*pm));
 
-	sprintf(shader, "textures/%s", texture);
+	if(!Q_strncasecmp(name, "textures/", 9))
+		sprintf(shader, "%s", name);
+	else
+		sprintf(shader, "textures/%s", name);
+	
 	pm->shaderInfo = ShaderInfoForShader(shader);
 	pm->mesh = m;
 

@@ -304,6 +304,8 @@ shaderInfo_t   *ShaderInfoForShader(const char *shaderName)
 	// strip off extension
 	strcpy(shader, shaderName);
 	StripExtension(shader);
+	
+//	qprintf("looking for shader '%s' ...\n", shaderName);
 
 	// search for it
 	for(i = 0; i < numShaderInfo; i++)
