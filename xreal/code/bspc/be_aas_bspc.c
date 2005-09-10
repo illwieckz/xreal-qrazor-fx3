@@ -36,77 +36,82 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //#define BSPC
 
 extern botlib_import_t botimport;
-extern	qboolean capsule_collision;
+extern qboolean capsule_collision;
 
 botlib_import_t botimport;
-clipHandle_t worldmodel;
+clipHandle_t    worldmodel;
 
-void Error (char *error, ...);
+void            Error(char *error, ...);
 
 //===========================================================================
 //
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
+// Parameter:               -
+// Returns:                 -
+// Changes Globals:     -
 //===========================================================================
 void AAS_Error(char *fmt, ...)
 {
-	va_list argptr;
-	char text[1024];
+	va_list         argptr;
+	char            text[1024];
 
 	va_start(argptr, fmt);
 	vsprintf(text, fmt, argptr);
 	va_end(argptr);
 
 	Error(text);
-} //end of the function AAS_Error
+}								//end of the function AAS_Error
+
 //===========================================================================
 //
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
+// Parameter:               -
+// Returns:                 -
+// Changes Globals:     -
 //===========================================================================
 int Sys_MilliSeconds(void)
 {
 	return clock() * 1000 / CLOCKS_PER_SEC;
-} //end of the function Sys_MilliSeconds
+}								//end of the function Sys_MilliSeconds
+
 //===========================================================================
 //
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
+// Parameter:               -
+// Returns:                 -
+// Changes Globals:     -
 //===========================================================================
 void AAS_DebugLine(vec3_t start, vec3_t end, int color)
 {
-} //end of the function AAS_DebugLine
+}								//end of the function AAS_DebugLine
+
 //===========================================================================
 //
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
+// Parameter:               -
+// Returns:                 -
+// Changes Globals:     -
 //===========================================================================
 void AAS_ClearShownDebugLines(void)
 {
-} //end of the function AAS_ClearShownDebugLines
+}								//end of the function AAS_ClearShownDebugLines
+
 //===========================================================================
 //
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
+// Parameter:               -
+// Returns:                 -
+// Changes Globals:     -
 //===========================================================================
-char *BotImport_BSPEntityData(void)
+char           *BotImport_BSPEntityData(void)
 {
 	return CM_EntityString();
-} //end of the function AAS_GetEntityData
+}								//end of the function AAS_GetEntityData
+
 //===========================================================================
 //
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
+// Parameter:               -
+// Returns:                 -
+// Changes Globals:     -
 //===========================================================================
-void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask)
+void BotImport_Trace(bsp_trace_t * bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask)
 {
-	trace_t result;
+	trace_t         result;
 
 	CM_BoxTrace(&result, start, end, mins, maxs, worldmodel, contentmask, capsule_collision);
 
@@ -123,123 +128,140 @@ void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t ma
 	bsptrace->sidenum = 0;
 	bsptrace->startsolid = result.startsolid;
 	bsptrace->surface.flags = result.surfaceFlags;
-} //end of the function BotImport_Trace
+}								//end of the function BotImport_Trace
+
 //===========================================================================
 //
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
+// Parameter:               -
+// Returns:                 -
+// Changes Globals:     -
 //===========================================================================
 int BotImport_PointContents(vec3_t p)
 {
 	return CM_PointContents(p, worldmodel);
-} //end of the function BotImport_PointContents
+}								//end of the function BotImport_PointContents
+
 //===========================================================================
 //
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
+// Parameter:               -
+// Returns:                 -
+// Changes Globals:     -
 //===========================================================================
-void *BotImport_GetMemory(int size)
+void           *BotImport_GetMemory(int size)
 {
 	return GetMemory(size);
-} //end of the function BotImport_GetMemory
+}								//end of the function BotImport_GetMemory
+
 //===========================================================================
 //
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
+// Parameter:           -
+// Returns:             -
+// Changes Globals:     -
 //===========================================================================
 void BotImport_Print(int type, char *fmt, ...)
 {
-	va_list argptr;
-	char buf[1024];
+	va_list         argptr;
+	char            buf[1024];
 
 	va_start(argptr, fmt);
 	vsprintf(buf, fmt, argptr);
 	printf(buf);
-	if (buf[0] != '\r') Log_Write(buf);
+	if(buf[0] != '\r')
+		Log_Write(buf);
 	va_end(argptr);
-} //end of the function BotImport_Print
+}								//end of the function BotImport_Print
+
 //===========================================================================
 //
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
+// Parameter:           -
+// Returns:             -
+// Changes Globals:     -
 //===========================================================================
 void BotImport_BSPModelMinsMaxsOrigin(int modelnum, vec3_t angles, vec3_t outmins, vec3_t outmaxs, vec3_t origin)
 {
-	clipHandle_t h;
-	vec3_t mins, maxs;
-	float max;
-	int	i;
+	clipHandle_t    h;
+	vec3_t          mins, maxs;
+	float           max;
+	int             i;
 
 	h = CM_InlineModel(modelnum);
 	CM_ModelBounds(h, mins, maxs);
 	//if the model is rotated
-	if ((angles[0] || angles[1] || angles[2]))
-	{	// expand for rotation
+	if((angles[0] || angles[1] || angles[2]))
+	{							// expand for rotation
 
 		max = RadiusFromBounds(mins, maxs);
-		for (i = 0; i < 3; i++)
+		for(i = 0; i < 3; i++)
 		{
 			mins[i] = (mins[i] + maxs[i]) * 0.5 - max;
 			maxs[i] = (mins[i] + maxs[i]) * 0.5 + max;
-		} //end for
-	} //end if
-	if (outmins) VectorCopy(mins, outmins);
-	if (outmaxs) VectorCopy(maxs, outmaxs);
-	if (origin) VectorClear(origin);
-} //end of the function BotImport_BSPModelMinsMaxsOrigin
+		}						//end for
+	}							//end if
+	if(outmins)
+		VectorCopy(mins, outmins);
+	if(outmaxs)
+		VectorCopy(maxs, outmaxs);
+	if(origin)
+		VectorClear(origin);
+}								//end of the function BotImport_BSPModelMinsMaxsOrigin
+
 //===========================================================================
 //
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
+// Parameter:           -
+// Returns:             -
+// Changes Globals:     -
 //===========================================================================
 void Com_DPrintf(char *fmt, ...)
 {
-	va_list argptr;
-	char buf[1024];
+	va_list         argptr;
+	char            buf[1024];
 
 	va_start(argptr, fmt);
 	vsprintf(buf, fmt, argptr);
 	printf(buf);
-	if (buf[0] != '\r') Log_Write(buf);
+	if(buf[0] != '\r')
+		Log_Write(buf);
 	va_end(argptr);
-} //end of the function Com_DPrintf
+}								//end of the function Com_DPrintf
+
 //===========================================================================
 //
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
+// Parameter:           -
+// Returns:             -
+// Changes Globals:     -
 //===========================================================================
-int COM_Compress( char *data_p ) {
+int COM_Compress(char *data_p)
+{
 	return strlen(data_p);
 }
+
 //===========================================================================
 //
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
+// Parameter:           -
+// Returns:             -
+// Changes Globals:     -
 //===========================================================================
-void Com_Memset (void* dest, const int val, const size_t count) {
+void Com_Memset(void *dest, const int val, const size_t count)
+{
 	memset(dest, val, count);
 }
+
 //===========================================================================
 //
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
+// Parameter:           -
+// Returns:             -
+// Changes Globals:     -
 //===========================================================================
-void Com_Memcpy (void* dest, const void* src, const size_t count) {
+void Com_Memcpy(void *dest, const void *src, const size_t count)
+{
 	memcpy(dest, src, count);
 }
+
 //===========================================================================
 //
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
+// Parameter:               -
+// Returns:                 -
+// Changes Globals:     -
 //===========================================================================
 void AAS_InitBotImport(void)
 {
@@ -250,24 +272,26 @@ void AAS_InitBotImport(void)
 	botimport.PointContents = BotImport_PointContents;
 	botimport.Print = BotImport_Print;
 	botimport.BSPModelMinsMaxsOrigin = BotImport_BSPModelMinsMaxsOrigin;
-} //end of the function AAS_InitBotImport
+}								//end of the function AAS_InitBotImport
+
 //===========================================================================
 //
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
+// Parameter:               -
+// Returns:                 -
+// Changes Globals:     -
 //===========================================================================
 void AAS_CalcReachAndClusters(struct quakefile_s *qf)
 {
-	float time;
+	float           time;
 
 	Log_Print("loading collision map...\n");
 	//
-	if (!qf->pakfile[0]) strcpy(qf->pakfile, qf->filename);
+	if(!qf->pakfile[0])
+		strcpy(qf->pakfile, qf->filename);
 	//load the map
-	CM_LoadMap((char *) qf, qfalse, &aasworld.bspchecksum);
+	CM_LoadMap((char *)qf, qfalse, &aasworld.bspchecksum);
 	//get a handle to the world model
-	worldmodel = CM_InlineModel(0);		// 0 = world, 1 + are bmodels
+	worldmodel = CM_InlineModel(0);	// 0 = world, 1 + are bmodels
 	//initialize bot import structure
 	AAS_InitBotImport();
 	//load the BSP entity string
@@ -286,7 +310,8 @@ void AAS_CalcReachAndClusters(struct quakefile_s *qf)
 	//calculate reachabilities
 	AAS_InitReachability();
 	time = 0;
-	while(AAS_ContinueInitReachability(time)) time++;
+	while(AAS_ContinueInitReachability(time))
+		time++;
 	//calculate clusters
 	AAS_InitClustering();
-} //end of the function AAS_CalcReachAndClusters
+}								//end of the function AAS_CalcReachAndClusters

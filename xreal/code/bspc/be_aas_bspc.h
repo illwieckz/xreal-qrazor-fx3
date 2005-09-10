@@ -20,4 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-void AAS_CalcReachAndClusters(struct quakefile_s *qf);
+void            AAS_InitBotImport(void);
+void            AAS_InitClustering(void);
+void            AAS_CalcReachAndClusters(struct quakefile_s *qf);
+void            AAS_ShowTotals(void);
