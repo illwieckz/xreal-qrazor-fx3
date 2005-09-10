@@ -1404,3 +1404,59 @@ textures/base_wall/train1
 	}	
 		
 }
+
+// Tr3B - added for test_box.map
+textures/base_wall/lfwall13f3
+{
+	qer_editorimage	textures/base_wall/lfwall13f3
+	
+	{
+		stage			lightingRadiosity
+		diffusemap		textures/base_wall/lfwall13f3.tga
+		//normalmap		textures/base_wall/lfwall13f_local.tga
+		//specularmap		textures/base_wall/lfwall13f3_s.tga
+		rgbGen identity
+	}
+// 	{
+// 		map $lightmap
+// 		rgbGen identity
+// 		blendFunc GL_DST_COLOR GL_ZERO
+// 	}
+}
+
+textures/base_wall/lfwall27d
+{
+	qer_editorimage textures/editor/lfwall27d
+	
+	{
+		stage			lightingRadiosity
+		diffusemap		textures/base_wall/lfwall27d.tga
+		//normalmap		textures/base_wall/lfwall27d_local.tga
+		//specularmap	textures/base_wall/lfwall27d_s.tga
+		//rgbGen		identity
+	}
+// 	{
+// 		map $lightmap
+// 		rgbGen identity
+// 		blendFunc GL_DST_COLOR GL_ZERO
+// 	}
+}
+
+textures/base_wall/lfwall27b
+{
+	qer_editorimage textures/base_wall/lfwall27b
+	
+	{
+		stage			lightingRadiosity
+		diffusemap		textures/base_wall/lfwall27b.tga
+		//normalmap		textures/base_wall/lfwall27b_local.tga
+		//specularmap		textures/base_wall/lfwall27b_s.tga
+		//rgbGen identity
+	}
+// 	{
+// 		map $lightmap
+// 		rgbGen identity
+// 		blendFunc GL_DST_COLOR GL_ZERO
+// 	}
+}
+
