@@ -646,22 +646,22 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 
 			if(!Q_stricmp(token, "$whiteimage") || !Q_stricmp(token, "$white"))
 			{
-				stage->bundle[TB_DIFFUSEMAP].isDiffuseMap = qtrue;
-				stage->bundle[TB_DIFFUSEMAP].image[0] = tr.whiteImage;
+				stage->bundle[0].isDiffuseMap = qtrue;
+				stage->bundle[0].image[IMG_DIFFUSEMAP] = tr.whiteImage;
 				continue;
 			}
 			if(!Q_stricmp(token, "$blackimage") || !Q_stricmp(token, "$black"))
 			{
-				stage->bundle[TB_DIFFUSEMAP].isDiffuseMap = qtrue;
-				stage->bundle[TB_DIFFUSEMAP].image[0] = tr.blackImage;
+				stage->bundle[0].isDiffuseMap = qtrue;
+				stage->bundle[0].image[IMG_DIFFUSEMAP] = tr.blackImage;
 				continue;
 			}
 			else
 			{
-				stage->bundle[TB_DIFFUSEMAP].isDiffuseMap = qtrue;
-				stage->bundle[TB_DIFFUSEMAP].image[0] =
+				stage->bundle[0].isDiffuseMap = qtrue;
+				stage->bundle[0].image[IMG_DIFFUSEMAP] = 
 					R_FindImageFile(token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT, qfalse);
-				if(!stage->bundle[TB_DIFFUSEMAP].image[0])
+				if(!stage->bundle[0].image[IMG_DIFFUSEMAP])
 				{
 					ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find diffusemap '%s' in shader '%s'\n",
 							  token, shader.name);
@@ -685,17 +685,16 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 
 			if(!Q_stricmp(token, "$flatimage") || !Q_stricmp(token, "$flat"))
 			{
-				stage->bundle[TB_NORMALMAP].isNormalMap = qtrue;
-				stage->bundle[TB_NORMALMAP].image[0] = tr.flatImage;
+				stage->bundle[0].isNormalMap = qtrue;
+				stage->bundle[0].image[IMG_NORMALMAP] = tr.flatImage;
 				continue;
 			}
 			else
 			{
-				stage->bundle[TB_NORMALMAP].isNormalMap = qtrue;
-				stage->bundle[TB_NORMALMAP].tcGen = TCGEN_SKIP;
-				stage->bundle[TB_NORMALMAP].image[0] =
+				stage->bundle[0].isNormalMap = qtrue;
+				stage->bundle[0].image[IMG_NORMALMAP] =
 					R_FindImageFile(token, /*!shader.noMipMaps*/ qfalse, !shader.noPicMip, GL_REPEAT, qtrue);
-				if(!stage->bundle[TB_NORMALMAP].image[0])
+				if(!stage->bundle[0].image[IMG_NORMALMAP])
 				{
 					ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find normalmap '%s' in shader '%s'\n",
 							  token, shader.name);
@@ -719,23 +718,22 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 
 			if(!Q_stricmp(token, "$whiteimage") || !Q_stricmp(token, "$white"))
 			{
-				stage->bundle[TB_SPECULARMAP].isSpecularMap = qtrue;
-				stage->bundle[TB_SPECULARMAP].image[0] = tr.whiteImage;
+				stage->bundle[0].isSpecularMap = qtrue;
+				stage->bundle[0].image[IMG_SPECULARMAP] = tr.whiteImage;
 				continue;
 			}
 			if(!Q_stricmp(token, "$blackimage") || !Q_stricmp(token, "$black"))
 			{
-				stage->bundle[TB_SPECULARMAP].isSpecularMap = qtrue;
-				stage->bundle[TB_SPECULARMAP].image[0] = tr.blackImage;
+				stage->bundle[0].isSpecularMap = qtrue;
+				stage->bundle[0].image[IMG_SPECULARMAP] = tr.blackImage;
 				continue;
 			}
 			else
 			{
-				stage->bundle[TB_SPECULARMAP].isSpecularMap = qtrue;
-				stage->bundle[TB_SPECULARMAP].tcGen = TCGEN_SKIP;
-				stage->bundle[TB_SPECULARMAP].image[0] =
+				stage->bundle[0].isSpecularMap = qtrue;
+				stage->bundle[0].image[IMG_SPECULARMAP] =
 					R_FindImageFile(token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT, qfalse);
-				if(!stage->bundle[TB_SPECULARMAP].image[0])
+				if(!stage->bundle[0].image[IMG_SPECULARMAP])
 				{
 					ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find specularmap '%s' in shader '%s'\n",
 							  token, shader.name);
@@ -758,32 +756,32 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 
 			if(!Q_stricmp(token, "$whiteimage") || !Q_stricmp(token, "$white"))
 			{
-				stage->bundle[TB_COLORMAP].image[0] = tr.whiteImage;
+				stage->bundle[0].image[0] = tr.whiteImage;
 				continue;
 			}
 			if(!Q_stricmp(token, "$blackimage") || !Q_stricmp(token, "$black"))
 			{
-				stage->bundle[TB_COLORMAP].image[0] = tr.blackImage;
+				stage->bundle[0].image[0] = tr.blackImage;
 				continue;
 			}
 			else if(!Q_stricmp(token, "$lightmap"))
 			{
-				stage->bundle[TB_COLORMAP].isLightmap = qtrue;
+				stage->bundle[0].isLightMap = qtrue;
 				if(shader.lightmapIndex < 0)
 				{
-					stage->bundle[TB_COLORMAP].image[0] = tr.whiteImage;
+					stage->bundle[0].image[0] = tr.whiteImage;
 				}
 				else
 				{
-					stage->bundle[TB_COLORMAP].image[0] = tr.lightmaps[shader.lightmapIndex];
+					stage->bundle[0].image[0] = tr.lightmaps[shader.lightmapIndex];
 				}
 				continue;
 			}
 			else
 			{
-				stage->bundle[TB_COLORMAP].image[0] =
+				stage->bundle[0].image[0] =
 					R_FindImageFile(token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT, qfalse);
-				if(!stage->bundle[TB_COLORMAP].image[0])
+				if(!stage->bundle[0].image[0])
 				{
 					ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find colormap '%s' in shader '%s'\n",
 							  token, shader.name);
@@ -804,9 +802,9 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 				return qfalse;
 			}
 
-			stage->bundle[TB_COLORMAP].image[0] =
+			stage->bundle[0].image[0] =
 				R_FindImageFile(token, !shader.noMipMaps, !shader.noPicMip, GL_CLAMP, qfalse);
-			if(!stage->bundle[TB_COLORMAP].image[0])
+			if(!stage->bundle[0].image[0])
 			{
 				ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n",
 						  token, shader.name);
@@ -825,7 +823,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 						  shader.name);
 				return qfalse;
 			}
-			stage->bundle[TB_COLORMAP].imageAnimationSpeed = atof(token);
+			stage->bundle[0].imageAnimationSpeed = atof(token);
 
 			// parse up to MAX_IMAGE_ANIMATIONS animations
 			while(1)
@@ -837,19 +835,19 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 				{
 					break;
 				}
-				num = stage->bundle[TB_COLORMAP].numImageAnimations;
+				num = stage->bundle[0].numImageAnimations;
 				if(num < MAX_IMAGE_ANIMATIONS)
 				{
-					stage->bundle[TB_COLORMAP].image[num] =
+					stage->bundle[0].image[num] =
 						R_FindImageFile(token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT, qfalse);
-					if(!stage->bundle[TB_COLORMAP].image[num])
+					if(!stage->bundle[0].image[num])
 					{
 						ri.Printf(PRINT_WARNING,
 								  "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token,
 								  shader.name);
 						return qfalse;
 					}
-					stage->bundle[TB_COLORMAP].numImageAnimations++;
+					stage->bundle[0].numImageAnimations++;
 				}
 			}
 		}
@@ -862,12 +860,12 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 						  "WARNING: missing parameter for 'videoMmap' keyword in shader '%s'\n", shader.name);
 				return qfalse;
 			}
-			stage->bundle[TB_COLORMAP].videoMapHandle =
+			stage->bundle[0].videoMapHandle =
 				ri.CIN_PlayCinematic(token, 0, 0, 256, 256, (CIN_loop | CIN_silent | CIN_shader));
-			if(stage->bundle[TB_COLORMAP].videoMapHandle != -1)
+			if(stage->bundle[0].videoMapHandle != -1)
 			{
-				stage->bundle[TB_COLORMAP].isVideoMap = qtrue;
-				stage->bundle[TB_COLORMAP].image[0] = tr.scratchImage[stage->bundle[0].videoMapHandle];
+				stage->bundle[0].isVideoMap = qtrue;
+				stage->bundle[0].image[0] = tr.scratchImage[stage->bundle[0].videoMapHandle];
 			}
 		}
 		//
@@ -987,9 +985,13 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			{
 				stage->type = ST_COLOR;
 			}
-			else if(!Q_stricmp(token, "lighting"))
+			else if(!Q_stricmp(token, "lightingDirectional"))
 			{
-				stage->type = ST_LIGHTING;
+				stage->type = ST_LIGHTING_DIRECTIONAL;
+			}
+			else if(!Q_stricmp(token, "lightingRadiosity"))
+			{
+				stage->type = ST_LIGHTING_RADIOSITY;
 			}
 			else if(!Q_stricmp(token, "reflection"))
 			{
@@ -1681,19 +1683,19 @@ static void ParseDiffuseMap(shaderStage_t * stage, char **text)
 
 	if(!Q_stricmp(token, "$whiteimage") || !Q_stricmp(token, "$white"))
 	{
-		stage->bundle[TB_DIFFUSEMAP].isDiffuseMap = qtrue;
-		stage->bundle[TB_DIFFUSEMAP].image[0] = tr.whiteImage;
+		stage->bundle[0].isDiffuseMap = qtrue;
+		stage->bundle[0].image[0] = tr.whiteImage;
 	}
 	if(!Q_stricmp(token, "$blackimage") || !Q_stricmp(token, "$black"))
 	{
-		stage->bundle[TB_DIFFUSEMAP].isDiffuseMap = qtrue;
-		stage->bundle[TB_DIFFUSEMAP].image[0] = tr.blackImage;
+		stage->bundle[0].isDiffuseMap = qtrue;
+		stage->bundle[0].image[0] = tr.blackImage;
 	}
 	else
 	{
-		stage->bundle[TB_DIFFUSEMAP].isDiffuseMap = qtrue;
-		stage->bundle[TB_DIFFUSEMAP].image[0] = R_FindImageFile(token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT, qfalse);
-		if(!stage->bundle[TB_DIFFUSEMAP].image[0])
+		stage->bundle[0].isDiffuseMap = qtrue;
+		stage->bundle[0].image[0] = R_FindImageFile(token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT, qfalse);
+		if(!stage->bundle[0].image[0])
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find diffusemap '%s' in shader '%s'\n", token, shader.name);
 		}
@@ -2198,7 +2200,7 @@ static qboolean CollapseMultitexture(void)
 
 
 	// make sure that lightmaps are in bundle 1 for 3dfx
-	if(stages[0].bundle[0].isLightmap)
+	if(stages[0].bundle[0].isLightMap)
 	{
 		tmpBundle = stages[0].bundle[0];
 		stages[0].bundle[0] = stages[1].bundle[0];
@@ -2561,8 +2563,8 @@ static shader_t *FinishShader(void)
 		// check if we have directional diffuse lighting
 		if(pStage->rgbGen == CGEN_LIGHTING_DIFFUSE)
 		{
-			pStage->type = ST_LIGHTING;
-			pStage->bundle[TB_DIFFUSEMAP].isDiffuseMap = qtrue;
+			pStage->type = ST_LIGHTING_DIRECTIONAL;
+			pStage->bundle[0].isDiffuseMap = qtrue;
 		}
 
 		// check for a missing texture
@@ -2571,7 +2573,7 @@ static shader_t *FinishShader(void)
 			case ST_COLOR:
 			default:
 			{
-				if(!pStage->bundle[TB_COLORMAP].image[0])
+				if(!pStage->bundle[0].image[0])
 				{
 					ri.Printf(PRINT_WARNING, "Shader %s has a color stage with no image\n", shader.name);
 					pStage->active = qfalse;
@@ -2580,33 +2582,53 @@ static shader_t *FinishShader(void)
 				break;
 			}
 			
-			case ST_LIGHTING:
+			case ST_LIGHTING_DIRECTIONAL:
 			{
-				if(!pStage->bundle[TB_DIFFUSEMAP].image[0])
+				if(!pStage->bundle[0].image[IMG_DIFFUSEMAP])
 				{
 					ri.Printf(PRINT_WARNING, "Shader %s has a lighting stage with no diffusemap\n", shader.name);
-					//pStage->active = qfalse;
-					//continue;
-					pStage->bundle[TB_DIFFUSEMAP].isDiffuseMap = qtrue;
-					pStage->bundle[TB_DIFFUSEMAP].image[0] = tr.defaultImage;
+					pStage->bundle[0].isDiffuseMap = qtrue;
+					pStage->bundle[0].image[IMG_DIFFUSEMAP] = tr.defaultImage;
 				}
 				
-				if(!pStage->bundle[TB_NORMALMAP].image[0])
+				if(!pStage->bundle[0].image[IMG_NORMALMAP])
 				{
 					//ri.Printf(PRINT_WARNING, "Shader %s has a lighting stage with no normalmap\n", shader.name);
-					//pStage->active = qfalse;
-					//continue;
-					//pStage->bundle[TB_NORMALMAP].isNormalMap = qtrue;
-					//pStage->bundle[TB_NORMALMAP].image[0] = tr.flatImage;
+					//pStage->bundle[0].isNormalMap = qtrue;
+					//pStage->bundle[0].image[IMG_NORMALMAP] = tr.flatImage;
 				}
 				
-				if(!pStage->bundle[TB_SPECULARMAP].image[0])
+				if(!pStage->bundle[0].image[IMG_SPECULARMAP])
 				{
 					//ri.Printf(PRINT_WARNING, "Shader %s has a lighting stage with no specularmap\n", shader.name);
-					//pStage->active = qfalse;
-					//continue;
-					//pStage->bundle[TB_SPECULARMAP].isSpecularMap = qtrue;
-					//pStage->bundle[TB_SPECULARMAP].image[0] = tr.blackImage;
+					//pStage->bundle[0].isSpecularMap = qtrue;
+					//pStage->bundle[0].image[IMG_SPECULARMAP] = tr.blackImage;
+				}
+				break;
+			}
+			
+			case ST_LIGHTING_RADIOSITY:
+			{
+				if(!pStage->bundle[0].image[IMG_DIFFUSEMAP])
+				{
+					ri.Printf(PRINT_WARNING, "Shader %s has a radiosity lighting stage with no diffusemap\n", shader.name);
+					pStage->bundle[0].isDiffuseMap = qtrue;
+					pStage->bundle[0].image[0] = tr.defaultImage;
+				}
+				
+				if(!pStage->bundle[1].image[IMG_LIGHTMAP])
+				{
+					ri.Printf(PRINT_WARNING, "Shader %s has a radiosity lighting stage with no diffusemap\n", shader.name);
+					pStage->bundle[1].isLightMap = qtrue;
+					
+					if(shader.lightmapIndex < 0)
+					{
+						pStage->bundle[1].image[IMG_LIGHTMAP] = tr.whiteImage;
+					}
+					else
+					{
+						pStage->bundle[1].image[IMG_LIGHTMAP] = tr.lightmaps[shader.lightmapIndex];
+					}
 				}
 				break;
 			}
@@ -2628,7 +2650,7 @@ static shader_t *FinishShader(void)
 		{
 			case ST_COLOR:
 			{
-				if(pStage->bundle[0].isLightmap)
+				if(pStage->bundle[0].isLightMap)
 				{
 					if(pStage->bundle[0].tcGen == TCGEN_BAD)
 					{
@@ -2646,15 +2668,27 @@ static shader_t *FinishShader(void)
 				break;
 			}
 			
-			case ST_LIGHTING:
+			case ST_LIGHTING_DIRECTIONAL:
 			{
-				if(pStage->bundle[TB_DIFFUSEMAP].tcGen == TCGEN_BAD)
+				if(pStage->bundle[0].tcGen == TCGEN_BAD)
 				{
-					pStage->bundle[TB_DIFFUSEMAP].tcGen = TCGEN_TEXTURE;
+					pStage->bundle[0].tcGen = TCGEN_TEXTURE;
 				}
-				pStage->bundle[TB_NORMALMAP].tcGen = TCGEN_SKIP;
-				pStage->bundle[TB_SPECULARMAP].tcGen = TCGEN_SKIP;
 				break;	
+			}
+			
+			case ST_LIGHTING_RADIOSITY:
+			{
+				if(pStage->bundle[0].tcGen == TCGEN_BAD)
+				{
+					pStage->bundle[0].tcGen = TCGEN_TEXTURE;
+				}
+				
+				if(pStage->bundle[1].tcGen == TCGEN_BAD)
+				{
+					pStage->bundle[1].tcGen = TCGEN_LIGHTMAP;
+				}
+				break;
 			}
 		
 			default:
@@ -3035,7 +3069,7 @@ shader_t       *R_FindShader(const char *name, int lightmapIndex, qboolean mipRa
 	{
 		// two pass lightmap
 		stages[0].bundle[0].image[0] = tr.lightmaps[shader.lightmapIndex];
-		stages[0].bundle[0].isLightmap = qtrue;
+		stages[0].bundle[0].isLightMap = qtrue;
 		stages[0].active = qtrue;
 		stages[0].rgbGen = CGEN_IDENTITY;	// lightmaps are scaled on creation
 		// for identitylight
@@ -3051,8 +3085,7 @@ shader_t       *R_FindShader(const char *name, int lightmapIndex, qboolean mipRa
 }
 
 
-qhandle_t RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_t * image,
-									 qboolean mipRawImage)
+qhandle_t RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_t * image, qboolean mipRawImage)
 {
 	int             i, hash;
 	shader_t       *sh;
@@ -3149,7 +3182,7 @@ qhandle_t RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_
 	{
 		// two pass lightmap
 		stages[0].bundle[0].image[0] = tr.lightmaps[shader.lightmapIndex];
-		stages[0].bundle[0].isLightmap = qtrue;
+		stages[0].bundle[0].isLightMap = qtrue;
 		stages[0].active = qtrue;
 		stages[0].rgbGen = CGEN_IDENTITY;	// lightmaps are scaled on creation
 		// for identitylight

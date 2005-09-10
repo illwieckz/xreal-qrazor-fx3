@@ -218,7 +218,7 @@ typedef enum
 typedef enum
 {
 	TCGEN_BAD,
-	TCGEN_SKIP,
+//	TCGEN_SKIP,
 	TCGEN_IDENTITY,				// clear to 0,0
 	TCGEN_LIGHTMAP,
 	TCGEN_TEXTURE,
@@ -300,6 +300,17 @@ typedef struct
 
 
 #define	MAX_IMAGE_ANIMATIONS	8
+#define MAX_TEXTURE_BUNDLES		2
+
+enum
+{
+	IMG_COLORMAP = 0,
+	IMG_DIFFUSEMAP = 0,
+	IMG_NORMALMAP,
+	IMG_SPECULARMAP,
+	IMG_LIGHTMAP = 0,
+	IMG_DELUXEMAP
+};
 
 typedef struct
 {
@@ -314,7 +325,7 @@ typedef struct
 	texModInfo_t   *texMods;
 
 	int             videoMapHandle;
-	qboolean        isLightmap;
+	qboolean        isLightMap;
 	qboolean        isVideoMap;
 	qboolean		isDiffuseMap;
 	qboolean        isNormalMap;
@@ -323,19 +334,9 @@ typedef struct
 
 typedef enum
 {
-	TB_COLORMAP = 0,
-	TB_LIGHTMAP = 1,
-	TB_DELUXEMAP = 2,
-	TB_DIFFUSEMAP = 0,
-	TB_NORMALMAP = 1,
-	TB_SPECULARMAP = 2,
-	MAX_TEXTURE_BUNDLES = 3
-} textureBundleIndexes_t;
-
-typedef enum
-{
 	ST_COLOR,					// vanilla Q3A style shader treatening
-	ST_LIGHTING,				// new Doom3 style interpretation
+	ST_LIGHTING_DIRECTIONAL,	// directional entity lighting like rgbGen lightingDiffuse
+	ST_LIGHTING_RADIOSITY,		// luxel/deluxel based lighting
 	ST_REFLECTION,				// cubeMap based reflection
 	ST_REFRACTION,
 	ST_DISPERSION,
@@ -491,6 +492,8 @@ typedef struct shaderProgram_s
 	GLint           u_DiffuseMap;
 	GLint           u_NormalMap;
 	GLint			u_SpecularMap;
+	GLint			u_LightMap;
+	GLint			u_DeluxeMap;
 
 	GLint			u_ViewOrigin;
 	GLint           u_AmbientColor;
@@ -1029,10 +1032,14 @@ typedef struct
 	int             shiftedEntityNum;	// currentEntityNum << QSORT_ENTITYNUM_SHIFT
 	model_t        *currentModel;
 
+	// GPU shader programs
 	shaderProgram_t genericShader_single;
+	
 	shaderProgram_t lightShader_D_direct;
 	shaderProgram_t lightShader_DB_direct;
 	shaderProgram_t lightShader_DBS_direct;
+	
+	shaderProgram_t lightShader_D_radiosity;
 
 	viewParms_t     viewParms;
 

@@ -272,6 +272,23 @@ void RB_InitGPUShaders(void)
 	qglUniform1iARB(tr.lightShader_DBS_direct.u_NormalMap, 1);
 	qglUniform1iARB(tr.lightShader_DBS_direct.u_SpecularMap, 2);
 	qglUseProgramObjectARB(0);
+	
+	//
+	// simple radiosity lighting ( Q3A style )
+	//
+	RB_InitGPUShader(&tr.lightShader_D_radiosity,
+					  "lighting_D_radiosity",
+					  GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_NORMAL, qtrue);
+
+	tr.lightShader_D_radiosity.u_DiffuseMap =
+			qglGetUniformLocationARB(tr.lightShader_D_radiosity.program, "u_DiffuseMap");
+	tr.lightShader_D_radiosity.u_LightMap =
+			qglGetUniformLocationARB(tr.lightShader_D_radiosity.program, "u_LightMap");
+
+	qglUseProgramObjectARB(tr.lightShader_D_radiosity.program);
+	qglUniform1iARB(tr.lightShader_D_radiosity.u_DiffuseMap, 0);
+	qglUniform1iARB(tr.lightShader_D_radiosity.u_LightMap, 1);
+	qglUseProgramObjectARB(0);
 }
 
 void RB_ShutdownGPUShaders(void)
@@ -305,6 +322,12 @@ void RB_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.lightShader_DBS_direct.program);
 		tr.lightShader_DBS_direct.program = 0;
+	}
+	
+	if(tr.lightShader_D_radiosity.program)
+	{
+		qglDeleteObjectARB(tr.lightShader_D_radiosity.program);
+		tr.lightShader_D_radiosity.program = 0;
 	}
 }
 
@@ -395,7 +418,7 @@ static void GL_SetVertexAttribs()
 		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[0]);
 
 	if(glState.glClientStateBits & GLCS_TEXCOORD1)
-		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[1]);
+		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[1]);
 
 	if(glState.glClientStateBits & GLCS_TANGENT)
 		qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, tess.tangents);
@@ -912,7 +935,7 @@ void RenderGeneric_single(int stage)
 
 	// bind colormap
 	GL_SelectTexture(0);
-	R_BindAnimatedImage(&pStage->bundle[TB_COLORMAP]);
+	R_BindAnimatedImage(&pStage->bundle[0]);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
@@ -957,7 +980,7 @@ void RenderLighting_D_direct(int stage)
 
 	// bind diffusemap
 	GL_SelectTexture(0);
-	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+	GL_Bind(pStage->bundle[0].image[IMG_DIFFUSEMAP]);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
@@ -1000,11 +1023,11 @@ static void RenderLighting_DB_direct(int stage)
 
 	// bind diffusemap
 	GL_SelectTexture(0);
-	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+	GL_Bind(pStage->bundle[0].image[IMG_DIFFUSEMAP]);
 	
 	// bind normalmap
 	GL_SelectTexture(1);
-	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
+	GL_Bind(pStage->bundle[0].image[IMG_NORMALMAP]);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
@@ -1052,15 +1075,15 @@ static void RenderLighting_DBS_direct(int stage)
 
 	// bind diffusemap
 	GL_SelectTexture(0);
-	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+	GL_Bind(pStage->bundle[0].image[IMG_DIFFUSEMAP]);
 	
 	// bind normalmap
 	GL_SelectTexture(1);
-	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
+	GL_Bind(pStage->bundle[0].image[IMG_NORMALMAP]);
 	
 	// bind specularmap
 	GL_SelectTexture(2);
-	GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
+	GL_Bind(pStage->bundle[0].image[IMG_SPECULARMAP]);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
@@ -1070,6 +1093,35 @@ static void RenderLighting_DBS_direct(int stage)
 #endif
 }
 
+void RenderLighting_D_radiosity(int stage)
+{
+#if 1
+	shaderStage_t  *pStage;
+	
+	pStage = tess.xstages[stage];
+	
+	GL_State(pStage->stateBits);
+	
+	// enable shader, set arrays
+	GL_Program(tr.lightShader_D_radiosity.program);
+	GL_ClientState(tr.lightShader_D_radiosity.attribs);
+	GL_SetVertexAttribs();
+
+	// bind diffusemap
+	GL_SelectTexture(0);
+	GL_Bind(pStage->bundle[0].image[IMG_DIFFUSEMAP]);
+	
+	// bind lightmap
+	GL_SelectTexture(1);
+	GL_Bind(pStage->bundle[1].image[IMG_LIGHTMAP]);
+	
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+	GL_SelectTexture(0);
+	GL_ClientState(GLCS_DEFAULT);
+//	GL_Program(0);
+#endif
+}
 
 /*
 ===================
@@ -1593,8 +1645,8 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 		//
 		switch(pStage->bundle[b].tcGen)
 		{
-			case TCGEN_SKIP:
-				break;
+			//case TCGEN_SKIP:
+			//	break;
 			case TCGEN_IDENTITY:
 				Com_Memset(tess.svars.texCoords[b], 0, sizeof(float) * 2 * tess.numVertexes);
 				break;
@@ -1637,8 +1689,8 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 		for(tm = 0; tm < pStage->bundle[b].numTexMods; tm++)
 		{
 			// Tr3B - for multiple images per shader stage
-			if(pStage->bundle[b].tcGen == TCGEN_SKIP)
-				continue;
+			//if(pStage->bundle[b].tcGen == TCGEN_SKIP)
+			//	continue;
 			
 			switch(pStage->bundle[b].texMods[tm].type)
 			{
@@ -1713,7 +1765,6 @@ static void RB_IterateStagesGeneric()
 		switch(pStage->type)
 		{
 			case ST_COLOR:
-			default:
 			{
 #if 0
 				if(glConfig2.shadingLanguage100Available)
@@ -1742,13 +1793,13 @@ static void RB_IterateStagesGeneric()
 				break;
 			}
 			
-			case ST_LIGHTING:
+			case ST_LIGHTING_DIRECTIONAL:
 			{
 				if(glConfig2.shadingLanguage100Available)
 				{
-					if(pStage->bundle[TB_NORMALMAP].isNormalMap && r_bumpMapping->integer)
+					if(pStage->bundle[0].isNormalMap && r_bumpMapping->integer)
 					{
-						if(pStage->bundle[TB_SPECULARMAP].isSpecularMap && r_specular->integer)
+						if(pStage->bundle[0].isSpecularMap && r_specular->integer)
 						{
 							RenderLighting_DBS_direct(stage);
 						}
@@ -1770,6 +1821,36 @@ static void RB_IterateStagesGeneric()
 				break;
 			}
 			
+			case ST_LIGHTING_RADIOSITY:
+			{
+				if(glConfig2.shadingLanguage100Available)
+				{
+					/*
+					if(pStage->bundle[TB_NORMALMAP].isNormalMap && r_bumpMapping->integer)
+					{
+						if(pStage->bundle[TB_SPECULARMAP].isSpecularMap && r_specular->integer)
+						{
+							RenderLighting_DBS_direct(stage);
+						}
+						else
+						{
+							RenderLighting_DB_direct(stage);
+						}
+					}
+					else
+					*/
+					{
+						RenderLighting_D_radiosity(stage);
+					}
+				}
+				else
+				{
+					RenderGeneric_single_FFP(stage);
+				}
+				
+				break;
+			}
+			
 			/*
 			case ST_HEATHAZE:
 			{
@@ -1777,10 +1858,13 @@ static void RB_IterateStagesGeneric()
 				break;
 			}
 			*/
+			
+			default:
+				break;
 		}
 		
 		// allow skipping out to show just lightmaps during development
-		if(r_lightmap->integer && (pStage->bundle[0].isLightmap || pStage->bundle[1].isLightmap))
+		if(r_lightmap->integer && (pStage->bundle[0].isLightMap || pStage->bundle[1].isLightMap))
 		{
 			break;
 		}
