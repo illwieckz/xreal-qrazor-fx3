@@ -432,7 +432,7 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 	int             c = 0, len;
 	qboolean        hasNewLines = qfalse;
 	char           *data;
-//	const char    **punc;
+	const char    **punc;
 	
 	if(!data_p)
 	{
@@ -530,8 +530,10 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 	
 	// check for a number
 	// is this parsing of negative numbers going to cause expression problems
-	if(	(c >= '0' && c <= '9') || (c == '-' && data[ 1 ] >= '0' && data[ 1 ] <= '9') ||
-		(c == '.' && data[1] >= '0' && data[1] <= '9')	)
+	if(	(c >= '0' && c <= '9') ||
+		(c == '-' && data[1] >= '0' && data[1] <= '9') ||
+		(c == '.' && data[1] >= '0' && data[1] <= '9')
+	)
 	{
 		do
 		{
@@ -590,7 +592,7 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 		return com_token;
 	}
 
-#if 1
+#if 0
 	// check for character punctuation
 	if(
 		*data == '\n'	||
@@ -644,7 +646,12 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 	// check for a regular word
 	// we still allow forward and back slashes in name tokens for pathnames
 	// and also colons for drive letters
-	if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || c == '/' || c == '\\')
+	if(	(c >= 'a' && c <= 'z')	||
+		(c >= 'A' && c <= 'Z')	||
+		(c == '_')				||
+		(c == '/')				||
+ 		(c == '\\')				||
+ 		(c == '$')	)
 	{
 		do
 		{
@@ -661,12 +668,13 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 		(
 			(c >= 'a' && c <= 'z')	||
 			(c >= 'A' && c <= 'Z')	||
-			 c == '_' 				||
+			(c == '_') 				||
 			(c >= '0' && c <= '9')	||
-			 c == '/'				||
-			 c == '\\'				||
-			 c == ':'				||
-			 c == '.'
+			(c == '/')				||
+			(c == '\\')				||
+			(c == ':')				||
+			(c == '.')				||
+			(c == '$')
 		);
 
 		if(len == MAX_TOKEN_CHARS)
