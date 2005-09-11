@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define DEBUG_VM 0
 
+// *INDENT-OFF*
+
 #if DEBUG_VM
 static char	*opnames[256] = {
 	"OP_UNDEF", 
