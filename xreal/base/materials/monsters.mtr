@@ -358,21 +358,21 @@ models/monsters/sabaoth/gear3
       	 blend	diffusemap
 	     map	models/monsters/sabaoth/gear3_d.tga
 	     alphaTest 0.5
-	//rotate	time * -.45
+	//rotate	time * -0.45
 	clamp
      }
 
      {
 	blend	bumpmap	
 	map	models/monsters/sabaoth/gear3_local.tga
-	//rotate	time * -.45
+	//rotate	time * -0.45
 	clamp
      }
 
      {
 	blend	specularmap
 	map	models/monsters/sabaoth/gear3_s.tga
-	//rotate	time * -.45
+	//rotate	time * -0.45
 	clamp
      }
       
@@ -388,21 +388,21 @@ models/monsters/sabaoth/gear2
       	 blend	diffusemap
 	     map	models/monsters/sabaoth/gear2_d.tga
 	     alphaTest 0.5
-	//rotate	time * -.45
+	//rotate	time * -0.45
 	clamp
      }
 
      {
 	blend	bumpmap	
 	map	models/monsters/sabaoth/gear2_local.tga
-	//rotate	time * -.45
+	//rotate	time * -0.45
 	clamp
      }
 
      {
 	blend	specularmap
 	map	models/monsters/sabaoth/gear2_s.tga
-	//rotate	time * -.45
+	//rotate	time * -0.45
 	clamp
      }
       
@@ -465,7 +465,7 @@ models/monsters/sabaoth/sabaoth
 // 	 if ( parm7 == 0 )    
 //       	 blend	add
 // 	 map	models/monsters/vagary/eyes.tga
-// 	rgb		throbtable2[ time * .3 ] -.6
+// 	rgb		throbtable2[ time * .3 ] -0.6
 // 	}
 // 
 // 
@@ -482,7 +482,7 @@ models/monsters/sabaoth/sabaoth
 // 	{       
 //       	 blend	add
 // 	 map	models/monsters/bruiser/gui.tga
-// 	//rgb		throbtable2[ time * .3 ] -.6
+// 	//rgb		throbtable2[ time * .3 ] -0.6
 // 	}
 // 
 // 
@@ -1032,7 +1032,7 @@ models/monsters/lost/lostfx
 	        blend gl_dst_alpha, gl_one
 			maskalpha
 		    map models/monsters/lost/lostfx.tga
-			translate	time * -2.8 , time * -.1
+			translate	time * -2.8 , time * -0.1
 	}
 
 }
@@ -1225,7 +1225,7 @@ models/monsters/zsecurity/dzsechead2
 //       		blend	add
 // 	 		map	models/monsters/spawn/redspawn2.tga
 // 			translate	time * 0.27 , time * 0.08
-// 			rotate	time * -.5
+// 			rotate	time * -0.5
 // 			colored
 // 			vertexColor
 // 	}
@@ -1255,7 +1255,7 @@ models/monsters/zsecurity/dzsechead2
 //       
 //       		 blend	add
 // 	 		map	models/monsters/spawn/redspawn1.tga
-// 			rotate	time * -.6
+// 			rotate	time * -0.6
 // 			zeroClamp
 // 			colored
 // 			vertexColor
@@ -1514,7 +1514,7 @@ models/monsters/revenant/revenant2
 			blend	 diffusemap	
 			map	models/monsters/revenant/revenant2.tga
 			rgb		revtable[ time * .1 ]
-			//translate	time * -.02 , time * 0.2
+			//translate	time * -0.02 , time * 0.2
 
 	   }	
 		{
@@ -1527,7 +1527,7 @@ models/monsters/revenant/revenant2
 			if ( parm7 == 0 )
 			blend	 specularmap
 			map	models/monsters/revenant/revenant2_s.tga
-			translate	time * -.02 , time * 0.2
+			translate	time * -0.02 , time * 0.2
 			//rotate	time * 0.05
 			//rgb		rev2table[ time * .1 ]
 
@@ -2535,7 +2535,7 @@ models/monsters/spectre/dis2
 
         	        blend add	
 			map models/monsters/spectre/dis2.tga
-			alphaTest .5 + 0.5 * sintable [ time * .2  ] -.02
+			alphaTest .5 + 0.5 * sintable [ time * .2  ] -0.02
 			}          
 
 
@@ -2862,7 +2862,7 @@ models/monsters/trite/trite
 //       		blend	add
 // 	 		map	models/monsters/spawn/spawn2.tga
 // 			translate	time * 0.27 , time * 0.08
-// 			rotate	time * -.5
+// 			rotate	time * -0.5
 // 			colored
 // 			vertexColor	
 // 	}
@@ -2892,7 +2892,7 @@ models/monsters/trite/trite
 //       
 //       		 blend	add
 // 	 		map	models/monsters/spawn/spawn1.tga
-// 			rotate	time * -.6
+// 			rotate	time * -0.6
 // 			zeroClamp
 // 			colored
 // 			vertexColor
@@ -2966,7 +2966,7 @@ models/monsters/ghostskull/ghostskull3
 	   {
 			blend	 specularmap
 			map	models/monsters/ghostskull/ghostskull3_s.tga
-			scroll	time * -.5 , time * 0
+			scroll	time * -0.5 , time * 0
 	   }
 	   {
 			blend	 add

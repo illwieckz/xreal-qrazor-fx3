@@ -28,7 +28,7 @@ textures/particles/bug_goo4
             vertexcolor
            
 		//clamp
-		//rotate	( time * -.2 )
+		//rotate	( time * -0.2 )
 
 	}
 	
@@ -54,7 +54,7 @@ textures/particles/bug_goo3
             vertexcolor
            
 		//clamp
-		//rotate	( time * -.2 )
+		//rotate	( time * -0.2 )
 
 	}
 	
@@ -115,7 +115,7 @@ textures/particles/bioscansmoke
 //	{
 //		blend add
 //		map textures/particles/fball2.tga
-//		rotate	( time * -.9 )
+//		rotate	( time * -0.9 )
 //		zeroclamp
 //	}
 //
@@ -729,7 +729,7 @@ textures/particles/bfgballsac
       	blend add
 	   
 	 		map	textures/particles/bfgballsac.tga
-			rotate	time * -.1
+			rotate	time * -0.1
 			zeroClamp
 			
 	}
@@ -759,7 +759,7 @@ textures/particles/bfgballsac
 //      		 blend	add
 //	 		map	textures/particles/bfgballsac2.tga
 //			translate	time * 0.27 , time * 0.08
-//			rotate	time * -.5
+//			rotate	time * -0.5
 //	}
 //
 //
@@ -952,7 +952,7 @@ textures/particles/soul
 //		blue		1
 //		scale 1 / 32 , 1
 //		scroll table32[ time * 1.4 ] , 0
-//		//rotate	( time * -.2 )
+//		//rotate	( time * -0.2 )
 //		//zeroclamp
 //	}
 //
@@ -1050,7 +1050,7 @@ textures/particles/bloodspray4
             vertexcolor
             colored
 		//clamp
-		//rotate	( time * -.2 )
+		//rotate	( time * -0.2 )
 
 	}
 	
@@ -1076,7 +1076,7 @@ textures/particles/bloodspray3
             vertexcolor
             colored
 		//clamp
-		//rotate	( time * -.2 )
+		//rotate	( time * -0.2 )
 
 	}
 	
@@ -1103,7 +1103,7 @@ textures/particles/bloodspray2
             vertexcolor
             colored
 		//clamp
-		//rotate	( time * -.2 )
+		//rotate	( time * -0.2 )
 
 	}
 	
@@ -1128,7 +1128,7 @@ textures/particles/bloodspray1
             vertexcolor
             colored
 		//clamp
-		//rotate	( time * -.2 )
+		//rotate	( time * -0.2 )
 
 	}
 	
@@ -1353,7 +1353,7 @@ models/particles/tracer/tracer1
 		red		.7
 		green		.7
 		blue		.7
-		// centerscale	1 -.2*sinTable[time * 1 ], 1
+		// centerscale	1 -0.2*sinTable[time * 1 ], 1
 		zeroclamp
 	}
 
@@ -1399,7 +1399,7 @@ models/particles/tracer/tracer1
 //		blue		1
 //		scale 1 / 32 , 1
 //		scroll table32[ time * 1.4 ] , 0
-//		//rotate	( time * -.2 )
+//		//rotate	( time * -0.2 )
 //		//zeroclamp
 //	}
 //
@@ -1426,7 +1426,7 @@ models/particles/tracer/tracer1
 //		scroll table32[ time * 1 ] , 0
 //		//colored
 //		//vertexcolor
-//		//rotate	( time * -.2 )
+//		//rotate	( time * -0.2 )
 //		//zeroclamp
 //	}
 //
@@ -1520,7 +1520,7 @@ textures/particles/dust_sort10
 //		green		1
 //		blue		1
 //		scale 1 , 1
-//		rotate	( time * -.12 )
+//		rotate	( time * -0.12 )
 //		rgb		fireballtable[ time * .5 ]
 //		zeroclamp
 //	}
@@ -1544,7 +1544,7 @@ textures/particles/dust_sort10
 //		green		1
 //		blue		1
 //		scale 1 , 1
-//		//rotate	( time * -.12 )
+//		//rotate	( time * -0.12 )
 //		//zeroclamp
 //	}
 //
@@ -1571,7 +1571,7 @@ textures/particles/dust_sort10
 //		//scroll table32[ time * 1 ] , 0
 //		//colored
 //		vertexcolor
-//		//rotate	( time * -.2 )
+//		//rotate	( time * -0.2 )
 //		//zeroclamp
 //	}
 //
@@ -1596,7 +1596,7 @@ textures/particles/dust_sort10
 //		blue		1
 //		scale 1 / 16 , 1
 //		scroll table16[ time * 2.5 ] , 0
-//		//rotate	( time * -.2 )
+//		//rotate	( time * -0.2 )
 //		//zeroclamp
 //	}
 //
@@ -2776,7 +2776,7 @@ textures/particles/barrelpoof_sort
 //		blue		1
 //		scale 1 / 32 , 1
 //		scroll table32[ time * 1 ] , 0
-//		//rotate	( time * -.2 )
+//		//rotate	( time * -0.2 )
 //		//zeroclamp
 //	}
 //
@@ -2801,7 +2801,7 @@ textures/particles/barrelpoof_sort
 //		blue		1
 //		//scale 1 / 32 , 1
 //		//scroll table32[ time * 1.0 ] , 0
-//		//rotate	( time * -.2 )
+//		//rotate	( time * -0.2 )
 //		//zeroclamp
 //	}
 //
@@ -2825,7 +2825,7 @@ textures/particles/barrelpoof_sort
 //		blue		1
 //		//scale 1 / 32 , 1
 //		//scroll table32[ time * 1.2 ] , 0
-//		//rotate	( time * -.2 )
+//		//rotate	( time * -0.2 )
 //		//zeroclamp
 //	}
 //
@@ -2849,7 +2849,7 @@ textures/particles/barrelpoof_sort
 //		blue		.8
 //		//scale 1 / 32 , 1
 //		//scroll table32[ time * 1.4 ] , 0
-//		//rotate	( time * -.2 )
+//		//rotate	( time * -0.2 )
 //		//zeroclamp
 //	}
 //
@@ -2878,7 +2878,7 @@ textures/particles/barrelpoof_sort
 //				blend	bumpmap
 //               	map heightmap(textures/particles/sonic_h.tga , 4)
 //				rotate time * 1
-//				centerscale	1+.4*sinTable[time -.5], 1+.4*sinTable[time -.5]
+//				centerscale	1+.4*sinTable[time -0.5], 1+.4*sinTable[time -0.5]
 //				clamp
 //			}
 //   
@@ -2907,7 +2907,7 @@ textures/particles/barrelpoof_sort
 //			{
 //				blend	bumpmap
 //               	map heightmap(textures/particles/sonic_h.tga , 4)
-//				rotate time * -.1
+//				rotate time * -0.1
 //				centerscale	1+.4*sinTable[time], 1+.4*sinTable[time]
 //				clamp
 //			}

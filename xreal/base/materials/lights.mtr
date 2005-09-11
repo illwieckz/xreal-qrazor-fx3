@@ -148,7 +148,7 @@ lights/roundfire2
 // 
 // 		scale 1 / 32 , 1
 // 		scroll table32[ time * 1.6 ] , 0
-// 		//rotate	( time * -.2 )
+// 		//rotate	( time * -0.2 )
 // 		zeroclamp
 // 	}
 // 
@@ -254,7 +254,7 @@ lights/cloudscroll3
 // 		forceHighQuality
 // 		map	lights/cloudturn
 // 		colored
-// 		rotate	time * -.03
+// 		rotate	time * -0.03
 // 		zeroClamp
 // 		
 // 	}
@@ -325,7 +325,7 @@ lights/square_strobe_slow
 // 		forceHighQuality
 // 		map lights/tempspectrum2.tga
 // 		colored
-// 		rotate		time*-.5
+// 		rotate		time*-0.5
 // 		zeroClamp
 // 	}
 // 
@@ -380,7 +380,7 @@ lights/plasmaglow
 		//map	lights/floorvent01blue.tga
 		colored
 		rgb		bathroomtable[ time * .2 ]
-		rotate	time * -.1
+		rotate	time * -0.1
 		zeroClamp
 	}
 }

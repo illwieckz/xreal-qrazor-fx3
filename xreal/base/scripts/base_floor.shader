@@ -476,7 +476,7 @@ textures/base_floor/pool_floor2
 	
         	{
 		map textures/liquids/pool3d_5e.tga
-		tcmod scale -.25 -.25
+		tcmod scale -0.25 -0.25
 		tcmod scroll .025 .025
 		rgbgen wave sin .75 0 0 0
 	
@@ -512,7 +512,7 @@ textures/base_floor/pool_floor3
 	
         	{
 		map textures/liquids/pool3d_5e.tga
-		tcmod scale -.25 -.25
+		tcmod scale -0.25 -0.25
 		tcmod scroll .025 .025
 		rgbgen wave sin .75 0 0 0
 	
@@ -548,7 +548,7 @@ textures/base_floor/pool_side2
 	
        	{
 		map textures/liquids/pool3d_5e.tga
-		tcmod scale -.5 -.25
+		tcmod scale -0.5 -0.25
 		tcmod scroll .025 .025
 		rgbgen wave sin .75 0 0 0
 	}
@@ -584,7 +584,7 @@ textures/base_floor/pool_side3
 	
        	{
 		map textures/liquids/pool3d_5e.tga
-		tcmod scale -.5 -.25
+		tcmod scale -0.5 -0.25
 		tcmod scroll .025 .025
 		rgbgen wave sin .75 0 0 0
 	}

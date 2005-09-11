@@ -83,7 +83,7 @@ textures/base_wall2/respawn_effect1_ntrl
                 blendFunc add
 		rgbgen wave sin .25 .25 .25 .25
 		tcmod scale 1 -1
-                tcmod scroll -.5 0
+                tcmod scroll -0.5 0
 	}
 
 
@@ -91,7 +91,7 @@ textures/base_wall2/respawn_effect1_ntrl
 		map textures/base_wall2/ntrl_3_kc.tga
                 blendFunc add
 		tcmod scale 1 -1
-                rgbGen wave inversesawtooth -.3 1.3 0 .25
+                rgbGen wave inversesawtooth -0.3 1.3 0 .25
 	}
 
 	
@@ -387,7 +387,7 @@ textures/base_wall2/respawn_effect1
                 blendFunc add
 		rgbgen wave sin .25 .25 .25 .25
 		tcmod scale 1 -1
-                tcmod scroll -.5 0
+                tcmod scroll -0.5 0
 	}
 
 
@@ -395,7 +395,7 @@ textures/base_wall2/respawn_effect1
 		map textures/base_wall2/redjet_3_kc.tga
                 blendFunc add
 		tcmod scale 1 -1
-                rgbGen wave inversesawtooth -.3 1.3 0 .25
+                rgbGen wave inversesawtooth -0.3 1.3 0 .25
 	}
 
 
@@ -426,7 +426,7 @@ textures/base_wall2/respawn_effect1_blue
                 blendFunc add
 		rgbgen wave sin .25 .25 .25 .25
 		tcmod scale 1 -1
-                tcmod scroll -.5 0
+                tcmod scroll -0.5 0
 	}
 
 
@@ -434,7 +434,7 @@ textures/base_wall2/respawn_effect1_blue
 		map textures/base_wall2/bluejet_3_kc.tga
                 blendFunc add
 		tcmod scale 1 -1
-                rgbGen wave inversesawtooth -.3 1.3 0 .25
+                rgbGen wave inversesawtooth -0.3 1.3 0 .25
 	}
 
 	

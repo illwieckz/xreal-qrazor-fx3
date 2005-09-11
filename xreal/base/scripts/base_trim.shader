@@ -295,7 +295,7 @@ textures/base_trim/proto_comp
 {
         {
         	 map textures/base_trim/proto_comp2.tga
-        	 tcmod scroll 0 -.2
+        	 tcmod scroll 0 -0.2
         	 rgbGen wave sin .5 .5 0 3
                  rgbGen identity
         }
@@ -396,7 +396,7 @@ textures/base_trim/spiderbite
 	        map textures/base_trim/spiderbite.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
                 tcMod stretch sin .8 0.2 0 .1
-                tcmod scroll -.5 0
+                tcmod scroll -0.5 0
 	        rgbGen identity
 	}
 	{

@@ -535,7 +535,7 @@ textures/test/electricity3
 		tcMod scale .5 .5	
 		tcMod rotate 1
 		depthfunc equal
-		tcMod scroll -.01 -.05
+		tcMod scroll -0.01 -0.05
 	}
 
 	{
@@ -545,7 +545,7 @@ textures/test/electricity3
 		tcMod scale .5 .5	
 		tcMod rotate 1
 		depthfunc equal
-		tcMod scroll -.01 -.05
+		tcMod scroll -0.01 -0.05
 	}
 
 	//	END
@@ -643,7 +643,7 @@ textures/test/lavacrustshader
 	map textures/test/lavacrust.tga
 	blendfunc GL_ONE GL_SRC_ALPHA
 	tcMod turb .2 .01 5 .01
-	tcMod scroll  -.01 -.01
+	tcMod scroll  -0.01 -0.01
 	}
 	
 	
@@ -778,7 +778,7 @@ textures/test/slimeshader
 	map textures/test/slimecrust5d.tga
 	blendfunc GL_ONE GL_SRC_ALPHA
 	tcMod turb .2 .1 5 .01
-	tcMod scroll  -.01 -.01
+	tcMod scroll  -0.01 -0.01
 	}
 	
 //	FOG
@@ -850,7 +850,7 @@ textures/test/watertile
 	//map textures/test/watertest7h.tga
 	//blendFunc GL_ONE GL_SRC_COLOR
 	//tcMod turb .01 .03 0 0.05
-	//tcMod scroll -.01 -.01
+	//tcMod scroll -0.01 -0.01
 	//}
 	
 //	END
@@ -886,7 +886,7 @@ textures/test/water_trans
 	tcMod scale .2 .2
 	tcMod stretch sin 1 .1 .02 .05
 	rgbGen wave sin .8 .2 .02 .05
-	tcMod scroll -.001 .001
+	tcMod scroll -0.001 .001
 	}
 	
 	{
@@ -894,7 +894,7 @@ textures/test/water_trans
 	blendfunc GL_DST_COLOR GL_ONE
 	tcMod turb .1 .1 0 .01
 	tcMod scale .5 .5
-	tcMod scroll -.025 .02
+	tcMod scroll -0.025 .02
 	}
 	
 	{
@@ -904,7 +904,7 @@ textures/test/water_trans
 	tcMod turb .1 .01 .01 .01
 	tcMod stretch sin 1 .3 .015 .015
 	rgbGen wave sin .7 .3 .02 .02
-	tcMod scroll .001 -.001
+	tcMod scroll .001 -0.001
 	}
 
 //	END

@@ -385,7 +385,7 @@ models/items/powerups/megasphere1
       		 blend	add
 	 		map	models/items/powerups/megasphere1.tga
 			translate	time * 0.27 , time * 0.08
-			rotate	time * -.5
+			rotate	time * -0.5
 	}
 
 
@@ -413,7 +413,7 @@ models/items/powerups/megasphere2
       
       		 blend	add
 	 		map	models/items/powerups/megasphere2.tga
-			rotate	time * -.6
+			rotate	time * -0.6
 			zeroClamp
 			colored
 	}
@@ -2740,14 +2740,14 @@ models/items/pda/cd2
 	{
     	Blend BumpMap
 		Map models/items/pda/cd2b_local.tga
-	    //rotate	time * -.2
+	    //rotate	time * -0.2
 		zeroclamp
 		
 	}
 	{
     	Blend specularMap
 		Map models/items/pda/cd2_s.tga
-	    //rotate	time * -.13
+	    //rotate	time * -0.13
 		zeroclamp
 		
 	}
@@ -3923,7 +3923,7 @@ models/weapons/bfg/bfgblast6
 	{
 		blend		add
 		map		models/weapons/bfg/bfgblast6
-		rotate	time * -.05
+		rotate	time * -0.05
 		zeroclamp
 		highquality
 		rgb		1
@@ -3950,7 +3950,7 @@ models/weapons/bfg/bfgblast4
 	{
 		blend		add
 		map		models/weapons/bfg/bfgblast4
-		rotate	time * -.05
+		rotate	time * -0.05
 		zeroclamp
 		highquality
 		rgb		1

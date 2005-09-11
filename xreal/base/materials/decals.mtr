@@ -98,7 +98,7 @@ textures/decals/telemars
   		map     textures/decals/telemars_c_add.tga
 		rgb		telemars[ time * .1 ]
 		
-		rotate time * -.035
+		rotate time * -0.035
 
 	} 			
 	 	bumpmap	textures/decals/telemars_local.tga
@@ -739,7 +739,7 @@ textures/decals/tunnel
 		alpha		tunnelVisionSolidAlpha[ parm3 ] - (time-parm0)*0.25
 	    blend		blend
 		centerscale	0.65+0.05*sinTable[time], 0.65+0.05*sinTable[time]
-		rotate time * -.01
+		rotate time * -0.01
 		map    textures/decals/tunnel.tga
 		clamp
 	}
@@ -766,7 +766,7 @@ textures/decals/bfgvision
 		alpha		0.15
 	    blend		blend
 		//centerscale	0.65+0.05*sinTable[time], 0.65+0.05*sinTable[time]
-		rotate time * -.21
+		rotate time * -0.21
 		map    textures/decals/bfgtunnel.tga
 		clamp
 	}

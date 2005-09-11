@@ -23,7 +23,7 @@ textures/liquids2/calm_poollight2nt
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 1.5 0 1.5 1 1 2
-			tcmod scroll -.05 .001
+			tcmod scroll -0.05 .001
 		}
 	
 		{ 
@@ -32,7 +32,7 @@ textures/liquids2/calm_poollight2nt
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 0 1.5 1 1.5 2 1
-			tcmod scroll .025 -.001
+			tcmod scroll .025 -0.001
 		}
 
 		{ 
@@ -89,7 +89,7 @@ textures/liquids2/clear_ripple1v
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 1.5 0 1.5 1 1 2
-			tcmod scroll -.05 .001
+			tcmod scroll -0.05 .001
 		}
 	
 		{ 
@@ -98,7 +98,7 @@ textures/liquids2/clear_ripple1v
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 0 1.5 1 1.5 2 1
-			tcmod scroll .025 -.001
+			tcmod scroll .025 -0.001
 		}
 
 		{ 
@@ -132,7 +132,7 @@ textures/liquids2/clear_ripple1_q3dm1v
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 1.5 0 1.5 1 1 2
-			tcmod scroll -.05 .001
+			tcmod scroll -0.05 .001
 		}
 	
 		{ 
@@ -141,7 +141,7 @@ textures/liquids2/clear_ripple1_q3dm1v
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 0 1.5 1 1.5 2 1
-			tcmod scroll .025 -.001
+			tcmod scroll .025 -0.001
 		}
 
 		{ 
@@ -178,7 +178,7 @@ textures/liquids2/clear_calm1v
 		{ 
 			map textures/liquids/pool3d_3e.tga
 			blendFunc GL_dst_color GL_one
-			tcmod scale -.5 -.5
+			tcmod scale -0.5 -0.5
 			tcmod scroll .025 .025
                         rgbGen vertex
 		}

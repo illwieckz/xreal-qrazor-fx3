@@ -141,8 +141,8 @@ textures/sfx2/ouchfog
 	{
 		map textures/sfx2/ouchfog.tga
 		blendfunc gl_dst_color gl_zero
-		tcmod scale -.05 -.05
-		tcmod scroll .01 -.01
+		tcmod scale -0.05 -0.05
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 
@@ -150,7 +150,7 @@ textures/sfx2/ouchfog
 		map textures/sfx2/ouchfog.tga
 		blendfunc gl_dst_color gl_zero
 		tcmod scale .05 .05
-		tcmod scroll .01 -.01
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 
@@ -173,7 +173,7 @@ textures/sfx2/autorain
 	{
 		map textures/sfx2/autorain.tga
                 tcMod Scroll .5 -8
-                tcMod turb .1 .25 0 -.1
+                tcMod turb .1 .25 0 -0.1
                 blendFunc GL_ONE GL_ONE
         }
         //{
@@ -1120,13 +1120,13 @@ textures/sfx2/scrolling_red
 	{
 		map textures/base_light/jaildr1_3.tga
 		blendFunc GL_DST_COLOR GL_ZERO
-		tcMod scroll 0 -.25
+		tcMod scroll 0 -0.25
 		rgbGen identity
 	}
 	{
 		map textures/base_light/jaildr1_3.blend.tga
 		rgbGen wave sin 0.5 0.5 1 1
-		tcMod scroll 0 -.25
+		tcMod scroll 0 -0.25
 		blendfunc GL_ONE GL_ONE
 	}
 }

@@ -496,7 +496,7 @@ textures/gothic_block/wetwall
 	}
         {
 		map textures/gothic_block/wetwallfx.tga
-                tcmod scroll 0 -.1
+                tcmod scroll 0 -0.1
                 tcmod scale 2 .6
                 blendFunc GL_ONE GL_ONE
                 rgbGen identity

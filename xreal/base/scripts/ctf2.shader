@@ -331,13 +331,13 @@ textures/ctf2/jaildr_bluescroll
 	{
 		map textures/ctf2/jaildr_blue.tga
 		blendFunc GL_DST_COLOR GL_ZERO
-		tcMod scroll 0 -.25
+		tcMod scroll 0 -0.25
 		rgbGen identity
 	}
 	{
 		map textures/ctf2/jaildr_blue.blend.tga
 		rgbGen wave sin 0.5 0.5 1 1
-		tcMod scroll 0 -.25
+		tcMod scroll 0 -0.25
 		blendfunc GL_ONE GL_ONE
 	}
 }

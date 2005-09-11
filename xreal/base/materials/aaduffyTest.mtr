@@ -181,7 +181,7 @@ particles/flowingblood
 			blend bumpmap	
 			map textures/hell/lava1_local.tga
 			centerscale	1+.05*sinTable[time * .1 ], 1+.05*sinTable[time * .1]
-			//scroll	time * 0 , time * -.04	
+			//scroll	time * 0 , time * -0.04	
 			vertexcolor
 			
 	}
@@ -189,7 +189,7 @@ particles/flowingblood
 			blend diffusemap	
 			map models/mapobjects/teleporter/telecolon1.tga
 			//scale 1 , 3
-			scroll	time * 0 , time * -.06	
+			scroll	time * 0 , time * -0.06	
 			alphaTest 0.5
 			vertexcolor
 			
@@ -200,7 +200,7 @@ particles/flowingblood
 			map models/mapobjects/teleporter/telecolon1_s.tga
 
 			//scale 1 , 3
-			scroll	time * 0 , time * -.01	
+			scroll	time * 0 , time * -0.01	
 			vertexcolor
 			
 	}

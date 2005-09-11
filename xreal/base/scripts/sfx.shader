@@ -1557,8 +1557,8 @@ textures/sfx/hellfog
 	{
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
-		tcmod scale -.05 -.05
-		tcmod scroll .01 -.01
+		tcmod scale -0.05 -0.05
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 
@@ -1566,7 +1566,7 @@ textures/sfx/hellfog
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
 		tcmod scale .05 .05
-		tcmod scroll .01 -.01
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 
@@ -1589,8 +1589,8 @@ textures/sfx/hellfog_1k
 	{
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
-		tcmod scale -.05 -.05
-		tcmod scroll .01 -.01
+		tcmod scale -0.05 -0.05
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 
@@ -1598,7 +1598,7 @@ textures/sfx/hellfog_1k
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
 		tcmod scale .05 .05
-		tcmod scroll .01 -.01
+		tcmod scroll .01 -0.01
 	}
 }
 
@@ -1619,8 +1619,8 @@ textures/sfx/hellfog_mini_dm10
 	{
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
-		tcmod scale -.05 -.05
-		tcmod scroll .01 -.01
+		tcmod scale -0.05 -0.05
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 
@@ -1628,7 +1628,7 @@ textures/sfx/hellfog_mini_dm10
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
 		tcmod scale .05 .05
-		tcmod scroll .01 -.01
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 
@@ -1651,8 +1651,8 @@ textures/sfx/hellfog_pj_dm10
 	{
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
-		tcmod scale -.05 -.05
-		tcmod scroll .01 -.01
+		tcmod scale -0.05 -0.05
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 
@@ -1660,7 +1660,7 @@ textures/sfx/hellfog_pj_dm10
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
 		tcmod scale .05 .05
-		tcmod scroll .01 -.01
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 
@@ -1681,8 +1681,8 @@ textures/sfx/hellfog_tim_dm14
 	{
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
-		tcmod scale -.05 -.05
-		tcmod scroll .01 -.01
+		tcmod scale -0.05 -0.05
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 
@@ -1690,7 +1690,7 @@ textures/sfx/hellfog_tim_dm14
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
 		tcmod scale .05 .05
-		tcmod scroll .01 -.01
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 
@@ -1715,8 +1715,8 @@ textures/sfx/hellfogdense
 	{
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
-		tcmod scale -.05 -.05
-		tcmod scroll .01 -.01
+		tcmod scale -0.05 -0.05
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 
@@ -1724,7 +1724,7 @@ textures/sfx/hellfogdense
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
 		tcmod scale .05 .05
-		tcmod scroll .01 -.01
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 		
@@ -1766,8 +1766,8 @@ textures/sfx/kc_hellfog_1k
 	{
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
-		tcmod scale -.05 -.05
-		tcmod scroll .01 -.01
+		tcmod scale -0.05 -0.05
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 
@@ -1775,7 +1775,7 @@ textures/sfx/kc_hellfog_1k
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
 		tcmod scale .05 .05
-		tcmod scroll .01 -.01
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 
@@ -2127,8 +2127,8 @@ textures/sfx/mkc_fog_ctfblue
 	{
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
-		tcmod scale -.05 -.05
-		tcmod scroll .01 -.01
+		tcmod scale -0.05 -0.05
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 
@@ -2136,7 +2136,7 @@ textures/sfx/mkc_fog_ctfblue
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
 		tcmod scale .05 .05
-		tcmod scroll .01 -.01
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 }
@@ -2157,8 +2157,8 @@ textures/sfx/mkc_fog_ctfblue2
 	{
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
-		tcmod scale -.05 -.05
-		tcmod scroll .01 -.01
+		tcmod scale -0.05 -0.05
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 
@@ -2166,7 +2166,7 @@ textures/sfx/mkc_fog_ctfblue2
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
 		tcmod scale .05 .05
-		tcmod scroll .01 -.01
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 }
@@ -2185,8 +2185,8 @@ textures/sfx/mkc_fog_ctfred
 	{
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
-		tcmod scale -.05 -.05
-		tcmod scroll .01 -.01
+		tcmod scale -0.05 -0.05
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 
@@ -2194,7 +2194,7 @@ textures/sfx/mkc_fog_ctfred
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
 		tcmod scale .05 .05
-		tcmod scroll .01 -.01
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 }
@@ -2214,8 +2214,8 @@ textures/sfx/mkc_fog_tdm3
 	{
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
-		tcmod scale -.05 -.05
-		tcmod scroll .01 -.01
+		tcmod scale -0.05 -0.05
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 
@@ -2223,7 +2223,7 @@ textures/sfx/mkc_fog_tdm3
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
 		tcmod scale .05 .05
-		tcmod scroll .01 -.01
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 }
@@ -2461,8 +2461,8 @@ textures/sfx/q3dm14fog
 	{
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
-		tcmod scale -.05 -.05
-		tcmod scroll .01 -.01
+		tcmod scale -0.05 -0.05
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 
@@ -2470,7 +2470,7 @@ textures/sfx/q3dm14fog
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
 		tcmod scale .05 .05
-		tcmod scroll .01 -.01
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 		
@@ -2494,8 +2494,8 @@ textures/sfx/q3dm9fog
 	{
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
-		tcmod scale -.05 -.05
-		tcmod scroll .01 -.01
+		tcmod scale -0.05 -0.05
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 
@@ -2503,7 +2503,7 @@ textures/sfx/q3dm9fog
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
 		tcmod scale .05 .05
-		tcmod scroll .01 -.01
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 		
@@ -2527,8 +2527,8 @@ textures/sfx/q3tourney3fog
 	{
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
-		tcmod scale -.05 -.05
-		tcmod scroll .01 -.01
+		tcmod scale -0.05 -0.05
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 
@@ -2536,7 +2536,7 @@ textures/sfx/q3tourney3fog
 		map textures/liquids/kc_fogcloud3.tga
 		blendfunc gl_dst_color gl_zero
 		tcmod scale .05 .05
-		tcmod scroll .01 -.01
+		tcmod scroll .01 -0.01
 		rgbgen identity
 	}
 		
@@ -2557,7 +2557,7 @@ textures/sfx/rain
 	{
 		map textures/sfx/rain.tga
                 tcMod Scroll .5 -8
-                tcMod turb .1 .25 0 -.1
+                tcMod turb .1 .25 0 -0.1
                 blendFunc GL_ONE GL_ONE
         }
         {

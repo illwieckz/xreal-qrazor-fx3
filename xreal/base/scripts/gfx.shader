@@ -51,7 +51,7 @@ disconnected
 white
 {
 	{
-		map "*white"
+		map _white
 		blendfunc	GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 		rgbgen vertex
 	}
@@ -77,7 +77,7 @@ console
                 tcMod turb 0 .1 0 .1
                 tcMod scale 1 0.5
                 tcmod scroll 0.2  .1
-                //tcMod scroll -.01  -.02 
+                //tcMod scroll -0.01  -0.02 
                 //tcmod scale .02 .01
                 //tcmod rotate 3
 		}
@@ -95,7 +95,7 @@ menuback
         //        map textures/sfx/specular.tga
          //       //blendfunc add
         //        tcMod turb 0 .8 0 .2
-        //        tcmod scroll -.1  -.2
+        //        tcmod scroll -0.1  -0.2
 	//} 
          {
                 map textures/sfx/logo512.tga
@@ -777,7 +777,7 @@ projectionShadow
 	polygonOffset
 	deformVertexes projectionShadow
 	{
-		map			*white
+		map			_white
 		blendFunc GL_ONE GL_ZERO
 		rgbGen wave square 0 0 0 0				// just solid black
 	}	

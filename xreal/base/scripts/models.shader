@@ -393,7 +393,7 @@ models/mapobjects/banner/q3banner02
 		map models/mapobjects/banner/q3banner02.tga
                 blendFunc add
                 tcmod scale  3  1
-                tcmod scroll -.45 0
+                tcmod scroll -0.45 0
                 rgbGen wave sin .5 .5 0 .2
 	} 
         {
@@ -401,7 +401,7 @@ models/mapobjects/banner/q3banner02
                 blendFunc add
                 tcmod scale  4  1
                 tcmod scroll 1 0
-               // rgbGen wave sin .5 .5 0 -.2
+               // rgbGen wave sin .5 .5 0 -0.2
 	} 
 }
 
@@ -644,7 +644,7 @@ models/mapobjects/bitch/hologirl
         {
                 map models/mapobjects/bitch/hologirl2.tga
                 tcgen environment
-                tcMod scroll -6 -.2
+                tcMod scroll -6 -0.2
                 tcMod scale 1 1
 		blendFunc GL_ONE GL_ONE
 		//rgbGen wave sin .5 .5 0 .1
@@ -781,7 +781,7 @@ models/mapobjects/console/centercon
         {
 		map models/mapobjects/console/scrolltext.tga
 		blendFunc add
-                tcmod scroll 0 -.3
+                tcmod scroll 0 -0.3
                 //tcMod stretch sin .9 0.1 0 1.1
 		rgbGen vertex
 	}
@@ -850,7 +850,7 @@ models/mapobjects/console/scrolltext
         {
 		map models/mapobjects/console/scrolltext.tga
 		blendFunc add
-                tcmod scroll 0 -.3
+                tcmod scroll 0 -0.3
                 //tcMod stretch sin .9 0.1 0 1.1
 		rgbGen vertex
 	}
@@ -875,7 +875,7 @@ models/mapobjects/console/sphere
 	        tcmod rotate 40
                 tcGen environment
                 tcmod scroll 5 .4
-		rgbGen wave sin .5 .5 0 -.2
+		rgbGen wave sin .5 .5 0 -0.2
 	}
 }
 
@@ -902,7 +902,7 @@ models/mapobjects/console/sphere2
 		map models/mapobjects/console/sphere4.tga
 		blendFunc add
                // depthWrite
-		rgbGen wave sin .5 .5 0 -.2
+		rgbGen wave sin .5 .5 0 -0.2
 	}
          {
 		clampmap models/mapobjects/console/sphere2.tga
@@ -1011,7 +1011,7 @@ models/mapobjects/corpse/torso
                 //tcGen environment
                 blendFunc GL_ONE GL_ZERO
                 tcmod scale 4 4
-                tcMod scroll 0 -.09
+                tcMod scroll 0 -0.09
                 tcMod turb 0 0.05 0 .05
                 //rgbGen identity
 	}
@@ -1020,7 +1020,7 @@ models/mapobjects/corpse/torso
         //        //tcGen environment
         //        blendFunc GL_ONE GL_ONE
         //        tcmod scale 2 2
-        //        tcMod scroll 0 -.09
+        //        tcMod scroll 0 -0.09
        //         tcMod turb 0 0.07 0 .08
        //         //rgbGen identity
 	//}       
@@ -1292,8 +1292,8 @@ models/mapobjects/jets/jet_1
         {
 		map models/mapobjects/jets/jet_2.tga
                 blendFunc add
-                tcmod scroll 3 -.5
-                rgbGen wave inversesawtooth -.3 1.3 0 .5
+                tcmod scroll 3 -0.5
+                rgbGen wave inversesawtooth -0.3 1.3 0 .5
 	}
 }
 
@@ -1331,7 +1331,7 @@ models/mapobjects/lamps/beam
         }
         {
 		map models/mapobjects/lamps/beam.tga
-                tcMod Scroll -.3 0
+                tcMod Scroll -0.3 0
                 blendFunc GL_ONE GL_ONE
         }
      
@@ -1646,19 +1646,19 @@ models/mapobjects/podium/podiumfx1
 	{
 		map models/mapobjects/podium/podiumfx1.tga
 		blendFunc GL_ONE GL_ONE
-                tcmod scroll 2 -.3
+                tcmod scroll 2 -0.3
 		rgbGen wave inversesawtooth 0 1 .35 .3
 	} 
         {
 		map models/mapobjects/podium/podiumfx1b.tga
 		blendFunc GL_ONE GL_ONE
-                tcmod scroll -1.7 -.3
+                tcmod scroll -1.7 -0.3
                rgbGen wave inversesawtooth 0 1 .35 .3
 	} 
         {
 		map models/mapobjects/podium/podiumfx1b.tga
 		blendFunc GL_ONE GL_ONE
-                tcmod scroll -1.1 -.3
+                tcmod scroll -1.1 -0.3
 		rgbGen wave inversesawtooth 0 1 .35 .3
 	}                             
 }
@@ -1671,21 +1671,21 @@ models/mapobjects/podium/podiumfx2
 		map models/mapobjects/podium/podiumfx1.tga
 		blendFunc GL_ONE GL_ONE
                 tcmod scale 1 .5
-                tcmod scroll .8 -.3
+                tcmod scroll .8 -0.3
 		rgbGen wave inversesawtooth 0 1 .7 .6
 	} 
         {
 		map models/mapobjects/podium/podiumfx1b.tga
 		blendFunc GL_ONE GL_ONE
                 tcmod scale 1 .5
-                tcmod scroll -1.7 -.3
+                tcmod scroll -1.7 -0.3
 		rgbGen wave inversesawtooth 0 1 .7 .6
 	} 
         {
 		map models/mapobjects/podium/podiumfx1b.tga
 		blendFunc GL_ONE GL_ONE
                 tcmod scale 1 .5
-                tcmod scroll -1.1 -.3
+                tcmod scroll -1.1 -0.3
 		rgbGen wave inversesawtooth 0 1 .7 .6
 	}                                 
 }
@@ -1698,21 +1698,21 @@ models/mapobjects/podium/podiumfx3
 		map models/mapobjects/podium/podiumfx1.tga
 		blendFunc GL_ONE GL_ONE
                 tcmod scale 1 .1
-                tcmod scroll 1 -.3
+                tcmod scroll 1 -0.3
 		rgbGen wave inversesawtooth 0 1 1.1 .9
 	} 
         {
 		map models/mapobjects/podium/podiumfx1b.tga
 		blendFunc GL_ONE GL_ONE
                 tcmod scale 1 .1
-                tcmod scroll -1.7 -.3
+                tcmod scroll -1.7 -0.3
 		rgbGen wave inversesawtooth 0 1 1.1 .9
 	} 
         {
 		map models/mapobjects/podium/podiumfx1b.tga
 		blendFunc GL_ONE GL_ONE
                 tcmod scale 1 .1
-                tcmod scroll -1.1 -.3
+                tcmod scroll -1.1 -0.3
 		rgbGen wave inversesawtooth 0 1 1.1 .9
 	}                                           
 }
@@ -1857,7 +1857,7 @@ models/mapobjects/skel/xray
         {
 		
                 map models/mapobjects/bitch/hologirl2.tga
-                tcMod scroll -6 -.2
+                tcMod scroll -6 -0.2
                 tcgen environment
 		blendFunc GL_ONE GL_ONE
 		rgbGen identity
@@ -1981,7 +1981,7 @@ models/mapobjects/spotlamp/beam
         }
         //{
 	//	map models/mapobjects/spotlamp/beam.tga
-         //       tcMod Scroll -.3 0
+         //       tcMod Scroll -0.3 0
          //       blendFunc GL_ONE GL_ONE
         //}
      
@@ -2027,14 +2027,14 @@ models/mapobjects/teleporter/energy
                map models/mapobjects/teleporter/energy.tga
                blendfunc GL_ONE GL_ONE
                tcMod scroll 2.2 1.3
-               rgbGen wave inversesawtooth -.3 1.3 0 1.3
+               rgbGen wave inversesawtooth -0.3 1.3 0 1.3
              
        }
 	{    
 		map models/mapobjects/teleporter/energy2.tga
 		blendfunc GL_ONE GL_ONE
 		tcMod scroll -1 .5
-		rgbGen wave inversesawtooth -.2 1.2 0 .5
+		rgbGen wave inversesawtooth -0.2 1.2 0 .5
               
 	}
 	{    
@@ -2104,7 +2104,7 @@ models/mapobjects/teleporter/widget
         {
                 map models/mapobjects/teleporter/transparency2.tga
                 blendfunc GL_ONE GL_ONE
-                tcMod scroll -.1 -.2
+                tcMod scroll -0.1 -0.2
         }
 
 }
@@ -2399,7 +2399,7 @@ models/players/bones/xray
         {
 		
                 map models/mapobjects/bitch/hologirl2.tga
-                tcMod scroll -6 -.2
+                tcMod scroll -6 -0.2
                 tcgen environment
 		blendFunc GL_ONE GL_ONE
 		rgbGen identity
@@ -2584,7 +2584,7 @@ models/players/grunt/stripe_h
                 map textures/sfx/electricgrade3.tga
 		//tcmod scale 6 6
                 //tcmod rotate 350
-                tcmod scroll 0 -.5
+                tcmod scroll 0 -0.5
 		//tcGen environment
 		blendfunc GL_ONE GL_ZERO
                 rgbGen identity
@@ -2747,7 +2747,7 @@ models/players/lucy/angel
                
                 map models/mapobjects/bitch/hologirl2.tga
                  tcgen environment
-                tcMod scroll -6 -.2
+                tcMod scroll -6 -0.2
                 tcMod scale 1 1
 		blendFunc GL_ONE GL_ONE
 		//rgbGen identity
@@ -2773,7 +2773,7 @@ models/players/lucy/h_angel
                
                 map models/mapobjects/bitch/hologirl2.tga
                  tcgen environment
-                tcMod scroll -6 -.2
+                tcMod scroll -6 -0.2
                 tcMod scale 1 1
 		blendFunc GL_ONE GL_ONE
 		 rgbGen identity
@@ -3874,7 +3874,7 @@ models/powerups/armor/energy_grn1
                 tcGen environment
                 tcmod rotate 30
 		tcMod scroll 1 1
-                rgbGen wave triangle -.3 1.3 0 .3
+                rgbGen wave triangle -0.3 1.3 0 .3
 	}
 
 }
@@ -4254,7 +4254,7 @@ models/weapons2/bfg/bfg_e
 		blendfunc GL_ONE GL_ZERO                   
                 tcMod turb 0 .5 0 .1
                 tcmod scale .4 .4
-                tcMod scroll .2 -.2         
+                tcMod scroll .2 -0.2         
                 rgbGen identity             
         }	
         {
@@ -4446,7 +4446,7 @@ models/weapons2/grapple/grapple_j
                 blendFunc GL_ONE GL_ONE
                 tcmod scale .7 .7
                 tcMod turb 0 .4 0 .3
-                tcMod scroll .7 -.4
+                tcMod scroll .7 -0.4
                 rgbGen identity
         }
         {

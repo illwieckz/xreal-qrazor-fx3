@@ -9,7 +9,7 @@ table subtleflick { { 1, .92 } }
 table subtleflick2 { { 0.25, 0.16 } }
 table pdscaleTable { { 1, .3, 1, .5, 1, .8, 1, .5, 1, .7, 1, .4 } }
 table pdscaleTable2 { { 2, 3, .5, 1 } }
-table pdscaleTable3 { { 1, -.5 } }
+table pdscaleTable3 { { 1, -0.5 } }
 table pdscaleTable4 { { 1, .5 } }
 table pdhexTable { { 0, 1, 0, 0, 0, 0 } }
 table pdcommTable { { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }
@@ -675,7 +675,7 @@ gui/alphalabs/bgspin
 		blend blend
 		map guis/assets/alphalabs/bgspin.tga
 	//	scale	1, pdscaleTable2[time * 0.3]
-	//	scroll time * -.2, time * -.8
+	//	scroll time * -0.2, time * -0.8
 	//	alpha	0.15
 		rotate	time * 0.1
 		colored
@@ -752,7 +752,7 @@ gui/alphalabs/fragbgmask
 	{
     		  	 blend	GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA
 				map	guis/assets/mainmenu/winktest2.tga
-				scroll time * -.01, time * .002
+				scroll time * -0.01, time * .002
 			//	rgb	pdStarTable [ time * 0.05 ]
 				colored
 				scale	0.7, 0.7
@@ -760,7 +760,7 @@ gui/alphalabs/fragbgmask
 	{
     		  	 blend	GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA
 				map	guis/assets/mainmenu/winktest2.tga
-				scroll time * -.008, time * -.2
+				scroll time * -0.008, time * -0.2
 			//	rgb	pdStarTable [ time * 0.05 ]
 				colored
 			//	scale	2, 2
@@ -768,7 +768,7 @@ gui/alphalabs/fragbgmask
 	{
     		  	 blend	GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA
 				map	guis/assets/mainmenu/winktest2.tga
-				scroll time * .1, time * -.001
+				scroll time * .1, time * -0.001
 			//	rgb	pdStarTable [ time * 0.05 ]
 				colored
 				scale	0.6, 0.6
@@ -795,7 +795,7 @@ gui/alphalabs/fragbgmask2
 	{
 		blend GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA
 		map guis/assets/common/pulselineadd.tga
-		scroll 0, time * -.2
+		scroll 0, time * -0.2
 		colored
 	}
 }
@@ -886,7 +886,7 @@ gui/chart/chart1
 	{
 		blend	blend
 		map		guis/assets/test/chart1.tga
-		scroll time * -.4, 0
+		scroll time * -0.4, 0
 		colored
 	}
 }
@@ -897,7 +897,7 @@ gui/chart/chart2
 	{
 		blend	blend
 		map		guis/assets/test/chart2.tga
-		scroll time * -.4, 0
+		scroll time * -0.4, 0
 		colored
 	}
 }
@@ -908,7 +908,7 @@ gui/chart/chart3
 	{
 		blend	blend
 		map		guis/assets/test/chart3.tga
-		scroll time * -.4, 0
+		scroll time * -0.4, 0
 		colored
 	}
 }
@@ -919,7 +919,7 @@ gui/chart/chart4
 	{
 		blend	blend
 		map		guis/assets/test/chart4.tga
-		scroll time * -.4, 0
+		scroll time * -0.4, 0
 		colored
 	}
 }
@@ -930,7 +930,7 @@ gui/teleporter/scroller
 	{
 		blend	blend
 		map		guis/assets/teleporter/scroller.tga
-		scroll time * -.2, 0
+		scroll time * -0.2, 0
 		colored
 	}
 }
@@ -2119,7 +2119,7 @@ gui/mainmenu/star
 	{
 		blend add
 		map guis/assets/mainmenu/stars.tga
-	//	scroll time * -.0015, 0
+	//	scroll time * -0.0015, 0
 		colored
 		
 		
@@ -2131,7 +2131,7 @@ gui/mainmenu/star1
 	{
 		blend add
 		map guis/assets/mainmenu/wink.tga
-		scroll time * -.002, time * -.002
+		scroll time * -0.002, time * -0.002
 		rgb	pdStarTable [ time * 0.1 ]
 		
 		
@@ -3118,7 +3118,7 @@ gui/marsspin
 // 	{
 //     		  	blend	GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA
 // 			map guis/assets/cpuserver/mars3.tga
-// 			scroll time * .6, time * -.6
+// 			scroll time * .6, time * -0.6
 // 			colored
 // 	}       
 // 
@@ -3300,7 +3300,7 @@ gui/outerglowbar2
 // 	{
 // 		blend blend
 // 		map guis/assets/test/anglespike.tga
-// 		scroll time * .6, time * -.6
+// 		scroll time * .6, time * -0.6
 // 		colored
 // 	}
 // }
@@ -3329,7 +3329,7 @@ gui/outerglowbar2
 // 	{
 //     		  	blend	GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA
 // 			map guis/assets/test/anglespike.tga
-// 			scroll time * .6, time * -.6
+// 			scroll time * .6, time * -0.6
 // 			colored
 // 	}       
 // 
@@ -3752,7 +3752,7 @@ gui/warp/static2
 		blend blend
 		map guis/assets/test/warp.tga
 		scale	1, pdscaleTable2[time * 0.3]
-		scroll time * -.2, time * -.8
+		scroll time * -0.2, time * -0.8
 	//	alpha	0.15
 		colored
 	}
@@ -3768,7 +3768,7 @@ gui/warp/static2
 		blend blend
 		map guis/assets/test/static.tga
 		scale	1, 2
-		scroll 0, time * -.8
+		scroll 0, time * -0.8
 		colored
 	}
 }
@@ -3779,7 +3779,7 @@ gui/warp/static
 		blend blend
 		map guis/assets/test/warp.tga
 		scale	1, pdscaleTable2[time * 0.3]
-		scroll time * -.2, time * -.8
+		scroll time * -0.2, time * -0.8
 	//	alpha	0.15
 		colored
 	}
@@ -3810,7 +3810,7 @@ gui/warp/static
 		blend blend
 		map guis/assets/test/static.tga
 		scale	1, 2
-		scroll 0, time * -.8
+		scroll 0, time * -0.8
 		alpha	0.7
 	}
 }
@@ -3843,7 +3843,7 @@ gui/menu/blackbars
 	{
     		  	 blend	GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA
 				map	guis/assets/caverns/testmat2.tga
-				scroll time * 0 , time * -.12
+				scroll time * 0 , time * -0.12
 				alpha	parm3	
 	}          
 
@@ -3913,7 +3913,7 @@ gui/test/gui_scanlines
 	{
 		blend add
 		map guis/assets/test/gui_scanlines.tga
-		scroll 0, time * -.04
+		scroll 0, time * -0.04
 		colored
 	}
 }
@@ -3923,7 +3923,7 @@ gui/test/gui_scanlines2
 	{
 		blend add
 		map guis/assets/test/gui_scanlines2.tga
-		scroll 0, time * -.04
+		scroll 0, time * -0.04
 		red	parm0
 		green	parm1
 		blue	parm2
@@ -3957,7 +3957,7 @@ gui/test/gui_scanlines5
 		blend add
 		map guis/assets/test/gui_scanlines5.tga
 		colored
-		scroll 0, time * -.02
+		scroll 0, time * -0.02
 	}
 }
 
@@ -3966,7 +3966,7 @@ gui/test/gui_scanlines5
 // 	{
 // 		blend add
 // 		map guis/assets/test/gui_scanline3.tga
-// 		scroll 0, time * -.2
+// 		scroll 0, time * -0.2
 // 		red	parm0
 // 		green	parm1
 // 		blue	parm2
@@ -3978,7 +3978,7 @@ gui/test/gui_scanpulse2
 	{
 		blend blend
 		map guis/assets/common/pulseline.tga
-		scroll 0, time * -.2
+		scroll 0, time * -0.2
 		red	parm0
 		green	parm1
 		blue	parm2
@@ -3991,7 +3991,7 @@ gui/test/gui_scanpulse2
 // 	{
 // 		blend blend
 // 		map guis/assets/common/pulseline3.tga
-// 		scroll 0, time * -.2
+// 		scroll 0, time * -0.2
 // 		red	parm0
 // 		green	parm1
 // 		blue	parm2
@@ -4386,7 +4386,7 @@ gui/testmat
        
       	blend blend
 	 map	guis/assets/caverns/testmat.tga
-	scroll time * 0 , time * -.12
+	scroll time * 0 , time * -0.12
 		alpha	parm3	
 	}
 }
@@ -8739,7 +8739,7 @@ table slightdim { { 0.9, 1 } }
 // 	{
 // 		blend add
 // 		map guis/assets/test/gui_scanlines.tga
-// 		scroll 0, time * -.04
+// 		scroll 0, time * -0.04
 // 	}
 // }
 // 

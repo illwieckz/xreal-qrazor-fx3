@@ -28,7 +28,7 @@ textures/liquids/x_calm_pool_nolight
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 1.5 0 1.5 1 1 2
-			tcmod scroll -.05 .001
+			tcmod scroll -0.05 .001
 		}
 	
 		{ 
@@ -37,7 +37,7 @@ textures/liquids/x_calm_pool_nolight
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 0 1.5 1 1.5 2 1
-			tcmod scroll .025 -.001
+			tcmod scroll .025 -0.001
 		}
 
 		{ 
@@ -90,7 +90,7 @@ textures/liquids/calm_pool_nolight
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 1.5 0 1.5 1 1 2
-			tcmod scroll -.05 .001
+			tcmod scroll -0.05 .001
 		}
 	
 		{ 
@@ -99,7 +99,7 @@ textures/liquids/calm_pool_nolight
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 0 1.5 1 1.5 2 1
-			tcmod scroll .025 -.001
+			tcmod scroll .025 -0.001
 		}
 
 		{ 
@@ -240,7 +240,7 @@ textures/liquids/xctf_painwater
 			blendfunc GL_DST_COLOR GL_ONE
 			tcMod turb .1 .1 0 .01
 			tcMod scale .5 .5
-			tcMod scroll -.025 .02
+			tcMod scroll -0.025 .02
 		}
                 {
 			map textures/sfx/bolts.tga
@@ -279,7 +279,7 @@ textures/liquids/clear_calm1
 		{ 
 			map textures/liquids/pool3d_3e.tga
 			blendFunc GL_dst_color GL_one
-			tcmod scale -.5 -.5
+			tcmod scale -0.5 -0.5
 			tcmod scroll .025 .025
 		}
 
@@ -318,7 +318,7 @@ textures/liquids/clear_ripple3
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 1.5 0 1.5 1 1 2
-			tcmod scroll -.05 .001
+			tcmod scroll -0.05 .001
 		}
 	
 		{ 
@@ -327,7 +327,7 @@ textures/liquids/clear_ripple3
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 0 1.5 1 1.5 2 1
-			tcmod scroll .025 -.001
+			tcmod scroll .025 -0.001
 		}
 
 		{ 
@@ -372,7 +372,7 @@ textures/liquids/clear_ripple2
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 1.5 0 1.5 1 1 2
-			tcmod scroll -.05 .001
+			tcmod scroll -0.05 .001
 		}
 	
 		{ 
@@ -381,7 +381,7 @@ textures/liquids/clear_ripple2
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 0 1.5 1 1.5 2 1
-			tcmod scroll .025 -.001
+			tcmod scroll .025 -0.001
 		}
 
 		{ 
@@ -427,7 +427,7 @@ textures/liquids/clear_ripple1
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 1.5 0 1.5 1 1 2
-			tcmod scroll -.05 .001
+			tcmod scroll -0.05 .001
 		}
 	
 		{ 
@@ -436,7 +436,7 @@ textures/liquids/clear_ripple1
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 0 1.5 1 1.5 2 1
-			tcmod scroll .025 -.001
+			tcmod scroll .025 -0.001
 		}
 
 		{ 
@@ -479,7 +479,7 @@ textures/liquids/clear_ripple1_q3dm1
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 1.5 0 1.5 1 1 2
-			tcmod scroll -.05 .001
+			tcmod scroll -0.05 .001
 		}
 	
 		{ 
@@ -488,7 +488,7 @@ textures/liquids/clear_ripple1_q3dm1
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 0 1.5 1 1.5 2 1
-			tcmod scroll .025 -.001
+			tcmod scroll .025 -0.001
 		}
 
 		{ 
@@ -758,7 +758,7 @@ textures/liquids/calm_pool
 			blendfunc GL_DST_COLOR GL_ONE
 			tcMod turb .1 .1 0 .01
 			tcMod scale .5 .5
-			tcMod scroll -.025 .02
+			tcMod scroll -0.025 .02
 		}
 
 
@@ -796,7 +796,7 @@ textures/liquids/calm_poollight
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 1.5 0 1.5 1 1 2
-			tcmod scroll -.05 .001
+			tcmod scroll -0.05 .001
 		}
 	
 		{ 
@@ -805,7 +805,7 @@ textures/liquids/calm_poollight
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 0 1.5 1 1.5 2 1
-			tcmod scroll .025 -.001
+			tcmod scroll .025 -0.001
 		}
 
 		{ 
@@ -855,7 +855,7 @@ textures/liquids/calm_poollight2
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 1.5 0 1.5 1 1 2
-			tcmod scroll -.05 .001
+			tcmod scroll -0.05 .001
 		}
 	
 		{ 
@@ -864,7 +864,7 @@ textures/liquids/calm_poollight2
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 0 1.5 1 1.5 2 1
-			tcmod scroll .025 -.001
+			tcmod scroll .025 -0.001
 		}
 
 		{ 
@@ -921,7 +921,7 @@ textures/liquids/calm_pool_bgtess
 			blendfunc GL_DST_COLOR GL_ONE
 			tcMod turb .1 .1 0 .01
 			tcMod scale .5 .5
-			tcMod scroll -.025 .02
+			tcMod scroll -0.025 .02
 		}
 
 
@@ -948,7 +948,7 @@ textures/liquids/calm_pool_bgtess
 		        //tcMod scale 1 1
                          tcMod scale .5 .6
 			//tcMod scroll .4 .01
-                        tcMod turb .1 .25 0 -.1
+                        tcMod turb .1 .25 0 -0.1
                        
 		}
 	       //{

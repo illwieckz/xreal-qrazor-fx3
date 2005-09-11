@@ -281,13 +281,13 @@ ui/assets/logo01
         {
 		map ui/assets/logo02.tga
                 BlendFunc add
-                tcmod scroll -.51 0
+                tcmod scroll -0.51 0
 		rgbGen wave triangle 1 1 0 1
 	}
         {
 		map ui/assets/logo03.tga
                 BlendFunc add
-		tcmod scroll -.3 0
+		tcmod scroll -0.3 0
 	}
         {
 		map ui/assets/logo03.tga
@@ -450,7 +450,7 @@ textures/proto2/pulsebeam
         {
 		map textures/proto2/pulsebeam2.tga
                 BlendFunc add
-		rgbGen wave inversesawtooth -.3 1.3 0 1
+		rgbGen wave inversesawtooth -0.3 1.3 0 1
 	}
 }
 
@@ -1003,7 +1003,7 @@ textures/proto2/teamwerkz_red1
         {
 		map textures/proto2/teamwerkz_red1.tga
 		blendFunc add
-                tcMod scroll -.2 0
+                tcMod scroll -0.2 0
 		rgbgen wave sin 0 1 0 .19
 	}
         
@@ -1024,7 +1024,7 @@ textures/proto2/teamwerkz_blue1
         {
 		map textures/proto2/teamwerkz_blue1.tga
 		blendFunc add
-                tcMod scroll -.2 0
+                tcMod scroll -0.2 0
 		rgbgen wave sin 0 1 0 .19
 	}
         
@@ -1815,7 +1815,7 @@ textures/proto2/concrete01wetwall
 		{
 			map textures/proto2/ooze.tga
                         tcmod scale 2 2
-                        tcmod scroll 0 -.1
+                        tcmod scroll 0 -0.1
                         rgbGen identity
                 }
                 {
