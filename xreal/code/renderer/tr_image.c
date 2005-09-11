@@ -2188,8 +2188,7 @@ static void R_CreateDlightImage(void)
 			data[y][x][3] = 255;
 		}
 	}
-	tr.dlightImage =
-		R_CreateImage("*dlight", (byte *) data, DLIGHT_SIZE, DLIGHT_SIZE, qfalse, qfalse, GL_CLAMP, qfalse);
+	tr.dlightImage = R_CreateImage("_dlight", (byte *) data, DLIGHT_SIZE, DLIGHT_SIZE, qfalse, qfalse, GL_CLAMP, qfalse);
 }
 
 
@@ -2290,7 +2289,7 @@ static void R_CreateFogImage(void)
 	// standard openGL clamping doesn't really do what we want -- it includes
 	// the border color at the edges.  OpenGL 1.2 has clamp-to-edge, which does
 	// what we want.
-	tr.fogImage = R_CreateImage("*fog", (byte *) data, FOG_S, FOG_T, qfalse, qfalse, GL_CLAMP, qfalse);
+	tr.fogImage = R_CreateImage("_fog", (byte *) data, FOG_S, FOG_T, qfalse, qfalse, GL_CLAMP, qfalse);
 	ri.Hunk_FreeTempMemory(data);
 
 	borderColor[0] = 1.0;
@@ -2337,7 +2336,7 @@ static void R_CreateDefaultImage(void)
 		data[x][DEFAULT_SIZE - 1][2] =
 		data[x][DEFAULT_SIZE - 1][3] = 255;
 	}
-	tr.defaultImage = R_CreateImage("*default", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, qtrue, qfalse, GL_REPEAT, qfalse);
+	tr.defaultImage = R_CreateImage("_default", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, qtrue, qfalse, GL_REPEAT, qfalse);
 }
 
 
@@ -2355,11 +2354,11 @@ void R_CreateBuiltinImages(void)
 
 	// we use a solid white image instead of disabling texturing
 	Com_Memset(data, 255, sizeof(data));
-	tr.whiteImage = R_CreateImage("*white", (byte *) data, 8, 8, qfalse, qfalse, GL_REPEAT, qfalse);
+	tr.whiteImage = R_CreateImage("_white", (byte *) data, 8, 8, qfalse, qfalse, GL_REPEAT, qfalse);
 
 	// we use a solid black image instead of disabling texturing
 	Com_Memset(data, 0, sizeof(data));
-	tr.blackImage = R_CreateImage("*black", (byte *) data, 8, 8, qfalse, qfalse, GL_REPEAT, qfalse);
+	tr.blackImage = R_CreateImage("_black", (byte *) data, 8, 8, qfalse, qfalse, GL_REPEAT, qfalse);
 
 	// generate a default normalmap with a zero heightmap
 	for(x = 0; x < DEFAULT_SIZE; x++)
@@ -2370,7 +2369,7 @@ void R_CreateBuiltinImages(void)
 			data[y][x][3] = 0;
 		}
 	}
-	tr.flatImage = R_CreateImage("*flat", (byte *) data, 8, 8, qfalse, qfalse, GL_REPEAT, qtrue);
+	tr.flatImage = R_CreateImage("_flat", (byte *) data, 8, 8, qfalse, qfalse, GL_REPEAT, qtrue);
 
 	// with overbright bits active, we need an image which is some fraction of full color,
 	// for default lightmaps, etc
@@ -2383,16 +2382,13 @@ void R_CreateBuiltinImages(void)
 		}
 	}
 
-	tr.identityLightImage =
-		R_CreateImage("*identityLight", (byte *) data, 8, 8, qfalse, qfalse, GL_REPEAT, qfalse);
+	tr.identityLightImage = R_CreateImage("_identityLight", (byte *) data, 8, 8, qfalse, qfalse, GL_REPEAT, qfalse);
 
 
 	for(x = 0; x < 32; x++)
 	{
 		// scratchimage is usually used for cinematic drawing
-		tr.scratchImage[x] =
-			R_CreateImage("*scratch", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, qfalse, qtrue, GL_CLAMP,
-						  qfalse);
+		tr.scratchImage[x] =R_CreateImage("_scratch", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, qfalse, qtrue, GL_CLAMP, qfalse);
 	}
 
 	R_CreateDlightImage();
