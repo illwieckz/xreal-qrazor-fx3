@@ -24,13 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cmdlib.h"
 #include "scriplib.h"
 
-/*
-=============================================================================
-
-						PARSING STUFF
-
-=============================================================================
-*/
 
 typedef struct
 {
@@ -40,9 +33,8 @@ typedef struct
 } script_t;
 
 #define	MAX_INCLUDES	8
-script_t        scriptstack[MAX_INCLUDES];
-script_t       *script;
-int             scriptline;
+static script_t        scriptstack[MAX_INCLUDES];
+static script_t       *script;
 
 char            token[MAXTOKEN];
 qboolean        endofscript;
@@ -58,8 +50,10 @@ void AddScriptToStack(const char *filename)
 	int             size;
 
 	script++;
+	
 	if(script == &scriptstack[MAX_INCLUDES])
 		Error("script file exceeded MAX_INCLUDES");
+	
 	strcpy(script->filename, ExpandPath(filename));
 
 	size = LoadFile(script->filename, (void **)&script->buffer);
@@ -97,8 +91,10 @@ void ParseFromMemory(char *buffer, int size)
 {
 	script = scriptstack;
 	script++;
+	
 	if(script == &scriptstack[MAX_INCLUDES])
 		Error("script file exceeded MAX_INCLUDES");
+	
 	strcpy(script->filename, "memory buffer");
 
 	script->buffer = buffer;
@@ -134,7 +130,7 @@ void UnGetToken(void)
 qboolean EndOfScript(qboolean crossline)
 {
 	if(!crossline)
-		Error("Line %i is incomplete\n", scriptline);
+		Error("Line %i is incomplete\n", script->line);
 
 	if(!strcmp(script->filename, "memory buffer"))
 	{
@@ -149,7 +145,6 @@ qboolean EndOfScript(qboolean crossline)
 		return qfalse;
 	}
 	script--;
-	scriptline = script->line;
 	printf("returning to %s\n", script->filename);
 	return GetToken(crossline);
 }
@@ -159,6 +154,7 @@ qboolean EndOfScript(qboolean crossline)
 GetToken
 ==============
 */
+// *INDENT-OFF*
 qboolean GetToken(qboolean crossline)
 {
 	char           *token_p;
@@ -172,62 +168,71 @@ qboolean GetToken(qboolean crossline)
 	if(script->script_p >= script->end_p)
 		return EndOfScript(crossline);
 
-//
-// skip space
-//
-  skipspace:
-	while(*script->script_p <= 32)
+skipspace:
+	// skip whitespace
+	while(*script->script_p <= ' ')
 	{
 		if(script->script_p >= script->end_p)
 			return EndOfScript(crossline);
+		
 		if(*script->script_p++ == '\n')
 		{
 			if(!crossline)
-				Error("Line %i is incomplete\n", scriptline);
-			scriptline = script->line++;
+				Error("Line %i is incomplete\n", script->line);
+			
+			script->line++;
 		}
 	}
 
 	if(script->script_p >= script->end_p)
 		return EndOfScript(crossline);
 
-	// ; # // comments
-	if(*script->script_p == ';' || *script->script_p == '#' || (script->script_p[0] == '/' && script->script_p[1] == '/'))
+	// skip ; # // comments
+	if(*script->script_p == ';' || *script->script_p == '#' || (*script->script_p == '/' && script->script_p[1] == '/'))
 	{
 		if(!crossline)
-			Error("Line %i is incomplete\n", scriptline);
-		while(*script->script_p++ != '\n')
+			Error("Line %i is incomplete\n", script->line);
+		
+		while(*script->script_p && *script->script_p++ != '\n')
+		{
 			if(script->script_p >= script->end_p)
 				return EndOfScript(crossline);
-		scriptline = script->line++;
+		}
+		script->line++;
 		goto skipspace;
 	}
 
-	// /* */ comments
-	if(script->script_p[0] == '/' && script->script_p[1] == '*')
+	// skip /* */ comments
+#if 0
+	if(*script->script_p == '/' && script->script_p[1] == '*')
 	{
 		if(!crossline)
 			Error("Line %i is incomplete\n", scriptline);
+		
 		script->script_p += 2;
-		while(script->script_p[0] != '*' && script->script_p[1] != '/')
+		while(*script->script_p && (*script->script_p != '*' && script->script_p[1] != '/'))
 		{
 			if(*script->script_p == '\n')
 			{
 				scriptline = script->line++;
 			}
 			script->script_p++;
+			
 			if(script->script_p >= script->end_p)
 				return EndOfScript(crossline);
 		}
-		script->script_p += 2;
+		if(*script->script_p)
+		{
+			script->script_p += 2;
+		}
 		goto skipspace;
 	}
+#endif
 
-//
-// copy token
-//
+	// copy token
 	token_p = token;
 
+	// check for a quotation
 	if(*script->script_p == '"')
 	{
 		// quoted token
@@ -235,23 +240,100 @@ qboolean GetToken(qboolean crossline)
 		while(*script->script_p != '"')
 		{
 			*token_p++ = *script->script_p++;
+			
 			if(script->script_p == script->end_p)
 				break;
+			
 			if(token_p == &token[MAXTOKEN])
-				Error("Token too large on line %i\n", scriptline);
+				Error("Token too large on line %i\n", script->line);
 		}
 		script->script_p++;
 	}
-	else						// regular token
-		while(*script->script_p > 32 && *script->script_p != ';')
+	// check for a number
+	else if((*script->script_p >= '0' && *script->script_p <= '9')									||
+			(*script->script_p == '-' && script->script_p[1] >= '0' && script->script_p[1] <= '9')	||
+			(*script->script_p == '.' && script->script_p[1] >= '0' && script->script_p[1] <= '9')
+	)
+	{
+		do
 		{
 			*token_p++ = *script->script_p++;
+			
 			if(script->script_p == script->end_p)
 				break;
+			
 			if(token_p == &token[MAXTOKEN])
-				Error("Token too large on line %i\n", scriptline);
-		}
+				Error("Token too large on line %i\n", script->line);
+		
+		} while((*script->script_p >= '0' && *script->script_p <= '9') || *script->script_p == '.' );
 
+		// parse the exponent
+		if(*script->script_p == 'e' || *script->script_p == 'E')
+		{
+			*token_p++ = *script->script_p;
+			
+			script->script_p++;
+			if(*script->script_p == '-' || *script->script_p == '+')
+			{
+				*token_p++ = *script->script_p++;
+			}
+
+			do
+			{
+				*token_p++ = *script->script_p++;
+			
+				if(script->script_p == script->end_p)
+					break;
+			
+				if(token_p == &token[MAXTOKEN])
+					Error("Token too large on line %i\n", script->line);
+				
+			} while(*script->script_p >= '0' && *script->script_p <= '9');
+		}
+	}
+	// check for a regular word
+	// we still allow forward and back slashes in name tokens for pathnames
+	// and also colons for drive letters
+	else if((*script->script_p >= 'a' && *script->script_p <= 'z')	||
+			(*script->script_p >= 'A' && *script->script_p <= 'Z')	||
+			(*script->script_p == '_')								||
+			(*script->script_p == '/')								||
+			(*script->script_p == '\\')								||
+			(*script->script_p == '$')	)
+	{
+		do
+		{
+			*token_p++ = *script->script_p++;
+			
+			if(script->script_p == script->end_p)
+				break;
+			
+			if(token_p == &token[MAXTOKEN])
+				Error("Token too large on line %i\n", script->line);
+		}
+		while
+		(
+			   (*script->script_p >= 'a' && *script->script_p <= 'z')	||
+			   (*script->script_p >= 'A' && *script->script_p <= 'Z')	||
+			   (*script->script_p == '_') 								||
+			   (*script->script_p >= '0' && *script->script_p <= '9')	||
+			   (*script->script_p == '/')								||
+			   (*script->script_p == '\\')								||
+			   (*script->script_p == ':')								||
+			   (*script->script_p == '.')								||
+			   (*script->script_p == '$')
+		);
+	}
+	else
+	{
+		// single character punctuation
+		*token_p++ = *script->script_p++;
+		
+		if(token_p == &token[MAXTOKEN])
+			Error("Token too large on line %i\n", script->line);
+	}
+
+	// add tailing zero
 	*token_p = 0;
 
 	if(!strcmp(token, "$include"))
@@ -263,7 +345,7 @@ qboolean GetToken(qboolean crossline)
 
 	return qtrue;
 }
-
+// *INDENT-ON*
 
 /*
 ==============
@@ -292,16 +374,13 @@ qboolean TokenAvailable(void)
 }
 
 
-//=====================================================================
-
-
 void MatchToken(char *match)
 {
 	GetToken(qtrue);
 
 	if(strcmp(token, match))
 	{
-		Error("MatchToken( \"%s\" ) failed at line %i", match, scriptline);
+		Error("MatchToken: \"%s\" != \"%s\" at line %i", token, match, script->line);
 	}
 }
 

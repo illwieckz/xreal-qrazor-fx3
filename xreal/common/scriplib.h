@@ -31,10 +31,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	MAXTOKEN	1024
 
 extern char     token[MAXTOKEN];
-extern char    *scriptbuffer, *script_p, *scriptend_p;
-extern int      grabbed;
-extern int      scriptline;
 extern qboolean endofscript;
+
+//extern char    *scriptbuffer, *script_p, *scriptend_p;
+//extern int      grabbed;
 
 
 void            LoadScriptFile(const char *filename);
