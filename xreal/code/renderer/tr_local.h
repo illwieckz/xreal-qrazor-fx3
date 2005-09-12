@@ -240,6 +240,11 @@ typedef enum
 
 typedef struct
 {
+	// TODO
+} expression_t;
+
+typedef struct
+{
 	genFunc_t       func;
 
 	float           base;
@@ -289,7 +294,10 @@ typedef struct
 
 	// used for TMOD_SCALE
 	float           scale[2];	// s *= scale[0]
-	// t *= scale[1]
+								// t *= scale[1]
+	
+	expression_t	scaleSExp;
+	expression_t	scaleTExp;
 
 	// used for TMOD_SCROLL
 	float           scroll[2];	// s' = s + scroll[0] * time
@@ -354,11 +362,6 @@ typedef enum
 	ST_LIGHTING_DIRECTIONAL,	// directional entity lighting like rgbGen lightingDiffuse
 	ST_LIGHTING_RADIOSITY,		// luxel/deluxel based lighting
 } stageType_t;
-
-typedef struct
-{
-	// TODO
-} expression_t;
 
 typedef struct
 {

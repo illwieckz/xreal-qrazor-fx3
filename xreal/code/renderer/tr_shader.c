@@ -960,14 +960,6 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		// alphaTest <exp>
 		else if(!Q_stricmp(token, "alphaTest"))
 		{
-			token = COM_ParseExt(text, qfalse);
-			if(!token[0])
-			{
-				ri.Printf(PRINT_WARNING,
-						  "WARNING: missing parameter for 'alphaFunc' keyword in shader '%s'\n", shader.name);
-				return qfalse;
-			}
-
 			atestBits = GLS_ATEST_GT_CUSTOM;
 			ParseExpression(text, &stage->alphaTestExp);
 		}
@@ -1370,7 +1362,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			continue;
 		}
 		// color <exp>, <exp>, <exp>, <exp>
-		else if(!Q_stricmp(token, "alpha"))
+		else if(!Q_stricmp(token, "color"))
 		{
 			stage->rgbGen = CGEN_CUSTOM_RGBs;
 			stage->alphaGen = AGEN_CUSTOM;
@@ -1447,9 +1439,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		}
 	}
 
-	//
 	// if cgen isn't explicitly specified, use either identity or identitylighting
-	//
 	if(stage->rgbGen == CGEN_BAD)
 	{
 		if(blendSrcBits == 0 || blendSrcBits == GLS_SRCBLEND_ONE || blendSrcBits == GLS_SRCBLEND_SRC_ALPHA)
@@ -1462,10 +1452,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		}
 	}
 
-
-	//
 	// implicitly assume that a GL_ONE GL_ZERO blend mask disables blending
-	//
 	if((blendSrcBits == GLS_SRCBLEND_ONE) && (blendDstBits == GLS_DSTBLEND_ZERO))
 	{
 		blendDstBits = blendSrcBits = 0;
@@ -1481,9 +1468,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		}
 	}
 
-	//
 	// compute state bits
-	//
 	stage->stateBits = depthMaskBits | blendSrcBits | blendDstBits | atestBits | depthFuncBits;
 
 	return qtrue;
@@ -1893,17 +1878,11 @@ static qboolean SurfaceParm(const char *token)
 				si->contents &= ~CONTENTS_SOLID;
 			}
 #endif
-			break;
+			return qtrue;
 		}
 	}
 	
-	if(i == numInfoParms)
-	{
-		//ri.Printf(PRINT_WARNING, "WARNING: unknown surfaceparm in shader '%s'\n", shader.name);
-		return qfalse;
-	}
-	
-	return qtrue;
+	return qfalse;
 }
 
 static void ParseSurfaceParm(char **text)
@@ -1959,6 +1938,7 @@ static qboolean ParseShader(char **text)
 	int             s;
 
 	s = 0;
+	shader.explicitlyDefined = qtrue;
 
 	token = COM_ParseExt(text, qtrue);
 	if(token[0] != '{')
@@ -2087,6 +2067,12 @@ static qboolean ParseShader(char **text)
 		else if(!Q_stricmp(token, "polygonOffset"))
 		{
 			shader.polygonOffset = qtrue;
+			
+			token = COM_ParseExt(text, qfalse);
+			if(token[0])
+			{
+				shader.polygonOffsetValue = atof(token);
+			}
 			continue;
 		}
 		// entityMergable, allowing sprite surfaces from multiple entities
@@ -2210,8 +2196,8 @@ static qboolean ParseShader(char **text)
 			if(!SurfaceParm(token))
 			{
 				ri.Printf(PRINT_WARNING, "WARNING: unknown general shader parameter '%s' in '%s'\n", token, shader.name);
+				return qfalse;
 			}
-			return qfalse;
 		}
 	}
 
@@ -2220,8 +2206,6 @@ static qboolean ParseShader(char **text)
 	{
 		return qfalse;
 	}
-
-	shader.explicitlyDefined = qtrue;
 
 	return qtrue;
 }
@@ -3817,7 +3801,7 @@ static void ScanAndLoadShaderFiles(void)
 		strcat(s_shaderText, buffers[i]);
 		ri.FS_FreeFile(buffers[i]);
 		buffers[i] = p;
-		//COM_Compress(p);
+		COM_Compress(p);
 	}
 
 	// free up memory
