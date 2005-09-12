@@ -196,7 +196,8 @@ typedef enum
 	AGEN_LIGHTING_SPECULAR,
 	AGEN_WAVEFORM,
 	AGEN_PORTAL,
-	AGEN_CONST
+	AGEN_CONST,
+	AGEN_CUSTOM
 } alphaGen_t;
 
 typedef enum
@@ -212,7 +213,9 @@ typedef enum
 	CGEN_WAVEFORM,				// programmatically generated
 	CGEN_LIGHTING_DIFFUSE,
 	CGEN_FOG,					// standard fog
-	CGEN_CONST					// fixed color
+	CGEN_CONST,					// fixed color
+	CGEN_CUSTOM_RGB,			// like fixed color but generated dynamically, single arithmetic expression
+	CGEN_CUSTOM_RGBs,			// multiple expressions
 } colorGen_t;
 
 typedef enum
@@ -300,16 +303,15 @@ typedef struct
 
 
 #define	MAX_IMAGE_ANIMATIONS	8
-#define MAX_TEXTURE_BUNDLES		2
 
 enum
 {
-	IMG_COLORMAP = 0,
-	IMG_DIFFUSEMAP = 0,
-	IMG_NORMALMAP,
-	IMG_SPECULARMAP,
-	IMG_LIGHTMAP = 0,
-	IMG_DELUXEMAP
+	TB_COLORMAP = 0,
+	TB_DIFFUSEMAP = 0,
+	TB_NORMALMAP,
+	TB_SPECULARMAP,
+	TB_LIGHTMAP,
+	MAX_TEXTURE_BUNDLES = 4
 };
 
 typedef struct
@@ -334,15 +336,29 @@ typedef struct
 
 typedef enum
 {
-	ST_COLOR,					// vanilla Q3A style shader treatening
+	ST_COLORMAP,				// vanilla Q3A style shader treatening
+	ST_DIFFUSEMAP,
+	ST_NORMALMAP,
+	ST_SPECULARMAP,
+	ST_HEATHAZEMAP,				// heatHaze post process effect
+	ST_LIGHTMAP,
+	ST_DELUXEMAP,
+	ST_REFLECTIONMAP,			// cubeMap based reflection
+	ST_REFRACTIONMAP,
+	ST_DISPERSIONMAP,
+	ST_SKYBOXMAP,
+	ST_SKYCLOUDMAP,
+	ST_LIQUIDMAP,				// reflective water shader
+	
+	// TODO replace
 	ST_LIGHTING_DIRECTIONAL,	// directional entity lighting like rgbGen lightingDiffuse
 	ST_LIGHTING_RADIOSITY,		// luxel/deluxel based lighting
-	ST_REFLECTION,				// cubeMap based reflection
-	ST_REFRACTION,
-	ST_DISPERSION,
-	ST_HEATHAZE,				// heatHaze post process effect
-	ST_LIQUID					// reflective water shader
 } stageType_t;
+
+typedef struct
+{
+	// TODO
+} expression_t;
 
 typedef struct
 {
@@ -351,12 +367,21 @@ typedef struct
 	qboolean        active;
 
 	textureBundle_t bundle[MAX_TEXTURE_BUNDLES];
+	
+	expression_t    ifExp;
 
 	waveForm_t      rgbWave;
 	colorGen_t      rgbGen;
+	expression_t    rgbExp;
+	expression_t    redExp;
+	expression_t    greenExp;
+	expression_t    blueExp;
 
 	waveForm_t      alphaWave;
 	alphaGen_t      alphaGen;
+	expression_t    alphaExp;
+	
+	expression_t    alphaTestExp;
 
 	byte            constantColor[4];	// for CGEN_CONST and AGEN_CONST
 
@@ -424,6 +449,7 @@ typedef struct shader_s
 
 	qboolean        entityMergable;	// merge across entites optimizable (smoke, blood)
 
+	qboolean		forceOpaque;
 	qboolean        isSky;
 	skyParms_t      sky;
 	fogParms_t      fogParms;
@@ -434,6 +460,7 @@ typedef struct shader_s
 
 	cullType_t      cullType;	// CT_FRONT_SIDED, CT_BACK_SIDED, or CT_TWO_SIDED
 	qboolean        polygonOffset;	// set for decals and other items that must be offset 
+	float			polygonOffsetValue;
 	qboolean        noMipMaps;	// for console fonts, 2D elements, etc.
 	qboolean        noPicMip;	// for images that must always be full resolution
 
@@ -1311,6 +1338,7 @@ void            GL_Cull(int cullType);
 #define GLS_ATEST_GT_0							0x10000000
 #define GLS_ATEST_LT_80							0x20000000
 #define GLS_ATEST_GE_80							0x40000000
+#define GLS_ATEST_GT_CUSTOM						0x50000000
 #define		GLS_ATEST_BITS						0x70000000
 
 #define GLS_DEFAULT			GLS_DEPTHMASK_TRUE
@@ -1619,8 +1647,7 @@ void            RB_SurfaceAnim(md4Surface_t * surfType);
 */
 void            R_TransformModelToClip(const vec3_t src, const float *modelViewMatrix,
 									   const float *projectionMatrix, vec4_t eye, vec4_t dst);
-void            R_TransformClipToWindow(const vec4_t clip, const viewParms_t * view, vec4_t normalized,
-										vec4_t window);
+void            R_TransformClipToWindow(const vec4_t clip, const viewParms_t * view, vec4_t normalized, vec4_t window);
 
 void            RB_DeformTessGeometry(void);
 
@@ -1631,6 +1658,7 @@ void            RB_CalcRotateTexCoords(float rotSpeed, float *dstTexCoords);
 void            RB_CalcScaleTexCoords(const float scale[2], float *dstTexCoords);
 void            RB_CalcTurbulentTexCoords(const waveForm_t * wf, float *dstTexCoords);
 void            RB_CalcTransformTexCoords(const texModInfo_t * tmi, float *dstTexCoords);
+
 void            RB_CalcModulateColorsByFog(unsigned char *dstColors);
 void            RB_CalcModulateAlphasByFog(unsigned char *dstColors);
 void            RB_CalcModulateRGBAsByFog(unsigned char *dstColors);
@@ -1643,6 +1671,9 @@ void            RB_CalcColorFromEntity(unsigned char *dstColors);
 void            RB_CalcColorFromOneMinusEntity(unsigned char *dstColors);
 void            RB_CalcSpecularAlpha(unsigned char *alphas);
 void            RB_CalcDiffuseColor(unsigned char *colors);
+void			RB_CalcCustomColor(const expression_t * rgbExp, unsigned char *dstColors);
+void			RB_CalcCustomColors(const expression_t * redExp, const expression_t * greenExp, const expression_t * blueExp, unsigned char *dstColors);
+void			RB_CalcCustomAlpha(const expression_t * alphaExp, unsigned char *dstColors);
 
 void            RB_CalcDeluxels(void);
 

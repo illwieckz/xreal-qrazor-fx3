@@ -1104,7 +1104,7 @@ void R_Register(void)
 
 	r_debugLight = ri.Cvar_Get("r_debuglight", "0", CVAR_TEMP);
 	r_debugSort = ri.Cvar_Get("r_debugSort", "0", CVAR_CHEAT);
-	r_printShaders = ri.Cvar_Get("r_printShaders", "0", 0);
+	r_printShaders = ri.Cvar_Get("r_printShaders", "1", 0);
 	r_saveFontData = ri.Cvar_Get("r_saveFontData", "0", 0);
 
 	r_nocurves = ri.Cvar_Get("r_nocurves", "0", CVAR_CHEAT);
@@ -1136,7 +1136,7 @@ void R_Register(void)
 	r_shownormals = ri.Cvar_Get("r_shownormals", "0", CVAR_CHEAT);
 	r_showTangentSpaces = ri.Cvar_Get("r_showTangentSpaces", "0", CVAR_CHEAT);
 	r_showDeluxels = ri.Cvar_Get("r_showDeluxels", "0", CVAR_CHEAT);
-	r_clear = ri.Cvar_Get("r_clear", "0", CVAR_CHEAT);
+	r_clear = ri.Cvar_Get("r_clear", "1", CVAR_CHEAT);
 	r_offsetFactor = ri.Cvar_Get("r_offsetfactor", "-1", CVAR_CHEAT);
 	r_offsetUnits = ri.Cvar_Get("r_offsetunits", "-2", CVAR_CHEAT);
 	r_drawBuffer = ri.Cvar_Get("r_drawBuffer", "GL_BACK", CVAR_CHEAT);

@@ -2087,23 +2087,25 @@ image_t        *R_FindImageFile(const char *name, qboolean mipmap, qboolean allo
 	int             width, height;
 	byte           *pic;
 	long            hash;
+	char            filename[MAX_QPATH];
 
 	if(!name)
 	{
 		return NULL;
 	}
+	
+	Q_strncpyz(filename, name, sizeof(filename));
+	COM_DefaultExtension(filename, sizeof(filename), ".tga");
 
-	hash = generateHashValue(name);
+	hash = generateHashValue(filename);
 
-	//
 	// see if the image is already loaded
-	//
 	for(image = hashTable[hash]; image; image = image->next)
 	{
 		if(!strcmp(name, image->imgName))
 		{
 			// the white image can be used with any set of parms, but other mismatches are errors
-			if(strcmp(name, "*white"))
+			if(strcmp(filename, "_white"))
 			{
 				if(image->mipmap != mipmap)
 				{
@@ -2125,16 +2127,14 @@ image_t        *R_FindImageFile(const char *name, qboolean mipmap, qboolean allo
 		}
 	}
 
-	//
 	// load the pic from disk
-	//
-	R_LoadImage(name, &pic, &width, &height);
+	R_LoadImage(filename, &pic, &width, &height);
 	if(pic == NULL)
 	{							// if we dont get a successful load
 		char            altname[MAX_QPATH];	// copy the name
 		int             len;	//  
 
-		strcpy(altname, name);	//
+		strcpy(altname, filename);	//
 		len = strlen(altname);	// 
 		altname[len - 3] = toupper(altname[len - 3]);	// and try upper case extension for unix systems
 		altname[len - 2] = toupper(altname[len - 2]);	//

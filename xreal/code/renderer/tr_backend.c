@@ -400,6 +400,11 @@ void GL_State(unsigned long stateBits)
 				qglEnable(GL_ALPHA_TEST);
 				qglAlphaFunc(GL_GEQUAL, 0.5f);
 				break;
+			case GLS_ATEST_GT_CUSTOM:
+				// FIXME
+				qglEnable(GL_ALPHA_TEST);
+				qglAlphaFunc(GL_GREATER, 0.5f);
+				break;
 			default:
 				assert(0);
 				break;
@@ -1169,7 +1174,8 @@ const void     *RB_DrawBuffer(const void *data)
 	// clear screen for debugging
 	if(r_clear->integer)
 	{
-		qglClearColor(1, 0, 0.5, 1);
+//		qglClearColor(1, 0, 0.5, 1);
+		qglClearColor(0, 0, 1, 1);
 		qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 

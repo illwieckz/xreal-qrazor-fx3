@@ -81,6 +81,12 @@ static float EvalWaveFormClamped(const waveForm_t * wf)
 	return glow;
 }
 
+static float EvalExpression(const expression_t * exp, float defaultValue)
+{
+	// TODO
+	return defaultValue;
+}
+
 /*
 ** RB_CalcStretchTexCoords
 */
@@ -843,6 +849,91 @@ void RB_CalcModulateRGBAsByFog(unsigned char *colors)
 		colors[1] *= f;
 		colors[2] *= f;
 		colors[3] *= f;
+	}
+}
+
+void RB_CalcCustomColor(const expression_t * rgbExp, unsigned char *dstColors)
+{
+	int             i;
+	int				v;
+	float           rgb;
+	
+	if(backEnd.currentEntity)
+	{
+		rgb = Q_bound(0.0, EvalExpression(rgbExp, 1.0), 1.0);
+	}
+	else
+	{
+		// fullbright
+		rgb = EvalExpression(rgbExp, 1.0);
+	}
+	
+	v = rgb * 255;
+
+	for(i = 0; i < tess.numVertexes; i++, dstColors += 4)
+	{
+		dstColors[0] = v;
+		dstColors[1] = v;
+		dstColors[2] = v;
+	}
+}
+
+/*
+** RB_CalcCustomColors
+*/
+void RB_CalcCustomColors(const expression_t * redExp, const expression_t * greenExp, const expression_t * blueExp, unsigned char *dstColors)
+{
+	int             i;
+	float           red;
+	float			green;
+	float			blue;
+	
+	if(backEnd.currentEntity)
+	{
+		red = Q_bound(0.0, EvalExpression(redExp, backEnd.currentEntity->e.shaderRGBA[0] * (1.0 / 255.0)), 1.0);
+		green = Q_bound(0.0, EvalExpression(greenExp, backEnd.currentEntity->e.shaderRGBA[1] * (1.0 / 255.0)), 1.0);
+		blue = Q_bound(0.0, EvalExpression(blueExp, backEnd.currentEntity->e.shaderRGBA[2] * (1.0 / 255.0)), 1.0);
+	}
+	else
+	{
+		// fullbright
+		red = EvalExpression(redExp, 1.0);
+		green = EvalExpression(greenExp, 1.0);
+		blue = EvalExpression(blueExp, 1.0);
+	}
+
+	for(i = 0; i < tess.numVertexes; i++, dstColors += 4)
+	{
+		dstColors[0] = red * 255;
+		dstColors[1] = green * 255;
+		dstColors[2] = blue * 255;
+	}
+}
+
+/*
+** RB_CalcCustomAlpha
+*/
+void RB_CalcCustomAlpha(const expression_t * alphaExp, unsigned char *dstColors)
+{
+	int             i;
+	int             v;
+	float           alpha;
+	
+	if(backEnd.currentEntity)
+	{
+		alpha = Q_bound(0.0, EvalExpression(alphaExp, backEnd.currentEntity->e.shaderRGBA[3] * (1.0 / 255.0)), 1.0);
+	}
+	else
+	{
+		// default to opaque
+		alpha = Q_bound(0.0, EvalExpression(alphaExp, 1.0), 1.0);
+	}
+
+	v = alpha * 255;
+	
+	for(i = 0; i < tess.numVertexes; i++, dstColors += 4)
+	{
+		dstColors[3] = v;
 	}
 }
 

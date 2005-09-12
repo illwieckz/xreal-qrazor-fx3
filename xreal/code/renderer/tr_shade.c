@@ -980,7 +980,7 @@ void RenderLighting_D_direct(int stage)
 
 	// bind diffusemap
 	GL_SelectTexture(0);
-	GL_Bind(pStage->bundle[0].image[IMG_DIFFUSEMAP]);
+	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
@@ -992,7 +992,7 @@ void RenderLighting_D_direct(int stage)
 
 static void RenderLighting_DB_direct(int stage)
 {
-#if 1
+#if 0
 	shaderStage_t  *pStage;
 
 	vec4_t          ambientLight;
@@ -1039,7 +1039,7 @@ static void RenderLighting_DB_direct(int stage)
 
 static void RenderLighting_DBS_direct(int stage)
 {
-#if 1
+#if 0
 	shaderStage_t  *pStage;
 
 	vec3_t			viewOrigin;
@@ -1095,7 +1095,7 @@ static void RenderLighting_DBS_direct(int stage)
 
 void RenderLighting_D_radiosity(int stage)
 {
-#if 1
+#if 0
 	shaderStage_t  *pStage;
 	
 	pStage = tess.xstages[stage];
@@ -1458,8 +1458,7 @@ static void ComputeColors(shaderStage_t * pStage)
 		case CGEN_VERTEX:
 			if(tr.identityLight == 1)
 			{
-				Com_Memcpy(tess.svars.colors, tess.vertexColors,
-						   tess.numVertexes * sizeof(tess.vertexColors[0]));
+				Com_Memcpy(tess.svars.colors, tess.vertexColors, tess.numVertexes * sizeof(tess.vertexColors[0]));
 			}
 			else
 			{
@@ -1512,6 +1511,12 @@ static void ComputeColors(shaderStage_t * pStage)
 			break;
 		case CGEN_ONE_MINUS_ENTITY:
 			RB_CalcColorFromOneMinusEntity((unsigned char *)tess.svars.colors);
+			break;
+		case CGEN_CUSTOM_RGB:
+			RB_CalcCustomColor(&pStage->rgbExp, (unsigned char *)tess.svars.colors);
+			break;
+		case CGEN_CUSTOM_RGBs:
+			RB_CalcCustomColors(&pStage->redExp, &pStage->greenExp, &pStage->redExp, (unsigned char *)tess.svars.colors);
 			break;
 	}
 
@@ -1599,7 +1604,10 @@ static void ComputeColors(shaderStage_t * pStage)
 
 				tess.svars.colors[i][3] = alpha;
 			}
+			break;
 		}
+		case AGEN_CUSTOM:
+			RB_CalcCustomAlpha(&pStage->alphaExp, (unsigned char *)tess.svars.colors);
 			break;
 	}
 
@@ -1764,7 +1772,7 @@ static void RB_IterateStagesGeneric()
 
 		switch(pStage->type)
 		{
-			case ST_COLOR:
+			case ST_COLORMAP:
 			{
 #if 0
 				if(glConfig2.shadingLanguage100Available)
@@ -1790,6 +1798,12 @@ static void RB_IterateStagesGeneric()
 						RenderGeneric_single_FFP(stage);
 					}
 				}
+				break;
+			}
+			
+			case ST_DIFFUSEMAP:
+			{
+				RenderGeneric_single_FFP(stage);
 				break;
 			}
 			
