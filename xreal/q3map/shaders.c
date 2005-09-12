@@ -67,51 +67,71 @@ typedef struct
 	int             clearSolid, surfaceFlags, contents;
 } infoParm_t;
 
-infoParm_t      infoParms[] = {
+// *INDENT-OFF*
+infoParm_t	infoParms[] = {
 	// server relevant contents
-	{"water", 1, 0, CONTENTS_WATER},
-	{"slime", 1, 0, CONTENTS_SLIME},	// mildly damaging
-	{"lava", 1, 0, CONTENTS_LAVA},	// very damaging
-	{"playerclip", 1, 0, CONTENTS_PLAYERCLIP},
-	{"monsterclip", 1, 0, CONTENTS_MONSTERCLIP},
-	{"nodrop", 1, 0, CONTENTS_NODROP},	// don't drop items or leave bodies (death fog, lava, etc)
-	{"nonsolid", 1, SURF_NONSOLID, 0},	// clears the solid flag
+	{"water",			1,	0,	CONTENTS_WATER},
+	{"slime",			1,	0,	CONTENTS_SLIME},		// mildly damaging
+	{"lava",			1,	0,	CONTENTS_LAVA},			// very damaging
+	{"playerclip",		1,	0,	CONTENTS_PLAYERCLIP},
+	{"monsterclip",		1,	0,	CONTENTS_MONSTERCLIP},
+	{"nodrop",			1,	0,	CONTENTS_NODROP},		// don't drop items or leave bodies (death fog, lava, etc)
+	{"nonsolid",		1,	SURF_NONSOLID,	0},			// clears the solid flag
+	
+	{"blood",			1,	0,	CONTENTS_WATER},
 
 	// utility relevant attributes
-	{"origin", 1, 0, CONTENTS_ORIGIN},	// center of rotating brushes
-	{"trans", 0, 0, CONTENTS_TRANSLUCENT},	// don't eat contained surfaces
-	{"detail", 0, 0, CONTENTS_DETAIL},	// don't include in structural bsp
-	{"structural", 0, 0, CONTENTS_STRUCTURAL},	// force into structural bsp even if trnas
-	{"areaportal", 1, 0, CONTENTS_AREAPORTAL},	// divides areas
-	{"clusterportal", 1, 0, CONTENTS_CLUSTERPORTAL},	// for bots
-	{"donotenter", 1, 0, CONTENTS_DONOTENTER},	// for bots
-	{"botclip", 1, 0, CONTENTS_BOTCLIP},	// for bots
-	{"nobotclip", 0, 0, CONTENTS_NOBOTCLIP},	// don't use for bot clipping
+	{"origin",			1,	0,	CONTENTS_ORIGIN},		// center of rotating brushes
+	{"trans",			0,	0,	CONTENTS_TRANSLUCENT},	// don't eat contained surfaces
+	{"translucent",		0,	0,	CONTENTS_TRANSLUCENT},	// don't eat contained surfaces
+	{"detail",			0,	0,	CONTENTS_DETAIL},		// don't include in structural bsp
+	{"structural",		0,	0,	CONTENTS_STRUCTURAL},	// force into structural bsp even if trnas
+	{"areaportal",		1,	0,	CONTENTS_AREAPORTAL},	// divides areas
+	{"clusterportal",	1,	0,  CONTENTS_CLUSTERPORTAL},	// for bots
+	{"donotenter",  	1,  0,  CONTENTS_DONOTENTER},		// for bots
 
-	{"fog", 1, 0, CONTENTS_FOG},	// carves surfaces entering
-	{"sky", 0, SURF_SKY, 0},	// emit light from an environment map
-	{"lightfilter", 0, SURF_LIGHTFILTER, 0},	// filter light going through it
-	{"alphashadow", 0, SURF_ALPHASHADOW, 0},	// test light on a per-pixel basis
-	{"hint", 0, SURF_HINT, 0},	// use as a primary splitter
+	{"fog",				1,	0,	CONTENTS_FOG},			// carves surfaces entering
+	{"sky",				0,	SURF_SKY,		0},			// emit light from an environment map
+	{"lightfilter",		0,	SURF_LIGHTFILTER, 0},		// filter light going through it
+	{"alphashadow",		0,	SURF_ALPHASHADOW, 0},		// test light on a per-pixel basis
+	{"hint",			0,	SURF_HINT,		0},			// use as a primary splitter
+	
+	{"discrete",		0,	0,				0},
 
 	// server attributes
-	{"slick", 0, SURF_SLICK, 0},
-	{"noimpact", 0, SURF_NOIMPACT, 0},	// don't make impact explosions or marks
-	{"nomarks", 0, SURF_NOMARKS, 0},	// don't make impact marks, but still explode
-	{"ladder", 0, SURF_LADDER, 0},
-	{"nodamage", 0, SURF_NODAMAGE, 0},
-	{"metalsteps", 0, SURF_METALSTEPS, 0},
-	{"flesh", 0, SURF_FLESH, 0},
-	{"nosteps", 0, SURF_NOSTEPS, 0},
+	{"slick",			0,	SURF_SLICK,		0},
+	{"noimpact",		0,	SURF_NOIMPACT,	0},			// don't make impact explosions or marks
+	{"nomarks",			0,	SURF_NOMARKS,	0},			// don't make impact marks, but still explode
+	{"ladder",			0,	SURF_LADDER,	0},
+	{"nodamage",		0,	SURF_NODAMAGE,	0},
+	{"metalsteps",		0,	SURF_METALSTEPS,0},
+	{"flesh",			0,	SURF_FLESH,		0},
+	{"nosteps",			0,	SURF_NOSTEPS,	0},
+	
+	// surface types for sound effects and blood splats
+	{"metal",			0,	0,				0},
+	{"stone",			0,	0,				0},
+	{"wood",			0,	0,				0},
+	{"cardboard",		0,	0,				0},
+	{"liquid",			0,	0,				0},
+	{"glass",			0,	0,				0},
+	{"plastic",			0,	0,				0},
+	{"ricochet",		0,	0,				0},
 
 	// drawsurf attributes
-	{"nodraw", 0, SURF_NODRAW, 0},	// don't generate a drawsurface (or a lightmap)
-	{"pointlight", 0, SURF_POINTLIGHT, 0},	// sample lighting at vertexes
-	{"nolightmap", 0, SURF_NOLIGHTMAP, 0},	// don't generate a lightmap
-	{"nodlight", 0, SURF_NODLIGHT, 0},	// don't ever add dynamic lights
-	{"dust", 0, SURF_DUST, 0}	// leave dust trail when walking on this surface
+	{"nodraw",			0,	SURF_NODRAW,		0},		// don't generate a drawsurface (or a lightmap)
+	{"pointlight",		0,	SURF_POINTLIGHT,	0},		// sample lighting at vertexes
+	{"nolightmap",		0,	SURF_NOLIGHTMAP,	0},		// don't generate a lightmap
+	{"nodlight",		0,	SURF_NODLIGHT,		0},		// don't ever add dynamic lights
+	{"dust",			0,	SURF_DUST,			0},		// leave a dust trail when walking on this surface
+	
+	{"noshadows",		0,	0,				0},
+	{"noselfshadow",	0,	0,				0},
+	{"forceshadows",	0,	0,				0},
+	{"nooverlays",		0,	0,				0},
+	{"forceoverlays",	0,	0,				0},
 };
-
+// *INDENT-ON*
 
 /*
 ===============
@@ -278,6 +298,7 @@ static shaderInfo_t *AllocShaderInfo(void)
 	si->backsplashDistance = DEFAULT_BACKSPLASH_DISTANCE;
 
 	si->lightmapSampleSize = 0;
+	si->hasPasses = qfalse;
 	si->forceTraceLight = qfalse;
 	si->forceVLight = qfalse;
 	si->patchShadows = qfalse;
@@ -403,35 +424,6 @@ static void ParseShaderFile(const char *filename)
 				}
 				continue;
 			}
-
-			if(!Q_stricmp(token, "surfaceparm"))
-			{
-				GetToken(qfalse);
-				for(i = 0; i < numInfoParms; i++)
-				{
-					if(!Q_stricmp(token, infoParms[i].name))
-					{
-						si->surfaceFlags |= infoParms[i].surfaceFlags;
-						si->contents |= infoParms[i].contents;
-						if(infoParms[i].clearSolid)
-						{
-							si->contents &= ~CONTENTS_SOLID;
-						}
-						break;
-					}
-				}
-				if(i == numInfoParms)
-				{
-					// we will silently ignore all tokens beginning with qer,
-					// which are QuakeEdRadient parameters
-					if(Q_strncasecmp(token, "qer", 3))
-					{
-						_printf("Unknown surfaceparm: \"%s\"\n", token);
-					}
-				}
-				continue;
-			}
-
 
 			// qer_editorimage <image>
 			if(!Q_stricmp(token, "qer_editorimage"))
@@ -623,13 +615,27 @@ static void ParseShaderFile(const char *filename)
 			if(!Q_stricmp(token, "cull"))
 			{
 				GetToken(qfalse);
-				if(!Q_stricmp(token, "none"))
+				if(!Q_stricmp(token, "none") || !Q_stricmp(token, "disable") || !Q_stricmp(token, "twosided"))
 				{
 					si->twoSided = qtrue;
 				}
 				continue;
 			}
-
+			
+			// twosided will set twoSided
+			if(!Q_stricmp(token, "twosided"))
+			{
+				si->twoSided = qtrue;
+				// FIXME: implies noshadows
+				continue;
+			}
+			
+			// forceOpaque will override translucent
+			if(!Q_stricmp(token, "forceOpaque"))
+			{
+				si->forceOpaque = qtrue;
+				continue;
+			}
 
 			// deformVertexes autosprite[2]
 			// we catch this so autosprited surfaces become point
@@ -644,13 +650,79 @@ static void ParseShaderFile(const char *filename)
 				}
 				continue;
 			}
-
+			
+			// check if this shader has shortcut passes
+			if(!Q_stricmp(token, "diffusemap") || !Q_stricmp(token, "bumpmap") || !Q_stricmp(token, "specularmap"))
+			{
+				si->hasPasses = qtrue;
+				continue;
+			}
+			
+			// check for surface parameters
+			if(!Q_stricmp(token, "surfaceparm"))
+			{
+				GetToken(qfalse);
+				for(i = 0; i < numInfoParms; i++)
+				{
+					if(!Q_stricmp(token, infoParms[i].name))
+					{
+						si->surfaceFlags |= infoParms[i].surfaceFlags;
+						si->contents |= infoParms[i].contents;
+						if(infoParms[i].clearSolid)
+						{
+							si->contents &= ~CONTENTS_SOLID;
+						}
+						break;
+					}
+				}
+				if(i == numInfoParms)
+				{
+					// we will silently ignore all tokens beginning with qer,
+					// which are QuakeEdRadient parameters
+					if(Q_strncasecmp(token, "qer", 3))
+					{
+						_printf("Unknown surfaceparm: \"%s\"\n", token);
+					}
+				}
+				continue;
+			}
+			else
+			{
+				for(i = 0; i < numInfoParms; i++)
+				{
+					if(!Q_stricmp(token, infoParms[i].name))
+					{
+						si->surfaceFlags |= infoParms[i].surfaceFlags;
+						si->contents |= infoParms[i].contents;
+						if(infoParms[i].clearSolid)
+						{
+							si->contents &= ~CONTENTS_SOLID;
+						}
+						break;
+					}
+				}
+				if(i != numInfoParms)
+				{
+					continue;
+				}
+			}
 
 			// ignore all other tokens on the line
-
 			while(TokenAvailable())
 			{
 				GetToken(qfalse);
+			}
+		}
+
+		// Tr3B - default shader to invisible if no rendering passes defined
+		if(!si->hasPasses)
+		{
+			qprintf("shader '%s' has no passes\n", si->shader);
+			si->surfaceFlags |= SURF_NODRAW;
+			
+			if(!si->forceOpaque)
+			{
+				si->contents |= CONTENTS_TRANSLUCENT;
 			}
 		}
 	}
@@ -662,6 +734,7 @@ LoadShaderInfo
 ===============
 */
 #define	MAX_SHADER_FILES	64
+#define USE_MTR
 void LoadShaderInfo(void)
 {
 	char            filename[1024];
@@ -669,7 +742,11 @@ void LoadShaderInfo(void)
 	char           *shaderFiles[MAX_SHADER_FILES];
 	int             numShaderFiles;
 
+#ifdef USE_MTR
+	sprintf(filename, "%smaterials/shaderlist.txt", gamedir);
+#else
 	sprintf(filename, "%sscripts/shaderlist.txt", gamedir);
+#endif
 	LoadScriptFile(filename);
 
 	numShaderFiles = 0;
@@ -686,7 +763,11 @@ void LoadShaderInfo(void)
 
 	for(i = 0; i < numShaderFiles; i++)
 	{
+#ifdef USE_MTR
+		sprintf(filename, "%smaterials/%s.mtr", gamedir, shaderFiles[i]);
+#else
 		sprintf(filename, "%sscripts/%s.shader", gamedir, shaderFiles[i]);
+#endif
 		ParseShaderFile(filename);
 		free(shaderFiles[i]);
 	}

@@ -54,6 +54,7 @@ int             c_edgebevels;
 int             c_areaportals;
 int             c_detail;
 int             c_structural;
+int				c_mergedFuncStatics;
 
 // brushes are parsed into a temporary array of sides,
 // which will have the bevels added and duplicates
@@ -1096,9 +1097,7 @@ Used by func_group
 void MoveBrushesToWorld(entity_t * mapent)
 {
 	bspbrush_t     *b, *next;
-	parseMesh_t    *pm;
 
-	// move brushes
 	for(b = mapent->brushes; b; b = next)
 	{
 		next = b->next;
@@ -1107,11 +1106,14 @@ void MoveBrushesToWorld(entity_t * mapent)
 		entities[0].brushes = b;
 	}
 	mapent->brushes = NULL;
+}
 
-	// move patches
+void MovePatchesToWorld(entity_t * mapent)
+{
+	parseMesh_t    *pm;
+
 	if(mapent->patches)
 	{
-
 		for(pm = mapent->patches; pm->next; pm = pm->next)
 		{
 		}
@@ -1129,24 +1131,39 @@ void MoveBrushesToWorld(entity_t * mapent)
 AdjustBrushesForOrigin
 ================
 */
-void AdjustBrushesForOrigin(entity_t * ent)
+void AdjustBrushesForOrigin(entity_t * ent, qboolean ignoreOrigin)
 {
 	bspbrush_t     *b;
 	int             i;
 	side_t         *s;
 	vec_t           newdist;
-	parseMesh_t    *p;
 
 	for(b = ent->brushes; b; b = b->next)
 	{
 		for(i = 0; i < b->numsides; i++)
 		{
 			s = &b->sides[i];
-			newdist = mapplanes[s->planenum].dist - DotProduct(mapplanes[s->planenum].normal, ent->origin);
+			
+			if(ignoreOrigin)
+				newdist = mapplanes[s->planenum].dist - DotProduct(mapplanes[s->planenum].normal, vec3_origin);
+			else
+				newdist = mapplanes[s->planenum].dist - DotProduct(mapplanes[s->planenum].normal, ent->origin);
+			
 			s->planenum = FindFloatPlane(mapplanes[s->planenum].normal, newdist);
 		}
 		CreateBrushWindings(b);
 	}
+}
+
+/*
+================
+AdjustPatchesForOrigin
+================
+*/
+void AdjustPatchesForOrigin(entity_t * ent)
+{
+	int             i;
+	parseMesh_t    *p;
 
 	for(p = ent->patches; p; p = p->next)
 	{
@@ -1155,8 +1172,8 @@ void AdjustBrushesForOrigin(entity_t * ent)
 			VectorSubtract(p->mesh.verts[i].xyz, ent->origin, p->mesh.verts[i].xyz);
 		}
 	}
-
 }
+
 
 /*
 ================
@@ -1166,6 +1183,9 @@ ParseMapEntity
 qboolean ParseMapEntity(void)
 {
 	epair_t        *e;
+	const char     *classname;
+	const char     *name;
+	const char     *model;
 
 	if(!GetToken(qtrue))
 		return qfalse;
@@ -1187,8 +1207,7 @@ qboolean ParseMapEntity(void)
 
 	if(strcmp(token, "{"))
 	{
-		Error("ParseEntity: { not found, found %s on line %d - last entity was at: <%4.2f, %4.2f, %4.2f>...", token, scriptline,
-			  entities[num_entities].origin[0], entities[num_entities].origin[1], entities[num_entities].origin[2]);
+		Error("ParseEntity: { not found, found %s - last entity was at: <%4.2f, %4.2f, %4.2f>...", token,	entities[num_entities].origin[0], entities[num_entities].origin[1], entities[num_entities].origin[2]);
 	}
 
 	if(num_entities == MAX_MAP_ENTITIES)
@@ -1265,18 +1284,84 @@ qboolean ParseMapEntity(void)
 
 	GetVectorForKey(mapent, "origin", mapent->origin);
 
-	//
+	
+	classname = ValueForKey(mapent, "classname");
+	name = ValueForKey(mapent, "name");
+	model = ValueForKey(mapent, "model");
+	
+	// Tr3B - convert Doom3's func_static entities with custom models into misc_models
+	if(!Q_stricmp("func_static", classname) && !mapent->brushes && !mapent->patches && model[0] != '\0')
+	{
+		SetKeyValue(mapent, "classname", "misc_model");	
+	}
+	
+	// HACK: we should support Doom3 style doors in engine code but get rid of them for now
+	if(!Q_stricmp("func_door", classname) && !mapent->brushes && !mapent->patches && model[0] != '\0')
+	{
+		num_entities--;
+		return qtrue;
+	}
+	
+	// HACK:
+	if(!Q_stricmp("func_rotating", classname) && !mapent->brushes && !mapent->patches && model[0] != '\0')
+	{
+		num_entities--;
+		return qtrue;
+	}
+
+	// Tr3B - determine if this is a func_static that can be merged into worldspawn
+#if 1
+	if(!Q_stricmp("func_static", classname) && name[0] != '\0' && model[0] != '\0' && !Q_stricmp(name, model))
+	{
+		//bspbrush_t     *brush;
+		
+		//AdjustBrushesForOrigin(mapent, qtrue);
+		//AdjustBrushesForOrigin(mapent, qfalse);
+		//MoveBrushesToWorld(mapent);
+		MovePatchesToWorld(mapent);
+		
+		// FIXME: move this to SetBrushContents
+		/*
+		for(brush = mapent->brushes; brush != NULL; brush = brush->next)
+		{
+			if(!(brush->contents & CONTENTS_DETAIL) || !brush->detail)
+			{
+				c_detail++;
+				c_structural--;
+				brush->detail = qtrue;
+			}
+		}
+		*/
+		
+		if(!mapent->brushes)
+		{
+			c_mergedFuncStatics++;
+			num_entities--;
+			return qtrue;
+		}
+	}
+#endif
+		
 	// if there was an origin brush, offset all of the planes and texinfo
 	// for all the brushes in the entity
 	if(mapent->origin[0] || mapent->origin[1] || mapent->origin[2])
 	{
-		AdjustBrushesForOrigin(mapent);
+		if((name[0] != '\0' && model[0] != '\0' && !Q_stricmp(name, model)))// || !Q_stricmp("worldspawn", classname))
+		{
+			AdjustBrushesForOrigin(mapent, qtrue);
+			AdjustPatchesForOrigin(mapent);
+		}
+		else
+		{
+			AdjustBrushesForOrigin(mapent, qfalse);
+			AdjustPatchesForOrigin(mapent);
+		}
 	}
 
 	// group_info entities are just for editor grouping
 	// ignored
 	// FIXME: leak!
-	if(!strcmp("group_info", ValueForKey(mapent, "classname")))
+	if(!strcmp("group_info", classname))
 	{
 		num_entities--;
 		return qtrue;
@@ -1284,13 +1369,14 @@ qboolean ParseMapEntity(void)
 
 	// group entities are just for editor convenience
 	// toss all brushes into the world entity
-	if(!strcmp("func_group", ValueForKey(mapent, "classname")))
+	if(!strcmp("func_group", classname))
 	{
 		if(!strcmp("1", ValueForKey(mapent, "terrain")))
 		{
 			SetTerrainTextures();
 		}
 		MoveBrushesToWorld(mapent);
+		MovePatchesToWorld(mapent);
 		num_entities--;
 		return qtrue;
 	}
@@ -1318,6 +1404,7 @@ void LoadMapFile(char *filename)
 	num_entities = 0;
 	numMapDrawSurfs = 0;
 	c_detail = 0;
+	c_mergedFuncStatics = 0;
 
 	g_bBrushPrimit = BPRIMIT_UNDEFINED;
 
@@ -1341,6 +1428,7 @@ void LoadMapFile(char *filename)
 	qprintf("%5i patches\n", numMapPatches);
 	qprintf("%5i boxbevels\n", c_boxbevels);
 	qprintf("%5i edgebevels\n", c_edgebevels);
+	qprintf("%5i merged func_static entities\n", c_mergedFuncStatics);
 	qprintf("%5i entities\n", num_entities);
 	qprintf("%5i planes\n", nummapplanes);
 	qprintf("%5i areaportals\n", c_areaportals);

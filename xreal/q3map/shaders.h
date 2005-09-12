@@ -42,6 +42,7 @@ typedef struct shaderInfo_s
 	qboolean        globalTexture;	// don't normalize texture repeats
 
 	qboolean        twoSided;	// cull none
+	qboolean		forceOpaque;	// block VIS
 	qboolean        autosprite;	// autosprite shaders will become point lights
 	// instead of area lights
 	qboolean        lightFilter;	// light rays that cross surfaces of this type

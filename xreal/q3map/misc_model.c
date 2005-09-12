@@ -479,6 +479,7 @@ void AddTriangleModels(tree_t * tree)
 				_printf("WARNING: misc_model at %i %i %i without a model key\n", (int)origin[0], (int)origin[1], (int)origin[2]);
 				continue;
 			}
+#if 0
 			if(strstr(model, ".md3") || strstr(model, ".MD3"))
 			{
 				InsertMD3Model(model, origin, angle, tree);
@@ -489,6 +490,7 @@ void AddTriangleModels(tree_t * tree)
 				InsertASEModel(model, origin, angle, tree);
 				continue;
 			}
+#endif
 			_printf("Unknown misc_model type: %s\n", model);
 			continue;
 		}
