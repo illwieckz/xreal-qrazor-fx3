@@ -60,11 +60,26 @@ textures/common/entityGui3 {
 
 // visportal brushes stop the area flood fills in dmap and
 // define portals, separating the world into areas
+// Tr3B - right now same as nodraw shader
 textures/editor/visportal
 {
 	qer_editorimage	textures/editor/vis_p.tga
-	areaportal
+	qer_trans 0.5
+			
+//	areaportal
+//	noshadows
+	
+	nodraw
+	nonsolid
 	noshadows
+	translucent
+	
+//	nodraw
+//	nonsolid
+//	structural
+//	trans
+//	nomarks
+//	areaportal
 }
 
 // aassolid brushes create solid space in AAS files
@@ -108,6 +123,7 @@ textures/common/caulk
 textures/common/nodraw
 {
 	qer_editorimage textures/common/nodraw.tga
+
 	nonsolid
 	noshadows
 }

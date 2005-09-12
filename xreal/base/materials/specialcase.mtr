@@ -149,23 +149,23 @@ specialcase/delta1/xiantex1
 // 	}
 // }	
 
-/*specialcase/delta1/labwall1e
-{
-	qer_editorimage 	textures/lab/labwall1e.tga
-	bumpmap 		models/seneca/labtex/labwall1e_local.tga
-	diffusemap		models/seneca/labtex/labwall1e_d.tga
-	{
-		if (global0 == 0 )
-		blend gl_one,gl_one
-		map models/seneca/labtex/labwall1e_add.tga
-	}
-	{
-		if (global0 != 0 )
-		blend gl_one,gl_one
-		map models/seneca/labtex/labwall1e_add.tga
-		rgb		acceleratortextable[ ( time - global1 ) / 7 ]
-	}
-}*/	
+// specialcase/delta1/labwall1e
+// {
+// 	qer_editorimage 	textures/lab/labwall1e.tga
+// 	bumpmap 		models/seneca/labtex/labwall1e_local.tga
+// 	diffusemap		models/seneca/labtex/labwall1e_d.tga
+// 	{
+// 		if (global0 == 0 )
+// 		blend gl_one,gl_one
+// 		map models/seneca/labtex/labwall1e_add.tga
+// 	}
+// 	{
+// 		if (global0 != 0 )
+// 		blend gl_one,gl_one
+// 		map models/seneca/labtex/labwall1e_add.tga
+// 		rgb		acceleratortextable[ ( time - global1 ) / 7 ]
+// 	}
+// }
 
 specialcase/delta1/striplight_ed_noflare
 {

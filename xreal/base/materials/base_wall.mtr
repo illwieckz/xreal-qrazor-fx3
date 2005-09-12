@@ -4774,7 +4774,11 @@ textures/base_wall/lfwall27d
 	qer_editorimage textures/editor/lfwall27d
 	diffusemap		textures/base_wall/lfwall27d
 	bumpmap			textures/base_wall/lfwall27d_local
-	specularmap		textures/base_wall/lfwall27d_s
+	
+	{
+		blend specularmap
+		map		textures/base_wall/lfwall27d_s
+	}
 }
 
 textures/base_wall/lfwall27c

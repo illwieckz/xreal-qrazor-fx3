@@ -5609,12 +5609,12 @@ textures/hell/stitches1_trans
 		map			addnormals (textures/hell/stitches1_local.tga, heightmap (textures/hell/stitches1_bmp.tga, 4) ) 
 		translate	1,time*.1
 	}
-/*	{
-		blend		gl_one_minus_dst_color,gl_one_minus_src_color
-		map			textures/hell/stitches1
-		translate	1,time*.1
-		
-	}*/
+// 	{
+// 		blend		gl_one_minus_dst_color,gl_one_minus_src_color
+// 		map			textures/hell/stitches1
+// 		translate	1,time*.1
+// 		
+// 	}
 	{
 		blend		diffusemap		
 		map			textures/hell/stitches1

@@ -960,7 +960,7 @@ textures/sfx/monitor_glass2
 //
 //}
 
-/* this flare dissapears when SHADERPARM_MODE (parm7) is set, indicating a broken light */
+// this flare dissapears when SHADERPARM_MODE (parm7) is set, indicating a broken light
 textures/sfx/flare
 {
 	noshadows
@@ -1026,7 +1026,7 @@ textures/sfx/flare_1
 	}
 }
 
-/* this flare uses parm4 to modify the size */
+// this flare uses parm4 to modify the size
 textures/sfx/flareSizeable
 {
 	noshadows
@@ -2255,7 +2255,7 @@ textures/sfx/muzzleflash
 //	}
 //}
 
-/* this flare uses global parms to affect the color of all using this shader */
+// this flare uses global parms to affect the color of all using this shader
 textures/sfx/flare_global
 {
 	noshadows
