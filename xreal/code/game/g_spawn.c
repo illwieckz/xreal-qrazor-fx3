@@ -97,6 +97,7 @@ typedef struct
 
 field_t fields[] = {
 	{"classname", FOFS(classname), F_LSTRING},
+	{"name", FOFS(targetname), F_LSTRING},		// Tr3B - every Doom3 entity provides a name
 	{"origin", FOFS(s.origin), F_VECTOR},
 	{"model", FOFS(model), F_LSTRING},
 	{"model2", FOFS(model2), F_LSTRING},
@@ -298,6 +299,11 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 	for ( s=spawns ; s->name ; s++ ) {
 		if ( !strcmp(s->name, ent->classname) ) {
 			// found it
+			if(ent->targetname) {
+				G_Printf("...spawning %s\n", ent->targetname);
+			} else {
+				G_Printf("...spawning %s\n", ent->classname);
+			}
 			s->spawn(ent);
 			return qtrue;
 		}
