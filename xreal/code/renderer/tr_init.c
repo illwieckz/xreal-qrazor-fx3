@@ -103,7 +103,6 @@ cvar_t         *r_texturebits;
 
 cvar_t         *r_drawBuffer;
 cvar_t         *r_glDriver;
-cvar_t         *r_lightmap;
 cvar_t         *r_uiFullScreen;
 cvar_t         *r_shadows;
 cvar_t         *r_flares;
@@ -159,6 +158,9 @@ cvar_t         *r_maxpolys;
 int             max_polys;
 cvar_t         *r_maxpolyverts;
 int             max_polyverts;
+
+cvar_t         *r_showLightMaps;
+cvar_t         *r_showNormalMaps;
 
 
 // GL_ARB_multitexture
@@ -1109,7 +1111,6 @@ void R_Register(void)
 
 	r_nocurves = ri.Cvar_Get("r_nocurves", "0", CVAR_CHEAT);
 	r_drawworld = ri.Cvar_Get("r_drawworld", "1", CVAR_CHEAT);
-	r_lightmap = ri.Cvar_Get("r_lightmap", "0", 0);
 	r_portalOnly = ri.Cvar_Get("r_portalOnly", "0", CVAR_CHEAT);
 
 	r_flareSize = ri.Cvar_Get("r_flareSize", "40", CVAR_CHEAT);
@@ -1146,6 +1147,9 @@ void R_Register(void)
 
 	r_maxpolys = ri.Cvar_Get("r_maxpolys", va("%d", MAX_POLYS), 0);
 	r_maxpolyverts = ri.Cvar_Get("r_maxpolyverts", va("%d", MAX_POLYVERTS), 0);
+	
+	r_showLightMaps = ri.Cvar_Get("r_showLightMaps", "0", CVAR_CHEAT);
+	r_showNormalMaps = ri.Cvar_Get("r_showNormalMaps", "0", CVAR_CHEAT);
 
 	// make sure all the commands added here are also
 	// removed in R_Shutdown

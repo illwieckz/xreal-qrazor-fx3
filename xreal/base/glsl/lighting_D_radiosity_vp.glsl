@@ -36,8 +36,8 @@ void	main()
 	var_Normal = gl_Normal;
 	
 	// transform texcoords into diffusemap texture space
-	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;
+	var_TexDiffuse = attr_TexCoord0.st;
 	
 	// transform texcoords_lm into lightmap texture space
-	var_TexLight = (gl_TextureMatrix[1] * attr_TexCoord3).st;
+	var_TexLight = attr_TexCoord3.st;
 }

@@ -229,7 +229,7 @@ void RB_InitGPUShaders(void)
 	//
 	RB_InitGPUShader(&tr.lightShader_DB_direct,
 					 "lighting_DB_direct",
-					 GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+					 GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
 
 	tr.lightShader_DB_direct.u_DiffuseMap =
 		qglGetUniformLocationARB(tr.lightShader_DB_direct.program, "u_DiffuseMap");
@@ -254,7 +254,8 @@ void RB_InitGPUShaders(void)
 	//
 	RB_InitGPUShader(&tr.lightShader_DBS_direct,
 					 "lighting_DBS_direct",
-					 GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+					 GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD2 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL,
+					 qtrue);
 
 	tr.lightShader_DBS_direct.u_DiffuseMap =
 		qglGetUniformLocationARB(tr.lightShader_DBS_direct.program, "u_DiffuseMap");
@@ -926,7 +927,7 @@ static void RenderGeneric_multi_FFP(int stage)
 	
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[1]);
 
-	if(r_lightmap->integer)
+	if(r_showLightMaps->integer)
 	{
 		GL_TexEnv(GL_REPLACE);
 	}
@@ -1465,22 +1466,27 @@ static void ComputeColors(shaderStage_t * pStage)
 		case CGEN_IDENTITY:
 			Com_Memset(tess.svars.colors, 0xff, tess.numVertexes * 4);
 			break;
+			
 		default:
 		case CGEN_IDENTITY_LIGHTING:
 			Com_Memset(tess.svars.colors, tr.identityLightByte, tess.numVertexes * 4);
 			break;
+			
 		case CGEN_LIGHTING_DIFFUSE:
 			RB_CalcDiffuseColor((unsigned char *)tess.svars.colors);
 			break;
+			
 		case CGEN_EXACT_VERTEX:
 			Com_Memcpy(tess.svars.colors, tess.vertexColors, tess.numVertexes * sizeof(tess.vertexColors[0]));
 			break;
+			
 		case CGEN_CONST:
 			for(i = 0; i < tess.numVertexes; i++)
 			{
 				*(int *)tess.svars.colors[i] = *(int *)pStage->constantColor;
 			}
 			break;
+			
 		case CGEN_VERTEX:
 			if(tr.identityLight == 1)
 			{
@@ -1497,6 +1503,7 @@ static void ComputeColors(shaderStage_t * pStage)
 				}
 			}
 			break;
+			
 		case CGEN_ONE_MINUS_VERTEX:
 			if(tr.identityLight == 1)
 			{
@@ -1517,6 +1524,7 @@ static void ComputeColors(shaderStage_t * pStage)
 				}
 			}
 			break;
+			
 		case CGEN_FOG:
 		{
 			fog_t          *fog;
@@ -1527,20 +1535,25 @@ static void ComputeColors(shaderStage_t * pStage)
 			{
 				*(int *)&tess.svars.colors[i] = fog->colorInt;
 			}
-		}
 			break;
+		}
+			
 		case CGEN_WAVEFORM:
 			RB_CalcWaveColor(&pStage->rgbWave, (unsigned char *)tess.svars.colors);
 			break;
+			
 		case CGEN_ENTITY:
 			RB_CalcColorFromEntity((unsigned char *)tess.svars.colors);
 			break;
+			
 		case CGEN_ONE_MINUS_ENTITY:
 			RB_CalcColorFromOneMinusEntity((unsigned char *)tess.svars.colors);
 			break;
+			
 		case CGEN_CUSTOM_RGB:
 			RB_CalcCustomColor(&pStage->rgbExp, (unsigned char *)tess.svars.colors);
 			break;
+			
 		case CGEN_CUSTOM_RGBs:
 			RB_CalcCustomColors(&pStage->redExp, &pStage->greenExp, &pStage->redExp, (unsigned char *)tess.svars.colors);
 			break;
@@ -1553,6 +1566,7 @@ static void ComputeColors(shaderStage_t * pStage)
 	{
 		case AGEN_SKIP:
 			break;
+			
 		case AGEN_IDENTITY:
 			if(pStage->rgbGen != CGEN_IDENTITY)
 			{
@@ -1565,6 +1579,7 @@ static void ComputeColors(shaderStage_t * pStage)
 				}
 			}
 			break;
+			
 		case AGEN_CONST:
 			if(pStage->rgbGen != CGEN_CONST)
 			{
@@ -1574,18 +1589,23 @@ static void ComputeColors(shaderStage_t * pStage)
 				}
 			}
 			break;
+			
 		case AGEN_WAVEFORM:
 			RB_CalcWaveAlpha(&pStage->alphaWave, (unsigned char *)tess.svars.colors);
 			break;
+			
 		case AGEN_LIGHTING_SPECULAR:
 			RB_CalcSpecularAlpha((unsigned char *)tess.svars.colors);
 			break;
+			
 		case AGEN_ENTITY:
 			RB_CalcAlphaFromEntity((unsigned char *)tess.svars.colors);
 			break;
+			
 		case AGEN_ONE_MINUS_ENTITY:
 			RB_CalcAlphaFromOneMinusEntity((unsigned char *)tess.svars.colors);
 			break;
+			
 		case AGEN_VERTEX:
 			if(pStage->rgbGen != CGEN_VERTEX)
 			{
@@ -1595,12 +1615,14 @@ static void ComputeColors(shaderStage_t * pStage)
 				}
 			}
 			break;
+			
 		case AGEN_ONE_MINUS_VERTEX:
 			for(i = 0; i < tess.numVertexes; i++)
 			{
 				tess.svars.colors[i][3] = 255 - tess.vertexColors[i][3];
 			}
 			break;
+			
 		case AGEN_PORTAL:
 		{
 			unsigned char   alpha;
@@ -1632,6 +1654,7 @@ static void ComputeColors(shaderStage_t * pStage)
 			}
 			break;
 		}
+		
 		case AGEN_CUSTOM:
 			RB_CalcCustomAlpha(&pStage->alphaExp, (unsigned char *)tess.svars.colors);
 			break;
@@ -1647,12 +1670,15 @@ static void ComputeColors(shaderStage_t * pStage)
 			case ACFF_MODULATE_RGB:
 				RB_CalcModulateColorsByFog((unsigned char *)tess.svars.colors);
 				break;
+				
 			case ACFF_MODULATE_ALPHA:
 				RB_CalcModulateAlphasByFog((unsigned char *)tess.svars.colors);
 				break;
+				
 			case ACFF_MODULATE_RGBA:
 				RB_CalcModulateRGBAsByFog((unsigned char *)tess.svars.colors);
 				break;
+				
 			case ACFF_NONE:
 				break;
 		}
@@ -1718,7 +1744,7 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 				break;
 				
 			case TCGEN_BAD:
-				break;
+				continue;
 		}
 
 		// alter texture coordinates
@@ -1914,10 +1940,10 @@ static void RB_IterateStagesGeneric()
 			
 			default:
 				break;
-	}
+		}
 		
 		// allow skipping out to show just lightmaps during development
-		if(r_lightmap->integer && (pStage->bundle[0].isLightMap || pStage->bundle[1].isLightMap))
+		if(r_showLightMaps->integer && (pStage->bundle[0].isLightMap || pStage->bundle[1].isLightMap))
 		{
 			break;
 		}

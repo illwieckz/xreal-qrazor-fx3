@@ -21,10 +21,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /// ============================================================================
 
 attribute vec4		attr_TexCoord0;
+attribute vec4		attr_TexCoord1;
 attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
 
 varying vec2		var_TexDiffuse;
+varying vec2		var_TexNormal;
 varying mat3		var_OS2TSMatrix;
 
 void	main()
@@ -33,7 +35,10 @@ void	main()
 	gl_Position = ftransform();
 	
 	// transform texcoords into diffusemap texture space
-	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;
+	var_TexDiffuse = attr_TexCoord0.st;
+	
+	// transform texcoords into normalmap texture space
+	var_TexNormal = attr_TexCoord1.st;
 	
 	// construct object-space-to-tangent-space 3x3 matrix
 	var_OS2TSMatrix = mat3(	attr_Tangent.x, attr_Binormal.x, gl_Normal.x,

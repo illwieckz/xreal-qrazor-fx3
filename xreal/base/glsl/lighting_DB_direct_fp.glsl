@@ -28,6 +28,7 @@ uniform vec3		u_LightColor;
 //uniform float		u_BumpScale;
 
 varying vec2		var_TexDiffuse;
+varying vec2		var_TexNormal;
 varying mat3		var_OS2TSMatrix;
 
 void	main()
@@ -36,7 +37,7 @@ void	main()
 	vec3 L = normalize(var_OS2TSMatrix * u_LightDir);
 	
 	// compute normal in tangent space from normalmap
-	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexDiffuse).xyz - 0.5);
+	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).xyz - 0.5);
 //	N.z *= u_BumpScale;
 	N = normalize(N);
 	

@@ -167,7 +167,7 @@ static void R_LoadLightmaps(lump_t * l)
 		// expand the 24 bit on-disk to 32 bit
 		buf_p = buf + i * LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3;
 
-		if(r_lightmap->integer == 2)
+		if(r_showLightMaps->integer == 2)
 		{						// color code by intensity as development tool  (FIXME: check range)
 			for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
 			{
@@ -208,7 +208,7 @@ static void R_LoadLightmaps(lump_t * l)
 		tr.lightmaps[i] = R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, qfalse, qfalse, GL_CLAMP, qfalse);
 	}
 
-	if(r_lightmap->integer == 2)
+	if(r_showLightMaps->integer == 2)
 	{
 		ri.Printf(PRINT_ALL, "Brightest lightmap value: %d\n", (int)(maxIntensity * 255));
 	}

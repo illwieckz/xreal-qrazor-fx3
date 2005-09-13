@@ -32,6 +32,8 @@ uniform float		u_SpecularExponent;
 
 varying vec3		var_Vertex;
 varying vec2		var_TexDiffuse;
+varying vec2		var_TexNormal;
+varying vec2		var_TexSpecular;
 varying mat3		var_OS2TSMatrix;
 
 void	main()
@@ -46,7 +48,7 @@ void	main()
 	vec3 H = normalize(L + V);
 	
 	// compute normal in tangent space from normalmap
-	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexDiffuse).xyz - 0.5);
+	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).xyz - 0.5);
 //	N.z *= u_BumpScale;
 	N = normalize(N);
 	
@@ -54,7 +56,7 @@ void	main()
 	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
 	
 	// compute the specular term
-	vec3 specular = texture2D(u_SpecularMap, var_TexDiffuse).rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), u_SpecularExponent);
+	vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), u_SpecularExponent);
 	
 	// compute the light term
 	vec3 light = u_AmbientColor + u_LightColor * clamp(dot(N, L), 0.0, 1.0);

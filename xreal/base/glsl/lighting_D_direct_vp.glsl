@@ -34,5 +34,5 @@ void	main()
 	var_Normal = gl_Normal;
 	
 	// transform texcoords into diffusemap texture space
-	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;
+	var_TexDiffuse = attr_TexCoord0.st;
 }
