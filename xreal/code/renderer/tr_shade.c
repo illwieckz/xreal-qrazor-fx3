@@ -32,12 +32,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 enum
 {
-	ATTR_INDEX_TEXCOORD0 = 8,
-	ATTR_INDEX_TEXCOORD1 = 9,
-	ATTR_INDEX_TANGENT = 10,
-	ATTR_INDEX_BINORMAL = 11,
+	ATTR_INDEX_TEXCOORD0	= 8,
+	ATTR_INDEX_TEXCOORD1	= 9,
+	ATTR_INDEX_TEXCOORD2	= 10,
+	ATTR_INDEX_TEXCOORD3	= 11,
+	ATTR_INDEX_TANGENT		= 12,
+	ATTR_INDEX_BINORMAL		= 13,
 //  ATTR_INDEX_NORMAL       = 2,
-	ATTR_INDEX_DELUXEL = 12,
+	ATTR_INDEX_DELUXEL		= 14,
 //  ATTR_INDEX_COLOR        = 3
 };
 
@@ -155,6 +157,12 @@ static void RB_InitGPUShader(shaderProgram_t * program, const char *name, int at
 
 	if(attribs & GLCS_TEXCOORD1)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD1, "attr_TexCoord1");
+	
+	if(attribs & GLCS_TEXCOORD2)
+		qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD2, "attr_TexCoord2");
+	
+	if(attribs & GLCS_TEXCOORD3)
+		qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD3, "attr_TexCoord3");
 
 	if(attribs & GLCS_TANGENT)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_TANGENT, "attr_Tangent");
@@ -278,7 +286,7 @@ void RB_InitGPUShaders(void)
 	//
 	RB_InitGPUShader(&tr.lightShader_D_radiosity,
 					  "lighting_D_radiosity",
-					  GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_NORMAL, qtrue);
+					  GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD3 | GLCS_NORMAL, qtrue);
 
 	tr.lightShader_D_radiosity.u_DiffuseMap =
 			qglGetUniformLocationARB(tr.lightShader_D_radiosity.program, "u_DiffuseMap");
@@ -361,6 +369,16 @@ static void GL_ClientState(unsigned long stateBits)
 		qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD1);
 	else
 		qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD1);
+	
+	if(diff & GLCS_TEXCOORD2)
+		qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD2);
+	else
+		qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD2);
+	
+	if(diff & GLCS_TEXCOORD3)
+		qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD3);
+	else
+		qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD3);
 
 	if(diff & GLCS_TANGENT)
 		qglEnableVertexAttribArrayARB(ATTR_INDEX_TANGENT);
@@ -412,13 +430,19 @@ static void GL_SetVertexAttribs()
 //		qglVertexPointer(3, GL_FLOAT, 16, tess.xyz);
 	
 	if(glState.glClientStateBits & GLCS_TEXCOORD)
-		qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[0]);
+		qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_COLORMAP]);
 	
 	if(glState.glClientStateBits & GLCS_TEXCOORD0)
-		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[0]);
+		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_COLORMAP]);
 
 	if(glState.glClientStateBits & GLCS_TEXCOORD1)
-		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[1]);
+		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_NORMALMAP]);
+	
+	if(glState.glClientStateBits & GLCS_TEXCOORD2)
+		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD2, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_SPECULARMAP]);
+	
+	if(glState.glClientStateBits & GLCS_TEXCOORD3)
+		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD3, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_LIGHTMAP]);
 
 	if(glState.glClientStateBits & GLCS_TANGENT)
 		qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, tess.tangents);
@@ -867,7 +891,7 @@ t1 = most downstream according to spec
 */
 static void RenderGeneric_multi_FFP(int stage)
 {
-#if 0
+#if 1
 	shaderStage_t  *pStage;
 
 	pStage = tess.xstages[stage];
@@ -878,9 +902,10 @@ static void RenderGeneric_multi_FFP(int stage)
 	
 	GL_State(pStage->stateBits);
 	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
-
-	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[0]);
-	qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.svars.colors);
+	GL_SetVertexAttribs();
+	
+	//qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[0]);
+	//qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.svars.colors);
 
 	// this is an ugly hack to work around a GeForce driver
 	// bug with multitexture and clip planes
@@ -907,7 +932,7 @@ static void RenderGeneric_multi_FFP(int stage)
 	}
 	else
 	{
-		GL_TexEnv(tess.shader->multitextureEnv);
+		GL_TexEnv(tess.shader->collapseTextureEnv);
 	}
 
 	R_BindAnimatedImage(&pStage->bundle[1]);
@@ -917,6 +942,9 @@ static void RenderGeneric_multi_FFP(int stage)
 	// disable texturing on TEXTURE1
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglDisable(GL_TEXTURE_2D);
+	
+	GL_SelectTexture(0);
+	GL_ClientState(GLCS_DEFAULT);
 #endif
 }
 
@@ -992,7 +1020,7 @@ void RenderLighting_D_direct(int stage)
 
 static void RenderLighting_DB_direct(int stage)
 {
-#if 0
+#if 1
 	shaderStage_t  *pStage;
 
 	vec4_t          ambientLight;
@@ -1023,11 +1051,11 @@ static void RenderLighting_DB_direct(int stage)
 
 	// bind diffusemap
 	GL_SelectTexture(0);
-	GL_Bind(pStage->bundle[0].image[IMG_DIFFUSEMAP]);
+	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
 	
 	// bind normalmap
 	GL_SelectTexture(1);
-	GL_Bind(pStage->bundle[0].image[IMG_NORMALMAP]);
+	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
@@ -1037,9 +1065,9 @@ static void RenderLighting_DB_direct(int stage)
 #endif
 }
 
-static void RenderLighting_DBS_direct(int stage)
+void RenderLighting_DBS_direct(int stage)
 {
-#if 0
+#if 1
 	shaderStage_t  *pStage;
 
 	vec3_t			viewOrigin;
@@ -1075,15 +1103,15 @@ static void RenderLighting_DBS_direct(int stage)
 
 	// bind diffusemap
 	GL_SelectTexture(0);
-	GL_Bind(pStage->bundle[0].image[IMG_DIFFUSEMAP]);
+	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
 	
 	// bind normalmap
 	GL_SelectTexture(1);
-	GL_Bind(pStage->bundle[0].image[IMG_NORMALMAP]);
+	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
 	
 	// bind specularmap
 	GL_SelectTexture(2);
-	GL_Bind(pStage->bundle[0].image[IMG_SPECULARMAP]);
+	GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
@@ -1095,7 +1123,6 @@ static void RenderLighting_DBS_direct(int stage)
 
 void RenderLighting_D_radiosity(int stage)
 {
-#if 0
 	shaderStage_t  *pStage;
 	
 	pStage = tess.xstages[stage];
@@ -1109,18 +1136,17 @@ void RenderLighting_D_radiosity(int stage)
 
 	// bind diffusemap
 	GL_SelectTexture(0);
-	GL_Bind(pStage->bundle[0].image[IMG_DIFFUSEMAP]);
+	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
 	
 	// bind lightmap
 	GL_SelectTexture(1);
-	GL_Bind(pStage->bundle[1].image[IMG_LIGHTMAP]);
+	GL_Bind(pStage->bundle[TB_LIGHTMAP].image[0]);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
 	GL_SelectTexture(0);
 	GL_ClientState(GLCS_DEFAULT);
 //	GL_Program(0);
-#endif
 }
 
 /*
@@ -1648,9 +1674,7 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 	{
 		int             tm;
 
-		//
 		// generate the texture coordinates
-		//
 		switch(pStage->bundle[b].tcGen)
 		{
 			//case TCGEN_SKIP:
@@ -1658,6 +1682,7 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 			case TCGEN_IDENTITY:
 				Com_Memset(tess.svars.texCoords[b], 0, sizeof(float) * 2 * tess.numVertexes);
 				break;
+				
 			case TCGEN_TEXTURE:
 				for(i = 0; i < tess.numVertexes; i++)
 				{
@@ -1665,6 +1690,7 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 					tess.svars.texCoords[b][i][1] = tess.texCoords[i][0][1];
 				}
 				break;
+				
 			case TCGEN_LIGHTMAP:
 				for(i = 0; i < tess.numVertexes; i++)
 				{
@@ -1672,6 +1698,7 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 					tess.svars.texCoords[b][i][1] = tess.texCoords[i][1][1];
 				}
 				break;
+				
 			case TCGEN_VECTOR:
 				for(i = 0; i < tess.numVertexes; i++)
 				{
@@ -1681,19 +1708,20 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 						DotProduct(tess.xyz[i], pStage->bundle[b].tcGenVectors[1]);
 				}
 				break;
+				
 			case TCGEN_FOG:
 				RB_CalcFogTexCoords((float *)tess.svars.texCoords[b]);
 				break;
+				
 			case TCGEN_ENVIRONMENT_MAPPED:
 				RB_CalcEnvironmentTexCoords((float *)tess.svars.texCoords[b]);
 				break;
+				
 			case TCGEN_BAD:
-				return;
+				break;
 		}
 
-		//
 		// alter texture coordinates
-		//
 		for(tm = 0; tm < pStage->bundle[b].numTexMods; tm++)
 		{
 			// Tr3B - for multiple images per shader stage
@@ -1774,58 +1802,28 @@ static void RB_IterateStagesGeneric()
 		{
 			case ST_COLORMAP:
 			{
-#if 0
-				if(glConfig2.shadingLanguage100Available)
-				{
-					if(pStage->bundle[1].image[0] != 0)
-					{
-						RenderGeneric_multi(stage);
-					}
-					else
-					{
-						RenderGeneric_single(stage);
-					}
-				}
-				else
-#endif
-				{
-					if(pStage->bundle[1].image[0] != 0)
-					{
-						RenderGeneric_multi_FFP(stage);
-					}
-					else
-					{
-						RenderGeneric_single_FFP(stage);
-					}
-				}
+				RenderGeneric_single_FFP(stage);
 				break;
 			}
 			
+			// Tr3B - for development only. get rid of this later to avoid overdraw
 			case ST_DIFFUSEMAP:
 			{
 				RenderGeneric_single_FFP(stage);
 				break;
 			}
 			
-			case ST_LIGHTING_DIRECTIONAL:
+			case ST_COLLAPSE_Generic_multi:
+			{
+				RenderGeneric_multi_FFP(stage);
+				break;
+			}
+			
+			case ST_COLLAPSE_lighting_D_radiosity:
 			{
 				if(glConfig2.shadingLanguage100Available)
 				{
-					if(pStage->bundle[0].isNormalMap && r_bumpMapping->integer)
-					{
-						if(pStage->bundle[0].isSpecularMap && r_specular->integer)
-						{
-							RenderLighting_DBS_direct(stage);
-						}
-						else
-						{
-							RenderLighting_DB_direct(stage);
-						}
-					}
-					else
-					{
-						RenderLighting_D_direct(stage);
-					}
+					RenderLighting_D_radiosity(stage);
 				}
 				else
 				{
@@ -1835,14 +1833,14 @@ static void RB_IterateStagesGeneric()
 				break;
 			}
 			
-			case ST_LIGHTING_RADIOSITY:
+			case ST_COLLAPSE_lighting_DBS_radiosity:
 			{
 				if(glConfig2.shadingLanguage100Available)
 				{
 					/*
-					if(pStage->bundle[TB_NORMALMAP].isNormalMap && r_bumpMapping->integer)
+					if(r_bumpMapping->integer)
 					{
-						if(pStage->bundle[TB_SPECULARMAP].isSpecularMap && r_specular->integer)
+						if(r_specular->integer)
 						{
 							RenderLighting_DBS_direct(stage);
 						}
@@ -1865,17 +1863,58 @@ static void RB_IterateStagesGeneric()
 				break;
 			}
 			
-			/*
-			case ST_HEATHAZE:
+			case ST_COLLAPSE_lighting_DB_direct:
 			{
-				//TODO
+				if(glConfig2.shadingLanguage100Available)
+				{
+					if(r_bumpMapping->integer)
+					{
+						RenderLighting_DB_direct(stage);
+					}
+					else
+					{
+						RenderLighting_D_direct(stage);
+					}
+				}
+				else
+				{
+					RenderGeneric_single_FFP(stage);
+				}
+				
 				break;
 			}
-			*/
+			
+			case ST_COLLAPSE_lighting_DBS_direct:
+			{
+				if(glConfig2.shadingLanguage100Available)
+				{
+					if(r_bumpMapping->integer)
+					{
+						if(r_specular->integer)
+						{
+							RenderLighting_DBS_direct(stage);
+						}
+						else
+						{
+							RenderLighting_DB_direct(stage);
+						}
+					}
+					else
+					{
+						RenderLighting_D_direct(stage);
+					}
+				}
+				else
+				{
+					RenderGeneric_single_FFP(stage);
+				}
+				
+				break;
+			}
 			
 			default:
 				break;
-		}
+	}
 		
 		// allow skipping out to show just lightmaps during development
 		if(r_lightmap->integer && (pStage->bundle[0].isLightMap || pStage->bundle[1].isLightMap))

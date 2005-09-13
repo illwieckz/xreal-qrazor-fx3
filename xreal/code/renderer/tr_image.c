@@ -892,11 +892,11 @@ image_t *R_CreateImage(const char *name, const byte * pic, int width, int height
 	qboolean        isLightmap = qfalse;
 	long            hash;
 
-	if              (strlen(name) >= MAX_QPATH)
+	if(strlen(name) >= MAX_QPATH)
 	{
 		ri.Error(ERR_DROP, "R_CreateImage: \"%s\" is too long\n", name);
 	}
-	if              (!strncmp(name, "*lightmap", 9))
+	if(!strncmp(name, "_lightmap", 9))
 	{
 		isLightmap = qtrue;
 	}

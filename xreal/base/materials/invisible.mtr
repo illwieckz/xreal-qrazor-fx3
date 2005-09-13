@@ -66,13 +66,11 @@ textures/editor/visportal
 	qer_editorimage	textures/editor/vis_p.tga
 	qer_trans 0.5
 			
-//	areaportal
-//	noshadows
-	
-	nodraw
-	nonsolid
+	areaportal
 	noshadows
-	translucent
+	
+//	nonsolid
+//	noshadows
 	
 //	nodraw
 //	nonsolid

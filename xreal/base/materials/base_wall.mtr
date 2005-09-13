@@ -4774,10 +4774,14 @@ textures/base_wall/lfwall27d
 	qer_editorimage textures/editor/lfwall27d
 	diffusemap		textures/base_wall/lfwall27d
 	bumpmap			textures/base_wall/lfwall27d_local
-	
 	{
 		blend specularmap
 		map		textures/base_wall/lfwall27d_s
+	}
+	{
+		stage lightmap
+		map _lightmap
+		//blend filter
 	}
 }
 
@@ -4794,13 +4798,14 @@ textures/base_wall/lfwall27b
 {
 	qer_editorimage textures/base_wall/lfwall27b
 
-	diffusemap		textures/base_wall/lfwall27b
-	bumpmap			textures/base_wall/lfwall27b_local
-	specularmap		textures/base_wall/lfwall27b_s
-// 	{
-// 		blend diffusemap
-// 		map		textures/base_wall/lfwall27b
-// 	}
+//	diffusemap		textures/base_wall/lfwall27b
+//	bumpmap			textures/base_wall/lfwall27b_local
+//	specularmap		textures/base_wall/lfwall27b_s
+	{
+		blend diffusemap
+		map		textures/base_wall/lfwall27b
+		rgbGen identity
+	}
 // 	{
 // 		stage map
 // 		map		textures/base_wall/lfwall27b
@@ -4809,6 +4814,11 @@ textures/base_wall/lfwall27b
 // 		stage diffusemap
 // 		map		textures/base_wall/lfwall27b
 // 	}
+	{
+		stage lightmap
+		map _lightmap
+		//blend filter
+	}
 }
 
 textures/base_wall/lfwall27a
@@ -5237,9 +5247,10 @@ textures/base_wall/lfwall13f4
 textures/base_wall/lfwall13f3
 {
 	qer_editorimage	textures/base_wall/lfwall13f3
-	bumpmap			textures/base_wall/lfwall13f_local
 	diffusemap		textures/base_wall/lfwall13f3
+	bumpmap			textures/base_wall/lfwall13f_local
 	specularmap		textures/base_wall/lfwall13f3_s
+	lightmap		_lightmap
 }
 
 textures/base_wall/lfwall13f2

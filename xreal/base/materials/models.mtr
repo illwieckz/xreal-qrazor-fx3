@@ -2499,6 +2499,7 @@ models/players/doom/doom
 	{
 		blend diffusemap
 		map models/players/doom/doom.tga
+		rgbGen lightingDiffuse
 	}
 	
 	{
@@ -2509,7 +2510,6 @@ models/players/doom/doom
 	{
 		blend specularmap
 		map models/players/doom/doom_rgba.tga
-		//rgbGen lightingDiffuse
 	}
 }
 
@@ -4630,9 +4630,10 @@ models/weapons2/machinegun/machinegun
 	{
 		blend diffusemap
 		map models/weapons2/machinegun/machinegun_big.tga
+		rgbGen lightingDiffuse
 	}
-// 		normalMap models/weapons2/machinegun/machinegun_norm.tga
-// 		specularMap models/weapons2/machinegun/machinegun_s.tga
+	normalMap models/weapons2/machinegun/machinegun_norm.tga
+	specularMap models/weapons2/machinegun/machinegun_s.tga
 }
 
 models/weapons2/machinegun/f_machinegun

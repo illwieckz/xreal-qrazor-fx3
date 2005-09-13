@@ -149,7 +149,7 @@ typedef enum
 } shaderSort_t;
 
 
-#define MAX_SHADER_STAGES 8
+#define MAX_SHADER_STAGES 16
 
 typedef enum
 {
@@ -344,24 +344,36 @@ typedef struct
 
 typedef enum
 {
-	ST_COLORMAP,				// vanilla Q3A style shader treatening
+	ST_COLORMAP,							// vanilla Q3A style shader treatening
 	ST_DIFFUSEMAP,
 	ST_NORMALMAP,
 	ST_SPECULARMAP,
-	ST_HEATHAZEMAP,				// heatHaze post process effect
+	ST_HEATHAZEMAP,							// heatHaze post process effect
 	ST_LIGHTMAP,
 	ST_DELUXEMAP,
-	ST_REFLECTIONMAP,			// cubeMap based reflection
+	ST_REFLECTIONMAP,						// cubeMap based reflection
 	ST_REFRACTIONMAP,
 	ST_DISPERSIONMAP,
 	ST_SKYBOXMAP,
 	ST_SKYCLOUDMAP,
-	ST_LIQUIDMAP,				// reflective water shader
+	ST_LIQUIDMAP,							// reflective water shader
 	
-	// TODO replace
-	ST_LIGHTING_DIRECTIONAL,	// directional entity lighting like rgbGen lightingDiffuse
-	ST_LIGHTING_RADIOSITY,		// luxel/deluxel based lighting
+	ST_COLLAPSE_Generic_multi,				// two colormaps
+	ST_COLLAPSE_lighting_D_radiosity,		// diffusemap + lightmap
+	ST_COLLAPSE_lighting_DBS_radiosity,		// diffusemap + bumpmap + specularmap + lightmap
+	ST_COLLAPSE_lighting_DB_direct,			// directional entity lighting like rgbGen lightingDiffuse
+	ST_COLLAPSE_lighting_DBS_direct,		// direction entity lighting with diffuse + bump + specular
 } stageType_t;
+
+typedef enum
+{
+	COLLAPSE_none,
+	COLLAPSE_Generic_multi,
+	COLLAPSE_lighting_D_radiosity,
+	COLLAPSE_lighting_DBS_radiosity,
+	COLLAPSE_lighting_DB_direct,
+	COLLAPSE_lighting_DBS_direct,
+} collapseType_t;
 
 typedef struct
 {
@@ -428,7 +440,6 @@ typedef struct
 	float           depthForOpaque;
 } fogParms_t;
 
-
 typedef struct shader_s
 {
 	char            name[MAX_QPATH];	// game path, including extension
@@ -452,6 +463,7 @@ typedef struct shader_s
 
 	qboolean        entityMergable;	// merge across entites optimizable (smoke, blood)
 
+	qboolean		translucent;
 	qboolean		forceOpaque;
 	qboolean        isSky;
 	skyParms_t      sky;
@@ -459,7 +471,8 @@ typedef struct shader_s
 
 	float           portalRange;	// distance to fog out at
 
-	int             multitextureEnv;	// 0, GL_MODULATE, GL_ADD (FIXME: put in stage)
+	collapseType_t	collapseType;
+	int             collapseTextureEnv;	// 0, GL_MODULATE, GL_ADD (FIXME: put in stage)
 
 	cullType_t      cullType;	// CT_FRONT_SIDED, CT_BACK_SIDED, or CT_TWO_SIDED
 	qboolean        polygonOffset;	// set for decals and other items that must be offset 
@@ -1353,11 +1366,13 @@ enum
 	GLCS_TEXCOORD		= (1 << 1),
 	GLCS_TEXCOORD0		= (1 << 2),
 	GLCS_TEXCOORD1		= (1 << 3),
-	GLCS_TANGENT		= (1 << 4),
-	GLCS_BINORMAL		= (1 << 5),
-	GLCS_NORMAL			= (1 << 6),
-	GLCS_DELUXEL		= (1 << 7),
-	GLCS_COLOR			= (1 << 8),
+	GLCS_TEXCOORD2		= (1 << 4),
+	GLCS_TEXCOORD3		= (1 << 5),
+	GLCS_TANGENT		= (1 << 6),
+	GLCS_BINORMAL		= (1 << 7),
+	GLCS_NORMAL			= (1 << 8),
+	GLCS_DELUXEL		= (1 << 9),
+	GLCS_COLOR			= (1 << 10),
 	
 	GLCS_DEFAULT		= GLCS_VERTEX
 };

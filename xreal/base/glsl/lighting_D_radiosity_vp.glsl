@@ -1,6 +1,6 @@
 /// ============================================================================
 /*
-Copyright (C) 2004 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2005 Robert Beckebans <trebor_7@users.sourceforge.net>
 Please see the file "AUTHORS" for a list of contributors
 
 This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /// ============================================================================
 
 attribute vec4		attr_TexCoord0;
-attribute vec4		attr_TexCoord1;
+attribute vec4		attr_TexCoord3;
 
 varying vec3		var_Normal;
 varying vec2		var_TexDiffuse;
@@ -39,5 +39,5 @@ void	main()
 	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;
 	
 	// transform texcoords_lm into lightmap texture space
-	var_TexLight = (gl_TextureMatrix[1] * attr_TexCoord1).st;
+	var_TexLight = (gl_TextureMatrix[1] * attr_TexCoord3).st;
 }
