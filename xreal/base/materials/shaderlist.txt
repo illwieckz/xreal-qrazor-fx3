@@ -17,6 +17,10 @@ duffyTest
 enpro
 fogs
 //gfx
+gw_dm1_rock
+gw_dm1_skies
+gw_dm1_tower
+gw_dm1_tree
 glass
 hell
 ice

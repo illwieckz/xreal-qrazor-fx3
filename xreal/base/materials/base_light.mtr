@@ -794,7 +794,8 @@ textures/base_light/a_trimlight_04b_fin
 
 	diffusemap	textures/base_light/a_trimlight_d04b_fin.tga
 	specularmap	textures/base_light/a_trimlight_s04b_fin.tga
-     bumpmap		addnormals( textures/base_light/a_trimlight_local_b.tga  , heightmap( textures/base_light/a_trimlight_b04b_fin.tga, 2 ) )
+	bumpmap		addnormals( textures/base_light/a_trimlight_local_b.tga  , heightmap( textures/base_light/a_trimlight_b04b_fin.tga, 2 ) )
+	lightmap	_lightmap
 }
 
 //textures/base_light/a_trimlight_06_fin
@@ -975,6 +976,7 @@ textures/base_light/a_reactorlight1_d1c
 		blend gl_one,gl_one
 		map textures/base_light/a_reactorlight1_add1c.tga		
 	}
+	lightmap		_lightmap
 }
 
 
