@@ -27,16 +27,16 @@ static char    *s_shaderText;
 
 // the shader is parsed into these global variables, then copied into
 // dynamically allocated memory if it is valid.
-static shaderStage_t stages[MAX_SHADER_STAGES];
-static shader_t shader;
-static texModInfo_t texMods[MAX_SHADER_STAGES][TR_MAX_TEXMODS];
-static qboolean deferLoad;
+static shaderStage_t	stages[MAX_SHADER_STAGES];
+static shader_t			shader;
+static texModInfo_t		texMods[MAX_SHADER_STAGES][TR_MAX_TEXMODS];
+static qboolean			deferLoad;
 
 #define FILE_HASH_SIZE		1024
-static shader_t *hashTable[FILE_HASH_SIZE];
+static shader_t		   *shaderHashTable[FILE_HASH_SIZE];
 
 #define MAX_SHADERTEXT_HASH		2048
-static char   **shaderTextHashTable[MAX_SHADERTEXT_HASH];
+static char  		  **shaderTextHashTable[MAX_SHADERTEXT_HASH];
 
 /*
 ================
@@ -46,16 +46,16 @@ return a hash value for the filename
 static long generateHashValue(const char *fname, const int size)
 {
 	int             i;
-	int             len;
+//	int             len;
 	long            hash;
 	char            letter;
 
 	hash = 0;
 	i = 0;
-	len = strlen(fname);
+//	len = strlen(fname);
 	
-//	while(fname[i] != '\0')
-	for(i = 0; i < len; i++)
+	while(fname[i] != '\0')
+//	for(i = 0; i < len; i++)
 	{
 		letter = tolower(fname[i]);
 		
@@ -69,7 +69,7 @@ static long generateHashValue(const char *fname, const int size)
 			letter = '/';		// damn path names
 		
 		hash += (long)(letter) * (i + 119);
-//		i++;
+		i++;
 	}
 	hash = (hash ^ (hash >> 10) ^ (hash >> 20));
 	hash &= (size - 1);
@@ -112,7 +112,7 @@ void R_RemapShader(const char *shaderName, const char *newShaderName, const char
 	// even tho they might have different lightmaps
 	COM_StripExtension(shaderName, strippedName);
 	hash = generateHashValue(strippedName, FILE_HASH_SIZE);
-	for(sh = hashTable[hash]; sh; sh = sh->next)
+	for(sh = shaderHashTable[hash]; sh; sh = sh->next)
 	{
 		if(Q_stricmp(sh->name, strippedName) == 0)
 		{
@@ -2853,8 +2853,8 @@ static shader_t *GeneratePermanentShader(void)
 	SortNewShader();
 
 	hash = generateHashValue(newShader->name, FILE_HASH_SIZE);
-	newShader->next = hashTable[hash];
-	hashTable[hash] = newShader;
+	newShader->next = shaderHashTable[hash];
+	shaderHashTable[hash] = newShader;
 
 	return newShader;
 }
@@ -3299,7 +3299,7 @@ shader_t       *R_FindShaderByName(const char *name)
 	hash = generateHashValue(strippedName, FILE_HASH_SIZE);
 
 	// see if the shader is already loaded
-	for(sh = hashTable[hash]; sh; sh = sh->next)
+	for(sh = shaderHashTable[hash]; sh; sh = sh->next)
 	{
 		// NOTE: if there was no shader or image available with the name strippedName
 		// then a default shader is created with lightmapIndex == LIGHTMAP_NONE, so we
@@ -3370,7 +3370,7 @@ shader_t       *R_FindShader(const char *name, int lightmapIndex, qboolean mipRa
 	hash = generateHashValue(strippedName, FILE_HASH_SIZE);
 
 	// see if the shader is already loaded
-	for(sh = hashTable[hash]; sh; sh = sh->next)
+	for(sh = shaderHashTable[hash]; sh; sh = sh->next)
 	{
 		// NOTE: if there was no shader or image available with the name strippedName
 		// then a default shader is created with lightmapIndex == LIGHTMAP_NONE, so we
@@ -3510,7 +3510,7 @@ qhandle_t RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_
 	hash = generateHashValue(name, FILE_HASH_SIZE);
 
 	// see if the shader is already loaded
-	for(sh = hashTable[hash]; sh; sh = sh->next)
+	for(sh = shaderHashTable[hash]; sh; sh = sh->next)
 	{
 		// NOTE: if there was no shader or image available with the name strippedName
 		// then a default shader is created with lightmapIndex == LIGHTMAP_NONE, so we
@@ -4096,7 +4096,7 @@ void R_InitShaders(void)
 {
 	ri.Printf(PRINT_ALL, "Initializing Shaders\n");
 
-	Com_Memset(hashTable, 0, sizeof(hashTable));
+	Com_Memset(shaderHashTable, 0, sizeof(shaderHashTable));
 
 	deferLoad = qfalse;
 

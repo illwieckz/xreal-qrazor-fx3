@@ -2109,8 +2109,7 @@ image_t        *R_FindImageFile(const char *name, qboolean mipmap, qboolean allo
 			{
 				if(image->mipmap != mipmap)
 				{
-					ri.Printf(PRINT_DEVELOPER, "WARNING: reused image %s with mixed mipmap parm\n",
-							  name);
+					ri.Printf(PRINT_DEVELOPER, "WARNING: reused image %s with mixed mipmap parm\n", name);
 				}
 				if(image->allowPicmip != allowPicmip)
 				{

@@ -1212,8 +1212,11 @@ void RB_CalcRotateTexCoords(float degsPerSecond, float *st)
 
 long myftol(float f)
 {
-	static int      tmp;
-__asm fld       f __asm fistp tmp __asm mov eax, tmp}
+	static int tmp;
+	__asm fld f
+	__asm fistp tmp
+	__asm mov eax, tmp
+}
 
 #endif
 

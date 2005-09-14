@@ -50,6 +50,9 @@ long            myftol(float f);
 // see QSORT_SHADERNUM_SHIFT
 #define	MAX_SHADERS				16384
 
+#define MAX_SHADER_TABLES		256
+#define MAX_SHADER_STAGES		16
+
 //#define MAX_SHADER_STATES 2048
 #define MAX_STATES_PER_SHADER 32
 #define MAX_STATE_NAME 32
@@ -148,8 +151,20 @@ typedef enum
 	SS_NEAREST					// blood blobs
 } shaderSort_t;
 
+typedef struct shaderTable_s
+{
+	char            name[MAX_QPATH];
+	
+	int             index;
+	
+	qboolean		clamp;
+	qboolean		snap;
+	
+	float          *values;
+	int				size;
 
-#define MAX_SHADER_STAGES 16
+	struct shaderTable_s *next;
+} shaderTable_t;
 
 typedef enum
 {
@@ -238,9 +253,43 @@ typedef enum
 	ACFF_MODULATE_ALPHA
 } acff_t;
 
+typedef enum {
+	OP_UNDEF, 
+
+	OP_EQ,
+	OP_NE,
+
+	OP_LT,
+	OP_LE,
+	OP_GT,
+	OP_GE,
+
+	OP_ADD,
+	OP_SUB,
+	OP_DIV,
+	OP_MOD,
+	OP_MUL,
+
+	OP_BAND,
+	OP_BOR,
+	OP_BXOR,
+	OP_BCOM,
+
+	OP_LSH,
+	OP_RSH
+} opcode_t;
+
 typedef struct
 {
-	int             stackDepth;
+	opcode_t		type;
+	float			value;
+} expOperation_t;
+
+#define MAX_EXPRESSION_OPS	24
+typedef struct
+{
+	expOperation_t  ops[MAX_EXPRESSION_OPS];
+	int             numOps;
 } expression_t;
 
 typedef struct
@@ -1123,6 +1172,9 @@ typedef struct
 
 	int             numSkins;
 	skin_t         *skins[MAX_SKINS];
+	
+	int             numTables;
+	shaderTable_t  *shaderTables[MAX_SHADER_TABLES];
 
 	float           sinTable[FUNCTABLE_SIZE];
 	float           squareTable[FUNCTABLE_SIZE];
