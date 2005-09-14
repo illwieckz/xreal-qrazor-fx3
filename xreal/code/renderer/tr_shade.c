@@ -1859,6 +1859,28 @@ static void RB_IterateStagesGeneric()
 				break;
 			}
 			
+			case ST_COLLAPSE_lighting_DB_radiosity:
+			{
+				if(glConfig2.shadingLanguage100Available)
+				{
+					/*
+					if(r_bumpMapping->integer)
+					{
+						RenderLighting_DB_direct(stage);
+					}
+					else
+					*/
+					{
+						RenderLighting_D_radiosity(stage);
+					}
+				}
+				else
+				{
+					RenderGeneric_single_FFP(stage);
+				}
+				break;
+			}
+			
 			case ST_COLLAPSE_lighting_DBS_radiosity:
 			{
 				if(glConfig2.shadingLanguage100Available)
@@ -1885,7 +1907,6 @@ static void RB_IterateStagesGeneric()
 				{
 					RenderGeneric_single_FFP(stage);
 				}
-				
 				break;
 			}
 			
@@ -1906,7 +1927,6 @@ static void RB_IterateStagesGeneric()
 				{
 					RenderGeneric_single_FFP(stage);
 				}
-				
 				break;
 			}
 			
@@ -1934,7 +1954,6 @@ static void RB_IterateStagesGeneric()
 				{
 					RenderGeneric_single_FFP(stage);
 				}
-				
 				break;
 			}
 			

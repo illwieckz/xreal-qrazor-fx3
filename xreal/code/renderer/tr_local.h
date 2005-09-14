@@ -240,7 +240,7 @@ typedef enum
 
 typedef struct
 {
-	// TODO
+	int             stackDepth;
 } expression_t;
 
 typedef struct
@@ -360,6 +360,7 @@ typedef enum
 	
 	ST_COLLAPSE_Generic_multi,				// two colormaps
 	ST_COLLAPSE_lighting_D_radiosity,		// diffusemap + lightmap
+	ST_COLLAPSE_lighting_DB_radiosity,		// diffusemap + bumpmap + lightmap
 	ST_COLLAPSE_lighting_DBS_radiosity,		// diffusemap + bumpmap + specularmap + lightmap
 	ST_COLLAPSE_lighting_DB_direct,			// directional entity lighting like rgbGen lightingDiffuse
 	ST_COLLAPSE_lighting_DBS_direct,		// direction entity lighting with diffuse + bump + specular
@@ -370,6 +371,7 @@ typedef enum
 	COLLAPSE_none,
 	COLLAPSE_Generic_multi,
 	COLLAPSE_lighting_D_radiosity,
+	COLLAPSE_lighting_DB_radiosity,
 	COLLAPSE_lighting_DBS_radiosity,
 	COLLAPSE_lighting_DB_direct,
 	COLLAPSE_lighting_DBS_direct,

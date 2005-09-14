@@ -46,12 +46,16 @@ return a hash value for the filename
 static long generateHashValue(const char *fname, const int size)
 {
 	int             i;
+	int             len;
 	long            hash;
 	char            letter;
 
 	hash = 0;
 	i = 0;
-	while(fname[i] != '\0')
+	len = strlen(fname);
+	
+//	while(fname[i] != '\0')
+	for(i = 0; i < len; i++)
 	{
 		letter = tolower(fname[i]);
 		
@@ -65,7 +69,7 @@ static long generateHashValue(const char *fname, const int size)
 			letter = '/';		// damn path names
 		
 		hash += (long)(letter) * (i + 119);
-		i++;
+//		i++;
 	}
 	hash = (hash ^ (hash >> 10) ^ (hash >> 20));
 	hash &= (size - 1);
@@ -2398,11 +2402,76 @@ static void CollapseStages(void)
 	int             abits, bbits;
 	int             i;
 	textureBundle_t tmpBundle;
+//	shaderStage_t	tmpStage;
 
 	if(!qglActiveTextureARB || !r_collapseMultitexture->integer)
 	{
 		return;
 	}
+	
+#if 0
+	// sort the first 4 stages if possible
+	if(stages[0].type != ST_DIFFUSEMAP && stages[0].type != ST_COLORMAP)
+	{
+		// determine if one of the first 4 stages is a diffusemap
+		for(i = 0; i < 4; i++)
+		{
+			if(stages[i].type == ST_DIFFUSEMAP)
+			{
+				// swap with current
+				tmpStage = stages[0];
+				stages[0] = stages[i];
+				stages[i] = tmpStage;
+				break;
+			}
+		}
+	}
+	
+	if(stages[1].type != ST_NORMALMAP && stages[1].type != ST_COLORMAP)
+	{
+		for(i = 0; i < 4; i++)
+		{
+			if(stages[i].type == ST_NORMALMAP)
+			{
+				// swap with current
+				tmpStage = stages[0];
+				stages[0] = stages[i];
+				stages[i] = tmpStage;
+				break;
+			}
+		}
+	}
+	
+	if(stages[2].type != ST_SPECULARMAP && stages[2].type != ST_COLORMAP)
+	{
+		for(i = 0; i < 4; i++)
+		{
+			if(stages[i].type == ST_SPECULARMAP)
+			{
+				// swap with current
+				tmpStage = stages[0];
+				stages[0] = stages[i];
+				stages[i] = tmpStage;
+				break;
+			}
+		}
+	}
+	
+	if(stages[3].type != ST_LIGHTMAP && stages[3].type != ST_COLORMAP)
+	{
+		for(i = 0; i < 4; i++)
+		{
+			if(stages[i].type == ST_LIGHTMAP)
+			{
+				// swap with current
+				tmpStage = stages[0];
+				stages[0] = stages[i];
+				stages[i] = tmpStage;
+				break;
+			}
+		}
+	}
+#endif
 	
 	// NOTE: Tr3B - merge as many stages as possible
 	
@@ -2432,6 +2501,27 @@ static void CollapseStages(void)
 		Com_Memset(&stages[MAX_SHADER_STAGES - 3], 0, sizeof(stages[0]));
 		
 		shader.numUnfoggedPasses -= 3;
+	}
+	// try to merge diffuse/bump/light
+	else if(stages[0].active					&&
+			stages[0].type == ST_DIFFUSEMAP		&&
+			stages[1].active					&&
+			stages[1].type == ST_NORMALMAP		&&
+			stages[2].active					&&
+			stages[2].type == ST_LIGHTMAP
+		   )
+	{
+		shader.collapseType = COLLAPSE_lighting_DB_radiosity;
+		stages[0].type = ST_COLLAPSE_lighting_DB_radiosity;
+		
+		stages[0].bundle[TB_NORMALMAP] = stages[1].bundle[0];
+		stages[0].bundle[TB_LIGHTMAP] = stages[2].bundle[0];
+
+		// move down subsequent stages
+		memmove(&stages[1], &stages[2], sizeof(stages[0]) * (MAX_SHADER_STAGES - 3));
+		Com_Memset(&stages[MAX_SHADER_STAGES - 2], 0, sizeof(stages[0]));
+		
+		shader.numUnfoggedPasses -= 2;
 	}
 	// try to merge diffuse/light
 	else if(stages[0].active					&&
@@ -3217,9 +3307,7 @@ shader_t       *R_FindShaderByName(const char *name)
 
 	hash = generateHashValue(strippedName, FILE_HASH_SIZE);
 
-	//
 	// see if the shader is already loaded
-	//
 	for(sh = hashTable[hash]; sh; sh = sh->next)
 	{
 		// NOTE: if there was no shader or image available with the name strippedName
@@ -3720,6 +3808,10 @@ void R_ShaderList_f(void)
 		else if(shader->collapseType == COLLAPSE_lighting_D_radiosity)
 		{
 			ri.Printf(PRINT_ALL, "D_radiosity    ");
+		}
+		else if(shader->collapseType == COLLAPSE_lighting_DB_radiosity)
+		{
+			ri.Printf(PRINT_ALL, "DB_radiosity   ");
 		}
 		else if(shader->collapseType == COLLAPSE_lighting_DBS_radiosity)
 		{
