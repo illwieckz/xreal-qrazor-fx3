@@ -54,7 +54,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	DEFAULT_BACKSPLASH_DISTANCE		24
 
 
-#define	MAX_SURFACE_INFO	4096
+#define	MAX_SURFACE_INFO	4096*2
 
 shaderInfo_t    defaultInfo;
 shaderInfo_t    shaderInfo[MAX_SURFACE_INFO];
@@ -735,7 +735,7 @@ static void ParseShaderFile(const char *filename)
 LoadShaderInfo
 ===============
 */
-#define	MAX_SHADER_FILES	64
+#define	MAX_SHADER_FILES	128
 #define USE_MTR
 void LoadShaderInfo(void)
 {
