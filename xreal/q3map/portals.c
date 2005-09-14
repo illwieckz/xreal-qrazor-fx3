@@ -621,6 +621,10 @@ qboolean FloodEntities(tree_t * tree)
 		GetVectorForKey(&entities[i], "origin", origin);
 		if(VectorCompare(origin, vec3_origin))
 			continue;
+		
+		// Tr3B - some entities may have this epair
+		if(!strcmp("1", ValueForKey(&entities[i], "noflood")))
+			continue;
 
 		cl = ValueForKey(&entities[i], "classname");
 

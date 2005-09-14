@@ -1131,7 +1131,7 @@ void MovePatchesToWorld(entity_t * mapent)
 AdjustBrushesForOrigin
 ================
 */
-void AdjustBrushesForOrigin(entity_t * ent, qboolean ignoreOrigin)
+void AdjustBrushesForOrigin(entity_t * ent, vec3_t origin)
 {
 	bspbrush_t     *b;
 	int             i;
@@ -1144,10 +1144,7 @@ void AdjustBrushesForOrigin(entity_t * ent, qboolean ignoreOrigin)
 		{
 			s = &b->sides[i];
 			
-			if(ignoreOrigin)
-				newdist = mapplanes[s->planenum].dist - DotProduct(mapplanes[s->planenum].normal, vec3_origin);
-			else
-				newdist = mapplanes[s->planenum].dist - DotProduct(mapplanes[s->planenum].normal, ent->origin);
+			newdist = mapplanes[s->planenum].dist - DotProduct(mapplanes[s->planenum].normal, origin);
 			
 			s->planenum = FindFloatPlane(mapplanes[s->planenum].normal, newdist);
 		}
@@ -1310,18 +1307,16 @@ qboolean ParseMapEntity(void)
 	}
 
 	// Tr3B - determine if this is a func_static that can be merged into worldspawn
-#if 1
 	if(!Q_stricmp("func_static", classname) && name[0] != '\0' && model[0] != '\0' && !Q_stricmp(name, model))
 	{
-		//bspbrush_t     *brush;
+		bspbrush_t     *brush;
+		vec3_t          originNeg;
 		
-		//AdjustBrushesForOrigin(mapent, qtrue);
-		//AdjustBrushesForOrigin(mapent, qfalse);
-		//MoveBrushesToWorld(mapent);
-		MovePatchesToWorld(mapent);
+		VectorCopy(mapent->origin, originNeg);
+		VectorInverse(originNeg);
+		AdjustBrushesForOrigin(mapent, originNeg);
 		
-		// FIXME: move this to SetBrushContents
-		/*
+		// NOTE: func_static entities should contain always detail brushes
 		for(brush = mapent->brushes; brush != NULL; brush = brush->next)
 		{
 			if(!(brush->contents & CONTENTS_DETAIL) || !brush->detail)
@@ -1331,16 +1326,22 @@ qboolean ParseMapEntity(void)
 				brush->detail = qtrue;
 			}
 		}
-		*/
 		
-		if(!mapent->brushes)
+		if(!strcmp("1", ValueForKey(mapent, "noclipmodel")))
 		{
-			c_mergedFuncStatics++;
-			num_entities--;
-			return qtrue;
+			for(brush = mapent->brushes; brush != NULL; brush = brush->next)
+			{
+				brush->contents &= ~CONTENTS_SOLID;
+			}
 		}
+		
+		MoveBrushesToWorld(mapent);
+		MovePatchesToWorld(mapent);
+		
+		c_mergedFuncStatics++;
+		num_entities--;
+		return qtrue;
 	}
-#endif
 		
 	// if there was an origin brush, offset all of the planes and texinfo
 	// for all the brushes in the entity
@@ -1348,12 +1349,12 @@ qboolean ParseMapEntity(void)
 	{
 		if((name[0] != '\0' && model[0] != '\0' && !Q_stricmp(name, model)))// || !Q_stricmp("worldspawn", classname))
 		{
-			AdjustBrushesForOrigin(mapent, qtrue);
+			AdjustBrushesForOrigin(mapent, vec3_origin);
 			AdjustPatchesForOrigin(mapent);
 		}
 		else
 		{
-			AdjustBrushesForOrigin(mapent, qfalse);
+			AdjustBrushesForOrigin(mapent, mapent->origin);
 			AdjustPatchesForOrigin(mapent);
 		}
 	}

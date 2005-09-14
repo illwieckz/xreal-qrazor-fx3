@@ -2303,9 +2303,10 @@ textures/base_wall/lfwall14g3trim
 textures/base_wall/skpanel11_dirt
 {	
 	qer_editorimage		textures/base_wall/skpanel11_dirt.tga
-	bumpmap			textures/base_wall/skpanel11_local.tga
 	diffusemap		textures/base_wall/skpanel11_dirt.tga
+	bumpmap			textures/base_wall/skpanel11_local.tga
 	specularmap		textures/base_wall/skpanel11_dirt_s.tga
+	lightmap		_lightmap
 }
 
 textures/base_wall/boxpanel_rust
@@ -4817,6 +4818,11 @@ textures/base_wall/lfwall27b
 // 		stage diffusemap
 // 		map		textures/base_wall/lfwall27b
 // 	}
+//	{
+//		blend gl_one,gl_one
+//		map models/seneca/xianroom/xiantex1_add.tga
+//		rgb (.3 * sintable [.15 + time * .5 ]) +.7
+//	}
 }
 
 textures/base_wall/lfwall27a
@@ -5583,12 +5589,14 @@ textures/base_wall/lfwall4
 textures/base_wall/lfwall3a
 {
 	qer_editorimage textures/base_wall/lfwall3a
+	
+	diffusemap		textures/base_wall/lfwall3a
 	{
 		blend		bumpmap			
 		map			addnormals (textures/base_wall/lfwall3a_local, heightmap (textures/base_wall/lfwall3_bmp.tga, 4) ) 
 	}
-	diffusemap		textures/base_wall/lfwall3a
 	specularmap		textures/base_wall/lfwall3a_s
+	lightmap		_lightmap
 }
 
 textures/base_wall/lfwall3

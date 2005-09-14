@@ -543,11 +543,17 @@ void CreateEntityLights(void)
 		if(dl->style < 0)
 			dl->style = 0;
 
-		intensity = FloatForKey(e, "light");
+#if 1
+		GetVectorForKey(e, "light_radius", dl->radius);
+		intensity = VectorLength(dl->radius);
+		if(!intensity)
+#endif
+			intensity = FloatForKey(e, "light");
 		if(!intensity)
 			intensity = FloatForKey(e, "_light");
 		if(!intensity)
 			intensity = 300;
+		
 		_color = ValueForKey(e, "_color");
 		if(_color && _color[0])
 		{
@@ -555,7 +561,9 @@ void CreateEntityLights(void)
 			ColorNormalize(dl->color, dl->color);
 		}
 		else
+		{
 			dl->color[0] = dl->color[1] = dl->color[2] = 1.0;
+		}
 
 		intensity = intensity * pointScale;
 		dl->photons = intensity;

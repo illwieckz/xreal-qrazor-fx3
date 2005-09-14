@@ -809,7 +809,9 @@ void Load256Image(const char *name, byte ** pixels, byte ** palette, int *width,
 		LoadBMP(name, pixels, palette, width, height);
 	}
 	else
+	{
 		Error("%s doesn't have a known image extension", name);
+	}
 }
 
 

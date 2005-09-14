@@ -2501,16 +2501,14 @@ models/players/doom/doom
 		map models/players/doom/doom.tga
 		rgbGen lightingDiffuse
 	}
-	
 	{
 		blend bumpmap
 		map models/players/doom/doom_norm.tga
 	}
-	
-	{
-		blend specularmap
-		map models/players/doom/doom_rgba.tga
-	}
+//	{
+//		blend specularmap
+//		map models/players/doom/doom_rgba.tga
+//	}
 }
 
 models/players/doom/doom_f

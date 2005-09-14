@@ -24,8 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 
 // *INDENT-OFF*
-vec3_t  vec3_origin = {0,0,0};
-vec3_t  axisDefault[3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
+vec3_t  vec3_origin = {0, 0, 0};
+vec3_t  axisDefault[3] = {{ 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 }};
 
 
 vec4_t          colorBlack      = {0, 0, 0, 1};
@@ -33,7 +33,7 @@ vec4_t          colorRed        = {1, 0, 0, 1};
 vec4_t          colorGreen      = {0, 1, 0, 1};
 vec4_t          colorBlue       = {0, 0, 1, 1};
 vec4_t          colorYellow     = {1, 1, 0, 1};
-vec4_t          colorMagenta= {1, 0, 1, 1};
+vec4_t          colorMagenta	= {1, 0, 1, 1};
 vec4_t          colorCyan       = {0, 1, 1, 1};
 vec4_t          colorWhite      = {1, 1, 1, 1};
 vec4_t          colorLtGrey     = {0.75, 0.75, 0.75, 1};
@@ -452,10 +452,10 @@ RotateAroundDirection
 void RotateAroundDirection(vec3_t axis[3], float yaw)
 {
 
-        // create an arbitrary axis[1] 
+	// create an arbitrary axis[1] 
 	PerpendicularVector(axis[1], axis[0]);
 
-        // rotate it around axis[0] by yaw
+	// rotate it around axis[0] by yaw
 	if(yaw)
 	{
 		vec3_t          temp;
@@ -464,7 +464,7 @@ void RotateAroundDirection(vec3_t axis[3], float yaw)
 		RotatePointAroundVector(axis[1], axis[0], temp, yaw);
 	}
 
-        // cross to get axis[2]
+	// cross to get axis[2]
 	CrossProduct(axis[0], axis[1], axis[2]);
 }
 
@@ -529,7 +529,7 @@ void AnglesToAxis(const vec3_t angles, vec3_t axis[3])
 {
 	vec3_t          right;
 
-        // angle vectors returns "right" instead of "y axis"
+	// angle vectors returns "right" instead of "y axis"
 	AngleVectors(angles, axis[0], right, axis[2]);
 	VectorSubtract(vec3_origin, right, axis[1]);
 }
@@ -562,19 +562,19 @@ void ProjectPointOnPlane(vec3_t dst, const vec3_t p, const vec3_t normal)
 
 	inv_denom = DotProduct(normal, normal);
 #ifndef Q3_VM
-        assert(Q_fabs(inv_denom) != 0.0f);      // bk010122 - zero vectors get here
+	assert(Q_fabs(inv_denom) != 0.0f);	// bk010122 - zero vectors get here
 #endif
-        inv_denom = 1.0f / inv_denom;
+	inv_denom = 1.0f / inv_denom;
 
-        d = DotProduct(normal, p) * inv_denom;
+	d = DotProduct(normal, p) * inv_denom;
 
-		n[0] = normal[0] * inv_denom;
-		n[1] = normal[1] * inv_denom;
-		n[2] = normal[2] * inv_denom;
+	n[0] = normal[0] * inv_denom;
+	n[1] = normal[1] * inv_denom;
+	n[2] = normal[2] * inv_denom;
 
-		dst[0] = p[0] - d * n[0];
-		dst[1] = p[1] - d * n[1];
-		dst[2] = p[2] - d * n[2];
+	dst[0] = p[0] - d * n[0];
+	dst[1] = p[1] - d * n[1];
+	dst[2] = p[2] - d * n[2];
 }
 
 
@@ -590,8 +590,8 @@ void MakeNormalVectors(const vec3_t forward, vec3_t right, vec3_t up)
 {
 	float           d;
 
-        // this rotate and negate guarantees a vector
-        // not colinear with the original
+	// this rotate and negate guarantees a vector
+	// not colinear with the original
 	right[1] = -forward[0];
 	right[2] = forward[1];
 	right[0] = forward[2];
@@ -616,53 +616,50 @@ void VectorRotate(vec3_t in, vec3_t matrix[3], vec3_t out)
 /*
 ** float q_rsqrt( float number )
 */
-float Q_rsqrt( float number )
+float Q_rsqrt(float number)
 {
-	float y;
+	float           y;
+
 #if id386_3dnow && defined __GNUC__
 //#error Q_rqsrt
-        femms();
-        asm volatile
-				(                                                                       // lo                                   | hi
-				"movd           (%%eax),        %%mm0\n"        // in                                   |       -
-        
-				"pfrsqrt        %%mm0,          %%mm1\n"        // 1/sqrt(in)                   | 1/sqrt(in)    (approx)
-				"movq           %%mm1,          %%mm2\n"        // 1/sqrt(in)                   | 1/sqrt(in)    (approx)
-				"pfmul          %%mm1,          %%mm1\n"        // (1/sqrt(in))?                | (1/sqrt(in))?         step 1
-				"pfrsqit1       %%mm0,          %%mm1\n"        // intermediate                                                         step 2
-				"pfrcpit2       %%mm2,          %%mm1\n"        // 1/sqrt(in) (full 24-bit precision)           step 3
-        
-				"movd           %%mm1,          (%%edx)\n"
-	:
-	: "a"( &number ), "d"( &y )
-	: "memory"
-				);
-		femms();
-#else
-        long i;
-        float x2;
-		const float threehalfs = 1.5F;
+	femms();
+	asm volatile    (			// lo                                   | hi
+						"movd           (%%eax),        %%mm0\n"	// in                                   |       -
+						 "pfrsqrt        %%mm0,          %%mm1\n"	// 1/sqrt(in)                   | 1/sqrt(in)    (approx)
+						"movq           %%mm1,          %%mm2\n"	// 1/sqrt(in)                   | 1/sqrt(in)    (approx)
+						"pfmul          %%mm1,          %%mm1\n"	// (1/sqrt(in))?                | (1/sqrt(in))?         step 1
+						"pfrsqit1       %%mm0,          %%mm1\n"	// intermediate                                                         step 2
+						"pfrcpit2       %%mm2,          %%mm1\n"	// 1/sqrt(in) (full 24-bit precision)           step 3
+						 "movd           %%mm1,          (%%edx)\n"::"a" (&number), "d"(&y):"memory");
 
-		x2 = number * 0.5F;
-		y  = number;
-		i  = * ( long * ) &y;                                           // evil floating point bit level hacking
-		i  = 0x5f3759df - ( i >> 1 );               // what the fuck?
-		y  = * ( float * ) &i;
-		y  = y * ( threehalfs - ( x2 * y * y ) );   // 1st iteration
+	femms();
+#else
+	long            i;
+	float           x2;
+	const float     threehalfs = 1.5F;
+
+	x2 = number * 0.5F;
+	y = number;
+	i = *(long *)&y;			// evil floating point bit level hacking
+	i = 0x5f3759df - (i >> 1);	// what the fuck?
+	y = *(float *)&i;
+	y = y * (threehalfs - (x2 * y * y));	// 1st iteration
 //      y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
 #ifndef Q3_VM
 #ifdef __linux__
-        assert( !isnan(y) ); // bk010122 - FPE?
+	assert(!isnan(y));			// bk010122 - FPE?
 #endif
 #endif
-#endif // id386_3dnow
-        return y;
+#endif							// id386_3dnow
+	return y;
 }
 
-float Q_fabs( float f ) {
-	int tmp = * ( int * ) &f;
+float Q_fabs(float f)
+{
+	int             tmp = *(int *)&f;
+
 	tmp &= 0x7FFFFFFF;
-	return * ( float * ) &tmp;
+	return *(float *)&tmp;
 }
 #endif
 
@@ -785,7 +782,7 @@ void SetPlaneSignbits(cplane_t * out)
 {
 	int             bits, j;
 
-        // for fast box on planeside test
+	// for fast box on planeside test
 	bits = 0;
 	for(j = 0; j < 3; j++)
 	{
@@ -841,21 +838,21 @@ int BoxOnPlaneSide2 (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 ==================
 */
 
-#if !( (defined __linux__ || __FreeBSD__) && (defined __i386__) && (!defined C_ONLY)) // rb010123
+#if !( (defined __linux__ || __FreeBSD__) && (defined __i386__) && (!defined C_ONLY))	// rb010123
 
 #if defined __LCC__ || defined C_ONLY || !id386 || defined __VECTORC
 
-int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
+int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 {
-	float   dist1, dist2;
+	float           dist1, dist2;
 	int             sides;
 
 // fast axial cases
-	if (p->type < 3)
+	if(p->type < 3)
 	{
-		if (p->dist <= emins[p->type])
+		if(p->dist <= emins[p->type])
 			return 1;
-		if (p->dist >= emaxs[p->type])
+		if(p->dist >= emaxs[p->type])
 			return 2;
 		return 3;
 	}
@@ -864,46 +861,46 @@ int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 	switch (p->signbits)
 	{
 		case 0:
-			dist1 = p->normal[0]*emaxs[0] + p->normal[1]*emaxs[1] + p->normal[2]*emaxs[2];
-			dist2 = p->normal[0]*emins[0] + p->normal[1]*emins[1] + p->normal[2]*emins[2];
+			dist1 = p->normal[0] * emaxs[0] + p->normal[1] * emaxs[1] + p->normal[2] * emaxs[2];
+			dist2 = p->normal[0] * emins[0] + p->normal[1] * emins[1] + p->normal[2] * emins[2];
 			break;
 		case 1:
-			dist1 = p->normal[0]*emins[0] + p->normal[1]*emaxs[1] + p->normal[2]*emaxs[2];
-			dist2 = p->normal[0]*emaxs[0] + p->normal[1]*emins[1] + p->normal[2]*emins[2];
+			dist1 = p->normal[0] * emins[0] + p->normal[1] * emaxs[1] + p->normal[2] * emaxs[2];
+			dist2 = p->normal[0] * emaxs[0] + p->normal[1] * emins[1] + p->normal[2] * emins[2];
 			break;
 		case 2:
-			dist1 = p->normal[0]*emaxs[0] + p->normal[1]*emins[1] + p->normal[2]*emaxs[2];
-			dist2 = p->normal[0]*emins[0] + p->normal[1]*emaxs[1] + p->normal[2]*emins[2];
+			dist1 = p->normal[0] * emaxs[0] + p->normal[1] * emins[1] + p->normal[2] * emaxs[2];
+			dist2 = p->normal[0] * emins[0] + p->normal[1] * emaxs[1] + p->normal[2] * emins[2];
 			break;
 		case 3:
-			dist1 = p->normal[0]*emins[0] + p->normal[1]*emins[1] + p->normal[2]*emaxs[2];
-			dist2 = p->normal[0]*emaxs[0] + p->normal[1]*emaxs[1] + p->normal[2]*emins[2];
+			dist1 = p->normal[0] * emins[0] + p->normal[1] * emins[1] + p->normal[2] * emaxs[2];
+			dist2 = p->normal[0] * emaxs[0] + p->normal[1] * emaxs[1] + p->normal[2] * emins[2];
 			break;
 		case 4:
-			dist1 = p->normal[0]*emaxs[0] + p->normal[1]*emaxs[1] + p->normal[2]*emins[2];
-			dist2 = p->normal[0]*emins[0] + p->normal[1]*emins[1] + p->normal[2]*emaxs[2];
+			dist1 = p->normal[0] * emaxs[0] + p->normal[1] * emaxs[1] + p->normal[2] * emins[2];
+			dist2 = p->normal[0] * emins[0] + p->normal[1] * emins[1] + p->normal[2] * emaxs[2];
 			break;
 		case 5:
-			dist1 = p->normal[0]*emins[0] + p->normal[1]*emaxs[1] + p->normal[2]*emins[2];
-			dist2 = p->normal[0]*emaxs[0] + p->normal[1]*emins[1] + p->normal[2]*emaxs[2];
+			dist1 = p->normal[0] * emins[0] + p->normal[1] * emaxs[1] + p->normal[2] * emins[2];
+			dist2 = p->normal[0] * emaxs[0] + p->normal[1] * emins[1] + p->normal[2] * emaxs[2];
 			break;
 		case 6:
-			dist1 = p->normal[0]*emaxs[0] + p->normal[1]*emins[1] + p->normal[2]*emins[2];
-			dist2 = p->normal[0]*emins[0] + p->normal[1]*emaxs[1] + p->normal[2]*emaxs[2];
+			dist1 = p->normal[0] * emaxs[0] + p->normal[1] * emins[1] + p->normal[2] * emins[2];
+			dist2 = p->normal[0] * emins[0] + p->normal[1] * emaxs[1] + p->normal[2] * emaxs[2];
 			break;
 		case 7:
-			dist1 = p->normal[0]*emins[0] + p->normal[1]*emins[1] + p->normal[2]*emins[2];
-			dist2 = p->normal[0]*emaxs[0] + p->normal[1]*emaxs[1] + p->normal[2]*emaxs[2];
+			dist1 = p->normal[0] * emins[0] + p->normal[1] * emins[1] + p->normal[2] * emins[2];
+			dist2 = p->normal[0] * emaxs[0] + p->normal[1] * emaxs[1] + p->normal[2] * emaxs[2];
 			break;
 		default:
-			dist1 = dist2 = 0;              // shut up compiler
+			dist1 = dist2 = 0;	// shut up compiler
 			break;
 	}
 
 	sides = 0;
-	if (dist1 >= p->dist)
+	if(dist1 >= p->dist)
 		sides = 1;
-	if (dist2 < p->dist)
+	if(dist2 < p->dist)
 		sides |= 2;
 
 	return sides;
@@ -911,7 +908,7 @@ int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 #else
 #pragma warning( disable: 4035 )
 
-
+// *INDENT-OFF*
 __declspec( naked ) int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 {
 	static int bops_initialized;
@@ -920,227 +917,228 @@ __declspec( naked ) int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplan
 	__asm {
 
 		push ebx
-                        
-				cmp bops_initialized, 1
-				je  initialized
-						mov bops_initialized, 1
-                
-						mov Ljmptab[0*4], offset Lcase0
-								mov Ljmptab[1*4], offset Lcase1
-										mov Ljmptab[2*4], offset Lcase2
-												mov Ljmptab[3*4], offset Lcase3
-														mov Ljmptab[4*4], offset Lcase4
-																mov Ljmptab[5*4], offset Lcase5
-																		mov Ljmptab[6*4], offset Lcase6
-																				mov Ljmptab[7*4], offset Lcase7
-                        
+			
+		cmp bops_initialized, 1
+		je  initialized
+		mov bops_initialized, 1
+		
+		mov Ljmptab[0*4], offset Lcase0
+		mov Ljmptab[1*4], offset Lcase1
+		mov Ljmptab[2*4], offset Lcase2
+		mov Ljmptab[3*4], offset Lcase3
+		mov Ljmptab[4*4], offset Lcase4
+		mov Ljmptab[5*4], offset Lcase5
+		mov Ljmptab[6*4], offset Lcase6
+		mov Ljmptab[7*4], offset Lcase7
+			
 initialized:
 
 		mov edx,dword ptr[4+12+esp]
 		mov ecx,dword ptr[4+4+esp]
-				xor eax,eax
-						mov ebx,dword ptr[4+8+esp]
-								mov al,byte ptr[17+edx]
-										cmp al,8
-												jge Lerror
-														fld dword ptr[0+edx]
-														fld st(0)
-														jmp dword ptr[Ljmptab+eax*4]
+		xor eax,eax
+		mov ebx,dword ptr[4+8+esp]
+		mov al,byte ptr[17+edx]
+		cmp al,8
+		jge Lerror
+		fld dword ptr[0+edx]
+		fld st(0)
+		jmp dword ptr[Ljmptab+eax*4]
 Lcase0:
-														fmul dword ptr[ebx]
-														fld dword ptr[0+4+edx]
-														fxch st(2)
-														fmul dword ptr[ecx]
-														fxch st(2)
-														fld st(0)
-														fmul dword ptr[4+ebx]
-														fld dword ptr[0+8+edx]
-														fxch st(2)
-														fmul dword ptr[4+ecx]
-														fxch st(2)
-														fld st(0)
-														fmul dword ptr[8+ebx]
-														fxch st(5)
-														faddp st(3),st(0)
-														fmul dword ptr[8+ecx]
-																fxch st(1)
-																faddp st(3),st(0)
-																fxch st(3)
-																		faddp st(2),st(0)
-																		jmp LSetSides
+		fmul dword ptr[ebx]
+		fld dword ptr[0+4+edx]
+		fxch st(2)
+		fmul dword ptr[ecx]
+		fxch st(2)
+		fld st(0)
+		fmul dword ptr[4+ebx]
+		fld dword ptr[0+8+edx]
+		fxch st(2)
+		fmul dword ptr[4+ecx]
+		fxch st(2)
+		fld st(0)
+		fmul dword ptr[8+ebx]
+		fxch st(5)
+		faddp st(3),st(0)
+		fmul dword ptr[8+ecx]
+		fxch st(1)
+		faddp st(3),st(0)
+		fxch st(3)
+		faddp st(2),st(0)
+		jmp LSetSides
 Lcase1:
-																				fmul dword ptr[ecx]
-																				fld dword ptr[0+4+edx]
-																				fxch st(2)
-																				fmul dword ptr[ebx]
-																				fxch st(2)
-																				fld st(0)
-																				fmul dword ptr[4+ebx]
-																				fld dword ptr[0+8+edx]
-																				fxch st(2)
-																				fmul dword ptr[4+ecx]
-																				fxch st(2)
-																				fld st(0)
-																				fmul dword ptr[8+ebx]
-																				fxch st(5)
-																				faddp st(3),st(0)
-																				fmul dword ptr[8+ecx]
-																				fxch st(1)
-																				faddp st(3),st(0)
-																				fxch st(3)
-																				faddp st(2),st(0)
-																				jmp LSetSides
+		fmul dword ptr[ecx]
+		fld dword ptr[0+4+edx]
+		fxch st(2)
+		fmul dword ptr[ebx]
+		fxch st(2)
+		fld st(0)
+		fmul dword ptr[4+ebx]
+		fld dword ptr[0+8+edx]
+		fxch st(2)
+		fmul dword ptr[4+ecx]
+		fxch st(2)
+		fld st(0)
+		fmul dword ptr[8+ebx]
+		fxch st(5)
+		faddp st(3),st(0)
+		fmul dword ptr[8+ecx]
+		fxch st(1)
+		faddp st(3),st(0)
+		fxch st(3)
+		faddp st(2),st(0)
+		jmp LSetSides
 Lcase2:
-																				fmul dword ptr[ebx]
-																				fld dword ptr[0+4+edx]
-																				fxch st(2)
-																				fmul dword ptr[ecx]
-																				fxch st(2)
-																				fld st(0)
-																				fmul dword ptr[4+ecx]
-																				fld dword ptr[0+8+edx]
-																				fxch st(2)
-																				fmul dword ptr[4+ebx]
-																				fxch st(2)
-																				fld st(0)
-																				fmul dword ptr[8+ebx]
-																				fxch st(5)
-																				faddp st(3),st(0)
-																				fmul dword ptr[8+ecx]
-																				fxch st(1)
-																				faddp st(3),st(0)
-																				fxch st(3)
-																				faddp st(2),st(0)
-																				jmp LSetSides
+		fmul dword ptr[ebx]
+		fld dword ptr[0+4+edx]
+		fxch st(2)
+		fmul dword ptr[ecx]
+		fxch st(2)
+		fld st(0)
+		fmul dword ptr[4+ecx]
+		fld dword ptr[0+8+edx]
+		fxch st(2)
+		fmul dword ptr[4+ebx]
+		fxch st(2)
+		fld st(0)
+		fmul dword ptr[8+ebx]
+		fxch st(5)
+		faddp st(3),st(0)
+		fmul dword ptr[8+ecx]
+		fxch st(1)
+		faddp st(3),st(0)
+		fxch st(3)
+		faddp st(2),st(0)
+		jmp LSetSides
 Lcase3:
-																				fmul dword ptr[ecx]
-																				fld dword ptr[0+4+edx]
-																				fxch st(2)
-																				fmul dword ptr[ebx]
-																				fxch st(2)
-																				fld st(0)
-																				fmul dword ptr[4+ecx]
-																				fld dword ptr[0+8+edx]
-																				fxch st(2)
-																				fmul dword ptr[4+ebx]
-																				fxch st(2)
-																				fld st(0)
-																				fmul dword ptr[8+ebx]
-																				fxch st(5)
-																				faddp st(3),st(0)
-																				fmul dword ptr[8+ecx]
-																				fxch st(1)
-																				faddp st(3),st(0)
-																				fxch st(3)
-																				faddp st(2),st(0)
-																				jmp LSetSides
+		fmul dword ptr[ecx]
+		fld dword ptr[0+4+edx]
+		fxch st(2)
+		fmul dword ptr[ebx]
+		fxch st(2)
+		fld st(0)
+		fmul dword ptr[4+ecx]
+		fld dword ptr[0+8+edx]
+		fxch st(2)
+		fmul dword ptr[4+ebx]
+		fxch st(2)
+		fld st(0)
+		fmul dword ptr[8+ebx]
+		fxch st(5)
+		faddp st(3),st(0)
+		fmul dword ptr[8+ecx]
+		fxch st(1)
+		faddp st(3),st(0)
+		fxch st(3)
+		faddp st(2),st(0)
+		jmp LSetSides
 Lcase4:
-																				fmul dword ptr[ebx]
-																				fld dword ptr[0+4+edx]
-																				fxch st(2)
-																				fmul dword ptr[ecx]
-																				fxch st(2)
-																				fld st(0)
-																				fmul dword ptr[4+ebx]
-																				fld dword ptr[0+8+edx]
-																				fxch st(2)
-																				fmul dword ptr[4+ecx]
-																				fxch st(2)
-																				fld st(0)
-																				fmul dword ptr[8+ecx]
-																				fxch st(5)
-																				faddp st(3),st(0)
-																				fmul dword ptr[8+ebx]
-																				fxch st(1)
-																				faddp st(3),st(0)
-																				fxch st(3)
-																				faddp st(2),st(0)
-																				jmp LSetSides
+		fmul dword ptr[ebx]
+		fld dword ptr[0+4+edx]
+		fxch st(2)
+		fmul dword ptr[ecx]
+		fxch st(2)
+		fld st(0)
+		fmul dword ptr[4+ebx]
+		fld dword ptr[0+8+edx]
+		fxch st(2)
+		fmul dword ptr[4+ecx]
+		fxch st(2)
+		fld st(0)
+		fmul dword ptr[8+ecx]
+		fxch st(5)
+		faddp st(3),st(0)
+		fmul dword ptr[8+ebx]
+		fxch st(1)
+		faddp st(3),st(0)
+		fxch st(3)
+		faddp st(2),st(0)
+		jmp LSetSides
 Lcase5:
-																				fmul dword ptr[ecx]
-																				fld dword ptr[0+4+edx]
-																				fxch st(2)
-																				fmul dword ptr[ebx]
-																				fxch st(2)
-																				fld st(0)
-																				fmul dword ptr[4+ebx]
-																				fld dword ptr[0+8+edx]
-																				fxch st(2)
-																				fmul dword ptr[4+ecx]
-																				fxch st(2)
-																				fld st(0)
-																				fmul dword ptr[8+ecx]
-																				fxch st(5)
-																				faddp st(3),st(0)
-																				fmul dword ptr[8+ebx]
-																				fxch st(1)
-																				faddp st(3),st(0)
-																				fxch st(3)
-																				faddp st(2),st(0)
-																				jmp LSetSides
+		fmul dword ptr[ecx]
+		fld dword ptr[0+4+edx]
+		fxch st(2)
+		fmul dword ptr[ebx]
+		fxch st(2)
+		fld st(0)
+		fmul dword ptr[4+ebx]
+		fld dword ptr[0+8+edx]
+		fxch st(2)
+		fmul dword ptr[4+ecx]
+		fxch st(2)
+		fld st(0)
+		fmul dword ptr[8+ecx]
+		fxch st(5)
+		faddp st(3),st(0)
+		fmul dword ptr[8+ebx]
+		fxch st(1)
+		faddp st(3),st(0)
+		fxch st(3)
+		faddp st(2),st(0)
+		jmp LSetSides
 Lcase6:
-																				fmul dword ptr[ebx]
-																				fld dword ptr[0+4+edx]
-																				fxch st(2)
-																				fmul dword ptr[ecx]
-																				fxch st(2)
-																				fld st(0)
-																				fmul dword ptr[4+ecx]
-																				fld dword ptr[0+8+edx]
-																				fxch st(2)
-																				fmul dword ptr[4+ebx]
-																				fxch st(2)
-																				fld st(0)
-																				fmul dword ptr[8+ecx]
-																				fxch st(5)
-																				faddp st(3),st(0)
-																				fmul dword ptr[8+ebx]
-																				fxch st(1)
-																				faddp st(3),st(0)
-																				fxch st(3)
-																				faddp st(2),st(0)
-																				jmp LSetSides
+		fmul dword ptr[ebx]
+		fld dword ptr[0+4+edx]
+		fxch st(2)
+		fmul dword ptr[ecx]
+		fxch st(2)
+		fld st(0)
+		fmul dword ptr[4+ecx]
+		fld dword ptr[0+8+edx]
+		fxch st(2)
+		fmul dword ptr[4+ebx]
+		fxch st(2)
+		fld st(0)
+		fmul dword ptr[8+ecx]
+		fxch st(5)
+		faddp st(3),st(0)
+		fmul dword ptr[8+ebx]
+		fxch st(1)
+		faddp st(3),st(0)
+		fxch st(3)
+		faddp st(2),st(0)
+		jmp LSetSides
 Lcase7:
-																				fmul dword ptr[ecx]
-																				fld dword ptr[0+4+edx]
-																				fxch st(2)
-																				fmul dword ptr[ebx]
-																				fxch st(2)
-																				fld st(0)
-																				fmul dword ptr[4+ecx]
-																				fld dword ptr[0+8+edx]
-																				fxch st(2)
-																				fmul dword ptr[4+ebx]
-																				fxch st(2)
-																				fld st(0)
-																				fmul dword ptr[8+ecx]
-																				fxch st(5)
-																				faddp st(3),st(0)
-																				fmul dword ptr[8+ebx]
-																				fxch st(1)
-																				faddp st(3),st(0)
-																				fxch st(3)
-																				faddp st(2),st(0)
+		fmul dword ptr[ecx]
+		fld dword ptr[0+4+edx]
+		fxch st(2)
+		fmul dword ptr[ebx]
+		fxch st(2)
+		fld st(0)
+		fmul dword ptr[4+ecx]
+		fld dword ptr[0+8+edx]
+		fxch st(2)
+		fmul dword ptr[4+ebx]
+		fxch st(2)
+		fld st(0)
+		fmul dword ptr[8+ecx]
+		fxch st(5)
+		faddp st(3),st(0)
+		fmul dword ptr[8+ebx]
+		fxch st(1)
+		faddp st(3),st(0)
+		fxch st(3)
+		faddp st(2),st(0)
 LSetSides:
 		faddp st(2),st(0)
 		fcomp dword ptr[12+edx]
-				xor ecx,ecx
-				fnstsw ax
-						fcomp dword ptr[12+edx]
-						and ah,1
-						xor ah,1
-								add cl,ah
-										fnstsw ax
-												and ah,1
-												add ah,ah
-														add cl,ah
-																pop ebx
-																		mov eax,ecx
-																		ret
+		xor ecx,ecx
+		fnstsw ax
+		fcomp dword ptr[12+edx]
+		and ah,1
+		xor ah,1
+		add cl,ah
+		fnstsw ax
+		and ah,1
+		add ah,ah
+		add cl,ah
+		pop ebx
+		mov eax,ecx
+		ret
 Lerror:
-																				int 3
+		int 3
 	}
 }
+// *INDENT-ON*
 #pragma warning( default: 4035 )
 
 #endif
@@ -1204,66 +1202,68 @@ void AddPointToBounds(const vec3_t v, vec3_t mins, vec3_t maxs)
 	}
 }
 
-
-
+// *INDENT-OFF*
 vec_t VectorNormalize(vec3_t v)
 {
 #if id386_3dnow && defined __GNUC__
 //#error VectorNormalize
-        vec_t   length;
-        femms();
-		asm volatile
-				(                                                                       // lo                                                                   | hi
-				"movq           (%%eax),        %%mm0\n"        // v[0]                                                                 | v[1]
-				"movd           8(%%eax),       %%mm1\n"        // v[2]                                                                 | -
-        // mm0[lo] = dot product(this)
-				"pfmul          %%mm0,          %%mm0\n"        // v[0]*v[0]                                                    | v[1]*v[1]
-				"pfmul          %%mm1,          %%mm1\n"        // v[2]*v[2]                                                    | -
-				"pfacc          %%mm0,          %%mm0\n"        // v[0]*v[0]+v[1]*v[1]                                  | -
-				"pfadd          %%mm1,          %%mm0\n"        // v[0]*v[0]+v[1]*v[1]+v[2]*v[2]                | -
-        // mm0[lo] = sqrt(mm0[lo])
-				"pfrsqrt        %%mm0,          %%mm1\n"        // 1/sqrt(dot)                                                  | 1/sqrt(dot)           (approx)
-				"movq           %%mm1,          %%mm2\n"        // 1/sqrt(dot)                                                  | 1/sqrt(dot)           (approx)
-				"pfmul          %%mm1,          %%mm1\n"        // (1/sqrt(dot))?                                               | (1/sqrt(dot))?        step 1
-				"punpckldq      %%mm0,          %%mm0\n"        // dot                                                                  | dot                   (MMX instruction)
-				"pfrsqit1       %%mm0,          %%mm1\n"        // intermediate                                                 | intermediate          step 2
-				"pfrcpit2       %%mm2,          %%mm1\n"        // 1/sqrt(dot) (full 24-bit precision)  | 1/sqrt(dot)           step 3
-				"pfmul          %%mm1,          %%mm0\n"        // sqrt(dot)                                                    | sqrt(dot)
-        // len = mm0[lo]
-				"movd           %%mm0,          (%%edx)\n"
-        // load this into registers
-				"movq           (%%eax),        %%mm2\n"        // v[0]                                                                 | v[1]
-				"movd           8(%%eax),       %%mm3\n"        // v[2]                                                                 | -
-        // scale this by the reciprocal square root
-				"pfmul          %%mm1,          %%mm2\n"        // v[0]*1/sqrt(dot)                                             | v[1]*1/sqrt(dot)
-				"pfmul          %%mm1,          %%mm3\n"        // v[2]*1/sqrt(dot)                                             | -
-        // store scaled vector
-				"movq           %%mm2,          (%%eax)\n"
-				"movd           %%mm3,          8(%%eax)\n"
+	vec_t           length;
+
+	femms();
+	asm volatile
+	(
+													// lo                                		| hi
+	"movq           (%%eax),        %%mm0\n"	// v[0]                                                                 | v[1]
+	"movd           8(%%eax),       %%mm1\n"	// v[2]                                                                 | -
+	// mm0[lo] = dot product(this)
+	"pfmul          %%mm0,          %%mm0\n"	// v[0]*v[0]                                                    | v[1]*v[1]
+	"pfmul          %%mm1,          %%mm1\n"	// v[2]*v[2]                                                    | -
+	"pfacc          %%mm0,          %%mm0\n"	// v[0]*v[0]+v[1]*v[1]                                  | -
+	"pfadd          %%mm1,          %%mm0\n"	// v[0]*v[0]+v[1]*v[1]+v[2]*v[2]                | -
+	// mm0[lo] = sqrt(mm0[lo])
+	"pfrsqrt        %%mm0,          %%mm1\n"	// 1/sqrt(dot)                                                  | 1/sqrt(dot)           (approx)
+	"movq           %%mm1,          %%mm2\n"	// 1/sqrt(dot)                                                  | 1/sqrt(dot)           (approx)
+	"pfmul          %%mm1,          %%mm1\n"	// (1/sqrt(dot))?                                               | (1/sqrt(dot))?        step 1
+	"punpckldq      %%mm0,          %%mm0\n"	// dot                                                                  | dot                   (MMX instruction)
+	"pfrsqit1       %%mm0,          %%mm1\n"	// intermediate                                                 | intermediate          step 2
+	"pfrcpit2       %%mm2,          %%mm1\n"	// 1/sqrt(dot) (full 24-bit precision)  | 1/sqrt(dot)           step 3
+	"pfmul          %%mm1,          %%mm0\n"	// sqrt(dot)                                                    | sqrt(dot)
+	// len = mm0[lo]
+	"movd           %%mm0,          (%%edx)\n"
+	// load this into registers
+	"movq           (%%eax),        %%mm2\n"	// v[0]                                                                 | v[1]
+	"movd           8(%%eax),       %%mm3\n"	// v[2]                                                                 | -
+	// scale this by the reciprocal square root
+	"pfmul          %%mm1,          %%mm2\n"	// v[0]*1/sqrt(dot)                                             | v[1]*1/sqrt(dot)
+	"pfmul          %%mm1,          %%mm3\n"	// v[2]*1/sqrt(dot)                                             | -
+	// store scaled vector
+	"movq           %%mm2,          (%%eax)\n"
+	"movd           %%mm3,          8(%%eax)\n"
 	:
-	: "a"(v), "d"(&length)
-	: "memory"
-				);
-		femms();
-		return length;
+	:"a" (v), "d"(&length)
+	:"memory"
+	);
+	femms();
+	return length;
 #else
-        // NOTE: TTimo - Apple G4 altivec source uses double?
-        float   length, ilength;
+	// NOTE: TTimo - Apple G4 altivec source uses double?
+	float           length, ilength;
 
-        length = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
-		length = sqrt(length);
+	length = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+	length = sqrt(length);
 
-		if(length)
-		{
-			ilength = 1/length;
-			v[0] *= ilength;
-			v[1] *= ilength;
-			v[2] *= ilength;
-		}
-                
-		return length;
+	if(length)
+	{
+		ilength = 1 / length;
+		v[0] *= ilength;
+		v[1] *= ilength;
+		v[2] *= ilength;
+	}
+
+	return length;
 #endif
 }
+// *INDENT-ON*
 
 vec_t VectorNormalize2(const vec3_t v, vec3_t out)
 {
@@ -1274,20 +1274,20 @@ vec_t VectorNormalize2(const vec3_t v, vec3_t out)
 
 	if(length)
 	{
-#ifndef Q3_VM                                   // bk0101022 - FPE related
+#ifndef Q3_VM					// bk0101022 - FPE related
 //    assert( ((Q_fabs(v[0])!=0.0f) || (Q_fabs(v[1])!=0.0f) || (Q_fabs(v[2])!=0.0f)) );
 #endif
-                ilength = 1 / length;
-                out[0] = v[0] * ilength;
-				out[1] = v[1] * ilength;
-				out[2] = v[2] * ilength;
+		ilength = 1 / length;
+		out[0] = v[0] * ilength;
+		out[1] = v[1] * ilength;
+		out[2] = v[2] * ilength;
 	}
 	else
 	{
-#ifndef Q3_VM                                   // bk0101022 - FPE related
+#ifndef Q3_VM					// bk0101022 - FPE related
 //    assert( ((Q_fabs(v[0])==0.0f) && (Q_fabs(v[1])==0.0f) && (Q_fabs(v[2])==0.0f)) );
 #endif
-                VectorClear(out);
+		VectorClear(out);
 	}
 
 	return length;
@@ -1307,104 +1307,80 @@ vec_t _DotProduct(const vec3_t a, const vec3_t b)
 {
 #if id386_3dnow && defined __GNUC__ && 0
 //#error _DotProduct
-        vec_t out;
-        femms();
-		asm volatile
-				(                                                                       // lo                                                           | hi
-				"movq           (%%eax),        %%mm0\n"        // a[0]                                                         | a[1]
-				"movq           (%%edx),        %%mm2\n"        // b[0]                                                         | b[1]
-				"movd           8(%%eax),       %%mm1\n"        // a[2]                                                         | -
-				"movd           8(%%edx),       %%mm3\n"        // b[2]                                                         | -
-                
-				"pfmul          %%mm2,          %%mm0\n"        // a[0]*b[0]                                            | a[1]*b[1]
-				"pfmul          %%mm3,          %%mm1\n"        // a[2]*b[2]                                            | -
-				"pfacc          %%mm0,          %%mm0\n"        // a[0]*b[0]+a[1]*b[1]                          | -
-				"pfadd          %%mm1,          %%mm0\n"        // a[0]*b[0]+a[1]*b[1]+a[2]*b[2]        | -
-        
-				"movd           %%mm0,          (%%ecx)\n"      // out = mm2[lo]
-	:
-	: "a"(a), "d"(b), "c"(&out)
-	: "memory"
-				);
-		femms();
-		return out;
+	vec_t           out;
+
+	femms();
+	asm volatile    (			// lo                                                           | hi
+						"movq           (%%eax),        %%mm0\n"	// a[0]                                                         | a[1]
+						"movq           (%%edx),        %%mm2\n"	// b[0]                                                         | b[1]
+						"movd           8(%%eax),       %%mm1\n"	// a[2]                                                         | -
+						"movd           8(%%edx),       %%mm3\n"	// b[2]                                                         | -
+						 "pfmul          %%mm2,          %%mm0\n"	// a[0]*b[0]                                            | a[1]*b[1]
+						"pfmul          %%mm3,          %%mm1\n"	// a[2]*b[2]                                            | -
+						"pfacc          %%mm0,          %%mm0\n"	// a[0]*b[0]+a[1]*b[1]                          | -
+						"pfadd          %%mm1,          %%mm0\n"	// a[0]*b[0]+a[1]*b[1]+a[2]*b[2]        | -
+						 "movd           %%mm0,          (%%ecx)\n"	// out = mm2[lo]
+						::"a"           (a), "d"(b), "c"(&out):"memory");
+
+	femms();
+	return out;
 #else
-        return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+	return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 #endif
 }
 
 void _VectorSubtract(const vec3_t a, const vec3_t b, vec3_t out)
 {
 #if id386_3dnow && defined __GNUC__ && 0
-        femms();
-        asm volatile
-				(                                                                       // lo                                                           | hi
-				"movq           (%%eax),        %%mm0\n"        // a[0]                                                         | a[1]
-				"movq           (%%edx),        %%mm2\n"        // b[0]                                                         | b[1]
-				"movd           8(%%eax),       %%mm1\n"        // a[2]                                                         | -
-				"movd           8(%%edx),       %%mm3\n"        // b[2]                                                         | -
-                
-				"pfsub          %%mm2,          %%mm0\n"        // a[0]-b[0]                                            | a[1]-b[1]
-				"pfsub          %%mm3,          %%mm1\n"        // a[2]-b[2]                                            | -
-        
-				"movq           %%mm0,          (%%ecx)\n"
-				"movd           %%mm1,          8(%%ecx)\n"
-	:
-	: "a"(a), "d"(b), "c"(out)
-	: "memory"
-				);
-		femms();
+	femms();
+	asm volatile    (			// lo                                                           | hi
+						"movq           (%%eax),        %%mm0\n"	// a[0]                                                         | a[1]
+						"movq           (%%edx),        %%mm2\n"	// b[0]                                                         | b[1]
+						"movd           8(%%eax),       %%mm1\n"	// a[2]                                                         | -
+						"movd           8(%%edx),       %%mm3\n"	// b[2]                                                         | -
+						 "pfsub          %%mm2,          %%mm0\n"	// a[0]-b[0]                                            | a[1]-b[1]
+						"pfsub          %%mm3,          %%mm1\n"	// a[2]-b[2]                                            | -
+						 "movq           %%mm0,          (%%ecx)\n"
+						"movd           %%mm1,          8(%%ecx)\n"::"a" (a), "d"(b), "c"(out):"memory");
+	femms();
 #else
-        out[0] = a[0]-b[0];
-        out[1] = a[1]-b[1];
-		out[2] = a[2]-b[2];
+	out[0] = a[0] - b[0];
+	out[1] = a[1] - b[1];
+	out[2] = a[2] - b[2];
 #endif
 }
 
 void _VectorAdd(const vec3_t a, const vec3_t b, vec3_t out)
 {
 #if id386_3dnow && defined __GNUC__ && 0
-        femms();
-        asm volatile
-				(                                                                       // lo                                                           | hi
-				"movq           (%%eax),        %%mm0\n"        // a[0]                                                         | a[1]
-				"movq           (%%edx),        %%mm2\n"        // b[0]                                                         | b[1]
-				"movd           8(%%eax),       %%mm1\n"        // a[2]                                                         | -
-				"movd           8(%%edx),       %%mm3\n"        // b[2]                                                         | -
-                
-				"pfadd          %%mm2,          %%mm0\n"        // a[0]+b[0]                                            | a[1]+b[1]
-				"pfadd          %%mm3,          %%mm1\n"        // a[2]+b[2]                                            | -
-        
-				"movq           %%mm0,          (%%ecx)\n"
-				"movd           %%mm1,          8(%%ecx)\n"
-	:
-	: "a"(a), "d"(b), "c"(out)
-	: "memory"
-				);
-		femms();
+	femms();
+	asm volatile    (			// lo                                                           | hi
+						"movq           (%%eax),        %%mm0\n"	// a[0]                                                         | a[1]
+						"movq           (%%edx),        %%mm2\n"	// b[0]                                                         | b[1]
+						"movd           8(%%eax),       %%mm1\n"	// a[2]                                                         | -
+						"movd           8(%%edx),       %%mm3\n"	// b[2]                                                         | -
+						 "pfadd          %%mm2,          %%mm0\n"	// a[0]+b[0]                                            | a[1]+b[1]
+						"pfadd          %%mm3,          %%mm1\n"	// a[2]+b[2]                                            | -
+						 "movq           %%mm0,          (%%ecx)\n"
+						"movd           %%mm1,          8(%%ecx)\n"::"a" (a), "d"(b), "c"(out):"memory");
+	femms();
 #else
-        out[0] = a[0]+b[0];
-        out[1] = a[1]+b[1];
-		out[2] = a[2]+b[2];
+	out[0] = a[0] + b[0];
+	out[1] = a[1] + b[1];
+	out[2] = a[2] + b[2];
 #endif
 }
 
 void _VectorCopy(const vec3_t in, vec3_t out)
 {
 #if id386_3dnow && defined __GNUC__ && 0
-        femms();
-        asm volatile
-				(                                                                       // lo                                                           | hi
-				"movq           (%%eax),        %%mm0\n"        // in[0]                                                        | in[1]
-				"movd           8(%%eax),       %%mm1\n"        // in[2]                                                        | -
-        
-				"movq           %%mm0,          (%%edx)\n"
-				"movd           %%mm1,          8(%%edx)\n"
-	:
-	: "a"(in), "d"(out)
-	: "memory"
-				);
-		femms();
+	femms();
+	asm volatile    (			// lo                                                           | hi
+						"movq           (%%eax),        %%mm0\n"	// in[0]                                                        | in[1]
+						"movd           8(%%eax),       %%mm1\n"	// in[2]                                                        | -
+						 "movq           %%mm0,          (%%edx)\n"
+						"movd           %%mm1,          8(%%edx)\n"::"a" (in), "d"(out):"memory");
+	femms();
 /*
 #elif id386_sse && defined __GNUC__
 //#error _VectorCopysse
@@ -1418,40 +1394,33 @@ void _VectorCopy(const vec3_t in, vec3_t out)
         );
 */
 #else
-        out[0] = in[0];
-        out[1] = in[1];
-		out[2] = in[2];
+	out[0] = in[0];
+	out[1] = in[1];
+	out[2] = in[2];
 #endif
 }
 
 void _VectorScale(const vec3_t in, vec_t scale, vec3_t out)
 {
 #if id386_3dnow && defined __GNUC__ && 0
-        vec_t out;
-        femms();
-		asm volatile
-				(                                                                       // lo                                                                   | hi
-				"movq           (%%eax),        %%mm0\n"        // in[0]                                                                | in[1]
-				"movd           8(%%eax),       %%mm1\n"        // in[2]                                                                | -
-				"movd           (%%edx),        %%mm2\n"        // scale                                                                | -
-        
-				"punpckhdq      %%mm2,          %%mm2\n"        // scale                                                                | scale
-        
-				"pfmul          %%mm2,          %%mm0\n"        // in[0]*scale                                                  | in[1]*scale
-				"pfmul          %%mm2,          %%mm1\n"        // in[2]*scale                                                  | -
-        
-				"movq           %%mm0,          (%%ecx)\n"
-				"movd           %%mm1,          8(%%ecx)\n"
-	:
-	: "a"(in), "d"(&scale), "c"(out)
-	: "memory"
-				);
-		femms();
-		return out;
+	vec_t           out;
+
+	femms();
+	asm volatile    (			// lo                                                                   | hi
+						"movq           (%%eax),        %%mm0\n"	// in[0]                                                                | in[1]
+						"movd           8(%%eax),       %%mm1\n"	// in[2]                                                                | -
+						"movd           (%%edx),        %%mm2\n"	// scale                                                                | -
+						 "punpckhdq      %%mm2,          %%mm2\n"	// scale                                                                | scale
+						 "pfmul          %%mm2,          %%mm0\n"	// in[0]*scale                                                  | in[1]*scale
+						"pfmul          %%mm2,          %%mm1\n"	// in[2]*scale                                                  | -
+						 "movq           %%mm0,          (%%ecx)\n"
+						"movd           %%mm1,          8(%%ecx)\n"::"a" (in), "d"(&scale), "c"(out):"memory");
+	femms();
+	return out;
 #else
-        out[0] = in[0]*scale;
-        out[1] = in[1]*scale;
-		out[2] = in[2]*scale;
+	out[0] = in[0] * scale;
+	out[1] = in[1] * scale;
+	out[2] = in[2] * scale;
 #endif
 }
 
@@ -1517,7 +1486,7 @@ void AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
 	float           angle;
 	static float    sr, sp, sy, cr, cp, cy;
 
-        // static to help MS compiler fp bugs
+	// static to help MS compiler fp bugs
 	angle = angles[YAW] * (M_PI * 2 / 360);
 	sy = sin(angle);
 	cy = cos(angle);
@@ -1559,9 +1528,9 @@ void PerpendicularVector(vec3_t dst, const vec3_t src)
 	float           minelem = 1.0F;
 	vec3_t          tempvec;
 
-        /*
-	** find the smallest magnitude axially aligned vector
-		*/
+	/*
+	 ** find the smallest magnitude axially aligned vector
+	 */
 	for(pos = 0, i = 0; i < 3; i++)
 	{
 		if(fabs(src[i]) < minelem)
@@ -1573,20 +1542,20 @@ void PerpendicularVector(vec3_t dst, const vec3_t src)
 	tempvec[0] = tempvec[1] = tempvec[2] = 0.0F;
 	tempvec[pos] = 1.0F;
 
-        /*
-	** project the point onto the plane defined by src
-		*/
+	/*
+	 ** project the point onto the plane defined by src
+	 */
 	ProjectPointOnPlane(dst, tempvec, src);
 
-        /*
-	** normalize the result
-		*/
+	/*
+	 ** normalize the result
+	 */
 	VectorNormalize(dst);
 }
 
 
 
-
+// *INDENT-OFF*
 void MatrixIdentity(matrix_t m)
 {
         /*
@@ -2145,3 +2114,4 @@ void MatrixTransformNormal(const matrix_t m, const vec3_t in, vec3_t out)
 	out[ 1] = m[ 1]*in[ 0] + m[ 5]*in[ 1] + m[ 9]*in[ 2];
 	out[ 2] = m[ 2]*in[ 0] + m[ 6]*in[ 1] + m[10]*in[ 2];
 }
+// *INDENT-ON*
