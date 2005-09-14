@@ -835,11 +835,11 @@ static ID_INLINE vec_t VectorLengthSquared(const vec3_t v)
 						"movq		(%%eax),	%%mm2\n"	// v[0]                             | v[1]
 						"movd		8(%%eax),	%%mm1\n"	// v[2]                             | -
 						"movd		8(%%eax),	%%mm3\n"	// v[2]                             | -
-						 "pfmul		%%mm2,		%%mm0\n"	// v[0]*v[0]                        | v[1]*v[1]
+						"pfmul		%%mm2,		%%mm0\n"	// v[0]*v[0]                        | v[1]*v[1]
 						"pfmul		%%mm3,		%%mm1\n"	// v[2]*v[2]                        | -
 						"pfacc		%%mm0,		%%mm0\n"	// v[0]*v[0]+v[1]*v[1]              | -
 						"pfadd		%%mm1,		%%mm0\n"	// v[0]*v[0]+v[1]*v[1]+v[2]*v[2]    | -
-						 "movd		%%mm0,		(%%edx)\n"	// out = mm2[lo]
+						"movd		%%mm0,		(%%edx)\n"	// out = mm2[lo]
 						::"a"           (v), "d"(&out):"memory");
 
 	femms();
@@ -980,8 +980,7 @@ void            MatrixToVectorsFLU(const matrix_t m, vec3_t forward, vec3_t left
 void            MatrixToVectorsFRU(const matrix_t m, vec3_t forward, vec3_t right, vec3_t up);
 
 //void MatrixLerp( const matrix_t from, const matrix_t to, vec_t f, matrix_t out );
-void            MatrixSetupTransform(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up,
-									 const vec3_t origin);
+void            MatrixSetupTransform(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up, const vec3_t origin);
 void            MatrixAffineInverse(const matrix_t in, matrix_t out);
 void            MatrixTransformNormal(const matrix_t m, const vec3_t in, vec3_t out);
 
@@ -991,6 +990,7 @@ float           Com_Clamp(float min, float max, float value);
 
 char           *COM_SkipPath(char *pathname);
 void            COM_StripExtension(const char *in, char *out);
+void            COM_StripExtensionExt(const char *in, char *out, char terminator);
 void            COM_DefaultExtension(char *path, int maxSize, const char *extension);
 
 void            COM_BeginParseSession(const char *name);
@@ -1655,4 +1655,4 @@ typedef enum _flag_status
 #define CDCHKSUM_LEN 2
 
 
-#endif // __Q_SHARED_H
+#endif							// __Q_SHARED_H

@@ -109,7 +109,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //tendency to jump using a weapon
 #define CHARACTERISTIC_WEAPONJUMPING				38	//float [0, 1]
 //tendency to use the grapple hook when available
-#define CHARACTERISTIC_GRAPPLE_USER					39	//float [0, 1]	//use this!!
+#define CHARACTERISTIC_GRAPPLE_USER					39	//float [0, 1]  //use this!!
 //========================================================
 //goal
 //========================================================
@@ -120,7 +120,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //the self preservation of the bot (rockets near walls etc.)
 #define CHARACTERISTIC_SELFPRESERVATION				42	//float [0, 1]
 //how likely the bot is to take revenge
-#define CHARACTERISTIC_VENGEFULNESS					43	//float [0, 1]	//use this!!
+#define CHARACTERISTIC_VENGEFULNESS					43	//float [0, 1]  //use this!!
 //tendency to camp
 #define CHARACTERISTIC_CAMPER						44	//float [0, 1]
 //========================================================
@@ -131,4 +131,3 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CHARACTERISTIC_ALERTNESS					46	//float [0, 1]
 //how much the bot fires it's weapon
 #define CHARACTERISTIC_FIRETHROTTLE					47	//float [0, 1]
-

@@ -42,7 +42,7 @@ float Com_Clamp(float min, float max, float value)
 COM_SkipPath
 ============
 */
-char *COM_SkipPath(char *pathname)
+char           *COM_SkipPath(char *pathname)
 {
 	char           *last;
 
@@ -70,6 +70,20 @@ void COM_StripExtension(const char *in, char *out)
 	*out = 0;
 }
 
+
+/*
+============
+COM_StripExtensionExt
+============
+*/
+void COM_StripExtensionExt(const char *in, char *out, char terminator)
+{
+	while(*in && *in != '.')
+	{
+		*out++ = *in++;
+	}
+	*out = terminator;
+}
 
 /*
 ==================
@@ -250,10 +264,9 @@ PARSING
 */
 
 // multiple character punctuation tokens
-const char *punctuation[] =
-{
-	"+=", "-=",  "*=",  "/=", "&=", "|=", "++", "--",
-	"&&", "||",  "<=",  ">=", "==", "!=",
+const char     *punctuation[] = {
+	"+=", "-=", "*=", "/=", "&=", "|=", "++", "--",
+	"&&", "||", "<=", ">=", "==", "!=",
 	NULL
 };
 
@@ -272,7 +285,7 @@ int COM_GetCurrentParseLine(void)
 	return com_lines;
 }
 
-char *COM_Parse(char **data_p)
+char           *COM_Parse(char **data_p)
 {
 	return COM_ParseExt(data_p, qtrue);
 }
@@ -313,7 +326,7 @@ string will be returned if the next token is
 a newline.
 ==============
 */
-static char *SkipWhitespace(char *data, qboolean * hasNewLines)
+static char    *SkipWhitespace(char *data, qboolean * hasNewLines)
 {
 	int             c;
 
@@ -433,7 +446,7 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 	qboolean        hasNewLines = qfalse;
 	char           *data;
 	const char    **punc;
-	
+
 	if(!data_p)
 	{
 		Com_Error(ERR_FATAL, "Com_ParseExt: NULL data_p");
@@ -503,7 +516,7 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 		while(1)
 		{
 			c = *data++;
-			
+
 			if((c == '\\') && (*data == '\"'))
 			{
 				// allow quoted strings to use \" to indicate the " character
@@ -519,21 +532,18 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 			{
 				com_lines++;
 			}
-			
-			if(len < MAX_TOKEN_CHARS -1)
+
+			if(len < MAX_TOKEN_CHARS - 1)
 			{
 				com_token[len] = c;
 				len++;
 			}
 		}
 	}
-	
+
 	// check for a number
 	// is this parsing of negative numbers going to cause expression problems
-	if(	(c >= '0' && c <= '9') ||
-		(c == '-' && data[1] >= '0' && data[1] <= '9') ||
-		(c == '.' && data[1] >= '0' && data[1] <= '9')
-	)
+	if((c >= '0' && c <= '9') || (c == '-' && data[1] >= '0' && data[1] <= '9') || (c == '.' && data[1] >= '0' && data[1] <= '9'))
 	{
 		do
 		{
@@ -545,7 +555,7 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 			data++;
 
 			c = *data;
-		} while((c >= '0' && c <= '9') || c == '.' );
+		} while((c >= '0' && c <= '9') || c == '.');
 
 		// parse the exponent
 		if(c == 'e' || c == 'E')
@@ -569,9 +579,9 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 				c = *data;
 			}
 
-			do 
+			do
 			{
-				if(len < MAX_TOKEN_CHARS - 1) 
+				if(len < MAX_TOKEN_CHARS - 1)
 				{
 					com_token[len] = c;
 					len++;
@@ -594,19 +604,11 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 
 #if 0
 	// check for character punctuation
-	if(
-		*data == '\n'	||
-		*data == '{'	||
-		*data == '}'	||
-		*data == ')'	||
-		*data == '('	||
-		*data == ']'	||
-		*data == '['	||
-		*data == '\''	||
-		*data == ':'	||
-		*data == ','	||
-		*data == ';'
-	)
+	if(*data == '\n' ||
+	   *data == '{' ||
+	   *data == '}' ||
+	   *data == ')' ||
+	   *data == '(' || *data == ']' || *data == '[' || *data == '\'' || *data == ':' || *data == ',' || *data == ';')
 	{
 		// single character punctuation
 		com_token[0] = *data;
@@ -625,12 +627,12 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 			len++;
 		}
 		data++;
-		
+
 		c = *data;
-		
+
 		if(c == '\n')
 			com_lines++;
-		
+
 	} while(c > 32);
 
 	if(len == MAX_TOKEN_CHARS)
@@ -646,12 +648,7 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 	// check for a regular word
 	// we still allow forward and back slashes in name tokens for pathnames
 	// and also colons for drive letters
-	if(	(c >= 'a' && c <= 'z')	||
-		(c >= 'A' && c <= 'Z')	||
-		(c == '_')				||
-		(c == '/')				||
- 		(c == '\\')				||
- 		(c == '$')	)
+	if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c == '_') || (c == '/') || (c == '\\') || (c == '$'))
 	{
 		do
 		{
@@ -661,21 +658,13 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 				len++;
 			}
 			data++;
-			
+
 			c = *data;
 		}
 		while
-		(
-			(c >= 'a' && c <= 'z')	||
-			(c >= 'A' && c <= 'Z')	||
-			(c == '_') 				||
-			(c >= '0' && c <= '9')	||
-			(c == '/')				||
-			(c == '\\')				||
-			(c == ':')				||
-			(c == '.')				||
-			(c == '$')
-		);
+			((c >= 'a' && c <= 'z') ||
+			 (c >= 'A' && c <= 'Z') ||
+			 (c == '_') || (c >= '0' && c <= '9') || (c == '/') || (c == '\\') || (c == ':') || (c == '.') || (c == '$'));
 
 		if(len == MAX_TOKEN_CHARS)
 		{
@@ -683,18 +672,18 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 		}
 		com_token[len] = 0;
 
-		*data_p = (char *) data;
+		*data_p = (char *)data;
 		return com_token;
 	}
-	
+
 	// check for multi-character punctuation token
-	for(punc = punctuation; *punc ; punc++)
+	for(punc = punctuation; *punc; punc++)
 	{
-		int		l;
-		int		j;
+		int             l;
+		int             j;
 
 		l = strlen(*punc);
-		for(j = 0; j < l ; j++)
+		for(j = 0; j < l; j++)
 		{
 			if(data[j] != (*punc)[j])
 			{
@@ -1197,7 +1186,7 @@ varargs versions of all text functions.
 FIXME: make this buffer size safe someday
 ============
 */
-char* QDECL va(char *format, ...)
+char           *QDECL va(char *format, ...)
 {
 	va_list         argptr;
 	static char     string[2][32000];	// in case va is called by nested functions
@@ -1232,7 +1221,7 @@ key and returns the associated value, or an empty string.
 FIXME: overflow check?
 ===============
 */
-char *Info_ValueForKey(const char *s, const char *key)
+char           *Info_ValueForKey(const char *s, const char *key)
 {
 	char            pkey[BIG_INFO_KEY];
 	static char     value[2][BIG_INFO_VALUE];	// use two buffers so compares
