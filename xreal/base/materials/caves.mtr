@@ -249,9 +249,10 @@ textures/caves/temfloortrim1
 textures/caves/tembrick2
 {
 	qer_editorimage		textures/caves/tembrick2_d.tga
-	bumpmap 		addnormals (textures/caves/tembrick2_local.tga, heightmap (textures/caves/tembrick2_bmp.tga, 3 ))
 	diffusemap		textures/caves/tembrick2_d.tga
-	specularmap		textures/caves/tembrick2_s.tga	
+	bumpmap 		addnormals (textures/caves/tembrick2_local.tga, heightmap (textures/caves/tembrick2_bmp.tga, 3 ))
+	specularmap		textures/caves/tembrick2_s.tga
+	lightmap		_lightmap	
 }
 
 textures/caves/tembrick2door
@@ -319,12 +320,13 @@ textures/caves/temtablet2
 textures/caves/tembrick2smoo
 {
 	qer_editorimage		textures/caves/tembrick2smoo.tga
+	diffusemap			textures/caves/tembrick2smoo_d.tga
 	{
 		blend			bumpmap 		
 		map				addnormals (textures/caves/tembrick1crum_local.tga, heightmap (textures/caves/tembrick2smoo_bmp.tga, 4) ) 
 	}
-	diffusemap			textures/caves/tembrick2smoo_d.tga
 	specularmap			textures/caves/tembrick2smoo_s.tga
+	lightmap			_lightmap
 }
 
 //textures/caves/egy_brick1
@@ -876,12 +878,13 @@ textures/caves/sbricks2a
 {
 	qer_editorimage		textures/caves/sbricks2a
 	stone
+	diffusemap		textures/caves/sbricks2a
 	{
 		blend			bumpmap				
 		map				addnormals (textures/caves/sbricks2_local, heightmap (textures/caves/sbricks1_bmp, 4) ) 
 	}
-		diffusemap		textures/caves/sbricks2a
-		specularmap		textures/caves/sbricks2a_s
+	specularmap		textures/caves/sbricks2a_s
+	lightmap		_lightmap
 }
 
 textures/caves/sbricks2

@@ -9,13 +9,14 @@ base_trim
 base_wall
 caves
 char_common
-characters
+//characters
 decals
+doomcastle
 door
 duffyTest
 enpro
 fogs
-gfx
+//gfx
 glass
 hell
 ice
@@ -30,7 +31,7 @@ mal
 mapobjects
 Maxtextures
 mcity
-monsters
+//monsters
 morgue
 mp_gui
 mp_lights
@@ -41,6 +42,7 @@ particles
 patd
 patricktest
 pdtest
+psodm5
 recyc_door
 recyc_floor
 recyc_light
@@ -59,7 +61,7 @@ stone
 testInteractions
 tim
 tools
-vehicles
+//vehicles
 video
 //washroom
 //weapons
