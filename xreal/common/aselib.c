@@ -423,8 +423,8 @@ static void ASE_KeyMAP_DIFFUSE(const char *token)
 
 		buf1 = buffer;
 		buf2 = gamedir;
+		
 		// need to compare win32 volumes to potential unix junk
-		// 
 		if((gamedir[1] == ':' && (buffer[0] == '/' && buffer[1] == '/')) ||
 		   (buffer[1] == ':' && (gamedir[0] == '/' && gamedir[1] == '/')))
 		{
@@ -448,17 +448,29 @@ static void ASE_KeyMAP_DIFFUSE(const char *token)
 				buf2++;
 			}
 		}
+		
 		strcpy(buff1, buf1);
 		strlwr(buff1);
 		strcpy(buff2, buf2);
 		strlwr(buff2);
-		if(strstr(buff2, buff1 + 2))
+		
+		// Tr3B - Doom3 materials are messed up usually
+		if(strstr(buff1, "base/"))
+		{
+			strcpy(ase.materials[ase.numMaterials].name, strstr(buff1, "base/") + strlen("base/"));
+			VERBOSE(("..material name: '%s'\n", ase.materials[ase.numMaterials].name));
+		}
+		else if(strstr(buff2, buff1 + 2))
 		{
 			strcpy(ase.materials[ase.numMaterials].name, strstr(buff2, buff1 + 2) + strlen(buff1) - 2);
+			VERBOSE(("..material name: '%s'\n", ase.materials[ase.numMaterials].name));
 		}
 		else
 		{
 			sprintf(ase.materials[ase.numMaterials].name, "(not converted: '%s')", buffer);
+			
+			printf("buff1: '%s'\n", buff1);
+			printf("buff2: '%s'\n", buff2);
 			printf("WARNING: illegal material name '%s'\n", buffer);
 		}
 	}
@@ -469,6 +481,15 @@ static void ASE_KeyMAP_DIFFUSE(const char *token)
 
 static void ASE_KeyMATERIAL(const char *token)
 {
+	/*
+	if(!strcmp(token, "*MATERIAL_NAME"))
+	{
+		ASE_GetToken(qfalse);
+		VERBOSE(("..material name: %s\n", s_token));
+		ASE_KeyMATERIAL_NAME();
+	}
+	else
+	*/
 	if(!strcmp(token, "*MAP_DIFFUSE"))
 	{
 		ASE_ParseBracedBlock(ASE_KeyMAP_DIFFUSE);

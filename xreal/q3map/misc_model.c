@@ -49,11 +49,11 @@ int             numLoadedModels;
 
 /*
 =================
-R_LoadMD3
+MD3_Load
 =================
 */
 #define	LL(x) x=LittleLong(x)
-md3Header_t    *R_LoadMD3(const char *mod_name)
+md3Header_t    *MD3_Load(const char *mod_name)
 {
 	int             i, j;
 	md3Header_t    *md3;
@@ -76,13 +76,14 @@ md3Header_t    *R_LoadMD3(const char *mod_name)
 #endif
 	if(len <= 0)
 	{
+		_printf("MD3_Load: File not found '%s'\n", filename);
 		return NULL;
 	}
 
 	version = LittleLong(md3->version);
 	if(version != MD3_VERSION)
 	{
-		_printf("R_LoadMD3: %s has wrong version (%i should be %i)\n", mod_name, version, MD3_VERSION);
+		_printf("MD3_Load: %s has wrong version (%i should be %i)\n", mod_name, version, MD3_VERSION);
 		return NULL;
 	}
 
@@ -99,7 +100,7 @@ md3Header_t    *R_LoadMD3(const char *mod_name)
 
 	if(md3->numFrames < 1)
 	{
-		_printf("R_LoadMD3: %s has no frames\n", mod_name);
+		_printf("MD3_Load: %s has no frames\n", mod_name);
 		return NULL;
 	}
 
@@ -137,11 +138,11 @@ md3Header_t    *R_LoadMD3(const char *mod_name)
 
 		if(surf->numVerts > SHADER_MAX_VERTEXES)
 		{
-			Error("R_LoadMD3: %s has more than %i verts on a surface (%i)", mod_name, SHADER_MAX_VERTEXES, surf->numVerts);
+			Error("MD3_Load: %s has more than %i verts on a surface (%i)", mod_name, SHADER_MAX_VERTEXES, surf->numVerts);
 		}
 		if(surf->numTriangles * 3 > SHADER_MAX_INDEXES)
 		{
-			Error("R_LoadMD3: %s has more than %i triangles on a surface (%i)",
+			Error("MD3_Load: %s has more than %i triangles on a surface (%i)",
 				  mod_name, SHADER_MAX_INDEXES / 3, surf->numTriangles);
 		}
 
@@ -210,7 +211,7 @@ md3Header_t    *LoadModel(const char *modelName)
 
 	strcpy(lm->modelName, modelName);
 
-	lm->header = R_LoadMD3(modelName);
+	lm->header = MD3_Load(modelName);
 
 	return lm->header;
 }
@@ -222,7 +223,7 @@ InsertMD3Model
 Convert a model entity to raw geometry surfaces and insert it in the tree
 ============
 */
-void InsertMD3Model(const char *modelName, vec3_t origin, float angle, tree_t * tree)
+void InsertMD3Model(const char *modelName, const matrix_t transform, tree_t * tree)
 {
 	int             i, j;
 	md3Header_t    *md3;
@@ -233,13 +234,8 @@ void InsertMD3Model(const char *modelName, vec3_t origin, float angle, tree_t * 
 	md3XyzNormal_t *xyz;
 	drawVert_t     *outv;
 	float           lat, lng;
-	float           angleCos, angleSin;
 	mapDrawSurface_t *out;
-	vec3_t          temp;
-
-	angle = angle / 180 * Q_PI;
-	angleCos = cos(angle);
-	angleSin = sin(angle);
+	vec3_t          tmp;
 
 	// load the model
 	md3 = LoadModel(modelName);
@@ -306,9 +302,16 @@ void InsertMD3Model(const char *modelName, vec3_t origin, float angle, tree_t * 
 			outv->color[2] = 255;
 			outv->color[3] = 255;
 
-			outv->xyz[0] = origin[0] + MD3_XYZ_SCALE * (xyz->xyz[0] * angleCos - xyz->xyz[1] * angleSin);
-			outv->xyz[1] = origin[1] + MD3_XYZ_SCALE * (xyz->xyz[0] * angleSin + xyz->xyz[1] * angleCos);
-			outv->xyz[2] = origin[2] + MD3_XYZ_SCALE * (xyz->xyz[2]);
+			// transform the position
+//			outv->xyz[0] = origin[0] + MD3_XYZ_SCALE * (xyz->xyz[0] * angleCos - xyz->xyz[1] * angleSin);
+//			outv->xyz[1] = origin[1] + MD3_XYZ_SCALE * (xyz->xyz[0] * angleSin + xyz->xyz[1] * angleCos);
+//			outv->xyz[2] = origin[2] + MD3_XYZ_SCALE * (xyz->xyz[2]);
+			
+			tmp[0] = MD3_XYZ_SCALE * xyz->xyz[0];
+			tmp[1] = MD3_XYZ_SCALE * xyz->xyz[1];
+			tmp[2] = MD3_XYZ_SCALE * xyz->xyz[2];
+			
+			MatrixTransformPoint(transform, tmp, outv->xyz);
 
 			// decode the lat/lng normal to a 3 float normal
 			lat = (xyz->normal >> 8) & 0xff;
@@ -316,14 +319,16 @@ void InsertMD3Model(const char *modelName, vec3_t origin, float angle, tree_t * 
 			lat *= Q_PI / 128;
 			lng *= Q_PI / 128;
 
-			temp[0] = cos(lat) * sin(lng);
-			temp[1] = sin(lat) * sin(lng);
-			temp[2] = cos(lng);
+			tmp[0] = cos(lat) * sin(lng);
+			tmp[1] = sin(lat) * sin(lng);
+			tmp[2] = cos(lng);
 
 			// rotate the normal
-			outv->normal[0] = temp[0] * angleCos - temp[1] * angleSin;
-			outv->normal[1] = temp[0] * angleSin + temp[1] * angleCos;
-			outv->normal[2] = temp[2];
+//			outv->normal[0] = temp[0] * angleCos - temp[1] * angleSin;
+//			outv->normal[1] = temp[0] * angleSin + temp[1] * angleCos;
+//			outv->normal[2] = temp[2];
+			
+			MatrixTransformNormal(transform, tmp, outv->normal);
 		}
 
 		// find the next surface
@@ -342,26 +347,22 @@ InsertASEModel
 Convert a model entity to raw geometry surfaces and insert it in the tree
 ============
 */
-void InsertASEModel(const char *modelName, vec3_t origin, float angle, tree_t * tree)
+void InsertASEModel(const char *modelName, const matrix_t transform, tree_t * tree)
 {
 	int             i, j;
 	drawVert_t     *outv;
-	float           angleCos, angleSin;
 	mapDrawSurface_t *out;
 	int             numSurfaces;
 	const char     *name;
 	polyset_t      *pset;
 	int             numFrames;
 	char            filename[1024];
+	vec3_t			tmp;
 
 	sprintf(filename, "%s%s", gamedir, modelName);
 
-	angle = angle / 180 * Q_PI;
-	angleCos = cos(angle);
-	angleSin = sin(angle);
-
 	// load the model
-	ASE_Load(filename, qfalse, qfalse);
+	ASE_Load(filename, qtrue, qfalse);
 
 	// each ase surface will become a new bsp surface
 	numSurfaces = ASE_GetNumSurfaces();
@@ -427,17 +428,25 @@ void InsertASEModel(const char *modelName, vec3_t origin, float angle, tree_t * 
 			outv->color[2] = 255;
 			outv->color[3] = 255;
 
-			outv->xyz[0] = origin[0] + tri->verts[index][0];
-			outv->xyz[1] = origin[1] + tri->verts[index][1];
-			outv->xyz[2] = origin[2] + tri->verts[index][2];
+			// transform the position
+//			outv->xyz[0] = origin[0] + tri->verts[index][0];
+//			outv->xyz[1] = origin[1] + tri->verts[index][1];
+//			outv->xyz[2] = origin[2] + tri->verts[index][2];
+			
+			tmp[0] = tri->verts[index][0];
+			tmp[1] = tri->verts[index][1];
+			tmp[2] = tri->verts[index][2];
+			
+			MatrixTransformPoint(transform, tmp, outv->xyz);
 
 			// rotate the normal
-			outv->normal[0] = tri->normals[index][0];
-			outv->normal[1] = tri->normals[index][1];
-			outv->normal[2] = tri->normals[index][2];
+			tmp[0] = tri->normals[index][0];
+			tmp[1] = tri->normals[index][1];
+			tmp[2] = tri->normals[index][2];
+			
+			MatrixTransformNormal(transform, tmp, outv->normal);
 		}
 	}
-
 }
 
 
@@ -465,13 +474,39 @@ void AddTriangleModels(tree_t * tree)
 		if(!Q_stricmp("misc_model", ValueForKey(entity, "classname")))
 		{
 			const char     *model;
+			const char     *value;
 			vec3_t          origin;
-			float           angle;
-
-			// get the angle for rotation  FIXME: support full matrix positioning
-			angle = FloatForKey(entity, "angle");
-
+			vec3_t          angles;
+			matrix_t		rotation;
+			matrix_t		transform;
+			
 			GetVectorForKey(entity, "origin", origin);
+
+			// get rotation matrix or "angle" (yaw) or "angles" (pitch yaw roll)
+			angles[0] = angles[1] = angles[2] = 0;
+			value = ValueForKey(entity, "angle");
+			if(value[0] != '\0')
+			{
+				angles[1] = atof(value);
+				MatrixFromAngles(rotation, angles[PITCH], angles[YAW], angles[ROLL]);
+			}
+			
+			value = ValueForKey(entity, "angles");
+			if(value[0] != '\0')
+			{
+				sscanf(value, "%f %f %f", &angles[0], &angles[1], &angles[2]);
+				MatrixFromAngles(rotation, angles[PITCH], angles[YAW], angles[ROLL]);
+			}
+			
+			value = ValueForKey(entity, "rotation");
+			if(value[0] != '\0')
+			{
+				sscanf(value, "%f %f %f %f %f %f %f %f %f",	&rotation[0], &rotation[1], &rotation[2],
+					   &rotation[4], &rotation[5], &rotation[6],
+					   &rotation[8], &rotation[9], &rotation[10]);
+			}
+			
+			MatrixSetupTransformFromRotation(transform, rotation, origin);
 
 			model = ValueForKey(entity, "model");
 			if(!model[0])
@@ -479,18 +514,18 @@ void AddTriangleModels(tree_t * tree)
 				_printf("WARNING: misc_model at %i %i %i without a model key\n", (int)origin[0], (int)origin[1], (int)origin[2]);
 				continue;
 			}
-#if 0
+
 			if(strstr(model, ".md3") || strstr(model, ".MD3"))
 			{
-				InsertMD3Model(model, origin, angle, tree);
+				InsertMD3Model(model, transform, tree);
 				continue;
 			}
 			if(strstr(model, ".ase") || strstr(model, ".ASE"))
 			{
-				InsertASEModel(model, origin, angle, tree);
+				InsertASEModel(model, transform, tree);
 				continue;
 			}
-#endif
+
 			_printf("Unknown misc_model type: %s\n", model);
 			continue;
 		}
