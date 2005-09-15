@@ -530,7 +530,7 @@ typedef struct shader_s
 	float			polygonOffsetValue;
 	qboolean        noMipMaps;	// for console fonts, 2D elements, etc.
 	qboolean        noPicMip;	// for images that must always be full resolution
-
+	qboolean		clamp;		// don't repeat the texture for texture coords outside [0, 1]
 	fogPass_t       fogPass;	// draw a blended pass, possibly with depth test equals
 
 	qboolean        needsTangent;	// not all shaders will need all data to be gathered

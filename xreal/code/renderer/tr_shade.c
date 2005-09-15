@@ -1826,18 +1826,18 @@ static void RB_IterateStagesGeneric()
 
 		switch(pStage->type)
 		{
-			case ST_COLORMAP:
-			{
-				RenderGeneric_single_FFP(stage);
-				break;
-			}
-			
 			// Tr3B - for development only. get rid of this later to avoid overdraw
 			case ST_DIFFUSEMAP:
 			{
 				RenderGeneric_single_FFP(stage);
 				break;
 			}
+			
+			// skip these if not merge into diffuse stage
+			case ST_NORMALMAP:
+			case ST_SPECULARMAP:
+			case ST_LIGHTMAP:
+				break;
 			
 			case ST_COLLAPSE_Generic_multi:
 			{
@@ -1958,7 +1958,11 @@ static void RB_IterateStagesGeneric()
 			}
 			
 			default:
+			case ST_COLORMAP:
+			{
+				RenderGeneric_single_FFP(stage);
 				break;
+			}
 		}
 		
 		// allow skipping out to show just lightmaps during development

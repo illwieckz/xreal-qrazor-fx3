@@ -758,8 +758,11 @@ static qboolean ParseMap(shaderStage_t * stage, char **text)
 	{
 		case ST_NORMALMAP:
 		{
-			stage->bundle[0].image[0] =
-				R_FindImageFile(filename, /*!shader.noMipMaps*/ qfalse, !shader.noPicMip, GL_REPEAT, qtrue);
+			if(shader.clamp)
+				stage->bundle[0].image[0] = R_FindImageFile(filename, /*!shader.noMipMaps*/ qfalse, !shader.noPicMip, GL_CLAMP, qtrue);
+			else
+				stage->bundle[0].image[0] = R_FindImageFile(filename, /*!shader.noMipMaps*/ qfalse, !shader.noPicMip, GL_REPEAT, qtrue);
+			
 			if(!stage->bundle[0].image[0])
 			{
 				ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find normalmap '%s' in shader '%s'\n",
@@ -773,7 +776,11 @@ static qboolean ParseMap(shaderStage_t * stage, char **text)
 		case ST_DIFFUSEMAP:
 		default:
 		{
-			stage->bundle[0].image[0] = R_FindImageFile(filename, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT, qfalse);
+			if(shader.clamp)
+				stage->bundle[0].image[0] = R_FindImageFile(filename, !shader.noMipMaps, !shader.noPicMip, GL_CLAMP, qfalse);
+			else
+				stage->bundle[0].image[0] = R_FindImageFile(filename, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT, qfalse);
+			
 			if(!stage->bundle[0].image[0])
 			{
 				ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find colormap '%s' in shader '%s'\n",
@@ -1983,14 +1990,20 @@ static qboolean ParseShader(char **text)
 			s++;
 			continue;
 		}
+		// skip stuff that only the QuakeEdRadient needs
+		else if(!Q_stricmpn(token, "qer", 3))
+		{
+			SkipRestOfLine(text);
+			continue;
+		}
 		// skip description
 		else if(!Q_stricmp(token, "description"))
 		{
 			SkipRestOfLine(text);
 			continue;
 		}
-		// skip stuff that only the QuakeEdRadient needs
-		else if(!Q_stricmpn(token, "qer", 3))
+		// skip renderbump
+		else if(!Q_stricmp(token, "renderbump"))
 		{
 			SkipRestOfLine(text);
 			continue;
@@ -2170,6 +2183,12 @@ static qboolean ParseShader(char **text)
 		else if(!Q_stricmp(token, "twosided"))
 		{
 			shader.cullType = CT_TWO_SIDED;
+			continue;
+		}
+		// clamp
+		else if(!Q_stricmp(token, "clamp"))
+		{
+			shader.clamp = qtrue;
 			continue;
 		}
 		// sort
