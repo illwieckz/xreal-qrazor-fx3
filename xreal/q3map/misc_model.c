@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "qbsp.h"
 #include "../common/aselib.h"
+#include "../lwobject/lwo2.h"
 #ifdef _WIN32
 #ifdef _TTIMOBUILD
 #include "pakstuff.h"
@@ -362,7 +363,7 @@ void InsertASEModel(const char *modelName, const matrix_t transform, tree_t * tr
 	sprintf(filename, "%s%s", gamedir, modelName);
 
 	// load the model
-	ASE_Load(filename, qtrue, qfalse);
+	ASE_Load(filename, qfalse, qfalse);
 
 	// each ase surface will become a new bsp surface
 	numSurfaces = ASE_GetNumSurfaces();
@@ -450,6 +451,202 @@ void InsertASEModel(const char *modelName, const matrix_t transform, tree_t * tr
 }
 
 
+
+/*
+============
+InsertLWOModel
+
+Convert a LWO model entity to raw geometry surfaces and insert it in the tree
+============
+*/
+void InsertLWOModel(const char *modelName, const matrix_t transform, tree_t * tree)
+{
+	int             i, j, k, l;
+	char            filename[1024];
+	mapDrawSurface_t *out;
+	drawVert_t     *outv;
+	vec3_t			tmp;
+	
+	unsigned int    failID;
+	int             failpos;
+	lwObject       *obj;
+	lwLayer        *layer;
+	lwSurface      *surf;
+	lwPolygon      *pol;
+	lwPolVert      *v;
+	lwPoint        *pt;
+	lwVMap         *vmap;
+	int            *outindex;
+
+	sprintf(filename, "%s%s", gamedir, modelName);
+
+	// load the model
+	obj = lwGetObject(filename, &failID, &failpos);
+	if(!obj)
+	{
+		Error("%s\nLoading failed near byte %d\n\n", filename, failpos);
+		return;
+	}
+	
+	_printf("Processing '%s'\n", filename);
+	
+	if(obj->nlayers != 1)
+		Error("..layers number %i != 1", obj->nlayers);
+
+#if 0
+	qprintf("Layers:  %d\n"
+			"Surfaces:  %d\n"
+			"Envelopes:  %d\n"
+			"Clips:  %d\n"
+			"Points (first layer):  %d\n"
+			"Polygons (first layer):  %d\n\n",
+	obj->nlayers, obj->nsurfs, obj->nenvs, obj->nclips, obj->layer->point.count, obj->layer->polygon.count);
+#endif
+
+	layer = &obj->layer[0];
+
+	// each LWO surface from the first layer will become a new bsp surface
+	surf = obj->surf;
+	for(i = 0; i < obj->nsurfs; i++)
+	{
+		// allocate a surface
+		out = AllocDrawSurf();
+		out->miscModel = qtrue;
+
+		out->shaderInfo = ShaderInfoForShader(surf->name);
+		
+		out->lightmapNum = -1;
+		out->fogNum = -1;
+		
+		// allocate vertices
+		out->numVerts = layer->point.count;
+		out->verts = malloc(out->numVerts * sizeof(out->verts[0]));
+		memset(out->verts, 0, out->numVerts * sizeof(out->verts[0]));
+		
+		// count polygons which we want to use
+		out->numIndexes = 0;
+		for(j = 0; j < layer->polygon.count; j++)
+		{
+			pol = &layer->polygon.pol[j];
+			
+			// skip all polygons that don't belong to this surface
+			if(pol->surf != surf)
+				continue;
+			
+			// only accept FACE surfaces
+			if(pol->type != ID_FACE)
+			{
+				_printf("WARNING: skipping ID_FACE polygon\n");
+				continue;
+			}
+			
+			// only accept triangulated surfaces
+			if(pol->nverts != 3)
+			{
+				_printf("WARNING: skipping non triangulated polygon\n");
+				continue;
+			}
+			
+			out->numIndexes += 3;
+		}
+
+		// allocate the triangles
+		out->indexes = malloc(out->numIndexes * sizeof(out->indexes[0]));
+		memset(out->indexes, 0, out->numIndexes * sizeof(out->indexes[0]));
+
+		// emit the indexes and vertexes
+		c_triangleIndexes += out->numIndexes;
+		c_triangleVertexes += out->numVerts;
+		
+		outindex = &out->indexes[0];
+		for(j = 0; j < layer->polygon.count; j++)
+		{
+			pol = &layer->polygon.pol[j];
+			
+			// skip all polygons that don't belong to this surface
+			if(pol->surf != surf)
+				continue;
+			
+			// only accept FACE surfaces
+			if(pol->type != ID_FACE)
+			{
+				//_printf("WARNING: skipping ID_FACE polygon\n");
+				continue;
+			}
+			
+			// only accept triangulated surfaces
+			if(pol->nverts != 3)
+			{
+				//_printf("WARNING: skipping non triangulated polygon\n");
+				continue;
+			}
+			
+			for(k = 0, v = pol->v; k < pol->nverts; k++, v++)
+			{
+				int index;
+				
+				*outindex++ = index = v->index;
+			
+				pt = &layer->point.pt[index];
+				outv = &out->verts[index];
+				
+				tmp[0] = pt->pos[0];
+				tmp[1] = pt->pos[2];
+				tmp[2] = pt->pos[1];
+				
+				MatrixTransformPoint(transform, tmp, outv->xyz);
+				
+				// set dummy normal
+				outv->normal[0] = 0;
+				outv->normal[1] = 0;
+				outv->normal[2] = 1;
+				
+				//MatrixTransformNormal(transform, tmp, outv->normal);
+				
+				// fetch texcoords base from points
+				for(l = 0; l < pt->nvmaps; l++)
+				{
+					vmap = pt->vm[l].vmap;
+					index = pt->vm[l].index;
+
+					if(vmap->type ==  LWID_('T','X','U','V'))
+					{
+						outv->st[0] = vmap->val[index][0];
+						outv->st[1] = 1.0 - vmap->val[index][1];
+					}
+				}
+				
+				// override with polyon data
+				for(l = 0; l < v->nvmaps; l++)
+				{
+					vmap = v->vm[l].vmap;
+					index = v->vm[l].index;
+
+					if(vmap->type ==  LWID_('T','X','U','V'))
+					{
+						outv->st[0] = vmap->val[index][0];
+						outv->st[1] = 1.0 - vmap->val[index][1];
+					}
+				}
+				
+				outv->lightmap[0] = 0;
+				outv->lightmap[1] = 0;
+
+				// the colors will be set by the lighting pass
+				outv->color[0] = 255;
+				outv->color[1] = 255;
+				outv->color[2] = 255;
+				outv->color[3] = 255;
+			}
+		}
+
+		surf = surf->next;
+	}
+
+	lwFreeObject(obj);
+}
+
+
 //==============================================================================
 
 
@@ -480,6 +677,8 @@ void AddTriangleModels(tree_t * tree)
 			matrix_t		rotation;
 			matrix_t		transform;
 			
+			MatrixIdentity(rotation);
+			
 			GetVectorForKey(entity, "origin", origin);
 
 			// get rotation matrix or "angle" (yaw) or "angles" (pitch yaw roll)
@@ -501,9 +700,9 @@ void AddTriangleModels(tree_t * tree)
 			value = ValueForKey(entity, "rotation");
 			if(value[0] != '\0')
 			{
-				sscanf(value, "%f %f %f %f %f %f %f %f %f",	&rotation[0], &rotation[1], &rotation[2],
-					   &rotation[4], &rotation[5], &rotation[6],
-					   &rotation[8], &rotation[9], &rotation[10]);
+				sscanf(value, "%f %f %f %f %f %f %f %f %f",	&rotation[ 0], &rotation[ 1], &rotation[ 2],
+						   									&rotation[ 4], &rotation[ 5], &rotation[ 6],
+					   										&rotation[ 8], &rotation[ 9], &rotation[10]);
 			}
 			
 			MatrixSetupTransformFromRotation(transform, rotation, origin);
@@ -523,6 +722,11 @@ void AddTriangleModels(tree_t * tree)
 			if(strstr(model, ".ase") || strstr(model, ".ASE"))
 			{
 				InsertASEModel(model, transform, tree);
+				continue;
+			}
+			if(strstr(model, ".lwo") || strstr(model, ".LWO"))
+			{
+				InsertLWOModel(model, transform, tree);
 				continue;
 			}
 

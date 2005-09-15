@@ -21,6 +21,8 @@ gw_dm1_rock
 gw_dm1_skies
 gw_dm1_tower
 gw_dm1_tree
+gw_dm2
+gwdm2_sky
 glass
 hell
 ice

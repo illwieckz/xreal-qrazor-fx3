@@ -1,4 +1,8 @@
-renderer
+code/game/shared
+- matrix math
+- improved tokenizer
+
+code/renderer
 - new extension GL_ARB_transpose_matrix
 - new extension GL_ARB_vertex_program
 - new extension GL_ARB_shader_objects
@@ -7,4 +11,21 @@ renderer
 - new extension GL_ARB_shading_language_100
 - new extension GL_EXT_framebuffer_object
 - basic GLSL rendering capabilities in renderer backend
-- tangent space calculations for bump mapping
+- tangent space calculations for normal mapping based rendering techniques
+- directional specular bump mapping
+- basic .mtr shader support
+
+common/aselib
+- fixed bad Doom3 paths
+
+common/mathlib
+- matrix math
+
+common/scriplib
+- improved tokenizer
+
+q3map
+- Doom3 .map file support Version 2
+- support for new entity epairs like "rotation" matrix
+- basic .mtr shader support
+- .lwo misc_model support

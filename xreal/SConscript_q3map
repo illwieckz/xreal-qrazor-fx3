@@ -39,7 +39,17 @@ q3map_src = [
 'common/scriplib.c',
 'common/threads.c',
 'common/bspfile.c',
-'common/mutex.c'
+'common/mutex.c',
+'lwobject/clip.c',
+'lwobject/envelope.c',
+'lwobject/list.c',
+'lwobject/lwio.c',
+'lwobject/lwo2.c',
+'lwobject/lwob.c',
+'lwobject/pntspols.c',
+'lwobject/surface.c',
+'lwobject/vecmath.c',
+'lwobject/vmap.c'
 ]
 
 q3map_env = env.Copy()
