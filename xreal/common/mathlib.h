@@ -35,6 +35,14 @@ typedef vec_t   vec2_t[3];
 typedef vec_t   vec3_t[3];
 typedef vec_t   vec4_t[4];
 
+typedef vec_t   matrix_t[16];
+
+// angle indexes
+#define	PITCH				0	// up / down
+#define	YAW					1	// left / right
+#define	ROLL				2	// fall over
+
+// plane sides
 #define	SIDE_FRONT		0
 #define	SIDE_ON			2
 #define	SIDE_BACK		1
@@ -90,6 +98,33 @@ qboolean        PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, co
 void            NormalToLatLong(const vec3_t normal, byte bytes[2]);
 
 int             PlaneTypeForNormal(vec3_t normal);
-
+void            AxisMultiply(float in1[3][3], float in2[3][3], float out[3][3]);
 void            RotatePointAroundVector(vec3_t dst, const vec3_t dir, const vec3_t point, float degrees);
+
+void            MatrixIdentity(matrix_t m);
+void            MatrixClear(matrix_t m);
+void            MatrixCopy(const matrix_t in, matrix_t out);
+void            MatrixTranspose(const matrix_t in, matrix_t out);
+void            MatrixSetupXRotation(matrix_t m, vec_t degrees);
+void            MatrixSetupYRotation(matrix_t m, vec_t degrees);
+void            MatrixSetupZRotation(matrix_t m, vec_t degrees);
+void            MatrixSetupRotation(matrix_t m, vec_t x, vec_t y, vec_t z, vec_t degrees);
+void            MatrixSetupTranslation(matrix_t m, vec_t x, vec_t y, vec_t z);
+void            MatrixsetupScale(matrix_t m, vec_t x, vec_t y, vec_t z);
+void            MatrixMultiply(const matrix_t a, const matrix_t b, matrix_t out);
+void            MatrixMultiplyRotation(matrix_t m, vec_t pitch, vec_t yaw, vec_t roll);
+void            MatrixMultiplyTranslation(matrix_t m, vec_t x, vec_t y, vec_t z);
+void            MatrixMultiplyScale(matrix_t m, vec_t x, vec_t y, vec_t z);
+void            MatrixFromAngles(matrix_t m, vec_t pitch, vec_t yaw, vec_t roll);
+void            MatrixFromVectorsFLU(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up);
+void            MatrixFromVectorsFRU(matrix_t m, const vec3_t forward, const vec3_t right, const vec3_t up);
+void            MatrixToVectorsFLU(const matrix_t m, vec3_t forward, vec3_t left, vec3_t up);
+void            MatrixToVectorsFRU(const matrix_t m, vec3_t forward, vec3_t right, vec3_t up);
+
+void            MatrixSetupTransform(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up, const vec3_t origin);
+void            MatrixSetupTransformFromRotation(matrix_t m, const matrix_t rot, const vec3_t origin);
+void            MatrixAffineInverse(const matrix_t in, matrix_t out);
+void            MatrixTransformNormal(const matrix_t m, const vec3_t in, vec3_t out);
+void            MatrixTransformPoint(const matrix_t m, const vec3_t in, vec3_t out);
+
 #endif

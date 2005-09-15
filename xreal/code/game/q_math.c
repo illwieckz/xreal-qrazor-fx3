@@ -2066,13 +2066,20 @@ void MatrixLerp( const matrix_t from, const matrix_t to, vec_t f, matrix_t out )
 */
 
 
-void MatrixSetupTransform(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up,
-						  const vec3_t origin)
+void MatrixSetupTransform(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up, const vec3_t origin)
 {
 	m[ 0] = forward[0];     m[ 4] = left[0];        m[ 8] = up[0];  m[12] = origin[0];
 	m[ 1] = forward[1];     m[ 5] = left[1];        m[ 9] = up[1];  m[13] = origin[1];
 	m[ 2] = forward[2];     m[ 6] = left[2];        m[10] = up[2];  m[14] = origin[2];
-	m[ 3] = 0;                      m[ 7] = 0;                      m[11] = 0;              m[15] = 1;
+	m[ 3] = 0;              m[ 7] = 0;              m[11] = 0;      m[15] = 1;
+}
+
+void MatrixSetupTransformFromRotation(matrix_t m, const matrix_t rot, const vec3_t origin)
+{
+	m[ 0] = rot[ 0];     m[ 4] = rot[ 4];        m[ 8] = rot[ 8];  m[12] = origin[0];
+	m[ 1] = rot[ 1];     m[ 5] = rot[ 5];        m[ 9] = rot[ 9];  m[13] = origin[1];
+	m[ 2] = rot[ 2];     m[ 6] = rot[ 6];        m[10] = rot[10];  m[14] = origin[2];
+	m[ 3] = 0;           m[ 7] = 0;              m[11] = 0;        m[15] = 1;
 }
 
 void MatrixAffineInverse(const matrix_t in, matrix_t out)

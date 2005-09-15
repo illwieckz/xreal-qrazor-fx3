@@ -981,6 +981,7 @@ void            MatrixToVectorsFRU(const matrix_t m, vec3_t forward, vec3_t righ
 
 //void MatrixLerp( const matrix_t from, const matrix_t to, vec_t f, matrix_t out );
 void            MatrixSetupTransform(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up, const vec3_t origin);
+void            MatrixSetupTransformFromRotation(matrix_t m, const matrix_t rot, const vec3_t origin);
 void            MatrixAffineInverse(const matrix_t in, matrix_t out);
 void            MatrixTransformNormal(const matrix_t m, const vec3_t in, vec3_t out);
 

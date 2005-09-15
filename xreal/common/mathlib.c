@@ -309,24 +309,6 @@ int PlaneTypeForNormal(vec3_t normal)
 	return PLANE_NON_AXIAL;
 }
 
-/*
-================
-MatrixMultiply
-================
-*/
-void MatrixMultiply(float in1[3][3], float in2[3][3], float out[3][3])
-{
-	out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] + in1[0][2] * in2[2][0];
-	out[0][1] = in1[0][0] * in2[0][1] + in1[0][1] * in2[1][1] + in1[0][2] * in2[2][1];
-	out[0][2] = in1[0][0] * in2[0][2] + in1[0][1] * in2[1][2] + in1[0][2] * in2[2][2];
-	out[1][0] = in1[1][0] * in2[0][0] + in1[1][1] * in2[1][0] + in1[1][2] * in2[2][0];
-	out[1][1] = in1[1][0] * in2[0][1] + in1[1][1] * in2[1][1] + in1[1][2] * in2[2][1];
-	out[1][2] = in1[1][0] * in2[0][2] + in1[1][1] * in2[1][2] + in1[1][2] * in2[2][2];
-	out[2][0] = in1[2][0] * in2[0][0] + in1[2][1] * in2[1][0] + in1[2][2] * in2[2][0];
-	out[2][1] = in1[2][0] * in2[0][1] + in1[2][1] * in2[1][1] + in1[2][2] * in2[2][1];
-	out[2][2] = in1[2][0] * in2[0][2] + in1[2][1] * in2[1][2] + in1[2][2] * in2[2][2];
-}
-
 void ProjectPointOnPlane(vec3_t dst, const vec3_t p, const vec3_t normal)
 {
 	float           d;
@@ -379,6 +361,20 @@ void PerpendicularVector(vec3_t dst, const vec3_t src)
 	 ** normalize the result
 	 */
 	VectorNormalize(dst, dst);
+}
+
+
+void AxisMultiply(float in1[3][3], float in2[3][3], float out[3][3])
+{
+	out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] + in1[0][2] * in2[2][0];
+	out[0][1] = in1[0][0] * in2[0][1] + in1[0][1] * in2[1][1] + in1[0][2] * in2[2][1];
+	out[0][2] = in1[0][0] * in2[0][2] + in1[0][1] * in2[1][2] + in1[0][2] * in2[2][2];
+	out[1][0] = in1[1][0] * in2[0][0] + in1[1][1] * in2[1][0] + in1[1][2] * in2[2][0];
+	out[1][1] = in1[1][0] * in2[0][1] + in1[1][1] * in2[1][1] + in1[1][2] * in2[2][1];
+	out[1][2] = in1[1][0] * in2[0][2] + in1[1][1] * in2[1][2] + in1[1][2] * in2[2][2];
+	out[2][0] = in1[2][0] * in2[0][0] + in1[2][1] * in2[1][0] + in1[2][2] * in2[2][0];
+	out[2][1] = in1[2][0] * in2[0][1] + in1[2][1] * in2[1][1] + in1[2][2] * in2[2][1];
+	out[2][2] = in1[2][0] * in2[0][2] + in1[2][1] * in2[1][2] + in1[2][2] * in2[2][2];
 }
 
 /*
@@ -436,11 +432,251 @@ void RotatePointAroundVector(vec3_t dst, const vec3_t dir, const vec3_t point, f
 	zrot[1][0] = -sin(rad);
 	zrot[1][1] = cos(rad);
 
-	MatrixMultiply(m, zrot, tmpmat);
-	MatrixMultiply(tmpmat, im, rot);
+	AxisMultiply(m, zrot, tmpmat);
+	AxisMultiply(tmpmat, im, rot);
 
 	for(i = 0; i < 3; i++)
 	{
 		dst[i] = rot[i][0] * point[0] + rot[i][1] * point[1] + rot[i][2] * point[2];
 	}
 }
+
+// *INDENT-OFF*
+void MatrixIdentity(matrix_t m)
+{
+	m[ 0] = 1;      m[ 4] = 0;      m[ 8] = 0;      m[12] = 0;
+	m[ 1] = 0;      m[ 5] = 1;      m[ 9] = 0;      m[13] = 0;
+	m[ 2] = 0;      m[ 6] = 0;      m[10] = 1;      m[14] = 0;
+	m[ 3] = 0;      m[ 7] = 0;      m[11] = 0;      m[15] = 1;
+}
+
+void MatrixClear(matrix_t m)
+{
+    m[ 0] = 0;      m[ 4] = 0;      m[ 8] = 0;      m[12] = 0;
+	m[ 1] = 0;      m[ 5] = 0;      m[ 9] = 0;      m[13] = 0;
+	m[ 2] = 0;      m[ 6] = 0;      m[10] = 0;      m[14] = 0;
+	m[ 3] = 0;      m[ 7] = 0;      m[11] = 0;      m[15] = 0;
+}
+
+void MatrixCopy(const matrix_t in, matrix_t out)
+{
+	out[ 0] = in[ 0];       out[ 4] = in[ 4];       out[ 8] = in[ 8];       out[12] = in[12];
+	out[ 1] = in[ 1];       out[ 5] = in[ 5];       out[ 9] = in[ 9];       out[13] = in[13];
+	out[ 2] = in[ 2];       out[ 6] = in[ 6];       out[10] = in[10];       out[14] = in[14];
+	out[ 3] = in[ 3];       out[ 7] = in[ 7];       out[11] = in[11];       out[15] = in[15];
+}
+
+void MatrixTranspose(const matrix_t in, matrix_t out)
+{
+	out[ 0] = in[ 0];       out[ 1] = in[ 4];       out[ 2] = in[ 8];       out[ 3] = in[12];
+	out[ 4] = in[ 1];       out[ 5] = in[ 5];       out[ 6] = in[ 9];       out[ 7] = in[13];
+	out[ 8] = in[ 2];       out[ 9] = in[ 6];       out[10] = in[10];       out[11] = in[14];
+	out[12] = in[ 3];       out[13] = in[ 7];       out[14] = in[11];       out[15] = in[15];
+}
+
+void MatrixSetupXRotation(matrix_t m, vec_t degrees)
+{
+	vec_t a = DEG2RAD(degrees);
+	
+	m[ 0] = 1;      m[ 4] = 0;              m[ 8] = 0;              m[12] = 0;
+	m[ 1] = 0;      m[ 5] = cos(a);         m[ 9] =-sin(a);         m[13] = 0;
+	m[ 2] = 0;      m[ 6] = sin(a);         m[10] = cos(a);         m[14] = 0;
+	m[ 3] = 0;      m[ 7] = 0;              m[11] = 0;              m[15] = 1;
+}
+
+void MatrixSetupYRotation(matrix_t m, vec_t degrees)
+{
+	vec_t a = DEG2RAD(degrees);
+	
+	m[ 0] = cos(a);         m[ 4] = 0;      m[ 8] = sin(a);         m[12] = 0;
+	m[ 1] = 0;              m[ 5] = 1;      m[ 9] = 0;              m[13] = 0;
+	m[ 2] =-sin(a);         m[ 6] = 0;      m[10] = cos(a);         m[14] = 0;
+	m[ 3] = 0;              m[ 7] = 0;      m[11] = 0;              m[15] = 1;
+}
+
+void MatrixSetupZRotation(matrix_t m, vec_t degrees)
+{
+	vec_t a = DEG2RAD(degrees);
+	
+	m[ 0] = cos(a);         m[ 4] =-sin(a);         m[ 8] = 0;      m[12] = 0;
+	m[ 1] = sin(a);         m[ 5] = cos(a);         m[ 9] = 0;      m[13] = 0;
+	m[ 2] = 0;              m[ 6] = 0;              m[10] = 1;      m[14] = 0;
+	m[ 3] = 0;              m[ 7] = 0;              m[11] = 0;      m[15] = 1;
+}
+
+void MatrixSetupTranslation(matrix_t m, vec_t x, vec_t y, vec_t z)
+{
+	m[ 0] = 1;      m[ 4] = 0;      m[ 8] = 0;      m[12] = x;
+	m[ 1] = 0;      m[ 5] = 1;      m[ 9] = 0;      m[13] = y;
+	m[ 2] = 0;      m[ 6] = 0;      m[10] = 1;      m[14] = z;
+	m[ 3] = 0;      m[ 7] = 0;      m[11] = 0;      m[15] = 1;
+}
+
+void MatrixSetupScale(matrix_t m, vec_t x, vec_t y, vec_t z)
+{
+	m[ 0] = x;      m[ 4] = 0;      m[ 8] = 0;      m[12] = 0;
+	m[ 1] = 0;      m[ 5] = y;      m[ 9] = 0;      m[13] = 0;
+	m[ 2] = 0;      m[ 6] = 0;      m[10] = z;      m[14] = 0;
+	m[ 3] = 0;      m[ 7] = 0;      m[11] = 0;      m[15] = 1;
+}
+
+void MatrixMultiply(const matrix_t a, const matrix_t b, matrix_t out)
+{
+	out[ 0] = b[ 0]*a[ 0] + b[ 1]*a[ 4] + b[ 2]*a[ 8] + b[ 3]*a[12];
+	out[ 1] = b[ 0]*a[ 1] + b[ 1]*a[ 5] + b[ 2]*a[ 9] + b[ 3]*a[13];
+	out[ 2] = b[ 0]*a[ 2] + b[ 1]*a[ 6] + b[ 2]*a[10] + b[ 3]*a[14];
+	out[ 3] = b[ 0]*a[ 3] + b[ 1]*a[ 7] + b[ 2]*a[11] + b[ 3]*a[15];
+
+	out[ 4] = b[ 4]*a[ 0] + b[ 5]*a[ 4] + b[ 6]*a[ 8] + b[ 7]*a[12];
+	out[ 5] = b[ 4]*a[ 1] + b[ 5]*a[ 5] + b[ 6]*a[ 9] + b[ 7]*a[13];
+	out[ 6] = b[ 4]*a[ 2] + b[ 5]*a[ 6] + b[ 6]*a[10] + b[ 7]*a[14];
+	out[ 7] = b[ 4]*a[ 3] + b[ 5]*a[ 7] + b[ 6]*a[11] + b[ 7]*a[15];
+
+	out[ 8] = b[ 8]*a[ 0] + b[ 9]*a[ 4] + b[10]*a[ 8] + b[11]*a[12];
+	out[ 9] = b[ 8]*a[ 1] + b[ 9]*a[ 5] + b[10]*a[ 9] + b[11]*a[13];
+	out[10] = b[ 8]*a[ 2] + b[ 9]*a[ 6] + b[10]*a[10] + b[11]*a[14];
+	out[11] = b[ 8]*a[ 3] + b[ 9]*a[ 7] + b[10]*a[11] + b[11]*a[15];
+
+	out[12] = b[12]*a[ 0] + b[13]*a[ 4] + b[14]*a[ 8] + b[15]*a[12];
+	out[13] = b[12]*a[ 1] + b[13]*a[ 5] + b[14]*a[ 9] + b[15]*a[13];
+	out[14] = b[12]*a[ 2] + b[13]*a[ 6] + b[14]*a[10] + b[15]*a[14];
+	out[15] = b[12]*a[ 3] + b[13]*a[ 7] + b[14]*a[11] + b[15]*a[15];
+}
+
+void MatrixMultiplyRotation(matrix_t m, vec_t pitch, vec_t yaw, vec_t roll)
+{
+	matrix_t        tmp, rot;
+
+	MatrixCopy(m, tmp);
+	MatrixFromAngles(rot, pitch, yaw, roll);
+
+	MatrixMultiply(rot, tmp, m);
+}
+
+void MatrixMultiplyTranslation(matrix_t m, vec_t x, vec_t y, vec_t z)
+{
+	matrix_t        tmp, trans;
+
+	MatrixCopy(m, tmp);
+	MatrixSetupTranslation(trans, x, y, z);
+	MatrixMultiply(trans, tmp, m);
+}
+
+void MatrixMultiplyScale(matrix_t m, vec_t x, vec_t y, vec_t z)
+{
+	matrix_t        tmp, scale;
+
+	MatrixCopy(m, tmp);
+	MatrixSetupScale(scale, x, y, z);
+	MatrixMultiply(scale, tmp, m);
+}
+
+void MatrixFromAngles(matrix_t m, vec_t pitch, vec_t yaw, vec_t roll)
+{
+	static float    sr, sp, sy, cr, cp, cy;
+	
+	// static to help MS compiler fp bugs
+	sp = sin(DEG2RAD(pitch));
+	cp = cos(DEG2RAD(pitch));
+
+	sy = sin(DEG2RAD(yaw));
+	cy = cos(DEG2RAD(yaw));
+
+	sr = sin(DEG2RAD(roll));
+	cr = cos(DEG2RAD(roll));
+
+	m[ 0] = cp*cy;  m[ 4] = (sr*sp*cy+cr*-sy);      m[ 8] = (cr*sp*cy+-sr*-sy);     m[12] = 0;
+	m[ 1] = cp*sy;  m[ 5] = (sr*sp*sy+cr*cy);       m[ 9] = (cr*sp*sy+-sr*cy);      m[13] = 0;
+	m[ 2] = -sp;    m[ 6] = sr*cp;                  m[10] = cr*cp;                  m[14] = 0;
+	m[ 3] = 0;      m[ 7] = 0;                      m[11] = 0;                      m[15] = 1;
+}
+
+void MatrixFromVectorsFLU(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up)
+{
+	m[ 0] = forward[0];     m[ 4] = left[0];        m[ 8] = up[0];  m[12] = 0;
+	m[ 1] = forward[1];     m[ 5] = left[1];        m[ 9] = up[1];  m[13] = 0;
+	m[ 2] = forward[2];     m[ 6] = left[2];        m[10] = up[2];  m[14] = 0;
+	m[ 3] = 0;              m[ 7] = 0;              m[11] = 0;      m[15] = 1;
+}
+
+void MatrixFromVectorsFRU(matrix_t m, const vec3_t forward, const vec3_t right, const vec3_t up)
+{
+    m[ 0] = forward[0];     m[ 4] =-right[0];       m[ 8] = up[0];  m[12] = 0;
+	m[ 1] = forward[1];     m[ 5] =-right[1];       m[ 9] = up[1];  m[13] = 0;
+	m[ 2] = forward[2];     m[ 6] =-right[2];       m[10] = up[2];  m[14] = 0;
+	m[ 3] = 0;              m[ 7] = 0;              m[11] = 0;      m[15] = 1;
+}
+
+void MatrixToVectorsFLU(const matrix_t m, vec3_t forward, vec3_t left, vec3_t up)
+{
+	forward[0] = m[ 0];     // cp*cy;
+	forward[1] = m[ 1];     // cp*sy;
+	forward[2] = m[ 2];     //-sp;
+
+	left[0] = m[ 4];        // sr*sp*cy+cr*-sy;
+	left[1] = m[ 5];        // sr*sp*sy+cr*cy;
+	left[2] = m[ 6];        // sr*cp;
+	
+	up[0] = m[ 8];  // cr*sp*cy+-sr*-sy;
+	up[1] = m[ 9];  // cr*sp*sy+-sr*cy;
+	up[2] = m[10];  // cr*cp;
+}
+
+void MatrixToVectorsFRU(const matrix_t m, vec3_t forward, vec3_t right, vec3_t up)
+{
+	forward[0] = m[ 0];
+	forward[1] = m[ 1];
+	forward[2] = m[ 2];
+	
+	right[0] =-m[ 4];
+	right[1] =-m[ 5];
+	right[2] =-m[ 6];
+
+	up[0] = m[ 8];
+	up[1] = m[ 9];
+	up[2] = m[10];
+}
+
+void MatrixSetupTransform(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up, const vec3_t origin)
+{
+	m[ 0] = forward[0];     m[ 4] = left[0];        m[ 8] = up[0];  m[12] = origin[0];
+	m[ 1] = forward[1];     m[ 5] = left[1];        m[ 9] = up[1];  m[13] = origin[1];
+	m[ 2] = forward[2];     m[ 6] = left[2];        m[10] = up[2];  m[14] = origin[2];
+	m[ 3] = 0;              m[ 7] = 0;              m[11] = 0;      m[15] = 1;
+}
+
+void MatrixSetupTransformFromRotation(matrix_t m, const matrix_t rot, const vec3_t origin)
+{
+	m[ 0] = rot[ 0];     m[ 4] = rot[ 4];        m[ 8] = rot[ 8];  m[12] = origin[0];
+	m[ 1] = rot[ 1];     m[ 5] = rot[ 5];        m[ 9] = rot[ 9];  m[13] = origin[1];
+	m[ 2] = rot[ 2];     m[ 6] = rot[ 6];        m[10] = rot[10];  m[14] = origin[2];
+	m[ 3] = 0;           m[ 7] = 0;              m[11] = 0;        m[15] = 1;
+}
+
+void MatrixAffineInverse(const matrix_t in, matrix_t out)
+{
+	out[ 0] = in[ 0];       out[ 4] = in[ 1];       out[ 8] = in[ 2];
+	out[ 1] = in[ 4];       out[ 5] = in[ 5];       out[ 9] = in[ 6];
+	out[ 2] = in[ 8];       out[ 6] = in[ 9];       out[10] = in[10];
+	out[ 3] = 0;            out[ 7] = 0;            out[11] = 0;            out[15] = 1;
+	
+	out[12] = -( in[12] * out[ 0] + in[13] * out[ 4] + in[14] * out[ 8] );
+	out[13] = -( in[12] * out[ 1] + in[13] * out[ 5] + in[14] * out[ 9] );
+	out[14] = -( in[12] * out[ 2] + in[13] * out[ 6] + in[14] * out[10] );
+}
+
+void MatrixTransformNormal(const matrix_t m, const vec3_t in, vec3_t out)
+{
+	out[ 0] = m[ 0]*in[ 0] + m[ 4]*in[ 1] + m[ 8]*in[ 2];
+	out[ 1] = m[ 1]*in[ 0] + m[ 5]*in[ 1] + m[ 9]*in[ 2];
+	out[ 2] = m[ 2]*in[ 0] + m[ 6]*in[ 1] + m[10]*in[ 2];
+}
+
+void MatrixTransformPoint(const matrix_t m, const vec3_t in, vec3_t out)
+{
+	out[ 0] = m[ 0]*in[ 0] + m[ 4]*in[ 1] + m[ 8]*in[ 2] + m[12];
+	out[ 1] = m[ 1]*in[ 0] + m[ 5]*in[ 1] + m[ 9]*in[ 2] + m[13];
+	out[ 2] = m[ 2]*in[ 0] + m[ 6]*in[ 1] + m[10]*in[ 2] + m[14];
+}
+
+// *INDENT-ON*
