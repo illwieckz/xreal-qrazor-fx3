@@ -231,16 +231,30 @@ void R_ImageList_f(void)
 				ri.Printf(PRINT_ALL, "???? ");
 		}
 
-		switch (image->wrapClampMode)
+		switch (image->wrapType)
 		{
-			case GL_REPEAT:
-				ri.Printf(PRINT_ALL, "rept ");
+			case WT_REPEAT:
+				ri.Printf(PRINT_ALL, "rept  ");
 				break;
-			case GL_CLAMP:
-				ri.Printf(PRINT_ALL, "clmp ");
+			
+			case WT_CLAMP:
+				ri.Printf(PRINT_ALL, "clmp  ");
 				break;
+				
+			case WT_EDGE_CLAMP:
+				ri.Printf(PRINT_ALL, "eclmp ");
+				break;
+				
+			case WT_ZERO_CLAMP:
+				ri.Printf(PRINT_ALL, "zclmp ");
+				break;
+			
+			case WT_ALPHA_ZERO_CLAMP:
+				ri.Printf(PRINT_ALL, "azclmp");
+				break;
+			
 			default:
-				ri.Printf(PRINT_ALL, "%4i ", image->wrapClampMode);
+				ri.Printf(PRINT_ALL, "%4i  ", image->wrapType);
 				break;
 		}
 
@@ -885,12 +899,14 @@ This is the only way any image_t are created
 ================
 */
 image_t *R_CreateImage(const char *name, const byte * pic, int width, int height,
-							  qboolean mipmap, qboolean allowPicmip, int glWrapClampMode,
+							  qboolean mipmap, qboolean allowPicmip, wrapType_t wrapType,
 							  qboolean normalmap)
 {
 	image_t *       image;
 	qboolean        isLightmap = qfalse;
 	long            hash;
+	vec4_t			zeroClampBorder = {0, 0, 0, 1};
+	vec4_t			alphaZeroClampBorder = {0, 0, 0, 0};
 
 	if(strlen(name) >= MAX_QPATH)
 	{
@@ -917,7 +933,7 @@ image_t *R_CreateImage(const char *name, const byte * pic, int width, int height
 
 	image->width = width;
 	image->height = height;
-	image->wrapClampMode = glWrapClampMode;
+	image->wrapType = wrapType;
 
 	// lightmaps are always allocated on TMU 1
 	if(qglActiveTextureARB && isLightmap)
@@ -942,8 +958,41 @@ image_t *R_CreateImage(const char *name, const byte * pic, int width, int height
 			 isLightmap,
 			 normalmap, &image->internalFormat, &image->uploadWidth, &image->uploadHeight);
 
-	qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapClampMode);
-	qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapClampMode);
+	switch (wrapType)
+	{
+		case WT_REPEAT:
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			break;
+			
+		case WT_CLAMP:
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+			break;
+			
+		case WT_EDGE_CLAMP:
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			break;
+			
+		case WT_ZERO_CLAMP:
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+			qglTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, zeroClampBorder);
+			break;
+			
+		case WT_ALPHA_ZERO_CLAMP:
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+			qglTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, alphaZeroClampBorder);
+			break;
+			
+		default:
+			ri.Printf(PRINT_WARNING, "WARNING: unknown wrap type for image '%s'\n", name);
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			break;
+	};
 
 	qglBindTexture(GL_TEXTURE_2D, 0);
 
@@ -2080,8 +2129,7 @@ Finds or loads the given image.
 Returns NULL if it fails, not a default image.
 ==============
 */
-image_t        *R_FindImageFile(const char *name, qboolean mipmap, qboolean allowPicmip,
-								int glWrapClampMode, qboolean normalmap)
+image_t        *R_FindImageFile(const char *name, qboolean mipmap, qboolean allowPicmip, wrapType_t wrapType, qboolean normalmap)
 {
 	image_t        *image;
 	int             width, height;
@@ -2116,10 +2164,9 @@ image_t        *R_FindImageFile(const char *name, qboolean mipmap, qboolean allo
 					ri.Printf(PRINT_DEVELOPER,
 							  "WARNING: reused image %s with mixed allowPicmip parm\n", name);
 				}
-				if(image->wrapClampMode != glWrapClampMode)
+				if(image->wrapType != wrapType)
 				{
-					ri.Printf(PRINT_ALL,
-							  "WARNING: reused image %s with mixed glWrapClampMode parm\n", name);
+					ri.Printf(PRINT_ALL, "WARNING: reused image %s with mixed glWrapType parm\n", name);
 				}
 			}
 			return image;
@@ -2146,7 +2193,7 @@ image_t        *R_FindImageFile(const char *name, qboolean mipmap, qboolean allo
 		}
 	}
 
-	image =	R_CreateImage((char *)name, pic, width, height, mipmap, allowPicmip, glWrapClampMode, normalmap);
+	image =	R_CreateImage((char *)name, pic, width, height, mipmap, allowPicmip, wrapType, normalmap);
 	ri.Free(pic);
 	return image;
 }
@@ -2187,7 +2234,7 @@ static void R_CreateDlightImage(void)
 			data[y][x][3] = 255;
 		}
 	}
-	tr.dlightImage = R_CreateImage("_dlight", (byte *) data, DLIGHT_SIZE, DLIGHT_SIZE, qfalse, qfalse, GL_CLAMP, qfalse);
+	tr.dlightImage = R_CreateImage("_dlight", (byte *) data, DLIGHT_SIZE, DLIGHT_SIZE, qfalse, qfalse, WT_CLAMP, qfalse);
 }
 
 
@@ -2288,7 +2335,7 @@ static void R_CreateFogImage(void)
 	// standard openGL clamping doesn't really do what we want -- it includes
 	// the border color at the edges.  OpenGL 1.2 has clamp-to-edge, which does
 	// what we want.
-	tr.fogImage = R_CreateImage("_fog", (byte *) data, FOG_S, FOG_T, qfalse, qfalse, GL_CLAMP, qfalse);
+	tr.fogImage = R_CreateImage("_fog", (byte *) data, FOG_S, FOG_T, qfalse, qfalse, WT_CLAMP, qfalse);
 	ri.Hunk_FreeTempMemory(data);
 
 	borderColor[0] = 1.0;
@@ -2335,7 +2382,7 @@ static void R_CreateDefaultImage(void)
 		data[x][DEFAULT_SIZE - 1][2] =
 		data[x][DEFAULT_SIZE - 1][3] = 255;
 	}
-	tr.defaultImage = R_CreateImage("_default", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, qtrue, qfalse, GL_REPEAT, qfalse);
+	tr.defaultImage = R_CreateImage("_default", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, qtrue, qfalse, WT_REPEAT, qfalse);
 }
 
 
@@ -2353,11 +2400,11 @@ void R_CreateBuiltinImages(void)
 
 	// we use a solid white image instead of disabling texturing
 	Com_Memset(data, 255, sizeof(data));
-	tr.whiteImage = R_CreateImage("_white", (byte *) data, 8, 8, qfalse, qfalse, GL_REPEAT, qfalse);
+	tr.whiteImage = R_CreateImage("_white", (byte *) data, 8, 8, qfalse, qfalse, WT_REPEAT, qfalse);
 
 	// we use a solid black image instead of disabling texturing
 	Com_Memset(data, 0, sizeof(data));
-	tr.blackImage = R_CreateImage("_black", (byte *) data, 8, 8, qfalse, qfalse, GL_REPEAT, qfalse);
+	tr.blackImage = R_CreateImage("_black", (byte *) data, 8, 8, qfalse, qfalse, WT_REPEAT, qfalse);
 
 	// generate a default normalmap with a zero heightmap
 	for(x = 0; x < DEFAULT_SIZE; x++)
@@ -2368,7 +2415,7 @@ void R_CreateBuiltinImages(void)
 			data[y][x][3] = 0;
 		}
 	}
-	tr.flatImage = R_CreateImage("_flat", (byte *) data, 8, 8, qfalse, qfalse, GL_REPEAT, qtrue);
+	tr.flatImage = R_CreateImage("_flat", (byte *) data, 8, 8, qfalse, qfalse, WT_REPEAT, qtrue);
 
 	// with overbright bits active, we need an image which is some fraction of full color,
 	// for default lightmaps, etc
@@ -2381,13 +2428,13 @@ void R_CreateBuiltinImages(void)
 		}
 	}
 
-	tr.identityLightImage = R_CreateImage("_identityLight", (byte *) data, 8, 8, qfalse, qfalse, GL_REPEAT, qfalse);
+	tr.identityLightImage = R_CreateImage("_identityLight", (byte *) data, 8, 8, qfalse, qfalse, WT_REPEAT, qfalse);
 
 
 	for(x = 0; x < 32; x++)
 	{
 		// scratchimage is usually used for cinematic drawing
-		tr.scratchImage[x] =R_CreateImage("_scratch", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, qfalse, qtrue, GL_CLAMP, qfalse);
+		tr.scratchImage[x] = R_CreateImage("_scratch", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, qfalse, qtrue, WT_CLAMP, qfalse);
 	}
 
 	R_CreateDlightImage();

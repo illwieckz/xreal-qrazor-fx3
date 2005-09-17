@@ -233,9 +233,7 @@ void GL_State(unsigned long stateBits)
 		return;
 	}
 
-	//
 	// check depthFunc bits
-	//
 	if(diff & GLS_DEPTHFUNC_EQUAL)
 	{
 		if(stateBits & GLS_DEPTHFUNC_EQUAL)
@@ -248,9 +246,7 @@ void GL_State(unsigned long stateBits)
 		}
 	}
 
-	//
 	// check blend bits
-	//
 	if(diff & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS))
 	{
 		GLenum          srcFactor, dstFactor;
@@ -332,10 +328,25 @@ void GL_State(unsigned long stateBits)
 			qglDisable(GL_BLEND);
 		}
 	}
+	
+	// check colormask
+	if(diff & GLS_COLORMASK_BITS)
+	{
+		if(stateBits & GLS_COLORMASK_BITS)
+		{
+			qglColorMask(
+				(stateBits & GLS_REDMASK_FALSE) ? GL_FALSE : GL_TRUE,
+				(stateBits & GLS_GREENMASK_FALSE) ? GL_FALSE : GL_TRUE,
+				(stateBits & GLS_BLUEMASK_FALSE) ? GL_FALSE : GL_TRUE,
+				(stateBits & GLS_ALPHAMASK_FALSE) ? GL_FALSE : GL_TRUE);
+		}
+		else
+		{
+			qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		}
+	}
 
-	//
 	// check depthmask
-	//
 	if(diff & GLS_DEPTHMASK_TRUE)
 	{
 		if(stateBits & GLS_DEPTHMASK_TRUE)
@@ -348,9 +359,7 @@ void GL_State(unsigned long stateBits)
 		}
 	}
 
-	//
 	// fill/line mode
-	//
 	if(diff & GLS_POLYMODE_LINE)
 	{
 		if(stateBits & GLS_POLYMODE_LINE)
@@ -363,9 +372,7 @@ void GL_State(unsigned long stateBits)
 		}
 	}
 
-	//
 	// depthtest
-	//
 	if(diff & GLS_DEPTHTEST_DISABLE)
 	{
 		if(stateBits & GLS_DEPTHTEST_DISABLE)
@@ -378,9 +385,7 @@ void GL_State(unsigned long stateBits)
 		}
 	}
 
-	//
 	// alpha test
-	//
 	if(diff & GLS_ATEST_BITS)
 	{
 		switch (stateBits & GLS_ATEST_BITS)
@@ -463,7 +468,8 @@ to actually render the visible surfaces for this view
 */
 void RB_BeginDrawingView(void)
 {
-	int             clearBits = 0;
+	int             	clearBits = 0;
+	extern const float	s_flipMatrix[16];
 
 	// sync with gl if needed
 	if(r_finish->integer == 1 && !glState.finishCalled)
@@ -485,6 +491,7 @@ void RB_BeginDrawingView(void)
 
 	// ensures that depth writes are enabled for the depth clear
 	GL_State(GLS_DEFAULT);
+	
 	// clear relevant buffers
 	clearBits = GL_DEPTH_BUFFER_BIT;
 
@@ -534,7 +541,7 @@ void RB_BeginDrawingView(void)
 		plane2[2] = DotProduct(backEnd.viewParms.or.axis[2], plane);
 		plane2[3] = DotProduct(plane, backEnd.viewParms.or.origin) - plane[3];
 
-		qglLoadIdentity();
+		qglLoadMatrixf(s_flipMatrix);
 		qglClipPlane(GL_CLIP_PLANE0, plane2);
 		qglEnable(GL_CLIP_PLANE0);
 	}

@@ -450,18 +450,24 @@ Sets up the modelview matrix for a given viewParm
 */
 void R_RotateForViewer(void)
 {
+	matrix_t		viewMatrix;
+	
 	Com_Memset(&tr.or, 0, sizeof(tr.or));
 	tr.or.axis[0][0] = 1;
 	tr.or.axis[1][1] = 1;
 	tr.or.axis[2][2] = 1;
 	VectorCopy(tr.viewParms.or.origin, tr.or.viewOrigin);
 
-	// transform by the camera placement    
+	// transform by the camera placement
 	MatrixSetupTransform(tr.or.transformMatrix,
 						 tr.viewParms.or.axis[0], tr.viewParms.or.axis[1], tr.viewParms.or.axis[2],
 						 tr.viewParms.or.origin);
 
-	MatrixAffineInverse(tr.or.transformMatrix, tr.or.viewMatrix);
+	MatrixAffineInverse(tr.or.transformMatrix, viewMatrix);
+	
+	// convert from our coordinate system (looking down X)
+	// to OpenGL's coordinate system (looking down -Z)
+	MatrixMultiply(s_flipMatrix, viewMatrix, tr.or.viewMatrix);
 	MatrixCopy(tr.or.viewMatrix, tr.or.modelViewMatrix);
 
 	tr.viewParms.world = tr.or;
@@ -484,9 +490,7 @@ static void SetFarClip(void)
 		return;
 	}
 
-	//
 	// set far clipping planes dynamically
-	//
 	farthestCornerDistance = 0;
 	for(i = 0; i < 8; i++)
 	{
@@ -545,14 +549,13 @@ void R_SetupProjection(void)
 	float           xmin, xmax, ymin, ymax;
 	float           width, height, depth;
 	float           zNear, zFar;
-	matrix_t        projectionMatrix;
+//	matrix_t        projectionMatrix;
+	float*			projectionMatrix = tr.viewParms.projectionMatrix;
 
 	// dynamically compute far clip plane distance
 	SetFarClip();
 
-	//
 	// set up projection matrix
-	//
 	zNear = r_znear->value;
 	zFar = tr.viewParms.zFar;
 
@@ -588,7 +591,7 @@ void R_SetupProjection(void)
 
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
-	MatrixMultiply(projectionMatrix, s_flipMatrix, tr.viewParms.projectionMatrix);
+//	MatrixMultiply(projectionMatrix, s_flipMatrix, tr.viewParms.projectionMatrix);
 }
 
 

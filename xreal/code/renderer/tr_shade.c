@@ -1458,9 +1458,7 @@ static void ComputeColors(shaderStage_t * pStage)
 {
 	int             i;
 
-	//
 	// rgbGen
-	//
 	switch (pStage->rgbGen)
 	{
 		case CGEN_IDENTITY:
@@ -1559,9 +1557,7 @@ static void ComputeColors(shaderStage_t * pStage)
 			break;
 	}
 
-	//
 	// alphaGen
-	//
 	switch (pStage->alphaGen)
 	{
 		case AGEN_SKIP:
@@ -1660,9 +1656,7 @@ static void ComputeColors(shaderStage_t * pStage)
 			break;
 	}
 
-	//
 	// fog adjustment for colors to fade out as fog increases
-	//
 	if(tess.fogNum)
 	{
 		switch (pStage->adjustColorsForFog)
@@ -1761,38 +1755,55 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 					break;
 
 				case TMOD_TURBULENT:
-					RB_CalcTurbulentTexCoords(&pStage->bundle[b].texMods[tm].wave,
-											  (float *)tess.svars.texCoords[b]);
+					RB_CalcTurbulentTexCoords(&pStage->bundle[b].texMods[tm].wave, (float *)tess.svars.texCoords[b]);
 					break;
 
 				case TMOD_ENTITY_TRANSLATE:
-					RB_CalcScrollTexCoords(backEnd.currentEntity->e.shaderTexCoord,
-										   (float *)tess.svars.texCoords[b]);
+					RB_CalcScrollTexCoords(backEnd.currentEntity->e.shaderTexCoord, (float *)tess.svars.texCoords[b]);
 					break;
 
 				case TMOD_SCROLL:
-					RB_CalcScrollTexCoords(pStage->bundle[b].texMods[tm].scroll,
-										   (float *)tess.svars.texCoords[b]);
+					RB_CalcScrollTexCoords(pStage->bundle[b].texMods[tm].scroll, (float *)tess.svars.texCoords[b]);
 					break;
-
+					
 				case TMOD_SCALE:
-					RB_CalcScaleTexCoords(pStage->bundle[b].texMods[tm].scale,
-										  (float *)tess.svars.texCoords[b]);
+					RB_CalcScaleTexCoords(pStage->bundle[b].texMods[tm].scale, (float *)tess.svars.texCoords[b]);
 					break;
 
 				case TMOD_STRETCH:
-					RB_CalcStretchTexCoords(&pStage->bundle[b].texMods[tm].wave,
-											(float *)tess.svars.texCoords[b]);
+					RB_CalcStretchTexCoords(&pStage->bundle[b].texMods[tm].wave, (float *)tess.svars.texCoords[b]);
 					break;
 
 				case TMOD_TRANSFORM:
-					RB_CalcTransformTexCoords(&pStage->bundle[b].texMods[tm],
-											  (float *)tess.svars.texCoords[b]);
+					RB_CalcTransformTexCoords(&pStage->bundle[b].texMods[tm], (float *)tess.svars.texCoords[b]);
 					break;
 
 				case TMOD_ROTATE:
-					RB_CalcRotateTexCoords(pStage->bundle[b].texMods[tm].rotateSpeed,
-										   (float *)tess.svars.texCoords[b]);
+					RB_CalcRotateTexCoords(pStage->bundle[b].texMods[tm].rotateSpeed, (float *)tess.svars.texCoords[b]);
+					break;
+					
+				case TMOD_SCROLL2:
+					// TODO
+					break;
+					
+				case TMOD_TRANSLATE:
+					// TODO
+					break;
+					
+				case TMOD_SCALE2:
+					// TODO
+					break;
+					
+				case TMOD_CENTERSCALE:
+					// TODO
+					break;
+					
+				case TMOD_SHEAR:
+					// TODO
+					break;
+					
+				case TMOD_ROTATE2:
+					// TODO
 					break;
 
 				default:

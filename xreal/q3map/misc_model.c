@@ -506,8 +506,7 @@ void InsertLWOModel(const char *modelName, const matrix_t transform, tree_t * tr
 	layer = &obj->layer[0];
 
 	// each LWO surface from the first layer will become a new bsp surface
-	surf = obj->surf;
-	for(i = 0; i < obj->nsurfs; i++)
+	for(i = 0, surf = obj->surf; i < obj->nsurfs; i++, surf = surf->next)
 	{
 		// allocate a surface
 		out = AllocDrawSurf();
@@ -639,8 +638,6 @@ void InsertLWOModel(const char *modelName, const matrix_t transform, tree_t * tr
 				outv->color[3] = 255;
 			}
 		}
-
-		surf = surf->next;
 	}
 
 	lwFreeObject(obj);

@@ -205,7 +205,7 @@ static void R_LoadLightmaps(lump_t * l)
 				image[j * 4 + 3] = 255;
 			}
 		}
-		tr.lightmaps[i] = R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, qfalse, qfalse, GL_CLAMP, qfalse);
+		tr.lightmaps[i] = R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, qfalse, qfalse, WT_CLAMP, qfalse);
 	}
 
 	if(r_showLightMaps->integer == 2)

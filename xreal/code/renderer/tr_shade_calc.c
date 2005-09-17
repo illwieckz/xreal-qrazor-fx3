@@ -597,27 +597,39 @@ void RB_DeformTessGeometry(void)
 		{
 			case DEFORM_NONE:
 				break;
+				
 			case DEFORM_NORMALS:
 				RB_CalcDeformNormals(ds);
 				break;
+				
 			case DEFORM_WAVE:
 				RB_CalcDeformVertexes(ds);
 				break;
+				
 			case DEFORM_BULGE:
 				RB_CalcBulgeVertexes(ds);
 				break;
+				
 			case DEFORM_MOVE:
 				RB_CalcMoveVertexes(ds);
 				break;
+				
 			case DEFORM_PROJECTION_SHADOW:
 				RB_ProjectionShadowDeform();
 				break;
+				
 			case DEFORM_AUTOSPRITE:
 				AutospriteDeform();
 				break;
+				
 			case DEFORM_AUTOSPRITE2:
 				Autosprite2Deform();
 				break;
+				
+			case DEFORM_SPRITE:
+				// TODO
+				break;
+				
 			case DEFORM_TEXT0:
 			case DEFORM_TEXT1:
 			case DEFORM_TEXT2:
@@ -965,23 +977,22 @@ void RB_CalcFogTexCoords(float *st)
 	fog_t          *fog;
 	vec3_t          local;
 	vec4_t          fogDistanceVector, fogDepthVector;
-	matrix_t        modelViewMatrix;
-	extern float    s_flipMatrix[16];
+//	matrix_t        modelViewMatrix;
+//	extern float    s_flipMatrix[16];
 
 	fog = tr.world->fogs + tess.fogNum;
 
 	// all fogging distance is based on world Z units
 	VectorSubtract(backEnd.or.origin, backEnd.viewParms.or.origin, local);
 
-	// Tr3B - FIXME replace fog
-	MatrixMultiply(s_flipMatrix, backEnd.or.modelViewMatrix, modelViewMatrix);
-	fogDistanceVector[0] = -modelViewMatrix[2];
-	fogDistanceVector[1] = -modelViewMatrix[6];
-	fogDistanceVector[2] = -modelViewMatrix[10];
-
-//  fogDistanceVector[0] =-backEnd.or.modelViewMatrix[ 8];
-//  fogDistanceVector[1] =-backEnd.or.modelViewMatrix[ 9];
-//  fogDistanceVector[2] =-backEnd.or.modelViewMatrix[10];
+//	MatrixMultiply(s_flipMatrix, backEnd.or.modelViewMatrix, modelViewMatrix);
+//	fogDistanceVector[0] = -modelViewMatrix[2];
+//	fogDistanceVector[1] = -modelViewMatrix[6];
+//	fogDistanceVector[2] = -modelViewMatrix[10];
+	
+	fogDistanceVector[0] =-backEnd.or.modelViewMatrix[ 2];
+	fogDistanceVector[1] =-backEnd.or.modelViewMatrix[ 6];
+	fogDistanceVector[2] =-backEnd.or.modelViewMatrix[10];
 
 	fogDistanceVector[3] = DotProduct(local, backEnd.viewParms.or.axis[0]);
 

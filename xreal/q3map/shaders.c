@@ -638,6 +638,13 @@ static void ParseShaderFile(const char *filename)
 				si->forceOpaque = qtrue;
 				continue;
 			}
+			
+			// forceSolid will override clearSolid
+			if(!Q_stricmp(token, "forceSolid") || !Q_stricmp(token, "solid"))
+			{
+				si->forceSolid = qtrue;
+				continue;
+			}
 
 			// deformVertexes autosprite[2]
 			// we catch this so autosprited surfaces become point
@@ -650,6 +657,27 @@ static void ParseShaderFile(const char *filename)
 					si->autosprite = qtrue;
 					si->contents = CONTENTS_DETAIL;
 				}
+				continue;
+			}
+			
+			// deform sprite
+			// we catch this so autosprited surfaces become point
+			// lights instead of area lights
+			if(!Q_stricmp(token, "deform"))
+			{
+				GetToken(qfalse);
+				if(!Q_stricmp(token, "sprite"))
+				{
+					si->autosprite = qtrue;
+					si->contents = CONTENTS_DETAIL;
+				}
+				continue;
+			}
+			
+			// noFragment
+			if(!Q_stricmp(token, "noFragment") || !Q_stricmp(token, "q3map_noFragment"))
+			{
+				si->noFragment = qtrue;
 				continue;
 			}
 			
@@ -670,7 +698,8 @@ static void ParseShaderFile(const char *filename)
 					{
 						si->surfaceFlags |= infoParms[i].surfaceFlags;
 						si->contents |= infoParms[i].contents;
-						if(infoParms[i].clearSolid)
+						
+						if(infoParms[i].clearSolid && !si->forceSolid)
 						{
 							si->contents &= ~CONTENTS_SOLID;
 						}

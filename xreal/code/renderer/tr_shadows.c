@@ -230,7 +230,6 @@ void RB_ShadowTessEnd(void)
 	}
 
 	// draw the silhouette edges
-
 	GL_Bind(tr.whiteImage);
 	qglEnable(GL_CULL_FACE);
 	GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO);
@@ -267,7 +266,6 @@ void RB_ShadowTessEnd(void)
 
 		R_RenderShadowEdges();
 	}
-
 
 	// reenable writing to the color buffer
 	qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);

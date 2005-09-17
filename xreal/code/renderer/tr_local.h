@@ -102,6 +102,15 @@ typedef struct
 	matrix_t        modelViewMatrix;	// only used by models, camera viewMatrix * transformMatrix
 } orientationr_t;
 
+typedef enum
+{
+	WT_REPEAT,
+	WT_CLAMP,					// don't repeat the texture for texture coords outside [0, 1]
+	WT_EDGE_CLAMP,
+	WT_ZERO_CLAMP,				// guarantee 0,0,0,255 edge for projected textures
+	WT_ALPHA_ZERO_CLAMP			// guarante 0 alpha edge for projected textures
+} wrapType_t;
+
 typedef struct image_s
 {
 	char            imgName[MAX_QPATH];	// game path, including extension
@@ -116,7 +125,7 @@ typedef struct image_s
 
 	qboolean        mipmap;
 	qboolean        allowPicmip;
-	int             wrapClampMode;	// GL_CLAMP or GL_REPEAT
+	int             wrapType;	// GL_CLAMP or GL_REPEAT
 
 	struct image_s *next;
 } image_t;
@@ -138,6 +147,11 @@ typedef enum
 	SS_FOG,
 
 	SS_UNDERWATER,				// for items that should be drawn in front of the water plane
+	SS_WATER,
+	
+	SS_FAR,
+	SS_MEDIUM,
+	SS_CLOSE,
 
 	SS_BLEND0,					// regular transparency and filters
 	SS_BLEND1,					// generally only used for additive type effects
@@ -148,7 +162,8 @@ typedef enum
 	SS_STENCIL_SHADOW,
 	SS_ALMOST_NEAREST,			// gun smoke puffs
 
-	SS_NEAREST					// blood blobs
+	SS_NEAREST,					// blood blobs
+	SS_POST_PROCESS
 } shaderSort_t;
 
 typedef struct shaderTable_s
@@ -190,6 +205,7 @@ typedef enum
 	DEFORM_PROJECTION_SHADOW,
 	DEFORM_AUTOSPRITE,
 	DEFORM_AUTOSPRITE2,
+	DEFORM_SPRITE,
 	DEFORM_TEXT0,
 	DEFORM_TEXT1,
 	DEFORM_TEXT2,
@@ -313,7 +329,14 @@ typedef enum
 	TMOD_SCALE,
 	TMOD_STRETCH,
 	TMOD_ROTATE,
-	TMOD_ENTITY_TRANSLATE
+	TMOD_ENTITY_TRANSLATE,
+	
+	TMOD_SCROLL2,
+	TMOD_TRANSLATE,
+	TMOD_SCALE2,
+	TMOD_CENTERSCALE,
+	TMOD_SHEAR,
+	TMOD_ROTATE2
 } texMod_t;
 
 #define	MAX_SHADER_DEFORMS	3
@@ -344,17 +367,19 @@ typedef struct
 	// used for TMOD_SCALE
 	float           scale[2];	// s *= scale[0]
 								// t *= scale[1]
-	
-	expression_t	scaleSExp;
-	expression_t	scaleTExp;
 
 	// used for TMOD_SCROLL
 	float           scroll[2];	// s' = s + scroll[0] * time
-	// t' = t + scroll[1] * time
+								// t' = t + scroll[1] * time
 
 	// + = clockwise
 	// - = counterclockwise
 	float           rotateSpeed;
+	
+	// used by everything else
+	expression_t	sExp;
+	expression_t	tExp;
+	expression_t	rExp;
 
 } texModInfo_t;
 
@@ -456,6 +481,18 @@ typedef struct
 	acff_t          adjustColorsForFog;
 
 	qboolean        isDetail;
+	
+	qboolean        overrideNoMipMaps;	// for console fonts, 2D elements, etc.
+	qboolean        overrideNoPicMip;	// for images that must always be full resolution
+	qboolean		overrideWrapType;
+	wrapType_t		wrapType;
+	
+	qboolean		uncompressed;
+	qboolean		highQuality;
+	qboolean		forceHighQuality;
+	
+	qboolean        privatePolygonOffset;	// set for decals and other items that must be offset 
+	float			privatePolygonOffsetValue;
 } shaderStage_t;
 
 struct shaderCommands_s;
@@ -528,10 +565,16 @@ typedef struct shader_s
 	cullType_t      cullType;	// CT_FRONT_SIDED, CT_BACK_SIDED, or CT_TWO_SIDED
 	qboolean        polygonOffset;	// set for decals and other items that must be offset 
 	float			polygonOffsetValue;
+	
 	qboolean        noMipMaps;	// for console fonts, 2D elements, etc.
 	qboolean        noPicMip;	// for images that must always be full resolution
-	qboolean		clamp;		// don't repeat the texture for texture coords outside [0, 1]
+	wrapType_t		wrapType;
+	
 	fogPass_t       fogPass;	// draw a blended pass, possibly with depth test equals
+	
+	// spectrums are used for "invisible writing" that can only be illuminated by a light of matching spectrum
+	qboolean		spectrum;	
+	int				spectrumValue;
 
 	qboolean        needsTangent;	// not all shaders will need all data to be gathered
 	qboolean        needsBinormal;
@@ -1380,6 +1423,7 @@ void            GL_State(unsigned long stateVector);
 void            GL_TexEnv(int env);
 void            GL_Cull(int cullType);
 
+/*
 #define GLS_SRCBLEND_ZERO						0x00000001
 #define GLS_SRCBLEND_ONE						0x00000002
 #define GLS_SRCBLEND_DST_COLOR					0x00000003
@@ -1415,7 +1459,79 @@ void            GL_Cull(int cullType);
 #define		GLS_ATEST_BITS						0x70000000
 
 #define GLS_DEFAULT			GLS_DEPTHMASK_TRUE
+*/
 
+// *INDENT-OFF*
+enum
+{
+	GLS_SRCBLEND_ZERO					= (1 << 0),
+	GLS_SRCBLEND_ONE					= (1 << 1),
+	GLS_SRCBLEND_DST_COLOR				= (1 << 2),
+	GLS_SRCBLEND_ONE_MINUS_DST_COLOR	= (1 << 3),
+	GLS_SRCBLEND_SRC_ALPHA				= (1 << 4),
+	GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA	= (1 << 5),
+	GLS_SRCBLEND_DST_ALPHA				= (1 << 6),
+	GLS_SRCBLEND_ONE_MINUS_DST_ALPHA	= (1 << 7),
+	GLS_SRCBLEND_ALPHA_SATURATE			= (1 << 8),
+	
+	GLS_SRCBLEND_BITS					= GLS_SRCBLEND_ZERO
+											| GLS_SRCBLEND_ONE
+											| GLS_SRCBLEND_DST_COLOR
+											| GLS_SRCBLEND_ONE_MINUS_DST_COLOR
+											| GLS_SRCBLEND_SRC_ALPHA
+											| GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA
+											| GLS_SRCBLEND_DST_ALPHA
+											| GLS_SRCBLEND_ONE_MINUS_DST_ALPHA
+											| GLS_SRCBLEND_ALPHA_SATURATE,
+	
+	GLS_DSTBLEND_ZERO					= (1 << 9),
+	GLS_DSTBLEND_ONE					= (1 << 10),
+	GLS_DSTBLEND_SRC_COLOR				= (1 << 11),
+	GLS_DSTBLEND_ONE_MINUS_SRC_COLOR	= (1 << 12),
+	GLS_DSTBLEND_SRC_ALPHA				= (1 << 13),
+	GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA	= (1 << 14),
+	GLS_DSTBLEND_DST_ALPHA				= (1 << 15),
+	GLS_DSTBLEND_ONE_MINUS_DST_ALPHA	= (1 << 16),
+	
+	GLS_DSTBLEND_BITS					= GLS_DSTBLEND_ZERO
+											| GLS_DSTBLEND_ONE
+											| GLS_DSTBLEND_SRC_COLOR
+											| GLS_DSTBLEND_ONE_MINUS_SRC_COLOR
+											| GLS_DSTBLEND_SRC_ALPHA
+											| GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA
+											| GLS_DSTBLEND_DST_ALPHA
+											| GLS_DSTBLEND_ONE_MINUS_DST_ALPHA,
+
+	GLS_DEPTHMASK_TRUE					= (1 << 17),
+
+	GLS_POLYMODE_LINE					= (1 << 18),
+
+	GLS_DEPTHTEST_DISABLE				= (1 << 19),
+	GLS_DEPTHFUNC_EQUAL					= (1 << 20),
+
+	GLS_ATEST_GT_0						= (1 << 21),
+	GLS_ATEST_LT_80						= (1 << 22),
+	GLS_ATEST_GE_80						= (1 << 23),
+	GLS_ATEST_GT_CUSTOM					= (1 << 24),
+
+	GLS_ATEST_BITS						= GLS_ATEST_GT_0
+											| GLS_ATEST_LT_80
+											| GLS_ATEST_GE_80
+											| GLS_ATEST_GT_CUSTOM,
+	
+	GLS_REDMASK_FALSE					= (1 << 25),
+	GLS_GREENMASK_FALSE					= (1 << 26),
+	GLS_BLUEMASK_FALSE					= (1 << 27),
+	GLS_ALPHAMASK_FALSE					= (1 << 28),
+	
+	GLS_COLORMASK_BITS					= GLS_REDMASK_FALSE
+											| GLS_GREENMASK_FALSE
+											| GLS_BLUEMASK_FALSE
+											| GLS_ALPHAMASK_FALSE,
+	
+	GLS_DEFAULT							= GLS_DEPTHMASK_TRUE
+};
+// *INDENT-ON*
 
 enum
 {
@@ -1453,11 +1569,10 @@ qboolean        R_GetEntityToken(char *buffer, int size);
 model_t        *R_AllocModel(void);
 
 void            R_Init(void);
-image_t        *R_FindImageFile(const char *name, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode,
-								qboolean normalmap);
+image_t        *R_FindImageFile(const char *name, qboolean mipmap, qboolean allowPicmip, wrapType_t wrapType, qboolean normalmap);
 
 image_t        *R_CreateImage(const char *name, const byte * pic, int width, int height, qboolean mipmap,
-							  qboolean allowPicmip, int wrapClampMode, qboolean normalmap);
+							  qboolean allowPicmip, wrapType_t wrapType, qboolean normalmap);
 qboolean        R_GetModeInfo(int *width, int *height, float *windowAspect, int mode);
 
 void            R_SetColorMappings(void);
