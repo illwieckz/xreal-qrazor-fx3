@@ -437,11 +437,28 @@ textures/common/mirror
 {
 	discrete		// never merge with other surfaces
 	qer_editorimage textures/common/qer_mirror_editor.tga
+	
 	solid
 	mirror
+	nolightmap
+	
 	{
 		blend add
 		map textures/common/qer_mirror.tga
+	}
+}
+
+textures/common/mirror1
+{
+	qer_editorimage textures/common/qer_mirror.tga
+	
+	nolightmap
+	portal
+  
+	{
+		map textures/common/mirror1.tga
+		blendfunc GL_ONE GL_ONE_MINUS_SRC_ALPHA
+		depthWrite
 	}
 }
 
