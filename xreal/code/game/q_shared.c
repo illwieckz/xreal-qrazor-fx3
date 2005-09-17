@@ -602,49 +602,6 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 		return com_token;
 	}
 
-#if 0
-	// check for character punctuation
-	if(*data == '\n' ||
-	   *data == '{' ||
-	   *data == '}' ||
-	   *data == ')' ||
-	   *data == '(' || *data == ']' || *data == '[' || *data == '\'' || *data == ':' || *data == ',' || *data == ';')
-	{
-		// single character punctuation
-		com_token[0] = *data;
-		com_token[1] = 0;
-		data++;
-		*data_p = (char *)data;
-		return com_token;
-	}
-
-	// parse a regular word
-	do
-	{
-		if(len < MAX_TOKEN_CHARS)
-		{
-			com_token[len] = c;
-			len++;
-		}
-		data++;
-
-		c = *data;
-
-		if(c == '\n')
-			com_lines++;
-
-	} while(c > 32);
-
-	if(len == MAX_TOKEN_CHARS)
-	{
-//      Com_Printf ("Token exceeded %i chars, discarded.\n", MAX_TOKEN_CHARS);
-		len = 0;
-	}
-	com_token[len] = 0;
-
-	*data_p = (char *)data;
-	return com_token;
-#else
 	// check for a regular word
 	// we still allow forward and back slashes in name tokens for pathnames
 	// and also colons for drive letters
@@ -708,7 +665,6 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 	*data_p = (char *)data;
 
 	return com_token;
-#endif
 }
 
 
