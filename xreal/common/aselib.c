@@ -527,11 +527,17 @@ static void ASE_KeyMESH_VERTEX_LIST(const char *token)
 	{
 		ASE_GetToken(qfalse);	// skip number
 
+		// NOTE: Tr3B - the old way is incompatible with models made for Doom3
+		// old: +y -x +z
+		// new: +x +y +z
+		
 		ASE_GetToken(qfalse);
-		pMesh->vertexes[pMesh->currentVertex].y = atof(s_token);
+//		pMesh->vertexes[pMesh->currentVertex].y = atof(s_token);
+		pMesh->vertexes[pMesh->currentVertex].x = atof(s_token);
 
 		ASE_GetToken(qfalse);
-		pMesh->vertexes[pMesh->currentVertex].x = -atof(s_token);
+//		pMesh->vertexes[pMesh->currentVertex].x =-atof(s_token);
+		pMesh->vertexes[pMesh->currentVertex].y = atof(s_token);
 
 		ASE_GetToken(qfalse);
 		pMesh->vertexes[pMesh->currentVertex].z = atof(s_token);
@@ -904,7 +910,9 @@ static void ASE_Process(void)
 			ASE_SkipRestOfLine();
 		}
 		else if(!strcmp(s_token, "*SCENE"))
+		{
 			ASE_SkipEnclosingBraces();
+		}
 		else if(!strcmp(s_token, "*MATERIAL_LIST"))
 		{
 			VERBOSE(("MATERIAL_LIST\n"));
