@@ -282,8 +282,7 @@ If a larger shrinking is needed, use the mipmap function
 before or after.
 ================
 */
-static void ResampleTexture(unsigned *in, int inwidth, int inheight, unsigned *out,
-							int outwidth, int outheight)
+static void ResampleTexture(unsigned *in, int inwidth, int inheight, unsigned *out, int outwidth, int outheight)
 {
 	int             i, j;
 	unsigned       *inrow, *inrow2;
@@ -512,11 +511,11 @@ R_MipNormalMap
 Operates in place, quartering the size of the texture
 ================
 */
+// *INDENT-OFF*
 static void R_MipNormalMap(byte * in, int width, int height)
 {
 	int             i, j;
 	byte           *out;
-	int             row;
 	vec3_t          n;
 	vec_t           length;
 
@@ -528,39 +527,29 @@ static void R_MipNormalMap(byte * in, int width, int height)
 		return;
 	}
 
-	row = width * 4;
 	out = in;
-	width >>= 1;
+//	width >>= 1;
+	width <<= 2;
 	height >>= 1;
-
-	/*
-	   if ( width == 0 || height == 0 ) {
-	   width += height; // get largest
-	   for (i=0 ; i<width ; i++, out+=4, in+=8 ) {
-	   out[0] = ( in[0] + in[4] )>>1;
-	   out[1] = ( in[1] + in[5] )>>1;
-	   out[2] = ( in[2] + in[6] )>>1;
-	   out[3] = ( in[3] + in[7] )>>1;
-	   }
-	   return;
-	   }
-	 */
-
+	
 	for(i = 0; i < height; i++, in += width)
 	{
 		for(j = 0; j < width; j += 8, out += 4, in += 8)
 		{
-			n[0] = (inv127 * in[0] - 1.0) +
-				(inv127 * in[4] - 1.0) +
-				(inv127 * in[width + 0] - 1.0) + (inv127 * in[width + 4] - 1.0);
+			n[0] =	(inv127 * in[0] - 1.0) +
+					(inv127 * in[4] - 1.0) +
+					(inv127 * in[width + 0] - 1.0) +
+					(inv127 * in[width + 4] - 1.0);
 
-			n[1] = (inv127 * in[1] - 1.0) +
-				(inv127 * in[5] - 1.0) +
-				(inv127 * in[width + 1] - 1.0) + (inv127 * in[width + 5] - 1.0);
+			n[1] =	(inv127 * in[1] - 1.0) +
+					(inv127 * in[5] - 1.0) +
+					(inv127 * in[width + 1] - 1.0) +
+					(inv127 * in[width + 5] - 1.0);
 
-			n[2] = (inv127 * in[2] - 1.0) +
-				(inv127 * in[6] - 1.0) +
-				(inv127 * in[width + 2] - 1.0) + (inv127 * in[width + 6] - 1.0);
+			n[2] =	(inv127 * in[2] - 1.0) +
+					(inv127 * in[6] - 1.0) +
+					(inv127 * in[width + 2] - 1.0) +
+					(inv127 * in[width + 6] - 1.0);
 
 			/*
 			   g =  (inv255*in[3])+
@@ -590,8 +579,82 @@ static void R_MipNormalMap(byte * in, int width, int height)
 		}
 	}
 }
+// *INDENT-ON*
 
 
+static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale)
+{
+	int				x, y;
+	float			r, g, b;
+	float			c, cx, cy;
+//	float			dcx, dcy, sqlen, reciplen;
+	float			inv255 = 1.0 / 255.0;
+//	float           inv127 = 1.0 / 127.0;
+	vec3_t			n;
+	byte           *out;
+
+	if(!in)
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: R_HeightMapToNormalMap: NULL parameter\n");
+		return;
+	}
+	
+	out = in;
+	
+	for(y = 0; y < height; y++)
+	{
+		for(x = 0; x < width; x++)
+		{
+			// convert the pixel at x, y in the bump map to a normal (float)
+			
+			// expand [0,255] texel values to the [0,1] range
+			r = in[4 * (y * width + x) + 0];
+			g = in[4 * (y * width + x) + 1];
+			b = in[4 * (y * width + x) + 2];
+	
+			c = (r + g + b) * inv255;
+	
+			// expand the texel to its right
+			r = in[4 * (y * width + ((x + 1) % width)) + 0];
+			g = in[4 * (y * width + ((x + 1) % width)) + 1];
+			b = in[4 * (y * width + ((x + 1) % width)) + 2];
+	
+			cx = (r + g + b) * inv255;
+	
+			// expand the texel one up
+			r = in[4 * (((y + 1) % height) * width + x) + 0];
+			g = in[4 * (((y + 1) % height) * width + x) + 1];
+			b = in[4 * (((y + 1) % height) * width + x) + 2];
+	
+			cy = (r + g + b) * inv255;
+
+			/*
+			dcx = scale * (c - cx);
+			dcy = scale * (c - cy);
+
+			// normalize the vector
+			sqlen = dcx * dcx + dcy * dcy + 1;
+			reciplen = 1.0 / (float)sqrt(sqlen);
+			n[0] = dcx * reciplen;
+			n[1] =-dcy * reciplen;
+			n[2] = reciplen;
+			*/
+			
+			
+			n[0] = scale * (c - cx);
+			n[1] = scale * (c - cy);
+			n[2] = 1.0;
+			
+			if(!VectorNormalize(n))
+				VectorSet(n, 0, 0, 1);
+			
+			*out++ = (byte)(128 + 127 * n[0]);
+			*out++ = (byte)(128 + 127 * n[1]);
+			*out++ = (byte)(128 + 127 * n[2]);
+			*out++ = (byte)(128 + 127 * 1.0);
+		}
+	}
+}
 
 /*
 ==================
@@ -665,9 +728,7 @@ static void Upload32(     unsigned *data,
 	GLenum          internalFormat = GL_RGB;
 	float           rMax = 0, gMax = 0, bMax = 0;
 
-	//
 	// convert to exact power of 2 sizes
-	//
 	for(scaled_width = 1; scaled_width < width; scaled_width <<= 1)
 		;
 	for(scaled_height = 1; scaled_height < height; scaled_height <<= 1)
@@ -686,18 +747,14 @@ static void Upload32(     unsigned *data,
 		height = scaled_height;
 	}
 
-	//
 	// perform optional picmip operation
-	//
 	if(picmip)
 	{
 		scaled_width >>= r_picmip->integer;
 		scaled_height >>= r_picmip->integer;
 	}
 
-	//
 	// clamp to minimum size
-	//
 	if(scaled_width < 1)
 	{
 		scaled_width = 1;
@@ -707,11 +764,9 @@ static void Upload32(     unsigned *data,
 		scaled_height = 1;
 	}
 
-	//
 	// clamp to the current upper OpenGL limit
 	// scale both axis down equally so we don't have to
 	// deal with a half mip resampling
-	//
 	while(scaled_width > glConfig.maxTextureSize || scaled_height > glConfig.maxTextureSize)
 	{
 		scaled_width >>= 1;
@@ -720,10 +775,8 @@ static void Upload32(     unsigned *data,
 
 	scaledBuffer = ri.Hunk_AllocateTempMemory(sizeof(unsigned) * scaled_width * scaled_height);
 
-	//
 	// scan the texture for each channel's max values
 	// and verify if the alpha channel is being used or not
-	//
 	c = width * height;
 	scan = ((byte *) data);
 	samples = 3;
@@ -789,14 +842,14 @@ static void Upload32(     unsigned *data,
 	{
 		internalFormat = 3;
 	}
+	
 	// copy or resample data as appropriate for first MIP level
 	if((scaled_width == width) && (scaled_height == height))
 	{
 
 		if(!mipmap)
 		{
-			qglTexImage2D(GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA,
-						  GL_UNSIGNED_BYTE, data);
+			qglTexImage2D(GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 			*pUploadWidth = scaled_width;
 			*pUploadHeight = scaled_height;
 			*format = internalFormat;
@@ -834,8 +887,7 @@ static void Upload32(     unsigned *data,
 	*pUploadHeight = scaled_height;
 	*format = internalFormat;
 
-	qglTexImage2D(GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA,
-				  GL_UNSIGNED_BYTE, scaledBuffer);
+	qglTexImage2D(GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer);
 
 	if(mipmap)
 	{
@@ -859,12 +911,10 @@ static void Upload32(     unsigned *data,
 
 			if(r_colorMipLevels->integer && !normalMap)
 			{
-				R_BlendOverTexture((byte *) scaledBuffer, scaled_width * scaled_height,
-								   mipBlendColors[miplevel]);
+				R_BlendOverTexture((byte *) scaledBuffer, scaled_width * scaled_height, mipBlendColors[miplevel]);
 			}
 
-			qglTexImage2D(GL_TEXTURE_2D, miplevel, internalFormat, scaled_width, scaled_height, 0,
-						  GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer);
+			qglTexImage2D(GL_TEXTURE_2D, miplevel, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer);
 		}
 	}
   done:
@@ -908,7 +958,8 @@ image_t *R_CreateImage(const char *name, const byte * pic, int width, int height
 	vec4_t			zeroClampBorder = {0, 0, 0, 1};
 	vec4_t			alphaZeroClampBorder = {0, 0, 0, 0};
 
-	if(strlen(name) >= MAX_QPATH)
+//	if(strlen(name) >= MAX_QPATH)
+	if(strlen(name) >= 1024)
 	{
 		ri.Error(ERR_DROP, "R_CreateImage: \"%s\" is too long\n", name);
 	}
@@ -1390,8 +1441,7 @@ static void LoadTGA(const char *name, byte ** pic, int *width, int *height)
 	if(targa_header.image_type != 2
 	   && targa_header.image_type != 10 && targa_header.image_type != 3)
 	{
-		ri.Error(ERR_DROP,
-				 "LoadTGA: Only type 2 (RGB), 3 (gray), and 10 (RGB) TGA images supported\n");
+		ri.Error(ERR_DROP, "LoadTGA: Only type 2 (RGB), 3 (gray), and 10 (RGB) TGA images supported\n");
 	}
 
 	if(targa_header.colormap_type != 0)
@@ -1598,8 +1648,7 @@ static void LoadTGA(const char *name, byte ** pic, int *width, int *height)
 	// instead we just print a warning
 	if(targa_header.attributes & 0x20)
 	{
-		ri.Printf(PRINT_WARNING,
-				  "WARNING: '%s' TGA file header declares top-down image, ignoring\n", name);
+		ri.Printf(PRINT_WARNING, "WARNING: '%s' TGA file header declares top-down image, ignoring\n", name);
 	}
 
 	ri.FS_FreeFile(buffer);
@@ -2068,6 +2117,89 @@ void SaveJPG(char *filename, int quality, int image_width, int image_height,
 
 //===================================================================
 
+
+static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height);
+
+static void ParseHeightMap(char **text, byte ** pic, int *width, int *height)
+{
+	char           *token;
+	float			scale;
+
+	token = COM_ParseExt(text, qfalse);
+	if(token[0] != '(')
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for heightMap\n", token);
+		return;
+	}
+	
+	R_LoadImage(text, pic, width, height);
+		
+	token = COM_ParseExt(text, qfalse);
+	if(token[0] != ',')
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: no matching ',' found\n");
+		return;
+	}
+	
+	token = COM_ParseExt(text, qfalse);
+	scale = atof(token);
+
+	token = COM_ParseExt(text, qfalse);
+	if(token[0] != ')')
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for heightMap\n", token);
+		return;
+	}
+	
+	R_HeightMapToNormalMap(*pic, *width, *height, scale);
+}
+
+static void ParseAddNormals(char **text, byte ** pic, int *width, int *height)
+{
+	char           *token;
+	byte           *pic2;
+	int             width2, height2;
+	
+	token = COM_ParseExt(text, qfalse);
+	if(token[0] != '(')
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for addNormals\n", token);
+		return;
+	}
+	
+	R_LoadImage(text, pic, width, height);
+	if(!pic)
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: failed loading of first image for addNormals\n", token);
+		return;
+	}
+		
+	token = COM_ParseExt(text, qfalse);
+	if(token[0] != ',')
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: no matching ',' found\n");
+		return;
+	}
+	
+	R_LoadImage(text, &pic2, &width2, &height2);
+	if(!pic2)
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: failed loading of second image for addNormals\n", token);
+		return;
+	}
+
+	token = COM_ParseExt(text, qfalse);
+	if(token[0] != ')')
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for addNormals\n", token);
+	}
+	
+	// TODO add normals
+	
+	if(pic2)
+		ri.Free(pic2);
+}
+
 /*
 =================
 R_LoadImage
@@ -2076,46 +2208,106 @@ Loads any of the supported image types into a cannonical
 32 bit format.
 =================
 */
-void R_LoadImage(const char *name, byte ** pic, int *width, int *height)
+static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height)
 {
 	int             len;
+	char           *token;
+	char            filename[MAX_QPATH];
 
 	*pic = NULL;
 	*width = 0;
 	*height = 0;
-
-	len = strlen(name);
-	if(len < 5)
+	
+	token = COM_ParseExt(buffer, qfalse);
+	if(!token[0])
 	{
+		ri.Printf(PRINT_WARNING, "WARNING: NULL parameter for R_LoadImage\n");
 		return;
 	}
-
-	if(!Q_stricmp(name + len - 4, ".tga"))
+	
+//	ri.Printf(PRINT_ALL, "R_LoadImage: token '%s'\n", token);
+	
+	// heightMap(<map>, <float>)  Turns a grayscale height map into a normal map. <float> varies the bumpiness
+	if(!Q_stricmp(token, "heightMap"))
 	{
-		LoadTGA(name, pic, width, height);	// try tga first
-		if(!*pic)
-		{						//
-			char            altname[MAX_QPATH];	// try jpg in place of tga 
+		ParseHeightMap(buffer, pic, width, height);
+	}
+	// addNormals(<map>, <map>)  Adds two normal maps together. Result is normalized.
+	else if(!Q_stricmp(token, "addNormals"))
+	{
+		ParseAddNormals(buffer, pic, width, height);
+	}
+	// smoothNormals(<map>)  Does a box filter on the normal map, and normalizes the result.
+	else if(!Q_stricmp(token, "smoothNormals"))
+	{
+		// TODO
+	}
+	// add(<map>, <map>)  Adds two images without normalizing the result
+	else if(!Q_stricmp(token, "add"))
+	{
+		// TODO
+	}
+	// scale(<map>, <float> [,float] [,float] [,float])  Scales the RGBA by the specified factors. Defaults to 0.
+	else if(!Q_stricmp(token, "scale"))
+	{
+		// TODO
+	}
+	// invertAlpha(<map>)  Inverts the alpha channel (0 becomes 1, 1 becomes 0)
+	else if(!Q_stricmp(token, "invertAlpha"))
+	{
+		// TODO
+	}
+	// invertColor(<map>)  Inverts the R, G, and B channels
+	else if(!Q_stricmp(token, "invertColor"))
+	{
+		// TODO
+	}
+	// makeIntensity(<map>)  Copies the red channel to the G, B, and A channels
+	else if(!Q_stricmp(token, "makeIntensity"))
+	{
+		// TODO
+	}
+	// makeAlpha(<map>)  Sets the alpha channel to an average of the RGB channels. Sets the RGB channels to white.
+	else if(!Q_stricmp(token, "makeAlpha"))
+	{
+		// TODO
+	}
+	else
+	{
+		Q_strncpyz(filename, token, sizeof(filename));
+		COM_DefaultExtension(filename, sizeof(filename), ".tga");
+		
+//		ri.Printf(PRINT_ALL, "R_LoadImage: filename '%s'\n", filename);
+		
+		len = strlen(filename);
 
-			strcpy(altname, name);
-			len = strlen(altname);
-			altname[len - 3] = 'j';
-			altname[len - 2] = 'p';
-			altname[len - 1] = 'g';
-			LoadJPG(altname, pic, width, height);
+		if(!Q_stricmp(filename + len - 4, ".tga"))
+		{
+			LoadTGA(filename, pic, width, height);	// try tga first
+			if(!*pic)
+			{						//
+				char            altname[MAX_QPATH];	// try jpg in place of tga 
+
+				strcpy(altname, filename);
+				len = strlen(altname);
+				altname[len - 3] = 'j';
+				altname[len - 2] = 'p';
+				altname[len - 1] = 'g';
+				LoadJPG(altname, pic, width, height);
+			}
 		}
-	}
-	else if(!Q_stricmp(name + len - 4, ".pcx"))
-	{
-		LoadPCX32(name, pic, width, height);
-	}
-	else if(!Q_stricmp(name + len - 4, ".bmp"))
-	{
-		LoadBMP(name, pic, width, height);
-	}
-	else if(!Q_stricmp(name + len - 4, ".jpg"))
-	{
-		LoadJPG(name, pic, width, height);
+		else if(!Q_stricmp(filename + len - 4, ".pcx"))
+		{
+			LoadPCX32(filename, pic, width, height);
+		}
+		else if(!Q_stricmp(filename + len - 4, ".bmp"))
+		{
+			LoadBMP(filename, pic, width, height);
+		}
+		else if(!Q_stricmp(filename + len - 4, ".jpg"))
+		{
+			LoadJPG(filename, pic, width, height);
+		}
 	}
 }
 
@@ -2132,20 +2324,20 @@ Returns NULL if it fails, not a default image.
 image_t        *R_FindImageFile(const char *name, qboolean mipmap, qboolean allowPicmip, wrapType_t wrapType, qboolean normalmap)
 {
 	image_t        *image;
-	int             width, height;
-	byte           *pic;
+	int             width = 0, height = 0;
+	byte           *pic = NULL;
 	long            hash;
-	char            filename[MAX_QPATH];
+//	char            filename[MAX_QPATH];
+	char            buffer[1024];
+	char           *buffer_p;
 
 	if(!name)
 	{
 		return NULL;
 	}
 	
-	Q_strncpyz(filename, name, sizeof(filename));
-	COM_DefaultExtension(filename, sizeof(filename), ".tga");
-
-	hash = generateHashValue(filename);
+	Q_strncpyz(buffer, name, sizeof(buffer));
+	hash = generateHashValue(buffer);
 
 	// see if the image is already loaded
 	for(image = hashTable[hash]; image; image = image->next)
@@ -2153,7 +2345,7 @@ image_t        *R_FindImageFile(const char *name, qboolean mipmap, qboolean allo
 		if(!strcmp(name, image->imgName))
 		{
 			// the white image can be used with any set of parms, but other mismatches are errors
-			if(strcmp(filename, "_white"))
+			if(strcmp(buffer, "_white"))
 			{
 				if(image->mipmap != mipmap)
 				{
@@ -2161,8 +2353,7 @@ image_t        *R_FindImageFile(const char *name, qboolean mipmap, qboolean allo
 				}
 				if(image->allowPicmip != allowPicmip)
 				{
-					ri.Printf(PRINT_DEVELOPER,
-							  "WARNING: reused image %s with mixed allowPicmip parm\n", name);
+					ri.Printf(PRINT_DEVELOPER, "WARNING: reused image %s with mixed allowPicmip parm\n", name);
 				}
 				if(image->wrapType != wrapType)
 				{
@@ -2174,9 +2365,12 @@ image_t        *R_FindImageFile(const char *name, qboolean mipmap, qboolean allo
 	}
 
 	// load the pic from disk
-	R_LoadImage(filename, &pic, &width, &height);
+	buffer_p = &buffer[0];
+	R_LoadImage(&buffer_p, &pic, &width, &height);
 	if(pic == NULL)
-	{							// if we dont get a successful load
+	{
+		/*
+		// if we dont get a successful load
 		char            altname[MAX_QPATH];	// copy the name
 		int             len;	//  
 
@@ -2191,6 +2385,8 @@ image_t        *R_FindImageFile(const char *name, qboolean mipmap, qboolean allo
 		{						// if that fails
 			return NULL;		// bail
 		}
+		*/
+		return NULL;
 	}
 
 	image =	R_CreateImage((char *)name, pic, width, height, mipmap, allowPicmip, wrapType, normalmap);

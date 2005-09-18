@@ -631,10 +631,14 @@ void ParseTexMod(char **text, shaderStage_t * stage)
 }
 
 
+
 static qboolean ParseMap(shaderStage_t * stage, char **text)
 {
+	int				len;
 	char           *token;
-	char            filename[MAX_QPATH];
+	char            buffer[1024] = "";
+	char           *buffer2 = &buffer[0];
+//	char            filename[MAX_QPATH];
 	qboolean        noMipMaps;
 	qboolean        noPicMip;
 	wrapType_t		wrapType;
@@ -644,26 +648,42 @@ static qboolean ParseMap(shaderStage_t * stage, char **text)
 	// addnormals (textures/caves/tembrick1crum_local.tga, heightmap (textures/caves/tembrick1crum_bmp.tga, 3 ))
 	// heightmap( textures/hell/hellbones_d07bbump.tga, 8)
 
-	token = COM_ParseExt(text, qfalse);
-	if(!token[0])
+	while(1)
+	{
+		token = COM_ParseExt(text, qfalse);
+				
+		if(token[0] == 0)
+			break;
+				
+		strcat(buffer, token);
+		strcat(buffer, " ");
+	}
+			
+	if(!buffer[0])
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: missing parameter in shader '%s'\n", shader.name);
 		return qfalse;
 	}
 	
+	len = strlen(buffer);
+	buffer[len -1] = 0;	// replace last ' ' with tailing zero
+	
+	token = COM_ParseExt(&buffer2, qfalse);
+	
+//	ri.Printf(PRINT_ALL, "ParseMap: buffer '%s'\n", buffer);
 //	ri.Printf(PRINT_ALL, "ParseMap: token '%s'\n", token);
-
-	if(!Q_stricmp(token, "$whiteimage") || !Q_stricmp(token, "$white"))
+	
+	if(!Q_stricmp(token, "$whiteimage") || !Q_stricmp(token, "$white") || !Q_stricmp(token, "_white"))
 	{
 		stage->bundle[0].image[0] = tr.whiteImage;
 		return qtrue;
 	}
-	else if(!Q_stricmp(token, "$blackimage") || !Q_stricmp(token, "$black"))
+	else if(!Q_stricmp(token, "$blackimage") || !Q_stricmp(token, "$black") || !Q_stricmp(token, "_black"))
 	{
 		stage->bundle[0].image[0] = tr.blackImage;
 		return qtrue;
 	}
-	else if(!Q_stricmp(token, "$flatimage") || !Q_stricmp(token, "$flat"))
+	else if(!Q_stricmp(token, "$flatimage") || !Q_stricmp(token, "$flat") || !Q_stricmp(token, "_flat"))
 	{
 		stage->bundle[0].isNormalMap = qtrue;
 		stage->bundle[0].image[0] = tr.flatImage;
@@ -682,20 +702,21 @@ static qboolean ParseMap(shaderStage_t * stage, char **text)
 		}
 		return qtrue;
 	}
-	else if(!Q_stricmp(token, "addnormals"))
+	/*
+	else if(!Q_stricmp(buffer, "addnormals"))
 	{
-		token = COM_ParseExt(text, qfalse);
-		if(token[0] != '(')
+		buffer = COM_ParseExt(text, qfalse);
+		if(buffer[0] != '(')
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: no matching '(' found\n");
 			return qfalse;
 		}
 		
-		token = COM_ParseExt(text, qfalse);
-		Q_strncpyz(filename, token, sizeof(filename));
+		buffer = COM_ParseExt(text, qfalse);
+		Q_strncpyz(filename, buffer, sizeof(filename));
 		
-		token = COM_ParseExt(text, qfalse);
-		if(token[0] != ',')
+		buffer = COM_ParseExt(text, qfalse);
+		if(buffer[0] != ',')
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: no matching ',' found\n");
 			return qfalse;
@@ -705,43 +726,15 @@ static qboolean ParseMap(shaderStage_t * stage, char **text)
 		
 		SkipRestOfLine(text);
 	}
-	else if(!Q_stricmp(token, "heightmap"))
+	else if(!Q_stricmp(buffer, "heightmap"))
 	{
-		token = COM_ParseExt(text, qfalse);
-		if(token[0] != '(')
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: no matching '(' found\n");
-			return qfalse;
-		}
-		
-		token = COM_ParseExt(text, qfalse);
-		Q_strncpyz(filename, token, sizeof(filename));
-		
-		token = COM_ParseExt(text, qfalse);
-		if(token[0] != ',')
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: no matching ',' found\n");
-			return qfalse;
-		}
-		
-		// TODO: support scaling
-		
-		// skip number
-		token = COM_ParseExt(text, qfalse);
-		
-		token = COM_ParseExt(text, qfalse);
-		if(token[0] != ')')
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: no matching ')' found\n");
-			return qfalse;
-		}
-		
-		//SkipRestOfLine(text);
+		ParseHeightMap(stage, text);
 	}
 	else
 	{
-		Q_strncpyz(filename, token, sizeof(filename));
+		Q_strncpyz(filename, buffer, sizeof(filename));
 	}
+	*/
 	
 	// determine image options
 	noMipMaps = stage->overrideNoMipMaps ? qtrue : shader.noMipMaps;
@@ -759,27 +752,50 @@ static qboolean ParseMap(shaderStage_t * stage, char **text)
 	// try to load the image
 	switch(stage->type)
 	{
-		case ST_NORMALMAP:
+		case ST_COLORMAP:
+		default:
 		{
-			stage->bundle[0].image[0] = R_FindImageFile(filename, /*!shader.noMipMaps*/ qfalse, !noPicMip, wrapType, qtrue);
+			stage->bundle[0].image[0] = R_FindImageFile(buffer, !noMipMaps, !noPicMip, wrapType, qfalse);
 			
 			if(!stage->bundle[0].image[0])
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find normalmap '%s' in shader '%s'\n", filename, shader.name);
+				ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find colormap '%s' in shader '%s'\n", buffer, shader.name);
 				return qfalse;
 			}
 			break;
 		}
 		
-		case ST_COLORMAP:
 		case ST_DIFFUSEMAP:
-		default:
 		{
-			stage->bundle[0].image[0] = R_FindImageFile(filename, !noMipMaps, !noPicMip, wrapType, qfalse);
+			stage->bundle[0].image[0] = R_FindImageFile(buffer, !noMipMaps, !noPicMip, wrapType, qfalse);
 			
 			if(!stage->bundle[0].image[0])
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find colormap '%s' in shader '%s'\n", token, shader.name);
+				ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find diffusemap '%s' in shader '%s'\n", buffer, shader.name);
+				return qfalse;
+			}
+			break;
+		}
+		
+		case ST_NORMALMAP:
+		{
+			stage->bundle[0].image[0] = R_FindImageFile(buffer, !noMipMaps, !noPicMip, wrapType, qtrue);
+			
+			if(!stage->bundle[0].image[0])
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find normalmap '%s' in shader '%s'\n", buffer, shader.name);
+				return qfalse;
+			}
+			break;
+		}
+		
+		case ST_SPECULARMAP:
+		{
+			stage->bundle[0].image[0] = R_FindImageFile(buffer, !noMipMaps, !noPicMip, wrapType, qfalse);
+			
+			if(!stage->bundle[0].image[0])
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find specularmap '%s' in shader '%s'\n", buffer, shader.name);
 				return qfalse;
 			}
 			break;
@@ -870,7 +886,8 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		{
 			if(!ParseMap(stage, text))
 			{
-				return qfalse;	
+				//ri.Printf(PRINT_WARNING, "WARNING: ParseMap could not create '%s' in shader '%s'\n", token, shader.name);
+				return qfalse;
 			}
 		}
 		// clampmap <name>
@@ -968,8 +985,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 
 			if(!token[0])
 			{
-				ri.Printf(PRINT_WARNING,
-						  "WARNING: missing parameter for 'depthfunc' keyword in shader '%s'\n", shader.name);
+				ri.Printf(PRINT_WARNING, "WARNING: missing parameter for 'depthfunc' keyword in shader '%s'\n", shader.name);
 				return qfalse;
 			}
 
