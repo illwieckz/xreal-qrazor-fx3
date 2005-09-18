@@ -320,7 +320,7 @@ typedef struct {
 #define	MAX_MAP_MODELS		0x400
 #define	MAX_MAP_BRUSHES		0x8000
 #define	MAX_MAP_ENTITIES	0x800
-#define	MAX_MAP_ENTSTRING	0x40000
+#define	MAX_MAP_ENTSTRING	0x80000
 #define	MAX_MAP_SHADERS		0x400
 
 #define	MAX_MAP_AREAS		0x100	// MAX_MAP_AREA_BYTES in q_shared must match!
