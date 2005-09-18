@@ -279,6 +279,7 @@ textures/washroom/mirror
 	{
 		blend gl_dst_color,gl_zero
 		map textures/washroom/mirror.tga
+		depthWrite
 	}
 	solid
 	mirror
