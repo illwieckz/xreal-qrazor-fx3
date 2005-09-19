@@ -52,7 +52,7 @@ void GL_Bind(image_t * image)
 	{
 		image->frameUsed = tr.frameCount;
 		glState.currenttextures[glState.currenttmu] = texnum;
-		qglBindTexture(GL_TEXTURE_2D, texnum);
+		qglBindTexture(image->type, texnum);
 	}
 }
 

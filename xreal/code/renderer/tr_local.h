@@ -102,6 +102,27 @@ typedef struct
 	matrix_t        modelViewMatrix;	// only used by models, camera viewMatrix * transformMatrix
 } orientationr_t;
 
+enum
+{
+	IF_NONE,
+	IF_INTERNAL			= (1 << 0),
+	IF_NOMIPMAPS		= (1 << 1),
+	IF_NOPICMIP			= (1 << 2),
+	IF_NOCOMPRESSION	= (1 << 3),
+	IF_INTENSITY		= (1 << 4),
+	IF_ALPHA			= (1 << 5),
+	IF_NORMALMAP		= (1 << 6),
+	IF_LIGHTMAP			= (1 << 7),
+	IF_CUBEMAP			= (1 << 8)
+};
+
+typedef enum
+{
+	FT_DEFAULT,
+	FT_NEAREST,
+	FT_LINEAR
+} filterType_t;
+
 typedef enum
 {
 	WT_REPEAT,
@@ -113,7 +134,8 @@ typedef enum
 
 typedef struct image_s
 {
-	char            imgName[MAX_QPATH];	// game path, including extension
+	char            name[MAX_QPATH];	// game path, including extension
+	GLenum			type;
 	int             width, height;	// source image
 	int             uploadWidth, uploadHeight;	// after power of two and picmip but not including clamp to MAX_TEXTURE_SIZE
 	GLuint          texnum;		// gl texture binding
@@ -121,11 +143,10 @@ typedef struct image_s
 	int             frameUsed;	// for texture usage in frame statistics
 
 	int             internalFormat;
-	int             TMU;		// only needed for voodoo2
 
-	qboolean        mipmap;
-	qboolean        allowPicmip;
-	int             wrapType;	// GL_CLAMP or GL_REPEAT
+	unsigned		bits;
+	filterType_t	filterType;
+	wrapType_t      wrapType;	// GL_CLAMP or GL_REPEAT
 
 	struct image_s *next;
 } image_t;
@@ -1014,7 +1035,7 @@ void            R_Modellist_f(void);
 //====================================================
 extern refimport_t ri;
 
-#define	MAX_DRAWIMAGES			2048
+#define	MAX_DRAWIMAGES			4096
 #define	MAX_LIGHTMAPS			256
 #define	MAX_SKINS				1024
 
@@ -1305,6 +1326,7 @@ extern cvar_t  *r_ext_multitexture;
 extern cvar_t  *r_ext_compiled_vertex_array;
 extern cvar_t  *r_ext_texture_env_add;
 extern cvar_t  *r_ext_transpose_matrix;
+extern cvar_t  *r_ext_texture_cube_map;
 extern cvar_t  *r_ext_vertex_program;
 extern cvar_t  *r_ext_shader_objects;
 extern cvar_t  *r_ext_vertex_shader;
@@ -1569,10 +1591,9 @@ qboolean        R_GetEntityToken(char *buffer, int size);
 model_t        *R_AllocModel(void);
 
 void            R_Init(void);
-image_t        *R_FindImageFile(const char *name, qboolean mipmap, qboolean allowPicmip, wrapType_t wrapType, qboolean normalmap);
+image_t        *R_FindImageFile(const char *name, int bits, wrapType_t wrapType);
 
-image_t        *R_CreateImage(const char *name, const byte * pic, int width, int height, qboolean mipmap,
-							  qboolean allowPicmip, wrapType_t wrapType, qboolean normalmap);
+image_t        *R_CreateImage(const char *name, const byte * pic, int width, int height, int bits, wrapType_t wrapType);
 qboolean        R_GetModeInfo(int *width, int *height, float *windowAspect, int mode);
 
 void            R_SetColorMappings(void);

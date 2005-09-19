@@ -84,6 +84,7 @@ cvar_t         *r_ext_multitexture;
 cvar_t         *r_ext_compiled_vertex_array;
 cvar_t         *r_ext_texture_env_add;
 cvar_t         *r_ext_transpose_matrix;
+cvar_t         *r_ext_texture_cube_map;
 cvar_t         *r_ext_vertex_program;
 cvar_t         *r_ext_shader_objects;
 cvar_t         *r_ext_vertex_shader;
@@ -978,14 +979,17 @@ void GfxInfo_f(void)
 	{
 		ri.Printf(PRINT_ALL, "HACK: ragePro approximations\n");
 	}
+	
 	if(glConfig.hardwareType == GLHW_RIVA128)
 	{
 		ri.Printf(PRINT_ALL, "HACK: riva128 approximations\n");
 	}
+	
 	if(glConfig.smpActive)
 	{
 		ri.Printf(PRINT_ALL, "Using dual processor acceleration\n");
 	}
+	
 	if(r_finish->integer)
 	{
 		ri.Printf(PRINT_ALL, "Forcing glFinish\n");
@@ -1014,6 +1018,7 @@ void R_Register(void)
 	r_ext_texture_env_add = ri.Cvar_Get("r_ext_texture_env_add", "1", CVAR_ARCHIVE | CVAR_LATCH);
 #endif
 	r_ext_transpose_matrix = ri.Cvar_Get("r_ext_transpose_matrix", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_texture_cube_map = ri.Cvar_Get("r_ext_texture_cube_map", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_vertex_program = ri.Cvar_Get("r_ext_vertex_program", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_shader_objects = ri.Cvar_Get("r_ext_shader_objects", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_vertex_shader = ri.Cvar_Get("r_ext_vertex_shader", "1", CVAR_ARCHIVE | CVAR_LATCH);

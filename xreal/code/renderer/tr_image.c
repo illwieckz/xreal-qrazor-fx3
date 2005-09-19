@@ -111,7 +111,7 @@ GL_TextureMode
 void GL_TextureMode(const char *string)
 {
 	int             i;
-	image_t        *glt;
+	image_t        *image;
 
 	for(i = 0; i < 6; i++)
 	{
@@ -142,12 +142,14 @@ void GL_TextureMode(const char *string)
 	// change all the existing mipmap texture objects
 	for(i = 0; i < tr.numImages; i++)
 	{
-		glt = tr.images[i];
-		if(glt->mipmap)
+		image = tr.images[i];
+		
+		if(!(image->bits & IF_NOMIPMAPS))
 		{
-			GL_Bind(glt);
-			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
-			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+			GL_Bind(image);
+			
+			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 		}
 	}
 }
@@ -188,7 +190,7 @@ void R_ImageList_f(void)
 		"no ", "yes"
 	};
 
-	ri.Printf(PRINT_ALL, "\n      -w-- -h-- -mm- -TMU- -if-- wrap --name-------\n");
+	ri.Printf(PRINT_ALL, "\n      -w-- -h-- -mm- -type- -if-- wrap --name-------\n");
 	texels = 0;
 
 	for(i = 0; i < tr.numImages; i++)
@@ -196,37 +198,61 @@ void R_ImageList_f(void)
 		image = tr.images[i];
 
 		texels += image->uploadWidth * image->uploadHeight;
-		ri.Printf(PRINT_ALL, "%4i: %4i %4i  %s   %d   ",
-				  i, image->uploadWidth, image->uploadHeight, yesno[image->mipmap], image->TMU);
+		ri.Printf(PRINT_ALL, "%4i: %4i %4i  %s   ",
+				  i, image->uploadWidth, image->uploadHeight, yesno[!(image->bits & IF_NOMIPMAPS)]);
+		
+		switch (image->type)
+		{
+			case GL_TEXTURE_2D:
+				ri.Printf(PRINT_ALL, "2D   ");
+				break;
+				
+			case GL_TEXTURE_CUBE_MAP_ARB:
+				ri.Printf(PRINT_ALL, "CUBE ");
+				break;
+	
+			default:
+				ri.Printf(PRINT_ALL, "???? ");
+		}
+		
 		switch (image->internalFormat)
 		{
 			case 1:
 				ri.Printf(PRINT_ALL, "I    ");
 				break;
+				
 			case 2:
 				ri.Printf(PRINT_ALL, "IA   ");
 				break;
+				
 			case 3:
 				ri.Printf(PRINT_ALL, "RGB  ");
 				break;
+				
 			case 4:
 				ri.Printf(PRINT_ALL, "RGBA ");
 				break;
+				
 			case GL_RGBA8:
 				ri.Printf(PRINT_ALL, "RGBA8");
 				break;
+				
 			case GL_RGB8:
 				ri.Printf(PRINT_ALL, "RGB8");
 				break;
+				
 			case GL_RGB4_S3TC:
 				ri.Printf(PRINT_ALL, "S3TC ");
 				break;
+				
 			case GL_RGBA4:
 				ri.Printf(PRINT_ALL, "RGBA4");
 				break;
+				
 			case GL_RGB5:
 				ri.Printf(PRINT_ALL, "RGB5 ");
 				break;
+				
 			default:
 				ri.Printf(PRINT_ALL, "???? ");
 		}
@@ -258,7 +284,7 @@ void R_ImageList_f(void)
 				break;
 		}
 
-		ri.Printf(PRINT_ALL, " %s\n", image->imgName);
+		ri.Printf(PRINT_ALL, " %s\n", image->name);
 	}
 	ri.Printf(PRINT_ALL, " ---------\n");
 	ri.Printf(PRINT_ALL, " %i total texels (not including mipmaps)\n", texels);
@@ -336,9 +362,9 @@ Scale up the pixel values in a texture to increase the
 lighting range
 ================
 */
-void R_LightScaleTexture(unsigned *in, int inwidth, int inheight, qboolean only_gamma)
+void R_LightScaleTexture(unsigned *in, int inwidth, int inheight, qboolean onlyGamma)
 {
-	if(only_gamma)
+	if(onlyGamma)
 	{
 		if(!glConfig.deviceSupportsGamma)
 		{
@@ -592,12 +618,6 @@ static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale
 //	float           inv127 = 1.0 / 127.0;
 	vec3_t			n;
 	byte           *out;
-
-	if(!in)
-	{
-		ri.Printf(PRINT_WARNING, "WARNING: R_HeightMapToNormalMap: NULL parameter\n");
-		return;
-	}
 	
 	out = in;
 	
@@ -656,6 +676,123 @@ static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale
 	}
 }
 
+static void R_AddNormals(byte * in, byte * in2, int width, int height)
+{
+	int				x, y;
+	vec3_t			n;
+	vec3_t			n2;
+	float           inv127 = 1.0 / 127.0;
+	byte           *out;
+	
+	out = in;
+	
+	for(y = 0; y < height; y++)
+	{
+		for(x = 0; x < width; x++)
+		{
+			n[0] = (in[4 * (y * width + x) + 0] * inv127 - 1.0);
+			n[1] = (in[4 * (y * width + x) + 1] * inv127 - 1.0);
+			n[2] = (in[4 * (y * width + x) + 2] * inv127 - 1.0);
+			
+			n2[0] = (in2[4 * (y * width + x) + 0] * inv127 - 1.0);
+			n2[1] = (in2[4 * (y * width + x) + 1] * inv127 - 1.0);
+			n2[2] = (in2[4 * (y * width + x) + 2] * inv127 - 1.0);
+			
+			VectorAdd(n, n2, n);
+			
+			if(!VectorNormalize(n))
+				VectorSet(n, 0, 0, 1);
+			
+			*out++ = (byte)(128 + 127 * n[0]);
+			*out++ = (byte)(128 + 127 * n[1]);
+			*out++ = (byte)(128 + 127 * n[2]);
+			*out++ = (byte)(128 + 127 * 1.0);
+		}
+	}
+}
+
+static void R_InvertAlpha(byte * in, int width, int height)
+{
+	int				x, y;
+	byte           *out;
+	
+	out = in;
+	
+	for(y = 0; y < height; y++)
+	{
+		for(x = 0; x < width; x++)
+		{
+			out[4 * (y * width + x) + 3] = 255 - in[4 * (y * width + x) + 3];
+		}
+	}
+}
+
+static void R_InvertColor(byte * in, int width, int height)
+{
+	int				x, y;
+	byte           *out;
+	
+	out = in;
+	
+	for(y = 0; y < height; y++)
+	{
+		for(x = 0; x < width; x++)
+		{
+			out[4 * (y * width + x) + 0] = 255 - in[4 * (y * width + x) + 0];
+			out[4 * (y * width + x) + 1] = 255 - in[4 * (y * width + x) + 1];
+			out[4 * (y * width + x) + 2] = 255 - in[4 * (y * width + x) + 2];
+		}
+	}
+}
+
+static void R_MakeIntensity(byte * in, int width, int height)
+{
+	int				x, y;
+	byte           *out;
+	byte			red;
+	
+	out = in;
+	
+	for(y = 0; y < height; y++)
+	{
+		for(x = 0; x < width; x++)
+		{
+			red = out[4 * (y * width + x) + 0];
+			
+			out[4 * (y * width + x) + 1] = red;
+			out[4 * (y * width + x) + 2] = red;
+			out[4 * (y * width + x) + 3] = red;
+		}
+	}
+}
+
+static void R_MakeAlpha(byte * in, int width, int height)
+{
+	int				x, y;
+	byte           *out;
+	byte			avg;
+	
+	out = in;
+	
+	for(y = 0; y < height; y++)
+	{
+		for(x = 0; x < width; x++)
+		{
+			avg = 0;
+			avg += out[4 * (y * width + x) + 0];
+			avg += out[4 * (y * width + x) + 1];
+			avg += out[4 * (y * width + x) + 2];
+			avg /= 3;
+			
+			out[4 * (y * width + x) + 0] = 255;
+			out[4 * (y * width + x) + 1] = 255;
+			out[4 * (y * width + x) + 2] = 255;
+			out[4 * (y * width + x) + 3] = avg;
+		}
+	}
+}
+
+
 /*
 ==================
 R_BlendOverTexture
@@ -706,81 +843,76 @@ byte	mipBlendColors[16][4] = {
 /*
 ===============
 Upload32
-
 ===============
 */
 extern qboolean charSet;
-static void Upload32(     unsigned *data, 
-						  int width, int height, 
-						  qboolean mipmap, 
-						  qboolean picmip, 
-						  qboolean lightMap,
-						  qboolean normalMap,
-						  int *format, 
-						  int *pUploadWidth, int *pUploadHeight )
+static void R_UploadImage(unsigned *data, image_t * image)
 {
 	int             samples;
 	unsigned       *scaledBuffer = NULL;
-	unsigned       *resampledBuffer = NULL;
-	int             scaled_width, scaled_height;
+	int             scaledWidth, scaledHeight;
 	int             i, c;
 	byte           *scan;
 	GLenum          internalFormat = GL_RGB;
 	float           rMax = 0, gMax = 0, bMax = 0;
+	vec4_t			zeroClampBorder = {0, 0, 0, 1};
+	vec4_t			alphaZeroClampBorder = {0, 0, 0, 0};
 
 	// convert to exact power of 2 sizes
-	for(scaled_width = 1; scaled_width < width; scaled_width <<= 1)
+	for(scaledWidth = 1; scaledWidth < image->width; scaledWidth <<= 1)
 		;
-	for(scaled_height = 1; scaled_height < height; scaled_height <<= 1)
+	for(scaledHeight = 1; scaledHeight < image->height; scaledHeight <<= 1)
 		;
-	if(r_roundImagesDown->integer && scaled_width > width)
-		scaled_width >>= 1;
-	if(r_roundImagesDown->integer && scaled_height > height)
-		scaled_height >>= 1;
-
-	if(scaled_width != width || scaled_height != height)
-	{
-		resampledBuffer = ri.Hunk_AllocateTempMemory(scaled_width * scaled_height * 4);
-		ResampleTexture(data, width, height, resampledBuffer, scaled_width, scaled_height);
-		data = resampledBuffer;
-		width = scaled_width;
-		height = scaled_height;
-	}
+	if(r_roundImagesDown->integer && scaledWidth > image->width)
+		scaledWidth >>= 1;
+	if(r_roundImagesDown->integer && scaledHeight > image->height)
+		scaledHeight >>= 1;
 
 	// perform optional picmip operation
-	if(picmip)
+	if(!(image->bits & IF_NOPICMIP))
 	{
-		scaled_width >>= r_picmip->integer;
-		scaled_height >>= r_picmip->integer;
+		scaledWidth >>= r_picmip->integer;
+		scaledHeight >>= r_picmip->integer;
 	}
 
 	// clamp to minimum size
-	if(scaled_width < 1)
+	if(scaledWidth < 1)
 	{
-		scaled_width = 1;
+		scaledWidth = 1;
 	}
-	if(scaled_height < 1)
+	if(scaledHeight < 1)
 	{
-		scaled_height = 1;
+		scaledHeight = 1;
 	}
 
 	// clamp to the current upper OpenGL limit
 	// scale both axis down equally so we don't have to
 	// deal with a half mip resampling
-	while(scaled_width > glConfig.maxTextureSize || scaled_height > glConfig.maxTextureSize)
+	if(image->type == GL_TEXTURE_CUBE_MAP_ARB || (image->bits & IF_CUBEMAP))
 	{
-		scaled_width >>= 1;
-		scaled_height >>= 1;
+		while(scaledWidth > glConfig2.maxCubeMapTextureSize || scaledHeight > glConfig2.maxCubeMapTextureSize)
+		{
+			scaledWidth >>= 1;
+			scaledHeight >>= 1;
+		}
+	}
+	else
+	{
+		while(scaledWidth > glConfig.maxTextureSize || scaledHeight > glConfig.maxTextureSize)
+		{
+			scaledWidth >>= 1;
+			scaledHeight >>= 1;
+		}
 	}
 
-	scaledBuffer = ri.Hunk_AllocateTempMemory(sizeof(unsigned) * scaled_width * scaled_height);
+	scaledBuffer = ri.Hunk_AllocateTempMemory(sizeof(unsigned) * scaledWidth * scaledHeight);
 
 	// scan the texture for each channel's max values
 	// and verify if the alpha channel is being used or not
-	c = width * height;
+	c = scaledWidth * scaledHeight;
 	scan = ((byte *) data);
 	samples = 3;
-	if(!lightMap && !normalMap)
+	if(!(image->bits & IF_LIGHTMAP))
 	{
 		for(i = 0; i < c; i++)
 		{
@@ -844,82 +976,74 @@ static void Upload32(     unsigned *data,
 	}
 	
 	// copy or resample data as appropriate for first MIP level
-	if((scaled_width == width) && (scaled_height == height))
+	if((scaledWidth == image->width) && (scaledHeight == image->height))
 	{
-
-		if(!mipmap)
+		if(image->bits & IF_NOMIPMAPS)
 		{
-			qglTexImage2D(GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-			*pUploadWidth = scaled_width;
-			*pUploadHeight = scaled_height;
-			*format = internalFormat;
+			qglTexImage2D(GL_TEXTURE_2D, 0, internalFormat, scaledWidth, scaledHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+			image->uploadWidth = scaledWidth;
+			image->uploadHeight = scaledHeight;
+			image->internalFormat = internalFormat;
 
 			goto done;
 		}
-		Com_Memcpy(scaledBuffer, data, width * height * 4);
+		Com_Memcpy(scaledBuffer, data, scaledWidth * scaledHeight * 4);
 	}
 	else
 	{
-		// use the normal mip-mapping function to go down from here
-		while(width > scaled_width || height > scaled_height)
-		{
-			R_MipMap((byte *) data, width, height);
-			width >>= 1;
-			height >>= 1;
-			if(width < 1)
-			{
-				width = 1;
-			}
-			if(height < 1)
-			{
-				height = 1;
-			}
-		}
-		Com_Memcpy(scaledBuffer, data, width * height * 4);
+		ResampleTexture(data, image->width, image->height, scaledBuffer, scaledWidth, scaledHeight);
 	}
 
-	if(!normalMap)
+	if(!(image->bits & IF_NORMALMAP))
 	{
-		R_LightScaleTexture(scaledBuffer, scaled_width, scaled_height, !mipmap);
+		R_LightScaleTexture(scaledBuffer, scaledWidth, scaledHeight, !(image->bits & IF_NOMIPMAPS));
 	}
 
-	*pUploadWidth = scaled_width;
-	*pUploadHeight = scaled_height;
-	*format = internalFormat;
+	image->uploadWidth = scaledWidth;
+	image->uploadHeight = scaledHeight;
+	image->internalFormat = internalFormat;
 
-	qglTexImage2D(GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer);
+	qglTexImage2D(GL_TEXTURE_2D, 0, internalFormat, scaledWidth, scaledHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer);
 
-	if(mipmap)
+	if(!(image->bits & IF_NOMIPMAPS))
 	{
-		int             miplevel;
+		int             mipLevel;
+		int             mipWidth, mipHeight;
 
-		miplevel = 0;
-		while(scaled_width > 1 || scaled_height > 1)
+		mipLevel = 0;
+		mipWidth = scaledWidth;
+		mipHeight = scaledHeight;
+		
+		while(mipWidth > 1 || mipHeight > 1)
 		{
-			if(normalMap)
-				R_MipNormalMap((byte *) scaledBuffer, scaled_width, scaled_height);
+			if(image->bits & IF_NORMALMAP)
+				R_MipNormalMap((byte *) scaledBuffer, mipWidth, mipHeight);
 			else
-				R_MipMap((byte *) scaledBuffer, scaled_width, scaled_height);
+				R_MipMap((byte *) scaledBuffer, mipWidth, mipHeight);
 
-			scaled_width >>= 1;
-			scaled_height >>= 1;
-			if(scaled_width < 1)
-				scaled_width = 1;
-			if(scaled_height < 1)
-				scaled_height = 1;
-			miplevel++;
+			mipWidth >>= 1;
+			mipHeight >>= 1;
+			
+			if(mipWidth < 1)
+				mipWidth = 1;
+			
+			if(mipHeight < 1)
+				mipHeight = 1;
+			
+			mipLevel++;
 
-			if(r_colorMipLevels->integer && !normalMap)
+			if(r_colorMipLevels->integer && !(image->bits & IF_NORMALMAP))
 			{
-				R_BlendOverTexture((byte *) scaledBuffer, scaled_width * scaled_height, mipBlendColors[miplevel]);
+				R_BlendOverTexture((byte *) scaledBuffer, mipWidth * mipHeight, mipBlendColors[mipLevel]);
 			}
 
-			qglTexImage2D(GL_TEXTURE_2D, miplevel, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer);
+			qglTexImage2D(GL_TEXTURE_2D, mipLevel, internalFormat, mipWidth, mipHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer);
 		}
 	}
   done:
 
-	if(mipmap)
+	// set filter type
+	if(!(image->bits & IF_NOMIPMAPS))
 	{
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
@@ -929,87 +1053,9 @@ static void Upload32(     unsigned *data,
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
-
-	GL_CheckErrors();
-
-	if(scaledBuffer != 0)
-		ri.Hunk_FreeTempMemory(scaledBuffer);
-
-	if(resampledBuffer != 0)
-		ri.Hunk_FreeTempMemory(resampledBuffer);
-}
-
-
-
-/*
-================
-R_CreateImage
-
-This is the only way any image_t are created
-================
-*/
-image_t *R_CreateImage(const char *name, const byte * pic, int width, int height,
-							  qboolean mipmap, qboolean allowPicmip, wrapType_t wrapType,
-							  qboolean normalmap)
-{
-	image_t *       image;
-	qboolean        isLightmap = qfalse;
-	long            hash;
-	vec4_t			zeroClampBorder = {0, 0, 0, 1};
-	vec4_t			alphaZeroClampBorder = {0, 0, 0, 0};
-
-//	if(strlen(name) >= MAX_QPATH)
-	if(strlen(name) >= 1024)
-	{
-		ri.Error(ERR_DROP, "R_CreateImage: \"%s\" is too long\n", name);
-	}
-	if(!strncmp(name, "_lightmap", 9))
-	{
-		isLightmap = qtrue;
-	}
-
-	if(tr.numImages == MAX_DRAWIMAGES)
-	{
-		ri.Error(ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n");
-	}
-
-	image = tr.images[tr.numImages] = ri.Hunk_Alloc(sizeof(image_t), h_low);
-	image->texnum = 1024 + tr.numImages;
-	tr.numImages++;
-
-	image->mipmap = mipmap;
-	image->allowPicmip = allowPicmip;
-
-	strcpy(image->imgName, name);
-
-	image->width = width;
-	image->height = height;
-	image->wrapType = wrapType;
-
-	// lightmaps are always allocated on TMU 1
-	if(qglActiveTextureARB && isLightmap)
-	{
-		image->TMU = 1;
-	}
-	else
-	{
-		image->TMU = 0;
-	}
-
-	if(qglActiveTextureARB)
-	{
-		GL_SelectTexture(image->TMU);
-	}
-
-	GL_Bind(image);
-
-	Upload32((unsigned *)pic, image->width, image->height,
-			 image->mipmap,
-			 allowPicmip,
-			 isLightmap,
-			 normalmap, &image->internalFormat, &image->uploadWidth, &image->uploadHeight);
-
-	switch (wrapType)
+	
+	// set wrap type
+	switch (image->wrapType)
 	{
 		case WT_REPEAT:
 			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -1039,18 +1085,68 @@ image_t *R_CreateImage(const char *name, const byte * pic, int width, int height
 			break;
 			
 		default:
-			ri.Printf(PRINT_WARNING, "WARNING: unknown wrap type for image '%s'\n", name);
+			ri.Printf(PRINT_WARNING, "WARNING: unknown wrap type for image '%s'\n", image->name);
 			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			break;
 	};
 
-	qglBindTexture(GL_TEXTURE_2D, 0);
+	GL_CheckErrors();
 
-	if(image->TMU == 1)
+	if(scaledBuffer != 0)
+		ri.Hunk_FreeTempMemory(scaledBuffer);
+}
+
+
+
+/*
+================
+R_CreateImage
+================
+*/
+image_t        *R_CreateImage(const char *name,
+							  const byte * pic, 
+							  int width, int height, 
+							  int bits, wrapType_t wrapType)
+{
+	image_t *       image;
+	long            hash;
+
+//	if(strlen(name) >= MAX_QPATH)
+	if(strlen(name) >= 1024)
 	{
-		GL_SelectTexture(0);
+		ri.Error(ERR_DROP, "R_CreateImage: \"%s\" is too long\n", name);
 	}
+
+	if(tr.numImages == MAX_DRAWIMAGES)
+	{
+		ri.Error(ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n");
+	}
+
+	image = tr.images[tr.numImages] = ri.Hunk_Alloc(sizeof(image_t), h_low);
+	image->texnum = 1024 + tr.numImages;
+	tr.numImages++;
+
+	strcpy(image->name, name);
+	image->type = GL_TEXTURE_2D;
+
+	image->width = width;
+	image->height = height;
+	
+	image->bits = bits;
+//	image->filterType = filterType;
+	image->wrapType = wrapType;
+	
+	if(!strncmp(name, "_lightmap", 9))
+	{
+		image->bits |= IF_LIGHTMAP;
+	}
+
+	GL_Bind(image);
+
+	R_UploadImage((unsigned *)pic, image);
+
+	qglBindTexture(GL_TEXTURE_2D, 0);
 
 	hash = generateHashValue(name);
 	image->next = hashTable[hash];
@@ -2133,6 +2229,11 @@ static void ParseHeightMap(char **text, byte ** pic, int *width, int *height)
 	}
 	
 	R_LoadImage(text, pic, width, height);
+	if(!pic)
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: failed loading of image for heightMap\n", token);
+		return;
+	}
 		
 	token = COM_ParseExt(text, qfalse);
 	if(token[0] != ',')
@@ -2194,10 +2295,127 @@ static void ParseAddNormals(char **text, byte ** pic, int *width, int *height)
 		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for addNormals\n", token);
 	}
 	
-	// TODO add normals
+	if(*width != width2 || *height != height2)
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: images for addNormals have different dimensions\n");
+		return;
+	}
 	
-	if(pic2)
-		ri.Free(pic2);
+	R_AddNormals(*pic, pic2, *width, *height);
+	
+	ri.Free(pic2);
+}
+
+static void ParseInvertAlpha(char **text, byte ** pic, int *width, int *height)
+{
+	char           *token;
+
+	token = COM_ParseExt(text, qfalse);
+	if(token[0] != '(')
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for invertAlpha\n", token);
+		return;
+	}
+	
+	R_LoadImage(text, pic, width, height);
+	if(!pic)
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: failed loading of image for invertAlpha\n", token);
+		return;
+	}
+
+	token = COM_ParseExt(text, qfalse);
+	if(token[0] != ')')
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for invertAlpha\n", token);
+		return;
+	}
+	
+	R_InvertAlpha(*pic, *width, *height);
+}
+
+static void ParseInvertColor(char **text, byte ** pic, int *width, int *height)
+{
+	char           *token;
+
+	token = COM_ParseExt(text, qfalse);
+	if(token[0] != '(')
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for invertColor\n", token);
+		return;
+	}
+	
+	R_LoadImage(text, pic, width, height);
+	if(!pic)
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: failed loading of image for invertColor\n", token);
+		return;
+	}
+
+	token = COM_ParseExt(text, qfalse);
+	if(token[0] != ')')
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for invertColor\n", token);
+		return;
+	}
+	
+	R_InvertColor(*pic, *width, *height);
+}
+
+static void ParseMakeIntensity(char **text, byte ** pic, int *width, int *height)
+{
+	char           *token;
+
+	token = COM_ParseExt(text, qfalse);
+	if(token[0] != '(')
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for makeIntensity\n", token);
+		return;
+	}
+	
+	R_LoadImage(text, pic, width, height);
+	if(!pic)
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: failed loading of image for makeIntensity\n", token);
+		return;
+	}
+
+	token = COM_ParseExt(text, qfalse);
+	if(token[0] != ')')
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for makeIntensity\n", token);
+		return;
+	}
+	
+	R_MakeIntensity(*pic, *width, *height);
+}
+
+static void ParseMakeAlpha(char **text, byte ** pic, int *width, int *height)
+{
+	char           *token;
+
+	token = COM_ParseExt(text, qfalse);
+	if(token[0] != '(')
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for makeAlpha\n", token);
+		return;
+	}
+	
+	R_LoadImage(text, pic, width, height);
+	if(!pic)
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: failed loading of image for makeAlpha\n", token);
+		return;
+	}
+
+	token = COM_ParseExt(text, qfalse);
+	if(token[0] != ')')
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for makeAlpha\n", token);
+		return;
+	}
+	
+	R_MakeAlpha(*pic, *width, *height);
 }
 
 /*
@@ -2255,22 +2473,22 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height)
 	// invertAlpha(<map>)  Inverts the alpha channel (0 becomes 1, 1 becomes 0)
 	else if(!Q_stricmp(token, "invertAlpha"))
 	{
-		// TODO
+		ParseInvertAlpha(buffer, pic, width, height);
 	}
 	// invertColor(<map>)  Inverts the R, G, and B channels
 	else if(!Q_stricmp(token, "invertColor"))
 	{
-		// TODO
+		ParseInvertColor(buffer, pic, width, height);
 	}
 	// makeIntensity(<map>)  Copies the red channel to the G, B, and A channels
 	else if(!Q_stricmp(token, "makeIntensity"))
 	{
-		// TODO
+		ParseMakeIntensity(buffer, pic, width, height);
 	}
 	// makeAlpha(<map>)  Sets the alpha channel to an average of the RGB channels. Sets the RGB channels to white.
 	else if(!Q_stricmp(token, "makeAlpha"))
 	{
-		// TODO
+		ParseMakeAlpha(buffer, pic, width, height);
 	}
 	else
 	{
@@ -2321,15 +2539,16 @@ Finds or loads the given image.
 Returns NULL if it fails, not a default image.
 ==============
 */
-image_t        *R_FindImageFile(const char *name, qboolean mipmap, qboolean allowPicmip, wrapType_t wrapType, qboolean normalmap)
+image_t        *R_FindImageFile(const char *name, int bits, wrapType_t wrapType)
 {
-	image_t        *image;
+	image_t        *image = NULL;
 	int             width = 0, height = 0;
 	byte           *pic = NULL;
 	long            hash;
 //	char            filename[MAX_QPATH];
 	char            buffer[1024];
 	char           *buffer_p;
+	unsigned long   diff;
 
 	if(!name)
 	{
@@ -2342,19 +2561,23 @@ image_t        *R_FindImageFile(const char *name, qboolean mipmap, qboolean allo
 	// see if the image is already loaded
 	for(image = hashTable[hash]; image; image = image->next)
 	{
-		if(!strcmp(name, image->imgName))
+		if(!strcmp(name, image->name))
 		{
 			// the white image can be used with any set of parms, but other mismatches are errors
 			if(strcmp(buffer, "_white"))
 			{
-				if(image->mipmap != mipmap)
+				diff = bits ^ image->bits;
+				
+				if(diff & IF_NOMIPMAPS)
 				{
 					ri.Printf(PRINT_DEVELOPER, "WARNING: reused image %s with mixed mipmap parm\n", name);
 				}
-				if(image->allowPicmip != allowPicmip)
+				
+				if(diff & IF_NOPICMIP)
 				{
 					ri.Printf(PRINT_DEVELOPER, "WARNING: reused image %s with mixed allowPicmip parm\n", name);
 				}
+				
 				if(image->wrapType != wrapType)
 				{
 					ri.Printf(PRINT_ALL, "WARNING: reused image %s with mixed glWrapType parm\n", name);
@@ -2389,7 +2612,7 @@ image_t        *R_FindImageFile(const char *name, qboolean mipmap, qboolean allo
 		return NULL;
 	}
 
-	image =	R_CreateImage((char *)name, pic, width, height, mipmap, allowPicmip, wrapType, normalmap);
+	image =	R_CreateImage((char *)name, pic, width, height, bits, wrapType);
 	ri.Free(pic);
 	return image;
 }
@@ -2430,7 +2653,7 @@ static void R_CreateDlightImage(void)
 			data[y][x][3] = 255;
 		}
 	}
-	tr.dlightImage = R_CreateImage("_dlight", (byte *) data, DLIGHT_SIZE, DLIGHT_SIZE, qfalse, qfalse, WT_CLAMP, qfalse);
+	tr.dlightImage = R_CreateImage("_dlight", (byte *) data, DLIGHT_SIZE, DLIGHT_SIZE, IF_NOMIPMAPS | IF_NOPICMIP, WT_CLAMP);
 }
 
 
@@ -2531,7 +2754,7 @@ static void R_CreateFogImage(void)
 	// standard openGL clamping doesn't really do what we want -- it includes
 	// the border color at the edges.  OpenGL 1.2 has clamp-to-edge, which does
 	// what we want.
-	tr.fogImage = R_CreateImage("_fog", (byte *) data, FOG_S, FOG_T, qfalse, qfalse, WT_CLAMP, qfalse);
+	tr.fogImage = R_CreateImage("_fog", (byte *) data, FOG_S, FOG_T, IF_NOMIPMAPS | IF_NOPICMIP, WT_CLAMP);
 	ri.Hunk_FreeTempMemory(data);
 
 	borderColor[0] = 1.0;
@@ -2578,7 +2801,7 @@ static void R_CreateDefaultImage(void)
 		data[x][DEFAULT_SIZE - 1][2] =
 		data[x][DEFAULT_SIZE - 1][3] = 255;
 	}
-	tr.defaultImage = R_CreateImage("_default", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, qtrue, qfalse, WT_REPEAT, qfalse);
+	tr.defaultImage = R_CreateImage("_default", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, IF_NOPICMIP, WT_REPEAT);
 }
 
 
@@ -2596,11 +2819,11 @@ void R_CreateBuiltinImages(void)
 
 	// we use a solid white image instead of disabling texturing
 	Com_Memset(data, 255, sizeof(data));
-	tr.whiteImage = R_CreateImage("_white", (byte *) data, 8, 8, qfalse, qfalse, WT_REPEAT, qfalse);
+	tr.whiteImage = R_CreateImage("_white", (byte *) data, 8, 8, IF_NOMIPMAPS | IF_NOPICMIP, WT_REPEAT);
 
 	// we use a solid black image instead of disabling texturing
 	Com_Memset(data, 0, sizeof(data));
-	tr.blackImage = R_CreateImage("_black", (byte *) data, 8, 8, qfalse, qfalse, WT_REPEAT, qfalse);
+	tr.blackImage = R_CreateImage("_black", (byte *) data, 8, 8, IF_NOMIPMAPS | IF_NOPICMIP, WT_REPEAT);
 
 	// generate a default normalmap with a zero heightmap
 	for(x = 0; x < DEFAULT_SIZE; x++)
@@ -2611,7 +2834,7 @@ void R_CreateBuiltinImages(void)
 			data[y][x][3] = 0;
 		}
 	}
-	tr.flatImage = R_CreateImage("_flat", (byte *) data, 8, 8, qfalse, qfalse, WT_REPEAT, qtrue);
+	tr.flatImage = R_CreateImage("_flat", (byte *) data, 8, 8, IF_NOMIPMAPS | IF_NOPICMIP | IF_NORMALMAP, WT_REPEAT);
 
 	// with overbright bits active, we need an image which is some fraction of full color,
 	// for default lightmaps, etc
@@ -2624,13 +2847,13 @@ void R_CreateBuiltinImages(void)
 		}
 	}
 
-	tr.identityLightImage = R_CreateImage("_identityLight", (byte *) data, 8, 8, qfalse, qfalse, WT_REPEAT, qfalse);
+	tr.identityLightImage = R_CreateImage("_identityLight", (byte *) data, 8, 8, IF_NOMIPMAPS | IF_NOPICMIP, WT_REPEAT);
 
 
 	for(x = 0; x < 32; x++)
 	{
 		// scratchimage is usually used for cinematic drawing
-		tr.scratchImage[x] = R_CreateImage("_scratch", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, qfalse, qtrue, WT_CLAMP, qfalse);
+		tr.scratchImage[x] = R_CreateImage("_scratch", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, IF_NOMIPMAPS, WT_CLAMP);
 	}
 
 	R_CreateDlightImage();
