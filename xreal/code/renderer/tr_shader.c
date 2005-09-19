@@ -4393,7 +4393,7 @@ static void ScanAndLoadShaderFiles(void)
 		strcat(s_shaderText, buffers[i]);
 		ri.FS_FreeFile(buffers[i]);
 		buffers[i] = p;
-		//COM_Compress(p);
+		COM_Compress(p);
 	}
 
 	// free up memory

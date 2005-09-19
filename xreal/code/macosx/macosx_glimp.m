@@ -762,7 +762,7 @@ static void GLW_InitExtensions( void )
         glConfig.textureCompression = TC_NONE;
         if ( strstr( glConfig.extensions_string, "GL_S3_s3tc" ) )
         {
-                if ( r_ext_compressed_textures->integer )
+                if ( r_ext_compressed_textures->integer == 1 )
                 {
                         glConfig.textureCompression = TC_S3TC;
                         ri.Printf( PRINT_ALL, "...using GL_S3_s3tc\n" );

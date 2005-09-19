@@ -152,7 +152,8 @@ typedef enum {
 */
 typedef enum {
 	TC_NONE,
-	TC_S3TC
+	TC_S3TC,
+	TC_ARB
 } textureCompression_t;
 
 typedef enum {
@@ -211,6 +212,8 @@ typedef struct {
 
 // Tr3B - add any new variables here to not break compatibility with qvm dlls
 typedef struct {
+	int						maxCubeMapTextureSize;
+	qboolean				textureCubeAvailable;
 	qboolean				vertexProgramAvailable;
 	qboolean				shaderObjectsAvailable;
 	qboolean				vertexShaderAvailable;
