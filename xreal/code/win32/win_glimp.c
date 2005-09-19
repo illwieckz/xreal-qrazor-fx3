@@ -1071,6 +1071,26 @@ static void GLW_InitExtensions( void )
 	} else {
 		ri.Printf( PRINT_ALL, "...GL_ARB_transpose_matrix not found\n" );
 	}
+	
+	// GL_ARB_texture_cube_map
+	glConfig2.textureCubeAvailable = qfalse;
+	if(Q_stristr(glConfig.extensions_string, "GL_ARB_texture_cube_map"))
+	{
+		if(r_ext_texture_cube_map->integer)
+		{
+			qglGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB, &glConfig2.maxCubeMapTextureSize);
+			glConfig2.textureCubeAvailable = qtrue;
+			ri.Printf(PRINT_ALL, "...using GL_ARB_texture_cube_map\n");
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_ARB_texture_cube_map\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_ARB_texture_cube_map\n");
+	}
 
 	// GL_ARB_vertex_program
 	glConfig2.vertexProgramAvailable = qfalse;
