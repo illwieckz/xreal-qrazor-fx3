@@ -30,30 +30,35 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *	AH - Created on 08 Dec 2000
  */
 
-#include <unistd.h>   // AH - for size_t
+#include <unistd.h>				// AH - for size_t
 #include <string.h>
 
 // bk001207 - we need something under Linux, too. Mac?
-#if 1 // defined(C_ONLY) // bk010102 - dedicated?
-void Com_Memcpy (void* dest, const void* src, const size_t count) {
-  memcpy(dest, src, count);
+#if 1							// defined(C_ONLY) // bk010102 - dedicated?
+void Com_Memcpy(void *dest, const void *src, const size_t count)
+{
+	memcpy(dest, src, count);
 }
 
-void Com_Memset (void* dest, const int val, const size_t count) {
-  memset(dest, val, count);
+void Com_Memset(void *dest, const int val, const size_t count)
+{
+	memset(dest, val, count);
 }
 
 #else
 
-typedef enum {
-  PRE_READ,         // prefetch assuming that buffer is used for reading only
-  PRE_WRITE,        // prefetch assuming that buffer is used for writing only
-  PRE_READ_WRITE    // prefetch assuming that buffer is used for both reading and writing
+typedef enum
+{
+	PRE_READ,					// prefetch assuming that buffer is used for reading only
+	PRE_WRITE,					// prefetch assuming that buffer is used for writing only
+	PRE_READ_WRITE				// prefetch assuming that buffer is used for both reading and writing
 } e_prefetch;
 
-void Com_Prefetch (const void *s, const unsigned int bytes, e_prefetch type);
+void            Com_Prefetch(const void *s, const unsigned int bytes, e_prefetch type);
 
-void _copyDWord (unsigned int* dest, const unsigned int constant, const unsigned int count) {
+// *INDENT-OFF*
+void _copyDWord(unsigned int* dest, const unsigned int constant, const unsigned int count)
+{
 	// MMX version not used on standard Pentium MMX
 	// because the dword version is faster (with
 	// proper destination prefetching)
@@ -134,8 +139,9 @@ void _copyDWord (unsigned int* dest, const unsigned int constant, const unsigned
 
 // optimized memory copy routine that handles all alignment
 // cases and block sizes efficiently
-void Com_Memcpy (void* dest, const void* src, const size_t count) {
-	Com_Prefetch (src, count, PRE_READ);
+void Com_Memcpy(void* dest, const void* src, const size_t count)
+{
+	Com_Prefetch(src, count, PRE_READ);
 	__asm__ __volatile__ (" \
 		pushl		%%edi \
 		pushl		%%esi \
@@ -234,7 +240,7 @@ void Com_Memcpy (void* dest, const void* src, const size_t count) {
 	: "%eax", "%ebx", "%edi", "%esi", "cc", "memory");
 }
 
-void Com_Memset (void* dest, const int val, const size_t count)
+void Com_Memset(void* dest, const int val, const size_t count)
 {
 	unsigned int fillval;
 
@@ -303,7 +309,7 @@ void Com_Memset (void* dest, const int val, const size_t count)
 	: "%eax", "%ebx", "%edi", "%esi", "cc", "memory");	
 }
 
-void Com_Prefetch (const void *s, const unsigned int bytes, e_prefetch type)
+void Com_Prefetch(const void *s, const unsigned int bytes, e_prefetch type)
 {
 	// write buffer prefetching is performed only if
 	// the processor benefits from it. Read and read/write
@@ -340,5 +346,6 @@ void Com_Prefetch (const void *s, const unsigned int bytes, e_prefetch type)
 		break;
 	}
 }
+// *INDENT-ON*
 
 #endif
