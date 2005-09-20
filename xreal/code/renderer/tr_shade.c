@@ -298,6 +298,86 @@ void RB_InitGPUShaders(void)
 	qglUniform1iARB(tr.lightShader_D_radiosity.u_DiffuseMap, 0);
 	qglUniform1iARB(tr.lightShader_D_radiosity.u_LightMap, 1);
 	qglUseProgramObjectARB(0);
+	
+	//
+	// simple cubemap reflection for abitrary polygons
+	//
+	RB_InitGPUShader(&tr.reflectionShader_C,
+					  "reflection_C",
+					  GLCS_VERTEX | GLCS_NORMAL, qtrue);
+
+	tr.reflectionShader_C.u_ColorMap =
+			qglGetUniformLocationARB(tr.reflectionShader_C.program, "u_ColorMap");
+	tr.reflectionShader_C.u_ViewOrigin =
+			qglGetUniformLocationARB(tr.reflectionShader_C.program, "u_ViewOrigin");
+
+	qglUseProgramObjectARB(tr.reflectionShader_C.program);
+	qglUniform1iARB(tr.reflectionShader_C.u_ColorMap, 0);
+	qglUseProgramObjectARB(0);
+	
+	//
+	// simple cubemap refraction for abitrary polygons
+	//
+	RB_InitGPUShader(&tr.refractionShader_C,
+					  "refraction_C",
+					  GLCS_VERTEX | GLCS_NORMAL, qtrue);
+
+	tr.reflectionShader_C.u_ColorMap =
+			qglGetUniformLocationARB(tr.refractionShader_C.program, "u_ColorMap");
+	tr.refractionShader_C.u_ViewOrigin =
+			qglGetUniformLocationARB(tr.refractionShader_C.program, "u_ViewOrigin");
+	tr.refractionShader_C.u_RefractionIndex =
+			qglGetUniformLocationARB(tr.refractionShader_C.program, "u_RefractionIndex");
+	tr.refractionShader_C.u_FresnelPower =
+			qglGetUniformLocationARB(tr.refractionShader_C.program, "u_FresnelPower");
+	tr.refractionShader_C.u_FresnelScale =
+			qglGetUniformLocationARB(tr.refractionShader_C.program, "u_FresnelScale");
+	tr.refractionShader_C.u_FresnelBias =
+			qglGetUniformLocationARB(tr.refractionShader_C.program, "u_FresnelBias");
+
+	qglUseProgramObjectARB(tr.refractionShader_C.program);
+	qglUniform1iARB(tr.refractionShader_C.u_ColorMap, 0);
+	qglUseProgramObjectARB(0);
+	
+	//
+	// simple cubemap dispersion for abitrary polygons
+	//
+	RB_InitGPUShader(&tr.dispersionShader_C,
+					  "dispersion_C",
+					  GLCS_VERTEX | GLCS_NORMAL, qtrue);
+
+	tr.reflectionShader_C.u_ColorMap =
+			qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_ColorMap");
+	tr.dispersionShader_C.u_ViewOrigin =
+			qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_ViewOrigin");
+	tr.dispersionShader_C.u_EtaRatio =
+			qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_EtaRatio");
+	tr.dispersionShader_C.u_FresnelPower =
+			qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_FresnelPower");
+	tr.dispersionShader_C.u_FresnelScale =
+			qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_FresnelScale");
+	tr.dispersionShader_C.u_FresnelBias =
+			qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_FresnelBias");
+
+	qglUseProgramObjectARB(tr.dispersionShader_C.program);
+	qglUniform1iARB(tr.dispersionShader_C.u_ColorMap, 0);
+	qglUseProgramObjectARB(0);
+	
+	//
+	// simple skybox drawing for abitrary polygons
+	//
+	RB_InitGPUShader(&tr.skyBoxShader,
+					  "skybox",
+					  GLCS_VERTEX | GLCS_NORMAL, qtrue);
+
+	tr.skyBoxShader.u_ColorMap =
+			qglGetUniformLocationARB(tr.skyBoxShader.program, "u_ColorMap");
+	tr.skyBoxShader.u_ViewOrigin =
+			qglGetUniformLocationARB(tr.skyBoxShader.program, "u_ViewOrigin");
+
+	qglUseProgramObjectARB(tr.skyBoxShader.program);
+	qglUniform1iARB(tr.skyBoxShader.u_ColorMap, 0);
+	qglUseProgramObjectARB(0);
 }
 
 void RB_ShutdownGPUShaders(void)
@@ -337,6 +417,30 @@ void RB_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.lightShader_D_radiosity.program);
 		tr.lightShader_D_radiosity.program = 0;
+	}
+	
+	if(tr.reflectionShader_C.program)
+	{
+		qglDeleteObjectARB(tr.reflectionShader_C.program);
+		tr.reflectionShader_C.program = 0;
+	}
+	
+	if(tr.refractionShader_C.program)
+	{
+		qglDeleteObjectARB(tr.refractionShader_C.program);
+		tr.refractionShader_C.program = 0;
+	}
+	
+	if(tr.dispersionShader_C.program)
+	{
+		qglDeleteObjectARB(tr.dispersionShader_C.program);
+		tr.dispersionShader_C.program = 0;
+	}
+	
+	if(tr.skyBoxShader.program)
+	{
+		qglDeleteObjectARB(tr.skyBoxShader.program);
+		tr.skyBoxShader.program = 0;
 	}
 }
 
@@ -857,9 +961,8 @@ void RB_BeginSurface(shader_t * shader, int fogNum)
 	}
 }
 
-static void RenderGeneric_single_FFP(int stage)
+static void Render_generic_single_FFP(int stage)
 {
-#if 1
 	shaderStage_t  *pStage;
 
 	pStage = tess.xstages[stage];
@@ -877,7 +980,6 @@ static void RenderGeneric_single_FFP(int stage)
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
 	GL_ClientState(GLCS_DEFAULT);
-#endif
 }
 
 /*
@@ -890,9 +992,8 @@ t0 = most upstream according to spec
 t1 = most downstream according to spec
 ===================
 */
-static void RenderGeneric_multi_FFP(int stage)
+static void Render_generic_multi_FFP(int stage)
 {
-#if 1
 	shaderStage_t  *pStage;
 
 	pStage = tess.xstages[stage];
@@ -946,10 +1047,10 @@ static void RenderGeneric_multi_FFP(int stage)
 	
 	GL_SelectTexture(0);
 	GL_ClientState(GLCS_DEFAULT);
-#endif
 }
 
-void RenderGeneric_single(int stage)
+/*
+void Render_generic_single(int stage)
 {
 	shaderStage_t  *pStage;
 
@@ -972,14 +1073,14 @@ void RenderGeneric_single(int stage)
 //	GL_Program(0);
 }
 
-void RenderGeneric_multi(int stage)
+void Render_generic_multi(int stage)
 {
 	//TODO	
 }
+*/
 
-void RenderLighting_D_direct(int stage)
+void Render_lighting_D_direct(int stage)
 {
-#if 1
 	shaderStage_t  *pStage;
 
 	vec4_t          ambientLight;
@@ -1015,13 +1116,11 @@ void RenderLighting_D_direct(int stage)
 	
 	GL_ClientState(GLCS_DEFAULT);
 //	GL_Program(0);
-#endif
 }
 
 
-static void RenderLighting_DB_direct(int stage)
+static void Render_lighting_DB_direct(int stage)
 {
-#if 1
 	shaderStage_t  *pStage;
 
 	vec4_t          ambientLight;
@@ -1063,12 +1162,10 @@ static void RenderLighting_DB_direct(int stage)
 	GL_SelectTexture(0);
 	GL_ClientState(GLCS_DEFAULT);
 //	GL_Program(0);
-#endif
 }
 
-void RenderLighting_DBS_direct(int stage)
+static void Render_lighting_DBS_direct(int stage)
 {
-#if 1
 	shaderStage_t  *pStage;
 
 	vec3_t			viewOrigin;
@@ -1119,10 +1216,9 @@ void RenderLighting_DBS_direct(int stage)
 	GL_SelectTexture(0);
 	GL_ClientState(GLCS_DEFAULT);
 //	GL_Program(0);
-#endif
 }
 
-void RenderLighting_D_radiosity(int stage)
+static void Render_lighting_D_radiosity(int stage)
 {
 	shaderStage_t  *pStage;
 	
@@ -1146,6 +1242,151 @@ void RenderLighting_D_radiosity(int stage)
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
 	GL_SelectTexture(0);
+	GL_ClientState(GLCS_DEFAULT);
+//	GL_Program(0);
+}
+
+static void Render_reflection_C(int stage)
+{
+	vec3_t			viewOrigin;
+	shaderStage_t  *pStage = tess.xstages[stage];
+	
+	GL_State(pStage->stateBits);
+	
+	// enable shader, set arrays
+	GL_Program(tr.reflectionShader_C.program);
+	GL_ClientState(tr.reflectionShader_C.attribs);
+	GL_SetVertexAttribs();
+	
+	// set uniforms
+	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
+	qglUniform3fARB(tr.reflectionShader_C.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+
+	// bind colormap
+	GL_SelectTexture(0);
+	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(backEnd.or.transformMatrix);
+	qglMatrixMode(GL_MODELVIEW);
+	
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+//	GL_SelectTexture(0);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadIdentity();
+	qglMatrixMode(GL_MODELVIEW);
+	GL_ClientState(GLCS_DEFAULT);
+//	GL_Program(0);
+}
+
+static void Render_refraction_C(int stage)
+{
+	vec3_t			viewOrigin;
+	shaderStage_t  *pStage = tess.xstages[stage];
+	
+	GL_State(pStage->stateBits);
+	
+	// enable shader, set arrays
+	GL_Program(tr.refractionShader_C.program);
+	GL_ClientState(tr.refractionShader_C.attribs);
+	GL_SetVertexAttribs();
+	
+	// set uniforms
+	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
+	qglUniform3fARB(tr.refractionShader_C.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	qglUniform1fARB(tr.refractionShader_C.u_RefractionIndex, RB_EvalExpression(&pStage->refractionIndexExp, 1.0));
+	qglUniform1fARB(tr.refractionShader_C.u_FresnelPower, RB_EvalExpression(&pStage->fresnelPowerExp, 2.0));
+	qglUniform1fARB(tr.refractionShader_C.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 2.0));
+	qglUniform1fARB(tr.refractionShader_C.u_FresnelBias, RB_EvalExpression(&pStage->fresnelBiasExp, 1.0));
+
+	// bind colormap
+	GL_SelectTexture(0);
+	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(backEnd.or.transformMatrix);
+	qglMatrixMode(GL_MODELVIEW);
+	
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+//	GL_SelectTexture(0);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadIdentity();
+	qglMatrixMode(GL_MODELVIEW);
+	GL_ClientState(GLCS_DEFAULT);
+//	GL_Program(0);
+}
+
+static void Render_dispersion_C(int stage)
+{
+	vec3_t			viewOrigin;
+	shaderStage_t  *pStage = tess.xstages[stage];
+	float			eta;
+	float			etaDelta;
+	
+	GL_State(pStage->stateBits);
+	
+	// enable shader, set arrays
+	GL_Program(tr.dispersionShader_C.program);
+	GL_ClientState(tr.dispersionShader_C.attribs);
+	GL_SetVertexAttribs();
+	
+	// set uniforms
+	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
+	eta	= RB_EvalExpression(&pStage->etaExp, 1.1);
+	etaDelta = RB_EvalExpression(&pStage->etaDeltaExp, -0.02);
+	
+	qglUniform3fARB(tr.dispersionShader_C.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	qglUniform3fARB(tr.dispersionShader_C.u_EtaRatio, eta, eta + etaDelta, eta + (etaDelta * 2));
+	qglUniform1fARB(tr.dispersionShader_C.u_FresnelPower, RB_EvalExpression(&pStage->fresnelPowerExp, 2.0));
+	qglUniform1fARB(tr.dispersionShader_C.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 2.0));
+	qglUniform1fARB(tr.dispersionShader_C.u_FresnelBias, RB_EvalExpression(&pStage->fresnelBiasExp, 1.0));
+
+	// bind colormap
+	GL_SelectTexture(0);
+	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(backEnd.or.transformMatrix);
+	qglMatrixMode(GL_MODELVIEW);
+	
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+//	GL_SelectTexture(0);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadIdentity();
+	qglMatrixMode(GL_MODELVIEW);
+	GL_ClientState(GLCS_DEFAULT);
+//	GL_Program(0);
+}
+
+static void Render_skybox(int stage)
+{
+	vec3_t			viewOrigin;
+	shaderStage_t  *pStage = tess.xstages[stage];
+	
+	GL_State(pStage->stateBits);
+	
+	// enable shader, set arrays
+	GL_Program(tr.skyBoxShader.program);
+	GL_ClientState(tr.skyBoxShader.attribs);
+	GL_SetVertexAttribs();
+	
+	// set uniforms
+	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
+	qglUniform3fARB(tr.skyBoxShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+
+	// bind colormap
+	GL_SelectTexture(0);
+	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(backEnd.or.transformMatrix);
+	qglMatrixMode(GL_MODELVIEW);
+	
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+//	GL_SelectTexture(0);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadIdentity();
+	qglMatrixMode(GL_MODELVIEW);
 	GL_ClientState(GLCS_DEFAULT);
 //	GL_Program(0);
 }
@@ -1840,7 +2081,7 @@ static void RB_IterateStagesGeneric()
 			// Tr3B - for development only. get rid of this later to avoid overdraw
 			case ST_DIFFUSEMAP:
 			{
-				RenderGeneric_single_FFP(stage);
+				Render_generic_single_FFP(stage);
 				break;
 			}
 			
@@ -1852,7 +2093,7 @@ static void RB_IterateStagesGeneric()
 			
 			case ST_COLLAPSE_Generic_multi:
 			{
-				RenderGeneric_multi_FFP(stage);
+				Render_generic_multi_FFP(stage);
 				break;
 			}
 			
@@ -1860,11 +2101,11 @@ static void RB_IterateStagesGeneric()
 			{
 				if(glConfig2.shadingLanguage100Available)
 				{
-					RenderLighting_D_radiosity(stage);
+					Render_lighting_D_radiosity(stage);
 				}
 				else
 				{
-					RenderGeneric_single_FFP(stage);
+					Render_generic_single_FFP(stage);
 				}
 				
 				break;
@@ -1882,12 +2123,12 @@ static void RB_IterateStagesGeneric()
 					else
 					*/
 					{
-						RenderLighting_D_radiosity(stage);
+						Render_lighting_D_radiosity(stage);
 					}
 				}
 				else
 				{
-					RenderGeneric_single_FFP(stage);
+					Render_generic_single_FFP(stage);
 				}
 				break;
 			}
@@ -1911,12 +2152,12 @@ static void RB_IterateStagesGeneric()
 					else
 					*/
 					{
-						RenderLighting_D_radiosity(stage);
+						Render_lighting_D_radiosity(stage);
 					}
 				}
 				else
 				{
-					RenderGeneric_single_FFP(stage);
+					Render_generic_single_FFP(stage);
 				}
 				break;
 			}
@@ -1927,16 +2168,16 @@ static void RB_IterateStagesGeneric()
 				{
 					if(r_bumpMapping->integer)
 					{
-						RenderLighting_DB_direct(stage);
+						Render_lighting_DB_direct(stage);
 					}
 					else
 					{
-						RenderLighting_D_direct(stage);
+						Render_lighting_D_direct(stage);
 					}
 				}
 				else
 				{
-					RenderGeneric_single_FFP(stage);
+					Render_generic_single_FFP(stage);
 				}
 				break;
 			}
@@ -1949,21 +2190,73 @@ static void RB_IterateStagesGeneric()
 					{
 						if(r_specular->integer)
 						{
-							RenderLighting_DBS_direct(stage);
+							Render_lighting_DBS_direct(stage);
 						}
 						else
 						{
-							RenderLighting_DB_direct(stage);
+							Render_lighting_DB_direct(stage);
 						}
 					}
 					else
 					{
-						RenderLighting_D_direct(stage);
+						Render_lighting_D_direct(stage);
 					}
 				}
 				else
 				{
-					RenderGeneric_single_FFP(stage);
+					Render_generic_single_FFP(stage);
+				}
+				break;
+			}
+			
+			case ST_REFLECTIONMAP:
+			{
+				if(glConfig2.shadingLanguage100Available)
+				{
+					Render_reflection_C(stage);
+				}
+				else
+				{
+					// TODO
+				}
+				break;
+			}
+			
+			case ST_REFRACTIONMAP:
+			{
+				if(glConfig2.shadingLanguage100Available)
+				{
+					Render_refraction_C(stage);
+				}
+				else
+				{
+					// TODO
+				}
+				break;
+			}
+			
+			case ST_DISPERSIONMAP:
+			{
+				if(glConfig2.shadingLanguage100Available)
+				{
+					Render_dispersion_C(stage);
+				}
+				else
+				{
+					// TODO
+				}
+				break;
+			}
+			
+			case ST_SKYBOXMAP:
+			{
+				if(glConfig2.shadingLanguage100Available)
+				{
+					Render_skybox(stage);
+				}
+				else
+				{
+					// TODO
 				}
 				break;
 			}
@@ -1971,7 +2264,7 @@ static void RB_IterateStagesGeneric()
 			default:
 			case ST_COLORMAP:
 			{
-				RenderGeneric_single_FFP(stage);
+				Render_generic_single_FFP(stage);
 				break;
 			}
 		}

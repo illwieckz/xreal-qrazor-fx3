@@ -450,6 +450,7 @@ Sets up the modelview matrix for a given viewParm
 */
 void R_RotateForViewer(void)
 {
+	matrix_t		transformMatrix;
 	matrix_t		viewMatrix;
 	
 	Com_Memset(&tr.or, 0, sizeof(tr.or));
@@ -459,14 +460,15 @@ void R_RotateForViewer(void)
 	VectorCopy(tr.viewParms.or.origin, tr.or.viewOrigin);
 
 	// transform by the camera placement
-	MatrixSetupTransform(tr.or.transformMatrix,
+	MatrixSetupTransform(transformMatrix,
 						 tr.viewParms.or.axis[0], tr.viewParms.or.axis[1], tr.viewParms.or.axis[2],
 						 tr.viewParms.or.origin);
 
-	MatrixAffineInverse(tr.or.transformMatrix, viewMatrix);
+	MatrixAffineInverse(transformMatrix, viewMatrix);
 	
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
+	MatrixIdentity(tr.or.transformMatrix);
 	MatrixMultiply(s_flipMatrix, viewMatrix, tr.or.viewMatrix);
 	MatrixCopy(tr.or.viewMatrix, tr.or.modelViewMatrix);
 

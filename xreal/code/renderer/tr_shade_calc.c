@@ -81,7 +81,7 @@ static float EvalWaveFormClamped(const waveForm_t * wf)
 	return glow;
 }
 
-static float EvalExpression(const expression_t * exp, float defaultValue)
+float RB_EvalExpression(const expression_t * exp, float defaultValue)
 {
 	// TODO
 	return defaultValue;
@@ -872,12 +872,12 @@ void RB_CalcCustomColor(const expression_t * rgbExp, unsigned char *dstColors)
 	
 	if(backEnd.currentEntity)
 	{
-		rgb = Q_bound(0.0, EvalExpression(rgbExp, 1.0), 1.0);
+		rgb = Q_bound(0.0, RB_EvalExpression(rgbExp, 1.0), 1.0);
 	}
 	else
 	{
 		// fullbright
-		rgb = EvalExpression(rgbExp, 1.0);
+		rgb = RB_EvalExpression(rgbExp, 1.0);
 	}
 	
 	v = rgb * 255;
@@ -902,16 +902,16 @@ void RB_CalcCustomColors(const expression_t * redExp, const expression_t * green
 	
 	if(backEnd.currentEntity)
 	{
-		red = Q_bound(0.0, EvalExpression(redExp, backEnd.currentEntity->e.shaderRGBA[0] * (1.0 / 255.0)), 1.0);
-		green = Q_bound(0.0, EvalExpression(greenExp, backEnd.currentEntity->e.shaderRGBA[1] * (1.0 / 255.0)), 1.0);
-		blue = Q_bound(0.0, EvalExpression(blueExp, backEnd.currentEntity->e.shaderRGBA[2] * (1.0 / 255.0)), 1.0);
+		red = Q_bound(0.0, RB_EvalExpression(redExp, backEnd.currentEntity->e.shaderRGBA[0] * (1.0 / 255.0)), 1.0);
+		green = Q_bound(0.0, RB_EvalExpression(greenExp, backEnd.currentEntity->e.shaderRGBA[1] * (1.0 / 255.0)), 1.0);
+		blue = Q_bound(0.0, RB_EvalExpression(blueExp, backEnd.currentEntity->e.shaderRGBA[2] * (1.0 / 255.0)), 1.0);
 	}
 	else
 	{
 		// fullbright
-		red = EvalExpression(redExp, 1.0);
-		green = EvalExpression(greenExp, 1.0);
-		blue = EvalExpression(blueExp, 1.0);
+		red = RB_EvalExpression(redExp, 1.0);
+		green = RB_EvalExpression(greenExp, 1.0);
+		blue = RB_EvalExpression(blueExp, 1.0);
 	}
 
 	for(i = 0; i < tess.numVertexes; i++, dstColors += 4)
@@ -933,12 +933,12 @@ void RB_CalcCustomAlpha(const expression_t * alphaExp, unsigned char *dstColors)
 	
 	if(backEnd.currentEntity)
 	{
-		alpha = Q_bound(0.0, EvalExpression(alphaExp, backEnd.currentEntity->e.shaderRGBA[3] * (1.0 / 255.0)), 1.0);
+		alpha = Q_bound(0.0, RB_EvalExpression(alphaExp, backEnd.currentEntity->e.shaderRGBA[3] * (1.0 / 255.0)), 1.0);
 	}
 	else
 	{
 		// default to opaque
-		alpha = Q_bound(0.0, EvalExpression(alphaExp, 1.0), 1.0);
+		alpha = Q_bound(0.0, RB_EvalExpression(alphaExp, 1.0), 1.0);
 	}
 
 	v = alpha * 255;

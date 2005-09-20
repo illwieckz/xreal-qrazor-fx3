@@ -637,6 +637,7 @@ void RB_RenderDrawSurfListFull(drawSurf_t * drawSurfs, int numDrawSurfs)
 			{
 				backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
 				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
+				
 				// we have to reset the shaderTime as well otherwise image animations start
 				// from the wrong frame
 				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
@@ -662,9 +663,11 @@ void RB_RenderDrawSurfListFull(drawSurf_t * drawSurfs, int numDrawSurfs)
 				backEnd.currentEntity = &tr.worldEntity;
 				backEnd.refdef.floatTime = originalTime;
 				backEnd.or = backEnd.viewParms.world;
+				
 				// we have to reset the shaderTime as well otherwise image animations on
 				// the world (like water) continue with the wrong frame
 				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+				
 				R_TransformDlights(backEnd.refdef.numDlights, backEnd.refdef.dlights, &backEnd.or);
 			}
 

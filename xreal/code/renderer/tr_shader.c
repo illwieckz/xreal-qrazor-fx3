@@ -979,7 +979,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			if(!token[0])
 			{
 				ri.Printf(PRINT_WARNING,
-						  "WARNING: missing parameter for 'videoMmap' keyword in shader '%s'\n", shader.name);
+						  "WARNING: missing parameter for 'videoMap' keyword in shader '%s'\n", shader.name);
 				return qfalse;
 			}
 			stage->bundle[0].videoMapHandle = ri.CIN_PlayCinematic(token, 0, 0, 256, 256, (CIN_loop | CIN_silent | CIN_shader));
@@ -987,6 +987,32 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			{
 				stage->bundle[0].isVideoMap = qtrue;
 				stage->bundle[0].image[0] = tr.scratchImage[stage->bundle[0].videoMapHandle];
+			}
+		}
+		else if(!Q_stricmp(token, "cubeMap"))
+		{
+			token = COM_ParseExt(text, qfalse);
+			if(!token[0])
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: missing parameter for 'cubeMap' keyword in shader '%s'\n", shader.name);
+				return qfalse;
+			}
+			
+			imageBits = 0;
+			if(stage->overrideNoMipMaps || shader.noMipMaps)
+			{
+				imageBits |= IF_NOMIPMAPS;	
+			}
+			if(stage->overrideNoPicMip || shader.noPicMip)
+			{
+				imageBits |= IF_NOPICMIP;
+			}
+			
+			stage->bundle[0].image[0] = R_FindCubeImage(token, imageBits, WT_CLAMP);
+			if(!stage->bundle[0].image[0])
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: R_FindCubeImage could not find '%s' in shader '%s'\n", token, shader.name);
+				return qfalse;
 			}
 		}
 		// alphafunc <func>
@@ -1291,6 +1317,10 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			else if(!Q_stricmp(token, "dispersionmap"))
 			{
 				stage->type = ST_DISPERSIONMAP;
+			}
+			else if(!Q_stricmp(token, "skyboxmap"))
+			{
+				stage->type = ST_SKYBOXMAP;
 			}
 			else if(!Q_stricmp(token, "liquidmap"))
 			{
@@ -3861,7 +3891,7 @@ shader_t       *R_FindShader(const char *name, int lightmapIndex, qboolean mipRa
 		// of all explicit shaders
 		if(r_printShaders->integer)
 		{
-			ri.Printf(PRINT_ALL, "...loading explicit shader '%s'\n", strippedName);
+			ri.Printf(PRINT_DEVELOPER, "...loading explicit shader '%s'\n", strippedName);
 			//ri.Printf(PRINT_ALL, "*SHADER* %s\n", name);
 		}
 

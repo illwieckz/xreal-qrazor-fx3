@@ -450,7 +450,6 @@ typedef enum
 	ST_REFRACTIONMAP,
 	ST_DISPERSIONMAP,
 	ST_SKYBOXMAP,
-	ST_SKYCLOUDMAP,
 	ST_LIQUIDMAP,							// reflective water shader
 	
 	ST_COLLAPSE_Generic_multi,				// two colormaps
@@ -514,6 +513,15 @@ typedef struct
 	
 	qboolean        privatePolygonOffset;	// set for decals and other items that must be offset 
 	float			privatePolygonOffsetValue;
+	
+	expression_t    refractionIndexExp;
+	
+	expression_t    fresnelPowerExp;
+	expression_t    fresnelScaleExp;
+	expression_t    fresnelBiasExp;
+	
+	expression_t    etaExp;
+	expression_t    etaDeltaExp;
 } shaderStage_t;
 
 struct shaderCommands_s;
@@ -654,12 +662,23 @@ typedef struct shaderProgram_s
 	GLint			u_DeluxeMap;
 
 	GLint			u_ViewOrigin;
+	
 	GLint           u_AmbientColor;
+	
 	GLint           u_LightDir;
 	GLint           u_LightColor;
+	
 	GLint			u_BumpScale;
+	
 	GLint			u_SpecularExponent;
-
+	
+	GLint			u_RefractionIndex;
+	
+	GLint			u_FresnelPower;
+	GLint			u_FresnelScale;
+	GLint			u_FresnelBias;
+	
+	GLint			u_EtaRatio;
 } shaderProgram_t;
 
 
@@ -1198,6 +1217,12 @@ typedef struct
 	shaderProgram_t lightShader_DBS_direct;
 	
 	shaderProgram_t lightShader_D_radiosity;
+	
+	shaderProgram_t reflectionShader_C;
+	shaderProgram_t refractionShader_C;
+	shaderProgram_t dispersionShader_C;
+	
+	shaderProgram_t skyBoxShader;
 
 	viewParms_t     viewParms;
 
@@ -1592,6 +1617,7 @@ model_t        *R_AllocModel(void);
 
 void            R_Init(void);
 image_t        *R_FindImageFile(const char *name, int bits, wrapType_t wrapType);
+image_t        *R_FindCubeImage(const char *name, int bits, wrapType_t wrapType);
 
 image_t        *R_CreateImage(const char *name, const byte * pic, int width, int height, int bits, wrapType_t wrapType);
 qboolean        R_GetModeInfo(int *width, int *height, float *windowAspect, int mode);
@@ -1861,6 +1887,8 @@ void            R_TransformModelToClip(const vec3_t src, const float *modelViewM
 void            R_TransformClipToWindow(const vec4_t clip, const viewParms_t * view, vec4_t normalized, vec4_t window);
 
 void            RB_DeformTessGeometry(void);
+
+float			RB_EvalExpression(const expression_t * exp, float defaultValue);
 
 void            RB_CalcEnvironmentTexCoords(float *dstTexCoords);
 void            RB_CalcFogTexCoords(float *dstTexCoords);
