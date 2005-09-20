@@ -899,7 +899,7 @@ static void GLW_InitExtensions( void )
 	
 	// GL_ARB_texture_cube_map
 	glConfig2.textureCubeAvailable = qfalse;
-	if(Q_stristr(glConfig.extensions_string, "GL_ARB_texture_cube_map"))
+	if(strstr(glConfig.extensions_string, "GL_ARB_texture_cube_map"))
 	{
 		if(r_ext_texture_cube_map->integer)
 		{
