@@ -346,17 +346,16 @@ textures/glass/glass2_nvp
 	}
 	
 	{
+		stage reflectionmap
+		//stage dispersionmap
 	    blend gl_dst_alpha, gl_one
 	    maskalpha
        	cubeMap		env/gen2
 			red		Parm0
 	        green   Parm1
 	        blue	Parm2
-        texgen		reflect
-
+        //texgen		reflect
 	}
-
-		
 }
 
 

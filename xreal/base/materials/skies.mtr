@@ -256,9 +256,12 @@ textures/skies/desert
 	noimpact
 	forceOpaque		
 	{
-		blend			add	
-		cameraCubeMap	env/desert
-		texgen			skybox
+		stage			skyboxmap
+//		stage			refractionmap
+//		stage			dispersionmap
+//		blend			add	
+		cubeMap			cubemaps/desert
+//		texgen			skybox
 	}
 }
 
