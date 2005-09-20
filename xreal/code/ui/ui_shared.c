@@ -3129,7 +3129,7 @@ typedef struct
 	float	value;	
 } configcvar_t;
 
-
+// *INDENT-OFF*
 static bind_t g_bindings[] = 
 {
 	{"+scores",			 K_TAB,				-1,		-1, -1},
@@ -3212,6 +3212,8 @@ static configcvar_t g_configcvars[] =
 	{NULL,				0,					0}
 };
 #endif
+
+// *INDENT-ON*
 
 /*
 =================

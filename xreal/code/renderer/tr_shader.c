@@ -179,29 +179,20 @@ ParseExpression
 static void ParseExpression(char **text, expression_t *exp)
 {
 	char           *token;
-	char           *p;
-	int             c;
+	
+	exp->numOps = 0;
 
-	token = COM_ParseExt(text, qfalse);
-	if(token[0] == 0)
+	while(1)
 	{
-		ri.Printf(PRINT_WARNING, "WARNING: missing expression parameter in shader '%s'\n", shader.name);
-//		return;
-	}
-	
-	// TODO: write a simple lexer
-//	SkipRestOfLine(text);
-	
-	p = *text;
-	while((c = *p++) != 0)
-	{
-		if(c == '\n' || c == ',')
-		{
+		token = COM_ParseExt(text, qfalse);
+				
+		if(token[0] == 0 || token[0] == ',')
 			break;
-		}
+		
+		// TODO
+		
+		exp->numOps++;
 	}
-
-	*text = p;
 }
 
 
@@ -4354,6 +4345,29 @@ void R_ShaderList_f(void)
 	ri.Printf(PRINT_ALL, "------------------\n");
 }
 
+void R_ShaderExp_f(void)
+{
+	int             i;
+	int				len;
+	char			buffer[1024] = "";
+	char           *buffer_p = &buffer[0];
+	expression_t	exp;
+
+	ri.Printf(PRINT_ALL, "-----------------------\n");
+
+	for(i = 1; i < ri.Cmd_Argc(); i++)
+	{
+		strcat(buffer, ri.Cmd_Argv(i));
+		strcat(buffer, " ");
+	}
+	len = strlen(buffer);
+	buffer[len -1] = 0;	// replace last " " with tailing zero
+	
+	ParseExpression(&buffer_p, &exp);
+
+	ri.Printf(PRINT_ALL, "%i total ops\n", exp.numOps);
+	ri.Printf(PRINT_ALL, "------------------\n");
+}
 
 /*
 ====================

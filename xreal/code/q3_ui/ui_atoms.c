@@ -189,6 +189,7 @@ void UI_LerpColor(vec4_t a, vec4_t b, vec4_t c, float t)
 UI_DrawProportionalString2
 =================
 */
+// *INDENT-OFF*
 int	propMap1[128][3] = {
 {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1},
 {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1},
@@ -437,6 +438,7 @@ static int	propMap3[128][3] = {
 {76, 108, 22}, 	// ~
 {0, 0, -1} 	// DEL
 };
+// *INDENT-ON*
 
 // bk001205 - code below duplicated in cgame/cg_drawtools.c
 // bk001205 - FIXME: does this belong in ui_shared.c?

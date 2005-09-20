@@ -225,6 +225,7 @@ static controls_t s_controls;
 
 static vec4_t controls_binding_color  = {1.00f, 0.43f, 0.00f, 1.00f}; // bk: Win32 C4305
 
+// *INDENT-OFF*
 static bind_t g_bindings[] = 
 {
 	{"+scores",			"show scores",		ID_SHOWSCORES,	ANIM_IDLE,		K_TAB,			-1,		-1, -1},
@@ -342,6 +343,8 @@ static menucommon_s **g_controls[] = {
 	g_weapons_controls,
 	g_misc_controls,
 };
+// *INDENT-ON*
+
 
 /*
 =================
