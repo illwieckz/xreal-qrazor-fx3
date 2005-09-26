@@ -50,7 +50,7 @@ long            myftol(float f);
 // see QSORT_SHADERNUM_SHIFT
 #define	MAX_SHADERS				16384
 
-#define MAX_SHADER_TABLES		256
+#define MAX_SHADER_TABLES		16384
 #define MAX_SHADER_STAGES		16
 
 //#define MAX_SHADER_STATES 2048
@@ -197,7 +197,7 @@ typedef struct shaderTable_s
 	qboolean		snap;
 	
 	float          *values;
-	int				size;
+	int				numValues;
 
 	struct shaderTable_s *next;
 } shaderTable_t;
@@ -291,30 +291,62 @@ typedef enum
 } acff_t;
 
 typedef enum {
-	OP_UNDEF, 
-
-	OP_EQ,
-	OP_NE,
-
-	OP_LT,
-	OP_LE,
-	OP_GT,
+	OP_BAD,
+	// logic operators
+	OP_LAND,
+	OP_LOR,
 	OP_GE,
-
+	OP_LE,
+	OP_LEQ,
+	OP_LNE,
+	// arithmetic operators
 	OP_ADD,
 	OP_SUB,
 	OP_DIV,
 	OP_MOD,
 	OP_MUL,
-
-	OP_BAND,
-	OP_BOR,
-	OP_BXOR,
-	OP_BCOM,
-
-	OP_LSH,
-	OP_RSH
+	OP_NEG,
+	// logic operators
+	OP_LT,
+	OP_GT,
+	// embracements
+	OP_LPAREN,
+	OP_RPAREN,
+	OP_LBRACKET,
+	OP_RBRACKET,
+	// constants or variables
+	OP_NUM,
+	OP_TIME,
+	OP_PARM0,
+	OP_PARM1,
+	OP_PARM2,
+	OP_PARM3,
+	OP_PARM4,
+	OP_PARM5,
+	OP_PARM6,
+	OP_PARM7,
+	OP_PARM8,
+	OP_PARM9,
+	OP_PARM10,
+	OP_PARM11,
+	OP_GLOBAL0,
+	OP_GLOBAL1,
+	OP_GLOBAL2,
+	OP_GLOBAL3,
+	OP_GLOBAL4,
+	OP_GLOBAL5,
+	OP_GLOBAL6,
+	OP_GLOBAL7,
+	OP_SOUND,
+	// table access
+	OP_TABLE
 } opcode_t;
+
+typedef struct
+{
+	const char     *s;
+	opcode_t		type;
+} opstring_t;
 
 typedef struct
 {
@@ -327,6 +359,8 @@ typedef struct
 {
 	expOperation_t  ops[MAX_EXPRESSION_OPS];
 	int             numOps;
+	
+	qboolean		bad;	// parsing failed or something else bad happened
 } expression_t;
 
 typedef struct
@@ -351,7 +385,7 @@ typedef enum
 	TMOD_STRETCH,
 	TMOD_ROTATE,
 	TMOD_ENTITY_TRANSLATE,
-	
+			
 	TMOD_SCROLL2,
 	TMOD_TRANSLATE,
 	TMOD_SCALE2,
@@ -1898,6 +1932,8 @@ void            RB_CalcRotateTexCoords(float rotSpeed, float *dstTexCoords);
 void            RB_CalcScaleTexCoords(const float scale[2], float *dstTexCoords);
 void            RB_CalcTurbulentTexCoords(const waveForm_t * wf, float *dstTexCoords);
 void            RB_CalcTransformTexCoords(const texModInfo_t * tmi, float *dstTexCoords);
+void            RB_CalcScrollTexCoords2(const expression_t * sExp, const expression_t * tExp, float *dstTexCoords);
+void            RB_CalcScaleTexCoords2(const expression_t * sExp, const expression_t * tExp, float *dstTexCoords);
 
 void            RB_CalcModulateColorsByFog(unsigned char *dstColors);
 void            RB_CalcModulateAlphasByFog(unsigned char *dstColors);

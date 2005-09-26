@@ -81,10 +81,329 @@ static float EvalWaveFormClamped(const waveForm_t * wf)
 	return glow;
 }
 
+static float GetOpValue(const expOperation_t * op)
+{
+	float			value;
+	float			inv255 = 1.0 / 255.0;
+	
+	switch(op->type)
+	{
+		case OP_NUM:
+			value = op->value;
+			break;
+		
+		case OP_TIME:
+			value = tess.shaderTime;
+			break;
+			
+		case OP_PARM0:
+			if(!backEnd.currentEntity)
+			{
+				value = 1;
+				break;
+			}
+			else
+			{
+				value = backEnd.currentEntity->e.shaderRGBA[0] * inv255;
+			}
+			break;
+			
+		case OP_PARM1:
+			if(!backEnd.currentEntity)
+			{
+				value = 1;
+				break;
+			}
+			else
+			{
+				value = backEnd.currentEntity->e.shaderRGBA[1] * inv255;
+			}
+			break;
+			
+		case OP_PARM2:
+			if(!backEnd.currentEntity)
+			{
+				value = 1;
+				break;
+			}
+			else
+			{
+				value = backEnd.currentEntity->e.shaderRGBA[2] * inv255;
+			}
+			break;
+			
+		case OP_PARM3:
+			if(!backEnd.currentEntity)
+			{
+				value = 1;
+				break;
+			}
+			else
+			{
+				value = backEnd.currentEntity->e.shaderRGBA[3] * inv255;
+			}
+			break;
+		
+		case OP_PARM4:
+		case OP_PARM5:
+		case OP_PARM6:
+		case OP_PARM7:
+		case OP_PARM8:
+		case OP_PARM9:
+		case OP_PARM10:
+		case OP_PARM11:
+		case OP_GLOBAL0:
+		case OP_GLOBAL1:
+		case OP_GLOBAL2:
+		case OP_GLOBAL3:
+		case OP_GLOBAL4:
+		case OP_GLOBAL5:
+		case OP_GLOBAL6:
+		case OP_GLOBAL7:
+			value = 1.0;
+			break;
+			
+		case OP_SOUND:
+			value = 0.5;
+			break;
+		
+		default:
+			value = 0;
+			break;
+	}
+	
+	return value;
+}
+
 float RB_EvalExpression(const expression_t * exp, float defaultValue)
 {
-	// TODO
+#if 1
+	int				i;
+	expOperation_t  op;
+	expOperation_t  ops[MAX_EXPRESSION_OPS];
+	int				numOps;
+	float			value;
+	float			value1;
+	float			value2;
+	extern const opstring_t opStrings[];
+	
+	numOps = 0;
+	value = 0;
+	value1 = 0;
+	value2 = 0;
+	
+	if(!exp || exp->bad)
+	{
+		return defaultValue;	
+	}
+	
+	// http://www.qiksearch.com/articles/cs/postfix-evaluation/
+	// http://www.kyz.uklinux.net/evaluate/
+	
+	for(i = 0; i < exp->numOps; i++)
+	{
+		op = exp->ops[i];
+		
+		switch(op.type)
+		{
+			case OP_BAD:
+				return defaultValue;
+				
+			case OP_NEG:
+			{
+				if(numOps < 1)
+				{
+					ri.Printf(PRINT_ALL, "WARNING: shader %s has numOps < 1 for unary - operator\n", tess.shader->name);
+					return defaultValue;
+				}
+				
+				value1 = GetOpValue(&ops[numOps -1]);
+				numOps--;
+				
+				value = -value1;
+				
+				// push result
+				op.type = OP_NUM;
+				op.value = value;
+				ops[numOps++] = op;
+				break;	
+			}
+					
+			case OP_NUM:
+			case OP_TIME:
+			case OP_PARM0:
+			case OP_PARM1:
+			case OP_PARM2:
+			case OP_PARM3:
+			case OP_PARM4:
+			case OP_PARM5:
+			case OP_PARM6:
+			case OP_PARM7:
+			case OP_PARM8:
+			case OP_PARM9:
+			case OP_PARM10:
+			case OP_PARM11:
+			case OP_GLOBAL0:
+			case OP_GLOBAL1:
+			case OP_GLOBAL2:
+			case OP_GLOBAL3:
+			case OP_GLOBAL4:
+			case OP_GLOBAL5:
+			case OP_GLOBAL6:
+			case OP_GLOBAL7:
+			case OP_SOUND:
+				ops[numOps++] = op;
+				break;
+				
+			case OP_TABLE:
+			{
+				shaderTable_t  *table;
+				int				numValues;
+				float			index;
+				float			lerp;
+				int				oldIndex;
+				int				newIndex;
+				
+				if(numOps < 1)
+				{
+					ri.Printf(PRINT_ALL, "WARNING: shader %s has numOps < 1 for table operator\n", tess.shader->name);
+					return defaultValue;
+				}
+				
+				value1 = GetOpValue(&ops[numOps -1]);
+				numOps--;
+				
+				table = tr.shaderTables[(int)op.value];
+				
+				numValues = table->numValues;
+	
+				index = value1 * numValues;		// float index into the table´s elements
+				lerp = index - floorf(index);	// being inbetween two elements of the table
+	
+				oldIndex = (int)index;
+				newIndex = (int)index + 1;
+	
+				if(table->clamp)
+				{
+					// clamp indices to table-range
+					Q_clamp(oldIndex, 0, numValues-1);
+					Q_clamp(newIndex, 0, numValues-1);
+				}
+				else
+				{
+					// wrap around indices
+					oldIndex %= numValues;
+					newIndex %= numValues;
+				}
+
+				if(table->snap)
+				{
+					// use fixed value
+					value = table->values[oldIndex];
+				}
+				else
+				{
+					// lerp value
+					value = table->values[oldIndex] + ((table->values[newIndex] - table->values[oldIndex]) * lerp);
+				}
+				
+				//ri.Printf(PRINT_ALL, "%s: %i %i %f\n", table->name, oldIndex, newIndex, value);
+
+				// push result
+				op.type = OP_NUM;
+				op.value = value;
+				ops[numOps++] = op;
+				break;
+			}
+				
+			default:
+			{
+				if(numOps < 2)
+				{
+					ri.Printf(PRINT_ALL, "WARNING: shader %s has numOps < 2 for binary operator %s\n", tess.shader->name, opStrings[op.type].s);
+					return defaultValue;
+				}
+				
+				value2 = GetOpValue(&ops[numOps -1]);
+				numOps--;
+				
+				value1 = GetOpValue(&ops[numOps -1]);
+				numOps--;
+				
+				switch(op.type)
+				{
+					case OP_LAND:
+						value = value1 && value2;
+						break;
+					
+					case OP_LOR:
+						value = value1 || value2;
+						break;
+						
+					case OP_GE:
+						value = value1 >= value2;
+						break;
+					
+					case OP_LE:
+						value = value1 <= value2;
+						break;
+					
+					case OP_LEQ:
+						value = value1 == value2;
+						break;
+						
+					case OP_LNE:
+						value = value1 != value2;
+						break;
+					
+					case OP_ADD:
+						value = value1 + value2;
+						break;
+						
+					case OP_SUB:
+						value = value1 - value2;
+						break;
+						
+					case OP_DIV:
+						if(value2 == 0)
+						{
+							// don't divide by zero
+							value = value1;
+						}
+						else
+						{
+							value = value1 / value2;
+						}
+						break;
+						
+					case OP_MOD:
+						value = (float)((int)value1 % (int)value2);
+						break;
+						
+					case OP_MUL:
+						value = value1 * value2;
+						break;
+						
+					default:
+						value = value1 = value2 = 0;
+						break;
+				}
+			
+				//ri.Printf(PRINT_ALL, "%s: %f %f %f\n", opStrings[op.type].s, value, value1, value2);
+				
+				// push result
+				op.type = OP_NUM;
+				op.value = value;
+				ops[numOps++] = op;
+				break;
+			}
+		}
+	}
+	
+	return GetOpValue(&ops[0]);
+#else
 	return defaultValue;
+#endif
 }
 
 /*
@@ -1214,7 +1533,47 @@ void RB_CalcRotateTexCoords(float degsPerSecond, float *st)
 	RB_CalcTransformTexCoords(&tmi, st);
 }
 
+/*
+** RB_CalcScrollTexCoords2
+*/
+void RB_CalcScrollTexCoords2(const expression_t * sExp, const expression_t * tExp, float *st)
+{
+	int             i;
+	float           adjustedScrollS, adjustedScrollT;
 
+	adjustedScrollS = RB_EvalExpression(sExp, 0);
+	adjustedScrollT = RB_EvalExpression(tExp, 0);
+
+	// clamp so coordinates don't continuously get larger, causing problems
+	// with hardware limits
+	adjustedScrollS = adjustedScrollS - floor(adjustedScrollS);
+	adjustedScrollT = adjustedScrollT - floor(adjustedScrollT);
+
+	for(i = 0; i < tess.numVertexes; i++, st += 2)
+	{
+		st[0] += adjustedScrollS;
+		st[1] += adjustedScrollT;
+	}
+}
+
+/*
+** RB_CalcScaleTexCoords2
+*/
+void RB_CalcScaleTexCoords2(const expression_t * sExp, const expression_t * tExp, float *st)
+{
+	int             i;
+	float           scaleS;
+	float           scaleT;
+
+	scaleS = RB_EvalExpression(sExp, 0);
+	scaleT = RB_EvalExpression(tExp, 0);
+
+	for(i = 0; i < tess.numVertexes; i++, st += 2)
+	{
+		st[0] *= scaleS;
+		st[1] *= scaleT;
+	}
+}
 
 
 

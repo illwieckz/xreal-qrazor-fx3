@@ -2817,6 +2817,11 @@ image_t        *R_FindCubeImage(const char *name, int bits, wrapType_t wrapType)
 			return image;
 		}
 	}
+	
+	for(i = 0; i < 6; i++)
+	{
+		pic[i] = NULL;
+	}
 
 	// load the pic from disk
 	for(i = 0; i < 6; i++)

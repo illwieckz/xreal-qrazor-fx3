@@ -2022,9 +2022,10 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 				case TMOD_ROTATE:
 					RB_CalcRotateTexCoords(pStage->bundle[b].texMods[tm].rotateSpeed, (float *)tess.svars.texCoords[b]);
 					break;
-					
+				
 				case TMOD_SCROLL2:
-					// TODO
+					RB_CalcScrollTexCoords2( &pStage->bundle[b].texMods[tm].sExp,
+											 &pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
 					break;
 					
 				case TMOD_TRANSLATE:
@@ -2032,7 +2033,8 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 					break;
 					
 				case TMOD_SCALE2:
-					// TODO
+					RB_CalcScaleTexCoords2( &pStage->bundle[b].texMods[tm].sExp,
+											&pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
 					break;
 					
 				case TMOD_CENTERSCALE:
@@ -2046,7 +2048,7 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 				case TMOD_ROTATE2:
 					// TODO
 					break;
-
+				
 				default:
 					ri.Error(ERR_DROP, "ERROR: unknown texmod '%d' in shader '%s'\n",
 							 pStage->bundle[b].texMods[tm].type, tess.shader->name);

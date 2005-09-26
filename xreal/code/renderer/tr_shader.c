@@ -27,12 +27,16 @@ static char    *s_shaderText;
 
 // the shader is parsed into these global variables, then copied into
 // dynamically allocated memory if it is valid.
+static shaderTable_t	table;
 static shaderStage_t	stages[MAX_SHADER_STAGES];
 static shader_t			shader;
 static texModInfo_t		texMods[MAX_SHADER_STAGES][TR_MAX_TEXMODS];
 static qboolean			deferLoad;
 
-#define FILE_HASH_SIZE		1024
+#define MAX_SHADERTABLE_HASH	2048
+static shaderTable_t   *shaderTableHashTable[MAX_SHADERTABLE_HASH];
+
+#define FILE_HASH_SIZE			1024
 static shader_t		   *shaderHashTable[FILE_HASH_SIZE];
 
 #define MAX_SHADERTEXT_HASH		2048
@@ -171,6 +175,442 @@ static qboolean ParseVector(char **text, int count, float *v)
 }
 
 
+opstring_t opStrings[] = 
+{
+	{"bad", OP_BAD},
+	
+	{"&&", OP_LAND},
+	{"||", OP_LOR},
+	{">=", OP_GE},
+	{"<=", OP_LE},
+	{"==", OP_LEQ},
+	{"!=", OP_LNE},
+	
+	{"+", OP_ADD},
+	{"-", OP_SUB},
+	{"/", OP_DIV},
+	{"%", OP_MOD},
+	{"*", OP_MUL},
+	{"neg", OP_NEG},
+	
+	{"<", OP_LT},
+	{">", OP_GT},
+	
+	{"(", OP_LPAREN},
+	{")", OP_RPAREN},
+	{"[", OP_LBRACKET},
+	{"]", OP_RBRACKET},
+	
+	{"c", OP_NUM},
+	{"time", OP_TIME},
+	{"parm0", OP_PARM0},
+	{"parm1", OP_PARM1},
+	{"parm2", OP_PARM2},
+	{"parm3", OP_PARM3},
+	{"parm4", OP_PARM4},
+	{"parm5", OP_PARM5},
+	{"parm6", OP_PARM6},
+	{"parm7", OP_PARM7},
+	{"parm8", OP_PARM8},
+	{"parm9", OP_PARM9},
+	{"parm10", OP_PARM10},
+	{"parm11", OP_PARM11},
+	{"global0", OP_GLOBAL0},
+	{"global1", OP_GLOBAL1},
+	{"global2", OP_GLOBAL2},
+	{"global3", OP_GLOBAL3},
+	{"global4", OP_GLOBAL4},
+	{"global5", OP_GLOBAL5},
+	{"global6", OP_GLOBAL6},
+	{"global7", OP_GLOBAL7},
+	{"sound", OP_SOUND},
+	
+	{"table", OP_TABLE},
+	
+	{NULL, OP_BAD}
+};
+
+static void GetOpType(char *token, expOperation_t * op)
+{
+	opstring_t     *opString;
+	char            tableName[MAX_QPATH];
+	int             hash;
+	shaderTable_t  *table;
+	
+	if(	(token[0] >= '0' && token[0] <= '9')	||
+		//(token[0] == '-' && token[1] >= '0' && token[1] <= '9')	||
+		//(token[0] == '+' && token[1] >= '0' && token[1] <= '9')	||
+		(token[0] == '.' && token[1] >= '0' && token[1] <= '9'))
+	{
+		op->type = OP_NUM;
+		return;
+	}
+
+	Q_strncpyz(tableName, token, sizeof(tableName));
+	hash = generateHashValue(tableName, MAX_SHADERTABLE_HASH);
+
+	for(table = shaderTableHashTable[hash]; table; table = table->next)
+	{
+		if(Q_stricmp(table->name, tableName) == 0)
+		{
+			// match found
+			op->type = OP_TABLE;
+			op->value = table->index;
+			return;
+		}
+	}
+	
+	for(opString = opStrings; opString->s; opString++)
+	{
+		if(!Q_stricmp(token, opString->s))
+		{
+			op->type = opString->type;
+			return;
+		}
+	}
+	
+	op->type = OP_BAD;
+}
+
+static qboolean IsOperand(opcode_t oc)
+{
+	switch (oc)
+	{
+		case OP_NUM:
+		case OP_TIME:
+		case OP_PARM0:
+		case OP_PARM1:
+		case OP_PARM2:
+		case OP_PARM3:
+		case OP_PARM4:
+		case OP_PARM5:
+		case OP_PARM6:
+		case OP_PARM7:
+		case OP_PARM8:
+		case OP_PARM9:
+		case OP_PARM10:
+		case OP_PARM11:
+		case OP_GLOBAL0:
+		case OP_GLOBAL1:
+		case OP_GLOBAL2:
+		case OP_GLOBAL3:
+		case OP_GLOBAL4:
+		case OP_GLOBAL5:
+		case OP_GLOBAL6:
+		case OP_GLOBAL7:
+		case OP_SOUND:
+			return qtrue;
+			
+		default:
+			return qfalse;
+	}
+}
+
+static qboolean IsOperator(opcode_t oc)
+{
+	switch (oc)
+	{
+		case OP_LAND:
+		case OP_LOR:
+		case OP_GE:
+		case OP_LE:
+		case OP_LEQ:
+		case OP_LNE:
+		case OP_ADD:
+		case OP_SUB:
+		case OP_DIV:
+		case OP_MOD:
+		case OP_MUL:
+		case OP_NEG:
+		case OP_LT:
+		case OP_GT:
+		case OP_TABLE:
+			return qtrue;
+			
+		default:
+			return qfalse;
+	}
+}
+
+static int GetOpPrecedence(opcode_t oc)
+{
+	switch (oc)
+	{
+		case OP_LOR:
+			return 1;
+			
+		case OP_LAND:
+			return 2;
+		
+		case OP_LEQ:
+		case OP_LNE:
+			return 3;
+			
+		case OP_GE:
+		case OP_LE:
+		case OP_LT:
+		case OP_GT:
+			return 4;
+		
+		case OP_ADD:
+		case OP_SUB:
+			return 5;
+		
+		case OP_DIV:
+		case OP_MOD:
+		case OP_MUL:
+			return 6;
+			
+		case OP_NEG:
+			return 7;
+			
+		case OP_TABLE:
+			return 8;
+			
+		default:
+			return 0;
+	}
+}
+
+static char *ParseExpressionElement(char **data_p)
+{
+	int             c = 0, len;
+	char           *data;
+	const char    **punc;
+	static char     token[MAX_TOKEN_CHARS];
+	
+	// multiple character punctuation tokens
+	const char     *punctuation[] = {
+		"&&", "||", "<=", ">=", "==", "!=", NULL
+	};
+
+	if(!data_p)
+	{
+		ri.Error(ERR_FATAL, "ParseExpressionElement: NULL data_p");
+	}
+
+	data = *data_p;
+	len = 0;
+	token[0] = 0;
+
+	// make sure incoming data is valid
+	if(!data)
+	{
+		*data_p = NULL;
+		return token;
+	}
+
+	// skip whitespace
+	while(1)
+	{
+		// skip whitespace
+		while((c = *data) <= ' ')
+		{
+			if(!c)
+			{
+				*data_p = NULL;
+				return token;
+			}
+			else if(c == '\n')
+			{
+				data++;
+				*data_p = data;
+				return token;
+			}
+			else
+			{
+				data++;
+			}
+		}
+
+		c = *data;
+
+		// skip double slash comments
+		if(c == '/' && data[1] == '/')
+		{
+			data += 2;
+			while(*data && *data != '\n')
+			{
+				data++;
+			}
+		}
+		// skip /* */ comments
+		else if(c == '/' && data[1] == '*')
+		{
+			data += 2;
+			while(*data && (*data != '*' || data[1] != '/'))
+			{
+				data++;
+			}
+			if(*data)
+			{
+				data += 2;
+			}
+		}
+		else
+		{
+			// a real token to parse
+			break;
+		}
+	}
+
+	// handle quoted strings
+	if(c == '\"')
+	{
+		data++;
+		while(1)
+		{
+			c = *data++;
+
+			if((c == '\\') && (*data == '\"'))
+			{
+				// allow quoted strings to use \" to indicate the " character
+				data++;
+			}
+			else if(c == '\"' || !c)
+			{
+				token[len] = 0;
+				*data_p = (char *)data;
+				return token;
+			}
+
+			if(len < MAX_TOKEN_CHARS - 1)
+			{
+				token[len] = c;
+				len++;
+			}
+		}
+	}
+
+	// check for a number
+	if(	(c >= '0' && c <= '9') ||
+		//(c == '-' && data[1] >= '0' && data[1] <= '9') ||
+		//(c == '+' && data[1] >= '0' && data[1] <= '9') ||
+		(c == '.' && data[1] >= '0' && data[1] <= '9'))
+	{
+		do
+		{
+			if(len < MAX_TOKEN_CHARS - 1)
+			{
+				token[len] = c;
+				len++;
+			}
+			data++;
+
+			c = *data;
+		} while((c >= '0' && c <= '9') || c == '.');
+
+		// parse the exponent
+		if(c == 'e' || c == 'E')
+		{
+			if(len < MAX_TOKEN_CHARS - 1)
+			{
+				token[len] = c;
+				len++;
+			}
+			data++;
+			c = *data;
+
+			if(c == '-' || c == '+')
+			{
+				if(len < MAX_TOKEN_CHARS - 1)
+				{
+					token[len] = c;
+					len++;
+				}
+				data++;
+				c = *data;
+			}
+
+			do
+			{
+				if(len < MAX_TOKEN_CHARS - 1)
+				{
+					token[len] = c;
+					len++;
+				}
+				data++;
+
+				c = *data;
+			} while(c >= '0' && c <= '9');
+		}
+
+		if(len == MAX_TOKEN_CHARS)
+		{
+			len = 0;
+		}
+		token[len] = 0;
+
+		*data_p = (char *)data;
+		return token;
+	}
+
+	// check for a regular word
+	if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c == '_'))
+	{
+		do
+		{
+			if(len < MAX_TOKEN_CHARS - 1)
+			{
+				token[len] = c;
+				len++;
+			}
+			data++;
+
+			c = *data;
+		}
+		while
+		(
+			(c >= 'a' && c <= 'z') ||
+			(c >= 'A' && c <= 'Z') ||
+			(c == '_') ||
+			(c >= '0' && c <= '9')
+		);
+
+		if(len == MAX_TOKEN_CHARS)
+		{
+			len = 0;
+		}
+		token[len] = 0;
+
+		*data_p = (char *)data;
+		return token;
+	}
+
+	// check for multi-character punctuation token
+	for(punc = punctuation; *punc; punc++)
+	{
+		int             l;
+		int             j;
+
+		l = strlen(*punc);
+		for(j = 0; j < l; j++)
+		{
+			if(data[j] != (*punc)[j])
+			{
+				break;
+			}
+		}
+		if(j == l)
+		{
+			// a valid multi-character punctuation
+			memcpy(token, *punc, l);
+			token[l] = 0;
+			data += l;
+			*data_p = (char *)data;
+			return token;
+		}
+	}
+
+	// single character punctuation
+	token[0] = *data;
+	token[1] = 0;
+	data++;
+	*data_p = (char *)data;
+
+	return token;
+}
+
 /*
 ===============
 ParseExpression
@@ -178,21 +618,243 @@ ParseExpression
 */
 static void ParseExpression(char **text, expression_t *exp)
 {
+	int				i;
 	char           *token;
 	
+	expOperation_t  op, op2;
+	
+	expOperation_t  inFixOps[MAX_EXPRESSION_OPS];
+	int				numInFixOps;
+	
+	// convert stack
+	expOperation_t  tmpOps[MAX_EXPRESSION_OPS];
+	int				numTmpOps;
+	
+	numInFixOps = 0;
+	numTmpOps = 0;
+	
 	exp->numOps = 0;
+	exp->bad = qfalse;
+	
+	// push left parenthesis on the stack
+	op.type = OP_LPAREN;
+	op.value = 0;
+	inFixOps[numInFixOps++] = op;
 
 	while(1)
 	{
-		token = COM_ParseExt(text, qfalse);
+		token = ParseExpressionElement(text);
 				
 		if(token[0] == 0 || token[0] == ',')
 			break;
 		
-		// TODO
+		if(numInFixOps == MAX_EXPRESSION_OPS)
+		{
+			ri.Printf(PRINT_ALL, "WARNING: too many arithmetic expression operations in shader '%s'\n", shader.name);
+			exp->bad = qtrue;
+			SkipRestOfLine(text);
+			return;
+		}
 		
-		exp->numOps++;
+		GetOpType(token, &op);
+		
+		switch(op.type)
+		{
+			case OP_BAD:
+				ri.Printf(PRINT_ALL, "WARNING: unknown token '%s' for arithmetic expression in shader '%s'\n", token, shader.name);
+				exp->bad = qtrue;
+				break;
+				
+			case OP_LBRACKET:
+				inFixOps[numInFixOps++] = op;
+				
+				// add extra (
+				op2.type = OP_LPAREN;
+				op2.value = 0;
+				inFixOps[numInFixOps++] = op2;
+				break;
+				
+			case OP_RBRACKET:
+				// add extra )
+				op2.type = OP_RPAREN;
+				op2.value = 0;
+				inFixOps[numInFixOps++] = op2;
+				
+				inFixOps[numInFixOps++] = op;
+				break;
+			
+			case OP_NUM:
+				op.value = atof(token);
+				inFixOps[numInFixOps++] = op;
+				break;
+				
+			case OP_TABLE:
+				// value already set by GetOpType
+				inFixOps[numInFixOps++] = op;
+				break;
+			
+			default:
+				op.value = 0;
+				inFixOps[numInFixOps++] = op;
+				break;
+		}
 	}
+	
+	// push right parenthesis on the stack
+	op.type = OP_RPAREN;
+	op.value = 0;
+	inFixOps[numInFixOps++] = op;
+	
+	for(i = 0; i < (numInFixOps - 1); i++)
+	{
+		op = inFixOps[i];
+		op2 = inFixOps[i + 1];
+		
+		// convert OP_SUBs that should be unary into OP_NEG
+		if(op2.type == OP_SUB && op.type != OP_RPAREN && op.type != OP_TABLE && !IsOperand(op.type))
+			inFixOps[i + 1].type = OP_NEG;
+	}
+	
+#if 0
+	ri.Printf(PRINT_ALL, "infix:\n");
+	for(i = 0; i < numInFixOps; i++)
+	{
+		op = inFixOps[i];
+		
+		switch (op.type)
+		{
+			case OP_NUM:
+				ri.Printf(PRINT_ALL, "%f ", op.value);
+				break;
+				
+			case OP_TABLE:
+				ri.Printf(PRINT_ALL, "%s ", tr.shaderTables[(int)op.value]->name);
+				break;
+			
+			default:
+				ri.Printf(PRINT_ALL, "%s ", opStrings[op.type].s);
+				break;
+		}
+	}
+	ri.Printf(PRINT_ALL, "\n");
+#endif
+
+	if(exp->bad)
+		return;
+
+	// http://cis.stvincent.edu/swd/stl/stacks/stacks.html
+	// http://www.qiksearch.com/articles/cs/infix-postfix/
+	// http://www.experts-exchange.com/Programming/Programming_Languages/C/Q_20394130.html
+	
+	//
+	// convert infix representation to postfix
+	//
+	
+	for(i = 0; i < numInFixOps; i++)
+	{
+		op = inFixOps[i];
+		
+		// if current operator in infix is digit
+		if(IsOperand(op.type))
+		{
+			exp->ops[exp->numOps++] = op;
+		}
+		// if current operator in infix is left parenthesis
+		else if(op.type == OP_LPAREN)
+		{
+			tmpOps[numTmpOps++] = op;
+		}
+		// if current operator in infix is operator
+		else if(IsOperator(op.type))
+		{
+			while(qtrue)
+			{
+				if(!numTmpOps)
+				{
+					ri.Printf(PRINT_ALL, "WARNING: invalid infix expression in shader '%s'\n", shader.name);
+					exp->bad = qtrue;
+					return;
+				}
+				else
+				{
+					// get top element
+					op2 = tmpOps[numTmpOps -1];
+					
+					if(IsOperator(op2.type))
+					{
+						if(GetOpPrecedence(op2.type) >= GetOpPrecedence(op.type))
+						{
+							exp->ops[exp->numOps++] = op2;
+							numTmpOps--;
+						}
+						else
+						{
+							break;
+						}
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+			
+			tmpOps[numTmpOps++] = op;
+		}
+		// if current operator in infix is right parenthesis
+		else if(op.type == OP_RPAREN)
+		{
+			while(qtrue)
+			{
+				if(!numTmpOps)
+				{
+					ri.Printf(PRINT_ALL, "WARNING: invalid infix expression in shader '%s'\n", shader.name);
+					exp->bad = qtrue;
+					return;
+				}
+				else
+				{
+					// get top element
+					op2 = tmpOps[numTmpOps -1];
+					
+					if(op2.type != OP_LPAREN)
+					{
+						exp->ops[exp->numOps++] = op2;
+						numTmpOps--;
+					}
+					else
+					{
+						numTmpOps--;
+						break;
+					}
+				}
+			}
+		}
+	}
+	
+#if 0
+	ri.Printf(PRINT_ALL, "postfix:\n");
+	for(i = 0; i < exp->numOps; i++)
+	{
+		op = exp->ops[i];
+		
+		switch (op.type)
+		{
+			case OP_NUM:
+				ri.Printf(PRINT_ALL, "%f ", op.value);
+				break;
+				
+			case OP_TABLE:
+				ri.Printf(PRINT_ALL, "%s ", tr.shaderTables[(int)op.value]->name);
+				break;
+			
+			default:
+				ri.Printf(PRINT_ALL, "%s ", opStrings[op.type].s);
+				break;
+		}
+	}
+	ri.Printf(PRINT_ALL, "\n");
+#endif
 }
 
 
@@ -409,22 +1071,23 @@ static void ParseWaveForm(char **text, waveForm_t * wave)
 ParseTexMod
 ===================
 */
-void ParseTexMod(char **text, shaderStage_t * stage)
+static qboolean ParseTexMod(char **text, shaderStage_t * stage)
 {
 	const char     *token;
-//	char          **text = &_text;
 	texModInfo_t   *tmi;
 
 	if(stage->bundle[0].numTexMods == TR_MAX_TEXMODS)
 	{
 		ri.Error(ERR_DROP, "ERROR: too many tcMod stages in shader '%s'\n", shader.name);
-		return;
+		return qfalse;
 	}
 
 	tmi = &stage->bundle[0].texMods[stage->bundle[0].numTexMods];
 	stage->bundle[0].numTexMods++;
 
 	token = COM_ParseExt(text, qfalse);
+	
+//	ri.Printf(PRINT_ALL, "using tcMod '%s' in shader '%s'\n", token, shader.name);
 
 	// turb
 	if(!Q_stricmp(token, "turb"))
@@ -433,28 +1096,28 @@ void ParseTexMod(char **text, shaderStage_t * stage)
 		if(token[0] == 0)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: missing tcMod turb parms in shader '%s'\n", shader.name);
-			return;
+			return qfalse;
 		}
 		tmi->wave.base = atof(token);
 		token = COM_ParseExt(text, qfalse);
 		if(token[0] == 0)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: missing tcMod turb in shader '%s'\n", shader.name);
-			return;
+			return qfalse;
 		}
 		tmi->wave.amplitude = atof(token);
 		token = COM_ParseExt(text, qfalse);
 		if(token[0] == 0)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: missing tcMod turb in shader '%s'\n", shader.name);
-			return;
+			return qfalse;
 		}
 		tmi->wave.phase = atof(token);
 		token = COM_ParseExt(text, qfalse);
 		if(token[0] == 0)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: missing tcMod turb in shader '%s'\n", shader.name);
-			return;
+			return qfalse;
 		}
 		tmi->wave.frequency = atof(token);
 
@@ -467,7 +1130,7 @@ void ParseTexMod(char **text, shaderStage_t * stage)
 		if(token[0] == 0)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: missing scale parms in shader '%s'\n", shader.name);
-			return;
+			return qfalse;
 		}
 		tmi->scale[0] = atof(token);
 
@@ -475,7 +1138,7 @@ void ParseTexMod(char **text, shaderStage_t * stage)
 		if(token[0] == 0)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: missing scale parms in shader '%s'\n", shader.name);
-			return;
+			return qfalse;
 		}
 		tmi->scale[1] = atof(token);
 		tmi->type = TMOD_SCALE;
@@ -487,14 +1150,14 @@ void ParseTexMod(char **text, shaderStage_t * stage)
 		if(token[0] == 0)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: missing scale scroll parms in shader '%s'\n", shader.name);
-			return;
+			return qfalse;
 		}
 		tmi->scroll[0] = atof(token);
 		token = COM_ParseExt(text, qfalse);
 		if(token[0] == 0)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: missing scale scroll parms in shader '%s'\n", shader.name);
-			return;
+			return qfalse;
 		}
 		tmi->scroll[1] = atof(token);
 		
@@ -506,7 +1169,7 @@ void ParseTexMod(char **text, shaderStage_t * stage)
 		if(token[0] == 0)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: missing stretch parms in shader '%s'\n", shader.name);
-			return;
+			return qfalse;
 		}
 		tmi->wave.func = NameToGenFunc(token);
 
@@ -514,7 +1177,7 @@ void ParseTexMod(char **text, shaderStage_t * stage)
 		if(token[0] == 0)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: missing stretch parms in shader '%s'\n", shader.name);
-			return;
+			return qfalse;
 		}
 		tmi->wave.base = atof(token);
 
@@ -522,7 +1185,7 @@ void ParseTexMod(char **text, shaderStage_t * stage)
 		if(token[0] == 0)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: missing stretch parms in shader '%s'\n", shader.name);
-			return;
+			return qfalse;
 		}
 		tmi->wave.amplitude = atof(token);
 
@@ -530,7 +1193,7 @@ void ParseTexMod(char **text, shaderStage_t * stage)
 		if(token[0] == 0)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: missing stretch parms in shader '%s'\n", shader.name);
-			return;
+			return qfalse;
 		}
 		tmi->wave.phase = atof(token);
 
@@ -538,7 +1201,7 @@ void ParseTexMod(char **text, shaderStage_t * stage)
 		if(token[0] == 0)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: missing stretch parms in shader '%s'\n", shader.name);
-			return;
+			return qfalse;
 		}
 		tmi->wave.frequency = atof(token);
 
@@ -551,7 +1214,7 @@ void ParseTexMod(char **text, shaderStage_t * stage)
 		if(token[0] == 0)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name);
-			return;
+			return qfalse;
 		}
 		tmi->matrix[0][0] = atof(token);
 
@@ -559,7 +1222,7 @@ void ParseTexMod(char **text, shaderStage_t * stage)
 		if(token[0] == 0)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name);
-			return;
+			return qfalse;
 		}
 		tmi->matrix[0][1] = atof(token);
 
@@ -567,7 +1230,7 @@ void ParseTexMod(char **text, shaderStage_t * stage)
 		if(token[0] == 0)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name);
-			return;
+			return qfalse;
 		}
 		tmi->matrix[1][0] = atof(token);
 
@@ -575,7 +1238,7 @@ void ParseTexMod(char **text, shaderStage_t * stage)
 		if(token[0] == 0)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name);
-			return;
+			return qfalse;
 		}
 		tmi->matrix[1][1] = atof(token);
 
@@ -583,7 +1246,7 @@ void ParseTexMod(char **text, shaderStage_t * stage)
 		if(token[0] == 0)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name);
-			return;
+			return qfalse;
 		}
 		tmi->translate[0] = atof(token);
 
@@ -591,7 +1254,7 @@ void ParseTexMod(char **text, shaderStage_t * stage)
 		if(token[0] == 0)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name);
-			return;
+			return qfalse;
 		}
 		tmi->translate[1] = atof(token);
 
@@ -604,7 +1267,7 @@ void ParseTexMod(char **text, shaderStage_t * stage)
 		if(token[0] == 0)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: missing tcMod rotate parms in shader '%s'\n", shader.name);
-			return;
+			return qfalse;
 		}
 		tmi->rotateSpeed = atof(token);
 		tmi->type = TMOD_ROTATE;
@@ -617,8 +1280,11 @@ void ParseTexMod(char **text, shaderStage_t * stage)
 	else
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: unknown tcMod '%s' in shader '%s'\n", token, shader.name);
-		SkipRestOfLine(text);
+		//SkipRestOfLine(text);
+		return qfalse;
 	}
+	
+	return qtrue;
 }
 
 
@@ -881,7 +1547,6 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			}
 			*/
 			ParseExpression(text, &stage->ifExp);
-			continue;
 		}
 		// map <name>
 		else if(!Q_stricmp(token, "map"))
@@ -1054,79 +1719,67 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		else if(!Q_stricmp(token, "ignoreAlphaTest"))
 		{
 			depthFuncBits = 0;
-			continue;
 		}
 		// nearest
 		else if(!Q_stricmp(token, "nearest"))
 		{
 			stage->overrideNoMipMaps = qtrue;
-			continue;
 		}
 		// linear
 		else if(!Q_stricmp(token, "linear"))
 		{
 			stage->overrideNoMipMaps = qtrue;
 			stage->overrideNoPicMip = qtrue;
-			continue;
 		}
 		// noPicMip
 		else if(!Q_stricmp(token, "noPicMip"))
 		{
 			stage->overrideNoPicMip = qtrue;
-			continue;
 		}
 		// clamp
 		else if(!Q_stricmp(token, "clamp"))
 		{
 			stage->overrideWrapType = qtrue;
 			stage->wrapType = WT_CLAMP;
-			continue;
 		}
 		// edgeClamp
 		else if(!Q_stricmp(token, "edgeClamp"))
 		{
 			stage->overrideWrapType = qtrue;
 			stage->wrapType = WT_EDGE_CLAMP;
-			continue;
 		}
 		// zeroClamp
 		else if(!Q_stricmp(token, "zeroClamp"))
 		{
 			stage->overrideWrapType = qtrue;
 			stage->wrapType = WT_ZERO_CLAMP;
-			continue;
 		}
 		// alphaZeroClamp
 		else if(!Q_stricmp(token, "alphaZeroClamp"))
 		{
 			stage->overrideWrapType = qtrue;
 			stage->wrapType = WT_ALPHA_ZERO_CLAMP;
-			continue;
 		}
 		// noClamp
 		else if(!Q_stricmp(token, "noClamp"))
 		{
 			stage->overrideWrapType = qtrue;
 			stage->wrapType = WT_REPEAT;
-			continue;
 		}
 		// uncompressed
 		else if(!Q_stricmp(token, "uncompressed"))
 		{
 			stage->uncompressed = qtrue;
-			continue;
 		}
 		// highQuality
 		else if(!Q_stricmp(token, "highQuality"))
 		{
 			stage->highQuality = qtrue;
-			continue;
 		}
 		// forceHighQuality
 		else if(!Q_stricmp(token, "forceHighQuality"))
 		{
 			stage->forceHighQuality = qtrue;
-			continue;
 		}
 		// detail
 		else if(!Q_stricmp(token, "detail"))
@@ -1397,34 +2050,29 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		{
 			stage->rgbGen = CGEN_CUSTOM_RGB;
 			ParseExpression(text, &stage->rgbExp);
-			continue;
 		}
 		// red <arithmetic expression>
 		else if(!Q_stricmp(token, "red"))
 		{
 			stage->rgbGen = CGEN_CUSTOM_RGBs;
 			ParseExpression(text, &stage->redExp);
-			continue;
 		}
 		// green <arithmetic expression>
 		else if(!Q_stricmp(token, "green"))
 		{
 			stage->rgbGen = CGEN_CUSTOM_RGBs;
 			ParseExpression(text, &stage->greenExp);
-			continue;
 		}
 		// blue <arithmetic expression>
 		else if(!Q_stricmp(token, "blue"))
 		{
 			stage->rgbGen = CGEN_CUSTOM_RGBs;
 			ParseExpression(text, &stage->blueExp);
-			continue;
 		}
 		// colored
 		else if(!Q_stricmp(token, "colored"))
 		{
 			stage->rgbGen = CGEN_ENTITY;
-			continue;
 		}
 		// vertexColor
 		else if(!Q_stricmp(token, "vertexColor"))
@@ -1509,7 +2157,6 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		{
 			stage->alphaGen = AGEN_CUSTOM;
 			ParseExpression(text, &stage->alphaExp);
-			continue;
 		}
 		// color <exp>, <exp>, <exp>, <exp>
 		else if(!Q_stricmp(token, "color"))
@@ -1520,7 +2167,6 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			ParseExpression(text, &stage->greenExp);
 			ParseExpression(text, &stage->blueExp);
 			ParseExpression(text, &stage->alphaExp);
-			continue;
 		}
 		// privatePolygonOffset <float>
 		else if(!Q_stricmp(token, "privatePolygonOffset"))
@@ -1580,27 +2226,10 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		// tcMod <type> <...>
 		else if(!Q_stricmp(token, "tcMod"))
 		{
-			/*
-			char            buffer[1024] = "";
-
-			while(1)
+			if(!ParseTexMod(text, stage))
 			{
-				token = COM_ParseExt(text, qfalse);
-				
-				if(token[0] == 0)
-					break;
-				
-				strcat(buffer, token);
-				strcat(buffer, " ");
+				return qfalse;
 			}
-			
-			ParseTexMod(buffer, stage);
-			*/
-			
-			// NOTE: temporarily disabled because of parser problems
-			SkipRestOfLine(text);
-			//ParseTexMod(text, stage);
-			continue;
 		}
 		// scroll
 		else if(!Q_stricmp(token, "scroll"))
@@ -1726,38 +2355,32 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		else if(!Q_stricmp(token, "maskRed"))
 		{
 			colorMaskBits |= GLS_REDMASK_FALSE;
-			continue;
 		}
 		// maskGreen
 		else if(!Q_stricmp(token, "maskGreen"))
 		{
 			colorMaskBits |= GLS_GREENMASK_FALSE;
-			continue;
 		}
 		// maskBlue
 		else if(!Q_stricmp(token, "maskBlue"))
 		{
 			colorMaskBits |= GLS_BLUEMASK_FALSE;
-			continue;
 		}
 		// maskAlpha
 		else if(!Q_stricmp(token, "maskAlpha"))
 		{
 			colorMaskBits |= GLS_ALPHAMASK_FALSE;
-			continue;
 		}
 		// maskColor
 		else if(!Q_stricmp(token, "maskColor"))
 		{
 			colorMaskBits |= GLS_REDMASK_FALSE | GLS_GREENMASK_FALSE | GLS_BLUEMASK_FALSE;
-			continue;
 		}
 		// maskDepth
 		else if(!Q_stricmp(token, "maskDepth"))
 		{
 			depthMaskBits &= ~GLS_DEPTHMASK_TRUE;
 			depthMaskExplicit = qfalse;
-			continue;
 		}
 		else
 		{
@@ -2428,6 +3051,7 @@ static qboolean ParseShader(char **text)
 			tr.sunDirection[0] = cos(a) * cos(b);
 			tr.sunDirection[1] = sin(a) * cos(b);
 			tr.sunDirection[2] = sin(b);
+			continue;
 		}
 		// translucent
 		else if(!Q_stricmp(token, "translucent"))
@@ -2678,13 +3302,14 @@ static qboolean ParseShader(char **text)
 			SurfaceParm("noShadows");
 			continue;
 		}
+		else if(SurfaceParm(token))
+		{
+			continue;
+		}
 		else
 		{
-			if(!SurfaceParm(token))
-			{
-				ri.Printf(PRINT_WARNING, "WARNING: unknown general shader parameter '%s' in '%s'\n", token, shader.name);
-				return qfalse;
-			}
+			ri.Printf(PRINT_WARNING, "WARNING: unknown general shader parameter '%s' in '%s'\n", token, shader.name);
+			return qfalse;
 		}
 	}
 
@@ -3319,6 +3944,52 @@ static shader_t *GeneratePermanentShader(void)
 	shaderHashTable[hash] = newShader;
 
 	return newShader;
+}
+
+/*
+====================
+GeneratePermanentShaderTable
+====================
+*/
+static void GeneratePermanentShaderTable(float *values, int numValues)
+{
+	shaderTable_t  *newTable;
+	int             i;
+	int             hash;
+
+	if(tr.numTables == MAX_SHADER_TABLES)
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: GeneratePermanentShaderTables - MAX_SHADER_TABLES hit\n");
+		return;
+	}
+
+	newTable = ri.Hunk_Alloc(sizeof(shaderTable_t), h_low);
+
+	*newTable = table;
+
+	tr.shaderTables[tr.numTables] = newTable;
+	newTable->index = tr.numTables;
+
+	tr.numTables++;
+	
+	newTable->numValues = numValues;
+	newTable->values = ri.Hunk_Alloc(sizeof(float) * numValues, h_low);
+
+//	ri.Printf(PRINT_ALL, "values: \n");
+	for(i = 0; i < numValues; i++)
+	{
+		newTable->values[i] = values[i];
+		
+//		ri.Printf(PRINT_ALL, "%f", newTable->values[i]);
+		
+//		if(i != numValues -1)
+//			ri.Printf(PRINT_ALL, ", ");
+	}
+//	ri.Printf(PRINT_ALL, "\n");
+
+	hash = generateHashValue(newTable->name, MAX_SHADERTABLE_HASH);
+	newTable->next = shaderTableHashTable[hash];
+	shaderTableHashTable[hash] = newTable;
 }
 
 /*
@@ -4352,6 +5023,8 @@ void R_ShaderExp_f(void)
 	char			buffer[1024] = "";
 	char           *buffer_p = &buffer[0];
 	expression_t	exp;
+	
+	strcpy(shader.name, "dummy");
 
 	ri.Printf(PRINT_ALL, "-----------------------\n");
 
@@ -4366,6 +5039,7 @@ void R_ShaderExp_f(void)
 	ParseExpression(&buffer_p, &exp);
 
 	ri.Printf(PRINT_ALL, "%i total ops\n", exp.numOps);
+	ri.Printf(PRINT_ALL, "%f result\n", RB_EvalExpression(&exp, 0));
 	ri.Printf(PRINT_ALL, "------------------\n");
 }
 
@@ -4459,7 +5133,7 @@ static void ScanAndLoadShaderFiles(void)
 			{
 				break;
 			}
-#if 1
+			
 			// skip shader tables
 			if(!Q_stricmp(token, "table"))
 			{
@@ -4469,7 +5143,7 @@ static void ScanAndLoadShaderFiles(void)
 				SkipBracedSection(&p);
 				continue;
 			}
-#endif
+			
 			hash = generateHashValue(token, MAX_SHADERTEXT_HASH);
 			shaderTextHashTableSizes[hash]++;
 			size++;
@@ -4513,17 +5187,62 @@ static void ScanAndLoadShaderFiles(void)
 			{
 				break;
 			}
-#if 1
+
 			// skip shader tables
 			if(!Q_stricmp(token, "table"))
 			{
-				// skip table name
-				token = COM_ParseExt(&p, qtrue);
+				int             depth;
+				float			values[FUNCTABLE_SIZE];
+				int				numValues;
 				
-				SkipBracedSection(&p);
+				Com_Memset(&table, 0, sizeof(table));
+				
+				token = COM_ParseExt(&p, qtrue);
+				Q_strncpyz(table.name, token, sizeof(table.name));
+				
+				ri.Printf(PRINT_ALL, "...generating '%s'\n", table.name);
+
+				depth = 0;
+				numValues = 0;
+				do
+				{
+					token = COM_ParseExt(&p, qtrue);
+					
+					if(!Q_stricmp(token, "snap"))
+					{
+						table.snap = qtrue;	
+					}
+					else if(!Q_stricmp(token, "clamp"))
+					{
+						table.clamp = qtrue;	
+					}
+					else if(token[0] == '{')
+					{
+						depth++;
+					}
+					else if(token[0] == '}')
+					{
+						depth--;
+					}
+					else if(token[0] == ',')
+					{
+						continue;
+					}
+					else
+					{
+						if(numValues == FUNCTABLE_SIZE)
+						{
+							ri.Printf(PRINT_WARNING, "WARNING: FUNCTABLE_SIZE hit\n");
+							break;	
+						}
+						values[numValues++] = atof(token);
+					}
+				} while(depth && p);
+				
+				GeneratePermanentShaderTable(values, numValues);
 				continue;
 			}
-#endif
+			
 			hash = generateHashValue(token, MAX_SHADERTEXT_HASH);
 			shaderTextHashTable[hash][shaderTextHashTableSizes[hash]++] = oldp;
 
