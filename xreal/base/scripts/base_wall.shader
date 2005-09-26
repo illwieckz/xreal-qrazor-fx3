@@ -972,9 +972,8 @@ textures/base_wall/grill
 textures/base_wall/main_q3abanner
 {
 	q3map_lightimage textures/base_wall/main_q3abanner.tga
-        q3map_surfacelight 100
-
-
+	q3map_surfacelight 100
+	
 	{
 		map textures/base_wall/main_q3abanner.tga
 	        rgbGen wave square 0 1 0 .5
@@ -982,33 +981,33 @@ textures/base_wall/main_q3abanner
 
 	{
 		map textures/base_wall/comp3text.tga
-		blendfunc add
-	        rgbGen identity
-		tcmod scroll 3 3
+		blend add
+	    rgbGen identity
+		scroll time * 3 , time * 3
 	}
 
 	{
 		map textures/base_wall/comp3textb.tga
-		blendfunc add
-	        rgbGen identity
-		tcmod scroll 3 3
+		blend add
+		rgbGen identity
+		scroll time * 3 , time * 3
 	}
 
 
 	{
 		map $lightmap
-	        rgbGen identity
+	    rgbGen identity
 		blendfunc gl_dst_color gl_zero
 	}
 
 	{
 		map $lightmap
 		tcgen environment
-		tcmod scale .5 .5
-	        rgbGen wave sin .25 0 0 0
-		blendfunc add
-	}	          		
-}     
+		scale .5 , .5
+	    rgbGen wave sin .25 0 0 0
+		blend add
+	}
+} 
 
 textures/base_wall/medal_impressive
 {

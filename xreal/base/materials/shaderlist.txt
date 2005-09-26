@@ -60,6 +60,17 @@ senetemp
 sfx
 sfx_multiplayer
 shaderDemo
+shamino_egypt3
+shamino_egypt_sky
+shamino_egyptfloor
+shamino_egyptmat
+shamino_egyptsfx
+shamino_egypttrim1
+shamino_egypttrim2
+shamino_egyptwall
+shamino_natural
+shamino_rock01
+shamino_textures11
 skies
 sound
 specialcase

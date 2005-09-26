@@ -260,7 +260,7 @@ textures/skies/desert
 //		stage			refractionmap
 //		stage			dispersionmap
 //		blend			add	
-		cubeMap			cubemaps/desert
+		cubeMap			env/desert
 //		texgen			skybox
 	}
 }

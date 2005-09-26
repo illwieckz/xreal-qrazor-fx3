@@ -2497,10 +2497,18 @@ models/players/crash/crash_t
 models/players/doom/doom
 {
 	{
-		diffuseMap models/players/doom/doom.tga
-		normalMap models/players/doom/doom_norm.tga
-		specularMap models/players/doom/doom_rgba.tga
+		blend diffusemap
+		map models/players/doom/doom.tga
 		rgbGen lightingDiffuse
+	}
+	{
+		blend bumpmap
+//		map models/players/doom/doom_norm.tga
+		map heightMap(models/players/doom/doom_bump.tga, 3.0)
+	}
+	{
+		blend specularmap
+		map models/players/doom/doom_rgba.tga
 	}
 }
 
@@ -3726,12 +3734,13 @@ models/powerups/ammo/plasammo
 		rgbGen identity
 	}
 	{
-		diffuseMap models/powerups/ammo/plasammo.tga
-		normalMap models/powerups/ammo/plasammo_n.tga
-		specularMap models/powerups/ammo/plasammo_s.tga
+		blend diffuseMap
+		map models/powerups/ammo/plasammo.tga
 		rgbGen lightingDiffuse
 		alphaFunc GE128
 	}
+	normalMap models/powerups/ammo/plasammo_n.tga
+	specularMap models/powerups/ammo/plasammo_s.tga
 }
 
 models/powerups/ammo/plasammo1
@@ -4619,11 +4628,12 @@ models/weapons2/lightning/trail2
 models/weapons2/machinegun/machinegun
 {
 	{
-		diffuseMap models/weapons2/machinegun/machinegun_big.tga
-		normalMap models/weapons2/machinegun/machinegun_norm.tga
-		specularMap models/weapons2/machinegun/machinegun_s.tga
+		blend diffusemap
+		map models/weapons2/machinegun/machinegun_big.tga
 		rgbGen lightingDiffuse
 	}
+	normalMap models/weapons2/machinegun/machinegun_norm.tga
+	specularMap models/weapons2/machinegun/machinegun_s.tga
 }
 
 models/weapons2/machinegun/f_machinegun
@@ -4643,11 +4653,12 @@ models/weapons2/machinegun/f_machinegun
 models/weapons2/plasma/plasma
 {
 	{
-		diffuseMap models/weapons2/plasma/plasma.tga
-		normalMap models/weapons2/plasma/plasma_n2.tga
-		specularMap models/weapons2/plasma/plasma_s.tga
+		blend diffuseMap
+		map models/weapons2/plasma/plasma.tga
 		rgbGen lightingDiffuse
 	}
+	bumpMap models/weapons2/plasma/plasma_n2.tga
+	specularMap models/weapons2/plasma/plasma_s.tga
 }
 
 models/weapons2/plasma/f_plasma
@@ -4747,21 +4758,23 @@ models/weapons2/railgun/railgun4
 models/weapons2/rocketl/rocketl
 {
 	{
-		diffuseMap models/weapons2/rocketl/rocketl.tga
-		normalMap models/weapons2/rocketl/rocketl_n.tga
-		specularMap models/weapons2/rocketl/rocketl_s.tga
+		blend diffuseMap
+		map models/weapons2/rocketl/rocketl.tga
 		rgbGen lightingDiffuse
 	}
+	bumpMap models/weapons2/rocketl/rocketl_n.tga
+	specularMap models/weapons2/rocketl/rocketl_s.tga
 }
 
 models/weapons2/rocketl/rocketl2
 {
 	{
-		diffuseMap models/weapons2/rocketl/rocketl2.tga
-		normalMap models/weapons2/rocketl/rocketl2_n.tga
-		specularMap models/weapons2/rocketl/rocketl2_s.tga
+		blend diffuseMap
+		map models/weapons2/rocketl/rocketl2.tga
 		rgbGen lightingDiffuse
 	}
+	normalMap models/weapons2/rocketl/rocketl2_n.tga
+	specularMap models/weapons2/rocketl/rocketl2_s.tga
 }
 
 models/weapons2/rocketl/f_rocketl

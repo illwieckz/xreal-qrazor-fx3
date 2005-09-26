@@ -35,8 +35,8 @@ white
 {
 	{
 		map _white
-				blendfunc	GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-				rgbgen vertex
+		blend	GL_SRC_ALPHA , GL_ONE_MINUS_SRC_ALPHA
+		rgbgen vertex
 	}
 }
 
@@ -46,24 +46,19 @@ console
 	nomipmaps
     
 	{
-		map gfx/misc/console04.tga
-		blendFunc GL_ONE GL_ZERO
-		tcMod scroll 5.1  0.2
-		tcmod scale .8 1
-        //tcMod scroll 7.1  0.2
-        //tcmod scale .8 1
+		//map gfx/misc/console04.tga
+		map _black
+		//blendFunc GL_ONE GL_ZERO
+		//scroll time * 5.1 , time * 0.2
+		//scale .8 , 1
 	}
-	{
-		map gfx/misc/console01.tga
-        //map textures/sfx/firegorre3.tga
-		blendFunc add
-		tcMod turb 0 .1 0 .1
-		tcMod scale 1 0.5
-		tcmod scroll 0.2  .1
-                //tcMod scroll -0.01  -0.02 
-                //tcmod scale .02 .01
-                //tcmod rotate 3
-	}
+//	{
+//		map gfx/misc/console01.tga
+//		blendFunc add
+//		tcMod turb 0 .1 0 .1
+//		tcMod scale 1 0.5
+//		//scroll time * 0.2, time * .1
+//	}
 }
 
 menuback
@@ -95,10 +90,11 @@ menuback
 	//} 
         
 }
+
 menubacknologo
 {
 	nopicmip
-			nomipmaps
+	nomipmaps
        
 	{
 		map $black
@@ -113,11 +109,11 @@ menubacknologo
 menubackRagePro	// blends turn to shit on rage pro, so skip it
 {
 	nopicmip
-			nomipmaps
+	nomipmaps
+	
 	{
 		map textures/sfx/logo512.tga
 	}
-        
 }
 
 
