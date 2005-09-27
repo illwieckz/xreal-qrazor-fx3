@@ -4093,6 +4093,11 @@ static shader_t *FinishShader(void)
 	{
 		shader.sort = SS_ENVIRONMENT;
 	}
+	
+	if(shader.forceOpaque)
+	{
+		shader.sort = SS_OPAQUE;	
+	}
 
 	// set polygon offset
 	if(shader.polygonOffset && !shader.sort)
