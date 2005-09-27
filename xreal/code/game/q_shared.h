@@ -973,6 +973,7 @@ void            MatrixMultiply(const matrix_t a, const matrix_t b, matrix_t out)
 void            MatrixMultiplyRotation(matrix_t m, vec_t pitch, vec_t yaw, vec_t roll);
 void            MatrixMultiplyTranslation(matrix_t m, vec_t x, vec_t y, vec_t z);
 void            MatrixMultiplyScale(matrix_t m, vec_t x, vec_t y, vec_t z);
+void            MatrixToAngles(const matrix_t m, vec3_t angles);
 void            MatrixFromAngles(matrix_t m, vec_t pitch, vec_t yaw, vec_t roll);
 void            MatrixFromVectorsFLU(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up);
 void            MatrixFromVectorsFRU(matrix_t m, const vec3_t forward, const vec3_t right, const vec3_t up);

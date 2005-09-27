@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // q_math.c -- stateless support routines that are included in each code module
 #include "q_shared.h"
+#include <float.h>
 
 // *INDENT-OFF*
 vec3_t  vec3_origin = {0, 0, 0};
@@ -1558,13 +1559,7 @@ void PerpendicularVector(vec3_t dst, const vec3_t src)
 // *INDENT-OFF*
 void MatrixIdentity(matrix_t m)
 {
-        /*
-	m[0]    = 1;    m[1] = 0;               m[2] = 0;               m[3] = 0;
-	m[4]    = 0;    m[1][1] = 1;    m[1][2] = 0;    m[1][3] = 0;
-	m[2][0] = 0;    m[2][1] = 0;    m[2][2] = 1;    m[2][3] = 0;
-	m[3][0] = 0;    m[3][1] = 0;    m[3][2] = 0;    m[3][3] = 1;
-		*/
-	m[ 0] = 1;      m[ 4] = 0;      m[ 8] = 0;      m[12] = 0;
+    m[ 0] = 1;      m[ 4] = 0;      m[ 8] = 0;      m[12] = 0;
 	m[ 1] = 0;      m[ 5] = 1;      m[ 9] = 0;      m[13] = 0;
 	m[ 2] = 0;      m[ 6] = 0;      m[10] = 1;      m[14] = 0;
 	m[ 3] = 0;      m[ 7] = 0;      m[11] = 0;      m[15] = 1;
@@ -1572,13 +1567,7 @@ void MatrixIdentity(matrix_t m)
 
 void MatrixClear(matrix_t m)
 {
-        /*
-	m[0][0] = 0;    m[0][1] = 0;    m[0][2] = 0;    m[0][3] = 0;
-	m[1][0] = 0;    m[1][1] = 0;    m[1][2] = 0;    m[1][3] = 0;
-	m[2][0] = 0;    m[2][1] = 0;    m[2][2] = 0;    m[2][3] = 0;
-	m[3][0] = 0;    m[3][1] = 0;    m[3][2] = 0;    m[3][3] = 0;
-		*/
-	m[ 0] = 0;      m[ 4] = 0;      m[ 8] = 0;      m[12] = 0;
+    m[ 0] = 0;      m[ 4] = 0;      m[ 8] = 0;      m[12] = 0;
 	m[ 1] = 0;      m[ 5] = 0;      m[ 9] = 0;      m[13] = 0;
 	m[ 2] = 0;      m[ 6] = 0;      m[10] = 0;      m[14] = 0;
 	m[ 3] = 0;      m[ 7] = 0;      m[11] = 0;      m[15] = 0;
@@ -1630,12 +1619,6 @@ void MatrixCopy(const matrix_t in, matrix_t out)
 				);
 		femms();
 #else
-        /*
-        out[0][0] = in[0][0];   out[0][1] = in[0][1];   out[0][2] = in[0][2];   out[0][3] = in[0][3];
-        out[1][0] = in[1][0];   out[1][1] = in[1][1];   out[1][2] = in[1][2];   out[1][3] = in[1][3];
-        out[2][0] = in[2][0];   out[2][1] = in[2][1];   out[2][2] = in[2][2];   out[2][3] = in[2][3];
-        out[3][0] = in[3][0];   out[3][1] = in[3][1];   out[3][2] = in[3][2];   out[3][3] = in[3][3];
-		*/
         out[ 0] = in[ 0];       out[ 4] = in[ 4];       out[ 8] = in[ 8];       out[12] = in[12];
         out[ 1] = in[ 1];       out[ 5] = in[ 5];       out[ 9] = in[ 9];       out[13] = in[13];
 		out[ 2] = in[ 2];       out[ 6] = in[ 6];       out[10] = in[10];       out[14] = in[14];
@@ -1700,43 +1683,27 @@ void MatrixTranspose(const matrix_t in, matrix_t out)
 	: "memory"
 				);
 #else
-        /*
-        out[0][0] = in[0][0];   out[0][1] = in[1][0];   out[0][2] = in[2][0];   out[0][3] = in[3][0];
-        out[1][0] = in[0][1];   out[1][1] = in[1][1];   out[1][2] = in[2][1];   out[1][3] = in[3][1];
-        out[2][0] = in[0][2];   out[2][1] = in[1][2];   out[2][2] = in[2][2];   out[2][3] = in[3][2];
-        out[3][0] = in[0][3];   out[3][1] = in[1][3];   out[3][2] = in[2][3];   out[3][3] = in[3][3];
-		*/
-        out[ 0] = in[ 0];       out[ 1] = in[ 4];       out[ 2] = in[ 8];       out[ 3] = in[12];
-        out[ 4] = in[ 1];       out[ 5] = in[ 5];       out[ 6] = in[ 9];       out[ 7] = in[13];
-		out[ 8] = in[ 2];       out[ 9] = in[ 6];       out[10] = in[10];       out[11] = in[14];
-		out[12] = in[ 3];       out[13] = in[ 7];       out[14] = in[11];       out[15] = in[15];
+	out[ 0] = in[ 0];       out[ 1] = in[ 4];       out[ 2] = in[ 8];       out[ 3] = in[12];
+	out[ 4] = in[ 1];       out[ 5] = in[ 5];       out[ 6] = in[ 9];       out[ 7] = in[13];
+	out[ 8] = in[ 2];       out[ 9] = in[ 6];       out[10] = in[10];       out[11] = in[14];
+	out[12] = in[ 3];       out[13] = in[ 7];       out[14] = in[11];       out[15] = in[15];
 #endif
 }
 
 void MatrixSetupXRotation(matrix_t m, vec_t degrees)
 {
-	vec_t a = DEG2RAD( degrees );
-        /*
-	m[0][0] = 1;    m[0][1] =0;                     m[0][2] = 0;            m[0][3] = 0;
-	m[1][0] = 0;    m[1][1] = cos(a);       m[1][2] =-sin(a);       m[1][3] = 0;
-	m[2][0] = 0;    m[2][1] = sin(a);       m[2][2] = cos(a);       m[2][3] = 0;
-	m[3][0] = 0;    m[3][1] =0;                     m[3][2] = 0;            m[3][3] = 1;
-		*/
+	vec_t a = DEG2RAD(degrees);
+	
 	m[ 0] = 1;      m[ 4] = 0;              m[ 8] = 0;              m[12] = 0;
-	m[ 1] = 0;      m[ 5] = cos(a); m[ 9] =-sin(a); m[13] = 0;
-	m[ 2] = 0;      m[ 6] = sin(a); m[10] = cos(a); m[14] = 0;
+	m[ 1] = 0;      m[ 5] = cos(a);         m[ 9] =-sin(a);         m[13] = 0;
+	m[ 2] = 0;      m[ 6] = sin(a);         m[10] = cos(a);         m[14] = 0;
 	m[ 3] = 0;      m[ 7] = 0;              m[11] = 0;              m[15] = 1;
 }
 
 void MatrixSetupYRotation(matrix_t m, vec_t degrees)
 {
-	vec_t a = DEG2RAD( degrees );
-        /*
-	m[0][0] = cos(a);       m[0][1] = 0;            m[0][2] = sin(a);       m[0][3] = 0;
-	m[1][0] = 0;            m[1][1] = 1;            m[1][2] = 0;            m[1][3] = 0;
-	m[2][0] =-sin(a);       m[2][1] = 0;            m[2][2] = cos(a);       m[2][3] = 0;
-	m[3][0] = 0;            m[3][1] = 0;            m[3][2] = 0;            m[3][3] = 1;
-		*/
+	vec_t a = DEG2RAD(degrees);
+	
 	m[ 0] = cos(a);         m[ 4] = 0;      m[ 8] = sin(a);         m[12] = 0;
 	m[ 1] = 0;              m[ 5] = 1;      m[ 9] = 0;              m[13] = 0;
 	m[ 2] =-sin(a);         m[ 6] = 0;      m[10] = cos(a);         m[14] = 0;
@@ -1745,13 +1712,8 @@ void MatrixSetupYRotation(matrix_t m, vec_t degrees)
 
 void MatrixSetupZRotation(matrix_t m, vec_t degrees)
 {
-	vec_t a = DEG2RAD( degrees );
-        /*
-	m[0][0] = cos(a);       m[0][1] =-sin(a);       m[0][2] = 0;            m[0][3] =0;
-	m[1][0] = sin(a);       m[1][1] = cos(a);       m[1][2] = 0;            m[1][3] =0;
-	m[2][0] = 0;            m[2][1] = 0;            m[2][2] = 1;            m[2][3] =0;
-	m[3][0] = 0;            m[3][1] = 0;            m[3][2] = 0;            m[3][3] =1;
-		*/
+	vec_t a = DEG2RAD(degrees);
+	
 	m[ 0] = cos(a);         m[ 4] =-sin(a);         m[ 8] = 0;      m[12] = 0;
 	m[ 1] = sin(a);         m[ 5] = cos(a);         m[ 9] = 0;      m[13] = 0;
 	m[ 2] = 0;              m[ 6] = 0;              m[10] = 1;      m[14] = 0;
@@ -1760,12 +1722,6 @@ void MatrixSetupZRotation(matrix_t m, vec_t degrees)
 
 void MatrixSetupTranslation(matrix_t m, vec_t x, vec_t y, vec_t z)
 {
-        /*
-	m[0][0] = 1;    m[0][1] = 0;    m[0][2] = 0;    m[0][3] = x;
-	m[1][0] = 0;    m[1][1] = 1;    m[1][2] = 0;    m[1][3] = y;
-	m[2][0] = 0;    m[2][1] = 0;    m[2][2] = 1;    m[2][3] = z;
-	m[3][0] = 0;    m[3][1] = 0;    m[3][2] = 0;    m[3][3] = 1;
-		*/
 	m[ 0] = 1;      m[ 4] = 0;      m[ 8] = 0;      m[12] = x;
 	m[ 1] = 0;      m[ 5] = 1;      m[ 9] = 0;      m[13] = y;
 	m[ 2] = 0;      m[ 6] = 0;      m[10] = 1;      m[14] = z;
@@ -1774,12 +1730,6 @@ void MatrixSetupTranslation(matrix_t m, vec_t x, vec_t y, vec_t z)
 
 void MatrixSetupScale(matrix_t m, vec_t x, vec_t y, vec_t z)
 {
-        /*
-	m[0][0] = x;    m[0][1] = 0;    m[0][2] = 0;    m[0][3] = 0;
-	m[1][0] = 0;    m[1][1] = y;    m[1][2] = 0;    m[1][3] = 0;
-	m[2][0] = 0;    m[2][1] = 0;    m[2][2] = z;    m[2][3] = 0;
-	m[3][0] = 0;    m[3][1] = 0;    m[3][2] = 0;    m[3][3] = 1;
-		*/
 	m[ 0] = x;      m[ 4] = 0;      m[ 8] = 0;      m[12] = 0;
 	m[ 1] = 0;      m[ 5] = y;      m[ 9] = 0;      m[13] = 0;
 	m[ 2] = 0;      m[ 6] = 0;      m[10] = z;      m[14] = 0;
@@ -1955,6 +1905,40 @@ void MatrixMultiplyScale(matrix_t m, vec_t x, vec_t y, vec_t z)
 	MatrixMultiply(tmp, scale, m);
 }
 
+void MatrixToAngles(const matrix_t m, vec3_t angles)
+{
+	double			theta;
+	double			cp;
+	double			sp;
+
+	sp = m[ 2];
+
+	// cap off our sin value so that we don't get any NANs
+	if(sp > 1.0)
+	{
+		sp = 1.0;
+	}
+	else if(sp < -1.0)
+	{
+		sp = -1.0;
+	}
+
+	theta = -asin(sp);
+	cp = cos(theta);
+
+	if(cp > 8192 * FLT_EPSILON)
+	{
+		angles[PITCH]	= theta * 180 / M_PI;
+		angles[YAW]		= atan2(m[ 1], m[ 0]) * 180 / M_PI;
+		angles[ROLL]	= atan2(m[ 6], m[10]) * 180 / M_PI;
+	}
+	else
+	{
+		angles[PITCH]	= theta * 180 / M_PI;
+		angles[YAW]		= -atan2(m[ 4], m[ 5]) * 180 / M_PI;
+		angles[ROLL]	= 0;
+	}
+}
 
 void MatrixFromAngles(matrix_t m, vec_t pitch, vec_t yaw, vec_t roll)
 {
@@ -1969,15 +1953,7 @@ void MatrixFromAngles(matrix_t m, vec_t pitch, vec_t yaw, vec_t roll)
 
 	sr = sin(DEG2RAD(roll));
 	cr = cos(DEG2RAD(roll));
-
-
-        /*
-	m[0][0] = cp*cy;        m[0][1] = (sr*sp*cy+cr*-sy);    m[0][2] = (cr*sp*cy+-sr*-sy);   m[0][3] = 0;
-	m[1][0] = cp*sy;        m[1][1] = (sr*sp*sy+cr*cy);             m[1][2] = (cr*sp*sy+-sr*cy);    m[1][3] = 0;
-	m[2][0] = -sp;          m[2][1] = sr*cp;                                m[2][2] = cr*cp;                                m[2][3] = 0;
-	m[3][0] = 0;            m[3][1] = 0;                                    m[3][2] = 0;                                    m[3][3] = 1;
-		*/
-        
+	
 	m[ 0] = cp*cy;  m[ 4] = (sr*sp*cy+cr*-sy);      m[ 8] = (cr*sp*cy+-sr*-sy);     m[12] = 0;
 	m[ 1] = cp*sy;  m[ 5] = (sr*sp*sy+cr*cy);       m[ 9] = (cr*sp*sy+-sr*cy);      m[13] = 0;
 	m[ 2] = -sp;    m[ 6] = sr*cp;                  m[10] = cr*cp;                  m[14] = 0;
@@ -1986,27 +1962,15 @@ void MatrixFromAngles(matrix_t m, vec_t pitch, vec_t yaw, vec_t roll)
 
 void MatrixFromVectorsFLU(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up)
 {
-        /*
-	m[0][0] = forward[0];   m[0][1] = left[0];      m[0][2] = up[0];        m[0][3] = 0;
-	m[1][0] = forward[1];   m[1][1] = left[1];      m[1][2] = up[1];        m[1][3] = 0;
-	m[2][0] = forward[2];   m[2][1] = left[2];      m[2][2] = up[2];        m[2][3] = 0;
-	m[3][0] = 0;                    m[3][1] =0;                     m[3][2] = 0;            m[3][3] = 1;
-		*/
-	m[ 0] = forward[0];     m[ 4] = left[0];        m[ 8] = up[0];  m[12] = 0;
+    m[ 0] = forward[0];     m[ 4] = left[0];        m[ 8] = up[0];  m[12] = 0;
 	m[ 1] = forward[1];     m[ 5] = left[1];        m[ 9] = up[1];  m[13] = 0;
 	m[ 2] = forward[2];     m[ 6] = left[2];        m[10] = up[2];  m[14] = 0;
-	m[ 3] = 0;                      m[ 7] = 0;                      m[11] = 0;              m[15] = 1;
+	m[ 3] = 0;              m[ 7] = 0;              m[11] = 0;      m[15] = 1;
 }
 
 void MatrixFromVectorsFRU(matrix_t m, const vec3_t forward, const vec3_t right, const vec3_t up)
 {
-        /*
-	m[0][0] = forward[0];   m[0][1] =-right[0];     m[0][2] = up[0];        m[0][3] = 0;
-	m[1][0] = forward[1];   m[1][1] =-right[1];     m[1][2] = up[1];        m[1][3] = 0;
-	m[2][0] = forward[2];   m[2][1] =-right[2];     m[2][2] = up[2];        m[2][3] = 0;
-	m[3][0] = 0;                    m[3][1] =0;                     m[3][2] = 0;            m[3][3] = 1;
-		*/
-	m[ 0] = forward[0];     m[ 4] =-right[0];       m[ 8] = up[0];  m[12] = 0;
+    m[ 0] = forward[0];     m[ 4] =-right[0];       m[ 8] = up[0];  m[12] = 0;
 	m[ 1] = forward[1];     m[ 5] =-right[1];       m[ 9] = up[1];  m[13] = 0;
 	m[ 2] = forward[2];     m[ 6] =-right[2];       m[10] = up[2];  m[14] = 0;
 	m[ 3] = 0;              m[ 7] = 0;              m[11] = 0;      m[15] = 1;
