@@ -360,7 +360,7 @@ typedef struct
 	expOperation_t  ops[MAX_EXPRESSION_OPS];
 	int             numOps;
 	
-	qboolean		bad;	// parsing failed or something else bad happened
+	qboolean		active;	// no parsing problems
 } expression_t;
 
 typedef struct
@@ -387,7 +387,6 @@ typedef enum
 	TMOD_ENTITY_TRANSLATE,
 			
 	TMOD_SCROLL2,
-	TMOD_TRANSLATE,
 	TMOD_SCALE2,
 	TMOD_CENTERSCALE,
 	TMOD_SHEAR,
@@ -1934,6 +1933,8 @@ void            RB_CalcTurbulentTexCoords(const waveForm_t * wf, float *dstTexCo
 void            RB_CalcTransformTexCoords(const texModInfo_t * tmi, float *dstTexCoords);
 void            RB_CalcScrollTexCoords2(const expression_t * sExp, const expression_t * tExp, float *dstTexCoords);
 void            RB_CalcScaleTexCoords2(const expression_t * sExp, const expression_t * tExp, float *dstTexCoords);
+void            RB_CalcCenterScaleTexCoords(const expression_t * sExp, const expression_t * tExp, float *dstTexCoords);
+void            RB_CalcRotateTexCoords2(const expression_t * rExp, float *dstTexCoords);
 
 void            RB_CalcModulateColorsByFog(unsigned char *dstColors);
 void            RB_CalcModulateAlphasByFog(unsigned char *dstColors);

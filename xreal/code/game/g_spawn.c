@@ -139,6 +139,7 @@ typedef struct
 void            SP_info_player_start(gentity_t * ent);
 void            SP_info_player_deathmatch(gentity_t * ent);
 void            SP_info_player_intermission(gentity_t * ent);
+void            SP_info_player_teleport(gentity_t * ent);
 void            SP_info_firstplace(gentity_t * ent);
 void            SP_info_secondplace(gentity_t * ent);
 void            SP_info_thirdplace(gentity_t * ent);
@@ -172,6 +173,7 @@ void            SP_target_teleporter(gentity_t * ent);
 void            SP_target_relay(gentity_t * ent);
 void            SP_target_kill(gentity_t * ent);
 void            SP_target_position(gentity_t * ent);
+void            SP_target_null(gentity_t * ent);
 void            SP_target_location(gentity_t * ent);
 void            SP_target_push(gentity_t * ent);
 
@@ -211,6 +213,7 @@ spawn_t         spawns[] = {
 	{"info_player_start", SP_info_player_start},
 	{"info_player_deathmatch", SP_info_player_deathmatch},
 	{"info_player_intermission", SP_info_player_intermission},
+	{"info_player_teleport", SP_info_player_teleport},
 	{"info_null", SP_info_null},
 	{"info_notnull", SP_info_notnull},	// use target_position instead
 	{"info_camp", SP_info_camp},
@@ -250,6 +253,7 @@ spawn_t         spawns[] = {
 	{"target_relay", SP_target_relay},
 	{"target_kill", SP_target_kill},
 	{"target_position", SP_target_position},
+	{"target_null", SP_target_null},
 	{"target_location", SP_target_location},
 	{"target_push", SP_target_push},
 

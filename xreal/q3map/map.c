@@ -337,7 +337,7 @@ void SetBrushContents(bspbrush_t * b)
 
 	if(mixed)
 	{
-		qprintf("Entity %i, Brush %i: mixed face contents\n", b->entitynum, b->brushnum);
+//		qprintf("Entity %i, Brush %i: mixed face contents\n", b->entitynum, b->brushnum);
 	}
 
 	if((contents & CONTENTS_DETAIL) && (contents & CONTENTS_STRUCTURAL))

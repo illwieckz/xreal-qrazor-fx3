@@ -634,7 +634,6 @@ static void ParseExpression(char **text, expression_t *exp)
 	numTmpOps = 0;
 	
 	exp->numOps = 0;
-	exp->bad = qfalse;
 	
 	// push left parenthesis on the stack
 	op.type = OP_LPAREN;
@@ -651,7 +650,6 @@ static void ParseExpression(char **text, expression_t *exp)
 		if(numInFixOps == MAX_EXPRESSION_OPS)
 		{
 			ri.Printf(PRINT_ALL, "WARNING: too many arithmetic expression operations in shader '%s'\n", shader.name);
-			exp->bad = qtrue;
 			SkipRestOfLine(text);
 			return;
 		}
@@ -662,7 +660,6 @@ static void ParseExpression(char **text, expression_t *exp)
 		{
 			case OP_BAD:
 				ri.Printf(PRINT_ALL, "WARNING: unknown token '%s' for arithmetic expression in shader '%s'\n", token, shader.name);
-				exp->bad = qtrue;
 				break;
 				
 			case OP_LBRACKET:
@@ -739,9 +736,6 @@ static void ParseExpression(char **text, expression_t *exp)
 	ri.Printf(PRINT_ALL, "\n");
 #endif
 
-	if(exp->bad)
-		return;
-
 	// http://cis.stvincent.edu/swd/stl/stacks/stacks.html
 	// http://www.qiksearch.com/articles/cs/infix-postfix/
 	// http://www.experts-exchange.com/Programming/Programming_Languages/C/Q_20394130.html
@@ -772,7 +766,6 @@ static void ParseExpression(char **text, expression_t *exp)
 				if(!numTmpOps)
 				{
 					ri.Printf(PRINT_ALL, "WARNING: invalid infix expression in shader '%s'\n", shader.name);
-					exp->bad = qtrue;
 					return;
 				}
 				else
@@ -809,7 +802,6 @@ static void ParseExpression(char **text, expression_t *exp)
 				if(!numTmpOps)
 				{
 					ri.Printf(PRINT_ALL, "WARNING: invalid infix expression in shader '%s'\n", shader.name);
-					exp->bad = qtrue;
 					return;
 				}
 				else
@@ -831,6 +823,9 @@ static void ParseExpression(char **text, expression_t *exp)
 			}
 		}
 	}
+	
+	// everything went ok
+	exp->active = qtrue;
 	
 #if 0
 	ri.Printf(PRINT_ALL, "postfix:\n");
@@ -1280,7 +1275,6 @@ static qboolean ParseTexMod(char **text, shaderStage_t * stage)
 	else
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: unknown tcMod '%s' in shader '%s'\n", token, shader.name);
-		//SkipRestOfLine(text);
 		return qfalse;
 	}
 	
@@ -1538,14 +1532,6 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		// if(<condition>)
 		else if(!Q_stricmp(token, "if"))
 		{
-			/*
-			token = COM_ParseExt(text, qfalse);
-			if(token[0] != '(')
-			{
-				ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' instead for if condition in shader '%s'\n", token, shader.name);
-				continue;
-			}
-			*/
 			ParseExpression(text, &stage->ifExp);
 		}
 		// map <name>
@@ -2073,6 +2059,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		else if(!Q_stricmp(token, "colored"))
 		{
 			stage->rgbGen = CGEN_ENTITY;
+			stage->alphaGen = AGEN_ENTITY;
 		}
 		// vertexColor
 		else if(!Q_stricmp(token, "vertexColor"))
@@ -2232,7 +2219,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			}
 		}
 		// scroll
-		else if(!Q_stricmp(token, "scroll"))
+		else if(!Q_stricmp(token, "scroll") || !Q_stricmp(token, "translate"))
 		{
 			texModInfo_t   *tmi;
 			
@@ -2249,25 +2236,6 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			ParseExpression(text, &tmi->tExp);
 			
 			tmi->type = TMOD_SCROLL2;
-		}
-		// translate
-		else if(!Q_stricmp(token, "translate"))
-		{
-			texModInfo_t   *tmi;
-			
-			if(stage->bundle[0].numTexMods == TR_MAX_TEXMODS)
-			{
-				ri.Error(ERR_DROP, "ERROR: too many tcMod stages in shader '%s'\n", shader.name);
-				return qfalse;
-			}
-
-			tmi = &stage->bundle[0].texMods[stage->bundle[0].numTexMods];
-			stage->bundle[0].numTexMods++;	
-			
-			ParseExpression(text, &tmi->sExp);
-			ParseExpression(text, &tmi->tExp);
-			
-			tmi->type = TMOD_TRANSLATE;
 		}
 		// scale
 		else if(!Q_stricmp(token, "scale"))
@@ -4262,7 +4230,11 @@ static shader_t *FinishShader(void)
 				break;	
 			}
 		}
-
+		
+		if(shader.forceOpaque)
+		{
+			pStage->stateBits |= GLS_DEPTHMASK_TRUE;	
+		}
 
 		// determine sort order and fog color adjustment
 		if((pStage->stateBits & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)) &&
@@ -4320,7 +4292,7 @@ static shader_t *FinishShader(void)
 	// opaque alpha tested shaders that have later blend passes
 	if(!shader.sort)
 	{
-		if(shader.translucent)
+		if(shader.translucent && !shader.forceOpaque)
 			shader.sort = SS_DECAL;
 		else
 			shader.sort = SS_OPAQUE;
@@ -5200,7 +5172,7 @@ static void ScanAndLoadShaderFiles(void)
 				token = COM_ParseExt(&p, qtrue);
 				Q_strncpyz(table.name, token, sizeof(table.name));
 				
-				ri.Printf(PRINT_ALL, "...generating '%s'\n", table.name);
+				//ri.Printf(PRINT_ALL, "...generating '%s'\n", table.name);
 
 				depth = 0;
 				numValues = 0;

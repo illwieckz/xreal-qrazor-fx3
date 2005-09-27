@@ -483,6 +483,14 @@ void SP_target_position(gentity_t * self)
 	G_SetOrigin(self, self->s.origin);
 }
 
+/*QUAKED target_null (0 0.5 0) (-4 -4 -4) (4 4 4)
+Used as a positional target for in-game calculation, like jumppad targets.
+*/
+void SP_target_null(gentity_t * self)
+{
+	G_SetOrigin(self, self->s.origin);
+}
+
 static void target_location_linkup(gentity_t * ent)
 {
 	int             i;

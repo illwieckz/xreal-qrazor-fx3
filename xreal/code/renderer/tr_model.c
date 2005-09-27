@@ -598,6 +598,12 @@ void RE_BeginRegistration(glconfig_t * glconfigOut)
 	tr.viewCluster = -1;		// force markleafs to regenerate
 	R_ClearFlares();
 	RE_ClearScene();
+	
+	// HACK: give world entity white color for "colored" shader keyword
+	tr.worldEntity.e.shaderRGBA[0] = 255;
+	tr.worldEntity.e.shaderRGBA[1] = 255;
+	tr.worldEntity.e.shaderRGBA[2] = 255;
+	tr.worldEntity.e.shaderRGBA[3] = 255;
 
 	tr.registered = qtrue;
 

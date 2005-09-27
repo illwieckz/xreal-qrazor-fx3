@@ -504,6 +504,9 @@ void InsertLWOModel(const char *modelName, const matrix_t transform, tree_t * tr
 #endif
 
 	layer = &obj->layer[0];
+	
+	c_triangleModels++;
+	c_triangleSurfaces += obj->nsurfs;
 
 	// each LWO surface from the first layer will become a new bsp surface
 	for(i = 0, surf = obj->surf; i < obj->nsurfs; i++, surf = surf->next)

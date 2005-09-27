@@ -14,6 +14,9 @@ code/renderer
 - tangent space calculations for normal mapping based rendering techniques
 - directional specular bump mapping
 - basic .mtr shader support
+- cubemap based reflection mapping
+- cubemap based refraction mapping
+- cubemap based dispersion mapping
 
 common/aselib
 - fixed bad Doom3 paths

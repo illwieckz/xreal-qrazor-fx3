@@ -67,6 +67,15 @@ void SP_info_player_intermission(gentity_t * ent)
 
 }
 
+/*QUAKED info_player_teleport (1 0 0) (-32 -32 -24) (32 32 -16)
+Point teleporters at these.
+Now that we don't have teleport destination pads, this is just
+an info_notnull
+*/
+void SP_info_player_teleport(gentity_t * ent)
+{
+}
+
 
 
 /*

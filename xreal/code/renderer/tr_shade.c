@@ -2028,17 +2028,14 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 											 &pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
 					break;
 					
-				case TMOD_TRANSLATE:
-					// TODO
-					break;
-					
 				case TMOD_SCALE2:
 					RB_CalcScaleTexCoords2( &pStage->bundle[b].texMods[tm].sExp,
 											&pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
 					break;
 					
 				case TMOD_CENTERSCALE:
-					// TODO
+					RB_CalcCenterScaleTexCoords(	&pStage->bundle[b].texMods[tm].sExp,
+													&pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
 					break;
 					
 				case TMOD_SHEAR:
@@ -2046,7 +2043,7 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 					break;
 					
 				case TMOD_ROTATE2:
-					// TODO
+					RB_CalcRotateTexCoords2(&pStage->bundle[b].texMods[tm].rExp, (float *)tess.svars.texCoords[b]);
 					break;
 				
 				default:
@@ -2073,6 +2070,11 @@ static void RB_IterateStagesGeneric()
 		if(!pStage)
 		{
 			break;
+		}
+		
+		if(!RB_EvalExpression(&pStage->ifExp, 1.0))
+		{
+			continue;
 		}
 
 		ComputeColors(pStage);
