@@ -66,24 +66,27 @@ textures/decals/bloodyfilmred
 
 textures/decals/telemars
 {
-	
+	qer_editorimage textures/decals/telemars.tga
 
 	noShadows
 	twoSided
-	qer_editorimage textures/decals/telemars.tga
+//	nolightmap
 
 	{
 		blend	diffuseMap
   		map     textures/decals/telemars.tga
 		alphatest 0.5
 	}
+	bumpmap		textures/decals/telemars_local.tga
+    specularmap	textures/decals/telemars_s.tga
+    lightmap	_lightmap
 	{
 		blend	add
   		map     textures/decals/telemars_add.tga
 		rgb		telemars[ time * 1 ]
 
-	}     
-      	{
+	}
+    {
 		blend	add
   		map     textures/decals/telemars_b_add.tga
 		rgb		telemars[ time * .3 ]
@@ -97,13 +100,8 @@ textures/decals/telemars
 		rgb		telemars[ time * .1 ]
 		
 		rotate time * -0.035
-
-	} 			
-	 	bumpmap	textures/decals/telemars_local.tga
-        	specularmap	textures/decals/telemars_s.tga
-        
-
-
+		centerScale 1 + (sinTable[time * 0.25] * 0.3) , 1 + (sinTable[time * 0.25] * 0.3)
+	}
 }
 
 
@@ -606,7 +604,7 @@ textures/decals/webcorner
 		diffusemap	models/mapobjects/webs/corner.tga
 		//specularmap	models/mapobjects/webs/corner.tga
 		//bumpmap	   heightmap(models/mapobjects/webs/corner.tga , 1 )
-
+		lightmap	_lightmap
 
 
 }
@@ -4973,6 +4971,7 @@ textures/decals/a_pipecap2a_d
 	}
 	specularmap	textures/decals/a_pipecap2a_s.tga
 	bumpmap 	textures/decals/a_pipecap2a_local.tga
+	lightmap	_lightmap
 }
 
 //textures/decals/a_pipecap3_d01
@@ -5366,6 +5365,7 @@ textures/decals/boothspeaker
 	}
 	specularmap	textures/decals/boothspeaker_s.tga
 	bumpmap 	textures/decals/boothspeaker_local.tga
+	lightmap	_lightmap
 }
 
 textures/decals/pipecap2vent
@@ -5582,6 +5582,7 @@ textures/decals/pipecapsquare
 	}
 	specularmap	textures/decals/pipecapsquare_s.tga
 	bumpmap 	addnormals (textures/decals/pipecapsquare_local.tga, heightmap (textures/decals/pipecap2_bmp.tga, 1 ))
+	lightmap	_lightmap
 }
 
 textures/decals/dirtblast

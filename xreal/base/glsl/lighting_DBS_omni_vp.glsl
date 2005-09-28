@@ -20,48 +20,45 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /// ============================================================================
 
-uniform sampler2D	u_DiffuseMap;
-uniform sampler2D	u_NormalMap;
-uniform sampler2D	u_SpecularMap;
-uniform vec3		u_ViewOrigin;
-uniform vec3		u_AmbientColor;
-uniform vec3		u_LightDir;
-uniform vec3		u_LightColor;
-uniform float		u_SpecularExponent;
+attribute vec4		attr_TexCoord0;
+attribute vec4		attr_TexCoord1;
+attribute vec4		attr_TexCoord2;
+attribute vec3		attr_Tangent;
+attribute vec3		attr_Binormal;
 
 varying vec3		var_Vertex;
 varying vec2		var_TexDiffuse;
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
+varying vec3		var_TexAttenXYZ;
+//varying vec3		var_TexAttenCube;
 varying mat3		var_OS2TSMatrix;
 
 void	main()
 {
-	// compute view direction in tangent space
-	vec3 V = normalize(var_OS2TSMatrix * (u_ViewOrigin - var_Vertex));
-
-	// compute light direction in tangent space
-	vec3 L = normalize(var_OS2TSMatrix * u_LightDir);
+	// transform vertex position into homogenous clip-space
+	gl_Position = ftransform();
 	
-	// compute half angle in tangent space
-	vec3 H = normalize(L + V);
+	// assign position in object space
+	var_Vertex = gl_Vertex.xyz;
+		
+	// assign diffusemap texture coords
+	var_TexDiffuse = attr_TexCoord0.st;
 	
-	// compute normal in tangent space from normalmap
-	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).xyz - 0.5);
-	N = normalize(N);
+	// assign normalmap texture coords
+	var_TexNormal = attr_TexCoord1.st;
 	
-	// compute the diffuse term
-	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
+	// assign specularmap texture coords
+	var_TexSpecular = attr_TexCoord2.st;
 	
-	// compute the specular term
-	vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), u_SpecularExponent);
+	// calc light xy,z attenuation in light space
+	var_TexAttenXYZ = (gl_TextureMatrix[0] * gl_Vertex).xyz;
 	
-	// compute the light term
-	vec3 light = u_AmbientColor + u_LightColor * clamp(dot(N, L), 0.0, 1.0);
-	clamp(light, 0.0, 1.0);
+	// calc light cube attenuation in light space
+//	var_TexAttenCube = (gl_TextureMatrix[1] * gl_Vertex).xyz;
 	
-	// compute final color
-	gl_FragColor.rgba = diffuse;
-	gl_FragColor.rgb *= light;
-	gl_FragColor.rgb += specular;
+	// construct object-space-to-tangent-space 3x3 matrix
+	var_OS2TSMatrix = mat3(	attr_Tangent.x, attr_Binormal.x, gl_Normal.x,
+							attr_Tangent.y, attr_Binormal.y, gl_Normal.y,
+							attr_Tangent.z, attr_Binormal.z, gl_Normal.z	);
 }

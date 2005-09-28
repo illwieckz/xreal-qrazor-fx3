@@ -254,6 +254,7 @@ textures/hell/bustage
 	    diffusemap		textures/hell/bustage
 		bumpmap		    textures/hell/bustage_local
 		specularmap	    textures/hell/bustage_s
+		lightmap		_lightmap
 }
 
 //textures/hell/dirt02sand
@@ -1662,6 +1663,7 @@ textures/hell/wood1
 	    diffusemap		textures/hell/wood1.tga
 		bumpmap		    addnormals( textures/hell/wood1_local.tga, heightmap( textures/hell/wood1_h.tga, 4 ) )
 		specularmap	    textures/hell/wood1_s.tga
+		lightmap		_lightmap
 }
 
 
@@ -1766,6 +1768,7 @@ textures/hell/cracked1
 	    diffusemap		textures/hell/cracked1.tga
 		bumpmap		    addnormals( textures/hell/cracked1_local.tga, heightmap( textures/hell/cracked1_h.tga, 6 ) )
 		specularmap	    textures/hell/cracked1_s.tga
+		lightmap		_lightmap
 }
 
 //textures/hell/sharprock3
@@ -1789,6 +1792,7 @@ textures/hell/sharprock2
 	    diffusemap		textures/hell/sharprock2.tga
 		bumpmap		    addnormals( textures/hell/sharprock2_local.tga, heightmap( textures/hell/sharprock2_h.tga, 8 ) )
 		specularmap	    textures/hell/sharprock2_s.tga
+		lightmap		_lightmap
 }
 
 
@@ -5517,7 +5521,8 @@ textures/hell/rock1
 		blend			bumpmap
 		map				addnormals (textures/hell/rock1_local.tga, heightmap (textures/hell/rock1_bmp.tga,9) ) 
 	}
-		diffusemap		textures/hell/rock1
+	diffusemap		textures/hell/rock1
+	lightmap		_lightmap
 }
 
 textures/hell/bricks1a

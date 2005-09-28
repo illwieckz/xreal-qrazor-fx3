@@ -775,7 +775,8 @@ void FinishSpawningItem(gentity_t * ent)
 	}
 
 	// team slaves and targeted items aren't present at start
-	if((ent->flags & FL_TEAMSLAVE) || ent->targetname)
+	// Tr3B - Doom3 entities have always a targetname
+	if((ent->flags & FL_TEAMSLAVE) /*|| ent->targetname*/)
 	{
 		ent->s.eFlags |= EF_NODRAW;
 		ent->r.contents = 0;

@@ -62,14 +62,18 @@ long            myftol(float f);
 
 // a trRefDlight_t has all the information passed in by
 // the client game, as well as some locally derived info
-typedef struct
+typedef struct trRefDlight_s
 {
 	// public from client game
 	refDlight_t		l;
 	
 	// local
-	vec3_t          transformed;	// origin in local coordinate system
-	int             additive;	// texture detail is lost tho when the lightmap is dark
+	vec3_t          transformed;		// origin in local coordinate system
+	int             additive;			// texture detail is lost tho when the lightmap is dark
+	matrix_t		transformMatrix;	// light to world
+	matrix_t		viewMatrix;			// object to light
+	matrix_t		projectionMatrix;	// light frustum
+	matrix_t		attenuationMatrix;	// object to light attenuation texture space
 } trRefDlight_t;
 
 
@@ -465,13 +469,11 @@ typedef struct
 	int             videoMapHandle;
 	qboolean        isLightMap;
 	qboolean        isVideoMap;
-	qboolean		isDiffuseMap;
-	qboolean        isNormalMap;
-	qboolean        isSpecularMap;
 } textureBundle_t;
 
 typedef enum
 {
+	// material shader stage types
 	ST_COLORMAP,							// vanilla Q3A style shader treatening
 	ST_DIFFUSEMAP,
 	ST_NORMALMAP,
@@ -491,6 +493,10 @@ typedef enum
 	ST_COLLAPSE_lighting_DBS_radiosity,		// diffusemap + bumpmap + specularmap + lightmap
 	ST_COLLAPSE_lighting_DB_direct,			// directional entity lighting like rgbGen lightingDiffuse
 	ST_COLLAPSE_lighting_DBS_direct,		// direction entity lighting with diffuse + bump + specular
+	
+	// light shader stage types
+	ST_ATTENUATIONMAP_XY,
+	ST_ATTENUATIONMAP_Z
 } stageType_t;
 
 typedef enum
@@ -559,6 +565,7 @@ typedef struct
 
 struct shaderCommands_s;
 
+#define LIGHTMAP_FALLOFF	-5	// shader is for lighting
 #define LIGHTMAP_2D			-4	// shader is for 2D rendering
 #define LIGHTMAP_BY_VERTEX	-3	// pre-lit triangle models
 #define LIGHTMAP_WHITEIMAGE	-2
@@ -693,15 +700,16 @@ typedef struct shaderProgram_s
 	GLint			u_SpecularMap;
 	GLint			u_LightMap;
 	GLint			u_DeluxeMap;
+	GLint			u_AttenuationMapXY;
+	GLint			u_AttenuationMapZ;
 
 	GLint			u_ViewOrigin;
 	
 	GLint           u_AmbientColor;
 	
 	GLint           u_LightDir;
+	GLint			u_LightOrigin;
 	GLint           u_LightColor;
-	
-	GLint			u_BumpScale;
 	
 	GLint			u_SpecularExponent;
 	
@@ -740,7 +748,7 @@ typedef struct
 	trRefEntity_t  *entities;
 
 	int             numDlights;
-	trRefDlight_t   *dlights;
+	struct trRefDlight_s *dlights;
 
 	int             numPolys;
 	struct srfPoly_s *polys;
@@ -1144,7 +1152,7 @@ typedef struct
 // the renderer front end should never modify glstate_t
 typedef struct
 {
-	int             currenttextures[16];
+	int             currenttextures[32];
 	int             currenttmu;
 	qboolean        finishCalled;
 	int             texEnv[2];
@@ -1225,11 +1233,16 @@ typedef struct
 	image_t        *blackImage;	// full of 0x0
 	image_t        *flatImage; // use this as default normalmap
 	image_t        *identityLightImage;	// full of tr.identityLightByte
+	image_t        *attenuationZImage;
+	image_t        *attenuationXYImage;
 
+	// internal shaders
 	shader_t       *defaultShader;
 	shader_t       *shadowShader;
+	shader_t       *defaultDlightShader;
+	
+	// external shaders
 	shader_t       *projectionShadowShader;
-
 	shader_t       *flareShader;
 	shader_t       *sunShader;
 
@@ -1248,6 +1261,10 @@ typedef struct
 	shaderProgram_t lightShader_D_direct;
 	shaderProgram_t lightShader_DB_direct;
 	shaderProgram_t lightShader_DBS_direct;
+
+	shaderProgram_t lightShader_D_omni;
+	shaderProgram_t lightShader_DB_omni;
+	shaderProgram_t lightShader_DBS_omni;
 	
 	shaderProgram_t lightShader_D_radiosity;
 	

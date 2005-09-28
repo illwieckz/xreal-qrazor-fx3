@@ -1590,9 +1590,9 @@ void RB_CalcCenterScaleTexCoords(const expression_t * sExp, const expression_t *
 	scaleS = RB_EvalExpression(sExp, 0);
 	scaleT = RB_EvalExpression(tExp, 0);
 	
-	MatrixSetupTranslation(matrix, -0.5, -0.5, 0.0);
+	MatrixSetupTranslation(matrix, 0.5, 0.5, 0.0);
 	MatrixMultiplyScale(matrix, scaleS, scaleT, 1.0);
-	MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
+	MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
 
 	for(i = 0; i < tess.numVertexes; i++, st += 2)
 	{
@@ -1613,37 +1613,17 @@ void RB_CalcCenterScaleTexCoords(const expression_t * sExp, const expression_t *
 */
 void RB_CalcRotateTexCoords2(const expression_t * rExp, float *st)
 {
-#if 1
-	float           angle;
-	float           sinValue, cosValue;
-	texModInfo_t    tmi;
-
-	angle = RB_EvalExpression(rExp, 0) * 5.0;
-	
-	sinValue = sin(angle);
-	cosValue = cos(angle);
-
-	tmi.matrix[0][0] = cosValue;
-	tmi.matrix[1][0] = -sinValue;
-	tmi.translate[0] = 0.5 - 0.5 * cosValue + 0.5 * sinValue;
-
-	tmi.matrix[0][1] = sinValue;
-	tmi.matrix[1][1] = cosValue;
-	tmi.translate[1] = 0.5 - 0.5 * sinValue - 0.5 * cosValue;
-
-	RB_CalcTransformTexCoords(&tmi, st);
-#else
 	int             i;
 	float           degrees;
 	matrix_t		matrix;
 	vec4_t			strw;
 	vec4_t			strw2;
 
-	degrees = RAD2DEG(RB_EvalExpression(rExp, 0));
+	degrees = RAD2DEG(RB_EvalExpression(rExp, 0)) * 5.0;
 	
-	MatrixSetupTranslation(matrix, -0.5, -0.5, 0.0);
-	MatrixMultiplyRotation(matrix, 0.0, degrees, 0.0);
-	MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
+	MatrixSetupTranslation(matrix, 0.5, 0.5, 0.0);
+	MatrixMultiplyZRotation(matrix, degrees);
+	MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
 
 	for(i = 0; i < tess.numVertexes; i++, st += 2)
 	{
@@ -1657,7 +1637,6 @@ void RB_CalcRotateTexCoords2(const expression_t * rExp, float *st)
 		st[0] = strw2[0];
 		st[1] = strw2[1];
 	}
-#endif
 }
 
 

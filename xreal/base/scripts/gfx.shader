@@ -97,7 +97,7 @@ menubacknologo
 	nomipmaps
        
 	{
-		map $black
+		map _black
 			   //map textures/sfx/proto_zzzdrk.tga
                // tcMod turb 0 .1 0 .9
                // tcmod scale .2 .2
@@ -727,13 +727,14 @@ textures/animationTest
 
 teleportEffect
 {
-	cull none
+	twosided
+	
 	{
 		map gfx/misc/teleportEffect2.tga
-				blendFunc GL_ONE GL_ONE
-				rgbGen entity
-				tcMod scale 1 4
-				tcMod scroll 0 2
+		blend GL_ONE , GL_ONE
+		rgbGen entity
+		scale 1 , 4
+		scroll 0, time * 2
 	}
 }
 
@@ -787,7 +788,6 @@ wake
 
 
 // viewBloodBlend gives the blended directional cue when you get hit
-
 viewBloodBlend
 {
 	sort	nearest
@@ -796,10 +796,10 @@ viewBloodBlend
         //map gfx/damage/blood_screen.tga
 		map textures/particles/blood2.tga
 		//blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-				blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
+		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
 		//rgbGen identityLighting
-				rgbGen		vertex
-				alphaGen	vertex
+		rgbGen		vertex
+		alphaGen	vertex
 	}
 }
 

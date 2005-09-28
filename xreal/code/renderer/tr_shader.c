@@ -235,7 +235,7 @@ static void GetOpType(char *token, expOperation_t * op)
 	opstring_t     *opString;
 	char            tableName[MAX_QPATH];
 	int             hash;
-	shaderTable_t  *table;
+	shaderTable_t  *tb;
 	
 	if(	(token[0] >= '0' && token[0] <= '9')	||
 		//(token[0] == '-' && token[1] >= '0' && token[1] <= '9')	||
@@ -249,13 +249,13 @@ static void GetOpType(char *token, expOperation_t * op)
 	Q_strncpyz(tableName, token, sizeof(tableName));
 	hash = generateHashValue(tableName, MAX_SHADERTABLE_HASH);
 
-	for(table = shaderTableHashTable[hash]; table; table = table->next)
+	for(tb = shaderTableHashTable[hash]; tb; tb = tb->next)
 	{
-		if(Q_stricmp(table->name, tableName) == 0)
+		if(Q_stricmp(tb->name, tableName) == 0)
 		{
 			// match found
 			op->type = OP_TABLE;
-			op->value = table->index;
+			op->value = tb->index;
 			return;
 		}
 	}
@@ -1283,14 +1283,10 @@ static qboolean ParseTexMod(char **text, shaderStage_t * stage)
 
 
 
-static qboolean ParseMap(shaderStage_t * stage, char **text)
+static qboolean ParseMap(shaderStage_t * stage, char **text, char *buffer, int bufferSize)
 {
 	int				len;
 	char           *token;
-	char            buffer[1024] = "";
-	char           *buffer_p = &buffer[0];
-	int				imageBits = 0;
-	wrapType_t		wrapType;
 	
 	// examples
 	// map textures/caves/tembrick1crum_local.tga
@@ -1304,6 +1300,9 @@ static qboolean ParseMap(shaderStage_t * stage, char **text)
 		if(token[0] == 0)
 			break;
 				
+		//Q_strcat(buffer, bufferSize, token);
+		//Q_strcat(buffer, bufferSize, " ");
+		
 		strcat(buffer, token);
 		strcat(buffer, " ");
 	}
@@ -1317,10 +1316,25 @@ static qboolean ParseMap(shaderStage_t * stage, char **text)
 	len = strlen(buffer);
 	buffer[len -1] = 0;	// replace last ' ' with tailing zero
 	
-	token = COM_ParseExt(&buffer_p, qfalse);
+	return qtrue;
+}
+
+static qboolean LoadMap(shaderStage_t * stage, char *buffer)
+{
+	char           *token;
+	int				imageBits = 0;
+	wrapType_t		wrapType;
+	char           *buffer_p = &buffer[0];
 	
-//	ri.Printf(PRINT_ALL, "ParseMap: buffer '%s'\n", buffer);
-//	ri.Printf(PRINT_ALL, "ParseMap: token '%s'\n", token);
+	if(!buffer || !buffer[0])
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: NULL parameter for LoadMap in shader '%s'\n", shader.name);
+		return qfalse;
+	}
+	
+//	ri.Printf(PRINT_ALL, "LoadMap: buffer '%s'\n", buffer);
+	
+	token = COM_ParseExt(&buffer_p, qfalse);
 	
 	if(!Q_stricmp(token, "$whiteimage") || !Q_stricmp(token, "$white") || !Q_stricmp(token, "_white"))
 	{
@@ -1334,56 +1348,29 @@ static qboolean ParseMap(shaderStage_t * stage, char **text)
 	}
 	else if(!Q_stricmp(token, "$flatimage") || !Q_stricmp(token, "$flat") || !Q_stricmp(token, "_flat"))
 	{
-		stage->bundle[0].isNormalMap = qtrue;
 		stage->bundle[0].image[0] = tr.flatImage;
 		return qtrue;
 	}
 	else if(!Q_stricmp(token, "$lightmap") || !Q_stricmp(token, "_lightmap"))
 	{
 		stage->bundle[0].isLightMap = qtrue;
-		if(shader.lightmapIndex < 0)
+		
+		switch (shader.lightmapIndex)
 		{
-			stage->bundle[0].image[0] = tr.whiteImage;
-		}
-		else
-		{
-			stage->bundle[0].image[0] = tr.lightmaps[shader.lightmapIndex];
+			case LIGHTMAP_FALLOFF:
+			case LIGHTMAP_2D:
+			case LIGHTMAP_BY_VERTEX:
+			case LIGHTMAP_WHITEIMAGE:
+			case LIGHTMAP_NONE:
+				stage->bundle[0].image[0] = tr.whiteImage;
+				break;
+		
+			default:
+				stage->bundle[0].image[0] = tr.lightmaps[shader.lightmapIndex];
+				break;
 		}
 		return qtrue;
 	}
-	/*
-	else if(!Q_stricmp(buffer, "addnormals"))
-	{
-		buffer = COM_ParseExt(text, qfalse);
-		if(buffer[0] != '(')
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: no matching '(' found\n");
-			return qfalse;
-		}
-		
-		buffer = COM_ParseExt(text, qfalse);
-		Q_strncpyz(filename, buffer, sizeof(filename));
-		
-		buffer = COM_ParseExt(text, qfalse);
-		if(buffer[0] != ',')
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: no matching ',' found\n");
-			return qfalse;
-		}
-		
-		// TODO: support heightmap
-		
-		SkipRestOfLine(text);
-	}
-	else if(!Q_stricmp(buffer, "heightmap"))
-	{
-		ParseHeightMap(stage, text);
-	}
-	else
-	{
-		Q_strncpyz(filename, buffer, sizeof(filename));
-	}
-	*/
 	
 	// determine image options	
 	if(stage->overrideNoMipMaps || shader.noMipMaps)
@@ -1463,43 +1450,6 @@ static qboolean ParseMap(shaderStage_t * stage, char **text)
 		}
 	}
 	
-	// finally set image type
-	switch(stage->type)
-	{
-		case ST_DIFFUSEMAP:
-			stage->bundle[0].isDiffuseMap = qtrue;
-			break;
-		
-		case ST_NORMALMAP:
-			stage->bundle[0].isNormalMap = qtrue;
-			break;
-			
-		case ST_SPECULARMAP:
-			stage->bundle[0].isSpecularMap = qtrue;
-			break;
-			
-//		case ST_HEATHAZEMAP,				// heatHaze post process effect
-		case ST_LIGHTMAP:
-			stage->bundle[0].isLightMap = qtrue;
-			break;
-		
-//		case ST_DELUXEMAP:
-//			stage->bundle[0].isDeluxeMap = qtrue;
-//			break;
-			
-//		case ST_REFLECTIONMAP
-//		case ST_REFRACTIONMAP,
-//		case ST_DISPERSIONMAP,
-//		case ST_SKYBOXMAP,
-//			stage->bundle[0].isCubeMap = qtrue;
-//			break;
-
-//		case ST_SKYCLOUDMAP,
-//		case ST_LIQUIDMAP
-		default:
-			break;
-	}
-	
 	return qtrue;
 }
 
@@ -1515,6 +1465,8 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 	int             depthMaskBits = GLS_DEPTHMASK_TRUE, blendSrcBits = 0, blendDstBits = 0, atestBits = 0, depthFuncBits = 0;
 	qboolean        depthMaskExplicit = qfalse;
 	int				imageBits = 0;
+	char            buffer[1024] = "";
+	qboolean		loadMap = qfalse;
 
 	while(1)
 	{
@@ -1537,10 +1489,14 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		// map <name>
 		else if(!Q_stricmp(token, "map"))
 		{
-			if(!ParseMap(stage, text))
+			if(!ParseMap(stage, text, buffer, sizeof(buffer)))
 			{
 				//ri.Printf(PRINT_WARNING, "WARNING: ParseMap could not create '%s' in shader '%s'\n", token, shader.name);
 				return qfalse;
+			}
+			else
+			{
+				loadMap = qtrue;	
 			}
 		}
 		// clampmap <name>
@@ -1956,6 +1912,14 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			{
 				stage->type = ST_LIQUIDMAP;
 			}
+			else if(!Q_stricmp(token, "attenuationMapXY"))
+			{
+				stage->type = ST_ATTENUATIONMAP_XY;
+			}
+			else if(!Q_stricmp(token, "attenuationMapZ"))
+			{
+				stage->type = ST_ATTENUATIONMAP_Z;
+			}
 			else
 			{
 				ri.Printf(PRINT_WARNING, "WARNING: unknown stage parameter '%s' in shader '%s'\n", token, shader.name);
@@ -2359,6 +2323,12 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 	
 	// parsing succeeded
 	stage->active = qtrue;
+	
+	// load image
+	if(loadMap && !LoadMap(stage, buffer))
+	{
+		return qfalse;	
+	}
 
 	// if cgen isn't explicitly specified, use either identity or identitylighting
 	if(stage->rgbGen == CGEN_BAD)
@@ -2835,42 +2805,62 @@ static void ParseSurfaceParm(char **text)
 
 static void ParseDiffuseMap(shaderStage_t * stage, char **text)
 {
+	char			buffer[1024] = "";
+	
 	stage->active = qtrue;
 	stage->type = ST_DIFFUSEMAP;
 	stage->rgbGen = CGEN_IDENTITY;
 	stage->stateBits = GLS_DEFAULT;
 	
-	ParseMap(stage, text);
+	if(ParseMap(stage, text, buffer, sizeof(buffer)))
+	{
+		LoadMap(stage, buffer);
+	}
 }
 
 static void ParseNormalMap(shaderStage_t * stage, char **text)
 {
+	char			buffer[1024] = "";
+	
 	stage->active = qtrue;
 	stage->type = ST_NORMALMAP;
 	stage->rgbGen = CGEN_IDENTITY;
 	stage->stateBits = GLS_DEFAULT;
 	
-	ParseMap(stage, text);
+	if(ParseMap(stage, text, buffer, sizeof(buffer)))
+	{
+		LoadMap(stage, buffer);
+	}
 }
 
 static void ParseSpecularMap(shaderStage_t * stage, char **text)
 {
+	char			buffer[1024] = "";
+	
 	stage->active = qtrue;
 	stage->type = ST_SPECULARMAP;
 	stage->rgbGen = CGEN_IDENTITY;
 	stage->stateBits = GLS_DEFAULT;
 	
-	ParseMap(stage, text);
+	if(ParseMap(stage, text, buffer, sizeof(buffer)))
+	{
+		LoadMap(stage, buffer);
+	}
 }
 
 static void ParseLightMap(shaderStage_t * stage, char **text)
 {
+	char			buffer[1024] = "";
+	
 	stage->active = qtrue;
 	stage->type = ST_LIGHTMAP;
 	stage->rgbGen = CGEN_IDENTITY;
 	stage->stateBits = GLS_DEFAULT;
 	
-	ParseMap(stage, text);
+	if(ParseMap(stage, text, buffer, sizeof(buffer)))
+	{
+		LoadMap(stage, buffer);
+	}
 }
 
 /*
@@ -3456,7 +3446,7 @@ static void CollapseStages(void)
 {
 	int             abits, bbits;
 	int             i;
-	textureBundle_t tmpBundle;
+//	textureBundle_t tmpBundle;
 	
 	qboolean		hasDiffuseStage;
 	qboolean		hasNormalStage;
@@ -3697,17 +3687,7 @@ static void CollapseStages(void)
 			}
 		}
 
-		// make sure that lightmaps are in bundle 1 for 3dfx
-		if(stages[0].bundle[0].isLightMap)
-		{
-			tmpBundle = stages[0].bundle[0];
-			stages[0].bundle[0] = stages[1].bundle[0];
-			stages[0].bundle[1] = tmpBundle;
-		}
-		else
-		{
-			stages[0].bundle[1] = stages[1].bundle[0];
-		}
+		stages[0].bundle[1] = stages[1].bundle[0];
 
 		// set the new blend state bits
 		shader.collapseType = COLLAPSE_Generic_multi;
@@ -4135,7 +4115,6 @@ static shader_t *FinishShader(void)
 				if(!pStage->bundle[0].image[0])
 				{
 					ri.Printf(PRINT_WARNING, "Shader %s has a diffusemap stage with no image\n", shader.name);
-					pStage->bundle[0].isDiffuseMap = qtrue;
 					pStage->bundle[0].image[0] = tr.defaultImage;
 				}
 				break;
@@ -4227,6 +4206,16 @@ static shader_t *FinishShader(void)
 					pStage->bundle[0].tcGen = TCGEN_LIGHTMAP;
 				}
 				hasLightMapStage = qtrue;
+				break;
+			}
+			
+			case ST_ATTENUATIONMAP_XY:
+			case ST_ATTENUATIONMAP_Z:
+			{
+				if(pStage->bundle[0].tcGen == TCGEN_BAD)
+				{
+					pStage->bundle[0].tcGen = TCGEN_TEXTURE;
+				}
 				break;
 			}
 		
@@ -4587,6 +4576,19 @@ shader_t       *R_FindShader(const char *name, int lightmapIndex, qboolean mipRa
 	{
 		// fullbright level
 		stages[0].bundle[0].image[0] = tr.whiteImage;
+		stages[0].active = qtrue;
+		stages[0].rgbGen = CGEN_IDENTITY_LIGHTING;
+		stages[0].stateBits = GLS_DEFAULT;
+
+		stages[1].bundle[0].image[0] = image;
+		stages[1].active = qtrue;
+		stages[1].rgbGen = CGEN_IDENTITY;
+		stages[1].stateBits |= GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO;
+	}
+	else if(shader.lightmapIndex == LIGHTMAP_FALLOFF)
+	{
+		// fullbright level
+		stages[0].bundle[0].image[0] = tr.attenuationZImage;
 		stages[0].active = qtrue;
 		stages[0].rgbGen = CGEN_IDENTITY_LIGHTING;
 		stages[0].stateBits = GLS_DEFAULT;
@@ -5171,13 +5173,26 @@ static void ScanAndLoadShaderFiles(void)
 				int             depth;
 				float			values[FUNCTABLE_SIZE];
 				int				numValues;
+				shaderTable_t  *tb;
+				qboolean        alreadyCreated;
 				
 				Com_Memset(&table, 0, sizeof(table));
 				
 				token = COM_ParseExt(&p, qtrue);
 				Q_strncpyz(table.name, token, sizeof(table.name));
 				
-				//ri.Printf(PRINT_ALL, "...generating '%s'\n", table.name);
+				// check if already created
+				alreadyCreated = qfalse;
+				hash = generateHashValue(table.name, MAX_SHADERTABLE_HASH);
+				for(tb = shaderTableHashTable[hash]; tb; tb = tb->next)
+				{
+					if(Q_stricmp(tb->name, table.name) == 0)
+					{
+						// match found
+						alreadyCreated = qtrue;
+						break;
+					}
+				}
 
 				depth = 0;
 				numValues = 0;
@@ -5216,7 +5231,11 @@ static void ScanAndLoadShaderFiles(void)
 					}
 				} while(depth && p);
 				
-				GeneratePermanentShaderTable(values, numValues);
+				if(!alreadyCreated)
+				{
+					ri.Printf(PRINT_ALL, "...generating '%s'\n", table.name);
+					GeneratePermanentShaderTable(values, numValues);
+				}
 				continue;
 			}
 			
@@ -5263,6 +5282,21 @@ static void CreateInternalShaders(void)
 	Q_strncpyz(shader.name, "<stencil shadow>", sizeof(shader.name));
 	shader.sort = SS_STENCIL_SHADOW;
 	tr.shadowShader = FinishShader();
+	
+	// dlight shader
+	/*
+	Q_strncpyz(shader.name, "<dlight>", sizeof(shader.name));
+	stages[0].type = ST_ATTENUATIONMAP_Z;
+	stages[0].bundle[0].image[0] = tr.attenuationZImage;
+	stages[0].active = qtrue;
+	stages[0].stateBits = GLS_DEFAULT;
+	
+	stages[1].type = ST_ATTENUATIONMAP_XY;
+	stages[1].bundle[0].image[0] = tr.attenuationXYImage;
+	stages[1].active = qtrue;
+	stages[1].stateBits = GLS_DEFAULT;
+	tr.defaultDlightShader = FinishShader();
+	*/
 }
 
 static void CreateExternalShaders(void)
@@ -5270,6 +5304,8 @@ static void CreateExternalShaders(void)
 	tr.projectionShadowShader = R_FindShader("projectionShadow", LIGHTMAP_NONE, qtrue);
 	tr.flareShader = R_FindShader("flareShader", LIGHTMAP_NONE, qtrue);
 	tr.sunShader = R_FindShader("sun", LIGHTMAP_NONE, qtrue);
+	
+	tr.defaultDlightShader = R_FindShader("lights/defaultDynamicLight", LIGHTMAP_FALLOFF, qtrue);
 }
 
 /*
@@ -5281,6 +5317,7 @@ void R_InitShaders(void)
 {
 	ri.Printf(PRINT_ALL, "Initializing Shaders\n");
 
+	Com_Memset(shaderTableHashTable, 0, sizeof(shaderTableHashTable));
 	Com_Memset(shaderHashTable, 0, sizeof(shaderHashTable));
 
 	deferLoad = qfalse;

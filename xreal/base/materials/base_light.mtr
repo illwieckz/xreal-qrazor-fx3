@@ -905,7 +905,8 @@ textures/base_light/dlight01
 
 	diffusemap	textures/base_light/dlight01_d.tga
 	specularmap	textures/base_light/dlight01_s.tga
-        bumpmap	        textures/base_light/dlight01.tga
+	bumpmap		textures/base_light/dlight01.tga
+	lightmap	_lightmap
 }
 
 textures/base_light/tlight01
@@ -1146,6 +1147,7 @@ textures/base_light/sterlightdecalred
 		 alphaTest 0.5
 	}
 	specularmap	textures/base_light/sterlightdecal_s.tga
+	lightmap	_lightmap
 	{
 		blend 	add
 		map		textures/base_light/sterlightdecalred_add.tga

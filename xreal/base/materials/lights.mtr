@@ -882,6 +882,23 @@ lights/baronflash
 // 	}
 // }
 
+lights/defaultDynamicLight
+{
+	{
+		stage attenuationMapZ
+		map makeintensity(lights/squarelight1a.tga)
+		edgeClamp
+	}
+	{
+		stage attenuationMapXY
+		forceHighQuality
+		//map lights/squarelight1.tga
+		map lights/round.tga
+		colored
+		zeroClamp
+	}
+}
+
 lights/defaultPointLight
 {
 	lightFalloffImage	makeintensity( lights/squarelight1a.tga )	// this will also be the falloff for any

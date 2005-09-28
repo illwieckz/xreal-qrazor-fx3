@@ -115,6 +115,8 @@ typedef struct
 	vec3_t          origin;
 	vec3_t          color;		// range from 0.0 to 1.0, should be color normalized
 	float           radius;
+	
+	vec3_t          axis[3];	// rotation vectors
 } refDlight_t;
 
 

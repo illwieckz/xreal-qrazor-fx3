@@ -39,7 +39,6 @@ int             r_numpolyverts;
 /*
 ====================
 R_ToggleSmpFrame
-
 ====================
 */
 void R_ToggleSmpFrame(void)
@@ -75,7 +74,6 @@ void R_ToggleSmpFrame(void)
 /*
 ====================
 RE_ClearScene
-
 ====================
 */
 void RE_ClearScene(void)
@@ -119,7 +117,6 @@ void R_AddPolygonSurfaces(void)
 /*
 =====================
 RE_AddPolyToScene
-
 =====================
 */
 void RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts, int numPolys)
@@ -222,7 +219,6 @@ void RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts
 /*
 =====================
 RE_AddRefEntityToScene
-
 =====================
 */
 void RE_AddRefEntityToScene(const refEntity_t * ent)
@@ -251,11 +247,12 @@ void RE_AddRefEntityToScene(const refEntity_t * ent)
 /*
 =====================
 RE_AddDynamicLightToScene
-
 =====================
 */
 void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r, float g, float b, int additive)
 {
+	trRefDlight_t *dl;
+		
 	if(!tr.registered)
 	{
 		return;
@@ -274,20 +271,34 @@ void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r, float
 		return;
 	}
 	
-	VectorCopy(org, backEndData[tr.smpFrame]->dlights[r_numdlights].l.origin);
-	backEndData[tr.smpFrame]->dlights[r_numdlights].l.radius = intensity;
-	backEndData[tr.smpFrame]->dlights[r_numdlights].l.color[0] = r;
-	backEndData[tr.smpFrame]->dlights[r_numdlights].l.color[1] = g;
-	backEndData[tr.smpFrame]->dlights[r_numdlights].l.color[2] = b;
-	backEndData[tr.smpFrame]->dlights[r_numdlights].additive = additive;
+	dl = &backEndData[tr.smpFrame]->dlights[r_numdlights++];
+	VectorCopy(org, dl->l.origin);
+
+	dl->l.radius = intensity;
+
+	dl->l.color[0] = r;
+	dl->l.color[1] = g;
+	dl->l.color[2] = b;
+	dl->additive = additive;
 	
-	r_numdlights++;
+	// setup transform	
+	MatrixSetupTransform(dl->transformMatrix, axisDefault[0], axisDefault[1], axisDefault[2], org);
+	
+	// setup view
+	MatrixAffineInverse(dl->transformMatrix, dl->viewMatrix);
+	
+	// setup projection
+	MatrixSetupScale(dl->projectionMatrix, 1.0 / dl->l.radius, 1.0 / dl->l.radius, 1.0 / dl->l.radius);
+				
+	// setup attenuation
+	MatrixSetupTranslation(dl->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
+	MatrixMultiplyScale(dl->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
+	MatrixMultiply2(dl->attenuationMatrix, dl->projectionMatrix);	// light projection (frustum)
 }
 
 /*
 =====================
 RE_AddLightToScene
-
 =====================
 */
 void RE_AddLightToScene(const vec3_t org, float intensity, float r, float g, float b)
@@ -298,7 +309,6 @@ void RE_AddLightToScene(const vec3_t org, float intensity, float r, float g, flo
 /*
 =====================
 RE_AddAdditiveLightToScene
-
 =====================
 */
 void RE_AddAdditiveLightToScene(const vec3_t org, float intensity, float r, float g, float b)

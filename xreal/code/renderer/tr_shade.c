@@ -191,7 +191,7 @@ void RB_InitGPUShaders(void)
 		return;
 	
 	//
-	// simple single texture rendering
+	// single texture rendering
 	//
 	RB_InitGPUShader(&tr.genericShader_single,
 					  "generic_single",
@@ -205,7 +205,7 @@ void RB_InitGPUShaders(void)
 	qglUseProgramObjectARB(0);
 
 	//
-	// simple directional lighting ( Q3A style )
+	// directional lighting ( Q3A style )
 	//
 	RB_InitGPUShader(&tr.lightShader_D_direct,
 					 "lighting_D_direct",
@@ -225,7 +225,7 @@ void RB_InitGPUShaders(void)
 	qglUseProgramObjectARB(0);
 
 	//
-	// simple directional bump mapping
+	// directional bump mapping
 	//
 	RB_InitGPUShader(&tr.lightShader_DB_direct,
 					 "lighting_DB_direct",
@@ -250,7 +250,7 @@ void RB_InitGPUShaders(void)
 	qglUseProgramObjectARB(0);
 	
 	//
-	// simple directional specular bump mapping
+	// directional specular bump mapping
 	//
 	RB_InitGPUShader(&tr.lightShader_DBS_direct,
 					 "lighting_DBS_direct",
@@ -271,8 +271,6 @@ void RB_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.lightShader_DBS_direct.program, "u_LightDir");
 	tr.lightShader_DBS_direct.u_LightColor =
 		qglGetUniformLocationARB(tr.lightShader_DBS_direct.program, "u_LightColor");
-//	tr.lightShader_DBS_direct.u_BumpScale =
-//		qglGetUniformLocationARB(tr.lightShader_DBS_direct.program, "u_BumpScale");
 	tr.lightShader_DBS_direct.u_SpecularExponent =
 		qglGetUniformLocationARB(tr.lightShader_DBS_direct.program, "u_SpecularExponent");
 
@@ -283,7 +281,92 @@ void RB_InitGPUShaders(void)
 	qglUseProgramObjectARB(0);
 	
 	//
-	// simple radiosity lighting ( Q3A style )
+	// omni-directional lighting ( Doom3 style )
+	//
+	RB_InitGPUShader(&tr.lightShader_D_omni,
+					  "lighting_D_omni",
+					  GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_NORMAL, qtrue);
+
+	tr.lightShader_D_omni.u_DiffuseMap =
+			qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_DiffuseMap");
+	tr.lightShader_D_omni.u_AttenuationMapXY =
+			qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_AttenuationMapXY");
+	tr.lightShader_D_omni.u_AttenuationMapZ =
+			qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_AttenuationMapZ");
+	tr.lightShader_D_omni.u_LightOrigin =
+			qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_LightOrigin");
+	tr.lightShader_D_omni.u_LightColor =
+			qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_LightColor");
+
+	qglUseProgramObjectARB(tr.lightShader_D_omni.program);
+	qglUniform1iARB(tr.lightShader_D_omni.u_DiffuseMap, 0);
+	qglUniform1iARB(tr.lightShader_D_omni.u_AttenuationMapXY, 1);
+	qglUniform1iARB(tr.lightShader_D_omni.u_AttenuationMapZ, 2);
+	qglUseProgramObjectARB(0);
+	
+	//
+	// omni-directional bump mapping ( Doom3 style )
+	//
+	RB_InitGPUShader(&tr.lightShader_DB_omni,
+					  "lighting_DB_omni",
+					  GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+
+	tr.lightShader_DB_omni.u_DiffuseMap =
+			qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_DiffuseMap");
+	tr.lightShader_DB_omni.u_NormalMap =
+			qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_NormalMap");
+	tr.lightShader_DB_omni.u_AttenuationMapXY =
+			qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_AttenuationMapXY");
+	tr.lightShader_DB_omni.u_AttenuationMapZ =
+			qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_AttenuationMapZ");
+	tr.lightShader_DB_omni.u_LightOrigin =
+			qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_LightOrigin");
+	tr.lightShader_DB_omni.u_LightColor =
+			qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_LightColor");
+
+	qglUseProgramObjectARB(tr.lightShader_DB_omni.program);
+	qglUniform1iARB(tr.lightShader_DB_omni.u_DiffuseMap, 0);
+	qglUniform1iARB(tr.lightShader_DB_omni.u_NormalMap, 1);
+	qglUniform1iARB(tr.lightShader_DB_omni.u_AttenuationMapXY, 2);
+	qglUniform1iARB(tr.lightShader_DB_omni.u_AttenuationMapZ, 3);
+	qglUseProgramObjectARB(0);
+	
+	//
+	// omni-directional specular bump mapping ( Doom3 style )
+	//
+	RB_InitGPUShader(&tr.lightShader_DBS_omni,
+					  "lighting_DBS_omni",
+					  GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD2 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+
+	tr.lightShader_DBS_omni.u_DiffuseMap =
+			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_DiffuseMap");
+	tr.lightShader_DBS_omni.u_NormalMap =
+			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_NormalMap");
+	tr.lightShader_DBS_omni.u_SpecularMap =
+			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_SpecularMap");
+	tr.lightShader_DBS_omni.u_AttenuationMapXY =
+			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_AttenuationMapXY");
+	tr.lightShader_DBS_omni.u_AttenuationMapZ =
+			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_AttenuationMapZ");
+	tr.lightShader_DBS_omni.u_ViewOrigin =
+			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_ViewOrigin");
+	tr.lightShader_DBS_omni.u_LightOrigin =
+			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_LightOrigin");
+	tr.lightShader_DBS_omni.u_LightColor =
+			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_LightColor");
+	tr.lightShader_DBS_omni.u_SpecularExponent =
+			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_SpecularExponent");
+
+	qglUseProgramObjectARB(tr.lightShader_DBS_omni.program);
+	qglUniform1iARB(tr.lightShader_DBS_omni.u_DiffuseMap, 0);
+	qglUniform1iARB(tr.lightShader_DBS_omni.u_NormalMap, 1);
+	qglUniform1iARB(tr.lightShader_DBS_omni.u_SpecularMap, 2);
+	qglUniform1iARB(tr.lightShader_DBS_omni.u_AttenuationMapXY, 3);
+	qglUniform1iARB(tr.lightShader_DBS_omni.u_AttenuationMapZ, 4);
+	qglUseProgramObjectARB(0);
+	
+	//
+	// radiosity lighting ( Q3A style )
 	//
 	RB_InitGPUShader(&tr.lightShader_D_radiosity,
 					  "lighting_D_radiosity",
@@ -300,7 +383,7 @@ void RB_InitGPUShaders(void)
 	qglUseProgramObjectARB(0);
 	
 	//
-	// simple cubemap reflection for abitrary polygons
+	// cubemap reflection for abitrary polygons
 	//
 	RB_InitGPUShader(&tr.reflectionShader_C,
 					  "reflection_C",
@@ -316,7 +399,7 @@ void RB_InitGPUShaders(void)
 	qglUseProgramObjectARB(0);
 	
 	//
-	// simple cubemap refraction for abitrary polygons
+	// cubemap refraction for abitrary polygons
 	//
 	RB_InitGPUShader(&tr.refractionShader_C,
 					  "refraction_C",
@@ -340,7 +423,7 @@ void RB_InitGPUShaders(void)
 	qglUseProgramObjectARB(0);
 	
 	//
-	// simple cubemap dispersion for abitrary polygons
+	// cubemap dispersion for abitrary polygons
 	//
 	RB_InitGPUShader(&tr.dispersionShader_C,
 					  "dispersion_C",
@@ -364,7 +447,7 @@ void RB_InitGPUShaders(void)
 	qglUseProgramObjectARB(0);
 	
 	//
-	// simple skybox drawing for abitrary polygons
+	// skybox drawing for abitrary polygons
 	//
 	RB_InitGPUShader(&tr.skyBoxShader,
 					  "skybox",
@@ -411,6 +494,24 @@ void RB_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.lightShader_DBS_direct.program);
 		tr.lightShader_DBS_direct.program = 0;
+	}
+	
+	if(tr.lightShader_D_omni.program)
+	{
+		qglDeleteObjectARB(tr.lightShader_D_omni.program);
+		tr.lightShader_D_omni.program = 0;
+	}
+	
+	if(tr.lightShader_DB_omni.program)
+	{
+		qglDeleteObjectARB(tr.lightShader_DB_omni.program);
+		tr.lightShader_DB_omni.program = 0;
+	}
+	
+	if(tr.lightShader_DBS_omni.program)
+	{
+		qglDeleteObjectARB(tr.lightShader_DBS_omni.program);
+		tr.lightShader_DBS_omni.program = 0;
 	}
 	
 	if(tr.lightShader_D_radiosity.program)
@@ -982,6 +1083,30 @@ static void Render_generic_single_FFP(int stage)
 	GL_ClientState(GLCS_DEFAULT);
 }
 
+static void Render_generic_zfill_FFP(int stage)
+{
+	shaderStage_t  *pStage;
+
+	pStage = tess.xstages[stage];
+	
+	GL_Program(0);
+	
+	GL_SelectTexture(0);
+	
+	qglColor4f(0, 0, 0, 1);
+	
+	GL_State(pStage->stateBits);
+	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD);
+	GL_SetVertexAttribs();
+
+	R_BindAnimatedImage(&pStage->bundle[0]);
+
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+	GL_ClientState(GLCS_DEFAULT);
+	qglColor4f(1, 1, 1, 1);
+}
+
 /*
 ===================
 DrawMultiTextured
@@ -1195,7 +1320,6 @@ static void Render_lighting_DBS_direct(int stage)
 	qglUniform3fARB(tr.lightShader_DBS_direct.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform3fARB(tr.lightShader_DBS_direct.u_LightDir, lightDir[0], lightDir[1], lightDir[2]);
 	qglUniform3fARB(tr.lightShader_DBS_direct.u_LightColor, directedLight[0], directedLight[1], directedLight[2]);
-//	qglUniform1fARB(tr.lightShader_DBS_direct.u_BumpScale, 1.0);
 	qglUniform1fARB(tr.lightShader_DBS_direct.u_SpecularExponent, 32.0);
 
 
@@ -1214,6 +1338,189 @@ static void Render_lighting_DBS_direct(int stage)
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
 	GL_SelectTexture(0);
+	GL_ClientState(GLCS_DEFAULT);
+//	GL_Program(0);
+}
+
+static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
+									shaderStage_t * attenuationXYStage,
+									shaderStage_t * attenuationZStage,
+									trRefDlight_t * dlight,
+									matrix_t attenuation)
+{
+	vec3_t          lightOrigin;
+	vec4_t          lightColor;	
+//	trRefEntity_t  *ent = backEnd.currentEntity;
+//	shaderStage_t  *pStage = tess.xstages[stage];
+//	trRefDlight_t  *dl = &backEnd.refdef.dlights[dlight];
+
+	// include GLS_DEPTHFUNC_EQUAL so alpha tested surfaces don't add light
+	// where they aren't rendered
+#if 0
+	if(!dl->additive)
+	{
+		GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+	}
+	else
+#endif
+	{
+		GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+	}
+	
+	// enable shader, set arrays
+	GL_Program(tr.lightShader_D_omni.program);
+	GL_ClientState(tr.lightShader_D_omni.attribs);
+	GL_SetVertexAttribs();
+
+	// set uniforms
+	VectorCopy(dlight->transformed, lightOrigin);
+	VectorCopy(dlight->l.color, lightColor);
+	ClampColor(lightColor);
+	
+	qglUniform3fARB(tr.lightShader_D_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
+	qglUniform3fARB(tr.lightShader_D_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
+
+	GL_SelectTexture(0);
+	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(attenuation);
+	qglMatrixMode(GL_MODELVIEW);
+	
+	GL_SelectTexture(1);
+	GL_Bind(attenuationXYStage->bundle[TB_COLORMAP].image[0]);
+	
+	GL_SelectTexture(2);
+	GL_Bind(attenuationZStage->bundle[TB_COLORMAP].image[0]);
+	
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+	GL_SelectTexture(0);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadIdentity();
+	qglMatrixMode(GL_MODELVIEW);
+	GL_ClientState(GLCS_DEFAULT);
+//	GL_Program(0);
+}
+
+static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
+										shaderStage_t * attenuationXYStage,
+										shaderStage_t * attenuationZStage,
+										trRefDlight_t * dlight,
+										matrix_t attenuation)
+{
+	vec3_t          lightOrigin;
+	vec4_t          lightColor;	
+
+#if 0
+	if(!dl->additive)
+	{
+		GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+	}
+	else
+#endif
+	{
+		GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+	}
+	
+	// enable shader, set arrays
+	GL_Program(tr.lightShader_DB_omni.program);
+	GL_ClientState(tr.lightShader_DB_omni.attribs);
+	GL_SetVertexAttribs();
+
+	// set uniforms
+	VectorCopy(dlight->transformed, lightOrigin);
+	VectorCopy(dlight->l.color, lightColor);
+	ClampColor(lightColor);
+	
+	qglUniform3fARB(tr.lightShader_DB_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
+	qglUniform3fARB(tr.lightShader_DB_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
+
+	GL_SelectTexture(0);
+	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(attenuation);
+	qglMatrixMode(GL_MODELVIEW);
+	
+	GL_SelectTexture(1);
+	GL_Bind(diffuseStage->bundle[TB_NORMALMAP].image[0]);
+	
+	GL_SelectTexture(2);
+	GL_Bind(attenuationXYStage->bundle[TB_COLORMAP].image[0]);
+	
+	GL_SelectTexture(3);
+	GL_Bind(attenuationZStage->bundle[TB_COLORMAP].image[0]);
+	
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+	GL_SelectTexture(0);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadIdentity();
+	qglMatrixMode(GL_MODELVIEW);
+	GL_ClientState(GLCS_DEFAULT);
+//	GL_Program(0);
+}
+
+static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
+										shaderStage_t * attenuationXYStage,
+										shaderStage_t * attenuationZStage,
+										trRefDlight_t * dlight,
+										matrix_t attenuation)
+{
+	vec3_t			viewOrigin;
+	vec3_t          lightOrigin;
+	vec4_t          lightColor;	
+
+#if 0
+	if(!dl->additive)
+{
+	GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+}
+	else
+#endif
+{
+	GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+}
+	
+	// enable shader, set arrays
+	GL_Program(tr.lightShader_DBS_omni.program);
+	GL_ClientState(tr.lightShader_DBS_omni.attribs);
+	GL_SetVertexAttribs();
+
+	// set uniforms
+	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
+	VectorCopy(dlight->transformed, lightOrigin);
+	VectorCopy(dlight->l.color, lightColor);
+	ClampColor(lightColor);
+	
+	qglUniform3fARB(tr.lightShader_DBS_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	qglUniform3fARB(tr.lightShader_DBS_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
+	qglUniform3fARB(tr.lightShader_DBS_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
+	qglUniform1fARB(tr.lightShader_DBS_omni.u_SpecularExponent, 32.0);
+
+	GL_SelectTexture(0);
+	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(attenuation);
+	qglMatrixMode(GL_MODELVIEW);
+	
+	GL_SelectTexture(1);
+	GL_Bind(diffuseStage->bundle[TB_NORMALMAP].image[0]);
+	
+	GL_SelectTexture(2);
+	GL_Bind(diffuseStage->bundle[TB_SPECULARMAP].image[0]);
+	
+	GL_SelectTexture(3);
+	GL_Bind(attenuationXYStage->bundle[TB_COLORMAP].image[0]);
+	
+	GL_SelectTexture(4);
+	GL_Bind(attenuationZStage->bundle[TB_COLORMAP].image[0]);
+	
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+	GL_SelectTexture(0);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadIdentity();
+	qglMatrixMode(GL_MODELVIEW);
 	GL_ClientState(GLCS_DEFAULT);
 //	GL_Program(0);
 }
@@ -1389,6 +1696,189 @@ static void Render_skybox(int stage)
 	qglMatrixMode(GL_MODELVIEW);
 	GL_ClientState(GLCS_DEFAULT);
 //	GL_Program(0);
+}
+
+
+void RenderDlightInteractions(void)
+{
+	int             i, j, l;
+	matrix_t		modelToLight;
+	matrix_t		attenuation;
+//	unsigned        hitIndexes[SHADER_MAX_INDEXES];
+//	int             numIndexes;
+
+	if(!backEnd.refdef.numDlights)
+	{
+		return;
+	}
+
+	for(l = 0; l < backEnd.refdef.numDlights; l++)
+	{
+		trRefDlight_t       *dl;
+
+		if(!(tess.dlightBits & (1 << l)))
+		{
+			continue;			// this surface definately doesn't have any of this light
+		}
+	
+		dl = &backEnd.refdef.dlights[l];
+		
+		MatrixMultiply(dl->viewMatrix, backEnd.or.transformMatrix, modelToLight);
+		MatrixMultiply(dl->attenuationMatrix, modelToLight, attenuation);
+
+		// build a list of triangles that need light
+		/*
+		numIndexes = 0;
+		for(i = 0; i < tess.numIndexes; i += 3)
+		{
+			int             i1, i2, i3;
+			vec3_t          d1, d2, normal;
+			vec3_t			l1, l2, l3;
+			float          *v1, *v2, *v3;
+			float           d;
+
+			i1 = tess.indexes[i + 0];
+			i2 = tess.indexes[i + 1];
+			i3 = tess.indexes[i + 2];
+
+			v1 = tess.xyz[i1];
+			v2 = tess.xyz[i2];
+			v3 = tess.xyz[i3];
+
+			VectorSubtract(v2, v1, d1);
+			VectorSubtract(v3, v1, d2);
+			CrossProduct(d1, d2, normal);
+			
+			VectorSubtract(dl->transformed, v1, l1);
+			VectorSubtract(dl->transformed, v2, l2);
+			VectorSubtract(dl->transformed, v3, l3);
+			
+			VectorAdd(l1, l2, l1);
+			VectorAdd(l1, l3, l1);
+			VectorNormalize(l1);
+
+			d = DotProduct(normal, l1);
+			if(d <= 0)
+			{
+				continue;	// not lighted
+			}
+			
+			hitIndexes[numIndexes + 0] = i1;
+			hitIndexes[numIndexes + 1] = i2;
+			hitIndexes[numIndexes + 2] = i3;
+			numIndexes += 3;
+		}
+
+		if(!numIndexes)
+		{
+			continue;
+		}
+		*/
+
+		shaderStage_t  *attenuationZStage = tr.defaultDlightShader->stages[0];
+		
+		for(i = 1; i < MAX_SHADER_STAGES; i++)
+		{
+			shaderStage_t  *attenuationXYStage = tr.defaultDlightShader->stages[i];
+						
+			if(!attenuationXYStage)
+			{
+				break;
+			}
+			
+			if(attenuationXYStage->type != ST_ATTENUATIONMAP_XY)
+			{
+				continue;	
+			}
+			
+			if(!RB_EvalExpression(&attenuationXYStage->ifExp, 1.0))
+			{
+				continue;
+			}
+			
+			for(j = 0; j < MAX_SHADER_STAGES; j++)
+			{
+				shaderStage_t  *diffuseStage = tess.xstages[j];
+
+				if(!diffuseStage)
+				{
+					break;
+				}
+		
+				if(!RB_EvalExpression(&diffuseStage->ifExp, 1.0))
+				{
+					continue;
+				}
+				
+				switch(diffuseStage->type)
+				{
+					case ST_DIFFUSEMAP:
+					case ST_COLLAPSE_lighting_D_radiosity:
+						if(glConfig2.shadingLanguage100Available)
+						{
+							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);
+						}
+						else
+						{
+							// TODO
+						}
+						break;
+						
+					case ST_COLLAPSE_lighting_DB_radiosity:
+					case ST_COLLAPSE_lighting_DB_direct:
+						if(glConfig2.shadingLanguage100Available)
+						{
+							if(r_bumpMapping->integer)
+							{	
+								Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);
+							}
+							else
+							{
+								Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);	
+							}
+						}
+						else
+						{
+							// TODO
+						}
+						break;
+						
+					case ST_COLLAPSE_lighting_DBS_radiosity:
+					case ST_COLLAPSE_lighting_DBS_direct:
+						if(glConfig2.shadingLanguage100Available)
+						{
+							if(r_bumpMapping->integer)
+							{
+								if(r_specular->integer)
+								{
+									Render_lighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);
+								}
+								else
+								{
+									Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);
+								}
+							}
+							else
+							{
+								Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);	
+							}
+						}
+						else
+						{
+							// TODO
+						}
+						break;
+						
+					default:
+						break;
+				}
+			}
+		}
+		
+		backEnd.pc.c_dlightVertexes += tess.numVertexes;
+		backEnd.pc.c_totalIndexes += tess.numIndexes;
+		backEnd.pc.c_dlightIndexes += tess.numIndexes;
+	}
 }
 
 /*
@@ -1604,18 +2094,32 @@ void ProjectDlightTexture(void)
 		numIndexes = 0;
 		for(i = 0; i < tess.numIndexes; i += 3)
 		{
-			int             a, b, c;
+			int             i1, i2, i3;
+			vec3_t          d1, d2, normal;
+			float          *v1, *v2, *v3;
+			float           d;
 
-			a = tess.indexes[i];
-			b = tess.indexes[i + 1];
-			c = tess.indexes[i + 2];
-			if(clipBits[a] & clipBits[b] & clipBits[c])
+			i1 = tess.indexes[i * 3 + 0];
+			i2 = tess.indexes[i * 3 + 1];
+			i3 = tess.indexes[i * 3 + 2];
+
+			v1 = tess.xyz[i1];
+			v2 = tess.xyz[i2];
+			v3 = tess.xyz[i3];
+
+			VectorSubtract(v2, v1, d1);
+			VectorSubtract(v3, v1, d2);
+			CrossProduct(d1, d2, normal);
+
+			d = DotProduct(normal, lightDir);
+			if(d <= 0)
 			{
-				continue;		// not lighted
+				continue;	// not lighted
 			}
-			hitIndexes[numIndexes] = a;
-			hitIndexes[numIndexes + 1] = b;
-			hitIndexes[numIndexes + 2] = c;
+			
+			hitIndexes[numIndexes + 0] = i1;
+			hitIndexes[numIndexes + 1] = i2;
+			hitIndexes[numIndexes + 2] = i3;
 			numIndexes += 3;
 		}
 
@@ -2085,7 +2589,7 @@ static void RB_IterateStagesGeneric()
 			// Tr3B - for development only. get rid of this later to avoid overdraw
 			case ST_DIFFUSEMAP:
 			{
-				Render_generic_single_FFP(stage);
+				Render_generic_zfill_FFP(stage);
 				break;
 			}
 			
@@ -2109,7 +2613,7 @@ static void RB_IterateStagesGeneric()
 				}
 				else
 				{
-					Render_generic_single_FFP(stage);
+					Render_generic_zfill_FFP(stage);
 				}
 				
 				break;
@@ -2132,7 +2636,7 @@ static void RB_IterateStagesGeneric()
 				}
 				else
 				{
-					Render_generic_single_FFP(stage);
+					Render_generic_zfill_FFP(stage);
 				}
 				break;
 			}
@@ -2161,7 +2665,7 @@ static void RB_IterateStagesGeneric()
 				}
 				else
 				{
-					Render_generic_single_FFP(stage);
+					Render_generic_zfill_FFP(stage);
 				}
 				break;
 			}
@@ -2181,7 +2685,7 @@ static void RB_IterateStagesGeneric()
 				}
 				else
 				{
-					Render_generic_single_FFP(stage);
+					Render_generic_zfill_FFP(stage);
 				}
 				break;
 			}
@@ -2208,7 +2712,7 @@ static void RB_IterateStagesGeneric()
 				}
 				else
 				{
-					Render_generic_single_FFP(stage);
+					Render_generic_zfill_FFP(stage);
 				}
 				break;
 			}
@@ -2330,7 +2834,8 @@ void RB_StageIteratorGeneric(void)
 	// now do any dynamic lighting needed
 	if(tess.dlightBits && tess.shader->sort <= SS_OPAQUE && !(tess.shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY)))
 	{
-		ProjectDlightTexture();
+		//ProjectDlightTexture();
+		RenderDlightInteractions();
 	}
 	
 	// now do fog

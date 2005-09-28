@@ -23,9 +23,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 uniform sampler2D	u_DiffuseMap;
 uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_SpecularMap;
+uniform sampler2D	u_AttenuationMapXY;
+uniform sampler2D	u_AttenuationMapZ;
+//uniform samplerCube	u_AttenuationMapCube;
 uniform vec3		u_ViewOrigin;
-uniform vec3		u_AmbientColor;
-uniform vec3		u_LightDir;
+uniform vec3		u_LightOrigin;
 uniform vec3		u_LightColor;
 uniform float		u_SpecularExponent;
 
@@ -33,15 +35,17 @@ varying vec3		var_Vertex;
 varying vec2		var_TexDiffuse;
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
+varying vec3		var_TexAttenXYZ;
+//varying vec3		var_TexAttenCube;
 varying mat3		var_OS2TSMatrix;
 
 void	main()
 {
 	// compute view direction in tangent space
 	vec3 V = normalize(var_OS2TSMatrix * (u_ViewOrigin - var_Vertex));
-
+	
 	// compute light direction in tangent space
-	vec3 L = normalize(var_OS2TSMatrix * u_LightDir);
+	vec3 L = normalize(var_OS2TSMatrix * (u_LightOrigin - var_Vertex));
 	
 	// compute half angle in tangent space
 	vec3 H = normalize(L + V);
@@ -52,16 +56,22 @@ void	main()
 	
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
+	diffuse.rgb *= u_LightColor * clamp(dot(N, L), 0.0, 1.0);
 	
 	// compute the specular term
 	vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), u_SpecularExponent);
 	
-	// compute the light term
-	vec3 light = u_AmbientColor + u_LightColor * clamp(dot(N, L), 0.0, 1.0);
-	clamp(light, 0.0, 1.0);
-	
+	// compute attenuation
+	vec3 attenuationXY		= texture2D(u_AttenuationMapXY, var_TexAttenXYZ.xy).rgb;
+	vec3 attenuationZ		= texture2D(u_AttenuationMapZ, vec2(var_TexAttenXYZ.z, 0)).rgb;
+//	vec3 attenuationCube	= textureCube(u_AttenuationMapCube, var_tex_atten_cube).rgb;
+					
 	// compute final color
+//	gl_FragColor.rgba = vec4(1.0, 1.0, 1.0, 1.0);
+//	gl_FragColor.rgb *= u_LightColor * clamp(dot(N, L), 0.0, 1.0);
 	gl_FragColor.rgba = diffuse;
-	gl_FragColor.rgb *= light;
 	gl_FragColor.rgb += specular;
+	gl_FragColor.rgb *= attenuationXY;
+	gl_FragColor.rgb *= attenuationZ;
+//	gl_FragColor.rgb *= attenuationCube;
 }

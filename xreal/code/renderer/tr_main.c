@@ -1518,12 +1518,15 @@ void R_AddEntitySurfaces(void)
 						case MOD_MESH:
 							R_AddMD3Surfaces(ent);
 							break;
+							
 						case MOD_MD4:
 							R_AddAnimSurfaces(ent);
 							break;
+							
 						case MOD_BRUSH:
 							R_AddBrushModelSurfaces(ent);
 							break;
+							
 						case MOD_BAD:	// null model axis
 							if((ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal)
 							{
@@ -1532,12 +1535,14 @@ void R_AddEntitySurfaces(void)
 							shader = R_GetShaderByHandle(ent->e.customShader);
 							R_AddDrawSurf(&entitySurface, tr.defaultShader, 0, 0);
 							break;
+							
 						default:
 							ri.Error(ERR_DROP, "R_AddEntitySurfaces: Bad modeltype");
 							break;
 					}
 				}
 				break;
+				
 			default:
 				ri.Error(ERR_DROP, "R_AddEntitySurfaces: Bad reType");
 		}

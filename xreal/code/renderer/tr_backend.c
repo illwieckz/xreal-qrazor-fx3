@@ -80,7 +80,7 @@ void GL_SelectTexture(int unit)
 
 	if(unit == 0)
 	{
-		qglActiveTextureARB(GL_TEXTURE0_ARB);
+		qglActiveTextureARB(GL_TEXTURE0_ARB + unit);
 		GLimp_LogComment("glActiveTextureARB(GL_TEXTURE0_ARB)\n");
 		qglClientActiveTextureARB(GL_TEXTURE0_ARB);
 		GLimp_LogComment("glClientActiveTextureARB(GL_TEXTURE0_ARB)\n");
@@ -99,9 +99,44 @@ void GL_SelectTexture(int unit)
 		qglClientActiveTextureARB(GL_TEXTURE2_ARB);
 		GLimp_LogComment("glClientActiveTextureARB(GL_TEXTURE2_ARB)\n");
 	}
+	else if(unit == 3)
+	{
+		qglActiveTextureARB(GL_TEXTURE3_ARB);
+		GLimp_LogComment("glActiveTextureARB(GL_TEXTURE3_ARB)\n");
+		qglClientActiveTextureARB(GL_TEXTURE3_ARB);
+		GLimp_LogComment("glClientActiveTextureARB(GL_TEXTURE3_ARB)\n");
+	}
+	else if(unit == 4)
+	{
+		qglActiveTextureARB(GL_TEXTURE4_ARB);
+		GLimp_LogComment("glActiveTextureARB(GL_TEXTURE4_ARB)\n");
+		qglClientActiveTextureARB(GL_TEXTURE4_ARB);
+		GLimp_LogComment("glClientActiveTextureARB(GL_TEXTURE4_ARB)\n");
+	}
+	else if(unit == 5)
+	{
+		qglActiveTextureARB(GL_TEXTURE5_ARB);
+		GLimp_LogComment("glActiveTextureARB(GL_TEXTURE5_ARB)\n");
+		qglClientActiveTextureARB(GL_TEXTURE5_ARB);
+		GLimp_LogComment("glClientActiveTextureARB(GL_TEXTURE5_ARB)\n");
+	}
+	else if(unit == 6)
+	{
+		qglActiveTextureARB(GL_TEXTURE6_ARB);
+		GLimp_LogComment("glActiveTextureARB(GL_TEXTURE6_ARB)\n");
+		qglClientActiveTextureARB(GL_TEXTURE6_ARB);
+		GLimp_LogComment("glClientActiveTextureARB(GL_TEXTURE6_ARB)\n");
+	}
+	else if(unit == 7)
+	{
+		qglActiveTextureARB(GL_TEXTURE7_ARB);
+		GLimp_LogComment("glActiveTextureARB(GL_TEXTURE7_ARB)\n");
+		qglClientActiveTextureARB(GL_TEXTURE7_ARB);
+		GLimp_LogComment("glClientActiveTextureARB(GL_TEXTURE7_ARB)\n");
+	}
 	else
 	{
-		ri.Error(ERR_DROP, "GL_SelectTexture: unit = %i", unit);
+		ri.Error(ERR_DROP, "GL_SelectTexture: unit = %i", unit);	
 	}
 
 	glState.currenttmu = unit;

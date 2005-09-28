@@ -20,33 +20,35 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 /// ============================================================================
 
-uniform sampler2D	u_DiffuseMap;
-uniform sampler2D	u_NormalMap;
-uniform vec3		u_AmbientColor;
-uniform vec3		u_LightDir;
-uniform vec3		u_LightColor;
+attribute vec4		attr_TexCoord0;
 
+varying vec3		var_Vertex;
+varying vec3		var_Normal;
 varying vec2		var_TexDiffuse;
-varying vec2		var_TexNormal;
-varying mat3		var_OS2TSMatrix;
+varying vec3		var_TexAttenXYZ;
+//varying vec3		var_TexAttenCube;
+//varying vec3		var_TexShadow;
 
 void	main()
 {
-	// compute light direction in tangent space
-	vec3 L = normalize(var_OS2TSMatrix * u_LightDir);
+	// transform vertex position into homogenous clip-space
+	gl_Position = ftransform();
 	
-	// compute normal in tangent space from normalmap
-	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).xyz - 0.5);
-	N = normalize(N);
+	// assign position in object space
+	var_Vertex = gl_Vertex.xyz;
 	
-	// compute the diffuse term
-	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
+	// assign normal in object space
+	var_Normal = gl_Normal;
 	
-	// compute the light term
-	vec3 light = u_AmbientColor + u_LightColor * clamp(dot(N, L), 0.0, 1.0);
-	clamp(light, 0.0, 1.0);
+	// transform texcoords into diffusemap texture space
+	var_TexDiffuse = attr_TexCoord0.st;
 	
-	// compute final color
-	gl_FragColor.rgba = diffuse;
-	gl_FragColor.rgb *= light;
+	// calc light xy,z attenuation in light space
+	var_TexAttenXYZ = (gl_TextureMatrix[0] * gl_Vertex).xyz;
+	
+	// calc light cube attenuation in light space
+//	var_TexAttenCube = (gl_TextureMatrix[3] * gl_Vertex).xyz;
+
+	// calc shadow cube attenuation in light space
+//	var_tex_shadow = (gl_TextureMatrix[4] * gl_Vertex).xyz;
 }
