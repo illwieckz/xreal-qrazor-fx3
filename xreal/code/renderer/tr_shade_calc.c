@@ -278,7 +278,7 @@ float RB_EvalExpression(const expression_t * exp, float defaultValue)
 				numValues = table->numValues;
 	
 				index = value1 * numValues;		// float index into the table´s elements
-				lerp = index - floorf(index);	// being inbetween two elements of the table
+				lerp = index - floor(index);	// being inbetween two elements of the table
 	
 				oldIndex = (int)index;
 				newIndex = (int)index + 1;

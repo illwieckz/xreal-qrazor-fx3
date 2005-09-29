@@ -1058,8 +1058,8 @@ void R_Register(void)
 	r_smp = ri.Cvar_Get("r_smp", "0", CVAR_ARCHIVE | CVAR_LATCH);
 #endif
 	r_ignoreFastPath = ri.Cvar_Get("r_ignoreFastPath", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	r_bumpMapping = ri.Cvar_Get("r_bumpMapping", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_specular = ri.Cvar_Get("r_specular", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_bumpMapping = ri.Cvar_Get("r_bumpMapping", "1", CVAR_ARCHIVE);
+	r_specular = ri.Cvar_Get("r_specular", "1", CVAR_ARCHIVE);
 
 	//
 	// temporary latched variables that can only change over a restart

@@ -1714,7 +1714,8 @@ void RenderDlightInteractions(void)
 
 	for(l = 0; l < backEnd.refdef.numDlights; l++)
 	{
-		trRefDlight_t       *dl;
+		trRefDlight_t  *dl;
+		shaderStage_t  *attenuationZStage;
 
 		if(!(tess.dlightBits & (1 << l)))
 		{
@@ -1775,7 +1776,7 @@ void RenderDlightInteractions(void)
 		}
 		*/
 
-		shaderStage_t  *attenuationZStage = tr.defaultDlightShader->stages[0];
+		attenuationZStage = tr.defaultDlightShader->stages[0];
 		
 		for(i = 1; i < MAX_SHADER_STAGES; i++)
 		{

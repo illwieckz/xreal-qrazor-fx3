@@ -1360,7 +1360,6 @@ static qboolean LoadMap(shaderStage_t * stage, char *buffer)
 			case LIGHTMAP_FALLOFF:
 			case LIGHTMAP_2D:
 			case LIGHTMAP_BY_VERTEX:
-			case LIGHTMAP_WHITEIMAGE:
 			case LIGHTMAP_NONE:
 				stage->bundle[0].image[0] = tr.whiteImage;
 				break;
@@ -3288,110 +3287,6 @@ SHADER OPTIMIZATION AND FOGGING
 ========================================================================================
 */
 
-/*
-===================
-ComputeStageIteratorFunc
-
-See if we can use on of the simple fastpath stage functions,
-otherwise set to the generic stage function
-===================
-*/
-/*
-static void ComputeStageIteratorFunc(void)
-{
-	shader.optimalStageIteratorFunc = RB_StageIteratorGeneric;
-
-	//
-	// see if this should go into the sky path
-	//
-	if(shader.isSky)
-	{
-		shader.optimalStageIteratorFunc = RB_StageIteratorSky;
-		goto done;
-	}
-
-	if(r_ignoreFastPath->integer)
-	{
-		return;
-	}
-
-	//
-	// see if this can go into the vertex lit or per pixel lit fast path
-	//
-	if(shader.numUnfoggedPasses == 1)
-	{
-		if(stages[0].rgbGen == CGEN_LIGHTING_DIFFUSE)
-		{
-			if(stages[0].alphaGen == AGEN_IDENTITY)
-			{
-				if(stages[0].bundle[0].tcGen == TCGEN_TEXTURE)
-				{
-					if(!shader.polygonOffset)
-					{
-						if(!shader.multitextureEnv)
-						{
-							if(!shader.numDeforms)
-							{
-								if(glConfig2.shadingLanguage100Available)
-								{
-									if(stages[0].bundle[TB_NORMALMAP].isNormalMap && r_bumpMapping->integer)
-									{
-										if(stages[0].bundle[TB_SPECULARMAP].isSpecularMap && r_specular->integer)
-										{
-											shader.optimalStageIteratorFunc = RB_StageIteratorPerPixelLit_DBS;
-										}
-										else
-										{
-											shader.optimalStageIteratorFunc = RB_StageIteratorPerPixelLit_DB;
-										}
-									}
-									else
-									{
-										shader.optimalStageIteratorFunc = RB_StageIteratorPerPixelLit_D;
-									}
-									goto done;
-								}
-								else
-								{
-									shader.optimalStageIteratorFunc = RB_StageIteratorVertexLitTexture;
-									goto done;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	//
-	// see if this can go into an optimized LM, multitextured path
-	//
-	if(shader.numUnfoggedPasses == 1)
-	{
-		if((stages[0].rgbGen == CGEN_IDENTITY) && (stages[0].alphaGen == AGEN_IDENTITY))
-		{
-			if(stages[0].bundle[0].tcGen == TCGEN_TEXTURE && stages[0].bundle[1].tcGen == TCGEN_LIGHTMAP)
-			{
-				if(!shader.polygonOffset)
-				{
-					if(!shader.numDeforms)
-					{
-						if(shader.multitextureEnv)
-						{
-							shader.optimalStageIteratorFunc = RB_StageIteratorLightmappedMultitexture;
-							goto done;
-						}
-					}
-				}
-			}
-		}
-	}
-
-  done:
-	return;
-}
-*/
 
 typedef struct
 {
@@ -4125,8 +4020,7 @@ static shader_t *FinishShader(void)
 				if(!pStage->bundle[0].image[0])
 				{
 					ri.Printf(PRINT_WARNING, "Shader %s has a normalmap stage with no image\n", shader.name);
-					pStage->active = qfalse;
-					continue;
+					pStage->bundle[0].image[0] = tr.flatImage;
 				}
 				break;
 			}
@@ -4136,8 +4030,7 @@ static shader_t *FinishShader(void)
 				if(!pStage->bundle[0].image[0])
 				{
 					ri.Printf(PRINT_WARNING, "Shader %s has a specularmap stage with no image\n", shader.name);
-					pStage->active = qfalse;
-					continue;
+					pStage->bundle[0].image[0] = tr.blackImage;
 				}
 				break;
 			}
@@ -4572,31 +4465,20 @@ shader_t       *R_FindShader(const char *name, int lightmapIndex, qboolean mipRa
 		stages[0].stateBits = GLS_DEPTHTEST_DISABLE |
 			GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
 	}
-	else if(shader.lightmapIndex == LIGHTMAP_WHITEIMAGE)
-	{
-		// fullbright level
-		stages[0].bundle[0].image[0] = tr.whiteImage;
-		stages[0].active = qtrue;
-		stages[0].rgbGen = CGEN_IDENTITY_LIGHTING;
-		stages[0].stateBits = GLS_DEFAULT;
-
-		stages[1].bundle[0].image[0] = image;
-		stages[1].active = qtrue;
-		stages[1].rgbGen = CGEN_IDENTITY;
-		stages[1].stateBits |= GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO;
-	}
 	else if(shader.lightmapIndex == LIGHTMAP_FALLOFF)
 	{
-		// fullbright level
+		stages[0].type = ST_ATTENUATIONMAP_Z;
 		stages[0].bundle[0].image[0] = tr.attenuationZImage;
 		stages[0].active = qtrue;
-		stages[0].rgbGen = CGEN_IDENTITY_LIGHTING;
+		stages[0].rgbGen = CGEN_IDENTITY;
 		stages[0].stateBits = GLS_DEFAULT;
 
+		stages[1].type = ST_ATTENUATIONMAP_XY;
 		stages[1].bundle[0].image[0] = image;
 		stages[1].active = qtrue;
 		stages[1].rgbGen = CGEN_IDENTITY;
-		stages[1].stateBits |= GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO;
+		stages[1].stateBits = GLS_DEFAULT;
+		//stages[1].stateBits |= GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO;
 	}
 	else
 	{
@@ -4693,19 +4575,6 @@ qhandle_t RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_
 		stages[0].alphaGen = AGEN_VERTEX;
 		stages[0].stateBits = GLS_DEPTHTEST_DISABLE |
 			GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
-	}
-	else if(shader.lightmapIndex == LIGHTMAP_WHITEIMAGE)
-	{
-		// fullbright level
-		stages[0].bundle[0].image[0] = tr.whiteImage;
-		stages[0].active = qtrue;
-		stages[0].rgbGen = CGEN_IDENTITY_LIGHTING;
-		stages[0].stateBits = GLS_DEFAULT;
-
-		stages[1].bundle[0].image[0] = image;
-		stages[1].active = qtrue;
-		stages[1].rgbGen = CGEN_IDENTITY;
-		stages[1].stateBits |= GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO;
 	}
 	else
 	{

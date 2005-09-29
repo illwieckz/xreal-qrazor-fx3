@@ -565,10 +565,9 @@ typedef struct
 
 struct shaderCommands_s;
 
-#define LIGHTMAP_FALLOFF	-5	// shader is for lighting
-#define LIGHTMAP_2D			-4	// shader is for 2D rendering
-#define LIGHTMAP_BY_VERTEX	-3	// pre-lit triangle models
-#define LIGHTMAP_WHITEIMAGE	-2
+#define LIGHTMAP_FALLOFF	-4	// shader is for lighting
+#define LIGHTMAP_2D			-3	// shader is for 2D rendering
+#define LIGHTMAP_BY_VERTEX	-2	// pre-lit triangle models
 #define	LIGHTMAP_NONE		-1
 
 typedef enum
