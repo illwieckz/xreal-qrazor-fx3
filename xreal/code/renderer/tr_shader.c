@@ -1155,7 +1155,7 @@ static qboolean ParseTexMod(char **text, shaderStage_t * stage)
 			return qfalse;
 		}
 		tmi->scroll[1] = atof(token);
-		
+		tmi->type = TMOD_SCROLL;
 	}
 	// stretch
 	else if(!Q_stricmp(token, "stretch"))

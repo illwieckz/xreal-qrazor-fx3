@@ -755,6 +755,11 @@ typedef struct
 	qhandle_t       lagometerShader;
 	qhandle_t       backTileShader;
 	qhandle_t       noammoShader;
+	
+	qhandle_t		bloomShader;
+	qhandle_t		bloomBlurXShader;
+	qhandle_t		bloomBlurYShader;
+	qhandle_t		bloomContrastShader;
 
 	qhandle_t       smokePuffShader;
 	qhandle_t       smokePuffRageProShader;

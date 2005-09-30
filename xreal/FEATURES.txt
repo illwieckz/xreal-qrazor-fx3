@@ -17,6 +17,7 @@ code/renderer
 - cubemap based reflection mapping
 - cubemap based refraction mapping
 - cubemap based dispersion mapping
+- dlights use Doom3 style lighting attenuation
 
 common/aselib
 - fixed bad Doom3 paths

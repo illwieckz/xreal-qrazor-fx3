@@ -70,16 +70,17 @@ textures/decals/telemars
 
 	noShadows
 	twoSided
-//	nolightmap
+	nolightmap
 
 	{
 		blend	diffuseMap
   		map     textures/decals/telemars.tga
 		alphatest 0.5
+		rgbGen exactVertex
 	}
-	bumpmap		textures/decals/telemars_local.tga
-    specularmap	textures/decals/telemars_s.tga
-    lightmap	_lightmap
+//	bumpmap		textures/decals/telemars_local.tga
+//  specularmap	textures/decals/telemars_s.tga
+//  lightmap	_lightmap
 	{
 		blend	add
   		map     textures/decals/telemars_add.tga

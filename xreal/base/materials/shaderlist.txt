@@ -70,7 +70,6 @@ shamino_egypttrim2
 shamino_egyptwall
 shamino_natural
 shamino_rock01
-shamino_textures11
 skies
 sound
 specialcase

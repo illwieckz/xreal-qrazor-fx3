@@ -898,7 +898,7 @@ railDisc
 railCore
 {
 	sort nearest
-			cull none
+	cull none
 	{
 		map gfx/misc/railcorethin_mono.tga
 				blendFunc GL_ONE GL_ONE
@@ -912,19 +912,59 @@ lightningBolt
 	cull none
 	{
 		map gfx/misc/lightning3.tga
-				blendFunc GL_ONE GL_ONE
-//                rgbgen wave sin 1 5.1 0 7.1
-				rgbgen wave sin 1 0.5 0 7.1
-				tcmod scale  2 1
-				tcMod scroll -5 0
+		blendFunc GL_ONE GL_ONE
+//      rgbgen wave sin 1 5.1 0 7.1
+		rgbgen wave sin 1 0.5 0 7.1
+		tcmod scale  2 1
+		tcMod scroll -5 0
 	}
 	{
 		map gfx/misc/lightning3.tga
-				blendFunc GL_ONE GL_ONE
+		blendFunc GL_ONE GL_ONE
 //                rgbgen wave sin 1 8.3 0 8.1
-				rgbgen wave sin 1 0.8 0 8.1
-				tcmod scale  -1.3 -1
-				tcMod scroll -7.2 0
+		rgbgen wave sin 1 0.8 0 8.1
+		tcmod scale  -1.3 -1
+		tcMod scroll -7.2 0
+	}
+}
+
+lightningBoltNew
+{
+	cull none
+	{
+		map gfx/misc/lightning3new.tga
+		blend GL_ONE , GL_ONE
+		rgbGen wave sin 1 0.5 0 7.1
+		scale  2 , 1
+		scroll time * -5 , 0
+	}
+	{
+		map gfx/misc/lightning3new.tga
+		blend GL_ONE , GL_ONE
+		rgbGen wave sin 1 0.8 0 8.1
+		scale  -1.3 , -1
+		scroll time * -7.2 , 0
+	}
+}
+
+
+lightningBoltNewNPM
+{
+	nopicmip
+	cull none
+	{
+		map gfx/misc/lightning3newNPM.tga
+		blendFunc GL_ONE GL_ONE
+		rgbgen wave sin 1 0.5 0 7.1
+		tcmod scale  2 1
+		tcMod scroll -5 0
+	}
+	{
+		map gfx/misc/lightning3newNPM.tga
+		blendFunc GL_ONE GL_ONE
+		rgbgen wave sin 1 0.8 0 8.1
+		tcmod scale  -1.3 -1
+		tcMod scroll -7.2 0
 	}
 }
 
@@ -1498,442 +1538,52 @@ bloodExplosion		// spurt of blood at point of impact
 	}
 }
 
-lightningBoltNew
+bloom
 {
-	cull none
+	nonsolid
+	twosided
+	qer_editorimage _black
 	{
-		map gfx/misc/lightning3new.tga
-				blendFunc GL_ONE GL_ONE
-				rgbgen wave sin 1 0.5 0 7.1
-				tcmod scale  2 1
-				tcMod scroll -5 0
-	}
-	{
-		map gfx/misc/lightning3new.tga
-				blendFunc GL_ONE GL_ONE
-				rgbgen wave sin 1 0.8 0 8.1
-				tcmod scale  -1.3 -1
-				tcMod scroll -7.2 0
+		vertexProgram	bloom.vfp
+		fragmentProgram	bloom.vfp
+		fragmentMap		0 _preContrast
+		fragmentMap		1 _contrast
 	}
 }
 
-
-lightningBoltNewNPM
+bloomBlurX
 {
-	nopicmip
-			cull none
+	nonsolid
+	twosided
+	qer_editorimage _black
 	{
-		map gfx/misc/lightning3newNPM.tga
-				blendFunc GL_ONE GL_ONE
-				rgbgen wave sin 1 0.5 0 7.1
-				tcmod scale  2 1
-				tcMod scroll -5 0
-	}
-	{
-		map gfx/misc/lightning3newNPM.tga
-				blendFunc GL_ONE GL_ONE
-				rgbgen wave sin 1 0.8 0 8.1
-				tcmod scale  -1.3 -1
-				tcMod scroll -7.2 0
+		vertexProgram	bloomBlurX.vfp
+		fragmentProgram	bloomBlurX.vfp
+		fragmentMap		0 _currentRender
 	}
 }
 
-// 
-// 
-// textures/bigchars
-// {
-// 	{
-// 		blend blend
-// 		maskDepth
-// 		colored
-// 		nopicmip
-// 		linear
-// 		map textures/bigchars.tga
-// 	}
-// }
-// 
-// console
-//  {
-// //	{
-// //		map		menu/demo/logo_bg.tga
-// ///		linear		// no mip maps
-// //		//scroll	time * 0.02 , 0
-// //	}
-// 	{
-// 		//blend	add
-// 		map	textures/black.tga
-// 		linear		// no mip maps
-// 		//scroll	time * 0 , time * .5
-// 		
-// 	}
-// 
-// }
-// 
-// splashScreen
-// {
-// 	{  
-//           forceHighQuality  
-//           blend blend  
-//           map guis/assets/splash/launch.tga 	
-// 	}
-// }
+bloomBlurY
+{
+	nonsolid
+	twosided
+	qer_editorimage _black
+	{
+		vertexProgram	bloomBlurY.vfp
+		fragmentProgram	bloomBlurY.vfp
+		fragmentMap		0 _preContrast
+		fragmentMap		1 _contrast
+	}
+}
 
-
-// menuback
-//  {
-// 	translucent
-// 	{
-// 		map		menu/demo/logo_bg.tga
-// 		maskDepth
-// 	}
-// }
-// 
-// menubacknologo {
-// 	translucent
-// 	{
-// 		map	gfx/colors/black.tga
-// 		maskDepth
-// 	}
-// }
-// 
-// // used to break up the blur on levelshots
-// levelShotDetail {
-// 	{
-// 		blend GL_DST_COLOR, GL_SRC_COLOR
-// 		colored
-// 		map	textures/sfx/detail.tga
-// 		maskDepth
-// 	}
-// }
-// 
-// keypadlight
-// {
-// 
-// 	{
-// 		blend	add
-// 		map		guis/assets/keypad_c_add.tga
-// 		scroll	time * 0 , time * 0
-// 		rgb	flickertable [ time * 6 ]
-// 		
-// 	}
-// 
-// 	
-// 
-// }
-// 
-// keypad_c
-// {
-// 
-// 	{
-// 		blend	add
-// 		map		guis/assets/timkeypad_c.tga
-// 		scroll	time * 0 , time * 0
-// 		rgb	flickertable [ time * 6 ]
-// 		
-// 	}
-// 
-// 	
-// 
-// }
-// 
-// keypadback
-// {
-// 
-// 	{
-// 		blend	add
-// 		map		guis/assets/keypad_c_back.tga
-// 		linear		// no mip maps
-// 		scroll	time * 0 , time * 0
-// 		rgb	flickertable [ time * 5 ]
-// 		
-// 	}
-// 
-// 	
-// 
-// }
-
-
-// keypadglass
-// {
-// 
-// 	{
-// 		blend add
-// 		cubeMap		env/bland
-// 		texgen		reflect
-// 	}
-// 	translucent
-// //	bumpmap		guis/assets/keypad_local.tga
-// //	specularmap 	guis/assets/keypad_s.tga
-// 
-// }
-
-// e_titleflash
-// {
-// 
-// 	{
-// 		blend	add
-// 		map		guis/assets/e_titleflash.tga
-// 		scroll	time * 0 , time * 0
-// 		rgb	flickertable [ time * 6 ]
-// 		
-// 	}
-// 
-// 	
-// 
-// }
-// 
-// 
-// e_title
-// {
-// 
-// 	{
-// 		blend	add
-// 		map		guis/assets/e_title.tga
-// 		scroll	time * 0 , time * 0
-// 		rgb	flickertable [ time * 6 ]
-// 		
-// 	}
-// 
-// 	
-// 
-// }
-// 
-// e_back
-// {
-// 
-// 	{
-// 		blend	add
-// 		map		guis/assets/ectrlbk.tga
-// 		scroll	time * 0 , time * 0
-// 		rgb	flickertable [ time * 6 ]
-// 		
-// 	}
-// 
-// 	
-// 
-// }
-// 
-// e_floor1txt
-// {
-// 
-// 	{
-// 		blend	add
-// 		map		guis/assets/e_floor1txt.tga
-// 		scroll	time * 0 , time * 0
-// 		rgb	flickertable [ time * 6 ]
-// 		
-// 	}
-// 
-// 	
-// 
-// }
-// 
-// e_floor2txt
-// {
-// 
-// 	{
-// 		blend	add
-// 		map		guis/assets/e_floor2txt.tga
-// 		scroll	time * 0 , time * 0
-// 		rgb	flickertable [ time * 6 ]
-// 		
-// 	}
-// 
-// 	
-// 
-// }
-// 
-// e_floor3txt
-// {
-// 
-// 	{
-// 		blend	add
-// 		map		guis/assets/e_floor3txt.tga
-// 		scroll	time * 0 , time * 0
-// 		rgb	flickertable [ time * 6 ]
-// 		
-// 	}
-// 
-// 	
-// 
-// }
-// 
-// ui/assets/crosshair
-// {
-// 	{
-// 		blend blend
-// 		map ui/assets/crosshair.tga
-// 		maskDepth
-// 		colored
-// 		nopicmip
-// 		linear
-// 	}
-// }
-
-//*****************************************************Moved from duffyTest.mtr - start*****************************************
-
-// ui/assets/map {
-// 	{
-// 		blend add
-// 		map ui/assets/guisurfs/map2.tga
-// 	}
-// 	
-// }
-// 
-// ui/assets/guisurfs/computerBackground {
-// 	translucent			// everything used on a guisurf should be translucent
-// 	{
-// 		//videomap "moon.roq"
-// 		//videomap "mpintro.roq"
-// 		map		ui/assets/guiSurfs/computerBackground.tga
-// 		linear		// no mip maps
-// 		//scroll	time * 0.02 , 0
-// 	}
-// 
-// }
-// 
-// ui/assets/guisurfs/computerBlueBackground {
-// 	translucent			// everything used on a guisurf should be translucent
-// 	{
-// 		//videomap "moon.roq"
-// 		//videomap "mpintro.roq"
-// 		map		ui/assets/guiSurfs/computerBlueBackground.tga
-// 		linear		// no mip maps
-// 		//scroll	time * 0.02 , 0
-// 	}
-// 	{
-// 		blend	add
-// 		map		ui/assets/guiSurfs/computerScroll.tga
-// 		linear		// no mip maps
-// 		scroll	time * 0 , time * 0.2
-// 	}
-// 
-// 
-// }
-// 
-// ui/assets/guisurfs/moonvid {
-// 	translucent			// everything used on a guisurf should be translucent
-// 	{
-// 		videomap "moon.roq"
-// 		//videomap "mpintro.roq"
-// 		//map		ui/assets/guiSurfs/computerBackground.tga
-// 		linear		// no mip maps
-// 		//scroll	time * 0.02 , 0
-// 	}
-// 
-// }
-// 
-// ui/assets/guisurfs/video {
-// 	translucent			// everything used on a guisurf should be translucent
-// 	{
-// 		//videomap "moon.roq"
-// 		videomap "mpintro.roq"
-// 		//map		ui/assets/guiSurfs/computerBackground.tga
-// 		linear		// no mip maps
-// 		//scroll	time * 0.02 , 0
-// 	}
-// }
-// 
-// ui/assets/3_cursor3 {
-// 	{
-// 		blend add
-// 		map ui/assets/3_cursor3.tga
-// 	}
-// }
-// 
-// ui/assets/copyright {
-// 	{
-// 		//blend add
-// 		map ui/assets/copyright.tga
-// 	}
-// }
-// 
-// ui/assets/playbutton {
-// 	{
-// 		blend add
-// 		map ui/assets/playbutton.tga
-// 	}
-// 	
-// }
-// 
-// ui/assets/playbuttonblur {
-//       
-// 	{
-// 		blend add
-// 		map ui/assets/playbuttonblur.tga
-// 	}
-// 	
-// }
-// 
-// ui/assets/setupbutton {
-// 	{
-// 		blend add
-// 		map ui/assets/setupbutton.tga
-// 	}
-// 	
-// }
-// 
-// ui/assets/setupbuttonblur {
-//       
-// 	{
-// 		blend add
-// 		map ui/assets/setupbuttonblur.tga
-// 	}
-// 	
-// }
-// 
-// ui/assets/editorbutton {
-// 	{
-// 		blend add
-// 		map ui/assets/editorbutton.tga
-// 	}
-// 	
-// }
-// 
-// ui/assets/editorbuttonblur {
-//       
-// 	{
-// 		blend add
-// 		map ui/assets/editorbuttonblur.tga
-// 	}
-// 	
-// }
-// 
-// ui/assets/quitbutton {
-// 	{
-// 		blend add
-// 		map ui/assets/quitbutton.tga
-// 	}
-// 	
-// }
-// 
-// ui/assets/quitbuttonblur {
-//       
-// 	{
-// 		blend add
-// 		map ui/assets/quitbuttonblur.tga
-// 	}
-// 	
-// }
-// 
-// ui/assets/uiBackground {
-// 	translucent			// everything used on a guisurf should be translucent
-// 	{
-// 		map		ui/assets/uiBackground.tga
-// 		linear		// no mip maps
-// 		//scroll	time * 0.02 , 0
-// 	}
-// 	{
-// 		blend	add
-// 		map		ui/assets/uiScroll.tga
-// 		linear		// no mip maps
-// 		scroll	time * 0 , time * 0.2
-// 		
-// 	}
-// 
-// }
-
-
-//*****************************************************Moved from duffyTest.mtr - end*****************************************
-
-//Verified good complete by Eutectic - Nov 23-04
+bloomContrast
+{
+	nonsolid
+	twosided
+	qer_editorimage _black
+	{
+		vertexProgram	bloomContrast.vfp
+		fragmentProgram	bloomContrast.vfp
+		fragmentMap		0 _currentRender
+	}
+}

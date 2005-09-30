@@ -921,6 +921,11 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.backTileShader = trap_R_RegisterShader("gfx/2d/backtile");
 	cgs.media.noammoShader = trap_R_RegisterShader("icons/noammo");
+	
+	cgs.media.bloomShader = trap_R_RegisterShader("bloom");
+	cgs.media.bloomBlurXShader = trap_R_RegisterShader("bloomBlurX");
+	cgs.media.bloomBlurYShader = trap_R_RegisterShader("bloomBlurY");
+	cgs.media.bloomContrastShader = trap_R_RegisterShader("bloomContrast");
 
 	// powerup shaders
 	cgs.media.quadShader = trap_R_RegisterShader("powerups/quad");

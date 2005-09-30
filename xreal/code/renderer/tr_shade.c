@@ -1083,7 +1083,7 @@ static void Render_generic_single_FFP(int stage)
 	GL_ClientState(GLCS_DEFAULT);
 }
 
-static void Render_generic_zfill_FFP(int stage)
+void Render_generic_zfill_FFP(int stage)
 {
 	shaderStage_t  *pStage;
 
@@ -2590,7 +2590,7 @@ static void RB_IterateStagesGeneric()
 			// Tr3B - for development only. get rid of this later to avoid overdraw
 			case ST_DIFFUSEMAP:
 			{
-				Render_generic_zfill_FFP(stage);
+				Render_generic_single_FFP(stage);
 				break;
 			}
 			
@@ -2614,7 +2614,7 @@ static void RB_IterateStagesGeneric()
 				}
 				else
 				{
-					Render_generic_zfill_FFP(stage);
+					Render_generic_single_FFP(stage);
 				}
 				
 				break;
@@ -2637,7 +2637,7 @@ static void RB_IterateStagesGeneric()
 				}
 				else
 				{
-					Render_generic_zfill_FFP(stage);
+					Render_generic_single_FFP(stage);
 				}
 				break;
 			}
@@ -2666,7 +2666,7 @@ static void RB_IterateStagesGeneric()
 				}
 				else
 				{
-					Render_generic_zfill_FFP(stage);
+					Render_generic_single_FFP(stage);
 				}
 				break;
 			}
@@ -2686,7 +2686,7 @@ static void RB_IterateStagesGeneric()
 				}
 				else
 				{
-					Render_generic_zfill_FFP(stage);
+					Render_generic_single_FFP(stage);
 				}
 				break;
 			}
@@ -2713,7 +2713,7 @@ static void RB_IterateStagesGeneric()
 				}
 				else
 				{
-					Render_generic_zfill_FFP(stage);
+					Render_generic_single_FFP(stage);
 				}
 				break;
 			}
