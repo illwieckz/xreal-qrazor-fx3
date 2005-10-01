@@ -46,18 +46,18 @@ enum
 
 static char    *RB_PrintInfoLog(GLhandleARB object)
 {
-	static char     msg[4096 * 2];
-	int             max_length = 0;
+	static char     msg[4096];
+	int             maxLength = 0;
 
-	qglGetObjectParameterivARB(object, GL_OBJECT_INFO_LOG_LENGTH_ARB, &max_length);
+	qglGetObjectParameterivARB(object, GL_OBJECT_INFO_LOG_LENGTH_ARB, &maxLength);
 
-	if(max_length >= (int)sizeof(msg))
+	if(maxLength >= (int)sizeof(msg))
 	{
 		ri.Error(ERR_DROP, "RB_PrintInfoLog: max length >= sizeof(msg)");
 		return NULL;
 	}
 
-	qglGetInfoLogARB(object, max_length, &max_length, msg);
+	qglGetInfoLogARB(object, maxLength, &maxLength, msg);
 
 	return msg;
 }
@@ -461,6 +461,69 @@ void RB_InitGPUShaders(void)
 	qglUseProgramObjectARB(tr.skyBoxShader.program);
 	qglUniform1iARB(tr.skyBoxShader.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
+	
+	//
+	// heatHaze post process effect
+	//
+	RB_InitGPUShader(&tr.heatHazeShader,
+					  "heatHaze",
+					  GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
+
+	tr.heatHazeShader.u_DeformMagnitude =
+			qglGetUniformLocationARB(tr.heatHazeShader.program, "u_DeformMagnitude");
+	tr.heatHazeShader.u_ColorMap =
+			qglGetUniformLocationARB(tr.heatHazeShader.program, "u_ColorMap");
+	tr.heatHazeShader.u_NormalMap =
+			qglGetUniformLocationARB(tr.heatHazeShader.program, "u_NormalMap");
+	tr.heatHazeShader.u_FBufScale =
+			qglGetUniformLocationARB(tr.heatHazeShader.program, "u_FBufScale");
+	tr.heatHazeShader.u_NPotScale =
+			qglGetUniformLocationARB(tr.heatHazeShader.program, "u_NPotScale");
+
+	qglUseProgramObjectARB(tr.heatHazeShader.program);
+	qglUniform1iARB(tr.heatHazeShader.u_ColorMap, 0);
+	qglUniform1iARB(tr.heatHazeShader.u_NormalMap, 1);
+	qglUseProgramObjectARB(0);
+	
+	//
+	// glow post process effect
+	//
+	RB_InitGPUShader(&tr.glowShader,
+					  "glow",
+					  GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
+
+	tr.glowShader.u_ColorMap =
+			qglGetUniformLocationARB(tr.glowShader.program, "u_ColorMap");
+	tr.glowShader.u_FBufScale =
+			qglGetUniformLocationARB(tr.glowShader.program, "u_FBufScale");
+	tr.glowShader.u_NPotScale =
+			qglGetUniformLocationARB(tr.glowShader.program, "u_NPotScale");
+	tr.glowShader.u_BlurMagnitude =
+			qglGetUniformLocationARB(tr.glowShader.program, "u_BlurMagnitude");
+
+	qglUseProgramObjectARB(tr.glowShader.program);
+	qglUniform1iARB(tr.glowShader.u_ColorMap, 0);
+	qglUseProgramObjectARB(0);
+	
+	//
+	// bloom post process effect
+	//
+	RB_InitGPUShader(&tr.bloomShader,
+					  "bloom",
+					  GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
+
+	tr.bloomShader.u_ColorMap =
+			qglGetUniformLocationARB(tr.bloomShader.program, "u_ColorMap");
+	tr.bloomShader.u_FBufScale =
+			qglGetUniformLocationARB(tr.bloomShader.program, "u_FBufScale");
+	tr.bloomShader.u_NPotScale =
+			qglGetUniformLocationARB(tr.bloomShader.program, "u_NPotScale");
+	tr.bloomShader.u_BlurMagnitude =
+			qglGetUniformLocationARB(tr.bloomShader.program, "u_BlurMagnitude");
+
+	qglUseProgramObjectARB(tr.bloomShader.program);
+	qglUniform1iARB(tr.bloomShader.u_ColorMap, 0);
+	qglUseProgramObjectARB(0);
 }
 
 void RB_ShutdownGPUShaders(void)
@@ -542,6 +605,24 @@ void RB_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.skyBoxShader.program);
 		tr.skyBoxShader.program = 0;
+	}
+	
+	if(tr.heatHazeShader.program)
+	{
+		qglDeleteObjectARB(tr.heatHazeShader.program);
+		tr.heatHazeShader.program = 0;
+	}
+	
+	if(tr.glowShader.program)
+	{
+		qglDeleteObjectARB(tr.glowShader.program);
+		tr.glowShader.program = 0;
+	}
+	
+	if(tr.bloomShader.program)
+	{
+		qglDeleteObjectARB(tr.bloomShader.program);
+		tr.bloomShader.program = 0;
 	}
 }
 
@@ -1698,6 +1779,118 @@ static void Render_skybox(int stage)
 //	GL_Program(0);
 }
 
+static void Render_heatHaze(int stage)
+{
+	float           deformMagnitude;
+	float			fbufWidthScale, fbufHeightScale;
+	float			npotWidthScale, npotHeightScale;
+	shaderStage_t  *pStage = tess.xstages[stage];
+	
+	GL_State(pStage->stateBits);
+	
+	// enable shader, set arrays
+	GL_Program(tr.heatHazeShader.program);
+	GL_ClientState(tr.heatHazeShader.attribs);
+	GL_SetVertexAttribs();
+	
+	// set uniforms
+	deformMagnitude = RB_EvalExpression(&pStage->deformMagnitudeExp, 1.0);
+	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
+	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
+	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderImage->uploadWidth;
+	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderImage->uploadHeight;
+	
+	qglUniform1fARB(tr.heatHazeShader.u_DeformMagnitude, deformMagnitude);
+	qglUniform2fARB(tr.heatHazeShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
+	qglUniform2fARB(tr.heatHazeShader.u_NPotScale, npotWidthScale, npotHeightScale);
+
+	// bind colormap
+	GL_SelectTexture(0);
+	GL_Bind(tr.currentRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+	
+	// bind normalmap
+	GL_SelectTexture(1);
+	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
+	
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+	GL_SelectTexture(0);
+	GL_ClientState(GLCS_DEFAULT);
+//	GL_Program(0);
+}
+
+static void Render_glow(int stage)
+{
+	float           blurMagnitude;
+	float			fbufWidthScale, fbufHeightScale;
+	float			npotWidthScale, npotHeightScale;
+	shaderStage_t  *pStage = tess.xstages[stage];
+	
+	GL_State(pStage->stateBits);
+	
+	// enable shader, set arrays
+	GL_Program(tr.glowShader.program);
+	GL_ClientState(tr.glowShader.attribs);
+	GL_SetVertexAttribs();
+	
+	// set uniforms
+	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
+	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
+	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
+	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderImage->uploadWidth;
+	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderImage->uploadHeight;
+	
+	qglUniform1fARB(tr.glowShader.u_BlurMagnitude, blurMagnitude);
+	qglUniform2fARB(tr.glowShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
+	qglUniform2fARB(tr.glowShader.u_NPotScale, npotWidthScale, npotHeightScale);
+
+	// bind colormap
+	GL_SelectTexture(0);
+	GL_Bind(tr.currentRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+	
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+	GL_ClientState(GLCS_DEFAULT);
+//	GL_Program(0);
+}
+
+static void Render_bloom(int stage)
+{
+	float           blurMagnitude;
+	float			fbufWidthScale, fbufHeightScale;
+	float			npotWidthScale, npotHeightScale;
+	shaderStage_t  *pStage = tess.xstages[stage];
+	
+	GL_State(pStage->stateBits);
+	
+	// enable shader, set arrays
+	GL_Program(tr.bloomShader.program);
+	GL_ClientState(tr.bloomShader.attribs);
+	GL_SetVertexAttribs();
+	
+	// set uniforms
+	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
+	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
+	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
+	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderImage->uploadWidth;
+	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderImage->uploadHeight;
+	
+	qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, blurMagnitude);
+	qglUniform2fARB(tr.bloomShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
+	qglUniform2fARB(tr.bloomShader.u_NPotScale, npotWidthScale, npotHeightScale);
+
+	// bind colormap
+	GL_SelectTexture(0);
+	GL_Bind(tr.currentRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+	
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+	GL_ClientState(GLCS_DEFAULT);
+//	GL_Program(0);
+}
 
 void RenderDlightInteractions(void)
 {
@@ -2762,6 +2955,45 @@ static void RB_IterateStagesGeneric()
 				if(glConfig2.shadingLanguage100Available)
 				{
 					Render_skybox(stage);
+				}
+				else
+				{
+					// TODO
+				}
+				break;
+			}
+			
+			case ST_HEATHAZEMAP:
+			{
+				if(glConfig2.shadingLanguage100Available)
+				{
+					Render_heatHaze(stage);
+				}
+				else
+				{
+					// TODO
+				}
+				break;
+			}
+			
+			case ST_GLOWMAP:
+			{
+				if(glConfig2.shadingLanguage100Available)
+				{
+					Render_glow(stage);
+				}
+				else
+				{
+					// TODO
+				}
+				break;
+			}
+			
+			case ST_BLOOMMAP:
+			{
+				if(glConfig2.shadingLanguage100Available)
+				{
+					Render_bloom(stage);
 				}
 				else
 				{

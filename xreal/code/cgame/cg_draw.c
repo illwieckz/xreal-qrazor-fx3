@@ -1797,6 +1797,23 @@ static void CG_DrawReward(void)
 	trap_R_SetColor(NULL);
 }
 
+/*
+==============
+CG_DrawBloom
+==============
+*/
+static void CG_DrawBloom(void)
+{
+	if(cg_drawBloom.integer == 1)
+	{
+		CG_DrawPic(0, 0, 640, 480, cgs.media.bloomShader);
+	}
+	else if(cg_drawBloom.integer == 2)
+	{
+		CG_DrawPic(0, 0, 640, 480, cgs.media.bloom2Shader);
+	}
+}
+
 
 /*
 ===============================================================================
@@ -2878,6 +2895,9 @@ static void CG_Draw2D(void)
 		return;
 	}
 */
+	
+	CG_DrawBloom();
+	
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
 	{
 		CG_DrawSpectator();

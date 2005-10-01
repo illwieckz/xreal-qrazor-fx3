@@ -716,6 +716,8 @@ float           Q_rsqrt(float f);	// reciprocal square root
 
 #define SQRTFAST( x ) ( (x) * Q_rsqrt( x ) )
 
+float			Q_recip(float f);
+
 signed char     ClampChar(int i);
 signed short    ClampShort(int i);
 

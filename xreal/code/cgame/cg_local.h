@@ -757,9 +757,7 @@ typedef struct
 	qhandle_t       noammoShader;
 	
 	qhandle_t		bloomShader;
-	qhandle_t		bloomBlurXShader;
-	qhandle_t		bloomBlurYShader;
-	qhandle_t		bloomContrastShader;
+	qhandle_t		bloom2Shader;
 
 	qhandle_t       smokePuffShader;
 	qhandle_t       smokePuffRageProShader;
@@ -1200,6 +1198,8 @@ extern vmCvar_t cg_oldRail;
 extern vmCvar_t cg_oldRocket;
 extern vmCvar_t cg_oldPlasma;
 extern vmCvar_t cg_trueLightning;
+
+extern vmCvar_t cg_drawBloom;
 
 #ifdef MISSIONPACK
 extern vmCvar_t cg_redTeamName;

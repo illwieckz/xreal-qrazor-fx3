@@ -187,6 +187,8 @@ vmCvar_t        cg_oldRocket;
 vmCvar_t        cg_oldPlasma;
 vmCvar_t        cg_trueLightning;
 
+vmCvar_t        cg_drawBloom;
+
 #ifdef MISSIONPACK
 vmCvar_t        cg_redTeamName;
 vmCvar_t        cg_blueTeamName;
@@ -319,8 +321,10 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_oldRail, "cg_oldRail", "1", CVAR_ARCHIVE},
 	{&cg_oldRocket, "cg_oldRocket", "1", CVAR_ARCHIVE},
 	{&cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},
-	{&cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE}
+	{&cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
 //  { &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
+	
+	{&cg_drawBloom, "cg_drawBloom", "1", CVAR_ARCHIVE}
 };
 
 static int      cvarTableSize = sizeof(cvarTable) / sizeof(cvarTable[0]);
@@ -923,9 +927,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.noammoShader = trap_R_RegisterShader("icons/noammo");
 	
 	cgs.media.bloomShader = trap_R_RegisterShader("bloom");
-	cgs.media.bloomBlurXShader = trap_R_RegisterShader("bloomBlurX");
-	cgs.media.bloomBlurYShader = trap_R_RegisterShader("bloomBlurY");
-	cgs.media.bloomContrastShader = trap_R_RegisterShader("bloomContrast");
+	cgs.media.bloom2Shader = trap_R_RegisterShader("bloom2");
 
 	// powerup shaders
 	cgs.media.quadShader = trap_R_RegisterShader("powerups/quad");

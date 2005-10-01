@@ -624,15 +624,19 @@ float Q_rsqrt(float number)
 #if id386_3dnow && defined __GNUC__
 //#error Q_rqsrt
 	femms();
-	asm volatile    (			// lo                                   | hi
-						"movd           (%%eax),        %%mm0\n"	// in                                   |       -
-						 "pfrsqrt        %%mm0,          %%mm1\n"	// 1/sqrt(in)                   | 1/sqrt(in)    (approx)
-						"movq           %%mm1,          %%mm2\n"	// 1/sqrt(in)                   | 1/sqrt(in)    (approx)
-						"pfmul          %%mm1,          %%mm1\n"	// (1/sqrt(in))?                | (1/sqrt(in))?         step 1
-						"pfrsqit1       %%mm0,          %%mm1\n"	// intermediate                                                         step 2
-						"pfrcpit2       %%mm2,          %%mm1\n"	// 1/sqrt(in) (full 24-bit precision)           step 3
-						 "movd           %%mm1,          (%%edx)\n"::"a" (&number), "d"(&y):"memory");
-
+	asm volatile
+	(			// lo                                   | hi
+	"movd           (%%eax),        %%mm0\n"	// in                                   |       -
+	"pfrsqrt        %%mm0,          %%mm1\n"	// 1/sqrt(in)                   | 1/sqrt(in)    (approx)
+	"movq           %%mm1,          %%mm2\n"	// 1/sqrt(in)                   | 1/sqrt(in)    (approx)
+	"pfmul          %%mm1,          %%mm1\n"	// (1/sqrt(in))?                | (1/sqrt(in))?         step 1
+	"pfrsqit1       %%mm0,          %%mm1\n"	// intermediate                                                         step 2
+	"pfrcpit2       %%mm2,          %%mm1\n"	// 1/sqrt(in) (full 24-bit precision)           step 3
+	 "movd           %%mm1,        (%%edx)\n"
+	:
+	:"a" (&number), "d"(&y)
+	:"memory"
+	);
 	femms();
 #else
 	long            i;
@@ -663,6 +667,31 @@ float Q_fabs(float f)
 	return *(float *)&tmp;
 }
 #endif
+
+vec_t Q_recip(vec_t in)
+{
+#if id386_3dnow && defined __GNUC__ && 0
+	vec_t out;
+	femms();
+	asm volatile
+	(
+	"movd		(%%eax),	%%mm0\n"
+	
+	"pfrcp		%%mm0,		%%mm1\n"	// (approx)
+	"pfrcpit1	%%mm1,		%%mm0\n"	// (intermediate)
+	"pfrcpit2	%%mm1,		%%mm0\n"	// (full 24-bit)
+	// out = mm0[low]
+	"movd		%%mm0,		(%%edx)\n"
+	:
+	: "a"(&in), "d"(&out)
+	: "memory"
+	);
+	femms();
+	return out;
+#else
+	return ((float)(1.0f/(in)));
+#endif
+}
 
 //============================================================
 /*

@@ -1867,47 +1867,55 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 				continue;
 			}
 
-			if(!Q_stricmp(token, "colormap"))
+			if(!Q_stricmp(token, "colorMap"))
 			{
 				stage->type = ST_COLORMAP;
 			}
-			else if(!Q_stricmp(token, "diffusemap"))
+			else if(!Q_stricmp(token, "diffuseMap"))
 			{
 				stage->type = ST_DIFFUSEMAP;
 			}
-			else if(!Q_stricmp(token, "normalmap") || !Q_stricmp(token, "bumpmap"))
+			else if(!Q_stricmp(token, "normalMap") || !Q_stricmp(token, "bumpMap"))
 			{
 				stage->type = ST_NORMALMAP;
 			}
-			else if(!Q_stricmp(token, "specularmap"))
+			else if(!Q_stricmp(token, "specularMap"))
 			{
 				stage->type = ST_SPECULARMAP;
 			}
-			else if(!Q_stricmp(token, "heathazemap"))
+			else if(!Q_stricmp(token, "heathazeMap"))
 			{
 				stage->type = ST_HEATHAZEMAP;
 			}
-			else if(!Q_stricmp(token, "lightmap"))
+			else if(!Q_stricmp(token, "glowMap"))
+			{
+				stage->type = ST_GLOWMAP;
+			}
+			else if(!Q_stricmp(token, "bloomMap"))
+			{
+				stage->type = ST_BLOOMMAP;
+			}
+			else if(!Q_stricmp(token, "lightMap"))
 			{
 				stage->type = ST_LIGHTMAP;
 			}
-			else if(!Q_stricmp(token, "reflectionmap"))
+			else if(!Q_stricmp(token, "reflectionMap"))
 			{
 				stage->type = ST_REFLECTIONMAP;
 			}
-			else if(!Q_stricmp(token, "refractionmap"))
+			else if(!Q_stricmp(token, "refractionMap"))
 			{
 				stage->type = ST_REFRACTIONMAP;
 			}
-			else if(!Q_stricmp(token, "dispersionmap"))
+			else if(!Q_stricmp(token, "dispersionMap"))
 			{
 				stage->type = ST_DISPERSIONMAP;
 			}
-			else if(!Q_stricmp(token, "skyboxmap"))
+			else if(!Q_stricmp(token, "skyboxMap"))
 			{
 				stage->type = ST_SKYBOXMAP;
 			}
-			else if(!Q_stricmp(token, "liquidmap"))
+			else if(!Q_stricmp(token, "liquidMap"))
 			{
 				stage->type = ST_LIQUIDMAP;
 			}
@@ -2312,6 +2320,16 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		{
 			depthMaskBits &= ~GLS_DEPTHMASK_TRUE;
 			depthMaskExplicit = qfalse;
+		}
+		// deformMagnitude <arithmetic expression>
+		else if(!Q_stricmp(token, "deformMagnitude"))
+		{
+			ParseExpression(text, &stage->deformMagnitudeExp);
+		}
+		// blurMagnitude <arithmetic expression>
+		else if(!Q_stricmp(token, "blurMagnitude"))
+		{
+			ParseExpression(text, &stage->blurMagnitudeExp);
 		}
 		else
 		{
@@ -3993,6 +4011,11 @@ static shader_t *FinishShader(void)
 		// check for a missing texture
 		switch(pStage->type)
 		{
+			case ST_GLOWMAP:
+			case ST_BLOOMMAP:
+				// skip
+				break;
+			
 			case ST_COLORMAP:
 			default:
 			{
@@ -4084,6 +4107,7 @@ static shader_t *FinishShader(void)
 				hasDiffuseMapStage = qtrue;
 			case ST_NORMALMAP:
 			case ST_SPECULARMAP:
+			case ST_HEATHAZEMAP:
 			{
 				if(pStage->bundle[0].tcGen == TCGEN_BAD)
 				{
@@ -4412,7 +4436,7 @@ shader_t       *R_FindShader(const char *name, int lightmapIndex, qboolean mipRa
 		// of all explicit shaders
 		if(r_printShaders->integer)
 		{
-			ri.Printf(PRINT_DEVELOPER, "...loading explicit shader '%s'\n", strippedName);
+			ri.Printf(PRINT_ALL, "...loading explicit shader '%s'\n", strippedName);
 			//ri.Printf(PRINT_ALL, "*SHADER* %s\n", name);
 		}
 
@@ -4900,7 +4924,7 @@ a single large text block that can be scanned for shader names
 =====================
 */
 #define	MAX_SHADER_FILES	4096
-#define USE_MTR
+//#define USE_MTR
 static void ScanAndLoadShaderFiles(void)
 {
 	char          **shaderFiles;

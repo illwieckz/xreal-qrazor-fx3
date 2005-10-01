@@ -1274,12 +1274,12 @@ image_t        *R_CreateCubeImage(const char *name,
 //	if(strlen(name) >= MAX_QPATH)
 	if(strlen(name) >= 1024)
 	{
-		ri.Error(ERR_DROP, "R_CreateImage: \"%s\" is too long\n", name);
+		ri.Error(ERR_DROP, "R_CreateCubeImage: \"%s\" is too long\n", name);
 	}
 
 	if(tr.numImages == MAX_DRAWIMAGES)
 	{
-		ri.Error(ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n");
+		ri.Error(ERR_DROP, "R_CreateCubeImage: MAX_DRAWIMAGES hit\n");
 	}
 
 	image = tr.images[tr.numImages] = ri.Hunk_Alloc(sizeof(image_t), h_low);
@@ -3071,6 +3071,23 @@ static void R_CreateAttenuationXYImage(void)
 	tr.attenuationXYImage = R_CreateImage("_attenuationXY", (byte *) data, DLIGHT_SIZE, DLIGHT_SIZE, IF_NOMIPMAPS | IF_NOPICMIP, WT_CLAMP);
 }
 
+static void R_CreateCurrentRenderImage(void)
+{
+	int				width, height;
+	byte           *data;
+	
+	for(width = 1; width < glConfig.vidWidth; width <<= 1)
+		;
+	for(height = 1; height < glConfig.vidHeight; height <<= 1)
+		;
+	
+	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+	
+	tr.currentRenderImage = R_CreateImage("_currentRender", data, width, height, IF_NOMIPMAPS | IF_NOPICMIP, WT_REPEAT);
+	
+	ri.Hunk_FreeTempMemory(data);
+}
+
 /*
 ==================
 R_CreateBuiltinImages
@@ -3126,6 +3143,7 @@ void R_CreateBuiltinImages(void)
 	R_CreateFogImage();
 	R_CreateAttenuationZImage();
 	R_CreateAttenuationXYImage();
+	R_CreateCurrentRenderImage();
 }
 
 

@@ -479,6 +479,8 @@ typedef enum
 	ST_NORMALMAP,
 	ST_SPECULARMAP,
 	ST_HEATHAZEMAP,							// heatHaze post process effect
+	ST_GLOWMAP,								// glow post process effect
+	ST_BLOOMMAP,
 	ST_LIGHTMAP,
 	ST_DELUXEMAP,
 	ST_REFLECTIONMAP,						// cubeMap based reflection
@@ -561,6 +563,10 @@ typedef struct
 	
 	expression_t    etaExp;
 	expression_t    etaDeltaExp;
+	
+	expression_t    deformMagnitudeExp;
+	
+	expression_t    blurMagnitudeExp;
 } shaderStage_t;
 
 struct shaderCommands_s;
@@ -719,6 +725,12 @@ typedef struct shaderProgram_s
 	GLint			u_FresnelBias;
 	
 	GLint			u_EtaRatio;
+	
+	GLint			u_DeformMagnitude;
+	GLint			u_BlurMagnitude;
+	
+	GLint			u_FBufScale;
+	GLint			u_NPotScale;
 } shaderProgram_t;
 
 
@@ -1234,6 +1246,7 @@ typedef struct
 	image_t        *identityLightImage;	// full of tr.identityLightByte
 	image_t        *attenuationZImage;
 	image_t        *attenuationXYImage;
+	image_t        *currentRenderImage;
 
 	// internal shaders
 	shader_t       *defaultShader;
@@ -1272,6 +1285,10 @@ typedef struct
 	shaderProgram_t dispersionShader_C;
 	
 	shaderProgram_t skyBoxShader;
+	
+	shaderProgram_t heatHazeShader;
+	shaderProgram_t glowShader;
+	shaderProgram_t bloomShader;
 
 	viewParms_t     viewParms;
 
