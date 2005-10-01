@@ -324,7 +324,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
 //  { &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 	
-	{&cg_drawBloom, "cg_drawBloom", "1", CVAR_ARCHIVE}
+	{&cg_drawBloom, "cg_drawBloom", "0", CVAR_ARCHIVE}
 };
 
 static int      cvarTableSize = sizeof(cvarTable) / sizeof(cvarTable[0]);
