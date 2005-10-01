@@ -1,0 +1,12 @@
+{
+name		Visor
+model		visor
+aifile	bots/visor_c.c
+}
+
+{
+name		Doom
+model		doom
+aifile	bots/doom_c.c
+}
+
