@@ -635,7 +635,7 @@ static int propMap2[26][3] = {
 #define PROP2_SPACE_WIDTH	12
 #define PROP2_HEIGHT		36
 
-static int	propMap3[128][3] = {
+int	propMap3[128][3] = {
 {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1},
 {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1},
 {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1},
@@ -853,7 +853,7 @@ int UI_ProportionalStringWidth(const char *str)
 	while(*s)
 	{
 		ch = *s & 127;
-		charWidth = propMap3[ch][2];
+		charWidth = propMap1[ch][2];
 		if(charWidth != -1)
 		{
 			width += charWidth;
@@ -893,13 +893,13 @@ static void UI_DrawProportionalString2(int x, int y, const char *str, vec4_t col
 		{
 			aw = (float)PROP_SPACE_WIDTH *cgs.screenXScale * sizeScale;
 		}
-		else if(propMap3[ch][2] != -1)
+		else if(propMap1[ch][2] != -1)
 		{
-			fcol = (float)propMap3[ch][0] / 512.0f;
-			frow = (float)propMap3[ch][1] / 256.0f;
-			fwidth = (float)propMap3[ch][2] / 512.0f;
+			fcol = (float)propMap1[ch][0] / 256.0f;
+			frow = (float)propMap1[ch][1] / 256.0f;
+			fwidth = (float)propMap1[ch][2] / 256.0f;
 			fheight = (float)PROP_HEIGHT / 256.0f;
-			aw = (float)propMap3[ch][2] * cgs.screenXScale * sizeScale;
+			aw = (float)propMap1[ch][2] * cgs.screenXScale * sizeScale;
 			ah = (float)PROP_HEIGHT *cgs.screenXScale * sizeScale;
 
 			trap_R_DrawStretchPic(ax, ay, aw, ah, fcol, frow, fcol + fwidth, frow + fheight, charset);
@@ -966,7 +966,7 @@ void UI_DrawProportionalString(int x, int y, const char *str, int style, vec4_t 
 	{
 		drawcolor[0] = drawcolor[1] = drawcolor[2] = 0;
 		drawcolor[3] = color[3];
-		UI_DrawProportionalString2(x + 2, y + 2, str, drawcolor, sizeScale, cgs.media.charsetProp3);
+		UI_DrawProportionalString2(x + 2, y + 2, str, drawcolor, sizeScale, cgs.media.charsetProp1);
 	}
 
 	if(style & UI_INVERSE)
@@ -975,7 +975,7 @@ void UI_DrawProportionalString(int x, int y, const char *str, int style, vec4_t 
 		drawcolor[1] = color[1] * 0.8;
 		drawcolor[2] = color[2] * 0.8;
 		drawcolor[3] = color[3];
-		UI_DrawProportionalString2(x, y, str, drawcolor, sizeScale, cgs.media.charsetProp3);
+		UI_DrawProportionalString2(x, y, str, drawcolor, sizeScale, cgs.media.charsetProp1);
 		return;
 	}
 
@@ -985,16 +985,16 @@ void UI_DrawProportionalString(int x, int y, const char *str, int style, vec4_t 
 		drawcolor[1] = color[1] * 0.8;
 		drawcolor[2] = color[2] * 0.8;
 		drawcolor[3] = color[3];
-		UI_DrawProportionalString2(x, y, str, color, sizeScale, cgs.media.charsetProp3);
+		UI_DrawProportionalString2(x, y, str, color, sizeScale, cgs.media.charsetProp1);
 
 		drawcolor[0] = color[0];
 		drawcolor[1] = color[1];
 		drawcolor[2] = color[2];
 		drawcolor[3] = 0.5 + 0.5 * sin(cg.time / PULSE_DIVISOR);
-		UI_DrawProportionalString2(x, y, str, drawcolor, sizeScale, cgs.media.charsetProp3Glow);
+		UI_DrawProportionalString2(x, y, str, drawcolor, sizeScale, cgs.media.charsetProp1Glow);
 		return;
 	}
 
-	UI_DrawProportionalString2(x, y, str, color, sizeScale, cgs.media.charsetProp3);
+	UI_DrawProportionalString2(x, y, str, color, sizeScale, cgs.media.charsetProp1);
 }
 #endif							// Q3STATIC
