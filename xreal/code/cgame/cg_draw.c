@@ -2896,8 +2896,6 @@ static void CG_Draw2D(void)
 	}
 */
 	
-	CG_DrawBloom();
-	
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
 	{
 		CG_DrawSpectator();
@@ -3047,6 +3045,9 @@ void CG_DrawActive(stereoFrame_t stereoView)
 	{
 		VectorCopy(baseOrg, cg.refdef.vieworg);
 	}
+	
+	// draw bloom post process effect
+	CG_DrawBloom();
 
 	// draw status bar and other floating elements
 	CG_Draw2D();
