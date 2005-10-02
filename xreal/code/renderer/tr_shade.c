@@ -1797,8 +1797,8 @@ static void Render_heatHaze(int stage)
 	deformMagnitude = RB_EvalExpression(&pStage->deformMagnitudeExp, 1.0);
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderImage->uploadWidth;
-	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderImage->uploadHeight;
+	npotWidthScale = (float)(glConfig.vidWidth + 1) / (float)tr.currentRenderImage->uploadWidth;
+	npotHeightScale = (float)(glConfig.vidHeight + 1) / (float)tr.currentRenderImage->uploadHeight;
 	
 	qglUniform1fARB(tr.heatHazeShader.u_DeformMagnitude, deformMagnitude);
 	qglUniform2fARB(tr.heatHazeShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
@@ -1838,8 +1838,8 @@ static void Render_glow(int stage)
 	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderImage->uploadWidth;
-	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderImage->uploadHeight;
+	npotWidthScale = (float)(glConfig.vidWidth + 1) / (float)tr.currentRenderImage->uploadWidth;
+	npotHeightScale = (float)(glConfig.vidHeight + 1) / (float)tr.currentRenderImage->uploadHeight;
 	
 	qglUniform1fARB(tr.glowShader.u_BlurMagnitude, blurMagnitude);
 	qglUniform2fARB(tr.glowShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
@@ -1847,6 +1847,7 @@ static void Render_glow(int stage)
 
 	// bind colormap
 	GL_SelectTexture(0);
+//	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 	GL_Bind(tr.currentRenderImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
 	
@@ -1874,8 +1875,8 @@ static void Render_bloom(int stage)
 	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderImage->uploadWidth;
-	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderImage->uploadHeight;
+	npotWidthScale = (float)(glConfig.vidWidth + 1) / (float)tr.currentRenderImage->uploadWidth;
+	npotHeightScale = (float)(glConfig.vidHeight + 1) / (float)tr.currentRenderImage->uploadHeight;
 	
 	qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, blurMagnitude);
 	qglUniform2fARB(tr.bloomShader.u_FBufScale, fbufWidthScale, fbufHeightScale);

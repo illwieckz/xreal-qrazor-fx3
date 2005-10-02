@@ -4436,7 +4436,7 @@ shader_t       *R_FindShader(const char *name, int lightmapIndex, qboolean mipRa
 		// of all explicit shaders
 		if(r_printShaders->integer)
 		{
-			ri.Printf(PRINT_ALL, "...loading explicit shader '%s'\n", strippedName);
+			ri.Printf(PRINT_DEVELOPER, "...loading explicit shader '%s'\n", strippedName);
 			//ri.Printf(PRINT_ALL, "*SHADER* %s\n", name);
 		}
 

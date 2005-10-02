@@ -233,16 +233,39 @@ powerups/invisibility
 {
 	{
 		map textures/effects/invismap.tga
-                //map textures/sfx/specular.tga
-				blendfunc GL_ONE GL_ONE
-				tcMod turb 0 0.15 0 0.25
-				tcGen environment
+		//map textures/sfx/specular.tga
+		blendfunc GL_ONE GL_ONE
+		tcMod turb 0 0.15 0 0.25
+		tcGen environment
 	}
 }
 
 powerups/quad
-{	
+{
 	deformVertexes wave 100 sin 3 0 0 0
+	
+	{
+		stage colorMap
+		map textures/effects/quadmap2.tga
+		//alphaTest 0.5
+		blend GL_ONE , GL_ONE
+		tcGen environment
+		tcmod rotate 30
+		//tcMod turb 0 0.2 0 .2
+		tcmod scroll 1 .1
+	}
+	/*
+	{
+		stage glowMap
+		blurMagnitude 2
+		blend add
+	}
+	*/
+}
+
+powerups/quadWeapon
+{
+	deformVertexes wave 100 sin 0.5 0 0 0
 	{
 		map textures/effects/quadmap2.tga
 		blendfunc GL_ONE GL_ONE
@@ -251,19 +274,13 @@ powerups/quad
 		//tcMod turb 0 0.2 0 .2
 		tcmod scroll 1 .1
 	}
-}
-
-powerups/quadWeapon
-{
-	deformVertexes wave 100 sin 0.5 0 0 0
+	/*
 	{
-		map textures/effects/quadmap2.tga
-				blendfunc GL_ONE GL_ONE
-				tcGen environment
-				tcmod rotate 30
-		//tcMod turb 0 0.2 0 .2
-				tcmod scroll 1 .1
+		stage glowMap
+		blurMagnitude 2
+		blend add
 	}
+	*/
 }
 
 powerups/regen
@@ -1616,8 +1633,9 @@ bloom
 	
 	{
 		stage glowMap
-		blurMagnitude 1
-		//blurMagnitude 3 + (sinTable[ time * 0.1] * 0.5)
+		blurMagnitude 3
+		//blurMagnitude 3 + (sinTable[ time * 0.1] * 2)
+		blend add
 	}
 }
 
@@ -1628,12 +1646,15 @@ bloom2
 	nonsolid
 	twosided
 	
+	/*
 	{
-		stage bloomMap
-		blurMagnitude 1
+		// make contrast
+		stage colorMap
+		map _currentRender
 	}
+	*/
 	{
 		stage bloomMap
-		blurMagnitude 1
+		blurMagnitude 3
 	}
 }

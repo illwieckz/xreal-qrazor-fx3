@@ -31,7 +31,7 @@ varying float		var_Deform;
 void	main()
 {
 	// compute normal in tangent space from normalmap
-	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).rgb - 0.5);
+	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).agb - 0.5);
 	N = normalize(N);
 
 	vec2 s_coord = gl_FragCoord.st;

@@ -388,7 +388,7 @@ textures/glass/glass2
 	{
 		stage	heathazemap
 		map		textures/sfx/vp1.tga
-		deformMagnitude	0.07
+		deformMagnitude	0.4
 	}
 
 	{	
