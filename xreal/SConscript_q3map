@@ -46,8 +46,8 @@ q3map_src = [
 'lwobject/lwio.c',
 'lwobject/lwo2.c',
 'lwobject/lwob.c',
+'lwobject/lwsurface.c',
 'lwobject/pntspols.c',
-'lwobject/surface.c',
 'lwobject/vecmath.c',
 'lwobject/vmap.c'
 ]
