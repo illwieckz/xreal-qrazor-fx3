@@ -25,8 +25,12 @@ uniform vec2		u_FBufScale;
 uniform vec2		u_NPotScale;
 uniform float		u_BlurMagnitude;
 
+varying vec2		var_TexGlow;
+
 void	main()
 {
+//	vec2 st00 = var_TexGlow;
+	
 	vec2 st00 = gl_FragCoord.st;
 
 	// calculate the screen texcoord in the 0.0 to 1.0 range
@@ -36,36 +40,27 @@ void	main()
 	st00 *= u_NPotScale;
 	
 	// set so a magnitude of 1 is approximately 1 pixel with 640x480
-	vec2 deform = u_BlurMagnitude * 0.0016;
-	deform.y *= 1.33333;
+	vec2 deform = vec2(u_BlurMagnitude * 0.0016, u_BlurMagnitude * 0.00213333);
 	
 	// fragment offsets for blur samples
-	vec2 offset00 = vec2(-0.326212, -0.405805);
-	vec2 offset01 = vec2(-0.840144, -0.173580);
-	vec2 offset02 = vec2(-0.695914,  0.557137);
-	vec2 offset03 = vec2(-0.203345,  0.720716);
-	vec2 offset04 = vec2( 0.962340, -0.394983);
-	vec2 offset05 = vec2( 0.473434, -0.480026);
-	vec2 offset06 = vec2( 0.319456,  0.967022);
-	vec2 offset07 = vec2( 0.185461, -0.893124);
-	vec2 offset08 = vec2( 0.507431,  0.264425);
-	vec2 offset09 = vec2( 0.896420,  0.412458);
-	vec2 offset10 = vec2(-0.321940, -0.932615);
-	vec2 offset11 = vec2(-0.791559, -0.597705);
-
+	vec2 offset01 = vec2( 0.0, -1.0);
+	vec2 offset02 = vec2(-1.0,  0.0);
+	vec2 offset03 = vec2( 1.0,  0.0);
+	vec2 offset04 = vec2( 0.0,  1.0);
+	vec2 offset05 = vec2(-2.0, -2.0);
+	vec2 offset06 = vec2( 2.0, -2.0);
+	vec2 offset07 = vec2(-2.0,  2.0);
+	vec2 offset08 = vec2( 2.0,  2.0);
+	
 	// calculate our offset texture coordinates
-	vec2 st01 = deform * offset00 + st00;
-	vec2 st02 = deform * offset01 + st00;
-	vec2 st03 = deform * offset02 + st00;
-	vec2 st04 = deform * offset03 + st00;
-	vec2 st05 = deform * offset04 + st00;
-	vec2 st06 = deform * offset05 + st00;
-	vec2 st07 = deform * offset06 + st00;
-	vec2 st08 = deform * offset07 + st00;
-	vec2 st09 = deform * offset08 + st00;
-	vec2 st10 = deform * offset09 + st00;
-	vec2 st11 = deform * offset10 + st00;
-	vec2 st12 = deform * offset11 + st00;
+	vec2 st01 = st00 + offset01 * deform;
+	vec2 st02 = st00 + offset02 * deform;
+	vec2 st03 = st00 + offset03 * deform;
+	vec2 st04 = st00 + offset04 * deform;
+	vec2 st05 = st00 + offset05 * deform;
+	vec2 st06 = st00 + offset06 * deform;
+	vec2 st07 = st00 + offset07 * deform;
+	vec2 st08 = st00 + offset08 * deform;
 	
 	// base color
 	vec4 c00 = texture2D(u_ColorMap, st00);
@@ -79,16 +74,9 @@ void	main()
 	vec4 c06 = texture2D(u_ColorMap, st06);
 	vec4 c07 = texture2D(u_ColorMap, st07);
 	vec4 c08 = texture2D(u_ColorMap, st08);
-	vec4 c09 = texture2D(u_ColorMap, st09);
-	vec4 c10 = texture2D(u_ColorMap, st10);
-	vec4 c11 = texture2D(u_ColorMap, st11);
-	vec4 c12 = texture2D(u_ColorMap, st12);
 	
-//	float inv13 = 0.076923077;
-	float inv12 = 1.0 / 12.0;
-	vec4 sum = c01 + c02 + c03 + c04 + c05 + c06 + c07 + c08 + c09 + c10 + c11 + c12;
-	sum *= inv12;
-//	sum *= 0.2;
+	vec4 sum = c01 + c02 + c03 + c04 + c05 + c06 + c07 + c08;
+	sum *= 1.0 / 8.0;
 	
 	gl_FragColor = c00 + sum;
 }

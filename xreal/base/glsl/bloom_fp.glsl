@@ -28,9 +28,8 @@ uniform float		u_BlurMagnitude;
 
 vec4	makeContrast(vec4 colorIn)
 {
-	vec4 color = colorIn;
-	color *= color;
-	color.x += color.x;
+	vec4 color = colorIn * colorIn;
+	color.x += color.y;
 	color.x += color.z;
 	color.x *= 0.33333333;
 	return colorIn * color.x;
@@ -47,8 +46,7 @@ void	main()
 	st00 *= u_NPotScale;
 	
 	// set so a magnitude of 1 is approximately 1 pixel with 640x480
-	vec2 deform = u_BlurMagnitude * 0.0016;
-	deform.y *= 1.33333;
+	vec2 deform = vec2(u_BlurMagnitude * 0.0016, u_BlurMagnitude * 0.00213333);
 	
 	// fragment offsets for blur samples
 	vec2 offset01 = vec2( 0.0, -1.0);
@@ -73,12 +71,12 @@ void	main()
 	// cap the coordinates to the edge of the texture
 //	st01 = min(st01, u_FBufScale);
 //	st02 = min(st02, u_FBufScale);
-	st03 = min(st03, u_FBufScale);
-	st04 = min(st04, u_FBufScale);
-	st05 = min(st05, u_FBufScale);
-	st06 = min(st06, u_FBufScale);
-	st07 = min(st07, u_FBufScale);
-	st08 = min(st08, u_FBufScale);
+//	st03 = min(st03, u_FBufScale);
+//	st04 = min(st04, u_FBufScale);
+//	st05 = min(st05, u_FBufScale);
+//	st06 = min(st06, u_FBufScale);
+//	st07 = min(st07, u_FBufScale);
+//	st08 = min(st08, u_FBufScale);
 	
 	// base color
 	vec4 c00 = texture2D(u_ColorMap, st00);
@@ -95,12 +93,8 @@ void	main()
 	
 	// add up the blurred samples and get the average
 	vec4 sum = c01 + c02 + c03 + c04 + c05 + c06 + c07 + c08;
+	sum *= 0.125;
 	
-	// (1 / numOffsets) * 0.5
-//	float scale = 0.125;
-	float scale = 0.0625;
-//	float scale = 0.125 * 0.2;
-	
-	gl_FragColor = c00 + sum * scale;
+	gl_FragColor = c00 + sum;
 //	gl_FragColor = sum;
 }
