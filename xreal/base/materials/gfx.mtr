@@ -1633,8 +1633,8 @@ bloom
 	
 	{
 		stage glowMap
-		blurMagnitude 3
-		//blurMagnitude 3 + (sinTable[ time * 0.1] * 2)
+		blurMagnitude 1
+		//blurMagnitude 3 + (sinTable[ time * 1] * 2)
 		blend add
 	}
 }
@@ -1655,6 +1655,10 @@ bloom2
 	*/
 	{
 		stage bloomMap
-		blurMagnitude 3
+		blurMagnitude 1
+	}
+	{
+		stage bloomMap
+		blurMagnitude 1
 	}
 }
