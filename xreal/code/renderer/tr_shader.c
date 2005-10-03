@@ -4506,18 +4506,22 @@ shader_t       *R_FindShader(const char *name, int lightmapIndex, qboolean mipRa
 	}
 	else
 	{
-		// two pass lightmap
-		stages[0].bundle[0].image[0] = tr.lightmaps[shader.lightmapIndex];
-		stages[0].bundle[0].isLightMap = qtrue;
+		// diffuseMap
+		stages[0].type = ST_DIFFUSEMAP;
+		stages[0].bundle[0].image[0] = image;
 		stages[0].active = qtrue;
-		stages[0].rgbGen = CGEN_IDENTITY;	// lightmaps are scaled on creation
-		// for identitylight
+		stages[0].rgbGen = CGEN_IDENTITY;
+		//stages[0].stateBits |= GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO;
 		stages[0].stateBits = GLS_DEFAULT;
-
-		stages[1].bundle[0].image[0] = image;
+		
+		// lightMap
+		stages[1].type = ST_LIGHTMAP;
+		stages[1].bundle[0].image[0] = tr.lightmaps[shader.lightmapIndex];
+		stages[1].bundle[0].isLightMap = qtrue;
 		stages[1].active = qtrue;
-		stages[1].rgbGen = CGEN_IDENTITY;
-		stages[1].stateBits |= GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO;
+		stages[1].rgbGen = CGEN_IDENTITY;	// lightmaps are scaled on creation
+		// for identitylight
+		stages[1].stateBits = GLS_DEFAULT;
 	}
 
 	return FinishShader();

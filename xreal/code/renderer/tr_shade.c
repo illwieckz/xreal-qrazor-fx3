@@ -987,6 +987,7 @@ Draws triangle outlines for debugging
 */
 static void DrawTris(shaderCommands_t * input)
 {
+	GL_Program(0);
 	GL_Bind(tr.whiteImage);
 	qglColor3f(1, 1, 1);
 
@@ -1025,6 +1026,7 @@ static void DrawTangentSpaces(shaderCommands_t * input)
 	int             i;
 	vec3_t          temp;
 
+	GL_Program(0);
 	GL_Bind(tr.whiteImage);
 	qglDepthRange(0, 0);		// never occluded
 	GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
@@ -1065,6 +1067,7 @@ static void DrawDeluxels(shaderCommands_t * input)
 	int             i;
 	vec3_t          temp;
 
+	GL_Program(0);
 	GL_Bind(tr.whiteImage);
 	qglDepthRange(0, 0);		// never occluded
 	GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
@@ -1096,6 +1099,7 @@ static void DrawNormals(shaderCommands_t * input)
 	int             i;
 	vec3_t          temp;
 
+	GL_Program(0);
 	GL_Bind(tr.whiteImage);
 	qglColor3f(1, 1, 1);
 	qglDepthRange(0, 0);		// never occluded
@@ -2362,6 +2366,7 @@ static void RB_FogPass(void)
 	fog_t          *fog;
 	int             i;
 	
+	GL_Program(0);
 	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
 
 	fog = tr.world->fogs + tess.fogNum;
