@@ -173,7 +173,7 @@ void CG_FragmentBounceMark(localEntity_t * le, trace_t * trace)
 
 		if(r == 0)
 		{
-			h = cgs.media.bloodMark1Shader;
+			h = cgs.media.bloodMarkShader;
 		}
 		else if(r == 1)
 		{

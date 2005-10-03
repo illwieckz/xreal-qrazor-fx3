@@ -1071,7 +1071,7 @@ gfx/misc/tracer
 // their "contribution" can be damped down in fog volumes
 // with distance
 
-bloodMark1
+bloodMark
 {
 	nopicmip			// make sure a border remains
 			polygonOffset
@@ -1120,10 +1120,20 @@ bloodTrail
 		//clampmap gfx/damage/blood_spurt.tga
 		clampmap textures/particles/blood2.tga
 		//blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-				blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
-				rgbGen		vertex
-				alphaGen	vertex
+		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
+		rgbGen		vertex
+		alphaGen	vertex
 	}
+}
+
+burnMark
+{
+	polygonOffset
+{
+		map textures/decals/explo_burn01.tga
+		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
+		rgbGen exactVertex
+}
 }
 
 gfx/damage/bullet_mrk
@@ -1131,18 +1141,18 @@ gfx/damage/bullet_mrk
 	polygonOffset
 	{
 		map gfx/damage/bullet_mrk.tga
-				blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
-				rgbGen exactVertex
+		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
+		rgbGen exactVertex
 	}
 }
 
-burnMark
+gfx/damage/burn_med_mrk
 {
 	polygonOffset
 	{
 		map textures/decals/explo_burn01.tga
-				blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
-				rgbGen exactVertex
+		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
+		rgbGen exactVertex
 	}
 }
 
@@ -1151,8 +1161,8 @@ gfx/damage/hole_lg_mrk
 	polygonOffset
 	{
 		map gfx/damage/hole_lg_mrk.tga
-				blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
-				rgbGen exactVertex
+		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
+		rgbGen exactVertex
 	}
 }
 
