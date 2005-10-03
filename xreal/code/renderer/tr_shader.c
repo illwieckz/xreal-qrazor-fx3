@@ -3431,7 +3431,7 @@ static void CollapseStages(void)
 		//stages[0].stateBits &= ~(GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS);
 
 		// move down subsequent stages
-		memmove(&stages[1], &stages[2], sizeof(stages[0]) * (MAX_SHADER_STAGES - 4));
+		memmove(&stages[1], &stages[4], sizeof(stages[0]) * (MAX_SHADER_STAGES - 4));
 		Com_Memset(&stages[MAX_SHADER_STAGES - 3], 0, sizeof(stages[0]));
 		
 		shader.numUnfoggedPasses -= 3;
@@ -3451,7 +3451,7 @@ static void CollapseStages(void)
 		stages[0].bundle[TB_LIGHTMAP] = tmpLightStage.bundle[0];
 
 		// move down subsequent stages
-		memmove(&stages[1], &stages[2], sizeof(stages[0]) * (MAX_SHADER_STAGES - 3));
+		memmove(&stages[1], &stages[3], sizeof(stages[0]) * (MAX_SHADER_STAGES - 3));
 		Com_Memset(&stages[MAX_SHADER_STAGES - 2], 0, sizeof(stages[0]));
 		
 		shader.numUnfoggedPasses -= 2;
@@ -3508,7 +3508,7 @@ static void CollapseStages(void)
 		stages[0].bundle[TB_SPECULARMAP] = tmpSpecularStage.bundle[0];
 
 		// move down subsequent stages
-		memmove(&stages[1], &stages[2], sizeof(stages[0]) * (MAX_SHADER_STAGES - 3));
+		memmove(&stages[1], &stages[3], sizeof(stages[0]) * (MAX_SHADER_STAGES - 3));
 		Com_Memset(&stages[MAX_SHADER_STAGES - 2], 0, sizeof(stages[0]));
 		
 		shader.numUnfoggedPasses -= 2;
