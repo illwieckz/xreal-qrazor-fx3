@@ -3404,6 +3404,25 @@ models/players/visor/gorre
 //	}
 //}
 
+
+models/players/visor/blue
+{
+	{
+		blend diffuseMap
+		map models/players/visor/blue_d.tga
+		rgbGen lightingDiffuse
+	}
+	{
+		blend bumpMap
+		//map models/players/visor/blue_n.tga
+		map heightMap(models/players/visor/blue_h.tga, 1.3)
+	}
+	{
+		blend specularMap
+		map models/players/visor/blue_s.tga
+	}
+}
+
 //******************************************************//
 //	models/players/xaero subfolder			//
 //******************************************************//
