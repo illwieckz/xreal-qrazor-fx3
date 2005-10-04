@@ -157,6 +157,7 @@ opts.Save('quake3.conf', env)
 
 Export('env')
 
+SConscript('SConscript_quake3-server', build_dir='build/quake3-server', duplicate=0)
 SConscript('SConscript_quake3', build_dir='build/quake3', duplicate=0)
 SConscript('SConscript_cgame', build_dir='build/cgame', duplicate=0)
 SConscript('SConscript_game', build_dir='build/game', duplicate=0)

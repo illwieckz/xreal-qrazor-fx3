@@ -1,0 +1,89 @@
+import os, string, sys
+
+Import('env')
+
+quake3_server_env = env.Copy()
+
+quake3_server_src = [
+'code/null/null_client.c',
+'code/null/null_input.c',
+'code/null/null_snddma.c',
+'code/qcommon/cm_load.c',
+'code/qcommon/cm_patch.c',
+'code/qcommon/cm_polylib.c',
+'code/qcommon/cm_test.c',
+'code/qcommon/cm_trace.c',
+'code/qcommon/cmd.c',
+'code/qcommon/common.c',
+'code/qcommon/cvar.c',
+'code/qcommon/files.c',
+'code/qcommon/huffman.c',
+'code/qcommon/md4.c',
+'code/qcommon/msg.c',
+'code/qcommon/net_chan.c',
+'code/server/sv_bot.c',
+'code/server/sv_ccmds.c',
+'code/server/sv_client.c',
+'code/server/sv_game.c',
+'code/server/sv_init.c',
+'code/server/sv_main.c',
+'code/server/sv_net_chan.c',
+'code/server/sv_snapshot.c',
+'code/server/sv_world.c',
+'code/game/q_math.c',
+'code/game/q_shared.c',
+'code/qcommon/unzip.c',
+'code/botlib/be_aas_bspq3.c',
+'code/botlib/be_aas_cluster.c',
+'code/botlib/be_aas_debug.c',
+'code/botlib/be_aas_entity.c',
+'code/botlib/be_aas_file.c',
+'code/botlib/be_aas_main.c',
+'code/botlib/be_aas_move.c',
+'code/botlib/be_aas_optimize.c',
+'code/botlib/be_aas_reach.c',
+'code/botlib/be_aas_route.c',
+'code/botlib/be_aas_routealt.c',
+'code/botlib/be_aas_sample.c',
+'code/botlib/be_ai_char.c',
+'code/botlib/be_ai_chat.c',
+'code/botlib/be_ai_gen.c',
+'code/botlib/be_ai_goal.c',
+'code/botlib/be_ai_move.c',
+'code/botlib/be_ai_weap.c',
+'code/botlib/be_ai_weight.c',
+'code/botlib/be_ea.c',
+'code/botlib/be_interface.c',
+'code/botlib/l_crc.c',
+'code/botlib/l_libvar.c',
+'code/botlib/l_log.c',
+'code/botlib/l_memory.c',
+'code/botlib/l_precomp.c',
+'code/botlib/l_script.c',
+'code/botlib/l_struct.c',
+]
+
+unix_src = [
+'code/unix/unix_main.c',
+'code/unix/unix_net.c',
+'code/unix/unix_shared.c'
+]
+
+linux_src = [
+'code/unix/linux_common.c',
+'code/unix/linux_signals.c']
+
+vm_src = [
+'code/qcommon/vm.c',
+'code/qcommon/vm_interpreted.c',
+'code/qcommon/vm_x86.c'
+]
+
+quake3_server_env.Append(CCFLAGS='-DBOTLIB')
+quake3_server_env.Append(CCFLAGS='-DC_ONLY')
+quake3_server_env.Append(CCFLAGS='-DDEDICATED')
+
+if sys.platform == 'linux2':
+	quake3_server_env.Append(LIBS=['dl', 'm'])
+	quake3_server_env.Program('quake3-server.x86', [quake3_server_src, unix_src, linux_src, vm_src])
+	quake3_server_env.Install('#', 'quake3-server.x86')
