@@ -253,47 +253,35 @@ textures/liquids/xctf_painwater
 		}
 	}
 textures/liquids/clear_calm1
+{
+	qer_editorimage textures/liquids/pool3d_3e.tga
+	qer_trans .5
+	q3map_globaltexture
+	surfaceparm trans
+	surfaceparm nonsolid
+	surfaceparm water
 
-//	*********************************************************
-//	*      Medium clear calm water. Created September 9	*
-//	*********************************************************
-		
+	cull disable
+	deformVertexes wave 64 sin .25 .25 0 .5	
 	{
-		qer_editorimage textures/liquids/pool3d_3e.tga
-		qer_trans .5
-		q3map_globaltexture
-		surfaceparm trans
-		surfaceparm nonsolid
-		surfaceparm water
-	
-		cull disable
-		deformVertexes wave 64 sin .25 .25 0 .5	
-		{ 
-			map textures/liquids/pool3d_5e.tga
-			blendFunc GL_dst_color GL_one
-			rgbgen identity
-			tcmod scale .5 .5
-			tcmod scroll .025 .01
-		}
-	
-		{ 
-			map textures/liquids/pool3d_3e.tga
-			blendFunc GL_dst_color GL_one
-			tcmod scale -0.5 -0.5
-			tcmod scroll .025 .025
-		}
-
-	
-		{
-			map $lightmap
-			blendFunc GL_dst_color GL_zero
-			rgbgen identity		
-		}
-	
-	
-
-//	END
+		map textures/liquids/pool3d_5e.tga
+		blendFunc GL_dst_color GL_one
+		rgbgen identity
+		scale .5, .5
+		scroll time * .025, time * .01
 	}
+	{
+		map textures/liquids/pool3d_3e.tga
+		blendFunc GL_dst_color GL_one
+		//scale -.5, -.5
+		scroll time * .025, time * .025
+	}
+	{
+		map $lightmap
+		blendFunc GL_dst_color GL_zero
+		rgbgen identity
+	}
+}
 
 textures/liquids/clear_ripple3
 
@@ -420,8 +408,7 @@ textures/liquids/clear_ripple1
 		cull disable
 		deformVertexes wave 64 sin .5 .5 0 .5	
 	
-		
-		{ 
+		{
 			map textures/liquids/pool3d_5.tga
 			blendFunc GL_dst_color GL_one
 			rgbgen identity
@@ -429,24 +416,22 @@ textures/liquids/clear_ripple1
 			tcmod transform 1.5 0 1.5 1 1 2
 			tcmod scroll -0.05 .001
 		}
-	
-		{ 
+		{
 			map textures/liquids/pool3d_6.tga
 			blendFunc GL_dst_color GL_one
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 0 1.5 1 1.5 2 1
-			tcmod scroll .025 -0.001
+			scroll time * .025, time * -0.001
 		}
 
-		{ 
+		{
 			map textures/liquids/pool3d_3.tga
 			blendFunc GL_dst_color GL_one
 			rgbgen identity
 			tcmod scale .25 .5
 			tcmod scroll .001 .025
-		}	
-
+		}
 		{
 			map $lightmap
 			blendFunc GL_dst_color GL_zero

@@ -1,12 +1,12 @@
 {
 name		Visor
 model		visor
-aifile	bots/visor_c.c
+aifile		bots/visor_c.c
 }
 
 {
-name		Doom
-model		doom
-aifile	bots/doom_c.c
+name		S3
+model		visor/s3
+aifile		bots/s3_c.c
 }
 
