@@ -481,6 +481,7 @@ typedef enum
 	ST_HEATHAZEMAP,							// heatHaze post process effect
 	ST_GLOWMAP,								// glow post process effect
 	ST_BLOOMMAP,
+	ST_BLOOM2MAP,
 	ST_LIGHTMAP,
 	ST_DELUXEMAP,
 	ST_REFLECTIONMAP,						// cubeMap based reflection
@@ -700,6 +701,7 @@ typedef struct shaderProgram_s
 
 	// uniform parameters
 	GLint			u_ColorMap;
+	GLint			u_ContrastMap;
 	GLint           u_DiffuseMap;
 	GLint           u_NormalMap;
 	GLint			u_SpecularMap;
@@ -1247,6 +1249,7 @@ typedef struct
 	image_t        *attenuationZImage;
 	image_t        *attenuationXYImage;
 	image_t        *currentRenderImage;
+	image_t        *contrastRenderImage;
 
 	// internal shaders
 	shader_t       *defaultShader;
@@ -1289,6 +1292,9 @@ typedef struct
 	shaderProgram_t heatHazeShader;
 	shaderProgram_t glowShader;
 	shaderProgram_t bloomShader;
+	shaderProgram_t contrastShader;
+	shaderProgram_t blurXShader;
+	shaderProgram_t blurYShader;
 
 	viewParms_t     viewParms;
 

@@ -3083,7 +3083,24 @@ static void R_CreateCurrentRenderImage(void)
 	
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 	
-	tr.currentRenderImage = R_CreateImage("_currentRender", data, width, height, IF_NOMIPMAPS | IF_NOPICMIP, WT_REPEAT);
+	tr.currentRenderImage = R_CreateImage("_currentRender", data, width, height, IF_NOPICMIP, WT_REPEAT);
+	
+	ri.Hunk_FreeTempMemory(data);
+}
+
+static void R_CreateContrastRenderImage(void)
+{
+	int				width, height;
+	byte           *data;
+	
+	for(width = 1; width < glConfig.vidWidth; width <<= 1)
+		;
+	for(height = 1; height < glConfig.vidHeight; height <<= 1)
+		;
+	
+	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+	
+	tr.contrastRenderImage = R_CreateImage("_contrastRender", data, width, height, IF_NOPICMIP, WT_REPEAT);
 	
 	ri.Hunk_FreeTempMemory(data);
 }
@@ -3144,6 +3161,7 @@ void R_CreateBuiltinImages(void)
 	R_CreateAttenuationZImage();
 	R_CreateAttenuationXYImage();
 	R_CreateCurrentRenderImage();
+	R_CreateContrastRenderImage();
 }
 
 

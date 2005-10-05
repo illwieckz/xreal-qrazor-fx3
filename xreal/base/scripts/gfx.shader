@@ -1656,10 +1656,9 @@ bloom
 	twosided
 	
 	{
-		stage glowMap
+		stage bloomMap
 		blurMagnitude 1
 		//blurMagnitude 3 + (sinTable[ time * 1] * 2)
-		blend add
 	}
 }
 
@@ -1670,19 +1669,8 @@ bloom2
 	nonsolid
 	twosided
 	
-	/*
 	{
-		// make contrast
-		stage colorMap
-		map _currentRender
-	}
-	*/
-	{
-		stage bloomMap
-		blurMagnitude 1
-	}
-	{
-		stage bloomMap
+		stage bloom2Map
 		blurMagnitude 1
 	}
 }

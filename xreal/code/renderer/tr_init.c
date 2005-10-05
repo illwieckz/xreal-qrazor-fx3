@@ -1026,7 +1026,7 @@ void R_Register(void)
 	r_ext_shading_language_100 = ri.Cvar_Get("r_ext_shading_language_100", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_framebuffer_object = ri.Cvar_Get("r_ext_framebuffer_object", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
-	r_collapseMultitexture = ri.Cvar_Get("r_collapseMultitexture", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_collapseMultitexture = ri.Cvar_Get("r_collapseMultitexture", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_CHEAT);
 	r_picmip = ri.Cvar_Get("r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_roundImagesDown = ri.Cvar_Get("r_roundImagesDown", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_colorMipLevels = ri.Cvar_Get("r_colorMipLevels", "0", CVAR_LATCH);

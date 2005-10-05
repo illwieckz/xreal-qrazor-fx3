@@ -510,10 +510,12 @@ void RB_InitGPUShaders(void)
 	//
 	RB_InitGPUShader(&tr.bloomShader,
 					  "bloom",
-					  GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
+					  GLCS_VERTEX, qtrue);
 
 	tr.bloomShader.u_ColorMap =
 			qglGetUniformLocationARB(tr.bloomShader.program, "u_ColorMap");
+	tr.bloomShader.u_ContrastMap =
+			qglGetUniformLocationARB(tr.bloomShader.program, "u_ContrastMap");
 	tr.bloomShader.u_FBufScale =
 			qglGetUniformLocationARB(tr.bloomShader.program, "u_FBufScale");
 	tr.bloomShader.u_NPotScale =
@@ -523,6 +525,61 @@ void RB_InitGPUShaders(void)
 
 	qglUseProgramObjectARB(tr.bloomShader.program);
 	qglUniform1iARB(tr.bloomShader.u_ColorMap, 0);
+	qglUniform1iARB(tr.bloomShader.u_ContrastMap, 1);
+	qglUseProgramObjectARB(0);
+	
+	//
+	// contrast post process effect
+	//
+	RB_InitGPUShader(&tr.contrastShader,
+					  "contrast",
+					  GLCS_VERTEX, qtrue);
+
+	tr.contrastShader.u_ColorMap =
+			qglGetUniformLocationARB(tr.contrastShader.program, "u_ColorMap");
+	tr.contrastShader.u_FBufScale =
+			qglGetUniformLocationARB(tr.contrastShader.program, "u_FBufScale");
+	tr.contrastShader.u_NPotScale =
+			qglGetUniformLocationARB(tr.contrastShader.program, "u_NPotScale");
+
+	qglUseProgramObjectARB(tr.contrastShader.program);
+	qglUniform1iARB(tr.contrastShader.u_ColorMap, 0);
+	qglUseProgramObjectARB(0);
+	
+	//
+	// blurX post process effect
+	//
+	RB_InitGPUShader(&tr.blurXShader,
+					  "blurX",
+					  GLCS_VERTEX, qtrue);
+
+	tr.blurXShader.u_ColorMap =
+			qglGetUniformLocationARB(tr.blurXShader.program, "u_ColorMap");
+	tr.blurXShader.u_FBufScale =
+			qglGetUniformLocationARB(tr.blurXShader.program, "u_FBufScale");
+	tr.blurXShader.u_NPotScale =
+			qglGetUniformLocationARB(tr.blurXShader.program, "u_NPotScale");
+
+	qglUseProgramObjectARB(tr.blurXShader.program);
+	qglUniform1iARB(tr.blurXShader.u_ColorMap, 0);
+	qglUseProgramObjectARB(0);
+	
+	//
+	// blurY post process effect
+	//
+	RB_InitGPUShader(&tr.blurYShader,
+					  "blurY",
+					  GLCS_VERTEX, qtrue);
+
+	tr.blurYShader.u_ColorMap =
+			qglGetUniformLocationARB(tr.blurYShader.program, "u_ColorMap");
+	tr.blurYShader.u_FBufScale =
+			qglGetUniformLocationARB(tr.blurYShader.program, "u_FBufScale");
+	tr.blurYShader.u_NPotScale =
+			qglGetUniformLocationARB(tr.blurYShader.program, "u_NPotScale");
+
+	qglUseProgramObjectARB(tr.blurYShader.program);
+	qglUniform1iARB(tr.blurYShader.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
 }
 
@@ -623,6 +680,24 @@ void RB_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.bloomShader.program);
 		tr.bloomShader.program = 0;
+	}
+	
+	if(tr.contrastShader.program)
+	{
+		qglDeleteObjectARB(tr.contrastShader.program);
+		tr.contrastShader.program = 0;
+	}
+	
+	if(tr.blurXShader.program)
+	{
+		qglDeleteObjectARB(tr.blurXShader.program);
+		tr.blurXShader.program = 0;
+	}
+	
+	if(tr.blurYShader.program)
+	{
+		qglDeleteObjectARB(tr.blurYShader.program);
+		tr.blurYShader.program = 0;
 	}
 }
 
@@ -1870,29 +1945,124 @@ static void Render_bloom(int stage)
 	
 	GL_State(pStage->stateBits);
 	
-	// enable shader, set arrays
-	GL_Program(tr.bloomShader.program);
-	GL_ClientState(tr.bloomShader.attribs);
-	GL_SetVertexAttribs();
-	
-	// set uniforms
+	// calc uniforms
 	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
 	npotWidthScale = (float)(glConfig.vidWidth + 1) / (float)tr.currentRenderImage->uploadWidth;
 	npotHeightScale = (float)(glConfig.vidHeight + 1) / (float)tr.currentRenderImage->uploadHeight;
 	
-	qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, blurMagnitude);
-	qglUniform2fARB(tr.bloomShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.bloomShader.u_NPotScale, npotWidthScale, npotHeightScale);
+	// render contrast
+	GL_Program(tr.contrastShader.program);
+	GL_ClientState(tr.contrastShader.attribs);
+	GL_SetVertexAttribs();
 
-	// bind colormap
+	qglUniform2fARB(tr.contrastShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
+	qglUniform2fARB(tr.contrastShader.u_NPotScale, npotWidthScale, npotHeightScale);
+
 	GL_SelectTexture(0);
 	GL_Bind(tr.currentRenderImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
+	// render bloom
+	GL_Program(tr.bloomShader.program);
+	GL_ClientState(tr.bloomShader.attribs);
+	GL_SetVertexAttribs();
+	
+	qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, blurMagnitude);
+	qglUniform2fARB(tr.bloomShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
+	qglUniform2fARB(tr.bloomShader.u_NPotScale, npotWidthScale, npotHeightScale);
+
+//	GL_SelectTexture(0);
+//	GL_Bind(tr.currentRenderImage);
+	
+	GL_SelectTexture(1);
+	GL_Bind(tr.contrastRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth, tr.contrastRenderImage->uploadHeight);
+	
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+	GL_SelectTexture(0);
+	GL_ClientState(GLCS_DEFAULT);
+//	GL_Program(0);
+}
+
+static void Render_bloom2(int stage)
+{
+	float           blurMagnitude;
+	float			fbufWidthScale, fbufHeightScale;
+	float			npotWidthScale, npotHeightScale;
+	shaderStage_t  *pStage = tess.xstages[stage];
+	
+	GL_State(pStage->stateBits);
+	
+	// calc uniforms
+	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
+	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
+	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
+	npotWidthScale = (float)(glConfig.vidWidth + 1) / (float)tr.currentRenderImage->uploadWidth;
+	npotHeightScale = (float)(glConfig.vidHeight + 1) / (float)tr.currentRenderImage->uploadHeight;
+	
+	// render contrast
+	GL_Program(tr.contrastShader.program);
+	GL_ClientState(tr.contrastShader.attribs);
+	GL_SetVertexAttribs();
+
+	qglUniform2fARB(tr.contrastShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
+	qglUniform2fARB(tr.contrastShader.u_NPotScale, npotWidthScale, npotHeightScale);
+
+	GL_SelectTexture(0);
+	GL_Bind(tr.currentRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+	
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+	// render blurX
+	GL_Program(tr.blurXShader.program);
+	GL_ClientState(tr.blurXShader.attribs);
+	GL_SetVertexAttribs();
+
+	qglUniform2fARB(tr.blurXShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
+	qglUniform2fARB(tr.blurXShader.u_NPotScale, npotWidthScale, npotHeightScale);
+
+	GL_Bind(tr.contrastRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth, tr.contrastRenderImage->uploadHeight);
+	
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+	// render blurY
+	GL_Program(tr.blurYShader.program);
+	GL_ClientState(tr.blurYShader.attribs);
+	GL_SetVertexAttribs();
+
+	qglUniform2fARB(tr.blurYShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
+	qglUniform2fARB(tr.blurYShader.u_NPotScale, npotWidthScale, npotHeightScale);
+
+	GL_Bind(tr.contrastRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth, tr.contrastRenderImage->uploadHeight);
+	
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+	// render bloom
+	GL_Program(tr.bloomShader.program);
+	GL_ClientState(tr.bloomShader.attribs);
+	GL_SetVertexAttribs();
+	
+	qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, blurMagnitude);
+	qglUniform2fARB(tr.bloomShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
+	qglUniform2fARB(tr.bloomShader.u_NPotScale, npotWidthScale, npotHeightScale);
+
+	GL_SelectTexture(0);
+	GL_Bind(tr.currentRenderImage);
+	
+	GL_SelectTexture(1);
+	GL_Bind(tr.contrastRenderImage);
+	
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+	GL_SelectTexture(0);
 	GL_ClientState(GLCS_DEFAULT);
 //	GL_Program(0);
 }
@@ -3000,6 +3170,19 @@ static void RB_IterateStagesGeneric()
 				if(glConfig2.shadingLanguage100Available)
 				{
 					Render_bloom(stage);
+				}
+				else
+				{
+					// TODO
+				}
+				break;
+			}
+			
+			case ST_BLOOM2MAP:
+			{
+				if(glConfig2.shadingLanguage100Available)
+				{
+					Render_bloom2(stage);
 				}
 				else
 				{

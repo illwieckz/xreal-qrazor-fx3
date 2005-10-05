@@ -1895,6 +1895,10 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			{
 				stage->type = ST_BLOOMMAP;
 			}
+			else if(!Q_stricmp(token, "bloom2Map"))
+			{
+				stage->type = ST_BLOOM2MAP;
+			}
 			else if(!Q_stricmp(token, "lightMap"))
 			{
 				stage->type = ST_LIGHTMAP;
@@ -4013,6 +4017,7 @@ static shader_t *FinishShader(void)
 		{
 			case ST_GLOWMAP:
 			case ST_BLOOMMAP:
+			case ST_BLOOM2MAP:
 				// skip
 				break;
 			
