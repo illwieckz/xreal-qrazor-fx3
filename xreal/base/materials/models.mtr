@@ -4705,7 +4705,7 @@ models/weapons2/plasma/plasma
 		map models/weapons2/plasma/plasma.tga
 		rgbGen lightingDiffuse
 	}
-	bumpMap models/weapons2/plasma/plasma_n2.tga
+	bumpMap models/weapons2/plasma/plasma_n.tga
 	specularMap models/weapons2/plasma/plasma_s.tga
 }
 
@@ -4850,6 +4850,158 @@ models/weapons2/rocketl/rocketl14
 //	models/weapons2/shotgun subfolder		//
 //******************************************************//
 
+models/weapons2/shotgun/shotgun01
+{
+	{
+		blend diffuseMap
+		rgbGen lightingDiffuse
+		map	models/weapons2/shotgun/shotgun01_d.tga
+	}
+	{
+		blend bumpMap
+		map	models/weapons2/shotgun/shotgun01_n.tga
+	}
+	{
+		blend specularMap
+		map	models/weapons2/shotgun/shotgun01_s.tga
+	}
+}
+
+models/weapons2/shotgun/shotgun02
+{
+	{
+		blend diffuseMap
+		rgbGen lightingDiffuse
+		map	models/weapons2/shotgun/shotgun02_d.tga
+	}
+	{
+		blend bumpMap
+		map	models/weapons2/shotgun/shotgun02_n.tga
+	}
+	{
+		blend specularMap
+		map	models/weapons2/shotgun/shotgun02_s.tga
+	}
+}
+
+models/weapons2/shotgun/shotgun03
+{
+	{
+		blend diffuseMap
+		rgbGen lightingDiffuse
+		map	models/weapons2/shotgun/shotgun03_d.tga
+	}
+	{
+		blend bumpMap
+		map	models/weapons2/shotgun/shotgun03_n.tga
+	}
+	{
+		blend specularMap
+		map	models/weapons2/shotgun/shotgun03_s.tga
+	}
+}
+
+models/weapons2/shotgun/shotgun04
+{
+	{
+		blend diffuseMap
+		rgbGen lightingDiffuse
+		map	models/weapons2/shotgun/shotgun04_d.tga
+	}
+	{
+		blend bumpMap
+		map	models/weapons2/shotgun/shotgun04_n.tga
+	}
+	{
+		blend specularMap
+		map	models/weapons2/shotgun/shotgun04_s.tga
+	}
+}
+
+models/weapons2/shotgun/shotgun05
+{
+	{
+		blend diffuseMap
+		rgbGen lightingDiffuse
+		map	models/weapons2/shotgun/shotgun05_d.tga
+	}
+	{
+		blend bumpMap
+		map	models/weapons2/shotgun/shotgun05_n.tga
+	}
+	{
+		blend specularMap
+		map	models/weapons2/shotgun/shotgun05_s.tga
+	}
+}
+
+models/weapons2/shotgun/shotgun06
+{
+	{
+		blend diffuseMap
+		rgbGen lightingDiffuse
+		map	models/weapons2/shotgun/shotgun06_d.tga
+	}
+	{
+		blend bumpMap
+		map	models/weapons2/shotgun/shotgun06_n.tga
+	}
+	{
+		blend specularMap
+		map	models/weapons2/shotgun/shotgun06_s.tga
+	}
+}
+
+models/weapons2/shotgun/shotgun07
+{
+	{
+		map	models/weapons2/shotgun/shotgun07.tga
+		blendfunc GL_ONE GL_ONE
+	}
+}
+
+models/weapons2/shotgun/shotgun08
+{
+	{
+		map	models/weapons2/shotgun/shotgun08.tga
+		blendfunc GL_ONE GL_ONE
+	}
+}
+
+models/weapons2/shotgun/shotgun09
+{
+	{
+		blend diffuseMap
+		rgbGen lightingDiffuse
+		map	models/weapons2/shotgun/shotgun09_d.tga
+	}
+	{
+		map	models/weapons2/shotgun/shotgun09_glow.tga
+		blendfunc GL_ONE GL_ONE
+	}
+}
+
+models/weapons2/shotgun/shotgun10
+{
+	{
+		blend diffuseMap
+		rgbGen lightingDiffuse
+		map models/weapons2/shotgun/shotgun10_d.tga
+	}
+	{
+		blend bumpMap
+		map	models/weapons2/shotgun/shotgun10_n.tga
+	}
+	{
+		blend specularMap
+		map	models/weapons2/shotgun/shotgun10_s.tga
+	}
+	{
+		map	models/weapons2/shotgun/shotgun10_glow.tga
+		blendfunc GL_ONE GL_ONE
+	}
+}
+
 models/weapons2/shotgun/f_shotgun
 {
 	sort additive
@@ -4862,7 +5014,6 @@ models/weapons2/shotgun/f_shotgun
 
 models/weapons2/shotgun/shotgun_laser
 {
-	
 	{
 		map	models/weapons2/shotgun/shotgun_laser.tga
 		blendfunc add
