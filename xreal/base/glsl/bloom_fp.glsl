@@ -21,19 +21,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /// ============================================================================
 
 uniform sampler2D	u_ColorMap;
+uniform sampler2D	u_ContrastMap;
 uniform vec2		u_FBufScale;
 uniform vec2		u_NPotScale;
 uniform float		u_BlurMagnitude;
-
-
-vec4	makeContrast(vec4 colorIn)
-{
-	vec4 color = colorIn * colorIn;
-	color.x += color.y;
-	color.x += color.z;
-	color.x *= 0.33333333;
-	return colorIn * color.x;
-}
 
 void	main()
 {
@@ -82,19 +73,20 @@ void	main()
 	vec4 c00 = texture2D(u_ColorMap, st00);
 
 	// sample the current render for each coordinate
-	vec4 c01 = makeContrast(texture2D(u_ColorMap, st01));
-	vec4 c02 = makeContrast(texture2D(u_ColorMap, st02));
-	vec4 c03 = makeContrast(texture2D(u_ColorMap, st03));
-	vec4 c04 = makeContrast(texture2D(u_ColorMap, st04));
-	vec4 c05 = makeContrast(texture2D(u_ColorMap, st05));
-	vec4 c06 = makeContrast(texture2D(u_ColorMap, st06));
-	vec4 c07 = makeContrast(texture2D(u_ColorMap, st07));
-	vec4 c08 = makeContrast(texture2D(u_ColorMap, st08));
+	vec4 c01 = texture2D(u_ContrastMap, st01);
+	vec4 c02 = texture2D(u_ContrastMap, st02);
+	vec4 c03 = texture2D(u_ContrastMap, st03);
+	vec4 c04 = texture2D(u_ContrastMap, st04);
+	vec4 c05 = texture2D(u_ContrastMap, st05);
+	vec4 c06 = texture2D(u_ContrastMap, st06);
+	vec4 c07 = texture2D(u_ContrastMap, st07);
+	vec4 c08 = texture2D(u_ContrastMap, st08);
 	
 	// add up the blurred samples and get the average
 	vec4 sum = c01 + c02 + c03 + c04 + c05 + c06 + c07 + c08;
 	sum *= 0.125;
 	
+//	gl_FragColor = c00;
 	gl_FragColor = c00 + sum;
 //	gl_FragColor = sum;
 }
