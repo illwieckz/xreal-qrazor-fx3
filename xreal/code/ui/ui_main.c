@@ -5104,7 +5104,7 @@ void _UI_Init( qboolean inGameLoad ) {
 
 	String_Init();
   
-	uiInfo.uiDC.cursor	= trap_R_RegisterShaderNoMip( "menu/art/3_cursor2" );
+	uiInfo.uiDC.cursor	= trap_R_RegisterShaderNoMip( "menuCursor" );
 	uiInfo.uiDC.whiteShader = trap_R_RegisterShaderNoMip( "white" );
 
 	AssetCache();

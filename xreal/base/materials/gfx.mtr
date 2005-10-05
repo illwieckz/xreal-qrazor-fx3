@@ -185,6 +185,16 @@ menubackRagePro	// blends turn to shit on rage pro, so skip it
 	}
 }
 
+menuCursor
+{
+	nopicmip
+	nomipmaps
+
+	{
+		blend blend
+		animMap 9 menu/art/cursor_01.tga menu/art/cursor_02.tga menu/art/cursor_03.tga menu/art/cursor_04.tga menu/art/cursor_05.tga menu/art/cursor_06.tga menu/art/cursor_07.tga menu/art/cursor_08.tga menu/art/cursor_09.tga
+	}
+}
 
 levelShotDetail
 // used to break up the blur on levelshots
@@ -746,8 +756,8 @@ gfx/2d/cursor
 sprites/balloon3
 {
 	{
-		map sprites/balloon4.tga
-				blendfunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		map sprites/chat.tga
+		blendfunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
 
@@ -756,10 +766,11 @@ sprites/balloon3
 sprites/foe
 {
 	nomipmaps
-			nopicmip
+	nopicmip
+	
 	{
 		map sprites/foe2.tga
-				blendfunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		blendfunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
 
@@ -816,11 +827,11 @@ teleportEffect
 	twosided
 	
 	{
-		map gfx/misc/teleportEffect2.tga
+		map gfx/misc/teleportEffect.tga
 		blend GL_ONE , GL_ONE
 		rgbGen entity
 		scale 1 , 4
-		scroll 0, time * 2
+		scroll 0, time * 1
 	}
 }
 
@@ -905,35 +916,39 @@ waterBubble
 smokePuff
 {
 	cull none
-			entityMergable		// allow all the sprites to be merged together
+	entityMergable		// allow all the sprites to be merged together
+	
 	{
-		map gfx/misc/smokepuff3.tga
-				blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-				rgbGen		vertex
-				alphaGen	vertex
+		map gfx/misc/smokepuff.tga
+		//map gfx/misc/smokepuff3.tga
+		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		rgbGen		vertex
+		alphaGen	vertex
 	}
 }
 
 hasteSmokePuff			// drops behind player's feet when speeded
 {
 	cull none
-			entityMergable		// allow all the sprites to be merged together
+	entityMergable		// allow all the sprites to be merged together
+	
 	{
 		map gfx/misc/smokepuff3.tga
-				blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-                //blendfunc GL_ONE GL_ONE
-				rgbGen		vertex
-				alphaGen	vertex
+		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+      //blendfunc GL_ONE GL_ONE
+		rgbGen		vertex
+		alphaGen	vertex
 	}
 }
 
 smokePuffRagePro
 {
 	cull none
-			entityMergable		// allow all the sprites to be merged together
+	entityMergable		// allow all the sprites to be merged together
+	
 	{
 		map gfx/misc/smokepuffragepro.tga
-				blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
 
@@ -942,9 +957,9 @@ shotgunSmokePuff
 	cull none
 	{
 		map gfx/misc/smokepuff2b.tga
-				blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-				alphaGen entity		
-				rgbGen entity
+		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		alphaGen entity		
+		rgbGen entity
 	}
 }
 
@@ -953,8 +968,8 @@ flareShader
 	cull none
 	{
 		map gfx/misc/flare.tga
-				blendFunc GL_ONE GL_ONE
-				rgbGen vertex
+		blendFunc GL_ONE GL_ONE
+		rgbGen vertex
 	}
 }
 
@@ -1055,13 +1070,12 @@ lightningBoltNewNPM
 }
 
 // shader used on the occasional machinegun bullet tracers
-
 gfx/misc/tracer
 {
 	cull none
 	{
-		map	gfx/misc/tracer2.tga
-				blendFunc GL_ONE GL_ONE
+		map	gfx/misc/tracer.tga
+		blendFunc GL_ONE GL_ONE
 	}
 }
 
