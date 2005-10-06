@@ -1,3 +1,6 @@
+code/cgame
+- light bloom rendering
+
 code/game/shared
 - matrix math
 - improved tokenizer
@@ -18,6 +21,9 @@ code/renderer
 - cubemap based refraction mapping
 - cubemap based dispersion mapping
 - dlights use Doom3 style lighting attenuation
+- heatHaze post process effect
+- simple glow post process effect
+- light bloom post process effects
 
 common/aselib
 - fixed bad Doom3 paths
