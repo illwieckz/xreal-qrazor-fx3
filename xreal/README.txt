@@ -180,12 +180,17 @@ the qvm batch files are in code/game code/cgame code/q3_ui code/ui ..
 COMPILING ON GNU/LINUX
 ==================
 
-the build system using cons, which may be known as scons's perl ancestor now
-you don't have to track it down though, the build script is provided in the tree
-you will need nasm and gcc 2.95
-make sure you have the X Direct Graphics Access and X Video Mode extensions headers for your X11
+The new build system is using SCons. Just type "scons" in the source toplevel dir xreal/.
+You can provide SCons options for compiling. Use "scons -h" to list those options.
+
+The old build system is using cons, which may be known as scons's perl ancestor now.
+You don't have to track it down though, the build script is provided in the tree.
+You will need nasm and gcc 2.95
+Make sure you have the X Direct Graphics Access and X Video Mode extensions headers for your X11
 a typical compile command goes like this:
 [..]/code$ ./unix/cons -- gcc=gcc-2.95 g++=g++-2.95
+
+
 
 COMPILING ON MAC
 ================
