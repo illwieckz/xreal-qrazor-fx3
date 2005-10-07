@@ -31,11 +31,7 @@ Notes:<br>
 """
 
 import Blender
-from Blender import NMesh, Object
-from Blender.BGL import *
-from Blender.Draw import *
-from Blender.Window import *
-from Blender.Image import *
+from Blender import NMesh, Object, Material, Image, Texture
 
 import sys, struct, string
 from types import *
@@ -436,48 +432,48 @@ class md3Tag:
 		print ""
 	
 class md3Frame:
-	min_bounds = 0
-	max_bounds = 0
-	local_origin = 0
+	mins = 0
+	maxs = 0
+	localOrigin = 0
 	radius = 0.0
 	name = ""
 	
 	binaryFormat="<3f3f3ff16s"
 	
 	def __init__(self):
-		self.min_bounds = vert()
-		self.max_bounds = vert()
-		self.local_origin = vert()
+		self.mins = vert()
+		self.maxs = vert()
+		self.localOrigin = vert()
 		self.radius = 0.0
 		self.name = ""
 
 	def load (self, file):
 		tmpData = file.read(struct.calcsize(self.binaryFormat))
 		data = struct.unpack(self.binaryFormat, tmpData)
-		self.min_bounds.x = data[0]
-		self.min_bounds.y = data[1]
-		self.min_bounds.z = data[2]
-		self.max_bounds.x = data[3]
-		self.max_bounds.y = data[4]
-		self.max_bounds.z = data[5]
-		self.local_origin.x = data[6]
-		self.local_origin.y = data[7]
-		self.local_origin.z = data[8]
+		self.mins.x = data[0]
+		self.mins.y = data[1]
+		self.mins.z = data[2]
+		self.maxs.x = data[3]
+		self.maxs.y = data[4]
+		self.maxs.z = data[5]
+		self.localOrigin.x = data[6]
+		self.localOrigin.y = data[7]
+		self.localOrigin.z = data[8]
 		self.radius = data[9]
 		self.name = asciiz(data[10])
 		return self
 
 	def save(self, file):
 		tmpData = [0]*11
-		tmpData[0] = self.min_bounds.x
-		tmpData[1] = self.min_bounds.y
-		tmpData[2] = self.min_bounds.z
-		tmpData[3] = self.max_bounds.x
-		tmpData[4] = self.max_bounds.y
-		tmpData[5] = self.max_bounds.z
-		tmpData[6] = self.local_origin.x
-		tmpData[7] = self.local_origin.y
-		tmpData[8] = self.local_origin.z
+		tmpData[0] = self.mins.x
+		tmpData[1] = self.mins.y
+		tmpData[2] = self.mins.z
+		tmpData[3] = self.maxs.x
+		tmpData[4] = self.maxs.y
+		tmpData[5] = self.maxs.z
+		tmpData[6] = self.localOrigin.x
+		tmpData[7] = self.localOrigin.y
+		tmpData[8] = self.localOrigin.z
 		tmpData[9] = self.radius
 		tmpData[10] = self.name
 		data = struct.pack(self.binaryFormat, tmpData[0],tmpData[1],tmpData[2],tmpData[3],tmpData[4],tmpData[5],tmpData[6],tmpData[7], tmpData[8], tmpData[9], tmpData[10])
@@ -486,9 +482,9 @@ class md3Frame:
 
 	def dump(self):
 		print "MD3 Frame"
-		print "Min Bounds: ", self.min_bounds
-		print "Max Bounds: ", self.max_bounds
-		print "Local Origin: ", self.local_origin
+		print "Min Bounds: ", self.mins
+		print "Max Bounds: ", self.maxs
+		print "Local Origin: ", self.localOrigin
 		print "Radius: ", self.radius
 		print "Name: ", self.name
 		print ""
@@ -597,9 +593,9 @@ class md3Object:
 		print ""
 
 
-def animateModel(surface, mesh_obj):
+def animateMesh(surface, meshObject):
 	# animate the verts through keyframe animation
-	mesh = mesh_obj.getData()
+	mesh = meshObject.getData()
 	
 	for i in range(0, surface.numFrames):
 		# update the vertices
@@ -615,36 +611,60 @@ def animateModel(surface, mesh_obj):
 			mesh.verts[j].co[2] = z
 
 		mesh.update()
-		NMesh.PutRaw(mesh, mesh_obj.name)
+		NMesh.PutRaw(mesh, meshObject.name)
 		# absolute works too, but I want to get these into NLA actions
 		# mesh.insertKey(i, "relative")
 		
 		# absolute keys, need to figure out how to get them working around the 100 frame limitation
 		mesh.insertKey(i, "absolute")
 		
-		#hack to evenly space out the vertex keyframes on the IPO chart	
-		#it does-Happy Dance!
+		# hack to evenly space out the vertex keyframes on the IPO chart
 		if i == 1:
-			#after an IPO curve is created, make it a strait line so it 
-			#doesn't peak out inserted frames position at 100
-			#get the IPO for the model, it's ugly, but it works
+			# after an IPO curve is created, make it a strait line so it 
+			# doesn't peak out inserted frames position at 100
+			# get the IPO for the model, it's ugly, but it works
 			ob = Blender.Ipo.Get("KeyIpo")
 			
-			#get the curve for the IPO, again ugly
+			# get the curve for the IPO, again ugly
 			ipos = ob.getCurves()
 			
-			#make the first (and only) curve extrapolated
+			# make the first (and only) curve extrapolated
 			for this_ipo in ipos:
 				this_ipo.setExtrapolation("Extrapolation")
 				
-				#recalculate it
+				# recalculate it
 				this_ipo.Recalc()
 
-		#not really necissary, but I like playing with the frame counter
+		# not really necissary, but I like playing with the frame counter
 		Blender.Set("curframe", i)
 
-def loadShaders(md3, shader_name):
-	pass
+
+def skinMesh(surface, meshObject):
+	mesh = meshObject.getData()
+	
+	for i in range(0, surface.numShaders):
+		# create new material
+		mat = Material.New(surface.shaders[i].name)
+		
+		# create new texture
+		"""
+		texture = Texture.New(surface.shaders[i].name)
+		texture.setType('Image')
+		try:
+			image = Image.Load('/opt/xreal/base' + surface.shaders[i].name)
+		except:
+			print "unable to open /opt/xreal/base", surface.shaders[i].name
+			continue
+			
+		texture.image = image
+		
+		# assign texture to material
+		mat.setTexture(0, texture, Texture.TexCo.UV, Texture.MapTo.COL)
+		"""
+		# and append it to the mesh's list of mats
+   		mesh.materials.append(mat)
+		
+		mesh.update()
 	
 def loadModel(filename):
 	# read the file in
@@ -673,32 +693,33 @@ def loadModel(filename):
 		for tex_coord in surface.uv:
 			u = tex_coord.u
 			v = tex_coord.v
-			#for some reason quake3 texture maps are upside down, flip that
+			# for some reason quake3 texture maps are upside down, flip that
 			uv_coord = (u, 1-v)
 			uv_list.append(uv_coord)
 	
 		# make the faces
 		for triangle in surface.triangles:
 			face = NMesh.Face()
-			#draw the triangles in reverse order so they show up
+			# draw the triangles in reverse order so they show up
 			face.v.append(mesh.verts[triangle.indexes[0]])
 			face.v.append(mesh.verts[triangle.indexes[2]])
 			face.v.append(mesh.verts[triangle.indexes[1]])
-			#append the list of UV
-			#ditto in reverse order with the texture verts
+			# append the list of UV
+			# ditto in reverse order with the texture verts
 			face.uv.append(uv_list[triangle.indexes[0]])
 			face.uv.append(uv_list[triangle.indexes[2]])
 			face.uv.append(uv_list[triangle.indexes[1]])
 	
 			mesh.faces.append(face)
 	
-		mesh_obj = NMesh.PutRaw(mesh)
-		mesh_obj.name = surface.name
+		meshObject = NMesh.PutRaw(mesh)
+		meshObject.name = surface.name
 	
-		animateModel(surface, mesh_obj)
+		animateMesh(surface, meshObject)
+		skinMesh(surface, meshObject)
 	
 	# locate the Object containing the mesh at the cursor location
 	cursor_pos = Blender.Window.GetCursorPos()
-	mesh_obj.setLocation(float(cursor_pos[0]), float(cursor_pos[1]), float(cursor_pos[2]))
+	meshObject.setLocation(float(cursor_pos[0]), float(cursor_pos[1]), float(cursor_pos[2]))
 	
 Blender.Window.FileSelector(loadModel, 'Import Quake3 MD3')
