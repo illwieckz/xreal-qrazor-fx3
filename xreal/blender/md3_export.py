@@ -60,13 +60,13 @@ def processSurface(mesh_obj, md3):
 	# because md3 doesnt suppoort faceUVs like blender, we need to duplicate
 	# any vertex that has multiple uv coords
 
-	vert_dict = {} 
-	index_dict = {} # maps a vertex index to the revised index after duplicating to account for uv
-	vert_list = [] # list of vertices ordered by revised index
-	vert_count = 0
-	tex_list = [] # list of tex coords ordered by revised index
-	face_list = [] # list of faces (they index into vert_list)
-	face_count = 0
+	vertDict = {} 
+	indexDict = {} # maps a vertex index to the revised index after duplicating to account for uv
+	vertList = [] # list of vertices ordered by revised index
+	numVerts = 0
+	uvList = [] # list of tex coords ordered by revised index
+	faceList = [] # list of faces (they index into vertList)
+	numFaces = 0
 
 	Blender.Set("curframe", 1)
 
@@ -89,7 +89,7 @@ def processSurface(mesh_obj, md3):
 		
 		#loop across each tri in the face, then each vertex in the tri
 		for this_tri in tris_in_this_face:
-			face_count += 1
+			numFaces += 1
 			tri = md3Triangle()
 			tri_ind = 0
 			for i in this_tri:
@@ -104,52 +104,52 @@ def processSurface(mesh_obj, md3):
 					uv = (0.0, 0.0) # handle case with no tex coords	
 
 				
-				if vert_dict.has_key((index, uv)):
+				if vertDict.has_key((index, uv)):
 					# if we've seen this exact vertex before, simply add it
 					# to the tris list of vertex indices
-					tri.indexes[tri_ind] = vert_dict[(index, uv)]
+					tri.indexes[tri_ind] = vertDict[(index, uv)]
 				else:
 					# havent seen this tri before 
 					# (or its uv coord is different, so we need to duplicate it)
 					
-					vert_dict[(index, uv)] = vert_count
+					vertDict[(index, uv)] = numVerts
 					
 					# put the uv coord into the list
 					# (uv coord are directly related to each vertex)
 					tex = md3TexCoord()
 					tex.u = uv[0]
 					tex.v = uv[1]
-					tex_list.append(tex)
+					uvList.append(tex)
 
-					tri.indexes[tri_ind] = vert_count
+					tri.indexes[tri_ind] = numVerts
 
 					# now because we have created a new index, 
 					# we need a way to link it to the index that
 					# blender returns for NMVert.index
-					if index_dict.has_key(index):
+					if indexDict.has_key(index):
 						# already there - each of the entries against 
 						# this key represents  the same vertex with a
 						# different uv value
-						ilist = index_dict[index]
-						ilist.append(vert_count)
-						index_dict[index] = ilist
+						ilist = indexDict[index]
+						ilist.append(numVerts)
+						indexDict[index] = ilist
 					else:
 						#this is a new one
-						index_dict[index] = [vert_count]
+						indexDict[index] = [numVerts]
 
-					vert_count += 1
+					numVerts += 1
 				tri_ind +=1
-			face_list.append(tri)
+			faceList.append(tri)
 
 	# we're done with faces and uv coords
-	for t in tex_list:
+	for t in uvList:
 		surf.uv.append(t)
 
-	for f in face_list:
+	for f in faceList:
 		surf.triangles.append(f)
 
-	surf.numTriangles = len(face_list)
-	surf.numVerts = vert_count
+	surf.numTriangles = len(faceList)
+	surf.numVerts = numVerts
 
 	# now vertices are stored as frames -
 	# all vertices for frame 1, all vertices for frame 2...., all vertices for frame n
@@ -159,10 +159,10 @@ def processSurface(mesh_obj, md3):
 
 		m = NMesh.GetRawFromObject(mesh_obj.name)
 
-		vlist = [0] * vert_count
+		vlist = [0] * numVerts
 		for vertex in m.verts:
 			try:
-				vindices = index_dict[vertex.index]
+				vindices = indexDict[vertex.index]
 			except:
 				print "warning found a vertex in %s that is not part of a face" % mesh_obj.name
 				continue
@@ -193,7 +193,7 @@ def saveModel(filename):
 	md3.ident = MD3_IDENT
 	md3.version = MD3_VERSION
 
-	tag_list=[]
+	tagList = []
 
 	Blender.Set("curframe", 1)
 
@@ -223,7 +223,7 @@ def saveModel(filename):
 		elif obj.getType() == "Empty":   #for tags, we just put em in a list so we can process them all together
 			if obj.name[0:4] == "tag_":
 				print "processing tag", obj.name
-				tag_list.append(obj)
+				tagList.append(obj)
 				md3.numTags += 1
 		else:
 			print "Skipping non mesh object", obj.name
@@ -231,13 +231,10 @@ def saveModel(filename):
 	# work out the transforms for the tags for each frame of the export
 	for fr in range(1, NUM_FRAMES + 1):
 		Blender.Set("curframe", fr)
-		for tag in tag_list:
+		for tag in tagList:
 			t = md3Tag()
 			matrix = tag.getMatrix('worldspace')
 			for i in range(0, 3):
-				#t.axis[0].co[i] = matrix[0][i]
-				#t.axis[1].co[i] = matrix[1][i]
-				#t.axis[2].co[i] = matrix[2][i]
 				t.origin[0] = matrix[3][0]
 				t.origin[1] = matrix[3][1]
 				t.origin[2] = matrix[3][2]

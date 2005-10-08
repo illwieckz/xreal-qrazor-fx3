@@ -76,9 +76,9 @@ class md3Vert:
 	def load(self, file):
 		tmpData = file.read(struct.calcsize(self.binaryFormat))
 		data = struct.unpack(self.binaryFormat, tmpData)
-		self.xyz[0] = data[0]
-		self.xyz[1] = data[1]
-		self.xyz[2] = data[2]
+		self.xyz[0] = data[0] * MD3_XYZ_SCALE
+		self.xyz[1] = data[1] * MD3_XYZ_SCALE
+		self.xyz[2] = data[2] * MD3_XYZ_SCALE
 		self.normal = data[3]
 		return self
 		
@@ -116,8 +116,9 @@ class md3TexCoord:
 	def load(self, file):
 		tmpData = file.read(struct.calcsize(self.binaryFormat))
 		data = struct.unpack(self.binaryFormat, tmpData)
+		# for some reason quake3 texture maps are upside down, flip that
 		self.u = data[0]
-		self.v = data[1]
+		self.v = 1.0 - data[1]
 		return self
 
 	def save(self, file):
@@ -126,7 +127,7 @@ class md3TexCoord:
 		tmpData[1] = 1.0 - self.v
 		data = struct.pack(self.binaryFormat, tmpData[0], tmpData[1])
 		file.write(data)
-		#print "wrote MD3 texture coordinate structure: ",data
+		#print "wrote MD3 texture coordinate structure: ", data
 
 	def dump(self):
 		print "MD3 Texture Coordinate Structure"
@@ -150,8 +151,8 @@ class md3Triangle:
 		tmpData = file.read(struct.calcsize(self.binaryFormat))
 		data = struct.unpack(self.binaryFormat, tmpData)
 		self.indexes[0] = data[0]
-		self.indexes[1] = data[1]
-		self.indexes[2] = data[2]
+		self.indexes[1] = data[2] # reverse
+		self.indexes[2] = data[1] # reverse
 		return self
 
 	def save(self, file):

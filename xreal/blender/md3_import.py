@@ -62,9 +62,9 @@ def animateMesh(surface, meshObject):
 		# update the vertices
 		for j in range(0,surface.numVerts):
 			# i*sufrace.numVerts+j=where in the surface vertex list the vert position for this frame is
-			x = surface.verts[(i * surface.numVerts) + j].xyz[0] * (MD3_XYZ_SCALE) * (MD3_BLENDER_SCALE)
-			y = surface.verts[(i * surface.numVerts) + j].xyz[1] * (MD3_XYZ_SCALE) * (MD3_BLENDER_SCALE)
-			z = surface.verts[(i * surface.numVerts) + j].xyz[2] * (MD3_XYZ_SCALE) * (MD3_BLENDER_SCALE)
+			x = surface.verts[(i * surface.numVerts) + j].xyz[0]
+			y = surface.verts[(i * surface.numVerts) + j].xyz[1]
+			z = surface.verts[(i * surface.numVerts) + j].xyz[2]
 
 			# put the vertex in the right spot
 			mesh.verts[j].co[0] = x
@@ -151,38 +151,37 @@ def loadModel(filename):
 	for surface in md3.surfaces:
 		# create a new mesh
 		mesh = NMesh.New(surface.name)
-		uv_coord = []
-		uv_list = []
+		uv = []
+		uvList = []
 
 		# make the verts
 		for i in range (0, surface.numVerts):
-			x = surface.verts[i].xyz[0] * (MD3_XYZ_SCALE) * (MD3_BLENDER_SCALE)
-			y = surface.verts[i].xyz[1] * (MD3_XYZ_SCALE) * (MD3_BLENDER_SCALE)
-			z = surface.verts[i].xyz[2] * (MD3_XYZ_SCALE) * (MD3_BLENDER_SCALE)
+			x = surface.verts[i].xyz[0]
+			y = surface.verts[i].xyz[1]
+			z = surface.verts[i].xyz[2]
 			vertex = NMesh.Vert(x, y, z)
 			mesh.verts.append(vertex)
 	
 		# make the UV list
-		mesh.hasFaceUV(1)  #turn on face UV coordinates for this mesh
+		mesh.hasFaceUV(1)  # turn on face UV coordinates for this mesh
 		for tex_coord in surface.uv:
 			u = tex_coord.u
 			v = tex_coord.v
-			# for some reason quake3 texture maps are upside down, flip that
-			uv_coord = (u, 1-v)
-			uv_list.append(uv_coord)
+			uv = (u, v)
+			uvList.append(uv)
 	
 		# make the faces
 		for triangle in surface.triangles:
 			face = NMesh.Face()
-			# draw the triangles in reverse order so they show up
+			
 			face.v.append(mesh.verts[triangle.indexes[0]])
-			face.v.append(mesh.verts[triangle.indexes[2]])
 			face.v.append(mesh.verts[triangle.indexes[1]])
+			face.v.append(mesh.verts[triangle.indexes[2]])
+			
 			# append the list of UV
-			# ditto in reverse order with the texture verts
-			face.uv.append(uv_list[triangle.indexes[0]])
-			face.uv.append(uv_list[triangle.indexes[2]])
-			face.uv.append(uv_list[triangle.indexes[1]])
+			face.uv.append(uvList[triangle.indexes[0]])
+			face.uv.append(uvList[triangle.indexes[1]])
+			face.uv.append(uvList[triangle.indexes[2]])
 	
 			mesh.faces.append(face)
 	
@@ -193,7 +192,7 @@ def loadModel(filename):
 		skinMesh(surface, meshObject)
 	
 	# locate the Object containing the mesh at the cursor location
-	cursor_pos = Blender.Window.GetCursorPos()
-	meshObject.setLocation(float(cursor_pos[0]), float(cursor_pos[1]), float(cursor_pos[2]))
+	cursorPos = Blender.Window.GetCursorPos()
+	meshObject.setLocation(float(cursorPos[0]), float(cursorPos[1]), float(cursorPos[2]))
 	
 Blender.Window.FileSelector(loadModel, 'Import Quake3 MD3')
