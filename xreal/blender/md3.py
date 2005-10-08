@@ -494,7 +494,7 @@ class md3Object:
 	numFrames = 0
 	numTags = 0
 	numSurfaces = 0
-	numSkins = 0		#don't think this is used, but here anyways
+	numSkins = 0
 	ofsFrames = 0
 	ofsTags = 0
 	ofsSurfaces = 0
@@ -503,24 +503,24 @@ class md3Object:
 	tags = []
 	surfaces = []
 
-	binaryFormat="<4si%ds9i" % MD3_MAX_QPATH  #little-endian (<), 17 integers (17i)
+	binaryFormat="<4si%ds9i" % MD3_MAX_QPATH  # little-endian (<), 17 integers (17i)
 
 	def __init__(self):
-		self.ident=0
-		self.version=0
-		self.name=""
-		self.flags=0
-		self.numFrames=0
-		self.numTags=0
-		self.numSurfaces=0
-		self.numSkins=0
-		self.ofsFrames=0
-		self.ofsTags=0
-		self.ofsSurfaces=0
-		self.ofsEnd=0
-		self.frames=[]
-		self.tags=[]
-		self.surfaces=[]
+		self.ident = 0
+		self.version = 0
+		self.name = ""
+		self.flags = 0
+		self.numFrames = 0
+		self.numTags = 0
+		self.numSurfaces = 0
+		self.numSkins = 0
+		self.ofsFrames = 0
+		self.ofsTags = 0
+		self.ofsSurfaces = 0
+		self.ofsEnd = 0
+		self.frames = []
+		self.tags = []
+		self.surfaces = []
 
 	def getSize(self):
 		self.ofsFrames = struct.calcsize(self.binaryFormat)

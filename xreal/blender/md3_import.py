@@ -60,7 +60,7 @@ def animateMesh(surface, meshObject):
 	
 	for i in range(0, surface.numFrames):
 		# update the vertices
-		for j in range(0,surface.numVerts):
+		for j in range(0, surface.numVerts):
 			# i*sufrace.numVerts+j=where in the surface vertex list the vert position for this frame is
 			x = surface.verts[(i * surface.numVerts) + j].xyz[0]
 			y = surface.verts[(i * surface.numVerts) + j].xyz[1]
@@ -73,14 +73,15 @@ def animateMesh(surface, meshObject):
 
 		mesh.update()
 		NMesh.PutRaw(mesh, meshObject.name)
+		
 		# absolute works too, but I want to get these into NLA actions
 		# mesh.insertKey(i, "relative")
 		
 		# absolute keys, need to figure out how to get them working around the 100 frame limitation
-		mesh.insertKey(i, "absolute")
+		mesh.insertKey(i + 1, "absolute")
 		
 		# hack to evenly space out the vertex keyframes on the IPO chart
-		if i == 1:
+		if i == 0:
 			# after an IPO curve is created, make it a strait line so it 
 			# doesn't peak out inserted frames position at 100
 			# get the IPO for the model, it's ugly, but it works
@@ -95,9 +96,6 @@ def animateMesh(surface, meshObject):
 				
 				# recalculate it
 				this_ipo.Recalc()
-
-		# not really necissary, but I like playing with the frame counter
-		Blender.Set("curframe", i)
 
 def skinMesh(surface, meshObject):
 	mesh = meshObject.getData()
@@ -155,7 +153,7 @@ def loadModel(filename):
 		uvList = []
 
 		# make the verts
-		for i in range (0, surface.numVerts):
+		for i in range(0, surface.numVerts):
 			x = surface.verts[i].xyz[0]
 			y = surface.verts[i].xyz[1]
 			z = surface.verts[i].xyz[2]
@@ -194,5 +192,10 @@ def loadModel(filename):
 	# locate the Object containing the mesh at the cursor location
 	cursorPos = Blender.Window.GetCursorPos()
 	meshObject.setLocation(float(cursorPos[0]), float(cursorPos[1]), float(cursorPos[2]))
+	
+	# not really necessary, but I like playing with the frame counter
+	#Blender.Set("staframe", 1)
+	Blender.Set("curframe", md3.numFrames)
+	#Blender.Set("endframe", md3.numFrames)
 	
 Blender.Window.FileSelector(loadModel, 'Import Quake3 MD3')

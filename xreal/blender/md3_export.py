@@ -173,7 +173,7 @@ def processSurface(mesh_obj, md3):
 			vert = md3Vert()
 			vert.xyz = vTx[0:3]
 			vert.normal = vert.encode(nTx[0:3])
-			for ind in vindices:  #apply the position to all the duplicated vertices
+			for ind in vindices:  # apply the position to all the duplicated vertices
 				vlist[ind] = vert
 
 		for vl in vlist:
@@ -195,13 +195,13 @@ def saveModel(filename):
 
 	tagList = []
 
+	md3.numFrames = Blender.Get("curframe")
 	Blender.Set("curframe", 1)
 
 	# create a bunch of blank frames, they'll be filled in by 'processSurface'
-	md3.numFrames = NUM_FRAMES
-	for i in range(1, NUM_FRAMES + 1):
+	for i in range(1, md3.numFrames + 1):
 		fr = md3Frame()
-		fr.name = "FRAME" + str(i)
+		fr.name = "frame_" + str(i)
 		md3.frames.append(fr)
 
 	# do we export all objects or just the selected ones?
@@ -229,7 +229,7 @@ def saveModel(filename):
 			print "Skipping non mesh object", obj.name
 
 	# work out the transforms for the tags for each frame of the export
-	for fr in range(1, NUM_FRAMES + 1):
+	for fr in range(1, md3.numFrames + 1):
 		Blender.Set("curframe", fr)
 		for tag in tagList:
 			t = md3Tag()
