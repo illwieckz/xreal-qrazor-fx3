@@ -250,7 +250,7 @@ extern void CL_Quit_f(void);
         foundDirectory = NO;
         defaultManager = [NSFileManager defaultManager];
         //NSLog(@"Candidate installation path = %@", installationPath);
-        dataPath = [installationPath stringByAppendingPathComponent: @"baseq3"];
+        dataPath = [installationPath stringByAppendingPathComponent: @"base"];
         
         if ([defaultManager fileExistsAtPath: dataPath]) {
             // Check that the data directory contains at least one .pk3 file.  We don't know what it will be named, so don't hard code a name (for example it might be named 'french.pk3' for a French release
@@ -261,7 +261,7 @@ extern void CL_Quit_f(void);
             fileIndex = [files count];
             while (fileIndex--) {
                 if ([[files objectAtIndex: fileIndex] hasSuffix: @"pk3"]) {
-                    //NSLog(@"Found %@.", [files objectAtIndex: fileIndex]);
+                    NSLog(@"Found %@.", [files objectAtIndex: fileIndex]);
                     foundDirectory = YES;
                     break;
                 }
@@ -336,7 +336,7 @@ extern void CL_Quit_f(void);
     } while(0);
     
     // Provoke the CD scanning code into looking up the CD.
-    Sys_CheckCD();
+    //Sys_CheckCD();
     
     // Let the filesystem know where our local install is
     Sys_SetDefaultInstallPath([installationPath cString]);

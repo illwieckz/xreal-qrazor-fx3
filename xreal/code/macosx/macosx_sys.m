@@ -96,7 +96,8 @@ void	* QDECL Sys_LoadDll( const char *name, char *fqpath , int (QDECL **entryPoi
     bundlePath = [[NSBundle mainBundle] pathForResource: [NSString stringWithCString: name] ofType: @"bundle"];
     libraryPath = [NSString stringWithFormat: @"%@/Contents/MacOS/%s", bundlePath, name];
 	*/	
-	libraryPath = [NSString stringWithFormat: @"%s.bundle/Contents/MacOS/%s", name, name];
+	// libraryPath = [NSString stringWithFormat: @"%s.bundle/Contents/MacOS/%s", name, name];
+	libraryPath = [NSString stringWithFormat: @"%s.dylib", name];
     if (!libraryPath)
         return NULL;
     
@@ -111,14 +112,14 @@ void	* QDECL Sys_LoadDll( const char *name, char *fqpath , int (QDECL **entryPoi
         }
     }
 
-    dllEntry = dlsym( libHandle, "_dllEntry" );
+    dllEntry = dlsym( libHandle, "dllEntry" );
     if (!dllEntry) {
         Com_Printf("Error loading dll:  No dllEntry symbol.\n");
         dlclose(libHandle);
         return NULL;
     }
     
-    *entryPoint = dlsym( libHandle, "_vmMain" );
+    *entryPoint = dlsym( libHandle, "vmMain" );
     if (!*entryPoint) {
         Com_Printf("Error loading dll:  No vmMain symbol.\n");
         dlclose(libHandle);

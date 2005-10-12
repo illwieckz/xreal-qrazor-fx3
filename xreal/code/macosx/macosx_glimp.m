@@ -886,7 +886,7 @@ static void GLW_InitExtensions( void )
 
 	// GL_ARB_transpose_matrix
 	qglLoadTransposeMatrixfARB = NULL;
-	if ( strstr( glConfig2.extensions_string, "GL_ARB_transpose_matrix" ) ) {
+	if ( strstr( glConfig.extensions_string, "GL_ARB_transpose_matrix" ) ) {
 		if ( r_ext_transpose_matrix->value ) {
 			qglLoadTransposeMatrixfARB = ( PFNGLLOADTRANSPOSEMATRIXFARBPROC ) qwglGetProcAddress( "glLoadTransposeMatrixfARB" );
 		  ri.Printf( PRINT_ALL, "...using GL_ARB_transpose_matrix\n" );
