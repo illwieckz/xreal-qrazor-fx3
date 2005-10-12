@@ -26,15 +26,14 @@ Notes:<br>
     TODO
 """
 
-import Blender
-from Blender import *
-from Blender import NMesh, Object, Material, Image, Texture
-
 import sys, struct, string, math
 from types import *
 
 import os
 from os import path
+
+import Blender
+from Blender import *
 
 import md3
 from md3 import *
@@ -60,7 +59,7 @@ def processSurface(mesh_obj, md3):
 	# because md3 doesnt suppoort faceUVs like blender, we need to duplicate
 	# any vertex that has multiple uv coords
 
-	vertDict = {} 
+	vertDict = {}
 	indexDict = {} # maps a vertex index to the revised index after duplicating to account for uv
 	vertList = [] # list of vertices ordered by revised index
 	numVerts = 0
@@ -70,8 +69,8 @@ def processSurface(mesh_obj, md3):
 
 	Blender.Set("curframe", 1)
 
-	#get access to the mesh data (as at frame #1)
-	mesh = NMesh.GetRawFromObject(mesh_obj.name)	
+	# get access to the mesh data (as at frame #1)
+	mesh = NMesh.GetRawFromObject(mesh_obj.name)
 	matrix = mesh_obj.getMatrix('worldspace')
 
 	surf = md3Surface()
@@ -79,7 +78,7 @@ def processSurface(mesh_obj, md3):
 	surf.name = mesh_obj.getName()
 	surf.ident = MD3_IDENT
 
-	#process each face in the mesh
+	# process each face in the mesh
 	for face in mesh.faces:
 		tris_in_this_face = []  #to handle quads and up...
 		
@@ -87,13 +86,13 @@ def processSurface(mesh_obj, md3):
 		for vi in range(1, len(face.v)-1):
 			tris_in_this_face.append([0, vi, vi + 1])
 		
-		#loop across each tri in the face, then each vertex in the tri
+		# loop across each tri in the face, then each vertex in the tri
 		for this_tri in tris_in_this_face:
 			numFaces += 1
 			tri = md3Triangle()
 			tri_ind = 0
 			for i in this_tri:
-				#get the vertex index, coords and uv coords
+				# get the vertex index, coords and uv coords
 				index = face.v[i].index
 				v = face.v[i].co
 				if mesh.hasFaceUV():
@@ -134,7 +133,7 @@ def processSurface(mesh_obj, md3):
 						ilist.append(numVerts)
 						indexDict[index] = ilist
 					else:
-						#this is a new one
+						# this is a new one
 						indexDict[index] = [numVerts]
 
 					numVerts += 1
@@ -220,7 +219,7 @@ def saveModel(filename):
 				print "hit md3 limit (%i) for number of surfaces, skipping" % MD3_MAX_SURFACES , obj.getName()
 			else:
 				processSurface(obj, md3)
-		elif obj.getType() == "Empty":   #for tags, we just put em in a list so we can process them all together
+		elif obj.getType() == "Empty":   # for tags, we just put em in a list so we can process them all together
 			if obj.name[0:4] == "tag_":
 				print "processing tag", obj.name
 				tagList.append(obj)

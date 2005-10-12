@@ -568,10 +568,12 @@ class md3Object:
 		
 		# load the tags info
 		file.seek(self.ofsTags, 0)
-		for i in range(0, self.numTags):
-			self.tags.append(md3Tag())
-			self.tags[i].load(file)
-			self.tags[i].dump()
+		for i in range(0, self.numFrames):
+			for j in range(0, self.numTags):
+				tag = md3Tag()
+				tag.load(file)
+				tag.dump()
+				self.tags.append(tag)
 		
 		# load the surface info
 		file.seek(self.ofsSurfaces, 0)
@@ -597,7 +599,7 @@ class md3Object:
 		tmpData[10] = self.ofsSurfaces
 		tmpData[11] = self.ofsEnd
 
-		data=struct.pack(self.binaryFormat, tmpData[0],tmpData[1],tmpData[2],tmpData[3],tmpData[4],tmpData[5],tmpData[6],tmpData[7], tmpData[8], tmpData[9], tmpData[10], tmpData[11])
+		data = struct.pack(self.binaryFormat, tmpData[0],tmpData[1],tmpData[2],tmpData[3],tmpData[4],tmpData[5],tmpData[6],tmpData[7], tmpData[8], tmpData[9], tmpData[10], tmpData[11])
 		file.write(data)
 
 		for f in self.frames:
