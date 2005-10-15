@@ -35,11 +35,19 @@ void	main()
 	st00 *= u_NPotScale;
 	
 	// calculate contrast color
+#if 1
 	vec4 color = texture2D(u_ColorMap, st00);
 	vec4 contrast = color * color;
 	contrast.x += contrast.y;
 	contrast.x += contrast.z;
 	contrast.x *= 0.33333333;
-
 	gl_FragColor = contrast;
+#else
+	vec4 color = texture2D(u_ColorMap, st00);
+//	vec3 contrast = dot(color.rgb, vec3(0.11, 0.55, 0.33));
+//	vec3 contrast = dot(color.rgb, vec3(0.27, 0.67, 0.06));
+	vec3 contrast = dot(color.rgb, vec3(0.33, 0.55, 0.11));
+	gl_FragColor.rgb = contrast;
+	gl_FragColor.a = color.a;
+#endif
 }
