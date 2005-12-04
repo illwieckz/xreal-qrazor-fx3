@@ -1685,6 +1685,32 @@ static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 //	GL_Program(0);
 }
 
+// Tr3B - r_showLightMaps development tool
+static void Render_lightmap_FFP(int stage)
+{
+	shaderStage_t  *pStage;
+
+	pStage = tess.xstages[stage];
+	
+	GL_Program(0);
+	
+	GL_State(pStage->stateBits);
+	GL_ClientState(GLCS_VERTEX);
+	GL_SetVertexAttribs();
+
+	GL_SelectTexture(0);
+	
+	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_LIGHTMAP]);
+	
+	GL_Bind(pStage->bundle[TB_LIGHTMAP].image[0]);
+
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	GL_ClientState(GLCS_DEFAULT);
+}
+
 static void Render_lighting_D_radiosity(int stage)
 {
 	shaderStage_t  *pStage;
@@ -2977,7 +3003,11 @@ static void RB_IterateStagesGeneric()
 			
 			case ST_COLLAPSE_lighting_D_radiosity:
 			{
-				if(glConfig2.shadingLanguage100Available)
+				if(r_showLightMaps->integer)
+				{
+					Render_lightmap_FFP(stage);
+				}
+				else if(glConfig2.shadingLanguage100Available)
 				{
 					Render_lighting_D_radiosity(stage);
 				}
@@ -2991,7 +3021,11 @@ static void RB_IterateStagesGeneric()
 			
 			case ST_COLLAPSE_lighting_DB_radiosity:
 			{
-				if(glConfig2.shadingLanguage100Available)
+				if(r_showLightMaps->integer)
+				{
+					Render_lightmap_FFP(stage);
+				}
+				else if(glConfig2.shadingLanguage100Available)
 				{
 					/*
 					if(r_bumpMapping->integer)
@@ -3013,7 +3047,11 @@ static void RB_IterateStagesGeneric()
 			
 			case ST_COLLAPSE_lighting_DBS_radiosity:
 			{
-				if(glConfig2.shadingLanguage100Available)
+				if(r_showLightMaps->integer)
+				{
+					Render_lightmap_FFP(stage);
+				}
+				else if(glConfig2.shadingLanguage100Available)
 				{
 					/*
 					if(r_bumpMapping->integer)
