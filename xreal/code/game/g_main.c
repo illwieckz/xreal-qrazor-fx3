@@ -424,7 +424,6 @@ void G_UpdateCvars(void)
 /*
 ============
 G_InitGame
-
 ============
 */
 void G_InitGame(int levelTime, int randomSeed, int restart)
@@ -442,6 +441,10 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	G_ProcessIPBans();
 
 	G_InitMemory();
+	
+#ifdef PYTHON
+	G_InitPython();
+#endif
 
 	// set some level globals
 	memset(&level, 0, sizeof(level));
@@ -568,6 +571,10 @@ void G_ShutdownGame(int restart)
 	{
 		BotAIShutdown(restart);
 	}
+	
+#ifdef PYTHON
+	G_ShutdownPython();
+#endif
 }
 
 

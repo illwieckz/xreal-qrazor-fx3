@@ -1830,7 +1830,29 @@ void Cmd_Stats_f(gentity_t * ent)
 
 	//trap_SendServerCommand( ent-g_entities, va("print \"visited %d of %d areas\n\"", n, max));
 	trap_SendServerCommand( ent-g_entities, va("print \"%d%% level coverage\n\"", n * 100 / max));
+	*/
+}
+
+
+/*
+=================
+Cmd_PythonScript_f
+=================
 */
+void Cmd_PythonScript_f(gentity_t * ent)
+{
+#ifdef PYTHON
+	char            filename[MAX_QPATH];
+	
+	if(trap_Argc() != 2)
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"usage: python_script <filename>\n\""));
+		return;
+	}
+
+	trap_Argv(1, filename, sizeof(filename));
+	G_RunPythonScript(ent, filename);
+#endif
 }
 
 /*
@@ -1953,6 +1975,8 @@ void ClientCommand(int clientNum)
 		Cmd_SetViewpos_f(ent);
 	else if(Q_stricmp(cmd, "stats") == 0)
 		Cmd_Stats_f(ent);
+	else if(Q_stricmp(cmd, "python_script") == 0)
+		Cmd_PythonScript_f(ent);
 	else
 		trap_SendServerCommand(clientNum, va("print \"unknown cmd %s\n\"", cmd));
 }

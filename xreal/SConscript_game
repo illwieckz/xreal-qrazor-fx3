@@ -42,12 +42,25 @@ dll_src = [
 'code/game/g_syscalls.c',
 ]
 
+python_src = [
+'code/game/g_python.c',
+]
+
 game_env = env.Copy()
 #game_env.Append(CCFLAGS='-DMISSIONPACK')
 #game_env.Append(CCFLAGS='-DXREAL')
 
 if sys.platform == 'linux2':
-	game_env.SharedLibrary('game', [game_src, dll_src])
+	if env['python'] == 1:
+		game_env.Append(CCFLAGS='-DPYTHON')
+		#game_env.Append(CCFLAGS = '`python-config`')
+		game_env.Append(CCFLAGS='-I/usr/include/python2.4')
+		#game_env.Append(LIBPATH='-L/usr/lib/python2.4/config')
+		#game_env.Append(LIBS='-lpython2.4 -lm')
+		#game_env.SharedLibrary('game', [game_src, dll_src, python_src])
+		game_env.SharedLibrary('game', [game_src, dll_src, python_src], LIBPATH='-L/usr/lib/python2.4/config', LIBS=['-lpython2.4', '-lpthread', '-lutil', '-lm'])
+	else:
+		game_env.SharedLibrary('game', [game_src, dll_src])
 	game_env.InstallAs('#base/qagamei386.so', 'libgame.so')
 
 elif sys.platform == 'win32':
