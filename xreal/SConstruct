@@ -12,6 +12,8 @@ opts.Add(EnumOption('optimize', 'Set to >= 1 to build with general optimizations
 opts.Add(EnumOption('simd', 'Choose special CPU register optimizations', 'none', allowed_values=('none', 'sse', '3dnow')))
 opts.Add(EnumOption('cpu', 'Set to 1 to build with special CPU register optimizations', 'i386', allowed_values=('i386', 'athlon-xp', 
 'pentium4')))
+opts.Add(EnumOption('sound', 'Choose sound api', 'oss', allowed_values=('oss', 'alsa', 'sdl')))
+opts.Add(BoolOption('python', 'Set to 1 to compile with qagame Python scripting support', 0))
 
 #
 # Initialize compiler environment base

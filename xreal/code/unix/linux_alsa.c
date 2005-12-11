@@ -24,11 +24,28 @@ cvar_t         *sndspeed;
 cvar_t         *sndchannels;
 cvar_t         *snddevice;
 
-static int      tryrates[] = { 44100, 22051, 11025, 8000 };
+/* Some devices may work only with 48000 */
+//static int      tryrates[] = { 22050, 11025, 44100, 48000, 8000 };
+
+static int      tryrates[] = { 48000, 44100, 22051, 11025, 8000 };
 
 static qboolean use_custom_memset = qfalse;
 
-// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=371 
+/*
+===============
+Snd_Memset
+
+https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=371
+
+<TTimo> some shitty mess with DMA buffers
+<TTimo> the mmap'ing permissions were write only
+<TTimo> and glibc optimized for mmx would do memcpy with a prefetch and a read
+<TTimo> causing segfaults
+<TTimo> some other systems would not let you mmap the DMA with read permissions
+<TTimo> so I think I ended up attempting opening with read/write, then try write only
+<TTimo> and use my own copy instead of the glibc crap
+===============
+*/ 
 void Snd_Memset(void *dest, const int val, const size_t count)
 {
 	int            *pDest;
@@ -53,7 +70,7 @@ qboolean SNDDMA_Init(void)
 	int             i;
 	int             err;
 	int             framesize;
-	snd_pcm_format_t format;
+	snd_pcm_format_t format = SND_PCM_FORMAT_S16;
 	snd_pcm_uframes_t buffersize;
 	snd_pcm_uframes_t fragsize;
 
@@ -109,7 +126,7 @@ qboolean SNDDMA_Init(void)
 	dma.samplebits = sndbits->integer;
 	if(dma.samplebits == 16 || dma.samplebits != 8)
 	{
-		err = snd_pcm_hw_params_set_format(pcm_handle, hw_params, SND_PCM_FORMAT_S16_LE);
+		err = snd_pcm_hw_params_set_format(pcm_handle, hw_params, SND_PCM_FORMAT_S16);
 		if(err < 0)
 		{
 			Com_Printf("ALSA snd error, %i bit sound not supported, trying 8\n", dma.samplebits);
@@ -117,7 +134,7 @@ qboolean SNDDMA_Init(void)
 		}
 		else
 		{
-			format = SND_PCM_FORMAT_S16_LE;
+			format = SND_PCM_FORMAT_S16;
 		}
 	}
 
