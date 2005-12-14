@@ -273,7 +273,7 @@ textures/liquids/clear_calm1
 	{
 		map textures/liquids/pool3d_3e.tga
 		blendFunc GL_dst_color GL_one
-		//scale -.5, -.5
+		// scale -0.5, -0.5
 		scroll time * .025, time * .025
 	}
 	{
@@ -392,11 +392,6 @@ textures/liquids/clear_ripple2
 
 
 textures/liquids/clear_ripple1
-
-//	*********************************************************
-//	*      Large clear ripple water. Created September 9	*
-//	*********************************************************
-	
 	{
 		qer_editorimage textures/liquids/pool3d_3.tga
 		qer_trans .5
@@ -414,7 +409,7 @@ textures/liquids/clear_ripple1
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 1.5 0 1.5 1 1 2
-			tcmod scroll -0.05 .001
+			scroll time * -0.05 ,  time * 0.001
 		}
 		{
 			map textures/liquids/pool3d_6.tga
@@ -422,7 +417,7 @@ textures/liquids/clear_ripple1
 			rgbgen identity
 			tcmod scale .5 .5
 			tcmod transform 0 1.5 1 1.5 2 1
-			scroll time * .025, time * -0.001
+			scroll time * 0.025, time * -0.001
 		}
 
 		{
@@ -437,7 +432,6 @@ textures/liquids/clear_ripple1
 			blendFunc GL_dst_color GL_zero
 			rgbgen identity		
 		}
-//	END
 	}
 
 textures/liquids/clear_ripple1_q3dm1

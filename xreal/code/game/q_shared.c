@@ -439,7 +439,7 @@ int COM_Compress(char *data_p)
 	return out - data_p;
 }
 
-
+// *INDENT-OFF*
 char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 {
 	int             c = 0, len;
@@ -543,7 +543,10 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 
 	// check for a number
 	// is this parsing of negative numbers going to cause expression problems
-	if((c >= '0' && c <= '9') || (c == '-' && data[1] >= '0' && data[1] <= '9') || (c == '.' && data[1] >= '0' && data[1] <= '9'))
+	if(	(c >= '0' && c <= '9') ||
+		(c == '-' && data[1] >= '0' && data[1] <= '9') ||
+		(c == '.' && data[1] >= '0' && data[1] <= '9') ||
+		(c == '-' && data[1] == '.' && data[2] >= '0' && data[2] <= '9'))
 	{
 		do
 		{
@@ -605,7 +608,12 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 	// check for a regular word
 	// we still allow forward and back slashes in name tokens for pathnames
 	// and also colons for drive letters
-	if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c == '_') || (c == '/') || (c == '\\') || (c == '$'))
+	if(	(c >= 'a' && c <= 'z') ||
+		(c >= 'A' && c <= 'Z') ||
+		(c == '_') ||
+		(c == '/') ||
+		(c == '\\') ||
+		(c == '$') || (c == '*')) // Tr3B - for bad shader strings
 	{
 		do
 		{
@@ -621,7 +629,16 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 		while
 			((c >= 'a' && c <= 'z') ||
 			 (c >= 'A' && c <= 'Z') ||
-			 (c == '_') || (c >= '0' && c <= '9') || (c == '/') || (c == '\\') || (c == ':') || (c == '.') || (c == '$'));
+			 (c == '_') ||
+			 (c == '-') ||
+			 (c >= '0' && c <= '9') ||
+			 (c == '/') ||
+			 (c == '\\') ||
+			 (c == ':') ||
+			 (c == '.') ||
+			 (c == '$') ||
+			 (c == '*') ||
+			 (c == '@'));
 
 		if(len == MAX_TOKEN_CHARS)
 		{
@@ -666,7 +683,7 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 
 	return com_token;
 }
-
+// *INDENT-ON*
 
 
 

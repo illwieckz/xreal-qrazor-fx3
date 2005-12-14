@@ -1336,22 +1336,22 @@ static qboolean LoadMap(shaderStage_t * stage, char *buffer)
 	
 	token = COM_ParseExt(&buffer_p, qfalse);
 	
-	if(!Q_stricmp(token, "$whiteimage") || !Q_stricmp(token, "$white") || !Q_stricmp(token, "_white"))
+	if(!Q_stricmp(token, "$whiteimage") || !Q_stricmp(token, "$white") || !Q_stricmp(token, "_white") || !Q_stricmp(token, "*white"))
 	{
 		stage->bundle[0].image[0] = tr.whiteImage;
 		return qtrue;
 	}
-	else if(!Q_stricmp(token, "$blackimage") || !Q_stricmp(token, "$black") || !Q_stricmp(token, "_black"))
+	else if(!Q_stricmp(token, "$blackimage") || !Q_stricmp(token, "$black") || !Q_stricmp(token, "_black") || !Q_stricmp(token, "*black"))
 	{
 		stage->bundle[0].image[0] = tr.blackImage;
 		return qtrue;
 	}
-	else if(!Q_stricmp(token, "$flatimage") || !Q_stricmp(token, "$flat") || !Q_stricmp(token, "_flat"))
+	else if(!Q_stricmp(token, "$flatimage") || !Q_stricmp(token, "$flat") || !Q_stricmp(token, "_flat") || !Q_stricmp(token, "*flat"))
 	{
 		stage->bundle[0].image[0] = tr.flatImage;
 		return qtrue;
 	}
-	else if(!Q_stricmp(token, "$lightmap") || !Q_stricmp(token, "_lightmap"))
+	else if(!Q_stricmp(token, "$lightmap") || !Q_stricmp(token, "_lightmap") || !Q_stricmp(token, "*lightmap"))
 	{
 		stage->bundle[0].isLightMap = qtrue;
 		
