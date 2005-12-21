@@ -445,10 +445,6 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	G_ProcessIPBans();
 
 	G_InitMemory();
-	
-#ifdef PYTHON
-	G_InitPython();
-#endif
 
 #ifdef LUA
 	G_InitLua();
@@ -579,10 +575,6 @@ void G_ShutdownGame(int restart)
 	{
 		BotAIShutdown(restart);
 	}
-	
-#ifdef PYTHON
-	G_ShutdownPython();
-#endif
 
 #ifdef LUA
 	G_ShutdownLua();

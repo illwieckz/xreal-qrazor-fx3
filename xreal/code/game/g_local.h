@@ -710,15 +710,6 @@ void            Svcmd_BotList_f(void);
 void            BotInterbreedEndMatch(void);
 
 //
-// g_python.c
-//
-#ifdef PYTHON
-void            G_InitPython();
-void            G_ShutdownPython();
-void            G_RunPythonScript(gentity_t * ent, const char *filename);
-#endif
-
-//
 // g_lua.c
 //
 #ifdef LUA
