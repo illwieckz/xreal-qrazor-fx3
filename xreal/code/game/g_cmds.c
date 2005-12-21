@@ -1833,25 +1833,68 @@ void Cmd_Stats_f(gentity_t * ent)
 	*/
 }
 
-
 /*
 =================
-Cmd_PythonScript_f
+Cmd_LuaScript_f
 =================
 */
-void Cmd_PythonScript_f(gentity_t * ent)
+void Cmd_LuaScript_f(gentity_t * ent)
 {
-#ifdef PYTHON
+#ifdef LUA
 	char            filename[MAX_QPATH];
 	
 	if(trap_Argc() != 2)
 	{
-		trap_SendServerCommand(ent - g_entities, va("print \"usage: python_script <filename>\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"usage: lua_script <filename>\n\""));
 		return;
 	}
 
 	trap_Argv(1, filename, sizeof(filename));
-	G_RunPythonScript(ent, filename);
+	G_LoadLuaScript(ent, filename);
+#endif
+}
+
+/*
+=================
+Cmd_LuaFunction_f
+=================
+*/
+void Cmd_LuaBinaryFunction_f(gentity_t * ent)
+{
+#ifdef LUA
+	char            function[MAX_TOKEN_CHARS];
+	char            arg[MAX_TOKEN_CHARS];
+	double			x, y;
+	double			z;
+	
+	if(trap_Argc() != 4)
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"usage: lua_binaryfunction <functionname> <1stnum> <2ndnum>\n\""));
+		return;
+	}
+	
+	trap_Argv(1, function, sizeof(function));
+	
+	trap_Argv(2, arg, sizeof(arg));
+	x = atoi(arg);
+	
+	trap_Argv(3, arg, sizeof(arg));
+	y = atoi(arg);
+	
+	G_RunLuaFunction(function, "dd>d", x, y, &z);	
+	trap_SendServerCommand(ent - g_entities, va("print \"result: %i\n\"", (int)z));
+#endif
+}
+
+/*
+=================
+Cmd_LuaStackDump_f
+=================
+*/
+void Cmd_LuaStackDump_f(gentity_t * ent)
+{
+#ifdef LUA
+	G_DumpLuaStack();
 #endif
 }
 
@@ -1975,8 +2018,12 @@ void ClientCommand(int clientNum)
 		Cmd_SetViewpos_f(ent);
 	else if(Q_stricmp(cmd, "stats") == 0)
 		Cmd_Stats_f(ent);
-	else if(Q_stricmp(cmd, "python_script") == 0)
-		Cmd_PythonScript_f(ent);
+	else if(Q_stricmp(cmd, "lua_script") == 0)
+		Cmd_LuaScript_f(ent);
+	else if(Q_stricmp(cmd, "lua_binaryfunction") == 0)
+		Cmd_LuaBinaryFunction_f(ent);
+	else if(Q_stricmp(cmd, "lua_stackdump") == 0)
+		Cmd_LuaStackDump_f(ent);
 	else
 		trap_SendServerCommand(clientNum, va("print \"unknown cmd %s\n\"", cmd));
 }

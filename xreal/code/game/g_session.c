@@ -165,7 +165,6 @@ void G_InitSessionData(gclient_t * client, char *userinfo)
 /*
 ==================
 G_InitWorldSession
-
 ==================
 */
 void G_InitWorldSession(void)
@@ -188,7 +187,6 @@ void G_InitWorldSession(void)
 /*
 ==================
 G_WriteSessionData
-
 ==================
 */
 void G_WriteSessionData(void)

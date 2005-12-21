@@ -178,6 +178,11 @@ struct gentity_s
 	float           random;
 
 	gitem_t        *item;		// for bonus items
+	
+#ifdef LUA
+	// lua scripting
+	char           *luaTouchFunction;
+#endif
 };
 
 
@@ -711,6 +716,17 @@ void            BotInterbreedEndMatch(void);
 void            G_InitPython();
 void            G_ShutdownPython();
 void            G_RunPythonScript(gentity_t * ent, const char *filename);
+#endif
+
+//
+// g_lua.c
+//
+#ifdef LUA
+void			G_InitLua();
+void			G_ShutdownLua();
+void			G_LoadLuaScript(gentity_t * ent, const char *filename);
+void			G_RunLuaFunction(const char *func, const char *sig, ...);
+void			G_DumpLuaStack();
 #endif
 
 // ai_main.c

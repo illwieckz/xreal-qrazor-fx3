@@ -46,19 +46,50 @@ python_src = [
 'code/game/g_python.c',
 ]
 
+lua_src = [
+'lua/src/lapi.c',
+'lua/src/lcode.c',
+'lua/src/ldebug.c',
+'lua/src/ldo.c',
+'lua/src/ldump.c',
+'lua/src/lfunc.c',
+'lua/src/lgc.c',
+'lua/src/llex.c',
+'lua/src/lmem.c',
+'lua/src/lobject.c',
+'lua/src/lopcodes.c',
+'lua/src/lparser.c',
+'lua/src/lstate.c',
+'lua/src/lstring.c',
+'lua/src/ltable.c',
+'lua/src/ltests.c',
+'lua/src/ltm.c',
+'lua/src/lundump.c',
+'lua/src/lvm.c',
+'lua/src/lzio.c',
+'lua/src/lib/lauxlib.c',
+'lua/src/lib/lbaselib.c',
+'lua/src/lib/ldblib.c',
+#'lua/src/lib/liolib.c',
+#'lua/src/lib/lmathlib.c',
+'lua/src/lib/ltablib.c',
+'lua/src/lib/lstrlib.c',
+'lua/src/lib/loadlib.c',
+'code/game/g_lua.c',
+'code/game/lua_entity.c',
+'code/game/lua_game.c',
+'code/game/lua_qmath.c'
+]
+
 game_env = env.Copy()
 #game_env.Append(CCFLAGS='-DMISSIONPACK')
 #game_env.Append(CCFLAGS='-DXREAL')
 
 if sys.platform == 'linux2':
-	if env['python'] == 1:
-		game_env.Append(CCFLAGS='-DPYTHON')
-		#game_env.Append(CCFLAGS = '`python-config`')
-		game_env.Append(CCFLAGS='-I/usr/include/python2.4')
-		#game_env.Append(LIBPATH='-L/usr/lib/python2.4/config')
-		#game_env.Append(LIBS='-lpython2.4 -lm')
-		#game_env.SharedLibrary('game', [game_src, dll_src, python_src])
-		game_env.SharedLibrary('game', [game_src, dll_src, python_src], LIBPATH='-L/usr/lib/python2.4/config', LIBS=['-lpython2.4', '-lpthread', '-lutil', '-lm'])
+	if env['lua'] == 1:
+		game_env.Append(CCFLAGS='-DLUA')
+		game_env.Append(CCFLAGS='-Ilua/include')
+		game_env.SharedLibrary('game', [game_src, dll_src, lua_src])
 	else:
 		game_env.SharedLibrary('game', [game_src, dll_src])
 	game_env.InstallAs('#base/qagamei386.so', 'libgame.so')

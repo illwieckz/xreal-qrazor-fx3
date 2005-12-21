@@ -170,6 +170,10 @@ void trigger_push_touch(gentity_t * self, gentity_t * other, trace_t * trace)
 	{
 		return;
 	}
+	
+#ifdef LUA
+	G_RunLuaFunction(self->luaTouchFunction, ">");
+#endif
 
 	BG_TouchJumpPad(&other->client->ps, &self->s);
 }
@@ -226,6 +230,10 @@ This will be client side predicted, unlike target_push
 */
 void SP_trigger_push(gentity_t * self)
 {
+#ifdef LUA
+	char           *s;
+#endif
+	
 	InitTrigger(self);
 
 	// unlike other triggers, we need to send this one to the client
@@ -233,6 +241,14 @@ void SP_trigger_push(gentity_t * self)
 
 	// make sure the client precaches this sound
 	G_SoundIndex("sound/world/jumppad.wav");
+	
+#ifdef LUA
+	if(G_SpawnString("lua_touch", "", &s))
+	{
+		G_Printf("SP_trigger_push: lua_touch: '%s'\n", s);
+		self->luaTouchFunction = G_NewString(s);
+	}
+#endif
 
 	self->s.eType = ET_PUSH_TRIGGER;
 	self->touch = trigger_push_touch;

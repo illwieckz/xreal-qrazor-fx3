@@ -263,6 +263,10 @@ void QDECL G_Error(const char *fmt, ...)
 	va_start(argptr, fmt);
 	vsprintf(text, fmt, argptr);
 	va_end(argptr);
+	
+#ifdef LUA
+	G_ShutdownLua();
+#endif
 
 	trap_Error(text);
 }
@@ -446,6 +450,10 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	G_InitPython();
 #endif
 
+#ifdef LUA
+	G_InitLua();
+#endif
+
 	// set some level globals
 	memset(&level, 0, sizeof(level));
 	level.time = levelTime;
@@ -574,6 +582,10 @@ void G_ShutdownGame(int restart)
 	
 #ifdef PYTHON
 	G_ShutdownPython();
+#endif
+
+#ifdef LUA
+	G_ShutdownLua();
 #endif
 }
 
