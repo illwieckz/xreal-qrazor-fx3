@@ -1278,6 +1278,17 @@ static qboolean ParseTexMod(char **text, shaderStage_t * stage)
 		return qfalse;
 	}
 	
+	// Tr3B NOTE: some shaders using tcMod are messed up by artists so we need this bugfix
+	while(1)
+	{
+		token = COM_ParseExt(text, qfalse);
+				
+		if(token[0] == 0)
+			break;
+		
+		ri.Printf(PRINT_WARNING, "WARNING: obselete tcMod parameter '%s' in shader '%s'\n", token, shader.name);
+	}
+	
 	return qtrue;
 }
 
@@ -2570,6 +2581,7 @@ static void ParseSkyParms(char **text)
 	char           *token;
 	static char    *suf[6] = { "rt", "bk", "lf", "ft", "up", "dn" };
 	char            pathname[MAX_QPATH];
+	char            prefix[MAX_QPATH];
 	int             i;
 
 	// outerbox
@@ -2581,10 +2593,11 @@ static void ParseSkyParms(char **text)
 	}
 	if(strcmp(token, "-"))
 	{
+		Q_strncpyz(prefix, token, sizeof(prefix));
 		for(i = 0; i < 6; i++)
 		{
-			Com_sprintf(pathname, sizeof(pathname), "%s_%s.tga", token, suf[i]);
-			shader.sky.outerbox[i] = R_FindImageFile((char *)pathname, IF_NONE, WT_CLAMP);
+			Com_sprintf(pathname, sizeof(pathname), "%s_%s", prefix, suf[i]);
+			shader.sky.outerbox[i] = R_FindImageFile(pathname, IF_NONE, WT_CLAMP);
 			if(!shader.sky.outerbox[i])
 			{
 				shader.sky.outerbox[i] = tr.defaultImage;
@@ -2616,10 +2629,11 @@ static void ParseSkyParms(char **text)
 	}
 	if(strcmp(token, "-"))
 	{
+		Q_strncpyz(prefix, token, sizeof(prefix));
 		for(i = 0; i < 6; i++)
 		{
-			Com_sprintf(pathname, sizeof(pathname), "%s_%s.tga", token, suf[i]);
-			shader.sky.innerbox[i] = R_FindImageFile((char *)pathname, IF_NONE, WT_REPEAT);
+			Com_sprintf(pathname, sizeof(pathname), "%s_%s", prefix, suf[i]);
+			shader.sky.innerbox[i] = R_FindImageFile(pathname, IF_NONE, WT_REPEAT);
 			if(!shader.sky.innerbox[i])
 			{
 				shader.sky.innerbox[i] = tr.defaultImage;

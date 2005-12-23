@@ -1539,6 +1539,7 @@ void            GL_SelectTexture(int unit);
 void            GL_TextureMode(const char *string);
 void            GL_CheckErrors(void);
 void            GL_State(unsigned long stateVector);
+void            GL_ClientState(unsigned long stateBits);
 void            GL_TexEnv(int env);
 void            GL_Cull(int cullType);
 

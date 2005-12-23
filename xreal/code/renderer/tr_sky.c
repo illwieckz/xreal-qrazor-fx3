@@ -820,7 +820,11 @@ void RB_StageIteratorSky(void)
 		qglColor3f(tr.identityLight, tr.identityLight, tr.identityLight);
 
 		qglPushMatrix();
+		
 		GL_State(0);
+		GL_Program(0);
+		GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
+		
 		qglTranslatef(backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1],
 					  backEnd.viewParms.or.origin[2]);
 

@@ -701,7 +701,7 @@ void RB_ShutdownGPUShaders(void)
 	}
 }
 
-static void GL_ClientState(unsigned long stateBits)
+void GL_ClientState(unsigned long stateBits)
 {
 	unsigned long   diff = stateBits ^ glState.glClientStateBits;
 

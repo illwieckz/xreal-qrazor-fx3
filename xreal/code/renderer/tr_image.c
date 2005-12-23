@@ -2739,6 +2739,8 @@ image_t        *R_FindImageFile(const char *name, int bits, wrapType_t wrapType)
 	
 	Q_strncpyz(buffer, name, sizeof(buffer));
 	hash = generateHashValue(buffer);
+	
+//	ri.Printf(PRINT_ALL, "R_FindImageFile: buffer '%s'\n", buffer);
 
 	// see if the image is already loaded
 	for(image = hashTable[hash]; image; image = image->next)
