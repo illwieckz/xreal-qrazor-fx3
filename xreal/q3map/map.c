@@ -846,7 +846,7 @@ void ParseRawBrush()
 	buildBrush->numsides = 0;
 	buildBrush->detail = qfalse;
 
-	if(g_bBrushPrimit == BPRIMIT_NEWBRUSHES || g_bBrushPrimit == BPRIMIT_D3BRUSHES)
+	if(g_bBrushPrimit >= BPRIMIT_NEWBRUSHES)
 		MatchToken("{");
 
 	do
@@ -856,7 +856,7 @@ void ParseRawBrush()
 		if(!strcmp(token, "}"))
 			break;
 		//Timo : brush primitive : here we may have to jump over brush epairs ( only used in editor )
-		if(g_bBrushPrimit == BPRIMIT_NEWBRUSHES || g_bBrushPrimit == BPRIMIT_D3BRUSHES)
+		if(g_bBrushPrimit >= BPRIMIT_NEWBRUSHES)
 		{
 			do
 			{
@@ -878,7 +878,7 @@ void ParseRawBrush()
 		memset(side, 0, sizeof(*side));
 		buildBrush->numsides++;
 
-		if(g_bBrushPrimit == BPRIMIT_D3BRUSHES)
+		if(g_bBrushPrimit >= BPRIMIT_D3BRUSHES)
 		{
 			// read the plane equation
 			Parse1DMatrix(4, planeEquation);
@@ -891,9 +891,11 @@ void ParseRawBrush()
 			Parse1DMatrix(3, planepts[2]);
 		}
 
-		if(g_bBrushPrimit == BPRIMIT_NEWBRUSHES || g_bBrushPrimit == BPRIMIT_D3BRUSHES)
+		if(g_bBrushPrimit >= BPRIMIT_NEWBRUSHES)
+		{
 			// read the texture matrix
 			Parse2DMatrix(2, 3, (float *)side->texMat);
+		}
 
 		// read the texturedef
 		GetToken(qfalse);
@@ -935,7 +937,7 @@ void ParseRawBrush()
 
 		// allow override of default flags and values
 		// in Q3, the only thing you can override is DETAIL
-		if(TokenAvailable())
+		if(g_bBrushPrimit != BPRIMIT_Q4BRUSHES && TokenAvailable())
 		{
 			GetToken(qfalse);
 //          side->contents = atoi(token);
@@ -954,7 +956,7 @@ void ParseRawBrush()
 
 
 		// find the plane number
-		if(g_bBrushPrimit == BPRIMIT_D3BRUSHES)
+		if(g_bBrushPrimit >= BPRIMIT_D3BRUSHES)
 			planenum = MapPlaneFromEquation(planeEquation);
 		else
 			planenum = MapPlaneFromPoints(planepts[0], planepts[1], planepts[2]);
@@ -966,7 +968,7 @@ void ParseRawBrush()
 
 	} while(1);
 
-	if(g_bBrushPrimit == BPRIMIT_NEWBRUSHES || g_bBrushPrimit == BPRIMIT_D3BRUSHES)
+	if(g_bBrushPrimit >= BPRIMIT_NEWBRUSHES)
 	{
 		UnGetToken();
 		MatchToken("}");
@@ -1012,7 +1014,7 @@ qboolean RemoveDuplicateBrushPlanes(bspbrush_t * b)
 		{
 			if(sides[i].planenum == sides[j].planenum)
 			{
-				_printf("Entity %i, Brush %i: duplicate plane\n", b->entitynum, b->brushnum);
+				//_printf("Entity %i, Brush %i: duplicate plane\n", b->entitynum, b->brushnum);
 				// remove the second duplicate
 				for(k = i + 1; k < b->numsides; k++)
 				{
@@ -1193,7 +1195,15 @@ qboolean ParseMapEntity(void)
 		if(!GetToken(qfalse))
 			return qfalse;
 
-		if(atoi(token) != 2)
+		if(atoi(token) == 2)
+		{
+			g_bBrushPrimit = BPRIMIT_D3BRUSHES;
+		}
+		else if(atoi(token) == 3)
+		{
+			g_bBrushPrimit = BPRIMIT_Q4BRUSHES;
+		}
+		else
 		{
 			_printf("WARNING: ParseEntity: bad version number.\n");
 			return qfalse;
@@ -1254,7 +1264,6 @@ qboolean ParseMapEntity(void)
 			{
 				if(g_bBrushPrimit == BPRIMIT_OLDBRUSHES)
 					Error("Old brush format not allowed in new brush format map");
-				g_bBrushPrimit = BPRIMIT_D3BRUSHES;
 
 				// parse brush primitive
 				ParseBrush();

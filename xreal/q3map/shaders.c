@@ -248,7 +248,7 @@ static void LoadShaderImage(shaderInfo_t * si)
 loadTga:
 	if(bTGA)
 	{
-#if 0
+#if 1
 		LoadTGABuffer(buffer, &si->pixels, &si->width, &si->height);
 #endif
 	}
@@ -746,6 +746,7 @@ static void ParseShaderFile(const char *filename)
 		}
 
 		// Tr3B - default shader to invisible if no rendering passes defined
+#if 0
 		if(!si->hasPasses)
 		{
 			qprintf("shader '%s' has no passes\n", si->shader);
@@ -756,6 +757,7 @@ static void ParseShaderFile(const char *filename)
 				si->contents |= CONTENTS_TRANSLUCENT;
 			}
 		}
+#endif
 	}
 }
 
@@ -765,7 +767,7 @@ LoadShaderInfo
 ===============
 */
 #define	MAX_SHADER_FILES	128
-#define USE_MTR
+//#define USE_MTR
 void LoadShaderInfo(void)
 {
 	char            filename[1024];

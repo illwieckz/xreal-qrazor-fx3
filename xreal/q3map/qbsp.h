@@ -461,6 +461,7 @@ void            FilterDrawsurfsIntoTree(entity_t * e, tree_t * tree);
 #define BPRIMIT_OLDBRUSHES 1
 #define BPRIMIT_NEWBRUSHES 2
 #define BPRIMIT_D3BRUSHES  3
+#define BPRIMIT_Q4BRUSHES  4
 extern int      g_bBrushPrimit;
 
 void            ComputeAxisBase(vec3_t normal, vec3_t texX, vec3_t texY);
