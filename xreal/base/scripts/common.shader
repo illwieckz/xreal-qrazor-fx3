@@ -267,12 +267,20 @@ textures/common/mirror2
 		blendfunc GL_ONE GL_ONE_MINUS_SRC_ALPHA
 		depthWrite
 	}
-        {
-               map textures/sfx/mirror.tga
-	       blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
-        }
-
+	{
+		map textures/sfx/mirror.tga
+		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
+	}
+	{
+		stage	heathazemap
+		//map		textures/sfx/vp1.tga
+		//deformMagnitude	0.4
+		map		textures/liquids/liquid12_norm.tga
+		scroll		time * 0.05 , time * 0.1
+		deformMagnitude	2
+	}
 }
+
 textures/common/energypad
 {
 	qer_editorimage textures/common/bluegoal.tga

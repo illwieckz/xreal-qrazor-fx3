@@ -179,11 +179,11 @@ if sys.platform == 'linux2':
 	#quake3_env.Append(CCFLAGS='-DELF -x assembler-with-cpp')
 	#quake3_env.Append(CCFLAGS='-masm=intel')
 	quake3_env.Append(LIBPATH='/usr/X11R6/lib')
-	quake3_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm', 'jpeg'])
+	quake3_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm'])
 	quake3_env.Append(LIBS=['dl', 'm'])
 	
 	if env['sound'] == 'oss':
-		quake3_env.Program('quake3.x86', [quake3_src, unix_src, linux_src, vm_src, 'code/unix/linux_snd.c'])	
+		quake3_env.Program('quake3.x86', [quake3_src, unix_src, linux_src, vm_src, 'code/unix/linux_snd.c'])
 	elif env['sound'] == 'alsa':
 		quake3_env.Append(LIBS=['asound'])
 		quake3_env.Program('quake3.x86', [quake3_src, unix_src, linux_src, vm_src, 'code/unix/linux_alsa.c'])

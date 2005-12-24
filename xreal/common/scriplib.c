@@ -252,7 +252,8 @@ skipspace:
 	// check for a number
 	else if((*script->script_p >= '0' && *script->script_p <= '9')									||
 			(*script->script_p == '-' && script->script_p[1] >= '0' && script->script_p[1] <= '9')	||
-			(*script->script_p == '.' && script->script_p[1] >= '0' && script->script_p[1] <= '9')
+			(*script->script_p == '.' && script->script_p[1] >= '0' && script->script_p[1] <= '9')	||
+			(*script->script_p == '-' && script->script_p[1] == '.' && script->script_p[2] >= '0' && script->script_p[2] <= '9')
 	)
 	{
 		do
@@ -321,7 +322,8 @@ skipspace:
 			   (*script->script_p == '\\')								||
 			   (*script->script_p == ':')								||
 			   (*script->script_p == '.')								||
-			   (*script->script_p == '$')
+			   (*script->script_p == '$')								||
+			   (*script->script_p == '@')
 		);
 	}
 	else
@@ -380,7 +382,7 @@ void MatchToken(char *match)
 
 	if(strcmp(token, match))
 	{
-		Error("MatchToken: \"%s\" != \"%s\" at line %i", token, match, script->line);
+		Error("MatchToken: \"%s\" != \"%s\" at line %i in file '%s'", token, match, script->line, script->filename);
 	}
 }
 

@@ -40,6 +40,28 @@ q3map_src = [
 'common/threads.c',
 'common/bspfile.c',
 'common/mutex.c',
+#'libs/jpeg6/jcomapi.cpp',
+#'libs/jpeg6/jdapimin.cpp',
+#'libs/jpeg6/jdapistd.cpp',
+#'libs/jpeg6/jdatasrc.cpp',
+#'libs/jpeg6/jdcoefct.cpp',
+#'libs/jpeg6/jdcolor.cpp',
+#'libs/jpeg6/jddctmgr.cpp',
+#'libs/jpeg6/jdhuff.cpp',
+#'libs/jpeg6/jdinput.cpp',
+#'libs/jpeg6/jdmainct.cpp',
+#'libs/jpeg6/jdmarker.cpp',
+#'libs/jpeg6/jdmaster.cpp',
+#'libs/jpeg6/jdpostct.cpp',
+#'libs/jpeg6/jdsample.cpp',
+#'libs/jpeg6/jdtrans.cpp',
+#'libs/jpeg6/jerror.cpp',
+#'libs/jpeg6/jfdctflt.cpp',
+#'libs/jpeg6/jidctflt.cpp',
+#'libs/jpeg6/jmemmgr.cpp',
+#'libs/jpeg6/jmemnobs.cpp',
+#'libs/jpeg6/jpgload.cpp',
+#'libs/jpeg6/jutils.cpp',
 'lwobject/clip.c',
 'lwobject/envelope.c',
 'lwobject/list.c',
@@ -55,7 +77,7 @@ q3map_src = [
 q3map_env = env.Copy()
 
 if sys.platform == 'linux2':
-	q3map_env.Append(LIBS=['z', 'm'])
+	q3map_env.Append(LIBS=['m'])
 	q3map_env.Program('q3map.x86', q3map_src)
 	q3map_env.Install('#', 'q3map.x86')
 
