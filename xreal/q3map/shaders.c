@@ -26,27 +26,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../common/mathlib.h"
 #include "../common/imagelib.h"
 #include "../common/scriplib.h"
-
-#ifdef _TTIMOBUILD
-#include "../common/qfiles.h"
-#include "../common/surfaceflags.h"
-#else
 #include "../code/qcommon/qfiles.h"
 #include "../code/game/surfaceflags.h"
-#endif
 
 #include "shaders.h"
-#ifdef _WIN32
-
-#ifdef _TTIMOBUILD
-#include "pakstuff.h"
-#include "jpeglib.h"
-#else
-#include "../libs/pakstuff.h"
-//#include "../libs/jpeglib.h"
-#endif
-
-#endif
 
 
 // 5% backsplash by default

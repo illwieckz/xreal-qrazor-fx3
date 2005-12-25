@@ -23,13 +23,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qbsp.h"
 #include "../common/aselib.h"
 #include "../lwobject/lwo2.h"
-#ifdef _WIN32
-#ifdef _TTIMOBUILD
-#include "pakstuff.h"
-#else
-#include "../libs/pakstuff.h"
-#endif
-#endif
 
 
 typedef struct

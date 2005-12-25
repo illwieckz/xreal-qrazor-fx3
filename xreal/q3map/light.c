@@ -22,13 +22,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // light.c
 
 #include "light.h"
-#ifdef _WIN32
-#ifdef _TTIMOBUILD
-#include "pakstuff.h"
-#else
-#include "../libs/pakstuff.h"
-#endif
-#endif
 
 
 #define	EXTRASCALE	2
