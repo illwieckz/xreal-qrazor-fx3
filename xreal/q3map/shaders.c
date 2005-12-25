@@ -43,7 +43,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "jpeglib.h"
 #else
 #include "../libs/pakstuff.h"
-#include "../libs/jpeglib.h"
+//#include "../libs/jpeglib.h"
 #endif
 
 #endif
