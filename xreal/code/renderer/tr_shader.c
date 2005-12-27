@@ -3323,7 +3323,7 @@ SHADER OPTIMIZATION AND FOGGING
 ========================================================================================
 */
 
-
+/*
 typedef struct
 {
 	int             blendA;
@@ -3363,6 +3363,7 @@ static collapse_t collapse[] = {
 #endif
 	{-1}
 };
+*/
 
 /*
 ================
@@ -3375,7 +3376,7 @@ FIXME: I think modulated add + modulated add collapses incorrectly
 // *INDENT-OFF*
 static void CollapseStages(void)
 {
-	int             abits, bbits;
+//	int             abits, bbits;
 	int             i, j;
 //	textureBundle_t tmpBundle;
 	
@@ -3398,7 +3399,7 @@ static void CollapseStages(void)
 		return;
 	}
 	
-	ri.Printf(PRINT_ALL, "...collapsing '%s'\n", shader.name);
+	//ri.Printf(PRINT_ALL, "...collapsing '%s'\n", shader.name);
 	
 	Com_Memcpy(&tmpStages[0], &stages[0], sizeof(stages));
 	Com_Memcpy(&tmpShader, &shader, sizeof(shader));
@@ -3422,7 +3423,9 @@ static void CollapseStages(void)
 			stages[j].type == ST_REFRACTIONMAP ||
 			stages[j].type == ST_DISPERSIONMAP ||
 			stages[j].type == ST_SKYBOXMAP ||
-			stages[j].type == ST_LIQUIDMAP)
+			stages[j].type == ST_LIQUIDMAP ||
+			stages[j].type == ST_ATTENUATIONMAP_XY ||
+			stages[j].type == ST_ATTENUATIONMAP_Z)
 		{
 			// only merge lighting lighting relevant stages
 			tmpStages[numStages] = stages[j];
@@ -3470,7 +3473,7 @@ static void CollapseStages(void)
 			hasLightStage
 		)
 		{
-			ri.Printf(PRINT_ALL, "lighting_DBS_radiosity\n");
+			//ri.Printf(PRINT_ALL, "lighting_DBS_radiosity\n");
 			
 			tmpShader.collapseType = COLLAPSE_lighting_DBS_radiosity;
 			
@@ -3491,7 +3494,7 @@ static void CollapseStages(void)
 				hasLightStage
 		)
 		{
-			ri.Printf(PRINT_ALL, "lighting_DB_radiosity\n");
+			//ri.Printf(PRINT_ALL, "lighting_DB_radiosity\n");
 			
 			tmpShader.collapseType = COLLAPSE_lighting_DB_radiosity;
 			
@@ -3510,7 +3513,7 @@ static void CollapseStages(void)
 				hasLightStage
 		)
 		{
-			ri.Printf(PRINT_ALL, "lighting_D_radiosity\n");
+			//ri.Printf(PRINT_ALL, "lighting_D_radiosity\n");
 			
 			tmpShader.collapseType = COLLAPSE_lighting_D_radiosity;
 			
@@ -3528,7 +3531,7 @@ static void CollapseStages(void)
 				hasLightStage
 		)
 		{
-			ri.Printf(PRINT_ALL, "lighting_D_radiosity\n");
+			//ri.Printf(PRINT_ALL, "lighting_D_radiosity\n");
 			
 			tmpShader.collapseType = COLLAPSE_lighting_D_radiosity;
 			
@@ -3548,7 +3551,7 @@ static void CollapseStages(void)
 				tmpDiffuseStage.rgbGen == CGEN_LIGHTING_DIFFUSE
 		)
 		{
-			ri.Printf(PRINT_ALL, "lighting_DBS_direct\n");
+			//ri.Printf(PRINT_ALL, "lighting_DBS_direct\n");
 			
 			tmpShader.collapseType = COLLAPSE_lighting_DBS_direct;
 			
@@ -3568,7 +3571,7 @@ static void CollapseStages(void)
 				tmpDiffuseStage.rgbGen == CGEN_LIGHTING_DIFFUSE
 		)
 		{
-			ri.Printf(PRINT_ALL, "lighting_DB_direct\n");
+			//ri.Printf(PRINT_ALL, "lighting_DB_direct\n");
 			
 			tmpShader.collapseType = COLLAPSE_lighting_DB_direct;
 			
