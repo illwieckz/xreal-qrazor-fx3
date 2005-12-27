@@ -3349,6 +3349,23 @@ models/players/uriel/zael
 //	models/players/visor subfolder			//
 //******************************************************//
 
+models/players/visor/visor
+{
+	{
+		blend diffuseMap
+		map models/players/visor/visor_d.tga
+		rgbGen lightingDiffuse
+	}
+	{
+		blend bumpMap
+		map models/players/visor/visor_n.tga
+	}
+	{
+		blend specularMap
+		map models/players/visor/visor_s.tga
+	}
+}
+
 models/players/visor/gorre
 {   
  
