@@ -661,7 +661,7 @@ typedef struct shader_s
 	int             numDeforms;
 	deformStage_t   deforms[MAX_SHADER_DEFORMS];
 
-	int             numUnfoggedPasses;
+	int             numStages;
 	shaderStage_t  *stages[MAX_SHADER_STAGES];
 
 	void            (*optimalStageIteratorFunc) (void);
@@ -1429,6 +1429,7 @@ extern cvar_t  *r_ext_shader_objects;
 extern cvar_t  *r_ext_vertex_shader;
 extern cvar_t  *r_ext_fragment_shader;
 extern cvar_t  *r_ext_shading_language_100;
+extern cvar_t  *r_ext_texture_filter_anisotropic;
 extern cvar_t  *r_ext_framebuffer_object;
 
 extern cvar_t  *r_nobind;		// turns off binding to appropriate textures

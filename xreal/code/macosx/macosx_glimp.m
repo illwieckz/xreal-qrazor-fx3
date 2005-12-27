@@ -1107,6 +1107,26 @@ static void GLW_InitExtensions( void )
         }
 #endif
 
+	// GL_EXT_texture_filter_anisotropic
+	glConfig2.textureAnisotropyAvailable = qfalse;
+	if(strstr(glConfig.extensions_string, "GL_EXT_texture_filter_anisotropic"))
+	{
+		if(r_ext_texture_filter_anisotropic->value)
+		{
+			qglGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glConfig2.maxTextureAnisotropy);
+			glConfig2.textureAnisotropyAvailable = qtrue;
+			ri.Printf(PRINT_ALL, "...using GL_EXT_texture_filter_anisotropic\n");
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_EXT_texture_filter_anisotropic\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_EXT_texture_filter_anisotropic not found\n");
+	}
+
 	// GL_EXT_framebuffer_object
 	glConfig2.framebufferObjectAvailable = qfalse;
 	qglIsRenderbufferEXT = NULL;

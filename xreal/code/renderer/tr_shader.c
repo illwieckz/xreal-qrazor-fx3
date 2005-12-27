@@ -3376,7 +3376,7 @@ FIXME: I think modulated add + modulated add collapses incorrectly
 static void CollapseStages(void)
 {
 	int             abits, bbits;
-	int             i;
+	int             i, j;
 //	textureBundle_t tmpBundle;
 	
 	qboolean		hasDiffuseStage;
@@ -3389,250 +3389,291 @@ static void CollapseStages(void)
 	shaderStage_t	tmpSpecularStage;
 	shaderStage_t	tmpLightStage;
 	
+	int				numStages = 0;
+	shaderStage_t	tmpStages[MAX_SHADER_STAGES];
+	shader_t		tmpShader;
+	
 	if(!qglActiveTextureARB || !r_collapseMultitexture->integer)
 	{
 		return;
 	}
 	
-	hasDiffuseStage = qfalse;
-	hasNormalStage = qfalse;
-	hasSpecularStage = qfalse;
-	hasLightStage = qfalse;
+	ri.Printf(PRINT_ALL, "...collapsing '%s'\n", shader.name);
 	
-	for(i = 0; i < 4; i++)
+	Com_Memcpy(&tmpStages[0], &stages[0], sizeof(stages));
+	Com_Memcpy(&tmpShader, &shader, sizeof(shader));
+	
+	for(j = 0; j < MAX_SHADER_STAGES; j++)
 	{
-		if(!stages[i].active)
+		hasDiffuseStage = qfalse;
+		hasNormalStage = qfalse;
+		hasSpecularStage = qfalse;
+		hasLightStage = qfalse;
+		
+		if(!stages[j].active)
 			continue;
 		
-		if(stages[i].type == ST_DIFFUSEMAP && !hasDiffuseStage)
+		if(	stages[j].type == ST_COLORMAP ||
+			stages[j].type == ST_HEATHAZEMAP ||
+			stages[j].type == ST_GLOWMAP ||
+			stages[j].type == ST_BLOOMMAP ||
+			stages[j].type == ST_BLOOM2MAP ||
+			stages[j].type == ST_REFLECTIONMAP ||
+			stages[j].type == ST_REFRACTIONMAP ||
+			stages[j].type == ST_DISPERSIONMAP ||
+			stages[j].type == ST_SKYBOXMAP ||
+			stages[j].type == ST_LIQUIDMAP)
 		{
-			hasDiffuseStage = qtrue;
-			tmpDiffuseStage = stages[i];
+			// only merge lighting lighting relevant stages
+			tmpStages[numStages] = stages[j];
+			numStages++;
+			continue;
 		}
-		else if(stages[i].type == ST_NORMALMAP && !hasNormalStage)
+		
+		for(i = 0; i < 4; i++)
 		{
-			hasNormalStage = qtrue;
-			tmpNormalStage = stages[i];
-		}
-		else if(stages[i].type == ST_SPECULARMAP && !hasSpecularStage)
-		{
-			hasSpecularStage = qtrue;
-			tmpSpecularStage = stages[i];
-		}
-		else if(stages[i].type == ST_LIGHTMAP && !hasLightStage)
-		{
-			hasLightStage = qtrue;
-			tmpLightStage = stages[i];
-		}
-	}
-
-	
-	// NOTE: Tr3B - merge as many stages as possible
-	
-	// try to merge diffuse/normal/specular/light
-	if(	hasDiffuseStage		&&
-		hasNormalStage		&&
-		hasSpecularStage	&&
-		hasLightStage
-	)
-	{
-		shader.collapseType = COLLAPSE_lighting_DBS_radiosity;
-		
-		stages[0] = tmpDiffuseStage;
-		stages[0].type = ST_COLLAPSE_lighting_DBS_radiosity;
-		
-		stages[0].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
-		stages[0].bundle[TB_SPECULARMAP] = tmpSpecularStage.bundle[0];
-		stages[0].bundle[TB_LIGHTMAP] = tmpLightStage.bundle[0];
-		
-		// make sure that the diffuse stage won't have any blending bits
-		//stages[0].stateBits &= ~(GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS);
-
-		// move down subsequent stages
-		memmove(&stages[1], &stages[4], sizeof(stages[0]) * (MAX_SHADER_STAGES - 4));
-		Com_Memset(&stages[MAX_SHADER_STAGES - 3], 0, sizeof(stages[0]));
-		
-		shader.numUnfoggedPasses -= 3;
-	}
-	// try to merge diffuse/bump/light
-	else if(hasDiffuseStage		&&
-			hasNormalStage		&&
-			hasLightStage
-	)
-	{
-		shader.collapseType = COLLAPSE_lighting_DB_radiosity;
-		
-		stages[0] = tmpDiffuseStage;
-		stages[0].type = ST_COLLAPSE_lighting_DB_radiosity;
-		
-		stages[0].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
-		stages[0].bundle[TB_LIGHTMAP] = tmpLightStage.bundle[0];
-
-		// move down subsequent stages
-		memmove(&stages[1], &stages[3], sizeof(stages[0]) * (MAX_SHADER_STAGES - 3));
-		Com_Memset(&stages[MAX_SHADER_STAGES - 2], 0, sizeof(stages[0]));
-		
-		shader.numUnfoggedPasses -= 2;
-	}
-	else if(hasDiffuseStage		&&
-			hasSpecularStage	&&
-			hasLightStage
-	)
-	{
-		shader.collapseType = COLLAPSE_lighting_D_radiosity;
-		
-		stages[0] = tmpDiffuseStage;
-		stages[0].type = ST_COLLAPSE_lighting_D_radiosity;
-		
-		stages[0].bundle[TB_LIGHTMAP] = tmpLightStage.bundle[0];
-
-		// move down subsequent stages, kill specular stage
-		memmove(&stages[1], &stages[3], sizeof(stages[0]) * (MAX_SHADER_STAGES - 3));
-		Com_Memset(&stages[MAX_SHADER_STAGES - 2], 0, sizeof(stages[0]));
-		
-		shader.numUnfoggedPasses -= 2;
-	}
-	// try to merge diffuse/light
-	else if(hasDiffuseStage		&&
-			hasLightStage
-	)
-	{
-		shader.collapseType = COLLAPSE_lighting_D_radiosity;
-		
-		stages[0] = tmpDiffuseStage;
-		stages[0].type = ST_COLLAPSE_lighting_D_radiosity;
-		
-		stages[0].bundle[TB_LIGHTMAP] = tmpLightStage.bundle[0];
-
-		// move down subsequent stages
-		memmove(&stages[1], &stages[2], sizeof(stages[0]) * (MAX_SHADER_STAGES - 2));
-		Com_Memset(&stages[MAX_SHADER_STAGES - 1], 0, sizeof(stages[0]));
-		
-		shader.numUnfoggedPasses -= 1;
-	}
-	// try to merge diffuse/normal/specular
-	else if(hasDiffuseStage		&&
-			hasNormalStage		&&
-			hasSpecularStage	&&
-			tmpDiffuseStage.rgbGen == CGEN_LIGHTING_DIFFUSE
-	)
-	{
-		shader.collapseType = COLLAPSE_lighting_DBS_direct;
-		
-		stages[0] = tmpDiffuseStage;
-		stages[0].type = ST_COLLAPSE_lighting_DBS_direct;
-		
-		stages[0].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
-		stages[0].bundle[TB_SPECULARMAP] = tmpSpecularStage.bundle[0];
-
-		// move down subsequent stages
-		memmove(&stages[1], &stages[3], sizeof(stages[0]) * (MAX_SHADER_STAGES - 3));
-		Com_Memset(&stages[MAX_SHADER_STAGES - 2], 0, sizeof(stages[0]));
-		
-		shader.numUnfoggedPasses -= 2;
-	}
-	// try to merge diffuse/normal
-	else if(hasDiffuseStage		&&
-			hasNormalStage		&&
-			tmpDiffuseStage.rgbGen == CGEN_LIGHTING_DIFFUSE
-	)
-	{
-		shader.collapseType = COLLAPSE_lighting_DB_direct;
-		
-		stages[0] = tmpDiffuseStage;
-		stages[0].type = ST_COLLAPSE_lighting_DB_direct;
-		
-		stages[0].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
-
-		// move down subsequent stages
-		memmove(&stages[1], &stages[2], sizeof(stages[0]) * (MAX_SHADER_STAGES - 2));
-		Com_Memset(&stages[MAX_SHADER_STAGES - 1], 0, sizeof(stages[0]));
-		
-		shader.numUnfoggedPasses -= 1;
-	}
-	// try to merge color/color
-	else if(stages[0].active					&&
-			stages[0].type == ST_COLORMAP		&&
-			stages[1].active					&&
-			stages[1].type == ST_COLORMAP
-	)
-	{
-		abits = stages[0].stateBits;
-		bbits = stages[1].stateBits;
-
-		// make sure that both stages have identical state other than blend modes
-		if((abits & ~(GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS | GLS_DEPTHMASK_TRUE)) !=
-		   (bbits & ~(GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS | GLS_DEPTHMASK_TRUE)))
-		{
-			return;
-		}
-
-		abits &= (GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS);
-		bbits &= (GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS);
-
-		// search for a valid multitexture blend function
-		for(i = 0; collapse[i].blendA != -1; i++)
-		{
-			if(abits == collapse[i].blendA && bbits == collapse[i].blendB)
+			if((j+i) >= MAX_SHADER_STAGES)
+				continue;
+			
+			if(!stages[j+i].active)
+				continue;
+			
+			if(stages[j+i].type == ST_DIFFUSEMAP && !hasDiffuseStage)
 			{
-				break;
+				hasDiffuseStage = qtrue;
+				tmpDiffuseStage = stages[j+i];
+			}
+			else if(stages[j+i].type == ST_NORMALMAP && !hasNormalStage)
+			{
+				hasNormalStage = qtrue;
+				tmpNormalStage = stages[j+i];
+			}
+			else if(stages[j+i].type == ST_SPECULARMAP && !hasSpecularStage)
+			{
+				hasSpecularStage = qtrue;
+				tmpSpecularStage = stages[j+i];
+			}
+			else if(stages[j+i].type == ST_LIGHTMAP && !hasLightStage)
+			{
+				hasLightStage = qtrue;
+				tmpLightStage = stages[j+i];
 			}
 		}
-
-		// nothing found
-		if(collapse[i].blendA == -1)
+	
+		
+		// NOTE: Tr3B - merge as many stages as possible
+		
+		// try to merge diffuse/normal/specular/light
+		if(	hasDiffuseStage		&&
+			hasNormalStage		&&
+			hasSpecularStage	&&
+			hasLightStage
+		)
 		{
-			return;
+			ri.Printf(PRINT_ALL, "lighting_DBS_radiosity\n");
+			
+			tmpShader.collapseType = COLLAPSE_lighting_DBS_radiosity;
+			
+			tmpStages[numStages] = tmpDiffuseStage;
+			tmpStages[numStages].type = ST_COLLAPSE_lighting_DBS_radiosity;
+			
+			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
+			tmpStages[numStages].bundle[TB_SPECULARMAP] = tmpSpecularStage.bundle[0];
+			tmpStages[numStages].bundle[TB_LIGHTMAP] = tmpLightStage.bundle[0];
+			
+			numStages++;
+			j += 3;
+			continue;
 		}
-
-		// GL_ADD is a separate extension
-		if(collapse[i].multitextureEnv == GL_ADD && !glConfig.textureEnvAddAvailable)
+		// try to merge diffuse/bump/light
+		else if(hasDiffuseStage		&&
+				hasNormalStage		&&
+				hasLightStage
+		)
 		{
-			return;
+			ri.Printf(PRINT_ALL, "lighting_DB_radiosity\n");
+			
+			tmpShader.collapseType = COLLAPSE_lighting_DB_radiosity;
+			
+			tmpStages[numStages] = tmpDiffuseStage;
+			tmpStages[numStages].type = ST_COLLAPSE_lighting_DB_radiosity;
+			
+			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
+			tmpStages[numStages].bundle[TB_LIGHTMAP] = tmpLightStage.bundle[0];
+	
+			numStages++;
+			j += 2;
+			continue;
 		}
-
-		// make sure waveforms have identical parameters
-		if((stages[0].rgbGen != stages[1].rgbGen) || (stages[0].alphaGen != stages[1].alphaGen))
+		else if(hasDiffuseStage		&&
+				hasSpecularStage	&&
+				hasLightStage
+		)
 		{
-			return;
+			ri.Printf(PRINT_ALL, "lighting_D_radiosity\n");
+			
+			tmpShader.collapseType = COLLAPSE_lighting_D_radiosity;
+			
+			tmpStages[numStages] = tmpDiffuseStage;
+			tmpStages[numStages].type = ST_COLLAPSE_lighting_D_radiosity;
+			
+			tmpStages[numStages].bundle[TB_LIGHTMAP] = tmpLightStage.bundle[0];
+	
+			numStages++;
+			j += 2;
+			continue;
 		}
-
-		// an add collapse can only have identity colors
-		if(collapse[i].multitextureEnv == GL_ADD && stages[0].rgbGen != CGEN_IDENTITY)
+		// try to merge diffuse/light
+		else if(hasDiffuseStage		&&
+				hasLightStage
+		)
 		{
-			return;
+			ri.Printf(PRINT_ALL, "lighting_D_radiosity\n");
+			
+			tmpShader.collapseType = COLLAPSE_lighting_D_radiosity;
+			
+			tmpStages[numStages] = tmpDiffuseStage;
+			tmpStages[numStages].type = ST_COLLAPSE_lighting_D_radiosity;
+			
+			tmpStages[numStages].bundle[TB_LIGHTMAP] = tmpLightStage.bundle[0];
+	
+			numStages++;
+			j += 1;
+			continue;
 		}
-
-		if(stages[0].rgbGen == CGEN_WAVEFORM)
+		// try to merge diffuse/normal/specular
+		else if(hasDiffuseStage		&&
+				hasNormalStage		&&
+				hasSpecularStage	&&
+				tmpDiffuseStage.rgbGen == CGEN_LIGHTING_DIFFUSE
+		)
 		{
-			if(memcmp(&stages[0].rgbWave, &stages[1].rgbWave, sizeof(stages[0].rgbWave)))
+			ri.Printf(PRINT_ALL, "lighting_DBS_direct\n");
+			
+			tmpShader.collapseType = COLLAPSE_lighting_DBS_direct;
+			
+			tmpStages[numStages] = tmpDiffuseStage;
+			tmpStages[numStages].type = ST_COLLAPSE_lighting_DBS_direct;
+			
+			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
+			tmpStages[numStages].bundle[TB_SPECULARMAP] = tmpSpecularStage.bundle[0];
+			
+			numStages++;
+			j += 2;
+			continue;
+		}
+		// try to merge diffuse/normal
+		else if(hasDiffuseStage		&&
+				hasNormalStage		&&
+				tmpDiffuseStage.rgbGen == CGEN_LIGHTING_DIFFUSE
+		)
+		{
+			ri.Printf(PRINT_ALL, "lighting_DB_direct\n");
+			
+			tmpShader.collapseType = COLLAPSE_lighting_DB_direct;
+			
+			tmpStages[numStages] = tmpDiffuseStage;
+			tmpStages[numStages].type = ST_COLLAPSE_lighting_DB_direct;
+			
+			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
+	
+			numStages++;
+			j += 1;
+			continue;
+		}
+		/*
+		// try to merge color/color
+		else if(stages[0].active					&&
+				stages[0].type == ST_COLORMAP		&&
+				stages[1].active					&&
+				stages[1].type == ST_COLORMAP
+		)
+		{
+			abits = stages[0].stateBits;
+			bbits = stages[1].stateBits;
+	
+			// make sure that both stages have identical state other than blend modes
+			if((abits & ~(GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS | GLS_DEPTHMASK_TRUE)) !=
+			   (bbits & ~(GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS | GLS_DEPTHMASK_TRUE)))
 			{
 				return;
 			}
-		}
-		if(stages[0].alphaGen == CGEN_WAVEFORM)
-		{
-			if(memcmp(&stages[0].alphaWave, &stages[1].alphaWave, sizeof(stages[0].alphaWave)))
+	
+			abits &= (GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS);
+			bbits &= (GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS);
+	
+			// search for a valid multitexture blend function
+			for(i = 0; collapse[i].blendA != -1; i++)
+			{
+				if(abits == collapse[i].blendA && bbits == collapse[i].blendB)
+				{
+					break;
+				}
+			}
+	
+			// nothing found
+			if(collapse[i].blendA == -1)
 			{
 				return;
 			}
-		}
-
-		stages[0].bundle[1] = stages[1].bundle[0];
-
-		// set the new blend state bits
-		shader.collapseType = COLLAPSE_Generic_multi;
-		shader.collapseTextureEnv = collapse[i].multitextureEnv;
-		stages[0].type = ST_COLLAPSE_Generic_multi;
-		stages[0].stateBits &= ~(GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS);
-		stages[0].stateBits |= collapse[i].multitextureBlend;
 	
-		// move down subsequent stages
-		memmove(&stages[1], &stages[2], sizeof(stages[0]) * (MAX_SHADER_STAGES - 2));
-		Com_Memset(&stages[MAX_SHADER_STAGES - 1], 0, sizeof(stages[0]));
-
-		shader.numUnfoggedPasses -= 1;
+			// GL_ADD is a separate extension
+			if(collapse[i].multitextureEnv == GL_ADD && !glConfig.textureEnvAddAvailable)
+			{
+				return;
+			}
+	
+			// make sure waveforms have identical parameters
+			if((stages[0].rgbGen != stages[1].rgbGen) || (stages[0].alphaGen != stages[1].alphaGen))
+			{
+				return;
+			}
+	
+			// an add collapse can only have identity colors
+			if(collapse[i].multitextureEnv == GL_ADD && stages[0].rgbGen != CGEN_IDENTITY)
+			{
+				return;
+			}
+	
+			if(stages[0].rgbGen == CGEN_WAVEFORM)
+			{
+				if(memcmp(&stages[0].rgbWave, &stages[1].rgbWave, sizeof(stages[0].rgbWave)))
+				{
+					return;
+				}
+			}
+			if(stages[0].alphaGen == CGEN_WAVEFORM)
+			{
+				if(memcmp(&stages[0].alphaWave, &stages[1].alphaWave, sizeof(stages[0].alphaWave)))
+				{
+					return;
+				}
+			}
+	
+			stages[0].bundle[1] = stages[1].bundle[0];
+	
+			// set the new blend state bits
+			shader.collapseType = COLLAPSE_Generic_multi;
+			shader.collapseTextureEnv = collapse[i].multitextureEnv;
+			stages[0].type = ST_COLLAPSE_Generic_multi;
+			stages[0].stateBits &= ~(GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS);
+			stages[0].stateBits |= collapse[i].multitextureBlend;
+		
+			// move down subsequent stages
+			memmove(&stages[1], &stages[2], sizeof(stages[0]) * (MAX_SHADER_STAGES - 2));
+			Com_Memset(&stages[MAX_SHADER_STAGES - 1], 0, sizeof(stages[0]));
+	
+			shader.numStages -= 1;
+		}
+		*/
 	}
+	
+	// move down subsequent stages
+	Com_Memset(&tmpStages[numStages], 0, sizeof(stages[0]) * (MAX_SHADER_STAGES - numStages));
+	tmpShader.numStages = numStages;
+	
+	Com_Memcpy(&stages[0], &tmpStages[0], sizeof(stages));
+	Com_Memcpy(&shader, &tmpShader, sizeof(shader));
 }
 // *INDENT-ON*
 
@@ -3799,7 +3840,7 @@ static shader_t *GeneratePermanentShader(void)
 
 	tr.numShaders++;
 
-	for(i = 0; i < newShader->numUnfoggedPasses; i++)
+	for(i = 0; i < newShader->numStages; i++)
 	{
 		if(!stages[i].active)
 		{
@@ -4216,7 +4257,7 @@ static shader_t *FinishShader(void)
 			}
 		}
 	}
-	shader.numUnfoggedPasses = stage;
+	shader.numStages = stage;
 
 	// there are times when you will need to manually apply a sort to
 	// opaque alpha tested shaders that have later blend passes
@@ -4239,7 +4280,7 @@ static shader_t *FinishShader(void)
 	}
 
 	// fogonly shaders don't have any normal passes
-	if(shader.numUnfoggedPasses == 0)
+	if(shader.numStages == 0)
 	{
 		shader.sort = SS_FOG;
 	}
@@ -4802,7 +4843,7 @@ void R_ShaderList_f(void)
 			shader = tr.shaders[i];
 		}
 
-		ri.Printf(PRINT_ALL, "%i ", shader->numUnfoggedPasses);
+		ri.Printf(PRINT_ALL, "%i ", shader->numStages);
 
 		if(shader->lightmapIndex >= 0)
 		{

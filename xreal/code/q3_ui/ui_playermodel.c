@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MODEL_BACK1			"menu/art/back_1"
 #define MODEL_SELECT		"menu/art/opponents_select"
 #define MODEL_SELECTED		"menu/art/opponents_selected"
-#define MODEL_FRAMEL		"menu/art/frame1_l"
+#define MODEL_FRAMEL		"menu/art/frame2_l"
 #define MODEL_FRAMER		"menu/art/frame1_r"
 #define MODEL_PORTS			"menu/art/player_models_ports"
 #define MODEL_ARROWS		"menu/art/gs_arrows_0"

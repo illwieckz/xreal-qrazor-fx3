@@ -138,6 +138,19 @@ void GL_TextureMode(const char *string)
 
 	gl_filter_min = modes[i].minimize;
 	gl_filter_max = modes[i].maximize;
+	
+	// bound texture anisotropy
+	if(glConfig2.textureAnisotropyAvailable)
+	{
+		if(r_ext_texture_filter_anisotropic->value > glConfig2.maxTextureAnisotropy)
+		{
+			ri.Cvar_Set("r_ext_texture_filter_anisotropic", va("%f", glConfig2.maxTextureAnisotropy));
+		}
+		else if(r_ext_texture_filter_anisotropic->value < 1.0)
+		{
+			ri.Cvar_Set("r_ext_texture_filter_anisotropic", "1.0");
+		}
+	}
 
 	// change all the existing mipmap texture objects
 	for(i = 0; i < tr.numImages; i++)
@@ -148,8 +161,13 @@ void GL_TextureMode(const char *string)
 		{
 			GL_Bind(image);
 			
+			// set texture filter
 			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, gl_filter_min);
 			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+			
+			// set texture anisotropy
+			if(glConfig2.textureAnisotropyAvailable)
+				qglTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
 		}
 	}
 }
@@ -1154,6 +1172,10 @@ static void R_UploadImage(const byte **dataArray, int numData, image_t * image)
 			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		}
+		
+		// set texture anisotropy
+		if(glConfig2.textureAnisotropyAvailable)
+			qglTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
 		
 		// set wrap type
 		switch (image->wrapType)

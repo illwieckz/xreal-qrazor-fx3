@@ -90,6 +90,7 @@ cvar_t         *r_ext_shader_objects;
 cvar_t         *r_ext_vertex_shader;
 cvar_t         *r_ext_fragment_shader;
 cvar_t         *r_ext_shading_language_100;
+cvar_t         *r_ext_texture_filter_anisotropic;
 cvar_t         *r_ext_framebuffer_object;
 
 cvar_t         *r_ignoreGLErrors;
@@ -909,10 +910,17 @@ void GfxInfo_f(void)
 	ri.Printf(PRINT_ALL, "GL_EXTENSIONS: %s\n", glConfig.extensions_string);
 	ri.Printf(PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize);
 	ri.Printf(PRINT_ALL, "GL_MAX_TEXTURE_UNITS_ARB: %d\n", glConfig.maxTextureUnits);
+	
+	if(glConfig2.textureAnisotropyAvailable)
+	{
+		ri.Printf(PRINT_ALL, "GL_TEXTURE_MAX_ANISOTROPY_EXT: %f\n", glConfig2.maxTextureAnisotropy);
+	}
+	
 	ri.Printf(PRINT_ALL, "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits,
 			  glConfig.depthBits, glConfig.stencilBits);
 	ri.Printf(PRINT_ALL, "MODE: %d, %d x %d %s hz:", r_mode->integer, glConfig.vidWidth, glConfig.vidHeight,
 			  fsstrings[r_fullscreen->integer == 1]);
+	
 	if(glConfig.displayFrequency)
 	{
 		ri.Printf(PRINT_ALL, "%d\n", glConfig.displayFrequency);
@@ -921,6 +929,7 @@ void GfxInfo_f(void)
 	{
 		ri.Printf(PRINT_ALL, "N/A\n");
 	}
+	
 	if(glConfig.deviceSupportsGamma)
 	{
 		ri.Printf(PRINT_ALL, "GAMMA: hardware w/ %d overbright bits\n", tr.overbrightBits);
@@ -1024,6 +1033,7 @@ void R_Register(void)
 	r_ext_vertex_shader = ri.Cvar_Get("r_ext_vertex_shader", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_fragment_shader = ri.Cvar_Get("r_ext_fragment_shader", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_shading_language_100 = ri.Cvar_Get("r_ext_shading_language_100", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_texture_filter_anisotropic = ri.Cvar_Get("r_ext_texture_filter_anisotropic", "8", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_framebuffer_object = ri.Cvar_Get("r_ext_framebuffer_object", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
 	r_collapseMultitexture = ri.Cvar_Get("r_collapseMultitexture", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_CHEAT);

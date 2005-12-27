@@ -233,6 +233,8 @@ typedef struct
 	qboolean        fragmentShaderAvailable;
 	qboolean        shadingLanguage100Available;
 	qboolean        framebufferObjectAvailable;
+	float			maxTextureAnisotropy;
+	qboolean		textureAnisotropyAvailable;
 } glconfig2_t;
 
 // FIXME: VM should be OS agnostic .. in theory

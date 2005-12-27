@@ -1211,7 +1211,7 @@ void RB_BeginSurface(shader_t * shader, int fogNum)
 	tess.fogNum = fogNum;
 	tess.dlightBits = 0;		// will be OR'd in by surface functions
 	tess.xstages = state->stages;
-	tess.numPasses = state->numUnfoggedPasses;
+	tess.numPasses = state->numStages;
 //	tess.currentStageIteratorFunc = state->optimalStageIteratorFunc;
 	tess.currentStageIteratorFunc = state->isSky ? RB_StageIteratorSky : RB_StageIteratorGeneric;
 
