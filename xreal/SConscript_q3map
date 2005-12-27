@@ -53,7 +53,7 @@ q3map_src = [
 ]
 
 q3map_env = env.Copy()
-q3map_env.Append(CCFLAGS='-DIMG_JPEG')
+#q3map_env.Append(CCFLAGS='-DIMG_JPEG')
 
 if sys.platform == 'linux2':
 	q3map_env.Append(LIBS=['m'])

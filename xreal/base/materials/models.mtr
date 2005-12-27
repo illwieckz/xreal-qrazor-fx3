@@ -3423,35 +3423,6 @@ models/players/visor/blue
 	}
 }
 
-models/players/visor/s3
-{
-	{
-		blend diffuseMap
-		map models/players/visor/s3_d.tga
-		//blend blend
-		rgbGen lightingDiffuse
-		alphaTest 0.5
-	}
-	{
-		blend bumpMap
-		map models/players/visor/s3_n.tga
-	}
-	{
-		blend specularMap
-		map models/players/visor/s3_s.tga
-	}
-	{
-		blend add
-		//map _white
-		map models/players/visor/s3_fx2.tga
-		rgbGen identity
-		rgbGen wave sin 0 1 0 1
-		//alphaGen wave sin 0 1 0 1
-		//color 0, 0, 0.5 + (sinTable[time * 0.3] * 0.5), 0
-		alpha 0
-	}
-}
-
 //******************************************************//
 //	models/players/xaero subfolder			//
 //******************************************************//

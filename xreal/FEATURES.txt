@@ -12,6 +12,7 @@ code/renderer
 - new extension GL_ARB_vertex_shader
 - new extension GL_ARB_fragment_shader
 - new extension GL_ARB_shading_language_100
+- new extension GL_EXT_texture_filter_anisotropic
 - new extension GL_EXT_framebuffer_object
 - basic GLSL rendering capabilities in renderer backend
 - tangent space calculations for normal mapping based rendering techniques
@@ -24,6 +25,7 @@ code/renderer
 - heatHaze post process effect
 - simple glow post process effect
 - light bloom post process effects
+- anisotropic texture filtering
 
 common/aselib
 - fixed bad Doom3 paths
@@ -36,6 +38,7 @@ common/scriplib
 
 q3map
 - Doom3 .map file support Version 2
+- Quake4 .map file support Version 3
 - support for new entity epairs like "rotation" matrix
 - basic .mtr shader support
 - .lwo misc_model support

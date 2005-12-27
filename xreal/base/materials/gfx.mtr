@@ -133,46 +133,30 @@ console
 menuback
 {
 	nopicmip
-			nomipmaps
-        //{
-        //        map textures/sfx/logo512.tga
-        //}
+	nomipmaps
 
-        //{
-        //        map textures/sfx/specular.tga
-         //       //blendfunc add
-        //        tcMod turb 0 .8 0 .2
-        //        tcmod scroll -0.1  -0.2
-	//} 
 	{
-		map textures/sfx/logo512.tga
-                // blendFunc blend
-				rgbgen identity
+		//map gfx/2d/logo512.tga
+		map gfx/2d/q3atif3.tga
+		rgbgen identity
 	}
-        //{
-	//	map textures/sfx/proto_zzzdrk.tga
-        //        blendFunc add
-        //        tcMod turb 0 .1 0 .9
-        //         tcmod scale .2 .2
-        //         tcMod scroll .02  0.7
-        //         rgbgen identity
-	//} 
-        
+//	{
+//		map textures/sfx/specular.tga
+		//blendfunc add
+//		tcMod turb 0 .8 0 .2
+//		tcmod scroll -0.1  -0.2
+//	}
 }
 
 menubacknologo
 {
 	nopicmip
 	nomipmaps
-       
+	
 	{
 		map _black
-			   //map textures/sfx/proto_zzzdrk.tga
-               // tcMod turb 0 .1 0 .9
-               // tcmod scale .2 .2
-               // tcMod scroll .02  0.7
-	} 
-        
+		//map gfx/2d/logo512.tga
+	}
 }
 
 menubackRagePro	// blends turn to shit on rage pro, so skip it
@@ -181,7 +165,7 @@ menubackRagePro	// blends turn to shit on rage pro, so skip it
 	nomipmaps
 	
 	{
-		map textures/sfx/logo512.tga
+		map gfx/2d/logo512.tga
 	}
 }
 
@@ -201,9 +185,9 @@ levelShotDetail
 {
 	nopicmip
 	{
-		map textures/sfx/detail.tga
-				blendFunc GL_DST_COLOR GL_SRC_COLOR
-				rgbgen identity
+		map gfx/misc/detail_strip.tga
+		blendFunc GL_DST_COLOR GL_SRC_COLOR
+		rgbgen identity
 	}
 }
 
