@@ -89,9 +89,9 @@ if sys.platform == 'linux2':
 	if env['lua'] == 1:
 		game_env.Append(CCFLAGS='-DLUA')
 		game_env.Append(CCFLAGS='-Ilua/include')
-		game_env.SharedLibrary('game', [game_src, dll_src, lua_src])
+		game_env.SharedLibrary('game', [game_src, dll_src, lua_src], LIBS=['m'])
 	else:
-		game_env.SharedLibrary('game', [game_src, dll_src])
+		game_env.SharedLibrary('game', [game_src, dll_src], LIBS=['m'])
 	game_env.InstallAs('#base/qagamei386.so', 'libgame.so')
 
 elif sys.platform == 'win32':

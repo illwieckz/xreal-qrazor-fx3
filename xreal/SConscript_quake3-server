@@ -76,7 +76,6 @@ linux_src = [
 vm_src = [
 'code/qcommon/vm.c',
 'code/qcommon/vm_interpreted.c',
-'code/qcommon/vm_x86.c'
 ]
 
 quake3_server_env.Append(CCFLAGS='-DBOTLIB')
@@ -84,6 +83,11 @@ quake3_server_env.Append(CCFLAGS='-DC_ONLY')
 quake3_server_env.Append(CCFLAGS='-DDEDICATED')
 
 if sys.platform == 'linux2':
+	if env['vm'] == 1:
+		vm_src += ['code/qcommon/vm_x86.c']
+	else:
+		quake3_env.Append(CCFLAGS='-DDLL_ONLY')
+
 	quake3_server_env.Append(LIBS=['dl', 'm'])
 	quake3_server_env.Program('quake3-server.x86', [quake3_server_src, unix_src, linux_src, vm_src])
 	quake3_server_env.Install('#', 'quake3-server.x86')

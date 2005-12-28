@@ -161,8 +161,7 @@ linux_src = [
 
 vm_src = [
 'code/qcommon/vm.c',
-'code/qcommon/vm_interpreted.c',
-'code/qcommon/vm_x86.c'
+'code/qcommon/vm_interpreted.c'
 ]
 
 asm_src = [
@@ -172,7 +171,6 @@ asm_src = [
 
 quake3_env.Append(CCFLAGS='-DBOTLIB')
 quake3_env.Append(CCFLAGS='-DC_ONLY')
-#quake3_env.Append(CCFLAGS='-DDLL_ONLY')
 
 if sys.platform == 'linux2':
 	#quake3_env.Append(CCFLAGS='-Di386')
@@ -181,6 +179,11 @@ if sys.platform == 'linux2':
 	quake3_env.Append(LIBPATH='/usr/X11R6/lib')
 	quake3_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm'])
 	quake3_env.Append(LIBS=['dl', 'm'])
+	
+	if env['vm'] == 1:
+		vm_src += ['code/qcommon/vm_x86.c']
+	else:
+		quake3_env.Append(CCFLAGS='-DDLL_ONLY')
 	
 	if env['sound'] == 'oss':
 		quake3_env.Program('quake3.x86', [quake3_src, unix_src, linux_src, vm_src, 'code/unix/linux_snd.c'])

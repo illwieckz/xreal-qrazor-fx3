@@ -14,6 +14,7 @@ opts.Add(EnumOption('cpu', 'Set to 1 to build with special CPU register optimiza
 'pentium4')))
 opts.Add(EnumOption('sound', 'Choose sound api', 'oss', allowed_values=('oss', 'alsa', 'sdl')))
 opts.Add(BoolOption('lua', 'Set to 1 to compile qagame with Lua scripting support', 0))
+opts.Add(BoolOption('vm', 'Set to 1 to compile engine with virtual machine support', 1))
 
 #
 # Initialize compiler environment base
