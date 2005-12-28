@@ -1,10 +1,11 @@
-Quake III Arena GPL source release
-==================================
+Quake III Arena GPL source release - XreaL version - http://sourceforge.net/projects/xreal
+==========================================================================================
 
 This file contains the following sections:
 
 LICENSE
 GENERAL NOTES
+GETTING THE SOURCE CODE
 COMPILING ON WIN32
 COMPILING ON GNU/LINUX
 COMPILING ON MAC
@@ -156,6 +157,7 @@ GENERAL NOTES
 
 A short summary of the file layout:
 
+base/					XreaL media directory ( models, textures, sounds etc. )
 code/			   		Quake III Arena source code ( renderer, game code, OS layer etc. )
 code/bspc				bot routes compiler source code
 lcc/					the retargetable C compiler ( produces assembly to be turned into qvm bytecode by q3asm )
@@ -164,6 +166,17 @@ q3map/					map compiler ( .map -> .bsp ) - this is the version that comes with Q
 q3radiant/				Q3Radiant map editor build 200f ( common/ and libs/ are support dirs for radiant )
 
 While we made sure we were still able to compile the game on Windows, GNU/Linux and Mac, this build didn't get any kind of extensive testing so it may not work completely right. Whenever an id game is released under GPL, several projects start making the source code more friendly to nowaday's compilers and environements. If you are picking up this release weeks/months/years after we uploaded it, you probably want to look around on the net for cleaned up versions of this codebase as well.
+
+
+GETTING THE SOURCE CODE
+=======================
+
+This project's SourceForge.net CVS repository can be checked out through anonymous (pserver) CVS with the following instruction set. The module you wish to check out must be specified as the modulename. When prompted for a password for anonymous, simply press the Enter key.
+
+cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/xreal login
+
+cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/xreal co -P xreal
+
 
 COMPILING ON WIN32
 ==================
