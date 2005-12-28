@@ -55,12 +55,7 @@ q3map_src = [
 q3map_env = env.Copy()
 #q3map_env.Append(CCFLAGS='-DIMG_JPEG')
 
-if sys.platform == 'linux2':
+if env['arch'] == 'linux-i386':
 	q3map_env.Append(LIBS=['m'])
 	q3map_env.Program('q3map.x86', q3map_src)
 	q3map_env.Install('#', 'q3map.x86')
-
-#elif sys.platform == 'win32':
-	#quake3_env.Append(LIBS=['z', 'alut', 'openal32', 'm', 'wsock32', 'winmm'])
-	#quake3_env.Program('Quake3', quake3_src)
-	#quake3_env.Install('#', 'Quake3.exe')

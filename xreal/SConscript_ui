@@ -62,12 +62,7 @@ ui_env = env.Copy()
 #ui_env.Append(CCFLAGS='-DMISSIONPACK')
 #ui_env.Append(CCFLAGS='-DXREAL')
 
-if sys.platform == 'linux2':
-	#ui_env.Append(CXXFLAGS='`xml2-config --cflags`')
-	#ui_env.Append(LINKFLAGS='`xml2-config --libs`')
+if env['arch'] == 'linux-i386':
 	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
 	ui_env.InstallAs('#base/uii386.so', 'libui.so')
-
-elif sys.platform == 'win32':
-	ui_env.InstallAs('#base/uix86.dll', 'ui.dll')
 

@@ -85,7 +85,7 @@ game_env = env.Copy()
 #game_env.Append(CCFLAGS='-DMISSIONPACK')
 #game_env.Append(CCFLAGS='-DXREAL')
 
-if sys.platform == 'linux2':
+if env['arch'] == 'linux-i386':
 	if env['lua'] == 1:
 		game_env.Append(CCFLAGS='-DLUA')
 		game_env.Append(CCFLAGS='-Ilua/include')
@@ -93,7 +93,8 @@ if sys.platform == 'linux2':
 	else:
 		game_env.SharedLibrary('game', [game_src, dll_src], LIBS=['m'])
 	game_env.InstallAs('#base/qagamei386.so', 'libgame.so')
-
-elif sys.platform == 'win32':
-	game_env.InstallAs('#base/qagamex86.dll', 'game.dll')
+	
+elif env['arch'] == 'linux-x86_64':
+	game_env.SharedLibrary('game', [game_src, dll_src], LIBS=['m'])
+	game_env.InstallAs('#base/qagamex86_64.so', 'libgame.so')
 

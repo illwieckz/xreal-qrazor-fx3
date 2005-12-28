@@ -172,10 +172,7 @@ asm_src = [
 quake3_env.Append(CCFLAGS='-DBOTLIB')
 quake3_env.Append(CCFLAGS='-DC_ONLY')
 
-if sys.platform == 'linux2':
-	#quake3_env.Append(CCFLAGS='-Di386')
-	#quake3_env.Append(CCFLAGS='-DELF -x assembler-with-cpp')
-	#quake3_env.Append(CCFLAGS='-masm=intel')
+if env['arch'] == 'linux-i386':
 	quake3_env.Append(LIBPATH='/usr/X11R6/lib')
 	quake3_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm'])
 	quake3_env.Append(LIBS=['dl', 'm'])
@@ -196,9 +193,3 @@ if sys.platform == 'linux2':
 		quake3_env.Program('quake3.x86', [quake3_src, unix_src, linux_src, vm_src, 'code/unix/sdl_snd.c'])
 		
 	quake3_env.Install('#', 'quake3.x86')
-
-elif sys.platform == 'win32':
-	quake3_src += ['src/sys_win.cxx', 'src/in_win.cxx', 'src/vid_dll.cxx']
-	quake3_env.Append(LIBS=['m', 'wsock32', 'winmm'])
-	quake3_env.Program('Quake3', quake3_src)
-	quake3_env.Install('#', 'Quake3.exe')

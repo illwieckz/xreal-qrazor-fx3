@@ -365,6 +365,8 @@ void Sys_Init(void)
 #if defined __linux__
 #if defined __i386__
 	Cvar_Set("arch", "linux i386");
+#elif defined __x86_64__
+	Cvar_Set("arch", "linux x86_64");
 #elif defined __alpha__
 	Cvar_Set("arch", "linux alpha");
 #elif defined __sparc__
@@ -743,6 +745,8 @@ void           *Sys_LoadDll(const char *name, char *fqpath, int (**entryPoint) (
 	getcwd(curpath, sizeof(curpath));
 #if defined __i386__
 	snprintf(fname, sizeof(fname), "%si386.so", name);
+#elif defined __x86_64__
+	snprintf(fname, sizeof(fname), "%sx86_64.so", name);
 #elif defined __powerpc__		//rcg010207 - PPC support.
 	snprintf(fname, sizeof(fname), "%sppc.so", name);
 #elif defined __axp__

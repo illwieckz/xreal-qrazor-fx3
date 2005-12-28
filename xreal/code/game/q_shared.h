@@ -307,6 +307,8 @@ static inline float LittleFloat(const float l)
 
 #ifdef __i386__
 #define	CPUSTRING	"linux-i386"
+#elif __x86_64__
+#define	CPUSTRING	"linux-x86_64"
 #elif defined __axp__
 #define	CPUSTRING	"linux-alpha"
 #else
