@@ -1752,7 +1752,7 @@ static void Render_reflection_C(int stage)
 	GL_SetVertexAttribs();
 	
 	// set uniforms
-	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
+	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 	qglUniform3fARB(tr.reflectionShader_C.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 
 	// bind colormap
@@ -1785,7 +1785,7 @@ static void Render_refraction_C(int stage)
 	GL_SetVertexAttribs();
 	
 	// set uniforms
-	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
+	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 	qglUniform3fARB(tr.refractionShader_C.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform1fARB(tr.refractionShader_C.u_RefractionIndex, RB_EvalExpression(&pStage->refractionIndexExp, 1.0));
 	qglUniform1fARB(tr.refractionShader_C.u_FresnelPower, RB_EvalExpression(&pStage->fresnelPowerExp, 2.0));
@@ -1824,7 +1824,7 @@ static void Render_dispersion_C(int stage)
 	GL_SetVertexAttribs();
 	
 	// set uniforms
-	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
+	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 	eta	= RB_EvalExpression(&pStage->etaExp, 1.1);
 	etaDelta = RB_EvalExpression(&pStage->etaDeltaExp, -0.02);
 	
@@ -1864,7 +1864,7 @@ static void Render_skybox(int stage)
 	GL_SetVertexAttribs();
 	
 	// set uniforms
-	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
+	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 	qglUniform3fARB(tr.skyBoxShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 
 	// bind colormap
