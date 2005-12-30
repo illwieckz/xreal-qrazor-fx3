@@ -193,6 +193,7 @@ class md3Shader:
 		return self
 
 	def save(self, file):
+		tmpData = [0] * 2
 		tmpData[0] = self.name
 		tmpData[1] = self.index
 		data = struct.pack(self.binaryFormat, tmpData[0], tmpData[1])
@@ -246,12 +247,12 @@ class md3Surface:
 		
 	def getSize(self):
 		sz = struct.calcsize(self.binaryFormat)
-		self.ofsShaders = sz
-		for s in self.shaders:
-			sz += s.getSize()
 		self.ofsTriangles = sz
 		for t in self.triangles:
 			sz += t.getSize()
+		self.ofsShaders = sz
+		for s in self.shaders:
+			sz += s.getSize()
 		self.ofsUV = sz
 		for u in self.uv:
 			sz += u.getSize()

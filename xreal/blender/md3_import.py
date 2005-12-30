@@ -2,7 +2,7 @@
 
 """
 Name: 'Quake3 (.md3)...'
-Blender: 237
+Blender: 240
 Group: 'Import'
 Tooltip: 'Import from Quake3 file format. (.md3)'
 """
@@ -133,6 +133,9 @@ def loadModel(filename):
 			# absolute keys, need to figure out how to get them working around the 100 frame limitation
 			mesh.insertKey(i + 1, "absolute")
 			
+			Blender.Set("curframe", i + 1)
+			
+			"""
 			# hack to evenly space out the vertex keyframes on the IPO chart
 			if i == 0:
 				# after an IPO curve is created, make it a strait line so it 
@@ -149,6 +152,7 @@ def loadModel(filename):
 					
 					# recalculate it
 					this_ipo.Recalc()
+			"""
 			
 		# create materials for surface
 		for i in range(0, surface.numShaders):

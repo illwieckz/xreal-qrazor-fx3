@@ -2,7 +2,7 @@
 
 """
 Name: 'Quake3 (.md3)...'
-Blender: 237
+Blender: 240
 Group: 'Export'
 Tooltip: 'Export to Quake3 file format. (.md3)'
 """
@@ -43,9 +43,10 @@ NUM_FRAMES = 1
 EXPORT_ALL = 0   # export only selected objs, or all?
 
 def applyTransform(vert, matrix):
-	vertCopy = Mathutils.CopyVec(vert)
-	vertCopy.resize4D()
-	return Mathutils.VecMultMat(vertCopy, matrix)
+	#vertCopy = Mathutils.CopyVec(vert)
+	#vertCopy.resize4D()
+	#return Mathutils.VecMultMat(vertCopy, matrix)
+	return vert * matrix
 
 
 def updateFrameData(v, f):
@@ -77,9 +78,16 @@ def processSurface(mesh_obj, md3):
 	surf.numFrames = md3.numFrames
 	surf.name = mesh_obj.getName()
 	surf.ident = MD3_IDENT
+	
+	# create default shader for surface
+	surf.shaders.append(md3Shader())
+	surf.numShaders += 1
+	surf.shaders[0].index = 0
+	surf.shaders[0].name = 'models/mapobjects/banner/bannerx'
 
 	# process each face in the mesh
 	for face in mesh.faces:
+		
 		tris_in_this_face = []  #to handle quads and up...
 		
 		# this makes a list of indices for each tri in this face. a quad will be [[0,1,1],[0,2,3]]
