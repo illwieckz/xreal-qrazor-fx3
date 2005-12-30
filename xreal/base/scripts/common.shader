@@ -12,12 +12,12 @@ textures/common/nodrawnonsolid
 textures/common/invisible
 {
 	surfaceparm nolightmap			
-        {
-                map textures/common/invisible.tga
-                alphaFunc GE128
+	{
+		map textures/common/invisible.tga
+		alphaFunc GE128
 		depthWrite
 		rgbGen vertex
-        }
+	}
 }
 
 textures/common/teleporter
@@ -306,7 +306,6 @@ textures/common/portal
 //		blendFunc GL_ONE GL_SRC_ALPHA
 		blendfunc GL_ONE GL_ONE_MINUS_SRC_ALPHA
 		depthWrite
-
 	}
 }
 

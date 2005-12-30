@@ -41,7 +41,8 @@ MAIN MENU
 #define ID_MODS					16
 #define ID_EXIT					17
 
-#define MAIN_BANNER_MODEL				"models/mapobjects/banner/banner5.md3"
+#define MAIN_BANNER_MODEL				"models/mapobjects/banner/bannerx.md3"
+#define MAIN_BANNER_SHADER				"menuBanner"
 #define MAIN_MENU_VERTICAL_SPACING		34
 
 
@@ -58,6 +59,8 @@ typedef struct {
 	menutext_s		exit;
 
 	qhandle_t		bannerModel;
+	qhandle_t		bannerShader;
+	qhandle_t		bloomShader;
 } mainmenu_t;
 
 
@@ -137,8 +140,10 @@ void Main_MenuEvent (void* ptr, int event) {
 MainMenu_Cache
 ===============
 */
-void MainMenu_Cache( void ) {
-	s_main.bannerModel = trap_R_RegisterModel( MAIN_BANNER_MODEL );
+void MainMenu_Cache(void)
+{
+	s_main.bannerModel = trap_R_RegisterModel(MAIN_BANNER_MODEL);
+	s_main.bannerShader = trap_R_RegisterShaderNoMip(MAIN_BANNER_SHADER);
 }
 
 sfxHandle_t ErrorMessage_Key(int key)
@@ -155,17 +160,18 @@ TTimo: this function is common to the main menu and errorMessage menu
 ===============
 */
 
-static void Main_MenuDraw( void ) {
+static void Main_MenuDraw(void)
+{
+	vec4_t			color = {0.5, 0, 0, 1};
+#if 0
 	refdef_t		refdef;
 	refEntity_t		ent;
 	vec3_t			origin;
 	vec3_t			angles;
 	float			adjust;
 	float			x, y, w, h;
-	vec4_t			color = {0.5, 0, 0, 1};
 
 	// setup the refdef
-
 	memset( &refdef, 0, sizeof( refdef ) );
 
 	refdef.rdflags = RDF_NOWORLDMODEL;
@@ -183,22 +189,24 @@ static void Main_MenuDraw( void ) {
 	refdef.height = h;
 
 	adjust = 0; // JDC: Kenneth asked me to stop this 1.0 * sin( (float)uis.realtime / 1000 );
-	refdef.fov_x = 60 + adjust;
-	refdef.fov_y = 19.6875 + adjust;
+	refdef.fov_x = 70 + adjust;
+	//refdef.fov_y = 19.6875 + adjust;
+	refdef.fov_y = 40 + adjust;
 
 	refdef.time = uis.realtime;
 
 	origin[0] = 300;
 	origin[1] = 0;
-	origin[2] = -32;
+	origin[2] = -28;
 
 	trap_R_ClearScene();
 
 	// add the model
-
 	memset( &ent, 0, sizeof(ent) );
 
-	adjust = 5.0 * sin( (float)uis.realtime / 5000 );
+	//adjust = 5.0 * sin( (float)uis.realtime / 5000 );
+	adjust = 10.0 * sin((float)uis.realtime / 1000);
+	//adjust = (float)uis.realtime / 50;
 	VectorSet( angles, 0, 180 + adjust, 0 );
 	AnglesToAxis( angles, ent.axis );
 	ent.hModel = s_main.bannerModel;
@@ -207,26 +215,33 @@ static void Main_MenuDraw( void ) {
 	ent.renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW;
 	VectorCopy( ent.origin, ent.oldorigin );
 
-	trap_R_AddRefEntityToScene( &ent );
+	trap_R_AddRefEntityToScene(&ent);
+	trap_R_RenderScene(&refdef);
+#else
+	UI_DrawHandlePic(0, 0, 640, 120, s_main.bannerShader);
+#endif
 
-	trap_R_RenderScene( &refdef );
-	
-	if (strlen(s_errorMessage.errorMessage))
+	if(strlen(s_errorMessage.errorMessage))
 	{
 		UI_DrawProportionalString_AutoWrapped( 320, 192, 600, 20, s_errorMessage.errorMessage, UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color );
 	}
 	else
 	{
 		// standard menu drawing
-		Menu_Draw( &s_main.menu );		
+		Menu_Draw(&s_main.menu);	
 	}
 
-	if (uis.demoversion) {
+	if(uis.demoversion)
+	{
 		UI_DrawProportionalString( 320, 372, "DEMO      FOR MATURE AUDIENCES      DEMO", UI_CENTER|UI_SMALLFONT, color );
 		UI_DrawString( 320, 400, "Quake III Arena(c) 1999-2000, Id Software, Inc.  All Rights Reserved", UI_CENTER|UI_SMALLFONT, color );
-	} else {
+	}
+	else
+	{
 		UI_DrawString( 320, 450, "Quake III Arena(c) 1999-2000, Id Software, Inc.  All Rights Reserved", UI_CENTER|UI_SMALLFONT, color );
 	}
+	
+//	UI_DrawHandlePic(0, 0, 640, 480, s_main.bloomShader);
 }
 
 

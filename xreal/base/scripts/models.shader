@@ -440,6 +440,69 @@ models/mapobjects/banner/q3banner04
 	
 }
 
+/*
+models/mapobjects/banner/bannerx
+{
+	//cull disable
+	nomipmaps
+	{
+		//map models/mapobjects/banner/q3banner04.tga
+		//map textures/sfx/firegorre2.tga
+		map models/players/visor/lava.tga
+		//blendFunc GL_ONE GL_ZERO
+		scale 2 , 2
+		tcMod turb 0 .07 0 .2
+		scroll time * 0, time * 1
+		//rgbGen wave sin .5 .5 0 .1
+	}
+}
+*/
+
+models/mapobjects/banner/bannerx
+{
+//	deformVertexes wave 100 sin 3 0 0 0
+	cull back
+//	nomipmaps
+	
+	/*
+	{
+		//stage skyboxMap
+		//stage reflectionMap
+		//stage refractionMap
+		stage dispersionMap
+		cubeMap	env/mercury512
+		//map textures/effects/envmapblue.tga
+		//tcGen environment
+		rgbGen identity
+	}
+	*/
+	
+	{
+		//map models/mapobjects/banner/q3banner04.tga
+		//map textures/sfx/firegorre2.tga
+		map models/players/visor/lava.tga
+		//blend filter
+		scale 2 , 2
+		tcMod turb 0 .07 0 .2
+		scroll time * 0, time * 1
+		//rgbGen wave sin .5 .5 0 .1
+	}
+	/*
+	{
+		stage bloom2Map
+		blurMagnitude 1
+	}
+	*/
+	{
+		map models/mapobjects/bitch/hologirl2.tga
+		tcgen environment
+		scroll time * -3, time * 0.05
+		scale 2, 3
+		blend add
+		//rgbGen wave sin .5 .5 0 .1
+	}
+}
+
 //******************************************************//
 //	mapobjects/baph subfolder			//
 //******************************************************//

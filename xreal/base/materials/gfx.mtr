@@ -136,8 +136,7 @@ menuback
 	nomipmaps
 
 	{
-		//map gfx/2d/logo512.tga
-		map gfx/2d/q3atif3.tga
+		map menu/art/background.tga
 		rgbgen identity
 	}
 //	{
@@ -155,7 +154,6 @@ menubacknologo
 	
 	{
 		map _black
-		//map gfx/2d/logo512.tga
 	}
 }
 
@@ -165,7 +163,7 @@ menubackRagePro	// blends turn to shit on rage pro, so skip it
 	nomipmaps
 	
 	{
-		map gfx/2d/logo512.tga
+		map menu/art/background.tga
 	}
 }
 
@@ -177,6 +175,28 @@ menuCursor
 	{
 		blend blend
 		animMap 9 menu/art/cursor_01.tga menu/art/cursor_02.tga menu/art/cursor_03.tga menu/art/cursor_04.tga menu/art/cursor_05.tga menu/art/cursor_06.tga menu/art/cursor_07.tga menu/art/cursor_08.tga menu/art/cursor_09.tga
+	}
+}
+
+menuBanner
+{
+	nopicmip
+	nomipmaps
+
+	{
+		blend blend
+		map menu/art/xreal_redglow.tga
+		alpha 0.5 + (sinTable[ time * 0.2] * 0.5)
+	}
+	{
+		blend blend
+		map menu/art/xreal_highlight.tga
+		//scroll (sinTable[ time * 0.1] * 0.01), (cosTable[ time * 0.1] * -0.01)
+	}
+	{
+		blend blend
+		map menu/art/xreal_chrome2.tga
+		alpha 0.5 + (sinTable[ time * 0.2] * -0.5)
 	}
 }
 
@@ -1643,6 +1663,22 @@ bloom
 		stage bloomMap
 		blurMagnitude 1
 		//blurMagnitude 3 + (sinTable[ time * 1] * 2)
+	}
+}
+
+bloomDynamic
+{
+	qer_editorimage _black
+
+	nonsolid
+	twosided
+	
+	{
+		//if(sinTable[ time * 0.2] * 1)
+		
+		stage bloom2Map
+		//blurMagnitude 1
+		blurMagnitude 2 + (sinTable[ time * 0.2] * 1)
 	}
 }
 
