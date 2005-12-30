@@ -231,15 +231,11 @@ static void LoadShaderImage(shaderInfo_t * si)
 loadTga:
 	if(bTGA)
 	{
-#if 1
 		LoadTGABuffer(buffer, &si->pixels, &si->width, &si->height);
-#endif
 	}
 	else
 	{
-#ifdef _WIN32
-		LoadJPGBuff(buffer, &si->pixels, &si->width, &si->height);
-#endif
+		LoadJPGBuffer(buffer, &si->pixels, &si->width, &si->height);
 	}
 
 	free(buffer);

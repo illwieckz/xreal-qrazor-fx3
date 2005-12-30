@@ -144,9 +144,9 @@ if sys.platform == 'linux2' or sys.platform == 'linux-i386':
 #if not conf.CheckCHeader('jpeglib.h'):
 #	print 'jpeglib.h must be installed!'
 #	Exit(1)
-if not conf.CheckLib('jpeg', symbol='jpeg_start_decompress', autoadd=0):
-	print 'Did not find libjpeg.a or jpeg.lib, exiting!'
-	Exit(1)
+#if not conf.CheckLib('jpeg', symbol='jpeg_start_decompress', autoadd=0):
+#	print 'Did not find libjpeg.a or jpeg.lib, exiting!'
+#	Exit(1)
 	
 #if not conf.CheckCHeader('png.h'):
 #	print 'png.h must be installed!'
