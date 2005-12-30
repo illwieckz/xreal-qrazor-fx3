@@ -185,19 +185,26 @@ menuBanner
 
 	{
 		blend blend
-		map menu/art/xreal_redglow.tga
-		alpha 0.5 + (sinTable[ time * 0.2] * 0.5)
-	}
-	{
-		blend blend
 		map menu/art/xreal_highlight.tga
 		//scroll (sinTable[ time * 0.1] * 0.01), (cosTable[ time * 0.1] * -0.01)
 	}
 	{
 		blend blend
-		map menu/art/xreal_chrome2.tga
-		alpha 0.5 + (sinTable[ time * 0.2] * -0.5)
+		map menu/art/xreal_redglow.tga
+		alpha 0.5 + (sinTable[ time * 0.2] * 0.5)
 	}
+	{
+		blend blend
+		map menu/art/xreal_chrome2.tga
+		//alpha 0.5 + (sinTable[ time * 0.2] * -0.5)
+	}
+	/*
+	{
+		blend blend
+		map menu/art/xreal_chrome.tga
+		alpha 0.5 + (sinTable[ time * 0.2] * 0.5)
+	}
+	*/
 }
 
 levelShotDetail
