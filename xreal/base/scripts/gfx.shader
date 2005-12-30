@@ -139,6 +139,11 @@ menuback
 		map menu/art/background.tga
 		rgbgen identity
 	}
+	{
+		blend add
+		map menu/art/background.tga
+		rgb 0.5 + (storm3Table[ time * 0.1] * 0.5)
+	}
 //	{
 //		map textures/sfx/specular.tga
 		//blendfunc add
@@ -191,7 +196,7 @@ menuBanner
 	{
 		blend blend
 		map menu/art/xreal_redglow.tga
-		alpha 0.5 + (sinTable[ time * 0.2] * 0.5)
+		alpha 0.5 + (sinTable[ time * 0.5] * 0.5)
 	}
 	{
 		blend blend
