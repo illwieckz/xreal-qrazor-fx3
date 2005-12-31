@@ -225,6 +225,68 @@ CG_RailTrail
 */
 void CG_RailTrail(clientInfo_t * ci, vec3_t start, vec3_t end)
 {
+#if 1
+	localEntity_t  *le;
+	refEntity_t    *re;
+
+	//
+	// rings
+	//
+	le = CG_AllocLocalEntity();
+	re = &le->refEntity;
+
+	le->leType = LE_FADE_RGB;
+	le->startTime = cg.time;
+	le->endTime = cg.time + cg_railTrailTime.value;
+	le->lifeRate = 1.0 / (le->endTime - le->startTime);
+
+	re->shaderTime = cg.time / 1000.0f;
+	re->reType = RT_RAIL_RINGS;
+	re->customShader = cgs.media.railRingsShader;
+
+	VectorCopy(start, re->origin);
+	VectorCopy(end, re->oldorigin);
+
+	// nudge down a bit so it isn't exactly in center
+	re->origin[2] -= 8;
+	re->oldorigin[2] -= 8;
+
+	le->color[0] = ci->color2[0] * 0.75;
+	le->color[1] = ci->color2[1] * 0.75;
+	le->color[2] = ci->color2[2] * 0.75;
+	le->color[3] = 1.0f;
+
+	AxisClear(re->axis);
+
+	//
+	// core
+	//
+	le = CG_AllocLocalEntity();
+	re = &le->refEntity;
+
+	le->leType = LE_FADE_RGB;
+	le->startTime = cg.time;
+	le->endTime = cg.time + cg_railTrailTime.value;
+	le->lifeRate = 1.0 / (le->endTime - le->startTime);
+
+	re->shaderTime = cg.time / 1000.0f;
+	re->reType = RT_RAIL_CORE;
+	re->customShader = cgs.media.railCoreShader;
+
+	VectorCopy(start, re->origin);
+	VectorCopy(end, re->oldorigin);
+
+	// nudge down a bit so it isn't exactly in center
+	re->origin[2] -= 8;
+	re->oldorigin[2] -= 8;
+
+	le->color[0] = ci->color1[0] * 0.75;
+	le->color[1] = ci->color1[1] * 0.75;
+	le->color[2] = ci->color1[2] * 0.75;
+	le->color[3] = 1.0f;
+
+	AxisClear(re->axis);
+#else
 	vec3_t          axis[36], move, move2, next_move, vec, temp;
 	float           len;
 	int             i, j, skip;
@@ -331,6 +393,7 @@ void CG_RailTrail(clientInfo_t * ci, vec3_t start, vec3_t end)
 
 		j = j + ROTATION < 36 ? j + ROTATION : (j + ROTATION) % 36;
 	}
+#endif
 }
 
 /*
@@ -2131,7 +2194,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 		float          *color;
 
 		// colorize with client color
-		color = cgs.clientinfo[clientNum].color2;
+		color = cgs.clientinfo[clientNum].color1;	// Tr3B - changed to color1
 		CG_ImpactMark(mark, origin, dir, random() * 360, color[0], color[1], color[2], 1, alphaFade, radius, qfalse);
 	}
 	else

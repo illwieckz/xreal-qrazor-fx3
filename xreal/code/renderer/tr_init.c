@@ -1105,8 +1105,8 @@ void R_Register(void)
 #endif
 	r_facePlaneCull = ri.Cvar_Get("r_facePlaneCull", "1", CVAR_ARCHIVE);
 
-	r_railWidth = ri.Cvar_Get("r_railWidth", "16", CVAR_ARCHIVE);
-	r_railCoreWidth = ri.Cvar_Get("r_railCoreWidth", "6", CVAR_ARCHIVE);
+	r_railWidth = ri.Cvar_Get("r_railWidth", "96", CVAR_ARCHIVE);
+	r_railCoreWidth = ri.Cvar_Get("r_railCoreWidth", "16", CVAR_ARCHIVE);
 	r_railSegmentLength = ri.Cvar_Get("r_railSegmentLength", "32", CVAR_ARCHIVE);
 
 	r_primitives = ri.Cvar_Get("r_primitives", "0", CVAR_ARCHIVE);

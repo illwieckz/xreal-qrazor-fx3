@@ -62,9 +62,9 @@ models/ammo/rocket/rockfls2
 
 
 //**************************************************************//
-//								//
-//		MODELS/FLAGS					//
-//								//
+//																//
+//		MODELS/FLAGS											//
+//																//
 //**************************************************************//
 
 models/flags/b_flag
@@ -245,10 +245,31 @@ models/flags/skull
 }
 
 
+//******************************************************//
+//	gibs root folder									//
+//******************************************************//
+
+models/gibs/gibs
+{
+	{
+		blend diffuseMap
+		map models/gibs/gibs.tga
+		rgbGen lightingDiffuse
+	}
+	{
+		blend bumpMap
+		map models/gibs/gibs_n.tga
+	}
+	{
+		blend specularMap
+		map models/gibs/gibs_s.tga
+	}
+}
+
 //**************************************************************//
-//								//
-//		MODELS/MAPOBJECTS				//
-//								//
+//																//
+//		MODELS/MAPOBJECTS										//
+//																//
 //**************************************************************//
 
 //******************************************************//
@@ -3408,9 +3429,9 @@ models/players/uriel/zael
           
 }
 
-//******************************************************//
-//	models/players/visor subfolder			//
-//******************************************************//
+//////////////////////////////////////////////////////////
+//	models/players/visor subfolder						//
+//////////////////////////////////////////////////////////
 
 models/players/visor/visor
 {
@@ -4595,6 +4616,25 @@ models/weapons2/grenadel/ring
         }
 }
 
+models/weapons2/grenadel/grenadel01
+{
+	{
+		//blend diffuseMap
+		map models/weapons2/grenadel/grenadel01.tga
+		rgbGen lightingDiffuse
+	}
+	/*
+	{
+		blend bumpMap
+		models/weapons2/grenadel/grenadel01_n.tga
+	}
+	{
+		blend specularMap
+		models/weapons2/grenadel/grenadel01_s.tga
+	}
+	*/
+}
+
 //******************************************************//
 //	models/weapons2/lightning subfolder		//
 //******************************************************//
@@ -4809,10 +4849,22 @@ models/weapons2/railgun/f_railgun2
 	sort additive
 	cull disable
 	{
-		map	models/weapons2/railgun/f_railgun2.tga
+		map	models/weapons2/railgun/f_railgun.tga
+		//map	models/weapons2/railgun/f_railgun2.tga
 		blendfunc GL_ONE GL_ONE
-		rgbgen entity
+		//rgbgen entity
 	}
+}
+
+models/weapons2/railgun/railgun1
+{
+	{
+		blend diffuseMap
+		map models/weapons2/railgun/railgun1.tga
+		rgbGen lightingDiffuse
+	}
+	bumpMap models/weapons2/railgun/railgun1_n.tga
+	specularMap models/weapons2/railgun/railgun1_s.tga
 }
 
 models/weapons2/railgun/railgun2
@@ -4820,23 +4872,26 @@ models/weapons2/railgun/railgun2
 	sort additive
 	cull disable
 	{
-		map	models/weapons2/railgun/railgun2.glow.tga
+		map	models/weapons2/railgun/railgun2_glow.tga
 		blendfunc GL_ONE GL_ONE
-		rgbGen entity	// identity
+		rgbGen identity	// entity
 	}
 }
 
 models/weapons2/railgun/railgun3
 {
 	{
+		blend diffuseMap
 		map	models/weapons2/railgun/railgun3.tga
 		rgbGen lightingDiffuse				
 	}
+	bumpMap models/weapons2/railgun/railgun3_n.tga
+	specularMap models/weapons2/railgun/railgun3_s.tga
 
 	{
-		map	models/weapons2/railgun/railgun3.glow.tga
+		map	models/weapons2/railgun/railgun3_glow.tga
 		blendfunc GL_ONE GL_ONE
-		rgbGen entity	// identity
+		rgbGen identity	// entity
 	}
 }
 
@@ -4845,7 +4900,7 @@ models/weapons2/railgun/railgun4
 	{
 		map models/weapons2/railgun/railgun4.tga
 		tcMod scroll 0 1
-		rgbGen entity	// identity
+		rgbGen identity	// entity
 	}
 
 }

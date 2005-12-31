@@ -1002,13 +1002,15 @@ sun
 railDisc
 {
 	sort nearest
-			cull none
-			deformVertexes wave 100 sin 0 .5 0 2.4
+	cull none
+	
+	//deformVertexes wave 100 sin 0 .5 0 2.4
+	
 	{
-		clampmap gfx/misc/raildisc_mono2.tga 
-				blendFunc GL_ONE GL_ONE
-				rgbGen vertex
-				tcMod rotate -30
+		clampmap gfx/misc/raildisc_mono2.tga
+		blendFunc GL_ONE GL_ONE
+		rgbGen vertex
+		//tcMod rotate 30
 	}
 }
 
@@ -1018,9 +1020,9 @@ railCore
 	cull none
 	{
 		map gfx/misc/railcorethin_mono.tga
-				blendFunc GL_ONE GL_ONE
-				rgbGen vertex
-				tcMod scroll -1 0
+		blendFunc GL_ONE GL_ONE
+		rgbGen vertex
+		tcMod scroll 1 0
 	}
 }
 
@@ -1159,11 +1161,11 @@ bloodTrail
 burnMark
 {
 	polygonOffset
-{
+	{
 		map textures/decals/explo_burn01.tga
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
 		rgbGen exactVertex
-}
+	}
 }
 
 gfx/damage/bullet_mrk
@@ -1201,9 +1203,9 @@ gfx/damage/plasma_mrk
 	polygonOffset
 	{
 		map gfx/damage/plasma_mrk.tga
-				blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-				rgbGen vertex
-				alphaGen vertex
+		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		rgbGen vertex
+		alphaGen vertex
 	}
 }
 
@@ -1215,40 +1217,40 @@ gfx/damage/plasma_mrk
 scoreboardName
 {
 	nopicmip
-			nomipmaps
+	nomipmaps
 	{
 		clampmap menu/tab/name.tga
-				blendfunc blend
+		blendfunc blend
 	}
 }
 
 scoreboardScore
 {
 	nopicmip
-			nomipmaps
+	nomipmaps
 	{
 		clampmap menu/tab/score.tga
-				blendfunc blend
+		blendfunc blend
 	}
 }
 
 scoreboardTime
 {
 	nopicmip
-			nomipmaps
+	nomipmaps
 	{
 		clampmap menu/tab/time.tga
-				blendfunc blend
+		blendfunc blend
 	}
 }
 
 scoreboardPing
 {
 	nopicmip
-			nomipmaps
+	nomipmaps
 	{
 		clampmap menu/tab/ping.tga
-				blendfunc blend
+		blendfunc blend
 	}
 }
 
@@ -1558,10 +1560,10 @@ plasmaExplosion
 	cull disable
 	{
 		clampmap models/weaphits/plasmaboom.tga
-				blendfunc add
-				tcMod stretch triangle .6 0.1 0 8
-				tcmod rotate 999
-				rgbGen wave inversesawtooth 0 1 0 1.5
+		blendfunc add
+		tcMod stretch triangle .6 0.1 0 8
+		tcmod rotate 999
+		rgbGen wave inversesawtooth 0 1 0 1.5
 	}
 }
 
@@ -1570,13 +1572,13 @@ railExplosion
 	cull disable
 	{
 		animmap 5 models/weaphits/ring02_1.tga  models/weaphits/ring02_2.tga  models/weaphits/ring02_3.tga models/weaphits/ring02_4.tga gfx/colors/black.tga
-				alphaGen wave inversesawtooth 0 1 0 5
-				blendfunc blend
+		alphaGen wave inversesawtooth 0 1 0 5
+		blendfunc blend
 	}
 	{
 		animmap 5 models/weaphits/ring02_2.tga  models/weaphits/ring02_3.tga models/weaphits/ring02_4.tga gfx/colors/black.tga gfx/colors/black.tga
-				alphaGen wave sawtooth 0 1 0 5
-				blendfunc blend
+		alphaGen wave sawtooth 0 1 0 5
+		blendfunc blend
 	}
 }
 
