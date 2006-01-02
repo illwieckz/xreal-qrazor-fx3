@@ -4,11 +4,7 @@ from types import *
 import os
 from os import path
 
-def asciiz (s):
-  n = 0
-  while (ord(s[n]) != 0):
-    n = n + 1
-  return s[0:n]
+GAMEDIR = '/opt/xreal/base/'
 
 MD3_IDENT = "IDP3"
 MD3_VERSION = 15
@@ -21,6 +17,43 @@ MD3_MAX_VERTICES = 4096
 MD3_MAX_TRIANGLES = 8192
 MD3_XYZ_SCALE = (1.0 / 64.0)
 MD3_BLENDER_SCALE = (1.0 / 1.0)
+
+
+def asciiz(s):
+	n = 0
+	while(ord(s[n]) != 0):
+		n = n + 1
+	return s[0:n]
+
+# strips the slashes from the back of a string
+def stripPath(path):
+	for c in range(len(path), 0, -1):
+		if path[c-1] == "/" or path[c-1] == "\\":
+			path = path[c:]
+			break
+	return path
+	
+# strips the model from path
+def stripModel(path):
+	for c in range(len(path), 0, -1):
+		if path[c-1] == "/" or path[c-1] == "\\":
+			path = path[:c]
+			break
+	return path
+
+# strips file type extension
+def stripExtension(name):
+	if name.find('.') != -1:
+		name = name[:name.find('.')]
+	return name
+	
+# strips gamedir
+def stripGamePath(name):
+	if name[0:len(GAMEDIR)] == GAMEDIR:
+		name = name[len(GAMEDIR):len(name)]
+	return name
+
+
 
 class md3Vert:
 	xyz = []
@@ -93,7 +126,7 @@ class md3Vert:
 		#print "Wrote MD3 Vertex: ", data
 	
 	def dump(self):
-		print "MD3 Vertex Structure"
+		print "MD3 Vertex"
 		print "X: ", self.xyz[0]
 		print "Y: ", self.xyz[1]
 		print "Z: ", self.xyz[2]
@@ -130,9 +163,9 @@ class md3TexCoord:
 		#print "wrote MD3 texture coordinate structure: ", data
 
 	def dump(self):
-		print "MD3 Texture Coordinate Structure"
-		print "texture coordinate u: ", self.u
-		print "texture coordinate v: ", self.v
+		print "MD3 Texture Coordinates"
+		print "U: ", self.u
+		print "V: ", self.v
 		print ""
 		
 
@@ -165,10 +198,8 @@ class md3Triangle:
 		#print "wrote MD3 face structure: ",data
 
 	def dump(self):
-		print "MD3 Triangle Structure"
-		print "vertex index: ", self.indexes[0]
-		print "vertex index: ", self.indexes[1]
-		print "vertex index: ", self.indexes[2]
+		print "MD3 Triangle"
+		print "Indices: ", self.indexes
 		print ""
 
 
@@ -202,8 +233,8 @@ class md3Shader:
 
 	def dump (self):
 		print "MD3 Shader"
-		print "shader name: ", self.name
-		print "shader index: ", self.index
+		print "Name: ", self.name
+		print "Index: ", self.index
 		print ""
 
 
@@ -565,7 +596,7 @@ class md3Object:
 		for i in range(0, self.numFrames):
 			self.frames.append(md3Frame())
 			self.frames[i].load(file)
-			#self.frames[i].dump()
+			self.frames[i].dump()
 		
 		# load the tags info
 		file.seek(self.ofsTags, 0)

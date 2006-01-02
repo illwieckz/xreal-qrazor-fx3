@@ -38,6 +38,9 @@ from Blender import *
 import md3
 from md3 import *
 
+import q_math
+from q_math import *
+
 
 NUM_FRAMES = 1
 EXPORT_ALL = 0   # export only selected objs, or all?
@@ -49,14 +52,18 @@ def applyTransform(vert, matrix):
 	return vert * matrix
 
 
-def updateFrameData(v, f):
+def updateFrameBounds(v, f):
 	for i in range(0, 3):
 		f.mins[i] = min(v[i], f.mins[i])
 	for i in range(0, 3):
-		f.maxs[i] = max(v[i], f.mins[i])
+		f.maxs[i] = max(v[i], f.maxs[i])
 
 
-def processSurface(mesh_obj, md3):
+def updateFrameRadius(f):
+	f.radius = RadiusFromBounds(f.mins, f.maxs)
+
+
+def processSurface(blenderObject, md3, pathName, modelName):
 	# because md3 doesnt suppoort faceUVs like blender, we need to duplicate
 	# any vertex that has multiple uv coords
 
@@ -71,19 +78,24 @@ def processSurface(mesh_obj, md3):
 	Blender.Set("curframe", 1)
 
 	# get access to the mesh data (as at frame #1)
-	mesh = NMesh.GetRawFromObject(mesh_obj.name)
-	matrix = mesh_obj.getMatrix('worldspace')
+	mesh = NMesh.GetRawFromObject(blenderObject.name)
+	matrix = blenderObject.getMatrix('worldspace')
 
 	surf = md3Surface()
 	surf.numFrames = md3.numFrames
-	surf.name = mesh_obj.getName()
+	surf.name = blenderObject.getName()
 	surf.ident = MD3_IDENT
 	
-	# create default shader for surface
+	# create shader for surface
 	surf.shaders.append(md3Shader())
 	surf.numShaders += 1
 	surf.shaders[0].index = 0
-	surf.shaders[0].name = 'models/mapobjects/banner/bannerx'
+	
+	print mesh.materials
+	if not mesh.materials:
+		surf.shaders[0].name = pathName + blenderObject.name
+	else:
+		surf.shaders[0].name = pathName + mesh.materials[0].name
 
 	# process each face in the mesh
 	for face in mesh.faces:
@@ -164,24 +176,26 @@ def processSurface(mesh_obj, md3):
 	for	frameNum in range(1, md3.numFrames + 1):
 		Blender.Set("curframe", frameNum)
 
-		m = NMesh.GetRawFromObject(mesh_obj.name)
+		m = NMesh.GetRawFromObject(blenderObject.name)
 
 		vlist = [0] * numVerts
 		for vertex in m.verts:
 			try:
 				vindices = indexDict[vertex.index]
 			except:
-				print "warning found a vertex in %s that is not part of a face" % mesh_obj.name
+				print "warning found a vertex in %s that is not part of a face" % blenderObject.name
 				continue
 
 			vTx = applyTransform(vertex.co, matrix)
 			nTx = applyTransform(vertex.no, matrix)
-			updateFrameData(vTx, md3.frames[frameNum - 1])
+			updateFrameBounds(vTx, md3.frames[frameNum - 1])
 			vert = md3Vert()
 			vert.xyz = vTx[0:3]
 			vert.normal = vert.encode(nTx[0:3])
 			for ind in vindices:  # apply the position to all the duplicated vertices
 				vlist[ind] = vert
+
+		updateFrameRadius(md3.frames[frameNum - 1])
 
 		for vl in vlist:
 			surf.verts.append(vl)
@@ -191,10 +205,16 @@ def processSurface(mesh_obj, md3):
 	md3.numSurfaces += 1
 
 
-def saveModel(filename):
-	if(filename.find('.md3', -4) <= 0):
-		filename += '.md3'
-	print "Exporting MD3 format to ", filename
+def saveModel(fileName):
+	if(fileName.find('.md3', -4) <= 0):
+		fileName += '.md3'
+	print "Exporting MD3 format to ", fileName
+	
+	pathName = stripGamePath(stripModel(fileName))
+	print "shader path name ", pathName
+	
+	modelName = stripExtension(stripPath(fileName))
+	print "model name ", modelName
 	
 	md3 = md3Object()
 	md3.ident = MD3_IDENT
@@ -207,9 +227,9 @@ def saveModel(filename):
 
 	# create a bunch of blank frames, they'll be filled in by 'processSurface'
 	for i in range(1, md3.numFrames + 1):
-		fr = md3Frame()
-		fr.name = "frame_" + str(i)
-		md3.frames.append(fr)
+		frame = md3Frame()
+		frame.name = "frame_" + str(i)
+		md3.frames.append(frame)
 
 	# do we export all objects or just the selected ones?
 	if EXPORT_ALL:
@@ -226,14 +246,14 @@ def saveModel(filename):
 			if len(md3.surfaces) == MD3_MAX_SURFACES:
 				print "hit md3 limit (%i) for number of surfaces, skipping" % MD3_MAX_SURFACES , obj.getName()
 			else:
-				processSurface(obj, md3)
+				processSurface(obj, md3, pathName, modelName)
 		elif obj.getType() == "Empty":   # for tags, we just put em in a list so we can process them all together
 			if obj.name[0:4] == "tag_":
 				print "processing tag", obj.name
 				tagList.append(obj)
 				md3.numTags += 1
 		else:
-			print "Skipping non mesh object", obj.name
+			print "skipping object", obj.name
 
 	# work out the transforms for the tags for each frame of the export
 	for fr in range(1, md3.numFrames + 1):
@@ -257,11 +277,11 @@ def saveModel(filename):
 				t.axis[6] = matrix[2][0]
 				t.axis[7] = matrix[2][1]
 				t.axis[8] = matrix[2][2]
-			t.name = obj.name[4:]
+			t.name = tag.name
 			md3.tags.append(t)
 
 	# export!
-	file = open(filename, "wb")
+	file = open(fileName, "wb")
 	md3.save(file)
 	file.close()
 	md3.dump()

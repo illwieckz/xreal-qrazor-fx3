@@ -16,6 +16,9 @@ def RAD2DEG(a):
 def DotProduct(x, y):
 	return x[0] * y[0] + x[1] * y[1] + x[2] * y[2]
 
+def VectorLength(v):
+	return math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2])
+
 def VectorSubtract(a, b):
 	return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
 
@@ -28,6 +31,22 @@ def VectorCopy(v):
 #define VectorCopy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2])
 #define	VectorScale(v, s, o)	((o)[0]=(v)[0]*(s),(o)[1]=(v)[1]*(s),(o)[2]=(v)[2]*(s))
 #define	VectorMA(v, s, b, o)	((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s),(o)[2]=(v)[2]+(b)[2]*(s))
+
+def RadiusFromBounds(mins, maxs):
+	corner = [0, 0, 0]
+	a = 0
+	b = 0
+	
+	for i in range(0, 3):
+		a = abs(mins[i])
+		b = abs(maxs[i])
+		if a > b:
+			corner[i] = a
+		else:
+			corner[i] = b
+
+	return VectorLength(corner)
+
 
 # NOTE: Tr3B - matrix is in column-major order
 def MatrixIdentity():

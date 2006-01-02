@@ -45,19 +45,6 @@ from md3 import *
 import q_math
 from q_math import *
 
-# strips the slashes from the back of a string
-def stripPath(path):
-	for CH in range(len(path), 0, -1):
-		if path[CH-1] == "/" or path[CH-1] == "\\":
-			path = path[CH:]
-			break
-	return path
-
-# strips file type extension
-def stripExtension(name):
-	return name[:name.find('.')]
-
-
 def loadModel(filename):
 	# read the file in
 	file = open(filename,"rb")
@@ -156,41 +143,46 @@ def loadModel(filename):
 			
 		# create materials for surface
 		for i in range(0, surface.numShaders):
-			# create new material
+			
+			# create new material if necessary
 			matName = stripExtension(stripPath(surface.shaders[i].name))
-			mat = Material.New(matName)
 			
-			# create new texture
-			texture = Texture.New(matName)
-			texture.setType('Image')
-			
-			# NOTE: change this to your installation directory
 			try:
-				# try .tga by default
-				imageName = stripExtension('/opt/xreal/base/' + surface.shaders[i].name) + '.tga'
-				image = Image.Load(imageName)
-				
-				# assign image to texture
-				texture.image = image
+				mat = Material.Get(matName)
 			except:
+				print "creating new material", matName
+				mat = Material.New(matName)
+			
+				# create new texture
+				texture = Texture.New(matName)
+				texture.setType('Image')
+			
+				# NOTE: change this to your installation directory
 				try:
-					imageName = stripExtension(imageName) + '.jpg'
+					# try .tga by default
+					imageName = stripExtension(GAMEDIR + surface.shaders[i].name) + '.tga'
 					image = Image.Load(imageName)
 					
 					# assign image to texture
 					texture.image = image
 				except:
-					print "unable to load image ", imageName
+					try:
+						imageName = stripExtension(imageName) + '.jpg'
+						image = Image.Load(imageName)
+					
+						# assign image to texture
+						texture.image = image
+					except:
+						print "unable to load image ", imageName
 				
-			#print "Image from", image.getFilename()
-			#print "loaded to obj", image.getName()
+				#print "Image from", image.getFilename()
+				#print "loaded to obj", image.getName()
 			
-			# texture to material
-			mat.setTexture(0, texture, Texture.TexCo.UV, Texture.MapTo.COL)
+				# texture to material
+				mat.setTexture(0, texture, Texture.TexCo.UV, Texture.MapTo.COL)
 	
-			# and append it to the mesh's list of mats
+			# append material to the mesh's list of materials
 			mesh.materials.append(mat)
-			
 			mesh.update()
 	
 	# create tags
