@@ -70,12 +70,12 @@ if not conf.CheckLib('m', autoadd=0):
 	print 'Did not find libm.a or m.lib, exiting!'
 	Exit(1)
 
-if not conf.CheckCHeader('zlib.h'):
-	print 'zlib.h must be installed!'
-	Exit(1)
-if not conf.CheckLib('z', autoadd=0):
-	print 'Did not find libz.a or z.lib, exiting!'
-	Exit(1)
+#if not conf.CheckCHeader('zlib.h'):
+#	print 'zlib.h must be installed!'
+#	Exit(1)
+#if not conf.CheckLib('z', autoadd=0):
+#	print 'Did not find libz.a or z.lib, exiting!'
+#	Exit(1)
 	
 #if not conf.CheckCHeader('AL/al.h'):
 #	print 'AL/al.h must be installed!'
