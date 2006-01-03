@@ -1480,6 +1480,16 @@ void R_AddEntitySurfaces(void)
 		{
 			continue;
 		}
+		
+		// determine if we need ZFail algorithm instead of ZPass
+		if((ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal)
+		{
+			ent->needZFail = qtrue;
+		}
+		else
+		{
+			ent->needZFail = qfalse;	
+		}
 
 		// simple generated models, like sprites and beams, are not culled
 		switch (ent->e.reType)

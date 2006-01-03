@@ -163,6 +163,7 @@ int             max_polyverts;
 
 cvar_t         *r_showLightMaps;
 cvar_t         *r_showNormalMaps;
+cvar_t         *r_showShadowVolumes;
 
 
 // GL_ARB_multitexture
@@ -1165,6 +1166,7 @@ void R_Register(void)
 	
 	r_showLightMaps = ri.Cvar_Get("r_showLightMaps", "0", CVAR_CHEAT);
 	r_showNormalMaps = ri.Cvar_Get("r_showNormalMaps", "0", CVAR_CHEAT);
+	r_showShadowVolumes = ri.Cvar_Get("r_showShadowVolumes", "0", CVAR_CHEAT);
 
 	// make sure all the commands added here are also
 	// removed in R_Shutdown

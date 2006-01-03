@@ -93,6 +93,7 @@ typedef struct
 	vec3_t          ambientLight;	// color normalized to 0-255
 	int             ambientLightInt;	// 32 bit rgba packed
 	vec3_t          directedLight;
+	qboolean		needZFail;
 } trRefEntity_t;
 
 
@@ -1488,6 +1489,7 @@ extern cvar_t  *r_saveFontData;
 
 extern cvar_t  *r_showLightMaps;		// render lightmaps only
 extern cvar_t  *r_showNormalMaps;
+extern cvar_t  *r_showShadowVolumes;
 
 
 //====================================================================
