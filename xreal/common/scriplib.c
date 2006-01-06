@@ -203,18 +203,18 @@ skipspace:
 	}
 
 	// skip /* */ comments
-#if 0
+#if 1
 	if(*script->script_p == '/' && script->script_p[1] == '*')
 	{
 		if(!crossline)
-			Error("Line %i is incomplete\n", scriptline);
+			Error("Line %i is incomplete\n", script->line);
 		
 		script->script_p += 2;
-		while(*script->script_p && (*script->script_p != '*' && script->script_p[1] != '/'))
+		while(*script->script_p && (*script->script_p != '*' || script->script_p[1] != '/'))
 		{
 			if(*script->script_p == '\n')
 			{
-				scriptline = script->line++;
+				script->line++;
 			}
 			script->script_p++;
 			
