@@ -2068,6 +2068,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			lightColor[0] = 1;
 			lightColor[1] = 0.75;
 			lightColor[2] = 0.0;
+			/*
 			if(cg_oldRocket.integer == 0)
 			{
 				// explosion sprite animation
@@ -2076,6 +2077,9 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 
 				CG_ParticleExplosion("explode1", sprOrg, sprVel, 1400, 20, 30);
 			}
+			*/
+			// Tr3B - shockwave test
+			//CG_ShockWaveEffect(origin);
 			break;
 		case WP_RAILGUN:
 			mod = cgs.media.ringFlashModel;

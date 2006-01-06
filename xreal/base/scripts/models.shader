@@ -3939,21 +3939,39 @@ models/powerups/ammo/rockammo
 
 models/powerups/ammo/rockammo1
 {
-       {
-	        map textures/effects/envmaproc.tga
+	{
+		//stage diffuseMap
+		//map models/powerups/ammo/rockammo1.tga
+		map textures/effects/envmaproc.tga
 		tcGen environment
 		blendfunc GL_ONE GL_ZERO
-                rgbGen lightingDiffuse
-       }
+		rgbGen lightingDiffuse
+	}
+	/*
+	bumpMap models/powerups/ammo/rockammo1_n.tga
+	specularMap models/powerups/ammo/rockammo1_s.tga
+	{
+		map models/powerups/ammo/rockammo1_glow.tga
+		blendfunc GL_ONE GL_ONE
+		rgbGen identity
+	}
+	*/
 }
 
 models/powerups/ammo/rockammo2
 {
 	{
 		map models/powerups/ammo/rockammo2.tga
+		//rgbGen identity
+		rgbGen lightingDiffuse
+	}
+	/*
+	{
+		map models/powerups/ammo/rockammo2_glow.tga
+		blendfunc GL_ONE GL_ONE
 		rgbGen identity
 	}
-	
+	*/
 }
 
 models/powerups/ammo/shotammo
@@ -4961,7 +4979,7 @@ models/weapons2/shotgun/shotgun01
 	{
 		blend diffuseMap
 		rgbGen lightingDiffuse
-		map	models/weapons2/shotgun/shotgun01_d.tga
+		map	models/weapons2/shotgun/shotgun01.tga
 	}
 	{
 		blend bumpMap
@@ -4978,7 +4996,7 @@ models/weapons2/shotgun/shotgun02
 	{
 		blend diffuseMap
 		rgbGen lightingDiffuse
-		map	models/weapons2/shotgun/shotgun02_d.tga
+		map	models/weapons2/shotgun/shotgun02.tga
 	}
 	{
 		blend bumpMap
@@ -4995,7 +5013,7 @@ models/weapons2/shotgun/shotgun03
 	{
 		blend diffuseMap
 		rgbGen lightingDiffuse
-		map	models/weapons2/shotgun/shotgun03_d.tga
+		map	models/weapons2/shotgun/shotgun03.tga
 	}
 	{
 		blend bumpMap
@@ -5012,7 +5030,7 @@ models/weapons2/shotgun/shotgun04
 	{
 		blend diffuseMap
 		rgbGen lightingDiffuse
-		map	models/weapons2/shotgun/shotgun04_d.tga
+		map	models/weapons2/shotgun/shotgun04.tga
 	}
 	{
 		blend bumpMap
@@ -5029,7 +5047,7 @@ models/weapons2/shotgun/shotgun05
 	{
 		blend diffuseMap
 		rgbGen lightingDiffuse
-		map	models/weapons2/shotgun/shotgun05_d.tga
+		map	models/weapons2/shotgun/shotgun05.tga
 	}
 	{
 		blend bumpMap
@@ -5046,7 +5064,7 @@ models/weapons2/shotgun/shotgun06
 	{
 		blend diffuseMap
 		rgbGen lightingDiffuse
-		map	models/weapons2/shotgun/shotgun06_d.tga
+		map	models/weapons2/shotgun/shotgun06.tga
 	}
 	{
 		blend bumpMap
@@ -5079,7 +5097,7 @@ models/weapons2/shotgun/shotgun09
 	{
 		blend diffuseMap
 		rgbGen lightingDiffuse
-		map	models/weapons2/shotgun/shotgun09_d.tga
+		map	models/weapons2/shotgun/shotgun09.tga
 	}
 	{
 		map	models/weapons2/shotgun/shotgun09_glow.tga
@@ -5092,7 +5110,7 @@ models/weapons2/shotgun/shotgun10
 	{
 		blend diffuseMap
 		rgbGen lightingDiffuse
-		map models/weapons2/shotgun/shotgun10_d.tga
+		map models/weapons2/shotgun/shotgun10.tga
 	}
 	{
 		blend bumpMap
@@ -5190,4 +5208,133 @@ models/weaphits/electric
 	}	
 	
 }
+
+models/weaphits/kamik01
+{
+	cull disable
+	{
+		map models/weaphits/kamik01.tga
+		tcGen environment
+		blendfunc GL_ONE GL_ZERO
+		//blendfunc   	blend
+		//alphaGen	wave inversesawtooth 1 1 0 1
+		rgbGen identity
+	}
+	{
+		map models/weaphits/kamik02.tga
+		tcGen environment
+		blendFunc add
+		tcmod scale .5 .5
+		tcmod rotate 66
+		tcmod Scroll 1.3 .8
+		rgbGen identity
+	}
+	{
+		map models/weaphits/kamik02.tga
+		tcGen environment
+		blendFunc add
+		tcmod scale .5 .5
+		tcmod rotate -116
+		tcmod Scroll -1 .3
+		rgbGen identity
+	}
+}
+
+
+models/weaphits/kam01
+{
+        cull disable
+        {
+                map models/weaphits/kam01.tga
+                blendFunc add
+                tcmod Scroll 1.4 0
+                rgbGen identity
+        }
+        {
+                map models/weaphits/kam02.tga
+                blendFunc add
+                tcmod Scroll -1.9 0
+                rgbGen identity
+        }
+
+}
+models/weaphits/kam02
+{
+        cull disable
+        {
+                map models/weaphits/kam01.tga
+                blendFunc add
+                tcmod Scroll -2 0
+                rgbGen identity
+        }
+        {
+                map models/weaphits/kam02.tga
+                blendFunc add
+                tcmod Scroll 1 0
+                rgbGen identity
+        }
+
+}
+models/weaphits/kam03
+{
+        cull disable
+        deformVertexes autoSprite
+        {
+                clampmap models/weaphits/kam03.tga
+                blendFunc add
+                tcmod rotate 133
+                rgbGen identity
+        }
+        {
+                clampmap models/weaphits/kam03b.tga
+                blendFunc add
+                tcmod rotate -113
+                rgbGen identity
+        }
+
+}
+models/weaphits/kam04
+{
+        cull disable
+        deformVertexes autoSprite
+        {
+                clampmap models/weaphits/kam04.tga
+                blendFunc add
+                tcmod rotate 999
+                rgbGen identity
+        }
+}
+
+
+models/weaphits/kamiwave01
+{
+	surfaceparm trans	
+	cull disable
+	nomipmaps
+	{
+		clampmap models/weaphits/kamiwave01.tga 
+		blendFunc Add
+		tcmod rotate 20
+		rgbGen entity
+	}
+	{
+		clampmap models/weaphits/kamiwave01.tga 
+		blendFunc Add
+  		tcmod rotate -20
+		rgbGen entity
+	}
+}
+
+models/weaphits/kamiwave02
+{
+	surfaceparm trans	
+	cull disable
+	{
+		map models/weaphits/kamiwave02.tga 
+		blendFunc Add
+		tcmod scroll 1 0
+		rgbGen entity
+	}
+}
+
 

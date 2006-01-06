@@ -783,6 +783,9 @@ static void CG_RegisterSounds(void)
 	cgs.media.sfx_railg = trap_S_RegisterSound("sound/weapons/railgun/railgf1a.wav", qfalse);
 	cgs.media.sfx_rockexp = trap_S_RegisterSound("sound/weapons/rocket/rocklx1a.wav", qfalse);
 	cgs.media.sfx_plasmaexp = trap_S_RegisterSound("sound/weapons/plasma/plasmx1a.wav", qfalse);
+	cgs.media.shockWaveExplodeSound = trap_S_RegisterSound("sound/weapons/shockwave/kam_explode.wav", qfalse);
+	cgs.media.shockWaveImplodeSound = trap_S_RegisterSound("sound/weapons/shockwave/kam_implode.wav", qfalse);
+	cgs.media.shockWaveFarSound = trap_S_RegisterSound("sound/weapons/shockwave/kam_explode_far.wav", qfalse);
 #ifdef MISSIONPACK
 	cgs.media.sfx_proxexp = trap_S_RegisterSound("sound/weapons/proxmine/wstbexpl.wav", qfalse);
 	cgs.media.sfx_nghit = trap_S_RegisterSound("sound/weapons/nailgun/wnalimpd.wav", qfalse);
@@ -1046,12 +1049,15 @@ static void CG_RegisterGraphics(void)
 	cgs.media.bulletFlashModel = trap_R_RegisterModel("models/weaphits/bullet.md3");
 	cgs.media.ringFlashModel = trap_R_RegisterModel("models/weaphits/ring02.md3");
 	cgs.media.dishFlashModel = trap_R_RegisterModel("models/weaphits/boom01.md3");
+	cgs.media.shockWaveModel = trap_R_RegisterModel("models/weaphits/kamwave.md3");
+	cgs.media.shockWaveEffectModel = trap_R_RegisterModel("models/weaphits/kamboom2.md3");
 #ifdef MISSIONPACK
 	cgs.media.teleportEffectModel = trap_R_RegisterModel("models/powerups/pop.md3");
 #else
 	cgs.media.teleportEffectModel = trap_R_RegisterModel("models/misc/telep.md3");
 	cgs.media.teleportEffectShader = trap_R_RegisterShader("teleportEffect");
 #endif
+
 #ifdef MISSIONPACK
 	cgs.media.kamikazeEffectModel = trap_R_RegisterModel("models/weaphits/kamboom2.md3");
 	cgs.media.kamikazeShockWave = trap_R_RegisterModel("models/weaphits/kamwave.md3");

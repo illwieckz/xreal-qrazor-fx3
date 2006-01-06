@@ -97,6 +97,8 @@ def loadModel(filename):
 		
 		# animate the verts through keyframe animation
 		mesh = meshObject.getData()
+		#key = mesh.getKey()
+		#print key
 		
 		for i in range(0, surface.numFrames):
 			# update the vertices

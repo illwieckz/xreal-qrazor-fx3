@@ -596,7 +596,7 @@ class md3Object:
 		for i in range(0, self.numFrames):
 			self.frames.append(md3Frame())
 			self.frames[i].load(file)
-			self.frames[i].dump()
+			#self.frames[i].dump()
 		
 		# load the tags info
 		file.seek(self.ofsTags, 0)

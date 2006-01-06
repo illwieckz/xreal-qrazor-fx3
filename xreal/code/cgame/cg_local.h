@@ -233,6 +233,7 @@ typedef enum
 	LE_FADE_RGB,
 	LE_SCALE_FADE,
 	LE_SCOREPLUM,
+	LE_SHOCKWAVE,
 #ifdef MISSIONPACK
 	LE_KAMIKAZE,
 	LE_INVULIMPACT,
@@ -803,6 +804,8 @@ typedef struct
 	qhandle_t       ringFlashModel;
 	qhandle_t       dishFlashModel;
 	qhandle_t       lightningExplosionModel;
+	qhandle_t       shockWaveModel;
+	qhandle_t       shockWaveEffectModel;
 
 	// weapon effect shaders
 	qhandle_t       railExplosionShader;
@@ -815,7 +818,7 @@ typedef struct
 
 	// special effects models
 	qhandle_t       teleportEffectModel;
-	qhandle_t       teleportEffectShader;
+	qhandle_t       teleportEffectShader;	
 #ifdef MISSIONPACK
 	qhandle_t       kamikazeEffectModel;
 	qhandle_t       kamikazeShockWave;
@@ -863,6 +866,9 @@ typedef struct
 	sfxHandle_t     sfx_railg;
 	sfxHandle_t     sfx_rockexp;
 	sfxHandle_t     sfx_plasmaexp;
+	sfxHandle_t     shockWaveExplodeSound;
+	sfxHandle_t     shockWaveImplodeSound;
+	sfxHandle_t     shockWaveFarSound;
 #ifdef MISSIONPACK
 	sfxHandle_t     sfx_proxexp;
 	sfxHandle_t     sfx_nghit;
@@ -1424,6 +1430,7 @@ localEntity_t  *CG_SmokePuff(const vec3_t p,
 							 float duration, int startTime, int fadeInTime, int leFlags, qhandle_t hShader);
 void            CG_BubbleTrail(vec3_t start, vec3_t end, float spacing);
 void            CG_SpawnEffect(vec3_t org);
+void            CG_ShockWaveEffect(vec3_t org);
 
 #ifdef MISSIONPACK
 void            CG_KamikazeEffect(vec3_t org);
