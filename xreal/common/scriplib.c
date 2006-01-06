@@ -317,6 +317,7 @@ skipspace:
 			   (*script->script_p >= 'a' && *script->script_p <= 'z')	||
 			   (*script->script_p >= 'A' && *script->script_p <= 'Z')	||
 			   (*script->script_p == '_') 								||
+			   (*script->script_p == '-') 								||
 			   (*script->script_p >= '0' && *script->script_p <= '9')	||
 			   (*script->script_p == '/')								||
 			   (*script->script_p == '\\')								||
