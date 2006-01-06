@@ -22,6 +22,7 @@ $CC ../cg_info.c
 $CC ../cg_localents.c
 $CC ../cg_main.c
 $CC ../cg_marks.c
+$CC ../cg_particles.c
 $CC ../cg_players.c
 $CC ../cg_playerstate.c
 $CC ../cg_predict.c

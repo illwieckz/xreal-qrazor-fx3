@@ -19,6 +19,7 @@ cgame_src = [
 'code/cgame/cg_info.c',
 'code/cgame/cg_localents.c',
 'code/cgame/cg_marks.c',
+'code/cgame/cg_particles.c',
 'code/cgame/cg_players.c',
 'code/cgame/cg_playerstate.c',
 'code/cgame/cg_predict.c',
