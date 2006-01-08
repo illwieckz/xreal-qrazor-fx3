@@ -843,6 +843,7 @@ typedef enum
 	SF_POLY,
 	SF_MD3,
 	SF_MD4,
+	SF_MDS,
 	SF_FLARE,
 	SF_ENTITY,					// beams, rails, lightning, etc that can be determined by entity
 	SF_DISPLAY_LIST,
@@ -1077,8 +1078,9 @@ typedef enum
 {
 	MOD_BAD,
 	MOD_BRUSH,
-	MOD_MESH,
-	MOD_MD4
+	MOD_MD3,
+	MOD_MD4,
+	MOD_MDS
 } modtype_t;
 
 typedef struct model_s
@@ -1089,8 +1091,9 @@ typedef struct model_s
 
 	int             dataSize;	// just for listing purposes
 	bmodel_t       *bmodel;		// only if type == MOD_BRUSH
-	md3Header_t    *md3[MD3_MAX_LODS];	// only if type == MOD_MESH
+	md3Header_t    *md3[MD3_MAX_LODS];	// only if type == MOD_MD3
 	md4Header_t    *md4;		// only if type == MOD_MD4
+	mdsHeader_t    *mds;		// only if type == MOD_MDS
 
 	int             numLods;
 } model_t;
@@ -1490,6 +1493,7 @@ extern cvar_t  *r_saveFontData;
 extern cvar_t  *r_showLightMaps;		// render lightmaps only
 extern cvar_t  *r_showNormalMaps;
 extern cvar_t  *r_showShadowVolumes;
+extern cvar_t  *r_showSkeleton;
 
 
 //====================================================================
@@ -1951,9 +1955,11 @@ ANIMATED MODELS
 =============================================================
 */
 
-void            R_MakeAnimModel(model_t * model);
-void            R_AddAnimSurfaces(trRefEntity_t * ent);
-void            RB_SurfaceAnim(md4Surface_t * surfType);
+void            R_AddMD4Surfaces(trRefEntity_t * ent);
+void            RB_SurfaceMD4(md4Surface_t * surfType);
+
+void            R_AddMDSSurfaces(trRefEntity_t * ent);
+void            RB_SurfaceMDS(mdsSurface_t * surfType);
 
 /*
 =============================================================

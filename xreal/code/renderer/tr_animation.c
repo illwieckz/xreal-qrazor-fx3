@@ -35,10 +35,10 @@ frame.
 
 /*
 ==============
-R_AddAnimSurfaces
+R_AddMD4Surfaces
 ==============
 */
-void R_AddAnimSurfaces(trRefEntity_t * ent)
+void R_AddMD4Surfaces(trRefEntity_t * ent)
 {
 	md4Header_t    *header;
 	md4Surface_t   *surface;
@@ -61,10 +61,10 @@ void R_AddAnimSurfaces(trRefEntity_t * ent)
 
 /*
 ==============
-RB_SurfaceAnim
+RB_SurfaceMD4
 ==============
 */
-void RB_SurfaceAnim(md4Surface_t * surface)
+void RB_SurfaceMD4(md4Surface_t * surface)
 {
 	int             i, j, k;
 	float           frontlerp, backlerp;
@@ -95,10 +95,8 @@ void RB_SurfaceAnim(md4Surface_t * surface)
 
 	frameSize = (int)(&((md4Frame_t *) 0)->bones[header->numBones]);
 
-	frame = (md4Frame_t *) ((byte *) header + header->ofsFrames +
-							backEnd.currentEntity->e.frame * frameSize);
-	oldFrame = (md4Frame_t *) ((byte *) header + header->ofsFrames +
-							   backEnd.currentEntity->e.oldframe * frameSize);
+	frame = (md4Frame_t *) ((byte *) header + header->ofsFrames + backEnd.currentEntity->e.frame * frameSize);
+	oldFrame = (md4Frame_t *) ((byte *) header + header->ofsFrames + backEnd.currentEntity->e.oldframe * frameSize);
 
 	RB_CheckOverflow(surface->numVerts, surface->numTriangles * 3);
 
@@ -183,3 +181,29 @@ void RB_SurfaceAnim(md4Surface_t * surface)
 
 	tess.numVertexes += surface->numVerts;
 }
+
+
+
+/*
+==============
+R_AddMDSSurfaces
+==============
+*/
+void R_AddMDSSurfaces(trRefEntity_t * ent)
+{
+	mdsHeader_t    *header;
+	mdsSurface_t   *surface;
+	shader_t       *shader;
+	int             i;
+
+	header = tr.currentModel->mds;
+
+	surface = (mdsSurface_t *) ((byte *) header + header->ofsSurfaces);
+	for(i = 0; i < header->numSurfaces; i++)
+	{
+		shader = R_GetShaderByHandle(surface->shaderIndex);
+		R_AddDrawSurf((void *)surface, shader, 0 /*fogNum */ , qfalse);
+		surface = (mdsSurface_t *) ((byte *) surface + surface->ofsEnd);
+	}
+}
+

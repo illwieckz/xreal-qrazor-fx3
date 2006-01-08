@@ -1525,12 +1525,16 @@ void R_AddEntitySurfaces(void)
 				{
 					switch (tr.currentModel->type)
 					{
-						case MOD_MESH:
+						case MOD_MD3:
 							R_AddMD3Surfaces(ent);
 							break;
 							
 						case MOD_MD4:
-							R_AddAnimSurfaces(ent);
+							R_AddMD4Surfaces(ent);
+							break;
+							
+						case MOD_MDS:
+							R_AddMDSSurfaces(ent);
 							break;
 							
 						case MOD_BRUSH:

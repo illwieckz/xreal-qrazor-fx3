@@ -168,7 +168,6 @@ static int R_CullModel(md3Header_t * header, trRefEntity_t * ent)
 /*
 =================
 R_ComputeLOD
-
 =================
 */
 int R_ComputeLOD(trRefEntity_t * ent)
@@ -189,8 +188,7 @@ int R_ComputeLOD(trRefEntity_t * ent)
 		// multiple LODs exist, so compute projected bounding sphere
 		// and use that as a criteria for selecting LOD
 
-		frame =
-			(md3Frame_t *) (((unsigned char *)tr.currentModel->md3[0]) + tr.currentModel->md3[0]->ofsFrames);
+		frame = (md3Frame_t *) (((unsigned char *)tr.currentModel->md3[0]) + tr.currentModel->md3[0]->ofsFrames);
 
 		frame += ent->e.frame;
 
@@ -235,7 +233,6 @@ int R_ComputeLOD(trRefEntity_t * ent)
 /*
 =================
 R_ComputeFogNum
-
 =================
 */
 int R_ComputeFogNum(md3Header_t * header, trRefEntity_t * ent)
@@ -279,7 +276,6 @@ int R_ComputeFogNum(md3Header_t * header, trRefEntity_t * ent)
 /*
 =================
 R_AddMD3Surfaces
-
 =================
 */
 void R_AddMD3Surfaces(trRefEntity_t * ent)

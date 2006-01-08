@@ -26,6 +26,8 @@ code/renderer
 - simple glow post process effect
 - light bloom post process effects
 - anisotropic texture filtering
+- skeletal animation
+- Return to Castle Wolfenstein .mds model file format support
 
 common/aselib
 - fixed bad Doom3 paths
