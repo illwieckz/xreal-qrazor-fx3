@@ -26,6 +26,7 @@ code/renderer
 - simple glow post process effect
 - light bloom post process effects
 - anisotropic texture filtering
+- r_shadows 2 has additional zfail method
 - skeletal animation
 - Return to Castle Wolfenstein .mds model file format support
 
