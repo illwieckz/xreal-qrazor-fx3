@@ -9,7 +9,7 @@ Tooltip: 'Import from Quake3 file format. (.md3)'
 
 __author__ = "PhaethonH, Bob Holcomb, Robert (Tr3B) Beckebans"
 __url__ = ("http://xreal.sourceforge.net")
-__version__ = "0.4 2005-10-7"
+__version__ = "0.5 2006-01-08"
 
 __bpydoc__ = """\
 This script imports a Quake 3 file (MD3), textures, 
@@ -18,13 +18,13 @@ from www.gametutorials.com-Thanks DigiBen! and the
 md3 blender loader by PhaethonH <phaethon@linux.ucla.edu>
 
 Supported:<br>
-	Surfaces, Animations and Materials.
+	Surfaces and Materials
 
 Missing:<br>
-    Multitag model support.
+    Animations
 
 Known issues:<br>
-    None.
+    None
 
 Notes:<br>
     TODO
@@ -53,7 +53,7 @@ def loadModel(filename):
 	md3.dump()
 	file.close()
 	
-	scene = Blender.Scene.getCurrent()
+	scene = Scene.getCurrent()
 	
 	for surface in md3.surfaces:
 		# create a new mesh
@@ -84,23 +84,34 @@ def loadModel(filename):
 			face.v.append(mesh.verts[triangle.indexes[0]])
 			face.v.append(mesh.verts[triangle.indexes[1]])
 			face.v.append(mesh.verts[triangle.indexes[2]])
-			
-			# append the list of UV
 			face.uv.append(uvList[triangle.indexes[0]])
 			face.uv.append(uvList[triangle.indexes[1]])
 			face.uv.append(uvList[triangle.indexes[2]])
-	
 			mesh.faces.append(face)
 	
 		meshObject = NMesh.PutRaw(mesh)
 		meshObject.name = surface.name
 		
 		# animate the verts through keyframe animation
-		mesh = meshObject.getData()
-		#key = mesh.getKey()
-		#print key
+		#mesh = meshObject.getData()
 		
-		for i in range(0, surface.numFrames):
+		#for i in range(0, surface.numFrames):
+			
+			# absolute works too, but I want to get these into NLA actions
+			#mesh.insertKey(i + 1, "relative")
+			
+			# absolute keys, need to figure out how to get them working around the 100 frame limitation
+			#mesh.insertKey(i + 1, "absolute")
+			
+			#key = mesh.getKey()
+			#print "key: ", key
+		
+			#keyBlocks = key.getBlocks()
+			#for keyBlock in keyBlocks:
+			#keyBlock.name = 
+			#print "keyblock: ", keyBlock.name
+			
+			"""
 			# update the vertices
 			for j in range(0, surface.numVerts):
 				# i*sufrace.numVerts+j=where in the surface vertex list the vert position for this frame is
@@ -112,37 +123,12 @@ def loadModel(filename):
 				mesh.verts[j].co[0] = x
 				mesh.verts[j].co[1] = y
 				mesh.verts[j].co[2] = z
-	
+			
 			mesh.update()
-			NMesh.PutRaw(mesh, meshObject.name)
 			
-			# absolute works too, but I want to get these into NLA actions
-			# mesh.insertKey(i, "relative")
-			
-			# absolute keys, need to figure out how to get them working around the 100 frame limitation
-			mesh.insertKey(i + 1, "absolute")
-			
-			Blender.Set("curframe", i + 1)
-			
+			#NMesh.PutRaw(mesh, meshObject.name)
 			"""
-			# hack to evenly space out the vertex keyframes on the IPO chart
-			if i == 0:
-				# after an IPO curve is created, make it a strait line so it 
-				# doesn't peak out inserted frames position at 100
-				# get the IPO for the model, it's ugly, but it works
-				ob = Blender.Ipo.Get("KeyIpo")
-				
-				# get the curve for the IPO, again ugly
-				ipos = ob.getCurves()
-				
-				# make the first (and only) curve extrapolated
-				for this_ipo in ipos:
-					this_ipo.setExtrapolation("Extrapolation")
-					
-					# recalculate it
-					this_ipo.Recalc()
-			"""
-			
+		
 		# create materials for surface
 		for i in range(0, surface.numShaders):
 			
@@ -227,7 +213,7 @@ def loadModel(filename):
 	
 	# not really necessary, but I like playing with the frame counter
 	#Blender.Set("staframe", 1)
-	Blender.Set("curframe", md3.numFrames)
+	#Blender.Set("curframe", md3.numFrames)
 	#Blender.Set("endframe", md3.numFrames)
 	
 Blender.Window.FileSelector(loadModel, 'Import Quake3 MD3')
