@@ -1329,6 +1329,9 @@ void ClientSpawn(gentity_t * ent)
 
 	client->ps.stats[STAT_WEAPONS] |= (1 << WP_GAUNTLET);
 	client->ps.ammo[WP_GAUNTLET] = -1;
+	
+	// Tr3B - start with grappling hook
+	//client->ps.stats[STAT_WEAPONS] |= (1 << WP_GRAPPLING_HOOK);
 	client->ps.ammo[WP_GRAPPLING_HOOK] = -1;
 
 	// health will count down towards max_health
