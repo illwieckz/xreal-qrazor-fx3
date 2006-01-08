@@ -42,13 +42,7 @@ import q_math
 from q_math import *
 
 
-NUM_FRAMES = 1
-EXPORT_ALL = 0   # export only selected objs, or all?
-
 def applyTransform(vert, matrix):
-	#vertCopy = Mathutils.CopyVec(vert)
-	#vertCopy.resize4D()
-	#return Mathutils.VecMultMat(vertCopy, matrix)
 	return vert * matrix
 
 
@@ -231,12 +225,8 @@ def saveModel(fileName):
 		frame.name = "frame_" + str(i)
 		md3.frames.append(frame)
 
-	# do we export all objects or just the selected ones?
-	if EXPORT_ALL:
-		objlist = Blender.Object.Get()
-	else:
-		objlist = Blender.Object.GetSelected()
-
+	# export all selected objects
+	objlist = Blender.Object.GetSelected()
 
 	# process each object for the export
 	for obj in objlist:

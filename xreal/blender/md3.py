@@ -604,7 +604,7 @@ class md3Object:
 			for j in range(0, self.numTags):
 				tag = md3Tag()
 				tag.load(file)
-				tag.dump()
+				#tag.dump()
 				self.tags.append(tag)
 		
 		# load the surface info
