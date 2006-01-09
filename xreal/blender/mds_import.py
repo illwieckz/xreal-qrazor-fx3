@@ -15,7 +15,7 @@ __bpydoc__ = """\
 This script imports a Return to Castle Wolfenstein file (MDS).
 
 Supported:<br>
-    TODO
+	This script imports the skeleton and creates an armature object of it.
 
 Missing:<br>
     TODO
@@ -91,9 +91,9 @@ def loadModel(filename):
 			pitch = frameBone.angles[0]
 			yaw = frameBone.angles[1]
 			roll = frameBone.angles[2]
-			
 			#if j == 0:
 			#	print "framebone angles:", pitch, yaw, roll
+			boneRotation = MatrixFromAngles(pitch, yaw, roll)
 			
 			# rotate offset vector
 			pitch = frameBone.offsetAngles[0]
