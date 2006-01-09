@@ -1339,6 +1339,11 @@ void RB_CalcFogTexCoords(float *st)
 	}
 	else
 	{
+		fogDepthVector[0] = 0;
+		fogDepthVector[1] = 0;
+		fogDepthVector[2] = 0;
+		fogDepthVector[3] = 0;
+		
 		eyeT = 1;				// non-surface fog always has eye inside
 	}
 
