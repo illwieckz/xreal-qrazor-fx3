@@ -8,7 +8,7 @@ Tooltip: 'Export to Quake3 file format. (.md3)'
 """
 __author__ = "PhaethonH, Bob Holcomb, Damien McGinnes, Robert (Tr3B) Beckebans"
 __url__ = ("http://xreal.sourceforge.net")
-__version__ = "0.2 2005-10-7"
+__version__ = "0.3 2006-01-09"
 
 __bpydoc__ = """\
 This script exports a Quake3 file (MD3).
@@ -40,6 +40,9 @@ from md3 import *
 
 import q_math
 from q_math import *
+
+import q_shared
+from q_shared import *
 
 
 def applyTransform(vert, matrix):

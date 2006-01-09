@@ -45,6 +45,9 @@ from md3 import *
 import q_math
 from q_math import *
 
+#import q_shared
+#from q_shared import *
+
 def loadModel(filename):
 	# read the file in
 	file = open(filename,"rb")
@@ -92,6 +95,7 @@ def loadModel(filename):
 		meshObject = NMesh.PutRaw(mesh)
 		meshObject.name = surface.name
 		
+		"""
 		# animate the verts through keyframe animation
 		#mesh = meshObject.getData()
 		
@@ -111,7 +115,6 @@ def loadModel(filename):
 			#keyBlock.name = 
 			#print "keyblock: ", keyBlock.name
 			
-			"""
 			# update the vertices
 			for j in range(0, surface.numVerts):
 				# i*sufrace.numVerts+j=where in the surface vertex list the vert position for this frame is
@@ -127,7 +130,7 @@ def loadModel(filename):
 			mesh.update()
 			
 			#NMesh.PutRaw(mesh, meshObject.name)
-			"""
+		"""
 		
 		# create materials for surface
 		for i in range(0, surface.numShaders):
@@ -145,27 +148,27 @@ def loadModel(filename):
 				texture = Texture.New(matName)
 				texture.setType('Image')
 			
-				# NOTE: change this to your installation directory
+				# try .tga by default
+				imageName = stripExtension(GAMEDIR + surface.shaders[i].name) + '.tga'
 				try:
-					# try .tga by default
-					imageName = stripExtension(GAMEDIR + surface.shaders[i].name) + '.tga'
 					image = Image.Load(imageName)
-					
-					# assign image to texture
+				
 					texture.image = image
 				except:
 					try:
-						imageName = stripExtension(imageName) + '.jpg'
+						imageName = stripExtension(imageName) + '.png'
 						image = Image.Load(imageName)
 					
-						# assign image to texture
 						texture.image = image
 					except:
-						print "unable to load image ", imageName
+						try:
+							imageName = stripExtension(imageName) + '.jpg'
+							image = Image.Load(imageName)
+						
+							texture.image = image
+						except:
+							print "unable to load image ", imageName
 				
-				#print "Image from", image.getFilename()
-				#print "loaded to obj", image.getName()
-			
 				# texture to material
 				mat.setTexture(0, texture, Texture.TexCo.UV, Texture.MapTo.COL)
 	

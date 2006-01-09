@@ -4,11 +4,11 @@ from types import *
 import os
 from os import path
 
-GAMEDIR = '/opt/xreal/base/'
+import q_shared
+from q_shared import *
 
 MD3_IDENT = "IDP3"
 MD3_VERSION = 15
-MD3_MAX_QPATH = 64
 MD3_MAX_TAGS = 16
 MD3_MAX_SURFACES = 32
 MD3_MAX_FRAMES = 1024
@@ -17,42 +17,6 @@ MD3_MAX_VERTICES = 4096
 MD3_MAX_TRIANGLES = 8192
 MD3_XYZ_SCALE = (1.0 / 64.0)
 MD3_BLENDER_SCALE = (1.0 / 1.0)
-
-
-def asciiz(s):
-	n = 0
-	while(ord(s[n]) != 0):
-		n = n + 1
-	return s[0:n]
-
-# strips the slashes from the back of a string
-def stripPath(path):
-	for c in range(len(path), 0, -1):
-		if path[c-1] == "/" or path[c-1] == "\\":
-			path = path[c:]
-			break
-	return path
-	
-# strips the model from path
-def stripModel(path):
-	for c in range(len(path), 0, -1):
-		if path[c-1] == "/" or path[c-1] == "\\":
-			path = path[:c]
-			break
-	return path
-
-# strips file type extension
-def stripExtension(name):
-	if name.find('.') != -1:
-		name = name[:name.find('.')]
-	return name
-	
-# strips gamedir
-def stripGamePath(name):
-	if name[0:len(GAMEDIR)] == GAMEDIR:
-		name = name[len(GAMEDIR):len(name)]
-	return name
-
 
 
 class md3Vert:
@@ -207,7 +171,7 @@ class md3Shader:
 	name = ""
 	index = 0
 	
-	binaryFormat = "<%dsi" % MD3_MAX_QPATH
+	binaryFormat = "<%dsi" % MAX_QPATH
 
 	def __init__(self):
 		self.name = ""
@@ -256,7 +220,7 @@ class md3Surface:
 	uv = []
 	verts = []
 	
-	binaryFormat = "<4s%ds10i" % MD3_MAX_QPATH  # 1 int, name, then 10 ints
+	binaryFormat = "<4s%ds10i" % MAX_QPATH  # 1 int, name, then 10 ints
 	
 	def __init__(self):
 		self.ident = ""
@@ -402,7 +366,7 @@ class md3Tag:
 	origin = []
 	axis = []
 	
-	binaryFormat="<%ds3f9f" % MD3_MAX_QPATH
+	binaryFormat="<%ds3f9f" % MAX_QPATH
 	
 	def __init__(self):
 		self.name = ""
@@ -535,7 +499,7 @@ class md3Object:
 	tags = []
 	surfaces = []
 
-	binaryFormat="<4si%ds9i" % MD3_MAX_QPATH  # little-endian (<), 17 integers (17i)
+	binaryFormat="<4si%ds9i" % MAX_QPATH  # little-endian (<), 17 integers (17i)
 
 	def __init__(self):
 		self.ident = 0
@@ -576,8 +540,8 @@ class md3Object:
 
 		if(self.ident != "IDP3" or self.version != 15):
 			print "Not a valid MD3 file"
-			print "Ident=", self.ident
-			print "Version=",self.version
+			print "Ident: ", self.ident
+			print "Version: ", self.version
 			Exit()
 
 		self.name = asciiz(data[2])
