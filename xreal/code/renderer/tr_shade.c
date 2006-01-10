@@ -2558,13 +2558,9 @@ Blends a fog texture on top of everything else
 */
 static void RB_FogPass(void)
 {
-#if 1
 	fog_t          *fog;
 	int             i;
 	
-	GL_Program(0);
-	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
-
 	fog = tr.world->fogs + tess.fogNum;
 
 	for(i = 0; i < tess.numVertexes; i++)
@@ -2574,6 +2570,10 @@ static void RB_FogPass(void)
 
 	RB_CalcFogTexCoords((float *)tess.svars.texCoords[0]);
 
+	GL_Program(0);
+	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
+	GL_SetVertexAttribs();
+	
 	GL_Bind(tr.fogImage);
 
 	if(tess.shader->fogPass == FP_EQUAL)
@@ -2586,7 +2586,6 @@ static void RB_FogPass(void)
 	}
 
 	R_DrawElements(tess.numIndexes, tess.indexes);
-#endif
 }
 
 
