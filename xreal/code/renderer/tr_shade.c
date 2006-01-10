@@ -1711,6 +1711,58 @@ static void Render_lightmap_FFP(int stage)
 	GL_ClientState(GLCS_DEFAULT);
 }
 
+static void Render_lighting_D_radiosity_FFP(int stage)
+{
+	shaderStage_t  *pStage;
+
+	pStage = tess.xstages[stage];
+	
+	GL_Program(0);
+	GL_SelectTexture(0);
+	GL_State(pStage->stateBits);
+	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
+	GL_SetVertexAttribs();
+
+	// this is an ugly hack to work around a GeForce driver
+	// bug with multitexture and clip planes
+	if(backEnd.viewParms.isPortal)
+	{
+		qglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+
+	// base
+	GL_SelectTexture(0);
+	R_BindAnimatedImage(&pStage->bundle[TB_DIFFUSEMAP]);
+
+	// lightmap/secondary pass
+	GL_SelectTexture(1);
+	
+	qglEnable(GL_TEXTURE_2D);
+	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	
+	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_LIGHTMAP]);
+
+	if(r_showLightMaps->integer)
+	{
+		GL_TexEnv(GL_REPLACE);
+	}
+	else
+	{
+		GL_TexEnv(GL_MODULATE);
+	}
+
+	R_BindAnimatedImage(&pStage->bundle[TB_LIGHTMAP]);
+
+	R_DrawElements(tess.numIndexes, tess.indexes);
+
+	// disable texturing on TEXTURE1
+	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	qglDisable(GL_TEXTURE_2D);
+	
+	GL_SelectTexture(0);
+	GL_ClientState(GLCS_DEFAULT);
+}
+
 static void Render_lighting_D_radiosity(int stage)
 {
 	shaderStage_t  *pStage;
@@ -3012,7 +3064,7 @@ static void RB_IterateStagesGeneric()
 				}
 				else
 				{
-					Render_generic_single_FFP(stage);
+					Render_lighting_D_radiosity_FFP(stage);
 				}
 				
 				break;
@@ -3039,7 +3091,7 @@ static void RB_IterateStagesGeneric()
 				}
 				else
 				{
-					Render_generic_single_FFP(stage);
+					Render_lighting_D_radiosity_FFP(stage);
 				}
 				break;
 			}
@@ -3072,7 +3124,7 @@ static void RB_IterateStagesGeneric()
 				}
 				else
 				{
-					Render_generic_single_FFP(stage);
+					Render_lighting_D_radiosity_FFP(stage);
 				}
 				break;
 			}
