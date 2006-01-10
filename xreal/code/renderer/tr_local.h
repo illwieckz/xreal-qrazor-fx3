@@ -342,6 +342,7 @@ typedef enum {
 	OP_GLOBAL5,
 	OP_GLOBAL6,
 	OP_GLOBAL7,
+	OP_FRAGMENTPROGRAMS,
 	OP_SOUND,
 	// table access
 	OP_TABLE

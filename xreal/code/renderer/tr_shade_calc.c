@@ -163,6 +163,10 @@ static float GetOpValue(const expOperation_t * op)
 			value = 1.0;
 			break;
 			
+		case OP_FRAGMENTPROGRAMS:
+			value = glConfig2.shadingLanguage100Available;
+			break;
+			
 		case OP_SOUND:
 			value = 0.5;
 			break;
@@ -251,6 +255,7 @@ float RB_EvalExpression(const expression_t * exp, float defaultValue)
 			case OP_GLOBAL5:
 			case OP_GLOBAL6:
 			case OP_GLOBAL7:
+			case OP_FRAGMENTPROGRAMS:
 			case OP_SOUND:
 				ops[numOps++] = op;
 				break;

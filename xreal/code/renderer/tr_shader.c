@@ -223,6 +223,7 @@ opstring_t opStrings[] =
 	{"global5", OP_GLOBAL5},
 	{"global6", OP_GLOBAL6},
 	{"global7", OP_GLOBAL7},
+	{"fragmentPrograms", OP_FRAGMENTPROGRAMS},
 	{"sound", OP_SOUND},
 	
 	{"table", OP_TABLE},
@@ -298,6 +299,7 @@ static qboolean IsOperand(opcode_t oc)
 		case OP_GLOBAL5:
 		case OP_GLOBAL6:
 		case OP_GLOBAL7:
+		case OP_FRAGMENTPROGRAMS:
 		case OP_SOUND:
 			return qtrue;
 			
