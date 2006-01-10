@@ -267,17 +267,17 @@ textures/common/mirror2
 		blendfunc GL_ONE GL_ONE_MINUS_SRC_ALPHA
 		depthWrite
 	}
+	/*
 	{
 		map textures/sfx/mirror.tga
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
 	}
+	*/
 	{
 		stage	heathazemap
-		//map		textures/sfx/vp1.tga
-		//deformMagnitude	0.4
-		map		textures/liquids/liquid12_norm.tga
-		scroll		time * 0.05 , time * 0.1
-		deformMagnitude	2
+		map		textures/liquids/liquid12_n.tga
+		scroll		0 , time * -0.2
+		deformMagnitude	0.4
 	}
 }
 
