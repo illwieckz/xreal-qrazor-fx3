@@ -1385,7 +1385,7 @@ static qboolean LoadMap(shaderStage_t * stage, char *buffer)
 	// determine image options	
 	if(stage->overrideNoMipMaps || shader.noMipMaps)
 	{
-		imageBits |= IF_NOMIPMAPS;	
+		imageBits |= IF_NOMIPMAPS;
 	}
 	
 	if(stage->overrideNoPicMip || shader.noPicMip)
@@ -1393,14 +1393,14 @@ static qboolean LoadMap(shaderStage_t * stage, char *buffer)
 		imageBits |= IF_NOPICMIP;
 	}
 	
-	if(stage->type == ST_NORMALMAP)
+	if(stage->type == ST_NORMALMAP || stage->type == ST_HEATHAZEMAP)
 	{
-		imageBits |= IF_NORMALMAP;	
+		imageBits |= IF_NORMALMAP;
 	}
 	
 	if(stage->overrideWrapType)
 	{
-		wrapType = stage->wrapType;	
+		wrapType = stage->wrapType;
 	}
 	else
 	{
@@ -1408,56 +1408,12 @@ static qboolean LoadMap(shaderStage_t * stage, char *buffer)
 	}
 	
 	// try to load the image
-	switch(stage->type)
+	stage->bundle[0].image[0] = R_FindImageFile(buffer, imageBits, wrapType);
+
+	if(!stage->bundle[0].image[0])
 	{
-		case ST_COLORMAP:
-		default:
-		{
-			stage->bundle[0].image[0] = R_FindImageFile(buffer, imageBits, wrapType);
-			
-			if(!stage->bundle[0].image[0])
-			{
-				ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find colormap '%s' in shader '%s'\n", buffer, shader.name);
-				return qfalse;
-			}
-			break;
-		}
-		
-		case ST_DIFFUSEMAP:
-		{
-			stage->bundle[0].image[0] = R_FindImageFile(buffer, imageBits, wrapType);
-			
-			if(!stage->bundle[0].image[0])
-			{
-				ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find diffusemap '%s' in shader '%s'\n", buffer, shader.name);
-				return qfalse;
-			}
-			break;
-		}
-		
-		case ST_NORMALMAP:
-		{
-			stage->bundle[0].image[0] = R_FindImageFile(buffer, imageBits, wrapType);
-			
-			if(!stage->bundle[0].image[0])
-			{
-				ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find normalmap '%s' in shader '%s'\n", buffer, shader.name);
-				return qfalse;
-			}
-			break;
-		}
-		
-		case ST_SPECULARMAP:
-		{
-			stage->bundle[0].image[0] = R_FindImageFile(buffer, imageBits, wrapType);
-			
-			if(!stage->bundle[0].image[0])
-			{
-				ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find specularmap '%s' in shader '%s'\n", buffer, shader.name);
-				return qfalse;
-			}
-			break;
-		}
+		ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find image '%s' in shader '%s'\n", buffer, shader.name);
+		return qfalse;
 	}
 	
 	return qtrue;
