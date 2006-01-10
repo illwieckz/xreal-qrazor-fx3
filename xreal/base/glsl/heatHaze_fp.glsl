@@ -34,10 +34,8 @@ void	main()
 	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).agb - 0.5);
 	N = normalize(N);
 
-	vec2 s_coord = gl_FragCoord.st;
-
 	// calculate the screen texcoord in the 0.0 to 1.0 range
-	s_coord *= u_FBufScale;
+	vec2 s_coord = gl_FragCoord.st * u_FBufScale;
 	
 	// offset by the scaled normal and clamp it to 0.0 - 1.0
 	s_coord += N.xy * var_Deform;

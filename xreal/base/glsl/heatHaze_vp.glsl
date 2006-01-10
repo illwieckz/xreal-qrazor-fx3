@@ -37,9 +37,9 @@ void	main()
 	
 	// take the deform magnitude and scale it by the projection distance
 	vec4 R0 = vec4(1, 0, 0, 1);
-	R0.z = dot(gl_ModelViewMatrix[2], gl_Vertex);
-	float R1 = dot(gl_ProjectionMatrix[0],  R0);
-	float R2 = dot(gl_ProjectionMatrix[3],  R0);
+	R0.z = dot(gl_ModelViewMatrixTranspose[2], gl_Vertex);
+	float R1 = dot(gl_ProjectionMatrixTranspose[0],  R0);
+	float R2 = dot(gl_ProjectionMatrixTranspose[3],  R0);
 	
 	// don't let the recip get near zero for polygons that cross the view plane
 	R2 = max(R2, 1.0);
