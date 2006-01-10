@@ -4831,13 +4831,19 @@ void R_ShaderList_f(void)
 	int             i;
 	int             count;
 	shader_t       *shader;
+	char           *s = NULL;
 
 	ri.Printf(PRINT_ALL, "-----------------------\n");
 
+	if(ri.Cmd_Argc() > 1)
+	{
+		s = ri.Cmd_Argv(1);
+	}
+	
 	count = 0;
 	for(i = 0; i < tr.numShaders; i++)
 	{
-		if(ri.Cmd_Argc() > 1)
+		if(ri.Cmd_Argc() > 2)
 		{
 			shader = tr.sortedShaders[i];
 		}
@@ -4845,6 +4851,9 @@ void R_ShaderList_f(void)
 		{
 			shader = tr.shaders[i];
 		}
+		
+		if(s && Q_stricmpn(shader->name, s, strlen(s)) != 0)
+			continue;
 
 		ri.Printf(PRINT_ALL, "%i ", shader->numStages);
 
