@@ -155,37 +155,40 @@ textures/liquids/protolava
 }
 
 textures/liquids/watertest
+{
+//	qer_editorimage textures/liquids/pool3d_3b.tga
+	qer_trans .5
+	q3map_globaltexture
+	surfaceparm trans
+	surfaceparm nonsolid
+	surfaceparm water
 
-//	************************************************************
-//	*      Water test with environmentmap. Created September 21*
-//	************************************************************
+	cull disable
+	tessSize 32
+	deformVertexes normal .15 2 
+	deformVertexes bulge 128 5 2
+	
+	/*
+	{
+		if( 0 )
+		map $lightmap
+		blendfunc filter
+	}
+	{
+		map textures/liquids/pool3d_4byell2.tga
+		blendfunc add
+		tcgen environment
+		tcMod scroll .05 .05
+	}
+	*/
 	
 	{
-		qer_editorimage textures/liquids/pool3d_3b.tga
-		qer_trans .5
-		q3map_globaltexture
-		surfaceparm trans
-		surfaceparm nonsolid
-		surfaceparm water
-
-		cull disable
-		tessSize 32
-		deformVertexes normal .15 2 
-		deformVertexes bulge 128 5 2
-		{	
-			map $lightmap
-			blendfunc filter
-		}
-		
-		{
-			map textures/liquids/pool3d_4byell2.tga
-			blendfunc add
-			tcgen environment
-	//		tcMod scroll .05 .05
-		}
-
-	
+		stage	heathazemap
+		map		textures/liquids/watertest_n.tga
+		scroll	time * 0.2 , time * 0.2
+		deformMagnitude	0.4
 	}
+}
 
 
 
@@ -252,6 +255,8 @@ textures/liquids/xctf_painwater
                         //rgbgen wave sin .1 1 5 .1
 		}
 	}
+	
+
 textures/liquids/clear_calm1
 {
 	qer_editorimage textures/liquids/pool3d_3e.tga
@@ -283,116 +288,180 @@ textures/liquids/clear_calm1
 	}
 }
 
-textures/liquids/clear_ripple3
+textures/liquids/clear_calm2
+{
+	qer_editorimage textures/liquids/pool3d_3e.tga
+	qer_trans .5
+	q3map_globaltexture
+	surfaceparm trans
+	surfaceparm nonsolid
+	surfaceparm water
+//	portal
 
-//	*********************************************************
-//	*      Medium clear ripple water. Created September 9	*
-//	*********************************************************
-		
+	cull disable
+	tessSize 16
+	deformVertexes wave 64 sin .25 .25 0 .5	
+	
 	{
-		qer_editorimage textures/liquids/pool3d_3c.tga
-		qer_trans .5
-		q3map_globaltexture
-		surfaceparm trans
-		surfaceparm nonsolid
-		surfaceparm water
-	
-		cull disable
-		deformVertexes wave 64 sin .5 .5 0 .5	
-		
-		{ 
-			map textures/liquids/pool3d_5c.tga
-			blendFunc GL_dst_color GL_one
-			rgbgen identity
-			tcmod scale .5 .5
-			tcmod transform 1.5 0 1.5 1 1 2
-			tcmod scroll -0.05 .001
-		}
-	
-		{ 
-			map textures/liquids/pool3d_6c.tga
-			blendFunc GL_dst_color GL_one
-			rgbgen identity
-			tcmod scale .5 .5
-			tcmod transform 0 1.5 1 1.5 2 1
-			tcmod scroll .025 -0.001
-		}
-
-		{ 
-			map textures/liquids/pool3d_3c.tga
-			blendFunc GL_dst_color GL_one
-			rgbgen identity
-			tcmod scale .25 .5
-			tcmod scroll .001 .025
-		}
-	
-		{
-			map $lightmap
-			blendFunc GL_dst_color GL_zero
-			rgbgen identity		
-		}
-	
-
-//	END
+		map textures/liquids/pool3d_5e.tga
+		blend GL_dst_color , GL_one
+		rgbgen identity
+		scale .5, .5
+		scroll time * .025, time * .01
 	}
+	{
+		stage	heatHazeMap
+		map textures/liquids/pool3d_3e_n.tga
+		scroll time * .025, time * .025
+		deformMagnitude	0.3
+	}
+}
+
+textures/liquids/clear_ripple4
+{
+	qer_editorimage textures/liquids/pool3d_3c.tga
+	qer_trans .5
+	q3map_globaltexture
+	surfaceparm trans
+	surfaceparm nonsolid
+	surfaceparm water
+
+	cull disable
+	deformVertexes wave 64 sin .5 .5 0 .5
+	
+	{
+		map textures/liquids/pool3d_5c.tga
+		blendFunc GL_dst_color GL_one
+		rgbgen identity
+		scale .5 , .5
+		tcmod transform 1.5 0 1.5 1 1 2
+		scroll time * -0.05, time * .001
+	}
+	{
+		if(fragmentPrograms == 1)
+		stage	heatHazeMap
+		deformMagnitude	0.3
+		map textures/liquids/pool3d_6c_n.tga
+		blendFunc GL_dst_color GL_one
+		rgbgen identity
+		scale .5 , .5
+		tcmod transform 0 1.5 1 1.5 2 1
+		scroll time * .025, time * -0.001
+	}
+	{
+		if(fragmentPrograms == 0)
+		map textures/liquids/pool3d_6c.tga
+		blendFunc GL_dst_color GL_one
+		rgbgen identity
+		scale .5 , .5
+		tcmod transform 0 1.5 1 1.5 2 1
+		scroll time * .025, time * -0.001
+	}
+
+	/*
+	{
+		map $lightmap
+		blendFunc GL_dst_color GL_zero
+		rgbgen identity		
+	}
+	*/
+}
+
+
+textures/liquids/clear_ripple3
+{
+	qer_editorimage textures/liquids/pool3d_3c.tga
+	qer_trans .5
+	q3map_globaltexture
+	surfaceparm trans
+	surfaceparm nonsolid
+	surfaceparm water
+
+	cull disable
+	deformVertexes wave 64 sin .5 .5 0 .5
+	
+	{
+		map textures/liquids/pool3d_5c.tga
+		blendFunc GL_dst_color GL_one
+		rgbgen identity
+		tcmod scale .5 .5
+		tcmod transform 1.5 0 1.5 1 1 2
+		tcmod scroll -0.05 .001
+	}
+
+	{
+		map textures/liquids/pool3d_6c.tga
+		blendFunc GL_dst_color GL_one
+		rgbgen identity
+		tcmod scale .5 .5
+		tcmod transform 0 1.5 1 1.5 2 1
+		tcmod scroll .025 -0.001
+	}
+
+	{
+		map textures/liquids/pool3d_3c.tga
+		blendFunc GL_dst_color GL_one
+		rgbgen identity
+		tcmod scale .25 .5
+		tcmod scroll .001 .025
+	}
+
+	{
+		map $lightmap
+		blendFunc GL_dst_color GL_zero
+		rgbgen identity		
+	}
+}
 
 
 textures/liquids/clear_ripple2
+{
+	qer_editorimage textures/liquids/pool3d_3b.tga
+	qer_trans .5
+	q3map_globaltexture
+	surfaceparm trans
+	surfaceparm nonsolid
+	surfaceparm water
 
-//	*********************************************************
-//	*      Small clear ripple water. Created September 9	*
-//	*********************************************************
-	
-	{
-		qer_editorimage textures/liquids/pool3d_3b.tga
-		qer_trans .5
-		q3map_globaltexture
-		surfaceparm trans
-		surfaceparm nonsolid
-		surfaceparm water
+	cull disable
+	deformVertexes wave 64 sin .5 .5 0 .5	
 
-		cull disable
-		deformVertexes wave 64 sin .5 .5 0 .5	
-
-		{ 
-			map textures/liquids/pool3d_5b.tga
-			blendFunc GL_dst_color GL_one
-			rgbgen identity
-			tcmod scale .5 .5
-			tcmod transform 1.5 0 1.5 1 1 2
-			tcmod scroll -0.05 .001
-		}
-	
-		{ 
-			map textures/liquids/pool3d_6b.tga
-			blendFunc GL_dst_color GL_one
-			rgbgen identity
-			tcmod scale .5 .5
-			tcmod transform 0 1.5 1 1.5 2 1
-			tcmod scroll .025 -0.001
-		}
-
-		{ 
-			map textures/liquids/pool3d_3b.tga
-			blendFunc GL_dst_color GL_one
-			rgbgen identity
-			tcmod scale .25 .5
-			tcmod scroll .001 .025
-		}
-
-		{
-			map $lightmap
-			blendFunc GL_dst_color GL_zero
-			rgbgen identity		
-		}
-	
-
-//	END
+	{ 
+		map textures/liquids/pool3d_5b.tga
+		blendFunc GL_dst_color GL_one
+		rgbgen identity
+		tcmod scale .5 .5
+		tcmod transform 1.5 0 1.5 1 1 2
+		tcmod scroll -0.05 .001
 	}
+
+	{ 
+		map textures/liquids/pool3d_6b.tga
+		blendFunc GL_dst_color GL_one
+		rgbgen identity
+		tcmod scale .5 .5
+		tcmod transform 0 1.5 1 1.5 2 1
+		tcmod scroll .025 -0.001
+	}
+
+	{ 
+		map textures/liquids/pool3d_3b.tga
+		blendFunc GL_dst_color GL_one
+		rgbgen identity
+		tcmod scale .25 .5
+		tcmod scroll .001 .025
+	}
+
+	{
+		map $lightmap
+		blendFunc GL_dst_color GL_zero
+		rgbgen identity		
+	}
+}
 
 
 textures/liquids/clear_ripple1
-	{
+{
 		qer_editorimage textures/liquids/pool3d_3.tga
 		qer_trans .5
 		q3map_globaltexture
