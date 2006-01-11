@@ -264,13 +264,10 @@ class mdsFrame:
 		self.parentOffset[2] = data[12]
 		
 		# load the compressed frame bones
-		#ofs = struct.calcsize(self.binaryFormat)
-		#file.seek(ofs, 0)
 		for i in range(0, numBones):
 			self.bones.append(mdsFrameBone())
 			self.bones[i].load(file)
-			if i == 0:
-				self.bones[i].dump()
+			#self.bones[i].dump()
 		return self
 
 	"""

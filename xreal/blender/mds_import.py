@@ -27,14 +27,14 @@ Notes:<br>
     TODO
 """
 
-import Blender
-from Blender import NMesh, Object, Material, Image, Texture, Armature
-
 import sys, struct, string
 from types import *
 
 import os
 from os import path
+
+import Blender
+#from Blender import *
 
 import mds
 from mds import *
@@ -54,7 +54,7 @@ def loadModel(filename):
 	file.close()
 	
 	# build the armature in blender
-	armObj = Object.New('Armature', "bones")
+	armObj = Blender.Object.New('Armature', "bones")
 	
 	armData = Blender.Armature.Armature("MDS_ARM")
 	#armData.drawType = Blender.Armature.STICK
@@ -74,16 +74,18 @@ def loadModel(filename):
 	
 	for i in range(0, 1): #mds.numFrames):
 		frame = mds.frames[i]
-		Blender.Set("curframe", i + 1)
+		
+		#Blender.Set("curframe", i + 1)
+		
+		#context = scene.getRenderingContext()
+		#context.currentFrame(i + 1)
+		
+		#action = Blender.Armature.NLA.NewAction()
+ 		#action.setActive(armObj)
 		
 		for j in range(0, mds.numBones):
 			bone = mds.bones[j]
 			frameBone = mds.frames[i].bones[j]
-			
-			pitch = frameBone.angles[0]
-			yaw = frameBone.angles[1]
-			roll = frameBone.angles[2]
-			boneRotation = MatrixFromAngles(pitch, yaw, roll)
 			
 			armBone = armData.bones[mds.bones[j].name]
 			
@@ -117,6 +119,26 @@ def loadModel(filename):
 				armBone.tail.x += offsetVec[0]
 				armBone.tail.y += offsetVec[1]
 				armBone.tail.z += offsetVec[2]
+				
+			#armBone.options = [Armature.CONNECTED, Armature.HINGE]
+			#armBone.setPose([ROT,LOC,SIZE])
+			
+	"""
+	for i in range(0, 32): #mds.numFrames):
+		frame = mds.frames[i]
+		
+		Blender.Set("curframe", i + 1)
+		
+		#context = scene.getRenderingContext()
+		#context.currentFrame(i + 1)
+		
+		action = Blender.Armature.NLA.NewAction()
+ 		action.setActive(armObj)
+		
+		for j in range(0, mds.numBones):
+			armBone = armData.bones[mds.bones[j].name]
+			armBone.setPose([ROT,LOC,SIZE])
+	"""
 		
 	armData.update()
 	armObj.makeDisplayList()

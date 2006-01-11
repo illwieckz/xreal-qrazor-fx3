@@ -11,7 +11,7 @@ textures/common/nodrawnonsolid
 
 textures/common/invisible
 {
-	surfaceparm nolightmap			
+	surfaceparm nolightmap
 	{
 		map textures/common/invisible.tga
 		alphaFunc GE128
@@ -246,15 +246,12 @@ textures/common/mirror1
 	qer_editorimage textures/common/qer_mirror.tga
 	surfaceparm nolightmap
 	portal
-  
+
 	{
 		map textures/common/mirror1.tga
 		blendfunc GL_ONE GL_ONE_MINUS_SRC_ALPHA
 		depthWrite
 	}
-       
-        
-
 }
 
 textures/common/mirror2
@@ -267,13 +264,13 @@ textures/common/mirror2
 		blendfunc GL_ONE GL_ONE_MINUS_SRC_ALPHA
 		depthWrite
 	}
-	/*
 	{
+		if(fragmentPrograms == 0)
 		map textures/sfx/mirror.tga
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
 	}
-	*/
 	{
+		//if(fragmentPrograms == 1)
 		stage	heathazemap
 		map		textures/liquids/liquid12_n.tga
 		scroll		0 , time * -0.2
