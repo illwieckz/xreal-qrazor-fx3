@@ -1289,6 +1289,8 @@ typedef struct
 	shaderProgram_t lightShader_DBS_omni;
 	
 	shaderProgram_t lightShader_D_radiosity;
+	shaderProgram_t lightShader_DB_radiosity;
+	shaderProgram_t lightShader_DBS_radiosity;
 	
 	shaderProgram_t reflectionShader_C;
 	shaderProgram_t refractionShader_C;
@@ -1373,6 +1375,7 @@ extern cvar_t  *r_ignore;		// used for debugging anything
 extern cvar_t  *r_verbose;		// used for verbose debug spew
 extern cvar_t  *r_ignoreFastPath;	// allows us to ignore our Tess fast paths
 extern cvar_t  *r_bumpMapping;
+extern cvar_t  *r_deluxeMapping;
 extern cvar_t  *r_specular;
 
 extern cvar_t  *r_znear;		// near Z clip plane
@@ -1494,6 +1497,7 @@ extern cvar_t  *r_printShaders;
 extern cvar_t  *r_saveFontData;
 
 extern cvar_t  *r_showLightMaps;		// render lightmaps only
+extern cvar_t  *r_showDeluxeMaps;
 extern cvar_t  *r_showNormalMaps;
 extern cvar_t  *r_showShadowVolumes;
 extern cvar_t  *r_showSkeleton;

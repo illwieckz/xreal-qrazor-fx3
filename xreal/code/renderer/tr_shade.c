@@ -383,6 +383,59 @@ void RB_InitGPUShaders(void)
 	qglUseProgramObjectARB(0);
 	
 	//
+	// radiosity bump mapping
+	//
+	RB_InitGPUShader(&tr.lightShader_DB_radiosity,
+					  "lighting_DB_radiosity",
+					  GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD3 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+
+	tr.lightShader_DB_radiosity.u_DiffuseMap =
+			qglGetUniformLocationARB(tr.lightShader_DB_radiosity.program, "u_DiffuseMap");
+	tr.lightShader_DB_radiosity.u_NormalMap =
+			qglGetUniformLocationARB(tr.lightShader_DB_radiosity.program, "u_NormalMap");
+	tr.lightShader_DB_radiosity.u_LightMap =
+			qglGetUniformLocationARB(tr.lightShader_DB_radiosity.program, "u_LightMap");
+	tr.lightShader_DB_radiosity.u_DeluxeMap =
+			qglGetUniformLocationARB(tr.lightShader_DB_radiosity.program, "u_DeluxeMap");
+
+	qglUseProgramObjectARB(tr.lightShader_DB_radiosity.program);
+	qglUniform1iARB(tr.lightShader_DB_radiosity.u_DiffuseMap, 0);
+	qglUniform1iARB(tr.lightShader_DB_radiosity.u_NormalMap, 1);
+	qglUniform1iARB(tr.lightShader_DB_radiosity.u_LightMap, 2);
+	qglUniform1iARB(tr.lightShader_DB_radiosity.u_DeluxeMap, 3);
+	qglUseProgramObjectARB(0);
+	
+	//
+	// radiosity specular bump mapping
+	//
+	RB_InitGPUShader(&tr.lightShader_DBS_radiosity,
+					  "lighting_DBS_radiosity",
+					  GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD2 | GLCS_TEXCOORD3 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+
+	tr.lightShader_DBS_radiosity.u_DiffuseMap =
+			qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_DiffuseMap");
+	tr.lightShader_DBS_radiosity.u_NormalMap =
+			qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_NormalMap");
+	tr.lightShader_DBS_radiosity.u_SpecularMap =
+			qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_SpecularMap");
+	tr.lightShader_DBS_radiosity.u_LightMap =
+			qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_LightMap");
+	tr.lightShader_DBS_radiosity.u_DeluxeMap =
+			qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_DeluxeMap");
+	tr.lightShader_DBS_radiosity.u_ViewOrigin =
+			qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_ViewOrigin");
+	tr.lightShader_DBS_radiosity.u_SpecularExponent =
+			qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_SpecularExponent");
+
+	qglUseProgramObjectARB(tr.lightShader_DBS_radiosity.program);
+	qglUniform1iARB(tr.lightShader_DBS_radiosity.u_DiffuseMap, 0);
+	qglUniform1iARB(tr.lightShader_DBS_radiosity.u_NormalMap, 1);
+	qglUniform1iARB(tr.lightShader_DBS_radiosity.u_SpecularMap, 2);
+	qglUniform1iARB(tr.lightShader_DBS_radiosity.u_LightMap, 3);
+	qglUniform1iARB(tr.lightShader_DBS_radiosity.u_DeluxeMap, 4);
+	qglUseProgramObjectARB(0);
+	
+	//
 	// cubemap reflection for abitrary polygons
 	//
 	RB_InitGPUShader(&tr.reflectionShader_C,
@@ -638,6 +691,18 @@ void RB_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.lightShader_D_radiosity.program);
 		tr.lightShader_D_radiosity.program = 0;
+	}
+	
+	if(tr.lightShader_DB_radiosity.program)
+	{
+		qglDeleteObjectARB(tr.lightShader_DB_radiosity.program);
+		tr.lightShader_DB_radiosity.program = 0;
+	}
+	
+	if(tr.lightShader_DBS_radiosity.program)
+	{
+		qglDeleteObjectARB(tr.lightShader_DBS_radiosity.program);
+		tr.lightShader_DBS_radiosity.program = 0;
 	}
 	
 	if(tr.reflectionShader_C.program)
@@ -1711,6 +1776,35 @@ static void Render_lightmap_FFP(int stage)
 	GL_ClientState(GLCS_DEFAULT);
 }
 
+// Tr3B - r_showDeluxeMaps development tool
+static void Render_deluxemap_FFP(int stage)
+{
+	shaderStage_t  *pStage;
+
+	pStage = tess.xstages[stage];
+	
+	if(!pStage->bundle[TB_LIGHTMAP].image[1])
+		return;
+	
+	GL_Program(0);
+	
+	GL_State(pStage->stateBits);
+	GL_ClientState(GLCS_VERTEX);
+	GL_SetVertexAttribs();
+
+	GL_SelectTexture(0);
+	
+	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_LIGHTMAP]);
+	
+	GL_Bind(pStage->bundle[TB_LIGHTMAP].image[1]);
+
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	GL_ClientState(GLCS_DEFAULT);
+}
+
 static void Render_lighting_D_radiosity_FFP(int stage)
 {
 	shaderStage_t  *pStage;
@@ -1783,6 +1877,89 @@ static void Render_lighting_D_radiosity(int stage)
 	// bind lightmap
 	GL_SelectTexture(1);
 	GL_Bind(pStage->bundle[TB_LIGHTMAP].image[0]);
+	
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+	GL_SelectTexture(0);
+	GL_ClientState(GLCS_DEFAULT);
+//	GL_Program(0);
+}
+
+static void Render_lighting_DB_radiosity(int stage)
+{
+	shaderStage_t  *pStage;
+	
+	pStage = tess.xstages[stage];
+	
+	GL_State(pStage->stateBits);
+	
+	// enable shader, set arrays
+	GL_Program(tr.lightShader_DB_radiosity.program);
+	GL_ClientState(tr.lightShader_DB_radiosity.attribs);
+	GL_SetVertexAttribs();
+
+	// bind diffusemap
+	GL_SelectTexture(0);
+	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+	
+	// bind normalmap
+	GL_SelectTexture(1);
+	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
+	
+	// bind lightmap
+	GL_SelectTexture(2);
+	GL_Bind(pStage->bundle[TB_LIGHTMAP].image[0]);
+	
+	// bind deluxemap
+	GL_SelectTexture(3);
+	GL_Bind(pStage->bundle[TB_LIGHTMAP].image[1]);
+	
+	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+	GL_SelectTexture(0);
+	GL_ClientState(GLCS_DEFAULT);
+//	GL_Program(0);
+}
+
+static void Render_lighting_DBS_radiosity(int stage)
+{
+	vec3_t			viewOrigin;
+	shaderStage_t  *pStage;
+	
+	pStage = tess.xstages[stage];
+	
+	GL_State(pStage->stateBits);
+	
+	// enable shader, set arrays
+	GL_Program(tr.lightShader_DBS_radiosity.program);
+	GL_ClientState(tr.lightShader_DBS_radiosity.attribs);
+	GL_SetVertexAttribs();
+	
+	// set uniforms
+	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
+	
+	qglUniform3fARB(tr.lightShader_DBS_radiosity.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	qglUniform1fARB(tr.lightShader_DBS_radiosity.u_SpecularExponent, 32.0);
+
+	// bind diffusemap
+	GL_SelectTexture(0);
+	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+	
+	// bind normalmap
+	GL_SelectTexture(1);
+	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
+	
+	// bind specular
+	GL_SelectTexture(2);
+	GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
+	
+	// bind lightmap
+	GL_SelectTexture(3);
+	GL_Bind(pStage->bundle[TB_LIGHTMAP].image[0]);
+	
+	// bind deluxemap
+	GL_SelectTexture(4);
+	GL_Bind(pStage->bundle[TB_LIGHTMAP].image[1]);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
@@ -3058,6 +3235,10 @@ static void RB_IterateStagesGeneric()
 				{
 					Render_lightmap_FFP(stage);
 				}
+				else if(r_deluxeMapping->integer && r_showDeluxeMaps->integer)
+				{
+					Render_deluxemap_FFP(stage);
+				}
 				else if(glConfig2.shadingLanguage100Available)
 				{
 					Render_lighting_D_radiosity(stage);
@@ -3076,15 +3257,17 @@ static void RB_IterateStagesGeneric()
 				{
 					Render_lightmap_FFP(stage);
 				}
+				else if(r_deluxeMapping->integer && r_showDeluxeMaps->integer)
+				{
+					Render_deluxemap_FFP(stage);
+				}
 				else if(glConfig2.shadingLanguage100Available)
 				{
-					/*
 					if(r_bumpMapping->integer)
 					{
-						RenderLighting_DB_direct(stage);
+						Render_lighting_DB_radiosity(stage);
 					}
 					else
-					*/
 					{
 						Render_lighting_D_radiosity(stage);
 					}
@@ -3102,22 +3285,24 @@ static void RB_IterateStagesGeneric()
 				{
 					Render_lightmap_FFP(stage);
 				}
+				else if(r_deluxeMapping->integer && r_showDeluxeMaps->integer)
+				{
+					Render_deluxemap_FFP(stage);
+				}
 				else if(glConfig2.shadingLanguage100Available)
 				{
-					/*
 					if(r_bumpMapping->integer)
 					{
 						if(r_specular->integer)
 						{
-							RenderLighting_DBS_direct(stage);
+							Render_lighting_DBS_radiosity(stage);
 						}
 						else
 						{
-							RenderLighting_DB_direct(stage);
+							Render_lighting_DB_radiosity(stage);
 						}
 					}
 					else
-					*/
 					{
 						Render_lighting_D_radiosity(stage);
 					}

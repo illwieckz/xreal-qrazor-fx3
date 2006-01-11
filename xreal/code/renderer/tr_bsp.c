@@ -94,7 +94,6 @@ static void HSVtoRGB(float h, float s, float v, float rgb[3])
 /*
 ===============
 R_ColorShiftLightingBytes
-
 ===============
 */
 static void R_ColorShiftLightingBytes(byte in[4], byte out[4])
@@ -124,6 +123,41 @@ static void R_ColorShiftLightingBytes(byte in[4], byte out[4])
 	out[0] = r;
 	out[1] = g;
 	out[2] = b;
+	out[3] = in[3];
+}
+
+
+/*
+===============
+R_NormalizeLightingBytes
+===============
+*/
+static void R_NormalizeLightingBytes(byte in[4], byte out[4])
+{
+	vec3_t          n;
+	vec_t           length;
+	float           inv127 = 1.0f / 127.0f;
+
+	n[0] = in[0] * inv127;
+	n[1] = in[1] * inv127;
+	n[2] = in[2] * inv127;
+
+	length = VectorLength(n);
+
+	if(length)
+	{
+		n[0] /= length;
+		n[1] /= length;
+		n[2] /= length;
+	}
+	else
+	{
+		VectorSet(n, 0.0, 0.0, 1.0);
+	}
+
+	out[0] = (byte) (128 + 127 * n[0]);
+	out[1] = (byte) (128 + 127 * n[1]);
+	out[2] = (byte) (128 + 127 * n[2]);
 	out[3] = in[3];
 }
 
@@ -196,6 +230,28 @@ static void R_LoadLightmaps(lump_t * l)
 
 				sumIntensity += intensity;
 			}
+			tr.lightmaps[i] = R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NONE, WT_CLAMP);
+		}
+		else if(r_deluxeMapping->integer)
+		{
+			if(i % 2 == 0)
+			{
+				for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
+				{
+					R_ColorShiftLightingBytes(&buf_p[j * 3], &image[j * 4]);
+					image[j * 4 + 3] = 255;
+				}
+				tr.lightmaps[i] = R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NONE, WT_CLAMP);
+			}
+			else
+			{
+				for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
+				{
+					R_NormalizeLightingBytes(&buf_p[j * 3], &image[j * 4]);
+					image[j * 4 + 3] = 255;
+				}
+				tr.lightmaps[i] = R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NORMALMAP, WT_CLAMP);
+			}
 		}
 		else
 		{
@@ -204,8 +260,8 @@ static void R_LoadLightmaps(lump_t * l)
 				R_ColorShiftLightingBytes(&buf_p[j * 3], &image[j * 4]);
 				image[j * 4 + 3] = 255;
 			}
+			tr.lightmaps[i] = R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NONE, WT_CLAMP);
 		}
-		tr.lightmaps[i] = R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NONE, WT_CLAMP);
 	}
 
 	if(r_showLightMaps->integer == 2)

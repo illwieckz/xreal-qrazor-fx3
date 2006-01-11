@@ -38,6 +38,7 @@ cvar_t         *r_railSegmentLength;
 
 cvar_t         *r_ignoreFastPath;
 cvar_t         *r_bumpMapping;
+cvar_t         *r_deluxeMapping;
 cvar_t         *r_specular;
 
 cvar_t         *r_verbose;
@@ -162,6 +163,7 @@ cvar_t         *r_maxpolyverts;
 int             max_polyverts;
 
 cvar_t         *r_showLightMaps;
+cvar_t         *r_showDeluxeMaps;
 cvar_t         *r_showNormalMaps;
 cvar_t         *r_showShadowVolumes;
 cvar_t         *r_showSkeleton;
@@ -1071,6 +1073,7 @@ void R_Register(void)
 #endif
 	r_ignoreFastPath = ri.Cvar_Get("r_ignoreFastPath", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_bumpMapping = ri.Cvar_Get("r_bumpMapping", "1", CVAR_ARCHIVE);
+	r_deluxeMapping = ri.Cvar_Get("r_deluxeMapping", "1", CVAR_ARCHIVE);
 	r_specular = ri.Cvar_Get("r_specular", "1", CVAR_ARCHIVE);
 
 	//
@@ -1162,6 +1165,7 @@ void R_Register(void)
 	r_maxpolyverts = ri.Cvar_Get("r_maxpolyverts", va("%d", MAX_POLYVERTS), 0);
 	
 	r_showLightMaps = ri.Cvar_Get("r_showLightMaps", "0", CVAR_CHEAT);
+	r_showDeluxeMaps = ri.Cvar_Get("r_showDeluxeMaps", "0", CVAR_CHEAT);
 	r_showNormalMaps = ri.Cvar_Get("r_showNormalMaps", "0", CVAR_CHEAT);
 	r_showShadowVolumes = ri.Cvar_Get("r_showShadowVolumes", "0", CVAR_CHEAT);
 	r_showSkeleton = ri.Cvar_Get("r_showSkeleton", "0", CVAR_CHEAT);
