@@ -171,7 +171,6 @@ static void R_NormalizeLightingBytes(byte in[4], byte out[4])
 /*
 ===============
 R_LoadLightmaps
-
 ===============
 */
 #define	LIGHTMAP_SIZE	128
@@ -208,45 +207,48 @@ static void R_LoadLightmaps(lump_t * l)
 		// expand the 24 bit on-disk to 32 bit
 		buf_p = buf + i * LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3;
 
-		if(r_showLightMaps->integer == 2)
-		{						// color code by intensity as development tool  (FIXME: check range)
-			for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
-			{
-				float           r = buf_p[j * 3 + 0];
-				float           g = buf_p[j * 3 + 1];
-				float           b = buf_p[j * 3 + 2];
-				float           intensity;
-				float           out[3];
-
-				intensity = 0.33f * r + 0.685f * g + 0.063f * b;
-
-				if(intensity > 255)
-					intensity = 1.0f;
-				else
-					intensity /= 255.0f;
-
-				if(intensity > maxIntensity)
-					maxIntensity = intensity;
-
-				HSVtoRGB(intensity, 1.00, 0.50, out);
-
-				image[j * 4 + 0] = out[0] * 255;
-				image[j * 4 + 1] = out[1] * 255;
-				image[j * 4 + 2] = out[2] * 255;
-				image[j * 4 + 3] = 255;
-
-				sumIntensity += intensity;
-			}
-			tr.lightmaps[i] = R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NONE, WT_CLAMP);
-		}
-		else if(r_deluxeMapping->integer)
+		if(tr.worldDeluxeMapping)
 		{
 			if(i % 2 == 0)
 			{
-				for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
+				if(r_showLightMaps->integer == 2)
 				{
-					R_ColorShiftLightingBytes(&buf_p[j * 3], &image[j * 4]);
-					image[j * 4 + 3] = 255;
+					// color code by intensity as development tool  (FIXME: check range)
+					for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
+					{
+						float           r = buf_p[j * 3 + 0];
+						float           g = buf_p[j * 3 + 1];
+						float           b = buf_p[j * 3 + 2];
+						float           intensity;
+						float           out[3];
+
+						intensity = 0.33f * r + 0.685f * g + 0.063f * b;
+
+						if(intensity > 255)
+							intensity = 1.0f;
+						else
+							intensity /= 255.0f;
+
+						if(intensity > maxIntensity)
+							maxIntensity = intensity;
+
+						HSVtoRGB(intensity, 1.00, 0.50, out);
+
+						image[j * 4 + 0] = out[0] * 255;
+						image[j * 4 + 1] = out[1] * 255;
+						image[j * 4 + 2] = out[2] * 255;
+						image[j * 4 + 3] = 255;
+
+						sumIntensity += intensity;
+					}
+				}
+				else
+				{
+					for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
+					{
+						R_ColorShiftLightingBytes(&buf_p[j * 3], &image[j * 4]);
+						image[j * 4 + 3] = 255;
+					}
 				}
 				tr.lightmaps[i] = R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NONE, WT_CLAMP);
 			}
@@ -2148,6 +2150,7 @@ void R_LoadEntities(lump_t * l)
 			*s++ = 0;
 			continue;
 		}
+		
 		// check for remapping of shaders
 		s = "remapshader";
 		if(!Q_strncmp(keyname, s, strlen(s)))
@@ -2162,11 +2165,19 @@ void R_LoadEntities(lump_t * l)
 			R_RemapShader(value, s, "0");
 			continue;
 		}
+		
 		// check for a different grid size
 		if(!Q_stricmp(keyname, "gridsize"))
 		{
-			sscanf(value, "%f %f %f", &w->lightGridSize[0], &w->lightGridSize[1],
-				   &w->lightGridSize[2]);
+			sscanf(value, "%f %f %f", &w->lightGridSize[0], &w->lightGridSize[1], &w->lightGridSize[2]);
+			continue;
+		}
+		
+		// check for deluxe mapping support
+		if( (!Q_stricmp(keyname, "deluxeMapping") && !Q_stricmp(value, "1")) ||
+			(!Q_stricmp(keyname, "message") && !Q_stricmp(value, "camo-retro")))	// HACK: this map has it
+		{
+			tr.worldDeluxeMapping = qtrue;
 			continue;
 		}
 	}
@@ -2260,6 +2271,7 @@ void RE_LoadWorldMap(const char *name)
 	}
 
 	// load into heap
+	R_LoadEntities(&header->lumps[LUMP_ENTITIES]);
 	R_LoadShaders(&header->lumps[LUMP_SHADERS]);
 	R_LoadLightmaps(&header->lumps[LUMP_LIGHTMAPS]);
 	R_LoadPlanes(&header->lumps[LUMP_PLANES]);
@@ -2269,7 +2281,6 @@ void RE_LoadWorldMap(const char *name)
 	R_LoadNodesAndLeafs(&header->lumps[LUMP_NODES], &header->lumps[LUMP_LEAFS]);
 	R_LoadSubmodels(&header->lumps[LUMP_MODELS]);
 	R_LoadVisibility(&header->lumps[LUMP_VISIBILITY]);
-	R_LoadEntities(&header->lumps[LUMP_ENTITIES]);
 	R_LoadLightGrid(&header->lumps[LUMP_LIGHTGRID]);
 
 	s_worldData.dataSize = (byte *) ri.Hunk_Alloc(0, h_low) - startMarker;

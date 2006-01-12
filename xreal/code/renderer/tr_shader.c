@@ -1376,14 +1376,14 @@ static qboolean LoadMap(shaderStage_t * stage, char *buffer)
 			case LIGHTMAP_NONE:
 				stage->bundle[0].image[0] = tr.whiteImage;
 				
-				if(r_deluxeMapping->integer)
+				if(tr.worldDeluxeMapping)
 					stage->bundle[0].image[1] = tr.flatImage;
 				break;
 		
 			default:
 				stage->bundle[0].image[0] = tr.lightmaps[shader.lightmapIndex];
 				
-				if(r_deluxeMapping->integer)
+				if(tr.worldDeluxeMapping)
 					stage->bundle[0].image[1] = tr.lightmaps[shader.lightmapIndex + 1];
 				break;
 		}
@@ -4544,7 +4544,7 @@ shader_t       *R_FindShader(const char *name, int lightmapIndex, qboolean mipRa
 		// lightMap
 		stages[1].type = ST_LIGHTMAP;
 		stages[1].bundle[0].image[0] = tr.lightmaps[shader.lightmapIndex];
-		if(r_deluxeMapping->integer)
+		if(tr.worldDeluxeMapping)
 			stages[1].bundle[0].image[1] = tr.lightmaps[shader.lightmapIndex + 1];
 		stages[1].bundle[0].isLightMap = qtrue;
 		stages[1].active = qtrue;
@@ -4637,7 +4637,7 @@ qhandle_t RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_
 	{
 		// two pass lightmap
 		stages[0].bundle[0].image[0] = tr.lightmaps[shader.lightmapIndex];
-		if(r_deluxeMapping->integer)
+		if(tr.worldDeluxeMapping)
 			stages[0].bundle[0].image[1] = tr.lightmaps[shader.lightmapIndex + 1];
 		stages[0].bundle[0].isLightMap = qtrue;
 		stages[0].active = qtrue;

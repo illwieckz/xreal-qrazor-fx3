@@ -1240,6 +1240,7 @@ typedef struct
 	int             frameSceneNum;	// zeroed at RE_BeginFrame
 
 	qboolean        worldMapLoaded;
+	qboolean        worldDeluxeMapping;
 	world_t        *world;
 
 	const byte     *externalVisData;	// from RE_SetWorldVisData, shared with CM_Load
@@ -1375,7 +1376,6 @@ extern cvar_t  *r_ignore;		// used for debugging anything
 extern cvar_t  *r_verbose;		// used for verbose debug spew
 extern cvar_t  *r_ignoreFastPath;	// allows us to ignore our Tess fast paths
 extern cvar_t  *r_bumpMapping;
-extern cvar_t  *r_deluxeMapping;
 extern cvar_t  *r_specular;
 
 extern cvar_t  *r_znear;		// near Z clip plane

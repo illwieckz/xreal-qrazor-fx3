@@ -38,7 +38,6 @@ cvar_t         *r_railSegmentLength;
 
 cvar_t         *r_ignoreFastPath;
 cvar_t         *r_bumpMapping;
-cvar_t         *r_deluxeMapping;
 cvar_t         *r_specular;
 
 cvar_t         *r_verbose;
@@ -1073,7 +1072,6 @@ void R_Register(void)
 #endif
 	r_ignoreFastPath = ri.Cvar_Get("r_ignoreFastPath", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_bumpMapping = ri.Cvar_Get("r_bumpMapping", "1", CVAR_ARCHIVE);
-	r_deluxeMapping = ri.Cvar_Get("r_deluxeMapping", "1", CVAR_ARCHIVE);
 	r_specular = ri.Cvar_Get("r_specular", "1", CVAR_ARCHIVE);
 
 	//

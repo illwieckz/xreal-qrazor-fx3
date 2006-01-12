@@ -3235,7 +3235,7 @@ static void RB_IterateStagesGeneric()
 				{
 					Render_lightmap_FFP(stage);
 				}
-				else if(r_deluxeMapping->integer && r_showDeluxeMaps->integer)
+				else if(tr.worldDeluxeMapping && r_showDeluxeMaps->integer)
 				{
 					Render_deluxemap_FFP(stage);
 				}
@@ -3257,13 +3257,13 @@ static void RB_IterateStagesGeneric()
 				{
 					Render_lightmap_FFP(stage);
 				}
-				else if(r_deluxeMapping->integer && r_showDeluxeMaps->integer)
+				else if(tr.worldDeluxeMapping && r_showDeluxeMaps->integer)
 				{
 					Render_deluxemap_FFP(stage);
 				}
 				else if(glConfig2.shadingLanguage100Available)
 				{
-					if(r_bumpMapping->integer)
+					if(tr.worldDeluxeMapping && r_bumpMapping->integer)
 					{
 						Render_lighting_DB_radiosity(stage);
 					}
@@ -3285,13 +3285,13 @@ static void RB_IterateStagesGeneric()
 				{
 					Render_lightmap_FFP(stage);
 				}
-				else if(r_deluxeMapping->integer && r_showDeluxeMaps->integer)
+				else if(tr.worldDeluxeMapping && r_showDeluxeMaps->integer)
 				{
 					Render_deluxemap_FFP(stage);
 				}
 				else if(glConfig2.shadingLanguage100Available)
 				{
-					if(r_bumpMapping->integer)
+					if(tr.worldDeluxeMapping && r_bumpMapping->integer)
 					{
 						if(r_specular->integer)
 						{
