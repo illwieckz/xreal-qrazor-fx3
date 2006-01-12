@@ -134,6 +134,7 @@ R_NormalizeLightingBytes
 */
 static void R_NormalizeLightingBytes(byte in[4], byte out[4])
 {
+#if 0
 	vec3_t          n;
 	vec_t           length;
 	float           inv127 = 1.0f / 127.0f;
@@ -159,6 +160,12 @@ static void R_NormalizeLightingBytes(byte in[4], byte out[4])
 	out[1] = (byte) (128 + 127 * n[1]);
 	out[2] = (byte) (128 + 127 * n[2]);
 	out[3] = in[3];
+#else
+	out[0] = in[0];
+	out[1] = in[1];
+	out[2] = in[2];
+	out[3] = in[3];
+#endif
 }
 
 /*
