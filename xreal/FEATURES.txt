@@ -14,7 +14,7 @@ code/renderer
 - new extension GL_ARB_shading_language_100
 - new extension GL_EXT_texture_filter_anisotropic
 - new extension GL_EXT_framebuffer_object
-- basic GLSL rendering capabilities in renderer backend
+- GLSL rendering capabilities in renderer backend
 - tangent space calculations for normal mapping based rendering techniques
 - directional specular bump mapping
 - basic .mtr shader support
@@ -29,6 +29,8 @@ code/renderer
 - r_shadows 2 has additional zfail method
 - skeletal animation
 - Return to Castle Wolfenstein .mds model file format support
+- deluxe mapping: N dot L based lightmapping supported by q3map2
+  compile your maps with -light -deluxe to use this feature
 
 common/aselib
 - fixed bad Doom3 paths
