@@ -1257,6 +1257,7 @@ typedef struct
 	image_t        *attenuationZImage;
 	image_t        *attenuationXYImage;
 	image_t        *currentRenderImage;
+	image_t        *currentRenderNearestImage;
 	image_t        *contrastRenderImage;
 
 	// internal shaders

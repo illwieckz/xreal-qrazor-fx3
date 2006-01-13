@@ -2251,8 +2251,8 @@ static void Render_bloom(int stage)
 	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderImage->uploadWidth;
-	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderImage->uploadHeight;
+	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderNearestImage->uploadWidth;
+	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderNearestImage->uploadHeight;
 	
 	// render contrast
 	GL_Program(tr.contrastShader.program);
@@ -2263,8 +2263,8 @@ static void Render_bloom(int stage)
 	qglUniform2fARB(tr.contrastShader.u_NPotScale, npotWidthScale, npotHeightScale);
 
 	GL_SelectTexture(0);
-	GL_Bind(tr.currentRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+	GL_Bind(tr.currentRenderNearestImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderNearestImage->uploadWidth, tr.currentRenderNearestImage->uploadHeight);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
@@ -2304,8 +2304,8 @@ static void Render_bloom2(int stage)
 	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderImage->uploadWidth;
-	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderImage->uploadHeight;
+	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderNearestImage->uploadWidth;
+	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderNearestImage->uploadHeight;
 	
 	// render contrast
 	GL_Program(tr.contrastShader.program);
@@ -2316,8 +2316,8 @@ static void Render_bloom2(int stage)
 	qglUniform2fARB(tr.contrastShader.u_NPotScale, npotWidthScale, npotHeightScale);
 
 	GL_SelectTexture(0);
-	GL_Bind(tr.currentRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+	GL_Bind(tr.currentRenderNearestImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderNearestImage->uploadWidth, tr.currentRenderNearestImage->uploadHeight);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
@@ -2357,7 +2357,7 @@ static void Render_bloom2(int stage)
 	qglUniform2fARB(tr.bloomShader.u_NPotScale, npotWidthScale, npotHeightScale);
 
 	GL_SelectTexture(0);
-	GL_Bind(tr.currentRenderImage);
+	GL_Bind(tr.currentRenderNearestImage);
 	
 	GL_SelectTexture(1);
 	GL_Bind(tr.contrastRenderImage);
