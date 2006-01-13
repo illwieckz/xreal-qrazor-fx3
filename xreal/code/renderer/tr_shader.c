@@ -1336,6 +1336,7 @@ static qboolean LoadMap(shaderStage_t * stage, char *buffer)
 {
 	char           *token;
 	int				imageBits = 0;
+	filterType_t	filterType;
 	wrapType_t		wrapType;
 	char           *buffer_p = &buffer[0];
 	
@@ -1391,11 +1392,6 @@ static qboolean LoadMap(shaderStage_t * stage, char *buffer)
 	}
 	
 	// determine image options	
-	if(stage->overrideNoMipMaps || shader.noMipMaps)
-	{
-		imageBits |= IF_NOMIPMAPS;
-	}
-	
 	if(stage->overrideNoPicMip || shader.noPicMip)
 	{
 		imageBits |= IF_NOPICMIP;
@@ -1404,6 +1400,15 @@ static qboolean LoadMap(shaderStage_t * stage, char *buffer)
 	if(stage->type == ST_NORMALMAP || stage->type == ST_HEATHAZEMAP)
 	{
 		imageBits |= IF_NORMALMAP;
+	}
+	
+	if(stage->overrideFilterType)
+	{
+		filterType = stage->filterType;
+	}
+	else
+	{
+		filterType = shader.filterType;
 	}
 	
 	if(stage->overrideWrapType)
@@ -1416,7 +1421,7 @@ static qboolean LoadMap(shaderStage_t * stage, char *buffer)
 	}
 	
 	// try to load the image
-	stage->bundle[0].image[0] = R_FindImageFile(buffer, imageBits, wrapType);
+	stage->bundle[0].image[0] = R_FindImageFile(buffer, imageBits, filterType, wrapType);
 
 	if(!stage->bundle[0].image[0])
 	{
@@ -1439,6 +1444,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 	int             depthMaskBits = GLS_DEPTHMASK_TRUE, blendSrcBits = 0, blendDstBits = 0, atestBits = 0, depthFuncBits = 0;
 	qboolean        depthMaskExplicit = qfalse;
 	int				imageBits = 0;
+	filterType_t	filterType;
 	char            buffer[1024] = "";
 	qboolean		loadMap = qfalse;
 
@@ -1484,16 +1490,21 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			}
 			
 			imageBits = 0;
-			if(stage->overrideNoMipMaps || shader.noMipMaps)
-			{
-				imageBits |= IF_NOMIPMAPS;	
-			}
 			if(stage->overrideNoPicMip || shader.noPicMip)
 			{
 				imageBits |= IF_NOPICMIP;
 			}
+			
+			if(stage->overrideFilterType)
+			{
+				filterType = stage->filterType;
+			}
+			else
+			{
+				filterType = shader.filterType;
+			}
 
-			stage->bundle[0].image[0] = R_FindImageFile(token, imageBits, WT_CLAMP);
+			stage->bundle[0].image[0] = R_FindImageFile(token, imageBits, filterType, WT_CLAMP);
 			if(!stage->bundle[0].image[0])
 			{
 				ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name);
@@ -1512,13 +1523,18 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			stage->bundle[0].imageAnimationSpeed = atof(token);
 			
 			imageBits = 0;
-			if(stage->overrideNoMipMaps || shader.noMipMaps)
-			{
-				imageBits |= IF_NOMIPMAPS;	
-			}
 			if(stage->overrideNoPicMip || shader.noPicMip)
 			{
 				imageBits |= IF_NOPICMIP;
+			}
+			
+			if(stage->overrideFilterType)
+			{
+				filterType = stage->filterType;
+			}
+			else
+			{
+				filterType = shader.filterType;
 			}
 
 			// parse up to MAX_IMAGE_ANIMATIONS animations
@@ -1534,7 +1550,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 				num = stage->bundle[0].numImageAnimations;
 				if(num < MAX_IMAGE_ANIMATIONS)
 				{
-					stage->bundle[0].image[num] = R_FindImageFile(token, imageBits, WT_REPEAT);
+					stage->bundle[0].image[num] = R_FindImageFile(token, imageBits, filterType, WT_REPEAT);
 					if(!stage->bundle[0].image[num])
 					{
 						ri.Printf(PRINT_WARNING,
@@ -1571,16 +1587,21 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			}
 			
 			imageBits = 0;
-			if(stage->overrideNoMipMaps || shader.noMipMaps)
-			{
-				imageBits |= IF_NOMIPMAPS;	
-			}
 			if(stage->overrideNoPicMip || shader.noPicMip)
 			{
 				imageBits |= IF_NOPICMIP;
 			}
 			
-			stage->bundle[0].image[0] = R_FindCubeImage(token, imageBits, WT_CLAMP);
+			if(stage->overrideFilterType)
+			{
+				filterType = stage->filterType;
+			}
+			else
+			{
+				filterType = shader.filterType;
+			}
+			
+			stage->bundle[0].image[0] = R_FindCubeImage(token, imageBits, filterType, WT_CLAMP);
 			if(!stage->bundle[0].image[0])
 			{
 				ri.Printf(PRINT_WARNING, "WARNING: R_FindCubeImage could not find '%s' in shader '%s'\n", token, shader.name);
@@ -1639,12 +1660,15 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		// nearest
 		else if(!Q_stricmp(token, "nearest"))
 		{
-			stage->overrideNoMipMaps = qtrue;
+			stage->overrideFilterType = qtrue;
+			stage->filterType = FT_NEAREST;
 		}
 		// linear
 		else if(!Q_stricmp(token, "linear"))
 		{
-			stage->overrideNoMipMaps = qtrue;
+			stage->overrideFilterType = qtrue;
+			stage->filterType = FT_LINEAR;
+			
 			stage->overrideNoPicMip = qtrue;
 		}
 		// noPicMip
@@ -2561,7 +2585,7 @@ static void ParseSkyParms(char **text)
 		for(i = 0; i < 6; i++)
 		{
 			Com_sprintf(pathname, sizeof(pathname), "%s_%s", prefix, suf[i]);
-			shader.sky.outerbox[i] = R_FindImageFile(pathname, IF_NONE, WT_CLAMP);
+			shader.sky.outerbox[i] = R_FindImageFile(pathname, IF_NONE, FT_DEFAULT, WT_CLAMP);
 			if(!shader.sky.outerbox[i])
 			{
 				shader.sky.outerbox[i] = tr.defaultImage;
@@ -2597,7 +2621,7 @@ static void ParseSkyParms(char **text)
 		for(i = 0; i < 6; i++)
 		{
 			Com_sprintf(pathname, sizeof(pathname), "%s_%s", prefix, suf[i]);
-			shader.sky.innerbox[i] = R_FindImageFile(pathname, IF_NONE, WT_REPEAT);
+			shader.sky.innerbox[i] = R_FindImageFile(pathname, IF_NONE, FT_DEFAULT, WT_REPEAT);
 			if(!shader.sky.innerbox[i])
 			{
 				shader.sky.innerbox[i] = tr.defaultImage;
@@ -3065,7 +3089,7 @@ static qboolean ParseShader(char **text)
 		// no mip maps
 		else if(!Q_stricmp(token, "nomipmaps"))
 		{
-			shader.noMipMaps = qtrue;
+			shader.filterType = FT_LINEAR;
 			shader.noPicMip = qtrue;
 			continue;
 		}
@@ -4480,7 +4504,10 @@ shader_t       *R_FindShader(const char *name, int lightmapIndex, qboolean mipRa
 	// look for a single TGA, BMP, or PCX
 	Q_strncpyz(fileName, name, sizeof(fileName));
 	COM_DefaultExtension(fileName, sizeof(fileName), ".tga");
-	image = R_FindImageFile(fileName, mipRawImage ? IF_NONE : (IF_NOMIPMAPS | IF_NOPICMIP), mipRawImage ? WT_REPEAT : WT_CLAMP);
+	image = R_FindImageFile(fileName,
+							mipRawImage ? IF_NONE : IF_NOPICMIP,
+							mipRawImage ? FT_DEFAULT : FT_LINEAR,
+							mipRawImage ? WT_REPEAT : WT_CLAMP);
 	if(!image)
 	{
 		ri.Printf(PRINT_DEVELOPER, "Couldn't find image for shader %s\n", name);

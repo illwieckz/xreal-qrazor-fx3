@@ -250,7 +250,7 @@ static void R_LoadLightmaps(lump_t * l)
 						image[j * 4 + 3] = 255;
 					}
 				}
-				tr.lightmaps[i] = R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NONE, WT_CLAMP);
+				tr.lightmaps[i] = R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NONE, FT_DEFAULT, WT_CLAMP);
 			}
 			else
 			{
@@ -259,7 +259,7 @@ static void R_LoadLightmaps(lump_t * l)
 					R_NormalizeLightingBytes(&buf_p[j * 3], &image[j * 4]);
 					image[j * 4 + 3] = 255;
 				}
-				tr.lightmaps[i] = R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NORMALMAP, WT_CLAMP);
+				tr.lightmaps[i] = R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NORMALMAP, FT_DEFAULT, WT_CLAMP);
 			}
 		}
 		else
@@ -269,7 +269,7 @@ static void R_LoadLightmaps(lump_t * l)
 				R_ColorShiftLightingBytes(&buf_p[j * 3], &image[j * 4]);
 				image[j * 4 + 3] = 255;
 			}
-			tr.lightmaps[i] = R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NONE, WT_CLAMP);
+			tr.lightmaps[i] = R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NONE, FT_DEFAULT, WT_CLAMP);
 		}
 	}
 

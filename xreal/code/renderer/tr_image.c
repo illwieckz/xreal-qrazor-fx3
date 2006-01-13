@@ -157,7 +157,7 @@ void GL_TextureMode(const char *string)
 	{
 		image = tr.images[i];
 		
-		if(!(image->bits & IF_NOMIPMAPS))
+		if(image->filterType == FT_DEFAULT)
 		{
 			GL_Bind(image);
 			
@@ -217,7 +217,7 @@ void R_ImageList_f(void)
 
 		texels += image->uploadWidth * image->uploadHeight;
 		ri.Printf(PRINT_ALL, "%4i: %4i %4i  %s   ",
-				  i, image->uploadWidth, image->uploadHeight, yesno[!(image->bits & IF_NOMIPMAPS)]);
+				  i, image->uploadWidth, image->uploadHeight, yesno[image->filterType == FT_DEFAULT]);
 		
 		switch (image->type)
 		{
@@ -1078,7 +1078,7 @@ static void R_UploadImage(const byte **dataArray, int numData, image_t * image)
 		// copy or resample data as appropriate for first MIP level
 		if((scaledWidth == image->width) && (scaledHeight == image->height))
 		{
-			if(image->bits & IF_NOMIPMAPS)
+			if(image->filterType != FT_DEFAULT)
 			{
 				qglTexImage2D(target, 0, internalFormat, scaledWidth, scaledHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 				image->uploadWidth = scaledWidth;
@@ -1097,7 +1097,7 @@ static void R_UploadImage(const byte **dataArray, int numData, image_t * image)
 	
 		if(!(image->bits & IF_NORMALMAP))
 		{
-			R_LightScaleTexture((unsigned *)scaledBuffer, scaledWidth, scaledHeight, !(image->bits & IF_NOMIPMAPS));
+			R_LightScaleTexture((unsigned *)scaledBuffer, scaledWidth, scaledHeight, image->filterType == FT_DEFAULT);
 		}
 	
 		image->uploadWidth = scaledWidth;
@@ -1115,7 +1115,7 @@ static void R_UploadImage(const byte **dataArray, int numData, image_t * image)
 				break;
 		}
 	
-		if(!(image->bits & IF_NOMIPMAPS))
+		if(image->filterType == FT_DEFAULT)
 		{
 			int             mipLevel;
 			int             mipWidth, mipHeight;
@@ -1162,20 +1162,33 @@ static void R_UploadImage(const byte **dataArray, int numData, image_t * image)
 	  done:
 	
 		// set filter type
-		if(!(image->bits & IF_NOMIPMAPS))
+		switch (image->filterType)
 		{
-			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, gl_filter_min);
-			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+			case FT_DEFAULT:
+				qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+				qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+				
+				// set texture anisotropy
+				if(glConfig2.textureAnisotropyAvailable)
+					qglTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
+				break;
+			
+			case FT_NEAREST:
+				qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+				break;
+				
+			case FT_LINEAR:
+				qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				break;
+				
+			default:
+				ri.Printf(PRINT_WARNING, "WARNING: unknown filter type for image '%s'\n", image->name);
+				qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				break;
 		}
-		else
-		{
-			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		}
-		
-		// set texture anisotropy
-		if(glConfig2.textureAnisotropyAvailable)
-			qglTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
 		
 		// set wrap type
 		switch (image->wrapType)
@@ -1231,7 +1244,7 @@ R_CreateImage
 image_t        *R_CreateImage(const char *name,
 							  const byte * pic, 
 							  int width, int height, 
-							  int bits, wrapType_t wrapType)
+							  int bits, filterType_t filterType, wrapType_t wrapType)
 {
 	image_t *       image;
 	long            hash;
@@ -1258,7 +1271,7 @@ image_t        *R_CreateImage(const char *name,
 	image->height = height;
 	
 	image->bits = bits;
-//	image->filterType = filterType;
+	image->filterType = filterType;
 	image->wrapType = wrapType;
 	
 	if(!strncmp(name, "_lightmap", 9))
@@ -1287,7 +1300,7 @@ R_CreateCubeImage
 image_t        *R_CreateCubeImage(const char *name,
 								const byte *pic[6], 
 								int width, int height, 
-								int bits, wrapType_t wrapType)
+								int bits, filterType_t filterType, wrapType_t wrapType)
 {
 #if 1
 	image_t *       image;
@@ -1315,7 +1328,7 @@ image_t        *R_CreateCubeImage(const char *name,
 	image->height = height;
 	
 	image->bits = bits;
-//	image->filterType = filterType;
+	image->filterType = filterType;
 	image->wrapType = wrapType;
 	
 	if(!strncmp(name, "_lightmap", 9))
@@ -2744,7 +2757,7 @@ Finds or loads the given image.
 Returns NULL if it fails, not a default image.
 ==============
 */
-image_t        *R_FindImageFile(const char *name, int bits, wrapType_t wrapType)
+image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterType, wrapType_t wrapType)
 {
 	image_t        *image = NULL;
 	int             width = 0, height = 0;
@@ -2774,10 +2787,12 @@ image_t        *R_FindImageFile(const char *name, int bits, wrapType_t wrapType)
 			{
 				diff = bits ^ image->bits;
 				
+				/*
 				if(diff & IF_NOMIPMAPS)
 				{
 					ri.Printf(PRINT_DEVELOPER, "WARNING: reused image %s with mixed mipmap parm\n", name);
 				}
+				*/
 				
 				if(diff & IF_NOPICMIP)
 				{
@@ -2801,7 +2816,7 @@ image_t        *R_FindImageFile(const char *name, int bits, wrapType_t wrapType)
 		return NULL;
 	}
 
-	image =	R_CreateImage((char *)name, pic, width, height, bits, wrapType);
+	image =	R_CreateImage((char *)name, pic, width, height, bits, filterType, wrapType);
 	ri.Free(pic);
 	return image;
 }
@@ -2815,7 +2830,7 @@ Finds or loads the given image.
 Returns NULL if it fails, not a default image.
 ==============
 */
-image_t        *R_FindCubeImage(const char *name, int bits, wrapType_t wrapType)
+image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterType, wrapType_t wrapType)
 {
 	int             i;
 	image_t        *image = NULL;
@@ -2860,7 +2875,7 @@ image_t        *R_FindCubeImage(const char *name, int bits, wrapType_t wrapType)
 		}
 	}
 
-	image =	R_CreateCubeImage((char *)name, (const byte **)pic, width, height, bits, wrapType);
+	image =	R_CreateCubeImage((char *)name, (const byte **)pic, width, height, bits, filterType, wrapType);
 	
 done:
 	for(i = 0; i < 6; i++)
@@ -2906,7 +2921,7 @@ static void R_CreateDlightImage(void)
 			data[y][x][3] = 255;
 		}
 	}
-	tr.dlightImage = R_CreateImage("_dlight", (byte *) data, DLIGHT_SIZE, DLIGHT_SIZE, IF_NOMIPMAPS | IF_NOPICMIP, WT_CLAMP);
+	tr.dlightImage = R_CreateImage("_dlight", (byte *) data, DLIGHT_SIZE, DLIGHT_SIZE, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
 }
 
 
@@ -3007,7 +3022,7 @@ static void R_CreateFogImage(void)
 	// standard openGL clamping doesn't really do what we want -- it includes
 	// the border color at the edges.  OpenGL 1.2 has clamp-to-edge, which does
 	// what we want.
-	tr.fogImage = R_CreateImage("_fog", (byte *) data, FOG_S, FOG_T, IF_NOMIPMAPS | IF_NOPICMIP, WT_CLAMP);
+	tr.fogImage = R_CreateImage("_fog", (byte *) data, FOG_S, FOG_T, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
 	ri.Hunk_FreeTempMemory(data);
 
 	borderColor[0] = 1.0;
@@ -3054,7 +3069,7 @@ static void R_CreateDefaultImage(void)
 		data[x][DEFAULT_SIZE - 1][2] =
 		data[x][DEFAULT_SIZE - 1][3] = 255;
 	}
-	tr.defaultImage = R_CreateImage("_default", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, IF_NOPICMIP, WT_REPEAT);
+	tr.defaultImage = R_CreateImage("_default", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, IF_NOPICMIP, FT_DEFAULT, WT_REPEAT);
 }
 
 
@@ -3092,7 +3107,7 @@ static void R_CreateAttenuationXYImage(void)
 			data[y][x][3] = 255;
 		}
 	}
-	tr.attenuationXYImage = R_CreateImage("_attenuationXY", (byte *) data, DLIGHT_SIZE, DLIGHT_SIZE, IF_NOMIPMAPS | IF_NOPICMIP, WT_CLAMP);
+	tr.attenuationXYImage = R_CreateImage("_attenuationXY", (byte *) data, DLIGHT_SIZE, DLIGHT_SIZE, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
 }
 
 static void R_CreateCurrentRenderImage(void)
@@ -3107,7 +3122,7 @@ static void R_CreateCurrentRenderImage(void)
 	
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 	
-	tr.currentRenderImage = R_CreateImage("_currentRender", data, width, height, IF_NOPICMIP, WT_REPEAT);
+	tr.currentRenderImage = R_CreateImage("_currentRender", data, width, height, IF_NOPICMIP, FT_DEFAULT, WT_REPEAT);
 	
 	ri.Hunk_FreeTempMemory(data);
 }
@@ -3124,7 +3139,7 @@ static void R_CreateContrastRenderImage(void)
 	
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 	
-	tr.contrastRenderImage = R_CreateImage("_contrastRender", data, width, height, IF_NOPICMIP, WT_REPEAT);
+	tr.contrastRenderImage = R_CreateImage("_contrastRender", data, width, height, IF_NOPICMIP, FT_DEFAULT, WT_REPEAT);
 	
 	ri.Hunk_FreeTempMemory(data);
 }
@@ -3143,11 +3158,11 @@ void R_CreateBuiltinImages(void)
 
 	// we use a solid white image instead of disabling texturing
 	Com_Memset(data, 255, sizeof(data));
-	tr.whiteImage = R_CreateImage("_white", (byte *) data, 8, 8, IF_NOMIPMAPS | IF_NOPICMIP, WT_REPEAT);
+	tr.whiteImage = R_CreateImage("_white", (byte *) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_REPEAT);
 
 	// we use a solid black image instead of disabling texturing
 	Com_Memset(data, 0, sizeof(data));
-	tr.blackImage = R_CreateImage("_black", (byte *) data, 8, 8, IF_NOMIPMAPS | IF_NOPICMIP, WT_REPEAT);
+	tr.blackImage = R_CreateImage("_black", (byte *) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_REPEAT);
 
 	// generate a default normalmap with a zero heightmap
 	for(x = 0; x < DEFAULT_SIZE; x++)
@@ -3158,7 +3173,7 @@ void R_CreateBuiltinImages(void)
 			data[y][x][3] = 0;
 		}
 	}
-	tr.flatImage = R_CreateImage("_flat", (byte *) data, 8, 8, IF_NOMIPMAPS | IF_NOPICMIP | IF_NORMALMAP, WT_REPEAT);
+	tr.flatImage = R_CreateImage("_flat", (byte *) data, 8, 8, IF_NOPICMIP | IF_NORMALMAP, FT_LINEAR, WT_REPEAT);
 
 	// with overbright bits active, we need an image which is some fraction of full color,
 	// for default lightmaps, etc
@@ -3171,13 +3186,13 @@ void R_CreateBuiltinImages(void)
 		}
 	}
 
-	tr.identityLightImage = R_CreateImage("_identityLight", (byte *) data, 8, 8, IF_NOMIPMAPS | IF_NOPICMIP, WT_REPEAT);
+	tr.identityLightImage = R_CreateImage("_identityLight", (byte *) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_REPEAT);
 
 
 	for(x = 0; x < 32; x++)
 	{
 		// scratchimage is usually used for cinematic drawing
-		tr.scratchImage[x] = R_CreateImage("_scratch", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, IF_NOMIPMAPS, WT_CLAMP);
+		tr.scratchImage[x] = R_CreateImage("_scratch", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, IF_NONE, FT_LINEAR, WT_CLAMP);
 	}
 
 	R_CreateDlightImage();

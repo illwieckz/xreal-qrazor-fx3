@@ -111,14 +111,13 @@ enum
 {
 	IF_NONE,
 	IF_INTERNAL			= (1 << 0),
-	IF_NOMIPMAPS		= (1 << 1),
-	IF_NOPICMIP			= (1 << 2),
-	IF_NOCOMPRESSION	= (1 << 3),
-	IF_INTENSITY		= (1 << 4),
-	IF_ALPHA			= (1 << 5),
-	IF_NORMALMAP		= (1 << 6),
-	IF_LIGHTMAP			= (1 << 7),
-	IF_CUBEMAP			= (1 << 8)
+	IF_NOPICMIP			= (1 << 1),
+	IF_NOCOMPRESSION	= (1 << 2),
+	IF_INTENSITY		= (1 << 3),
+	IF_ALPHA			= (1 << 4),
+	IF_NORMALMAP		= (1 << 5),
+	IF_LIGHTMAP			= (1 << 6),
+	IF_CUBEMAP			= (1 << 7)
 };
 
 typedef enum
@@ -546,8 +545,9 @@ typedef struct
 
 	qboolean        isDetail;
 	
-	qboolean        overrideNoMipMaps;	// for console fonts, 2D elements, etc.
 	qboolean        overrideNoPicMip;	// for images that must always be full resolution
+	qboolean        overrideFilterType;	// for console fonts, 2D elements, etc.
+	filterType_t	filterType;
 	qboolean		overrideWrapType;
 	wrapType_t		wrapType;
 	
@@ -643,8 +643,8 @@ typedef struct shader_s
 	qboolean        polygonOffset;	// set for decals and other items that must be offset 
 	float			polygonOffsetValue;
 	
-	qboolean        noMipMaps;	// for console fonts, 2D elements, etc.
 	qboolean        noPicMip;	// for images that must always be full resolution
+	filterType_t	filterType; // for console fonts, 2D elements, etc.
 	wrapType_t		wrapType;
 	
 	fogPass_t       fogPass;	// draw a blended pass, possibly with depth test equals
@@ -1703,10 +1703,10 @@ qboolean        R_GetEntityToken(char *buffer, int size);
 model_t        *R_AllocModel(void);
 
 void            R_Init(void);
-image_t        *R_FindImageFile(const char *name, int bits, wrapType_t wrapType);
-image_t        *R_FindCubeImage(const char *name, int bits, wrapType_t wrapType);
+image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterType, wrapType_t wrapType);
+image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterType, wrapType_t wrapType);
 
-image_t        *R_CreateImage(const char *name, const byte * pic, int width, int height, int bits, wrapType_t wrapType);
+image_t        *R_CreateImage(const char *name, const byte * pic, int width, int height, int bits, filterType_t filterType, wrapType_t wrapType);
 qboolean        R_GetModeInfo(int *width, int *height, float *windowAspect, int mode);
 
 void            R_SetColorMappings(void);

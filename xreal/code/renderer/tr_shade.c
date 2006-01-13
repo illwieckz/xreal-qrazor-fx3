@@ -62,6 +62,24 @@ static char    *RB_PrintInfoLog(GLhandleARB object)
 	return msg;
 }
 
+char    *RB_PrintShaderSource(GLhandleARB object)
+{
+	static char     msg[4096];
+	int             maxLength = 0;
+	
+	qglGetObjectParameterivARB(object, GL_OBJECT_SHADER_SOURCE_LENGTH_ARB, &maxLength);
+
+	if(maxLength >= (int)sizeof(msg))
+	{
+		ri.Error(ERR_DROP, "RB_PrintShaderSource: max length >= sizeof(msg)");
+		return NULL;
+	}
+
+	qglGetShaderSourceARB(object, maxLength, &maxLength, msg);
+
+	return msg;
+}
+
 static void RB_LoadGPUShader(GLhandleARB program, const char *name, GLenum shaderType)
 {
 
@@ -101,6 +119,8 @@ static void RB_LoadGPUShader(GLhandleARB program, const char *name, GLenum shade
 		ri.FS_FreeFile(buffer);
 		return;
 	}
+//	ri.Printf(PRINT_ALL, "info log: %s\n", RB_PrintInfoLog(shader));
+//	ri.Printf(PRINT_ALL, "%s\n", RB_PrintShaderSource(shader));
 
 	// attach shader to program
 	qglAttachObjectARB(program, shader);
@@ -138,8 +158,34 @@ static void RB_ValidateProgram(GLhandleARB program)
 	}
 }
 
+void RB_ShowProgramUniforms(GLhandleARB program)
+{
+	int				i, count, size, type;
+	char			uniformName[1000];
+	
+	// install the executables in the program object as part of current state.
+	qglUseProgramObjectARB(program);
+
+	// check for GL Errors
+
+	// query the number of active uniforms
+	qglGetObjectParameterivARB(program, GL_OBJECT_ACTIVE_UNIFORMS_ARB, &count);
+
+	// Loop over each of the active uniforms, and set their value
+	for(i = 0; i < count; i++)
+	{
+		qglGetActiveUniformARB(program, i, sizeof(uniformName), NULL, &size, &type, uniformName);
+		
+		ri.Printf(PRINT_ALL, "active uniform: '%s'\n", uniformName);
+	}
+	
+	qglUseProgramObjectARB(0);
+}
+
 static void RB_InitGPUShader(shaderProgram_t * program, const char *name, int attribs, qboolean fragmentShader)
 {
+	
+	ri.Printf(PRINT_ALL, "------- GPU shader -------\n");
 
 	program->program = qglCreateProgramObjectARB();
 	program->attribs = attribs;
@@ -181,6 +227,7 @@ static void RB_InitGPUShader(shaderProgram_t * program, const char *name, int at
 
 	RB_LinkProgram(program->program);
 	RB_ValidateProgram(program->program);
+	RB_ShowProgramUniforms(program->program);
 }
 
 void RB_InitGPUShaders(void)
@@ -2131,8 +2178,8 @@ static void Render_heatHaze(int stage)
 	deformMagnitude = RB_EvalExpression(&pStage->deformMagnitudeExp, 1.0);
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)(glConfig.vidWidth + 1) / (float)tr.currentRenderImage->uploadWidth;
-	npotHeightScale = (float)(glConfig.vidHeight + 1) / (float)tr.currentRenderImage->uploadHeight;
+	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderImage->uploadWidth;
+	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderImage->uploadHeight;
 	
 	qglUniform1fARB(tr.heatHazeShader.u_DeformMagnitude, deformMagnitude);
 	qglUniform2fARB(tr.heatHazeShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
@@ -2172,8 +2219,8 @@ static void Render_glow(int stage)
 	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)(glConfig.vidWidth + 1) / (float)tr.currentRenderImage->uploadWidth;
-	npotHeightScale = (float)(glConfig.vidHeight + 1) / (float)tr.currentRenderImage->uploadHeight;
+	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderImage->uploadWidth;
+	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderImage->uploadHeight;
 	
 	qglUniform1fARB(tr.glowShader.u_BlurMagnitude, blurMagnitude);
 	qglUniform2fARB(tr.glowShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
@@ -2204,8 +2251,8 @@ static void Render_bloom(int stage)
 	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)(glConfig.vidWidth + 1) / (float)tr.currentRenderImage->uploadWidth;
-	npotHeightScale = (float)(glConfig.vidHeight + 1) / (float)tr.currentRenderImage->uploadHeight;
+	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderImage->uploadWidth;
+	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderImage->uploadHeight;
 	
 	// render contrast
 	GL_Program(tr.contrastShader.program);
@@ -2257,8 +2304,8 @@ static void Render_bloom2(int stage)
 	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)(glConfig.vidWidth + 1) / (float)tr.currentRenderImage->uploadWidth;
-	npotHeightScale = (float)(glConfig.vidHeight + 1) / (float)tr.currentRenderImage->uploadHeight;
+	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderImage->uploadWidth;
+	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderImage->uploadHeight;
 	
 	// render contrast
 	GL_Program(tr.contrastShader.program);
