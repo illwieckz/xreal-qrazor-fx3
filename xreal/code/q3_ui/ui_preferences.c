@@ -49,8 +49,9 @@ GAME OPTIONS MENU
 #define ID_SYNCEVERYFRAME		134
 #define ID_FORCEMODEL			135
 #define ID_DRAWTEAMOVERLAY		136
-#define ID_ALLOWDOWNLOAD			137
-#define ID_BACK					138
+#define ID_ALLOWDOWNLOAD		137
+#define ID_BLOOM				138
+#define ID_BACK					139
 
 #define	NUM_CROSSHAIRS			10
 
@@ -73,6 +74,7 @@ typedef struct {
 	menuradiobutton_s	forcemodel;
 	menulist_s			drawteamoverlay;
 	menuradiobutton_s	allowdownload;
+	menulist_s			bloom;
 	menubitmap_s		back;
 
 	qhandle_t			crosshairShader[NUM_CROSSHAIRS];
@@ -89,6 +91,14 @@ static const char *teamoverlay_names[] =
 	0
 };
 
+static const char *bloom_names[] =
+{
+	"off",
+	"simple blur",
+	"strong blur",
+	0
+};
+
 static void Preferences_SetMenuItems( void ) {
 	s_preferences.crosshair.curvalue		= (int)trap_Cvar_VariableValue( "cg_drawCrosshair" ) % NUM_CROSSHAIRS;
 	s_preferences.simpleitems.curvalue		= trap_Cvar_VariableValue( "cg_simpleItems" ) != 0;
@@ -101,6 +111,7 @@ static void Preferences_SetMenuItems( void ) {
 	s_preferences.forcemodel.curvalue		= trap_Cvar_VariableValue( "cg_forcemodel" ) != 0;
 	s_preferences.drawteamoverlay.curvalue	= Com_Clamp( 0, 3, trap_Cvar_VariableValue( "cg_drawTeamOverlay" ) );
 	s_preferences.allowdownload.curvalue	= trap_Cvar_VariableValue( "cl_allowDownload" ) != 0;
+	s_preferences.bloom.curvalue			= Com_Clamp(0, 2, trap_Cvar_VariableValue("cg_drawBloom"));
 }
 
 
@@ -161,6 +172,10 @@ static void Preferences_Event( void* ptr, int notification ) {
 		trap_Cvar_SetValue( "cl_allowDownload", s_preferences.allowdownload.curvalue );
 		trap_Cvar_SetValue( "sv_allowDownload", s_preferences.allowdownload.curvalue );
 		break;
+		
+	case ID_BLOOM:
+			trap_Cvar_SetValue("cg_drawBloom", s_preferences.bloom.curvalue);
+			break;
 
 	case ID_BACK:
 		UI_PopMenu();
@@ -355,6 +370,16 @@ static void Preferences_MenuInit( void ) {
 	s_preferences.allowdownload.generic.id       = ID_ALLOWDOWNLOAD;
 	s_preferences.allowdownload.generic.x	       = PREFERENCES_X_POS;
 	s_preferences.allowdownload.generic.y	       = y;
+	
+	y += BIGCHAR_HEIGHT+2;
+	s_preferences.bloom.generic.type     = MTYPE_SPINCONTROL;
+	s_preferences.bloom.generic.name	   = "Bloom Lighting:";
+	s_preferences.bloom.generic.flags	   = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.bloom.generic.callback = Preferences_Event;
+	s_preferences.bloom.generic.id       = ID_BLOOM;
+	s_preferences.bloom.generic.x	       = PREFERENCES_X_POS;
+	s_preferences.bloom.generic.y	       = y;
+	s_preferences.bloom.itemnames		   = bloom_names;
 
 	y += BIGCHAR_HEIGHT+2;
 	s_preferences.back.generic.type	    = MTYPE_BITMAP;
@@ -383,6 +408,7 @@ static void Preferences_MenuInit( void ) {
 	Menu_AddItem( &s_preferences.menu, &s_preferences.forcemodel );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.drawteamoverlay );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.allowdownload );
+	Menu_AddItem( &s_preferences.menu, &s_preferences.bloom );
 
 	Menu_AddItem( &s_preferences.menu, &s_preferences.back );
 
