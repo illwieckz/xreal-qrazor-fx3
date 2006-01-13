@@ -169,83 +169,99 @@ cvar_t         *r_showSkeleton;
 
 
 // GL_ARB_multitexture
-void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t );
-void ( APIENTRY * qglActiveTextureARB )( GLenum texture );
-void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture );
+void            (APIENTRY * qglMultiTexCoord2fARB) (GLenum texture, GLfloat s, GLfloat t);
+void            (APIENTRY * qglActiveTextureARB) (GLenum texture);
+void            (APIENTRY * qglClientActiveTextureARB) (GLenum texture);
 
 // GL_ARB_transpose_matrix
-void ( APIENTRY * qglLoadTransposeMatrixfARB )( const GLfloat *m );
+void            (APIENTRY * qglLoadTransposeMatrixfARB) (const GLfloat * m);
 
 // GL_ARB_vertex_program
-void ( APIENTRY * qglVertexAttribPointerARB )( GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer );
-void ( APIENTRY * qglEnableVertexAttribArrayARB )( GLuint index );
-void ( APIENTRY * qglDisableVertexAttribArrayARB )( GLuint index );
+void            (APIENTRY * qglVertexAttribPointerARB) (GLuint index, GLint size, GLenum type, GLboolean normalized,
+														GLsizei stride, const GLvoid * pointer);
+void            (APIENTRY * qglEnableVertexAttribArrayARB) (GLuint index);
+void            (APIENTRY * qglDisableVertexAttribArrayARB) (GLuint index);
 
 // GL_ARB_shader_objects
-void ( APIENTRY * qglDeleteObjectARB )( GLhandleARB obj );
-GLhandleARB ( APIENTRY * qglGetHandleARB )( GLenum pname );
-void ( APIENTRY * qglDetachObjectARB )( GLhandleARB containerObj, GLhandleARB attachedObj );
-GLhandleARB ( APIENTRY * qglCreateShaderObjectARB )( GLenum shaderType );
-void ( APIENTRY * qglShaderSourceARB )( GLhandleARB shaderObj, GLsizei count, const GLcharARB* *string, const GLint *length ); void ( APIENTRY * qglCompileShaderARB )( GLhandleARB shaderObj );
-GLhandleARB ( APIENTRY * qglCreateProgramObjectARB )( void ); 
-void ( APIENTRY * qglAttachObjectARB )( GLhandleARB containerObj, GLhandleARB obj );
-void ( APIENTRY * qglLinkProgramARB )( GLhandleARB programObj );
-void ( APIENTRY * qglUseProgramObjectARB )( GLhandleARB programObj );
-void ( APIENTRY * qglValidateProgramARB )( GLhandleARB programObj );
-void ( APIENTRY * qglUniform1fARB )( GLint location, GLfloat v0 );
-void ( APIENTRY * qglUniform2fARB )( GLint location, GLfloat v0, GLfloat v1 );
-void ( APIENTRY * qglUniform3fARB )( GLint location, GLfloat v0, GLfloat v1, GLfloat v2 );
-void ( APIENTRY * qglUniform4fARB )( GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3 );
-void ( APIENTRY * qglUniform1iARB )( GLint location, GLint v0 );
-void ( APIENTRY * qglUniform2iARB )( GLint location, GLint v0, GLint v1 );
-void ( APIENTRY * qglUniform3iARB )( GLint location, GLint v0, GLint v1, GLint v2 );
-void ( APIENTRY * qglUniform4iARB )( GLint location, GLint v0, GLint v1, GLint v2, GLint v3 );
-void ( APIENTRY * qglUniform2fvARB )( GLint location, GLsizei count, const GLfloat *value );
-void ( APIENTRY * qglUniform3fvARB )( GLint location, GLsizei count, const GLfloat *value );
-void ( APIENTRY * qglUniform4fvARB )( GLint location, GLsizei count, const GLfloat *value );
-void ( APIENTRY * qglUniform2ivARB )( GLint location, GLsizei count, const GLint *value );
-void ( APIENTRY * qglUniform3ivARB )( GLint location, GLsizei count, const GLint *value );
-void ( APIENTRY * qglUniform4ivARB )( GLint location, GLsizei count, const GLint *value );
-void ( APIENTRY * qglUniformMatrix2fvARB )( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value );
-void ( APIENTRY * qglUniformMatrix3fvARB )( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value );
-void ( APIENTRY * qglUniformMatrix4fvARB )( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value );
-void ( APIENTRY * qglGetObjectParameterfvARB )( GLhandleARB obj, GLenum pname, GLfloat *params );
-void ( APIENTRY * qglGetObjectParameterivARB )( GLhandleARB obj, GLenum pname, GLint *params );
-void ( APIENTRY * qglGetInfoLogARB )( GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *infoLog );
-void ( APIENTRY * qglGetAttachedObjectsARB )( GLhandleARB containerObj, GLsizei maxCount, GLsizei *count, GLhandleARB *obj );
-GLint ( APIENTRY * qglGetUniformLocationARB )( GLhandleARB programObj, const GLcharARB *name );
-void ( APIENTRY * qglGetActiveUniformARB )( GLhandleARB programObj, GLuint index, GLsizei maxIndex, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name );
-void ( APIENTRY * qglGetUniformfvARB )( GLhandleARB programObj, GLint location, GLfloat *params );
-void ( APIENTRY * qglGetUniformivARB )( GLhandleARB programObj, GLint location, GLint *params );
-void ( APIENTRY * qglGetShaderSourceARB )( GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *source );
+void            (APIENTRY * qglDeleteObjectARB) (GLhandleARB obj);
+
+GLhandleARB(APIENTRY * qglGetHandleARB) (GLenum pname);
+void            (APIENTRY * qglDetachObjectARB) (GLhandleARB containerObj, GLhandleARB attachedObj);
+
+GLhandleARB(APIENTRY * qglCreateShaderObjectARB) (GLenum shaderType);
+void            (APIENTRY * qglShaderSourceARB) (GLhandleARB shaderObj, GLsizei count, const GLcharARB * *string,
+												 const GLint * length);
+void            (APIENTRY * qglCompileShaderARB) (GLhandleARB shaderObj);
+
+GLhandleARB(APIENTRY * qglCreateProgramObjectARB) (void);
+void            (APIENTRY * qglAttachObjectARB) (GLhandleARB containerObj, GLhandleARB obj);
+void            (APIENTRY * qglLinkProgramARB) (GLhandleARB programObj);
+void            (APIENTRY * qglUseProgramObjectARB) (GLhandleARB programObj);
+void            (APIENTRY * qglValidateProgramARB) (GLhandleARB programObj);
+void            (APIENTRY * qglUniform1fARB) (GLint location, GLfloat v0);
+void            (APIENTRY * qglUniform2fARB) (GLint location, GLfloat v0, GLfloat v1);
+void            (APIENTRY * qglUniform3fARB) (GLint location, GLfloat v0, GLfloat v1, GLfloat v2);
+void            (APIENTRY * qglUniform4fARB) (GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
+void            (APIENTRY * qglUniform1iARB) (GLint location, GLint v0);
+void            (APIENTRY * qglUniform2iARB) (GLint location, GLint v0, GLint v1);
+void            (APIENTRY * qglUniform3iARB) (GLint location, GLint v0, GLint v1, GLint v2);
+void            (APIENTRY * qglUniform4iARB) (GLint location, GLint v0, GLint v1, GLint v2, GLint v3);
+void            (APIENTRY * qglUniform2fvARB) (GLint location, GLsizei count, const GLfloat * value);
+void            (APIENTRY * qglUniform3fvARB) (GLint location, GLsizei count, const GLfloat * value);
+void            (APIENTRY * qglUniform4fvARB) (GLint location, GLsizei count, const GLfloat * value);
+void            (APIENTRY * qglUniform2ivARB) (GLint location, GLsizei count, const GLint * value);
+void            (APIENTRY * qglUniform3ivARB) (GLint location, GLsizei count, const GLint * value);
+void            (APIENTRY * qglUniform4ivARB) (GLint location, GLsizei count, const GLint * value);
+void            (APIENTRY * qglUniformMatrix2fvARB) (GLint location, GLsizei count, GLboolean transpose, const GLfloat * value);
+void            (APIENTRY * qglUniformMatrix3fvARB) (GLint location, GLsizei count, GLboolean transpose, const GLfloat * value);
+void            (APIENTRY * qglUniformMatrix4fvARB) (GLint location, GLsizei count, GLboolean transpose, const GLfloat * value);
+void            (APIENTRY * qglGetObjectParameterfvARB) (GLhandleARB obj, GLenum pname, GLfloat * params);
+void            (APIENTRY * qglGetObjectParameterivARB) (GLhandleARB obj, GLenum pname, GLint * params);
+void            (APIENTRY * qglGetInfoLogARB) (GLhandleARB obj, GLsizei maxLength, GLsizei * length, GLcharARB * infoLog);
+void            (APIENTRY * qglGetAttachedObjectsARB) (GLhandleARB containerObj, GLsizei maxCount, GLsizei * count,
+													   GLhandleARB * obj);
+GLint(APIENTRY * qglGetUniformLocationARB) (GLhandleARB programObj, const GLcharARB * name);
+void            (APIENTRY * qglGetActiveUniformARB) (GLhandleARB programObj, GLuint index, GLsizei maxIndex, GLsizei * length,
+													 GLint * size, GLenum * type, GLcharARB * name);
+void            (APIENTRY * qglGetUniformfvARB) (GLhandleARB programObj, GLint location, GLfloat * params);
+void            (APIENTRY * qglGetUniformivARB) (GLhandleARB programObj, GLint location, GLint * params);
+void            (APIENTRY * qglGetShaderSourceARB) (GLhandleARB obj, GLsizei maxLength, GLsizei * length, GLcharARB * source);
 
 // GL_ARB_vertex_shader
-void ( APIENTRY * qglBindAttribLocationARB )( GLhandleARB programObj, GLuint index, const GLcharARB *name );
-void ( APIENTRY * qglGetActiveAttribARB )( GLhandleARB programObj, GLuint index, GLsizei maxLength, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name );
-GLint ( APIENTRY * qglGetAttribLocationARB )( GLhandleARB programObj, const GLcharARB *name );
+void            (APIENTRY * qglBindAttribLocationARB) (GLhandleARB programObj, GLuint index, const GLcharARB * name);
+void            (APIENTRY * qglGetActiveAttribARB) (GLhandleARB programObj, GLuint index, GLsizei maxLength, GLsizei * length,
+													GLint * size, GLenum * type, GLcharARB * name);
+GLint(APIENTRY * qglGetAttribLocationARB) (GLhandleARB programObj, const GLcharARB * name);
 
 // GL_EXT_compiled_vertex_array
-void ( APIENTRY * qglLockArraysEXT)( GLint, GLint);
-void ( APIENTRY * qglUnlockArraysEXT) ( void );
+void            (APIENTRY * qglLockArraysEXT) (GLint, GLint);
+void            (APIENTRY * qglUnlockArraysEXT) (void);
 
 // GL_EXT_framebuffer_object
-GLboolean ( APIENTRY * qglIsRenderbufferEXT )( GLuint renderbuffer );
-void ( APIENTRY * qglBindRenderbufferEXT )( GLenum target, GLuint renderbuffer );
-void ( APIENTRY * qglDeleteRenderbuffersEXT )( GLsizei n, const GLuint *renderbuffers );
-void ( APIENTRY * qglGenRenderbuffersEXT )( GLsizei n, GLuint *renderbuffers );
-void ( APIENTRY * qglRenderbufferStorageEXT )( GLenum target, GLenum internalformat, GLsizei width, GLsizei height );
-void ( APIENTRY * qglGetRenderbufferParameterivEXT )( GLenum target, GLenum pname, GLint *params );
-GLboolean ( APIENTRY * qglIsFramebufferEXT )( GLuint framebuffer );
-void ( APIENTRY * qglBindFramebufferEXT )( GLenum target, GLuint framebuffer );
-void ( APIENTRY * qglDeleteFramebuffersEXT )( GLsizei n, const GLuint *framebuffers );
-void ( APIENTRY * qglGenFramebuffersEXT )( GLsizei n, GLuint *framebuffers );
-GLenum ( APIENTRY * qglCheckFramebufferStatusEXT )( GLenum target );
-void ( APIENTRY * qglFramebufferTexture1DEXT )( GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level );
-void ( APIENTRY * qglFramebufferTexture2DEXT )( GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level );
-void ( APIENTRY * qglFramebufferTexture3DEXT )( GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset );
-void ( APIENTRY * qglFramebufferRenderbufferEXT )( GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer );
-void ( APIENTRY * qglGetFramebufferAttachmentParameterivEXT )( GLenum target, GLenum attachment, GLenum pname, GLint *params );
-void ( APIENTRY * qglGenerateMipmapEXT )( GLenum target );
+GLboolean(APIENTRY * qglIsRenderbufferEXT) (GLuint renderbuffer);
+void            (APIENTRY * qglBindRenderbufferEXT) (GLenum target, GLuint renderbuffer);
+void            (APIENTRY * qglDeleteRenderbuffersEXT) (GLsizei n, const GLuint * renderbuffers);
+void            (APIENTRY * qglGenRenderbuffersEXT) (GLsizei n, GLuint * renderbuffers);
+void            (APIENTRY * qglRenderbufferStorageEXT) (GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+void            (APIENTRY * qglGetRenderbufferParameterivEXT) (GLenum target, GLenum pname, GLint * params);
+
+GLboolean(APIENTRY * qglIsFramebufferEXT) (GLuint framebuffer);
+void            (APIENTRY * qglBindFramebufferEXT) (GLenum target, GLuint framebuffer);
+void            (APIENTRY * qglDeleteFramebuffersEXT) (GLsizei n, const GLuint * framebuffers);
+void            (APIENTRY * qglGenFramebuffersEXT) (GLsizei n, GLuint * framebuffers);
+
+GLenum(APIENTRY * qglCheckFramebufferStatusEXT) (GLenum target);
+void            (APIENTRY * qglFramebufferTexture1DEXT) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture,
+														 GLint level);
+void            (APIENTRY * qglFramebufferTexture2DEXT) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture,
+														 GLint level);
+void            (APIENTRY * qglFramebufferTexture3DEXT) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture,
+														 GLint level, GLint zoffset);
+void            (APIENTRY * qglFramebufferRenderbufferEXT) (GLenum target, GLenum attachment, GLenum renderbuffertarget,
+															GLuint renderbuffer);
+void            (APIENTRY * qglGetFramebufferAttachmentParameterivEXT) (GLenum target, GLenum attachment, GLenum pname,
+																		GLint * params);
+void            (APIENTRY * qglGenerateMipmapEXT) (GLenum target);
 
 static void AssertCvarRange(cvar_t * cv, float minVal, float maxVal, qboolean shouldBeIntegral)
 {
@@ -464,13 +480,13 @@ we use statics to store a count and start writing the first screenshot/screensho
 FIXME: the statics don't get a reinit between fs_game changes
 
 ============================================================================== 
-*/ 
+*/
 
 /* 
 ================== 
 RB_TakeScreenshot
 ================== 
-*/  
+*/
 void RB_TakeScreenshot(int x, int y, int width, int height, char *fileName)
 {
 	byte           *buffer;
@@ -583,7 +599,7 @@ void R_TakeScreenshot(int x, int y, int width, int height, char *name, qboolean 
 ================== 
 R_ScreenshotFilename
 ================== 
-*/  
+*/
 void R_ScreenshotFilename(int lastNumber, char *fileName)
 {
 	int             a, b, c, d;
@@ -610,7 +626,7 @@ void R_ScreenshotFilename(int lastNumber, char *fileName)
 ================== 
 R_ScreenshotFilename
 ================== 
-*/  
+*/
 void R_ScreenshotFilenameJPEG(int lastNumber, char *fileName)
 {
 	int             a, b, c, d;
@@ -677,9 +693,7 @@ void R_LevelShot(void)
 			{
 				for(xx = 0; xx < 4; xx++)
 				{
-					src =
-						source + 3 * (glConfig.vidWidth * (int)((y * 3 + yy) * yScale) +
-									  (int)((x * 4 + xx) * xScale));
+					src = source + 3 * (glConfig.vidWidth * (int)((y * 3 + yy) * yScale) + (int)((x * 4 + xx) * xScale));
 					r += src[0];
 					g += src[1];
 					b += src[2];
@@ -718,7 +732,7 @@ screenshot [filename]
 
 Doesn't print the pacifier message if there is a second arg
 ================== 
-*/  
+*/
 void R_ScreenShot_f(void)
 {
 	char            checkname[MAX_OSPATH];
@@ -785,58 +799,70 @@ void R_ScreenShot_f(void)
 }
 
 
-void R_ScreenShotJPEG_f (void) {
-	char		checkname[MAX_OSPATH];
-	static	int	lastNumber = -1;
-	qboolean	silent;
+void R_ScreenShotJPEG_f(void)
+{
+	char            checkname[MAX_OSPATH];
+	static int      lastNumber = -1;
+	qboolean        silent;
 
-	if ( !strcmp( ri.Cmd_Argv(1), "levelshot" ) ) {
+	if(!strcmp(ri.Cmd_Argv(1), "levelshot"))
+	{
 		R_LevelShot();
 		return;
 	}
 
-	if ( !strcmp( ri.Cmd_Argv(1), "silent" ) ) {
+	if(!strcmp(ri.Cmd_Argv(1), "silent"))
+	{
 		silent = qtrue;
-	} else {
+	}
+	else
+	{
 		silent = qfalse;
 	}
 
-	if ( ri.Cmd_Argc() == 2 && !silent ) {
+	if(ri.Cmd_Argc() == 2 && !silent)
+	{
 		// explicit filename
-		Com_sprintf( checkname, MAX_OSPATH, "screenshots/%s.jpg", ri.Cmd_Argv( 1 ) );
-	} else {
+		Com_sprintf(checkname, MAX_OSPATH, "screenshots/%s.jpg", ri.Cmd_Argv(1));
+	}
+	else
+	{
 		// scan for a free filename
 
 		// if we have saved a previous screenshot, don't scan
 		// again, because recording demo avis can involve
 		// thousands of shots
-		if ( lastNumber == -1 ) {
+		if(lastNumber == -1)
+		{
 			lastNumber = 0;
 		}
 		// scan for a free number
-		for ( ; lastNumber <= 9999 ; lastNumber++ ) {
-			R_ScreenshotFilenameJPEG( lastNumber, checkname );
+		for(; lastNumber <= 9999; lastNumber++)
+		{
+			R_ScreenshotFilenameJPEG(lastNumber, checkname);
 
-      if (!ri.FS_FileExists( checkname ))
-      {
-        break; // file doesn't exist
-      }
+			if(!ri.FS_FileExists(checkname))
+			{
+				break;			// file doesn't exist
+			}
 		}
 
-		if ( lastNumber == 10000 ) {
-			ri.Printf (PRINT_ALL, "ScreenShot: Couldn't create a file\n"); 
+		if(lastNumber == 10000)
+		{
+			ri.Printf(PRINT_ALL, "ScreenShot: Couldn't create a file\n");
 			return;
- 		}
+		}
 
 		lastNumber++;
 	}
 
-	R_TakeScreenshot( 0, 0, glConfig.vidWidth, glConfig.vidHeight, checkname, qtrue );
+	R_TakeScreenshot(0, 0, glConfig.vidWidth, glConfig.vidHeight, checkname, qtrue);
 
-	if ( !silent ) {
-		ri.Printf (PRINT_ALL, "Wrote %s\n", checkname);
+	if(!silent)
+	{
+		ri.Printf(PRINT_ALL, "Wrote %s\n", checkname);
 	}
-} 
+}
 
 //============================================================================
 
@@ -865,7 +891,7 @@ void GL_SetDefaultState(void)
 
 	GL_TextureMode(r_textureMode->string);
 	GL_TexEnv(GL_MODULATE);
-//	qglDisable(GL_TEXTURE_2D);
+//  qglDisable(GL_TEXTURE_2D);
 	qglEnable(GL_TEXTURE_2D);
 
 	qglShadeModel(GL_SMOOTH);
@@ -913,17 +939,17 @@ void GfxInfo_f(void)
 	ri.Printf(PRINT_ALL, "GL_EXTENSIONS: %s\n", glConfig.extensions_string);
 	ri.Printf(PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize);
 	ri.Printf(PRINT_ALL, "GL_MAX_TEXTURE_UNITS_ARB: %d\n", glConfig.maxTextureUnits);
-	
+
 	if(glConfig2.textureAnisotropyAvailable)
 	{
 		ri.Printf(PRINT_ALL, "GL_TEXTURE_MAX_ANISOTROPY_EXT: %f\n", glConfig2.maxTextureAnisotropy);
 	}
-	
+
 	ri.Printf(PRINT_ALL, "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits,
 			  glConfig.depthBits, glConfig.stencilBits);
 	ri.Printf(PRINT_ALL, "MODE: %d, %d x %d %s hz:", r_mode->integer, glConfig.vidWidth, glConfig.vidHeight,
 			  fsstrings[r_fullscreen->integer == 1]);
-	
+
 	if(glConfig.displayFrequency)
 	{
 		ri.Printf(PRINT_ALL, "%d\n", glConfig.displayFrequency);
@@ -932,7 +958,7 @@ void GfxInfo_f(void)
 	{
 		ri.Printf(PRINT_ALL, "N/A\n");
 	}
-	
+
 	if(glConfig.deviceSupportsGamma)
 	{
 		ri.Printf(PRINT_ALL, "GAMMA: hardware w/ %d overbright bits\n", tr.overbrightBits);
@@ -991,17 +1017,17 @@ void GfxInfo_f(void)
 	{
 		ri.Printf(PRINT_ALL, "HACK: ragePro approximations\n");
 	}
-	
+
 	if(glConfig.hardwareType == GLHW_RIVA128)
 	{
 		ri.Printf(PRINT_ALL, "HACK: riva128 approximations\n");
 	}
-	
+
 	if(glConfig.smpActive)
 	{
 		ri.Printf(PRINT_ALL, "Using dual processor acceleration\n");
 	}
-	
+
 	if(r_finish->integer)
 	{
 		ri.Printf(PRINT_ALL, "Forcing glFinish\n");
@@ -1161,7 +1187,7 @@ void R_Register(void)
 
 	r_maxpolys = ri.Cvar_Get("r_maxpolys", va("%d", MAX_POLYS), 0);
 	r_maxpolyverts = ri.Cvar_Get("r_maxpolyverts", va("%d", MAX_POLYVERTS), 0);
-	
+
 	r_showLightMaps = ri.Cvar_Get("r_showLightMaps", "0", CVAR_CHEAT);
 	r_showDeluxeMaps = ri.Cvar_Get("r_showDeluxeMaps", "0", CVAR_CHEAT);
 	r_showNormalMaps = ri.Cvar_Get("r_showNormalMaps", "0", CVAR_CHEAT);
@@ -1248,22 +1274,16 @@ void R_Init(void)
 	if(max_polyverts < MAX_POLYVERTS)
 		max_polyverts = MAX_POLYVERTS;
 
-	ptr =
-		ri.Hunk_Alloc(sizeof(*backEndData[0]) + sizeof(srfPoly_t) * max_polys +
-					  sizeof(polyVert_t) * max_polyverts, h_low);
+	ptr = ri.Hunk_Alloc(sizeof(*backEndData[0]) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts, h_low);
 	backEndData[0] = (backEndData_t *) ptr;
 	backEndData[0]->polys = (srfPoly_t *) ((char *)ptr + sizeof(*backEndData[0]));
-	backEndData[0]->polyVerts =
-		(polyVert_t *) ((char *)ptr + sizeof(*backEndData[0]) + sizeof(srfPoly_t) * max_polys);
+	backEndData[0]->polyVerts = (polyVert_t *) ((char *)ptr + sizeof(*backEndData[0]) + sizeof(srfPoly_t) * max_polys);
 	if(r_smp->integer)
 	{
-		ptr =
-			ri.Hunk_Alloc(sizeof(*backEndData[1]) + sizeof(srfPoly_t) * max_polys +
-						  sizeof(polyVert_t) * max_polyverts, h_low);
+		ptr = ri.Hunk_Alloc(sizeof(*backEndData[1]) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts, h_low);
 		backEndData[1] = (backEndData_t *) ptr;
 		backEndData[1]->polys = (srfPoly_t *) ((char *)ptr + sizeof(*backEndData[1]));
-		backEndData[1]->polyVerts =
-			(polyVert_t *) ((char *)ptr + sizeof(*backEndData[1]) + sizeof(srfPoly_t) * max_polys);
+		backEndData[1]->polyVerts = (polyVert_t *) ((char *)ptr + sizeof(*backEndData[1]) + sizeof(srfPoly_t) * max_polys);
 	}
 	else
 	{
@@ -1368,8 +1388,7 @@ refexport_t    *GetRefAPI(int apiVersion, refimport_t * rimp)
 
 	if(apiVersion != REF_API_VERSION)
 	{
-		ri.Printf(PRINT_ALL, "Mismatched REF_API_VERSION: expected %i, got %i\n",
-				  REF_API_VERSION, apiVersion);
+		ri.Printf(PRINT_ALL, "Mismatched REF_API_VERSION: expected %i, got %i\n", REF_API_VERSION, apiVersion);
 		return NULL;
 	}
 
@@ -1413,4 +1432,3 @@ refexport_t    *GetRefAPI(int apiVersion, refimport_t * rimp)
 
 	return &re;
 }
-
