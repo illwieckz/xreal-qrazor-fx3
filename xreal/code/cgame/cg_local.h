@@ -663,7 +663,10 @@ typedef struct
 	refEntity_t     testModelEntity;
 	char            testModelName[MAX_QPATH];
 	qboolean        testGun;
-
+	
+	refDlight_t     testLight;
+	char            testLightName[MAX_QPATH];
+	qboolean        testLightEnabled;
 } cg_t;
 
 
@@ -1255,6 +1258,7 @@ void            CG_TestModelNextFrame_f(void);
 void            CG_TestModelPrevFrame_f(void);
 void            CG_TestModelNextSkin_f(void);
 void            CG_TestModelPrevSkin_f(void);
+void            CG_TestOmniLight_f(void);
 void            CG_ZoomDown_f(void);
 void            CG_ZoomUp_f(void);
 void            CG_AddBufferedSound(sfxHandle_t sfx);
@@ -1596,6 +1600,7 @@ qhandle_t       trap_R_RegisterShaderNoMip(const char *name);	// returns all whi
 // Nothing is drawn until R_RenderScene is called.
 void            trap_R_ClearScene(void);
 void            trap_R_AddRefEntityToScene(const refEntity_t * re);
+void            trap_R_AddRefDlightToScene(const refDlight_t * light);
 
 // polys are intended for simple wall marks, not really for doing
 // significant construction

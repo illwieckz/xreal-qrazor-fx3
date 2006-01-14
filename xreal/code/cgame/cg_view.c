@@ -183,6 +183,94 @@ static void CG_AddTestModel(void)
 }
 
 
+/*
+=================
+CG_TestLight_f
+
+Creates a omni-directional dlight in front of the current position, which can then be moved around
+=================
+*/
+void CG_TestOmniLight_f(void)
+{
+	vec3_t          angles;
+
+	memset(&cg.testLight, 0, sizeof(cg.testLight));
+	/*
+	if(trap_Argc() < 2)
+	{
+		return;
+	}
+	*/
+
+//	Q_strncpyz(cg.testLightName, CG_Argv(1), sizeof(cg.testLightName));
+//	cg.testModelEntity.hModel = trap_R_RegisterModel(cg.testModelName);
+
+	/*
+	if(trap_Argc() == 3)
+	{
+		cg.testModelEntity.backlerp = atof(CG_Argv(2));
+		cg.testModelEntity.frame = 1;
+		cg.testModelEntity.oldframe = 0;
+	}
+	if(!cg.testModelEntity.hModel)
+	{
+		CG_Printf("Can't register model\n");
+		return;
+	}
+	*/
+
+	VectorMA(cg.refdef.vieworg, 100, cg.refdef.viewaxis[0], cg.testLight.origin);
+	
+	cg.testLight.color[0] = 1.0;
+	cg.testLight.color[1] = 1.0;
+	cg.testLight.color[2] = 1.0;
+	
+	cg.testLight.radius = 100;
+
+	angles[PITCH] = 0;
+	angles[YAW] = 180 + cg.refdefViewAngles[1];
+	angles[ROLL] = 0;
+
+	AnglesToAxis(angles, cg.testLight.axis);
+	
+	cg.testLightEnabled = qtrue;
+}
+
+
+static void CG_AddTestLight(void)
+{
+	/*
+	int             i;
+
+	// re-register the model, because the level may have changed
+	cg.testModelEntity.hModel = trap_R_RegisterModel(cg.testModelName);
+	if(!cg.testModelEntity.hModel)
+	{
+		CG_Printf("Can't register model\n");
+		return;
+	}
+
+	// if testing a gun, set the origin reletive to the view origin
+	if(cg.testGun)
+	{
+		VectorCopy(cg.refdef.vieworg, cg.testModelEntity.origin);
+		VectorCopy(cg.refdef.viewaxis[0], cg.testModelEntity.axis[0]);
+		VectorCopy(cg.refdef.viewaxis[1], cg.testModelEntity.axis[1]);
+		VectorCopy(cg.refdef.viewaxis[2], cg.testModelEntity.axis[2]);
+
+		// allow the position to be adjusted
+		for(i = 0; i < 3; i++)
+		{
+			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[0][i] * cg_gun_x.value;
+			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[1][i] * cg_gun_y.value;
+			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[2][i] * cg_gun_z.value;
+		}
+	}
+	*/
+
+	trap_R_AddRefDlightToScene(&cg.testLight);
+}
+
 
 //============================================================================
 
@@ -937,6 +1025,12 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 	{
 		CG_AddTestModel();
 	}
+	
+	if(cg.testLightEnabled)
+	{
+		CG_AddTestLight();	
+	}
+	
 	cg.refdef.time = cg.time;
 	memcpy(cg.refdef.areamask, cg.snap->areamask, sizeof(cg.refdef.areamask));
 

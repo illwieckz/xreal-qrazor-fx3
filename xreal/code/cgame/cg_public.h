@@ -173,6 +173,8 @@ typedef enum
 	CG_STARTCAMERA,
 	CG_GETCAMERAINFO,
 */
+	// Tr3B - XreaL extensions
+	CG_R_ADDREFDLIGHTTOSCENE,
 
 	CG_MEMSET = 100,
 	CG_MEMCPY,

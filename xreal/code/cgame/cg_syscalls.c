@@ -303,6 +303,11 @@ void trap_R_AddRefEntityToScene(const refEntity_t * re)
 	syscall(CG_R_ADDREFENTITYTOSCENE, re);
 }
 
+void trap_R_AddRefDlightToScene(const refDlight_t * light)
+{
+	syscall(CG_R_ADDREFDLIGHTTOSCENE, light);
+}
+
 void trap_R_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts)
 {
 	syscall(CG_R_ADDPOLYTOSCENE, hShader, numVerts, verts);

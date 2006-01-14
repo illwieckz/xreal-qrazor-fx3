@@ -246,10 +246,60 @@ void RE_AddRefEntityToScene(const refEntity_t * ent)
 
 /*
 =====================
+RE_AddRefDlightToScene
+=====================
+*/
+void RE_AddRefDlightToScene(const refDlight_t * light)
+{
+	trRefDlight_t *dl;
+		
+	if(!tr.registered)
+	{
+		return;
+	}
+	
+	if(r_numdlights >= MAX_DLIGHTS)
+	{
+		return;
+	}
+	
+	if(light->radius <= 0)
+	{
+		return;
+	}
+	
+	// these cards don't have the correct blend mode
+	if(glConfig.hardwareType == GLHW_RIVA128 || glConfig.hardwareType == GLHW_PERMEDIA2)
+	{
+		return;
+	}
+	
+	dl = &backEndData[tr.smpFrame]->dlights[r_numdlights++];
+	dl->l = *light;
+	
+	dl->additive = qtrue;
+	
+	// setup transform	
+	MatrixSetupTransform(dl->transformMatrix, dl->l.axis[0], dl->l.axis[1], dl->l.axis[2], dl->l.origin);
+	
+	// setup view
+	MatrixAffineInverse(dl->transformMatrix, dl->viewMatrix);
+	
+	// setup projection
+	MatrixSetupScale(dl->projectionMatrix, 1.0 / dl->l.radius, 1.0 / dl->l.radius, 1.0 / dl->l.radius);
+				
+	// setup attenuation
+	MatrixSetupTranslation(dl->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
+	MatrixMultiplyScale(dl->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
+	MatrixMultiply2(dl->attenuationMatrix, dl->projectionMatrix);	// light projection (frustum)
+}
+
+/*
+=====================
 RE_AddDynamicLightToScene
 =====================
 */
-void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r, float g, float b, int additive)
+static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r, float g, float b, int additive)
 {
 	trRefDlight_t *dl;
 		
