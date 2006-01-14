@@ -32,6 +32,10 @@ code/renderer
 - deluxe mapping: N dot L based lightmapping supported by q3map2
   compile your maps with -light -deluxe to use this feature
 
+code/q3_ui
+- bloom rendering game option
+- anisotropic filter value slider in graphics options
+
 common/aselib
 - fixed bad Doom3 paths
 
