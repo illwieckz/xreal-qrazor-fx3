@@ -719,6 +719,16 @@ static void CL_GetGlconfig(glconfig_t * config)
 
 /*
 ====================
+CL_GetGlConfig2
+====================
+*/
+static void CL_GetGlconfig2(glconfig2_t * config)
+{
+	*config = cls.glconfig2;
+}
+
+/*
+====================
 GetClipboardData
 ====================
 */
@@ -1072,6 +1082,10 @@ int CL_UISystemCalls(int *args)
 
 		case UI_GETGLCONFIG:
 			CL_GetGlconfig(VMA(1));
+			return 0;
+			
+		case UI_GETGLCONFIG2:
+			CL_GetGlconfig2(VMA(1));
 			return 0;
 
 		case UI_GETCONFIGSTRING:

@@ -133,7 +133,9 @@ typedef enum {
 	UI_ATAN2,
 	UI_SQRT,
 	UI_FLOOR,
-	UI_CEIL
+	UI_CEIL,
+	// Tr3B - XreaL extensions
+	UI_GETGLCONFIG2
 } uiImport_t;
 
 typedef enum {
