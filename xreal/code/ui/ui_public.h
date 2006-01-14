@@ -124,6 +124,8 @@ typedef enum {
 	// 1.32
 	UI_FS_SEEK,
 	UI_SET_PBCLSTATUS,
+	// Tr3B - XreaL extensions
+	UI_GETGLCONFIG2,
 
 	UI_MEMSET = 100,
 	UI_MEMCPY,
@@ -133,9 +135,7 @@ typedef enum {
 	UI_ATAN2,
 	UI_SQRT,
 	UI_FLOOR,
-	UI_CEIL,
-	// Tr3B - XreaL extensions
-	UI_GETGLCONFIG2
+	UI_CEIL
 } uiImport_t;
 
 typedef enum {
