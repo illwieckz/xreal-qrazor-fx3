@@ -176,7 +176,7 @@ void RB_ShowProgramUniforms(GLhandleARB program)
 	{
 		qglGetActiveUniformARB(program, i, sizeof(uniformName), NULL, &size, &type, uniformName);
 		
-		ri.Printf(PRINT_ALL, "active uniform: '%s'\n", uniformName);
+		ri.Printf(PRINT_DEVELOPER, "active uniform: '%s'\n", uniformName);
 	}
 	
 	qglUseProgramObjectARB(0);
