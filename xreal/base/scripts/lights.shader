@@ -776,8 +776,10 @@ lights/pentagram
 
 
 lights/strobevent01
-{	
+{
+	lightFalloffImage	makeintensity(lights/squarelight1a.tga)
 	{
+		stage attenuationMapXY
 		forceHighQuality
 		map	lights/strobevent01.tga 
 		colored
@@ -851,7 +853,9 @@ lights/spawnflash
 
 lights/baronflash
 {
+	lightFalloffImage	makeintensity(lights/squarelight1a.tga)
 	{
+		stage attenuationMapXY
 		forceHighQuality		
 		map lights/baronflash.tga
 		zeroClamp
@@ -905,6 +909,7 @@ lights/defaultPointLight
 	lightFalloffImage	makeintensity( lights/squarelight1a.tga )	// this will also be the falloff for any
 																	// point light shaders that don't specify one
 	{
+		stage attenuationMapXY
 		forceHighQuality
 		map lights/squarelight1.tga
 		colored
@@ -915,7 +920,7 @@ lights/defaultPointLight
 lights/desertambientlight
 {
 	ambientLight
-	lightFalloffImage	makeintensity( lights/squarelight1a.tga )
+	lightFalloffImage	makeintensity(lights/squarelight1a.tga)
 	{
 		forceHighQuality
 		map lights/squarelight.tga
@@ -1017,7 +1022,9 @@ lights/qcfloorvent01x
 
 lights/roundfire
 {
+	lightFalloffImage	makeintensity(lights/squarelight1a.tga)
 	{
+		stage attenuationMapXY
 		forceHighQuality
 		map	lights/roundfire.tga
 		red 	( firetable [Parm4 + (time / 6 * (Parm3)) ]) * Parm0
@@ -3190,6 +3197,24 @@ lights/impflyflash
 		rotate	time * 3.7
 		rgb		flickerblink[ time * 1 ]
 		colored
+	}
+}
+
+
+//
+// Tr3B - new test lights
+//
+lights/roqVideoLight
+{
+//	lightFalloffImage	makeintensity(lights/squarelight1a.tga)
+	lightFalloffImage	_noFalloff
+	{
+		stage attenuationMapXY
+		//rotate	time * 3.7
+		colored
+		//rgb		flickerblink[ time * 1 ]
+		videoMap video/idlogo.RoQ
+		//map lights/squarelight1.tga
 	}
 }
 
