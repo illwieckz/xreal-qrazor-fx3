@@ -1012,6 +1012,9 @@ typedef struct
 	sfxHandle_t     wstbimpmSound;
 	sfxHandle_t     wstbimpdSound;
 	sfxHandle_t     wstbactvSound;
+	
+	// light attenuation
+	qhandle_t       defaultDlightShader;
 
 } cgMedia_t;
 
@@ -1595,6 +1598,7 @@ qhandle_t       trap_R_RegisterModel(const char *name);	// returns rgb axis if n
 qhandle_t       trap_R_RegisterSkin(const char *name);	// returns all white if not found
 qhandle_t       trap_R_RegisterShader(const char *name);	// returns all white if not found
 qhandle_t       trap_R_RegisterShaderNoMip(const char *name);	// returns all white if not found
+qhandle_t       trap_R_RegisterShaderLightAttenuation(const char *name);
 
 // a scene is built up by calls to R_ClearScene and the various R_Add functions.
 // Nothing is drawn until R_RenderScene is called.

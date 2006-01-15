@@ -1130,7 +1130,6 @@ shaderCommands_t tess;
 /*
 =================
 R_BindAnimatedImage
-
 =================
 */
 static void R_BindAnimatedImage(textureBundle_t * bundle)
@@ -1659,10 +1658,10 @@ static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
 	qglMatrixMode(GL_MODELVIEW);
 	
 	GL_SelectTexture(1);
-	GL_Bind(attenuationXYStage->bundle[TB_COLORMAP].image[0]);
+	R_BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	
 	GL_SelectTexture(2);
-	GL_Bind(attenuationZStage->bundle[TB_COLORMAP].image[0]);
+	R_BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
@@ -1717,10 +1716,10 @@ static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
 	GL_Bind(diffuseStage->bundle[TB_NORMALMAP].image[0]);
 	
 	GL_SelectTexture(2);
-	GL_Bind(attenuationXYStage->bundle[TB_COLORMAP].image[0]);
+	R_BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	
 	GL_SelectTexture(3);
-	GL_Bind(attenuationZStage->bundle[TB_COLORMAP].image[0]);
+	R_BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
@@ -1782,10 +1781,10 @@ static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 	GL_Bind(diffuseStage->bundle[TB_SPECULARMAP].image[0]);
 	
 	GL_SelectTexture(3);
-	GL_Bind(attenuationXYStage->bundle[TB_COLORMAP].image[0]);
+	R_BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	
 	GL_SelectTexture(4);
-	GL_Bind(attenuationZStage->bundle[TB_COLORMAP].image[0]);
+	R_BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
@@ -2385,6 +2384,7 @@ void RenderDlightInteractions(void)
 	for(l = 0; l < backEnd.refdef.numDlights; l++)
 	{
 		trRefDlight_t  *dl;
+		shader_t       *attenuationShader;
 		shaderStage_t  *attenuationZStage;
 
 		if(!(tess.dlightBits & (1 << l)))
@@ -2446,11 +2446,16 @@ void RenderDlightInteractions(void)
 		}
 		*/
 
-		attenuationZStage = tr.defaultDlightShader->stages[0];
+		attenuationShader = R_GetShaderByHandle(dl->l.attenuationShader);
+		
+		if(attenuationShader == NULL || attenuationShader == tr.defaultShader)
+			attenuationShader = tr.defaultDlightShader;
+		
+		attenuationZStage = attenuationShader->stages[0];
 		
 		for(i = 1; i < MAX_SHADER_STAGES; i++)
 		{
-			shaderStage_t  *attenuationXYStage = tr.defaultDlightShader->stages[i];
+			shaderStage_t  *attenuationXYStage = attenuationShader->stages[i];
 						
 			if(!attenuationXYStage)
 			{
@@ -2459,7 +2464,7 @@ void RenderDlightInteractions(void)
 			
 			if(attenuationXYStage->type != ST_ATTENUATIONMAP_XY)
 			{
-				continue;	
+				continue;
 			}
 			
 			if(!RB_EvalExpression(&attenuationXYStage->ifExp, 1.0))

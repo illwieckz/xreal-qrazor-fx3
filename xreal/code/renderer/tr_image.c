@@ -3072,10 +3072,15 @@ static void R_CreateDefaultImage(void)
 	tr.defaultImage = R_CreateImage("_default", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, IF_NOPICMIP, FT_DEFAULT, WT_REPEAT);
 }
 
-
-static void R_CreateAttenuationZImage(void)
+static void R_CreateNoFalloffImage(void)
 {
-	// TODO	
+	byte            data[DEFAULT_SIZE][DEFAULT_SIZE][4];
+
+	R_CreateDefaultImage();
+
+	// we use a solid white image instead of disabling texturing
+	Com_Memset(data, 255, sizeof(data));
+	tr.noFalloffImage = R_CreateImage("_noFalloff", (byte *) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_EDGE_CLAMP);
 }
 
 #define	ATTENUATION_XY_SIZE	128
@@ -3214,7 +3219,7 @@ void R_CreateBuiltinImages(void)
 
 	R_CreateDlightImage();
 	R_CreateFogImage();
-	R_CreateAttenuationZImage();
+	R_CreateNoFalloffImage();
 	R_CreateAttenuationXYImage();
 	R_CreateCurrentRenderImage();
 	R_CreateCurrentRenderNearestImage();

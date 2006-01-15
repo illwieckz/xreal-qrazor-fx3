@@ -1165,6 +1165,10 @@ static void CG_RegisterGraphics(void)
 	trap_R_RegisterModel("models/players/heads/janet/janet.md3");
 
 #endif
+
+	// light attenuation
+	cgs.media.defaultDlightShader = trap_R_RegisterShaderLightAttenuation("lights/defaultDynamicLight");
+
 	CG_ClearParticles();
 /*
 	for (i=1; i<MAX_PARTICLES_AREAS; i++)

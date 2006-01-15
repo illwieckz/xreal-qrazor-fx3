@@ -195,15 +195,14 @@ void CG_TestOmniLight_f(void)
 	vec3_t          angles;
 
 	memset(&cg.testLight, 0, sizeof(cg.testLight));
-	/*
 	if(trap_Argc() < 2)
 	{
+		CG_Printf("usage: testOmniLight <lightShaderName>\n");
 		return;
 	}
-	*/
 
-//	Q_strncpyz(cg.testLightName, CG_Argv(1), sizeof(cg.testLightName));
-//	cg.testModelEntity.hModel = trap_R_RegisterModel(cg.testModelName);
+	Q_strncpyz(cg.testLightName, CG_Argv(1), sizeof(cg.testLightName));
+	cg.testLight.attenuationShader = trap_R_RegisterShaderLightAttenuation(cg.testLightName);
 
 	/*
 	if(trap_Argc() == 3)
@@ -228,7 +227,7 @@ void CG_TestOmniLight_f(void)
 	cg.testLight.radius = 100;
 
 	angles[PITCH] = 0;
-	angles[YAW] = 180 + cg.refdefViewAngles[1];
+	angles[YAW] = cg.refdefViewAngles[YAW];// + 180;
 	angles[ROLL] = 0;
 
 	AnglesToAxis(angles, cg.testLight.axis);
@@ -239,17 +238,18 @@ void CG_TestOmniLight_f(void)
 
 static void CG_AddTestLight(void)
 {
-	/*
-	int             i;
+
+//	int             i;
 
 	// re-register the model, because the level may have changed
-	cg.testModelEntity.hModel = trap_R_RegisterModel(cg.testModelName);
-	if(!cg.testModelEntity.hModel)
+	cg.testLight.attenuationShader = trap_R_RegisterShaderLightAttenuation(cg.testLightName);
+	if(!cg.testLight.attenuationShader)
 	{
-		CG_Printf("Can't register model\n");
+		CG_Printf("Can't register attenuation shader\n");
 		return;
 	}
 
+	/*
 	// if testing a gun, set the origin reletive to the view origin
 	if(cg.testGun)
 	{
@@ -1026,9 +1026,10 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 		CG_AddTestModel();
 	}
 	
-	if(cg.testLightEnabled)
+	// Tr3B - test light to preview Doom3 style light attenuation shaders
+	if(cg.testLight.attenuationShader)
 	{
-		CG_AddTestLight();	
+		CG_AddTestLight();
 	}
 	
 	cg.refdef.time = cg.time;

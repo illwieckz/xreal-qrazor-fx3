@@ -324,6 +324,9 @@ static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r
 	dl = &backEndData[tr.smpFrame]->dlights[r_numdlights++];
 	VectorCopy(org, dl->l.origin);
 
+	// HACK: this will tell the renderer backend to use tr.defaultDlightShader
+	dl->l.attenuationShader = 0;
+	
 	dl->l.radius = intensity;
 
 	dl->l.color[0] = r;

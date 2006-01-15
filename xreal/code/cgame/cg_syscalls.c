@@ -288,6 +288,11 @@ qhandle_t trap_R_RegisterShaderNoMip(const char *name)
 	return syscall(CG_R_REGISTERSHADERNOMIP, name);
 }
 
+qhandle_t trap_R_RegisterShaderLightAttenuation(const char *name)
+{
+	return syscall(CG_R_REGISTERSHADERLIGHTATTENUATION, name);
+}
+
 void trap_R_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 {
 	syscall(CG_R_REGISTERFONT, fontName, pointSize, font);

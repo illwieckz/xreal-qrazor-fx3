@@ -1566,8 +1566,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			token = COM_ParseExt(text, qfalse);
 			if(!token[0])
 			{
-				ri.Printf(PRINT_WARNING,
-						  "WARNING: missing parameter for 'videoMap' keyword in shader '%s'\n", shader.name);
+				ri.Printf(PRINT_WARNING, "WARNING: missing parameter for 'videoMap' keyword in shader '%s'\n", shader.name);
 				return qfalse;
 			}
 			stage->bundle[0].videoMapHandle = ri.CIN_PlayCinematic(token, 0, 0, 256, 256, (CIN_loop | CIN_silent | CIN_shader));
@@ -2886,6 +2885,23 @@ static void ParseLightMap(shaderStage_t * stage, char **text)
 	}
 }
 
+static void ParseLightFalloffImage(shaderStage_t * stage, char **text)
+{
+	char			buffer[1024] = "";
+	
+	stage->active = qtrue;
+	stage->type = ST_ATTENUATIONMAP_Z;
+	stage->rgbGen = CGEN_IDENTITY;
+	stage->stateBits = GLS_DEFAULT;
+	stage->overrideWrapType = qtrue;
+	stage->wrapType = WT_EDGE_CLAMP;
+	
+	if(ParseMap(stage, text, buffer, sizeof(buffer)))
+	{
+		LoadMap(stage, buffer);
+	}
+}
+
 /*
 =================
 ParseShader
@@ -3270,6 +3286,13 @@ static qboolean ParseShader(char **text)
 		else if(!Q_stricmp(token, "lightMap"))
 		{
 			ParseLightMap(&stages[s], text);
+			s++;
+			continue;
+		}
+		// lightFalloffImage <image>
+		else if(!Q_stricmp(token, "lightFalloffImage"))
+		{
+			ParseLightFalloffImage(&stages[s], text);
 			s++;
 			continue;
 		}
@@ -4119,6 +4142,28 @@ static shader_t *FinishShader(void)
 				}
 				break;
 			}
+			
+			case ST_ATTENUATIONMAP_XY:
+			{
+				if(!pStage->bundle[0].image[0])
+				{
+					ri.Printf(PRINT_WARNING, "Shader %s has a xy attenuationmap stage with no image\n", shader.name);
+					pStage->active = qfalse;
+					continue;
+				}
+				break;
+			}
+			
+			case ST_ATTENUATIONMAP_Z:
+			{
+				if(!pStage->bundle[0].image[0])
+				{
+					ri.Printf(PRINT_WARNING, "Shader %s has a z attenuationmap stage with no image\n", shader.name);
+					pStage->active = qfalse;
+					continue;
+				}
+				break;
+			}
 		}
 
 		// ditch this stage if it's detail and detail textures are disabled
@@ -4546,7 +4591,7 @@ shader_t       *R_FindShader(const char *name, int lightmapIndex, qboolean mipRa
 	else if(shader.lightmapIndex == LIGHTMAP_FALLOFF)
 	{
 		stages[0].type = ST_ATTENUATIONMAP_Z;
-		stages[0].bundle[0].image[0] = tr.attenuationZImage;
+		stages[0].bundle[0].image[0] = tr.noFalloffImage; // FIXME should be attenuationZImage
 		stages[0].active = qtrue;
 		stages[0].rgbGen = CGEN_IDENTITY;
 		stages[0].stateBits = GLS_DEFAULT;
@@ -4775,6 +4820,38 @@ qhandle_t RE_RegisterShaderNoMip(const char *name)
 	}
 
 	sh = R_FindShader(name, LIGHTMAP_2D, qfalse);
+
+	// we want to return 0 if the shader failed to
+	// load for some reason, but R_FindShader should
+	// still keep a name allocated for it, so if
+	// something calls RE_RegisterShader again with
+	// the same name, we don't try looking for it again
+	if(sh->defaultShader)
+	{
+		return 0;
+	}
+
+	return sh->index;
+}
+
+/*
+====================
+RE_RegisterShaderLightAttenuation
+
+For different Doom3 style dlight effects
+====================
+*/
+qhandle_t RE_RegisterShaderLightAttenuation(const char *name)
+{
+	shader_t       *sh;
+
+	if(strlen(name) >= MAX_QPATH)
+	{
+		Com_Printf("Shader name exceeds MAX_QPATH\n");
+		return 0;
+	}
+
+	sh = R_FindShader(name, LIGHTMAP_FALLOFF, qfalse);
 
 	// we want to return 0 if the shader failed to
 	// load for some reason, but R_FindShader should
