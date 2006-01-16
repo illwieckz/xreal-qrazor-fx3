@@ -226,7 +226,7 @@ void CG_TestOmniLight_f(void)
 	
 	cg.testLight.radius = 100;
 
-	angles[PITCH] = 0;
+	angles[PITCH] = cg.refdefViewAngles[PITCH];
 	angles[YAW] = cg.refdefViewAngles[YAW];// + 180;
 	angles[ROLL] = 0;
 
