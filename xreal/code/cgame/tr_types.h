@@ -116,9 +116,12 @@ typedef struct
 	
 	vec3_t          origin;
 	vec3_t          color;		// range from 0.0 to 1.0, should be color normalized
+	
+	// radius
 	float           radius;
 	
 	vec3_t          axis[3];	// rotation vectors
+	qboolean        nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
 } refDlight_t;
 
 
