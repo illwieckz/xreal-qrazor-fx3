@@ -411,6 +411,8 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 	cv->numIndices = numIndexes;
 	cv->ofsIndices = ofsIndexes;
 
+	// copy vertexes
+	ClearBounds(cv->bounds[0], cv->bounds[1]);
 	verts += LittleLong(ds->firstVert);
 	for(i = 0; i < numPoints; i++)
 	{
@@ -418,6 +420,7 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 		{
 			cv->points[i][j] = LittleFloat(verts[i].xyz[j]);
 		}
+		AddPointToBounds(cv->points[i], cv->bounds[0], cv->bounds[1]);
 		for(j = 0; j < 2; j++)
 		{
 			cv->points[i][3 + j] = LittleFloat(verts[i].st[j]);

@@ -191,10 +191,14 @@ int R_CullLocalBox(vec3_t bounds[2])
 		v[1] = bounds[(i >> 1) & 1][1];
 		v[2] = bounds[(i >> 2) & 1][2];
 
+		/*
 		VectorCopy(tr.or.origin, transformed[i]);
 		VectorMA(transformed[i], v[0], tr.or.axis[0], transformed[i]);
 		VectorMA(transformed[i], v[1], tr.or.axis[1], transformed[i]);
 		VectorMA(transformed[i], v[2], tr.or.axis[2], transformed[i]);
+		*/
+		
+		R_LocalPointToWorld(v, transformed[i]);
 	}
 
 	// check against frustum planes
@@ -294,73 +298,43 @@ int R_CullPointAndRadius(vec3_t pt, float radius)
 /*
 =================
 R_LocalNormalToWorld
-
 =================
 */
 void R_LocalNormalToWorld(vec3_t local, vec3_t world)
 {
-	world[0] = local[0] * tr.or.axis[0][0] + local[1] * tr.or.axis[1][0] + local[2] * tr.or.axis[2][0];
-	world[1] = local[0] * tr.or.axis[0][1] + local[1] * tr.or.axis[1][1] + local[2] * tr.or.axis[2][1];
-	world[2] = local[0] * tr.or.axis[0][2] + local[1] * tr.or.axis[1][2] + local[2] * tr.or.axis[2][2];
+	MatrixTransformNormal(tr.or.transformMatrix, local, world);
 }
 
 /*
 =================
 R_LocalPointToWorld
-
 =================
 */
 void R_LocalPointToWorld(vec3_t local, vec3_t world)
 {
-	world[0] = local[0] * tr.or.axis[0][0] + local[1] * tr.or.axis[1][0] + local[2] * tr.or.axis[2][0] + tr.or.origin[0];
-	world[1] = local[0] * tr.or.axis[0][1] + local[1] * tr.or.axis[1][1] + local[2] * tr.or.axis[2][1] + tr.or.origin[1];
-	world[2] = local[0] * tr.or.axis[0][2] + local[1] * tr.or.axis[1][2] + local[2] * tr.or.axis[2][2] + tr.or.origin[2];
-}
-
-/*
-=================
-R_WorldToLocal
-
-=================
-*/
-void R_WorldToLocal(vec3_t world, vec3_t local)
-{
-	local[0] = DotProduct(world, tr.or.axis[0]);
-	local[1] = DotProduct(world, tr.or.axis[1]);
-	local[2] = DotProduct(world, tr.or.axis[2]);
+	MatrixTransformPoint(tr.or.transformMatrix, local, world);
 }
 
 
 /*
 ==========================
 R_TransformModelToClip
-
 ==========================
 */
 void R_TransformModelToClip(const vec3_t src, const float *modelViewMatrix, const float *projectionMatrix, vec4_t eye, vec4_t dst)
 {
-	int             i;
+	vec4_t			src2;
+	VectorCopy(src, src2);
+	src2[3] = 1;
+	
+	MatrixTransform4(modelViewMatrix, src2, eye);
 
-	for(i = 0; i < 4; i++)
-	{
-		eye[i] =
-			src[0] * modelViewMatrix[i + 0 * 4] +
-			src[1] * modelViewMatrix[i + 1 * 4] + src[2] * modelViewMatrix[i + 2 * 4] + 1 * modelViewMatrix[i + 3 * 4];
-	}
-
-	for(i = 0; i < 4; i++)
-	{
-		dst[i] =
-			eye[0] * projectionMatrix[i + 0 * 4] +
-			eye[1] * projectionMatrix[i + 1 * 4] + eye[2] * projectionMatrix[i + 2 * 4] + eye[3] * projectionMatrix[i + 3 * 4];
-	}
+	MatrixTransform4(projectionMatrix, eye, dst);
 }
-
 
 /*
 ==========================
 R_TransformClipToWindow
-
 ==========================
 */
 void R_TransformClipToWindow(const vec4_t clip, const viewParms_t * view, vec4_t normalized, vec4_t window)
@@ -439,6 +413,54 @@ void R_RotateForEntity(const trRefEntity_t * ent, const viewParms_t * viewParms,
 
 /*
 =================
+R_RotateForDlight
+=================
+*/
+void R_RotateForDlight(const trRefDlight_t * light, const viewParms_t * viewParms, orientationr_t * or)
+{
+	vec3_t          delta;
+	float           axisLength;
+
+	VectorCopy(light->l.origin, or->origin);
+
+	VectorCopy(light->l.axis[0], or->axis[0]);
+	VectorCopy(light->l.axis[1], or->axis[1]);
+	VectorCopy(light->l.axis[2], or->axis[2]);
+
+	MatrixSetupTransform(or->transformMatrix, or->axis[0], or->axis[1], or->axis[2], or->origin);
+	MatrixAffineInverse(or->transformMatrix, or->viewMatrix);
+	MatrixMultiply(viewParms->world.viewMatrix, or->transformMatrix, or->modelViewMatrix);
+
+	// calculate the viewer origin in the light's space
+	// needed for fog, specular, and environment mapping
+	VectorSubtract(viewParms->or.origin, or->origin, delta);
+
+	// compensate for scale in the axes if necessary
+	if(light->l.nonNormalizedAxes)
+	{
+		axisLength = VectorLength(light->l.axis[0]);
+		if(!axisLength)
+		{
+			axisLength = 0;
+		}
+		else
+		{
+			axisLength = 1.0f / axisLength;
+		}
+	}
+	else
+	{
+		axisLength = 1.0f;
+	}
+
+	or->viewOrigin[0] = DotProduct(delta, or->axis[0]) * axisLength;
+	or->viewOrigin[1] = DotProduct(delta, or->axis[1]) * axisLength;
+	or->viewOrigin[2] = DotProduct(delta, or->axis[2]) * axisLength;
+}
+
+
+/*
+=================
 R_RotateForViewer
 
 Sets up the modelview matrix for a given viewParm
@@ -460,6 +482,7 @@ void R_RotateForViewer(void)
 						 tr.viewParms.or.axis[0], tr.viewParms.or.axis[1], tr.viewParms.or.axis[2], tr.viewParms.or.origin);
 
 	MatrixAffineInverse(transformMatrix, viewMatrix);
+//	MatrixAffineInverse(transformMatrix, tr.or.viewMatrix);
 
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
@@ -472,127 +495,51 @@ void R_RotateForViewer(void)
 
 
 /*
-** SetFarClip
-*/
-static void SetFarClip(void)
-{
-	float           farthestCornerDistance = 0;
-	int             i;
-
-	// if not rendering the world (icons, menus, etc)
-	// set a 2k far clip plane
-	if(tr.refdef.rdflags & RDF_NOWORLDMODEL)
-	{
-		tr.viewParms.zFar = 2048;
-		return;
-	}
-
-	// set far clipping planes dynamically
-	farthestCornerDistance = 0;
-	for(i = 0; i < 8; i++)
-	{
-		vec3_t          v;
-		vec3_t          vecTo;
-		float           distance;
-
-		if(i & 1)
-		{
-			v[0] = tr.viewParms.visBounds[0][0];
-		}
-		else
-		{
-			v[0] = tr.viewParms.visBounds[1][0];
-		}
-
-		if(i & 2)
-		{
-			v[1] = tr.viewParms.visBounds[0][1];
-		}
-		else
-		{
-			v[1] = tr.viewParms.visBounds[1][1];
-		}
-
-		if(i & 4)
-		{
-			v[2] = tr.viewParms.visBounds[0][2];
-		}
-		else
-		{
-			v[2] = tr.viewParms.visBounds[1][2];
-		}
-
-		VectorSubtract(v, tr.viewParms.or.origin, vecTo);
-
-		distance = vecTo[0] * vecTo[0] + vecTo[1] * vecTo[1] + vecTo[2] * vecTo[2];
-
-		if(distance > farthestCornerDistance)
-		{
-			farthestCornerDistance = distance;
-		}
-	}
-	tr.viewParms.zFar = sqrt(farthestCornerDistance);
-}
-
-
-
-/*
 ===============
 R_SetupProjection
 ===============
 */
+// *INDENT-OFF*
 void R_SetupProjection(void)
 {
-	float           xmin, xmax, ymin, ymax;
+	float           xMin, xMax, yMin, yMax;
 	float           width, height, depth;
 	float           zNear, zFar;
 
-//  matrix_t        projectionMatrix;
-	float          *projectionMatrix = tr.viewParms.projectionMatrix;
-
-	// dynamically compute far clip plane distance
-	SetFarClip();
+//	matrix_t        proj;
+	float          *proj = tr.viewParms.projectionMatrix;
 
 	// set up projection matrix
 	zNear = r_znear->value;
-//	zFar = r_zfar->value;
-	zFar = tr.viewParms.zFar;
+	zFar = r_zfar->value;
 
-	ymax = zNear * tan(tr.refdef.fov_y * M_PI / 360.0f);
-	ymin = -ymax;
+	yMax = zNear * tan(tr.refdef.fov_y * M_PI / 360.0f);
+	yMin = -yMax;
 
-	xmax = zNear * tan(tr.refdef.fov_x * M_PI / 360.0f);
-	xmin = -xmax;
+	xMax = zNear * tan(tr.refdef.fov_x * M_PI / 360.0f);
+	xMin = -xMax;
 
-	width = xmax - xmin;
-	height = ymax - ymin;
+	width = xMax - xMin;
+	height = yMax - yMin;
 	depth = zFar - zNear;
 
-	projectionMatrix[0] = 2 * zNear / width;
-	projectionMatrix[4] = 0;
-	projectionMatrix[8] = (xmax + xmin) / width;	// normally 0
-	projectionMatrix[12] = 0;
+	// Tr3B - far plane at infinity, see RobustShadowVolumes.pdf by Nvidia
+	proj[0] = 2 * zNear / width;	proj[4] = 0;					proj[8] = (xMax + xMin) / width;	proj[12] = 0;
+	proj[1] = 0;					proj[5] = 2 * zNear / height;	proj[9] = (yMax + yMin) / height;	proj[13] = 0;
+	proj[2] = 0;					proj[6] = 0;					proj[10] = -1;						proj[14] = -2 * zNear;
+	proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;
 
-	projectionMatrix[1] = 0;
-	projectionMatrix[5] = 2 * zNear / height;
-	projectionMatrix[9] = (ymax + ymin) / height;	// normally 0
-	projectionMatrix[13] = 0;
-
-	projectionMatrix[2] = 0;
-	projectionMatrix[6] = 0;
-	projectionMatrix[10] = -(zFar + zNear) / depth;
-	projectionMatrix[14] = -2 * zFar * zNear / depth;
-
-	projectionMatrix[3] = 0;
-	projectionMatrix[7] = 0;
-	projectionMatrix[11] = -1;
-	projectionMatrix[15] = 0;
-
+	if(zFar > zNear)
+	{
+		proj[10] = -(zFar + zNear) / depth;
+		proj[14] = -2 * zFar * zNear / depth;
+	}
+	
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
-//  MatrixMultiply(projectionMatrix, s_flipMatrix, tr.viewParms.projectionMatrix);
+//	MatrixMultiply(proj, s_flipMatrix, tr.viewParms.projectionMatrix);
 }
-
+// *INDENT-ON*
 
 /*
 =================
@@ -1575,16 +1522,96 @@ void R_GenerateDrawSurfs(void)
 
 	R_AddPolygonSurfaces();
 
-	// set the projection matrix with the minimum zfar
-	// now that we have the world bounded
-	// this needs to be done before entities are
-	// added, because they use the projection
-	// matrix for lod calculation
-	R_SetupProjection();
-
 	R_AddEntitySurfaces();
 }
 
+
+void R_DebugAxis(const vec3_t origin, const matrix_t transformMatrix)
+{
+	vec3_t          forward, left, up;
+	
+	MatrixToVectorsFLU(transformMatrix, forward, left, up);
+	VectorMA(origin, 16, forward, forward);
+	VectorMA(origin, 16, left, left);
+	VectorMA(origin, 16, up, up);
+	
+	// draw axis
+	GL_Program(0);
+	GL_State(0);
+	GL_SelectTexture(0);
+	GL_Bind(tr.whiteImage);
+	
+	qglLineWidth(3);
+	qglBegin(GL_LINES);
+	
+	qglColor3f(1, 0, 0);
+	qglVertex3fv(origin);
+	qglVertex3fv(forward);
+	
+	qglColor3f(0, 1, 0);
+	qglVertex3fv(origin);
+	qglVertex3fv(left);
+	
+	qglColor3f(0, 0, 1);
+	qglVertex3fv(origin);
+	qglVertex3fv(up);
+	
+	qglEnd();
+	qglLineWidth(1);
+}
+
+// Tr3B - from botlib
+void R_DebugBoundingBox(const vec3_t origin, const vec3_t mins, const vec3_t maxs, vec4_t color)
+{
+	vec3_t          corners[8];
+	int             i;
+
+	// upper corners
+	corners[0][0] = origin[0] + maxs[0];
+	corners[0][1] = origin[1] + maxs[1];
+	corners[0][2] = origin[2] + maxs[2];
+	//
+	corners[1][0] = origin[0] + mins[0];
+	corners[1][1] = origin[1] + maxs[1];
+	corners[1][2] = origin[2] + maxs[2];
+	//
+	corners[2][0] = origin[0] + mins[0];
+	corners[2][1] = origin[1] + mins[1];
+	corners[2][2] = origin[2] + maxs[2];
+	//
+	corners[3][0] = origin[0] + maxs[0];
+	corners[3][1] = origin[1] + mins[1];
+	corners[3][2] = origin[2] + maxs[2];
+	
+	// lower corners
+	Com_Memcpy(corners[4], corners[0], sizeof(vec3_t) * 4);
+	for(i = 0; i < 4; i++)
+		corners[4 + i][2] = origin[2] + mins[2];
+	
+	// draw bounding box
+	GL_Program(0);
+	GL_State(0);
+	GL_SelectTexture(0);
+	GL_Bind(tr.whiteImage);
+
+	qglBegin(GL_LINES);
+	qglColor4fv(color);
+	for(i = 0; i < 4; i++)
+	{
+		// top plane
+		qglVertex3fv(corners[i]);
+		qglVertex3fv(corners[(i + 1) & 3]);
+		
+		// bottom plane
+		qglVertex3fv(corners[4 + i]);
+		qglVertex3fv(corners[4 + ((i + 1) & 3)]);
+		
+		// vertical lines
+		qglVertex3fv(corners[i]);
+		qglVertex3fv(corners[4 + i]);
+	}
+	qglEnd();
+}
 
 /*
 ================
@@ -1595,10 +1622,11 @@ void R_DebugPolygon(int color, int numPoints, float *points)
 {
 	int             i;
 
+	GL_Program(0);
+	GL_ClientState(GLCS_DEFAULT);
 	GL_State(GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 
 	// draw solid shade
-
 	qglColor3f(color & 1, (color >> 1) & 1, (color >> 2) & 1);
 	qglBegin(GL_POLYGON);
 	for(i = 0; i < numPoints; i++)
@@ -1620,6 +1648,21 @@ void R_DebugPolygon(int color, int numPoints, float *points)
 	qglDepthRange(0, 1);
 }
 
+static void R_DebugLights()
+{
+	int             i;
+	trRefDlight_t  *dl;
+
+	for(i = 0; i < tr.refdef.numDlights; i++)
+	{
+		dl = &tr.refdef.dlights[i];
+		
+		R_DebugAxis(dl->l.origin, dl->transformMatrix);
+		
+		R_DebugBoundingBox(dl->l.origin, dl->localBounds[0], dl->localBounds[1], colorBlue);
+		R_DebugBoundingBox(vec3_origin, dl->worldBounds[0], dl->worldBounds[1], colorRed);
+	}
+}
 
 /*
 ====================
@@ -1628,19 +1671,25 @@ R_DebugGraphics
 Visualization aid for movement clipping debugging
 ====================
 */
-void R_DebugGraphics(void)
+static void R_DebugGraphics(void)
 {
-	if(!r_debugSurface->integer)
+	if(r_showLightTransforms->integer)
 	{
-		return;
+		// the render thread can't make callbacks to the main thread
+		R_SyncRenderThread();
+		
+		R_DebugLights();
 	}
+	
+	if(r_debugSurface->integer)
+	{
+		// the render thread can't make callbacks to the main thread
+		R_SyncRenderThread();
 
-	// the render thread can't make callbacks to the main thread
-	R_SyncRenderThread();
-
-	GL_Bind(tr.whiteImage);
-	GL_Cull(CT_FRONT_SIDED);
-	ri.CM_DrawDebugSurface(R_DebugPolygon);
+		GL_Bind(tr.whiteImage);
+		GL_Cull(CT_FRONT_SIDED);
+		ri.CM_DrawDebugSurface(R_DebugPolygon);
+	}
 }
 
 
@@ -1676,6 +1725,13 @@ void R_RenderView(viewParms_t * parms)
 	R_RotateForViewer();
 
 	R_SetupFrustum();
+	
+	// set the projection matrix with the minimum zfar
+	// now that we have the world bounded
+	// this needs to be done before entities are
+	// added, because they use the projection
+	// matrix for lod calculation
+	R_SetupProjection();
 
 	R_GenerateDrawSurfs();
 

@@ -167,6 +167,8 @@ cvar_t         *r_showDeluxeMaps;
 cvar_t         *r_showNormalMaps;
 cvar_t         *r_showShadowVolumes;
 cvar_t         *r_showSkeleton;
+cvar_t         *r_showLightTransforms;
+cvar_t         *r_showLightIntersections;
 
 
 // GL_ARB_multitexture
@@ -1118,7 +1120,7 @@ void R_Register(void)
 	r_lodbias = ri.Cvar_Get("r_lodbias", "0", CVAR_ARCHIVE);
 	r_flares = ri.Cvar_Get("r_flares", "0", CVAR_ARCHIVE);
 	r_znear = ri.Cvar_Get("r_znear", "4", CVAR_CHEAT);
-	r_zfar = ri.Cvar_Get("r_zfar", "32000", CVAR_CHEAT);
+	r_zfar = ri.Cvar_Get("r_zfar", "0", CVAR_CHEAT);
 	AssertCvarRange(r_znear, 0.001f, 200, qtrue);
 	r_ignoreGLErrors = ri.Cvar_Get("r_ignoreGLErrors", "0", CVAR_ARCHIVE);
 	r_fastsky = ri.Cvar_Get("r_fastsky", "0", CVAR_ARCHIVE);
@@ -1195,6 +1197,8 @@ void R_Register(void)
 	r_showNormalMaps = ri.Cvar_Get("r_showNormalMaps", "0", CVAR_CHEAT);
 	r_showShadowVolumes = ri.Cvar_Get("r_showShadowVolumes", "0", CVAR_CHEAT);
 	r_showSkeleton = ri.Cvar_Get("r_showSkeleton", "0", CVAR_CHEAT);
+	r_showLightTransforms = ri.Cvar_Get("r_showLightTransforms", "0", CVAR_CHEAT);
+	r_showLightIntersections = ri.Cvar_Get("r_showLightIntersections", "0", CVAR_CHEAT);
 
 	// make sure all the commands added here are also
 	// removed in R_Shutdown

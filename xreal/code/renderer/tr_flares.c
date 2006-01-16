@@ -221,7 +221,6 @@ void RB_AddDlightFlares(void)
 	fog = tr.world->fogs;
 	for(i = 0; i < backEnd.refdef.numDlights; i++, l++)
 	{
-
 		// find which fog volume the light is in 
 		for(j = 1; j < tr.world->numfogs; j++)
 		{
@@ -414,7 +413,7 @@ void RB_RenderFlares(void)
 		return;
 	}
 
-//  RB_AddDlightFlares();
+	RB_AddDlightFlares();
 
 	// perform z buffer readback on each flare in this view
 	draw = qfalse;

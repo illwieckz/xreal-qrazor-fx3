@@ -134,7 +134,6 @@ extern cvar_t  *r_debugLight;
 /*
 =================
 R_SetupEntityLightingGrid
-
 =================
 */
 static void R_SetupEntityLightingGrid(trRefEntity_t * ent)

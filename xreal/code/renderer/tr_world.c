@@ -181,7 +181,7 @@ static qboolean R_CullSurface(surfaceType_t * surface, shader_t * shader)
 
 static int R_DlightFace(srfSurfaceFace_t * face, int dlightBits)
 {
-	float           d;
+#if 1
 	int             i;
 	trRefDlight_t  *dl;
 
@@ -191,14 +191,31 @@ static int R_DlightFace(srfSurfaceFace_t * face, int dlightBits)
 		{
 			continue;
 		}
+		
 		dl = &tr.refdef.dlights[i];
-		d = DotProduct(dl->l.origin, face->plane.normal) - face->plane.dist;
-		if(d < -dl->l.radius || d > dl->l.radius)
+		if(dl->l.origin[0] - dl->l.radius > face->bounds[1][0]
+				 || dl->l.origin[0] + dl->l.radius < face->bounds[0][0]
+				 || dl->l.origin[1] - dl->l.radius > face->bounds[1][1]
+				 || dl->l.origin[1] + dl->l.radius < face->bounds[0][1]
+				 || dl->l.origin[2] - dl->l.radius > face->bounds[1][2]
+				 || dl->l.origin[2] + dl->l.radius < face->bounds[0][2])
 		{
-			// dlight doesn't reach the plane
+			// dlight doesn't reach the bounds
 			dlightBits &= ~(1 << i);
+			continue;
 		}
+		/*
+		if(r_showLightIntersections->integer)
+		{
+			// the render thread can't make callbacks to the main thread
+			R_SyncRenderThread();
+			
+			R_DebugBoundingBox(vec3_origin, face->bounds[0], face->bounds[1], colorRed);
+			R_DebugBoundingBox(vec3_origin, dl->worldBounds[0], dl->worldBounds[1], colorRed);	
+		}
+		*/
 	}
+#endif
 
 	if(!dlightBits)
 	{
@@ -245,12 +262,13 @@ static int R_DlightGrid(srfGridMesh_t * grid, int dlightBits)
 
 static int R_DlightTrisurf(srfTriangles_t * surf, int dlightBits)
 {
+#if 0
 	// FIXME: more dlight culling to trisurfs...
 	surf->dlightBits[tr.smpFrame] = dlightBits;
 	return dlightBits;
-#if 0
+#else
 	int             i;
-	dlight_t       *dl;
+	trRefDlight_t  *dl;
 
 	for(i = 0; i < tr.refdef.numDlights; i++)
 	{
@@ -259,12 +277,12 @@ static int R_DlightTrisurf(srfTriangles_t * surf, int dlightBits)
 			continue;
 		}
 		dl = &tr.refdef.dlights[i];
-		if(dl->origin[0] - dl->radius > grid->meshBounds[1][0]
-		   || dl->origin[0] + dl->radius < grid->meshBounds[0][0]
-		   || dl->origin[1] - dl->radius > grid->meshBounds[1][1]
-		   || dl->origin[1] + dl->radius < grid->meshBounds[0][1]
-		   || dl->origin[2] - dl->radius > grid->meshBounds[1][2]
-		   || dl->origin[2] + dl->radius < grid->meshBounds[0][2])
+		if(dl->l.origin[0] - dl->l.radius > surf->bounds[1][0]
+		   || dl->l.origin[0] + dl->l.radius < surf->bounds[0][0]
+		   || dl->l.origin[1] - dl->l.radius > surf->bounds[1][1]
+		   || dl->l.origin[1] + dl->l.radius < surf->bounds[0][1]
+		   || dl->l.origin[2] - dl->l.radius > surf->bounds[1][2]
+		   || dl->l.origin[2] + dl->l.radius < surf->bounds[0][2])
 		{
 			// dlight doesn't reach the bounds
 			dlightBits &= ~(1 << i);
@@ -276,7 +294,7 @@ static int R_DlightTrisurf(srfTriangles_t * surf, int dlightBits)
 		tr.pc.c_dlightSurfacesCulled++;
 	}
 
-	grid->dlightBits[tr.smpFrame] = dlightBits;
+	surf->dlightBits[tr.smpFrame] = dlightBits;
 	return dlightBits;
 #endif
 }
@@ -674,7 +692,7 @@ static void R_MarkLeaves(void)
 	// if the cluster is the same and the area visibility matrix
 	// hasn't changed, we don't need to mark everything again
 
-	// if r_showcluster was just turned on, remark everything 
+	// if r_showcluster was just turned on, remark everything
 	if(tr.viewCluster == cluster && !tr.refdef.areamaskModified && !r_showcluster->modified)
 	{
 		return;
@@ -739,6 +757,69 @@ static void R_MarkLeaves(void)
 
 
 /*
+** SetFarClip
+*/
+static void R_SetFarClip(void)
+{
+	float           farthestCornerDistance = 0;
+	int             i;
+
+	// if not rendering the world (icons, menus, etc)
+	// set a 2k far clip plane
+	if(tr.refdef.rdflags & RDF_NOWORLDMODEL)
+	{
+		tr.viewParms.skyFar = 2048;
+		return;
+	}
+
+	// set far clipping planes dynamically
+	farthestCornerDistance = 0;
+	for(i = 0; i < 8; i++)
+	{
+		vec3_t          v;
+		vec3_t          vecTo;
+		float           distance;
+
+		if(i & 1)
+		{
+			v[0] = tr.viewParms.visBounds[0][0];
+		}
+		else
+		{
+			v[0] = tr.viewParms.visBounds[1][0];
+		}
+
+		if(i & 2)
+		{
+			v[1] = tr.viewParms.visBounds[0][1];
+		}
+		else
+		{
+			v[1] = tr.viewParms.visBounds[1][1];
+		}
+
+		if(i & 4)
+		{
+			v[2] = tr.viewParms.visBounds[0][2];
+		}
+		else
+		{
+			v[2] = tr.viewParms.visBounds[1][2];
+		}
+
+		VectorSubtract(v, tr.viewParms.or.origin, vecTo);
+
+		distance = vecTo[0] * vecTo[0] + vecTo[1] * vecTo[1] + vecTo[2] * vecTo[2];
+
+		if(distance > farthestCornerDistance)
+		{
+			farthestCornerDistance = distance;
+		}
+	}
+	tr.viewParms.skyFar = sqrt(farthestCornerDistance);
+}
+
+/*
 =============
 R_AddWorldSurfaces
 =============
@@ -770,4 +851,7 @@ void R_AddWorldSurfaces(void)
 		tr.refdef.numDlights = 32;
 	}
 	R_RecursiveWorldNode(tr.world->nodes, 15, (1 << tr.refdef.numDlights) - 1);
+	
+	// dynamically compute far clip plane distance for sky
+	R_SetFarClip();
 }

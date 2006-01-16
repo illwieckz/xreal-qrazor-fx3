@@ -252,6 +252,9 @@ RE_AddRefDlightToScene
 void RE_AddRefDlightToScene(const refDlight_t * light)
 {
 	trRefDlight_t *dl;
+	int            i;
+	vec3_t         v;
+	vec3_t         transformed;
 		
 	if(!tr.registered)
 	{
@@ -292,6 +295,29 @@ void RE_AddRefDlightToScene(const refDlight_t * light)
 	MatrixSetupTranslation(dl->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
 	MatrixMultiplyScale(dl->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
 	MatrixMultiply2(dl->attenuationMatrix, dl->projectionMatrix);	// light projection (frustum)
+	
+	// setup local bounds
+	dl->localBounds[0][0] = dl->l.radius;
+	dl->localBounds[0][1] = dl->l.radius;
+	dl->localBounds[0][2] = dl->l.radius;
+	dl->localBounds[1][0] =-dl->l.radius;
+	dl->localBounds[1][1] =-dl->l.radius;
+	dl->localBounds[1][2] =-dl->l.radius;
+	
+	// setup world bounds for intersection tests
+	ClearBounds(dl->worldBounds[0], dl->worldBounds[1]);
+	
+	for(i = 0; i < 8; i++)
+	{
+		v[0] = dl->localBounds[i & 1][0];
+		v[1] = dl->localBounds[(i >> 1) & 1][1];
+		v[2] = dl->localBounds[(i >> 2) & 1][2];
+
+		// transform local bounds vertices into world space
+		MatrixTransformPoint(dl->transformMatrix, v, transformed);
+		
+		AddPointToBounds(transformed, dl->worldBounds[0], dl->worldBounds[1]);
+	}
 }
 
 /*
@@ -302,6 +328,9 @@ RE_AddDynamicLightToScene
 static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r, float g, float b, int additive)
 {
 	trRefDlight_t *dl;
+	int            i;
+	vec3_t         v;
+	vec3_t         transformed;
 		
 	if(!tr.registered)
 	{
@@ -347,6 +376,29 @@ static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r
 	MatrixSetupTranslation(dl->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
 	MatrixMultiplyScale(dl->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
 	MatrixMultiply2(dl->attenuationMatrix, dl->projectionMatrix);	// light projection (frustum)
+	
+	// setup local bounds
+	dl->localBounds[0][0] = dl->l.radius;
+	dl->localBounds[0][1] = dl->l.radius;
+	dl->localBounds[0][2] = dl->l.radius;
+	dl->localBounds[1][0] =-dl->l.radius;
+	dl->localBounds[1][1] =-dl->l.radius;
+	dl->localBounds[1][2] =-dl->l.radius;
+	
+	// setup world bounds for intersection tests
+	ClearBounds(dl->worldBounds[0], dl->worldBounds[1]);
+	
+	for(i = 0; i < 8; i++)
+	{
+		v[0] = dl->localBounds[i & 1][0];
+		v[1] = dl->localBounds[(i >> 1) & 1][1];
+		v[2] = dl->localBounds[(i >> 2) & 1][2];
+
+		// transform local bounds vertices into world space
+		MatrixTransformPoint(dl->transformMatrix, v, transformed);
+		
+		AddPointToBounds(transformed, dl->worldBounds[0], dl->worldBounds[1]);
+	}
 }
 
 /*
@@ -445,7 +497,6 @@ void RE_RenderScene(const refdef_t * fd)
 
 
 	// derived info
-
 	tr.refdef.floatTime = tr.refdef.time * 0.001f;
 
 	tr.refdef.numDrawSurfs = r_firstSceneDrawSurf;

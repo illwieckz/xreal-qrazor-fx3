@@ -463,6 +463,9 @@ void RB_ShadowFinish(void)
 	qglLoadIdentity();
 
 	qglColor3f(0.6f, 0.6f, 0.6f);
+	
+	GL_Program(0);
+	GL_ClientState(GLCS_VERTEX);// | GLCS_TEXCOORD | GLCS_COLOR);
 	GL_State(GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO);
 
 //  qglColor3f( 1, 0, 0 );
@@ -483,7 +486,6 @@ void RB_ShadowFinish(void)
 /*
 =================
 RB_ProjectionShadowDeform
-
 =================
 */
 void RB_ProjectionShadowDeform(void)

@@ -482,13 +482,27 @@ static void RB_Hyperspace(void)
 
 static void SetViewportAndScissor(void)
 {
+#if 0
+	extern const float	s_flipMatrix[16];
+	matrix_t		projectionMatrix;
+	
+	// convert from our coordinate system (looking down X)
+	// to OpenGL's coordinate system (looking down -Z)
+	MatrixMultiply(backEnd.viewParms.projectionMatrix, s_flipMatrix, projectionMatrix);
+	
+	qglMatrixMode(GL_PROJECTION);
+	qglLoadMatrixf(projectionMatrix);
+	qglMatrixMode(GL_MODELVIEW);
+#else
 	qglMatrixMode(GL_PROJECTION);
 	qglLoadMatrixf(backEnd.viewParms.projectionMatrix);
 	qglMatrixMode(GL_MODELVIEW);
+#endif
 
 	// set the window clipping
 	qglViewport(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 				backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
+	
 	qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 }
@@ -576,6 +590,7 @@ void RB_BeginDrawingView(void)
 		plane2[2] = DotProduct(backEnd.viewParms.or.axis[2], plane);
 		plane2[3] = DotProduct(plane, backEnd.viewParms.or.origin) - plane[3];
 
+//		qglLoadIdentity();
 		qglLoadMatrixf(s_flipMatrix);
 		qglClipPlane(GL_CLIP_PLANE0, plane2);
 		qglEnable(GL_CLIP_PLANE0);
@@ -585,10 +600,6 @@ void RB_BeginDrawingView(void)
 		qglDisable(GL_CLIP_PLANE0);
 	}
 }
-
-
-#define	MAC_EVENT_PUMP_MSEC		5
-
 
 void RB_RenderDrawSurfListFull(drawSurf_t * drawSurfs, int numDrawSurfs)
 {
@@ -663,8 +674,7 @@ void RB_RenderDrawSurfListFull(drawSurf_t * drawSurfs, int numDrawSurfs)
 				// set up the dynamic lighting if needed
 				if(backEnd.currentEntity->needDlights)
 				{
-					R_TransformDlights(backEnd.refdef.numDlights, backEnd.refdef.dlights,
-									   &backEnd.or);
+					R_TransformDlights(backEnd.refdef.numDlights, backEnd.refdef.dlights, &backEnd.or);
 				}
 
 				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
@@ -848,12 +858,41 @@ void RB_RenderDrawSurfListZFill(drawSurf_t * drawSurfs, int numDrawSurfs)
 	}
 
 	// go back to the world modelview matrix
+	backEnd.or = backEnd.viewParms.world;
 	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 	if(depthRange)
 	{
 		qglDepthRange(0, 1);
 	}
 }
+
+
+/*
+void RB_DebugLights()
+{
+	if(r_showLightTransforms->integer)
+	{
+		trRefDlight_t  *l;
+		int             i;
+
+		l = backEnd.refdef.dlights;
+		for(i = 0; i < backEnd.refdef.numDlights; i++, l++)
+		{
+			// set up the transformation matrix
+			R_RotateForDlight(l, &backEnd.viewParms, &backEnd.or);
+			qglLoadMatrixf(backEnd.or.modelViewMatrix);
+			
+			R_DebugAxis(vec3_origin);
+			
+			R_DebugBoundingBox(vec3_origin, l->localBounds[0], l->localBounds[1]);
+		}
+		
+		// go back to the world modelview matrix
+		backEnd.or = backEnd.viewParms.world;
+		qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+	}
+}
+*/
 
 
 /*
@@ -894,6 +933,9 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs)
 
 	// add light flares on lights that aren't obscured
 	RB_RenderFlares();
+	
+	// debug utils
+//	RB_DebugLights();
 }
 
 
@@ -908,7 +950,6 @@ RENDER BACK END THREAD FUNCTIONS
 /*
 ================
 RB_SetGL2D
-
 ================
 */
 void RB_SetGL2D(void)
@@ -1022,8 +1063,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	qglEnd();
 }
 
-void RE_UploadCinematic(int w, int h, int cols, int rows, const byte * data, int client,
-						qboolean dirty)
+void RE_UploadCinematic(int w, int h, int cols, int rows, const byte * data, int client, qboolean dirty)
 {
 
 	GL_Bind(tr.scratchImage[client]);
@@ -1054,7 +1094,6 @@ void RE_UploadCinematic(int w, int h, int cols, int rows, const byte * data, int
 /*
 =============
 RB_SetColor
-
 =============
 */
 const void     *RB_SetColor(const void *data)
@@ -1154,7 +1193,6 @@ const void     *RB_StretchPic(const void *data)
 /*
 =============
 RB_DrawSurfs
-
 =============
 */
 const void     *RB_DrawSurfs(const void *data)
@@ -1181,7 +1219,6 @@ const void     *RB_DrawSurfs(const void *data)
 /*
 =============
 RB_DrawBuffer
-
 =============
 */
 const void     *RB_DrawBuffer(const void *data)
@@ -1271,7 +1308,6 @@ void RB_ShowImages(void)
 /*
 =============
 RB_SwapBuffers
-
 =============
 */
 const void     *RB_SwapBuffers(const void *data)
@@ -1382,7 +1418,6 @@ void RB_ExecuteRenderCommands(const void *data)
 				return;
 		}
 	}
-
 }
 
 

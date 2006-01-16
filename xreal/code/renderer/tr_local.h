@@ -74,6 +74,9 @@ typedef struct trRefDlight_s
 	matrix_t		viewMatrix;			// object to light
 	matrix_t		projectionMatrix;	// light frustum
 	matrix_t		attenuationMatrix;	// object to light attenuation texture space
+	
+	vec3_t			localBounds[2];
+	vec3_t			worldBounds[2];
 } trRefDlight_t;
 
 
@@ -763,7 +766,7 @@ typedef struct
 	trRefEntity_t  *entities;
 
 	int             numDlights;
-	struct trRefDlight_s *dlights;
+	trRefDlight_t  *dlights;
 
 	int             numPolys;
 	struct srfPoly_s *polys;
@@ -821,7 +824,7 @@ typedef struct
 	float           projectionMatrix[16];
 	cplane_t        frustum[4];
 	vec3_t          visBounds[2];
-	float           zFar;
+	float           skyFar;
 } viewParms_t;
 
 
@@ -938,6 +941,11 @@ typedef struct
 
 	// dynamic lighting information
 	int             dlightBits[SMP_FRAMES];
+	
+	// Tr3B - culling information necessary for dlights
+	vec3_t          bounds[2];
+//	vec3_t          localOrigin;
+//	float           radius;
 
 	// triangle definitions
 	int             numPoints;
@@ -1209,6 +1217,7 @@ typedef struct
 	backEndCounters_t pc;
 	qboolean        isHyperspace;
 	trRefEntity_t  *currentEntity;
+//	trRefDlight_t  *currentLight;
 	qboolean        skyRenderedThisView;	// flag for drawing sun
 
 	qboolean        projection2D;	// if qtrue, drawstretchpic doesn't need to change modes
@@ -1503,6 +1512,8 @@ extern cvar_t  *r_showDeluxeMaps;
 extern cvar_t  *r_showNormalMaps;
 extern cvar_t  *r_showShadowVolumes;
 extern cvar_t  *r_showSkeleton;
+extern cvar_t  *r_showLightTransforms;
+extern cvar_t  *r_showLightIntersections;
 
 
 //====================================================================
@@ -1533,17 +1544,20 @@ void            R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int fo
 #define	CULL_OUT	2			// completely outside the clipping planes
 void            R_LocalNormalToWorld(vec3_t local, vec3_t world);
 void            R_LocalPointToWorld(vec3_t local, vec3_t world);
-void			R_WorldToLocal(vec3_t world, vec3_t local);
 int             R_CullLocalBox(vec3_t bounds[2]);
 int             R_CullPointAndRadius(vec3_t origin, float radius);
 int             R_CullLocalPointAndRadius(vec3_t origin, float radius);
 
-void            R_RotateForEntity(const trRefEntity_t * ent, const viewParms_t * viewParms,
-								  orientationr_t * or);
+void            R_RotateForEntity(const trRefEntity_t * ent, const viewParms_t * viewParms, orientationr_t * or);
+void            R_RotateForDlight(const trRefDlight_t * ent, const viewParms_t * viewParms, orientationr_t * or);
 
 void            R_CalcTangentSpace(vec3_t tangent, vec3_t binormal, vec3_t normal,
 								   const vec3_t v0, const vec3_t v1, const vec3_t v2,
 								   const vec2_t t0, const vec2_t t1, const vec2_t t2, const vec3_t n);
+
+// Tr3B - visualisation tools to help debugging the renderer frontend
+void            R_DebugAxis(const vec3_t origin, const matrix_t transformMatrix);
+void            R_DebugBoundingBox(const vec3_t origin, const vec3_t mins, const vec3_t maxs, vec4_t color);
 
 /*
 ** GL wrapper/helper functions

@@ -72,8 +72,7 @@ void RB_CheckOverflow(int verts, int indexes)
 RB_AddQuadStampExt
 ==============
 */
-void RB_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, byte * color, float s1, float t1, float s2,
-						float t2)
+void RB_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, byte * color, float s1, float t1, float s2, float t2)
 {
 	vec3_t          normal;
 	int             ndx;
@@ -1614,6 +1613,7 @@ Draws x/y/z lines from the origin for orientation debugging
 */
 void RB_SurfaceAxis(void)
 {
+	GL_Program(0);
 	GL_Bind(tr.whiteImage);
 	qglLineWidth(3);
 	qglBegin(GL_LINES);

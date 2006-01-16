@@ -306,7 +306,7 @@ static void MakeSkyVec(float s, float t, int axis, float outSt[2], vec3_t outXYZ
 	int             j, k;
 	float           boxSize;
 
-	boxSize = backEnd.viewParms.zFar / 1.75;	// div sqrt(3)
+	boxSize = backEnd.viewParms.skyFar / 1.75;	// div sqrt(3)
 	b[0] = s * boxSize;
 	b[1] = t * boxSize;
 	b[2] = boxSize;
@@ -640,7 +640,7 @@ void R_InitSkyTexCoords(float heightCloud)
 
 	// init zfar so MakeSkyVec works even though
 	// a world hasn't been bounded
-	backEnd.viewParms.zFar = 1024;
+	backEnd.viewParms.skyFar = 1024;
 
 	for(i = 0; i < 6; i++)
 	{
@@ -706,7 +706,7 @@ void RB_DrawSun(void)
 	qglTranslatef(backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1],
 				  backEnd.viewParms.or.origin[2]);
 
-	dist = backEnd.viewParms.zFar / 1.75;	// div sqrt(3)
+	dist = backEnd.viewParms.skyFar / 1.75;	// div sqrt(3)
 	size = dist * 0.4;
 
 	VectorScale(tr.sunDirection, dist, origin);

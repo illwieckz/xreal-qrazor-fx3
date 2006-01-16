@@ -79,7 +79,7 @@ void R_PerformanceCounters(void)
 	}
 	else if(r_speeds->integer == 5)
 	{
-		ri.Printf(PRINT_ALL, "zFar: %.0f\n", tr.viewParms.zFar);
+		ri.Printf(PRINT_ALL, "skyFar: %.0f\n", tr.viewParms.skyFar);
 	}
 	else if(r_speeds->integer == 6)
 	{
