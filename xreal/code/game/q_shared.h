@@ -679,6 +679,7 @@ struct cplane_s;
 
 extern vec3_t   vec3_origin;
 extern vec3_t   axisDefault[3];
+extern matrix_t matrixIdentity;
 
 #define	nanmask (255<<23)
 
