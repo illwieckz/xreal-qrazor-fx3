@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define __TR_TYPES_H
 
 
-#define	MAX_DLIGHTS		32		// can't be increased, because bit flags are used on surfaces
+#define	MAX_DLIGHTS		1024
 #define	MAX_ENTITIES	1023	// can't be increased without changing drawsurf bit packing
 
 // renderfx flags
@@ -110,15 +110,30 @@ typedef struct
 	float           rotation;
 } refEntity_t;
 
+
+// lightfx flags
+
+typedef enum
+{
+	RL_OMNI,
+	RL_PROJ,
+	RL_DIRECT,
+
+	RL_MAX_REF_LIGHT_TYPE
+} refLightType_t;
+
 typedef struct
 {
+	refLightType_t  rlType;
+//	int             lightfx;
+	
 	qhandle_t       attenuationShader;
 	
 	vec3_t          origin;
 	vec3_t          color;		// range from 0.0 to 1.0, should be color normalized
 	
 	// radius
-	float           radius;
+	vec3_t          radius;
 	
 	vec3_t          axis[3];	// rotation vectors
 	qboolean        nonNormalizedAxes;	// axis are not normalized, i.e. they have scale

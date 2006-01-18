@@ -203,20 +203,15 @@ void CG_TestOmniLight_f(void)
 
 	Q_strncpyz(cg.testLightName, CG_Argv(1), sizeof(cg.testLightName));
 	cg.testLight.attenuationShader = trap_R_RegisterShaderLightAttenuation(cg.testLightName);
-
-	/*
-	if(trap_Argc() == 3)
+	
+	if(!cg.testLight.attenuationShader)
 	{
-		cg.testModelEntity.backlerp = atof(CG_Argv(2));
-		cg.testModelEntity.frame = 1;
-		cg.testModelEntity.oldframe = 0;
-	}
-	if(!cg.testModelEntity.hModel)
-	{
-		CG_Printf("Can't register model\n");
+		CG_Printf("Can't register attenuation shader\n");
 		return;
 	}
-	*/
+	
+	cg.testLight.rlType = RL_OMNI;
+//	cg.testLight.lightfx = LF_ROTATION;
 
 	VectorMA(cg.refdef.vieworg, 100, cg.refdef.viewaxis[0], cg.testLight.origin);
 	
@@ -224,7 +219,9 @@ void CG_TestOmniLight_f(void)
 	cg.testLight.color[1] = 1.0;
 	cg.testLight.color[2] = 1.0;
 	
-	cg.testLight.radius = 100;
+	cg.testLight.radius[0] = 100;
+	cg.testLight.radius[1] = 100;
+	cg.testLight.radius[2] = 100;
 
 	angles[PITCH] = cg.refdefViewAngles[PITCH];
 	angles[YAW] = cg.refdefViewAngles[YAW];// + 180;
