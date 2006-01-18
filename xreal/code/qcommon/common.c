@@ -39,13 +39,13 @@ int             demo_protocols[] = { 66, 67, 68, 0 };
 #define MAX_NUM_ARGVS	50
 
 #define MIN_DEDICATED_COMHUNKMEGS 1
-#define MIN_COMHUNKMEGS 56
+#define MIN_COMHUNKMEGS 96
 #ifdef MACOS_X
-#define DEF_COMHUNKMEGS "64"
-#define DEF_COMZONEMEGS "24"
+#define DEF_COMHUNKMEGS "136"
+#define DEF_COMZONEMEGS "32"
 #else
-#define DEF_COMHUNKMEGS "56"
-#define DEF_COMZONEMEGS "16"
+#define DEF_COMHUNKMEGS "128"
+#define DEF_COMZONEMEGS "32"
 #endif
 
 int             com_argc;
