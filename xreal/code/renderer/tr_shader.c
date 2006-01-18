@@ -3595,6 +3595,44 @@ static void CollapseStages(void)
 			j += 1;
 			continue;
 		}
+		// try to merge diffuse/normal/specular
+		else if(hasDiffuseStage		&&
+				hasNormalStage		&&
+				hasSpecularStage
+		)
+		{
+			//ri.Printf(PRINT_ALL, "lighting_DBS_generic\n");
+			
+			tmpShader.collapseType = COLLAPSE_lighting_DBS_generic;
+			
+			tmpStages[numStages] = tmpDiffuseStage;
+			tmpStages[numStages].type = ST_COLLAPSE_lighting_DBS_generic;
+			
+			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
+			tmpStages[numStages].bundle[TB_SPECULARMAP] = tmpSpecularStage.bundle[0];
+			
+			numStages++;
+			j += 2;
+			continue;
+		}
+		// try to merge diffuse/normal
+		else if(hasDiffuseStage		&&
+				hasNormalStage
+		)
+		{
+			//ri.Printf(PRINT_ALL, "lighting_DB_generic\n");
+			
+			tmpShader.collapseType = COLLAPSE_lighting_DB_generic;
+			
+			tmpStages[numStages] = tmpDiffuseStage;
+			tmpStages[numStages].type = ST_COLLAPSE_lighting_DB_generic;
+			
+			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
+	
+			numStages++;
+			j += 1;
+			continue;
+		}
 		/*
 		// try to merge color/color
 		else if(stages[0].active					&&
@@ -3735,13 +3773,12 @@ static void FixRenderCommandList(int newShader)
 					shader_t       *shader;
 					int             fogNum;
 					int             entityNum;
-					int             dlightMap;
 					int             sortedIndex;
 					const drawSurfsCommand_t *ds_cmd = (const drawSurfsCommand_t *)curCmd;
 
 					for(i = 0, drawSurf = ds_cmd->drawSurfs; i < ds_cmd->numDrawSurfs; i++, drawSurf++)
 					{
-						R_DecomposeSort(drawSurf->sort, &entityNum, &shader, &fogNum, &dlightMap);
+						R_DecomposeSort(drawSurf->sort, &entityNum, &shader, &fogNum);
 						sortedIndex = ((drawSurf->sort >> QSORT_SHADERNUM_SHIFT) & (MAX_SHADERS - 1));
 						if(sortedIndex >= newShader)
 						{
@@ -3749,7 +3786,7 @@ static void FixRenderCommandList(int newShader)
 							drawSurf->sort =
 								(sortedIndex << QSORT_SHADERNUM_SHIFT) | entityNum | (fogNum <<
 																					  QSORT_FOGNUM_SHIFT) |
-								(int)dlightMap;
+								(int)0;
 						}
 					}
 					curCmd = (const void *)(ds_cmd + 1);
@@ -4973,6 +5010,14 @@ void R_ShaderList_f(void)
 		{
 			ri.Printf(PRINT_ALL, "DBS_direct     ");
 		}
+		else if(shader->collapseType == COLLAPSE_lighting_DB_generic)
+		{
+			ri.Printf(PRINT_ALL, "DB_generic     ");
+		}
+		else if(shader->collapseType == COLLAPSE_lighting_DBS_direct)
+		{
+			ri.Printf(PRINT_ALL, "DBS_generic    ");
+		}
 		else
 		{
 			ri.Printf(PRINT_ALL, "               ");
@@ -5274,7 +5319,7 @@ static void ScanAndLoadShaderFiles(void)
 				
 				if(!alreadyCreated)
 				{
-					ri.Printf(PRINT_ALL, "...generating '%s'\n", table.name);
+					ri.Printf(PRINT_DEVELOPER, "...generating '%s'\n", table.name);
 					GeneratePermanentShaderTable(values, numValues);
 				}
 				continue;

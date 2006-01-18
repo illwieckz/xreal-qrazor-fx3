@@ -178,163 +178,121 @@ static qboolean R_CullSurface(surfaceType_t * surface, shader_t * shader)
 	return qfalse;
 }
 
-
-static int R_DlightFace(srfSurfaceFace_t * face, int dlightBits)
-{
-#if 1
-	int             i;
-	trRefDlight_t  *dl;
-
-	for(i = 0; i < tr.refdef.numDlights; i++)
-	{
-		if(!(dlightBits & (1 << i)))
-		{
-			continue;
-		}
-		
-		dl = &tr.refdef.dlights[i];
-		if(dl->l.origin[0] - dl->l.radius > face->bounds[1][0]
-				 || dl->l.origin[0] + dl->l.radius < face->bounds[0][0]
-				 || dl->l.origin[1] - dl->l.radius > face->bounds[1][1]
-				 || dl->l.origin[1] + dl->l.radius < face->bounds[0][1]
-				 || dl->l.origin[2] - dl->l.radius > face->bounds[1][2]
-				 || dl->l.origin[2] + dl->l.radius < face->bounds[0][2])
-		{
-			// dlight doesn't reach the bounds
-			dlightBits &= ~(1 << i);
-			continue;
-		}
-		/*
-		if(r_showLightIntersections->integer)
-		{
-			// the render thread can't make callbacks to the main thread
-			R_SyncRenderThread();
-			
-			R_DebugBoundingBox(vec3_origin, face->bounds[0], face->bounds[1], colorRed);
-			R_DebugBoundingBox(vec3_origin, dl->worldBounds[0], dl->worldBounds[1], colorRed);	
-		}
-		*/
-	}
-#endif
-
-	if(!dlightBits)
-	{
-		tr.pc.c_dlightSurfacesCulled++;
-	}
-
-	face->dlightBits[tr.smpFrame] = dlightBits;
-	return dlightBits;
-}
-
-static int R_DlightGrid(srfGridMesh_t * grid, int dlightBits)
-{
-	int             i;
-	trRefDlight_t  *dl;
-
-	for(i = 0; i < tr.refdef.numDlights; i++)
-	{
-		if(!(dlightBits & (1 << i)))
-		{
-			continue;
-		}
-		dl = &tr.refdef.dlights[i];
-		if(dl->l.origin[0] - dl->l.radius > grid->meshBounds[1][0]
-		   || dl->l.origin[0] + dl->l.radius < grid->meshBounds[0][0]
-		   || dl->l.origin[1] - dl->l.radius > grid->meshBounds[1][1]
-		   || dl->l.origin[1] + dl->l.radius < grid->meshBounds[0][1]
-		   || dl->l.origin[2] - dl->l.radius > grid->meshBounds[1][2]
-		   || dl->l.origin[2] + dl->l.radius < grid->meshBounds[0][2])
-		{
-			// dlight doesn't reach the bounds
-			dlightBits &= ~(1 << i);
-		}
-	}
-
-	if(!dlightBits)
-	{
-		tr.pc.c_dlightSurfacesCulled++;
-	}
-
-	grid->dlightBits[tr.smpFrame] = dlightBits;
-	return dlightBits;
-}
-
-
-static int R_DlightTrisurf(srfTriangles_t * surf, int dlightBits)
+// *INDENT-OFF*
+static qboolean R_DlightFace(srfSurfaceFace_t * face, trRefDlight_t  * dl)
 {
 #if 0
-	// FIXME: more dlight culling to trisurfs...
-	surf->dlightBits[tr.smpFrame] = dlightBits;
-	return dlightBits;
+	if(	dl->l.origin[0] - dl->l.radius[0] > face->bounds[1][0] ||
+		dl->l.origin[0] + dl->l.radius[0] < face->bounds[0][0] ||
+		dl->l.origin[1] - dl->l.radius[0] > face->bounds[1][1] ||
+		dl->l.origin[1] + dl->l.radius[0] < face->bounds[0][1] ||
+		dl->l.origin[2] - dl->l.radius[0] > face->bounds[1][2] ||
+		dl->l.origin[2] + dl->l.radius[0] < face->bounds[0][2])
+	{
+		// dlight doesn't reach the bounds
+		return qfalse;
+	}
 #else
-	int             i;
-	trRefDlight_t  *dl;
-
-	for(i = 0; i < tr.refdef.numDlights; i++)
+	if(	dl->worldBounds[1][0] < face->bounds[0][0] ||
+		dl->worldBounds[1][1] < face->bounds[0][1] ||
+		dl->worldBounds[1][2] < face->bounds[0][2] ||
+		dl->worldBounds[0][0] > face->bounds[1][0] ||
+		dl->worldBounds[0][1] > face->bounds[1][1] ||
+		dl->worldBounds[0][2] > face->bounds[1][2])
 	{
-		if(!(dlightBits & (1 << i)))
-		{
-			continue;
-		}
-		dl = &tr.refdef.dlights[i];
-		if(dl->l.origin[0] - dl->l.radius > surf->bounds[1][0]
-		   || dl->l.origin[0] + dl->l.radius < surf->bounds[0][0]
-		   || dl->l.origin[1] - dl->l.radius > surf->bounds[1][1]
-		   || dl->l.origin[1] + dl->l.radius < surf->bounds[0][1]
-		   || dl->l.origin[2] - dl->l.radius > surf->bounds[1][2]
-		   || dl->l.origin[2] + dl->l.radius < surf->bounds[0][2])
-		{
-			// dlight doesn't reach the bounds
-			dlightBits &= ~(1 << i);
-		}
+		return qfalse;
 	}
-
-	if(!dlightBits)
-	{
-		tr.pc.c_dlightSurfacesCulled++;
-	}
-
-	surf->dlightBits[tr.smpFrame] = dlightBits;
-	return dlightBits;
 #endif
+	
+	return qtrue;
+}
+// *INDENT-ON*
+
+static int R_DlightGrid(srfGridMesh_t * grid, trRefDlight_t * dl)
+{
+	if(	dl->worldBounds[1][0] < grid->meshBounds[0][0] ||
+		dl->worldBounds[1][1] < grid->meshBounds[0][1] ||
+		dl->worldBounds[1][2] < grid->meshBounds[0][2] ||
+		dl->worldBounds[0][0] > grid->meshBounds[1][0] ||
+		dl->worldBounds[0][1] > grid->meshBounds[1][1] ||
+		dl->worldBounds[0][2] > grid->meshBounds[1][2])
+	{
+		// dlight doesn't reach the bounds
+		return qfalse;
+	}
+
+	return qtrue;
 }
 
-/*
-====================
-R_DlightSurface
 
-The given surface is going to be drawn, and it touches a leaf
-that is touched by one or more dlights, so try to throw out
-more dlights if possible.
-====================
-*/
-static int R_DlightSurface(msurface_t * surf, int dlightBits)
+static int R_DlightTrisurf(srfTriangles_t * tri, trRefDlight_t * dl)
 {
+	if(	dl->worldBounds[1][0] < tri->bounds[0][0] ||
+		   dl->worldBounds[1][1] < tri->bounds[0][1] ||
+		   dl->worldBounds[1][2] < tri->bounds[0][2] ||
+		   dl->worldBounds[0][0] > tri->bounds[1][0] ||
+		   dl->worldBounds[0][1] > tri->bounds[1][1] ||
+		   dl->worldBounds[0][2] > tri->bounds[1][2])
+	{
+		// dlight doesn't reach the bounds
+		return qfalse;
+	}
+
+	return qtrue;
+}
+
+
+/*
+======================
+R_AddInteractionSurface
+======================
+*/
+static void R_AddInteractionSurface(msurface_t * surf, trRefDlight_t * light)
+{
+	qboolean intersects;
+	
+	if(surf->viewCount != tr.viewCount)
+	{
+		return;					// not in this view
+	}
+	
+	if(surf->lightCount == tr.lightCount)
+	{
+		return;					// already checked this surface
+	}
+	surf->lightCount = tr.lightCount;
+	
+	// Tr3B - skip all translucent surfaces that don't matter for lighting only pass
+	if(surf->shader->sort > SS_OPAQUE || (surf->shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY)))
+		return;
+
 	if(*surf->data == SF_FACE)
 	{
-		dlightBits = R_DlightFace((srfSurfaceFace_t *) surf->data, dlightBits);
+		intersects = R_DlightFace((srfSurfaceFace_t *) surf->data, light);
 	}
 	else if(*surf->data == SF_GRID)
 	{
-		dlightBits = R_DlightGrid((srfGridMesh_t *) surf->data, dlightBits);
+		intersects = R_DlightGrid((srfGridMesh_t *) surf->data, light);
 	}
 	else if(*surf->data == SF_TRIANGLES)
 	{
-		dlightBits = R_DlightTrisurf((srfTriangles_t *) surf->data, dlightBits);
+		intersects = R_DlightTrisurf((srfTriangles_t *) surf->data, light);
 	}
 	else
 	{
-		dlightBits = 0;
+		intersects = qfalse;	
 	}
-
-	if(dlightBits)
+	
+	if(intersects)
 	{
+		R_AddDlightInteraction(light, surf->data, surf->shader, surf->fogIndex);
 		tr.pc.c_dlightSurfaces++;
 	}
-
-	return dlightBits;
+	else
+	{
+		tr.pc.c_dlightSurfacesCulled++;	
+	}
 }
-
 
 
 /*
@@ -342,14 +300,14 @@ static int R_DlightSurface(msurface_t * surf, int dlightBits)
 R_AddWorldSurface
 ======================
 */
-static void R_AddWorldSurface(msurface_t * surf, int dlightBits)
+static void R_AddWorldSurface(msurface_t * surf)
 {
 	if(surf->viewCount == tr.viewCount)
 	{
 		return;					// already in this view
 	}
-
 	surf->viewCount = tr.viewCount;
+	
 	// FIXME: bmodel fog?
 
 	// try to cull before dlighting or adding
@@ -358,14 +316,7 @@ static void R_AddWorldSurface(msurface_t * surf, int dlightBits)
 		return;
 	}
 
-	// check for dlighting
-	if(dlightBits)
-	{
-		dlightBits = R_DlightSurface(surf, dlightBits);
-		dlightBits = (dlightBits != 0);
-	}
-
-	R_AddDrawSurf(surf->data, surf->shader, surf->fogIndex, dlightBits);
+	R_AddDrawSurf(surf->data, surf->shader, surf->fogIndex);
 }
 
 /*
@@ -398,11 +349,11 @@ void R_AddBrushModelSurfaces(trRefEntity_t * ent)
 		return;
 	}
 
-	R_DlightBmodel(bmodel);
+//	R_DlightBmodel(bmodel);
 
 	for(i = 0; i < bmodel->numSurfaces; i++)
 	{
-		R_AddWorldSurface(bmodel->firstSurface + i, tr.currentEntity->needDlights);
+		R_AddWorldSurface(bmodel->firstSurface + i);
 	}
 }
 
@@ -421,78 +372,38 @@ void R_AddBrushModelSurfaces(trRefEntity_t * ent)
 R_RecursiveWorldNode
 ================
 */
-static void R_RecursiveWorldNode(mnode_t * node, int planeBits, int dlightBits)
+static void R_RecursiveWorldNode(mnode_t * node, int planeBits)
 {
-
 	do
 	{
-		int             newDlights[2];
-
 		// if the node wasn't marked as potentially visible, exit
-		if(node->visframe != tr.visCount)
+		if(node->visCount != tr.visCount)
 		{
 			return;
 		}
 
 		// if the bounding volume is outside the frustum, nothing
 		// inside can be visible OPTIMIZE: don't do this all the way to leafs?
-
 		if(!r_nocull->integer)
 		{
+			int             i;
 			int             r;
 
-			if(planeBits & 1)
+			for(i = 0; i < 4; i++)
 			{
-				r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[0]);
-				if(r == 2)
+				if(planeBits & (1 << i))
 				{
-					return;		// culled
-				}
-				if(r == 1)
-				{
-					planeBits &= ~1;	// all descendants will also be in front
+					r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[i]);
+					if(r == 2)
+					{
+						return;		// culled
+					}
+					if(r == 1)
+					{
+						planeBits &= ~(1 << i);	// all descendants will also be in front
+					}
 				}
 			}
-
-			if(planeBits & 2)
-			{
-				r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[1]);
-				if(r == 2)
-				{
-					return;		// culled
-				}
-				if(r == 1)
-				{
-					planeBits &= ~2;	// all descendants will also be in front
-				}
-			}
-
-			if(planeBits & 4)
-			{
-				r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[2]);
-				if(r == 2)
-				{
-					return;		// culled
-				}
-				if(r == 1)
-				{
-					planeBits &= ~4;	// all descendants will also be in front
-				}
-			}
-
-			if(planeBits & 8)
-			{
-				r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[3]);
-				if(r == 2)
-				{
-					return;		// culled
-				}
-				if(r == 1)
-				{
-					planeBits &= ~8;	// all descendants will also be in front
-				}
-			}
-
 		}
 
 		if(node->contents != -1)
@@ -500,44 +411,11 @@ static void R_RecursiveWorldNode(mnode_t * node, int planeBits, int dlightBits)
 			break;
 		}
 
-		// node is just a decision point, so go down both sides
-		// since we don't care about sort orders, just go positive to negative
-
-		// determine which dlights are needed
-		newDlights[0] = 0;
-		newDlights[1] = 0;
-		if(dlightBits)
-		{
-			int             i;
-
-			for(i = 0; i < tr.refdef.numDlights; i++)
-			{
-				trRefDlight_t  *dl;
-				float           dist;
-
-				if(dlightBits & (1 << i))
-				{
-					dl = &tr.refdef.dlights[i];
-					dist = DotProduct(dl->l.origin, node->plane->normal) - node->plane->dist;
-
-					if(dist > -dl->l.radius)
-					{
-						newDlights[0] |= (1 << i);
-					}
-					if(dist < dl->l.radius)
-					{
-						newDlights[1] |= (1 << i);
-					}
-				}
-			}
-		}
-
 		// recurse down the children, front side first
-		R_RecursiveWorldNode(node->children[0], planeBits, newDlights[0]);
+		R_RecursiveWorldNode(node->children[0], planeBits);
 
 		// tail recurse
 		node = node->children[1];
-		dlightBits = newDlights[1];
 	} while(1);
 
 	{
@@ -582,10 +460,107 @@ static void R_RecursiveWorldNode(mnode_t * node, int planeBits, int dlightBits)
 			// the surface may have already been added if it
 			// spans multiple leafs
 			surf = *mark;
-			R_AddWorldSurface(surf, dlightBits);
+			R_AddWorldSurface(surf);
 			mark++;
 		}
 	}
+}
+
+/*
+================
+R_RecursiveInteractionNode
+================
+*/
+static void R_RecursiveInteractionNode(mnode_t * node, trRefDlight_t * light, int planeBits)
+{
+	int             i;
+	int             r;
+	
+	// if the node wasn't marked as potentially visible, exit
+	if(node->visCount != tr.visCount)
+	{
+		return;
+	}
+	
+	// light already hit node
+	if(node->lightCount == tr.lightCount)
+	{
+		return;
+	}
+	node->lightCount = tr.lightCount;
+
+	// if the bounding volume is outside the frustum, nothing
+	// inside can be visible OPTIMIZE: don't do this all the way to leafs?
+#if 0
+	if(!r_nocull->integer)
+	{
+		for(i = 0; i < 4; i++)
+		{
+			if(planeBits & (1 << i))
+			{
+				r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[i]);
+				
+				if(r == SIDE_BACK)
+				{
+					return;		// culled
+				}
+				
+				if(r == SIDE_FRONT)
+				{
+					planeBits &= ~(1 << i);	// all descendants will also be in front
+				}
+			}
+		}
+	}
+#endif
+
+	if(node->contents != -1)
+	{
+		// leaf node, so add mark surfaces
+		int             c;
+		msurface_t     *surf, **mark;
+
+		// add the individual surfaces
+		mark = node->firstmarksurface;
+		c = node->nummarksurfaces;
+		while(c--)
+		{
+			// the surface may have already been added if it
+			// spans multiple leafs
+			surf = *mark;
+			R_AddInteractionSurface(surf, light);
+			mark++;
+		}
+		return;
+	}
+
+	// node is just a decision point, so go down both sides
+	// since we don't care about sort orders, just go positive to negative
+#if 0
+	r = BoxOnPlaneSide(light->worldBounds[0], light->worldBounds[1], node->plane);
+	
+	switch (r)
+	{
+		case SIDE_FRONT:
+			R_RecursiveInteractionNode(node->children[0], light, planeBits);
+			break;
+			
+		case SIDE_BACK:
+			R_RecursiveInteractionNode(node->children[1], light, planeBits);
+			break;
+		
+		case SIDE_ON:
+		default:
+			// recurse down the children, front side first
+			R_RecursiveInteractionNode(node->children[0], light, planeBits);
+			R_RecursiveInteractionNode(node->children[1], light, planeBits);
+			break;
+	}
+#else
+	// recurse down the children, front side first
+	R_RecursiveInteractionNode(node->children[0], light, planeBits);
+	R_RecursiveInteractionNode(node->children[1], light, planeBits);
+#endif
 }
 
 
@@ -716,7 +691,7 @@ static void R_MarkLeaves(void)
 		{
 			if(tr.world->nodes[i].contents != CONTENTS_SOLID)
 			{
-				tr.world->nodes[i].visframe = tr.visCount;
+				tr.world->nodes[i].visCount = tr.visCount;
 			}
 		}
 		return;
@@ -747,9 +722,9 @@ static void R_MarkLeaves(void)
 		parent = leaf;
 		do
 		{
-			if(parent->visframe == tr.visCount)
+			if(parent->visCount == tr.visCount)
 				break;
-			parent->visframe = tr.visCount;
+			parent->visCount = tr.visCount;
 			parent = parent->parent;
 		} while(parent);
 	}
@@ -846,12 +821,35 @@ void R_AddWorldSurfaces(void)
 	ClearBounds(tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]);
 
 	// perform frustum culling and add all the potentially visible surfaces
-	if(tr.refdef.numDlights > 32)
-	{
-		tr.refdef.numDlights = 32;
-	}
-	R_RecursiveWorldNode(tr.world->nodes, 15, (1 << tr.refdef.numDlights) - 1);
+	R_RecursiveWorldNode(tr.world->nodes, 15);
 	
 	// dynamically compute far clip plane distance for sky
 	R_SetFarClip();
+}
+
+
+
+/*
+=============
+R_AddWorldInteractions
+=============
+*/
+void R_AddWorldInteractions(trRefDlight_t * light)
+{
+	if(!r_drawworld->integer)
+	{
+		return;
+	}
+
+	if(tr.refdef.rdflags & RDF_NOWORLDMODEL)
+	{
+		return;
+	}
+
+	tr.currentEntityNum = ENTITYNUM_WORLD;
+	tr.shiftedEntityNum = tr.currentEntityNum << QSORT_ENTITYNUM_SHIFT;
+
+	// perform frustum culling and add all the potentially visible surfaces
+	tr.lightCount++;
+	R_RecursiveInteractionNode(tr.world->nodes, light, 15);
 }

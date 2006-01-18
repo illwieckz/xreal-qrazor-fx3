@@ -68,6 +68,7 @@ typedef struct trRefDlight_s
 	refDlight_t		l;
 	
 	// local
+	qboolean		active;
 	vec3_t          transformed;		// origin in local coordinate system
 	int             additive;			// texture detail is lost tho when the lightmap is dark
 	matrix_t		transformMatrix;	// light to world
@@ -77,6 +78,10 @@ typedef struct trRefDlight_s
 	
 	vec3_t			localBounds[2];
 	vec3_t			worldBounds[2];
+	
+	// connect this entity to interaction grid
+	int				firstInteraction;
+	struct interaction_s *lastInteraction;
 } trRefDlight_t;
 
 
@@ -98,7 +103,6 @@ typedef struct
 	vec3_t          directedLight;
 	qboolean		needZFail;
 } trRefEntity_t;
-
 
 typedef struct
 {
@@ -500,6 +504,8 @@ typedef enum
 	ST_COLLAPSE_lighting_DBS_radiosity,		// diffusemap + bumpmap + specularmap + lightmap
 	ST_COLLAPSE_lighting_DB_direct,			// directional entity lighting like rgbGen lightingDiffuse
 	ST_COLLAPSE_lighting_DBS_direct,		// direction entity lighting with diffuse + bump + specular
+	ST_COLLAPSE_lighting_DB_generic,		// diffusemap + bumpmap
+	ST_COLLAPSE_lighting_DBS_generic,		// diffusemap + bumpmap + specularmap + lightmap
 	
 	// light shader stage types
 	ST_ATTENUATIONMAP_XY,
@@ -515,6 +521,8 @@ typedef enum
 	COLLAPSE_lighting_DBS_radiosity,
 	COLLAPSE_lighting_DB_direct,
 	COLLAPSE_lighting_DBS_direct,
+	COLLAPSE_lighting_DB_generic,
+	COLLAPSE_lighting_DBS_generic,
 } collapseType_t;
 
 typedef struct
@@ -773,8 +781,9 @@ typedef struct
 
 	int             numDrawSurfs;
 	struct drawSurf_s *drawSurfs;
-
-
+	
+	int             numInteractions;
+	struct interaction_s *interactions;
 } trRefdef_t;
 
 
@@ -862,6 +871,19 @@ typedef struct drawSurf_s
 	surfaceType_t  *surface;	// any of surface*_t
 } drawSurf_t;
 
+// an interaction is a node between a dlight and its surfaces
+typedef struct interaction_s
+{
+	struct interaction_s *next;
+	
+	trRefDlight_t  *dlight;
+	
+	int             entityNum;
+	surfaceType_t  *surface;	// any of surface*_t
+	int             shaderNum;
+	int             fogNum;
+} interaction_t;
+
 #define	MAX_FACE_POINTS		64
 
 #define	MAX_PATCH_SIZE		32	// max dimensions of a patch mesh in map file
@@ -908,9 +930,6 @@ typedef struct srfGridMesh_s
 {
 	surfaceType_t   surfaceType;
 
-	// dynamic lighting information
-	int             dlightBits[SMP_FRAMES];
-
 	// culling information
 	vec3_t          meshBounds[2];
 	vec3_t          localOrigin;
@@ -938,9 +957,6 @@ typedef struct
 {
 	surfaceType_t   surfaceType;
 	cplane_t        plane;
-
-	// dynamic lighting information
-	int             dlightBits[SMP_FRAMES];
 	
 	// Tr3B - culling information necessary for dlights
 	vec3_t          bounds[2];
@@ -960,9 +976,6 @@ typedef struct
 typedef struct
 {
 	surfaceType_t   surfaceType;
-
-	// dynamic lighting information
-	int             dlightBits[SMP_FRAMES];
 
 	// culling information (FIXME: use this!)
 	vec3_t          bounds[2];
@@ -1000,6 +1013,7 @@ BRUSH MODELS
 typedef struct msurface_s
 {
 	int             viewCount;	// if == tr.viewCount, already added
+	int             lightCount;
 	struct shader_s *shader;
 	int             fogIndex;
 
@@ -1013,7 +1027,8 @@ typedef struct mnode_s
 {
 	// common with leaf and node
 	int             contents;	// -1 for nodes, to differentiate from leafs
-	int             visframe;	// node needs to be traversed if current
+	int             visCount;	// node needs to be traversed if current
+	int             lightCount;
 	vec3_t          mins, maxs;	// for bounding box culling
 	struct mnode_s *parent;
 
@@ -1129,6 +1144,9 @@ extern refimport_t ri;
 #define	MAX_DRAWSURFS			0x10000
 #define	DRAWSURF_MASK			(MAX_DRAWSURFS-1)
 
+#define MAX_INTERACTIONS		MAX_DRAWSURFS*32
+#define INTERACTION_MASK		(MAX_INTERACTIONS-1)
+
 /*
 
 the drawsurf sort data is packed into a single 32 bit value so it can be
@@ -1169,6 +1187,7 @@ typedef struct
 	int             c_leafs;
 	int             c_dlightSurfaces;
 	int             c_dlightSurfacesCulled;
+	int             c_dlightInteractions;
 } frontEndCounters_t;
 
 #define	FOG_TABLE_SIZE		256
@@ -1217,7 +1236,7 @@ typedef struct
 	backEndCounters_t pc;
 	qboolean        isHyperspace;
 	trRefEntity_t  *currentEntity;
-//	trRefDlight_t  *currentLight;
+	trRefDlight_t  *currentLight;		// only used when lighting interactions
 	qboolean        skyRenderedThisView;	// flag for drawing sun
 
 	qboolean        projection2D;	// if qtrue, drawstretchpic doesn't need to change modes
@@ -1242,6 +1261,7 @@ typedef struct
 	int             frameCount;	// incremented every frame
 	int             sceneCount;	// incremented every scene
 	int             viewCount;	// incremented every view (twice a scene if portaled)
+	int             lightCount; // incremented every time a dlight traverses the world
 	// and every R_MarkFragments call
 
 	int             smpFrame;	// toggles from 0 to 1 every endFrame
@@ -1282,11 +1302,17 @@ typedef struct
 	int             numLightmaps;
 	image_t        *lightmaps[MAX_LIGHTMAPS];
 
+	// render entities
 	trRefEntity_t  *currentEntity;
 	trRefEntity_t   worldEntity;	// point currentEntity at this when rendering world
 	int             currentEntityNum;
 	int             shiftedEntityNum;	// currentEntityNum << QSORT_ENTITYNUM_SHIFT
 	model_t        *currentModel;
+	
+	// render lights
+	trRefDlight_t  *currentDlight;
+	int             currentDlightNum;
+//	int             shiftedDlightNum;
 
 	// GPU shader programs
 	shaderProgram_t genericShader_single;
@@ -1412,6 +1438,11 @@ extern cvar_t  *r_primitives;	// "0" = based on compiled vertex array existance
 										// "1" = glDrawElemet tristrips
 										// "2" = glDrawElements triangles
 										// "-1" = no drawing
+										
+extern cvar_t  *r_ambientScale;
+extern cvar_t  *r_directedScale;
+extern cvar_t  *r_lightScale;
+extern cvar_t  *r_debugLight;
 
 extern cvar_t  *r_inGameVideo;	// controls whether in game video should be draw
 extern cvar_t  *r_fastsky;		// controls whether sky should be cleared or drawn
@@ -1513,7 +1544,7 @@ extern cvar_t  *r_showNormalMaps;
 extern cvar_t  *r_showShadowVolumes;
 extern cvar_t  *r_showSkeleton;
 extern cvar_t  *r_showLightTransforms;
-extern cvar_t  *r_showLightIntersections;
+extern cvar_t  *r_showLightInteractions;
 
 
 //====================================================================
@@ -1533,10 +1564,8 @@ void            R_AddLightningBoltSurfaces(trRefEntity_t * e);
 
 void            R_AddPolygonSurfaces(void);
 
-void            R_DecomposeSort(unsigned sort, int *entityNum, shader_t ** shader,
-								int *fogNum, int *dlightMap);
-
-void            R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int fogIndex, int dlightMap);
+void            R_DecomposeSort(unsigned sort, int *entityNum, shader_t ** shader, int *fogNum);
+void            R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int fogIndex);
 
 
 #define	CULL_IN		0			// completely unclipped
@@ -1789,11 +1818,17 @@ void            GLimp_SetGamma(unsigned char red[256], unsigned char green[256],
 
 /*
 ====================================================================
-
 TESSELATOR/SHADER DECLARATIONS
-
 ====================================================================
 */
+
+typedef enum
+{
+	SIT_DEFAULT,
+	SIT_ZFILL,
+	SIT_LIGHTING
+} stageIteratorType_t;
+
 typedef byte    color4ub_t[4];
 
 typedef struct stageVars
@@ -1812,7 +1847,6 @@ typedef struct shaderCommands_s
 	vec4_t          deluxels[SHADER_MAX_VERTEXES];
 	vec2_t          texCoords[SHADER_MAX_VERTEXES][2];
 	color4ub_t      vertexColors[SHADER_MAX_VERTEXES];
-	int             vertexDlightBits[SHADER_MAX_VERTEXES];
 
 	stageVars_t     svars;
 
@@ -1822,13 +1856,12 @@ typedef struct shaderCommands_s
 	float           shaderTime;
 	int             fogNum;
 
-	int             dlightBits;	// or together of all vertexDlightBits
-
 	int             numIndexes;
 	int             numVertexes;
 
-	// info extracted from current shader
+	// info extracted from current shader or backend mode
 	int             numPasses;
+	stageIteratorType_t currentStageIteratorType;
 	void            (*currentStageIteratorFunc) (void);
 	shaderStage_t **xstages;
 } shaderCommands_t;
@@ -1841,16 +1874,13 @@ void            RB_CheckOverflow(int verts, int indexes);
 
 #define RB_CHECKOVERFLOW(v,i) if (tess.numVertexes + (v) >= SHADER_MAX_VERTEXES || tess.numIndexes + (i) >= SHADER_MAX_INDEXES ) {RB_CheckOverflow(v,i);}
 
-void            RB_InitGPUShaders(void);
-void            RB_ShutdownGPUShaders(void);
+void            RB_InitGPUShaders();
+void            RB_ShutdownGPUShaders();
 
-void            RB_StageIteratorGeneric(void);
-void            RB_StageIteratorSky(void);
-//void            RB_StageIteratorVertexLitTexture(void);
-//void            RB_StageIteratorPerPixelLit_D(void);
-//void            RB_StageIteratorPerPixelLit_DB(void);
-//void            RB_StageIteratorPerPixelLit_DBS(void);
-//void            RB_StageIteratorLightmappedMultitexture(void);
+void            RB_StageIteratorZFill();
+void            RB_StageIteratorLighting();
+void            RB_StageIteratorGeneric();
+void            RB_StageIteratorSky();
 
 void            RB_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, byte * color);
 void            RB_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, byte * color, float s1, float t1,
@@ -1871,6 +1901,7 @@ void            R_AddBrushModelSurfaces(trRefEntity_t * e);
 void            R_AddWorldSurfaces(void);
 qboolean        R_inPVS(const vec3_t p1, const vec3_t p2);
 
+void            R_AddWorldInteractions(trRefDlight_t * light);
 
 /*
 ============================================================
@@ -1899,6 +1930,7 @@ void            R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t *
 void            R_TransformDlights(int count, trRefDlight_t * dl, orientationr_t * or);
 int             R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir);
 
+void            R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * shader, int fogIndex);
 
 /*
 ============================================================
@@ -2142,10 +2174,15 @@ typedef enum
 typedef struct
 {
 	drawSurf_t      drawSurfs[MAX_DRAWSURFS];
+	
 	trRefDlight_t   dlights[MAX_DLIGHTS];
 	trRefEntity_t   entities[MAX_ENTITIES];
+	
+	interaction_t   interactions[MAX_INTERACTIONS];
+	
 	srfPoly_t      *polys;		//[MAX_POLYS];
 	polyVert_t     *polyVerts;	//[MAX_POLYVERTS];
+	
 	renderCommandList_t commands;
 } backEndData_t;
 

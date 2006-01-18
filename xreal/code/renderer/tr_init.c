@@ -152,6 +152,7 @@ cvar_t         *r_showImages;
 
 cvar_t         *r_ambientScale;
 cvar_t         *r_directedScale;
+cvar_t         *r_lightScale;
 cvar_t         *r_debugLight;
 cvar_t         *r_debugSort;
 cvar_t         *r_printShaders;
@@ -168,7 +169,7 @@ cvar_t         *r_showNormalMaps;
 cvar_t         *r_showShadowVolumes;
 cvar_t         *r_showSkeleton;
 cvar_t         *r_showLightTransforms;
-cvar_t         *r_showLightIntersections;
+cvar_t         *r_showLightInteractions;
 
 
 // GL_ARB_multitexture
@@ -1142,6 +1143,7 @@ void R_Register(void)
 
 	r_ambientScale = ri.Cvar_Get("r_ambientScale", "0.6", CVAR_CHEAT);
 	r_directedScale = ri.Cvar_Get("r_directedScale", "1", CVAR_CHEAT);
+	r_lightScale = ri.Cvar_Get("r_lightScale", "2", CVAR_CHEAT);
 
 	//
 	// temporary variables that can change at any time
@@ -1198,7 +1200,7 @@ void R_Register(void)
 	r_showShadowVolumes = ri.Cvar_Get("r_showShadowVolumes", "0", CVAR_CHEAT);
 	r_showSkeleton = ri.Cvar_Get("r_showSkeleton", "0", CVAR_CHEAT);
 	r_showLightTransforms = ri.Cvar_Get("r_showLightTransforms", "0", CVAR_CHEAT);
-	r_showLightIntersections = ri.Cvar_Get("r_showLightIntersections", "0", CVAR_CHEAT);
+	r_showLightInteractions = ri.Cvar_Get("r_showLightInteractions", "0", CVAR_CHEAT);
 
 	// make sure all the commands added here are also
 	// removed in R_Shutdown

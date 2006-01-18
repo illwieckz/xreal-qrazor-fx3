@@ -333,6 +333,8 @@ void RB_RenderFlare(flare_t * f)
 
 	size = backEnd.viewParms.viewportWidth * (r_flareSize->value / 640.0f + 8 / -f->eyeZ);
 
+	tess.currentStageIteratorFunc = RB_StageIteratorGeneric;
+	
 	RB_BeginSurface(tr.flareShader, f->fogNum);
 
 	// FIXME: use quadstamp?

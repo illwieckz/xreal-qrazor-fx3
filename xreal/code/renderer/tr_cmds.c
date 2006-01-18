@@ -70,12 +70,19 @@ void R_PerformanceCounters(void)
 	}
 	else if(r_speeds->integer == 4)
 	{
-		if(backEnd.pc.c_dlightVertexes)
+		if(tr.pc.c_dlightSurfaces)
 		{
 			ri.Printf(PRINT_ALL, "dlight srf:%i  culled:%i  verts:%i  tris:%i\n",
 					  tr.pc.c_dlightSurfaces, tr.pc.c_dlightSurfacesCulled,
 					  backEnd.pc.c_dlightVertexes, backEnd.pc.c_dlightIndexes / 3);
 		}
+		
+		/*
+		if(backEnd.pc.c_dlightInteractions)
+		{
+			ri.Printf(PRINT_ALL, "dlight srf:%i  \n", tr.pc.c_dlightInteractions);
+		}
+		*/
 	}
 	else if(r_speeds->integer == 5)
 	{

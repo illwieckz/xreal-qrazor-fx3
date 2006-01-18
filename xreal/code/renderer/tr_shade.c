@@ -185,7 +185,7 @@ void RB_ShowProgramUniforms(GLhandleARB program)
 static void RB_InitGPUShader(shaderProgram_t * program, const char *name, int attribs, qboolean fragmentShader)
 {
 	
-	ri.Printf(PRINT_ALL, "------- GPU shader -------\n");
+	ri.Printf(PRINT_DEVELOPER, "------- GPU shader -------\n");
 
 	program->program = qglCreateProgramObjectARB();
 	program->attribs = attribs;
@@ -1320,10 +1320,24 @@ void RB_BeginSurface(shader_t * shader, int fogNum)
 	tess.numVertexes = 0;
 	tess.shader = state;
 	tess.fogNum = fogNum;
-	tess.dlightBits = 0;		// will be OR'd in by surface functions
 	tess.xstages = state->stages;
 	tess.numPasses = state->numStages;
-	tess.currentStageIteratorFunc = state->isSky ? RB_StageIteratorSky : RB_StageIteratorGeneric;
+	
+	switch (tess.currentStageIteratorType)
+	{
+		case SIT_ZFILL:
+			tess.currentStageIteratorFunc = RB_StageIteratorZFill;
+			break;
+			
+		case SIT_LIGHTING:
+			tess.currentStageIteratorFunc = RB_StageIteratorLighting;
+			break;
+		
+		default:
+		case SIT_DEFAULT:
+			tess.currentStageIteratorFunc = state->isSky ? RB_StageIteratorSky : RB_StageIteratorGeneric;
+			break;
+	}
 
 	tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
 	if(tess.shader->clampTime && tess.shaderTime >= tess.shader->clampTime)
@@ -1353,23 +1367,37 @@ static void Render_generic_single_FFP(int stage)
 	GL_ClientState(GLCS_DEFAULT);
 }
 
-void Render_generic_zfill_FFP(int stage)
+static void Render_zfill_FFP(int stage)
 {
+	unsigned long stateBits;
 	shaderStage_t  *pStage;
 
 	pStage = tess.xstages[stage];
 	
 	GL_Program(0);
-	
 	GL_SelectTexture(0);
 	
+#if 1
 	qglColor4f(0, 0, 0, 1);
+#else
+	qglColor4f(1, 1, 1, 1);
+#endif
+
+	stateBits = pStage->stateBits;
+	stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
+	
+	if(stateBits & GLS_ATEST_BITS)
+	{
+		R_BindAnimatedImage(&pStage->bundle[0]);
+	}
+	else
+	{
+		GL_Bind(tr.whiteImage);
+	}
 	
 	GL_State(pStage->stateBits);
 	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD);
 	GL_SetVertexAttribs();
-
-	R_BindAnimatedImage(&pStage->bundle[0]);
 
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
@@ -2386,10 +2414,12 @@ void RenderDlightInteractions(void)
 		shader_t       *attenuationShader;
 		shaderStage_t  *attenuationZStage;
 
+		/*
 		if(!(tess.dlightBits & (1 << l)))
 		{
 			continue;			// this surface definately doesn't have any of this light
 		}
+		*/
 	
 		dl = &backEnd.refdef.dlights[l];
 		
@@ -3235,9 +3265,270 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 }
 
 
-/*
-** RB_IterateStagesGeneric
-*/
+void RB_StageIteratorZFill(void)
+{
+	int             stage;
+	
+	RB_DeformTessGeometry();
+
+	// log this call
+	if(r_logFile->integer)
+	{
+		// don't just call LogComment, or we will get
+		// a call to va() every frame!
+		GLimp_LogComment(va("--- RB_StageIteratorZFill( %s ) ---\n", tess.shader->name));
+	}
+
+	// set face culling appropriately
+	GL_Cull(tess.shader->cullType);
+
+	// set polygon offset if necessary
+	if(tess.shader->polygonOffset)
+	{
+		qglEnable(GL_POLYGON_OFFSET_FILL);
+		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
+	}
+
+	// lock XYZ
+	qglVertexPointer(3, GL_FLOAT, 16, tess.xyz);	// padded for SIMD
+	if(qglLockArraysEXT)
+	{
+		qglLockArraysEXT(0, tess.numVertexes);
+		GLimp_LogComment("glLockArraysEXT\n");
+	}
+
+	// call shader function
+	for(stage = 0; stage < MAX_SHADER_STAGES; stage++)
+	{
+		shaderStage_t  *pStage = tess.xstages[stage];
+
+		if(!pStage)
+		{
+			break;
+		}
+		
+		if(!RB_EvalExpression(&pStage->ifExp, 1.0))
+		{
+			continue;
+		}
+
+		ComputeTexCoords(pStage);
+
+		switch(pStage->type)
+		{
+			case ST_DIFFUSEMAP:
+			case ST_COLLAPSE_lighting_D_radiosity:
+			case ST_COLLAPSE_lighting_DB_radiosity:
+			case ST_COLLAPSE_lighting_DBS_radiosity:
+			case ST_COLLAPSE_lighting_DB_direct:
+			case ST_COLLAPSE_lighting_DBS_direct:
+			case ST_COLLAPSE_lighting_DB_generic:
+			case ST_COLLAPSE_lighting_DBS_generic:
+			case ST_REFLECTIONMAP:
+			case ST_REFRACTIONMAP:
+			case ST_DISPERSIONMAP:
+			case ST_SKYBOXMAP:
+			{
+				Render_zfill_FFP(stage);
+				break;
+			}
+			
+			default:
+				break;
+		}
+	}
+	
+	// reset client state
+	GL_ClientState(GLCS_DEFAULT);
+
+	// unlock arrays
+	if(qglUnlockArraysEXT)
+	{
+		qglUnlockArraysEXT();
+		GLimp_LogComment("glUnlockArraysEXT\n");
+	}
+
+	// reset polygon offset
+	if(tess.shader->polygonOffset)
+	{
+		qglDisable(GL_POLYGON_OFFSET_FILL);
+	}
+}
+
+void RB_StageIteratorLighting()
+{
+	int				i, j;
+	int             stage;
+	trRefDlight_t  *dl;
+	matrix_t		modelToLight;
+	matrix_t		attenuation;
+	shader_t       *attenuationShader;
+	shaderStage_t  *attenuationZStage;
+	
+	dl = backEnd.currentLight;
+		
+	MatrixMultiply(dl->viewMatrix, backEnd.or.transformMatrix, modelToLight);
+	MatrixMultiply(dl->attenuationMatrix, modelToLight, attenuation);
+	
+	RB_DeformTessGeometry();
+
+	// log this call
+	if(r_logFile->integer)
+	{
+		// don't just call LogComment, or we will get
+		// a call to va() every frame!
+		GLimp_LogComment(va("--- RB_StageIteratorLighting( %s ) ---\n", tess.shader->name));
+	}
+
+	// set face culling appropriately
+	GL_Cull(tess.shader->cullType);
+
+	// set polygon offset if necessary
+	if(tess.shader->polygonOffset)
+	{
+		qglEnable(GL_POLYGON_OFFSET_FILL);
+		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
+	}
+
+	// lock XYZ
+	qglVertexPointer(3, GL_FLOAT, 16, tess.xyz);	// padded for SIMD
+	if(qglLockArraysEXT)
+	{
+		qglLockArraysEXT(0, tess.numVertexes);
+		GLimp_LogComment("glLockArraysEXT\n");
+	}
+
+	// call shader function
+	attenuationShader = R_GetShaderByHandle(dl->l.attenuationShader);
+		
+	if(attenuationShader == NULL || attenuationShader == tr.defaultShader)
+		attenuationShader = tr.defaultDlightShader;
+		
+	attenuationZStage = attenuationShader->stages[0];
+		
+	for(i = 1; i < MAX_SHADER_STAGES; i++)
+	{
+		shaderStage_t  *attenuationXYStage = attenuationShader->stages[i];
+						
+		if(!attenuationXYStage)
+		{
+			break;
+		}
+			
+		if(attenuationXYStage->type != ST_ATTENUATIONMAP_XY)
+		{
+			continue;
+		}
+			
+		if(!RB_EvalExpression(&attenuationXYStage->ifExp, 1.0))
+		{
+			continue;
+		}
+			
+		for(j = 0; j < MAX_SHADER_STAGES; j++)
+		{
+			shaderStage_t  *diffuseStage = tess.xstages[j];
+
+			if(!diffuseStage)
+			{
+				break;
+			}
+		
+			if(!RB_EvalExpression(&diffuseStage->ifExp, 1.0))
+			{
+				continue;
+			}
+			
+			ComputeTexCoords(diffuseStage);
+				
+			switch(diffuseStage->type)
+			{
+				case ST_DIFFUSEMAP:
+				case ST_COLLAPSE_lighting_D_radiosity:
+					if(glConfig2.shadingLanguage100Available)
+					{
+						Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);
+					}
+					else
+					{
+							// TODO
+					}
+					break;
+						
+				case ST_COLLAPSE_lighting_DB_radiosity:
+				case ST_COLLAPSE_lighting_DB_direct:
+				case ST_COLLAPSE_lighting_DB_generic:
+					if(glConfig2.shadingLanguage100Available)
+					{
+						if(r_bumpMapping->integer)
+						{	
+							Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);
+						}
+						else
+						{
+							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);	
+						}
+					}
+					else
+					{
+							// TODO
+					}
+					break;
+						
+				case ST_COLLAPSE_lighting_DBS_radiosity:
+				case ST_COLLAPSE_lighting_DBS_direct:
+				case ST_COLLAPSE_lighting_DBS_generic:
+					if(glConfig2.shadingLanguage100Available)
+					{
+						if(r_bumpMapping->integer)
+						{
+							if(r_specular->integer)
+							{
+								Render_lighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);
+							}
+							else
+							{
+								Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);
+							}
+						}
+						else
+						{
+							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);	
+						}
+					}
+					else
+					{
+							// TODO
+					}
+					break;
+						
+				default:
+					break;
+			}
+		}
+	}
+		
+	backEnd.pc.c_dlightVertexes += tess.numVertexes;
+	backEnd.pc.c_totalIndexes += tess.numIndexes;
+	backEnd.pc.c_dlightIndexes += tess.numIndexes;
+	
+	// reset client state
+	GL_ClientState(GLCS_DEFAULT);
+
+	// unlock arrays
+	if(qglUnlockArraysEXT)
+	{
+		qglUnlockArraysEXT();
+		GLimp_LogComment("glUnlockArraysEXT\n");
+	}
+
+	// reset polygon offset
+	if(tess.shader->polygonOffset)
+	{
+		qglDisable(GL_POLYGON_OFFSET_FILL);
+	}
+}
+
 static void RB_IterateStagesGeneric()
 {
 	int             stage;
@@ -3542,10 +3833,7 @@ static void RB_IterateStagesGeneric()
 }
 
 
-/*
-** RB_StageIteratorGeneric
-*/
-void RB_StageIteratorGeneric(void)
+void RB_StageIteratorGeneric()
 {
 	RB_DeformTessGeometry();
 
@@ -3579,11 +3867,13 @@ void RB_StageIteratorGeneric(void)
 	RB_IterateStagesGeneric();
 
 	// now do any dynamic lighting needed
+	/*
 	if(tess.dlightBits && tess.shader->sort <= SS_OPAQUE && !(tess.shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY)))
 	{
 		//ProjectDlightTexture();
 		RenderDlightInteractions();
 	}
+	*/
 	
 	// now do fog
 	if(tess.fogNum && tess.shader->fogPass)
@@ -3606,429 +3896,7 @@ void RB_StageIteratorGeneric(void)
 }
 
 
-/*
-void RB_StageIteratorVertexLitTexture(void)
-{
-	shaderCommands_t *input;
-	shader_t       *shader;
-
-	input = &tess;
-
-	shader = input->shader;
-
-	//
-	// compute colors
-	//
-	RB_CalcDiffuseColor((unsigned char *)tess.svars.colors);
-
-	//
-	// log this call
-	//
-	if(r_logFile->integer)
-	{
-		// don't just call LogComment, or we will get
-		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorVertexLitTexturedUnfogged( %s ) ---\n", tess.shader->name));
-	}
-
-	//
-	// set face culling appropriately
-	//
-	GL_Cull(input->shader->cullType);
-
-	//
-	// set arrays and lock
-	//
-	qglEnableClientState(GL_COLOR_ARRAY);
-	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.svars.colors);
-	qglTexCoordPointer(2, GL_FLOAT, 16, tess.texCoords[0][0]);
-	qglVertexPointer(3, GL_FLOAT, 16, input->xyz);
-
-	if(qglLockArraysEXT)
-	{
-		qglLockArraysEXT(0, input->numVertexes);
-		GLimp_LogComment("glLockArraysEXT\n");
-	}
-
-	//
-	// call special shade routine
-	//
-	R_BindAnimatedImage(&tess.xstages[0]->bundle[0]);
-	GL_State(tess.xstages[0]->stateBits);
-	R_DrawElements(input->numIndexes, input->indexes);
-
-	// 
-	// now do any dynamic lighting needed
-	//
-	if(tess.dlightBits && tess.shader->sort <= SS_OPAQUE)
-	{
-		ProjectDlightTexture();
-	}
-
-	//
-	// now do fog
-	//
-	if(tess.fogNum && tess.shader->fogPass)
-	{
-		RB_FogPass();
-	}
-
-	// 
-	// unlock arrays
-	//
-	if(qglUnlockArraysEXT)
-	{
-		qglUnlockArraysEXT();
-		GLimp_LogComment("glUnlockArraysEXT\n");
-	}
-}
-
-void RB_StageIteratorPerPixelLit_D(void)
-{
-
-	vec4_t          ambientLight;
-	vec3_t          lightDir;
-	vec4_t          directedLight;
-	trRefEntity_t  *ent = backEnd.currentEntity;
-
-	// compute colors
-//  RB_CalcDiffuseColor( ( unsigned char * ) tess.svars.colors );
-
-	// compute deluxels
-//  RB_CalcDeluxels();
-
-	// log this call
-	if(r_logFile->integer)
-	{
-		// don't just call LogComment, or we will get
-		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorPerPixelLit_D( %s ) ---\n", tess.shader->name));
-	}
-
-	// set face culling appropriately
-	GL_Cull(tess.shader->cullType);
-
-	// enable shader, set arrays and lock
-	qglUseProgramObjectARB(tr.lightShader_D_direct.program);
-	RB_EnableVertexAttribs(tr.lightShader_D_direct.attribs);
-	RB_SetVertexAttribs(tr.lightShader_D_direct.attribs);
-
-	// set uniforms
-	VectorScale(ent->ambientLight, (1.0 / 255.0) * 0.3, ambientLight);
-	ClampColor(ambientLight);
-	VectorScale(ent->directedLight, 1.0 / 255.0, directedLight);
-	ClampColor(directedLight);
-	VectorCopy(ent->lightDir, lightDir);
-	
-	qglUniform3fARB(tr.lightShader_D_direct.u_AmbientColor, ambientLight[0], ambientLight[1],
-					ambientLight[2]);
-	qglUniform3fARB(tr.lightShader_D_direct.u_LightDir, lightDir[0], lightDir[1], lightDir[2]);
-	qglUniform3fARB(tr.lightShader_D_direct.u_LightColor, directedLight[0], directedLight[1],
-					directedLight[2]);
-
-
-	// call special shade routine
-	R_BindAnimatedImage(&tess.xstages[0]->bundle[TB_DIFFUSEMAP]);
-	GL_State(tess.xstages[0]->stateBits);
-	R_DrawElements(tess.numIndexes, tess.indexes);
-
-	// disable GPU shader
-	qglUseProgramObjectARB(0);
-	RB_DisableVertexAttribs(tr.lightShader_D_direct.attribs);
-
-	// now do any dynamic lighting needed
-//  if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE ) {
-//      ProjectDlightTexture();
-//  }
-
-	// now do fog
-	if(tess.fogNum && tess.shader->fogPass)
-	{
-		RB_FogPass();
-	}
-}
-
-
-void RB_StageIteratorPerPixelLit_DB(void)
-{
-
-	vec4_t          ambientLight;
-	vec3_t          lightDir;
-	vec4_t          directedLight;
-	trRefEntity_t  *ent = backEnd.currentEntity;
-
-	// compute colors
-//  RB_CalcDiffuseColor( ( unsigned char * ) tess.svars.colors );
-
-	// compute deluxels
-//  RB_CalcDeluxels();
-
-	// log this call
-	if(r_logFile->integer)
-	{
-		// don't just call LogComment, or we will get
-		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorPerPixelLit_DB( %s ) ---\n", tess.shader->name));
-	}
-
-	// set face culling appropriately
-	GL_Cull(tess.shader->cullType);
-
-	// reset state
-	GL_State(GLS_DEFAULT);
-
-	// enable shader, set arrays and lock
-	qglUseProgramObjectARB(tr.lightShader_DB_direct.program);
-	RB_EnableVertexAttribs(tr.lightShader_DB_direct.attribs);
-	RB_SetVertexAttribs(tr.lightShader_DB_direct.attribs);
-
-	// set uniforms
-	VectorScale(ent->ambientLight, (1.0 / 255.0) * 0.3, ambientLight);
-	ClampColor(ambientLight);
-	VectorScale(ent->directedLight, 1.0 / 255.0, directedLight);
-	ClampColor(directedLight);
-	VectorCopy(ent->lightDir, lightDir);
-	
-	qglUniform3fARB(tr.lightShader_DB_direct.u_AmbientColor, ambientLight[0], ambientLight[1],
-					ambientLight[2]);
-	qglUniform3fARB(tr.lightShader_DB_direct.u_LightDir, lightDir[0], lightDir[1], lightDir[2]);
-	qglUniform3fARB(tr.lightShader_DB_direct.u_LightColor, directedLight[0], directedLight[1],
-					directedLight[2]);
-//	qglUniform1fARB(tr.lightShader_DB_direct.u_BumpScale, 1.0);
-
-	// call special shade routine
-	GL_SelectTexture(0);
-	R_BindAnimatedImage(&tess.xstages[0]->bundle[TB_DIFFUSEMAP]);
-
-	GL_SelectTexture(1);
-	R_BindAnimatedImage(&tess.xstages[0]->bundle[TB_NORMALMAP]);
-
-	R_DrawElements(tess.numIndexes, tess.indexes);
-
-	// disable GPU shader
-	qglUseProgramObjectARB(0);
-
-	// switch back to default TMU
-	GL_SelectTexture(0);
-
-	RB_DisableVertexAttribs(tr.lightShader_DB_direct.attribs);
-
-
-	// now do any dynamic lighting needed
-//  if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE ) {
-//      ProjectDlightTexture();
-//  }
-
-	// now do fog
-	if(tess.fogNum && tess.shader->fogPass)
-	{
-		RB_FogPass();
-	}
-}
-
-void RB_StageIteratorPerPixelLit_DBS(void)
-{
-
-	vec3_t			viewOrigin;
-	vec4_t          ambientLight;
-	vec3_t          lightDir;
-	vec4_t          directedLight;
-	trRefEntity_t  *ent = backEnd.currentEntity;
-
-	// compute colors
-//  RB_CalcDiffuseColor( ( unsigned char * ) tess.svars.colors );
-
-	// compute deluxels
-//  RB_CalcDeluxels();
-
-	// log this call
-	if(r_logFile->integer)
-	{
-		// don't just call LogComment, or we will get
-		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorPerPixelLit_DBS( %s ) ---\n", tess.shader->name));
-	}
-
-	// set face culling appropriately
-	GL_Cull(tess.shader->cullType);
-
-	// reset state
-	GL_State(GLS_DEFAULT);
-
-	// enable shader, set arrays and lock
-	qglUseProgramObjectARB(tr.lightShader_DBS_direct.program);
-	RB_EnableVertexAttribs(tr.lightShader_DBS_direct.attribs);
-	RB_SetVertexAttribs(tr.lightShader_DBS_direct.attribs);
-
-	// set uniforms
-	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
-	VectorScale(ent->ambientLight, (1.0 / 255.0) * 0.3, ambientLight);
-	ClampColor(ambientLight);
-	VectorScale(ent->directedLight, 1.0 / 255.0, directedLight);
-	ClampColor(directedLight);
-	VectorCopy(ent->lightDir, lightDir);
-	
-	qglUniform3fARB(tr.lightShader_DBS_direct.u_AmbientColor, ambientLight[0], ambientLight[1],
-					ambientLight[2]);
-	qglUniform3fARB(tr.lightShader_DBS_direct.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
-	qglUniform3fARB(tr.lightShader_DBS_direct.u_LightDir, lightDir[0], lightDir[1], lightDir[2]);
-	qglUniform3fARB(tr.lightShader_DBS_direct.u_LightColor, directedLight[0], directedLight[1],
-					directedLight[2]);				
-//	qglUniform1fARB(tr.lightShader_DBS_direct.u_BumpScale, 1.0);
-	qglUniform1fARB(tr.lightShader_DBS_direct.u_SpecularExponent, 32.0);
-
-	// call special shade routine
-	GL_SelectTexture(0);
-	R_BindAnimatedImage(&tess.xstages[0]->bundle[TB_DIFFUSEMAP]);
-
-	GL_SelectTexture(1);
-	R_BindAnimatedImage(&tess.xstages[0]->bundle[TB_NORMALMAP]);
-	
-	GL_SelectTexture(2);
-	R_BindAnimatedImage(&tess.xstages[0]->bundle[TB_SPECULARMAP]);
-
-	R_DrawElements(tess.numIndexes, tess.indexes);
-
-	// disable GPU shader
-	qglUseProgramObjectARB(0);
-
-	// switch back to default TMU
-	GL_SelectTexture(0);
-
-	RB_DisableVertexAttribs(tr.lightShader_DB_direct.attribs);
-
-	// now do any dynamic lighting needed
-//  if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE ) {
-//      ProjectDlightTexture();
-//  }
-
-	// now do fog
-	if(tess.fogNum && tess.shader->fogPass)
-	{
-		RB_FogPass();
-	}
-}
-
-//#define   REPLACE_MODE
-
-void RB_StageIteratorLightmappedMultitexture(void)
-{
-	shaderCommands_t *input;
-
-	input = &tess;
-
-	//
-	// log this call
-	//
-	if(r_logFile->integer)
-	{
-		// don't just call LogComment, or we will get
-		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorLightmappedMultitexture( %s ) ---\n", tess.shader->name));
-	}
-
-	//
-	// set face culling appropriately
-	//
-	GL_Cull(input->shader->cullType);
-
-	//
-	// set color, pointers, and lock
-	//
-	GL_State(GLS_DEFAULT);
-	qglVertexPointer(3, GL_FLOAT, 16, input->xyz);
-
-#ifdef REPLACE_MODE
-	qglDisableClientState(GL_COLOR_ARRAY);
-	qglColor3f(1, 1, 1);
-	qglShadeModel(GL_FLAT);
-#else
-	qglEnableClientState(GL_COLOR_ARRAY);
-	qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.constantColor255);
-#endif
-
-	//
-	// select base stage
-	//
-	GL_SelectTexture(0);
-
-	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	R_BindAnimatedImage(&tess.xstages[0]->bundle[0]);
-	qglTexCoordPointer(2, GL_FLOAT, 16, tess.texCoords[0][0]);
-
-	//
-	// configure second stage
-	//
-	GL_SelectTexture(1);
-	qglEnable(GL_TEXTURE_2D);
-	if(r_lightmap->integer)
-	{
-		GL_TexEnv(GL_REPLACE);
-	}
-	else
-	{
-		GL_TexEnv(GL_MODULATE);
-	}
-	R_BindAnimatedImage(&tess.xstages[0]->bundle[1]);
-	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	qglTexCoordPointer(2, GL_FLOAT, 16, tess.texCoords[0][1]);
-
-	//
-	// lock arrays
-	//
-	if(qglLockArraysEXT)
-	{
-		qglLockArraysEXT(0, input->numVertexes);
-		GLimp_LogComment("glLockArraysEXT\n");
-	}
-
-	R_DrawElements(input->numIndexes, input->indexes);
-
-	//
-	// disable texturing on TEXTURE1, then select TEXTURE0
-	//
-	qglDisable(GL_TEXTURE_2D);
-	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	GL_SelectTexture(0);
-#ifdef REPLACE_MODE
-	GL_TexEnv(GL_MODULATE);
-	qglShadeModel(GL_SMOOTH);
-#endif
-
-	// 
-	// now do any dynamic lighting needed
-	//
-	if(tess.dlightBits && tess.shader->sort <= SS_OPAQUE)
-	{
-		ProjectDlightTexture();
-	}
-
-	//
-	// now do fog
-	//
-	if(tess.fogNum && tess.shader->fogPass)
-	{
-		RB_FogPass();
-	}
-
-	//
-	// unlock arrays
-	//
-	if(qglUnlockArraysEXT)
-	{
-		qglUnlockArraysEXT();
-		GLimp_LogComment("glUnlockArraysEXT\n");
-	}
-}
-*/
-
-/*
-** RB_EndSurface
-*/
-void RB_EndSurface(void)
+void RB_EndSurface()
 {
 	shaderCommands_t *input;
 
@@ -4086,41 +3954,6 @@ void RB_EndSurface(void)
 	{
 		DrawDeluxels(input);
 	}
-
-	// clear shader so we can tell we don't have any unclosed surfaces
-	tess.numIndexes = 0;
-
-	GLimp_LogComment("----------\n");
-}
-
-void RB_EndSurfaceZFill(void)
-{
-	shaderCommands_t *input;
-
-	input = &tess;
-
-	if(input->numIndexes == 0)
-	{
-		return;
-	}
-
-	if(input->indexes[SHADER_MAX_INDEXES - 1] != 0)
-	{
-		ri.Error(ERR_DROP, "RB_EndSurface() - SHADER_MAX_INDEXES hit");
-	}
-	if(input->xyz[SHADER_MAX_VERTEXES - 1][0] != 0)
-	{
-		ri.Error(ERR_DROP, "RB_EndSurface() - SHADER_MAX_VERTEXES hit");
-	}
-
-	// update performance counters
-	backEnd.pc.c_shaders++;
-	backEnd.pc.c_vertexes += tess.numVertexes;
-	backEnd.pc.c_indexes += tess.numIndexes;
-	backEnd.pc.c_totalIndexes += tess.numIndexes * tess.numPasses;
-
-	// call off to shader specific tess end function
-	tess.currentStageIteratorFunc();
 
 	// clear shader so we can tell we don't have any unclosed surfaces
 	tess.numIndexes = 0;

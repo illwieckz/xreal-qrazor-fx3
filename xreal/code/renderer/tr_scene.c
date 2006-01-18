@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_local.h"
 
 int             r_firstSceneDrawSurf;
+int             r_firstInteraction;
 
 int             r_numdlights;
 int             r_firstSceneDlight;
@@ -57,6 +58,7 @@ void R_ToggleSmpFrame(void)
 	backEndData[tr.smpFrame]->commands.used = 0;
 
 	r_firstSceneDrawSurf = 0;
+	r_firstInteraction = 0;
 
 	r_numdlights = 0;
 	r_firstSceneDlight = 0;
@@ -110,7 +112,7 @@ void R_AddPolygonSurfaces(void)
 	for(i = 0, poly = tr.refdef.polys; i < tr.refdef.numPolys; i++, poly++)
 	{
 		sh = R_GetShaderByHandle(poly->hShader);
-		R_AddDrawSurf((void *)poly, sh, poly->fogIndex, qfalse);
+		R_AddDrawSurf((void *)poly, sh, poly->fogIndex);
 	}
 }
 
@@ -227,11 +229,13 @@ void RE_AddRefEntityToScene(const refEntity_t * ent)
 	{
 		return;
 	}
+	
 	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=402
 	if(r_numentities >= ENTITYNUM_WORLD)
 	{
 		return;
 	}
+	
 	if(ent->reType < 0 || ent->reType >= RT_MAX_REF_ENTITY_TYPE)
 	{
 		ri.Error(ERR_DROP, "RE_AddRefEntityToScene: bad reType %i", ent->reType);
@@ -252,9 +256,6 @@ RE_AddRefDlightToScene
 void RE_AddRefDlightToScene(const refDlight_t * light)
 {
 	trRefDlight_t *dl;
-	int            i;
-	vec3_t         v;
-	vec3_t         transformed;
 		
 	if(!tr.registered)
 	{
@@ -266,58 +267,20 @@ void RE_AddRefDlightToScene(const refDlight_t * light)
 		return;
 	}
 	
-	if(light->radius <= 0)
+	if(light->radius[0] <= 0 && !VectorLength(light->radius))
 	{
 		return;
 	}
 	
-	// these cards don't have the correct blend mode
-	if(glConfig.hardwareType == GLHW_RIVA128 || glConfig.hardwareType == GLHW_PERMEDIA2)
+	if(light->rlType < 0 || light->rlType >= RL_MAX_REF_LIGHT_TYPE)
 	{
-		return;
+		ri.Error(ERR_DROP, "RE_AddRefDlightToScene: bad rlType %i", light->rlType);
 	}
 	
 	dl = &backEndData[tr.smpFrame]->dlights[r_numdlights++];
 	dl->l = *light;
 	
 	dl->additive = qtrue;
-	
-	// setup transform	
-	MatrixSetupTransform(dl->transformMatrix, dl->l.axis[0], dl->l.axis[1], dl->l.axis[2], dl->l.origin);
-	
-	// setup view
-	MatrixAffineInverse(dl->transformMatrix, dl->viewMatrix);
-	
-	// setup projection
-	MatrixSetupScale(dl->projectionMatrix, 1.0 / dl->l.radius, 1.0 / dl->l.radius, 1.0 / dl->l.radius);
-				
-	// setup attenuation
-	MatrixSetupTranslation(dl->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-	MatrixMultiplyScale(dl->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
-	MatrixMultiply2(dl->attenuationMatrix, dl->projectionMatrix);	// light projection (frustum)
-	
-	// setup local bounds
-	dl->localBounds[0][0] = dl->l.radius;
-	dl->localBounds[0][1] = dl->l.radius;
-	dl->localBounds[0][2] = dl->l.radius;
-	dl->localBounds[1][0] =-dl->l.radius;
-	dl->localBounds[1][1] =-dl->l.radius;
-	dl->localBounds[1][2] =-dl->l.radius;
-	
-	// setup world bounds for intersection tests
-	ClearBounds(dl->worldBounds[0], dl->worldBounds[1]);
-	
-	for(i = 0; i < 8; i++)
-	{
-		v[0] = dl->localBounds[i & 1][0];
-		v[1] = dl->localBounds[(i >> 1) & 1][1];
-		v[2] = dl->localBounds[(i >> 2) & 1][2];
-
-		// transform local bounds vertices into world space
-		MatrixTransformPoint(dl->transformMatrix, v, transformed);
-		
-		AddPointToBounds(transformed, dl->worldBounds[0], dl->worldBounds[1]);
-	}
 }
 
 /*
@@ -328,77 +291,42 @@ RE_AddDynamicLightToScene
 static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r, float g, float b, int additive)
 {
 	trRefDlight_t *dl;
-	int            i;
-	vec3_t         v;
-	vec3_t         transformed;
 		
 	if(!tr.registered)
 	{
 		return;
 	}
+	
 	if(r_numdlights >= MAX_DLIGHTS)
 	{
 		return;
 	}
+	
 	if(intensity <= 0)
-	{
-		return;
-	}
-	// these cards don't have the correct blend mode
-	if(glConfig.hardwareType == GLHW_RIVA128 || glConfig.hardwareType == GLHW_PERMEDIA2)
 	{
 		return;
 	}
 	
 	dl = &backEndData[tr.smpFrame]->dlights[r_numdlights++];
+	
+	dl->l.rlType = RL_OMNI;
+//	dl->l.lightfx = 0;
 	VectorCopy(org, dl->l.origin);
 
 	// HACK: this will tell the renderer backend to use tr.defaultDlightShader
 	dl->l.attenuationShader = 0;
 	
-	dl->l.radius = intensity;
+	dl->l.radius[0] = intensity;
+	dl->l.radius[1] = intensity;
+	dl->l.radius[2] = intensity;
 
 	dl->l.color[0] = r;
 	dl->l.color[1] = g;
 	dl->l.color[2] = b;
+	
+	AxisCopy(axisDefault, dl->l.axis);
+	
 	dl->additive = additive;
-	
-	// setup transform	
-	MatrixSetupTransform(dl->transformMatrix, axisDefault[0], axisDefault[1], axisDefault[2], org);
-	
-	// setup view
-	MatrixAffineInverse(dl->transformMatrix, dl->viewMatrix);
-	
-	// setup projection
-	MatrixSetupScale(dl->projectionMatrix, 1.0 / dl->l.radius, 1.0 / dl->l.radius, 1.0 / dl->l.radius);
-				
-	// setup attenuation
-	MatrixSetupTranslation(dl->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-	MatrixMultiplyScale(dl->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
-	MatrixMultiply2(dl->attenuationMatrix, dl->projectionMatrix);	// light projection (frustum)
-	
-	// setup local bounds
-	dl->localBounds[0][0] = dl->l.radius;
-	dl->localBounds[0][1] = dl->l.radius;
-	dl->localBounds[0][2] = dl->l.radius;
-	dl->localBounds[1][0] =-dl->l.radius;
-	dl->localBounds[1][1] =-dl->l.radius;
-	dl->localBounds[1][2] =-dl->l.radius;
-	
-	// setup world bounds for intersection tests
-	ClearBounds(dl->worldBounds[0], dl->worldBounds[1]);
-	
-	for(i = 0; i < 8; i++)
-	{
-		v[0] = dl->localBounds[i & 1][0];
-		v[1] = dl->localBounds[(i >> 1) & 1][1];
-		v[2] = dl->localBounds[(i >> 2) & 1][2];
-
-		// transform local bounds vertices into world space
-		MatrixTransformPoint(dl->transformMatrix, v, transformed);
-		
-		AddPointToBounds(transformed, dl->worldBounds[0], dl->worldBounds[1]);
-	}
 }
 
 /*
@@ -507,16 +435,12 @@ void RE_RenderScene(const refdef_t * fd)
 
 	tr.refdef.numDlights = r_numdlights - r_firstSceneDlight;
 	tr.refdef.dlights = &backEndData[tr.smpFrame]->dlights[r_firstSceneDlight];
+	
+	tr.refdef.numInteractions = r_firstInteraction;
+	tr.refdef.interactions = backEndData[tr.smpFrame]->interactions;
 
 	tr.refdef.numPolys = r_numpolys - r_firstScenePoly;
 	tr.refdef.polys = &backEndData[tr.smpFrame]->polys[r_firstScenePoly];
-
-	// turn off dynamic lighting globally by clearing all the
-	// dlights if it needs to be disabled
-	if(r_dynamiclight->integer == 0)
-	{
-		tr.refdef.numDlights = 0;
-	}
 
 	// a single frame may have multiple scenes draw inside it --
 	// a 3D game view, 3D status bar renderings, 3D menus, etc.
@@ -553,6 +477,7 @@ void RE_RenderScene(const refdef_t * fd)
 
 	// the next scene rendered in this frame will tack on after this one
 	r_firstSceneDrawSurf = tr.refdef.numDrawSurfs;
+	r_firstInteraction = tr.refdef.numInteractions;
 	r_firstSceneEntity = r_numentities;
 	r_firstSceneDlight = r_numdlights;
 	r_firstScenePoly = r_numpolys;

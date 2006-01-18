@@ -241,13 +241,13 @@ void RB_SurfaceTriangles(srfTriangles_t * srf)
 	srfVert_t      *dv;
 	float          *xyz, *tangent, *binormal, *normal, *texCoords;
 	byte           *color;
-	int             dlightBits;
+//	int             dlightBits;
 	qboolean        needsTangent;
 	qboolean        needsBinormal;
 	qboolean        needsNormal;
 
-	dlightBits = srf->dlightBits[backEnd.smpFrame];
-	tess.dlightBits |= dlightBits;
+//	dlightBits = srf->dlightBits[backEnd.smpFrame];
+//	tess.dlightBits |= dlightBits;
 
 	RB_CHECKOVERFLOW(srf->numVerts, srf->numIndexes);
 
@@ -305,11 +305,6 @@ void RB_SurfaceTriangles(srfTriangles_t * srf)
 		texCoords[3] = dv->lightmap[1];
 
 		*(int *)color = *(int *)dv->color;
-	}
-
-	for(i = 0; i < srf->numVerts; i++)
-	{
-		tess.vertexDlightBits[tess.numVertexes + i] = dlightBits;
 	}
 
 	tess.numVertexes += srf->numVerts;
@@ -645,7 +640,7 @@ static void VectorArrayNormalize(vec4_t * normals, unsigned int count)
 	// given the input, it's safe to call VectorNormalizeFast
 	while(count--)
 	{
-		VectorNormalizeFast(normals[0]);
+		VectorNormalize(normals[0]);
 		normals++;
 	}
 #endif
@@ -937,7 +932,7 @@ void RB_SurfaceMDS(mdsSurface_t * surface)
 	int             i, j, k;
 	float           frontlerp, backlerp;
 	int            *triangles;
-	int             numIndexes;
+	int             numIndexes = 0;
 	int             numVertexes;
 	mdsVertex_t    *v;
 	vec_t          *boneMat;
@@ -1238,12 +1233,8 @@ void RB_SurfaceFace(srfSurfaceFace_t * surf)
 	int             ndx;
 	int             Bob;
 	int             numPoints;
-	int             dlightBits;
 
 	RB_CHECKOVERFLOW(surf->numPoints, surf->numIndices);
-
-	dlightBits = surf->dlightBits[backEnd.smpFrame];
-	tess.dlightBits |= dlightBits;
 
 	indices = (unsigned *)(((char *)surf) + surf->ofsIndices);
 
@@ -1268,7 +1259,6 @@ void RB_SurfaceFace(srfSurfaceFace_t * surf)
 		tess.texCoords[ndx][1][0] = v[5];
 		tess.texCoords[ndx][1][1] = v[6];
 		*(unsigned int *)&tess.vertexColors[ndx] = *(unsigned int *)&v[7];
-		tess.vertexDlightBits[ndx] = dlightBits;
 	}
 
 	if(tess.shader->needsTangent)
@@ -1366,14 +1356,9 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 	int             lodWidth, lodHeight;
 	int             numIndexes;
 	int             numVertexes;
-	int             dlightBits;
-	int            *vDlightBits;
 	qboolean        needsTangent;
 	qboolean        needsBinormal;
 	qboolean        needsNormal;
-
-	dlightBits = cv->dlightBits[backEnd.smpFrame];
-	tess.dlightBits |= dlightBits;
 
 	// determine the allowable discrepance
 	lodError = LodErrorForVolume(cv->lodOrigin, cv->lodRadius);
@@ -1450,7 +1435,6 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 		normal = tess.normals[numVertexes];
 		texCoords = tess.texCoords[numVertexes][0];
 		color = (unsigned char *)&tess.vertexColors[numVertexes];
-		vDlightBits = &tess.vertexDlightBits[numVertexes];
 		needsTangent = tess.shader->needsTangent;
 		needsBinormal = tess.shader->needsBinormal;
 		needsNormal = tess.shader->needsNormal;
@@ -1487,7 +1471,6 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 				   }
 				 */
 				*(unsigned int *)color = *(unsigned int *)dv->color;
-				*vDlightBits++ = dlightBits;
 				xyz += 4;
 				tangent += 4;
 				binormal += 4;

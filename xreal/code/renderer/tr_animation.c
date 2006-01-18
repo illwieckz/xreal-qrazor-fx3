@@ -53,7 +53,7 @@ void R_AddMD4Surfaces(trRefEntity_t * ent)
 	for(i = 0; i < lod->numSurfaces; i++)
 	{
 		shader = R_GetShaderByHandle(surface->shaderIndex);
-		R_AddDrawSurf((void *)surface, shader, 0 /*fogNum */ , qfalse);
+		R_AddDrawSurf((void *)surface, shader, 0 /*fogNum */);
 		surface = (md4Surface_t *) ((byte *) surface + surface->ofsEnd);
 	}
 }
@@ -423,19 +423,19 @@ void R_AddMDSSurfaces(trRefEntity_t * ent)
 		// stencil shadows can't do personal models unless I polyhedron clip
 		if(r_shadows->integer == 2 && fogNum == 0 && !(ent->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK)) && shader->sort == SS_OPAQUE)
 		{
-			R_AddDrawSurf((void *)surface, tr.shadowShader, 0, qfalse);
+			R_AddDrawSurf((void *)surface, tr.shadowShader, 0);
 		}
 
 		// projection shadows work fine with personal models
 		if(r_shadows->integer == 3 && fogNum == 0 && (ent->e.renderfx & RF_SHADOW_PLANE) && shader->sort == SS_OPAQUE)
 		{
-			R_AddDrawSurf((void *)surface, tr.projectionShadowShader, 0, qfalse);
+			R_AddDrawSurf((void *)surface, tr.projectionShadowShader, 0);
 		}
 
 		// don't add third_person objects if not viewing through a portal
 		if(!personalModel)
 		{
-			R_AddDrawSurf((void *)surface, shader, fogNum, qfalse);
+			R_AddDrawSurf((void *)surface, shader, fogNum);
 		}
 		
 		surface = (mdsSurface_t *) ((byte *) surface + surface->ofsEnd);

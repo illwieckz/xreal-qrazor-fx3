@@ -60,6 +60,7 @@ R_DlightBmodel
 Determine which dynamic lights may effect this bmodel
 =============
 */
+/*
 void R_DlightBmodel(bmodel_t * bmodel)
 {
 	int             i, j;
@@ -117,6 +118,7 @@ void R_DlightBmodel(bmodel_t * bmodel)
 		}
 	}
 }
+*/
 
 
 /*
@@ -127,9 +129,7 @@ LIGHT SAMPLING
 =============================================================================
 */
 
-extern cvar_t  *r_ambientScale;
-extern cvar_t  *r_directedScale;
-extern cvar_t  *r_debugLight;
+
 
 /*
 =================
@@ -380,7 +380,7 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 		VectorSubtract(dl->l.origin, lightOrigin, dir);
 		d = VectorNormalize(dir);
 
-		power = DLIGHT_AT_RADIUS * (dl->l.radius * dl->l.radius);
+		power = DLIGHT_AT_RADIUS * (dl->l.radius[0] * dl->l.radius[0]);
 		if(d < DLIGHT_MINIMUM_RADIUS)
 		{
 			d = DLIGHT_MINIMUM_RADIUS;
@@ -439,4 +439,40 @@ int R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec
 	VectorCopy(ent.lightDir, lightDir);
 
 	return qtrue;
+}
+
+
+/*
+=================
+R_AddDlightInteraction
+=================
+*/
+void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * shader, int fogNum)
+{
+	int             index;
+	interaction_t *ia;
+
+	// instead of checking for overflow, we just mask the index
+	// so it wraps around
+	index = tr.refdef.numInteractions & INTERACTION_MASK;
+	ia = &tr.refdef.interactions[index];
+	tr.refdef.numInteractions++;
+	
+	// connect to interaction grid
+	if(light->lastInteraction)
+	{
+		light->lastInteraction->next = ia;
+	}
+	light->lastInteraction = ia;
+	ia->next = NULL;
+	
+	ia->dlight = light;
+	
+	ia->entityNum = tr.currentEntityNum;
+	ia->surface = surface;
+	ia->shaderNum = shader->sortedIndex;
+	ia->fogNum = fogNum;
+	
+	// only lights with interactions are active
+	light->active = qtrue;
 }
