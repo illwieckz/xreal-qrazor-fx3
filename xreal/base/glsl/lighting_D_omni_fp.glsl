@@ -56,6 +56,8 @@ void	main()
 //	vec3 shadow = textureCube(u_ShadowMap, var_TexShadow).rgb;
 	
 	// compute final color
+//	gl_FragColor.rgb = u_LightColor;
+//	gl_FragColor.a = diffuse.a;
 //	gl_FragColor.rgba = vec4(1.0, 1.0, 1.0, 1.0);
 	gl_FragColor.rgba = diffuse;
 	gl_FragColor.rgb *= attenuationXY;

@@ -60,14 +60,14 @@ void	main()
 	vec2 st08 = st00 + offset08 * deform;
 	
 	// cap the coordinates to the edge of the texture
-//	st01 = min(st01, u_FBufScale);
-//	st02 = min(st02, u_FBufScale);
-//	st03 = min(st03, u_FBufScale);
-//	st04 = min(st04, u_FBufScale);
-//	st05 = min(st05, u_FBufScale);
-//	st06 = min(st06, u_FBufScale);
-//	st07 = min(st07, u_FBufScale);
-//	st08 = min(st08, u_FBufScale);
+//	st01 = min(st01, u_NPotScale);
+//	st02 = min(st02, u_NPotScale);
+//	st03 = min(st03, u_NPotScale);
+//	st04 = min(st04, u_NPotScale);
+//	st05 = min(st05, u_NPotScale);
+//	st06 = min(st06, u_NPotScale);
+//	st07 = min(st07, u_NPotScale);
+//	st08 = min(st08, u_NPotScale);
 	
 	// base color
 	vec4 c00 = texture2D(u_ColorMap, st00);
