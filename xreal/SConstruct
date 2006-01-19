@@ -15,6 +15,7 @@ opts.Add(EnumOption('simd', 'Choose special CPU register optimizations', 'none',
 opts.Add(EnumOption('sound', 'Choose sound api', 'oss', allowed_values=('oss', 'alsa', 'sdl')))
 opts.Add(BoolOption('lua', 'Set to 1 to compile qagame with Lua scripting support', 0))
 opts.Add(BoolOption('vm', 'Set to 1 to compile engine with virtual machine support', 1))
+opts.Add(BoolOption('smp', 'Set to 1 to compile engine with symetric multiprocessor support', 0))
 
 #
 # Initialize compiler environment base

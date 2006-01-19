@@ -181,6 +181,9 @@ if env['arch'] == 'linux-i386':
 		vm_src += ['code/qcommon/vm_x86.c']
 	else:
 		quake3_env.Append(CCFLAGS='-DDLL_ONLY')
+		
+	if env['smp'] == 1:
+		quake3_env.Append(CCFLAGS='-DSMP')
 	
 	if env['sound'] == 'oss':
 		quake3_env.Program('quake3.x86', [quake3_src, unix_src, linux_src, vm_src, 'code/unix/linux_snd.c'])
