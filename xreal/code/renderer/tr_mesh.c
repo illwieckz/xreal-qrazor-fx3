@@ -72,18 +72,42 @@ static float ProjectRadius(float r, vec3_t location)
 
 /*
 =============
-R_CullModel
+R_CullMD3
 =============
 */
-static int R_CullModel(md3Header_t * header, trRefEntity_t * ent)
+static void R_CullMD3(md3Header_t * header, trRefEntity_t * ent)
 {
-	vec3_t          bounds[2];
 	md3Frame_t     *oldFrame, *newFrame;
 	int             i;
+	vec3_t          v;
+	vec3_t          transformed;
 
 	// compute frame pointers
 	newFrame = (md3Frame_t *) ((byte *) header + header->ofsFrames) + ent->e.frame;
 	oldFrame = (md3Frame_t *) ((byte *) header + header->ofsFrames) + ent->e.oldframe;
+	
+	// calculate a bounding box in the current coordinate system
+	for(i = 0; i < 3; i++)
+	{
+		ent->localBounds[0][i] = oldFrame->bounds[0][i] < newFrame->bounds[0][i] ? oldFrame->bounds[0][i] : newFrame->bounds[0][i];
+		
+		ent->localBounds[1][i] = oldFrame->bounds[1][i] > newFrame->bounds[1][i] ? oldFrame->bounds[1][i] : newFrame->bounds[1][i];
+	}
+	
+	// setup world bounds for intersection tests
+	ClearBounds(ent->worldBounds[0], ent->worldBounds[1]);
+		
+	for(i = 0; i < 8; i++)
+	{
+		v[0] = ent->localBounds[i & 1][0];
+		v[1] = ent->localBounds[(i >> 1) & 1][1];
+		v[2] = ent->localBounds[(i >> 2) & 1][2];
+	
+		// transform local bounds vertices into world space
+		R_LocalPointToWorld(v, transformed);
+			
+		AddPointToBounds(transformed, ent->worldBounds[0], ent->worldBounds[1]);
+	}
 
 	// cull bounding sphere ONLY if this is not an upscaled entity
 	if(!ent->e.nonNormalizedAxes)
@@ -94,11 +118,13 @@ static int R_CullModel(md3Header_t * header, trRefEntity_t * ent)
 			{
 				case CULL_OUT:
 					tr.pc.c_sphere_cull_md3_out++;
-					return CULL_OUT;
+					ent->cull = CULL_OUT;
+					return;
 
 				case CULL_IN:
 					tr.pc.c_sphere_cull_md3_in++;
-					return CULL_IN;
+					ent->cull = CULL_IN;
+					return;
 
 				case CULL_CLIP:
 					tr.pc.c_sphere_cull_md3_clip++;
@@ -124,12 +150,14 @@ static int R_CullModel(md3Header_t * header, trRefEntity_t * ent)
 				if(sphereCull == CULL_OUT)
 				{
 					tr.pc.c_sphere_cull_md3_out++;
-					return CULL_OUT;
+					ent->cull = CULL_OUT;
+					return;
 				}
 				else if(sphereCull == CULL_IN)
 				{
 					tr.pc.c_sphere_cull_md3_in++;
-					return CULL_IN;
+					ent->cull = CULL_IN;
+					return;
 				}
 				else
 				{
@@ -139,27 +167,23 @@ static int R_CullModel(md3Header_t * header, trRefEntity_t * ent)
 		}
 	}
 
-	// calculate a bounding box in the current coordinate system
-	for(i = 0; i < 3; i++)
-	{
-		bounds[0][i] =
-			oldFrame->bounds[0][i] < newFrame->bounds[0][i] ? oldFrame->bounds[0][i] : newFrame->bounds[0][i];
-		bounds[1][i] =
-			oldFrame->bounds[1][i] > newFrame->bounds[1][i] ? oldFrame->bounds[1][i] : newFrame->bounds[1][i];
-	}
-
-	switch (R_CullLocalBox(bounds))
+	switch (R_CullLocalBox(ent->localBounds))
 	{
 		case CULL_IN:
 			tr.pc.c_box_cull_md3_in++;
-			return CULL_IN;
+			ent->cull = CULL_IN;
+			return;
+			
 		case CULL_CLIP:
 			tr.pc.c_box_cull_md3_clip++;
-			return CULL_CLIP;
+			ent->cull = CULL_CLIP;
+			return;
+			
 		case CULL_OUT:
 		default:
 			tr.pc.c_box_cull_md3_out++;
-			return CULL_OUT;
+			ent->cull = CULL_OUT;
+			return;
 	}
 }
 
@@ -285,7 +309,6 @@ void R_AddMD3Surfaces(trRefEntity_t * ent)
 	md3Surface_t   *surface = 0;
 	md3Shader_t    *md3Shader = 0;
 	shader_t       *shader = 0;
-	int             cull;
 	int             lod;
 	int             fogNum;
 	qboolean        personalModel;
@@ -299,12 +322,10 @@ void R_AddMD3Surfaces(trRefEntity_t * ent)
 		ent->e.oldframe %= tr.currentModel->md3[0]->numFrames;
 	}
 
-	//
 	// Validate the frames so there is no chance of a crash.
 	// This will write directly into the entity structure, so
 	// when the surfaces are rendered, they don't need to be
 	// range checked again.
-	//
 	if((ent->e.frame >= tr.currentModel->md3[0]->numFrames)
 	   || (ent->e.frame < 0)
 	   || (ent->e.oldframe >= tr.currentModel->md3[0]->numFrames) || (ent->e.oldframe < 0))
@@ -315,39 +336,29 @@ void R_AddMD3Surfaces(trRefEntity_t * ent)
 		ent->e.oldframe = 0;
 	}
 
-	//
 	// compute LOD
-	//
 	lod = R_ComputeLOD(ent);
 
 	header = tr.currentModel->md3[lod];
 
-	//
 	// cull the entire model if merged bounding box of both frames
 	// is outside the view frustum.
-	//
-	cull = R_CullModel(header, ent);
-	if(cull == CULL_OUT)
+	R_CullMD3(header, ent);
+	if(ent->cull == CULL_OUT)
 	{
 		return;
 	}
 
-	//
 	// set up lighting now that we know we aren't culled
-	//
 	if(!personalModel || r_shadows->integer > 1)
 	{
 		R_SetupEntityLighting(&tr.refdef, ent);
 	}
 
-	//
 	// see if we are in a fog volume
-	//
 	fogNum = R_ComputeFogNum(header, ent);
 
-	//
 	// draw all surfaces
-	//
 	surface = (md3Surface_t *) ((byte *) header + header->ofsSurfaces);
 	for(i = 0; i < header->numSurfaces; i++)
 	{
@@ -419,5 +430,130 @@ void R_AddMD3Surfaces(trRefEntity_t * ent)
 
 		surface = (md3Surface_t *) ((byte *) surface + surface->ofsEnd);
 	}
+}
 
+/*
+=================
+R_AddMD3Interactions
+=================
+*/
+void R_AddMD3Interactions(trRefEntity_t * ent, trRefDlight_t * light)
+{
+	int             i;
+	md3Header_t    *header = 0;
+	md3Surface_t   *surface = 0;
+	md3Shader_t    *md3Shader = 0;
+	shader_t       *shader = 0;
+	int             lod;
+	qboolean        personalModel;
+
+	// don't add third_person objects if not in a portal
+	personalModel = (ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal;
+
+	// compute LOD
+	lod = R_ComputeLOD(ent);
+
+	header = tr.currentModel->md3[lod];
+
+	// cull the entire model if merged bounding box of both frames
+	// is outside the view frustum.
+	if(ent->cull == CULL_OUT)
+	{
+		return;
+	}
+	
+	// only generate interactions if model intersects with light
+	if(	light->worldBounds[1][0] < ent->worldBounds[0][0] ||
+		light->worldBounds[1][1] < ent->worldBounds[0][1] ||
+		light->worldBounds[1][2] < ent->worldBounds[0][2] ||
+		light->worldBounds[0][0] > ent->worldBounds[1][0] ||
+		light->worldBounds[0][1] > ent->worldBounds[1][1] ||
+		light->worldBounds[0][2] > ent->worldBounds[1][2])
+	{
+		tr.pc.c_dlightSurfacesCulled += header->numSurfaces;
+		return;
+	}
+
+	// set up lighting now that we know we aren't culled
+	if(!personalModel || r_shadows->integer > 1)
+	{
+		//R_SetupEntityLighting(&tr.refdef, ent);
+	}
+
+	// generate interactions with all surfaces
+	surface = (md3Surface_t *) ((byte *) header + header->ofsSurfaces);
+	for(i = 0; i < header->numSurfaces; i++)
+	{
+		if(ent->e.customShader)
+		{
+			shader = R_GetShaderByHandle(ent->e.customShader);
+		}
+		else if(ent->e.customSkin > 0 && ent->e.customSkin < tr.numSkins)
+		{
+			skin_t         *skin;
+			int             j;
+
+			skin = R_GetSkinByHandle(ent->e.customSkin);
+
+			// match the surface name to something in the skin file
+			shader = tr.defaultShader;
+			for(j = 0; j < skin->numSurfaces; j++)
+			{
+				// the names have both been lowercased
+				if(!strcmp(skin->surfaces[j]->name, surface->name))
+				{
+					shader = skin->surfaces[j]->shader;
+					break;
+				}
+			}
+			if(shader == tr.defaultShader)
+			{
+				ri.Printf(PRINT_DEVELOPER, "WARNING: no shader for surface %s in skin %s\n", surface->name,
+						  skin->name);
+			}
+			else if(shader->defaultShader)
+			{
+				ri.Printf(PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name,
+						  skin->name);
+			}
+		}
+		else if(surface->numShaders <= 0)
+		{
+			shader = tr.defaultShader;
+		}
+		else
+		{
+			md3Shader = (md3Shader_t *) ((byte *) surface + surface->ofsShaders);
+			md3Shader += ent->e.skinNum % surface->numShaders;
+			shader = tr.shaders[md3Shader->shaderIndex];
+		}
+
+
+		// we will add shadows even if the main object isn't visible in the view
+
+		// stencil shadows can't do personal models unless I polyhedron clip
+		/*
+		if(r_shadows->integer == 2 && fogNum == 0 && !(ent->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK)) && shader->sort == SS_OPAQUE)
+		{
+			R_AddDrawSurf((void *)surface, tr.shadowShader, 0);
+		}
+		*/
+
+		// projection shadows work fine with personal models
+		/*
+		if(r_shadows->integer == 3 && fogNum == 0 && (ent->e.renderfx & RF_SHADOW_PLANE) && shader->sort == SS_OPAQUE)
+		{
+			R_AddDrawSurf((void *)surface, tr.projectionShadowShader, 0);
+		}
+		*/
+
+		// don't add third_person objects if not viewing through a portal
+		if(!personalModel)
+		{
+			R_AddDlightInteraction(light, (void *)surface, shader);
+			tr.pc.c_dlightSurfaces++;
+		}
+
+		surface = (md3Surface_t *) ((byte *) surface + surface->ofsEnd);
+	}
 }

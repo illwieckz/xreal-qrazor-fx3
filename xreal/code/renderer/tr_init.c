@@ -351,10 +351,10 @@ static void InitOpenGL(void)
 GL_CheckErrors
 ==================
 */
-void GL_CheckErrors(void)
+void GL_CheckErrors_(const char *filename, int line)
 {
 	int             err;
-	char            s[64];
+	char            s[128];
 
 	err = qglGetError();
 	if(err == GL_NO_ERROR)
@@ -385,12 +385,18 @@ void GL_CheckErrors(void)
 		case GL_OUT_OF_MEMORY:
 			strcpy(s, "GL_OUT_OF_MEMORY");
 			break;
+		case GL_TABLE_TOO_LARGE:
+			strcpy(s, "GL_TABLE_TOO_LARGE");
+			break;
+		case GL_INVALID_FRAMEBUFFER_OPERATION_EXT:
+			strcpy(s, "GL_INVALID_FRAMEBUFFER_OPERATION_EXT");
+			break;
 		default:
 			Com_sprintf(s, sizeof(s), "%i", err);
 			break;
 	}
 
-	ri.Error(ERR_FATAL, "GL_CheckErrors: %s", s);
+	ri.Error(ERR_FATAL, "caught OpenGL error: %s in file %s line %i", s, filename, line);
 }
 
 
@@ -881,6 +887,11 @@ void GL_SetDefaultState(void)
 
 	qglColor4f(1, 1, 1, 1);
 
+	GL_TextureMode(r_textureMode->string);
+	GL_TexEnv(GL_MODULATE);
+	qglDisable(GL_TEXTURE_2D);
+//	qglEnable(GL_TEXTURE_2D);
+	
 	// initialize downstream texture unit if we're running
 	// in a multitexture environment
 	if(qglActiveTextureARB)
@@ -889,14 +900,8 @@ void GL_SetDefaultState(void)
 		GL_TextureMode(r_textureMode->string);
 		GL_TexEnv(GL_MODULATE);
 		qglDisable(GL_TEXTURE_2D);
-		//qglEnable(GL_TEXTURE_2D);
 		GL_SelectTexture(0);
 	}
-
-	GL_TextureMode(r_textureMode->string);
-	GL_TexEnv(GL_MODULATE);
-//  qglDisable(GL_TEXTURE_2D);
-	qglEnable(GL_TEXTURE_2D);
 
 	qglShadeModel(GL_SMOOTH);
 	qglDepthFunc(GL_LEQUAL);
@@ -1069,7 +1074,7 @@ void R_Register(void)
 	r_ext_texture_filter_anisotropic = ri.Cvar_Get("r_ext_texture_filter_anisotropic", "8", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_framebuffer_object = ri.Cvar_Get("r_ext_framebuffer_object", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
-	r_collapseMultitexture = ri.Cvar_Get("r_collapseMultitexture", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_CHEAT);
+	r_collapseMultitexture = ri.Cvar_Get("r_collapseMultitexture", "1", CVAR_LATCH | CVAR_CHEAT);
 	r_picmip = ri.Cvar_Get("r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_roundImagesDown = ri.Cvar_Get("r_roundImagesDown", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_colorMipLevels = ri.Cvar_Get("r_colorMipLevels", "0", CVAR_LATCH);

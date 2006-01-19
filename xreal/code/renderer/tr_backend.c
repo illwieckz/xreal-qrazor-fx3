@@ -670,12 +670,6 @@ void RB_RenderDrawSurfListFull(drawSurf_t * drawSurfs, int numDrawSurfs)
 				// set up the transformation matrix
 				R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
 
-				// set up the dynamic lighting if needed
-				if(backEnd.currentEntity->needDlights)
-				{
-					R_TransformDlights(backEnd.refdef.numDlights, backEnd.refdef.dlights, &backEnd.or);
-				}
-
 				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
 				{
 					// hack the depth range to prevent view model from poking into walls
@@ -691,8 +685,6 @@ void RB_RenderDrawSurfListFull(drawSurf_t * drawSurfs, int numDrawSurfs)
 				// we have to reset the shaderTime as well otherwise image animations on
 				// the world (like water) continue with the wrong frame
 				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
-				
-				R_TransformDlights(backEnd.refdef.numDlights, backEnd.refdef.dlights, &backEnd.or);
 			}
 
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
@@ -864,126 +856,170 @@ void RB_RenderDrawSurfListZFill(drawSurf_t * drawSurfs, int numDrawSurfs)
 }
 
 
-void RB_RenderDlights()
+/*
+=================
+RB_RenderInteractions
+=================
+*/
+void RB_RenderInteractions(interaction_t * interactions, int numInteractions)
 {
 	shader_t       *shader, *oldShader;
-	int             fogNum, oldFogNum;
-	int             entityNum, oldEntityNum;
-	trRefDlight_t  *dl;
+	trRefEntity_t  *entity, *oldEntity;
+	trRefDlight_t  *light, *oldLight;
+	interaction_t  *ia;
 	qboolean        depthRange, oldDepthRange;
-	int             i;
+	int             iaCount;
 	surfaceType_t  *surface;
 	float           originalTime;
+	vec3_t          tmp;
+	matrix_t		modelToLight;
 	
 	// save original time for entity shader offsets
 	originalTime = backEnd.refdef.floatTime;
 
 	// draw everything
-	oldEntityNum = -1;
+	oldLight = NULL;
+	oldEntity = NULL;
 	backEnd.currentEntity = &tr.worldEntity;
 	oldShader = NULL;
-	oldFogNum = -1;
 	oldDepthRange = qfalse;
 	depthRange = qfalse;
 	
 	tess.currentStageIteratorType = SIT_LIGHTING;
 
-	dl = backEnd.refdef.dlights;
-	for(i = 0; i < backEnd.refdef.numDlights; i++, dl++)
+	// render interactions
+	for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
 	{
-		interaction_t  *ia;
+		light = backEnd.currentLight = ia->dlight;
+		entity = backEnd.currentEntity = ia->entity;
+		surface = ia->surface;
+		shader = tr.sortedShaders[ia->shaderNum & (MAX_SHADERS - 1)];
 		
-		backEnd.currentLight = dl;
-		
-		// only active dlights have interactions
-		if(!dl->active)
-			continue;
-		
-		ia = &backEnd.refdef.interactions[dl->firstInteraction];
-		for(; ia; ia = ia->next)
+		if(light != oldLight)
 		{
-			entityNum = ia->entityNum & 1023;
-			surface = ia->surface;
-			shader = tr.sortedShaders[ia->shaderNum & (MAX_SHADERS - 1)];
-			fogNum = ia->fogNum & 32;
+			backEnd.pc.c_dlights++;
+		}
 		
-			// change the tess parameters if needed
-			// a "entityMergable" shader is a shader that can have surfaces from seperate
-			// entities merged into a single batch, like smoke and blood puff sprites
-			if(shader != oldShader || fogNum != oldFogNum || (entityNum != oldEntityNum && !shader->entityMergable))
+		backEnd.pc.c_dlightInteractions++;
+	
+		// change the tess parameters if needed
+		// a "entityMergable" shader is a shader that can have surfaces from seperate
+		// entities merged into a single batch, like smoke and blood puff sprites
+#if 0
+		if(light != oldLight || shader != oldShader || (entity != oldEntity && !shader->entityMergable))
+		{
+			if(oldShader != NULL)
 			{
-				if(oldShader != NULL)
-				{
-					RB_EndSurface();
-				}
-				RB_BeginSurface(shader, fogNum);
-				oldShader = shader;
-				oldFogNum = fogNum;
+				RB_EndSurface();
 			}
+			RB_BeginSurface(shader, 0);
+			oldShader = shader;
+			oldEntity = entity;
+			oldLight = light;
+		}
+#else
+		// FIXME: use tesselation
+		RB_BeginSurface(shader, 0);
+#endif
 
-			// change the modelview matrix if needed
-			if(entityNum != oldEntityNum)
+		// change the modelview matrix or attenuation matrix if needed
+		if(entity != oldEntity || light != oldLight)
+		{
+			depthRange = qfalse;
+
+			if(entity != &tr.worldEntity)
 			{
-				depthRange = qfalse;
-	
-				if(entityNum != ENTITYNUM_WORLD)
+				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
+				// we have to reset the shaderTime as well otherwise image animations start
+				// from the wrong frame
+				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+
+				// set up the transformation matrix
+				R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
+
+				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
 				{
-					backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
-					backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
-					// we have to reset the shaderTime as well otherwise image animations start
-					// from the wrong frame
-					tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
-	
-					// set up the transformation matrix
-					R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
-	
-					if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
-					{
-						// hack the depth range to prevent view model from poking into walls
-						depthRange = qtrue;
-					}
+					// hack the depth range to prevent view model from poking into walls
+					depthRange = qtrue;
+				}
+			}
+			else
+			{
+				backEnd.refdef.floatTime = originalTime;
+				backEnd.or = backEnd.viewParms.world;
+				// we have to reset the shaderTime as well otherwise image animations on
+				// the world (like water) continue with the wrong frame
+				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+			}
+			
+			// transform light origin into model space for u_LightOrigin parameter
+			VectorSubtract(light->l.origin, backEnd.or.origin, tmp);
+			light->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
+			light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
+			light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
+			
+			// finalize the attenuation matrix using the entity transform
+			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
+			MatrixMultiply(light->attenuationMatrix, modelToLight, light->attenuationMatrix2);
+
+			qglLoadMatrixf(backEnd.or.modelViewMatrix);
+
+			// change depthrange if needed
+			if(oldDepthRange != depthRange)
+			{
+				if(depthRange)
+				{
+					qglDepthRange(0, 0.3);
 				}
 				else
 				{
-					backEnd.currentEntity = &tr.worldEntity;
-					backEnd.refdef.floatTime = originalTime;
-					backEnd.or = backEnd.viewParms.world;
-					// we have to reset the shaderTime as well otherwise image animations on
-					// the world (like water) continue with the wrong frame
-					tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+					qglDepthRange(0, 1);
 				}
-	
-				qglLoadMatrixf(backEnd.or.modelViewMatrix);
-	
-				// change depthrange if needed
-				if(oldDepthRange != depthRange)
-				{
-					if(depthRange)
-					{
-						qglDepthRange(0, 0.3);
-					}
-					else
-					{
-						qglDepthRange(0, 1);
-					}
-					oldDepthRange = depthRange;
-				}
-	
-				oldEntityNum = entityNum;
+				oldDepthRange = depthRange;
 			}
-	
-			// add the triangles for this surface
-			rb_surfaceTable[*surface] (surface);
+			
+			oldLight = light;
+			oldEntity = entity;
+		}
+
+		// add the triangles for this surface
+		rb_surfaceTable[*surface] (surface);
+		
+		// FIXME: use tesselation
+		RB_EndSurface();
+		
+		// Tr3B - the data structure used here is not very cool but it works fine
+		if(!ia->next)
+		{
+			if(iaCount < (numInteractions -1))
+			{
+				// jump to next interaction and continue
+				ia++;
+				iaCount++;
+			}
+			else
+			{
+				// increase last time to leave for loop
+				iaCount++;
+			}
+		}
+		else
+		{
+			// just continue
+			ia = ia->next;
+			iaCount++;
 		}
 	}
 
 	backEnd.refdef.floatTime = originalTime;
 
 	// draw the contents of the last shader batch
+	/*
 	if(oldShader != NULL)
 	{
 		RB_EndSurface();
 	}
+	*/
 
 	// go back to the world modelview matrix
 	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
@@ -999,9 +1035,10 @@ void RB_RenderDlights()
 
 static void RB_RenderLightScale()
 {
-	float lightScale = r_lightScale->value;
+	float lightScale;
 	
-	if(lightScale < 1.0)
+	lightScale = r_lightScale->value;
+	if(lightScale < 1.0 || (backEnd.refdef.rdflags & RDF_NOLIGHTSCALE))
 	{
 		return;
 	}
@@ -1056,8 +1093,10 @@ static void RB_RenderLightScale()
 
 void RB_DebugLights()
 {
+#if 0
 	if(r_showLightTransforms->integer)
 	{
+		trRefEntity_t  *ent;
 		trRefDlight_t  *dl;
 		int             i;
 
@@ -1075,13 +1114,13 @@ void RB_DebugLights()
 			backEnd.or = backEnd.viewParms.world;
 			qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 			
-			if(!dl->active)
+			if(!dl->numInteractions)
 				R_DebugBoundingBox(vec3_origin, dl->worldBounds[0], dl->worldBounds[1], colorRed);
 			else
 				R_DebugBoundingBox(vec3_origin, dl->worldBounds[0], dl->worldBounds[1], colorGreen);
 			
 			
-			if(r_showLightInteractions->integer && dl->active)
+			if(r_showLightInteractions->integer && dl->numInteractions)
 			{
 				interaction_t  *ia;
 				int             entityNum;
@@ -1095,11 +1134,16 @@ void RB_DebugLights()
 					
 					if(entityNum != ENTITYNUM_WORLD)
 					{
-						R_RotateForEntity(&backEnd.refdef.entities[entityNum], &backEnd.viewParms, &backEnd.or);
-						qglLoadMatrixf(backEnd.or.modelViewMatrix);
+						ent = backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
+						R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
+					}
+					else
+					{
+						ent = backEnd.currentEntity = &tr.worldEntity;
+						backEnd.or = backEnd.viewParms.world;	
 					}
 					
-					//R_DebugAxis(vec3_origin, matrixIdentity);
+					qglLoadMatrixf(backEnd.or.modelViewMatrix);
 					
 					if(*surface == SF_FACE)
 					{
@@ -1122,6 +1166,10 @@ void RB_DebugLights()
 						tri = (srfTriangles_t *) surface;
 						R_DebugBoundingBox(vec3_origin, tri->bounds[0], tri->bounds[1], colorCyan);
 					}
+					else if(*surface == SF_MD3)
+					{
+						R_DebugBoundingBox(vec3_origin, ent->localBounds[0], ent->localBounds[1], colorMdGrey);
+					}
 				}
 			}
 		}
@@ -1130,6 +1178,7 @@ void RB_DebugLights()
 		backEnd.or = backEnd.viewParms.world;
 		qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 	}
+#endif
 }
 
 
@@ -1138,7 +1187,7 @@ void RB_DebugLights()
 RB_RenderDrawSurfList
 ==================
 */
-void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs)
+void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * interactions, int numInteractions)
 {
 	// clear the z buffer, set the modelview, etc
 	RB_BeginDrawingView();
@@ -1150,10 +1199,10 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs)
 	RB_RenderDrawSurfListFull(drawSurfs, numDrawSurfs);
 	
 	// render light interactions
-	RB_RenderDlights();
+	RB_RenderInteractions(interactions, numInteractions);
 	
 	// render light debug information
-	RB_DebugLights();
+//	RB_DebugLights();
 #else
 	// Tr3B - draw everything in a similar order Doom3 does
 
@@ -1162,13 +1211,13 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs)
 
 	// TODO render shadows
 	
+	// render shadowing and lighting
+	RB_RenderInteractions(interactions, numInteractions);
+	
 	// render light debug information
 	RB_DebugLights();
 	
-	// render light interactions
-	RB_RenderDlights();
-	
-	// render light scale hack
+	// render light scale hack to brighten up the scene
 	RB_RenderLightScale();
 	
 	// TODO render translucent stuff
@@ -1233,8 +1282,7 @@ Stretches a raw 32 bit power of 2 bitmap image over the given screen rectangle.
 Used for cinematics.
 =============
 */
-void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * data, int client,
-				   qboolean dirty)
+void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * data, int client, qboolean dirty)
 {
 	int             i, j;
 	int             start, end;
@@ -1313,7 +1361,6 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 
 void RE_UploadCinematic(int w, int h, int cols, int rows, const byte * data, int client, qboolean dirty)
 {
-
 	GL_Bind(tr.scratchImage[client]);
 
 	// if the scratchImage isn't in the format we want, specify it as a new texture
@@ -1458,7 +1505,7 @@ const void     *RB_DrawSurfs(const void *data)
 	backEnd.refdef = cmd->refdef;
 	backEnd.viewParms = cmd->viewParms;
 
-	RB_RenderDrawSurfList(cmd->drawSurfs, cmd->numDrawSurfs);
+	RB_RenderDrawSurfList(cmd->drawSurfs, cmd->numDrawSurfs, cmd->interactions, cmd->numInteractions);
 
 	return (const void *)(cmd + 1);
 }

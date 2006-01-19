@@ -70,19 +70,16 @@ void R_PerformanceCounters(void)
 	}
 	else if(r_speeds->integer == 4)
 	{
-		if(tr.pc.c_dlightSurfaces)
-		{
-			ri.Printf(PRINT_ALL, "dlight srf:%i  culled:%i  verts:%i  tris:%i\n",
-					  tr.pc.c_dlightSurfaces, tr.pc.c_dlightSurfacesCulled,
-					  backEnd.pc.c_dlightVertexes, backEnd.pc.c_dlightIndexes / 3);
-		}
+		ri.Printf(PRINT_ALL, "dlight srf:%i  culled:%i  verts:%i  tris:%i\n",
+				  tr.pc.c_dlightSurfaces, tr.pc.c_dlightSurfacesCulled,
+				  backEnd.pc.c_dlightVertexes, backEnd.pc.c_dlightIndexes / 3);
 		
-		/*
-		if(backEnd.pc.c_dlightInteractions)
-		{
-			ri.Printf(PRINT_ALL, "dlight srf:%i  \n", tr.pc.c_dlightInteractions);
-		}
-		*/
+		ri.Printf(PRINT_ALL, "frontEnd: dlights:%i interactions:%i\n",
+				  tr.pc.c_dlights, tr.pc.c_dlightInteractions);
+		
+		ri.Printf(PRINT_ALL, "backEnd:  dlights:%i interactions:%i\n",
+				  backEnd.pc.c_dlights, backEnd.pc.c_dlightInteractions);
+		
 	}
 	else if(r_speeds->integer == 5)
 	{
@@ -263,10 +260,9 @@ void           *R_GetCommandBuffer(int bytes)
 /*
 =============
 R_AddDrawSurfCmd
-
 =============
 */
-void R_AddDrawSurfCmd(drawSurf_t * drawSurfs, int numDrawSurfs)
+void R_AddDrawSurfCmd(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * interactions, int numInteractions)
 {
 	drawSurfsCommand_t *cmd;
 
@@ -279,6 +275,9 @@ void R_AddDrawSurfCmd(drawSurf_t * drawSurfs, int numDrawSurfs)
 
 	cmd->drawSurfs = drawSurfs;
 	cmd->numDrawSurfs = numDrawSurfs;
+	
+	cmd->interactions = interactions;
+	cmd->numInteractions = numInteractions;
 
 	cmd->refdef = tr.refdef;
 	cmd->viewParms = tr.viewParms;

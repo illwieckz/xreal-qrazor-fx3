@@ -447,7 +447,7 @@ int R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec
 R_AddDlightInteraction
 =================
 */
-void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * shader, int fogNum)
+void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * shader)
 {
 	int             index;
 	interaction_t *ia;
@@ -464,15 +464,10 @@ void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shad
 		light->lastInteraction->next = ia;
 	}
 	light->lastInteraction = ia;
+	
 	ia->next = NULL;
-	
 	ia->dlight = light;
-	
-	ia->entityNum = tr.currentEntityNum;
+	ia->entity = tr.currentEntity;
 	ia->surface = surface;
 	ia->shaderNum = shader->sortedIndex;
-	ia->fogNum = fogNum;
-	
-	// only lights with interactions are active
-	light->active = qtrue;
 }

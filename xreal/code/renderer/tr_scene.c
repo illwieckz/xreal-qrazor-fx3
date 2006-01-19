@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_local.h"
 
 int             r_firstSceneDrawSurf;
-int             r_firstInteraction;
+int             r_firstSceneInteraction;
 
 int             r_numdlights;
 int             r_firstSceneDlight;
@@ -58,7 +58,7 @@ void R_ToggleSmpFrame(void)
 	backEndData[tr.smpFrame]->commands.used = 0;
 
 	r_firstSceneDrawSurf = 0;
-	r_firstInteraction = 0;
+	r_firstSceneInteraction = 0;
 
 	r_numdlights = 0;
 	r_firstSceneDlight = 0;
@@ -429,15 +429,15 @@ void RE_RenderScene(const refdef_t * fd)
 
 	tr.refdef.numDrawSurfs = r_firstSceneDrawSurf;
 	tr.refdef.drawSurfs = backEndData[tr.smpFrame]->drawSurfs;
+	
+	tr.refdef.numInteractions = r_firstSceneInteraction;
+	tr.refdef.interactions = backEndData[tr.smpFrame]->interactions;
 
 	tr.refdef.numEntities = r_numentities - r_firstSceneEntity;
 	tr.refdef.entities = &backEndData[tr.smpFrame]->entities[r_firstSceneEntity];
 
 	tr.refdef.numDlights = r_numdlights - r_firstSceneDlight;
 	tr.refdef.dlights = &backEndData[tr.smpFrame]->dlights[r_firstSceneDlight];
-	
-	tr.refdef.numInteractions = r_firstInteraction;
-	tr.refdef.interactions = backEndData[tr.smpFrame]->interactions;
 
 	tr.refdef.numPolys = r_numpolys - r_firstScenePoly;
 	tr.refdef.polys = &backEndData[tr.smpFrame]->polys[r_firstScenePoly];
@@ -477,7 +477,7 @@ void RE_RenderScene(const refdef_t * fd)
 
 	// the next scene rendered in this frame will tack on after this one
 	r_firstSceneDrawSurf = tr.refdef.numDrawSurfs;
-	r_firstInteraction = tr.refdef.numInteractions;
+	r_firstSceneInteraction = tr.refdef.numInteractions;
 	r_firstSceneEntity = r_numentities;
 	r_firstSceneDlight = r_numdlights;
 	r_firstScenePoly = r_numpolys;

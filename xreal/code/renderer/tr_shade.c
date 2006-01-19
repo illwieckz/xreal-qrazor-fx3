@@ -1173,10 +1173,25 @@ Draws triangle outlines for debugging
 */
 static void DrawTris(shaderCommands_t * input)
 {
+	switch (input->currentStageIteratorType)
+	{
+		case SIT_ZFILL:
+			qglColor3f(1, 1, 1);
+			return;
+			
+		case SIT_LIGHTING:
+			qglColor3f(1, 0, 0);
+			break;
+		
+		default:
+		case SIT_DEFAULT:
+			qglColor3f(1, 1, 1);
+			break;
+	}
+	
 	GL_Program(0);
 	GL_Bind(tr.whiteImage);
-	qglColor3f(1, 1, 1);
-
+	
 	GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
 	GL_ClientState(GLCS_VERTEX);
 	qglDepthRange(0, 0);
@@ -1355,6 +1370,7 @@ static void Render_generic_single_FFP(int stage)
 	GL_Program(0);
 	
 	GL_SelectTexture(0);
+	qglEnable(GL_TEXTURE_2D);
 	
 	GL_State(pStage->stateBits);
 	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
@@ -1365,6 +1381,7 @@ static void Render_generic_single_FFP(int stage)
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
 	GL_ClientState(GLCS_DEFAULT);
+	qglDisable(GL_TEXTURE_2D);
 }
 
 static void Render_zfill_FFP(int stage)
@@ -1376,6 +1393,7 @@ static void Render_zfill_FFP(int stage)
 	
 	GL_Program(0);
 	GL_SelectTexture(0);
+	qglEnable(GL_TEXTURE_2D);
 	
 #if 1
 	qglColor4f(0, 0, 0, 1);
@@ -1402,7 +1420,7 @@ static void Render_zfill_FFP(int stage)
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
 	GL_ClientState(GLCS_DEFAULT);
-	qglColor4f(1, 1, 1, 1);
+	qglDisable(GL_TEXTURE_2D);
 }
 
 /*
@@ -1422,9 +1440,6 @@ static void Render_generic_multi_FFP(int stage)
 	pStage = tess.xstages[stage];
 	
 	GL_Program(0);
-	
-	GL_SelectTexture(0);
-	
 	GL_State(pStage->stateBits);
 	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
 	GL_SetVertexAttribs();
@@ -1434,18 +1449,20 @@ static void Render_generic_multi_FFP(int stage)
 
 	// this is an ugly hack to work around a GeForce driver
 	// bug with multitexture and clip planes
+	/*
 	if(backEnd.viewParms.isPortal)
 	{
 		qglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
+	*/
 
 	// base
 	GL_SelectTexture(0);
+	qglEnable(GL_TEXTURE_2D);
 	R_BindAnimatedImage(&pStage->bundle[0]);
 
 	// lightmap/secondary pass
 	GL_SelectTexture(1);
-	
 	qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	
@@ -1469,6 +1486,8 @@ static void Render_generic_multi_FFP(int stage)
 	qglDisable(GL_TEXTURE_2D);
 	
 	GL_SelectTexture(0);
+	qglDisable(GL_TEXTURE_2D);
+	
 	GL_ClientState(GLCS_DEFAULT);
 }
 
@@ -1538,7 +1557,7 @@ void Render_lighting_D_direct(int stage)
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
 	GL_ClientState(GLCS_DEFAULT);
-//	GL_Program(0);
+	GL_Program(0);
 }
 
 
@@ -1584,7 +1603,7 @@ static void Render_lighting_DB_direct(int stage)
 	
 	GL_SelectTexture(0);
 	GL_ClientState(GLCS_DEFAULT);
-//	GL_Program(0);
+	GL_Program(0);
 }
 
 static void Render_lighting_DBS_direct(int stage)
@@ -1637,14 +1656,13 @@ static void Render_lighting_DBS_direct(int stage)
 	
 	GL_SelectTexture(0);
 	GL_ClientState(GLCS_DEFAULT);
-//	GL_Program(0);
+	GL_Program(0);
 }
 
 static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
 									shaderStage_t * attenuationXYStage,
 									shaderStage_t * attenuationZStage,
-									trRefDlight_t * dlight,
-									matrix_t attenuation)
+									trRefDlight_t * dlight)
 {
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;	
@@ -1681,7 +1699,7 @@ static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
 	GL_SelectTexture(0);
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(attenuation);
+	qglLoadMatrixf(dlight->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
 	
 	GL_SelectTexture(1);
@@ -1697,14 +1715,13 @@ static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
 	GL_ClientState(GLCS_DEFAULT);
-//	GL_Program(0);
+	GL_Program(0);
 }
 
 static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
 										shaderStage_t * attenuationXYStage,
 										shaderStage_t * attenuationZStage,
-										trRefDlight_t * dlight,
-										matrix_t attenuation)
+										trRefDlight_t * dlight)
 {
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;	
@@ -1736,7 +1753,7 @@ static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
 	GL_SelectTexture(0);
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(attenuation);
+	qglLoadMatrixf(dlight->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
 	
 	GL_SelectTexture(1);
@@ -1755,14 +1772,13 @@ static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
 	GL_ClientState(GLCS_DEFAULT);
-//	GL_Program(0);
+	GL_Program(0);
 }
 
 static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 										shaderStage_t * attenuationXYStage,
 										shaderStage_t * attenuationZStage,
-										trRefDlight_t * dlight,
-										matrix_t attenuation)
+										trRefDlight_t * dlight)
 {
 	vec3_t			viewOrigin;
 	vec3_t          lightOrigin;
@@ -1798,7 +1814,7 @@ static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 	GL_SelectTexture(0);
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(attenuation);
+	qglLoadMatrixf(dlight->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
 	
 	GL_SelectTexture(1);
@@ -1820,7 +1836,7 @@ static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
 	GL_ClientState(GLCS_DEFAULT);
-//	GL_Program(0);
+	GL_Program(0);
 }
 
 // Tr3B - r_showLightMaps development tool
@@ -1837,6 +1853,7 @@ static void Render_lightmap_FFP(int stage)
 	GL_SetVertexAttribs();
 
 	GL_SelectTexture(0);
+	qglEnable(GL_TEXTURE_2D);
 	
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_LIGHTMAP]);
@@ -1846,6 +1863,8 @@ static void Render_lightmap_FFP(int stage)
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	qglDisable(GL_TEXTURE_2D);
+	
 	GL_ClientState(GLCS_DEFAULT);
 }
 
@@ -1866,6 +1885,7 @@ static void Render_deluxemap_FFP(int stage)
 	GL_SetVertexAttribs();
 
 	GL_SelectTexture(0);
+	qglEnable(GL_TEXTURE_2D);
 	
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_LIGHTMAP]);
@@ -1875,6 +1895,8 @@ static void Render_deluxemap_FFP(int stage)
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	qglDisable(GL_TEXTURE_2D);
+	
 	GL_ClientState(GLCS_DEFAULT);
 }
 
@@ -1887,26 +1909,20 @@ static void Render_lighting_D_radiosity_FFP(int stage)
 	GL_Program(0);
 	GL_SelectTexture(0);
 	GL_State(pStage->stateBits);
-	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
+	GL_ClientState(GLCS_VERTEX /*| GLCS_TEXCOORD*/ | GLCS_COLOR);
 	GL_SetVertexAttribs();
-
-	// this is an ugly hack to work around a GeForce driver
-	// bug with multitexture and clip planes
-	if(backEnd.viewParms.isPortal)
-	{
-		qglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	}
 
 	// base
 	GL_SelectTexture(0);
+	qglEnable(GL_TEXTURE_2D);
 	R_BindAnimatedImage(&pStage->bundle[TB_DIFFUSEMAP]);
+	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
 
 	// lightmap/secondary pass
 	GL_SelectTexture(1);
-	
 	qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_LIGHTMAP]);
 
 	if(r_showLightMaps->integer)
@@ -1922,11 +1938,14 @@ static void Render_lighting_D_radiosity_FFP(int stage)
 
 	R_DrawElements(tess.numIndexes, tess.indexes);
 
-	// disable texturing on TEXTURE1
+	// clean up
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglDisable(GL_TEXTURE_2D);
 	
 	GL_SelectTexture(0);
+	qglDisable(GL_TEXTURE_2D);
+	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	
 	GL_ClientState(GLCS_DEFAULT);
 }
 
@@ -1953,9 +1972,10 @@ static void Render_lighting_D_radiosity(int stage)
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
+	// clean up
 	GL_SelectTexture(0);
 	GL_ClientState(GLCS_DEFAULT);
-//	GL_Program(0);
+	GL_Program(0);
 }
 
 static void Render_lighting_DB_radiosity(int stage)
@@ -1991,7 +2011,7 @@ static void Render_lighting_DB_radiosity(int stage)
 	
 	GL_SelectTexture(0);
 	GL_ClientState(GLCS_DEFAULT);
-//	GL_Program(0);
+	GL_Program(0);
 }
 
 static void Render_lighting_DBS_radiosity(int stage)
@@ -2038,7 +2058,7 @@ static void Render_lighting_DBS_radiosity(int stage)
 	
 	GL_SelectTexture(0);
 	GL_ClientState(GLCS_DEFAULT);
-//	GL_Program(0);
+	GL_Program(0);
 }
 
 static void Render_reflection_C(int stage)
@@ -2071,7 +2091,7 @@ static void Render_reflection_C(int stage)
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
 	GL_ClientState(GLCS_DEFAULT);
-//	GL_Program(0);
+	GL_Program(0);
 }
 
 static void Render_refraction_C(int stage)
@@ -2108,7 +2128,7 @@ static void Render_refraction_C(int stage)
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
 	GL_ClientState(GLCS_DEFAULT);
-//	GL_Program(0);
+	GL_Program(0);
 }
 
 static void Render_dispersion_C(int stage)
@@ -2150,7 +2170,7 @@ static void Render_dispersion_C(int stage)
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
 	GL_ClientState(GLCS_DEFAULT);
-//	GL_Program(0);
+	GL_Program(0);
 }
 
 static void Render_skybox(int stage)
@@ -2183,7 +2203,7 @@ static void Render_skybox(int stage)
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
 	GL_ClientState(GLCS_DEFAULT);
-//	GL_Program(0);
+	GL_Program(0);
 }
 
 static void Render_heatHaze(int stage)
@@ -2224,7 +2244,7 @@ static void Render_heatHaze(int stage)
 	
 	GL_SelectTexture(0);
 	GL_ClientState(GLCS_DEFAULT);
-//	GL_Program(0);
+	GL_Program(0);
 }
 
 static void Render_glow(int stage)
@@ -2261,7 +2281,7 @@ static void Render_glow(int stage)
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
 	GL_ClientState(GLCS_DEFAULT);
-//	GL_Program(0);
+	GL_Program(0);
 }
 
 static void Render_bloom(int stage)
@@ -2314,7 +2334,7 @@ static void Render_bloom(int stage)
 	
 	GL_SelectTexture(0);
 	GL_ClientState(GLCS_DEFAULT);
-//	GL_Program(0);
+	GL_Program(0);
 }
 
 static void Render_bloom2(int stage)
@@ -2392,9 +2412,10 @@ static void Render_bloom2(int stage)
 	
 	GL_SelectTexture(0);
 	GL_ClientState(GLCS_DEFAULT);
-//	GL_Program(0);
+	GL_Program(0);
 }
 
+/*
 void RenderDlightInteractions(void)
 {
 	int             i, j, l;
@@ -2414,12 +2435,11 @@ void RenderDlightInteractions(void)
 		shader_t       *attenuationShader;
 		shaderStage_t  *attenuationZStage;
 
-		/*
+		
 		if(!(tess.dlightBits & (1 << l)))
 		{
 			continue;			// this surface definately doesn't have any of this light
 		}
-		*/
 	
 		dl = &backEnd.refdef.dlights[l];
 		
@@ -2427,7 +2447,6 @@ void RenderDlightInteractions(void)
 		MatrixMultiply(dl->attenuationMatrix, modelToLight, attenuation);
 
 		// build a list of triangles that need light
-		/*
 		numIndexes = 0;
 		for(i = 0; i < tess.numIndexes; i += 3)
 		{
@@ -2473,7 +2492,6 @@ void RenderDlightInteractions(void)
 		{
 			continue;
 		}
-		*/
 
 		attenuationShader = R_GetShaderByHandle(dl->l.attenuationShader);
 		
@@ -2585,6 +2603,7 @@ void RenderDlightInteractions(void)
 		backEnd.pc.c_dlightIndexes += tess.numIndexes;
 	}
 }
+*/
 
 /*
 ===================
@@ -3358,17 +3377,11 @@ void RB_StageIteratorZFill(void)
 void RB_StageIteratorLighting()
 {
 	int				i, j;
-	int             stage;
 	trRefDlight_t  *dl;
-	matrix_t		modelToLight;
-	matrix_t		attenuation;
 	shader_t       *attenuationShader;
 	shaderStage_t  *attenuationZStage;
 	
 	dl = backEnd.currentLight;
-		
-	MatrixMultiply(dl->viewMatrix, backEnd.or.transformMatrix, modelToLight);
-	MatrixMultiply(dl->attenuationMatrix, modelToLight, attenuation);
 	
 	RB_DeformTessGeometry();
 
@@ -3447,7 +3460,7 @@ void RB_StageIteratorLighting()
 				case ST_COLLAPSE_lighting_D_radiosity:
 					if(glConfig2.shadingLanguage100Available)
 					{
-						Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);
+						Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 					}
 					else
 					{
@@ -3462,11 +3475,11 @@ void RB_StageIteratorLighting()
 					{
 						if(r_bumpMapping->integer)
 						{	
-							Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);
+							Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 						}
 						else
 						{
-							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);	
+							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 						}
 					}
 					else
@@ -3484,16 +3497,16 @@ void RB_StageIteratorLighting()
 						{
 							if(r_specular->integer)
 							{
-								Render_lighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);
+								Render_lighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 							}
 							else
 							{
-								Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);
+								Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 							}
 						}
 						else
 						{
-							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);	
+							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 						}
 					}
 					else
@@ -3823,7 +3836,7 @@ static void RB_IterateStagesGeneric()
 	}
 	
 	// disable any GLSL shaders
-//	GL_Program(0);
+	GL_Program(0);
 	
 	// switch back to default TMU
 	GL_SelectTexture(0);
@@ -3866,15 +3879,7 @@ void RB_StageIteratorGeneric()
 	// call shader function
 	RB_IterateStagesGeneric();
 
-	// now do any dynamic lighting needed
-	/*
-	if(tess.dlightBits && tess.shader->sort <= SS_OPAQUE && !(tess.shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY)))
-	{
-		//ProjectDlightTexture();
-		RenderDlightInteractions();
-	}
-	*/
-	
+	// FIXME: fog should be drawn after lighting
 	// now do fog
 	if(tess.fogNum && tess.shader->fogPass)
 	{

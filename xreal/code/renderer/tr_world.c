@@ -285,7 +285,7 @@ static void R_AddInteractionSurface(msurface_t * surf, trRefDlight_t * light)
 	
 	if(intersects)
 	{
-		R_AddDlightInteraction(light, surf->data, surf->shader, surf->fogIndex);
+		R_AddDlightInteraction(light, surf->data, surf->shader);
 		tr.pc.c_dlightSurfaces++;
 	}
 	else
@@ -491,7 +491,7 @@ static void R_RecursiveInteractionNode(mnode_t * node, trRefDlight_t * light, in
 
 	// if the bounding volume is outside the frustum, nothing
 	// inside can be visible OPTIMIZE: don't do this all the way to leafs?
-#if 0
+#if 1
 	if(!r_nocull->integer)
 	{
 		for(i = 0; i < 4; i++)
@@ -500,12 +500,12 @@ static void R_RecursiveInteractionNode(mnode_t * node, trRefDlight_t * light, in
 			{
 				r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[i]);
 				
-				if(r == SIDE_BACK)
+				if(r == 2)
 				{
 					return;		// culled
 				}
 				
-				if(r == SIDE_FRONT)
+				if(r == 1)
 				{
 					planeBits &= ~(1 << i);	// all descendants will also be in front
 				}
@@ -536,20 +536,20 @@ static void R_RecursiveInteractionNode(mnode_t * node, trRefDlight_t * light, in
 
 	// node is just a decision point, so go down both sides
 	// since we don't care about sort orders, just go positive to negative
-#if 0
+#if 1
 	r = BoxOnPlaneSide(light->worldBounds[0], light->worldBounds[1], node->plane);
 	
 	switch (r)
 	{
-		case SIDE_FRONT:
+		case 1:
 			R_RecursiveInteractionNode(node->children[0], light, planeBits);
 			break;
 			
-		case SIDE_BACK:
+		case 2:
 			R_RecursiveInteractionNode(node->children[1], light, planeBits);
 			break;
 		
-		case SIDE_ON:
+		case 3:
 		default:
 			// recurse down the children, front side first
 			R_RecursiveInteractionNode(node->children[0], light, planeBits);
@@ -847,7 +847,7 @@ void R_AddWorldInteractions(trRefDlight_t * light)
 	}
 
 	tr.currentEntityNum = ENTITYNUM_WORLD;
-	tr.shiftedEntityNum = tr.currentEntityNum << QSORT_ENTITYNUM_SHIFT;
+	tr.currentEntity = &tr.worldEntity;
 
 	// perform frustum culling and add all the potentially visible surfaces
 	tr.lightCount++;

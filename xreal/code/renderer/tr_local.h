@@ -59,6 +59,12 @@ long            myftol(float f);
 
 // can't be increased without changing bit packing for drawsurfs
 
+typedef enum
+{
+	CULL_IN,				// completely unclipped
+	CULL_CLIP,				// clipped by one or more planes
+	CULL_OUT,				// completely outside the clipping planes
+} cullResult_t;
 
 // a trRefDlight_t has all the information passed in by
 // the client game, as well as some locally derived info
@@ -68,19 +74,21 @@ typedef struct trRefDlight_s
 	refDlight_t		l;
 	
 	// local
-	qboolean		active;
 	vec3_t          transformed;		// origin in local coordinate system
 	int             additive;			// texture detail is lost tho when the lightmap is dark
 	matrix_t		transformMatrix;	// light to world
 	matrix_t		viewMatrix;			// object to light
 	matrix_t		projectionMatrix;	// light frustum
 	matrix_t		attenuationMatrix;	// object to light attenuation texture space
+	matrix_t		attenuationMatrix2;	// final: attenuation * (light view * entity transform)
 	
+	cullResult_t	cull;
 	vec3_t			localBounds[2];
 	vec3_t			worldBounds[2];
 	
 	// connect this entity to interaction grid
-	int				firstInteraction;
+//	int				firstInteraction;
+//	int				numInteractions;
 	struct interaction_s *lastInteraction;
 } trRefDlight_t;
 
@@ -93,15 +101,18 @@ typedef struct
 	refEntity_t     e;
 
 	// local
-	float           axisLength;	// compensate for non-normalized axis
-
-	qboolean        needDlights;	// true for bmodels that touch a dlight
+	float           axisLength;			// compensate for non-normalized axis
+	qboolean        needDlights;		// true for bmodels that touch a dlight
 	qboolean        lightingCalculated;
-	vec3_t          lightDir;	// normalized direction towards light
-	vec3_t          ambientLight;	// color normalized to 0-255
+	vec3_t          lightDir;			// normalized direction towards light
+	vec3_t          ambientLight;		// color normalized to 0-255
 	int             ambientLightInt;	// 32 bit rgba packed
 	vec3_t          directedLight;
 	qboolean		needZFail;
+	
+	cullResult_t	cull;
+	vec3_t			localBounds[2];
+	vec3_t			worldBounds[2];		// only set when not completely culled. use them for dlight interactions
 } trRefEntity_t;
 
 typedef struct
@@ -878,10 +889,9 @@ typedef struct interaction_s
 	
 	trRefDlight_t  *dlight;
 	
-	int             entityNum;
+	trRefEntity_t  *entity;
 	surfaceType_t  *surface;	// any of surface*_t
 	int             shaderNum;
-	int             fogNum;
 } interaction_t;
 
 #define	MAX_FACE_POINTS		64
@@ -1185,6 +1195,7 @@ typedef struct
 	int             c_box_cull_mds_in, c_box_cull_mds_clip, c_box_cull_mds_out;
 
 	int             c_leafs;
+	int             c_dlights;
 	int             c_dlightSurfaces;
 	int             c_dlightSurfacesCulled;
 	int             c_dlightInteractions;
@@ -1215,6 +1226,8 @@ typedef struct
 	int             c_surfaces, c_shaders, c_vertexes, c_indexes, c_totalIndexes;
 	float           c_overDraw;
 
+	int             c_dlights;
+	int             c_dlightInteractions;
 	int             c_dlightVertexes;
 	int             c_dlightIndexes;
 
@@ -1557,6 +1570,7 @@ void            R_SwapBuffers(int);
 void            R_RenderView(viewParms_t * parms);
 
 void            R_AddMD3Surfaces(trRefEntity_t * e);
+void            R_AddMD3Interactions(trRefEntity_t * e, trRefDlight_t * light);
 void            R_AddNullModelSurfaces(trRefEntity_t * e);
 void            R_AddBeamSurfaces(trRefEntity_t * e);
 void            R_AddRailSurfaces(trRefEntity_t * e, qboolean isUnderwater);
@@ -1568,14 +1582,12 @@ void            R_DecomposeSort(unsigned sort, int *entityNum, shader_t ** shade
 void            R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int fogIndex);
 
 
-#define	CULL_IN		0			// completely unclipped
-#define	CULL_CLIP	1			// clipped by one or more planes
-#define	CULL_OUT	2			// completely outside the clipping planes
 void            R_LocalNormalToWorld(vec3_t local, vec3_t world);
 void            R_LocalPointToWorld(vec3_t local, vec3_t world);
+
 int             R_CullLocalBox(vec3_t bounds[2]);
-int             R_CullPointAndRadius(vec3_t origin, float radius);
 int             R_CullLocalPointAndRadius(vec3_t origin, float radius);
+int             R_CullPointAndRadius(vec3_t origin, float radius);
 
 void            R_RotateForEntity(const trRefEntity_t * ent, const viewParms_t * viewParms, orientationr_t * or);
 void            R_RotateForDlight(const trRefDlight_t * ent, const viewParms_t * viewParms, orientationr_t * or);
@@ -1596,7 +1608,10 @@ void            GL_Program(GLhandleARB program);
 void            GL_SetDefaultState(void);
 void            GL_SelectTexture(int unit);
 void            GL_TextureMode(const char *string);
-void            GL_CheckErrors(void);
+
+void            GL_CheckErrors_(const char *filename, int line);
+#define         GL_CheckErrors()	GL_CheckErrors_(__FILE__, __LINE__)
+
 void            GL_State(unsigned long stateVector);
 void            GL_ClientState(unsigned long stateBits);
 void            GL_TexEnv(int env);
@@ -1930,7 +1945,7 @@ void            R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t *
 void            R_TransformDlights(int count, trRefDlight_t * dl, orientationr_t * or);
 int             R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir);
 
-void            R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * shader, int fogIndex);
+void            R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * shader);
 
 /*
 ============================================================
@@ -2136,6 +2151,8 @@ typedef struct
 	viewParms_t     viewParms;
 	drawSurf_t     *drawSurfs;
 	int             numDrawSurfs;
+	interaction_t  *interactions;
+	int             numInteractions;
 } drawSurfsCommand_t;
 
 typedef struct
@@ -2174,11 +2191,10 @@ typedef enum
 typedef struct
 {
 	drawSurf_t      drawSurfs[MAX_DRAWSURFS];
+	interaction_t   interactions[MAX_INTERACTIONS];
 	
 	trRefDlight_t   dlights[MAX_DLIGHTS];
 	trRefEntity_t   entities[MAX_ENTITIES];
-	
-	interaction_t   interactions[MAX_INTERACTIONS];
 	
 	srfPoly_t      *polys;		//[MAX_POLYS];
 	polyVert_t     *polyVerts;	//[MAX_POLYVERTS];
@@ -2204,7 +2220,7 @@ void            R_ShutdownCommandBuffers(void);
 
 void            R_SyncRenderThread(void);
 
-void            R_AddDrawSurfCmd(drawSurf_t * drawSurfs, int numDrawSurfs);
+void            R_AddDrawSurfCmd(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * interactions, int numInteractions);
 
 void            RE_SetColor(const float *rgba);
 void            RE_StretchPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader);

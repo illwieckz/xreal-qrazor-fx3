@@ -190,13 +190,6 @@ int R_CullLocalBox(vec3_t bounds[2])
 		v[0] = bounds[i & 1][0];
 		v[1] = bounds[(i >> 1) & 1][1];
 		v[2] = bounds[(i >> 2) & 1][2];
-
-		/*
-		VectorCopy(tr.or.origin, transformed[i]);
-		VectorMA(transformed[i], v[0], tr.or.axis[0], transformed[i]);
-		VectorMA(transformed[i], v[1], tr.or.axis[1], transformed[i]);
-		VectorMA(transformed[i], v[2], tr.or.axis[2], transformed[i]);
-		*/
 		
 		R_LocalPointToWorld(v, transformed[i]);
 	}
@@ -1332,7 +1325,7 @@ void R_DecomposeSort(unsigned sort, int *entityNum, shader_t ** shader, int *fog
 R_SortDrawSurfs
 =================
 */
-void R_SortDrawSurfs(drawSurf_t * drawSurfs, int numDrawSurfs)
+void R_SortDrawSurfs(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * interactions, int numInteractions)
 {
 	shader_t       *shader;
 	int             fogNum;
@@ -1343,7 +1336,7 @@ void R_SortDrawSurfs(drawSurf_t * drawSurfs, int numDrawSurfs)
 	if(numDrawSurfs < 1)
 	{
 		// we still need to add it for hyperspace cases
-		R_AddDrawSurfCmd(drawSurfs, numDrawSurfs);
+		R_AddDrawSurfCmd(drawSurfs, numDrawSurfs, interactions, numInteractions);
 		return;
 	}
 
@@ -1354,6 +1347,19 @@ void R_SortDrawSurfs(drawSurf_t * drawSurfs, int numDrawSurfs)
 	{
 		numDrawSurfs = MAX_DRAWSURFS;
 	}
+	
+	if(numInteractions > MAX_INTERACTIONS)
+	{
+		interaction_t  *ia;
+		
+		numInteractions = numInteractions;
+		
+		// reset last interaction's next pointer
+		ia = &interactions[numInteractions -1];
+		ia->next = NULL;
+	}
+	
+	tr.pc.c_dlightInteractions += numInteractions;
 
 	// sort the drawsurfs by sort type, then orientation, then shader
 	qsortFast(drawSurfs, numDrawSurfs, sizeof(drawSurf_t));
@@ -1387,7 +1393,7 @@ void R_SortDrawSurfs(drawSurf_t * drawSurfs, int numDrawSurfs)
 		}
 	}
 
-	R_AddDrawSurfCmd(drawSurfs, numDrawSurfs);
+	R_AddDrawSurfCmd(drawSurfs, numDrawSurfs, interactions, numInteractions);
 }
 
 
@@ -1505,22 +1511,118 @@ void R_AddEntitySurfaces(void)
 				ri.Error(ERR_DROP, "R_AddEntitySurfaces: Bad reType");
 		}
 	}
+}
+
+
+/*
+=============
+R_AddEntityInteractions
+=============
+*/
+void R_AddEntityInteractions(trRefDlight_t * light)
+{
+	trRefEntity_t  *ent;
+
+	if(!r_drawentities->integer)
+	{
+		return;
+	}
+
+	for(tr.currentEntityNum = 0; tr.currentEntityNum < tr.refdef.numEntities; tr.currentEntityNum++)
+	{
+		ent = tr.currentEntity = &tr.refdef.entities[tr.currentEntityNum];
+
+		ent->needDlights = qfalse;
+
+		// preshift the value we are going to OR into the drawsurf sort
+		tr.shiftedEntityNum = tr.currentEntityNum << QSORT_ENTITYNUM_SHIFT;
+
+		//
+		// the weapon model must be handled special --
+		// we don't want the hacked weapon position showing in 
+		// mirrors, because the true body position will already be drawn
+		//
+		if((ent->e.renderfx & RF_FIRST_PERSON) && tr.viewParms.isPortal)
+		{
+			continue;
+		}
+
+		// determine if we need ZFail algorithm instead of ZPass
+		if((ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal)
+		{
+			ent->needZFail = qtrue;
+		}
+		else
+		{
+			ent->needZFail = qfalse;
+		}
+
+		// simple generated models, like sprites and beams, are not culled
+		switch (ent->e.reType)
+		{
+			case RT_PORTALSURFACE:
+				break;			// don't draw anything
+			case RT_SPRITE:
+			case RT_BEAM:
+			case RT_LIGHTNING:
+			case RT_RAIL_CORE:
+			case RT_RAIL_RINGS:
+				break;
+
+			case RT_MODEL:
+				tr.currentModel = R_GetModelByHandle(ent->e.hModel);
+				if(!tr.currentModel)
+				{
+					//R_AddDrawSurf(&entitySurface, tr.defaultShader, 0);
+				}
+				else
+				{
+					switch (tr.currentModel->type)
+					{
+						case MOD_MD3:
+							R_AddMD3Interactions(ent, light);
+							break;
+
+						case MOD_MD4:
+							//R_AddMD4Surfaces(ent);
+							break;
+
+						case MOD_MDS:
+							//R_AddMDSSurfaces(ent);
+							break;
+
+						case MOD_BRUSH:
+							//R_AddBrushModelSurfaces(ent);
+							break;
+
+						case MOD_BAD:	// null model axis
+							break;
+
+						default:
+							ri.Error(ERR_DROP, "R_AddEntityInteractions: Bad modeltype");
+							break;
+					}
+				}
+				break;
+
+			default:
+				ri.Error(ERR_DROP, "R_AddEntityInteractions: Bad reType");
+		}
+	}
 
 }
 
 /*
 =============
-R_AddDlights
+R_AddDlightInteractions
 =============
 */
-void R_AddDlights(void)
+void R_AddDlightInteractions()
 {
 	int             i;
 	vec3_t         v;
 	vec3_t         transformed;
-//	trRefEntity_t  *ent;
 	trRefDlight_t  *dl;
-	shader_t       *shader;
 
 	if(!r_dynamiclight->integer)
 	{
@@ -1530,16 +1632,14 @@ void R_AddDlights(void)
 	for(tr.currentDlightNum = 0; tr.currentDlightNum < tr.refdef.numDlights; tr.currentDlightNum++)
 	{
 		dl = tr.currentDlight = &tr.refdef.dlights[tr.currentDlightNum];
-
-		dl->active = qfalse;
-
-		// setup transform	
+		
+		// set up light transform matrix
 		MatrixSetupTransform(dl->transformMatrix, dl->l.axis[0], dl->l.axis[1], dl->l.axis[2], dl->l.origin);
 	
-		// setup view
+		// set up model to light view matrix
 		MatrixAffineInverse(dl->transformMatrix, dl->viewMatrix);
-	
-		// setup projection
+		
+		// set up projection
 		switch (dl->l.rlType)
 		{
 			case RL_OMNI:
@@ -1547,14 +1647,14 @@ void R_AddDlights(void)
 				break;
 
 			default:
-				ri.Error(ERR_DROP, "R_AddDlights: Bad rlType");
+				ri.Error(ERR_DROP, "RB_RenderDlights: Bad rlType");
 		}
 				
-		// setup attenuation
+		// set up first part of the attenuation matrix
 		MatrixSetupTranslation(dl->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
 		MatrixMultiplyScale(dl->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
 		MatrixMultiply2(dl->attenuationMatrix, dl->projectionMatrix);	// light projection (frustum)
-	
+
 		// setup local bounds
 		dl->localBounds[0][0] = dl->l.radius[0];
 		dl->localBounds[0][1] = dl->l.radius[1];
@@ -1579,12 +1679,14 @@ void R_AddDlights(void)
 		}
 		
 		// setup interactions
-		dl->firstInteraction = tr.refdef.numInteractions & INTERACTION_MASK;
 		dl->lastInteraction = NULL;
 	
 		R_AddWorldInteractions(dl);
+		R_AddEntityInteractions(dl);
+		
+		if(dl->lastInteraction != NULL)
+			tr.pc.c_dlights++;
 	}
-
 }
 
 void R_DebugAxis(const vec3_t origin, const matrix_t transformMatrix)
@@ -1770,6 +1872,7 @@ or a mirror / remote location
 void R_RenderView(viewParms_t * parms)
 {
 	int             firstDrawSurf;
+	int             firstInteraction;
 
 	if(parms->viewportWidth <= 0 || parms->viewportHeight <= 0)
 	{
@@ -1783,6 +1886,7 @@ void R_RenderView(viewParms_t * parms)
 	tr.viewParms.frameCount = tr.frameCount;
 
 	firstDrawSurf = tr.refdef.numDrawSurfs;
+	firstInteraction = tr.refdef.numInteractions;
 
 	tr.viewCount++;
 
@@ -1802,10 +1906,21 @@ void R_RenderView(viewParms_t * parms)
 	R_AddPolygonSurfaces();
 
 	R_AddEntitySurfaces();
-
-	R_SortDrawSurfs(tr.refdef.drawSurfs + firstDrawSurf, tr.refdef.numDrawSurfs - firstDrawSurf);
 	
-	R_AddDlights();
+	R_AddDlightInteractions();
+	
+	/*
+	ri.Printf(PRINT_ALL, "R_RenderView: %i %i %i %i\n",
+			  firstDrawSurf,
+			  tr.refdef.numDrawSurfs,
+			  firstInteraction,
+			  tr.refdef.numInteractions);
+	*/
+
+	R_SortDrawSurfs(tr.refdef.drawSurfs + firstDrawSurf,
+					tr.refdef.numDrawSurfs - firstDrawSurf,
+				   	tr.refdef.interactions + firstInteraction,
+				    tr.refdef.numInteractions - firstInteraction);
 
 	// draw main system development information (surface outlines, etc)
 	R_DebugGraphics();
