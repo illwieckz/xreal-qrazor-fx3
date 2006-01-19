@@ -2900,6 +2900,10 @@ static void RB_FogPass(void)
 	RB_CalcFogTexCoords((float *)tess.svars.texCoords[0]);
 
 	GL_Program(0);
+	
+	GL_SelectTexture(0);
+	qglEnable(GL_TEXTURE_2D);
+	
 	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
 	GL_SetVertexAttribs();
 	
@@ -2915,6 +2919,9 @@ static void RB_FogPass(void)
 	}
 
 	R_DrawElements(tess.numIndexes, tess.indexes);
+	
+	GL_ClientState(GLCS_DEFAULT);
+	qglDisable(GL_TEXTURE_2D);
 }
 
 
