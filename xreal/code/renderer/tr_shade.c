@@ -1407,7 +1407,7 @@ static void Render_zfill_FFP(int stage)
 #endif
 
 	stateBits = pStage->stateBits;
-	stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
+//	stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
 	
 	GL_Program(0);
 	GL_State(stateBits);
@@ -2329,195 +2329,44 @@ static void Render_bloom2(int stage)
 	R_DrawElements(tess.numIndexes, tess.indexes);
 }
 
-/*
-void RenderDlightInteractions(void)
+static void RB_Render_fog()
 {
-	int             i, j, l;
-	matrix_t		modelToLight;
-	matrix_t		attenuation;
-//	unsigned        hitIndexes[SHADER_MAX_INDEXES];
-//	int             numIndexes;
+	fog_t          *fog;
+	int             i;
 
-	if(!backEnd.refdef.numDlights)
+	fog = tr.world->fogs + tess.fogNum;
+
+	for(i = 0; i < tess.numVertexes; i++)
 	{
-		return;
+		*(int *)&tess.svars.colors[i] = fog->colorInt;
 	}
 
-	for(l = 0; l < backEnd.refdef.numDlights; l++)
+	RB_CalcFogTexCoords((float *)tess.svars.texCoords[0]);
+
+	GL_Program(0);
+	GL_ClientState(GLCS_VERTEX | GLCS_COLOR);
+	GL_SetVertexAttribs();
+
+	GL_SelectTexture(0);
+	//qglEnable(GL_TEXTURE_2D);
+	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_COLORMAP]);
+	GL_Bind(tr.fogImage);
+
+	if(tess.shader->fogPass == FP_EQUAL)
 	{
-		trRefDlight_t  *dl;
-		shader_t       *attenuationShader;
-		shaderStage_t  *attenuationZStage;
-
-		
-		if(!(tess.dlightBits & (1 << l)))
-		{
-			continue;			// this surface definately doesn't have any of this light
-		}
-	
-		dl = &backEnd.refdef.dlights[l];
-		
-		MatrixMultiply(dl->viewMatrix, backEnd.or.transformMatrix, modelToLight);
-		MatrixMultiply(dl->attenuationMatrix, modelToLight, attenuation);
-
-		// build a list of triangles that need light
-		numIndexes = 0;
-		for(i = 0; i < tess.numIndexes; i += 3)
-		{
-			int             i1, i2, i3;
-			vec3_t          d1, d2, normal;
-			vec3_t			l1, l2, l3;
-			float          *v1, *v2, *v3;
-			float           d;
-
-			i1 = tess.indexes[i + 0];
-			i2 = tess.indexes[i + 1];
-			i3 = tess.indexes[i + 2];
-
-			v1 = tess.xyz[i1];
-			v2 = tess.xyz[i2];
-			v3 = tess.xyz[i3];
-
-			VectorSubtract(v2, v1, d1);
-			VectorSubtract(v3, v1, d2);
-			CrossProduct(d1, d2, normal);
-			
-			VectorSubtract(dl->transformed, v1, l1);
-			VectorSubtract(dl->transformed, v2, l2);
-			VectorSubtract(dl->transformed, v3, l3);
-			
-			VectorAdd(l1, l2, l1);
-			VectorAdd(l1, l3, l1);
-			VectorNormalize(l1);
-
-			d = DotProduct(normal, l1);
-			if(d <= 0)
-			{
-				continue;	// not lighted
-			}
-			
-			hitIndexes[numIndexes + 0] = i1;
-			hitIndexes[numIndexes + 1] = i2;
-			hitIndexes[numIndexes + 2] = i3;
-			numIndexes += 3;
-		}
-
-		if(!numIndexes)
-		{
-			continue;
-		}
-
-		attenuationShader = R_GetShaderByHandle(dl->l.attenuationShader);
-		
-		if(attenuationShader == NULL || attenuationShader == tr.defaultShader)
-			attenuationShader = tr.defaultDlightShader;
-		
-		attenuationZStage = attenuationShader->stages[0];
-		
-		for(i = 1; i < MAX_SHADER_STAGES; i++)
-		{
-			shaderStage_t  *attenuationXYStage = attenuationShader->stages[i];
-						
-			if(!attenuationXYStage)
-			{
-				break;
-			}
-			
-			if(attenuationXYStage->type != ST_ATTENUATIONMAP_XY)
-			{
-				continue;
-			}
-			
-			if(!RB_EvalExpression(&attenuationXYStage->ifExp, 1.0))
-			{
-				continue;
-			}
-			
-			for(j = 0; j < MAX_SHADER_STAGES; j++)
-			{
-				shaderStage_t  *diffuseStage = tess.xstages[j];
-
-				if(!diffuseStage)
-				{
-					break;
-				}
-		
-				if(!RB_EvalExpression(&diffuseStage->ifExp, 1.0))
-				{
-					continue;
-				}
-				
-				switch(diffuseStage->type)
-				{
-					case ST_DIFFUSEMAP:
-					case ST_COLLAPSE_lighting_D_radiosity:
-						if(glConfig2.shadingLanguage100Available)
-						{
-							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);
-						}
-						else
-						{
-							// TODO
-						}
-						break;
-						
-					case ST_COLLAPSE_lighting_DB_radiosity:
-					case ST_COLLAPSE_lighting_DB_direct:
-						if(glConfig2.shadingLanguage100Available)
-						{
-							if(r_bumpMapping->integer)
-							{	
-								Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);
-							}
-							else
-							{
-								Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);	
-							}
-						}
-						else
-						{
-							// TODO
-						}
-						break;
-						
-					case ST_COLLAPSE_lighting_DBS_radiosity:
-					case ST_COLLAPSE_lighting_DBS_direct:
-						if(glConfig2.shadingLanguage100Available)
-						{
-							if(r_bumpMapping->integer)
-							{
-								if(r_specular->integer)
-								{
-									Render_lighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);
-								}
-								else
-								{
-									Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);
-								}
-							}
-							else
-							{
-								Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl, attenuation);	
-							}
-						}
-						else
-						{
-							// TODO
-						}
-						break;
-						
-					default:
-						break;
-				}
-			}
-		}
-		
-		backEnd.pc.c_dlightVertexes += tess.numVertexes;
-		backEnd.pc.c_totalIndexes += tess.numIndexes;
-		backEnd.pc.c_dlightIndexes += tess.numIndexes;
+		GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHFUNC_EQUAL);
 	}
+	else
+	{
+		GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+	}
+
+	R_DrawElements(tess.numIndexes, tess.indexes);
+
+	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	//qglDisable(GL_TEXTURE_2D);
 }
-*/
 
 /*
 ===================
@@ -3233,7 +3082,7 @@ void RB_StageIteratorZFill()
 	}
 	
 	// reset client state
-//	GL_ClientState(GLCS_DEFAULT);
+	GL_ClientState(GLCS_DEFAULT);
 
 	// unlock arrays
 	if(qglUnlockArraysEXT)
@@ -3926,6 +3775,11 @@ void RB_StageIteratorGeneric()
 		}
 	}
 	
+	if(tess.fogNum && tess.shader->fogPass)
+	{
+		RB_Render_fog();
+	}
+	
 	// clean up
 	GL_Program(0);
 	GL_ClientState(GLCS_DEFAULT);
@@ -3978,41 +3832,7 @@ void RB_StageIteratorFog()
 	// now do fog
 	if(tess.fogNum && tess.shader->fogPass)
 	{
-		fog_t          *fog;
-		int             i;
-	
-		fog = tr.world->fogs + tess.fogNum;
-
-		for(i = 0; i < tess.numVertexes; i++)
-		{
-			*(int *)&tess.svars.colors[i] = fog->colorInt;
-		}
-
-		RB_CalcFogTexCoords((float *)tess.svars.texCoords[0]);
-
-		GL_Program(0);
-		GL_ClientState(GLCS_VERTEX | GLCS_COLOR);
-		GL_SetVertexAttribs();
-	
-		GL_SelectTexture(0);
-		//qglEnable(GL_TEXTURE_2D);
-		qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_COLORMAP]);
-		GL_Bind(tr.fogImage);
-
-		if(tess.shader->fogPass == FP_EQUAL)
-		{
-			GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHFUNC_EQUAL);
-		}
-		else
-		{
-			GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
-		}
-
-		R_DrawElements(tess.numIndexes, tess.indexes);
-	
-		qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		//qglDisable(GL_TEXTURE_2D);
+		RB_Render_fog();
 	}
 
 	// unlock arrays

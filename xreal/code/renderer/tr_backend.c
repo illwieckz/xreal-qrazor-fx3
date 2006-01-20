@@ -1421,9 +1421,6 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction
 	
 	// render light interactions
 	RB_RenderInteractions(originalTime, interactions, numInteractions);
-	
-	// draw fog on top of everything
-	RB_RenderDrawSurfListFog(originalTime, drawSurfs, numDrawSurfs);
 #else
 	// Tr3B - draw everything in a similar order Doom3 does
 
@@ -1433,13 +1430,16 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction
 	// TODO render shadows
 	
 	// render shadowing and lighting
-	RB_RenderInteractions(originalTime, interactions, numInteractions);
+//	RB_RenderInteractions(originalTime, interactions, numInteractions);
 	
 	// render light scale hack to brighten up the scene
-	RB_RenderLightScale();
+//	RB_RenderLightScale();
 	
 	// render translucent surfaces
-	RB_RenderDrawSurfListTranslucent(originalTime, drawSurfs, numDrawSurfs);
+//	RB_RenderDrawSurfListTranslucent(originalTime, drawSurfs, numDrawSurfs);
+	
+	// draw fog on top of everything
+//	RB_RenderDrawSurfListFog(originalTime, drawSurfs, numDrawSurfs);
 #endif
 
 	// render debug information
