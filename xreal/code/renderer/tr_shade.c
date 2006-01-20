@@ -1347,6 +1347,10 @@ void RB_BeginSurface(shader_t * shader, int fogNum)
 		case SIT_LIGHTING:
 			tess.currentStageIteratorFunc = RB_StageIteratorLighting;
 			break;
+			
+		case SIT_TRANSLUCENT:
+			tess.currentStageIteratorFunc = RB_StageIteratorTranslucent;
+			break;
 		
 		default:
 		case SIT_DEFAULT:
@@ -3291,7 +3295,7 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 }
 
 
-void RB_StageIteratorZFill(void)
+void RB_StageIteratorZFill()
 {
 	int             stage;
 	
@@ -3531,6 +3535,188 @@ void RB_StageIteratorLighting()
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
 	backEnd.pc.c_totalIndexes += tess.numIndexes;
 	backEnd.pc.c_dlightIndexes += tess.numIndexes;
+	
+	// reset client state
+	GL_ClientState(GLCS_DEFAULT);
+
+	// unlock arrays
+	if(qglUnlockArraysEXT)
+	{
+		qglUnlockArraysEXT();
+		GLimp_LogComment("glUnlockArraysEXT\n");
+	}
+
+	// reset polygon offset
+	if(tess.shader->polygonOffset)
+	{
+		qglDisable(GL_POLYGON_OFFSET_FILL);
+	}
+}
+
+void RB_StageIteratorTranslucent()
+{
+	int             stage;
+	
+	RB_DeformTessGeometry();
+
+	// log this call
+	if(r_logFile->integer)
+	{
+		// don't just call LogComment, or we will get
+		// a call to va() every frame!
+		GLimp_LogComment(va("--- RB_StageIteratorTranslucent( %s ) ---\n", tess.shader->name));
+	}
+
+	// set face culling appropriately
+	GL_Cull(tess.shader->cullType);
+
+	// set polygon offset if necessary
+	if(tess.shader->polygonOffset)
+	{
+		qglEnable(GL_POLYGON_OFFSET_FILL);
+		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
+	}
+
+	// lock XYZ
+	qglVertexPointer(3, GL_FLOAT, 16, tess.xyz);	// padded for SIMD
+	if(qglLockArraysEXT)
+	{
+		qglLockArraysEXT(0, tess.numVertexes);
+		GLimp_LogComment("glLockArraysEXT\n");
+	}
+
+	// call shader function
+	for(stage = 0; stage < MAX_SHADER_STAGES; stage++)
+	{
+		shaderStage_t  *pStage = tess.xstages[stage];
+
+		if(!pStage)
+		{
+			break;
+		}
+		
+		if(!RB_EvalExpression(&pStage->ifExp, 1.0))
+		{
+			continue;
+		}
+
+		ComputeColors(pStage);
+		ComputeTexCoords(pStage);
+
+		switch(pStage->type)
+		{
+			case ST_REFLECTIONMAP:
+			{
+				if(glConfig2.shadingLanguage100Available)
+				{
+					Render_reflection_C(stage);
+				}
+				else
+				{
+					// TODO
+				}
+				break;
+			}
+			
+			case ST_REFRACTIONMAP:
+			{
+				if(glConfig2.shadingLanguage100Available)
+				{
+					Render_refraction_C(stage);
+				}
+				else
+				{
+					// TODO
+				}
+				break;
+			}
+			
+			case ST_DISPERSIONMAP:
+			{
+				if(glConfig2.shadingLanguage100Available)
+				{
+					Render_dispersion_C(stage);
+				}
+				else
+				{
+					// TODO
+				}
+				break;
+			}
+			
+			case ST_SKYBOXMAP:
+			{
+				if(glConfig2.shadingLanguage100Available)
+				{
+					Render_skybox(stage);
+				}
+				else
+				{
+					// TODO
+				}
+				break;
+			}
+			
+			case ST_HEATHAZEMAP:
+			{
+				if(glConfig2.shadingLanguage100Available)
+				{
+					Render_heatHaze(stage);
+				}
+				else
+				{
+					// TODO
+				}
+				break;
+			}
+			
+			case ST_GLOWMAP:
+			{
+				if(glConfig2.shadingLanguage100Available)
+				{
+					Render_glow(stage);
+				}
+				else
+				{
+					// TODO
+				}
+				break;
+			}
+			
+			case ST_BLOOMMAP:
+			{
+				if(glConfig2.shadingLanguage100Available)
+				{
+					Render_bloom(stage);
+				}
+				else
+				{
+					// TODO
+				}
+				break;
+			}
+			
+			case ST_BLOOM2MAP:
+			{
+				if(glConfig2.shadingLanguage100Available)
+				{
+					Render_bloom2(stage);
+				}
+				else
+				{
+					// TODO
+				}
+				break;
+			}
+			
+			default:
+			case ST_COLORMAP:
+			{
+				Render_generic_single_FFP(stage);
+				break;
+			}
+		}
+	}
 	
 	// reset client state
 	GL_ClientState(GLCS_DEFAULT);

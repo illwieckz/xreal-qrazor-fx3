@@ -1228,6 +1228,7 @@ typedef struct
 
 	int             c_dlights;
 	int             c_dlightInteractions;
+	int             c_dlightBatches;
 	int             c_dlightVertexes;
 	int             c_dlightIndexes;
 
@@ -1841,7 +1842,8 @@ typedef enum
 {
 	SIT_DEFAULT,
 	SIT_ZFILL,
-	SIT_LIGHTING
+	SIT_LIGHTING,
+	SIT_TRANSLUCENT
 } stageIteratorType_t;
 
 typedef byte    color4ub_t[4];
@@ -1894,6 +1896,7 @@ void            RB_ShutdownGPUShaders();
 
 void            RB_StageIteratorZFill();
 void            RB_StageIteratorLighting();
+void            RB_StageIteratorTranslucent();
 void            RB_StageIteratorGeneric();
 void            RB_StageIteratorSky();
 

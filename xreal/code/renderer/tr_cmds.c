@@ -70,9 +70,10 @@ void R_PerformanceCounters(void)
 	}
 	else if(r_speeds->integer == 4)
 	{
-		ri.Printf(PRINT_ALL, "dlight srf:%i  culled:%i  verts:%i  tris:%i\n",
+		ri.Printf(PRINT_ALL, "dlight srf:%i  culled:%i  verts:%i  tris:%i batches:%i\n",
 				  tr.pc.c_dlightSurfaces, tr.pc.c_dlightSurfacesCulled,
-				  backEnd.pc.c_dlightVertexes, backEnd.pc.c_dlightIndexes / 3);
+				  backEnd.pc.c_dlightVertexes, backEnd.pc.c_dlightIndexes / 3,
+				  backEnd.pc.c_dlightBatches);
 		
 		ri.Printf(PRINT_ALL, "frontEnd: dlights:%i interactions:%i\n",
 				  tr.pc.c_dlights, tr.pc.c_dlightInteractions);
