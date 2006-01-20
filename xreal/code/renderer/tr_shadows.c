@@ -454,6 +454,9 @@ void RB_ShadowFinish(void)
 	{
 		return;
 	}
+	
+	GLimp_LogComment("--- RB_ShadowFinish ---\n");
+	
 	qglEnable(GL_STENCIL_TEST);
 	qglStencilFunc(GL_NOTEQUAL, 0, 255);
 

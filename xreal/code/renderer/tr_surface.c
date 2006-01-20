@@ -241,13 +241,6 @@ void RB_SurfaceTriangles(srfTriangles_t * srf)
 	srfVert_t      *dv;
 	float          *xyz, *tangent, *binormal, *normal, *texCoords;
 	byte           *color;
-//	int             dlightBits;
-	qboolean        needsTangent;
-	qboolean        needsBinormal;
-	qboolean        needsNormal;
-
-//	dlightBits = srf->dlightBits[backEnd.smpFrame];
-//	tess.dlightBits |= dlightBits;
 
 	RB_CHECKOVERFLOW(srf->numVerts, srf->numIndexes);
 
@@ -266,9 +259,6 @@ void RB_SurfaceTriangles(srfTriangles_t * srf)
 	normal = tess.normals[tess.numVertexes];
 	texCoords = tess.texCoords[tess.numVertexes][0];
 	color = tess.vertexColors[tess.numVertexes];
-	needsTangent = tess.shader->needsTangent;
-	needsBinormal = tess.shader->needsBinormal;
-	needsNormal = tess.shader->needsNormal;
 
 	for(i = 0; i < srf->numVerts;
 		i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, color += 4)
@@ -277,22 +267,16 @@ void RB_SurfaceTriangles(srfTriangles_t * srf)
 		xyz[1] = dv->xyz[1];
 		xyz[2] = dv->xyz[2];
 
-		if(needsTangent)
+		if(tess.currentStageIteratorType != SIT_ZFILL)
 		{
 			tangent[0] = dv->tangent[0];
 			tangent[1] = dv->tangent[1];
 			tangent[2] = dv->tangent[2];
-		}
-
-		if(needsBinormal)
-		{
+		
 			binormal[0] = dv->binormal[0];
 			binormal[1] = dv->binormal[1];
 			binormal[2] = dv->binormal[2];
-		}
-
-		if(needsNormal)
-		{
+		
 			normal[0] = dv->normal[0];
 			normal[1] = dv->normal[1];
 			normal[2] = dv->normal[2];
@@ -857,8 +841,8 @@ void RB_SurfaceMD3(md3Surface_t * surface)
 		// FIXME: fill in lightmapST for completeness?
 	}
 
-#if 1
 	// Tr3B - calc tangent spaces
+	if(tess.currentStageIteratorType != SIT_ZFILL)
 	{
 		int             i;
 		vec3_t          faceNormal;
@@ -918,7 +902,7 @@ void RB_SurfaceMD3(md3Surface_t * surface)
 		VectorArrayNormalize((vec4_t *) tess.binormals[tess.numVertexes], numVertexes);
 		VectorArrayNormalize((vec4_t *) tess.normals[tess.numVertexes], numVertexes);
 	}
-#endif
+
 	tess.numIndexes += numIndexes;
 	tess.numVertexes += surface->numVerts;
 }
@@ -1159,6 +1143,7 @@ void RB_SurfaceMDS(mdsSurface_t * surface)
 		}
 		
 		// calc tangent spaces
+		if(tess.currentStageIteratorType != SIT_ZFILL)
 		{
 			int             i;
 			vec3_t          faceNormal;
@@ -1265,24 +1250,17 @@ void RB_SurfaceFace(srfSurfaceFace_t * surf)
 		*(unsigned int *)&tess.vertexColors[ndx] = *(unsigned int *)&v[7];
 	}
 
-	if(tess.shader->needsTangent)
+	if(tess.currentStageIteratorType != SIT_ZFILL)
 	{
 		for(i = 0, v = surf->points[0], ndx = tess.numVertexes; i < numPoints; i++, v += VERTEXSIZE, ndx++)
 		{
 			VectorCopy(&v[8], tess.tangents[ndx]);
 		}
-	}
-
-	if(tess.shader->needsBinormal)
-	{
+	
 		for(i = 0, v = surf->points[0], ndx = tess.numVertexes; i < numPoints; i++, v += VERTEXSIZE, ndx++)
 		{
 			VectorCopy(&v[11], tess.binormals[ndx]);
 		}
-	}
-
-	if(tess.shader->needsNormal)
-	{
 #if 1
 		for(i = 0, v = surf->points[0], ndx = tess.numVertexes; i < numPoints; i++, v += VERTEXSIZE, ndx++)
 		{
@@ -1514,8 +1492,9 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 				}
 			}
 		}
-#if 1
+
 		// Tr3B - calc tangent spaces
+		if(tess.currentStageIteratorType != SIT_ZFILL)
 		{
 			vec3_t          faceNormal;
 			vec3_t          udir, vdir;
@@ -1574,7 +1553,7 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 			VectorArrayNormalize((vec4_t *) tess.binormals[tess.numVertexes], rows * lodWidth);
 			VectorArrayNormalize((vec4_t *) tess.normals[tess.numVertexes], rows * lodWidth);
 		}
-#endif
+
 		tess.numIndexes += numIndexes;
 		tess.numVertexes += rows * lodWidth;
 

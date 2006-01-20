@@ -1165,11 +1165,15 @@ Draws triangle outlines for debugging
 */
 static void DrawTris(shaderCommands_t * input)
 {
+	GL_Program(0);
+	GL_SelectTexture(0);
+	GL_Bind(tr.whiteImage);
+	
 	switch (input->currentStageIteratorType)
 	{
 		case SIT_ZFILL:
 			qglColor3f(1, 1, 1);
-			return;
+			break;
 			
 		case SIT_LIGHTING:
 			qglColor3f(1, 0, 0);
@@ -1184,10 +1188,6 @@ static void DrawTris(shaderCommands_t * input)
 			qglColor3f(1, 1, 1);
 			break;
 	}
-	
-	GL_Program(0);
-	GL_SelectTexture(0);
-	GL_Bind(tr.whiteImage);
 	
 	GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
 	GL_ClientState(GLCS_VERTEX);
@@ -1395,22 +1395,18 @@ static void Render_generic_single_FFP(int stage)
 
 static void Render_zfill_FFP(int stage)
 {
-	unsigned long stateBits;
 	shaderStage_t  *pStage;
 
 	pStage = tess.xstages[stage];
 	
 #if 1
-	qglColor4f(0, 0, 0, 1);
+	qglColor3f(0, 0, 0);
 #else
-	qglColor4f(1, 1, 1, 1);
+	qglColor3f(1, 1, 1);
 #endif
-
-	stateBits = pStage->stateBits;
-//	stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
 	
 	GL_Program(0);
-	GL_State(stateBits);
+	GL_State(pStage->stateBits);
 	GL_ClientState(GLCS_VERTEX);
 	GL_SetVertexAttribs();
 	
@@ -1419,13 +1415,13 @@ static void Render_zfill_FFP(int stage)
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
 	
-	if(stateBits & GLS_ATEST_BITS)
+	if(pStage->stateBits & GLS_ATEST_BITS)
 	{
-		R_BindAnimatedImage(&pStage->bundle[0]);
+		GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
 	}
 	else
 	{
-		GL_Bind(tr.whiteImage);
+		GL_Bind(tr.whiteImage);	
 	}
 
 	R_DrawElements(tess.numIndexes, tess.indexes);
@@ -1454,18 +1450,6 @@ static void Render_generic_multi_FFP(int stage)
 	GL_State(pStage->stateBits);
 	GL_ClientState(GLCS_VERTEX | GLCS_COLOR);
 	GL_SetVertexAttribs();
-	
-	//qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[0]);
-	//qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.svars.colors);
-
-	// this is an ugly hack to work around a GeForce driver
-	// bug with multitexture and clip planes
-	/*
-	if(backEnd.viewParms.isPortal)
-	{
-		qglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	}
-	*/
 
 	// base
 	GL_SelectTexture(0);
@@ -1881,15 +1865,6 @@ static void Render_lighting_D_radiosity_FFP(int stage)
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_LIGHTMAP]);
 	R_BindAnimatedImage(&pStage->bundle[TB_LIGHTMAP]);
-
-	if(r_showLightMaps->integer)
-	{
-		GL_TexEnv(GL_REPLACE);
-	}
-	else
-	{
-		GL_TexEnv(GL_MODULATE);
-	}
 
 	R_DrawElements(tess.numIndexes, tess.indexes);
 
@@ -2348,7 +2323,7 @@ static void RB_Render_fog()
 	GL_SetVertexAttribs();
 
 	GL_SelectTexture(0);
-	//qglEnable(GL_TEXTURE_2D);
+//	qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_COLORMAP]);
 	GL_Bind(tr.fogImage);
@@ -2365,7 +2340,7 @@ static void RB_Render_fog()
 	R_DrawElements(tess.numIndexes, tess.indexes);
 
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	//qglDisable(GL_TEXTURE_2D);
+//	qglDisable(GL_TEXTURE_2D);
 }
 
 /*
@@ -3055,6 +3030,7 @@ void RB_StageIteratorZFill()
 			continue;
 		}
 
+		ComputeColors(pStage);
 		ComputeTexCoords(pStage);
 
 		switch(pStage->type)
@@ -3080,9 +3056,6 @@ void RB_StageIteratorZFill()
 				break;
 		}
 	}
-	
-	// reset client state
-	GL_ClientState(GLCS_DEFAULT);
 
 	// unlock arrays
 	if(qglUnlockArraysEXT)
@@ -3435,9 +3408,6 @@ void RB_StageIteratorTranslucent()
 			}
 		}
 	}
-	
-	// reset client state
-//	GL_ClientState(GLCS_DEFAULT);
 
 	// unlock arrays
 	if(qglUnlockArraysEXT)
@@ -3783,7 +3753,7 @@ void RB_StageIteratorGeneric()
 	// clean up
 	GL_Program(0);
 	GL_ClientState(GLCS_DEFAULT);
-	GL_SelectTexture(0);
+//	GL_SelectTexture(0);
 
 	// unlock arrays
 	if(qglUnlockArraysEXT)

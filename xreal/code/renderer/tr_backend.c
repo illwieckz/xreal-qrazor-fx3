@@ -78,61 +78,16 @@ void GL_SelectTexture(int unit)
 		return;
 	}
 
-	if(unit == 0)
+	if(unit >= 0 && unit <= 7)
 	{
 		qglActiveTextureARB(GL_TEXTURE0_ARB + unit);
-		GLimp_LogComment("glActiveTextureARB(GL_TEXTURE0_ARB)\n");
-		qglClientActiveTextureARB(GL_TEXTURE0_ARB);
-		GLimp_LogComment("glClientActiveTextureARB(GL_TEXTURE0_ARB)\n");
-	}
-	else if(unit == 1)
-	{
-		qglActiveTextureARB(GL_TEXTURE1_ARB);
-		GLimp_LogComment("glActiveTextureARB(GL_TEXTURE1_ARB)\n");
-		qglClientActiveTextureARB(GL_TEXTURE1_ARB);
-		GLimp_LogComment("glClientActiveTextureARB(GL_TEXTURE1_ARB)\n");
-	}
-	else if(unit == 2)
-	{
-		qglActiveTextureARB(GL_TEXTURE2_ARB);
-		GLimp_LogComment("glActiveTextureARB(GL_TEXTURE2_ARB)\n");
-		qglClientActiveTextureARB(GL_TEXTURE2_ARB);
-		GLimp_LogComment("glClientActiveTextureARB(GL_TEXTURE2_ARB)\n");
-	}
-	else if(unit == 3)
-	{
-		qglActiveTextureARB(GL_TEXTURE3_ARB);
-		GLimp_LogComment("glActiveTextureARB(GL_TEXTURE3_ARB)\n");
-		qglClientActiveTextureARB(GL_TEXTURE3_ARB);
-		GLimp_LogComment("glClientActiveTextureARB(GL_TEXTURE3_ARB)\n");
-	}
-	else if(unit == 4)
-	{
-		qglActiveTextureARB(GL_TEXTURE4_ARB);
-		GLimp_LogComment("glActiveTextureARB(GL_TEXTURE4_ARB)\n");
-		qglClientActiveTextureARB(GL_TEXTURE4_ARB);
-		GLimp_LogComment("glClientActiveTextureARB(GL_TEXTURE4_ARB)\n");
-	}
-	else if(unit == 5)
-	{
-		qglActiveTextureARB(GL_TEXTURE5_ARB);
-		GLimp_LogComment("glActiveTextureARB(GL_TEXTURE5_ARB)\n");
-		qglClientActiveTextureARB(GL_TEXTURE5_ARB);
-		GLimp_LogComment("glClientActiveTextureARB(GL_TEXTURE5_ARB)\n");
-	}
-	else if(unit == 6)
-	{
-		qglActiveTextureARB(GL_TEXTURE6_ARB);
-		GLimp_LogComment("glActiveTextureARB(GL_TEXTURE6_ARB)\n");
-		qglClientActiveTextureARB(GL_TEXTURE6_ARB);
-		GLimp_LogComment("glClientActiveTextureARB(GL_TEXTURE6_ARB)\n");
-	}
-	else if(unit == 7)
-	{
-		qglActiveTextureARB(GL_TEXTURE7_ARB);
-		GLimp_LogComment("glActiveTextureARB(GL_TEXTURE7_ARB)\n");
-		qglClientActiveTextureARB(GL_TEXTURE7_ARB);
-		GLimp_LogComment("glClientActiveTextureARB(GL_TEXTURE7_ARB)\n");
+		qglClientActiveTextureARB(GL_TEXTURE0_ARB + unit);
+		
+		if(r_logFile->integer)
+		{
+			GLimp_LogComment(va("glActiveTextureARB(GL_TEXTURE%i_ARB)\n", unit));
+			GLimp_LogComment(va("glClientActiveTextureARB(GL_TEXTURE%i_ARB)\n", unit));
+		}
 	}
 	else
 	{
@@ -519,17 +474,8 @@ void RB_BeginDrawingView(void)
 {
 	int             	clearBits = 0;
 	extern const float	s_flipMatrix[16];
-
-	// sync with gl if needed
-	if(r_finish->integer == 1 && !glState.finishCalled)
-	{
-		qglFinish();
-		glState.finishCalled = qtrue;
-	}
-	if(r_finish->integer == 0)
-	{
-		glState.finishCalled = qtrue;
-	}
+	
+	GLimp_LogComment("--- RB_BeginDrawingView ---\n");
 
 	// we will need to change the projection matrix before drawing
 	// 2D images again
@@ -610,6 +556,8 @@ void RB_RenderDrawSurfListFull(float originalTime, drawSurf_t * drawSurfs, int n
 	int             i;
 	drawSurf_t     *drawSurf;
 	int             oldSort;
+	
+	GLimp_LogComment("--- RB_RenderDrawSurfListFull ---\n");
 
 	// draw everything
 	oldEntityNum = -1;
@@ -729,6 +677,8 @@ void RB_RenderDrawSurfListZFill(float originalTime, drawSurf_t * drawSurfs, int 
 	int             i;
 	drawSurf_t     *drawSurf;
 	int             oldSort;
+	
+	GLimp_LogComment("--- RB_RenderDrawSurfListZFill ---\n");
 
 	// draw everything
 	oldEntityNum = -1;
@@ -861,6 +811,8 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 	surfaceType_t  *surface;
 	vec3_t          tmp;
 	matrix_t		modelToLight;
+	
+	GLimp_LogComment("--- RB_RenderInteractions ---\n");
 
 	// draw everything
 	oldLight = NULL;
@@ -1052,6 +1004,8 @@ static void RB_RenderLightScale()
 {
 	float lightScale;
 	
+	GLimp_LogComment("--- RB_RenderLightScale ---\n");
+	
 	lightScale = r_lightScale->value;
 	if(lightScale < 1.0 || (backEnd.refdef.rdflags & RDF_NOLIGHTSCALE))
 	{
@@ -1117,6 +1071,8 @@ void RB_RenderDrawSurfListFog(float originalTime, drawSurf_t * drawSurfs, int nu
 	int             i;
 	drawSurf_t     *drawSurf;
 	int             oldSort;
+	
+	GLimp_LogComment("--- RB_RenderDrawSurfListFog ---\n");
 
 	// draw everything
 	oldEntityNum = -1;
@@ -1280,6 +1236,8 @@ void RB_RenderDrawSurfListTranslucent(float originalTime, drawSurf_t * drawSurfs
 	int             i;
 	drawSurf_t     *drawSurf;
 	int             oldSort;
+	
+	GLimp_LogComment("--- RB_RenderDrawSurfListTranslucent ---\n");
 
 	// draw everything
 	oldEntityNum = -1;
@@ -1407,8 +1365,28 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction
 {
 	float           originalTime;
 	
+	if(r_logFile->integer)
+	{
+		// don't just call LogComment, or we will get a call to va() every frame!
+		GLimp_LogComment(va("--- RB_RenderDrawSurfList( %i, %i ) ---\n", numDrawSurfs, numInteractions));
+	}
+	
 	// save original time for entity shader offsets
 	originalTime = backEnd.refdef.floatTime;
+	
+	// sync with gl if needed
+	if(r_finish->integer == 1 && !glState.finishCalled)
+	{
+		qglFinish();
+		glState.finishCalled = qtrue;
+	}
+	if(r_finish->integer == 0)
+	{
+		glState.finishCalled = qtrue;
+	}
+	
+	// reset opengl state
+//	GL_SetDefaultState();
 	
 	// clear the z buffer, set the modelview, etc
 	RB_BeginDrawingView();
@@ -1435,11 +1413,11 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction
 	// render light scale hack to brighten up the scene
 //	RB_RenderLightScale();
 	
+	// draw fog
+//	RB_RenderDrawSurfListFog(originalTime, drawSurfs, numDrawSurfs);
+	
 	// render translucent surfaces
 //	RB_RenderDrawSurfListTranslucent(originalTime, drawSurfs, numDrawSurfs);
-	
-	// draw fog on top of everything
-//	RB_RenderDrawSurfListFog(originalTime, drawSurfs, numDrawSurfs);
 #endif
 
 	// render debug information
@@ -1451,8 +1429,10 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction
 	// darken down any stencil shadows
 	RB_ShadowFinish();
 
+#if 0
 	// add light flares on lights that aren't obscured
 	RB_RenderFlares();
+#endif
 }
 
 
@@ -1471,6 +1451,8 @@ RB_SetGL2D
 */
 void RB_SetGL2D(void)
 {
+	GLimp_LogComment("--- RB_SetGL2D ---\n");
+	
 	backEnd.projection2D = qtrue;
 
 	// set 2D virtual screen size
@@ -1615,6 +1597,8 @@ RB_SetColor
 const void     *RB_SetColor(const void *data)
 {
 	const setColorCommand_t *cmd;
+	
+	GLimp_LogComment("--- RB_SetColor ---\n");
 
 	cmd = (const setColorCommand_t *)data;
 
@@ -1636,6 +1620,8 @@ const void     *RB_StretchPic(const void *data)
 	const stretchPicCommand_t *cmd;
 	shader_t       *shader;
 	int             numVerts, numIndexes;
+	
+	GLimp_LogComment("--- RB_StretchPic ---\n");
 
 	cmd = (const stretchPicCommand_t *)data;
 
@@ -1714,6 +1700,8 @@ RB_DrawSurfs
 const void     *RB_DrawSurfs(const void *data)
 {
 	const drawSurfsCommand_t *cmd;
+	
+	GLimp_LogComment("--- RB_DrawSurfs ---\n");
 
 	// finish any 2D drawing if needed
 	if(tess.numIndexes)
@@ -1740,6 +1728,8 @@ RB_DrawBuffer
 const void     *RB_DrawBuffer(const void *data)
 {
 	const drawBufferCommand_t *cmd;
+	
+	GLimp_LogComment("--- RB_DrawBuffer ---\n");
 
 	cmd = (const drawBufferCommand_t *)data;
 
@@ -1772,6 +1762,8 @@ void RB_ShowImages(void)
 	image_t        *image;
 	float           x, y, w, h;
 	int             start, end;
+	
+	GLimp_LogComment("--- RB_ShowImages ---\n");
 
 	if(!backEnd.projection2D)
 	{
@@ -1872,7 +1864,7 @@ const void     *RB_SwapBuffers(const void *data)
 	{
 		qglFinish();
 	}
-
+	
 	GLimp_LogComment("***************** RB_SwapBuffers *****************\n\n\n");
 
 	GLimp_EndFrame();
@@ -1893,6 +1885,8 @@ smp extensions, or asynchronously by another thread.
 void RB_ExecuteRenderCommands(const void *data)
 {
 	int             t1, t2;
+	
+	GLimp_LogComment("--- RB_ExecuteRenderCommands ---\n");
 
 	t1 = ri.Milliseconds();
 
