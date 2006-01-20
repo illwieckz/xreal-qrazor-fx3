@@ -363,6 +363,7 @@ static void DrawSkySide(struct image_s *image, const int mins[2], const int maxs
 {
 	int             s, t;
 
+	GL_SelectTexture(0);
 	GL_Bind(image);
 
 	for(t = mins[1] + HALF_SKY_SUBDIVISIONS; t < maxs[1] + HALF_SKY_SUBDIVISIONS; t++)
@@ -823,7 +824,6 @@ void RB_StageIteratorSky(void)
 		
 		GL_State(0);
 		GL_Program(0);
-		GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
 		
 		qglTranslatef(backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1],
 					  backEnd.viewParms.or.origin[2]);

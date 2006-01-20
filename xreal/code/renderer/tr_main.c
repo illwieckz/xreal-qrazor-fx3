@@ -1348,6 +1348,9 @@ void R_SortDrawSurfs(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * i
 		numDrawSurfs = MAX_DRAWSURFS;
 	}
 	
+	// if we overflowed MAX_INTERACTIONS, the interactions
+	// wrapped around in the buffer and we will be missing
+	// the first interactions, not the last ones
 	if(numInteractions > MAX_INTERACTIONS)
 	{
 		interaction_t  *ia;
@@ -1853,6 +1856,8 @@ static void R_DebugGraphics(void)
 		// the render thread can't make callbacks to the main thread
 		R_SyncRenderThread();
 
+		GL_Program(0);
+		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
 		GL_Cull(CT_FRONT_SIDED);
 		ri.CM_DrawDebugSurface(R_DebugPolygon);

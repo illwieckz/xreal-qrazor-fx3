@@ -829,11 +829,6 @@ void GL_ClientState(unsigned long stateBits)
 		qglDisableClientState(GL_VERTEX_ARRAY);
 	*/
 	
-	if(diff & GLCS_TEXCOORD)
-		qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	else
-		qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	
 	if(diff & GLCS_TEXCOORD0)
 		qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD0);
 	else
@@ -902,9 +897,6 @@ static void GL_SetVertexAttribs()
 
 //	if(attribs & GLCS_VERTEX)
 //		qglVertexPointer(3, GL_FLOAT, 16, tess.xyz);
-	
-	if(glState.glClientStateBits & GLCS_TEXCOORD)
-		qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_COLORMAP]);
 	
 	if(glState.glClientStateBits & GLCS_TEXCOORD0)
 		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_COLORMAP]);
@@ -1182,6 +1174,10 @@ static void DrawTris(shaderCommands_t * input)
 		case SIT_LIGHTING:
 			qglColor3f(1, 0, 0);
 			break;
+			
+		case SIT_FOG:
+			qglColor3f(0, 0, 1);
+			break;
 		
 		default:
 		case SIT_DEFAULT:
@@ -1190,6 +1186,7 @@ static void DrawTris(shaderCommands_t * input)
 	}
 	
 	GL_Program(0);
+	GL_SelectTexture(0);
 	GL_Bind(tr.whiteImage);
 	
 	GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
@@ -1228,6 +1225,7 @@ static void DrawTangentSpaces(shaderCommands_t * input)
 	vec3_t          temp;
 
 	GL_Program(0);
+	GL_SelectTexture(0);
 	GL_Bind(tr.whiteImage);
 	qglDepthRange(0, 0);		// never occluded
 	GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
@@ -1269,6 +1267,7 @@ static void DrawDeluxels(shaderCommands_t * input)
 	vec3_t          temp;
 
 	GL_Program(0);
+	GL_SelectTexture(0);
 	GL_Bind(tr.whiteImage);
 	qglDepthRange(0, 0);		// never occluded
 	GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
@@ -1301,6 +1300,7 @@ static void DrawNormals(shaderCommands_t * input)
 	vec3_t          temp;
 
 	GL_Program(0);
+	GL_SelectTexture(0);
 	GL_Bind(tr.whiteImage);
 	qglColor3f(1, 1, 1);
 	qglDepthRange(0, 0);		// never occluded
@@ -1351,6 +1351,10 @@ void RB_BeginSurface(shader_t * shader, int fogNum)
 		case SIT_TRANSLUCENT:
 			tess.currentStageIteratorFunc = RB_StageIteratorTranslucent;
 			break;
+			
+		case SIT_FOG:
+			tess.currentStageIteratorFunc = RB_StageIteratorFog;
+			break;
 		
 		default:
 		case SIT_DEFAULT:
@@ -1372,20 +1376,21 @@ static void Render_generic_single_FFP(int stage)
 	pStage = tess.xstages[stage];
 	
 	GL_Program(0);
+	GL_State(pStage->stateBits);
+	GL_ClientState(GLCS_VERTEX | GLCS_COLOR);
+	GL_SetVertexAttribs();
 	
 	GL_SelectTexture(0);
-	qglEnable(GL_TEXTURE_2D);
-	
-	GL_State(pStage->stateBits);
-	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
-	GL_SetVertexAttribs();
+//	qglEnable(GL_TEXTURE_2D);
+	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_COLORMAP]);
 
 	R_BindAnimatedImage(&pStage->bundle[0]);
 
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
-	GL_ClientState(GLCS_DEFAULT);
-	qglDisable(GL_TEXTURE_2D);
+	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+//	qglDisable(GL_TEXTURE_2D);
 }
 
 static void Render_zfill_FFP(int stage)
@@ -1394,10 +1399,6 @@ static void Render_zfill_FFP(int stage)
 	shaderStage_t  *pStage;
 
 	pStage = tess.xstages[stage];
-	
-	GL_Program(0);
-	GL_SelectTexture(0);
-	qglEnable(GL_TEXTURE_2D);
 	
 #if 1
 	qglColor4f(0, 0, 0, 1);
@@ -1408,6 +1409,16 @@ static void Render_zfill_FFP(int stage)
 	stateBits = pStage->stateBits;
 	stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
 	
+	GL_Program(0);
+	GL_State(stateBits);
+	GL_ClientState(GLCS_VERTEX);
+	GL_SetVertexAttribs();
+	
+	GL_SelectTexture(0);
+//	qglEnable(GL_TEXTURE_2D);
+	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
+	
 	if(stateBits & GLS_ATEST_BITS)
 	{
 		R_BindAnimatedImage(&pStage->bundle[0]);
@@ -1416,15 +1427,11 @@ static void Render_zfill_FFP(int stage)
 	{
 		GL_Bind(tr.whiteImage);
 	}
-	
-	GL_State(pStage->stateBits);
-	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD);
-	GL_SetVertexAttribs();
 
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
-	GL_ClientState(GLCS_DEFAULT);
-	qglDisable(GL_TEXTURE_2D);
+	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+//	qglDisable(GL_TEXTURE_2D);
 }
 
 /*
@@ -1445,7 +1452,7 @@ static void Render_generic_multi_FFP(int stage)
 	
 	GL_Program(0);
 	GL_State(pStage->stateBits);
-	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
+	GL_ClientState(GLCS_VERTEX | GLCS_COLOR);
 	GL_SetVertexAttribs();
 	
 	//qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[0]);
@@ -1462,14 +1469,15 @@ static void Render_generic_multi_FFP(int stage)
 
 	// base
 	GL_SelectTexture(0);
-	qglEnable(GL_TEXTURE_2D);
+//	qglEnable(GL_TEXTURE_2D);
+	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
 	R_BindAnimatedImage(&pStage->bundle[0]);
 
 	// lightmap/secondary pass
 	GL_SelectTexture(1);
 	qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[1]);
 
 	if(r_showLightMaps->integer)
@@ -1485,45 +1493,14 @@ static void Render_generic_multi_FFP(int stage)
 
 	R_DrawElements(tess.numIndexes, tess.indexes);
 
-	// disable texturing on TEXTURE1
+	// clean up
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglDisable(GL_TEXTURE_2D);
 	
 	GL_SelectTexture(0);
-	qglDisable(GL_TEXTURE_2D);
-	
-	GL_ClientState(GLCS_DEFAULT);
+	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+//	qglDisable(GL_TEXTURE_2D);
 }
-
-/*
-void Render_generic_single(int stage)
-{
-	shaderStage_t  *pStage;
-
-	pStage = tess.xstages[stage];
-	
-	GL_State(pStage->stateBits);
-	
-	// enable shader, set arrays
-	GL_Program(tr.genericShader_single.program);
-	GL_ClientState(tr.genericShader_single.attribs);
-	GL_SetVertexAttribs();
-
-	// bind colormap
-	GL_SelectTexture(0);
-	R_BindAnimatedImage(&pStage->bundle[0]);
-	
-	R_DrawElements(tess.numIndexes, tess.indexes);
-	
-	GL_ClientState(GLCS_DEFAULT);
-//	GL_Program(0);
-}
-
-void Render_generic_multi(int stage)
-{
-	//TODO	
-}
-*/
 
 void Render_lighting_D_direct(int stage)
 {
@@ -1559,9 +1536,6 @@ void Render_lighting_D_direct(int stage)
 	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
-	
-	GL_ClientState(GLCS_DEFAULT);
-	GL_Program(0);
 }
 
 
@@ -1604,10 +1578,6 @@ static void Render_lighting_DB_direct(int stage)
 	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
-	
-	GL_SelectTexture(0);
-	GL_ClientState(GLCS_DEFAULT);
-	GL_Program(0);
 }
 
 static void Render_lighting_DBS_direct(int stage)
@@ -1657,10 +1627,6 @@ static void Render_lighting_DBS_direct(int stage)
 	GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
-	
-	GL_SelectTexture(0);
-	GL_ClientState(GLCS_DEFAULT);
-	GL_Program(0);
 }
 
 static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
@@ -1718,8 +1684,6 @@ static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
-	GL_ClientState(GLCS_DEFAULT);
-	GL_Program(0);
 }
 
 static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
@@ -1775,8 +1739,6 @@ static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
-	GL_ClientState(GLCS_DEFAULT);
-	GL_Program(0);
 }
 
 static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
@@ -1839,8 +1801,6 @@ static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
-	GL_ClientState(GLCS_DEFAULT);
-	GL_Program(0);
 }
 
 // Tr3B - r_showLightMaps development tool
@@ -1857,19 +1817,15 @@ static void Render_lightmap_FFP(int stage)
 	GL_SetVertexAttribs();
 
 	GL_SelectTexture(0);
-	qglEnable(GL_TEXTURE_2D);
-	
+//	qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_LIGHTMAP]);
-	
 	GL_Bind(pStage->bundle[TB_LIGHTMAP].image[0]);
 
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	qglDisable(GL_TEXTURE_2D);
-	
-	GL_ClientState(GLCS_DEFAULT);
+//	qglDisable(GL_TEXTURE_2D);
 }
 
 // Tr3B - r_showDeluxeMaps development tool
@@ -1889,19 +1845,15 @@ static void Render_deluxemap_FFP(int stage)
 	GL_SetVertexAttribs();
 
 	GL_SelectTexture(0);
-	qglEnable(GL_TEXTURE_2D);
-	
+//	qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_LIGHTMAP]);
-	
 	GL_Bind(pStage->bundle[TB_LIGHTMAP].image[1]);
 
 	R_DrawElements(tess.numIndexes, tess.indexes);
 	
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	qglDisable(GL_TEXTURE_2D);
-	
-	GL_ClientState(GLCS_DEFAULT);
+//	qglDisable(GL_TEXTURE_2D);
 }
 
 static void Render_lighting_D_radiosity_FFP(int stage)
@@ -1913,12 +1865,12 @@ static void Render_lighting_D_radiosity_FFP(int stage)
 	GL_Program(0);
 	GL_SelectTexture(0);
 	GL_State(pStage->stateBits);
-	GL_ClientState(GLCS_VERTEX /*| GLCS_TEXCOORD*/ | GLCS_COLOR);
+	GL_ClientState(GLCS_VERTEX | GLCS_COLOR);
 	GL_SetVertexAttribs();
 
 	// base
 	GL_SelectTexture(0);
-	qglEnable(GL_TEXTURE_2D);
+//	qglEnable(GL_TEXTURE_2D);
 	R_BindAnimatedImage(&pStage->bundle[TB_DIFFUSEMAP]);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
@@ -1928,6 +1880,7 @@ static void Render_lighting_D_radiosity_FFP(int stage)
 	qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_LIGHTMAP]);
+	R_BindAnimatedImage(&pStage->bundle[TB_LIGHTMAP]);
 
 	if(r_showLightMaps->integer)
 	{
@@ -1938,8 +1891,6 @@ static void Render_lighting_D_radiosity_FFP(int stage)
 		GL_TexEnv(GL_MODULATE);
 	}
 
-	R_BindAnimatedImage(&pStage->bundle[TB_LIGHTMAP]);
-
 	R_DrawElements(tess.numIndexes, tess.indexes);
 
 	// clean up
@@ -1947,10 +1898,8 @@ static void Render_lighting_D_radiosity_FFP(int stage)
 	qglDisable(GL_TEXTURE_2D);
 	
 	GL_SelectTexture(0);
-	qglDisable(GL_TEXTURE_2D);
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	
-	GL_ClientState(GLCS_DEFAULT);
+//	qglDisable(GL_TEXTURE_2D);
 }
 
 static void Render_lighting_D_radiosity(int stage)
@@ -1975,11 +1924,6 @@ static void Render_lighting_D_radiosity(int stage)
 	GL_Bind(pStage->bundle[TB_LIGHTMAP].image[0]);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
-	
-	// clean up
-	GL_SelectTexture(0);
-	GL_ClientState(GLCS_DEFAULT);
-	GL_Program(0);
 }
 
 static void Render_lighting_DB_radiosity(int stage)
@@ -2012,10 +1956,6 @@ static void Render_lighting_DB_radiosity(int stage)
 	GL_Bind(pStage->bundle[TB_LIGHTMAP].image[1]);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
-	
-	GL_SelectTexture(0);
-	GL_ClientState(GLCS_DEFAULT);
-	GL_Program(0);
 }
 
 static void Render_lighting_DBS_radiosity(int stage)
@@ -2059,10 +1999,6 @@ static void Render_lighting_DBS_radiosity(int stage)
 	GL_Bind(pStage->bundle[TB_LIGHTMAP].image[1]);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
-	
-	GL_SelectTexture(0);
-	GL_ClientState(GLCS_DEFAULT);
-	GL_Program(0);
 }
 
 static void Render_reflection_C(int stage)
@@ -2094,8 +2030,6 @@ static void Render_reflection_C(int stage)
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
-	GL_ClientState(GLCS_DEFAULT);
-	GL_Program(0);
 }
 
 static void Render_refraction_C(int stage)
@@ -2131,8 +2065,6 @@ static void Render_refraction_C(int stage)
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
-	GL_ClientState(GLCS_DEFAULT);
-	GL_Program(0);
 }
 
 static void Render_dispersion_C(int stage)
@@ -2173,8 +2105,6 @@ static void Render_dispersion_C(int stage)
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
-	GL_ClientState(GLCS_DEFAULT);
-	GL_Program(0);
 }
 
 static void Render_skybox(int stage)
@@ -2206,8 +2136,6 @@ static void Render_skybox(int stage)
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
-	GL_ClientState(GLCS_DEFAULT);
-	GL_Program(0);
 }
 
 static void Render_heatHaze(int stage)
@@ -2245,10 +2173,6 @@ static void Render_heatHaze(int stage)
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
-	
-	GL_SelectTexture(0);
-	GL_ClientState(GLCS_DEFAULT);
-	GL_Program(0);
 }
 
 static void Render_glow(int stage)
@@ -2283,9 +2207,6 @@ static void Render_glow(int stage)
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
-	
-	GL_ClientState(GLCS_DEFAULT);
-	GL_Program(0);
 }
 
 static void Render_bloom(int stage)
@@ -2326,19 +2247,12 @@ static void Render_bloom(int stage)
 	qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, blurMagnitude);
 	qglUniform2fARB(tr.bloomShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
 	qglUniform2fARB(tr.bloomShader.u_NPotScale, npotWidthScale, npotHeightScale);
-
-//	GL_SelectTexture(0);
-//	GL_Bind(tr.currentRenderImage);
 	
 	GL_SelectTexture(1);
 	GL_Bind(tr.contrastRenderImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth, tr.contrastRenderImage->uploadHeight);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
-	
-	GL_SelectTexture(0);
-	GL_ClientState(GLCS_DEFAULT);
-	GL_Program(0);
 }
 
 static void Render_bloom2(int stage)
@@ -2413,10 +2327,6 @@ static void Render_bloom2(int stage)
 	GL_Bind(tr.contrastRenderImage);
 	
 	R_DrawElements(tess.numIndexes, tess.indexes);
-	
-	GL_SelectTexture(0);
-	GL_ClientState(GLCS_DEFAULT);
-	GL_Program(0);
 }
 
 /*
@@ -2616,7 +2526,8 @@ ProjectDlightTexture
 Perform dynamic lighting with another rendering pass
 ===================
 */
-void ProjectDlightTexture(void)
+/*
+void ProjectDlightTexture()
 {
 #if 0
 	int             i, l;
@@ -2879,54 +2790,7 @@ void ProjectDlightTexture(void)
 	}
 #endif
 }
-
-
-
-/*
-===================
-RB_FogPass
-
-Blends a fog texture on top of everything else
-===================
 */
-static void RB_FogPass(void)
-{
-	fog_t          *fog;
-	int             i;
-	
-	fog = tr.world->fogs + tess.fogNum;
-
-	for(i = 0; i < tess.numVertexes; i++)
-	{
-		*(int *)&tess.svars.colors[i] = fog->colorInt;
-	}
-
-	RB_CalcFogTexCoords((float *)tess.svars.texCoords[0]);
-
-	GL_Program(0);
-	
-	GL_SelectTexture(0);
-	qglEnable(GL_TEXTURE_2D);
-	
-	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
-	GL_SetVertexAttribs();
-	
-	GL_Bind(tr.fogImage);
-
-	if(tess.shader->fogPass == FP_EQUAL)
-	{
-		GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHFUNC_EQUAL);
-	}
-	else
-	{
-		GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
-	}
-
-	R_DrawElements(tess.numIndexes, tess.indexes);
-	
-	GL_ClientState(GLCS_DEFAULT);
-	qglDisable(GL_TEXTURE_2D);
-}
 
 
 /*
@@ -3369,7 +3233,7 @@ void RB_StageIteratorZFill()
 	}
 	
 	// reset client state
-	GL_ClientState(GLCS_DEFAULT);
+//	GL_ClientState(GLCS_DEFAULT);
 
 	// unlock arrays
 	if(qglUnlockArraysEXT)
@@ -3537,7 +3401,12 @@ void RB_StageIteratorLighting()
 	backEnd.pc.c_dlightIndexes += tess.numIndexes;
 	
 	// reset client state
+//	GL_ClientState(GLCS_DEFAULT);
+	
+	// clean up
+	GL_Program(0);
 	GL_ClientState(GLCS_DEFAULT);
+	GL_SelectTexture(0);
 
 	// unlock arrays
 	if(qglUnlockArraysEXT)
@@ -3719,7 +3588,7 @@ void RB_StageIteratorTranslucent()
 	}
 	
 	// reset client state
-	GL_ClientState(GLCS_DEFAULT);
+//	GL_ClientState(GLCS_DEFAULT);
 
 	// unlock arrays
 	if(qglUnlockArraysEXT)
@@ -3735,10 +3604,39 @@ void RB_StageIteratorTranslucent()
 	}
 }
 
-static void RB_IterateStagesGeneric()
+void RB_StageIteratorGeneric()
 {
 	int             stage;
+	
+	RB_DeformTessGeometry();
 
+	// log this call
+	if(r_logFile->integer)
+	{
+		// don't just call LogComment, or we will get
+		// a call to va() every frame!
+		GLimp_LogComment(va("--- RB_StageIteratorGeneric( %s ) ---\n", tess.shader->name));
+	}
+
+	// set face culling appropriately
+	GL_Cull(tess.shader->cullType);
+
+	// set polygon offset if necessary
+	if(tess.shader->polygonOffset)
+	{
+		qglEnable(GL_POLYGON_OFFSET_FILL);
+		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
+	}
+
+	// lock XYZ
+	qglVertexPointer(3, GL_FLOAT, 16, tess.xyz);	// padded for SIMD
+	if(qglLockArraysEXT)
+	{
+		qglLockArraysEXT(0, tess.numVertexes);
+		GLimp_LogComment("glLockArraysEXT\n");
+	}
+
+	// call shader function
 	for(stage = 0; stage < MAX_SHADER_STAGES; stage++)
 	{
 		shaderStage_t  *pStage = tess.xstages[stage];
@@ -4028,18 +3926,26 @@ static void RB_IterateStagesGeneric()
 		}
 	}
 	
-	// disable any GLSL shaders
+	// clean up
 	GL_Program(0);
-	
-	// switch back to default TMU
-	GL_SelectTexture(0);
-	
-	// reset client state
 	GL_ClientState(GLCS_DEFAULT);
+	GL_SelectTexture(0);
+
+	// unlock arrays
+	if(qglUnlockArraysEXT)
+	{
+		qglUnlockArraysEXT();
+		GLimp_LogComment("glUnlockArraysEXT\n");
+	}
+
+	// reset polygon offset
+	if(tess.shader->polygonOffset)
+	{
+		qglDisable(GL_POLYGON_OFFSET_FILL);
+	}
 }
 
-
-void RB_StageIteratorGeneric()
+void RB_StageIteratorFog()
 {
 	RB_DeformTessGeometry();
 
@@ -4048,7 +3954,7 @@ void RB_StageIteratorGeneric()
 	{
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorGeneric( %s ) ---\n", tess.shader->name));
+		GLimp_LogComment(va("--- RB_StageIteratorFog( %s ) ---\n", tess.shader->name));
 	}
 
 	// set face culling appropriately
@@ -4068,15 +3974,45 @@ void RB_StageIteratorGeneric()
 		qglLockArraysEXT(0, tess.numVertexes);
 		GLimp_LogComment("glLockArraysEXT\n");
 	}
-
-	// call shader function
-	RB_IterateStagesGeneric();
-
-	// FIXME: fog should be drawn after lighting
+	
 	// now do fog
 	if(tess.fogNum && tess.shader->fogPass)
 	{
-		RB_FogPass();
+		fog_t          *fog;
+		int             i;
+	
+		fog = tr.world->fogs + tess.fogNum;
+
+		for(i = 0; i < tess.numVertexes; i++)
+		{
+			*(int *)&tess.svars.colors[i] = fog->colorInt;
+		}
+
+		RB_CalcFogTexCoords((float *)tess.svars.texCoords[0]);
+
+		GL_Program(0);
+		GL_ClientState(GLCS_VERTEX | GLCS_COLOR);
+		GL_SetVertexAttribs();
+	
+		GL_SelectTexture(0);
+		//qglEnable(GL_TEXTURE_2D);
+		qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_COLORMAP]);
+		GL_Bind(tr.fogImage);
+
+		if(tess.shader->fogPass == FP_EQUAL)
+		{
+			GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHFUNC_EQUAL);
+		}
+		else
+		{
+			GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+		}
+
+		R_DrawElements(tess.numIndexes, tess.indexes);
+	
+		qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		//qglDisable(GL_TEXTURE_2D);
 	}
 
 	// unlock arrays

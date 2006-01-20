@@ -355,6 +355,8 @@ void RB_SurfaceBeam(void)
 		VectorAdd(start_points[i], direction, end_points[i]);
 	}
 
+	GL_Program(0);
+	GL_SelectTexture(0);
 	GL_Bind(tr.whiteImage);
 
 	GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
@@ -988,6 +990,8 @@ void RB_SurfaceMDS(mdsSurface_t * surface)
 	}
 	else
 	{
+		GL_Program(0);
+		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
 		qglLineWidth(3);
 		qglBegin(GL_LINES);
@@ -1597,6 +1601,7 @@ Draws x/y/z lines from the origin for orientation debugging
 void RB_SurfaceAxis(void)
 {
 	GL_Program(0);
+	GL_SelectTexture(0);
 	GL_Bind(tr.whiteImage);
 	qglLineWidth(3);
 	qglBegin(GL_LINES);

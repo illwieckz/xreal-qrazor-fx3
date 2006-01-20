@@ -1231,6 +1231,9 @@ typedef struct
 	int             c_dlightBatches;
 	int             c_dlightVertexes;
 	int             c_dlightIndexes;
+	
+	int				c_fogSurfaces;
+	int				c_fogBatches;
 
 	int             c_flareAdds;
 	int             c_flareTests;
@@ -1731,16 +1734,15 @@ enum
 enum
 {
 	GLCS_VERTEX			= (1 << 0),
-	GLCS_TEXCOORD		= (1 << 1),
-	GLCS_TEXCOORD0		= (1 << 2),
-	GLCS_TEXCOORD1		= (1 << 3),
-	GLCS_TEXCOORD2		= (1 << 4),
-	GLCS_TEXCOORD3		= (1 << 5),
-	GLCS_TANGENT		= (1 << 6),
-	GLCS_BINORMAL		= (1 << 7),
-	GLCS_NORMAL			= (1 << 8),
-	GLCS_DELUXEL		= (1 << 9),
-	GLCS_COLOR			= (1 << 10),
+	GLCS_TEXCOORD0		= (1 << 1),
+	GLCS_TEXCOORD1		= (1 << 2),
+	GLCS_TEXCOORD2		= (1 << 3),
+	GLCS_TEXCOORD3		= (1 << 4),
+	GLCS_TANGENT		= (1 << 5),
+	GLCS_BINORMAL		= (1 << 6),
+	GLCS_NORMAL			= (1 << 7),
+	GLCS_DELUXEL		= (1 << 8),
+	GLCS_COLOR			= (1 << 9),
 	
 	GLCS_DEFAULT		= GLCS_VERTEX
 };
@@ -1843,7 +1845,8 @@ typedef enum
 	SIT_DEFAULT,
 	SIT_ZFILL,
 	SIT_LIGHTING,
-	SIT_TRANSLUCENT
+	SIT_TRANSLUCENT,
+	SIT_FOG
 } stageIteratorType_t;
 
 typedef byte    color4ub_t[4];
@@ -1897,6 +1900,7 @@ void            RB_ShutdownGPUShaders();
 void            RB_StageIteratorZFill();
 void            RB_StageIteratorLighting();
 void            RB_StageIteratorTranslucent();
+void            RB_StageIteratorFog();
 void            RB_StageIteratorGeneric();
 void            RB_StageIteratorSky();
 

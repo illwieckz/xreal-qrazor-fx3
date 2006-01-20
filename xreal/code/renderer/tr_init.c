@@ -881,6 +881,8 @@ void R_ScreenShotJPEG_f(void)
 */
 void GL_SetDefaultState(void)
 {
+	int				i;
+	
 	qglClearDepth(1.0f);
 
 	qglCullFace(GL_FRONT);
@@ -889,19 +891,23 @@ void GL_SetDefaultState(void)
 
 	GL_TextureMode(r_textureMode->string);
 	GL_TexEnv(GL_MODULATE);
-	qglDisable(GL_TEXTURE_2D);
-//	qglEnable(GL_TEXTURE_2D);
+//	qglDisable(GL_TEXTURE_2D);
+	qglEnable(GL_TEXTURE_2D);
 	
 	// initialize downstream texture unit if we're running
 	// in a multitexture environment
 	if(qglActiveTextureARB)
 	{
-		GL_SelectTexture(1);
-		GL_TextureMode(r_textureMode->string);
-		GL_TexEnv(GL_MODULATE);
-		qglDisable(GL_TEXTURE_2D);
-		GL_SelectTexture(0);
+		for(i = 1; i < glConfig.maxTextureUnits; i++)
+		{
+			GL_SelectTexture(i);
+			GL_TextureMode(r_textureMode->string);
+			GL_TexEnv(GL_MODULATE);
+			qglDisable(GL_TEXTURE_2D);
+		}
 	}
+	
+	GL_SelectTexture(0);
 
 	qglShadeModel(GL_SMOOTH);
 	qglDepthFunc(GL_LEQUAL);

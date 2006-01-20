@@ -84,7 +84,8 @@ void R_PerformanceCounters(void)
 	}
 	else if(r_speeds->integer == 5)
 	{
-		ri.Printf(PRINT_ALL, "skyFar: %.0f\n", tr.viewParms.skyFar);
+		ri.Printf(PRINT_ALL, "fog srf:%i batches:%i\n",
+				  backEnd.pc.c_fogSurfaces, backEnd.pc.c_fogBatches);
 	}
 	else if(r_speeds->integer == 6)
 	{

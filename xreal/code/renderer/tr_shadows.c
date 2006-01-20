@@ -269,6 +269,8 @@ void RB_ShadowTessEnd(void)
 	}
 
 	// draw the silhouette edges
+	GL_Program(0);
+	GL_SelectTexture(0);
 	GL_Bind(tr.whiteImage);
 
 	if(r_showShadowVolumes->integer)
@@ -458,18 +460,16 @@ void RB_ShadowFinish(void)
 	qglDisable(GL_CLIP_PLANE0);
 	qglDisable(GL_CULL_FACE);
 
+	GL_Program(0);
+	GL_ClientState(GLCS_VERTEX);
+	GL_State(GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO);
+	
+	GL_SelectTexture(0);
 	GL_Bind(tr.whiteImage);
 
 	qglLoadIdentity();
 
 	qglColor3f(0.6f, 0.6f, 0.6f);
-	
-	GL_Program(0);
-	GL_ClientState(GLCS_VERTEX);// | GLCS_TEXCOORD | GLCS_COLOR);
-	GL_State(GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO);
-
-//  qglColor3f( 1, 0, 0 );
-//  GL_State( GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
 
 	qglBegin(GL_QUADS);
 	qglVertex3f(-100, 100, -10);
