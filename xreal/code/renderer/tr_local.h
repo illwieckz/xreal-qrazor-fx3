@@ -87,8 +87,6 @@ typedef struct trRefDlight_s
 	vec3_t			worldBounds[2];
 	
 	// connect this entity to interaction grid
-//	int				firstInteraction;
-//	int				numInteractions;
 	struct interaction_s *lastInteraction;
 } trRefDlight_t;
 
@@ -1526,6 +1524,7 @@ extern cvar_t  *r_showTangentSpaces;	// draws wireframe tangents, binormals and 
 extern cvar_t  *r_clear;		// force screen clear every frame
 
 extern cvar_t  *r_shadows;		// controls shadows: 0 = none, 1 = blur, 2 = stencil, 3 = black planar projection
+								// 4 = robust stencil shadow volumes
 extern cvar_t  *r_flares;		// light flares
 
 extern cvar_t  *r_intensity;
@@ -1725,6 +1724,8 @@ enum
 											| GLS_GREENMASK_FALSE
 											| GLS_BLUEMASK_FALSE
 											| GLS_ALPHAMASK_FALSE,
+	
+	GLS_STENCILTEST_ENABLE				= (1 << 29),
 	
 	GLS_DEFAULT							= GLS_DEPTHMASK_TRUE
 };
@@ -1960,6 +1961,7 @@ SHADOWS
 */
 
 void            RB_ShadowTessEnd(void);
+void            RB_ShadowTessEnd2(void);
 void            RB_ShadowFinish(void);
 void            RB_ProjectionShadowDeform(void);
 

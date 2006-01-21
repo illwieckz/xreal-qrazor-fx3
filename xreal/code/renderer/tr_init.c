@@ -885,6 +885,12 @@ void GL_SetDefaultState(void)
 	GLimp_LogComment("--- GL_SetDefaultState ---\n");
 	
 	qglClearDepth(1.0f);
+	
+	if(glConfig.stencilBits < 4)
+	{
+		//qglClearStencil(128);
+		//qglClearStencil(0U);
+	}
 
 	qglCullFace(GL_FRONT);
 

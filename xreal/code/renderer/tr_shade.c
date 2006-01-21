@@ -1639,22 +1639,6 @@ static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
 {
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;	
-//	trRefEntity_t  *ent = backEnd.currentEntity;
-//	shaderStage_t  *pStage = tess.xstages[stage];
-//	trRefDlight_t  *dl = &backEnd.refdef.dlights[dlight];
-
-	// include GLS_DEPTHFUNC_EQUAL so alpha tested surfaces don't add light
-	// where they aren't rendered
-#if 0
-	if(!dl->additive)
-	{
-		GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
-	}
-	else
-#endif
-	{
-		GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
-	}
 	
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_D_omni.program);
@@ -1696,17 +1680,6 @@ static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
 {
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;	
-
-#if 0
-	if(!dl->additive)
-	{
-		GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
-	}
-	else
-#endif
-	{
-		GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
-	}
 	
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_DB_omni.program);
@@ -1751,18 +1724,7 @@ static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 {
 	vec3_t			viewOrigin;
 	vec3_t          lightOrigin;
-	vec4_t          lightColor;	
-
-#if 0
-	if(!dl->additive)
-{
-	GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
-}
-	else
-#endif
-{
-	GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
-}
+	vec4_t          lightColor;
 	
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_DBS_omni.program);

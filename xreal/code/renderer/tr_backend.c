@@ -405,6 +405,19 @@ void GL_State(unsigned long stateBits)
 				break;
 		}
 	}
+	
+	// stenciltest
+	if(diff & GLS_STENCILTEST_ENABLE)
+	{
+		if(stateBits & GLS_STENCILTEST_ENABLE)
+		{
+			qglEnable(GL_STENCIL_TEST);
+		}
+		else
+		{
+			qglDisable(GL_STENCIL_TEST);
+		}
+	}
 
 	glState.glStateBits = stateBits;
 }
@@ -844,6 +857,17 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 		
 		if(light != oldLight)
 		{
+			/*
+			if(!dl->additive)
+			{
+				GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+			}
+			else
+			*/
+			{
+				GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+			}
+			
 			backEnd.pc.c_dlights++;
 		}
 		backEnd.pc.c_dlightInteractions++;
@@ -995,6 +1019,235 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 				R_DebugBoundingBox(vec3_origin, entity->localBounds[0], entity->localBounds[1], colorMdGrey);
 			}
 		}
+	}
+
+	backEnd.refdef.floatTime = originalTime;
+
+	// go back to the world modelview matrix
+	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+	if(depthRange)
+	{
+		qglDepthRange(0, 1);
+	}
+	
+	// reset stage iterator
+	tess.currentStageIteratorType = SIT_DEFAULT;
+}
+
+
+/*
+=================
+RB_RenderInteractions2
+=================
+*/
+void RB_RenderInteractions2(float originalTime, interaction_t * interactions, int numInteractions)
+{
+	shader_t       *shader, *oldShader;
+	trRefEntity_t  *entity, *oldEntity;
+	trRefDlight_t  *light, *oldLight;
+	interaction_t  *ia;
+	int             iaCount;
+	int             iaFirst = 0;
+	surfaceType_t  *surface;
+	qboolean        depthRange, oldDepthRange;
+	vec3_t          tmp;
+	matrix_t		modelToLight;
+	qboolean		drawShadows;
+	
+	GLimp_LogComment("--- RB_RenderInteractions2 ---\n");
+
+	// draw everything
+	oldLight = NULL;
+	oldEntity = NULL;
+	oldShader = NULL;
+	oldDepthRange = qfalse;
+	depthRange = qfalse;
+	drawShadows = qtrue;
+	
+	tess.currentStageIteratorType = SIT_LIGHTING;
+
+	// render interactions
+	for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
+	{
+		backEnd.currentLight = light = ia->dlight;
+		backEnd.currentEntity = entity = ia->entity;
+		surface = ia->surface;
+		shader = tr.sortedShaders[ia->shaderNum & (MAX_SHADERS - 1)];
+		
+		// only iaFirst == iaCount if first iteration or counters were reset
+		if(light != oldLight || iaFirst == iaCount)
+		{
+			iaFirst = iaCount;
+			
+			if(drawShadows)
+			{
+				//if(!r_showShadowVolumes->integer)
+				{
+					qglClear(GL_STENCIL_BUFFER_BIT);
+					
+					// don't write to the color buffer or depth buffer
+					// enable stencil testing for this light
+					GL_State(GLS_COLORMASK_BITS | GLS_STENCILTEST_ENABLE);
+	
+					// set the reference stencil value
+					//qglStencilFunc(GL_ALWAYS, 1, 255);
+					//qglStencilFunc(GL_ALWAYS, 128, ~0);
+					qglStencilFunc(GL_ALWAYS, 0, ~0);
+					qglStencilMask(~0);
+				}
+			}
+			else
+			{
+				// Tr3B - see RobustShadowVolumes.pdf by Nvidia
+				// Set stencil testing to render only pixels with a zero
+				// stencil value, i.e., visible fragments illuminated by the
+				// current light. Use equal depth testing to update only the
+				// visible fragments, and then, increment stencil to avoid
+				// double blending. Re-enable color buffer writes again.
+				
+				/*
+				if(!dl->additive)
+				{
+					GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+				}
+				else
+				*/
+				{
+					//GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
+				}
+				
+				qglStencilFunc(GL_LEQUAL, 0, ~0);
+				qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+			}
+			
+			backEnd.pc.c_dlights++;
+		}
+		backEnd.pc.c_dlightInteractions++;
+		
+		
+		// change the tess parameters if needed
+		// a "entityMergable" shader is a shader that can have surfaces from seperate
+		// entities merged into a single batch, like smoke and blood puff sprites
+		
+		// we need a new batch
+		RB_BeginSurface(shader, 0);
+
+		// change the modelview matrix if needed
+		if(entity != oldEntity)
+		{
+			depthRange = qfalse;
+
+			if(entity != &tr.worldEntity)
+			{
+				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
+				// we have to reset the shaderTime as well otherwise image animations start
+				// from the wrong frame
+				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+
+				// set up the transformation matrix
+				R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
+
+				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
+				{
+					// hack the depth range to prevent view model from poking into walls
+					depthRange = qtrue;
+				}
+			}
+			else
+			{
+				backEnd.refdef.floatTime = originalTime;
+				backEnd.or = backEnd.viewParms.world;
+				// we have to reset the shaderTime as well otherwise image animations on
+				// the world (like water) continue with the wrong frame
+				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+			}
+			
+			qglLoadMatrixf(backEnd.or.modelViewMatrix);
+
+			// change depthrange if needed
+			if(oldDepthRange != depthRange)
+			{
+				if(depthRange)
+				{
+					qglDepthRange(0, 0.3);
+				}
+				else
+				{
+					qglDepthRange(0, 1);
+				}
+				oldDepthRange = depthRange;
+			}
+		}
+		
+		// change the attenuation matrix if needed
+		if(light != oldLight || entity != oldEntity)
+		{
+			// transform light origin into model space for u_LightOrigin parameter
+			VectorSubtract(light->l.origin, backEnd.or.origin, tmp);
+			light->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
+			light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
+			light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
+			
+			// finalize the attenuation matrix using the entity transform
+			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
+			MatrixMultiply(light->attenuationMatrix, modelToLight, light->attenuationMatrix2);	
+		}
+		
+		// add the triangles for this surface
+		rb_surfaceTable[*surface] (surface);
+		
+		// draw the contents of the current shader batch
+		backEnd.pc.c_dlightBatches++;
+		
+		if(drawShadows)
+		{
+			if(entity != &tr.worldEntity)
+				RB_ShadowTessEnd2();
+		}
+		else
+		{
+			RB_EndSurface();
+		}
+		
+		// Tr3B - the data structure used here is not very cool but it works fine
+		if(!ia->next)
+		{
+			if(drawShadows)
+			{
+				// jump back to first interaction of this light and start lighting
+				ia = &interactions[iaFirst];
+				iaCount = iaFirst;
+				drawShadows = qfalse;
+			}
+			else
+			{
+				if(iaCount < (numInteractions -1))
+				{
+					// jump to next interaction and start shadowing
+					ia++;
+					iaCount++;
+					drawShadows = qtrue;
+				}
+				else
+				{
+					// increase last time to leave for loop
+					iaCount++;
+				}
+			}
+		}
+		else
+		{
+			// just continue
+			ia = ia->next;
+			iaCount++;
+		}
+		
+		// remember values
+		oldLight = light;
+		oldEntity = entity;
+		oldShader = shader;
+		
 	}
 
 	backEnd.refdef.floatTime = originalTime;
@@ -1390,32 +1643,33 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction
 	
 	backEnd.pc.c_surfaces += numDrawSurfs;
 	
-#if 1
-	// draw everything but lighting and fog
-	RB_RenderDrawSurfListFull(originalTime, drawSurfs, numDrawSurfs);
-	
-	// render light interactions
-	RB_RenderInteractions(originalTime, interactions, numInteractions);
-#else
-	// Tr3B - draw everything in a similar order Doom3 does
+	if(r_shadows->integer == 4)
+	{
+		// Tr3B - draw everything in a similar order as Doom3 does
 
-	// lay down z buffer
-	RB_RenderDrawSurfListZFill(originalTime, drawSurfs, numDrawSurfs);
+		// lay down z buffer
+		RB_RenderDrawSurfListZFill(originalTime, drawSurfs, numDrawSurfs);
 
-	// TODO render shadows
+		// render shadowing and lighting
+		RB_RenderInteractions2(originalTime, interactions, numInteractions);
 	
-	// render shadowing and lighting
-	RB_RenderInteractions(originalTime, interactions, numInteractions);
+		// render light scale hack to brighten up the scene
+		RB_RenderLightScale();
 	
-	// render light scale hack to brighten up the scene
-	RB_RenderLightScale();
+		// draw fog
+		//RB_RenderDrawSurfListFog(originalTime, drawSurfs, numDrawSurfs);
 	
-	// draw fog
-//	RB_RenderDrawSurfListFog(originalTime, drawSurfs, numDrawSurfs);
+		// render translucent surfaces
+		//RB_RenderDrawSurfListTranslucent(originalTime, drawSurfs, numDrawSurfs);
+	}
+	else
+	{
+		// draw everything but lighting and fog
+		RB_RenderDrawSurfListFull(originalTime, drawSurfs, numDrawSurfs);
 	
-	// render translucent surfaces
-//	RB_RenderDrawSurfListTranslucent(originalTime, drawSurfs, numDrawSurfs);
-#endif
+		// render light interactions
+		RB_RenderInteractions(originalTime, interactions, numInteractions);
+	}
 
 	// render debug information
 	RB_RenderDebugUtils();
