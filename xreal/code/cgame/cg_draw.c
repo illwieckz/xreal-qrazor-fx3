@@ -910,7 +910,14 @@ static void CG_DrawSideBar(void)
 		}
 	}
 
-	x = 10;
+	if(cg_drawSideBar.integer == 2)
+	{
+		x = 10;
+	}
+	else
+	{
+		x = 640 - 80;
+	}
 	y = 240 - count * 20;
 
 	// do not count the gauntlet
@@ -936,16 +943,16 @@ static void CG_DrawSideBar(void)
 			if(i == cg.weaponSelect)
 			{
 				CG_Draw3DWeaponModel(x, y, 54, 54, cg_weapons[i].weaponModel, cg_weapons[i].barrelModel, 0, origin, angles);
-				CG_DrawSmallStringColor(x + 56, y + 15, ammo, colorActive);
+				CG_DrawSmallStringColor(x + 48, y + 15, ammo, colorActive);
 			}
 			else
 			{
 				CG_Draw3DWeaponModel(x, y, 48, 48, cg_weapons[i].weaponModel, cg_weapons[i].barrelModel, 0, origin, angles);
 				
 				if(cg.snap->ps.ammo[i])
-					CG_DrawSmallStringColor(x + 56, y + 15, ammo, colorInActive);
+					CG_DrawSmallStringColor(x + 48, y + 15, ammo, colorInActive);
 				else
-					CG_DrawSmallStringColor(x + 56, y + 15, ammo, colorEmpty);
+					CG_DrawSmallStringColor(x + 48, y + 15, ammo, colorEmpty);
 			}
 
 			y += 40;
@@ -957,16 +964,18 @@ static void CG_DrawSideBar(void)
 			{
 				CG_DrawRect(x, y, 70, 20, 20, colorActiveField);
 				CG_DrawPic(x, y, 20, 20, cg_weapons[i].weaponIcon);
+				
+				CG_DrawSmallStringColor(x + 24, y, ammo, colorInActive);
 			}
 			else
 			{
 				CG_DrawPic(x, y, 16, 16, cg_weapons[i].weaponIcon);
+				
+				if(cg.snap->ps.ammo[i])
+					CG_DrawSmallStringColor(x + 24, y, ammo, colorInActive);
+				else
+					CG_DrawSmallStringColor(x + 24, y, ammo, colorEmpty);
 			}
-			
-			if(cg.snap->ps.ammo[i])
-				CG_DrawSmallStringColor(x + 34, y, ammo, colorInActive);
-			else
-				CG_DrawSmallStringColor(x + 34, y, ammo, colorEmpty);
 
 			y += 22;
 		}
