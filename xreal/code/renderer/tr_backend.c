@@ -1408,10 +1408,10 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction
 	// TODO render shadows
 	
 	// render shadowing and lighting
-//	RB_RenderInteractions(originalTime, interactions, numInteractions);
+	RB_RenderInteractions(originalTime, interactions, numInteractions);
 	
 	// render light scale hack to brighten up the scene
-//	RB_RenderLightScale();
+	RB_RenderLightScale();
 	
 	// draw fog
 //	RB_RenderDrawSurfListFog(originalTime, drawSurfs, numDrawSurfs);

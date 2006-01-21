@@ -1523,7 +1523,6 @@ extern cvar_t  *r_showtris;		// enables wireframe rendering of the world
 extern cvar_t  *r_showsky;		// forces sky in front of all surfaces
 extern cvar_t  *r_shownormals;	// draws wireframe normals
 extern cvar_t  *r_showTangentSpaces;	// draws wireframe tangents, binormals and normals
-extern cvar_t  *r_showDeluxels;	// draws wireframe deluxels
 extern cvar_t  *r_clear;		// force screen clear every frame
 
 extern cvar_t  *r_shadows;		// controls shadows: 0 = none, 1 = blur, 2 = stencil, 3 = black planar projection
@@ -1741,8 +1740,7 @@ enum
 	GLCS_TANGENT		= (1 << 5),
 	GLCS_BINORMAL		= (1 << 6),
 	GLCS_NORMAL			= (1 << 7),
-	GLCS_DELUXEL		= (1 << 8),
-	GLCS_COLOR			= (1 << 9),
+	GLCS_COLOR			= (1 << 8),
 	
 	GLCS_DEFAULT		= GLCS_VERTEX
 };
@@ -1864,7 +1862,6 @@ typedef struct shaderCommands_s
 	vec4_t          tangents[SHADER_MAX_VERTEXES];
 	vec4_t          binormals[SHADER_MAX_VERTEXES];
 	vec4_t          normals[SHADER_MAX_VERTEXES];
-	vec4_t          deluxels[SHADER_MAX_VERTEXES];
 	vec2_t          texCoords[SHADER_MAX_VERTEXES][2];
 	color4ub_t      vertexColors[SHADER_MAX_VERTEXES];
 
@@ -2079,8 +2076,6 @@ void            RB_CalcDiffuseColor(unsigned char *colors);
 void			RB_CalcCustomColor(const expression_t * rgbExp, unsigned char *dstColors);
 void			RB_CalcCustomColors(const expression_t * redExp, const expression_t * greenExp, const expression_t * blueExp, unsigned char *dstColors);
 void			RB_CalcCustomAlpha(const expression_t * alphaExp, unsigned char *dstColors);
-
-void            RB_CalcDeluxels(void);
 
 /*
 =============================================================

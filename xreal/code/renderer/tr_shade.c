@@ -39,7 +39,6 @@ enum
 	ATTR_INDEX_TANGENT		= 12,
 	ATTR_INDEX_BINORMAL		= 13,
 //  ATTR_INDEX_NORMAL       = 2,
-	ATTR_INDEX_DELUXEL		= 14,
 //  ATTR_INDEX_COLOR        = 3
 };
 
@@ -218,9 +217,6 @@ static void RB_InitGPUShader(shaderProgram_t * program, const char *name, int at
 
 //  if( attribs & GLCS_NORMAL )
 //      qglBindAttribLocationARB( program->program, ATTR_INDEX_NORMAL, "attr_Color");
-
-	if(attribs & GLCS_DELUXEL)
-		qglBindAttribLocationARB(program->program, ATTR_INDEX_DELUXEL, "attr_Deluxel");
 
 //  if( attribs & GLCS_COLOR )
 //      qglBindAttribLocationARB( program->program, ATTR_INDEX_COLOR, "attr_Color");
@@ -824,55 +820,113 @@ void GL_ClientState(unsigned long stateBits)
 	
 	/*
 	if(diff & GLCS_VERTEX)
-		qglEnableClientState(GL_VERTEX_ARRAY);
-	else
-		qglDisableClientState(GL_VERTEX_ARRAY);
+	{
+		if(stateBits & GLCS_VERTEX)
+		{
+			qglEnableClientState(GL_VERTEX_ARRAY);
+		}
+		else
+		{
+			qglDisableClientState(GL_VERTEX_ARRAY);
+		}
+	}
 	*/
 	
 	if(diff & GLCS_TEXCOORD0)
-		qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD0);
-	else
-		qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD0);
-
+	{
+		if(stateBits & GLCS_TEXCOORD0)
+		{
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD0);
+		}
+		else
+		{
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD0);
+		}
+	}
+	
 	if(diff & GLCS_TEXCOORD1)
-		qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD1);
-	else
-		qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD1);
+	{
+		if(stateBits & GLCS_TEXCOORD1)
+		{
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD1);
+		}
+		else
+		{
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD1);
+		}
+	}
 	
 	if(diff & GLCS_TEXCOORD2)
-		qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD2);
-	else
-		qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD2);
+	{
+		if(stateBits & GLCS_TEXCOORD2)
+		{
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD2);
+		}
+		else
+		{
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD2);
+		}
+	}
 	
 	if(diff & GLCS_TEXCOORD3)
-		qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD3);
-	else
-		qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD3);
+	{
+		if(stateBits & GLCS_TEXCOORD3)
+		{
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD3);
+		}
+		else
+		{
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD3);
+		}
+	}
 
 	if(diff & GLCS_TANGENT)
-		qglEnableVertexAttribArrayARB(ATTR_INDEX_TANGENT);
-	else
-		qglDisableVertexAttribArrayARB(ATTR_INDEX_TANGENT);
+	{
+		if(stateBits & GLCS_TANGENT)
+		{
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_TANGENT);
+		}
+		else
+		{
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_TANGENT);
+		}
+	}
 
 	if(diff & GLCS_BINORMAL)
-		qglEnableVertexAttribArrayARB(ATTR_INDEX_BINORMAL);
-	else
-		qglDisableVertexAttribArrayARB(ATTR_INDEX_BINORMAL);
-
+	{
+		if(stateBits & GLCS_BINORMAL)
+		{
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_BINORMAL);
+		}
+		else
+		{
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_BINORMAL);
+		}
+	}
+	
 	if(diff & GLCS_NORMAL)
-		qglEnableClientState(GL_NORMAL_ARRAY);
-	else
-		qglDisableClientState(GL_NORMAL_ARRAY);
-
-	if(diff & GLCS_DELUXEL)
-		qglEnableVertexAttribArrayARB(ATTR_INDEX_DELUXEL);
-	else
-		qglDisableVertexAttribArrayARB(ATTR_INDEX_DELUXEL);
-
+	{
+		if(stateBits & GLCS_NORMAL)
+		{
+			qglEnableClientState(GL_NORMAL_ARRAY);
+		}
+		else
+		{
+			qglDisableClientState(GL_NORMAL_ARRAY);
+		}
+	}
+	
 	if(diff & GLCS_COLOR)
-		qglEnableClientState(GL_COLOR_ARRAY);
-	else
-		qglDisableClientState(GL_COLOR_ARRAY);
+	{
+		if(stateBits & GLCS_COLOR)
+		{
+			qglEnableClientState(GL_COLOR_ARRAY);
+		}
+		else
+		{
+			qglDisableClientState(GL_COLOR_ARRAY);
+		}
+	}
 	
 	glState.glClientStateBits = stateBits;
 }
@@ -918,9 +972,6 @@ static void GL_SetVertexAttribs()
 
 	if(glState.glClientStateBits & GLCS_NORMAL)
 		qglNormalPointer(GL_FLOAT, 16, tess.normals);
-
-	if(glState.glClientStateBits & GLCS_DELUXEL)
-		qglVertexAttribPointerARB(ATTR_INDEX_DELUXEL, 3, GL_FLOAT, 0, 16, tess.deluxels);
 
 	if(glState.glClientStateBits & GLCS_COLOR)
 		qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.svars.colors);
@@ -1256,39 +1307,6 @@ static void DrawTangentSpaces(shaderCommands_t * input)
 
 /*
 ================
-DrawDeluxels
-
-Draws vertex deluxels for debugging
-================
-*/
-static void DrawDeluxels(shaderCommands_t * input)
-{
-	int             i;
-	vec3_t          temp;
-
-	GL_Program(0);
-	GL_SelectTexture(0);
-	GL_Bind(tr.whiteImage);
-	qglDepthRange(0, 0);		// never occluded
-	GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
-
-	qglBegin(GL_LINES);
-	for(i = 0; i < input->numVertexes; i++)
-	{
-		qglColor3f(1, 1, 1);
-		qglVertex3fv(input->xyz[i]);
-
-		VectorMA(input->xyz[i], 2, input->deluxels[i], temp);
-		qglColor3f(1, 1, 0);
-		qglVertex3fv(temp);
-	}
-	qglEnd();
-
-	qglDepthRange(0, 1);
-}
-
-/*
-================
 DrawNormals
 
 Draws vertex normals for debugging
@@ -1413,6 +1431,7 @@ static void Render_zfill_FFP(int stage)
 	GL_SelectTexture(0);
 //	qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+//	qglDisableClientState(GL_COLOR_ARRAY);
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
 	
 	if(pStage->stateBits & GLS_ATEST_BITS)
@@ -3030,7 +3049,7 @@ void RB_StageIteratorZFill()
 			continue;
 		}
 
-		ComputeColors(pStage);
+		//ComputeColors(pStage);
 		ComputeTexCoords(pStage);
 
 		switch(pStage->type)
@@ -3221,14 +3240,6 @@ void RB_StageIteratorLighting()
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
 	backEnd.pc.c_totalIndexes += tess.numIndexes;
 	backEnd.pc.c_dlightIndexes += tess.numIndexes;
-	
-	// reset client state
-//	GL_ClientState(GLCS_DEFAULT);
-	
-	// clean up
-	GL_Program(0);
-	GL_ClientState(GLCS_DEFAULT);
-	GL_SelectTexture(0);
 
 	// unlock arrays
 	if(qglUnlockArraysEXT)
@@ -3749,11 +3760,6 @@ void RB_StageIteratorGeneric()
 	{
 		RB_Render_fog();
 	}
-	
-	// clean up
-	GL_Program(0);
-	GL_ClientState(GLCS_DEFAULT);
-//	GL_SelectTexture(0);
 
 	// unlock arrays
 	if(qglUnlockArraysEXT)
@@ -3873,10 +3879,6 @@ void RB_EndSurface()
 	if(r_showTangentSpaces->integer)
 	{
 		DrawTangentSpaces(input);
-	}
-	if(r_showDeluxels->integer)
-	{
-		DrawDeluxels(input);
 	}
 
 	// clear shader so we can tell we don't have any unclosed surfaces
