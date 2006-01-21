@@ -476,6 +476,17 @@ void RB_BeginDrawingView(void)
 	extern const float	s_flipMatrix[16];
 	
 	GLimp_LogComment("--- RB_BeginDrawingView ---\n");
+	
+	// sync with gl if needed
+	if(r_finish->integer == 1 && !glState.finishCalled)
+	{
+		qglFinish();
+		glState.finishCalled = qtrue;
+	}
+	if(r_finish->integer == 0)
+	{
+		glState.finishCalled = qtrue;
+	}
 
 	// we will need to change the projection matrix before drawing
 	// 2D images again
@@ -1373,20 +1384,6 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction
 	
 	// save original time for entity shader offsets
 	originalTime = backEnd.refdef.floatTime;
-	
-	// sync with gl if needed
-	if(r_finish->integer == 1 && !glState.finishCalled)
-	{
-		qglFinish();
-		glState.finishCalled = qtrue;
-	}
-	if(r_finish->integer == 0)
-	{
-		glState.finishCalled = qtrue;
-	}
-	
-	// reset opengl state
-//	GL_SetDefaultState();
 	
 	// clear the z buffer, set the modelview, etc
 	RB_BeginDrawingView();

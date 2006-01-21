@@ -343,9 +343,6 @@ static void InitOpenGL(void)
 
 	// set default state
 	GL_SetDefaultState();
-	
-	// set default texture mode
-	GL_TextureMode(r_textureMode->string);
 }
 
 /*
@@ -893,18 +890,22 @@ void GL_SetDefaultState(void)
 
 	qglColor4f(1, 1, 1, 1);
 
-	// initialize downstream texture unit if we're running
+	// initialize downstream texture units if we're running
 	// in a multitexture environment
 	if(qglActiveTextureARB)
 	{
 		for(i = glConfig.maxTextureUnits - 1; i >= 0; i--)
 		{
 			GL_SelectTexture(i);
+			GL_TextureMode(r_textureMode->string);
 			GL_TexEnv(GL_MODULATE);
-			qglDisable(GL_TEXTURE_2D);
+			
+			if(i != 0)
+				qglDisable(GL_TEXTURE_2D);
+			else
+				qglEnable(GL_TEXTURE_2D);
 		}
 	}
-	qglEnable(GL_TEXTURE_2D);
 	
 	qglShadeModel(GL_SMOOTH);
 	qglDepthFunc(GL_LEQUAL);
