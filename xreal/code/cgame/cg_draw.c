@@ -302,7 +302,6 @@ static void CG_DrawField(int x, int y, int width, int value)
 /*
 ================
 CG_Draw3DModel
-
 ================
 */
 void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vec3_t origin, vec3_t angles)
@@ -342,6 +341,73 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 
 	trap_R_ClearScene();
 	trap_R_AddRefEntityToScene(&ent);
+	trap_R_RenderScene(&refdef);
+}
+
+
+/*
+================
+CG_Draw3DWeaponModel
+================
+*/
+void CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponModel, qhandle_t barrelModel, qhandle_t skin, vec3_t origin, vec3_t angles)
+{
+	refdef_t        refdef;
+	refEntity_t     ent;
+
+	if(!cg_draw3dIcons.integer || !cg_drawIcons.integer)
+	{
+		return;
+	}
+
+	CG_AdjustFrom640(&x, &y, &w, &h);
+
+	memset(&refdef, 0, sizeof(refdef));
+
+	memset(&ent, 0, sizeof(ent));
+	AnglesToAxis(angles, ent.axis);
+	VectorCopy(origin, ent.origin);
+	ent.hModel = weaponModel;
+	ent.customSkin = skin;
+	ent.renderfx = RF_NOSHADOW;	// no stencil shadows
+
+	refdef.rdflags = RDF_NOWORLDMODEL | RDF_NOLIGHTSCALE;
+
+	AxisClear(refdef.viewaxis);
+
+	refdef.fov_x = 30;
+	refdef.fov_y = 30;
+
+	refdef.x = x;
+	refdef.y = y;
+	refdef.width = w;
+	refdef.height = h;
+
+	refdef.time = cg.time;
+
+	trap_R_ClearScene();
+	
+	trap_R_AddRefEntityToScene(&ent);
+	if(barrelModel)
+	{
+		refEntity_t     barrel;
+
+		memset(&barrel, 0, sizeof(barrel));
+
+		barrel.hModel = barrelModel;
+
+		VectorCopy(ent.lightingOrigin, barrel.lightingOrigin);
+		barrel.shadowPlane = ent.shadowPlane;
+		barrel.renderfx = ent.renderfx;
+
+		CG_PositionRotatedEntityOnTag(&barrel, &ent, weaponModel, "tag_barrel");
+
+		AxisCopy(ent.axis, barrel.axis);
+		barrel.nonNormalizedAxes = ent.nonNormalizedAxes;
+
+		trap_R_AddRefEntityToScene(&barrel);
+	}
+	
 	trap_R_RenderScene(&refdef);
 }
 
@@ -800,6 +866,113 @@ static void CG_DrawStatusBar(void)
 #endif
 }
 #endif
+
+/*
+================
+CG_DrawSideBar
+================
+*/
+static void CG_DrawSideBar(void)
+{
+	int             i;
+	int             bits;
+	int             count;
+	int             x, y;
+	char           *ammo;
+	vec3_t          angles;
+	vec3_t          origin;
+
+	// a colors[][] array would be better
+	vec4_t          colorEmpty = { 1.0f, 0.0f, 0.0f, 0.7f };
+	vec4_t          colorInActive = { 1.0f, 1.0f, 1.0f, 0.7f };
+	vec4_t          colorActive = { 0.25f, 1.0f, 0.25f, 0.8f };
+	vec4_t          colorActiveField = { 0.25f, 1.0f, 0.25f, 0.1f };
+
+	if(cg_drawSideBar.integer == 0)
+	{
+		return;
+	}
+
+	// do not show if the player is dead
+	if(cg.predictedPlayerState.stats[STAT_HEALTH] <= 0)
+	{
+		return;
+	}
+
+	// count the number of weapons owned
+	bits = cg.snap->ps.stats[STAT_WEAPONS];
+	count = 0;
+	for(i = 1; i < 16; i++)
+	{
+		if(bits & (1 << i))
+		{
+			count++;
+		}
+	}
+
+	x = 10;
+	y = 240 - count * 20;
+
+	// do not count the gauntlet
+	for(i = 2; i < 16; i++)
+	{
+		if(!(bits & (1 << i)))
+		{
+			continue;
+		}
+
+		CG_RegisterWeapon(i);
+
+		ammo = va("%i", cg.snap->ps.ammo[i]);
+
+		if(cg_draw3dIcons.integer && !cg_simpleItems.integer)
+		{
+			origin[0] = 90;
+			origin[1] = 0;
+			origin[2] = 0;
+			//angles[YAW] = 90 + 20 * sin(cg.time / 1000.0);
+			angles[YAW] = 90 * (cg.time / 1000.0) + (30 * i);
+
+			if(i == cg.weaponSelect)
+			{
+				CG_Draw3DWeaponModel(x, y, 54, 54, cg_weapons[i].weaponModel, cg_weapons[i].barrelModel, 0, origin, angles);
+				CG_DrawSmallStringColor(x + 56, y + 15, ammo, colorActive);
+			}
+			else
+			{
+				CG_Draw3DWeaponModel(x, y, 48, 48, cg_weapons[i].weaponModel, cg_weapons[i].barrelModel, 0, origin, angles);
+				
+				if(cg.snap->ps.ammo[i])
+					CG_DrawSmallStringColor(x + 56, y + 15, ammo, colorInActive);
+				else
+					CG_DrawSmallStringColor(x + 56, y + 15, ammo, colorEmpty);
+			}
+
+			y += 40;
+		}
+		else
+		{
+			// SimpleItems on
+			if(i == cg.weaponSelect)
+			{
+				CG_DrawRect(x, y, 70, 20, 20, colorActiveField);
+				CG_DrawPic(x, y, 20, 20, cg_weapons[i].weaponIcon);
+			}
+			else
+			{
+				CG_DrawPic(x, y, 16, 16, cg_weapons[i].weaponIcon);
+			}
+			
+			if(cg.snap->ps.ammo[i])
+				CG_DrawSmallStringColor(x + 34, y, ammo, colorInActive);
+			else
+				CG_DrawSmallStringColor(x + 34, y, ammo, colorEmpty);
+
+			y += 22;
+		}
+	}
+}
+
 
 /*
 ===========================================================================================
@@ -2895,7 +3068,7 @@ static void CG_Draw2D(void)
 		return;
 	}
 */
-	
+
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
 	{
 		CG_DrawSpectator();
@@ -2916,6 +3089,8 @@ static void CG_Draw2D(void)
 			}
 #else
 			CG_DrawStatusBar();
+
+			CG_DrawSideBar();
 #endif
 
 			CG_DrawAmmoWarning();
@@ -3045,7 +3220,7 @@ void CG_DrawActive(stereoFrame_t stereoView)
 	{
 		VectorCopy(baseOrg, cg.refdef.vieworg);
 	}
-	
+
 	// draw bloom post process effect
 	CG_DrawBloom();
 

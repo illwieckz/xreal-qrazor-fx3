@@ -117,6 +117,7 @@ vmCvar_t        cg_crosshairY;
 vmCvar_t        cg_crosshairHealth;
 vmCvar_t        cg_draw2D;
 vmCvar_t        cg_drawStatus;
+vmCvar_t        cg_drawSideBar;
 vmCvar_t        cg_animSpeed;
 vmCvar_t        cg_debugAnim;
 vmCvar_t        cg_debugPosition;
@@ -223,6 +224,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_gibs, "cg_gibs", "1", CVAR_ARCHIVE},
 	{&cg_draw2D, "cg_draw2D", "1", CVAR_ARCHIVE},
 	{&cg_drawStatus, "cg_drawStatus", "1", CVAR_ARCHIVE},
+	{&cg_drawSideBar, "cg_drawSideBar", "1", CVAR_ARCHIVE},
 	{&cg_drawTimer, "cg_drawTimer", "0", CVAR_ARCHIVE},
 	{&cg_drawFPS, "cg_drawFPS", "0", CVAR_ARCHIVE},
 	{&cg_drawSnapshot, "cg_drawSnapshot", "0", CVAR_ARCHIVE},
@@ -323,7 +325,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},
 	{&cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
 //  { &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
-	
+
 	{&cg_drawBloom, "cg_drawBloom", "0", CVAR_ARCHIVE}
 };
 
@@ -928,7 +930,7 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.backTileShader = trap_R_RegisterShader("gfx/2d/backtile");
 	cgs.media.noammoShader = trap_R_RegisterShader("icons/noammo");
-	
+
 	cgs.media.bloomShader = trap_R_RegisterShader("bloom");
 	cgs.media.bloom2Shader = trap_R_RegisterShader("bloom2");
 

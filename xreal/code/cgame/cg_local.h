@@ -663,7 +663,7 @@ typedef struct
 	refEntity_t     testModelEntity;
 	char            testModelName[MAX_QPATH];
 	qboolean        testGun;
-	
+
 	refDlight_t     testLight;
 	char            testLightName[MAX_QPATH];
 	qboolean        testLightEnabled;
@@ -759,9 +759,9 @@ typedef struct
 	qhandle_t       lagometerShader;
 	qhandle_t       backTileShader;
 	qhandle_t       noammoShader;
-	
-	qhandle_t		bloomShader;
-	qhandle_t		bloom2Shader;
+
+	qhandle_t       bloomShader;
+	qhandle_t       bloom2Shader;
 
 	qhandle_t       smokePuffShader;
 	qhandle_t       smokePuffRageProShader;
@@ -821,7 +821,7 @@ typedef struct
 
 	// special effects models
 	qhandle_t       teleportEffectModel;
-	qhandle_t       teleportEffectShader;	
+	qhandle_t       teleportEffectShader;
 #ifdef MISSIONPACK
 	qhandle_t       kamikazeEffectModel;
 	qhandle_t       kamikazeShockWave;
@@ -1012,7 +1012,7 @@ typedef struct
 	sfxHandle_t     wstbimpmSound;
 	sfxHandle_t     wstbimpdSound;
 	sfxHandle_t     wstbactvSound;
-	
+
 	// light attenuation
 	qhandle_t       defaultDlightShader;
 
@@ -1143,6 +1143,7 @@ extern vmCvar_t cg_crosshairY;
 extern vmCvar_t cg_crosshairSize;
 extern vmCvar_t cg_crosshairHealth;
 extern vmCvar_t cg_drawStatus;
+extern vmCvar_t cg_drawSideBar;
 extern vmCvar_t cg_draw2D;
 extern vmCvar_t cg_animSpeed;
 extern vmCvar_t cg_debugAnim;
@@ -1333,6 +1334,7 @@ void            CG_GetTeamColor(vec4_t * color);
 const char     *CG_GetGameStatusText();
 const char     *CG_GetKillerText();
 void            CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vec3_t origin, vec3_t angles);
+void            CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponModel, qhandle_t barrelModel, qhandle_t skin, vec3_t origin, vec3_t angles);
 void            CG_Text_PaintChar(float x, float y, float width, float height, float scale, float s, float t, float s2, float t2,
 								  qhandle_t hShader);
 void            CG_CheckOrderPending();
