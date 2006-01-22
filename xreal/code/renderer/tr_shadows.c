@@ -519,7 +519,7 @@ void RB_ShadowTessEnd2(void)
 	if(r_showShadowVolumes->integer)
 	{
 		GL_Cull(CT_FRONT_SIDED);
-		GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+		GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA /*| GLS_DEPTHFUNC_EQUAL*/);
 
 		if(!backEnd.viewParms.isMirror)
 		{
@@ -529,7 +529,7 @@ void RB_ShadowTessEnd2(void)
 			qglColor4f(1.0f, 0.0f, 0.0f, 0.07f);
 			R_RenderShadowCaps(qfalse);
 			
-			qglColor4f(0.0f, 0.0f, 1.0f, 0.07f);
+			qglColor4f(1.0f, 1.0f, 1.0f, 0.07f);
 			R_RenderShadowCaps(qtrue);
 		}
 	}

@@ -1065,6 +1065,9 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 	drawShadows = qtrue;
 	
 	tess.currentStageIteratorType = SIT_LIGHTING;
+	
+	// store current OpenGL state 
+//	qglPushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_STENCIL_BUFFER_BIT);
 
 	// render interactions
 	for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
@@ -1081,20 +1084,17 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 			
 			if(drawShadows)
 			{
-				//if(!r_showShadowVolumes->integer)
-				{
-					qglClear(GL_STENCIL_BUFFER_BIT);
-					
-					// don't write to the color buffer or depth buffer
-					// enable stencil testing for this light
-					GL_State(GLS_COLORMASK_BITS | GLS_STENCILTEST_ENABLE);
+				qglClear(GL_STENCIL_BUFFER_BIT);
+				
+				// don't write to the color buffer or depth buffer
+				// enable stencil testing for this light
+				GL_State(GLS_COLORMASK_BITS | GLS_DEPTHTEST_DISABLE | GLS_STENCILTEST_ENABLE);
 	
-					// set the reference stencil value
-					//qglStencilFunc(GL_ALWAYS, 1, 255);
-					//qglStencilFunc(GL_ALWAYS, 128, ~0);
-					qglStencilFunc(GL_ALWAYS, 0, ~0);
-					qglStencilMask(~0);
-				}
+				// set the reference stencil value
+				//qglStencilFunc(GL_ALWAYS, 1, 255);
+				//qglStencilFunc(GL_ALWAYS, 128, ~0);
+				qglStencilFunc(GL_ALWAYS, 0, ~0);
+				qglStencilMask(~0);
 			}
 			else
 			{
@@ -1117,7 +1117,7 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
 				}
 				
-				qglStencilFunc(GL_LEQUAL, 0, ~0);
+				qglStencilFunc(GL_EQUAL, 0, ~0);
 				qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
 			}
 			
@@ -1251,6 +1251,9 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 	}
 
 	backEnd.refdef.floatTime = originalTime;
+	
+	// restore OpenGL state
+//	qglPopAttrib();
 
 	// go back to the world modelview matrix
 	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
