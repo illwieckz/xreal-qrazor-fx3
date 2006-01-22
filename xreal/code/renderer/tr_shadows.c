@@ -516,7 +516,7 @@ void RB_ShadowTessEnd2(void)
 	{
 		qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 		qglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		
+
 		qglDisable(GL_STENCIL_TEST);
 
 		if(!backEnd.viewParms.isMirror)
@@ -539,31 +539,29 @@ void RB_ShadowTessEnd2(void)
 	else
 	{
 		// mirrors have the culling order reversed
-		/*
-		   if(backEnd.viewParms.isMirror)
-		   {
-		   // draw only the back faces of the shadow volume
-		   qglCullFace(GL_BACK);
+		if(backEnd.viewParms.isMirror)
+		{
+			// draw only the back faces of the shadow volume
+			qglCullFace(GL_BACK);
 
-		   // increment the stencil value on ZFail
-		   qglStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
+			// increment the stencil value on ZFail
+			qglStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
 
-		   R_RenderShadowCaps(qfalse);
-		   R_RenderShadowEdges();
-		   R_RenderShadowCaps(qtrue);
+			R_RenderShadowCaps(qfalse);
+			R_RenderShadowEdges();
+			R_RenderShadowCaps(qtrue);
 
-		   // draw only the front faces of the shadow volume
-		   qglCullFace(GL_FRONT);
+			// draw only the front faces of the shadow volume
+			qglCullFace(GL_FRONT);
 
-		   // decrement the stencil value on ZFail
-		   qglStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
+			// decrement the stencil value on ZFail
+			qglStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
 
-		   R_RenderShadowCaps(qfalse);
-		   R_RenderShadowEdges();
-		   R_RenderShadowCaps(qtrue);
-		   }
-		   else
-		 */
+			R_RenderShadowCaps(qfalse);
+			R_RenderShadowEdges();
+			R_RenderShadowCaps(qtrue);
+		}
+		else
 		{
 			// draw only the front faces of the shadow volume
 			qglCullFace(GL_FRONT);
@@ -571,8 +569,8 @@ void RB_ShadowTessEnd2(void)
 			// increment the stencil value on ZFail
 			qglStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
 
-			R_RenderShadowEdges();
 			R_RenderShadowCaps(qfalse);
+			R_RenderShadowEdges();
 			R_RenderShadowCaps(qtrue);
 
 			// draw only the back faces of the shadow volume
@@ -581,8 +579,8 @@ void RB_ShadowTessEnd2(void)
 			// decrement the stencil value on ZFail
 			qglStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
 
-			R_RenderShadowEdges();
 			R_RenderShadowCaps(qfalse);
+			R_RenderShadowEdges();
 			R_RenderShadowCaps(qtrue);
 		}
 	}
