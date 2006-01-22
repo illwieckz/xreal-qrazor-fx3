@@ -138,9 +138,9 @@ void R_RenderShadowEdges(void)
 			{
 				qglBegin(GL_TRIANGLE_STRIP);
 				qglVertex3fv(tess.xyz[i]);
-				qglVertex3fv(tess.xyz[i + tess.numVertexes]);
+				qglVertex4fv(tess.xyz[i + tess.numVertexes]);
 				qglVertex3fv(tess.xyz[i2]);
-				qglVertex3fv(tess.xyz[i2 + tess.numVertexes]);
+				qglVertex4fv(tess.xyz[i2 + tess.numVertexes]);
 				qglEnd();
 				c_edges++;
 			}
@@ -153,7 +153,7 @@ void R_RenderShadowEdges(void)
 #endif
 }
 
-void R_RenderShadowCaps(qboolean face)
+void R_RenderShadowCaps(qboolean front)
 {
 	int             i;
 	int             numTris;
@@ -173,7 +173,7 @@ void R_RenderShadowCaps(qboolean face)
 		i2 = tess.indexes[i * 3 + 1];
 		i3 = tess.indexes[i * 3 + 2];
 
-		if(!face)
+		if(!front)
 		{
 			qglBegin(GL_TRIANGLES);
 			qglVertex3fv(tess.xyz[i1]);
@@ -184,9 +184,9 @@ void R_RenderShadowCaps(qboolean face)
 		else
 		{
 			qglBegin(GL_TRIANGLES);
-			qglVertex3fv(tess.xyz[i3 + tess.numVertexes]);
-			qglVertex3fv(tess.xyz[i2 + tess.numVertexes]);
-			qglVertex3fv(tess.xyz[i1 + tess.numVertexes]);
+			qglVertex4fv(tess.xyz[i3 + tess.numVertexes]);
+			qglVertex4fv(tess.xyz[i2 + tess.numVertexes]);
+			qglVertex4fv(tess.xyz[i1 + tess.numVertexes]);
 			qglEnd();
 		}
 	}
@@ -227,6 +227,10 @@ void RB_ShadowTessEnd(void)
 	for(i = 0; i < tess.numVertexes; i++)
 	{
 		VectorMA(tess.xyz[i], -512, lightDir, tess.xyz[i + tess.numVertexes]);
+		//VectorAdd(tess.xyz[i], lightDir, tess.xyz[i + tess.numVertexes]);
+
+		// set w component to zero to work at infinity
+		tess.xyz[i + tess.numVertexes][3] = 0;
 	}
 
 	// decide which triangles face the light
@@ -279,22 +283,14 @@ void RB_ShadowTessEnd(void)
 
 		if(!backEnd.viewParms.isMirror)
 		{
-			//qglCullFace(GL_BACK);
-			//qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
-
 			qglColor4f(1.0f, 0.0f, 0.0f, 0.07f);
 			R_RenderShadowCaps(qfalse);
-			
+
 			qglColor4f(0.0f, 1.0f, 0.0f, 0.07f);
 			R_RenderShadowEdges();
-			
+
 			qglColor4f(0.0f, 0.0f, 1.0f, 0.07f);
 			R_RenderShadowCaps(qtrue);
-
-			//qglCullFace(GL_FRONT);
-			//qglStencilOp(GL_KEEP, GL_KEEP, GL_DECR);
-
-			//R_RenderShadowEdges();
 		}
 	}
 	else
@@ -304,40 +300,38 @@ void RB_ShadowTessEnd(void)
 			qglEnable(GL_CULL_FACE);
 			GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO);
 			qglColor3f(0.2f, 0.2f, 0.2f);
-			
+
 			// store current OpenGL state 
 			qglPushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_STENCIL_BUFFER_BIT);
-	
+
 			// don't write to the color buffer or depth buffer
 			qglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 			qglDepthMask(GL_FALSE);
-	
+
 			qglEnable(GL_STENCIL_TEST);
-			
+
 			// set the reference stencil value
-			//qglStencilFunc(GL_ALWAYS, 1, 255);
-			//qglStencilFunc(GL_ALWAYS, 128, ~0);
 			qglStencilFunc(GL_ALWAYS, 0, ~0);
-	
+
 			// mirrors have the culling order reversed
 			if(backEnd.viewParms.isMirror)
 			{
 				// draw only the back faces of the shadow volume
 				qglCullFace(GL_BACK);
-				
+
 				// increment the stencil value on ZFail
 				qglStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
-	
+
 				R_RenderShadowCaps(qfalse);
 				R_RenderShadowEdges();
 				R_RenderShadowCaps(qtrue);
-	
+
 				// draw only the front faces of the shadow volume
 				qglCullFace(GL_FRONT);
-				
+
 				// decrement the stencil value on ZFail
 				qglStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
-	
+
 				R_RenderShadowCaps(qfalse);
 				R_RenderShadowEdges();
 				R_RenderShadowCaps(qtrue);
@@ -346,54 +340,52 @@ void RB_ShadowTessEnd(void)
 			{
 				// draw only the front faces of the shadow volume
 				qglCullFace(GL_FRONT);
-				
+
 				// increment the stencil value on ZFail
 				qglStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
-	
+
 				R_RenderShadowCaps(qfalse);
 				R_RenderShadowEdges();
 				R_RenderShadowCaps(qtrue);
-	
+
 				// draw only the back faces of the shadow volume
 				qglCullFace(GL_BACK);
-				
+
 				// decrement the stencil value on ZFail
 				qglStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
-	
+
 				R_RenderShadowCaps(qfalse);
 				R_RenderShadowEdges();
 				R_RenderShadowCaps(qtrue);
 			}
-	
+
 			// reenable writing to the color buffer and depth buffer
 			qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 			qglDepthMask(GL_TRUE);
-			
+
 			// restore OpenGL state
 			qglPopAttrib();
 		}
-#if 1
 		else
 		{
 			qglEnable(GL_CULL_FACE);
 			GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO);
 			qglColor3f(0.2f, 0.2f, 0.2f);
-			
+
 			// don't write to the color buffer
 			qglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-			
+
 			qglEnable(GL_STENCIL_TEST);
-			
+
 			// set the reference stencil value
-			//qglStencilFunc(GL_ALWAYS, 1, 255);
 			qglStencilFunc(GL_ALWAYS, 0, ~0);
-			
+
 			// mirrors have the culling order reversed
 			if(backEnd.viewParms.isMirror)
 			{
 				// draw only the front faces of the shadow volume
 				qglCullFace(GL_FRONT);
-				
+
 				// increment the stencil value on ZPass
 				qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
 
@@ -401,7 +393,7 @@ void RB_ShadowTessEnd(void)
 
 				// draw only the back faces of the shadow volume
 				qglCullFace(GL_BACK);
-				
+
 				// decrement the stencil value on ZPass
 				qglStencilOp(GL_KEEP, GL_KEEP, GL_DECR);
 
@@ -411,7 +403,7 @@ void RB_ShadowTessEnd(void)
 			{
 				// draw only the back faces of the shadow volume
 				qglCullFace(GL_BACK);
-				
+
 				// increment the stencil value on ZPass
 				qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
 
@@ -419,17 +411,16 @@ void RB_ShadowTessEnd(void)
 
 				// draw only the front faces of the shadow volume
 				qglCullFace(GL_FRONT);
-				
+
 				// decrement the stencil value on ZPass
 				qglStencilOp(GL_KEEP, GL_KEEP, GL_DECR);
 
 				R_RenderShadowEdges();
 			}
-			
+
 			// reenable writing to the color buffer
 			qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 		}
-#endif
 	}
 }
 
@@ -451,6 +442,7 @@ void RB_ShadowTessEnd2(void)
 	int             i;
 	int             numTris;
 	vec3_t          lightDir;
+	vec3_t          shadowDir;
 
 	// we can only do this if we have enough space in the vertex buffers
 	if(tess.numVertexes >= SHADER_MAX_VERTEXES / 2)
@@ -469,7 +461,11 @@ void RB_ShadowTessEnd2(void)
 	// project vertexes away from light direction
 	for(i = 0; i < tess.numVertexes; i++)
 	{
-		VectorMA(tess.xyz[i], -512, lightDir, tess.xyz[i + tess.numVertexes]);
+		VectorSubtract(tess.xyz[i], backEnd.currentLight->transformed, shadowDir);
+		VectorAdd(tess.xyz[i], shadowDir, tess.xyz[i + tess.numVertexes]);
+
+		// set w component to zero to work at infinity
+		tess.xyz[i + tess.numVertexes][3] = 0;
 	}
 
 	// decide which triangles face the light
@@ -518,53 +514,59 @@ void RB_ShadowTessEnd2(void)
 
 	if(r_showShadowVolumes->integer)
 	{
-		GL_Cull(CT_FRONT_SIDED);
-		GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+		qglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		qglDisable(GL_STENCIL_TEST);
+		qglDisable(GL_DEPTH_TEST);
 
 		if(!backEnd.viewParms.isMirror)
 		{
+			qglCullFace(GL_FRONT);
+
 			qglColor4f(0.0f, 1.0f, 0.0f, 0.07f);
 			R_RenderShadowEdges();
 
 			qglColor4f(1.0f, 0.0f, 0.0f, 0.07f);
 			R_RenderShadowCaps(qfalse);
-			
+
 			qglColor4f(1.0f, 1.0f, 1.0f, 0.07f);
 			R_RenderShadowCaps(qtrue);
 		}
+
+		qglEnable(GL_STENCIL_TEST);
+		qglEnable(GL_DEPTH_TEST);
 	}
 	else
 	{
 		// mirrors have the culling order reversed
 		/*
-		if(backEnd.viewParms.isMirror)
+		   if(backEnd.viewParms.isMirror)
+		   {
+		   // draw only the back faces of the shadow volume
+		   qglCullFace(GL_BACK);
+
+		   // increment the stencil value on ZFail
+		   qglStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
+
+		   R_RenderShadowCaps(qfalse);
+		   R_RenderShadowEdges();
+		   R_RenderShadowCaps(qtrue);
+
+		   // draw only the front faces of the shadow volume
+		   qglCullFace(GL_FRONT);
+
+		   // decrement the stencil value on ZFail
+		   qglStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
+
+		   R_RenderShadowCaps(qfalse);
+		   R_RenderShadowEdges();
+		   R_RenderShadowCaps(qtrue);
+		   }
+		   else
+		 */
 		{
-			// draw only the back faces of the shadow volume
-			qglCullFace(GL_BACK);
-			
-			// increment the stencil value on ZFail
-			qglStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
-
-			R_RenderShadowCaps(qfalse);
-			R_RenderShadowEdges();
-			R_RenderShadowCaps(qtrue);
-
 			// draw only the front faces of the shadow volume
 			qglCullFace(GL_FRONT);
-			
-			// decrement the stencil value on ZFail
-			qglStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
 
-			R_RenderShadowCaps(qfalse);
-			R_RenderShadowEdges();
-			R_RenderShadowCaps(qtrue);
-		}
-		else
-		*/
-		{
-			// draw only the front faces of the shadow volume
-			GL_Cull(CT_FRONT_SIDED);
-			
 			// increment the stencil value on ZFail
 			qglStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
 
@@ -573,8 +575,8 @@ void RB_ShadowTessEnd2(void)
 			R_RenderShadowCaps(qtrue);
 
 			// draw only the back faces of the shadow volume
-			GL_Cull(CT_BACK_SIDED);
-			
+			qglCullFace(GL_BACK);
+
 			// decrement the stencil value on ZFail
 			qglStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
 
@@ -606,9 +608,9 @@ void RB_ShadowFinish(void)
 	{
 		return;
 	}
-	
+
 	GLimp_LogComment("--- RB_ShadowFinish ---\n");
-	
+
 	qglEnable(GL_STENCIL_TEST);
 	qglStencilFunc(GL_NOTEQUAL, 0, 255);
 
@@ -618,7 +620,7 @@ void RB_ShadowFinish(void)
 	GL_Program(0);
 	GL_ClientState(GLCS_VERTEX);
 	GL_State(GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO);
-	
+
 	GL_SelectTexture(0);
 	GL_Bind(tr.whiteImage);
 

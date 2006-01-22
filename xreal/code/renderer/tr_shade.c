@@ -3072,7 +3072,34 @@ void RB_StageIteratorLighting()
 	}
 
 	// set face culling appropriately
-	GL_Cull(tess.shader->cullType);
+	switch (tess.shader->cullType)
+	{
+		case CT_FRONT_SIDED:
+			if(backEnd.viewParms.isMirror)
+			{
+				qglCullFace(GL_BACK);
+			}
+			else
+			{
+				qglCullFace(GL_FRONT);
+			}
+			break;
+			
+		case CT_BACK_SIDED:
+			if(backEnd.viewParms.isMirror)
+			{
+				qglCullFace(GL_FRONT);
+			}
+			else
+			{
+				qglCullFace(GL_BACK);
+			}
+			break;
+		
+		case CT_TWO_SIDED:
+			qglDisable(GL_CULL_FACE);
+			break;
+	};
 
 	// set polygon offset if necessary
 	if(tess.shader->polygonOffset)
@@ -3214,6 +3241,12 @@ void RB_StageIteratorLighting()
 	if(tess.shader->polygonOffset)
 	{
 		qglDisable(GL_POLYGON_OFFSET_FILL);
+	}
+	
+	// reenable culling if necessary
+	if(tess.shader->cullType == CT_TWO_SIDED)
+	{
+		qglEnable(GL_CULL_FACE);
 	}
 }
 

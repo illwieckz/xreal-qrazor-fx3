@@ -1068,6 +1068,10 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 	
 	// store current OpenGL state 
 	qglPushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_STENCIL_BUFFER_BIT);
+	qglEnable(GL_CULL_FACE);
+	qglEnable(GL_DEPTH_TEST);
+	qglEnable(GL_STENCIL_TEST);
+	qglEnable(GL_BLEND);
 
 	// render interactions
 	for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
@@ -1088,11 +1092,13 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 				
 				// don't write to the color buffer or depth buffer
 				// enable stencil testing for this light
-				GL_State(GLS_COLORMASK_BITS | GLS_STENCILTEST_ENABLE);
-	
+				
+				//qglDisable(GL_ALPHA_TEST);
+				qglDepthFunc(GL_LEQUAL);
+				qglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+				qglDepthMask(GL_FALSE);
+				
 				// set the reference stencil value
-				//qglStencilFunc(GL_ALWAYS, 1, 255);
-				//qglStencilFunc(GL_ALWAYS, 128, ~0);
 				qglStencilFunc(GL_ALWAYS, 0, ~0);
 				qglStencilMask(~0);
 			}
@@ -1106,18 +1112,21 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 				// double blending. Re-enable color buffer writes again.
 				
 				/*
-				if(!dl->additive)
+				if(!light->additive)
 				{
-					GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+					qglBlendFunc(GL_DST_COLOR, GL_ONE);
 				}
 				else
 				*/
 				{
-					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
+					qglBlendFunc(GL_ONE, GL_ONE);
 				}
+				qglDepthFunc(GL_EQUAL);
 				
 				qglStencilFunc(GL_EQUAL, 0, ~0);
 				qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+				
+				qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 			}
 			
 			backEnd.pc.c_dlights++;
@@ -1201,7 +1210,7 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 		
 		if(drawShadows)
 		{
-			if(entity != &tr.worldEntity)
+			if((entity != &tr.worldEntity) && !(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK)) && shader->sort == SS_OPAQUE)
 				RB_ShadowTessEnd2();
 		}
 		else
@@ -1259,7 +1268,10 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 	}
 	
 	// restore OpenGL state
-	GL_State(GLS_DEFAULT);
+	qglDisable(GL_CULL_FACE);
+	qglDisable(GL_DEPTH_TEST);
+	qglDisable(GL_STENCIL_TEST);
+	qglDisable(GL_BLEND);
 	qglPopAttrib();
 	
 	// reset stage iterator
@@ -1646,33 +1658,40 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction
 	
 	backEnd.pc.c_surfaces += numDrawSurfs;
 	
+#if 1
+	// Tr3B - an approach that is more oldschool
+	
+	// draw everything but lighting and fog
+	RB_RenderDrawSurfListFull(originalTime, drawSurfs, numDrawSurfs);
+	
 	if(r_shadows->integer == 4)
 	{
-		// Tr3B - draw everything in a similar order as Doom3 does
-
-		// lay down z buffer
-		RB_RenderDrawSurfListZFill(originalTime, drawSurfs, numDrawSurfs);
-
-		// render shadowing and lighting
+		// render dynamic shadowing and lighting
 		RB_RenderInteractions2(originalTime, interactions, numInteractions);
-	
-		// render light scale hack to brighten up the scene
-		RB_RenderLightScale();
-	
-		// draw fog
-		//RB_RenderDrawSurfListFog(originalTime, drawSurfs, numDrawSurfs);
-	
-		// render translucent surfaces
-		//RB_RenderDrawSurfListTranslucent(originalTime, drawSurfs, numDrawSurfs);
 	}
 	else
 	{
-		// draw everything but lighting and fog
-		RB_RenderDrawSurfListFull(originalTime, drawSurfs, numDrawSurfs);
-	
-		// render light interactions
+		// render dynamic lighting
 		RB_RenderInteractions(originalTime, interactions, numInteractions);
 	}
+#else
+	// Tr3B - draw everything in a similar order as Doom3 does
+
+	// lay down z buffer
+	RB_RenderDrawSurfListZFill(originalTime, drawSurfs, numDrawSurfs);
+
+	// render shadowing and lighting
+	RB_RenderInteractions2(originalTime, interactions, numInteractions);
+
+	// render light scale hack to brighten up the scene
+	RB_RenderLightScale();
+
+	// draw fog
+	//RB_RenderDrawSurfListFog(originalTime, drawSurfs, numDrawSurfs);
+
+	// render translucent surfaces
+	//RB_RenderDrawSurfListTranslucent(originalTime, drawSurfs, numDrawSurfs);
+#endif
 
 	// render debug information
 	RB_RenderDebugUtils();
