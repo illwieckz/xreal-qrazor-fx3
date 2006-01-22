@@ -514,9 +514,10 @@ void RB_ShadowTessEnd2(void)
 
 	if(r_showShadowVolumes->integer)
 	{
+		qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 		qglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		
 		qglDisable(GL_STENCIL_TEST);
-		qglDisable(GL_DEPTH_TEST);
 
 		if(!backEnd.viewParms.isMirror)
 		{
@@ -532,8 +533,8 @@ void RB_ShadowTessEnd2(void)
 			R_RenderShadowCaps(qtrue);
 		}
 
+		qglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		qglEnable(GL_STENCIL_TEST);
-		qglEnable(GL_DEPTH_TEST);
 	}
 	else
 	{

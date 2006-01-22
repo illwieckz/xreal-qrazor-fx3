@@ -1068,6 +1068,7 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 	
 	// store current OpenGL state 
 	qglPushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_STENCIL_BUFFER_BIT);
+	qglDisable(GL_ALPHA_TEST);
 	qglEnable(GL_CULL_FACE);
 	qglEnable(GL_DEPTH_TEST);
 	qglEnable(GL_STENCIL_TEST);
