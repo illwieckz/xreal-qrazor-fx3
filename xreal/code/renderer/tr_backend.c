@@ -1064,7 +1064,7 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 	depthRange = qfalse;
 	drawShadows = qtrue;
 	
-	tess.currentStageIteratorType = SIT_LIGHTING;
+	tess.currentStageIteratorType = SIT_LIGHTING2;
 	
 	// store current OpenGL state 
 	qglPushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_STENCIL_BUFFER_BIT);

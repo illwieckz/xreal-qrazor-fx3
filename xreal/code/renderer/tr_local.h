@@ -1844,6 +1844,7 @@ typedef enum
 	SIT_DEFAULT,
 	SIT_ZFILL,
 	SIT_LIGHTING,
+	SIT_LIGHTING2,
 	SIT_TRANSLUCENT,
 	SIT_FOG
 } stageIteratorType_t;
@@ -1897,6 +1898,7 @@ void            RB_ShutdownGPUShaders();
 
 void            RB_StageIteratorZFill();
 void            RB_StageIteratorLighting();
+void            RB_StageIteratorLighting2();
 void            RB_StageIteratorTranslucent();
 void            RB_StageIteratorFog();
 void            RB_StageIteratorGeneric();

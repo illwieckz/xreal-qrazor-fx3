@@ -1230,6 +1230,10 @@ static void DrawTris(shaderCommands_t * input)
 			qglColor3f(1, 0, 0);
 			break;
 			
+		case SIT_LIGHTING2:
+			qglColor3f(1, 0, 0);
+			break;
+			
 		case SIT_FOG:
 			qglColor3f(0, 0, 1);
 			break;
@@ -1364,6 +1368,10 @@ void RB_BeginSurface(shader_t * shader, int fogNum)
 			
 		case SIT_LIGHTING:
 			tess.currentStageIteratorFunc = RB_StageIteratorLighting;
+			break;
+			
+		case SIT_LIGHTING2:
+			tess.currentStageIteratorFunc = RB_StageIteratorLighting2;
 			break;
 			
 		case SIT_TRANSLUCENT:
@@ -3069,6 +3077,171 @@ void RB_StageIteratorLighting()
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
 		GLimp_LogComment(va("--- RB_StageIteratorLighting( %s ) ---\n", tess.shader->name));
+	}
+
+	// set face culling appropriately
+	GL_Cull(tess.shader->cullType);
+
+	// set polygon offset if necessary
+	if(tess.shader->polygonOffset)
+	{
+		qglEnable(GL_POLYGON_OFFSET_FILL);
+		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
+	}
+
+	// lock XYZ
+	qglVertexPointer(3, GL_FLOAT, 16, tess.xyz);	// padded for SIMD
+	if(qglLockArraysEXT)
+	{
+		qglLockArraysEXT(0, tess.numVertexes);
+		GLimp_LogComment("glLockArraysEXT\n");
+	}
+
+	// call shader function
+	attenuationShader = R_GetShaderByHandle(dl->l.attenuationShader);
+		
+	if(attenuationShader == NULL || attenuationShader == tr.defaultShader)
+		attenuationShader = tr.defaultDlightShader;
+		
+	attenuationZStage = attenuationShader->stages[0];
+		
+	for(i = 1; i < MAX_SHADER_STAGES; i++)
+	{
+		shaderStage_t  *attenuationXYStage = attenuationShader->stages[i];
+						
+		if(!attenuationXYStage)
+		{
+			break;
+		}
+			
+		if(attenuationXYStage->type != ST_ATTENUATIONMAP_XY)
+		{
+			continue;
+		}
+			
+		if(!RB_EvalExpression(&attenuationXYStage->ifExp, 1.0))
+		{
+			continue;
+		}
+			
+		for(j = 0; j < MAX_SHADER_STAGES; j++)
+		{
+			shaderStage_t  *diffuseStage = tess.xstages[j];
+
+			if(!diffuseStage)
+			{
+				break;
+			}
+		
+			if(!RB_EvalExpression(&diffuseStage->ifExp, 1.0))
+			{
+				continue;
+			}
+			
+			ComputeTexCoords(diffuseStage);
+				
+			switch(diffuseStage->type)
+			{
+				case ST_DIFFUSEMAP:
+				case ST_COLLAPSE_lighting_D_radiosity:
+					if(glConfig2.shadingLanguage100Available)
+					{
+						Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+					}
+					else
+					{
+							// TODO
+					}
+					break;
+						
+				case ST_COLLAPSE_lighting_DB_radiosity:
+				case ST_COLLAPSE_lighting_DB_direct:
+				case ST_COLLAPSE_lighting_DB_generic:
+					if(glConfig2.shadingLanguage100Available)
+					{
+						if(r_bumpMapping->integer)
+						{	
+							Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+						}
+						else
+						{
+							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+						}
+					}
+					else
+					{
+							// TODO
+					}
+					break;
+						
+				case ST_COLLAPSE_lighting_DBS_radiosity:
+				case ST_COLLAPSE_lighting_DBS_direct:
+				case ST_COLLAPSE_lighting_DBS_generic:
+					if(glConfig2.shadingLanguage100Available)
+					{
+						if(r_bumpMapping->integer)
+						{
+							if(r_specular->integer)
+							{
+								Render_lighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							}
+							else
+							{
+								Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							}
+						}
+						else
+						{
+							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+						}
+					}
+					else
+					{
+							// TODO
+					}
+					break;
+						
+				default:
+					break;
+			}
+		}
+	}
+		
+	backEnd.pc.c_dlightVertexes += tess.numVertexes;
+	backEnd.pc.c_totalIndexes += tess.numIndexes;
+	backEnd.pc.c_dlightIndexes += tess.numIndexes;
+
+	// unlock arrays
+	if(qglUnlockArraysEXT)
+	{
+		qglUnlockArraysEXT();
+		GLimp_LogComment("glUnlockArraysEXT\n");
+	}
+
+	// reset polygon offset
+	if(tess.shader->polygonOffset)
+	{
+		qglDisable(GL_POLYGON_OFFSET_FILL);
+	}
+}
+
+void RB_StageIteratorLighting2()
+{
+	int				i, j;
+	trRefDlight_t  *dl;
+	shader_t       *attenuationShader;
+	shaderStage_t  *attenuationZStage;
+	
+	dl = backEnd.currentLight;
+	
+	RB_DeformTessGeometry();
+
+	// log this call
+	if(r_logFile->integer)
+	{
+		// don't just call LogComment, or we will get
+		// a call to va() every frame!
+		GLimp_LogComment(va("--- RB_StageIteratorLighting2( %s ) ---\n", tess.shader->name));
 	}
 
 	// set face culling appropriately
