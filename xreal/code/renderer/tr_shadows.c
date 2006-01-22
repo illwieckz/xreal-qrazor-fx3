@@ -519,7 +519,7 @@ void RB_ShadowTessEnd2(void)
 	if(r_showShadowVolumes->integer)
 	{
 		GL_Cull(CT_FRONT_SIDED);
-		GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA /*| GLS_DEPTHFUNC_EQUAL*/);
+		GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
 
 		if(!backEnd.viewParms.isMirror)
 		{
