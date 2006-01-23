@@ -239,7 +239,6 @@ void RB_ShadowTessEnd(void)
 	for(i = 0; i < tess.numVertexes; i++)
 	{
 		VectorMA(tess.xyz[i], -512, lightDir, tess.xyz[i + tess.numVertexes]);
-		//VectorAdd(tess.xyz[i], lightDir, tess.xyz[i + tess.numVertexes]);
 
 		// set w component to zero to work at infinity
 		tess.xyz[i + tess.numVertexes][3] = 0;
@@ -452,7 +451,6 @@ void RB_ShadowTessEnd2(void)
 	int             i;
 	int             numTris;
 	vec3_t          lightDir;
-	vec3_t          shadowDir;
 
 	// we can only do this if we have enough space in the vertex buffers
 	if(tess.numVertexes >= SHADER_MAX_VERTEXES / 2)
@@ -471,10 +469,7 @@ void RB_ShadowTessEnd2(void)
 	// project vertexes away from light direction
 	for(i = 0; i < tess.numVertexes; i++)
 	{
-		VectorSubtract(tess.xyz[i], backEnd.currentLight->transformed, shadowDir);
-		
-		VectorMA(tess.xyz[i], 512, shadowDir, tess.xyz[i + tess.numVertexes]);
-		//VectorAdd(tess.xyz[i], shadowDir, tess.xyz[i + tess.numVertexes]);
+		VectorSubtract(tess.xyz[i], backEnd.currentLight->transformed, tess.xyz[i + tess.numVertexes]);
 
 		// set w component to zero to work at infinity
 		tess.xyz[i + tess.numVertexes][3] = 0;
@@ -528,7 +523,7 @@ void RB_ShadowTessEnd2(void)
 	{
 		qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 		qglDisable(GL_STENCIL_TEST);
-		qglDisable(GL_DEPTH_TEST);
+		//qglDisable(GL_DEPTH_TEST);
 		
 		qglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -546,7 +541,7 @@ void RB_ShadowTessEnd2(void)
 
 		qglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		qglEnable(GL_STENCIL_TEST);
-		qglEnable(GL_DEPTH_TEST);
+		//qglEnable(GL_DEPTH_TEST);
 	}
 	else
 	{
@@ -559,8 +554,8 @@ void RB_ShadowTessEnd2(void)
 			// increment the stencil value on ZFail
 			qglStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
 
-			R_RenderShadowCaps(qfalse);
 			R_RenderShadowEdges();
+			R_RenderShadowCaps(qfalse);
 			R_RenderShadowCaps(qtrue);
 
 			// draw only the front faces of the shadow volume
@@ -569,8 +564,8 @@ void RB_ShadowTessEnd2(void)
 			// decrement the stencil value on ZFail
 			qglStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
 
-			R_RenderShadowCaps(qfalse);
 			R_RenderShadowEdges();
+			R_RenderShadowCaps(qfalse);
 			R_RenderShadowCaps(qtrue);
 		}
 		else
@@ -581,8 +576,8 @@ void RB_ShadowTessEnd2(void)
 			// increment the stencil value on ZFail
 			qglStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
 
-			R_RenderShadowCaps(qfalse);
 			R_RenderShadowEdges();
+			R_RenderShadowCaps(qfalse);
 			R_RenderShadowCaps(qtrue);
 
 			// draw only the back faces of the shadow volume
@@ -591,8 +586,8 @@ void RB_ShadowTessEnd2(void)
 			// decrement the stencil value on ZFail
 			qglStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
 
-			R_RenderShadowCaps(qfalse);
 			R_RenderShadowEdges();
+			R_RenderShadowCaps(qfalse);
 			R_RenderShadowCaps(qtrue);
 		}
 	}
