@@ -181,7 +181,7 @@ void R_RenderShadowCaps(qboolean front)
 		i2 = tess.indexes[i * 3 + 1];
 		i3 = tess.indexes[i * 3 + 2];
 
-		if(!front)
+		if(front)
 		{
 			qglBegin(GL_TRIANGLES);
 			qglVertex3fv(tess.xyz[i1]);
@@ -472,7 +472,9 @@ void RB_ShadowTessEnd2(void)
 	for(i = 0; i < tess.numVertexes; i++)
 	{
 		VectorSubtract(tess.xyz[i], backEnd.currentLight->transformed, shadowDir);
-		VectorAdd(tess.xyz[i], shadowDir, tess.xyz[i + tess.numVertexes]);
+		
+		VectorMA(tess.xyz[i], 512, shadowDir, tess.xyz[i + tess.numVertexes]);
+		//VectorAdd(tess.xyz[i], shadowDir, tess.xyz[i + tess.numVertexes]);
 
 		// set w component to zero to work at infinity
 		tess.xyz[i + tess.numVertexes][3] = 0;
@@ -525,9 +527,10 @@ void RB_ShadowTessEnd2(void)
 	if(r_showShadowVolumes->integer)
 	{
 		qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		qglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 		qglDisable(GL_STENCIL_TEST);
+		qglDisable(GL_DEPTH_TEST);
+		
+		qglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		if(!backEnd.viewParms.isMirror)
 		{
@@ -543,6 +546,7 @@ void RB_ShadowTessEnd2(void)
 
 		qglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		qglEnable(GL_STENCIL_TEST);
+		qglEnable(GL_DEPTH_TEST);
 	}
 	else
 	{

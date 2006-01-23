@@ -167,6 +167,7 @@ cvar_t         *r_showDeluxeMaps;
 cvar_t         *r_showNormalMaps;
 cvar_t         *r_showShadowVolumes;
 cvar_t         *r_showSkeleton;
+cvar_t         *r_showEntityTransforms;
 cvar_t         *r_showLightTransforms;
 cvar_t         *r_showLightInteractions;
 
@@ -1213,6 +1214,7 @@ void R_Register(void)
 	r_showNormalMaps = ri.Cvar_Get("r_showNormalMaps", "0", CVAR_CHEAT);
 	r_showShadowVolumes = ri.Cvar_Get("r_showShadowVolumes", "0", CVAR_CHEAT);
 	r_showSkeleton = ri.Cvar_Get("r_showSkeleton", "0", CVAR_CHEAT);
+	r_showEntityTransforms = ri.Cvar_Get("r_showEntityTransforms", "0", CVAR_CHEAT);
 	r_showLightTransforms = ri.Cvar_Get("r_showLightTransforms", "0", CVAR_CHEAT);
 	r_showLightInteractions = ri.Cvar_Get("r_showLightInteractions", "0", CVAR_CHEAT);
 

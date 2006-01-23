@@ -85,8 +85,8 @@ void GL_SelectTexture(int unit)
 		
 		if(r_logFile->integer)
 		{
-			GLimp_LogComment(va("glActiveTextureARB(GL_TEXTURE%i_ARB)\n", unit));
-			GLimp_LogComment(va("glClientActiveTextureARB(GL_TEXTURE%i_ARB)\n", unit));
+			GLimp_LogComment(va("glActiveTextureARB( GL_TEXTURE%i_ARB )\n", unit));
+			GLimp_LogComment(va("glClientActiveTextureARB( GL_TEXTURE%i_ARB )\n", unit));
 		}
 	}
 	else
@@ -1093,8 +1093,6 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 				
 				// don't write to the color buffer or depth buffer
 				// enable stencil testing for this light
-				
-				//qglDisable(GL_ALPHA_TEST);
 				qglDepthFunc(GL_LEQUAL);
 				qglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 				qglDepthMask(GL_FALSE);
@@ -1194,14 +1192,21 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 		if(light != oldLight || entity != oldEntity)
 		{
 			// transform light origin into model space for u_LightOrigin parameter
-			VectorSubtract(light->l.origin, backEnd.or.origin, tmp);
-			light->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
-			light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
-			light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
+			if(entity != &tr.worldEntity)
+			{
+				VectorSubtract(light->l.origin, backEnd.or.origin, tmp);
+				light->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
+				light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
+				light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
+			}
+			else
+			{
+				VectorCopy(light->l.origin, light->transformed);	
+			}
 			
 			// finalize the attenuation matrix using the entity transform
 			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
-			MatrixMultiply(light->attenuationMatrix, modelToLight, light->attenuationMatrix2);	
+			MatrixMultiply(light->attenuationMatrix, modelToLight, light->attenuationMatrix2);
 		}
 		
 		// add the triangles for this surface
@@ -1210,7 +1215,7 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 		// draw the contents of the current shader batch
 		if(drawShadows)
 		{
-			if((entity != &tr.worldEntity) && !(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK)) && shader->sort == SS_OPAQUE)
+			if((entity != &tr.worldEntity) && !(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK)) && shader->sort == SS_OPAQUE && !shader->noShadows)
 			{
 				RB_ShadowTessEnd2();
 				backEnd.pc.c_shadows++;
@@ -1503,10 +1508,29 @@ void RB_RenderDebugUtils()
 			
 			R_DebugBoundingBox(vec3_origin, dl->worldBounds[0], dl->worldBounds[1], colorGreen);
 		}
+	}
 	
-		// go back to the world modelview matrix
-		backEnd.or = backEnd.viewParms.world;
-		qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+	if(r_showEntityTransforms->integer)
+	{
+		trRefEntity_t  *ent;
+		int             i;
+
+		ent = backEnd.refdef.entities;
+		for(i = 0; i < backEnd.refdef.numEntities; i++, ent++)
+		{
+			// set up the transformation matrix
+			R_RotateForEntity(ent, &backEnd.viewParms, &backEnd.or);
+			qglLoadMatrixf(backEnd.or.modelViewMatrix);
+			
+			R_DebugAxis(vec3_origin, matrixIdentity);
+			R_DebugBoundingBox(vec3_origin, ent->localBounds[0], ent->localBounds[1], colorYellow);
+			
+			// go back to the world modelview matrix
+			backEnd.or = backEnd.viewParms.world;
+			qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+			
+			R_DebugBoundingBox(vec3_origin, ent->worldBounds[0], ent->worldBounds[1], colorRed);
+		}
 	}
 }
 

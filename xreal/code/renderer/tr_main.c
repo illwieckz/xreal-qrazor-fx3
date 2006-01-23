@@ -1419,8 +1419,6 @@ void R_AddEntitySurfaces(void)
 	{
 		ent = tr.currentEntity = &tr.refdef.entities[tr.currentEntityNum];
 
-		ent->needDlights = qfalse;
-
 		// preshift the value we are going to OR into the drawsurf sort
 		tr.shiftedEntityNum = tr.currentEntityNum << QSORT_ENTITYNUM_SHIFT;
 
@@ -1535,8 +1533,6 @@ void R_AddEntityInteractions(trRefDlight_t * light)
 	{
 		ent = tr.currentEntity = &tr.refdef.entities[tr.currentEntityNum];
 
-		ent->needDlights = qfalse;
-
 		// preshift the value we are going to OR into the drawsurf sort
 		tr.shiftedEntityNum = tr.currentEntityNum << QSORT_ENTITYNUM_SHIFT;
 
@@ -1548,16 +1544,6 @@ void R_AddEntityInteractions(trRefDlight_t * light)
 		if((ent->e.renderfx & RF_FIRST_PERSON) && tr.viewParms.isPortal)
 		{
 			continue;
-		}
-
-		// determine if we need ZFail algorithm instead of ZPass
-		if((ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal)
-		{
-			ent->needZFail = qtrue;
-		}
-		else
-		{
-			ent->needZFail = qfalse;
 		}
 
 		// simple generated models, like sprites and beams, are not culled
@@ -1595,7 +1581,7 @@ void R_AddEntityInteractions(trRefDlight_t * light)
 							break;
 
 						case MOD_BRUSH:
-							//R_AddBrushModelSurfaces(ent);
+							R_AddBrushModelInteractions(ent, light);
 							break;
 
 						case MOD_BAD:	// null model axis
@@ -1636,9 +1622,41 @@ void R_AddDlightInteractions()
 	{
 		dl = tr.currentDlight = &tr.refdef.dlights[tr.currentDlightNum];
 		
+		// we must set up parts of tr.or for light culling
+		R_RotateForDlight(dl, &tr.viewParms, &tr.or);
+		
+		// setup local bounds
+		dl->localBounds[0][0] = dl->l.radius[0];
+		dl->localBounds[0][1] = dl->l.radius[1];
+		dl->localBounds[0][2] = dl->l.radius[2];
+		dl->localBounds[1][0] =-dl->l.radius[0];
+		dl->localBounds[1][1] =-dl->l.radius[1];
+		dl->localBounds[1][2] =-dl->l.radius[2];
+		
+		// look if we have to draw the light including its interactions
+		switch (R_CullLocalBox(dl->localBounds))
+		{
+			case CULL_IN:
+				tr.pc.c_box_cull_light_in++;
+				dl->cull = CULL_IN;
+				break;
+			
+			case CULL_CLIP:
+				tr.pc.c_box_cull_light_clip++;
+				dl->cull = CULL_CLIP;
+				break;
+			
+			case CULL_OUT:
+			default:
+				// light is not visible so skip other light setup stuff to save speed
+				tr.pc.c_box_cull_light_out++;
+				dl->cull = CULL_OUT;
+				return;
+		}
+		
 		// set up light transform matrix
 		MatrixSetupTransform(dl->transformMatrix, dl->l.axis[0], dl->l.axis[1], dl->l.axis[2], dl->l.origin);
-	
+		
 		// set up model to light view matrix
 		MatrixAffineInverse(dl->transformMatrix, dl->viewMatrix);
 		
@@ -1657,15 +1675,7 @@ void R_AddDlightInteractions()
 		MatrixSetupTranslation(dl->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
 		MatrixMultiplyScale(dl->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
 		MatrixMultiply2(dl->attenuationMatrix, dl->projectionMatrix);	// light projection (frustum)
-
-		// setup local bounds
-		dl->localBounds[0][0] = dl->l.radius[0];
-		dl->localBounds[0][1] = dl->l.radius[1];
-		dl->localBounds[0][2] = dl->l.radius[2];
-		dl->localBounds[1][0] =-dl->l.radius[0];
-		dl->localBounds[1][1] =-dl->l.radius[1];
-		dl->localBounds[1][2] =-dl->l.radius[2];
-	
+		
 		// setup world bounds for intersection tests
 		ClearBounds(dl->worldBounds[0], dl->worldBounds[1]);
 		

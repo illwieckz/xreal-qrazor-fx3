@@ -334,26 +334,46 @@ R_AddBrushModelSurfaces
 */
 void R_AddBrushModelSurfaces(trRefEntity_t * ent)
 {
-	bmodel_t       *bmodel;
-	int             clip;
+	bmodel_t       *bModel;
 	model_t        *pModel;
 	int             i;
+	vec3_t          v;
+	vec3_t          transformed;
 
 	pModel = R_GetModelByHandle(ent->e.hModel);
+	bModel = pModel->bmodel;
+	
+	// copy local bounds
+	for(i = 0; i < 3; i++)
+	{
+		ent->localBounds[0][i] = bModel->bounds[0][i];
+		ent->localBounds[1][i] = bModel->bounds[1][i];
+	}
+	
+	// setup world bounds for intersection tests
+	ClearBounds(ent->worldBounds[0], ent->worldBounds[1]);
+		
+	for(i = 0; i < 8; i++)
+	{
+		v[0] = ent->localBounds[i & 1][0];
+		v[1] = ent->localBounds[(i >> 1) & 1][1];
+		v[2] = ent->localBounds[(i >> 2) & 1][2];
+	
+		// transform local bounds vertices into world space
+		R_LocalPointToWorld(v, transformed);
+			
+		AddPointToBounds(transformed, ent->worldBounds[0], ent->worldBounds[1]);
+	}
 
-	bmodel = pModel->bmodel;
-
-	clip = R_CullLocalBox(bmodel->bounds);
-	if(clip == CULL_OUT)
+	ent->cull = R_CullLocalBox(bModel->bounds);
+	if(ent->cull == CULL_OUT)
 	{
 		return;
 	}
 
-//	R_DlightBmodel(bmodel);
-
-	for(i = 0; i < bmodel->numSurfaces; i++)
+	for(i = 0; i < bModel->numSurfaces; i++)
 	{
-		R_AddWorldSurface(bmodel->firstSurface + i);
+		R_AddWorldSurface(bModel->firstSurface + i);
 	}
 }
 

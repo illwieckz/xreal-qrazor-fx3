@@ -100,7 +100,6 @@ typedef struct
 
 	// local
 	float           axisLength;			// compensate for non-normalized axis
-	qboolean        needDlights;		// true for bmodels that touch a dlight
 	qboolean        lightingCalculated;
 	vec3_t          lightDir;			// normalized direction towards light
 	vec3_t          ambientLight;		// color normalized to 0-255
@@ -648,6 +647,7 @@ typedef struct shader_s
 
 	qboolean        entityMergable;	// merge across entites optimizable (smoke, blood)
 
+	qboolean		noShadows;
 	qboolean		translucent;
 	qboolean		forceOpaque;
 	qboolean        isSky;
@@ -1191,6 +1191,7 @@ typedef struct
 	int             c_box_cull_md3_in, c_box_cull_md3_clip, c_box_cull_md3_out;
 	int             c_sphere_cull_mds_in, c_sphere_cull_mds_clip, c_sphere_cull_mds_out;
 	int             c_box_cull_mds_in, c_box_cull_mds_clip, c_box_cull_mds_out;
+	int             c_box_cull_light_in, c_box_cull_light_clip, c_box_cull_light_out;
 
 	int             c_leafs;
 	int             c_dlights;
@@ -1562,6 +1563,7 @@ extern cvar_t  *r_showDeluxeMaps;
 extern cvar_t  *r_showNormalMaps;
 extern cvar_t  *r_showShadowVolumes;
 extern cvar_t  *r_showSkeleton;
+extern cvar_t  *r_showEntityTransforms;
 extern cvar_t  *r_showLightTransforms;
 extern cvar_t  *r_showLightInteractions;
 
@@ -1951,7 +1953,7 @@ LIGHTS
 ============================================================
 */
 
-void            R_DlightBmodel(bmodel_t * bmodel);
+void            R_AddBrushModelInteractions(trRefEntity_t * ent, trRefDlight_t * light);
 void            R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent);
 void            R_TransformDlights(int count, trRefDlight_t * dl, orientationr_t * or);
 int             R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir);

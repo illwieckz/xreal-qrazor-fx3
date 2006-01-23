@@ -75,22 +75,26 @@ void R_PerformanceCounters(void)
 				  backEnd.pc.c_dlightVertexes, backEnd.pc.c_dlightIndexes / 3,
 				  backEnd.pc.c_dlightBatches);
 		
-		//ri.Printf(PRINT_ALL, "frontEnd: dlights:%i interactions:%i\n",
-		//		  tr.pc.c_dlights, tr.pc.c_dlightInteractions);
+		ri.Printf(PRINT_ALL, "frontEnd: dlights:%i interactions:%i bin:%i bclip:%i bout:%i\n",
+				  tr.pc.c_dlights, tr.pc.c_dlightInteractions,
+				  tr.pc.c_box_cull_light_in, tr.pc.c_box_cull_light_clip, tr.pc.c_box_cull_light_out);
 		
 		ri.Printf(PRINT_ALL, "backEnd:  dlights:%i interactions:%i\n",
 				  backEnd.pc.c_dlights, backEnd.pc.c_dlightInteractions);
 		
+	}
+	else if(r_speeds->integer == 5)
+	{
 		ri.Printf(PRINT_ALL, "shadow srf:%i verts:%i tris:%i\n",
 				  backEnd.pc.c_shadows, backEnd.pc.c_shadowVertexes, backEnd.pc.c_shadowIndexes / 3);
 		
 	}
-	else if(r_speeds->integer == 5)
+	else if(r_speeds->integer == 6)
 	{
 		ri.Printf(PRINT_ALL, "fog srf:%i batches:%i\n",
 				  backEnd.pc.c_fogSurfaces, backEnd.pc.c_fogBatches);
 	}
-	else if(r_speeds->integer == 6)
+	else if(r_speeds->integer == 7)
 	{
 		ri.Printf(PRINT_ALL, "flare adds:%i tests:%i renders:%i\n",
 				  backEnd.pc.c_flareAdds, backEnd.pc.c_flareTests, backEnd.pc.c_flareRenders);

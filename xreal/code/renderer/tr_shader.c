@@ -3050,6 +3050,13 @@ static qboolean ParseShader(char **text)
 			tr.sunDirection[2] = sin(b);
 			continue;
 		}
+		// noShadows
+		else if(!Q_stricmp(token, "noShadows"))
+		{
+			shader.noShadows = qtrue;
+			SurfaceParm("noShadows");
+			continue;
+		}
 		// translucent
 		else if(!Q_stricmp(token, "translucent"))
 		{

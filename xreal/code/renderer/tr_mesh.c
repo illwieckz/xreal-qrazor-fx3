@@ -456,13 +456,7 @@ void R_AddMD3Interactions(trRefEntity_t * ent, trRefDlight_t * light)
 	header = tr.currentModel->md3[lod];
 
 	// cull the entire model if merged bounding box of both frames
-	// is outside the view frustum.
-	if(ent->cull == CULL_OUT)
-	{
-		return;
-	}
-	
-	// only generate interactions if model intersects with light
+	// does not intersect with light
 	if(	light->worldBounds[1][0] < ent->worldBounds[0][0] ||
 		light->worldBounds[1][1] < ent->worldBounds[0][1] ||
 		light->worldBounds[1][2] < ent->worldBounds[0][2] ||
@@ -472,12 +466,6 @@ void R_AddMD3Interactions(trRefEntity_t * ent, trRefDlight_t * light)
 	{
 		tr.pc.c_dlightSurfacesCulled += header->numSurfaces;
 		return;
-	}
-
-	// set up lighting now that we know we aren't culled
-	if(!personalModel || r_shadows->integer > 1)
-	{
-		//R_SetupEntityLighting(&tr.refdef, ent);
 	}
 
 	// generate interactions with all surfaces
@@ -527,30 +515,13 @@ void R_AddMD3Interactions(trRefEntity_t * ent, trRefDlight_t * light)
 			md3Shader += ent->e.skinNum % surface->numShaders;
 			shader = tr.shaders[md3Shader->shaderIndex];
 		}
-
-
+		
 		// we will add shadows even if the main object isn't visible in the view
-
-		// stencil shadows can't do personal models unless I polyhedron clip
-		/*
-		if(r_shadows->integer == 2 && fogNum == 0 && !(ent->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK)) && shader->sort == SS_OPAQUE)
-		{
-			R_AddDrawSurf((void *)surface, tr.shadowShader, 0);
-		}
-		*/
-
-		// projection shadows work fine with personal models
-		/*
-		if(r_shadows->integer == 3 && fogNum == 0 && (ent->e.renderfx & RF_SHADOW_PLANE) && shader->sort == SS_OPAQUE)
-		{
-			R_AddDrawSurf((void *)surface, tr.projectionShadowShader, 0);
-		}
-		*/
 
 		// don't add third_person objects if not viewing through a portal
 		if(!personalModel)
 		{
-			R_AddDlightInteraction(light, (void *)surface, shader);
+			R_AddDlightInteraction(light, (void *)surface, shader);	
 			tr.pc.c_dlightSurfaces++;
 		}
 

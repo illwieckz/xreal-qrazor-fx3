@@ -55,55 +55,42 @@ void R_TransformDlights(int count, trRefDlight_t * dl, orientationr_t * or)
 
 /*
 =============
-R_DlightBmodel
+R_AddBrushModelInteractions
 
 Determine which dynamic lights may effect this bmodel
 =============
 */
-/*
-void R_DlightBmodel(bmodel_t * bmodel)
+void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefDlight_t * light)
 {
-	int             i, j;
-	trRefDlight_t  *dl;
-	int             mask;
+	int             i;
 	msurface_t     *surf;
+	bmodel_t       *bModel;
+	model_t        *pModel;
 
-	// transform all the lights
-	R_TransformDlights(tr.refdef.numDlights, tr.refdef.dlights, &tr.or);
-
-	mask = 0;
-	for(i = 0; i < tr.refdef.numDlights; i++)
+	pModel = R_GetModelByHandle(ent->e.hModel);
+	bModel = pModel->bmodel;
+	
+	// cull the entire model if merged bounding box of both frames
+	// does not intersect with light
+	if(	light->worldBounds[1][0] < ent->worldBounds[0][0] ||
+		light->worldBounds[1][1] < ent->worldBounds[0][1] ||
+		light->worldBounds[1][2] < ent->worldBounds[0][2] ||
+		light->worldBounds[0][0] > ent->worldBounds[1][0] ||
+		light->worldBounds[0][1] > ent->worldBounds[1][1] ||
+		light->worldBounds[0][2] > ent->worldBounds[1][2])
 	{
-		dl = &tr.refdef.dlights[i];
-
-		// see if the point is close enough to the bounds to matter
-		for(j = 0; j < 3; j++)
-		{
-			if(dl->transformed[j] - bmodel->bounds[1][j] > dl->l.radius)
-			{
-				break;
-			}
-			if(bmodel->bounds[0][j] - dl->transformed[j] > dl->l.radius)
-			{
-				break;
-			}
-		}
-		if(j < 3)
-		{
-			continue;
-		}
-
-		// we need to check this light
-		mask |= 1 << i;
+		tr.pc.c_dlightSurfacesCulled += bModel->numSurfaces;
+		return;
 	}
 
-	tr.currentEntity->needDlights = (mask != 0);
-
 	// set the dlight bits in all the surfaces
-	for(i = 0; i < bmodel->numSurfaces; i++)
+	for(i = 0; i < bModel->numSurfaces; i++)
 	{
-		surf = bmodel->firstSurface + i;
+		surf = bModel->firstSurface + i;
+		
+		// FIXME: do more culling?
 
+		/*
 		if(*surf->data == SF_FACE)
 		{
 			((srfSurfaceFace_t *) surf->data)->dlightBits[tr.smpFrame] = mask;
@@ -116,9 +103,12 @@ void R_DlightBmodel(bmodel_t * bmodel)
 		{
 			((srfTriangles_t *) surf->data)->dlightBits[tr.smpFrame] = mask;
 		}
+		*/
+		
+		R_AddDlightInteraction(light, surf->data, surf->shader);
+		tr.pc.c_dlightSurfaces++;
 	}
 }
-*/
 
 
 /*
