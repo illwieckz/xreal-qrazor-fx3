@@ -94,6 +94,10 @@ void R_RenderShadowEdges(void)
 		qglVertex3fv(tess.xyz[i1]);
 		qglVertex3fv(tess.xyz[i1 + tess.numVertexes]);
 		qglEnd();
+		
+		backEnd.pc.c_shadowVertexes += 8;
+		backEnd.pc.c_shadowIndexes += 8;
+		backEnd.pc.c_totalIndexes += 8;
 	}
 #else
 	int             c, c2;
@@ -291,14 +295,12 @@ void RB_ShadowTessEnd(void)
 
 		if(!backEnd.viewParms.isMirror)
 		{
-			qglColor4f(1.0f, 0.0f, 0.0f, 0.07f);
+			qglColor4f(1.0f, 1.0f, 1.0f, 0.07f);
 			R_RenderShadowCaps(qfalse);
-
-			qglColor4f(0.0f, 1.0f, 0.0f, 0.07f);
-			R_RenderShadowEdges();
-
-			qglColor4f(0.0f, 0.0f, 1.0f, 0.07f);
 			R_RenderShadowCaps(qtrue);
+			
+			qglColor4f(1.0f, 1.0f, 0.7f, 0.15f);
+			R_RenderShadowEdges();
 		}
 	}
 	else
@@ -531,14 +533,12 @@ void RB_ShadowTessEnd2(void)
 		{
 			qglCullFace(GL_FRONT);
 
-			qglColor4f(0.0f, 1.0f, 0.0f, 0.07f);
-			R_RenderShadowEdges();
-
-			qglColor4f(1.0f, 0.0f, 0.0f, 0.07f);
-			R_RenderShadowCaps(qfalse);
-
 			qglColor4f(1.0f, 1.0f, 1.0f, 0.07f);
+			R_RenderShadowCaps(qfalse);
 			R_RenderShadowCaps(qtrue);
+			
+			qglColor4f(1.0f, 1.0f, 0.7f, 0.15f);
+			R_RenderShadowEdges();
 		}
 
 		qglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
