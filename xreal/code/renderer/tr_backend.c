@@ -1130,10 +1130,11 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 				qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 			}
 			
-			backEnd.pc.c_dlights++;
+			if(light != oldLight)
+			{
+				backEnd.pc.c_dlights++;
+			}
 		}
-		backEnd.pc.c_dlightInteractions++;
-		
 		
 		// change the tess parameters if needed
 		// a "entityMergable" shader is a shader that can have surfaces from seperate
@@ -1207,16 +1208,19 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 		rb_surfaceTable[*surface] (surface);
 		
 		// draw the contents of the current shader batch
-		backEnd.pc.c_dlightBatches++;
-		
 		if(drawShadows)
 		{
 			if((entity != &tr.worldEntity) && !(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK)) && shader->sort == SS_OPAQUE)
+			{
 				RB_ShadowTessEnd2();
+				backEnd.pc.c_shadows++;
+			}
 		}
 		else
 		{
 			RB_EndSurface();
+			backEnd.pc.c_dlightInteractions++;
+			backEnd.pc.c_dlightBatches++;
 		}
 		
 		// Tr3B - the data structure used here is not very cool but it works fine

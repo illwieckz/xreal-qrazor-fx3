@@ -1230,6 +1230,10 @@ typedef struct
 	int             c_dlightVertexes;
 	int             c_dlightIndexes;
 	
+	int             c_shadows;
+	int             c_shadowVertexes;
+	int             c_shadowIndexes;
+	
 	int				c_fogSurfaces;
 	int				c_fogBatches;
 

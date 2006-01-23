@@ -75,11 +75,14 @@ void R_PerformanceCounters(void)
 				  backEnd.pc.c_dlightVertexes, backEnd.pc.c_dlightIndexes / 3,
 				  backEnd.pc.c_dlightBatches);
 		
-		ri.Printf(PRINT_ALL, "frontEnd: dlights:%i interactions:%i\n",
-				  tr.pc.c_dlights, tr.pc.c_dlightInteractions);
+		//ri.Printf(PRINT_ALL, "frontEnd: dlights:%i interactions:%i\n",
+		//		  tr.pc.c_dlights, tr.pc.c_dlightInteractions);
 		
 		ri.Printf(PRINT_ALL, "backEnd:  dlights:%i interactions:%i\n",
 				  backEnd.pc.c_dlights, backEnd.pc.c_dlightInteractions);
+		
+		ri.Printf(PRINT_ALL, "shadow srf:%i verts:%i tris:%i\n",
+				  backEnd.pc.c_shadows, backEnd.pc.c_shadowVertexes, backEnd.pc.c_shadowIndexes / 3);
 		
 	}
 	else if(r_speeds->integer == 5)

@@ -1679,6 +1679,10 @@ static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
+	
+	backEnd.pc.c_dlightVertexes += tess.numVertexes;
+	backEnd.pc.c_dlightIndexes += tess.numIndexes;
+	backEnd.pc.c_totalIndexes += tess.numIndexes;
 }
 
 static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
@@ -1723,6 +1727,10 @@ static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
+	
+	backEnd.pc.c_dlightVertexes += tess.numVertexes;
+	backEnd.pc.c_dlightIndexes += tess.numIndexes;
+	backEnd.pc.c_totalIndexes += tess.numIndexes;
 }
 
 static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
@@ -1774,6 +1782,10 @@ static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
+	
+	backEnd.pc.c_dlightVertexes += tess.numVertexes;
+	backEnd.pc.c_dlightIndexes += tess.numIndexes;
+	backEnd.pc.c_totalIndexes += tess.numIndexes;
 }
 
 // Tr3B - r_showLightMaps development tool
@@ -3206,10 +3218,6 @@ void RB_StageIteratorLighting()
 			}
 		}
 	}
-		
-	backEnd.pc.c_dlightVertexes += tess.numVertexes;
-	backEnd.pc.c_totalIndexes += tess.numIndexes;
-	backEnd.pc.c_dlightIndexes += tess.numIndexes;
 
 	// unlock arrays
 	if(qglUnlockArraysEXT)

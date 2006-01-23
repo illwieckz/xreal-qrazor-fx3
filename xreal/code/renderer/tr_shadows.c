@@ -143,6 +143,10 @@ void R_RenderShadowEdges(void)
 				qglVertex4fv(tess.xyz[i2 + tess.numVertexes]);
 				qglEnd();
 				c_edges++;
+				
+				backEnd.pc.c_shadowVertexes += 4;
+				backEnd.pc.c_shadowIndexes += 4;
+				backEnd.pc.c_totalIndexes += 4;
 			}
 			else
 			{
@@ -189,6 +193,10 @@ void R_RenderShadowCaps(qboolean front)
 			qglVertex4fv(tess.xyz[i1 + tess.numVertexes]);
 			qglEnd();
 		}
+		
+		backEnd.pc.c_shadowVertexes += 3;
+		backEnd.pc.c_shadowIndexes += 3;
+		backEnd.pc.c_totalIndexes += 3;
 	}
 }
 
