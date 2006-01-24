@@ -12,9 +12,11 @@ def DEG2RAD(a):
 def RAD2DEG(a):
 	return (a * 180.0) / math.pi
 
-
 def DotProduct(x, y):
 	return x[0] * y[0] + x[1] * y[1] + x[2] * y[2]
+
+def CrossProduct(a,b):
+	return [a[1]*b[2] - a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]
 
 def VectorLength(v):
 	return math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2])
@@ -27,6 +29,9 @@ def VectorAdd(a, b):
 
 def VectorCopy(v):
 	return [v[0], v[1], v[2]]
+
+def VectorInverse(v):
+	return [-v[0], -v[1], -v[2]]
 
 #define VectorCopy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2])
 #define	VectorScale(v, s, o)	((o)[0]=(v)[0]*(s),(o)[1]=(v)[1]*(s),(o)[2]=(v)[2]*(s))

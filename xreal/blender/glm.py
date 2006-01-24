@@ -7,17 +7,13 @@ from os import path
 import q_shared
 from q_shared import *
 
+import q_math
+from q_math import *
+
 GLM_IDENT = "2LGM"
 GLM_VERSION = 6
-MD3_MAX_TAGS = 16
-MD3_MAX_SURFACES = 32
-MD3_MAX_FRAMES = 1024
-MD3_MAX_SHADERS = 256
-MD3_MAX_VERTICES = 4096
-MD3_MAX_TRIANGLES = 8192
-MD3_XYZ_SCALE = (1.0 / 64.0)
-MD3_BLENDER_SCALE = (1.0 / 1.0)
-
+GLM_MAX_QPATH = 64
+GLM_MD3_STYLE_TAGS = 1
 
 class glmBoneRef:
 	index = 0
@@ -173,6 +169,88 @@ class glmTriangle:
 		print "Index 0: ", self.ind[0]
 		print "Index 1: ", self.ind[1]
 		print "Index 2: ", self.ind[2]
+		print ""
+
+class glmTag:
+	name = ""
+	origin = []
+	axis = []
+	v1 = []
+	v2 = []
+	v3 = []
+	
+	#binaryFormat="<%ds3f9f" % MAX_QPATH
+	
+	def __init__(self):
+		self.name = ""
+		self.origin = [0, 0, 0]
+		self.axis = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+		self.v1 = [0, 0, 0]
+		self.v2 = [0, 0, 0]
+		self.v3 = [0, 0, 0]
+		
+	#def getSize(self):
+	#	return struct.calcsize(self.binaryFormat)
+
+	def fromSurf( self, name, vert0, vert1, vert2 ):
+		#vec0 = [0, 0, 0]
+		#vec1 = [0, 0, 0]
+		#vec2 = [0, 0, 0]
+		vec0 = VectorInverse( VectorSubtract( vert1, vert2 ) )
+		vec1 = VectorSubtract( vert0, vert2 )
+		vec2 = CrossProduct( vec0, vec1 )
+		self.origin = [vert2[0], vert2[1], vert2[2]]
+		self.axis = [vec0[0], vec0[1], vec1[2], vec1[0], vec1[1], vec1[2], vec2[0], vec2[1], vec2[2]]
+		self.name = name
+		#vec1[0] = (tag_src[0][0] - tag_src[2][0]);
+		#vec1[1] = (tag_src[0][1] - tag_src[2][1]);
+		#vec1[2] = (tag_src[0][2] - tag_src[2][2]);
+		#vec0[0] = -(tag_src[1][0] - tag_src[2][0]);
+		#vec0[1] = -(tag_src[1][1] - tag_src[2][1]);
+		#vec0[2] = -(tag_src[1][2] - tag_src[2][2]);
+		
+	def load(self, file):
+		tmpData = file.read(struct.calcsize(self.binaryFormat))
+		data = struct.unpack(self.binaryFormat, tmpData)
+		self.name = asciiz(data[0])
+		self.origin[0] = data[1]
+		self.origin[1] = data[2]
+		self.origin[2] = data[3]
+		self.axis[0] = data[4]
+		self.axis[1] = data[5]
+		self.axis[2] = data[6]
+		self.axis[3] = data[7]
+		self.axis[4] = data[8]
+		self.axis[5] = data[9]
+		self.axis[6] = data[10]
+		self.axis[7] = data[11]
+		self.axis[8] = data[12]
+		return self
+		
+	def save(self, file):
+		tmpData = [0] * 13
+		tmpData[0] = self.name
+		tmpData[1] = float(self.origin[0])
+		tmpData[2] = float(self.origin[1])
+		tmpData[3] = float(self.origin[2])
+		tmpData[4] = float(self.axis[0])
+		tmpData[5] = float(self.axis[1])
+		tmpData[6] = float(self.axis[2])
+		tmpData[7] = float(self.axis[3])
+		tmpData[8] = float(self.axis[4])
+		tmpData[9] = float(self.axis[5])
+		tmpData[10] = float(self.axis[6])
+		tmpData[11] = float(self.axis[7])
+		tmpData[12] = float(self.axis[8])
+		data = struct.pack(self.binaryFormat, tmpData[0],tmpData[1],tmpData[2],tmpData[3],tmpData[4],tmpData[5],tmpData[6], tmpData[7], tmpData[8], tmpData[9], tmpData[10], tmpData[11], tmpData[12])
+		file.write(data)
+		#print "wrote GLM Tag structure: ",data
+		
+	def dump(self):
+		print "GLM Tag"
+		print "Name: ", self.name
+		print "Origin: ", self.origin
+		print "Axis: ", self.axis
 		print ""
 
 class glmSurface:
@@ -351,6 +429,7 @@ class glmLod:
 	ofsEnd = 0
 	ofsSurfs = []
 	surfaces = []
+	tags = []
 	
 	binaryFormat = "<i"
 	
@@ -505,65 +584,6 @@ class glmSurfHier:
 		print "Offset to end: ", self.ofsEnd
 		print ""
 
-class glmTag:
-	name = ""
-	origin = []
-	axis = []
-	
-	binaryFormat="<%ds3f9f" % MAX_QPATH
-	
-	def __init__(self):
-		self.name = ""
-		self.origin = [0, 0, 0]
-		self.axis = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-		
-	def getSize(self):
-		return struct.calcsize(self.binaryFormat)
-		
-	def load(self, file):
-		tmpData = file.read(struct.calcsize(self.binaryFormat))
-		data = struct.unpack(self.binaryFormat, tmpData)
-		self.name = data[0]
-		self.origin[0] = data[1]
-		self.origin[1] = data[2]
-		self.origin[2] = data[3]
-		self.axis[0] = data[4]
-		self.axis[1] = data[5]
-		self.axis[2] = data[6]
-		self.axis[3] = data[7]
-		self.axis[4] = data[8]
-		self.axis[5] = data[9]
-		self.axis[6] = data[10]
-		self.axis[7] = data[11]
-		self.axis[8] = data[12]
-		return self
-		
-	def save(self, file):
-		tmpData = [0] * 13
-		tmpData[0] = self.name
-		tmpData[1] = float(self.origin[0])
-		tmpData[2] = float(self.origin[1])
-		tmpData[3] = float(self.origin[2])
-		tmpData[4] = float(self.axis[0])
-		tmpData[5] = float(self.axis[1])
-		tmpData[6] = float(self.axis[2])
-		tmpData[7] = float(self.axis[3])
-		tmpData[8] = float(self.axis[4])
-		tmpData[9] = float(self.axis[5])
-		tmpData[10] = float(self.axis[6])
-		tmpData[11] = float(self.axis[7])
-		tmpData[12] = float(self.axis[8])
-		data = struct.pack(self.binaryFormat, tmpData[0],tmpData[1],tmpData[2],tmpData[3],tmpData[4],tmpData[5],tmpData[6], tmpData[7], tmpData[8], tmpData[9], tmpData[10], tmpData[11], tmpData[12])
-		file.write(data)
-		#print "wrote MD3 Tag structure: ",data
-		
-	def dump(self):
-		print "MD3 Tag"
-		print "Name: ", self.name
-		print "Origin: ", self.origin
-		print "Axis: ", self.axis
-		print ""
-
 class glmObject:
 	# header structure
 	ident = ""			# this is used to identify the file (must be IDP3)
@@ -617,8 +637,8 @@ class glmObject:
 
 		if(self.ident != "2LGM" or self.version != 6):
 			print "Not a valid GLM file"
-			print "Ident: ", self.ident
-			print "Version: ", self.version
+			print "Ident=", self.ident
+			print "Version=",self.version
 			Exit()
 		
 		self.name = data[2]
@@ -643,7 +663,7 @@ class glmObject:
 			self.lods.append(glmLod())
 			self.lods[i].load(self.numSurfaces, file)
 			self.lods[i].dump()
-			
+        
 		return self
 
 	def save(self, file):

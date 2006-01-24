@@ -6,7 +6,7 @@ Blender: 240
 Group: 'Export'
 Tooltip: 'Export to Ghoul2 file format. (.glm)'
 """
-__author__ = "PhaethonH, Bob Holcomb, Robert (Tr3B) Beckebans, Wudan"
+__author__ = "PhaethonH, Bob Holcomb, Robert (Tr3B) Beckebans, Brad (Wudan) Newbold"
 __url__ = ("http://forums.mt-wudan.com/viewforum.php?f=10")
 __version__ = "0.4 2005-10-7"
 
@@ -28,8 +28,11 @@ Notes:<br>
     TODO
 """
 
-import sys, struct, string, math
+import sys, struct, math
 from types import *
+
+import string
+from string import *
 
 import os
 from os import path
@@ -46,8 +49,6 @@ from q_math import *
 import q_shared
 from q_shared import *
 
-
-NUM_FRAMES = 1
 EXPORT_ALL = 1   # export only selected objs, or all?
 
 def applyTransform(vert, matrix):
@@ -75,7 +76,7 @@ def processSurfHier(glm):
 			glm.surfHier[i].flags = 1
 		else:
 			glm.surfHier[i].flags = 0
-		glm.surfHier[i].shader = "[nomaterial]"
+		glm.surfHier[i].shader = glm.lods[0].surfaces[i].shader
 		glm.surfHier[i].number = 0
 		if( i == 0 ):
 			glm.surfHier[i].parentIndex = -1
@@ -87,6 +88,57 @@ def processSurfHier(glm):
 			glm.surfHier[i].numChildren = 0
 			glm.surfHier[i].parentIndex = 0
 		glm.surfHier[i].dump()
+
+def processTag(blenderObject, glm, pathName, modelName):
+	# because glm doesnt suppoort faceUVs like blender, we need to duplicate
+	# any vertex that has multiple uv coords
+
+	vertDict = {}
+	indexDict = {} # maps a vertex index to the revised index after duplicating to account for uv
+	vertList = [] # list of vertices ordered by revised index
+	numVerts = 0
+	uvList = [] # list of tex coords ordered by revised index
+	faceList = [] # list of faces (they index into vertList)
+	numFaces = 0
+	
+	# get access to the mesh data (as at frame #1)
+	matrix = blenderObject.getMatrix('worldspace')
+
+	surf = glmSurface()
+	surf.name = blenderObject.getName()
+	if surf.name[0] != '*':
+		surf.name = '*' + lstrip( surf.name, 'tag_' )
+	surf.ident = GLM_IDENT
+	surf.numTriangles = 1
+	surf.numVerts = 3
+	
+	for i in range(0, surf.numTriangles):
+		surf.triangles.append(glmTriangle())
+		surf.triangles[i].ind[0] = 0
+		surf.triangles[i].ind[1] = 0
+		surf.triangles[i].ind[2] = 0
+	
+	for i in range(0, surf.numVerts):
+		surf.verts.append(glmVert())
+		surf.uv.append(glmTexCoord())
+		surf.uv[i].u = 0.0
+		surf.uv[i].v = 0.0
+	
+	axis0 = [matrix[0][0], matrix[0][1], matrix[0][2]]
+	axis1 = [matrix[1][0], matrix[1][1], matrix[1][2]]
+	axis2 = [matrix[2][0], matrix[2][1], matrix[2][2]]
+	orign = [matrix[3][0], matrix[3][1], matrix[3][2]]
+	
+	surf.verts[0].xyz = VectorAdd( orign, axis1 )
+	surf.verts[1].xyz = VectorAdd( orign, VectorInverse( axis0 ) )
+	surf.verts[2].xyz = orign
+	surf.verts[0].normal = axis2
+	surf.verts[1].normal = axis2
+	surf.verts[2].normal = axis2
+	
+	surf.dump()
+	glm.lods[0].surfaces.append(surf)
+	glm.numSurfaces += 1
 
 def processSurface(blenderObject, glm, pathName, modelName):
 	# because glm doesnt suppoort faceUVs like blender, we need to duplicate
@@ -106,6 +158,10 @@ def processSurface(blenderObject, glm, pathName, modelName):
 
 	surf = glmSurface()
 	surf.name = blenderObject.getName()
+	if not mesh.materials:
+		surf.shader = pathName + blenderObject.name
+	else:
+		surf.shader = pathName + mesh.materials[0].name
 	surf.ident = GLM_IDENT
 	
 	# process each face in the mesh
@@ -126,12 +182,12 @@ def processSurface(blenderObject, glm, pathName, modelName):
 				index = face.v[i].index
 				v = face.v[i].co
 				uv = (0.0, 0.0) # handle case with no tex coords
-				#if mesh.hasFaceUV():
-				#	uv = face.uv[i]
-				#elif mesh.hasVertexUV():
-				#	uv = (face.v[i].uvco[0], face.v[i].uvco[1])
-				#else:
-				#	uv = (0.0, 0.0) # handle case with no tex coords
+				if mesh.hasFaceUV():
+					uv = face.uv[i]
+				elif mesh.hasVertexUV():
+					uv = (face.v[i].uvco[0], face.v[i].uvco[1])
+				else:
+					uv = (0.0, 0.0) # handle case with no tex coords
 				
 				if vertDict.has_key((index, uv)):
 					# if we've seen this exact vertex before, simply add it
@@ -233,6 +289,10 @@ def saveModel(fileName):
 		if obj.getType() == "Mesh":
 			print "processing surface", obj.name
 			processSurface(obj, glm, pathName, modelName)
+		elif obj.getType() == "Empty":
+			#need to export GLM tag types and MD3 'tag_' types, but convert MD3 'tag_' to '*'
+			print "processing tag", obj.name
+			processTag(obj, glm, pathName, modelName)
 		else:
 			print "skipping object", obj.name
 	
