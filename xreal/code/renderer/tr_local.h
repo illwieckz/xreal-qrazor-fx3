@@ -199,7 +199,7 @@ typedef enum
 	SS_BLEND3,
 
 	SS_BLEND6,
-	SS_STENCIL_SHADOW,
+
 	SS_ALMOST_NEAREST,			// gun smoke puffs
 
 	SS_NEAREST,					// blood blobs
@@ -1311,7 +1311,6 @@ typedef struct
 
 	// internal shaders
 	shader_t       *defaultShader;
-	shader_t       *shadowShader;
 	shader_t       *defaultDlightShader;
 	
 	// external shaders
@@ -1529,8 +1528,8 @@ extern cvar_t  *r_shownormals;	// draws wireframe normals
 extern cvar_t  *r_showTangentSpaces;	// draws wireframe tangents, binormals and normals
 extern cvar_t  *r_clear;		// force screen clear every frame
 
-extern cvar_t  *r_shadows;		// controls shadows: 0 = none, 1 = blur, 2 = stencil, 3 = black planar projection
-								// 4 = robust stencil shadow volumes
+extern cvar_t  *r_shadows;		// controls shadows: 0 = none, 1 = blur, 2 = black planar projection,
+								// 3 = robust stencil shadow volumes
 extern cvar_t  *r_flares;		// light flares
 
 extern cvar_t  *r_intensity;
@@ -1970,8 +1969,6 @@ SHADOWS
 */
 
 void            RB_ShadowTessEnd(void);
-void            RB_ShadowTessEnd2(void);
-void            RB_ShadowFinish(void);
 void            RB_ProjectionShadowDeform(void);
 
 /*

@@ -888,12 +888,13 @@ void GL_SetDefaultState(void)
 	
 	qglClearDepth(1.0f);
 	
-	if(glConfig.stencilBits < 4)
+	if(glConfig.stencilBits >= 4)
 	{
 		//qglClearStencil(128);
 		//qglClearStencil(0U);
 	}
 
+	qglFrontFace(GL_CCW);
 	qglCullFace(GL_FRONT);
 
 	qglColor4f(1, 1, 1, 1);

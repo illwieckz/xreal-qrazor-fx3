@@ -1436,8 +1436,7 @@ void R_AddEntitySurfaces(void)
 #if 0
 		if(ent->e.renderfx & RF_THIRD_PERSON)
 		{
-			if(	(r_shadows->integer == 2 && !tr.viewParms.isPortal) ||
-				(r_shadows->integer == 4 && tr.viewParms.isPortal))
+			if(r_shadows->integer == 3 && tr.viewParms.isPortal)
 			{
 				ent->needZFail = qtrue;
 			}

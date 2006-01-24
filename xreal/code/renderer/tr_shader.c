@@ -5370,11 +5370,6 @@ static void CreateInternalShaders(void)
 	stages[0].active = qtrue;
 	stages[0].stateBits = GLS_DEFAULT;
 	tr.defaultShader = FinishShader();
-
-	// shadow shader is just a marker
-	Q_strncpyz(shader.name, "<stencil shadow>", sizeof(shader.name));
-	shader.sort = SS_STENCIL_SHADOW;
-	tr.shadowShader = FinishShader();
 	
 	// dlight shader
 	/*

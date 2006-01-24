@@ -514,7 +514,7 @@ void RB_BeginDrawingView(void)
 	// clear relevant buffers
 	clearBits = GL_DEPTH_BUFFER_BIT;
 
-	if(r_measureOverdraw->integer || r_shadows->integer == 2)
+	if(r_measureOverdraw->integer || r_shadows->integer == 3)
 	{
 		clearBits |= GL_STENCIL_BUFFER_BIT;
 	}
@@ -1100,6 +1100,9 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 				// set the reference stencil value
 				qglStencilFunc(GL_ALWAYS, 0, ~0);
 				qglStencilMask(~0);
+				
+				//qglStencilFunc(GL_ALWAYS, 128, ~0);
+				//qglStencilMask(1);
 			}
 			else
 			{
@@ -1124,6 +1127,9 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 				
 				qglStencilFunc(GL_EQUAL, 0, ~0);
 				qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+				
+				//qglStencilFunc(GL_EQUAL, 128, ~0);
+				//qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 				
 				qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 			}
@@ -1218,7 +1224,7 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 			if(//(entity != &tr.worldEntity) &&
 				!(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK)) && shader->sort == SS_OPAQUE && !shader->noShadows)
 			{
-				RB_ShadowTessEnd2();
+				RB_ShadowTessEnd();
 				backEnd.pc.c_shadows++;
 			}
 		}
@@ -1694,9 +1700,9 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction
 	// draw everything but lighting and fog
 	RB_RenderDrawSurfListFull(originalTime, drawSurfs, numDrawSurfs);
 	
-	if(r_shadows->integer == 4)
+	if(r_shadows->integer == 3)
 	{
-		// render dynamic shadowing and lighting
+		// render dynamic shadowing and lighting using stencil shadow volumes
 		RB_RenderInteractions2(originalTime, interactions, numInteractions);
 	}
 	else
@@ -1729,8 +1735,6 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction
 #if 0
 	RB_DrawSun();
 #endif
-	// darken down any stencil shadows
-	RB_ShadowFinish();
 
 #if 0
 	// add light flares on lights that aren't obscured
