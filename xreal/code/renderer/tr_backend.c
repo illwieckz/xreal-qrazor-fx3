@@ -1215,7 +1215,8 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 		// draw the contents of the current shader batch
 		if(drawShadows)
 		{
-			if((entity != &tr.worldEntity) && !(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK)) && shader->sort == SS_OPAQUE && !shader->noShadows)
+			if(//(entity != &tr.worldEntity) &&
+				!(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK)) && shader->sort == SS_OPAQUE && !shader->noShadows)
 			{
 				RB_ShadowTessEnd2();
 				backEnd.pc.c_shadows++;

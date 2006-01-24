@@ -799,6 +799,9 @@ void RE_BeginRegistration(glconfig_t * glconfigOut, glconfig2_t * glconfig2Out)
 	tr.worldEntity.e.shaderRGBA[1] = 255;
 	tr.worldEntity.e.shaderRGBA[2] = 255;
 	tr.worldEntity.e.shaderRGBA[3] = 255;
+	
+	// FIXME: world entity shadows always use zfail algorithm which is slower than zpass
+	tr.worldEntity.needZFail = qtrue;
 
 	tr.registered = qtrue;
 

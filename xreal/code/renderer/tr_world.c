@@ -251,10 +251,14 @@ static void R_AddInteractionSurface(msurface_t * surf, trRefDlight_t * light)
 {
 	qboolean intersects;
 	
+	// Tr3B - this surface is maybe not in this view but it may still cast a shadow
+	// into this view
+	/*
 	if(surf->viewCount != tr.viewCount)
 	{
-		return;					// not in this view
+		return;
 	}
+	*/
 	
 	if(surf->lightCount == tr.lightCount)
 	{

@@ -545,50 +545,106 @@ void RB_ShadowTessEnd2(void)
 	}
 	else
 	{
-		// mirrors have the culling order reversed
-		if(backEnd.viewParms.isMirror)
+		if(backEnd.currentEntity->needZFail)
 		{
-			// draw only the back faces of the shadow volume
-			qglCullFace(GL_BACK);
-
-			// increment the stencil value on ZFail
-			qglStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
-
+			// draw only the front faces of the shadow volume
+			if(!backEnd.viewParms.isMirror)
+			{
+				qglCullFace(GL_FRONT);
+			}
+			else
+			{
+				// mirrors have the culling order reversed
+				qglCullFace(GL_BACK);
+			}
+	
+			// increment the stencil value on zfail
+			if(glConfig2.stencilWrapAvailable)
+			{
+				qglStencilOp(GL_KEEP, GL_INCR_WRAP_EXT, GL_KEEP);
+			}
+			else
+			{
+				qglStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
+			}
+	
 			R_RenderShadowEdges();
 			R_RenderShadowCaps(qfalse);
 			R_RenderShadowCaps(qtrue);
-
-			// draw only the front faces of the shadow volume
-			qglCullFace(GL_FRONT);
-
-			// decrement the stencil value on ZFail
-			qglStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
-
+	
+			// draw only the back faces of the shadow volume
+			if(!backEnd.viewParms.isMirror)
+			{
+				qglCullFace(GL_BACK);
+			}
+			else
+			{
+				qglCullFace(GL_FRONT);
+			}
+	
+			// decrement the stencil value on zfail
+			if(glConfig2.stencilWrapAvailable)
+			{
+				qglStencilOp(GL_KEEP, GL_DECR_WRAP_EXT, GL_KEEP);
+			}
+			else
+			{
+				qglStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
+			}
+	
 			R_RenderShadowEdges();
 			R_RenderShadowCaps(qfalse);
 			R_RenderShadowCaps(qtrue);
 		}
 		else
 		{
-			// draw only the front faces of the shadow volume
-			qglCullFace(GL_FRONT);
-
-			// increment the stencil value on ZFail
-			qglStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
-
-			R_RenderShadowEdges();
-			R_RenderShadowCaps(qfalse);
-			R_RenderShadowCaps(qtrue);
-
+			// Tr3B - zpass rendering is cheaper because we can skip the lightcap and darkcap
+			// see GPU Gems1 9.5.4
+			
 			// draw only the back faces of the shadow volume
-			qglCullFace(GL_BACK);
-
-			// decrement the stencil value on ZFail
-			qglStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
-
+			if(!backEnd.viewParms.isMirror)
+			{
+				qglCullFace(GL_BACK);
+			}
+			else
+			{
+				// mirrors have the culling order reversed
+				qglCullFace(GL_FRONT);
+			}
+				
+			// increment the stencil value on zpass
+			if(glConfig2.stencilWrapAvailable)
+			{
+				qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP_EXT);
+			}
+			else
+			{
+				qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+			}
+				
 			R_RenderShadowEdges();
-			R_RenderShadowCaps(qfalse);
-			R_RenderShadowCaps(qtrue);
+	
+			// draw only the front faces of the shadow volume
+			if(!backEnd.viewParms.isMirror)
+			{
+				qglCullFace(GL_FRONT);
+			}
+			else
+			{
+				qglCullFace(GL_BACK);
+			}
+	
+			// decrement the stencil value on zpass
+			if(glConfig2.stencilWrapAvailable)
+			{
+				qglStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP_EXT);
+			}
+			else
+			{
+				qglStencilOp(GL_KEEP, GL_KEEP, GL_DECR);
+			}
+	
+			R_RenderShadowEdges();
 		}
 	}
 }

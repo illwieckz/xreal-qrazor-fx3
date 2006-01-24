@@ -1641,6 +1641,25 @@ static void GLW_InitExtensions(void)
 		ri.Printf(PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n");
 	}
 	
+	// GL_EXT_stencil_wrap
+	glConfig2.stencilWrapAvailable = qfalse;
+	if(Q_stristr(glConfig.extensions_string, "GL_EXT_stencil_wrap"))
+	{
+		if(r_ext_stencil_wrap->value)
+		{
+			glConfig2.stencilWrapAvailable = qtrue;
+			ri.Printf(PRINT_ALL, "...using GL_EXT_stencil_wrap\n");
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_EXT_stencil_wrap\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_EXT_stencil_wrap not found\n");
+	}
+	
 	// GL_EXT_texture_filter_anisotropic
 	glConfig2.textureAnisotropyAvailable = qfalse;
 	if(Q_stristr(glConfig.extensions_string, "GL_EXT_texture_filter_anisotropic"))
