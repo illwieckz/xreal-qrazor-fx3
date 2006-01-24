@@ -294,8 +294,11 @@ extern void ( APIENTRY * qglGetActiveAttribARB )( GLhandleARB programObj, GLuint
 extern GLint ( APIENTRY * qglGetAttribLocationARB )( GLhandleARB programObj, const GLcharARB *name );
 
 // GL_EXT_compiled_vertex_array
-extern	void ( APIENTRY * qglLockArraysEXT )( GLint, GLint );
-extern	void ( APIENTRY * qglUnlockArraysEXT )( void );
+extern void ( APIENTRY * qglLockArraysEXT )( GLint, GLint );
+extern void ( APIENTRY * qglUnlockArraysEXT )( void );
+
+// GL_EXT_stencil_two_side
+extern void ( APIENTRY * qglActiveStencilFaceEXT )( GLenum face );
 
 // GL_EXT_framebuffer_object
 extern GLboolean ( APIENTRY * qglIsRenderbufferEXT )( GLuint renderbuffer );

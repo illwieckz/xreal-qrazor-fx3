@@ -1680,6 +1680,25 @@ static void GLW_InitExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, "...GL_EXT_texture_filter_anisotropic not found\n");
 	}
+	
+	// GL_EXT_stencil_two_side
+	qglActiveStencilFaceEXT = NULL;
+	if(Q_stristr(glConfig.extensions_string, "GL_EXT_stencil_two_side"))
+	{
+		if(r_ext_stencil_two_side->value)
+		{
+			qglActiveStencilFaceEXT = (void (APIENTRY *) (GLenum))qwglGetProcAddress("glActiveStencilFaceEXT");
+			ri.Printf(PRINT_ALL, "...using GL_EXT_stencil_two_side\n");
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_EXT_stencil_two_side\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_EXT_stencil_two_side not found\n");
+	}
 
 	// GL_EXT_framebuffer_object
 	glConfig2.framebufferObjectAvailable = qfalse;

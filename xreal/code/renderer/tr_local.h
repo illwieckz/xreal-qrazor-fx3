@@ -1502,6 +1502,7 @@ extern cvar_t  *r_ext_fragment_shader;
 extern cvar_t  *r_ext_shading_language_100;
 extern cvar_t  *r_ext_stencil_wrap;
 extern cvar_t  *r_ext_texture_filter_anisotropic;
+extern cvar_t  *r_ext_stencil_two_side;
 extern cvar_t  *r_ext_framebuffer_object;
 
 extern cvar_t  *r_nobind;		// turns off binding to appropriate textures
