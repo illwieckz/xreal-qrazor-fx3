@@ -327,14 +327,14 @@ void RB_ShadowTessEnd(void)
 				qglDisable(GL_CULL_FACE);
 				
 				qglEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
-
+				
 				qglActiveStencilFaceEXT(GL_BACK);
-				qglStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP_EXT);
+				qglStencilOp(GL_KEEP, GL_DECR_WRAP_EXT, GL_KEEP);
 				qglStencilMask(~0);
 				qglStencilFunc(GL_ALWAYS, 0, ~0);
 
 				qglActiveStencilFaceEXT(GL_FRONT);
-				qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP_EXT);
+				qglStencilOp(GL_KEEP, GL_INCR_WRAP_EXT, GL_KEEP);
 				qglStencilMask(~0);
 				qglStencilFunc(GL_ALWAYS, 0, ~0);
 				
