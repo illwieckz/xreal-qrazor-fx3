@@ -280,6 +280,7 @@ void RE_AddRefDlightToScene(const refDlight_t * light)
 	dl = &backEndData[tr.smpFrame]->dlights[r_numdlights++];
 	dl->l = *light;
 	
+	dl->isStatic = qfalse;
 	dl->additive = qtrue;
 }
 
@@ -326,6 +327,7 @@ static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r
 	
 	AxisCopy(axisDefault, dl->l.axis);
 	
+	dl->isStatic = qfalse;
 	dl->additive = additive;
 }
 

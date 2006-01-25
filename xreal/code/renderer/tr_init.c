@@ -1089,7 +1089,7 @@ void R_Register(void)
 	r_ext_fragment_shader = ri.Cvar_Get("r_ext_fragment_shader", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_stencil_wrap = ri.Cvar_Get("r_ext_stencil_wrap", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_shading_language_100 = ri.Cvar_Get("r_ext_shading_language_100", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_stencil_two_side = ri.Cvar_Get("r_ext_stencil_two_side", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_stencil_two_side = ri.Cvar_Get("r_ext_stencil_two_side", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_texture_filter_anisotropic = ri.Cvar_Get("r_ext_texture_filter_anisotropic", "8", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_framebuffer_object = ri.Cvar_Get("r_ext_framebuffer_object", "1", CVAR_ARCHIVE | CVAR_LATCH);
 

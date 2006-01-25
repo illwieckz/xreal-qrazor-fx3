@@ -2095,10 +2095,14 @@ R_LoadEntities
 */
 void R_LoadEntities(lump_t * l)
 {
-	char           *p, *token, *s;
+	int				i;
+	char           *p, *pOld, *token, *s;
 	char            keyname[MAX_TOKEN_CHARS];
 	char            value[MAX_TOKEN_CHARS];
 	world_t        *w;
+	qboolean		isLight = qfalse;
+	int				numLights = 0;
+	trRefDlight_t  *dl;
 
 	w = &s_worldData;
 	w->lightGridSize[0] = 64;
@@ -2184,6 +2188,165 @@ void R_LoadEntities(lump_t * l)
 			continue;
 		}
 	}
+	
+//	ri.Printf(PRINT_ALL, "-----------\n%s\n----------\n", p);
+	
+	pOld = p;
+	
+	// count lights
+	while(1)
+	{
+		// parse key
+		token = COM_ParseExt(&p, qtrue);
+
+		if(!*token)
+		{
+			// end of entities string
+			break;
+		}
+		
+		if(*token == '{')
+		{
+			// new entity
+			isLight = qfalse;
+			continue;
+		}
+		
+		if(*token == '}')
+		{
+			if(isLight)
+			{
+				numLights++;
+			}
+			continue;
+		}
+		
+		Q_strncpyz(keyname, token, sizeof(keyname));
+
+		// parse value
+		token = COM_ParseExt(&p, qfalse);
+
+		if(!*token || *token == '}')
+		{
+			continue;
+		}
+		Q_strncpyz(value, token, sizeof(value));
+
+		
+		// check if this entity is a light
+		if(!Q_stricmp(keyname, "classname") && !Q_stricmp(value, "light"))
+		{
+			isLight = qtrue;
+			continue;
+		}
+	}
+	
+	s_worldData.numDlights = numLights;
+	s_worldData.dlights = ri.Hunk_Alloc(s_worldData.numDlights * sizeof(trRefDlight_t), h_low);
+	
+	// basic light setup
+	for(i = 0; i < s_worldData.numDlights; i++)
+	{
+		dl = &s_worldData.dlights[i];
+		
+		AxisCopy(axisDefault, dl->l.axis);
+		
+		dl->isStatic = qtrue;
+		dl->additive = qtrue;
+	}
+	
+	// parse lights
+	p = pOld;
+	numLights = 0;
+	dl = &s_worldData.dlights[0];
+	
+	while(1)
+	{
+		// parse key
+		token = COM_ParseExt(&p, qtrue);
+
+		if(!*token)
+		{
+			// end of entities string
+			break;
+		}
+		
+		if(*token == '{')
+		{
+			// new entity
+			isLight = qfalse;
+			continue;
+		}
+		
+		if(*token == '}')
+		{
+			if(isLight)
+			{
+				dl++;
+				numLights++;
+			}
+			continue;
+		}
+		
+		Q_strncpyz(keyname, token, sizeof(keyname));
+
+		// parse value
+		token = COM_ParseExt(&p, qfalse);
+
+		if(!*token || *token == '}')
+		{
+			continue;
+		}
+		Q_strncpyz(value, token, sizeof(value));
+
+		// check if this entity is a light
+		if(!Q_stricmp(keyname, "classname") && !Q_stricmp(value, "light"))
+		{
+			isLight = qtrue;
+			continue;
+		}
+		
+		// check for origin
+		if(!Q_stricmp(keyname, "origin"))
+		{
+			sscanf(value, "%f %f %f", &dl->l.origin[0], &dl->l.origin[1], &dl->l.origin[2]);
+			continue;
+		}
+		
+		// check for color
+		if(!Q_stricmp(keyname, "_color"))
+		{
+			sscanf(value, "%f %f %f", &dl->l.color[0], &dl->l.color[1], &dl->l.color[2]);
+			continue;
+		}
+		
+		// check for radius
+		if(!Q_stricmp(keyname, "light_radius"))
+		{
+			sscanf(value, "%f %f %f", &dl->l.radius[0], &dl->l.radius[1], &dl->l.radius[2]);
+			continue;
+		}
+		
+		// check for light shader
+		if(!Q_stricmp(keyname, "texture"))
+		{
+			dl->l.attenuationShader = RE_RegisterShaderLightAttenuation(value);
+			continue;
+		}
+		
+		// check for rotation
+		if(!Q_stricmp(keyname, "rotation"))
+		{
+			matrix_t rotation;
+			sscanf(value, "%f %f %f %f %f %f %f %f %f",	&rotation[ 0], &rotation[ 1], &rotation[ 2],
+				   										&rotation[ 4], &rotation[ 5], &rotation[ 6],
+														&rotation[ 8], &rotation[ 9], &rotation[10]);
+			MatrixToVectorsFLU(rotation, dl->l.axis[0], dl->l.axis[1], dl->l.axis[2]);
+			continue;
+		}
+	}
+	
+	ri.Printf(PRINT_ALL, "%i lights parsed\n", numLights);
 }
 
 /*

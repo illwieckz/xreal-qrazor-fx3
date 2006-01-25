@@ -4097,7 +4097,7 @@ static shader_t *FinishShader(void)
 
 	hasDiffuseMapStage = qfalse;
 	hasLightMapStage = qfalse;
-
+	
 	// set sky stuff appropriate
 	if(shader.isSky)
 	{
@@ -4113,6 +4113,38 @@ static shader_t *FinishShader(void)
 	if(shader.polygonOffset && !shader.sort)
 	{
 		shader.sort = SS_DECAL;
+	}
+	
+	// all light materials need at least one z attenuation stage as first stage
+	if(shader.lightmapIndex == LIGHTMAP_FALLOFF)
+	{
+		if(stages[0].type != ST_ATTENUATIONMAP_Z)
+		{
+			// move up subsequent stages
+			memmove(&stages[1], &stages[0], sizeof(stages[0]) * (MAX_SHADER_STAGES - 1));
+			
+			stages[0].active = qtrue;
+			stages[0].type = ST_ATTENUATIONMAP_Z;
+			stages[0].rgbGen = CGEN_IDENTITY;
+			stages[0].stateBits = GLS_DEFAULT;
+			stages[0].overrideWrapType = qtrue;
+			stages[0].wrapType = WT_EDGE_CLAMP;
+			
+			LoadMap(&stages[0], "lights/squarelight1a.tga");
+		}
+		
+		// force following shader stages to be xy attenuation stages
+		for(stage = 1; stage < MAX_SHADER_STAGES; stage++)
+		{
+			shaderStage_t  *pStage = &stages[stage];
+
+			if(!pStage->active)
+			{
+				break;
+			}
+			
+			pStage->type = ST_ATTENUATIONMAP_XY;
+		}
 	}
 
 	// set appropriate stage information
@@ -5393,6 +5425,7 @@ static void CreateExternalShaders(void)
 	tr.flareShader = R_FindShader("flareShader", LIGHTMAP_NONE, qtrue);
 	tr.sunShader = R_FindShader("sun", LIGHTMAP_NONE, qtrue);
 	
+	tr.defaultPointLightShader = R_FindShader("lights/defaultPointLight", LIGHTMAP_FALLOFF, qtrue);
 	tr.defaultDlightShader = R_FindShader("lights/defaultDynamicLight", LIGHTMAP_FALLOFF, qtrue);
 }
 

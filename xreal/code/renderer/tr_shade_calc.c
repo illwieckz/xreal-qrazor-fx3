@@ -45,8 +45,7 @@ static float   *TableForFunc(genFunc_t func)
 			break;
 	}
 
-	ri.Error(ERR_DROP, "TableForFunc called with invalid function '%d' in shader '%s'\n", func,
-			 tess.shader->name);
+	ri.Error(ERR_DROP, "TableForFunc called with invalid function '%d' in shader '%s'\n", func, tess.surfaceShader->name);
 	return NULL;
 }
 
@@ -217,7 +216,7 @@ float RB_EvalExpression(const expression_t * exp, float defaultValue)
 			{
 				if(numOps < 1)
 				{
-					ri.Printf(PRINT_ALL, "WARNING: shader %s has numOps < 1 for unary - operator\n", tess.shader->name);
+					ri.Printf(PRINT_ALL, "WARNING: shader %s has numOps < 1 for unary - operator\n", tess.surfaceShader->name);
 					return defaultValue;
 				}
 				
@@ -271,7 +270,7 @@ float RB_EvalExpression(const expression_t * exp, float defaultValue)
 				
 				if(numOps < 1)
 				{
-					ri.Printf(PRINT_ALL, "WARNING: shader %s has numOps < 1 for table operator\n", tess.shader->name);
+					ri.Printf(PRINT_ALL, "WARNING: shader %s has numOps < 1 for table operator\n", tess.surfaceShader->name);
 					return defaultValue;
 				}
 				
@@ -325,7 +324,7 @@ float RB_EvalExpression(const expression_t * exp, float defaultValue)
 			{
 				if(numOps < 2)
 				{
-					ri.Printf(PRINT_ALL, "WARNING: shader %s has numOps < 2 for binary operator %s\n", tess.shader->name, opStrings[op.type].s);
+					ri.Printf(PRINT_ALL, "WARNING: shader %s has numOps < 2 for binary operator %s\n", tess.surfaceShader->name, opStrings[op.type].s);
 					return defaultValue;
 				}
 				
@@ -700,11 +699,11 @@ static void AutospriteDeform(void)
 
 	if(tess.numVertexes & 3)
 	{
-		ri.Printf(PRINT_WARNING, "Autosprite shader %s had odd vertex count", tess.shader->name);
+		ri.Printf(PRINT_WARNING, "Autosprite shader %s had odd vertex count", tess.surfaceShader->name);
 	}
 	if(tess.numIndexes != (tess.numVertexes >> 2) * 6)
 	{
-		ri.Printf(PRINT_WARNING, "Autosprite shader %s had odd index count", tess.shader->name);
+		ri.Printf(PRINT_WARNING, "Autosprite shader %s had odd index count", tess.surfaceShader->name);
 	}
 
 	oldVerts = tess.numVertexes;
@@ -790,11 +789,11 @@ static void Autosprite2Deform(void)
 
 	if(tess.numVertexes & 3)
 	{
-		ri.Printf(PRINT_WARNING, "Autosprite2 shader %s had odd vertex count", tess.shader->name);
+		ri.Printf(PRINT_WARNING, "Autosprite2 shader %s had odd vertex count", tess.surfaceShader->name);
 	}
 	if(tess.numIndexes != (tess.numVertexes >> 2) * 6)
 	{
-		ri.Printf(PRINT_WARNING, "Autosprite2 shader %s had odd index count", tess.shader->name);
+		ri.Printf(PRINT_WARNING, "Autosprite2 shader %s had odd index count", tess.surfaceShader->name);
 	}
 
 	if(backEnd.currentEntity != &tr.worldEntity)
@@ -913,9 +912,9 @@ void RB_DeformTessGeometry(void)
 	int             i;
 	deformStage_t  *ds;
 
-	for(i = 0; i < tess.shader->numDeforms; i++)
+	for(i = 0; i < tess.surfaceShader->numDeforms; i++)
 	{
-		ds = &tess.shader->deforms[i];
+		ds = &tess.surfaceShader->deforms[i];
 
 		switch (ds->deformation)
 		{

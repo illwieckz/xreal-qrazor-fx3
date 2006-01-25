@@ -74,8 +74,9 @@ typedef struct trRefDlight_s
 	refDlight_t		l;
 	
 	// local
+	qboolean        isStatic;
+	qboolean        additive;			// texture detail is lost tho when the lightmap is dark
 	vec3_t          transformed;		// origin in local coordinate system
-	int             additive;			// texture detail is lost tho when the lightmap is dark
 	matrix_t		transformMatrix;	// light to world
 	matrix_t		viewMatrix;			// object to light
 	matrix_t		projectionMatrix;	// light frustum
@@ -886,10 +887,11 @@ typedef struct interaction_s
 	struct interaction_s *next;
 	
 	trRefDlight_t  *dlight;
+	shader_t       *dlightShader;
 	
 	trRefEntity_t  *entity;
 	surfaceType_t  *surface;	// any of surface*_t
-	int             shaderNum;
+	shader_t       *surfaceShader;
 } interaction_t;
 
 #define	MAX_FACE_POINTS		64
@@ -1092,7 +1094,9 @@ typedef struct
 	vec3_t          lightGridInverseSize;
 	int             lightGridBounds[3];
 	byte           *lightGridData;
-
+	
+	int             numDlights;
+	trRefDlight_t  *dlights;
 
 	int             numClusters;
 	int             clusterBytes;
@@ -1311,6 +1315,7 @@ typedef struct
 
 	// internal shaders
 	shader_t       *defaultShader;
+	shader_t       *defaultPointLightShader;
 	shader_t       *defaultDlightShader;
 	
 	// external shaders
@@ -1878,7 +1883,8 @@ typedef struct shaderCommands_s
 
 	color4ub_t      constantColor255[SHADER_MAX_VERTEXES];
 
-	shader_t       *shader;
+	shader_t       *surfaceShader;
+	shader_t       *lightShader;
 	float           shaderTime;
 	int             fogNum;
 
@@ -1886,15 +1892,15 @@ typedef struct shaderCommands_s
 	int             numVertexes;
 
 	// info extracted from current shader or backend mode
-	int             numPasses;
+	int             numStages;
 	stageIteratorType_t currentStageIteratorType;
 	void            (*currentStageIteratorFunc) (void);
-	shaderStage_t **xstages;
+	shaderStage_t **surfaceStages;
 } shaderCommands_t;
 
 extern shaderCommands_t tess;
 
-void            RB_BeginSurface(shader_t * shader, int fogNum);
+void            RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNum);
 void            RB_EndSurface(void);
 void            RB_CheckOverflow(int verts, int indexes);
 
@@ -1959,7 +1965,7 @@ void            R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t *
 void            R_TransformDlights(int count, trRefDlight_t * dl, orientationr_t * or);
 int             R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir);
 
-void            R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * shader);
+void            R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * surfaceShader);
 
 /*
 ============================================================

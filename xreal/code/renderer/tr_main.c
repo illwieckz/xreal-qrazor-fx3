@@ -888,7 +888,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 
 	R_DecomposeSort(drawSurf->sort, &entityNum, &shader, &fogNum);
 	
-	RB_BeginSurface(shader, fogNum);
+	RB_BeginSurface(shader, NULL, fogNum);
 	rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
 
 	assert(tess.numVertexes < 128);
@@ -959,7 +959,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 		return qfalse;
 	}
 
-	if(shortest > (tess.shader->portalRange * tess.shader->portalRange))
+	if(shortest > (tess.surfaceShader->portalRange * tess.surfaceShader->portalRange))
 	{
 		return qtrue;
 	}
@@ -1608,6 +1608,123 @@ void R_AddEntityInteractions(trRefDlight_t * light)
 
 }
 
+
+/*
+=============
+R_AddSlightInteractions
+=============
+*/
+void R_AddSlightInteractions()
+{
+	int             i, j;
+	vec3_t         v;
+	vec3_t         transformed;
+	trRefDlight_t  *dl;
+	
+	if(tr.refdef.rdflags & RDF_NOWORLDMODEL)
+	{
+		return;
+	}
+
+	if(r_dynamiclight->integer != 2)
+	{
+		return;
+	}
+	
+	//ri.Printf(PRINT_ALL, "R_AddSlightInteractions: adding %i lights\n", tr.world->numDlights);
+
+	for(i = 0; i < tr.world->numDlights; i++)
+	{
+		dl = tr.currentDlight = &tr.world->dlights[i];
+		
+#if 0
+		ri.Printf(PRINT_ALL, "origin(%i %i %i) radius(%i %i %i) color(%f %f %f)\n",
+				  (int)dl->l.origin[0], (int)dl->l.origin[1], (int)dl->l.origin[2],
+				  (int)dl->l.radius[0], (int)dl->l.radius[1], (int)dl->l.radius[2],
+				  dl->l.color[0], dl->l.color[1], dl->l.color[2]);
+#endif
+		
+		// we must set up parts of tr.or for light culling
+		R_RotateForDlight(dl, &tr.viewParms, &tr.or);
+		
+		// setup local bounds
+		dl->localBounds[0][0] = dl->l.radius[0];
+		dl->localBounds[0][1] = dl->l.radius[1];
+		dl->localBounds[0][2] = dl->l.radius[2];
+		dl->localBounds[1][0] =-dl->l.radius[0];
+		dl->localBounds[1][1] =-dl->l.radius[1];
+		dl->localBounds[1][2] =-dl->l.radius[2];
+		
+		// look if we have to draw the light including its interactions
+		switch (R_CullLocalBox(dl->localBounds))
+		{
+			case CULL_IN:
+				tr.pc.c_box_cull_light_in++;
+				dl->cull = CULL_IN;
+				break;
+			
+			case CULL_CLIP:
+				tr.pc.c_box_cull_light_clip++;
+				dl->cull = CULL_CLIP;
+				break;
+			
+			case CULL_OUT:
+			default:
+				// light is not visible so skip other light setup stuff to save speed
+				tr.pc.c_box_cull_light_out++;
+				dl->cull = CULL_OUT;
+				continue;
+		}
+		
+		// set up light transform matrix
+		MatrixSetupTransform(dl->transformMatrix, dl->l.axis[0], dl->l.axis[1], dl->l.axis[2], dl->l.origin);
+		
+		// set up model to light view matrix
+		MatrixAffineInverse(dl->transformMatrix, dl->viewMatrix);
+		
+		// set up projection
+		switch (dl->l.rlType)
+		{
+			case RL_OMNI:
+				MatrixSetupScale(dl->projectionMatrix, 1.0 / dl->l.radius[0], 1.0 / dl->l.radius[1], 1.0 / dl->l.radius[2]);
+				break;
+
+			default:
+				ri.Error(ERR_DROP, "R_AddSlightInteractions: Bad rlType");
+		}
+				
+		// set up first part of the attenuation matrix
+		MatrixSetupTranslation(dl->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
+		MatrixMultiplyScale(dl->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
+		MatrixMultiply2(dl->attenuationMatrix, dl->projectionMatrix);	// light projection (frustum)
+		
+		// setup world bounds for intersection tests
+		ClearBounds(dl->worldBounds[0], dl->worldBounds[1]);
+		
+		for(j = 0; j < 8; j++)
+		{
+			v[0] = dl->localBounds[j & 1][0];
+			v[1] = dl->localBounds[(j >> 1) & 1][1];
+			v[2] = dl->localBounds[(j >> 2) & 1][2];
+	
+			// transform local bounds vertices into world space
+			MatrixTransformPoint(dl->transformMatrix, v, transformed);
+			
+			AddPointToBounds(transformed, dl->worldBounds[0], dl->worldBounds[1]);
+		}
+		
+		// setup interactions
+		dl->lastInteraction = NULL;
+	
+		R_AddWorldInteractions(dl);
+		R_AddEntityInteractions(dl);
+		
+		if(dl->lastInteraction != NULL)
+			tr.pc.c_dlights++;
+	}
+}
+
+
 /*
 =============
 R_AddDlightInteractions
@@ -1675,7 +1792,7 @@ void R_AddDlightInteractions()
 				break;
 
 			default:
-				ri.Error(ERR_DROP, "RB_RenderDlights: Bad rlType");
+				ri.Error(ERR_DROP, "R_AddDlightInteractions: Bad rlType");
 		}
 				
 		// set up first part of the attenuation matrix
@@ -1928,6 +2045,8 @@ void R_RenderView(viewParms_t * parms)
 	R_AddPolygonSurfaces();
 
 	R_AddEntitySurfaces();
+	
+	R_AddSlightInteractions();
 	
 	R_AddDlightInteractions();
 	

@@ -613,7 +613,7 @@ void RB_RenderDrawSurfListFull(float originalTime, drawSurf_t * drawSurfs, int n
 			{
 				RB_EndSurface();
 			}
-			RB_BeginSurface(shader, fogNum);
+			RB_BeginSurface(shader, NULL, fogNum);
 			oldShader = shader;
 			oldFogNum = fogNum;
 		}
@@ -630,7 +630,7 @@ void RB_RenderDrawSurfListFull(float originalTime, drawSurf_t * drawSurfs, int n
 				
 				// we have to reset the shaderTime as well otherwise image animations start
 				// from the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 
 				// set up the transformation matrix
 				R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
@@ -649,7 +649,7 @@ void RB_RenderDrawSurfListFull(float originalTime, drawSurf_t * drawSurfs, int n
 				
 				// we have to reset the shaderTime as well otherwise image animations on
 				// the world (like water) continue with the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 			}
 
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
@@ -735,7 +735,7 @@ void RB_RenderDrawSurfListZFill(float originalTime, drawSurf_t * drawSurfs, int 
 			{
 				RB_EndSurface();
 			}
-			RB_BeginSurface(shader, fogNum);
+			RB_BeginSurface(shader, NULL, fogNum);
 			oldShader = shader;
 			oldFogNum = fogNum;
 		}
@@ -755,7 +755,7 @@ void RB_RenderDrawSurfListZFill(float originalTime, drawSurf_t * drawSurfs, int 
 				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
 				// we have to reset the shaderTime as well otherwise image animations start
 				// from the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 
 				// set up the transformation matrix
 				R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
@@ -773,7 +773,7 @@ void RB_RenderDrawSurfListZFill(float originalTime, drawSurf_t * drawSurfs, int 
 				backEnd.or = backEnd.viewParms.world;
 				// we have to reset the shaderTime as well otherwise image animations on
 				// the world (like water) continue with the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 			}
 
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
@@ -853,7 +853,7 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 		backEnd.currentLight = light = ia->dlight;
 		backEnd.currentEntity = entity = ia->entity;
 		surface = ia->surface;
-		shader = tr.sortedShaders[ia->shaderNum & (MAX_SHADERS - 1)];
+		shader = ia->surfaceShader;
 		
 		if(light != oldLight)
 		{
@@ -892,7 +892,7 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 			// entities merged into a single batch, like smoke and blood puff sprites
 			
 			// we need a new batch
-			RB_BeginSurface(shader, 0);
+			RB_BeginSurface(shader, ia->dlightShader, 0);
 
 			// change the modelview matrix if needed
 			if(entity != oldEntity)
@@ -904,7 +904,7 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 					backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
 					// we have to reset the shaderTime as well otherwise image animations start
 					// from the wrong frame
-					tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+					tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 	
 					// set up the transformation matrix
 					R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
@@ -921,7 +921,7 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 					backEnd.or = backEnd.viewParms.world;
 					// we have to reset the shaderTime as well otherwise image animations on
 					// the world (like water) continue with the wrong frame
-					tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+					tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 				}
 				
 				qglLoadMatrixf(backEnd.or.modelViewMatrix);
@@ -1080,7 +1080,7 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 		backEnd.currentLight = light = ia->dlight;
 		backEnd.currentEntity = entity = ia->entity;
 		surface = ia->surface;
-		shader = tr.sortedShaders[ia->shaderNum & (MAX_SHADERS - 1)];
+		shader = ia->surfaceShader;
 		
 		// only iaFirst == iaCount if first iteration or counters were reset
 		if(light != oldLight || iaFirst == iaCount)
@@ -1145,7 +1145,7 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 		// entities merged into a single batch, like smoke and blood puff sprites
 		
 		// we need a new batch
-		RB_BeginSurface(shader, 0);
+		RB_BeginSurface(shader, ia->dlightShader, 0);
 
 		// change the modelview matrix if needed
 		if(entity != oldEntity)
@@ -1157,7 +1157,7 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
 				// we have to reset the shaderTime as well otherwise image animations start
 				// from the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 
 				// set up the transformation matrix
 				R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
@@ -1174,7 +1174,7 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 				backEnd.or = backEnd.viewParms.world;
 				// we have to reset the shaderTime as well otherwise image animations on
 				// the world (like water) continue with the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 			}
 			
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
@@ -1410,7 +1410,7 @@ void RB_RenderDrawSurfListFog(float originalTime, drawSurf_t * drawSurfs, int nu
 				backEnd.pc.c_fogBatches++;
 				RB_EndSurface();
 			}
-			RB_BeginSurface(shader, fogNum);
+			RB_BeginSurface(shader, NULL, fogNum);
 			oldShader = shader;
 			oldFogNum = fogNum;
 		}
@@ -1427,7 +1427,7 @@ void RB_RenderDrawSurfListFog(float originalTime, drawSurf_t * drawSurfs, int nu
 				
 				// we have to reset the shaderTime as well otherwise image animations start
 				// from the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 
 				// set up the transformation matrix
 				R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
@@ -1446,7 +1446,7 @@ void RB_RenderDrawSurfListFog(float originalTime, drawSurf_t * drawSurfs, int nu
 				
 				// we have to reset the shaderTime as well otherwise image animations on
 				// the world (like water) continue with the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 			}
 
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
@@ -1592,7 +1592,7 @@ void RB_RenderDrawSurfListTranslucent(float originalTime, drawSurf_t * drawSurfs
 			{
 				RB_EndSurface();
 			}
-			RB_BeginSurface(shader, fogNum);
+			RB_BeginSurface(shader, NULL, fogNum);
 			oldShader = shader;
 			oldFogNum = fogNum;
 		}
@@ -1608,7 +1608,7 @@ void RB_RenderDrawSurfListTranslucent(float originalTime, drawSurf_t * drawSurfs
 				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
 				// we have to reset the shaderTime as well otherwise image animations start
 				// from the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 
 				// set up the transformation matrix
 				R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
@@ -1626,7 +1626,7 @@ void RB_RenderDrawSurfListTranslucent(float originalTime, drawSurf_t * drawSurfs
 				backEnd.or = backEnd.viewParms.world;
 				// we have to reset the shaderTime as well otherwise image animations on
 				// the world (like water) continue with the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 			}
 
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
@@ -1942,14 +1942,14 @@ const void     *RB_StretchPic(const void *data)
 	}
 
 	shader = cmd->shader;
-	if(shader != tess.shader)
+	if(shader != tess.surfaceShader)
 	{
 		if(tess.numIndexes)
 		{
 			RB_EndSurface();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
-		RB_BeginSurface(shader, 0);
+		RB_BeginSurface(shader, NULL, 0);
 	}
 
 	RB_CHECKOVERFLOW(4, 6);

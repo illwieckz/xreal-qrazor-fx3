@@ -444,7 +444,7 @@ int R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec
 R_AddDlightInteraction
 =================
 */
-void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * shader)
+void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * surfaceShader)
 {
 	int             index;
 	interaction_t *ia;
@@ -462,9 +462,26 @@ void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shad
 	}
 	light->lastInteraction = ia;
 	
+	// check what kind of attenuationShader is used
+	if(!light->l.attenuationShader)
+	{
+		if(light->isStatic)
+		{
+			ia->dlightShader = tr.defaultPointLightShader;
+		}
+		else
+		{
+			ia->dlightShader = tr.defaultDlightShader;
+		}
+	}
+	else
+	{
+		ia->dlightShader = R_GetShaderByHandle(light->l.attenuationShader);
+	}
+	
 	ia->next = NULL;
 	ia->dlight = light;
 	ia->entity = tr.currentEntity;
 	ia->surface = surface;
-	ia->shaderNum = shader->sortedIndex;
+	ia->surfaceShader = surfaceShader;
 }

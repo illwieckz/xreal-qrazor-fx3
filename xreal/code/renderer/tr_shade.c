@@ -1349,16 +1349,18 @@ because a surface may be forced to perform a RB_End due
 to overflow.
 ==============
 */
-void RB_BeginSurface(shader_t * shader, int fogNum)
+void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNum)
 {
-	shader_t       *state = (shader->remappedShader) ? shader->remappedShader : shader;
+	shader_t       *state = (surfaceShader->remappedShader) ? surfaceShader->remappedShader : surfaceShader;
 
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
-	tess.shader = state;
+	tess.surfaceShader = state;
 	tess.fogNum = fogNum;
-	tess.xstages = state->stages;
-	tess.numPasses = state->numStages;
+	tess.surfaceStages = state->stages;
+	tess.numStages = state->numStages;
+	
+	tess.lightShader = lightShader;
 	
 	switch (tess.currentStageIteratorType)
 	{
@@ -1388,10 +1390,10 @@ void RB_BeginSurface(shader_t * shader, int fogNum)
 			break;
 	}
 
-	tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
-	if(tess.shader->clampTime && tess.shaderTime >= tess.shader->clampTime)
+	tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
+	if(tess.surfaceShader->clampTime && tess.shaderTime >= tess.surfaceShader->clampTime)
 	{
-		tess.shaderTime = tess.shader->clampTime;
+		tess.shaderTime = tess.surfaceShader->clampTime;
 	}
 }
 
@@ -1399,7 +1401,7 @@ static void Render_generic_single_FFP(int stage)
 {
 	shaderStage_t  *pStage;
 
-	pStage = tess.xstages[stage];
+	pStage = tess.surfaceStages[stage];
 	
 	GL_Program(0);
 	GL_State(pStage->stateBits);
@@ -1423,7 +1425,7 @@ static void Render_zfill_FFP(int stage)
 {
 	shaderStage_t  *pStage;
 
-	pStage = tess.xstages[stage];
+	pStage = tess.surfaceStages[stage];
 	
 #if 1
 	qglColor3f(0, 0, 0);
@@ -1471,7 +1473,7 @@ static void Render_generic_multi_FFP(int stage)
 {
 	shaderStage_t  *pStage;
 
-	pStage = tess.xstages[stage];
+	pStage = tess.surfaceStages[stage];
 	
 	GL_Program(0);
 	GL_State(pStage->stateBits);
@@ -1497,7 +1499,7 @@ static void Render_generic_multi_FFP(int stage)
 	}
 	else
 	{
-		GL_TexEnv(tess.shader->collapseTextureEnv);
+		GL_TexEnv(tess.surfaceShader->collapseTextureEnv);
 	}
 
 	R_BindAnimatedImage(&pStage->bundle[1]);
@@ -1522,7 +1524,7 @@ void Render_lighting_D_direct(int stage)
 	vec4_t          directedLight;
 	trRefEntity_t  *ent = backEnd.currentEntity;
 	
-	pStage = tess.xstages[stage];
+	pStage = tess.surfaceStages[stage];
 	
 	GL_State(pStage->stateBits);
 	
@@ -1559,7 +1561,7 @@ static void Render_lighting_DB_direct(int stage)
 	vec4_t          directedLight;
 	trRefEntity_t  *ent = backEnd.currentEntity;
 	
-	pStage = tess.xstages[stage];
+	pStage = tess.surfaceStages[stage];
 	
 	GL_State(pStage->stateBits);
 	
@@ -1601,7 +1603,7 @@ static void Render_lighting_DBS_direct(int stage)
 	vec4_t          directedLight;
 	trRefEntity_t  *ent = backEnd.currentEntity;
 	
-	pStage = tess.xstages[stage];
+	pStage = tess.surfaceStages[stage];
 	
 	GL_State(pStage->stateBits);
 
@@ -1793,7 +1795,7 @@ static void Render_lightmap_FFP(int stage)
 {
 	shaderStage_t  *pStage;
 
-	pStage = tess.xstages[stage];
+	pStage = tess.surfaceStages[stage];
 	
 	GL_Program(0);
 	
@@ -1818,7 +1820,7 @@ static void Render_deluxemap_FFP(int stage)
 {
 	shaderStage_t  *pStage;
 
-	pStage = tess.xstages[stage];
+	pStage = tess.surfaceStages[stage];
 	
 	if(!pStage->bundle[TB_LIGHTMAP].image[1])
 		return;
@@ -1845,7 +1847,7 @@ static void Render_lighting_D_radiosity_FFP(int stage)
 {
 	shaderStage_t  *pStage;
 
-	pStage = tess.xstages[stage];
+	pStage = tess.surfaceStages[stage];
 	
 	GL_Program(0);
 	GL_SelectTexture(0);
@@ -1882,7 +1884,7 @@ static void Render_lighting_D_radiosity(int stage)
 {
 	shaderStage_t  *pStage;
 	
-	pStage = tess.xstages[stage];
+	pStage = tess.surfaceStages[stage];
 	
 	GL_State(pStage->stateBits);
 	
@@ -1906,7 +1908,7 @@ static void Render_lighting_DB_radiosity(int stage)
 {
 	shaderStage_t  *pStage;
 	
-	pStage = tess.xstages[stage];
+	pStage = tess.surfaceStages[stage];
 	
 	GL_State(pStage->stateBits);
 	
@@ -1939,7 +1941,7 @@ static void Render_lighting_DBS_radiosity(int stage)
 	vec3_t			viewOrigin;
 	shaderStage_t  *pStage;
 	
-	pStage = tess.xstages[stage];
+	pStage = tess.surfaceStages[stage];
 	
 	GL_State(pStage->stateBits);
 	
@@ -1980,7 +1982,7 @@ static void Render_lighting_DBS_radiosity(int stage)
 static void Render_reflection_C(int stage)
 {
 	vec3_t			viewOrigin;
-	shaderStage_t  *pStage = tess.xstages[stage];
+	shaderStage_t  *pStage = tess.surfaceStages[stage];
 	
 	GL_State(pStage->stateBits);
 	
@@ -2011,7 +2013,7 @@ static void Render_reflection_C(int stage)
 static void Render_refraction_C(int stage)
 {
 	vec3_t			viewOrigin;
-	shaderStage_t  *pStage = tess.xstages[stage];
+	shaderStage_t  *pStage = tess.surfaceStages[stage];
 	
 	GL_State(pStage->stateBits);
 	
@@ -2046,7 +2048,7 @@ static void Render_refraction_C(int stage)
 static void Render_dispersion_C(int stage)
 {
 	vec3_t			viewOrigin;
-	shaderStage_t  *pStage = tess.xstages[stage];
+	shaderStage_t  *pStage = tess.surfaceStages[stage];
 	float			eta;
 	float			etaDelta;
 	
@@ -2086,7 +2088,7 @@ static void Render_dispersion_C(int stage)
 static void Render_skybox(int stage)
 {
 	vec3_t			viewOrigin;
-	shaderStage_t  *pStage = tess.xstages[stage];
+	shaderStage_t  *pStage = tess.surfaceStages[stage];
 	
 	GL_State(pStage->stateBits);
 	
@@ -2119,7 +2121,7 @@ static void Render_heatHaze(int stage)
 	float           deformMagnitude;
 	float			fbufWidthScale, fbufHeightScale;
 	float			npotWidthScale, npotHeightScale;
-	shaderStage_t  *pStage = tess.xstages[stage];
+	shaderStage_t  *pStage = tess.surfaceStages[stage];
 	
 	GL_State(pStage->stateBits);
 	
@@ -2156,7 +2158,7 @@ static void Render_glow(int stage)
 	float           blurMagnitude;
 	float			fbufWidthScale, fbufHeightScale;
 	float			npotWidthScale, npotHeightScale;
-	shaderStage_t  *pStage = tess.xstages[stage];
+	shaderStage_t  *pStage = tess.surfaceStages[stage];
 	
 	GL_State(pStage->stateBits);
 	
@@ -2190,7 +2192,7 @@ static void Render_bloom(int stage)
 	float           blurMagnitude;
 	float			fbufWidthScale, fbufHeightScale;
 	float			npotWidthScale, npotHeightScale;
-	shaderStage_t  *pStage = tess.xstages[stage];
+	shaderStage_t  *pStage = tess.surfaceStages[stage];
 	
 	GL_State(pStage->stateBits);
 	
@@ -2236,7 +2238,7 @@ static void Render_bloom2(int stage)
 	float           blurMagnitude;
 	float			fbufWidthScale, fbufHeightScale;
 	float			npotWidthScale, npotHeightScale;
-	shaderStage_t  *pStage = tess.xstages[stage];
+	shaderStage_t  *pStage = tess.surfaceStages[stage];
 	
 	GL_State(pStage->stateBits);
 	
@@ -2329,7 +2331,7 @@ static void RB_Render_fog()
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_COLORMAP]);
 	GL_Bind(tr.fogImage);
 
-	if(tess.shader->fogPass == FP_EQUAL)
+	if(tess.surfaceShader->fogPass == FP_EQUAL)
 	{
 		GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHFUNC_EQUAL);
 	}
@@ -2800,7 +2802,7 @@ static void ComputeColors(shaderStage_t * pStage)
 				VectorSubtract(tess.xyz[i], backEnd.viewParms.or.origin, v);
 				len = VectorLength(v);
 
-				len /= tess.shader->portalRange;
+				len /= tess.surfaceShader->portalRange;
 
 				if(len < 0)
 				{
@@ -2976,7 +2978,7 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 				
 				default:
 					ri.Error(ERR_DROP, "ERROR: unknown texmod '%d' in shader '%s'\n",
-							 pStage->bundle[b].texMods[tm].type, tess.shader->name);
+							 pStage->bundle[b].texMods[tm].type, tess.surfaceShader->name);
 					break;
 			}
 		}
@@ -2995,14 +2997,14 @@ void RB_StageIteratorZFill()
 	{
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorZFill( %s ) ---\n", tess.shader->name));
+		GLimp_LogComment(va("--- RB_StageIteratorZFill( %s ) ---\n", tess.surfaceShader->name));
 	}
 
 	// set face culling appropriately
-	GL_Cull(tess.shader->cullType);
+	GL_Cull(tess.surfaceShader->cullType);
 
 	// set polygon offset if necessary
-	if(tess.shader->polygonOffset)
+	if(tess.surfaceShader->polygonOffset)
 	{
 		qglEnable(GL_POLYGON_OFFSET_FILL);
 		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
@@ -3019,7 +3021,7 @@ void RB_StageIteratorZFill()
 	// call shader function
 	for(stage = 0; stage < MAX_SHADER_STAGES; stage++)
 	{
-		shaderStage_t  *pStage = tess.xstages[stage];
+		shaderStage_t  *pStage = tess.surfaceStages[stage];
 
 		if(!pStage)
 		{
@@ -3066,7 +3068,7 @@ void RB_StageIteratorZFill()
 	}
 
 	// reset polygon offset
-	if(tess.shader->polygonOffset)
+	if(tess.surfaceShader->polygonOffset)
 	{
 		qglDisable(GL_POLYGON_OFFSET_FILL);
 	}
@@ -3076,7 +3078,7 @@ void RB_StageIteratorLighting()
 {
 	int				i, j;
 	trRefDlight_t  *dl;
-	shader_t       *attenuationShader;
+	shaderStage_t  *attenuationXYStage;
 	shaderStage_t  *attenuationZStage;
 	
 	dl = backEnd.currentLight;
@@ -3088,14 +3090,14 @@ void RB_StageIteratorLighting()
 	{
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorLighting( %s ) ---\n", tess.shader->name));
+		GLimp_LogComment(va("--- RB_StageIteratorLighting( %s ) ---\n", tess.surfaceShader->name));
 	}
 
 	// set face culling appropriately
-	GL_Cull(tess.shader->cullType);
+	GL_Cull(tess.surfaceShader->cullType);
 
 	// set polygon offset if necessary
-	if(tess.shader->polygonOffset)
+	if(tess.surfaceShader->polygonOffset)
 	{
 		qglEnable(GL_POLYGON_OFFSET_FILL);
 		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
@@ -3110,16 +3112,11 @@ void RB_StageIteratorLighting()
 	}
 
 	// call shader function
-	attenuationShader = R_GetShaderByHandle(dl->l.attenuationShader);
-		
-	if(attenuationShader == NULL || attenuationShader == tr.defaultShader)
-		attenuationShader = tr.defaultDlightShader;
-		
-	attenuationZStage = attenuationShader->stages[0];
+	attenuationZStage = tess.lightShader->stages[0];
 		
 	for(i = 1; i < MAX_SHADER_STAGES; i++)
 	{
-		shaderStage_t  *attenuationXYStage = attenuationShader->stages[i];
+		attenuationXYStage = tess.lightShader->stages[i];
 						
 		if(!attenuationXYStage)
 		{
@@ -3138,7 +3135,7 @@ void RB_StageIteratorLighting()
 			
 		for(j = 0; j < MAX_SHADER_STAGES; j++)
 		{
-			shaderStage_t  *diffuseStage = tess.xstages[j];
+			shaderStage_t  *diffuseStage = tess.surfaceStages[j];
 
 			if(!diffuseStage)
 			{
@@ -3227,7 +3224,7 @@ void RB_StageIteratorLighting()
 	}
 
 	// reset polygon offset
-	if(tess.shader->polygonOffset)
+	if(tess.surfaceShader->polygonOffset)
 	{
 		qglDisable(GL_POLYGON_OFFSET_FILL);
 	}
@@ -3237,7 +3234,7 @@ void RB_StageIteratorLighting2()
 {
 	int				i, j;
 	trRefDlight_t  *dl;
-	shader_t       *attenuationShader;
+	shaderStage_t  *attenuationXYStage;
 	shaderStage_t  *attenuationZStage;
 	
 	dl = backEnd.currentLight;
@@ -3249,11 +3246,11 @@ void RB_StageIteratorLighting2()
 	{
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorLighting2( %s ) ---\n", tess.shader->name));
+		GLimp_LogComment(va("--- RB_StageIteratorLighting2( %s ) ---\n", tess.surfaceShader->name));
 	}
 
 	// set face culling appropriately
-	switch (tess.shader->cullType)
+	switch (tess.surfaceShader->cullType)
 	{
 		case CT_FRONT_SIDED:
 			if(backEnd.viewParms.isMirror)
@@ -3283,7 +3280,7 @@ void RB_StageIteratorLighting2()
 	};
 
 	// set polygon offset if necessary
-	if(tess.shader->polygonOffset)
+	if(tess.surfaceShader->polygonOffset)
 	{
 		qglEnable(GL_POLYGON_OFFSET_FILL);
 		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
@@ -3298,16 +3295,11 @@ void RB_StageIteratorLighting2()
 	}
 
 	// call shader function
-	attenuationShader = R_GetShaderByHandle(dl->l.attenuationShader);
-		
-	if(attenuationShader == NULL || attenuationShader == tr.defaultShader)
-		attenuationShader = tr.defaultDlightShader;
-		
-	attenuationZStage = attenuationShader->stages[0];
+	attenuationZStage = tess.lightShader->stages[0];
 		
 	for(i = 1; i < MAX_SHADER_STAGES; i++)
 	{
-		shaderStage_t  *attenuationXYStage = attenuationShader->stages[i];
+		attenuationXYStage = tess.lightShader->stages[i];
 						
 		if(!attenuationXYStage)
 		{
@@ -3326,7 +3318,7 @@ void RB_StageIteratorLighting2()
 			
 		for(j = 0; j < MAX_SHADER_STAGES; j++)
 		{
-			shaderStage_t  *diffuseStage = tess.xstages[j];
+			shaderStage_t  *diffuseStage = tess.surfaceStages[j];
 
 			if(!diffuseStage)
 			{
@@ -3419,13 +3411,13 @@ void RB_StageIteratorLighting2()
 	}
 
 	// reset polygon offset
-	if(tess.shader->polygonOffset)
+	if(tess.surfaceShader->polygonOffset)
 	{
 		qglDisable(GL_POLYGON_OFFSET_FILL);
 	}
 	
 	// reenable culling if necessary
-	if(tess.shader->cullType == CT_TWO_SIDED)
+	if(tess.surfaceShader->cullType == CT_TWO_SIDED)
 	{
 		qglEnable(GL_CULL_FACE);
 	}
@@ -3442,14 +3434,14 @@ void RB_StageIteratorTranslucent()
 	{
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorTranslucent( %s ) ---\n", tess.shader->name));
+		GLimp_LogComment(va("--- RB_StageIteratorTranslucent( %s ) ---\n", tess.surfaceShader->name));
 	}
 
 	// set face culling appropriately
-	GL_Cull(tess.shader->cullType);
+	GL_Cull(tess.surfaceShader->cullType);
 
 	// set polygon offset if necessary
-	if(tess.shader->polygonOffset)
+	if(tess.surfaceShader->polygonOffset)
 	{
 		qglEnable(GL_POLYGON_OFFSET_FILL);
 		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
@@ -3466,7 +3458,7 @@ void RB_StageIteratorTranslucent()
 	// call shader function
 	for(stage = 0; stage < MAX_SHADER_STAGES; stage++)
 	{
-		shaderStage_t  *pStage = tess.xstages[stage];
+		shaderStage_t  *pStage = tess.surfaceStages[stage];
 
 		if(!pStage)
 		{
@@ -3604,7 +3596,7 @@ void RB_StageIteratorTranslucent()
 	}
 
 	// reset polygon offset
-	if(tess.shader->polygonOffset)
+	if(tess.surfaceShader->polygonOffset)
 	{
 		qglDisable(GL_POLYGON_OFFSET_FILL);
 	}
@@ -3621,14 +3613,14 @@ void RB_StageIteratorGeneric()
 	{
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorGeneric( %s ) ---\n", tess.shader->name));
+		GLimp_LogComment(va("--- RB_StageIteratorGeneric( %s ) ---\n", tess.surfaceShader->name));
 	}
 
 	// set face culling appropriately
-	GL_Cull(tess.shader->cullType);
+	GL_Cull(tess.surfaceShader->cullType);
 
 	// set polygon offset if necessary
-	if(tess.shader->polygonOffset)
+	if(tess.surfaceShader->polygonOffset)
 	{
 		qglEnable(GL_POLYGON_OFFSET_FILL);
 		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
@@ -3645,7 +3637,7 @@ void RB_StageIteratorGeneric()
 	// call shader function
 	for(stage = 0; stage < MAX_SHADER_STAGES; stage++)
 	{
-		shaderStage_t  *pStage = tess.xstages[stage];
+		shaderStage_t  *pStage = tess.surfaceStages[stage];
 
 		if(!pStage)
 		{
@@ -3664,8 +3656,17 @@ void RB_StageIteratorGeneric()
 		{
 			// Tr3B - for development only. get rid of this later to avoid overdraw
 			case ST_DIFFUSEMAP:
+			case ST_COLLAPSE_lighting_DB_generic:
+			case ST_COLLAPSE_lighting_DBS_generic:
 			{
-				Render_generic_single_FFP(stage);
+				if(r_dynamiclight->integer == 2)
+				{
+					Render_zfill_FFP(stage);
+				}
+				else
+				{
+					Render_generic_single_FFP(stage);
+				}
 				break;
 			}
 			
@@ -3691,6 +3692,10 @@ void RB_StageIteratorGeneric()
 				{
 					Render_deluxemap_FFP(stage);
 				}
+				else if(r_dynamiclight->integer == 2)
+				{
+					Render_zfill_FFP(stage);
+				}
 				else if(glConfig2.shadingLanguage100Available)
 				{
 					Render_lighting_D_radiosity(stage);
@@ -3699,7 +3704,6 @@ void RB_StageIteratorGeneric()
 				{
 					Render_lighting_D_radiosity_FFP(stage);
 				}
-				
 				break;
 			}
 			
@@ -3712,6 +3716,10 @@ void RB_StageIteratorGeneric()
 				else if(tr.worldDeluxeMapping && r_showDeluxeMaps->integer)
 				{
 					Render_deluxemap_FFP(stage);
+				}
+				else if(r_dynamiclight->integer == 2)
+				{
+					Render_zfill_FFP(stage);
 				}
 				else if(glConfig2.shadingLanguage100Available)
 				{
@@ -3741,6 +3749,10 @@ void RB_StageIteratorGeneric()
 				{
 					Render_deluxemap_FFP(stage);
 				}
+				else if(r_dynamiclight->integer == 2)
+				{
+					Render_zfill_FFP(stage);
+				}
 				else if(glConfig2.shadingLanguage100Available)
 				{
 					if(tr.worldDeluxeMapping && r_bumpMapping->integer)
@@ -3768,7 +3780,11 @@ void RB_StageIteratorGeneric()
 			
 			case ST_COLLAPSE_lighting_DB_direct:
 			{
-				if(glConfig2.shadingLanguage100Available)
+				if(r_dynamiclight->integer == 2)
+				{
+					Render_zfill_FFP(stage);
+				}
+				else if(glConfig2.shadingLanguage100Available)
 				{
 					if(r_bumpMapping->integer)
 					{
@@ -3788,7 +3804,11 @@ void RB_StageIteratorGeneric()
 			
 			case ST_COLLAPSE_lighting_DBS_direct:
 			{
-				if(glConfig2.shadingLanguage100Available)
+				if(r_dynamiclight->integer == 2)
+				{
+					Render_zfill_FFP(stage);
+				}
+				else if(glConfig2.shadingLanguage100Available)
 				{
 					if(r_bumpMapping->integer)
 					{
@@ -3932,7 +3952,7 @@ void RB_StageIteratorGeneric()
 		}
 	}
 	
-	if(tess.fogNum && tess.shader->fogPass)
+	if(tess.fogNum && tess.surfaceShader->fogPass)
 	{
 		RB_Render_fog();
 	}
@@ -3945,7 +3965,7 @@ void RB_StageIteratorGeneric()
 	}
 
 	// reset polygon offset
-	if(tess.shader->polygonOffset)
+	if(tess.surfaceShader->polygonOffset)
 	{
 		qglDisable(GL_POLYGON_OFFSET_FILL);
 	}
@@ -3960,14 +3980,14 @@ void RB_StageIteratorFog()
 	{
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorFog( %s ) ---\n", tess.shader->name));
+		GLimp_LogComment(va("--- RB_StageIteratorFog( %s ) ---\n", tess.surfaceShader->name));
 	}
 
 	// set face culling appropriately
-	GL_Cull(tess.shader->cullType);
+	GL_Cull(tess.surfaceShader->cullType);
 
 	// set polygon offset if necessary
-	if(tess.shader->polygonOffset)
+	if(tess.surfaceShader->polygonOffset)
 	{
 		qglEnable(GL_POLYGON_OFFSET_FILL);
 		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
@@ -3982,7 +4002,7 @@ void RB_StageIteratorFog()
 	}
 	
 	// now do fog
-	if(tess.fogNum && tess.shader->fogPass)
+	if(tess.fogNum && tess.surfaceShader->fogPass)
 	{
 		RB_Render_fog();
 	}
@@ -3995,7 +4015,7 @@ void RB_StageIteratorFog()
 	}
 
 	// reset polygon offset
-	if(tess.shader->polygonOffset)
+	if(tess.surfaceShader->polygonOffset)
 	{
 		qglDisable(GL_POLYGON_OFFSET_FILL);
 	}
@@ -4023,7 +4043,7 @@ void RB_EndSurface()
 	}
 
 	// for debugging of sort order issues, stop rendering after a given sort value
-	if(r_debugSort->integer && r_debugSort->integer < tess.shader->sort)
+	if(r_debugSort->integer && r_debugSort->integer < tess.surfaceShader->sort)
 	{
 		return;
 	}
@@ -4032,7 +4052,7 @@ void RB_EndSurface()
 	backEnd.pc.c_shaders++;
 	backEnd.pc.c_vertexes += tess.numVertexes;
 	backEnd.pc.c_indexes += tess.numIndexes;
-	backEnd.pc.c_totalIndexes += tess.numIndexes * tess.numPasses;
+	backEnd.pc.c_totalIndexes += tess.numIndexes * tess.numStages;
 
 	// call off to shader specific tess end function
 	tess.currentStageIteratorFunc();

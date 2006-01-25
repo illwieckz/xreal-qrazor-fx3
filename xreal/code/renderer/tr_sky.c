@@ -601,7 +601,7 @@ void R_BuildCloudData(shaderCommands_t * input)
 	int             i;
 	shader_t       *shader;
 
-	shader = input->shader;
+	shader = input->surfaceShader;
 
 	assert(shader->isSky);
 
@@ -612,15 +612,15 @@ void R_BuildCloudData(shaderCommands_t * input)
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
 
-	if(input->shader->sky.cloudHeight)
+	if(input->surfaceShader->sky.cloudHeight)
 	{
 		for(i = 0; i < MAX_SHADER_STAGES; i++)
 		{
-			if(!tess.xstages[i])
+			if(!tess.surfaceStages[i])
 			{
 				break;
 			}
-			FillCloudBox(input->shader, i);
+			FillCloudBox(input->surfaceShader, i);
 		}
 	}
 }
@@ -721,7 +721,7 @@ void RB_DrawSun(void)
 	qglDepthRange(1.0, 1.0);
 
 	// FIXME: use quad stamp
-	RB_BeginSurface(tr.sunShader, tess.fogNum);
+	RB_BeginSurface(tr.sunShader, NULL, tess.fogNum);
 	VectorCopy(origin, temp);
 	VectorSubtract(temp, vec1, temp);
 	VectorSubtract(temp, vec2, temp);
@@ -816,7 +816,7 @@ void RB_StageIteratorSky(void)
 	}
 
 	// draw the outer skybox
-	if(tess.shader->sky.outerbox[0] && tess.shader->sky.outerbox[0] != tr.defaultImage)
+	if(tess.surfaceShader->sky.outerbox[0] && tess.surfaceShader->sky.outerbox[0] != tr.defaultImage)
 	{
 		qglColor3f(tr.identityLight, tr.identityLight, tr.identityLight);
 
@@ -828,7 +828,7 @@ void RB_StageIteratorSky(void)
 		qglTranslatef(backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1],
 					  backEnd.viewParms.or.origin[2]);
 
-		DrawSkyBox(tess.shader);
+		DrawSkyBox(tess.surfaceShader);
 
 		qglPopMatrix();
 	}

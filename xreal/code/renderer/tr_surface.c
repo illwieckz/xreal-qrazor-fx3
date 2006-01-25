@@ -63,7 +63,7 @@ void RB_CheckOverflow(int verts, int indexes)
 		ri.Error(ERR_DROP, "RB_CheckOverflow: indices > MAX (%d > %d)", indexes, SHADER_MAX_INDEXES);
 	}
 
-	RB_BeginSurface(tess.shader, tess.fogNum);
+	RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.fogNum);
 }
 
 
@@ -1338,9 +1338,6 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 	int             lodWidth, lodHeight;
 	int             numIndexes;
 	int             numVertexes;
-	qboolean        needsTangent;
-	qboolean        needsBinormal;
-	qboolean        needsNormal;
 
 	// determine the allowable discrepance
 	lodError = LodErrorForVolume(cv->lodOrigin, cv->lodRadius);
@@ -1391,7 +1388,7 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 			if(vrows < 2 || irows < 1)
 			{
 				RB_EndSurface();
-				RB_BeginSurface(tess.shader, tess.fogNum);
+				RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.fogNum);
 			}
 			else
 			{
@@ -1417,9 +1414,6 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 		normal = tess.normals[numVertexes];
 		texCoords = tess.texCoords[numVertexes][0];
 		color = (unsigned char *)&tess.vertexColors[numVertexes];
-		needsTangent = tess.shader->needsTangent;
-		needsBinormal = tess.shader->needsBinormal;
-		needsNormal = tess.shader->needsNormal;
 
 		for(i = 0; i < rows; i++)
 		{
@@ -1435,23 +1429,6 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 				texCoords[2] = dv->lightmap[0];
 				texCoords[3] = dv->lightmap[1];
 
-				/* Tr3B - save speed, we will recalculate these later
-				   if ( needsTangent ) {
-				   tangent[0] = dv->tangent[0];
-				   tangent[1] = dv->tangent[1];
-				   tangent[2] = dv->tangent[2];
-				   }
-				   if ( needsBinormal ) {
-				   binormal[0] = dv->binormal[0];
-				   binormal[1] = dv->binormal[1];
-				   binormal[2] = dv->binormal[2];
-				   }
-				   if ( needsNormal ) {
-				   normal[0] = dv->normal[0];
-				   normal[1] = dv->normal[1];
-				   normal[2] = dv->normal[2];
-				   }
-				 */
 				*(unsigned int *)color = *(unsigned int *)dv->color;
 				xyz += 4;
 				tangent += 4;
