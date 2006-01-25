@@ -95,9 +95,9 @@ static void UI_CreditMenu_Draw(void)
 	y += 1.42 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 	UI_DrawProportionalString(320, y, "Level Design", UI_CENTER | UI_SMALLFONT, colorLtGrey);
 	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "Michael 'mic' Denno,", UI_CENTER | UI_SMALLFONT, colorWhite);
-	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "'Dominic 'cha0s' Szablewski", UI_CENTER | UI_SMALLFONT, colorWhite);
+	UI_DrawProportionalString(320, y, "Michael 'mic' Denno", UI_CENTER | UI_SMALLFONT, colorWhite);
+	//y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
+	//UI_DrawProportionalString(320, y, "'Dominic 'cha0s' Szablewski", UI_CENTER | UI_SMALLFONT, colorWhite);
 
 	y += 1.42 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 	UI_DrawProportionalString(320, y, "Project Leader", UI_CENTER | UI_SMALLFONT, colorLtGrey);
