@@ -353,6 +353,12 @@ static shader_t *ShaderForShaderNum(int shaderNum, int lightmapNum)
 		ri.Error(ERR_DROP, "ShaderForShaderNum: bad num %i", shaderNum);
 	}
 	dsh = &s_worldData.shaders[shaderNum];
+	
+	// HACK: this fixes lightmapNum values provided by q3map2
+	if(lightmapNum < 0)
+	{
+		lightmapNum = LIGHTMAP_BY_VERTEX;
+	}
 
 	shader = R_FindShader(dsh->shader, lightmapNum, qtrue);
 
