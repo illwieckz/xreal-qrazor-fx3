@@ -1710,6 +1710,10 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction
 		// render dynamic lighting
 		RB_RenderInteractions(originalTime, interactions, numInteractions);
 	}
+	
+	// render light scale hack to brighten up the scene
+	RB_RenderLightScale();
+	
 #else
 	// Tr3B - draw everything in a similar order as Doom3 does
 

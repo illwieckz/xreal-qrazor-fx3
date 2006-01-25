@@ -1658,7 +1658,7 @@ void R_AddDlightInteractions()
 				// light is not visible so skip other light setup stuff to save speed
 				tr.pc.c_box_cull_light_out++;
 				dl->cull = CULL_OUT;
-				return;
+				continue;
 		}
 		
 		// set up light transform matrix

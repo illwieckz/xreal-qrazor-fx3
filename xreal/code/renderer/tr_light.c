@@ -64,8 +64,15 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefDlight_t * light)
 {
 	int             i;
 	msurface_t     *surf;
-	bmodel_t       *bModel;
-	model_t        *pModel;
+	bmodel_t       *bModel = NULL;
+	model_t        *pModel = NULL;
+	
+	// cull the entire model if it is outside the view frustum
+	// and we don't care about proper shadowing
+	if(ent->cull == CULL_OUT && r_shadows->integer <= 2)
+	{
+		return;
+	}
 
 	pModel = R_GetModelByHandle(ent->e.hModel);
 	bModel = pModel->bmodel;

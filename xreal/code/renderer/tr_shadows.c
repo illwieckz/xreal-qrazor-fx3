@@ -220,7 +220,7 @@ void RB_ShadowTessEnd(void)
 {
 	int             i;
 	int             numTris;
-	vec3_t          lightDir;
+	vec3_t          lightOrigin;
 
 	// we can only do this if we have enough space in the vertex buffers
 	if(tess.numVertexes >= SHADER_MAX_VERTEXES / 2)
@@ -233,13 +233,12 @@ void RB_ShadowTessEnd(void)
 		return;
 	}
 
-	VectorCopy(backEnd.currentLight->transformed, lightDir);
-//	VectorNormalize(lightDir);
+	VectorCopy(backEnd.currentLight->transformed, lightOrigin);
 
 	// project vertexes away from light direction
 	for(i = 0; i < tess.numVertexes; i++)
 	{
-		VectorSubtract(tess.xyz[i], backEnd.currentLight->transformed, tess.xyz[i + tess.numVertexes]);
+		VectorSubtract(tess.xyz[i], lightOrigin, tess.xyz[i + tess.numVertexes]);
 
 		// set w component to zero to work at infinity
 		tess.xyz[i + tess.numVertexes][3] = 0;
@@ -271,7 +270,7 @@ void RB_ShadowTessEnd(void)
 		CrossProduct(d1, d2, plane);
 		plane[3] = DotProduct(plane, v1);
 		
-		d = DotProduct(plane, lightDir) - plane[3];
+		d = DotProduct(plane, lightOrigin) - plane[3];
 		if(d > 0)
 		{
 			facing[i] = 1;

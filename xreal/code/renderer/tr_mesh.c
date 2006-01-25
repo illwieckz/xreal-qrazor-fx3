@@ -440,6 +440,13 @@ void R_AddMD3Interactions(trRefEntity_t * ent, trRefDlight_t * light)
 	shader_t       *shader = 0;
 	int             lod;
 	qboolean        personalModel;
+	
+	// cull the entire model if merged bounding box of both frames
+	// is outside the view frustum and we don't care about proper shadowing
+	if(ent->cull == CULL_OUT && r_shadows->integer <= 2)
+	{
+		return;
+	}
 
 	// don't add third_person objects if not in a portal
 	personalModel = (ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal;

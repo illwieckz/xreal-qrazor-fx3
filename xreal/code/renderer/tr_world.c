@@ -516,7 +516,10 @@ static void R_RecursiveInteractionNode(mnode_t * node, trRefDlight_t * light, in
 	// if the bounding volume is outside the frustum, nothing
 	// inside can be visible OPTIMIZE: don't do this all the way to leafs?
 #if 1
-	if(!r_nocull->integer)
+	// Tr3B - even surfaces that belong to nodes that are outside of the view frustum
+	// can cast shadows into the view frustum
+
+	if(!r_nocull->integer && r_shadows->integer >= 4)
 	{
 		for(i = 0; i < 4; i++)
 		{
