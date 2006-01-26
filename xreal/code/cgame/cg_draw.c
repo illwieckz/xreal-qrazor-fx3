@@ -1935,7 +1935,6 @@ static float CG_DrawPowerups(float y)
 /*
 =====================
 CG_DrawLowerRight
-
 =====================
 */
 #ifndef MISSIONPACK
@@ -1965,6 +1964,9 @@ static int CG_DrawPickupItem(int y)
 {
 	int             value;
 	float          *fadeColor;
+	
+	if(!cg_drawPickupItem.integer)
+		return;
 
 	if(cg.snap->ps.stats[STAT_HEALTH] <= 0)
 	{
@@ -1995,7 +1997,6 @@ static int CG_DrawPickupItem(int y)
 /*
 =====================
 CG_DrawLowerLeft
-
 =====================
 */
 #ifndef MISSIONPACK
