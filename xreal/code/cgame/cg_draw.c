@@ -355,6 +355,7 @@ void CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponMo
 {
 	refdef_t        refdef;
 	refEntity_t     ent;
+	vec3_t          lightOrigin;
 
 	if(!cg_draw3dIcons.integer || !cg_drawIcons.integer)
 	{
@@ -408,6 +409,12 @@ void CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponMo
 
 		trap_R_AddRefEntityToScene(&barrel);
 	}
+	
+	VectorCopy(origin, lightOrigin);
+	lightOrigin[0] -= 90;
+	lightOrigin[1] += 10;
+	lightOrigin[2] += 30;
+	trap_R_AddLightToScene(lightOrigin, 200, 1.0, 1.0, 1.0);
 
 	trap_R_RenderScene(&refdef);
 }
@@ -1966,7 +1973,7 @@ static int CG_DrawPickupItem(int y)
 	float          *fadeColor;
 	
 	if(!cg_drawPickupItem.integer)
-		return;
+		return y;
 
 	if(cg.snap->ps.stats[STAT_HEALTH] <= 0)
 	{
