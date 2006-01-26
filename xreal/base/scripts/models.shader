@@ -461,69 +461,6 @@ models/mapobjects/banner/q3banner04
 	
 }
 
-/*
-models/mapobjects/banner/bannerx
-{
-	//cull disable
-	nomipmaps
-	{
-		//map models/mapobjects/banner/q3banner04.tga
-		//map textures/sfx/firegorre2.tga
-		map models/players/visor/lava.tga
-		//blendFunc GL_ONE GL_ZERO
-		scale 2 , 2
-		tcMod turb 0 .07 0 .2
-		scroll time * 0, time * 1
-		//rgbGen wave sin .5 .5 0 .1
-	}
-}
-*/
-
-models/mapobjects/banner/bannerx
-{
-//	deformVertexes wave 100 sin 3 0 0 0
-	cull back
-//	nomipmaps
-	
-	/*
-	{
-		//stage skyboxMap
-		//stage reflectionMap
-		//stage refractionMap
-		stage dispersionMap
-		cubeMap	env/mercury512
-		//map textures/effects/envmapblue.tga
-		//tcGen environment
-		rgbGen identity
-	}
-	*/
-	
-	{
-		//map models/mapobjects/banner/q3banner04.tga
-		//map textures/sfx/firegorre2.tga
-		map models/players/visor/lava.tga
-		//blend filter
-		scale 2 , 2
-		tcMod turb 0 .07 0 .2
-		scroll time * 0, time * 1
-		//rgbGen wave sin .5 .5 0 .1
-	}
-	/*
-	{
-		stage bloom2Map
-		blurMagnitude 1
-	}
-	*/
-	{
-		map models/mapobjects/bitch/hologirl2.tga
-		tcgen environment
-		scroll time * -3, time * 0.05
-		scale 2, 3
-		blend add
-		//rgbGen wave sin .5 .5 0 .1
-	}
-}
-
 //******************************************************//
 //	mapobjects/baph subfolder			//
 //******************************************************//
@@ -3965,13 +3902,11 @@ models/powerups/ammo/rockammo2
 		//rgbGen identity
 		rgbGen lightingDiffuse
 	}
-	/*
-	{
-		map models/powerups/ammo/rockammo2_glow.tga
-		blendfunc GL_ONE GL_ONE
-		rgbGen identity
-	}
-	*/
+//	{
+//		map models/powerups/ammo/rockammo2_glow.tga
+//		blendfunc GL_ONE GL_ONE
+//		rgbGen identity
+//	}
 }
 
 models/powerups/ammo/shotammo
@@ -4641,16 +4576,8 @@ models/weapons2/grenadel/grenadel01
 		map models/weapons2/grenadel/grenadel01.tga
 		rgbGen lightingDiffuse
 	}
-	/*
-	{
-		blend bumpMap
-		models/weapons2/grenadel/grenadel01_n.tga
-	}
-	{
-		blend specularMap
-		models/weapons2/grenadel/grenadel01_s.tga
-	}
-	*/
+	//bumpMap models/weapons2/grenadel/grenadel01_n.tga
+	//specularMap models/weapons2/grenadel/grenadel01_s.tga
 }
 
 //******************************************************//
@@ -4929,6 +4856,7 @@ models/weapons2/railgun/railgun4
 
 models/weapons2/rocketl/rocketl
 {
+	//cull back
 	{
 		blend diffuseMap
 		map models/weapons2/rocketl/rocketl.tga
@@ -4940,6 +4868,7 @@ models/weapons2/rocketl/rocketl
 
 models/weapons2/rocketl/rocketl2
 {
+	//cull back
 	{
 		blend diffuseMap
 		map models/weapons2/rocketl/rocketl2.tga
