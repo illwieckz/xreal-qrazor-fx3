@@ -24,9 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "vis.h"
 #include "../common/threads.h"
 #include "stdlib.h"
-#ifdef _WIN32
-#include "../libs/pakstuff.h"
-#endif
 
 
 #define	VIS_HEADER_SIZE	8
@@ -1180,10 +1177,6 @@ int VisMain(int argc, char **argv)
 	ThreadSetDefault();
 
 	SetQdirFromPath(argv[i]);
-
-#ifdef _WIN32
-	InitPakFile(gamedir, NULL);
-#endif
 
 	// load the bsp
 	sprintf(name, "%s%s", inbase, ExpandArg(argv[i]));

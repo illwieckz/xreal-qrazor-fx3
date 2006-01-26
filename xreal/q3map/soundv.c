@@ -39,10 +39,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #pragma optimize( "p", on )
 #endif
 
-#ifdef _WIN32
-#include "../libs/pakstuff.h"
-#endif
-
 #define MAX_CLUSTERS		16384
 #define	MAX_PORTALS			32768
 #define MAX_FACETS			65536
@@ -5858,10 +5854,6 @@ int VSoundMain(int argc, char **argv)
 	}
 
 	SetQdirFromPath(argv[i]);
-
-#ifdef _WIN32
-	InitPakFile(gamedir, NULL);
-#endif
 
 	strcpy(source, ExpandArg(argv[i]));
 	StripExtension(source);

@@ -132,12 +132,7 @@ byte           *LoadImageFile(char *filename, qboolean * bTGA)
 	{
 		LoadFileBlock(filename, (void **)&buffer);
 	}
-#ifdef _WIN32
-	else
-	{
-		PakLoadAnyFile(filename, &buffer);
-	}
-#endif
+
 	if(buffer == NULL)
 	{
 		nLen = strlen(filename);
@@ -148,12 +143,7 @@ byte           *LoadImageFile(char *filename, qboolean * bTGA)
 		{
 			LoadFileBlock(filename, (void **)&buffer);
 		}
-#ifdef _WIN32
-		else
-		{
-			PakLoadAnyFile(filename, &buffer);
-		}
-#endif
+
 		if(buffer)
 		{
 			*bTGA = qfalse;

@@ -62,12 +62,7 @@ md3Header_t    *MD3_Load(const char *mod_name)
 
 	sprintf(filename, "%s%s", gamedir, mod_name);
 	len = TryLoadFile(filename, (void **)&md3);
-#ifdef _WIN32
-	if(len <= 0)
-	{
-		len = PakLoadAnyFile(filename, (void **)&md3);
-	}
-#endif
+
 	if(len <= 0)
 	{
 		_printf("MD3_Load: File not found '%s'\n", filename);

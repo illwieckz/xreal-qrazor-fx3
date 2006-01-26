@@ -2396,10 +2396,6 @@ int LightMain(int argc, char **argv)
 
 	SetQdirFromPath(argv[i]);
 
-#ifdef _WIN32
-	InitPakFile(gamedir, NULL);
-#endif
-
 	strcpy(source, ExpandArg(argv[i]));
 	StripExtension(source);
 	DefaultExtension(source, ".bsp");

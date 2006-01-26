@@ -21,9 +21,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "qbsp.h"
 
-#ifdef _WIN32
-extern HWND     hwndOut;
-#endif
 
 char            source[1024];
 char            tempsource[1024];
@@ -561,10 +558,6 @@ int main(int argc, char **argv)
 	ThreadSetDefault();
 	//numthreads = 1;       // multiple threads aren't helping because of heavy malloc use
 	SetQdirFromPath(argv[i]);
-
-#ifdef _WIN32
-	InitPakFile(gamedir, NULL);
-#endif
 
 	strcpy(source, ExpandArg(argv[i]));
 	StripExtension(source);
