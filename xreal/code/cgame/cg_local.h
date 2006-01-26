@@ -66,9 +66,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define STAT_MINUS			10	// num frame for '-' stats digit
 
-#define	ICON_SIZE			48
-#define	CHAR_WIDTH			32
-#define	CHAR_HEIGHT			48
+#define	ICON_SIZE			32
+#define	CHAR_WIDTH			24
+#define	CHAR_HEIGHT			24
 #define	TEXT_ICON_SPACE		4
 
 #define	TEAMCHAT_WIDTH		80
@@ -759,6 +759,9 @@ typedef struct
 	qhandle_t       lagometerShader;
 	qhandle_t       backTileShader;
 	qhandle_t       noammoShader;
+	
+	qhandle_t       sideBarItemLShader;
+	qhandle_t       sideBarItemRShader;
 
 	qhandle_t       bloomShader;
 	qhandle_t       bloom2Shader;

@@ -930,6 +930,9 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.backTileShader = trap_R_RegisterShader("gfx/2d/backtile");
 	cgs.media.noammoShader = trap_R_RegisterShader("icons/noammo");
+	
+	cgs.media.sideBarItemLShader = trap_R_RegisterShaderNoMip("gfx/2d/hud/sidebaritem_left.tga");
+	cgs.media.sideBarItemRShader = trap_R_RegisterShaderNoMip("gfx/2d/hud/sidebaritem_right.tga");
 
 	cgs.media.bloomShader = trap_R_RegisterShader("bloom");
 	cgs.media.bloom2Shader = trap_R_RegisterShader("bloom2");

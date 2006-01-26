@@ -350,7 +350,8 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 CG_Draw3DWeaponModel
 ================
 */
-void CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponModel, qhandle_t barrelModel, qhandle_t skin, vec3_t origin, vec3_t angles)
+void CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponModel, qhandle_t barrelModel, qhandle_t skin,
+						  vec3_t origin, vec3_t angles)
 {
 	refdef_t        refdef;
 	refEntity_t     ent;
@@ -386,7 +387,7 @@ void CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponMo
 	refdef.time = cg.time;
 
 	trap_R_ClearScene();
-	
+
 	trap_R_AddRefEntityToScene(&ent);
 	if(barrelModel)
 	{
@@ -407,7 +408,7 @@ void CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponMo
 
 		trap_R_AddRefEntityToScene(&barrel);
 	}
-	
+
 	trap_R_RenderScene(&refdef);
 }
 
@@ -656,12 +657,12 @@ void CG_DrawTeamBackground(int x, int y, int w, int h, float alpha, int team)
 
 /*
 ================
-CG_DrawStatusBar
+CG_DrawStatusBarOld
 
 ================
 */
 #ifndef MISSIONPACK
-static void CG_DrawStatusBar(void)
+static void CG_DrawStatusBarOld(void)
 {
 	int             color;
 	centity_t      *cent;
@@ -818,7 +819,6 @@ static void CG_DrawStatusBar(void)
 	CG_ColorForHealth(hcolor);
 	trap_R_SetColor(hcolor);
 
-
 	//
 	// armor
 	//
@@ -869,24 +869,316 @@ static void CG_DrawStatusBar(void)
 
 /*
 ================
+CG_DrawStatusBar
+
+================
+*/
+static void CG_DrawStatusBar(void)
+{
+	int             color;
+	centity_t      *cent;
+	playerState_t  *ps;
+	int             value;
+	vec3_t          angles;
+	vec3_t          origin;
+
+	static float    colors[4][4] = {
+		{1.0f, 0.69f, 0.0f, 1.0f},	// normal
+		{1.0f, 0.2f, 0.2f, 1.0f},	// low health
+		{0.5f, 0.5f, 0.5f, 1.0f},	// weapon firing
+		{1.0f, 1.0f, 1.0f, 1.0f}
+	};							// health > 100
+
+	vec4_t         *colorItem;
+	vec4_t          colorHudBlack = { 0.0f, 0.0f, 0.0f, 1.0f };	// b/w
+	vec4_t          colorTeamBlue = { 0.0f, 0.0f, 1.0f, 0.5f };	// blue
+	vec4_t          colorTeamRed = { 1.0f, 0.0f, 0.0f, 0.5f };	// red
+
+	if(cg_drawStatus.integer == 0)
+	{
+		return;
+	}
+
+	colorItem = &colorHudBlack;
+
+	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
+	{
+		colorItem = &colorTeamBlue;
+	}
+	else if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
+	{
+		colorItem = &colorTeamRed;
+	}
+
+	cent = &cg_entities[cg.snap->ps.clientNum];
+	ps = &cg.snap->ps;
+
+	VectorClear(angles);
+
+	if(cg.predictedPlayerState.powerups[PW_REDFLAG])
+	{
+		CG_DrawStatusBarFlag(185 + CHAR_WIDTH * 3 + TEXT_ICON_SPACE + ICON_SIZE, TEAM_RED);
+	}
+	else if(cg.predictedPlayerState.powerups[PW_BLUEFLAG])
+	{
+		CG_DrawStatusBarFlag(185 + CHAR_WIDTH * 3 + TEXT_ICON_SPACE + ICON_SIZE, TEAM_BLUE);
+	}
+	else if(cg.predictedPlayerState.powerups[PW_NEUTRALFLAG])
+	{
+		CG_DrawStatusBarFlag(185 + CHAR_WIDTH * 3 + TEXT_ICON_SPACE + ICON_SIZE, TEAM_FREE);
+	}
+
+	//
+	// ammo
+	//
+	trap_R_SetColor(*colorItem);
+	CG_DrawPic(640 - 118, 480 - 38, 108, 36, cgs.media.sideBarItemRShader);
+	trap_R_SetColor(NULL);
+
+	if(cent->currentState.weapon)
+	{
+		value = ps->ammo[cent->currentState.weapon];
+		if(value > -1)
+		{
+			if(cg.predictedPlayerState.weaponstate == WEAPON_FIRING && cg.predictedPlayerState.weaponTime > 100)
+			{
+				// draw as dark grey when reloading
+				color = 2;		// dark grey
+			}
+			else
+			{
+				if(value >= 0)
+				{
+					color = 3;	// white
+
+				}
+				else
+				{
+					color = 1;	// red
+				}
+			}
+//          CG_DrawStringExt(590 - (24 * CG_DrawStrlen(va("%i", value)), 480 - ICON_SIZE, va("%i", value), colors[color], qfalse, qtrue, 24, 24, 0);
+			trap_R_SetColor(colors[color]);
+			CG_DrawField(520, 480 - CHAR_HEIGHT - 7, 3, value);
+			trap_R_SetColor(NULL);
+
+			// if we didn't draw a 2D icon, draw a 3D icon for ammo
+			if(!cg_draw3dIcons.integer && cg_drawIcons.integer)
+			{
+				qhandle_t       icon;
+
+				icon = cg_weapons[cg.predictedPlayerState.weapon].ammoIcon;
+				if(icon)
+				{
+					CG_DrawPic(640 - ICON_SIZE - 12, 480 - ICON_SIZE - 5, ICON_SIZE, ICON_SIZE, icon);
+				}
+			}
+			else
+			{
+				if(cent->currentState.weapon && cg_weapons[cent->currentState.weapon].ammoModel)
+				{
+					origin[0] = 70;
+					origin[1] = 0;
+					origin[2] = 0;
+					angles[YAW] = 90 + 20 * sin(cg.time / 1000.0);
+					CG_Draw3DModel(640 - ICON_SIZE - 13, 480 - ICON_SIZE - 5, ICON_SIZE, ICON_SIZE,
+								   cg_weapons[cent->currentState.weapon].ammoModel, 0, origin, angles);
+				}
+			}
+		}
+	}
+
+	//
+	// health
+	//
+	trap_R_SetColor(*colorItem);
+	CG_DrawPic(10, 480 - 38, 108, 36, cgs.media.sideBarItemLShader);
+	trap_R_SetColor(NULL);
+
+	value = ps->stats[STAT_HEALTH];
+	if(value > 100)
+	{
+		color = 0;				// yellow
+	}
+	else if(value > 25)
+	{
+		color = 3;				// white
+	}
+	else if(value > 0)
+	{
+		color = (cg.time >> 8) & 1;
+	}
+	else
+	{
+		color = 1;				// red
+	}
+
+	trap_R_SetColor(colors[color]);
+	CG_DrawField(ICON_SIZE + 5, 480 - CHAR_HEIGHT - 7, 3, value);
+	trap_R_SetColor(NULL);
+
+	CG_DrawStatusBarHead(10);
+
+	//
+	// armor
+	//
+	value = ps->stats[STAT_ARMOR];
+	if(value > 0)
+	{
+		trap_R_SetColor(*colorItem);
+		CG_DrawPic(10, 480 - 79, 108, 36, cgs.media.sideBarItemLShader);
+		trap_R_SetColor(NULL);
+
+		CG_DrawField(ICON_SIZE + 5, 480 - 72, 3, value);
+
+		// if we didn't draw a 2D icon, draw a 3D icon for armor
+		if(!cg_draw3dIcons.integer && cg_drawIcons.integer)
+		{
+			CG_DrawPic(12, 480 - ICON_SIZE * 2 - 13, ICON_SIZE, ICON_SIZE, cgs.media.armorIcon);
+		}
+		else
+		{
+			origin[0] = 90;
+			origin[1] = 0;
+			origin[2] = -10;
+			angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
+			CG_Draw3DModel(13, 480 - ICON_SIZE * 2 - 13, ICON_SIZE, ICON_SIZE, cgs.media.armorModel, 0, origin, angles);
+		}
+	}
+}
+
+/*
+================
+CG_DrawSideBarItem
+================
+*/
+static void CG_DrawSideBarItem(int x, int y, int i)
+{
+	char           *ammo;
+
+	// a colors[][] array would be better
+	vec4_t         *colorItemNormal;
+	vec4_t         *colorItemSelected;
+
+	vec4_t          colorItemBlackNormal = { 0.0f, 0.0f, 0.0f, 0.5f };	// black
+	vec4_t          colorItemBlackSelected = { 0.0f, 0.0f, 0.0f, 1.0f };	// b/w
+	vec4_t          colorTeamBlueNormal = { 0.0f, 0.0f, 1.0f, 1.0f };	// blue
+	vec4_t          colorTeamBlueSelected = { 0.0f, 0.0f, 1.0f, 0.5f };
+	vec4_t          colorTeamRedNormal = { 1.0f, 0.0f, 0.0f, 1.0f };	// red
+	vec4_t          colorTeamRedSelected = { 1.0f, 0.0f, 0.0f, 0.5f };
+
+	vec4_t          colorEmpty = { 1.0f, 0.0f, 0.0f, 0.7f };	// red
+	vec4_t          colorInActive = { 1.0f, 1.0f, 1.0f, 0.7f };
+	vec4_t          colorActive = { 0.25f, 1.0f, 0.25f, 0.8f };
+	vec4_t          colorActiveField = { 0.25f, 1.0f, 0.25f, 0.1f };
+
+	vec3_t          angles;
+	vec3_t          origin;
+
+	VectorClear(angles);
+
+	colorItemNormal = &colorItemBlackNormal;
+	colorItemSelected = &colorItemBlackSelected;
+
+	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
+	{
+		colorItemNormal = &colorTeamBlueNormal;
+		colorItemSelected = &colorTeamBlueSelected;
+	}
+	else if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
+	{
+		colorItemNormal = &colorTeamRedNormal;
+		colorItemSelected = &colorTeamRedSelected;
+	}
+
+	CG_RegisterWeapon(i);
+
+	ammo = va("%i", cg.snap->ps.ammo[i]);
+
+	if(cg_draw3dIcons.integer && !cg_simpleItems.integer)
+	{
+		origin[0] = 90;
+		origin[1] = 0;
+		origin[2] = 0;
+		//angles[YAW] = 90 + 20 * sin(cg.time / 1000.0);
+		angles[YAW] = 90 * (cg.time / 1000.0) + (30 * i);
+
+		if(i == cg.weaponSelect)
+		{
+			// draw image with color
+			trap_R_SetColor(*colorItemSelected);
+			
+			if(cg_drawSideBar.integer == 1)
+			{
+				CG_DrawPic(x, y + 10, 73, 25, cgs.media.sideBarItemRShader);
+			}
+			else if(cg_drawSideBar.integer == 2)
+			{
+				CG_DrawPic(x, y + 10, 73, 25, cgs.media.sideBarItemLShader);
+			}
+			
+			trap_R_SetColor(NULL);
+
+			CG_Draw3DWeaponModel(x, y - 5, 54, 54, cg_weapons[i].weaponModel, cg_weapons[i].barrelModel, 0, origin, angles);
+			CG_DrawSmallStringColor(x + 48, y + 15, ammo, colorActive);
+		}
+		else
+		{
+			// draw image with color
+			trap_R_SetColor(*colorItemNormal);
+
+			if(cg_drawSideBar.integer == 1)
+			{
+				CG_DrawPic(x, y + 10, 73, 25, cgs.media.sideBarItemRShader);
+			}
+			else if(cg_drawSideBar.integer == 2)
+			{
+				CG_DrawPic(x, y + 10, 73, 25, cgs.media.sideBarItemLShader);
+			}
+			
+			trap_R_SetColor(NULL);
+
+			CG_Draw3DWeaponModel(x, y, 48, 48, cg_weapons[i].weaponModel, cg_weapons[i].barrelModel, 0, origin, angles);
+
+			if(cg.snap->ps.ammo[i])
+				CG_DrawSmallStringColor(x + 48, y + 15, ammo, colorInActive);
+			else
+				CG_DrawSmallStringColor(x + 48, y + 15, ammo, colorEmpty);
+		}
+	}
+	else
+	{
+		// SimpleItems on
+		if(i == cg.weaponSelect)
+		{
+			CG_DrawRect(x, y, 70, 20, 20, colorActiveField);
+			CG_DrawPic(x, y, 20, 20, cg_weapons[i].weaponIcon);
+
+			CG_DrawSmallStringColor(x + 24, y, ammo, colorInActive);
+		}
+		else
+		{
+			CG_DrawPic(x, y, 16, 16, cg_weapons[i].weaponIcon);
+
+			if(cg.snap->ps.ammo[i])
+				CG_DrawSmallStringColor(x + 24, y, ammo, colorInActive);
+			else
+				CG_DrawSmallStringColor(x + 24, y, ammo, colorEmpty);
+		}
+	}
+}
+
+/*
+================
 CG_DrawSideBar
 ================
 */
 static void CG_DrawSideBar(void)
 {
+	int             x, y;
 	int             i;
 	int             bits;
 	int             count;
-	int             x, y;
-	char           *ammo;
-	vec3_t          angles;
-	vec3_t          origin;
-
-	// a colors[][] array would be better
-	vec4_t          colorEmpty = { 1.0f, 0.0f, 0.0f, 0.7f };
-	vec4_t          colorInActive = { 1.0f, 1.0f, 1.0f, 0.7f };
-	vec4_t          colorActive = { 0.25f, 1.0f, 0.25f, 0.8f };
-	vec4_t          colorActiveField = { 0.25f, 1.0f, 0.25f, 0.1f };
 
 	if(cg_drawSideBar.integer == 0)
 	{
@@ -918,6 +1210,7 @@ static void CG_DrawSideBar(void)
 	{
 		x = 640 - 80;
 	}
+
 	y = 240 - count * 20;
 
 	// do not count the gauntlet
@@ -928,57 +1221,8 @@ static void CG_DrawSideBar(void)
 			continue;
 		}
 
-		CG_RegisterWeapon(i);
-
-		ammo = va("%i", cg.snap->ps.ammo[i]);
-
-		if(cg_draw3dIcons.integer && !cg_simpleItems.integer)
-		{
-			origin[0] = 90;
-			origin[1] = 0;
-			origin[2] = 0;
-			//angles[YAW] = 90 + 20 * sin(cg.time / 1000.0);
-			angles[YAW] = 90 * (cg.time / 1000.0) + (30 * i);
-
-			if(i == cg.weaponSelect)
-			{
-				CG_Draw3DWeaponModel(x, y, 54, 54, cg_weapons[i].weaponModel, cg_weapons[i].barrelModel, 0, origin, angles);
-				CG_DrawSmallStringColor(x + 48, y + 15, ammo, colorActive);
-			}
-			else
-			{
-				CG_Draw3DWeaponModel(x, y, 48, 48, cg_weapons[i].weaponModel, cg_weapons[i].barrelModel, 0, origin, angles);
-				
-				if(cg.snap->ps.ammo[i])
-					CG_DrawSmallStringColor(x + 48, y + 15, ammo, colorInActive);
-				else
-					CG_DrawSmallStringColor(x + 48, y + 15, ammo, colorEmpty);
-			}
-
-			y += 40;
-		}
-		else
-		{
-			// SimpleItems on
-			if(i == cg.weaponSelect)
-			{
-				CG_DrawRect(x, y, 70, 20, 20, colorActiveField);
-				CG_DrawPic(x, y, 20, 20, cg_weapons[i].weaponIcon);
-				
-				CG_DrawSmallStringColor(x + 24, y, ammo, colorInActive);
-			}
-			else
-			{
-				CG_DrawPic(x, y, 16, 16, cg_weapons[i].weaponIcon);
-				
-				if(cg.snap->ps.ammo[i])
-					CG_DrawSmallStringColor(x + 24, y, ammo, colorInActive);
-				else
-					CG_DrawSmallStringColor(x + 24, y, ammo, colorEmpty);
-			}
-
-			y += 22;
-		}
+		CG_DrawSideBarItem(x, y, i);
+		y += 40;
 	}
 }
 
@@ -1699,7 +1943,7 @@ static void CG_DrawLowerRight(void)
 {
 	float           y;
 
-	y = 480 - ICON_SIZE;
+	y = 480 - ICON_SIZE - 5;
 
 	if(cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 2)
 	{
@@ -1727,7 +1971,7 @@ static int CG_DrawPickupItem(int y)
 		return y;
 	}
 
-	y -= ICON_SIZE;
+	y -= ICON_SIZE * 2 + 15;
 
 	value = cg.itemPickup;
 	if(value)
