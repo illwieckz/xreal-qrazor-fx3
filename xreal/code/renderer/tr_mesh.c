@@ -440,12 +440,16 @@ void R_AddMD3Interactions(trRefEntity_t * ent, trRefDlight_t * light)
 	shader_t       *shader = 0;
 	int             lod;
 	qboolean        personalModel;
+	qboolean        shadowOnly = qfalse;
 	
 	// cull the entire model if merged bounding box of both frames
 	// is outside the view frustum and we don't care about proper shadowing
-	if(ent->cull == CULL_OUT && r_shadows->integer <= 2)
+	if(ent->cull == CULL_OUT)
 	{
-		return;
+		if(r_shadows->integer <= 2)
+			return;
+		else
+			shadowOnly = qtrue;
 	}
 
 	// don't add third_person objects if not in a portal
@@ -522,7 +526,7 @@ void R_AddMD3Interactions(trRefEntity_t * ent, trRefDlight_t * light)
 		// don't add third_person objects if not viewing through a portal
 		if(!personalModel)
 		{
-			R_AddDlightInteraction(light, (void *)surface, shader);	
+			R_AddDlightInteraction(light, (void *)surface, shader, shadowOnly);	
 			tr.pc.c_dlightSurfaces++;
 		}
 

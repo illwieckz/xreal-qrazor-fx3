@@ -892,6 +892,8 @@ typedef struct interaction_s
 	trRefEntity_t  *entity;
 	surfaceType_t  *surface;	// any of surface*_t
 	shader_t       *surfaceShader;
+	
+	qboolean        shadowOnly;
 } interaction_t;
 
 #define	MAX_FACE_POINTS		64
@@ -1965,7 +1967,8 @@ void            R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t *
 void            R_TransformDlights(int count, trRefDlight_t * dl, orientationr_t * or);
 int             R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir);
 
-void            R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * surfaceShader);
+void            R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * surfaceShader,
+									  qboolean shadowOnly);
 
 /*
 ============================================================

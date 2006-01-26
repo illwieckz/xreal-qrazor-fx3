@@ -1230,9 +1230,17 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 		}
 		else
 		{
-			RB_EndSurface();
-			backEnd.pc.c_dlightInteractions++;
-			backEnd.pc.c_dlightBatches++;
+			if(ia->shadowOnly)
+			{
+				// clear shader so we can tell we don't have any unclosed surfaces
+				tess.numIndexes = 0;
+			}
+			else
+			{
+				RB_EndSurface();
+				backEnd.pc.c_dlightInteractions++;
+				backEnd.pc.c_dlightBatches++;
+			}
 		}
 		
 		// Tr3B - the data structure used here is not very cool but it works fine

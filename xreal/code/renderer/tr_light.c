@@ -66,12 +66,16 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefDlight_t * light)
 	msurface_t     *surf;
 	bmodel_t       *bModel = NULL;
 	model_t        *pModel = NULL;
+	qboolean        shadowOnly = qfalse;
 	
 	// cull the entire model if it is outside the view frustum
 	// and we don't care about proper shadowing
-	if(ent->cull == CULL_OUT && r_shadows->integer <= 2)
+	if(ent->cull == CULL_OUT)
 	{
-		return;
+		if(r_shadows->integer <= 2)
+			return;
+		else
+			shadowOnly = qtrue;
 	}
 
 	pModel = R_GetModelByHandle(ent->e.hModel);
@@ -112,7 +116,7 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefDlight_t * light)
 		}
 		*/
 		
-		R_AddDlightInteraction(light, surf->data, surf->shader);
+		R_AddDlightInteraction(light, surf->data, surf->shader, shadowOnly);
 		tr.pc.c_dlightSurfaces++;
 	}
 }
@@ -444,7 +448,7 @@ int R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec
 R_AddDlightInteraction
 =================
 */
-void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * surfaceShader)
+void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * surfaceShader, qboolean shadowOnly)
 {
 	int             index;
 	interaction_t *ia;
@@ -484,4 +488,5 @@ void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shad
 	ia->entity = tr.currentEntity;
 	ia->surface = surface;
 	ia->surfaceShader = surfaceShader;
+	ia->shadowOnly = shadowOnly;
 }
