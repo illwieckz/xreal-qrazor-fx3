@@ -2255,6 +2255,9 @@ void R_LoadEntities(lump_t * l)
 	{
 		dl = &s_worldData.dlights[i];
 		
+		dl->l.radius[0] = 300;
+		dl->l.radius[1] = 300;
+		dl->l.radius[2] = 300;
 		AxisCopy(axisDefault, dl->l.axis);
 		
 		dl->isStatic = qtrue;
@@ -2330,6 +2333,17 @@ void R_LoadEntities(lump_t * l)
 		if(!Q_stricmp(keyname, "light_radius"))
 		{
 			sscanf(value, "%f %f %f", &dl->l.radius[0], &dl->l.radius[1], &dl->l.radius[2]);
+			continue;
+		}
+		
+		// check for radius
+		if(!Q_stricmp(keyname, "light") || !Q_stricmp(keyname, "_light"))
+		{
+			vec_t value2;
+			value2 = atof(value);
+			dl->l.radius[0] = value2;
+			dl->l.radius[1] = value2;
+			dl->l.radius[2] = value2;
 			continue;
 		}
 		
