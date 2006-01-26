@@ -63,7 +63,7 @@ void RB_CheckOverflow(int verts, int indexes)
 		ri.Error(ERR_DROP, "RB_CheckOverflow: indices > MAX (%d > %d)", indexes, SHADER_MAX_INDEXES);
 	}
 
-	RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.fogNum);
+	RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.fogNum, tess.skipTangentSpaces);
 }
 
 
@@ -267,7 +267,7 @@ void RB_SurfaceTriangles(srfTriangles_t * srf)
 		xyz[1] = dv->xyz[1];
 		xyz[2] = dv->xyz[2];
 
-		if(tess.currentStageIteratorType != SIT_ZFILL)
+		if(!tess.skipTangentSpaces)
 		{
 			tangent[0] = dv->tangent[0];
 			tangent[1] = dv->tangent[1];
@@ -842,7 +842,7 @@ void RB_SurfaceMD3(md3Surface_t * surface)
 	}
 
 	// Tr3B - calc tangent spaces
-	if(tess.currentStageIteratorType != SIT_ZFILL)
+	if(!tess.skipTangentSpaces)
 	{
 		int             i;
 		vec3_t          faceNormal;
@@ -1143,7 +1143,7 @@ void RB_SurfaceMDS(mdsSurface_t * surface)
 		}
 		
 		// calc tangent spaces
-		if(tess.currentStageIteratorType != SIT_ZFILL)
+		if(!tess.skipTangentSpaces)
 		{
 			int             i;
 			vec3_t          faceNormal;
@@ -1250,7 +1250,7 @@ void RB_SurfaceFace(srfSurfaceFace_t * surf)
 		*(unsigned int *)&tess.vertexColors[ndx] = *(unsigned int *)&v[7];
 	}
 
-	if(tess.currentStageIteratorType != SIT_ZFILL)
+	if(!tess.skipTangentSpaces)
 	{
 		for(i = 0, v = surf->points[0], ndx = tess.numVertexes; i < numPoints; i++, v += VERTEXSIZE, ndx++)
 		{
@@ -1388,7 +1388,7 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 			if(vrows < 2 || irows < 1)
 			{
 				RB_EndSurface();
-				RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.fogNum);
+				RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.fogNum, tess.skipTangentSpaces);
 			}
 			else
 			{
@@ -1471,7 +1471,7 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 		}
 
 		// Tr3B - calc tangent spaces
-		if(tess.currentStageIteratorType != SIT_ZFILL)
+		if(!tess.skipTangentSpaces)
 		{
 			vec3_t          faceNormal;
 			vec3_t          udir, vdir;

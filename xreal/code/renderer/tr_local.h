@@ -1856,11 +1856,8 @@ TESSELATOR/SHADER DECLARATIONS
 typedef enum
 {
 	SIT_DEFAULT,
-	SIT_ZFILL,
 	SIT_LIGHTING,
-	SIT_LIGHTING2,
-	SIT_TRANSLUCENT,
-	SIT_FOG
+	SIT_LIGHTING2
 } stageIteratorType_t;
 
 typedef byte    color4ub_t[4];
@@ -1889,6 +1886,7 @@ typedef struct shaderCommands_s
 	shader_t       *lightShader;
 	float           shaderTime;
 	int             fogNum;
+	qboolean        skipTangentSpaces;
 
 	int             numIndexes;
 	int             numVertexes;
@@ -1902,7 +1900,7 @@ typedef struct shaderCommands_s
 
 extern shaderCommands_t tess;
 
-void            RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNum);
+void            RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNum, qboolean skipTangentSpaces);
 void            RB_EndSurface(void);
 void            RB_CheckOverflow(int verts, int indexes);
 
@@ -1911,11 +1909,8 @@ void            RB_CheckOverflow(int verts, int indexes);
 void            RB_InitGPUShaders();
 void            RB_ShutdownGPUShaders();
 
-void            RB_StageIteratorZFill();
 void            RB_StageIteratorLighting();
 void            RB_StageIteratorLighting2();
-void            RB_StageIteratorTranslucent();
-void            RB_StageIteratorFog();
 void            RB_StageIteratorGeneric();
 void            RB_StageIteratorSky();
 

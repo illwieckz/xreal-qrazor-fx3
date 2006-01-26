@@ -571,7 +571,7 @@ void RB_BeginDrawingView(void)
 	}
 }
 
-void RB_RenderDrawSurfListFull(float originalTime, drawSurf_t * drawSurfs, int numDrawSurfs)
+void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, int numDrawSurfs)
 {
 	shader_t       *shader, *oldShader;
 	int             fogNum, oldFogNum;
@@ -581,7 +581,7 @@ void RB_RenderDrawSurfListFull(float originalTime, drawSurf_t * drawSurfs, int n
 	drawSurf_t     *drawSurf;
 	int             oldSort;
 	
-	GLimp_LogComment("--- RB_RenderDrawSurfListFull ---\n");
+	GLimp_LogComment("--- RB_RenderDrawSurfaces ---\n");
 
 	// draw everything
 	oldEntityNum = -1;
@@ -613,7 +613,7 @@ void RB_RenderDrawSurfListFull(float originalTime, drawSurf_t * drawSurfs, int n
 			{
 				RB_EndSurface();
 			}
-			RB_BeginSurface(shader, NULL, fogNum);
+			RB_BeginSurface(shader, NULL, fogNum, qfalse);
 			oldShader = shader;
 			oldFogNum = fogNum;
 		}
@@ -690,134 +690,6 @@ void RB_RenderDrawSurfListFull(float originalTime, drawSurf_t * drawSurfs, int n
 		qglDepthRange(0, 1);
 	}
 }
-
-
-void RB_RenderDrawSurfListZFill(float originalTime, drawSurf_t * drawSurfs, int numDrawSurfs)
-{
-	shader_t       *shader, *oldShader;
-	int             fogNum, oldFogNum;
-	int             entityNum, oldEntityNum;
-	qboolean        depthRange, oldDepthRange;
-	int             i;
-	drawSurf_t     *drawSurf;
-	int             oldSort;
-	
-	GLimp_LogComment("--- RB_RenderDrawSurfListZFill ---\n");
-
-	// draw everything
-	oldEntityNum = -1;
-	backEnd.currentEntity = &tr.worldEntity;
-	oldShader = NULL;
-	oldFogNum = -1;
-	oldDepthRange = qfalse;
-	oldSort = -1;
-	depthRange = qfalse;
-	
-	tess.currentStageIteratorType = SIT_ZFILL;
-
-	for(i = 0, drawSurf = drawSurfs; i < numDrawSurfs; i++, drawSurf++)
-	{
-		if(drawSurf->sort == oldSort)
-		{
-			// fast path, same as previous sort
-			rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
-			continue;
-		}
-		oldSort = drawSurf->sort;
-		R_DecomposeSort(drawSurf->sort, &entityNum, &shader, &fogNum);
-		
-		// change the tess parameters if needed
-		// a "entityMergable" shader is a shader that can have surfaces from seperate
-		// entities merged into a single batch, like smoke and blood puff sprites
-		if(shader != oldShader || fogNum != oldFogNum || (entityNum != oldEntityNum && !shader->entityMergable))
-		{
-			if(oldShader != NULL)
-			{
-				RB_EndSurface();
-			}
-			RB_BeginSurface(shader, NULL, fogNum);
-			oldShader = shader;
-			oldFogNum = fogNum;
-		}
-		
-		// Tr3B - skip all translucent surfaces that don't matter for zfill only pass
-		if(shader->sort > SS_SEE_THROUGH && shader->isSky == qfalse)
-			break;
-
-		// change the modelview matrix if needed
-		if(entityNum != oldEntityNum)
-		{
-			depthRange = qfalse;
-
-			if(entityNum != ENTITYNUM_WORLD)
-			{
-				backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
-				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
-				// we have to reset the shaderTime as well otherwise image animations start
-				// from the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
-
-				// set up the transformation matrix
-				R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
-
-				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
-				{
-					// hack the depth range to prevent view model from poking into walls
-					depthRange = qtrue;
-				}
-			}
-			else
-			{
-				backEnd.currentEntity = &tr.worldEntity;
-				backEnd.refdef.floatTime = originalTime;
-				backEnd.or = backEnd.viewParms.world;
-				// we have to reset the shaderTime as well otherwise image animations on
-				// the world (like water) continue with the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
-			}
-
-			qglLoadMatrixf(backEnd.or.modelViewMatrix);
-
-			// change depthrange if needed
-			if(oldDepthRange != depthRange)
-			{
-				if(depthRange)
-				{
-					qglDepthRange(0, 0.3);
-				}
-				else
-				{
-					qglDepthRange(0, 1);
-				}
-				oldDepthRange = depthRange;
-			}
-
-			oldEntityNum = entityNum;
-		}
-
-		// add the triangles for this surface
-		rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
-	}
-
-	backEnd.refdef.floatTime = originalTime;
-
-	// draw the contents of the last shader batch
-	if(oldShader != NULL)
-	{
-		RB_EndSurface();
-	}
-
-	// go back to the world modelview matrix
-	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
-	if(depthRange)
-	{
-		qglDepthRange(0, 1);
-	}
-	
-	// reset stage iterator
-	tess.currentStageIteratorType = SIT_DEFAULT;
-}
-
 
 /*
 =================
@@ -892,7 +764,7 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 			// entities merged into a single batch, like smoke and blood puff sprites
 			
 			// we need a new batch
-			RB_BeginSurface(shader, ia->dlightShader, 0);
+			RB_BeginSurface(shader, ia->dlightShader, 0, qfalse);
 
 			// change the modelview matrix if needed
 			if(entity != oldEntity)
@@ -1145,7 +1017,15 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 		// entities merged into a single batch, like smoke and blood puff sprites
 		
 		// we need a new batch
-		RB_BeginSurface(shader, ia->dlightShader, 0);
+		if(drawShadows)
+		{
+			// we don't need tangent space calculations here
+			RB_BeginSurface(shader, ia->dlightShader, 0, qtrue);
+		}
+		else
+		{
+			RB_BeginSurface(shader, ia->dlightShader, 0, qfalse);
+		}
 
 		// change the modelview matrix if needed
 		if(entity != oldEntity)
@@ -1366,140 +1246,6 @@ static void RB_RenderLightScale()
 	qglColor4f(1, 1, 1, 1);
 }
 
-void RB_RenderDrawSurfListFog(float originalTime, drawSurf_t * drawSurfs, int numDrawSurfs)
-{
-	shader_t       *shader, *oldShader;
-	int             fogNum, oldFogNum;
-	int             entityNum, oldEntityNum;
-	qboolean        depthRange, oldDepthRange;
-	int             i;
-	drawSurf_t     *drawSurf;
-	int             oldSort;
-	
-	GLimp_LogComment("--- RB_RenderDrawSurfListFog ---\n");
-
-	// draw everything
-	oldEntityNum = -1;
-	backEnd.currentEntity = &tr.worldEntity;
-	oldShader = NULL;
-	oldFogNum = -1;
-	oldDepthRange = qfalse;
-	oldSort = -1;
-	depthRange = qfalse;
-	
-	tess.currentStageIteratorType = SIT_FOG;
-
-	for(i = 0, drawSurf = drawSurfs; i < numDrawSurfs; i++, drawSurf++)
-	{
-		R_DecomposeSort(drawSurf->sort, &entityNum, &shader, &fogNum);
-		
-		// Tr3B - skip all non fogged surfaces
-		if(!fogNum)
-			continue;
-		
-		backEnd.pc.c_fogSurfaces++;
-		
-		if(drawSurf->sort == oldSort)
-		{
-			// fast path, same as previous sort
-			rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
-			continue;
-		}
-		
-		oldSort = drawSurf->sort;
-
-		// change the tess parameters if needed
-		// a "entityMergable" shader is a shader that can have surfaces from seperate
-		// entities merged into a single batch, like smoke and blood puff sprites
-		if(shader != oldShader || fogNum != oldFogNum || (entityNum != oldEntityNum && !shader->entityMergable))
-		{
-			if(oldShader != NULL)
-			{
-				backEnd.pc.c_fogBatches++;
-				RB_EndSurface();
-			}
-			RB_BeginSurface(shader, NULL, fogNum);
-			oldShader = shader;
-			oldFogNum = fogNum;
-		}
-
-		// change the modelview matrix if needed
-		if(entityNum != oldEntityNum)
-		{
-			depthRange = qfalse;
-
-			if(entityNum != ENTITYNUM_WORLD)
-			{
-				backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
-				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
-				
-				// we have to reset the shaderTime as well otherwise image animations start
-				// from the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
-
-				// set up the transformation matrix
-				R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
-
-				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
-				{
-					// hack the depth range to prevent view model from poking into walls
-					depthRange = qtrue;
-				}
-			}
-			else
-			{
-				backEnd.currentEntity = &tr.worldEntity;
-				backEnd.refdef.floatTime = originalTime;
-				backEnd.or = backEnd.viewParms.world;
-				
-				// we have to reset the shaderTime as well otherwise image animations on
-				// the world (like water) continue with the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
-			}
-
-			qglLoadMatrixf(backEnd.or.modelViewMatrix);
-
-			// change depthrange if needed
-			if(oldDepthRange != depthRange)
-			{
-				if(depthRange)
-				{
-					qglDepthRange(0, 0.3);
-				}
-				else
-				{
-					qglDepthRange(0, 1);
-				}
-				oldDepthRange = depthRange;
-			}
-
-			oldEntityNum = entityNum;
-		}
-
-		// add the triangles for this surface
-		rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
-	}
-
-	backEnd.refdef.floatTime = originalTime;
-
-	// draw the contents of the last shader batch
-	if(oldShader != NULL)
-	{
-		backEnd.pc.c_fogBatches++;
-		RB_EndSurface();
-	}
-
-	// go back to the world modelview matrix
-	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
-	if(depthRange)
-	{
-		qglDepthRange(0, 1);
-	}
-	
-	// reset stage iterator
-	tess.currentStageIteratorType = SIT_DEFAULT;
-}
-
 void RB_RenderDebugUtils()
 {
 	if(r_showLightTransforms->integer)
@@ -1549,136 +1295,6 @@ void RB_RenderDebugUtils()
 	}
 }
 
-
-void RB_RenderDrawSurfListTranslucent(float originalTime, drawSurf_t * drawSurfs, int numDrawSurfs)
-{
-	shader_t       *shader, *oldShader;
-	int             fogNum, oldFogNum;
-	int             entityNum, oldEntityNum;
-	qboolean        depthRange, oldDepthRange;
-	int             i;
-	drawSurf_t     *drawSurf;
-	int             oldSort;
-	
-	GLimp_LogComment("--- RB_RenderDrawSurfListTranslucent ---\n");
-
-	// draw everything
-	oldEntityNum = -1;
-	backEnd.currentEntity = &tr.worldEntity;
-	oldShader = NULL;
-	oldFogNum = -1;
-	oldDepthRange = qfalse;
-	oldSort = -1;
-	depthRange = qfalse;
-	
-	tess.currentStageIteratorType = SIT_TRANSLUCENT;
-
-	for(i = 0, drawSurf = drawSurfs; i < numDrawSurfs; i++, drawSurf++)
-	{
-		R_DecomposeSort(drawSurf->sort, &entityNum, &shader, &fogNum);
-		
-		// Tr3B - skip all opaque surfaces that don't matter for translucent pass
-		if(shader->sort <= SS_SEE_THROUGH || shader->isSky == qtrue)
-			continue;
-		
-		if(drawSurf->sort == oldSort)
-		{
-			// fast path, same as previous sort
-			rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
-			continue;
-		}
-		
-		oldSort = drawSurf->sort;
-		
-		
-		// change the tess parameters if needed
-		// a "entityMergable" shader is a shader that can have surfaces from seperate
-		// entities merged into a single batch, like smoke and blood puff sprites
-		if(shader != oldShader || fogNum != oldFogNum || (entityNum != oldEntityNum && !shader->entityMergable))
-		{
-			if(oldShader != NULL)
-			{
-				RB_EndSurface();
-			}
-			RB_BeginSurface(shader, NULL, fogNum);
-			oldShader = shader;
-			oldFogNum = fogNum;
-		}
-
-		// change the modelview matrix if needed
-		if(entityNum != oldEntityNum)
-		{
-			depthRange = qfalse;
-
-			if(entityNum != ENTITYNUM_WORLD)
-			{
-				backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
-				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
-				// we have to reset the shaderTime as well otherwise image animations start
-				// from the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
-
-				// set up the transformation matrix
-				R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
-
-				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
-				{
-					// hack the depth range to prevent view model from poking into walls
-					depthRange = qtrue;
-				}
-			}
-			else
-			{
-				backEnd.currentEntity = &tr.worldEntity;
-				backEnd.refdef.floatTime = originalTime;
-				backEnd.or = backEnd.viewParms.world;
-				// we have to reset the shaderTime as well otherwise image animations on
-				// the world (like water) continue with the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
-			}
-
-			qglLoadMatrixf(backEnd.or.modelViewMatrix);
-
-			// change depthrange if needed
-			if(oldDepthRange != depthRange)
-			{
-				if(depthRange)
-				{
-					qglDepthRange(0, 0.3);
-				}
-				else
-				{
-					qglDepthRange(0, 1);
-				}
-				oldDepthRange = depthRange;
-			}
-
-			oldEntityNum = entityNum;
-		}
-
-		// add the triangles for this surface
-		rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
-	}
-
-	backEnd.refdef.floatTime = originalTime;
-
-	// draw the contents of the last shader batch
-	if(oldShader != NULL)
-	{
-		RB_EndSurface();
-	}
-
-	// go back to the world modelview matrix
-	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
-	if(depthRange)
-	{
-		qglDepthRange(0, 1);
-	}
-	
-	// reset stage iterator
-	tess.currentStageIteratorType = SIT_DEFAULT;
-}
-
 /*
 ==================
 RB_RenderDrawSurfList
@@ -1702,11 +1318,8 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction
 	
 	backEnd.pc.c_surfaces += numDrawSurfs;
 	
-#if 1
-	// Tr3B - an approach that is more oldschool
-	
 	// draw everything but lighting and fog
-	RB_RenderDrawSurfListFull(originalTime, drawSurfs, numDrawSurfs);
+	RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs);
 	
 	if(r_shadows->integer == 3)
 	{
@@ -1721,25 +1334,6 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction
 	
 	// render light scale hack to brighten up the scene
 	RB_RenderLightScale();
-	
-#else
-	// Tr3B - draw everything in a similar order as Doom3 does
-
-	// lay down z buffer
-	RB_RenderDrawSurfListZFill(originalTime, drawSurfs, numDrawSurfs);
-
-	// render shadowing and lighting
-	RB_RenderInteractions2(originalTime, interactions, numInteractions);
-
-	// render light scale hack to brighten up the scene
-	RB_RenderLightScale();
-
-	// draw fog
-	//RB_RenderDrawSurfListFog(originalTime, drawSurfs, numDrawSurfs);
-
-	// render translucent surfaces
-	//RB_RenderDrawSurfListTranslucent(originalTime, drawSurfs, numDrawSurfs);
-#endif
 
 	// render debug information
 	RB_RenderDebugUtils();
@@ -1957,7 +1551,7 @@ const void     *RB_StretchPic(const void *data)
 			RB_EndSurface();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
-		RB_BeginSurface(shader, NULL, 0);
+		RB_BeginSurface(shader, NULL, 0, qfalse);
 	}
 
 	RB_CHECKOVERFLOW(4, 6);

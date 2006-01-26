@@ -1222,20 +1222,9 @@ static void DrawTris(shaderCommands_t * input)
 	
 	switch (input->currentStageIteratorType)
 	{
-		case SIT_ZFILL:
-			qglColor3f(1, 1, 1);
-			break;
-			
 		case SIT_LIGHTING:
-			qglColor3f(1, 0, 0);
-			break;
-			
 		case SIT_LIGHTING2:
 			qglColor3f(1, 0, 0);
-			break;
-			
-		case SIT_FOG:
-			qglColor3f(0, 0, 1);
 			break;
 		
 		default:
@@ -1349,7 +1338,7 @@ because a surface may be forced to perform a RB_End due
 to overflow.
 ==============
 */
-void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNum)
+void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNum, qboolean skipTangentSpaces)
 {
 	shader_t       *state = (surfaceShader->remappedShader) ? surfaceShader->remappedShader : surfaceShader;
 
@@ -1364,24 +1353,12 @@ void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNu
 	
 	switch (tess.currentStageIteratorType)
 	{
-		case SIT_ZFILL:
-			tess.currentStageIteratorFunc = RB_StageIteratorZFill;
-			break;
-			
 		case SIT_LIGHTING:
 			tess.currentStageIteratorFunc = RB_StageIteratorLighting;
 			break;
 			
 		case SIT_LIGHTING2:
 			tess.currentStageIteratorFunc = RB_StageIteratorLighting2;
-			break;
-			
-		case SIT_TRANSLUCENT:
-			tess.currentStageIteratorFunc = RB_StageIteratorTranslucent;
-			break;
-			
-		case SIT_FOG:
-			tess.currentStageIteratorFunc = RB_StageIteratorFog;
 			break;
 		
 		default:
@@ -1395,6 +1372,8 @@ void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNu
 	{
 		tess.shaderTime = tess.surfaceShader->clampTime;
 	}
+	
+	tess.skipTangentSpaces = skipTangentSpaces;
 }
 
 static void Render_generic_single_FFP(int stage)
@@ -2985,95 +2964,6 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 	}
 }
 
-
-void RB_StageIteratorZFill()
-{
-	int             stage;
-	
-	RB_DeformTessGeometry();
-
-	// log this call
-	if(r_logFile->integer)
-	{
-		// don't just call LogComment, or we will get
-		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorZFill( %s ) ---\n", tess.surfaceShader->name));
-	}
-
-	// set face culling appropriately
-	GL_Cull(tess.surfaceShader->cullType);
-
-	// set polygon offset if necessary
-	if(tess.surfaceShader->polygonOffset)
-	{
-		qglEnable(GL_POLYGON_OFFSET_FILL);
-		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
-	}
-
-	// lock XYZ
-	qglVertexPointer(3, GL_FLOAT, 16, tess.xyz);	// padded for SIMD
-	if(qglLockArraysEXT)
-	{
-		qglLockArraysEXT(0, tess.numVertexes);
-		GLimp_LogComment("glLockArraysEXT\n");
-	}
-
-	// call shader function
-	for(stage = 0; stage < MAX_SHADER_STAGES; stage++)
-	{
-		shaderStage_t  *pStage = tess.surfaceStages[stage];
-
-		if(!pStage)
-		{
-			break;
-		}
-		
-		if(!RB_EvalExpression(&pStage->ifExp, 1.0))
-		{
-			continue;
-		}
-
-		//ComputeColors(pStage);
-		ComputeTexCoords(pStage);
-
-		switch(pStage->type)
-		{
-			case ST_DIFFUSEMAP:
-			case ST_COLLAPSE_lighting_D_radiosity:
-			case ST_COLLAPSE_lighting_DB_radiosity:
-			case ST_COLLAPSE_lighting_DBS_radiosity:
-			case ST_COLLAPSE_lighting_DB_direct:
-			case ST_COLLAPSE_lighting_DBS_direct:
-			case ST_COLLAPSE_lighting_DB_generic:
-			case ST_COLLAPSE_lighting_DBS_generic:
-			case ST_REFLECTIONMAP:
-			case ST_REFRACTIONMAP:
-			case ST_DISPERSIONMAP:
-			case ST_SKYBOXMAP:
-			{
-				Render_zfill_FFP(stage);
-				break;
-			}
-			
-			default:
-				break;
-		}
-	}
-
-	// unlock arrays
-	if(qglUnlockArraysEXT)
-	{
-		qglUnlockArraysEXT();
-		GLimp_LogComment("glUnlockArraysEXT\n");
-	}
-
-	// reset polygon offset
-	if(tess.surfaceShader->polygonOffset)
-	{
-		qglDisable(GL_POLYGON_OFFSET_FILL);
-	}
-}
-
 void RB_StageIteratorLighting()
 {
 	int				i, j;
@@ -3420,185 +3310,6 @@ void RB_StageIteratorLighting2()
 	if(tess.surfaceShader->cullType == CT_TWO_SIDED)
 	{
 		qglEnable(GL_CULL_FACE);
-	}
-}
-
-void RB_StageIteratorTranslucent()
-{
-	int             stage;
-	
-	RB_DeformTessGeometry();
-
-	// log this call
-	if(r_logFile->integer)
-	{
-		// don't just call LogComment, or we will get
-		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorTranslucent( %s ) ---\n", tess.surfaceShader->name));
-	}
-
-	// set face culling appropriately
-	GL_Cull(tess.surfaceShader->cullType);
-
-	// set polygon offset if necessary
-	if(tess.surfaceShader->polygonOffset)
-	{
-		qglEnable(GL_POLYGON_OFFSET_FILL);
-		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
-	}
-
-	// lock XYZ
-	qglVertexPointer(3, GL_FLOAT, 16, tess.xyz);	// padded for SIMD
-	if(qglLockArraysEXT)
-	{
-		qglLockArraysEXT(0, tess.numVertexes);
-		GLimp_LogComment("glLockArraysEXT\n");
-	}
-
-	// call shader function
-	for(stage = 0; stage < MAX_SHADER_STAGES; stage++)
-	{
-		shaderStage_t  *pStage = tess.surfaceStages[stage];
-
-		if(!pStage)
-		{
-			break;
-		}
-		
-		if(!RB_EvalExpression(&pStage->ifExp, 1.0))
-		{
-			continue;
-		}
-
-		ComputeColors(pStage);
-		ComputeTexCoords(pStage);
-
-		switch(pStage->type)
-		{
-			case ST_REFLECTIONMAP:
-			{
-				if(glConfig2.shadingLanguage100Available)
-				{
-					Render_reflection_C(stage);
-				}
-				else
-				{
-					// TODO
-				}
-				break;
-			}
-			
-			case ST_REFRACTIONMAP:
-			{
-				if(glConfig2.shadingLanguage100Available)
-				{
-					Render_refraction_C(stage);
-				}
-				else
-				{
-					// TODO
-				}
-				break;
-			}
-			
-			case ST_DISPERSIONMAP:
-			{
-				if(glConfig2.shadingLanguage100Available)
-				{
-					Render_dispersion_C(stage);
-				}
-				else
-				{
-					// TODO
-				}
-				break;
-			}
-			
-			case ST_SKYBOXMAP:
-			{
-				if(glConfig2.shadingLanguage100Available)
-				{
-					Render_skybox(stage);
-				}
-				else
-				{
-					// TODO
-				}
-				break;
-			}
-			
-			case ST_HEATHAZEMAP:
-			{
-				if(glConfig2.shadingLanguage100Available)
-				{
-					Render_heatHaze(stage);
-				}
-				else
-				{
-					// TODO
-				}
-				break;
-			}
-			
-			case ST_GLOWMAP:
-			{
-				if(glConfig2.shadingLanguage100Available)
-				{
-					Render_glow(stage);
-				}
-				else
-				{
-					// TODO
-				}
-				break;
-			}
-			
-			case ST_BLOOMMAP:
-			{
-				if(glConfig2.shadingLanguage100Available)
-				{
-					Render_bloom(stage);
-				}
-				else
-				{
-					// TODO
-				}
-				break;
-			}
-			
-			case ST_BLOOM2MAP:
-			{
-				if(glConfig2.shadingLanguage100Available)
-				{
-					Render_bloom2(stage);
-				}
-				else
-				{
-					// TODO
-				}
-				break;
-			}
-			
-			default:
-			case ST_COLORMAP:
-			{
-				Render_generic_single_FFP(stage);
-				break;
-			}
-		}
-	}
-
-	// unlock arrays
-	if(qglUnlockArraysEXT)
-	{
-		qglUnlockArraysEXT();
-		GLimp_LogComment("glUnlockArraysEXT\n");
-	}
-
-	// reset polygon offset
-	if(tess.surfaceShader->polygonOffset)
-	{
-		qglDisable(GL_POLYGON_OFFSET_FILL);
 	}
 }
 
@@ -3970,57 +3681,6 @@ void RB_StageIteratorGeneric()
 		qglDisable(GL_POLYGON_OFFSET_FILL);
 	}
 }
-
-void RB_StageIteratorFog()
-{
-	RB_DeformTessGeometry();
-
-	// log this call
-	if(r_logFile->integer)
-	{
-		// don't just call LogComment, or we will get
-		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorFog( %s ) ---\n", tess.surfaceShader->name));
-	}
-
-	// set face culling appropriately
-	GL_Cull(tess.surfaceShader->cullType);
-
-	// set polygon offset if necessary
-	if(tess.surfaceShader->polygonOffset)
-	{
-		qglEnable(GL_POLYGON_OFFSET_FILL);
-		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
-	}
-
-	// lock XYZ
-	qglVertexPointer(3, GL_FLOAT, 16, tess.xyz);	// padded for SIMD
-	if(qglLockArraysEXT)
-	{
-		qglLockArraysEXT(0, tess.numVertexes);
-		GLimp_LogComment("glLockArraysEXT\n");
-	}
-	
-	// now do fog
-	if(tess.fogNum && tess.surfaceShader->fogPass)
-	{
-		RB_Render_fog();
-	}
-
-	// unlock arrays
-	if(qglUnlockArraysEXT)
-	{
-		qglUnlockArraysEXT();
-		GLimp_LogComment("glUnlockArraysEXT\n");
-	}
-
-	// reset polygon offset
-	if(tess.surfaceShader->polygonOffset)
-	{
-		qglDisable(GL_POLYGON_OFFSET_FILL);
-	}
-}
-
 
 void RB_EndSurface()
 {
