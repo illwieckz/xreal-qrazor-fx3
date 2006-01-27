@@ -1148,6 +1148,7 @@ extern vmCvar_t cg_crosshairHealth;
 extern vmCvar_t cg_drawStatus;
 extern vmCvar_t cg_drawSideBar;
 extern vmCvar_t cg_drawPickupItem;
+extern vmCvar_t cg_drawWeaponSelect;
 extern vmCvar_t cg_draw2D;
 extern vmCvar_t cg_animSpeed;
 extern vmCvar_t cg_debugAnim;

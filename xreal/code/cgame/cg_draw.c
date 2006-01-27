@@ -877,7 +877,6 @@ static void CG_DrawStatusBarOld(void)
 /*
 ================
 CG_DrawStatusBar
-
 ================
 */
 static void CG_DrawStatusBar(void)
@@ -898,6 +897,9 @@ static void CG_DrawStatusBar(void)
 
 	vec4_t         *colorItem;
 	vec4_t          colorHudBlack = { 0.0f, 0.0f, 0.0f, 1.0f };	// b/w
+	vec4_t          colorHudSemiBlack = { 0.0f, 0.0f, 0.0f, 0.2f };	// b/w
+	vec4_t          colorHealth = { 1.0f, 0.25f, 0.25f, 0.5f };
+	vec4_t          colorArmor = { 0.25f, 0.25f, 1.0f, 0.5f };
 	vec4_t          colorTeamBlue = { 0.0f, 0.0f, 1.0f, 0.5f };	// blue
 	vec4_t          colorTeamRed = { 1.0f, 0.0f, 0.0f, 0.5f };	// red
 
@@ -1025,6 +1027,9 @@ static void CG_DrawStatusBar(void)
 	trap_R_SetColor(NULL);
 
 	CG_DrawStatusBarHead(10);
+	
+	CG_FillRect(320 + 5, 480 - 25, 200, 10, colorHudSemiBlack);
+	CG_FillRect(320 + 5, 480 - 25, Q_bound(0, value, 200), 10, colorHealth);
 
 	//
 	// armor
@@ -1052,6 +1057,9 @@ static void CG_DrawStatusBar(void)
 			CG_Draw3DModel(13, 480 - ICON_SIZE * 2 - 13, ICON_SIZE, ICON_SIZE, cgs.media.armorModel, 0, origin, angles);
 		}
 	}
+	
+	CG_FillRect(320 -205, 480 - 25, 200, 10, colorHudSemiBlack);
+	CG_FillRect(320 -205 + (200 - Q_bound(0, value, 200)), 480 - 25, Q_bound(0, value, 200), 10, colorArmor);
 }
 
 /*

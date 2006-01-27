@@ -1642,6 +1642,9 @@ void CG_DrawWeaponSelect(void)
 	int             x, y, w;
 	char           *name;
 	float          *color;
+	
+	if(!cg_drawWeaponSelect.integer)
+		return;
 
 	// don't display if dead
 	if(cg.predictedPlayerState.stats[STAT_HEALTH] <= 0)
