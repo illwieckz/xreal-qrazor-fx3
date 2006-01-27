@@ -42,6 +42,85 @@ refimport_t     ri;
 surfaceType_t   entitySurface = SF_ENTITY;
 
 
+
+/*
+=============
+R_CalcNormalForTriangle
+=============
+*/
+void R_CalcNormalForTriangle(vec3_t normal, const vec3_t v0, const vec3_t v1, const vec3_t v2)
+{
+	vec3_t          udir, vdir;
+	
+	// compute the face normal based on vertex points
+	VectorSubtract(v2, v0, udir);
+	VectorSubtract(v1, v0, vdir);
+	CrossProduct(udir, vdir, normal);
+
+	VectorNormalize(normal);
+}
+
+/*
+=============
+R_CalcTangentsForTriangle
+http://members.rogers.com/deseric/tangentspace.htm
+=============
+*/
+void R_CalcTangentsForTriangle(vec3_t tangent, vec3_t binormal,
+							   const vec3_t v0, const vec3_t v1, const vec3_t v2,
+							   const vec2_t t0, const vec2_t t1, const vec2_t t2)
+{
+	int             i;
+	vec3_t          planes[3];
+	vec3_t          e0;
+	vec3_t          e1;
+
+	for(i = 0; i < 3; i++)
+	{
+		VectorSet(e0, v1[i] - v0[i], t1[0] - t0[0], t1[1] - t0[1]);
+		VectorSet(e1, v2[i] - v0[i], t2[0] - t0[0], t2[1] - t0[1]);
+
+		CrossProduct(e0, e1, planes[i]);
+	}
+
+	//So your tangent space will be defined by this :
+	//Normal = Normal of the triangle or Tangent X Binormal (careful with the cross product, 
+	// you have to make sure the normal points in the right direction)
+	//Tangent = ( dp(Fx(s,t)) / ds,  dp(Fy(s,t)) / ds, dp(Fz(s,t)) / ds )   or     ( -Bx/Ax, -By/Ay, - Bz/Az )
+	//Binormal =  ( dp(Fx(s,t)) / dt,  dp(Fy(s,t)) / dt, dp(Fz(s,t)) / dt )  or     ( -Cx/Ax, -Cy/Ay, -Cz/Az )
+
+	// tangent...
+	tangent[0] = -planes[0][1] / planes[0][0];
+	tangent[1] = -planes[1][1] / planes[1][0];
+	tangent[2] = -planes[2][1] / planes[2][0];
+	VectorNormalize(tangent);
+
+	// binormal...
+	binormal[0] = -planes[0][2] / planes[0][0];
+	binormal[1] = -planes[1][2] / planes[1][0];
+	binormal[2] = -planes[2][2] / planes[2][0];
+	VectorNormalize(binormal);
+
+#if 0
+	// normal...
+	// compute the cross product TxB
+	CrossProduct(tangent, binormal, normal);
+	VectorNormalize(normal);
+
+	// Gram-Schmidt orthogonalization process for B
+	// compute the cross product B=NxT to obtain 
+	// an orthogonal basis
+	CrossProduct(normal, tangent, binormal);
+
+	if(DotProduct(normal, n) < 0)
+	{
+		VectorInverse(normal);
+	}
+
+//	VectorCopy(n, normal);
+#endif
+}
+
 /*
 =============
 R_CalcTangentSpace
@@ -50,9 +129,10 @@ Tr3B - recoded from Nvidia's SDK
 */
 void R_CalcTangentSpace(vec3_t tangent, vec3_t binormal, vec3_t normal,
 						const vec3_t v0, const vec3_t v1, const vec3_t v2,
-						const vec2_t t0, const vec2_t t1, const vec2_t t2, const vec3_t n)
+						const vec2_t t0, const vec2_t t1, const vec2_t t2,
+						const vec3_t n)
 {
-#if 1
+
 	vec3_t          cp, e0, e1;
 
 	VectorSet(e0, v1[0] - v0[0], t1[0] - t0[0], t1[1] - t0[1]);
@@ -103,64 +183,7 @@ void R_CalcTangentSpace(vec3_t tangent, vec3_t binormal, vec3_t normal,
 	{
 		VectorInverse(normal);
 	}
-#else
-
-	// other solution 
-	// http://members.rogers.com/deseric/tangentspace.htm
-
-	int             i;
-	vec3_t          planes[3];
-	vec3_t          e0;
-	vec3_t          e1;
-
-	for(i = 0; i < 3; i++)
-	{
-		VectorSet(e0, v1[i] - v0[i], t1[0] - t0[0], t1[1] - t0[1]);
-		VectorSet(e1, v2[i] - v0[i], t2[0] - t0[0], t2[1] - t0[1]);
-
-		CrossProduct(e0, e1, planes[i]);
-	}
-
-	//So your tangent space will be defined by this :
-	//Normal = Normal of the triangle or Tangent X Binormal (careful with the cross product, 
-	// you have to make sure the normal points in the right direction)
-	//Tangent = ( dp(Fx(s,t)) / ds,  dp(Fy(s,t)) / ds, dp(Fz(s,t)) / ds )   or     ( -Bx/Ax, -By/Ay, - Bz/Az )
-	//Binormal =  ( dp(Fx(s,t)) / dt,  dp(Fy(s,t)) / dt, dp(Fz(s,t)) / dt )  or     ( -Cx/Ax, -Cy/Ay, -Cz/Az )
-
-	// tangent...
-	tangent[0] = -planes[0][1] / planes[0][0];
-	tangent[1] = -planes[1][1] / planes[1][0];
-	tangent[2] = -planes[2][1] / planes[2][0];
-	VectorNormalize(tangent);
-
-	// binormal...
-	binormal[0] = -planes[0][2] / planes[0][0];
-	binormal[1] = -planes[1][2] / planes[1][0];
-	binormal[2] = -planes[2][2] / planes[2][0];
-	VectorNormalize(binormal);
-
-#if 1
-	// normal...
-	// compute the cross product TxB
-	CrossProduct(tangent, binormal, normal);
-	VectorNormalize(normal);
-
-	// Gram-Schmidt orthogonalization process for B
-	// compute the cross product B=NxT to obtain 
-	// an orthogonal basis
-	CrossProduct(normal, tangent, binormal);
-
-	if(DotProduct(normal, n) < 0)
-	{
-		VectorInverse(normal);
-	}
-#else
-	VectorCopy(n, normal);
-#endif
-
-#endif
 }
-
 
 /*
 =================

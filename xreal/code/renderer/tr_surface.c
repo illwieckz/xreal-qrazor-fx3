@@ -872,19 +872,7 @@ void RB_SurfaceMD3(md3Surface_t * surface)
 			t1 = tess.texCoords[indices[1]][0];
 			t2 = tess.texCoords[indices[2]][0];
 
-			// compute the face normal based on vertex points
-			VectorSubtract(v2, v0, udir);
-			VectorSubtract(v1, v0, vdir);
-			CrossProduct(udir, vdir, faceNormal);
-
-			// compute the face normal based on vertex normals
-			//VectorClear( faceNormal );
-			//VectorAdd( faceNormal, tess.normals[indices[0]], faceNormal );
-			//VectorAdd( faceNormal, tess.normals[indices[1]], faceNormal );
-			//VectorAdd( faceNormal, tess.normals[indices[2]], faceNormal );
-
-			VectorNormalize(faceNormal);
-
+			R_CalcNormalForTriangle(faceNormal, v0, v1, v2);
 			R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2, faceNormal);
 
 			for(j = 0; j < 3; j++)
@@ -1147,7 +1135,6 @@ void RB_SurfaceMDS(mdsSurface_t * surface)
 		{
 			int             i;
 			vec3_t          faceNormal;
-			vec3_t          udir, vdir;
 			float          *v;
 			const float    *v0, *v1, *v2;
 			const float    *t0, *t1, *t2;
@@ -1173,19 +1160,7 @@ void RB_SurfaceMDS(mdsSurface_t * surface)
 				t1 = tess.texCoords[indices[1]][0];
 				t2 = tess.texCoords[indices[2]][0];
 		
-				// compute the face normal based on vertex points
-				VectorSubtract(v2, v0, udir);
-				VectorSubtract(v1, v0, vdir);
-				CrossProduct(udir, vdir, faceNormal);
-		
-				// compute the face normal based on vertex normals
-				//VectorClear( faceNormal );
-				//VectorAdd( faceNormal, tess.normals[indices[0]], faceNormal );
-				//VectorAdd( faceNormal, tess.normals[indices[1]], faceNormal );
-				//VectorAdd( faceNormal, tess.normals[indices[2]], faceNormal );
-		
-				VectorNormalize(faceNormal);
-		
+				R_CalcNormalForTriangle(faceNormal, v0, v1, v2);
 				R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2, faceNormal);
 		
 				for(j = 0; j < 3; j++)
@@ -1428,6 +1403,10 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 				texCoords[1] = dv->st[1];
 				texCoords[2] = dv->lightmap[0];
 				texCoords[3] = dv->lightmap[1];
+				
+				normal[0] = dv->normal[0];
+				normal[1] = dv->normal[1];
+				normal[2] = dv->normal[2];
 
 				*(unsigned int *)color = *(unsigned int *)dv->color;
 				xyz += 4;
@@ -1473,8 +1452,7 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 		// Tr3B - calc tangent spaces
 		if(!tess.skipTangentSpaces)
 		{
-			vec3_t          faceNormal;
-			vec3_t          udir, vdir;
+			//vec3_t          faceNormal;
 			float          *v;
 			const float    *v0, *v1, *v2;
 			const float    *t0, *t1, *t2;
@@ -1500,11 +1478,7 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 				t1 = tess.texCoords[indices[1]][0];
 				t2 = tess.texCoords[indices[2]][0];
 
-				// compute the face normal based on vertex points
-				VectorSubtract(v2, v0, udir);
-				VectorSubtract(v1, v0, vdir);
-				CrossProduct(udir, vdir, faceNormal);
-
+				/*
 				// compute the face normal based on vertex normals
 				//VectorClear( faceNormal );
 				//VectorAdd( faceNormal, tess.normals[indices[0]], faceNormal );
@@ -1512,8 +1486,10 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 				//VectorAdd( faceNormal, tess.normals[indices[2]], faceNormal );
 
 				VectorNormalize(faceNormal);
+				*/
 
-				R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2, faceNormal);
+				R_CalcNormalForTriangle(normal, v0, v1, v2);
+				R_CalcTangentsForTriangle(tangent, binormal, v0, v1, v2, t0, t1, t2);
 
 				for(j = 0; j < 3; j++)
 				{

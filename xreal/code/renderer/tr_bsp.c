@@ -645,7 +645,6 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 	// Tr3B - calc tangent spaces
 	{
 		vec3_t          faceNormal;
-		vec3_t          udir, vdir;
 		float          *v;
 		const float    *v0, *v1, *v2;
 		const float    *t0, *t1, *t2;
@@ -672,19 +671,7 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 			t1 = tri->verts[indices[1]].st;
 			t2 = tri->verts[indices[2]].st;
 
-			// compute the face normal based on vertex points
-			VectorSubtract(v2, v0, udir);
-			VectorSubtract(v1, v0, vdir);
-			CrossProduct(udir, vdir, faceNormal);
-
-			// compute the face normal based on vertex normals
-			//VectorClear( faceNormal );
-			//VectorAdd( faceNormal, tess.normals[tess.numVertexes + indices[0]], faceNormal );
-			//VectorAdd( faceNormal, tess.normals[tess.numVertexes + indices[1]], faceNormal );
-			//VectorAdd( faceNormal, tess.normals[tess.numVertexes + indices[2]], faceNormal );
-
-			VectorNormalize(faceNormal);
-
+			R_CalcNormalForTriangle(faceNormal, v0, v1, v2);
 			R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2, faceNormal);
 
 			for(j = 0; j < 3; j++)
