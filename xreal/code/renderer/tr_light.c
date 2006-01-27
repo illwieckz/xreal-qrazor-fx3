@@ -23,13 +23,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 
-#define	DLIGHT_AT_RADIUS		16
-// at the edge of a dlight's influence, this amount of light will be added
-
-#define	DLIGHT_MINIMUM_RADIUS	16
-// never calculate a range less than this to prevent huge light numbers
-
-
 /*
 ===============
 R_TransformDlights
@@ -325,9 +318,6 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 	int             i;
 	vec3_t          lightDir;
 	vec3_t          lightOrigin;
-	trRefDlight_t  *dl;
-	float           power;
-	vec3_t          dir;
 	float           d;
 
 	// lighting calculations 
@@ -371,27 +361,6 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 		ent->ambientLight[2] += tr.identityLight * 32;
 	}
 
-	// modify the light by dynamic lights
-	d = VectorLength(ent->directedLight);
-	VectorScale(ent->lightDir, d, lightDir);
-
-	for(i = 0; i < refdef->numDlights; i++)
-	{
-		dl = &refdef->dlights[i];
-		VectorSubtract(dl->l.origin, lightOrigin, dir);
-		d = VectorNormalize(dir);
-
-		power = DLIGHT_AT_RADIUS * (dl->l.radius[0] * dl->l.radius[0]);
-		if(d < DLIGHT_MINIMUM_RADIUS)
-		{
-			d = DLIGHT_MINIMUM_RADIUS;
-		}
-		d = power / (d * d);
-
-		VectorMA(ent->directedLight, d, dl->l.color, ent->directedLight);
-		VectorMA(lightDir, d, dir, lightDir);
-	}
-
 	// clamp ambient
 	for(i = 0; i < 3; i++)
 	{
@@ -413,6 +382,8 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 	((byte *) & ent->ambientLightInt)[3] = 0xff;
 
 	// transform the direction to local space
+	d = VectorLength(ent->directedLight);
+	VectorScale(ent->lightDir, d, lightDir);
 	VectorNormalize(lightDir);
 	ent->lightDir[0] = DotProduct(lightDir, ent->e.axis[0]);
 	ent->lightDir[1] = DotProduct(lightDir, ent->e.axis[1]);
