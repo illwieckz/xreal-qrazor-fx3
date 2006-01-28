@@ -785,6 +785,9 @@ void            ClampColor(vec4_t color);
 float           RadiusFromBounds(const vec3_t mins, const vec3_t maxs);
 void            ClearBounds(vec3_t mins, vec3_t maxs);
 void            AddPointToBounds(const vec3_t v, vec3_t mins, vec3_t maxs);
+qboolean        BoundsIntersect(const vec3_t mins, const vec3_t maxs, const vec3_t mins2, const vec3_t maxs2);
+qboolean        BoundsIntersectSphere(const vec3_t mins, const vec3_t maxs, const vec3_t origin, vec_t radius);
+qboolean        BoundsIntersectPoint(const vec3_t mins, const vec3_t maxs, const vec3_t origin);
 
 #ifndef __LCC__
 static ID_INLINE int VectorCompare(const vec3_t v1, const vec3_t v2)

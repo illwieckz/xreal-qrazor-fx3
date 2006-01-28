@@ -475,6 +475,37 @@ static void SetViewportAndScissor(void)
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 }
 
+
+/*
+================
+RB_SetGL2D
+================
+*/
+static void RB_SetGL2D(void)
+{
+	GLimp_LogComment("--- RB_SetGL2D ---\n");
+	
+	backEnd.projection2D = qtrue;
+
+	// set 2D virtual screen size
+	qglViewport(0, 0, glConfig.vidWidth, glConfig.vidHeight);
+	qglScissor(0, 0, glConfig.vidWidth, glConfig.vidHeight);
+	qglMatrixMode(GL_PROJECTION);
+	qglLoadIdentity();
+	qglOrtho(0, glConfig.vidWidth, glConfig.vidHeight, 0, 0, 1);
+	qglMatrixMode(GL_MODELVIEW);
+	qglLoadIdentity();
+
+	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+
+	qglDisable(GL_CULL_FACE);
+	qglDisable(GL_CLIP_PLANE0);
+
+	// set time for 2D shaders
+	backEnd.refdef.time = ri.Milliseconds();
+	backEnd.refdef.floatTime = backEnd.refdef.time * 0.001f;
+}
+
 /*
 =================
 RB_BeginDrawingView
@@ -747,8 +778,11 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 		// Tr3B - this should never happen in the first iteration
 		if(light == oldLight && entity == oldEntity && shader == oldShader)
 		{
-			// fast path, same as previous
-			rb_surfaceTable[*surface] (surface);
+			if(!ia->shadowOnly)
+			{
+				// fast path, same as previous
+				rb_surfaceTable[*surface] (surface);
+			}
 		}
 		else
 		{
@@ -827,8 +861,11 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 				MatrixMultiply(light->attenuationMatrix, modelToLight, light->attenuationMatrix2);	
 			}
 			
-			// add the triangles for this surface
-			rb_surfaceTable[*surface] (surface);
+			if(!ia->shadowOnly)
+			{
+				// add the triangles for this surface
+				rb_surfaceTable[*surface] (surface);
+			}
 		}
 		
 		// Tr3B - the data structure used here is not very cool but it works fine
@@ -975,6 +1012,9 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 				
 				//qglStencilFunc(GL_ALWAYS, 128, ~0);
 				//qglStencilMask(1);
+				
+				// set light scissor to reduce fillrate
+				qglScissor(light->scissorX, light->scissorY, light->scissorWidth, light->scissorHeight);
 			}
 			else
 			{
@@ -1172,6 +1212,10 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 		qglDepthRange(0, 1);
 	}
 	
+	// reset scissor
+	qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
+	
 	// restore OpenGL state
 	qglDisable(GL_CULL_FACE);
 	qglDisable(GL_DEPTH_TEST);
@@ -1293,6 +1337,43 @@ void RB_RenderDebugUtils()
 			R_DebugBoundingBox(vec3_origin, ent->worldBounds[0], ent->worldBounds[1], colorRed);
 		}
 	}
+	
+	if(r_showLightScissors->integer)
+	{
+		trRefDlight_t  *dl;
+		int             i;
+		
+		// set 2D virtual screen size
+		qglPushMatrix();
+		qglLoadIdentity();
+		qglMatrixMode(GL_PROJECTION);
+		qglPushMatrix();
+		qglLoadIdentity();
+		qglOrtho(0, glConfig.vidWidth, 0, glConfig.vidHeight, 0, 1);
+		
+		qglColor3f(1, 0, 0);
+		
+		GL_Program(0);
+		GL_SelectTexture(0);
+		GL_Bind(tr.whiteImage);
+		
+		GL_State(GLS_POLYMODE_LINE);
+
+		dl = backEnd.refdef.dlights;
+		for(i = 0; i < backEnd.refdef.numDlights; i++, dl++)
+		{
+			qglBegin(GL_QUADS);
+			qglVertex2f(dl->scissorX, dl->scissorY);
+			qglVertex2f(dl->scissorX + dl->scissorWidth, dl->scissorY);
+			qglVertex2f(dl->scissorX + dl->scissorWidth, dl->scissorY + dl->scissorHeight);
+			qglVertex2f(dl->scissorX, dl->scissorY + dl->scissorHeight);
+			qglEnd();
+		}
+		
+		qglPopMatrix();
+		qglMatrixMode(GL_MODELVIEW);
+		qglPopMatrix();
+	}
 }
 
 /*
@@ -1335,17 +1416,17 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction
 	// render light scale hack to brighten up the scene
 	RB_RenderLightScale();
 
-	// render debug information
-	RB_RenderDebugUtils();
-
 #if 0
 	RB_DrawSun();
 #endif
 
-#if 0
+#if 1
 	// add light flares on lights that aren't obscured
 	RB_RenderFlares();
 #endif
+
+	// render debug information
+	RB_RenderDebugUtils();
 }
 
 
@@ -1356,36 +1437,6 @@ RENDER BACK END THREAD FUNCTIONS
 
 ============================================================================
 */
-
-/*
-================
-RB_SetGL2D
-================
-*/
-void RB_SetGL2D(void)
-{
-	GLimp_LogComment("--- RB_SetGL2D ---\n");
-	
-	backEnd.projection2D = qtrue;
-
-	// set 2D virtual screen size
-	qglViewport(0, 0, glConfig.vidWidth, glConfig.vidHeight);
-	qglScissor(0, 0, glConfig.vidWidth, glConfig.vidHeight);
-	qglMatrixMode(GL_PROJECTION);
-	qglLoadIdentity();
-	qglOrtho(0, glConfig.vidWidth, glConfig.vidHeight, 0, 0, 1);
-	qglMatrixMode(GL_MODELVIEW);
-	qglLoadIdentity();
-
-	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
-
-	qglDisable(GL_CULL_FACE);
-	qglDisable(GL_CLIP_PLANE0);
-
-	// set time for 2D shaders
-	backEnd.refdef.time = ri.Milliseconds();
-	backEnd.refdef.floatTime = backEnd.refdef.time * 0.001f;
-}
 
 
 /*

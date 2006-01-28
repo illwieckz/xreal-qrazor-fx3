@@ -416,6 +416,48 @@ int R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec
 
 /*
 =================
+R_SetupDlightLocalBounds
+=================
+*/
+void R_SetupDlightLocalBounds(trRefDlight_t * dl)
+{
+	dl->localBounds[0][0] = dl->l.radius[0];
+	dl->localBounds[0][1] = dl->l.radius[1];
+	dl->localBounds[0][2] = dl->l.radius[2];
+	dl->localBounds[1][0] =-dl->l.radius[0];
+	dl->localBounds[1][1] =-dl->l.radius[1];
+	dl->localBounds[1][2] =-dl->l.radius[2];
+}
+
+/*
+=================
+R_SetupDlightWorldBounds
+Tr3B - needs finished transformMatrix
+=================
+*/
+void R_SetupDlightWorldBounds(trRefDlight_t * dl)
+{
+	int             j;
+	vec3_t          v, transformed;
+	
+	ClearBounds(dl->worldBounds[0], dl->worldBounds[1]);
+		
+	for(j = 0; j < 8; j++)
+	{
+		v[0] = dl->localBounds[j & 1][0];
+		v[1] = dl->localBounds[(j >> 1) & 1][1];
+		v[2] = dl->localBounds[(j >> 2) & 1][2];
+	
+		// transform local bounds vertices into world space
+		MatrixTransformPoint(dl->transformMatrix, v, transformed);
+			
+		AddPointToBounds(transformed, dl->worldBounds[0], dl->worldBounds[1]);
+	}
+}
+
+
+/*
+=================
 R_AddDlightInteraction
 =================
 */
@@ -460,4 +502,87 @@ void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shad
 	ia->surface = surface;
 	ia->surfaceShader = surfaceShader;
 	ia->shadowOnly = shadowOnly;
+	
+	if(light->isStatic)
+	{
+		tr.pc.c_slightInteractions++;
+	}
+	else
+	{
+		tr.pc.c_dlightInteractions++;
+	}
+}
+
+/*
+=================
+R_DlightIntersectsPoint
+=================
+*/
+qboolean R_DlightIntersectsPoint(trRefDlight_t * light, const vec3_t p)
+{
+	// TODO light frustum test
+	
+	return BoundsIntersectPoint(light->worldBounds[0], light->worldBounds[1], p);
+}
+
+
+/*
+=================
+R_SetDlightScissor
+=================
+*/
+void R_SetDlightScissor(trRefDlight_t * light)
+{
+	int             i;
+	vec3_t          v;
+	vec4_t          eye, clip, normalized, window;
+	vec2_t          mins = {999999, 999999}, maxs = {-999999, -999999};
+	float           xMin, xMax, yMin, yMax;
+	
+	if(R_DlightIntersectsPoint(light, tr.viewParms.or.origin))
+	{
+		light->scissorX = tr.viewParms.viewportX;
+		light->scissorY = tr.viewParms.viewportY;
+		light->scissorWidth = tr.viewParms.viewportWidth;
+		light->scissorHeight = tr.viewParms.viewportHeight;
+		return;
+	}
+	
+	// transform local light corners to eye space -> clip space -> window space
+	// and extend mins maxs by resulting window coords
+	for(i = 0; i < 8; i++)
+	{
+		v[0] = light->localBounds[i & 1][0];
+		v[1] = light->localBounds[(i >> 1) & 1][1];
+		v[2] = light->localBounds[(i >> 2) & 1][2];
+	
+		R_TransformModelToClip(v, tr.or.modelViewMatrix, tr.viewParms.projectionMatrix, eye, clip);
+		R_TransformClipToWindow(clip, &tr.viewParms, normalized, window);
+		
+		mins[0] = Q_min(mins[0], window[0]);
+		mins[1] = Q_min(mins[1], window[1]);
+		
+		maxs[0] = Q_max(maxs[0], window[0]);
+		maxs[1] = Q_max(maxs[1], window[1]);
+	}
+	
+	// set the scissor rectangle
+	xMin = Q_max(floor(mins[0]), tr.viewParms.viewportX);
+	yMin = Q_max(floor(mins[1]), tr.viewParms.viewportY);
+	xMax = Q_min(ceil(maxs[0]), tr.viewParms.viewportX + tr.viewParms.viewportWidth);
+	yMax = Q_min(ceil(maxs[1]), tr.viewParms.viewportY + tr.viewParms.viewportHeight);
+
+	if(xMax <= xMin || yMax <= yMin)
+	{
+		light->scissorX = tr.viewParms.viewportX;
+		light->scissorY = tr.viewParms.viewportY;
+		light->scissorWidth = tr.viewParms.viewportWidth;
+		light->scissorHeight = tr.viewParms.viewportHeight;
+		return;
+	}
+
+	light->scissorX = xMin;
+	light->scissorY = yMin;
+	light->scissorWidth = xMax - xMin;
+	light->scissorHeight = yMax - yMin;
 }

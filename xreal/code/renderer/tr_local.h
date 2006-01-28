@@ -74,7 +74,7 @@ typedef struct trRefDlight_s
 	refDlight_t		l;
 	
 	// local
-	qboolean        isStatic;
+	qboolean        isStatic;			// loaded from the BSP entities lump
 	qboolean        additive;			// texture detail is lost tho when the lightmap is dark
 	vec3_t          transformed;		// origin in local coordinate system
 	matrix_t		transformMatrix;	// light to world
@@ -87,7 +87,10 @@ typedef struct trRefDlight_s
 	vec3_t			localBounds[2];
 	vec3_t			worldBounds[2];
 	
-	// connect this entity to interaction grid
+	int             scissorX, scissorY, scissorWidth, scissorHeight;
+	
+	struct interactionCache_s *firstInteractionCache;	// only used by static lights
+	struct interactionCache_s *lastInteractionCache;	// only used by static lights
 	struct interaction_s *lastInteraction;
 } trRefDlight_t;
 
@@ -375,7 +378,7 @@ typedef struct
 	float			value;
 } expOperation_t;
 
-#define MAX_EXPRESSION_OPS	24
+#define MAX_EXPRESSION_OPS	32
 typedef struct
 {
 	expOperation_t  ops[MAX_EXPRESSION_OPS];
@@ -881,7 +884,15 @@ typedef struct drawSurf_s
 	surfaceType_t  *surface;	// any of surface*_t
 } drawSurf_t;
 
-// an interaction is a node between a dlight and its surfaces
+// an interactionCache is a node between a dlight and a precached world surface
+typedef struct interactionCache_s
+{
+	struct interactionCache_s *next;
+	
+	struct msurface_s *surface;
+} interactionCache_t;
+
+// an interaction is a node between a dlight and any surface
 typedef struct interaction_s
 {
 	struct interaction_s *next;
@@ -1099,6 +1110,9 @@ typedef struct
 	
 	int             numDlights;
 	trRefDlight_t  *dlights;
+	
+	int             numInteractions; // should be always numSurfaces * 32
+	interactionCache_t  *interactions;
 
 	int             numClusters;
 	int             clusterBytes;
@@ -1197,9 +1211,15 @@ typedef struct
 	int             c_box_cull_md3_in, c_box_cull_md3_clip, c_box_cull_md3_out;
 	int             c_sphere_cull_mds_in, c_sphere_cull_mds_clip, c_sphere_cull_mds_out;
 	int             c_box_cull_mds_in, c_box_cull_mds_clip, c_box_cull_mds_out;
-	int             c_box_cull_light_in, c_box_cull_light_clip, c_box_cull_light_out;
+	int             c_box_cull_dlight_in, c_box_cull_dlight_clip, c_box_cull_dlight_out;
+	int             c_box_cull_slight_in, c_box_cull_slight_clip, c_box_cull_slight_out;
 
 	int             c_leafs;
+	
+	int             c_slights;
+	int             c_slightSurfaces;
+	int             c_slightInteractions;
+	
 	int             c_dlights;
 	int             c_dlightSurfaces;
 	int             c_dlightSurfacesCulled;
@@ -1574,6 +1594,7 @@ extern cvar_t  *r_showSkeleton;
 extern cvar_t  *r_showEntityTransforms;
 extern cvar_t  *r_showLightTransforms;
 extern cvar_t  *r_showLightInteractions;
+extern cvar_t  *r_showLightScissors;
 
 
 //====================================================================
@@ -1942,6 +1963,7 @@ void            R_AddWorldSurfaces(void);
 qboolean        R_inPVS(const vec3_t p1, const vec3_t p2);
 
 void            R_AddWorldInteractions(trRefDlight_t * light);
+void            R_AddPrecachedWorldInteractions(trRefDlight_t * light);
 
 /*
 ============================================================
@@ -1970,9 +1992,13 @@ void            R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t *
 void            R_TransformDlights(int count, trRefDlight_t * dl, orientationr_t * or);
 int             R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir);
 
+void            R_SetupDlightLocalBounds(trRefDlight_t * light);
+void            R_SetupDlightWorldBounds(trRefDlight_t * light);
+
 void            R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * surfaceShader,
 									  qboolean shadowOnly);
 
+void            R_SetDlightScissor(trRefDlight_t * light);
 /*
 ============================================================
 

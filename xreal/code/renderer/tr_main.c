@@ -1384,8 +1384,6 @@ void R_SortDrawSurfs(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * i
 		ia = &interactions[numInteractions -1];
 		ia->next = NULL;
 	}
-	
-	tr.pc.c_dlightInteractions += numInteractions;
 
 	// sort the drawsurfs by sort type, then orientation, then shader
 	qsortFast(drawSurfs, numDrawSurfs, sizeof(drawSurf_t));
@@ -1639,9 +1637,7 @@ R_AddSlightInteractions
 */
 void R_AddSlightInteractions()
 {
-	int             i, j;
-	vec3_t         v;
-	vec3_t         transformed;
+	int             i;
 	trRefDlight_t  *dl;
 	
 	if(tr.refdef.rdflags & RDF_NOWORLDMODEL)
@@ -1660,90 +1656,45 @@ void R_AddSlightInteractions()
 	{
 		dl = tr.currentDlight = &tr.world->dlights[i];
 		
-#if 0
-		ri.Printf(PRINT_ALL, "origin(%i %i %i) radius(%i %i %i) color(%f %f %f)\n",
-				  (int)dl->l.origin[0], (int)dl->l.origin[1], (int)dl->l.origin[2],
-				  (int)dl->l.radius[0], (int)dl->l.radius[1], (int)dl->l.radius[2],
-				  dl->l.color[0], dl->l.color[1], dl->l.color[2]);
-#endif
-		
 		// we must set up parts of tr.or for light culling
 		R_RotateForDlight(dl, &tr.viewParms, &tr.or);
-		
-		// setup local bounds
-		dl->localBounds[0][0] = dl->l.radius[0];
-		dl->localBounds[0][1] = dl->l.radius[1];
-		dl->localBounds[0][2] = dl->l.radius[2];
-		dl->localBounds[1][0] =-dl->l.radius[0];
-		dl->localBounds[1][1] =-dl->l.radius[1];
-		dl->localBounds[1][2] =-dl->l.radius[2];
 		
 		// look if we have to draw the light including its interactions
 		switch (R_CullLocalBox(dl->localBounds))
 		{
 			case CULL_IN:
-				tr.pc.c_box_cull_light_in++;
+				tr.pc.c_box_cull_slight_in++;
 				dl->cull = CULL_IN;
 				break;
 			
 			case CULL_CLIP:
-				tr.pc.c_box_cull_light_clip++;
+				tr.pc.c_box_cull_slight_clip++;
 				dl->cull = CULL_CLIP;
 				break;
 			
 			case CULL_OUT:
 			default:
 				// light is not visible so skip other light setup stuff to save speed
-				tr.pc.c_box_cull_light_out++;
+				tr.pc.c_box_cull_slight_out++;
 				dl->cull = CULL_OUT;
 				continue;
 		}
 		
-		// set up light transform matrix
-		MatrixSetupTransform(dl->transformMatrix, dl->l.axis[0], dl->l.axis[1], dl->l.axis[2], dl->l.origin);
+		// ignore if not in visible bounds
+		if(!BoundsIntersect(dl->worldBounds[0], dl->worldBounds[1], tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]))
+			continue;
 		
-		// set up model to light view matrix
-		MatrixAffineInverse(dl->transformMatrix, dl->viewMatrix);
-		
-		// set up projection
-		switch (dl->l.rlType)
-		{
-			case RL_OMNI:
-				MatrixSetupScale(dl->projectionMatrix, 1.0 / dl->l.radius[0], 1.0 / dl->l.radius[1], 1.0 / dl->l.radius[2]);
-				break;
-
-			default:
-				ri.Error(ERR_DROP, "R_AddSlightInteractions: Bad rlType");
-		}
-				
-		// set up first part of the attenuation matrix
-		MatrixSetupTranslation(dl->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-		MatrixMultiplyScale(dl->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
-		MatrixMultiply2(dl->attenuationMatrix, dl->projectionMatrix);	// light projection (frustum)
-		
-		// setup world bounds for intersection tests
-		ClearBounds(dl->worldBounds[0], dl->worldBounds[1]);
-		
-		for(j = 0; j < 8; j++)
-		{
-			v[0] = dl->localBounds[j & 1][0];
-			v[1] = dl->localBounds[(j >> 1) & 1][1];
-			v[2] = dl->localBounds[(j >> 2) & 1][2];
-	
-			// transform local bounds vertices into world space
-			MatrixTransformPoint(dl->transformMatrix, v, transformed);
-			
-			AddPointToBounds(transformed, dl->worldBounds[0], dl->worldBounds[1]);
-		}
+		// create temporary light scissor
+		R_SetDlightScissor(dl);
 		
 		// setup interactions
 		dl->lastInteraction = NULL;
 	
-		R_AddWorldInteractions(dl);
+		R_AddPrecachedWorldInteractions(dl);
 		R_AddEntityInteractions(dl);
 		
 		if(dl->lastInteraction != NULL)
-			tr.pc.c_dlights++;
+			tr.pc.c_slights++;
 	}
 }
 
@@ -1755,9 +1706,6 @@ R_AddDlightInteractions
 */
 void R_AddDlightInteractions()
 {
-	int             i;
-	vec3_t         v;
-	vec3_t         transformed;
 	trRefDlight_t  *dl;
 
 	if(!r_dynamiclight->integer)
@@ -1772,37 +1720,39 @@ void R_AddDlightInteractions()
 		// we must set up parts of tr.or for light culling
 		R_RotateForDlight(dl, &tr.viewParms, &tr.or);
 		
-		// setup local bounds
-		dl->localBounds[0][0] = dl->l.radius[0];
-		dl->localBounds[0][1] = dl->l.radius[1];
-		dl->localBounds[0][2] = dl->l.radius[2];
-		dl->localBounds[1][0] =-dl->l.radius[0];
-		dl->localBounds[1][1] =-dl->l.radius[1];
-		dl->localBounds[1][2] =-dl->l.radius[2];
+		// calc local bounds for culling
+		R_SetupDlightLocalBounds(dl);
 		
 		// look if we have to draw the light including its interactions
 		switch (R_CullLocalBox(dl->localBounds))
 		{
 			case CULL_IN:
-				tr.pc.c_box_cull_light_in++;
+				tr.pc.c_box_cull_dlight_in++;
 				dl->cull = CULL_IN;
 				break;
 			
 			case CULL_CLIP:
-				tr.pc.c_box_cull_light_clip++;
+				tr.pc.c_box_cull_dlight_clip++;
 				dl->cull = CULL_CLIP;
 				break;
 			
 			case CULL_OUT:
 			default:
 				// light is not visible so skip other light setup stuff to save speed
-				tr.pc.c_box_cull_light_out++;
+				tr.pc.c_box_cull_dlight_out++;
 				dl->cull = CULL_OUT;
 				continue;
 		}
 		
 		// set up light transform matrix
 		MatrixSetupTransform(dl->transformMatrix, dl->l.axis[0], dl->l.axis[1], dl->l.axis[2], dl->l.origin);
+		
+		// setup world bounds for intersection tests
+		R_SetupDlightWorldBounds(dl);
+		
+		// ignore if not in visible bounds
+		if(!BoundsIntersect(dl->worldBounds[0], dl->worldBounds[1], tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]))
+			continue;
 		
 		// set up model to light view matrix
 		MatrixAffineInverse(dl->transformMatrix, dl->viewMatrix);
@@ -1823,20 +1773,7 @@ void R_AddDlightInteractions()
 		MatrixMultiplyScale(dl->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
 		MatrixMultiply2(dl->attenuationMatrix, dl->projectionMatrix);	// light projection (frustum)
 		
-		// setup world bounds for intersection tests
-		ClearBounds(dl->worldBounds[0], dl->worldBounds[1]);
-		
-		for(i = 0; i < 8; i++)
-		{
-			v[0] = dl->localBounds[i & 1][0];
-			v[1] = dl->localBounds[(i >> 1) & 1][1];
-			v[2] = dl->localBounds[(i >> 2) & 1][2];
-	
-			// transform local bounds vertices into world space
-			MatrixTransformPoint(dl->transformMatrix, v, transformed);
-			
-			AddPointToBounds(transformed, dl->worldBounds[0], dl->worldBounds[1]);
-		}
+		R_SetDlightScissor(dl);
 		
 		// setup interactions
 		dl->lastInteraction = NULL;
@@ -1972,24 +1909,6 @@ void R_DebugPolygon(int color, int numPoints, float *points)
 }
 
 /*
-static void R_DebugLights()
-{
-	int             i;
-	trRefDlight_t  *dl;
-
-	for(i = 0; i < tr.refdef.numDlights; i++)
-	{
-		dl = &tr.refdef.dlights[i];
-		
-		R_DebugAxis(dl->l.origin, dl->transformMatrix);
-		
-		R_DebugBoundingBox(dl->l.origin, dl->localBounds[0], dl->localBounds[1], colorBlue);
-		R_DebugBoundingBox(vec3_origin, dl->worldBounds[0], dl->worldBounds[1], colorRed);
-	}
-}
-*/
-
-/*
 ====================
 R_DebugGraphics
 
@@ -1998,16 +1917,6 @@ Visualization aid for movement clipping debugging
 */
 static void R_DebugGraphics(void)
 {
-	/*
-	if(r_showLightTransforms->integer)
-	{
-		// the render thread can't make callbacks to the main thread
-		R_SyncRenderThread();
-		
-		R_DebugLights();
-	}
-	*/
-	
 	if(r_debugSurface->integer)
 	{
 		// the render thread can't make callbacks to the main thread

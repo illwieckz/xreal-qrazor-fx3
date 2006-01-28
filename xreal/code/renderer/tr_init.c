@@ -172,6 +172,7 @@ cvar_t         *r_showSkeleton;
 cvar_t         *r_showEntityTransforms;
 cvar_t         *r_showLightTransforms;
 cvar_t         *r_showLightInteractions;
+cvar_t         *r_showLightScissors;
 
 
 // GL_ARB_multitexture
@@ -1225,6 +1226,7 @@ void R_Register(void)
 	r_showEntityTransforms = ri.Cvar_Get("r_showEntityTransforms", "0", CVAR_CHEAT);
 	r_showLightTransforms = ri.Cvar_Get("r_showLightTransforms", "0", CVAR_CHEAT);
 	r_showLightInteractions = ri.Cvar_Get("r_showLightInteractions", "0", CVAR_CHEAT);
+	r_showLightScissors = ri.Cvar_Get("r_showLightScissors", "0", CVAR_CHEAT);
 
 	// make sure all the commands added here are also
 	// removed in R_Shutdown

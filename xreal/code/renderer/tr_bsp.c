@@ -34,6 +34,8 @@ void RE_LoadWorldMap( const char *name );
 */
 
 static world_t  s_worldData;
+static int      s_lightCount;
+static int      s_interactionCount;
 static byte    *fileBase;
 
 int             c_subdivisions;
@@ -2378,6 +2380,277 @@ qboolean R_GetEntityToken(char *buffer, int size)
 	}
 }
 
+
+/*
+=================
+R_PrecacheInteraction
+=================
+*/
+static void R_PrecacheInteraction(trRefDlight_t * light, msurface_t * surface)
+{
+	interactionCache_t *iaCache;
+
+	if(s_interactionCount >= s_worldData.numInteractions)
+	{
+		ri.Printf(PRINT_WARNING, "R_PrecacheInteraction: overflow, not enough interactions in pool\n");
+		return;
+	}
+	
+	iaCache = &s_worldData.interactions[s_interactionCount];
+	s_interactionCount++;
+	
+	// connect to interaction grid
+	if(!light->firstInteractionCache)
+	{
+		light->firstInteractionCache = iaCache;
+	}
+	
+	if(light->lastInteractionCache)
+	{
+		light->lastInteractionCache->next = iaCache;
+	}
+
+	light->lastInteractionCache = iaCache;
+	
+	iaCache->next = NULL;
+	iaCache->surface = surface;
+}
+
+
+static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, trRefDlight_t  * dl)
+{
+#if 0
+	if(	dl->l.origin[0] - dl->l.radius[0] > face->bounds[1][0] ||
+		dl->l.origin[0] + dl->l.radius[0] < face->bounds[0][0] ||
+		dl->l.origin[1] - dl->l.radius[0] > face->bounds[1][1] ||
+		dl->l.origin[1] + dl->l.radius[0] < face->bounds[0][1] ||
+		dl->l.origin[2] - dl->l.radius[0] > face->bounds[1][2] ||
+		dl->l.origin[2] + dl->l.radius[0] < face->bounds[0][2])
+{
+		// dlight doesn't reach the bounds
+	return qfalse;
+}
+#else
+	if(	dl->worldBounds[1][0] < face->bounds[0][0] ||
+		dl->worldBounds[1][1] < face->bounds[0][1] ||
+		dl->worldBounds[1][2] < face->bounds[0][2] ||
+		dl->worldBounds[0][0] > face->bounds[1][0] ||
+		dl->worldBounds[0][1] > face->bounds[1][1] ||
+		dl->worldBounds[0][2] > face->bounds[1][2])
+{
+	return qfalse;
+}
+#endif
+	
+	return qtrue;
+}
+
+
+static int R_PrecacheGridInteraction(srfGridMesh_t * grid, trRefDlight_t * dl)
+{
+	if(	dl->worldBounds[1][0] < grid->meshBounds[0][0] ||
+		   dl->worldBounds[1][1] < grid->meshBounds[0][1] ||
+		   dl->worldBounds[1][2] < grid->meshBounds[0][2] ||
+		   dl->worldBounds[0][0] > grid->meshBounds[1][0] ||
+		   dl->worldBounds[0][1] > grid->meshBounds[1][1] ||
+		   dl->worldBounds[0][2] > grid->meshBounds[1][2])
+	{
+		// dlight doesn't reach the bounds
+		return qfalse;
+	}
+
+	return qtrue;
+}
+
+
+static int R_PrecacheTrisurfInteraction(srfTriangles_t * tri, trRefDlight_t * dl)
+{
+	if(	dl->worldBounds[1][0] < tri->bounds[0][0] ||
+		   dl->worldBounds[1][1] < tri->bounds[0][1] ||
+		   dl->worldBounds[1][2] < tri->bounds[0][2] ||
+		   dl->worldBounds[0][0] > tri->bounds[1][0] ||
+		   dl->worldBounds[0][1] > tri->bounds[1][1] ||
+		   dl->worldBounds[0][2] > tri->bounds[1][2])
+	{
+		// dlight doesn't reach the bounds
+		return qfalse;
+	}
+
+	return qtrue;
+}
+
+
+/*
+======================
+R_PrecacheInteractionSurface
+======================
+*/
+static void R_PrecacheInteractionSurface(msurface_t * surf, trRefDlight_t * light)
+{
+	qboolean        intersects;
+	
+	if(surf->lightCount == s_lightCount)
+	{
+		return;					// already checked this surface
+	}
+	surf->lightCount = s_lightCount;
+	
+	// Tr3B - skip all translucent surfaces that don't matter for lighting only pass
+	if(surf->shader->sort > SS_OPAQUE || (surf->shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY)))
+		return;
+
+	if(*surf->data == SF_FACE)
+	{
+		intersects = R_PrecacheFaceInteraction((srfSurfaceFace_t *) surf->data, light);
+	}
+	else if(*surf->data == SF_GRID)
+	{
+		intersects = R_PrecacheGridInteraction((srfGridMesh_t *) surf->data, light);
+	}
+	else if(*surf->data == SF_TRIANGLES)
+	{
+		intersects = R_PrecacheTrisurfInteraction((srfTriangles_t *) surf->data, light);
+	}
+	else
+	{
+		intersects = qfalse;	
+	}
+	
+	if(intersects)
+	{
+		R_PrecacheInteraction(light, surf);
+	}
+}
+
+/*
+================
+R_RecursivePrecacheInteractionNode
+================
+*/
+static void R_RecursivePrecacheInteractionNode(mnode_t * node, trRefDlight_t * light)
+{
+	int             r;
+	
+	// light already hit node
+	if(node->lightCount == s_lightCount)
+	{
+		return;
+	}
+	node->lightCount = s_lightCount;
+
+	if(node->contents != -1)
+	{
+		// leaf node, so add mark surfaces
+		int             c;
+		msurface_t     *surf, **mark;
+
+		// add the individual surfaces
+		mark = node->firstmarksurface;
+		c = node->nummarksurfaces;
+		while(c--)
+		{
+			// the surface may have already been added if it
+			// spans multiple leafs
+			surf = *mark;
+			R_PrecacheInteractionSurface(surf, light);
+			mark++;
+		}
+		return;
+	}
+
+	// node is just a decision point, so go down both sides
+	// since we don't care about sort orders, just go positive to negative
+	r = BoxOnPlaneSide(light->worldBounds[0], light->worldBounds[1], node->plane);
+	
+	switch (r)
+	{
+		case 1:
+			R_RecursivePrecacheInteractionNode(node->children[0], light);
+			break;
+			
+		case 2:
+			R_RecursivePrecacheInteractionNode(node->children[1], light);
+			break;
+		
+		case 3:
+		default:
+			// recurse down the children, front side first
+			R_RecursivePrecacheInteractionNode(node->children[0], light);
+			R_RecursivePrecacheInteractionNode(node->children[1], light);
+			break;
+	}
+}
+
+/*
+=============
+R_PrecacheInteractions
+=============
+*/
+void R_PrecacheInteractions()
+{
+	int             i;
+	trRefDlight_t  *dl;
+	
+	s_lightCount = 0;
+	s_interactionCount = 0;
+	
+	// Tr3B - 32 interactions for each surface should be enough
+	s_worldData.numInteractions = s_worldData.numsurfaces * 32;
+	s_worldData.interactions = ri.Hunk_Alloc(s_worldData.numInteractions * sizeof(interactionCache_t), h_low);
+	
+	ri.Printf(PRINT_ALL, "...precaching %i lights\n", s_worldData.numDlights);
+
+	for(i = 0; i < s_worldData.numDlights; i++)
+	{
+		dl = &s_worldData.dlights[i];
+		
+#if 0
+		ri.Printf(PRINT_ALL, "origin(%i %i %i) radius(%i %i %i) color(%f %f %f)\n",
+				  (int)dl->l.origin[0], (int)dl->l.origin[1], (int)dl->l.origin[2],
+				  (int)dl->l.radius[0], (int)dl->l.radius[1], (int)dl->l.radius[2],
+				  dl->l.color[0], dl->l.color[1], dl->l.color[2]);
+#endif
+		
+		// calc local bounds for culling
+		R_SetupDlightLocalBounds(dl);
+		
+		// set up light transform matrix
+		MatrixSetupTransform(dl->transformMatrix, dl->l.axis[0], dl->l.axis[1], dl->l.axis[2], dl->l.origin);
+		
+		// setup world bounds for intersection tests
+		R_SetupDlightWorldBounds(dl);
+		
+		// set up model to light view matrix
+		MatrixAffineInverse(dl->transformMatrix, dl->viewMatrix);
+		
+		// set up projection
+		switch (dl->l.rlType)
+		{
+			case RL_OMNI:
+				MatrixSetupScale(dl->projectionMatrix, 1.0 / dl->l.radius[0], 1.0 / dl->l.radius[1], 1.0 / dl->l.radius[2]);
+				break;
+
+			default:
+				ri.Error(ERR_DROP, "R_PrecacheInteractions: Bad rlType");
+		}
+				
+		// set up first part of the attenuation matrix
+		MatrixSetupTranslation(dl->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
+		MatrixMultiplyScale(dl->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
+		MatrixMultiply2(dl->attenuationMatrix, dl->projectionMatrix);	// light projection (frustum)
+		
+		// setup interactions
+		dl->lastInteraction = NULL;
+		
+		// perform frustum culling and add all the potentially visible surfaces
+		s_lightCount++;
+		R_RecursivePrecacheInteractionNode(s_worldData.nodes, dl);
+	}
+	
+	ri.Printf(PRINT_ALL, "%i interactions precached\n", s_interactionCount);
+}
+
+
 /*
 =================
 RE_LoadWorldMap
@@ -2455,6 +2728,10 @@ void RE_LoadWorldMap(const char *name)
 	R_LoadSubmodels(&header->lumps[LUMP_MODELS]);
 	R_LoadVisibility(&header->lumps[LUMP_VISIBILITY]);
 	R_LoadLightGrid(&header->lumps[LUMP_LIGHTGRID]);
+	
+	// we precache interactions between dlights and surfaces
+	// to reduce the polygon count
+	R_PrecacheInteractions();
 
 	s_worldData.dataSize = (byte *) ri.Hunk_Alloc(0, h_low) - startMarker;
 

@@ -292,11 +292,16 @@ static void R_AddInteractionSurface(msurface_t * surf, trRefDlight_t * light)
 	if(intersects)
 	{
 		R_AddDlightInteraction(light, surf->data, surf->shader, shadowOnly);
-		tr.pc.c_dlightSurfaces++;
+		
+		if(light->isStatic)
+			tr.pc.c_slightSurfaces++;
+		else
+			tr.pc.c_dlightSurfaces++;
 	}
 	else
 	{
-		tr.pc.c_dlightSurfacesCulled++;	
+		if(!light->isStatic)
+			tr.pc.c_dlightSurfacesCulled++;	
 	}
 }
 
@@ -517,11 +522,10 @@ static void R_RecursiveInteractionNode(mnode_t * node, trRefDlight_t * light, in
 
 	// if the bounding volume is outside the frustum, nothing
 	// inside can be visible OPTIMIZE: don't do this all the way to leafs?
-#if 1
+
 	// Tr3B - even surfaces that belong to nodes that are outside of the view frustum
 	// can cast shadows into the view frustum
-
-	if(!r_nocull->integer && r_shadows->integer >= 4)
+	if(!r_nocull->integer && r_shadows->integer <= 2)
 	{
 		for(i = 0; i < 4; i++)
 		{
@@ -541,7 +545,6 @@ static void R_RecursiveInteractionNode(mnode_t * node, trRefDlight_t * light, in
 			}
 		}
 	}
-#endif
 
 	if(node->contents != -1)
 	{
@@ -565,7 +568,6 @@ static void R_RecursiveInteractionNode(mnode_t * node, trRefDlight_t * light, in
 
 	// node is just a decision point, so go down both sides
 	// since we don't care about sort orders, just go positive to negative
-#if 1
 	r = BoxOnPlaneSide(light->worldBounds[0], light->worldBounds[1], node->plane);
 	
 	switch (r)
@@ -585,11 +587,6 @@ static void R_RecursiveInteractionNode(mnode_t * node, trRefDlight_t * light, in
 			R_RecursiveInteractionNode(node->children[1], light, planeBits);
 			break;
 	}
-#else
-	// recurse down the children, front side first
-	R_RecursiveInteractionNode(node->children[0], light, planeBits);
-	R_RecursiveInteractionNode(node->children[1], light, planeBits);
-#endif
 }
 
 
@@ -856,8 +853,6 @@ void R_AddWorldSurfaces(void)
 	R_SetFarClip();
 }
 
-
-
 /*
 =============
 R_AddWorldInteractions
@@ -881,4 +876,58 @@ void R_AddWorldInteractions(trRefDlight_t * light)
 	// perform frustum culling and add all the potentially visible surfaces
 	tr.lightCount++;
 	R_RecursiveInteractionNode(tr.world->nodes, light, 15);
+}
+
+/*
+=============
+R_AddPrecachedWorldInteractions
+=============
+*/
+void R_AddPrecachedWorldInteractions(trRefDlight_t * light)
+{
+	interactionCache_t  *iaCache;
+	msurface_t     *surface;
+	qboolean        shadowOnly = qfalse;
+	
+	if(!r_drawworld->integer)
+	{
+		return;
+	}
+
+	if(tr.refdef.rdflags & RDF_NOWORLDMODEL)
+	{
+		return;
+	}
+	
+	if(!light->firstInteractionCache)
+	{
+		// this light has no interactions precached
+		return;
+	}
+
+	tr.currentEntityNum = ENTITYNUM_WORLD;
+	tr.currentEntity = &tr.worldEntity;
+	
+	
+	for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
+	{
+		surface = iaCache->surface;
+		
+		// Tr3B - this surface is maybe not in this view but it may still cast a shadow
+		// into this view
+		if(surface->viewCount != tr.viewCount)
+		{
+			if(r_shadows->integer <= 2)
+				continue;
+			else
+				shadowOnly = qtrue;
+		}
+		else
+		{
+			shadowOnly = qfalse;
+		}
+		
+		
+		R_AddDlightInteraction(light, surface->data, surface->shader, shadowOnly);
+	}
 }
