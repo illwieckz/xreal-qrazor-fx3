@@ -605,6 +605,9 @@ int CL_CgameSystemCalls(int *args)
 		case CG_R_ADDREFENTITYTOSCENE:
 			re.AddRefEntityToScene(VMA(1));
 			return 0;
+		case CG_R_ADDREFEXTENDEDENTITYTOSCENE:
+			re.AddRefExtendedEntityToScene(VMA(1));
+			return 0;
 		case CG_R_ADDREFDLIGHTTOSCENE:
 			re.AddRefDlightToScene(VMA(1));
 			return 0;

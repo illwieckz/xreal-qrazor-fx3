@@ -303,9 +303,14 @@ void trap_R_ClearScene(void)
 	syscall(CG_R_CLEARSCENE);
 }
 
-void trap_R_AddRefEntityToScene(const refEntity_t * re)
+void trap_R_AddRefEntityToScene(const refEntity_t * ent)
 {
-	syscall(CG_R_ADDREFENTITYTOSCENE, re);
+	syscall(CG_R_ADDREFENTITYTOSCENE, ent);
+}
+
+void trap_R_AddRefExtendedEntityToScene(const refExtEntity_t * ent)
+{
+	syscall(CG_R_ADDREFEXTENDEDENTITYTOSCENE, ent);
 }
 
 void trap_R_AddRefDlightToScene(const refDlight_t * light)

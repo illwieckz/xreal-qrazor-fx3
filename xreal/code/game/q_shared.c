@@ -764,7 +764,7 @@ void COM_MatchToken(char **buf_p, char *match)
 	token = COM_Parse(buf_p);
 	if(strcmp(token, match))
 	{
-		Com_Error(ERR_DROP, "MatchToken: %s != %s", token, match);
+		Com_Error(ERR_DROP, "MatchToken: '%s' != '%s'", token, match);
 	}
 }
 

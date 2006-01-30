@@ -1610,7 +1610,8 @@ qhandle_t       trap_R_RegisterShaderLightAttenuation(const char *name);
 // a scene is built up by calls to R_ClearScene and the various R_Add functions.
 // Nothing is drawn until R_RenderScene is called.
 void            trap_R_ClearScene(void);
-void            trap_R_AddRefEntityToScene(const refEntity_t * re);
+void            trap_R_AddRefEntityToScene(const refEntity_t * ent);
+void            trap_R_AddRefExtendedEntityToScene(const refExtEntity_t * ent);
 void            trap_R_AddRefDlightToScene(const refDlight_t * light);
 
 // polys are intended for simple wall marks, not really for doing

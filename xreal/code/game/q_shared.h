@@ -599,6 +599,7 @@ typedef vec_t   vec5_t[5];
 
 typedef vec_t   axis_t[3][3];
 typedef vec_t   matrix_t[16];
+typedef vec_t   quat_t[4];
 
 typedef int     fixed4_t;
 typedef int     fixed8_t;
@@ -986,6 +987,7 @@ void            MatrixToAngles(const matrix_t m, vec3_t angles);
 void            MatrixFromAngles(matrix_t m, vec_t pitch, vec_t yaw, vec_t roll);
 void            MatrixFromVectorsFLU(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up);
 void            MatrixFromVectorsFRU(matrix_t m, const vec3_t forward, const vec3_t right, const vec3_t up);
+void            MatrixFromQuat(matrix_t m, const quat_t q);
 void            MatrixToVectorsFLU(const matrix_t m, vec3_t forward, vec3_t left, vec3_t up);
 void            MatrixToVectorsFRU(const matrix_t m, vec3_t forward, vec3_t right, vec3_t up);
 void            MatrixSetupTransform(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up, const vec3_t origin);
@@ -994,6 +996,19 @@ void            MatrixAffineInverse(const matrix_t in, matrix_t out);
 void            MatrixTransformNormal(const matrix_t m, const vec3_t in, vec3_t out);
 void            MatrixTransformPoint(const matrix_t m, const vec3_t in, vec3_t out);
 void            MatrixTransform4(const matrix_t m, const vec4_t in, vec4_t out);
+
+
+#define QuatSet(w, x, y, z, q)  ((q)[0]=(w), (q)[1]=(x), (q)[2]=(y), (q)[3]=(z))
+
+static ID_INLINE void QuatCalcW(quat_t q)
+{
+	vec_t term = 1.0f - q[0]*q[0] - q[1]*q[1] - q[2]*q[2];
+	
+	if(term < 0.0)
+		q[3] = 0.0;
+	else
+		q[3] = -sqrt(term);
+}
 
 //=============================================
 

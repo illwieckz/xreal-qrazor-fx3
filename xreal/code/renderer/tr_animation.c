@@ -436,3 +436,117 @@ void R_AddMDSSurfaces(trRefEntity_t * ent)
 	}
 }
 
+
+/*
+==============
+R_AddMD5Surfaces
+==============
+*/
+void R_AddMD5Surfaces(trRefEntity_t * ent)
+{
+	md5Model_t     *model;
+	md5Surface_t   *surface;
+	shader_t       *shader;
+	int             i;
+	int             cull;
+	int             fogNum = 0;
+	qboolean        personalModel;
+	
+	model = tr.currentModel->md5;
+	
+	// don't add third_person objects if not in a portal
+	personalModel = (ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal;
+
+	/*
+	if(ent->e.renderfx & RF_WRAP_FRAMES)
+	{
+		ent->e.frame %= header->numFrames;
+		ent->e.oldframe %= header->numFrames;
+	}
+	
+	// Validate the frames so there is no chance of a crash.
+	// This will write directly into the entity structure, so
+	// when the surfaces are rendered, they don't need to be
+	// range checked again.
+	if((ent->e.frame >= header->numFrames) || (ent->e.frame < 0) || (ent->e.oldframe >= header->numFrames) || (ent->e.oldframe < 0))
+	{
+		ri.Printf(PRINT_DEVELOPER, "R_AddMDSSurfaces: no such frame %d to %d for '%s'\n",
+				  ent->e.oldframe, ent->e.frame, tr.currentModel->name);
+		ent->e.frame = 0;
+		ent->e.oldframe = 0;
+	}
+	
+	// cull the entire model if merged bounding box of both frames
+	// is outside the view frustum
+	cull = R_CullMDS(header, ent);
+	if(cull == CULL_OUT)
+	{
+		return;
+	}
+	
+	// set up lighting now that we know we aren't culled
+	if(!personalModel || r_shadows->integer > 1)
+	{
+		R_SetupEntityLighting(&tr.refdef, ent);
+	}
+
+	// see if we are in a fog volume
+	fogNum = R_ComputeFogNumForMDS(header, ent);
+	*/
+
+	// finally add surfaces
+	for(i = 0, surface = model->surfaces; i < model->numSurfaces; i++, surface++)
+	{
+		if(ent->e.customShader)
+		{
+			shader = R_GetShaderByHandle(ent->e.customShader);
+		}
+		/*
+		else if(ent->e.customSkin > 0 && ent->e.customSkin < tr.numSkins)
+		{
+			skin_t         *skin;
+			int             j;
+
+			skin = R_GetSkinByHandle(ent->e.customSkin);
+
+			// match the surface name to something in the skin file
+			shader = tr.defaultShader;
+			for(j = 0; j < skin->numSurfaces; j++)
+			{
+				// the names have both been lowercased
+				if(!strcmp(skin->surfaces[j]->name, surface->name))
+				{
+					shader = skin->surfaces[j]->shader;
+					break;
+				}
+			}
+			if(shader == tr.defaultShader)
+			{
+				ri.Printf(PRINT_DEVELOPER, "WARNING: no shader for surface %s in skin %s\n", surface->name, skin->name);
+			}
+			else if(shader->defaultShader)
+			{
+				ri.Printf(PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name, skin->name);
+			}
+		}
+		*/
+		else
+		{
+			shader = R_GetShaderByHandle(surface->shaderIndex);
+		}
+		
+		// we will add shadows even if the main object isn't visible in the view
+
+		// projection shadows work fine with personal models
+		if(r_shadows->integer == 2 && fogNum == 0 && (ent->e.renderfx & RF_SHADOW_PLANE) && shader->sort == SS_OPAQUE)
+		{
+			R_AddDrawSurf((void *)surface, tr.projectionShadowShader, 0);
+		}
+
+		// don't add third_person objects if not viewing through a portal
+		if(!personalModel)
+		{
+			R_AddDrawSurf((void *)surface, shader, fogNum);
+		}
+	}
+}

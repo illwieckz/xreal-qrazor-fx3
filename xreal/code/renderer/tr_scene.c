@@ -241,7 +241,38 @@ void RE_AddRefEntityToScene(const refEntity_t * ent)
 		ri.Error(ERR_DROP, "RE_AddRefEntityToScene: bad reType %i", ent->reType);
 	}
 
-	backEndData[tr.smpFrame]->entities[r_numentities].e = *ent;
+	Com_Memcpy(&backEndData[tr.smpFrame]->entities[r_numentities].e, ent, sizeof(refEntity_t));
+	//backEndData[tr.smpFrame]->entities[r_numentities].e = *ent;
+	backEndData[tr.smpFrame]->entities[r_numentities].lightingCalculated = qfalse;
+
+	r_numentities++;
+}
+
+/*
+=====================
+RE_AddRefExtendedEntityToScene
+=====================
+*/
+void RE_AddRefExtendedEntityToScene(const refExtEntity_t * ent)
+{
+	if(!tr.registered)
+	{
+		return;
+	}
+	
+	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=402
+	if(r_numentities >= ENTITYNUM_WORLD)
+	{
+		return;
+	}
+	
+	if(ent->reType < 0 || ent->reType >= RT_MAX_REF_ENTITY_TYPE)
+	{
+		ri.Error(ERR_DROP, "RE_AddRefEntityToScene: bad reType %i", ent->reType);
+	}
+
+	Com_Memcpy(&backEndData[tr.smpFrame]->entities[r_numentities].e, ent, sizeof(refExtEntity_t));
+	//backEndData[tr.smpFrame]->entities[r_numentities].e = *ent;
 	backEndData[tr.smpFrame]->entities[r_numentities].lightingCalculated = qfalse;
 
 	r_numentities++;

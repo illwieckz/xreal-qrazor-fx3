@@ -100,7 +100,7 @@ typedef struct trRefDlight_s
 typedef struct
 {
 	// public from client game
-	refEntity_t     e;
+	refExtEntity_t  e;
 
 	// local
 	float           axisLength;			// compensate for non-normalized axis
@@ -870,6 +870,7 @@ typedef enum
 	SF_MD3,
 	SF_MD4,
 	SF_MDS,
+	SF_MD5,
 	SF_FLARE,
 	SF_ENTITY,					// beams, rails, lightning, etc that can be determined by entity
 	SF_DISPLAY_LIST,
@@ -1124,6 +1125,101 @@ typedef struct
 	char           *entityParsePoint;
 } world_t;
 
+
+/*
+==============================================================================
+
+MD5 MODELS
+
+==============================================================================
+*/
+
+
+//
+// in memory representation
+//
+
+
+#define MD5_IDENTSTRING     "MD5Version"
+#define MD5_VERSION			10
+#define	MD5_MAX_BONES		128
+
+typedef struct
+{
+	int             boneIndex;	// these are indexes into the boneReferences,
+	float           boneWeight;	// not the global per-frame bone list
+	float           offset[3];
+} md5Weight_t;
+
+typedef struct
+{
+	float           texCoords[2];
+	int             firstWeight;
+	int             numWeights;
+	md5Weight_t   **weights;
+} md5Vertex_t;
+
+typedef struct
+{
+	int             ident;	// this is set to SF_MD5 and
+							// needs to be the first variable
+
+//	char            name[MAX_QPATH];	// polyset name
+	char            shader[MAX_QPATH];
+	int             shaderIndex;	// for in-game use
+	
+	int             numVerts;
+	md5Vertex_t    *verts;
+
+	int             numIndexes;
+	int            *indexes;
+	
+	int             numWeights;
+	md5Weight_t    *weights;
+	
+	struct md5Model_s *model;
+} md5Surface_t;
+
+typedef struct
+{
+	char			name[MAX_QPATH];
+	int				parentIndex; // parent index (-1 if root)
+	vec3_t			origin;
+	matrix_t		rotation;
+} md5Bone_t;
+
+/*
+typedef struct
+{
+	short			angles[4];		 // defines the bone orientation
+	short			ofsAngles[2];	// defines the direction of the bone pivot from this bone's parent
+} md5BoneFrame_t;
+
+typedef struct
+{
+	float           bounds[2][3];	// bounds of all surfaces of all LOD's for this frame
+	float           localOrigin[3];	// midpoint of bounds, used for sphere cull
+	float           radius;		// dist from localOrigin to corner
+	float			parentOffset[3];
+	mdsBoneFrame_t	bones[1];	// [numBones]
+} md5Frame_t;
+*/
+
+typedef struct md5Model_s
+{
+	int             ident;
+	int             version;
+
+	char            name[MAX_QPATH];	// model name
+	
+//	int             numFrames;
+	int             numBones;
+	md5Bone_t      *bones;
+	
+	int             numSurfaces;
+	md5Surface_t   *surfaces;
+} md5Model_t;
+
 //======================================================================
 
 typedef enum
@@ -1132,7 +1228,8 @@ typedef enum
 	MOD_BRUSH,
 	MOD_MD3,
 	MOD_MD4,
-	MOD_MDS
+	MOD_MDS,
+	MOD_MD5
 } modtype_t;
 
 typedef struct model_s
@@ -1146,6 +1243,7 @@ typedef struct model_s
 	md3Header_t    *md3[MD3_MAX_LODS];	// only if type == MOD_MD3
 	md4Header_t    *md4;		// only if type == MOD_MD4
 	mdsHeader_t    *mds;		// only if type == MOD_MDS
+	md5Model_t     *md5;		// only if type == MOD_MD5
 
 	int             numLods;
 } model_t;
@@ -2064,6 +2162,7 @@ void            R_ToggleSmpFrame(void);
 
 void            RE_ClearScene(void);
 void            RE_AddRefEntityToScene(const refEntity_t * ent);
+void            RE_AddRefExtendedEntityToScene(const refExtEntity_t * ent);
 void            RE_AddRefDlightToScene(const refDlight_t * light);
 void            RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts, int num);
 void            RE_AddLightToScene(const vec3_t org, float intensity, float r, float g, float b);
@@ -2083,6 +2182,10 @@ void            RB_SurfaceMD4(md4Surface_t * surfType);
 
 void            R_AddMDSSurfaces(trRefEntity_t * ent);
 void            RB_SurfaceMDS(mdsSurface_t * surfType);
+
+void            R_AddMD5Surfaces(trRefEntity_t * ent);
+
+int             R_LerpBones(refBones_t * bones, qhandle_t handle, int startFrame, int endFrame, float frac);
 
 /*
 =============================================================

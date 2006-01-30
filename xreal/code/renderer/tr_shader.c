@@ -2974,6 +2974,11 @@ static qboolean ParseShader(char **text)
 		{
 			continue;
 		}
+		// skip collision
+		else if(!Q_stricmp(token, "collision"))
+		{
+			continue;
+		}
 		// skip guiSurf
 		else if(!Q_stricmp(token, "guiSurf"))
 		{
@@ -5156,7 +5161,7 @@ a single large text block that can be scanned for shader names
 =====================
 */
 #define	MAX_SHADER_FILES	4096
-//#define USE_MTR
+#define USE_MTR
 static void ScanAndLoadShaderFiles(void)
 {
 	char          **shaderFiles;

@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	MAX_DLIGHTS		1024
 #define	MAX_ENTITIES	1023	// can't be increased without changing drawsurf bit packing
+#define MAX_BONES       128
 
 // renderfx flags
 #define	RF_MINLIGHT			1	// allways have some light (viewmodel, some items)
@@ -110,6 +111,65 @@ typedef struct
 	float           radius;
 	float           rotation;
 } refEntity_t;
+
+typedef struct
+{
+#if 0
+	// FIXME: use quaternions to save memory
+	quat_t          rotation;
+	vec3_t          translation;
+#else
+	matrix_t        transform;	// contains rotation and translation
+#endif
+} refBone_t;
+
+typedef struct
+{
+	int             numBones;
+	refBone_t       bones[MAX_BONES];
+} refBones_t;
+
+typedef struct
+{
+	// NOTE: Tr3B - don't change the following variables because
+	// the renderer uses Com_Memcpy in RE_AddRefEntityToScene
+	// so we need the same order as in refEntity_t for the first part
+	refEntityType_t reType;
+	int             renderfx;
+
+	qhandle_t       hModel;		// opaque type outside refresh
+
+	// most recent data
+	vec3_t          lightingOrigin;	// so multi-part models can be lit identically (RF_LIGHTING_ORIGIN)
+	float           shadowPlane;	// projection shadows go here, stencils go slightly lower
+
+	vec3_t          axis[3];	// rotation vectors
+	qboolean        nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
+	float           origin[3];	// also used as MODEL_BEAM's "from"
+	int             frame;		// also used as MODEL_BEAM's diameter
+
+	// previous data for frame interpolation
+	float           oldorigin[3];	// also used as MODEL_BEAM's "to"
+	int             oldframe;
+	float           backlerp;	// 0.0 = current, 1.0 = old
+
+	// texturing
+	int             skinNum;	// inline skin index
+	qhandle_t       customSkin;	// NULL for default skin
+	qhandle_t       customShader;	// use one image for the entire thing
+
+	// misc
+	byte            shaderRGBA[4];	// colors used by rgbgen entity shaders
+	float           shaderTexCoord[2];	// texture coordinates used by tcMod entity modifiers
+	float           shaderTime;	// subtracted from refdef time to control effect start times
+
+	// extra sprite information
+	float           radius;
+	float           rotation;
+	
+	// NOTE: Tr3B - now we are save to add new variables
+	refBones_t      bones;
+} refExtEntity_t;
 
 
 // lightfx flags

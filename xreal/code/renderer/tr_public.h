@@ -64,7 +64,8 @@ typedef struct
 	// a scene is built up by calls to R_ClearScene and the various R_Add functions.
 	// Nothing is drawn until R_RenderScene is called.
 	void            (*ClearScene) (void);
-	void            (*AddRefEntityToScene) (const refEntity_t * re);
+	void            (*AddRefEntityToScene) (const refEntity_t * ent);
+	void            (*AddRefExtendedEntityToScene) (const refExtEntity_t * ent);
 	void            (*AddRefDlightToScene) (const refDlight_t * light);
 	void            (*AddPolyToScene) (qhandle_t hShader, int numVerts, const polyVert_t * verts, int num);
 	int             (*LightForPoint) (vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir);
@@ -91,6 +92,9 @@ typedef struct
 
 	int             (*LerpTag) (orientation_t * tag, qhandle_t model, int startFrame, int endFrame,
 								float frac, const char *tagName);
+	
+//	int             (*LerpBones) (refBones_t * bones, qhandle_t model, int startFrame, int endFrame, float frac);
+	
 	void            (*ModelBounds) (qhandle_t model, vec3_t mins, vec3_t maxs);
 
 #ifdef __USEA3D

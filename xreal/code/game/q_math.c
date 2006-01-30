@@ -2086,6 +2086,67 @@ void MatrixFromVectorsFRU(matrix_t m, const vec3_t forward, const vec3_t right, 
 	m[ 3] = 0;              m[ 7] = 0;              m[11] = 0;      m[15] = 1;
 }
 
+void MatrixFromQuat(matrix_t m, const quat_t q)
+{
+	/*
+	Assuming that a quaternion has been created in the form:
+
+	Q = |X Y Z W|
+	
+	Then the quaternion can then be converted into a 4x4 row major rotation
+	matrix using the following expression
+	
+	
+	¦        2     2                                      ¦
+
+	¦ 1 - (2Y  + 2Z )   2XY - 2ZW         2XZ + 2YW       ¦
+
+	¦                                                     ¦
+
+	¦                          2     2                    ¦
+
+	M = ¦ 2XY + 2ZW         1 - (2X  + 2Z )   2YZ - 2XW       ¦
+
+	¦                                                     ¦
+
+	¦                                            2     2  ¦
+
+	¦ 2XZ - 2YW         2YZ + 2XW         1 - (2X  + 2Y ) ¦
+
+	¦                                                     ¦
+
+	If a 4x4 matrix is required, then the bottom row and right-most column
+	may be added.
+	*/
+	
+	/*
+	dReal qq1 = 2*q[0]*q[0];
+	dReal qq2 = 2*q[1]*q[1];
+	dReal qq3 = 2*q[2]*q[2];
+	
+	_R(0,0) = 1 - qq2 - qq3;		_R(0,1) = 2*(q[0]*q[1] - q[3]*q[2]);	_R(0,2) = 2*(q[0]*q[2] + q[3]*q[1]);
+	_R(1,0) = 2*(q[0]*q[1] + q[3]*q[2]);	_R(1,1) = 1 - qq1 - qq3;		_R(1,2) = 2*(q[1]*q[2] - q[3]*q[0]);
+	_R(2,0) = 2*(q[0]*q[2] - q[3]*q[1]);	_R(2,1) = 2*(q[1]*q[2] + q[3]*q[0]);	_R(2,2) = 1 - qq1 - qq2;
+	*/
+	
+	vec_t xx = q[0] * q[0];
+	vec_t xy = q[0] * q[1];
+	vec_t xz = q[0] * q[2];
+	vec_t xw = q[0] * q[3];
+	
+	vec_t yy = q[1] * q[1];
+	vec_t yz = q[1] * q[2];
+	vec_t yw = q[1] * q[3];
+	
+	vec_t zz = q[2] * q[2];
+	vec_t zw = q[2] * q[3];
+
+	m[ 0] = 1-2*(yy+zz);	m[ 4] =   2*(xy-zw);	m[ 8] =   2*(xz+yw);	m[12] = 0;
+	m[ 1] =   2*(xy+zw);	m[ 5] = 1-2*(xx+zz);	m[ 9] =   2*(yz-xw);	m[13] = 0;
+	m[ 2] =   2*(xz-yw);	m[ 6] =   2*(yz+xw);	m[10] = 1-2*(xx+yy);	m[14] = 0;
+	m[ 3] =   0;            m[ 7] =   0;            m[11] =   0;            m[15] = 1;
+}
+
 void MatrixToVectorsFLU(const matrix_t m, vec3_t forward, vec3_t left, vec3_t up)
 {
 	forward[0] = m[ 0];     // cp*cy;
