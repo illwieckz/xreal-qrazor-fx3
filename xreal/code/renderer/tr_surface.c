@@ -1192,7 +1192,6 @@ RB_SurfaceMD5
 void RB_SurfaceMD5(md5Surface_t * surface)
 {
 	int             i, j, k;
-	float           frontlerp, backlerp;
 	int            *indexes;
 	int             numIndexes = 0;
 	int             numVertexes;
@@ -1200,24 +1199,8 @@ void RB_SurfaceMD5(md5Surface_t * surface)
 	md5Vertex_t    *v;
 	md5Bone_t      *bone;
 	vec3_t			offsetVec;
-
-	if(backEnd.currentEntity->e.oldframe == backEnd.currentEntity->e.frame)
-	{
-		backlerp = 0;
-		frontlerp = 1;
-	}
-	else
-	{
-		backlerp = backEnd.currentEntity->e.backlerp;
-		frontlerp = 1.0f - backlerp;
-	}
 	
 	model = surface->model;
-
-//	frameSize = (int)(&((mdsFrame_t *) 0)->bones[header->numBones]);
-
-//	frame = (mdsFrame_t *) ((byte *) header + header->ofsFrames + backEnd.currentEntity->e.frame * frameSize);
-//	oldFrame = (mdsFrame_t *) ((byte *) header + header->ofsFrames + backEnd.currentEntity->e.oldframe * frameSize);
 
 	RB_CheckOverflow(surface->numVerts, surface->numIndexes);
 	
@@ -1243,7 +1226,7 @@ void RB_SurfaceMD5(md5Surface_t * surface)
 			
 			if(backEnd.currentEntity->e.renderfx & RF_SKELETON)
 			{
-				MatrixTransformPoint(backEnd.currentEntity->e.bones[w->boneIndex].transform, w->offset, offsetVec);
+				MatrixTransformPoint(backEnd.currentEntity->e.skeleton.bones[w->boneIndex].transform, w->offset, offsetVec);
 			}
 			else
 			{

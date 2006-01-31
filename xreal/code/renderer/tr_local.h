@@ -1221,6 +1221,22 @@ typedef struct md5Model_s
 	md5Surface_t   *surfaces;
 } md5Model_t;
 
+
+typedef enum
+{
+	AT_BAD,
+	AT_MD5
+} animType_t;
+
+typedef struct md5Animation_s
+{
+	char            name[MAX_QPATH];	// game path, including extension
+	animType_t		type;
+	int             index;				// anim = tr.animations[anim->index]
+	
+//	struct md5Animation_s *next;
+} md5Animation_t;
+
 //======================================================================
 
 typedef enum
@@ -1249,19 +1265,23 @@ typedef struct model_s
 	int             numLods;
 } model_t;
 
-
-#define	MAX_MOD_KNOWN	1024
-
 void            R_ModelInit(void);
 model_t        *R_GetModelByHandle(qhandle_t hModel);
-int             R_LerpTag(orientation_t * tag, qhandle_t handle, int startFrame, int endFrame,
+
+int             RE_LerpTag(orientation_t * tag, qhandle_t handle, int startFrame, int endFrame,
 						  float frac, const char *tagName);
+
+int             RE_ResetSkeleton(refSkeleton_t * skel, qhandle_t hModel);
+
 void            R_ModelBounds(qhandle_t handle, vec3_t mins, vec3_t maxs);
 
 void            R_Modellist_f(void);
 
 //====================================================
 extern refimport_t ri;
+
+#define	MAX_MOD_KNOWN			1024
+#define	MAX_ANIMATIONFILES		4096
 
 #define	MAX_DRAWIMAGES			4096
 #define	MAX_LIGHTMAPS			256
@@ -1511,6 +1531,9 @@ typedef struct
 	//
 	model_t        *models[MAX_MOD_KNOWN];
 	int             numModels;
+	
+	int             numAnimations;
+	md5Animation_t *animations[MAX_ANIMATIONFILES];
 
 	int             numImages;
 	image_t        *images[MAX_DRAWIMAGES];
@@ -2177,6 +2200,10 @@ ANIMATED MODELS
 
 =============================================================
 */
+
+void            R_InitAnimations(void);
+qhandle_t       RE_RegisterAnimation(const char *name);
+void            R_AnimationList_f(void);
 
 void            R_AddMD4Surfaces(trRefEntity_t * ent);
 void            RB_SurfaceMD4(md4Surface_t * surfType);

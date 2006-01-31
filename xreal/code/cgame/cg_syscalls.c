@@ -273,6 +273,11 @@ qhandle_t trap_R_RegisterModel(const char *name)
 	return syscall(CG_R_REGISTERMODEL, name);
 }
 
+qhandle_t trap_R_RegisterAnimation(const char *name)
+{
+	return syscall(CG_R_REGISTERANIMATION, name);
+}
+
 qhandle_t trap_R_RegisterSkin(const char *name)
 {
 	return syscall(CG_R_REGISTERSKIN, name);
@@ -367,6 +372,11 @@ void trap_R_ModelBounds(clipHandle_t model, vec3_t mins, vec3_t maxs)
 int trap_R_LerpTag(orientation_t * tag, clipHandle_t mod, int startFrame, int endFrame, float frac, const char *tagName)
 {
 	return syscall(CG_R_LERPTAG, tag, mod, startFrame, endFrame, PASSFLOAT(frac), tagName);
+}
+
+int trap_R_ResetSkeleton(refSkeleton_t * skel, qhandle_t model)
+{
+	return syscall(CG_R_RESETSKELETON, skel, model);
 }
 
 void trap_R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset)

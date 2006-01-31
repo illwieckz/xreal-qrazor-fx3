@@ -1236,6 +1236,7 @@ void R_Register(void)
 	ri.Cmd_AddCommand("skinlist", R_SkinList_f);
 	ri.Cmd_AddCommand("modellist", R_Modellist_f);
 	ri.Cmd_AddCommand("modelist", R_ModeList_f);
+	ri.Cmd_AddCommand("animationlist", R_AnimationList_f);
 	ri.Cmd_AddCommand("screenshot", R_ScreenShot_f);
 	ri.Cmd_AddCommand("screenshotJPEG", R_ScreenShotJPEG_f);
 	ri.Cmd_AddCommand("gfxinfo", GfxInfo_f);
@@ -1336,6 +1337,8 @@ void R_Init(void)
 	R_InitSkins();
 
 	R_ModelInit();
+	
+	R_InitAnimations();
 
 	R_InitFreeType();
 
@@ -1367,6 +1370,7 @@ void RE_Shutdown(qboolean destroyWindow)
 	ri.Cmd_RemoveCommand("gfxinfo");
 	ri.Cmd_RemoveCommand("modelist");
 	ri.Cmd_RemoveCommand("shaderstate");
+	ri.Cmd_RemoveCommand("animationlist");
 
 
 	if(tr.registered)
@@ -1432,6 +1436,7 @@ refexport_t    *GetRefAPI(int apiVersion, refimport_t * rimp)
 
 	re.BeginRegistration = RE_BeginRegistration;
 	re.RegisterModel = RE_RegisterModel;
+	re.RegisterAnimation = RE_RegisterAnimation;
 	re.RegisterSkin = RE_RegisterSkin;
 	re.RegisterShader = RE_RegisterShader;
 	re.RegisterShaderNoMip = RE_RegisterShaderNoMip;
@@ -1444,7 +1449,8 @@ refexport_t    *GetRefAPI(int apiVersion, refimport_t * rimp)
 	re.EndFrame = RE_EndFrame;
 
 	re.MarkFragments = R_MarkFragments;
-	re.LerpTag = R_LerpTag;
+	re.LerpTag = RE_LerpTag;
+	re.ResetSkeleton = RE_ResetSkeleton;
 	re.ModelBounds = R_ModelBounds;
 
 	re.ClearScene = RE_ClearScene;

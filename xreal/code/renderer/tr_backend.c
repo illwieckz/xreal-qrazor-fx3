@@ -1420,7 +1420,7 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction
 	RB_DrawSun();
 #endif
 
-#if 1
+#if 0
 	// add light flares on lights that aren't obscured
 	RB_RenderFlares();
 #endif

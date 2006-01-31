@@ -47,6 +47,7 @@ typedef struct
 	// size display elements
 	void            (*BeginRegistration) (glconfig_t * config, glconfig2_t * config2);
 	qhandle_t       (*RegisterModel) (const char *name);
+	qhandle_t       (*RegisterAnimation) (const char *name);
 	qhandle_t       (*RegisterSkin) (const char *name);
 	qhandle_t       (*RegisterShader) (const char *name);
 	qhandle_t       (*RegisterShaderNoMip) (const char *name);
@@ -93,7 +94,8 @@ typedef struct
 	int             (*LerpTag) (orientation_t * tag, qhandle_t model, int startFrame, int endFrame,
 								float frac, const char *tagName);
 	
-//	int             (*LerpBones) (refBones_t * bones, qhandle_t model, int startFrame, int endFrame, float frac);
+	int             (*ResetSkeleton) (refSkeleton_t * skel, qhandle_t model);
+//	int             (*BlendAnimation) (refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac);
 	
 	void            (*ModelBounds) (qhandle_t model, vec3_t mins, vec3_t maxs);
 

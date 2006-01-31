@@ -854,7 +854,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 		ri.Printf(PRINT_WARNING, "R_LoadMD5: '%s' has more than %i bones (%i)\n", modName, MD5_MAX_BONES, md5->numBones);
 		return qfalse;
 	}
-	ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' has %i bones\n", modName, md5->numBones);
+	//ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' has %i bones\n", modName, md5->numBones);
 	
 	// parse all the bones
 	md5->bones = ri.Hunk_Alloc(sizeof(*bone) * md5->numBones, h_low);
@@ -876,7 +876,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 	for(i = 0, bone = md5->bones; i < md5->numBones; i++, bone++)
 	{
 		token = COM_ParseExt(&buf_p, qtrue);
-		Com_sprintf(bone->name, sizeof(bone->name), "%s", token);
+		Q_strncpyz(bone->name, token, sizeof(bone->name));
 		
 		//ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' has bone '%s'\n", modName, bone->name);
 		
@@ -950,7 +950,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 		ri.Printf(PRINT_WARNING, "R_LoadMD5: '%s' has no surfaces\n", modName);
 		return qfalse;
 	}
-	ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' has %i surfaces\n", modName, md5->numSurfaces);
+	//ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' has %i surfaces\n", modName, md5->numSurfaces);
 	
 	md5->surfaces = ri.Hunk_Alloc(sizeof(*surf) * md5->numSurfaces, h_low);
 	for(i = 0, surf = md5->surfaces; i < md5->numSurfaces; i++, surf++)
@@ -969,11 +969,11 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 			return qfalse;
 		}
 		
-		// give pointer to model for RB_SurfaceMD5
-		surf->model = md5;
-		
 		// change to surface identifier
 		surf->ident = SF_MD5;
+		
+		// give pointer to model for RB_SurfaceMD5
+		surf->model = md5;
 		
 		// parse shader <name>
 		token = COM_ParseExt(&buf_p, qtrue);
@@ -983,9 +983,9 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 			return qfalse;
 		}
 		token = COM_ParseExt(&buf_p, qfalse);
-		Com_sprintf(surf->shader, sizeof(surf->shader), "%s", token);
+		Q_strncpyz(surf->shader, token, sizeof(surf->shader));
 		
-		ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' uses shader '%s'\n", modName, surf->shader);
+		//ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' uses shader '%s'\n", modName, surf->shader);
 
 		// FIXME .md5mesh meshes don't have surface names
 		// lowercase the surface name so skin compares are faster
@@ -1295,10 +1295,10 @@ static md3Tag_t *R_GetTag(md3Header_t * mod, int frame, const char *tagName)
 
 /*
 ================
-R_LerpTag
+RE_LerpTag
 ================
 */
-int R_LerpTag(orientation_t * tag, qhandle_t handle, int startFrame, int endFrame,
+int RE_LerpTag(orientation_t * tag, qhandle_t handle, int startFrame, int endFrame,
 			  float frac, const char *tagName)
 {
 	md3Tag_t       *start, *end;
@@ -1336,6 +1336,38 @@ int R_LerpTag(orientation_t * tag, qhandle_t handle, int startFrame, int endFram
 	VectorNormalize(tag->axis[0]);
 	VectorNormalize(tag->axis[1]);
 	VectorNormalize(tag->axis[2]);
+	return qtrue;
+}
+
+/*
+================
+RE_ResetSkeleton
+================
+*/
+int RE_ResetSkeleton(refSkeleton_t * skel, qhandle_t hModel)
+{
+	int             i;
+	md5Bone_t       *bone;
+	md5Model_t     *md5;
+	model_t        *model;
+
+	model = R_GetModelByHandle(hModel);
+	if(!model->md5)
+	{
+		// FIXME: clear existing bones?
+		return qfalse;
+	}
+	else
+	{
+		md5 = model->md5;	
+	}
+	
+	skel->numBones = md5->numBones;
+	for(i = 0, bone = md5->bones; i < md5->numBones; i++, bone++)
+	{
+		MatrixCopy(bone->transform, skel->bones[i].transform);
+	}
+
 	return qtrue;
 }
 

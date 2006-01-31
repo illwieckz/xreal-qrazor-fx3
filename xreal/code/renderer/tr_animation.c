@@ -22,6 +22,183 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 
+
+
+static md5Animation_t        *R_AllocAnimation(void)
+{
+	md5Animation_t *anim;
+
+	if(tr.numAnimations == MAX_ANIMATIONFILES)
+	{
+		return NULL;
+	}
+
+	anim = ri.Hunk_Alloc(sizeof(*anim), h_low);
+	anim->index = tr.numAnimations;
+	tr.animations[tr.numAnimations] = anim;
+	tr.numAnimations++;
+
+	return anim;
+}
+
+
+/*
+===============
+R_InitAnimations
+===============
+*/
+void R_InitAnimations(void)
+{
+	md5Animation_t *anim;
+
+	// leave a space for NULL animation
+	tr.numAnimations = 0;
+
+	anim = R_AllocAnimation();
+	anim->type = AT_BAD;
+	strcpy(anim->name, "<default animation>");
+}
+
+/*
+===============
+RE_RegisterAnimation
+===============
+*/
+qhandle_t RE_RegisterAnimation(const char *name)
+{
+	qhandle_t       hAnim;
+	md5Animation_t *anim;
+	char           *text, *text_p;
+	char           *token;
+	long            hash;
+	char            animName[MAX_QPATH];
+	
+	if(!name || !name[0])
+	{
+		Com_Printf("Empty name passed to RE_RegisterAnimation\n");
+		return 0;
+	}
+
+	if(strlen(name) >= MAX_QPATH)
+	{
+		Com_Printf("Animation name exceeds MAX_QPATH\n");
+		return 0;
+	}
+	
+	// search the currently loaded animations
+	for(hAnim = 1; hAnim < tr.numAnimations; hAnim++)
+	{
+		anim = tr.animations[hAnim];
+		if(!Q_stricmp(anim->name, name))
+		{
+			if(anim->type == AT_BAD)
+			{
+				return 0;
+			}
+			return hAnim;
+		}
+	}
+
+	// allocate a new model_t
+	if((anim = R_AllocAnimation()) == NULL)
+	{
+		ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: R_AllocAnimation() failed for '%s'\n", name);
+		return 0;
+	}
+	
+	// only set the name after the animation has been successfully allocated
+	Q_strncpyz(anim->name, name, sizeof(anim->name));
+
+	// make sure the render thread is stopped
+	R_SyncRenderThread();
+	
+	anim->type = AT_MD5;
+	
+	// TODO write .md5anim parser
+
+	/*
+	// If not a .skin file, load as a single shader
+	if(strcmp(name + strlen(name) - 5, ".skin"))
+	{
+		skin->numSurfaces = 1;
+		skin->surfaces[0] = ri.Hunk_Alloc(sizeof(skin->surfaces[0]), h_low);
+		skin->surfaces[0]->shader = R_FindShader(name, LIGHTMAP_NONE, qtrue);
+		return hSkin;
+	}
+
+	// load and parse the skin file
+	ri.FS_ReadFile(name, (void **)&text);
+	if(!text)
+	{
+		return 0;
+	}
+
+	text_p = text;
+	while(text_p && *text_p)
+	{
+		// get surface name
+		token = CommaParse(&text_p);
+		Q_strncpyz(surfName, token, sizeof(surfName));
+
+		if(!token[0])
+		{
+			break;
+		}
+		// lowercase the surface name so skin compares are faster
+		Q_strlwr(surfName);
+
+		if(*text_p == ',')
+		{
+			text_p++;
+		}
+
+		if(strstr(token, "tag_"))
+		{
+			continue;
+		}
+
+		// parse the shader name
+		token = CommaParse(&text_p);
+
+		surf = skin->surfaces[skin->numSurfaces] = ri.Hunk_Alloc(sizeof(*skin->surfaces[0]), h_low);
+		Q_strncpyz(surf->name, surfName, sizeof(surf->name));
+		surf->shader = R_FindShader(token, LIGHTMAP_NONE, qtrue);
+		skin->numSurfaces++;
+	}
+
+	ri.FS_FreeFile(text);
+
+
+	// never let a skin have 0 shaders
+	if(skin->numSurfaces == 0)
+	{
+		return 0;				// use default skin
+	}
+	*/
+
+	return anim->index;
+}
+
+/*
+================
+R_AnimationList_f
+================
+*/
+void R_AnimationList_f(void)
+{
+	int             i;
+	md5Animation_t *anim;
+
+	for(i = 0; i < tr.numAnimations; i++)
+	{
+		anim = tr.animations[i];
+		
+		ri.Printf(PRINT_ALL, "%s\n", anim->name);
+	}
+	ri.Printf(PRINT_ALL, "%8i : Total animations\n", tr.numAnimations);
+}
+
+
 /*
 
 All bones should be an identity orientation to display the mesh exactly
@@ -411,10 +588,6 @@ void R_AddMDSSurfaces(trRefEntity_t * ent)
 		}
 		else
 		{
-			//md3Shader = (md3Shader_t *) ((byte *) surface + surface->ofsShaders);
-			//md3Shader += ent->e.skinNum % surface->numShaders;
-			//shader = tr.shaders[md3Shader->shaderIndex];
-			
 			shader = R_GetShaderByHandle(surface->shaderIndex);
 		}
 		

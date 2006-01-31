@@ -659,11 +659,16 @@ typedef struct
 	//qboolean cameraMode;      // if rendering from a loaded camera
 
 
-	// development tool
-	refEntity_t     testModelEntity;
+	// development tools
+	refExtEntity_t  testModelEntity;
 	char            testModelName[MAX_QPATH];
 	qboolean        testGun;
+	
+	// this will only change the skeleton of testModelEntity
+	char            testAnimationName[MAX_QPATH];
+	qhandle_t       testAnimation;
 
+	// play with doom3 style light materials
 	refDlight_t     testLight;
 	char            testLightName[MAX_QPATH];
 	qboolean        testLightEnabled;
@@ -1267,6 +1272,7 @@ void            CG_TestModelNextFrame_f(void);
 void            CG_TestModelPrevFrame_f(void);
 void            CG_TestModelNextSkin_f(void);
 void            CG_TestModelPrevSkin_f(void);
+void            CG_TestAnimation_f(void);
 void            CG_TestOmniLight_f(void);
 void            CG_ZoomDown_f(void);
 void            CG_ZoomUp_f(void);
@@ -1602,6 +1608,7 @@ void            trap_R_LoadWorldMap(const char *mapname);
 // all media should be registered during level startup to prevent
 // hitches during gameplay
 qhandle_t       trap_R_RegisterModel(const char *name);	// returns rgb axis if not found
+qhandle_t       trap_R_RegisterAnimation(const char *name);
 qhandle_t       trap_R_RegisterSkin(const char *name);	// returns all white if not found
 qhandle_t       trap_R_RegisterShader(const char *name);	// returns all white if not found
 qhandle_t       trap_R_RegisterShaderNoMip(const char *name);	// returns all white if not found
@@ -1627,6 +1634,7 @@ void            trap_R_DrawStretchPic(float x, float y, float w, float h,
 void            trap_R_ModelBounds(clipHandle_t model, vec3_t mins, vec3_t maxs);
 int             trap_R_LerpTag(orientation_t * tag, clipHandle_t mod, int startFrame, int endFrame,
 							   float frac, const char *tagName);
+int             trap_R_ResetSkeleton(refSkeleton_t * skel, qhandle_t model);
 void            trap_R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset);
 
 // The glconfig_t will not change during the life of a cgame.

@@ -2780,7 +2780,7 @@ image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterT
 	// see if the image is already loaded
 	for(image = hashTable[hash]; image; image = image->next)
 	{
-		if(!strcmp(name, image->name))
+		if(!Q_stricmp(name, image->name))
 		{
 			// the white image can be used with any set of parms, but other mismatches are errors
 			if(strcmp(buffer, "_white"))
@@ -2851,7 +2851,7 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 	// see if the image is already loaded
 	for(image = hashTable[hash]; image; image = image->next)
 	{
-		if(!strcmp(name, image->name))
+		if(!Q_stricmp(name, image->name))
 		{
 			return image;
 		}
@@ -3700,8 +3700,7 @@ void R_SkinList_f(void)
 		ri.Printf(PRINT_ALL, "%3i:%s\n", i, skin->name);
 		for(j = 0; j < skin->numSurfaces; j++)
 		{
-			ri.Printf(PRINT_ALL, "       %s = %s\n",
-					  skin->surfaces[j]->name, skin->surfaces[j]->shader->name);
+			ri.Printf(PRINT_ALL, "       %s = %s\n", skin->surfaces[j]->name, skin->surfaces[j]->shader->name);
 		}
 	}
 	ri.Printf(PRINT_ALL, "------------------\n");

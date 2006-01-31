@@ -5058,7 +5058,7 @@ void R_ShaderList_f(void)
 		{
 			ri.Printf(PRINT_ALL, "DB_generic     ");
 		}
-		else if(shader->collapseType == COLLAPSE_lighting_DBS_direct)
+		else if(shader->collapseType == COLLAPSE_lighting_DBS_generic)
 		{
 			ri.Printf(PRINT_ALL, "DBS_generic    ");
 		}

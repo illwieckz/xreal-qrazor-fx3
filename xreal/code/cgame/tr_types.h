@@ -127,9 +127,18 @@ typedef struct
 
 typedef struct
 {
+	int             numBones;
+	refBone_t       bones[MAX_BONES];
+	
+	vec3_t          bounds[2]; // trap_R_BlendAnimation will modify this
+} refSkeleton_t;
+
+typedef struct
+{
 	// NOTE: Tr3B - don't change the following variables because
 	// the renderer uses Com_Memcpy in RE_AddRefEntityToScene
 	// so we need the same order as in refEntity_t for the first part
+	
 	refEntityType_t reType;
 	int             renderfx;
 
@@ -164,8 +173,9 @@ typedef struct
 	float           rotation;
 	
 	// NOTE: Tr3B - now we are save to add new variables
-	int             numBones;
-	refBone_t       bones[MAX_BONES];
+	
+	// animation information
+	refSkeleton_t   skeleton;
 } refExtEntity_t;
 
 

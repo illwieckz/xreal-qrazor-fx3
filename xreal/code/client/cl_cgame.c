@@ -589,6 +589,8 @@ int CL_CgameSystemCalls(int *args)
 			return 0;
 		case CG_R_REGISTERMODEL:
 			return re.RegisterModel(VMA(1));
+		case CG_R_REGISTERANIMATION:
+			return re.RegisterAnimation(VMA(1));
 		case CG_R_REGISTERSKIN:
 			return re.RegisterSkin(VMA(1));
 		case CG_R_REGISTERSHADER:
@@ -639,6 +641,8 @@ int CL_CgameSystemCalls(int *args)
 			return 0;
 		case CG_R_LERPTAG:
 			return re.LerpTag(VMA(1), args[2], args[3], args[4], VMF(5), VMA(6));
+		case CG_R_RESETSKELETON:
+			return re.ResetSkeleton(VMA(1), args[2]);
 		case CG_GETGLCONFIG:
 			CL_GetGlconfig(VMA(1));
 			return 0;

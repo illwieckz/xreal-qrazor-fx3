@@ -114,7 +114,44 @@ void CG_TestGun_f(void)
 {
 	CG_TestModel_f();
 	cg.testGun = qtrue;
-	cg.testModelEntity.renderfx = RF_MINLIGHT | RF_DEPTHHACK | RF_FIRST_PERSON;
+	cg.testModelEntity.renderfx |= RF_MINLIGHT | RF_DEPTHHACK | RF_FIRST_PERSON;
+}
+
+
+/*
+=================
+CG_TestAnimation_f
+=================
+*/
+void CG_TestAnimation_f(void)
+{
+	Q_strncpyz(cg.testAnimationName, CG_Argv(1), MAX_QPATH);
+	cg.testAnimation = trap_R_RegisterAnimation(cg.testAnimationName);
+
+	if(!cg.testAnimation)
+	{
+		CG_Printf("Can't register animation\n");
+		return;
+	}
+	
+	if(!trap_R_ResetSkeleton(&cg.testModelEntity.skeleton, cg.testModelEntity.hModel))
+	{
+		CG_Printf("Can't reset skeleton\n");
+		return;
+	}
+	
+//	CG_Printf("resetted %i bones\n", cg.testModelEntity.skeleton.numBones);
+	
+	cg.testModelEntity.renderfx |= RF_SKELETON;
+
+	// TODO apply animation
+#if 0
+	trap_R_BlendAnimation(cg.testModelEntity.bones,
+						  cg.testAnimation,
+						  cg.testModelEntity.oldframe,
+						  cg.testModelEntity.frame,
+						  1.0 - cg.testModelEntity.backlerp);
+#endif
 }
 
 
@@ -179,7 +216,7 @@ static void CG_AddTestModel(void)
 		}
 	}
 
-	trap_R_AddRefEntityToScene(&cg.testModelEntity);
+	trap_R_AddRefExtendedEntityToScene(&cg.testModelEntity);
 }
 
 
