@@ -43,6 +43,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	RF_WRAP_FRAMES		512	// mod the model frames by the maxframes to allow continuous
 									// animation without needing to know the frame count
 
+#define RF_SKELETON			1024 // use refExtEntity->bones
+
 // refdef flags
 #define RDF_NOWORLDMODEL	1	// used for player configuration screen
 #define RDF_NOLIGHTSCALE	2	// don't use r_lightScale, good for hud
@@ -125,12 +127,6 @@ typedef struct
 
 typedef struct
 {
-	int             numBones;
-	refBone_t       bones[MAX_BONES];
-} refBones_t;
-
-typedef struct
-{
 	// NOTE: Tr3B - don't change the following variables because
 	// the renderer uses Com_Memcpy in RE_AddRefEntityToScene
 	// so we need the same order as in refEntity_t for the first part
@@ -168,7 +164,8 @@ typedef struct
 	float           rotation;
 	
 	// NOTE: Tr3B - now we are save to add new variables
-	refBones_t      bones;
+	int             numBones;
+	refBone_t       bones[MAX_BONES];
 } refExtEntity_t;
 
 

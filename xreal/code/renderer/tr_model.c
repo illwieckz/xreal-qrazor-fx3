@@ -795,7 +795,9 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 	int             frameSize;
 	char           *buf_p;
 	char           *token;
-	quat_t          quat;
+	vec3_t          boneOrigin;
+	quat_t          boneQuat;
+	matrix_t        boneMat;
 
 	buf_p = (char *) buffer;
 	
@@ -897,7 +899,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 		for(j = 0; j < 3; j++)
 		{
 			token = COM_ParseExt(&buf_p, qfalse);
-			bone->origin[j] = atof(token);
+			boneOrigin[j] = atof(token);
 		}
 		
 		// skip )
@@ -919,10 +921,11 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 		for(j = 0; j < 3; j++)
 		{
 			token = COM_ParseExt(&buf_p, qfalse);
-			quat[j] = atof(token);
+			boneQuat[j] = atof(token);
 		}
-		QuatCalcW(quat);
-		MatrixFromQuat(bone->rotation, quat);
+		QuatCalcW(boneQuat);
+		MatrixFromQuat(boneMat, boneQuat);
+		MatrixSetupTransformFromRotation(bone->transform, boneMat, boneOrigin);
 		
 		// skip )
 		token = COM_ParseExt(&buf_p, qfalse);

@@ -1184,8 +1184,9 @@ typedef struct
 {
 	char			name[MAX_QPATH];
 	int				parentIndex; // parent index (-1 if root)
-	vec3_t			origin;
-	matrix_t		rotation;
+//	vec3_t			origin;
+//	matrix_t		rotation;
+	matrix_t		transform;
 } md5Bone_t;
 
 /*
@@ -2185,7 +2186,7 @@ void            RB_SurfaceMDS(mdsSurface_t * surfType);
 
 void            R_AddMD5Surfaces(trRefEntity_t * ent);
 
-int             R_LerpBones(refBones_t * bones, qhandle_t handle, int startFrame, int endFrame, float frac);
+//int             R_LerpBones(refBones_t * bones, qhandle_t handle, int startFrame, int endFrame, float frac);
 
 /*
 =============================================================

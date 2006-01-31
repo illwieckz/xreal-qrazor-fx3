@@ -1198,28 +1198,8 @@ void RB_SurfaceMD5(md5Surface_t * surface)
 	int             numVertexes;
 	md5Model_t     *model;
 	md5Vertex_t    *v;
-	vec_t          *boneMat;
-	vec_t          *boneOrigin;
 	md5Bone_t      *bone;
-//	matrix_t		boneMats[MDS_MAX_BONES];
-//	matrix_t		boneOrigins[MDS_MAX_BONES];
-//	mdsBone_t      *parent;
-//	vec_t          *parentMat;
-//	vec_t          *parentOrigin;
-//	mdsBoneFrame_t *boneFrame;
-//	mdsBoneFrame_t *oldBoneFrame;
-//	mdsHeader_t    *header;
-//	mdsFrame_t     *frame;
-//	mdsFrame_t     *oldFrame;
-//	int             frameSize;
-	vec3_t			angles;
-	matrix_t		boneRotationMat;
-	matrix_t		boneTranslationMat;
-//	matrix_t		boneTransformMat;
-	matrix_t		offsetRotationMat;
-	vec3_t			offsetVec, offsetVec2;
-	vec3_t			forward, right, up;
-
+	vec3_t			offsetVec;
 
 	if(backEnd.currentEntity->e.oldframe == backEnd.currentEntity->e.frame)
 	{
@@ -1239,245 +1219,98 @@ void RB_SurfaceMD5(md5Surface_t * surface)
 //	frame = (mdsFrame_t *) ((byte *) header + header->ofsFrames + backEnd.currentEntity->e.frame * frameSize);
 //	oldFrame = (mdsFrame_t *) ((byte *) header + header->ofsFrames + backEnd.currentEntity->e.oldframe * frameSize);
 
-	if(!r_showSkeleton->integer)
-	{
-		RB_CheckOverflow(surface->numVerts, surface->numIndexes);
+	RB_CheckOverflow(surface->numVerts, surface->numIndexes);
 	
-		indexes = surface->indexes;
-		numIndexes = surface->numIndexes;
-		for(j = 0; j < numIndexes; j++)
-		{
-			tess.indexes[tess.numIndexes + j] = tess.numVertexes + indexes[j];
-		}
-	}
-	else
+	indexes = surface->indexes;
+	numIndexes = surface->numIndexes;
+	for(j = 0; j < numIndexes; j++)
 	{
-		GL_Program(0);
-		GL_SelectTexture(0);
-		GL_Bind(tr.whiteImage);
-		qglLineWidth(3);
-		qglBegin(GL_LINES);
+		tess.indexes[tess.numIndexes + j] = tess.numVertexes + indexes[j];
 	}
-
-	// lerp all the needed bones
-	/*
-	bone = (mdsBone_t *) ((byte *) header + header->ofsBones);
-	for(i = 0; i < header->numBones; i++, bone++)
-	{
-		boneMat = &boneMats[i][0];
-		boneOrigin = &boneOrigins[i][0];
-		
-		//ri.Printf(PRINT_ALL, "RB_SurfaceMDS: parentIndex %i\n", bone->parentIndex);
-		
-		// TODO lerp angles between boneFrame and oldBoneFrame
-		boneFrame = &frame->bones[i];
-		oldBoneFrame = &oldFrame->bones[i];
-		
-		// construct bone rotation matrix
-		angles[PITCH] = SHORT2ANGLE(boneFrame->angles[0]);
-		angles[YAW] = SHORT2ANGLE(boneFrame->angles[1]);
-		angles[ROLL] = SHORT2ANGLE(boneFrame->angles[2]);
-		MatrixFromAngles(boneRotationMat, angles[PITCH], angles[YAW], angles[ROLL]);
-		AngleVectors(angles, forward, right, up);
-		
-		//if(i == 0)
-		//	ri.Printf(PRINT_ALL, "RB_SurfaceMDS: angles %i %i %i\n", (int)angles[PITCH], (int)angles[YAW], (int)angles[ROLL]);
-		
-		// construct bone offset rotation matrix
-		angles[PITCH] = SHORT2ANGLE(boneFrame->ofsAngles[0]);
-		angles[YAW] = SHORT2ANGLE(boneFrame->ofsAngles[1]);
-		angles[ROLL] = 0;
-		MatrixFromAngles(offsetRotationMat, angles[PITCH], angles[YAW], angles[ROLL]);
-		
-		// construct bone offset
-		VectorSet(offsetVec, bone->parentDist, 0, 0);
-		MatrixTransformNormal(offsetRotationMat, offsetVec, offsetVec2);
-		
-		if(bone->parentIndex < 0)
-		{
-			boneOrigin[0] = frame->parentOffset[0] + offsetVec2[0];
-			boneOrigin[1] = frame->parentOffset[1] + offsetVec2[1];
-			boneOrigin[2] = frame->parentOffset[2] + offsetVec2[2];
-			
-			//boneOrigin[0] = offsetVec2[0];
-			//boneOrigin[1] = offsetVec2[1];
-			//boneOrigin[2] = offsetVec2[2];
-			
-			MatrixSetupTranslation(boneTranslationMat, boneOrigin[0], boneOrigin[1], boneOrigin[2]);
-			MatrixMultiply(boneTranslationMat, boneRotationMat, boneMat);
-			//MatrixMultiply(boneRotationMat, boneTranslationMat, boneMat);
-			
-			if(r_showSkeleton->integer)
-			{
-				// draw bone
-				qglColor3f(1, 1, 1);
-				qglVertex3f(0, 0, 0);
-				qglVertex3fv(boneOrigin);
-				
-				// draw bone axis
-				qglColor3f(1, 0, 0);
-				qglVertex3f(0, 0, 0);
-				qglVertex3fv(forward);
-				qglVertex3fv(forward);
-				qglVertex3fv(boneOrigin);
-				
-				qglColor3f(0, 1, 0);
-				qglVertex3f(0, 0, 0);
-				qglVertex3fv(right);
-				qglVertex3fv(right);
-				qglVertex3fv(boneOrigin);
-				
-				qglColor3f(0, 0, 1);
-				qglVertex3f(0, 0, 0);
-				qglVertex3fv(up);
-				qglVertex3fv(up);
-				qglVertex3fv(boneOrigin);
-			}
-		}
-		else
-		{
-			//parent = (mdsBone_t *) ((byte *) header + header->ofsBones + bone->parentIndex);
-			parentMat = &boneMats[bone->parentIndex][0];
-			parentOrigin = &boneOrigins[bone->parentIndex][0];
-			
-			boneOrigin[0] = parentOrigin[0] + offsetVec2[0];
-			boneOrigin[1] = parentOrigin[1] + offsetVec2[1];
-			boneOrigin[2] = parentOrigin[2] + offsetVec2[2];
-			
-			MatrixSetupTranslation(boneTranslationMat, boneOrigin[0], boneOrigin[1], boneOrigin[2]);
-			MatrixMultiply(boneTranslationMat, boneRotationMat, boneMat);
-			//MatrixMultiply(boneRotationMat, boneTranslationMat, boneMat);
-			
-			if(r_showSkeleton->integer)
-			{
-				// draw bone
-				qglColor3f(1, 1, 1);
-				qglVertex3fv(parentOrigin);
-				//qglVertex3f(parentMat[12], parentMat[13], parentMat[14]);
-				qglVertex3fv(boneOrigin);
-				//qglVertex3f(boneMat[12], boneMat[13], boneMat[14]);
-				
-				// draw bone axis
-				qglColor3f(1, 0, 0);
-				qglVertex3fv(parentOrigin);
-				VectorAdd(parentOrigin, forward, forward);
-				qglVertex3fv(forward);
-				qglVertex3fv(forward);
-				qglVertex3fv(boneOrigin);
-				
-				qglColor3f(0, 1, 0);
-				qglVertex3fv(parentOrigin);
-				VectorAdd(parentOrigin, right, right);
-				qglVertex3fv(right);
-				qglVertex3fv(right);
-				qglVertex3fv(boneOrigin);
-				
-				qglColor3f(0, 0, 1);
-				qglVertex3fv(parentOrigin);
-				VectorAdd(parentOrigin, up, up);
-				qglVertex3fv(up);
-				qglVertex3fv(up);
-				qglVertex3fv(boneOrigin);
-			}
-		}
-	}
-	
-	if(r_showSkeleton->integer)
-	{
-		qglEnd();
-		qglLineWidth(1);
-	}
-	*/
 
 	// deform the vertexes by the lerped bones
-	if(!r_showSkeleton->integer)
+	numVertexes = surface->numVerts;
+	for(j = 0, v = surface->verts; j < numVertexes; j++, v++)
 	{
-		numVertexes = surface->numVerts;
-		for(j = 0, v = surface->verts; j < numVertexes; j++, v++)
+		vec3_t          tmpVert;
+		md5Weight_t    *w;
+
+		VectorClear(tmpVert);
+		
+		for(k = 0, w = v->weights[0]; k < v->numWeights; k++, w++)
 		{
-			vec3_t          tmpVert;
-			md5Weight_t    *w;
-	
-			VectorClear(tmpVert);
+			bone = &model->bones[w->boneIndex];
 			
-			for(k = 0, w = v->weights[0]; k < v->numWeights; k++, w++)
+			if(backEnd.currentEntity->e.renderfx & RF_SKELETON)
 			{
-				//boneMat = &boneMats[w->boneIndex][0];
-				//boneOrigin = &boneOrigins[w->boneIndex][0];
-				
-				bone = &model->bones[w->boneIndex];
-				boneMat = bone->rotation;
-				boneOrigin = bone->origin;
-				
-				MatrixTransformNormal(boneMat, w->offset, offsetVec);
-				VectorAdd(boneOrigin, offsetVec, offsetVec);
-				VectorMA(tmpVert, w->boneWeight, offsetVec, tmpVert);
-	
-				//tmpVert[0] += ((DotProduct(boneMat + 0, w->offset) + boneOrigin[0]) * w->boneWeight);
-				//tmpVert[1] += ((DotProduct(boneMat + 4, w->offset) + boneOrigin[1]) * w->boneWeight);
-				//tmpVert[2] += ((DotProduct(boneMat + 8, w->offset) + boneOrigin[2]) * w->boneWeight);
+				MatrixTransformPoint(backEnd.currentEntity->e.bones[w->boneIndex].transform, w->offset, offsetVec);
 			}
-	
-			tess.xyz[tess.numVertexes + j][0] = tmpVert[0];
-			tess.xyz[tess.numVertexes + j][1] = tmpVert[1];
-			tess.xyz[tess.numVertexes + j][2] = tmpVert[2];
-			
-			tess.texCoords[tess.numVertexes + j][0][0] = v->texCoords[0];
-			tess.texCoords[tess.numVertexes + j][0][1] = v->texCoords[1];
+			else
+			{
+				MatrixTransformPoint(bone->transform, w->offset, offsetVec);
+			}
+			VectorMA(tmpVert, w->boneWeight, offsetVec, tmpVert);
 		}
+
+		tess.xyz[tess.numVertexes + j][0] = tmpVert[0];
+		tess.xyz[tess.numVertexes + j][1] = tmpVert[1];
+		tess.xyz[tess.numVertexes + j][2] = tmpVert[2];
 		
-		// calc tangent spaces
-		if(!tess.skipTangentSpaces)
-		{
-			int             i;
-			vec3_t          faceNormal;
-			float          *v;
-			const float    *v0, *v1, *v2;
-			const float    *t0, *t1, *t2;
-			vec3_t          tangent;
-			vec3_t          binormal;
-			vec3_t          normal;
-			int            *indices;
-		
-			for(i = 0; i < numVertexes; i++)
-			{
-				VectorClear(tess.tangents[tess.numVertexes + i]);
-				VectorClear(tess.binormals[tess.numVertexes + i]);
-				VectorClear(tess.normals[tess.numVertexes + i]);
-			}
-		
-			for(i = 0, indices = tess.indexes + tess.numIndexes; i < numIndexes; i += 3, indices += 3)
-			{
-				v0 = tess.xyz[indices[0]];
-				v1 = tess.xyz[indices[1]];
-				v2 = tess.xyz[indices[2]];
-		
-				t0 = tess.texCoords[indices[0]][0];
-				t1 = tess.texCoords[indices[1]][0];
-				t2 = tess.texCoords[indices[2]][0];
-		
-				R_CalcNormalForTriangle(faceNormal, v0, v1, v2);
-				R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2, faceNormal);
-		
-				for(j = 0; j < 3; j++)
-				{
-					v = tess.tangents[indices[j]];
-					VectorAdd(v, tangent, v);
-					v = tess.binormals[indices[j]];
-					VectorAdd(v, binormal, v);
-					v = tess.normals[indices[j]];
-					VectorAdd(v, normal, v);
-				}
-			}
-		
-			VectorArrayNormalize((vec4_t *) tess.tangents[tess.numVertexes], numVertexes);
-			VectorArrayNormalize((vec4_t *) tess.binormals[tess.numVertexes], numVertexes);
-			VectorArrayNormalize((vec4_t *) tess.normals[tess.numVertexes], numVertexes);
-		}
-	
-		tess.numIndexes += numIndexes;
-		tess.numVertexes += numVertexes;
+		tess.texCoords[tess.numVertexes + j][0][0] = v->texCoords[0];
+		tess.texCoords[tess.numVertexes + j][0][1] = v->texCoords[1];
 	}
+	
+	// calc tangent spaces
+	if(!tess.skipTangentSpaces)
+	{
+		int             i;
+		vec3_t          faceNormal;
+		float          *v;
+		const float    *v0, *v1, *v2;
+		const float    *t0, *t1, *t2;
+		vec3_t          tangent;
+		vec3_t          binormal;
+		vec3_t          normal;
+		int            *indices;
+	
+		for(i = 0; i < numVertexes; i++)
+		{
+			VectorClear(tess.tangents[tess.numVertexes + i]);
+			VectorClear(tess.binormals[tess.numVertexes + i]);
+			VectorClear(tess.normals[tess.numVertexes + i]);
+		}
+	
+		for(i = 0, indices = tess.indexes + tess.numIndexes; i < numIndexes; i += 3, indices += 3)
+		{
+			v0 = tess.xyz[indices[0]];
+			v1 = tess.xyz[indices[1]];
+			v2 = tess.xyz[indices[2]];
+	
+			t0 = tess.texCoords[indices[0]][0];
+			t1 = tess.texCoords[indices[1]][0];
+			t2 = tess.texCoords[indices[2]][0];
+	
+			R_CalcNormalForTriangle(faceNormal, v0, v1, v2);
+			R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2, faceNormal);
+	
+			for(j = 0; j < 3; j++)
+			{
+				v = tess.tangents[indices[j]];
+				VectorAdd(v, tangent, v);
+				v = tess.binormals[indices[j]];
+				VectorAdd(v, binormal, v);
+				v = tess.normals[indices[j]];
+				VectorAdd(v, normal, v);
+			}
+		}
+	
+		VectorArrayNormalize((vec4_t *) tess.tangents[tess.numVertexes], numVertexes);
+		VectorArrayNormalize((vec4_t *) tess.binormals[tess.numVertexes], numVertexes);
+		VectorArrayNormalize((vec4_t *) tess.normals[tess.numVertexes], numVertexes);
+	}
+
+	tess.numIndexes += numIndexes;
+	tess.numVertexes += numVertexes;
 }
 
 /*
