@@ -608,7 +608,6 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 {
 	int             i, j, k;
 	md5Model_t     *md5;
-//	mdsFrame_t     *frame;
 	md5Bone_t      *bone;
 	md5Surface_t   *surf;
 	int            *triIndex;
@@ -674,7 +673,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 		ri.Printf(PRINT_WARNING, "R_LoadMD5: '%s' has no bones\n", modName);
 		return qfalse;
 	}
-	if(md5->numBones > MDS_MAX_BONES)
+	if(md5->numBones > MD5_MAX_BONES)
 	{
 		ri.Printf(PRINT_WARNING, "R_LoadMD5: '%s' has more than %i bones (%i)\n", modName, MD5_MAX_BONES, md5->numBones);
 		return qfalse;
