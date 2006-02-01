@@ -142,16 +142,19 @@ void CG_TestAnimation_f(void)
 	
 //	CG_Printf("resetted %i bones\n", cg.testModelEntity.skeleton.numBones);
 	
-	cg.testModelEntity.renderfx |= RF_SKELETON;
-
-	// TODO apply animation
-#if 0
-	trap_R_BlendAnimation(cg.testModelEntity.bones,
+	// modify bones and set proper local bounds for culling
+	if(!trap_R_SetAnimation(&cg.testModelEntity.skeleton,
 						  cg.testAnimation,
 						  cg.testModelEntity.oldframe,
 						  cg.testModelEntity.frame,
-						  1.0 - cg.testModelEntity.backlerp);
-#endif
+						  1.0 - cg.testModelEntity.backlerp))
+	{
+		CG_Printf("Can't set animation\n");
+		return;
+	}
+	
+	// tell renderer that skeleton is set up properly
+	cg.testModelEntity.renderfx |= RF_SKELETON;
 }
 
 
@@ -159,6 +162,18 @@ void CG_TestModelNextFrame_f(void)
 {
 	cg.testModelEntity.frame++;
 	CG_Printf("frame %i\n", cg.testModelEntity.frame);
+	
+	if(cg.testAnimation)
+	{
+		if(!trap_R_SetAnimation(&cg.testModelEntity.skeleton,
+			cg.testAnimation,
+			cg.testModelEntity.oldframe,
+			cg.testModelEntity.frame,
+			1.0 - cg.testModelEntity.backlerp))
+		{
+			CG_Printf("Can't set animation\n");
+		}
+	}
 }
 
 void CG_TestModelPrevFrame_f(void)
@@ -169,6 +184,18 @@ void CG_TestModelPrevFrame_f(void)
 		cg.testModelEntity.frame = 0;
 	}
 	CG_Printf("frame %i\n", cg.testModelEntity.frame);
+	
+	if(cg.testAnimation)
+	{
+		if(!trap_R_SetAnimation(&cg.testModelEntity.skeleton,
+			cg.testAnimation,
+			cg.testModelEntity.oldframe,
+			cg.testModelEntity.frame,
+			1.0 - cg.testModelEntity.backlerp))
+		{
+			CG_Printf("Can't set animation\n");
+		}
+	}
 }
 
 void CG_TestModelNextSkin_f(void)

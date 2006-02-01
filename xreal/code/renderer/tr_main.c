@@ -368,6 +368,32 @@ void R_TransformClipToWindow(const vec4_t clip, const viewParms_t * view, vec4_t
 }
 
 
+/*
+=================
+R_SetupEntityWorldBounds
+Tr3B - needs R_RotateForEntity
+=================
+*/
+void R_SetupEntityWorldBounds(trRefEntity_t * ent)
+{
+	int             j;
+	vec3_t          v, transformed;
+	
+	ClearBounds(ent->worldBounds[0], ent->worldBounds[1]);
+		
+	for(j = 0; j < 8; j++)
+	{
+		v[0] = ent->localBounds[j & 1][0];
+		v[1] = ent->localBounds[(j >> 1) & 1][1];
+		v[2] = ent->localBounds[(j >> 2) & 1][2];
+	
+		// transform local bounds vertices into world space
+		R_LocalPointToWorld(v, transformed);
+			
+		AddPointToBounds(transformed, ent->worldBounds[0], ent->worldBounds[1]);
+	}
+}
+
 
 /*
 =================
@@ -1613,7 +1639,7 @@ void R_AddEntityInteractions(trRefDlight_t * light)
 							break;
 							
 						case MOD_MD5:
-							// TODO
+							R_AddMD5Interactions(ent, light);
 							break;
 
 						case MOD_BRUSH:

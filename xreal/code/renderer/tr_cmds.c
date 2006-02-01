@@ -55,14 +55,19 @@ void R_PerformanceCounters(void)
 				  tr.pc.c_sphere_cull_patch_in, tr.pc.c_sphere_cull_patch_clip,
 				  tr.pc.c_sphere_cull_patch_out, tr.pc.c_box_cull_patch_in,
 				  tr.pc.c_box_cull_patch_clip, tr.pc.c_box_cull_patch_out);
+		
 		ri.Printf(PRINT_ALL, "(md3) %i sin %i sclip  %i sout %i bin %i bclip %i bout\n",
 				  tr.pc.c_sphere_cull_md3_in, tr.pc.c_sphere_cull_md3_clip,
 				  tr.pc.c_sphere_cull_md3_out, tr.pc.c_box_cull_md3_in, tr.pc.c_box_cull_md3_clip,
 				  tr.pc.c_box_cull_md3_out);
+		
 		ri.Printf(PRINT_ALL, "(mds) %i sin %i sclip  %i sout %i bin %i bclip %i bout\n",
 				  tr.pc.c_sphere_cull_mds_in, tr.pc.c_sphere_cull_mds_clip,
 				  tr.pc.c_sphere_cull_mds_out, tr.pc.c_box_cull_mds_in, tr.pc.c_box_cull_mds_clip,
 				  tr.pc.c_box_cull_mds_out);
+				  
+		ri.Printf(PRINT_ALL, "(md5) %i bin %i bclip %i bout\n",
+				  tr.pc.c_box_cull_md5_in, tr.pc.c_box_cull_md5_clip, tr.pc.c_box_cull_md5_out);
 	}
 	else if(r_speeds->integer == 3)
 	{

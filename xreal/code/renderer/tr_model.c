@@ -841,7 +841,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 	}
 	token = COM_ParseExt(&buf_p, qfalse);
 	md5->numSurfaces = atoi(token);
-	ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' has %i surfaces\n", modName, md5->numSurfaces);
+	//ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' has %i surfaces\n", modName, md5->numSurfaces);
 
 	
 	if(md5->numBones < 1)
@@ -1347,7 +1347,7 @@ RE_ResetSkeleton
 int RE_ResetSkeleton(refSkeleton_t * skel, qhandle_t hModel)
 {
 	int             i;
-	md5Bone_t       *bone;
+	md5Bone_t      *bone;
 	md5Model_t     *md5;
 	model_t        *model;
 

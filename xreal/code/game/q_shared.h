@@ -899,6 +899,15 @@ static ID_INLINE void CrossProduct(const vec3_t v1, const vec3_t v2, vec3_t cros
 	cross[2] = v1[0] * v2[1] - v1[1] * v2[0];
 }
 
+static ID_INLINE void VectorLerp(const vec3_t from, const vec3_t to, float frac, vec3_t out)
+{
+	//*this = to + ((from - to) * f);
+	
+	out[0] = to[0] + ((from[0] - to[0]) * frac);
+	out[1] = to[1] + ((from[1] - to[1]) * frac);
+	out[2] = to[2] + ((from[2] - to[2]) * frac);
+}
+
 #else
 int             VectorCompare(const vec3_t v1, const vec3_t v2);
 
@@ -990,6 +999,7 @@ void            MatrixToVectorsFLU(const matrix_t m, vec3_t forward, vec3_t left
 void            MatrixToVectorsFRU(const matrix_t m, vec3_t forward, vec3_t right, vec3_t up);
 void            MatrixSetupTransform(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up, const vec3_t origin);
 void            MatrixSetupTransformFromRotation(matrix_t m, const matrix_t rot, const vec3_t origin);
+void            MatrixSetupTransformFromQuat(matrix_t m, const quat_t quat, const vec3_t origin);
 void            MatrixAffineInverse(const matrix_t in, matrix_t out);
 void            MatrixTransformNormal(const matrix_t m, const vec3_t in, vec3_t out);
 void            MatrixTransformPoint(const matrix_t m, const vec3_t in, vec3_t out);
@@ -997,6 +1007,7 @@ void            MatrixTransform4(const matrix_t m, const vec4_t in, vec4_t out);
 
 
 #define QuatSet(w, x, y, z, q)  ((q)[0]=(w), (q)[1]=(x), (q)[2]=(y), (q)[3]=(z))
+#define QuatCopy(a, b)          ((b)[0]=(a)[0], (b)[1]=(a)[1], (b)[2]=(a)[2], (b)[3]=(a)[3])
 
 static ID_INLINE void QuatCalcW(quat_t q)
 {
@@ -1007,6 +1018,16 @@ static ID_INLINE void QuatCalcW(quat_t q)
 	else
 		q[3] = -sqrt(term);
 }
+
+static ID_INLINE void QuatAntipodal(quat_t q)
+{
+	q[0] = -q[0];
+	q[1] = -q[1];
+	q[2] = -q[2];
+	q[3] = -q[3];
+}
+
+void            QuatSlerp(const quat_t from, const quat_t to, float frac, quat_t out);
 
 //=============================================
 

@@ -1189,23 +1189,6 @@ typedef struct
 	matrix_t		transform;
 } md5Bone_t;
 
-/*
-typedef struct
-{
-	short			angles[4];		 // defines the bone orientation
-	short			ofsAngles[2];	// defines the direction of the bone pivot from this bone's parent
-} md5BoneFrame_t;
-
-typedef struct
-{
-	float           bounds[2][3];	// bounds of all surfaces of all LOD's for this frame
-	float           localOrigin[3];	// midpoint of bounds, used for sphere cull
-	float           radius;		// dist from localOrigin to corner
-	float			parentOffset[3];
-	mdsBoneFrame_t	bones[1];	// [numBones]
-} md5Frame_t;
-*/
-
 typedef struct md5Model_s
 {
 	int             ident;
@@ -1213,7 +1196,6 @@ typedef struct md5Model_s
 
 	char            name[MAX_QPATH];	// model name
 	
-//	int             numFrames;
 	int             numBones;
 	md5Bone_t      *bones;
 	
@@ -1228,11 +1210,49 @@ typedef enum
 	AT_MD5
 } animType_t;
 
+enum
+{
+	COMPONENT_BIT_TX	= 1 << 0,
+	COMPONENT_BIT_TY	= 1 << 1,
+	COMPONENT_BIT_TZ	= 1 << 2,
+	COMPONENT_BIT_QX	= 1 << 3,
+	COMPONENT_BIT_QY	= 1 << 4,
+	COMPONENT_BIT_QZ	= 1 << 5
+};
+
+typedef struct
+{
+	char			name[MAX_QPATH];
+	int				parentIndex;
+	
+	int				componentsBits;		// e.g. (COMPONENT_BIT_TX | COMPONENT_BIT_TY | COMPONENT_BIT_TZ)
+	int				componentsOffset;
+		
+	vec3_t			baseOrigin;
+	quat_t			baseQuat;
+} md5Channel_t;
+
+typedef struct
+{
+	vec3_t          bounds[2];	// bounds of all surfaces of all LOD's for this frame
+	float          *components; // numAnimatedComponents many
+} md5Frame_t;
+
 typedef struct md5Animation_s
 {
 	char            name[MAX_QPATH];	// game path, including extension
 	animType_t		type;
 	int             index;				// anim = tr.animations[anim->index]
+	
+	int             numFrames;
+	md5Frame_t     *frames;
+	
+	int             numChannels;	// same as numBones in model
+	md5Channel_t   *channels;
+	
+	int             frameRate;
+	
+	int             numAnimatedComponents;
 	
 //	struct md5Animation_s *next;
 } md5Animation_t;
@@ -1332,6 +1352,7 @@ typedef struct
 	int             c_box_cull_mds_in, c_box_cull_mds_clip, c_box_cull_mds_out;
 	int             c_box_cull_dlight_in, c_box_cull_dlight_clip, c_box_cull_dlight_out;
 	int             c_box_cull_slight_in, c_box_cull_slight_clip, c_box_cull_slight_out;
+	int             c_box_cull_md5_in, c_box_cull_md5_clip, c_box_cull_md5_out;
 
 	int             c_leafs;
 	
@@ -1747,6 +1768,8 @@ void            R_LocalPointToWorld(vec3_t local, vec3_t world);
 int             R_CullLocalBox(vec3_t bounds[2]);
 int             R_CullLocalPointAndRadius(vec3_t origin, float radius);
 int             R_CullPointAndRadius(vec3_t origin, float radius);
+
+void            R_SetupEntityWorldBounds(trRefEntity_t * ent);
 
 void            R_RotateForEntity(const trRefEntity_t * ent, const viewParms_t * viewParms, orientationr_t * or);
 void            R_RotateForDlight(const trRefDlight_t * ent, const viewParms_t * viewParms, orientationr_t * or);
@@ -2203,6 +2226,7 @@ ANIMATED MODELS
 
 void            R_InitAnimations(void);
 qhandle_t       RE_RegisterAnimation(const char *name);
+md5Animation_t *R_GetAnimationByHandle(qhandle_t hAnim);
 void            R_AnimationList_f(void);
 
 void            R_AddMD4Surfaces(trRefEntity_t * ent);
@@ -2212,8 +2236,9 @@ void            R_AddMDSSurfaces(trRefEntity_t * ent);
 void            RB_SurfaceMDS(mdsSurface_t * surfType);
 
 void            R_AddMD5Surfaces(trRefEntity_t * ent);
+void            R_AddMD5Interactions(trRefEntity_t * ent, trRefDlight_t * light);
 
-//int             R_LerpBones(refBones_t * bones, qhandle_t handle, int startFrame, int endFrame, float frac);
+int             RE_SetAnimation(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac);
 
 /*
 =============================================================

@@ -2192,6 +2192,18 @@ void MatrixSetupTransformFromRotation(matrix_t m, const matrix_t rot, const vec3
 	m[ 3] = 0;           m[ 7] = 0;              m[11] = 0;        m[15] = 1;
 }
 
+void MatrixSetupTransformFromQuat(matrix_t m, const quat_t quat, const vec3_t origin)
+{
+	matrix_t        rot;
+	
+	MatrixFromQuat(rot, quat);
+	
+	m[ 0] = rot[ 0];     m[ 4] = rot[ 4];        m[ 8] = rot[ 8];  m[12] = origin[0];
+	m[ 1] = rot[ 1];     m[ 5] = rot[ 5];        m[ 9] = rot[ 9];  m[13] = origin[1];
+	m[ 2] = rot[ 2];     m[ 6] = rot[ 6];        m[10] = rot[10];  m[14] = origin[2];
+	m[ 3] = 0;           m[ 7] = 0;              m[11] = 0;        m[15] = 1;
+}
+
 void MatrixAffineInverse(const matrix_t in, matrix_t out)
 {
 #if 0
@@ -2248,3 +2260,43 @@ void MatrixTransform4(const matrix_t m, const vec4_t in, vec4_t out)
 }
 
 // *INDENT-ON*
+
+
+void QuatSlerp(const quat_t from, const quat_t to, float frac, quat_t out)
+{
+	quat_t to1;
+	double omega, cosom, sinom, scale0, scale1;
+
+	cosom = from[0]*to[0] + from[1]*to[1] + from[2]*to[2] + from[3]*to[3];
+
+	if(cosom < 0.0)
+	{
+		cosom = -cosom;
+		
+		QuatCopy(to, to1);
+		QuatAntipodal(to1);
+	}
+	else 
+	{
+		QuatCopy(to, to1);
+	}
+		
+	if((1.0 - cosom) > 0)
+	{
+		omega = acos(cosom);
+		sinom = sin(omega);
+		scale0 = sin((1.0 - frac) * omega) / sinom;
+		scale1 = sin(frac * omega) / sinom;
+	}
+	else
+	{
+		scale0 = 1.0 - frac;
+		scale1 = frac;
+	}
+
+	out[0] = scale0 * from[0] + scale1 * to1[0];
+	out[1] = scale0 * from[1] + scale1 * to1[1];
+	out[2] = scale0 * from[2] + scale1 * to1[2];
+	out[3] = scale0 * from[3] + scale1 * to1[3];
+}
+

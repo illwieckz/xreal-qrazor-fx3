@@ -1323,6 +1323,9 @@ void RB_RenderDebugUtils()
 		ent = backEnd.refdef.entities;
 		for(i = 0; i < backEnd.refdef.numEntities; i++, ent++)
 		{
+			if((ent->e.renderfx & RF_THIRD_PERSON) && !backEnd.viewParms.isPortal)
+				continue;
+			
 			// set up the transformation matrix
 			R_RotateForEntity(ent, &backEnd.viewParms, &backEnd.or);
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
