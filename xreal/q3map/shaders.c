@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "shaders.h"
 
+#define USE_MTR
 
 // 5% backsplash by default
 #define	DEFAULT_BACKSPLASH_FRACTION		0.05
@@ -715,7 +716,7 @@ static void ParseShaderFile(const char *filename)
 		}
 
 		// Tr3B - default shader to invisible if no rendering passes defined
-#if 0
+#ifdef USE_MTR
 		if(!si->hasPasses)
 		{
 			qprintf("shader '%s' has no passes\n", si->shader);
@@ -736,7 +737,6 @@ LoadShaderInfo
 ===============
 */
 #define	MAX_SHADER_FILES	128
-//#define USE_MTR
 void LoadShaderInfo(void)
 {
 	char            filename[1024];
