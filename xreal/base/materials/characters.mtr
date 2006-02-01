@@ -907,7 +907,12 @@ models/characters/male_npc/marine/marine
 
 	renderbump  -size 1024 1024 -trace 0.07 -colorMap -aa 2  models/characters/male_npc/marine/marine_local.tga models/characters/male_npc/marine/marine_hi.lwo
 		forceoverlays
-        diffusemap	  models/characters/male_npc/marine/marine.tga
+	
+	{
+		blend diffusemap
+        map	  models/characters/male_npc/marine/marine.tga
+        rgbGen lightingDiffuse
+	}
 		bumpmap		  addnormals(models/characters/male_npc/marine/marine_local.tga, heightmap(models/characters/male_npc/marine/marine_h.tga, 5 ) )
         specularmap	  models/characters/male_npc/marine/marine_s.tga
 }
@@ -1082,6 +1087,7 @@ models/characters/sarge2/helmet
 		blend diffusemap	
 		map  models/characters/sarge2/helmet.tga
 		//alphaTest parm6
+		rgbGen lightingDiffuse
 	} 
 	
 			bumpmap			models/characters/sarge2/helmet_local.tga

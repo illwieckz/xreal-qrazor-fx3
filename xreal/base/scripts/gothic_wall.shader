@@ -118,3 +118,14 @@ textures/gothic_wall/xpipecolumn_gray_shiny
 		rgbGen identity
 	}
 }
+
+// Tr3B - new deluxe mapping shaders
+textures/gothic_wall/iron01_e
+{
+	qer_editorImage textures/gothic_wall/iron01_e.tga
+	
+	diffuseMap textures/gothic_wall/iron01_e.tga
+	bumpMap textures/gothic_wall/iron01_e_n.tga
+	specularMap textures/gothic_wall/iron01_e_s.tga
+	lightmap _lightmap
+}

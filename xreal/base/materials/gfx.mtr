@@ -906,10 +906,10 @@ viewBloodBlend
 	sort	nearest
 	{
 		//map models/weaphits/blood201.tga
-        //map gfx/damage/blood_screen.tga
-		map textures/particles/blood2.tga
-		//blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
+        map gfx/damage/blood_screen.tga
+		//map textures/particles/blood2.tga
+		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		//blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
 		//rgbGen identityLighting
 		rgbGen		vertex
 		alphaGen	vertex
@@ -1123,9 +1123,8 @@ bloodMark3
 
 bloodTrail
 {
-        
 	nopicmip			// make sure a border remains
-			entityMergable		// allow all the sprites to be merged together
+	entityMergable		// allow all the sprites to be merged together
 	{
 		//clampmap gfx/misc/blood.tga
 		//clampmap gfx/damage/blood_spurt.tga
