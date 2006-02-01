@@ -494,16 +494,17 @@ static void GraphicsOptions_ApplyChanges(void *unused, int notification)
 		case 0:
 			trap_Cvar_SetValue("r_colorbits", 0);
 			trap_Cvar_SetValue("r_depthbits", 0);
-			trap_Cvar_SetValue("r_stencilbits", 0);
+			trap_Cvar_SetValue("r_stencilbits", 8);
 			break;
 		case 1:
 			trap_Cvar_SetValue("r_colorbits", 16);
 			trap_Cvar_SetValue("r_depthbits", 16);
-			trap_Cvar_SetValue("r_stencilbits", 0);
+			trap_Cvar_SetValue("r_stencilbits", 8);
 			break;
 		case 2:
 			trap_Cvar_SetValue("r_colorbits", 32);
 			trap_Cvar_SetValue("r_depthbits", 24);
+			trap_Cvar_SetValue("r_stencilbits", 8);
 			break;
 	}
 	trap_Cvar_SetValue("r_vertexLight", s_graphicsoptions.lighting.curvalue);

@@ -3056,14 +3056,15 @@ static void UI_Update(const char *name) {
 		switch (val) {
 			case 0:
 				trap_Cvar_SetValue( "r_depthbits", 0 );
-				trap_Cvar_SetValue( "r_stencilbits", 0 );
+				trap_Cvar_SetValue( "r_stencilbits", 8 );
 			break;
 			case 16:
 				trap_Cvar_SetValue( "r_depthbits", 16 );
-				trap_Cvar_SetValue( "r_stencilbits", 0 );
+				trap_Cvar_SetValue( "r_stencilbits", 8 );
 			break;
 			case 32:
 				trap_Cvar_SetValue( "r_depthbits", 24 );
+				trap_Cvar_SetValue( "r_stencilbits", 8 );
 			break;
 		}
 	} else if (Q_stricmp(name, "r_lodbias") == 0) {

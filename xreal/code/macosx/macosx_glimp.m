@@ -489,7 +489,7 @@ void GLimp_Init( void )
         ri.Cvar_Set( "r_stereo", "0" );
         ri.Cvar_Set( "r_depthBits", "16" );
         ri.Cvar_Set( "r_colorBits", "16" );
-        ri.Cvar_Set( "r_stencilBits", "0" );
+        ri.Cvar_Set( "r_stencilBits", "8" );
         if ( GLimp_SetMode(qtrue) ) {
             ri.Printf( PRINT_ALL, "------------------\n" );
             return;
