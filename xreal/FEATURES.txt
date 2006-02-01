@@ -1,8 +1,10 @@
 code/cgame
 - light bloom rendering
+- new hud
 
 code/game/shared
 - matrix math
+- quaternion math
 - improved tokenizer
 
 code/renderer
@@ -30,11 +32,14 @@ code/renderer
 - anisotropic texture filtering
 - skeletal animation
 - Return to Castle Wolfenstein .mds model file format support
+- Doom3 .md5mesh model file format support
+- Doom3 .md5anim animation file format support
 - deluxe mapping: N dot L based lightmapping supported by q3map2
   compile your maps with -light -deluxe to use this feature
 - added uniform lighting and shadowing model
   correct dynamic lighting and shadowing on everything: world surfaces, brush model surfaces and .md3 surfaces
   [cg/r]_shadows 1 = blob, 2 = planar projection, 3 = robust stencil shadow volumes (Doom3/Nvidia style)
+- r_dynamiclight 2 skips precomputed lighting and uses pure realtime lighting and shadowing
 
 code/q3_ui
 - bloom rendering game option
