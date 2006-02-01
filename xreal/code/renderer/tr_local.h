@@ -868,7 +868,6 @@ typedef enum
 	SF_TRIANGLES,
 	SF_POLY,
 	SF_MD3,
-	SF_MD4,
 	SF_MDS,
 	SF_MD5,
 	SF_FLARE,
@@ -1264,7 +1263,6 @@ typedef enum
 	MOD_BAD,
 	MOD_BRUSH,
 	MOD_MD3,
-	MOD_MD4,
 	MOD_MDS,
 	MOD_MD5
 } modtype_t;
@@ -1278,7 +1276,6 @@ typedef struct model_s
 	int             dataSize;	// just for listing purposes
 	bmodel_t       *bmodel;		// only if type == MOD_BRUSH
 	md3Header_t    *md3[MD3_MAX_LODS];	// only if type == MOD_MD3
-	md4Header_t    *md4;		// only if type == MOD_MD4
 	mdsHeader_t    *mds;		// only if type == MOD_MDS
 	md5Model_t     *md5;		// only if type == MOD_MD5
 
@@ -2228,9 +2225,6 @@ void            R_InitAnimations(void);
 qhandle_t       RE_RegisterAnimation(const char *name);
 md5Animation_t *R_GetAnimationByHandle(qhandle_t hAnim);
 void            R_AnimationList_f(void);
-
-void            R_AddMD4Surfaces(trRefEntity_t * ent);
-void            RB_SurfaceMD4(md4Surface_t * surfType);
 
 void            R_AddMDSSurfaces(trRefEntity_t * ent);
 void            RB_SurfaceMDS(mdsSurface_t * surfType);

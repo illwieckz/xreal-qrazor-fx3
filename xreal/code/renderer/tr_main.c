@@ -1534,10 +1534,6 @@ void R_AddEntitySurfaces(void)
 							R_AddMD3Surfaces(ent);
 							break;
 
-						case MOD_MD4:
-							R_AddMD4Surfaces(ent);
-							break;
-
 						case MOD_MDS:
 							R_AddMDSSurfaces(ent);
 							break;
@@ -1628,10 +1624,6 @@ void R_AddEntityInteractions(trRefDlight_t * light)
 					{
 						case MOD_MD3:
 							R_AddMD3Interactions(ent, light);
-							break;
-
-						case MOD_MD4:
-							//R_AddMD4Surfaces(ent);
 							break;
 
 						case MOD_MDS:
