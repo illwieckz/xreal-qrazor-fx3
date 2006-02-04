@@ -60,7 +60,7 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefDlight_t * light)
 	bmodel_t       *bModel = NULL;
 	model_t        *pModel = NULL;
 	qboolean        shadowOnly = qfalse;
-	
+
 	// cull the entire model if it is outside the view frustum
 	// and we don't care about proper shadowing
 	if(ent->cull == CULL_OUT)
@@ -73,15 +73,14 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefDlight_t * light)
 
 	pModel = R_GetModelByHandle(ent->e.hModel);
 	bModel = pModel->bmodel;
-	
+
 	// cull the entire model if merged bounding box of both frames
 	// does not intersect with light
-	if(	light->worldBounds[1][0] < ent->worldBounds[0][0] ||
-		light->worldBounds[1][1] < ent->worldBounds[0][1] ||
-		light->worldBounds[1][2] < ent->worldBounds[0][2] ||
-		light->worldBounds[0][0] > ent->worldBounds[1][0] ||
-		light->worldBounds[0][1] > ent->worldBounds[1][1] ||
-		light->worldBounds[0][2] > ent->worldBounds[1][2])
+	if(light->worldBounds[1][0] < ent->worldBounds[0][0] ||
+	   light->worldBounds[1][1] < ent->worldBounds[0][1] ||
+	   light->worldBounds[1][2] < ent->worldBounds[0][2] ||
+	   light->worldBounds[0][0] > ent->worldBounds[1][0] ||
+	   light->worldBounds[0][1] > ent->worldBounds[1][1] || light->worldBounds[0][2] > ent->worldBounds[1][2])
 	{
 		tr.pc.c_dlightSurfacesCulled += bModel->numSurfaces;
 		return;
@@ -91,24 +90,24 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefDlight_t * light)
 	for(i = 0; i < bModel->numSurfaces; i++)
 	{
 		surf = bModel->firstSurface + i;
-		
+
 		// FIXME: do more culling?
 
 		/*
-		if(*surf->data == SF_FACE)
-		{
-			((srfSurfaceFace_t *) surf->data)->dlightBits[tr.smpFrame] = mask;
-		}
-		else if(*surf->data == SF_GRID)
-		{
-			((srfGridMesh_t *) surf->data)->dlightBits[tr.smpFrame] = mask;
-		}
-		else if(*surf->data == SF_TRIANGLES)
-		{
-			((srfTriangles_t *) surf->data)->dlightBits[tr.smpFrame] = mask;
-		}
-		*/
-		
+		   if(*surf->data == SF_FACE)
+		   {
+		   ((srfSurfaceFace_t *) surf->data)->dlightBits[tr.smpFrame] = mask;
+		   }
+		   else if(*surf->data == SF_GRID)
+		   {
+		   ((srfGridMesh_t *) surf->data)->dlightBits[tr.smpFrame] = mask;
+		   }
+		   else if(*surf->data == SF_TRIANGLES)
+		   {
+		   ((srfTriangles_t *) surf->data)->dlightBits[tr.smpFrame] = mask;
+		   }
+		 */
+
 		R_AddDlightInteraction(light, surf->data, surf->shader, shadowOnly);
 		tr.pc.c_dlightSurfaces++;
 	}
@@ -424,9 +423,9 @@ void R_SetupDlightLocalBounds(trRefDlight_t * dl)
 	dl->localBounds[0][0] = dl->l.radius[0];
 	dl->localBounds[0][1] = dl->l.radius[1];
 	dl->localBounds[0][2] = dl->l.radius[2];
-	dl->localBounds[1][0] =-dl->l.radius[0];
-	dl->localBounds[1][1] =-dl->l.radius[1];
-	dl->localBounds[1][2] =-dl->l.radius[2];
+	dl->localBounds[1][0] = -dl->l.radius[0];
+	dl->localBounds[1][1] = -dl->l.radius[1];
+	dl->localBounds[1][2] = -dl->l.radius[2];
 }
 
 /*
@@ -439,18 +438,18 @@ void R_SetupDlightWorldBounds(trRefDlight_t * dl)
 {
 	int             j;
 	vec3_t          v, transformed;
-	
+
 	ClearBounds(dl->worldBounds[0], dl->worldBounds[1]);
-		
+
 	for(j = 0; j < 8; j++)
 	{
 		v[0] = dl->localBounds[j & 1][0];
 		v[1] = dl->localBounds[(j >> 1) & 1][1];
 		v[2] = dl->localBounds[(j >> 2) & 1][2];
-	
+
 		// transform local bounds vertices into world space
 		MatrixTransformPoint(dl->transformMatrix, v, transformed);
-			
+
 		AddPointToBounds(transformed, dl->worldBounds[0], dl->worldBounds[1]);
 	}
 }
@@ -464,21 +463,21 @@ R_AddDlightInteraction
 void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * surfaceShader, qboolean shadowOnly)
 {
 	int             index;
-	interaction_t *ia;
+	interaction_t  *ia;
 
 	// instead of checking for overflow, we just mask the index
 	// so it wraps around
 	index = tr.refdef.numInteractions & INTERACTION_MASK;
 	ia = &tr.refdef.interactions[index];
 	tr.refdef.numInteractions++;
-	
+
 	// connect to interaction grid
 	if(light->lastInteraction)
 	{
 		light->lastInteraction->next = ia;
 	}
 	light->lastInteraction = ia;
-	
+
 	// check what kind of attenuationShader is used
 	if(!light->l.attenuationShader)
 	{
@@ -495,14 +494,19 @@ void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shad
 	{
 		ia->dlightShader = R_GetShaderByHandle(light->l.attenuationShader);
 	}
-	
+
 	ia->next = NULL;
 	ia->dlight = light;
 	ia->entity = tr.currentEntity;
 	ia->surface = surface;
 	ia->surfaceShader = surfaceShader;
 	ia->shadowOnly = shadowOnly;
-	
+
+	ia->scissorX = light->scissor.coords[0];
+	ia->scissorY = light->scissor.coords[1];
+	ia->scissorWidth = light->scissor.coords[2] - light->scissor.coords[0];
+	ia->scissorHeight = light->scissor.coords[3] - light->scissor.coords[1];
+
 	if(light->isStatic)
 	{
 		tr.pc.c_slightInteractions++;
@@ -521,68 +525,180 @@ R_DlightIntersectsPoint
 qboolean R_DlightIntersectsPoint(trRefDlight_t * light, const vec3_t p)
 {
 	// TODO light frustum test
-	
+
 	return BoundsIntersectPoint(light->worldBounds[0], light->worldBounds[1], p);
 }
 
 
 /*
 =================
+R_IntersectRayPlane
+=================
+*/
+static void R_IntersectRayPlane(const vec3_t v1, const vec3_t v2, cplane_t * plane, vec3_t res)
+{
+	vec3_t          v;
+	float           sect;
+
+	VectorSubtract(v1, v2, v);
+	sect = -(DotProduct(plane->normal, v1) - plane->dist) / DotProduct(plane->normal, v);
+	VectorScale(v, sect, v);
+	VectorAdd(v1, v, res);
+}
+
+
+/*
+=================
+R_AddPointToLightScissor
+=================
+*/
+static void R_AddPointToLightScissor(trRefDlight_t * light, const vec3_t world)
+{
+	vec4_t          eye, clip, normalized, window;
+	
+	R_TransformWorldToClip(world, tr.viewParms.world.viewMatrix, tr.viewParms.projectionMatrix, eye, clip);
+	R_TransformClipToWindow2(clip, &tr.viewParms, normalized, window);
+	
+	if(window[0] > light->scissor.coords[2])
+		light->scissor.coords[2] = (int)window[0];
+	
+	if(window[0] < light->scissor.coords[0])
+		light->scissor.coords[0] = (int)window[0];
+	
+	if(window[1] > light->scissor.coords[3])
+		light->scissor.coords[3] = (int)window[1];
+	
+	if(window[1] < light->scissor.coords[1])
+		light->scissor.coords[1] = (int)window[1];
+}
+
+/*
+=================
+R_AddEdgeToLightScissor
+=================
+*/
+static void R_AddEdgeToLightScissor(trRefDlight_t * light, vec3_t local1, vec3_t local2)
+{
+	int             i;
+	vec3_t          intersect;
+	vec3_t          world1, world2;
+	qboolean        side1, side2;
+	cplane_t       *frust;
+	
+	for(i = 0; i < 4; i++)
+	{
+		R_LocalPointToWorld(local1, world1);
+		R_LocalPointToWorld(local2, world2);
+		
+		frust = &tr.viewParms.frustum[i];
+	
+		// check edge to frustrum plane
+		side1 = ((DotProduct(frust->normal, world1) - frust->dist) >= 0.0);
+		side2 = ((DotProduct(frust->normal, world2) - frust->dist) >= 0.0);
+
+		if(!side1 && !side2)
+			continue;					// edge behind plane
+
+		if(!side1 || !side2)
+			R_IntersectRayPlane(world1, world2, frust, intersect);
+
+		if(!side1)
+		{
+			VectorCopy(intersect, world1);
+		}
+		else if(!side2)
+		{
+			VectorCopy(intersect, world2);
+		}
+		
+		R_AddPointToLightScissor(light, world1);
+		R_AddPointToLightScissor(light, world2);
+	}
+}
+
+/*
+=================
 R_SetDlightScissor
+Recturns the screen space rectangle taken by the box.
+	(Clips the box to the near plane to have correct results even if the box intersects the near plane)
+Tr3B - recoded from Tenebrae2
 =================
 */
 void R_SetDlightScissor(trRefDlight_t * light)
 {
-	int             i;
+	int             i, j;
+	vec3_t          v1, v2;
 	vec3_t          v;
-	vec4_t          eye, clip, normalized, window;
-	vec2_t          mins = {999999, 999999}, maxs = {-999999, -999999};
-	float           xMin, xMax, yMin, yMax;
-	
-	if(R_DlightIntersectsPoint(light, tr.viewParms.or.origin))
-	{
-		light->scissorX = tr.viewParms.viewportX;
-		light->scissorY = tr.viewParms.viewportY;
-		light->scissorWidth = tr.viewParms.viewportWidth;
-		light->scissorHeight = tr.viewParms.viewportHeight;
-		return;
-	}
-	
-	// transform local light corners to eye space -> clip space -> window space
-	// and extend mins maxs by resulting window coords
-	for(i = 0; i < 8; i++)
-	{
-		v[0] = light->localBounds[i & 1][0];
-		v[1] = light->localBounds[(i >> 1) & 1][1];
-		v[2] = light->localBounds[(i >> 2) & 1][2];
-	
-		R_TransformModelToClip(v, tr.or.modelViewMatrix, tr.viewParms.projectionMatrix, eye, clip);
-		R_TransformClipToWindow(clip, &tr.viewParms, normalized, window);
-		
-		mins[0] = Q_min(mins[0], window[0]);
-		mins[1] = Q_min(mins[1], window[1]);
-		
-		maxs[0] = Q_max(maxs[0], window[0]);
-		maxs[1] = Q_max(maxs[1], window[1]);
-	}
-	
-	// set the scissor rectangle
-	xMin = Q_max(floor(mins[0]), tr.viewParms.viewportX);
-	yMin = Q_max(floor(mins[1]), tr.viewParms.viewportY);
-	xMax = Q_min(ceil(maxs[0]), tr.viewParms.viewportX + tr.viewParms.viewportWidth);
-	yMax = Q_min(ceil(maxs[1]), tr.viewParms.viewportY + tr.viewParms.viewportHeight);
+	vec3_t          transformed[8];
+	float           dists[8];
+	cplane_t       *frust;
+	int             anyBack;
+	int             front, back;
 
-	if(xMax <= xMin || yMax <= yMin)
+	if(r_noLightScissors->integer || R_DlightIntersectsPoint(light, tr.viewParms.or.origin))
 	{
-		light->scissorX = tr.viewParms.viewportX;
-		light->scissorY = tr.viewParms.viewportY;
-		light->scissorWidth = tr.viewParms.viewportWidth;
-		light->scissorHeight = tr.viewParms.viewportHeight;
+		light->scissor.coords[0] = tr.viewParms.viewportX;
+		light->scissor.coords[1] = tr.viewParms.viewportY;
+		light->scissor.coords[2] = tr.viewParms.viewportX + tr.viewParms.viewportWidth;
+		light->scissor.coords[3] = tr.viewParms.viewportY + tr.viewParms.viewportHeight;
 		return;
 	}
 
-	light->scissorX = xMin;
-	light->scissorY = yMin;
-	light->scissorWidth = xMax - xMin;
-	light->scissorHeight = yMax - yMin;
+	// transform local light corners to world space -> eye space -> clip space -> window space
+	// and extend the light scissor's mins maxs by resulting window coords
+	light->scissor.coords[0] = 100000000;
+	light->scissor.coords[1] = 100000000;
+	light->scissor.coords[2] = -100000000;
+	light->scissor.coords[3] = -100000000;
+	
+	// top plane
+	VectorSet(v1, light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+	VectorSet(v2, light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
+	R_AddEdgeToLightScissor(light, v1, v2);
+
+	VectorSet(v1, light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+	VectorSet(v2, light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
+	R_AddEdgeToLightScissor(light, v1, v2);
+
+	VectorSet(v1, light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
+	VectorSet(v2, light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
+	R_AddEdgeToLightScissor(light, v1, v2);
+
+	VectorSet(v1, light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
+	VectorSet(v2, light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
+	R_AddEdgeToLightScissor(light, v1, v2);
+
+	// bottom plane
+	VectorSet(v1, light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+	VectorSet(v2, light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
+	R_AddEdgeToLightScissor(light, v1, v2);
+
+	VectorSet(v1, light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+	VectorSet(v2, light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
+	R_AddEdgeToLightScissor(light, v1, v2);
+
+	VectorSet(v1, light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
+	VectorSet(v2, light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
+	R_AddEdgeToLightScissor(light, v1, v2);
+
+	VectorSet(v1, light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
+	VectorSet(v2, light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
+	R_AddEdgeToLightScissor(light, v1, v2);
+
+	// sides
+	VectorSet(v1, light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
+	VectorSet(v2, light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
+	R_AddEdgeToLightScissor(light, v1, v2);
+
+	VectorSet(v1, light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+	VectorSet(v2, light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+	R_AddEdgeToLightScissor(light, v1, v2);
+
+	VectorSet(v1, light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
+	VectorSet(v2, light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
+	R_AddEdgeToLightScissor(light, v1, v2);
+
+	VectorSet(v1, light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
+	VectorSet(v2, light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
+	R_AddEdgeToLightScissor(light, v1, v2);
 }

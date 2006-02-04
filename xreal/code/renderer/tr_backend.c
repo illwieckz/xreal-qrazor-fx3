@@ -1014,7 +1014,7 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 				//qglStencilMask(1);
 				
 				// set light scissor to reduce fillrate
-				qglScissor(light->scissorX, light->scissorY, light->scissorWidth, light->scissorHeight);
+				qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
 			}
 			else
 			{
@@ -1290,28 +1290,52 @@ static void RB_RenderLightScale()
 	qglColor4f(1, 1, 1, 1);
 }
 
-void RB_RenderDebugUtils()
+void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 {
 	if(r_showLightTransforms->integer)
 	{
-		trRefDlight_t  *dl;
 		int             i;
-
-		dl = backEnd.refdef.dlights;
-		for(i = 0; i < backEnd.refdef.numDlights; i++, dl++)
+		trRefDlight_t  *dl;
+		
+		if(r_dynamiclight->integer)
 		{
-			// set up the transformation matrix
-			R_RotateForDlight(dl, &backEnd.viewParms, &backEnd.or);
-			qglLoadMatrixf(backEnd.or.modelViewMatrix);
-			
-			R_DebugAxis(vec3_origin, matrixIdentity);
-			R_DebugBoundingBox(vec3_origin, dl->localBounds[0], dl->localBounds[1], colorBlue);
-			
-			// go back to the world modelview matrix
-			backEnd.or = backEnd.viewParms.world;
-			qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
-			
-			R_DebugBoundingBox(vec3_origin, dl->worldBounds[0], dl->worldBounds[1], colorGreen);
+			dl = backEnd.refdef.dlights;
+			for(i = 0; i < backEnd.refdef.numDlights; i++, dl++)
+			{
+				// set up the transformation matrix
+				R_RotateForDlight(dl, &backEnd.viewParms, &backEnd.or);
+				qglLoadMatrixf(backEnd.or.modelViewMatrix);
+				
+				R_DebugAxis(vec3_origin, matrixIdentity);
+				R_DebugBoundingBox(vec3_origin, dl->localBounds[0], dl->localBounds[1], colorRed);
+				
+				// go back to the world modelview matrix
+				backEnd.or = backEnd.viewParms.world;
+				qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+				
+				R_DebugBoundingBox(vec3_origin, dl->worldBounds[0], dl->worldBounds[1], colorGreen);
+			}
+		}
+		
+		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
+		{
+			for(i = 0; i < tr.world->numDlights; i++)
+			{
+				dl = &tr.world->dlights[i];
+				
+				// set up the transformation matrix
+				R_RotateForDlight(dl, &backEnd.viewParms, &backEnd.or);
+				qglLoadMatrixf(backEnd.or.modelViewMatrix);
+				
+				R_DebugAxis(vec3_origin, matrixIdentity);
+				R_DebugBoundingBox(vec3_origin, dl->localBounds[0], dl->localBounds[1], colorBlue);
+				
+				// go back to the world modelview matrix
+				backEnd.or = backEnd.viewParms.world;
+				qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+				
+				R_DebugBoundingBox(vec3_origin, dl->worldBounds[0], dl->worldBounds[1], colorYellow);
+			}
 		}
 	}
 	
@@ -1331,20 +1355,20 @@ void RB_RenderDebugUtils()
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
 			
 			R_DebugAxis(vec3_origin, matrixIdentity);
-			R_DebugBoundingBox(vec3_origin, ent->localBounds[0], ent->localBounds[1], colorYellow);
+			R_DebugBoundingBox(vec3_origin, ent->localBounds[0], ent->localBounds[1], colorMagenta);
 			
 			// go back to the world modelview matrix
 			backEnd.or = backEnd.viewParms.world;
 			qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 			
-			R_DebugBoundingBox(vec3_origin, ent->worldBounds[0], ent->worldBounds[1], colorRed);
+			R_DebugBoundingBox(vec3_origin, ent->worldBounds[0], ent->worldBounds[1], colorCyan);
 		}
 	}
 	
 	if(r_showLightScissors->integer)
 	{
-		trRefDlight_t  *dl;
-		int             i;
+		interaction_t  *ia;
+		int             iaCount;
 		
 		// set 2D virtual screen size
 		qglPushMatrix();
@@ -1352,9 +1376,11 @@ void RB_RenderDebugUtils()
 		qglMatrixMode(GL_PROJECTION);
 		qglPushMatrix();
 		qglLoadIdentity();
-		qglOrtho(0, glConfig.vidWidth, 0, glConfig.vidHeight, 0, 1);
-		
-		qglColor3f(1, 0, 0);
+		//qglOrtho(0, glConfig.vidWidth, 0, glConfig.vidHeight, 0, 1);
+		qglOrtho(backEnd.viewParms.viewportX,
+				 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+				 backEnd.viewParms.viewportY,
+				 backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
 		
 		GL_Program(0);
 		GL_SelectTexture(0);
@@ -1362,15 +1388,39 @@ void RB_RenderDebugUtils()
 		
 		GL_State(GLS_POLYMODE_LINE);
 
-		dl = backEnd.refdef.dlights;
-		for(i = 0; i < backEnd.refdef.numDlights; i++, dl++)
+		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
 		{
 			qglBegin(GL_QUADS);
-			qglVertex2f(dl->scissorX, dl->scissorY);
-			qglVertex2f(dl->scissorX + dl->scissorWidth, dl->scissorY);
-			qglVertex2f(dl->scissorX + dl->scissorWidth, dl->scissorY + dl->scissorHeight);
-			qglVertex2f(dl->scissorX, dl->scissorY + dl->scissorHeight);
+			qglColor4fv(colorRed);
+			qglVertex2f(ia->scissorX, ia->scissorY);
+			qglColor4fv(colorGreen);
+			qglVertex2f(ia->scissorX + ia->scissorWidth-1, ia->scissorY);
+			qglColor4fv(colorBlue);
+			qglVertex2f(ia->scissorX + ia->scissorWidth-1, ia->scissorY + ia->scissorHeight-1);
+			qglColor4fv(colorWhite);
+			qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight-1);
 			qglEnd();
+			
+			if(!ia->next)
+			{
+				if(iaCount < (numInteractions -1))
+				{
+					// jump to next interaction and continue
+					ia++;
+					iaCount++;
+				}
+				else
+				{
+					// increase last time to leave for loop
+					iaCount++;
+				}
+			}
+			else
+			{
+				// just continue
+				ia = ia->next;
+				iaCount++;
+			}
 		}
 		
 		qglPopMatrix();
@@ -1429,7 +1479,7 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction
 #endif
 
 	// render debug information
-	RB_RenderDebugUtils();
+	RB_RenderDebugUtils(interactions, numInteractions);
 }
 
 

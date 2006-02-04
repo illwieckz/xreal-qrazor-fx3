@@ -147,7 +147,8 @@ void CG_TestAnimation_f(void)
 						  cg.testAnimation,
 						  cg.testModelEntity.oldframe,
 						  cg.testModelEntity.frame,
-						  1.0 - cg.testModelEntity.backlerp))
+						  1.0 - cg.testModelEntity.backlerp,
+						  qfalse))
 	{
 		CG_Printf("Can't set animation\n");
 		return;
@@ -157,6 +158,41 @@ void CG_TestAnimation_f(void)
 	cg.testModelEntity.renderfx |= RF_SKELETON;
 }
 
+
+/*
+=================
+CG_TestAnimation2_f
+=================
+*/
+void CG_TestAnimation2_f(void)
+{
+	if(!cg.testAnimation)
+	{
+		CG_Printf("Use testAnimation first to set a valid animation\n");
+		return;
+	}
+	
+	Q_strncpyz(cg.testAnimation2Name, CG_Argv(1), MAX_QPATH);
+	cg.testAnimation2 = trap_R_RegisterAnimation(cg.testAnimation2Name);
+
+	if(!cg.testAnimation2)
+	{
+		CG_Printf("Can't register animation for blending\n");
+		return;
+	}
+	
+	// modify bones and set proper local bounds for culling
+	if(!trap_R_SetAnimation(&cg.testModelEntity.skeleton,
+		cg.testAnimation2,
+		cg.testModelEntity.oldframe,
+		cg.testModelEntity.frame,
+		1.0 - cg.testModelEntity.backlerp,
+		qtrue))
+	{
+		CG_Printf("Can't blend animation\n");
+		return;
+	}
+}
 
 void CG_TestModelNextFrame_f(void)
 {
@@ -169,9 +205,23 @@ void CG_TestModelNextFrame_f(void)
 			cg.testAnimation,
 			cg.testModelEntity.oldframe,
 			cg.testModelEntity.frame,
-			1.0 - cg.testModelEntity.backlerp))
+			1.0 - cg.testModelEntity.backlerp,
+			qfalse))
 		{
 			CG_Printf("Can't set animation\n");
+		}
+	}
+	
+	if(cg.testAnimation2)
+	{
+		if(!trap_R_SetAnimation(&cg.testModelEntity.skeleton,
+			cg.testAnimation2,
+			cg.testModelEntity.oldframe,
+			cg.testModelEntity.frame,
+			1.0 - cg.testModelEntity.backlerp,
+			qtrue))
+		{
+			CG_Printf("Can't blend animation\n");
 		}
 	}
 }
@@ -191,9 +241,23 @@ void CG_TestModelPrevFrame_f(void)
 			cg.testAnimation,
 			cg.testModelEntity.oldframe,
 			cg.testModelEntity.frame,
-			1.0 - cg.testModelEntity.backlerp))
+			1.0 - cg.testModelEntity.backlerp,
+			qfalse))
 		{
 			CG_Printf("Can't set animation\n");
+		}
+	}
+	
+	if(cg.testAnimation2)
+	{
+		if(!trap_R_SetAnimation(&cg.testModelEntity.skeleton,
+			cg.testAnimation2,
+			cg.testModelEntity.oldframe,
+			cg.testModelEntity.frame,
+			1.0 - cg.testModelEntity.backlerp,
+			qtrue))
+		{
+			CG_Printf("Can't blend animation\n");
 		}
 	}
 }

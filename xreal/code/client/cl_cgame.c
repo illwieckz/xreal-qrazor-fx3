@@ -644,7 +644,7 @@ int CL_CgameSystemCalls(int *args)
 		case CG_R_RESETSKELETON:
 			return re.ResetSkeleton(VMA(1), args[2]);
 		case CG_R_SETANIMATION:
-			return re.SetAnimation(VMA(1), args[2], args[3], args[4], VMF(5));
+			return re.SetAnimation(VMA(1), args[2], args[3], args[4], VMF(5), args[6]);
 		case CG_GETGLCONFIG:
 			CL_GetGlconfig(VMA(1));
 			return 0;

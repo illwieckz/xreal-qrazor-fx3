@@ -334,6 +334,22 @@ void R_LocalPointToWorld(vec3_t local, vec3_t world)
 
 /*
 ==========================
+R_TransformWorldToClip
+==========================
+*/
+void R_TransformWorldToClip(const vec3_t src, const float *cameraViewMatrix, const float *projectionMatrix, vec4_t eye, vec4_t dst)
+{
+	vec4_t			src2;
+	VectorCopy(src, src2);
+	src2[3] = 1;
+	
+	MatrixTransform4(cameraViewMatrix, src2, eye);
+
+	MatrixTransform4(projectionMatrix, eye, dst);
+}
+
+/*
+==========================
 R_TransformModelToClip
 ==========================
 */
@@ -361,6 +377,25 @@ void R_TransformClipToWindow(const vec4_t clip, const viewParms_t * view, vec4_t
 
 	window[0] = 0.5f * (1.0f + normalized[0]) * view->viewportWidth;
 	window[1] = 0.5f * (1.0f + normalized[1]) * view->viewportHeight;
+	window[2] = normalized[2];
+
+	window[0] = (int)(window[0] + 0.5);
+	window[1] = (int)(window[1] + 0.5);
+}
+
+/*
+==========================
+R_TransformClipToWindow2
+==========================
+*/
+void R_TransformClipToWindow2(const vec4_t clip, const viewParms_t * view, vec4_t normalized, vec4_t window)
+{
+	normalized[0] = clip[0] / clip[3];
+	normalized[1] = clip[1] / clip[3];
+	normalized[2] = (clip[2] + clip[3]) / (2 * clip[3]);
+
+	window[0] = view->viewportX + (0.5f * (1.0f + normalized[0]) * view->viewportWidth);
+	window[1] = view->viewportY + (0.5f * (1.0f + normalized[1]) * view->viewportHeight);
 	window[2] = normalized[2];
 
 	window[0] = (int)(window[0] + 0.5);
@@ -622,6 +657,12 @@ void R_SetupFrustum(void)
 		tr.viewParms.frustum[i].dist = DotProduct(tr.viewParms.or.origin, tr.viewParms.frustum[i].normal);
 		SetPlaneSignbits(&tr.viewParms.frustum[i]);
 	}
+	
+	// Tr3B - set extra near plane
+	tr.viewParms.frustum[4].type = PLANE_NON_AXIAL;
+	VectorCopy(tr.viewParms.or.axis[0], tr.viewParms.frustum[4].normal);
+	tr.viewParms.frustum[4].dist = r_znear->value;
+	SetPlaneSignbits(&tr.viewParms.frustum[4]);
 }
 
 

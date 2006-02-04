@@ -981,7 +981,7 @@ void R_AddMD5Interactions(trRefEntity_t * ent, trRefDlight_t * light)
 RE_SetAnimation
 ==============
 */
-int RE_SetAnimation(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int endFrame, float frac)
+int RE_SetAnimation(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int endFrame, float frac, qboolean blend)
 {
 	int             i;
 	md5Animation_t *anim;
@@ -989,7 +989,7 @@ int RE_SetAnimation(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int e
 	md5Frame_t     *newFrame, *oldFrame;
 	vec3_t          newOrigin, oldOrigin, lerpedOrigin;
 	quat_t          newQuat, oldQuat, lerpedQuat;
-	matrix_t        mat;
+	matrix_t        mat, mat2;
 	vec3_t          v;
 	vec3_t          transformed;
 	int             componentsApplied;
@@ -1004,8 +1004,7 @@ int RE_SetAnimation(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int e
 		// This will write directly into the entity structure, so
 		// when the surfaces are rendered, they don't need to be
 		// range checked again.
-		if(	(startFrame >= anim->numFrames) || (startFrame < 0) || (endFrame >= anim->numFrames) ||
-			(endFrame < 0))
+		if((startFrame >= anim->numFrames) || (startFrame < 0) || (endFrame >= anim->numFrames) || (endFrame < 0))
 		{
 			ri.Printf(PRINT_DEVELOPER, "RE_SetAnimation: no such frame %d to %d for '%s'\n",
 					  startFrame, endFrame, anim->name);
@@ -1090,14 +1089,33 @@ int RE_SetAnimation(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int e
 			QuatSlerp(oldQuat, newQuat, frac, lerpedQuat);
 #endif	
 			// calculate absolute transforms
-			if(channel->parentIndex < 0)
+			if(blend)
 			{
-				MatrixFromQuat(skel->bones[i].transform, lerpedQuat);
+				// blend new bone transform onto existing transform: animation blending
+				if(channel->parentIndex < 0)
+				{
+					MatrixFromQuat(mat, lerpedQuat);
+					MatrixMultiply2(skel->bones[i].transform, mat);
+				}
+				else
+				{
+					MatrixSetupTransformFromQuat(mat, lerpedQuat, lerpedOrigin);
+					MatrixMultiply(skel->bones[channel->parentIndex].transform, mat, mat2);
+					MatrixMultiply2(skel->bones[i].transform, mat2);
+				}
 			}
 			else
 			{
-				MatrixSetupTransformFromQuat(mat, lerpedQuat, lerpedOrigin);
-				MatrixMultiply(skel->bones[channel->parentIndex].transform, mat, skel->bones[i].transform);
+				// override any previous animation data
+				if(channel->parentIndex < 0)
+				{
+					MatrixFromQuat(skel->bones[i].transform, lerpedQuat);
+				}
+				else
+				{
+					MatrixSetupTransformFromQuat(mat, lerpedQuat, lerpedOrigin);
+					MatrixMultiply(skel->bones[channel->parentIndex].transform, mat, skel->bones[i].transform);
+				}
 			}
 		}
 		

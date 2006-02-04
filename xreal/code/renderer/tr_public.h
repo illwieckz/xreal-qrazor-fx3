@@ -95,8 +95,7 @@ typedef struct
 								float frac, const char *tagName);
 	
 	int             (*ResetSkeleton) (refSkeleton_t * skel, qhandle_t model);
-	int             (*SetAnimation) (refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac);
-//	int             (*BlendAnimation) (refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac);
+	int             (*SetAnimation) (refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac, qboolean blend);
 	
 	void            (*ModelBounds) (qhandle_t model, vec3_t mins, vec3_t maxs);
 

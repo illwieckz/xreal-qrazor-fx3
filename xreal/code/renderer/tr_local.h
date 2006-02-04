@@ -66,6 +66,12 @@ typedef enum
 	CULL_OUT,				// completely outside the clipping planes
 } cullResult_t;
 
+typedef struct screenRect_s
+{
+	int             coords[4];
+	struct screenRect_s *next;
+} screenRect_t;
+
 // a trRefDlight_t has all the information passed in by
 // the client game, as well as some locally derived info
 typedef struct trRefDlight_s
@@ -87,7 +93,7 @@ typedef struct trRefDlight_s
 	vec3_t			localBounds[2];
 	vec3_t			worldBounds[2];
 	
-	int             scissorX, scissorY, scissorWidth, scissorHeight;
+	screenRect_t    scissor;
 	
 	struct interactionCache_s *firstInteractionCache;	// only used by static lights
 	struct interactionCache_s *lastInteractionCache;	// only used by static lights
@@ -844,7 +850,7 @@ typedef struct
 	int             viewportX, viewportY, viewportWidth, viewportHeight;
 	float           fovX, fovY;
 	float           projectionMatrix[16];
-	cplane_t        frustum[4];
+	cplane_t        frustum[5];
 	vec3_t          visBounds[2];
 	float           skyFar;
 } viewParms_t;
@@ -905,6 +911,7 @@ typedef struct interaction_s
 	shader_t       *surfaceShader;
 	
 	qboolean        shadowOnly;
+	int             scissorX, scissorY, scissorWidth, scissorHeight;
 } interaction_t;
 
 #define	MAX_FACE_POINTS		64
@@ -1645,6 +1652,7 @@ extern cvar_t  *r_novis;		// disable/enable usage of PVS
 extern cvar_t  *r_nocull;
 extern cvar_t  *r_facePlaneCull;	// enables culling of planar surfaces with back side test
 extern cvar_t  *r_nocurves;
+extern cvar_t  *r_noLightScissors;
 extern cvar_t  *r_showcluster;
 
 extern cvar_t  *r_mode;			// video mode
@@ -2232,15 +2240,19 @@ void            RB_SurfaceMDS(mdsSurface_t * surfType);
 void            R_AddMD5Surfaces(trRefEntity_t * ent);
 void            R_AddMD5Interactions(trRefEntity_t * ent, trRefDlight_t * light);
 
-int             RE_SetAnimation(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac);
+int             RE_SetAnimation(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac, qboolean blend);
 
 /*
 =============================================================
 =============================================================
 */
+
+void            R_TransformWorldToClip(const vec3_t src, const float *cameraViewMatrix,
+									   const float *projectionMatrix, vec4_t eye, vec4_t dst);
 void            R_TransformModelToClip(const vec3_t src, const float *modelViewMatrix,
 									   const float *projectionMatrix, vec4_t eye, vec4_t dst);
 void            R_TransformClipToWindow(const vec4_t clip, const viewParms_t * view, vec4_t normalized, vec4_t window);
+void            R_TransformClipToWindow2(const vec4_t clip, const viewParms_t * view, vec4_t normalized, vec4_t window);
 
 void            RB_DeformTessGeometry(void);
 
