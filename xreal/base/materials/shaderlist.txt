@@ -7,7 +7,7 @@ base_floor
 base_light
 base_trim
 base_wall
-bd
+//bd
 caves
 char_common
 //characters

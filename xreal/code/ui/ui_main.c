@@ -3093,7 +3093,7 @@ static void UI_Update(const char *name) {
 				trap_Cvar_SetValue( "r_texturebits", 32 );
 				trap_Cvar_SetValue( "r_fastSky", 0 );
 				trap_Cvar_SetValue( "r_inGameVideo", 1 );
-				trap_Cvar_SetValue( "cg_shadows", 1 );
+				trap_Cvar_SetValue( "cg_shadows", 3 );
 				trap_Cvar_SetValue( "cg_brassTime", 2500 );
 				trap_Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
 			break;
@@ -3111,7 +3111,7 @@ static void UI_Update(const char *name) {
 				trap_Cvar_SetValue( "r_inGameVideo", 1 );
 				trap_Cvar_SetValue( "cg_brassTime", 2500 );
 				trap_Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
-				trap_Cvar_SetValue( "cg_shadows", 0 );
+				trap_Cvar_SetValue( "cg_shadows", 3 );
 			break;
 			case 2: // fast
 				trap_Cvar_SetValue( "r_fullScreen", 1 );
@@ -3123,7 +3123,7 @@ static void UI_Update(const char *name) {
 				trap_Cvar_SetValue( "r_picmip", 1 );
 				trap_Cvar_SetValue( "r_mode", 3 );
 				trap_Cvar_SetValue( "r_texturebits", 0 );
-				trap_Cvar_SetValue( "cg_shadows", 0 );
+				trap_Cvar_SetValue( "cg_shadows", 3 );
 				trap_Cvar_SetValue( "r_fastSky", 1 );
 				trap_Cvar_SetValue( "r_inGameVideo", 0 );
 				trap_Cvar_SetValue( "cg_brassTime", 0 );
@@ -3139,7 +3139,7 @@ static void UI_Update(const char *name) {
 				trap_Cvar_SetValue( "r_mode", 3 );
 				trap_Cvar_SetValue( "r_picmip", 2 );
 				trap_Cvar_SetValue( "r_texturebits", 16 );
-				trap_Cvar_SetValue( "cg_shadows", 0 );
+				trap_Cvar_SetValue( "cg_shadows", 3 );
 				trap_Cvar_SetValue( "cg_brassTime", 0 );
 				trap_Cvar_SetValue( "r_fastSky", 1 );
 				trap_Cvar_SetValue( "r_inGameVideo", 0 );
