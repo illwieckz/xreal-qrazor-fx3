@@ -172,6 +172,9 @@ asm_src = [
 quake3_env.Append(CCFLAGS='-DBOTLIB')
 quake3_env.Append(CCFLAGS='-DC_ONLY')
 
+if env['purevm'] == 1:
+	quake3_env.Append(CCFLAGS='-DVM_SV_PURE')
+
 if env['arch'] == 'linux-i386':
 	quake3_env.Append(LIBPATH='/usr/X11R6/lib')
 	quake3_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm'])

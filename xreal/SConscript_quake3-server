@@ -82,6 +82,9 @@ quake3_server_env.Append(CCFLAGS='-DBOTLIB')
 quake3_server_env.Append(CCFLAGS='-DC_ONLY')
 quake3_server_env.Append(CCFLAGS='-DDEDICATED')
 
+if env['purevm'] == 1:
+	quake3_server_env.Append(CCFLAGS='-DVM_SV_PURE')
+
 if env['arch'] == 'linux-i386':
 	if env['vm'] == 1:
 		vm_src += ['code/qcommon/vm_x86.c']
