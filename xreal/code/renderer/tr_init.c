@@ -1145,7 +1145,7 @@ void R_Register(void)
 	r_znear = ri.Cvar_Get("r_znear", "4", CVAR_CHEAT);
 	r_zfar = ri.Cvar_Get("r_zfar", "0", CVAR_CHEAT);
 	AssertCvarRange(r_znear, 0.001f, 200, qtrue);
-	r_ignoreGLErrors = ri.Cvar_Get("r_ignoreGLErrors", "0", CVAR_ARCHIVE);
+	r_ignoreGLErrors = ri.Cvar_Get("r_ignoreGLErrors", "1", CVAR_ARCHIVE);
 	r_fastsky = ri.Cvar_Get("r_fastsky", "0", CVAR_ARCHIVE);
 	r_inGameVideo = ri.Cvar_Get("r_inGameVideo", "1", CVAR_ARCHIVE);
 	r_drawSun = ri.Cvar_Get("r_drawSun", "0", CVAR_ARCHIVE);

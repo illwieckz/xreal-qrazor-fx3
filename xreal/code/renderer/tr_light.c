@@ -585,7 +585,7 @@ static void R_AddEdgeToLightScissor(trRefDlight_t * light, vec3_t local1, vec3_t
 	qboolean        side1, side2;
 	cplane_t       *frust;
 	
-	for(i = 0; i < 4; i++)
+	for(i = 0; i < 5; i++)
 	{
 		R_LocalPointToWorld(local1, world1);
 		R_LocalPointToWorld(local2, world2);

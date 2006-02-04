@@ -57,7 +57,7 @@ void R_CalcNormalForTriangle(vec3_t normal, const vec3_t v0, const vec3_t v1, co
 	VectorSubtract(v1, v0, vdir);
 	CrossProduct(udir, vdir, normal);
 
-	VectorNormalize(normal);
+	VectorNormalizeFast(normal);
 }
 
 /*
@@ -93,13 +93,13 @@ void R_CalcTangentsForTriangle(vec3_t tangent, vec3_t binormal,
 	tangent[0] = -planes[0][1] / planes[0][0];
 	tangent[1] = -planes[1][1] / planes[1][0];
 	tangent[2] = -planes[2][1] / planes[2][0];
-	VectorNormalize(tangent);
+	VectorNormalizeFast(tangent);
 
 	// binormal...
 	binormal[0] = -planes[0][2] / planes[0][0];
 	binormal[1] = -planes[1][2] / planes[1][0];
 	binormal[2] = -planes[2][2] / planes[2][0];
-	VectorNormalize(binormal);
+	VectorNormalizeFast(binormal);
 
 #if 0
 	// normal...
@@ -166,13 +166,13 @@ void R_CalcTangentSpace(vec3_t tangent, vec3_t binormal, vec3_t normal,
 		binormal[2] = -cp[2] / cp[0];
 	}
 
-	VectorNormalize(tangent);
-	VectorNormalize(binormal);
+	VectorNormalizeFast(tangent);
+	VectorNormalizeFast(binormal);
 
 	// normal...
 	// compute the cross product TxB
 	CrossProduct(tangent, binormal, normal);
-	VectorNormalize(normal);
+	VectorNormalizeFast(normal);
 
 	// Gram-Schmidt orthogonalization process for B
 	// compute the cross product B=NxT to obtain 

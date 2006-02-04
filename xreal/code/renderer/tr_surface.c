@@ -626,7 +626,7 @@ static void VectorArrayNormalize(vec4_t * normals, unsigned int count)
 	// given the input, it's safe to call VectorNormalizeFast
 	while(count--)
 	{
-		VectorNormalize(normals[0]);
+		VectorNormalizeFast(normals[0]);
 		normals++;
 	}
 #endif
@@ -640,160 +640,46 @@ static void VectorArrayNormalize(vec4_t * normals, unsigned int count)
 */
 static void LerpMeshVertexes(md3Surface_t * surf, float backlerp)
 {
-	short          *oldXyz, *newXyz, *oldNormals, *newNormals;
-	float          *outXyz, *outNormal;
+	short          *oldXyz, *newXyz;
+	float          *outXyz;
 	float           oldXyzScale, newXyzScale;
-	float           oldNormalScale, newNormalScale;
 	int             vertNum;
 	int             numVerts;
 
 	outXyz = tess.xyz[tess.numVertexes];
-	outNormal = tess.normals[tess.numVertexes];
 
 	newXyz = (short *)((byte *) surf + surf->ofsXyzNormals)
 		+ (backEnd.currentEntity->e.frame * surf->numVerts * 4);
-	newNormals = newXyz + 3;
 
 	newXyzScale = MD3_XYZ_SCALE * (1.0 - backlerp);
-	newNormalScale = 1.0 - backlerp;
 
 	numVerts = surf->numVerts;
 
 	if(backlerp == 0)
 	{
-#if idppc_altivec
-		unsigned        lat, lng;
-		vector signed short newNormalsVec0;
-		vector signed short newNormalsVec1;
-		vector signed int newNormalsIntVec;
-		vector float    newNormalsFloatVec;
-		vector float    newXyzScaleVec;
-		vector unsigned char newNormalsLoadPermute;
-		vector unsigned char newNormalsStorePermute;
-		vector float    zero;
-
-		newNormalsStorePermute = vec_lvsl(0, (float *)&newXyzScaleVec);
-		newXyzScaleVec = *(vector float *)&newXyzScale;
-		newXyzScaleVec = vec_perm(newXyzScaleVec, newXyzScaleVec, newNormalsStorePermute);
-		newXyzScaleVec = vec_splat(newXyzScaleVec, 0);
-		newNormalsLoadPermute = vec_lvsl(0, newXyz);
-		newNormalsStorePermute = vec_lvsr(0, outXyz);
-		zero = (vector float)vec_splat_s8(0);
-		//
 		// just copy the vertexes
-		//
-		for(vertNum = 0; vertNum < numVerts; vertNum++,
-			newXyz += 4, newNormals += 4, outXyz += 4, outNormal += 4)
+		for(vertNum = 0; vertNum < numVerts; vertNum++, newXyz += 4, outXyz += 4)
 		{
-			newNormalsLoadPermute = vec_lvsl(0, newXyz);
-			newNormalsStorePermute = vec_lvsr(0, outXyz);
-			newNormalsVec0 = vec_ld(0, newXyz);
-			newNormalsVec1 = vec_ld(16, newXyz);
-			newNormalsVec0 = vec_perm(newNormalsVec0, newNormalsVec1, newNormalsLoadPermute);
-			newNormalsIntVec = vec_unpackh(newNormalsVec0);
-			newNormalsFloatVec = vec_ctf(newNormalsIntVec, 0);
-			newNormalsFloatVec = vec_madd(newNormalsFloatVec, newXyzScaleVec, zero);
-			newNormalsFloatVec = vec_perm(newNormalsFloatVec, newNormalsFloatVec, newNormalsStorePermute);
-			//outXyz[0] = newXyz[0] * newXyzScale;
-			//outXyz[1] = newXyz[1] * newXyzScale;
-			//outXyz[2] = newXyz[2] * newXyzScale;
-
-			lat = (newNormals[0] >> 8) & 0xff;
-			lng = (newNormals[0] & 0xff);
-			lat *= (FUNCTABLE_SIZE / 256);
-			lng *= (FUNCTABLE_SIZE / 256);
-
-			// decode X as cos( lat ) * sin( long )
-			// decode Y as sin( lat ) * sin( long )
-			// decode Z as cos( long )
-
-			outNormal[0] = tr.sinTable[(lat + (FUNCTABLE_SIZE / 4)) & FUNCTABLE_MASK] * tr.sinTable[lng];
-			outNormal[1] = tr.sinTable[lat] * tr.sinTable[lng];
-			outNormal[2] = tr.sinTable[(lng + (FUNCTABLE_SIZE / 4)) & FUNCTABLE_MASK];
-
-			vec_ste(newNormalsFloatVec, 0, outXyz);
-			vec_ste(newNormalsFloatVec, 4, outXyz);
-			vec_ste(newNormalsFloatVec, 8, outXyz);
-		}
-
-#else
-		//
-		// just copy the vertexes
-		//
-		for(vertNum = 0; vertNum < numVerts; vertNum++,
-			newXyz += 4, newNormals += 4, outXyz += 4, outNormal += 4)
-		{
-
 			outXyz[0] = newXyz[0] * newXyzScale;
 			outXyz[1] = newXyz[1] * newXyzScale;
 			outXyz[2] = newXyz[2] * newXyzScale;
-
-			/* Tr3B - well will calculate the normals anyway for tangent space creation, so save speed
-			   lat = ( newNormals[0] >> 8 ) & 0xff;
-			   lng = ( newNormals[0] & 0xff );
-			   lat *= (FUNCTABLE_SIZE/256);
-			   lng *= (FUNCTABLE_SIZE/256);
-
-			   // decode X as cos( lat ) * sin( long )
-			   // decode Y as sin( lat ) * sin( long )
-			   // decode Z as cos( long )
-
-			   outNormal[0] = tr.sinTable[(lat+(FUNCTABLE_SIZE/4))&FUNCTABLE_MASK] * tr.sinTable[lng];
-			   outNormal[1] = tr.sinTable[lat] * tr.sinTable[lng];
-			   outNormal[2] = tr.sinTable[(lng+(FUNCTABLE_SIZE/4))&FUNCTABLE_MASK];
-			 */
 		}
-#endif
 	}
 	else
 	{
-		//
-		// interpolate and copy the vertex and normal
-		//
+		// interpolate and copy the vertex
 		oldXyz = (short *)((byte *) surf + surf->ofsXyzNormals)
 			+ (backEnd.currentEntity->e.oldframe * surf->numVerts * 4);
-		oldNormals = oldXyz + 3;
 
 		oldXyzScale = MD3_XYZ_SCALE * backlerp;
-		oldNormalScale = backlerp;
 
-		for(vertNum = 0; vertNum < numVerts; vertNum++,
-			oldXyz += 4, newXyz += 4, oldNormals += 4, newNormals += 4, outXyz += 4, outNormal += 4)
+		for(vertNum = 0; vertNum < numVerts; vertNum++, oldXyz += 4, newXyz += 4, outXyz += 4)
 		{
-			//vec3_t uncompressedOldNormal, uncompressedNewNormal;
-
 			// interpolate the xyz
 			outXyz[0] = oldXyz[0] * oldXyzScale + newXyz[0] * newXyzScale;
 			outXyz[1] = oldXyz[1] * oldXyzScale + newXyz[1] * newXyzScale;
 			outXyz[2] = oldXyz[2] * oldXyzScale + newXyz[2] * newXyzScale;
-
-			/* Tr3B - well will calculate the normals anyway for tangent space creation, so save speed
-			   // FIXME: interpolate lat/long instead?
-			   lat = ( newNormals[0] >> 8 ) & 0xff;
-			   lng = ( newNormals[0] & 0xff );
-			   lat *= 4;
-			   lng *= 4;
-			   uncompressedNewNormal[0] = tr.sinTable[(lat+(FUNCTABLE_SIZE/4))&FUNCTABLE_MASK] * tr.sinTable[lng];
-			   uncompressedNewNormal[1] = tr.sinTable[lat] * tr.sinTable[lng];
-			   uncompressedNewNormal[2] = tr.sinTable[(lng+(FUNCTABLE_SIZE/4))&FUNCTABLE_MASK];
-
-			   lat = ( oldNormals[0] >> 8 ) & 0xff;
-			   lng = ( oldNormals[0] & 0xff );
-			   lat *= 4;
-			   lng *= 4;
-
-			   uncompressedOldNormal[0] = tr.sinTable[(lat+(FUNCTABLE_SIZE/4))&FUNCTABLE_MASK] * tr.sinTable[lng];
-			   uncompressedOldNormal[1] = tr.sinTable[lat] * tr.sinTable[lng];
-			   uncompressedOldNormal[2] = tr.sinTable[(lng+(FUNCTABLE_SIZE/4))&FUNCTABLE_MASK];
-
-			   outNormal[0] = uncompressedOldNormal[0] * oldNormalScale + uncompressedNewNormal[0] * newNormalScale;
-			   outNormal[1] = uncompressedOldNormal[1] * oldNormalScale + uncompressedNewNormal[1] * newNormalScale;
-			   outNormal[2] = uncompressedOldNormal[2] * oldNormalScale + uncompressedNewNormal[2] * newNormalScale;
-
-			   //           VectorNormalize (outNormal);
-			 */
 		}
-//      VectorArrayNormalize((vec4_t *)tess.normals[tess.numVertexes], numVerts);
 	}
 }
 
@@ -838,7 +724,6 @@ void RB_SurfaceMD3(md3Surface_t * surface)
 	{
 		tess.texCoords[tess.numVertexes + j][0][0] = texCoords[j * 2 + 0];
 		tess.texCoords[tess.numVertexes + j][0][1] = texCoords[j * 2 + 1];
-		// FIXME: fill in lightmapST for completeness?
 	}
 
 	// Tr3B - calc tangent spaces
@@ -870,10 +755,13 @@ void RB_SurfaceMD3(md3Surface_t * surface)
 			t0 = tess.texCoords[indices[0]][0];
 			t1 = tess.texCoords[indices[1]][0];
 			t2 = tess.texCoords[indices[2]][0];
-
+#if 1
 			R_CalcNormalForTriangle(faceNormal, v0, v1, v2);
 			R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2, faceNormal);
-
+#else
+			R_CalcNormalForTriangle(normal, v0, v1, v2);
+			R_CalcTangentsForTriangle(tangent, binormal, v0, v1, v2, t0, t1, t2);
+#endif
 			for(j = 0; j < 3; j++)
 			{
 				v = tess.tangents[indices[j]];
@@ -1158,10 +1046,13 @@ void RB_SurfaceMDS(mdsSurface_t * surface)
 				t0 = tess.texCoords[indices[0]][0];
 				t1 = tess.texCoords[indices[1]][0];
 				t2 = tess.texCoords[indices[2]][0];
-		
+#if 1
 				R_CalcNormalForTriangle(faceNormal, v0, v1, v2);
 				R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2, faceNormal);
-		
+#else
+				R_CalcNormalForTriangle(normal, v0, v1, v2);
+				R_CalcTangentsForTriangle(tangent, binormal, v0, v1, v2, t0, t1, t2);
+#endif		
 				for(j = 0; j < 3; j++)
 				{
 					v = tess.tangents[indices[j]];
@@ -1191,7 +1082,7 @@ RB_SurfaceMD5
 */
 void RB_SurfaceMD5(md5Surface_t * surface)
 {
-	int             i, j, k;
+	int             j, k;
 	int            *indexes;
 	int             numIndexes = 0;
 	int             numVertexes;
@@ -1272,10 +1163,13 @@ void RB_SurfaceMD5(md5Surface_t * surface)
 			t0 = tess.texCoords[indices[0]][0];
 			t1 = tess.texCoords[indices[1]][0];
 			t2 = tess.texCoords[indices[2]][0];
-	
+#if 1
 			R_CalcNormalForTriangle(faceNormal, v0, v1, v2);
 			R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2, faceNormal);
-	
+#else
+			R_CalcNormalForTriangle(normal, v0, v1, v2);
+			R_CalcTangentsForTriangle(tangent, binormal, v0, v1, v2, t0, t1, t2);
+#endif
 			for(j = 0; j < 3; j++)
 			{
 				v = tess.tangents[indices[j]];
@@ -1515,10 +1409,6 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 				texCoords[1] = dv->st[1];
 				texCoords[2] = dv->lightmap[0];
 				texCoords[3] = dv->lightmap[1];
-				
-				normal[0] = dv->normal[0];
-				normal[1] = dv->normal[1];
-				normal[2] = dv->normal[2];
 
 				*(unsigned int *)color = *(unsigned int *)dv->color;
 				xyz += 4;
@@ -1564,7 +1454,6 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 		// Tr3B - calc tangent spaces
 		if(!tess.skipTangentSpaces)
 		{
-			//vec3_t          faceNormal;
 			float          *v;
 			const float    *v0, *v1, *v2;
 			const float    *t0, *t1, *t2;
@@ -1589,16 +1478,6 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 				t0 = tess.texCoords[indices[0]][0];
 				t1 = tess.texCoords[indices[1]][0];
 				t2 = tess.texCoords[indices[2]][0];
-
-				/*
-				// compute the face normal based on vertex normals
-				//VectorClear( faceNormal );
-				//VectorAdd( faceNormal, tess.normals[indices[0]], faceNormal );
-				//VectorAdd( faceNormal, tess.normals[indices[1]], faceNormal );
-				//VectorAdd( faceNormal, tess.normals[indices[2]], faceNormal );
-
-				VectorNormalize(faceNormal);
-				*/
 
 				R_CalcNormalForTriangle(normal, v0, v1, v2);
 				R_CalcTangentsForTriangle(tangent, binormal, v0, v1, v2, t0, t1, t2);
