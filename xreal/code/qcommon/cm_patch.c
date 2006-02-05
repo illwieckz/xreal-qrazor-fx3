@@ -858,6 +858,7 @@ static qboolean CM_ValidateFacet(facet_t * facet)
 	{
 		if(facet->borderPlanes[j] == -1)
 		{
+			FreeWinding(w);
 			return qfalse;
 		}
 		Vector4Copy(planes[facet->borderPlanes[j]].plane, plane);
