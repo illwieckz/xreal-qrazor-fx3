@@ -36,9 +36,12 @@ void RE_LoadWorldMap( const char *name );
 static world_t  s_worldData;
 static int      s_lightCount;
 static int      s_interactionCount;
+static int      s_interactionIndexes[SHADER_MAX_INDEXES];
+static int      s_numInteractionIndexes;
 static byte    *fileBase;
 
-int             c_subdivisions;
+int             c_culledFaceTriangles;
+int             c_culledTriTriangles;
 int             c_gridVerts;
 
 //===============================================================================
@@ -2311,6 +2314,13 @@ void R_LoadEntities(lump_t * l)
 			continue;
 		}
 		
+		// check for center
+		if(!Q_stricmp(keyname, "light_center"))
+		{
+			sscanf(value, "%f %f %f", &dl->l.center[0], &dl->l.center[1], &dl->l.center[2]);
+			continue;
+		}
+		
 		// check for color
 		if(!Q_stricmp(keyname, "_color"))
 		{
@@ -2414,34 +2424,134 @@ static void R_PrecacheInteraction(trRefDlight_t * light, msurface_t * surface)
 	
 	iaCache->next = NULL;
 	iaCache->surface = surface;
+	
+	iaCache->numIndexes = s_numInteractionIndexes;
+	iaCache->indexes = ri.Hunk_Alloc(s_numInteractionIndexes * sizeof(int), h_low);
+	Com_Memcpy(iaCache->indexes, s_interactionIndexes, s_numInteractionIndexes * sizeof(int));
 }
 
 
-static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, trRefDlight_t  * dl)
+static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * shader, trRefDlight_t  * dl)
 {
-#if 0
-	if(	dl->l.origin[0] - dl->l.radius[0] > face->bounds[1][0] ||
-		dl->l.origin[0] + dl->l.radius[0] < face->bounds[0][0] ||
-		dl->l.origin[1] - dl->l.radius[0] > face->bounds[1][1] ||
-		dl->l.origin[1] + dl->l.radius[0] < face->bounds[0][1] ||
-		dl->l.origin[2] - dl->l.radius[0] > face->bounds[1][2] ||
-		dl->l.origin[2] + dl->l.radius[0] < face->bounds[0][2])
-{
-		// dlight doesn't reach the bounds
-	return qfalse;
-}
-#else
-	if(	dl->worldBounds[1][0] < face->bounds[0][0] ||
+	int             i;
+	unsigned       *indices;
+	int             numIndexes;
+	int            *iaIndexes;
+	float           d;
+	vec3_t          bounds[2];
+	
+	// check if bounds intersect
+	if( dl->worldBounds[1][0] < face->bounds[0][0] ||
 		dl->worldBounds[1][1] < face->bounds[0][1] ||
 		dl->worldBounds[1][2] < face->bounds[0][2] ||
 		dl->worldBounds[0][0] > face->bounds[1][0] ||
 		dl->worldBounds[0][1] > face->bounds[1][1] ||
 		dl->worldBounds[0][2] > face->bounds[1][2])
-{
-	return qfalse;
-}
+	{
+		return qfalse;
+	}
+	
+#if 1
+	// check if light origin is behind surface
+	d = DotProduct(face->plane.normal, dl->origin);
+	
+	// don't cull exactly on the plane, because there are levels of rounding
+	// through the BSP, ICD, and hardware that may cause pixel gaps if an
+	// epsilon isn't allowed here 
+	if(shader->cullType == CT_FRONT_SIDED)
+	{
+		if(d < face->plane.dist - 8)
+		{
+			// not lighted, light origin is behind triangle
+			c_culledFaceTriangles += (face->numIndices / 3);
+			return qfalse;
+		}
+	}
+	else
+	{
+		if(d > face->plane.dist + 8)
+		{
+			// not lighted, light origin is behind triangle
+			c_culledFaceTriangles += (face->numIndices / 3);
+			return qfalse;
+		}
+	}
+#endif
+
+	indices = (unsigned *)(((char *)face) + face->ofsIndices);	
+	iaIndexes = s_interactionIndexes;
+	
+	// build a list of triangles that need light
+	numIndexes = 0;
+	for(i = 0; i < (face->numIndices / 3); i++)
+	{
+		int             i1, i2, i3;
+		vec3_t          d1, d2;
+		vec3_t          verts[3];
+
+		i1 = indices[i * 3 + 0];
+		i2 = indices[i * 3 + 1];
+		i3 = indices[i * 3 + 2];
+
+		VectorCopy(face->points[i1 * VERTEXSIZE], verts[0]);
+		VectorCopy(face->points[i2 * VERTEXSIZE], verts[1]);
+		VectorCopy(face->points[i3 * VERTEXSIZE], verts[2]);
+		
+		
+#if 0
+		// check if triangle bounds intersect with light bounds
+		ClearBounds(bounds[0], bounds[1]);
+		
+		AddPointToBounds(verts[0], bounds[0], bounds[1]);
+		AddPointToBounds(verts[1], bounds[0], bounds[1]);
+		AddPointToBounds(verts[2], bounds[0], bounds[1]);
+		
+		if( dl->worldBounds[1][0] < bounds[0][0] ||
+			dl->worldBounds[1][1] < bounds[0][1] ||
+			dl->worldBounds[1][2] < bounds[0][2] ||
+			dl->worldBounds[0][0] > bounds[1][0] ||
+			dl->worldBounds[0][1] > bounds[1][1] ||
+			dl->worldBounds[0][2] > bounds[1][2])
+		{
+			c_culledFaceTriangles++;
+			continue;
+		}
+#endif
+		
+#if 0
+		// check wether the triangle is inside light frustum
+		switch (R_CullDlightTriangle(dl, verts))
+		{
+			case CULL_IN:
+			case CULL_CLIP:
+				break;
+			
+			case CULL_OUT:
+			default:
+				c_culledFaceTriangles++;
+				continue;
+		}
+#endif
+		
+		if(numIndexes >= SHADER_MAX_INDEXES)
+		{
+			ri.Error(ERR_DROP, "R_PrecacheFaceInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
+		}
+			
+		iaIndexes[numIndexes + 0] = i1;
+		iaIndexes[numIndexes + 1] = i2;
+		iaIndexes[numIndexes + 2] = i3;
+		numIndexes += 3;
+	}
+	
+#if 1
+	if(numIndexes == 0)
+	{
+		return qfalse;
+	}
 #endif
 	
+	s_numInteractionIndexes = numIndexes;
 	return qtrue;
 }
 
@@ -2465,6 +2575,13 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * grid, trRefDlight_t * dl)
 
 static int R_PrecacheTrisurfInteraction(srfTriangles_t * tri, trRefDlight_t * dl)
 {
+	int             i;
+	int            *indexes;
+	int             numIndexes;
+	int            *iaIndexes;
+	srfVert_t      *dv;
+	
+	// check if bounds intersect
 	if(	dl->worldBounds[1][0] < tri->bounds[0][0] ||
 		   dl->worldBounds[1][1] < tri->bounds[0][1] ||
 		   dl->worldBounds[1][2] < tri->bounds[0][2] ||
@@ -2472,10 +2589,109 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * tri, trRefDlight_t * dl
 		   dl->worldBounds[0][1] > tri->bounds[1][1] ||
 		   dl->worldBounds[0][2] > tri->bounds[1][2])
 	{
-		// dlight doesn't reach the bounds
 		return qfalse;
 	}
 
+	indexes = tri->indexes;	
+	iaIndexes = s_interactionIndexes;
+	
+	// build a list of triangles that need light
+	numIndexes = 0;
+	for(i = 0; i < (tri->numIndexes / 3); i++)
+	{
+		int             i1, i2, i3;
+		vec3_t          d1, d2;
+		vec3_t          verts[3];
+		vec4_t          plane;
+		float           d;
+		int             r;
+		vec3_t          bounds[2];
+
+		i1 = indexes[i * 3 + 0];
+		i2 = indexes[i * 3 + 1];
+		i3 = indexes[i * 3 + 2];
+
+
+		VectorCopy(tri->verts[i1].xyz, verts[0]);
+		VectorCopy(tri->verts[i2].xyz, verts[1]);
+		VectorCopy(tri->verts[i3].xyz, verts[2]);
+
+#if 1
+		if(PlaneFromPoints(plane, verts[0], verts[1], verts[2]))
+		{
+			// check if light origin is behind triangle
+			d = DotProduct(plane, dl->origin) - plane[3];
+			if(d <= 0)
+			{
+				c_culledTriTriangles++;
+				continue;
+			}
+			
+			// check if light bounds do not intersect with with triangle plane
+			r = BoxOnPlaneSide2(dl->worldBounds[0], dl->worldBounds[1], plane);
+			if(r != 3)
+			{
+				c_culledTriTriangles++;
+				continue;
+			}
+		}
+#endif
+
+#if 1
+		// check if triangle bounds intersect with light bounds
+		ClearBounds(bounds[0], bounds[1]);
+		
+		AddPointToBounds(verts[0], bounds[0], bounds[1]);
+		AddPointToBounds(verts[1], bounds[0], bounds[1]);
+		AddPointToBounds(verts[2], bounds[0], bounds[1]);
+		
+		if( dl->worldBounds[1][0] < bounds[0][0] ||
+				  dl->worldBounds[1][1] < bounds[0][1] ||
+				  dl->worldBounds[1][2] < bounds[0][2] ||
+				  dl->worldBounds[0][0] > bounds[1][0] ||
+				  dl->worldBounds[0][1] > bounds[1][1] ||
+				  dl->worldBounds[0][2] > bounds[1][2])
+		{
+			c_culledTriTriangles++;
+			continue;
+		}
+#endif
+
+		
+#if 0
+		// check if the triangle is inside light frustum
+		switch (R_CullDlightTriangle(dl, verts))
+		{
+			case CULL_IN:
+			case CULL_CLIP:
+				break;
+			
+			case CULL_OUT:
+			default:
+				c_culledTriTriangles++;
+				continue;
+		}
+#endif
+		
+		if(numIndexes >= SHADER_MAX_INDEXES)
+		{
+			ri.Error(ERR_DROP, "R_PrecacheTrisurfInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
+		}
+			
+		iaIndexes[numIndexes + 0] = i1;
+		iaIndexes[numIndexes + 1] = i2;
+		iaIndexes[numIndexes + 2] = i3;
+		numIndexes += 3;
+	}
+
+#if 1
+	if(numIndexes == 0)
+	{
+		return qfalse;
+	}
+#endif
+	
+	s_numInteractionIndexes = numIndexes;
 	return qtrue;
 }
 
@@ -2498,10 +2714,12 @@ static void R_PrecacheInteractionSurface(msurface_t * surf, trRefDlight_t * ligh
 	// Tr3B - skip all translucent surfaces that don't matter for lighting only pass
 	if(surf->shader->sort > SS_OPAQUE || (surf->shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY)))
 		return;
+	
+	s_numInteractionIndexes = 0;
 
 	if(*surf->data == SF_FACE)
 	{
-		intersects = R_PrecacheFaceInteraction((srfSurfaceFace_t *) surf->data, light);
+		intersects = R_PrecacheFaceInteraction((srfSurfaceFace_t *) surf->data, surf->shader, light);
 	}
 	else if(*surf->data == SF_GRID)
 	{
@@ -2513,7 +2731,7 @@ static void R_PrecacheInteractionSurface(msurface_t * surf, trRefDlight_t * ligh
 	}
 	else
 	{
-		intersects = qfalse;	
+		intersects = qfalse;
 	}
 	
 	if(intersects)
@@ -2594,8 +2812,11 @@ void R_PrecacheInteractions()
 	s_lightCount = 0;
 	s_interactionCount = 0;
 	
-	// Tr3B - 32 interactions for each surface should be enough
-	s_worldData.numInteractions = s_worldData.numsurfaces * 32;
+	c_culledFaceTriangles = 0;
+	c_culledTriTriangles = 0;
+	
+	// FIXME use dynamic list
+	s_worldData.numInteractions = s_worldData.numsurfaces * 16;
 	s_worldData.interactions = ri.Hunk_Alloc(s_worldData.numInteractions * sizeof(interactionCache_t), h_low);
 	
 	ri.Printf(PRINT_ALL, "...precaching %i lights\n", s_worldData.numDlights);
@@ -2611,14 +2832,20 @@ void R_PrecacheInteractions()
 				  dl->l.color[0], dl->l.color[1], dl->l.color[2]);
 #endif
 		
-		// calc local bounds for culling
-		R_SetupDlightLocalBounds(dl);
-		
 		// set up light transform matrix
 		MatrixSetupTransform(dl->transformMatrix, dl->l.axis[0], dl->l.axis[1], dl->l.axis[2], dl->l.origin);
 		
+		// set up light origin for lighting and shadowing
+		R_SetupDlightOrigin(dl);
+		
+		// calc local bounds for culling
+		R_SetupDlightLocalBounds(dl);
+		
 		// setup world bounds for intersection tests
 		R_SetupDlightWorldBounds(dl);
+		
+		// setup frustum planes for intersection tests
+		R_SetupDlightFrustum(dl);
 		
 		// set up model to light view matrix
 		MatrixAffineInverse(dl->transformMatrix, dl->viewMatrix);
@@ -2648,6 +2875,8 @@ void R_PrecacheInteractions()
 	}
 	
 	ri.Printf(PRINT_ALL, "%i interactions precached\n", s_interactionCount);
+	ri.Printf(PRINT_ALL, "%i planar surface triangles culled\n", c_culledFaceTriangles);
+	ri.Printf(PRINT_ALL, "%i abitrary surface triangles culled\n", c_culledTriTriangles);
 }
 
 

@@ -978,7 +978,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 
 	R_DecomposeSort(drawSurf->sort, &entityNum, &shader, &fogNum);
 	
-	RB_BeginSurface(shader, NULL, fogNum, qfalse);
+	RB_BeginSurface(shader, NULL, fogNum, qfalse, 0, NULL);
 	rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
 
 	assert(tess.numVertexes < 128);
@@ -1814,8 +1814,14 @@ void R_AddDlightInteractions()
 		// set up light transform matrix
 		MatrixSetupTransform(dl->transformMatrix, dl->l.axis[0], dl->l.axis[1], dl->l.axis[2], dl->l.origin);
 		
+		// set up light origin for lighting and shadowing
+		R_SetupDlightOrigin(dl);
+		
 		// setup world bounds for intersection tests
 		R_SetupDlightWorldBounds(dl);
+		
+		// setup frustum planes for intersection tests
+		R_SetupDlightFrustum(dl);
 		
 		// ignore if not in visible bounds
 		if(!BoundsIntersect(dl->worldBounds[0], dl->worldBounds[1], tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]))

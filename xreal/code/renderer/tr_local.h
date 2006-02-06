@@ -82,6 +82,7 @@ typedef struct trRefDlight_s
 	// local
 	qboolean        isStatic;			// loaded from the BSP entities lump
 	qboolean        additive;			// texture detail is lost tho when the lightmap is dark
+	vec3_t          origin;				// l.origin + rotated l.center
 	vec3_t          transformed;		// origin in local coordinate system
 	matrix_t		transformMatrix;	// light to world
 	matrix_t		viewMatrix;			// object to light
@@ -92,6 +93,8 @@ typedef struct trRefDlight_s
 	cullResult_t	cull;
 	vec3_t			localBounds[2];
 	vec3_t			worldBounds[2];
+	
+	cplane_t        frustum[6];
 	
 	screenRect_t    scissor;
 	
@@ -896,6 +899,9 @@ typedef struct interactionCache_s
 	struct interactionCache_s *next;
 	
 	struct msurface_s *surface;
+	
+	int             numIndexes;
+	int            *indexes;
 } interactionCache_t;
 
 // an interaction is a node between a dlight and any surface
@@ -910,6 +916,9 @@ typedef struct interaction_s
 	surfaceType_t  *surface;	// any of surface*_t
 	shader_t       *surfaceShader;
 	
+	int             numIndexes;
+	int            *indexes;	// precached triangle indices
+		
 	qboolean        shadowOnly;
 	int             scissorX, scissorY, scissorWidth, scissorHeight;
 } interaction_t;
@@ -1315,7 +1324,7 @@ extern refimport_t ri;
 #define	MAX_DRAWSURFS			0x10000
 #define	DRAWSURF_MASK			(MAX_DRAWSURFS-1)
 
-#define MAX_INTERACTIONS		MAX_DRAWSURFS*32
+#define MAX_INTERACTIONS		MAX_DRAWSURFS*16
 #define INTERACTION_MASK		(MAX_INTERACTIONS-1)
 
 /*
@@ -2066,6 +2075,9 @@ typedef struct shaderCommands_s
 	float           shaderTime;
 	int             fogNum;
 	qboolean        skipTangentSpaces;
+	
+	int             numInteractionIndexes;
+	int            *interactionIndexes;
 
 	int             numIndexes;
 	int             numVertexes;
@@ -2079,7 +2091,8 @@ typedef struct shaderCommands_s
 
 extern shaderCommands_t tess;
 
-void            RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNum, qboolean skipTangentSpaces);
+void            RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNum, qboolean skipTangentSpaces,
+								int numIndexes, int *indexes);
 void            RB_EndSurface(void);
 void            RB_CheckOverflow(int verts, int indexes);
 
@@ -2142,11 +2155,15 @@ void            R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t *
 void            R_TransformDlights(int count, trRefDlight_t * dl, orientationr_t * or);
 int             R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir);
 
+void            R_SetupDlightOrigin(trRefDlight_t * dl);
 void            R_SetupDlightLocalBounds(trRefDlight_t * light);
 void            R_SetupDlightWorldBounds(trRefDlight_t * light);
 
+void            R_SetupDlightFrustum(trRefDlight_t * dl);
+int             R_CullDlightTriangle(trRefDlight_t * dl, vec3_t verts[3]);
+
 void            R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * surfaceShader,
-									  qboolean shadowOnly);
+									   int numIndexes, int *indexes, qboolean shadowOnly);
 
 void            R_SetDlightScissor(trRefDlight_t * light);
 /*

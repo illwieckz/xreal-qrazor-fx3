@@ -1338,14 +1338,14 @@ because a surface may be forced to perform a RB_End due
 to overflow.
 ==============
 */
-void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNum, qboolean skipTangentSpaces)
+void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNum, qboolean skipTangentSpaces, int numIndexes, int *indexes)
 {
 	shader_t       *state = (surfaceShader->remappedShader) ? surfaceShader->remappedShader : surfaceShader;
 
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
 	tess.surfaceShader = state;
-	tess.fogNum = fogNum;
+	
 	tess.surfaceStages = state->stages;
 	tess.numStages = state->numStages;
 	
@@ -1373,7 +1373,11 @@ void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNu
 		tess.shaderTime = tess.surfaceShader->clampTime;
 	}
 	
+	tess.fogNum = fogNum;
 	tess.skipTangentSpaces = skipTangentSpaces;
+	
+	tess.numInteractionIndexes = numIndexes;
+	tess.interactionIndexes = indexes;
 }
 
 static void Render_generic_single_FFP(int stage)

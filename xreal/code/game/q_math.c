@@ -628,19 +628,15 @@ float Q_rsqrt(float number)
 #if id386_3dnow && defined __GNUC__
 //#error Q_rqsrt
 	femms();
-	asm volatile
-	(			// lo                                   | hi
-	"movd           (%%eax),        %%mm0\n"	// in                                   |       -
-	"pfrsqrt        %%mm0,          %%mm1\n"	// 1/sqrt(in)                   | 1/sqrt(in)    (approx)
-	"movq           %%mm1,          %%mm2\n"	// 1/sqrt(in)                   | 1/sqrt(in)    (approx)
-	"pfmul          %%mm1,          %%mm1\n"	// (1/sqrt(in))?                | (1/sqrt(in))?         step 1
-	"pfrsqit1       %%mm0,          %%mm1\n"	// intermediate                                                         step 2
-	"pfrcpit2       %%mm2,          %%mm1\n"	// 1/sqrt(in) (full 24-bit precision)           step 3
-	 "movd           %%mm1,        (%%edx)\n"
-	:
-	:"a" (&number), "d"(&y)
-	:"memory"
-	);
+	asm volatile    (			// lo                                   | hi
+						"movd           (%%eax),        %%mm0\n"	// in                                   |       -
+						"pfrsqrt        %%mm0,          %%mm1\n"	// 1/sqrt(in)                   | 1/sqrt(in)    (approx)
+						"movq           %%mm1,          %%mm2\n"	// 1/sqrt(in)                   | 1/sqrt(in)    (approx)
+						"pfmul          %%mm1,          %%mm1\n"	// (1/sqrt(in))?                | (1/sqrt(in))?         step 1
+						"pfrsqit1       %%mm0,          %%mm1\n"	// intermediate                                                         step 2
+						"pfrcpit2       %%mm2,          %%mm1\n"	// 1/sqrt(in) (full 24-bit precision)           step 3
+						"movd           %%mm1,        (%%edx)\n"::"a" (&number), "d"(&y):"memory");
+
 	femms();
 #else
 	long            i;
@@ -675,25 +671,19 @@ float Q_fabs(float f)
 vec_t Q_recip(vec_t in)
 {
 #if id386_3dnow && defined __GNUC__ && 0
-	vec_t out;
+	vec_t           out;
+
 	femms();
-	asm volatile
-	(
-	"movd		(%%eax),	%%mm0\n"
-	
-	"pfrcp		%%mm0,		%%mm1\n"	// (approx)
-	"pfrcpit1	%%mm1,		%%mm0\n"	// (intermediate)
-	"pfrcpit2	%%mm1,		%%mm0\n"	// (full 24-bit)
-	// out = mm0[low]
-	"movd		%%mm0,		(%%edx)\n"
-	:
-	: "a"(&in), "d"(&out)
-	: "memory"
-	);
+	asm volatile    ("movd		(%%eax),	%%mm0\n" "pfrcp		%%mm0,		%%mm1\n"	// (approx)
+					 "pfrcpit1	%%mm1,		%%mm0\n"	// (intermediate)
+					 "pfrcpit2	%%mm1,		%%mm0\n"	// (full 24-bit)
+					 // out = mm0[low]
+					 "movd		%%mm0,		(%%edx)\n"::"a" (&in), "d"(&out):"memory");
+
 	femms();
 	return out;
 #else
-	return ((float)(1.0f/(in)));
+	return ((float)(1.0f / (in)));
 #endif
 }
 
@@ -828,49 +818,6 @@ void SetPlaneSignbits(cplane_t * out)
 	out->signbits = bits;
 }
 
-
-/*
-==================
-BoxOnPlaneSide
-
-Returns 1, 2, or 1 + 2
-
-// this is the slow, general version
-int BoxOnPlaneSide2 (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
-{
-        int             i;
-        float   dist1, dist2;
-        int             sides;
-        vec3_t  corners[2];
-
-        for (i=0 ; i<3 ; i++)
-{
-                if (p->normal[i] < 0)
-{
-                        corners[0][i] = emins[i];
-                        corners[1][i] = emaxs[i];
-}
-                else
-{
-                        corners[1][i] = emins[i];
-                        corners[0][i] = emaxs[i];
-}
-}
-        dist1 = DotProduct (p->normal, corners[0]) - p->dist;
-        dist2 = DotProduct (p->normal, corners[1]) - p->dist;
-        sides = 0;
-        if (dist1 >= 0)
-                sides = 1;
-        if (dist2 < 0)
-                sides |= 2;
-
-        return sides;
-}
- 
-
-
-==================
-*/
 
 #if !( (defined __linux__ || __FreeBSD__) && (defined __i386__) && (!defined C_ONLY))	// rb010123
 
@@ -1178,6 +1125,49 @@ Lerror:
 #endif
 #endif
 
+
+
+/*
+==================
+BoxOnPlaneSide
+
+Returns 1, 2, or 1 + 2
+==================
+*/
+// this is the slow, general version
+int BoxOnPlaneSide2(vec3_t mins, vec3_t maxs, vec4_t plane)
+{
+	int             i;
+	float           dist1, dist2;
+	int             sides;
+	vec3_t          corners[2];
+
+	for(i = 0; i < 3; i++)
+	{
+		if(plane[i] < 0)
+		{
+			corners[0][i] = mins[i];
+			corners[1][i] = maxs[i];
+		}
+		else
+		{
+			corners[1][i] = mins[i];
+			corners[0][i] = maxs[i];
+		}
+	}
+	
+	dist1 = DotProduct(plane, corners[0]) - plane[3];
+	dist2 = DotProduct(plane, corners[1]) - plane[3];
+	
+	sides = 0;
+	if(dist1 >= 0)
+		sides = 1;
+	if(dist2 < 0)
+		sides |= 2;
+
+	return sides;
+}
+
 /*
 =================
 RadiusFromBounds
@@ -1238,12 +1228,8 @@ void AddPointToBounds(const vec3_t v, vec3_t mins, vec3_t maxs)
 
 qboolean BoundsIntersect(const vec3_t mins, const vec3_t maxs, const vec3_t mins2, const vec3_t maxs2)
 {
-	if(	maxs[0] < mins2[0] ||
-		maxs[1] < mins2[1] ||
-		maxs[2] < mins2[2] ||
-		mins[0] > maxs2[0] ||
-		mins[1] > maxs2[1] ||
-		mins[2] > maxs2[2])
+	if(maxs[0] < mins2[0] ||
+	   maxs[1] < mins2[1] || maxs[2] < mins2[2] || mins[0] > maxs2[0] || mins[1] > maxs2[1] || mins[2] > maxs2[2])
 	{
 		return qfalse;
 	}
@@ -1253,31 +1239,25 @@ qboolean BoundsIntersect(const vec3_t mins, const vec3_t maxs, const vec3_t mins
 
 qboolean BoundsIntersectSphere(const vec3_t mins, const vec3_t maxs, const vec3_t origin, vec_t radius)
 {
-	if(	origin[0] - radius > maxs[0] ||
-		origin[0] + radius < mins[0] ||
-		origin[1] - radius > maxs[1] ||
-		origin[1] + radius < mins[1] ||
-		origin[2] - radius > maxs[2] ||
-		origin[2] + radius < mins[2])
+	if(origin[0] - radius > maxs[0] ||
+	   origin[0] + radius < mins[0] ||
+	   origin[1] - radius > maxs[1] ||
+	   origin[1] + radius < mins[1] || origin[2] - radius > maxs[2] || origin[2] + radius < mins[2])
 	{
 		return qfalse;
 	}
-	
+
 	return qtrue;
 }
 
 qboolean BoundsIntersectPoint(const vec3_t mins, const vec3_t maxs, const vec3_t origin)
 {
-	if(	origin[0] > maxs[0] ||
-		origin[0] < mins[0] ||
-		origin[1] > maxs[1] ||
-		origin[1] < mins[1] ||
-		origin[2] > maxs[2] ||
-		origin[2] < mins[2])
+	if(origin[0] > maxs[0] ||
+	   origin[0] < mins[0] || origin[1] > maxs[1] || origin[1] < mins[1] || origin[2] > maxs[2] || origin[2] < mins[2])
 	{
 		return qfalse;
 	}
-	
+
 	return qtrue;
 }
 
@@ -1394,11 +1374,11 @@ vec_t _DotProduct(const vec3_t a, const vec3_t b)
 						"movq           (%%edx),        %%mm2\n"	// b[0]                                                         | b[1]
 						"movd           8(%%eax),       %%mm1\n"	// a[2]                                                         | -
 						"movd           8(%%edx),       %%mm3\n"	// b[2]                                                         | -
-						 "pfmul          %%mm2,          %%mm0\n"	// a[0]*b[0]                                            | a[1]*b[1]
+						"pfmul          %%mm2,          %%mm0\n"	// a[0]*b[0]                                            | a[1]*b[1]
 						"pfmul          %%mm3,          %%mm1\n"	// a[2]*b[2]                                            | -
 						"pfacc          %%mm0,          %%mm0\n"	// a[0]*b[0]+a[1]*b[1]                          | -
 						"pfadd          %%mm1,          %%mm0\n"	// a[0]*b[0]+a[1]*b[1]+a[2]*b[2]        | -
-						 "movd           %%mm0,          (%%ecx)\n"	// out = mm2[lo]
+						"movd           %%mm0,          (%%ecx)\n"	// out = mm2[lo]
 						::"a"           (a), "d"(b), "c"(&out):"memory");
 
 	femms();
@@ -1417,9 +1397,9 @@ void _VectorSubtract(const vec3_t a, const vec3_t b, vec3_t out)
 						"movq           (%%edx),        %%mm2\n"	// b[0]                                                         | b[1]
 						"movd           8(%%eax),       %%mm1\n"	// a[2]                                                         | -
 						"movd           8(%%edx),       %%mm3\n"	// b[2]                                                         | -
-						 "pfsub          %%mm2,          %%mm0\n"	// a[0]-b[0]                                            | a[1]-b[1]
+						"pfsub          %%mm2,          %%mm0\n"	// a[0]-b[0]                                            | a[1]-b[1]
 						"pfsub          %%mm3,          %%mm1\n"	// a[2]-b[2]                                            | -
-						 "movq           %%mm0,          (%%ecx)\n"
+						"movq           %%mm0,          (%%ecx)\n"
 						"movd           %%mm1,          8(%%ecx)\n"::"a" (a), "d"(b), "c"(out):"memory");
 	femms();
 #else
@@ -1438,9 +1418,9 @@ void _VectorAdd(const vec3_t a, const vec3_t b, vec3_t out)
 						"movq           (%%edx),        %%mm2\n"	// b[0]                                                         | b[1]
 						"movd           8(%%eax),       %%mm1\n"	// a[2]                                                         | -
 						"movd           8(%%edx),       %%mm3\n"	// b[2]                                                         | -
-						 "pfadd          %%mm2,          %%mm0\n"	// a[0]+b[0]                                            | a[1]+b[1]
+						"pfadd          %%mm2,          %%mm0\n"	// a[0]+b[0]                                            | a[1]+b[1]
 						"pfadd          %%mm3,          %%mm1\n"	// a[2]+b[2]                                            | -
-						 "movq           %%mm0,          (%%ecx)\n"
+						"movq           %%mm0,          (%%ecx)\n"
 						"movd           %%mm1,          8(%%ecx)\n"::"a" (a), "d"(b), "c"(out):"memory");
 	femms();
 #else
@@ -1457,7 +1437,7 @@ void _VectorCopy(const vec3_t in, vec3_t out)
 	asm volatile    (			// lo                                                           | hi
 						"movq           (%%eax),        %%mm0\n"	// in[0]                                                        | in[1]
 						"movd           8(%%eax),       %%mm1\n"	// in[2]                                                        | -
-						 "movq           %%mm0,          (%%edx)\n"
+						"movq           %%mm0,          (%%edx)\n"
 						"movd           %%mm1,          8(%%edx)\n"::"a" (in), "d"(out):"memory");
 	femms();
 /*
@@ -1489,10 +1469,10 @@ void _VectorScale(const vec3_t in, vec_t scale, vec3_t out)
 						"movq           (%%eax),        %%mm0\n"	// in[0]                                                                | in[1]
 						"movd           8(%%eax),       %%mm1\n"	// in[2]                                                                | -
 						"movd           (%%edx),        %%mm2\n"	// scale                                                                | -
-						 "punpckhdq      %%mm2,          %%mm2\n"	// scale                                                                | scale
-						 "pfmul          %%mm2,          %%mm0\n"	// in[0]*scale                                                  | in[1]*scale
+						"punpckhdq      %%mm2,          %%mm2\n"	// scale                                                                | scale
+						"pfmul          %%mm2,          %%mm0\n"	// in[0]*scale                                                  | in[1]*scale
 						"pfmul          %%mm2,          %%mm1\n"	// in[2]*scale                                                  | -
-						 "movq           %%mm0,          (%%ecx)\n"
+						"movq           %%mm0,          (%%ecx)\n"
 						"movd           %%mm1,          8(%%ecx)\n"::"a" (in), "d"(&scale), "c"(out):"memory");
 	femms();
 	return out;
@@ -2264,23 +2244,23 @@ void MatrixTransform4(const matrix_t m, const vec4_t in, vec4_t out)
 
 void QuatSlerp(const quat_t from, const quat_t to, float frac, quat_t out)
 {
-	quat_t to1;
-	double omega, cosom, sinom, scale0, scale1;
+	quat_t          to1;
+	double          omega, cosom, sinom, scale0, scale1;
 
-	cosom = from[0]*to[0] + from[1]*to[1] + from[2]*to[2] + from[3]*to[3];
+	cosom = from[0] * to[0] + from[1] * to[1] + from[2] * to[2] + from[3] * to[3];
 
 	if(cosom < 0.0)
 	{
 		cosom = -cosom;
-		
+
 		QuatCopy(to, to1);
 		QuatAntipodal(to1);
 	}
-	else 
+	else
 	{
 		QuatCopy(to, to1);
 	}
-		
+
 	if((1.0 - cosom) > 0)
 	{
 		omega = acos(cosom);
@@ -2299,4 +2279,3 @@ void QuatSlerp(const quat_t from, const quat_t to, float frac, quat_t out)
 	out[2] = scale0 * from[2] + scale1 * to1[2];
 	out[3] = scale0 * from[3] + scale1 * to1[3];
 }
-

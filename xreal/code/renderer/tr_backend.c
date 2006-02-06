@@ -644,7 +644,7 @@ void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, int numDr
 			{
 				RB_EndSurface();
 			}
-			RB_BeginSurface(shader, NULL, fogNum, qfalse);
+			RB_BeginSurface(shader, NULL, fogNum, qfalse, 0, NULL);
 			oldShader = shader;
 			oldFogNum = fogNum;
 		}
@@ -798,7 +798,7 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 			// entities merged into a single batch, like smoke and blood puff sprites
 			
 			// we need a new batch
-			RB_BeginSurface(shader, ia->dlightShader, 0, qfalse);
+			RB_BeginSurface(shader, ia->dlightShader, 0, qfalse, ia->numIndexes, ia->indexes);
 
 			// change the modelview matrix if needed
 			if(entity != oldEntity)
@@ -851,7 +851,7 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 			if(light != oldLight || entity != oldEntity)
 			{
 				// transform light origin into model space for u_LightOrigin parameter
-				VectorSubtract(light->l.origin, backEnd.or.origin, tmp);
+				VectorSubtract(light->origin, backEnd.or.origin, tmp);
 				light->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
 				light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
 				light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
@@ -1060,11 +1060,11 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 		if(drawShadows)
 		{
 			// we don't need tangent space calculations here
-			RB_BeginSurface(shader, ia->dlightShader, 0, qtrue);
+			RB_BeginSurface(shader, ia->dlightShader, 0, qtrue, 0, NULL);
 		}
 		else
 		{
-			RB_BeginSurface(shader, ia->dlightShader, 0, qfalse);
+			RB_BeginSurface(shader, ia->dlightShader, 0, qfalse, ia->numIndexes, ia->indexes);
 		}
 
 		// change the modelview matrix if needed
@@ -1120,14 +1120,14 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 			// transform light origin into model space for u_LightOrigin parameter
 			if(entity != &tr.worldEntity)
 			{
-				VectorSubtract(light->l.origin, backEnd.or.origin, tmp);
+				VectorSubtract(light->origin, backEnd.or.origin, tmp);
 				light->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
 				light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
 				light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
 			}
 			else
 			{
-				VectorCopy(light->l.origin, light->transformed);	
+				VectorCopy(light->origin, light->transformed);
 			}
 			
 			// finalize the attenuation matrix using the entity transform
@@ -1655,7 +1655,7 @@ const void     *RB_StretchPic(const void *data)
 			RB_EndSurface();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
-		RB_BeginSurface(shader, NULL, 0, qfalse);
+		RB_BeginSurface(shader, NULL, 0, qfalse, 0, NULL);
 	}
 
 	RB_CHECKOVERFLOW(4, 6);

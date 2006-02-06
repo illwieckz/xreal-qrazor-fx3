@@ -108,7 +108,7 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefDlight_t * light)
 		   }
 		 */
 
-		R_AddDlightInteraction(light, surf->data, surf->shader, shadowOnly);
+		R_AddDlightInteraction(light, surf->data, surf->shader, 0, NULL, shadowOnly);
 		tr.pc.c_dlightSurfaces++;
 	}
 }
@@ -415,6 +415,20 @@ int R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec
 
 /*
 =================
+R_SetupDlightOrigin
+Tr3B - needs finished transformMatrix
+=================
+*/
+void R_SetupDlightOrigin(trRefDlight_t * dl)
+{
+	vec3_t          transformed;
+	
+	MatrixTransformNormal(dl->transformMatrix, dl->l.center, transformed);
+	VectorAdd(dl->l.origin, transformed, dl->origin);
+}
+
+/*
+=================
 R_SetupDlightLocalBounds
 =================
 */
@@ -454,13 +468,101 @@ void R_SetupDlightWorldBounds(trRefDlight_t * dl)
 	}
 }
 
+/*
+=================
+R_SetupDlightFrustum
+=================
+*/
+void R_SetupDlightFrustum(trRefDlight_t * dl)
+{
+	int             i;
+	vec3_t          planeNormal;
+	vec3_t          planeOrigin;
+	
+	for(i = 0; i <6; i++)
+	{
+		VectorCopy(dl->l.origin, planeOrigin);
+		
+		if(i < 3)
+		{
+			VectorNegate(dl->l.axis[i], planeNormal);
+			planeOrigin[i] += dl->l.radius[i];
+		}
+		else
+		{
+			VectorCopy(dl->l.axis[i], planeNormal);
+			planeOrigin[i] -= dl->l.radius[i];
+		}
+		
+		VectorCopy(planeNormal, dl->frustum[i].normal);
+		dl->frustum[i].type = PlaneTypeForNormal(planeNormal);
+		dl->frustum[i].dist = DotProduct(planeOrigin, planeNormal);
+		SetPlaneSignbits(&dl->frustum[i]);
+	}
+}
+
+/*
+=================
+R_CullDlightTriangle
+
+Returns CULL_IN, CULL_CLIP, or CULL_OUT
+=================
+*/
+int R_CullDlightTriangle(trRefDlight_t * dl, vec3_t verts[3])
+{
+	int             i, j;
+	float           dists[3];
+	vec3_t          v;
+	cplane_t       *frust;
+	int             anyBack;
+	int             front, back;
+
+	// check against frustum planes
+	anyBack = 0;
+	for(i = 0; i < 6; i++)
+	{
+		frust = &dl->frustum[i];
+
+		front = back = 0;
+		for(j = 0; j < 3; j++)
+		{
+			dists[j] = DotProduct(verts[j], frust->normal);
+			if(dists[j] > frust->dist)
+			{
+				front = 1;
+				if(back)
+				{
+					break;		// a point is in front
+				}
+			}
+			else
+			{
+				back = 1;
+			}
+		}
+		if(!front)
+		{
+			// all points were behind one of the planes
+			return CULL_OUT;
+		}
+		anyBack |= back;
+	}
+
+	if(!anyBack)
+	{
+		return CULL_IN;			// completely inside frustum
+	}
+
+	return CULL_CLIP;			// partially clipped
+}
+
 
 /*
 =================
 R_AddDlightInteraction
 =================
 */
-void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * surfaceShader, qboolean shadowOnly)
+void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * surfaceShader, int numIndexes, int *indexes, qboolean shadowOnly)
 {
 	int             index;
 	interaction_t  *ia;
@@ -500,6 +602,8 @@ void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shad
 	ia->entity = tr.currentEntity;
 	ia->surface = surface;
 	ia->surfaceShader = surfaceShader;
+	ia->numIndexes = numIndexes;
+	ia->indexes = indexes;
 	ia->shadowOnly = shadowOnly;
 
 	ia->scissorX = light->scissor.coords[0];

@@ -63,7 +63,7 @@ void RB_CheckOverflow(int verts, int indexes)
 		ri.Error(ERR_DROP, "RB_CheckOverflow: indices > MAX (%d > %d)", indexes, SHADER_MAX_INDEXES);
 	}
 
-	RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.fogNum, tess.skipTangentSpaces);
+	RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.fogNum, tess.skipTangentSpaces, tess.numInteractionIndexes, tess.interactionIndexes);
 }
 
 
@@ -1199,20 +1199,36 @@ void RB_SurfaceFace(srfSurfaceFace_t * surf)
 {
 	int             i;
 	unsigned       *indices, *tessIndexes;
+	int            *iaIndexes;
 	float          *v;
 	int             ndx;
-	int             Bob;
 	int             numPoints;
 
-	RB_CHECKOVERFLOW(surf->numPoints, surf->numIndices);
-
-	indices = (unsigned *)(((char *)surf) + surf->ofsIndices);
-
-	Bob = tess.numVertexes;
-	tessIndexes = tess.indexes + tess.numIndexes;
-	for(i = surf->numIndices - 1; i >= 0; i--)
+#if 1
+	if(tess.numInteractionIndexes)
 	{
-		tessIndexes[i] = indices[i] + Bob;
+		RB_CHECKOVERFLOW(surf->numPoints, tess.numInteractionIndexes);
+
+		iaIndexes = tess.interactionIndexes;
+
+		tessIndexes = tess.indexes + tess.numIndexes;
+		for(i = 0; i < tess.numInteractionIndexes; i++)
+		{
+			tessIndexes[i] = iaIndexes[i] + tess.numVertexes;
+		}
+	}
+	else
+#endif
+	{
+		RB_CHECKOVERFLOW(surf->numPoints, surf->numIndices);
+
+		indices = (unsigned *)(((char *)surf) + surf->ofsIndices);
+
+		tessIndexes = tess.indexes + tess.numIndexes;
+		for(i = 0; i < surf->numIndices; i++)
+		{
+			tessIndexes[i] = indices[i] + tess.numVertexes;
+		}
 	}
 
 	v = surf->points[0];
@@ -1255,7 +1271,15 @@ void RB_SurfaceFace(srfSurfaceFace_t * surf)
 #endif
 	}
 
-	tess.numIndexes += surf->numIndices;
+	if(tess.numInteractionIndexes)
+	{
+		tess.numIndexes += tess.numInteractionIndexes;
+	}
+	else
+	{
+		tess.numIndexes += surf->numIndices;
+	}
+	
 	tess.numVertexes += surf->numPoints;
 }
 
@@ -1369,7 +1393,7 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 			if(vrows < 2 || irows < 1)
 			{
 				RB_EndSurface();
-				RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.fogNum, tess.skipTangentSpaces);
+				RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.fogNum, tess.skipTangentSpaces, tess.numInteractionIndexes, tess.interactionIndexes);
 			}
 			else
 			{
