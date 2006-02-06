@@ -87,6 +87,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <time.h>
 #include <ctype.h>
 #include <limits.h>
+#include <float.h>	// Tr3B - for DBL_MAX and FLT_MAX
 
 #endif
 
@@ -961,7 +962,7 @@ float           AngleNormalize360(float angle);
 float           AngleNormalize180(float angle);
 float           AngleDelta(float angle1, float angle2);
 
-qboolean        PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c);
+qboolean        PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c, qboolean cw);
 void            ProjectPointOnPlane(vec3_t dst, const vec3_t p, const vec3_t normal);
 void            RotatePointAroundVector(vec3_t dst, const vec3_t dir, const vec3_t point, float degrees);
 void            RotateAroundDirection(vec3_t axis[3], float yaw);

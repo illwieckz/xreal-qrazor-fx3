@@ -255,7 +255,8 @@ static void R_LoadLightmaps(lump_t * l)
 						image[j * 4 + 3] = 255;
 					}
 				}
-				tr.lightmaps[i] = R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NONE, FT_DEFAULT, WT_CLAMP);
+				tr.lightmaps[i] =
+					R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NONE, FT_DEFAULT, WT_CLAMP);
 			}
 			else
 			{
@@ -264,7 +265,8 @@ static void R_LoadLightmaps(lump_t * l)
 					R_NormalizeLightingBytes(&buf_p[j * 3], &image[j * 4]);
 					image[j * 4 + 3] = 255;
 				}
-				tr.lightmaps[i] = R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NORMALMAP, FT_DEFAULT, WT_CLAMP);
+				tr.lightmaps[i] =
+					R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NORMALMAP, FT_DEFAULT, WT_CLAMP);
 			}
 		}
 		else
@@ -274,7 +276,8 @@ static void R_LoadLightmaps(lump_t * l)
 				R_ColorShiftLightingBytes(&buf_p[j * 3], &image[j * 4]);
 				image[j * 4 + 3] = 255;
 			}
-			tr.lightmaps[i] = R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NONE, FT_DEFAULT, WT_CLAMP);
+			tr.lightmaps[i] =
+				R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NONE, FT_DEFAULT, WT_CLAMP);
 		}
 	}
 
@@ -358,7 +361,7 @@ static shader_t *ShaderForShaderNum(int shaderNum, int lightmapNum)
 		ri.Error(ERR_DROP, "ShaderForShaderNum: bad num %i", shaderNum);
 	}
 	dsh = &s_worldData.shaders[shaderNum];
-	
+
 	// HACK: this fixes lightmapNum values provided by q3map2
 	if(lightmapNum < 0)
 	{
@@ -606,8 +609,7 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 	numVerts = LittleLong(ds->numVerts);
 	numIndexes = LittleLong(ds->numIndexes);
 
-	tri = ri.Hunk_Alloc(sizeof(*tri) + numVerts * sizeof(tri->verts[0])
-						+ numIndexes * sizeof(tri->indexes[0]), h_low);
+	tri = ri.Hunk_Alloc(sizeof(*tri) + numVerts * sizeof(tri->verts[0]) + numIndexes * sizeof(tri->indexes[0]), h_low);
 	tri->surfaceType = SF_TRIANGLES;
 	tri->numVerts = numVerts;
 	tri->numIndexes = numIndexes;
@@ -775,17 +777,11 @@ int R_MergedHeightPoints(srfGridMesh_t * grid, int offset)
 	{
 		for(j = i + 1; j < grid->height - 1; j++)
 		{
-			if(fabs
-			   (grid->verts[grid->width * i + offset].xyz[0] -
-				grid->verts[grid->width * j + offset].xyz[0]) > .1)
+			if(fabs(grid->verts[grid->width * i + offset].xyz[0] - grid->verts[grid->width * j + offset].xyz[0]) > .1)
 				continue;
-			if(fabs
-			   (grid->verts[grid->width * i + offset].xyz[1] -
-				grid->verts[grid->width * j + offset].xyz[1]) > .1)
+			if(fabs(grid->verts[grid->width * i + offset].xyz[1] - grid->verts[grid->width * j + offset].xyz[1]) > .1)
 				continue;
-			if(fabs
-			   (grid->verts[grid->width * i + offset].xyz[2] -
-				grid->verts[grid->width * j + offset].xyz[2]) > .1)
+			if(fabs(grid->verts[grid->width * i + offset].xyz[2] - grid->verts[grid->width * j + offset].xyz[2]) > .1)
 				continue;
 			return qtrue;
 		}
@@ -852,14 +848,11 @@ void R_FixSharedVertexLodError_r(int start, srfGridMesh_t * grid1)
 					for(l = 1; l < grid2->width - 1; l++)
 					{
 						//
-						if(fabs(grid1->verts[k + offset1].xyz[0] - grid2->verts[l + offset2].xyz[0])
-						   > .1)
+						if(fabs(grid1->verts[k + offset1].xyz[0] - grid2->verts[l + offset2].xyz[0]) > .1)
 							continue;
-						if(fabs(grid1->verts[k + offset1].xyz[1] - grid2->verts[l + offset2].xyz[1])
-						   > .1)
+						if(fabs(grid1->verts[k + offset1].xyz[1] - grid2->verts[l + offset2].xyz[1]) > .1)
 							continue;
-						if(fabs(grid1->verts[k + offset1].xyz[2] - grid2->verts[l + offset2].xyz[2])
-						   > .1)
+						if(fabs(grid1->verts[k + offset1].xyz[2] - grid2->verts[l + offset2].xyz[2]) > .1)
 							continue;
 						// ok the points are equal and should have the same lod error
 						grid2->widthLodError[l] = grid1->widthLodError[k];
@@ -878,17 +871,11 @@ void R_FixSharedVertexLodError_r(int start, srfGridMesh_t * grid1)
 					for(l = 1; l < grid2->height - 1; l++)
 					{
 						//
-						if(fabs
-						   (grid1->verts[k + offset1].xyz[0] -
-							grid2->verts[grid2->width * l + offset2].xyz[0]) > .1)
+						if(fabs(grid1->verts[k + offset1].xyz[0] - grid2->verts[grid2->width * l + offset2].xyz[0]) > .1)
 							continue;
-						if(fabs
-						   (grid1->verts[k + offset1].xyz[1] -
-							grid2->verts[grid2->width * l + offset2].xyz[1]) > .1)
+						if(fabs(grid1->verts[k + offset1].xyz[1] - grid2->verts[grid2->width * l + offset2].xyz[1]) > .1)
 							continue;
-						if(fabs
-						   (grid1->verts[k + offset1].xyz[2] -
-							grid2->verts[grid2->width * l + offset2].xyz[2]) > .1)
+						if(fabs(grid1->verts[k + offset1].xyz[2] - grid2->verts[grid2->width * l + offset2].xyz[2]) > .1)
 							continue;
 						// ok the points are equal and should have the same lod error
 						grid2->heightLodError[l] = grid1->widthLodError[k];
@@ -920,17 +907,11 @@ void R_FixSharedVertexLodError_r(int start, srfGridMesh_t * grid1)
 					for(l = 1; l < grid2->width - 1; l++)
 					{
 						//
-						if(fabs
-						   (grid1->verts[grid1->width * k + offset1].xyz[0] -
-							grid2->verts[l + offset2].xyz[0]) > .1)
+						if(fabs(grid1->verts[grid1->width * k + offset1].xyz[0] - grid2->verts[l + offset2].xyz[0]) > .1)
 							continue;
-						if(fabs
-						   (grid1->verts[grid1->width * k + offset1].xyz[1] -
-							grid2->verts[l + offset2].xyz[1]) > .1)
+						if(fabs(grid1->verts[grid1->width * k + offset1].xyz[1] - grid2->verts[l + offset2].xyz[1]) > .1)
 							continue;
-						if(fabs
-						   (grid1->verts[grid1->width * k + offset1].xyz[2] -
-							grid2->verts[l + offset2].xyz[2]) > .1)
+						if(fabs(grid1->verts[grid1->width * k + offset1].xyz[2] - grid2->verts[l + offset2].xyz[2]) > .1)
 							continue;
 						// ok the points are equal and should have the same lod error
 						grid2->widthLodError[l] = grid1->heightLodError[k];
@@ -1066,8 +1047,7 @@ int R_StitchPatches(int grid1num, int grid2num)
 					//
 					v1 = grid2->verts[l + offset2].xyz;
 					v2 = grid2->verts[l + 1 + offset2].xyz;
-					if(fabs(v1[0] - v2[0]) < .01 &&
-					   fabs(v1[1] - v2[1]) < .01 && fabs(v1[2] - v2[2]) < .01)
+					if(fabs(v1[0] - v2[0]) < .01 && fabs(v1[1] - v2[1]) < .01 && fabs(v1[2] - v2[2]) < .01)
 						continue;
 					//
 					//ri.Printf( PRINT_ALL, "found highest LoD crack between two patches\n" );
@@ -1076,9 +1056,7 @@ int R_StitchPatches(int grid1num, int grid2num)
 						row = grid2->height - 1;
 					else
 						row = 0;
-					grid2 = R_GridInsertColumn(grid2, l + 1, row,
-											   grid1->verts[k + 1 + offset1].xyz,
-											   grid1->widthLodError[k + 1]);
+					grid2 = R_GridInsertColumn(grid2, l + 1, row, grid1->verts[k + 1 + offset1].xyz, grid1->widthLodError[k + 1]);
 					grid2->lodStitched = qfalse;
 					s_worldData.surfaces[grid2num].data = (void *)grid2;
 					return qtrue;
@@ -1116,8 +1094,7 @@ int R_StitchPatches(int grid1num, int grid2num)
 					//
 					v1 = grid2->verts[grid2->width * l + offset2].xyz;
 					v2 = grid2->verts[grid2->width * (l + 1) + offset2].xyz;
-					if(fabs(v1[0] - v2[0]) < .01 &&
-					   fabs(v1[1] - v2[1]) < .01 && fabs(v1[2] - v2[2]) < .01)
+					if(fabs(v1[0] - v2[0]) < .01 && fabs(v1[1] - v2[1]) < .01 && fabs(v1[2] - v2[2]) < .01)
 						continue;
 					//
 					//ri.Printf( PRINT_ALL, "found highest LoD crack between two patches\n" );
@@ -1126,9 +1103,7 @@ int R_StitchPatches(int grid1num, int grid2num)
 						column = grid2->width - 1;
 					else
 						column = 0;
-					grid2 = R_GridInsertRow(grid2, l + 1, column,
-											grid1->verts[k + 1 + offset1].xyz,
-											grid1->widthLodError[k + 1]);
+					grid2 = R_GridInsertRow(grid2, l + 1, column, grid1->verts[k + 1 + offset1].xyz, grid1->widthLodError[k + 1]);
 					grid2->lodStitched = qfalse;
 					s_worldData.surfaces[grid2num].data = (void *)grid2;
 					return qtrue;
@@ -1179,8 +1154,7 @@ int R_StitchPatches(int grid1num, int grid2num)
 					//
 					v1 = grid2->verts[l + offset2].xyz;
 					v2 = grid2->verts[(l + 1) + offset2].xyz;
-					if(fabs(v1[0] - v2[0]) < .01 &&
-					   fabs(v1[1] - v2[1]) < .01 && fabs(v1[2] - v2[2]) < .01)
+					if(fabs(v1[0] - v2[0]) < .01 && fabs(v1[1] - v2[1]) < .01 && fabs(v1[2] - v2[2]) < .01)
 						continue;
 					//
 					//ri.Printf( PRINT_ALL, "found highest LoD crack between two patches\n" );
@@ -1190,8 +1164,7 @@ int R_StitchPatches(int grid1num, int grid2num)
 					else
 						row = 0;
 					grid2 = R_GridInsertColumn(grid2, l + 1, row,
-											   grid1->verts[grid1->width * (k + 1) + offset1].xyz,
-											   grid1->heightLodError[k + 1]);
+											   grid1->verts[grid1->width * (k + 1) + offset1].xyz, grid1->heightLodError[k + 1]);
 					grid2->lodStitched = qfalse;
 					s_worldData.surfaces[grid2num].data = (void *)grid2;
 					return qtrue;
@@ -1229,8 +1202,7 @@ int R_StitchPatches(int grid1num, int grid2num)
 					//
 					v1 = grid2->verts[grid2->width * l + offset2].xyz;
 					v2 = grid2->verts[grid2->width * (l + 1) + offset2].xyz;
-					if(fabs(v1[0] - v2[0]) < .01 &&
-					   fabs(v1[1] - v2[1]) < .01 && fabs(v1[2] - v2[2]) < .01)
+					if(fabs(v1[0] - v2[0]) < .01 && fabs(v1[1] - v2[1]) < .01 && fabs(v1[2] - v2[2]) < .01)
 						continue;
 					//
 					//ri.Printf( PRINT_ALL, "found highest LoD crack between two patches\n" );
@@ -1240,8 +1212,7 @@ int R_StitchPatches(int grid1num, int grid2num)
 					else
 						column = 0;
 					grid2 = R_GridInsertRow(grid2, l + 1, column,
-											grid1->verts[grid1->width * (k + 1) + offset1].xyz,
-											grid1->heightLodError[k + 1]);
+											grid1->verts[grid1->width * (k + 1) + offset1].xyz, grid1->heightLodError[k + 1]);
 					grid2->lodStitched = qfalse;
 					s_worldData.surfaces[grid2num].data = (void *)grid2;
 					return qtrue;
@@ -1293,8 +1264,7 @@ int R_StitchPatches(int grid1num, int grid2num)
 					//
 					v1 = grid2->verts[l + offset2].xyz;
 					v2 = grid2->verts[(l + 1) + offset2].xyz;
-					if(fabs(v1[0] - v2[0]) < .01 &&
-					   fabs(v1[1] - v2[1]) < .01 && fabs(v1[2] - v2[2]) < .01)
+					if(fabs(v1[0] - v2[0]) < .01 && fabs(v1[1] - v2[1]) < .01 && fabs(v1[2] - v2[2]) < .01)
 						continue;
 					//
 					//ri.Printf( PRINT_ALL, "found highest LoD crack between two patches\n" );
@@ -1303,9 +1273,7 @@ int R_StitchPatches(int grid1num, int grid2num)
 						row = grid2->height - 1;
 					else
 						row = 0;
-					grid2 = R_GridInsertColumn(grid2, l + 1, row,
-											   grid1->verts[k - 1 + offset1].xyz,
-											   grid1->widthLodError[k + 1]);
+					grid2 = R_GridInsertColumn(grid2, l + 1, row, grid1->verts[k - 1 + offset1].xyz, grid1->widthLodError[k + 1]);
 					grid2->lodStitched = qfalse;
 					s_worldData.surfaces[grid2num].data = (void *)grid2;
 					return qtrue;
@@ -1343,8 +1311,7 @@ int R_StitchPatches(int grid1num, int grid2num)
 					//
 					v1 = grid2->verts[grid2->width * l + offset2].xyz;
 					v2 = grid2->verts[grid2->width * (l + 1) + offset2].xyz;
-					if(fabs(v1[0] - v2[0]) < .01 &&
-					   fabs(v1[1] - v2[1]) < .01 && fabs(v1[2] - v2[2]) < .01)
+					if(fabs(v1[0] - v2[0]) < .01 && fabs(v1[1] - v2[1]) < .01 && fabs(v1[2] - v2[2]) < .01)
 						continue;
 					//
 					//ri.Printf( PRINT_ALL, "found highest LoD crack between two patches\n" );
@@ -1353,9 +1320,7 @@ int R_StitchPatches(int grid1num, int grid2num)
 						column = grid2->width - 1;
 					else
 						column = 0;
-					grid2 = R_GridInsertRow(grid2, l + 1, column,
-											grid1->verts[k - 1 + offset1].xyz,
-											grid1->widthLodError[k + 1]);
+					grid2 = R_GridInsertRow(grid2, l + 1, column, grid1->verts[k - 1 + offset1].xyz, grid1->widthLodError[k + 1]);
 					if(!grid2)
 						break;
 					grid2->lodStitched = qfalse;
@@ -1408,8 +1373,7 @@ int R_StitchPatches(int grid1num, int grid2num)
 					//
 					v1 = grid2->verts[l + offset2].xyz;
 					v2 = grid2->verts[(l + 1) + offset2].xyz;
-					if(fabs(v1[0] - v2[0]) < .01 &&
-					   fabs(v1[1] - v2[1]) < .01 && fabs(v1[2] - v2[2]) < .01)
+					if(fabs(v1[0] - v2[0]) < .01 && fabs(v1[1] - v2[1]) < .01 && fabs(v1[2] - v2[2]) < .01)
 						continue;
 					//
 					//ri.Printf( PRINT_ALL, "found highest LoD crack between two patches\n" );
@@ -1419,8 +1383,7 @@ int R_StitchPatches(int grid1num, int grid2num)
 					else
 						row = 0;
 					grid2 = R_GridInsertColumn(grid2, l + 1, row,
-											   grid1->verts[grid1->width * (k - 1) + offset1].xyz,
-											   grid1->heightLodError[k + 1]);
+											   grid1->verts[grid1->width * (k - 1) + offset1].xyz, grid1->heightLodError[k + 1]);
 					grid2->lodStitched = qfalse;
 					s_worldData.surfaces[grid2num].data = (void *)grid2;
 					return qtrue;
@@ -1458,8 +1421,7 @@ int R_StitchPatches(int grid1num, int grid2num)
 					//
 					v1 = grid2->verts[grid2->width * l + offset2].xyz;
 					v2 = grid2->verts[grid2->width * (l + 1) + offset2].xyz;
-					if(fabs(v1[0] - v2[0]) < .01 &&
-					   fabs(v1[1] - v2[1]) < .01 && fabs(v1[2] - v2[2]) < .01)
+					if(fabs(v1[0] - v2[0]) < .01 && fabs(v1[1] - v2[1]) < .01 && fabs(v1[2] - v2[2]) < .01)
 						continue;
 					//
 					//ri.Printf( PRINT_ALL, "found highest LoD crack between two patches\n" );
@@ -1469,8 +1431,7 @@ int R_StitchPatches(int grid1num, int grid2num)
 					else
 						column = 0;
 					grid2 = R_GridInsertRow(grid2, l + 1, column,
-											grid1->verts[grid1->width * (k - 1) + offset1].xyz,
-											grid1->heightLodError[k + 1]);
+											grid1->verts[grid1->width * (k - 1) + offset1].xyz, grid1->heightLodError[k + 1]);
 					grid2->lodStitched = qfalse;
 					s_worldData.surfaces[grid2num].data = (void *)grid2;
 					return qtrue;
@@ -1669,8 +1630,7 @@ static void R_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexLump)
 	R_MovePatchSurfacesToHunk();
 #endif
 
-	ri.Printf(PRINT_ALL, "...loaded %d faces, %i meshes, %i trisurfs, %i flares\n",
-			  numFaces, numMeshes, numTriSurfs, numFlares);
+	ri.Printf(PRINT_ALL, "...loaded %d faces, %i meshes, %i trisurfs, %i flares\n", numFaces, numMeshes, numTriSurfs, numFlares);
 }
 
 
@@ -2093,13 +2053,13 @@ R_LoadEntities
 */
 void R_LoadEntities(lump_t * l)
 {
-	int				i;
+	int             i;
 	char           *p, *pOld, *token, *s;
 	char            keyname[MAX_TOKEN_CHARS];
 	char            value[MAX_TOKEN_CHARS];
 	world_t        *w;
-	qboolean		isLight = qfalse;
-	int				numLights = 0;
+	qboolean        isLight = qfalse;
+	int             numLights = 0;
 	trRefDlight_t  *dl;
 
 	w = &s_worldData;
@@ -2148,14 +2108,13 @@ void R_LoadEntities(lump_t * l)
 			s = strchr(value, ';');
 			if(!s)
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: no semi colon in vertexshaderremap '%s'\n",
-						  value);
+				ri.Printf(PRINT_WARNING, "WARNING: no semi colon in vertexshaderremap '%s'\n", value);
 				break;
 			}
 			*s++ = 0;
 			continue;
 		}
-		
+
 		// check for remapping of shaders
 		s = "remapshader";
 		if(!Q_strncmp(keyname, s, strlen(s)))
@@ -2170,27 +2129,26 @@ void R_LoadEntities(lump_t * l)
 			R_RemapShader(value, s, "0");
 			continue;
 		}
-		
+
 		// check for a different grid size
 		if(!Q_stricmp(keyname, "gridsize"))
 		{
 			sscanf(value, "%f %f %f", &w->lightGridSize[0], &w->lightGridSize[1], &w->lightGridSize[2]);
 			continue;
 		}
-		
+
 		// check for deluxe mapping support
-		if( (!Q_stricmp(keyname, "deluxeMapping") && !Q_stricmp(value, "1")) ||
-			(!Q_stricmp(keyname, "message") && !Q_stricmp(value, "camo-retro")))	// HACK: this map has it
+		if((!Q_stricmp(keyname, "deluxeMapping") && !Q_stricmp(value, "1")) || (!Q_stricmp(keyname, "message") && !Q_stricmp(value, "camo-retro")))	// HACK: this map has it
 		{
 			tr.worldDeluxeMapping = qtrue;
 			continue;
 		}
 	}
-	
-//	ri.Printf(PRINT_ALL, "-----------\n%s\n----------\n", p);
-	
+
+//  ri.Printf(PRINT_ALL, "-----------\n%s\n----------\n", p);
+
 	pOld = p;
-	
+
 	// count lights
 	while(1)
 	{
@@ -2202,14 +2160,14 @@ void R_LoadEntities(lump_t * l)
 			// end of entities string
 			break;
 		}
-		
+
 		if(*token == '{')
 		{
 			// new entity
 			isLight = qfalse;
 			continue;
 		}
-		
+
 		if(*token == '}')
 		{
 			if(isLight)
@@ -2218,7 +2176,7 @@ void R_LoadEntities(lump_t * l)
 			}
 			continue;
 		}
-		
+
 		Q_strncpyz(keyname, token, sizeof(keyname));
 
 		// parse value
@@ -2230,7 +2188,7 @@ void R_LoadEntities(lump_t * l)
 		}
 		Q_strncpyz(value, token, sizeof(value));
 
-		
+
 		// check if this entity is a light
 		if(!Q_stricmp(keyname, "classname") && !Q_stricmp(value, "light"))
 		{
@@ -2238,29 +2196,29 @@ void R_LoadEntities(lump_t * l)
 			continue;
 		}
 	}
-	
+
 	s_worldData.numDlights = numLights;
 	s_worldData.dlights = ri.Hunk_Alloc(s_worldData.numDlights * sizeof(trRefDlight_t), h_low);
-	
+
 	// basic light setup
 	for(i = 0; i < s_worldData.numDlights; i++)
 	{
 		dl = &s_worldData.dlights[i];
-		
+
 		dl->l.radius[0] = 300;
 		dl->l.radius[1] = 300;
 		dl->l.radius[2] = 300;
 		AxisCopy(axisDefault, dl->l.axis);
-		
+
 		dl->isStatic = qtrue;
 		dl->additive = qtrue;
 	}
-	
+
 	// parse lights
 	p = pOld;
 	numLights = 0;
 	dl = &s_worldData.dlights[0];
-	
+
 	while(1)
 	{
 		// parse key
@@ -2271,14 +2229,14 @@ void R_LoadEntities(lump_t * l)
 			// end of entities string
 			break;
 		}
-		
+
 		if(*token == '{')
 		{
 			// new entity
 			isLight = qfalse;
 			continue;
 		}
-		
+
 		if(*token == '}')
 		{
 			if(isLight)
@@ -2288,7 +2246,7 @@ void R_LoadEntities(lump_t * l)
 			}
 			continue;
 		}
-		
+
 		Q_strncpyz(keyname, token, sizeof(keyname));
 
 		// parse value
@@ -2306,65 +2264,66 @@ void R_LoadEntities(lump_t * l)
 			isLight = qtrue;
 			continue;
 		}
-		
+
 		// check for origin
 		if(!Q_stricmp(keyname, "origin"))
 		{
 			sscanf(value, "%f %f %f", &dl->l.origin[0], &dl->l.origin[1], &dl->l.origin[2]);
 			continue;
 		}
-		
+
 		// check for center
 		if(!Q_stricmp(keyname, "light_center"))
 		{
 			sscanf(value, "%f %f %f", &dl->l.center[0], &dl->l.center[1], &dl->l.center[2]);
 			continue;
 		}
-		
+
 		// check for color
 		if(!Q_stricmp(keyname, "_color"))
 		{
 			sscanf(value, "%f %f %f", &dl->l.color[0], &dl->l.color[1], &dl->l.color[2]);
 			continue;
 		}
-		
+
 		// check for radius
 		if(!Q_stricmp(keyname, "light_radius"))
 		{
 			sscanf(value, "%f %f %f", &dl->l.radius[0], &dl->l.radius[1], &dl->l.radius[2]);
 			continue;
 		}
-		
+
 		// check for radius
 		if(!Q_stricmp(keyname, "light") || !Q_stricmp(keyname, "_light"))
 		{
-			vec_t value2;
+			vec_t           value2;
+
 			value2 = atof(value);
 			dl->l.radius[0] = value2;
 			dl->l.radius[1] = value2;
 			dl->l.radius[2] = value2;
 			continue;
 		}
-		
+
 		// check for light shader
 		if(!Q_stricmp(keyname, "texture"))
 		{
 			dl->l.attenuationShader = RE_RegisterShaderLightAttenuation(value);
 			continue;
 		}
-		
+
 		// check for rotation
 		if(!Q_stricmp(keyname, "rotation"))
 		{
-			matrix_t rotation;
-			sscanf(value, "%f %f %f %f %f %f %f %f %f",	&rotation[ 0], &rotation[ 1], &rotation[ 2],
-				   										&rotation[ 4], &rotation[ 5], &rotation[ 6],
-														&rotation[ 8], &rotation[ 9], &rotation[10]);
+			matrix_t        rotation;
+
+			sscanf(value, "%f %f %f %f %f %f %f %f %f", &rotation[0], &rotation[1], &rotation[2],
+				   &rotation[4], &rotation[5], &rotation[6], &rotation[8], &rotation[9], &rotation[10]);
 			MatrixToVectorsFLU(rotation, dl->l.axis[0], dl->l.axis[1], dl->l.axis[2]);
 			continue;
 		}
 	}
-	
+
 	ri.Printf(PRINT_ALL, "%i lights parsed\n", numLights);
 }
 
@@ -2405,56 +2364,549 @@ static void R_PrecacheInteraction(trRefDlight_t * light, msurface_t * surface)
 		ri.Printf(PRINT_WARNING, "R_PrecacheInteraction: overflow, not enough interactions in pool\n");
 		return;
 	}
-	
+
 	iaCache = &s_worldData.interactions[s_interactionCount];
 	s_interactionCount++;
-	
+
 	// connect to interaction grid
 	if(!light->firstInteractionCache)
 	{
 		light->firstInteractionCache = iaCache;
 	}
-	
+
 	if(light->lastInteractionCache)
 	{
 		light->lastInteractionCache->next = iaCache;
 	}
 
 	light->lastInteractionCache = iaCache;
-	
+
 	iaCache->next = NULL;
 	iaCache->surface = surface;
-	
+
 	iaCache->numIndexes = s_numInteractionIndexes;
 	iaCache->indexes = ri.Hunk_Alloc(s_numInteractionIndexes * sizeof(int), h_low);
 	Com_Memcpy(iaCache->indexes, s_interactionIndexes, s_numInteractionIndexes * sizeof(int));
 }
 
+/*
+Triangle-box collider by Alen Ladavac and Vedran Klanac.
+Ported to ODE by Oskari Nyman.
+Ported to Q3A by Robert Beckebans.
+*/
 
-static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * shader, trRefDlight_t  * dl)
+// global collider data
+static vec3_t   vBestNormal;
+static vec_t    fBestDepth;
+static int      iBestAxis = 0;
+static int      iExitAxis = 0;
+static vec3_t   vE0, vE1, vE2, vN;
+
+// test normal of mesh face as separating axis for intersection
+static qboolean _cldTestNormal(vec_t fp0, vec_t fR, vec3_t vNormal, int iAxis)
+{
+	// calculate overlapping interval of box and triangle
+	vec_t           fDepth = fR + fp0;
+	vec_t           fLength;
+
+	// if we do not overlap
+	if(fDepth < 0)
+	{
+		// do nothing
+		return qfalse;
+	}
+
+	// calculate normal's length
+	fLength = VectorLength(vNormal);
+
+	// if long enough
+	if(fLength > 0.0f)
+	{
+
+		vec_t           fOneOverLength = 1.0f / fLength;
+
+		// normalize depth
+		fDepth = fDepth * fOneOverLength;
+
+		// get minimum depth
+		if(fDepth < fBestDepth)
+		{
+			vBestNormal[0] = -vNormal[0] * fOneOverLength;
+			vBestNormal[1] = -vNormal[1] * fOneOverLength;
+			vBestNormal[2] = -vNormal[2] * fOneOverLength;
+			iBestAxis = iAxis;
+			//dAASSERT(fDepth>=0);
+			fBestDepth = fDepth;
+		}
+
+	}
+
+	return qtrue;
+}
+
+// test box axis as separating axis
+static qboolean _cldTestFace(vec_t fp0, vec_t fp1, vec_t fp2, vec_t fR, vec_t fD, vec3_t vNormal, int iAxis)
+{
+	vec_t           fMin, fMax;
+	vec_t           fDepthMin;
+	vec_t           fDepthMax;
+	vec_t           fDepth;
+
+	// find min of triangle interval 
+	if(fp0 < fp1)
+	{
+		if(fp0 < fp2)
+		{
+			fMin = fp0;
+		}
+		else
+		{
+			fMin = fp2;
+		}
+	}
+	else
+	{
+		if(fp1 < fp2)
+		{
+			fMin = fp1;
+		}
+		else
+		{
+			fMin = fp2;
+		}
+	}
+
+	// find max of triangle interval 
+	if(fp0 > fp1)
+	{
+		if(fp0 > fp2)
+		{
+			fMax = fp0;
+		}
+		else
+		{
+			fMax = fp2;
+		}
+	}
+	else
+	{
+		if(fp1 > fp2)
+		{
+			fMax = fp1;
+		}
+		else
+		{
+			fMax = fp2;
+		}
+	}
+
+	// calculate minimum and maximum depth
+	fDepthMin = fR - fMin;
+	fDepthMax = fMax + fR;
+
+	// if we dont't have overlapping interval
+	if(fDepthMin < 0 || fDepthMax < 0)
+	{
+		// do nothing
+		return qfalse;
+	}
+
+	fDepth = 0;
+
+	// if greater depth is on negative side 
+	if(fDepthMin > fDepthMax)
+	{
+		// use smaller depth (one from positive side)
+		fDepth = fDepthMax;
+		// flip normal direction
+		vNormal[0] = -vNormal[0];
+		vNormal[1] = -vNormal[1];
+		vNormal[2] = -vNormal[2];
+		fD = -fD;
+		// if greater depth is on positive side 
+	}
+	else
+	{
+		// use smaller depth (one from negative side)
+		fDepth = fDepthMin;
+	}
+
+
+	// if lower depth than best found so far 
+	if(fDepth < fBestDepth)
+	{
+		// remember current axis as best axis
+		vBestNormal[0] = vNormal[0];
+		vBestNormal[1] = vNormal[1];
+		vBestNormal[2] = vNormal[2];
+		iBestAxis = iAxis;
+		//dAASSERT(fDepth>=0);
+		fBestDepth = fDepth;
+	}
+
+	return qtrue;
+}
+
+// test cross products of box axis and triangle edges as separating axis
+static qboolean _cldTestEdge(vec_t fp0, vec_t fp1, vec_t fR, vec_t fD, vec3_t vNormal, int iAxis)
+{
+	vec_t           fMin, fMax;
+	vec_t           fDepthMin;
+	vec_t           fDepthMax;
+	vec_t           fDepth;
+	vec_t           fLength;
+
+	// calculate min and max interval values  
+	if(fp0 < fp1)
+	{
+		fMin = fp0;
+		fMax = fp1;
+	}
+	else
+	{
+		fMin = fp1;
+		fMax = fp0;
+	}
+
+	// check if we overlapp
+	fDepthMin = fR - fMin;
+	fDepthMax = fMax + fR;
+
+	// if we don't overlapp
+	if(fDepthMin < 0 || fDepthMax < 0)
+	{
+		// do nothing
+		return qfalse;
+	}
+
+	// if greater depth is on negative side 
+	if(fDepthMin > fDepthMax)
+	{
+		// use smaller depth (one from positive side)
+		fDepth = fDepthMax;
+		// flip normal direction
+		vNormal[0] = -vNormal[0];
+		vNormal[1] = -vNormal[1];
+		vNormal[2] = -vNormal[2];
+		fD = -fD;
+		// if greater depth is on positive side 
+	}
+	else
+	{
+		// use smaller depth (one from negative side)
+		fDepth = fDepthMin;
+	}
+
+	// calculate normal's length
+	fLength = VectorLength(vNormal);
+
+	// if long enough
+	if(fLength > 0.0f)
+	{
+		// normalize depth
+		vec_t           fOneOverLength = 1.0f / fLength;
+
+		fDepth = fDepth * fOneOverLength;
+		fD *= fOneOverLength;
+
+		// if lower depth than best found so far (favor face over edges)
+		if(fDepth * 1.5f < fBestDepth)
+		{
+			// remember current axis as best axis
+			vBestNormal[0] = vNormal[0] * fOneOverLength;
+			vBestNormal[1] = vNormal[1] * fOneOverLength;
+			vBestNormal[2] = vNormal[2] * fOneOverLength;
+			iBestAxis = iAxis;
+			//dAASSERT(fDepth>=0);
+			fBestDepth = fDepth;
+		}
+	}
+
+	return qtrue;
+}
+
+static qboolean _cldTestSeparatingAxes(trRefDlight_t * dl, const vec3_t v0, const vec3_t v1, const vec3_t v2)
+{
+	vec3_t          vA0, vA1, vA2;
+	vec_t           fa0, fa1, fa2;
+	vec3_t          vD;
+	vec_t           fNLen;
+	vec3_t          vL;
+	vec_t           fp0, fp1, fp2, fR, fD;
+
+	// reset best axis
+	iBestAxis = 0;
+	iExitAxis = -1;
+	fBestDepth = FLT_MAX;
+
+	// calculate edges
+	VectorSubtract(v1, v0, vE0);
+	VectorSubtract(v2, v0, vE1);
+	VectorSubtract(vE1, vE0, vE2);
+
+	// calculate poly normal
+	CrossProduct(vE0, vE1, vN);
+
+	// extract box axes as vectors
+	VectorCopy(dl->l.axis[0], vA0);
+	VectorCopy(dl->l.axis[1], vA1);
+	VectorCopy(dl->l.axis[2], vA2);
+
+	// box halfsizes
+	fa0 = dl->l.radius[0];
+	fa1 = dl->l.radius[1];
+	fa2 = dl->l.radius[2];
+
+	// calculate relative position between box and triangle
+	VectorSubtract(v0, dl->l.origin, vD);
+
+	// calculate length of face normal
+	fNLen = VectorLength(vN);
+
+	//
+	// test separating axes for intersection
+	//
+
+	// Axis 1 - Triangle Normal
+	VectorCopy(vN, vL);
+	fp0 = DotProduct(vL, vD);
+	fp1 = fp0;
+	fp2 = fp0;
+	fR = fa0 * Q_fabs(DotProduct(vN, vA0)) + fa1 * Q_fabs(DotProduct(vN, vA1)) + fa2 * Q_fabs(DotProduct(vN, vA2));
+
+	if(!_cldTestNormal(fp0, fR, vL, 1))
+	{
+		iExitAxis = 1;
+		return qfalse;
+	}
+
+	//
+	// test faces
+	//
+
+	// Axis 2 - Box X-Axis
+	VectorCopy(vA0, vL);
+	fD = DotProduct(vL, vN) / fNLen;
+	fp0 = DotProduct(vL, vD);
+	fp1 = fp0 + DotProduct(vA0, vE0);
+	fp2 = fp0 + DotProduct(vA0, vE1);
+	fR = fa0;
+
+	if(!_cldTestFace(fp0, fp1, fp2, fR, fD, vL, 2))
+	{
+		iExitAxis = 2;
+		return qfalse;
+	}
+
+	// Axis 3 - Box Y-Axis
+	VectorCopy(vA1, vL);
+	fD = DotProduct(vL, vN) / fNLen;
+	fp0 = DotProduct(vL, vD);
+	fp1 = fp0 + DotProduct(vA1, vE0);
+	fp2 = fp0 + DotProduct(vA1, vE1);
+	fR = fa1;
+
+	if(!_cldTestFace(fp0, fp1, fp2, fR, fD, vL, 3))
+	{
+		iExitAxis = 3;
+		return qfalse;
+	}
+
+	// Axis 4 - Box Z-Axis
+	VectorCopy(vA2, vL);
+	fD = DotProduct(vL, vN) / fNLen;
+	fp0 = DotProduct(vL, vD);
+	fp1 = fp0 + DotProduct(vA2, vE0);
+	fp2 = fp0 + DotProduct(vA2, vE1);
+	fR = fa2;
+
+	if(!_cldTestFace(fp0, fp1, fp2, fR, fD, vL, 4))
+	{
+		iExitAxis = 4;
+		return qfalse;
+	}
+
+	//
+	// test edges
+	//
+
+	// Axis 5 - Box X-Axis cross Edge0
+	CrossProduct(vA0, vE0, vL);
+	fD = DotProduct(vL, vN) / fNLen;
+	fp0 = DotProduct(vL, vD);
+	fp1 = fp0;
+	fp2 = fp0 + DotProduct(vA0, vN);
+	fR = fa1 * Q_fabs(DotProduct(vA2, vE0)) + fa2 * Q_fabs(DotProduct(vA1, vE0));
+
+	if(!_cldTestEdge(fp1, fp2, fR, fD, vL, 5))
+	{
+		iExitAxis = 5;
+		return qfalse;
+	}
+
+	// Axis 6 - Box X-Axis cross Edge1
+	CrossProduct(vA0, vE1, vL);
+	fD = DotProduct(vL, vN) / fNLen;
+	fp0 = DotProduct(vL, vD);
+	fp1 = fp0 - DotProduct(vA0, vN);
+	fp2 = fp0;
+	fR = fa1 * Q_fabs(DotProduct(vA2, vE1)) + fa2 * Q_fabs(DotProduct(vA1, vE1));
+
+	if(!_cldTestEdge(fp0, fp1, fR, fD, vL, 6))
+	{
+		iExitAxis = 6;
+		return qfalse;
+	}
+
+	// Axis 7 - Box X-Axis cross Edge2
+	CrossProduct(vA0, vE2, vL);
+	fD = DotProduct(vL, vN) / fNLen;
+	fp0 = DotProduct(vL, vD);
+	fp1 = fp0 - DotProduct(vA0, vN);
+	fp2 = fp0 - DotProduct(vA0, vN);
+	fR = fa1 * Q_fabs(DotProduct(vA2, vE2)) + fa2 * Q_fabs(DotProduct(vA1, vE2));
+
+	if(!_cldTestEdge(fp0, fp1, fR, fD, vL, 7))
+	{
+		iExitAxis = 7;
+		return qfalse;
+	}
+
+	// Axis 8 - Box Y-Axis cross Edge0
+	CrossProduct(vA1, vE0, vL);
+	fD = DotProduct(vL, vN) / fNLen;
+	fp0 = DotProduct(vL, vD);
+	fp1 = fp0;
+	fp2 = fp0 + DotProduct(vA1, vN);
+	fR = fa0 * Q_fabs(DotProduct(vA2, vE0)) + fa2 * Q_fabs(DotProduct(vA0, vE0));
+
+	if(!_cldTestEdge(fp0, fp2, fR, fD, vL, 8))
+	{
+		iExitAxis = 8;
+		return qfalse;
+	}
+
+	// Axis 9 - Box Y-Axis cross Edge1
+	CrossProduct(vA1, vE1, vL);
+	fD = DotProduct(vL, vN) / fNLen;
+	fp0 = DotProduct(vL, vD);
+	fp1 = fp0 - DotProduct(vA1, vN);
+	fp2 = fp0;
+	fR = fa0 * Q_fabs(DotProduct(vA2, vE1)) + fa2 * Q_fabs(DotProduct(vA0, vE1));
+
+	if(!_cldTestEdge(fp0, fp1, fR, fD, vL, 9))
+	{
+		iExitAxis = 9;
+		return qfalse;
+	}
+
+	// Axis 10 - Box Y-Axis cross Edge2
+	CrossProduct(vA1, vE2, vL);
+	fD = DotProduct(vL, vN) / fNLen;
+	fp0 = DotProduct(vL, vD);
+	fp1 = fp0 - DotProduct(vA1, vN);
+	fp2 = fp0 - DotProduct(vA1, vN);
+	fR = fa0 * Q_fabs(DotProduct(vA2, vE2)) + fa2 * Q_fabs(DotProduct(vA0, vE2));
+
+	if(!_cldTestEdge(fp0, fp1, fR, fD, vL, 10))
+	{
+		iExitAxis = 10;
+		return qfalse;
+	}
+
+	// Axis 11 - Box Z-Axis cross Edge0
+	CrossProduct(vA2, vE0, vL);
+	fD = DotProduct(vL, vN) / fNLen;
+	fp0 = DotProduct(vL, vD);
+	fp1 = fp0;
+	fp2 = fp0 + DotProduct(vA2, vN);
+	fR = fa0 * Q_fabs(DotProduct(vA1, vE0)) + fa1 * Q_fabs(DotProduct(vA0, vE0));
+
+	if(!_cldTestEdge(fp0, fp2, fR, fD, vL, 11))
+	{
+		iExitAxis = 11;
+		return qfalse;
+	}
+
+	// Axis 12 - Box Z-Axis cross Edge1
+	CrossProduct(vA2, vE1, vL);
+	fD = DotProduct(vL, vN) / fNLen;
+	fp0 = DotProduct(vL, vD);
+	fp1 = fp0 - DotProduct(vA2, vN);
+	fp2 = fp0;
+	fR = fa0 * Q_fabs(DotProduct(vA1, vE1)) + fa1 * Q_fabs(DotProduct(vA0, vE1));
+
+	if(!_cldTestEdge(fp0, fp1, fR, fD, vL, 12))
+	{
+		iExitAxis = 12;
+		return qfalse;
+	}
+
+	// Axis 13 - Box Z-Axis cross Edge2
+	CrossProduct(vA2, vE2, vL);
+	fD = DotProduct(vL, vN) / fNLen;
+	fp0 = DotProduct(vL, vD);
+	fp1 = fp0 - DotProduct(vA2, vN);
+	fp2 = fp0 - DotProduct(vA2, vN);
+	fR = fa0 * Q_fabs(DotProduct(vA1, vE2)) + fa1 * Q_fabs(DotProduct(vA0, vE2));
+
+	if(!_cldTestEdge(fp0, fp1, fR, fD, vL, 13))
+	{
+		iExitAxis = 13;
+		return qfalse;
+	}
+
+	return qtrue;
+}
+
+// test one mesh triangle on intersection with given box
+static qboolean _cldTestOneTriangle(trRefDlight_t * dl, const vec3_t v0, const vec3_t v1, const vec3_t v2)
+{
+	// do intersection test and find best separating axis
+	if(!_cldTestSeparatingAxes(dl, v0, v1, v2))
+	{
+		// if not found do nothing
+		return qfalse;
+	}
+
+	return qtrue;
+
+	/*
+	   // if best separation axis is not found
+	   if ( iBestAxis == 0 ) {
+	   // this should not happen (we should already exit in that case)
+	   //dMessage (0, "best separation axis not found");
+	   // do nothing
+	   return;
+	   }
+
+	   _cldClipping(v0, v1, v2);
+	 */
+}
+
+static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * shader, trRefDlight_t * dl)
 {
 	int             i;
 	unsigned       *indices;
 	int             numIndexes;
 	int            *iaIndexes;
 	float           d;
-	vec3_t          bounds[2];
-	
+
 	// check if bounds intersect
-	if( dl->worldBounds[1][0] < face->bounds[0][0] ||
-		dl->worldBounds[1][1] < face->bounds[0][1] ||
-		dl->worldBounds[1][2] < face->bounds[0][2] ||
-		dl->worldBounds[0][0] > face->bounds[1][0] ||
-		dl->worldBounds[0][1] > face->bounds[1][1] ||
-		dl->worldBounds[0][2] > face->bounds[1][2])
+	if(dl->worldBounds[1][0] < face->bounds[0][0] ||
+	   dl->worldBounds[1][1] < face->bounds[0][1] ||
+	   dl->worldBounds[1][2] < face->bounds[0][2] ||
+	   dl->worldBounds[0][0] > face->bounds[1][0] ||
+	   dl->worldBounds[0][1] > face->bounds[1][1] ||
+	   dl->worldBounds[0][2] > face->bounds[1][2])
 	{
 		return qfalse;
 	}
-	
+
 #if 1
 	// check if light origin is behind surface
 	d = DotProduct(face->plane.normal, dl->origin);
-	
+
 	// don't cull exactly on the plane, because there are levels of rounding
 	// through the BSP, ICD, and hardware that may cause pixel gaps if an
 	// epsilon isn't allowed here 
@@ -2462,7 +2914,6 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * sh
 	{
 		if(d < face->plane.dist - 8)
 		{
-			// not lighted, light origin is behind triangle
 			c_culledFaceTriangles += (face->numIndices / 3);
 			return qfalse;
 		}
@@ -2471,22 +2922,20 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * sh
 	{
 		if(d > face->plane.dist + 8)
 		{
-			// not lighted, light origin is behind triangle
 			c_culledFaceTriangles += (face->numIndices / 3);
 			return qfalse;
 		}
 	}
 #endif
 
-	indices = (unsigned *)(((char *)face) + face->ofsIndices);	
+	indices = (unsigned *)(((char *)face) + face->ofsIndices);
 	iaIndexes = s_interactionIndexes;
-	
+
 	// build a list of triangles that need light
 	numIndexes = 0;
 	for(i = 0; i < (face->numIndices / 3); i++)
 	{
 		int             i1, i2, i3;
-		vec3_t          d1, d2;
 		vec3_t          verts[3];
 
 		i1 = indices[i * 3 + 0];
@@ -2496,28 +2945,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * sh
 		VectorCopy(face->points[i1 * VERTEXSIZE], verts[0]);
 		VectorCopy(face->points[i2 * VERTEXSIZE], verts[1]);
 		VectorCopy(face->points[i3 * VERTEXSIZE], verts[2]);
-		
-		
-#if 0
-		// check if triangle bounds intersect with light bounds
-		ClearBounds(bounds[0], bounds[1]);
-		
-		AddPointToBounds(verts[0], bounds[0], bounds[1]);
-		AddPointToBounds(verts[1], bounds[0], bounds[1]);
-		AddPointToBounds(verts[2], bounds[0], bounds[1]);
-		
-		if( dl->worldBounds[1][0] < bounds[0][0] ||
-			dl->worldBounds[1][1] < bounds[0][1] ||
-			dl->worldBounds[1][2] < bounds[0][2] ||
-			dl->worldBounds[0][0] > bounds[1][0] ||
-			dl->worldBounds[0][1] > bounds[1][1] ||
-			dl->worldBounds[0][2] > bounds[1][2])
-		{
-			c_culledFaceTriangles++;
-			continue;
-		}
-#endif
-		
+
 #if 0
 		// check wether the triangle is inside light frustum
 		switch (R_CullDlightTriangle(dl, verts))
@@ -2525,32 +2953,41 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * sh
 			case CULL_IN:
 			case CULL_CLIP:
 				break;
-			
+
 			case CULL_OUT:
 			default:
 				c_culledFaceTriangles++;
 				continue;
 		}
 #endif
-		
+
+#if 0
+		// test this triangle
+		if(!_cldTestOneTriangle(dl, verts[0], verts[1], verts[2]))
+		{
+			c_culledFaceTriangles++;
+			continue;
+		}
+#endif
+
 		if(numIndexes >= SHADER_MAX_INDEXES)
 		{
 			ri.Error(ERR_DROP, "R_PrecacheFaceInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
 		}
-			
+
 		iaIndexes[numIndexes + 0] = i1;
 		iaIndexes[numIndexes + 1] = i2;
 		iaIndexes[numIndexes + 2] = i3;
 		numIndexes += 3;
 	}
-	
+
 #if 1
 	if(numIndexes == 0)
 	{
 		return qfalse;
 	}
 #endif
-	
+
 	s_numInteractionIndexes = numIndexes;
 	return qtrue;
 }
@@ -2558,12 +2995,12 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * sh
 
 static int R_PrecacheGridInteraction(srfGridMesh_t * grid, trRefDlight_t * dl)
 {
-	if(	dl->worldBounds[1][0] < grid->meshBounds[0][0] ||
-		   dl->worldBounds[1][1] < grid->meshBounds[0][1] ||
-		   dl->worldBounds[1][2] < grid->meshBounds[0][2] ||
-		   dl->worldBounds[0][0] > grid->meshBounds[1][0] ||
-		   dl->worldBounds[0][1] > grid->meshBounds[1][1] ||
-		   dl->worldBounds[0][2] > grid->meshBounds[1][2])
+	if(dl->worldBounds[1][0] < grid->meshBounds[0][0] ||
+	   dl->worldBounds[1][1] < grid->meshBounds[0][1] ||
+	   dl->worldBounds[1][2] < grid->meshBounds[0][2] ||
+	   dl->worldBounds[0][0] > grid->meshBounds[1][0] ||
+	   dl->worldBounds[0][1] > grid->meshBounds[1][1] ||
+	   dl->worldBounds[0][2] > grid->meshBounds[1][2])
 	{
 		// dlight doesn't reach the bounds
 		return qfalse;
@@ -2573,39 +3010,35 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * grid, trRefDlight_t * dl)
 }
 
 
-static int R_PrecacheTrisurfInteraction(srfTriangles_t * tri, trRefDlight_t * dl)
+static int R_PrecacheTrisurfInteraction(srfTriangles_t * tri, shader_t * shader, trRefDlight_t * dl)
 {
 	int             i;
 	int            *indexes;
 	int             numIndexes;
 	int            *iaIndexes;
-	srfVert_t      *dv;
-	
+
 	// check if bounds intersect
-	if(	dl->worldBounds[1][0] < tri->bounds[0][0] ||
-		   dl->worldBounds[1][1] < tri->bounds[0][1] ||
-		   dl->worldBounds[1][2] < tri->bounds[0][2] ||
-		   dl->worldBounds[0][0] > tri->bounds[1][0] ||
-		   dl->worldBounds[0][1] > tri->bounds[1][1] ||
-		   dl->worldBounds[0][2] > tri->bounds[1][2])
+	if(dl->worldBounds[1][0] < tri->bounds[0][0] ||
+	   dl->worldBounds[1][1] < tri->bounds[0][1] ||
+	   dl->worldBounds[1][2] < tri->bounds[0][2] ||
+	   dl->worldBounds[0][0] > tri->bounds[1][0] ||
+	   dl->worldBounds[0][1] > tri->bounds[1][1] ||
+	   dl->worldBounds[0][2] > tri->bounds[1][2])
 	{
 		return qfalse;
 	}
 
-	indexes = tri->indexes;	
+	indexes = tri->indexes;
 	iaIndexes = s_interactionIndexes;
-	
+
 	// build a list of triangles that need light
 	numIndexes = 0;
 	for(i = 0; i < (tri->numIndexes / 3); i++)
 	{
 		int             i1, i2, i3;
-		vec3_t          d1, d2;
 		vec3_t          verts[3];
 		vec4_t          plane;
 		float           d;
-		int             r;
-		vec3_t          bounds[2];
 
 		i1 = indexes[i * 3 + 0];
 		i2 = indexes[i * 3 + 1];
@@ -2616,17 +3049,31 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * tri, trRefDlight_t * dl
 		VectorCopy(tri->verts[i2].xyz, verts[1]);
 		VectorCopy(tri->verts[i3].xyz, verts[2]);
 
-#if 1
-		if(PlaneFromPoints(plane, verts[0], verts[1], verts[2]))
+		if(PlaneFromPoints(plane, verts[0], verts[1], verts[2], qtrue))
 		{
+#if 1
 			// check if light origin is behind triangle
 			d = DotProduct(plane, dl->origin) - plane[3];
-			if(d <= 0)
+
+			if(shader->cullType == CT_FRONT_SIDED)
 			{
-				c_culledTriTriangles++;
-				continue;
+				if(d < 0)
+				{
+					c_culledTriTriangles++;
+					continue;
+				}
 			}
-			
+			else
+			{
+				if(d > 0)
+				{
+					c_culledTriTriangles++;
+					continue;
+				}
+			}
+#endif
+
+#if 0
 			// check if light bounds do not intersect with with triangle plane
 			r = BoxOnPlaneSide2(dl->worldBounds[0], dl->worldBounds[1], plane);
 			if(r != 3)
@@ -2634,30 +3081,9 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * tri, trRefDlight_t * dl
 				c_culledTriTriangles++;
 				continue;
 			}
-		}
 #endif
-
-#if 1
-		// check if triangle bounds intersect with light bounds
-		ClearBounds(bounds[0], bounds[1]);
-		
-		AddPointToBounds(verts[0], bounds[0], bounds[1]);
-		AddPointToBounds(verts[1], bounds[0], bounds[1]);
-		AddPointToBounds(verts[2], bounds[0], bounds[1]);
-		
-		if( dl->worldBounds[1][0] < bounds[0][0] ||
-				  dl->worldBounds[1][1] < bounds[0][1] ||
-				  dl->worldBounds[1][2] < bounds[0][2] ||
-				  dl->worldBounds[0][0] > bounds[1][0] ||
-				  dl->worldBounds[0][1] > bounds[1][1] ||
-				  dl->worldBounds[0][2] > bounds[1][2])
-		{
-			c_culledTriTriangles++;
-			continue;
 		}
-#endif
 
-		
 #if 0
 		// check if the triangle is inside light frustum
 		switch (R_CullDlightTriangle(dl, verts))
@@ -2665,19 +3091,28 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * tri, trRefDlight_t * dl
 			case CULL_IN:
 			case CULL_CLIP:
 				break;
-			
+
 			case CULL_OUT:
 			default:
 				c_culledTriTriangles++;
 				continue;
 		}
 #endif
-		
+
+#if 1
+		// check with ODE's triangle<->OBB collider for an intersection
+		if(!_cldTestOneTriangle(dl, verts[0], verts[1], verts[2]))
+		{
+			c_culledTriTriangles++;
+			continue;
+		}
+#endif
+
 		if(numIndexes >= SHADER_MAX_INDEXES)
 		{
 			ri.Error(ERR_DROP, "R_PrecacheTrisurfInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
 		}
-			
+
 		iaIndexes[numIndexes + 0] = i1;
 		iaIndexes[numIndexes + 1] = i2;
 		iaIndexes[numIndexes + 2] = i3;
@@ -2690,7 +3125,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * tri, trRefDlight_t * dl
 		return qfalse;
 	}
 #endif
-	
+
 	s_numInteractionIndexes = numIndexes;
 	return qtrue;
 }
@@ -2704,17 +3139,17 @@ R_PrecacheInteractionSurface
 static void R_PrecacheInteractionSurface(msurface_t * surf, trRefDlight_t * light)
 {
 	qboolean        intersects;
-	
+
 	if(surf->lightCount == s_lightCount)
 	{
 		return;					// already checked this surface
 	}
 	surf->lightCount = s_lightCount;
-	
+
 	// Tr3B - skip all translucent surfaces that don't matter for lighting only pass
 	if(surf->shader->sort > SS_OPAQUE || (surf->shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY)))
 		return;
-	
+
 	s_numInteractionIndexes = 0;
 
 	if(*surf->data == SF_FACE)
@@ -2727,13 +3162,13 @@ static void R_PrecacheInteractionSurface(msurface_t * surf, trRefDlight_t * ligh
 	}
 	else if(*surf->data == SF_TRIANGLES)
 	{
-		intersects = R_PrecacheTrisurfInteraction((srfTriangles_t *) surf->data, light);
+		intersects = R_PrecacheTrisurfInteraction((srfTriangles_t *) surf->data, surf->shader, light);
 	}
 	else
 	{
 		intersects = qfalse;
 	}
-	
+
 	if(intersects)
 	{
 		R_PrecacheInteraction(light, surf);
@@ -2748,7 +3183,7 @@ R_RecursivePrecacheInteractionNode
 static void R_RecursivePrecacheInteractionNode(mnode_t * node, trRefDlight_t * light)
 {
 	int             r;
-	
+
 	// light already hit node
 	if(node->lightCount == s_lightCount)
 	{
@@ -2779,17 +3214,17 @@ static void R_RecursivePrecacheInteractionNode(mnode_t * node, trRefDlight_t * l
 	// node is just a decision point, so go down both sides
 	// since we don't care about sort orders, just go positive to negative
 	r = BoxOnPlaneSide(light->worldBounds[0], light->worldBounds[1], node->plane);
-	
+
 	switch (r)
 	{
 		case 1:
 			R_RecursivePrecacheInteractionNode(node->children[0], light);
 			break;
-			
+
 		case 2:
 			R_RecursivePrecacheInteractionNode(node->children[1], light);
 			break;
-		
+
 		case 3:
 		default:
 			// recurse down the children, front side first
@@ -2808,48 +3243,48 @@ void R_PrecacheInteractions()
 {
 	int             i;
 	trRefDlight_t  *dl;
-	
+
 	s_lightCount = 0;
 	s_interactionCount = 0;
-	
+
 	c_culledFaceTriangles = 0;
 	c_culledTriTriangles = 0;
-	
+
 	// FIXME use dynamic list
 	s_worldData.numInteractions = s_worldData.numsurfaces * 16;
 	s_worldData.interactions = ri.Hunk_Alloc(s_worldData.numInteractions * sizeof(interactionCache_t), h_low);
-	
+
 	ri.Printf(PRINT_ALL, "...precaching %i lights\n", s_worldData.numDlights);
 
 	for(i = 0; i < s_worldData.numDlights; i++)
 	{
 		dl = &s_worldData.dlights[i];
-		
+
 #if 0
 		ri.Printf(PRINT_ALL, "origin(%i %i %i) radius(%i %i %i) color(%f %f %f)\n",
 				  (int)dl->l.origin[0], (int)dl->l.origin[1], (int)dl->l.origin[2],
 				  (int)dl->l.radius[0], (int)dl->l.radius[1], (int)dl->l.radius[2],
 				  dl->l.color[0], dl->l.color[1], dl->l.color[2]);
 #endif
-		
+
 		// set up light transform matrix
 		MatrixSetupTransform(dl->transformMatrix, dl->l.axis[0], dl->l.axis[1], dl->l.axis[2], dl->l.origin);
-		
+
 		// set up light origin for lighting and shadowing
 		R_SetupDlightOrigin(dl);
-		
+
 		// calc local bounds for culling
 		R_SetupDlightLocalBounds(dl);
-		
+
 		// setup world bounds for intersection tests
 		R_SetupDlightWorldBounds(dl);
-		
+
 		// setup frustum planes for intersection tests
 		R_SetupDlightFrustum(dl);
-		
+
 		// set up model to light view matrix
 		MatrixAffineInverse(dl->transformMatrix, dl->viewMatrix);
-		
+
 		// set up projection
 		switch (dl->l.rlType)
 		{
@@ -2860,20 +3295,20 @@ void R_PrecacheInteractions()
 			default:
 				ri.Error(ERR_DROP, "R_PrecacheInteractions: Bad rlType");
 		}
-				
+
 		// set up first part of the attenuation matrix
 		MatrixSetupTranslation(dl->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-		MatrixMultiplyScale(dl->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
+		MatrixMultiplyScale(dl->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
 		MatrixMultiply2(dl->attenuationMatrix, dl->projectionMatrix);	// light projection (frustum)
-		
+
 		// setup interactions
 		dl->lastInteraction = NULL;
-		
+
 		// perform frustum culling and add all the potentially visible surfaces
 		s_lightCount++;
 		R_RecursivePrecacheInteractionNode(s_worldData.nodes, dl);
 	}
-	
+
 	ri.Printf(PRINT_ALL, "%i interactions precached\n", s_interactionCount);
 	ri.Printf(PRINT_ALL, "%i planar surface triangles culled\n", c_culledFaceTriangles);
 	ri.Printf(PRINT_ALL, "%i abitrary surface triangles culled\n", c_culledTriTriangles);
@@ -2935,8 +3370,7 @@ void RE_LoadWorldMap(const char *name)
 	i = LittleLong(header->version);
 	if(i != BSP_VERSION)
 	{
-		ri.Error(ERR_DROP, "RE_LoadWorldMap: %s has wrong version number (%i should be %i)",
-				 name, i, BSP_VERSION);
+		ri.Error(ERR_DROP, "RE_LoadWorldMap: %s has wrong version number (%i should be %i)", name, i, BSP_VERSION);
 	}
 
 	// swap all the lumps
@@ -2957,7 +3391,7 @@ void RE_LoadWorldMap(const char *name)
 	R_LoadSubmodels(&header->lumps[LUMP_MODELS]);
 	R_LoadVisibility(&header->lumps[LUMP_VISIBILITY]);
 	R_LoadLightGrid(&header->lumps[LUMP_LIGHTGRID]);
-	
+
 	// we precache interactions between dlights and surfaces
 	// to reduce the polygon count
 	R_PrecacheInteractions();

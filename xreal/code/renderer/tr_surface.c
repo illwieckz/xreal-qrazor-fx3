@@ -242,15 +242,32 @@ void RB_SurfaceTriangles(srfTriangles_t * srf)
 	float          *xyz, *tangent, *binormal, *normal, *texCoords;
 	byte           *color;
 
-	RB_CHECKOVERFLOW(srf->numVerts, srf->numIndexes);
-
-	for(i = 0; i < srf->numIndexes; i += 3)
+#if 1
+	if(tess.numInteractionIndexes)
 	{
-		tess.indexes[tess.numIndexes + i + 0] = tess.numVertexes + srf->indexes[i + 0];
-		tess.indexes[tess.numIndexes + i + 1] = tess.numVertexes + srf->indexes[i + 1];
-		tess.indexes[tess.numIndexes + i + 2] = tess.numVertexes + srf->indexes[i + 2];
+		RB_CHECKOVERFLOW(srf->numVerts, tess.numInteractionIndexes);
+		
+		for(i = 0; i < tess.numInteractionIndexes; i += 3)
+		{
+			tess.indexes[tess.numIndexes + i + 0] = tess.numVertexes + tess.interactionIndexes[i + 0];
+			tess.indexes[tess.numIndexes + i + 1] = tess.numVertexes + tess.interactionIndexes[i + 1];
+			tess.indexes[tess.numIndexes + i + 2] = tess.numVertexes + tess.interactionIndexes[i + 2];
+		}
+		tess.numIndexes += tess.numInteractionIndexes;
 	}
-	tess.numIndexes += srf->numIndexes;
+	else
+#endif
+	{
+		RB_CHECKOVERFLOW(srf->numVerts, srf->numIndexes);
+
+		for(i = 0; i < srf->numIndexes; i += 3)
+		{
+			tess.indexes[tess.numIndexes + i + 0] = tess.numVertexes + srf->indexes[i + 0];
+			tess.indexes[tess.numIndexes + i + 1] = tess.numVertexes + srf->indexes[i + 1];
+			tess.indexes[tess.numIndexes + i + 2] = tess.numVertexes + srf->indexes[i + 2];
+		}
+		tess.numIndexes += srf->numIndexes;
+	}
 
 	dv = srf->verts;
 	xyz = tess.xyz[tess.numVertexes];

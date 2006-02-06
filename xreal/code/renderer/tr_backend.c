@@ -760,6 +760,9 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 		
 		if(light != oldLight)
 		{
+			// set light scissor to reduce fillrate
+			qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
+			
 			/*
 			if(!dl->additive)
 			{
@@ -851,10 +854,17 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 			if(light != oldLight || entity != oldEntity)
 			{
 				// transform light origin into model space for u_LightOrigin parameter
-				VectorSubtract(light->origin, backEnd.or.origin, tmp);
-				light->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
-				light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
-				light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
+				if(entity != &tr.worldEntity)
+				{
+					VectorSubtract(light->origin, backEnd.or.origin, tmp);
+					light->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
+					light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
+					light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
+				}
+				else
+				{
+					VectorCopy(light->origin, light->transformed);
+				}
 				
 				// finalize the attenuation matrix using the entity transform
 				MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
@@ -939,6 +949,10 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 		qglDepthRange(0, 1);
 	}
 	
+	// reset scissor
+	qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
+	
 	// reset stage iterator
 	tess.currentStageIteratorType = SIT_DEFAULT;
 }
@@ -996,6 +1010,9 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 		{
 			iaFirst = iaCount;
 			
+			// set light scissor to reduce fillrate
+			qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
+			
 			if(drawShadows)
 			{
 				qglClear(GL_STENCIL_BUFFER_BIT);
@@ -1012,9 +1029,6 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 				
 				//qglStencilFunc(GL_ALWAYS, 128, ~0);
 				//qglStencilMask(1);
-				
-				// set light scissor to reduce fillrate
-				qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
 			}
 			else
 			{
@@ -1154,6 +1168,7 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 			{
 				// clear shader so we can tell we don't have any unclosed surfaces
 				tess.numIndexes = 0;
+				tess.numInteractionIndexes = 0;
 			}
 			else
 			{

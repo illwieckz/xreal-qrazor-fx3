@@ -247,43 +247,99 @@ void RB_ShadowTessEnd(void)
 	// decide which triangles face the light
 	Com_Memset(numEdgeDefs, 0, 4 * tess.numVertexes);
 
-	numTris = tess.numIndexes / 3;
-	for(i = 0; i < numTris; i++)
+#if 0
+	if(tess.numInteractionIndexes)
 	{
-		int             i1, i2, i3;
-		vec3_t          d1, d2;
-		float          *v1, *v2, *v3;
-		float           d;
-		vec4_t          plane;
-
-		i1 = tess.indexes[i * 3 + 0];
-		i2 = tess.indexes[i * 3 + 1];
-		i3 = tess.indexes[i * 3 + 2];
-
-		v1 = tess.xyz[i1];
-		v2 = tess.xyz[i2];
-		v3 = tess.xyz[i3];
-
-		VectorSubtract(v2, v1, d1);
-		VectorSubtract(v3, v1, d2);
-		
-		CrossProduct(d1, d2, plane);
-		plane[3] = DotProduct(plane, v1);
-		
-		d = DotProduct(plane, lightOrigin) - plane[3];
-		if(d > 0)
-		{
-			facing[i] = 1;
-		}
-		else
+		numTris = tess.numIndexes / 3;
+		for(i = 0; i < numTris; i++)
 		{
 			facing[i] = 0;
 		}
-
-		// create the edges
-		R_AddEdgeDef(i1, i2, facing[i]);
-		R_AddEdgeDef(i2, i3, facing[i]);
-		R_AddEdgeDef(i3, i1, facing[i]);
+		
+		numTris = tess.numInteractionIndexes / 3;
+		for(i = 0; i < numTris; i++)
+		{
+			facing[i] = 1;
+		}
+		
+		numTris = tess.numInteractionIndexes / 3;
+		for(i = 0; i < numTris; i++)
+		{
+			int             i1, i2, i3;
+				
+			i1 = tess.indexes[i * 3 + 0];
+			i2 = tess.indexes[i * 3 + 1];
+			i3 = tess.indexes[i * 3 + 2];
+	
+			v1 = tess.xyz[i1];
+			v2 = tess.xyz[i2];
+			v3 = tess.xyz[i3];
+	
+			VectorSubtract(v2, v1, d1);
+			VectorSubtract(v3, v1, d2);
+			
+			CrossProduct(d1, d2, plane);
+			plane[3] = DotProduct(plane, v1);
+			
+			d = DotProduct(plane, lightOrigin) - plane[3];
+			if(d > 0)
+			{
+				facing[i] = 1;
+			}
+			else
+			{
+				facing[i] = 0;
+			}
+	
+			// create the edges
+			R_AddEdgeDef(i1, i2, facing[i]);
+			R_AddEdgeDef(i2, i3, facing[i]);
+			R_AddEdgeDef(i3, i1, facing[i]);
+		}
+	}
+	else
+#endif
+	{
+		numTris = tess.numIndexes / 3;
+		for(i = 0; i < numTris; i++)
+		{
+			int             i1, i2, i3;
+			float          *v1, *v2, *v3;
+			vec3_t          d1, d2;
+			float           d;
+			vec4_t          plane;
+	
+			i1 = tess.indexes[i * 3 + 0];
+			i2 = tess.indexes[i * 3 + 1];
+			i3 = tess.indexes[i * 3 + 2];
+	
+			v1 = tess.xyz[i1];
+			v2 = tess.xyz[i2];
+			v3 = tess.xyz[i3];
+			
+			if(PlaneFromPoints(plane, v1, v2, v3, qfalse))
+			{
+				d = DotProduct(plane, lightOrigin) - plane[3];
+				if(d > 0)
+				{
+					facing[i] = 1;
+				}
+				else
+				{
+					facing[i] = 0;
+				}
+			}
+			else
+			{
+				// FIXME triangle is degenerated!
+				facing[i] = 1;
+			}
+	
+			// create the edges
+			R_AddEdgeDef(i1, i2, facing[i]);
+			R_AddEdgeDef(i2, i3, facing[i]);
+			R_AddEdgeDef(i3, i1, facing[i]);
+		}
 	}
 
 	// draw the silhouette edges

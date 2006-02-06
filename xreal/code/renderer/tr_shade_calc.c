@@ -159,7 +159,7 @@ static float GetOpValue(const expOperation_t * op)
 		case OP_GLOBAL5:
 		case OP_GLOBAL6:
 		case OP_GLOBAL7:
-			value = 0.0;
+			value = 1.0;
 			break;
 			
 		case OP_FRAGMENTPROGRAMS:
