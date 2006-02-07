@@ -63,7 +63,7 @@ void RB_CheckOverflow(int verts, int indexes)
 		ri.Error(ERR_DROP, "RB_CheckOverflow: indices > MAX (%d > %d)", indexes, SHADER_MAX_INDEXES);
 	}
 
-	RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.fogNum, tess.skipTangentSpaces, tess.numInteractionIndexes, tess.interactionIndexes);
+	RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume, tess.numInteractionIndexes, tess.interactionIndexes);
 }
 
 
@@ -1410,7 +1410,7 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 			if(vrows < 2 || irows < 1)
 			{
 				RB_EndSurface();
-				RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.fogNum, tess.skipTangentSpaces, tess.numInteractionIndexes, tess.interactionIndexes);
+				RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume, tess.numInteractionIndexes, tess.interactionIndexes);
 			}
 			else
 			{

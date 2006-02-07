@@ -644,7 +644,7 @@ void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, int numDr
 			{
 				RB_EndSurface();
 			}
-			RB_BeginSurface(shader, NULL, fogNum, qfalse, 0, NULL);
+			RB_BeginSurface(shader, NULL, fogNum, qfalse, qfalse, 0, NULL);
 			oldShader = shader;
 			oldFogNum = fogNum;
 		}
@@ -801,7 +801,7 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 			// entities merged into a single batch, like smoke and blood puff sprites
 			
 			// we need a new batch
-			RB_BeginSurface(shader, ia->dlightShader, 0, qfalse, ia->numIndexes, ia->indexes);
+			RB_BeginSurface(shader, ia->dlightShader, 0, qfalse, qfalse, ia->numIndexes, ia->indexes);
 
 			// change the modelview matrix if needed
 			if(entity != oldEntity)
@@ -1074,11 +1074,11 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 		if(drawShadows)
 		{
 			// we don't need tangent space calculations here
-			RB_BeginSurface(shader, ia->dlightShader, 0, qtrue, 0, NULL);
+			RB_BeginSurface(shader, ia->dlightShader, 0, qtrue, qtrue, 0, NULL);
 		}
 		else
 		{
-			RB_BeginSurface(shader, ia->dlightShader, 0, qfalse, ia->numIndexes, ia->indexes);
+			RB_BeginSurface(shader, ia->dlightShader, 0, qfalse, qfalse, ia->numIndexes, ia->indexes);
 		}
 
 		// change the modelview matrix if needed
@@ -1158,7 +1158,7 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 			if(//(entity != &tr.worldEntity) &&
 				!(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK)) && shader->sort == SS_OPAQUE && !shader->noShadows)
 			{
-				RB_ShadowTessEnd();
+				RB_EndSurface();
 				backEnd.pc.c_shadows++;
 			}
 		}
@@ -1670,7 +1670,7 @@ const void     *RB_StretchPic(const void *data)
 			RB_EndSurface();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
-		RB_BeginSurface(shader, NULL, 0, qfalse, 0, NULL);
+		RB_BeginSurface(shader, NULL, 0, qfalse, qfalse, 0, NULL);
 	}
 
 	RB_CHECKOVERFLOW(4, 6);

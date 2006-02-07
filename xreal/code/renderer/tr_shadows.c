@@ -225,11 +225,17 @@ void RB_ShadowTessEnd(void)
 	// we can only do this if we have enough space in the vertex buffers
 	if(tess.numVertexes >= SHADER_MAX_VERTEXES / 2)
 	{
+		// clear shader so we can tell we don't have any unclosed surfaces
+		tess.numIndexes = 0;
+		tess.numInteractionIndexes = 0;
 		return;
 	}
 
 	if(glConfig.stencilBits < 4)
 	{
+		// clear shader so we can tell we don't have any unclosed surfaces
+		tess.numIndexes = 0;
+		tess.numInteractionIndexes = 0;
 		return;
 	}
 
@@ -317,6 +323,7 @@ void RB_ShadowTessEnd(void)
 			v2 = tess.xyz[i2];
 			v3 = tess.xyz[i3];
 			
+#if 1
 			if(PlaneFromPoints(plane, v1, v2, v3, qfalse))
 			{
 				d = DotProduct(plane, lightOrigin) - plane[3];
@@ -332,8 +339,25 @@ void RB_ShadowTessEnd(void)
 			else
 			{
 				// FIXME triangle is degenerated!
+				facing[i] = 0;
+			}
+#else
+			VectorSubtract(v2, v1, d1);
+			VectorSubtract(v3, v1, d2);
+			
+			CrossProduct(d1, d2, plane);
+			plane[3] = DotProduct(plane, v1);
+			
+			d = DotProduct(plane, lightOrigin) - plane[3];
+			if(d > 0)
+			{
 				facing[i] = 1;
 			}
+			else
+			{
+				facing[i] = 0;
+			}
+#endif
 	
 			// create the edges
 			R_AddEdgeDef(i1, i2, facing[i]);
@@ -512,6 +536,10 @@ void RB_ShadowTessEnd(void)
 				qglFrontFace(GL_CCW);
 		}
 	}
+	
+	// clear shader so we can tell we don't have any unclosed surfaces
+	tess.numIndexes = 0;
+	tess.numInteractionIndexes = 0;
 }
 
 /*

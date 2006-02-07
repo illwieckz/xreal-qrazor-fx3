@@ -2075,6 +2075,7 @@ typedef struct shaderCommands_s
 	float           shaderTime;
 	int             fogNum;
 	qboolean        skipTangentSpaces;
+	qboolean        shadowVolume;
 	
 	int             numInteractionIndexes;
 	int            *interactionIndexes;
@@ -2091,8 +2092,7 @@ typedef struct shaderCommands_s
 
 extern shaderCommands_t tess;
 
-void            RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNum, qboolean skipTangentSpaces,
-								int numIndexes, int *indexes);
+void            RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNum, qboolean skipTangentSpaces, qboolean shadowVolume, int numIndexes, int *indexes);
 void            RB_EndSurface(void);
 void            RB_CheckOverflow(int verts, int indexes);
 

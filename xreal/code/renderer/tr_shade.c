@@ -1338,7 +1338,7 @@ because a surface may be forced to perform a RB_End due
 to overflow.
 ==============
 */
-void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNum, qboolean skipTangentSpaces, int numIndexes, int *indexes)
+void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNum, qboolean skipTangentSpaces, qboolean shadowVolume, int numIndexes, int *indexes)
 {
 	shader_t       *state = (surfaceShader->remappedShader) ? surfaceShader->remappedShader : surfaceShader;
 
@@ -1378,6 +1378,8 @@ void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNu
 	
 	tess.numInteractionIndexes = numIndexes;
 	tess.interactionIndexes = indexes;
+	
+	tess.shadowVolume = shadowVolume;
 }
 
 static void Render_generic_single_FFP(int stage)
@@ -3704,6 +3706,13 @@ void RB_EndSurface()
 	if(input->xyz[SHADER_MAX_VERTEXES - 1][0] != 0)
 	{
 		ri.Error(ERR_DROP, "RB_EndSurface() - SHADER_MAX_VERTEXES hit");
+	}
+	
+	// only used by RB_RenderInteractions2
+	if(tess.shadowVolume)
+	{
+		RB_ShadowTessEnd();
+		return;
 	}
 
 	// for debugging of sort order issues, stop rendering after a given sort value

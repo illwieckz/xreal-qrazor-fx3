@@ -978,7 +978,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 
 	R_DecomposeSort(drawSurf->sort, &entityNum, &shader, &fogNum);
 	
-	RB_BeginSurface(shader, NULL, fogNum, qfalse, 0, NULL);
+	RB_BeginSurface(shader, NULL, fogNum, qfalse, qfalse, 0, NULL);
 	rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
 
 	assert(tess.numVertexes < 128);
