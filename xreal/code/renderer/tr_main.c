@@ -1445,7 +1445,7 @@ void R_SortDrawSurfs(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * i
 	{
 		interaction_t  *ia;
 		
-		numInteractions = numInteractions;
+		numInteractions = MAX_INTERACTIONS;
 		
 		// reset last interaction's next pointer
 		ia = &interactions[numInteractions -1];

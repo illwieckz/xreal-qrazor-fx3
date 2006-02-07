@@ -583,6 +583,8 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, msurface_t * surf)
 	VectorScale(bounds[1], 0.5f, grid->lodOrigin);
 	VectorSubtract(bounds[0], grid->lodOrigin, tmpVec);
 	grid->lodRadius = VectorLength(tmpVec);
+	
+//	R_CalcTangentSpacesOnGrid(grid);
 }
 
 /*
@@ -2384,9 +2386,17 @@ static void R_PrecacheInteraction(trRefDlight_t * light, msurface_t * surface)
 	iaCache->next = NULL;
 	iaCache->surface = surface;
 
-	iaCache->numIndexes = s_numInteractionIndexes;
-	iaCache->indexes = ri.Hunk_Alloc(s_numInteractionIndexes * sizeof(int), h_low);
-	Com_Memcpy(iaCache->indexes, s_interactionIndexes, s_numInteractionIndexes * sizeof(int));
+	if(s_numInteractionIndexes >= 3)
+	{
+		iaCache->numIndexes = s_numInteractionIndexes;
+		iaCache->indexes = ri.Hunk_Alloc(s_numInteractionIndexes * sizeof(int), h_low);
+		Com_Memcpy(iaCache->indexes, s_interactionIndexes, s_numInteractionIndexes * sizeof(int));
+	}
+	else
+	{
+		iaCache->numIndexes = 0;
+		iaCache->indexes = NULL;
+	}
 }
 
 /*

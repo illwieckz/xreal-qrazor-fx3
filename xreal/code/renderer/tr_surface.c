@@ -1446,10 +1446,29 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 				xyz[0] = dv->xyz[0];
 				xyz[1] = dv->xyz[1];
 				xyz[2] = dv->xyz[2];
+				
 				texCoords[0] = dv->st[0];
 				texCoords[1] = dv->st[1];
+				
 				texCoords[2] = dv->lightmap[0];
 				texCoords[3] = dv->lightmap[1];
+				
+				/*
+				if(!tess.skipTangentSpaces)
+				{
+					tangent[0] = dv->tangent[0];
+					tangent[1] = dv->tangent[1];
+					tangent[2] = dv->tangent[2];
+				
+					binormal[0] = dv->binormal[0];
+					binormal[1] = dv->binormal[1];
+					binormal[2] = dv->binormal[2];
+				
+					normal[0] = dv->normal[0];
+					normal[1] = dv->normal[1];
+					normal[2] = dv->normal[2];
+				}
+				*/
 
 				*(unsigned int *)color = *(unsigned int *)dv->color;
 				xyz += 4;

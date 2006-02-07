@@ -2205,6 +2205,7 @@ srfGridMesh_t  *R_SubdividePatchToGrid(int width, int height, srfVert_t points[M
 srfGridMesh_t  *R_GridInsertColumn(srfGridMesh_t * grid, int column, int row, vec3_t point, float loderror);
 srfGridMesh_t  *R_GridInsertRow(srfGridMesh_t * grid, int row, int column, vec3_t point, float loderror);
 void            R_FreeSurfaceGridMesh(srfGridMesh_t * grid);
+//void            R_CalcTangentSpacesOnGrid(srfGridMesh_t * grid);
 
 /*
 ============================================================
