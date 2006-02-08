@@ -629,6 +629,7 @@ void VectorRotate(vec3_t in, vec3_t matrix[3], vec3_t out)
 /*
 ** float q_rsqrt( float number )
 */
+// *INDENT-OFF*
 float Q_rsqrt(float number)
 {
 	float           y;
@@ -636,15 +637,19 @@ float Q_rsqrt(float number)
 #if id386_3dnow && defined __GNUC__
 //#error Q_rqsrt
 	femms();
-	asm volatile    (			// lo                                   | hi
-						"movd           (%%eax),        %%mm0\n"	// in                                   |       -
-						"pfrsqrt        %%mm0,          %%mm1\n"	// 1/sqrt(in)                   | 1/sqrt(in)    (approx)
-						"movq           %%mm1,          %%mm2\n"	// 1/sqrt(in)                   | 1/sqrt(in)    (approx)
-						"pfmul          %%mm1,          %%mm1\n"	// (1/sqrt(in))?                | (1/sqrt(in))?         step 1
-						"pfrsqit1       %%mm0,          %%mm1\n"	// intermediate                                                         step 2
-						"pfrcpit2       %%mm2,          %%mm1\n"	// 1/sqrt(in) (full 24-bit precision)           step 3
-						"movd           %%mm1,        (%%edx)\n"::"a" (&number), "d"(&y):"memory");
-
+	asm volatile
+	(
+												// lo                                   | hi
+	"movd           (%%eax),        %%mm0\n"	// in                                   |       -
+	"pfrsqrt        %%mm0,          %%mm1\n"	// 1/sqrt(in)                           | 1/sqrt(in)    (approx)
+	"movq           %%mm1,          %%mm2\n"	// 1/sqrt(in)                           | 1/sqrt(in)    (approx)
+	"pfmul          %%mm1,          %%mm1\n"	// (1/sqrt(in))?                        | (1/sqrt(in))?         step 1
+	"pfrsqit1       %%mm0,          %%mm1\n"	// intermediate                                                 step 2
+	"pfrcpit2       %%mm2,          %%mm1\n"	// 1/sqrt(in) (full 24-bit precision)                           step 3
+	"movd           %%mm1,        (%%edx)\n"
+	:
+	:"a" (&number), "d"(&y):"memory"
+	);
 	femms();
 #else
 	long            i;
@@ -659,13 +664,14 @@ float Q_rsqrt(float number)
 	y = y * (threehalfs - (x2 * y * y));	// 1st iteration
 //      y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
 #ifndef Q3_VM
-#ifdef __linux__
-	assert(!isnan(y));			// bk010122 - FPE?
-#endif
+//#ifdef __linux__
+//	assert(!isnan(y));			// bk010122 - FPE?
+//#endif
 #endif
 #endif							// id386_3dnow
 	return y;
 }
+// *INDENT-ON*
 
 float Q_fabs(float f)
 {
