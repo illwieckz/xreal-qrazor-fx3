@@ -255,6 +255,126 @@ static void MakeMeshNormals(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE]
 	}
 }
 
+static int MakeMeshTriangles(int width, int height, int indexes[SHADER_MAX_INDEXES])
+{
+	int             i, j;
+	int             numIndexes;
+	int             w, h;
+
+	h = height - 1;
+	w = width - 1;
+	numIndexes = 0;
+	for(i = 0; i < h; i++)
+	{
+		for(j = 0; j < w; j++)
+		{
+			int             v1, v2, v3, v4;
+
+			// vertex order to be reckognized as tristrips
+			v1 = i * width + j + 1;
+			v2 = v1 - 1;
+			v3 = v2 + width;
+			v4 = v3 + 1;
+
+			indexes[numIndexes + 0] = v2;
+			indexes[numIndexes + 1] = v3;
+			indexes[numIndexes + 2] = v1;
+
+			indexes[numIndexes + 3] = v1;
+			indexes[numIndexes + 4] = v3;
+			indexes[numIndexes + 5] = v4;
+			numIndexes += 6;
+		}
+	}
+	return numIndexes;
+}
+
+static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], int numIndexes, int indexes[SHADER_MAX_INDEXES])
+{
+	int             i, j;
+	float          *v;
+	const float    *v0, *v1, *v2;
+	const float    *t0, *t1, *t2;
+	vec3_t          tangent;
+	vec3_t          binormal;
+	vec3_t          normal;
+	int            *indices;
+	srfVert_t      *dv0, *dv1, *dv2;
+	srfVert_t       ctrl2[MAX_GRID_SIZE * MAX_GRID_SIZE];
+	
+	// FIXME
+	for(i = 0; i < width; i++)
+	{
+		for(j = 0; j < height; j++)
+		{
+			dv0 = &ctrl2[j * width + i];
+			*dv0 = ctrl[j][i];
+		}
+	}
+
+	for(i = 0; i < (width * height); i++)
+	{
+		dv0 = &ctrl2[i];
+			
+		VectorClear(dv0->tangent);
+		VectorClear(dv0->binormal);
+		VectorClear(dv0->normal);
+	}
+
+	for(i = 0, indices = indexes; i < numIndexes; i += 3, indices += 3)
+	{
+		dv0 = &ctrl2[indices[0]];
+		dv1 = &ctrl2[indices[1]];
+		dv2 = &ctrl2[indices[2]];
+		
+		v0 = dv0->xyz;
+		v1 = dv1->xyz;
+		v2 = dv2->xyz;
+
+		t0 = dv0->st;
+		t1 = dv1->st;
+		t2 = dv2->st;
+
+		R_CalcNormalForTriangle(normal, v0, v1, v2);
+		R_CalcTangentsForTriangle(tangent, binormal, v0, v1, v2, t0, t1, t2);
+
+		for(j = 0; j < 3; j++)
+		{
+			dv0 = &ctrl2[indices[j]];
+			
+			v = dv0->tangent;
+			VectorAdd(v, tangent, v);
+			
+			v = dv0->binormal;
+			VectorAdd(v, binormal, v);
+			
+			v = dv0->normal;
+			VectorAdd(v, normal, v);
+		}
+	}
+
+	for(i = 0; i < (width * height); i++)
+	{
+		dv0 = &ctrl2[i];
+			
+		VectorNormalize(dv0->tangent);
+		VectorNormalize(dv0->binormal);
+		VectorNormalize(dv0->normal);
+	}
+	
+	for(i = 0; i < width; i++)
+	{
+		for(j = 0; j < height; j++)
+		{
+			dv0 = &ctrl2[j * width + i];
+			dv1 = &ctrl[j][i];
+			
+			VectorCopy(dv0->tangent, dv1->tangent);
+			VectorCopy(dv0->binormal, dv1->binormal);
+			VectorCopy(dv0->normal, dv1->normal);
+		}
+	}
+}
 
 /*
 ============
@@ -339,9 +459,10 @@ static void PutPointsOnCurve(srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], int w
 R_CreateSurfaceGridMesh
 =================
 */
-srfGridMesh_t  *R_CreateSurfaceGridMesh(int width, int height,
+static srfGridMesh_t  *R_CreateSurfaceGridMesh(int width, int height,
 										srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE],
-										float errorTable[2][MAX_GRID_SIZE])
+										float errorTable[2][MAX_GRID_SIZE],
+										int numIndexes, int indexes[SHADER_MAX_INDEXES])
 {
 	int             i, j, size;
 	srfVert_t      *vert;
@@ -349,7 +470,7 @@ srfGridMesh_t  *R_CreateSurfaceGridMesh(int width, int height,
 	srfGridMesh_t  *grid;
 
 	// copy the results out to a grid
-	size = (width * height - 1) * sizeof(srfVert_t) + sizeof(*grid);
+	size = sizeof(*grid);// + (width * height - 1) * sizeof(srfVert_t);// + numIndexes * sizeof(tri->indexes[0]);
 
 #ifdef PATCH_STITCHING
 	grid = /*ri.Hunk_Alloc */ ri.Malloc(size);
@@ -360,15 +481,29 @@ srfGridMesh_t  *R_CreateSurfaceGridMesh(int width, int height,
 
 	grid->heightLodError = /*ri.Hunk_Alloc */ ri.Malloc(height * 4);
 	Com_Memcpy(grid->heightLodError, errorTable[1], height * 4);
+	
+	grid->numIndexes = numIndexes;
+	grid->indexes = ri.Malloc(grid->numIndexes * sizeof(int));
+	Com_Memcpy(grid->indexes, indexes, numIndexes * sizeof(int));
+	
+	grid->numVerts = (width * height);
+	grid->verts = ri.Malloc(grid->numVerts * sizeof(srfVert_t));
 #else
-	grid = ri.Hunk_Alloc(size);
+	grid = ri.Hunk_Alloc(size, h_low);
 	Com_Memset(grid, 0, size);
 
-	grid->widthLodError = ri.Hunk_Alloc(width * 4);
+	grid->widthLodError = ri.Hunk_Alloc(width * 4, h_low);
 	Com_Memcpy(grid->widthLodError, errorTable[0], width * 4);
 
-	grid->heightLodError = ri.Hunk_Alloc(height * 4);
+	grid->heightLodError = ri.Hunk_Alloc(height * 4, h_low);
 	Com_Memcpy(grid->heightLodError, errorTable[1], height * 4);
+	
+	grid->numIndexes = numIndexes;
+	grid->indexes = ri.Hunk_Alloc(grid->numIndexes * sizeof(int), h_low);
+	Com_Memcpy(grid->indexes, indexes, numIndexes * sizeof(int));
+	
+	grid->numVerts = (width * height);
+	grid->verts = ri.Hunk_Alloc(grid->numVerts * sizeof(srfVert_t), h_low);
 #endif
 
 	grid->width = width;
@@ -406,6 +541,8 @@ void R_FreeSurfaceGridMesh(srfGridMesh_t * grid)
 {
 	ri.Free(grid->widthLodError);
 	ri.Free(grid->heightLodError);
+	ri.Free(grid->indexes);
+	ri.Free(grid->verts);
 	ri.Free(grid);
 }
 
@@ -423,6 +560,8 @@ srfGridMesh_t  *R_SubdividePatchToGrid(int width, int height, srfVert_t points[M
 	int             t;
 	MAC_STATIC srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE];
 	float           errorTable[2][MAX_GRID_SIZE];
+	int             numIndexes;
+	int             indexes[SHADER_MAX_INDEXES];
 
 	for(i = 0; i < width; i++)
 	{
@@ -534,7 +673,6 @@ srfGridMesh_t  *R_SubdividePatchToGrid(int width, int height, srfVert_t points[M
 		height = t;
 	}
 
-
 	// put all the aproximating points on the curve
 	PutPointsOnCurve(ctrl, width, height);
 
@@ -589,9 +727,15 @@ srfGridMesh_t  *R_SubdividePatchToGrid(int width, int height, srfVert_t points[M
 #endif
 
 	// calculate normals
-	MakeMeshNormals(width, height, ctrl);
+	//MakeMeshNormals(width, height, ctrl);
+	
+	// calculate triangles
+	numIndexes = MakeMeshTriangles(width, height, indexes);
+	
+	// calculate tangent spaces
+	MakeTangentSpaces(width, height, ctrl, numIndexes, indexes);
 
-	return R_CreateSurfaceGridMesh(width, height, ctrl, errorTable);
+	return R_CreateSurfaceGridMesh(width, height, ctrl, errorTable, numIndexes, indexes);
 }
 
 /*
@@ -608,6 +752,8 @@ srfGridMesh_t  *R_GridInsertColumn(srfGridMesh_t * grid, int column, int row, ve
 	float           errorTable[2][MAX_GRID_SIZE];
 	float           lodRadius;
 	vec3_t          lodOrigin;
+	int             numIndexes;
+	int             indexes[SHADER_MAX_INDEXES];
 
 	oldwidth = 0;
 	width = grid->width + 1;
@@ -640,17 +786,25 @@ srfGridMesh_t  *R_GridInsertColumn(srfGridMesh_t * grid, int column, int row, ve
 	{
 		errorTable[1][j] = grid->heightLodError[j];
 	}
+	
 	// put all the aproximating points on the curve
 	//PutPointsOnCurve( ctrl, width, height );
+	
 	// calculate normals
-	MakeMeshNormals(width, height, ctrl);
+	//MakeMeshNormals(width, height, ctrl);
+	
+	// calculate triangles
+	numIndexes = MakeMeshTriangles(width, height, indexes);
+	
+	// calculate tangent spaces
+	MakeTangentSpaces(width, height, ctrl, numIndexes, indexes);
 
 	VectorCopy(grid->lodOrigin, lodOrigin);
 	lodRadius = grid->lodRadius;
 	// free the old grid
 	R_FreeSurfaceGridMesh(grid);
 	// create a new grid
-	grid = R_CreateSurfaceGridMesh(width, height, ctrl, errorTable);
+	grid = R_CreateSurfaceGridMesh(width, height, ctrl, errorTable, numIndexes, indexes);
 	grid->lodRadius = lodRadius;
 	VectorCopy(lodOrigin, grid->lodOrigin);
 	return grid;
@@ -670,6 +824,8 @@ srfGridMesh_t  *R_GridInsertRow(srfGridMesh_t * grid, int row, int column, vec3_
 	float           errorTable[2][MAX_GRID_SIZE];
 	float           lodRadius;
 	vec3_t          lodOrigin;
+	int             numIndexes;
+	int             indexes[SHADER_MAX_INDEXES];
 
 	oldheight = 0;
 	width = grid->width;
@@ -704,258 +860,24 @@ srfGridMesh_t  *R_GridInsertRow(srfGridMesh_t * grid, int row, int column, vec3_
 	}
 	// put all the aproximating points on the curve
 	//PutPointsOnCurve( ctrl, width, height );
+	
 	// calculate normals
-	MakeMeshNormals(width, height, ctrl);
+	//MakeMeshNormals(width, height, ctrl);
+	
+	// calculate triangles
+	numIndexes = MakeMeshTriangles(width, height, indexes);
+	
+	// calculate tangent spaces
+	MakeTangentSpaces(width, height, ctrl, numIndexes, indexes);
 
 	VectorCopy(grid->lodOrigin, lodOrigin);
 	lodRadius = grid->lodRadius;
 	// free the old grid
 	R_FreeSurfaceGridMesh(grid);
 	// create a new grid
-	grid = R_CreateSurfaceGridMesh(width, height, ctrl, errorTable);
+	grid = R_CreateSurfaceGridMesh(width, height, ctrl, errorTable, numIndexes, indexes);
 	grid->lodRadius = lodRadius;
 	VectorCopy(lodOrigin, grid->lodOrigin);
 	return grid;
 }
 
-
-/*
-=============
-R_CalcTangentSpacesOnGrid
-=============
-*/
-/*
-void R_CalcTangentSpacesOnGrid(srfGridMesh_t * cv)
-{
-	int             i, j;
-	float          *xyz;
-	float          *texCoord;
-	float          *tangent;
-	float          *binormal;
-	float          *normal;
-	srfVert_t      *dv;
-	int             rows, irows, vrows;
-	int             used;
-	int             widthTable[MAX_GRID_SIZE];
-	int             heightTable[MAX_GRID_SIZE];
-	float           lodError;
-	int             lodWidth, lodHeight;
-	int             numIndexes;
-	int             numVertexes;
-	
-	glIndex_t       indexes[SHADER_MAX_INDEXES];
-	vec4_t          vertexes[SHADER_MAX_VERTEXES];
-	vec4_t          tangents[SHADER_MAX_VERTEXES];
-	vec4_t          binormals[SHADER_MAX_VERTEXES];
-	vec4_t          normals[SHADER_MAX_VERTEXES];
-	vec2_t          texCoords[SHADER_MAX_VERTEXES];
-	
-	numVertexes = 0;
-	numIndexes = 0;
-
-	// determine the allowable discrepance
-	lodError = r_lodCurveError->value; //LodErrorForVolume(cv->lodOrigin, cv->lodRadius);
-
-	// determine which rows and columns of the subdivision
-	// we are actually going to use
-	widthTable[0] = 0;
-	lodWidth = 1;
-	for(i = 1; i < cv->width - 1; i++)
-	{
-		if(cv->widthLodError[i] <= lodError)
-		{
-			widthTable[lodWidth] = i;
-			lodWidth++;
-		}
-	}
-	widthTable[lodWidth] = cv->width - 1;
-	lodWidth++;
-
-	heightTable[0] = 0;
-	lodHeight = 1;
-	for(i = 1; i < cv->height - 1; i++)
-	{
-		if(cv->heightLodError[i] <= lodError)
-		{
-			heightTable[lodHeight] = i;
-			lodHeight++;
-		}
-	}
-	heightTable[lodHeight] = cv->height - 1;
-	lodHeight++;
-
-
-	// very large grids may have more points or indexes than can be fit
-	// in the tess structure, so we may have to issue it in multiple passes
-
-	used = 0;
-	rows = 0;
-	while(used < lodHeight - 1)
-	{
-		// see how many rows of both verts and indexes we can add without overflowing
-		do
-		{
-			vrows = (SHADER_MAX_VERTEXES - numVertexes) / lodWidth;
-			irows = (SHADER_MAX_INDEXES - numIndexes) / (lodWidth * 6);
-
-			// if we don't have enough space for at least one strip, flush the buffer
-			if(vrows < 2 || irows < 1)
-			{
-				ri.Printf(PRINT_WARNING, "failed on precalculations of tangent spaces for grid surface\n");
-				numIndexes = 0;
-				numVertexes = 0;
-			}
-			else
-			{
-				break;
-			}
-		} while(1);
-
-		rows = irows;
-		if(vrows < irows + 1)
-		{
-			rows = vrows - 1;
-		}
-		if(used + rows > lodHeight)
-		{
-			rows = lodHeight - used;
-		}
-
-		// copy necessary information to calculate the tangent spaces
-		xyz = vertexes[0];
-		texCoord = texCoords[0];
-		
-		for(i = 0; i < rows; i++)
-		{
-			for(j = 0; j < lodWidth; j++)
-			{
-				dv = cv->verts + heightTable[used + i] * cv->width + widthTable[j];
-
-				xyz[0] = dv->xyz[0];
-				xyz[1] = dv->xyz[1];
-				xyz[2] = dv->xyz[2];
-				
-				texCoord[0] = dv->st[0];
-				texCoord[1] = dv->st[1];
-
-				xyz += 4;
-				texCoord += 4;
-			}
-		}
-
-		// add the indexes
-		{
-			int             w, h;
-
-			h = rows - 1;
-			w = lodWidth - 1;
-			numIndexes = 0;
-			for(i = 0; i < h; i++)
-			{
-				for(j = 0; j < w; j++)
-				{
-					int             v1, v2, v3, v4;
-
-					// vertex order to be reckognized as tristrips
-					v1 = i * lodWidth + j + 1;
-					v2 = v1 - 1;
-					v3 = v2 + lodWidth;
-					v4 = v3 + 1;
-
-					indexes[numIndexes] = v2;
-					indexes[numIndexes + 1] = v3;
-					indexes[numIndexes + 2] = v1;
-
-					indexes[numIndexes + 3] = v1;
-					indexes[numIndexes + 4] = v3;
-					indexes[numIndexes + 5] = v4;
-					numIndexes += 6;
-				}
-			}
-		}
-
-		// calc tangent spaces
-		{
-			float          *v;
-			const float    *v0, *v1, *v2;
-			const float    *t0, *t1, *t2;
-			vec3_t          tangent;
-			vec3_t          binormal;
-			vec3_t          normal;
-			int            *indices;
-
-			for(i = 0; i < (rows * lodWidth); i++)
-			{
-				VectorClear(tangents[numVertexes + i]);
-				VectorClear(binormals[numVertexes + i]);
-				VectorClear(normals[numVertexes + i]);
-			}
-
-			for(i = 0, indices = indexes + numIndexes; i < numIndexes; i += 3, indices += 3)
-			{
-				v0 = vertexes[indices[0]];
-				v1 = vertexes[indices[1]];
-				v2 = vertexes[indices[2]];
-
-				t0 = texCoords[indices[0]];
-				t1 = texCoords[indices[1]];
-				t2 = texCoords[indices[2]];
-
-				R_CalcNormalForTriangle(normal, v0, v1, v2);
-				R_CalcTangentsForTriangle(tangent, binormal, v0, v1, v2, t0, t1, t2);
-
-				for(j = 0; j < 3; j++)
-				{
-					v = tangents[indices[j]];
-					VectorAdd(v, tangent, v);
-					v = binormals[indices[j]];
-					VectorAdd(v, binormal, v);
-					v = normals[indices[j]];
-					VectorAdd(v, normal, v);
-				}
-			}
-
-			for(i = 0; i < (rows * lodWidth); i++)
-			{
-				VectorNormalize(tangents[numVertexes + i]);
-				VectorNormalize(binormals[numVertexes + i]);
-				VectorNormalize(normals[numVertexes + i]);
-			}
-		}
-		
-		// copy tangents, binormals and normals back
-		tangent = tangents[0];
-		binormal = binormals[0];
-		normal = normals[0];
-		
-		for(i = 0; i < rows; i++)
-		{
-			for(j = 0; j < lodWidth; j++)
-			{
-				dv = cv->verts + heightTable[used + i] * cv->width + widthTable[j];
-				
-				dv->tangent[0] = tangent[0];
-				dv->tangent[1] = tangent[1];
-				dv->tangent[2] = tangent[2];
-				
-				dv->binormal[0] = binormal[0];
-				dv->binormal[1] = binormal[1];
-				dv->binormal[2] = binormal[2];
-				
-				dv->normal[0] = normal[0];
-				dv->normal[1] = normal[1];
-				dv->normal[2] = normal[2];
-				
-				tangent += 4;
-				binormal += 4;
-				normal += 4;
-			}
-		}
-
-		numIndexes += numIndexes;
-		numVertexes += rows * lodWidth;
-
-		used += rows - 1;
-	}
-}
-*/

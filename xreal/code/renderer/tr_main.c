@@ -80,6 +80,9 @@ void R_CalcTangentsForTriangle(vec3_t tangent, vec3_t binormal,
 		VectorSet(e0, v1[i] - v0[i], t1[0] - t0[0], t1[1] - t0[1]);
 		VectorSet(e1, v2[i] - v0[i], t2[0] - t0[0], t2[1] - t0[1]);
 
+		VectorNormalizeFast(e0);
+		VectorNormalizeFast(e1);
+		
 		CrossProduct(e0, e1, planes[i]);
 	}
 

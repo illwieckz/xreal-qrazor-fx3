@@ -982,11 +982,17 @@ typedef struct srfGridMesh_s
 	int             lodFixed;
 	int             lodStitched;
 
-	// vertexes
+	// triangle definitions
 	int             width, height;
 	float          *widthLodError;
 	float          *heightLodError;
-	srfVert_t       verts[1];	// variable sized
+	
+	int             numIndexes;
+	int            *indexes;
+
+	int             numVerts;
+	srfVert_t      *verts;
+//	srfVert_t       verts[1];	// variable sized
 } srfGridMesh_t;
 
 
@@ -1724,7 +1730,6 @@ extern cvar_t  *r_noportals;
 extern cvar_t  *r_portalOnly;
 
 extern cvar_t  *r_subdivisions;
-extern cvar_t  *r_lodCurveError;
 extern cvar_t  *r_smp;
 extern cvar_t  *r_showSmp;
 extern cvar_t  *r_skipBackEnd;
@@ -2205,7 +2210,6 @@ srfGridMesh_t  *R_SubdividePatchToGrid(int width, int height, srfVert_t points[M
 srfGridMesh_t  *R_GridInsertColumn(srfGridMesh_t * grid, int column, int row, vec3_t point, float loderror);
 srfGridMesh_t  *R_GridInsertRow(srfGridMesh_t * grid, int row, int column, vec3_t point, float loderror);
 void            R_FreeSurfaceGridMesh(srfGridMesh_t * grid);
-//void            R_CalcTangentSpacesOnGrid(srfGridMesh_t * grid);
 
 /*
 ============================================================

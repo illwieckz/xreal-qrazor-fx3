@@ -277,8 +277,7 @@ void RB_SurfaceTriangles(srfTriangles_t * srf)
 	texCoords = tess.texCoords[tess.numVertexes][0];
 	color = tess.vertexColors[tess.numVertexes];
 
-	for(i = 0; i < srf->numVerts;
-		i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, color += 4)
+	for(i = 0; i < srf->numVerts; i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, color += 4)
 	{
 		xyz[0] = dv->xyz[0];
 		xyz[1] = dv->xyz[1];
@@ -301,9 +300,6 @@ void RB_SurfaceTriangles(srfTriangles_t * srf)
 
 		texCoords[0] = dv->st[0];
 		texCoords[1] = dv->st[1];
-
-		texCoords[2] = dv->lightmap[0];
-		texCoords[3] = dv->lightmap[1];
 
 		*(int *)color = *(int *)dv->color;
 	}
@@ -1300,269 +1296,84 @@ void RB_SurfaceFace(srfSurfaceFace_t * surf)
 	tess.numVertexes += surf->numPoints;
 }
 
-
-static float LodErrorForVolume(vec3_t local, float radius)
-{
-	vec3_t          world;
-	float           d;
-
-	// never let it go negative
-	if(r_lodCurveError->value < 0)
-	{
-		return 0;
-	}
-
-	world[0] = local[0] * backEnd.or.axis[0][0] + local[1] * backEnd.or.axis[1][0] +
-		local[2] * backEnd.or.axis[2][0] + backEnd.or.origin[0];
-	world[1] = local[0] * backEnd.or.axis[0][1] + local[1] * backEnd.or.axis[1][1] +
-		local[2] * backEnd.or.axis[2][1] + backEnd.or.origin[1];
-	world[2] = local[0] * backEnd.or.axis[0][2] + local[1] * backEnd.or.axis[1][2] +
-		local[2] * backEnd.or.axis[2][2] + backEnd.or.origin[2];
-
-	VectorSubtract(world, backEnd.viewParms.or.origin, world);
-	d = DotProduct(world, backEnd.viewParms.or.axis[0]);
-
-	if(d < 0)
-	{
-		d = -d;
-	}
-	d -= radius;
-	if(d < 1)
-	{
-		d = 1;
-	}
-
-	return r_lodCurveError->value / d;
-}
-
 /*
 =============
 RB_SurfaceGrid
-
-Just copy the grid of points and triangulate
 =============
 */
 void RB_SurfaceGrid(srfGridMesh_t * cv)
 {
-	int             i, j;
-	float          *xyz;
-	float          *texCoords;
-	float          *tangent;
-	float          *binormal;
-	float          *normal;
-	unsigned char  *color;
+	int             i;
 	srfVert_t      *dv;
-	int             rows, irows, vrows;
-	int             used;
-	int             widthTable[MAX_GRID_SIZE];
-	int             heightTable[MAX_GRID_SIZE];
-	float           lodError;
-	int             lodWidth, lodHeight;
-	int             numIndexes;
-	int             numVertexes;
+	float          *xyz, *tangent, *binormal, *normal, *texCoords;
+	byte           *color;
 
-	// determine the allowable discrepance
-	lodError = LodErrorForVolume(cv->lodOrigin, cv->lodRadius);
-
-	// determine which rows and columns of the subdivision
-	// we are actually going to use
-	widthTable[0] = 0;
-	lodWidth = 1;
-	for(i = 1; i < cv->width - 1; i++)
+#if 1
+	if(tess.numInteractionIndexes)
 	{
-		if(cv->widthLodError[i] <= lodError)
+		RB_CHECKOVERFLOW(cv->numVerts, tess.numInteractionIndexes);
+		
+		for(i = 0; i < tess.numInteractionIndexes; i += 3)
 		{
-			widthTable[lodWidth] = i;
-			lodWidth++;
+			tess.indexes[tess.numIndexes + i + 0] = tess.numVertexes + tess.interactionIndexes[i + 0];
+			tess.indexes[tess.numIndexes + i + 1] = tess.numVertexes + tess.interactionIndexes[i + 1];
+			tess.indexes[tess.numIndexes + i + 2] = tess.numVertexes + tess.interactionIndexes[i + 2];
 		}
+		tess.numIndexes += tess.numInteractionIndexes;
 	}
-	widthTable[lodWidth] = cv->width - 1;
-	lodWidth++;
-
-	heightTable[0] = 0;
-	lodHeight = 1;
-	for(i = 1; i < cv->height - 1; i++)
+	else
+#endif
 	{
-		if(cv->heightLodError[i] <= lodError)
+		RB_CHECKOVERFLOW(cv->numVerts, cv->numIndexes);
+
+		for(i = 0; i < cv->numIndexes; i += 3)
 		{
-			heightTable[lodHeight] = i;
-			lodHeight++;
+			tess.indexes[tess.numIndexes + i + 0] = tess.numVertexes + cv->indexes[i + 0];
+			tess.indexes[tess.numIndexes + i + 1] = tess.numVertexes + cv->indexes[i + 1];
+			tess.indexes[tess.numIndexes + i + 2] = tess.numVertexes + cv->indexes[i + 2];
 		}
+		tess.numIndexes += cv->numIndexes;
 	}
-	heightTable[lodHeight] = cv->height - 1;
-	lodHeight++;
 
+	dv = cv->verts;
+	xyz = tess.xyz[tess.numVertexes];
+	tangent = tess.tangents[tess.numVertexes];
+	binormal = tess.binormals[tess.numVertexes];
+	normal = tess.normals[tess.numVertexes];
+	texCoords = tess.texCoords[tess.numVertexes][0];
+	color = tess.vertexColors[tess.numVertexes];
 
-	// very large grids may have more points or indexes than can be fit
-	// in the tess structure, so we may have to issue it in multiple passes
-
-	used = 0;
-	rows = 0;
-	while(used < lodHeight - 1)
+	for(i = 0; i < cv->numVerts; i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, color += 4)
 	{
-		// see how many rows of both verts and indexes we can add without overflowing
-		do
-		{
-			vrows = (SHADER_MAX_VERTEXES - tess.numVertexes) / lodWidth;
-			irows = (SHADER_MAX_INDEXES - tess.numIndexes) / (lodWidth * 6);
+		xyz[0] = dv->xyz[0];
+		xyz[1] = dv->xyz[1];
+		xyz[2] = dv->xyz[2];
 
-			// if we don't have enough space for at least one strip, flush the buffer
-			if(vrows < 2 || irows < 1)
-			{
-				RB_EndSurface();
-				RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume, tess.numInteractionIndexes, tess.interactionIndexes);
-			}
-			else
-			{
-				break;
-			}
-		} while(1);
-
-		rows = irows;
-		if(vrows < irows + 1)
-		{
-			rows = vrows - 1;
-		}
-		if(used + rows > lodHeight)
-		{
-			rows = lodHeight - used;
-		}
-
-		numVertexes = tess.numVertexes;
-
-		xyz = tess.xyz[numVertexes];
-		tangent = tess.tangents[numVertexes];
-		binormal = tess.binormals[numVertexes];
-		normal = tess.normals[numVertexes];
-		texCoords = tess.texCoords[numVertexes][0];
-		color = (unsigned char *)&tess.vertexColors[numVertexes];
-
-		for(i = 0; i < rows; i++)
-		{
-			for(j = 0; j < lodWidth; j++)
-			{
-				dv = cv->verts + heightTable[used + i] * cv->width + widthTable[j];
-
-				xyz[0] = dv->xyz[0];
-				xyz[1] = dv->xyz[1];
-				xyz[2] = dv->xyz[2];
-				
-				texCoords[0] = dv->st[0];
-				texCoords[1] = dv->st[1];
-				
-				texCoords[2] = dv->lightmap[0];
-				texCoords[3] = dv->lightmap[1];
-				
-				/*
-				if(!tess.skipTangentSpaces)
-				{
-					tangent[0] = dv->tangent[0];
-					tangent[1] = dv->tangent[1];
-					tangent[2] = dv->tangent[2];
-				
-					binormal[0] = dv->binormal[0];
-					binormal[1] = dv->binormal[1];
-					binormal[2] = dv->binormal[2];
-				
-					normal[0] = dv->normal[0];
-					normal[1] = dv->normal[1];
-					normal[2] = dv->normal[2];
-				}
-				*/
-
-				*(unsigned int *)color = *(unsigned int *)dv->color;
-				xyz += 4;
-				tangent += 4;
-				binormal += 4;
-				normal += 4;
-				texCoords += 4;
-				color += 4;
-			}
-		}
-
-		// add the indexes
-		{
-			int             w, h;
-
-			h = rows - 1;
-			w = lodWidth - 1;
-			numIndexes = 0;
-			for(i = 0; i < h; i++)
-			{
-				for(j = 0; j < w; j++)
-				{
-					int             v1, v2, v3, v4;
-
-					// vertex order to be reckognized as tristrips
-					v1 = tess.numVertexes + i * lodWidth + j + 1;
-					v2 = v1 - 1;
-					v3 = v2 + lodWidth;
-					v4 = v3 + 1;
-
-					tess.indexes[tess.numIndexes + numIndexes] = v2;
-					tess.indexes[tess.numIndexes + numIndexes + 1] = v3;
-					tess.indexes[tess.numIndexes + numIndexes + 2] = v1;
-
-					tess.indexes[tess.numIndexes + numIndexes + 3] = v1;
-					tess.indexes[tess.numIndexes + numIndexes + 4] = v3;
-					tess.indexes[tess.numIndexes + numIndexes + 5] = v4;
-					numIndexes += 6;
-				}
-			}
-		}
-
-		// Tr3B - calc tangent spaces
 		if(!tess.skipTangentSpaces)
 		{
-			float          *v;
-			const float    *v0, *v1, *v2;
-			const float    *t0, *t1, *t2;
-			vec3_t          tangent;
-			vec3_t          binormal;
-			vec3_t          normal;
-			int            *indices;
-
-			for(i = 0; i < (rows * lodWidth); i++)
-			{
-				VectorClear(tess.tangents[tess.numVertexes + i]);
-				VectorClear(tess.binormals[tess.numVertexes + i]);
-				VectorClear(tess.normals[tess.numVertexes + i]);
-			}
-
-			for(i = 0, indices = tess.indexes + tess.numIndexes; i < numIndexes; i += 3, indices += 3)
-			{
-				v0 = tess.xyz[indices[0]];
-				v1 = tess.xyz[indices[1]];
-				v2 = tess.xyz[indices[2]];
-
-				t0 = tess.texCoords[indices[0]][0];
-				t1 = tess.texCoords[indices[1]][0];
-				t2 = tess.texCoords[indices[2]][0];
-
-				R_CalcNormalForTriangle(normal, v0, v1, v2);
-				R_CalcTangentsForTriangle(tangent, binormal, v0, v1, v2, t0, t1, t2);
-
-				for(j = 0; j < 3; j++)
-				{
-					v = tess.tangents[indices[j]];
-					VectorAdd(v, tangent, v);
-					v = tess.binormals[indices[j]];
-					VectorAdd(v, binormal, v);
-					v = tess.normals[indices[j]];
-					VectorAdd(v, normal, v);
-				}
-			}
-
-			VectorArrayNormalize((vec4_t *) tess.tangents[tess.numVertexes], rows * lodWidth);
-			VectorArrayNormalize((vec4_t *) tess.binormals[tess.numVertexes], rows * lodWidth);
-			VectorArrayNormalize((vec4_t *) tess.normals[tess.numVertexes], rows * lodWidth);
+			tangent[0] = dv->tangent[0];
+			tangent[1] = dv->tangent[1];
+			tangent[2] = dv->tangent[2];
+		
+			binormal[0] = dv->binormal[0];
+			binormal[1] = dv->binormal[1];
+			binormal[2] = dv->binormal[2];
+		
+			normal[0] = dv->normal[0];
+			normal[1] = dv->normal[1];
+			normal[2] = dv->normal[2];
 		}
 
-		tess.numIndexes += numIndexes;
-		tess.numVertexes += rows * lodWidth;
+		texCoords[0] = dv->st[0];
+		texCoords[1] = dv->st[1];
+		
+		texCoords[2] = dv->lightmap[0];
+		texCoords[3] = dv->lightmap[1];
 
-		used += rows - 1;
+		*(int *)color = *(int *)dv->color;
 	}
+
+	tess.numVertexes += cv->numVerts;
 }
 
 

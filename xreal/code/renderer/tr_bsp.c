@@ -42,6 +42,7 @@ static byte    *fileBase;
 
 int             c_culledFaceTriangles;
 int             c_culledTriTriangles;
+int             c_culledGridTriangles;
 int             c_gridVerts;
 
 //===============================================================================
@@ -583,8 +584,6 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, msurface_t * surf)
 	VectorScale(bounds[1], 0.5f, grid->lodOrigin);
 	VectorSubtract(bounds[0], grid->lodOrigin, tmpVec);
 	grid->lodRadius = VectorLength(tmpVec);
-	
-//	R_CalcTangentSpacesOnGrid(grid);
 }
 
 /*
@@ -1539,11 +1538,12 @@ void R_MovePatchSurfacesToHunk(void)
 	{
 		//
 		grid = (srfGridMesh_t *) s_worldData.surfaces[i].data;
+		
 		// if this surface is not a grid
 		if(grid->surfaceType != SF_GRID)
 			continue;
 		//
-		size = (grid->width * grid->height - 1) * sizeof(srfVert_t) + sizeof(*grid);
+		size = sizeof(*grid);
 		hunkgrid = ri.Hunk_Alloc(size, h_low);
 		Com_Memcpy(hunkgrid, grid, size);
 
@@ -1551,7 +1551,15 @@ void R_MovePatchSurfacesToHunk(void)
 		Com_Memcpy(hunkgrid->widthLodError, grid->widthLodError, grid->width * 4);
 
 		hunkgrid->heightLodError = ri.Hunk_Alloc(grid->height * 4, h_low);
-		Com_Memcpy(grid->heightLodError, grid->heightLodError, grid->height * 4);
+		Com_Memcpy(hunkgrid->heightLodError, grid->heightLodError, grid->height * 4);
+		
+		hunkgrid->numIndexes = grid->numIndexes;
+		hunkgrid->indexes = ri.Hunk_Alloc(grid->numIndexes * sizeof(int), h_low);
+		Com_Memcpy(hunkgrid->indexes, grid->indexes, grid->numIndexes * sizeof(int));
+	
+		hunkgrid->numVerts = grid->numVerts;
+		hunkgrid->verts = ri.Hunk_Alloc(grid->numVerts * sizeof(srfVert_t), h_low);
+		Com_Memcpy(hunkgrid->verts, grid->verts, grid->numVerts * sizeof(srfVert_t));
 
 		R_FreeSurfaceGridMesh(grid);
 
@@ -3003,8 +3011,14 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * sh
 }
 
 
-static int R_PrecacheGridInteraction(srfGridMesh_t * grid, trRefDlight_t * dl)
+static int R_PrecacheGridInteraction(srfGridMesh_t * grid, shader_t * shader, trRefDlight_t * dl)
 {
+	int             i;
+	int            *indexes;
+	int             numIndexes;
+	int            *iaIndexes;
+	
+	// check if bounds intersect
 	if(dl->worldBounds[1][0] < grid->meshBounds[0][0] ||
 	   dl->worldBounds[1][1] < grid->meshBounds[0][1] ||
 	   dl->worldBounds[1][2] < grid->meshBounds[0][2] ||
@@ -3012,10 +3026,83 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * grid, trRefDlight_t * dl)
 	   dl->worldBounds[0][1] > grid->meshBounds[1][1] ||
 	   dl->worldBounds[0][2] > grid->meshBounds[1][2])
 	{
-		// dlight doesn't reach the bounds
 		return qfalse;
 	}
 
+	indexes = grid->indexes;
+	iaIndexes = s_interactionIndexes;
+
+	// build a list of triangles that need light
+	numIndexes = 0;
+	for(i = 0; i < (grid->numIndexes / 3); i++)
+	{
+		int             i1, i2, i3;
+		vec3_t          verts[3];
+		vec4_t          plane;
+		float           d;
+
+		i1 = indexes[i * 3 + 0];
+		i2 = indexes[i * 3 + 1];
+		i3 = indexes[i * 3 + 2];
+
+
+		VectorCopy(grid->verts[i1].xyz, verts[0]);
+		VectorCopy(grid->verts[i2].xyz, verts[1]);
+		VectorCopy(grid->verts[i3].xyz, verts[2]);
+
+		if(PlaneFromPoints(plane, verts[0], verts[1], verts[2], qtrue))
+		{
+#if 1
+			// check if light origin is behind triangle
+			d = DotProduct(plane, dl->origin) - plane[3];
+
+			if(shader->cullType == CT_FRONT_SIDED)
+			{
+				if(d < 0)
+				{
+					c_culledGridTriangles++;
+					continue;
+				}
+			}
+			else
+			{
+				if(d > 0)
+				{
+					c_culledGridTriangles++;
+					continue;
+				}
+			}
+#endif
+		}
+		
+#if 1
+		// check with ODE's triangle<->OBB collider for an intersection
+		if(!_cldTestOneTriangle(dl, verts[0], verts[1], verts[2]))
+		{
+			c_culledGridTriangles++;
+			continue;
+		}
+#endif
+
+		if(numIndexes >= SHADER_MAX_INDEXES)
+		{
+			ri.Error(ERR_DROP, "R_PrecacheGridInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
+		}
+
+		iaIndexes[numIndexes + 0] = i1;
+		iaIndexes[numIndexes + 1] = i2;
+		iaIndexes[numIndexes + 2] = i3;
+		numIndexes += 3;
+	}
+
+#if 1
+	if(numIndexes == 0)
+	{
+		return qfalse;
+	}
+#endif
+
+	s_numInteractionIndexes = numIndexes;
 	return qtrue;
 }
 
@@ -3168,7 +3255,7 @@ static void R_PrecacheInteractionSurface(msurface_t * surf, trRefDlight_t * ligh
 	}
 	else if(*surf->data == SF_GRID)
 	{
-		intersects = R_PrecacheGridInteraction((srfGridMesh_t *) surf->data, light);
+		intersects = R_PrecacheGridInteraction((srfGridMesh_t *) surf->data, surf->shader, light);
 	}
 	else if(*surf->data == SF_TRIANGLES)
 	{
@@ -3321,6 +3408,7 @@ void R_PrecacheInteractions()
 
 	ri.Printf(PRINT_ALL, "%i interactions precached\n", s_interactionCount);
 	ri.Printf(PRINT_ALL, "%i planar surface triangles culled\n", c_culledFaceTriangles);
+	ri.Printf(PRINT_ALL, "%i bezier surface triangles culled\n", c_culledGridTriangles);
 	ri.Printf(PRINT_ALL, "%i abitrary surface triangles culled\n", c_culledTriTriangles);
 }
 
