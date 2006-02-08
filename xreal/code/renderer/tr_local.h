@@ -900,8 +900,11 @@ typedef struct interactionCache_s
 	
 	struct msurface_s *surface;
 	
-	int             numIndexes;
-	int            *indexes;
+	int             numLightIndexes;
+	int            *lightIndexes;	// precached triangle indices facing light
+	
+	int             numShadowIndexes;
+	int            *shadowIndexes;	// precached triangle indices of shadow edges
 } interactionCache_t;
 
 // an interaction is a node between a dlight and any surface
@@ -916,12 +919,22 @@ typedef struct interaction_s
 	surfaceType_t  *surface;	// any of surface*_t
 	shader_t       *surfaceShader;
 	
-	int             numIndexes;
-	int            *indexes;	// precached triangle indices
+	int             numLightIndexes;
+	int            *lightIndexes;	// precached triangle indices facing light
+	
+	int             numShadowIndexes;
+	int            *shadowIndexes;	// precached triangle indices of shadow edges
 		
 	qboolean        shadowOnly;
 	int             scissorX, scissorY, scissorWidth, scissorHeight;
 } interaction_t;
+
+#define	MAX_EDGES	32
+typedef struct
+{
+	int             i2;
+	qboolean        facing;
+} edge_t;
 
 #define	MAX_FACE_POINTS		64
 
@@ -1534,6 +1547,8 @@ typedef struct
 	shaderProgram_t lightShader_DB_radiosity;
 	shaderProgram_t lightShader_DBS_radiosity;
 	
+	shaderProgram_t shadowShader;
+	
 	shaderProgram_t reflectionShader_C;
 	shaderProgram_t refractionShader_C;
 	shaderProgram_t dispersionShader_C;
@@ -2082,8 +2097,11 @@ typedef struct shaderCommands_s
 	qboolean        skipTangentSpaces;
 	qboolean        shadowVolume;
 	
-	int             numInteractionIndexes;
-	int            *interactionIndexes;
+	int             numLightIndexes;
+	int            *lightIndexes;
+	
+	int             numShadowIndexes;
+	int            *shadowIndexes;
 
 	int             numIndexes;
 	int             numVertexes;
@@ -2097,7 +2115,10 @@ typedef struct shaderCommands_s
 
 extern shaderCommands_t tess;
 
-void            RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNum, qboolean skipTangentSpaces, qboolean shadowVolume, int numIndexes, int *indexes);
+void            RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNum,
+								qboolean skipTangentSpaces, qboolean shadowVolume,
+								int numLightIndexes, int *lightIndexes,
+								int numShadowIndexes, int *shadowIndexes);
 void            RB_EndSurface(void);
 void            RB_CheckOverflow(int verts, int indexes);
 
@@ -2168,7 +2189,9 @@ void            R_SetupDlightFrustum(trRefDlight_t * dl);
 int             R_CullDlightTriangle(trRefDlight_t * dl, vec3_t verts[3]);
 
 void            R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * surfaceShader,
-									   int numIndexes, int *indexes, qboolean shadowOnly);
+									   int numLightIndexes, int *lightIndexes,
+									   int numShadowIndexes, int *shadowIndexes,
+									   qboolean shadowOnly);
 
 void            R_SetDlightScissor(trRefDlight_t * light);
 /*

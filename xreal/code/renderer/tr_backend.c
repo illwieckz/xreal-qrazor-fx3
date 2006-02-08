@@ -644,7 +644,7 @@ void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, int numDr
 			{
 				RB_EndSurface();
 			}
-			RB_BeginSurface(shader, NULL, fogNum, qfalse, qfalse, 0, NULL);
+			RB_BeginSurface(shader, NULL, fogNum, qfalse, qfalse, 0, NULL, 0, NULL);
 			oldShader = shader;
 			oldFogNum = fogNum;
 		}
@@ -801,7 +801,7 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 			// entities merged into a single batch, like smoke and blood puff sprites
 			
 			// we need a new batch
-			RB_BeginSurface(shader, ia->dlightShader, 0, qfalse, qfalse, ia->numIndexes, ia->indexes);
+			RB_BeginSurface(shader, ia->dlightShader, 0, qfalse, qfalse, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
 
 			// change the modelview matrix if needed
 			if(entity != oldEntity)
@@ -977,6 +977,12 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 	matrix_t		modelToLight;
 	qboolean		drawShadows;
 	
+	if(glConfig.stencilBits < 4 || !glConfig2.shadingLanguage100Available)
+	{
+		RB_RenderInteractions(originalTime, interactions, numInteractions);
+		return;	
+	}
+	
 	GLimp_LogComment("--- RB_RenderInteractions2 ---\n");
 
 	// draw everything
@@ -989,7 +995,10 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 	
 	tess.currentStageIteratorType = SIT_LIGHTING2;
 	
-	// store current OpenGL state 
+	// store current OpenGL state
+	GL_Program(0);
+	GL_SelectTexture(0);
+	GL_Bind(tr.whiteImage);
 	qglPushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	qglDisable(GL_ALPHA_TEST);
 	qglEnable(GL_CULL_FACE);
@@ -1029,6 +1038,9 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 				
 				//qglStencilFunc(GL_ALWAYS, 128, ~0);
 				//qglStencilMask(1);
+				
+				// enable shadow volume extrusion shader
+				GL_Program(tr.shadowShader.program);
 			}
 			else
 			{
@@ -1058,6 +1070,9 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 				//qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 				
 				qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+				
+				// disable shadow volume extrusion shader
+				//GL_Program(0);
 			}
 			
 			if(light != oldLight)
@@ -1074,11 +1089,20 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 		if(drawShadows)
 		{
 			// we don't need tangent space calculations here
-			RB_BeginSurface(shader, ia->dlightShader, 0, qtrue, qtrue, 0, NULL);
+			RB_BeginSurface(shader, ia->dlightShader, 0, qtrue, qtrue, 0, NULL, 0, NULL);
+			
+			/*
+			RB_BeginSurface(shader, ia->dlightShader, 0, qfalse, qfalse,
+							ia->numLightIndexes, ia->lightIndexes,
+							ia->numShadowIndexes, ia->shadowIndexes);
+			*/
+			
 		}
 		else
 		{
-			RB_BeginSurface(shader, ia->dlightShader, 0, qfalse, qfalse, ia->numIndexes, ia->indexes);
+			RB_BeginSurface(shader, ia->dlightShader, 0, qfalse, qfalse,
+							ia->numLightIndexes, ia->lightIndexes,
+							0, NULL);
 		}
 
 		// change the modelview matrix if needed
@@ -1144,6 +1168,13 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 				VectorCopy(light->origin, light->transformed);
 			}
 			
+			if(drawShadows)
+			{
+				// set uniform parameter u_LightOrigin for GLSL shader
+				qglUniform3fARB(tr.shadowShader.u_LightOrigin,
+								light->transformed[0], light->transformed[1], light->transformed[2]);
+			}
+			
 			// finalize the attenuation matrix using the entity transform
 			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
 			MatrixMultiply(light->attenuationMatrix, modelToLight, light->attenuationMatrix2);
@@ -1168,7 +1199,8 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 			{
 				// clear shader so we can tell we don't have any unclosed surfaces
 				tess.numIndexes = 0;
-				tess.numInteractionIndexes = 0;
+				tess.numLightIndexes = 0;
+				tess.numShadowIndexes = 0;
 			}
 			else
 			{
@@ -1232,6 +1264,9 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 	
 	// restore OpenGL state
+	GL_Program(0);
+	GL_SelectTexture(0);
+	GL_Bind(tr.whiteImage);
 	qglDisable(GL_CULL_FACE);
 	qglDisable(GL_DEPTH_TEST);
 	qglDisable(GL_STENCIL_TEST);
@@ -1670,7 +1705,7 @@ const void     *RB_StretchPic(const void *data)
 			RB_EndSurface();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
-		RB_BeginSurface(shader, NULL, 0, qfalse, qfalse, 0, NULL);
+		RB_BeginSurface(shader, NULL, 0, qfalse, qfalse, 0, NULL, 0, NULL);
 	}
 
 	RB_CHECKOVERFLOW(4, 6);

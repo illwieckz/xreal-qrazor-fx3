@@ -108,7 +108,7 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefDlight_t * light)
 		   }
 		 */
 
-		R_AddDlightInteraction(light, surf->data, surf->shader, 0, NULL, shadowOnly);
+		R_AddDlightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, shadowOnly);
 		tr.pc.c_dlightSurfaces++;
 	}
 }
@@ -562,7 +562,7 @@ int R_CullDlightTriangle(trRefDlight_t * dl, vec3_t verts[3])
 R_AddDlightInteraction
 =================
 */
-void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * surfaceShader, int numIndexes, int *indexes, qboolean shadowOnly)
+void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * surfaceShader, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes, qboolean shadowOnly)
 {
 	int             index;
 	interaction_t  *ia;
@@ -602,8 +602,13 @@ void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shad
 	ia->entity = tr.currentEntity;
 	ia->surface = surface;
 	ia->surfaceShader = surfaceShader;
-	ia->numIndexes = numIndexes;
-	ia->indexes = indexes;
+	
+	ia->numLightIndexes = numLightIndexes;
+	ia->lightIndexes = lightIndexes;
+	
+	ia->numShadowIndexes = numShadowIndexes;
+	ia->shadowIndexes = shadowIndexes;
+	
 	ia->shadowOnly = shadowOnly;
 
 	ia->scissorX = light->scissor.coords[0];

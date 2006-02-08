@@ -526,7 +526,7 @@ void R_AddMD3Interactions(trRefEntity_t * ent, trRefDlight_t * light)
 		// don't add third_person objects if not viewing through a portal
 		if(!personalModel)
 		{
-			R_AddDlightInteraction(light, (void *)surface, shader, 0, NULL, shadowOnly);	
+			R_AddDlightInteraction(light, (void *)surface, shader, 0, NULL, 0, NULL, shadowOnly);	
 			tr.pc.c_dlightSurfaces++;
 		}
 

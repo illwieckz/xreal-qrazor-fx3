@@ -63,7 +63,7 @@ void RB_CheckOverflow(int verts, int indexes)
 		ri.Error(ERR_DROP, "RB_CheckOverflow: indices > MAX (%d > %d)", indexes, SHADER_MAX_INDEXES);
 	}
 
-	RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume, tess.numInteractionIndexes, tess.interactionIndexes);
+	RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume, tess.numLightIndexes, tess.lightIndexes, tess.numShadowIndexes, tess.shadowIndexes);
 }
 
 
@@ -243,17 +243,17 @@ void RB_SurfaceTriangles(srfTriangles_t * srf)
 	byte           *color;
 
 #if 1
-	if(tess.numInteractionIndexes)
+	if(tess.numLightIndexes)
 	{
-		RB_CHECKOVERFLOW(srf->numVerts, tess.numInteractionIndexes);
+		RB_CHECKOVERFLOW(srf->numVerts, tess.numLightIndexes);
 		
-		for(i = 0; i < tess.numInteractionIndexes; i += 3)
+		for(i = 0; i < tess.numLightIndexes; i += 3)
 		{
-			tess.indexes[tess.numIndexes + i + 0] = tess.numVertexes + tess.interactionIndexes[i + 0];
-			tess.indexes[tess.numIndexes + i + 1] = tess.numVertexes + tess.interactionIndexes[i + 1];
-			tess.indexes[tess.numIndexes + i + 2] = tess.numVertexes + tess.interactionIndexes[i + 2];
+			tess.indexes[tess.numIndexes + i + 0] = tess.numVertexes + tess.lightIndexes[i + 0];
+			tess.indexes[tess.numIndexes + i + 1] = tess.numVertexes + tess.lightIndexes[i + 1];
+			tess.indexes[tess.numIndexes + i + 2] = tess.numVertexes + tess.lightIndexes[i + 2];
 		}
-		tess.numIndexes += tess.numInteractionIndexes;
+		tess.numIndexes += tess.numLightIndexes;
 	}
 	else
 #endif
@@ -1218,14 +1218,14 @@ void RB_SurfaceFace(srfSurfaceFace_t * surf)
 	int             numPoints;
 
 #if 1
-	if(tess.numInteractionIndexes)
+	if(tess.numLightIndexes)
 	{
-		RB_CHECKOVERFLOW(surf->numPoints, tess.numInteractionIndexes);
+		RB_CHECKOVERFLOW(surf->numPoints, tess.numLightIndexes);
 
-		iaIndexes = tess.interactionIndexes;
+		iaIndexes = tess.lightIndexes;
 
 		tessIndexes = tess.indexes + tess.numIndexes;
-		for(i = 0; i < tess.numInteractionIndexes; i++)
+		for(i = 0; i < tess.numLightIndexes; i++)
 		{
 			tessIndexes[i] = iaIndexes[i] + tess.numVertexes;
 		}
@@ -1284,9 +1284,9 @@ void RB_SurfaceFace(srfSurfaceFace_t * surf)
 #endif
 	}
 
-	if(tess.numInteractionIndexes)
+	if(tess.numLightIndexes)
 	{
-		tess.numIndexes += tess.numInteractionIndexes;
+		tess.numIndexes += tess.numLightIndexes;
 	}
 	else
 	{
@@ -1309,17 +1309,17 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 	byte           *color;
 
 #if 1
-	if(tess.numInteractionIndexes)
+	if(tess.numLightIndexes)
 	{
-		RB_CHECKOVERFLOW(cv->numVerts, tess.numInteractionIndexes);
+		RB_CHECKOVERFLOW(cv->numVerts, tess.numLightIndexes);
 		
-		for(i = 0; i < tess.numInteractionIndexes; i += 3)
+		for(i = 0; i < tess.numLightIndexes; i += 3)
 		{
-			tess.indexes[tess.numIndexes + i + 0] = tess.numVertexes + tess.interactionIndexes[i + 0];
-			tess.indexes[tess.numIndexes + i + 1] = tess.numVertexes + tess.interactionIndexes[i + 1];
-			tess.indexes[tess.numIndexes + i + 2] = tess.numVertexes + tess.interactionIndexes[i + 2];
+			tess.indexes[tess.numIndexes + i + 0] = tess.numVertexes + tess.lightIndexes[i + 0];
+			tess.indexes[tess.numIndexes + i + 1] = tess.numVertexes + tess.lightIndexes[i + 1];
+			tess.indexes[tess.numIndexes + i + 2] = tess.numVertexes + tess.lightIndexes[i + 2];
 		}
-		tess.numIndexes += tess.numInteractionIndexes;
+		tess.numIndexes += tess.numLightIndexes;
 	}
 	else
 #endif

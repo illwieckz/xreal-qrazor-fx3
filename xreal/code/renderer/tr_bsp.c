@@ -36,8 +36,13 @@ void RE_LoadWorldMap( const char *name );
 static world_t  s_worldData;
 static int      s_lightCount;
 static int      s_interactionCount;
-static int      s_interactionIndexes[SHADER_MAX_INDEXES];
-static int      s_numInteractionIndexes;
+static int      s_facing[SHADER_MAX_INDEXES / 3];	// triangles facing light
+static int      s_lightIndexes[SHADER_MAX_INDEXES];
+static int      s_numLightIndexes;
+static int      s_shadowIndexes[SHADER_MAX_INDEXES];
+static int      s_numShadowIndexes;
+static edge_t   s_edges[SHADER_MAX_VERTEXES][MAX_EDGES];
+static int      s_numEdges[SHADER_MAX_VERTEXES];
 static byte    *fileBase;
 
 int             c_culledFaceTriangles;
@@ -2394,16 +2399,28 @@ static void R_PrecacheInteraction(trRefDlight_t * light, msurface_t * surface)
 	iaCache->next = NULL;
 	iaCache->surface = surface;
 
-	if(s_numInteractionIndexes >= 3)
+	if(s_numLightIndexes >= 3)
 	{
-		iaCache->numIndexes = s_numInteractionIndexes;
-		iaCache->indexes = ri.Hunk_Alloc(s_numInteractionIndexes * sizeof(int), h_low);
-		Com_Memcpy(iaCache->indexes, s_interactionIndexes, s_numInteractionIndexes * sizeof(int));
+		iaCache->numLightIndexes = s_numLightIndexes;
+		iaCache->lightIndexes = ri.Hunk_Alloc(s_numLightIndexes * sizeof(int), h_low);
+		Com_Memcpy(iaCache->lightIndexes, s_lightIndexes, s_numLightIndexes * sizeof(int));
 	}
 	else
 	{
-		iaCache->numIndexes = 0;
-		iaCache->indexes = NULL;
+		iaCache->numLightIndexes = 0;
+		iaCache->lightIndexes = NULL;
+	}
+	
+	if(s_numShadowIndexes >= 2)
+	{
+		iaCache->numShadowIndexes = s_numShadowIndexes;
+		iaCache->shadowIndexes = ri.Hunk_Alloc(s_numShadowIndexes * sizeof(int), h_low);
+		Com_Memcpy(iaCache->shadowIndexes, s_shadowIndexes, s_numShadowIndexes * sizeof(int));
+	}
+	else
+	{
+		iaCache->numShadowIndexes = 0;
+		iaCache->shadowIndexes = NULL;
 	}
 }
 
@@ -2902,6 +2919,83 @@ static qboolean _cldTestOneTriangle(trRefDlight_t * dl, const vec3_t v0, const v
 	 */
 }
 
+static void R_AddEdge(int i1, int i2, qboolean facing)
+{
+	int             c;
+
+	c = s_numEdges[i1];
+	if(c == MAX_EDGES)
+	{
+		return;					// overflow
+	}
+	s_edges[i1][c].i2 = i2;
+	s_edges[i1][c].facing = facing;
+
+	s_numEdges[i1]++;
+}
+
+static void R_CalcShadowIndexes(int numVertexes)
+{
+	int             i;
+	int             c, c2;
+	int             j, k;
+	int             i2;
+	int             hit[2];
+
+	// an edge is NOT a silhouette edge if its face doesn't face the light,
+	// or if it has a reverse paired edge that also faces the light.
+	// A well behaved polyhedron would have exactly two faces for each edge,
+	// but lots of models have dangling edges or overfanned edges
+	s_numShadowIndexes = 0;
+	
+	for(i = 0; i < numVertexes; i++)
+	{
+		c = s_numEdges[i];
+		for(j = 0; j < c; j++)
+		{
+			if(!s_edges[i][j].facing)
+			{
+				continue;
+			}
+
+			hit[0] = 0;
+			hit[1] = 0;
+
+			i2 = s_edges[i][j].i2;
+			c2 = s_numEdges[i2];
+			for(k = 0; k < c2; k++)
+			{
+				if(s_edges[i2][k].i2 == i)
+				{
+					hit[s_edges[i2][k].facing]++;
+				}
+			}
+
+			// if it doesn't share the edge with another front facing
+			// triangle, it is a sil edge
+			if(hit[1] == 0)
+			{
+				s_shadowIndexes[s_numShadowIndexes] = i;
+				s_shadowIndexes[s_numShadowIndexes + 1] = i2;
+				
+				s_numShadowIndexes += 2;
+				
+				//qglBegin(GL_TRIANGLE_STRIP);
+				
+				//v = tess.xyz[i];
+				//qglVertex3fv(v);
+				//qglVertex4f(v[0], v[1], v[2], 0);
+				
+				//v = tess.xyz[i2];
+				//qglVertex3fv(v);
+				//qglVertex4f(v[0], v[1], v[2], 0);
+				
+				//qglEnd();
+			}
+		}
+	}
+}
+
 static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * shader, trRefDlight_t * dl)
 {
 	int             i;
@@ -2947,14 +3041,18 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * sh
 #endif
 
 	indices = (unsigned *)(((char *)face) + face->ofsIndices);
-	iaIndexes = s_interactionIndexes;
+	iaIndexes = s_lightIndexes;
 
 	// build a list of triangles that need light
+	Com_Memset(s_numEdges, 0, 4 * face->numPoints);
+	
 	numIndexes = 0;
 	for(i = 0; i < (face->numIndices / 3); i++)
 	{
 		int             i1, i2, i3;
 		vec3_t          verts[3];
+		
+		s_facing[i] = qtrue;
 
 		i1 = indices[i * 3 + 0];
 		i2 = indices[i * 3 + 1];
@@ -2975,7 +3073,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * sh
 			case CULL_OUT:
 			default:
 				c_culledFaceTriangles++;
-				continue;
+				s_facing[i] = false;
 		}
 #endif
 
@@ -2993,10 +3091,19 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * sh
 			ri.Error(ERR_DROP, "R_PrecacheFaceInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
 		}
 
-		iaIndexes[numIndexes + 0] = i1;
-		iaIndexes[numIndexes + 1] = i2;
-		iaIndexes[numIndexes + 2] = i3;
-		numIndexes += 3;
+		// create the edges
+		R_AddEdge(i1, i2, s_facing[i]);
+		R_AddEdge(i2, i3, s_facing[i]);
+		R_AddEdge(i3, i1, s_facing[i]);
+		
+		// create triangle indices
+		if(s_facing[i])
+		{
+			iaIndexes[numIndexes + 0] = i1;
+			iaIndexes[numIndexes + 1] = i2;
+			iaIndexes[numIndexes + 2] = i3;
+			numIndexes += 3;
+		}
 	}
 
 #if 1
@@ -3006,7 +3113,8 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * sh
 	}
 #endif
 
-	s_numInteractionIndexes = numIndexes;
+	s_numLightIndexes = numIndexes;
+	R_CalcShadowIndexes(face->numPoints);
 	return qtrue;
 }
 
@@ -3030,9 +3138,11 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * grid, shader_t * shader, tr
 	}
 
 	indexes = grid->indexes;
-	iaIndexes = s_interactionIndexes;
+	iaIndexes = s_lightIndexes;
 
 	// build a list of triangles that need light
+	Com_Memset(s_numEdges, 0, 4 * grid->numVerts);
+	
 	numIndexes = 0;
 	for(i = 0; i < (grid->numIndexes / 3); i++)
 	{
@@ -3040,11 +3150,12 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * grid, shader_t * shader, tr
 		vec3_t          verts[3];
 		vec4_t          plane;
 		float           d;
+		
+		s_facing[i] = qtrue;
 
 		i1 = indexes[i * 3 + 0];
 		i2 = indexes[i * 3 + 1];
 		i3 = indexes[i * 3 + 2];
-
 
 		VectorCopy(grid->verts[i1].xyz, verts[0]);
 		VectorCopy(grid->verts[i2].xyz, verts[1]);
@@ -3061,7 +3172,7 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * grid, shader_t * shader, tr
 				if(d < 0)
 				{
 					c_culledGridTriangles++;
-					continue;
+					s_facing[i] = qfalse;
 				}
 			}
 			else
@@ -3069,7 +3180,7 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * grid, shader_t * shader, tr
 				if(d > 0)
 				{
 					c_culledGridTriangles++;
-					continue;
+					s_facing[i] = qfalse;
 				}
 			}
 #endif
@@ -3080,7 +3191,7 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * grid, shader_t * shader, tr
 		if(!_cldTestOneTriangle(dl, verts[0], verts[1], verts[2]))
 		{
 			c_culledGridTriangles++;
-			continue;
+			s_facing[i] = qfalse;
 		}
 #endif
 
@@ -3089,10 +3200,19 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * grid, shader_t * shader, tr
 			ri.Error(ERR_DROP, "R_PrecacheGridInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
 		}
 
-		iaIndexes[numIndexes + 0] = i1;
-		iaIndexes[numIndexes + 1] = i2;
-		iaIndexes[numIndexes + 2] = i3;
-		numIndexes += 3;
+		// create the edges
+		R_AddEdge(i1, i2, s_facing[i]);
+		R_AddEdge(i2, i3, s_facing[i]);
+		R_AddEdge(i3, i1, s_facing[i]);
+		
+		// create triangle indices
+		if(s_facing[i])
+		{
+			iaIndexes[numIndexes + 0] = i1;
+			iaIndexes[numIndexes + 1] = i2;
+			iaIndexes[numIndexes + 2] = i3;
+			numIndexes += 3;
+		}
 	}
 
 #if 1
@@ -3102,7 +3222,8 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * grid, shader_t * shader, tr
 	}
 #endif
 
-	s_numInteractionIndexes = numIndexes;
+	s_numLightIndexes = numIndexes;
+	R_CalcShadowIndexes(grid->numVerts);
 	return qtrue;
 }
 
@@ -3126,9 +3247,11 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * tri, shader_t * shader,
 	}
 
 	indexes = tri->indexes;
-	iaIndexes = s_interactionIndexes;
+	iaIndexes = s_lightIndexes;
 
 	// build a list of triangles that need light
+	Com_Memset(s_numEdges, 0, 4 * tri->numVerts);
+	
 	numIndexes = 0;
 	for(i = 0; i < (tri->numIndexes / 3); i++)
 	{
@@ -3136,11 +3259,12 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * tri, shader_t * shader,
 		vec3_t          verts[3];
 		vec4_t          plane;
 		float           d;
+		
+		s_facing[i] = qtrue;
 
 		i1 = indexes[i * 3 + 0];
 		i2 = indexes[i * 3 + 1];
 		i3 = indexes[i * 3 + 2];
-
 
 		VectorCopy(tri->verts[i1].xyz, verts[0]);
 		VectorCopy(tri->verts[i2].xyz, verts[1]);
@@ -3157,7 +3281,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * tri, shader_t * shader,
 				if(d < 0)
 				{
 					c_culledTriTriangles++;
-					continue;
+					s_facing[i] = qfalse;
 				}
 			}
 			else
@@ -3165,7 +3289,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * tri, shader_t * shader,
 				if(d > 0)
 				{
 					c_culledTriTriangles++;
-					continue;
+					s_facing[i] = qfalse;
 				}
 			}
 #endif
@@ -3176,7 +3300,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * tri, shader_t * shader,
 			if(r != 3)
 			{
 				c_culledTriTriangles++;
-				continue;
+				s_facing[i] = false;
 			}
 #endif
 		}
@@ -3192,7 +3316,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * tri, shader_t * shader,
 			case CULL_OUT:
 			default:
 				c_culledTriTriangles++;
-				continue;
+				s_facing[i] = false;
 		}
 #endif
 
@@ -3201,7 +3325,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * tri, shader_t * shader,
 		if(!_cldTestOneTriangle(dl, verts[0], verts[1], verts[2]))
 		{
 			c_culledTriTriangles++;
-			continue;
+			s_facing[i] = qfalse;
 		}
 #endif
 
@@ -3210,10 +3334,19 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * tri, shader_t * shader,
 			ri.Error(ERR_DROP, "R_PrecacheTrisurfInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
 		}
 
-		iaIndexes[numIndexes + 0] = i1;
-		iaIndexes[numIndexes + 1] = i2;
-		iaIndexes[numIndexes + 2] = i3;
-		numIndexes += 3;
+		// create the edges
+		R_AddEdge(i1, i2, s_facing[i]);
+		R_AddEdge(i2, i3, s_facing[i]);
+		R_AddEdge(i3, i1, s_facing[i]);
+		
+		// create triangle indices
+		if(s_facing[i])
+		{
+			iaIndexes[numIndexes + 0] = i1;
+			iaIndexes[numIndexes + 1] = i2;
+			iaIndexes[numIndexes + 2] = i3;
+			numIndexes += 3;
+		}
 	}
 
 #if 1
@@ -3223,7 +3356,8 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * tri, shader_t * shader,
 	}
 #endif
 
-	s_numInteractionIndexes = numIndexes;
+	s_numLightIndexes = numIndexes;
+	R_CalcShadowIndexes(tri->numVerts);
 	return qtrue;
 }
 
@@ -3247,7 +3381,8 @@ static void R_PrecacheInteractionSurface(msurface_t * surf, trRefDlight_t * ligh
 	if(surf->shader->sort > SS_OPAQUE || (surf->shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY)))
 		return;
 
-	s_numInteractionIndexes = 0;
+	s_numLightIndexes = 0;
+	s_numShadowIndexes = 0;
 
 	if(*surf->data == SF_FACE)
 	{

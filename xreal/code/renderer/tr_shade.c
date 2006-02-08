@@ -479,6 +479,16 @@ void RB_InitGPUShaders(void)
 	qglUseProgramObjectARB(0);
 	
 	//
+	// shadow volume extrusion
+	//
+	RB_InitGPUShader(&tr.shadowShader,
+					  "shadow",
+					  GLCS_VERTEX, qtrue);
+
+	tr.shadowShader.u_LightOrigin =
+			qglGetUniformLocationARB(tr.shadowShader.program, "u_LightOrigin");
+	
+	//
 	// cubemap reflection for abitrary polygons
 	//
 	RB_InitGPUShader(&tr.reflectionShader_C,
@@ -746,6 +756,12 @@ void RB_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.lightShader_DBS_radiosity.program);
 		tr.lightShader_DBS_radiosity.program = 0;
+	}
+	
+	if(tr.shadowShader.program)
+	{
+		qglDeleteObjectARB(tr.shadowShader.program);
+		tr.shadowShader.program = 0;
 	}
 	
 	if(tr.reflectionShader_C.program)
@@ -1338,7 +1354,10 @@ because a surface may be forced to perform a RB_End due
 to overflow.
 ==============
 */
-void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNum, qboolean skipTangentSpaces, qboolean shadowVolume, int numIndexes, int *indexes)
+void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNum,
+					 qboolean skipTangentSpaces, qboolean shadowVolume,
+					 int numLightIndexes, int *lightIndexes,
+					 int numShadowIndexes, int *shadowIndexes)
 {
 	shader_t       *state = (surfaceShader->remappedShader) ? surfaceShader->remappedShader : surfaceShader;
 
@@ -1376,8 +1395,11 @@ void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNu
 	tess.fogNum = fogNum;
 	tess.skipTangentSpaces = skipTangentSpaces;
 	
-	tess.numInteractionIndexes = numIndexes;
-	tess.interactionIndexes = indexes;
+	tess.numLightIndexes = numLightIndexes;
+	tess.lightIndexes = lightIndexes;
+	
+	tess.numShadowIndexes = numShadowIndexes;
+	tess.shadowIndexes = shadowIndexes;
 	
 	tess.shadowVolume = shadowVolume;
 }
@@ -3746,7 +3768,8 @@ void RB_EndSurface()
 
 	// clear shader so we can tell we don't have any unclosed surfaces
 	tess.numIndexes = 0;
-	tess.numInteractionIndexes = 0;
+	tess.numLightIndexes = 0;
+	tess.numShadowIndexes = 0;
 
 	GLimp_LogComment("----------\n");
 }
