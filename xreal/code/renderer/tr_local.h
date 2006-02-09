@@ -936,6 +936,19 @@ typedef struct
 	qboolean        facing;
 } edge_t;
 
+typedef struct
+{
+	edge_t          edges[SHADER_MAX_VERTEXES][MAX_EDGES];
+	int             numEdges[SHADER_MAX_VERTEXES];
+    qboolean        facing[SHADER_MAX_INDEXES / 3];
+	
+	int             numIndexes;
+	int             indexes[SHADER_MAX_INDEXES];
+} shadowState_t;
+
+extern shadowState_t sh;
+
+
 #define	MAX_FACE_POINTS		64
 
 #define	MAX_PATCH_SIZE		32	// max dimensions of a patch mesh in map file
@@ -2202,8 +2215,10 @@ SHADOWS
 ============================================================
 */
 
-void            RB_ShadowTessEnd(void);
-void            RB_ProjectionShadowDeform(void);
+void            R_AddEdge(int i1, int i2, qboolean facing);
+void            R_CalcShadowIndexes(int numVertexes);
+void            RB_ShadowTessEnd();
+void            RB_ProjectionShadowDeform();
 
 /*
 ============================================================

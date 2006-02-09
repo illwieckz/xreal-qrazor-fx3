@@ -1534,7 +1534,7 @@ void R_AddEntitySurfaces(void)
 		}
 		else
 		{
-			ent->needZFail = qfalse;
+			ent->needZFail = qtrue;
 		}
 #else
 		ent->needZFail = qtrue;

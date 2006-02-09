@@ -1092,17 +1092,14 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 			RB_BeginSurface(shader, ia->dlightShader, 0, qtrue, qtrue, 0, NULL, 0, NULL);
 			
 			/*
-			RB_BeginSurface(shader, ia->dlightShader, 0, qfalse, qfalse,
+			RB_BeginSurface(shader, ia->dlightShader, 0, qtrue, qtrue,
 							ia->numLightIndexes, ia->lightIndexes,
 							ia->numShadowIndexes, ia->shadowIndexes);
 			*/
-			
 		}
 		else
 		{
-			RB_BeginSurface(shader, ia->dlightShader, 0, qfalse, qfalse,
-							ia->numLightIndexes, ia->lightIndexes,
-							0, NULL);
+			RB_BeginSurface(shader, ia->dlightShader, 0, qfalse, qfalse, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
 		}
 
 		// change the modelview matrix if needed
