@@ -6,7 +6,7 @@ import SCons.Errors
 # Set configuration options
 #
 opts = Options('quake3.conf')
-opts.Add(EnumOption('arch', 'Choose architecture to build for', 'linux-i386', allowed_values=('linux-i386', 'linux-x86_64')))
+opts.Add(EnumOption('arch', 'Choose architecture to build for', 'linux-i386', allowed_values=('linux-i386', 'linux-x86_64', 'win32')))
 opts.Add(EnumOption('warnings', 'Choose warnings level', '1', allowed_values=('0', '1', '2')))
 opts.Add(EnumOption('debug', 'Set to >= 1 to build for debug', '0', allowed_values=('0', '1', '2', '3')))
 opts.Add(EnumOption('optimize', 'Set to >= 1 to build with general optimizations', '2', allowed_values=('0', '1', '2', '3', '4', '5', '6')))
@@ -94,7 +94,7 @@ if not conf.CheckLib('m', autoadd=0):
 #		print 'Did not find libopenal.a or openal.lib, exiting!'
 #		Exit(1)
 	
-#elif sys.platform == 'win32':
+elif sys.platform == 'win32':
 #	if not conf.CheckLib('openal32', autoadd=0):
 #		print 'Did not find libopenal32.a or openal32.lib, exiting!'
 #		Exit(1)

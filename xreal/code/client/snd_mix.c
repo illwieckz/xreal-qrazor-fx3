@@ -31,7 +31,7 @@ int            *snd_p;
 int             snd_linear_count;
 short          *snd_out;
 
-#if defined C_ONLY || !( (defined __linux__ || defined __FreeBSD__ ) && (defined __i386__) )	// rb010123
+#if defined C_ONLY || !( (defined __linux__ || defined __FreeBSD__ || defined __MINGW32__ ) && (defined __i386__) ) // rb010123
 #if	defined C_ONLY || !id386
 
 void S_WriteLinearBlastStereo16(void)

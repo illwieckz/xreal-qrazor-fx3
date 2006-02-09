@@ -93,3 +93,8 @@ if env['arch'] == 'linux-i386':
 	q3map_env.Append(LIBS=['m'])
 	q3map_env.Program('q3map.x86', q3map_src)
 	q3map_env.Install('#', 'q3map.x86')
+
+elif env['arch'] == 'win32':
+	q3map_env.Append(LIBS=['m'])
+	q3map_env.Program('q3map', q3map_src)
+	q3map_env.Install('#', 'q3map')

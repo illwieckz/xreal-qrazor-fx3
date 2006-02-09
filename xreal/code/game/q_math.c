@@ -833,7 +833,7 @@ void SetPlaneSignbits(cplane_t * out)
 }
 
 
-#if !( (defined __linux__ || __FreeBSD__) && (defined __i386__) && (!defined C_ONLY))	// rb010123
+#if !( (defined __linux__ || __FreeBSD__ || __MINGW32__) && (defined __i386__) && (!defined C_ONLY)) // rb010123
 
 #if defined __LCC__ || defined C_ONLY || !id386 || defined __VECTORC
 

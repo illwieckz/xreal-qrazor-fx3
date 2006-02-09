@@ -32,15 +32,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #elif defined( _WIN32 )
 
+#if _MSC_VER
 #pragma warning (disable: 4201)
 #pragma warning (disable: 4214)
 #pragma warning (disable: 4514)
 #pragma warning (disable: 4032)
 #pragma warning (disable: 4201)
 #pragma warning (disable: 4214)
+#endif
+
 #include <windows.h>
-#include <gl/gl.h>
-#include <gl/glext.h>
+#include <GL/gl.h>
+#include <GL/glext.h>
 #elif defined(MACOS_X)
 
 #include "macosx_glimp.h"

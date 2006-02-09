@@ -1655,10 +1655,14 @@ void RB_CalcRotateTexCoords2(const expression_t * rExp, float *st)
 
 long myftol(float f)
 {
+#ifndef __MINGW32__
 	static int tmp;
 	__asm fld f
 	__asm fistp tmp
 	__asm mov eax, tmp
+#else
+	return (long)f;
+#endif
 }
 
 #endif

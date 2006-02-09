@@ -98,3 +98,7 @@ elif env['arch'] == 'linux-x86_64':
 	game_env.SharedLibrary('game', [game_src, dll_src], LIBS=['m'])
 	game_env.InstallAs('#base/qagamex86_64.so', 'libgame.so')
 
+elif env['arch'] == 'win32':
+	game_env.SharedLibrary('ui', [game_src, dll_src], LIBS=['m'])
+	game_env.InstallAs('#base/gamei386', 'libgame')
+

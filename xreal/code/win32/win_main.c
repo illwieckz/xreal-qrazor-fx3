@@ -56,7 +56,7 @@ void Spk_Open(char *name)
   fh = open( name, O_TRUNC | O_CREAT | O_WRONLY, S_IREAD | S_IWRITE );
 };
 
-void Spk_Close()
+void Spk_Close(void)
 {
   if (!fh)
     return;
@@ -1100,7 +1100,11 @@ void Sys_Init( void ) {
 	{
 		Com_Printf( "...detecting CPU, found " );
 
-		cpuid = Sys_GetProcessorId();
+#ifndef __MINGW32__
+ 		cpuid = Sys_GetProcessorId();
+#else // See comments in win_shared.c
+  	    cpuid = CPUID_GENERIC;
+#endif
 
 		switch ( cpuid )
 		{

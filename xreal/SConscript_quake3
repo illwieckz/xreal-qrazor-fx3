@@ -159,6 +159,20 @@ linux_src = [
 'code/unix/linux_signals.c'
 ]
 
+win_src = [
+'code/unix/linux_common.c',
+'code/win32/win_main.c',
+'code/win32/win_shared.c',
+'code/win32/win_glimp.c',
+'code/win32/win_gamma.c',
+'code/win32/win_input.c',
+'code/win32/win_qgl.c',
+'code/win32/win_net.c',
+'code/win32/win_snd.c',
+'code/win32/win_syscon.c',
+'code/win32/win_wndproc.c'
+]
+
 vm_src = [
 'code/qcommon/vm.c',
 'code/qcommon/vm_interpreted.c'
@@ -200,3 +214,17 @@ if env['arch'] == 'linux-i386':
 		quake3_env.Program('quake3.x86', [quake3_src, unix_src, linux_src, vm_src, 'code/unix/sdl_snd.c'])
 		
 	quake3_env.Install('#', 'quake3.x86')
+
+elif env['arch'] == 'win32':
+	quake3_env.Append(LIBS=['m', 'gdi32', 'ole32', 'wsock32', 'winmm'])
+
+	if env['vm'] == 1:
+		vm_src += ['code/qcommon/vm_x86.c']
+	else:
+		quake3_env.Append(CCFLAGS='-DDLL_ONLY')
+		
+	if env['smp'] == 1:
+		quake3_env.Append(CCFLAGS='-DSMP')
+		quake3_env.Append(LIBS=['pthread'])
+
+	quake3_env.Program('quake3', [quake3_src, win_src, vm_src])
