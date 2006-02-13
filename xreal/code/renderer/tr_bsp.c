@@ -355,6 +355,7 @@ static shader_t *ShaderForShaderNum(int shaderNum, int lightmapNum)
 {
 	shader_t       *shader;
 	dshader_t      *dsh;
+	shaderType_t    shaderType;
 
 	shaderNum = LittleLong(shaderNum);
 	if(shaderNum < 0 || shaderNum >= s_worldData.numShaders)
@@ -362,14 +363,17 @@ static shader_t *ShaderForShaderNum(int shaderNum, int lightmapNum)
 		ri.Error(ERR_DROP, "ShaderForShaderNum: bad num %i", shaderNum);
 	}
 	dsh = &s_worldData.shaders[shaderNum];
-
-	// HACK: this fixes lightmapNum values provided by q3map2
-	if(lightmapNum < 0)
+	
+	if(lightmapNum >= 0)
 	{
-		lightmapNum = LIGHTMAP_BY_VERTEX;
+		shaderType = SHADER_3D_LIGHTMAP;
+	}
+	else
+	{
+		shaderType = SHADER_3D_STATIC;
 	}
 
-	shader = R_FindShader(dsh->shader, lightmapNum, qtrue);
+	shader = R_FindShader(dsh->shader, shaderType, qtrue);
 
 	// if the shader had errors, just use default shader
 	if(shader->defaultShader)
@@ -390,16 +394,16 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 	int             i, j;
 	srfSurfaceFace_t *cv;
 	int             numPoints, numIndexes;
-	int             lightmapNum;
 	int             sfaceSize, ofsIndexes;
 
-	lightmapNum = LittleLong(ds->lightmapNum);
+	// get lightmap
+	surf->lightmapNum = LittleLong(ds->lightmapNum);
 
 	// get fog volume
 	surf->fogIndex = LittleLong(ds->fogNum) + 1;
 
 	// get shader value
-	surf->shader = ShaderForShaderNum(ds->shaderNum, lightmapNum);
+	surf->shader = ShaderForShaderNum(ds->shaderNum, surf->lightmapNum);
 	if(r_singleShader->integer && !surf->shader->isSky)
 	{
 		surf->shader = tr.defaultShader;
@@ -523,18 +527,18 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, msurface_t * surf)
 	int             i, j;
 	int             width, height, numPoints;
 	MAC_STATIC srfVert_t points[MAX_PATCH_SIZE * MAX_PATCH_SIZE];
-	int             lightmapNum;
 	vec3_t          bounds[2];
 	vec3_t          tmpVec;
 	static surfaceType_t skipData = SF_SKIP;
 
-	lightmapNum = LittleLong(ds->lightmapNum);
+	// get lightmap
+	surf->lightmapNum = LittleLong(ds->lightmapNum);
 
 	// get fog volume
 	surf->fogIndex = LittleLong(ds->fogNum) + 1;
 
 	// get shader value
-	surf->shader = ShaderForShaderNum(ds->shaderNum, lightmapNum);
+	surf->shader = ShaderForShaderNum(ds->shaderNum, surf->lightmapNum);
 	if(r_singleShader->integer && !surf->shader->isSky)
 	{
 		surf->shader = tr.defaultShader;
@@ -596,12 +600,15 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 	srfTriangles_t *tri;
 	int             i, j;
 	int             numVerts, numIndexes;
+	
+	// set lightmap
+	surf->lightmapNum = -1;
 
 	// get fog volume
 	surf->fogIndex = LittleLong(ds->fogNum) + 1;
 
 	// get shader
-	surf->shader = ShaderForShaderNum(ds->shaderNum, LIGHTMAP_BY_VERTEX);
+	surf->shader = ShaderForShaderNum(ds->shaderNum, surf->lightmapNum);
 	if(r_singleShader->integer && !surf->shader->isSky)
 	{
 		surf->shader = tr.defaultShader;
@@ -711,12 +718,15 @@ static void ParseFlare(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, i
 {
 	srfFlare_t     *flare;
 	int             i;
+	
+	// set lightmap
+	surf->lightmapNum = -1;
 
 	// get fog volume
 	surf->fogIndex = LittleLong(ds->fogNum) + 1;
 
 	// get shader
-	surf->shader = ShaderForShaderNum(ds->shaderNum, LIGHTMAP_BY_VERTEX);
+	surf->shader = ShaderForShaderNum(ds->shaderNum, surf->lightmapNum);
 	if(r_singleShader->integer && !surf->shader->isSky)
 	{
 		surf->shader = tr.defaultShader;
@@ -1974,7 +1984,7 @@ static void R_LoadFogs(lump_t * l, lump_t * brushesLump, lump_t * sidesLump)
 		out->bounds[1][2] = s_worldData.planes[planeNum].dist;
 
 		// get information from the shader for fog parameters
-		shader = R_FindShader(fogs->shader, LIGHTMAP_NONE, qtrue);
+		shader = R_FindShader(fogs->shader, SHADER_3D_DYNAMIC, qtrue);
 
 		out->parms = shader->fogParms;
 

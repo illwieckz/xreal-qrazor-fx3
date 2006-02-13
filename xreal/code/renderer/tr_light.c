@@ -512,7 +512,6 @@ int R_CullDlightTriangle(trRefDlight_t * dl, vec3_t verts[3])
 {
 	int             i, j;
 	float           dists[3];
-	vec3_t          v;
 	cplane_t       *frust;
 	int             anyBack;
 	int             front, back;
@@ -735,14 +734,7 @@ Tr3B - recoded from Tenebrae2
 */
 void R_SetDlightScissor(trRefDlight_t * light)
 {
-	int             i, j;
 	vec3_t          v1, v2;
-	vec3_t          v;
-	vec3_t          transformed[8];
-	float           dists[8];
-	cplane_t       *frust;
-	int             anyBack;
-	int             front, back;
 
 	if(r_noLightScissors->integer || R_DlightIntersectsPoint(light, tr.viewParms.or.origin))
 	{

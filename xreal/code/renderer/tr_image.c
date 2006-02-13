@@ -3590,7 +3590,7 @@ qhandle_t RE_RegisterSkin(const char *name)
 	{
 		skin->numSurfaces = 1;
 		skin->surfaces[0] = ri.Hunk_Alloc(sizeof(skin->surfaces[0]), h_low);
-		skin->surfaces[0]->shader = R_FindShader(name, LIGHTMAP_NONE, qtrue);
+		skin->surfaces[0]->shader = R_FindShader(name, SHADER_3D_DYNAMIC, qtrue);
 		return hSkin;
 	}
 
@@ -3630,7 +3630,7 @@ qhandle_t RE_RegisterSkin(const char *name)
 
 		surf = skin->surfaces[skin->numSurfaces] = ri.Hunk_Alloc(sizeof(*skin->surfaces[0]), h_low);
 		Q_strncpyz(surf->name, surfName, sizeof(surf->name));
-		surf->shader = R_FindShader(token, LIGHTMAP_NONE, qtrue);
+		surf->shader = R_FindShader(token, SHADER_3D_DYNAMIC, qtrue);
 		skin->numSurfaces++;
 	}
 

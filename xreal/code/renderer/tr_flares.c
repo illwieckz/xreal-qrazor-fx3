@@ -335,7 +335,7 @@ void RB_RenderFlare(flare_t * f)
 
 	tess.currentStageIteratorFunc = RB_StageIteratorGeneric;
 	
-	RB_BeginSurface(tr.flareShader, NULL, f->fogNum, qfalse, qfalse, 0, NULL, 0, NULL);
+	RB_BeginSurface(tr.flareShader, NULL, -1, f->fogNum, qfalse, qfalse, 0, NULL, 0, NULL);
 
 	// FIXME: use quadstamp?
 	tess.xyz[tess.numVertexes][0] = f->windowX - size;

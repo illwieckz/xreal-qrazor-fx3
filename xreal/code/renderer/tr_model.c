@@ -363,7 +363,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *mod_
 		{
 			shader_t       *sh;
 
-			sh = R_FindShader(shader->name, LIGHTMAP_NONE, qtrue);
+			sh = R_FindShader(shader->name, SHADER_3D_DYNAMIC, qtrue);
 			if(sh->defaultShader)
 			{
 				shader->shaderIndex = 0;
@@ -544,7 +544,7 @@ static qboolean R_LoadMDS(model_t * mod, void *buffer, const char *modName)
 		//ri.Printf(PRINT_ALL, "R_LoadMDS: '%s' has surface '%s'\n", modName, surf->name);
 
 		// register the shaders
-		sh = R_FindShader(surf->shader, LIGHTMAP_NONE, qtrue);
+		sh = R_FindShader(surf->shader, SHADER_3D_DYNAMIC, qtrue);
 		if(sh->defaultShader)
 		{
 			surf->shaderIndex = 0;
@@ -614,9 +614,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 	md5Vertex_t    *v;
 	md5Weight_t    *weight;
 	int             version;
-	int             size;
 	shader_t       *sh;
-	int             frameSize;
 	char           *buf_p;
 	char           *token;
 	vec3_t          boneOrigin;
@@ -817,7 +815,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 		//ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' has surface '%s'\n", modName, surf->name);
 
 		// register the shaders
-		sh = R_FindShader(surf->shader, LIGHTMAP_NONE, qtrue);
+		sh = R_FindShader(surf->shader, SHADER_3D_DYNAMIC, qtrue);
 		if(sh->defaultShader)
 		{
 			surf->shaderIndex = 0;

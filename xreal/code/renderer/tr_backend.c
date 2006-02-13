@@ -604,9 +604,11 @@ void RB_BeginDrawingView(void)
 
 void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, int numDrawSurfs)
 {
+	int             shaderNum;
 	shader_t       *shader, *oldShader;
 	int             fogNum, oldFogNum;
 	int             entityNum, oldEntityNum;
+	int             lightmapNum, oldLightmapNum;
 	qboolean        depthRange, oldDepthRange;
 	int             i;
 	drawSurf_t     *drawSurf;
@@ -619,6 +621,7 @@ void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, int numDr
 	backEnd.currentEntity = &tr.worldEntity;
 	oldShader = NULL;
 	oldFogNum = -1;
+	oldLightmapNum = -1;
 	oldDepthRange = qfalse;
 	oldSort = -1;
 	depthRange = qfalse;
@@ -632,20 +635,24 @@ void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, int numDr
 			continue;
 		}
 		oldSort = drawSurf->sort;
-		R_DecomposeSort(drawSurf->sort, &entityNum, &shader, &fogNum);
+		R_DecomposeSort(drawSurf->sort, &entityNum, &shaderNum, &lightmapNum, &fogNum);
+		shader = tr.sortedShaders[shaderNum];
 
 		// change the tess parameters if needed
 		// a "entityMergable" shader is a shader that can have surfaces from seperate
 		// entities merged into a single batch, like smoke and blood puff sprites
-		if(shader != oldShader || fogNum != oldFogNum
-		   || (entityNum != oldEntityNum && !shader->entityMergable))
+		if(	shader != oldShader
+			|| fogNum != oldFogNum
+			|| lightmapNum != oldLightmapNum
+			|| (entityNum != oldEntityNum && !shader->entityMergable))
 		{
 			if(oldShader != NULL)
 			{
 				RB_EndSurface();
 			}
-			RB_BeginSurface(shader, NULL, fogNum, qfalse, qfalse, 0, NULL, 0, NULL);
+			RB_BeginSurface(shader, NULL, lightmapNum, fogNum, qfalse, qfalse, 0, NULL, 0, NULL);
 			oldShader = shader;
+			oldLightmapNum = lightmapNum;
 			oldFogNum = fogNum;
 		}
 
@@ -801,7 +808,7 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 			// entities merged into a single batch, like smoke and blood puff sprites
 			
 			// we need a new batch
-			RB_BeginSurface(shader, ia->dlightShader, 0, qfalse, qfalse, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
+			RB_BeginSurface(shader, ia->dlightShader, -1, 0, qfalse, qfalse, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
 
 			// change the modelview matrix if needed
 			if(entity != oldEntity)
@@ -1089,7 +1096,7 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 		if(drawShadows)
 		{
 			// we don't need tangent space calculations here
-			RB_BeginSurface(shader, ia->dlightShader, 0, qtrue, qtrue, 0, NULL, 0, NULL);
+			RB_BeginSurface(shader, ia->dlightShader, -1, 0, qtrue, qtrue, 0, NULL, 0, NULL);
 			
 			/*
 			RB_BeginSurface(shader, ia->dlightShader, 0, qtrue, qtrue,
@@ -1099,7 +1106,7 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 		}
 		else
 		{
-			RB_BeginSurface(shader, ia->dlightShader, 0, qfalse, qfalse, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
+			RB_BeginSurface(shader, ia->dlightShader, -1, 0, qfalse, qfalse, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
 		}
 
 		// change the modelview matrix if needed
@@ -1702,7 +1709,7 @@ const void     *RB_StretchPic(const void *data)
 			RB_EndSurface();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
-		RB_BeginSurface(shader, NULL, 0, qfalse, qfalse, 0, NULL, 0, NULL);
+		RB_BeginSurface(shader, NULL, -1, 0, qfalse, qfalse, 0, NULL, 0, NULL);
 	}
 
 	RB_CHECKOVERFLOW(4, 6);

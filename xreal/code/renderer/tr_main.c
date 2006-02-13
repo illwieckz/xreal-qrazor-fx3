@@ -965,7 +965,9 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 	float           shortest = 100000000;
 	int             entityNum;
 	int             numTriangles;
+	int             shaderNum;
 	shader_t       *shader;
+	int             lightmapNum;
 	int             fogNum;
 	vec4_t          clip, eye;
 	int             i;
@@ -979,9 +981,10 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 
 	R_RotateForViewer();
 
-	R_DecomposeSort(drawSurf->sort, &entityNum, &shader, &fogNum);
+	R_DecomposeSort(drawSurf->sort, &entityNum, &shaderNum, &lightmapNum, &fogNum);
+	shader = tr.sortedShaders[shaderNum];
 	
-	RB_BeginSurface(shader, NULL, fogNum, qfalse, qfalse, 0, NULL, 0, NULL);
+	RB_BeginSurface(shader, NULL, lightmapNum, fogNum, qfalse, qfalse, 0, NULL, 0, NULL);
 	rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
 
 	assert(tess.numVertexes < 128);
@@ -1383,18 +1386,28 @@ void qsortFast(void *base, unsigned num, unsigned width)
 R_AddDrawSurf
 =================
 */
-void R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int fogIndex)
+void R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int lightmapIndex, int fogIndex)
 {
 	int             index;
+	
+	if(lightmapIndex < 0)
+		lightmapIndex = 0;
 
 	// instead of checking for overflow, we just mask the index
 	// so it wraps around
 	index = tr.refdef.numDrawSurfs & DRAWSURF_MASK;
 	// the sort data is packed into a single 32 bit value so it can be
 	// compared quickly during the qsorting process
-	tr.refdef.drawSurfs[index].sort = (shader->sortedIndex << QSORT_SHADERNUM_SHIFT)
-		| tr.shiftedEntityNum | (fogIndex << QSORT_FOGNUM_SHIFT) | (int)0;
+	tr.refdef.drawSurfs[index].sort =
+			(shader->sortedIndex << QSORT_SHADERNUM_SHIFT) |
+			(lightmapIndex << QSORT_LIGHTMAPNUM_SHIFT) |
+			tr.shiftedEntityNum |
+			fogIndex;
+	
 	tr.refdef.drawSurfs[index].surface = surface;
+	
+	//tr.refdef.drawSurfs[index].lightmapIndex = lightmapIndex;
+	
 	tr.refdef.numDrawSurfs++;
 }
 
@@ -1404,12 +1417,12 @@ void R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int fogIndex)
 R_DecomposeSort
 =================
 */
-void R_DecomposeSort(unsigned sort, int *entityNum, shader_t ** shader, int *fogNum)
+void R_DecomposeSort(unsigned sort, int *entityNum, int *shaderNum, int *lightmapNum, int *fogNum)
 {
-	*fogNum = (sort >> QSORT_FOGNUM_SHIFT) & 31;
-	*shader = tr.sortedShaders[(sort >> QSORT_SHADERNUM_SHIFT) & (MAX_SHADERS - 1)];
 	*entityNum = (sort >> QSORT_ENTITYNUM_SHIFT) & 1023;
-//	*dlightMap = sort & 3;
+	*shaderNum = (sort >> QSORT_SHADERNUM_SHIFT) & (MAX_SHADERS - 1);
+	*lightmapNum = (sort >> QSORT_LIGHTMAPNUM_SHIFT) & (MAX_LIGHTMAPS -1);
+	*fogNum = sort & 31;
 }
 
 
@@ -1421,6 +1434,8 @@ R_SortDrawSurfs
 void R_SortDrawSurfs(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * interactions, int numInteractions)
 {
 	shader_t       *shader;
+	int             shaderNum;
+	int             lightmapNum;
 	int             fogNum;
 	int             entityNum;
 	int             i;
@@ -1462,8 +1477,10 @@ void R_SortDrawSurfs(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * i
 	// may cause another view to be rendered first
 	for(i = 0; i < numDrawSurfs; i++)
 	{
-		R_DecomposeSort((drawSurfs + i)->sort, &entityNum, &shader, &fogNum);
+		R_DecomposeSort((drawSurfs + i)->sort, &entityNum, &shaderNum, &lightmapNum, &fogNum);
 
+		shader = tr.sortedShaders[shaderNum];
+		
 		if(shader->sort > SS_PORTAL)
 		{
 			break;
@@ -1558,7 +1575,7 @@ void R_AddEntitySurfaces(void)
 					continue;
 				}
 				shader = R_GetShaderByHandle(ent->e.customShader);
-				R_AddDrawSurf(&entitySurface, shader, R_SpriteFogNum(ent));
+				R_AddDrawSurf(&entitySurface, shader, -1, R_SpriteFogNum(ent));
 				break;
 
 			case RT_MODEL:
@@ -1568,7 +1585,7 @@ void R_AddEntitySurfaces(void)
 				tr.currentModel = R_GetModelByHandle(ent->e.hModel);
 				if(!tr.currentModel)
 				{
-					R_AddDrawSurf(&entitySurface, tr.defaultShader, 0);
+					R_AddDrawSurf(&entitySurface, tr.defaultShader, -1, 0);
 				}
 				else
 				{
@@ -1596,7 +1613,7 @@ void R_AddEntitySurfaces(void)
 								break;
 							}
 							shader = R_GetShaderByHandle(ent->e.customShader);
-							R_AddDrawSurf(&entitySurface, tr.defaultShader, 0);
+							R_AddDrawSurf(&entitySurface, tr.defaultShader, -1, 0);
 							break;
 
 						default:

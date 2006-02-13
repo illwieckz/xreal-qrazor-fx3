@@ -59,7 +59,6 @@ void R_CalcShadowIndexes(int numVertexes)
 	int             i2;
 	int             c_edges, c_rejected;
 	int             hit[2];
-	float          *v;
 
 	// an edge is NOT a silhouette edge if its face doesn't face the light,
 	// or if it has a reverse paired edge that also faces the light.
@@ -100,20 +99,6 @@ void R_CalcShadowIndexes(int numVertexes)
 				sh.indexes[sh.numIndexes] = i;
 				sh.indexes[sh.numIndexes + 1] = i2;
 				sh.numIndexes += 2;
-				
-				/*
-				qglBegin(GL_TRIANGLE_STRIP);
-				
-				v = tess.xyz[i];
-				qglVertex3fv(v);
-				qglVertex4f(v[0], v[1], v[2], 0);
-				
-				v = tess.xyz[i2];
-				qglVertex3fv(v);
-				qglVertex4f(v[0], v[1], v[2], 0);
-				
-				qglEnd();
-				*/
 				c_edges++;
 				
 				backEnd.pc.c_shadowVertexes += 4;

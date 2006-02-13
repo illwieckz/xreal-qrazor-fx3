@@ -124,6 +124,7 @@ MakeMeshNormals
 Handles all the complicated wrapping and degenerate cases
 =================
 */
+/*
 static void MakeMeshNormals(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE])
 {
 	int             i, j, k, dist;
@@ -254,6 +255,7 @@ static void MakeMeshNormals(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE]
 		}
 	}
 }
+*/
 
 static int MakeMeshTriangles(int width, int height, int indexes[SHADER_MAX_INDEXES])
 {

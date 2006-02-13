@@ -63,7 +63,7 @@ void RB_CheckOverflow(int verts, int indexes)
 		ri.Error(ERR_DROP, "RB_CheckOverflow: indices > MAX (%d > %d)", indexes, SHADER_MAX_INDEXES);
 	}
 
-	RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume, tess.numLightIndexes, tess.lightIndexes, tess.numShadowIndexes, tess.shadowIndexes);
+	RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.lightmapNum, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume, tess.numLightIndexes, tess.lightIndexes, tess.numShadowIndexes, tess.shadowIndexes);
 }
 
 

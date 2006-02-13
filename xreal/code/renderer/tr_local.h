@@ -46,11 +46,11 @@ long            myftol(float f);
 // parallel on a dual cpu machine
 #define	SMP_FRAMES		2
 
-// 12 bits
+// 10 bits
 // see QSORT_SHADERNUM_SHIFT
-#define	MAX_SHADERS				16384
+#define	MAX_SHADERS				1024
 
-#define MAX_SHADER_TABLES		16384
+#define MAX_SHADER_TABLES		1024
 #define MAX_SHADER_STAGES		16
 
 //#define MAX_SHADER_STATES 2048
@@ -606,11 +606,6 @@ typedef struct
 
 struct shaderCommands_s;
 
-#define LIGHTMAP_FALLOFF	-4	// shader is for lighting
-#define LIGHTMAP_2D			-3	// shader is for 2D rendering
-#define LIGHTMAP_BY_VERTEX	-2	// pre-lit triangle models
-#define	LIGHTMAP_NONE		-1
-
 typedef enum
 {
 	CT_FRONT_SIDED,
@@ -637,11 +632,20 @@ typedef struct
 	float           depthForOpaque;
 } fogParms_t;
 
+typedef enum
+{
+	SHADER_2D,				// surface material: shader is for 2D rendering
+	SHADER_3D_DYNAMIC,		// surface material: shader is for cGen diffuseLighting lighting
+	SHADER_3D_STATIC,		// surface material: pre-lit triangle models
+	SHADER_3D_LIGHTMAP,
+	SHADER_LIGHT			// light material: attenuation
+} shaderType_t;
+
 typedef struct shader_s
 {
 	char            name[MAX_QPATH];	// game path, including extension
-	int             lightmapIndex;	// for a shader to match, both name and lightmapIndex must match
-
+	shaderType_t    type;
+	
 	int             index;		// this shader == tr.shaders[index]
 	int             sortedIndex;	// this shader == tr.sortedShaders[sortedIndex]
 
@@ -1086,6 +1090,7 @@ typedef struct msurface_s
 	int             viewCount;	// if == tr.viewCount, already added
 	int             lightCount;
 	struct shader_s *shader;
+	int             lightmapNum;	// -1 = no lightmap
 	int             fogIndex;
 
 	surfaceType_t  *data;		// any of srf*_t
@@ -1377,10 +1382,16 @@ the bits are allocated as follows:
 7-16  : entity index
 2-6   : fog index
 0-1   : dlightmap index
+
+	Tr3B - XreaL
+21 - 31 : sorted shader index
+12 - 20 : lightmap index
+2 - 11  : entity index
+0 - 2   : fog index
 */
-#define	QSORT_SHADERNUM_SHIFT	17
-#define	QSORT_ENTITYNUM_SHIFT	7
-#define	QSORT_FOGNUM_SHIFT		2
+#define	QSORT_SHADERNUM_SHIFT	21
+#define	QSORT_LIGHTMAPNUM_SHIFT	12
+#define	QSORT_ENTITYNUM_SHIFT	2
 
 extern int      gl_filter_min, gl_filter_max;
 
@@ -1724,7 +1735,7 @@ extern cvar_t  *r_ext_stencil_two_side;
 extern cvar_t  *r_ext_framebuffer_object;
 
 extern cvar_t  *r_nobind;		// turns off binding to appropriate textures
-extern cvar_t  *r_collapseMultitexture;
+extern cvar_t  *r_collapseStages;
 extern cvar_t  *r_singleShader;	// make most world faces use default shader
 extern cvar_t  *r_roundImagesDown;
 extern cvar_t  *r_colorMipLevels;	// development aid to see texture mip usage
@@ -1805,8 +1816,8 @@ void            R_AddLightningBoltSurfaces(trRefEntity_t * e);
 
 void            R_AddPolygonSurfaces(void);
 
-void            R_DecomposeSort(unsigned sort, int *entityNum, shader_t ** shader, int *fogNum);
-void            R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int fogIndex);
+void            R_DecomposeSort(unsigned sort, int *entityNum, int *shaderNum, int *lightmapNum, int *fogNum);
+void            R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int lightmapIndex, int fogIndex);
 
 
 void            R_LocalNormalToWorld(vec3_t local, vec3_t world);
@@ -2032,10 +2043,9 @@ qhandle_t       RE_RegisterShaderLightMap(const char *name, int lightmapIndex);
 qhandle_t       RE_RegisterShader(const char *name);
 qhandle_t       RE_RegisterShaderNoMip(const char *name);
 qhandle_t       RE_RegisterShaderLightAttenuation(const char *name);
-qhandle_t       RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_t * image,
-										   qboolean mipRawImage);
+qhandle_t       RE_RegisterShaderFromImage(const char *name, image_t * image, qboolean mipRawImage);
 
-shader_t       *R_FindShader(const char *name, int lightmapIndex, qboolean mipRawImage);
+shader_t       *R_FindShader(const char *name, shaderType_t type, qboolean mipRawImage);
 shader_t       *R_GetShaderByHandle(qhandle_t hShader);
 shader_t       *R_GetShaderByState(int index, long *cycleTime);
 shader_t       *R_FindShaderByName(const char *name);
@@ -2105,8 +2115,13 @@ typedef struct shaderCommands_s
 
 	shader_t       *surfaceShader;
 	shader_t       *lightShader;
+	
 	float           shaderTime;
+	
+	int             lightmapNum;
+	
 	int             fogNum;
+	
 	qboolean        skipTangentSpaces;
 	qboolean        shadowVolume;
 	
@@ -2128,10 +2143,15 @@ typedef struct shaderCommands_s
 
 extern shaderCommands_t tess;
 
-void            RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader, int fogNum,
-								qboolean skipTangentSpaces, qboolean shadowVolume,
+// *INDENT-OFF*
+void            RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader,
+								int lightmapNum,
+								int fogNum,
+								qboolean skipTangentSpaces,
+								qboolean shadowVolume,
 								int numLightIndexes, int *lightIndexes,
 								int numShadowIndexes, int *shadowIndexes);
+// *INDENT-ON*
 void            RB_EndSurface(void);
 void            RB_CheckOverflow(int verts, int indexes);
 
