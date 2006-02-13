@@ -669,7 +669,7 @@ CG_DrawStatusBarOld
 ================
 */
 #ifndef MISSIONPACK
-static void CG_DrawStatusBarOld(void)
+void CG_DrawStatusBarOld(void)
 {
 	int             color;
 	centity_t      *cent;

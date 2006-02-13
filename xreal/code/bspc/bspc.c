@@ -374,12 +374,12 @@ void CreateAASFilesForAllBSPFiles(char *quakepath)
 	WIN32_FIND_DATA filedata;
 	HWND            handle;
 	struct _stat    statbuf;
+	int             done;
 #else
 	glob_t          globbuf;
 	struct stat     statbuf;
 	int             j;
 #endif
-//	int             done;
 	char            filter[_MAX_PATH], bspfilter[_MAX_PATH], aasfilter[_MAX_PATH];
 	char            aasfile[_MAX_PATH], buf[_MAX_PATH], foldername[_MAX_PATH];
 	quakefile_t    *qf, *qf2, *files, *bspfiles, *aasfiles;
