@@ -62,7 +62,7 @@ static qboolean R_CullGrid(srfGridMesh_t * cv)
 		return qtrue;
 	}
 
-	if(tr.currentEntityNum != ENTITYNUM_WORLD)
+	if(tr.currentEntity != &tr.worldEntity)
 	{
 		sphereCull = R_CullLocalPointAndRadius(cv->localOrigin, cv->meshRadius);
 	}
@@ -837,8 +837,7 @@ void R_AddWorldSurfaces(void)
 		return;
 	}
 
-	tr.currentEntityNum = ENTITYNUM_WORLD;
-	tr.shiftedEntityNum = tr.currentEntityNum << QSORT_ENTITYNUM_SHIFT;
+	tr.currentEntity = &tr.worldEntity;
 
 	// determine which leaves are in the PVS / areamask
 	R_MarkLeaves();
@@ -870,7 +869,6 @@ void R_AddWorldInteractions(trRefDlight_t * light)
 		return;
 	}
 
-	tr.currentEntityNum = ENTITYNUM_WORLD;
 	tr.currentEntity = &tr.worldEntity;
 
 	// perform frustum culling and add all the potentially visible surfaces
@@ -905,9 +903,7 @@ void R_AddPrecachedWorldInteractions(trRefDlight_t * light)
 		return;
 	}
 
-	tr.currentEntityNum = ENTITYNUM_WORLD;
 	tr.currentEntity = &tr.worldEntity;
-	
 	
 	for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
 	{

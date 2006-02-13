@@ -604,11 +604,10 @@ void RB_BeginDrawingView(void)
 
 void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, int numDrawSurfs)
 {
-	int             shaderNum;
+	trRefEntity_t  *entity, *oldEntity;
+	int             lightmapNum, oldLightmapNum;
 	shader_t       *shader, *oldShader;
 	int             fogNum, oldFogNum;
-	int             entityNum, oldEntityNum;
-	int             lightmapNum, oldLightmapNum;
 	qboolean        depthRange, oldDepthRange;
 	int             i;
 	drawSurf_t     *drawSurf;
@@ -617,26 +616,31 @@ void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, int numDr
 	GLimp_LogComment("--- RB_RenderDrawSurfaces ---\n");
 
 	// draw everything
-	oldEntityNum = -1;
-	backEnd.currentEntity = &tr.worldEntity;
+	oldEntity = NULL;
 	oldShader = NULL;
-	oldFogNum = -1;
 	oldLightmapNum = -1;
+	oldFogNum = -1;
 	oldDepthRange = qfalse;
 	oldSort = -1;
 	depthRange = qfalse;
 
 	for(i = 0, drawSurf = drawSurfs; i < numDrawSurfs; i++, drawSurf++)
 	{
-		if(drawSurf->sort == oldSort)
+		// update locals
+		entity = drawSurf->entity;
+		shader = tr.sortedShaders[drawSurf->shaderNum];
+		lightmapNum = drawSurf->lightmapNum;
+		fogNum = drawSurf->fogNum;
+		
+		if(	entity == oldEntity &&
+			shader == oldShader &&
+			lightmapNum == oldLightmapNum &&
+			fogNum == oldFogNum)
 		{
 			// fast path, same as previous sort
 			rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
 			continue;
 		}
-		oldSort = drawSurf->sort;
-		R_DecomposeSort(drawSurf->sort, &entityNum, &shaderNum, &lightmapNum, &fogNum);
-		shader = tr.sortedShaders[shaderNum];
 
 		// change the tess parameters if needed
 		// a "entityMergable" shader is a shader that can have surfaces from seperate
@@ -644,7 +648,7 @@ void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, int numDr
 		if(	shader != oldShader
 			|| fogNum != oldFogNum
 			|| lightmapNum != oldLightmapNum
-			|| (entityNum != oldEntityNum && !shader->entityMergable))
+			|| (entity != oldEntity && !shader->entityMergable))
 		{
 			if(oldShader != NULL)
 			{
@@ -657,13 +661,13 @@ void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, int numDr
 		}
 
 		// change the modelview matrix if needed
-		if(entityNum != oldEntityNum)
+		if(entity != oldEntity)
 		{
 			depthRange = qfalse;
 
-			if(entityNum != ENTITYNUM_WORLD)
+			if(entity != &tr.worldEntity)
 			{
-				backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
+				backEnd.currentEntity = entity;
 				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
 				
 				// we have to reset the shaderTime as well otherwise image animations start
@@ -706,7 +710,7 @@ void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, int numDr
 				oldDepthRange = depthRange;
 			}
 
-			oldEntityNum = entityNum;
+			oldEntity = entity;
 		}
 
 		// add the triangles for this surface

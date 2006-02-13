@@ -765,7 +765,7 @@ be moving and rotating.
 Returns qtrue if it should be mirrored
 =================
 */
-qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, int entityNum,
+qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, trRefEntity_t * entity,
 								 orientation_t * surface, orientation_t * camera, vec3_t pvsOrigin, qboolean * mirror)
 {
 	int             i;
@@ -778,10 +778,9 @@ qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, int entityNum,
 	R_PlaneForSurface(drawSurf->surface, &originalPlane);
 
 	// rotate the plane if necessary
-	if(entityNum != ENTITYNUM_WORLD)
+	if(entity != &tr.worldEntity)
 	{
-		tr.currentEntityNum = entityNum;
-		tr.currentEntity = &tr.refdef.entities[entityNum];
+		tr.currentEntity = entity;
 
 		// get the orientation of the entity
 		R_RotateForEntity(tr.currentEntity, &tr.viewParms, &tr.or);
@@ -895,7 +894,7 @@ qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, int entityNum,
 }
 
 
-static qboolean IsMirror(const drawSurf_t * drawSurf, int entityNum)
+static qboolean IsMirror(const drawSurf_t * drawSurf, trRefEntity_t * entity)
 {
 	int             i;
 	cplane_t        originalPlane, plane;
@@ -906,10 +905,9 @@ static qboolean IsMirror(const drawSurf_t * drawSurf, int entityNum)
 	R_PlaneForSurface(drawSurf->surface, &originalPlane);
 
 	// rotate the plane if necessary
-	if(entityNum != ENTITYNUM_WORLD)
+	if(entity != &tr.worldEntity)
 	{
-		tr.currentEntityNum = entityNum;
-		tr.currentEntity = &tr.refdef.entities[entityNum];
+		tr.currentEntity = entity;
 
 		// get the orientation of the entity
 		R_RotateForEntity(tr.currentEntity, &tr.viewParms, &tr.or);
@@ -963,12 +961,11 @@ static qboolean IsMirror(const drawSurf_t * drawSurf, int entityNum)
 static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128])
 {
 	float           shortest = 100000000;
-	int             entityNum;
-	int             numTriangles;
-	int             shaderNum;
+	trRefEntity_t  *entity;
 	shader_t       *shader;
 	int             lightmapNum;
 	int             fogNum;
+	int             numTriangles;
 	vec4_t          clip, eye;
 	int             i;
 	unsigned int    pointOr = 0;
@@ -981,8 +978,10 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 
 	R_RotateForViewer();
 
-	R_DecomposeSort(drawSurf->sort, &entityNum, &shaderNum, &lightmapNum, &fogNum);
-	shader = tr.sortedShaders[shaderNum];
+	entity = drawSurf->entity;
+	shader = tr.sortedShaders[drawSurf->shaderNum];
+	lightmapNum = drawSurf->lightmapNum;
+	fogNum = drawSurf->fogNum;
 	
 	RB_BeginSurface(shader, NULL, lightmapNum, fogNum, qfalse, qfalse, 0, NULL, 0, NULL);
 	rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
@@ -1050,7 +1049,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 
 	// mirrors can early out at this point, since we don't do a fade over distance
 	// with them (although we could)
-	if(IsMirror(drawSurf, entityNum))
+	if(IsMirror(drawSurf, entity))
 	{
 		return qfalse;
 	}
@@ -1071,7 +1070,7 @@ R_MirrorViewBySurface
 Returns qtrue if another view has been rendered
 ========================
 */
-qboolean R_MirrorViewBySurface(drawSurf_t * drawSurf, int entityNum)
+qboolean R_MirrorViewBySurface(drawSurf_t * drawSurf, trRefEntity_t * entity)
 {
 	vec4_t          clipDest[128];
 	viewParms_t     newParms;
@@ -1101,7 +1100,7 @@ qboolean R_MirrorViewBySurface(drawSurf_t * drawSurf, int entityNum)
 
 	newParms = tr.viewParms;
 	newParms.isPortal = qtrue;
-	if(!R_GetPortalOrientations(drawSurf, entityNum, &surface, &camera, newParms.pvsOrigin, &newParms.isMirror))
+	if(!R_GetPortalOrientations(drawSurf, entity, &surface, &camera, newParms.pvsOrigin, &newParms.isMirror))
 	{
 		return qfalse;			// bad portal, no portalentity
 	}
@@ -1167,262 +1166,81 @@ int R_SpriteFogNum(trRefEntity_t * ent)
 
 
 /*
-==========================================================================================
-
-DRAWSURF SORTING
-
-==========================================================================================
-*/
-
-/*
-=================
-qsort replacement
-
-=================
-*/
-#define	SWAP_DRAW_SURF(a,b) temp=((int *)a)[0];((int *)a)[0]=((int *)b)[0];((int *)b)[0]=temp; temp=((int *)a)[1];((int *)a)[1]=((int *)b)[1];((int *)b)[1]=temp;
-
-/* this parameter defines the cutoff between using quick sort and
-   insertion sort for arrays; arrays with lengths shorter or equal to the
-   below value use insertion sort */
-
-#define CUTOFF 8				/* testing shows that this is good value */
-
-static void shortsort(drawSurf_t * lo, drawSurf_t * hi)
-{
-	drawSurf_t     *p, *max;
-	int             temp;
-
-	while(hi > lo)
-	{
-		max = lo;
-		for(p = lo + 1; p <= hi; p++)
-		{
-			if(p->sort > max->sort)
-			{
-				max = p;
-			}
-		}
-		SWAP_DRAW_SURF(max, hi);
-		hi--;
-	}
-}
-
-
-
-/* sort the array between lo and hi (inclusive)
-FIXME: this was lifted and modified from the microsoft lib source...
- */
-
-void qsortFast(void *base, unsigned num, unsigned width)
-{
-	char           *lo, *hi;	/* ends of sub-array currently sorting */
-	char           *mid;		/* points to middle of subarray */
-	char           *loguy, *higuy;	/* traveling pointers for partition step */
-	unsigned        size;		/* size of the sub-array */
-	char           *lostk[30], *histk[30];
-	int             stkptr;		/* stack for saving sub-array to be processed */
-	int             temp;
-
-	if(sizeof(drawSurf_t) != 8)
-	{
-		ri.Error(ERR_DROP, "change SWAP_DRAW_SURF macro");
-	}
-
-	/* Note: the number of stack entries required is no more than
-	   1 + log2(size), so 30 is sufficient for any array */
-
-	if(num < 2 || width == 0)
-		return;					/* nothing to do */
-
-	stkptr = 0;					/* initialize stack */
-
-	lo = base;
-	hi = (char *)base + width * (num - 1);	/* initialize limits */
-
-	/* this entry point is for pseudo-recursion calling: setting
-	   lo and hi and jumping to here is like recursion, but stkptr is
-	   prserved, locals aren't, so we preserve stuff on the stack */
-  recurse:
-
-	size = (hi - lo) / width + 1;	/* number of el's to sort */
-
-	/* below a certain size, it is faster to use a O(n^2) sorting method */
-	if(size <= CUTOFF)
-	{
-		shortsort((drawSurf_t *) lo, (drawSurf_t *) hi);
-	}
-	else
-	{
-		/* First we pick a partititioning element.  The efficiency of the
-		   algorithm demands that we find one that is approximately the
-		   median of the values, but also that we select one fast.  Using
-		   the first one produces bad performace if the array is already
-		   sorted, so we use the middle one, which would require a very
-		   wierdly arranged array for worst case performance.  Testing shows
-		   that a median-of-three algorithm does not, in general, increase
-		   performance. */
-
-		mid = lo + (size / 2) * width;	/* find middle element */
-		SWAP_DRAW_SURF(mid, lo);	/* swap it to beginning of array */
-
-		/* We now wish to partition the array into three pieces, one
-		   consisiting of elements <= partition element, one of elements
-		   equal to the parition element, and one of element >= to it.  This
-		   is done below; comments indicate conditions established at every
-		   step. */
-
-		loguy = lo;
-		higuy = hi + width;
-
-		/* Note that higuy decreases and loguy increases on every iteration,
-		   so loop must terminate. */
-		for(;;)
-		{
-			/* lo <= loguy < hi, lo < higuy <= hi + 1,
-			   A[i] <= A[lo] for lo <= i <= loguy,
-			   A[i] >= A[lo] for higuy <= i <= hi */
-
-			do
-			{
-				loguy += width;
-			} while(loguy <= hi && (((drawSurf_t *) loguy)->sort <= ((drawSurf_t *) lo)->sort));
-
-			/* lo < loguy <= hi+1, A[i] <= A[lo] for lo <= i < loguy,
-			   either loguy > hi or A[loguy] > A[lo] */
-
-			do
-			{
-				higuy -= width;
-			} while(higuy > lo && (((drawSurf_t *) higuy)->sort >= ((drawSurf_t *) lo)->sort));
-
-			/* lo-1 <= higuy <= hi, A[i] >= A[lo] for higuy < i <= hi,
-			   either higuy <= lo or A[higuy] < A[lo] */
-
-			if(higuy < loguy)
-				break;
-
-			/* if loguy > hi or higuy <= lo, then we would have exited, so
-			   A[loguy] > A[lo], A[higuy] < A[lo],
-			   loguy < hi, highy > lo */
-
-			SWAP_DRAW_SURF(loguy, higuy);
-
-			/* A[loguy] < A[lo], A[higuy] > A[lo]; so condition at top
-			   of loop is re-established */
-		}
-
-		/*     A[i] >= A[lo] for higuy < i <= hi,
-		   A[i] <= A[lo] for lo <= i < loguy,
-		   higuy < loguy, lo <= higuy <= hi
-		   implying:
-		   A[i] >= A[lo] for loguy <= i <= hi,
-		   A[i] <= A[lo] for lo <= i <= higuy,
-		   A[i] = A[lo] for higuy < i < loguy */
-
-		SWAP_DRAW_SURF(lo, higuy);	/* put partition element in place */
-
-		/* OK, now we have the following:
-		   A[i] >= A[higuy] for loguy <= i <= hi,
-		   A[i] <= A[higuy] for lo <= i < higuy
-		   A[i] = A[lo] for higuy <= i < loguy    */
-
-		/* We've finished the partition, now we want to sort the subarrays
-		   [lo, higuy-1] and [loguy, hi].
-		   We do the smaller one first to minimize stack usage.
-		   We only sort arrays of length 2 or more. */
-
-		if(higuy - 1 - lo >= hi - loguy)
-		{
-			if(lo + width < higuy)
-			{
-				lostk[stkptr] = lo;
-				histk[stkptr] = higuy - width;
-				++stkptr;
-			}					/* save big recursion for later */
-
-			if(loguy < hi)
-			{
-				lo = loguy;
-				goto recurse;	/* do small recursion */
-			}
-		}
-		else
-		{
-			if(loguy < hi)
-			{
-				lostk[stkptr] = loguy;
-				histk[stkptr] = hi;
-				++stkptr;		/* save big recursion for later */
-			}
-
-			if(lo + width < higuy)
-			{
-				hi = higuy - width;
-				goto recurse;	/* do small recursion */
-			}
-		}
-	}
-
-	/* We have sorted the array, except for any pending sorts on the stack.
-	   Check if there are any, and do them. */
-
-	--stkptr;
-	if(stkptr >= 0)
-	{
-		lo = lostk[stkptr];
-		hi = histk[stkptr];
-		goto recurse;			/* pop subarray from stack */
-	}
-	else
-		return;					/* all subarrays done */
-}
-
-
-//==========================================================================================
-
-/*
 =================
 R_AddDrawSurf
 =================
 */
-void R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int lightmapIndex, int fogIndex)
+void R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int lightmapNum, int fogNum)
 {
 	int             index;
-	
-	if(lightmapIndex < 0)
-		lightmapIndex = 0;
+	drawSurf_t     *drawSurf;
 
 	// instead of checking for overflow, we just mask the index
 	// so it wraps around
 	index = tr.refdef.numDrawSurfs & DRAWSURF_MASK;
-	// the sort data is packed into a single 32 bit value so it can be
-	// compared quickly during the qsorting process
-	tr.refdef.drawSurfs[index].sort =
-			(shader->sortedIndex << QSORT_SHADERNUM_SHIFT) |
-			(lightmapIndex << QSORT_LIGHTMAPNUM_SHIFT) |
-			tr.shiftedEntityNum |
-			fogIndex;
 	
-	tr.refdef.drawSurfs[index].surface = surface;
+	drawSurf = &tr.refdef.drawSurfs[index];
 	
-	//tr.refdef.drawSurfs[index].lightmapIndex = lightmapIndex;
+	drawSurf->entity = tr.currentEntity;
+	drawSurf->surface = surface;
+	drawSurf->shaderNum = shader->sortedIndex;
+	drawSurf->lightmapNum = lightmapNum;
+	drawSurf->fogNum = fogNum;
 	
 	tr.refdef.numDrawSurfs++;
 }
 
-
 /*
 =================
-R_DecomposeSort
+DrawSurfCompare
+compare function for qsort()
 =================
 */
-void R_DecomposeSort(unsigned sort, int *entityNum, int *shaderNum, int *lightmapNum, int *fogNum)
+static int DrawSurfCompare(const void *a, const void *b)
 {
-	*entityNum = (sort >> QSORT_ENTITYNUM_SHIFT) & 1023;
-	*shaderNum = (sort >> QSORT_SHADERNUM_SHIFT) & (MAX_SHADERS - 1);
-	*lightmapNum = (sort >> QSORT_LIGHTMAPNUM_SHIFT) & (MAX_LIGHTMAPS -1);
-	*fogNum = sort & 31;
+#if 1
+	// shader first
+	if(((drawSurf_t *) a)->shaderNum < ((drawSurf_t *) b)->shaderNum)
+		return -1;
+	
+	else if(((drawSurf_t *) a)->shaderNum > ((drawSurf_t *) b)->shaderNum)
+		return 1;
+#endif
+	
+#if 1
+	// then lightmap
+	if(((drawSurf_t *) a)->lightmapNum < ((drawSurf_t *) b)->lightmapNum)
+		return -1;
+	
+	else if(((drawSurf_t *) a)->lightmapNum > ((drawSurf_t *) b)->lightmapNum)
+		return 1;
+#endif
+	
+#if 1
+	// then entity
+	if(((drawSurf_t *) a)->entity == &tr.worldEntity && ((drawSurf_t *) b)->entity != &tr.worldEntity)
+		return -1;
+	
+	if(((drawSurf_t *) a)->entity != &tr.worldEntity && ((drawSurf_t *) b)->entity == &tr.worldEntity)
+		return 1;
+	
+	if(((drawSurf_t *) a)->entity < ((drawSurf_t *) b)->entity)
+		return -1;
+	
+	else if(((drawSurf_t *) a)->entity > ((drawSurf_t *) b)->entity)
+		return 1;
+#endif
+	
+#if 1
+	// then fog
+	if(((drawSurf_t *) a)->fogNum < ((drawSurf_t *) b)->fogNum)
+		return -1;
+	
+	else if(((drawSurf_t *) a)->fogNum > ((drawSurf_t *) b)->fogNum)
+		return 1;
+#endif
+
+	return 0;
 }
 
 
@@ -1433,11 +1251,8 @@ R_SortDrawSurfs
 */
 void R_SortDrawSurfs(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * interactions, int numInteractions)
 {
+	drawSurf_t     *drawSurf;
 	shader_t       *shader;
-	int             shaderNum;
-	int             lightmapNum;
-	int             fogNum;
-	int             entityNum;
 	int             i;
 
 	// it is possible for some views to not have any surfaces
@@ -1471,15 +1286,14 @@ void R_SortDrawSurfs(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * i
 	}
 
 	// sort the drawsurfs by sort type, then orientation, then shader
-	qsortFast(drawSurfs, numDrawSurfs, sizeof(drawSurf_t));
+//	qsortFast(drawSurfs, numDrawSurfs, sizeof(drawSurf_t));
+	qsort(drawSurfs, numDrawSurfs, sizeof(drawSurf_t), DrawSurfCompare);
 
 	// check for any pass through drawing, which
 	// may cause another view to be rendered first
-	for(i = 0; i < numDrawSurfs; i++)
+	for(i = 0, drawSurf = drawSurfs; i < numDrawSurfs; i++, drawSurf++)
 	{
-		R_DecomposeSort((drawSurfs + i)->sort, &entityNum, &shaderNum, &lightmapNum, &fogNum);
-
-		shader = tr.sortedShaders[shaderNum];
+		shader = tr.sortedShaders[drawSurf->shaderNum];
 		
 		if(shader->sort > SS_PORTAL)
 		{
@@ -1493,7 +1307,7 @@ void R_SortDrawSurfs(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * i
 		}
 
 		// if the mirror was completely clipped away, we may need to check another surface
-		if(R_MirrorViewBySurface((drawSurfs + i), entityNum))
+		if(R_MirrorViewBySurface(drawSurf, drawSurf->entity))
 		{
 			// this is a debug option to see exactly what is being mirrored
 			if(r_portalOnly->integer)
@@ -1515,6 +1329,7 @@ R_AddEntitySurfaces
 */
 void R_AddEntitySurfaces(void)
 {
+	int             i;
 	trRefEntity_t  *ent;
 	shader_t       *shader;
 
@@ -1523,12 +1338,9 @@ void R_AddEntitySurfaces(void)
 		return;
 	}
 
-	for(tr.currentEntityNum = 0; tr.currentEntityNum < tr.refdef.numEntities; tr.currentEntityNum++)
+	for(i = 0; i < tr.refdef.numEntities; i++)
 	{
-		ent = tr.currentEntity = &tr.refdef.entities[tr.currentEntityNum];
-
-		// preshift the value we are going to OR into the drawsurf sort
-		tr.shiftedEntityNum = tr.currentEntityNum << QSORT_ENTITYNUM_SHIFT;
+		ent = tr.currentEntity = &tr.refdef.entities[i];
 
 		//
 		// the weapon model must be handled special --
@@ -1637,6 +1449,7 @@ R_AddEntityInteractions
 */
 void R_AddEntityInteractions(trRefDlight_t * light)
 {
+	int             i;
 	trRefEntity_t  *ent;
 
 	if(!r_drawentities->integer)
@@ -1644,12 +1457,9 @@ void R_AddEntityInteractions(trRefDlight_t * light)
 		return;
 	}
 
-	for(tr.currentEntityNum = 0; tr.currentEntityNum < tr.refdef.numEntities; tr.currentEntityNum++)
+	for(i = 0; i < tr.refdef.numEntities; i++)
 	{
-		ent = tr.currentEntity = &tr.refdef.entities[tr.currentEntityNum];
-
-		// preshift the value we are going to OR into the drawsurf sort
-		tr.shiftedEntityNum = tr.currentEntityNum << QSORT_ENTITYNUM_SHIFT;
+		ent = tr.currentEntity = &tr.refdef.entities[i];
 
 		//
 		// the weapon model must be handled special --
@@ -1793,6 +1603,7 @@ R_AddDlightInteractions
 */
 void R_AddDlightInteractions()
 {
+	int             i;
 	trRefDlight_t  *dl;
 
 	if(!r_dynamiclight->integer)
@@ -1800,9 +1611,9 @@ void R_AddDlightInteractions()
 		return;
 	}
 
-	for(tr.currentDlightNum = 0; tr.currentDlightNum < tr.refdef.numDlights; tr.currentDlightNum++)
+	for(i = 0; i < tr.refdef.numDlights; i++)
 	{
-		dl = tr.currentDlight = &tr.refdef.dlights[tr.currentDlightNum];
+		dl = tr.currentDlight = &tr.refdef.dlights[i];
 		
 		// we must set up parts of tr.or for light culling
 		R_RotateForDlight(dl, &tr.viewParms, &tr.or);

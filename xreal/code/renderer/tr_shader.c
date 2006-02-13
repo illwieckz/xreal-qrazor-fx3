@@ -3494,6 +3494,8 @@ static void CollapseStages(void)
 			tmpStages[numStages].bundle[TB_SPECULARMAP] = tmpSpecularStage.bundle[0];
 			tmpStages[numStages].bundle[TB_LIGHTMAP] = tmpLightStage.bundle[0];
 			
+			tmpStages[numStages].stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
+			
 			numStages++;
 			j += 3;
 			continue;
@@ -3513,6 +3515,8 @@ static void CollapseStages(void)
 			
 			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
 			tmpStages[numStages].bundle[TB_LIGHTMAP] = tmpLightStage.bundle[0];
+			
+			tmpStages[numStages].stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
 	
 			numStages++;
 			j += 2;
@@ -3531,6 +3535,8 @@ static void CollapseStages(void)
 			tmpStages[numStages].type = ST_COLLAPSE_lighting_D_radiosity;
 			
 			tmpStages[numStages].bundle[TB_LIGHTMAP] = tmpLightStage.bundle[0];
+			
+			tmpStages[numStages].stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
 	
 			numStages++;
 			j += 2;
@@ -3549,6 +3555,8 @@ static void CollapseStages(void)
 			tmpStages[numStages].type = ST_COLLAPSE_lighting_D_radiosity;
 			
 			tmpStages[numStages].bundle[TB_LIGHTMAP] = tmpLightStage.bundle[0];
+			
+			tmpStages[numStages].stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
 	
 			numStages++;
 			j += 1;
@@ -3775,23 +3783,14 @@ static void FixRenderCommandList(int newShader)
 				{
 					int             i;
 					drawSurf_t     *drawSurf;
-					int             lightmapNum;
-					int             fogNum;
-					int             entityNum;
-					int             shaderNum;
+					
 					const drawSurfsCommand_t *ds_cmd = (const drawSurfsCommand_t *)curCmd;
 
 					for(i = 0, drawSurf = ds_cmd->drawSurfs; i < ds_cmd->numDrawSurfs; i++, drawSurf++)
 					{
-						R_DecomposeSort(drawSurf->sort, &entityNum, &shaderNum, &lightmapNum, &fogNum);
-						
-						if(shaderNum >= newShader)
+						if(drawSurf->shaderNum >= newShader)
 						{
-							shaderNum++;
-							drawSurf->sort = (shaderNum << QSORT_SHADERNUM_SHIFT) |
-									(lightmapNum << QSORT_LIGHTMAPNUM_SHIFT) |
-									(entityNum << QSORT_ENTITYNUM_SHIFT) |
-									fogNum;
+							drawSurf->shaderNum++;
 						}
 					}
 					curCmd = (const void *)(ds_cmd + 1);

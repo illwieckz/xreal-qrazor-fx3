@@ -106,8 +106,7 @@ void R_AddPolygonSurfaces(void)
 	shader_t       *sh;
 	srfPoly_t      *poly;
 
-	tr.currentEntityNum = ENTITYNUM_WORLD;
-	tr.shiftedEntityNum = tr.currentEntityNum << QSORT_ENTITYNUM_SHIFT;
+	tr.currentEntity = &tr.worldEntity;
 
 	for(i = 0, poly = tr.refdef.polys; i < tr.refdef.numPolys; i++, poly++)
 	{

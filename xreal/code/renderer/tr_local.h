@@ -46,9 +46,8 @@ long            myftol(float f);
 // parallel on a dual cpu machine
 #define	SMP_FRAMES		2
 
-// 10 bits
-// see QSORT_SHADERNUM_SHIFT
-#define	MAX_SHADERS				1024
+#define	MAX_SHADERS				(1 << 12)
+#define SHADERS_MASK			(MAX_SHADERS -1)
 
 #define MAX_SHADER_TABLES		1024
 #define MAX_SHADER_STAGES		16
@@ -893,7 +892,11 @@ typedef enum
 
 typedef struct drawSurf_s
 {
-	unsigned        sort;		// bit combination for fast compares
+	trRefEntity_t  *entity;
+	int             shaderNum;
+	int             lightmapNum;
+	int             fogNum;
+	
 	surfaceType_t  *surface;	// any of surface*_t
 } drawSurf_t;
 
@@ -1389,9 +1392,9 @@ the bits are allocated as follows:
 2 - 11  : entity index
 0 - 2   : fog index
 */
-#define	QSORT_SHADERNUM_SHIFT	21
-#define	QSORT_LIGHTMAPNUM_SHIFT	12
-#define	QSORT_ENTITYNUM_SHIFT	2
+//#define	QSORT_SHADERNUM_SHIFT	21
+//#define	QSORT_LIGHTMAPNUM_SHIFT	12
+//#define	QSORT_ENTITYNUM_SHIFT	2
 
 extern int      gl_filter_min, gl_filter_max;
 
@@ -1547,14 +1550,10 @@ typedef struct
 	// render entities
 	trRefEntity_t  *currentEntity;
 	trRefEntity_t   worldEntity;	// point currentEntity at this when rendering world
-	int             currentEntityNum;
-	int             shiftedEntityNum;	// currentEntityNum << QSORT_ENTITYNUM_SHIFT
 	model_t        *currentModel;
 	
 	// render lights
 	trRefDlight_t  *currentDlight;
-	int             currentDlightNum;
-//	int             shiftedDlightNum;
 
 	// GPU shader programs
 	shaderProgram_t genericShader_single;
@@ -1816,7 +1815,6 @@ void            R_AddLightningBoltSurfaces(trRefEntity_t * e);
 
 void            R_AddPolygonSurfaces(void);
 
-void            R_DecomposeSort(unsigned sort, int *entityNum, int *shaderNum, int *lightmapNum, int *fogNum);
 void            R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int lightmapIndex, int fogIndex);
 
 
