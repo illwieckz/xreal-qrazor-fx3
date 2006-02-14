@@ -766,8 +766,7 @@ be moving and rotating.
 Returns qtrue if it should be mirrored
 =================
 */
-qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, trRefEntity_t * entity,
-								 orientation_t * surface, orientation_t * camera, vec3_t pvsOrigin, qboolean * mirror)
+static qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, orientation_t * surface, orientation_t * camera, vec3_t pvsOrigin, qboolean * mirror)
 {
 	int             i;
 	cplane_t        originalPlane, plane;
@@ -779,9 +778,9 @@ qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, trRefEntity_t * entity,
 	R_PlaneForSurface(drawSurf->surface, &originalPlane);
 
 	// rotate the plane if necessary
-	if(entity != &tr.worldEntity)
+	if(drawSurf->entity != &tr.worldEntity)
 	{
-		tr.currentEntity = entity;
+		tr.currentEntity = drawSurf->entity;
 
 		// get the orientation of the entity
 		R_RotateForEntity(tr.currentEntity, &tr.viewParms, &tr.or);
@@ -1071,7 +1070,7 @@ R_MirrorViewBySurface
 Returns qtrue if another view has been rendered
 ========================
 */
-qboolean R_MirrorViewBySurface(drawSurf_t * drawSurf, trRefEntity_t * entity)
+static qboolean R_MirrorViewBySurface(drawSurf_t * drawSurf)
 {
 	vec4_t          clipDest[128];
 	viewParms_t     newParms;
@@ -1101,7 +1100,7 @@ qboolean R_MirrorViewBySurface(drawSurf_t * drawSurf, trRefEntity_t * entity)
 
 	newParms = tr.viewParms;
 	newParms.isPortal = qtrue;
-	if(!R_GetPortalOrientations(drawSurf, entity, &surface, &camera, newParms.pvsOrigin, &newParms.isMirror))
+	if(!R_GetPortalOrientations(drawSurf, &surface, &camera, newParms.pvsOrigin, &newParms.isMirror))
 	{
 		return qfalse;			// bad portal, no portalentity
 	}
@@ -1308,7 +1307,7 @@ void R_SortDrawSurfs(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * i
 		}
 
 		// if the mirror was completely clipped away, we may need to check another surface
-		if(R_MirrorViewBySurface(drawSurf, drawSurf->entity))
+		if(R_MirrorViewBySurface(drawSurf))
 		{
 			// this is a debug option to see exactly what is being mirrored
 			if(r_portalOnly->integer)
