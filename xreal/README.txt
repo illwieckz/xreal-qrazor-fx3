@@ -158,7 +158,7 @@ GENERAL NOTES
 A short summary of the file layout:
 
 base/					XreaL media directory ( models, textures, sounds etc. )
-code/			   		Quake III Arena source code ( renderer, game code, OS layer etc. )
+code/			   		XreaL source code ( renderer, game code, OS layer etc. )
 code/bspc				bot routes compiler source code
 lcc/					the retargetable C compiler ( produces assembly to be turned into qvm bytecode by q3asm )
 q3asm/					assembly to qvm bytecode compiler
