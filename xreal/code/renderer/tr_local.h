@@ -1656,9 +1656,6 @@ extern cvar_t  *r_railSegmentLength;
 
 extern cvar_t  *r_ignore;		// used for debugging anything
 extern cvar_t  *r_verbose;		// used for verbose debug spew
-extern cvar_t  *r_ignoreFastPath;	// allows us to ignore our Tess fast paths
-extern cvar_t  *r_bumpMapping;
-extern cvar_t  *r_specular;
 
 extern cvar_t  *r_znear;		// near Z clip plane
 extern cvar_t  *r_zfar;
@@ -1693,6 +1690,7 @@ extern cvar_t  *r_debugLight;
 extern cvar_t  *r_inGameVideo;	// controls whether in game video should be draw
 extern cvar_t  *r_fastsky;		// controls whether sky should be cleared or drawn
 extern cvar_t  *r_drawSun;		// controls drawing of sun quad
+extern cvar_t  *r_lighting;		// lighting mode, 0 = diffuse, 1 = bump mapping and so on
 extern cvar_t  *r_dynamiclight;	// dynamic lights enabled/disabled
 extern cvar_t  *r_dlightBacks;	// dlight non-facing surfaces for continuity
 

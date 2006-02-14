@@ -36,10 +36,6 @@ cvar_t         *r_railWidth;
 cvar_t         *r_railCoreWidth;
 cvar_t         *r_railSegmentLength;
 
-cvar_t         *r_ignoreFastPath;
-cvar_t         *r_bumpMapping;
-cvar_t         *r_specular;
-
 cvar_t         *r_verbose;
 cvar_t         *r_ignore;
 
@@ -60,6 +56,7 @@ cvar_t         *r_measureOverdraw;
 cvar_t         *r_inGameVideo;
 cvar_t         *r_fastsky;
 cvar_t         *r_drawSun;
+cvar_t         *r_lighting;
 cvar_t         *r_dynamiclight;
 cvar_t         *r_dlightBacks;
 
@@ -1121,9 +1118,6 @@ void R_Register(void)
 #else
 	r_smp = ri.Cvar_Get("r_smp", "0", CVAR_ARCHIVE | CVAR_LATCH);
 #endif
-	r_ignoreFastPath = ri.Cvar_Get("r_ignoreFastPath", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	r_bumpMapping = ri.Cvar_Get("r_bumpMapping", "1", CVAR_ARCHIVE);
-	r_specular = ri.Cvar_Get("r_specular", "1", CVAR_ARCHIVE);
 
 	//
 	// temporary latched variables that can only change over a restart
@@ -1147,6 +1141,7 @@ void R_Register(void)
 	r_fastsky = ri.Cvar_Get("r_fastsky", "0", CVAR_ARCHIVE);
 	r_inGameVideo = ri.Cvar_Get("r_inGameVideo", "1", CVAR_ARCHIVE);
 	r_drawSun = ri.Cvar_Get("r_drawSun", "0", CVAR_ARCHIVE);
+	r_lighting = ri.Cvar_Get("r_lighting", "2", CVAR_ARCHIVE);
 	r_dynamiclight = ri.Cvar_Get("r_dynamiclight", "1", CVAR_ARCHIVE);
 	r_dlightBacks = ri.Cvar_Get("r_dlightBacks", "1", CVAR_ARCHIVE);
 	r_finish = ri.Cvar_Get("r_finish", "0", CVAR_ARCHIVE);

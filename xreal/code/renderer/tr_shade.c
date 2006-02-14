@@ -2916,7 +2916,7 @@ void RB_StageIteratorLighting()
 				case ST_COLLAPSE_lighting_DB_generic:
 					if(glConfig2.shadingLanguage100Available)
 					{
-						if(r_bumpMapping->integer)
+						if(r_lighting->integer == 1)
 						{	
 							Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 						}
@@ -2936,16 +2936,13 @@ void RB_StageIteratorLighting()
 				case ST_COLLAPSE_lighting_DBS_generic:
 					if(glConfig2.shadingLanguage100Available)
 					{
-						if(r_bumpMapping->integer)
+						if(r_lighting->integer == 2)
 						{
-							if(r_specular->integer)
-							{
-								Render_lighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-							}
-							else
-							{
-								Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-							}
+							Render_lighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+						}
+						else if(r_lighting->integer == 1)
+						{
+							Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 						}
 						else
 						{
@@ -3099,7 +3096,7 @@ void RB_StageIteratorLighting2()
 				case ST_COLLAPSE_lighting_DB_generic:
 					if(glConfig2.shadingLanguage100Available)
 					{
-						if(r_bumpMapping->integer)
+						if(r_lighting->integer == 1)
 						{	
 							Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 						}
@@ -3119,16 +3116,13 @@ void RB_StageIteratorLighting2()
 				case ST_COLLAPSE_lighting_DBS_generic:
 					if(glConfig2.shadingLanguage100Available)
 					{
-						if(r_bumpMapping->integer)
+						if(r_lighting->integer == 2)
 						{
-							if(r_specular->integer)
-							{
-								Render_lighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-							}
-							else
-							{
-								Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-							}
+							Render_lighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+						}
+						else if(r_lighting->integer == 1)
+						{
+							Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 						}
 						else
 						{
@@ -3303,7 +3297,7 @@ void RB_StageIteratorGeneric()
 				}
 				else if(glConfig2.shadingLanguage100Available)
 				{
-					if(tr.worldDeluxeMapping && r_bumpMapping->integer)
+					if(tr.worldDeluxeMapping && r_lighting->integer == 1)
 					{
 						Render_lighting_DB_radiosity(stage);
 					}
@@ -3335,16 +3329,13 @@ void RB_StageIteratorGeneric()
 				}
 				else if(glConfig2.shadingLanguage100Available)
 				{
-					if(tr.worldDeluxeMapping && r_bumpMapping->integer)
+					if(tr.worldDeluxeMapping && r_lighting->integer == 2)
 					{
-						if(r_specular->integer)
-						{
-							Render_lighting_DBS_radiosity(stage);
-						}
-						else
-						{
-							Render_lighting_DB_radiosity(stage);
-						}
+						Render_lighting_DBS_radiosity(stage);
+					}
+					else if(tr.worldDeluxeMapping && r_lighting->integer == 1)
+					{
+						Render_lighting_DB_radiosity(stage);
 					}
 					else
 					{
@@ -3366,7 +3357,7 @@ void RB_StageIteratorGeneric()
 				}
 				else if(glConfig2.shadingLanguage100Available)
 				{
-					if(r_bumpMapping->integer)
+					if(r_lighting->integer == 1)
 					{
 						Render_lighting_DB_direct(stage);
 					}
@@ -3390,16 +3381,13 @@ void RB_StageIteratorGeneric()
 				}
 				else if(glConfig2.shadingLanguage100Available)
 				{
-					if(r_bumpMapping->integer)
+					if(r_lighting->integer == 2)
 					{
-						if(r_specular->integer)
-						{
-							Render_lighting_DBS_direct(stage);
-						}
-						else
-						{
-							Render_lighting_DB_direct(stage);
-						}
+						Render_lighting_DBS_direct(stage);
+					}
+					else if(r_lighting->integer == 1)
+					{
+						Render_lighting_DB_direct(stage);
 					}
 					else
 					{
