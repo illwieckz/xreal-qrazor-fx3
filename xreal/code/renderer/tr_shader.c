@@ -5014,7 +5014,7 @@ static void ScanAndLoadShaderFiles(void)
 	int             i;
 	char           *oldp, *token, *hashMem;
 	int             shaderTextHashTableSizes[MAX_SHADERTEXT_HASH], hash, size;
-
+	char            filename[MAX_QPATH];
 	long            sum = 0;
 
 	// scan for shader files
@@ -5037,8 +5037,21 @@ static void ScanAndLoadShaderFiles(void)
 	// load and parse shader files
 	for(i = 0; i < numShaders; i++)
 	{
-		char            filename[MAX_QPATH];
+#ifdef USE_MTR
+		Com_sprintf(filename, sizeof(filename), "materials/%s", shaderFiles[i]);
+#else
+		Com_sprintf(filename, sizeof(filename), "scripts/%s", shaderFiles[i]);
+#endif
+		ri.Printf(PRINT_ALL, "...reading '%s'\n", filename);
+		sum += ri.FS_ReadFile(filename, NULL);
+	}
 
+	// build single large buffer
+	s_shaderText = ri.Hunk_Alloc(sum + numShaders * 2, h_low);
+
+	// free in reverse order, so the temp files are all dumped
+	for(i = numShaders - 1; i >= 0; i--)
+	{
 #ifdef USE_MTR
 		Com_sprintf(filename, sizeof(filename), "materials/%s", shaderFiles[i]);
 #else
@@ -5050,14 +5063,7 @@ static void ScanAndLoadShaderFiles(void)
 		{
 			ri.Error(ERR_DROP, "Couldn't load %s", filename);
 		}
-	}
-
-	// build single large buffer
-	s_shaderText = ri.Hunk_Alloc(sum + numShaders * 2, h_low);
-
-	// free in reverse order, so the temp files are all dumped
-	for(i = numShaders - 1; i >= 0; i--)
-	{
+		
 		strcat(s_shaderText, "\n");
 		p = &s_shaderText[strlen(s_shaderText)];
 		strcat(s_shaderText, buffers[i]);
