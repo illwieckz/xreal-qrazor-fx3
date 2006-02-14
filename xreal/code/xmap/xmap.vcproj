@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="q3map"
-	RootNamespace="q3map"
-	SccProjectName="&quot;$/source/q3map&quot;, PADAAAAA"
+	Name="xmap"
+	RootNamespace="xmap"
+	SccProjectName="&quot;$/source/xmap&quot;, PADAAAAA"
 	SccLocalPath=".">
 	<Platforms>
 		<Platform
@@ -23,10 +23,10 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="../common,c:\quake3\common,c:\quake3\libs"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;Q3MAP;_WIN32"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;XMAP;_WIN32"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\Debug/q3map.pch"
+				PrecompiledHeaderFile=".\Debug/xmap.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
@@ -40,17 +40,17 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="glaux.lib glu32.lib wsock32.lib opengl32.lib odbc32.lib odbccp32.lib"
-				OutputFile=".\Debug/q3map.exe"
+				OutputFile=".\Debug/xmap.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Debug/q3map.pdb"
+				ProgramDatabaseFile=".\Debug/xmap.pdb"
 				SubSystem="1"
 				StackReserveSize="4194304"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/q3map.tlb"
+				TypeLibraryName=".\Debug/xmap.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
@@ -86,12 +86,12 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../common,c:\quake3\common,c:\quake3\libs"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;Q3MAP"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;XMAP"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\Release/q3map.pch"
+				PrecompiledHeaderFile=".\Release/xmap.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
@@ -104,17 +104,17 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="glaux.lib glu32.lib wsock32.lib opengl32.lib odbc32.lib odbccp32.lib"
-				OutputFile=".\Release/q3map.exe"
+				OutputFile=".\Release/xmap.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Release/q3map.pdb"
+				ProgramDatabaseFile=".\Release/xmap.pdb"
 				SubSystem="1"
 				StackReserveSize="4194304"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/q3map.tlb"
+				TypeLibraryName=".\Release/xmap.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
@@ -139,8 +139,8 @@
 		</Configuration>
 		<Configuration
 			Name="DebugTTimo|Win32"
-			OutputDirectory=".\q3map___Win32_DebugTTimo"
-			IntermediateDirectory=".\q3map___Win32_DebugTTimo"
+			OutputDirectory=".\xmap___Win32_DebugTTimo"
+			IntermediateDirectory=".\xmap___Win32_DebugTTimo"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -152,10 +152,10 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_TTIMOBUILD"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\q3map___Win32_DebugTTimo/q3map.pch"
-				AssemblerListingLocation=".\q3map___Win32_DebugTTimo/"
-				ObjectFile=".\q3map___Win32_DebugTTimo/"
-				ProgramDataBaseFileName=".\q3map___Win32_DebugTTimo/"
+				PrecompiledHeaderFile=".\xmap___Win32_DebugTTimo/xmap.pch"
+				AssemblerListingLocation=".\xmap___Win32_DebugTTimo/"
+				ObjectFile=".\xmap___Win32_DebugTTimo/"
+				ProgramDataBaseFileName=".\xmap___Win32_DebugTTimo/"
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
@@ -166,18 +166,18 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="glaux.lib glu32.lib wsock32.lib opengl32.lib odbc32.lib odbccp32.lib pakd.lib jpeg6d.lib"
-				OutputFile=".\q3map___Win32_DebugTTimo/q3map.exe"
+				OutputFile=".\xmap___Win32_DebugTTimo/xmap.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="../../Libs"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\q3map___Win32_DebugTTimo/q3map.pdb"
+				ProgramDatabaseFile=".\xmap___Win32_DebugTTimo/xmap.pdb"
 				SubSystem="1"
 				StackReserveSize="4194304"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\q3map___Win32_DebugTTimo/q3map.tlb"
+				TypeLibraryName=".\xmap___Win32_DebugTTimo/xmap.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
@@ -202,8 +202,8 @@
 		</Configuration>
 		<Configuration
 			Name="ReleaseTTimo|Win32"
-			OutputDirectory=".\q3map___Win32_ReleaseTTimo"
-			IntermediateDirectory=".\q3map___Win32_ReleaseTTimo"
+			OutputDirectory=".\xmap___Win32_ReleaseTTimo"
+			IntermediateDirectory=".\xmap___Win32_ReleaseTTimo"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -218,10 +218,10 @@
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\q3map___Win32_ReleaseTTimo/q3map.pch"
-				AssemblerListingLocation=".\q3map___Win32_ReleaseTTimo/"
-				ObjectFile=".\q3map___Win32_ReleaseTTimo/"
-				ProgramDataBaseFileName=".\q3map___Win32_ReleaseTTimo/"
+				PrecompiledHeaderFile=".\xmap___Win32_ReleaseTTimo/xmap.pch"
+				AssemblerListingLocation=".\xmap___Win32_ReleaseTTimo/"
+				ObjectFile=".\xmap___Win32_ReleaseTTimo/"
+				ProgramDataBaseFileName=".\xmap___Win32_ReleaseTTimo/"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="3"
@@ -231,18 +231,18 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="glaux.lib glu32.lib wsock32.lib opengl32.lib odbc32.lib odbccp32.lib pak.lib jpeg6.lib"
-				OutputFile=".\q3map___Win32_ReleaseTTimo/q3map.exe"
+				OutputFile=".\xmap___Win32_ReleaseTTimo/xmap.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="../../Libs"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\q3map___Win32_ReleaseTTimo/q3map.pdb"
+				ProgramDatabaseFile=".\xmap___Win32_ReleaseTTimo/xmap.pdb"
 				SubSystem="1"
 				StackReserveSize="4194304"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\q3map___Win32_ReleaseTTimo/q3map.tlb"
+				TypeLibraryName=".\xmap___Win32_ReleaseTTimo/xmap.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>

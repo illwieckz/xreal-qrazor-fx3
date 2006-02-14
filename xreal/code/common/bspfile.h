@@ -20,8 +20,8 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-#include "../code/qcommon/qfiles.h"
-#include "../code/game/surfaceflags.h"
+#include "../qcommon/qfiles.h"
+#include "../game/surfaceflags.h"
 
 extern int      nummodels;
 extern dmodel_t dmodels[MAX_MAP_MODELS];

@@ -382,11 +382,11 @@ int main(int argc, char **argv)
 	double          start, end;
 	char            path[1024];
 
-	_printf("Q3Map v1.0s (c) 1999 Id Software Inc.\n");
+	_printf("xmap v1.0s (c) 1999-2006 Id Software, Inc. and XreaL contributors\n");
 
 	if(argc < 2)
 	{
-		Error("usage: q3map [options] mapfile");
+		Error("usage: xmap [options] mapfile");
 	}
 
 	// check for general program options
@@ -418,7 +418,7 @@ int main(int argc, char **argv)
 
 	// do a bsp if nothing else was specified
 
-	_printf("---- q3map ----\n");
+	_printf("---- xmap ----\n");
 
 	tempsource[0] = '\0';
 
@@ -552,7 +552,7 @@ int main(int argc, char **argv)
 	}
 
 	if(i != argc - 1)
-		Error("usage: q3map [options] mapfile");
+		Error("usage: xmap [options] mapfile");
 
 	start = I_FloatTime();
 

@@ -1,5 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 8.00
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "q3map", "q3map.vcproj", "{F1162C55-66E7-4486-B1F3-071CFAA78332}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xmap", "xmap.vcproj", "{F1162C55-66E7-4486-B1F3-071CFAA78332}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -30,8 +30,8 @@ Global
 		SccLocalPath1 = ..\\q3radiant
 		SccProvider1 = MSSCCI:Perforce\u0020SCM
 		SccProjectFilePathRelativizedFromConnection1 = ..\\libs\\pak\\
-		SccProjectUniqueName2 = q3map.vcproj
-		SccProjectName2 = \u0022$/source/q3map\u0022,\u0020PADAAAAA
+		SccProjectUniqueName2 = xmap.vcproj
+		SccProjectName2 = \u0022$/source/xmap\u0022,\u0020PADAAAAA
 		SccLocalPath2 = .
 		SccProvider2 = MSSCCI:Perforce\u0020SCM
 	EndGlobalSection

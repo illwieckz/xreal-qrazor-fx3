@@ -20,6 +20,9 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+/*****************************************************************************
+ * name:		soundv.c
+ *****************************************************************************/
 
 #include "../common/cmdlib.h"
 #include "../common/mathlib.h"
@@ -118,7 +121,7 @@ typedef struct lsurfaceTest_s
 	int             numvolumes;	// number of volumes casted at this surface
 	//
 	int             always_tracelight;
-	int             always_vlight;
+	int             always_vsound;
 } lsurfaceTest_t;
 
 //volume types
@@ -167,7 +170,7 @@ typedef struct lightvolume_s
 #define LAAT_QUADRATIC				1
 #define LAAT_DOUBLEQUADRATIC		2
 
-typedef struct vlight_s
+typedef struct vsound_s
 {
 	vec3_t          origin;		//light origin, for point lights
 	winding_t       w;			//light winding, for area lights
@@ -187,34 +190,34 @@ typedef struct vlight_s
 	vec3_t          emitColor;	//full out-of-gamut value (not used)
 	struct shaderInfo_s *si;	//shader info
 	int             insolid;	//set when light is in solid
-} vlight_t;
+} vsound_t;
 
-float           lightLinearScale = 1.0 / 8000;
-float           lightPointScale = 7500;
-float           lightAreaScale = 0.25;
-float           lightFormFactorValueScale = 3;
-int             lightDefaultSubdivide = 999;	// vary by surface size?
-vec3_t          lightAmbientColor;
+static float    lightLinearScale = 1.0 / 8000;
+static float    lightPointScale = 7500;
+static float    lightAreaScale = 0.25;
+static float    lightFormFactorValueScale = 3;
+static int      lightDefaultSubdivide = 999;	// vary by surface size?
+static vec3_t   lightAmbientColor;
 
-int             portalclusters, numportals, numfaces;
-lleaf_t        *leafs;
-lportal_t      *portals;
-int             numvlights = 0;
-vlight_t       *vlights[MAX_LIGHTS];
-int             nostitching = 0;
-int             noalphashading = 0;
-int             nocolorshading = 0;
-int             nobackfaceculling = 0;
-int             defaulttracelight = 0;
-int             radiosity = 0;
-int             radiosity_scale;
+static int      portalclusters, numportals, numfaces;
+static lleaf_t *leafs;
+static lportal_t *portals;
+static int      numvsounds = 0;
+static vsound_t *vsounds[MAX_LIGHTS];
+static int      nostitching = 0;
+static int      noalphashading = 0;
+static int      nocolorshading = 0;
+static int      nobackfaceculling = 0;
+static int      defaulttracelight = 0;
+static int      radiosity = 0;
+static int      radiosity_scale;
 
-int             clustersurfaces[MAX_MAP_LEAFFACES];
-int             numclustersurfaces = 0;
-lsurfaceTest_t *lsurfaceTest[MAX_MAP_DRAW_SURFS];
-int             numfacets;
-float           lightmappixelarea[MAX_MAP_LIGHTING / 3];
-float          *lightFloats;	//[MAX_MAP_LIGHTING];
+static int      clustersurfaces[MAX_MAP_LEAFFACES];
+static int      numclustersurfaces = 0;
+static lsurfaceTest_t *lsurfaceTest[MAX_MAP_DRAW_SURFS];
+static int      numfacets;
+static float    lightmappixelarea[MAX_MAP_LIGHTING / 3];
+static float   *lightFloats;	//[MAX_MAP_LIGHTING];
 
 // from polylib.c
 winding_t      *AllocWinding(int points);
@@ -232,8 +235,6 @@ extern char     source[1024];
 extern vec3_t   surfaceOrigin[MAX_MAP_DRAW_SURFS];
 extern int      entitySurface[MAX_MAP_DRAW_SURFS];
 extern int      samplesize;
-extern int      novertexlighting;
-extern int      nogridlighting;
 extern qboolean patchshadows;
 extern vec3_t   gridSize;
 
@@ -415,16 +416,16 @@ void DebugNet_DrawMesh(mesh_t * mesh)
 
 /*
 =====================
-VL_DrawLightVolume
+VS_DrawLightVolume
 =====================
 */
-int             VL_ChopWinding(winding_t * in, plane_t * split, float epsilon);
+int             VS_ChopWinding(winding_t * in, plane_t * split, float epsilon);
 
-void VL_DrawLightVolume(vlight_t * light, lightvolume_t * volume)
+void VS_DrawLightVolume(vsound_t * light, lightvolume_t * volume)
 {
 	winding_t       w;
 	int             i;
-	vec3_t          p2, invlight;
+	vec3_t          p2, invsound;
 
 	memcpy(w.points, volume->points, volume->numplanes * sizeof(vec3_t));
 	w.numpoints = volume->numplanes;
@@ -432,14 +433,14 @@ void VL_DrawLightVolume(vlight_t * light, lightvolume_t * volume)
 
 	if(volume->type == VOLUME_DIRECTED)
 	{
-		VectorCopy(light->normal, invlight);
-		VectorInverse(invlight);
+		VectorCopy(light->normal, invsound);
+		VectorInverse(invsound);
 		for(i = 0; i < volume->numplanes; i++)
 		{
 			VectorCopy(volume->points[i], w.points[0]);
 			VectorCopy(volume->points[(i + 1) % volume->numplanes], w.points[1]);
-			VectorMA(w.points[1], MAX_WORLD_COORD, invlight, w.points[2]);
-			VectorMA(w.points[0], MAX_WORLD_COORD, invlight, w.points[3]);
+			VectorMA(w.points[1], MAX_WORLD_COORD, invsound, w.points[2]);
+			VectorMA(w.points[0], MAX_WORLD_COORD, invsound, w.points[3]);
 			w.numpoints = 4;
 			DebugNet_DrawWinding(&w, 2);
 			VectorMA(volume->points[i], 8, volume->planes[i].normal, p2);
@@ -455,7 +456,7 @@ void VL_DrawLightVolume(vlight_t * light, lightvolume_t * volume)
 		{
 			VectorCopy(volume->points[i], w.points[1]);
 			VectorCopy(volume->points[(i + 1) % volume->numplanes], w.points[2]);
-			VL_ChopWinding(&w, &volume->endplane, 0);
+			VS_ChopWinding(&w, &volume->endplane, 0);
 			DebugNet_DrawWinding(&w, 2);
 			VectorMA(volume->points[i], 8, volume->planes[i].normal, p2);
 			DebugNet_DrawLine(volume->points[i], p2, 3);
@@ -465,10 +466,10 @@ void VL_DrawLightVolume(vlight_t * light, lightvolume_t * volume)
 
 /*
 =============
-VL_DrawLightmapPixel
+VS_DrawLightmapPixel
 =============
 */
-void VL_DrawLightmapPixel(int surfaceNum, int x, int y, int color)
+void VS_DrawLightmapPixel(int surfaceNum, int x, int y, int color)
 {
 	winding_t       w;
 	dsurface_t     *ds;
@@ -502,10 +503,10 @@ void VL_DrawLightmapPixel(int surfaceNum, int x, int y, int color)
 
 /*
 ============
-VL_DrawPortals
+VS_DrawPortals
 ============
 */
-void VL_DrawPortals(void)
+void VS_DrawPortals(void)
 {
 	int             j;
 	lportal_t      *p;
@@ -519,10 +520,10 @@ void VL_DrawPortals(void)
 
 /*
 ============
-VL_DrawLeaf
+VS_DrawLeaf
 ============
 */
-void VL_DrawLeaf(int cluster)
+void VS_DrawLeaf(int cluster)
 {
 	int             i;
 	lleaf_t        *leaf;
@@ -540,10 +541,10 @@ void VL_DrawLeaf(int cluster)
 
 /*
 =============
-VL_SplitWinding
+VS_SplitWinding
 =============
 */
-int VL_SplitWinding(winding_t * in, winding_t * back, plane_t * split, float epsilon)
+int VS_SplitWinding(winding_t * in, winding_t * back, plane_t * split, float epsilon)
 {
 	vec_t           dists[128];
 	int             sides[128];
@@ -601,12 +602,12 @@ int VL_SplitWinding(winding_t * in, winding_t * back, plane_t * split, float eps
 
 		if(neww->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
 		{
-			_printf("WARNING: VL_SplitWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
+			_printf("WARNING: VS_SplitWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return SIDE_FRONT;	// can't chop -- fall back to original
 		}
 		if(back->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
 		{
-			_printf("WARNING: VL_SplitWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
+			_printf("WARNING: VS_SplitWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return SIDE_FRONT;
 		}
 
@@ -635,13 +636,13 @@ int VL_SplitWinding(winding_t * in, winding_t * back, plane_t * split, float eps
 
 		if(neww->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
 		{
-			_printf("WARNING: VL_SplitWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
+			_printf("WARNING: VS_SplitWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return SIDE_FRONT;	// can't chop -- fall back to original
 		}
 
 		if(back->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
 		{
-			_printf("WARNING: VL_SplitWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
+			_printf("WARNING: VS_SplitWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return SIDE_FRONT;	// can't chop -- fall back to original
 		}
 
@@ -671,10 +672,10 @@ int VL_SplitWinding(winding_t * in, winding_t * back, plane_t * split, float eps
 
 /*
 =====================
-VL_LinkSurfaceIntoCluster
+VS_LinkSurfaceIntoCluster
 =====================
 */
-void VL_LinkSurfaceIntoCluster(int cluster, int surfaceNum)
+void VS_LinkSurfaceIntoCluster(int cluster, int surfaceNum)
 {
 	lleaf_t        *leaf;
 	int             i;
@@ -704,10 +705,10 @@ void VL_LinkSurfaceIntoCluster(int cluster, int surfaceNum)
 
 /*
 =====================
-VL_R_LinkSurface
+VS_R_LinkSurface
 =====================
 */
-void VL_R_LinkSurface(int nodenum, int surfaceNum, winding_t * w)
+void VS_R_LinkSurface(int nodenum, int surfaceNum, winding_t * w)
 {
 	int             leafnum, cluster, res;
 	dnode_t        *node;
@@ -722,7 +723,7 @@ void VL_R_LinkSurface(int nodenum, int surfaceNum, winding_t * w)
 
 		VectorCopy(plane->normal, split.normal);
 		split.dist = plane->dist;
-		res = VL_SplitWinding(w, &back, &split, 0.1);
+		res = VS_SplitWinding(w, &back, &split, 0.1);
 
 		if(res == SIDE_FRONT)
 		{
@@ -735,12 +736,12 @@ void VL_R_LinkSurface(int nodenum, int surfaceNum, winding_t * w)
 		else if(res == SIDE_ON)
 		{
 			memcpy(&back, w, sizeof(winding_t));
-			VL_R_LinkSurface(node->children[1], surfaceNum, &back);
+			VS_R_LinkSurface(node->children[1], surfaceNum, &back);
 			nodenum = node->children[0];
 		}
 		else
 		{
-			VL_R_LinkSurface(node->children[1], surfaceNum, &back);
+			VS_R_LinkSurface(node->children[1], surfaceNum, &back);
 			nodenum = node->children[0];
 		}
 	}
@@ -748,18 +749,18 @@ void VL_R_LinkSurface(int nodenum, int surfaceNum, winding_t * w)
 	cluster = dleafs[leafnum].cluster;
 	if(cluster != -1)
 	{
-		VL_LinkSurfaceIntoCluster(cluster, surfaceNum);
+		VS_LinkSurfaceIntoCluster(cluster, surfaceNum);
 	}
 }
 
 /*
 =====================
-VL_LinkSurfaces
+VS_LinkSurfaces
 
 maybe link each facet seperately instead of the test surfaces?
 =====================
 */
-void VL_LinkSurfaces(void)
+void VS_LinkSurfaces(void)
 {
 	int             i, j;
 	lsurfaceTest_t *test;
@@ -776,17 +777,17 @@ void VL_LinkSurfaces(void)
 			facet = &test->facets[j];
 			memcpy(winding.points, facet->points, facet->numpoints * sizeof(vec3_t));
 			winding.numpoints = facet->numpoints;
-			VL_R_LinkSurface(0, i, &winding);
+			VS_R_LinkSurface(0, i, &winding);
 		}
 	}
 }
 
 /*
 =====================
-VL_TextureMatrixFromPoints
+VS_TextureMatrixFromPoints
 =====================
 */
-void VL_TextureMatrixFromPoints(lFacet_t * f, drawVert_t * a, drawVert_t * b, drawVert_t * c)
+void VS_TextureMatrixFromPoints(lFacet_t * f, drawVert_t * a, drawVert_t * b, drawVert_t * c)
 {
 	int             i, j;
 	float           t;
@@ -901,10 +902,10 @@ void VL_TextureMatrixFromPoints(lFacet_t * f, drawVert_t * a, drawVert_t * b, dr
 
 /*
 =====================
-VL_LightmapMatrixFromPoints
+VS_LightmapMatrixFromPoints
 =====================
 */
-void VL_LightmapMatrixFromPoints(dsurface_t * dsurf, shaderInfo_t * si, lFacet_t * f, drawVert_t * a, drawVert_t * b,
+void VS_LightmapMatrixFromPoints(dsurface_t * dsurf, shaderInfo_t * si, lFacet_t * f, drawVert_t * a, drawVert_t * b,
 								 drawVert_t * c)
 {
 	int             i, j;
@@ -1173,7 +1174,7 @@ Plane_Equal
 #define	NORMAL_EPSILON	0.0001
 #define	DIST_EPSILON	0.02
 
-int Plane_Equal(plane_t * a, plane_t * b, int flip)
+static int Plane_Equal(plane_t * a, plane_t * b, int flip)
 {
 	vec3_t          normal;
 	float           dist;
@@ -1201,10 +1202,10 @@ int Plane_Equal(plane_t * a, plane_t * b, int flip)
 
 /*
 =============
-VL_PlaneFromPoints
+VS_PlaneFromPoints
 =============
 */
-qboolean VL_PlaneFromPoints(plane_t * plane, const vec3_t a, const vec3_t b, const vec3_t c)
+qboolean VS_PlaneFromPoints(plane_t * plane, const vec3_t a, const vec3_t b, const vec3_t c)
 {
 	vec3_t          d1, d2;
 
@@ -1222,10 +1223,10 @@ qboolean VL_PlaneFromPoints(plane_t * plane, const vec3_t a, const vec3_t b, con
 
 /*
 =====================
-VL_GenerateBoundaryForPoints
+VS_GenerateBoundaryForPoints
 =====================
 */
-void VL_GenerateBoundaryForPoints(plane_t * boundary, plane_t * plane, vec3_t a, vec3_t b)
+void VS_GenerateBoundaryForPoints(plane_t * boundary, plane_t * plane, vec3_t a, vec3_t b)
 {
 	vec3_t          d1;
 
@@ -1238,10 +1239,10 @@ void VL_GenerateBoundaryForPoints(plane_t * boundary, plane_t * plane, vec3_t a,
 
 /*
 =====================
-VL_GenerateFacetFor3Points
+VS_GenerateFacetFor3Points
 =====================
 */
-qboolean VL_GenerateFacetFor3Points(dsurface_t * dsurf, shaderInfo_t * si, lFacet_t * f, drawVert_t * a, drawVert_t * b,
+qboolean VS_GenerateFacetFor3Points(dsurface_t * dsurf, shaderInfo_t * si, lFacet_t * f, drawVert_t * a, drawVert_t * b,
 									drawVert_t * c)
 {
 	//
@@ -1249,7 +1250,7 @@ qboolean VL_GenerateFacetFor3Points(dsurface_t * dsurf, shaderInfo_t * si, lFace
 	int             i;
 
 	// if we can't generate a valid plane for the points, ignore the facet
-	if(!VL_PlaneFromPoints(&f->plane, a->xyz, b->xyz, c->xyz))
+	if(!VS_PlaneFromPoints(&f->plane, a->xyz, b->xyz, c->xyz))
 	{
 		f->numpoints = 0;
 		return qfalse;
@@ -1268,9 +1269,9 @@ qboolean VL_GenerateFacetFor3Points(dsurface_t * dsurf, shaderInfo_t * si, lFace
 	f->lightmapCoords[2][0] = c->lightmap[0];
 	f->lightmapCoords[2][1] = c->lightmap[1];
 
-	VL_GenerateBoundaryForPoints(&f->boundaries[0], &f->plane, f->points[0], f->points[1]);
-	VL_GenerateBoundaryForPoints(&f->boundaries[1], &f->plane, f->points[1], f->points[2]);
-	VL_GenerateBoundaryForPoints(&f->boundaries[2], &f->plane, f->points[2], f->points[0]);
+	VS_GenerateBoundaryForPoints(&f->boundaries[0], &f->plane, f->points[0], f->points[1]);
+	VS_GenerateBoundaryForPoints(&f->boundaries[1], &f->plane, f->points[1], f->points[2]);
+	VS_GenerateBoundaryForPoints(&f->boundaries[2], &f->plane, f->points[2], f->points[0]);
 
 	for(i = 0; i < 3; i++)
 	{
@@ -1279,8 +1280,8 @@ qboolean VL_GenerateFacetFor3Points(dsurface_t * dsurf, shaderInfo_t * si, lFace
 			return qfalse;
 	}
 
-	VL_TextureMatrixFromPoints(f, a, b, c);
-	VL_LightmapMatrixFromPoints(dsurf, si, f, a, b, c);
+	VS_TextureMatrixFromPoints(f, a, b, c);
+	VS_LightmapMatrixFromPoints(dsurf, si, f, a, b, c);
 
 	f->numpoints = 3;
 
@@ -1289,13 +1290,13 @@ qboolean VL_GenerateFacetFor3Points(dsurface_t * dsurf, shaderInfo_t * si, lFace
 
 /*
 =====================
-VL_GenerateFacetFor4Points
+VS_GenerateFacetFor4Points
 
 Attempts to use four points as a planar quad
 =====================
 */
 #define	PLANAR_EPSILON	0.1
-qboolean VL_GenerateFacetFor4Points(dsurface_t * dsurf, shaderInfo_t * si, lFacet_t * f, drawVert_t * a, drawVert_t * b,
+qboolean VS_GenerateFacetFor4Points(dsurface_t * dsurf, shaderInfo_t * si, lFacet_t * f, drawVert_t * a, drawVert_t * b,
 									drawVert_t * c, drawVert_t * d)
 {
 	float           dist;
@@ -1304,7 +1305,7 @@ qboolean VL_GenerateFacetFor4Points(dsurface_t * dsurf, shaderInfo_t * si, lFace
 	plane_t         plane;
 
 	// if we can't generate a valid plane for the points, ignore the facet
-	if(!VL_PlaneFromPoints(&f->plane, a->xyz, b->xyz, c->xyz))
+	if(!VS_PlaneFromPoints(&f->plane, a->xyz, b->xyz, c->xyz))
 	{
 		f->numpoints = 0;
 		return qfalse;
@@ -1325,7 +1326,7 @@ qboolean VL_GenerateFacetFor4Points(dsurface_t * dsurf, shaderInfo_t * si, lFace
 
 	for(i = 1; i < 4; i++)
 	{
-		if(!VL_PlaneFromPoints(&plane, f->points[i], f->points[(i + 1) % 4], f->points[(i + 2) % 4]))
+		if(!VS_PlaneFromPoints(&plane, f->points[i], f->points[(i + 1) % 4], f->points[(i + 2) % 4]))
 		{
 			f->numpoints = 0;
 			return qfalse;
@@ -1347,10 +1348,10 @@ qboolean VL_GenerateFacetFor4Points(dsurface_t * dsurf, shaderInfo_t * si, lFace
 	f->lightmapCoords[3][0] = d->lightmap[0];
 	f->lightmapCoords[3][1] = d->lightmap[1];
 
-	VL_GenerateBoundaryForPoints(&f->boundaries[0], &f->plane, f->points[0], f->points[1]);
-	VL_GenerateBoundaryForPoints(&f->boundaries[1], &f->plane, f->points[1], f->points[2]);
-	VL_GenerateBoundaryForPoints(&f->boundaries[2], &f->plane, f->points[2], f->points[3]);
-	VL_GenerateBoundaryForPoints(&f->boundaries[3], &f->plane, f->points[3], f->points[0]);
+	VS_GenerateBoundaryForPoints(&f->boundaries[0], &f->plane, f->points[0], f->points[1]);
+	VS_GenerateBoundaryForPoints(&f->boundaries[1], &f->plane, f->points[1], f->points[2]);
+	VS_GenerateBoundaryForPoints(&f->boundaries[2], &f->plane, f->points[2], f->points[3]);
+	VS_GenerateBoundaryForPoints(&f->boundaries[3], &f->plane, f->points[3], f->points[0]);
 
 	for(i = 0; i < 4; i++)
 	{
@@ -1359,8 +1360,8 @@ qboolean VL_GenerateFacetFor4Points(dsurface_t * dsurf, shaderInfo_t * si, lFace
 			return qfalse;
 	}
 
-	VL_TextureMatrixFromPoints(f, a, b, c);
-	VL_LightmapMatrixFromPoints(dsurf, si, f, a, b, c);
+	VS_TextureMatrixFromPoints(f, a, b, c);
+	VS_LightmapMatrixFromPoints(dsurf, si, f, a, b, c);
 
 	f->num = numfacets++;
 	f->numpoints = 4;
@@ -1370,10 +1371,10 @@ qboolean VL_GenerateFacetFor4Points(dsurface_t * dsurf, shaderInfo_t * si, lFace
 
 /*
 ===============
-VL_SphereFromBounds
+VS_SphereFromBounds
 ===============
 */
-void VL_SphereFromBounds(vec3_t mins, vec3_t maxs, vec3_t origin, float *radius)
+void VS_SphereFromBounds(vec3_t mins, vec3_t maxs, vec3_t origin, float *radius)
 {
 	vec3_t          temp;
 
@@ -1385,10 +1386,10 @@ void VL_SphereFromBounds(vec3_t mins, vec3_t maxs, vec3_t origin, float *radius)
 
 /*
 ====================
-VL_FacetsForTriangleSurface
+VS_FacetsForTriangleSurface
 ====================
 */
-void VL_FacetsForTriangleSurface(dsurface_t * dsurf, shaderInfo_t * si, lsurfaceTest_t * test)
+void VS_FacetsForTriangleSurface(dsurface_t * dsurf, shaderInfo_t * si, lsurfaceTest_t * test)
 {
 	int             i;
 	drawVert_t     *v1, *v2, *v3, *v4;
@@ -1424,7 +1425,7 @@ void VL_FacetsForTriangleSurface(dsurface_t * dsurf, shaderInfo_t * si, lsurface
 			if(i4 == i3 && i5 == i2)
 			{
 				v4 = &drawVerts[dsurf->firstVert + i6];
-				if(VL_GenerateFacetFor4Points(dsurf, si, &test->facets[count], v1, v2, v4, v3))
+				if(VS_GenerateFacetFor4Points(dsurf, si, &test->facets[count], v1, v2, v4, v3))
 				{
 					count++;
 					i++;		// skip next tri
@@ -1433,7 +1434,7 @@ void VL_FacetsForTriangleSurface(dsurface_t * dsurf, shaderInfo_t * si, lsurface
 			}
 		}
 
-		if(VL_GenerateFacetFor3Points(dsurf, si, &test->facets[count], v1, v2, v3))
+		if(VS_GenerateFacetFor3Points(dsurf, si, &test->facets[count], v1, v2, v3))
 		{
 			count++;
 		}
@@ -1445,10 +1446,10 @@ void VL_FacetsForTriangleSurface(dsurface_t * dsurf, shaderInfo_t * si, lsurface
 
 /*
 ====================
-VL_FacetsForPatch
+VS_FacetsForPatch
 ====================
 */
-void VL_FacetsForPatch(dsurface_t * dsurf, int surfaceNum, shaderInfo_t * si, lsurfaceTest_t * test)
+void VS_FacetsForPatch(dsurface_t * dsurf, int surfaceNum, shaderInfo_t * si, lsurfaceTest_t * test)
 {
 	int             i, j, x, y;
 	drawVert_t     *v1, *v2, *v3, *v4;
@@ -1515,7 +1516,7 @@ void VL_FacetsForPatch(dsurface_t * dsurf, int surfaceNum, shaderInfo_t * si, ls
 			v3 = v1 + subdivided->width + 1;
 			v4 = v1 + subdivided->width;
 
-			if(VL_GenerateFacetFor4Points(dsurf, si, &test->facets[count], v1, v4, v3, v2))
+			if(VS_GenerateFacetFor4Points(dsurf, si, &test->facets[count], v1, v4, v3, v2))
 			{
 				test->facets[count].x = x;
 				test->facets[count].y = y;
@@ -1525,7 +1526,7 @@ void VL_FacetsForPatch(dsurface_t * dsurf, int surfaceNum, shaderInfo_t * si, ls
 			}
 			else
 			{
-				if(VL_GenerateFacetFor3Points(dsurf, si, &test->facets[count], v1, v4, v3))
+				if(VS_GenerateFacetFor3Points(dsurf, si, &test->facets[count], v1, v4, v3))
 				{
 					test->facets[count].x = x;
 					test->facets[count].y = y;
@@ -1533,7 +1534,7 @@ void VL_FacetsForPatch(dsurface_t * dsurf, int surfaceNum, shaderInfo_t * si, ls
 					test->facets[count].height = heighttable[j];
 					count++;
 				}
-				if(VL_GenerateFacetFor3Points(dsurf, si, &test->facets[count], v1, v3, v2))
+				if(VS_GenerateFacetFor3Points(dsurf, si, &test->facets[count], v1, v3, v2))
 				{
 					test->facets[count].x = x;
 					test->facets[count].y = y;
@@ -1553,10 +1554,10 @@ void VL_FacetsForPatch(dsurface_t * dsurf, int surfaceNum, shaderInfo_t * si, ls
 
 /*
 =====================
-VL_InitSurfacesForTesting
+VS_InitSurfacesForTesting
 =====================
 */
-void VL_InitSurfacesForTesting(void)
+void VS_InitSurfacesForTesting(void)
 {
 
 	int             i, j, k;
@@ -1567,7 +1568,7 @@ void VL_InitSurfacesForTesting(void)
 
 	for(i = 0; i < numDrawSurfaces; i++)
 	{
-		// don't light the entity surfaces with vlight
+		// don't light the entity surfaces with vsound
 		if(entitySurface[i])
 			continue;
 		//
@@ -1593,16 +1594,16 @@ void VL_InitSurfacesForTesting(void)
 		if(si->forceTraceLight)
 			test->always_tracelight = qtrue;
 		else if(si->forceVLight)
-			test->always_vlight = qtrue;
+			test->always_vsound = qtrue;
 		lsurfaceTest[i] = test;
 
 		if(dsurf->surfaceType == MST_TRIANGLE_SOUP || dsurf->surfaceType == MST_PLANAR)
 		{
-			VL_FacetsForTriangleSurface(dsurf, si, test);
+			VS_FacetsForTriangleSurface(dsurf, si, test);
 		}
 		else if(dsurf->surfaceType == MST_PATCH)
 		{
-			VL_FacetsForPatch(dsurf, i, si, test);
+			VS_FacetsForPatch(dsurf, i, si, test);
 		}
 		if(numfacets >= MAX_FACETS)
 			Error("numfacets >= MAX_FACETS (%d)", MAX_FACETS);
@@ -1616,19 +1617,19 @@ void VL_InitSurfacesForTesting(void)
 				AddPointToBounds(facet->points[k], test->mins, test->maxs);
 			}
 		}
-		VL_SphereFromBounds(test->mins, test->maxs, test->origin, &test->radius);
+		VS_SphereFromBounds(test->mins, test->maxs, test->origin, &test->radius);
 	}
 	_printf("%6d facets\n", numfacets);
 	_printf("linking surfaces...\n");
-	VL_LinkSurfaces();
+	VS_LinkSurfaces();
 }
 
 /*
 =============
-VL_ChopWinding
+VS_ChopWinding
 =============
 */
-int VL_ChopWinding(winding_t * in, plane_t * split, float epsilon)
+int VS_ChopWinding(winding_t * in, plane_t * split, float epsilon)
 {
 	vec_t           dists[128];
 	int             sides[128];
@@ -1685,7 +1686,7 @@ int VL_ChopWinding(winding_t * in, plane_t * split, float epsilon)
 
 		if(neww->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
 		{
-			_printf("WARNING: VL_ChopWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
+			_printf("WARNING: VS_ChopWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return SIDE_FRONT;	// can't chop -- fall back to original
 		}
 
@@ -1707,7 +1708,7 @@ int VL_ChopWinding(winding_t * in, plane_t * split, float epsilon)
 
 		if(neww->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
 		{
-			_printf("WARNING: VL_ChopWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
+			_printf("WARNING: VS_ChopWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return SIDE_FRONT;	// can't chop -- fall back to original
 		}
 
@@ -1735,12 +1736,12 @@ int VL_ChopWinding(winding_t * in, plane_t * split, float epsilon)
 
 /*
 =============
-VL_ChopWindingWithBrush
+VS_ChopWindingWithBrush
 
   returns all winding fragments outside the brush
 =============
 */
-int VL_ChopWindingWithBrush(winding_t * w, dbrush_t * brush, winding_t * outwindings, int maxout)
+int VS_ChopWindingWithBrush(winding_t * w, dbrush_t * brush, winding_t * outwindings, int maxout)
 {
 	int             i, res, numout;
 	winding_t       front, back;
@@ -1754,7 +1755,7 @@ int VL_ChopWindingWithBrush(winding_t * w, dbrush_t * brush, winding_t * outwind
 		VectorCopy(dplanes[dbrushsides[brush->firstSide + i].planeNum].normal, plane.normal);
 		VectorInverse(plane.normal);
 		plane.dist = -dplanes[dbrushsides[brush->firstSide + i].planeNum].dist;
-		res = VL_SplitWinding(&front, &back, &plane, 0.1);
+		res = VS_SplitWinding(&front, &back, &plane, 0.1);
 		if(res == SIDE_BACK || res == SIDE_ON)
 		{
 			memcpy(outwindings[0].points, w->points, w->numpoints * sizeof(vec3_t));
@@ -1765,7 +1766,7 @@ int VL_ChopWindingWithBrush(winding_t * w, dbrush_t * brush, winding_t * outwind
 		{
 			if(numout >= maxout)
 			{
-				_printf("WARNING: VL_ChopWindingWithBrush: more than %d windings\n", maxout);
+				_printf("WARNING: VS_ChopWindingWithBrush: more than %d windings\n", maxout);
 				return 0;
 			}
 			memcpy(outwindings[numout].points, back.points, back.numpoints * sizeof(vec3_t));
@@ -1778,10 +1779,10 @@ int VL_ChopWindingWithBrush(winding_t * w, dbrush_t * brush, winding_t * outwind
 
 /*
 =============
-VL_WindingAreaOutsideBrushes
+VS_WindingAreaOutsideBrushes
 =============
 */
-float VL_WindingAreaOutsideBrushes(winding_t * w, int *brushnums, int numbrushes)
+float VS_WindingAreaOutsideBrushes(winding_t * w, int *brushnums, int numbrushes)
 {
 	int             i, j, numwindings[2], n;
 	winding_t       windingsbuf[2][64];
@@ -1813,7 +1814,7 @@ float VL_WindingAreaOutsideBrushes(winding_t * w, int *brushnums, int numbrushes
 			numwindings[!(i & 1)] = 0;
 			for(j = 0; j < numwindings[i & 1]; j++)
 			{
-				n = VL_ChopWindingWithBrush(&windingsbuf[i & 1][j], brush,
+				n = VS_ChopWindingWithBrush(&windingsbuf[i & 1][j], brush,
 											&windingsbuf[!(i & 1)][numwindings[!(i & 1)]], 64 - numwindings[!(i & 1)]);
 				numwindings[!(i & 1)] += n;
 			}
@@ -1839,10 +1840,10 @@ float VL_WindingAreaOutsideBrushes(winding_t * w, int *brushnums, int numbrushes
 
 /*
 =============
-VL_R_WindingAreaOutsideSolid
+VS_R_WindingAreaOutsideSolid
 =============
 */
-float VL_R_WindingAreaOutsideSolid(winding_t * w, vec3_t normal, int nodenum)
+float VS_R_WindingAreaOutsideSolid(winding_t * w, vec3_t normal, int nodenum)
 {
 	int             leafnum, res;
 	float           area;
@@ -1860,7 +1861,7 @@ float VL_R_WindingAreaOutsideSolid(winding_t * w, vec3_t normal, int nodenum)
 
 		VectorCopy(plane->normal, split.normal);
 		split.dist = plane->dist;
-		res = VL_SplitWinding(w, &back, &split, 0.1);
+		res = VS_SplitWinding(w, &back, &split, 0.1);
 
 		if(res == SIDE_FRONT)
 		{
@@ -1879,7 +1880,7 @@ float VL_R_WindingAreaOutsideSolid(winding_t * w, vec3_t normal, int nodenum)
 		}
 		else
 		{
-			area += VL_R_WindingAreaOutsideSolid(&back, normal, node->children[1]);
+			area += VS_R_WindingAreaOutsideSolid(&back, normal, node->children[1]);
 			nodenum = node->children[0];
 		}
 	}
@@ -1887,49 +1888,49 @@ float VL_R_WindingAreaOutsideSolid(winding_t * w, vec3_t normal, int nodenum)
 	leaf = &dleafs[leafnum];
 	if(leaf->cluster != -1)
 	{
-		area += VL_WindingAreaOutsideBrushes(w, &dleafbrushes[leaf->firstLeafBrush], leaf->numLeafBrushes);
+		area += VS_WindingAreaOutsideBrushes(w, &dleafbrushes[leaf->firstLeafBrush], leaf->numLeafBrushes);
 	}
 	return area;
 }
 
 /*
 =============
-VL_WindingAreaOutsideSolid
+VS_WindingAreaOutsideSolid
 =============
 */
-float VL_WindingAreaOutsideSolid(winding_t * w, vec3_t normal)
+float VS_WindingAreaOutsideSolid(winding_t * w, vec3_t normal)
 {
-	return VL_R_WindingAreaOutsideSolid(w, normal, 0);
+	return VS_R_WindingAreaOutsideSolid(w, normal, 0);
 }
 
 /*
 =============
-VL_ChopWindingWithFacet
+VS_ChopWindingWithFacet
 =============
 */
-float VL_ChopWindingWithFacet(winding_t * w, lFacet_t * facet)
+float VS_ChopWindingWithFacet(winding_t * w, lFacet_t * facet)
 {
 	int             i;
 
 	for(i = 0; i < facet->numpoints; i++)
 	{
-		if(VL_ChopWinding(w, &facet->boundaries[i], 0) == SIDE_BACK)
+		if(VS_ChopWinding(w, &facet->boundaries[i], 0) == SIDE_BACK)
 			return 0;
 	}
 	if(nostitching)
 		return WindingArea(w);
 	else
-		return VL_WindingAreaOutsideSolid(w, facet->plane.normal);
+		return VS_WindingAreaOutsideSolid(w, facet->plane.normal);
 }
 
 /*
 =============
-VL_CalcVisibleLightmapPixelArea
+VS_CalcVisibleLightmapPixelArea
 
 nice brute force ;)
 =============
 */
-void VL_CalcVisibleLightmapPixelArea(void)
+void VS_CalcVisibleLightmapPixelArea(void)
 {
 	int             i, j, x, y, k;
 	dsurface_t     *ds;
@@ -1968,7 +1969,7 @@ void VL_CalcVisibleLightmapPixelArea(void)
 					if(nostitching)
 						area = WindingArea(&w);
 					else
-						area = VL_WindingAreaOutsideSolid(&w, mesh->verts[y * mesh->width + x].normal);
+						area = VS_WindingAreaOutsideSolid(&w, mesh->verts[y * mesh->width + x].normal);
 				}
 				else
 				{
@@ -1985,7 +1986,7 @@ void VL_CalcVisibleLightmapPixelArea(void)
 					for(j = 0; j < test->numFacets; j++)
 					{
 						memcpy(&tmpw, &w, sizeof(winding_t));
-						area += VL_ChopWindingWithFacet(&tmpw, &test->facets[j]);
+						area += VS_ChopWindingWithFacet(&tmpw, &test->facets[j]);
 					}
 				}
 				k = (ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + y) * LIGHTMAP_WIDTH + ds->lightmapX + x;
@@ -1997,10 +1998,10 @@ void VL_CalcVisibleLightmapPixelArea(void)
 
 /*
 =============
-VL_FindAdjacentSurface
+VS_FindAdjacentSurface
 =============
 */
-int VL_FindAdjacentSurface(int surfaceNum, int facetNum, vec3_t p1, vec3_t p2, int *sNum, int *fNum, int *point)
+int VS_FindAdjacentSurface(int surfaceNum, int facetNum, vec3_t p1, vec3_t p2, int *sNum, int *fNum, int *point)
 {
 	int             i, j, k;
 	lsurfaceTest_t *test;
@@ -2098,12 +2099,12 @@ int VL_FindAdjacentSurface(int surfaceNum, int facetNum, vec3_t p1, vec3_t p2, i
 
 /*
 =============
-VL_SmoothenLightmapEdges
+VS_SmoothenLightmapEdges
 
 this code is used to smoothen lightmaps across surface edges
 =============
 */
-void VL_SmoothenLightmapEdges(void)
+void VS_SmoothenLightmapEdges(void)
 {
 	int             i, j, k, coords1[2][2];
 	float           coords2[2][2];
@@ -2199,7 +2200,7 @@ void VL_SmoothenLightmapEdges(void)
 				if(xinc1 != 0 && yinc1 != 0)
 					continue;
 				//
-				if(!VL_FindAdjacentSurface(i, j, p[0], p[1], &surfaceNum, &facetNum, &point))
+				if(!VS_FindAdjacentSurface(i, j, p[0], p[1], &surfaceNum, &facetNum, &point))
 					continue;
 				//
 				ds2 = &drawSurfaces[surfaceNum];
@@ -2270,10 +2271,10 @@ void VL_SmoothenLightmapEdges(void)
 
 /*
 =============
-VL_FixLightmapEdges
+VS_FixLightmapEdges
 =============
 */
-void VL_FixLightmapEdges(void)
+void VS_FixLightmapEdges(void)
 {
 	int             i, j, x, y, k, foundvalue, height, width, index;
 	int             pos, top, bottom;
@@ -2605,15 +2606,15 @@ void VL_FixLightmapEdges(void)
 		   // */
 	}
 	//
-	VL_SmoothenLightmapEdges();
+	VS_SmoothenLightmapEdges();
 }
 
 /*
 =============
-VL_ShiftPatchLightmaps
+VS_ShiftPatchLightmaps
 =============
 */
-void VL_ShiftPatchLightmaps(void)
+void VS_ShiftPatchLightmaps(void)
 {
 	int             i, j, x, y, k;
 	drawVert_t     *verts;
@@ -2667,10 +2668,10 @@ void VL_ShiftPatchLightmaps(void)
 
 /*
 =============
-VL_StoreLightmap
+VS_StoreLightmap
 =============
 */
-void VL_StoreLightmap(void)
+void VS_StoreLightmap(void)
 {
 	int             i, x, y, k;
 	dsurface_t     *ds;
@@ -2680,10 +2681,10 @@ void VL_StoreLightmap(void)
 
 	_printf("storing lightmaps...\n");
 	//fix lightmap edges before storing them
-	VL_FixLightmapEdges();
+	VS_FixLightmapEdges();
 	//
 #ifdef LIGHTMAP_PATCHSHIFT
-	VL_ShiftPatchLightmaps();
+	VS_ShiftPatchLightmaps();
 #endif
 	//
 	for(i = 0; i < numDrawSurfaces; i++)
@@ -2715,20 +2716,21 @@ void VL_StoreLightmap(void)
 PointInLeafnum
 =============
 */
-int PointInLeafnum(vec3_t point)
+/*
+int	PointInLeafnum(vec3_t point)
 {
-	int             nodenum;
-	vec_t           dist;
-	dnode_t        *node;
-	dplane_t       *plane;
+	int		nodenum;
+	vec_t	dist;
+	dnode_t	*node;
+	dplane_t	*plane;
 
 	nodenum = 0;
-	while(nodenum >= 0)
+	while (nodenum >= 0)
 	{
 		node = &dnodes[nodenum];
 		plane = &dplanes[node->planeNum];
-		dist = DotProduct(point, plane->normal) - plane->dist;
-		if(dist > 0)
+		dist = DotProduct (point, plane->normal) - plane->dist;
+		if (dist > 0)
 			nodenum = node->children[0];
 		else
 			nodenum = node->children[1];
@@ -2736,13 +2738,14 @@ int PointInLeafnum(vec3_t point)
 
 	return -nodenum - 1;
 }
+*/
 
 /*
 =============
-VL_PointInLeafnum_r
+VS_PointInLeafnum_r
 =============
 */
-int VL_PointInLeafnum_r(vec3_t point, int nodenum)
+int VS_PointInLeafnum_r(vec3_t point, int nodenum)
 {
 	int             leafnum;
 	vec_t           dist;
@@ -2764,7 +2767,7 @@ int VL_PointInLeafnum_r(vec3_t point, int nodenum)
 		}
 		else
 		{
-			leafnum = VL_PointInLeafnum_r(point, node->children[0]);
+			leafnum = VS_PointInLeafnum_r(point, node->children[0]);
 			if(dleafs[leafnum].cluster != -1)
 				return leafnum;
 			nodenum = node->children[1];
@@ -2777,20 +2780,20 @@ int VL_PointInLeafnum_r(vec3_t point, int nodenum)
 
 /*
 =============
-VL_PointInLeafnum
+VS_PointInLeafnum
 =============
 */
-int VL_PointInLeafnum(vec3_t point)
+int VS_PointInLeafnum(vec3_t point)
 {
-	return VL_PointInLeafnum_r(point, 0);
+	return VS_PointInLeafnum_r(point, 0);
 }
 
 /*
 =============
-VL_LightLeafnum
+VS_LightLeafnum
 =============
 */
-int VL_LightLeafnum(vec3_t point)
+int VS_LightLeafnum(vec3_t point)
 {
 	/*
 	   int leafnum;
@@ -2798,7 +2801,7 @@ int VL_LightLeafnum(vec3_t point)
 	   float x, y, z;
 	   vec3_t test;
 
-	   leafnum = VL_PointInLeafnum(point);
+	   leafnum = VS_PointInLeafnum(point);
 	   leaf = &dleafs[leafnum];
 	   if (leaf->cluster != -1)
 	   return leafnum;
@@ -2812,7 +2815,7 @@ int VL_LightLeafnum(vec3_t point)
 	   test[0] += x;
 	   test[1] += y;
 	   test[2] += z;
-	   leafnum = VL_PointInLeafnum(test);
+	   leafnum = VS_PointInLeafnum(test);
 	   leaf = &dleafs[leafnum];
 	   if (leaf->cluster != -1)
 	   {
@@ -2824,7 +2827,7 @@ int VL_LightLeafnum(vec3_t point)
 	   }
 	   return leafnum;
 	 */
-	return VL_PointInLeafnum(point);
+	return VS_PointInLeafnum(point);
 }
 
 //#define LIGHTPOLYS
@@ -2836,10 +2839,10 @@ int             numlightwindings;
 
 /*
 =============
-VL_DrawLightWindings
+VS_DrawLightWindings
 =============
 */
-void VL_DrawLightWindings(void)
+void VS_DrawLightWindings(void)
 {
 	int             i;
 
@@ -2853,10 +2856,10 @@ void VL_DrawLightWindings(void)
 
 /*
 =============
-VL_LightSurfaceWithVolume
+VS_LightSurfaceWithVolume
 =============
 */
-void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, lightvolume_t * volume)
+void VS_LightSurfaceWithVolume(int surfaceNum, int facetNum, vsound_t * light, lightvolume_t * volume)
 {
 	winding_t      *w;
 	lsurfaceTest_t *test;
@@ -2874,7 +2877,7 @@ void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, l
 	for(i = 0; i < volume->numplanes; i++)
 	{
 		//if totally on the back
-		if(VL_ChopWinding(w, &volume->planes[i], 0.01) == SIDE_BACK)
+		if(VS_ChopWinding(w, &volume->planes[i], 0.01) == SIDE_BACK)
 			return;
 	}
 	lightwindings[numlightwindings] = w;
@@ -2887,11 +2890,11 @@ void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, l
 
 /*
 =============
-VL_LightSurfaceWithVolume
+VS_LightSurfaceWithVolume
 =============
 */
 /*
-int VL_PointInsideLightVolume(vec3_t point, lightvolume_t *volume)
+int VS_PointInsideLightVolume(vec3_t point, lightvolume_t *volume)
 {
 	int i;
 	float d;
@@ -2904,7 +2907,7 @@ int VL_PointInsideLightVolume(vec3_t point, lightvolume_t *volume)
 	return qtrue;
 }
 
-void VL_LightSurfaceWithVolume( int surfaceNum, int facetNum, vlight_t *light, lightvolume_t *volume )
+void VS_LightSurfaceWithVolume( int surfaceNum, int facetNum, vsound_t *light, lightvolume_t *volume )
 {
 	dsurface_t	*ds;
 	int			i, j, k;
@@ -2981,7 +2984,7 @@ void VL_LightSurfaceWithVolume( int surfaceNum, int facetNum, vlight_t *light, l
 			if (add <= 1.0)
 				continue;
 
-			if (VL_PointInsideLightVolume(base, volume))
+			if (VS_PointInsideLightVolume(base, volume))
 			{
 				k = ( ds->lightmapNum * LIGHTMAP_HEIGHT + ds->lightmapY + j) 
 					* LIGHTMAP_WIDTH + ds->lightmapX + i;
@@ -2998,13 +3001,13 @@ void VL_LightSurfaceWithVolume( int surfaceNum, int facetNum, vlight_t *light, l
 
 /*
 =============
-VL_GetFilter
+VS_GetFilter
 
 FIXME:  don't use a lightmap pixel origin but use the four corner points
 		to map part of a translucent surface onto the lightmap pixel
 =============
 */
-void VL_GetFilter(vlight_t * light, lightvolume_t * volume, vec3_t lmp, vec3_t filter)
+void VS_GetFilter(vsound_t * light, lightvolume_t * volume, vec3_t lmp, vec3_t filter)
 {
 	lFacet_t       *facet;
 	lsurfaceTest_t *test;
@@ -3136,10 +3139,10 @@ void VL_GetFilter(vlight_t * light, lightvolume_t * volume, vec3_t lmp, vec3_t f
 
 /*
 =============
-VL_LightSurfaceWithVolume
+VS_LightSurfaceWithVolume
 =============
 */
-void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, lightvolume_t * volume)
+void VS_LightSurfaceWithVolume(int surfaceNum, int facetNum, vsound_t * light, lightvolume_t * volume)
 {
 	int             i;
 	dsurface_t     *ds;
@@ -3171,7 +3174,7 @@ void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, l
 	test = lsurfaceTest[surfaceNum];
 	facet = &test->facets[facetNum];
 
-	if(defaulttracelight && !test->always_vlight)
+	if(defaulttracelight && !test->always_vsound)
 		return;
 	if(test->always_tracelight)
 		return;
@@ -3182,7 +3185,7 @@ void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, l
 	for(i = 0; i < volume->numplanes; i++)
 	{
 		//if totally on the back
-		if(VL_ChopWinding(&w, &volume->planes[i], 0.01) == SIDE_BACK)
+		if(VS_ChopWinding(&w, &volume->planes[i], 0.01) == SIDE_BACK)
 			return;
 	}
 
@@ -3254,9 +3257,9 @@ void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, l
 			x = coords[i][0];
 			y = coords[i][1];
 			if(x < ds->lightmapX || x >= LIGHTMAP_SIZE)
-				_printf("VL_LightSurfaceWithVolume: x outside lightmap\n");
+				_printf("VS_LightSurfaceWithVolume: x outside lightmap\n");
 			if(y < ds->lightmapY || y >= LIGHTMAP_SIZE)
-				_printf("VL_LightSurfaceWithVolume: y outside lightmap\n");
+				_printf("VS_LightSurfaceWithVolume: y outside lightmap\n");
 		}
 		coords[i][0] = coords[0][0];
 		coords[i][1] = coords[0][1];
@@ -3322,9 +3325,9 @@ void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, l
 				while(1)
 				{
 					if(x < ds->lightmapX || x >= LIGHTMAP_SIZE)
-						_printf("VL_LightSurfaceWithVolume: x outside lightmap\n");
+						_printf("VS_LightSurfaceWithVolume: x outside lightmap\n");
 					if(y < ds->lightmapY || y >= LIGHTMAP_SIZE)
-						_printf("VL_LightSurfaceWithVolume: y outside lightmap\n");
+						_printf("VS_LightSurfaceWithVolume: y outside lightmap\n");
 					//
 					n = y * LIGHTMAP_SIZE + x;
 					polygonedges[n >> 3] |= 1 << (n & 7);
@@ -3393,9 +3396,9 @@ void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, l
 				while(1)
 				{
 					if(x < ds->lightmapX || x >= LIGHTMAP_SIZE)
-						_printf("VL_LightSurfaceWithVolume: x outside lightmap\n");
+						_printf("VS_LightSurfaceWithVolume: x outside lightmap\n");
 					if(y < ds->lightmapY || y >= LIGHTMAP_SIZE)
-						_printf("VL_LightSurfaceWithVolume: y outside lightmap\n");
+						_printf("VS_LightSurfaceWithVolume: y outside lightmap\n");
 					//
 					n = y * LIGHTMAP_SIZE + x;
 					polygonedges[n >> 3] |= 1 << (n & 7);
@@ -3739,7 +3742,7 @@ void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, l
 				for(i = 0; i < volume->numplanes; i++)
 				{
 					//if totally on the back
-					if(VL_ChopWinding(&w, &volume->planes[i], 0) == SIDE_BACK)
+					if(VS_ChopWinding(&w, &volume->planes[i], 0) == SIDE_BACK)
 						break;
 				}
 				// if the lightmap pixel is partly inside the light volume
@@ -3757,7 +3760,7 @@ void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, l
 				}
 			}
 			// get the light filter from all the translucent surfaces the light volume went through
-			VL_GetFilter(light, volume, base, filter);
+			VS_GetFilter(light, volume, base, filter);
 			//
 			color = &lightFloats[k * 3];
 			color[0] += add * light->color[0] * filter[0];
@@ -3773,10 +3776,10 @@ void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, l
 
 /*
 =============
-VL_SplitLightVolume
+VS_SplitLightVolume
 =============
 */
-int VL_SplitLightVolume(lightvolume_t * volume, lightvolume_t * back, plane_t * split, float epsilon)
+int VS_SplitLightVolume(lightvolume_t * volume, lightvolume_t * back, plane_t * split, float epsilon)
 {
 	lightvolume_t   f, b;
 	vec_t           dists[128];
@@ -3824,12 +3827,12 @@ int VL_SplitLightVolume(lightvolume_t * volume, lightvolume_t * back, plane_t * 
 
 		if(f.numplanes >= MAX_POINTS_ON_FIXED_WINDING)
 		{
-			_printf("WARNING: VL_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
+			_printf("WARNING: VS_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return 0;			// can't chop -- fall back to original
 		}
 		if(b.numplanes >= MAX_POINTS_ON_FIXED_WINDING)
 		{
-			_printf("WARNING: VL_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
+			_printf("WARNING: VS_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return 0;			// can't chop -- fall back to original
 		}
 
@@ -3879,12 +3882,12 @@ int VL_SplitLightVolume(lightvolume_t * volume, lightvolume_t * back, plane_t * 
 
 		if(f.numplanes >= MAX_POINTS_ON_FIXED_WINDING)
 		{
-			_printf("WARNING: VL_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
+			_printf("WARNING: VS_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return 0;			// can't chop -- fall back to original
 		}
 		if(b.numplanes >= MAX_POINTS_ON_FIXED_WINDING)
 		{
-			_printf("WARNING: VL_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
+			_printf("WARNING: VS_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return 0;			// can't chop -- fall back to original
 		}
 
@@ -3931,10 +3934,10 @@ int VL_SplitLightVolume(lightvolume_t * volume, lightvolume_t * back, plane_t * 
 
 /*
 =============
-VL_PlaneForEdgeToWinding
+VS_PlaneForEdgeToWinding
 =============
 */
-void VL_PlaneForEdgeToWinding(vec3_t p1, vec3_t p2, winding_t * w, int windingonfront, plane_t * plane)
+void VS_PlaneForEdgeToWinding(vec3_t p1, vec3_t p2, winding_t * w, int windingonfront, plane_t * plane)
 {
 	int             i, j;
 	float           length, d;
@@ -3986,18 +3989,18 @@ void VL_PlaneForEdgeToWinding(vec3_t p1, vec3_t p2, winding_t * w, int windingon
 
 /*
 =============
-VL_R_CastLightAtSurface
+VS_R_CastLightAtSurface
 =============
 */
-void            VL_R_FloodLight(vlight_t * light, lightvolume_t * volume, int cluster, int firstportal);
+void            VS_R_FloodLight(vsound_t * light, lightvolume_t * volume, int cluster, int firstportal);
 
-void VL_R_CastLightAtSurface(vlight_t * light, lightvolume_t * volume)
+void VS_R_CastLightAtSurface(vsound_t * light, lightvolume_t * volume)
 {
 	lsurfaceTest_t *test;
 	int             i, n;
 
 	// light the surface with this volume
-	VL_LightSurfaceWithVolume(volume->surfaceNum, volume->facetNum, light, volume);
+	VS_LightSurfaceWithVolume(volume->surfaceNum, volume->facetNum, light, volume);
 	//
 	test = lsurfaceTest[volume->surfaceNum];
 	// if this is not a translucent surface
@@ -4022,27 +4025,27 @@ void VL_R_CastLightAtSurface(vlight_t * light, lightvolume_t * volume)
 	volume->endplane = volume->farplane;
 	volume->surfaceNum = -1;
 	volume->facetNum = 0;
-	VL_R_FloodLight(light, volume, volume->cluster, 0);
+	VS_R_FloodLight(light, volume, volume->cluster, 0);
 	if(volume->surfaceNum >= 0)
 	{
-		VL_R_CastLightAtSurface(light, volume);
+		VS_R_CastLightAtSurface(light, volume);
 	}
 }
 
 /*
 =============
-VL_R_SplitLightVolume
+VS_R_SplitLightVolume
 =============
 */
-int             numvolumes = 0;
+static int      numvolumes = 0;
 
-int VL_R_SplitLightVolume(vlight_t * light, lightvolume_t * volume, plane_t * split, int cluster, int firstportal)
+int VS_R_SplitLightVolume(vsound_t * light, lightvolume_t * volume, plane_t * split, int cluster, int firstportal)
 {
 	lightvolume_t   back;
 	int             res;
 
 	//
-	res = VL_SplitLightVolume(volume, &back, split, 0.1);
+	res = VS_SplitLightVolume(volume, &back, split, 0.1);
 	// if the volume was split
 	if(res == 2)
 	{
@@ -4063,11 +4066,11 @@ int VL_R_SplitLightVolume(vlight_t * light, lightvolume_t * volume, plane_t * sp
 		back.numtransFacets = volume->numtransFacets;
 		//
 		// flood the volume at the back of the split plane
-		VL_R_FloodLight(light, &back, cluster, firstportal);
+		VS_R_FloodLight(light, &back, cluster, firstportal);
 		// if the back volume hit a surface
 		if(back.surfaceNum >= 0)
 		{
-			VL_R_CastLightAtSurface(light, &back);
+			VS_R_CastLightAtSurface(light, &back);
 		}
 	}
 	return res;
@@ -4075,10 +4078,10 @@ int VL_R_SplitLightVolume(vlight_t * light, lightvolume_t * volume, plane_t * sp
 
 /*
 =============
-VL_R_FloodLight
+VS_R_FloodLight
 =============
 */
-void VL_R_FloodLight(vlight_t * light, lightvolume_t * volume, int cluster, int firstportal)
+void VS_R_FloodLight(vsound_t * light, lightvolume_t * volume, int cluster, int firstportal)
 {
 	int             i, j, k, res, surfaceNum, backfaceculled, testculled;
 	float           d;
@@ -4091,7 +4094,7 @@ void VL_R_FloodLight(vlight_t * light, lightvolume_t * volume, int cluster, int 
 	plane_t         plane;
 
 	//  DebugNet_RemoveAllPolys();
-	//  VL_DrawLightVolume(light, volume);
+	//  VS_DrawLightVolume(light, volume);
 
 	// if the first portal is not zero then we've checked all occluders in this leaf already
 	if(firstportal == 0)
@@ -4229,7 +4232,7 @@ void VL_R_FloodLight(vlight_t * light, lightvolume_t * volume, int cluster, int 
 				}
 				//NOTE: we have to chop the facet winding with the volume end plane because
 				//      the faces in Q3 are not stitched together nicely
-				res = VL_ChopWinding(&winding, &volume->endplane, 0.01);
+				res = VS_ChopWinding(&winding, &volume->endplane, 0.01);
 				// if the facet is on or at the back of the volume end plane
 				if(res == SIDE_BACK || res == SIDE_ON)
 					continue;
@@ -4237,7 +4240,7 @@ void VL_R_FloodLight(vlight_t * light, lightvolume_t * volume, int cluster, int 
 				memcpy(&tmpwinding, &winding, sizeof(winding_t));
 				for(k = 0; k < volume->numplanes; k++)
 				{
-					res = VL_ChopWinding(&tmpwinding, &volume->planes[k], 0.01);
+					res = VS_ChopWinding(&tmpwinding, &volume->planes[k], 0.01);
 					if(res == SIDE_BACK || res == SIDE_ON)
 						break;
 				}
@@ -4262,7 +4265,7 @@ void VL_R_FloodLight(vlight_t * light, lightvolume_t * volume, int cluster, int 
 						VectorNormalize(plane.normal, plane.normal);
 						plane.dist = DotProduct(plane.normal, winding.points[k]);
 					}
-					res = VL_R_SplitLightVolume(light, volume, &plane, cluster, 0);
+					res = VS_R_SplitLightVolume(light, volume, &plane, cluster, 0);
 					if(res == 1)
 						break;	//the facet wasn't really inside the volume
 				}
@@ -4329,7 +4332,7 @@ void VL_R_FloodLight(vlight_t * light, lightvolume_t * volume, int cluster, int 
 			memcpy(&winding, p->winding, sizeof(winding_t));
 			for(j = 0; j < volume->numplanes; j++)
 			{
-				res = VL_ChopWinding(&winding, &volume->planes[j], 0.01);
+				res = VS_ChopWinding(&winding, &volume->planes[j], 0.01);
 				if(res == SIDE_BACK || res == SIDE_ON)
 					break;
 			}
@@ -4355,7 +4358,7 @@ void VL_R_FloodLight(vlight_t * light, lightvolume_t * volume, int cluster, int 
 				VectorNormalize(plane.normal, plane.normal);
 				plane.dist = DotProduct(plane.normal, p->winding->points[k]);
 			}
-			res = VL_R_SplitLightVolume(light, volume, &plane, cluster, i + 1);
+			res = VS_R_SplitLightVolume(light, volume, &plane, cluster, i + 1);
 			if(res == 1)
 				break;			//volume didn't really go through the portal
 		}
@@ -4363,84 +4366,26 @@ void VL_R_FloodLight(vlight_t * light, lightvolume_t * volume, int cluster, int 
 		if(k >= p->winding->numpoints)
 		{
 			// flood through the portal
-			VL_R_FloodLight(light, volume, p->leaf, 0);
+			VS_R_FloodLight(light, volume, p->leaf, 0);
 		}
 	}
 }
 
 /*
 =============
-VL_R_FloodAreaSpotLight
+VS_R_FloodAreaSpotLight
 =============
 */
-void VL_FloodAreaSpotLight(vlight_t * light, winding_t * w, int leafnum)
+void VS_FloodAreaSpotLight(vsound_t * light, winding_t * w, int leafnum)
 {
 }
 
 /*
 =============
-VL_R_SubdivideAreaSpotLight
+VS_R_SubdivideAreaSpotLight
 =============
 */
-void VL_R_SubdivideAreaSpotLight(vlight_t * light, int nodenum, winding_t * w)
-{
-	int             leafnum, res;
-	dnode_t        *node;
-	dplane_t       *plane;
-	winding_t       back;
-	plane_t         split;
-
-	while(nodenum >= 0)
-	{
-		node = &dnodes[nodenum];
-		plane = &dplanes[node->planeNum];
-
-		VectorCopy(plane->normal, split.normal);
-		split.dist = plane->dist;
-		res = VL_SplitWinding(w, &back, &split, 0.1);
-
-		if(res == SIDE_FRONT)
-		{
-			nodenum = node->children[0];
-		}
-		else if(res == SIDE_BACK)
-		{
-			nodenum = node->children[1];
-		}
-		else if(res == SIDE_ON)
-		{
-			memcpy(&back, w, sizeof(winding_t));
-			VL_R_SubdivideAreaSpotLight(light, node->children[1], &back);
-			nodenum = node->children[0];
-		}
-		else
-		{
-			VL_R_SubdivideAreaSpotLight(light, node->children[1], &back);
-			nodenum = node->children[0];
-		}
-	}
-	leafnum = -nodenum - 1;
-	if(dleafs[leafnum].cluster != -1)
-	{
-		VL_FloodAreaSpotLight(light, w, leafnum);
-	}
-}
-
-/*
-=============
-VL_R_FloodRadialAreaLight
-=============
-*/
-void VL_FloodRadialAreaLight(vlight_t * light, winding_t * w, int leafnum)
-{
-}
-
-/*
-=============
-VL_R_SubdivideRadialAreaLight
-=============
-*/
-void VL_R_SubdivideRadialAreaLight(vlight_t * light, int nodenum, winding_t * w)
+void VS_R_SubdivideAreaSpotLight(vsound_t * light, int nodenum, winding_t * w)
 {
 	int             leafnum, res;
 	dnode_t        *node;
@@ -4455,7 +4400,7 @@ void VL_R_SubdivideRadialAreaLight(vlight_t * light, int nodenum, winding_t * w)
 
 		VectorCopy(plane->normal, split.normal);
 		split.dist = plane->dist;
-		res = VL_SplitWinding(w, &back, &split, 0.1);
+		res = VS_SplitWinding(w, &back, &split, 0.1);
 
 		if(res == SIDE_FRONT)
 		{
@@ -4468,28 +4413,86 @@ void VL_R_SubdivideRadialAreaLight(vlight_t * light, int nodenum, winding_t * w)
 		else if(res == SIDE_ON)
 		{
 			memcpy(&back, w, sizeof(winding_t));
-			VL_R_SubdivideRadialAreaLight(light, node->children[1], &back);
+			VS_R_SubdivideAreaSpotLight(light, node->children[1], &back);
 			nodenum = node->children[0];
 		}
 		else
 		{
-			VL_R_SubdivideRadialAreaLight(light, node->children[1], &back);
+			VS_R_SubdivideAreaSpotLight(light, node->children[1], &back);
 			nodenum = node->children[0];
 		}
 	}
 	leafnum = -nodenum - 1;
 	if(dleafs[leafnum].cluster != -1)
 	{
-		VL_FloodRadialAreaLight(light, w, leafnum);
+		VS_FloodAreaSpotLight(light, w, leafnum);
 	}
 }
 
 /*
 =============
-VL_R_FloodDirectedLight
+VS_R_FloodRadialAreaLight
 =============
 */
-void VL_FloodDirectedLight(vlight_t * light, winding_t * w, int leafnum)
+void VS_FloodRadialAreaLight(vsound_t * light, winding_t * w, int leafnum)
+{
+}
+
+/*
+=============
+VS_R_SubdivideRadialAreaLight
+=============
+*/
+void VS_R_SubdivideRadialAreaLight(vsound_t * light, int nodenum, winding_t * w)
+{
+	int             leafnum, res;
+	dnode_t        *node;
+	dplane_t       *plane;
+	winding_t       back;
+	plane_t         split;
+
+	while(nodenum >= 0)
+	{
+		node = &dnodes[nodenum];
+		plane = &dplanes[node->planeNum];
+
+		VectorCopy(plane->normal, split.normal);
+		split.dist = plane->dist;
+		res = VS_SplitWinding(w, &back, &split, 0.1);
+
+		if(res == SIDE_FRONT)
+		{
+			nodenum = node->children[0];
+		}
+		else if(res == SIDE_BACK)
+		{
+			nodenum = node->children[1];
+		}
+		else if(res == SIDE_ON)
+		{
+			memcpy(&back, w, sizeof(winding_t));
+			VS_R_SubdivideRadialAreaLight(light, node->children[1], &back);
+			nodenum = node->children[0];
+		}
+		else
+		{
+			VS_R_SubdivideRadialAreaLight(light, node->children[1], &back);
+			nodenum = node->children[0];
+		}
+	}
+	leafnum = -nodenum - 1;
+	if(dleafs[leafnum].cluster != -1)
+	{
+		VS_FloodRadialAreaLight(light, w, leafnum);
+	}
+}
+
+/*
+=============
+VS_R_FloodDirectedLight
+=============
+*/
+void VS_FloodDirectedLight(vsound_t * light, winding_t * w, int leafnum)
 {
 	int             i;
 	float           dist;
@@ -4526,19 +4529,19 @@ void VL_FloodDirectedLight(vlight_t * light, winding_t * w, int leafnum)
 	volume.surfaceNum = -1;
 	volume.type = VOLUME_DIRECTED;
 	volume.cluster = dleafs[leafnum].cluster;
-	VL_R_FloodLight(light, &volume, volume.cluster, 0);
+	VS_R_FloodLight(light, &volume, volume.cluster, 0);
 	if(volume.surfaceNum >= 0)
 	{
-		VL_R_CastLightAtSurface(light, &volume);
+		VS_R_CastLightAtSurface(light, &volume);
 	}
 }
 
 /*
 =============
-VL_R_SubdivideDirectedAreaLight
+VS_R_SubdivideDirectedAreaLight
 =============
 */
-void VL_R_SubdivideDirectedAreaLight(vlight_t * light, int nodenum, winding_t * w)
+void VS_R_SubdivideDirectedAreaLight(vsound_t * light, int nodenum, winding_t * w)
 {
 	int             leafnum, res;
 	dnode_t        *node;
@@ -4553,7 +4556,7 @@ void VL_R_SubdivideDirectedAreaLight(vlight_t * light, int nodenum, winding_t * 
 
 		VectorCopy(plane->normal, split.normal);
 		split.dist = plane->dist;
-		res = VL_SplitWinding(w, &back, &split, 0.1);
+		res = VS_SplitWinding(w, &back, &split, 0.1);
 
 		if(res == SIDE_FRONT)
 		{
@@ -4566,28 +4569,28 @@ void VL_R_SubdivideDirectedAreaLight(vlight_t * light, int nodenum, winding_t * 
 		else if(res == SIDE_ON)
 		{
 			memcpy(&back, w, sizeof(winding_t));
-			VL_R_SubdivideDirectedAreaLight(light, node->children[1], &back);
+			VS_R_SubdivideDirectedAreaLight(light, node->children[1], &back);
 			nodenum = node->children[0];
 		}
 		else
 		{
-			VL_R_SubdivideDirectedAreaLight(light, node->children[1], &back);
+			VS_R_SubdivideDirectedAreaLight(light, node->children[1], &back);
 			nodenum = node->children[0];
 		}
 	}
 	leafnum = -nodenum - 1;
 	if(dleafs[leafnum].cluster != -1)
 	{
-		VL_FloodDirectedLight(light, w, leafnum);
+		VS_FloodDirectedLight(light, w, leafnum);
 	}
 }
 
 /*
 =============
-VL_FloodLight
+VS_FloodLight
 =============
 */
-void VL_FloodLight(vlight_t * light)
+void VS_FloodLight(vsound_t * light)
 {
 	lightvolume_t   volume;
 	dleaf_t        *leaf;
@@ -4616,7 +4619,7 @@ void VL_FloodLight(vlight_t * light)
 			if(dist > windingdist)
 				windingdist = dist;
 			//
-			leafnum = VL_LightLeafnum(light->origin);
+			leafnum = VS_LightLeafnum(light->origin);
 			leaf = &dleafs[leafnum];
 			if(leaf->cluster == -1)
 			{
@@ -4646,7 +4649,7 @@ void VL_FloodLight(vlight_t * light)
 					}
 					for(k = 0; k < volume.numplanes; k++)
 					{
-						VL_PlaneFromPoints(&volume.planes[k], light->origin, volume.points[(k + 1) % volume.numplanes],
+						VS_PlaneFromPoints(&volume.planes[k], light->origin, volume.points[(k + 1) % volume.numplanes],
 										   volume.points[k]);
 					}
 					VectorCopy(light->origin, temp);
@@ -4662,10 +4665,10 @@ void VL_FloodLight(vlight_t * light)
 					//
 					memset(volume.facetTested, 0, sizeof(volume.facetTested));
 					memset(volume.clusterTested, 0, sizeof(volume.clusterTested));
-					VL_R_FloodLight(light, &volume, leaf->cluster, 0);
+					VS_R_FloodLight(light, &volume, leaf->cluster, 0);
 					if(volume.surfaceNum >= 0)
 					{
-						VL_R_CastLightAtSurface(light, &volume);
+						VS_R_CastLightAtSurface(light, &volume);
 					}
 				}
 			}
@@ -4692,7 +4695,7 @@ void VL_FloodLight(vlight_t * light)
 			radius = 8 * windingdist * light->radiusByDist;
 			//
 			memset(&volume, 0, sizeof(lightvolume_t));
-			leafnum = VL_LightLeafnum(light->origin);
+			leafnum = VS_LightLeafnum(light->origin);
 			leaf = &dleafs[leafnum];
 			if(leaf->cluster == -1)
 			{
@@ -4722,7 +4725,7 @@ void VL_FloodLight(vlight_t * light)
 			}
 			for(i = 0; i < volume.numplanes; i++)
 			{
-				VL_PlaneFromPoints(&volume.planes[i], light->origin, volume.points[(i + 1) % volume.numplanes], volume.points[i]);
+				VS_PlaneFromPoints(&volume.planes[i], light->origin, volume.points[(i + 1) % volume.numplanes], volume.points[i]);
 			}
 			VectorMA(light->origin, dist, light->normal, temp);
 			VectorCopy(light->normal, volume.endplane.normal);
@@ -4735,10 +4738,10 @@ void VL_FloodLight(vlight_t * light)
 			//
 			memset(volume.facetTested, 0, sizeof(volume.facetTested));
 			memset(volume.clusterTested, 0, sizeof(volume.clusterTested));
-			VL_R_FloodLight(light, &volume, leaf->cluster, 0);
+			VS_R_FloodLight(light, &volume, leaf->cluster, 0);
 			if(volume.surfaceNum >= 0)
 			{
-				VL_R_CastLightAtSurface(light, &volume);
+				VS_R_CastLightAtSurface(light, &volume);
 			}
 			break;
 		}
@@ -4759,7 +4762,7 @@ void VL_FloodLight(vlight_t * light)
 			//
 			VectorMA(light->origin, 0.1, light->normal, light->origin);
 			//
-			leafnum = VL_LightLeafnum(light->origin);
+			leafnum = VS_LightLeafnum(light->origin);
 			leaf = &dleafs[leafnum];
 			if(leaf->cluster == -1)
 			{
@@ -4795,10 +4798,10 @@ void VL_FloodLight(vlight_t * light)
 						VectorMA(light->origin, windingdist, light->normal, volume.points[2]);
 						for(k = 0; k < volume.numplanes; k++)
 						{
-							VL_PlaneFromPoints(&volume.planes[k], light->origin, volume.points[(k + 1) % volume.numplanes],
+							VS_PlaneFromPoints(&volume.planes[k], light->origin, volume.points[(k + 1) % volume.numplanes],
 											   volume.points[k]);
 						}
-						VL_PlaneFromPoints(&volume.endplane, volume.points[0], volume.points[1], volume.points[2]);
+						VS_PlaneFromPoints(&volume.endplane, volume.points[0], volume.points[1], volume.points[2]);
 						VectorMA(light->origin, dist, light->normal, temp);
 						volume.endplane.dist = DotProduct(volume.endplane.normal, temp);
 						if(DotProduct(light->origin, volume.endplane.normal) - volume.endplane.dist > 0)
@@ -4812,10 +4815,10 @@ void VL_FloodLight(vlight_t * light)
 					memset(volume.facetTested, 0, sizeof(volume.facetTested));
 					memset(volume.clusterTested, 0, sizeof(volume.clusterTested));
 
-					VL_R_FloodLight(light, &volume, leaf->cluster, 0);
+					VS_R_FloodLight(light, &volume, leaf->cluster, 0);
 					if(volume.surfaceNum >= 0)
 					{
-						VL_R_CastLightAtSurface(light, &volume);
+						VS_R_CastLightAtSurface(light, &volume);
 					}
 				}
 			}
@@ -4829,7 +4832,7 @@ void VL_FloodLight(vlight_t * light)
 			// for instance sun light or laser light
 			//
 			memcpy(&winding, &light->w, sizeof(winding_t));
-			VL_R_SubdivideDirectedAreaLight(light, 0, &winding);
+			VS_R_SubdivideDirectedAreaLight(light, 0, &winding);
 			break;
 		}
 		case LIGHT_SURFACERADIAL:
@@ -4838,7 +4841,7 @@ void VL_FloodLight(vlight_t * light)
 			// the light radiates in all directions at the front of the winding plane
 			//
 			memcpy(&winding, &light->w, sizeof(winding_t));
-			VL_R_SubdivideRadialAreaLight(light, 0, &winding);
+			VS_R_SubdivideRadialAreaLight(light, 0, &winding);
 			break;
 		}
 		case LIGHT_SURFACESPOT:
@@ -4847,7 +4850,7 @@ void VL_FloodLight(vlight_t * light)
 			// light is targetted but not unidirectional
 			//
 			memcpy(&winding, &light->w, sizeof(winding_t));
-			VL_R_SubdivideAreaSpotLight(light, 0, &winding);
+			VS_R_SubdivideAreaSpotLight(light, 0, &winding);
 			break;
 		}
 	}
@@ -4855,31 +4858,31 @@ void VL_FloodLight(vlight_t * light)
 
 /*
 =============
-VL_FloodLightThread
+VS_FloodLightThread
 =============
 */
-void VL_FloodLightThread(int num)
+void VS_FloodLightThread(int num)
 {
-	VL_FloodLight(vlights[num]);
+	VS_FloodLight(vsounds[num]);
 }
 
 /*
 =============
-VL_TestLightLeafs
+VS_TestLightLeafs
 =============
 */
-void VL_TestLightLeafs(void)
+void VS_TestLightLeafs(void)
 {
 	int             leafnum, i;
-	vlight_t       *light;
+	vsound_t       *light;
 	dleaf_t        *leaf;
 
-	for(i = 0; i < numvlights; i++)
+	for(i = 0; i < numvsounds; i++)
 	{
-		light = vlights[i];
+		light = vsounds[i];
 		if(light->type != LIGHT_POINTRADIAL && light->type != LIGHT_POINTSPOT)
 			continue;
-		leafnum = VL_LightLeafnum(light->origin);
+		leafnum = VS_LightLeafnum(light->origin);
 		leaf = &dleafs[leafnum];
 		if(leaf->cluster == -1)
 		{
@@ -4894,13 +4897,13 @@ void VL_TestLightLeafs(void)
 
 /*
 =============
-VL_DoForcedTraceLight
+VS_DoForcedTraceLight
 =============
 */
 // from light.c
 void            TraceLtm(int num);
 
-void VL_DoForcedTraceLight(int num)
+void VS_DoForcedTraceLight(int num)
 {
 	dsurface_t     *ds;
 	shaderInfo_t   *si;
@@ -4935,23 +4938,23 @@ void VL_DoForcedTraceLight(int num)
 
 /*
 =============
-VL_DoForcedTraceLightSurfaces
+VS_DoForcedTraceLightSurfaces
 =============
 */
-void VL_DoForcedTraceLightSurfaces(void)
+void VS_DoForcedTraceLightSurfaces(void)
 {
 	_printf("forced trace light\n");
-	RunThreadsOnIndividual(numDrawSurfaces, qtrue, VL_DoForcedTraceLight);
+	RunThreadsOnIndividual(numDrawSurfaces, qtrue, VS_DoForcedTraceLight);
 }
 
 float          *oldLightFloats;
 
 /*
 =============
-VL_SurfaceRadiosity
+VS_SurfaceRadiosity
 =============
 */
-void VL_SurfaceRadiosity(int num)
+void VS_SurfaceRadiosity(int num)
 {
 	dsurface_t     *ds;
 	mesh_t         *mesh;
@@ -4960,7 +4963,7 @@ void VL_SurfaceRadiosity(int num)
 	int             x, y, k;
 	vec3_t          base, normal;
 	float          *color, area;
-	vlight_t        vlight;
+	vsound_t        vsound;
 
 	ds = &drawSurfaces[num];
 
@@ -5006,17 +5009,17 @@ void VL_SurfaceRadiosity(int num)
 				VectorCopy(test->facets[0].plane.normal, normal);
 			}
 			// create ligth from base
-			memset(&vlight, 0, sizeof(vlight_t));
+			memset(&vsound, 0, sizeof(vsound_t));
 			color = &oldLightFloats[k * 3];
 			// a few units away from the surface
-			VectorMA(base, 5, normal, vlight.origin);
-			ColorNormalize(color, vlight.color);
+			VectorMA(base, 5, normal, vsound.origin);
+			ColorNormalize(color, vsound.color);
 			// ok this is crap
-			vlight.photons = VectorLength(color) * 0.05 * lightPointScale / (area * radiosity_scale);
+			vsound.photons = VectorLength(color) * 0.05 * lightPointScale / (area * radiosity_scale);
 			// what about using a front facing light only ?
-			vlight.type = LIGHT_POINTRADIAL;
+			vsound.type = LIGHT_POINTRADIAL;
 			// flood the light from this lightmap pixel
-			VL_FloodLight(&vlight);
+			VS_FloodLight(&vsound);
 			// only one thread at a time may write to the lightmap of this surface
 			MutexLock(test->mutex);
 			// don't light the lightmap pixel itself
@@ -5031,30 +5034,30 @@ void VL_SurfaceRadiosity(int num)
 
 /*
 =============
-VL_Radiosity
+VS_Radiosity
 
 this aint working real well but it's fun to play with.
 =============
 */
-void VL_Radiosity(void)
+void VS_Radiosity(void)
 {
 
 	oldLightFloats = lightFloats;
 	lightFloats = (float *)malloc(numLightBytes * sizeof(float));
 	memcpy(lightFloats, oldLightFloats, numLightBytes * sizeof(float));
 	_printf("%7i surfaces\n", numDrawSurfaces);
-	RunThreadsOnIndividual(numDrawSurfaces, qtrue, VL_SurfaceRadiosity);
+	RunThreadsOnIndividual(numDrawSurfaces, qtrue, VS_SurfaceRadiosity);
 	free(oldLightFloats);
 }
 
 /*
 =============
-VL_LightWorld
+VS_LightWorld
 =============
 */
-void VL_LightWorld(void)
+void VS_LightWorld(void)
 {
-	int             i, numcastedvolumes, numvlightsinsolid;
+	int             i, numcastedvolumes, numvsoundsinsolid;
 	float           f;
 
 	// find the optional world ambient
@@ -5062,16 +5065,16 @@ void VL_LightWorld(void)
 	f = FloatForKey(&entities[0], "ambient");
 	VectorScale(lightAmbientColor, f, lightAmbientColor);
 	/*
-	   _printf("\r%6d lights out of %d", 0, numvlights);
-	   for (i = 0; i < numvlights; i++)
+	   _printf("\r%6d lights out of %d", 0, numvsounds);
+	   for (i = 0; i < numvsounds; i++)
 	   {
 	   _printf("\r%6d", i);
-	   VL_FloodLight(vlights[i]);
+	   VS_FloodLight(vsounds[i]);
 	   }
-	   _printf("\r%6d lights out of %d\n", i, numvlights);
+	   _printf("\r%6d lights out of %d\n", i, numvsounds);
 	 */
-	_printf("%7i lights\n", numvlights);
-	RunThreadsOnIndividual(numvlights, qtrue, VL_FloodLightThread);
+	_printf("%7i lights\n", numvsounds);
+	RunThreadsOnIndividual(numvsounds, qtrue, VS_FloodLightThread);
 
 	numcastedvolumes = 0;
 	for(i = 0; i < numDrawSurfaces; i++)
@@ -5080,37 +5083,37 @@ void VL_LightWorld(void)
 			numcastedvolumes += lsurfaceTest[i]->numvolumes;
 	}
 	_printf("%7i light volumes casted\n", numcastedvolumes);
-	numvlightsinsolid = 0;
-	for(i = 0; i < numvlights; i++)
+	numvsoundsinsolid = 0;
+	for(i = 0; i < numvsounds; i++)
 	{
-		if(vlights[i]->insolid)
-			numvlightsinsolid++;
+		if(vsounds[i]->insolid)
+			numvsoundsinsolid++;
 	}
-	_printf("%7i lights in solid\n", numvlightsinsolid);
+	_printf("%7i lights in solid\n", numvsoundsinsolid);
 	//
 	radiosity_scale = 1;
 	for(i = 0; i < radiosity; i++)
 	{
-		VL_Radiosity();
+		VS_Radiosity();
 		radiosity_scale <<= 1;
 	}
 	//
-	VL_StoreLightmap();
+	VS_StoreLightmap();
 	// redo surfaces with the old light algorithm when needed
-	VL_DoForcedTraceLightSurfaces();
+	VS_DoForcedTraceLightSurfaces();
 }
 
 /*
 =============
-VL_CreateEntityLights
+VS_CreateEntitySpeakers
 =============
 */
 entity_t       *FindTargetEntity(const char *target);
 
-void VL_CreateEntityLights(void)
+void VS_CreateEntitySpeakers(void)
 {
 	int             i, c_entityLights;
-	vlight_t       *dl;
+	vsound_t       *dl;
 	entity_t       *e, *e2;
 	const char     *name;
 	const char     *target;
@@ -5127,7 +5130,7 @@ void VL_CreateEntityLights(void)
 	{
 		e = &entities[i];
 		name = ValueForKey(e, "classname");
-		if(strncmp(name, "light", 5))
+		if(strncmp(name, "speaker", 7))
 			continue;
 
 		dl = malloc(sizeof(*dl));
@@ -5212,7 +5215,7 @@ void VL_CreateEntityLights(void)
 				dl->type = LIGHT_POINTSPOT;
 			}
 		}
-		vlights[numvlights++] = dl;
+		vsounds[numvsounds++] = dl;
 		c_entityLights++;
 	}
 	_printf("%7i entity lights\n", c_entityLights);
@@ -5220,13 +5223,13 @@ void VL_CreateEntityLights(void)
 
 /*
 ==================
-VL_SubdivideAreaLight
+VS_SubdivideAreaLight
 ==================
 */
-void VL_SubdivideAreaLight(shaderInfo_t * ls, winding_t * w, vec3_t normal, float areaSubdivide, qboolean backsplash)
+void VS_SubdivideAreaLight(shaderInfo_t * ls, winding_t * w, vec3_t normal, float areaSubdivide, qboolean backsplash)
 {
 	float           area, value, intensity;
-	vlight_t       *dl, *dl2;
+	vsound_t       *dl, *dl2;
 	vec3_t          mins, maxs;
 	int             axis;
 	winding_t      *front, *back;
@@ -5249,8 +5252,8 @@ void VL_SubdivideAreaLight(shaderInfo_t * ls, winding_t * w, vec3_t normal, floa
 			planeNormal[axis] = 1;
 			planeDist = (maxs[axis] + mins[axis]) * 0.5;
 			ClipWindingEpsilon(w, planeNormal, planeDist, ON_EPSILON, &front, &back);
-			VL_SubdivideAreaLight(ls, front, normal, areaSubdivide, qfalse);
-			VL_SubdivideAreaLight(ls, back, normal, areaSubdivide, qfalse);
+			VS_SubdivideAreaLight(ls, front, normal, areaSubdivide, qfalse);
+			VS_SubdivideAreaLight(ls, back, normal, areaSubdivide, qfalse);
 			FreeWinding(w);
 			return;
 		}
@@ -5294,7 +5297,7 @@ void VL_SubdivideAreaLight(shaderInfo_t * ls, winding_t * w, vec3_t normal, floa
 		dl->twosided = qtrue;
 	}
 
-	vlights[numvlights++] = dl;
+	vsounds[numvsounds++] = dl;
 
 	// optionally create a point backsplash light
 	if(backsplash && ls->backsplashFraction > 0)
@@ -5311,23 +5314,23 @@ void VL_SubdivideAreaLight(shaderInfo_t * ls, winding_t * w, vec3_t normal, floa
 		dl2->photons = dl->photons * ls->backsplashFraction;
 		dl2->si = ls;
 
-		vlights[numvlights++] = dl2;
+		vsounds[numvsounds++] = dl2;
 	}
 }
 
 /*
 ==================
-VL_CreateFakeSurfaceLights
+VS_CreateFakeSurfaceLights
 ==================
 */
-void VL_CreateFakeSurfaceLights(void)
+void VS_CreateFakeSurfaceLights(void)
 {
 	int             i, j, side;
 	dsurface_t     *ds;
 	shaderInfo_t   *ls;
 	winding_t      *w;
 	lFacet_t       *f;
-	vlight_t       *dl;
+	vsound_t       *dl;
 	vec3_t          origin;
 	drawVert_t     *dv;
 	int             c_surfaceLights;
@@ -5403,7 +5406,7 @@ void VL_CreateFakeSurfaceLights(void)
 			VectorCopy(ls->color, dl->color);
 			dl->photons = ls->value * lightPointScale;
 			dl->type = LIGHT_POINTRADIAL;
-			vlights[numvlights++] = dl;
+			vsounds[numvsounds++] = dl;
 			continue;
 		}
 
@@ -5431,7 +5434,7 @@ void VL_CreateFakeSurfaceLights(void)
 						FreeWinding(t);
 						VectorSubtract(vec3_origin, normal, normal);
 					}
-					VL_SubdivideAreaLight(ls, w, normal, lightSubdivide, qtrue);
+					VS_SubdivideAreaLight(ls, w, normal, lightSubdivide, qtrue);
 				}
 			}
 			else
@@ -5454,7 +5457,7 @@ void VL_CreateFakeSurfaceLights(void)
 					FreeWinding(t);
 					VectorSubtract(vec3_origin, normal, normal);
 				}
-				VL_SubdivideAreaLight(ls, w, normal, lightSubdivide, qtrue);
+				VS_SubdivideAreaLight(ls, w, normal, lightSubdivide, qtrue);
 			}
 		}
 	}
@@ -5465,10 +5468,10 @@ void VL_CreateFakeSurfaceLights(void)
 
 /*
 ==================
-VL_WindingForBrushSide
+VS_WindingForBrushSide
 ==================
 */
-winding_t      *VL_WindingForBrushSide(dbrush_t * brush, int side, winding_t * w)
+winding_t      *VS_WindingForBrushSide(dbrush_t * brush, int side, winding_t * w)
 {
 	int             i, res;
 	winding_t      *tmpw;
@@ -5488,7 +5491,7 @@ winding_t      *VL_WindingForBrushSide(dbrush_t * brush, int side, winding_t * w
 		VectorCopy(dplanes[dbrushsides[brush->firstSide + i].planeNum].normal, plane.normal);
 		VectorInverse(plane.normal);
 		plane.dist = -dplanes[dbrushsides[brush->firstSide + i].planeNum].dist;
-		res = VL_ChopWinding(w, &plane, 0.1);
+		res = VS_ChopWinding(w, &plane, 0.1);
 		if(res == SIDE_BACK)
 			return NULL;
 	}
@@ -5497,16 +5500,16 @@ winding_t      *VL_WindingForBrushSide(dbrush_t * brush, int side, winding_t * w
 
 /*
 ==================
-VL_CreateSkyLights
+VS_CreateSkyLights
 ==================
 */
-void VL_CreateSkyLights(void)
+void VS_CreateSkyLights(void)
 {
 	int             i, j, c_skyLights;
 	dbrush_t       *b;
 	shaderInfo_t   *si;
 	dbrushside_t   *s;
-	vlight_t       *dl;
+	vsound_t       *dl;
 	vec3_t          sunColor, sunDir = { 0.45, 0.3, 0.9 };
 	float           d;
 
@@ -5550,10 +5553,10 @@ void VL_CreateSkyLights(void)
 				dl->plane[3] = dplanes[s->planeNum].dist;
 				dl->type = LIGHT_SURFACEDIRECTED;
 				dl->atten_disttype = LDAT_NOSCALE;
-				VL_WindingForBrushSide(b, j, &dl->w);
+				VS_WindingForBrushSide(b, j, &dl->w);
 //              DebugNet_DrawWinding(&dl->w, 2);
 				//
-				vlights[numvlights++] = dl;
+				vsounds[numvsounds++] = dl;
 				c_skyLights++;
 			}
 		}
@@ -5563,10 +5566,10 @@ void VL_CreateSkyLights(void)
 
 /*
 ==================
-VL_SetPortalSphere
+VS_SetPortalSphere
 ==================
 */
-void VL_SetPortalSphere(lportal_t * p)
+void VS_SetPortalSphere(lportal_t * p)
 {
 	int             i;
 	vec3_t          total, dist;
@@ -5597,10 +5600,10 @@ void VL_SetPortalSphere(lportal_t * p)
 
 /*
 ==================
-VL_PlaneFromWinding
+VS_PlaneFromWinding
 ==================
 */
-void VL_PlaneFromWinding(winding_t * w, plane_t * plane)
+void VS_PlaneFromWinding(winding_t * w, plane_t * plane)
 {
 	vec3_t          v1, v2;
 
@@ -5614,10 +5617,10 @@ void VL_PlaneFromWinding(winding_t * w, plane_t * plane)
 
 /*
 ==================
-VL_AllocWinding
+VS_AllocWinding
 ==================
 */
-winding_t      *VL_AllocWinding(int points)
+winding_t      *VS_AllocWinding(int points)
 {
 	winding_t      *w;
 	int             size;
@@ -5634,10 +5637,10 @@ winding_t      *VL_AllocWinding(int points)
 
 /*
 ============
-VL_LoadPortals
+VS_LoadPortals
 ============
 */
-void VL_LoadPortals(char *name)
+void VS_LoadPortals(char *name)
 {
 	int             i, j, hint;
 	lportal_t      *p;
@@ -5690,7 +5693,7 @@ void VL_LoadPortals(char *name)
 		if(fscanf(f, "%i ", &hint) != 1)
 			Error("LoadPortals: reading hint state");
 
-		w = p->winding = VL_AllocWinding(numpoints);
+		w = p->winding = VS_AllocWinding(numpoints);
 		w->numpoints = numpoints;
 
 		for(j = 0; j < numpoints; j++)
@@ -5708,7 +5711,7 @@ void VL_LoadPortals(char *name)
 		fscanf(f, "\n");
 
 		// calc plane
-		VL_PlaneFromWinding(w, &plane);
+		VS_PlaneFromWinding(w, &plane);
 
 		// create forward portal
 		l = &leafs[leafnums[0]];
@@ -5721,7 +5724,7 @@ void VL_LoadPortals(char *name)
 		VectorSubtract(vec3_origin, plane.normal, p->plane.normal);
 		p->plane.dist = -plane.dist;
 		p->leaf = leafnums[1];
-		VL_SetPortalSphere(p);
+		VS_SetPortalSphere(p);
 		p++;
 
 		// create backwards portal
@@ -5731,7 +5734,7 @@ void VL_LoadPortals(char *name)
 		l->portals[l->numportals] = p;
 		l->numportals++;
 
-		p->winding = VL_AllocWinding(w->numpoints);
+		p->winding = VS_AllocWinding(w->numpoints);
 		p->winding->numpoints = w->numpoints;
 		for(j = 0; j < w->numpoints; j++)
 		{
@@ -5740,7 +5743,7 @@ void VL_LoadPortals(char *name)
 
 		p->plane = plane;
 		p->leaf = leafnums[0];
-		VL_SetPortalSphere(p);
+		VS_SetPortalSphere(p);
 		p++;
 
 	}
@@ -5753,7 +5756,7 @@ void VL_LoadPortals(char *name)
 VLightMain
 ============
 */
-int VLightMain(int argc, char **argv)
+int VSoundMain(int argc, char **argv)
 {
 	int             i;
 	double          start, end;
@@ -5792,16 +5795,6 @@ int VLightMain(int argc, char **argv)
 				samplesize = 1;
 			i++;
 			_printf("lightmap sample size is %dx%d units\n", samplesize, samplesize);
-		}
-		else if(!strcmp(argv[i], "-novertex"))
-		{
-			novertexlighting = qtrue;
-			_printf("no vertex lighting = true\n");
-		}
-		else if(!strcmp(argv[i], "-nogrid"))
-		{
-			nogridlighting = qtrue;
-			_printf("no grid lighting = true\n");
 		}
 		else if(!strcmp(argv[i], "-nostitching"))
 		{
@@ -5844,7 +5837,7 @@ int VLightMain(int argc, char **argv)
 
 	if(i != argc - 1)
 	{
-		_printf("usage: q3map -vlight [-<switch> [-<switch> ...]] <mapname>\n"
+		_printf("usage: xmap -vsound [-<switch> [-<switch> ...]] <mapname>\n"
 				"\n"
 				"Switches:\n"
 				"   v              = verbose output\n"
@@ -5886,7 +5879,7 @@ int VLightMain(int argc, char **argv)
 	StripExtension(source);
 	DefaultExtension(source, ".prt");
 
-	VL_LoadPortals(source);
+	VS_LoadPortals(source);
 
 	// set surfaceOrigin
 	SetEntityOrigins();
@@ -5903,18 +5896,18 @@ int VLightMain(int argc, char **argv)
 	lightFloats = (float *)malloc(numLightBytes * sizeof(float));
 	memset(lightFloats, 0, numLightBytes * sizeof(float));
 
-	VL_InitSurfacesForTesting();
+	VS_InitSurfacesForTesting();
 
-	VL_CalcVisibleLightmapPixelArea();
+	VS_CalcVisibleLightmapPixelArea();
 
-	numvlights = 0;
-	VL_CreateEntityLights();
-	VL_CreateFakeSurfaceLights();
-	VL_CreateSkyLights();
+	numvsounds = 0;
+	VS_CreateEntitySpeakers();
+	VS_CreateFakeSurfaceLights();
+	VS_CreateSkyLights();
 
-	VL_TestLightLeafs();
+	VS_TestLightLeafs();
 
-	VL_LightWorld();
+	VS_LightWorld();
 
 #ifndef LIGHTPOLYS
 	StripExtension(source);
@@ -5928,7 +5921,7 @@ int VLightMain(int argc, char **argv)
 	_printf("%5.2f seconds elapsed\n", (end - start) / CLK_TCK);
 
 #ifdef LIGHTPOLYS
-	VL_DrawLightWindings();
+	VS_DrawLightWindings();
 #endif
 
 #ifdef DEBUGNET

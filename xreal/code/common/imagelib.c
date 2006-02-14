@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #define JPEG_INTERNALS
-#include "../code/jpeg-6/jpeglib.h"
+#include "../jpeg-6/jpeglib.h"
 
 
 int fgetLittleShort(FILE * f)
@@ -1213,7 +1213,6 @@ void Load32BitImage(const char *name, unsigned **pixels, int *width, int *height
 LoadJPGBuffer
 =============
 */
-#ifdef Q3MAP
 void LoadJPGBuffer(byte * fbuffer, byte ** pic, int *width, int *height)
 {
 	/* This struct contains the JPEG decompression parameters and pointers to
@@ -1361,4 +1360,3 @@ void LoadJPGBuffer(byte * fbuffer, byte ** pic, int *width, int *height)
 
 	/* And we're done! */
 }
-#endif // Q3MAP

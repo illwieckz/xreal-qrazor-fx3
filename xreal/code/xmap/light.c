@@ -2377,7 +2377,7 @@ int LightMain(int argc, char **argv)
 
 	if(i != argc - 1)
 	{
-		_printf("usage: q3map -light [-<switch> [-<switch> ...]] <mapname>\n"
+		_printf("usage: xmap -light [-<switch> [-<switch> ...]] <mapname>\n"
 				"\n"
 				"Switches:\n"
 				"   v              = verbose output\n"

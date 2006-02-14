@@ -19,8 +19,8 @@
 #include "jversion.h"
 #include "jerror.h"
 
-#ifdef Q3MAP
-#include "../../common/cmdlib.h"
+#ifdef XMAP
+#include "../common/cmdlib.h"
 #else
 #include "../renderer/tr_local.h"
 #endif
@@ -73,7 +73,7 @@ METHODDEF void error_exit(j_common_ptr cinfo)
 	/* Let the memory manager delete any temp files before we die */
 	jpeg_destroy(cinfo);
 
-#ifdef Q3MAP
+#ifdef XMAP
 	Error("%s\n", buffer);
 #else
 	ri.Error(ERR_FATAL, "%s\n", buffer);
@@ -95,7 +95,7 @@ METHODDEF void output_message(j_common_ptr cinfo)
 	(*cinfo->err->format_message) (cinfo, buffer);
 
 	/* Send it to stderr, adding a newline */
-#ifdef Q3MAP
+#ifdef XMAP
 	fprintf(stderr, "%s\n", buffer);
 #else
 	ri.Printf(PRINT_ALL, "%s\n", buffer);

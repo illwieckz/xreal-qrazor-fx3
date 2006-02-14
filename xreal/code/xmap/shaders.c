@@ -27,8 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../common/mathlib.h"
 #include "../common/imagelib.h"
 #include "../common/scriplib.h"
-#include "../code/qcommon/qfiles.h"
-#include "../code/game/surfaceflags.h"
+#include "../qcommon/qfiles.h"
+#include "../game/surfaceflags.h"
 
 #include "shaders.h"
 

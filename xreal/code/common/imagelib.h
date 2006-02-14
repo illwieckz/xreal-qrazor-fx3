@@ -39,6 +39,4 @@ void            WriteTGA(const char *filename, byte * data, int width, int heigh
 
 void            Load32BitImage(const char *name, unsigned **pixels, int *width, int *height);
 
-#ifdef Q3MAP
 void            LoadJPGBuffer(byte * buffer, byte ** pic, int *width, int *height);
-#endif
