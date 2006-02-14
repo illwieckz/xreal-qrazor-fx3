@@ -2,9 +2,9 @@ import os, string, sys
 
 Import('env')
 
-quake3_server_env = env.Copy()
+xreal_server_env = env.Copy()
 
-quake3_server_src = [
+xreal_server_src = [
 'code/null/null_client.c',
 'code/null/null_input.c',
 'code/null/null_snddma.c',
@@ -87,40 +87,40 @@ vm_src = [
 'code/qcommon/vm_interpreted.c',
 ]
 
-quake3_server_env.Append(CCFLAGS='-DBOTLIB')
-quake3_server_env.Append(CCFLAGS='-DC_ONLY')
-quake3_server_env.Append(CCFLAGS='-DDEDICATED')
+xreal_server_env.Append(CCFLAGS='-DBOTLIB')
+xreal_server_env.Append(CCFLAGS='-DC_ONLY')
+xreal_server_env.Append(CCFLAGS='-DDEDICATED')
 
 if env['purevm'] == 1:
-	quake3_server_env.Append(CCFLAGS='-DVM_SV_PURE')
+	xreal_server_env.Append(CCFLAGS='-DVM_SV_PURE')
 
 if env['arch'] == 'linux-i386':
 	if env['vm'] == 1:
 		vm_src += ['code/qcommon/vm_x86.c']
 	else:
-		quake3_server_env.Append(CCFLAGS='-DDLL_ONLY')
+		xreal_server_env.Append(CCFLAGS='-DDLL_ONLY')
 
-	quake3_server_env.Append(LIBS=['dl', 'm'])
-	quake3_server_env.Program('quake3-server.x86', [quake3_server_src, unix_src, linux_src, vm_src])
-	quake3_server_env.Install('#', 'quake3-server.x86')
+	xreal_server_env.Append(LIBS=['dl', 'm'])
+	xreal_server_env.Program('xreal-server.x86', [xreal_server_src, unix_src, linux_src, vm_src])
+	xreal_server_env.Install('#', 'xreal-server.x86')
 	
 elif env['arch'] == 'linux-x86_64':
-	quake3_server_env.Append(CCFLAGS='-DDLL_ONLY')
-	quake3_server_env.Append(LIBS=['dl', 'm'])
-	quake3_server_env.Program('quake3-server.x86_64', [quake3_server_src, unix_src, linux_src, vm_src])
-	quake3_server_env.Install('#', 'quake3-server.x86_64')
+	xreal_server_env.Append(CCFLAGS='-DDLL_ONLY')
+	xreal_server_env.Append(LIBS=['dl', 'm'])
+	xreal_server_env.Program('xreal-server.x86_64', [xreal_server_src, unix_src, linux_src, vm_src])
+	xreal_server_env.Install('#', 'xreal-server.x86_64')
 
 elif env['arch'] == 'win32':
-	quake3_env.Append(LIBS=['m', 'gdi32', 'ole32'])
+	xreal_env.Append(LIBS=['m', 'gdi32', 'ole32'])
 
 	if env['vm'] == 1:
 		vm_src += ['code/qcommon/vm_x86.c']
 	else:
-		quake3_env.Append(CCFLAGS='-DDLL_ONLY')
+		xreal_env.Append(CCFLAGS='-DDLL_ONLY')
 		
 	if env['smp'] == 1:
-		quake3_env.Append(CCFLAGS='-DSMP')
-		quake3_env.Append(LIBS=['pthread'])
+		xreal_env.Append(CCFLAGS='-DSMP')
+		xreal_env.Append(LIBS=['pthread'])
 
-	quake3_env.Append(LIBS=['wsock32', 'winmm'])
-	quake3_env.Program('quake3-server', [quake3_server_src, win_src, vm_src])
+	xreal_env.Append(LIBS=['wsock32', 'winmm'])
+	xreal_env.Program('xreal-server', [xreal_server_src, win_src, vm_src])

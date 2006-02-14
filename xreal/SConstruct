@@ -160,12 +160,12 @@ if sys.platform == 'linux2' or sys.platform == 'linux-i386':
 env = conf.Finish()
 
 # Save options
-opts.Save('quake3.conf', env)
+opts.Save('xreal.conf', env)
 
 Export('env')
 
-SConscript('SConscript_quake3-server', build_dir='build/quake3-server', duplicate=0)
-SConscript('SConscript_quake3', build_dir='build/quake3', duplicate=0)
+SConscript('SConscript_xreal-server', build_dir='build/xreal-server', duplicate=0)
+SConscript('SConscript_xreal', build_dir='build/xreal', duplicate=0)
 SConscript('SConscript_cgame', build_dir='build/cgame', duplicate=0)
 SConscript('SConscript_game', build_dir='build/game', duplicate=0)
 SConscript('SConscript_ui', build_dir='build/ui', duplicate=0)

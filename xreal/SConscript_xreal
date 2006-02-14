@@ -2,9 +2,9 @@ import os, string, sys
 
 Import('env')
 
-quake3_env = env.Copy()
+xreal_env = env.Copy()
 
-quake3_src = [
+xreal_src = [
 'code/client/cl_cgame.c',
 'code/client/cl_cin.c',
 'code/client/cl_console.c',
@@ -183,48 +183,48 @@ asm_src = [
 #'code/unix/snapvector.asm'
 ]
 
-quake3_env.Append(CCFLAGS='-DBOTLIB')
-quake3_env.Append(CCFLAGS='-DC_ONLY')
+xreal_env.Append(CCFLAGS='-DBOTLIB')
+xreal_env.Append(CCFLAGS='-DC_ONLY')
 
 if env['purevm'] == 1:
-	quake3_env.Append(CCFLAGS='-DVM_SV_PURE')
+	xreal_env.Append(CCFLAGS='-DVM_SV_PURE')
 
 if env['arch'] == 'linux-i386':
-	quake3_env.Append(LIBPATH='/usr/X11R6/lib')
-	quake3_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm'])
-	quake3_env.Append(LIBS=['dl', 'm'])
+	xreal_env.Append(LIBPATH='/usr/X11R6/lib')
+	xreal_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm'])
+	xreal_env.Append(LIBS=['dl', 'm'])
 	
 	if env['vm'] == 1:
 		vm_src += ['code/qcommon/vm_x86.c']
 	else:
-		quake3_env.Append(CCFLAGS='-DDLL_ONLY')
+		xreal_env.Append(CCFLAGS='-DDLL_ONLY')
 		
 	if env['smp'] == 1:
-		quake3_env.Append(CCFLAGS='-DSMP')
-		quake3_env.Append(LIBS=['pthread'])
+		xreal_env.Append(CCFLAGS='-DSMP')
+		xreal_env.Append(LIBS=['pthread'])
 	
 	if env['sound'] == 'oss':
-		quake3_env.Program('quake3.x86', [quake3_src, unix_src, linux_src, vm_src, 'code/unix/linux_snd.c'])
+		xreal_env.Program('xreal.x86', [xreal_src, unix_src, linux_src, vm_src, 'code/unix/linux_snd.c'])
 	elif env['sound'] == 'alsa':
-		quake3_env.Append(LIBS=['asound'])
-		quake3_env.Program('quake3.x86', [quake3_src, unix_src, linux_src, vm_src, 'code/unix/linux_alsa.c'])
+		xreal_env.Append(LIBS=['asound'])
+		xreal_env.Program('xreal.x86', [xreal_src, unix_src, linux_src, vm_src, 'code/unix/linux_alsa.c'])
 	else:
-		quake3_env.Append(CCFLAGS='`sdl-config --cflags`')
-		quake3_env.Append(LINKFLAGS='`sdl-config --libs`')
-		quake3_env.Program('quake3.x86', [quake3_src, unix_src, linux_src, vm_src, 'code/unix/sdl_snd.c'])
+		xreal_env.Append(CCFLAGS='`sdl-config --cflags`')
+		xreal_env.Append(LINKFLAGS='`sdl-config --libs`')
+		xreal_env.Program('xreal.x86', [xreal_src, unix_src, linux_src, vm_src, 'code/unix/sdl_snd.c'])
 		
-	quake3_env.Install('#', 'quake3.x86')
+	xreal_env.Install('#', 'xreal.x86')
 
 elif env['arch'] == 'win32':
-	quake3_env.Append(LIBS=['m', 'gdi32', 'ole32', 'wsock32', 'winmm'])
+	xreal_env.Append(LIBS=['m', 'gdi32', 'ole32', 'wsock32', 'winmm'])
 
 	if env['vm'] == 1:
 		vm_src += ['code/qcommon/vm_x86.c']
 	else:
-		quake3_env.Append(CCFLAGS='-DDLL_ONLY')
+		xreal_env.Append(CCFLAGS='-DDLL_ONLY')
 		
 	if env['smp'] == 1:
-		quake3_env.Append(CCFLAGS='-DSMP')
-		quake3_env.Append(LIBS=['pthread'])
+		xreal_env.Append(CCFLAGS='-DSMP')
+		xreal_env.Append(LIBS=['pthread'])
 
-	quake3_env.Program('quake3', [quake3_src, win_src, vm_src])
+	xreal_env.Program('xreal', [xreal_src, win_src, vm_src])

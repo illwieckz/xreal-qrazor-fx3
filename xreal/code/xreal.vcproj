@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="quake3"
+	Name="xreal"
 	SccProjectName="&quot;$/MissionPack/code&quot;, CAAAAAAA"
 	SccAuxPath=""
 	SccLocalPath="."
@@ -29,7 +29,7 @@
 				RuntimeLibrary="4"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\Release_TA/quake3.pch"
+				PrecompiledHeaderFile=".\Release_TA/xreal.pch"
 				AssemblerListingLocation=".\Release_TA/"
 				ObjectFile=".\Release_TA/"
 				ProgramDataBaseFileName=".\Release_TA/"
@@ -41,12 +41,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="winmm.lib wsock32.lib"
-				OutputFile=".\Release_TA/quake3.exe"
+				OutputFile=".\Release_TA/xreal.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				ProgramDatabaseFile="Release_TA/quake3.pdb"
+				ProgramDatabaseFile="Release_TA/xreal.pdb"
 				GenerateMapFile="TRUE"
-				MapFileName="Release_TA/quake3.map"
+				MapFileName="Release_TA/xreal.map"
 				SubSystem="2"
 				StackReserveSize="8388608"
 				TargetMachine="1"/>
@@ -56,7 +56,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Release_TA/quake3.tlb"
+				TypeLibraryName=".\Release_TA/xreal.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -95,7 +95,7 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\Debug/quake3.pch"
+				PrecompiledHeaderFile=".\Debug/xreal.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
@@ -109,13 +109,13 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="winmm.lib wsock32.lib"
-				OutputFile=".\Debug/quake3.exe"
+				OutputFile=".\Debug/xreal.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Debug/quake3.pdb"
+				ProgramDatabaseFile=".\Debug/xreal.pdb"
 				GenerateMapFile="TRUE"
-				MapFileName=".\Debug/quake3.map"
+				MapFileName=".\Debug/xreal.map"
 				SubSystem="2"
 				StackReserveSize="8388608"
 				TargetMachine="1"/>
@@ -125,7 +125,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Debug/quake3.tlb"
+				TypeLibraryName=".\Debug/xreal.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -153,8 +153,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release TA DEMO|Win32"
-			OutputDirectory=".\quake3___Win32_Release_TA_DEMO"
-			IntermediateDirectory=".\quake3___Win32_Release_TA_DEMO"
+			OutputDirectory=".\xreal___Win32_Release_TA_DEMO"
+			IntermediateDirectory=".\xreal___Win32_Release_TA_DEMO"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
@@ -168,10 +168,10 @@
 				RuntimeLibrary="4"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\quake3___Win32_Release_TA_DEMO/quake3.pch"
-				AssemblerListingLocation=".\quake3___Win32_Release_TA_DEMO/"
-				ObjectFile=".\quake3___Win32_Release_TA_DEMO/"
-				ProgramDataBaseFileName=".\quake3___Win32_Release_TA_DEMO/"
+				PrecompiledHeaderFile=".\xreal___Win32_Release_TA_DEMO/xreal.pch"
+				AssemblerListingLocation=".\xreal___Win32_Release_TA_DEMO/"
+				ObjectFile=".\xreal___Win32_Release_TA_DEMO/"
+				ProgramDataBaseFileName=".\xreal___Win32_Release_TA_DEMO/"
 				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="2"/>
@@ -180,13 +180,13 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="winmm.lib wsock32.lib"
-				OutputFile=".\quake3___Win32_Release_TA_DEMO/quake3.exe"
+				OutputFile=".\xreal___Win32_Release_TA_DEMO/xreal.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="Release_TA/quake3.pdb"
+				ProgramDatabaseFile="Release_TA/xreal.pdb"
 				GenerateMapFile="TRUE"
-				MapFileName="Release_TA/quake3.map"
+				MapFileName="Release_TA/xreal.map"
 				SubSystem="2"
 				StackReserveSize="8388608"
 				TargetMachine="1"/>
@@ -196,7 +196,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName=".\quake3___Win32_Release_TA_DEMO/quake3.tlb"
+				TypeLibraryName=".\xreal___Win32_Release_TA_DEMO/xreal.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
@@ -236,7 +236,7 @@
 				RuntimeLibrary="4"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\Release/quake3.pch"
+				PrecompiledHeaderFile=".\Release/xreal.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
@@ -247,13 +247,13 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="winmm.lib wsock32.lib"
-				OutputFile=".\Release/quake3.exe"
+				OutputFile=".\Release/xreal.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Release/quake3.pdb"
+				ProgramDatabaseFile=".\Release/xreal.pdb"
 				GenerateMapFile="TRUE"
-				MapFileName=".\Release/quake3.map"
+				MapFileName=".\Release/xreal.map"
 				SubSystem="2"
 				StackReserveSize="8388608"
 				TargetMachine="1"/>
@@ -263,7 +263,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Release/quake3.tlb"
+				TypeLibraryName=".\Release/xreal.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
@@ -288,8 +288,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug TA DEMO|Win32"
-			OutputDirectory=".\quake3___Win32_Debug_TA_DEMO"
-			IntermediateDirectory=".\quake3___Win32_Debug_TA_DEMO"
+			OutputDirectory=".\xreal___Win32_Debug_TA_DEMO"
+			IntermediateDirectory=".\xreal___Win32_Debug_TA_DEMO"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
@@ -300,12 +300,12 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;PRE_RELEASE_TADEMO;PRE_RELEASE_DEMO"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\quake3___Win32_Debug_TA_DEMO/quake3.pch"
-				AssemblerListingLocation=".\quake3___Win32_Debug_TA_DEMO/"
-				ObjectFile=".\quake3___Win32_Debug_TA_DEMO/"
-				ProgramDataBaseFileName=".\quake3___Win32_Debug_TA_DEMO/"
+				PrecompiledHeaderFile=".\xreal___Win32_Debug_TA_DEMO/xreal.pch"
+				AssemblerListingLocation=".\xreal___Win32_Debug_TA_DEMO/"
+				ObjectFile=".\xreal___Win32_Debug_TA_DEMO/"
+				ProgramDataBaseFileName=".\xreal___Win32_Debug_TA_DEMO/"
 				BrowseInformation="1"
-				BrowseInformationFile=".\quake3___Win32_Debug_TA_DEMO/"
+				BrowseInformationFile=".\xreal___Win32_Debug_TA_DEMO/"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="4"/>
@@ -314,13 +314,13 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="winmm.lib wsock32.lib"
-				OutputFile=".\quake3___Win32_Debug_TA_DEMO/quake3.exe"
+				OutputFile=".\xreal___Win32_Debug_TA_DEMO/xreal.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\quake3___Win32_Debug_TA_DEMO/quake3.pdb"
+				ProgramDatabaseFile=".\xreal___Win32_Debug_TA_DEMO/xreal.pdb"
 				GenerateMapFile="TRUE"
-				MapFileName="Debug_TA/quake3.map"
+				MapFileName="Debug_TA/xreal.map"
 				SubSystem="2"
 				StackReserveSize="8388608"
 				TargetMachine="1"/>
@@ -330,7 +330,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName=".\quake3___Win32_Debug_TA_DEMO/quake3.tlb"
+				TypeLibraryName=".\xreal___Win32_Debug_TA_DEMO/xreal.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
@@ -356,8 +356,8 @@
 		</Configuration>
 		<Configuration
 			Name="vector|Win32"
-			OutputDirectory=".\quake3___Win32_vector0"
-			IntermediateDirectory=".\quake3___Win32_vector0"
+			OutputDirectory=".\xreal___Win32_vector0"
+			IntermediateDirectory=".\xreal___Win32_vector0"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
@@ -372,10 +372,10 @@
 				RuntimeLibrary="4"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\quake3___Win32_vector0/quake3.pch"
-				AssemblerListingLocation=".\quake3___Win32_vector0/"
-				ObjectFile=".\quake3___Win32_vector0/"
-				ProgramDataBaseFileName=".\quake3___Win32_vector0/"
+				PrecompiledHeaderFile=".\xreal___Win32_vector0/xreal.pch"
+				AssemblerListingLocation=".\xreal___Win32_vector0/"
+				ObjectFile=".\xreal___Win32_vector0/"
+				ProgramDataBaseFileName=".\xreal___Win32_vector0/"
 				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="3"/>
@@ -384,13 +384,13 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="winmm.lib wsock32.lib"
-				OutputFile=".\quake3___Win32_vector0/quake3.exe"
+				OutputFile=".\xreal___Win32_vector0/xreal.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="Release_TA/quake3.pdb"
+				ProgramDatabaseFile="Release_TA/xreal.pdb"
 				GenerateMapFile="TRUE"
-				MapFileName="Release_TA/quake3.map"
+				MapFileName="Release_TA/xreal.map"
 				SubSystem="2"
 				StackReserveSize="8388608"
 				TargetMachine="1"/>
@@ -400,7 +400,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName=".\quake3___Win32_vector0/quake3.tlb"
+				TypeLibraryName=".\xreal___Win32_vector0/xreal.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
@@ -437,7 +437,7 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\Debug_TA/quake3.pch"
+				PrecompiledHeaderFile=".\Debug_TA/xreal.pch"
 				AssemblerListingLocation=".\Debug_TA/"
 				ObjectFile=".\Debug_TA/"
 				ProgramDataBaseFileName=".\Debug_TA/"
@@ -451,13 +451,13 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="winmm.lib wsock32.lib"
-				OutputFile=".\Debug_TA/quake3.exe"
+				OutputFile=".\Debug_TA/xreal.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Debug_TA/quake3.pdb"
+				ProgramDatabaseFile=".\Debug_TA/xreal.pdb"
 				GenerateMapFile="TRUE"
-				MapFileName="Debug_TA/quake3.map"
+				MapFileName="Debug_TA/xreal.map"
 				SubSystem="2"
 				StackReserveSize="8388608"
 				TargetMachine="1"/>
@@ -467,7 +467,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Debug_TA/quake3.tlb"
+				TypeLibraryName=".\Debug_TA/xreal.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"

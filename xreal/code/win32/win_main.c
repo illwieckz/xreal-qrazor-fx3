@@ -34,10 +34,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <io.h>
 #include <conio.h>
 
-#define	CD_BASEDIR	"quake3"
-#define	CD_EXE		"quake3.exe"
+#define	CD_BASEDIR	"xreal"
+#define	CD_EXE		"xreal.exe"
 #define	CD_BASEDIR_LINUX	"bin\\x86\\glibc-2.1"
-#define	CD_EXE_LINUX "quake3"
+#define	CD_EXE_LINUX "xreal"
 #define MEM_THRESHOLD 96*1024*1024
 
 static char     sys_cmdline[MAX_STRING_CHARS];
@@ -1181,9 +1181,10 @@ void Sys_Init(void)
 		Sys_Error("Couldn't get OS info");
 
 	if(g_wv.osversion.dwMajorVersion < 4)
-		Sys_Error("Quake3 requires Windows version 4 or greater");
+		Sys_Error("XreaL requires Windows version 4 or greater");
+	
 	if(g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32s)
-		Sys_Error("Quake3 doesn't run on Win32s");
+		Sys_Error("XreaL doesn't run on Win32s");
 
 	if(g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32_NT)
 	{

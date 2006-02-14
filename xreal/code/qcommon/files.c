@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 /*
 =============================================================================
 
-QUAKE3 FILESYSTEM
+XREAL FILESYSTEM
 
 All of Quake's data access is through a hierarchical file system, but the contents of 
 the file system can be transparently merged from several sources.
@@ -56,21 +56,21 @@ The "cd path" is the path to an alternate hierarchy that will be searched if a f
 is not located in the base path.  A user can do a partial install that copies some
 data to a base path created on their hard drive and leave the rest on the cd.  Files
 are never writen to the cd path.  It defaults to a value set by the installer, like
-"e:\quake3", but it can be overridden with "+set ds_cdpath g:\quake3".
+"e:\xreal", but it can be overridden with "+set ds_cdpath g:\xreal".
 
 If a user runs the game directly from a CD, the base path would be on the CD.  This
 should still function correctly, but all file writes will fail (harmlessly).
 
 The "home path" is the path used for all write access. On win32 systems we have "base path"
 == "home path", but on *nix systems the base installation is usually readonly, and
-"home path" points to ~/.q3a or similar
+"home path" points to ~/.xreal or similar
 
 The user can also install custom mods and content in "home path", so it should be searched
 along with "home path" and "cd path" for game content.
 
 
 The "base game" is the directory under the paths where data comes from by default, and
-can be either "baseq3" or "demoq3".
+can be either "base" or "demo".
 
 The "current game" may be the same as the base game, or it may be the name of another
 directory under the paths that should be searched for files before looking in the base game.
@@ -96,8 +96,8 @@ automatically restricts where game media can come from to prevent add-ons from w
 
 After the paths are initialized, quake will look for the product.txt file.  If not
 found and verified, the game will run in restricted mode.  In restricted mode, only 
-files contained in demoq3/pak0.pk3 will be available for loading, and only if the zip header is
-verified to not have been modified.  A single exception is made for q3config.cfg.  Files
+files contained in demo/pak0.pk3 will be available for loading, and only if the zip header is
+verified to not have been modified.  A single exception is made for xreal.cfg.  Files
 can still be written out in restricted mode, so screenshots and demos are allowed.
 Restricted mode can be tested by setting "+set fs_restrict 1" on the command line, even
 if there is a valid product.txt under the basepath or cdpath.
@@ -185,7 +185,7 @@ Read / write config to floppy option.
 
 Different version coexistance?
 
-When building a pak file, make sure a q3config.cfg isn't present in it,
+When building a pak file, make sure a xreal.cfg isn't present in it,
 or configs will never get loaded from disk!
 
   todo:
@@ -224,9 +224,9 @@ typedef struct fileInPack_s
 
 typedef struct
 {
-	char            pakFilename[MAX_OSPATH];	// c:\quake3\baseq3\pak0.pk3
+	char            pakFilename[MAX_OSPATH];	// c:\xreal\base\pak0.pk3
 	char            pakBasename[MAX_OSPATH];	// pak0
-	char            pakGamename[MAX_OSPATH];	// baseq3
+	char            pakGamename[MAX_OSPATH];	// base
 	unzFile         handle;		// handle to zip file
 	int             checksum;	// regular checksum
 	int             pure_checksum;	// checksum for pure
@@ -239,8 +239,8 @@ typedef struct
 
 typedef struct
 {
-	char            path[MAX_OSPATH];	// c:\quake3
-	char            gamedir[MAX_OSPATH];	// baseq3
+	char            path[MAX_OSPATH];	// c:\xreal
+	char            gamedir[MAX_OSPATH];	// base
 } directory_t;
 
 typedef struct searchpath_s
@@ -1160,9 +1160,9 @@ int FS_FOpenFileRead(const char *filename, fileHandle_t * file, qboolean uniqueF
 		return -1;
 	}
 
-	// make sure the q3key file is only readable by the quake3.exe at initialization
+	// make sure the xrealkey file is only readable by the xreal.exe at initialization
 	// any other time the key should only be accessed in memory using the provided functions
-	if(com_fullyInitialized && strstr(filename, "q3key"))
+	if(com_fullyInitialized && strstr(filename, "xrealkey"))
 	{
 		*file = 0;
 		return -1;
@@ -2417,7 +2417,7 @@ int FS_GetModList(char *listbuf, int bufsize)
 		{
 			continue;
 		}
-		// we drop "baseq3" "." and ".."
+		// we drop "base" "." and ".."
 		if(Q_stricmp(name, "base") && Q_stricmpn(name, ".", 1))
 		{
 			// now we need to find some .pk3 files to validate the mod
@@ -3743,10 +3743,10 @@ void FS_Restart(int checksumFeed)
 	// bk010116 - new check before safeMode
 	if(Q_stricmp(fs_gamedirvar->string, lastValidGame))
 	{
-		// skip the q3config.cfg if "safe" is on the command line
+		// skip the xreal.cfg if "safe" is on the command line
 		if(!Com_SafeMode())
 		{
-			Cbuf_AddText("exec q3config.cfg\n");
+			Cbuf_AddText("exec xreal.cfg\n");
 		}
 	}
 

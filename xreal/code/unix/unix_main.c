@@ -1240,9 +1240,9 @@ void Sys_PrintBinVersion(const char *name)
 
 	fprintf(stdout, "\n\n%s\n", sep);
 #ifdef DEDICATED
-	fprintf(stdout, "Linux Quake3 Dedicated Server [%s %s]\n", date, time);
+	fprintf(stdout, "Linux XreaL Dedicated Server [%s %s]\n", date, time);
 #else
-	fprintf(stdout, "Linux Quake3 Full Executable  [%s %s]\n", date, time);
+	fprintf(stdout, "Linux XreaL Full Executable  [%s %s]\n", date, time);
 #endif
 	fprintf(stdout, " local install: %s\n", name);
 	fprintf(stdout, "%s\n\n", sep);

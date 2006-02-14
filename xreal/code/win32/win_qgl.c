@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ** QGL_WIN.C
 **
 ** This file implements the operating system binding of GL to QGL function
-** pointers.  When doing a port of Quake3 you must implement the following
+** pointers.  When doing a port of XreaL you must implement the following
 ** two functions:
 **
 ** QGL_Init() - loads libraries, assigns function pointers, etc.
