@@ -70,7 +70,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <X11/extensions/xf86dga.h>
 #include <X11/extensions/xf86vmode.h>
 
-#define	WINDOW_CLASS_NAME	"Quake III: Arena"
+#define	WINDOW_CLASS_NAME	"XreaL"
 
 typedef enum
 {

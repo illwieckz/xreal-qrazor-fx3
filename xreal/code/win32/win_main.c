@@ -621,7 +621,7 @@ void           *QDECL Sys_LoadDll(const char *name, char *fqpath, int (QDECL ** 
 		{
 			lastWarning = timestamp;
 			ret = MessageBoxEx(NULL, "You are about to load a .DLL executable that\n"
-							   "has not been verified for use with Quake III Arena.\n"
+							   "has not been verified for use with XreaL.\n"
 							   "This type of file can compromise the security of\n"
 							   "your computer.\n\n"
 							   "Select 'OK' if you choose to load it anyway.",

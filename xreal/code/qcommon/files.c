@@ -20,15 +20,6 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-/*****************************************************************************
- * name:		files.c
- *
- * desc:		handle based filesystem for Quake III Arena 
- *
- * $Archive: /MissionPack/code/qcommon/files.c $
- *
- *****************************************************************************/
-
 
 #include "../game/q_shared.h"
 #include "qcommon.h"

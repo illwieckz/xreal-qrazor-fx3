@@ -3,12 +3,68 @@ Quake III Arena GPL source release - XreaL version - http://sourceforge.net/proj
 
 This file contains the following sections:
 
-LICENSE
 GENERAL NOTES
 GETTING THE SOURCE CODE
 COMPILING ON WIN32
 COMPILING ON GNU/LINUX
 COMPILING ON MAC
+LICENSE
+
+
+GENERAL NOTES
+=============
+
+A short summary of the file layout:
+
+base/					XreaL media directory ( models, textures, sounds etc. )
+code/			   		XreaL source code ( renderer, game code, OS layer etc. )
+code/bspc				bot routes compiler source code
+q3map/					map compiler ( .map -> .bsp ) - this is the version that comes with Q3Radiant 200f
+
+While we made sure we were still able to compile the game on Windows, GNU/Linux and Mac, this build didn't get any kind of extensive testing so it may not work completely right. Whenever an id game is released under GPL, several projects start making the source code more friendly to nowaday's compilers and environements. If you are picking up this release weeks/months/years after we uploaded it, you probably want to look around on the net for cleaned up versions of this codebase as well.
+
+
+GETTING THE SOURCE CODE
+=======================
+
+This project's SourceForge.net CVS repository can be checked out through anonymous (pserver) CVS with the following instruction set. The module you wish to check out must be specified as the modulename. When prompted for a password for anonymous, simply press the Enter key.
+
+cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/xreal login
+
+cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/xreal co -P xreal
+
+
+COMPILING ON WIN32
+==================
+
+VC7 / Visual C++ 2003 project files are provided:
+code/quake3.sln
+q3radiant/Radiant.sln
+
+To compile the qvms, you need to run some batch files:
+you will need to have lcc.exe q3cpp.exe q3rcc.exe and q3asm.exe in your path
+( some precompiled binaries are provided in lcc/bin and code/win32/mod-sdk-setup/bin )
+the qvm batch files are in code/game code/cgame code/q3_ui code/ui ..
+
+COMPILING ON GNU/LINUX
+==================
+
+The new build system is using SCons. Just type "scons" in the source toplevel dir xreal/.
+You can provide SCons options for compiling. Use "scons -h" to list those options.
+
+The old build system is using cons, which may be known as scons's perl ancestor now.
+You don't have to track it down though, the build script is provided in the tree.
+You will need nasm and gcc 2.95
+Make sure you have the X Direct Graphics Access and X Video Mode extensions headers for your X11
+a typical compile command goes like this:
+[..]/code$ ./unix/cons -- gcc=gcc-2.95 g++=g++-2.95
+
+
+COMPILING ON MAC
+================
+
+project file for OSX compile is in code/macosx/Quake3.pbproj
+
 
 LICENSE
 =======
@@ -150,62 +206,3 @@ been lost, so the one from release 6b is included instead. There are a few
 'glue type' modifications to the library to make it easier to use from
 the engine, but otherwise the dependency can be easily cleaned up to a
 better release of the library.
-
-
-GENERAL NOTES
-=============
-
-A short summary of the file layout:
-
-base/					XreaL media directory ( models, textures, sounds etc. )
-code/			   		XreaL source code ( renderer, game code, OS layer etc. )
-code/bspc				bot routes compiler source code
-lcc/					the retargetable C compiler ( produces assembly to be turned into qvm bytecode by q3asm )
-q3asm/					assembly to qvm bytecode compiler
-q3map/					map compiler ( .map -> .bsp ) - this is the version that comes with Q3Radiant 200f
-q3radiant/				Q3Radiant map editor build 200f ( common/ and libs/ are support dirs for radiant )
-
-While we made sure we were still able to compile the game on Windows, GNU/Linux and Mac, this build didn't get any kind of extensive testing so it may not work completely right. Whenever an id game is released under GPL, several projects start making the source code more friendly to nowaday's compilers and environements. If you are picking up this release weeks/months/years after we uploaded it, you probably want to look around on the net for cleaned up versions of this codebase as well.
-
-
-GETTING THE SOURCE CODE
-=======================
-
-This project's SourceForge.net CVS repository can be checked out through anonymous (pserver) CVS with the following instruction set. The module you wish to check out must be specified as the modulename. When prompted for a password for anonymous, simply press the Enter key.
-
-cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/xreal login
-
-cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/xreal co -P xreal
-
-
-COMPILING ON WIN32
-==================
-
-VC7 / Visual C++ 2003 project files are provided:
-code/quake3.sln
-q3radiant/Radiant.sln
-
-To compile the qvms, you need to run some batch files:
-you will need to have lcc.exe q3cpp.exe q3rcc.exe and q3asm.exe in your path
-( some precompiled binaries are provided in lcc/bin and code/win32/mod-sdk-setup/bin )
-the qvm batch files are in code/game code/cgame code/q3_ui code/ui ..
-
-COMPILING ON GNU/LINUX
-==================
-
-The new build system is using SCons. Just type "scons" in the source toplevel dir xreal/.
-You can provide SCons options for compiling. Use "scons -h" to list those options.
-
-The old build system is using cons, which may be known as scons's perl ancestor now.
-You don't have to track it down though, the build script is provided in the tree.
-You will need nasm and gcc 2.95
-Make sure you have the X Direct Graphics Access and X Video Mode extensions headers for your X11
-a typical compile command goes like this:
-[..]/code$ ./unix/cons -- gcc=gcc-2.95 g++=g++-2.95
-
-
-
-COMPILING ON MAC
-================
-
-project file for OSX compile is in code/macosx/Quake3.pbproj
