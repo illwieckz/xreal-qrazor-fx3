@@ -2304,6 +2304,11 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			depthMaskBits &= ~GLS_DEPTHMASK_TRUE;
 			depthMaskExplicit = qfalse;
 		}
+		// specularExponent <arithmetic expression>
+		else if(!Q_stricmp(token, "specularExponent"))
+		{
+			ParseExpression(text, &stage->specularExponentExp);
+		}
 		// deformMagnitude <arithmetic expression>
 		else if(!Q_stricmp(token, "deformMagnitude"))
 		{

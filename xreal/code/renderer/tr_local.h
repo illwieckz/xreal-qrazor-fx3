@@ -589,6 +589,8 @@ typedef struct
 	qboolean        privatePolygonOffset;	// set for decals and other items that must be offset 
 	float			privatePolygonOffsetValue;
 	
+	expression_t    specularExponentExp;
+	
 	expression_t    refractionIndexExp;
 	
 	expression_t    fresnelPowerExp;
