@@ -75,6 +75,6 @@ if env['arch'] == 'linux-i386':
 
 elif env['arch'] == 'win32':
 	bspc_env.Append(CCFLAGS='-Dstricmp=strcasecmp')
-	bspc_env.Append(LIBS=['m', 'pthread'])
+	bspc_env.Append(LIBS=['m'])
 	bspc_env.Program('bspc', bspc_src)
-	bspc_env.Install('#', 'bspc')
+	bspc_env.Install('#', 'bspc.exe')

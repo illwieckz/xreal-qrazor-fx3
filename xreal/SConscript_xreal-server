@@ -111,16 +111,11 @@ elif env['arch'] == 'linux-x86_64':
 	xreal_server_env.Install('#', 'xreal-server.x86_64')
 
 elif env['arch'] == 'win32':
-	xreal_env.Append(LIBS=['m', 'gdi32', 'ole32'])
-
 	if env['vm'] == 1:
 		vm_src += ['code/qcommon/vm_x86.c']
 	else:
-		xreal_env.Append(CCFLAGS='-DDLL_ONLY')
-		
-	if env['smp'] == 1:
-		xreal_env.Append(CCFLAGS='-DSMP')
-		xreal_env.Append(LIBS=['pthread'])
+		xreal_server_env.Append(CCFLAGS='-DDLL_ONLY')
 
-	xreal_env.Append(LIBS=['wsock32', 'winmm'])
-	xreal_env.Program('xreal-server', [xreal_server_src, win_src, vm_src])
+	xreal_server_env.Append(LIBS=['m', 'wsock32', 'winmm', 'gdi32', 'ole32'])
+	xreal_server_env.Program('xreal-server', [xreal_server_src, win_src, vm_src])
+	xreal_server_env.Install('#', 'xreal-server.exe')

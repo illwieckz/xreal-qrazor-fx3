@@ -5048,15 +5048,13 @@ static void ScanAndLoadShaderFiles(void)
 #else
 		Com_sprintf(filename, sizeof(filename), "scripts/%s", shaderFiles[i]);
 #endif
-		ri.Printf(PRINT_ALL, "...reading '%s'\n", filename);
 		sum += ri.FS_ReadFile(filename, NULL);
 	}
 
 	// build single large buffer
 	s_shaderText = ri.Hunk_Alloc(sum + numShaders * 2, h_low);
 
-	// free in reverse order, so the temp files are all dumped
-	for(i = numShaders - 1; i >= 0; i--)
+	for(i = 0; i < numShaders; i++)
 	{
 #ifdef USE_MTR
 		Com_sprintf(filename, sizeof(filename), "materials/%s", shaderFiles[i]);

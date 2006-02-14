@@ -68,6 +68,6 @@ if env['arch'] == 'linux-i386':
 
 elif env['arch'] == 'win32':
 	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
-	ui_env.InstallAs('#base/uii386', 'libui')
+	ui_env.InstallAs('#base/uix86.dll', 'ui.dll')
 
 

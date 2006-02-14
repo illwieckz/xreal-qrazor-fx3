@@ -48,5 +48,5 @@ if env['arch'] == 'linux-i386':
 	cgame_env.InstallAs('#base/cgamei386.so', 'libcgame.so')
 
 elif env['arch'] == 'win32':
-	cgame_env.SharedLibrary('ui', [cgame_src, dll_src], LIBS=['m'])
-	cgame_env.InstallAs('#base/cgamei386', 'libcgame')
+	cgame_env.SharedLibrary('cgame', [cgame_src, dll_src], LIBS=['m'])
+	cgame_env.InstallAs('#base/cgamex86.dll', 'cgame.dll')
