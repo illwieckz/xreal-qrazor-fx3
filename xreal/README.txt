@@ -20,10 +20,7 @@ base/					XreaL media directory ( models, textures, sounds etc. )
 code/			   		XreaL source code ( renderer, game code, OS layer etc. )
 code/bspc				bot routes compiler source code
 code/common				framework source code for command line tools like xmap
-code/xmap				map compiler ( .map -> .bsp ) - this is the version that comes with Q3Radiant 200f
-
-While we made sure we were still able to compile the game on Windows, GNU/Linux and Mac, this build didn't get any kind of extensive testing so it may not work completely right. Whenever an id game is released under GPL, several projects start making the source code more friendly to nowaday's compilers and environements. If you are picking up this release weeks/months/years after we uploaded it, you probably want to look around on the net for cleaned up versions of this codebase as well.
-
+code/xmap				map compiler ( .map -> .bsp )
 
 GETTING THE SOURCE CODE
 =======================
@@ -39,26 +36,18 @@ COMPILING ON WIN32
 ==================
 
 VC7 / Visual C++ 2003 project files are provided:
-code/quake3.sln
-q3radiant/Radiant.sln
+code/xreal.sln
+code/bspc/bspc.sln
+code/xmap/xmap.sln
 
-To compile the qvms, you need to run some batch files:
-you will need to have lcc.exe q3cpp.exe q3rcc.exe and q3asm.exe in your path
-( some precompiled binaries are provided in lcc/bin and code/win32/mod-sdk-setup/bin )
-the qvm batch files are in code/game code/cgame code/q3_ui code/ui ..
 
 COMPILING ON GNU/LINUX
 ==================
 
-The new build system is using SCons. Just type "scons" in the source toplevel dir xreal/.
+The new build system is using SCons. 
+Make sure you have the X Direct Graphics Access and X Video Mode extensions headers for your X11.
+Just type "scons" in the source toplevel dir xreal/.
 You can provide SCons options for compiling. Use "scons -h" to list those options.
-
-The old build system is using cons, which may be known as scons's perl ancestor now.
-You don't have to track it down though, the build script is provided in the tree.
-You will need nasm and gcc 2.95
-Make sure you have the X Direct Graphics Access and X Video Mode extensions headers for your X11
-a typical compile command goes like this:
-[..]/code$ ./unix/cons -- gcc=gcc-2.95 g++=g++-2.95
 
 
 COMPILING ON MAC
