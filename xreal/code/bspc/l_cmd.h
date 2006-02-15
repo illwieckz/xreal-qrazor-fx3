@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __CMDLIB__
 #define __CMDLIB__
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #pragma warning(disable : 4244)	// MIPS
 #pragma warning(disable : 4136)	// X86
 #pragma warning(disable : 4051)	// ALPHA

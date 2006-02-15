@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "shaders.h"
 #include "mesh.h"
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 //Improve floating-point consistency.
 #pragma optimize( "p", on )
 #endif

@@ -215,7 +215,7 @@ if env['arch'] == 'linux-i386':
 		
 	xreal_env.Install('#', 'xreal.x86')
 
-elif env['arch'] == 'win32':
+elif env['arch'] == 'win32-mingw' or env['arch'] == 'win32-xmingw':
 	if env['vm'] == 1:
 		vm_src += ['code/qcommon/vm_x86.c']
 	else:

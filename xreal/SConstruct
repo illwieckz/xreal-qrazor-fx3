@@ -3,10 +3,10 @@ import SCons
 import SCons.Errors
 
 #
-# Set configuration options
+# set configuration options
 #
-opts = Options('quake3.conf')
-opts.Add(EnumOption('arch', 'Choose architecture to build for', 'linux-i386', allowed_values=('linux-i386', 'linux-x86_64', 'win32')))
+opts = Options('xreal.conf')
+opts.Add(EnumOption('arch', 'Choose architecture to build for', 'linux-i386', allowed_values=('linux-i386', 'linux-x86_64', 'win32-mingw', 'win32-xmingw')))
 opts.Add(EnumOption('warnings', 'Choose warnings level', '1', allowed_values=('0', '1', '2')))
 opts.Add(EnumOption('debug', 'Set to >= 1 to build for debug', '0', allowed_values=('0', '1', '2', '3')))
 opts.Add(EnumOption('optimize', 'Set to >= 1 to build with general optimizations', '2', allowed_values=('0', '1', '2', '3', '4', '5', '6')))
@@ -19,7 +19,7 @@ opts.Add(BoolOption('smp', 'Set to 1 to compile engine with symetric multiproces
 opts.Add(BoolOption('purevm', 'Set to 1 to compile engine with scrict checking for vm/*.qvm modules in paks', 0))
 
 #
-# Initialize compiler environment base
+# initialize compiler environment base
 #
 if sys.platform == 'win32':
 	env = Environment(ENV = {'PATH' : os.environ['PATH']}, options = opts, tools = ['mingw'])
@@ -28,13 +28,15 @@ else:
 
 Help(opts.GenerateHelpText(env))
 
-
 #
-# Set common compiler flags
+# set common compiler flags
 #
 print 'compiling for architecture ', env['arch']
 
 env.Append(CCFLAGS = '-pipe -fsigned-char')
+
+if env['arch'] == 'win32-xmingw':
+	env.Tool('xmingw', ['SCons/Tools'])
 
 if env['warnings'] == '1':
 	env.Append(CCFLAGS = '-Wall')
@@ -49,121 +51,27 @@ else:
 if env['optimize'] != '0':
 	env.Append(CCFLAGS = '-O${optimize} -ffast-math -fno-strict-aliasing -funroll-loops')
 
-
 #if env['cpu'] == 'athlon-xp':
 #	env.Append(CCFLAGS = '-march=athlon-xp') # -msse -mfpmath=sse')
 
-
 if env['simd'] == 'sse':
 	env.Append(CCFLAGS = '-DSIMD_SSE')
-	
 elif env['simd'] == '3dnow':
 	env.Append(CCFLAGS = '-DSIMD_3DNOW')
 
 
 conf = Configure(env)
-
-if sys.platform == 'linux2' or sys.platform == 'linux-i386':
-	if not conf.CheckLib('dl', autoadd=0):
-		print 'Did not find libdl.a, exiting!'
-		Exit(1)
-
-if not conf.CheckLib('m', autoadd=0):
-	print 'Did not find libm.a or m.lib, exiting!'
-	Exit(1)
-
-#if not conf.CheckCHeader('zlib.h'):
-#	print 'zlib.h must be installed!'
-#	Exit(1)
-#if not conf.CheckLib('z', autoadd=0):
-#	print 'Did not find libz.a or z.lib, exiting!'
-#	Exit(1)
-	
-#if not conf.CheckCHeader('AL/al.h'):
-#	print 'AL/al.h must be installed!'
-#	Exit(1)
-#if not conf.CheckCHeader('AL/alc.h'):
-#	print 'AL/alc.h must be installed!'
-#	Exit(1)
-#if not conf.CheckCHeader('AL/alut.h'):
-#	print 'AL/alut.h must be installed!'
-#	Exit(1)
-	
-#if sys.platform == 'linux2' or sys.platform == 'linux-i386':
-#	if not conf.CheckLib('openal', autoadd=0):
-#		print 'Did not find libopenal.a or openal.lib, exiting!'
-#		Exit(1)
-	
-elif sys.platform == 'win32':
-#	if not conf.CheckLib('openal32', autoadd=0):
-#		print 'Did not find libopenal32.a or openal32.lib, exiting!'
-#		Exit(1)
-	if not conf.CheckLib('winmm', autoadd=0):
-		print 'Did not find libwinmm.a or winmm.lib, exiting!'
-		Exit(1)
-	if not conf.CheckLib('wsock32', autoadd=0):
-		print 'Did not find libwsock32.a or wsock32.lib, exiting!'
-		Exit(1)
-#	if not conf.CheckLib('alut', autoadd=0):
-#		print 'Did not find libalut.a or alut.lib, exiting!'
-#		Exit(1)
-	
-if sys.platform == 'linux2' or sys.platform == 'linux-i386':
-	if not conf.CheckCHeader('X11/Xlib.h'):
-		print 'X11/Xlib.h must be installed!'
-		Exit(1)
-	if not conf.CheckCHeader('X11/Xutil.h'):
-		print 'X11/Xutil.h must be installed!'
-		Exit(1)
-	if not conf.CheckCHeader('X11/Xatom.h'):
-		print 'X11/Xatom.h must be installed!'
-		Exit(1)
-	#if not conf.CheckLib('X11', autoadd=0):
-	#	print 'Did not find libX11.a, exiting!'
-	#	Exit(1)
-	#if not conf.CheckLib('Xext', symbol='XShmQueryExtension', autoadd=0):
-	#	print 'Did not find libXext.a, exiting!'
-	#	Exit(1)
-
-	#if conf.CheckCHeader('X11/extensions/xf86dga.h'):
-	#	conf.env.Append(CCFLAGS='-DHAVE_XF86_DGA')
-	#if not conf.CheckLib('Xxf86dga', symbol='XF86DGAQueryVersion', autoadd=0):
-	#	print 'Did not find libXxf86dga.a, exiting!'
-	#	Exit(1)
-
-	#if conf.CheckCHeader('X11/extensions/xf86vmode.h'):
-	#	conf.env.Append(CCFLAGS='-DHAVE_XF86_VIDMODE')
-	#if not conf.CheckLib('Xxf86vm', symbol='XF86VidModeSwitchToMode', autoadd=0):
-	#	print 'Did not find libXxf86vm.a, exiting!'
-	#	Exit(1)
-	
-	#if not conf.CheckCHeader('libxml2/parser.h'):
-	#	print 'libxml2/libxml/parser.h must be installed!'
-	#if not conf.CheckLib('xml2', symbol='xmlFree', autoadd=0):
-	#	print 'Did not find libxml2.a, exiting!'
-	#	Exit(1)
-
-#if not conf.CheckCHeader('jpeglib.h'):
-#	print 'jpeglib.h must be installed!'
-#	Exit(1)
-#if not conf.CheckLib('jpeg', symbol='jpeg_start_decompress', autoadd=0):
-#	print 'Did not find libjpeg.a or jpeg.lib, exiting!'
-#	Exit(1)
-	
-#if not conf.CheckCHeader('png.h'):
-#	print 'png.h must be installed!'
-#	Exit(1)
-#if not conf.CheckLib('png12', symbol='png_create_read_struct', autoadd=0):
-#	print 'Did not find libpng.a or png.lib, exiting!'
-#	Exit(1)
-		
 env = conf.Finish()
 
-# Save options
+#
+# save options
+#
 opts.Save('xreal.conf', env)
 
+#
+# compile targets
+#
 Export('env')
-
 SConscript('SConscript_xreal-server', build_dir='build/xreal-server', duplicate=0)
 SConscript('SConscript_xreal', build_dir='build/xreal', duplicate=0)
 SConscript('SConscript_cgame', build_dir='build/cgame', duplicate=0)

@@ -94,7 +94,7 @@ if env['arch'] == 'linux-i386':
 	xmap_env.Program('xmap.x86', xmap_src)
 	xmap_env.Install('#', 'xmap.x86')
 
-elif env['arch'] == 'win32':
+elif env['arch'] == 'win32-mingw' or env['arch'] == 'win32-xmingw':
 	xmap_env.Append(LIBS=['m'])
 	xmap_env.Program('xmap', xmap_src)
 	xmap_env.Install('#', 'xmap.exe')
