@@ -5040,7 +5040,7 @@ static void ScanAndLoadShaderFiles(void)
 		numShaders = MAX_SHADER_FILES;
 	}
 
-	// load and parse shader files
+	// build single large buffer
 	for(i = 0; i < numShaders; i++)
 	{
 #ifdef USE_MTR
@@ -5050,11 +5050,10 @@ static void ScanAndLoadShaderFiles(void)
 #endif
 		sum += ri.FS_ReadFile(filename, NULL);
 	}
-
-	// build single large buffer
 	s_shaderText = ri.Hunk_Alloc(sum + numShaders * 2, h_low);
 
-	for(i = 0; i < numShaders; i++)
+	// load in reverse order, so doubled shaders are overriden properly
+	for(i = numShaders - 1; i >= 0; i--)
 	{
 #ifdef USE_MTR
 		Com_sprintf(filename, sizeof(filename), "materials/%s", shaderFiles[i]);
