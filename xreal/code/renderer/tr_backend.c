@@ -603,7 +603,7 @@ void RB_BeginDrawingView(void)
 	}
 }
 
-void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, int numDrawSurfs)
+void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, int numDrawSurfs, qboolean opaque)
 {
 	trRefEntity_t  *entity, *oldEntity;
 	int             lightmapNum, oldLightmapNum;
@@ -633,6 +633,23 @@ void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, int numDr
 		lightmapNum = drawSurf->lightmapNum;
 		fogNum = drawSurf->fogNum;
 		
+		if(opaque)
+		{
+			// skip all translucent surfaces that don't matter for this pass
+			if(shader->sort > SS_OPAQUE)
+			{
+				break;
+			}
+		}
+		else
+		{
+				// skip all opaque surfaces that don't matter for this pass
+			if(shader->sort <= SS_OPAQUE)
+			{
+				continue;
+			}
+		}
+		
 		if(	entity == oldEntity &&
 			shader == oldShader &&
 			lightmapNum == oldLightmapNum &&
@@ -655,6 +672,7 @@ void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, int numDr
 			{
 				RB_EndSurface();
 			}
+			
 			RB_BeginSurface(shader, NULL, lightmapNum, fogNum, qfalse, qfalse, 0, NULL, 0, NULL);
 			oldShader = shader;
 			oldLightmapNum = lightmapNum;
@@ -1511,8 +1529,8 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction
 	
 	backEnd.pc.c_surfaces += numDrawSurfs;
 	
-	// draw everything but lighting and fog
-	RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs);
+	// draw everything that is opaque
+	RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qtrue);
 	
 	if(r_shadows->integer == 3)
 	{
@@ -1527,6 +1545,9 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction
 	
 	// render light scale hack to brighten up the scene
 	RB_RenderLightScale();
+	
+	// draw everything that is translucent
+	RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qfalse);
 
 #if 0
 	RB_DrawSun();

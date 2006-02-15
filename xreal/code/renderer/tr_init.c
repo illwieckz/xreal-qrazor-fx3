@@ -1094,9 +1094,9 @@ void R_Register(void)
 
 	r_collapseStages = ri.Cvar_Get("r_collapseStages", "1", CVAR_LATCH | CVAR_CHEAT);
 	r_picmip = ri.Cvar_Get("r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	AssertCvarRange(r_picmip, 0, 16, qtrue);
 	r_roundImagesDown = ri.Cvar_Get("r_roundImagesDown", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_colorMipLevels = ri.Cvar_Get("r_colorMipLevels", "0", CVAR_LATCH);
-	AssertCvarRange(r_picmip, 0, 16, qtrue);
 	r_detailTextures = ri.Cvar_Get("r_detailtextures", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_texturebits = ri.Cvar_Get("r_texturebits", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_colorbits = ri.Cvar_Get("r_colorbits", "0", CVAR_ARCHIVE | CVAR_LATCH);
@@ -1126,7 +1126,7 @@ void R_Register(void)
 	r_displayRefresh = ri.Cvar_Get("r_displayRefresh", "0", CVAR_LATCH);
 	AssertCvarRange(r_displayRefresh, 0, 200, qtrue);
 	r_fullbright = ri.Cvar_Get("r_fullbright", "0", CVAR_LATCH | CVAR_CHEAT);
-	r_mapOverBrightBits = ri.Cvar_Get("r_mapOverBrightBits", "1", CVAR_LATCH);
+	r_mapOverBrightBits = ri.Cvar_Get("r_mapOverBrightBits", "0", CVAR_LATCH);
 	r_intensity = ri.Cvar_Get("r_intensity", "1", CVAR_LATCH);
 	r_singleShader = ri.Cvar_Get("r_singleShader", "0", CVAR_CHEAT | CVAR_LATCH);
 
@@ -1143,6 +1143,7 @@ void R_Register(void)
 	r_inGameVideo = ri.Cvar_Get("r_inGameVideo", "1", CVAR_ARCHIVE);
 	r_drawSun = ri.Cvar_Get("r_drawSun", "0", CVAR_ARCHIVE);
 	r_lighting = ri.Cvar_Get("r_lighting", "2", CVAR_ARCHIVE);
+	AssertCvarRange(r_lighting, 0, 2, qtrue);
 	r_dynamiclight = ri.Cvar_Get("r_dynamiclight", "1", CVAR_ARCHIVE);
 	r_dlightBacks = ri.Cvar_Get("r_dlightBacks", "1", CVAR_ARCHIVE);
 	r_finish = ri.Cvar_Get("r_finish", "0", CVAR_ARCHIVE);
@@ -1159,7 +1160,7 @@ void R_Register(void)
 
 	r_ambientScale = ri.Cvar_Get("r_ambientScale", "0.6", CVAR_CHEAT);
 	r_directedScale = ri.Cvar_Get("r_directedScale", "1", CVAR_CHEAT);
-	r_lightScale = ri.Cvar_Get("r_lightScale", "2", CVAR_CHEAT);
+	r_lightScale = ri.Cvar_Get("r_lightScale", "3", CVAR_ARCHIVE);
 
 	//
 	// temporary variables that can change at any time
@@ -1206,6 +1207,7 @@ void R_Register(void)
 	r_lockpvs = ri.Cvar_Get("r_lockpvs", "0", CVAR_CHEAT);
 	r_noportals = ri.Cvar_Get("r_noportals", "0", CVAR_CHEAT);
 	r_shadows = ri.Cvar_Get("cg_shadows", "3", 0);
+	AssertCvarRange(r_shadows, 0, 3, qtrue);
 
 	r_maxpolys = ri.Cvar_Get("r_maxpolys", va("%d", MAX_POLYS), 0);
 	r_maxpolyverts = ri.Cvar_Get("r_maxpolyverts", va("%d", MAX_POLYVERTS), 0);
