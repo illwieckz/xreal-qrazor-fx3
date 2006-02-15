@@ -1728,7 +1728,7 @@ static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
 	GL_SelectTexture(0);
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(dlight->attenuationMatrix2);
+	qglLoadMatrixf(dlight->attenuationMatrix3);
 	qglMatrixMode(GL_MODELVIEW);
 	
 	GL_SelectTexture(1);
@@ -1775,7 +1775,7 @@ static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
 	GL_SelectTexture(0);
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(dlight->attenuationMatrix2);
+	qglLoadMatrixf(dlight->attenuationMatrix3);
 	qglMatrixMode(GL_MODELVIEW);
 	
 	GL_SelectTexture(1);
@@ -1831,7 +1831,7 @@ static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 	GL_SelectTexture(0);
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(dlight->attenuationMatrix2);
+	qglLoadMatrixf(dlight->attenuationMatrix3);
 	qglMatrixMode(GL_MODELVIEW);
 	
 	GL_SelectTexture(1);
@@ -2829,6 +2829,68 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 	}
 }
 
+
+/*
+===============
+ComputeFinalAttenuation
+===============
+*/
+static void ComputeFinalAttenuation(shaderStage_t * pStage, trRefDlight_t * dlight)
+{
+	int             i;
+	matrix_t		matrix;
+	float           x;
+	
+	MatrixIdentity(matrix);
+
+	// alter texture coordinates
+	for(i = 0; i < pStage->bundle[i].numTexMods; i++)
+	{
+		switch(pStage->bundle[TB_COLORMAP].texMods[i].type)
+		{
+			case TMOD_NONE:
+				i = TR_MAX_TEXMODS;	// break out of for loop
+				break;
+
+			/*
+			case TMOD_SCROLL2:
+				RB_CalcScrollTexCoords2( &pStage->bundle[b].texMods[tm].sExp,
+										  &pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
+				break;
+				
+			case TMOD_SCALE2:
+				RB_CalcScaleTexCoords2( &pStage->bundle[b].texMods[tm].sExp,
+										 &pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
+				break;
+				
+			case TMOD_CENTERSCALE:
+				RB_CalcCenterScaleTexCoords(	&pStage->bundle[b].texMods[tm].sExp,
+						&pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
+				break;
+				
+			case TMOD_SHEAR:
+				// TODO
+				break;
+			*/
+				
+			case TMOD_ROTATE2:
+			{
+				x = RAD2DEG(RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].rExp, 0)) * 5.0;
+	
+				MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
+				MatrixMultiplyZRotation(matrix, x);
+				MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
+				break;
+			}
+			
+			default:
+				break;
+		}
+	}
+	
+	MatrixMultiply(matrix, dlight->attenuationMatrix2, dlight->attenuationMatrix3);
+}
+
 void RB_StageIteratorLighting()
 {
 	int				i, j;
@@ -2887,6 +2949,8 @@ void RB_StageIteratorLighting()
 		{
 			continue;
 		}
+		
+		ComputeFinalAttenuation(attenuationXYStage, dl);
 			
 		for(j = 0; j < MAX_SHADER_STAGES; j++)
 		{
@@ -3067,6 +3131,8 @@ void RB_StageIteratorLighting2()
 		{
 			continue;
 		}
+		
+		ComputeFinalAttenuation(attenuationXYStage, dl);
 			
 		for(j = 0; j < MAX_SHADER_STAGES; j++)
 		{

@@ -87,7 +87,8 @@ typedef struct trRefDlight_s
 	matrix_t		viewMatrix;			// object to light
 	matrix_t		projectionMatrix;	// light frustum
 	matrix_t		attenuationMatrix;	// object to light attenuation texture space
-	matrix_t		attenuationMatrix2;	// final: attenuation * (light view * entity transform)
+	matrix_t		attenuationMatrix2;	// attenuation * (light view * entity transform)
+	matrix_t		attenuationMatrix3;	// attenuation2 * tcMod matrices
 	
 	cullResult_t	cull;
 	vec3_t			localBounds[2];
