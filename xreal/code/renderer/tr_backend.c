@@ -554,9 +554,9 @@ void RB_BeginDrawingView(void)
 	{
 		clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
 #ifdef _DEBUG
-		qglClearColor(0.8f, 0.7f, 0.4f, 1.0f);	// FIXME: get color of sky
-#else
 		qglClearColor(0.0f, 0.0f, 1.0f, 1.0f);	// FIXME: get color of sky
+#else
+		qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
 #endif
 	}
 	qglClear(clearBits);
@@ -1836,7 +1836,7 @@ const void     *RB_DrawBuffer(const void *data)
 	if(r_clear->integer)
 	{
 //		qglClearColor(1, 0, 0.5, 1);
-		qglClearColor(0, 0, 1, 1);
+		qglClearColor(0, 0, 0, 1);
 		qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
