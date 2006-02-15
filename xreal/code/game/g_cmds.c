@@ -1834,6 +1834,8 @@ void Cmd_Stats_f(gentity_t * ent)
 	*/
 }
 
+#ifdef LUA
+
 /*
 =================
 Cmd_LuaScript_f
@@ -1841,7 +1843,6 @@ Cmd_LuaScript_f
 */
 void Cmd_LuaScript_f(gentity_t * ent)
 {
-#ifdef LUA
 	char            filename[MAX_QPATH];
 	
 	if(trap_Argc() != 2)
@@ -1852,7 +1853,6 @@ void Cmd_LuaScript_f(gentity_t * ent)
 
 	trap_Argv(1, filename, sizeof(filename));
 	G_LoadLuaScript(ent, filename);
-#endif
 }
 
 /*
@@ -1862,7 +1862,6 @@ Cmd_LuaFunction_f
 */
 void Cmd_LuaBinaryFunction_f(gentity_t * ent)
 {
-#ifdef LUA
 	char            function[MAX_TOKEN_CHARS];
 	char            arg[MAX_TOKEN_CHARS];
 	double			x, y;
@@ -1884,7 +1883,6 @@ void Cmd_LuaBinaryFunction_f(gentity_t * ent)
 	
 	G_RunLuaFunction(function, "dd>d", x, y, &z);	
 	trap_SendServerCommand(ent - g_entities, va("print \"result: %i\n\"", (int)z));
-#endif
 }
 
 /*
@@ -1894,10 +1892,10 @@ Cmd_LuaStackDump_f
 */
 void Cmd_LuaStackDump_f(gentity_t * ent)
 {
-#ifdef LUA
 	G_DumpLuaStack();
-#endif
 }
+
+#endif // LUA
 
 /*
 =================
@@ -2019,12 +2017,14 @@ void ClientCommand(int clientNum)
 		Cmd_SetViewpos_f(ent);
 	else if(Q_stricmp(cmd, "stats") == 0)
 		Cmd_Stats_f(ent);
+#ifdef LUA
 	else if(Q_stricmp(cmd, "lua_script") == 0)
 		Cmd_LuaScript_f(ent);
 	else if(Q_stricmp(cmd, "lua_binaryfunction") == 0)
 		Cmd_LuaBinaryFunction_f(ent);
 	else if(Q_stricmp(cmd, "lua_stackdump") == 0)
 		Cmd_LuaStackDump_f(ent);
+#endif
 	else
 		trap_SendServerCommand(clientNum, va("print \"unknown cmd %s\n\"", cmd));
 }
