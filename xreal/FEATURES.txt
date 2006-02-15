@@ -16,8 +16,8 @@ code/renderer
 - new extension GL_ARB_shading_language_100
 - new extension GL_EXT_texture_filter_anisotropic
 - new extension GL_EXT_stencil_wrap
-- new extension GL_EXT_framebuffer_object
 - new extension GL_EXT_stencil_two_side
+- new extension GL_EXT_framebuffer_object
 - GLSL rendering capabilities in renderer backend
 - tangent space calculations for normal mapping based rendering techniques
 - directional specular bump mapping
@@ -40,21 +40,24 @@ code/renderer
   correct dynamic lighting and shadowing on everything: world surfaces, brush model surfaces and .md3 surfaces
   [cg/r]_shadows 1 = blob, 2 = planar projection, 3 = robust stencil shadow volumes (Doom3/Nvidia style)
 - r_dynamiclight 2 skips precomputed lighting and uses pure realtime lighting and shadowing
+- r_lighting cvar determines lighting mode
+  0 = diffuse lighting, 1 = bump mapping, 2 = specular bump mapping
 
 code/q3_ui
+- lighting mode game option
 - bloom rendering game option
 - anisotropic filter value slider in graphics options
 
-common/aselib
+code/common/aselib
 - fixed bad Doom3 paths
 
-common/mathlib
+code/common/mathlib
 - matrix math
 
-common/scriplib
+code/common/scriplib
 - improved tokenizer
 
-q3map
+code/xmap
 - Doom3 .map file support Version 2
 - Quake4 .map file support Version 3
 - support for new entity epairs like "rotation" matrix
