@@ -458,10 +458,24 @@ void Svcmd_ForceTeam_f(void)
 
 char           *ConcatArgs(int start);
 
+
+/*
+=================
+Svcmd_LuaRestart_f
+=================
+*/
+#ifdef LUA
+static void Svcmd_LuaRestart_f(void)
+{
+	G_ShutdownLua();
+	G_InitLua();
+}
+#endif
+
+
 /*
 =================
 ConsoleCommand
-
 =================
 */
 qboolean ConsoleCommand(void)
@@ -517,6 +531,14 @@ qboolean ConsoleCommand(void)
 		Svcmd_RemoveIP_f();
 		return qtrue;
 	}
+	
+#ifdef LUA
+	if(Q_stricmp(cmd, "lua_restart") == 0)
+	{
+		Svcmd_LuaRestart_f();
+		return qtrue;
+	}
+#endif
 
 	if(Q_stricmp(cmd, "listip") == 0)
 	{

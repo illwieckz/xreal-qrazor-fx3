@@ -714,6 +714,11 @@ void            BotInterbreedEndMatch(void);
 // g_lua.c
 //
 #ifdef LUA
+typedef struct
+{
+	gentity_t      *e;
+} lua_Entity;
+
 void			G_InitLua();
 void			G_ShutdownLua();
 void			G_LoadLuaScript(gentity_t * ent, const char *filename);

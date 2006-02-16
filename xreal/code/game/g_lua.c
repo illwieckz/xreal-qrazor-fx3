@@ -107,7 +107,7 @@ void G_LoadLuaScript(gentity_t * ent, const char *filename)
 
 	if(len >= MAX_LUAFILE)
 	{
-		trap_Printf(va(S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_LUAFILE));
+		trap_Printf(va(S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_LUAFILE));
 		trap_FS_FCloseFile(f);
 		return;
 	}
@@ -117,10 +117,10 @@ void G_LoadLuaScript(gentity_t * ent, const char *filename)
 	trap_FS_FCloseFile(f);
 
 	if(luaL_loadbuffer(g_luaState, buf, strlen(buf), filename))
-		G_Error("G_RunLuaScript: cannot load lua file: %s", lua_tostring(g_luaState, -1));
+		G_Printf("G_RunLuaScript: cannot load lua file: %s\n", lua_tostring(g_luaState, -1));
 
 	if(lua_pcall(g_luaState, 0, 0, 0))
-		G_Error("G_RunLuaScript: cannot pcall: %s", lua_tostring(g_luaState, -1));
+		G_Printf("G_RunLuaScript: cannot pcall: %s\n", lua_tostring(g_luaState, -1));
 }
 
 /*
@@ -131,83 +131,99 @@ G_RunLuaFunction
 void G_RunLuaFunction(const char *func, const char *sig, ...)
 {
 	va_list         vl;
-	int             narg, nres;	/* number of arguments and results */
+	int             narg, nres;	// number of arguments and results
 	lua_State      *L = g_luaState;
 	
 	if(!func || !func[0])
 		return;
 
 	va_start(vl, sig);
-	lua_getglobal(L, func);		/* get function */
+	lua_getglobal(L, func);		// get function
 
-	/* push arguments */
+	// push arguments
 	narg = 0;
 	while(*sig)
-	{							/* push arguments */
+	{
 		switch (*sig++)
 		{
-
-			case 'd':			/* double argument */
+			case 'd':
+				// double argument
 				lua_pushnumber(L, va_arg(vl, double));
-
 				break;
 
-			case 'i':			/* int argument */
+			case 'i':
+				// int argument
 				lua_pushnumber(L, va_arg(vl, int));
-
 				break;
 
-			case 's':			/* string argument */
+			case 's':
+				// string argument
 				lua_pushstring(L, va_arg(vl, char *));
-
 				break;
+				
+			case 'e':
+			{
+				// entity argument
+				lua_Entity     *lent;
+
+				lent = lua_newuserdata(L, sizeof(lua_Entity));
+
+				luaL_getmetatable(L, "game.entity");
+				lua_setmetatable(L, -2);
+	
+				lent->e = va_arg(vl, gentity_t *);
+				break;
+			}
 
 			case '>':
 				goto endwhile;
 
 			default:
-				G_Error("G_RunLuaFunction: invalid option (%c)", *(sig - 1));
+				G_Printf("G_RunLuaFunction: invalid option (%c)\n", *(sig - 1));
 		}
 		narg++;
 		luaL_checkstack(L, 1, "too many arguments");
 	}
   endwhile:
 
-	/* do the call */
-	nres = strlen(sig);			/* number of expected results */
-	if(lua_pcall(L, narg, nres, 0) != 0)	/* do the call */
-		G_Error("G_RunLuaFunction: error running function `%s': %s", func, lua_tostring(L, -1));
+	// do the call
+	nres = strlen(sig);			// number of expected results
+	if(lua_pcall(L, narg, nres, 0) != 0)	// do the call
+		G_Printf("G_RunLuaFunction: error running function `%s': %s\n", func, lua_tostring(L, -1));
 
-	/* retrieve results */
-	nres = -nres;				/* stack index of first result */
+	// retrieve results
+	nres = -nres;				// stack index of first result
 	while(*sig)
-	{							/* get results */
+	{							// get results
 		switch (*sig++)
 		{
 
-			case 'd':			/* double result */
+			case 'd':
+				// double result
 				if(!lua_isnumber(L, nres))
-					G_Error("G_RunLuaFunction: wrong result type");
+					G_Printf("G_RunLuaFunction: wrong result type\n");
 				*va_arg(vl, double *) = lua_tonumber(L, nres);
 
 				break;
 
-			case 'i':			/* int result */
+			case 'i':			
+				// int result
 				if(!lua_isnumber(L, nres))
-					G_Error("G_RunLuaFunction: wrong result type");
+					G_Printf("G_RunLuaFunction: wrong result type\n");
 				*va_arg(vl, int *) = (int)lua_tonumber(L, nres);
 
 				break;
 
-			case 's':			/* string result */
+			case 's':
+				// string result
 				if(!lua_isstring(L, nres))
-					G_Error("G_RunLuaFunction: wrong result type");
+					G_Printf("G_RunLuaFunction: wrong result type\n");
 				*va_arg(vl, const char **) = lua_tostring(L, nres);
 
 				break;
 
 			default:
-				G_Error("G_RunLuaFunction: invalid option (%c)", *(sig - 1));
+				G_Printf("G_RunLuaFunction: invalid option (%c)\n", *(sig - 1));
 		}
 		nres++;
 	}
@@ -228,29 +244,33 @@ void G_DumpLuaStack()
 
 	for(i = 1; i <= top; i++)
 	{
-		/* repeat for each level */
+		// repeat for each level
 		int             t = lua_type(L, i);
 
 		switch (t)
 		{
-			case LUA_TSTRING:	/* strings */
+			case LUA_TSTRING:
+				// strings
 				G_Printf("`%s'", lua_tostring(L, i));
 				break;
 
-			case LUA_TBOOLEAN:	/* booleans */
+			case LUA_TBOOLEAN:
+				// booleans
 				G_Printf(lua_toboolean(L, i) ? "true" : "false");
 				break;
 
-			case LUA_TNUMBER:	/* numbers */
+			case LUA_TNUMBER:
+				// numbers
 				G_Printf("%g", lua_tonumber(L, i));
 				break;
 
-			default:			/* other values */
+			default:			
+				// other values
 				G_Printf("%s", lua_typename(L, t));
 				break;
 
 		}
-		G_Printf("  ");			/* put a separator */
+		G_Printf("  ");			// put a separator
 	}
-	G_Printf("\n");				/* end the listing */
+	G_Printf("\n");				// end the listing
 }

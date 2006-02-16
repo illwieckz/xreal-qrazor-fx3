@@ -27,36 +27,36 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <lualib.h>
 #include "g_local.h"
 
-static int game_print(lua_State * L)
+static int game_Print(lua_State * L)
 {
 	int             i;
-	int             n = lua_gettop(L);	/* number of arguments */
+	int             n = lua_gettop(L);	// number of arguments
 
 	lua_getglobal(L, "tostring");
 	for(i = 1; i <= n; i++)
 	{
 		const char     *s;
 
-		lua_pushvalue(L, -1);	/* function to be called */
-		lua_pushvalue(L, i);	/* value to print */
+		lua_pushvalue(L, -1);	// function to be called
+		lua_pushvalue(L, i);	// value to print
 		lua_call(L, 1, 1);
-		s = lua_tostring(L, -1);	/* get result */
+		s = lua_tostring(L, -1);	// get result
 		
 		if(s == NULL)
 			return luaL_error(L, "`tostring' must return a string to `print'");
 		
 		trap_Printf(s);
-		lua_pop(L, 1);			/* pop result */
+		lua_pop(L, 1);			// pop result
 	}
 	trap_Printf("\n");
 	return 0;
 }
 
-static int game_broadcast(lua_State * L)
+static int game_Broadcast(lua_State * L)
 {
 	int             i;
 	char            buf[MAX_STRING_CHARS];
-	int             n = lua_gettop(L);	/* number of arguments */
+	int             n = lua_gettop(L);	// number of arguments
 
 	memset(buf, 0, sizeof(buf));
 
@@ -65,17 +65,17 @@ static int game_broadcast(lua_State * L)
 	{
 		const char     *s;
 
-		lua_pushvalue(L, -1);	/* function to be called */
-		lua_pushvalue(L, i);	/* value to print */
+		lua_pushvalue(L, -1);	// function to be called
+		lua_pushvalue(L, i);	// value to print
 		lua_call(L, 1, 1);
-		s = lua_tostring(L, -1);	/* get result */
+		s = lua_tostring(L, -1);	// get result
 		
 		if(s == NULL)
 			return luaL_error(L, "`tostring' must return a string to `print'");
 		
 		Q_strcat(buf, sizeof(buf), s);
 		
-		lua_pop(L, 1);			/* pop result */
+		lua_pop(L, 1);			// pop result
 	}
 	
 	trap_SendServerCommand(-1, va("cp \"" S_COLOR_WHITE "%s\n\"", buf));
@@ -84,8 +84,8 @@ static int game_broadcast(lua_State * L)
 }
 
 static const luaL_reg gamelib[] = {
-	{"print", game_print},
-	{"broadcast", game_broadcast},
+	{"Print", game_Print},
+	{"Broadcast", game_Broadcast},
 	{NULL, NULL}
 };
 

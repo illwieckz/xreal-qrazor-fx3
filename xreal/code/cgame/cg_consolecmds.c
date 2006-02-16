@@ -657,5 +657,6 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("lua_script");
 	trap_AddCommand("lua_binaryfunction");
 	trap_AddCommand("lua_stackdump");
+	trap_AddCommand("lua_restart");
 #endif
 }

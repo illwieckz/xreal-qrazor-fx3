@@ -173,7 +173,7 @@ void trigger_push_touch(gentity_t * self, gentity_t * other, trace_t * trace)
 	}
 	
 #ifdef LUA
-	G_RunLuaFunction(self->luaTouchFunction, ">");
+	G_RunLuaFunction(self->luaTouchFunction, "ee>", self, other);
 #endif
 
 	BG_TouchJumpPad(&other->client->ps, &self->s);
