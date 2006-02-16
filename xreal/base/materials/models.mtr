@@ -4724,6 +4724,7 @@ models/weapons2/machinegun/f_machinegun
 {
 	sort additive
 	cull disable
+	noshadows
 	{
 		map	models/weapons2/machinegun/f_machinegun.tga
 		blendfunc GL_ONE GL_ONE
