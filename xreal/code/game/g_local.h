@@ -710,20 +710,32 @@ void            Svcmd_AddBot_f(void);
 void            Svcmd_BotList_f(void);
 void            BotInterbreedEndMatch(void);
 
+#ifdef LUA
 //
 // g_lua.c
 //
-#ifdef LUA
-typedef struct
-{
-	gentity_t      *e;
-} lua_Entity;
-
+#include <lua.h>
 void			G_InitLua();
 void			G_ShutdownLua();
 void			G_LoadLuaScript(gentity_t * ent, const char *filename);
 void			G_RunLuaFunction(const char *func, const char *sig, ...);
 void			G_DumpLuaStack();
+
+//
+// lua_entity.c
+//
+int             luaopen_entity(lua_State * L);
+void			lua_pushentity(lua_State * L, gentity_t * ent);
+
+//
+// lua_game.c
+//
+int             luaopen_game(lua_State * L);
+
+//
+// lua_qmath.c
+//
+int             luaopen_qmath(lua_State * L);
 #endif
 
 // ai_main.c

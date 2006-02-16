@@ -27,11 +27,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <lualib.h>
 #include "g_local.h"
 
-int             luaopen_entity(lua_State * L);
-int             luaopen_game(lua_State * L);
-int             luaopen_qmath(lua_State * L);
-
-
 #define MAX_LUAFILE 32768
 
 static lua_State *g_luaState = NULL;
@@ -162,18 +157,9 @@ void G_RunLuaFunction(const char *func, const char *sig, ...)
 				break;
 				
 			case 'e':
-			{
 				// entity argument
-				lua_Entity     *lent;
-
-				lent = lua_newuserdata(L, sizeof(lua_Entity));
-
-				luaL_getmetatable(L, "game.entity");
-				lua_setmetatable(L, -2);
-	
-				lent->e = va_arg(vl, gentity_t *);
+				lua_pushentity(L, va_arg(vl, gentity_t *));
 				break;
-			}
 
 			case '>':
 				goto endwhile;

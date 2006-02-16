@@ -27,6 +27,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <lualib.h>
 #include "g_local.h"
 
+typedef struct
+{
+	gentity_t      *e;
+} lua_Entity;
+
 static lua_Entity *entity_Get(lua_State * L)
 {
 	void           *ud;
@@ -238,4 +243,16 @@ int luaopen_entity(lua_State * L)
 	luaL_register(L, "entity", entity_ctor);
 
 	return 1;
+}
+
+void lua_pushentity(lua_State * L, gentity_t * ent)
+{
+	lua_Entity     *lent;
+
+	lent = lua_newuserdata(L, sizeof(lua_Entity));
+
+	luaL_getmetatable(L, "game.entity");
+	lua_setmetatable(L, -2);
+	
+	lent->e = ent;
 }
