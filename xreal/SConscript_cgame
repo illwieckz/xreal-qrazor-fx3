@@ -43,6 +43,9 @@ cgame_env = env.Copy()
 #cgame_env.Append(CCFLAGS='-DMISSIONPACK')
 #cgame_env.Append(CCFLAGS='-DXREAL')
 
+if env['lua'] == 1:
+		cgame_env.Append(CCFLAGS='-DLUA')
+
 if env['arch'] == 'linux-i386':
 	cgame_env.SharedLibrary('cgame', [cgame_src, dll_src], LIBS=['m'])
 	cgame_env.InstallAs('#base/cgamei386.so', 'libcgame.so')
