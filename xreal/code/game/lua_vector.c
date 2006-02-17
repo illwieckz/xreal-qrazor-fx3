@@ -157,10 +157,6 @@ int luaopen_vector(lua_State * L)
 {
 	luaL_newmetatable(L, "vector");
 	
-	lua_pushstring(L, "__index");
-	lua_pushvalue(L, -2);  // pushes the metatable
-	lua_settable(L, -3);  // metatable.__index = metatable
-	
 	luaL_register(L, NULL, vector_meta);
 	luaL_register(L, "vector", vector_ctor);
 
