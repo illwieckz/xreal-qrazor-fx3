@@ -161,6 +161,11 @@ void G_RunLuaFunction(const char *func, const char *sig, ...)
 				// entity argument
 				lua_pushentity(L, va_arg(vl, gentity_t *));
 				break;
+				
+			case 'v':
+				// vector argument
+				lua_pushvector(L, va_arg(vl, vec_t *));
+				break;
 
 			case '>':
 				goto endwhile;

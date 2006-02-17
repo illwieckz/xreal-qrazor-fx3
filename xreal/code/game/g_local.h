@@ -741,6 +741,7 @@ int             luaopen_qmath(lua_State * L);
 // lua_vector.c
 //
 int             luaopen_vector(lua_State * L);
+void            lua_pushvector(lua_State * L, vec3_t v);
 #endif
 
 // ai_main.c
