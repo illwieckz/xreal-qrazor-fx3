@@ -736,6 +736,11 @@ int             luaopen_game(lua_State * L);
 // lua_qmath.c
 //
 int             luaopen_qmath(lua_State * L);
+
+//
+// lua_vector.c
+//
+int             luaopen_vector(lua_State * L);
 #endif
 
 // ai_main.c

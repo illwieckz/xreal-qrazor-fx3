@@ -53,6 +53,7 @@ void G_InitLua()
 	luaopen_entity(g_luaState);
 	luaopen_game(g_luaState);
 	luaopen_qmath(g_luaState);
+	luaopen_vector(g_luaState);
 	
 	// load map specific Lua script as default
 	trap_Cvar_VariableStringBuffer("mapname", buf, sizeof(buf));
