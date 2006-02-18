@@ -17,10 +17,12 @@ GENERAL NOTES
 A short summary of the file layout:
 
 base/					XreaL media directory ( models, textures, sounds etc. )
+gtkradiant/				XreaL configured GtkRadiant editor work dir
 code/			   		XreaL source code ( renderer, game code, OS layer etc. )
 code/bspc				bot routes compiler source code
 code/common				framework source code for command line tools like xmap
 code/xmap				map compiler ( .map -> .bsp )
+code/gtkradiant			GtkRadiant editor source based off GPL release on 17th February 2006
 
 GETTING THE SOURCE CODE
 =======================
