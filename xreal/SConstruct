@@ -17,6 +17,7 @@ opts.Add(BoolOption('lua', 'Set to 1 to compile qagame with Lua scripting suppor
 opts.Add(BoolOption('vm', 'Set to 1 to compile engine with virtual machine support', 1))
 opts.Add(BoolOption('smp', 'Set to 1 to compile engine with symetric multiprocessor support', 0))
 opts.Add(BoolOption('purevm', 'Set to 1 to compile engine with scrict checking for vm/*.qvm modules in paks', 0))
+opts.Add(BoolOption('gtkradiant', 'Set to 1 to compile GtkRadiant', 0))
 
 #
 # initialize compiler environment base
@@ -79,4 +80,7 @@ SConscript('SConscript_game', build_dir='build/game', duplicate=0)
 SConscript('SConscript_ui', build_dir='build/ui', duplicate=0)
 SConscript('SConscript_xmap', build_dir='build/xmap', duplicate=0)
 SConscript('SConscript_bspc', build_dir='build/bspc', duplicate=0)
+
+if env['gtkradiant'] == 1:
+	SConscript('SConscript_gtkradiant', build_dir='build/gtkradiant', duplicate=0)
 
