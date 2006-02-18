@@ -30,6 +30,7 @@ enum EGameType
   eGameTypeQuake3,
   eGameTypeRTCW,
   eGameTypeDoom3,
+  eGameTypeXreaL,
 };
 
 extern EGameType g_gameType;
