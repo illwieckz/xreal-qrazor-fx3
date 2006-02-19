@@ -480,25 +480,30 @@ void R_SetupDlightFrustum(trRefDlight_t * dl)
 	vec3_t          planeNormal;
 	vec3_t          planeOrigin;
 	
-	for(i = 0; i <6; i++)
+	for(i = 0; i < 3; i++)
 	{
 		VectorCopy(dl->l.origin, planeOrigin);
 		
-		if(i < 3)
-		{
-			VectorNegate(dl->l.axis[i], planeNormal);
-			planeOrigin[i] += dl->l.radius[i];
-		}
-		else
-		{
-			VectorCopy(dl->l.axis[i], planeNormal);
-			planeOrigin[i] -= dl->l.radius[i];
-		}
+		VectorNegate(dl->l.axis[i], planeNormal);
+		planeOrigin[i] += dl->l.radius[i];
 		
 		VectorCopy(planeNormal, dl->frustum[i].normal);
 		dl->frustum[i].type = PlaneTypeForNormal(planeNormal);
 		dl->frustum[i].dist = DotProduct(planeOrigin, planeNormal);
 		SetPlaneSignbits(&dl->frustum[i]);
+	}
+	
+	for(i = 0; i < 3; i++)
+	{
+		VectorCopy(dl->l.origin, planeOrigin);
+		
+		VectorCopy(dl->l.axis[i], planeNormal);
+		planeOrigin[i] -= dl->l.radius[i];
+		
+		VectorCopy(planeNormal, dl->frustum[i + 3].normal);
+		dl->frustum[i + 3].type = PlaneTypeForNormal(planeNormal);
+		dl->frustum[i + 3].dist = DotProduct(planeOrigin, planeNormal);
+		SetPlaneSignbits(&dl->frustum[i + 3]);
 	}
 }
 
