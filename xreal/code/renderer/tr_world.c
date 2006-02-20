@@ -251,7 +251,7 @@ R_AddInteractionSurface
 static void R_AddInteractionSurface(msurface_t * surf, trRefDlight_t * light)
 {
 	qboolean        intersects;
-	qboolean        shadowOnly = qfalse;
+	interactionType_t iaType = IA_DEFAULT;
 	
 	// Tr3B - this surface is maybe not in this view but it may still cast a shadow
 	// into this view
@@ -260,7 +260,12 @@ static void R_AddInteractionSurface(msurface_t * surf, trRefDlight_t * light)
 		if(r_shadows->integer <= 2 || light->l.noShadows)
 			return;
 		else
-			shadowOnly = qtrue;
+			iaType = IA_SHADOWONLY;
+	}
+	else
+	{
+		if(r_shadows->integer <= 2)
+			iaType = IA_LIGHTONLY;	
 	}
 	
 	if(surf->lightCount == tr.lightCount)
@@ -292,7 +297,7 @@ static void R_AddInteractionSurface(msurface_t * surf, trRefDlight_t * light)
 	
 	if(intersects)
 	{
-		R_AddDlightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, shadowOnly);
+		R_AddDlightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, iaType);
 		
 		if(light->isStatic)
 			tr.pc.c_slightSurfaces++;
@@ -886,7 +891,7 @@ void R_AddPrecachedWorldInteractions(trRefDlight_t * light)
 {
 	interactionCache_t  *iaCache;
 	msurface_t     *surface;
-	qboolean        shadowOnly = qfalse;
+	interactionType_t iaType = IA_DEFAULT;
 	
 	if(!r_drawworld->integer)
 	{
@@ -917,14 +922,16 @@ void R_AddPrecachedWorldInteractions(trRefDlight_t * light)
 			if(r_shadows->integer <= 2 || light->l.noShadows)
 				continue;
 			else
-				shadowOnly = qtrue;
+				iaType = IA_SHADOWONLY;
 		}
 		else
 		{
-			shadowOnly = qfalse;
+			if(r_shadows->integer <= 2)
+				iaType = IA_LIGHTONLY;
+			else
+				iaType = IA_DEFAULT;
 		}
 		
-		
-		R_AddDlightInteraction(light, surface->data, surface->shader, iaCache->numLightIndexes, iaCache->lightIndexes, iaCache->numShadowIndexes, iaCache->shadowIndexes, shadowOnly);
+		R_AddDlightInteraction(light, surface->data, surface->shader, iaCache->numLightIndexes, iaCache->lightIndexes, iaCache->numShadowIndexes, iaCache->shadowIndexes, iaType);
 	}
 }

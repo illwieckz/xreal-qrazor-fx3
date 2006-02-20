@@ -2230,6 +2230,7 @@ void R_LoadEntities(lump_t * l)
 		dl->l.radius[1] = 300;
 		dl->l.radius[2] = 300;
 		AxisCopy(axisDefault, dl->l.axis);
+		//dl->l.noShadows = qtrue;
 
 		dl->isStatic = qtrue;
 		dl->additive = qtrue;

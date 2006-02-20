@@ -903,6 +903,13 @@ typedef struct drawSurf_s
 	surfaceType_t  *surface;	// any of surface*_t
 } drawSurf_t;
 
+typedef enum
+{
+	IA_DEFAULT,					// lighting and shadowing
+	IA_SHADOWONLY,
+	IA_LIGHTONLY
+} interactionType_t;
+
 // an interactionCache is a node between a dlight and a precached world surface
 typedef struct interactionCache_s
 {
@@ -922,6 +929,8 @@ typedef struct interaction_s
 {
 	struct interaction_s *next;
 	
+	interactionType_t type;
+	
 	trRefDlight_t  *dlight;
 	shader_t       *dlightShader;
 	
@@ -935,7 +944,6 @@ typedef struct interaction_s
 	int             numShadowIndexes;
 	int            *shadowIndexes;	// precached triangle indices of shadow edges
 		
-	qboolean        shadowOnly;
 	int             scissorX, scissorY, scissorWidth, scissorHeight;
 } interaction_t;
 
@@ -2087,7 +2095,6 @@ typedef enum
 {
 	SIT_DEFAULT,
 	SIT_LIGHTING,
-	SIT_LIGHTING2
 } stageIteratorType_t;
 
 typedef byte    color4ub_t[4];
@@ -2160,7 +2167,6 @@ void            RB_InitGPUShaders();
 void            RB_ShutdownGPUShaders();
 
 void            RB_StageIteratorLighting();
-void            RB_StageIteratorLighting2();
 void            RB_StageIteratorGeneric();
 void            RB_StageIteratorSky();
 
@@ -2223,7 +2229,7 @@ int             R_CullDlightTriangle(trRefDlight_t * dl, vec3_t verts[3]);
 void            R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * surfaceShader,
 									   int numLightIndexes, int *lightIndexes,
 									   int numShadowIndexes, int *shadowIndexes,
-									   qboolean shadowOnly);
+									   interactionType_t iaType);
 
 void            R_SetDlightScissor(trRefDlight_t * light);
 /*

@@ -60,7 +60,7 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefDlight_t * light)
 	msurface_t     *surf;
 	bmodel_t       *bModel = NULL;
 	model_t        *pModel = NULL;
-	qboolean        shadowOnly = qfalse;
+	interactionType_t iaType = IA_DEFAULT;
 
 	// cull the entire model if it is outside the view frustum
 	// and we don't care about proper shadowing
@@ -69,7 +69,12 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefDlight_t * light)
 		if(r_shadows->integer <= 2 || light->l.noShadows)
 			return;
 		else
-			shadowOnly = qtrue;
+			iaType = IA_SHADOWONLY;
+	}
+	else
+	{
+		if(r_shadows->integer <= 2)
+			iaType = IA_LIGHTONLY;
 	}
 
 	pModel = R_GetModelByHandle(ent->e.hModel);
@@ -109,7 +114,7 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefDlight_t * light)
 		   }
 		 */
 
-		R_AddDlightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, shadowOnly);
+		R_AddDlightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, iaType);
 		tr.pc.c_dlightSurfaces++;
 	}
 }
@@ -567,7 +572,7 @@ int R_CullDlightTriangle(trRefDlight_t * dl, vec3_t verts[3])
 R_AddDlightInteraction
 =================
 */
-void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * surfaceShader, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes, qboolean shadowOnly)
+void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * surfaceShader, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes, interactionType_t iaType)
 {
 	int             index;
 	interaction_t  *ia;
@@ -603,6 +608,9 @@ void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shad
 	}
 
 	ia->next = NULL;
+	
+	ia->type = iaType;
+	
 	ia->dlight = light;
 	ia->entity = tr.currentEntity;
 	ia->surface = surface;
@@ -613,8 +621,6 @@ void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shad
 	
 	ia->numShadowIndexes = numShadowIndexes;
 	ia->shadowIndexes = shadowIndexes;
-	
-	ia->shadowOnly = shadowOnly;
 
 	ia->scissorX = light->scissor.coords[0];
 	ia->scissorY = light->scissor.coords[1];

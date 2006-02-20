@@ -515,7 +515,7 @@ Any mirrored or portaled views have already been drawn, so prepare
 to actually render the visible surfaces for this view
 =================
 */
-void RB_BeginDrawingView(void)
+static void RB_BeginDrawingView(void)
 {
 	int             	clearBits = 0;
 	extern const float	s_flipMatrix[16];
@@ -603,7 +603,7 @@ void RB_BeginDrawingView(void)
 	}
 }
 
-void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, int numDrawSurfs, qboolean opaque)
+static void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, int numDrawSurfs, qboolean opaque)
 {
 	trRefEntity_t  *entity, *oldEntity;
 	int             lightmapNum, oldLightmapNum;
@@ -754,246 +754,10 @@ void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, int numDr
 
 /*
 =================
-RB_RenderInteractions
+RB_RenderInteractionsStencilShadowed
 =================
 */
-void RB_RenderInteractions(float originalTime, interaction_t * interactions, int numInteractions)
-{
-	shader_t       *shader, *oldShader;
-	trRefEntity_t  *entity, *oldEntity;
-	trRefDlight_t  *light, *oldLight;
-	interaction_t  *ia;
-	qboolean        depthRange, oldDepthRange;
-	int             iaCount;
-	surfaceType_t  *surface;
-	vec3_t          tmp;
-	matrix_t		modelToLight;
-	
-	GLimp_LogComment("--- RB_RenderInteractions ---\n");
-
-	// draw everything
-	oldLight = NULL;
-	oldEntity = NULL;
-	oldShader = NULL;
-	oldDepthRange = qfalse;
-	depthRange = qfalse;
-	
-	tess.currentStageIteratorType = SIT_LIGHTING;
-
-	// render interactions
-	for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
-	{
-		backEnd.currentLight = light = ia->dlight;
-		backEnd.currentEntity = entity = ia->entity;
-		surface = ia->surface;
-		shader = ia->surfaceShader;
-		
-		if(light != oldLight)
-		{
-			// set light scissor to reduce fillrate
-			qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
-			
-			/*
-			if(!dl->additive)
-			{
-				GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
-			}
-			else
-			*/
-			{
-				GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
-			}
-			
-			backEnd.pc.c_dlights++;
-		}
-		backEnd.pc.c_dlightInteractions++;
-		
-		// Tr3B - this should never happen in the first iteration
-		if(light == oldLight && entity == oldEntity && shader == oldShader)
-		{
-			if(!ia->shadowOnly)
-			{
-				// fast path, same as previous
-				rb_surfaceTable[*surface] (surface);
-			}
-		}
-		else
-		{
-			// draw the contents of the last shader batch
-			if(oldEntity != NULL || oldLight != NULL || oldShader != NULL)
-			{
-				backEnd.pc.c_dlightBatches++;
-				RB_EndSurface();
-			}
-			
-			// change the tess parameters if needed
-			// a "entityMergable" shader is a shader that can have surfaces from seperate
-			// entities merged into a single batch, like smoke and blood puff sprites
-			
-			// we need a new batch
-			RB_BeginSurface(shader, ia->dlightShader, -1, 0, qfalse, qfalse, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
-
-			// change the modelview matrix if needed
-			if(entity != oldEntity)
-			{
-				depthRange = qfalse;
-	
-				if(entity != &tr.worldEntity)
-				{
-					backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
-					// we have to reset the shaderTime as well otherwise image animations start
-					// from the wrong frame
-					tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
-	
-					// set up the transformation matrix
-					R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
-	
-					if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
-					{
-						// hack the depth range to prevent view model from poking into walls
-						depthRange = qtrue;
-					}
-				}
-				else
-				{
-					backEnd.refdef.floatTime = originalTime;
-					backEnd.or = backEnd.viewParms.world;
-					// we have to reset the shaderTime as well otherwise image animations on
-					// the world (like water) continue with the wrong frame
-					tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
-				}
-				
-				qglLoadMatrixf(backEnd.or.modelViewMatrix);
-	
-				// change depthrange if needed
-				if(oldDepthRange != depthRange)
-				{
-					if(depthRange)
-					{
-						qglDepthRange(0, 0.3);
-					}
-					else
-					{
-						qglDepthRange(0, 1);
-					}
-					oldDepthRange = depthRange;
-				}
-			}
-			
-			// change the attenuation matrix if needed
-			if(light != oldLight || entity != oldEntity)
-			{
-				// transform light origin into model space for u_LightOrigin parameter
-				if(entity != &tr.worldEntity)
-				{
-					VectorSubtract(light->origin, backEnd.or.origin, tmp);
-					light->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
-					light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
-					light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
-				}
-				else
-				{
-					VectorCopy(light->origin, light->transformed);
-				}
-				
-				// finalize the attenuation matrix using the entity transform
-				MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
-				MatrixMultiply(light->attenuationMatrix, modelToLight, light->attenuationMatrix2);	
-			}
-			
-			if(!ia->shadowOnly)
-			{
-				// add the triangles for this surface
-				rb_surfaceTable[*surface] (surface);
-			}
-		}
-		
-		// Tr3B - the data structure used here is not very cool but it works fine
-		if(!ia->next)
-		{
-			if(iaCount < (numInteractions -1))
-			{
-				// jump to next interaction and continue
-				ia++;
-				iaCount++;
-			}
-			else
-			{
-				// increase last time to leave for loop
-				iaCount++;
-			}
-			
-			// draw the contents of the current shader batch
-			backEnd.pc.c_dlightBatches++;
-			RB_EndSurface();
-		}
-		else
-		{
-			// just continue
-			ia = ia->next;
-			iaCount++;
-		}
-		
-		// remember values
-		oldLight = light;
-		oldEntity = entity;
-		oldShader = shader;
-		
-		// Tr3B - draw useful info so we can see how bboxes intersect
-		if(r_showLightInteractions->integer)
-		{
-			if(*surface == SF_FACE)
-			{
-				srfSurfaceFace_t *face;
-				
-				face = (srfSurfaceFace_t *) surface;
-				R_DebugBoundingBox(vec3_origin, face->bounds[0], face->bounds[1], colorYellow);
-			}
-			else if(*surface == SF_GRID)
-			{
-				srfGridMesh_t  *grid;
-				
-				grid = (srfGridMesh_t *) surface;
-				R_DebugBoundingBox(vec3_origin, grid->meshBounds[0], grid->meshBounds[1], colorMagenta);
-			}
-			else if(*surface == SF_TRIANGLES)
-			{
-				srfTriangles_t *tri;
-				
-				tri = (srfTriangles_t *) surface;
-				R_DebugBoundingBox(vec3_origin, tri->bounds[0], tri->bounds[1], colorCyan);
-			}
-			else if(*surface == SF_MD3)
-			{
-				R_DebugBoundingBox(vec3_origin, entity->localBounds[0], entity->localBounds[1], colorMdGrey);
-			}
-		}
-	}
-
-	backEnd.refdef.floatTime = originalTime;
-
-	// go back to the world modelview matrix
-	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
-	if(depthRange)
-	{
-		qglDepthRange(0, 1);
-	}
-	
-	// reset scissor
-	qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
-			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
-	
-	// reset stage iterator
-	tess.currentStageIteratorType = SIT_DEFAULT;
-}
-
-
-/*
-=================
-RB_RenderInteractions2
-=================
-*/
-void RB_RenderInteractions2(float originalTime, interaction_t * interactions, int numInteractions)
+static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction_t * interactions, int numInteractions)
 {
 	shader_t       *shader, *oldShader;
 	trRefEntity_t  *entity, *oldEntity;
@@ -1009,11 +773,10 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 	
 	if(glConfig.stencilBits < 4 || !glConfig2.shadingLanguage100Available)
 	{
-		RB_RenderInteractions(originalTime, interactions, numInteractions);
-		return;	
+		return;
 	}
 	
-	GLimp_LogComment("--- RB_RenderInteractions2 ---\n");
+	GLimp_LogComment("--- RB_RenderInteractionsStencilShadowed ---\n");
 
 	// draw everything
 	oldLight = NULL;
@@ -1023,7 +786,7 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 	depthRange = qfalse;
 	drawShadows = qtrue;
 	
-	tess.currentStageIteratorType = SIT_LIGHTING2;
+	tess.currentStageIteratorType = SIT_LIGHTING;
 	
 	// store current OpenGL state
 	GL_Program(0);
@@ -1207,33 +970,47 @@ void RB_RenderInteractions2(float originalTime, interaction_t * interactions, in
 			MatrixMultiply(light->attenuationMatrix, modelToLight, light->attenuationMatrix2);
 		}
 		
-		// add the triangles for this surface
-		rb_surfaceTable[*surface] (surface);
-		
 		// draw the contents of the current shader batch
 		if(drawShadows)
 		{
-			if(//(entity != &tr.worldEntity) &&
-				!(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK)) && shader->sort == SS_OPAQUE && !shader->noShadows)
+			if(!(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK)) &&
+				shader->sort == SS_OPAQUE &&
+				!shader->noShadows &&
+				!light->l.noShadows &&
+				ia->type != IA_LIGHTONLY
+			)
 			{
+				// add the triangles for this surface
+				rb_surfaceTable[*surface] (surface);
+				
 				RB_EndSurface();
 				backEnd.pc.c_shadows++;
 			}
-		}
-		else
-		{
-			if(ia->shadowOnly)
+			else
 			{
 				// clear shader so we can tell we don't have any unclosed surfaces
 				tess.numIndexes = 0;
 				tess.numLightIndexes = 0;
 				tess.numShadowIndexes = 0;
 			}
-			else
+		}
+		else
+		{
+			if(ia->type != IA_SHADOWONLY)
 			{
+				// add the triangles for this surface
+				rb_surfaceTable[*surface] (surface);
+				
 				RB_EndSurface();
 				backEnd.pc.c_dlightInteractions++;
 				backEnd.pc.c_dlightBatches++;
+			}
+			else
+			{
+				// clear shader so we can tell we don't have any unclosed surfaces
+				tess.numIndexes = 0;
+				tess.numLightIndexes = 0;
+				tess.numShadowIndexes = 0;
 			}
 		}
 		
@@ -1532,16 +1309,8 @@ void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction
 	// draw everything that is opaque
 	RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qtrue);
 	
-	if(r_shadows->integer == 3)
-	{
-		// render dynamic shadowing and lighting using stencil shadow volumes
-		RB_RenderInteractions2(originalTime, interactions, numInteractions);
-	}
-	else
-	{
-		// render dynamic lighting
-		RB_RenderInteractions(originalTime, interactions, numInteractions);
-	}
+	// render dynamic shadowing and lighting using stencil shadow volumes
+	RB_RenderInteractionsStencilShadowed(originalTime, interactions, numInteractions);
 	
 	// render light scale hack to brighten up the scene
 	RB_RenderLightScale();

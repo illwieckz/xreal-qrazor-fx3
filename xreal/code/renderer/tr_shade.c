@@ -1271,7 +1271,6 @@ static void DrawTris(shaderCommands_t * input)
 	switch (input->currentStageIteratorType)
 	{
 		case SIT_LIGHTING:
-		case SIT_LIGHTING2:
 			qglColor3f(1, 0, 0);
 			break;
 		
@@ -1410,10 +1409,6 @@ void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader,
 	{
 		case SIT_LIGHTING:
 			tess.currentStageIteratorFunc = RB_StageIteratorLighting;
-			break;
-			
-		case SIT_LIGHTING2:
-			tess.currentStageIteratorFunc = RB_StageIteratorLighting2;
 			break;
 		
 		default:
@@ -2908,161 +2903,6 @@ void RB_StageIteratorLighting()
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
 		GLimp_LogComment(va("--- RB_StageIteratorLighting( %s ) ---\n", tess.surfaceShader->name));
-	}
-
-	// set face culling appropriately
-	GL_Cull(tess.surfaceShader->cullType);
-
-	// set polygon offset if necessary
-	if(tess.surfaceShader->polygonOffset)
-	{
-		qglEnable(GL_POLYGON_OFFSET_FILL);
-		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
-	}
-
-	// lock XYZ
-	qglVertexPointer(3, GL_FLOAT, 16, tess.xyz);	// padded for SIMD
-	if(qglLockArraysEXT)
-	{
-		qglLockArraysEXT(0, tess.numVertexes);
-		GLimp_LogComment("glLockArraysEXT\n");
-	}
-
-	// call shader function
-	attenuationZStage = tess.lightShader->stages[0];
-		
-	for(i = 1; i < MAX_SHADER_STAGES; i++)
-	{
-		attenuationXYStage = tess.lightShader->stages[i];
-						
-		if(!attenuationXYStage)
-		{
-			break;
-		}
-			
-		if(attenuationXYStage->type != ST_ATTENUATIONMAP_XY)
-		{
-			continue;
-		}
-			
-		if(!RB_EvalExpression(&attenuationXYStage->ifExp, 1.0))
-		{
-			continue;
-		}
-		
-		ComputeFinalAttenuation(attenuationXYStage, dl);
-			
-		for(j = 0; j < MAX_SHADER_STAGES; j++)
-		{
-			shaderStage_t  *diffuseStage = tess.surfaceStages[j];
-
-			if(!diffuseStage)
-			{
-				break;
-			}
-		
-			if(!RB_EvalExpression(&diffuseStage->ifExp, 1.0))
-			{
-				continue;
-			}
-			
-			ComputeTexCoords(diffuseStage);
-				
-			switch(diffuseStage->type)
-			{
-				case ST_DIFFUSEMAP:
-				case ST_COLLAPSE_lighting_D_radiosity:
-					if(glConfig2.shadingLanguage100Available)
-					{
-						Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-					}
-					else
-					{
-							// TODO
-					}
-					break;
-						
-				case ST_COLLAPSE_lighting_DB_radiosity:
-				case ST_COLLAPSE_lighting_DB_direct:
-				case ST_COLLAPSE_lighting_DB_generic:
-					if(glConfig2.shadingLanguage100Available)
-					{
-						if(r_lighting->integer == 1)
-						{	
-							Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-						}
-						else
-						{
-							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-						}
-					}
-					else
-					{
-							// TODO
-					}
-					break;
-						
-				case ST_COLLAPSE_lighting_DBS_radiosity:
-				case ST_COLLAPSE_lighting_DBS_direct:
-				case ST_COLLAPSE_lighting_DBS_generic:
-					if(glConfig2.shadingLanguage100Available)
-					{
-						if(r_lighting->integer == 2)
-						{
-							Render_lighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-						}
-						else if(r_lighting->integer == 1)
-						{
-							Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-						}
-						else
-						{
-							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-						}
-					}
-					else
-					{
-							// TODO
-					}
-					break;
-						
-				default:
-					break;
-			}
-		}
-	}
-
-	// unlock arrays
-	if(qglUnlockArraysEXT)
-	{
-		qglUnlockArraysEXT();
-		GLimp_LogComment("glUnlockArraysEXT\n");
-	}
-
-	// reset polygon offset
-	if(tess.surfaceShader->polygonOffset)
-	{
-		qglDisable(GL_POLYGON_OFFSET_FILL);
-	}
-}
-
-void RB_StageIteratorLighting2()
-{
-	int				i, j;
-	trRefDlight_t  *dl;
-	shaderStage_t  *attenuationXYStage;
-	shaderStage_t  *attenuationZStage;
-	
-	dl = backEnd.currentLight;
-	
-	RB_DeformTessGeometry();
-
-	// log this call
-	if(r_logFile->integer)
-	{
-		// don't just call LogComment, or we will get
-		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorLighting2( %s ) ---\n", tess.surfaceShader->name));
 	}
 
 	// set face culling appropriately
