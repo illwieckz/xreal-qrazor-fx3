@@ -2343,6 +2343,13 @@ void R_LoadEntities(lump_t * l)
 			MatrixToVectorsFLU(rotation, dl->l.axis[0], dl->l.axis[1], dl->l.axis[2]);
 			continue;
 		}
+		
+		// check if this light does not cast any shadows
+		if(!Q_stricmp(keyname, "noShadows") && !Q_stricmp(value, "1"))
+		{
+			dl->l.noShadows = qtrue;
+			continue;
+		}
 	}
 
 	ri.Printf(PRINT_ALL, "%i lights parsed\n", numLights);

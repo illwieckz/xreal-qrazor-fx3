@@ -207,6 +207,7 @@ typedef struct
 	
 	vec3_t          axis[3];	// rotation vectors
 	qboolean        nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
+	qboolean        noShadows;
 } refDlight_t;
 
 

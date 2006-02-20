@@ -447,7 +447,7 @@ void R_AddMD3Interactions(trRefEntity_t * ent, trRefDlight_t * light)
 	// is outside the view frustum and we don't care about proper shadowing
 	if(ent->cull == CULL_OUT)
 	{
-		if(r_shadows->integer <= 2)
+		if(r_shadows->integer <= 2 || light->l.noShadows)
 			return;
 		else
 			shadowOnly = qtrue;

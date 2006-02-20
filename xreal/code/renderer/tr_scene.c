@@ -357,6 +357,8 @@ static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r
 	dl->l.color[2] = b;
 	
 	AxisCopy(axisDefault, dl->l.axis);
+	dl->l.nonNormalizedAxes = qfalse;
+	dl->l.noShadows = qfalse;
 	
 	dl->isStatic = qfalse;
 	dl->additive = additive;

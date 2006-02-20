@@ -257,7 +257,7 @@ static void R_AddInteractionSurface(msurface_t * surf, trRefDlight_t * light)
 	// into this view
 	if(surf->viewCount != tr.viewCount)
 	{
-		if(r_shadows->integer <= 2)
+		if(r_shadows->integer <= 2 || light->l.noShadows)
 			return;
 		else
 			shadowOnly = qtrue;
@@ -914,7 +914,7 @@ void R_AddPrecachedWorldInteractions(trRefDlight_t * light)
 		// into this view
 		if(surface->viewCount != tr.viewCount)
 		{
-			if(r_shadows->integer <= 2)
+			if(r_shadows->integer <= 2 || light->l.noShadows)
 				continue;
 			else
 				shadowOnly = qtrue;

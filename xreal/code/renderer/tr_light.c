@@ -66,7 +66,7 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefDlight_t * light)
 	// and we don't care about proper shadowing
 	if(ent->cull == CULL_OUT)
 	{
-		if(r_shadows->integer <= 2)
+		if(r_shadows->integer <= 2 || light->l.noShadows)
 			return;
 		else
 			shadowOnly = qtrue;
