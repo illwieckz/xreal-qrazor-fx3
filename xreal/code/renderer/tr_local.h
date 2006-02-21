@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define GL_INDEX_TYPE		GL_UNSIGNED_INT
 typedef unsigned int glIndex_t;
 
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+
 // fast float to int conversion
 #if id386 && !( (defined __linux__ || defined __FreeBSD__ ) && (defined __i386__ ) )	// rb010123
 long            myftol(float f);
@@ -1074,9 +1076,17 @@ typedef struct
 	// triangle definitions
 	int             numIndexes;
 	int            *indexes;
+	GLuint          indexesVBO;
 
 	int             numVerts;
 	srfVert_t      *verts;
+	GLuint          vertsVBO;
+	GLuint          ofsXYZ;
+	GLuint          ofsTexCoords;
+	GLuint          ofsTangents;
+	GLuint          ofsBinormals;
+	GLuint          ofsNormals;
+	GLuint          ofsColors;
 } srfTriangles_t;
 
 
@@ -1459,6 +1469,8 @@ typedef struct
 typedef struct
 {
 	int             c_surfaces, c_shaders, c_vertexes, c_indexes, c_totalIndexes;
+	int             c_vboVertexBuffers;
+	int             c_vboIndexBuffers;
 	float           c_overDraw;
 
 	int             c_dlights;
@@ -1733,6 +1745,7 @@ extern cvar_t  *r_ext_texture_env_add;
 extern cvar_t  *r_ext_transpose_matrix;
 extern cvar_t  *r_ext_texture_cube_map;
 extern cvar_t  *r_ext_vertex_program;
+extern cvar_t  *r_ext_vertex_buffer_object;
 extern cvar_t  *r_ext_shader_objects;
 extern cvar_t  *r_ext_vertex_shader;
 extern cvar_t  *r_ext_fragment_shader;
@@ -2103,6 +2116,7 @@ typedef struct stageVars
 {
 	color4ub_t      colors[SHADER_MAX_VERTEXES];
 	vec2_t          texCoords[MAX_TEXTURE_BUNDLES][SHADER_MAX_VERTEXES];
+	matrix_t        texMatrices[MAX_TEXTURE_BUNDLES];
 } stageVars_t;
 
 typedef struct shaderCommands_s
@@ -2113,7 +2127,16 @@ typedef struct shaderCommands_s
 	vec4_t          binormals[SHADER_MAX_VERTEXES];
 	vec4_t          normals[SHADER_MAX_VERTEXES];
 	vec2_t          texCoords[SHADER_MAX_VERTEXES][2];
-	color4ub_t      vertexColors[SHADER_MAX_VERTEXES];
+	color4ub_t      colors[SHADER_MAX_VERTEXES];
+	
+	GLuint          indexesVBO;
+	GLuint          vertexesVBO;
+	GLuint          ofsXYZ;
+	GLuint          ofsTexCoords;
+	GLuint          ofsTangents;
+	GLuint          ofsBinormals;
+	GLuint          ofsNormals;
+	GLuint          ofsColors;
 
 	stageVars_t     svars;
 
@@ -2161,7 +2184,9 @@ void            RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader
 void            RB_EndSurface(void);
 void            RB_CheckOverflow(int verts, int indexes);
 
-#define RB_CHECKOVERFLOW(v,i) if (tess.numVertexes + (v) >= SHADER_MAX_VERTEXES || tess.numIndexes + (i) >= SHADER_MAX_INDEXES ) {RB_CheckOverflow(v,i);}
+//#define RB_CHECKOVERFLOW(v,i) if (tess.numVertexes + (v) >= SHADER_MAX_VERTEXES || tess.numIndexes + (i) >= SHADER_MAX_INDEXES ) {RB_CheckOverflow(v,i);}
+
+#define RB_CHECKOVERFLOW(v,i) {RB_CheckOverflow(v,i);}
 
 void            RB_InitGPUShaders();
 void            RB_ShutdownGPUShaders();
@@ -2267,7 +2292,7 @@ CURVE TESSELATION
 ============================================================
 */
 
-#define PATCH_STITCHING
+//#define PATCH_STITCHING
 
 srfGridMesh_t  *R_SubdividePatchToGrid(int width, int height, srfVert_t points[MAX_PATCH_SIZE * MAX_PATCH_SIZE]);
 srfGridMesh_t  *R_GridInsertColumn(srfGridMesh_t * grid, int column, int row, vec3_t point, float loderror);

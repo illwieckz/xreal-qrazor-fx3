@@ -86,6 +86,7 @@ cvar_t         *r_ext_texture_env_add;
 cvar_t         *r_ext_transpose_matrix;
 cvar_t         *r_ext_texture_cube_map;
 cvar_t         *r_ext_vertex_program;
+cvar_t         *r_ext_vertex_buffer_object;
 cvar_t         *r_ext_shader_objects;
 cvar_t         *r_ext_vertex_shader;
 cvar_t         *r_ext_fragment_shader;
@@ -186,6 +187,21 @@ void            (APIENTRY * qglVertexAttribPointerARB) (GLuint index, GLint size
 														GLsizei stride, const GLvoid * pointer);
 void            (APIENTRY * qglEnableVertexAttribArrayARB) (GLuint index);
 void            (APIENTRY * qglDisableVertexAttribArrayARB) (GLuint index);
+
+// GL_ARB_vertex_buffer_object
+void            (APIENTRY * qglBindBufferARB) (GLenum target, GLuint buffer);
+void            (APIENTRY * qglDeleteBuffersARB) (GLsizei n, const GLuint * buffers);
+void            (APIENTRY * qglGenBuffersARB) (GLsizei n, GLuint * buffers);
+
+GLboolean(APIENTRY * qglIsBufferARB) (GLuint buffer);
+void            (APIENTRY * qglBufferDataARB) (GLenum target, GLsizeiptrARB size, const GLvoid * data, GLenum usage);
+void            (APIENTRY * qglBufferSubDataARB) (GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid * data);
+void            (APIENTRY * qglGetBufferSubDataARB) (GLenum target, GLintptrARB offset, GLsizeiptrARB size, GLvoid * data);
+GLvoid         *(APIENTRY * qglMapBufferARB) (GLenum target, GLenum access);
+
+GLboolean(APIENTRY * qglUnmapBufferARB) (GLenum target);
+void            (APIENTRY * qglGetBufferParameterivARB) (GLenum target, GLenum pname, GLint * params);
+void            (APIENTRY * qglGetBufferPointervARB) (GLenum target, GLenum pname, GLvoid * *params);
 
 // GL_ARB_shader_objects
 void            (APIENTRY * qglDeleteObjectARB) (GLhandleARB obj);
@@ -885,12 +901,12 @@ void R_ScreenShotJPEG_f(void)
 */
 void GL_SetDefaultState(void)
 {
-	int				i;
-	
+	int             i;
+
 	GLimp_LogComment("--- GL_SetDefaultState ---\n");
-	
+
 	qglClearDepth(1.0f);
-	
+
 	if(glConfig.stencilBits >= 4)
 	{
 		//qglClearStencil(128);
@@ -911,14 +927,14 @@ void GL_SetDefaultState(void)
 			GL_SelectTexture(i);
 			GL_TextureMode(r_textureMode->string);
 			GL_TexEnv(GL_MODULATE);
-			
+
 			if(i != 0)
 				qglDisable(GL_TEXTURE_2D);
 			else
 				qglEnable(GL_TEXTURE_2D);
 		}
 	}
-	
+
 	qglShadeModel(GL_SMOOTH);
 	qglDepthFunc(GL_LEQUAL);
 
@@ -1083,6 +1099,7 @@ void R_Register(void)
 	r_ext_transpose_matrix = ri.Cvar_Get("r_ext_transpose_matrix", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_texture_cube_map = ri.Cvar_Get("r_ext_texture_cube_map", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_vertex_program = ri.Cvar_Get("r_ext_vertex_program", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_vertex_buffer_object = ri.Cvar_Get("r_ext_vertex_buffer_object", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_shader_objects = ri.Cvar_Get("r_ext_shader_objects", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_vertex_shader = ri.Cvar_Get("r_ext_vertex_shader", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_fragment_shader = ri.Cvar_Get("r_ext_fragment_shader", "1", CVAR_ARCHIVE | CVAR_LATCH);
@@ -1331,7 +1348,7 @@ void R_Init(void)
 	R_InitSkins();
 
 	R_ModelInit();
-	
+
 	R_InitAnimations();
 
 	R_InitFreeType();

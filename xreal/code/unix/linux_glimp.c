@@ -1462,6 +1462,47 @@ static void GLW_InitExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, "...GL_ARB_vertex_program not found\n");
 	}
+	
+	// GL_ARB_vertex_buffer_object
+	glConfig2.vertexBufferObjectAvailable = qfalse;
+	qglBindBufferARB = NULL;
+	qglDeleteBuffersARB = NULL;
+	qglGenBuffersARB = NULL;
+	qglIsBufferARB = NULL;
+	qglBufferDataARB = NULL;
+	qglBufferSubDataARB = NULL;
+	qglGetBufferSubDataARB = NULL;
+	qglMapBufferARB = NULL;
+	qglUnmapBufferARB = NULL;
+	qglGetBufferParameterivARB = NULL;
+	qglGetBufferPointervARB = NULL;
+	if(Q_stristr(glConfig.extensions_string, "GL_ARB_vertex_buffer_object"))
+	{
+		if(r_ext_vertex_buffer_object->value)
+		{
+			qglBindBufferARB = (PFNGLBINDBUFFERARBPROC) qwglGetProcAddress("glBindBufferARB");
+			qglDeleteBuffersARB = (PFNGLDELETEBUFFERSARBPROC) qwglGetProcAddress("glDeleteBuffersARB");
+			qglGenBuffersARB = (PFNGLGENBUFFERSARBPROC) qwglGetProcAddress("glGenBuffersARB");
+			qglIsBufferARB = (PFNGLISBUFFERARBPROC) qwglGetProcAddress("glIsBufferARB");
+			qglBufferDataARB = (PFNGLBUFFERDATAARBPROC) qwglGetProcAddress("glBufferDataARB");
+			qglBufferSubDataARB = (PFNGLBUFFERSUBDATAARBPROC) qwglGetProcAddress("glBufferSubDataARB");
+			qglGetBufferSubDataARB = (PFNGLGETBUFFERSUBDATAARBPROC) qwglGetProcAddress("glGetBufferSubDataARB");
+			qglMapBufferARB = (PFNGLMAPBUFFERARBPROC) qwglGetProcAddress("glMapBufferARB");
+			qglUnmapBufferARB = (PFNGLUNMAPBUFFERARBPROC) qwglGetProcAddress("glUnmapBufferARB");
+			qglGetBufferParameterivARB = (PFNGLGETBUFFERPARAMETERIVARBPROC) qwglGetProcAddress("glGetBufferParameterivARB");
+			qglGetBufferPointervARB = (PFNGLGETBUFFERPOINTERVARBPROC) qwglGetProcAddress("glGetBufferPointervARB");
+			glConfig2.vertexBufferObjectAvailable = qtrue;
+			ri.Printf(PRINT_ALL, "...using GL_ARB_vertex_buffer_object\n");
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_ARB_vertex_buffer_object\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_ARB_vertex_buffer_object not found\n");
+	}
 
 	// GL_ARB_shader_objects
 	glConfig2.shaderObjectsAvailable = qfalse;

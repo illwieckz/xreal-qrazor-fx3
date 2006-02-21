@@ -729,9 +729,9 @@ void RB_DrawSun(void)
 	VectorCopy(temp, tess.xyz[tess.numVertexes]);
 	tess.texCoords[tess.numVertexes][0][0] = 0;
 	tess.texCoords[tess.numVertexes][0][1] = 0;
-	tess.vertexColors[tess.numVertexes][0] = 255;
-	tess.vertexColors[tess.numVertexes][1] = 255;
-	tess.vertexColors[tess.numVertexes][2] = 255;
+	tess.colors[tess.numVertexes][0] = 255;
+	tess.colors[tess.numVertexes][1] = 255;
+	tess.colors[tess.numVertexes][2] = 255;
 	tess.numVertexes++;
 
 	VectorCopy(origin, temp);
@@ -740,9 +740,9 @@ void RB_DrawSun(void)
 	VectorCopy(temp, tess.xyz[tess.numVertexes]);
 	tess.texCoords[tess.numVertexes][0][0] = 0;
 	tess.texCoords[tess.numVertexes][0][1] = 1;
-	tess.vertexColors[tess.numVertexes][0] = 255;
-	tess.vertexColors[tess.numVertexes][1] = 255;
-	tess.vertexColors[tess.numVertexes][2] = 255;
+	tess.colors[tess.numVertexes][0] = 255;
+	tess.colors[tess.numVertexes][1] = 255;
+	tess.colors[tess.numVertexes][2] = 255;
 	tess.numVertexes++;
 
 	VectorCopy(origin, temp);
@@ -751,9 +751,9 @@ void RB_DrawSun(void)
 	VectorCopy(temp, tess.xyz[tess.numVertexes]);
 	tess.texCoords[tess.numVertexes][0][0] = 1;
 	tess.texCoords[tess.numVertexes][0][1] = 1;
-	tess.vertexColors[tess.numVertexes][0] = 255;
-	tess.vertexColors[tess.numVertexes][1] = 255;
-	tess.vertexColors[tess.numVertexes][2] = 255;
+	tess.colors[tess.numVertexes][0] = 255;
+	tess.colors[tess.numVertexes][1] = 255;
+	tess.colors[tess.numVertexes][2] = 255;
 	tess.numVertexes++;
 
 	VectorCopy(origin, temp);
@@ -762,9 +762,9 @@ void RB_DrawSun(void)
 	VectorCopy(temp, tess.xyz[tess.numVertexes]);
 	tess.texCoords[tess.numVertexes][0][0] = 1;
 	tess.texCoords[tess.numVertexes][0][1] = 0;
-	tess.vertexColors[tess.numVertexes][0] = 255;
-	tess.vertexColors[tess.numVertexes][1] = 255;
-	tess.vertexColors[tess.numVertexes][2] = 255;
+	tess.colors[tess.numVertexes][0] = 255;
+	tess.colors[tess.numVertexes][1] = 255;
+	tess.colors[tess.numVertexes][2] = 255;
 	tess.numVertexes++;
 
 	tess.indexes[tess.numIndexes++] = 0;

@@ -343,40 +343,40 @@ void RB_RenderFlare(flare_t * f)
 	tess.xyz[tess.numVertexes][1] = f->windowY - size;
 	tess.texCoords[tess.numVertexes][0][0] = 0;
 	tess.texCoords[tess.numVertexes][0][1] = 0;
-	tess.vertexColors[tess.numVertexes][0] = iColor[0];
-	tess.vertexColors[tess.numVertexes][1] = iColor[1];
-	tess.vertexColors[tess.numVertexes][2] = iColor[2];
-	tess.vertexColors[tess.numVertexes][3] = 255;
+	tess.colors[tess.numVertexes][0] = iColor[0];
+	tess.colors[tess.numVertexes][1] = iColor[1];
+	tess.colors[tess.numVertexes][2] = iColor[2];
+	tess.colors[tess.numVertexes][3] = 255;
 	tess.numVertexes++;
 
 	tess.xyz[tess.numVertexes][0] = f->windowX - size;
 	tess.xyz[tess.numVertexes][1] = f->windowY + size;
 	tess.texCoords[tess.numVertexes][0][0] = 0;
 	tess.texCoords[tess.numVertexes][0][1] = 1;
-	tess.vertexColors[tess.numVertexes][0] = iColor[0];
-	tess.vertexColors[tess.numVertexes][1] = iColor[1];
-	tess.vertexColors[tess.numVertexes][2] = iColor[2];
-	tess.vertexColors[tess.numVertexes][3] = 255;
+	tess.colors[tess.numVertexes][0] = iColor[0];
+	tess.colors[tess.numVertexes][1] = iColor[1];
+	tess.colors[tess.numVertexes][2] = iColor[2];
+	tess.colors[tess.numVertexes][3] = 255;
 	tess.numVertexes++;
 
 	tess.xyz[tess.numVertexes][0] = f->windowX + size;
 	tess.xyz[tess.numVertexes][1] = f->windowY + size;
 	tess.texCoords[tess.numVertexes][0][0] = 1;
 	tess.texCoords[tess.numVertexes][0][1] = 1;
-	tess.vertexColors[tess.numVertexes][0] = iColor[0];
-	tess.vertexColors[tess.numVertexes][1] = iColor[1];
-	tess.vertexColors[tess.numVertexes][2] = iColor[2];
-	tess.vertexColors[tess.numVertexes][3] = 255;
+	tess.colors[tess.numVertexes][0] = iColor[0];
+	tess.colors[tess.numVertexes][1] = iColor[1];
+	tess.colors[tess.numVertexes][2] = iColor[2];
+	tess.colors[tess.numVertexes][3] = 255;
 	tess.numVertexes++;
 
 	tess.xyz[tess.numVertexes][0] = f->windowX + size;
 	tess.xyz[tess.numVertexes][1] = f->windowY - size;
 	tess.texCoords[tess.numVertexes][0][0] = 1;
 	tess.texCoords[tess.numVertexes][0][1] = 0;
-	tess.vertexColors[tess.numVertexes][0] = iColor[0];
-	tess.vertexColors[tess.numVertexes][1] = iColor[1];
-	tess.vertexColors[tess.numVertexes][2] = iColor[2];
-	tess.vertexColors[tess.numVertexes][3] = 255;
+	tess.colors[tess.numVertexes][0] = iColor[0];
+	tess.colors[tess.numVertexes][1] = iColor[1];
+	tess.colors[tess.numVertexes][2] = iColor[2];
+	tess.colors[tess.numVertexes][3] = 255;
 	tess.numVertexes++;
 
 	tess.indexes[tess.numIndexes++] = 0;

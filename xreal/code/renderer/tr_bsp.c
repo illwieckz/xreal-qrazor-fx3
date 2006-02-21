@@ -624,7 +624,7 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 	tri->numIndexes = numIndexes;
 	tri->verts = (srfVert_t *) (tri + 1);
 	tri->indexes = (int *)(tri->verts + tri->numVerts);
-
+	
 	surf->data = (surfaceType_t *) tri;
 
 	// copy vertexes
@@ -657,7 +657,7 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 			ri.Error(ERR_DROP, "Bad index in triangle surface");
 		}
 	}
-
+	
 	// Tr3B - calc tangent spaces
 	{
 		vec3_t          faceNormal;
@@ -707,6 +707,122 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 			VectorNormalize(tri->verts[i].binormal);
 			VectorNormalize(tri->verts[i].normal);
 		}
+	}
+	
+	// create VBOs
+	if(glConfig2.vertexBufferObjectAvailable && numVerts)
+	{
+		byte           *data;
+		int             dataSize;
+		int             dataOfs;
+		vec4_t          tmp;
+		
+		qglGenBuffersARB(1, &tri->vertsVBO);
+		
+		dataSize = numVerts * (sizeof(vec4_t) * 5 + sizeof(color4ub_t));
+		data = ri.Hunk_AllocateTempMemory(dataSize);
+		dataOfs = 0;
+		
+		// set up xyz array
+		tri->ofsXYZ = 0;
+		for(i = 0; i < numVerts; i++)
+		{
+			for(j = 0; j < 3; j++)
+			{
+				tmp[j] = tri->verts[i].xyz[j];
+			}
+			tmp[3] = 1;
+			
+			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+			dataOfs += sizeof(vec4_t);
+		}
+		
+		// set up texcoords array
+		tri->ofsTexCoords = dataOfs;
+		for(i = 0; i < numVerts; i++)
+		{
+			for(j = 0; j < 2; j++)
+			{
+				tmp[j] = tri->verts[i].st[j];
+			}
+			tmp[2] = 0;
+			tmp[3] = 1;
+			
+			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+			dataOfs += sizeof(vec4_t);
+		}
+		
+		// set up tangents array
+		tri->ofsTangents = dataOfs;
+		for(i = 0; i < numVerts; i++)
+		{
+			for(j = 0; j < 3; j++)
+			{
+				tmp[j] = tri->verts[i].tangent[j];
+			}
+			tmp[3] = 1;
+			
+			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+			dataOfs += sizeof(vec4_t);
+		}
+		
+		// set up binormals array
+		tri->ofsBinormals = dataOfs;
+		for(i = 0; i < numVerts; i++)
+		{
+			for(j = 0; j < 3; j++)
+			{
+				tmp[j] = tri->verts[i].binormal[j];
+			}
+			tmp[3] = 1;
+			
+			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+			dataOfs += sizeof(vec4_t);
+		}
+		
+		// set up normals array
+		tri->ofsBinormals = dataOfs;
+		for(i = 0; i < numVerts; i++)
+		{
+			for(j = 0; j < 3; j++)
+			{
+				tmp[j] = tri->verts[i].normal[j];
+			}
+			tmp[3] = 1;
+			
+			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+			dataOfs += sizeof(vec4_t);
+		}
+		
+		// set up normals array
+		tri->ofsColors = dataOfs;
+		for(i = 0; i < numVerts; i++)
+		{
+			memcpy(data + dataOfs, tri->verts[i].color, sizeof(color4ub_t));
+			dataOfs += sizeof(color4ub_t);
+		}
+		
+		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, tri->vertsVBO);
+		qglBufferDataARB(GL_ARRAY_BUFFER_ARB, dataSize, data, GL_STATIC_DRAW_ARB);
+		
+		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		ri.Hunk_FreeTempMemory(data);
+	}
+	
+	if(glConfig2.vertexBufferObjectAvailable && numIndexes)
+	{
+		byte           *indexes;
+		int             indexesSize;
+		
+		qglGenBuffersARB(1, &tri->indexesVBO);
+		
+		indexes = (byte *)&tri->indexes[0];
+		indexesSize = numIndexes * sizeof(tri->indexes[0]);
+		
+		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tri->indexesVBO);
+		qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_STATIC_DRAW_ARB);
+		
+		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 	}
 }
 

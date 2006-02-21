@@ -951,47 +951,64 @@ void GL_ClientState(unsigned long stateBits)
 
 static void GL_SetVertexAttribs()
 {
-	/*
-	   if( glConfig2.vertexBufferObjectAvailable && input->vbo_array_buffer ) {
-	   TODO
-	   }
-	   else 
-
-
-	   if(gl_config.arb_vertex_buffer_object) {
-	   gl_state.current_vbo_array_buffer = 0;
-	   gl_state.current_vbo_vertexes_ofs = 0;
-
-	   qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-	   }
-	 */
-
-//	if(attribs & GLCS_VERTEX)
-//		qglVertexPointer(3, GL_FLOAT, 16, tess.xyz);
+	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+	{
+		if(glState.glClientStateBits & GLCS_VERTEX)
+			qglVertexPointer(3, GL_FLOAT, 16, BUFFER_OFFSET(tess.ofsXYZ));
 	
-	if(glState.glClientStateBits & GLCS_TEXCOORD0)
-		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_COLORMAP]);
-
-	if(glState.glClientStateBits & GLCS_TEXCOORD1)
-		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_NORMALMAP]);
+		if(glState.glClientStateBits & GLCS_TEXCOORD0)
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.ofsTexCoords));
 	
-	if(glState.glClientStateBits & GLCS_TEXCOORD2)
-		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD2, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_SPECULARMAP]);
+		if(glState.glClientStateBits & GLCS_TEXCOORD1)
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.ofsTexCoords));
+		
+		if(glState.glClientStateBits & GLCS_TEXCOORD2)
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD2, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.ofsTexCoords));
+		
+		if(glState.glClientStateBits & GLCS_TEXCOORD3)
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD3, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.ofsTexCoords));
 	
-	if(glState.glClientStateBits & GLCS_TEXCOORD3)
-		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD3, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_LIGHTMAP]);
-
-	if(glState.glClientStateBits & GLCS_TANGENT)
-		qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, tess.tangents);
-
-	if(glState.glClientStateBits & GLCS_BINORMAL)
-		qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, tess.binormals);
-
-	if(glState.glClientStateBits & GLCS_NORMAL)
-		qglNormalPointer(GL_FLOAT, 16, tess.normals);
-
-	if(glState.glClientStateBits & GLCS_COLOR)
-		qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.svars.colors);
+		if(glState.glClientStateBits & GLCS_TANGENT)
+			qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.ofsTangents));
+	
+		if(glState.glClientStateBits & GLCS_BINORMAL)
+			qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.ofsBinormals));
+	
+		if(glState.glClientStateBits & GLCS_NORMAL)
+			qglNormalPointer(GL_FLOAT, 16, BUFFER_OFFSET(tess.ofsNormals));
+	
+		if(glState.glClientStateBits & GLCS_COLOR)
+			qglColorPointer(4, GL_UNSIGNED_BYTE, 0, BUFFER_OFFSET(tess.ofsColors));
+	}
+	else
+	{
+		if(glState.glClientStateBits & GLCS_VERTEX)
+			qglVertexPointer(3, GL_FLOAT, 16, tess.xyz);
+	
+		if(glState.glClientStateBits & GLCS_TEXCOORD0)
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_COLORMAP]);
+	
+		if(glState.glClientStateBits & GLCS_TEXCOORD1)
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_NORMALMAP]);
+		
+		if(glState.glClientStateBits & GLCS_TEXCOORD2)
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD2, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_SPECULARMAP]);
+		
+		if(glState.glClientStateBits & GLCS_TEXCOORD3)
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD3, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_LIGHTMAP]);
+	
+		if(glState.glClientStateBits & GLCS_TANGENT)
+			qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, tess.tangents);
+	
+		if(glState.glClientStateBits & GLCS_BINORMAL)
+			qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, tess.binormals);
+	
+		if(glState.glClientStateBits & GLCS_NORMAL)
+			qglNormalPointer(GL_FLOAT, 16, tess.normals);
+	
+		if(glState.glClientStateBits & GLCS_COLOR)
+			qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.svars.colors);
+	}
 }
 
 
@@ -1152,10 +1169,18 @@ static void R_DrawElements(int numIndexes, const glIndex_t * indexes)
 		}
 	}
 
-
 	if(primitives == 2)
 	{
-		qglDrawElements(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE, indexes);
+		if(glConfig2.vertexBufferObjectAvailable && tess.indexesVBO)
+		{
+			//qglDrawRangeElementsEXT(GL_TRIANGLES, 0, tessmesh->vertexes.size(), mesh->indexes.size(), GL_UNSIGNED_INT, VBO_BUFFER_OFFSET(mesh->vbo_indexes_ofs));
+			
+			qglDrawElements(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE, 0);
+		}
+		else
+		{
+			qglDrawElements(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE, indexes);
+		}
 		return;
 	}
 
@@ -1276,15 +1301,16 @@ static void DrawTris(shaderCommands_t * input)
 		
 		default:
 		case SIT_DEFAULT:
-			qglColor3f(1, 1, 1);
+			if(tess.vertexesVBO)
+				qglColor3f(0, 0, 1);
+			else
+				qglColor3f(1, 1, 1);
 			break;
 	}
 	
 	GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
 	GL_ClientState(GLCS_VERTEX);
 	qglDepthRange(0, 0);
-
-	qglVertexPointer(3, GL_FLOAT, 16, input->xyz);	// padded for SIMD
 
 	if(qglLockArraysEXT)
 	{
@@ -1395,6 +1421,9 @@ void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader,
 					 int numShadowIndexes, int *shadowIndexes)
 {
 	shader_t       *state = (surfaceShader->remappedShader) ? surfaceShader->remappedShader : surfaceShader;
+	
+	tess.indexesVBO = 0;
+	tess.vertexesVBO = 0;
 
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
@@ -1454,7 +1483,15 @@ static void Render_generic_single_FFP(int stage)
 	GL_SelectTexture(0);
 //	qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_COLORMAP]);
+	
+	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+	{
+		qglTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsTexCoords));
+	}
+	else
+	{
+		qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_COLORMAP]);
+	}
 
 	R_BindAnimatedImage(&pStage->bundle[0]);
 
@@ -1486,8 +1523,15 @@ static void Render_zfill_FFP(int stage)
 	GL_SelectTexture(0);
 //	qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-//	qglDisableClientState(GL_COLOR_ARRAY);
-	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
+
+	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+	{
+		qglTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsTexCoords));
+	}
+	else
+	{
+		qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
+	}
 	
 	if(pStage->stateBits & GLS_ATEST_BITS)
 	{
@@ -2485,7 +2529,7 @@ static void ComputeColors(shaderStage_t * pStage)
 			break;
 			
 		case CGEN_EXACT_VERTEX:
-			Com_Memcpy(tess.svars.colors, tess.vertexColors, tess.numVertexes * sizeof(tess.vertexColors[0]));
+			Com_Memcpy(tess.svars.colors, tess.colors, tess.numVertexes * sizeof(tess.colors[0]));
 			break;
 			
 		case CGEN_CONST:
@@ -2498,16 +2542,16 @@ static void ComputeColors(shaderStage_t * pStage)
 		case CGEN_VERTEX:
 			if(tr.identityLight == 1)
 			{
-				Com_Memcpy(tess.svars.colors, tess.vertexColors, tess.numVertexes * sizeof(tess.vertexColors[0]));
+				Com_Memcpy(tess.svars.colors, tess.colors, tess.numVertexes * sizeof(tess.colors[0]));
 			}
 			else
 			{
 				for(i = 0; i < tess.numVertexes; i++)
 				{
-					tess.svars.colors[i][0] = tess.vertexColors[i][0] * tr.identityLight;
-					tess.svars.colors[i][1] = tess.vertexColors[i][1] * tr.identityLight;
-					tess.svars.colors[i][2] = tess.vertexColors[i][2] * tr.identityLight;
-					tess.svars.colors[i][3] = tess.vertexColors[i][3];
+					tess.svars.colors[i][0] = tess.colors[i][0] * tr.identityLight;
+					tess.svars.colors[i][1] = tess.colors[i][1] * tr.identityLight;
+					tess.svars.colors[i][2] = tess.colors[i][2] * tr.identityLight;
+					tess.svars.colors[i][3] = tess.colors[i][3];
 				}
 			}
 			break;
@@ -2517,18 +2561,18 @@ static void ComputeColors(shaderStage_t * pStage)
 			{
 				for(i = 0; i < tess.numVertexes; i++)
 				{
-					tess.svars.colors[i][0] = 255 - tess.vertexColors[i][0];
-					tess.svars.colors[i][1] = 255 - tess.vertexColors[i][1];
-					tess.svars.colors[i][2] = 255 - tess.vertexColors[i][2];
+					tess.svars.colors[i][0] = 255 - tess.colors[i][0];
+					tess.svars.colors[i][1] = 255 - tess.colors[i][1];
+					tess.svars.colors[i][2] = 255 - tess.colors[i][2];
 				}
 			}
 			else
 			{
 				for(i = 0; i < tess.numVertexes; i++)
 				{
-					tess.svars.colors[i][0] = (255 - tess.vertexColors[i][0]) * tr.identityLight;
-					tess.svars.colors[i][1] = (255 - tess.vertexColors[i][1]) * tr.identityLight;
-					tess.svars.colors[i][2] = (255 - tess.vertexColors[i][2]) * tr.identityLight;
+					tess.svars.colors[i][0] = (255 - tess.colors[i][0]) * tr.identityLight;
+					tess.svars.colors[i][1] = (255 - tess.colors[i][1]) * tr.identityLight;
+					tess.svars.colors[i][2] = (255 - tess.colors[i][2]) * tr.identityLight;
 				}
 			}
 			break;
@@ -2617,7 +2661,7 @@ static void ComputeColors(shaderStage_t * pStage)
 			{
 				for(i = 0; i < tess.numVertexes; i++)
 				{
-					tess.svars.colors[i][3] = tess.vertexColors[i][3];
+					tess.svars.colors[i][3] = tess.colors[i][3];
 				}
 			}
 			break;
@@ -2625,7 +2669,7 @@ static void ComputeColors(shaderStage_t * pStage)
 		case AGEN_ONE_MINUS_VERTEX:
 			for(i = 0; i < tess.numVertexes; i++)
 			{
-				tess.svars.colors[i][3] = 255 - tess.vertexColors[i][3];
+				tess.svars.colors[i][3] = 255 - tess.colors[i][3];
 			}
 			break;
 			
@@ -2732,10 +2776,8 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 			case TCGEN_VECTOR:
 				for(i = 0; i < tess.numVertexes; i++)
 				{
-					tess.svars.texCoords[b][i][0] =
-						DotProduct(tess.xyz[i], pStage->bundle[b].tcGenVectors[0]);
-					tess.svars.texCoords[b][i][1] =
-						DotProduct(tess.xyz[i], pStage->bundle[b].tcGenVectors[1]);
+					tess.svars.texCoords[b][i][0] = DotProduct(tess.xyz[i], pStage->bundle[b].tcGenVectors[0]);
+					tess.svars.texCoords[b][i][1] = DotProduct(tess.xyz[i], pStage->bundle[b].tcGenVectors[1]);
 				}
 				break;
 				
@@ -2943,7 +2985,6 @@ void RB_StageIteratorLighting()
 	}
 
 	// lock XYZ
-	qglVertexPointer(3, GL_FLOAT, 16, tess.xyz);	// padded for SIMD
 	if(qglLockArraysEXT)
 	{
 		qglLockArraysEXT(0, tess.numVertexes);
@@ -3103,7 +3144,6 @@ void RB_StageIteratorGeneric()
 	}
 
 	// lock XYZ
-	qglVertexPointer(3, GL_FLOAT, 16, tess.xyz);	// padded for SIMD
 	if(qglLockArraysEXT)
 	{
 		qglLockArraysEXT(0, tess.numVertexes);
@@ -3454,20 +3494,16 @@ void RB_StageIteratorGeneric()
 
 void RB_EndSurface()
 {
-	shaderCommands_t *input;
-
-	input = &tess;
-
-	if(input->numIndexes == 0)
+	if(tess.numIndexes == 0)
 	{
 		return;
 	}
 
-	if(input->indexes[SHADER_MAX_INDEXES - 1] != 0)
+	if(tess.indexes[SHADER_MAX_INDEXES - 1] != 0)
 	{
 		ri.Error(ERR_DROP, "RB_EndSurface() - SHADER_MAX_INDEXES hit");
 	}
-	if(input->xyz[SHADER_MAX_VERTEXES - 1][0] != 0)
+	if(tess.xyz[SHADER_MAX_VERTEXES - 1][0] != 0)
 	{
 		ri.Error(ERR_DROP, "RB_EndSurface() - SHADER_MAX_VERTEXES hit");
 	}
@@ -3497,15 +3533,35 @@ void RB_EndSurface()
 	// draw debugging stuff
 	if(r_showtris->integer)
 	{
-		DrawTris(input);
+		DrawTris(&tess);
 	}
 	if(r_shownormals->integer)
 	{
-		DrawNormals(input);
+		DrawNormals(&tess);
 	}
 	if(r_showTangentSpaces->integer)
 	{
-		DrawTangentSpaces(input);
+		DrawTangentSpaces(&tess);
+	}
+	
+	// unbind VBO
+	if(glConfig2.vertexBufferObjectAvailable)
+	{
+		if(tess.indexesVBO)
+		{
+			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+			tess.indexesVBO = 0;
+			
+			backEnd.pc.c_vboIndexBuffers++;
+		}
+		
+		if(tess.vertexesVBO)
+		{
+			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+			tess.vertexesVBO = 0;
+			
+			backEnd.pc.c_vboVertexBuffers++;
+		}
 	}
 
 	// clear shader so we can tell we don't have any unclosed surfaces

@@ -44,9 +44,14 @@ void R_PerformanceCounters(void)
 
 	if(r_speeds->integer == 1)
 	{
-		ri.Printf(PRINT_ALL, "%i/%i shaders/surfs %i leafs %i verts %i/%i tris %.2f mtex %.2f dc\n",
+		ri.Printf(PRINT_ALL, "%i/%i shaders/surfs %i leafs %i verts %i/%i tris %.2f\n",
 				  backEnd.pc.c_shaders, backEnd.pc.c_surfaces, tr.pc.c_leafs, backEnd.pc.c_vertexes,
-				  backEnd.pc.c_indexes / 3, backEnd.pc.c_totalIndexes / 3,
+				  backEnd.pc.c_indexes / 3, backEnd.pc.c_totalIndexes / 3);
+		
+		ri.Printf(PRINT_ALL, "vbo %i vertex %i index\n",
+				  backEnd.pc.c_vboVertexBuffers, backEnd.pc.c_vboIndexBuffers);
+		
+		ri.Printf(PRINT_ALL, "mtex %.2f dc\n",
 				  R_SumOfUsedImages() / (1000000.0f),
 				  backEnd.pc.c_overDraw / (float)(glConfig.vidWidth * glConfig.vidHeight));
 	}

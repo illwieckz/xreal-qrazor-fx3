@@ -225,7 +225,6 @@ extern void ( APIENTRY * qglDisableVertexAttribArrayARB )( GLuint index );
 // GL_ARB_vertex_buffer_object
 //typedef ptrdiff_t GLintptrARB;
 //typedef ptrdiff_t GLsizeiptrARB;
-/*
 extern void ( APIENTRY * qglBindBufferARB )( GLenum target, GLuint buffer );
 extern void ( APIENTRY * qglDeleteBuffersARB )( GLsizei n, const GLuint *buffers );
 extern void ( APIENTRY * qglGenBuffersARB )( GLsizei n, GLuint *buffers );
@@ -237,7 +236,6 @@ extern GLvoid* ( APIENTRY * qglMapBufferARB )( GLenum target, GLenum access );
 extern GLboolean ( APIENTRY * qglUnmapBufferARB )( GLenum target );
 extern void ( APIENTRY * qglGetBufferParameterivARB )( GLenum target, GLenum pname, GLint *params );
 extern void ( APIENTRY * qglGetBufferPointervARB )( GLenum target, GLenum pname, GLvoid* *params );
-*/
 
 // GL_ARB_occlusion_query
 /*
