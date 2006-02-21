@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ifilesystem.h"
 #include "iimage.h"
 
+//#include "jpeg.h"
 #include "tga.h"
 #include "bmp.h"
 #include "pcx.h"
@@ -154,7 +155,7 @@ extern "C" void RADIANT_DLLEXPORT Radiant_RegisterModules(ModuleServer& server)
   GlobalModuleServer::instance().set(server);
 
   g_ImageTGAModule.selfRegister();
-//  g_ImageJPGModule.selfRegister();
+//g_ImageJPGModule.selfRegister();
   g_ImageBMPModule.selfRegister();
   g_ImagePCXModule.selfRegister();
   g_ImageDDSModule.selfRegister();

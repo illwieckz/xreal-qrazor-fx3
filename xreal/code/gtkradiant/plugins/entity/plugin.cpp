@@ -149,36 +149,6 @@ typedef SingletonModule<EntityDoom3API, EntityDependencies> EntityDoom3Module;
 EntityDoom3Module g_EntityDoom3Module;
 
 
-class EntityXreaLAPI : public TypeSystemRef
-{
-	EntityCreator* m_entitydoom3;
-	public:
-		typedef EntityCreator Type;
-		STRING_CONSTANT(Name, "xreal");
-
-		EntityXreaLAPI()
-		{
-			Entity_Construct(eGameTypeXreaL);
-
-			m_entitydoom3 = &GetEntityCreator();
-
-			GlobalReferenceCache().setEntityCreator(*m_entitydoom3);
-		}
-		~EntityXreaLAPI()
-		{
-			Entity_Destroy();
-		}
-		EntityCreator* getTable()
-		{
-			return m_entitydoom3;
-		}
-};
-
-typedef SingletonModule<EntityXreaLAPI, EntityDependencies> EntityXreaLModule;
-
-EntityXreaLModule g_EntityXreaLModule;
-
-
 extern "C" void RADIANT_DLLEXPORT Radiant_RegisterModules(ModuleServer& server)
 {
   GlobalErrorStream::instance().setOutputStream(server.getErrorStream());
@@ -189,6 +159,5 @@ extern "C" void RADIANT_DLLEXPORT Radiant_RegisterModules(ModuleServer& server)
   g_EntityQ3Module.selfRegister();
   g_EntityWolfModule.selfRegister();
   g_EntityDoom3Module.selfRegister();
-  g_EntityXreaLModule.selfRegister();
   Doom3ModelSkinCacheModule_selfRegister(server);
 }
