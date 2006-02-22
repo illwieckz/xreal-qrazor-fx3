@@ -44,7 +44,8 @@ QVM files
 ========================================================================
 */
 
-#define	VM_MAGIC	0x12721444
+#define	VM_MAGIC			0x12721444
+#define	VM_MAGIC_VER2	0x12721445
 typedef struct
 {
 	int             vmMagic;
@@ -58,6 +59,9 @@ typedef struct
 	int             dataLength;
 	int             litLength;	// ( dataLength - litLength ) should be byteswapped on load
 	int             bssLength;	// zero filled memory appended to datalength
+
+	//!!! below here is VM_MAGIC_VER2 !!!
+	int             jtrgLength;	// number of jump table targets
 } vmHeader_t;
 
 
@@ -345,8 +349,8 @@ typedef struct
 	float           normal[3];
 	float           texCoords[2];
 	int             numWeights;
-	int				fixedParent;
-	float			fixedDist;
+	int             fixedParent;
+	float           fixedDist;
 	mdsWeight_t     weights[1];	// variable sized
 } mdsVertex_t;
 
@@ -362,8 +366,8 @@ typedef struct
 	char            name[MAX_QPATH];	// polyset name
 	char            shader[MAX_QPATH];
 	int             shaderIndex;	// for in-game use
-	
-	int				minLod;
+
+	int             minLod;
 	int             ofsHeader;	// this will be a negative number
 
 	int             numVerts;
@@ -371,8 +375,8 @@ typedef struct
 
 	int             numTriangles;
 	int             ofsTriangles;
-	
-	int				ofsCollapseMap;
+
+	int             ofsCollapseMap;
 
 	// Bone references are a set of ints representing all the bones
 	// present in any vertex weights for this surface.  This is
@@ -387,17 +391,17 @@ typedef struct
 
 typedef struct
 {
-	char			name[MAX_QPATH];
-	int				parentIndex; // parent index (-1 if root)
-	float			torsoWeight; // 0.0 to 1.0
-	float			parentDist;  // distance from parent bone to this bone's pivot point
-	int				flags;       // bit 0 is set if bone is a tag
+	char            name[MAX_QPATH];
+	int             parentIndex;	// parent index (-1 if root)
+	float           torsoWeight;	// 0.0 to 1.0
+	float           parentDist;	// distance from parent bone to this bone's pivot point
+	int             flags;		// bit 0 is set if bone is a tag
 } mdsBone_t;
 
 typedef struct
 {
-	short			angles[4];		 // defines the bone orientation
-	short			ofsAngles[2];	// defines the direction of the bone pivot from this bone's parent
+	short           angles[4];	// defines the bone orientation
+	short           ofsAngles[2];	// defines the direction of the bone pivot from this bone's parent
 } mdsBoneFrame_t;
 
 typedef struct
@@ -405,8 +409,8 @@ typedef struct
 	float           bounds[2][3];	// bounds of all surfaces of all LOD's for this frame
 	float           localOrigin[3];	// midpoint of bounds, used for sphere cull
 	float           radius;		// dist from localOrigin to corner
-	float			parentOffset[3];
-	mdsBoneFrame_t	bones[1];	// [numBones]
+	float           parentOffset[3];
+	mdsBoneFrame_t  bones[1];	// [numBones]
 } mdsFrame_t;
 
 typedef struct
@@ -415,21 +419,21 @@ typedef struct
 	int             version;
 
 	char            name[MAX_QPATH];	// model name
-	
-	float			lodScale;       // LOD Scale
-	float			lodBias;        // LOD Bias
+
+	float           lodScale;	// LOD Scale
+	float           lodBias;	// LOD Bias
 
 	// frames and bones are shared by all levels of detail
 	int             numFrames;
 	int             numBones;
 	int             ofsFrames;	// md4Frame_t[numFrames]
 	int             ofsBones;	// char name[ MAX_QPATH ]
-	
-	int				torsoParent;
+
+	int             torsoParent;
 
 	int             numSurfaces;
 	int             ofsSurfaces;
-	
+
 	int             numTags;
 	int             ofsTags;
 

@@ -22,12 +22,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "vm_local.h"
 
-// *INDENT-OFF*
-#ifdef DEBUG_VM // bk001204
-static char	*opnames[256] = {
-	"OP_UNDEF", 
+//#define   DEBUG_VM
+#ifdef DEBUG_VM					// bk001204
+static char    *opnames[256] = {
+	"OP_UNDEF",
 
-	"OP_IGNORE", 
+	"OP_IGNORE",
 
 	"OP_BREAK",
 
@@ -112,11 +112,12 @@ static char	*opnames[256] = {
 	"OP_CVFI"
 };
 #endif
-// *INDENT-ON*
 
 #if idppc
+
+//FIXME: these, um... look the same to me
 #if defined(__GNUC__)
-static inline unsigned int loadWord(void *addr)
+static ID_INLINE unsigned int loadWord(void *addr)
 {
 	unsigned int    word;
 
@@ -124,10 +125,25 @@ static inline unsigned int loadWord(void *addr)
 	return word;
 }
 #else
+static ID_INLINE unsigned int __lwbrx(register void *addr, register int offset)
+{
+	register unsigned int word;
+
+  asm("lwbrx %0,%2,%1": "=r"(word):"r"(addr), "b"(offset));
+	return word;
+}
+
 #define loadWord(addr) __lwbrx(addr,0)
 #endif
+
 #else
-#define	loadWord(addr) *((int *)addr)
+static ID_INLINE int loadWord(void *addr)
+{
+	int             word;
+
+	memcpy(&word, addr, 4);
+	return LittleLong(word);
+}
 #endif
 
 char           *VM_Indent(vm_t * vm)
@@ -322,7 +338,6 @@ locals from sp
 */
 #define	MAX_STACK	256
 #define	STACK_MASK	(MAX_STACK-1)
-//#define   DEBUG_VM
 
 #define	DEBUGSTR va("%s%i", VM_Indent(vm), opStack-stack )
 
@@ -507,9 +522,10 @@ int VM_CallInterpreted(vm_t * vm, int *args)
 
 				src = (int *)&image[r0 & dataMask];
 				dest = (int *)&image[r1 & dataMask];
-				if(((int)src | (int)dest | count) & 3)
+				if(((intptr_t) src | (intptr_t) dest | count) & 3)
 				{
-					Com_Error(ERR_DROP, "OP_BLOCK_COPY not dword aligned");
+					// happens in westernq3
+					Com_Printf(S_COLOR_YELLOW "Warning: OP_BLOCK_COPY not dword aligned\n");
 				}
 				count >>= 2;
 				for(i = count - 1; i >= 0; i--)
@@ -551,7 +567,23 @@ int VM_CallInterpreted(vm_t * vm, int *args)
 					*(int *)&image[programStack + 4] = -1 - programCounter;
 
 //VM_LogSyscalls( (int *)&image[ programStack + 4 ] );
-					r = vm->systemCall((int *)&image[programStack + 4]);
+					{
+						intptr_t       *argptr = (intptr_t *) & image[programStack + 4];
+
+#if __WORDSIZE == 64
+						// the vm has ints on the stack, we expect
+						// longs so we have to convert it
+						intptr_t        argarr[16];
+						int             i;
+
+						for(i = 0; i < 16; ++i)
+						{
+							argarr[i] = *(int *)&image[programStack + 4 + 4 * i];
+						}
+						argptr = argarr;
+#endif
+						r = vm->systemCall(argptr);
+					}
 
 #ifdef DEBUG_VM
 					// this is just our stack frame pointer, only needed

@@ -1057,7 +1057,7 @@ void           *Z_TagMalloc(int size, int tag)
 	//
 	size += sizeof(memblock_t);	// account for size of block header
 	size += 4;					// space for memory trash tester
-	size = (size + 3) & ~3;		// align to 32 bit boundary
+	size = PAD(size, sizeof(intptr_t));	// align to 32 bit boundary
 
 	base = rover = zone->rover;
 	start = base->prev;
@@ -1764,7 +1764,7 @@ void Com_InitHunkMemory(void)
 		Com_Error(ERR_FATAL, "Hunk data failed to allocate %i megs", s_hunkTotal / (1024 * 1024));
 	}
 	// cacheline align
-	s_hunkData = (byte *) (((int)s_hunkData + 31) & ~31);
+	s_hunkData = (byte *) (((intptr_t)s_hunkData + 31) & ~31);
 	Hunk_Clear();
 
 	Cmd_AddCommand("meminfo", Com_Meminfo_f);
@@ -2005,7 +2005,7 @@ void           *Hunk_AllocateTempMemory(int size)
 
 	Hunk_SwapBanks();
 
-	size = ((size + 3) & ~3) + sizeof(hunkHeader_t);
+	size = PAD(size, sizeof(intptr_t)) + sizeof( hunkHeader_t );
 
 	if(hunk_temp->temp + hunk_permanent->permanent + size > s_hunkTotal)
 	{
@@ -3077,9 +3077,6 @@ void Com_Frame(void)
 	int             timeAfter;
 
 
-
-
-
 	if(setjmp(abortframe))
 	{
 		return;					// an ERR_DROP was thrown
@@ -3092,7 +3089,6 @@ void Com_Frame(void)
 	timeBeforeEvents = 0;
 	timeBeforeClient = 0;
 	timeAfter = 0;
-
 
 	// old net chan encryption key
 	key = 0x87243987;
@@ -3188,6 +3184,7 @@ void Com_Frame(void)
 		{
 			timeBeforeEvents = Sys_Milliseconds();
 		}
+
 		Com_EventLoop();
 		Cbuf_Execute();
 

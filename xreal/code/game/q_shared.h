@@ -30,6 +30,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	Q3_VERSION		"Q3 1.32b"
 // 1.32 released 7-10-2002
 
+#ifdef Q3_VM
+typedef int intptr_t;
+#else
+#include <inttypes.h>
+#endif
+
+#define PAD(x,y) (((x)+(y)-1) & ~((y)-1))
+
 #define MAX_TEAMNAME 32
 
 #ifdef _MSC_VER

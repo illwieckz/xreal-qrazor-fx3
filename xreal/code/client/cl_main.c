@@ -2193,7 +2193,6 @@ CL_Frame
 */
 void CL_Frame(int msec)
 {
-
 	if(!com_cl_running->integer)
 	{
 		return;

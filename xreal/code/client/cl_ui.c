@@ -890,11 +890,6 @@ static int FloatAsInt(float f)
 	return temp;
 }
 
-void           *VM_ArgPtr(int intValue);
-
-#define	VMA(x) VM_ArgPtr(args[x])
-#define	VMF(x)	((float *)args)[x]
-
 /*
 ====================
 CL_UISystemCalls
@@ -902,7 +897,7 @@ CL_UISystemCalls
 The ui module is making a system call
 ====================
 */
-int CL_UISystemCalls(int *args)
+intptr_t CL_UISystemCalls(intptr_t *args)
 {
 	switch (args[0])
 	{

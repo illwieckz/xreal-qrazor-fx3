@@ -85,7 +85,7 @@ typedef struct
 	byte            file[65536];
 	short           sqrTable[256];
 
-	unsigned int    mcomp[256];
+	int             mcomp[256];
 	byte           *qStatus[2][32768];
 
 	long            oldXOff, oldYOff, oldysize, oldxsize;
@@ -184,7 +184,7 @@ extern int      CL_ScaledMilliseconds(void);
 //
 // Returns:     Nothing
 //-----------------------------------------------------------------------------
-static void RllSetupTable()
+static void RllSetupTable(void)
 {
 	int             z;
 
@@ -353,59 +353,14 @@ long RllDecodeStereoToMono(unsigned char *from, short *to, unsigned int size, ch
 
 static void move8_32(byte * src, byte * dst, int spl)
 {
-	double         *dsrc, *ddst;
-	int             dspl;
+	int             i;
 
-	dsrc = (double *)src;
-	ddst = (double *)dst;
-	dspl = spl >> 3;
-
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	ddst[2] = dsrc[2];
-	ddst[3] = dsrc[3];
-	dsrc += dspl;
-	ddst += dspl;
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	ddst[2] = dsrc[2];
-	ddst[3] = dsrc[3];
-	dsrc += dspl;
-	ddst += dspl;
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	ddst[2] = dsrc[2];
-	ddst[3] = dsrc[3];
-	dsrc += dspl;
-	ddst += dspl;
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	ddst[2] = dsrc[2];
-	ddst[3] = dsrc[3];
-	dsrc += dspl;
-	ddst += dspl;
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	ddst[2] = dsrc[2];
-	ddst[3] = dsrc[3];
-	dsrc += dspl;
-	ddst += dspl;
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	ddst[2] = dsrc[2];
-	ddst[3] = dsrc[3];
-	dsrc += dspl;
-	ddst += dspl;
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	ddst[2] = dsrc[2];
-	ddst[3] = dsrc[3];
-	dsrc += dspl;
-	ddst += dspl;
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	ddst[2] = dsrc[2];
-	ddst[3] = dsrc[3];
+	for(i = 0; i < 8; ++i)
+	{
+		memcpy(dst, src, 32);
+		src += spl;
+		dst += spl;
+	}
 }
 
 /******************************************************************************
@@ -418,27 +373,14 @@ static void move8_32(byte * src, byte * dst, int spl)
 
 static void move4_32(byte * src, byte * dst, int spl)
 {
-	double         *dsrc, *ddst;
-	int             dspl;
+	int             i;
 
-	dsrc = (double *)src;
-	ddst = (double *)dst;
-	dspl = spl >> 3;
-
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	dsrc += dspl;
-	ddst += dspl;
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	dsrc += dspl;
-	ddst += dspl;
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	dsrc += dspl;
-	ddst += dspl;
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
+	for(i = 0; i < 4; ++i)
+	{
+		memcpy(dst, src, 16);
+		src += spl;
+		dst += spl;
+	}
 }
 
 /******************************************************************************
@@ -451,59 +393,14 @@ static void move4_32(byte * src, byte * dst, int spl)
 
 static void blit8_32(byte * src, byte * dst, int spl)
 {
-	double         *dsrc, *ddst;
-	int             dspl;
+	int             i;
 
-	dsrc = (double *)src;
-	ddst = (double *)dst;
-	dspl = spl >> 3;
-
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	ddst[2] = dsrc[2];
-	ddst[3] = dsrc[3];
-	dsrc += 4;
-	ddst += dspl;
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	ddst[2] = dsrc[2];
-	ddst[3] = dsrc[3];
-	dsrc += 4;
-	ddst += dspl;
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	ddst[2] = dsrc[2];
-	ddst[3] = dsrc[3];
-	dsrc += 4;
-	ddst += dspl;
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	ddst[2] = dsrc[2];
-	ddst[3] = dsrc[3];
-	dsrc += 4;
-	ddst += dspl;
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	ddst[2] = dsrc[2];
-	ddst[3] = dsrc[3];
-	dsrc += 4;
-	ddst += dspl;
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	ddst[2] = dsrc[2];
-	ddst[3] = dsrc[3];
-	dsrc += 4;
-	ddst += dspl;
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	ddst[2] = dsrc[2];
-	ddst[3] = dsrc[3];
-	dsrc += 4;
-	ddst += dspl;
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	ddst[2] = dsrc[2];
-	ddst[3] = dsrc[3];
+	for(i = 0; i < 8; ++i)
+	{
+		memcpy(dst, src, 32);
+		src += 32;
+		dst += spl;
+	}
 }
 
 /******************************************************************************
@@ -513,30 +410,16 @@ static void blit8_32(byte * src, byte * dst, int spl)
 * Description:	
 *
 ******************************************************************************/
-#define movs double
 static void blit4_32(byte * src, byte * dst, int spl)
 {
-	movs           *dsrc, *ddst;
-	int             dspl;
+	int             i;
 
-	dsrc = (movs *) src;
-	ddst = (movs *) dst;
-	dspl = spl >> 3;
-
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	dsrc += 2;
-	ddst += dspl;
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	dsrc += 2;
-	ddst += dspl;
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
-	dsrc += 2;
-	ddst += dspl;
-	ddst[0] = dsrc[0];
-	ddst[1] = dsrc[1];
+	for(i = 0; i < 4; ++i)
+	{
+		memmove(dst, src, 16);
+		src += 16;
+		dst += spl;
+	}
 }
 
 /******************************************************************************
@@ -549,15 +432,8 @@ static void blit4_32(byte * src, byte * dst, int spl)
 
 static void blit2_32(byte * src, byte * dst, int spl)
 {
-	double         *dsrc, *ddst;
-	int             dspl;
-
-	dsrc = (double *)src;
-	ddst = (double *)dst;
-	dspl = spl >> 3;
-
-	ddst[0] = dsrc[0];
-	ddst[dspl] = dsrc[1];
+	memcpy(dst, src, 8);
+	memcpy(dst + spl, src + 8, 8);
 }
 
 /******************************************************************************
@@ -761,35 +637,6 @@ static unsigned short yuv_to_rgb(long y, long u, long v)
 * Description:	
 *
 ******************************************************************************/
-#if defined(MACOS_X)
-
-static inline unsigned int yuv_to_rgb24(long y, long u, long v)
-{
-	long            r, g, b, YY;
-
-	YY = (long)(ROQ_YY_tab[(y)]);
-
-	r = (YY + ROQ_VR_tab[v]) >> 6;
-	g = (YY + ROQ_UG_tab[u] + ROQ_VG_tab[v]) >> 6;
-	b = (YY + ROQ_UB_tab[u]) >> 6;
-
-	if(r < 0)
-		r = 0;
-	if(g < 0)
-		g = 0;
-	if(b < 0)
-		b = 0;
-	if(r > 255)
-		r = 255;
-	if(g > 255)
-		g = 255;
-	if(b > 255)
-		b = 255;
-
-	return ((r << 24) | (g << 16) | (b << 8)) | (255);	//+(255<<24));
-}
-
-#else
 static unsigned int yuv_to_rgb24(long y, long u, long v)
 {
 	long            r, g, b, YY = (long)(ROQ_YY_tab[(y)]);
@@ -813,7 +660,6 @@ static unsigned int yuv_to_rgb24(long y, long u, long v)
 
 	return LittleLong((r) | (g << 8) | (b << 16) | (255 << 24));
 }
-#endif
 
 /******************************************************************************
 *
@@ -1257,10 +1103,8 @@ static void readQuadInfo(byte * qData)
 	cinTable[currentHandle].VQ0 = cinTable[currentHandle].VQNormal;
 	cinTable[currentHandle].VQ1 = cinTable[currentHandle].VQBuffer;
 
-	cinTable[currentHandle].t[0] =
-		(0 - (unsigned int)cin.linbuf) + (unsigned int)cin.linbuf + cinTable[currentHandle].screenDelta;
-	cinTable[currentHandle].t[1] =
-		(0 - ((unsigned int)cin.linbuf + cinTable[currentHandle].screenDelta)) + (unsigned int)cin.linbuf;
+	cinTable[currentHandle].t[0] = cinTable[currentHandle].screenDelta;
+	cinTable[currentHandle].t[1] = -cinTable[currentHandle].screenDelta;
 
 	cinTable[currentHandle].drawX = cinTable[currentHandle].CIN_WIDTH;
 	cinTable[currentHandle].drawY = cinTable[currentHandle].CIN_HEIGHT;
@@ -1326,7 +1170,7 @@ static void RoQPrepMcomp(long xoff, long yoff)
 *
 ******************************************************************************/
 
-static void initRoQ()
+static void initRoQ(void)
 {
 	if(currentHandle < 0)
 		return;
@@ -1361,7 +1205,7 @@ static byte* RoQFetchInterlaced( byte *source ) {
 	return cinTable[currentHandle].buf2;
 }
 */
-static void RoQReset()
+static void RoQReset(void)
 {
 
 	if(currentHandle < 0)

@@ -458,9 +458,8 @@ CL_CgameSystemCalls
 The cgame module is making a system call
 ====================
 */
-#define	VMA(x) VM_ArgPtr(args[x])
-#define	VMF(x)	((float *)args)[x]
-int CL_CgameSystemCalls(int *args)
+
+intptr_t CL_CgameSystemCalls(intptr_t *args)
 {
 	switch (args[0])
 	{

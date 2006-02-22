@@ -31,7 +31,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 **
 */
 
+#ifndef __x86_64__
 #include <linux/joystick.h>
+#endif
 #include <sys/types.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -70,6 +72,7 @@ extern cvar_t  *joy_threshold;
 // bk001130 - from cvs1.17 (mkv), removed from linux_glimp.c
 void IN_StartupJoystick(void)
 {
+#ifndef __x86_64__
 	int             i = 0;
 
 	joy_fd = -1;
@@ -135,11 +138,12 @@ void IN_StartupJoystick(void)
 		Com_Printf("No joystick found.\n");
 		return;
 	}
-
+#endif
 }
 
 void IN_JoyMove(void)
 {
+#ifndef __x86_64__
 	/* Store instantaneous joystick state. Hack to get around
 	 * event model used in Linux joystick driver.
 	 */
@@ -228,4 +232,5 @@ void IN_JoyMove(void)
 
 	/* Save for future generations. */
 	old_axes = axes;
+#endif
 }

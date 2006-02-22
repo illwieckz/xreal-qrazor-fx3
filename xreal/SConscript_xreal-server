@@ -86,7 +86,7 @@ if env['purevm'] == 1:
 	xreal_server_env.Append(CCFLAGS='-DVM_SV_PURE')
 
 if env['arch'] == 'linux-i386':
-	if env['vm'] == 1:
+	if env['qvm'] == 1:
 		vm_src += ['code/qcommon/vm_x86.c']
 	else:
 		xreal_server_env.Append(CCFLAGS='-DDLL_ONLY')
@@ -96,6 +96,11 @@ if env['arch'] == 'linux-i386':
 	xreal_server_env.Install('#', 'xreal-server.x86')
 	
 elif env['arch'] == 'linux-x86_64':
+	if env['qvm'] == 1:
+		vm_src += ['code/qcommon/vm_x86_64.c']
+	else:
+		xreal_server_env.Append(CCFLAGS='-DDLL_ONLY')
+
 	xreal_server_env.Append(CCFLAGS='-DDLL_ONLY')
 	xreal_server_env.Append(LIBS=['dl', 'm'])
 	xreal_server_env.Program('xreal-server.x86_64', [xreal_server_src, unix_src, linux_src, vm_src])

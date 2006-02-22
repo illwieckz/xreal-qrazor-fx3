@@ -264,7 +264,7 @@ void SV_DirectConnect(netadr_t from)
 	int             challenge;
 	char           *password;
 	int             startIndex;
-	char           *denied;
+	intptr_t	denied;
 	int             count;
 
 	Com_DPrintf("SVC_DirectConnect ()\n");

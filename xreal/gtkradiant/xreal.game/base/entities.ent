@@ -1101,6 +1101,8 @@ Non-displayed point light source. The -pointscale and -scale arguments to Q3Map2
 <color key="color" name="Light Color">weighted RGB value of light color (default white - 1.0 1.0 1.0).</color>
 <target key="target" name="Target">Lights pointed at a target will be spotlights.</target>
 <real key="radius" name="Spotlight Radius">overrides the default 64 unit radius of a spotlight at the target point.</real>
+<texture key="texture" name="Light Material Shader">Shader to use for light attenuation.</texture>
+<real3 key="light_radius" name="Boxed Light Radius"></real3>
 -------- Q3MAP2 KEYS --------
 <boolean key="_sun" name="Directional">Set this key to 1 on a spotlight to make an infinite sun light.</boolean>
 <real key="_sun" name="Linear Fade">Fades light attenuation. Only affects linear lights.</real>

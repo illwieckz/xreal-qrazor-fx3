@@ -725,10 +725,10 @@ changed the load procedure to match VFS logic, and allow developer use
 */
 extern char    *FS_BuildOSPath(const char *base, const char *game, const char *qpath);
 
-void           *Sys_LoadDll(const char *name, char *fqpath, int (**entryPoint) (int, ...), int (*systemcalls) (int, ...))
+void           *Sys_LoadDll(const char *name, char *fqpath, intptr_t (**entryPoint) (int, ...), intptr_t (*systemcalls) (intptr_t, ...))
 {
 	void           *libHandle;
-	void            (*dllEntry) (int (*syscallptr) (int, ...));
+	void            (*dllEntry) (intptr_t (*syscallptr) (intptr_t, ...));
 	char            curpath[MAX_OSPATH];
 	char            fname[MAX_OSPATH];
 	char           *basepath;

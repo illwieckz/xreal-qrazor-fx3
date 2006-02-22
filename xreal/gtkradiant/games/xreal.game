@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <game
-  type="q3"
+  type="doom3"
   index="1"
   name="XreaL"
   enginepath_win32="C:/Program Files/XreaL/"
@@ -21,7 +21,7 @@
   shaders="doom3"
   entityclass="quake3"
   entityclasstype="xml"
-  entities="xreal"
+  entities="quake3"
   brushtypes="doom3"
   patchtypes="doom3 def2doom3"
 />
