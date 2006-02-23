@@ -34,11 +34,11 @@ void	main()
 	// transform vertex position into homogenous clip-space
 	gl_Position = ftransform();
 	
-	// transform texcoords into diffusemap texture space
-	var_TexDiffuse = attr_TexCoord0.st;
+	// transform diffusemap texcoords
+	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;
 	
-	// transform texcoords into normalmap texture space
-	var_TexNormal = attr_TexCoord1.st;
+	// transform normalmap texcoords
+	var_TexNormal = (gl_TextureMatrix[1] * attr_TexCoord1).st;
 	
 	// construct object-space-to-tangent-space 3x3 matrix
 	var_OS2TSMatrix = mat3(	attr_Tangent.x, attr_Binormal.x, gl_Normal.x,

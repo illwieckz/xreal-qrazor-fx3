@@ -32,8 +32,8 @@ void	main()
 	// transform vertex position into homogenous clip-space
 	gl_Position = ftransform();
 	
-	// assign normalmap texcoords
-	var_TexNormal = attr_TexCoord0.st;
+	// transform normalmap texcoords
+	var_TexNormal = (gl_TextureMatrix[0] * attr_TexCoord0).st;
 	
 	// take the deform magnitude and scale it by the projection distance
 	vec4 R0 = vec4(1, 0, 0, 1);

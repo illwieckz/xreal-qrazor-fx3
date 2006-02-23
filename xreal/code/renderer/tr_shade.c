@@ -1013,176 +1013,34 @@ static void GL_SetVertexAttribs()
 
 
 /*
-================
-R_ArrayElementDiscrete
-
-This is just for OpenGL conformance testing, it should never be the fastest
-================
-*/
-/*
-static void APIENTRY R_ArrayElementDiscrete(GLint index)
-{
-	qglColor4ubv(tess.svars.colors[index]);
-	if(glState.currenttmu)
-	{
-		qglMultiTexCoord2fARB(0, tess.svars.texCoords[0][index][0], tess.svars.texCoords[0][index][1]);
-		qglMultiTexCoord2fARB(1, tess.svars.texCoords[1][index][0], tess.svars.texCoords[1][index][1]);
-	}
-	else
-	{
-		qglTexCoord2fv(tess.svars.texCoords[0][index]);
-	}
-	qglVertex3fv(tess.xyz[index]);
-}
-*/
-
-/*
-===================
-R_DrawStripElements
-===================
-*/
-/*
-static int      c_vertexes;		// for seeing how long our average strips are
-static int      c_begins;
-static void R_DrawStripElements(int numIndexes, const glIndex_t * indexes, void (APIENTRY * element) (GLint))
-{
-	int             i;
-	int             last[3] = { -1, -1, -1 };
-	qboolean        even;
-
-	c_begins++;
-
-	if(numIndexes <= 0)
-	{
-		return;
-	}
-
-	qglBegin(GL_TRIANGLE_STRIP);
-
-	// prime the strip
-	element(indexes[0]);
-	element(indexes[1]);
-	element(indexes[2]);
-	c_vertexes += 3;
-
-	last[0] = indexes[0];
-	last[1] = indexes[1];
-	last[2] = indexes[2];
-
-	even = qfalse;
-
-	for(i = 3; i < numIndexes; i += 3)
-	{
-		// odd numbered triangle in potential strip
-		if(!even)
-		{
-			// check previous triangle to see if we're continuing a strip
-			if((indexes[i + 0] == last[2]) && (indexes[i + 1] == last[1]))
-			{
-				element(indexes[i + 2]);
-				c_vertexes++;
-				assert(indexes[i + 2] < tess.numVertexes);
-				even = qtrue;
-			}
-			// otherwise we're done with this strip so finish it and start
-			// a new one
-			else
-			{
-				qglEnd();
-
-				qglBegin(GL_TRIANGLE_STRIP);
-				c_begins++;
-
-				element(indexes[i + 0]);
-				element(indexes[i + 1]);
-				element(indexes[i + 2]);
-
-				c_vertexes += 3;
-
-				even = qfalse;
-			}
-		}
-		else
-		{
-			// check previous triangle to see if we're continuing a strip
-			if((last[2] == indexes[i + 1]) && (last[0] == indexes[i + 0]))
-			{
-				element(indexes[i + 2]);
-				c_vertexes++;
-
-				even = qfalse;
-			}
-			// otherwise we're done with this strip so finish it and start
-			// a new one
-			else
-			{
-				qglEnd();
-
-				qglBegin(GL_TRIANGLE_STRIP);
-				c_begins++;
-
-				element(indexes[i + 0]);
-				element(indexes[i + 1]);
-				element(indexes[i + 2]);
-				c_vertexes += 3;
-
-				even = qfalse;
-			}
-		}
-
-		// cache the last three vertices
-		last[0] = indexes[i + 0];
-		last[1] = indexes[i + 1];
-		last[2] = indexes[i + 2];
-	}
-
-	qglEnd();
-}
-*/
-
-
-
-/*
 ==================
 R_DrawElements
-
-Optionally performs our own glDrawElements that looks for strip conditions
-instead of using the single glDrawElements call that may be inefficient
-without compiled vertex arrays.
 ==================
 */
 static void R_DrawElements()
 {
-	/*
-	int             primitives;
-
-	primitives = r_primitives->integer;
-
-	// default is to use triangles if compiled vertex arrays are present
-	if(primitives == 0)
+	// move tess data through the GPU, finally
+	if(glConfig2.vertexBufferObjectAvailable && tess.indexesVBO)
 	{
-		if(qglLockArraysEXT)
-		{
-			primitives = 2;
-		}
-		else
-		{
-			primitives = 1;
-		}
+		//qglDrawRangeElementsEXT(GL_TRIANGLES, 0, tessmesh->vertexes.size(), mesh->indexes.size(), GL_UNSIGNED_INT, VBO_BUFFER_OFFSET(mesh->vbo_indexes_ofs));
+		
+		qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, 0);
+		backEnd.pc.c_indexes += tess.numIndexes;
 	}
-	*/
-	
-	// update performance counters
-	backEnd.pc.c_vertexes += tess.numVertexes;
-	
-	if(tess.numLightIndexes)
+	else if(tess.numLightIndexes)
 	{
+		qglDrawElements(GL_TRIANGLES, tess.numLightIndexes, GL_INDEX_TYPE, tess.lightIndexes);
 		backEnd.pc.c_indexes += tess.numLightIndexes;
 	}
 	else
 	{
+		qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, tess.indexes);
 		backEnd.pc.c_indexes += tess.numIndexes;
 	}
+	
+	// update performance counters
+	backEnd.pc.c_drawElements++;
+	backEnd.pc.c_vertexes += tess.numVertexes;
 	
 	if(tess.indexesVBO)
 	{
@@ -1193,46 +1051,7 @@ static void R_DrawElements()
 	{
 		backEnd.pc.c_vboVertexes += tess.numVertexes;
 	}
-
-	// move tess data through the GPU, finally
-	//if(primitives == 2)
-	{
-		if(glConfig2.vertexBufferObjectAvailable && tess.indexesVBO)
-		{
-			//qglDrawRangeElementsEXT(GL_TRIANGLES, 0, tessmesh->vertexes.size(), mesh->indexes.size(), GL_UNSIGNED_INT, VBO_BUFFER_OFFSET(mesh->vbo_indexes_ofs));
-			
-			qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, 0);
-		}
-		else if(tess.numLightIndexes)
-		{
-			qglDrawElements(GL_TRIANGLES, tess.numLightIndexes, GL_INDEX_TYPE, tess.lightIndexes);
-		}
-		else
-		{
-			qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, tess.indexes);
-		}
-		
-		backEnd.pc.c_drawElements++;
-		return;
-	}
-
-	/*
-	if(primitives == 1)
-	{
-		R_DrawStripElements(tess.numIndexes, tess.indexes, qglArrayElement);
-		return;
-	}
-
-	if(primitives == 3)
-	{
-		R_DrawStripElements(tess.numIndexes, tess.indexes, R_ArrayElementDiscrete);
-		return;
-	}
-	*/
-
-	// anything else will cause no drawing
 }
-
 
 
 /*
@@ -1523,12 +1342,27 @@ static void Render_generic_single_FFP(int stage)
 	
 	GL_Program(0);
 	GL_State(pStage->stateBits);
-	GL_ClientState(GLCS_VERTEX | GLCS_COLOR);
+	
+#if 0
+	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+	{
+		qglColor4ubv(tess.svars.colors[0]);
+		GL_ClientState(GLCS_VERTEX);
+	}
+	else
+#endif
+	{
+		GL_ClientState(GLCS_VERTEX | GLCS_COLOR);
+	}
+	
 	GL_SetVertexAttribs();
 	
 	GL_SelectTexture(0);
 //	qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
 	{
@@ -1569,6 +1403,9 @@ static void Render_zfill_FFP(int stage)
 	GL_SelectTexture(0);
 //	qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 
 	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
 	{
@@ -1686,6 +1523,9 @@ void Render_lighting_D_direct(int stage)
 	// bind diffusemap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	R_DrawElements();
 }
@@ -1726,10 +1566,16 @@ static void Render_lighting_DB_direct(int stage)
 	// bind diffusemap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	// bind normalmap
 	GL_SelectTexture(1);
 	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	R_DrawElements();
 }
@@ -1775,14 +1621,23 @@ static void Render_lighting_DBS_direct(int stage)
 	// bind diffusemap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	// bind normalmap
 	GL_SelectTexture(1);
 	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	// bind specularmap
 	GL_SelectTexture(2);
 	GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_SPECULARMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	R_DrawElements();
 }
@@ -1813,21 +1668,26 @@ static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
 	GL_SelectTexture(0);
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(dlight->attenuationMatrix3);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 	
 	GL_SelectTexture(1);
 	R_BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(dlight->attenuationMatrix3);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	GL_SelectTexture(2);
 	R_BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 	
 	R_DrawElements();
 	
+	/*
 	GL_SelectTexture(0);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
+	*/
 	
 	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
@@ -1868,24 +1728,32 @@ static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
 	GL_SelectTexture(0);
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(dlight->attenuationMatrix3);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 	
 	GL_SelectTexture(1);
 	GL_Bind(diffuseStage->bundle[TB_NORMALMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	GL_SelectTexture(2);
 	R_BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(dlight->attenuationMatrix3);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	GL_SelectTexture(3);
 	R_BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 	
 	R_DrawElements();
 	
+	/*
 	GL_SelectTexture(0);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
+	*/
 	
 	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
@@ -1932,17 +1800,26 @@ static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 	GL_SelectTexture(0);
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(dlight->attenuationMatrix3);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 	
 	GL_SelectTexture(1);
 	GL_Bind(diffuseStage->bundle[TB_NORMALMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	GL_SelectTexture(2);
 	GL_Bind(diffuseStage->bundle[TB_SPECULARMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_SPECULARMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	GL_SelectTexture(3);
 	R_BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(dlight->attenuationMatrix3);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	GL_SelectTexture(4);
 	R_BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
@@ -1994,6 +1871,9 @@ static void Render_lightmap_FFP(int stage, int texCoordsIndex)
 	GL_SelectTexture(0);
 //	qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[texCoordsIndex]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
 	{
@@ -2045,6 +1925,9 @@ static void Render_deluxemap_FFP(int stage, int texCoordsIndex)
 	GL_SelectTexture(0);
 //	qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[texCoordsIndex]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
 	{
@@ -2086,12 +1969,18 @@ static void Render_lighting_D_radiosity_FFP(int stage)
 	R_BindAnimatedImage(&pStage->bundle[TB_DIFFUSEMAP]);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 
 	// lightmap/secondary pass
 	GL_SelectTexture(1);
 	qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_LIGHTMAP]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_LIGHTMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	R_BindLightMap();
 
 	R_DrawElements();
@@ -2123,10 +2012,16 @@ static void Render_lighting_D_radiosity(int stage)
 	// bind diffusemap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	// bind lightmap
 	GL_SelectTexture(1);
 	R_BindLightMap();
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_LIGHTMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	R_DrawElements();
 }
@@ -2149,14 +2044,23 @@ static void Render_lighting_DB_radiosity(int stage)
 	// bind diffusemap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	// bind normalmap
 	GL_SelectTexture(1);
 	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	// bind lightmap
 	GL_SelectTexture(2);
 	R_BindLightMap();
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_LIGHTMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	// bind deluxemap
 	GL_SelectTexture(3);
@@ -2192,18 +2096,30 @@ static void Render_lighting_DBS_radiosity(int stage)
 	// bind diffusemap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	// bind normalmap
 	GL_SelectTexture(1);
 	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	// bind specular
 	GL_SelectTexture(2);
 	GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_SPECULARMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	// bind lightmap
 	GL_SelectTexture(3);
 	R_BindLightMap();
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_LIGHTMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	// bind deluxemap
 	GL_SelectTexture(4);
@@ -2240,9 +2156,11 @@ static void Render_reflection_C(int stage)
 	R_DrawElements();
 	
 //	GL_SelectTexture(0);
+	/*
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
+	*/
 }
 
 static void Render_refraction_C(int stage)
@@ -2277,9 +2195,11 @@ static void Render_refraction_C(int stage)
 	R_DrawElements();
 	
 //	GL_SelectTexture(0);
+	/*
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
+	*/
 }
 
 static void Render_dispersion_C(int stage)
@@ -2319,9 +2239,11 @@ static void Render_dispersion_C(int stage)
 	R_DrawElements();
 	
 //	GL_SelectTexture(0);
+	/*
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
+	*/
 }
 
 static void Render_skybox(int stage)
@@ -2352,9 +2274,11 @@ static void Render_skybox(int stage)
 	R_DrawElements();
 	
 //	GL_SelectTexture(0);
+	/*
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
+	*/
 }
 
 static void Render_heatHaze(int stage)
@@ -2392,6 +2316,9 @@ static void Render_heatHaze(int stage)
 	// bind normalmap
 	GL_SelectTexture(1);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	R_DrawElements();
 }
@@ -2428,6 +2355,9 @@ static void Render_glow(int stage)
 //	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 	GL_Bind(tr.currentRenderImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	R_DrawElements();
 }
@@ -2461,6 +2391,9 @@ static void Render_bloom(int stage)
 	GL_SelectTexture(0);
 	GL_Bind(tr.currentRenderNearestImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderNearestImage->uploadWidth, tr.currentRenderNearestImage->uploadHeight);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	R_DrawElements();
 	
@@ -2509,6 +2442,9 @@ static void Render_bloom2(int stage)
 	GL_SelectTexture(0);
 	GL_Bind(tr.currentRenderNearestImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderNearestImage->uploadWidth, tr.currentRenderNearestImage->uploadHeight);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
+	qglMatrixMode(GL_MODELVIEW);
 	
 	R_DrawElements();
 	
@@ -2841,6 +2777,9 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 	for(b = 0; b < MAX_TEXTURE_BUNDLES; b++)
 	{
 		int             tm;
+		
+		// reset texture matrix
+		MatrixIdentity(tess.svars.texMatrices[b]);
 
 		// generate the texture coordinates
 		switch(pStage->bundle[b].tcGen)
@@ -2963,6 +2902,86 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 
 /*
 ===============
+ComputeTexMatrices
+===============
+*/
+static void ComputeTexMatrices(shaderStage_t * pStage)
+{
+	int             i, j;
+	vec_t          *matrix;
+	float           x, y;
+
+	for(i = 0; i < MAX_TEXTURE_BUNDLES; i++)
+	{
+		matrix = tess.svars.texMatrices[i];
+		
+		MatrixIdentity(matrix);
+
+		for(j = 0; j < pStage->bundle[i].numTexMods; j++)
+		{
+			switch(pStage->bundle[i].texMods[j].type)
+			{
+				case TMOD_NONE:
+					j = TR_MAX_TEXMODS;	// break out of for loop
+					break;
+					
+				case TMOD_SCROLL2:
+				{
+					x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
+					y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
+
+					// clamp so coordinates don't continuously get larger, causing problems
+					// with hardware limits
+					x = x - floor(x);
+					y = y - floor(y);
+				
+					MatrixMultiplyTranslation(matrix, x, y, 0.0);
+					break;
+				}
+			
+				case TMOD_SCALE2:
+				{
+					x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
+					y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
+				
+					MatrixMultiplyScale(matrix, x, y, 0.0);
+					break;
+				}
+				
+				case TMOD_CENTERSCALE:
+				{
+					x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
+					y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
+				
+					MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
+					MatrixMultiplyScale(matrix, x, y, 0.0);
+					MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
+					break;
+				}
+				
+				case TMOD_SHEAR:
+					// TODO
+					break;
+				
+				case TMOD_ROTATE2:
+				{
+					x = RAD2DEG(RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].rExp, 0)) * 5.0;
+	
+					MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
+					MatrixMultiplyZRotation(matrix, x);
+					MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
+					break;
+				}
+				
+				default:
+					break;
+			}
+		}
+	}
+}
+
+/*
+===============
 ComputeFinalAttenuation
 ===============
 */
@@ -2970,12 +2989,11 @@ static void ComputeFinalAttenuation(shaderStage_t * pStage, trRefDlight_t * dlig
 {
 	int             i;
 	matrix_t		matrix;
-	float           x;
+	float           x, y;
 	
 	MatrixIdentity(matrix);
 
-	// alter texture coordinates
-	for(i = 0; i < pStage->bundle[i].numTexMods; i++)
+	for(i = 0; i < pStage->bundle[TB_COLORMAP].numTexMods; i++)
 	{
 		switch(pStage->bundle[TB_COLORMAP].texMods[i].type)
 		{
@@ -2983,26 +3001,44 @@ static void ComputeFinalAttenuation(shaderStage_t * pStage, trRefDlight_t * dlig
 				i = TR_MAX_TEXMODS;	// break out of for loop
 				break;
 
-			/*
+			
 			case TMOD_SCROLL2:
-				RB_CalcScrollTexCoords2( &pStage->bundle[b].texMods[tm].sExp,
-										  &pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
-				break;
+			{
+				x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
+				y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
+
+				// clamp so coordinates don't continuously get larger, causing problems
+				// with hardware limits
+				x = x - floor(x);
+				y = y - floor(y);
 				
-			case TMOD_SCALE2:
-				RB_CalcScaleTexCoords2( &pStage->bundle[b].texMods[tm].sExp,
-										 &pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
+				MatrixMultiplyTranslation(matrix, x, y, 0.0);
 				break;
+			}
+			
+			case TMOD_SCALE2:
+			{
+				x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
+				y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
+				
+				MatrixMultiplyScale(matrix, x, y, 0.0);
+				break;
+			}
 				
 			case TMOD_CENTERSCALE:
-				RB_CalcCenterScaleTexCoords(	&pStage->bundle[b].texMods[tm].sExp,
-						&pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
+			{
+				x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
+				y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
+				
+				MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
+				MatrixMultiplyScale(matrix, x, y, 0.0);
+				MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
 				break;
+			}
 				
 			case TMOD_SHEAR:
 				// TODO
 				break;
-			*/
 				
 			case TMOD_ROTATE2:
 			{
@@ -3104,7 +3140,7 @@ void RB_StageIteratorLighting()
 			
 		if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
 		{
-			// TODO ComputeTexMatrices(diffuseStage);	
+			ComputeTexMatrices(diffuseStage);
 		}
 		else
 		{
@@ -3264,7 +3300,8 @@ void RB_StageIteratorGeneric()
 
 		if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
 		{
-			// TODO ComputeTexMatrices(diffuseStage);	
+			ComputeColors(pStage);
+			ComputeTexMatrices(pStage);
 		}
 		else
 		{

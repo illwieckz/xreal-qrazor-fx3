@@ -40,14 +40,14 @@ void	main()
 	// assign position in object space
 	var_Vertex = gl_Vertex.xyz;
 	
-	// assign diffusemap texture coords
-	var_TexDiffuse = attr_TexCoord0.st;
+	// transform diffusemap texcoords
+	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;
 	
-	// assign normalmap texture coords
-	var_TexNormal = attr_TexCoord1.st;
+	// transform normalmap texcoords
+	var_TexNormal = (gl_TextureMatrix[1] * attr_TexCoord1).st;
 	
-	// assign specularmap texture coords
-	var_TexSpecular = attr_TexCoord2.st;
+	// transform specularmap texture coords
+	var_TexSpecular = (gl_TextureMatrix[2] * attr_TexCoord2).st;
 	
 	// construct object-space-to-tangent-space 3x3 matrix
 	var_OS2TSMatrix = mat3(	attr_Tangent.x, attr_Binormal.x, gl_Normal.x,

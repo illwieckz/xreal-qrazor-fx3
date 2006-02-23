@@ -40,14 +40,14 @@ void	main()
 	// assign position in object space
 	var_Vertex = gl_Vertex.xyz;
 		
-	// transform texcoords into diffusemap texture space
-	var_TexDiffuse = attr_TexCoord0.st;
+	// transform diffusemap texcoords
+	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;
 	
-	// transform texcoords into normalmap texture space
-	var_TexNormal = attr_TexCoord1.st;
+	// transform normalmap texcoords
+	var_TexNormal = (gl_TextureMatrix[1] * attr_TexCoord1).st;
 	
 	// calc light xy,z attenuation in light space
-	var_TexAttenXYZ = (gl_TextureMatrix[0] * gl_Vertex).xyz;
+	var_TexAttenXYZ = (gl_TextureMatrix[2] * gl_Vertex).xyz;
 	
 	// calc light cube attenuation in light space
 //	var_TexAttenCube = (gl_TextureMatrix[1] * gl_Vertex).xyz;
