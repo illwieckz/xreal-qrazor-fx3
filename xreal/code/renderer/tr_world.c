@@ -935,3 +935,71 @@ void R_AddPrecachedWorldInteractions(trRefDlight_t * light)
 		R_AddDlightInteraction(light, surface->data, surface->shader, iaCache->numLightIndexes, iaCache->lightIndexes, iaCache->numShadowIndexes, iaCache->shadowIndexes, iaType);
 	}
 }
+
+
+/*
+===============
+R_DeleteSurfaceVBOs
+===============
+*/
+void R_DeleteSurfaceVBOs()
+{
+	int             i;
+	msurface_t     *surface;
+	
+	if(!tr.world || (tr.refdef.rdflags & RDF_NOWORLDMODEL))
+	{
+		return;
+	}
+	
+	if(!glConfig2.vertexBufferObjectAvailable)
+	{
+		return;
+	}
+
+	for(i = 0, surface = &tr.world->surfaces[0]; i < tr.world->numsurfaces; i++, surface++)
+	{
+		if(*surface->data == SF_FACE)
+		{
+			srfSurfaceFace_t *face = (srfSurfaceFace_t *) surface->data;
+			
+			if(face->indexesVBO)
+			{
+				qglDeleteBuffersARB(1, &face->indexesVBO);
+			}
+			
+			if(face->vertsVBO)
+			{
+				qglDeleteBuffersARB(1, &face->vertsVBO);
+			}
+		}
+		else if(*surface->data == SF_GRID)
+		{
+			srfGridMesh_t  *grid = (srfGridMesh_t *) surface->data;
+			
+			if(grid->indexesVBO)
+			{
+				qglDeleteBuffersARB(1, &grid->indexesVBO);
+			}
+			
+			if(grid->vertsVBO)
+			{
+				qglDeleteBuffersARB(1, &grid->vertsVBO);
+			}
+		}
+		else if(*surface->data == SF_TRIANGLES)
+		{
+			srfTriangles_t  *tri = (srfTriangles_t *) surface->data;
+			
+			if(tri->indexesVBO)
+			{
+				qglDeleteBuffersARB(1, &tri->indexesVBO);
+			}
+			
+			if(tri->vertsVBO)
+			{
+				qglDeleteBuffersARB(1, &tri->vertsVBO);
+			}
+		}
+	}
+}

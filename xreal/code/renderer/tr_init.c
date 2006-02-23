@@ -1090,7 +1090,7 @@ void R_Register(void)
 	r_ext_compressed_textures = ri.Cvar_Get("r_ext_compressed_textures", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_gamma_control = ri.Cvar_Get("r_ext_gamma_control", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_multitexture = ri.Cvar_Get("r_ext_multitexture", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_compiled_vertex_array = ri.Cvar_Get("r_ext_compiled_vertex_array", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_compiled_vertex_array = ri.Cvar_Get("r_ext_compiled_vertex_array", "0", CVAR_ARCHIVE | CVAR_LATCH);
 #ifdef __linux__				// broken on linux
 	r_ext_texture_env_add = ri.Cvar_Get("r_ext_texture_env_add", "0", CVAR_ARCHIVE | CVAR_LATCH);
 #else
@@ -1389,6 +1389,7 @@ void RE_Shutdown(qboolean destroyWindow)
 		R_SyncRenderThread();
 		R_ShutdownCommandBuffers();
 		R_DeleteTextures();
+		R_DeleteSurfaceVBOs();
 		RB_ShutdownGPUShaders();
 	}
 

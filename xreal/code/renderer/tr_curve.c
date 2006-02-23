@@ -522,6 +522,140 @@ static srfGridMesh_t  *R_CreateSurfaceGridMesh(int width, int height,
 			AddPointToBounds(vert->xyz, grid->meshBounds[0], grid->meshBounds[1]);
 		}
 	}
+	
+	// compute VBOs
+	if(glConfig2.vertexBufferObjectAvailable)
+	{
+		if(numIndexes)
+		{
+			byte           *indexes;
+			int             indexesSize;
+		
+			qglGenBuffersARB(1, &grid->indexesVBO);
+			
+			indexes = (byte *)&grid->indexes[0];
+			indexesSize = numIndexes * sizeof(grid->indexes[0]);
+			
+			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, grid->indexesVBO);
+			qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_STATIC_DRAW_ARB);
+			
+			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+		}
+		
+		if(grid->numVerts)
+		{
+			byte           *data;
+			int             dataSize;
+			int             dataOfs;
+			vec4_t          tmp;
+			
+			qglGenBuffersARB(1, &grid->vertsVBO);
+			
+			dataSize = grid->numVerts * (sizeof(vec4_t) * 6 + sizeof(color4ub_t));
+			data = ri.Hunk_AllocateTempMemory(dataSize);
+			dataOfs = 0;
+			
+			// set up xyz array
+			grid->ofsXYZ = 0;
+			for(i = 0; i < grid->numVerts; i++)
+			{
+				for(j = 0; j < 3; j++)
+				{
+					tmp[j] = grid->verts[i].xyz[j];
+				}
+				tmp[3] = 1;
+				
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
+			
+			// set up texcoords array
+			grid->ofsTexCoords = dataOfs;
+			for(i = 0; i < grid->numVerts; i++)
+			{
+				for(j = 0; j < 2; j++)
+				{
+					tmp[j] = grid->verts[i].st[j];
+				}
+				tmp[2] = 0;
+				tmp[3] = 1;
+				
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
+			
+			// set up texcoords2 array
+			grid->ofsTexCoords2 = dataOfs;
+			for(i = 0; i < grid->numVerts; i++)
+			{
+				for(j = 0; j < 2; j++)
+				{
+					tmp[j] = grid->verts[i].lightmap[j];
+				}
+				tmp[2] = 0;
+				tmp[3] = 1;
+				
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
+			
+			// set up tangents array
+			grid->ofsTangents = dataOfs;
+			for(i = 0; i < grid->numVerts; i++)
+			{
+				for(j = 0; j < 3; j++)
+				{
+					tmp[j] = grid->verts[i].tangent[j];
+				}
+				tmp[3] = 1;
+				
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
+			
+			// set up binormals array
+			grid->ofsBinormals = dataOfs;
+			for(i = 0; i < grid->numVerts; i++)
+			{
+				for(j = 0; j < 3; j++)
+				{
+					tmp[j] = grid->verts[i].binormal[j];
+				}
+				tmp[3] = 1;
+				
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
+			
+			// set up normals array
+			grid->ofsNormals = dataOfs;
+			for(i = 0; i < grid->numVerts; i++)
+			{
+				for(j = 0; j < 3; j++)
+				{
+					tmp[j] = grid->verts[i].normal[j];
+				}
+				tmp[3] = 1;
+				
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
+			
+			// set up colors array
+			grid->ofsColors = dataOfs;
+			for(i = 0; i < grid->numVerts; i++)
+			{
+				memcpy(data + dataOfs, grid->verts[i].color, sizeof(color4ub_t));
+				dataOfs += sizeof(color4ub_t);
+			}
+		
+			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, grid->vertsVBO);
+			qglBufferDataARB(GL_ARRAY_BUFFER_ARB, dataSize, data, GL_STATIC_DRAW_ARB);
+			
+			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+			ri.Hunk_FreeTempMemory(data);
+		}
+	}
 
 	// compute local origin and bounds
 	VectorAdd(grid->meshBounds[0], grid->meshBounds[1], grid->localOrigin);

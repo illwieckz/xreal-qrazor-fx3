@@ -104,7 +104,6 @@ void R_CalcShadowIndexes(int numVertexes)
 				
 				backEnd.pc.c_shadowVertexes += 4;
 				backEnd.pc.c_shadowIndexes += 4;
-				backEnd.pc.c_totalIndexes += 4;
 			}
 			else
 			{
@@ -212,7 +211,6 @@ static void R_RenderShadowCaps(qboolean front)
 			
 				backEnd.pc.c_shadowVertexes += 3;
 				backEnd.pc.c_shadowIndexes += 3;
-				backEnd.pc.c_totalIndexes += 3;
 			}
 		}
 	}
@@ -265,7 +263,6 @@ static void R_RenderShadowCaps(qboolean front)
 			
 			backEnd.pc.c_shadowVertexes += 3;
 			backEnd.pc.c_shadowIndexes += 3;
-			backEnd.pc.c_totalIndexes += 3;
 		}
 	}
 }

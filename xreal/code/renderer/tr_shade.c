@@ -966,7 +966,7 @@ static void GL_SetVertexAttribs()
 			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD2, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.ofsTexCoords));
 		
 		if(glState.glClientStateBits & GLCS_TEXCOORD3)
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD3, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.ofsTexCoords));
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD3, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.ofsTexCoords2));
 	
 		if(glState.glClientStateBits & GLCS_TANGENT)
 			qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.ofsTangents));
@@ -1019,6 +1019,7 @@ R_ArrayElementDiscrete
 This is just for OpenGL conformance testing, it should never be the fastest
 ================
 */
+/*
 static void APIENTRY R_ArrayElementDiscrete(GLint index)
 {
 	qglColor4ubv(tess.svars.colors[index]);
@@ -1033,14 +1034,14 @@ static void APIENTRY R_ArrayElementDiscrete(GLint index)
 	}
 	qglVertex3fv(tess.xyz[index]);
 }
-
+*/
 
 /*
 ===================
 R_DrawStripElements
-
 ===================
 */
+/*
 static int      c_vertexes;		// for seeing how long our average strips are
 static int      c_begins;
 static void R_DrawStripElements(int numIndexes, const glIndex_t * indexes, void (APIENTRY * element) (GLint))
@@ -1137,7 +1138,7 @@ static void R_DrawStripElements(int numIndexes, const glIndex_t * indexes, void 
 
 	qglEnd();
 }
-
+*/
 
 
 
@@ -1150,8 +1151,9 @@ instead of using the single glDrawElements call that may be inefficient
 without compiled vertex arrays.
 ==================
 */
-static void R_DrawElements(int numIndexes, const glIndex_t * indexes)
+static void R_DrawElements()
 {
+	/*
 	int             primitives;
 
 	primitives = r_primitives->integer;
@@ -1168,33 +1170,65 @@ static void R_DrawElements(int numIndexes, const glIndex_t * indexes)
 			primitives = 1;
 		}
 	}
+	*/
+	
+	// update performance counters
+	backEnd.pc.c_vertexes += tess.numVertexes;
+	
+	if(tess.numLightIndexes)
+	{
+		backEnd.pc.c_indexes += tess.numLightIndexes;
+	}
+	else
+	{
+		backEnd.pc.c_indexes += tess.numIndexes;
+	}
+	
+	if(tess.indexesVBO)
+	{
+		backEnd.pc.c_vboIndexes += tess.numIndexes;
+	}
+		
+	if(tess.vertexesVBO)
+	{
+		backEnd.pc.c_vboVertexes += tess.numVertexes;
+	}
 
-	if(primitives == 2)
+	// move tess data through the GPU, finally
+	//if(primitives == 2)
 	{
 		if(glConfig2.vertexBufferObjectAvailable && tess.indexesVBO)
 		{
 			//qglDrawRangeElementsEXT(GL_TRIANGLES, 0, tessmesh->vertexes.size(), mesh->indexes.size(), GL_UNSIGNED_INT, VBO_BUFFER_OFFSET(mesh->vbo_indexes_ofs));
 			
-			qglDrawElements(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE, 0);
+			qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, 0);
+		}
+		else if(tess.numLightIndexes)
+		{
+			qglDrawElements(GL_TRIANGLES, tess.numLightIndexes, GL_INDEX_TYPE, tess.lightIndexes);
 		}
 		else
 		{
-			qglDrawElements(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE, indexes);
+			qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, tess.indexes);
 		}
+		
+		backEnd.pc.c_drawElements++;
 		return;
 	}
 
+	/*
 	if(primitives == 1)
 	{
-		R_DrawStripElements(numIndexes, indexes, qglArrayElement);
+		R_DrawStripElements(tess.numIndexes, tess.indexes, qglArrayElement);
 		return;
 	}
 
 	if(primitives == 3)
 	{
-		R_DrawStripElements(numIndexes, indexes, R_ArrayElementDiscrete);
+		R_DrawStripElements(tess.numIndexes, tess.indexes, R_ArrayElementDiscrete);
 		return;
 	}
+	*/
 
 	// anything else will cause no drawing
 }
@@ -1287,13 +1321,13 @@ DrawTris
 Draws triangle outlines for debugging
 ================
 */
-static void DrawTris(shaderCommands_t * input)
+static void DrawTris()
 {
 	GL_Program(0);
 	GL_SelectTexture(0);
 	GL_Bind(tr.whiteImage);
 	
-	switch (input->currentStageIteratorType)
+	switch (tess.currentStageIteratorType)
 	{
 		case SIT_LIGHTING:
 			qglColor3f(1, 0, 0);
@@ -1301,10 +1335,22 @@ static void DrawTris(shaderCommands_t * input)
 		
 		default:
 		case SIT_DEFAULT:
-			if(tess.vertexesVBO)
+			if(tess.indexesVBO && tess.vertexesVBO)
+			{
+				qglColor3f(1, 0, 0);
+			}
+			else if(tess.indexesVBO)
+			{
+				qglColor3f(0, 1, 0);
+			}
+			else if(tess.vertexesVBO)
+			{
 				qglColor3f(0, 0, 1);
+			}
 			else
+			{
 				qglColor3f(1, 1, 1);
+			}
 			break;
 	}
 	
@@ -1314,11 +1360,11 @@ static void DrawTris(shaderCommands_t * input)
 
 	if(qglLockArraysEXT)
 	{
-		qglLockArraysEXT(0, input->numVertexes);
+		qglLockArraysEXT(0, tess.numVertexes);
 		GLimp_LogComment("glLockArraysEXT\n");
 	}
 
-	R_DrawElements(input->numIndexes, input->indexes);
+	R_DrawElements();
 
 	if(qglUnlockArraysEXT)
 	{
@@ -1336,7 +1382,7 @@ DrawTangentSpaces
 Draws vertex tangent spaces for debugging
 ================
 */
-static void DrawTangentSpaces(shaderCommands_t * input)
+static void DrawTangentSpaces()
 {
 	int             i;
 	vec3_t          temp;
@@ -1348,21 +1394,21 @@ static void DrawTangentSpaces(shaderCommands_t * input)
 	GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
 
 	qglBegin(GL_LINES);
-	for(i = 0; i < input->numVertexes; i++)
+	for(i = 0; i < tess.numVertexes; i++)
 	{
 		qglColor3f(1, 0, 0);
-		qglVertex3fv(input->xyz[i]);
-		VectorMA(input->xyz[i], 2, input->tangents[i], temp);
+		qglVertex3fv(tess.xyz[i]);
+		VectorMA(tess.xyz[i], 2, tess.tangents[i], temp);
 		qglVertex3fv(temp);
 
 		qglColor3f(0, 1, 0);
-		qglVertex3fv(input->xyz[i]);
-		VectorMA(input->xyz[i], 2, input->binormals[i], temp);
+		qglVertex3fv(tess.xyz[i]);
+		VectorMA(tess.xyz[i], 2, tess.binormals[i], temp);
 		qglVertex3fv(temp);
 
 		qglColor3f(0, 0, 1);
-		qglVertex3fv(input->xyz[i]);
-		VectorMA(input->xyz[i], 2, input->normals[i], temp);
+		qglVertex3fv(tess.xyz[i]);
+		VectorMA(tess.xyz[i], 2, tess.normals[i], temp);
 		qglVertex3fv(temp);
 	}
 	qglEnd();
@@ -1378,7 +1424,7 @@ DrawNormals
 Draws vertex normals for debugging
 ================
 */
-static void DrawNormals(shaderCommands_t * input)
+static void DrawNormals()
 {
 	int             i;
 	vec3_t          temp;
@@ -1391,10 +1437,10 @@ static void DrawNormals(shaderCommands_t * input)
 	GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
 
 	qglBegin(GL_LINES);
-	for(i = 0; i < input->numVertexes; i++)
+	for(i = 0; i < tess.numVertexes; i++)
 	{
-		qglVertex3fv(input->xyz[i]);
-		VectorMA(input->xyz[i], 2, input->normals[i], temp);
+		qglVertex3fv(tess.xyz[i]);
+		VectorMA(tess.xyz[i], 2, tess.normals[i], temp);
 		qglVertex3fv(temp);
 	}
 	qglEnd();
@@ -1430,7 +1476,7 @@ void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader,
 	tess.surfaceShader = state;
 	
 	tess.surfaceStages = state->stages;
-	tess.numStages = state->numStages;
+	tess.numSurfaceStages = state->numStages;
 	
 	tess.lightShader = lightShader;
 	
@@ -1495,7 +1541,7 @@ static void Render_generic_single_FFP(int stage)
 
 	R_BindAnimatedImage(&pStage->bundle[0]);
 
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 	
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 //	qglDisable(GL_TEXTURE_2D);
@@ -1542,7 +1588,7 @@ static void Render_zfill_FFP(int stage)
 		GL_Bind(tr.whiteImage);
 	}
 
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 	
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 //	qglDisable(GL_TEXTURE_2D);
@@ -1595,7 +1641,7 @@ static void Render_generic_multi_FFP(int stage)
 
 	R_BindAnimatedImage(&pStage->bundle[1]);
 
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 
 	// clean up
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -1641,7 +1687,7 @@ void Render_lighting_D_direct(int stage)
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
 	
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 }
 
 
@@ -1685,7 +1731,7 @@ static void Render_lighting_DB_direct(int stage)
 	GL_SelectTexture(1);
 	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
 	
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 }
 
 static void Render_lighting_DBS_direct(int stage)
@@ -1738,7 +1784,7 @@ static void Render_lighting_DBS_direct(int stage)
 	GL_SelectTexture(2);
 	GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
 	
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 }
 
 static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
@@ -1776,16 +1822,24 @@ static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
 	GL_SelectTexture(2);
 	R_BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 	
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 	
 	GL_SelectTexture(0);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
 	
+	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
-	backEnd.pc.c_dlightIndexes += tess.numIndexes;
-	backEnd.pc.c_totalIndexes += tess.numIndexes;
+	
+	if(tess.numLightIndexes)
+	{
+		backEnd.pc.c_dlightIndexes += tess.numLightIndexes;
+	}
+	else
+	{
+		backEnd.pc.c_dlightIndexes += tess.numIndexes;
+	}
 }
 
 static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
@@ -1826,16 +1880,24 @@ static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
 	GL_SelectTexture(3);
 	R_BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 	
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 	
 	GL_SelectTexture(0);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
 	
+	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
-	backEnd.pc.c_dlightIndexes += tess.numIndexes;
-	backEnd.pc.c_totalIndexes += tess.numIndexes;
+	
+	if(tess.numLightIndexes)
+	{
+		backEnd.pc.c_dlightIndexes += tess.numLightIndexes;
+	}
+	else
+	{
+		backEnd.pc.c_dlightIndexes += tess.numIndexes;
+	}
 }
 
 static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
@@ -1885,16 +1947,24 @@ static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 	GL_SelectTexture(4);
 	R_BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 	
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 	
 	GL_SelectTexture(0);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
 	
+	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
-	backEnd.pc.c_dlightIndexes += tess.numIndexes;
-	backEnd.pc.c_totalIndexes += tess.numIndexes;
+	
+	if(tess.numLightIndexes)
+	{
+		backEnd.pc.c_dlightIndexes += tess.numLightIndexes;
+	}
+	else
+	{
+		backEnd.pc.c_dlightIndexes += tess.numIndexes;
+	}
 }
 
 static void Render_lightmap_FFP(int stage, int texCoordsIndex)
@@ -1924,10 +1994,22 @@ static void Render_lightmap_FFP(int stage, int texCoordsIndex)
 	GL_SelectTexture(0);
 //	qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[texCoordsIndex]);
+	
+	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+	{
+		if(texCoordsIndex == TB_LIGHTMAP)
+			qglTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsTexCoords2));
+		else
+			qglTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsTexCoords));
+	}
+	else
+	{
+		qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[texCoordsIndex]);
+	}
+	
 	R_BindLightMap();
 
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 	
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 //	qglDisable(GL_TEXTURE_2D);
@@ -1963,10 +2045,22 @@ static void Render_deluxemap_FFP(int stage, int texCoordsIndex)
 	GL_SelectTexture(0);
 //	qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[texCoordsIndex]);
+	
+	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+	{
+		if(texCoordsIndex == TB_LIGHTMAP)
+			qglTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsTexCoords2));
+		else
+			qglTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsTexCoords));
+	}
+	else
+	{
+		qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[texCoordsIndex]);
+	}
+	
 	R_BindDeluxeMap();
 
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 	
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 //	qglDisable(GL_TEXTURE_2D);
@@ -2000,7 +2094,7 @@ static void Render_lighting_D_radiosity_FFP(int stage)
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_LIGHTMAP]);
 	R_BindLightMap();
 
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 
 	// clean up
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -2034,7 +2128,7 @@ static void Render_lighting_D_radiosity(int stage)
 	GL_SelectTexture(1);
 	R_BindLightMap();
 	
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 }
 
 static void Render_lighting_DB_radiosity(int stage)
@@ -2068,7 +2162,7 @@ static void Render_lighting_DB_radiosity(int stage)
 	GL_SelectTexture(3);
 	R_BindDeluxeMap();
 	
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 }
 
 static void Render_lighting_DBS_radiosity(int stage)
@@ -2115,7 +2209,7 @@ static void Render_lighting_DBS_radiosity(int stage)
 	GL_SelectTexture(4);
 	R_BindDeluxeMap();
 	
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 }
 
 static void Render_reflection_C(int stage)
@@ -2143,7 +2237,7 @@ static void Render_reflection_C(int stage)
 	qglLoadMatrixf(backEnd.or.transformMatrix);
 	qglMatrixMode(GL_MODELVIEW);
 	
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 	
 //	GL_SelectTexture(0);
 	qglMatrixMode(GL_TEXTURE);
@@ -2180,7 +2274,7 @@ static void Render_refraction_C(int stage)
 	qglLoadMatrixf(backEnd.or.transformMatrix);
 	qglMatrixMode(GL_MODELVIEW);
 	
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 	
 //	GL_SelectTexture(0);
 	qglMatrixMode(GL_TEXTURE);
@@ -2222,7 +2316,7 @@ static void Render_dispersion_C(int stage)
 	qglLoadMatrixf(backEnd.or.transformMatrix);
 	qglMatrixMode(GL_MODELVIEW);
 	
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 	
 //	GL_SelectTexture(0);
 	qglMatrixMode(GL_TEXTURE);
@@ -2255,7 +2349,7 @@ static void Render_skybox(int stage)
 	qglLoadMatrixf(backEnd.or.transformMatrix);
 	qglMatrixMode(GL_MODELVIEW);
 	
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 	
 //	GL_SelectTexture(0);
 	qglMatrixMode(GL_TEXTURE);
@@ -2299,7 +2393,7 @@ static void Render_heatHaze(int stage)
 	GL_SelectTexture(1);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 	
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 }
 
 static void Render_glow(int stage)
@@ -2335,7 +2429,7 @@ static void Render_glow(int stage)
 	GL_Bind(tr.currentRenderImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
 	
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 }
 
 static void Render_bloom(int stage)
@@ -2368,7 +2462,7 @@ static void Render_bloom(int stage)
 	GL_Bind(tr.currentRenderNearestImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderNearestImage->uploadWidth, tr.currentRenderNearestImage->uploadHeight);
 	
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 	
 	// render bloom
 	GL_Program(tr.bloomShader.program);
@@ -2383,7 +2477,7 @@ static void Render_bloom(int stage)
 	GL_Bind(tr.contrastRenderImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth, tr.contrastRenderImage->uploadHeight);
 	
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 }
 
 static void Render_bloom2(int stage)
@@ -2416,7 +2510,7 @@ static void Render_bloom2(int stage)
 	GL_Bind(tr.currentRenderNearestImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderNearestImage->uploadWidth, tr.currentRenderNearestImage->uploadHeight);
 	
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 	
 	// render blurX
 	GL_Program(tr.blurXShader.program);
@@ -2429,7 +2523,7 @@ static void Render_bloom2(int stage)
 	GL_Bind(tr.contrastRenderImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth, tr.contrastRenderImage->uploadHeight);
 	
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 	
 	// render blurY
 	GL_Program(tr.blurYShader.program);
@@ -2442,7 +2536,7 @@ static void Render_bloom2(int stage)
 	GL_Bind(tr.contrastRenderImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth, tr.contrastRenderImage->uploadHeight);
 	
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 	
 	// render bloom
 	GL_Program(tr.bloomShader.program);
@@ -2459,7 +2553,7 @@ static void Render_bloom2(int stage)
 	GL_SelectTexture(1);
 	GL_Bind(tr.contrastRenderImage);
 	
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 }
 
 static void Render_fog()
@@ -2497,7 +2591,7 @@ static void Render_fog()
 		GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
 	}
 
-	R_DrawElements(tess.numIndexes, tess.indexes);
+	R_DrawElements();
 
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 //	qglDisable(GL_TEXTURE_2D);
@@ -2994,42 +3088,49 @@ void RB_StageIteratorLighting()
 	// call shader function
 	attenuationZStage = tess.lightShader->stages[0];
 		
-	for(i = 1; i < MAX_SHADER_STAGES; i++)
+	for(i = 0; i < MAX_SHADER_STAGES; i++)
 	{
-		attenuationXYStage = tess.lightShader->stages[i];
-						
-		if(!attenuationXYStage)
+		shaderStage_t  *diffuseStage = tess.surfaceStages[i];
+
+		if(!diffuseStage)
 		{
 			break;
 		}
-			
-		if(attenuationXYStage->type != ST_ATTENUATIONMAP_XY)
+		
+		if(!RB_EvalExpression(&diffuseStage->ifExp, 1.0))
 		{
 			continue;
 		}
 			
-		if(!RB_EvalExpression(&attenuationXYStage->ifExp, 1.0))
+		if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
 		{
-			continue;
+			// TODO ComputeTexMatrices(diffuseStage);	
+		}
+		else
+		{
+			ComputeTexCoords(diffuseStage);
 		}
 		
-		ComputeFinalAttenuation(attenuationXYStage, dl);
-			
-		for(j = 0; j < MAX_SHADER_STAGES; j++)
+		for(j = 1; j < MAX_SHADER_STAGES; j++)
 		{
-			shaderStage_t  *diffuseStage = tess.surfaceStages[j];
-
-			if(!diffuseStage)
+			attenuationXYStage = tess.lightShader->stages[j];
+						
+			if(!attenuationXYStage)
 			{
 				break;
 			}
-		
-			if(!RB_EvalExpression(&diffuseStage->ifExp, 1.0))
+			
+			if(attenuationXYStage->type != ST_ATTENUATIONMAP_XY)
 			{
 				continue;
 			}
 			
-			ComputeTexCoords(diffuseStage);
+			if(!RB_EvalExpression(&attenuationXYStage->ifExp, 1.0))
+			{
+				continue;
+			}
+		
+			ComputeFinalAttenuation(attenuationXYStage, dl);
 				
 			switch(diffuseStage->type)
 			{
@@ -3094,10 +3195,6 @@ void RB_StageIteratorLighting()
 			}
 		}
 	}
-		
-	backEnd.pc.c_dlightVertexes += tess.numVertexes;
-	backEnd.pc.c_totalIndexes += tess.numIndexes;
-	backEnd.pc.c_dlightIndexes += tess.numIndexes;
 
 	// unlock arrays
 	if(qglUnlockArraysEXT)
@@ -3165,8 +3262,15 @@ void RB_StageIteratorGeneric()
 			continue;
 		}
 
-		ComputeColors(pStage);
-		ComputeTexCoords(pStage);
+		if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+		{
+			// TODO ComputeTexMatrices(diffuseStage);	
+		}
+		else
+		{
+			ComputeColors(pStage);
+			ComputeTexCoords(pStage);
+		}
 
 		switch(pStage->type)
 		{
@@ -3508,7 +3612,7 @@ void RB_EndSurface()
 		ri.Error(ERR_DROP, "RB_EndSurface() - SHADER_MAX_VERTEXES hit");
 	}
 	
-	// only used by RB_RenderInteractions2
+	// only used by RB_RenderInteractions
 	if(tess.shadowVolume)
 	{
 		RB_ShadowTessEnd();
@@ -3521,11 +3625,8 @@ void RB_EndSurface()
 		return;
 	}
 
-	// update performance counters
-	backEnd.pc.c_shaders++;
-	backEnd.pc.c_vertexes += tess.numVertexes;
-	backEnd.pc.c_indexes += tess.numIndexes;
-	backEnd.pc.c_totalIndexes += tess.numIndexes * tess.numStages;
+	// update performance counter
+	backEnd.pc.c_batches++;
 
 	// call off to shader specific tess end function
 	tess.currentStageIteratorFunc();

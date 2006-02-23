@@ -394,8 +394,7 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 {
 	int             i, j;
 	srfSurfaceFace_t *cv;
-	int             numPoints, numIndexes;
-	int             sfaceSize, ofsIndexes;
+	int             numVerts, numIndexes;
 
 	// get lightmap
 	surf->lightmapNum = LittleLong(ds->lightmapNum);
@@ -410,49 +409,54 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 		surf->shader = tr.defaultShader;
 	}
 
-	numPoints = LittleLong(ds->numVerts);
-	if(numPoints > MAX_FACE_POINTS)
+	numVerts = LittleLong(ds->numVerts);
+	if(numVerts > MAX_FACE_POINTS)
 	{
-		ri.Printf(PRINT_WARNING, "WARNING: MAX_FACE_POINTS exceeded: %i\n", numPoints);
-		numPoints = MAX_FACE_POINTS;
+		ri.Printf(PRINT_WARNING, "WARNING: MAX_FACE_POINTS exceeded: %i\n", numVerts);
+		numVerts = MAX_FACE_POINTS;
 		surf->shader = tr.defaultShader;
 	}
-
 	numIndexes = LittleLong(ds->numIndexes);
 
-	// create the srfSurfaceFace_t
-	sfaceSize = (int)&((srfSurfaceFace_t *) 0)->points[numPoints];
-	ofsIndexes = sfaceSize;
-	sfaceSize += sizeof(int) * numIndexes;
-
-	cv = ri.Hunk_Alloc(sfaceSize, h_low);
+	cv = ri.Hunk_Alloc(sizeof(*cv), h_low);
 	cv->surfaceType = SF_FACE;
-	cv->numPoints = numPoints;
-	cv->numIndices = numIndexes;
-	cv->ofsIndices = ofsIndexes;
+	
+	cv->numIndexes = numIndexes;
+	cv->indexes = ri.Hunk_Alloc(numIndexes * sizeof(cv->indexes[0]), h_low);
+	
+	cv->numVerts = numVerts;
+	cv->verts = ri.Hunk_Alloc(numVerts * sizeof(cv->verts[0]), h_low);
+	
+	surf->data = (surfaceType_t *) cv;
 
 	// copy vertexes
 	ClearBounds(cv->bounds[0], cv->bounds[1]);
 	verts += LittleLong(ds->firstVert);
-	for(i = 0; i < numPoints; i++)
+	for(i = 0; i < numVerts; i++)
 	{
 		for(j = 0; j < 3; j++)
 		{
-			cv->points[i][j] = LittleFloat(verts[i].xyz[j]);
+			cv->verts[i].xyz[j] = LittleFloat(verts[i].xyz[j]);
+			cv->verts[i].normal[j] = LittleFloat(verts[i].normal[j]);
 		}
-		AddPointToBounds(cv->points[i], cv->bounds[0], cv->bounds[1]);
+		AddPointToBounds(cv->verts[i].xyz, cv->bounds[0], cv->bounds[1]);
 		for(j = 0; j < 2; j++)
 		{
-			cv->points[i][3 + j] = LittleFloat(verts[i].st[j]);
-			cv->points[i][5 + j] = LittleFloat(verts[i].lightmap[j]);
+			cv->verts[i].st[j] = LittleFloat(verts[i].st[j]);
+			cv->verts[i].lightmap[j] = LittleFloat(verts[i].lightmap[j]);
 		}
-		R_ColorShiftLightingBytes(verts[i].color, (byte *) & cv->points[i][7]);
+
+		R_ColorShiftLightingBytes(verts[i].color, cv->verts[i].color);
 	}
 
 	indexes += LittleLong(ds->firstIndex);
 	for(i = 0; i < numIndexes; i++)
 	{
-		((int *)((byte *) cv + cv->ofsIndices))[i] = LittleLong(indexes[i]);
+		cv->indexes[i] = LittleLong(indexes[i]);
+		if(cv->indexes[i] < 0 || cv->indexes[i] >= numVerts)
+		{
+			ri.Error(ERR_DROP, "Bad index in face surface");
+		}
 	}
 
 	// take the plane information from the lightmap vector
@@ -460,7 +464,7 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 	{
 		cv->plane.normal[i] = LittleFloat(ds->lightmapVecs[2][i]);
 	}
-	cv->plane.dist = DotProduct(cv->points[0], cv->plane.normal);
+	cv->plane.dist = DotProduct(cv->verts[0].xyz, cv->plane.normal);
 	SetPlaneSignbits(&cv->plane);
 	cv->plane.type = PlaneTypeForNormal(cv->plane.normal);
 
@@ -476,42 +480,176 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 		vec3_t          normal;
 		int            *indices;
 
-		for(i = 0; i < numPoints; i++)
+		for(i = 0; i < numVerts; i++)
 		{
-			VectorClear(&cv->points[i][8]);	// tangent
-			VectorClear(&cv->points[i][11]);	// binormal
-			VectorClear(&cv->points[i][14]);	// normal
+			VectorClear(cv->verts[i].tangent);
+			VectorClear(cv->verts[i].binormal);
+			VectorClear(cv->verts[i].normal);
 		}
 
-		indices = (unsigned *)(((char *)cv) + cv->ofsIndices);
+		indices = cv->indexes;
 		for(i = 0; i < numIndexes; i += 3, indices += 3)
 		{
-			v0 = &cv->points[indices[0]][0];
-			v1 = &cv->points[indices[1]][0];
-			v2 = &cv->points[indices[2]][0];
+			v0 = cv->verts[indices[0]].xyz;
+			v1 = cv->verts[indices[1]].xyz;
+			v2 = cv->verts[indices[2]].xyz;
 
-			t0 = &cv->points[indices[0]][3];
-			t1 = &cv->points[indices[1]][3];
-			t2 = &cv->points[indices[2]][3];
+			t0 = cv->verts[indices[0]].st;
+			t1 = cv->verts[indices[1]].st;
+			t2 = cv->verts[indices[2]].st;
 
 			R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2, cv->plane.normal);
 
 			for(j = 0; j < 3; j++)
 			{
-				v = &cv->points[indices[j]][8];
+				v = cv->verts[indices[j]].tangent;
 				VectorAdd(v, tangent, v);
-				v = &cv->points[indices[j]][11];
+				v = cv->verts[indices[j]].binormal;
 				VectorAdd(v, binormal, v);
-				v = &cv->points[indices[j]][14];
+				v = cv->verts[indices[j]].normal;
 				VectorAdd(v, normal, v);
 			}
 		}
 
-		for(i = 0; i < numPoints; i++)
+		for(i = 0; i < numVerts; i++)
 		{
-			VectorNormalize(&cv->points[i][8]);
-			VectorNormalize(&cv->points[i][11]);
-			VectorNormalize(&cv->points[i][14]);
+			VectorNormalize(cv->verts[i].tangent);
+			VectorNormalize(cv->verts[i].binormal);
+			VectorNormalize(cv->verts[i].normal);
+		}
+	}
+	
+	// create VBOs
+	if(glConfig2.vertexBufferObjectAvailable)
+	{
+		if(numIndexes)
+		{
+			byte           *indexes;
+			int             indexesSize;
+		
+			qglGenBuffersARB(1, &cv->indexesVBO);
+			
+			indexes = (byte *)&cv->indexes[0];
+			indexesSize = numIndexes * sizeof(cv->indexes[0]);
+			
+			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, cv->indexesVBO);
+			qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_STATIC_DRAW_ARB);
+			
+			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+		}
+		
+		if(cv->numVerts)
+		{
+			byte           *data;
+			int             dataSize;
+			int             dataOfs;
+			vec4_t          tmp;
+			
+			qglGenBuffersARB(1, &cv->vertsVBO);
+			
+			dataSize = cv->numVerts * (sizeof(vec4_t) * 6 + sizeof(color4ub_t));
+			data = ri.Hunk_AllocateTempMemory(dataSize);
+			dataOfs = 0;
+			
+			// set up xyz array
+			cv->ofsXYZ = 0;
+			for(i = 0; i < cv->numVerts; i++)
+			{
+				for(j = 0; j < 3; j++)
+				{
+					tmp[j] = cv->verts[i].xyz[j];
+				}
+				tmp[3] = 1;
+				
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
+			
+			// set up texcoords array
+			cv->ofsTexCoords = dataOfs;
+			for(i = 0; i < cv->numVerts; i++)
+			{
+				for(j = 0; j < 2; j++)
+				{
+					tmp[j] = cv->verts[i].st[j];
+				}
+				tmp[2] = 0;
+				tmp[3] = 1;
+				
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
+			
+			// set up texcoords2 array
+			cv->ofsTexCoords2 = dataOfs;
+			for(i = 0; i < cv->numVerts; i++)
+			{
+				for(j = 0; j < 2; j++)
+				{
+					tmp[j] = cv->verts[i].lightmap[j];
+				}
+				tmp[2] = 0;
+				tmp[3] = 1;
+				
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
+			
+			// set up tangents array
+			cv->ofsTangents = dataOfs;
+			for(i = 0; i < cv->numVerts; i++)
+			{
+				for(j = 0; j < 3; j++)
+				{
+					tmp[j] = cv->verts[i].tangent[j];
+				}
+				tmp[3] = 1;
+				
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
+			
+			// set up binormals array
+			cv->ofsBinormals = dataOfs;
+			for(i = 0; i < cv->numVerts; i++)
+			{
+				for(j = 0; j < 3; j++)
+				{
+					tmp[j] = cv->verts[i].binormal[j];
+				}
+				tmp[3] = 1;
+				
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
+			
+			// set up normals array
+			cv->ofsNormals = dataOfs;
+			for(i = 0; i < cv->numVerts; i++)
+			{
+				for(j = 0; j < 3; j++)
+				{
+					tmp[j] = cv->verts[i].normal[j];
+				}
+				tmp[3] = 1;
+				
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
+			
+			// set up colors array
+			cv->ofsColors = dataOfs;
+			for(i = 0; i < cv->numVerts; i++)
+			{
+				memcpy(data + dataOfs, cv->verts[i].color, sizeof(color4ub_t));
+				dataOfs += sizeof(color4ub_t);
+			}
+		
+			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, cv->vertsVBO);
+			qglBufferDataARB(GL_ARRAY_BUFFER_ARB, dataSize, data, GL_STATIC_DRAW_ARB);
+			
+			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+			ri.Hunk_FreeTempMemory(data);
 		}
 	}
 }
@@ -710,119 +848,122 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 	}
 	
 	// create VBOs
-	if(glConfig2.vertexBufferObjectAvailable && numVerts)
+	if(glConfig2.vertexBufferObjectAvailable)
 	{
-		byte           *data;
-		int             dataSize;
-		int             dataOfs;
-		vec4_t          tmp;
-		
-		qglGenBuffersARB(1, &tri->vertsVBO);
-		
-		dataSize = numVerts * (sizeof(vec4_t) * 5 + sizeof(color4ub_t));
-		data = ri.Hunk_AllocateTempMemory(dataSize);
-		dataOfs = 0;
-		
-		// set up xyz array
-		tri->ofsXYZ = 0;
-		for(i = 0; i < numVerts; i++)
+		if(numIndexes)
 		{
-			for(j = 0; j < 3; j++)
-			{
-				tmp[j] = tri->verts[i].xyz[j];
-			}
-			tmp[3] = 1;
+			byte           *indexes;
+			int             indexesSize;
+		
+			qglGenBuffersARB(1, &tri->indexesVBO);
+		
+			indexes = (byte *)&tri->indexes[0];
+			indexesSize = numIndexes * sizeof(tri->indexes[0]);
+		
+			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tri->indexesVBO);
+			qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_STATIC_DRAW_ARB);
+		
+			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+		}
+		
+		if(numVerts)
+		{
+			byte           *data;
+			int             dataSize;
+			int             dataOfs;
+			vec4_t          tmp;
 			
-			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-			dataOfs += sizeof(vec4_t);
-		}
-		
-		// set up texcoords array
-		tri->ofsTexCoords = dataOfs;
-		for(i = 0; i < numVerts; i++)
-		{
-			for(j = 0; j < 2; j++)
-			{
-				tmp[j] = tri->verts[i].st[j];
-			}
-			tmp[2] = 0;
-			tmp[3] = 1;
+			qglGenBuffersARB(1, &tri->vertsVBO);
 			
-			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-			dataOfs += sizeof(vec4_t);
-		}
-		
-		// set up tangents array
-		tri->ofsTangents = dataOfs;
-		for(i = 0; i < numVerts; i++)
-		{
-			for(j = 0; j < 3; j++)
-			{
-				tmp[j] = tri->verts[i].tangent[j];
-			}
-			tmp[3] = 1;
+			dataSize = numVerts * (sizeof(vec4_t) * 5 + sizeof(color4ub_t));
+			data = ri.Hunk_AllocateTempMemory(dataSize);
+			dataOfs = 0;
 			
-			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-			dataOfs += sizeof(vec4_t);
-		}
-		
-		// set up binormals array
-		tri->ofsBinormals = dataOfs;
-		for(i = 0; i < numVerts; i++)
-		{
-			for(j = 0; j < 3; j++)
+			// set up xyz array
+			tri->ofsXYZ = 0;
+			for(i = 0; i < numVerts; i++)
 			{
-				tmp[j] = tri->verts[i].binormal[j];
+				for(j = 0; j < 3; j++)
+				{
+					tmp[j] = tri->verts[i].xyz[j];
+				}
+				tmp[3] = 1;
+				
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
 			}
-			tmp[3] = 1;
 			
-			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-			dataOfs += sizeof(vec4_t);
-		}
-		
-		// set up normals array
-		tri->ofsBinormals = dataOfs;
-		for(i = 0; i < numVerts; i++)
-		{
-			for(j = 0; j < 3; j++)
+			// set up texcoords array
+			tri->ofsTexCoords = dataOfs;
+			for(i = 0; i < numVerts; i++)
 			{
-				tmp[j] = tri->verts[i].normal[j];
+				for(j = 0; j < 2; j++)
+				{
+					tmp[j] = tri->verts[i].st[j];
+				}
+				tmp[2] = 0;
+				tmp[3] = 1;
+				
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
 			}
-			tmp[3] = 1;
 			
-			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-			dataOfs += sizeof(vec4_t);
+			// set up tangents array
+			tri->ofsTangents = dataOfs;
+			for(i = 0; i < numVerts; i++)
+			{
+				for(j = 0; j < 3; j++)
+				{
+					tmp[j] = tri->verts[i].tangent[j];
+				}
+				tmp[3] = 1;
+				
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
+			
+			// set up binormals array
+			tri->ofsBinormals = dataOfs;
+			for(i = 0; i < numVerts; i++)
+			{
+				for(j = 0; j < 3; j++)
+				{
+					tmp[j] = tri->verts[i].binormal[j];
+				}
+				tmp[3] = 1;
+				
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
+			
+			// set up normals array
+			tri->ofsNormals = dataOfs;
+			for(i = 0; i < numVerts; i++)
+			{
+				for(j = 0; j < 3; j++)
+				{
+					tmp[j] = tri->verts[i].normal[j];
+				}
+				tmp[3] = 1;
+				
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
+			
+			// set up colors array
+			tri->ofsColors = dataOfs;
+			for(i = 0; i < numVerts; i++)
+			{
+				memcpy(data + dataOfs, tri->verts[i].color, sizeof(color4ub_t));
+				dataOfs += sizeof(color4ub_t);
+			}
+		
+			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, tri->vertsVBO);
+			qglBufferDataARB(GL_ARRAY_BUFFER_ARB, dataSize, data, GL_STATIC_DRAW_ARB);
+			
+			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+			ri.Hunk_FreeTempMemory(data);
 		}
-		
-		// set up normals array
-		tri->ofsColors = dataOfs;
-		for(i = 0; i < numVerts; i++)
-		{
-			memcpy(data + dataOfs, tri->verts[i].color, sizeof(color4ub_t));
-			dataOfs += sizeof(color4ub_t);
-		}
-		
-		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, tri->vertsVBO);
-		qglBufferDataARB(GL_ARRAY_BUFFER_ARB, dataSize, data, GL_STATIC_DRAW_ARB);
-		
-		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-		ri.Hunk_FreeTempMemory(data);
-	}
-	
-	if(glConfig2.vertexBufferObjectAvailable && numIndexes)
-	{
-		byte           *indexes;
-		int             indexesSize;
-		
-		qglGenBuffersARB(1, &tri->indexesVBO);
-		
-		indexes = (byte *)&tri->indexes[0];
-		indexesSize = numIndexes * sizeof(tri->indexes[0]);
-		
-		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tri->indexesVBO);
-		qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_STATIC_DRAW_ARB);
-		
-		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 	}
 }
 
@@ -3052,7 +3193,7 @@ static qboolean _cldTestOneTriangle(trRefDlight_t * dl, const vec3_t v0, const v
 static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * shader, trRefDlight_t * dl)
 {
 	int             i;
-	unsigned       *indices;
+	unsigned       *indexes;
 	int             numIndexes;
 	int            *iaIndexes;
 	float           d;
@@ -3079,7 +3220,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * sh
 	{
 		if(d < face->plane.dist - 8)
 		{
-			c_culledFaceTriangles += (face->numIndices / 3);
+			c_culledFaceTriangles += (face->numIndexes / 3);
 			return qfalse;
 		}
 	}
@@ -3087,37 +3228,38 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * sh
 	{
 		if(d > face->plane.dist + 8)
 		{
-			c_culledFaceTriangles += (face->numIndices / 3);
+			c_culledFaceTriangles += (face->numIndexes / 3);
 			return qfalse;
 		}
 	}
 #endif
 
-	indices = (unsigned *)(((char *)face) + face->ofsIndices);
+	indexes = face->indexes;
 	iaIndexes = s_lightIndexes;
 
 	// build a list of triangles that need light
-	Com_Memset(sh.numEdges, 0, 4 * face->numPoints);
+	Com_Memset(sh.numEdges, 0, 4 * face->numVerts);
 	
 	numIndexes = 0;
-	for(i = 0; i < (face->numIndices / 3); i++)
+	for(i = 0; i < (face->numIndexes / 3); i++)
 	{
 		int             i1, i2, i3;
 		vec3_t          verts[3];
-		vec3_t          d1, d2;
-		float           d;
+		//vec3_t          d1, d2;
 		vec4_t          plane;
+		float           d;
 		
 		sh.facing[i] = qtrue;
 
-		i1 = indices[i * 3 + 0];
-		i2 = indices[i * 3 + 1];
-		i3 = indices[i * 3 + 2];
+		i1 = indexes[i * 3 + 0];
+		i2 = indexes[i * 3 + 1];
+		i3 = indexes[i * 3 + 2];
 
-		VectorCopy(face->points[i1 * VERTEXSIZE], verts[0]);
-		VectorCopy(face->points[i2 * VERTEXSIZE], verts[1]);
-		VectorCopy(face->points[i3 * VERTEXSIZE], verts[2]);
+		VectorCopy(face->verts[i1].xyz, verts[0]);
+		VectorCopy(face->verts[i2].xyz, verts[1]);
+		VectorCopy(face->verts[i3].xyz, verts[2]);
 		
+		/*
 		VectorSubtract(verts[1], verts[0], d1);
 		VectorSubtract(verts[2], verts[0], d2);
 			
@@ -3133,13 +3275,39 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * sh
 		{
 			sh.facing[i] = qfalse;
 		}
+		*/
+		
+		if(PlaneFromPoints(plane, verts[0], verts[1], verts[2], qtrue))
+		{
+#if 1
+			// check if light origin is behind triangle
+			d = DotProduct(plane, dl->origin) - plane[3];
 
-#if 0
-		// test this triangle
+			if(shader->cullType == CT_FRONT_SIDED)
+			{
+				if(d < 0)
+				{
+					c_culledFaceTriangles++;
+					sh.facing[i] = qfalse;
+				}
+			}
+			else
+			{
+				if(d > 0)
+				{
+					c_culledFaceTriangles++;
+					sh.facing[i] = qfalse;
+				}
+			}
+#endif
+		}
+
+#if 1
+		// check with ODE's triangle<->OBB collider for an intersection
 		if(!_cldTestOneTriangle(dl, verts[0], verts[1], verts[2]))
 		{
 			c_culledFaceTriangles++;
-			continue;
+			sh.facing[i] = qfalse;
 		}
 #endif
 
@@ -3154,7 +3322,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * sh
 		R_AddEdge(i3, i1, sh.facing[i]);
 		
 		// create triangle indices
-		//if(sh.facing[i])
+		if(sh.facing[i])
 		{
 			iaIndexes[numIndexes + 0] = i1;
 			iaIndexes[numIndexes + 1] = i2;
@@ -3171,7 +3339,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * sh
 #endif
 
 	s_numLightIndexes = numIndexes;
-	R_CalcShadowIndexes(face->numPoints);
+	R_CalcShadowIndexes(face->numVerts);
 	return qtrue;
 }
 
@@ -3536,6 +3704,7 @@ void R_PrecacheInteractions()
 	s_interactionCount = 0;
 
 	c_culledFaceTriangles = 0;
+	c_culledGridTriangles = 0;
 	c_culledTriTriangles = 0;
 
 	// FIXME use dynamic list

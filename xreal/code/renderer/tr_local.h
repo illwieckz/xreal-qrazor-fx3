@@ -1035,31 +1035,43 @@ typedef struct srfGridMesh_s
 	
 	int             numIndexes;
 	int            *indexes;
+	GLuint          indexesVBO;
 
 	int             numVerts;
 	srfVert_t      *verts;
-//	srfVert_t       verts[1];	// variable sized
+	GLuint          vertsVBO;
+	GLuint          ofsXYZ;
+	GLuint          ofsTexCoords;
+	GLuint          ofsTexCoords2;
+	GLuint          ofsTangents;
+	GLuint          ofsBinormals;
+	GLuint          ofsNormals;
+	GLuint          ofsColors;
 } srfGridMesh_t;
 
-
-
-#define	VERTEXSIZE	17			//3+2+2+1+3+3+3
 typedef struct
 {
 	surfaceType_t   surfaceType;
+		
+	// culling information
 	cplane_t        plane;
-	
-	// Tr3B - culling information necessary for dlights
 	vec3_t          bounds[2];
-//	vec3_t          localOrigin;
-//	float           radius;
 
 	// triangle definitions
-	int             numPoints;
-	int             numIndices;
-	int             ofsIndices;
-	float           points[1][VERTEXSIZE];	// variable sized
-	// there is a variable length list of indices here also
+	int             numIndexes;
+	int            *indexes;
+	GLuint          indexesVBO;
+
+	int             numVerts;
+	srfVert_t      *verts;
+	GLuint          vertsVBO;
+	GLuint          ofsXYZ;
+	GLuint          ofsTexCoords;
+	GLuint          ofsTexCoords2;
+	GLuint          ofsTangents;
+	GLuint          ofsBinormals;
+	GLuint          ofsNormals;
+	GLuint          ofsColors;
 } srfSurfaceFace_t;
 
 
@@ -1388,35 +1400,6 @@ extern refimport_t ri;
 #define MAX_INTERACTIONS		MAX_DRAWSURFS*16
 #define INTERACTION_MASK		(MAX_INTERACTIONS-1)
 
-/*
-
-the drawsurf sort data is packed into a single 32 bit value so it can be
-compared quickly during the qsorting process
-
-the bits are allocated as follows:
-
-21 - 31	: sorted shader index
-11 - 20	: entity index
-2 - 6	: fog index
-//2		: used to be clipped flag REMOVED - 03.21.00 rad
-0 - 1	: dlightmap index
-
-	TTimo - 1.32
-17-31 : sorted shader index
-7-16  : entity index
-2-6   : fog index
-0-1   : dlightmap index
-
-	Tr3B - XreaL
-21 - 31 : sorted shader index
-12 - 20 : lightmap index
-2 - 11  : entity index
-0 - 2   : fog index
-*/
-//#define	QSORT_SHADERNUM_SHIFT	21
-//#define	QSORT_LIGHTMAPNUM_SHIFT	12
-//#define	QSORT_ENTITYNUM_SHIFT	2
-
 extern int      gl_filter_min, gl_filter_max;
 
 /*
@@ -1468,14 +1451,19 @@ typedef struct
 
 typedef struct
 {
-	int             c_surfaces, c_shaders, c_vertexes, c_indexes, c_totalIndexes;
+	int             c_batches;
+	int             c_surfaces;
+	int             c_vertexes;
+	int             c_indexes;
+	int             c_drawElements;
+	float           c_overDraw;
 	int             c_vboVertexBuffers;
 	int             c_vboIndexBuffers;
-	float           c_overDraw;
+	int             c_vboVertexes;
+	int             c_vboIndexes;
 
 	int             c_dlights;
 	int             c_dlightInteractions;
-	int             c_dlightBatches;
 	int             c_dlightVertexes;
 	int             c_dlightIndexes;
 	
@@ -2055,6 +2043,7 @@ int             R_SumOfUsedImages(void);
 void            R_InitSkins(void);
 skin_t         *R_GetSkinByHandle(qhandle_t hSkin);
 
+void            R_DeleteSurfaceVBOs();
 
 //
 // tr_shader.c
@@ -2133,6 +2122,7 @@ typedef struct shaderCommands_s
 	GLuint          vertexesVBO;
 	GLuint          ofsXYZ;
 	GLuint          ofsTexCoords;
+	GLuint          ofsTexCoords2;
 	GLuint          ofsTangents;
 	GLuint          ofsBinormals;
 	GLuint          ofsNormals;
@@ -2164,9 +2154,10 @@ typedef struct shaderCommands_s
 	int             numVertexes;
 
 	// info extracted from current shader or backend mode
-	int             numStages;
 	stageIteratorType_t currentStageIteratorType;
 	void            (*currentStageIteratorFunc) (void);
+	
+	int             numSurfaceStages;
 	shaderStage_t **surfaceStages;
 } shaderCommands_t;
 

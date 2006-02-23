@@ -1003,7 +1003,6 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				
 				RB_EndSurface();
 				backEnd.pc.c_dlightInteractions++;
-				backEnd.pc.c_dlightBatches++;
 			}
 			else
 			{
