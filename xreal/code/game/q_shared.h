@@ -33,7 +33,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef Q3_VM
 typedef int intptr_t;
 #else
+#ifndef _MSC_VER
 #include <inttypes.h>
+#endif
 #endif
 
 #define PAD(x,y) (((x)+(y)-1) & ~((y)-1))
