@@ -574,21 +574,37 @@ R_AddDlightInteraction
 */
 void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * surfaceShader, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes, interactionType_t iaType)
 {
-	int             index;
+	int             iaIndex;
 	interaction_t  *ia;
+	interaction_t  *iaLast;
 
 	// instead of checking for overflow, we just mask the index
 	// so it wraps around
-	index = tr.refdef.numInteractions & INTERACTION_MASK;
-	ia = &tr.refdef.interactions[index];
+	iaIndex = tr.refdef.numInteractions & INTERACTION_MASK;
+	ia = &tr.refdef.interactions[iaIndex];
 	tr.refdef.numInteractions++;
 
 	// connect to interaction grid
-	if(light->lastInteraction)
+	if(light->firstInteractionIndex == -1)
 	{
-		light->lastInteraction->next = ia;
+		light->firstInteractionIndex = iaIndex;
 	}
-	light->lastInteraction = ia;
+	
+	if(light->lastInteractionIndex != -1)
+	{
+		iaLast = &tr.refdef.interactions[light->lastInteractionIndex];
+		
+		iaLast->next = ia;
+		
+		if(light->lastInteractionIndex == INTERACTION_MASK)
+		{
+			light->noSort = qtrue;
+		}
+	}
+	
+	light->lastInteractionIndex = iaIndex;
+	
+	light->numInteractions++;
 
 	// check what kind of attenuationShader is used
 	if(!light->l.attenuationShader)
@@ -636,6 +652,86 @@ void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shad
 		tr.pc.c_dlightInteractions++;
 	}
 }
+
+
+/*
+=================
+InteractionCompare
+compare function for qsort()
+=================
+*/
+static int InteractionCompare(const void *a, const void *b)
+{
+#if 1
+	// shader first
+	if(((interaction_t *) a)->surfaceShader < ((interaction_t *) b)->surfaceShader)
+		return -1;
+	
+	else if(((interaction_t *) a)->surfaceShader > ((interaction_t *) b)->surfaceShader)
+		return 1;
+#endif
+
+#if 1
+	// then entity
+	if(((interaction_t *) a)->entity == &tr.worldEntity && ((interaction_t *) b)->entity != &tr.worldEntity)
+		return -1;
+	
+	if(((interaction_t *) a)->entity != &tr.worldEntity && ((interaction_t *) b)->entity == &tr.worldEntity)
+		return 1;
+	
+	if(((interaction_t *) a)->entity < ((interaction_t *) b)->entity)
+		return -1;
+	
+	else if(((interaction_t *) a)->entity > ((interaction_t *) b)->entity)
+		return 1;
+#endif
+
+	return 0;
+}
+
+/*
+=================
+R_SortInteractions
+=================
+*/
+void R_SortInteractions(trRefDlight_t * light)
+{
+	int             i;
+	interaction_t  *ia;
+	interaction_t  *iaLast;
+	
+	if(r_noInteractionSort->integer)
+	{
+		return;	
+	}
+
+	if(!light->numInteractions || light->noSort)
+	{
+		return;
+	}
+	
+	ia = &tr.refdef.interactions[light->firstInteractionIndex];
+	
+	// sort by material etc. for geometry batching in the renderer backend
+	qsort(ia, light->numInteractions, sizeof(interaction_t), InteractionCompare);
+	
+	// fix linked list
+	iaLast = NULL;
+	for(i = 0; i < light->numInteractions; i++)
+	{
+		ia = &tr.refdef.interactions[light->firstInteractionIndex + i];
+		
+		if(iaLast)
+		{
+			iaLast->next = ia;
+		}
+		
+		ia->next = NULL;
+		
+		iaLast = ia;
+	}
+}
+
 
 /*
 =================

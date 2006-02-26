@@ -76,6 +76,7 @@ cvar_t         *r_showcluster;
 cvar_t         *r_nocurves;
 cvar_t         *r_nobatching;
 cvar_t         *r_noLightScissors;
+cvar_t         *r_noInteractionSort;
 
 cvar_t         *r_allowExtensions;
 
@@ -1201,6 +1202,7 @@ void R_Register(void)
 	r_nocurves = ri.Cvar_Get("r_nocurves", "0", CVAR_CHEAT);
 	r_nobatching = ri.Cvar_Get("r_nobatching", "0", CVAR_CHEAT);
 	r_noLightScissors = ri.Cvar_Get("r_noLightScissors", "0", CVAR_CHEAT);
+	r_noInteractionSort = ri.Cvar_Get("r_noInteractionSort", "0", CVAR_CHEAT);
 	r_drawworld = ri.Cvar_Get("r_drawworld", "1", CVAR_CHEAT);
 	r_portalOnly = ri.Cvar_Get("r_portalOnly", "0", CVAR_CHEAT);
 

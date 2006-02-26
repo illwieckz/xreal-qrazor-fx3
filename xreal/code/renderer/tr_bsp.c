@@ -3759,7 +3759,8 @@ void R_PrecacheInteractions()
 		MatrixMultiply2(dl->attenuationMatrix, dl->projectionMatrix);	// light projection (frustum)
 
 		// setup interactions
-		dl->lastInteraction = NULL;
+		dl->firstInteractionCache = NULL;
+		dl->lastInteractionCache = NULL;
 
 		// perform frustum culling and add all the potentially visible surfaces
 		s_lightCount++;

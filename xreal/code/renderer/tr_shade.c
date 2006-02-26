@@ -1360,7 +1360,7 @@ static void Render_generic_single_FFP(int stage)
 	GL_Program(0);
 	GL_State(pStage->stateBits);
 	
-#if 0
+#if 1
 	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
 	{
 		qglColor4ubv(tess.svars.colors[0]);

@@ -1585,12 +1585,16 @@ void R_AddSlightInteractions()
 		R_SetDlightScissor(dl);
 		
 		// setup interactions
-		dl->lastInteraction = NULL;
+		dl->numInteractions = 0;
+		dl->firstInteractionIndex = -1;
+		dl->lastInteractionIndex = -1;
 	
 		R_AddPrecachedWorldInteractions(dl);
 		R_AddEntityInteractions(dl);
 		
-		if(dl->lastInteraction != NULL)
+		R_SortInteractions(dl);
+		
+		if(dl->numInteractions)
 			tr.pc.c_slights++;
 	}
 }
@@ -1680,12 +1684,16 @@ void R_AddDlightInteractions()
 		R_SetDlightScissor(dl);
 		
 		// setup interactions
-		dl->lastInteraction = NULL;
+		dl->numInteractions = 0;
+		dl->firstInteractionIndex = -1;
+		dl->lastInteractionIndex = -1;
 	
 		R_AddWorldInteractions(dl);
 		R_AddEntityInteractions(dl);
 		
-		if(dl->lastInteraction != NULL)
+		R_SortInteractions(dl);
+		
+		if(dl->numInteractions)
 			tr.pc.c_dlights++;
 	}
 }

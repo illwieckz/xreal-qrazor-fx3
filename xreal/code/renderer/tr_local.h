@@ -102,7 +102,11 @@ typedef struct trRefDlight_s
 	
 	struct interactionCache_s *firstInteractionCache;	// only used by static lights
 	struct interactionCache_s *lastInteractionCache;	// only used by static lights
-	struct interaction_s *lastInteraction;
+	
+	int             numInteractions;
+	int             firstInteractionIndex;
+	int             lastInteractionIndex;
+	qboolean        noSort;				// don't sort interactions by material
 } trRefDlight_t;
 
 
@@ -1716,6 +1720,7 @@ extern cvar_t  *r_facePlaneCull;	// enables culling of planar surfaces with back
 extern cvar_t  *r_nocurves;
 extern cvar_t  *r_nobatching;
 extern cvar_t  *r_noLightScissors;
+extern cvar_t  *r_noInteractionSort;
 extern cvar_t  *r_showcluster;
 
 extern cvar_t  *r_mode;			// video mode
@@ -2251,6 +2256,8 @@ void            R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * su
 									   int numLightIndexes, int *lightIndexes,
 									   int numShadowIndexes, int *shadowIndexes,
 									   interactionType_t iaType);
+
+void            R_SortInteractions(trRefDlight_t * light);
 
 void            R_SetDlightScissor(trRefDlight_t * light);
 /*
