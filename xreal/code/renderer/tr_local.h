@@ -1102,7 +1102,7 @@ typedef struct
 } srfTriangles_t;
 
 
-extern void     (*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *);
+extern void     (*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes);
 
 /*
 ==============================================================================
@@ -1714,6 +1714,7 @@ extern cvar_t  *r_novis;		// disable/enable usage of PVS
 extern cvar_t  *r_nocull;
 extern cvar_t  *r_facePlaneCull;	// enables culling of planar surfaces with back side test
 extern cvar_t  *r_nocurves;
+extern cvar_t  *r_nobatching;
 extern cvar_t  *r_noLightScissors;
 extern cvar_t  *r_showcluster;
 
@@ -1805,6 +1806,10 @@ extern cvar_t  *r_showEntityTransforms;
 extern cvar_t  *r_showLightTransforms;
 extern cvar_t  *r_showLightInteractions;
 extern cvar_t  *r_showLightScissors;
+
+extern cvar_t  *r_vboFaces;
+extern cvar_t  *r_vboCurves;
+extern cvar_t  *r_vboTriangles;
 
 
 //====================================================================
@@ -2097,6 +2102,7 @@ typedef enum
 {
 	SIT_DEFAULT,
 	SIT_LIGHTING,
+	SIT_LIGHTING_STENCIL
 } stageIteratorType_t;
 
 typedef byte    color4ub_t[4];
@@ -2168,9 +2174,7 @@ void            RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader
 								int lightmapNum,
 								int fogNum,
 								qboolean skipTangentSpaces,
-								qboolean shadowVolume,
-								int numLightIndexes, int *lightIndexes,
-								int numShadowIndexes, int *shadowIndexes);
+								qboolean shadowVolume);
 // *INDENT-ON*
 void            RB_EndSurface(void);
 void            RB_CheckOverflow(int verts, int indexes);
@@ -2183,6 +2187,7 @@ void            RB_InitGPUShaders();
 void            RB_ShutdownGPUShaders();
 
 void            RB_StageIteratorLighting();
+void            RB_StageIteratorLightingStencilShadowed();
 void            RB_StageIteratorGeneric();
 void            RB_StageIteratorSky();
 
@@ -2336,7 +2341,6 @@ md5Animation_t *R_GetAnimationByHandle(qhandle_t hAnim);
 void            R_AnimationList_f(void);
 
 void            R_AddMDSSurfaces(trRefEntity_t * ent);
-void            RB_SurfaceMDS(mdsSurface_t * surfType);
 
 void            R_AddMD5Surfaces(trRefEntity_t * ent);
 void            R_AddMD5Interactions(trRefEntity_t * ent, trRefDlight_t * light);

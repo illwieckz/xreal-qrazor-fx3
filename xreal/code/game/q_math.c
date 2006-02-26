@@ -637,10 +637,10 @@ float Q_rsqrt(float number)
 
 #if id386_3dnow && defined __GNUC__
 //#error Q_rqsrt
-	femms();
 	asm volatile
 	(
 												// lo                                   | hi
+	"femms                               \n" 
 	"movd           (%%eax),        %%mm0\n"	// in                                   |       -
 	"pfrsqrt        %%mm0,          %%mm1\n"	// 1/sqrt(in)                           | 1/sqrt(in)    (approx)
 	"movq           %%mm1,          %%mm2\n"	// 1/sqrt(in)                           | 1/sqrt(in)    (approx)
@@ -648,10 +648,25 @@ float Q_rsqrt(float number)
 	"pfrsqit1       %%mm0,          %%mm1\n"	// intermediate                                                 step 2
 	"pfrcpit2       %%mm2,          %%mm1\n"	// 1/sqrt(in) (full 24-bit precision)                           step 3
 	"movd           %%mm1,        (%%edx)\n"
+	"femms                               \n"
 	:
 	:"a" (&number), "d"(&y):"memory"
 	);
-	femms();
+#elif id386_sse && defined __GNUC__
+	asm volatile
+	(
+	"rsqrtss       (%%eax),          %%xmm0\n"
+	"movss          %%xmm0,         (%%edx)\n"
+	:
+	: "a"(&number), "d"(&y)
+	: "memory"
+	);
+#elif id386_sse && defined _MSC_VER
+	__asm
+	{
+		rsqrtss xmm0, number
+		movss y, xmm0
+	}
 #else
 	long            i;
 	float           x2;
@@ -664,12 +679,12 @@ float Q_rsqrt(float number)
 	y = *(float *)&i;
 	y = y * (threehalfs - (x2 * y * y));	// 1st iteration
 //      y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
-#ifndef Q3_VM
+//#ifndef Q3_VM
 //#ifdef __linux__
 //	assert(!isnan(y));			// bk010122 - FPE?
 //#endif
+//#endif
 #endif
-#endif							// id386_3dnow
 	return y;
 }
 // *INDENT-ON*
@@ -1279,7 +1294,7 @@ qboolean BoundsIntersectPoint(const vec3_t mins, const vec3_t maxs, const vec3_t
 // *INDENT-OFF*
 vec_t VectorNormalize(vec3_t v)
 {
-#if id386_3dnow && defined __GNUC__
+#if id386_3dnow && defined __GNUC__ && 0
 //#error VectorNormalize
 	vec_t           length;
 
@@ -1650,47 +1665,47 @@ void MatrixClear(matrix_t m)
 void MatrixCopy(const matrix_t in, matrix_t out)
 {
 #if id386_sse && defined __GNUC__
-        asm volatile
-        (
-        "movups         (%%edx),                %%xmm0\n"
-        "movups         0x10(%%edx),    %%xmm1\n"
-        "movups         0x20(%%edx),    %%xmm2\n"
-        "movups         0x30(%%edx),    %%xmm3\n"
-        
-        "movups         %%xmm0,                 (%%eax)\n"
-        "movups         %%xmm1,                 0x10(%%eax)\n"
-        "movups         %%xmm2,                 0x20(%%eax)\n"
-        "movups         %%xmm3,                 0x30(%%eax)\n"
+	asm volatile
+	(
+	"movups         (%%edx),        %%xmm0\n"
+	"movups         0x10(%%edx),    %%xmm1\n"
+	"movups         0x20(%%edx),    %%xmm2\n"
+	"movups         0x30(%%edx),    %%xmm3\n"
+
+	"movups         %%xmm0,         (%%eax)\n"
+    "movups         %%xmm1,         0x10(%%eax)\n"
+	"movups         %%xmm2,         0x20(%%eax)\n"
+	"movups         %%xmm3,         0x30(%%eax)\n"
 	:
 	: "a"( out ), "d"( in )
 	: "memory"
 		);
 #elif id386_3dnow && defined __GNUC__
-        femms();
-        asm volatile
-				(
-				"movq           (%%edx),        %%mm0\n"
-				"movq           8(%%edx),       %%mm1\n"
-				"movq           16(%%edx),      %%mm2\n"
-				"movq           24(%%edx),      %%mm3\n"
-				"movq           32(%%edx),      %%mm4\n"
-				"movq           40(%%edx),      %%mm5\n"
-				"movq           48(%%edx),      %%mm6\n"
-				"movq           56(%%edx),      %%mm7\n"
-        
-				"movq           %%mm0,          (%%eax)\n"
-				"movq           %%mm1,          8(%%eax)\n"
-				"movq           %%mm2,          16(%%eax)\n"
-				"movq           %%mm3,          24(%%eax)\n"
-				"movq           %%mm4,          32(%%eax)\n"
-				"movq           %%mm5,          40(%%eax)\n"
-				"movq           %%mm6,          48(%%eax)\n"
-				"movq           %%mm7,          56(%%eax)\n"
+	asm volatile
+	(
+	"femms\n"
+	"movq           (%%edx),        %%mm0\n"
+	"movq           8(%%edx),       %%mm1\n"
+	"movq           16(%%edx),      %%mm2\n"
+	"movq           24(%%edx),      %%mm3\n"
+	"movq           32(%%edx),      %%mm4\n"
+	"movq           40(%%edx),      %%mm5\n"
+	"movq           48(%%edx),      %%mm6\n"
+	"movq           56(%%edx),      %%mm7\n"
+
+	"movq           %%mm0,          (%%eax)\n"
+	"movq           %%mm1,          8(%%eax)\n"
+	"movq           %%mm2,          16(%%eax)\n"
+	"movq           %%mm3,          24(%%eax)\n"
+	"movq           %%mm4,          32(%%eax)\n"
+	"movq           %%mm5,          40(%%eax)\n"
+	"movq           %%mm6,          48(%%eax)\n"
+	"movq           %%mm7,          56(%%eax)\n"
+	"femms\n"
 	:
-	: "a"( out ), "d"( in )
+	: "a"(out), "d"(in)
 	: "memory"
-				);
-		femms();
+	);
 #else
         out[ 0] = in[ 0];       out[ 4] = in[ 4];       out[ 8] = in[ 8];       out[12] = in[12];
         out[ 1] = in[ 1];       out[ 5] = in[ 5];       out[ 9] = in[ 9];       out[13] = in[13];

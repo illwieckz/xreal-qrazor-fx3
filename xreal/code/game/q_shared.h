@@ -111,12 +111,6 @@ typedef int intptr_t;
 #define id386	1
 #if defined SIMD_3DNOW
 #define id386_3dnow  1
-#if defined __GNUC__
-inline void femms()
-{
-	asm volatile    ("femms");
-}
-#endif
 #else
 #define id386_3dnow  0
 #endif

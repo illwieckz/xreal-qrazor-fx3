@@ -49,7 +49,7 @@ RB_EndBeginSurface
 void RB_EndBeginSurface()
 {
 	RB_EndSurface();
-	RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.lightmapNum, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume, tess.numLightIndexes, tess.lightIndexes, tess.numShadowIndexes, tess.shadowIndexes);
+	RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.lightmapNum, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume);
 }
 
 /*
@@ -81,7 +81,7 @@ void RB_CheckOverflow(int verts, int indexes)
 		ri.Error(ERR_DROP, "RB_CheckOverflow: indices > MAX (%d > %d)", indexes, SHADER_MAX_INDEXES);
 	}
 
-	RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.lightmapNum, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume, tess.numLightIndexes, tess.lightIndexes, tess.numShadowIndexes, tess.shadowIndexes);
+	RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.lightmapNum, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume);
 }
 
 
@@ -216,7 +216,7 @@ static void RB_SurfaceSprite(void)
 RB_SurfacePolychain
 =============
 */
-void RB_SurfacePolychain(srfPoly_t * p)
+void RB_SurfacePolychain(srfPoly_t * p, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	int             i;
 	int             numv;
@@ -253,19 +253,19 @@ void RB_SurfacePolychain(srfPoly_t * p)
 RB_SurfaceFace
 ==============
 */
-void RB_SurfaceFace(srfSurfaceFace_t * cv)
+void RB_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	int             i;
 	srfVert_t      *dv;
 	float          *xyz, *tangent, *binormal, *normal, *texCoords;
 	byte           *color;
 	
-	if(glConfig2.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO))
+	if(glConfig2.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboFaces->integer)
 	{
 		RB_EndBeginSurface();
 	}
 
-	if(glConfig2.vertexBufferObjectAvailable && cv->indexesVBO && !tess.shadowVolume)
+	if(glConfig2.vertexBufferObjectAvailable && cv->indexesVBO && r_vboFaces->integer && !tess.shadowVolume)
 	{
 		RB_CHECKOVERFLOW(cv->numVerts, cv->numIndexes);
 			
@@ -276,13 +276,22 @@ void RB_SurfaceFace(srfSurfaceFace_t * cv)
 	}
 	else
 	{
-		if(tess.numLightIndexes)
+#if 1
+		if(numLightIndexes)
 		{
-			RB_CHECKOVERFLOW(cv->numVerts, tess.numLightIndexes);
+			RB_CHECKOVERFLOW(cv->numVerts, numLightIndexes);
 			
-			tess.numIndexes += tess.numLightIndexes;
+			for(i = 0; i < numLightIndexes; i += 3)
+			{
+				tess.indexes[tess.numIndexes + i + 0] = tess.numVertexes + lightIndexes[i + 0];
+				tess.indexes[tess.numIndexes + i + 1] = tess.numVertexes + lightIndexes[i + 1];
+				tess.indexes[tess.numIndexes + i + 2] = tess.numVertexes + lightIndexes[i + 2];
+			}
+			
+			tess.numIndexes += numLightIndexes;
 		}
 		else
+#endif
 		{
 			RB_CHECKOVERFLOW(cv->numVerts, cv->numIndexes);
 	
@@ -297,7 +306,7 @@ void RB_SurfaceFace(srfSurfaceFace_t * cv)
 		}
 	}
 
-	if(glConfig2.vertexBufferObjectAvailable && cv->vertsVBO && !tess.shadowVolume)
+	if(glConfig2.vertexBufferObjectAvailable && cv->vertsVBO && r_vboFaces->integer && !tess.shadowVolume)
 	{
 		tess.vertexesVBO = cv->vertsVBO;
 		tess.ofsXYZ = cv->ofsXYZ;
@@ -359,19 +368,19 @@ void RB_SurfaceFace(srfSurfaceFace_t * cv)
 RB_SurfaceGrid
 =============
 */
-void RB_SurfaceGrid(srfGridMesh_t * cv)
+void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	int             i;
 	srfVert_t      *dv;
 	float          *xyz, *tangent, *binormal, *normal, *texCoords;
 	byte           *color;
 	
-	if(glConfig2.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO))
+	if(glConfig2.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboCurves->integer)
 	{
 		RB_EndBeginSurface();
 	}
 
-	if(glConfig2.vertexBufferObjectAvailable && cv->indexesVBO && !tess.shadowVolume)
+	if(glConfig2.vertexBufferObjectAvailable && cv->indexesVBO && r_vboCurves->integer && !tess.shadowVolume)
 	{
 		RB_CHECKOVERFLOW(cv->numVerts, cv->numIndexes);
 			
@@ -382,13 +391,22 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 	}
 	else
 	{
-		if(tess.numLightIndexes)
+#if 1
+		if(numLightIndexes)
 		{
-			RB_CHECKOVERFLOW(cv->numVerts, tess.numLightIndexes);
+			RB_CHECKOVERFLOW(cv->numVerts, numLightIndexes);
 			
-			tess.numIndexes += tess.numLightIndexes;
+			for(i = 0; i < numLightIndexes; i += 3)
+			{
+				tess.indexes[tess.numIndexes + i + 0] = tess.numVertexes + lightIndexes[i + 0];
+				tess.indexes[tess.numIndexes + i + 1] = tess.numVertexes + lightIndexes[i + 1];
+				tess.indexes[tess.numIndexes + i + 2] = tess.numVertexes + lightIndexes[i + 2];
+			}
+			
+			tess.numIndexes += numLightIndexes;
 		}
 		else
+#endif
 		{
 			RB_CHECKOVERFLOW(cv->numVerts, cv->numIndexes);
 	
@@ -403,7 +421,7 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 		}
 	}
 
-	if(glConfig2.vertexBufferObjectAvailable && cv->vertsVBO && !tess.shadowVolume)
+	if(glConfig2.vertexBufferObjectAvailable && cv->vertsVBO && r_vboCurves->integer && !tess.shadowVolume)
 	{
 		tess.vertexesVBO = cv->vertsVBO;
 		tess.ofsXYZ = cv->ofsXYZ;
@@ -465,19 +483,19 @@ void RB_SurfaceGrid(srfGridMesh_t * cv)
 RB_SurfaceTriangles
 =============
 */
-void RB_SurfaceTriangles(srfTriangles_t * cv)
+void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	int             i;
 	srfVert_t      *dv;
 	float          *xyz, *tangent, *binormal, *normal, *texCoords;
 	byte           *color;
 	
-	if(glConfig2.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO))
+	if(glConfig2.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboTriangles->integer)
 	{
 		RB_EndBeginSurface();
 	}
 
-	if(glConfig2.vertexBufferObjectAvailable && cv->indexesVBO && !tess.shadowVolume)
+	if(glConfig2.vertexBufferObjectAvailable && cv->indexesVBO && r_vboTriangles->integer && !tess.shadowVolume)
 	{
 		RB_CHECKOVERFLOW(cv->numVerts, cv->numIndexes);
 	
@@ -488,13 +506,22 @@ void RB_SurfaceTriangles(srfTriangles_t * cv)
 	}
 	else
 	{
-		if(tess.numLightIndexes)
+#if 1
+		if(numLightIndexes)
 		{
-			RB_CHECKOVERFLOW(cv->numVerts, tess.numLightIndexes);
-		
-			tess.numIndexes += tess.numLightIndexes;
+			RB_CHECKOVERFLOW(cv->numVerts, numLightIndexes);
+			
+			for(i = 0; i < numLightIndexes; i += 3)
+			{
+				tess.indexes[tess.numIndexes + i + 0] = tess.numVertexes + lightIndexes[i + 0];
+				tess.indexes[tess.numIndexes + i + 1] = tess.numVertexes + lightIndexes[i + 1];
+				tess.indexes[tess.numIndexes + i + 2] = tess.numVertexes + lightIndexes[i + 2];
+			}
+			
+			tess.numIndexes += numLightIndexes;
 		}
 		else
+#endif
 		{
 			RB_CHECKOVERFLOW(cv->numVerts, cv->numIndexes);
 
@@ -509,7 +536,7 @@ void RB_SurfaceTriangles(srfTriangles_t * cv)
 		}
 	}
 
-	if(glConfig2.vertexBufferObjectAvailable && cv->vertsVBO && !tess.shadowVolume)
+	if(glConfig2.vertexBufferObjectAvailable && cv->vertsVBO && r_vboTriangles->integer && !tess.shadowVolume)
 	{
 		tess.vertexesVBO = cv->vertsVBO;
 		tess.ofsXYZ = cv->ofsXYZ;
@@ -960,7 +987,7 @@ static void LerpMeshVertexes(md3Surface_t * surf, float backlerp)
 RB_SurfaceMD3
 =============
 */
-void RB_SurfaceMD3(md3Surface_t * surface)
+void RB_SurfaceMD3(md3Surface_t * surface, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	int             j;
 	float           backlerp;
@@ -1060,7 +1087,7 @@ void RB_SurfaceMD3(md3Surface_t * surface)
 RB_SurfaceMDS
 ==============
 */
-void RB_SurfaceMDS(mdsSurface_t * surface)
+void RB_SurfaceMDS(mdsSurface_t * surface, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	int             i, j, k;
 	float           frontlerp, backlerp;
@@ -1352,7 +1379,7 @@ void RB_SurfaceMDS(mdsSurface_t * surface)
 RB_SurfaceMD5
 ==============
 */
-void RB_SurfaceMD5(md5Surface_t * surface)
+void RB_SurfaceMD5(md5Surface_t * surface, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	int             j, k;
 	int            *indexes;
@@ -1507,7 +1534,7 @@ RB_SurfaceEntity
 Entities that have a single procedurally generated surface
 ====================
 */
-void RB_SurfaceEntity(surfaceType_t * surfType)
+void RB_SurfaceEntity(surfaceType_t * surfType, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	switch (backEnd.currentEntity->e.reType)
 	{
@@ -1533,14 +1560,14 @@ void RB_SurfaceEntity(surfaceType_t * surfType)
 	return;
 }
 
-void RB_SurfaceBad(surfaceType_t * surfType)
+void RB_SurfaceBad(surfaceType_t * surfType, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	ri.Printf(PRINT_ALL, "Bad surface tesselated.\n");
 }
 
 #if 0
 
-void RB_SurfaceFlare(srfFlare_t * surf)
+void RB_SurfaceFlare(srfFlare_t * surf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	vec3_t          left, up;
 	float           radius;
@@ -1607,30 +1634,30 @@ void RB_SurfaceFlare(srfFlare_t * surf)
 
 
 
-void RB_SurfaceDisplayList(srfDisplayList_t * surf)
+void RB_SurfaceDisplayList(srfDisplayList_t * surf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	// all apropriate state must be set in RB_BeginSurface
 	// this isn't implemented yet...
 	qglCallList(surf->listNum);
 }
 
-void RB_SurfaceSkip(void *surf)
+void RB_SurfaceSkip(void *surf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 }
 
 
-void	(*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *) =
+void	(*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes) =
 {
-		(void (*)(void *))RB_SurfaceBad,	// SF_BAD, 
-		(void (*)(void *))RB_SurfaceSkip,	// SF_SKIP, 
-		(void (*)(void *))RB_SurfaceFace,	// SF_FACE,
-		(void (*)(void *))RB_SurfaceGrid,	// SF_GRID,
-		(void (*)(void *))RB_SurfaceTriangles,	// SF_TRIANGLES,
-		(void (*)(void *))RB_SurfacePolychain,	// SF_POLY,
-		(void (*)(void *))RB_SurfaceMD3,	// SF_MD3,
-		(void (*)(void *))RB_SurfaceMDS,	// SF_MDS,
-		(void (*)(void *))RB_SurfaceMD5,	// SF_MD5,
-		(void (*)(void *))RB_SurfaceFlare,	// SF_FLARE,
-		(void (*)(void *))RB_SurfaceEntity,	// SF_ENTITY
-		(void (*)(void *))RB_SurfaceDisplayList	// SF_DISPLAY_LIST
+		(void (*)(void *, int, int *, int, int *))RB_SurfaceBad,	// SF_BAD, 
+		(void (*)(void *, int, int *, int, int *))RB_SurfaceSkip,	// SF_SKIP, 
+		(void (*)(void *, int, int *, int, int *))RB_SurfaceFace,	// SF_FACE,
+		(void (*)(void *, int, int *, int, int *))RB_SurfaceGrid,	// SF_GRID,
+		(void (*)(void *, int, int *, int, int *))RB_SurfaceTriangles,	// SF_TRIANGLES,
+		(void (*)(void *, int, int *, int, int *))RB_SurfacePolychain,	// SF_POLY,
+		(void (*)(void *, int, int *, int, int *))RB_SurfaceMD3,	// SF_MD3,
+		(void (*)(void *, int, int *, int, int *))RB_SurfaceMDS,	// SF_MDS,
+		(void (*)(void *, int, int *, int, int *))RB_SurfaceMD5,	// SF_MD5,
+		(void (*)(void *, int, int *, int, int *))RB_SurfaceFlare,	// SF_FLARE,
+		(void (*)(void *, int, int *, int, int *))RB_SurfaceEntity,	// SF_ENTITY
+		(void (*)(void *, int, int *, int, int *))RB_SurfaceDisplayList	// SF_DISPLAY_LIST
 };
