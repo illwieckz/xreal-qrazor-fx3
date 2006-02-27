@@ -995,7 +995,7 @@ static void GL_SetVertexAttribs()
 	else
 	{
 		if(glState.glClientStateBits & GLCS_VERTEX)
-			qglVertexPointer(3, GL_FLOAT, 16, tess.xyz);
+			qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
 	
 		if(glState.glClientStateBits & GLCS_TEXCOORD0)
 			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_COLORMAP]);
@@ -1340,12 +1340,6 @@ void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader,
 	
 	tess.skipTangentSpaces = skipTangentSpaces;
 	tess.shadowVolume = shadowVolume;
-	
-	tess.numLightIndexes = 0;
-	tess.lightIndexes = NULL;
-	
-	tess.numShadowIndexes = 0;
-	tess.shadowIndexes = NULL;
 }
 // *INDENT-ON*
 
@@ -1708,15 +1702,7 @@ static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
 	
 	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
-	
-	if(tess.numLightIndexes)
-	{
-		backEnd.pc.c_dlightIndexes += tess.numLightIndexes;
-	}
-	else
-	{
-		backEnd.pc.c_dlightIndexes += tess.numIndexes;
-	}
+	backEnd.pc.c_dlightIndexes += tess.numIndexes;
 }
 
 static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
@@ -1774,15 +1760,7 @@ static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
 	
 	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
-	
-	if(tess.numLightIndexes)
-	{
-		backEnd.pc.c_dlightIndexes += tess.numLightIndexes;
-	}
-	else
-	{
-		backEnd.pc.c_dlightIndexes += tess.numIndexes;
-	}
+	backEnd.pc.c_dlightIndexes += tess.numIndexes;
 }
 
 static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
@@ -1850,15 +1828,7 @@ static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 	
 	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
-	
-	if(tess.numLightIndexes)
-	{
-		backEnd.pc.c_dlightIndexes += tess.numLightIndexes;
-	}
-	else
-	{
-		backEnd.pc.c_dlightIndexes += tess.numIndexes;
-	}
+	backEnd.pc.c_dlightIndexes += tess.numIndexes;
 }
 
 static void Render_lightmap_FFP(int stage, int texCoordsIndex)
@@ -3812,6 +3782,173 @@ void RB_StageIteratorGeneric()
 	}
 }
 
+/*
+=================
+RB_ShadowTessEnd2
+=================
+*/
+void RB_ShadowTessEnd2()
+{
+	GLimp_LogComment("--- RB_ShadowTessEnd2 ---\n");
+	
+	if(r_showShadowVolumes->integer)
+	{
+		qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		qglDisable(GL_CULL_FACE);
+		qglDisable(GL_STENCIL_TEST);
+		//qglDisable(GL_DEPTH_TEST);
+		
+		qglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		qglColor4f(1.0f, 1.0f, 0.7f, 0.15f);
+		R_DrawElements();
+
+		qglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		qglEnable(GL_CULL_FACE);
+		qglEnable(GL_STENCIL_TEST);
+		//qglEnable(GL_DEPTH_TEST);
+	}
+	else
+	{
+		if(backEnd.currentEntity->needZFail)
+		{
+			// mirrors have the culling order reversed
+			if(backEnd.viewParms.isMirror)
+				qglFrontFace(GL_CW);
+			
+			if(qglActiveStencilFaceEXT && glConfig2.stencilWrapAvailable)
+			{
+				// render both sides at once
+				qglDisable(GL_CULL_FACE);
+				
+				qglEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
+				
+				qglActiveStencilFaceEXT(GL_BACK);
+				qglStencilOp(GL_KEEP, GL_DECR_WRAP_EXT, GL_KEEP);
+				qglStencilMask(~0);
+				qglStencilFunc(GL_ALWAYS, 0, ~0);
+
+				qglActiveStencilFaceEXT(GL_FRONT);
+				qglStencilOp(GL_KEEP, GL_INCR_WRAP_EXT, GL_KEEP);
+				qglStencilMask(~0);
+				qglStencilFunc(GL_ALWAYS, 0, ~0);
+				
+				R_DrawElements();
+				
+				qglDisable(GL_STENCIL_TEST_TWO_SIDE_EXT);
+				
+				qglEnable(GL_CULL_FACE);
+			}
+			else
+			{
+				// draw only the front faces of the shadow volume
+				qglCullFace(GL_FRONT);
+		
+				// increment the stencil value on zfail
+				if(glConfig2.stencilWrapAvailable)
+				{
+					qglStencilOp(GL_KEEP, GL_INCR_WRAP_EXT, GL_KEEP);
+				}
+				else
+				{
+					qglStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
+				}
+		
+				R_DrawElements();
+		
+				// draw only the back faces of the shadow volume
+				qglCullFace(GL_BACK);
+		
+				// decrement the stencil value on zfail
+				if(glConfig2.stencilWrapAvailable)
+				{
+					qglStencilOp(GL_KEEP, GL_DECR_WRAP_EXT, GL_KEEP);
+				}
+				else
+				{
+					qglStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
+				}
+		
+				R_DrawElements();
+			}
+			
+			if(backEnd.viewParms.isMirror)
+				qglFrontFace(GL_CCW);
+		}
+		else
+		{
+			// Tr3B - zpass rendering is cheaper because we can skip the lightcap and darkcap
+			// see GPU Gems1 9.5.4
+			
+			// mirrors have the culling order reversed
+			if(backEnd.viewParms.isMirror)
+				qglFrontFace(GL_CW);
+			
+			if(qglActiveStencilFaceEXT && glConfig2.stencilWrapAvailable)
+			{
+				// render both sides at once
+				qglDisable(GL_CULL_FACE);
+				
+				qglEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
+
+				qglActiveStencilFaceEXT(GL_BACK);
+				qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP_EXT);
+				qglStencilMask(~0);
+				qglStencilFunc(GL_ALWAYS, 0, ~0);
+
+				qglActiveStencilFaceEXT(GL_FRONT);
+				qglStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP_EXT);
+				qglStencilMask(~0);
+				qglStencilFunc(GL_ALWAYS, 0, ~0);
+				
+				R_DrawElements();
+				
+				qglDisable(GL_STENCIL_TEST_TWO_SIDE_EXT);
+				
+				qglEnable(GL_CULL_FACE);
+			}
+			else
+			{
+			
+				// draw only the back faces of the shadow volume
+				qglCullFace(GL_BACK);
+					
+				// increment the stencil value on zpass
+				if(glConfig2.stencilWrapAvailable)
+				{
+					qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP_EXT);
+				}
+				else
+				{
+					qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+				}
+					
+				R_DrawElements();
+		
+				// draw only the front faces of the shadow volume
+				qglCullFace(GL_FRONT);
+		
+				// decrement the stencil value on zpass
+				if(glConfig2.stencilWrapAvailable)
+				{
+					qglStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP_EXT);
+				}
+				else
+				{
+					qglStencilOp(GL_KEEP, GL_KEEP, GL_DECR);
+				}
+		
+				R_DrawElements();
+			}
+			
+			if(backEnd.viewParms.isMirror)
+				qglFrontFace(GL_CCW);
+		}
+	}
+	
+	backEnd.pc.c_shadowBatches++;
+}
+
 void RB_EndSurface()
 {
 	if(tess.numIndexes == 0)
@@ -3828,13 +3965,6 @@ void RB_EndSurface()
 		ri.Error(ERR_DROP, "RB_EndSurface() - SHADER_MAX_VERTEXES hit");
 	}
 	
-	// only used by RB_RenderInteractions
-	if(tess.shadowVolume)
-	{
-		RB_ShadowTessEnd();
-		return;
-	}
-
 	// for debugging of sort order issues, stop rendering after a given sort value
 	if(r_debugSort->integer && r_debugSort->integer < tess.surfaceShader->sort)
 	{
@@ -3844,21 +3974,29 @@ void RB_EndSurface()
 	// update performance counter
 	backEnd.pc.c_batches++;
 
-	// call off to shader specific tess end function
-	tess.currentStageIteratorFunc();
-
-	// draw debugging stuff
-	if(r_showtris->integer)
+	// draw content	
+	if(tess.shadowVolume)
 	{
-		DrawTris(&tess);
+		RB_ShadowTessEnd2();
 	}
-	if(r_shownormals->integer)
+	else
 	{
-		DrawNormals(&tess);
-	}
-	if(r_showTangentSpaces->integer)
-	{
-		DrawTangentSpaces(&tess);
+		// call off to shader specific tess end function
+		tess.currentStageIteratorFunc();
+	
+		// draw debugging stuff
+		if(r_showtris->integer)
+		{
+			DrawTris(&tess);
+		}
+		if(r_shownormals->integer)
+		{
+			DrawNormals(&tess);
+		}
+		if(r_showTangentSpaces->integer)
+		{
+			DrawTangentSpaces(&tess);
+		}
 	}
 	
 	// unbind VBO
@@ -3883,8 +4021,6 @@ void RB_EndSurface()
 
 	// clear shader so we can tell we don't have any unclosed surfaces
 	tess.numIndexes = 0;
-	tess.numLightIndexes = 0;
-	tess.numShadowIndexes = 0;
 
 	GLimp_LogComment("----------\n");
 }

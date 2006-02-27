@@ -394,7 +394,8 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 {
 	int             i, j;
 	srfSurfaceFace_t *cv;
-	int             numVerts, numIndexes;
+	srfTriangle_t  *tri;
+	int             numVerts, numTriangles;
 
 	// get lightmap
 	surf->lightmapNum = LittleLong(ds->lightmapNum);
@@ -416,13 +417,13 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 		numVerts = MAX_FACE_POINTS;
 		surf->shader = tr.defaultShader;
 	}
-	numIndexes = LittleLong(ds->numIndexes);
+	numTriangles = LittleLong(ds->numIndexes) / 3;
 
 	cv = ri.Hunk_Alloc(sizeof(*cv), h_low);
 	cv->surfaceType = SF_FACE;
 	
-	cv->numIndexes = numIndexes;
-	cv->indexes = ri.Hunk_Alloc(numIndexes * sizeof(cv->indexes[0]), h_low);
+	cv->numTriangles = numTriangles;
+	cv->triangles = ri.Hunk_Alloc(numTriangles * sizeof(cv->triangles[0]), h_low);
 	
 	cv->numVerts = numVerts;
 	cv->verts = ri.Hunk_Alloc(numVerts * sizeof(cv->verts[0]), h_low);
@@ -449,15 +450,22 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 		R_ColorShiftLightingBytes(verts[i].color, cv->verts[i].color);
 	}
 
+	// copy triangles
 	indexes += LittleLong(ds->firstIndex);
-	for(i = 0; i < numIndexes; i++)
+	for(i = 0, tri = cv->triangles; i < numTriangles; i++, tri++)
 	{
-		cv->indexes[i] = LittleLong(indexes[i]);
-		if(cv->indexes[i] < 0 || cv->indexes[i] >= numVerts)
+		for(j = 0; j < 3; j++)
 		{
-			ri.Error(ERR_DROP, "Bad index in face surface");
+			tri->indexes[j] = LittleLong(indexes[i * 3 + j]);
+			
+			if(tri->indexes[j] < 0 || tri->indexes[j] >= numVerts)
+			{
+				ri.Error(ERR_DROP, "Bad index in face surface");
+			}
 		}
 	}
+	
+	R_CalcSurfaceTriangleNeighbors(numTriangles, cv->triangles);
 
 	// take the plane information from the lightmap vector
 	for(i = 0; i < 3; i++)
@@ -478,7 +486,6 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 		vec3_t          tangent;
 		vec3_t          binormal;
 		vec3_t          normal;
-		int            *indices;
 
 		for(i = 0; i < numVerts; i++)
 		{
@@ -487,26 +494,25 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 			VectorClear(cv->verts[i].normal);
 		}
 
-		indices = cv->indexes;
-		for(i = 0; i < numIndexes; i += 3, indices += 3)
+		for(i = 0, tri = cv->triangles; i < numTriangles; i++, tri++)
 		{
-			v0 = cv->verts[indices[0]].xyz;
-			v1 = cv->verts[indices[1]].xyz;
-			v2 = cv->verts[indices[2]].xyz;
+			v0 = cv->verts[tri->indexes[0]].xyz;
+			v1 = cv->verts[tri->indexes[1]].xyz;
+			v2 = cv->verts[tri->indexes[2]].xyz;
 
-			t0 = cv->verts[indices[0]].st;
-			t1 = cv->verts[indices[1]].st;
-			t2 = cv->verts[indices[2]].st;
+			t0 = cv->verts[tri->indexes[0]].st;
+			t1 = cv->verts[tri->indexes[1]].st;
+			t2 = cv->verts[tri->indexes[2]].st;
 
 			R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2, cv->plane.normal);
 
 			for(j = 0; j < 3; j++)
 			{
-				v = cv->verts[indices[j]].tangent;
+				v = cv->verts[tri->indexes[j]].tangent;
 				VectorAdd(v, tangent, v);
-				v = cv->verts[indices[j]].binormal;
+				v = cv->verts[tri->indexes[j]].binormal;
 				VectorAdd(v, binormal, v);
-				v = cv->verts[indices[j]].normal;
+				v = cv->verts[tri->indexes[j]].normal;
 				VectorAdd(v, normal, v);
 			}
 		}
@@ -522,6 +528,7 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 	// create VBOs
 	if(glConfig2.vertexBufferObjectAvailable)
 	{
+		/*
 		if(numIndexes)
 		{
 			byte           *indexes;
@@ -537,6 +544,7 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 			
 			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 		}
+		*/
 		
 		if(cv->numVerts)
 		{
@@ -736,9 +744,10 @@ ParseTriSurf
 */
 static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, int *indexes)
 {
-	srfTriangles_t *tri;
+	srfTriangles_t *cv;
+	srfTriangle_t  *tri;
 	int             i, j;
-	int             numVerts, numIndexes;
+	int             numVerts, numTriangles;
 	
 	// set lightmap
 	surf->lightmapNum = -1;
@@ -754,45 +763,51 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 	}
 
 	numVerts = LittleLong(ds->numVerts);
-	numIndexes = LittleLong(ds->numIndexes);
+	numTriangles = LittleLong(ds->numIndexes) / 3;
 
-	tri = ri.Hunk_Alloc(sizeof(*tri) + numVerts * sizeof(tri->verts[0]) + numIndexes * sizeof(tri->indexes[0]), h_low);
-	tri->surfaceType = SF_TRIANGLES;
-	tri->numVerts = numVerts;
-	tri->numIndexes = numIndexes;
-	tri->verts = (srfVert_t *) (tri + 1);
-	tri->indexes = (int *)(tri->verts + tri->numVerts);
+	cv = ri.Hunk_Alloc(sizeof(*cv), h_low);
+	cv->surfaceType = SF_TRIANGLES;
 	
-	surf->data = (surfaceType_t *) tri;
+	cv->numTriangles = numTriangles;
+	cv->triangles = ri.Hunk_Alloc(numTriangles * sizeof(cv->triangles[0]), h_low);
+	
+	cv->numVerts = numVerts;
+	cv->verts = ri.Hunk_Alloc(numVerts * sizeof(cv->verts[0]), h_low);
+	
+	surf->data = (surfaceType_t *) cv;
 
 	// copy vertexes
-	ClearBounds(tri->bounds[0], tri->bounds[1]);
+	ClearBounds(cv->bounds[0], cv->bounds[1]);
 	verts += LittleLong(ds->firstVert);
 	for(i = 0; i < numVerts; i++)
 	{
 		for(j = 0; j < 3; j++)
 		{
-			tri->verts[i].xyz[j] = LittleFloat(verts[i].xyz[j]);
-			tri->verts[i].normal[j] = LittleFloat(verts[i].normal[j]);
+			cv->verts[i].xyz[j] = LittleFloat(verts[i].xyz[j]);
+			cv->verts[i].normal[j] = LittleFloat(verts[i].normal[j]);
 		}
-		AddPointToBounds(tri->verts[i].xyz, tri->bounds[0], tri->bounds[1]);
+		AddPointToBounds(cv->verts[i].xyz, cv->bounds[0], cv->bounds[1]);
 		for(j = 0; j < 2; j++)
 		{
-			tri->verts[i].st[j] = LittleFloat(verts[i].st[j]);
-			tri->verts[i].lightmap[j] = LittleFloat(verts[i].lightmap[j]);
+			cv->verts[i].st[j] = LittleFloat(verts[i].st[j]);
+			cv->verts[i].lightmap[j] = LittleFloat(verts[i].lightmap[j]);
 		}
 
-		R_ColorShiftLightingBytes(verts[i].color, tri->verts[i].color);
+		R_ColorShiftLightingBytes(verts[i].color, cv->verts[i].color);
 	}
 
-	// copy indexes
+	// copy triangles
 	indexes += LittleLong(ds->firstIndex);
-	for(i = 0; i < numIndexes; i++)
+	for(i = 0, tri = cv->triangles; i < numTriangles; i++, tri++)
 	{
-		tri->indexes[i] = LittleLong(indexes[i]);
-		if(tri->indexes[i] < 0 || tri->indexes[i] >= numVerts)
+		for(j = 0; j < 3; j++)
 		{
-			ri.Error(ERR_DROP, "Bad index in triangle surface");
+			tri->indexes[j] = LittleLong(indexes[i * 3 + j]);
+			
+			if(tri->indexes[j] < 0 || tri->indexes[j] >= numVerts)
+			{
+				ri.Error(ERR_DROP, "Bad index in face surface");
+			}
 		}
 	}
 	
@@ -805,51 +820,50 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 		vec3_t          tangent;
 		vec3_t          binormal;
 		vec3_t          normal;
-		int            *indices;
 
 		for(i = 0; i < numVerts; i++)
 		{
-			VectorClear(tri->verts[i].tangent);
-			VectorClear(tri->verts[i].binormal);
-			VectorClear(tri->verts[i].normal);
+			VectorClear(cv->verts[i].tangent);
+			VectorClear(cv->verts[i].binormal);
+			VectorClear(cv->verts[i].normal);
 		}
 
-		indices = tri->indexes;
-		for(i = 0; i < numIndexes; i += 3, indices += 3)
+		for(i = 0, tri = cv->triangles; i < numTriangles; i++, tri++)
 		{
-			v0 = tri->verts[indices[0]].xyz;
-			v1 = tri->verts[indices[1]].xyz;
-			v2 = tri->verts[indices[2]].xyz;
+			v0 = cv->verts[tri->indexes[0]].xyz;
+			v1 = cv->verts[tri->indexes[1]].xyz;
+			v2 = cv->verts[tri->indexes[2]].xyz;
 
-			t0 = tri->verts[indices[0]].st;
-			t1 = tri->verts[indices[1]].st;
-			t2 = tri->verts[indices[2]].st;
+			t0 = cv->verts[tri->indexes[0]].st;
+			t1 = cv->verts[tri->indexes[1]].st;
+			t2 = cv->verts[tri->indexes[2]].st;
 
 			R_CalcNormalForTriangle(faceNormal, v0, v1, v2);
 			R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2, faceNormal);
 
 			for(j = 0; j < 3; j++)
 			{
-				v = tri->verts[indices[j]].tangent;
+				v = cv->verts[tri->indexes[j]].tangent;
 				VectorAdd(v, tangent, v);
-				v = tri->verts[indices[j]].binormal;
+				v = cv->verts[tri->indexes[j]].binormal;
 				VectorAdd(v, binormal, v);
-				v = tri->verts[indices[j]].normal;
+				v = cv->verts[tri->indexes[j]].normal;
 				VectorAdd(v, normal, v);
 			}
 		}
 
 		for(i = 0; i < numVerts; i++)
 		{
-			VectorNormalize(tri->verts[i].tangent);
-			VectorNormalize(tri->verts[i].binormal);
-			VectorNormalize(tri->verts[i].normal);
+			VectorNormalize(cv->verts[i].tangent);
+			VectorNormalize(cv->verts[i].binormal);
+			VectorNormalize(cv->verts[i].normal);
 		}
 	}
 	
 	// create VBOs
 	if(glConfig2.vertexBufferObjectAvailable)
 	{
+		/*
 		if(numIndexes)
 		{
 			byte           *indexes;
@@ -865,6 +879,7 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 		
 			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 		}
+		*/
 		
 		if(numVerts)
 		{
@@ -873,19 +888,19 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 			int             dataOfs;
 			vec4_t          tmp;
 			
-			qglGenBuffersARB(1, &tri->vertsVBO);
+			qglGenBuffersARB(1, &cv->vertsVBO);
 			
 			dataSize = numVerts * (sizeof(vec4_t) * 5 + sizeof(color4ub_t));
 			data = ri.Hunk_AllocateTempMemory(dataSize);
 			dataOfs = 0;
 			
 			// set up xyz array
-			tri->ofsXYZ = 0;
+			cv->ofsXYZ = 0;
 			for(i = 0; i < numVerts; i++)
 			{
 				for(j = 0; j < 3; j++)
 				{
-					tmp[j] = tri->verts[i].xyz[j];
+					tmp[j] = cv->verts[i].xyz[j];
 				}
 				tmp[3] = 1;
 				
@@ -894,12 +909,12 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 			}
 			
 			// set up texcoords array
-			tri->ofsTexCoords = dataOfs;
+			cv->ofsTexCoords = dataOfs;
 			for(i = 0; i < numVerts; i++)
 			{
 				for(j = 0; j < 2; j++)
 				{
-					tmp[j] = tri->verts[i].st[j];
+					tmp[j] = cv->verts[i].st[j];
 				}
 				tmp[2] = 0;
 				tmp[3] = 1;
@@ -909,12 +924,12 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 			}
 			
 			// set up tangents array
-			tri->ofsTangents = dataOfs;
+			cv->ofsTangents = dataOfs;
 			for(i = 0; i < numVerts; i++)
 			{
 				for(j = 0; j < 3; j++)
 				{
-					tmp[j] = tri->verts[i].tangent[j];
+					tmp[j] = cv->verts[i].tangent[j];
 				}
 				tmp[3] = 1;
 				
@@ -923,12 +938,12 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 			}
 			
 			// set up binormals array
-			tri->ofsBinormals = dataOfs;
+			cv->ofsBinormals = dataOfs;
 			for(i = 0; i < numVerts; i++)
 			{
 				for(j = 0; j < 3; j++)
 				{
-					tmp[j] = tri->verts[i].binormal[j];
+					tmp[j] = cv->verts[i].binormal[j];
 				}
 				tmp[3] = 1;
 				
@@ -937,12 +952,12 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 			}
 			
 			// set up normals array
-			tri->ofsNormals = dataOfs;
+			cv->ofsNormals = dataOfs;
 			for(i = 0; i < numVerts; i++)
 			{
 				for(j = 0; j < 3; j++)
 				{
-					tmp[j] = tri->verts[i].normal[j];
+					tmp[j] = cv->verts[i].normal[j];
 				}
 				tmp[3] = 1;
 				
@@ -951,14 +966,14 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 			}
 			
 			// set up colors array
-			tri->ofsColors = dataOfs;
+			cv->ofsColors = dataOfs;
 			for(i = 0; i < numVerts; i++)
 			{
-				memcpy(data + dataOfs, tri->verts[i].color, sizeof(color4ub_t));
+				memcpy(data + dataOfs, cv->verts[i].color, sizeof(color4ub_t));
 				dataOfs += sizeof(color4ub_t);
 			}
 		
-			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, tri->vertsVBO);
+			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, cv->vertsVBO);
 			qglBufferDataARB(GL_ARRAY_BUFFER_ARB, dataSize, data, GL_STATIC_DRAW_ARB);
 			
 			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
@@ -1821,9 +1836,9 @@ void R_MovePatchSurfacesToHunk(void)
 		hunkgrid->heightLodError = ri.Hunk_Alloc(grid->height * 4, h_low);
 		Com_Memcpy(hunkgrid->heightLodError, grid->heightLodError, grid->height * 4);
 		
-		hunkgrid->numIndexes = grid->numIndexes;
-		hunkgrid->indexes = ri.Hunk_Alloc(grid->numIndexes * sizeof(int), h_low);
-		Com_Memcpy(hunkgrid->indexes, grid->indexes, grid->numIndexes * sizeof(int));
+		hunkgrid->numTriangles = grid->numTriangles;
+		hunkgrid->triangles = ri.Hunk_Alloc(grid->numTriangles * sizeof(srfTriangle_t), h_low);
+		Com_Memcpy(hunkgrid->triangles, grid->triangles, grid->numTriangles * sizeof(srfTriangle_t));
 	
 		hunkgrid->numVerts = grid->numVerts;
 		hunkgrid->verts = ri.Hunk_Alloc(grid->numVerts * sizeof(srfVert_t), h_low);
@@ -3190,58 +3205,57 @@ static qboolean _cldTestOneTriangle(trRefDlight_t * dl, const vec3_t v0, const v
 	 */
 }
 
-static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * shader, trRefDlight_t * dl)
+static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shader, trRefDlight_t * dl)
 {
 	int             i;
-	unsigned       *indexes;
+	srfTriangle_t  *tri;
 	int             numIndexes;
 	int            *iaIndexes;
 	float           d;
 
 	// check if bounds intersect
-	if(dl->worldBounds[1][0] < face->bounds[0][0] ||
-	   dl->worldBounds[1][1] < face->bounds[0][1] ||
-	   dl->worldBounds[1][2] < face->bounds[0][2] ||
-	   dl->worldBounds[0][0] > face->bounds[1][0] ||
-	   dl->worldBounds[0][1] > face->bounds[1][1] ||
-	   dl->worldBounds[0][2] > face->bounds[1][2])
+	if(dl->worldBounds[1][0] < cv->bounds[0][0] ||
+	   dl->worldBounds[1][1] < cv->bounds[0][1] ||
+	   dl->worldBounds[1][2] < cv->bounds[0][2] ||
+	   dl->worldBounds[0][0] > cv->bounds[1][0] ||
+	   dl->worldBounds[0][1] > cv->bounds[1][1] ||
+	   dl->worldBounds[0][2] > cv->bounds[1][2])
 	{
 		return qfalse;
 	}
 
 #if 1
 	// check if light origin is behind surface
-	d = DotProduct(face->plane.normal, dl->origin);
+	d = DotProduct(cv->plane.normal, dl->origin);
 
 	// don't cull exactly on the plane, because there are levels of rounding
 	// through the BSP, ICD, and hardware that may cause pixel gaps if an
 	// epsilon isn't allowed here 
 	if(shader->cullType == CT_FRONT_SIDED)
 	{
-		if(d < face->plane.dist - 8)
+		if(d < cv->plane.dist - 8)
 		{
-			c_culledFaceTriangles += (face->numIndexes / 3);
+			c_culledFaceTriangles += cv->numTriangles;
 			return qfalse;
 		}
 	}
 	else
 	{
-		if(d > face->plane.dist + 8)
+		if(d > cv->plane.dist + 8)
 		{
-			c_culledFaceTriangles += (face->numIndexes / 3);
+			c_culledFaceTriangles += cv->numTriangles;
 			return qfalse;
 		}
 	}
 #endif
 
-	indexes = face->indexes;
 	iaIndexes = s_lightIndexes;
 
 	// build a list of triangles that need light
-	Com_Memset(sh.numEdges, 0, 4 * face->numVerts);
+	Com_Memset(sh.numEdges, 0, 4 * cv->numVerts);
 	
 	numIndexes = 0;
-	for(i = 0; i < (face->numIndexes / 3); i++)
+	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
 	{
 		int             i1, i2, i3;
 		vec3_t          verts[3];
@@ -3251,13 +3265,13 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * sh
 		
 		sh.facing[i] = qtrue;
 
-		i1 = indexes[i * 3 + 0];
-		i2 = indexes[i * 3 + 1];
-		i3 = indexes[i * 3 + 2];
+		i1 = tri->indexes[0];
+		i2 = tri->indexes[1];
+		i3 = tri->indexes[2];
 
-		VectorCopy(face->verts[i1].xyz, verts[0]);
-		VectorCopy(face->verts[i2].xyz, verts[1]);
-		VectorCopy(face->verts[i3].xyz, verts[2]);
+		VectorCopy(cv->verts[i1].xyz, verts[0]);
+		VectorCopy(cv->verts[i2].xyz, verts[1]);
+		VectorCopy(cv->verts[i3].xyz, verts[2]);
 		
 		/*
 		VectorSubtract(verts[1], verts[0], d1);
@@ -3339,37 +3353,36 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * face, shader_t * sh
 #endif
 
 	s_numLightIndexes = numIndexes;
-	R_CalcShadowIndexes(face->numVerts);
+	R_CalcShadowIndexes(cv->numVerts);
 	return qtrue;
 }
 
 
-static int R_PrecacheGridInteraction(srfGridMesh_t * grid, shader_t * shader, trRefDlight_t * dl)
+static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRefDlight_t * dl)
 {
 	int             i;
-	int            *indexes;
+	srfTriangle_t  *tri;
 	int             numIndexes;
 	int            *iaIndexes;
 	
 	// check if bounds intersect
-	if(dl->worldBounds[1][0] < grid->meshBounds[0][0] ||
-	   dl->worldBounds[1][1] < grid->meshBounds[0][1] ||
-	   dl->worldBounds[1][2] < grid->meshBounds[0][2] ||
-	   dl->worldBounds[0][0] > grid->meshBounds[1][0] ||
-	   dl->worldBounds[0][1] > grid->meshBounds[1][1] ||
-	   dl->worldBounds[0][2] > grid->meshBounds[1][2])
+	if(dl->worldBounds[1][0] < cv->meshBounds[0][0] ||
+	   dl->worldBounds[1][1] < cv->meshBounds[0][1] ||
+	   dl->worldBounds[1][2] < cv->meshBounds[0][2] ||
+	   dl->worldBounds[0][0] > cv->meshBounds[1][0] ||
+	   dl->worldBounds[0][1] > cv->meshBounds[1][1] ||
+	   dl->worldBounds[0][2] > cv->meshBounds[1][2])
 	{
 		return qfalse;
 	}
 
-	indexes = grid->indexes;
 	iaIndexes = s_lightIndexes;
 
 	// build a list of triangles that need light
-	Com_Memset(sh.numEdges, 0, 4 * grid->numVerts);
+	Com_Memset(sh.numEdges, 0, 4 * cv->numVerts);
 	
 	numIndexes = 0;
-	for(i = 0; i < (grid->numIndexes / 3); i++)
+	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
 	{
 		int             i1, i2, i3;
 		vec3_t          verts[3];
@@ -3378,13 +3391,13 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * grid, shader_t * shader, tr
 		
 		sh.facing[i] = qtrue;
 
-		i1 = indexes[i * 3 + 0];
-		i2 = indexes[i * 3 + 1];
-		i3 = indexes[i * 3 + 2];
+		i1 = tri->indexes[0];
+		i2 = tri->indexes[1];
+		i3 = tri->indexes[2];
 
-		VectorCopy(grid->verts[i1].xyz, verts[0]);
-		VectorCopy(grid->verts[i2].xyz, verts[1]);
-		VectorCopy(grid->verts[i3].xyz, verts[2]);
+		VectorCopy(cv->verts[i1].xyz, verts[0]);
+		VectorCopy(cv->verts[i2].xyz, verts[1]);
+		VectorCopy(cv->verts[i3].xyz, verts[2]);
 
 		if(PlaneFromPoints(plane, verts[0], verts[1], verts[2], qtrue))
 		{
@@ -3448,37 +3461,36 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * grid, shader_t * shader, tr
 #endif
 
 	s_numLightIndexes = numIndexes;
-	R_CalcShadowIndexes(grid->numVerts);
+	R_CalcShadowIndexes(cv->numVerts);
 	return qtrue;
 }
 
 
-static int R_PrecacheTrisurfInteraction(srfTriangles_t * tri, shader_t * shader, trRefDlight_t * dl)
+static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, trRefDlight_t * dl)
 {
 	int             i;
-	int            *indexes;
+	srfTriangle_t  *tri;
 	int             numIndexes;
 	int            *iaIndexes;
 
 	// check if bounds intersect
-	if(dl->worldBounds[1][0] < tri->bounds[0][0] ||
-	   dl->worldBounds[1][1] < tri->bounds[0][1] ||
-	   dl->worldBounds[1][2] < tri->bounds[0][2] ||
-	   dl->worldBounds[0][0] > tri->bounds[1][0] ||
-	   dl->worldBounds[0][1] > tri->bounds[1][1] ||
-	   dl->worldBounds[0][2] > tri->bounds[1][2])
+	if(dl->worldBounds[1][0] < cv->bounds[0][0] ||
+	   dl->worldBounds[1][1] < cv->bounds[0][1] ||
+	   dl->worldBounds[1][2] < cv->bounds[0][2] ||
+	   dl->worldBounds[0][0] > cv->bounds[1][0] ||
+	   dl->worldBounds[0][1] > cv->bounds[1][1] ||
+	   dl->worldBounds[0][2] > cv->bounds[1][2])
 	{
 		return qfalse;
 	}
 
-	indexes = tri->indexes;
 	iaIndexes = s_lightIndexes;
 
 	// build a list of triangles that need light
-	Com_Memset(sh.numEdges, 0, 4 * tri->numVerts);
+	Com_Memset(sh.numEdges, 0, 4 * cv->numVerts);
 	
 	numIndexes = 0;
-	for(i = 0; i < (tri->numIndexes / 3); i++)
+	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
 	{
 		int             i1, i2, i3;
 		vec3_t          verts[3];
@@ -3487,13 +3499,13 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * tri, shader_t * shader,
 		
 		sh.facing[i] = qtrue;
 
-		i1 = indexes[i * 3 + 0];
-		i2 = indexes[i * 3 + 1];
-		i3 = indexes[i * 3 + 2];
+		i1 = tri->indexes[0];
+		i2 = tri->indexes[1];
+		i3 = tri->indexes[2];
 
-		VectorCopy(tri->verts[i1].xyz, verts[0]);
-		VectorCopy(tri->verts[i2].xyz, verts[1]);
-		VectorCopy(tri->verts[i3].xyz, verts[2]);
+		VectorCopy(cv->verts[i1].xyz, verts[0]);
+		VectorCopy(cv->verts[i2].xyz, verts[1]);
+		VectorCopy(cv->verts[i3].xyz, verts[2]);
 
 		if(PlaneFromPoints(plane, verts[0], verts[1], verts[2], qtrue))
 		{
@@ -3582,7 +3594,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * tri, shader_t * shader,
 #endif
 
 	s_numLightIndexes = numIndexes;
-	R_CalcShadowIndexes(tri->numVerts);
+	R_CalcShadowIndexes(cv->numVerts);
 	return qtrue;
 }
 

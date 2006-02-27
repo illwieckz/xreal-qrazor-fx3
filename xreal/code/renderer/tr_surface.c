@@ -49,7 +49,8 @@ RB_EndBeginSurface
 void RB_EndBeginSurface()
 {
 	RB_EndSurface();
-	RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.lightmapNum, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume);
+	RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.lightmapNum, tess.fogNum, tess.skipTangentSpaces,
+					tess.shadowVolume);
 }
 
 /*
@@ -64,7 +65,7 @@ void RB_CheckOverflow(int verts, int indexes)
 		RB_EndBeginSurface();
 		return;
 	}
-	
+
 	if(tess.numVertexes + verts < SHADER_MAX_VERTEXES && tess.numIndexes + indexes < SHADER_MAX_INDEXES)
 	{
 		return;
@@ -81,7 +82,8 @@ void RB_CheckOverflow(int verts, int indexes)
 		ri.Error(ERR_DROP, "RB_CheckOverflow: indices > MAX (%d > %d)", indexes, SHADER_MAX_INDEXES);
 	}
 
-	RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.lightmapNum, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume);
+	RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.lightmapNum, tess.fogNum, tess.skipTangentSpaces,
+					tess.shadowVolume);
 }
 
 
@@ -111,29 +113,30 @@ void RB_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, byte * color, flo
 	tess.xyz[ndx][0] = origin[0] + left[0] + up[0];
 	tess.xyz[ndx][1] = origin[1] + left[1] + up[1];
 	tess.xyz[ndx][2] = origin[2] + left[2] + up[2];
+	tess.xyz[ndx][3] = 1;
 
 	tess.xyz[ndx + 1][0] = origin[0] - left[0] + up[0];
 	tess.xyz[ndx + 1][1] = origin[1] - left[1] + up[1];
 	tess.xyz[ndx + 1][2] = origin[2] - left[2] + up[2];
+	tess.xyz[ndx + 1][3] = 1;
 
 	tess.xyz[ndx + 2][0] = origin[0] - left[0] - up[0];
 	tess.xyz[ndx + 2][1] = origin[1] - left[1] - up[1];
 	tess.xyz[ndx + 2][2] = origin[2] - left[2] - up[2];
+	tess.xyz[ndx + 2][3] = 1;
 
 	tess.xyz[ndx + 3][0] = origin[0] + left[0] - up[0];
 	tess.xyz[ndx + 3][1] = origin[1] + left[1] - up[1];
 	tess.xyz[ndx + 3][2] = origin[2] + left[2] - up[2];
+	tess.xyz[ndx + 3][3] = 1;
 
 
 	// constant normal all the way around
 	VectorSubtract(vec3_origin, backEnd.viewParms.or.axis[0], normal);
 
-	tess.normals[ndx][0] = tess.normals[ndx + 1][0] = tess.normals[ndx + 2][0] = tess.normals[ndx + 3][0] =
-		normal[0];
-	tess.normals[ndx][1] = tess.normals[ndx + 1][1] = tess.normals[ndx + 2][1] = tess.normals[ndx + 3][1] =
-		normal[1];
-	tess.normals[ndx][2] = tess.normals[ndx + 1][2] = tess.normals[ndx + 2][2] = tess.normals[ndx + 3][2] =
-		normal[2];
+	tess.normals[ndx][0] = tess.normals[ndx + 1][0] = tess.normals[ndx + 2][0] = tess.normals[ndx + 3][0] = normal[0];
+	tess.normals[ndx][1] = tess.normals[ndx + 1][1] = tess.normals[ndx + 2][1] = tess.normals[ndx + 3][1] = normal[1];
+	tess.normals[ndx][2] = tess.normals[ndx + 1][2] = tess.normals[ndx + 2][2] = tess.normals[ndx + 3][2] = normal[2];
 
 	// standard square texture coordinates
 	tess.texCoords[ndx][0][0] = tess.texCoords[ndx][1][0] = s1;
@@ -152,8 +155,7 @@ void RB_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, byte * color, flo
 	// should this be identity and let the shader specify from entity?
 	*(unsigned int *)&tess.colors[ndx] =
 		*(unsigned int *)&tess.colors[ndx + 1] =
-		*(unsigned int *)&tess.colors[ndx + 2] =
-		*(unsigned int *)&tess.colors[ndx + 3] = *(unsigned int *)color;
+		*(unsigned int *)&tess.colors[ndx + 2] = *(unsigned int *)&tess.colors[ndx + 3] = *(unsigned int *)color;
 
 
 	tess.numVertexes += 4;
@@ -221,6 +223,11 @@ void RB_SurfacePolychain(srfPoly_t * p, int numLightIndexes, int *lightIndexes, 
 	int             i;
 	int             numv;
 
+	if(tess.shadowVolume)
+	{
+		return;
+	}
+
 	RB_CHECKOVERFLOW(p->numVerts, 3 * (p->numVerts - 2));
 
 	// fan triangles into the tess array
@@ -228,6 +235,7 @@ void RB_SurfacePolychain(srfPoly_t * p, int numLightIndexes, int *lightIndexes, 
 	for(i = 0; i < p->numVerts; i++)
 	{
 		VectorCopy(p->verts[i].xyz, tess.xyz[numv]);
+		tess.xyz[numv][3] = 1;
 		tess.texCoords[numv][0][0] = p->verts[i].st[0];
 		tess.texCoords[numv][0][1] = p->verts[i].st[1];
 		*(int *)&tess.colors[numv] = *(int *)p->verts[i].modulate;
@@ -247,7 +255,6 @@ void RB_SurfacePolychain(srfPoly_t * p, int numLightIndexes, int *lightIndexes, 
 	tess.numVertexes = numv;
 }
 
-
 /*
 ==============
 RB_SurfaceFace
@@ -256,111 +263,261 @@ RB_SurfaceFace
 void RB_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	int             i;
+	srfTriangle_t  *tri;
 	srfVert_t      *dv;
 	float          *xyz, *tangent, *binormal, *normal, *texCoords;
 	byte           *color;
-	
-	if(glConfig2.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboFaces->integer)
-	{
-		RB_EndBeginSurface();
-	}
+	vec3_t          lightOrigin;
+	int             indexRemap[SHADER_MAX_INDEXES];
 
-	if(glConfig2.vertexBufferObjectAvailable && cv->indexesVBO && r_vboFaces->integer && !tess.shadowVolume)
+	if(tess.shadowVolume)
 	{
-		RB_CHECKOVERFLOW(cv->numVerts, cv->numIndexes);
-			
-		tess.indexesVBO = cv->indexesVBO;
-		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tess.indexesVBO);
-		
-		tess.numIndexes += cv->numIndexes;
-	}
-	else
-	{
-#if 1
-		if(numLightIndexes)
+		VectorCopy(backEnd.currentLight->transformed, lightOrigin);
+
+		// decide which triangles face the light
+		for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
 		{
-			RB_CHECKOVERFLOW(cv->numVerts, numLightIndexes);
-			
-			for(i = 0; i < numLightIndexes; i += 3)
+			float          *v1, *v2, *v3;
+			vec3_t          d1, d2;
+			float           d;
+			vec4_t          plane;
+
+			v1 = cv->verts[tri->indexes[0]].xyz;
+			v2 = cv->verts[tri->indexes[1]].xyz;
+			v3 = cv->verts[tri->indexes[2]].xyz;
+
+			VectorSubtract(v2, v1, d1);
+			VectorSubtract(v3, v1, d2);
+
+			CrossProduct(d2, d1, plane);
+			plane[3] = DotProduct(plane, v1);
+
+			d = DotProduct(plane, lightOrigin) - plane[3];
+			if(d > 0)
 			{
-				tess.indexes[tess.numIndexes + i + 0] = tess.numVertexes + lightIndexes[i + 0];
-				tess.indexes[tess.numIndexes + i + 1] = tess.numVertexes + lightIndexes[i + 1];
-				tess.indexes[tess.numIndexes + i + 2] = tess.numVertexes + lightIndexes[i + 2];
+				sh.facing[i] = qtrue;
 			}
-			
-			tess.numIndexes += numLightIndexes;
+			else
+			{
+				sh.facing[i] = qfalse;
+			}
+		}
+
+		if(backEnd.currentEntity->needZFail)
+		{
+			RB_CHECKOVERFLOW(cv->numVerts * 2, cv->numTriangles * 24);
 		}
 		else
-#endif
 		{
-			RB_CHECKOVERFLOW(cv->numVerts, cv->numIndexes);
-	
-			for(i = 0; i < cv->numIndexes; i += 3)
-			{
-				tess.indexes[tess.numIndexes + i + 0] = tess.numVertexes + cv->indexes[i + 0];
-				tess.indexes[tess.numIndexes + i + 1] = tess.numVertexes + cv->indexes[i + 1];
-				tess.indexes[tess.numIndexes + i + 2] = tess.numVertexes + cv->indexes[i + 2];
-			}
-			
-			tess.numIndexes += cv->numIndexes;
+			RB_CHECKOVERFLOW(cv->numVerts * 2, cv->numTriangles * 18);
 		}
-	}
-
-	if(glConfig2.vertexBufferObjectAvailable && cv->vertsVBO && r_vboFaces->integer && !tess.shadowVolume)
-	{
-		tess.vertexesVBO = cv->vertsVBO;
-		tess.ofsXYZ = cv->ofsXYZ;
-		tess.ofsTexCoords = cv->ofsTexCoords;
-		tess.ofsTexCoords2 = cv->ofsTexCoords2;
-		tess.ofsTangents = cv->ofsTangents;
-		tess.ofsBinormals = cv->ofsBinormals;
-		tess.ofsNormals = cv->ofsNormals;
-		tess.ofsColors = cv->ofsColors;
 		
-		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, tess.vertexesVBO);
-	}
-	else
-	{
+		// copy vertexes and extrude every second to infinity
 		dv = cv->verts;
 		xyz = tess.xyz[tess.numVertexes];
-		tangent = tess.tangents[tess.numVertexes];
-		binormal = tess.binormals[tess.numVertexes];
-		normal = tess.normals[tess.numVertexes];
-		texCoords = tess.texCoords[tess.numVertexes][0];
-		color = tess.colors[tess.numVertexes];
-	
-		for(i = 0; i < cv->numVerts; i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, color += 4)
+
+		for(i = 0; i < cv->numVerts; i++, dv++)
 		{
 			xyz[0] = dv->xyz[0];
 			xyz[1] = dv->xyz[1];
 			xyz[2] = dv->xyz[2];
-	
-			if(!tess.skipTangentSpaces)
-			{
-				tangent[0] = dv->tangent[0];
-				tangent[1] = dv->tangent[1];
-				tangent[2] = dv->tangent[2];
+			xyz[3] = 1.0;
 			
-				binormal[0] = dv->binormal[0];
-				binormal[1] = dv->binormal[1];
-				binormal[2] = dv->binormal[2];
+			xyz += 4;
 			
-				normal[0] = dv->normal[0];
-				normal[1] = dv->normal[1];
-				normal[2] = dv->normal[2];
-			}
-	
-			texCoords[0] = dv->st[0];
-			texCoords[1] = dv->st[1];
+			xyz[0] = dv->xyz[0];
+			xyz[1] = dv->xyz[1];
+			xyz[2] = dv->xyz[2];
+			xyz[3] = 0.0;
 			
-			texCoords[2] = dv->lightmap[0];
-			texCoords[3] = dv->lightmap[1];
-	
-			*(int *)color = *(int *)dv->color;
+			xyz += 4;
+			
+			indexRemap[i] = tess.numVertexes;
+			tess.numVertexes += 2;
+			
+			backEnd.pc.c_shadowVertexes += 2;
 		}
-	}
 
-	tess.numVertexes += cv->numVerts;
+		// set up indices for silhouette edges
+		for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+		{
+			if(!sh.facing[i])
+			{
+				continue;
+			}
+
+			if((tri->neighbors[0] < 0) || (tri->neighbors[0] >= 0 && !sh.facing[tri->neighbors[0]]))
+			{
+				tess.indexes[tess.numIndexes + 0] = indexRemap[tri->indexes[1]];
+				tess.indexes[tess.numIndexes + 1] = indexRemap[tri->indexes[0]];
+				tess.indexes[tess.numIndexes + 2] = indexRemap[tri->indexes[0]] + 1;
+				
+				tess.indexes[tess.numIndexes + 3] = indexRemap[tri->indexes[1]];
+				tess.indexes[tess.numIndexes + 4] = indexRemap[tri->indexes[0]] + 1;
+				tess.indexes[tess.numIndexes + 5] = indexRemap[tri->indexes[1]] + 1;
+
+				tess.numIndexes += 6;
+				backEnd.pc.c_shadowIndexes += 6;
+			}
+
+			if((tri->neighbors[1] < 0) || (tri->neighbors[1] >= 0 && !sh.facing[tri->neighbors[1]]))
+			{
+				tess.indexes[tess.numIndexes + 0] = indexRemap[tri->indexes[2]];
+				tess.indexes[tess.numIndexes + 1] = indexRemap[tri->indexes[1]];
+				tess.indexes[tess.numIndexes + 2] = indexRemap[tri->indexes[1]] + 1;
+				
+				tess.indexes[tess.numIndexes + 3] = indexRemap[tri->indexes[2]];
+				tess.indexes[tess.numIndexes + 4] = indexRemap[tri->indexes[1]] + 1;
+				tess.indexes[tess.numIndexes + 5] = indexRemap[tri->indexes[2]] + 1;
+
+				tess.numIndexes += 6;
+				backEnd.pc.c_shadowIndexes += 6;
+			}
+
+			if((tri->neighbors[2] < 0) || (tri->neighbors[2] >= 0 && !sh.facing[tri->neighbors[2]]))
+			{
+				tess.indexes[tess.numIndexes + 0] = indexRemap[tri->indexes[0]];
+				tess.indexes[tess.numIndexes + 1] = indexRemap[tri->indexes[2]];
+				tess.indexes[tess.numIndexes + 2] = indexRemap[tri->indexes[2]] + 1;
+				
+				tess.indexes[tess.numIndexes + 3] = indexRemap[tri->indexes[0]];
+				tess.indexes[tess.numIndexes + 4] = indexRemap[tri->indexes[2]] + 1;
+				tess.indexes[tess.numIndexes + 5] = indexRemap[tri->indexes[0]] + 1;
+
+				tess.numIndexes += 6;
+				backEnd.pc.c_shadowIndexes += 6;
+			}
+		}
+
+		// set up indices for light and dark caps
+		if(backEnd.currentEntity->needZFail)
+		{
+			for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+			{
+				if(!sh.facing[i])
+				{
+					continue;
+				}
+				
+				tess.indexes[tess.numIndexes + 0] = indexRemap[tri->indexes[0]];
+				tess.indexes[tess.numIndexes + 1] = indexRemap[tri->indexes[1]];
+				tess.indexes[tess.numIndexes + 2] = indexRemap[tri->indexes[2]];
+
+				tess.indexes[tess.numIndexes + 3] = indexRemap[tri->indexes[2]] + 1;
+				tess.indexes[tess.numIndexes + 4] = indexRemap[tri->indexes[1]] + 1;
+				tess.indexes[tess.numIndexes + 5] = indexRemap[tri->indexes[0]] + 1;
+				
+				tess.numIndexes += 6;
+				backEnd.pc.c_shadowIndexes += 6;
+			}
+		}
+		
+		backEnd.pc.c_shadowSurfaces++;
+	}
+	else
+	{
+		if(glConfig2.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboFaces->integer)
+		{
+			RB_EndBeginSurface();
+		}
+
+		if(glConfig2.vertexBufferObjectAvailable && cv->indexesVBO && r_vboFaces->integer && !tess.shadowVolume)
+		{
+			RB_CHECKOVERFLOW(cv->numVerts, cv->numTriangles * 3);
+
+			tess.indexesVBO = cv->indexesVBO;
+			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tess.indexesVBO);
+
+			tess.numIndexes += cv->numTriangles * 3;
+		}
+		else
+		{
+			if(numLightIndexes)
+			{
+				RB_CHECKOVERFLOW(cv->numVerts, numLightIndexes);
+
+				for(i = 0; i < numLightIndexes; i += 3)
+				{
+					tess.indexes[tess.numIndexes + i + 0] = tess.numVertexes + lightIndexes[i + 0];
+					tess.indexes[tess.numIndexes + i + 1] = tess.numVertexes + lightIndexes[i + 1];
+					tess.indexes[tess.numIndexes + i + 2] = tess.numVertexes + lightIndexes[i + 2];
+				}
+
+				tess.numIndexes += numLightIndexes;
+			}
+			else
+			{
+				RB_CHECKOVERFLOW(cv->numVerts, cv->numTriangles * 3);
+
+				for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+				{
+					tess.indexes[tess.numIndexes + i * 3 + 0] = tess.numVertexes + tri->indexes[0];
+					tess.indexes[tess.numIndexes + i * 3 + 1] = tess.numVertexes + tri->indexes[1];
+					tess.indexes[tess.numIndexes + i * 3 + 2] = tess.numVertexes + tri->indexes[2];
+				}
+
+				tess.numIndexes += cv->numTriangles * 3;
+			}
+		}
+
+		if(glConfig2.vertexBufferObjectAvailable && cv->vertsVBO && r_vboFaces->integer && !tess.shadowVolume)
+		{
+			tess.vertexesVBO = cv->vertsVBO;
+			tess.ofsXYZ = cv->ofsXYZ;
+			tess.ofsTexCoords = cv->ofsTexCoords;
+			tess.ofsTexCoords2 = cv->ofsTexCoords2;
+			tess.ofsTangents = cv->ofsTangents;
+			tess.ofsBinormals = cv->ofsBinormals;
+			tess.ofsNormals = cv->ofsNormals;
+			tess.ofsColors = cv->ofsColors;
+
+			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, tess.vertexesVBO);
+		}
+		else
+		{
+			dv = cv->verts;
+			xyz = tess.xyz[tess.numVertexes];
+			tangent = tess.tangents[tess.numVertexes];
+			binormal = tess.binormals[tess.numVertexes];
+			normal = tess.normals[tess.numVertexes];
+			texCoords = tess.texCoords[tess.numVertexes][0];
+			color = tess.colors[tess.numVertexes];
+
+			for(i = 0; i < cv->numVerts;
+				i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, color += 4)
+			{
+				xyz[0] = dv->xyz[0];
+				xyz[1] = dv->xyz[1];
+				xyz[2] = dv->xyz[2];
+				xyz[3] = 1;
+
+				if(!tess.skipTangentSpaces)
+				{
+					tangent[0] = dv->tangent[0];
+					tangent[1] = dv->tangent[1];
+					tangent[2] = dv->tangent[2];
+
+					binormal[0] = dv->binormal[0];
+					binormal[1] = dv->binormal[1];
+					binormal[2] = dv->binormal[2];
+
+					normal[0] = dv->normal[0];
+					normal[1] = dv->normal[1];
+					normal[2] = dv->normal[2];
+				}
+
+				texCoords[0] = dv->st[0];
+				texCoords[1] = dv->st[1];
+
+				texCoords[2] = dv->lightmap[0];
+				texCoords[3] = dv->lightmap[1];
+
+				*(int *)color = *(int *)dv->color;
+			}
+		}
+
+		tess.numVertexes += cv->numVerts;
+	}
 }
 
 /*
@@ -371,111 +528,261 @@ RB_SurfaceGrid
 void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	int             i;
+	srfTriangle_t  *tri;
 	srfVert_t      *dv;
 	float          *xyz, *tangent, *binormal, *normal, *texCoords;
 	byte           *color;
-	
-	if(glConfig2.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboCurves->integer)
-	{
-		RB_EndBeginSurface();
-	}
+	vec3_t          lightOrigin;
+	int             indexRemap[SHADER_MAX_INDEXES];
 
-	if(glConfig2.vertexBufferObjectAvailable && cv->indexesVBO && r_vboCurves->integer && !tess.shadowVolume)
+	if(tess.shadowVolume)
 	{
-		RB_CHECKOVERFLOW(cv->numVerts, cv->numIndexes);
-			
-		tess.indexesVBO = cv->indexesVBO;
-		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tess.indexesVBO);
-		
-		tess.numIndexes += cv->numIndexes;
-	}
-	else
-	{
-#if 1
-		if(numLightIndexes)
+		VectorCopy(backEnd.currentLight->transformed, lightOrigin);
+
+		// decide which triangles face the light
+		for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
 		{
-			RB_CHECKOVERFLOW(cv->numVerts, numLightIndexes);
-			
-			for(i = 0; i < numLightIndexes; i += 3)
+			float          *v1, *v2, *v3;
+			vec3_t          d1, d2;
+			float           d;
+			vec4_t          plane;
+
+			v1 = cv->verts[tri->indexes[0]].xyz;
+			v2 = cv->verts[tri->indexes[1]].xyz;
+			v3 = cv->verts[tri->indexes[2]].xyz;
+
+			VectorSubtract(v2, v1, d1);
+			VectorSubtract(v3, v1, d2);
+
+			CrossProduct(d2, d1, plane);
+			plane[3] = DotProduct(plane, v1);
+
+			d = DotProduct(plane, lightOrigin) - plane[3];
+			if(d > 0)
 			{
-				tess.indexes[tess.numIndexes + i + 0] = tess.numVertexes + lightIndexes[i + 0];
-				tess.indexes[tess.numIndexes + i + 1] = tess.numVertexes + lightIndexes[i + 1];
-				tess.indexes[tess.numIndexes + i + 2] = tess.numVertexes + lightIndexes[i + 2];
+				sh.facing[i] = qtrue;
 			}
-			
-			tess.numIndexes += numLightIndexes;
+			else
+			{
+				sh.facing[i] = qfalse;
+			}
+		}
+
+		if(backEnd.currentEntity->needZFail)
+		{
+			RB_CHECKOVERFLOW(cv->numVerts * 2, cv->numTriangles * 24);
 		}
 		else
-#endif
 		{
-			RB_CHECKOVERFLOW(cv->numVerts, cv->numIndexes);
-	
-			for(i = 0; i < cv->numIndexes; i += 3)
-			{
-				tess.indexes[tess.numIndexes + i + 0] = tess.numVertexes + cv->indexes[i + 0];
-				tess.indexes[tess.numIndexes + i + 1] = tess.numVertexes + cv->indexes[i + 1];
-				tess.indexes[tess.numIndexes + i + 2] = tess.numVertexes + cv->indexes[i + 2];
-			}
-			
-			tess.numIndexes += cv->numIndexes;
+			RB_CHECKOVERFLOW(cv->numVerts * 2, cv->numTriangles * 18);
 		}
-	}
-
-	if(glConfig2.vertexBufferObjectAvailable && cv->vertsVBO && r_vboCurves->integer && !tess.shadowVolume)
-	{
-		tess.vertexesVBO = cv->vertsVBO;
-		tess.ofsXYZ = cv->ofsXYZ;
-		tess.ofsTexCoords = cv->ofsTexCoords;
-		tess.ofsTexCoords2 = cv->ofsTexCoords2;
-		tess.ofsTangents = cv->ofsTangents;
-		tess.ofsBinormals = cv->ofsBinormals;
-		tess.ofsNormals = cv->ofsNormals;
-		tess.ofsColors = cv->ofsColors;
 		
-		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, tess.vertexesVBO);
-	}
-	else
-	{
+		// copy vertexes and extrude every second to infinity
 		dv = cv->verts;
 		xyz = tess.xyz[tess.numVertexes];
-		tangent = tess.tangents[tess.numVertexes];
-		binormal = tess.binormals[tess.numVertexes];
-		normal = tess.normals[tess.numVertexes];
-		texCoords = tess.texCoords[tess.numVertexes][0];
-		color = tess.colors[tess.numVertexes];
-	
-		for(i = 0; i < cv->numVerts; i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, color += 4)
+
+		for(i = 0; i < cv->numVerts; i++, dv++)
 		{
 			xyz[0] = dv->xyz[0];
 			xyz[1] = dv->xyz[1];
 			xyz[2] = dv->xyz[2];
-	
-			if(!tess.skipTangentSpaces)
-			{
-				tangent[0] = dv->tangent[0];
-				tangent[1] = dv->tangent[1];
-				tangent[2] = dv->tangent[2];
+			xyz[3] = 1.0;
 			
-				binormal[0] = dv->binormal[0];
-				binormal[1] = dv->binormal[1];
-				binormal[2] = dv->binormal[2];
+			xyz += 4;
 			
-				normal[0] = dv->normal[0];
-				normal[1] = dv->normal[1];
-				normal[2] = dv->normal[2];
-			}
-	
-			texCoords[0] = dv->st[0];
-			texCoords[1] = dv->st[1];
+			xyz[0] = dv->xyz[0];
+			xyz[1] = dv->xyz[1];
+			xyz[2] = dv->xyz[2];
+			xyz[3] = 0.0;
 			
-			texCoords[2] = dv->lightmap[0];
-			texCoords[3] = dv->lightmap[1];
-	
-			*(int *)color = *(int *)dv->color;
+			xyz += 4;
+			
+			indexRemap[i] = tess.numVertexes;
+			tess.numVertexes += 2;
+			
+			backEnd.pc.c_shadowVertexes += 2;
 		}
-	}
 
-	tess.numVertexes += cv->numVerts;
+		// set up indices for silhouette edges
+		for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+		{
+			if(!sh.facing[i])
+			{
+				continue;
+			}
+
+			if((tri->neighbors[0] < 0) || (tri->neighbors[0] >= 0 && !sh.facing[tri->neighbors[0]]))
+			{
+				tess.indexes[tess.numIndexes + 0] = indexRemap[tri->indexes[1]];
+				tess.indexes[tess.numIndexes + 1] = indexRemap[tri->indexes[0]];
+				tess.indexes[tess.numIndexes + 2] = indexRemap[tri->indexes[0]] + 1;
+				
+				tess.indexes[tess.numIndexes + 3] = indexRemap[tri->indexes[1]];
+				tess.indexes[tess.numIndexes + 4] = indexRemap[tri->indexes[0]] + 1;
+				tess.indexes[tess.numIndexes + 5] = indexRemap[tri->indexes[1]] + 1;
+
+				tess.numIndexes += 6;
+				backEnd.pc.c_shadowIndexes += 6;
+			}
+
+			if((tri->neighbors[1] < 0) || (tri->neighbors[1] >= 0 && !sh.facing[tri->neighbors[1]]))
+			{
+				tess.indexes[tess.numIndexes + 0] = indexRemap[tri->indexes[2]];
+				tess.indexes[tess.numIndexes + 1] = indexRemap[tri->indexes[1]];
+				tess.indexes[tess.numIndexes + 2] = indexRemap[tri->indexes[1]] + 1;
+				
+				tess.indexes[tess.numIndexes + 3] = indexRemap[tri->indexes[2]];
+				tess.indexes[tess.numIndexes + 4] = indexRemap[tri->indexes[1]] + 1;
+				tess.indexes[tess.numIndexes + 5] = indexRemap[tri->indexes[2]] + 1;
+
+				tess.numIndexes += 6;
+				backEnd.pc.c_shadowIndexes += 6;
+			}
+
+			if((tri->neighbors[2] < 0) || (tri->neighbors[2] >= 0 && !sh.facing[tri->neighbors[2]]))
+			{
+				tess.indexes[tess.numIndexes + 0] = indexRemap[tri->indexes[0]];
+				tess.indexes[tess.numIndexes + 1] = indexRemap[tri->indexes[2]];
+				tess.indexes[tess.numIndexes + 2] = indexRemap[tri->indexes[2]] + 1;
+				
+				tess.indexes[tess.numIndexes + 3] = indexRemap[tri->indexes[0]];
+				tess.indexes[tess.numIndexes + 4] = indexRemap[tri->indexes[2]] + 1;
+				tess.indexes[tess.numIndexes + 5] = indexRemap[tri->indexes[0]] + 1;
+
+				tess.numIndexes += 6;
+				backEnd.pc.c_shadowIndexes += 6;
+			}
+		}
+
+		// set up indices for light and dark caps
+		if(backEnd.currentEntity->needZFail)
+		{
+			for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+			{
+				if(!sh.facing[i])
+				{
+					continue;
+				}
+				
+				tess.indexes[tess.numIndexes + 0] = indexRemap[tri->indexes[0]];
+				tess.indexes[tess.numIndexes + 1] = indexRemap[tri->indexes[1]];
+				tess.indexes[tess.numIndexes + 2] = indexRemap[tri->indexes[2]];
+
+				tess.indexes[tess.numIndexes + 3] = indexRemap[tri->indexes[2]] + 1;
+				tess.indexes[tess.numIndexes + 4] = indexRemap[tri->indexes[1]] + 1;
+				tess.indexes[tess.numIndexes + 5] = indexRemap[tri->indexes[0]] + 1;
+				
+				tess.numIndexes += 6;
+				backEnd.pc.c_shadowIndexes += 6;
+			}
+		}
+		
+		backEnd.pc.c_shadowSurfaces++;
+	}
+	else
+	{
+		if(glConfig2.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboFaces->integer)
+		{
+			RB_EndBeginSurface();
+		}
+
+		if(glConfig2.vertexBufferObjectAvailable && cv->indexesVBO && r_vboFaces->integer && !tess.shadowVolume)
+		{
+			RB_CHECKOVERFLOW(cv->numVerts, cv->numTriangles * 3);
+
+			tess.indexesVBO = cv->indexesVBO;
+			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tess.indexesVBO);
+
+			tess.numIndexes += cv->numTriangles * 3;
+		}
+		else
+		{
+			if(numLightIndexes)
+			{
+				RB_CHECKOVERFLOW(cv->numVerts, numLightIndexes);
+
+				for(i = 0; i < numLightIndexes; i += 3)
+				{
+					tess.indexes[tess.numIndexes + i + 0] = tess.numVertexes + lightIndexes[i + 0];
+					tess.indexes[tess.numIndexes + i + 1] = tess.numVertexes + lightIndexes[i + 1];
+					tess.indexes[tess.numIndexes + i + 2] = tess.numVertexes + lightIndexes[i + 2];
+				}
+
+				tess.numIndexes += numLightIndexes;
+			}
+			else
+			{
+				RB_CHECKOVERFLOW(cv->numVerts, cv->numTriangles * 3);
+
+				for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+				{
+					tess.indexes[tess.numIndexes + i * 3 + 0] = tess.numVertexes + tri->indexes[0];
+					tess.indexes[tess.numIndexes + i * 3 + 1] = tess.numVertexes + tri->indexes[1];
+					tess.indexes[tess.numIndexes + i * 3 + 2] = tess.numVertexes + tri->indexes[2];
+				}
+
+				tess.numIndexes += cv->numTriangles * 3;
+			}
+		}
+
+		if(glConfig2.vertexBufferObjectAvailable && cv->vertsVBO && r_vboFaces->integer && !tess.shadowVolume)
+		{
+			tess.vertexesVBO = cv->vertsVBO;
+			tess.ofsXYZ = cv->ofsXYZ;
+			tess.ofsTexCoords = cv->ofsTexCoords;
+			tess.ofsTexCoords2 = cv->ofsTexCoords2;
+			tess.ofsTangents = cv->ofsTangents;
+			tess.ofsBinormals = cv->ofsBinormals;
+			tess.ofsNormals = cv->ofsNormals;
+			tess.ofsColors = cv->ofsColors;
+
+			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, tess.vertexesVBO);
+		}
+		else
+		{
+			dv = cv->verts;
+			xyz = tess.xyz[tess.numVertexes];
+			tangent = tess.tangents[tess.numVertexes];
+			binormal = tess.binormals[tess.numVertexes];
+			normal = tess.normals[tess.numVertexes];
+			texCoords = tess.texCoords[tess.numVertexes][0];
+			color = tess.colors[tess.numVertexes];
+
+			for(i = 0; i < cv->numVerts;
+						 i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, color += 4)
+			{
+				xyz[0] = dv->xyz[0];
+				xyz[1] = dv->xyz[1];
+				xyz[2] = dv->xyz[2];
+				xyz[3] = 1;
+
+				if(!tess.skipTangentSpaces)
+				{
+					tangent[0] = dv->tangent[0];
+					tangent[1] = dv->tangent[1];
+					tangent[2] = dv->tangent[2];
+
+					binormal[0] = dv->binormal[0];
+					binormal[1] = dv->binormal[1];
+					binormal[2] = dv->binormal[2];
+
+					normal[0] = dv->normal[0];
+					normal[1] = dv->normal[1];
+					normal[2] = dv->normal[2];
+				}
+
+				texCoords[0] = dv->st[0];
+				texCoords[1] = dv->st[1];
+
+				texCoords[2] = dv->lightmap[0];
+				texCoords[3] = dv->lightmap[1];
+
+				*(int *)color = *(int *)dv->color;
+			}
+		}
+
+		tess.numVertexes += cv->numVerts;
+	}
 }
 
 /*
@@ -486,111 +793,261 @@ RB_SurfaceTriangles
 void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	int             i;
+	srfTriangle_t  *tri;
 	srfVert_t      *dv;
 	float          *xyz, *tangent, *binormal, *normal, *texCoords;
 	byte           *color;
-	
-	if(glConfig2.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboTriangles->integer)
-	{
-		RB_EndBeginSurface();
-	}
+	vec3_t          lightOrigin;
+	int             indexRemap[SHADER_MAX_INDEXES];
 
-	if(glConfig2.vertexBufferObjectAvailable && cv->indexesVBO && r_vboTriangles->integer && !tess.shadowVolume)
+	if(tess.shadowVolume)
 	{
-		RB_CHECKOVERFLOW(cv->numVerts, cv->numIndexes);
-	
-		tess.indexesVBO = cv->indexesVBO;
-		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tess.indexesVBO);
-		
-		tess.numIndexes += cv->numIndexes;
-	}
-	else
-	{
-#if 1
-		if(numLightIndexes)
+		VectorCopy(backEnd.currentLight->transformed, lightOrigin);
+
+		// decide which triangles face the light
+		for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
 		{
-			RB_CHECKOVERFLOW(cv->numVerts, numLightIndexes);
-			
-			for(i = 0; i < numLightIndexes; i += 3)
+			float          *v1, *v2, *v3;
+			vec3_t          d1, d2;
+			float           d;
+			vec4_t          plane;
+
+			v1 = cv->verts[tri->indexes[0]].xyz;
+			v2 = cv->verts[tri->indexes[1]].xyz;
+			v3 = cv->verts[tri->indexes[2]].xyz;
+
+			VectorSubtract(v2, v1, d1);
+			VectorSubtract(v3, v1, d2);
+
+			CrossProduct(d2, d1, plane);
+			plane[3] = DotProduct(plane, v1);
+
+			d = DotProduct(plane, lightOrigin) - plane[3];
+			if(d > 0)
 			{
-				tess.indexes[tess.numIndexes + i + 0] = tess.numVertexes + lightIndexes[i + 0];
-				tess.indexes[tess.numIndexes + i + 1] = tess.numVertexes + lightIndexes[i + 1];
-				tess.indexes[tess.numIndexes + i + 2] = tess.numVertexes + lightIndexes[i + 2];
+				sh.facing[i] = qtrue;
 			}
-			
-			tess.numIndexes += numLightIndexes;
+			else
+			{
+				sh.facing[i] = qfalse;
+			}
+		}
+
+		if(backEnd.currentEntity->needZFail)
+		{
+			RB_CHECKOVERFLOW(cv->numVerts * 2, cv->numTriangles * 24);
 		}
 		else
-#endif
 		{
-			RB_CHECKOVERFLOW(cv->numVerts, cv->numIndexes);
-
-			for(i = 0; i < cv->numIndexes; i += 3)
-			{
-				tess.indexes[tess.numIndexes + i + 0] = tess.numVertexes + cv->indexes[i + 0];
-				tess.indexes[tess.numIndexes + i + 1] = tess.numVertexes + cv->indexes[i + 1];
-				tess.indexes[tess.numIndexes + i + 2] = tess.numVertexes + cv->indexes[i + 2];
-			}
-			
-			tess.numIndexes += cv->numIndexes;
+			RB_CHECKOVERFLOW(cv->numVerts * 2, cv->numTriangles * 18);
 		}
-	}
-
-	if(glConfig2.vertexBufferObjectAvailable && cv->vertsVBO && r_vboTriangles->integer && !tess.shadowVolume)
-	{
-		tess.vertexesVBO = cv->vertsVBO;
-		tess.ofsXYZ = cv->ofsXYZ;
-		tess.ofsTexCoords = cv->ofsTexCoords;
-		tess.ofsTexCoords2 = cv->ofsTexCoords;
-		tess.ofsTangents = cv->ofsTangents;
-		tess.ofsBinormals = cv->ofsBinormals;
-		tess.ofsNormals = cv->ofsNormals;
-		tess.ofsColors = cv->ofsColors;
 		
-		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, tess.vertexesVBO);
-	}
-	else
-	{
+		// copy vertexes and extrude every second to infinity
 		dv = cv->verts;
 		xyz = tess.xyz[tess.numVertexes];
-		tangent = tess.tangents[tess.numVertexes];
-		binormal = tess.binormals[tess.numVertexes];
-		normal = tess.normals[tess.numVertexes];
-		texCoords = tess.texCoords[tess.numVertexes][0];
-		color = tess.colors[tess.numVertexes];
-		
-		for(i = 0; i < cv->numVerts; i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, color += 4)
+
+		for(i = 0; i < cv->numVerts; i++, dv++)
 		{
 			xyz[0] = dv->xyz[0];
 			xyz[1] = dv->xyz[1];
 			xyz[2] = dv->xyz[2];
-	
-			if(!tess.skipTangentSpaces || (glConfig2.vertexBufferObjectAvailable && cv->vertsVBO))
-			{
-				tangent[0] = dv->tangent[0];
-				tangent[1] = dv->tangent[1];
-				tangent[2] = dv->tangent[2];
+			xyz[3] = 1.0;
 			
-				binormal[0] = dv->binormal[0];
-				binormal[1] = dv->binormal[1];
-				binormal[2] = dv->binormal[2];
+			xyz += 4;
 			
-				normal[0] = dv->normal[0];
-				normal[1] = dv->normal[1];
-				normal[2] = dv->normal[2];
-			}
-	
-			texCoords[0] = dv->st[0];
-			texCoords[1] = dv->st[1];
+			xyz[0] = dv->xyz[0];
+			xyz[1] = dv->xyz[1];
+			xyz[2] = dv->xyz[2];
+			xyz[3] = 0.0;
 			
-			texCoords[2] = dv->lightmap[0];
-			texCoords[3] = dv->lightmap[1];
-	
-			*(int *)color = *(int *)dv->color;
+			xyz += 4;
+			
+			indexRemap[i] = tess.numVertexes;
+			tess.numVertexes += 2;
+			
+			backEnd.pc.c_shadowVertexes += 2;
 		}
-	}
 
-	tess.numVertexes += cv->numVerts;
+		// set up indices for silhouette edges
+		for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+		{
+			if(!sh.facing[i])
+			{
+				continue;
+			}
+
+			if((tri->neighbors[0] < 0) || (tri->neighbors[0] >= 0 && !sh.facing[tri->neighbors[0]]))
+			{
+				tess.indexes[tess.numIndexes + 0] = indexRemap[tri->indexes[1]];
+				tess.indexes[tess.numIndexes + 1] = indexRemap[tri->indexes[0]];
+				tess.indexes[tess.numIndexes + 2] = indexRemap[tri->indexes[0]] + 1;
+				
+				tess.indexes[tess.numIndexes + 3] = indexRemap[tri->indexes[1]];
+				tess.indexes[tess.numIndexes + 4] = indexRemap[tri->indexes[0]] + 1;
+				tess.indexes[tess.numIndexes + 5] = indexRemap[tri->indexes[1]] + 1;
+
+				tess.numIndexes += 6;
+				backEnd.pc.c_shadowIndexes += 6;
+			}
+
+			if((tri->neighbors[1] < 0) || (tri->neighbors[1] >= 0 && !sh.facing[tri->neighbors[1]]))
+			{
+				tess.indexes[tess.numIndexes + 0] = indexRemap[tri->indexes[2]];
+				tess.indexes[tess.numIndexes + 1] = indexRemap[tri->indexes[1]];
+				tess.indexes[tess.numIndexes + 2] = indexRemap[tri->indexes[1]] + 1;
+				
+				tess.indexes[tess.numIndexes + 3] = indexRemap[tri->indexes[2]];
+				tess.indexes[tess.numIndexes + 4] = indexRemap[tri->indexes[1]] + 1;
+				tess.indexes[tess.numIndexes + 5] = indexRemap[tri->indexes[2]] + 1;
+
+				tess.numIndexes += 6;
+				backEnd.pc.c_shadowIndexes += 6;
+			}
+
+			if((tri->neighbors[2] < 0) || (tri->neighbors[2] >= 0 && !sh.facing[tri->neighbors[2]]))
+			{
+				tess.indexes[tess.numIndexes + 0] = indexRemap[tri->indexes[0]];
+				tess.indexes[tess.numIndexes + 1] = indexRemap[tri->indexes[2]];
+				tess.indexes[tess.numIndexes + 2] = indexRemap[tri->indexes[2]] + 1;
+				
+				tess.indexes[tess.numIndexes + 3] = indexRemap[tri->indexes[0]];
+				tess.indexes[tess.numIndexes + 4] = indexRemap[tri->indexes[2]] + 1;
+				tess.indexes[tess.numIndexes + 5] = indexRemap[tri->indexes[0]] + 1;
+
+				tess.numIndexes += 6;
+				backEnd.pc.c_shadowIndexes += 6;
+			}
+		}
+
+		// set up indices for light and dark caps
+		if(backEnd.currentEntity->needZFail)
+		{
+			for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+			{
+				if(!sh.facing[i])
+				{
+					continue;
+				}
+				
+				tess.indexes[tess.numIndexes + 0] = indexRemap[tri->indexes[0]];
+				tess.indexes[tess.numIndexes + 1] = indexRemap[tri->indexes[1]];
+				tess.indexes[tess.numIndexes + 2] = indexRemap[tri->indexes[2]];
+
+				tess.indexes[tess.numIndexes + 3] = indexRemap[tri->indexes[2]] + 1;
+				tess.indexes[tess.numIndexes + 4] = indexRemap[tri->indexes[1]] + 1;
+				tess.indexes[tess.numIndexes + 5] = indexRemap[tri->indexes[0]] + 1;
+				
+				tess.numIndexes += 6;
+				backEnd.pc.c_shadowIndexes += 6;
+			}
+		}
+		
+		backEnd.pc.c_shadowSurfaces++;
+	}
+	else
+	{
+		if(glConfig2.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboFaces->integer)
+		{
+			RB_EndBeginSurface();
+		}
+
+		if(glConfig2.vertexBufferObjectAvailable && cv->indexesVBO && r_vboFaces->integer && !tess.shadowVolume)
+		{
+			RB_CHECKOVERFLOW(cv->numVerts, cv->numTriangles * 3);
+
+			tess.indexesVBO = cv->indexesVBO;
+			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tess.indexesVBO);
+
+			tess.numIndexes += cv->numTriangles * 3;
+		}
+		else
+		{
+			if(numLightIndexes)
+			{
+				RB_CHECKOVERFLOW(cv->numVerts, numLightIndexes);
+
+				for(i = 0; i < numLightIndexes; i += 3)
+				{
+					tess.indexes[tess.numIndexes + i + 0] = tess.numVertexes + lightIndexes[i + 0];
+					tess.indexes[tess.numIndexes + i + 1] = tess.numVertexes + lightIndexes[i + 1];
+					tess.indexes[tess.numIndexes + i + 2] = tess.numVertexes + lightIndexes[i + 2];
+				}
+
+				tess.numIndexes += numLightIndexes;
+			}
+			else
+			{
+				RB_CHECKOVERFLOW(cv->numVerts, cv->numTriangles * 3);
+
+				for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+				{
+					tess.indexes[tess.numIndexes + i * 3 + 0] = tess.numVertexes + tri->indexes[0];
+					tess.indexes[tess.numIndexes + i * 3 + 1] = tess.numVertexes + tri->indexes[1];
+					tess.indexes[tess.numIndexes + i * 3 + 2] = tess.numVertexes + tri->indexes[2];
+				}
+
+				tess.numIndexes += cv->numTriangles * 3;
+			}
+		}
+
+		if(glConfig2.vertexBufferObjectAvailable && cv->vertsVBO && r_vboFaces->integer && !tess.shadowVolume)
+		{
+			tess.vertexesVBO = cv->vertsVBO;
+			tess.ofsXYZ = cv->ofsXYZ;
+			tess.ofsTexCoords = cv->ofsTexCoords;
+			tess.ofsTexCoords2 = cv->ofsTexCoords;
+			tess.ofsTangents = cv->ofsTangents;
+			tess.ofsBinormals = cv->ofsBinormals;
+			tess.ofsNormals = cv->ofsNormals;
+			tess.ofsColors = cv->ofsColors;
+
+			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, tess.vertexesVBO);
+		}
+		else
+		{
+			dv = cv->verts;
+			xyz = tess.xyz[tess.numVertexes];
+			tangent = tess.tangents[tess.numVertexes];
+			binormal = tess.binormals[tess.numVertexes];
+			normal = tess.normals[tess.numVertexes];
+			texCoords = tess.texCoords[tess.numVertexes][0];
+			color = tess.colors[tess.numVertexes];
+
+			for(i = 0; i < cv->numVerts;
+						 i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, color += 4)
+			{
+				xyz[0] = dv->xyz[0];
+				xyz[1] = dv->xyz[1];
+				xyz[2] = dv->xyz[2];
+				xyz[3] = 1;
+
+				if(!tess.skipTangentSpaces)
+				{
+					tangent[0] = dv->tangent[0];
+					tangent[1] = dv->tangent[1];
+					tangent[2] = dv->tangent[2];
+
+					binormal[0] = dv->binormal[0];
+					binormal[1] = dv->binormal[1];
+					binormal[2] = dv->binormal[2];
+
+					normal[0] = dv->normal[0];
+					normal[1] = dv->normal[1];
+					normal[2] = dv->normal[2];
+				}
+
+				texCoords[0] = dv->st[0];
+				texCoords[1] = dv->st[1];
+
+				texCoords[2] = dv->st[0];
+				texCoords[3] = dv->st[1];
+
+				*(int *)color = *(int *)dv->color;
+			}
+		}
+
+		tess.numVertexes += cv->numVerts;
+	}
 }
 
 
@@ -669,6 +1126,7 @@ static void DoRailCore(const vec3_t start, const vec3_t end, const vec3_t up, fl
 
 	// FIXME: use quad stamp?
 	VectorMA(start, spanWidth, up, tess.xyz[tess.numVertexes]);
+	tess.xyz[tess.numVertexes][3] = 1;
 	tess.texCoords[tess.numVertexes][0][0] = 0;
 	tess.texCoords[tess.numVertexes][0][1] = 0;
 	tess.colors[tess.numVertexes][0] = backEnd.currentEntity->e.shaderRGBA[0] * 0.25;
@@ -677,6 +1135,7 @@ static void DoRailCore(const vec3_t start, const vec3_t end, const vec3_t up, fl
 	tess.numVertexes++;
 
 	VectorMA(start, spanWidth2, up, tess.xyz[tess.numVertexes]);
+	tess.xyz[tess.numVertexes][3] = 1;
 	tess.texCoords[tess.numVertexes][0][0] = 0;
 	tess.texCoords[tess.numVertexes][0][1] = 1;
 	tess.colors[tess.numVertexes][0] = backEnd.currentEntity->e.shaderRGBA[0];
@@ -685,7 +1144,7 @@ static void DoRailCore(const vec3_t start, const vec3_t end, const vec3_t up, fl
 	tess.numVertexes++;
 
 	VectorMA(end, spanWidth, up, tess.xyz[tess.numVertexes]);
-
+	tess.xyz[tess.numVertexes][3] = 1;
 	tess.texCoords[tess.numVertexes][0][0] = t;
 	tess.texCoords[tess.numVertexes][0][1] = 0;
 	tess.colors[tess.numVertexes][0] = backEnd.currentEntity->e.shaderRGBA[0];
@@ -694,6 +1153,7 @@ static void DoRailCore(const vec3_t start, const vec3_t end, const vec3_t up, fl
 	tess.numVertexes++;
 
 	VectorMA(end, spanWidth2, up, tess.xyz[tess.numVertexes]);
+	tess.xyz[tess.numVertexes][3] = 1;
 	tess.texCoords[tess.numVertexes][0][0] = t;
 	tess.texCoords[tess.numVertexes][0][1] = 1;
 	tess.colors[tess.numVertexes][0] = backEnd.currentEntity->e.shaderRGBA[0];
@@ -710,8 +1170,7 @@ static void DoRailCore(const vec3_t start, const vec3_t end, const vec3_t up, fl
 	tess.indexes[tess.numIndexes++] = vbase + 3;
 }
 
-static void DoRailDiscs(int numSegs, const vec3_t start, const vec3_t dir, const vec3_t right,
-						const vec3_t up)
+static void DoRailDiscs(int numSegs, const vec3_t start, const vec3_t dir, const vec3_t right, const vec3_t up)
 {
 	int             i;
 	vec3_t          pos[4];
@@ -752,6 +1211,7 @@ static void DoRailDiscs(int numSegs, const vec3_t start, const vec3_t dir, const
 		for(j = 0; j < 4; j++)
 		{
 			VectorCopy(pos[j], tess.xyz[tess.numVertexes]);
+			tess.xyz[tess.numVertexes][3] = 1;
 			tess.texCoords[tess.numVertexes][0][0] = (j < 2);
 			tess.texCoords[tess.numVertexes][0][1] = (j && j != 3);
 			tess.colors[tess.numVertexes][0] = backEnd.currentEntity->e.shaderRGBA[0];
@@ -947,8 +1407,7 @@ static void LerpMeshVertexes(md3Surface_t * surf, float backlerp)
 
 	outXyz = tess.xyz[tess.numVertexes];
 
-	newXyz = (short *)((byte *) surf + surf->ofsXyzNormals)
-		+ (backEnd.currentEntity->e.frame * surf->numVerts * 4);
+	newXyz = (short *)((byte *) surf + surf->ofsXyzNormals) + (backEnd.currentEntity->e.frame * surf->numVerts * 4);
 
 	newXyzScale = MD3_XYZ_SCALE * (1.0 - backlerp);
 
@@ -962,13 +1421,13 @@ static void LerpMeshVertexes(md3Surface_t * surf, float backlerp)
 			outXyz[0] = newXyz[0] * newXyzScale;
 			outXyz[1] = newXyz[1] * newXyzScale;
 			outXyz[2] = newXyz[2] * newXyzScale;
+			outXyz[3] = 1;
 		}
 	}
 	else
 	{
 		// interpolate and copy the vertex
-		oldXyz = (short *)((byte *) surf + surf->ofsXyzNormals)
-			+ (backEnd.currentEntity->e.oldframe * surf->numVerts * 4);
+		oldXyz = (short *)((byte *) surf + surf->ofsXyzNormals) + (backEnd.currentEntity->e.oldframe * surf->numVerts * 4);
 
 		oldXyzScale = MD3_XYZ_SCALE * backlerp;
 
@@ -978,6 +1437,7 @@ static void LerpMeshVertexes(md3Surface_t * surf, float backlerp)
 			outXyz[0] = oldXyz[0] * oldXyzScale + newXyz[0] * newXyzScale;
 			outXyz[1] = oldXyz[1] * oldXyzScale + newXyz[1] * newXyzScale;
 			outXyz[2] = oldXyz[2] * oldXyzScale + newXyz[2] * newXyzScale;
+			outXyz[3] = 1;
 		}
 	}
 }
@@ -995,6 +1455,11 @@ void RB_SurfaceMD3(md3Surface_t * surface, int numLightIndexes, int *lightIndexe
 	float          *texCoords;
 	int             numVertexes;
 	int             numIndexes;
+
+	if(tess.shadowVolume)
+	{
+		return;
+	}
 
 	if(backEnd.currentEntity->e.oldframe == backEnd.currentEntity->e.frame)
 	{
@@ -1096,11 +1561,12 @@ void RB_SurfaceMDS(mdsSurface_t * surface, int numLightIndexes, int *lightIndexe
 	int             numVertexes;
 	mdsVertex_t    *v;
 	vec_t          *boneMat;
-	matrix_t		boneMats[MDS_MAX_BONES];
-	matrix_t		boneOrigins[MDS_MAX_BONES];
+	matrix_t        boneMats[MDS_MAX_BONES];
+	matrix_t        boneOrigins[MDS_MAX_BONES];
 	vec_t          *boneOrigin;
 	mdsBone_t      *bone;
-//	mdsBone_t      *parent;
+
+//  mdsBone_t      *parent;
 	vec_t          *parentMat;
 	vec_t          *parentOrigin;
 	mdsBoneFrame_t *boneFrame;
@@ -1109,14 +1575,19 @@ void RB_SurfaceMDS(mdsSurface_t * surface, int numLightIndexes, int *lightIndexe
 	mdsFrame_t     *frame;
 	mdsFrame_t     *oldFrame;
 	int             frameSize;
-	vec3_t			angles;
-	matrix_t		boneRotationMat;
-	matrix_t		boneTranslationMat;
-//	matrix_t		boneTransformMat;
-	matrix_t		offsetRotationMat;
-	vec3_t			offsetVec, offsetVec2;
-	vec3_t			forward, right, up;
+	vec3_t          angles;
+	matrix_t        boneRotationMat;
+	matrix_t        boneTranslationMat;
 
+//  matrix_t        boneTransformMat;
+	matrix_t        offsetRotationMat;
+	vec3_t          offsetVec, offsetVec2;
+	vec3_t          forward, right, up;
+
+	if(tess.shadowVolume)
+	{
+		return;
+	}
 
 	if(backEnd.currentEntity->e.oldframe == backEnd.currentEntity->e.frame)
 	{
@@ -1138,7 +1609,7 @@ void RB_SurfaceMDS(mdsSurface_t * surface, int numLightIndexes, int *lightIndexe
 	if(!r_showSkeleton->integer)
 	{
 		RB_CHECKOVERFLOW(surface->numVerts, surface->numTriangles * 3);
-	
+
 		triangles = (int *)((byte *) surface + surface->ofsTriangles);
 		numIndexes = surface->numTriangles * 3;
 		for(j = 0; j < numIndexes; j++)
@@ -1161,67 +1632,67 @@ void RB_SurfaceMDS(mdsSurface_t * surface, int numLightIndexes, int *lightIndexe
 	{
 		boneMat = &boneMats[i][0];
 		boneOrigin = &boneOrigins[i][0];
-		
+
 		//ri.Printf(PRINT_ALL, "RB_SurfaceMDS: parentIndex %i\n", bone->parentIndex);
-		
+
 		// TODO lerp angles between boneFrame and oldBoneFrame
 		boneFrame = &frame->bones[i];
 		oldBoneFrame = &oldFrame->bones[i];
-		
+
 		// construct bone rotation matrix
 		angles[PITCH] = SHORT2ANGLE(boneFrame->angles[0]);
 		angles[YAW] = SHORT2ANGLE(boneFrame->angles[1]);
 		angles[ROLL] = SHORT2ANGLE(boneFrame->angles[2]);
 		MatrixFromAngles(boneRotationMat, angles[PITCH], angles[YAW], angles[ROLL]);
 		AngleVectors(angles, forward, right, up);
-		
+
 		//if(i == 0)
-		//	ri.Printf(PRINT_ALL, "RB_SurfaceMDS: angles %i %i %i\n", (int)angles[PITCH], (int)angles[YAW], (int)angles[ROLL]);
-		
+		//  ri.Printf(PRINT_ALL, "RB_SurfaceMDS: angles %i %i %i\n", (int)angles[PITCH], (int)angles[YAW], (int)angles[ROLL]);
+
 		// construct bone offset rotation matrix
 		angles[PITCH] = SHORT2ANGLE(boneFrame->ofsAngles[0]);
 		angles[YAW] = SHORT2ANGLE(boneFrame->ofsAngles[1]);
 		angles[ROLL] = 0;
 		MatrixFromAngles(offsetRotationMat, angles[PITCH], angles[YAW], angles[ROLL]);
-		
+
 		// construct bone offset
 		VectorSet(offsetVec, bone->parentDist, 0, 0);
 		MatrixTransformNormal(offsetRotationMat, offsetVec, offsetVec2);
-		
+
 		if(bone->parentIndex < 0)
 		{
 			boneOrigin[0] = frame->parentOffset[0] + offsetVec2[0];
 			boneOrigin[1] = frame->parentOffset[1] + offsetVec2[1];
 			boneOrigin[2] = frame->parentOffset[2] + offsetVec2[2];
-			
+
 			//boneOrigin[0] = offsetVec2[0];
 			//boneOrigin[1] = offsetVec2[1];
 			//boneOrigin[2] = offsetVec2[2];
-			
+
 			MatrixSetupTranslation(boneTranslationMat, boneOrigin[0], boneOrigin[1], boneOrigin[2]);
 			MatrixMultiply(boneTranslationMat, boneRotationMat, boneMat);
 			//MatrixMultiply(boneRotationMat, boneTranslationMat, boneMat);
-			
+
 			if(r_showSkeleton->integer)
 			{
 				// draw bone
 				qglColor3f(1, 1, 1);
 				qglVertex3f(0, 0, 0);
 				qglVertex3fv(boneOrigin);
-				
+
 				// draw bone axis
 				qglColor3f(1, 0, 0);
 				qglVertex3f(0, 0, 0);
 				qglVertex3fv(forward);
 				qglVertex3fv(forward);
 				qglVertex3fv(boneOrigin);
-				
+
 				qglColor3f(0, 1, 0);
 				qglVertex3f(0, 0, 0);
 				qglVertex3fv(right);
 				qglVertex3fv(right);
 				qglVertex3fv(boneOrigin);
-				
+
 				qglColor3f(0, 0, 1);
 				qglVertex3f(0, 0, 0);
 				qglVertex3fv(up);
@@ -1234,15 +1705,15 @@ void RB_SurfaceMDS(mdsSurface_t * surface, int numLightIndexes, int *lightIndexe
 			//parent = (mdsBone_t *) ((byte *) header + header->ofsBones + bone->parentIndex);
 			parentMat = &boneMats[bone->parentIndex][0];
 			parentOrigin = &boneOrigins[bone->parentIndex][0];
-			
+
 			boneOrigin[0] = parentOrigin[0] + offsetVec2[0];
 			boneOrigin[1] = parentOrigin[1] + offsetVec2[1];
 			boneOrigin[2] = parentOrigin[2] + offsetVec2[2];
-			
+
 			MatrixSetupTranslation(boneTranslationMat, boneOrigin[0], boneOrigin[1], boneOrigin[2]);
 			MatrixMultiply(boneTranslationMat, boneRotationMat, boneMat);
 			//MatrixMultiply(boneRotationMat, boneTranslationMat, boneMat);
-			
+
 			if(r_showSkeleton->integer)
 			{
 				// draw bone
@@ -1251,7 +1722,7 @@ void RB_SurfaceMDS(mdsSurface_t * surface, int numLightIndexes, int *lightIndexe
 				//qglVertex3f(parentMat[12], parentMat[13], parentMat[14]);
 				qglVertex3fv(boneOrigin);
 				//qglVertex3f(boneMat[12], boneMat[13], boneMat[14]);
-				
+
 				// draw bone axis
 				qglColor3f(1, 0, 0);
 				qglVertex3fv(parentOrigin);
@@ -1259,14 +1730,14 @@ void RB_SurfaceMDS(mdsSurface_t * surface, int numLightIndexes, int *lightIndexe
 				qglVertex3fv(forward);
 				qglVertex3fv(forward);
 				qglVertex3fv(boneOrigin);
-				
+
 				qglColor3f(0, 1, 0);
 				qglVertex3fv(parentOrigin);
 				VectorAdd(parentOrigin, right, right);
 				qglVertex3fv(right);
 				qglVertex3fv(right);
 				qglVertex3fv(boneOrigin);
-				
+
 				qglColor3f(0, 0, 1);
 				qglVertex3fv(parentOrigin);
 				VectorAdd(parentOrigin, up, up);
@@ -1276,7 +1747,7 @@ void RB_SurfaceMDS(mdsSurface_t * surface, int numLightIndexes, int *lightIndexe
 			}
 		}
 	}
-	
+
 	if(r_showSkeleton->integer)
 	{
 		qglEnd();
@@ -1292,30 +1763,30 @@ void RB_SurfaceMDS(mdsSurface_t * surface, int numLightIndexes, int *lightIndexe
 		{
 			vec3_t          tmpVert;
 			mdsWeight_t    *w;
-	
+
 			VectorClear(tmpVert);
-			
+
 			w = v->weights;
 			for(k = 0; k < v->numWeights; k++, w++)
 			{
 				boneMat = &boneMats[w->boneIndex][0];
 				boneOrigin = &boneOrigins[w->boneIndex][0];
-	
+
 				tmpVert[0] += ((DotProduct(boneMat + 0, w->offset) + boneMat[12]) * w->boneWeight);
 				tmpVert[1] += ((DotProduct(boneMat + 4, w->offset) + boneMat[13]) * w->boneWeight);
 				tmpVert[2] += ((DotProduct(boneMat + 8, w->offset) + boneMat[14]) * w->boneWeight);
 			}
-	
+
 			tess.xyz[tess.numVertexes + j][0] = tmpVert[0];
 			tess.xyz[tess.numVertexes + j][1] = tmpVert[1];
 			tess.xyz[tess.numVertexes + j][2] = tmpVert[2];
-			
+
 			tess.texCoords[tess.numVertexes + j][0][0] = v->texCoords[0];
 			tess.texCoords[tess.numVertexes + j][0][1] = v->texCoords[1];
-	
-			v = (mdsVertex_t *) &v->weights[v->numWeights];
+
+			v = (mdsVertex_t *) & v->weights[v->numWeights];
 		}
-		
+
 		// calc tangent spaces
 		if(!tess.skipTangentSpaces)
 		{
@@ -1328,20 +1799,20 @@ void RB_SurfaceMDS(mdsSurface_t * surface, int numLightIndexes, int *lightIndexe
 			vec3_t          binormal;
 			vec3_t          normal;
 			int            *indices;
-		
+
 			for(i = 0; i < numVertexes; i++)
 			{
 				VectorClear(tess.tangents[tess.numVertexes + i]);
 				VectorClear(tess.binormals[tess.numVertexes + i]);
 				VectorClear(tess.normals[tess.numVertexes + i]);
 			}
-		
+
 			for(i = 0, indices = tess.indexes + tess.numIndexes; i < numIndexes; i += 3, indices += 3)
 			{
 				v0 = tess.xyz[indices[0]];
 				v1 = tess.xyz[indices[1]];
 				v2 = tess.xyz[indices[2]];
-		
+
 				t0 = tess.texCoords[indices[0]][0];
 				t1 = tess.texCoords[indices[1]][0];
 				t2 = tess.texCoords[indices[2]][0];
@@ -1351,7 +1822,7 @@ void RB_SurfaceMDS(mdsSurface_t * surface, int numLightIndexes, int *lightIndexe
 #else
 				R_CalcNormalForTriangle(normal, v0, v1, v2);
 				R_CalcTangentsForTriangle(tangent, binormal, v0, v1, v2, t0, t1, t2);
-#endif		
+#endif
 				for(j = 0; j < 3; j++)
 				{
 					v = tess.tangents[indices[j]];
@@ -1362,12 +1833,12 @@ void RB_SurfaceMDS(mdsSurface_t * surface, int numLightIndexes, int *lightIndexe
 					VectorAdd(v, normal, v);
 				}
 			}
-		
+
 			VectorArrayNormalize((vec4_t *) tess.tangents[tess.numVertexes], numVertexes);
 			VectorArrayNormalize((vec4_t *) tess.binormals[tess.numVertexes], numVertexes);
 			VectorArrayNormalize((vec4_t *) tess.normals[tess.numVertexes], numVertexes);
 		}
-	
+
 		tess.numIndexes += numIndexes;
 		tess.numVertexes += numVertexes;
 	}
@@ -1388,12 +1859,17 @@ void RB_SurfaceMD5(md5Surface_t * surface, int numLightIndexes, int *lightIndexe
 	md5Model_t     *model;
 	md5Vertex_t    *v;
 	md5Bone_t      *bone;
-	vec3_t			offsetVec;
-	
+	vec3_t          offsetVec;
+
+	if(tess.shadowVolume)
+	{
+		return;
+	}
+
 	model = surface->model;
 
 	RB_CHECKOVERFLOW(surface->numVerts, surface->numIndexes);
-	
+
 	indexes = surface->indexes;
 	numIndexes = surface->numIndexes;
 	for(j = 0; j < numIndexes; j++)
@@ -1409,11 +1885,11 @@ void RB_SurfaceMD5(md5Surface_t * surface, int numLightIndexes, int *lightIndexe
 		md5Weight_t    *w;
 
 		VectorClear(tmpVert);
-		
+
 		for(k = 0, w = v->weights[0]; k < v->numWeights; k++, w++)
 		{
 			bone = &model->bones[w->boneIndex];
-			
+
 			if(backEnd.currentEntity->e.renderfx & RF_SKELETON)
 			{
 				MatrixTransformPoint(backEnd.currentEntity->e.skeleton.bones[w->boneIndex].transform, w->offset, offsetVec);
@@ -1428,11 +1904,11 @@ void RB_SurfaceMD5(md5Surface_t * surface, int numLightIndexes, int *lightIndexe
 		tess.xyz[tess.numVertexes + j][0] = tmpVert[0];
 		tess.xyz[tess.numVertexes + j][1] = tmpVert[1];
 		tess.xyz[tess.numVertexes + j][2] = tmpVert[2];
-		
+
 		tess.texCoords[tess.numVertexes + j][0][0] = v->texCoords[0];
 		tess.texCoords[tess.numVertexes + j][0][1] = v->texCoords[1];
 	}
-	
+
 	// calc tangent spaces
 	if(!tess.skipTangentSpaces)
 	{
@@ -1445,20 +1921,20 @@ void RB_SurfaceMD5(md5Surface_t * surface, int numLightIndexes, int *lightIndexe
 		vec3_t          binormal;
 		vec3_t          normal;
 		int            *indices;
-	
+
 		for(i = 0; i < numVertexes; i++)
 		{
 			VectorClear(tess.tangents[tess.numVertexes + i]);
 			VectorClear(tess.binormals[tess.numVertexes + i]);
 			VectorClear(tess.normals[tess.numVertexes + i]);
 		}
-	
+
 		for(i = 0, indices = tess.indexes + tess.numIndexes; i < numIndexes; i += 3, indices += 3)
 		{
 			v0 = tess.xyz[indices[0]];
 			v1 = tess.xyz[indices[1]];
 			v2 = tess.xyz[indices[2]];
-	
+
 			t0 = tess.texCoords[indices[0]][0];
 			t1 = tess.texCoords[indices[1]][0];
 			t2 = tess.texCoords[indices[2]][0];
@@ -1479,7 +1955,7 @@ void RB_SurfaceMD5(md5Surface_t * surface, int numLightIndexes, int *lightIndexe
 				VectorAdd(v, normal, v);
 			}
 		}
-	
+
 		VectorArrayNormalize((vec4_t *) tess.tangents[tess.numVertexes], numVertexes);
 		VectorArrayNormalize((vec4_t *) tess.binormals[tess.numVertexes], numVertexes);
 		VectorArrayNormalize((vec4_t *) tess.normals[tess.numVertexes], numVertexes);
@@ -1536,6 +2012,11 @@ Entities that have a single procedurally generated surface
 */
 void RB_SurfaceEntity(surfaceType_t * surfType, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
+	if(tess.shadowVolume)
+	{
+		return;
+	}
+
 	switch (backEnd.currentEntity->e.reType)
 	{
 		case RT_SPRITE:
@@ -1576,6 +2057,11 @@ void RB_SurfaceFlare(srfFlare_t * surf, int numLightIndexes, int *lightIndexes, 
 	vec3_t          origin;
 	float           d;
 
+	if(tess.shadowVolume)
+	{
+		return;
+	}
+
 	// calculate the xyz locations for the four corners
 	radius = 30;
 	VectorScale(backEnd.viewParms.or.axis[1], radius, left);
@@ -1614,6 +2100,11 @@ void RB_SurfaceFlare(srfFlare_t * surf)
 	vec3_t          left, up;
 	byte            color[4];
 
+	if(tess.shadowVolume)
+	{
+		return;
+	}
+
 	color[0] = surf->color[0] * 255;
 	color[1] = surf->color[1] * 255;
 	color[2] = surf->color[2] * 255;
@@ -1634,8 +2125,14 @@ void RB_SurfaceFlare(srfFlare_t * surf)
 
 
 
-void RB_SurfaceDisplayList(srfDisplayList_t * surf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+void RB_SurfaceDisplayList(srfDisplayList_t * surf, int numLightIndexes, int *lightIndexes, int numShadowIndexes,
+						   int *shadowIndexes)
 {
+	if(tess.shadowVolume)
+	{
+		return;
+	}
+
 	// all apropriate state must be set in RB_BeginSurface
 	// this isn't implemented yet...
 	qglCallList(surf->listNum);
@@ -1646,9 +2143,10 @@ void RB_SurfaceSkip(void *surf, int numLightIndexes, int *lightIndexes, int numS
 }
 
 
-void	(*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes) =
+void            (*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *, int numLightIndexes, int *lightIndexes, int numShadowIndexes,
+														  int *shadowIndexes) =
 {
-		(void (*)(void *, int, int *, int, int *))RB_SurfaceBad,	// SF_BAD, 
+	(void (*)(void *, int, int *, int, int *))RB_SurfaceBad,	// SF_BAD, 
 		(void (*)(void *, int, int *, int, int *))RB_SurfaceSkip,	// SF_SKIP, 
 		(void (*)(void *, int, int *, int, int *))RB_SurfaceFace,	// SF_FACE,
 		(void (*)(void *, int, int *, int, int *))RB_SurfaceGrid,	// SF_GRID,

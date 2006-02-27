@@ -112,6 +112,8 @@ cvar_t         *r_drawBuffer;
 cvar_t         *r_glDriver;
 cvar_t         *r_uiFullScreen;
 cvar_t         *r_shadows;
+cvar_t         *r_shadowOffsetFactor;
+cvar_t         *r_shadowOffsetUnits;
 cvar_t         *r_flares;
 cvar_t         *r_mode;
 cvar_t         *r_collapseStages;
@@ -1230,13 +1232,15 @@ void R_Register(void)
 	r_shownormals = ri.Cvar_Get("r_shownormals", "0", CVAR_CHEAT);
 	r_showTangentSpaces = ri.Cvar_Get("r_showTangentSpaces", "0", CVAR_CHEAT);
 	r_clear = ri.Cvar_Get("r_clear", "1", CVAR_CHEAT);
-	r_offsetFactor = ri.Cvar_Get("r_offsetfactor", "-1", CVAR_CHEAT);
-	r_offsetUnits = ri.Cvar_Get("r_offsetunits", "-2", CVAR_CHEAT);
+	r_offsetFactor = ri.Cvar_Get("r_offsetFactor", "-1", CVAR_CHEAT);
+	r_offsetUnits = ri.Cvar_Get("r_offsetUnits", "-2", CVAR_CHEAT);
 	r_drawBuffer = ri.Cvar_Get("r_drawBuffer", "GL_BACK", CVAR_CHEAT);
 	r_lockpvs = ri.Cvar_Get("r_lockpvs", "0", CVAR_CHEAT);
 	r_noportals = ri.Cvar_Get("r_noportals", "0", CVAR_CHEAT);
 	r_shadows = ri.Cvar_Get("cg_shadows", "3", 0);
 	AssertCvarRange(r_shadows, 0, 3, qtrue);
+	r_shadowOffsetFactor = ri.Cvar_Get("r_shadowOffsetFactor", "0", CVAR_CHEAT);
+	r_shadowOffsetUnits = ri.Cvar_Get("r_shadowOffsetUnits", "1", CVAR_CHEAT);
 
 	r_maxpolys = ri.Cvar_Get("r_maxpolys", va("%d", MAX_POLYS), 0);
 	r_maxpolyverts = ri.Cvar_Get("r_maxpolyverts", va("%d", MAX_POLYVERTS), 0);

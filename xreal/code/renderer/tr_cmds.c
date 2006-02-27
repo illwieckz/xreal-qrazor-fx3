@@ -59,17 +59,17 @@ void R_PerformanceCounters(void)
 	}
 	else if(r_speeds->integer == 2)
 	{
-		ri.Printf(PRINT_ALL, "(patch) %i sin %i sclip  %i sout %i bin %i bclip %i bout\n",
+		ri.Printf(PRINT_ALL, "(patch) %i sin %i sclip %i sout %i bin %i bclip %i bout\n",
 				  tr.pc.c_sphere_cull_patch_in, tr.pc.c_sphere_cull_patch_clip,
 				  tr.pc.c_sphere_cull_patch_out, tr.pc.c_box_cull_patch_in,
 				  tr.pc.c_box_cull_patch_clip, tr.pc.c_box_cull_patch_out);
 		
-		ri.Printf(PRINT_ALL, "(md3) %i sin %i sclip  %i sout %i bin %i bclip %i bout\n",
+		ri.Printf(PRINT_ALL, "(md3) %i sin %i sclip %i sout %i bin %i bclip %i bout\n",
 				  tr.pc.c_sphere_cull_md3_in, tr.pc.c_sphere_cull_md3_clip,
 				  tr.pc.c_sphere_cull_md3_out, tr.pc.c_box_cull_md3_in, tr.pc.c_box_cull_md3_clip,
 				  tr.pc.c_box_cull_md3_out);
 		
-		ri.Printf(PRINT_ALL, "(mds) %i sin %i sclip  %i sout %i bin %i bclip %i bout\n",
+		ri.Printf(PRINT_ALL, "(mds) %i sin %i sclip %i sout %i bin %i bclip %i bout\n",
 				  tr.pc.c_sphere_cull_mds_in, tr.pc.c_sphere_cull_mds_clip,
 				  tr.pc.c_sphere_cull_mds_out, tr.pc.c_box_cull_mds_in, tr.pc.c_box_cull_mds_clip,
 				  tr.pc.c_box_cull_mds_out);
@@ -83,7 +83,7 @@ void R_PerformanceCounters(void)
 	}
 	else if(r_speeds->integer == 4)
 	{
-		ri.Printf(PRINT_ALL, "dlight srf:%i  culled:%i  verts:%i  tris:%i\n",
+		ri.Printf(PRINT_ALL, "dlight srf:%i culled:%i  verts:%i  tris:%i\n",
 				  tr.pc.c_dlightSurfaces, tr.pc.c_dlightSurfacesCulled,
 				  backEnd.pc.c_dlightVertexes, backEnd.pc.c_dlightIndexes / 3);
 		
@@ -94,15 +94,12 @@ void R_PerformanceCounters(void)
 		ri.Printf(PRINT_ALL, "slights:%i interactions:%i bin:%i bclip:%i bout:%i\n",
 				  tr.pc.c_slights, tr.pc.c_slightInteractions,
 				  tr.pc.c_box_cull_slight_in, tr.pc.c_box_cull_slight_clip, tr.pc.c_box_cull_slight_out);
-		
-		//ri.Printf(PRINT_ALL, "backEnd:  dlights:%i interactions:%i\n",
-		//		  backEnd.pc.c_dlights, backEnd.pc.c_dlightInteractions);
-		
 	}
 	else if(r_speeds->integer == 5)
 	{
-		ri.Printf(PRINT_ALL, "shadow srf:%i verts:%i tris:%i\n",
-				  backEnd.pc.c_shadows, backEnd.pc.c_shadowVertexes, backEnd.pc.c_shadowIndexes / 3);
+		ri.Printf(PRINT_ALL, "shadow batches:%i srf:%i verts:%i tris:%i\n",
+				  backEnd.pc.c_shadowBatches, backEnd.pc.c_shadowSurfaces,
+				  backEnd.pc.c_shadowVertexes, backEnd.pc.c_shadowIndexes / 3);
 		
 	}
 	else if(r_speeds->integer == 6)

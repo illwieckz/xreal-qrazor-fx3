@@ -52,7 +52,7 @@ R_CalcNormalForTriangle
 void R_CalcNormalForTriangle(vec3_t normal, const vec3_t v0, const vec3_t v1, const vec3_t v2)
 {
 	vec3_t          udir, vdir;
-	
+
 	// compute the face normal based on vertex points
 	VectorSubtract(v2, v0, udir);
 	VectorSubtract(v1, v0, vdir);
@@ -83,7 +83,7 @@ void R_CalcTangentsForTriangle(vec3_t tangent, vec3_t binormal,
 
 		VectorNormalizeFast(e0);
 		VectorNormalizeFast(e1);
-		
+
 		CrossProduct(e0, e1, planes[i]);
 	}
 
@@ -121,7 +121,7 @@ void R_CalcTangentsForTriangle(vec3_t tangent, vec3_t binormal,
 		VectorInverse(normal);
 	}
 
-//	VectorCopy(n, normal);
+//  VectorCopy(n, normal);
 #endif
 }
 
@@ -133,8 +133,7 @@ Tr3B - recoded from Nvidia's SDK
 */
 void R_CalcTangentSpace(vec3_t tangent, vec3_t binormal, vec3_t normal,
 						const vec3_t v0, const vec3_t v1, const vec3_t v2,
-						const vec2_t t0, const vec2_t t1, const vec2_t t2,
-						const vec3_t n)
+						const vec2_t t0, const vec2_t t1, const vec2_t t2, const vec3_t n)
 {
 
 	vec3_t          cp, e0, e1;
@@ -191,6 +190,70 @@ void R_CalcTangentSpace(vec3_t tangent, vec3_t binormal, vec3_t normal,
 
 /*
 =================
+R_FindSurfaceTriangleWithEdge
+Tr3B - recoded from Q2E
+=================
+*/
+static int R_FindSurfaceTriangleWithEdge(int numTriangles, srfTriangle_t * triangles, int start, int end, int ignore)
+{
+	srfTriangle_t  *tri;
+	int             count, match;
+	int             i;
+
+	count = 0;
+	match = -1;
+
+	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
+	{
+		if((tri->indexes[0] == start && tri->indexes[1] == end) ||
+		   (tri->indexes[1] == start && tri->indexes[2] == end) ||
+		   (tri->indexes[2] == start && tri->indexes[0] == end))
+		{
+			if(i != ignore)
+			{
+				match = i;
+			}
+
+			count++;
+		}
+		else if((tri->indexes[1] == start && tri->indexes[0] == end) ||
+				(tri->indexes[2] == start && tri->indexes[1] == end) ||
+				(tri->indexes[0] == start && tri->indexes[2] == end))
+		{
+			count++;
+		}
+	}
+
+	// detect edges shared by three triangles and make them seams
+	if(count > 2)
+	{
+		match = -1;
+	}
+
+	return match;
+}
+
+/*
+=================
+R_CalcSurfaceTriangleNeighbors
+Tr3B - recoded from Q2E
+=================
+*/
+void R_CalcSurfaceTriangleNeighbors(int numTriangles, srfTriangle_t * triangles)
+{
+	int             i;
+	srfTriangle_t *tri;
+
+	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
+	{
+		tri->neighbors[0] = R_FindSurfaceTriangleWithEdge(numTriangles, triangles, tri->indexes[1], tri->indexes[0], i);
+		tri->neighbors[1] = R_FindSurfaceTriangleWithEdge(numTriangles, triangles, tri->indexes[2], tri->indexes[1], i);
+		tri->neighbors[2] = R_FindSurfaceTriangleWithEdge(numTriangles, triangles, tri->indexes[0], tri->indexes[2], i);
+	}
+}
+
+/*
+=================
 R_CullLocalBox
 
 Returns CULL_IN, CULL_CLIP, or CULL_OUT
@@ -217,7 +280,7 @@ int R_CullLocalBox(vec3_t bounds[2])
 		v[0] = bounds[i & 1][0];
 		v[1] = bounds[(i >> 1) & 1][1];
 		v[2] = bounds[(i >> 2) & 1][2];
-		
+
 		R_LocalPointToWorld(v, transformed[i]);
 	}
 
@@ -341,12 +404,14 @@ void R_LocalPointToWorld(vec3_t local, vec3_t world)
 R_TransformWorldToClip
 ==========================
 */
-void R_TransformWorldToClip(const vec3_t src, const float *cameraViewMatrix, const float *projectionMatrix, vec4_t eye, vec4_t dst)
+void R_TransformWorldToClip(const vec3_t src, const float *cameraViewMatrix, const float *projectionMatrix, vec4_t eye,
+							vec4_t dst)
 {
-	vec4_t			src2;
+	vec4_t          src2;
+
 	VectorCopy(src, src2);
 	src2[3] = 1;
-	
+
 	MatrixTransform4(cameraViewMatrix, src2, eye);
 
 	MatrixTransform4(projectionMatrix, eye, dst);
@@ -359,10 +424,11 @@ R_TransformModelToClip
 */
 void R_TransformModelToClip(const vec3_t src, const float *modelViewMatrix, const float *projectionMatrix, vec4_t eye, vec4_t dst)
 {
-	vec4_t			src2;
+	vec4_t          src2;
+
 	VectorCopy(src, src2);
 	src2[3] = 1;
-	
+
 	MatrixTransform4(modelViewMatrix, src2, eye);
 
 	MatrixTransform4(projectionMatrix, eye, dst);
@@ -417,18 +483,18 @@ void R_SetupEntityWorldBounds(trRefEntity_t * ent)
 {
 	int             j;
 	vec3_t          v, transformed;
-	
+
 	ClearBounds(ent->worldBounds[0], ent->worldBounds[1]);
-		
+
 	for(j = 0; j < 8; j++)
 	{
 		v[0] = ent->localBounds[j & 1][0];
 		v[1] = ent->localBounds[(j >> 1) & 1][1];
 		v[2] = ent->localBounds[(j >> 2) & 1][2];
-	
+
 		// transform local bounds vertices into world space
 		R_LocalPointToWorld(v, transformed);
-			
+
 		AddPointToBounds(transformed, ent->worldBounds[0], ent->worldBounds[1]);
 	}
 }
@@ -563,7 +629,7 @@ void R_RotateForViewer(void)
 						 tr.viewParms.or.axis[0], tr.viewParms.or.axis[1], tr.viewParms.or.axis[2], tr.viewParms.or.origin);
 
 	MatrixAffineInverse(transformMatrix, viewMatrix);
-//	MatrixAffineInverse(transformMatrix, tr.or.viewMatrix);
+//  MatrixAffineInverse(transformMatrix, tr.or.viewMatrix);
 
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
@@ -661,7 +727,7 @@ void R_SetupFrustum(void)
 		tr.viewParms.frustum[i].dist = DotProduct(tr.viewParms.or.origin, tr.viewParms.frustum[i].normal);
 		SetPlaneSignbits(&tr.viewParms.frustum[i]);
 	}
-	
+
 	// Tr3B - set extra near plane
 	tr.viewParms.frustum[4].type = PLANE_NON_AXIAL;
 	VectorCopy(tr.viewParms.or.axis[0], tr.viewParms.frustum[4].normal);
@@ -735,9 +801,9 @@ void R_PlaneForSurface(surfaceType_t * surfType, cplane_t * plane)
 			return;
 		case SF_TRIANGLES:
 			tri = (srfTriangles_t *) surfType;
-			v1 = tri->verts + tri->indexes[0];
-			v2 = tri->verts + tri->indexes[1];
-			v3 = tri->verts + tri->indexes[2];
+			v1 = tri->verts + tri->triangles[0].indexes[0];
+			v2 = tri->verts + tri->triangles[0].indexes[1];
+			v3 = tri->verts + tri->triangles[0].indexes[2];
 			PlaneFromPoints(plane4, v1->xyz, v2->xyz, v3->xyz, qtrue);
 			VectorCopy(plane4, plane->normal);
 			plane->dist = plane4[3];
@@ -766,7 +832,8 @@ be moving and rotating.
 Returns qtrue if it should be mirrored
 =================
 */
-static qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, orientation_t * surface, orientation_t * camera, vec3_t pvsOrigin, qboolean * mirror)
+static qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, orientation_t * surface, orientation_t * camera, vec3_t pvsOrigin,
+										qboolean * mirror)
 {
 	int             i;
 	cplane_t        originalPlane, plane;
@@ -982,7 +1049,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 	shader = tr.sortedShaders[drawSurf->shaderNum];
 	lightmapNum = drawSurf->lightmapNum;
 	fogNum = drawSurf->fogNum;
-	
+
 	RB_BeginSurface(shader, NULL, lightmapNum, fogNum, qfalse, qfalse);
 	rb_surfaceTable[*drawSurf->surface] (drawSurf->surface, 0, NULL, 0, NULL);
 
@@ -1178,15 +1245,15 @@ void R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int lightmapNum, 
 	// instead of checking for overflow, we just mask the index
 	// so it wraps around
 	index = tr.refdef.numDrawSurfs & DRAWSURF_MASK;
-	
+
 	drawSurf = &tr.refdef.drawSurfs[index];
-	
+
 	drawSurf->entity = tr.currentEntity;
 	drawSurf->surface = surface;
 	drawSurf->shaderNum = shader->sortedIndex;
 	drawSurf->lightmapNum = lightmapNum;
 	drawSurf->fogNum = fogNum;
-	
+
 	tr.refdef.numDrawSurfs++;
 }
 
@@ -1202,40 +1269,40 @@ static int DrawSurfCompare(const void *a, const void *b)
 	// shader first
 	if(((drawSurf_t *) a)->shaderNum < ((drawSurf_t *) b)->shaderNum)
 		return -1;
-	
+
 	else if(((drawSurf_t *) a)->shaderNum > ((drawSurf_t *) b)->shaderNum)
 		return 1;
 #endif
-	
+
 #if 1
 	// then lightmap
 	if(((drawSurf_t *) a)->lightmapNum < ((drawSurf_t *) b)->lightmapNum)
 		return -1;
-	
+
 	else if(((drawSurf_t *) a)->lightmapNum > ((drawSurf_t *) b)->lightmapNum)
 		return 1;
 #endif
-	
+
 #if 1
 	// then entity
 	if(((drawSurf_t *) a)->entity == &tr.worldEntity && ((drawSurf_t *) b)->entity != &tr.worldEntity)
 		return -1;
-	
+
 	if(((drawSurf_t *) a)->entity != &tr.worldEntity && ((drawSurf_t *) b)->entity == &tr.worldEntity)
 		return 1;
-	
+
 	if(((drawSurf_t *) a)->entity < ((drawSurf_t *) b)->entity)
 		return -1;
-	
+
 	else if(((drawSurf_t *) a)->entity > ((drawSurf_t *) b)->entity)
 		return 1;
 #endif
-	
+
 #if 1
 	// then fog
 	if(((drawSurf_t *) a)->fogNum < ((drawSurf_t *) b)->fogNum)
 		return -1;
-	
+
 	else if(((drawSurf_t *) a)->fogNum > ((drawSurf_t *) b)->fogNum)
 		return 1;
 #endif
@@ -1270,23 +1337,23 @@ void R_SortDrawSurfs(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * i
 	{
 		numDrawSurfs = MAX_DRAWSURFS;
 	}
-	
+
 	// if we overflowed MAX_INTERACTIONS, the interactions
 	// wrapped around in the buffer and we will be missing
 	// the first interactions, not the last ones
 	if(numInteractions > MAX_INTERACTIONS)
 	{
 		interaction_t  *ia;
-		
+
 		numInteractions = MAX_INTERACTIONS;
-		
+
 		// reset last interaction's next pointer
-		ia = &interactions[numInteractions -1];
+		ia = &interactions[numInteractions - 1];
 		ia->next = NULL;
 	}
 
 	// sort the drawsurfs by sort type, then orientation, then shader
-//	qsortFast(drawSurfs, numDrawSurfs, sizeof(drawSurf_t));
+//  qsortFast(drawSurfs, numDrawSurfs, sizeof(drawSurf_t));
 	qsort(drawSurfs, numDrawSurfs, sizeof(drawSurf_t), DrawSurfCompare);
 
 	// check for any pass through drawing, which
@@ -1294,7 +1361,7 @@ void R_SortDrawSurfs(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * i
 	for(i = 0, drawSurf = drawSurfs; i < numDrawSurfs; i++, drawSurf++)
 	{
 		shader = tr.sortedShaders[drawSurf->shaderNum];
-		
+
 		if(shader->sort > SS_PORTAL)
 		{
 			break;
@@ -1410,7 +1477,7 @@ void R_AddEntitySurfaces(void)
 						case MOD_MDS:
 							R_AddMDSSurfaces(ent);
 							break;
-							
+
 						case MOD_MD5:
 							R_AddMD5Surfaces(ent);
 							break;
@@ -1500,7 +1567,7 @@ void R_AddEntityInteractions(trRefDlight_t * light)
 						case MOD_MDS:
 							//R_AddMDSSurfaces(ent);
 							break;
-							
+
 						case MOD_MD5:
 							R_AddMD5Interactions(ent, light);
 							break;
@@ -1536,7 +1603,7 @@ void R_AddSlightInteractions()
 {
 	int             i;
 	trRefDlight_t  *dl;
-	
+
 	if(tr.refdef.rdflags & RDF_NOWORLDMODEL)
 	{
 		return;
@@ -1546,16 +1613,16 @@ void R_AddSlightInteractions()
 	{
 		return;
 	}
-	
+
 	//ri.Printf(PRINT_ALL, "R_AddSlightInteractions: adding %i lights\n", tr.world->numDlights);
 
 	for(i = 0; i < tr.world->numDlights; i++)
 	{
 		dl = tr.currentDlight = &tr.world->dlights[i];
-		
+
 		// we must set up parts of tr.or for light culling
 		R_RotateForDlight(dl, &tr.viewParms, &tr.or);
-		
+
 		// look if we have to draw the light including its interactions
 		switch (R_CullLocalBox(dl->localBounds))
 		{
@@ -1563,12 +1630,12 @@ void R_AddSlightInteractions()
 				tr.pc.c_box_cull_slight_in++;
 				dl->cull = CULL_IN;
 				break;
-			
+
 			case CULL_CLIP:
 				tr.pc.c_box_cull_slight_clip++;
 				dl->cull = CULL_CLIP;
 				break;
-			
+
 			case CULL_OUT:
 			default:
 				// light is not visible so skip other light setup stuff to save speed
@@ -1576,24 +1643,24 @@ void R_AddSlightInteractions()
 				dl->cull = CULL_OUT;
 				continue;
 		}
-		
+
 		// ignore if not in visible bounds
 		if(!BoundsIntersect(dl->worldBounds[0], dl->worldBounds[1], tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]))
 			continue;
-		
+
 		// create temporary light scissor
 		R_SetDlightScissor(dl);
-		
+
 		// setup interactions
 		dl->numInteractions = 0;
 		dl->firstInteractionIndex = -1;
 		dl->lastInteractionIndex = -1;
-	
+
 		R_AddPrecachedWorldInteractions(dl);
 		R_AddEntityInteractions(dl);
-		
+
 		R_SortInteractions(dl);
-		
+
 		if(dl->numInteractions)
 			tr.pc.c_slights++;
 	}
@@ -1618,13 +1685,13 @@ void R_AddDlightInteractions()
 	for(i = 0; i < tr.refdef.numDlights; i++)
 	{
 		dl = tr.currentDlight = &tr.refdef.dlights[i];
-		
+
 		// we must set up parts of tr.or for light culling
 		R_RotateForDlight(dl, &tr.viewParms, &tr.or);
-		
+
 		// calc local bounds for culling
 		R_SetupDlightLocalBounds(dl);
-		
+
 		// look if we have to draw the light including its interactions
 		switch (R_CullLocalBox(dl->localBounds))
 		{
@@ -1632,12 +1699,12 @@ void R_AddDlightInteractions()
 				tr.pc.c_box_cull_dlight_in++;
 				dl->cull = CULL_IN;
 				break;
-			
+
 			case CULL_CLIP:
 				tr.pc.c_box_cull_dlight_clip++;
 				dl->cull = CULL_CLIP;
 				break;
-			
+
 			case CULL_OUT:
 			default:
 				// light is not visible so skip other light setup stuff to save speed
@@ -1645,26 +1712,26 @@ void R_AddDlightInteractions()
 				dl->cull = CULL_OUT;
 				continue;
 		}
-		
+
 		// set up light transform matrix
 		MatrixSetupTransform(dl->transformMatrix, dl->l.axis[0], dl->l.axis[1], dl->l.axis[2], dl->l.origin);
-		
+
 		// set up light origin for lighting and shadowing
 		R_SetupDlightOrigin(dl);
-		
+
 		// setup world bounds for intersection tests
 		R_SetupDlightWorldBounds(dl);
-		
+
 		// setup frustum planes for intersection tests
 		R_SetupDlightFrustum(dl);
-		
+
 		// ignore if not in visible bounds
 		if(!BoundsIntersect(dl->worldBounds[0], dl->worldBounds[1], tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]))
 			continue;
-		
+
 		// set up model to light view matrix
 		MatrixAffineInverse(dl->transformMatrix, dl->viewMatrix);
-		
+
 		// set up projection
 		switch (dl->l.rlType)
 		{
@@ -1675,24 +1742,24 @@ void R_AddDlightInteractions()
 			default:
 				ri.Error(ERR_DROP, "R_AddDlightInteractions: Bad rlType");
 		}
-				
+
 		// set up first part of the attenuation matrix
 		MatrixSetupTranslation(dl->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-		MatrixMultiplyScale(dl->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
+		MatrixMultiplyScale(dl->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
 		MatrixMultiply2(dl->attenuationMatrix, dl->projectionMatrix);	// light projection (frustum)
-		
+
 		R_SetDlightScissor(dl);
-		
+
 		// setup interactions
 		dl->numInteractions = 0;
 		dl->firstInteractionIndex = -1;
 		dl->lastInteractionIndex = -1;
-	
+
 		R_AddWorldInteractions(dl);
 		R_AddEntityInteractions(dl);
-		
+
 		R_SortInteractions(dl);
-		
+
 		if(dl->numInteractions)
 			tr.pc.c_dlights++;
 	}
@@ -1701,33 +1768,33 @@ void R_AddDlightInteractions()
 void R_DebugAxis(const vec3_t origin, const matrix_t transformMatrix)
 {
 	vec3_t          forward, left, up;
-	
+
 	MatrixToVectorsFLU(transformMatrix, forward, left, up);
 	VectorMA(origin, 16, forward, forward);
 	VectorMA(origin, 16, left, left);
 	VectorMA(origin, 16, up, up);
-	
+
 	// draw axis
 	GL_Program(0);
 	GL_State(GLS_DEPTHTEST_DISABLE);
 	GL_SelectTexture(0);
 	GL_Bind(tr.whiteImage);
-	
+
 	qglLineWidth(3);
 	qglBegin(GL_LINES);
-	
+
 	qglColor3f(1, 0, 0);
 	qglVertex3fv(origin);
 	qglVertex3fv(forward);
-	
+
 	qglColor3f(0, 1, 0);
 	qglVertex3fv(origin);
 	qglVertex3fv(left);
-	
+
 	qglColor3f(0, 0, 1);
 	qglVertex3fv(origin);
 	qglVertex3fv(up);
-	
+
 	qglEnd();
 	qglLineWidth(1);
 }
@@ -1754,12 +1821,12 @@ void R_DebugBoundingBox(const vec3_t origin, const vec3_t mins, const vec3_t max
 	corners[3][0] = origin[0] + maxs[0];
 	corners[3][1] = origin[1] + mins[1];
 	corners[3][2] = origin[2] + maxs[2];
-	
+
 	// lower corners
 	Com_Memcpy(corners[4], corners[0], sizeof(vec3_t) * 4);
 	for(i = 0; i < 4; i++)
 		corners[4 + i][2] = origin[2] + mins[2];
-	
+
 	// draw bounding box
 	GL_Program(0);
 	GL_State(GLS_DEPTHTEST_DISABLE);
@@ -1773,11 +1840,11 @@ void R_DebugBoundingBox(const vec3_t origin, const vec3_t mins, const vec3_t max
 		// top plane
 		qglVertex3fv(corners[i]);
 		qglVertex3fv(corners[(i + 1) & 3]);
-		
+
 		// bottom plane
 		qglVertex3fv(corners[4 + i]);
 		qglVertex3fv(corners[4 + ((i + 1) & 3)]);
-		
+
 		// vertical lines
 		qglVertex3fv(corners[i]);
 		qglVertex3fv(corners[4 + i]);
@@ -1877,7 +1944,7 @@ void R_RenderView(viewParms_t * parms)
 	R_RotateForViewer();
 
 	R_SetupFrustum();
-	
+
 	// set the projection matrix now that we have the world bounded
 	// this needs to be done before entities are
 	// added, because they use the projection
@@ -1889,23 +1956,22 @@ void R_RenderView(viewParms_t * parms)
 	R_AddPolygonSurfaces();
 
 	R_AddEntitySurfaces();
-	
+
 	R_AddSlightInteractions();
-	
+
 	R_AddDlightInteractions();
-	
+
 	/*
-	ri.Printf(PRINT_ALL, "R_RenderView: %i %i %i %i\n",
-			  firstDrawSurf,
-			  tr.refdef.numDrawSurfs,
-			  firstInteraction,
-			  tr.refdef.numInteractions);
-	*/
+	   ri.Printf(PRINT_ALL, "R_RenderView: %i %i %i %i\n",
+	   firstDrawSurf,
+	   tr.refdef.numDrawSurfs,
+	   firstInteraction,
+	   tr.refdef.numInteractions);
+	 */
 
 	R_SortDrawSurfs(tr.refdef.drawSurfs + firstDrawSurf,
 					tr.refdef.numDrawSurfs - firstDrawSurf,
-				   	tr.refdef.interactions + firstInteraction,
-				    tr.refdef.numInteractions - firstInteraction);
+					tr.refdef.interactions + firstInteraction, tr.refdef.numInteractions - firstInteraction);
 
 	// draw main system development information (surface outlines, etc)
 	R_DebugGraphics();

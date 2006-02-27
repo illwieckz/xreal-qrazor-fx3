@@ -258,15 +258,15 @@ static void MakeMeshNormals(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE]
 }
 */
 
-static int MakeMeshTriangles(int width, int height, int indexes[SHADER_MAX_INDEXES])
+static int MakeMeshTriangles(int width, int height, srfTriangle_t triangles[SHADER_MAX_TRIANGLES])
 {
 	int             i, j;
-	int             numIndexes;
+	int             numTriangles;
 	int             w, h;
 
 	h = height - 1;
 	w = width - 1;
-	numIndexes = 0;
+	numTriangles = 0;
 	for(i = 0; i < h; i++)
 	{
 		for(j = 0; j < w; j++)
@@ -279,20 +279,22 @@ static int MakeMeshTriangles(int width, int height, int indexes[SHADER_MAX_INDEX
 			v3 = v2 + width;
 			v4 = v3 + 1;
 
-			indexes[numIndexes + 0] = v2;
-			indexes[numIndexes + 1] = v3;
-			indexes[numIndexes + 2] = v1;
+			triangles[numTriangles].indexes[0] = v2;
+			triangles[numTriangles].indexes[1] = v3;
+			triangles[numTriangles].indexes[2] = v1;
+			numTriangles++;
 
-			indexes[numIndexes + 3] = v1;
-			indexes[numIndexes + 4] = v3;
-			indexes[numIndexes + 5] = v4;
-			numIndexes += 6;
+			triangles[numTriangles].indexes[0] = v1;
+			triangles[numTriangles].indexes[1] = v3;
+			triangles[numTriangles].indexes[2] = v4;
+			numTriangles++;
 		}
 	}
-	return numIndexes;
+	
+	return numTriangles;
 }
 
-static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], int numIndexes, int indexes[SHADER_MAX_INDEXES])
+static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], int numTriangles, srfTriangle_t triangles[SHADER_MAX_TRIANGLES])
 {
 	int             i, j;
 	float          *v;
@@ -301,9 +303,9 @@ static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZ
 	vec3_t          tangent;
 	vec3_t          binormal;
 	vec3_t          normal;
-	int            *indices;
 	srfVert_t      *dv0, *dv1, *dv2;
 	srfVert_t       ctrl2[MAX_GRID_SIZE * MAX_GRID_SIZE];
+	srfTriangle_t  *tri;
 	
 	// FIXME
 	for(i = 0; i < width; i++)
@@ -324,11 +326,11 @@ static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZ
 		VectorClear(dv0->normal);
 	}
 
-	for(i = 0, indices = indexes; i < numIndexes; i += 3, indices += 3)
+	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
 	{
-		dv0 = &ctrl2[indices[0]];
-		dv1 = &ctrl2[indices[1]];
-		dv2 = &ctrl2[indices[2]];
+		dv0 = &ctrl2[tri->indexes[0]];
+		dv1 = &ctrl2[tri->indexes[1]];
+		dv2 = &ctrl2[tri->indexes[2]];
 		
 		v0 = dv0->xyz;
 		v1 = dv1->xyz;
@@ -343,7 +345,7 @@ static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZ
 
 		for(j = 0; j < 3; j++)
 		{
-			dv0 = &ctrl2[indices[j]];
+			dv0 = &ctrl2[tri->indexes[j]];
 			
 			v = dv0->tangent;
 			VectorAdd(v, tangent, v);
@@ -465,7 +467,7 @@ R_CreateSurfaceGridMesh
 static srfGridMesh_t  *R_CreateSurfaceGridMesh(int width, int height,
 										srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE],
 										float errorTable[2][MAX_GRID_SIZE],
-										int numIndexes, int indexes[SHADER_MAX_INDEXES])
+										int numTriangles, srfTriangle_t triangles[SHADER_MAX_TRIANGLES])
 {
 	int             i, j, size;
 	srfVert_t      *vert;
@@ -501,9 +503,9 @@ static srfGridMesh_t  *R_CreateSurfaceGridMesh(int width, int height,
 	grid->heightLodError = ri.Hunk_Alloc(height * 4, h_low);
 	Com_Memcpy(grid->heightLodError, errorTable[1], height * 4);
 	
-	grid->numIndexes = numIndexes;
-	grid->indexes = ri.Hunk_Alloc(grid->numIndexes * sizeof(int), h_low);
-	Com_Memcpy(grid->indexes, indexes, numIndexes * sizeof(int));
+	grid->numTriangles = numTriangles;
+	grid->triangles = ri.Hunk_Alloc(grid->numTriangles * sizeof(srfTriangle_t), h_low);
+	Com_Memcpy(grid->triangles, triangles, numTriangles * sizeof(srfTriangle_t));
 	
 	grid->numVerts = (width * height);
 	grid->verts = ri.Hunk_Alloc(grid->numVerts * sizeof(srfVert_t), h_low);
@@ -526,6 +528,7 @@ static srfGridMesh_t  *R_CreateSurfaceGridMesh(int width, int height,
 	// compute VBOs
 	if(glConfig2.vertexBufferObjectAvailable)
 	{
+		/*
 		if(numIndexes)
 		{
 			byte           *indexes;
@@ -541,6 +544,7 @@ static srfGridMesh_t  *R_CreateSurfaceGridMesh(int width, int height,
 			
 			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 		}
+		*/
 		
 		if(grid->numVerts)
 		{
@@ -678,7 +682,7 @@ void R_FreeSurfaceGridMesh(srfGridMesh_t * grid)
 {
 	ri.Free(grid->widthLodError);
 	ri.Free(grid->heightLodError);
-	ri.Free(grid->indexes);
+	ri.Free(grid->triangles);
 	ri.Free(grid->verts);
 	ri.Free(grid);
 }
@@ -697,8 +701,8 @@ srfGridMesh_t  *R_SubdividePatchToGrid(int width, int height, srfVert_t points[M
 	int             t;
 	MAC_STATIC srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE];
 	float           errorTable[2][MAX_GRID_SIZE];
-	int             numIndexes;
-	int             indexes[SHADER_MAX_INDEXES];
+	int             numTriangles;
+	srfTriangle_t   triangles[SHADER_MAX_TRIANGLES];
 
 	for(i = 0; i < width; i++)
 	{
@@ -867,12 +871,12 @@ srfGridMesh_t  *R_SubdividePatchToGrid(int width, int height, srfVert_t points[M
 	//MakeMeshNormals(width, height, ctrl);
 	
 	// calculate triangles
-	numIndexes = MakeMeshTriangles(width, height, indexes);
+	numTriangles = MakeMeshTriangles(width, height, triangles);
 	
 	// calculate tangent spaces
-	MakeTangentSpaces(width, height, ctrl, numIndexes, indexes);
+	MakeTangentSpaces(width, height, ctrl, numTriangles, triangles);
 
-	return R_CreateSurfaceGridMesh(width, height, ctrl, errorTable, numIndexes, indexes);
+	return R_CreateSurfaceGridMesh(width, height, ctrl, errorTable, numTriangles, triangles);
 }
 
 /*
@@ -889,8 +893,8 @@ srfGridMesh_t  *R_GridInsertColumn(srfGridMesh_t * grid, int column, int row, ve
 	float           errorTable[2][MAX_GRID_SIZE];
 	float           lodRadius;
 	vec3_t          lodOrigin;
-	int             numIndexes;
-	int             indexes[SHADER_MAX_INDEXES];
+	int             numTriangles;
+	srfTriangle_t   triangles[SHADER_MAX_TRIANGLES];
 
 	oldwidth = 0;
 	width = grid->width + 1;
@@ -931,17 +935,17 @@ srfGridMesh_t  *R_GridInsertColumn(srfGridMesh_t * grid, int column, int row, ve
 	//MakeMeshNormals(width, height, ctrl);
 	
 	// calculate triangles
-	numIndexes = MakeMeshTriangles(width, height, indexes);
+	numTriangles = MakeMeshTriangles(width, height, triangles);
 	
 	// calculate tangent spaces
-	MakeTangentSpaces(width, height, ctrl, numIndexes, indexes);
+	MakeTangentSpaces(width, height, ctrl, numTriangles, triangles);
 
 	VectorCopy(grid->lodOrigin, lodOrigin);
 	lodRadius = grid->lodRadius;
 	// free the old grid
 	R_FreeSurfaceGridMesh(grid);
 	// create a new grid
-	grid = R_CreateSurfaceGridMesh(width, height, ctrl, errorTable, numIndexes, indexes);
+	grid = R_CreateSurfaceGridMesh(width, height, ctrl, errorTable, numTriangles, triangles);
 	grid->lodRadius = lodRadius;
 	VectorCopy(lodOrigin, grid->lodOrigin);
 	return grid;
@@ -961,8 +965,8 @@ srfGridMesh_t  *R_GridInsertRow(srfGridMesh_t * grid, int row, int column, vec3_
 	float           errorTable[2][MAX_GRID_SIZE];
 	float           lodRadius;
 	vec3_t          lodOrigin;
-	int             numIndexes;
-	int             indexes[SHADER_MAX_INDEXES];
+	int             numTriangles;
+	srfTriangle_t   triangles[SHADER_MAX_TRIANGLES];
 
 	oldheight = 0;
 	width = grid->width;
@@ -1002,17 +1006,17 @@ srfGridMesh_t  *R_GridInsertRow(srfGridMesh_t * grid, int row, int column, vec3_
 	//MakeMeshNormals(width, height, ctrl);
 	
 	// calculate triangles
-	numIndexes = MakeMeshTriangles(width, height, indexes);
+	numTriangles = MakeMeshTriangles(width, height, triangles);
 	
 	// calculate tangent spaces
-	MakeTangentSpaces(width, height, ctrl, numIndexes, indexes);
+	MakeTangentSpaces(width, height, ctrl, numTriangles, triangles);
 
 	VectorCopy(grid->lodOrigin, lodOrigin);
 	lodRadius = grid->lodRadius;
 	// free the old grid
 	R_FreeSurfaceGridMesh(grid);
 	// create a new grid
-	grid = R_CreateSurfaceGridMesh(width, height, ctrl, errorTable, numIndexes, indexes);
+	grid = R_CreateSurfaceGridMesh(width, height, ctrl, errorTable, numTriangles, triangles);
 	grid->lodRadius = lodRadius;
 	VectorCopy(lodOrigin, grid->lodOrigin);
 	return grid;

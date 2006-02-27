@@ -306,10 +306,10 @@ int R_MarkFragments(int numPoints, const vec3_t * points, const vec3_t projectio
 	srfSurfaceFace_t *surf;
 	srfGridMesh_t  *cv;
 	srfVert_t      *dv;
+	srfTriangle_t  *tri;
 	vec3_t          normal;
 	vec3_t          projectionDir;
 	vec3_t          v1, v2;
-	int            *indexes;
 
 	//increment view count for double check prevention
 	tr.viewCount++;
@@ -463,12 +463,11 @@ int R_MarkFragments(int numPoints, const vec3_t * points, const vec3_t projectio
 			   VectorNormalize(normal);
 			   if (DotProduct(normal, projectionDir) > -0.5) continue;
 			 */
-			indexes = surf->indexes;
-			for(k = 0; k < surf->numIndexes; k += 3)
+			for(k = 0, tri = surf->triangles; k < surf->numTriangles; k++, tri++)
 			{
 				for(j = 0; j < 3; j++)
 				{
-					v = surf->verts[indexes[k + j]].xyz;
+					v = surf->verts[tri->indexes[j]].xyz;
 					VectorMA(v, MARKER_OFFSET, surf->plane.normal, clipPoints[0][j]);
 				}
 				// add the fragments of this face

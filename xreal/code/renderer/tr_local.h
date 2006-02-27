@@ -1015,6 +1015,12 @@ typedef struct
 	byte            color[4];
 } srfVert_t;
 
+typedef struct
+{
+	int             indexes[3];
+	int             neighbors[3];
+} srfTriangle_t;
+
 typedef struct srfGridMesh_s
 {
 	surfaceType_t   surfaceType;
@@ -1037,8 +1043,8 @@ typedef struct srfGridMesh_s
 	float          *widthLodError;
 	float          *heightLodError;
 	
-	int             numIndexes;
-	int            *indexes;
+	int             numTriangles;
+	srfTriangle_t  *triangles;
 	GLuint          indexesVBO;
 
 	int             numVerts;
@@ -1062,8 +1068,8 @@ typedef struct
 	vec3_t          bounds[2];
 
 	// triangle definitions
-	int             numIndexes;
-	int            *indexes;
+	int             numTriangles;
+	srfTriangle_t  *triangles;
 	GLuint          indexesVBO;
 
 	int             numVerts;
@@ -1090,8 +1096,8 @@ typedef struct
 	float           radius;
 
 	// triangle definitions
-	int             numIndexes;
-	int            *indexes;
+	int             numTriangles;
+	srfTriangle_t  *triangles;
 	GLuint          indexesVBO;
 
 	int             numVerts;
@@ -1466,12 +1472,11 @@ typedef struct
 	int             c_vboVertexes;
 	int             c_vboIndexes;
 
-	int             c_dlights;
-	int             c_dlightInteractions;
 	int             c_dlightVertexes;
 	int             c_dlightIndexes;
 	
-	int             c_shadows;
+	int             c_shadowBatches;
+	int             c_shadowSurfaces;
 	int             c_shadowVertexes;
 	int             c_shadowIndexes;
 	
@@ -1775,6 +1780,9 @@ extern cvar_t  *r_clear;		// force screen clear every frame
 
 extern cvar_t  *r_shadows;		// controls shadows: 0 = none, 1 = blur, 2 = black planar projection,
 								// 3 = robust stencil shadow volumes
+								
+extern cvar_t  *r_shadowOffsetFactor;
+extern cvar_t  *r_shadowOffsetUnits;
 extern cvar_t  *r_flares;		// light flares
 
 extern cvar_t  *r_intensity;
@@ -1861,6 +1869,8 @@ void            R_CalcTangentSpace(vec3_t tangent, vec3_t binormal, vec3_t norma
 								   const vec3_t v0, const vec3_t v1, const vec3_t v2,
 								   const vec2_t t0, const vec2_t t1, const vec2_t t2,
 								   const vec3_t n);
+
+void            R_CalcSurfaceTriangleNeighbors(int numTriangles, srfTriangle_t * triangles);
 
 // Tr3B - visualisation tools to help debugging the renderer frontend
 void            R_DebugAxis(const vec3_t origin, const matrix_t transformMatrix);
@@ -2154,12 +2164,6 @@ typedef struct shaderCommands_s
 	
 	qboolean        skipTangentSpaces;
 	qboolean        shadowVolume;
-	
-	int             numLightIndexes;
-	int            *lightIndexes;
-	
-	int             numShadowIndexes;
-	int            *shadowIndexes;
 
 	int             numIndexes;
 	int             numVertexes;

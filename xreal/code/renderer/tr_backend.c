@@ -797,10 +797,7 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 			{
 				GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
 			}
-
-			backEnd.pc.c_dlights++;
 		}
-		backEnd.pc.c_dlightInteractions++;
 
 		// Tr3B - this should never happen in the first iteration
 		if(!r_nobatching->integer && light == oldLight && entity == oldEntity && shader == oldShader)
@@ -809,99 +806,94 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 			{
 				// fast path, same as previous
 				rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
+				goto nextInteraction;
 			}
 		}
-		else
+		
+		// draw the contents of the last shader batch
+		if(oldEntity != NULL || oldLight != NULL || oldShader != NULL)
 		{
-			// draw the contents of the last shader batch
-			if(oldEntity != NULL || oldLight != NULL || oldShader != NULL)
+			RB_EndSurface();
+		}
+
+		// we need a new batch
+		RB_BeginSurface(shader, ia->dlightShader, -1, 0, qfalse, qfalse);
+
+		// change the modelview matrix if needed
+		if(entity != oldEntity)
+		{
+			depthRange = qfalse;
+
+			if(entity != &tr.worldEntity)
 			{
-				RB_EndSurface();
+				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
+				// we have to reset the shaderTime as well otherwise image animations start
+				// from the wrong frame
+				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
+
+				// set up the transformation matrix
+				R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
+
+				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
+				{
+					// hack the depth range to prevent view model from poking into walls
+					depthRange = qtrue;
+				}
+			}
+			else
+			{
+				backEnd.refdef.floatTime = originalTime;
+				backEnd.or = backEnd.viewParms.world;
+				// we have to reset the shaderTime as well otherwise image animations on
+				// the world (like water) continue with the wrong frame
+				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 			}
 
-			// change the tess parameters if needed
-			// a "entityMergable" shader is a shader that can have surfaces from seperate
-			// entities merged into a single batch, like smoke and blood puff sprites
+			qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
-			// we need a new batch
-			RB_BeginSurface(shader, ia->dlightShader, -1, 0, qfalse, qfalse);
-
-			// change the modelview matrix if needed
-			if(entity != oldEntity)
+			// change depthrange if needed
+			if(oldDepthRange != depthRange)
 			{
-				depthRange = qfalse;
-
-				if(entity != &tr.worldEntity)
+				if(depthRange)
 				{
-					backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
-					// we have to reset the shaderTime as well otherwise image animations start
-					// from the wrong frame
-					tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
-
-					// set up the transformation matrix
-					R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
-
-					if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
-					{
-						// hack the depth range to prevent view model from poking into walls
-						depthRange = qtrue;
-					}
+					qglDepthRange(0, 0.3);
 				}
 				else
 				{
-					backEnd.refdef.floatTime = originalTime;
-					backEnd.or = backEnd.viewParms.world;
-					// we have to reset the shaderTime as well otherwise image animations on
-					// the world (like water) continue with the wrong frame
-					tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
+					qglDepthRange(0, 1);
 				}
-
-				qglLoadMatrixf(backEnd.or.modelViewMatrix);
-
-				// change depthrange if needed
-				if(oldDepthRange != depthRange)
-				{
-					if(depthRange)
-					{
-						qglDepthRange(0, 0.3);
-					}
-					else
-					{
-						qglDepthRange(0, 1);
-					}
-					oldDepthRange = depthRange;
-				}
-			}
-
-			// change the attenuation matrix if needed
-			if(light != oldLight || entity != oldEntity)
-			{
-				// transform light origin into model space for u_LightOrigin parameter
-				if(entity != &tr.worldEntity)
-				{
-					VectorSubtract(light->origin, backEnd.or.origin, tmp);
-					light->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
-					light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
-					light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
-				}
-				else
-				{
-					VectorCopy(light->origin, light->transformed);
-				}
-
-				// finalize the attenuation matrix using the entity transform
-				MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
-				MatrixMultiply(light->attenuationMatrix, modelToLight, light->attenuationMatrix2);
-			}
-
-			if(ia->type != IA_SHADOWONLY)
-			{
-				// add the triangles for this surface
-				rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
+				oldDepthRange = depthRange;
 			}
 		}
 
-		// Tr3B - the data structure used here is not very cool but it works fine
+		// change the attenuation matrix if needed
+		if(light != oldLight || entity != oldEntity)
+		{
+			// transform light origin into model space for u_LightOrigin parameter
+			if(entity != &tr.worldEntity)
+			{
+				VectorSubtract(light->origin, backEnd.or.origin, tmp);
+				light->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
+				light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
+				light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
+			}
+			else
+			{
+				VectorCopy(light->origin, light->transformed);
+			}
+
+			// finalize the attenuation matrix using the entity transform
+			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
+			MatrixMultiply(light->attenuationMatrix, modelToLight, light->attenuationMatrix2);
+		}
+
+		if(ia->type != IA_SHADOWONLY)
+		{
+			// add the triangles for this surface
+			rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
+		}
+
+	nextInteraction:
 		if(!ia->next)
 		{
 			if(iaCount < (numInteractions - 1))
@@ -1060,6 +1052,9 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 
 				//qglStencilFunc(GL_ALWAYS, 128, ~0);
 				//qglStencilMask(1);
+				
+				qglEnable(GL_POLYGON_OFFSET_FILL);
+				qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
 
 				// enable shadow volume extrusion shader
 				GL_Program(tr.shadowShader.program);
@@ -1092,36 +1087,62 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				//qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
 				qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+				
+				qglDisable(GL_POLYGON_OFFSET_FILL);
 
 				// disable shadow volume extrusion shader
 				//GL_Program(0);
 			}
-
-			if(light != oldLight)
-			{
-				backEnd.pc.c_dlights++;
-			}
 		}
 
-		// change the tess parameters if needed
-		// a "entityMergable" shader is a shader that can have surfaces from seperate
-		// entities merged into a single batch, like smoke and blood puff sprites
-
-		// we need a new batch
 		if(drawShadows)
 		{
-			// we don't need tangent space calculations here
-			RB_BeginSurface(shader, ia->dlightShader, -1, 0, qtrue, qtrue);
-
-			/*
-			   RB_BeginSurface(shader, ia->dlightShader, 0, qtrue, qtrue,
-			   ia->numLightIndexes, ia->lightIndexes,
-			   ia->numShadowIndexes, ia->shadowIndexes);
-			 */
+			if(!r_nobatching->integer && light == oldLight && entity == oldEntity && shader == oldShader)
+			{
+				if(!(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK)) &&
+					 shader->sort == SS_OPAQUE &&
+					 !shader->noShadows &&
+					 !light->l.noShadows &&
+					 ia->type != IA_LIGHTONLY)
+				{
+					// fast path, same as previous
+					rb_surfaceTable[*surface] (surface, 0, NULL, 0, NULL);
+					goto nextInteraction;
+				}
+			}
+			else
+			{
+				// draw the contents of the last shader batch
+				if(oldEntity != NULL || oldLight != NULL || oldShader != NULL)
+				{
+					RB_EndSurface();
+				}
+			
+				// we don't need tangent space calculations here
+				RB_BeginSurface(shader, ia->dlightShader, -1, 0, qtrue, qtrue);
+			}
 		}
 		else
 		{
-			RB_BeginSurface(shader, ia->dlightShader, -1, 0, qfalse, qfalse);
+			if(!r_nobatching->integer && light == oldLight && entity == oldEntity && shader == oldShader)
+			{
+				if(ia->type != IA_SHADOWONLY)
+				{
+					// fast path, same as previous
+					rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
+					goto nextInteraction;
+				}
+			}
+			else
+			{
+				// draw the contents of the last shader batch
+				if(oldEntity != NULL || oldLight != NULL || oldShader != NULL)
+				{
+					RB_EndSurface();
+				}
+			
+				RB_BeginSurface(shader, ia->dlightShader, -1, 0, qfalse, qfalse);
+			}
 		}
 
 		// change the modelview matrix if needed
@@ -1199,24 +1220,16 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			MatrixMultiply(light->attenuationMatrix, modelToLight, light->attenuationMatrix2);
 		}
 
-		// draw the contents of the current shader batch
 		if(drawShadows)
 		{
 			if(!(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK)) &&
-			   shader->sort == SS_OPAQUE && !shader->noShadows && !light->l.noShadows && ia->type != IA_LIGHTONLY)
+			   shader->sort == SS_OPAQUE &&
+			   !shader->noShadows &&
+			   !light->l.noShadows &&
+			   ia->type != IA_LIGHTONLY)
 			{
 				// add the triangles for this surface
-				rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
-
-				RB_EndSurface();
-				backEnd.pc.c_shadows++;
-			}
-			else
-			{
-				// clear shader so we can tell we don't have any unclosed surfaces
-				tess.numIndexes = 0;
-				tess.numLightIndexes = 0;
-				tess.numShadowIndexes = 0;
+				rb_surfaceTable[*surface] (surface, 0, NULL, 0, NULL);
 			}
 		}
 		else
@@ -1225,20 +1238,10 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			{
 				// add the triangles for this surface
 				rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
-
-				RB_EndSurface();
-				backEnd.pc.c_dlightInteractions++;
-			}
-			else
-			{
-				// clear shader so we can tell we don't have any unclosed surfaces
-				tess.numIndexes = 0;
-				tess.numLightIndexes = 0;
-				tess.numShadowIndexes = 0;
 			}
 		}
 
-		// Tr3B - the data structure used here is not very cool but it works fine
+	nextInteraction:
 		if(!ia->next)
 		{
 			if(drawShadows)
@@ -1263,6 +1266,9 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					iaCount++;
 				}
 			}
+			
+			// draw the contents of the current shader batch
+			RB_EndSurface();
 		}
 		else
 		{
@@ -1275,7 +1281,6 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 		oldLight = light;
 		oldEntity = entity;
 		oldShader = shader;
-
 	}
 
 	backEnd.refdef.floatTime = originalTime;
@@ -1759,6 +1764,7 @@ const void     *RB_StretchPic(const void *data)
 	tess.xyz[numVerts][0] = cmd->x;
 	tess.xyz[numVerts][1] = cmd->y;
 	tess.xyz[numVerts][2] = 0;
+	tess.xyz[numVerts][3] = 1;
 
 	tess.texCoords[numVerts][0][0] = cmd->s1;
 	tess.texCoords[numVerts][0][1] = cmd->t1;
@@ -1766,6 +1772,7 @@ const void     *RB_StretchPic(const void *data)
 	tess.xyz[numVerts + 1][0] = cmd->x + cmd->w;
 	tess.xyz[numVerts + 1][1] = cmd->y;
 	tess.xyz[numVerts + 1][2] = 0;
+	tess.xyz[numVerts + 1][3] = 1;
 
 	tess.texCoords[numVerts + 1][0][0] = cmd->s2;
 	tess.texCoords[numVerts + 1][0][1] = cmd->t1;
@@ -1773,6 +1780,7 @@ const void     *RB_StretchPic(const void *data)
 	tess.xyz[numVerts + 2][0] = cmd->x + cmd->w;
 	tess.xyz[numVerts + 2][1] = cmd->y + cmd->h;
 	tess.xyz[numVerts + 2][2] = 0;
+	tess.xyz[numVerts + 2][3] = 1;
 
 	tess.texCoords[numVerts + 2][0][0] = cmd->s2;
 	tess.texCoords[numVerts + 2][0][1] = cmd->t2;
@@ -1780,6 +1788,7 @@ const void     *RB_StretchPic(const void *data)
 	tess.xyz[numVerts + 3][0] = cmd->x;
 	tess.xyz[numVerts + 3][1] = cmd->y + cmd->h;
 	tess.xyz[numVerts + 3][2] = 0;
+	tess.xyz[numVerts + 3][3] = 1;
 
 	tess.texCoords[numVerts + 3][0][0] = cmd->s1;
 	tess.texCoords[numVerts + 3][0][1] = cmd->t2;

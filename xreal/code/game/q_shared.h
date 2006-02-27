@@ -31,9 +31,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // 1.32 released 7-10-2002
 
 #ifdef Q3_VM
-typedef int intptr_t;
+typedef long intptr_t;
 #else
-#ifndef _MSC_VER
+#ifdef _MSC_VER
+#include <stdint.h>
+#else
 #include <inttypes.h>
 #endif
 #endif

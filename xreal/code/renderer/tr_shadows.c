@@ -115,6 +115,7 @@ void R_CalcShadowIndexes(int numVertexes)
 
 static void R_RenderShadowEdges()
 {
+	/*
 	if(tess.numShadowIndexes)
 	{
 		int             i;
@@ -140,6 +141,7 @@ static void R_RenderShadowEdges()
 		}
 	}
 	else
+	*/
 	{
 		int             i;
 		int             i1, i2;
@@ -159,8 +161,11 @@ static void R_RenderShadowEdges()
 			v = tess.xyz[i2];
 			qglVertex3fv(v);
 			qglVertex4f(v[0], v[1], v[2], 0);
-						
+			
 			qglEnd();
+						
+			backEnd.pc.c_shadowVertexes += 2;
+			backEnd.pc.c_shadowIndexes += 2;
 		}
 	}
 }
@@ -240,9 +245,11 @@ static void R_RenderShadowCaps(qboolean front)
 			if(front)
 			{
 				qglBegin(GL_TRIANGLES);
+				
 				qglVertex3fv(tess.xyz[i1]);
 				qglVertex3fv(tess.xyz[i2]);
 				qglVertex3fv(tess.xyz[i3]);
+				
 				qglEnd();
 			}
 			else
@@ -281,58 +288,55 @@ triangleFromEdge[ v1 ][ v2 ]
 */
 void RB_ShadowTessEnd()
 {
-	if(!tess.numShadowIndexes)
-	{
-		int             i;
-		int             numTris;
-		vec3_t          lightOrigin;
-	
-		VectorCopy(backEnd.currentLight->transformed, lightOrigin);
-	
-		// decide which triangles face the light
-		Com_Memset(sh.numEdges, 0, 4 * tess.numVertexes);
-	
-		numTris = tess.numIndexes / 3;
-		for(i = 0; i < numTris; i++)
-		{
-			int             i1, i2, i3;
-			float          *v1, *v2, *v3;
-			vec3_t          d1, d2;
-			float           d;
-			vec4_t          plane;
-	
-			i1 = tess.indexes[i * 3 + 0];
-			i2 = tess.indexes[i * 3 + 1];
-			i3 = tess.indexes[i * 3 + 2];
-	
-			v1 = tess.xyz[i1];
-			v2 = tess.xyz[i2];
-			v3 = tess.xyz[i3];
-			
-			VectorSubtract(v2, v1, d1);
-			VectorSubtract(v3, v1, d2);
-			
-			CrossProduct(d1, d2, plane);
-			plane[3] = DotProduct(plane, v1);
+	int             i;
+	int             numTris;
+	vec3_t          lightOrigin;
 
-			d = DotProduct(plane, lightOrigin) - plane[3];
-			if(d > 0)
-			{
-				sh.facing[i] = 1;
-			}
-			else
-			{
-				sh.facing[i] = 0;
-			}
-	
-			// create the edges
-			R_AddEdge(i1, i2, sh.facing[i]);
-			R_AddEdge(i2, i3, sh.facing[i]);
-			R_AddEdge(i3, i1, sh.facing[i]);
-		}
+	VectorCopy(backEnd.currentLight->transformed, lightOrigin);
+
+	// decide which triangles face the light
+	Com_Memset(sh.numEdges, 0, tess.numVertexes * sizeof(int));
+
+	numTris = tess.numIndexes / 3;
+	for(i = 0; i < numTris; i++)
+	{
+		int             i1, i2, i3;
+		float          *v1, *v2, *v3;
+		vec3_t          d1, d2;
+		float           d;
+		vec4_t          plane;
+
+		i1 = tess.indexes[i * 3 + 0];
+		i2 = tess.indexes[i * 3 + 1];
+		i3 = tess.indexes[i * 3 + 2];
+
+		v1 = tess.xyz[i1];
+		v2 = tess.xyz[i2];
+		v3 = tess.xyz[i3];
 		
-		R_CalcShadowIndexes(tess.numVertexes);
+		VectorSubtract(v2, v1, d1);
+		VectorSubtract(v3, v1, d2);
+		
+		CrossProduct(d1, d2, plane);
+		plane[3] = DotProduct(plane, v1);
+
+		d = DotProduct(plane, lightOrigin) - plane[3];
+		if(d > 0)
+		{
+			sh.facing[i] = qtrue;
+		}
+		else
+		{
+			sh.facing[i] = qfalse;
+		}
+
+		// create the edges
+		R_AddEdge(i1, i2, sh.facing[i]);
+		R_AddEdge(i2, i3, sh.facing[i]);
+		R_AddEdge(i3, i1, sh.facing[i]);
 	}
+	
+	R_CalcShadowIndexes(tess.numVertexes);
 
 	if(r_showShadowVolumes->integer)
 	{
@@ -390,7 +394,6 @@ void RB_ShadowTessEnd()
 			}
 			else
 			{
-			
 				// draw only the front faces of the shadow volume
 				qglCullFace(GL_FRONT);
 		
@@ -500,10 +503,10 @@ void RB_ShadowTessEnd()
 		}
 	}
 	
+	backEnd.pc.c_shadowBatches++;
+	
 	// clear shader so we can tell we don't have any unclosed surfaces
 	tess.numIndexes = 0;
-	tess.numLightIndexes = 0;
-	tess.numShadowIndexes = 0;
 }
 
 /*
