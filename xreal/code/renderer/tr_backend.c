@@ -1063,6 +1063,9 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 
 				// enable shadow volume extrusion shader
 				GL_Program(tr.shadowShader.program);
+				GL_ClientState(tr.shadowShader.attribs);
+				
+				qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
 			}
 			else
 			{

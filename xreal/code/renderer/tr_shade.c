@@ -965,8 +965,8 @@ static void GL_SetVertexAttribs()
 		oldVertexesVBO = tess.vertexesVBO;
 		*/
 		
-		if(glState.glClientStateBits & GLCS_VERTEX)
-			qglVertexPointer(3, GL_FLOAT, 16, BUFFER_OFFSET(tess.ofsXYZ));
+		//if(glState.glClientStateBits & GLCS_VERTEX)
+		//	qglVertexPointer(3, GL_FLOAT, 16, BUFFER_OFFSET(tess.ofsXYZ));
 	
 		if(glState.glClientStateBits & GLCS_TEXCOORD0)
 			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.ofsTexCoords));
@@ -994,8 +994,8 @@ static void GL_SetVertexAttribs()
 	}
 	else
 	{
-		if(glState.glClientStateBits & GLCS_VERTEX)
-			qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
+		//if(glState.glClientStateBits & GLCS_VERTEX)
+		//	qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
 	
 		if(glState.glClientStateBits & GLCS_TEXCOORD0)
 			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_COLORMAP]);
@@ -1192,6 +1192,15 @@ static void DrawTris()
 	GL_ClientState(GLCS_VERTEX);
 	qglDepthRange(0, 0);
 
+	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+	{
+		qglVertexPointer(3, GL_FLOAT, 16, BUFFER_OFFSET(tess.ofsXYZ));
+	}
+	else
+	{
+		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
+	}
+	
 	if(qglLockArraysEXT)
 	{
 		qglLockArraysEXT(0, tess.numVertexes);
@@ -3076,6 +3085,15 @@ void RB_StageIteratorLighting()
 	}
 
 	// lock XYZ
+	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+	{
+		qglVertexPointer(3, GL_FLOAT, 16, BUFFER_OFFSET(tess.ofsXYZ));
+	}
+	else
+	{
+		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
+	}
+	
 	if(qglLockArraysEXT)
 	{
 		qglLockArraysEXT(0, tess.numVertexes);
@@ -3264,6 +3282,15 @@ void RB_StageIteratorLightingStencilShadowed()
 	}
 
 	// lock XYZ
+	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+	{
+		qglVertexPointer(3, GL_FLOAT, 16, BUFFER_OFFSET(tess.ofsXYZ));
+	}
+	else
+	{
+		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
+	}
+	
 	if(qglLockArraysEXT)
 	{
 		qglLockArraysEXT(0, tess.numVertexes);
@@ -3426,6 +3453,15 @@ void RB_StageIteratorGeneric()
 	}
 
 	// lock XYZ
+	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+	{
+		qglVertexPointer(3, GL_FLOAT, 16, BUFFER_OFFSET(tess.ofsXYZ));
+	}
+	else
+	{
+		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
+	}
+	
 	if(qglLockArraysEXT)
 	{
 		qglLockArraysEXT(0, tess.numVertexes);
