@@ -2274,8 +2274,6 @@ SHADOWS
 ============================================================
 */
 
-void            R_AddEdge(int i1, int i2, qboolean facing);
-void            R_CalcShadowIndexes(int numVertexes);
 void            RB_ShadowTessEnd();
 void            RB_ProjectionShadowDeform();
 

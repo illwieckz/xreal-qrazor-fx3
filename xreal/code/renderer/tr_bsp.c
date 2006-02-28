@@ -3333,11 +3333,6 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 		{
 			ri.Error(ERR_DROP, "R_PrecacheFaceInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
 		}
-
-		// create the edges
-		R_AddEdge(i1, i2, sh.facing[i]);
-		R_AddEdge(i2, i3, sh.facing[i]);
-		R_AddEdge(i3, i1, sh.facing[i]);
 		
 		// create triangle indices
 		if(sh.facing[i])
@@ -3357,7 +3352,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 #endif
 
 	s_numLightIndexes = numIndexes;
-	R_CalcShadowIndexes(cv->numVerts);
+//	R_CalcShadowIndexes(cv->numVerts);
 	return qtrue;
 }
 
@@ -3442,11 +3437,6 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 			ri.Error(ERR_DROP, "R_PrecacheGridInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
 		}
 
-		// create the edges
-		R_AddEdge(i1, i2, sh.facing[i]);
-		R_AddEdge(i2, i3, sh.facing[i]);
-		R_AddEdge(i3, i1, sh.facing[i]);
-		
 		// create triangle indices
 		if(sh.facing[i])
 		{
@@ -3465,7 +3455,7 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 #endif
 
 	s_numLightIndexes = numIndexes;
-	R_CalcShadowIndexes(cv->numVerts);
+//	R_CalcShadowIndexes(cv->numVerts);
 	return qtrue;
 }
 
@@ -3574,11 +3564,6 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 		{
 			ri.Error(ERR_DROP, "R_PrecacheTrisurfInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
 		}
-
-		// create the edges
-		R_AddEdge(i1, i2, sh.facing[i]);
-		R_AddEdge(i2, i3, sh.facing[i]);
-		R_AddEdge(i3, i1, sh.facing[i]);
 		
 		// create triangle indices
 		if(sh.facing[i])
@@ -3598,7 +3583,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 #endif
 
 	s_numLightIndexes = numIndexes;
-	R_CalcShadowIndexes(cv->numVerts);
+//	R_CalcShadowIndexes(cv->numVerts);
 	return qtrue;
 }
 

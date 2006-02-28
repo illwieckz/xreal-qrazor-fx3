@@ -3820,12 +3820,12 @@ void RB_StageIteratorGeneric()
 
 /*
 =================
-RB_ShadowTessEnd2
+Render_shadowVolume
 =================
 */
-void RB_ShadowTessEnd2()
+static void Render_shadowVolume()
 {
-	GLimp_LogComment("--- RB_ShadowTessEnd2 ---\n");
+	GLimp_LogComment("--- Render_shadowVolume ---\n");
 	
 	if(r_showShadowVolumes->integer)
 	{
@@ -4024,7 +4024,7 @@ void RB_EndSurface()
 	// draw content	
 	if(tess.shadowVolume)
 	{
-		RB_ShadowTessEnd2();
+		Render_shadowVolume();
 	}
 	else
 	{
