@@ -1038,6 +1038,11 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 
 			if(drawShadows)
 			{
+				if(r_showShadowVolumes->integer)
+				{
+					qglEnable(GL_STENCIL_TEST);
+				}
+				
 				qglClear(GL_STENCIL_BUFFER_BIT);
 
 				// don't write to the color buffer or depth buffer
@@ -1061,6 +1066,11 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			}
 			else
 			{
+				if(r_showShadowVolumes->integer)
+				{
+					qglDisable(GL_STENCIL_TEST);
+				}
+				
 				// Tr3B - see RobustShadowVolumes.pdf by Nvidia
 				// Set stencil testing to render only pixels with a zero
 				// stencil value, i.e., visible fragments illuminated by the
@@ -1078,15 +1088,16 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				{
 					qglBlendFunc(GL_ONE, GL_ONE);
 				}
+				
 				qglDepthFunc(GL_EQUAL);
+				qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+				qglDepthMask(GL_FALSE);
 
 				qglStencilFunc(GL_EQUAL, 0, ~0);
 				qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
 
 				//qglStencilFunc(GL_EQUAL, 128, ~0);
 				//qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-
-				qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 				
 				qglDisable(GL_POLYGON_OFFSET_FILL);
 
@@ -1244,6 +1255,9 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 	nextInteraction:
 		if(!ia->next)
 		{
+			// if ia->next does not point to any other interaction then
+			// this is the last interaction of the current light
+			
 			if(drawShadows)
 			{
 				// jump back to first interaction of this light and start lighting

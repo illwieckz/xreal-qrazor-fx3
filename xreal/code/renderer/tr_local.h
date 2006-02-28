@@ -1019,6 +1019,7 @@ typedef struct
 {
 	int             indexes[3];
 	int             neighbors[3];
+	vec4_t          plane;
 } srfTriangle_t;
 
 typedef struct srfGridMesh_s
@@ -1871,6 +1872,7 @@ void            R_CalcTangentSpace(vec3_t tangent, vec3_t binormal, vec3_t norma
 								   const vec3_t n);
 
 void            R_CalcSurfaceTriangleNeighbors(int numTriangles, srfTriangle_t * triangles);
+void            R_CalcSurfaceTrianglePlanes(int numTriangles, srfTriangle_t * triangles, srfVert_t * verts);
 
 // Tr3B - visualisation tools to help debugging the renderer frontend
 void            R_DebugAxis(const vec3_t origin, const matrix_t transformMatrix);

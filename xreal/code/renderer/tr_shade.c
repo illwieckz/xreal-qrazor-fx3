@@ -3794,19 +3794,30 @@ void RB_ShadowTessEnd2()
 	if(r_showShadowVolumes->integer)
 	{
 		qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		qglDisable(GL_CULL_FACE);
+		qglDepthMask(GL_TRUE);
+		//qglDisable(GL_CULL_FACE);
 		qglDisable(GL_STENCIL_TEST);
 		//qglDisable(GL_DEPTH_TEST);
+		//qglDisable(GL_BLEND);
 		
 		qglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		qglColor4f(1.0f, 1.0f, 0.7f, 0.15f);
+		qglCullFace(GL_FRONT);
+		qglColor4f(1.0f, 1.0f, 0.7, 0.05f);
 		R_DrawElements();
+		
+#if 0
+		qglCullFace(GL_BACK);
+		qglColor3f(1.0f, 0.0f, 0.0f);//, 0.05f);
+		R_DrawElements();
+#endif
 
 		qglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-		qglEnable(GL_CULL_FACE);
+		qglDepthMask(GL_FALSE);
+		//qglEnable(GL_CULL_FACE);
 		qglEnable(GL_STENCIL_TEST);
 		//qglEnable(GL_DEPTH_TEST);
+		//qglEnable(GL_BLEND);
 	}
 	else
 	{

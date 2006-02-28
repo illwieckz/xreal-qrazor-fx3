@@ -258,11 +258,13 @@ static void MakeMeshNormals(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE]
 }
 */
 
-static int MakeMeshTriangles(int width, int height, srfTriangle_t triangles[SHADER_MAX_TRIANGLES])
+static int MakeMeshTriangles(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], srfTriangle_t triangles[SHADER_MAX_TRIANGLES])
 {
 	int             i, j;
 	int             numTriangles;
 	int             w, h;
+	srfVert_t      *dv;
+	srfVert_t       ctrl2[MAX_GRID_SIZE * MAX_GRID_SIZE];
 
 	h = height - 1;
 	w = width - 1;
@@ -291,6 +293,20 @@ static int MakeMeshTriangles(int width, int height, srfTriangle_t triangles[SHAD
 		}
 	}
 	
+	R_CalcSurfaceTriangleNeighbors(numTriangles, triangles);
+	
+	// FIXME: use more elegant way
+	for(i = 0; i < width; i++)
+	{
+		for(j = 0; j < height; j++)
+		{
+			dv = &ctrl2[j * width + i];
+			*dv = ctrl[j][i];
+		}
+	}
+	
+	R_CalcSurfaceTrianglePlanes(numTriangles, triangles, ctrl2);
+	
 	return numTriangles;
 }
 
@@ -307,7 +323,7 @@ static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZ
 	srfVert_t       ctrl2[MAX_GRID_SIZE * MAX_GRID_SIZE];
 	srfTriangle_t  *tri;
 	
-	// FIXME
+	// FIXME: use more elegant way
 	for(i = 0; i < width; i++)
 	{
 		for(j = 0; j < height; j++)
@@ -871,7 +887,7 @@ srfGridMesh_t  *R_SubdividePatchToGrid(int width, int height, srfVert_t points[M
 	//MakeMeshNormals(width, height, ctrl);
 	
 	// calculate triangles
-	numTriangles = MakeMeshTriangles(width, height, triangles);
+	numTriangles = MakeMeshTriangles(width, height, ctrl, triangles);
 	
 	// calculate tangent spaces
 	MakeTangentSpaces(width, height, ctrl, numTriangles, triangles);
@@ -935,7 +951,7 @@ srfGridMesh_t  *R_GridInsertColumn(srfGridMesh_t * grid, int column, int row, ve
 	//MakeMeshNormals(width, height, ctrl);
 	
 	// calculate triangles
-	numTriangles = MakeMeshTriangles(width, height, triangles);
+	numTriangles = MakeMeshTriangles(width, height, ctrl, triangles);
 	
 	// calculate tangent spaces
 	MakeTangentSpaces(width, height, ctrl, numTriangles, triangles);
@@ -1006,7 +1022,7 @@ srfGridMesh_t  *R_GridInsertRow(srfGridMesh_t * grid, int row, int column, vec3_
 	//MakeMeshNormals(width, height, ctrl);
 	
 	// calculate triangles
-	numTriangles = MakeMeshTriangles(width, height, triangles);
+	numTriangles = MakeMeshTriangles(width, height, ctrl, triangles);
 	
 	// calculate tangent spaces
 	MakeTangentSpaces(width, height, ctrl, numTriangles, triangles);
