@@ -27,11 +27,9 @@ code/gtkradiant			GtkRadiant editor source based off GPL release on 17th Februar
 GETTING THE SOURCE CODE
 =======================
 
-This project's SourceForge.net CVS repository can be checked out through anonymous (pserver) CVS with the following instruction set. The module you wish to check out must be specified as the modulename. When prompted for a password for anonymous, simply press the Enter key.
+This project's SourceForge.net Subversion repository can be checked out through SVN with the following instruction set: 
 
-cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/xreal login
-
-cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/xreal co -P xreal
+svn co https://svn.sourceforge.net/svnroot/xreal/trunk/xreal xreal
 
 
 COMPILING ON WIN32
