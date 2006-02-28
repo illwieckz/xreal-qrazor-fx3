@@ -10,6 +10,7 @@ code/game/shared
 code/renderer
 - new extension GL_ARB_transpose_matrix
 - new extension GL_ARB_vertex_program
+- new extension GL_ARB_vertex_buffer_object
 - new extension GL_ARB_shader_objects
 - new extension GL_ARB_vertex_shader
 - new extension GL_ARB_fragment_shader
