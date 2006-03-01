@@ -5010,7 +5010,7 @@ a single large text block that can be scanned for shader names
 =====================
 */
 #define	MAX_SHADER_FILES	4096
-#define USE_MTR
+//#define USE_MTR
 static void ScanAndLoadShaderFiles(void)
 {
 	char          **shaderFiles;

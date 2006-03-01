@@ -17,7 +17,7 @@ opts.Add(BoolOption('lua', 'Set to 1 to compile qagame with Lua scripting suppor
 opts.Add(BoolOption('qvm', 'Set to 1 to compile engine with Quake virtual machine support', 0))
 opts.Add(BoolOption('smp', 'Set to 1 to compile engine with symetric multiprocessor support', 0))
 opts.Add(BoolOption('purevm', 'Set to 1 to compile engine with scrict checking for vm/*.qvm modules in paks', 0))
-#opts.Add(BoolOption('mtr', 'Set to 1 to compile engine and map compiler with .mtr shader support', 0))
+opts.Add(BoolOption('mtr', 'Set to 1 to compile engine and map compiler with .mtr shader support', 0))
 opts.Add(BoolOption('gtkradiant', 'Set to 1 to compile GtkRadiant', 0))
 
 #

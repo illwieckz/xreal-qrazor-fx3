@@ -188,6 +188,9 @@ xreal_env.Append(CCFLAGS='-DC_ONLY')
 
 if env['purevm'] == 1:
 	xreal_env.Append(CCFLAGS='-DVM_SV_PURE')
+	
+if env['mtr'] == 1:
+	xreal_env.Append(CCFLAGS='-DUSE_MTR')
 
 if env['arch'] == 'linux-i386':
 	xreal_env.Append(LIBPATH='/usr/X11R6/lib')
