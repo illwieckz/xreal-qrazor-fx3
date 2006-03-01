@@ -2386,6 +2386,7 @@ void            RB_CalcTransformTexCoords(const texModInfo_t * tmi, float *dstTe
 void            RB_CalcScrollTexCoords2(const expression_t * sExp, const expression_t * tExp, float *dstTexCoords);
 void            RB_CalcScaleTexCoords2(const expression_t * sExp, const expression_t * tExp, float *dstTexCoords);
 void            RB_CalcCenterScaleTexCoords(const expression_t * sExp, const expression_t * tExp, float *dstTexCoords);
+void            RB_CalcShearTexCoords(const expression_t * sExp, const expression_t * tExp, float *dstTexCoords);
 void            RB_CalcRotateTexCoords2(const expression_t * rExp, float *dstTexCoords);
 
 void            RB_CalcModulateColorsByFog(unsigned char *dstColors);

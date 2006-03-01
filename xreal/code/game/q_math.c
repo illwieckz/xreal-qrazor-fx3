@@ -1824,6 +1824,14 @@ void MatrixSetupScale(matrix_t m, vec_t x, vec_t y, vec_t z)
 	m[ 3] = 0;      m[ 7] = 0;      m[11] = 0;      m[15] = 1;
 }
 
+void MatrixSetupShear(matrix_t m, vec_t x, vec_t y)
+{
+	m[ 0] = 1;      m[ 4] = x;      m[ 8] = 0;      m[12] = 0;
+	m[ 1] = y;      m[ 5] = 1;      m[ 9] = 0;      m[13] = 0;
+	m[ 2] = 0;      m[ 6] = 0;      m[10] = 1;      m[14] = 0;
+	m[ 3] = 0;      m[ 7] = 0;      m[11] = 0;      m[15] = 1;
+}
+
 void MatrixMultiply(const matrix_t a, const matrix_t b, matrix_t out)
 {
 #if id386_sse && defined __GNUC__
@@ -2025,6 +2033,15 @@ void MatrixMultiplyScale(matrix_t m, vec_t x, vec_t y, vec_t z)
 #endif
 }
 
+void MatrixMultiplyShear(matrix_t m, vec_t x, vec_t y)
+{
+	matrix_t        tmp, shear;
+
+	MatrixCopy(m, tmp);
+	MatrixSetupShear(shear, x, y);
+	MatrixMultiply(tmp, shear, m);
+}
+
 void MatrixToAngles(const matrix_t m, vec3_t angles)
 {
 	double			theta;
@@ -2107,23 +2124,23 @@ void MatrixFromQuat(matrix_t m, const quat_t q)
 	matrix using the following expression
 	
 	
-	¦        2     2                                      ¦
+	?        2     2                                      ?
 
-	¦ 1 - (2Y  + 2Z )   2XY - 2ZW         2XZ + 2YW       ¦
+	? 1 - (2Y  + 2Z )   2XY - 2ZW         2XZ + 2YW       ?
 
-	¦                                                     ¦
+	?                                                     ?
 
-	¦                          2     2                    ¦
+	?                          2     2                    ?
 
-	M = ¦ 2XY + 2ZW         1 - (2X  + 2Z )   2YZ - 2XW       ¦
+	M = ? 2XY + 2ZW         1 - (2X  + 2Z )   2YZ - 2XW       ?
 
-	¦                                                     ¦
+	?                                                     ?
 
-	¦                                            2     2  ¦
+	?                                            2     2  ?
 
-	¦ 2XZ - 2YW         2YZ + 2XW         1 - (2X  + 2Y ) ¦
+	? 2XZ - 2YW         2YZ + 2XW         1 - (2X  + 2Y ) ?
 
-	¦                                                     ¦
+	?                                                     ?
 
 	If a 4x4 matrix is required, then the bottom row and right-most column
 	may be added.

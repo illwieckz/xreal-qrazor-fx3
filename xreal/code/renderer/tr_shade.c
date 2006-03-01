@@ -3080,7 +3080,8 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 					break;
 					
 				case TMOD_SHEAR:
-					// TODO
+					RB_CalcShearTexCoords(	&pStage->bundle[b].texMods[tm].sExp,
+											&pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
 					break;
 					
 				case TMOD_ROTATE2:
@@ -3157,8 +3158,15 @@ static void ComputeTexMatrices(shaderStage_t * pStage)
 				}
 				
 				case TMOD_SHEAR:
-					// TODO
+				{
+					x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
+					y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
+				
+					MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
+					MatrixMultiplyShear(matrix, x, y);
+					MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
 					break;
+				}
 				
 				case TMOD_ROTATE2:
 				{
@@ -3234,8 +3242,15 @@ static void ComputeFinalAttenuation(shaderStage_t * pStage, trRefDlight_t * dlig
 			}
 				
 			case TMOD_SHEAR:
-				// TODO
+			{
+				x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
+				y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
+				
+				MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
+				MatrixMultiplyShear(matrix, x, y);
+				MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
 				break;
+			}
 				
 			case TMOD_ROTATE2:
 			{

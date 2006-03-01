@@ -298,7 +298,7 @@ float RB_EvalExpression(const expression_t * exp, float defaultValue)
 				
 				numValues = table->numValues;
 	
-				index = value1 * numValues;		// float index into the table´s elements
+				index = value1 * numValues;		// float index into the table?s elements
 				lerp = index - floor(index);	// being inbetween two elements of the table
 	
 				oldIndex = (int)index;
@@ -1618,6 +1618,39 @@ void RB_CalcCenterScaleTexCoords(const expression_t * sExp, const expression_t *
 	
 	MatrixSetupTranslation(matrix, 0.5, 0.5, 0.0);
 	MatrixMultiplyScale(matrix, scaleS, scaleT, 1.0);
+	MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
+
+	for(i = 0; i < tess.numVertexes; i++, st += 2)
+	{
+		strw[0] = st[0];
+		strw[1] = st[1];
+		strw[2] = 0;
+		strw[3] = 1;
+		
+		MatrixTransform4(matrix, strw, strw2);
+		
+		st[0] = strw2[0];
+		st[1] = strw2[1];
+	}
+}
+
+/*
+** RB_CalcShearTexCoords
+*/
+void RB_CalcShearTexCoords(const expression_t * sExp, const expression_t * tExp, float *st)
+{
+	int             i;
+	float           shearS;
+	float           shearT;
+	matrix_t		matrix;
+	vec4_t			strw;
+	vec4_t			strw2;
+
+	shearS = RB_EvalExpression(sExp, 0);
+	shearT = RB_EvalExpression(tExp, 0);
+	
+	MatrixSetupTranslation(matrix, 0.5, 0.5, 0.0);
+	MatrixMultiplyShear(matrix, shearS, shearT);
 	MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
 
 	for(i = 0; i < tess.numVertexes; i++, st += 2)
