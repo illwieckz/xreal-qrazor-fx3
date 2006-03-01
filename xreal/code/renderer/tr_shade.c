@@ -1363,14 +1363,12 @@ static void Render_generic_single_FFP(int stage)
 	GL_Program(0);
 	GL_State(pStage->stateBits);
 	
-#if 1
 	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
 	{
-		qglColor4ubv(tess.svars.colors[0]);
+		qglColor4fv(tess.svars.color);
 		GL_ClientState(GLCS_VERTEX);
 	}
 	else
-#endif
 	{
 		GL_ClientState(GLCS_VERTEX | GLCS_COLOR);
 	}
@@ -1679,8 +1677,7 @@ static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
 
 	// set uniforms
 	VectorCopy(dlight->transformed, lightOrigin);
-	VectorCopy(dlight->l.color, lightColor);
-	ClampColor(lightColor);
+	VectorCopy(tess.svars.color, lightColor);
 	
 	qglUniform3fARB(tr.lightShader_D_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.lightShader_D_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
@@ -1731,8 +1728,7 @@ static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
 
 	// set uniforms
 	VectorCopy(dlight->transformed, lightOrigin);
-	VectorCopy(dlight->l.color, lightColor);
-	ClampColor(lightColor);
+	VectorCopy(tess.svars.color, lightColor);
 	
 	qglUniform3fARB(tr.lightShader_DB_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.lightShader_DB_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
@@ -1792,8 +1788,7 @@ static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 	// set uniforms
 	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
 	VectorCopy(dlight->transformed, lightOrigin);
-	VectorCopy(dlight->l.color, lightColor);
-	ClampColor(lightColor);
+	VectorCopy(tess.svars.color, lightColor);
 	specularExponent = RB_EvalExpression(&diffuseStage->specularExponentExp, 32.0);
 	
 	qglUniform3fARB(tr.lightShader_DBS_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
@@ -2762,6 +2757,212 @@ static void ComputeColors(shaderStage_t * pStage)
 
 /*
 ===============
+ComputeColor
+===============
+*/
+static void ComputeColor(shaderStage_t * pStage)
+{
+	float           rgb;
+	float           red;
+	float			green;
+	float			blue;
+	float           alpha;
+
+	// rgbGen
+	switch (pStage->rgbGen)
+	{
+		case CGEN_IDENTITY:
+		{
+			tess.svars.color[0] = 1.0;
+			tess.svars.color[1] = 1.0;
+			tess.svars.color[2] = 1.0;
+			tess.svars.color[3] = 1.0;
+			break;
+		}
+			
+		default:
+		case CGEN_IDENTITY_LIGHTING:
+		{
+			tess.svars.color[0] = tr.identityLightByte * (1.0 / 255.0);
+			tess.svars.color[1] = tr.identityLightByte * (1.0 / 255.0);
+			tess.svars.color[2] = tr.identityLightByte * (1.0 / 255.0);
+			tess.svars.color[3] = tr.identityLightByte * (1.0 / 255.0);
+			break;
+		}
+			
+		case CGEN_CONST:
+		{
+			tess.svars.color[0] = pStage->constantColor[0] * (1.0 / 255.0);
+			tess.svars.color[1] = pStage->constantColor[1] * (1.0 / 255.0);
+			tess.svars.color[2] = pStage->constantColor[2] * (1.0 / 255.0);
+			tess.svars.color[3] = pStage->constantColor[3] * (1.0 / 255.0);
+			break;
+		}
+			
+		case CGEN_ENTITY:
+		{
+			if(backEnd.currentLight)
+			{
+				tess.svars.color[0] = Q_bound(0.0, backEnd.currentLight->l.color[0], 1.0);
+				tess.svars.color[1] = Q_bound(0.0, backEnd.currentLight->l.color[1], 1.0);
+				tess.svars.color[2] = Q_bound(0.0, backEnd.currentLight->l.color[2], 1.0);
+				tess.svars.color[3] = 1.0;
+			}
+			else if(backEnd.currentEntity)
+			{
+				tess.svars.color[0] = Q_bound(0.0, backEnd.currentEntity->e.shaderRGBA[0] * (1.0 / 255.0), 1.0);
+				tess.svars.color[1] = Q_bound(0.0, backEnd.currentEntity->e.shaderRGBA[1] * (1.0 / 255.0), 1.0);
+				tess.svars.color[2] = Q_bound(0.0, backEnd.currentEntity->e.shaderRGBA[2] * (1.0 / 255.0), 1.0);
+				tess.svars.color[3] = Q_bound(0.0, backEnd.currentEntity->e.shaderRGBA[3] * (1.0 / 255.0), 1.0);
+			}
+			else
+			{
+				tess.svars.color[0] = 1.0;
+				tess.svars.color[1] = 1.0;
+				tess.svars.color[2] = 1.0;
+				tess.svars.color[3] = 1.0;
+			}
+			break;
+		}
+			
+		case CGEN_ONE_MINUS_ENTITY:
+		{
+			if(backEnd.currentLight)
+			{
+				tess.svars.color[0] = 1.0 - Q_bound(0.0, backEnd.currentLight->l.color[0], 1.0);
+				tess.svars.color[1] = 1.0 - Q_bound(0.0, backEnd.currentLight->l.color[1], 1.0);
+				tess.svars.color[2] = 1.0 - Q_bound(0.0, backEnd.currentLight->l.color[2], 1.0);
+				tess.svars.color[3] = 0.0;	// FIXME
+			}
+			else if(backEnd.currentEntity)
+			{
+				tess.svars.color[0] = 1.0 - Q_bound(0.0, backEnd.currentEntity->e.shaderRGBA[0] * (1.0 / 255.0), 1.0);
+				tess.svars.color[1] = 1.0 - Q_bound(0.0, backEnd.currentEntity->e.shaderRGBA[1] * (1.0 / 255.0), 1.0);
+				tess.svars.color[2] = 1.0 - Q_bound(0.0, backEnd.currentEntity->e.shaderRGBA[2] * (1.0 / 255.0), 1.0);
+				tess.svars.color[3] = 1.0 - Q_bound(0.0, backEnd.currentEntity->e.shaderRGBA[3] * (1.0 / 255.0), 1.0);
+			}
+			else
+			{
+				tess.svars.color[0] = 0.0;
+				tess.svars.color[1] = 0.0;
+				tess.svars.color[2] = 0.0;
+				tess.svars.color[3] = 0.0;
+			}
+			break;
+		}
+			
+		case CGEN_CUSTOM_RGB:
+		{
+			rgb = Q_bound(0.0, RB_EvalExpression(&pStage->rgbExp, 1.0), 1.0);
+			
+			tess.svars.color[0] = rgb;
+			tess.svars.color[1] = rgb;
+			tess.svars.color[2] = rgb;
+			break;
+		}
+			
+		case CGEN_CUSTOM_RGBs:
+		{
+			if(backEnd.currentLight)
+			{
+				red = Q_bound(0.0, RB_EvalExpression(&pStage->redExp, backEnd.currentLight->l.color[0]), 1.0);
+				green = Q_bound(0.0, RB_EvalExpression(&pStage->greenExp, backEnd.currentLight->l.color[1]), 1.0);
+				blue = Q_bound(0.0, RB_EvalExpression(&pStage->blueExp, backEnd.currentLight->l.color[2]), 1.0);
+			}
+			else if(backEnd.currentEntity)
+			{
+				red = Q_bound(0.0, RB_EvalExpression(&pStage->redExp, backEnd.currentEntity->e.shaderRGBA[0] * (1.0 / 255.0)), 1.0);
+				green = Q_bound(0.0, RB_EvalExpression(&pStage->greenExp, backEnd.currentEntity->e.shaderRGBA[1] * (1.0 / 255.0)), 1.0);
+				blue = Q_bound(0.0, RB_EvalExpression(&pStage->blueExp, backEnd.currentEntity->e.shaderRGBA[2] * (1.0 / 255.0)), 1.0);
+			}
+			else
+			{
+				red = Q_bound(0.0, RB_EvalExpression(&pStage->redExp, 1.0), 1.0);
+				green = Q_bound(0.0, RB_EvalExpression(&pStage->greenExp, 1.0), 1.0);
+				blue = Q_bound(0.0, RB_EvalExpression(&pStage->blueExp, 1.0), 1.0);
+			}
+			
+			tess.svars.color[0] = red;
+			tess.svars.color[1] = green;
+			tess.svars.color[2] = blue;
+			break;
+		}
+	}
+
+	// alphaGen
+	switch (pStage->alphaGen)
+	{
+		case AGEN_SKIP:
+			break;
+			
+		default:
+		case AGEN_IDENTITY:
+		{
+			if(pStage->rgbGen != CGEN_IDENTITY)
+			{
+				if((pStage->rgbGen == CGEN_VERTEX && tr.identityLight != 1) || pStage->rgbGen != CGEN_VERTEX)
+				{
+					tess.svars.color[3] = 1.0;
+				}
+			}
+			break;
+		}
+			
+		case AGEN_CONST:
+		{
+			if(pStage->rgbGen != CGEN_CONST)
+			{
+				tess.svars.color[3] = pStage->constantColor[3] * (1.0 / 255.0);
+			}
+			break;
+		}
+			
+		case AGEN_ENTITY:
+		{
+			if(backEnd.currentLight)
+			{
+				tess.svars.color[3] = 1.0;	// FIXME
+			}
+			else if(backEnd.currentEntity)
+			{
+				tess.svars.color[3] = Q_bound(0.0, backEnd.currentEntity->e.shaderRGBA[3] * (1.0 / 255.0), 1.0);
+			}
+			else
+			{
+				tess.svars.color[3] = 1.0;
+			}
+			break;
+		}
+			
+		case AGEN_ONE_MINUS_ENTITY:
+		{
+			if(backEnd.currentLight)
+			{
+				tess.svars.color[3] = 0.0;	// FIXME
+			}
+			else if(backEnd.currentEntity)
+			{
+				tess.svars.color[3] = 1.0 - Q_bound(0.0, backEnd.currentEntity->e.shaderRGBA[3] * (1.0 / 255.0), 1.0);
+			}
+			else
+			{
+				tess.svars.color[3] = 0.0;
+			}
+			break;
+		}
+		
+		case AGEN_CUSTOM:
+		{
+			alpha = Q_bound(0.0, RB_EvalExpression(&pStage->alphaExp, 1.0), 1.0);
+			
+			tess.svars.color[3] = alpha;
+			break;
+		}
+	}
+}
+
+/*
+===============
 ComputeTexCoords
 ===============
 */
@@ -3145,6 +3346,7 @@ void RB_StageIteratorLighting()
 				continue;
 			}
 		
+			ComputeColor(attenuationXYStage);
 			ComputeFinalAttenuation(attenuationXYStage, dl);
 				
 			switch(diffuseStage->type)
@@ -3342,6 +3544,7 @@ void RB_StageIteratorLightingStencilShadowed()
 				continue;
 			}
 		
+			ComputeColor(attenuationXYStage);
 			ComputeFinalAttenuation(attenuationXYStage, dl);
 				
 			switch(diffuseStage->type)
@@ -3485,7 +3688,7 @@ void RB_StageIteratorGeneric()
 
 		if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
 		{
-			ComputeColors(pStage);
+			ComputeColor(pStage);
 			ComputeTexMatrices(pStage);
 		}
 		else

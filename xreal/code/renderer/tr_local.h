@@ -2123,9 +2123,11 @@ typedef enum
 } stageIteratorType_t;
 
 typedef byte    color4ub_t[4];
+typedef float   color4f_t[4];
 
 typedef struct stageVars
 {
+	color4f_t       color;
 	color4ub_t      colors[SHADER_MAX_VERTEXES];
 	vec2_t          texCoords[MAX_TEXTURE_BUNDLES][SHADER_MAX_VERTEXES];
 	matrix_t        texMatrices[MAX_TEXTURE_BUNDLES];

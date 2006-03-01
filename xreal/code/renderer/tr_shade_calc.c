@@ -97,50 +97,66 @@ static float GetOpValue(const expOperation_t * op)
 			break;
 			
 		case OP_PARM0:
-			if(!backEnd.currentEntity)
+			if(backEnd.currentLight)
 			{
-				value = 1;
+				value = backEnd.currentLight->l.color[0];
 				break;
+			}
+			else if(backEnd.currentEntity)
+			{
+				value = backEnd.currentEntity->e.shaderRGBA[0] * inv255;
 			}
 			else
 			{
-				value = backEnd.currentEntity->e.shaderRGBA[0] * inv255;
+				value = 1.0;
 			}
 			break;
 			
 		case OP_PARM1:
-			if(!backEnd.currentEntity)
+			if(backEnd.currentLight)
 			{
-				value = 1;
+				value = backEnd.currentLight->l.color[1];
 				break;
+			}
+			else if(backEnd.currentEntity)
+			{
+				value = backEnd.currentEntity->e.shaderRGBA[1] * inv255;
 			}
 			else
 			{
-				value = backEnd.currentEntity->e.shaderRGBA[1] * inv255;
+				value = 1.0;
 			}
 			break;
 			
 		case OP_PARM2:
-			if(!backEnd.currentEntity)
+			if(backEnd.currentLight)
 			{
-				value = 1;
+				value = backEnd.currentLight->l.color[2];
 				break;
+			}
+			else if(backEnd.currentEntity)
+			{
+				value = backEnd.currentEntity->e.shaderRGBA[2] * inv255;
 			}
 			else
 			{
-				value = backEnd.currentEntity->e.shaderRGBA[2] * inv255;
+				value = 1.0;
 			}
 			break;
 			
 		case OP_PARM3:
-			if(!backEnd.currentEntity)
+			if(backEnd.currentLight)
 			{
-				value = 1;
+				value = 1.0;
 				break;
+			}
+			else if(backEnd.currentEntity)
+			{
+				value = backEnd.currentEntity->e.shaderRGBA[3] * inv255;
 			}
 			else
 			{
-				value = backEnd.currentEntity->e.shaderRGBA[3] * inv255;
+				value = 1.0;
 			}
 			break;
 		
@@ -172,7 +188,7 @@ static float GetOpValue(const expOperation_t * op)
 			break;
 		
 		default:
-			value = 0;
+			value = 0.0;
 			break;
 	}
 	
@@ -1233,9 +1249,9 @@ void RB_CalcCustomColors(const expression_t * redExp, const expression_t * green
 	else
 	{
 		// fullbright
-		red = RB_EvalExpression(redExp, 1.0);
-		green = RB_EvalExpression(greenExp, 1.0);
-		blue = RB_EvalExpression(blueExp, 1.0);
+		red = Q_bound(0.0, RB_EvalExpression(redExp, 1.0), 1.0);
+		green = Q_bound(0.0, RB_EvalExpression(greenExp, 1.0), 1.0);
+		blue = Q_bound(0.0, RB_EvalExpression(blueExp, 1.0), 1.0);
 	}
 
 	for(i = 0; i < tess.numVertexes; i++, dstColors += 4)
