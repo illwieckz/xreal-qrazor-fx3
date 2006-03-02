@@ -5283,6 +5283,7 @@ static void CreateExternalShaders(void)
 	tr.sunShader = R_FindShader("sun", SHADER_3D_DYNAMIC, qtrue);
 	
 	tr.defaultPointLightShader = R_FindShader("lights/defaultPointLight", SHADER_LIGHT, qtrue);
+	tr.defaultProjectedLightShader = R_FindShader("lights/defaultProjectedLight", SHADER_LIGHT, qtrue);
 	tr.defaultDlightShader = R_FindShader("lights/defaultDynamicLight", SHADER_LIGHT, qtrue);
 }
 

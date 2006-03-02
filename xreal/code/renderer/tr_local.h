@@ -1558,6 +1558,7 @@ typedef struct
 	// internal shaders
 	shader_t       *defaultShader;
 	shader_t       *defaultPointLightShader;
+	shader_t       *defaultProjectedLightShader;
 	shader_t       *defaultDlightShader;
 	
 	// external shaders
@@ -1586,6 +1587,8 @@ typedef struct
 	shaderProgram_t lightShader_D_omni;
 	shaderProgram_t lightShader_DB_omni;
 	shaderProgram_t lightShader_DBS_omni;
+	
+	shaderProgram_t lightShader_D_proj;
 	
 	shaderProgram_t lightShader_D_radiosity;
 	shaderProgram_t lightShader_DB_radiosity;
@@ -1873,6 +1876,8 @@ void            R_CalcTangentSpace(vec3_t tangent, vec3_t binormal, vec3_t norma
 
 void            R_CalcSurfaceTriangleNeighbors(int numTriangles, srfTriangle_t * triangles);
 void            R_CalcSurfaceTrianglePlanes(int numTriangles, srfTriangle_t * triangles, srfVert_t * verts);
+
+float           R_CalcFov(float fovX, float width, float height);
 
 // Tr3B - visualisation tools to help debugging the renderer frontend
 void            R_DebugAxis(const vec3_t origin, const matrix_t transformMatrix);
@@ -2258,6 +2263,8 @@ void            R_SetupDlightLocalBounds(trRefDlight_t * light);
 void            R_SetupDlightWorldBounds(trRefDlight_t * light);
 
 void            R_SetupDlightFrustum(trRefDlight_t * dl);
+void            R_SetupDlightProjection(trRefDlight_t * dl);
+
 int             R_CullDlightTriangle(trRefDlight_t * dl, vec3_t verts[3]);
 
 void            R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * surfaceShader,

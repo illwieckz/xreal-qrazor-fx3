@@ -279,6 +279,18 @@ void R_CalcSurfaceTrianglePlanes(int numTriangles, srfTriangle_t * triangles, sr
 	}
 }
 
+float R_CalcFov(float fovX, float width, float height)
+{
+	float           x;
+	float           fovY;
+
+	x = width / tan(fovX / 360 * M_PI);
+	fovY = atan2(height, x);
+	fovY = fovY * 360 / M_PI;
+	
+	return fovY;
+}
+
 /*
 =================
 R_CullLocalBox
@@ -1760,15 +1772,7 @@ void R_AddDlightInteractions()
 		MatrixAffineInverse(dl->transformMatrix, dl->viewMatrix);
 
 		// set up projection
-		switch (dl->l.rlType)
-		{
-			case RL_OMNI:
-				MatrixSetupScale(dl->projectionMatrix, 1.0 / dl->l.radius[0], 1.0 / dl->l.radius[1], 1.0 / dl->l.radius[2]);
-				break;
-
-			default:
-				ri.Error(ERR_DROP, "R_AddDlightInteractions: Bad rlType");
-		}
+		R_SetupDlightProjection(dl);
 
 		// set up first part of the attenuation matrix
 		MatrixSetupTranslation(dl->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
@@ -1791,6 +1795,7 @@ void R_AddDlightInteractions()
 			tr.pc.c_dlights++;
 	}
 }
+
 
 void R_DebugAxis(const vec3_t origin, const matrix_t transformMatrix)
 {

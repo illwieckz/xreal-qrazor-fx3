@@ -1396,9 +1396,16 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 	{
 		int             i;
 		trRefDlight_t  *dl;
+		vec3_t          forward, left, up;
+		vec3_t          tmp;
 
 		if(r_dynamiclight->integer)
 		{
+			GL_Program(0);
+			GL_State(0);
+			GL_SelectTexture(0);
+			GL_Bind(tr.whiteImage);
+			
 			dl = backEnd.refdef.dlights;
 			for(i = 0; i < backEnd.refdef.numDlights; i++, dl++)
 			{
@@ -1406,19 +1413,72 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 				R_RotateForDlight(dl, &backEnd.viewParms, &backEnd.or);
 				qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
-				R_DebugAxis(vec3_origin, matrixIdentity);
-				R_DebugBoundingBox(vec3_origin, dl->localBounds[0], dl->localBounds[1], colorRed);
+				MatrixToVectorsFLU(matrixIdentity, forward, left, up);
+				VectorMA(vec3_origin, 16, forward, forward);
+				VectorMA(vec3_origin, 16, left, left);
+				VectorMA(vec3_origin, 16, up, up);
+
+				// draw axis
+				//qglLineWidth(3);
+				qglBegin(GL_LINES);
+
+				qglColor4fv(colorRed);
+				qglVertex3fv(vec3_origin);
+				qglVertex3fv(forward);
+
+				qglColor4fv(colorGreen);
+				qglVertex3fv(vec3_origin);
+				qglVertex3fv(left);
+
+				qglColor4fv(colorBlue);
+				qglVertex3fv(vec3_origin);
+				qglVertex3fv(up);
+				
+				qglColor4fv(colorYellow);
+				qglVertex3fv(vec3_origin);
+				VectorSubtract(dl->origin, backEnd.or.origin, tmp);
+				dl->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
+				dl->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
+				dl->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
+				qglVertex3fv(dl->transformed);
+				
+				qglColor4fv(colorMagenta);
+				qglVertex3fv(vec3_origin);
+				qglVertex3fv(dl->l.target);
+				
+				qglColor4fv(colorCyan);
+				qglVertex3fv(vec3_origin);
+				qglVertex3fv(dl->l.right);
+				
+				qglColor4fv(colorWhite);
+				qglVertex3fv(vec3_origin);
+				qglVertex3fv(dl->l.up);
+				
+				qglColor4fv(colorMdGrey);
+				qglVertex3fv(vec3_origin);
+				VectorAdd(dl->l.target, dl->l.up, tmp);
+				qglVertex3fv(tmp);
+
+				qglEnd();
+				//qglLineWidth(1);
+				
+				//R_DebugBoundingBox(vec3_origin, dl->localBounds[0], dl->localBounds[1], colorRed);
 
 				// go back to the world modelview matrix
 				backEnd.or = backEnd.viewParms.world;
 				qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 
-				R_DebugBoundingBox(vec3_origin, dl->worldBounds[0], dl->worldBounds[1], colorGreen);
+				//R_DebugBoundingBox(vec3_origin, dl->worldBounds[0], dl->worldBounds[1], colorGreen);
 			}
 		}
 
 		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 		{
+			GL_Program(0);
+			GL_State(0);
+			GL_SelectTexture(0);
+			GL_Bind(tr.whiteImage);
+			
 			for(i = 0; i < tr.world->numDlights; i++)
 			{
 				dl = &tr.world->dlights[i];
@@ -1427,14 +1487,62 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 				R_RotateForDlight(dl, &backEnd.viewParms, &backEnd.or);
 				qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
-				R_DebugAxis(vec3_origin, matrixIdentity);
-				R_DebugBoundingBox(vec3_origin, dl->localBounds[0], dl->localBounds[1], colorBlue);
+				MatrixToVectorsFLU(matrixIdentity, forward, left, up);
+				VectorMA(vec3_origin, 16, forward, forward);
+				VectorMA(vec3_origin, 16, left, left);
+				VectorMA(vec3_origin, 16, up, up);
+
+				// draw axis
+				//qglLineWidth(3);
+				qglBegin(GL_LINES);
+
+				qglColor4fv(colorRed);
+				qglVertex3fv(vec3_origin);
+				qglVertex3fv(forward);
+
+				qglColor4fv(colorGreen);
+				qglVertex3fv(vec3_origin);
+				qglVertex3fv(left);
+
+				qglColor4fv(colorBlue);
+				qglVertex3fv(vec3_origin);
+				qglVertex3fv(up);
+				
+				qglColor4fv(colorYellow);
+				qglVertex3fv(vec3_origin);
+				VectorSubtract(dl->origin, backEnd.or.origin, tmp);
+				dl->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
+				dl->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
+				dl->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
+				qglVertex3fv(dl->transformed);
+				
+				qglColor4fv(colorMagenta);
+				qglVertex3fv(vec3_origin);
+				qglVertex3fv(dl->l.target);
+				
+				qglColor4fv(colorCyan);
+				qglVertex3fv(vec3_origin);
+				qglVertex3fv(dl->l.right);
+				
+				qglColor4fv(colorWhite);
+				qglVertex3fv(vec3_origin);
+				qglVertex3fv(dl->l.up);
+				
+				qglColor4fv(colorMdGrey);
+				qglVertex3fv(vec3_origin);
+				VectorAdd(dl->l.target, dl->l.up, tmp);
+				qglVertex3fv(tmp);
+
+				qglEnd();
+				//qglLineWidth(1);
+				
+				//R_DebugBoundingBox(vec3_origin, dl->localBounds[0], dl->localBounds[1], colorBlue);
 
 				// go back to the world modelview matrix
 				backEnd.or = backEnd.viewParms.world;
 				qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 
-				R_DebugBoundingBox(vec3_origin, dl->worldBounds[0], dl->worldBounds[1], colorYellow);
+				//R_DebugBoundingBox(vec3_origin, dl->worldBounds[0], dl->worldBounds[1], colorYellow);
 			}
 		}
 	}
@@ -1527,6 +1635,7 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 		qglPopMatrix();
 	}
 }
+
 
 /*
 ==================

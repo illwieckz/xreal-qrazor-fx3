@@ -314,7 +314,7 @@ static void CG_AddTestModel(void)
 
 /*
 =================
-CG_TestLight_f
+CG_TestOmniLight_f
 
 Creates a omni-directional dlight in front of the current position, which can then be moved around
 =================
@@ -362,6 +362,60 @@ void CG_TestOmniLight_f(void)
 }
 
 
+/*
+=================
+CG_TestProjLight_f
+
+Creates a projective dlight in front of the current position, which can then be moved around
+=================
+*/
+void CG_TestProjLight_f(void)
+{
+	vec3_t          angles;
+
+	memset(&cg.testLight, 0, sizeof(cg.testLight));
+	if(trap_Argc() < 2)
+	{
+		CG_Printf("usage: testProjLight <lightShaderName>\n");
+		return;
+	}
+
+	Q_strncpyz(cg.testLightName, CG_Argv(1), sizeof(cg.testLightName));
+	cg.testLight.attenuationShader = trap_R_RegisterShaderLightAttenuation(cg.testLightName);
+	
+	if(!cg.testLight.attenuationShader)
+	{
+		CG_Printf("Can't register attenuation shader\n");
+		return;
+	}
+	
+	cg.testLight.rlType = RL_PROJ;
+//	cg.testLight.lightfx = LF_ROTATION;
+
+	VectorMA(cg.refdef.vieworg, 20, cg.refdef.viewaxis[0], cg.testLight.origin);
+	
+	cg.testLight.color[0] = 1.0;
+	cg.testLight.color[1] = 1.0;
+	cg.testLight.color[2] = 1.0;
+	
+	cg.testLight.radius[0] = 300;
+	cg.testLight.radius[1] = 300;
+	cg.testLight.radius[2] = 300;
+	
+	angles[PITCH] = cg.refdefViewAngles[PITCH];
+	angles[YAW] = cg.refdefViewAngles[YAW];
+	angles[ROLL] = cg.refdefViewAngles[ROLL];
+
+	AnglesToAxis(angles, cg.testLight.axis);
+	
+	VectorScale(cg.refdef.viewaxis[0], 200, cg.testLight.target);
+	VectorScale(cg.refdef.viewaxis[1], -70, cg.testLight.right);
+	VectorScale(cg.refdef.viewaxis[2], 50, cg.testLight.up);
+	
+	cg.testLightEnabled = qtrue;
+}
+
+
 static void CG_AddTestLight(void)
 {
 
@@ -375,22 +429,14 @@ static void CG_AddTestLight(void)
 		return;
 	}
 
+	// if testing a flashlight, set the projection direction reletive to the view direction
 	/*
-	// if testing a gun, set the origin reletive to the view origin
-	if(cg.testGun)
+	if(cg.testFlashLight)
 	{
-		VectorCopy(cg.refdef.vieworg, cg.testModelEntity.origin);
-		VectorCopy(cg.refdef.viewaxis[0], cg.testModelEntity.axis[0]);
-		VectorCopy(cg.refdef.viewaxis[1], cg.testModelEntity.axis[1]);
-		VectorCopy(cg.refdef.viewaxis[2], cg.testModelEntity.axis[2]);
-
-		// allow the position to be adjusted
-		for(i = 0; i < 3; i++)
-		{
-			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[0][i] * cg_gun_x.value;
-			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[1][i] * cg_gun_y.value;
-			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[2][i] * cg_gun_z.value;
-		}
+		VectorCopy(cg.refdef.vieworg, cg.testLight.origin);
+		VectorScale(cg.refdef.viewaxis[0], 200, cg.testLight.target);
+		VectorScale(cg.refdef.viewaxis[1], -30, cg.testLight.right);
+		VectorScale(cg.refdef.viewaxis[2], 5, cg.testLight.up);
 	}
 	*/
 

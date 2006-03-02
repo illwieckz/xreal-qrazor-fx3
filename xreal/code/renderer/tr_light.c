@@ -512,6 +512,80 @@ void R_SetupDlightFrustum(trRefDlight_t * dl)
 	}
 }
 
+
+/*
+=================
+R_SetupDlightProjection
+=================
+*/
+void R_SetupDlightProjection(trRefDlight_t * dl)
+{
+	switch (dl->l.rlType)
+	{
+		case RL_OMNI:
+		{
+			MatrixSetupScale(dl->projectionMatrix, 1.0 / dl->l.radius[0], 1.0 / dl->l.radius[1], 1.0 / dl->l.radius[2]);
+			break;
+		}
+
+		case RL_PROJ:
+		{
+			float           xMin, xMax, yMin, yMax;
+			float           width, height, depth;
+			float           zNear, zFar;
+			float           fovX, fovY;
+			vec3_t          target, right, up;
+			float          *proj = dl->projectionMatrix;
+			
+			MatrixTransformNormal(dl->transformMatrix, dl->l.target, target);
+			MatrixTransformNormal(dl->transformMatrix, dl->l.right, right);
+			MatrixTransformNormal(dl->transformMatrix, dl->l.up, up);
+
+			fovX = 60;
+			fovY = R_CalcFov(fovX, VectorLength(right) * 2, VectorLength(up) * 2);
+
+			zNear = 1.0;
+			zFar = VectorLength(target);
+
+			xMax = zNear * tan(tr.refdef.fov_x * M_PI / 360.0f);
+			xMin = -xMax;
+
+			yMax = zNear * tan(tr.refdef.fov_y * M_PI / 360.0f);
+			yMin = -yMax;
+
+			width = xMax - xMin;
+			height = yMax - yMin;
+			depth = zFar - zNear;
+
+			// Tr3B - standard OpenGL projection matrix
+			proj[0] = 2 * zNear / width;
+			proj[4] = 0;
+			proj[8] = (xMax + xMin) / width;
+			proj[12] = 0;
+			
+			proj[1] = 0;
+			proj[5] = 2 * zNear / height;
+			proj[9] = (yMax + yMin) / height;
+			proj[13] = 0;
+			
+			proj[2] = 0;
+			proj[6] = 0;
+			proj[10] = -(zFar + zNear) / depth;
+			proj[14] = -2 * zFar * zNear / depth;
+			
+			proj[3] = 0;
+			proj[7] = 0;
+			proj[11] = -1;
+			proj[15] = 0;
+			break;
+		}
+
+		default:
+			ri.Error(ERR_DROP, "R_SetupDlightProjection: Bad rlType");
+	}
+}
+
+
 /*
 =================
 R_CullDlightTriangle
@@ -611,11 +685,31 @@ void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shad
 	{
 		if(light->isStatic)
 		{
-			ia->dlightShader = tr.defaultPointLightShader;
+			switch (light->l.rlType)
+			{
+				default:
+				case RL_OMNI:
+					ia->dlightShader = tr.defaultPointLightShader;
+					break;
+				
+				case RL_PROJ:
+					ia->dlightShader = tr.defaultProjectedLightShader;
+					break;
+			}
 		}
 		else
 		{
-			ia->dlightShader = tr.defaultDlightShader;
+			switch (light->l.rlType)
+			{
+				default:
+				case RL_OMNI:
+					ia->dlightShader = tr.defaultDlightShader;
+					break;
+				
+				case RL_PROJ:
+					ia->dlightShader = tr.defaultProjectedLightShader;
+					break;
+			}
 		}
 	}
 	else

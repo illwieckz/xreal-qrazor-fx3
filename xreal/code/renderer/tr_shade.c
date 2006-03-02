@@ -410,6 +410,27 @@ void RB_InitGPUShaders(void)
 	qglUseProgramObjectARB(0);
 	
 	//
+	// projective lighting ( Doom3 style )
+	//
+	RB_InitGPUShader(&tr.lightShader_D_proj,
+					  "lighting_D_proj",
+					  GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_NORMAL, qtrue);
+
+	tr.lightShader_D_proj.u_DiffuseMap =
+			qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_DiffuseMap");
+	tr.lightShader_D_proj.u_AttenuationMapXY =
+			qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_AttenuationMapXY");
+	tr.lightShader_D_proj.u_LightOrigin =
+			qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightOrigin");
+	tr.lightShader_D_proj.u_LightColor =
+			qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightColor");
+
+	qglUseProgramObjectARB(tr.lightShader_D_proj.program);
+	qglUniform1iARB(tr.lightShader_D_proj.u_DiffuseMap, 0);
+	qglUniform1iARB(tr.lightShader_D_proj.u_AttenuationMapXY, 1);
+	qglUseProgramObjectARB(0);
+	
+	//
 	// radiosity lighting ( Q3A style )
 	//
 	RB_InitGPUShader(&tr.lightShader_D_radiosity,
@@ -739,6 +760,12 @@ void RB_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.lightShader_DBS_omni.program);
 		tr.lightShader_DBS_omni.program = 0;
+	}
+	
+	if(tr.lightShader_D_proj.program)
+	{
+		qglDeleteObjectARB(tr.lightShader_D_proj.program);
+		tr.lightShader_D_proj.program = 0;
 	}
 	
 	if(tr.lightShader_D_radiosity.program)
@@ -1829,6 +1856,46 @@ static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
+	
+	// update performance counters
+	backEnd.pc.c_dlightVertexes += tess.numVertexes;
+	backEnd.pc.c_dlightIndexes += tess.numIndexes;
+}
+
+static void Render_lighting_D_proj(	shaderStage_t * diffuseStage,
+									shaderStage_t * attenuationXYStage,
+									trRefDlight_t * dlight)
+{
+	vec3_t          lightOrigin;
+	vec4_t          lightColor;	
+	
+	GLimp_LogComment("--- Render_lighting_D_proj ---\n");
+	
+	// enable shader, set arrays
+	GL_Program(tr.lightShader_D_proj.program);
+	GL_ClientState(tr.lightShader_D_proj.attribs);
+	GL_SetVertexAttribs();
+
+	// set uniforms
+	VectorCopy(dlight->transformed, lightOrigin);
+	VectorCopy(tess.svars.color, lightColor);
+	
+	qglUniform3fARB(tr.lightShader_D_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
+	qglUniform3fARB(tr.lightShader_D_proj.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
+
+	GL_SelectTexture(0);
+	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
+	qglMatrixMode(GL_MODELVIEW);
+	
+	GL_SelectTexture(1);
+	R_BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(dlight->attenuationMatrix3);
+	qglMatrixMode(GL_MODELVIEW);
+	
+	R_DrawElements();
 	
 	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
@@ -3287,7 +3354,7 @@ void RB_StageIteratorLighting()
 	{
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorLighting( %s ) ---\n", tess.surfaceShader->name));
+		GLimp_LogComment(va("--- RB_StageIteratorLighting( %s, %s ) ---\n", tess.surfaceShader->name, tess.lightShader->name));
 	}
 
 	// set face culling appropriately
@@ -3370,7 +3437,18 @@ void RB_StageIteratorLighting()
 				case ST_COLLAPSE_lighting_D_radiosity:
 					if(glConfig2.shadingLanguage100Available)
 					{
-						Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+						if(dl->l.rlType == RL_OMNI)
+						{
+							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+						}
+						else if(dl->l.rlType == RL_PROJ)
+						{
+							Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+						}
+						else
+						{
+							// TODO
+						}
 					}
 					else
 					{
@@ -3384,12 +3462,34 @@ void RB_StageIteratorLighting()
 					if(glConfig2.shadingLanguage100Available)
 					{
 						if(r_lighting->integer == 1)
-						{	
-							Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+						{
+							if(dl->l.rlType == RL_OMNI)
+							{
+								Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							}
+							else if(dl->l.rlType == RL_PROJ)
+							{
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+							}
+							else
+							{
+								// TODO
+							}
 						}
 						else
 						{
-							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							if(dl->l.rlType == RL_OMNI)
+							{
+								Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							}
+							else if(dl->l.rlType == RL_PROJ)
+							{
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+							}
+							else
+							{
+								// TODO
+							}
 						}
 					}
 					else
@@ -3405,15 +3505,48 @@ void RB_StageIteratorLighting()
 					{
 						if(r_lighting->integer == 2)
 						{
-							Render_lighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							if(dl->l.rlType == RL_OMNI)
+							{
+								Render_lighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							}
+							else if(dl->l.rlType == RL_PROJ)
+							{
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+							}
+							else
+							{
+								// TODO
+							}
 						}
 						else if(r_lighting->integer == 1)
 						{
-							Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							if(dl->l.rlType == RL_OMNI)
+							{
+								Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							}
+							else if(dl->l.rlType == RL_PROJ)
+							{
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+							}
+							else
+							{
+								// TODO
+							}
 						}
 						else
 						{
-							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							if(dl->l.rlType == RL_OMNI)
+							{
+								Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							}
+							else if(dl->l.rlType == RL_PROJ)
+							{
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+							}
+							else
+							{
+								// TODO
+							}
 						}
 					}
 					else
@@ -3458,7 +3591,7 @@ void RB_StageIteratorLightingStencilShadowed()
 	{
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorLightingStencilShadowed( %s ) ---\n", tess.surfaceShader->name));
+		GLimp_LogComment(va("--- RB_StageIteratorLightingStencilShadowed( %s, %s ) ---\n", tess.surfaceShader->name, tess.lightShader->name));
 	}
 
 	// set face culling appropriately
@@ -3568,7 +3701,18 @@ void RB_StageIteratorLightingStencilShadowed()
 				case ST_COLLAPSE_lighting_D_radiosity:
 					if(glConfig2.shadingLanguage100Available)
 					{
-						Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+						if(dl->l.rlType == RL_OMNI)
+						{
+							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+						}
+						else if(dl->l.rlType == RL_PROJ)
+						{
+							Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+						}
+						else
+						{
+							// TODO
+						}
 					}
 					else
 					{
@@ -3582,12 +3726,34 @@ void RB_StageIteratorLightingStencilShadowed()
 					if(glConfig2.shadingLanguage100Available)
 					{
 						if(r_lighting->integer == 1)
-						{	
-							Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+						{
+							if(dl->l.rlType == RL_OMNI)
+							{
+								Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							}
+							else if(dl->l.rlType == RL_PROJ)
+							{
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+							}
+							else
+							{
+								// TODO
+							}
 						}
 						else
 						{
-							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							if(dl->l.rlType == RL_OMNI)
+							{
+								Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							}
+							else if(dl->l.rlType == RL_PROJ)
+							{
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+							}
+							else
+							{
+								// TODO
+							}
 						}
 					}
 					else
@@ -3603,15 +3769,48 @@ void RB_StageIteratorLightingStencilShadowed()
 					{
 						if(r_lighting->integer == 2)
 						{
-							Render_lighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							if(dl->l.rlType == RL_OMNI)
+							{
+								Render_lighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							}
+							else if(dl->l.rlType == RL_PROJ)
+							{
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+							}
+							else
+							{
+								// TODO
+							}
 						}
 						else if(r_lighting->integer == 1)
 						{
-							Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							if(dl->l.rlType == RL_OMNI)
+							{
+								Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							}
+							else if(dl->l.rlType == RL_PROJ)
+							{
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+							}
+							else
+							{
+								// TODO
+							}
 						}
 						else
 						{
-							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							if(dl->l.rlType == RL_OMNI)
+							{
+								Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							}
+							else if(dl->l.rlType == RL_PROJ)
+							{
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+							}
+							else
+							{
+								// TODO
+							}
 						}
 					}
 					else

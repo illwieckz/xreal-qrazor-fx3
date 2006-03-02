@@ -1279,6 +1279,7 @@ void            CG_TestModelPrevSkin_f(void);
 void            CG_TestAnimation_f(void);
 void            CG_TestAnimation2_f(void);
 void            CG_TestOmniLight_f(void);
+void            CG_TestProjLight_f(void);
 void            CG_ZoomDown_f(void);
 void            CG_ZoomUp_f(void);
 void            CG_AddBufferedSound(sfxHandle_t sfx);

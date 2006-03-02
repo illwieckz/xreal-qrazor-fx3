@@ -2357,6 +2357,9 @@ void R_LoadEntities(lump_t * l)
 	world_t        *w;
 	qboolean        isLight = qfalse;
 	int             numLights = 0;
+	int             numOmniLights = 0;
+	int             numProjLights = 0;
+	int             numDirectLights = 0;
 	trRefDlight_t  *dl;
 
 	w = &s_worldData;
@@ -2514,7 +2517,6 @@ void R_LoadEntities(lump_t * l)
 
 	// parse lights
 	p = pOld;
-	numLights = 0;
 	dl = &s_worldData.dlights[0];
 
 	while(1)
@@ -2539,8 +2541,25 @@ void R_LoadEntities(lump_t * l)
 		{
 			if(isLight)
 			{
+				switch (dl->l.rlType)
+				{
+					case RL_OMNI:
+						numOmniLights++;
+						break;
+						
+					case RL_PROJ:
+						numProjLights++;
+						break;
+						
+					case RL_DIRECT:
+						numDirectLights++;
+						break;
+						
+					default:
+						break;
+				}
+				
 				dl++;
-				numLights++;
 			}
 			continue;
 		}
@@ -2590,6 +2609,30 @@ void R_LoadEntities(lump_t * l)
 			sscanf(value, "%f %f %f", &dl->l.radius[0], &dl->l.radius[1], &dl->l.radius[2]);
 			continue;
 		}
+		
+		// check for target
+		if(!Q_stricmp(keyname, "light_target"))
+		{
+			sscanf(value, "%f %f %f", &dl->l.target[0], &dl->l.target[1], &dl->l.target[2]);
+			dl->l.rlType = RL_PROJ;
+			continue;
+		}
+		
+		// check for right
+		if(!Q_stricmp(keyname, "light_right"))
+		{
+			sscanf(value, "%f %f %f", &dl->l.right[0], &dl->l.right[1], &dl->l.right[2]);
+			dl->l.rlType = RL_PROJ;
+			continue;
+		}
+		
+		// check for up
+		if(!Q_stricmp(keyname, "light_up"))
+		{
+			sscanf(value, "%f %f %f", &dl->l.up[0], &dl->l.up[1], &dl->l.up[2]);
+			dl->l.rlType = RL_PROJ;
+			continue;
+		}
 
 		// check for radius
 		if(!Q_stricmp(keyname, "light") || !Q_stricmp(keyname, "_light"))
@@ -2629,7 +2672,10 @@ void R_LoadEntities(lump_t * l)
 		}
 	}
 
-	ri.Printf(PRINT_ALL, "%i lights parsed\n", numLights);
+	ri.Printf(PRINT_ALL, "%i total lights parsed\n", numLights);
+	ri.Printf(PRINT_ALL, "%i omni-directional lights parsed\n", numOmniLights);
+	ri.Printf(PRINT_ALL, "%i projective lights parsed\n", numProjLights);
+	ri.Printf(PRINT_ALL, "%i directional lights parsed\n", numDirectLights);
 }
 
 /*
@@ -3744,15 +3790,7 @@ void R_PrecacheInteractions()
 		MatrixAffineInverse(dl->transformMatrix, dl->viewMatrix);
 
 		// set up projection
-		switch (dl->l.rlType)
-		{
-			case RL_OMNI:
-				MatrixSetupScale(dl->projectionMatrix, 1.0 / dl->l.radius[0], 1.0 / dl->l.radius[1], 1.0 / dl->l.radius[2]);
-				break;
-
-			default:
-				ri.Error(ERR_DROP, "R_PrecacheInteractions: Bad rlType");
-		}
+		R_SetupDlightProjection(dl);
 
 		// set up first part of the attenuation matrix
 		MatrixSetupTranslation(dl->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
