@@ -547,17 +547,17 @@ void R_SetupDlightProjection(trRefDlight_t * dl)
 			zNear = 1.0;
 			zFar = VectorLength(target);
 
-			xMax = zNear * tan(tr.refdef.fov_x * M_PI / 360.0f);
+			xMax = zNear * tan(fovX * M_PI / 360.0f);
 			xMin = -xMax;
 
-			yMax = zNear * tan(tr.refdef.fov_y * M_PI / 360.0f);
+			yMax = zNear * tan(fovY * M_PI / 360.0f);
 			yMin = -yMax;
 
 			width = xMax - xMin;
 			height = yMax - yMin;
 			depth = zFar - zNear;
 
-			// Tr3B - standard OpenGL projection matrix
+			// FIXME - do this without the extra rotation mult
 			proj[0] = 2 * zNear / width;
 			proj[4] = 0;
 			proj[8] = (xMax + xMin) / width;
@@ -577,6 +577,8 @@ void R_SetupDlightProjection(trRefDlight_t * dl)
 			proj[7] = 0;
 			proj[11] = -1;
 			proj[15] = 0;
+			
+			MatrixMultiplyRotation(proj, 90, 90, 0);
 			break;
 		}
 

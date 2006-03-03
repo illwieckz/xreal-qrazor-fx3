@@ -358,7 +358,7 @@ void CG_TestOmniLight_f(void)
 
 	AnglesToAxis(angles, cg.testLight.axis);
 	
-	cg.testLightEnabled = qtrue;
+	cg.testFlashLight = qfalse;
 }
 
 
@@ -392,15 +392,15 @@ void CG_TestProjLight_f(void)
 	cg.testLight.rlType = RL_PROJ;
 //	cg.testLight.lightfx = LF_ROTATION;
 
-	VectorMA(cg.refdef.vieworg, 20, cg.refdef.viewaxis[0], cg.testLight.origin);
+	VectorMA(cg.refdef.vieworg, 10, cg.refdef.viewaxis[0], cg.testLight.origin);
 	
 	cg.testLight.color[0] = 1.0;
 	cg.testLight.color[1] = 1.0;
 	cg.testLight.color[2] = 1.0;
 	
 	cg.testLight.radius[0] = 300;
-	cg.testLight.radius[1] = 300;
-	cg.testLight.radius[2] = 300;
+	cg.testLight.radius[1] = 100;
+	cg.testLight.radius[2] = 100;
 	
 	angles[PITCH] = cg.refdefViewAngles[PITCH];
 	angles[YAW] = cg.refdefViewAngles[YAW];
@@ -408,11 +408,28 @@ void CG_TestProjLight_f(void)
 
 	AnglesToAxis(angles, cg.testLight.axis);
 	
-	VectorScale(cg.refdef.viewaxis[0], 200, cg.testLight.target);
-	VectorScale(cg.refdef.viewaxis[1], -70, cg.testLight.right);
-	VectorScale(cg.refdef.viewaxis[2], 50, cg.testLight.up);
+	VectorSet(cg.testLight.target, 150, 0, 0);
+	VectorSet(cg.testLight.right, 0, -50, 0);
+	VectorSet(cg.testLight.up, 0, 0, 50);
 	
-	cg.testLightEnabled = qtrue;
+	cg.testFlashLight = qfalse;
+}
+
+/*
+=================
+CG_TestFlashLight_f
+=================
+*/
+void CG_TestFlashLight_f(void)
+{
+	if(trap_Argc() < 2)
+	{
+		CG_Printf("usage: testFlashLight <lightShaderName>\n");
+		return;
+	}
+	
+	CG_TestProjLight_f();
+	cg.testFlashLight = qtrue;
 }
 
 
@@ -430,18 +447,19 @@ static void CG_AddTestLight(void)
 	}
 
 	// if testing a flashlight, set the projection direction reletive to the view direction
-	/*
 	if(cg.testFlashLight)
 	{
-		VectorCopy(cg.refdef.vieworg, cg.testLight.origin);
-		VectorScale(cg.refdef.viewaxis[0], 200, cg.testLight.target);
-		VectorScale(cg.refdef.viewaxis[1], -30, cg.testLight.right);
-		VectorScale(cg.refdef.viewaxis[2], 5, cg.testLight.up);
+		VectorMA(cg.refdef.vieworg, 10, cg.refdef.viewaxis[0], cg.testLight.origin);
+		
+		VectorCopy(cg.refdef.viewaxis[0], cg.testLight.axis[0]);
+		VectorCopy(cg.refdef.viewaxis[1], cg.testLight.axis[1]);
+		VectorCopy(cg.refdef.viewaxis[2], cg.testLight.axis[2]);
 	}
-	*/
 
 	trap_R_AddRefDlightToScene(&cg.testLight);
 }
+
+
 
 
 //============================================================================
