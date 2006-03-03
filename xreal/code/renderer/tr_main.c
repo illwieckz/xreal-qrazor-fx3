@@ -1759,13 +1759,6 @@ void R_AddDlightInteractions()
 		// set up projection
 		R_SetupDlightProjection(dl);
 
-		// set up first part of the attenuation matrix
-		/*
-		MatrixSetupTranslation(dl->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-		MatrixMultiplyScale(dl->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
-		MatrixMultiply2(dl->attenuationMatrix, dl->projectionMatrix);	// light projection (frustum)
-		*/
-
 		R_SetDlightScissor(dl);
 
 		// setup interactions

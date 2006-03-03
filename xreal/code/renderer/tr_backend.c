@@ -880,11 +880,11 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 				VectorCopy(light->origin, light->transformed);
 			}
 			
+			// build the attenuation matrix using the entity transform
 			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
-
-			// finalize the attenuation matrix using the entity transform
-			MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);		// bias
-			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);			// scale
+			
+			MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
+			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
 			MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
 			MatrixMultiply2(light->attenuationMatrix, modelToLight);
 		}
@@ -1231,7 +1231,9 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 								light->transformed[0], light->transformed[1], light->transformed[2]);
 			}
 
-			// finalize the attenuation matrix using the entity transform
+			// build the attenuation matrix using the entity transform			
+			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
+
 			MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
 			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
 			MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
