@@ -348,9 +348,9 @@ void CG_TestOmniLight_f(void)
 	cg.testLight.color[1] = 1.0;
 	cg.testLight.color[2] = 1.0;
 	
-	cg.testLight.radius[0] = 300;
-	cg.testLight.radius[1] = 300;
-	cg.testLight.radius[2] = 300;
+	cg.testLight.radius[0] = 200;
+	cg.testLight.radius[1] = 200;
+	cg.testLight.radius[2] = 200;
 
 	angles[PITCH] = cg.refdefViewAngles[PITCH];
 	angles[YAW] = cg.refdefViewAngles[YAW];// + 180;
@@ -371,8 +371,6 @@ Creates a projective dlight in front of the current position, which can then be 
 */
 void CG_TestProjLight_f(void)
 {
-	vec3_t          angles;
-
 	memset(&cg.testLight, 0, sizeof(cg.testLight));
 	if(trap_Argc() < 2)
 	{
@@ -398,19 +396,21 @@ void CG_TestProjLight_f(void)
 	cg.testLight.color[1] = 1.0;
 	cg.testLight.color[2] = 1.0;
 	
-	cg.testLight.radius[0] = 300;
+	cg.testLight.radius[0] = 500;
 	cg.testLight.radius[1] = 100;
 	cg.testLight.radius[2] = 100;
 	
-	angles[PITCH] = cg.refdefViewAngles[PITCH];
-	angles[YAW] = cg.refdefViewAngles[YAW];
-	angles[ROLL] = cg.refdefViewAngles[ROLL];
-
-	AnglesToAxis(angles, cg.testLight.axis);
+#if 1
+	VectorCopy(cg.refdef.viewaxis[0], cg.testLight.axis[0]);
+	VectorCopy(cg.refdef.viewaxis[1], cg.testLight.axis[1]);
+	VectorCopy(cg.refdef.viewaxis[2], cg.testLight.axis[2]);
+#else
+	AxisClear(cg.testLight.axis);
+#endif
 	
-	VectorSet(cg.testLight.target, 150, 0, 0);
-	VectorSet(cg.testLight.right, 0, -50, 0);
-	VectorSet(cg.testLight.up, 0, 0, 50);
+	VectorSet(cg.testLight.target, 200, 0, 0);
+	VectorSet(cg.testLight.right, 0, -35, 0);
+	VectorSet(cg.testLight.up, 0, 0, 35);
 	
 	cg.testFlashLight = qfalse;
 }

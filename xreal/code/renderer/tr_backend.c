@@ -451,12 +451,11 @@ static void RB_Hyperspace(void)
 static void SetViewportAndScissor(void)
 {
 #if 0
-	extern const float s_flipMatrix[16];
 	matrix_t        projectionMatrix;
 
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
-	MatrixMultiply(backEnd.viewParms.projectionMatrix, s_flipMatrix, projectionMatrix);
+	MatrixMultiply(backEnd.viewParms.projectionMatrix, quakeToOpenGLMatrix, projectionMatrix);
 
 	qglMatrixMode(GL_PROJECTION);
 	qglLoadMatrixf(projectionMatrix);
@@ -517,7 +516,6 @@ to actually render the visible surfaces for this view
 static void RB_BeginDrawingView(void)
 {
 	int             clearBits = 0;
-	extern const float s_flipMatrix[16];
 
 	GLimp_LogComment("--- RB_BeginDrawingView ---\n");
 
@@ -591,8 +589,8 @@ static void RB_BeginDrawingView(void)
 		plane2[2] = DotProduct(backEnd.viewParms.or.axis[2], plane);
 		plane2[3] = DotProduct(plane, backEnd.viewParms.or.origin) - plane[3];
 
-//      qglLoadIdentity();
-		qglLoadMatrixf(s_flipMatrix);
+		qglLoadIdentity();
+//		qglLoadMatrixf(quakeToOpenGLMatrix);
 		qglClipPlane(GL_CLIP_PLANE0, plane2);
 		qglEnable(GL_CLIP_PLANE0);
 	}
@@ -881,10 +879,14 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 			{
 				VectorCopy(light->origin, light->transformed);
 			}
+			
+			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
 
 			// finalize the attenuation matrix using the entity transform
-			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
-			MatrixMultiply(light->attenuationMatrix, modelToLight, light->attenuationMatrix2);
+			MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);		// bias
+			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);			// scale
+			MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
+			MatrixMultiply2(light->attenuationMatrix, modelToLight);
 		}
 
 		if(ia->type != IA_SHADOWONLY)
@@ -1230,8 +1232,10 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			}
 
 			// finalize the attenuation matrix using the entity transform
-			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
-			MatrixMultiply(light->attenuationMatrix, modelToLight, light->attenuationMatrix2);
+			MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
+			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
+			MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
+			MatrixMultiply2(light->attenuationMatrix, modelToLight);
 		}
 
 		if(drawShadows)
@@ -1335,7 +1339,7 @@ static void RB_RenderLightScale()
 	GLimp_LogComment("--- RB_RenderLightScale ---\n");
 
 	lightScale = r_lightScale->value;
-	if(lightScale < 1.0 || (backEnd.refdef.rdflags & RDF_NOLIGHTSCALE))
+	if(lightScale < 1.0 || (backEnd.refdef.rdflags & RDF_NOLIGHTSCALE) || backEnd.viewParms.isPortal)
 	{
 		return;
 	}
@@ -1462,13 +1466,13 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 				qglEnd();
 				//qglLineWidth(1);
 				
-				//R_DebugBoundingBox(vec3_origin, dl->localBounds[0], dl->localBounds[1], colorRed);
+				R_DebugBoundingBox(vec3_origin, dl->localBounds[0], dl->localBounds[1], colorRed);
 
 				// go back to the world modelview matrix
 				backEnd.or = backEnd.viewParms.world;
 				qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 
-				//R_DebugBoundingBox(vec3_origin, dl->worldBounds[0], dl->worldBounds[1], colorGreen);
+				R_DebugBoundingBox(vec3_origin, dl->worldBounds[0], dl->worldBounds[1], colorGreen);
 			}
 		}
 
@@ -1551,6 +1555,11 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 	{
 		trRefEntity_t  *ent;
 		int             i;
+		
+		GL_Program(0);
+		GL_State(0);
+		GL_SelectTexture(0);
+		GL_Bind(tr.whiteImage);
 
 		ent = backEnd.refdef.entities;
 		for(i = 0; i < backEnd.refdef.numEntities; i++, ent++)

@@ -420,6 +420,8 @@ void RB_InitGPUShaders(void)
 			qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_DiffuseMap");
 	tr.lightShader_D_proj.u_AttenuationMapXY =
 			qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_AttenuationMapXY");
+	tr.lightShader_D_proj.u_AttenuationMapZ =
+			qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_AttenuationMapZ");
 	tr.lightShader_D_proj.u_LightOrigin =
 			qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightOrigin");
 	tr.lightShader_D_proj.u_LightColor =
@@ -428,6 +430,7 @@ void RB_InitGPUShaders(void)
 	qglUseProgramObjectARB(tr.lightShader_D_proj.program);
 	qglUniform1iARB(tr.lightShader_D_proj.u_DiffuseMap, 0);
 	qglUniform1iARB(tr.lightShader_D_proj.u_AttenuationMapXY, 1);
+	qglUniform1iARB(tr.lightShader_D_proj.u_AttenuationMapZ, 2);
 	qglUseProgramObjectARB(0);
 	
 	//
@@ -1718,7 +1721,7 @@ static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
 	GL_SelectTexture(1);
 	R_BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(dlight->attenuationMatrix3);
+	qglLoadMatrixf(dlight->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
 	
 	GL_SelectTexture(2);
@@ -1775,7 +1778,7 @@ static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
 	GL_SelectTexture(2);
 	R_BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(dlight->attenuationMatrix3);
+	qglLoadMatrixf(dlight->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
 	
 	GL_SelectTexture(3);
@@ -1844,7 +1847,7 @@ static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 	GL_SelectTexture(3);
 	R_BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(dlight->attenuationMatrix3);
+	qglLoadMatrixf(dlight->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
 	
 	GL_SelectTexture(4);
@@ -1864,6 +1867,7 @@ static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 
 static void Render_lighting_D_proj(	shaderStage_t * diffuseStage,
 									shaderStage_t * attenuationXYStage,
+									shaderStage_t * attenuationZStage,
 									trRefDlight_t * dlight)
 {
 	vec3_t          lightOrigin;
@@ -1892,8 +1896,11 @@ static void Render_lighting_D_proj(	shaderStage_t * diffuseStage,
 	GL_SelectTexture(1);
 	R_BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(dlight->attenuationMatrix3);
+	qglLoadMatrixf(dlight->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
+	
+	GL_SelectTexture(2);
+	R_BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 	
 	R_DrawElements();
 	
@@ -3334,7 +3341,7 @@ static void ComputeFinalAttenuation(shaderStage_t * pStage, trRefDlight_t * dlig
 		}
 	}
 	
-	MatrixMultiply(matrix, dlight->attenuationMatrix2, dlight->attenuationMatrix3);
+	MatrixMultiply(matrix, dlight->attenuationMatrix, dlight->attenuationMatrix2);
 }
 
 
@@ -3443,7 +3450,7 @@ void RB_StageIteratorLighting()
 						}
 						else if(dl->l.rlType == RL_PROJ)
 						{
-							Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+							Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 						}
 						else
 						{
@@ -3469,7 +3476,7 @@ void RB_StageIteratorLighting()
 							}
 							else if(dl->l.rlType == RL_PROJ)
 							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 							}
 							else
 							{
@@ -3484,7 +3491,7 @@ void RB_StageIteratorLighting()
 							}
 							else if(dl->l.rlType == RL_PROJ)
 							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 							}
 							else
 							{
@@ -3511,7 +3518,7 @@ void RB_StageIteratorLighting()
 							}
 							else if(dl->l.rlType == RL_PROJ)
 							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 							}
 							else
 							{
@@ -3526,7 +3533,7 @@ void RB_StageIteratorLighting()
 							}
 							else if(dl->l.rlType == RL_PROJ)
 							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 							}
 							else
 							{
@@ -3541,7 +3548,7 @@ void RB_StageIteratorLighting()
 							}
 							else if(dl->l.rlType == RL_PROJ)
 							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 							}
 							else
 							{
@@ -3707,7 +3714,7 @@ void RB_StageIteratorLightingStencilShadowed()
 						}
 						else if(dl->l.rlType == RL_PROJ)
 						{
-							Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+							Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 						}
 						else
 						{
@@ -3733,7 +3740,7 @@ void RB_StageIteratorLightingStencilShadowed()
 							}
 							else if(dl->l.rlType == RL_PROJ)
 							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 							}
 							else
 							{
@@ -3748,7 +3755,7 @@ void RB_StageIteratorLightingStencilShadowed()
 							}
 							else if(dl->l.rlType == RL_PROJ)
 							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 							}
 							else
 							{
@@ -3775,7 +3782,7 @@ void RB_StageIteratorLightingStencilShadowed()
 							}
 							else if(dl->l.rlType == RL_PROJ)
 							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 							}
 							else
 							{
@@ -3790,7 +3797,7 @@ void RB_StageIteratorLightingStencilShadowed()
 							}
 							else if(dl->l.rlType == RL_PROJ)
 							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 							}
 							else
 							{
@@ -3805,7 +3812,7 @@ void RB_StageIteratorLightingStencilShadowed()
 							}
 							else if(dl->l.rlType == RL_PROJ)
 							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, dl);
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
 							}
 							else
 							{

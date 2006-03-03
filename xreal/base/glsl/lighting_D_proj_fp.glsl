@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 uniform sampler2D	u_DiffuseMap;
 uniform sampler2D	u_AttenuationMapXY;
+uniform sampler2D	u_AttenuationMapZ;
 //uniform sampler2D	u_ShadowMap;
 uniform vec3		u_LightOrigin;
 uniform vec3		u_LightColor;
@@ -45,8 +46,8 @@ void	main()
 	diffuse.rgb *= u_LightColor * clamp(dot(N, L), 0.0, 1.0);
 	
 	// compute attenuation	
-//	vec3 attenuationXY = texture2D(u_AttenuationMapXY, var_TexAtten.xy).rgb;
 	vec3 attenuationXY = var_TexAtten.w < 0.0 ? vec3(0.0, 0.0, 0.0) : texture2DProj(u_AttenuationMapXY, var_TexAtten.xyw).rgb;
+//	vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(var_TexAtten.z, 0.0)).rgb;
 
 	// compute shadow
 //	vec3 shadow = textureCube(u_ShadowMap, var_TexShadow).rgb;
@@ -57,5 +58,6 @@ void	main()
 //	gl_FragColor.rgba = vec4(1.0, 1.0, 1.0, 1.0);
 	gl_FragColor.rgba = diffuse;
 	gl_FragColor.rgb *= attenuationXY;
+//	gl_FragColor.rgb *= attenuationZ;
 //	gl_FragColor.rgb *= shadow;
 }

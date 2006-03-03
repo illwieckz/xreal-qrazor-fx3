@@ -359,6 +359,26 @@ void ClampColor(vec4_t color)
 }
 
 
+vec_t PlaneNormalize(vec4_t plane)
+{
+	vec_t           length, ilength;
+
+	length = sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
+	if(length == 0)
+	{
+		VectorClear(plane);
+		return 0;
+	}
+
+	ilength = 1.0 / length;
+	plane[0] = plane[0] * ilength;
+	plane[1] = plane[1] * ilength;
+	plane[2] = plane[2] * ilength;
+	plane[3] = plane[3] * ilength;
+
+	return length;
+}
+
 
 /*
 =====================
@@ -1513,14 +1533,6 @@ void _VectorScale(const vec3_t in, vec_t scale, vec3_t out)
 #endif
 }
 
-void Vector4Scale(const vec4_t in, vec_t scale, vec4_t out)
-{
-	out[0] = in[0] * scale;
-	out[1] = in[1] * scale;
-	out[2] = in[2] * scale;
-	out[3] = in[3] * scale;
-}
-
 
 int Q_log2(int val)
 {
@@ -2172,6 +2184,26 @@ void MatrixFromQuat(matrix_t m, const quat_t q)
 	m[ 1] =   2*(xy+zw);	m[ 5] = 1-2*(xx+zz);	m[ 9] =   2*(yz-xw);	m[13] = 0;
 	m[ 2] =   2*(xz-yw);	m[ 6] =   2*(yz+xw);	m[10] = 1-2*(xx+yy);	m[14] = 0;
 	m[ 3] =   0;            m[ 7] =   0;            m[11] =   0;            m[15] = 1;
+}
+
+void MatrixFromPlanes(matrix_t m, const vec4_t left, const vec4_t right, const vec4_t bottom, const vec4_t top, const vec4_t front, const vec4_t back)
+{
+	m[ 0] = (right[0] - left[0]) / 2;
+	m[ 1] = (top[0] - bottom[0]) / 2;
+	m[ 2] = (back[0] - front[0]) / 2;
+	m[ 3] = right[0] - (right[0] - left[0]) / 2;
+	m[ 4] = (right[1] - left[1]) / 2;
+	m[ 5] = (top[1] - bottom[1]) / 2;
+	m[ 6] = (back[1] - front[1]) / 2;
+	m[ 7] = right[1] - (right[1] - left[1]) / 2;
+	m[ 8] = (right[1] - left[1]) / 2;
+	m[ 9] = (top[1] - bottom[1]) / 2;
+	m[10] = (back[1] - front[1]) / 2;
+	m[11] = right[1] - (right[1] - left[1]) / 2;
+	m[12] = (right[1] - left[1]) / 2;
+	m[13] = (top[1] - bottom[1]) / 2;
+	m[14] = (back[1] - front[1]) / 2;
+	m[15] = right[1] - (right[1] - left[1]) / 2;
 }
 
 void MatrixToVectorsFLU(const matrix_t m, vec3_t forward, vec3_t left, vec3_t up)

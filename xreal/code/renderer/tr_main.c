@@ -26,12 +26,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 trGlobals_t     tr;
 
-const float     s_flipMatrix[16] = {
-	// convert from our coordinate system (looking down X)
-	// to OpenGL's coordinate system (looking down -Z)
+// convert from our coordinate system (looking down X)
+// to OpenGL's coordinate system (looking down -Z)
+const matrix_t  quakeToOpenGLMatrix = {
 	0, 0, -1, 0,
 	-1, 0, 0, 0,
 	0, 1, 0, 0,
+	0, 0, 0, 1
+};
+
+// inverse of QuakeToOpenGL matrix
+const matrix_t  openGLToQuakeMatrix = {
+	0, -1, 0, 0,
+	0, 0, 1, 0,
+	-1, 0, 0, 0,
 	0, 0, 0, 1
 };
 
@@ -443,8 +451,7 @@ void R_LocalPointToWorld(vec3_t local, vec3_t world)
 R_TransformWorldToClip
 ==========================
 */
-void R_TransformWorldToClip(const vec3_t src, const float *cameraViewMatrix, const float *projectionMatrix, vec4_t eye,
-							vec4_t dst)
+void R_TransformWorldToClip(const vec3_t src, const float *cameraViewMatrix, const float *projectionMatrix, vec4_t eye, vec4_t dst)
 {
 	vec4_t          src2;
 
@@ -452,7 +459,6 @@ void R_TransformWorldToClip(const vec3_t src, const float *cameraViewMatrix, con
 	src2[3] = 1;
 
 	MatrixTransform4(cameraViewMatrix, src2, eye);
-
 	MatrixTransform4(projectionMatrix, eye, dst);
 }
 
@@ -469,7 +475,6 @@ void R_TransformModelToClip(const vec3_t src, const float *modelViewMatrix, cons
 	src2[3] = 1;
 
 	MatrixTransform4(modelViewMatrix, src2, eye);
-
 	MatrixTransform4(projectionMatrix, eye, dst);
 }
 
@@ -484,25 +489,6 @@ void R_TransformClipToWindow(const vec4_t clip, const viewParms_t * view, vec4_t
 	normalized[1] = clip[1] / clip[3];
 	normalized[2] = (clip[2] + clip[3]) / (2 * clip[3]);
 
-	window[0] = 0.5f * (1.0f + normalized[0]) * view->viewportWidth;
-	window[1] = 0.5f * (1.0f + normalized[1]) * view->viewportHeight;
-	window[2] = normalized[2];
-
-	window[0] = (int)(window[0] + 0.5);
-	window[1] = (int)(window[1] + 0.5);
-}
-
-/*
-==========================
-R_TransformClipToWindow2
-==========================
-*/
-void R_TransformClipToWindow2(const vec4_t clip, const viewParms_t * view, vec4_t normalized, vec4_t window)
-{
-	normalized[0] = clip[0] / clip[3];
-	normalized[1] = clip[1] / clip[3];
-	normalized[2] = (clip[2] + clip[3]) / (2 * clip[3]);
-
 	window[0] = view->viewportX + (0.5f * (1.0f + normalized[0]) * view->viewportWidth);
 	window[1] = view->viewportY + (0.5f * (1.0f + normalized[1]) * view->viewportHeight);
 	window[2] = normalized[2];
@@ -510,7 +496,6 @@ void R_TransformClipToWindow2(const vec4_t clip, const viewParms_t * view, vec4_
 	window[0] = (int)(window[0] + 0.5);
 	window[1] = (int)(window[1] + 0.5);
 }
-
 
 /*
 =================
@@ -655,7 +640,7 @@ Sets up the modelview matrix for a given viewParm
 void R_RotateForViewer(void)
 {
 	matrix_t        transformMatrix;
-	matrix_t        viewMatrix;
+//	matrix_t        viewMatrix;
 
 	Com_Memset(&tr.or, 0, sizeof(tr.or));
 	tr.or.axis[0][0] = 1;
@@ -667,13 +652,13 @@ void R_RotateForViewer(void)
 	MatrixSetupTransform(transformMatrix,
 						 tr.viewParms.or.axis[0], tr.viewParms.or.axis[1], tr.viewParms.or.axis[2], tr.viewParms.or.origin);
 
-	MatrixAffineInverse(transformMatrix, viewMatrix);
-//  MatrixAffineInverse(transformMatrix, tr.or.viewMatrix);
+//	MatrixAffineInverse(transformMatrix, viewMatrix);
+	MatrixAffineInverse(transformMatrix, tr.or.viewMatrix);
 
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
 	MatrixIdentity(tr.or.transformMatrix);
-	MatrixMultiply(s_flipMatrix, viewMatrix, tr.or.viewMatrix);
+//	MatrixMultiply(quakeToOpenGLMatrix, viewMatrix, tr.or.viewMatrix);
 	MatrixCopy(tr.or.viewMatrix, tr.or.modelViewMatrix);
 
 	tr.viewParms.world = tr.or;
@@ -692,8 +677,8 @@ void R_SetupProjection(void)
 	float           width, height, depth;
 	float           zNear, zFar;
 
-//	matrix_t        proj;
-	float          *proj = tr.viewParms.projectionMatrix;
+	matrix_t        proj;
+//	float          *proj = tr.viewParms.projectionMatrix;
 
 	// set up projection matrix
 	zNear = r_znear->value;
@@ -723,7 +708,7 @@ void R_SetupProjection(void)
 	
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
-//	MatrixMultiply(proj, s_flipMatrix, tr.viewParms.projectionMatrix);
+	MatrixMultiply(proj, quakeToOpenGLMatrix, tr.viewParms.projectionMatrix);
 }
 // *INDENT-ON*
 
@@ -1775,9 +1760,11 @@ void R_AddDlightInteractions()
 		R_SetupDlightProjection(dl);
 
 		// set up first part of the attenuation matrix
+		/*
 		MatrixSetupTranslation(dl->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-		MatrixMultiplyScale(dl->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
+		MatrixMultiplyScale(dl->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
 		MatrixMultiply2(dl->attenuationMatrix, dl->projectionMatrix);	// light projection (frustum)
+		*/
 
 		R_SetDlightScissor(dl);
 
@@ -1807,11 +1794,6 @@ void R_DebugAxis(const vec3_t origin, const matrix_t transformMatrix)
 	VectorMA(origin, 16, up, up);
 
 	// draw axis
-	GL_Program(0);
-	GL_State(GLS_DEPTHTEST_DISABLE);
-	GL_SelectTexture(0);
-	GL_Bind(tr.whiteImage);
-
 	qglLineWidth(3);
 	qglBegin(GL_LINES);
 
@@ -1860,11 +1842,6 @@ void R_DebugBoundingBox(const vec3_t origin, const vec3_t mins, const vec3_t max
 		corners[4 + i][2] = origin[2] + mins[2];
 
 	// draw bounding box
-	GL_Program(0);
-	GL_State(GLS_DEPTHTEST_DISABLE);
-	GL_SelectTexture(0);
-	GL_Bind(tr.whiteImage);
-
 	qglBegin(GL_LINES);
 	qglColor4fv(color);
 	for(i = 0; i < 4; i++)

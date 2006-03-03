@@ -440,12 +440,31 @@ R_SetupDlightLocalBounds
 */
 void R_SetupDlightLocalBounds(trRefDlight_t * dl)
 {
-	dl->localBounds[0][0] = dl->l.radius[0];
-	dl->localBounds[0][1] = dl->l.radius[1];
-	dl->localBounds[0][2] = dl->l.radius[2];
-	dl->localBounds[1][0] = -dl->l.radius[0];
-	dl->localBounds[1][1] = -dl->l.radius[1];
-	dl->localBounds[1][2] = -dl->l.radius[2];
+	switch (dl->l.rlType)
+	{
+		default:
+		case RL_OMNI:
+		{
+			dl->localBounds[0][0] = dl->l.radius[0];
+			dl->localBounds[0][1] = dl->l.radius[1];
+			dl->localBounds[0][2] = dl->l.radius[2];
+			dl->localBounds[1][0] = -dl->l.radius[0];
+			dl->localBounds[1][1] = -dl->l.radius[1];
+			dl->localBounds[1][2] = -dl->l.radius[2];
+			break;
+		}
+		
+		case RL_PROJ:
+		{
+			dl->localBounds[0][0] = dl->l.radius[0];
+			dl->localBounds[0][1] = dl->l.radius[1];
+			dl->localBounds[0][2] = dl->l.radius[2];
+			dl->localBounds[1][0] = 0;
+			dl->localBounds[1][1] = -dl->l.radius[1];
+			dl->localBounds[1][2] = -dl->l.radius[2];
+			break;
+		}
+	}
 }
 
 /*
@@ -481,34 +500,44 @@ R_SetupDlightFrustum
 */
 void R_SetupDlightFrustum(trRefDlight_t * dl)
 {
-	int             i;
-	vec3_t          planeNormal;
-	vec3_t          planeOrigin;
-	
-	for(i = 0; i < 3; i++)
+	switch (dl->l.rlType)
 	{
-		VectorCopy(dl->l.origin, planeOrigin);
+		case RL_OMNI:
+		{
+			int             i;
+			vec3_t          planeNormal;
+			vec3_t          planeOrigin;
+
+			for(i = 0; i < 3; i++)
+			{
+				VectorCopy(dl->l.origin, planeOrigin);
+
+				VectorNegate(dl->l.axis[i], planeNormal);
+				planeOrigin[i] += dl->l.radius[i];
+
+				VectorCopy(planeNormal, dl->frustum[i].normal);
+				dl->frustum[i].type = PlaneTypeForNormal(planeNormal);
+				dl->frustum[i].dist = DotProduct(planeOrigin, planeNormal);
+				SetPlaneSignbits(&dl->frustum[i]);
+			}
+
+			for(i = 0; i < 3; i++)
+			{
+				VectorCopy(dl->l.origin, planeOrigin);
+
+				VectorCopy(dl->l.axis[i], planeNormal);
+				planeOrigin[i] -= dl->l.radius[i];
+
+				VectorCopy(planeNormal, dl->frustum[i + 3].normal);
+				dl->frustum[i + 3].type = PlaneTypeForNormal(planeNormal);
+				dl->frustum[i + 3].dist = DotProduct(planeOrigin, planeNormal);
+				SetPlaneSignbits(&dl->frustum[i + 3]);
+			}
+			break;
+		}
 		
-		VectorNegate(dl->l.axis[i], planeNormal);
-		planeOrigin[i] += dl->l.radius[i];
-		
-		VectorCopy(planeNormal, dl->frustum[i].normal);
-		dl->frustum[i].type = PlaneTypeForNormal(planeNormal);
-		dl->frustum[i].dist = DotProduct(planeOrigin, planeNormal);
-		SetPlaneSignbits(&dl->frustum[i]);
-	}
-	
-	for(i = 0; i < 3; i++)
-	{
-		VectorCopy(dl->l.origin, planeOrigin);
-		
-		VectorCopy(dl->l.axis[i], planeNormal);
-		planeOrigin[i] -= dl->l.radius[i];
-		
-		VectorCopy(planeNormal, dl->frustum[i + 3].normal);
-		dl->frustum[i + 3].type = PlaneTypeForNormal(planeNormal);
-		dl->frustum[i + 3].dist = DotProduct(planeOrigin, planeNormal);
-		SetPlaneSignbits(&dl->frustum[i + 3]);
+		default:
+			break;
 	}
 }
 
@@ -530,18 +559,19 @@ void R_SetupDlightProjection(trRefDlight_t * dl)
 
 		case RL_PROJ:
 		{
+#if 1
 			float           xMin, xMax, yMin, yMax;
 			float           width, height, depth;
 			float           zNear, zFar;
 			float           fovX, fovY;
 			vec3_t          target, right, up;
 			float          *proj = dl->projectionMatrix;
-			
+
 			MatrixTransformNormal(dl->transformMatrix, dl->l.target, target);
 			MatrixTransformNormal(dl->transformMatrix, dl->l.right, right);
 			MatrixTransformNormal(dl->transformMatrix, dl->l.up, up);
 
-			fovX = 60;
+			fovX = 30;
 			fovY = R_CalcFov(fovX, VectorLength(right) * 2, VectorLength(up) * 2);
 
 			zNear = 1.0;
@@ -557,28 +587,145 @@ void R_SetupDlightProjection(trRefDlight_t * dl)
 			height = yMax - yMin;
 			depth = zFar - zNear;
 
-			// FIXME - do this without the extra rotation mult
+			// standard OpenGL projection matrix
 			proj[0] = 2 * zNear / width;
 			proj[4] = 0;
 			proj[8] = (xMax + xMin) / width;
 			proj[12] = 0;
-			
+
 			proj[1] = 0;
 			proj[5] = 2 * zNear / height;
 			proj[9] = (yMax + yMin) / height;
 			proj[13] = 0;
-			
+
 			proj[2] = 0;
 			proj[6] = 0;
 			proj[10] = -(zFar + zNear) / depth;
 			proj[14] = -2 * zFar * zNear / depth;
-			
+
 			proj[3] = 0;
 			proj[7] = 0;
 			proj[11] = -1;
 			proj[15] = 0;
 			
+			// HACK: rotate transform into the direction we are facing
 			MatrixMultiplyRotation(proj, 90, 90, 0);
+#else
+			// Tr3B - recoded from GtkRadiant entity plugin source
+			int             i;
+			vec4_t          lightProject[4];
+			vec4_t          frustum[6];
+			vec3_t          start, stop;
+			vec3_t          right, up;
+			vec4_t          targetGlobal;
+			float           rLen, uLen, fLen;
+			vec3_t          normal;
+			vec_t           dist;
+			vec3_t          falloff;
+			
+			float          *proj = dl->projectionMatrix;
+
+			//MatrixTransformNormal(dl->transformMatrix, dl->l.target, target);
+			//MatrixTransformNormal(dl->transformMatrix, dl->l.right, right);
+			//MatrixTransformNormal(dl->transformMatrix, dl->l.up, up);
+			
+
+			VectorNormalize2(dl->l.target, start);
+			VectorCopy(dl->l.target, stop);
+
+			rLen = VectorNormalize2(dl->l.right, right);
+			uLen = VectorNormalize2(dl->l.up, up);
+			
+			CrossProduct(up, right, normal);
+			dist = DotProduct(dl->l.target, normal);
+
+			if(dist < 0)
+			{
+				dist = -dist;
+				VectorInverse(normal);
+			}
+
+			VectorScale(right, (0.5f * dist) / rLen, right);
+			VectorScale(up, -(0.5f * dist) / uLen, up);
+
+			VectorCopy(normal, lightProject[2]);
+			lightProject[2][3] = 0;
+			
+			VectorCopy(right, lightProject[0]);
+			lightProject[0][3] = 0;
+			
+			VectorCopy(up, lightProject[1]);
+			lightProject[1][3] = 0;
+
+			// now offset to center
+			VectorCopy(dl->l.target, targetGlobal);
+			targetGlobal[3] = 1;
+
+			{
+				float           a, b, ofs;
+				a = DotProduct4(targetGlobal, lightProject[0]);
+				b = DotProduct4(targetGlobal, lightProject[2]);
+				ofs = 0.5f - a / b;
+
+				VectorMA4(lightProject[0], ofs, lightProject[2], lightProject[0]);
+			}
+			{
+				float           a, b, ofs;
+				a = DotProduct4(targetGlobal, lightProject[1]);
+				b = DotProduct4(targetGlobal, lightProject[2]);
+				ofs = 0.5f - a / b;
+
+				VectorMA4(lightProject[1], ofs, lightProject[2], lightProject[1]);
+			}
+
+			// set the falloff vector
+			VectorSubtract(stop, start, falloff);
+			fLen = VectorNormalize(falloff);
+			if(fLen <= 0)
+			{
+				fLen = 1;
+			}
+			VectorScale(falloff, (1.0f / fLen), falloff);
+			
+			VectorCopy(falloff, lightProject[3]);
+			lightProject[3][3] = -DotProduct(start, falloff);
+
+			// we want the planes of s=0, s=q, t=0, and t=q
+			
+			// left
+			VectorCopy4(lightProject[0], frustum[0]);
+			
+			// bottom
+			VectorCopy4(lightProject[1], frustum[1]);
+			
+			// right
+			VectorSubtract(lightProject[2], lightProject[0], frustum[2]);
+			frustum[2][3] = lightProject[2][3] - lightProject[0][3];
+			
+			// top
+			VectorSubtract(lightProject[2], lightProject[1], frustum[3]);
+			frustum[3][3] = lightProject[2][3] - lightProject[1][3];
+			
+			// we want the planes of s=0 and s=1 for front and rear clipping planes
+			
+			// front
+			VectorCopy4(lightProject[3], frustum[4]);
+			
+			// back
+			VectorNegate(lightProject[3], frustum[5]);
+			frustum[5][3] = lightProject[3][3] - 1.0f;
+			
+			MatrixFromPlanes(proj, frustum[0], frustum[1], frustum[2], frustum[3], frustum[4], frustum[5]);
+			
+			for(i = 0; i < 6; i++)
+			{
+				PlaneNormalize(frustum[i]);
+				VectorNegate(frustum[i], dl->frustum[i].normal);
+				dl->frustum[i].type = PlaneTypeForNormal(dl->frustum[i].normal);
+				dl->frustum[i].dist = frustum[i][3];
+				SetPlaneSignbits(&dl->frustum[i]);
+			}
+#endif
 			break;
 		}
 
@@ -586,6 +733,7 @@ void R_SetupDlightProjection(trRefDlight_t * dl)
 			ri.Error(ERR_DROP, "R_SetupDlightProjection: Bad rlType");
 	}
 }
+
 
 
 /*
@@ -869,7 +1017,7 @@ static void R_AddPointToLightScissor(trRefDlight_t * light, const vec3_t world)
 	vec4_t          eye, clip, normalized, window;
 	
 	R_TransformWorldToClip(world, tr.viewParms.world.viewMatrix, tr.viewParms.projectionMatrix, eye, clip);
-	R_TransformClipToWindow2(clip, &tr.viewParms, normalized, window);
+	R_TransformClipToWindow(clip, &tr.viewParms, normalized, window);
 	
 	if(window[0] > light->scissor.coords[2])
 		light->scissor.coords[2] = (int)window[0];

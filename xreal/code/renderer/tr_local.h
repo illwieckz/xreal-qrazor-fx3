@@ -81,16 +81,16 @@ typedef struct trRefDlight_s
 	refDlight_t		l;
 	
 	// local
-	qboolean        isStatic;			// loaded from the BSP entities lump
-	qboolean        additive;			// texture detail is lost tho when the lightmap is dark
-	vec3_t          origin;				// l.origin + rotated l.center
-	vec3_t          transformed;		// origin in local coordinate system
-	matrix_t		transformMatrix;	// light to world
-	matrix_t		viewMatrix;			// object to light
-	matrix_t		projectionMatrix;	// light frustum
-	matrix_t		attenuationMatrix;	// object to light attenuation texture space
-	matrix_t		attenuationMatrix2;	// attenuation * (light view * entity transform)
-	matrix_t		attenuationMatrix3;	// attenuation2 * tcMod matrices
+	qboolean        isStatic;				// loaded from the BSP entities lump
+	qboolean        additive;				// texture detail is lost tho when the lightmap is dark
+	vec3_t          origin;					// l.origin + rotated l.center
+	vec3_t          transformed;			// origin in local coordinate system
+	matrix_t		transformMatrix;		// light to world
+	matrix_t		viewMatrix;				// object to light
+	matrix_t		projectionMatrix;		// light frustum
+	
+	matrix_t		attenuationMatrix;		// attenuation * (light view * entity transform)
+	matrix_t		attenuationMatrix2;		// attenuation * tcMod matrices		
 	
 	cullResult_t	cull;
 	vec3_t			localBounds[2];
@@ -1661,6 +1661,9 @@ typedef struct
 	float           fogTable[FOG_TABLE_SIZE];
 } trGlobals_t;
 
+extern const matrix_t  quakeToOpenGLMatrix;
+extern const matrix_t  openGLToQuakeMatrix;
+
 extern backEndState_t backEnd;
 extern trGlobals_t tr;
 extern glconfig_t glConfig;		// outside of TR since it shouldn't be cleared during ref re-init
@@ -2377,7 +2380,6 @@ void            R_TransformWorldToClip(const vec3_t src, const float *cameraView
 void            R_TransformModelToClip(const vec3_t src, const float *modelViewMatrix,
 									   const float *projectionMatrix, vec4_t eye, vec4_t dst);
 void            R_TransformClipToWindow(const vec4_t clip, const viewParms_t * view, vec4_t normalized, vec4_t window);
-void            R_TransformClipToWindow2(const vec4_t clip, const viewParms_t * view, vec4_t normalized, vec4_t window);
 
 void            RB_DeformTessGeometry(void);
 
