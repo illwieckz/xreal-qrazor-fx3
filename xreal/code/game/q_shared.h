@@ -32,12 +32,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef Q3_VM
 typedef long intptr_t;
+#elif _MSC_VER && !defined(intptr_t)
+typedef long intptr_t;
 #else
-#ifdef _MSC_VER
+//#include <inttypes.h>
 #include <stdint.h>
-#else
-#include <inttypes.h>
-#endif
 #endif
 
 #define PAD(x,y) (((x)+(y)-1) & ~((y)-1))
@@ -66,6 +65,7 @@ typedef long intptr_t;
 #pragma warning(disable : 4702)	// unreachable code
 #pragma warning(disable : 4711)	// selected for automatic inline expansion
 #pragma warning(disable : 4220)	// varargs matches remaining parameters
+#define _CRT_SECURE_NO_DEPRECATE
 #endif
 
 /**********************************************************************

@@ -993,8 +993,14 @@ void VM_LogSyscalls(int *args)
 		f = fopen("syscalls.log", "w");
 	}
 	callnum++;
+
+#if !defined(PRIiPTR)
+	fprintf(f, "%i: %i (%i) = %i %i %i %i\n", callnum, (intptr_t) (args - (int *)currentVM->dataBase),
+			args[0], args[1], args[2], args[3], args[4]);
+#else
 	fprintf(f, "%i: %" PRIiPTR " (%i) = %i %i %i %i\n", callnum, (intptr_t) (args - (int *)currentVM->dataBase),
 			args[0], args[1], args[2], args[3], args[4]);
+#endif
 }
 
 
