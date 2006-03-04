@@ -1425,6 +1425,25 @@ static void GLW_InitExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, "...GL_EXT_stencil_two_side not found\n");
 	}
+	
+	// GL_EXT_depth_bounds_test
+	qglDepthBoundsEXT = NULL;
+	if(strstr(glConfig.extensions_string, "GL_EXT_depth_bounds_test"))
+	{
+		if(r_ext_depth_bounds_test->value)
+		{
+			qglDepthBoundsEXT = (PFNGLDEPTHBOUNDSEXTPROC)qwglGetProcAddress("glDepthBoundsEXT");
+			ri.Printf(PRINT_ALL, "...using GL_EXT_depth_bounds_test\n");
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_EXT_depth_bounds_test\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_EXT_depth_bounds_test not found\n");
+	}
 
 	// GL_EXT_framebuffer_object
 	glConfig2.framebufferObjectAvailable = qfalse;

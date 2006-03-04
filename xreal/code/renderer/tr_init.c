@@ -96,6 +96,7 @@ cvar_t         *r_ext_shading_language_100;
 cvar_t         *r_ext_stencil_wrap;
 cvar_t         *r_ext_texture_filter_anisotropic;
 cvar_t         *r_ext_stencil_two_side;
+cvar_t         *r_ext_depth_bounds_test;
 cvar_t         *r_ext_framebuffer_object;
 
 cvar_t         *r_ignoreGLErrors;
@@ -268,6 +269,9 @@ void            (APIENTRY * qglUnlockArraysEXT) (void);
 
 // GL_EXT_stencil_two_side
 void            (APIENTRY * qglActiveStencilFaceEXT) (GLenum face);
+
+// GL_EXT_depth_bounds_test
+void            (APIENTRY * qglDepthBoundsEXT) (GLclampd zmin, GLclampd zmax);
 
 // GL_EXT_framebuffer_object
 GLboolean(APIENTRY * qglIsRenderbufferEXT) (GLuint renderbuffer);
@@ -1113,8 +1117,9 @@ void R_Register(void)
 	r_ext_fragment_shader = ri.Cvar_Get("r_ext_fragment_shader", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_stencil_wrap = ri.Cvar_Get("r_ext_stencil_wrap", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_shading_language_100 = ri.Cvar_Get("r_ext_shading_language_100", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_stencil_two_side = ri.Cvar_Get("r_ext_stencil_two_side", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_texture_filter_anisotropic = ri.Cvar_Get("r_ext_texture_filter_anisotropic", "8", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_stencil_two_side = ri.Cvar_Get("r_ext_stencil_two_side", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_depth_bounds_test = ri.Cvar_Get("r_ext_depth_bounds_test", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_framebuffer_object = ri.Cvar_Get("r_ext_framebuffer_object", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
 	r_collapseStages = ri.Cvar_Get("r_collapseStages", "1", CVAR_LATCH | CVAR_CHEAT);

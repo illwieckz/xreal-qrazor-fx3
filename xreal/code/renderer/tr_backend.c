@@ -1037,6 +1037,20 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 
 			// set light scissor to reduce fillrate
 			qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
+			
+			// set depth test to reduce fillrate
+			if(qglDepthBoundsEXT)
+			{
+				if(!ia->noDepthBoundsTest)
+				{
+					qglEnable(GL_DEPTH_BOUNDS_TEST_EXT);
+					qglDepthBoundsEXT(ia->depthNear, ia->depthFar);
+				}
+				else
+				{
+					qglDisable(GL_DEPTH_BOUNDS_TEST_EXT);
+				}
+			}
 
 			if(drawShadows)
 			{
@@ -1315,9 +1329,15 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 		qglDepthRange(0, 1);
 	}
 
-	// reset scissor
+	// reset scissor clamping
 	qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
+			   
+	// reset depth clamping
+	if(qglDepthBoundsEXT)
+	{
+		qglDisable(GL_DEPTH_BOUNDS_TEST_EXT);
+	}
 
 	// restore OpenGL state
 	GL_Program(0);

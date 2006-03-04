@@ -7,18 +7,22 @@ code/game/shared
 - quaternion math
 - improved tokenizer
 
+code/game
+- experimental Lua 5.1 layer for level entity scripting allowing map designers to control entities like in Doom3
+
 code/renderer
-- new extension GL_ARB_transpose_matrix
-- new extension GL_ARB_vertex_program
-- new extension GL_ARB_vertex_buffer_object
-- new extension GL_ARB_shader_objects
-- new extension GL_ARB_vertex_shader
-- new extension GL_ARB_fragment_shader
-- new extension GL_ARB_shading_language_100
-- new extension GL_EXT_texture_filter_anisotropic
-- new extension GL_EXT_stencil_wrap
-- new extension GL_EXT_stencil_two_side
-- new extension GL_EXT_framebuffer_object
+- new OpenGL extension GL_ARB_transpose_matrix
+- new OpenGL extension GL_ARB_vertex_program
+- new OpenGL extension GL_ARB_vertex_buffer_object
+- new OpenGL extension GL_ARB_shader_objects
+- new OpenGL extension GL_ARB_vertex_shader
+- new OpenGL extension GL_ARB_fragment_shader
+- new OpenGL extension GL_ARB_shading_language_100
+- new OpenGL extension GL_EXT_texture_filter_anisotropic
+- new OpenGL extension GL_EXT_stencil_wrap
+- new OpenGL extension GL_EXT_stencil_two_side
+- new OpenGL extension GL_EXT_depth_bounds_test
+- new OpenGL extension GL_EXT_framebuffer_object
 - GLSL rendering capabilities in renderer backend
 - tangent space calculations for normal mapping based rendering techniques
 - directional specular bump mapping
@@ -43,6 +47,7 @@ code/renderer
 - r_dynamiclight 2 skips precomputed lighting and uses pure realtime lighting and shadowing
 - r_lighting cvar determines lighting mode
   0 = diffuse lighting, 1 = bump mapping, 2 = specular bump mapping
+- usage of vertex buffer objects to speed up rendering of large static models
 
 code/q3_ui
 - lighting mode game option

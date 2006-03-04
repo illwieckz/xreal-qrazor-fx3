@@ -96,6 +96,9 @@ typedef struct trRefDlight_s
 	vec3_t			localBounds[2];
 	vec3_t			worldBounds[2];
 	
+	float			depthBounds[2];			// zNear, zFar for GL_EXT_depth_bounds_test
+	qboolean		noDepthBoundsTest;
+	
 	cplane_t        frustum[6];
 	
 	screenRect_t    scissor;
@@ -951,6 +954,10 @@ typedef struct interaction_s
 	int            *shadowIndexes;	// precached triangle indices of shadow edges
 		
 	int             scissorX, scissorY, scissorWidth, scissorHeight;
+	
+	float			depthNear;			// for GL_EXT_depth_bounds_test
+	float           depthFar;
+	qboolean		noDepthBoundsTest;
 } interaction_t;
 
 #define	MAX_EDGES	32
@@ -1759,6 +1766,7 @@ extern cvar_t  *r_ext_shading_language_100;
 extern cvar_t  *r_ext_stencil_wrap;
 extern cvar_t  *r_ext_texture_filter_anisotropic;
 extern cvar_t  *r_ext_stencil_two_side;
+extern cvar_t  *r_ext_depth_bounds_test;
 extern cvar_t  *r_ext_framebuffer_object;
 
 extern cvar_t  *r_nobind;		// turns off binding to appropriate textures
@@ -2277,7 +2285,8 @@ void            R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * su
 
 void            R_SortInteractions(trRefDlight_t * light);
 
-void            R_SetDlightScissor(trRefDlight_t * light);
+void            R_SetupDlightScissor(trRefDlight_t * light);
+void            R_SetupDlightDepthBounds(trRefDlight_t * light);
 /*
 ============================================================
 

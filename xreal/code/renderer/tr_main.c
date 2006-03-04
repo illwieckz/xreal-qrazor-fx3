@@ -1672,8 +1672,11 @@ void R_AddSlightInteractions()
 		if(!BoundsIntersect(dl->worldBounds[0], dl->worldBounds[1], tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]))
 			continue;
 
-		// create temporary light scissor
-		R_SetDlightScissor(dl);
+		// set up view dependent light scissor
+		R_SetupDlightScissor(dl);
+		
+		// set up view dependent light depth bounds
+		R_SetupDlightDepthBounds(dl);
 
 		// setup interactions
 		dl->numInteractions = 0;
@@ -1759,7 +1762,11 @@ void R_AddDlightInteractions()
 		// set up projection
 		R_SetupDlightProjection(dl);
 
-		R_SetDlightScissor(dl);
+		// set up view dependent light scissor
+		R_SetupDlightScissor(dl);
+		
+		// set up view dependent light depth bounds
+		R_SetupDlightDepthBounds(dl);
 
 		// setup interactions
 		dl->numInteractions = 0;

@@ -886,6 +886,10 @@ void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shad
 	ia->scissorY = light->scissor.coords[1];
 	ia->scissorWidth = light->scissor.coords[2] - light->scissor.coords[0];
 	ia->scissorHeight = light->scissor.coords[3] - light->scissor.coords[1];
+	
+	ia->depthNear = light->depthBounds[0];
+	ia->depthFar = light->depthBounds[1];
+	ia->noDepthBoundsTest = light->noDepthBoundsTest;
 
 	if(light->isStatic)
 	{
@@ -1084,7 +1088,7 @@ Recturns the screen space rectangle taken by the box.
 Tr3B - recoded from Tenebrae2
 =================
 */
-void R_SetDlightScissor(trRefDlight_t * light)
+void R_SetupDlightScissor(trRefDlight_t * light)
 {
 	vec3_t          v1, v2;
 
@@ -1154,4 +1158,33 @@ void R_SetDlightScissor(trRefDlight_t * light)
 	VectorSet(v1, light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
 	VectorSet(v2, light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
 	R_AddEdgeToLightScissor(light, v1, v2);
+}
+
+
+/*
+=================
+R_SetupDlightDepthBounds
+=================
+*/
+void R_SetupDlightDepthBounds(trRefDlight_t * dl)
+{
+	float           radius;
+	float           dist;
+	cplane_t       *nearPlane;
+
+	radius = RadiusFromBounds(dl->localBounds[0], dl->localBounds[1]);
+	
+	// distance from light origin to near plane
+	nearPlane = &tr.viewParms.frustum[4];
+	
+	dist = DotProduct(dl->l.origin, nearPlane->normal) - nearPlane->dist;
+	
+	if((dist < -radius) || (dist <= radius))
+	{
+		// light behind near plane or clipped
+		dl->noDepthBoundsTest = qtrue;
+	}
+	
+	dl->depthBounds[0] = dist - radius;
+	dl->depthBounds[1] = dist + radius;
 }
