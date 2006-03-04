@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <stdlib.h>
 
 #define MAX_ASE_MATERIALS			32
-#define MAX_ASE_OBJECTS				64
+#define MAX_ASE_OBJECTS				128
 #define MAX_ASE_ANIMATIONS			32
 #define MAX_ASE_ANIMATION_FRAMES	512
 
@@ -459,6 +459,11 @@ static void ASE_KeyMAP_DIFFUSE(const char *token)
 		if(strstr(buff1, "base/"))
 		{
 			strcpy(ase.materials[ase.numMaterials].name, strstr(buff1, "base/") + strlen("base/"));
+			VERBOSE(("..material name: '%s'\n", ase.materials[ase.numMaterials].name));
+		}
+		else if(strstr(buff1, "556mmfmj/"))
+		{
+			strcpy(ase.materials[ase.numMaterials].name, strstr(buff1, "556mmfmj/") + strlen("556mmfmj/"));
 			VERBOSE(("..material name: '%s'\n", ase.materials[ase.numMaterials].name));
 		}
 		else if(strstr(buff2, buff1 + 2))
