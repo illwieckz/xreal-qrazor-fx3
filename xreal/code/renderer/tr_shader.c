@@ -3049,6 +3049,37 @@ static qboolean ParseShader(char **text)
 			SurfaceParm("noShadows");
 			continue;
 		}
+		// forceShadows
+		else if(!Q_stricmp(token, "forceShadows"))
+		{
+			shader.forceShadows = qtrue;
+			SurfaceParm("forceShadows");
+			continue;
+		}
+		// noPortalFog
+		else if(!Q_stricmp(token, "noPortalFog"))
+		{
+			shader.noPortalFog = qtrue;
+			continue;
+		}
+		// fogLight
+		else if(!Q_stricmp(token, "fogLight"))
+		{
+			shader.fogLight = qtrue;
+			continue;
+		}
+		// blendLight
+		else if(!Q_stricmp(token, "blendLight"))
+		{
+			shader.blendLight = qtrue;
+			continue;
+		}
+		// ambientLight
+		else if(!Q_stricmp(token, "ambientLight"))
+		{
+			shader.ambientLight = qtrue;
+			continue;
+		}
 		// translucent
 		else if(!Q_stricmp(token, "translucent"))
 		{
