@@ -1,1 +1,0 @@
-/opt/src/GtkRadiant/libs/string/pooledstring.h
