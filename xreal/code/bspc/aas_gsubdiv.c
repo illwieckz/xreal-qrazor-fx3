@@ -52,7 +52,7 @@ void AAS_SplitFace(tmp_face_t * face, vec3_t normal, float dist, tmp_face_t ** f
 
 	ClipWindingEpsilon(face->winding, normal, dist, FACECLIP_EPSILON, &frontw, &backw);
 
-#ifdef DEBUG
+#ifdef _DEBUG
 	//
 	if(frontw)
 	{
@@ -233,7 +233,7 @@ void AAS_SplitArea(tmp_area_t * tmparea, int planenum, tmp_area_t ** frontarea, 
 	if(!splitwinding)
 	{
 /*
-#ifdef DEBUG
+#ifdef _DEBUG
 		AAS_TestSplitPlane(areanum, normal, dist,
 											&facesplits, &groundsplits, &epsilonface);
 		Log_Print("\nface splits = %d\nground splits = %d\n", facesplits, groundsplits);

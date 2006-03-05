@@ -450,7 +450,7 @@ int BotReachabilityArea(vec3_t origin, int testground)
 		} //end for
 		if (!testground) break;
 	} //end for
-//#ifdef DEBUG
+//#ifdef _DEBUG
 	//botimport.Print(PRT_MESSAGE, "no reachability area\n");
 //#endif //DEBUG
 	return firstareanum;
@@ -851,7 +851,7 @@ int BotGetReachabilityToGoal(vec3_t origin, int areanum,
 		}						//end for
 		if(i != MAX_AVOIDREACH && avoidreachtries[i] > AVOIDREACH_TRIES)
 		{
-#ifdef DEBUG
+#ifdef _DEBUG
 			if(bot_developer)
 			{
 				botimport.Print(PRT_MESSAGE, "avoiding reachability %d\n", avoidreach[i]);
@@ -1419,7 +1419,7 @@ void BotCheckBlocked(bot_movestate_t * ms, vec3_t dir, int checkbottom, bot_move
 	{
 		result->blocked = qtrue;
 		result->blockentity = trace.ent;
-#ifdef DEBUG
+#ifdef _DEBUG
 		//botimport.Print(PRT_MESSAGE, "%d: BotCheckBlocked: I'm blocked\n", ms->client);
 #endif							//DEBUG
 	}							//end if
@@ -1435,7 +1435,7 @@ void BotCheckBlocked(bot_movestate_t * ms, vec3_t dir, int checkbottom, bot_move
 			result->blocked = qtrue;
 			result->blockentity = trace.ent;
 			result->flags |= MOVERESULT_ONTOPOFOBSTACLE;
-#ifdef DEBUG
+#ifdef _DEBUG
 			//botimport.Print(PRT_MESSAGE, "%d: BotCheckBlocked: I'm blocked\n", ms->client);
 #endif							//DEBUG
 		}						//end if
@@ -1538,7 +1538,7 @@ bot_moveresult_t BotFinishTravel_Walk(bot_movestate_t * ms, aas_reachability_t *
 	   ms->areanum = BotFuzzyPointReachabilityArea(ms->origin);
 	   if (ms->areanum == reach->areanum)
 	   {
-	   #ifdef DEBUG
+	   #ifdef _DEBUG
 	   botimport.Print(PRT_MESSAGE, "BotFinishTravel_Walk: already in reach area\n");
 	   #endif //DEBUG
 	   return result;
@@ -3233,7 +3233,7 @@ bot_moveresult_t BotMoveInGoalArea(bot_movestate_t * ms, bot_goal_t * goal)
 	vec3_t          dir;
 	float           dist, speed;
 
-#ifdef DEBUG
+#ifdef _DEBUG
 	//botimport.Print(PRT_MESSAGE, "%s: moving straight to goal\n", ClientName(ms->entitynum-1));
 	//AAS_ClearShownDebugLines();
 	//AAS_DebugLine(ms->origin, goal->origin, LINECOLOR_RED);
@@ -3309,7 +3309,7 @@ void BotMoveToGoal(bot_moveresult_t * result, int movestate, bot_goal_t * goal, 
 	//
 	if(!goal)
 	{
-#ifdef DEBUG
+#ifdef _DEBUG
 		botimport.Print(PRT_MESSAGE, "client %d: movetogoal -> no goal\n", ms->client);
 #endif							//DEBUG
 		result->failure = qtrue;
@@ -3484,7 +3484,7 @@ void BotMoveToGoal(bot_moveresult_t * result, int movestate, bot_goal_t * goal, 
 			}					//end if
 			else
 			{
-#ifdef DEBUG
+#ifdef _DEBUG
 				if(bot_developer)
 				{
 					if(ms->reachability_time < AAS_Time())
@@ -3516,7 +3516,7 @@ void BotMoveToGoal(bot_moveresult_t * result, int movestate, bot_goal_t * goal, 
 			//if the area has no reachability links
 			if(!AAS_AreaReachability(ms->areanum))
 			{
-#ifdef DEBUG
+#ifdef _DEBUG
 				if(bot_developer)
 				{
 					botimport.Print(PRT_MESSAGE, "area %d no reachability\n", ms->areanum);
@@ -3545,7 +3545,7 @@ void BotMoveToGoal(bot_moveresult_t * result, int movestate, bot_goal_t * goal, 
 				BotAddToAvoidReach(ms, reachnum, AVOIDREACH_TIME);
 #endif							//AVOIDREACH
 			}					//end if
-#ifdef DEBUG
+#ifdef _DEBUG
 
 			else if(bot_developer)
 			{
@@ -3582,7 +3582,7 @@ void BotMoveToGoal(bot_moveresult_t * result, int movestate, bot_goal_t * goal, 
 			AAS_ShowReachability(&reach);
 #endif							//DEBUG_AI_MOVE
 			//
-#ifdef DEBUG
+#ifdef _DEBUG
 			//botimport.Print(PRT_MESSAGE, "client %d: ", ms->client);
 			//AAS_PrintTravelType(reach.traveltype);
 			//botimport.Print(PRT_MESSAGE, "\n");
@@ -3649,7 +3649,7 @@ void BotMoveToGoal(bot_moveresult_t * result, int movestate, bot_goal_t * goal, 
 			result->flags |= resultflags;
 			Com_Memset(&reach, 0, sizeof(aas_reachability_t));
 		}						//end else
-#ifdef DEBUG
+#ifdef _DEBUG
 		if(bot_developer)
 		{
 			if(result->failure)
@@ -3721,7 +3721,7 @@ void BotMoveToGoal(bot_moveresult_t * result, int movestate, bot_goal_t * goal, 
 			//botimport.Print(PRT_MESSAGE, "%s: NOT onground, swimming or against ladder\n", ClientName(ms->entitynum-1));
 			AAS_ReachabilityFromNum(ms->lastreachnum, &reach);
 			result->traveltype = reach.traveltype;
-#ifdef DEBUG
+#ifdef _DEBUG
 			//botimport.Print(PRT_MESSAGE, "client %d finish: ", ms->client);
 			//AAS_PrintTravelType(reach.traveltype & TRAVELTYPE_MASK);
 			//botimport.Print(PRT_MESSAGE, "\n");
@@ -3778,7 +3778,7 @@ void BotMoveToGoal(bot_moveresult_t * result, int movestate, bot_goal_t * goal, 
 				}				//end case
 			}					//end switch
 			result->traveltype = reach.traveltype;
-#ifdef DEBUG
+#ifdef _DEBUG
 			if(bot_developer)
 			{
 				if(result->failure)

@@ -316,7 +316,7 @@ weightconfig_t *ReadWeightConfig(char *filename)
 	fuzzyseperator_t *fs;
 	weightconfig_t *config = NULL;
 
-#ifdef DEBUG
+#ifdef _DEBUG
 	int             starttime;
 
 	starttime = Sys_MilliSeconds();
@@ -454,7 +454,7 @@ weightconfig_t *ReadWeightConfig(char *filename)
 	FreeSource(source);
 	//if the file was located in a pak file
 	botimport.Print(PRT_MESSAGE, "loaded %s\n", filename);
-#ifdef DEBUG
+#ifdef _DEBUG
 	if(bot_developer)
 	{
 		botimport.Print(PRT_MESSAGE, "weights loaded in %d msec\n", Sys_MilliSeconds() - starttime);

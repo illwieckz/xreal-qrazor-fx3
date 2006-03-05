@@ -406,7 +406,7 @@ int BotLoadCachedCharacter(char *charfile, float skill, int reload)
 	int             handle, cachedhandle, intskill;
 	bot_character_t *ch = NULL;
 
-#ifdef DEBUG
+#ifdef _DEBUG
 	int             starttime;
 
 	starttime = Sys_MilliSeconds();
@@ -439,7 +439,7 @@ int BotLoadCachedCharacter(char *charfile, float skill, int reload)
 		botcharacters[handle] = ch;
 		//
 		botimport.Print(PRT_MESSAGE, "loaded skill %d from %s\n", intskill, charfile);
-#ifdef DEBUG
+#ifdef _DEBUG
 		if(bot_developer)
 		{
 			botimport.Print(PRT_MESSAGE, "skill %d loaded in %d msec from %s\n", intskill, Sys_MilliSeconds() - starttime,

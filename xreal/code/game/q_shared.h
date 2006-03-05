@@ -39,6 +39,12 @@ typedef long intptr_t;
 #include <stdint.h>
 #endif
 
+/*
+#if !defined(DEBUG) && defined(_DEBUG)
+#define DEBUG
+#endif
+*/
+
 #define PAD(x,y) (((x)+(y)-1) & ~((y)-1))
 
 #define MAX_TEAMNAME 32

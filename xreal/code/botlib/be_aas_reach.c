@@ -4768,7 +4768,7 @@ int AAS_ContinueInitReachability(float time)
 		//create func_bobbing reachabilities
 		AAS_Reachability_FuncBobbing();
 		//
-#ifdef DEBUG
+#ifdef _DEBUG
 		botimport.Print(PRT_MESSAGE, "%6d reach swim\n", reach_swim);
 		botimport.Print(PRT_MESSAGE, "%6d reach equal floor\n", reach_equalfloor);
 		botimport.Print(PRT_MESSAGE, "%6d reach step\n", reach_step);

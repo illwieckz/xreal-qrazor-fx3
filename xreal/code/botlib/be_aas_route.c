@@ -447,7 +447,7 @@ void AAS_CreateReversedReachability(void)
 	aas_areasettings_t *settings;
 	char           *ptr;
 
-#ifdef DEBUG
+#ifdef _DEBUG
 	int             starttime;
 
 	starttime = Sys_MilliSeconds();
@@ -486,7 +486,7 @@ void AAS_CreateReversedReachability(void)
 			aasworld.reversedreachability[reach->areanum].numlinks++;
 		}						//end for
 	}							//end for
-#ifdef DEBUG
+#ifdef _DEBUG
 	botimport.Print(PRT_MESSAGE, "reversed reachability %d msec\n", Sys_MilliSeconds() - starttime);
 #endif
 }								//end of the function AAS_CreateReversedReachability
@@ -585,7 +585,7 @@ void AAS_CalculateAreaTravelTimes(void)
 			}					//end for
 		}						//end for
 	}							//end for
-#ifdef DEBUG
+#ifdef _DEBUG
 	botimport.Print(PRT_MESSAGE, "area travel times %d msec\n", Sys_MilliSeconds() - starttime);
 #endif
 }								//end of the function AAS_CalculateAreaTravelTimes
@@ -1733,7 +1733,7 @@ int AAS_AreaRouteToGoalArea(int areanum, vec3_t origin, int goalareanum, int tra
 	/*
 	   if (aasworld.frameroutingupdates > MAX_FRAMEROUTINGUPDATES)
 	   {
-	   #ifdef DEBUG
+	   #ifdef _DEBUG
 	   //Log_Write("WARNING: AAS_AreaTravelTimeToGoalArea: frame routing updates overflowed");
 	   #endif
 	   return 0;

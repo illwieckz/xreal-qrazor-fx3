@@ -1192,7 +1192,7 @@ void BotUpdateEntityItems(void)
 																ic->iteminfo[li->iteminfo].mins, ic->iteminfo[li->iteminfo].maxs,
 																li->goalorigin);
 					}			//end if
-#ifdef DEBUG
+#ifdef _DEBUG
 					Log_Write("linked item %s to an entity", ic->iteminfo[li->iteminfo].classname);
 #endif							//DEBUG
 					break;
@@ -1496,7 +1496,7 @@ int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 		   //push the goal on the stack
 		   BotPushGoal(goalstate, &goal);
 		   //
-		   #ifdef DEBUG
+		   #ifdef _DEBUG
 		   botimport.Print(PRT_MESSAGE, "chosen roam goal area %d\n", goal.areanum);
 		   #endif //DEBUG
 		   return qtrue;

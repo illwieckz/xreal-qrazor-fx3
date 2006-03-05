@@ -1005,7 +1005,7 @@ int AAS_StoreArea(tmp_area_t * tmparea)
 		{
 			//we're at the back of the face so use a negative index
 			aasfacenum = -tmpface->aasfacenum;
-#ifdef DEBUG
+#ifdef _DEBUG
 			if(tmpface->aasfacenum < 0 || tmpface->aasfacenum > max_aas.max_faces)
 			{
 				Error("AAS_CreateTree_r: face number out of range");

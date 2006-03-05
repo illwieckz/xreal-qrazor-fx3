@@ -30,7 +30,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *****************************************************************************/
 
-//#define DEBUG         //debug code
 #define RANDOMIZE				//randomize bot behaviour
 
 //FIXME: get rid of this global structure
@@ -40,7 +39,7 @@ typedef struct botlib_globals_s
 	int             maxentities;	//maximum number of entities
 	int             maxclients;	//maximum number of clients
 	float           time;		//the global time
-#ifdef DEBUG
+#ifdef _DEBUG
 	qboolean        debug;		//true if debug is on
 	int             goalareanum;
 	vec3_t          goalorigin;

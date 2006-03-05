@@ -457,7 +457,7 @@ void MakeNodePortal(node_t * node)
 		return;
 	}							//end if
 
-#ifdef DEBUG
+#ifdef _DEBUG
 /* //NOTE: don't use this winding ok check
 	// all the invalid windings only have a degenerate edge
 	if (WindingError(w))
@@ -534,7 +534,7 @@ void SplitNodePortals(node_t * node)
 			c_tinyportals++;
 		}						//end if
 
-#ifdef DEBUG
+#ifdef _DEBUG
 /* 	//NOTE: don't use this winding ok check
 		// all the invalid windings only have a degenerate edge
 		if (frontwinding && WindingError(frontwinding))

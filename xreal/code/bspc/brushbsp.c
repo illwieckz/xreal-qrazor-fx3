@@ -63,7 +63,7 @@ int             c_peak_totalbspmemory;
 #define	PLANESIDE_EPSILON	0.001
 //0.1
 
-//#ifdef DEBUG
+//#ifdef _DEBUG
 typedef struct cname_s
 {
 	int             value;

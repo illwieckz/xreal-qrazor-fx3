@@ -208,7 +208,7 @@ int Export_BotLibShutdown(void)
 
 	//dump all allocated memory
 //  DumpMemory();
-#ifdef DEBUG
+#ifdef _DEBUG
 	PrintMemoryLabels();
 #endif
 	//shut down library log file
@@ -271,7 +271,7 @@ int Export_BotLibStartFrame(float time)
 //===========================================================================
 int Export_BotLibLoadMap(const char *mapname)
 {
-#ifdef DEBUG
+#ifdef _DEBUG
 	int             starttime = Sys_MilliSeconds();
 #endif
 	int             errnum;
@@ -289,7 +289,7 @@ int Export_BotLibLoadMap(const char *mapname)
 	BotSetBrushModelTypes();	//be_ai_move.h
 	//
 	botimport.Print(PRT_MESSAGE, "-------------------------------------\n");
-#ifdef DEBUG
+#ifdef _DEBUG
 	botimport.Print(PRT_MESSAGE, "map loaded in %d msec\n", Sys_MilliSeconds() - starttime);
 #endif
 	//
@@ -343,7 +343,7 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 
 //  return AAS_PointLight(parm2, NULL, NULL, NULL);
 
-#ifdef DEBUG
+#ifdef _DEBUG
 	static int      area = -1;
 	static int      line[2];
 	int             newarea, i, highlightarea, flood;

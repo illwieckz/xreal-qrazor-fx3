@@ -1035,7 +1035,7 @@ bot_randomlist_t *BotLoadRandomStrings(char *filename)
 	bot_randomlist_t *randomlist, *lastrandom, *random;
 	bot_randomstring_t *randomstring;
 
-#ifdef DEBUG
+#ifdef _DEBUG
 	int             starttime = Sys_MilliSeconds();
 #endif							//DEBUG
 
@@ -1117,7 +1117,7 @@ bot_randomlist_t *BotLoadRandomStrings(char *filename)
 	}							//end for
 	botimport.Print(PRT_MESSAGE, "loaded %s\n", filename);
 	//
-#ifdef DEBUG
+#ifdef _DEBUG
 	botimport.Print(PRT_MESSAGE, "random strings %d msec\n", Sys_MilliSeconds() - starttime);
 	//BotDumpRandomStringList(randomlist);
 #endif							//DEBUG
@@ -2171,7 +2171,7 @@ bot_chat_t     *BotLoadInitialChat(char *chatfile, char *chatname)
 	bot_chattype_t *chattype = NULL;
 	bot_chatmessage_t *chatmessage = NULL;
 
-#ifdef DEBUG
+#ifdef _DEBUG
 	int             starttime;
 
 	starttime = Sys_MilliSeconds();
@@ -2324,7 +2324,7 @@ bot_chat_t     *BotLoadInitialChat(char *chatfile, char *chatname)
 	{
 		BotCheckInitialChatIntegrety(chat);
 	}							//end if
-#ifdef DEBUG
+#ifdef _DEBUG
 	botimport.Print(PRT_MESSAGE, "initial chats loaded in %d msec\n", Sys_MilliSeconds() - starttime);
 #endif							//DEBUG
 	//character was read succesfully
@@ -2685,7 +2685,7 @@ void BotInitialChat(int chatstate, char *type, int mcontext, char *var0, char *v
 	//if there's no message of the given type
 	if(!message)
 	{
-#ifdef DEBUG
+#ifdef _DEBUG
 		botimport.Print(PRT_MESSAGE, "no chat messages of type %s\n", type);
 #endif							//DEBUG
 		return;
@@ -3196,7 +3196,7 @@ int BotSetupChatAI(void)
 {
 	char           *file;
 
-#ifdef DEBUG
+#ifdef _DEBUG
 	int             starttime = Sys_MilliSeconds();
 #endif							//DEBUG
 
@@ -3215,7 +3215,7 @@ int BotSetupChatAI(void)
 
 	InitConsoleMessageHeap();
 
-#ifdef DEBUG
+#ifdef _DEBUG
 	botimport.Print(PRT_MESSAGE, "setup chat AI %d msec\n", Sys_MilliSeconds() - starttime);
 #endif							//DEBUG
 	return BLERR_NOERROR;
