@@ -2394,20 +2394,17 @@ void R_LoadEntities(lump_t * l)
 		
 		if(*token == '}')
 		{
-			numEntities++;
 			break;
 		}
 		
 		Q_strncpyz(keyname, token, sizeof(keyname));
 
 		// parse value
-		token = COM_ParseExt(&p, qtrue);
+		token = COM_ParseExt(&p, qfalse);
 		
-		if(!*token || *token == '}')
+		if(!*token)
 		{
-			ri.Printf(PRINT_WARNING, "WARNING: expected value found '%s' while parsing worldspawn\n", token);
-			numEntities++;
-			break;
+			continue;
 		}
 		
 		Q_strncpyz(value, token, sizeof(value));
@@ -2420,7 +2417,6 @@ void R_LoadEntities(lump_t * l)
 			if(!s)
 			{
 				ri.Printf(PRINT_WARNING, "WARNING: no semi colon in vertexshaderremap '%s'\n", value);
-				numEntities++;
 				break;
 			}
 			*s++ = 0;
@@ -2435,7 +2431,6 @@ void R_LoadEntities(lump_t * l)
 			if(!s)
 			{
 				ri.Printf(PRINT_WARNING, "WARNING: no semi colon in shaderremap '%s'\n", value);
-				numEntities++;
 				break;
 			}
 			*s++ = 0;
@@ -2467,6 +2462,8 @@ void R_LoadEntities(lump_t * l)
 //	ri.Printf(PRINT_ALL, "-----------\n%s\n----------\n", p);
 
 	pOld = p;
+	
+	numEntities = 1; // parsed worldspawn so far
 
 	// count lights
 	while(1)
@@ -2509,11 +2506,10 @@ void R_LoadEntities(lump_t * l)
 			Q_strncpyz(keyname, token, sizeof(keyname));
 	
 			// parse value
-			token = COM_ParseExt(&p, qtrue);
+			token = COM_ParseExt(&p, qfalse);
 			
-			if(!*token || *token == '}')
+			if(!*token)
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: expected value for key '%s' found '%s'\n", keyname, token);
 				continue;
 			}
 	
@@ -2560,7 +2556,6 @@ void R_LoadEntities(lump_t * l)
 		dl->additive = qtrue;
 	}
 
-#if 1
 	// parse lights
 	p = pOld;
 	dl = s_worldData.dlights;
@@ -2604,11 +2599,10 @@ void R_LoadEntities(lump_t * l)
 			Q_strncpyz(keyname, token, sizeof(keyname));
 	
 			// parse value
-			token = COM_ParseExt(&p, qtrue);
+			token = COM_ParseExt(&p, qfalse);
 	
-			if(!*token || *token == '}')
+			if(!*token)
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: expected value for key '%s' found '%s'\n", keyname, token);
 				continue;
 			}
 			
@@ -2696,7 +2690,7 @@ void R_LoadEntities(lump_t * l)
 		
 		if(isLight)
 		{
-			//if((numOmniLights + numProjLights + numDirectLights) < s_worldData.numDlights);
+			if((numOmniLights + numProjLights + numDirectLights) < s_worldData.numDlights);
 			{
 				dl++;
 	
@@ -2720,7 +2714,6 @@ void R_LoadEntities(lump_t * l)
 			}
 		}
 	}
-#endif
 
 	ri.Printf(PRINT_ALL, "%i total lights parsed\n", numOmniLights + numProjLights + numDirectLights);
 	ri.Printf(PRINT_ALL, "%i omni-directional lights parsed\n", numOmniLights);
