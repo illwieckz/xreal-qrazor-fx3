@@ -2356,6 +2356,7 @@ void R_LoadEntities(lump_t * l)
 	char            value[MAX_TOKEN_CHARS];
 	world_t        *w;
 	qboolean        isLight = qfalse;
+	int             numEntities = 0;
 	int             numLights = 0;
 	int             numOmniLights = 0;
 	int             numProjLights = 0;
@@ -2374,31 +2375,41 @@ void R_LoadEntities(lump_t * l)
 	strcpy(w->entityString, p);
 	w->entityParsePoint = w->entityString;
 
-	token = COM_ParseExt(&p, qtrue);
-	if(!*token || *token != '{')
-	{
-		return;
-	}
-
 	// only parse the world spawn
 	while(1)
 	{
 		// parse key
 		token = COM_ParseExt(&p, qtrue);
-
-		if(!*token || *token == '}')
+		
+		if(!*token)
 		{
+			ri.Printf(PRINT_WARNING, "WARNING: unexpected end of entities string while parsing worldspawn\n", token);
 			break;
 		}
+		
+		if(*token == '{')
+		{
+			continue;
+		}
+		
+		if(*token == '}')
+		{
+			numEntities++;
+			break;
+		}
+		
 		Q_strncpyz(keyname, token, sizeof(keyname));
 
 		// parse value
 		token = COM_ParseExt(&p, qtrue);
-
+		
 		if(!*token || *token == '}')
 		{
+			ri.Printf(PRINT_WARNING, "WARNING: expected value found '%s' while parsing worldspawn\n", token);
+			numEntities++;
 			break;
 		}
+		
 		Q_strncpyz(value, token, sizeof(value));
 
 		// check for remapping of shaders for vertex lighting
@@ -2409,6 +2420,7 @@ void R_LoadEntities(lump_t * l)
 			if(!s)
 			{
 				ri.Printf(PRINT_WARNING, "WARNING: no semi colon in vertexshaderremap '%s'\n", value);
+				numEntities++;
 				break;
 			}
 			*s++ = 0;
@@ -2423,6 +2435,7 @@ void R_LoadEntities(lump_t * l)
 			if(!s)
 			{
 				ri.Printf(PRINT_WARNING, "WARNING: no semi colon in shaderremap '%s'\n", value);
+				numEntities++;
 				break;
 			}
 			*s++ = 0;
@@ -2438,21 +2451,27 @@ void R_LoadEntities(lump_t * l)
 		}
 
 		// check for deluxe mapping support
-		if((!Q_stricmp(keyname, "deluxeMapping") && !Q_stricmp(value, "1")) || (!Q_stricmp(keyname, "message") && !Q_stricmp(value, "camo-retro")))	// HACK: this map has it
+		if(!Q_stricmp(keyname, "deluxeMapping") && !Q_stricmp(value, "1"))
 		{
 			tr.worldDeluxeMapping = qtrue;
 			continue;
 		}
+		
+		if(!Q_stricmp(keyname, "classname") && Q_stricmp(value, "worldspawn"))
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: expected worldspawn found '%s'\n", value);
+			continue;
+		}
 	}
 
-//  ri.Printf(PRINT_ALL, "-----------\n%s\n----------\n", p);
+//	ri.Printf(PRINT_ALL, "-----------\n%s\n----------\n", p);
 
 	pOld = p;
 
 	// count lights
 	while(1)
 	{
-		// parse key
+		// parse {
 		token = COM_ParseExt(&p, qtrue);
 
 		if(!*token)
@@ -2460,51 +2479,77 @@ void R_LoadEntities(lump_t * l)
 			// end of entities string
 			break;
 		}
-
-		if(*token == '{')
+		
+		if(*token != '{')
 		{
-			// new entity
-			isLight = qfalse;
-			continue;
+			ri.Printf(PRINT_WARNING, "WARNING: expected { found '%s'\n", token);
+			break;
 		}
+		
+		// new entity
+		isLight = qfalse;
 
-		if(*token == '}')
-		{
-			if(isLight)
+		// parse epairs
+		while(1)
+		{			
+			// parse key
+			token = COM_ParseExt(&p, qtrue);
+			
+			if(*token == '}')
 			{
-				numLights++;
+				break;
 			}
-			continue;
+	
+			if(!*token)
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: EOF without closing bracket\n");
+				break;
+			}
+			
+			Q_strncpyz(keyname, token, sizeof(keyname));
+	
+			// parse value
+			token = COM_ParseExt(&p, qtrue);
+			
+			if(!*token || *token == '}')
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: expected value for key '%s' found '%s'\n", keyname, token);
+				continue;
+			}
+	
+			Q_strncpyz(value, token, sizeof(value));
+	
+			// check if this entity is a light
+			if(!Q_stricmp(keyname, "classname") && !Q_stricmp(value, "light"))
+			{
+				isLight = qtrue;
+				continue;
+			}
 		}
-
-		Q_strncpyz(keyname, token, sizeof(keyname));
-
-		// parse value
-		token = COM_ParseExt(&p, qfalse);
-
-		if(!*token || *token == '}')
+		
+		if(*token != '}')
 		{
-			continue;
+			ri.Printf(PRINT_WARNING, "WARNING: expected } found '%s'\n", token);
+			break;
 		}
-		Q_strncpyz(value, token, sizeof(value));
-
-
-		// check if this entity is a light
-		if(!Q_stricmp(keyname, "classname") && !Q_stricmp(value, "light"))
+		
+		if(isLight)
 		{
-			isLight = qtrue;
-			continue;
+			numLights++;
 		}
+		
+		numEntities++;
 	}
+	
+	ri.Printf(PRINT_ALL, "%i total entities counted\n", numEntities);
+	ri.Printf(PRINT_ALL, "%i total lights counted\n", numLights);
 
 	s_worldData.numDlights = numLights;
 	s_worldData.dlights = ri.Hunk_Alloc(s_worldData.numDlights * sizeof(trRefDlight_t), h_low);
 
 	// basic light setup
-	for(i = 0; i < s_worldData.numDlights; i++)
+	for(i = 0, dl = s_worldData.dlights; i < s_worldData.numDlights; i++, dl++)
 	{
-		dl = &s_worldData.dlights[i];
-
 		dl->l.radius[0] = 300;
 		dl->l.radius[1] = 300;
 		dl->l.radius[2] = 300;
@@ -2515,13 +2560,13 @@ void R_LoadEntities(lump_t * l)
 		dl->additive = qtrue;
 	}
 
+#if 1
 	// parse lights
 	p = pOld;
-	dl = &s_worldData.dlights[0];
+	dl = s_worldData.dlights;
 
 	while(1)
 	{
-		// parse key
 		token = COM_ParseExt(&p, qtrue);
 
 		if(!*token)
@@ -2529,154 +2574,160 @@ void R_LoadEntities(lump_t * l)
 			// end of entities string
 			break;
 		}
-
-		if(*token == '{')
+		
+		if(*token != '{')
 		{
-			// new entity
-			isLight = qfalse;
-			continue;
+			ri.Printf(PRINT_WARNING, "WARNING: expected { found '%s'\n", token);
+			break;
 		}
 
-		if(*token == '}')
+		// new entity
+		isLight = qfalse;
+		
+		// parse epairs
+		while(1)
 		{
-			if(isLight)
+			// parse key
+			token = COM_ParseExt(&p, qtrue);
+	
+			if(*token == '}')
 			{
+				break;
+			}
+	
+			if(!*token)
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: EOF without closing bracket\n");
+				break;
+			}
+			
+			Q_strncpyz(keyname, token, sizeof(keyname));
+	
+			// parse value
+			token = COM_ParseExt(&p, qtrue);
+	
+			if(!*token || *token == '}')
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: expected value for key '%s' found '%s'\n", keyname, token);
+				continue;
+			}
+			
+			Q_strncpyz(value, token, sizeof(value));
+	
+			// check if this entity is a light
+			if(!Q_stricmp(keyname, "classname") && !Q_stricmp(value, "light"))
+			{
+				isLight = qtrue;
+			}
+			// check for origin
+			else if(!Q_stricmp(keyname, "origin"))// || !Q_stricmp(keyname, "light_origin"))
+			{
+				sscanf(value, "%f %f %f", &dl->l.origin[0], &dl->l.origin[1], &dl->l.origin[2]);
+			}
+			// check for center
+			else if(!Q_stricmp(keyname, "light_center"))
+			{
+				sscanf(value, "%f %f %f", &dl->l.center[0], &dl->l.center[1], &dl->l.center[2]);
+			}
+			// check for color
+			else if(!Q_stricmp(keyname, "_color"))
+			{
+				sscanf(value, "%f %f %f", &dl->l.color[0], &dl->l.color[1], &dl->l.color[2]);
+			}
+			// check for radius
+			else if(!Q_stricmp(keyname, "light_radius"))
+			{
+				sscanf(value, "%f %f %f", &dl->l.radius[0], &dl->l.radius[1], &dl->l.radius[2]);
+			}
+			// check for target
+			else if(!Q_stricmp(keyname, "light_target"))
+			{
+				sscanf(value, "%f %f %f", &dl->l.target[0], &dl->l.target[1], &dl->l.target[2]);
+				dl->l.rlType = RL_PROJ;
+			}
+			// check for right
+			else if(!Q_stricmp(keyname, "light_right"))
+			{
+				sscanf(value, "%f %f %f", &dl->l.right[0], &dl->l.right[1], &dl->l.right[2]);
+				dl->l.rlType = RL_PROJ;
+			}
+			// check for up
+			else if(!Q_stricmp(keyname, "light_up"))
+			{
+				sscanf(value, "%f %f %f", &dl->l.up[0], &dl->l.up[1], &dl->l.up[2]);
+				dl->l.rlType = RL_PROJ;
+			}
+			// check for radius
+			else if(!Q_stricmp(keyname, "light") || !Q_stricmp(keyname, "_light"))
+			{
+				vec_t           value2;
+	
+				value2 = atof(value);
+				dl->l.radius[0] = value2;
+				dl->l.radius[1] = value2;
+				dl->l.radius[2] = value2;
+			}
+			// check for light shader
+			else if(!Q_stricmp(keyname, "texture"))
+			{
+				dl->l.attenuationShader = RE_RegisterShaderLightAttenuation(value);
+			}
+			// check for rotation
+			else if(!Q_stricmp(keyname, "rotation"))
+			{
+				matrix_t        rotation;
+	
+				sscanf(value, "%f %f %f %f %f %f %f %f %f", &rotation[0], &rotation[1], &rotation[2],
+					   &rotation[4], &rotation[5], &rotation[6], &rotation[8], &rotation[9], &rotation[10]);
+				MatrixToVectorsFLU(rotation, dl->l.axis[0], dl->l.axis[1], dl->l.axis[2]);
+			}
+			// check if this light does not cast any shadows
+			else if(!Q_stricmp(keyname, "noShadows") && !Q_stricmp(value, "1"))
+			{
+				dl->l.noShadows = qtrue;
+			}
+		}
+			
+		if(*token != '}')
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: expected } found '%s'\n", token);
+			break;
+		}
+		
+		if(isLight)
+		{
+			//if((numOmniLights + numProjLights + numDirectLights) < s_worldData.numDlights);
+			{
+				dl++;
+	
 				switch (dl->l.rlType)
 				{
 					case RL_OMNI:
 						numOmniLights++;
 						break;
-						
+	
 					case RL_PROJ:
 						numProjLights++;
 						break;
-						
+	
 					case RL_DIRECT:
 						numDirectLights++;
 						break;
-						
+	
 					default:
 						break;
 				}
-				
-				dl++;
 			}
-			continue;
-		}
-
-		Q_strncpyz(keyname, token, sizeof(keyname));
-
-		// parse value
-		token = COM_ParseExt(&p, qfalse);
-
-		if(!*token || *token == '}')
-		{
-			continue;
-		}
-		Q_strncpyz(value, token, sizeof(value));
-
-		// check if this entity is a light
-		if(!Q_stricmp(keyname, "classname") && !Q_stricmp(value, "light"))
-		{
-			isLight = qtrue;
-			continue;
-		}
-
-		// check for origin
-		if(!Q_stricmp(keyname, "origin"))
-		{
-			sscanf(value, "%f %f %f", &dl->l.origin[0], &dl->l.origin[1], &dl->l.origin[2]);
-			continue;
-		}
-
-		// check for center
-		if(!Q_stricmp(keyname, "light_center"))
-		{
-			sscanf(value, "%f %f %f", &dl->l.center[0], &dl->l.center[1], &dl->l.center[2]);
-			continue;
-		}
-
-		// check for color
-		if(!Q_stricmp(keyname, "_color"))
-		{
-			sscanf(value, "%f %f %f", &dl->l.color[0], &dl->l.color[1], &dl->l.color[2]);
-			continue;
-		}
-
-		// check for radius
-		if(!Q_stricmp(keyname, "light_radius"))
-		{
-			sscanf(value, "%f %f %f", &dl->l.radius[0], &dl->l.radius[1], &dl->l.radius[2]);
-			continue;
-		}
-		
-		// check for target
-		if(!Q_stricmp(keyname, "light_target"))
-		{
-			sscanf(value, "%f %f %f", &dl->l.target[0], &dl->l.target[1], &dl->l.target[2]);
-			dl->l.rlType = RL_PROJ;
-			continue;
-		}
-		
-		// check for right
-		if(!Q_stricmp(keyname, "light_right"))
-		{
-			sscanf(value, "%f %f %f", &dl->l.right[0], &dl->l.right[1], &dl->l.right[2]);
-			dl->l.rlType = RL_PROJ;
-			continue;
-		}
-		
-		// check for up
-		if(!Q_stricmp(keyname, "light_up"))
-		{
-			sscanf(value, "%f %f %f", &dl->l.up[0], &dl->l.up[1], &dl->l.up[2]);
-			dl->l.rlType = RL_PROJ;
-			continue;
-		}
-
-		// check for radius
-		if(!Q_stricmp(keyname, "light") || !Q_stricmp(keyname, "_light"))
-		{
-			vec_t           value2;
-
-			value2 = atof(value);
-			dl->l.radius[0] = value2;
-			dl->l.radius[1] = value2;
-			dl->l.radius[2] = value2;
-			continue;
-		}
-
-		// check for light shader
-		if(!Q_stricmp(keyname, "texture"))
-		{
-			dl->l.attenuationShader = RE_RegisterShaderLightAttenuation(value);
-			continue;
-		}
-
-		// check for rotation
-		if(!Q_stricmp(keyname, "rotation"))
-		{
-			matrix_t        rotation;
-
-			sscanf(value, "%f %f %f %f %f %f %f %f %f", &rotation[0], &rotation[1], &rotation[2],
-				   &rotation[4], &rotation[5], &rotation[6], &rotation[8], &rotation[9], &rotation[10]);
-			MatrixToVectorsFLU(rotation, dl->l.axis[0], dl->l.axis[1], dl->l.axis[2]);
-			continue;
-		}
-		
-		// check if this light does not cast any shadows
-		if(!Q_stricmp(keyname, "noShadows") && !Q_stricmp(value, "1"))
-		{
-			dl->l.noShadows = qtrue;
-			continue;
 		}
 	}
+#endif
 
-	ri.Printf(PRINT_ALL, "%i total lights parsed\n", numLights);
+	ri.Printf(PRINT_ALL, "%i total lights parsed\n", numOmniLights + numProjLights + numDirectLights);
 	ri.Printf(PRINT_ALL, "%i omni-directional lights parsed\n", numOmniLights);
 	ri.Printf(PRINT_ALL, "%i projective lights parsed\n", numProjLights);
 	ri.Printf(PRINT_ALL, "%i directional lights parsed\n", numDirectLights);
 }
+
 
 /*
 =================
