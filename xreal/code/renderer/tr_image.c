@@ -2782,7 +2782,7 @@ image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterT
 	// see if the image is already loaded
 	for(image = hashTable[hash]; image; image = image->next)
 	{
-		if(!Q_stricmp(name, image->name))
+		if(!Q_stricmpn(name, image->name, sizeof(image->name)))
 		{
 			// the white image can be used with any set of parms, but other mismatches are errors
 			if(strcmp(buffer, "_white"))
@@ -2853,7 +2853,7 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 	// see if the image is already loaded
 	for(image = hashTable[hash]; image; image = image->next)
 	{
-		if(!Q_stricmp(name, image->name))
+		if(!Q_stricmpn(name, image->name, sizeof(image->name)))
 		{
 			return image;
 		}
