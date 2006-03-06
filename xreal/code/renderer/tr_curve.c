@@ -489,9 +489,10 @@ static srfGridMesh_t  *R_CreateSurfaceGridMesh(int width, int height,
 	srfVert_t      *vert;
 	vec3_t          tmpVec;
 	srfGridMesh_t  *grid;
+	srfTriangle_t  *tri;
 
 	// copy the results out to a grid
-	size = sizeof(*grid);// + (width * height - 1) * sizeof(srfVert_t);// + numIndexes * sizeof(tri->indexes[0]);
+	size = sizeof(*grid);
 
 #ifdef PATCH_STITCHING
 	grid = /*ri.Hunk_Alloc */ ri.Malloc(size);
@@ -503,9 +504,9 @@ static srfGridMesh_t  *R_CreateSurfaceGridMesh(int width, int height,
 	grid->heightLodError = /*ri.Hunk_Alloc */ ri.Malloc(height * 4);
 	Com_Memcpy(grid->heightLodError, errorTable[1], height * 4);
 	
-	grid->numIndexes = numIndexes;
-	grid->indexes = ri.Malloc(grid->numIndexes * sizeof(int));
-	Com_Memcpy(grid->indexes, indexes, numIndexes * sizeof(int));
+	grid->numTriangles = numTriangles;
+	grid->triangles = ri.Malloc(grid->numTriangles * sizeof(srfTriangle_t));
+	Com_Memcpy(grid->triangles, triangles, numTriangles * sizeof(srfTriangle_t));
 	
 	grid->numVerts = (width * height);
 	grid->verts = ri.Malloc(grid->numVerts * sizeof(srfVert_t));
@@ -544,23 +545,31 @@ static srfGridMesh_t  *R_CreateSurfaceGridMesh(int width, int height,
 	// compute VBOs
 	if(glConfig2.vertexBufferObjectAvailable)
 	{
-		/*
-		if(numIndexes)
+		if(numTriangles)
 		{
-			byte           *indexes;
-			int             indexesSize;
+			byte           *data;
+			int             dataSize;
+			int             dataOfs;
 		
 			qglGenBuffersARB(1, &grid->indexesVBO);
 			
-			indexes = (byte *)&grid->indexes[0];
-			indexesSize = numIndexes * sizeof(grid->indexes[0]);
-			
+			dataSize = numTriangles * sizeof(grid->triangles[0].indexes);
+			data = ri.Hunk_AllocateTempMemory(dataSize);
+			dataOfs = 0;
+		
+			for(i = 0, tri = grid->triangles; i < numTriangles; i++, tri++)
+			{
+				memcpy(data + dataOfs, tri->indexes, sizeof(tri->indexes));
+				dataOfs += sizeof(tri->indexes);
+			}
+		
 			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, grid->indexesVBO);
-			qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_STATIC_DRAW_ARB);
-			
+			qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, dataSize, data, GL_STATIC_DRAW_ARB);
+		
 			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+			
+			ri.Hunk_FreeTempMemory(data);
 		}
-		*/
 		
 		if(grid->numVerts)
 		{
@@ -696,6 +705,19 @@ R_FreeSurfaceGridMesh
 */
 void R_FreeSurfaceGridMesh(srfGridMesh_t * grid)
 {
+	if(glConfig2.vertexBufferObjectAvailable)
+	{
+		if(grid->indexesVBO)
+		{
+			qglDeleteBuffersARB(1, &grid->indexesVBO);
+		}
+			
+		if(grid->vertsVBO)
+		{
+			qglDeleteBuffersARB(1, &grid->vertsVBO);
+		}
+	}
+	
 	ri.Free(grid->widthLodError);
 	ri.Free(grid->heightLodError);
 	ri.Free(grid->triangles);

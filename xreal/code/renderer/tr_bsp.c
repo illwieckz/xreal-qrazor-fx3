@@ -529,23 +529,31 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 	// create VBOs
 	if(glConfig2.vertexBufferObjectAvailable)
 	{
-		/*
-		if(numIndexes)
+		if(numTriangles)
 		{
-			byte           *indexes;
-			int             indexesSize;
+			byte           *data;
+			int             dataSize;
+			int             dataOfs;
 		
 			qglGenBuffersARB(1, &cv->indexesVBO);
 			
-			indexes = (byte *)&cv->indexes[0];
-			indexesSize = numIndexes * sizeof(cv->indexes[0]);
-			
+			dataSize = numTriangles * sizeof(cv->triangles[0].indexes);
+			data = ri.Hunk_AllocateTempMemory(dataSize);
+			dataOfs = 0;
+		
+			for(i = 0, tri = cv->triangles; i < numTriangles; i++, tri++)
+			{
+				memcpy(data + dataOfs, tri->indexes, sizeof(tri->indexes));
+				dataOfs += sizeof(tri->indexes);
+			}
+		
 			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, cv->indexesVBO);
-			qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_STATIC_DRAW_ARB);
-			
+			qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, dataSize, indexes, GL_STATIC_DRAW_ARB);
+		
 			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+			
+			ri.Hunk_FreeTempMemory(data);
 		}
-		*/
 		
 		if(cv->numVerts)
 		{
@@ -867,23 +875,31 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 	// create VBOs
 	if(glConfig2.vertexBufferObjectAvailable)
 	{
-		/*
-		if(numIndexes)
+		if(numTriangles)
 		{
-			byte           *indexes;
-			int             indexesSize;
+			byte           *data;
+			int             dataSize;
+			int             dataOfs;
 		
-			qglGenBuffersARB(1, &tri->indexesVBO);
+			qglGenBuffersARB(1, &cv->indexesVBO);
+			
+			dataSize = numTriangles * sizeof(cv->triangles[0].indexes);
+			data = ri.Hunk_AllocateTempMemory(dataSize);
+			dataOfs = 0;
 		
-			indexes = (byte *)&tri->indexes[0];
-			indexesSize = numIndexes * sizeof(tri->indexes[0]);
+			for(i = 0, tri = cv->triangles; i < numTriangles; i++, tri++)
+			{
+				memcpy(data + dataOfs, tri->indexes, sizeof(tri->indexes));
+				dataOfs += sizeof(tri->indexes);
+			}
 		
-			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tri->indexesVBO);
-			qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_STATIC_DRAW_ARB);
+			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, cv->indexesVBO);
+			qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, dataSize, indexes, GL_STATIC_DRAW_ARB);
 		
 			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+			
+			ri.Hunk_FreeTempMemory(data);
 		}
-		*/
 		
 		if(numVerts)
 		{
