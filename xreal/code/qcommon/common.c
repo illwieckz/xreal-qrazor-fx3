@@ -82,7 +82,7 @@ cvar_t         *cl_paused;
 cvar_t         *sv_paused;
 cvar_t         *com_cameraMode;
 
-#if defined(_WIN32) && defined(_DEBUG)
+#if defined(_MSC_VER) && defined(_DEBUG)
 cvar_t         *com_noErrorInterrupt;
 #endif
 
@@ -2838,8 +2838,8 @@ void Com_Init(char *commandLine)
 
 	com_introPlayed = Cvar_Get("com_introplayed", "0", CVAR_ARCHIVE);
 
-#if defined(_WIN32) && defined(_DEBUG)
-	com_noErrorInterrupt = Cvar_Get("com_noErrorInterrupt", "0", 0);
+#if defined(_MSC_VER) && defined(_DEBUG)
+	com_noErrorInterrupt = Cvar_Get("com_noErrorInterrupt", "1", 0);
 #endif
 
 	if(com_dedicated->integer)
