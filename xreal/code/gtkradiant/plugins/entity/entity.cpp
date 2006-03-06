@@ -362,6 +362,10 @@ void Entity_Construct(EGameType gameType)
   {
     lightType = LIGHTTYPE_DOOM3;
   }
+  else if(g_gameType == eGameTypeXreaL)
+  {
+    lightType = LIGHTTYPE_DOOM3;
+  }
   Light_Construct(lightType);
   MiscModel_construct();
   Doom3Group_construct();

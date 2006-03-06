@@ -21,7 +21,7 @@
   shaders="doom3"
   entityclass="quake3"
   entityclasstype="xml"
-  entities="quake3"
+  entities="xreal"
   brushtypes="doom3"
   patchtypes="doom3 def2doom3"
 />
