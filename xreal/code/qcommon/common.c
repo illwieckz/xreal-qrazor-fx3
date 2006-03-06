@@ -249,7 +249,7 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 	static int      errorCount;
 	int             currentTime;
 
-#if defined(_WIN32) && defined(_DEBUG)
+#if defined(_MSC_VER) && defined(_DEBUG)
 	if(code != ERR_DISCONNECT && code != ERR_NEED_CD)
 	{
 		if(!com_noErrorInterrupt->integer)
