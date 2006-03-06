@@ -2368,12 +2368,16 @@ void R_LoadEntities(lump_t * l)
 	w->lightGridSize[1] = 64;
 	w->lightGridSize[2] = 128;
 
-	p = (char *)(fileBase + l->fileofs);
-
 	// store for reference by the cgame
 	w->entityString = ri.Hunk_Alloc(l->filelen + 1, h_low);
-	strcpy(w->entityString, p);
+	strcpy(w->entityString, (char *)(fileBase + l->fileofs));
 	w->entityParsePoint = w->entityString;
+	
+#if 1
+	p = w->entityString;
+#else
+	p = (char *)(fileBase + l->fileofs);
+#endif
 
 	// only parse the world spawn
 	while(1)
@@ -2556,6 +2560,7 @@ void R_LoadEntities(lump_t * l)
 		dl->additive = qtrue;
 	}
 
+#if 1
 	// parse lights
 	p = pOld;
 	dl = s_worldData.dlights;
@@ -2714,7 +2719,8 @@ void R_LoadEntities(lump_t * l)
 			}
 		}
 	}
-
+#endif
+	
 	ri.Printf(PRINT_ALL, "%i total lights parsed\n", numOmniLights + numProjLights + numDirectLights);
 	ri.Printf(PRINT_ALL, "%i omni-directional lights parsed\n", numOmniLights);
 	ri.Printf(PRINT_ALL, "%i projective lights parsed\n", numProjLights);
