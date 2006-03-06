@@ -106,7 +106,6 @@ cvar_t         *r_stencilbits;
 cvar_t         *r_depthbits;
 cvar_t         *r_colorbits;
 cvar_t         *r_stereo;
-cvar_t         *r_primitives;
 cvar_t         *r_texturebits;
 
 cvar_t         *r_drawBuffer;
@@ -1022,42 +1021,6 @@ void GfxInfo_f(void)
 	}
 	ri.Printf(PRINT_ALL, "CPU: %s\n", sys_cpustring->string);
 
-	// rendering primitives
-	{
-		int             primitives;
-
-		// default is to use triangles if compiled vertex arrays are present
-		ri.Printf(PRINT_ALL, "rendering primitives: ");
-		primitives = r_primitives->integer;
-		if(primitives == 0)
-		{
-			if(qglLockArraysEXT)
-			{
-				primitives = 2;
-			}
-			else
-			{
-				primitives = 1;
-			}
-		}
-		if(primitives == -1)
-		{
-			ri.Printf(PRINT_ALL, "none\n");
-		}
-		else if(primitives == 2)
-		{
-			ri.Printf(PRINT_ALL, "single glDrawElements\n");
-		}
-		else if(primitives == 1)
-		{
-			ri.Printf(PRINT_ALL, "multiple glArrayElement\n");
-		}
-		else if(primitives == 3)
-		{
-			ri.Printf(PRINT_ALL, "multiple glColor4ubv + glTexCoord2fv + glVertex3fv\n");
-		}
-	}
-
 	ri.Printf(PRINT_ALL, "texturemode: %s\n", r_textureMode->string);
 	ri.Printf(PRINT_ALL, "picmip: %d\n", r_picmip->integer);
 	ri.Printf(PRINT_ALL, "texture bits: %d\n", r_texturebits->integer);
@@ -1185,8 +1148,6 @@ void R_Register(void)
 	r_railWidth = ri.Cvar_Get("r_railWidth", "96", CVAR_ARCHIVE);
 	r_railCoreWidth = ri.Cvar_Get("r_railCoreWidth", "16", CVAR_ARCHIVE);
 	r_railSegmentLength = ri.Cvar_Get("r_railSegmentLength", "32", CVAR_ARCHIVE);
-
-	r_primitives = ri.Cvar_Get("r_primitives", "0", CVAR_ARCHIVE);
 
 	r_ambientScale = ri.Cvar_Get("r_ambientScale", "0.6", CVAR_CHEAT);
 	r_directedScale = ri.Cvar_Get("r_directedScale", "1", CVAR_CHEAT);
