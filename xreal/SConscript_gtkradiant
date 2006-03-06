@@ -254,7 +254,7 @@ vfspk3_src = [
 ]
 
 gtkradiant_env = env.Copy()
-gtkradiant_env.Append(CCFLAGS='-Wno-non-virtual-dtor')
+gtkradiant_env.Append(CCFLAGS='-Wno-non-virtual-dtor -fno-exceptions -fno-rtti')
 gtkradiant_env.Append(CCFLAGS='-Icode/gtkradiant/include')
 gtkradiant_env.Append(CCFLAGS='-Icode/gtkradiant/libs')
 gtkradiant_env.Append(CCFLAGS='`pkg-config gtk+-2.0 --cflags`')
@@ -265,7 +265,7 @@ gtkradiant_env.Append(CCFLAGS='`xml2-config --cflags`')
 gtkradiant_env.Append(LINKFLAGS='`xml2-config --libs`')
 
 module_env = env.Copy()
-module_env.Append(CXXFLAGS='-Wno-non-virtual-dtor')
+module_env.Append(CXXFLAGS='-Wno-non-virtual-dtor -fno-exceptions -fno-rtti')
 module_env.Append(CCFLAGS='-Icode/gtkradiant/include')
 module_env.Append(CCFLAGS='-Icode/gtkradiant/libs')
 

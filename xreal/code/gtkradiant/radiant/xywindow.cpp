@@ -474,6 +474,7 @@ inline unsigned int buttons_for_state(guint state)
 void XYWnd::SetScale(float f)
 {
   m_fScale = f;
+  updateProjection();
   updateModelview();
   XYWnd_Update(*this);
 }
@@ -844,6 +845,7 @@ XYWnd::XYWnd() :
 
   Map_addValidCallback(g_map, DeferredDrawOnMapValidChangedCaller(m_deferredDraw));
 
+  updateProjection();
   updateModelview();
 
   AddSceneChangeCallback(ReferenceCaller<XYWnd, &XYWnd_Update>(*this));
@@ -1152,7 +1154,7 @@ public:
         {
           popMenu();
         }
-        pushMenu(CopiedString(name, underscore));
+        pushMenu(CopiedString(StringRange(name, underscore)));
       }
       else if(m_stack.size() == 2)
       {
@@ -2086,7 +2088,7 @@ void XYWnd::updateProjection()
 {
   m_projection[0] = 1.0f / static_cast<float>(m_nWidth / 2);
   m_projection[5] = 1.0f / static_cast<float>(m_nHeight / 2);
-  m_projection[10] = 1.0f / g_MaxWorldCoord;
+  m_projection[10] = 1.0f / (g_MaxWorldCoord * m_fScale);
 
   m_projection[12] = 0.0f;
   m_projection[13] = 0.0f;
@@ -2109,6 +2111,7 @@ void XYWnd::updateProjection()
   m_view.Construct(m_projection, m_modelview, m_nWidth, m_nHeight);
 }
 
+// note: modelview matrix must have a uniform scale, otherwise strange things happen when rendering the rotation manipulator.
 void XYWnd::updateModelview()
 {
   int nDim1 = (m_viewType == YZ) ? 1 : 0;
@@ -2117,7 +2120,7 @@ void XYWnd::updateModelview()
   // translation
   m_modelview[12] = -m_vOrigin[nDim1] * m_fScale;
   m_modelview[13] = -m_vOrigin[nDim2] * m_fScale;
-  m_modelview[14] = static_cast<float>(g_MaxWorldCoord);
+  m_modelview[14] = g_MaxWorldCoord * m_fScale;
 
   // axis base
   switch(m_viewType)
