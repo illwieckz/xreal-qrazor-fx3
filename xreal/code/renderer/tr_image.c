@@ -45,7 +45,7 @@ static unsigned char s_gammatable[256];
 int             gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
 int             gl_filter_max = GL_LINEAR;
 
-#define FILE_HASH_SIZE		1024
+#define FILE_HASH_SIZE		(1024 * 2)
 static image_t *hashTable[FILE_HASH_SIZE];
 
 /*
@@ -87,16 +87,21 @@ static long generateHashValue(const char *fname)
 	int             i;
 	long            hash;
 	char            letter;
+	
+//	ri.Printf(PRINT_ALL, "tr_image::generateHashValue: '%s'\n", fname);
 
 	hash = 0;
 	i = 0;
 	while(fname[i] != '\0')
 	{
 		letter = tolower(fname[i]);
-		if(letter == '.')
-			break;				// don't include extension
+		
+		//if(letter == '.')
+		//	break;				// don't include extension
+		
 		if(letter == '\\')
 			letter = '/';		// damn path names
+		
 		hash += (long)(letter) * (i + 119);
 		i++;
 	}
@@ -1249,6 +1254,7 @@ image_t        *R_CreateImage(const char *name,
 {
 	image_t *       image;
 	long            hash;
+	char            buffer[1024];
 
 //	if(strlen(name) >= MAX_QPATH)
 	if(strlen(name) >= 1024)
@@ -1286,7 +1292,8 @@ image_t        *R_CreateImage(const char *name,
 
 	qglBindTexture(image->type, 0);
 
-	hash = generateHashValue(name);
+	Q_strncpyz(buffer, name, sizeof(buffer));
+	hash = generateHashValue(buffer);
 	image->next = hashTable[hash];
 	hashTable[hash] = image;
 
@@ -1306,6 +1313,7 @@ image_t        *R_CreateCubeImage(const char *name,
 #if 1
 	image_t *       image;
 	long            hash;
+	char            buffer[1024];
 
 //	if(strlen(name) >= MAX_QPATH)
 	if(strlen(name) >= 1024)
@@ -1343,7 +1351,8 @@ image_t        *R_CreateCubeImage(const char *name,
 
 	qglBindTexture(image->type, 0);
 
-	hash = generateHashValue(name);
+	Q_strncpyz(buffer, name, sizeof(buffer));
+	hash = generateHashValue(buffer);
 	image->next = hashTable[hash];
 	hashTable[hash] = image;
 
@@ -2782,7 +2791,8 @@ image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterT
 	// see if the image is already loaded
 	for(image = hashTable[hash]; image; image = image->next)
 	{
-		if(!Q_stricmpn(name, image->name, sizeof(image->name)))
+		if(!Q_stricmp(name, image->name))
+		//if(!strcmp(name, image->name))
 		{
 			// the white image can be used with any set of parms, but other mismatches are errors
 			if(strcmp(buffer, "_white"))
@@ -2853,7 +2863,8 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 	// see if the image is already loaded
 	for(image = hashTable[hash]; image; image = image->next)
 	{
-		if(!Q_stricmpn(name, image->name, sizeof(image->name)))
+		if(!Q_stricmp(name, image->name))
+		//if(!strcmp(name, image->name))
 		{
 			return image;
 		}

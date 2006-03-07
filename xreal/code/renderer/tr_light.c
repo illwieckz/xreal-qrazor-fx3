@@ -887,9 +887,12 @@ void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shad
 	ia->scissorWidth = light->scissor.coords[2] - light->scissor.coords[0];
 	ia->scissorHeight = light->scissor.coords[3] - light->scissor.coords[1];
 	
-	ia->depthNear = light->depthBounds[0];
-	ia->depthFar = light->depthBounds[1];
-	ia->noDepthBoundsTest = light->noDepthBoundsTest;
+	if(qglDepthBoundsEXT)
+	{
+		ia->depthNear = light->depthBounds[0];
+		ia->depthFar = light->depthBounds[1];
+		ia->noDepthBoundsTest = light->noDepthBoundsTest;
+	}
 
 	if(light->isStatic)
 	{
@@ -1172,19 +1175,22 @@ void R_SetupDlightDepthBounds(trRefDlight_t * dl)
 	float           dist;
 	cplane_t       *nearPlane;
 
-	radius = RadiusFromBounds(dl->localBounds[0], dl->localBounds[1]);
-	
-	// distance from light origin to near plane
-	nearPlane = &tr.viewParms.frustum[4];
-	
-	dist = DotProduct(dl->l.origin, nearPlane->normal) - nearPlane->dist;
-	
-	if((dist < -radius) || (dist <= radius))
+	if(qglDepthBoundsEXT)
 	{
-		// light behind near plane or clipped
-		dl->noDepthBoundsTest = qtrue;
+		radius = RadiusFromBounds(dl->localBounds[0], dl->localBounds[1]);
+		
+		// distance from light origin to near plane
+		nearPlane = &tr.viewParms.frustum[4];
+		
+		dist = DotProduct(dl->l.origin, nearPlane->normal) - nearPlane->dist;
+		
+		if((dist < -radius) || (dist <= radius))
+		{
+			// light behind near plane or clipped
+			dl->noDepthBoundsTest = qtrue;
+		}
+		
+		dl->depthBounds[0] = dist - radius;
+		dl->depthBounds[1] = dist + radius;
 	}
-	
-	dl->depthBounds[0] = dist - radius;
-	dl->depthBounds[1] = dist + radius;
 }

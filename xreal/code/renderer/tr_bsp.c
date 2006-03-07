@@ -189,6 +189,8 @@ static void R_LoadLightmaps(lump_t * l)
 	int             i, j;
 	float           maxIntensity = 0;
 	double          sumIntensity = 0;
+	
+	ri.Printf(PRINT_ALL, "...loading lightmaps\n");
 
 	len = l->filelen;
 	if(!len)
@@ -313,6 +315,8 @@ static void R_LoadVisibility(lump_t * l)
 {
 	int             len;
 	byte           *buf;
+	
+	ri.Printf(PRINT_ALL, "...loading visibility\n");
 
 	len = (s_worldData.numClusters + 63) & ~63;
 	s_worldData.novis = ri.Hunk_Alloc(len, h_low);
@@ -373,15 +377,19 @@ static shader_t *ShaderForShaderNum(int shaderNum, int lightmapNum)
 	{
 		shaderType = SHADER_3D_STATIC;
 	}
+	
+//	ri.Printf(PRINT_ALL, "ShaderForShaderNum: '%s'\n", dsh->shader);
 
 	shader = R_FindShader(dsh->shader, shaderType, qtrue);
 
 	// if the shader had errors, just use default shader
 	if(shader->defaultShader)
 	{
+//		ri.Printf(PRINT_ALL, "failed\n");
 		return tr.defaultShader;
 	}
 
+//	ri.Printf(PRINT_ALL, "success\n");
 	return shader;
 }
 
@@ -1801,6 +1809,8 @@ void R_StitchAllPatches(void)
 {
 	int             i, stitched, numstitches;
 	srfGridMesh_t  *grid1;
+	
+	ri.Printf(PRINT_ALL, "...stitching LoD cracks\n");
 
 	numstitches = 0;
 	do
@@ -1884,6 +1894,8 @@ static void R_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexLump)
 	int             count;
 	int             numFaces, numMeshes, numTriSurfs, numFlares;
 	int             i;
+	
+	ri.Printf(PRINT_ALL, "...loading surfaces\n");
 
 	numFaces = 0;
 	numMeshes = 0;
@@ -1932,6 +1944,8 @@ static void R_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexLump)
 				ri.Error(ERR_DROP, "Bad surfaceType");
 		}
 	}
+	
+	ri.Printf(PRINT_ALL, "...loaded %d faces, %i meshes, %i trisurfs, %i flares\n", numFaces, numMeshes, numTriSurfs, numFlares);
 
 #ifdef PATCH_STITCHING
 	R_StitchAllPatches();
@@ -1942,8 +1956,6 @@ static void R_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexLump)
 #ifdef PATCH_STITCHING
 	R_MovePatchSurfacesToHunk();
 #endif
-
-	ri.Printf(PRINT_ALL, "...loaded %d faces, %i meshes, %i trisurfs, %i flares\n", numFaces, numMeshes, numTriSurfs, numFlares);
 }
 
 
@@ -1958,6 +1970,8 @@ static void R_LoadSubmodels(lump_t * l)
 	dmodel_t       *in;
 	bmodel_t       *out;
 	int             i, j, count;
+	
+	ri.Printf(PRINT_ALL, "...loading submodels\n");
 
 	in = (void *)(fileBase + l->fileofs);
 	if(l->filelen % sizeof(*in))
@@ -2019,6 +2033,8 @@ static void R_LoadNodesAndLeafs(lump_t * nodeLump, lump_t * leafLump)
 	dleaf_t        *inLeaf;
 	mnode_t        *out;
 	int             numNodes, numLeafs;
+	
+	ri.Printf(PRINT_ALL, "...loading nodes and leaves\n");
 
 	in = (void *)(fileBase + nodeLump->fileofs);
 	if(nodeLump->filelen % sizeof(dnode_t) || leafLump->filelen % sizeof(dleaf_t))
@@ -2095,6 +2111,8 @@ static void R_LoadShaders(lump_t * l)
 {
 	int             i, count;
 	dshader_t      *in, *out;
+	
+	ri.Printf(PRINT_ALL, "...loading shaders\n");
 
 	in = (void *)(fileBase + l->fileofs);
 	if(l->filelen % sizeof(*in))
@@ -2125,6 +2143,8 @@ static void R_LoadMarksurfaces(lump_t * l)
 	int             i, j, count;
 	int            *in;
 	msurface_t    **out;
+	
+	ri.Printf(PRINT_ALL, "...loading mark surfaces\n");
 
 	in = (void *)(fileBase + l->fileofs);
 	if(l->filelen % sizeof(*in))
@@ -2155,6 +2175,8 @@ static void R_LoadPlanes(lump_t * l)
 	dplane_t       *in;
 	int             count;
 	int             bits;
+	
+	ri.Printf(PRINT_ALL, "...loading planes\n");
 
 	in = (void *)(fileBase + l->fileofs);
 	if(l->filelen % sizeof(*in))
@@ -2202,6 +2224,8 @@ static void R_LoadFogs(lump_t * l, lump_t * brushesLump, lump_t * sidesLump)
 	shader_t       *shader;
 	float           d;
 	int             firstSide;
+	
+	ri.Printf(PRINT_ALL, "...loading fogs\n");
 
 	fogs = (void *)(fileBase + l->fileofs);
 	if(l->filelen % sizeof(*fogs))
@@ -2322,6 +2346,8 @@ void R_LoadLightGrid(lump_t * l)
 	int             numGridPoints;
 	world_t        *w;
 	float          *wMins, *wMaxs;
+	
+	ri.Printf(PRINT_ALL, "...loading lightgrid\n");
 
 	w = &s_worldData;
 
@@ -2378,6 +2404,8 @@ void R_LoadEntities(lump_t * l)
 	int             numProjLights = 0;
 	int             numDirectLights = 0;
 	trRefDlight_t  *dl;
+	
+	ri.Printf(PRINT_ALL, "...loading entities\n");
 
 	w = &s_worldData;
 	w->lightGridSize[0] = 64;
@@ -2481,8 +2509,8 @@ void R_LoadEntities(lump_t * l)
 
 //	ri.Printf(PRINT_ALL, "-----------\n%s\n----------\n", p);
 
+#if 1
 	pOld = p;
-	
 	numEntities = 1; // parsed worldspawn so far
 
 	// count lights
@@ -2575,10 +2603,12 @@ void R_LoadEntities(lump_t * l)
 		dl->isStatic = qtrue;
 		dl->additive = qtrue;
 	}
+#endif
 
 #if 1
 	// parse lights
 	p = pOld;
+	numEntities = 1;
 	dl = s_worldData.dlights;
 
 	while(1)
@@ -2685,6 +2715,7 @@ void R_LoadEntities(lump_t * l)
 			// check for light shader
 			else if(!Q_stricmp(keyname, "texture"))
 			{
+				//FIXME
 				dl->l.attenuationShader = RE_RegisterShaderLightAttenuation(value);
 			}
 			// check for rotation
@@ -2734,9 +2765,12 @@ void R_LoadEntities(lump_t * l)
 				}
 			}
 		}
+		
+		numEntities++;
 	}
 #endif
 	
+	ri.Printf(PRINT_ALL, "%i total entities parsed\n", numEntities);
 	ri.Printf(PRINT_ALL, "%i total lights parsed\n", numOmniLights + numProjLights + numDirectLights);
 	ri.Printf(PRINT_ALL, "%i omni-directional lights parsed\n", numOmniLights);
 	ri.Printf(PRINT_ALL, "%i projective lights parsed\n", numProjLights);
@@ -3892,6 +3926,8 @@ void RE_LoadWorldMap(const char *name)
 	{
 		ri.Error(ERR_DROP, "ERROR: attempted to redundantly load world map\n");
 	}
+	
+	ri.Printf(PRINT_ALL, "----- RE_LoadWorldMap( %s ) -----\n", name);
 
 	// set default sun direction to be used if it isn't
 	// overridden by a shader
