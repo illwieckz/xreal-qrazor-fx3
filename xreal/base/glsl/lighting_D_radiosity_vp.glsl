@@ -39,5 +39,5 @@ void	main()
 	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;
 	
 	// transform lightmap texcoords
-	var_TexLight = (gl_TextureMatrix[3] * attr_TexCoord3).st;
+	var_TexLight = (gl_TextureMatrix[1] * attr_TexCoord3).st;
 }

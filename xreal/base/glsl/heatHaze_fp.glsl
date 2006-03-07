@@ -1,6 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006 defconx          <defcon-x@ns-co.net>
 
 This file is part of XreaL source code.
 
@@ -31,7 +32,7 @@ varying float		var_Deform;
 void	main()
 {
 	// compute normal in tangent space from normalmap
-	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).agb - 0.5);
+	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).xyz - 0.5);
 	N = normalize(N);
 
 	// calculate the screen texcoord in the 0.0 to 1.0 range
@@ -39,7 +40,7 @@ void	main()
 	
 	// offset by the scaled normal and clamp it to 0.0 - 1.0
 	s_coord += N.xy * var_Deform;
-	clamp(s_coord, 0.0, 1.0);
+	s_coord = clamp(s_coord, 0.0, 1.0);
 	
 	// scale by the screen non-power-of-two-adjust
 	s_coord *= u_NPotScale;

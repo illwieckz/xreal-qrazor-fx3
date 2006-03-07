@@ -992,6 +992,13 @@ void GfxInfo_f(void)
 	ri.Printf(PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize);
 	ri.Printf(PRINT_ALL, "GL_MAX_TEXTURE_UNITS_ARB: %d\n", glConfig.maxTextureUnits);
 
+	/*
+	if(glConfig2.fragmentProgramAvailable)
+	{
+		ri.Printf(PRINT_ALL, "GL_MAX_TEXTURE_IMAGE_UNITS_ARB: %d\n", glConfig.maxTextureImageUnits);
+	}
+	*/
+
 	if(glConfig2.textureAnisotropyAvailable)
 	{
 		ri.Printf(PRINT_ALL, "GL_TEXTURE_MAX_ANISOTROPY_EXT: %f\n", glConfig2.maxTextureAnisotropy);
@@ -1037,6 +1044,11 @@ void GfxInfo_f(void)
 	if(glConfig.hardwareType == GLHW_RIVA128)
 	{
 		ri.Printf(PRINT_ALL, "HACK: riva128 approximations\n");
+	}
+	
+	if(glConfig.hardwareType == GLHW_ATI)
+	{
+		ri.Printf(PRINT_ALL, "HACK: ATI approximations\n");
 	}
 
 	if(glConfig.smpActive)

@@ -1,6 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006 defconx          <defcon-x@ns-co.net>
 
 This file is part of XreaL source code.
 
@@ -20,7 +21,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+// ATI bugfix, set by renderer at compile time
+//#define ATI
+
 attribute vec4		attr_TexCoord0;
+
+#if defined(ATI)
+uniform mat4		u_ProjectionMatrixTranspose;
+#endif
 
 uniform float		u_DeformMagnitude;
 
@@ -36,18 +44,17 @@ void	main()
 	var_TexNormal = (gl_TextureMatrix[0] * attr_TexCoord0).st;
 	
 	// take the deform magnitude and scale it by the projection distance
-	vec4 R0 = vec4(1, 0, 0, 1);
-	R0.z = dot(gl_ModelViewMatrixTranspose[2], gl_Vertex);
-	float R1 = dot(gl_ProjectionMatrixTranspose[0],  R0);
-	float R2 = dot(gl_ProjectionMatrixTranspose[3],  R0);
-	
-	// don't let the recip get near zero for polygons that cross the view plane
-	R2 = max(R2, 1.0);
-	R2 = 1.0 / R2;
-	R1 *= R2;
+	vec4 tmp0 = vec4(1, 0, 0, 1);
+	tmp0.z = dot(gl_ModelViewMatrixTranspose[2], gl_Vertex);
+
+#if defined(ATI)
+	float tmp1 = dot(u_ProjectionMatrixTranspose[0],  tmp0);
+#else
+	float tmp1 = dot(gl_ProjectionMatrixTranspose[0],  tmp0);
+#endif
 	
 	// clamp the distance so the the deformations don't get too wacky near the view
-	R1 = min(R1, 0.02);
+	tmp1 = min(tmp1, 0.02);
 	
-	var_Deform = R1 * u_DeformMagnitude;
+	var_Deform = tmp1 * u_DeformMagnitude;
 }

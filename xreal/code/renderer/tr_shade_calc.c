@@ -1317,21 +1317,21 @@ void RB_CalcFogTexCoords(float *st)
 	fog_t          *fog;
 	vec3_t          local;
 	vec4_t          fogDistanceVector, fogDepthVector;
-	matrix_t        modelViewMatrix;
+//	matrix_t        modelViewMatrix;
 
 	fog = tr.world->fogs + tess.fogNum;
 
 	// all fogging distance is based on world Z units
 	VectorSubtract(backEnd.or.origin, backEnd.viewParms.or.origin, local);
 
-	MatrixMultiply(quakeToOpenGLMatrix, backEnd.or.modelViewMatrix, modelViewMatrix);
-	fogDistanceVector[0] = -modelViewMatrix[2];
-	fogDistanceVector[1] = -modelViewMatrix[6];
-	fogDistanceVector[2] = -modelViewMatrix[10];
+//	MatrixMultiply(quakeToOpenGLMatrix, backEnd.or.modelViewMatrix, modelViewMatrix);
+//	fogDistanceVector[0] = -modelViewMatrix[2];
+//	fogDistanceVector[1] = -modelViewMatrix[6];
+//	fogDistanceVector[2] = -modelViewMatrix[10];
 	
-//	fogDistanceVector[0] =-backEnd.or.modelViewMatrix[ 2];
-//	fogDistanceVector[1] =-backEnd.or.modelViewMatrix[ 6];
-//	fogDistanceVector[2] =-backEnd.or.modelViewMatrix[10];
+	fogDistanceVector[0] =-backEnd.or.modelViewMatrix[ 2];
+	fogDistanceVector[1] =-backEnd.or.modelViewMatrix[ 6];
+	fogDistanceVector[2] =-backEnd.or.modelViewMatrix[10];
 
 	fogDistanceVector[3] = DotProduct(local, backEnd.viewParms.or.axis[0]);
 

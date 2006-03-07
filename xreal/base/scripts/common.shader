@@ -270,11 +270,11 @@ textures/common/mirror2
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
 	}
 	{
-		//if(fragmentPrograms == 1)
+		if(fragmentPrograms == 1)
 		stage	heathazemap
 		map		textures/liquids/liquid12_n.tga
 		scroll		0 , time * -0.2
-		deformMagnitude	0.4
+		deformMagnitude	1
 	}
 }
 

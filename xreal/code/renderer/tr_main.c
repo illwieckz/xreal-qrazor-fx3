@@ -640,7 +640,7 @@ Sets up the modelview matrix for a given viewParm
 void R_RotateForViewer(void)
 {
 	matrix_t        transformMatrix;
-//	matrix_t        viewMatrix;
+	matrix_t        viewMatrix;
 
 	Com_Memset(&tr.or, 0, sizeof(tr.or));
 	tr.or.axis[0][0] = 1;
@@ -652,13 +652,13 @@ void R_RotateForViewer(void)
 	MatrixSetupTransform(transformMatrix,
 						 tr.viewParms.or.axis[0], tr.viewParms.or.axis[1], tr.viewParms.or.axis[2], tr.viewParms.or.origin);
 
-//	MatrixAffineInverse(transformMatrix, viewMatrix);
-	MatrixAffineInverse(transformMatrix, tr.or.viewMatrix);
+	MatrixAffineInverse(transformMatrix, viewMatrix);
+//	MatrixAffineInverse(transformMatrix, tr.or.viewMatrix);
 
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
 	MatrixIdentity(tr.or.transformMatrix);
-//	MatrixMultiply(quakeToOpenGLMatrix, viewMatrix, tr.or.viewMatrix);
+	MatrixMultiply(quakeToOpenGLMatrix, viewMatrix, tr.or.viewMatrix);
 	MatrixCopy(tr.or.viewMatrix, tr.or.modelViewMatrix);
 
 	tr.viewParms.world = tr.or;
@@ -677,8 +677,8 @@ void R_SetupProjection(void)
 	float           width, height, depth;
 	float           zNear, zFar;
 
-	matrix_t        proj;
-//	float          *proj = tr.viewParms.projectionMatrix;
+//	matrix_t        proj;
+	float          *proj = tr.viewParms.projectionMatrix;
 
 	// set up projection matrix
 	zNear = r_znear->value;
@@ -708,7 +708,7 @@ void R_SetupProjection(void)
 	
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
-	MatrixMultiply(proj, quakeToOpenGLMatrix, tr.viewParms.projectionMatrix);
+//	MatrixMultiply(proj, quakeToOpenGLMatrix, tr.viewParms.projectionMatrix);
 }
 // *INDENT-ON*
 

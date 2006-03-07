@@ -160,8 +160,8 @@ enum
 typedef enum
 {
 	FT_DEFAULT,
-	FT_NEAREST,
-	FT_LINEAR
+	FT_LINEAR,
+	FT_NEAREST
 } filterType_t;
 
 typedef enum
@@ -788,6 +788,8 @@ typedef struct shaderProgram_s
 	
 	GLint			u_FBufScale;
 	GLint			u_NPotScale;
+	
+	GLint			u_ProjectionMatrixTranspose;
 } shaderProgram_t;
 
 
@@ -1564,8 +1566,8 @@ typedef struct
 	image_t        *noFalloffImage;
 	image_t        *attenuationXYImage;
 	image_t        *currentRenderImage;
+	image_t        *currentRenderLinearImage;
 	image_t        *currentRenderNearestImage;
-	image_t        *contrastRenderImage;
 
 	// internal shaders
 	shader_t       *defaultShader;

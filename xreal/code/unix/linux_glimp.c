@@ -2060,6 +2060,10 @@ void GLimp_Init(void)
 	{
 		glConfig.hardwareType = GLHW_3DFX_2D3D;
 	}
+	else if(Q_stristr(buf, "radeon"))
+	{
+		glConfig.hardwareType = GLHW_ATI;
+	}
 	else if(Q_stristr(buf, "rage pro") || Q_stristr(buf, "RagePro"))
 	{
 		glConfig.hardwareType = GLHW_RAGEPRO;

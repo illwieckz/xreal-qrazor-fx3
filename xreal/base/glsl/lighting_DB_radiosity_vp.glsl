@@ -43,7 +43,7 @@ void	main()
 	var_TexNormal = (gl_TextureMatrix[1] * attr_TexCoord1).st;
 	
 	// transform lightmap texcoords
-	var_TexLight = (gl_TextureMatrix[3] * attr_TexCoord3).st;
+	var_TexLight = (gl_TextureMatrix[2] * attr_TexCoord3).st;
 	
 	// construct object-space-to-tangent-space 3x3 matrix
 	var_OS2TSMatrix = mat3(	attr_Tangent.x, attr_Binormal.x, gl_Normal.x,

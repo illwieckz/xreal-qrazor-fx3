@@ -589,8 +589,8 @@ static void RB_BeginDrawingView(void)
 		plane2[2] = DotProduct(backEnd.viewParms.or.axis[2], plane);
 		plane2[3] = DotProduct(plane, backEnd.viewParms.or.origin) - plane[3];
 
-		qglLoadIdentity();
-//		qglLoadMatrixf(quakeToOpenGLMatrix);
+//		qglLoadIdentity();
+		qglLoadMatrixf(quakeToOpenGLMatrix);
 		qglClipPlane(GL_CLIP_PLANE0, plane2);
 		qglEnable(GL_CLIP_PLANE0);
 	}

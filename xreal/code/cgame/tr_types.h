@@ -277,7 +277,8 @@ typedef enum
 	// display adapter
 	GLHW_RIVA128,				// where you can't interpolate alpha
 	GLHW_RAGEPRO,				// where you can't modulate alpha on alpha textures
-	GLHW_PERMEDIA2				// where you don't have src*dst
+	GLHW_PERMEDIA2,				// where you don't have src*dst
+	GLHW_ATI					// where you don't have proper GLSL support
 } glHardwareType_t;
 
 typedef struct

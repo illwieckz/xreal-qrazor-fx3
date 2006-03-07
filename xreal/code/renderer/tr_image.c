@@ -1178,15 +1178,15 @@ static void R_UploadImage(const byte **dataArray, int numData, image_t * image)
 				if(glConfig2.textureAnisotropyAvailable)
 					qglTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
 				break;
-			
-			case FT_NEAREST:
-				qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-				break;
 				
 			case FT_LINEAR:
 				qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				break;
+			
+			case FT_NEAREST:
+				qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 				break;
 				
 			default:
@@ -3145,6 +3145,23 @@ static void R_CreateCurrentRenderImage(void)
 	ri.Hunk_FreeTempMemory(data);
 }
 
+static void R_CreateCurrentRenderLinearImage(void)
+{
+	int				width, height;
+	byte           *data;
+	
+	for(width = 1; width < glConfig.vidWidth; width <<= 1)
+		;
+	for(height = 1; height < glConfig.vidHeight; height <<= 1)
+		;
+	
+	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+	
+	tr.currentRenderLinearImage = R_CreateImage("_currentRenderLinear", data, width, height, IF_NOPICMIP, FT_LINEAR, WT_REPEAT);
+	
+	ri.Hunk_FreeTempMemory(data);
+}
+
 static void R_CreateCurrentRenderNearestImage(void)
 {
 	int				width, height;
@@ -3158,23 +3175,6 @@ static void R_CreateCurrentRenderNearestImage(void)
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 	
 	tr.currentRenderNearestImage = R_CreateImage("_currentRenderNearest", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
-	
-	ri.Hunk_FreeTempMemory(data);
-}
-
-static void R_CreateContrastRenderImage(void)
-{
-	int				width, height;
-	byte           *data;
-	
-	for(width = 1; width < glConfig.vidWidth; width <<= 1)
-		;
-	for(height = 1; height < glConfig.vidHeight; height <<= 1)
-		;
-	
-	data = ri.Hunk_AllocateTempMemory(width * height * 4);
-	
-	tr.contrastRenderImage = R_CreateImage("_contrastRender", data, width, height, IF_NOPICMIP, FT_LINEAR, WT_REPEAT);
 	
 	ri.Hunk_FreeTempMemory(data);
 }
@@ -3235,8 +3235,8 @@ void R_CreateBuiltinImages(void)
 	R_CreateNoFalloffImage();
 	R_CreateAttenuationXYImage();
 	R_CreateCurrentRenderImage();
+	R_CreateCurrentRenderLinearImage();
 	R_CreateCurrentRenderNearestImage();
-	R_CreateContrastRenderImage();
 }
 
 
@@ -3386,29 +3386,11 @@ void R_DeleteTextures(void)
 	{
 		if(qglActiveTextureARB)
 		{
-			GL_SelectTexture(7);
-			qglBindTexture(GL_TEXTURE_2D, 0);
-			
-			GL_SelectTexture(6);
-			qglBindTexture(GL_TEXTURE_2D, 0);
-			
-			GL_SelectTexture(5);
-			qglBindTexture(GL_TEXTURE_2D, 0);
-			
-			GL_SelectTexture(4);
-			qglBindTexture(GL_TEXTURE_2D, 0);
-			
-			GL_SelectTexture(3);
-			qglBindTexture(GL_TEXTURE_2D, 0);
-			
-			GL_SelectTexture(2);
-			qglBindTexture(GL_TEXTURE_2D, 0);
-			
-			GL_SelectTexture(1);
-			qglBindTexture(GL_TEXTURE_2D, 0);
-			
-			GL_SelectTexture(0);
-			qglBindTexture(GL_TEXTURE_2D, 0);
+			for(i = 8 - 1; i >= 0; i--)
+			{
+				GL_SelectTexture(i);
+				qglBindTexture(GL_TEXTURE_2D, 0);
+			}
 		}
 		else
 		{

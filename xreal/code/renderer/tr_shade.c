@@ -104,9 +104,34 @@ static void RB_LoadGPUShader(GLhandleARB program, const char *name, GLenum shade
 	{
 		ri.Error(ERR_DROP, "Couldn't load %s", filename);
 	}
-
+	
 	shader = qglCreateShaderObjectARB(shaderType);
-	qglShaderSourceARB(shader, 1, (const GLcharARB **)&buffer, &size);
+	
+	// HACK: add ATI's GLSL quirks
+	if(glConfig.hardwareType == GLHW_ATI && shaderType == GL_VERTEX_SHADER_ARB)
+	{
+		GLcharARB      *bufferATI = "#define ATI\n";
+		int             sizeATI;
+	
+		GLcharARB      *bufferFinal = NULL;
+		int             sizeFinal;
+		
+		sizeATI = strlen(bufferATI);
+		sizeFinal = sizeATI + size;
+		
+		bufferFinal = ri.Hunk_AllocateTempMemory(size + sizeATI);
+		
+		strcpy(bufferFinal, bufferATI);
+		Q_strcat(bufferFinal, sizeFinal, buffer);
+		
+		qglShaderSourceARB(shader, 1, (const GLcharARB **)&bufferFinal, &sizeFinal);
+		
+		ri.Hunk_FreeTempMemory(bufferFinal);
+	}
+	else
+	{
+		qglShaderSourceARB(shader, 1, (const GLcharARB **)&buffer, &size);
+	}
 
 	// compile shader
 	qglCompileShaderARB(shader);
@@ -600,6 +625,11 @@ void RB_InitGPUShaders(void)
 					  "heatHaze",
 					  GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
 
+	if(glConfig.hardwareType == GLHW_ATI)
+	{
+		tr.heatHazeShader.u_ProjectionMatrixTranspose =
+				qglGetUniformLocationARB(tr.heatHazeShader.program, "u_ProjectionMatrixTranspose");
+	}
 	tr.heatHazeShader.u_DeformMagnitude =
 			qglGetUniformLocationARB(tr.heatHazeShader.program, "u_DeformMagnitude");
 	tr.heatHazeShader.u_ColorMap =
@@ -2366,17 +2396,25 @@ static void Render_heatHaze(int stage)
 	deformMagnitude = RB_EvalExpression(&pStage->deformMagnitudeExp, 1.0);
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderImage->uploadWidth;
-	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderImage->uploadHeight;
+	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderLinearImage->uploadWidth;
+	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderLinearImage->uploadHeight;
 	
 	qglUniform1fARB(tr.heatHazeShader.u_DeformMagnitude, deformMagnitude);
 	qglUniform2fARB(tr.heatHazeShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
 	qglUniform2fARB(tr.heatHazeShader.u_NPotScale, npotWidthScale, npotHeightScale);
+	
+	if(glConfig.hardwareType == GLHW_ATI)
+	{
+		matrix_t        projectionMatrixTranspose;
+		
+		MatrixTranspose(backEnd.viewParms.projectionMatrix, projectionMatrixTranspose);
+		qglUniformMatrix4fvARB(tr.heatHazeShader.u_ProjectionMatrixTranspose, 1, GL_FALSE, projectionMatrixTranspose);
+	}
 
 	// bind colormap
 	GL_SelectTexture(0);
-	GL_Bind(tr.currentRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+	GL_Bind(tr.currentRenderLinearImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderLinearImage->uploadWidth, tr.currentRenderLinearImage->uploadHeight);
 	
 	// bind normalmap
 	GL_SelectTexture(1);
@@ -2472,8 +2510,8 @@ static void Render_bloom(int stage)
 	qglUniform2fARB(tr.bloomShader.u_NPotScale, npotWidthScale, npotHeightScale);
 	
 	GL_SelectTexture(1);
-	GL_Bind(tr.contrastRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth, tr.contrastRenderImage->uploadHeight);
+	GL_Bind(tr.currentRenderLinearImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderLinearImage->uploadWidth, tr.currentRenderLinearImage->uploadHeight);
 	
 	R_DrawElements();
 }
@@ -2521,8 +2559,8 @@ static void Render_bloom2(int stage)
 	qglUniform2fARB(tr.blurXShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
 	qglUniform2fARB(tr.blurXShader.u_NPotScale, npotWidthScale, npotHeightScale);
 
-	GL_Bind(tr.contrastRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth, tr.contrastRenderImage->uploadHeight);
+	GL_Bind(tr.currentRenderLinearImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderLinearImage->uploadWidth, tr.currentRenderLinearImage->uploadHeight);
 	
 	R_DrawElements();
 	
@@ -2534,8 +2572,8 @@ static void Render_bloom2(int stage)
 	qglUniform2fARB(tr.blurYShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
 	qglUniform2fARB(tr.blurYShader.u_NPotScale, npotWidthScale, npotHeightScale);
 
-	GL_Bind(tr.contrastRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth, tr.contrastRenderImage->uploadHeight);
+	GL_Bind(tr.currentRenderLinearImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderLinearImage->uploadWidth, tr.currentRenderLinearImage->uploadHeight);
 	
 	R_DrawElements();
 	
@@ -2552,7 +2590,7 @@ static void Render_bloom2(int stage)
 	GL_Bind(tr.currentRenderNearestImage);
 	
 	GL_SelectTexture(1);
-	GL_Bind(tr.contrastRenderImage);
+	GL_Bind(tr.currentRenderLinearImage);
 	
 	R_DrawElements();
 }

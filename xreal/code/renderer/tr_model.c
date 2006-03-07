@@ -226,7 +226,7 @@ qhandle_t RE_RegisterModel(const char *name)
 #ifdef _DEBUG
 	else
 	{
-		ri.Printf(PRINT_WARNING, "RE_RegisterModel: couldn't load %s\n", name);
+		ri.Printf(PRINT_WARNING, "couldn't load '%s'\n", name);
 	}
 #endif
 

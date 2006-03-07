@@ -1314,11 +1314,8 @@ static qboolean ParseMap(shaderStage_t * stage, char **text, char *buffer, int b
 		if(token[0] == 0)
 			break;
 				
-		//Q_strcat(buffer, bufferSize, token);
-		//Q_strcat(buffer, bufferSize, " ");
-		
-		strcat(buffer, token);
-		strcat(buffer, " ");
+		Q_strcat(buffer, bufferSize, token);
+		Q_strcat(buffer, bufferSize, " ");
 	}
 			
 	if(!buffer[0])
