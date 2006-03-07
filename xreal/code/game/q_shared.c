@@ -40,10 +40,10 @@ float Com_Clamp(float min, float max, float value)
 
 /*
 ============
-COM_SkipPath
+Com_SkipPath
 ============
 */
-char           *COM_SkipPath(char *pathname)
+char           *Com_SkipPath(char *pathname)
 {
 	char           *last;
 
@@ -59,10 +59,10 @@ char           *COM_SkipPath(char *pathname)
 
 /*
 ============
-COM_StripExtension
+Com_StripExtension
 ============
 */
-void COM_StripExtension(const char *in, char *out)
+void Com_StripExtension(const char *in, char *out)
 {
 	while(*in && *in != '.')
 	{
@@ -74,10 +74,10 @@ void COM_StripExtension(const char *in, char *out)
 
 /*
 ============
-COM_StripExtensionExt
+Com_StripExtensionExt
 ============
 */
-void COM_StripExtensionExt(const char *in, char *out, char terminator)
+void Com_StripExtensionExt(const char *in, char *out, char terminator)
 {
 	while(*in && *in != '.')
 	{
@@ -88,10 +88,10 @@ void COM_StripExtensionExt(const char *in, char *out, char terminator)
 
 /*
 ==================
-COM_DefaultExtension
+Com_DefaultExtension
 ==================
 */
-void COM_DefaultExtension(char *path, int maxSize, const char *extension)
+void Com_DefaultExtension(char *path, int maxSize, const char *extension)
 {
 	char            oldPath[MAX_QPATH];
 	char           *src;
@@ -275,23 +275,23 @@ static char     com_token[MAX_TOKEN_CHARS];
 static char     com_parsename[MAX_TOKEN_CHARS];
 static int      com_lines;
 
-void COM_BeginParseSession(const char *name)
+void Com_BeginParseSession(const char *name)
 {
 	com_lines = 0;
 	Com_sprintf(com_parsename, sizeof(com_parsename), "%s", name);
 }
 
-int COM_GetCurrentParseLine(void)
+int Com_GetCurrentParseLine(void)
 {
 	return com_lines;
 }
 
-char           *COM_Parse(char **data_p)
+char           *Com_Parse(char **data_p)
 {
-	return COM_ParseExt(data_p, qtrue);
+	return Com_ParseExt(data_p, qtrue);
 }
 
-void COM_ParseError(char *format, ...)
+void Com_ParseError(char *format, ...)
 {
 	va_list         argptr;
 	static char     string[4096];
@@ -300,10 +300,10 @@ void COM_ParseError(char *format, ...)
 	vsprintf(string, format, argptr);
 	va_end(argptr);
 
-	Com_Printf("ERROR: %s, line %d: %s\n", com_parsename, com_lines, string);
+	Com_Printf("ERROR: '%s', line %d: '%s'\n", com_parsename, com_lines, string);
 }
 
-void COM_ParseWarning(char *format, ...)
+void Com_ParseWarning(char *format, ...)
 {
 	va_list         argptr;
 	static char     string[4096];
@@ -312,12 +312,12 @@ void COM_ParseWarning(char *format, ...)
 	vsprintf(string, format, argptr);
 	va_end(argptr);
 
-	Com_Printf("WARNING: %s, line %d: %s\n", com_parsename, com_lines, string);
+	Com_Printf("WARNING: '%s', line %d: '%s'\n", com_parsename, com_lines, string);
 }
 
 /*
 ==============
-COM_Parse
+Com_Parse
 
 Parse a token out of a string
 Will never return NULL, just empty strings
@@ -348,7 +348,7 @@ static char    *SkipWhitespace(char *data, qboolean * hasNewLines)
 	return data;
 }
 
-int COM_Compress(char *data_p)
+int Com_Compress(char *data_p)
 {
 	char           *in, *out;
 	int             c;
@@ -441,7 +441,7 @@ int COM_Compress(char *data_p)
 }
 
 // *INDENT-OFF*
-char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
+char           *Com_ParseExt(char **data_p, qboolean allowLineBreaks)
 {
 	int             c = 0, len;
 	qboolean        hasNewLines = qfalse;
@@ -687,82 +687,16 @@ char           *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 // *INDENT-ON*
 
 
-
-
-#if 0
-// no longer used
-/*
-===============
-COM_ParseInfos
-===============
-*/
-int COM_ParseInfos(char *buf, int max, char infos[][MAX_INFO_STRING])
-{
-	char           *token;
-	int             count;
-	char            key[MAX_TOKEN_CHARS];
-
-	count = 0;
-
-	while(1)
-	{
-		token = COM_Parse(&buf);
-		if(!token[0])
-		{
-			break;
-		}
-		if(strcmp(token, "{"))
-		{
-			Com_Printf("Missing { in info file\n");
-			break;
-		}
-
-		if(count == max)
-		{
-			Com_Printf("Max infos exceeded\n");
-			break;
-		}
-
-		infos[count][0] = 0;
-		while(1)
-		{
-			token = COM_ParseExt(&buf, qtrue);
-			if(!token[0])
-			{
-				Com_Printf("Unexpected end of info file\n");
-				break;
-			}
-			if(!strcmp(token, "}"))
-			{
-				break;
-			}
-			Q_strncpyz(key, token, sizeof(key));
-
-			token = COM_ParseExt(&buf, qfalse);
-			if(!token[0])
-			{
-				strcpy(token, "<NULL>");
-			}
-			Info_SetValueForKey(infos[count], key, token);
-		}
-		count++;
-	}
-
-	return count;
-}
-#endif
-
-
 /*
 ==================
-COM_MatchToken
+Com_MatchToken
 ==================
 */
-void COM_MatchToken(char **buf_p, char *match)
+void Com_MatchToken(char **buf_p, char *match)
 {
 	char           *token;
 
-	token = COM_Parse(buf_p);
+	token = Com_Parse(buf_p);
 	if(strcmp(token, match))
 	{
 		Com_Error(ERR_DROP, "MatchToken: '%s' != '%s'", token, match);
@@ -787,7 +721,7 @@ void SkipBracedSection(char **program)
 	depth = 0;
 	do
 	{
-		token = COM_ParseExt(program, qtrue);
+		token = Com_ParseExt(program, qtrue);
 		if(token[1] == 0)
 		{
 			if(token[0] == '{')
@@ -831,43 +765,43 @@ void Parse1DMatrix(char **buf_p, int x, float *m)
 	char           *token;
 	int             i;
 
-	COM_MatchToken(buf_p, "(");
+	Com_MatchToken(buf_p, "(");
 
 	for(i = 0; i < x; i++)
 	{
-		token = COM_Parse(buf_p);
+		token = Com_Parse(buf_p);
 		m[i] = atof(token);
 	}
 
-	COM_MatchToken(buf_p, ")");
+	Com_MatchToken(buf_p, ")");
 }
 
 void Parse2DMatrix(char **buf_p, int y, int x, float *m)
 {
 	int             i;
 
-	COM_MatchToken(buf_p, "(");
+	Com_MatchToken(buf_p, "(");
 
 	for(i = 0; i < y; i++)
 	{
 		Parse1DMatrix(buf_p, x, m + i * x);
 	}
 
-	COM_MatchToken(buf_p, ")");
+	Com_MatchToken(buf_p, ")");
 }
 
 void Parse3DMatrix(char **buf_p, int z, int y, int x, float *m)
 {
 	int             i;
 
-	COM_MatchToken(buf_p, "(");
+	Com_MatchToken(buf_p, "(");
 
 	for(i = 0; i < z; i++)
 	{
 		Parse2DMatrix(buf_p, y, x, m + i * x * y);
 	}
 
-	COM_MatchToken(buf_p, ")");
+	Com_MatchToken(buf_p, ")");
 }
 
 

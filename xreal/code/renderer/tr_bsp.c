@@ -2427,7 +2427,7 @@ void R_LoadEntities(lump_t * l)
 	while(1)
 	{
 		// parse key
-		token = COM_ParseExt(&p, qtrue);
+		token = Com_ParseExt(&p, qtrue);
 		
 		if(!*token)
 		{
@@ -2448,7 +2448,7 @@ void R_LoadEntities(lump_t * l)
 		Q_strncpyz(keyname, token, sizeof(keyname));
 
 		// parse value
-		token = COM_ParseExt(&p, qfalse);
+		token = Com_ParseExt(&p, qfalse);
 		
 		if(!*token)
 		{
@@ -2517,7 +2517,7 @@ void R_LoadEntities(lump_t * l)
 	while(1)
 	{
 		// parse {
-		token = COM_ParseExt(&p, qtrue);
+		token = Com_ParseExt(&p, qtrue);
 
 		if(!*token)
 		{
@@ -2538,7 +2538,7 @@ void R_LoadEntities(lump_t * l)
 		while(1)
 		{			
 			// parse key
-			token = COM_ParseExt(&p, qtrue);
+			token = Com_ParseExt(&p, qtrue);
 			
 			if(*token == '}')
 			{
@@ -2554,7 +2554,7 @@ void R_LoadEntities(lump_t * l)
 			Q_strncpyz(keyname, token, sizeof(keyname));
 	
 			// parse value
-			token = COM_ParseExt(&p, qfalse);
+			token = Com_ParseExt(&p, qfalse);
 			
 			if(!*token)
 			{
@@ -2613,7 +2613,7 @@ void R_LoadEntities(lump_t * l)
 
 	while(1)
 	{
-		token = COM_ParseExt(&p, qtrue);
+		token = Com_ParseExt(&p, qtrue);
 
 		if(!*token)
 		{
@@ -2634,7 +2634,7 @@ void R_LoadEntities(lump_t * l)
 		while(1)
 		{
 			// parse key
-			token = COM_ParseExt(&p, qtrue);
+			token = Com_ParseExt(&p, qtrue);
 	
 			if(*token == '}')
 			{
@@ -2650,7 +2650,7 @@ void R_LoadEntities(lump_t * l)
 			Q_strncpyz(keyname, token, sizeof(keyname));
 	
 			// parse value
-			token = COM_ParseExt(&p, qfalse);
+			token = Com_ParseExt(&p, qfalse);
 	
 			if(!*token)
 			{
@@ -2787,7 +2787,7 @@ qboolean R_GetEntityToken(char *buffer, int size)
 {
 	const char     *s;
 
-	s = COM_Parse(&s_worldData.entityParsePoint);
+	s = Com_Parse(&s_worldData.entityParsePoint);
 	Q_strncpyz(buffer, s, size);
 	if(!s_worldData.entityParsePoint || !s[0])
 	{
@@ -3953,8 +3953,8 @@ void RE_LoadWorldMap(const char *name)
 	Com_Memset(&s_worldData, 0, sizeof(s_worldData));
 	Q_strncpyz(s_worldData.name, name, sizeof(s_worldData.name));
 
-	Q_strncpyz(s_worldData.baseName, COM_SkipPath(s_worldData.name), sizeof(s_worldData.name));
-	COM_StripExtension(s_worldData.baseName, s_worldData.baseName);
+	Q_strncpyz(s_worldData.baseName, Com_SkipPath(s_worldData.name), sizeof(s_worldData.name));
+	Com_StripExtension(s_worldData.baseName, s_worldData.baseName);
 
 	startMarker = ri.Hunk_Alloc(0, h_low);
 	c_gridVerts = 0;

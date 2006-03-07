@@ -2429,7 +2429,7 @@ static void ParseHeightMap(char **text, byte ** pic, int *width, int *height, in
 	char           *token;
 	float			scale;
 
-	token = COM_ParseExt(text, qfalse);
+	token = Com_ParseExt(text, qfalse);
 	if(token[0] != '(')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for heightMap\n", token);
@@ -2443,17 +2443,17 @@ static void ParseHeightMap(char **text, byte ** pic, int *width, int *height, in
 		return;
 	}
 		
-	token = COM_ParseExt(text, qfalse);
+	token = Com_ParseExt(text, qfalse);
 	if(token[0] != ',')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: no matching ',' found\n");
 		return;
 	}
 	
-	token = COM_ParseExt(text, qfalse);
+	token = Com_ParseExt(text, qfalse);
 	scale = atof(token);
 
-	token = COM_ParseExt(text, qfalse);
+	token = Com_ParseExt(text, qfalse);
 	if(token[0] != ')')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for heightMap\n", token);
@@ -2473,7 +2473,7 @@ static void ParseAddNormals(char **text, byte ** pic, int *width, int *height, i
 	byte           *pic2;
 	int             width2, height2;
 	
-	token = COM_ParseExt(text, qfalse);
+	token = Com_ParseExt(text, qfalse);
 	if(token[0] != '(')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for addNormals\n", token);
@@ -2487,7 +2487,7 @@ static void ParseAddNormals(char **text, byte ** pic, int *width, int *height, i
 		return;
 	}
 		
-	token = COM_ParseExt(text, qfalse);
+	token = Com_ParseExt(text, qfalse);
 	if(token[0] != ',')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: no matching ',' found\n");
@@ -2501,7 +2501,7 @@ static void ParseAddNormals(char **text, byte ** pic, int *width, int *height, i
 		return;
 	}
 
-	token = COM_ParseExt(text, qfalse);
+	token = Com_ParseExt(text, qfalse);
 	if(token[0] != ')')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for addNormals\n", token);
@@ -2531,7 +2531,7 @@ static void ParseInvertAlpha(char **text, byte ** pic, int *width, int *height, 
 {
 	char           *token;
 
-	token = COM_ParseExt(text, qfalse);
+	token = Com_ParseExt(text, qfalse);
 	if(token[0] != '(')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for invertAlpha\n", token);
@@ -2545,7 +2545,7 @@ static void ParseInvertAlpha(char **text, byte ** pic, int *width, int *height, 
 		return;
 	}
 
-	token = COM_ParseExt(text, qfalse);
+	token = Com_ParseExt(text, qfalse);
 	if(token[0] != ')')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for invertAlpha\n", token);
@@ -2559,7 +2559,7 @@ static void ParseInvertColor(char **text, byte ** pic, int *width, int *height, 
 {
 	char           *token;
 
-	token = COM_ParseExt(text, qfalse);
+	token = Com_ParseExt(text, qfalse);
 	if(token[0] != '(')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for invertColor\n", token);
@@ -2573,7 +2573,7 @@ static void ParseInvertColor(char **text, byte ** pic, int *width, int *height, 
 		return;
 	}
 
-	token = COM_ParseExt(text, qfalse);
+	token = Com_ParseExt(text, qfalse);
 	if(token[0] != ')')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for invertColor\n", token);
@@ -2587,7 +2587,7 @@ static void ParseMakeIntensity(char **text, byte ** pic, int *width, int *height
 {
 	char           *token;
 
-	token = COM_ParseExt(text, qfalse);
+	token = Com_ParseExt(text, qfalse);
 	if(token[0] != '(')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for makeIntensity\n", token);
@@ -2601,7 +2601,7 @@ static void ParseMakeIntensity(char **text, byte ** pic, int *width, int *height
 		return;
 	}
 
-	token = COM_ParseExt(text, qfalse);
+	token = Com_ParseExt(text, qfalse);
 	if(token[0] != ')')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for makeIntensity\n", token);
@@ -2619,7 +2619,7 @@ static void ParseMakeAlpha(char **text, byte ** pic, int *width, int *height, in
 {
 	char           *token;
 
-	token = COM_ParseExt(text, qfalse);
+	token = Com_ParseExt(text, qfalse);
 	if(token[0] != '(')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for makeAlpha\n", token);
@@ -2633,7 +2633,7 @@ static void ParseMakeAlpha(char **text, byte ** pic, int *width, int *height, in
 		return;
 	}
 
-	token = COM_ParseExt(text, qfalse);
+	token = Com_ParseExt(text, qfalse);
 	if(token[0] != ')')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for makeAlpha\n", token);
@@ -2665,7 +2665,7 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 	*width = 0;
 	*height = 0;
 	
-	token = COM_ParseExt(buffer, qfalse);
+	token = Com_ParseExt(buffer, qfalse);
 	if(!token[0])
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: NULL parameter for R_LoadImage\n");
@@ -2722,7 +2722,7 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 	else
 	{
 		Q_strncpyz(filename, token, sizeof(filename));
-		COM_DefaultExtension(filename, sizeof(filename), ".tga");
+		Com_DefaultExtension(filename, sizeof(filename), ".tga");
 		
 //		ri.Printf(PRINT_ALL, "R_LoadImage: filename '%s'\n", filename);
 		

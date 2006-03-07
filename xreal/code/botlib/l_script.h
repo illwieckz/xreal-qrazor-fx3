@@ -44,7 +44,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define QDECL
 void            Com_Memset(void *dest, const int val, const size_t count);
 void            Com_Memcpy(void *dest, const void *src, const size_t count);
-int             COM_Compress(char *data_p);
+int             Com_Compress(char *data_p);
 #endif
 
 

@@ -1072,20 +1072,18 @@ void            QuatSlerp(const quat_t from, const quat_t to, float frac, quat_t
 
 float           Com_Clamp(float min, float max, float value);
 
-char           *COM_SkipPath(char *pathname);
-void            COM_StripExtension(const char *in, char *out);
-void            COM_StripExtensionExt(const char *in, char *out, char terminator);
-void            COM_DefaultExtension(char *path, int maxSize, const char *extension);
+char           *Com_SkipPath(char *pathname);
+void            Com_StripExtension(const char *in, char *out);
+void            Com_StripExtensionExt(const char *in, char *out, char terminator);
+void            Com_DefaultExtension(char *path, int maxSize, const char *extension);
 
-void            COM_BeginParseSession(const char *name);
-int             COM_GetCurrentParseLine(void);
-char           *COM_Parse(char **data_p);
-char           *COM_ParseExt(char **data_p, qboolean allowLineBreak);
-int             COM_Compress(char *data_p);
-void            COM_ParseError(char *format, ...);
-void            COM_ParseWarning(char *format, ...);
-
-//int       COM_ParseInfos( char *buf, int max, char infos[][MAX_INFO_STRING] );
+void            Com_BeginParseSession(const char *name);
+int             Com_GetCurrentParseLine(void);
+char           *Com_Parse(char **data_p);
+char           *Com_ParseExt(char **data_p, qboolean allowLineBreak);
+int             Com_Compress(char *data_p);
+void            Com_ParseError(char *format, ...);
+void            Com_ParseWarning(char *format, ...);
 
 #define MAX_TOKENLENGTH		1024
 
@@ -1109,7 +1107,7 @@ typedef struct pc_token_s
 
 // data is an in/out parm, returns a parsed out token
 
-void            COM_MatchToken(char **buf_p, char *match);
+void            Com_MatchToken(char **buf_p, char *match);
 
 void            SkipBracedSection(char **program);
 void            SkipRestOfLine(char **data);

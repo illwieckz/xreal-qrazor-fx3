@@ -318,7 +318,7 @@ Float_Parse
 */
 qboolean Float_Parse(char **p, float *f) {
 	char	*token;
-	token = COM_ParseExt(p, qfalse);
+	token = Com_ParseExt(p, qfalse);
 	if (token && token[0] != 0) {
 		*f = atof(token);
 		return qtrue;
@@ -397,7 +397,7 @@ Int_Parse
 */
 qboolean Int_Parse(char **p, int *i) {
 	char	*token;
-	token = COM_ParseExt(p, qfalse);
+	token = Com_ParseExt(p, qfalse);
 
 	if (token && token[0] != 0) {
 		*i = atoi(token);
@@ -477,7 +477,7 @@ String_Parse
 qboolean String_Parse(char **p, const char **out) {
 	char *token;
 
-	token = COM_ParseExt(p, qfalse);
+	token = Com_ParseExt(p, qfalse);
 	if (token && token[0] != 0) {
 		*(out) = String_Alloc(token);
 		return qtrue;

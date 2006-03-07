@@ -86,7 +86,7 @@ static void UI_SaveConfigMenu_SaveEvent( void *ptr, int event ) {
 		return;
 	}
 
-	COM_StripExtension(saveConfig.savename.field.buffer, configname );
+	Com_StripExtension(saveConfig.savename.field.buffer, configname );
 	trap_Cmd_ExecuteText( EXEC_APPEND, va( "writeconfig %s.cfg\n", configname ) );
 	UI_PopMenu();
 }

@@ -231,7 +231,7 @@ void Com_DPrintf(char *fmt, ...)
 // Returns:             -
 // Changes Globals:     -
 //===========================================================================
-int COM_Compress(char *data_p)
+int Com_Compress(char *data_p)
 {
 	return strlen(data_p);
 }

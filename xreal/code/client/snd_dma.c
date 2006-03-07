@@ -1627,7 +1627,7 @@ void S_StartBackgroundTrack(const char *intro, const char *loop)
 	Com_DPrintf("S_StartBackgroundTrack( %s, %s )\n", intro, loop);
 
 	Q_strncpyz(name, intro, sizeof(name) - 4);
-	COM_DefaultExtension(name, sizeof(name), ".wav");
+	Com_DefaultExtension(name, sizeof(name), ".wav");
 
 	if(!intro[0])
 	{

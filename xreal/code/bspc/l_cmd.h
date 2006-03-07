@@ -123,7 +123,7 @@ unsigned        LittleUnsigned(unsigned l);
 #endif
 
 
-char           *COM_Parse(char *data);
+char           *Com_Parse(char *data);
 
 extern char     com_token[1024];
 extern qboolean com_eof;

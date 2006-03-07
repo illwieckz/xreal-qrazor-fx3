@@ -137,10 +137,10 @@ qhandle_t RE_RegisterAnimation(const char *name)
 	buf_p = buffer;
 	
 	// skip MD5Version indent string
-	COM_ParseExt(&buf_p, qfalse);
+	Com_ParseExt(&buf_p, qfalse);
 	
 	// check version
-	token = COM_ParseExt(&buf_p, qfalse);
+	token = Com_ParseExt(&buf_p, qfalse);
 	version = atoi(token);
 	if(version != MD5_VERSION)
 	{
@@ -149,57 +149,57 @@ qhandle_t RE_RegisterAnimation(const char *name)
 	}
 	
 	// skip commandline <arguments string>
-	token = COM_ParseExt(&buf_p, qtrue);
-	token = COM_ParseExt(&buf_p, qtrue);
+	token = Com_ParseExt(&buf_p, qtrue);
+	token = Com_ParseExt(&buf_p, qtrue);
 
 	// parse numFrames <number>
-	token = COM_ParseExt(&buf_p, qtrue);
+	token = Com_ParseExt(&buf_p, qtrue);
 	if(Q_stricmp(token, "numFrames"))
 	{
 		ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected 'numFrames' found '%s' in model '%s'\n", token, name);
 		return qfalse;
 	}
-	token = COM_ParseExt(&buf_p, qfalse);
+	token = Com_ParseExt(&buf_p, qfalse);
 	anim->numFrames = atoi(token);
 	
 	// parse numJoints <number>
-	token = COM_ParseExt(&buf_p, qtrue);
+	token = Com_ParseExt(&buf_p, qtrue);
 	if(Q_stricmp(token, "numJoints"))
 	{
 		ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected 'numJoints' found '%s' in model '%s'\n", token, name);
 		return qfalse;
 	}
-	token = COM_ParseExt(&buf_p, qfalse);
+	token = Com_ParseExt(&buf_p, qfalse);
 	anim->numChannels = atoi(token);
 	
 	// parse frameRate <number>
-	token = COM_ParseExt(&buf_p, qtrue);
+	token = Com_ParseExt(&buf_p, qtrue);
 	if(Q_stricmp(token, "frameRate"))
 	{
 		ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected 'frameRate' found '%s' in model '%s'\n", token, name);
 		return qfalse;
 	}
-	token = COM_ParseExt(&buf_p, qfalse);
+	token = Com_ParseExt(&buf_p, qfalse);
 	anim->frameRate = atoi(token);
 	
 	// parse numAnimatedComponents <number>
-	token = COM_ParseExt(&buf_p, qtrue);
+	token = Com_ParseExt(&buf_p, qtrue);
 	if(Q_stricmp(token, "numAnimatedComponents"))
 	{
 		ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected 'numAnimatedComponents' found '%s' in model '%s'\n", token, name);
 		return qfalse;
 	}
-	token = COM_ParseExt(&buf_p, qfalse);
+	token = Com_ParseExt(&buf_p, qfalse);
 	anim->numAnimatedComponents = atoi(token);
 	
 	// parse hierarchy {
-	token = COM_ParseExt(&buf_p, qtrue);
+	token = Com_ParseExt(&buf_p, qtrue);
 	if(Q_stricmp(token, "hierarchy"))
 	{
 		ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected 'hierarchy' found '%s' in model '%s'\n", token, name);
 		return qfalse;
 	}
-	token = COM_ParseExt(&buf_p, qfalse);
+	token = Com_ParseExt(&buf_p, qfalse);
 	if(Q_stricmp(token, "{"))
 	{
 		ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected '{' found '%s' in model '%s'\n", token, name);
@@ -211,12 +211,12 @@ qhandle_t RE_RegisterAnimation(const char *name)
 	
 	for(i = 0, channel = anim->channels; i < anim->numChannels; i++, channel++)
 	{
-		token = COM_ParseExt(&buf_p, qtrue);
+		token = Com_ParseExt(&buf_p, qtrue);
 		Q_strncpyz(channel->name, token, sizeof(channel->name));
 		
 		//ri.Printf(PRINT_ALL, "RE_RegisterAnimation: '%s' has channel '%s'\n", name, channel->name);
 		
-		token = COM_ParseExt(&buf_p, qfalse);
+		token = Com_ParseExt(&buf_p, qfalse);
 		channel->parentIndex = atoi(token);
 		
 		if(channel->parentIndex >= anim->numChannels)
@@ -224,15 +224,15 @@ qhandle_t RE_RegisterAnimation(const char *name)
 			ri.Error(ERR_DROP, "RE_RegisterAnimation: '%s' has channel '%s' with bad parent index %i while numBones is %i\n", name, channel->name, channel->parentIndex, anim->numChannels);
 		}
 		
-		token = COM_ParseExt(&buf_p, qfalse);
+		token = Com_ParseExt(&buf_p, qfalse);
 		channel->componentsBits = atoi(token);
 		
-		token = COM_ParseExt(&buf_p, qfalse);
+		token = Com_ParseExt(&buf_p, qfalse);
 		channel->componentsOffset = atoi(token);
 	}
 	
 	// parse }
-	token = COM_ParseExt(&buf_p, qtrue);
+	token = Com_ParseExt(&buf_p, qtrue);
 	if(Q_stricmp(token, "}"))
 	{
 		ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected '}' found '%s' in model '%s'\n", token, name);
@@ -241,13 +241,13 @@ qhandle_t RE_RegisterAnimation(const char *name)
 	
 	
 	// parse bounds {
-	token = COM_ParseExt(&buf_p, qtrue);
+	token = Com_ParseExt(&buf_p, qtrue);
 	if(Q_stricmp(token, "bounds"))
 	{
 		ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected 'bounds' found '%s' in model '%s'\n", token, name);
 		return qfalse;
 	}
-	token = COM_ParseExt(&buf_p, qfalse);
+	token = Com_ParseExt(&buf_p, qfalse);
 	if(Q_stricmp(token, "{"))
 	{
 		ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected '{' found '%s' in model '%s'\n", token, name);
@@ -259,7 +259,7 @@ qhandle_t RE_RegisterAnimation(const char *name)
 	for(i = 0, frame = anim->frames; i < anim->numFrames; i++, frame++)
 	{
 		// skip (
-		token = COM_ParseExt(&buf_p, qtrue);
+		token = Com_ParseExt(&buf_p, qtrue);
 		if(Q_stricmp(token, "("))
 		{
 			ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected '(' found '%s' in model '%s'\n", token, name);
@@ -268,12 +268,12 @@ qhandle_t RE_RegisterAnimation(const char *name)
 		
 		for(j = 0; j < 3; j++)
 		{
-			token = COM_ParseExt(&buf_p, qfalse);
+			token = Com_ParseExt(&buf_p, qfalse);
 			frame->bounds[0][j] = atof(token);
 		}
 		
 		// skip )
-		token = COM_ParseExt(&buf_p, qfalse);
+		token = Com_ParseExt(&buf_p, qfalse);
 		if(Q_stricmp(token, ")"))
 		{
 			ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected ')' found '%s' in model '%s'\n", token, name);
@@ -281,7 +281,7 @@ qhandle_t RE_RegisterAnimation(const char *name)
 		}
 		
 		// skip (
-		token = COM_ParseExt(&buf_p, qfalse);
+		token = Com_ParseExt(&buf_p, qfalse);
 		if(Q_stricmp(token, "("))
 		{
 			ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected '(' found '%s' in model '%s'\n", token, name);
@@ -290,12 +290,12 @@ qhandle_t RE_RegisterAnimation(const char *name)
 		
 		for(j = 0; j < 3; j++)
 		{
-			token = COM_ParseExt(&buf_p, qfalse);
+			token = Com_ParseExt(&buf_p, qfalse);
 			frame->bounds[1][j] = atof(token);
 		}
 		
 		// skip )
-		token = COM_ParseExt(&buf_p, qfalse);
+		token = Com_ParseExt(&buf_p, qfalse);
 		if(Q_stricmp(token, ")"))
 		{
 			ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected ')' found '%s' in model '%s'\n", token, name);
@@ -304,7 +304,7 @@ qhandle_t RE_RegisterAnimation(const char *name)
 	}
 	
 	// parse }
-	token = COM_ParseExt(&buf_p, qtrue);
+	token = Com_ParseExt(&buf_p, qtrue);
 	if(Q_stricmp(token, "}"))
 	{
 		ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected '}' found '%s' in model '%s'\n", token, name);
@@ -313,13 +313,13 @@ qhandle_t RE_RegisterAnimation(const char *name)
 	
 	
 	// parse baseframe {
-	token = COM_ParseExt(&buf_p, qtrue);
+	token = Com_ParseExt(&buf_p, qtrue);
 	if(Q_stricmp(token, "baseframe"))
 	{
 		ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected 'baseframe' found '%s' in model '%s'\n", token, name);
 		return qfalse;
 	}
-	token = COM_ParseExt(&buf_p, qfalse);
+	token = Com_ParseExt(&buf_p, qfalse);
 	if(Q_stricmp(token, "{"))
 	{
 		ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected '{' found '%s' in model '%s'\n", token, name);
@@ -329,7 +329,7 @@ qhandle_t RE_RegisterAnimation(const char *name)
 	for(i = 0, channel = anim->channels; i < anim->numChannels; i++, channel++)
 	{
 		// skip (
-		token = COM_ParseExt(&buf_p, qtrue);
+		token = Com_ParseExt(&buf_p, qtrue);
 		if(Q_stricmp(token, "("))
 		{
 			ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected '(' found '%s' in model '%s'\n", token, name);
@@ -338,12 +338,12 @@ qhandle_t RE_RegisterAnimation(const char *name)
 		
 		for(j = 0; j < 3; j++)
 		{
-			token = COM_ParseExt(&buf_p, qfalse);
+			token = Com_ParseExt(&buf_p, qfalse);
 			channel->baseOrigin[j] = atof(token);
 		}
 		
 		// skip )
-		token = COM_ParseExt(&buf_p, qfalse);
+		token = Com_ParseExt(&buf_p, qfalse);
 		if(Q_stricmp(token, ")"))
 		{
 			ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected ')' found '%s' in model '%s'\n", token, name);
@@ -351,7 +351,7 @@ qhandle_t RE_RegisterAnimation(const char *name)
 		}
 		
 		// skip (
-		token = COM_ParseExt(&buf_p, qfalse);
+		token = Com_ParseExt(&buf_p, qfalse);
 		if(Q_stricmp(token, "("))
 		{
 			ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected '(' found '%s' in model '%s'\n", token, name);
@@ -360,13 +360,13 @@ qhandle_t RE_RegisterAnimation(const char *name)
 		
 		for(j = 0; j < 3; j++)
 		{
-			token = COM_ParseExt(&buf_p, qfalse);
+			token = Com_ParseExt(&buf_p, qfalse);
 			channel->baseQuat[j] = atof(token);
 		}
 		QuatCalcW(channel->baseQuat);
 		
 		// skip )
-		token = COM_ParseExt(&buf_p, qfalse);
+		token = Com_ParseExt(&buf_p, qfalse);
 		if(Q_stricmp(token, ")"))
 		{
 			ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected ')' found '%s' in model '%s'\n", token, name);
@@ -375,7 +375,7 @@ qhandle_t RE_RegisterAnimation(const char *name)
 	}
 	
 	// parse }
-	token = COM_ParseExt(&buf_p, qtrue);
+	token = Com_ParseExt(&buf_p, qtrue);
 	if(Q_stricmp(token, "}"))
 	{
 		ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected '}' found '%s' in model '%s'\n", token, name);
@@ -386,21 +386,21 @@ qhandle_t RE_RegisterAnimation(const char *name)
 	for(i = 0, frame = anim->frames; i < anim->numFrames; i++, frame++)
 	{
 		// parse frame <number> {
-		token = COM_ParseExt(&buf_p, qtrue);
+		token = Com_ParseExt(&buf_p, qtrue);
 		if(Q_stricmp(token, "frame"))
 		{
 			ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected 'baseframe' found '%s' in model '%s'\n", token, name);
 			return qfalse;
 		}
 		
-		token = COM_ParseExt(&buf_p, qfalse);
+		token = Com_ParseExt(&buf_p, qfalse);
 		if(Q_stricmp(token, va("%i", i)))
 		{
 			ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected '%i' found '%s' in model '%s'\n", token, name);
 			return qfalse;
 		}
 		
-		token = COM_ParseExt(&buf_p, qfalse);
+		token = Com_ParseExt(&buf_p, qfalse);
 		if(Q_stricmp(token, "{"))
 		{
 			ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected '{' found '%s' in model '%s'\n", token, name);
@@ -410,12 +410,12 @@ qhandle_t RE_RegisterAnimation(const char *name)
 		frame->components = ri.Hunk_Alloc(sizeof(float) * anim->numAnimatedComponents, h_low);
 		for(j = 0; j < anim->numAnimatedComponents; j++)
 		{
-			token = COM_ParseExt(&buf_p, qtrue);
+			token = Com_ParseExt(&buf_p, qtrue);
 			frame->components[j] = atof(token);
 		}
 		
 		// parse }
-		token = COM_ParseExt(&buf_p, qtrue);
+		token = Com_ParseExt(&buf_p, qtrue);
 		if(Q_stricmp(token, "}"))
 		{
 			ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected '}' found '%s' in model '%s'\n", token, name);
