@@ -1182,13 +1182,24 @@ R_BindLightMap
 */
 static void R_BindLightMap()
 {
-	if(!tr.numLightmaps)
+	image_t        *lightmap;
+	
+	if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
+	{
+		lightmap = tr.lightmaps[tess.lightmapNum];
+	}
+	else
+	{
+		lightmap = NULL;	
+	}
+	
+	if(!tr.numLightmaps || !lightmap)
 	{
 		GL_Bind(tr.whiteImage);
 		return;
 	}
 
-	GL_Bind(tr.lightmaps[tess.lightmapNum]);
+	GL_Bind(lightmap);
 }
 
 /*
@@ -1198,13 +1209,24 @@ R_BindDeluxeMap
 */
 static void R_BindDeluxeMap()
 {
-	if(!tr.numLightmaps)
+	image_t        *deluxemap;
+	
+	if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
+	{
+		deluxemap = tr.lightmaps[tess.lightmapNum + 1];
+	}
+	else
+	{
+		deluxemap = NULL;
+	}
+	
+	if(!tr.numLightmaps || !deluxemap)
 	{
 		GL_Bind(tr.flatImage);
 		return;
 	}
 
-	GL_Bind(tr.lightmaps[tess.lightmapNum + 1]);
+	GL_Bind(deluxemap);
 }
 
 /*
