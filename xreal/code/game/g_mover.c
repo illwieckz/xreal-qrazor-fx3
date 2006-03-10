@@ -1800,3 +1800,47 @@ void SP_func_pendulum(gentity_t * ent)
 	ent->s.apos.trType = TR_SINE;
 	ent->s.apos.trDelta[2] = speed;
 }
+
+/*
+===============================================================================
+
+MOVER
+
+===============================================================================
+*/
+
+void Think_Mover(gentity_t * self)
+{
+#ifdef LUA
+	G_RunLuaFunction(self->luaThink, "e>", self);
+#endif
+
+//	self->nextthink = level.time + FRAMETIME;
+}
+
+
+/*QUAKED func_mover (0 .5 .8) ?
+"model2"	.md3 model to also draw
+"color"		constantLight color
+"light"		constantLight radius
+*/
+void SP_func_mover(gentity_t * self)
+{
+	if(self->model[0] != '*')
+	{
+		G_FreeEntity(self);
+		return;
+	}
+	
+	trap_SetBrushModel(self, self->model);
+	
+	InitMover(self);
+	
+	VectorCopy(self->s.origin, self->s.pos.trBase);
+	VectorCopy(self->s.origin, self->r.currentOrigin);
+
+	self->nextthink = level.time + FRAMETIME;
+	self->think = Think_Mover;
+	
+	trap_LinkEntity(self);
+}

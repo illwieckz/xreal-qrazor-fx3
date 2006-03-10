@@ -181,8 +181,12 @@ struct gentity_s
 	gitem_t        *item;		// for bonus items
 	
 #ifdef LUA
-	// lua scripting
-	char           *luaTouchFunction;
+	// Lua scripting
+	// like function pointers but pointing to
+	// function names inside the .lua file that is loaded
+	// for each map
+	char           *luaThink;
+	char           *luaTouch;
 #endif
 };
 
@@ -724,8 +728,14 @@ void			G_DumpLuaStack();
 //
 // lua_entity.c
 //
+typedef struct
+{
+	gentity_t      *e;
+} lua_Entity;
+
 int             luaopen_entity(lua_State * L);
 void			lua_pushentity(lua_State * L, gentity_t * ent);
+lua_Entity     *lua_getentity(lua_State * L, int argNum);
 
 //
 // lua_game.c
@@ -742,6 +752,7 @@ int             luaopen_qmath(lua_State * L);
 //
 int             luaopen_vector(lua_State * L);
 void            lua_pushvector(lua_State * L, vec3_t v);
+vec_t          *lua_getvector(lua_State * L, int argNum);
 #endif
 
 // ai_main.c

@@ -27,20 +27,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <lualib.h>
 #include "g_local.h"
 
-typedef struct
-{
-	gentity_t      *e;
-} lua_Entity;
-
-static lua_Entity *entity_Get(lua_State * L)
-{
-	void           *ud;
-
-	ud = luaL_checkudata(L, 1, "game.entity");
-	luaL_argcheck(L, ud != NULL, 1, "`entity' expected");
-	return (lua_Entity *) ud;
-}
-
 static int entity_Spawn(lua_State * L)
 {
 	lua_Entity     *lent;
@@ -59,7 +45,7 @@ static int entity_GetNumber(lua_State * L)
 {
 	lua_Entity     *lent;
 
-	lent = entity_Get(L);
+	lent = lua_getentity(L, 1);
 	lua_pushnumber(L, lent->e - g_entities);
 //	lua_pushnumber(L, lent->e->s.number);
 
@@ -70,7 +56,7 @@ static int entity_IsClient(lua_State * L)
 {
 	lua_Entity     *lent;
 
-	lent = entity_Get(L);
+	lent = lua_getentity(L, 1);
 	lua_pushboolean(L, lent->e->client != NULL);
 
 	return 1;
@@ -80,7 +66,7 @@ static int entity_GetClientName(lua_State * L)
 {
 	lua_Entity     *lent;
 
-	lent = entity_Get(L);
+	lent = lua_getentity(L, 1);
 	lua_pushstring(L, lent->e->client->pers.netname);
 
 	return 1;
@@ -93,7 +79,7 @@ static int entity_Print(lua_State * L)
 	char            buf[MAX_STRING_CHARS];
 	int             n = lua_gettop(L);	// number of arguments
 	
-	lent = entity_Get(L);
+	lent = lua_getentity(L, 1);
 	if(!lent->e->client)
 		return luaL_error(L, "`Print' must be used with a client entity");
 
@@ -129,7 +115,7 @@ static int entity_CenterPrint(lua_State * L)
 	char            buf[MAX_STRING_CHARS];
 	int             n = lua_gettop(L);	// number of arguments
 	
-	lent = entity_Get(L);
+	lent = lua_getentity(L, 1);
 	if(!lent->e->client)
 		return luaL_error(L, "`CenterPrint' must be used with a client entity");
 
@@ -162,7 +148,7 @@ static int entity_GetClassName(lua_State * L)
 {
 	lua_Entity     *lent;
 
-	lent = entity_Get(L);
+	lent = lua_getentity(L, 1);
 	lua_pushstring(L, lent->e->classname);
 
 	return 1;
@@ -173,7 +159,7 @@ static int entity_SetClassName(lua_State * L)
 	lua_Entity     *lent;
 //	char           *classname;
 
-	lent = entity_Get(L);
+	lent = lua_getentity(L, 1);
 	lent->e->classname = (char *) luaL_checkstring(L, 2);
 	
 //	lent->e->classname = classname;
@@ -185,15 +171,31 @@ static int entity_GetTargetName(lua_State * L)
 {
 	lua_Entity     *lent;
 
-	lent = entity_Get(L);
+	lent = lua_getentity(L, 1);
 	lua_pushstring(L, lent->e->targetname);
+
+	return 1;
+}
+
+static int entity_Rotate(lua_State * L)
+{
+	lua_Entity     *lent;
+	vec_t          *vec;
+
+	lent = lua_getentity(L, 1);
+	vec = lua_getvector(L, 2);
+	
+	lent->e->s.apos.trType = TR_LINEAR;
+	lent->e->s.apos.trDelta[0] = vec[0];
+	lent->e->s.apos.trDelta[1] = vec[1];
+	lent->e->s.apos.trDelta[2] = vec[2];
 
 	return 1;
 }
 
 static int entity_GC(lua_State * L)
 {
-//	G_Printf("Lua says bye to entity = %p\n", entity_Get(L));
+//	G_Printf("Lua says bye to entity = %p\n", lua_getentity(L));
 	
 	return 0;
 }
@@ -204,7 +206,7 @@ static int entity_ToString(lua_State * L)
 	gentity_t      *gent;
 	char            buf[MAX_STRING_CHARS];
 	
-	lent = entity_Get(L);
+	lent = lua_getentity(L, 1);
 	gent = lent->e;
 	Com_sprintf(buf, sizeof(buf), "entity: class=%s name=%s id=%i pointer=%p\n", gent->classname, gent->targetname, gent - g_entities, gent);
 	lua_pushstring(L, buf);
@@ -228,6 +230,7 @@ static const luaL_reg entity_meta[] = {
 	{"GetClassName", entity_GetClassName},
 	{"SetClassName", entity_SetClassName},
 	{"GetTargetName", entity_GetTargetName},
+	{"Rotate", entity_Rotate},
 	{NULL, NULL}
 };
 
@@ -255,4 +258,13 @@ void lua_pushentity(lua_State * L, gentity_t * ent)
 	lua_setmetatable(L, -2);
 	
 	lent->e = ent;
+}
+
+lua_Entity *lua_getentity(lua_State * L, int argNum)
+{
+	void           *ud;
+
+	ud = luaL_checkudata(L, argNum, "game.entity");
+	luaL_argcheck(L, ud != NULL, argNum, "`entity' expected");
+	return (lua_Entity *) ud;
 }

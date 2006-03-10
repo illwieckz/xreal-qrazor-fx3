@@ -27,15 +27,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <lualib.h>
 #include "g_local.h"
 
-static vec_t *vector_Get(lua_State * L)
-{
-	void           *ud;
-
-	ud = luaL_checkudata(L, 1, "vector");
-	luaL_argcheck(L, ud != NULL, 1, "`vector' expected");
-	return (vec_t *) ud;
-}
-
 static int vector_New(lua_State * L)
 {
 	vec_t          *v;
@@ -70,7 +61,7 @@ static int vector_Set(lua_State * L)
 {
 	vec_t          *v;
 
-	v = vector_Get(L);
+	v = lua_getvector(L, 1);
 	
 	v[0] = luaL_optnumber(L, 1, 0);
 	v[1] = luaL_optnumber(L, 2, 0);
@@ -85,7 +76,7 @@ static int vector_Index(lua_State * L)
 	vec_t          *v;
 	const char     *i;
 	
-	v = vector_Get(L);
+	v = lua_getvector(L, 1);
 	i = luaL_checkstring(L, 2);
 	
 	switch (*i)
@@ -105,7 +96,7 @@ static int vector_NewIndex(lua_State * L)
 	const char     *i;
 	vec_t           t;
 	
-	v = vector_Get(L);
+	v = lua_getvector(L, 1);
 	i = luaL_checkstring(L, 2);
 	t = luaL_checknumber(L, 3);
 	
@@ -123,7 +114,7 @@ static int vector_NewIndex(lua_State * L)
 
 static int vector_GC(lua_State * L)
 {
-//	G_Printf("Lua says bye to vector = %p\n", vector_Get(L));
+//	G_Printf("Lua says bye to vector = %p\n", lua_getvector(L));
 	
 	return 0;
 }
@@ -132,7 +123,7 @@ static int vector_ToString(lua_State * L)
 {
 	vec_t          *vec;
 	
-	vec = vector_Get(L);
+	vec = lua_getvector(L, 1);
 	lua_pushstring(L, va("(%i %i %i)", (int)vec[0], (int)vec[1], (int)vec[2]));
 	
 	return 1;
@@ -173,4 +164,13 @@ void lua_pushvector(lua_State * L, vec3_t v)
 	lua_setmetatable(L, -2);
 	
 	VectorCopy(v, vec);
+}
+
+vec_t *lua_getvector(lua_State * L, int argNum)
+{
+	void           *ud;
+
+	ud = luaL_checkudata(L, argNum, "vector");
+	luaL_argcheck(L, ud != NULL, argNum, "`vector' expected");
+	return (vec_t *) ud;
 }

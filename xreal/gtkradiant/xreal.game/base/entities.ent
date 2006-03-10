@@ -581,6 +581,45 @@ Target this entity with a misc_model to have the model attached to the entity (s
 
 <!--
 =============================================================================
+-->
+
+<group name="func_mover" color="0 .5 .8">
+Static non-solid bspmodel. Can be used for conditional walls and models.
+-------- KEYS --------
+<real3 key="origin" name="World Origin">alternate method of setting XYZ origin of .md3 model included with entity (See Notes).</real3>
+<model key="model2" name="Model File">path/name of model to include (eg: models/mapobjects/bitch/fembotbig.md3).</model>
+<real key="light" name="Model Light Intensity">constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0).</real>
+<color key="color" name="Model Light Color">constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1).</color>
+<targetname key="targetname" name="Target Name">NOT SUPPORTED BY RENDERER - if set, a func_button or trigger can make entity disappear from the game (See Notes).</targetname>
+<boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
+<boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
+<boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
+-------- XREAL KEYS ---------
+<string key="luaThink" name="Lua Think Function"></string>
+-------- Q3MAP2 KEYS --------
+<!--
+<targetname key="_targetname" name="Target Name">Used to attach a misc_model entity to this entity.</targetname>
+<real key="_lightmapscale" name="Lightmap Scale">Floating point value scaling the resolution of lightmaps on brushes/patches in this entity (default 1.0).</real>
+<integer key="_castshadows;_cs" name="Shadow Caster Level">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. > 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</integer>
+<integer key="_receiveshadows;_rs" name="Shadow Reciever Level">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. > 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</integer>
+<texture key="_celshader" name="Cel Shader">Sets the cel shader used for this geometry. Note: omit the "textures/" prefix.</texture>
+-->
+-------- Q3MAP2 TERRAIN KEYS --------
+<!--
+<texture key="_indexmap;alphamap" name="Terrain Blending Map">Path/name for the art file used to guide the mapping of textures on the terrain surface.</texture>
+<integer key="_layers;layers" name="Terrain Layers">Integer value is the number unique root shaders that will be use on the terrain.</integer>
+<texture key="_shader;shader" name="Terrain MetaShader">Path to the metashader used to assign textures to the terrain entity. Note: Omit the "textures/" prefix.</texture>
+-->
+-------- NOTES --------
+When using the model2 key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value. If a model is included with a targeted func_static, the brush(es) of the entity will be removed from the game but the .md3 model won't: it will automatically be moved to the (0 0 0) world origin so you should NOT include an .md3 model to a targeted func_static.
+
+Because the map has only a single bot navigation file, func_static's cannot be used to make significant changes in game play flow between differing game types.
+
+Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
+</group>
+
+<!--
+=============================================================================
 
 HOLDABLE_* ENTITIES
 
@@ -1643,6 +1682,8 @@ This is used to create jump pads and launch ramps. It MUST point to a target_pos
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
+-------- XREAL KEYS ---------
+<string key="luaTouch" name="Lua Touch Function">this is executed when a player touches this entity</string>
 -------- NOTES --------
 To make a jump pad or launch ramp, place the target_position/info_notnull entity at the highest point of the jump and target it with this entity.
 </group>
