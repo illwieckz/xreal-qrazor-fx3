@@ -1113,23 +1113,6 @@ Non-displayed point light source. The -pointscale and -scale arguments to Q3Map2
 <flag key="NOGRIDLIGHT" name="Not Dynamic" bit="4">Do not affect the lightgrid (dynamic entity lighting).</flag>
 </point>
 
-<point name="lightJunior" color="0 0.7 0.3" box="-6 -6 -6 6 6 6">
-Non-displayed point light source THAT ONLY AFFECTS ENTITIES (lightgrid). The -pointscale and -scale arguments to Q3Map2 affect the brightness of these lights. The -skyscale argument affects brightness of entity sun lights.
--------- KEYS --------
-<real key="_light;light" name="Light Intensity">overrides the default 300 intensity.</real>
-<color key="color" name="Light Color">weighted RGB value of light color (default white - 1.0 1.0 1.0).</color>
-<target key="target" name="Target">Lights pointed at a target will be spotlights.</target>
-<real key="radius" name="Spotlight Radius">overrides the default 64 unit radius of a spotlight at the target point.</real>
--------- Q3MAP2 KEYS --------
-<boolean key="_sun" name="Directional">Set this key to 1 on a spotlight to make an infinite sun light.</boolean>
-<real key="_sun" name="Linear Fade">Fades light attenuation. Only affects linear lights.</real>
-<real key="_sun" name="Intensity Scale">Scales light attentation, from SOF2/JK2. Scales the "light" value.</real>
--------- SPAWNFLAGS --------
-<flag key="LINEAR" name="Linear Falloff" bit="0">Use a linear falloff. Default is inverse distance squared (more realistic).</flag>
-<flag key="NOANGLE" name="No Angle Attenuation" bit="1">Ignore angle attenuation.</flag>
-<flag key="NOGRIDLIGHT" name="Not Dynamic" bit="4">Do not affect the lightgrid (dynamic entity lighting). Setting this spawnflag will disable this light entirely.</flag>
-</point>
-
 <!--
 =============================================================================
 
