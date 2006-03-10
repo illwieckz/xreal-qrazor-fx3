@@ -63,7 +63,7 @@ inline scene::Node& entity_for_eclass(EntityClass* eclass)
   }
   if(!eclass->fixedsize)
   {
-    if(g_gameType == eGameTypeDoom3)
+    if(g_gameType == eGameTypeDoom3 || g_gameType == eGameTypeXreaL)
     {
       return New_Doom3Group(eclass);
     }
@@ -98,7 +98,7 @@ inline scene::Node& node_for_eclass(EntityClass* eclass)
   scene::Node& node = entity_for_eclass(eclass);
   Node_getEntity(node)->setKeyValue("classname", eclass->name());
 
-  if(g_gameType == eGameTypeDoom3
+  if((g_gameType == eGameTypeDoom3 || g_gameType == eGameTypeXreaL)
     && string_not_empty(eclass->name())
     && !string_equal(eclass->name(), "worldspawn")
     && !string_equal(eclass->name(), "UNKNOWN_CLASS"))
@@ -188,7 +188,7 @@ public:
 
     UndoableCommand undo("entityConnectSelected");
 
-    if(g_gameType == eGameTypeDoom3)
+    if(g_gameType == eGameTypeDoom3 || g_gameType == eGameTypeXreaL)
     {
       StringOutputStream key(16);
       for(unsigned int i = 0; ; ++i)
@@ -339,7 +339,7 @@ void Entity_InitFilters()
 void Entity_Construct(EGameType gameType)
 {
   g_gameType = gameType;
-  if(g_gameType == eGameTypeDoom3)
+  if(g_gameType == eGameTypeDoom3 || g_gameType == eGameTypeXreaL)
   {
     g_targetable_nameKey = "name";
 
@@ -363,11 +363,7 @@ void Entity_Construct(EGameType gameType)
   {
     lightType = LIGHTTYPE_RTCW;
   }
-  else if(g_gameType == eGameTypeDoom3)
-  {
-    lightType = LIGHTTYPE_DOOM3;
-  }
-  else if(g_gameType == eGameTypeXreaL)
+  else if(g_gameType == eGameTypeDoom3 || g_gameType == eGameTypeXreaL)
   {
     lightType = LIGHTTYPE_DOOM3;
   }

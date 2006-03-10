@@ -41,6 +41,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "targetable.h"
 #include "origin.h"
 #include "angles.h"
+#include "rotation.h"
 #include "scale.h"
 #include "model.h"
 #include "filters.h"
@@ -61,6 +62,8 @@ class MiscModel :
   Vector3 m_origin;
   AnglesKey m_anglesKey;
   Vector3 m_angles;
+  RotationKey m_rotationKey;
+  Float9 m_rotation;
   ScaleKey m_scaleKey;
   Vector3 m_scale;
 
@@ -81,16 +84,37 @@ class MiscModel :
     m_keyObservers.insert(Static<KeyIsName>::instance().m_nameKey, NamedEntity::IdentifierChangedCaller(m_named));
     m_keyObservers.insert("model", SingletonModel::ModelChangedCaller(m_model));
     m_keyObservers.insert("origin", OriginKey::OriginChangedCaller(m_originKey));
-    m_keyObservers.insert("angle", AnglesKey::AngleChangedCaller(m_anglesKey));
-    m_keyObservers.insert("angles", AnglesKey::AnglesChangedCaller(m_anglesKey));
     m_keyObservers.insert("modelscale", ScaleKey::UniformScaleChangedCaller(m_scaleKey));
     m_keyObservers.insert("modelscale_vec", ScaleKey::ScaleChangedCaller(m_scaleKey));
+    
+    if(g_gameType == eGameTypeXreaL)
+    {
+      m_keyObservers.insert("angle", RotationKey::AngleChangedCaller(m_rotationKey));
+      m_keyObservers.insert("angles", RotationKey::AngleChangedCaller(m_rotationKey));
+      m_keyObservers.insert("rotation", RotationKey::RotationChangedCaller(m_rotationKey));
+    }
+    else
+    {
+      m_keyObservers.insert("angle", AnglesKey::AngleChangedCaller(m_anglesKey));
+ 	  m_keyObservers.insert("angles", AnglesKey::AnglesChangedCaller(m_anglesKey));
+    }
   }
 
   void updateTransform()
   {
     m_transform.localToParent() = g_matrix4_identity;
-    matrix4_transform_by_euler_xyz_degrees(m_transform.localToParent(), m_origin, m_angles, m_scale);
+    
+    if(g_gameType == eGameTypeXreaL)
+    {
+      matrix4_translate_by_vec3(m_transform.localToParent(), m_origin);
+      matrix4_multiply_by_matrix4(m_transform.localToParent(), rotation_toMatrix(m_rotation));
+      matrix4_scale_by_vec3(m_transform.localToParent(), m_scale);
+    }
+    else
+    {
+      matrix4_transform_by_euler_xyz_degrees(m_transform.localToParent(), m_origin, m_angles, m_scale);
+    }
+    
     m_transformChanged();
   }
   void originChanged()
@@ -105,6 +129,12 @@ class MiscModel :
     updateTransform();
   }
   typedef MemberCaller<MiscModel, &MiscModel::anglesChanged> AnglesChangedCaller;
+  void rotationChanged()
+  {
+    rotation_assign(m_rotation, m_rotationKey.m_rotation);
+    updateTransform();
+  }
+  typedef MemberCaller<MiscModel, &MiscModel::rotationChanged> RotationChangedCaller;
   void scaleChanged()
   {
     m_scale = m_scaleKey.m_scale;
@@ -119,6 +149,7 @@ public:
     m_origin(ORIGINKEY_IDENTITY),
     m_anglesKey(AnglesChangedCaller(*this)),
     m_angles(ANGLESKEY_IDENTITY),
+    m_rotationKey(RotationChangedCaller(*this)),
     m_scaleKey(ScaleChangedCaller(*this)),
     m_scale(SCALEKEY_IDENTITY),
     m_filter(m_entity, node),
@@ -136,6 +167,7 @@ public:
     m_origin(ORIGINKEY_IDENTITY),
     m_anglesKey(AnglesChangedCaller(*this)),
     m_angles(ANGLESKEY_IDENTITY),
+    m_rotationKey(RotationChangedCaller(*this)),
     m_scaleKey(ScaleChangedCaller(*this)),
     m_scale(SCALEKEY_IDENTITY),
     m_filter(m_entity, node),
@@ -223,11 +255,18 @@ public:
 
   void translate(const Vector3& translation)
   {
-    m_origin = origin_translated(m_origin, translation);
+  	m_origin = origin_translated(m_origin, translation);
   }
   void rotate(const Quaternion& rotation)
   {
-    m_angles = angles_rotated(m_angles, rotation);
+  	if(g_gameType == eGameTypeXreaL)
+    {
+      rotation_rotate(m_rotation, rotation);
+    }
+    else
+    {
+      m_angles = angles_rotated(m_angles, rotation);
+    }
   }
   void scale(const Vector3& scaling)
   {
@@ -241,15 +280,34 @@ public:
   void revertTransform()
   {
     m_origin = m_originKey.m_origin;
-    m_angles = m_anglesKey.m_angles;
+    
+    if(g_gameType == eGameTypeXreaL)
+    {
+      rotation_assign(m_rotation, m_rotationKey.m_rotation);
+    }
+    else
+    {
+      m_angles = m_anglesKey.m_angles;
+    }
+    
     m_scale = m_scaleKey.m_scale;
   }
   void freezeTransform()
   {
     m_originKey.m_origin = m_origin;
     m_originKey.write(&m_entity);
-    m_anglesKey.m_angles = m_angles;
-    m_anglesKey.write(&m_entity);
+    
+    if(g_gameType == eGameTypeXreaL)
+    {
+      rotation_assign(m_rotationKey.m_rotation, m_rotation);
+      m_rotationKey.write(&m_entity);
+    }
+    else
+    {
+      m_anglesKey.m_angles = m_angles;
+      m_anglesKey.write(&m_entity);
+    }
+    
     m_scaleKey.m_scale = m_scale;
     m_scaleKey.write(&m_entity);
   }
