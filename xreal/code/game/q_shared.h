@@ -1149,10 +1149,12 @@ int             Q_stricmpn(const char *s1, const char *s2, int n);
 char           *Q_strlwr(char *s1);
 char           *Q_strupr(char *s1);
 char           *Q_strrchr(const char *string, int c);
+char           *Q_stristr(const char *s, const char *find);
 
 // buffer size safe library replacements
 void            Q_strncpyz(char *dest, const char *src, int destsize);
-void            Q_strcat(char *dest, int size, const char *src);
+void            Q_strcat(char *dest, int destsize, const char *src);
+qboolean        Q_strreplace(char *dest, int destsize, const char *find, const char *replace);
 
 // strlen that discounts Quake color sequences
 int             Q_PrintStrlen(const char *string);

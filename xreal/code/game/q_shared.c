@@ -293,27 +293,28 @@ char           *Com_Parse(char **data_p)
 
 void Com_ParseError(char *format, ...)
 {
-	va_list         argptr;
-	static char     string[4096];
+        va_list         argptr;
+        static char     string[4096];
 
-	va_start(argptr, format);
-	vsprintf(string, format, argptr);
-	va_end(argptr);
+        va_start(argptr, format);
+        vsprintf(string, format, argptr);
+        va_end(argptr);
 
-	Com_Printf("ERROR: '%s', line %d: '%s'\n", com_parsename, com_lines, string);
+        Com_Printf(S_COLOR_RED "ERROR: '%s', line %d: '%s'\n", com_parsename, com_lines, string);
 }
 
 void Com_ParseWarning(char *format, ...)
 {
-	va_list         argptr;
-	static char     string[4096];
+        va_list         argptr;
+        static char     string[4096];
 
-	va_start(argptr, format);
-	vsprintf(string, format, argptr);
-	va_end(argptr);
+        va_start(argptr, format);
+        vsprintf(string, format, argptr);
+        va_end(argptr);
 
-	Com_Printf("WARNING: '%s', line %d: '%s'\n", com_parsename, com_lines, string);
+        Com_Printf(S_COLOR_YELLOW "WARNING: '%s', line %d: '%s'\n", com_parsename, com_lines, string);
 }
+
 
 /*
 ==============
@@ -862,6 +863,44 @@ char           *Q_strrchr(const char *string, int c)
 }
 
 /*
+* Find the first occurrence of find in s.
+*/
+// bk001130 - from cvs1.17 (mkv), const
+// bk001130 - made first argument const
+char           *Q_stristr(const char *s, const char *find)
+{
+	char            c, sc;
+	size_t          len;
+
+	if((c = *find++) != 0)
+	{
+		if(c >= 'a' && c <= 'z')
+		{
+			c -= ('a' - 'A');
+		}
+		len = strlen(find);
+		do
+		{
+			do
+			{
+				if((sc = *s++) == 0)
+				{
+					return NULL;
+				}
+
+				if(sc >= 'a' && sc <= 'z')
+				{
+					sc -= ('a' - 'A');
+				}
+			} while(sc != c);
+		} while(Q_stricmpn(s, find, len) != 0);
+		s--;
+	}
+	return s;
+}
+
+
+/*
 =============
 Q_strncpyz
  
@@ -992,16 +1031,55 @@ char           *Q_strupr(char *s1)
 
 
 // never goes past bounds or leaves without a terminating 0
-void Q_strcat(char *dest, int size, const char *src)
+void Q_strcat(char *dest, int destsize, const char *src)
 {
 	int             l1;
 
 	l1 = strlen(dest);
-	if(l1 >= size)
+	if(l1 >= destsize)
 	{
 		Com_Error(ERR_FATAL, "Q_strcat: already overflowed");
 	}
-	Q_strncpyz(dest + l1, src, size - l1);
+	Q_strncpyz(dest + l1, src, destsize - l1);
+}
+
+/*
+=============
+Q_strreplace
+ 
+replaces content of find by replace in dest
+=============
+*/
+qboolean Q_strreplace(char *dest, int destsize, const char *find, const char *replace)
+{
+	int				lstart, lfind, lreplace, lend;
+	char           *s;
+	char            backup[32000];	// big, but small enough to fit in PPC stack
+	
+	lend = strlen(dest);	
+	if(lend >= destsize)
+	{
+		Com_Error(ERR_FATAL, "Q_strreplace: already overflowed");
+	}
+	
+	Q_strncpyz(backup, dest, lend + 1);
+	
+	s = strstr(dest, find);
+	if(!s)
+	{
+		return qfalse;
+	}
+	else
+	{
+		lstart = s - dest;
+		lfind = strlen(find);
+		lreplace = strlen(replace);
+			
+		strncpy(dest + lstart, replace, destsize - 1);
+		strncpy(dest + lstart + lreplace, backup + lstart + lfind, destsize -1);
+		
+		return qtrue;
+	}
 }
 
 

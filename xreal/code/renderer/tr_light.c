@@ -927,10 +927,10 @@ static int InteractionCompare(const void *a, const void *b)
 	if(((interaction_t *) a)->entity == &tr.worldEntity && ((interaction_t *) b)->entity != &tr.worldEntity)
 		return -1;
 	
-	if(((interaction_t *) a)->entity != &tr.worldEntity && ((interaction_t *) b)->entity == &tr.worldEntity)
+	else if(((interaction_t *) a)->entity != &tr.worldEntity && ((interaction_t *) b)->entity == &tr.worldEntity)
 		return 1;
 	
-	if(((interaction_t *) a)->entity < ((interaction_t *) b)->entity)
+	else if(((interaction_t *) a)->entity < ((interaction_t *) b)->entity)
 		return -1;
 	
 	else if(((interaction_t *) a)->entity > ((interaction_t *) b)->entity)

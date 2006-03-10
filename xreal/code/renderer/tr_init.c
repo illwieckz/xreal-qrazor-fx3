@@ -1168,6 +1168,8 @@ void R_Register(void)
 	r_vboFaces = ri.Cvar_Get("r_vboFaces", "0", CVAR_ARCHIVE);
 	r_vboCurves = ri.Cvar_Get("r_vboCurves", "0", CVAR_ARCHIVE);
 	r_vboTriangles = ri.Cvar_Get("r_vboTriangles", "1", CVAR_ARCHIVE);
+	
+	r_printShaders = ri.Cvar_Get("r_printShaders", "0", CVAR_ARCHIVE);
 
 	//
 	// temporary variables that can change at any time
@@ -1176,7 +1178,6 @@ void R_Register(void)
 
 	r_debugLight = ri.Cvar_Get("r_debuglight", "0", CVAR_TEMP);
 	r_debugSort = ri.Cvar_Get("r_debugSort", "0", CVAR_CHEAT);
-	r_printShaders = ri.Cvar_Get("r_printShaders", "1", 0);
 	r_saveFontData = ri.Cvar_Get("r_saveFontData", "0", 0);
 
 	r_nocurves = ri.Cvar_Get("r_nocurves", "0", CVAR_CHEAT);

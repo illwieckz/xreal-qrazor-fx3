@@ -669,6 +669,7 @@ typedef struct shader_s
 	// the same name, we don't try looking for it again
 
 	qboolean        explicitlyDefined;	// found in a .shader file
+	qboolean        createdByGuide;		// created using a shader .guide template
 
 	int             surfaceFlags;	// if explicitlyDefined, this will have SURF_* flags
 	int             contentFlags;

@@ -1290,7 +1290,7 @@ compare function for qsort()
 static int DrawSurfCompare(const void *a, const void *b)
 {
 #if 1
-	// shader first
+	// by shader
 	if(((drawSurf_t *) a)->shaderNum < ((drawSurf_t *) b)->shaderNum)
 		return -1;
 
@@ -1299,7 +1299,7 @@ static int DrawSurfCompare(const void *a, const void *b)
 #endif
 
 #if 1
-	// then lightmap
+	// by lightmap
 	if(((drawSurf_t *) a)->lightmapNum < ((drawSurf_t *) b)->lightmapNum)
 		return -1;
 
@@ -1308,14 +1308,14 @@ static int DrawSurfCompare(const void *a, const void *b)
 #endif
 
 #if 1
-	// then entity
+	// by entity
 	if(((drawSurf_t *) a)->entity == &tr.worldEntity && ((drawSurf_t *) b)->entity != &tr.worldEntity)
 		return -1;
 
-	if(((drawSurf_t *) a)->entity != &tr.worldEntity && ((drawSurf_t *) b)->entity == &tr.worldEntity)
+	else if(((drawSurf_t *) a)->entity != &tr.worldEntity && ((drawSurf_t *) b)->entity == &tr.worldEntity)
 		return 1;
 
-	if(((drawSurf_t *) a)->entity < ((drawSurf_t *) b)->entity)
+	else if(((drawSurf_t *) a)->entity < ((drawSurf_t *) b)->entity)
 		return -1;
 
 	else if(((drawSurf_t *) a)->entity > ((drawSurf_t *) b)->entity)
@@ -1323,7 +1323,7 @@ static int DrawSurfCompare(const void *a, const void *b)
 #endif
 
 #if 1
-	// then fog
+	// by fog
 	if(((drawSurf_t *) a)->fogNum < ((drawSurf_t *) b)->fogNum)
 		return -1;
 

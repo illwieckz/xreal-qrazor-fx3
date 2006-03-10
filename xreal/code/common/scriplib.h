@@ -47,6 +47,9 @@ qboolean        TokenAvailable(void);
 
 void            MatchToken(char *match);
 
+void            SkipBracedSection(void);
+void            SkipRestOfLine(void);
+
 void            Parse1DMatrix(int x, vec_t * m);
 void            Parse2DMatrix(int y, int x, vec_t * m);
 void            Parse3DMatrix(int z, int y, int x, vec_t * m);

@@ -2494,7 +2494,8 @@ void R_LoadEntities(lump_t * l)
 		}
 
 		// check for deluxe mapping support
-		if(!Q_stricmp(keyname, "deluxeMapping") && !Q_stricmp(value, "1"))
+		if((!Q_stricmp(keyname, "deluxeMapping") && !Q_stricmp(value, "1")) ||
+		   (!Q_stricmp(keyname, "message") && !Q_stricmp(value, "camo-retro"))) // HACK: this map has it
 		{
 			tr.worldDeluxeMapping = qtrue;
 			continue;

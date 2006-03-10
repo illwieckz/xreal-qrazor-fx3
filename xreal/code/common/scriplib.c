@@ -388,6 +388,58 @@ void MatchToken(char *match)
 	}
 }
 
+/*
+=================
+SkipBracedSection
+
+The next token should be an open brace.
+Skips until a matching close brace is found.
+Internal brace depths are properly skipped.
+=================
+*/
+void SkipBracedSection()
+{
+	int             depth;
+
+	depth = 0;
+	do
+	{
+		GetToken(qtrue);
+		if(token[1] == 0)
+		{
+			if(token[0] == '{')
+			{
+				depth++;
+			}
+			else if(token[0] == '}')
+			{
+				depth--;
+			}
+		}
+	} while(depth && script->script_p < script->end_p);
+}
+
+/*
+=================
+SkipRestOfLine
+=================
+*/
+void SkipRestOfLine()
+{
+	char           *p;
+	int             c;
+	p = script->script_p;
+	while((c = *p++) != 0)
+	{
+		if(c == '\n')
+		{
+			script->line++;
+			break;
+		}
+	}
+
+	script->script_p = p;
+}
 
 void Parse1DMatrix(int x, vec_t * m)
 {

@@ -85,6 +85,7 @@ infoParm_t	infoParms[] = {
 
 	// server attributes
 	{"slick",			0,	SURF_SLICK,		0},
+	{"collision",		0,	SURF_NODRAW,	0},
 	{"noimpact",		0,	SURF_NOIMPACT,	0},			// don't make impact explosions or marks
 	{"nomarks",			0,	SURF_NOMARKS,	0},			// don't make impact marks, but still explode
 	{"ladder",			0,	SURF_LADDER,	0},
@@ -346,29 +347,48 @@ static void ParseShaderFile(const char *filename)
 		// skip shader tables
 		if(!Q_stricmp(token, "table"))
 		{
-			qboolean        firstBracket = qfalse;
+			// skip table name
+			GetToken(qtrue);
+
+			SkipBracedSection();
+			continue;
+		}
+		// FIXME: support shader templates
+		else if(!Q_stricmp(token, "guide"))
+		{
+			// parse shader name
+			GetToken(qtrue);
+
+			qprintf("shader '%s' is guided\n", token);
+			
+			//si = AllocShaderInfo();
+			//strcpy(si->shader, token);
+
+			// skip guide name
+			GetToken(qtrue);
+
+			// skip parameters
+			MatchToken("(");
 
 			while(1)
 			{
-				if(!GetToken(qtrue))
-					break;
-				if(strstr(token, "}"))
-				{
-					if(firstBracket)
-						break;
-					else
-					{
-						firstBracket = qtrue;
-					}
-				}
-			}
+				GetToken(qtrue);
 
+				if(!token[0])
+					break;
+
+				if(!Q_stricmp(token, ")"))
+					break;
+			}
 			continue;
 		}
+		else
+		{
+			si = AllocShaderInfo();
+			strcpy(si->shader, token);
+			MatchToken("{");
+		}
 
-		si = AllocShaderInfo();
-		strcpy(si->shader, token);
-		MatchToken("{");
 		while(1)
 		{
 			if(!GetToken(qtrue))
@@ -594,7 +614,7 @@ static void ParseShaderFile(const char *filename)
 				}
 				continue;
 			}
-			
+
 			// twosided will set twoSided
 			if(!Q_stricmp(token, "twosided"))
 			{
@@ -602,14 +622,14 @@ static void ParseShaderFile(const char *filename)
 				// FIXME: implies noshadows
 				continue;
 			}
-			
+
 			// forceOpaque will override translucent
 			if(!Q_stricmp(token, "forceOpaque"))
 			{
 				si->forceOpaque = qtrue;
 				continue;
 			}
-			
+
 			// forceSolid will override clearSolid
 			if(!Q_stricmp(token, "forceSolid") || !Q_stricmp(token, "solid"))
 			{
@@ -630,7 +650,7 @@ static void ParseShaderFile(const char *filename)
 				}
 				continue;
 			}
-			
+
 			// deform sprite
 			// we catch this so autosprited surfaces become point
 			// lights instead of area lights
@@ -644,21 +664,21 @@ static void ParseShaderFile(const char *filename)
 				}
 				continue;
 			}
-			
+
 			// noFragment
 			if(!Q_stricmp(token, "noFragment") || !Q_stricmp(token, "q3map_noFragment"))
 			{
 				si->noFragment = qtrue;
 				continue;
 			}
-			
+
 			// check if this shader has shortcut passes
 			if(!Q_stricmp(token, "diffusemap") || !Q_stricmp(token, "bumpmap") || !Q_stricmp(token, "specularmap"))
 			{
 				si->hasPasses = qtrue;
 				continue;
 			}
-			
+
 			// check for surface parameters
 			if(!Q_stricmp(token, "surfaceparm"))
 			{
@@ -669,7 +689,7 @@ static void ParseShaderFile(const char *filename)
 					{
 						si->surfaceFlags |= infoParms[i].surfaceFlags;
 						si->contents |= infoParms[i].contents;
-						
+
 						if(infoParms[i].clearSolid && !si->forceSolid)
 						{
 							si->contents &= ~CONTENTS_SOLID;
@@ -722,7 +742,7 @@ static void ParseShaderFile(const char *filename)
 		{
 			qprintf("shader '%s' has no passes\n", si->shader);
 			si->surfaceFlags |= SURF_NODRAW;
-			
+
 			if(!si->forceOpaque)
 			{
 				si->contents |= CONTENTS_TRANSLUCENT;
@@ -731,6 +751,7 @@ static void ParseShaderFile(const char *filename)
 #endif
 	}
 }
+
 
 /*
 ===============
