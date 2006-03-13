@@ -1126,12 +1126,12 @@ void SP_func_door(gentity_t * ent)
 		int             health;
 
 		G_SpawnInt("health", "0", &health);
+		
+		// Tr3B - Doom3 entities have always a targetname
 		if(health)
 		{
 			ent->takedamage = qtrue;
-		}
-		if(ent->targetname || health)
-		{
+		
 			// non touch/shoot doors
 			ent->think = Think_MatchTeam;
 		}
@@ -1140,8 +1140,6 @@ void SP_func_door(gentity_t * ent)
 			ent->think = Think_SpawnNewDoorTrigger;
 		}
 	}
-
-
 }
 
 /*
@@ -1293,7 +1291,9 @@ void SP_func_plat(gentity_t * ent)
 	ent->parent = ent;			// so it can be treated as a door
 
 	// spawn the trigger if one hasn't been custom made
-	if(!ent->targetname)
+	
+	// Tr3B - Doom3 entities have always a targetname
+	//if(!ent->targetname)
 	{
 		SpawnPlatTrigger(ent);
 	}
