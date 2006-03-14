@@ -54,7 +54,6 @@ int             entity_num;
 /*
 ============
 ProcessWorldModel
-
 ============
 */
 void ProcessWorldModel(void)
@@ -176,7 +175,6 @@ void ProcessWorldModel(void)
 /*
 ============
 ProcessSubModel
-
 ============
 */
 void ProcessSubModel(void)
@@ -208,6 +206,9 @@ void ProcessSubModel(void)
 	tree->headnode = node;
 
 	ClipSidesIntoTree(e, tree);
+	
+	// create drawsurfs for triangle models
+	AddTriangleModel(e, tree);
 
 	// subdivide each drawsurf as required by shader tesselation or fog
 	if(!nosubdivide)
@@ -247,33 +248,26 @@ ProcessModels
 */
 void ProcessModels(void)
 {
-	qboolean        oldVerbose;
 	entity_t       *entity;
-
-	oldVerbose = verbose;
+	const char     *model;
 
 	BeginBSPFile();
 
 	for(entity_num = 0; entity_num < num_entities; entity_num++)
 	{
 		entity = &entities[entity_num];
-
-		if(!entity->brushes && !entity->patches)
+		
+		model = ValueForKey(entity, "model");
+		
+		if(entity->brushes || entity->patches || (!entity->brushes && !entity->patches && model[0] != '\0'))
 		{
-			continue;
+			qprintf("############### model %i ###############\n", nummodels);
+			if(entity_num == 0)
+				ProcessWorldModel();
+			else
+				ProcessSubModel();
 		}
-
-		qprintf("############### model %i ###############\n", nummodels);
-		if(entity_num == 0)
-			ProcessWorldModel();
-		else
-			ProcessSubModel();
-
-		if(!verboseentities)
-			verbose = qfalse;	// don't bother printing submodels
 	}
-
-	verbose = oldVerbose;
 }
 
 /*
@@ -611,11 +605,11 @@ int main(int argc, char **argv)
 	{
 		LoadMapFile(name);
 	}
-
+	
+	ProcessModels();
+	
 	SetModelNumbers();
 	SetLightStyles();
-
-	ProcessModels();
 
 	EndBSPFile();
 

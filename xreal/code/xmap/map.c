@@ -1302,19 +1302,23 @@ qboolean ParseMapEntity(void)
 		SetKeyValue(mapent, "classname", "misc_model");	
 	}
 	
+	#if 0
 	// HACK: we should support Doom3 style doors in engine code but get rid of them for now
 	if(!Q_stricmp("func_door", classname) && !mapent->brushes && !mapent->patches && model[0] != '\0')
 	{
 		num_entities--;
 		return qtrue;
 	}
+	#endif
 	
+	#if 0
 	// HACK:
 	if(!Q_stricmp("func_rotating", classname) && !mapent->brushes && !mapent->patches && model[0] != '\0')
 	{
 		num_entities--;
 		return qtrue;
 	}
+	#endif
 
 	// Tr3B - determine if this is a func_static that can be merged into worldspawn
 	if(!Q_stricmp("func_static", classname) && name[0] != '\0' && model[0] != '\0' && !Q_stricmp(name, model))

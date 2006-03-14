@@ -438,6 +438,7 @@ extern int      c_triangleSurfaces;
 extern int      c_triangleVertexes;
 extern int      c_triangleIndexes;
 
+void            AddTriangleModel(entity_t * e, tree_t * tree);
 void            AddTriangleModels(tree_t * tree);
 
 //=============================================================================

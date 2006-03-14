@@ -639,6 +639,80 @@ void InsertLWOModel(const char *modelName, const matrix_t transform, tree_t * tr
 //==============================================================================
 
 
+/*
+=====================
+AddTriangleModel
+=====================
+*/
+void AddTriangleModel(entity_t * entity, tree_t * tree)
+{
+	qprintf("----- AddTriangleModel -----\n");
+
+	const char     *classname;
+	const char     *model;
+	const char     *value;
+	vec3_t          origin;
+	vec3_t          angles;
+	matrix_t        rotation;
+	matrix_t        transform;
+
+	MatrixIdentity(rotation);
+
+	GetVectorForKey(entity, "origin", origin);
+	
+	classname = ValueForKey(entity, "classname");
+
+	// get rotation matrix or "angle" (yaw) or "angles" (pitch yaw roll)
+	angles[0] = angles[1] = angles[2] = 0;
+	value = ValueForKey(entity, "angle");
+	if(value[0] != '\0')
+	{
+		angles[1] = atof(value);
+		MatrixFromAngles(rotation, angles[PITCH], angles[YAW], angles[ROLL]);
+	}
+
+	value = ValueForKey(entity, "angles");
+	if(value[0] != '\0')
+	{
+		sscanf(value, "%f %f %f", &angles[0], &angles[1], &angles[2]);
+		MatrixFromAngles(rotation, angles[PITCH], angles[YAW], angles[ROLL]);
+	}
+
+	value = ValueForKey(entity, "rotation");
+	if(value[0] != '\0')
+	{
+		sscanf(value, "%f %f %f %f %f %f %f %f %f", &rotation[0], &rotation[1], &rotation[2],
+			   &rotation[4], &rotation[5], &rotation[6], &rotation[8], &rotation[9], &rotation[10]);
+	}
+
+	MatrixSetupTransformFromRotation(transform, rotation, origin);
+
+	model = ValueForKey(entity, "model");
+	if(!model[0])
+	{
+		_printf("WARNING: '%s' at %i %i %i without a model key\n", classname, (int)origin[0], (int)origin[1], (int)origin[2]);
+		return;
+	}
+
+	if(strstr(model, ".md3") || strstr(model, ".MD3"))
+	{
+		InsertMD3Model(model, transform, tree);
+	}
+	else if(strstr(model, ".ase") || strstr(model, ".ASE"))
+	{
+		InsertASEModel(model, transform, tree);
+	}
+	else if(strstr(model, ".lwo") || strstr(model, ".LWO"))
+	{
+		InsertLWOModel(model, transform, tree);
+	}
+	else
+	{
+		_printf("Unknown model type: %s\n", model);
+	}
+}
+
+
 
 /*
 =====================
@@ -659,68 +733,7 @@ void AddTriangleModels(tree_t * tree)
 		// convert misc_models into raw geometry
 		if(!Q_stricmp("misc_model", ValueForKey(entity, "classname")))
 		{
-			const char     *model;
-			const char     *value;
-			vec3_t          origin;
-			vec3_t          angles;
-			matrix_t		rotation;
-			matrix_t		transform;
-			
-			MatrixIdentity(rotation);
-			
-			GetVectorForKey(entity, "origin", origin);
-
-			// get rotation matrix or "angle" (yaw) or "angles" (pitch yaw roll)
-			angles[0] = angles[1] = angles[2] = 0;
-			value = ValueForKey(entity, "angle");
-			if(value[0] != '\0')
-			{
-				angles[1] = atof(value);
-				MatrixFromAngles(rotation, angles[PITCH], angles[YAW], angles[ROLL]);
-			}
-			
-			value = ValueForKey(entity, "angles");
-			if(value[0] != '\0')
-			{
-				sscanf(value, "%f %f %f", &angles[0], &angles[1], &angles[2]);
-				MatrixFromAngles(rotation, angles[PITCH], angles[YAW], angles[ROLL]);
-			}
-			
-			value = ValueForKey(entity, "rotation");
-			if(value[0] != '\0')
-			{
-				sscanf(value, "%f %f %f %f %f %f %f %f %f",	&rotation[ 0], &rotation[ 1], &rotation[ 2],
-						   									&rotation[ 4], &rotation[ 5], &rotation[ 6],
-					   										&rotation[ 8], &rotation[ 9], &rotation[10]);
-			}
-			
-			MatrixSetupTransformFromRotation(transform, rotation, origin);
-
-			model = ValueForKey(entity, "model");
-			if(!model[0])
-			{
-				_printf("WARNING: misc_model at %i %i %i without a model key\n", (int)origin[0], (int)origin[1], (int)origin[2]);
-				continue;
-			}
-
-			if(strstr(model, ".md3") || strstr(model, ".MD3"))
-			{
-				InsertMD3Model(model, transform, tree);
-				continue;
-			}
-			if(strstr(model, ".ase") || strstr(model, ".ASE"))
-			{
-				InsertASEModel(model, transform, tree);
-				continue;
-			}
-			if(strstr(model, ".lwo") || strstr(model, ".LWO"))
-			{
-				InsertLWOModel(model, transform, tree);
-				continue;
-			}
-
-			_printf("Unknown misc_model type: %s\n", model);
-			continue;
+			AddTriangleModel(entity, tree);
 		}
 	}
 

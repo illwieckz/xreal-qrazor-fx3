@@ -212,13 +212,19 @@ SetModelNumbers
 void SetModelNumbers(void)
 {
 	int             i;
+	entity_t       *ent;
 	int             models;
 	char            value[10];
+	const char     *model;
 
 	models = 1;
 	for(i = 1; i < num_entities; i++)
 	{
-		if(entities[i].brushes || entities[i].patches)
+		ent = &entities[i];
+		
+		model = ValueForKey(ent, "model");
+		
+		if(ent->brushes || ent->patches || (!ent->brushes && !ent->patches && model[0] != '\0'))
 		{
 			sprintf(value, "*%i", models);
 			models++;
@@ -381,6 +387,8 @@ void BeginModel(void)
 	vec3_t          mins, maxs;
 	parseMesh_t    *p;
 	int             i;
+	
+	qprintf("--- BeginModel ---\n");
 
 	if(nummodels == MAX_MAP_MODELS)
 	{
