@@ -321,6 +321,7 @@ typedef struct
 {
 	int             maxCubeMapTextureSize;
 	qboolean        textureCubeAvailable;
+	qboolean        depthTextureAvailable;
 	qboolean        vertexProgramAvailable;
 	qboolean        vertexBufferObjectAvailable;
 	qboolean        shaderObjectsAvailable;

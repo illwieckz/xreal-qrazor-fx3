@@ -1759,6 +1759,7 @@ extern cvar_t  *r_ext_compiled_vertex_array;
 extern cvar_t  *r_ext_texture_env_add;
 extern cvar_t  *r_ext_transpose_matrix;
 extern cvar_t  *r_ext_texture_cube_map;
+extern cvar_t  *r_ext_depth_texture;
 extern cvar_t  *r_ext_vertex_program;
 extern cvar_t  *r_ext_vertex_buffer_object;
 extern cvar_t  *r_ext_shader_objects;

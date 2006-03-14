@@ -1086,6 +1086,25 @@ static void GLW_InitExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, "...GL_ARB_texture_cube_map\n");
 	}
+	
+	// GL_ARB_depth_texture
+	glConfig2.depthTextureAvailable = qfalse;
+	if(strstr(glConfig.extensions_string, "GL_ARB_depth_texture"))
+	{
+		if(r_ext_depth_texture->integer)
+		{
+			glConfig2.depthTextureAvailable = qtrue;
+			ri.Printf(PRINT_ALL, "...using GL_ARB_depth_texture\n");
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_ARB_depth_texture\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_ARB_depth_texture\n");
+	}
 
 	// GL_ARB_vertex_program
 	glConfig2.vertexProgramAvailable = qfalse;

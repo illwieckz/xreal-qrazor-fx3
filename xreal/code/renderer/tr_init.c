@@ -87,6 +87,7 @@ cvar_t         *r_ext_compiled_vertex_array;
 cvar_t         *r_ext_texture_env_add;
 cvar_t         *r_ext_transpose_matrix;
 cvar_t         *r_ext_texture_cube_map;
+cvar_t         *r_ext_depth_texture;
 cvar_t         *r_ext_vertex_program;
 cvar_t         *r_ext_vertex_buffer_object;
 cvar_t         *r_ext_shader_objects;
@@ -1085,6 +1086,7 @@ void R_Register(void)
 #endif
 	r_ext_transpose_matrix = ri.Cvar_Get("r_ext_transpose_matrix", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_texture_cube_map = ri.Cvar_Get("r_ext_texture_cube_map", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_depth_texture = ri.Cvar_Get("r_ext_depth_texture", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_vertex_program = ri.Cvar_Get("r_ext_vertex_program", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_vertex_buffer_object = ri.Cvar_Get("r_ext_vertex_buffer_object", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_shader_objects = ri.Cvar_Get("r_ext_shader_objects", "1", CVAR_ARCHIVE | CVAR_LATCH);
