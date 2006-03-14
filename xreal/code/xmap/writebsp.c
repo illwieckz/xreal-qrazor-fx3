@@ -386,7 +386,10 @@ void BeginModel(void)
 	entity_t       *e;
 	vec3_t          mins, maxs;
 	parseMesh_t    *p;
-	int             i;
+	const char     *model;
+	mapDrawSurface_t *ds;
+	drawVert_t     *dv;
+	int             i, j;
 	
 	qprintf("--- BeginModel ---\n");
 
@@ -396,9 +399,7 @@ void BeginModel(void)
 	}
 	mod = &dmodels[nummodels];
 
-	//
-	// bound the brushes
-	//
+	// calculate the AABB
 	e = &entities[entity_num];
 
 	ClearBounds(mins, maxs);
@@ -417,6 +418,32 @@ void BeginModel(void)
 		for(i = 0; i < p->mesh.width * p->mesh.height; i++)
 		{
 			AddPointToBounds(p->mesh.verts[i].xyz, mins, maxs);
+		}
+	}
+	
+	model = ValueForKey(e, "model");
+	if(!e->brushes && !e->patches && model[0] != '\0')
+	{
+		for(i = e->firstDrawSurf; i < numMapDrawSurfs; i++)
+		{
+			ds = &mapDrawSurfs[i];
+			
+			if(!ds->numVerts)
+			{
+				continue;			// leftover from a surface subdivision
+			}
+			
+			if(ds->miscModel)
+			{
+				continue;
+			}
+			
+			for(j = 0; j < ds->numVerts; j++)
+			{
+				dv = &ds->verts[j];
+				
+				AddPointToBounds(dv->xyz, mins, maxs);
+			}
 		}
 	}
 
