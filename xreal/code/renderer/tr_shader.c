@@ -2576,7 +2576,7 @@ static void ParseSkyParms(char **text)
 		for(i = 0; i < 6; i++)
 		{
 			Com_sprintf(pathname, sizeof(pathname), "%s_%s", prefix, suf[i]);
-			shader.sky.outerbox[i] = R_FindImageFile(pathname, IF_NONE, FT_DEFAULT, WT_CLAMP);
+			shader.sky.outerbox[i] = R_FindImageFile(pathname, IF_NONE, FT_DEFAULT, WT_EDGE_CLAMP);
 			if(!shader.sky.outerbox[i])
 			{
 				shader.sky.outerbox[i] = tr.defaultImage;
@@ -2612,7 +2612,7 @@ static void ParseSkyParms(char **text)
 		for(i = 0; i < 6; i++)
 		{
 			Com_sprintf(pathname, sizeof(pathname), "%s_%s", prefix, suf[i]);
-			shader.sky.innerbox[i] = R_FindImageFile(pathname, IF_NONE, FT_DEFAULT, WT_REPEAT);
+			shader.sky.innerbox[i] = R_FindImageFile(pathname, IF_NONE, FT_DEFAULT, WT_EDGE_CLAMP);
 			if(!shader.sky.innerbox[i])
 			{
 				shader.sky.innerbox[i] = tr.defaultImage;
