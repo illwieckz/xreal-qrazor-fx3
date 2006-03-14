@@ -1826,12 +1826,6 @@ void Think_Mover(gentity_t * self)
 */
 void SP_func_mover(gentity_t * self)
 {
-	if(self->model[0] != '*')
-	{
-		G_FreeEntity(self);
-		return;
-	}
-	
 	trap_SetBrushModel(self, self->model);
 	
 	InitMover(self);
@@ -1843,4 +1837,28 @@ void SP_func_mover(gentity_t * self)
 	self->think = Think_Mover;
 	
 	trap_LinkEntity(self);
+}
+
+/*
+===============================================================================
+
+TELEPORTER
+
+===============================================================================
+*/
+
+void func_teleporter_use(gentity_t * self, gentity_t * other, gentity_t * activator)
+{
+	if(!activator->client)
+		return;
+
+	TeleportPlayer(activator, self->s.origin, self->s.angles);
+}
+
+/*QUAKED func_teleporter (1 0 0) (-8 -8 -8) (8 8 8)
+The activator will be teleported to this.
+*/
+void SP_func_teleporter(gentity_t * self)
+{
+	self->use = func_teleporter_use;
 }

@@ -26,7 +26,7 @@ BFG ammo. Gives the player 15 by default.
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when picked up (default 15).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -52,7 +52,7 @@ Machine Gun ammo. Gives the player 50 by default.
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when picked up (default 50).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -77,7 +77,7 @@ Plasma Gun ammo. Gives the player 30 by default.
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when picked up (default 30).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -102,7 +102,7 @@ Grenade Launcher ammo. Gives the player 5 by default.
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when picked up (default 5).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -127,7 +127,7 @@ Lightning Gun ammo. Gives the player 60 by default.
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when picked up (default 60).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -152,7 +152,7 @@ Rocket Launcher ammo. Gives the player 5 by default.
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when picked up (default 5).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -177,7 +177,7 @@ Shotgun ammo. Gives the player 10 by default.
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when picked up (default 10).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -202,7 +202,7 @@ Railgun ammo. Gives the player 10 by default.
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when picked up (default 10).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -243,7 +243,7 @@ Solid entity that oscillates back and forth in a linear motion. By default, it w
 -------- NOTES --------
 In order for the sound to be emitted from the entity, it is recommended to include a brush with an origin shader at its center, otherwise the sound will not follow the entity as it moves. Setting the origin key is simply an alternate method to using an origin brush. When using the model key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.
 
-Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
+Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "name").
 </group>
 
 <!--
@@ -269,7 +269,7 @@ When a button is touched by a player, it moves in the direction set by the "angl
 -------- NOTES --------
 Setting the origin key is simply an alternate method to using an origin brush. When using the model key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.
 
-Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
+Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "name").
 </group>
 
 <!--
@@ -283,7 +283,7 @@ Normal sliding door entity. By default, the door will activate when player walks
 <real key="speed" name="Move Speed">determines how fast the door moves (default 100).</real>
 <real key="wait" name="Return Delay">number of seconds before door returns (default 2, -1 = return immediately)</real>
 <real key="lip" name="Lip">lip remaining at end of move (default 8)</real>
-<targetname key="targetname" name="Target Name">if set, a func_button or trigger is required to activate the door.</targetname>
+<targetname key="name" name="Name">if set, a func_button or trigger is required to activate the door.</targetname>
 <real key="health" name="Activate On Damage">(default 0) if set to any non-zero value, the button must take damage (any amount) to activate.</real>
 <integer key="dmg" name="Damage Inflicted">damage to inflict on player when he blocks operation of door (default 4). Door will reverse direction when blocked unless CRUSHER spawnflag is set.</integer>
 <string key="team" name="Team Name">assign the same team name to multiple doors that should operate together (see Notes).</string>
@@ -300,7 +300,7 @@ Normal sliding door entity. By default, the door will activate when player walks
 -------- NOTES --------
 Unlike in Quake 2, doors that touch are NOT automatically teamed. If you want doors to operate together, you have to team them manually by assigning the same team name to all of them. Setting the origin key is simply an alternate method to using an origin brush. When using the model key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.
 
-Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
+Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "name").
 </group>
 
 <!--
@@ -336,7 +336,7 @@ Solid entity that describes a pendulum back and forth rotation movement. Rotates
 -------- NOTES --------
 You need to have an origin brush as part of this entity. The center of that brush will be the point through which the rotation axis passes. Setting the origin key is simply an alternate method to using an origin brush. Pendulum will rotate along the X axis by default. Very crude operation: pendulum cannot rotate along Z axis, the speed of swing (frequency) is not adjustable. When using the model key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.
 
-Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
+Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "name").
 </group>
 
 <!--
@@ -350,7 +350,7 @@ Rising platform the player can ride to reach higher places. Plats must always be
 <real key="lip" name="Lip">lip remaining at end of move (default 16). Has no effect if "height" is set.</real>
 <real key="height" name="Vertical Travel">if set, this will determine the total amount of vertical travel of the plat.</real>
 <integer key="dmg" name="Damage Inflicted">damage to inflict on player when he blocks operation of plat (default 4). Plat will reverse direction when blocked.</integer>
-<targetname key="targetname" name="Target Name">if set, the trigger that points to this will raise the plat each time it fires. The plat raises and comes back down a second later if no player is on it.</targetname>
+<targetname key="name" name="Name">if set, the trigger that points to this will raise the plat each time it fires. The plat raises and comes back down a second later if no player is on it.</targetname>
 <real key="light" name="Model Light Intensity">constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0).</real>
 <color key="color" name="Model Light Color">constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1).</color>
 <model key="model" name="Model File">path/name of model to include (eg: models/mapobjects/pipe/pipe02.md3).</model>
@@ -363,7 +363,7 @@ By default, the total amount of vertical travel of a platform is implicitly dete
 
 There is a way to make plats play proper sounds. Just create a sound\movers\plats folder under baseq3 and put 2 sounds named pt1_strt.wav and pt1_end.wav in it. Those can be the renamed sounds from the Q2 plats or renamed copies of the sound\movers\doors sounds you can extract from your pak0.pk3 file or new custom sounds if you're up to it. Thanks to Fragzilla for the tip.
 
-Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
+Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "name").
 </group>
 
 <!--
@@ -388,7 +388,7 @@ Solid entity that rotates continuously. Rotates on the Z axis by default and req
 -------- NOTES --------
 You need to have an origin brush as part of this entity. The center of that brush will be the point through which the rotation axis passes. Setting the origin key is simply an alternate method to using an origin brush. It will rotate along the Z axis by default. You can check either the X_AXIS or Y_AXIS box to change that. When using the model key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.
 
-Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
+Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "name").
 </group>
 
 <!--
@@ -402,7 +402,7 @@ Static non-solid bspmodel. Can be used for conditional walls and models.
 <real3 key="origin" name="World Origin">alternate method of setting XYZ origin of .md3 model included with entity (See Notes).</real3>
 <real key="light" name="Model Light Intensity">constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0).</real>
 <color key="color" name="Model Light Color">constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1).</color>
-<targetname key="targetname" name="Target Name">NOT SUPPORTED BY RENDERER - if set, a func_button or trigger can make entity disappear from the game (See Notes).</targetname>
+<targetname key="name" name="Name">NOT SUPPORTED BY RENDERER - if set, a func_button or trigger can make entity disappear from the game (See Notes).</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -411,7 +411,7 @@ When using the model key, the origin point of the model will correspond to the o
 
 Because the map has only a single bot navigation file, func_static's cannot be used to make significant changes in game play flow between differing game types.
 
-Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
+Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "name").
 </group>
 
 <!--
@@ -424,7 +424,7 @@ Time delay trigger that will continuously fire its targets after a preset time d
 <real key="wait" name="Time Period">delay in seconds between each triggering of its targets (default 1).</real>
 <real key="random" name="Time Period Variance">random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes).</real>
 <target key="target" name="Target">this points to the entities to trigger.</target>
-<targetname key="targetname" name="Target Name">a func_button or trigger that points to this will toggle the timer on/off when activated.</targetname>
+<targetname key="name" name="Name">a func_button or trigger that points to this will toggle the timer on/off when activated.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -459,7 +459,7 @@ Trains are moving solids that follow a string of path_corner entities. Trains in
 
 Setting the origin key is simply an alternate method to using an origin brush. When using the model key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.
 
-Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
+Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "name").
 </group>
 
 <!--
@@ -473,7 +473,7 @@ Static non-solid bspmodel. Can be used for conditional walls and models.
 <model key="model" name="Model File">path/name of model to include (eg: models/mapobjects/bitch/fembotbig.md3).</model>
 <real key="light" name="Model Light Intensity">constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0).</real>
 <color key="color" name="Model Light Color">constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1).</color>
-<targetname key="targetname" name="Target Name">NOT SUPPORTED BY RENDERER - if set, a func_button or trigger can make entity disappear from the game (See Notes).</targetname>
+<targetname key="name" name="Name">NOT SUPPORTED BY RENDERER - if set, a func_button or trigger can make entity disappear from the game (See Notes).</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -484,8 +484,21 @@ When using the model key, the origin point of the model will correspond to the o
 
 Because the map has only a single bot navigation file, func_static's cannot be used to make significant changes in game play flow between differing game types.
 
-Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
+Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "name").
 </group>
+
+<!--
+=============================================================================
+-->
+
+<point name="func_teleporter" color="0 .5 0" box="-8 -8 -8 8 8 8">
+Activating this will teleport players to the location of this entity. Unlike trigger_teleport, this entity must be activated by a trigger and does NOT allow client prediction of events.
+-------- KEYS --------
+<targetname key="name" name="Name">activating trigger points to this.</targetname>
+<boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
+<boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
+<boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
+</point>
 
 <!--
 =============================================================================
@@ -502,7 +515,7 @@ Medkit that can be picked up and used later. Brings the player's health back to 
 <real key="random" name="Respawn Delay Variance">random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes).</real>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -526,7 +539,7 @@ Teleporter item that can be picked up and used later. Teleports the player to a 
 <real key="random" name="Respawn Delay Variance">random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes).</real>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -563,7 +576,7 @@ Examples of bots which have a high camping preference are: Razor, Tank Jr., Grun
 <point name="info_notnull" color="0 .5 0" box="-8 -8 -8 8 8 8">
 Used as a positional target for entities that can use directional pointing. A target_position can be used instead of this but was kept in Q3A for legacy purposes.
 -------- KEYS --------
-<targetname key="targetname" name="Target Name">must match the target key of entity that uses this for pointing.</targetname>
+<targetname key="name" name="Name">must match the target key of entity that uses this for pointing.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -576,7 +589,7 @@ Used as a positional target for entities that can use directional pointing. A ta
 <point name="info_null" color="0 .5 0" box="-8 -8 -8 8 8 8">
 Used as a positional target for light entities to create a spotlight effect. A target_position can be used instead of this but was kept in Q3A for legacy purposes.
 -------- KEYS --------
-<targetname key="targetname" name="Target Name">must match the target key of entity that uses this for pointing.</targetname>
+<targetname key="name" name="Name">must match the target key of entity that uses this for pointing.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -646,7 +659,7 @@ Spectator spawn location. Doesn't appear to work in game. Commented out.
 Teleport destination location point for trigger_teleporter entities.
 -------- KEYS --------
 <angle key="angle" name="Yaw Angle">direction in which player will look when teleported.</angle>
-<targetname key="targetname" name="Target Name">make the trigger_teleporter point to this.</targetname>
+<targetname key="name" name="Name">make the trigger_teleporter point to this.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -667,7 +680,7 @@ Red Armor - 100 points. All armor can be cumulated up to a maximum of 200 points
 <real key="random" name="Respawn Delay Variance">random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes).</real>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -691,7 +704,7 @@ Yellow Armor - 50 points. All armor can be cumulated up to a maximum of 200 poin
 <real key="random" name="Respawn Delay Variance">random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes).</real>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -715,7 +728,7 @@ Green Armor Shard - 5 points. All armor can be cumulated up to a maximum of 200 
 <real key="random" name="Respawn Delay Variance">random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes).</real>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -757,7 +770,7 @@ Battle Suit power-up - Gives protection against slime, lava and weapon splash da
 <real key="count" name="Powerup Duration">time in seconds power-up will last when picked up (default 30).</real>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -782,7 +795,7 @@ Flight power-up. Lasts 60 seconds.
 <real key="count" name="Powerup Duration">time in seconds power-up will last when picked up (default 60).</real>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -807,7 +820,7 @@ Speed power-up. Makes player run at double speed for 30 seconds.
 <real key="count" name="Powerup Duration">time in seconds power-up will last when picked up (default 30).</real>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -880,7 +893,7 @@ Blue M bubble - 100 Health. Adds 100 health points to current health up to a max
 <real key="count" name="Health Given">sets the amount of health points given to the player when item is picked up (default 100).</real>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -905,7 +918,7 @@ Green cross bubble - 5 Health. Can be picked up over 100 health but slowly wears
 <real key="count" name="Health Given">sets the amount of health points given to the player when item is picked up (default 5).</real>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -930,7 +943,7 @@ Invisibility power-up. Lasts 30 seconds.
 <real key="count" name="Powerup Duration">time in seconds power-up will last when picked up (default 30).</real>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -955,7 +968,7 @@ Quad Damage power-up. Lasts 30 seconds.
 <real key="count" name="Powerup Duration">time in seconds power-up will last when picked up (default 30).</real>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -980,7 +993,7 @@ Health Regeneration power-up. This will boost your current health by 5 points ev
 <real key="count" name="Powerup Duration">time in seconds power-up will last when picked up (default 30).</real>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -1045,7 +1058,7 @@ Portal camera. This camera is used to project its view onto a portal surface in 
 -------- KEYS --------
 <angles key="angles" name="Pitch Yaw Roll">this sets the pitch and yaw aiming angles of the portal camera (default 0 0). Use "roll" key to set roll angle.</angles>
 <target key="target" name="Target">point this to a target_position entity to set the camera's pointing direction.</target>
-<targetname key="targetname" name="Target Name">a misc_portal_surface portal surface indicator must point to this.</targetname>
+<targetname key="name" name="Name">a misc_portal_surface portal surface indicator must point to this.</targetname>
 <real key="roll" name="Roll">roll angle of camera. A value of 0 is upside down and 180 is the same as the player's view.</real>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
@@ -1080,7 +1093,7 @@ The entity must be no farther than 64 units away from the portal surface to lock
 Teleport destination location point for trigger_teleporter entities.
 -------- KEYS --------
 <angle key="angle" name="Yaw Angle">direction in which player will look when teleported.</angle>
-<targetname key="targetname" name="Target Name">make the trigger_teleporter point to this.</targetname>
+<targetname key="name" name="Name">make the trigger_teleporter point to this.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -1098,7 +1111,7 @@ PATH_* ENTITIES
 Path corner entity that func_trains can be made to follow.
 -------- KEYS --------
 <target key="target" name="Target">point to next path_corner in the path.</target>
-<targetname key="targetname" name="Target Name">the train following the path or the previous path_corner in the path points to this.</targetname>
+<targetname key="name" name="Name">the train following the path or the previous path_corner in the path points to this.</targetname>
 <real key="speed" name="Move Speed">speed of func_train while moving to the next path corner. This will override the speed value of the train.</real>
 <real key="wait" name="Corner Delay">number of seconds func_train will pause on path corner before moving to next path corner (default 0 - see Notes).</real>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
@@ -1120,7 +1133,7 @@ SHOOTER_* ENTITIES
 This will shoot a grenade each time it's triggered. Aiming is done by setting the "angles" key or by targeting an info_notnull or target_position entity.
 -------- KEYS --------
 <angles key="angles" name="Pitch Yaw Roll">this sets the pitch and yaw aiming angles of shooter (default 0 0). The roll angle does not apply.</angles>
-<targetname key="targetname" name="Target Name">activating trigger points to this.</targetname>
+<targetname key="name" name="Name">activating trigger points to this.</targetname>
 <target key="target" name="Target">this points to a target_position entity for aiming the grenades.</target>
 <real key="random" name="Angle Variance">random aiming variance in degrees from the straight line to the targeted entity (default 0 - see Notes).</real>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
@@ -1140,7 +1153,7 @@ Both the setting "angles" key or "targeting a target_position" methods can be us
 This will shoot a plasma ball each time it's triggered. Aiming is done by setting the "angles" key or by targeting an info_notnull or target_position entity.
 -------- KEYS --------
 <angles key="angles" name="Pitch Yaw Roll">this sets the pitch and yaw aiming angles of shooter (default 0 0). The roll angle does not apply.</angles>
-<targetname key="targetname" name="Target Name">activating trigger points to this.</targetname>
+<targetname key="name" name="Name">activating trigger points to this.</targetname>
 <target key="target" name="Target">this points to a target_position entity for aiming the plasma balls.</target>
 <real key="random" name="Angle Variance">random aiming variance in degrees from the straight line to the targeted entity (default 0 - see Notes).</real>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
@@ -1160,7 +1173,7 @@ Both the setting "angles" key or "targeting a target_position" methods can be us
 This will shoot a rocket each time it's triggered. Aiming is done by setting the "angles" key or by targeting an info_notnull or target_position entity.
 -------- KEYS --------
 <angles key="angles" name="Pitch Yaw Roll">this sets the pitch and yaw aiming angles of shooter (default 0 0). The roll angle does not apply.</angles>
-<targetname key="targetname" name="Target Name">activating trigger points to this.</targetname>
+<targetname key="name" name="Name">activating trigger points to this.</targetname>
 <target key="target" name="Target">this points to a target_position entity for aiming the rockets.</target>
 <real key="random" name="Angle Variance">random aiming variance in degrees from the straight line to the targeted entity (default 0 - see Notes).</real>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
@@ -1183,7 +1196,7 @@ TARGET_* ENTITIES
 <point name="target_delay" color="0 .7 .7" box="-8 -8 -8 8 8 8">
 Time delay trigger intermediary. Like a target_relay, this can only be fired by other triggers which will cause it in turn to fire its own targets.
 -------- KEYS --------
-<targetname key="targetname" name="Target Name">activating trigger points to this.</targetname>
+<targetname key="name" name="Name">activating trigger points to this.</targetname>
 <target key="target" name="Target">this points to entities to activate when this entity is triggered.</target>
 <real key="wait" name="Delay">delay in seconds from when this gets triggered to when it fires its own targets (default approx. 1).</real>
 <real key="delay" name="Delay">same as wait? replaces it? WTF?...I'm confused now.</real>
@@ -1203,7 +1216,7 @@ When the random key is set, its value is used to calculate a minimum and a maxim
 This is used to give ammo, weapons, health or items to the player who activates it.
 -------- KEYS --------
 <target key="target" name="Target">this points to the item(s) to give when activated.</target>
-<targetname key="targetname" name="Target Name">activating trigger or spawn entity points to this.</targetname>
+<targetname key="name" name="Name">activating trigger or spawn entity points to this.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -1220,7 +1233,7 @@ b) give items to players during the game: make a trigger_multiple target this en
 <point name="target_kill" color="0 .5 0" box="-8 -8 -8 8 8 8">
 This will kill the player who activates the trigger that fires this target.
 -------- KEYS --------
-<targetname key="targetname" name="Target Name">the activating trigger points to this.</targetname>
+<targetname key="name" name="Name">the activating trigger points to this.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -1236,7 +1249,7 @@ Generates a red laser beam. I think this can somehow spawn in the game, I saw it
 ======== KEYS ========
 <angles key="angles" name="Pitch Yaw Roll">alternate "pitch, yaw, roll" angles method of aiming laser (default 0 0 0).
 <target key="target" name="Target">point this to a target_position entity to set the laser's aiming direction.
-<targetname key="targetname" name="Target Name">the activating trigger points to this.
+<targetname key="name" name="Name">the activating trigger points to this.
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -1284,7 +1297,7 @@ message :  name of the location (text string). Displayed in parentheses in front
 <point name="target_position" color="0 .5 0" box="-8 -8 -8 8 8 8">
 Aiming target for entities like light, misc_portal_camera and trigger_push (jump pads) in particular.
 -------- KEYS --------
-<targetname key="targetname" name="Target Name">the entity that requires an aiming direction points to this.</targetname>
+<targetname key="name" name="Name">the entity that requires an aiming direction points to this.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -1300,7 +1313,7 @@ To make a jump pad, place this entity at the highest point of the jump and targe
 This will print a message on the center of the screen when triggered. By default, all the clients will see the message.
 -------- KEYS --------
 <string key="message" name="Message">text string to print on screen.</string>
-<targetname key="targetname" name="Target Name">the activating trigger points to this.</targetname>
+<targetname key="name" name="Name">the activating trigger points to this.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -1319,7 +1332,7 @@ This can be used to create jump pads and launch ramps. The direction of push can
 -------- KEYS --------
 <angles key="angles" name="Pitch Yaw Roll">this sets the pitch and yaw aiming angles of push entity (default 0 0). The roll angle does not apply.</angles>
 <real key="speed" name="Push Speed">speed of push (default 1000). Has no effect if entity targets an aiming entity.</real>
-<targetname key="targetname" name="Target Name">the activating trigger points to this. Push originates from the location of the trigger.</targetname>
+<targetname key="name" name="Name">the activating trigger points to this. Push originates from the location of the trigger.</targetname>
 <target key="target" name="Target">this points to the aiming entity to which the player will jump.</target>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
@@ -1337,7 +1350,7 @@ To make a jump pad or launch ramp, create a trigger_multiple where the jump must
 <point name="target_relay" color="0 .7 .7" box="-8 -8 -8 8 8 8">
 This can only be activated by other triggers which will cause it in turn to activate its own targets.
 -------- KEYS --------
-<targetname key="targetname" name="Target Name">activating trigger points to this.</targetname>
+<targetname key="name" name="Name">activating trigger points to this.</targetname>
 <target key="target" name="Target">this points to entities to activate when this entity is triggered.</target>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
@@ -1355,7 +1368,7 @@ This can only be activated by other triggers which will cause it in turn to acti
 <point name="target_remove_powerups" color="0 .7 .7" box="-8 -8 -8 8 8 8">
 This takes away any and all item_* type powerups from player except health and armor (holdable_* items are not taken away either). Must be activated by a button or trigger_multiple entity. The player that activates the trigger will lose any powerup(s) currently in his possession.
 -------- KEYS --------
-<targetname key="targetname" name="Target Name">activating trigger points to this.</targetname>
+<targetname key="name" name="Name">activating trigger points to this.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -1368,7 +1381,7 @@ This takes away any and all item_* type powerups from player except health and a
 <point name="target_score" color="0 .5 0" box="-8 -8 -8 8 8 8">
 This is used to automatically give frag points to the player who activates this. A spawn location entity like info_player_* or CTF respawn points can target this entity to give points to the player when he spawns in the game. Or a trigger can also be used to activate this. The activator of the trigger will get the points.
 -------- KEYS --------
-<targetname key="targetname" name="Target Name">ativating entity points to this.</targetname>
+<targetname key="name" name="Name">ativating entity points to this.</targetname>
 <integer key="count" name="Frags Given">number of frag points to give to player (default 1).</integer>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
@@ -1385,7 +1398,7 @@ Sound generating entity that plays .wav files. Normal non-looping sounds play ea
 <sound key="noise" name="Sound File">path/name of .wav file to play (eg. sound/world/growl1.wav - see Notes).</sound>
 <real key="wait" name="Repeat Time">delay in seconds between each time the sound is played ("random" key must be set - see Notes).</real>
 <real key="random" name="Repeat Time Variance">random time variance in seconds added or subtracted from "wait" delay ("wait" key must be set - see Notes).</real>
-<targetname key="targetname" name="Target Name">the activating button or trigger points to this.</targetname>
+<targetname key="name" name="Name">the activating button or trigger points to this.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -1407,7 +1420,7 @@ The combination of the "wait" and "random" keys can be used to play non-looping 
 <point name="target_teleporter" color="0 .5 0" box="-8 -8 -8 8 8 8">
 Activating this will teleport players to the location of the targeted misc_teleporter_dest entity. Unlike trigger_teleport, this entity must be activated by a trigger and does NOT allow client prediction of events.
 -------- KEYS --------
-<targetname key="targetname" name="Target Name">activating trigger points to this.</targetname>
+<targetname key="name" name="Name">activating trigger points to this.</targetname>
 <target key="target" name="Target">this must point to a misc_teleporter_dest entity.</target>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
@@ -1519,7 +1532,7 @@ The invulnerability power-up (item_enviro) does not protect the player from dama
 Variable size repeatable trigger. It will fire the entities it targets when touched by player. Can be made to operate like a trigger_once entity by setting the "wait" key to -1. It can also be activated by another trigger that targets it.
 -------- KEYS --------
 <target key="target" name="Target">this points to the entity to activate.</target>
-<targetname key="targetname" name="Target Name">activating trigger points to this.</targetname>
+<targetname key="name" name="Name">activating trigger points to this.</targetname>
 <real key="wait" name="Repeat Time">time in seconds until trigger becomes re-triggerable after it's been touched (default 0.2, -1 = trigger once).</real>
 <real key="random" name="Repeat Time Variance">random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes).</real>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
@@ -1575,7 +1588,7 @@ Big Freaking Gun.
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when weapon is picked up (default 20).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -1599,7 +1612,7 @@ Gauntlet.
 <real key="random" name="Respawn Delay Variance">random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes).</real>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -1623,7 +1636,7 @@ Grappling Hook. Spawns in the game and works but is unskinned.
 <real key="random" name="Respawn Delay Variance">random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes).</real>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -1648,7 +1661,7 @@ Grenade Launcher.
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when weapon is picked up (default 10).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -1673,7 +1686,7 @@ Lightning Gun.
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when weapon is picked up (default 100).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -1698,7 +1711,7 @@ Machine Gun.
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when weapon is picked up (default 100).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -1723,7 +1736,7 @@ Plasma gun.
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when weapon is picked up (default 50).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -1748,7 +1761,7 @@ Railgun.
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when weapon is picked up (default 10).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -1773,7 +1786,7 @@ Rocket Launcher.
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when weapon is picked up (default 10).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
@@ -1798,7 +1811,7 @@ Shotgun.
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when weapon is picked up (default 10).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>

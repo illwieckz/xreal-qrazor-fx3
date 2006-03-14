@@ -164,6 +164,7 @@ void            SP_func_door(gentity_t * ent);
 void            SP_func_train(gentity_t * ent);
 void            SP_func_timer(gentity_t * self);
 void            SP_func_mover(gentity_t * self);
+void            SP_func_teleporter(gentity_t * self);
 
 void            SP_trigger_always(gentity_t * ent);
 void            SP_trigger_multiple(gentity_t * ent);
@@ -239,6 +240,7 @@ spawn_t         spawns[] = {
 	{"func_group", SP_info_null},
 	{"func_timer", SP_func_timer},	// rename trigger_timer?
 	{"func_mover", SP_func_mover},
+	{"func_teleporter", SP_func_teleporter},
 
 	// Triggers are brush objects that cause an effect when contacted
 	// by a living player, usually involving firing targets.
