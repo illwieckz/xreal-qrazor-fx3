@@ -5,38 +5,10 @@
  Upgraded by Eutectic: eutectic@ritualistic.com
  (visible models added by raYGunn - paths provided by Suicide 20)
  (terrain information added to func_group entity by Paul Jaquays)
- Q3Map2 entitys/keys added by ydnar
  Version: 1.6
  Last updated: 2003-11-28
 -->
 <classes>
-<!--
-=============================================================================
-
- Q3Map2 entities
-
-=============================================================================
--->
-
-<group name="_decal" color="0 1.0 0">
--------- KEYS --------
-<target key="target" name="Target">the name of the entity targetted at for projection</target>
--------- SPAWNFLAGS --------
-(none)
--------- NOTES --------
-Compiler-only entity that specifies a decal to be projected. Should contain 1 or more patch meshes (curves) and target an info_null entity. The distance between the center of the _decal entity and the target is the axis and distance of projection.
-</group>
-
-<point name="_skybox" color="0.77 0.88 1.0" box="-4 -4 -4 4 4 4">
--------- KEYS --------
-<angle key="angle" name="Yaw Angle">rotation angle of the sky surfaces.</angle>
-<angles key="angles" name="Pitch Yaw Roll">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
-<real key="_scale" name="Scale">scaling factor (default 64), good values are between 50 and 300, depending on the map.</real>
--------- SPAWNFLAGS --------
-(none)
--------- NOTES --------
-Compiler-only entity that specifies a the origin of a skybox (a wholly contained, seperate area of the map), similar to some games' portal skies. When compiled with Q3Map2, the skybox surfaces will be visible from any place where sky is normally visible. It will cast shadows on the normal parts of the map, and can be used with cloud layers and other effects.
-</point>
 
 <!--
 =============================================================================
@@ -258,28 +230,18 @@ Solid entity that oscillates back and forth in a linear motion. By default, it w
 <real key="height" name="Vertical Travel">sets the amount of travel of the oscillation movement (default 32).</real>
 <real key="phase" name="Bob Cycle Phase">sets the start offset of the oscillation cycle. Values must be 0 &lt; phase &lt; 1. Any integer phase value is the same as no offset (default 0).</real>
 <sound key="noise" name="Sound File">path/name of .wav file to play. Use looping sounds only (eg. sound/world/drone6.wav - See Notes).</sound>
-<model key="model2" name="Model File">path/name of model to include (eg: models/mapobjects/jets/jets01.md3).</model>
+<model key="model" name="Model File">path/name of model to include (eg: models/mapobjects/jets/jets01.md3).</model>
 <real3 key="origin" name="World Origin">alternate method of setting XYZ origin of sound and .md3 model included with entity (See Notes).</real3>
 <real key="light" name="Model Light Intensity">constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0).</real>
 <color key="color" name="Model Light Color">constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1).</color>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
--------- Q3MAP2 KEYS --------
-<targetname key="_targetname" name="Target Name">Used to attach a misc_model entity to this entity.</targetname>
-<real key="_lightmapscale" name="Lightmap Scale">Floating point value scaling the resolution of lightmaps on brushes/patches in this entity (default 1.0).</real>
-<integer key="_castshadows;_cs" name="Shadow Caster Level">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. > 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</integer>
-<integer key="_receiveshadows;_rs" name="Shadow Reciever Level">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. > 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</integer>
-<texture key="_celshader" name="Cel Shader">Sets the cel shader used for this geometry. Note: omit the "textures/" prefix.</texture>
--------- Q3MAP2 TERRAIN KEYS --------
-<texture key="_indexmap;alphamap" name="Terrain Blending Map">Path/name for the art file used to guide the mapping of textures on the terrain surface.</texture>
-<integer key="_layers;layers" name="Terrain Layers">Integer value is the number unique root shaders that will be use on the terrain.</integer>
-<texture key="_shader;shader" name="Terrain MetaShader">Path to the metashader used to assign textures to the terrain entity. Note: Omit the "textures/" prefix.</texture>
 -------- SPAWNFLAGS --------
 <flag key="X_AXIS" name="X Axis" bit="0">entity will bob along the X axis.</flag>
 <flag key="Y_AXIS" name="Y Axis" bit="1">entity will bob along the Y axis.</flag>
 -------- NOTES --------
-In order for the sound to be emitted from the entity, it is recommended to include a brush with an origin shader at its center, otherwise the sound will not follow the entity as it moves. Setting the origin key is simply an alternate method to using an origin brush. When using the model2 key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.
+In order for the sound to be emitted from the entity, it is recommended to include a brush with an origin shader at its center, otherwise the sound will not follow the entity as it moves. Setting the origin key is simply an alternate method to using an origin brush. When using the model key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.
 
 Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
 </group>
@@ -299,23 +261,13 @@ When a button is touched by a player, it moves in the direction set by the "angl
 <real key="health" name="Activate On Damage">(default 0) if set to any non-zero value, the button must take damage (any amount) to activate.</real>
 <real key="light" name="Model Light Intensity">constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0).</real>
 <color key="color" name="Model Light Color">constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1).</color>
-<model key="model2" name="Model File">path/name of model to include (eg: models/mapobjects/pipe/pipe02.md3).</model>
+<model key="model" name="Model File">path/name of model to include (eg: models/mapobjects/pipe/pipe02.md3).</model>
 <real3 key="origin" name="World Origin">alternate method of setting XYZ origin of .md3 model included with entity (See Notes).</real3>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
--------- Q3MAP2 KEYS --------
-<targetname key="_targetname" name="Target Name">Used to attach a misc_model entity to this entity.</targetname>
-<real key="_lightmapscale" name="Lightmap Scale">Floating point value scaling the resolution of lightmaps on brushes/patches in this entity (default 1.0).</real>
-<integer key="_castshadows;_cs" name="Shadow Caster Level">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. > 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</integer>
-<integer key="_receiveshadows;_rs" name="Shadow Reciever Level">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. > 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</integer>
-<texture key="_celshader" name="Cel Shader">Sets the cel shader used for this geometry. Note: omit the "textures/" prefix.</texture>
--------- Q3MAP2 TERRAIN KEYS --------
-<texture key="_indexmap;alphamap" name="Terrain Blending Map">Path/name for the art file used to guide the mapping of textures on the terrain surface.</texture>
-<integer key="_layers;layers" name="Terrain Layers">Integer value is the number unique root shaders that will be use on the terrain.</integer>
-<texture key="_shader;shader" name="Terrain MetaShader">Path to the metashader used to assign textures to the terrain entity. Note: Omit the "textures/" prefix.</texture>
 -------- NOTES --------
-Setting the origin key is simply an alternate method to using an origin brush. When using the model2 key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.
+Setting the origin key is simply an alternate method to using an origin brush. When using the model key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.
 
 Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
 </group>
@@ -337,26 +289,16 @@ Normal sliding door entity. By default, the door will activate when player walks
 <string key="team" name="Team Name">assign the same team name to multiple doors that should operate together (see Notes).</string>
 <real key="light" name="Model Light Intensity">constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0).</real>
 <color key="color" name="Model Light Color">constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1).</color>
-<model key="model2" name="Model File">path/name of model to include (eg: models/mapobjects/pipe/pipe02.md3).</model>
+<model key="model" name="Model File">path/name of model to include (eg: models/mapobjects/pipe/pipe02.md3).</model>
 <real3 key="origin" name="World Origin">alternate method of setting XYZ origin of .md3 model included with entity (See Notes).</real3>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
--------- Q3MAP2 KEYS --------
-<targetname key="_targetname" name="Target Name">Used to attach a misc_model entity to this entity.</targetname>
-<real key="_lightmapscale" name="Lightmap Scale">Floating point value scaling the resolution of lightmaps on brushes/patches in this entity (default 1.0).</real>
-<integer key="_castshadows;_cs" name="Shadow Caster Level">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. > 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</integer>
-<integer key="_receiveshadows;_rs" name="Shadow Reciever Level">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. > 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</integer>
-<texture key="_celshader" name="Cel Shader">Sets the cel shader used for this geometry. Note: omit the "textures/" prefix.</texture>
--------- Q3MAP2 TERRAIN KEYS --------
-<texture key="_indexmap;alphamap" name="Terrain Blending Map">Path/name for the art file used to guide the mapping of textures on the terrain surface.</texture>
-<integer key="_layers;layers" name="Terrain Layers">Integer value is the number unique root shaders that will be use on the terrain.</integer>
-<texture key="_shader;shader" name="Terrain MetaShader">Path to the metashader used to assign textures to the terrain entity. Note: Omit the "textures/" prefix.</texture>
 -------- SPAWNFLAGS --------
 <flag key="START_OPEN" name="Start Open" bit="0">the door will spawn in the open state and operate in reverse.</flag>
 <flag key="CRUSHER" name="Crusher" bit="2">door will not reverse direction when blocked and will keep damaging player until he dies or gets out of the way.</flag>
 -------- NOTES --------
-Unlike in Quake 2, doors that touch are NOT automatically teamed. If you want doors to operate together, you have to team them manually by assigning the same team name to all of them. Setting the origin key is simply an alternate method to using an origin brush. When using the model2 key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.
+Unlike in Quake 2, doors that touch are NOT automatically teamed. If you want doors to operate together, you have to team them manually by assigning the same team name to all of them. Setting the origin key is simply an alternate method to using an origin brush. When using the model key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.
 
 Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
 </group>
@@ -369,15 +311,6 @@ Target this entity with a misc_model to have the model attached to the entity (s
 This is not an entity as such. It is strictly an editor utility to group world brushes and patches together for convenience (selecting, moving, copying, etc). You cannot group entities with this.
 -------- OLD TERRAIN KEYS (note: obsolete with Q3Map2) --------
 <boolean key="terrain" name="Is Terrain">this is an on/off flag. When set to 1, the entity becomes a terrain entity. Note: unecessary when compiling with Q3Map2. See Q3Map2 keys.</boolean>
--------- Q3MAP2 KEYS --------
-<real key="_lightmapscale" name="Lightmap Scale">Floating point value scaling the resolution of lightmaps on brushes/patches in this entity (default 1.0).</real>
-<integer key="_castshadows;_cs" name="Shadow Caster Level">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. > 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</integer>
-<integer key="_receiveshadows;_rs" name="Shadow Reciever Level">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. > 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</integer>
-<texture key="_celshader" name="Cel Shader">Sets the cel shader used for this geometry. Note: omit the "textures/" prefix.</texture>
--------- Q3MAP2 TERRAIN KEYS --------
-<texture key="_indexmap;alphamap" name="Terrain Blending Map">Path/name for the art file used to guide the mapping of textures on the terrain surface.</texture>
-<integer key="_layers;layers" name="Terrain Layers">Integer value is the number unique root shaders that will be use on the terrain.</integer>
-<texture key="_shader;shader" name="Terrain MetaShader">Path to the metashader used to assign textures to the terrain entity. Note: Omit the "textures/" prefix.</texture>
 -------- NOTES --------
 The TAB key can be used to flip through the component pieces of a selected func_group entity, isolating individual components. To make a func_group into a terrain entity, refer to the Terrain Construction documentation.
 </group>
@@ -393,25 +326,15 @@ Solid entity that describes a pendulum back and forth rotation movement. Rotates
 <real key="speed" name="Max Swing Angle">angle of swing arc in either direction from initial position (default 30).</real>
 <real key="phase" name="Swing Phase">sets the start offset of the swinging cycle. Values must be 0 &lt; phase &lt; 1. Any integer phase value is the same as no offset (default 0).</real>
 <sound key="noise" name="Sound File">path/name of .wav file to play. Use looping sounds only (eg. sound/world/drone6.wav).</sound>
-<model key="model2" name="Model File">path/name of model to include (eg: models/mapobjects/jets/jets01.md3).</model>
+<model key="model" name="Model File">path/name of model to include (eg: models/mapobjects/jets/jets01.md3).</model>
 <real3 key="origin" name="World Origin">alternate method of setting XYZ origin of entity's rotation axis and .md3 model included with entity (default "0 0 0" - See Notes).</real3>
 <real key="light" name="Model Light Intensity">constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0).</real>
 <color key="color" name="Model Light Color">constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1).</color>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
--------- Q3MAP2 KEYS --------
-<targetname key="_targetname" name="Target Name">Used to attach a misc_model entity to this entity.</targetname>
-<real key="_lightmapscale" name="Lightmap Scale">Floating point value scaling the resolution of lightmaps on brushes/patches in this entity (default 1.0).</real>
-<integer key="_castshadows;_cs" name="Shadow Caster Level">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. > 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</integer>
-<integer key="_receiveshadows;_rs" name="Shadow Reciever Level">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. > 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</integer>
-<texture key="_celshader" name="Cel Shader">Sets the cel shader used for this geometry. Note: omit the "textures/" prefix.</texture>
--------- Q3MAP2 TERRAIN KEYS --------
-<texture key="_indexmap;alphamap" name="Terrain Blending Map">Path/name for the art file used to guide the mapping of textures on the terrain surface.</texture>
-<integer key="_layers;layers" name="Terrain Layers">Integer value is the number unique root shaders that will be use on the terrain.</integer>
-<texture key="_shader;shader" name="Terrain MetaShader">Path to the metashader used to assign textures to the terrain entity. Note: Omit the "textures/" prefix.</texture>
 -------- NOTES --------
-You need to have an origin brush as part of this entity. The center of that brush will be the point through which the rotation axis passes. Setting the origin key is simply an alternate method to using an origin brush. Pendulum will rotate along the X axis by default. Very crude operation: pendulum cannot rotate along Z axis, the speed of swing (frequency) is not adjustable. When using the model2 key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.
+You need to have an origin brush as part of this entity. The center of that brush will be the point through which the rotation axis passes. Setting the origin key is simply an alternate method to using an origin brush. Pendulum will rotate along the X axis by default. Very crude operation: pendulum cannot rotate along Z axis, the speed of swing (frequency) is not adjustable. When using the model key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.
 
 Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
 </group>
@@ -430,23 +353,13 @@ Rising platform the player can ride to reach higher places. Plats must always be
 <targetname key="targetname" name="Target Name">if set, the trigger that points to this will raise the plat each time it fires. The plat raises and comes back down a second later if no player is on it.</targetname>
 <real key="light" name="Model Light Intensity">constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0).</real>
 <color key="color" name="Model Light Color">constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1).</color>
-<model key="model2" name="Model File">path/name of model to include (eg: models/mapobjects/pipe/pipe02.md3).</model>
+<model key="model" name="Model File">path/name of model to include (eg: models/mapobjects/pipe/pipe02.md3).</model>
 <real3 key="origin" name="World Origin">alternate method of setting XYZ origin of .md3 model included with entity (See Notes).</real3>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
--------- Q3MAP2 KEYS --------
-<targetname key="_targetname" name="Target Name">Used to attach a misc_model entity to this entity.</targetname>
-<real key="_lightmapscale" name="Lightmap Scale">Floating point value scaling the resolution of lightmaps on brushes/patches in this entity (default 1.0).</real>
-<integer key="_castshadows;_cs" name="Shadow Caster Level">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. > 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</integer>
-<integer key="_receiveshadows;_rs" name="Shadow Reciever Level">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. > 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</integer>
-<texture key="_celshader" name="Cel Shader">Sets the cel shader used for this geometry. Note: omit the "textures/" prefix.</texture>
--------- Q3MAP2 TERRAIN KEYS --------
-<texture key="_indexmap;alphamap" name="Terrain Blending Map">Path/name for the art file used to guide the mapping of textures on the terrain surface.</texture>
-<integer key="_layers;layers" name="Terrain Layers">Integer value is the number unique root shaders that will be use on the terrain.</integer>
-<texture key="_shader;shader" name="Terrain MetaShader">Path to the metashader used to assign textures to the terrain entity. Note: Omit the "textures/" prefix.</texture>
 -------- NOTES --------
-By default, the total amount of vertical travel of a platform is implicitly determined by the overall vertical size of the brushes of which it's made minus the lip value. But if the "height" key is used, then the total amount of vertical travel of the plat will be exactly that value regardless of the shape and size of the plat and regardless of the value of the "lip" key. Using the "height" key is the best method for any kind of platforms and the only possible one for thin plats which need to travel vertical distances many times their own thickness. Setting the origin key is simply an alternate method to using an origin brush. When using the model2 key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.
+By default, the total amount of vertical travel of a platform is implicitly determined by the overall vertical size of the brushes of which it's made minus the lip value. But if the "height" key is used, then the total amount of vertical travel of the plat will be exactly that value regardless of the shape and size of the plat and regardless of the value of the "lip" key. Using the "height" key is the best method for any kind of platforms and the only possible one for thin plats which need to travel vertical distances many times their own thickness. Setting the origin key is simply an alternate method to using an origin brush. When using the model key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.
 
 There is a way to make plats play proper sounds. Just create a sound\movers\plats folder under baseq3 and put 2 sounds named pt1_strt.wav and pt1_end.wav in it. Those can be the renamed sounds from the Q2 plats or renamed copies of the sound\movers\doors sounds you can extract from your pak0.pk3 file or new custom sounds if you're up to it. Thanks to Fragzilla for the tip.
 
@@ -462,28 +375,18 @@ Solid entity that rotates continuously. Rotates on the Z axis by default and req
 -------- KEYS --------
 <real key="speed" name="Rotation Speed">determines how fast entity rotates (default 100).</real>
 <sound key="noise" name="Sound File">path/name of .wav file to play. Use looping sounds only (eg. sound/world/drone6.wav).</sound>
-<model key="model2" name="Model File">path/name of model to include (eg: models/mapobjects/bitch/fembotbig.md3).</model>
+<model key="model" name="Model File">path/name of model to include (eg: models/mapobjects/bitch/fembotbig.md3).</model>
 <real3 key="origin" name="World Origin">alternate method of setting XYZ origin of entity's rotation axis and .md3 model included with entity (default "0 0 0" - See Notes).</real3>
 <real key="light" name="Model Light Intensity">constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0).</real>
 <color key="color" name="Model Light Color">constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1).</color>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
--------- Q3MAP2 KEYS --------
-<targetname key="_targetname" name="Target Name">Used to attach a misc_model entity to this entity.</targetname>
-<real key="_lightmapscale" name="Lightmap Scale">Floating point value scaling the resolution of lightmaps on brushes/patches in this entity (default 1.0).</real>
-<integer key="_castshadows;_cs" name="Shadow Caster Level">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. > 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</integer>
-<integer key="_receiveshadows;_rs" name="Shadow Reciever Level">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. > 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</integer>
-<texture key="_celshader" name="Cel Shader">Sets the cel shader used for this geometry. Note: omit the "textures/" prefix.</texture>
--------- Q3MAP2 TERRAIN KEYS --------
-<texture key="_indexmap;alphamap" name="Terrain Blending Map">Path/name for the art file used to guide the mapping of textures on the terrain surface.</texture>
-<integer key="_layers;layers" name="Terrain Layers">Integer value is the number unique root shaders that will be use on the terrain.</integer>
-<texture key="_shader;shader" name="Terrain MetaShader">Path to the metashader used to assign textures to the terrain entity. Note: Omit the "textures/" prefix.</texture>
 -------- SPAWNFLAGS --------
 <flag key="X_AXIS" name="X Axis" bit="2">entity will rotate along the X axis.</flag>
 <flag key="Y_AXIS" name="Y Axis" bit="3">entity will rotate along the Y axis.</flag>
 -------- NOTES --------
-You need to have an origin brush as part of this entity. The center of that brush will be the point through which the rotation axis passes. Setting the origin key is simply an alternate method to using an origin brush. It will rotate along the Z axis by default. You can check either the X_AXIS or Y_AXIS box to change that. When using the model2 key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.
+You need to have an origin brush as part of this entity. The center of that brush will be the point through which the rotation axis passes. Setting the origin key is simply an alternate method to using an origin brush. It will rotate along the Z axis by default. You can check either the X_AXIS or Y_AXIS box to change that. When using the model key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.
 
 Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
 </group>
@@ -495,7 +398,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
 <group name="func_static" color="0 .5 .8">
 Static non-solid bspmodel. Can be used for conditional walls and models.
 -------- KEYS --------
-<model key="model2" name="Model File">path/name of model to include (eg: models/mapobjects/bitch/fembotbig.md3).</model>
+<model key="model" name="Model File">path/name of model to include (eg: models/mapobjects/bitch/fembotbig.md3).</model>
 <real3 key="origin" name="World Origin">alternate method of setting XYZ origin of .md3 model included with entity (See Notes).</real3>
 <real key="light" name="Model Light Intensity">constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0).</real>
 <color key="color" name="Model Light Color">constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1).</color>
@@ -503,18 +406,8 @@ Static non-solid bspmodel. Can be used for conditional walls and models.
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
--------- Q3MAP2 KEYS --------
-<targetname key="_targetname" name="Target Name">Used to attach a misc_model entity to this entity.</targetname>
-<real key="_lightmapscale" name="Lightmap Scale">Floating point value scaling the resolution of lightmaps on brushes/patches in this entity (default 1.0).</real>
-<integer key="_castshadows;_cs" name="Shadow Caster Level">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. > 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</integer>
-<integer key="_receiveshadows;_rs" name="Shadow Reciever Level">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. > 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</integer>
-<texture key="_celshader" name="Cel Shader">Sets the cel shader used for this geometry. Note: omit the "textures/" prefix.</texture>
--------- Q3MAP2 TERRAIN KEYS --------
-<texture key="_indexmap;alphamap" name="Terrain Blending Map">Path/name for the art file used to guide the mapping of textures on the terrain surface.</texture>
-<integer key="_layers;layers" name="Terrain Layers">Integer value is the number unique root shaders that will be use on the terrain.</integer>
-<texture key="_shader;shader" name="Terrain MetaShader">Path to the metashader used to assign textures to the terrain entity. Note: Omit the "textures/" prefix.</texture>
 -------- NOTES --------
-When using the model2 key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value. If a model is included with a targeted func_static, the brush(es) of the entity will be removed from the game but the .md3 model won't: it will automatically be moved to the (0 0 0) world origin so you should NOT include an .md3 model to a targeted func_static.
+When using the model key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value. If a model is included with a targeted func_static, the brush(es) of the entity will be removed from the game but the .md3 model won't: it will automatically be moved to the (0 0 0) world origin so you should NOT include an .md3 model to a targeted func_static.
 
 Because the map has only a single bot navigation file, func_static's cannot be used to make significant changes in game play flow between differing game types.
 
@@ -550,23 +443,13 @@ Trains are moving solids that follow a string of path_corner entities. Trains in
 -------- KEYS --------
 <real key="speed" name="Move Speed">speed of displacement of train (default 100 or overridden by speed value of path).</real>
 <target key="target" name="Target">this points to the first path_corner of the path which is also the spawn location of the train's origin.</target>
-<model key="model2" name="Model File">path/name of model to include (eg: models/mapobjects/pipe/pipe02.md3).</model>
+<model key="model" name="Model File">path/name of model to include (eg: models/mapobjects/pipe/pipe02.md3).</model>
 <real3 key="origin" name="World Origin">alternate method of setting XYZ origin of the train's brush(es) and .md3 model included with entity (See Notes).</real3>
 <real key="light" name="Model Light Intensity">constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0).</real>
 <color key="color" name="Model Light Color">constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1).</color>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
--------- Q3MAP2 KEYS --------
-<targetname key="_targetname" name="Target Name">Used to attach a misc_model entity to this entity.</targetname>
-<real key="_lightmapscale" name="Lightmap Scale">Floating point value scaling the resolution of lightmaps on brushes/patches in this entity (default 1.0).</real>
-<integer key="_castshadows;_cs" name="Shadow Caster Level">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. > 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</integer>
-<integer key="_receiveshadows;_rs" name="Shadow Reciever Level">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. > 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</integer>
-<texture key="_celshader" name="Cel Shader">Sets the cel shader used for this geometry. Note: omit the "textures/" prefix.</texture>
--------- Q3MAP2 TERRAIN KEYS --------
-<texture key="_indexmap;alphamap" name="Terrain Blending Map">Path/name for the art file used to guide the mapping of textures on the terrain surface.</texture>
-<integer key="_layers;layers" name="Terrain Layers">Integer value is the number unique root shaders that will be use on the terrain.</integer>
-<texture key="_shader;shader" name="Terrain MetaShader">Path to the metashader used to assign textures to the terrain entity. Note: Omit the "textures/" prefix.</texture>
 -------- NOTES --------
 1. Trains always start on in the game.
 2. Trains do not damage the played when blocked.
@@ -574,7 +457,7 @@ Trains are moving solids that follow a string of path_corner entities. Trains in
 4. Trains are not triggerable or toggle-able.
 5. Trains cannot be block-stopped just by getting in their way, the player must be wedged between the train and another obstacle to block it.
 
-Setting the origin key is simply an alternate method to using an origin brush. When using the model2 key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.
+Setting the origin key is simply an alternate method to using an origin brush. When using the model key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.
 
 Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
 </group>
@@ -587,7 +470,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
 Static non-solid bspmodel. Can be used for conditional walls and models.
 -------- KEYS --------
 <real3 key="origin" name="World Origin">alternate method of setting XYZ origin of .md3 model included with entity (See Notes).</real3>
-<model key="model2" name="Model File">path/name of model to include (eg: models/mapobjects/bitch/fembotbig.md3).</model>
+<model key="model" name="Model File">path/name of model to include (eg: models/mapobjects/bitch/fembotbig.md3).</model>
 <real key="light" name="Model Light Intensity">constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0).</real>
 <color key="color" name="Model Light Color">constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1).</color>
 <targetname key="targetname" name="Target Name">NOT SUPPORTED BY RENDERER - if set, a func_button or trigger can make entity disappear from the game (See Notes).</targetname>
@@ -596,22 +479,8 @@ Static non-solid bspmodel. Can be used for conditional walls and models.
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
 -------- XREAL KEYS ---------
 <string key="luaThink" name="Lua Think Function"></string>
--------- Q3MAP2 KEYS --------
-<!--
-<targetname key="_targetname" name="Target Name">Used to attach a misc_model entity to this entity.</targetname>
-<real key="_lightmapscale" name="Lightmap Scale">Floating point value scaling the resolution of lightmaps on brushes/patches in this entity (default 1.0).</real>
-<integer key="_castshadows;_cs" name="Shadow Caster Level">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. > 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</integer>
-<integer key="_receiveshadows;_rs" name="Shadow Reciever Level">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. > 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</integer>
-<texture key="_celshader" name="Cel Shader">Sets the cel shader used for this geometry. Note: omit the "textures/" prefix.</texture>
--->
--------- Q3MAP2 TERRAIN KEYS --------
-<!--
-<texture key="_indexmap;alphamap" name="Terrain Blending Map">Path/name for the art file used to guide the mapping of textures on the terrain surface.</texture>
-<integer key="_layers;layers" name="Terrain Layers">Integer value is the number unique root shaders that will be use on the terrain.</integer>
-<texture key="_shader;shader" name="Terrain MetaShader">Path to the metashader used to assign textures to the terrain entity. Note: Omit the "textures/" prefix.</texture>
--->
 -------- NOTES --------
-When using the model2 key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value. If a model is included with a targeted func_static, the brush(es) of the entity will be removed from the game but the .md3 model won't: it will automatically be moved to the (0 0 0) world origin so you should NOT include an .md3 model to a targeted func_static.
+When using the model key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value. If a model is included with a targeted func_static, the brush(es) of the entity will be removed from the game but the .md3 model won't: it will automatically be moved to the (0 0 0) world origin so you should NOT include an .md3 model to a targeted func_static.
 
 Because the map has only a single bot navigation file, func_static's cannot be used to make significant changes in game play flow between differing game types.
 
@@ -1136,16 +1005,16 @@ LIGHT ENTITY
 <point name="light" color=".65 .65 1" box="-8 -8 -8 8 8 8">
 Non-displayed point light source. The -pointscale and -scale arguments to Q3Map2 affect the brightness of these lights. The -skyscale argument affects brightness of entity sun lights.
 -------- KEYS --------
-<real key="_light;light" name="Light Intensity">overrides the default 300 intensity.</real>
 <color key="color" name="Light Color">weighted RGB value of light color (default white - 1.0 1.0 1.0).</color>
 <target key="target" name="Target">Lights pointed at a target will be spotlights.</target>
+<!--
+<real key="_light;light" name="Light Intensity">overrides the default 300 intensity.</real>
 <real key="radius" name="Spotlight Radius">overrides the default 64 unit radius of a spotlight at the target point.</real>
-<texture key="texture" name="Light Material Shader">Shader to use for light attenuation.</texture>
+-->
+<string key="texture" name="Light Material Shader">Shader to use for light attenuation.</string>
 <real3 key="light_radius" name="Boxed Light Radius"></real3>
--------- Q3MAP2 KEYS --------
-<boolean key="_sun" name="Directional">Set this key to 1 on a spotlight to make an infinite sun light.</boolean>
-<real key="_sun" name="Linear Fade">Fades light attenuation. Only affects linear lights.</real>
-<real key="_sun" name="Intensity Scale">Scales light attentation, from SOF2/JK2. Scales the "light" value.</real>
+<boolean key="noshadows" name="No Shadows">Set this key to 1 to disable shadow casting.</boolean>
+<boolean key="nospecular" name="No Specular Term">Set this key to 1 to disable specular rendering.</boolean>
 -------- SPAWNFLAGS --------
 <flag key="LINEAR" name="Linear Falloff" bit="0">Use a linear falloff. Default is inverse distance squared (more realistic).</flag>
 <flag key="NOANGLE" name="No Angle Attenuation" bit="1">Ignore angle attenuation.</flag>
@@ -1165,17 +1034,6 @@ Generic placeholder for inserting MD3 models in game. Requires compilation of ma
 -------- KEYS --------
 <angle key="angle" name="Yaw Angle">direction in which model will be oriented.</angle>
 <model key="model" name="Model File">path/name of model to use (eg: models/mapobjects/teleporter/teleporter.md3).</model>
--------- Q3MAP2 KEYS --------
-<angles key="angles" name="Pitch Yaw Roll">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
-<real key="modelscale" name="Uniform Scale">Floating-point value used to scale a model up or down (default 1.0).</real>
-<real3 key="modelscale_vec" name="Scale XYZ">Floating-point vector used to scale a model's axes individually (default 1.0 1.0 1.0).</real3>
-<array key="_remap" name="Shader Remaps">Used to remap textures/shaders in the model. To remap all shaders to a given shader, use "*;models/mymodel/mytexture". To remap a specific shader, use "models/mymodel/old;models/mymodel/new".</array>
-<target key="target" name="Target">Used to attach the misc_model to a brush entity, where its "targetname" key is the same value.</target>
-<real key="_lightmapscale" name="Lightmap Scale">Floating point value scaling the resolution of lightmaps on this model (if model is using lightmapped shaders) (default 1.0).</real>
-<integer key="_castshadows;_cs" name="Shadow Caster Level">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. > 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</integer>
-<integer key="_receiveshadows;_rs" name="Shadow Reciever Level">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. > 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</integer>
-<texture key="_celshader" name="Cel Shader">Sets the cel shader used for this geometry. Note: omit the "textures/" prefix.</texture>
-
 </point>
 
 <!--
@@ -1971,21 +1829,5 @@ Only used for the world.
 <real key="gravity" name="Gravity">gravity of level (default is normal gravity: 800).</real>
 <integer3 key="gridsize" name="Dynamic Light Granularity">granularity of the lightgrid created by q3map. Value is three integers separated by spaces, representing number of units between grid points in X Y Z. Default gridsize value is 128 128 256. Use larger powers of 2 to reduce BSP size and compile time on very large maps.</integer3>
 <integer key="_blocksize" name="BSP Block Size">q3map always splits the BSP tree along the planes X=_blocksize*n and Y=_blocksize*n. Default _blocksize value is 1024. Increase the blocksize using larger powers of 2 to reduce compile times on very large maps with a low structural brush density.</integer>
--------- Q3MAP2 KEYS --------
-<real key="_minlight" name="Min Lightmap Intensity">Minimum light value, levelwide. Uses the _color key to set color. Does not add unlike ambient.</real>
-<real key="_minvertexlight" name="Min Vertex Intensity">Minimum vertex lighting, levelwide.</real>
-<real key="_mingridlight" name="Min Dynamic Intensity">Minimum lightgrid (dynamic entity lighting) levelwide.</real>
-<boolean key="_keeplights" name="Keep Light Entities">Keep light entities in the BSP. Normally stripped out by the BSP process and read from the .map file by the lighting phase.</boolean>
-<boolean key="_noshadersun" name="Ignore Shader Sun">Ignore q3map_sun/sun directives in sky shaders and ONLY use entity sun lights.</boolean>
-<real key="_farplanedist" name="Far Clip Distance">Limit on how many units the vis phase of compilation can see. Used in combination with level-wide fog, it can help reduce r_speeds on large, open maps.</real>
-<texture key="_foghull" name="Fog Hull Shader">Shader to use for "fog hull." Foghull shader should be a sky shader. Omit the "textures/" prefix.</texture>
-<real key="_lightmapscale" name="Lightmap Scale">Floating point value scaling the resolution of lightmaps on brushes/patches in the world. Can be overridden in func_group (or other entities) (default 1.0).</real>
-<integer key="_castshadows;_cs" name="Shadow Caster Level">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. > 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</integer>
-<integer key="_receiveshadows;_rs" name="Shadow Reciever Level">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. > 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</integer>
-<texture key="_celshader" name="Cel Shader">Sets the cel shader used for this geometry. Note: omit the "textures/" prefix.</texture> Overridable in entities.
--------- Q3MAP2 TERRAIN KEYS --------
-<texture key="_indexmap;alphamap" name="Terrain Blending Map">Path/name for the art file used to guide the mapping of textures on the terrain surface.</texture>
-<integer key="_layers;layers" name="Terrain Layers">Integer value is the number unique root shaders that will be use on the terrain.</integer>
-<texture key="_shader;shader" name="Terrain MetaShader">Path to the metashader used to assign textures to the terrain entity. Note: Omit the "textures/" prefix.</texture>
 </group>
 </classes>
