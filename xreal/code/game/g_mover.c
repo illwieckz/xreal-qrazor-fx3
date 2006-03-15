@@ -1057,7 +1057,7 @@ START_OPEN	the door to moves to its destination when spawned, and operate in rev
 NOMONSTER	monsters will not trigger this door
 
 "model2"	.md3 model to also draw
-"angle"		determines the opening direction
+"movedir"	determines the opening direction
 "targetname" if set, no touch field will be spawned and a remote button or trigger field activates the door.
 "speed"		movement speed (100 default)
 "wait"		wait before returning (3 default, -1 = never return)
@@ -1099,7 +1099,12 @@ void SP_func_door(gentity_t * ent)
 
 	// calculate second position
 	trap_SetBrushModel(ent, ent->model);
-	G_SetMovedir(ent->s.angles, ent->movedir);
+	
+	if(VectorCompare(ent->movedir, vec3_origin))
+	{
+		// movedir was not set directly so use entity's angles
+		G_SetMovedir(ent->s.angles, ent->movedir);
+	}
 	abs_movedir[0] = fabs(ent->movedir[0]);
 	abs_movedir[1] = fabs(ent->movedir[1]);
 	abs_movedir[2] = fabs(ent->movedir[2]);
@@ -1332,7 +1337,7 @@ void Touch_Button(gentity_t * ent, gentity_t * other, trace_t * trace)
 When a button is touched, it moves some distance in the direction of it's angle, triggers all of it's targets, waits some time, then returns to it's original position where it can be triggered again.
 
 "model2"	.md3 model to also draw
-"angle"		determines the opening direction
+"movedir"	determines the opening direction
 "target"	all entities with a matching targetname will be used
 "speed"		override the default 40 speed
 "wait"		override the default 1 second wait (-1 = never return)
@@ -1369,7 +1374,11 @@ void SP_func_button(gentity_t * ent)
 
 	G_SpawnFloat("lip", "4", &lip);
 
-	G_SetMovedir(ent->s.angles, ent->movedir);
+	if(VectorCompare(ent->movedir, vec3_origin))
+	{
+		// movedir was not set directly so use entity's angles
+		G_SetMovedir(ent->s.angles, ent->movedir);
+	}
 	abs_movedir[0] = fabs(ent->movedir[0]);
 	abs_movedir[1] = fabs(ent->movedir[1]);
 	abs_movedir[2] = fabs(ent->movedir[2]);

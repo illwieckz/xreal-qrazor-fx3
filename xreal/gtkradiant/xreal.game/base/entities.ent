@@ -253,7 +253,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
 <group name="func_button" color="0 .5 .8">
 When a button is touched by a player, it moves in the direction set by the "angle" key, triggers all its targets, stays pressed by an amount of time set by the "wait" key, then returns to it's original position where it can be operated again.
 -------- KEYS --------
-<direction key="angle" name="Direction">determines the direction in which the button will move (up = -1, down = -2).</direction>
+<direction key="movedir" name="Direction">determines the direction in which the button will move (up = -1, down = -2).</direction>
 <target key="target" name="Target">all entities with a matching targetname will be triggered.</target>
 <real key="speed" name="Move Speed">speed of button's displacement (default 40).</real>
 <real key="wait" name="Return Delay">number of seconds button stays pressed (default 1, -1 = return immediately).</real>
@@ -279,7 +279,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
 <group name="func_door" color="0 .5 .8">
 Normal sliding door entity. By default, the door will activate when player walks close to it or when damage is inflicted to it.
 -------- KEYS --------
-<direction key="angle" name="Direction">determines the opening direction of door (up = -1, down = -2).</direction>
+<direction key="movedir" name="Direction">determines the opening direction of door (up = -1, down = -2).</direction>
 <real key="speed" name="Move Speed">determines how fast the door moves (default 100).</real>
 <real key="wait" name="Return Delay">number of seconds before door returns (default 2, -1 = return immediately)</real>
 <real key="lip" name="Lip">lip remaining at end of move (default 8)</real>
