@@ -924,36 +924,6 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 		oldLight = light;
 		oldEntity = entity;
 		oldShader = shader;
-
-		// Tr3B - draw useful info so we can see how bboxes intersect
-		if(r_showLightInteractions->integer)
-		{
-			if(*surface == SF_FACE)
-			{
-				srfSurfaceFace_t *face;
-
-				face = (srfSurfaceFace_t *) surface;
-				R_DebugBoundingBox(vec3_origin, face->bounds[0], face->bounds[1], colorYellow);
-			}
-			else if(*surface == SF_GRID)
-			{
-				srfGridMesh_t  *grid;
-
-				grid = (srfGridMesh_t *) surface;
-				R_DebugBoundingBox(vec3_origin, grid->meshBounds[0], grid->meshBounds[1], colorMagenta);
-			}
-			else if(*surface == SF_TRIANGLES)
-			{
-				srfTriangles_t *tri;
-
-				tri = (srfTriangles_t *) surface;
-				R_DebugBoundingBox(vec3_origin, tri->bounds[0], tri->bounds[1], colorCyan);
-			}
-			else if(*surface == SF_MD3)
-			{
-				R_DebugBoundingBox(vec3_origin, entity->localBounds[0], entity->localBounds[1], colorMdGrey);
-			}
-		}
 	}
 
 	backEnd.refdef.floatTime = originalTime;
@@ -1433,7 +1403,7 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 			GL_State(0);
 			GL_SelectTexture(0);
 			GL_Bind(tr.whiteImage);
-			
+
 			dl = backEnd.refdef.dlights;
 			for(i = 0; i < backEnd.refdef.numDlights; i++, dl++)
 			{
@@ -1461,7 +1431,7 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 				qglColor4fv(colorBlue);
 				qglVertex3fv(vec3_origin);
 				qglVertex3fv(up);
-				
+
 				qglColor4fv(colorYellow);
 				qglVertex3fv(vec3_origin);
 				VectorSubtract(dl->origin, backEnd.or.origin, tmp);
@@ -1469,19 +1439,19 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 				dl->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
 				dl->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
 				qglVertex3fv(dl->transformed);
-				
+
 				qglColor4fv(colorMagenta);
 				qglVertex3fv(vec3_origin);
 				qglVertex3fv(dl->l.target);
-				
+
 				qglColor4fv(colorCyan);
 				qglVertex3fv(vec3_origin);
 				qglVertex3fv(dl->l.right);
-				
+
 				qglColor4fv(colorWhite);
 				qglVertex3fv(vec3_origin);
 				qglVertex3fv(dl->l.up);
-				
+
 				qglColor4fv(colorMdGrey);
 				qglVertex3fv(vec3_origin);
 				VectorAdd(dl->l.target, dl->l.up, tmp);
@@ -1489,7 +1459,7 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 
 				qglEnd();
 				//qglLineWidth(1);
-				
+
 				R_DebugBoundingBox(vec3_origin, dl->localBounds[0], dl->localBounds[1], colorRed);
 
 				// go back to the world modelview matrix
@@ -1506,7 +1476,7 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 			GL_State(0);
 			GL_SelectTexture(0);
 			GL_Bind(tr.whiteImage);
-			
+
 			for(i = 0; i < tr.world->numDlights; i++)
 			{
 				dl = &tr.world->dlights[i];
@@ -1535,7 +1505,7 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 				qglColor4fv(colorBlue);
 				qglVertex3fv(vec3_origin);
 				qglVertex3fv(up);
-				
+
 				qglColor4fv(colorYellow);
 				qglVertex3fv(vec3_origin);
 				VectorSubtract(dl->origin, backEnd.or.origin, tmp);
@@ -1543,19 +1513,19 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 				dl->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
 				dl->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
 				qglVertex3fv(dl->transformed);
-				
+
 				qglColor4fv(colorMagenta);
 				qglVertex3fv(vec3_origin);
 				qglVertex3fv(dl->l.target);
-				
+
 				qglColor4fv(colorCyan);
 				qglVertex3fv(vec3_origin);
 				qglVertex3fv(dl->l.right);
-				
+
 				qglColor4fv(colorWhite);
 				qglVertex3fv(vec3_origin);
 				qglVertex3fv(dl->l.up);
-				
+
 				qglColor4fv(colorMdGrey);
 				qglVertex3fv(vec3_origin);
 				VectorAdd(dl->l.target, dl->l.up, tmp);
@@ -1563,23 +1533,96 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 
 				qglEnd();
 				//qglLineWidth(1);
-				
-				//R_DebugBoundingBox(vec3_origin, dl->localBounds[0], dl->localBounds[1], colorBlue);
+
+				R_DebugBoundingBox(vec3_origin, dl->localBounds[0], dl->localBounds[1], colorBlue);
 
 				// go back to the world modelview matrix
 				backEnd.or = backEnd.viewParms.world;
 				qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 
-				//R_DebugBoundingBox(vec3_origin, dl->worldBounds[0], dl->worldBounds[1], colorYellow);
+				R_DebugBoundingBox(vec3_origin, dl->worldBounds[0], dl->worldBounds[1], colorYellow);
 			}
 		}
+	}
+
+	if(r_showLightInteractions->integer)
+	{
+		interaction_t  *ia;
+		int             iaCount;
+		trRefEntity_t  *entity;
+		surfaceType_t  *surface;
+
+		GL_Program(0);
+		GL_State(0);
+		GL_SelectTexture(0);
+		GL_Bind(tr.whiteImage);
+
+		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
+		{
+			backEnd.currentEntity = entity = ia->entity;
+			surface = ia->surface;
+
+			R_RotateForEntity(entity, &backEnd.viewParms, &backEnd.or);
+			qglLoadMatrixf(backEnd.or.modelViewMatrix);
+
+			if(*surface == SF_FACE)
+			{
+				srfSurfaceFace_t *face;
+
+				face = (srfSurfaceFace_t *) surface;
+				R_DebugBoundingBox(vec3_origin, face->bounds[0], face->bounds[1], colorYellow);
+			}
+			else if(*surface == SF_GRID)
+			{
+				srfGridMesh_t  *grid;
+
+				grid = (srfGridMesh_t *) surface;
+				R_DebugBoundingBox(vec3_origin, grid->meshBounds[0], grid->meshBounds[1], colorMagenta);
+			}
+			else if(*surface == SF_TRIANGLES)
+			{
+				srfTriangles_t *tri;
+
+				tri = (srfTriangles_t *) surface;
+				R_DebugBoundingBox(vec3_origin, tri->bounds[0], tri->bounds[1], colorCyan);
+			}
+			else if(*surface == SF_MD3)
+			{
+				R_DebugBoundingBox(vec3_origin, entity->localBounds[0], entity->localBounds[1], colorMdGrey);
+			}
+			
+			if(!ia->next)
+			{
+				if(iaCount < (numInteractions - 1))
+				{
+					// jump to next interaction and continue
+					ia++;
+					iaCount++;
+				}
+				else
+				{
+					// increase last time to leave for loop
+					iaCount++;
+				}
+			}
+			else
+			{
+				// just continue
+				ia = ia->next;
+				iaCount++;
+			}
+		}
+		
+		// go back to the world modelview matrix
+		backEnd.or = backEnd.viewParms.world;
+		qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 	}
 
 	if(r_showEntityTransforms->integer)
 	{
 		trRefEntity_t  *ent;
 		int             i;
-		
+
 		GL_Program(0);
 		GL_State(0);
 		GL_SelectTexture(0);
@@ -1611,6 +1654,12 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 		interaction_t  *ia;
 		int             iaCount;
 
+		GL_Program(0);
+		GL_SelectTexture(0);
+		GL_Bind(tr.whiteImage);
+
+		GL_State(GLS_POLYMODE_LINE);
+
 		// set 2D virtual screen size
 		qglPushMatrix();
 		qglLoadIdentity();
@@ -1621,12 +1670,6 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 		qglOrtho(backEnd.viewParms.viewportX,
 				 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
 				 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
-
-		GL_Program(0);
-		GL_SelectTexture(0);
-		GL_Bind(tr.whiteImage);
-
-		GL_State(GLS_POLYMODE_LINE);
 
 		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
 		{
@@ -1668,6 +1711,7 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 		qglPopMatrix();
 	}
 }
+
 
 
 /*

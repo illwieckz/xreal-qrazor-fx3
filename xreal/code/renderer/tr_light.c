@@ -56,6 +56,7 @@ Determine which dynamic lights may effect this bmodel
 */
 void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefDlight_t * light)
 {
+#if 1
 	int             i;
 	msurface_t     *surf;
 	bmodel_t       *bModel = NULL;
@@ -113,10 +114,15 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefDlight_t * light)
 		   ((srfTriangles_t *) surf->data)->dlightBits[tr.smpFrame] = mask;
 		   }
 		 */
+		
+		// skip all surfaces that don't matter for lighting only pass
+		if(surf->shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY))
+			continue;
 
 		R_AddDlightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, iaType);
 		tr.pc.c_dlightSurfaces++;
 	}
+#endif
 }
 
 

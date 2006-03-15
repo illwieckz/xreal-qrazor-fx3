@@ -527,6 +527,10 @@ void R_AddMD3Interactions(trRefEntity_t * ent, trRefDlight_t * light)
 			shader = tr.shaders[md3Shader->shaderIndex];
 		}
 		
+		// skip all surfaces that don't matter for lighting only pass
+		if(shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY))
+			continue;
+		
 		// we will add shadows even if the main object isn't visible in the view
 
 		// don't add third_person objects if not viewing through a portal

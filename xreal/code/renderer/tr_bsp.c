@@ -2347,7 +2347,7 @@ void R_LoadLightGrid(lump_t * l)
 	world_t        *w;
 	float          *wMins, *wMaxs;
 	
-	ri.Printf(PRINT_ALL, "...loading lightgrid\n");
+	ri.Printf(PRINT_ALL, "...loading light grid\n");
 
 	w = &s_worldData;
 
@@ -2666,7 +2666,7 @@ void R_LoadEntities(lump_t * l)
 				isLight = qtrue;
 			}
 			// check for origin
-			else if(!Q_stricmp(keyname, "origin"))// || !Q_stricmp(keyname, "light_origin"))
+			else if(!Q_stricmp(keyname, "origin") || !Q_stricmp(keyname, "light_origin"))
 			{
 				sscanf(value, "%f %f %f", &dl->l.origin[0], &dl->l.origin[1], &dl->l.origin[2]);
 			}
@@ -2720,7 +2720,7 @@ void R_LoadEntities(lump_t * l)
 				dl->l.attenuationShader = RE_RegisterShaderLightAttenuation(value);
 			}
 			// check for rotation
-			else if(!Q_stricmp(keyname, "rotation"))
+			else if(!Q_stricmp(keyname, "rotation") || !Q_stricmp(keyname, "light_rotation"))
 			{
 				matrix_t        rotation;
 	
@@ -3750,8 +3750,8 @@ static void R_PrecacheInteractionSurface(msurface_t * surf, trRefDlight_t * ligh
 	}
 	surf->lightCount = s_lightCount;
 
-	// Tr3B - skip all translucent surfaces that don't matter for lighting only pass
-	if(surf->shader->sort > SS_OPAQUE || (surf->shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY)))
+	// skip all surfaces that don't matter for lighting only pass
+	if(surf->shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY))
 		return;
 
 	s_numLightIndexes = 0;
@@ -3896,6 +3896,22 @@ void R_PrecacheInteractions()
 		// setup interactions
 		dl->firstInteractionCache = NULL;
 		dl->lastInteractionCache = NULL;
+		
+		switch (dl->l.rlType)
+		{
+			case RL_OMNI:
+				break;
+	
+			case RL_PROJ:
+				// FIXME support these in the future
+				continue;
+	
+			case RL_DIRECT:
+				break;
+	
+			default:
+				break;
+		}
 
 		// perform frustum culling and add all the potentially visible surfaces
 		s_lightCount++;
