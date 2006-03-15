@@ -209,6 +209,12 @@ mapq3_src = [
 'code/gtkradiant/plugins/mapq3/write.cpp'
 ]
 
+mapxml_src = [
+'code/gtkradiant/plugins/mapxml/plugin.cpp',
+'code/gtkradiant/plugins/mapxml/xmlparse.cpp',
+'code/gtkradiant/plugins/mapxml/xmlwrite.cpp'
+]
+
 model_src = [
 #'code/gtkradiant/libs/mathlib/mathlib.c',
 #'code/gtkradiant/libs/mathlib/bbox.c',
@@ -302,6 +308,16 @@ if env['arch'] == 'linux-i386':
 	mapq3_env = module_env.Copy()
 	mapq3_env.SharedLibrary('mapq3', mapq3_src)
 	mapq3_env.InstallAs('#gtkradiant/modules/mapq3.so', 'libmapq3.so')
+	
+	"""
+	mapxml_env = module_env.Copy()
+	mapxml_env.Append(CCFLAGS='`pkg-config glib-2.0 --cflags`')
+	mapxml_env.Append(LINKFLAGS='`pkg-config glib-2.0 --libs`')
+	mapxml_env.Append(CCFLAGS='`xml2-config --cflags`')
+	mapxml_env.Append(LINKFLAGS='`xml2-config --libs`')
+	mapxml_env.SharedLibrary('mapxml', mapxml_src)
+	mapxml_env.InstallAs('#gtkradiant/modules/mapxml.so', 'libmapxml.so')
+	"""
 	
 	model_env = module_env.Copy()
 	model_env.SharedLibrary('model', model_src)
