@@ -379,17 +379,9 @@ void EmitBrushes(bspbrush_t * brushes)
 BeginModel
 ==================
 */
-void BeginModel(void)
+void BeginModel(entity_t * e)
 {
 	dmodel_t       *mod;
-	bspbrush_t     *b;
-	entity_t       *e;
-	vec3_t          mins, maxs;
-	parseMesh_t    *p;
-	const char     *model;
-	mapDrawSurface_t *ds;
-	drawVert_t     *dv;
-	int             i, j;
 	
 	qprintf("--- BeginModel ---\n");
 
@@ -399,9 +391,35 @@ void BeginModel(void)
 	}
 	mod = &dmodels[nummodels];
 
-	// calculate the AABB
-	e = &entities[entity_num];
+	mod->firstSurface = numDrawSurfaces;
+	mod->firstBrush = numbrushes;
 
+	EmitBrushes(e->brushes);
+}
+
+
+
+
+/*
+==================
+EndModel
+==================
+*/
+void EndModel(entity_t * e, node_t * headnode)
+{
+	dmodel_t       *mod;
+	vec3_t          mins, maxs;
+	bspbrush_t     *b;
+	parseMesh_t    *p;
+	mapDrawSurface_t *ds;
+	const char     *model;
+	int             i, j;
+
+	qprintf("--- EndModel ---\n");
+
+	mod = &dmodels[nummodels];
+	
+	// calculate the AABB
 	ClearBounds(mins, maxs);
 	for(b = e->brushes; b; b = b->next)
 	{
@@ -420,10 +438,12 @@ void BeginModel(void)
 			AddPointToBounds(p->mesh.verts[i].xyz, mins, maxs);
 		}
 	}
-	
+
 	model = ValueForKey(e, "model");
 	if(!e->brushes && !e->patches && model[0] != '\0')
 	{
+		//qprintf("calculating bbox from draw surfaces...\n");
+		
 		for(i = e->firstDrawSurf; i < numMapDrawSurfs; i++)
 		{
 			ds = &mapDrawSurfs[i];
@@ -433,44 +453,16 @@ void BeginModel(void)
 				continue;			// leftover from a surface subdivision
 			}
 			
-			if(ds->miscModel)
-			{
-				continue;
-			}
-			
 			for(j = 0; j < ds->numVerts; j++)
 			{
-				dv = &ds->verts[j];
-				
-				AddPointToBounds(dv->xyz, mins, maxs);
+				AddPointToBounds(ds->verts[j].xyz, mins, maxs);
 			}
 		}
 	}
 
 	VectorCopy(mins, mod->mins);
 	VectorCopy(maxs, mod->maxs);
-
-	mod->firstSurface = numDrawSurfaces;
-	mod->firstBrush = numbrushes;
-
-	EmitBrushes(e->brushes);
-}
-
-
-
-
-/*
-==================
-EndModel
-==================
-*/
-void EndModel(node_t * headnode)
-{
-	dmodel_t       *mod;
-
-	qprintf("--- EndModel ---\n");
-
-	mod = &dmodels[nummodels];
+	
 	EmitDrawNode_r(headnode);
 	mod->numSurfaces = numDrawSurfaces - mod->firstSurface;
 	mod->numBrushes = numbrushes - mod->firstBrush;

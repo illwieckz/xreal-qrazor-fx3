@@ -293,14 +293,10 @@ void InsertMD3Model(const char *modelName, const matrix_t transform, tree_t * tr
 			outv->color[3] = 255;
 
 			// transform the position
-//			outv->xyz[0] = origin[0] + MD3_XYZ_SCALE * (xyz->xyz[0] * angleCos - xyz->xyz[1] * angleSin);
-//			outv->xyz[1] = origin[1] + MD3_XYZ_SCALE * (xyz->xyz[0] * angleSin + xyz->xyz[1] * angleCos);
-//			outv->xyz[2] = origin[2] + MD3_XYZ_SCALE * (xyz->xyz[2]);
-			
 			tmp[0] = MD3_XYZ_SCALE * xyz->xyz[0];
 			tmp[1] = MD3_XYZ_SCALE * xyz->xyz[1];
 			tmp[2] = MD3_XYZ_SCALE * xyz->xyz[2];
-			
+
 			MatrixTransformPoint(transform, tmp, outv->xyz);
 
 			// decode the lat/lng normal to a 3 float normal
@@ -314,10 +310,6 @@ void InsertMD3Model(const char *modelName, const matrix_t transform, tree_t * tr
 			tmp[2] = cos(lng);
 
 			// rotate the normal
-//			outv->normal[0] = temp[0] * angleCos - temp[1] * angleSin;
-//			outv->normal[1] = temp[0] * angleSin + temp[1] * angleCos;
-//			outv->normal[2] = temp[2];
-			
 			MatrixTransformNormal(transform, tmp, outv->normal);
 		}
 
@@ -347,7 +339,7 @@ void InsertASEModel(const char *modelName, const matrix_t transform, tree_t * tr
 	polyset_t      *pset;
 	int             numFrames;
 	char            filename[1024];
-	vec3_t			tmp;
+	vec3_t          tmp;
 
 	sprintf(filename, "%s%s", gamedir, modelName);
 
@@ -419,21 +411,21 @@ void InsertASEModel(const char *modelName, const matrix_t transform, tree_t * tr
 			outv->color[3] = 255;
 
 			// transform the position
-//			outv->xyz[0] = origin[0] + tri->verts[index][0];
-//			outv->xyz[1] = origin[1] + tri->verts[index][1];
-//			outv->xyz[2] = origin[2] + tri->verts[index][2];
-			
+//          outv->xyz[0] = origin[0] + tri->verts[index][0];
+//          outv->xyz[1] = origin[1] + tri->verts[index][1];
+//          outv->xyz[2] = origin[2] + tri->verts[index][2];
+
 			tmp[0] = tri->verts[index][0];
 			tmp[1] = tri->verts[index][1];
 			tmp[2] = tri->verts[index][2];
-			
+
 			MatrixTransformPoint(transform, tmp, outv->xyz);
 
 			// rotate the normal
 			tmp[0] = tri->normals[index][0];
 			tmp[1] = tri->normals[index][1];
 			tmp[2] = tri->normals[index][2];
-			
+
 			MatrixTransformNormal(transform, tmp, outv->normal);
 		}
 	}
@@ -454,8 +446,8 @@ void InsertLWOModel(const char *modelName, const matrix_t transform, tree_t * tr
 	char            filename[1024];
 	mapDrawSurface_t *out;
 	drawVert_t     *outv;
-	vec3_t			tmp;
-	
+	vec3_t          tmp;
+
 	unsigned int    failID;
 	int             failpos;
 	lwObject       *obj;
@@ -476,9 +468,9 @@ void InsertLWOModel(const char *modelName, const matrix_t transform, tree_t * tr
 		Error("%s\nLoading failed near byte %d\n\n", filename, failpos);
 		return;
 	}
-	
+
 	_printf("Processing '%s'\n", filename);
-	
+
 	if(obj->nlayers != 1)
 		Error("..layers number %i != 1", obj->nlayers);
 
@@ -489,11 +481,11 @@ void InsertLWOModel(const char *modelName, const matrix_t transform, tree_t * tr
 			"Clips:  %d\n"
 			"Points (first layer):  %d\n"
 			"Polygons (first layer):  %d\n\n",
-	obj->nlayers, obj->nsurfs, obj->nenvs, obj->nclips, obj->layer->point.count, obj->layer->polygon.count);
+			obj->nlayers, obj->nsurfs, obj->nenvs, obj->nclips, obj->layer->point.count, obj->layer->polygon.count);
 #endif
 
 	layer = &obj->layer[0];
-	
+
 	c_triangleModels++;
 	c_triangleSurfaces += obj->nsurfs;
 
@@ -505,39 +497,39 @@ void InsertLWOModel(const char *modelName, const matrix_t transform, tree_t * tr
 		out->miscModel = qtrue;
 
 		out->shaderInfo = ShaderInfoForShader(surf->name);
-		
+
 		out->lightmapNum = -1;
 		out->fogNum = -1;
-		
+
 		// allocate vertices
 		out->numVerts = layer->point.count;
 		out->verts = malloc(out->numVerts * sizeof(out->verts[0]));
 		memset(out->verts, 0, out->numVerts * sizeof(out->verts[0]));
-		
+
 		// count polygons which we want to use
 		out->numIndexes = 0;
 		for(j = 0; j < layer->polygon.count; j++)
 		{
 			pol = &layer->polygon.pol[j];
-			
+
 			// skip all polygons that don't belong to this surface
 			if(pol->surf != surf)
 				continue;
-			
+
 			// only accept FACE surfaces
 			if(pol->type != ID_FACE)
 			{
 				_printf("WARNING: skipping ID_FACE polygon\n");
 				continue;
 			}
-			
+
 			// only accept triangulated surfaces
 			if(pol->nverts != 3)
 			{
 				_printf("WARNING: skipping non triangulated polygon\n");
 				continue;
 			}
-			
+
 			out->numIndexes += 3;
 		}
 
@@ -548,78 +540,78 @@ void InsertLWOModel(const char *modelName, const matrix_t transform, tree_t * tr
 		// emit the indexes and vertexes
 		c_triangleIndexes += out->numIndexes;
 		c_triangleVertexes += out->numVerts;
-		
+
 		outindex = &out->indexes[0];
 		for(j = 0; j < layer->polygon.count; j++)
 		{
 			pol = &layer->polygon.pol[j];
-			
+
 			// skip all polygons that don't belong to this surface
 			if(pol->surf != surf)
 				continue;
-			
+
 			// only accept FACE surfaces
 			if(pol->type != ID_FACE)
 			{
 				//_printf("WARNING: skipping ID_FACE polygon\n");
 				continue;
 			}
-			
+
 			// only accept triangulated surfaces
 			if(pol->nverts != 3)
 			{
 				//_printf("WARNING: skipping non triangulated polygon\n");
 				continue;
 			}
-			
+
 			for(k = 0, v = pol->v; k < pol->nverts; k++, v++)
 			{
-				int index;
-				
+				int             index;
+
 				*outindex++ = index = v->index;
-			
+
 				pt = &layer->point.pt[index];
 				outv = &out->verts[index];
-				
+
 				tmp[0] = pt->pos[0];
 				tmp[1] = pt->pos[2];
 				tmp[2] = pt->pos[1];
-				
+
 				MatrixTransformPoint(transform, tmp, outv->xyz);
-				
+
 				// set dummy normal
 				outv->normal[0] = 0;
 				outv->normal[1] = 0;
 				outv->normal[2] = 1;
-				
+
 				//MatrixTransformNormal(transform, tmp, outv->normal);
-				
+
 				// fetch texcoords base from points
 				for(l = 0; l < pt->nvmaps; l++)
 				{
 					vmap = pt->vm[l].vmap;
 					index = pt->vm[l].index;
 
-					if(vmap->type ==  LWID_('T','X','U','V'))
+					if(vmap->type == LWID_('T', 'X', 'U', 'V'))
 					{
 						outv->st[0] = vmap->val[index][0];
 						outv->st[1] = 1.0 - vmap->val[index][1];
 					}
 				}
-				
+
 				// override with polyon data
 				for(l = 0; l < v->nvmaps; l++)
 				{
 					vmap = v->vm[l].vmap;
 					index = v->vm[l].index;
 
-					if(vmap->type ==  LWID_('T','X','U','V'))
+					if(vmap->type == LWID_('T', 'X', 'U', 'V'))
 					{
 						outv->st[0] = vmap->val[index][0];
 						outv->st[1] = 1.0 - vmap->val[index][1];
 					}
 				}
-				
+
 				outv->lightmap[0] = 0;
 				outv->lightmap[1] = 0;
 
@@ -644,7 +636,7 @@ void InsertLWOModel(const char *modelName, const matrix_t transform, tree_t * tr
 AddTriangleModel
 =====================
 */
-void AddTriangleModel(entity_t * entity, tree_t * tree)
+void AddTriangleModel(entity_t * entity, tree_t * tree, qboolean applyTransform)
 {
 	qprintf("----- AddTriangleModel -----\n");
 
@@ -656,37 +648,42 @@ void AddTriangleModel(entity_t * entity, tree_t * tree)
 	matrix_t        rotation;
 	matrix_t        transform;
 
-	MatrixIdentity(rotation);
+	MatrixIdentity(transform);
 
-	GetVectorForKey(entity, "origin", origin);
-	
+	if(applyTransform)
+	{
+		// make transform from local model space to global world space
+		MatrixIdentity(rotation);
+
+		GetVectorForKey(entity, "origin", origin);
+
+		// get rotation matrix or "angle" (yaw) or "angles" (pitch yaw roll)
+		angles[0] = angles[1] = angles[2] = 0;
+		value = ValueForKey(entity, "angle");
+		if(value[0] != '\0')
+		{
+			angles[1] = atof(value);
+			MatrixFromAngles(rotation, angles[PITCH], angles[YAW], angles[ROLL]);
+		}
+
+		value = ValueForKey(entity, "angles");
+		if(value[0] != '\0')
+		{
+			sscanf(value, "%f %f %f", &angles[0], &angles[1], &angles[2]);
+			MatrixFromAngles(rotation, angles[PITCH], angles[YAW], angles[ROLL]);
+		}
+
+		value = ValueForKey(entity, "rotation");
+		if(value[0] != '\0')
+		{
+			sscanf(value, "%f %f %f %f %f %f %f %f %f", &rotation[0], &rotation[1], &rotation[2],
+				   &rotation[4], &rotation[5], &rotation[6], &rotation[8], &rotation[9], &rotation[10]);
+		}
+
+		MatrixSetupTransformFromRotation(transform, rotation, origin);
+	}
+
 	classname = ValueForKey(entity, "classname");
-
-	// get rotation matrix or "angle" (yaw) or "angles" (pitch yaw roll)
-	angles[0] = angles[1] = angles[2] = 0;
-	value = ValueForKey(entity, "angle");
-	if(value[0] != '\0')
-	{
-		angles[1] = atof(value);
-		MatrixFromAngles(rotation, angles[PITCH], angles[YAW], angles[ROLL]);
-	}
-
-	value = ValueForKey(entity, "angles");
-	if(value[0] != '\0')
-	{
-		sscanf(value, "%f %f %f", &angles[0], &angles[1], &angles[2]);
-		MatrixFromAngles(rotation, angles[PITCH], angles[YAW], angles[ROLL]);
-	}
-
-	value = ValueForKey(entity, "rotation");
-	if(value[0] != '\0')
-	{
-		sscanf(value, "%f %f %f %f %f %f %f %f %f", &rotation[0], &rotation[1], &rotation[2],
-			   &rotation[4], &rotation[5], &rotation[6], &rotation[8], &rotation[9], &rotation[10]);
-	}
-
-	MatrixSetupTransformFromRotation(transform, rotation, origin);
-
 	model = ValueForKey(entity, "model");
 	if(!model[0])
 	{
@@ -733,7 +730,7 @@ void AddTriangleModels(tree_t * tree)
 		// convert misc_models into raw geometry
 		if(!Q_stricmp("misc_model", ValueForKey(entity, "classname")))
 		{
-			AddTriangleModel(entity, tree);
+			AddTriangleModel(entity, tree, qtrue);
 		}
 	}
 

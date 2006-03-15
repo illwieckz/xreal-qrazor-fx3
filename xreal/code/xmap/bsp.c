@@ -62,11 +62,11 @@ void ProcessWorldModel(void)
 	tree_t         *tree;
 	bspface_t      *faces;
 	qboolean        leaked;
-
-	BeginModel();
-
+	
 	e = &entities[0];
 	e->firstDrawSurf = 0;		//numMapDrawSurfs;
+
+	BeginModel(e);
 
 	// check for patches with adjacent edges that need to LOD together
 	PatchMapDrawSurfs(e);
@@ -167,7 +167,7 @@ void ProcessWorldModel(void)
 	// add references to the final drawsurfs in the apropriate clusters
 	FilterDrawsurfsIntoTree(e, tree);
 
-	EndModel(tree->headnode);
+	EndModel(e, tree->headnode);
 
 	FreeTree(tree);
 }
@@ -183,11 +183,11 @@ void ProcessSubModel(void)
 	tree_t         *tree;
 	bspbrush_t     *b, *bc;
 	node_t         *node;
-
-	BeginModel();
-
+	
 	e = &entities[entity_num];
 	e->firstDrawSurf = numMapDrawSurfs;
+
+	BeginModel(e);
 
 	PatchMapDrawSurfs(e);
 
@@ -208,7 +208,7 @@ void ProcessSubModel(void)
 	ClipSidesIntoTree(e, tree);
 	
 	// create drawsurfs for triangle models
-	AddTriangleModel(e, tree);
+	AddTriangleModel(e, tree, qfalse);
 
 	// subdivide each drawsurf as required by shader tesselation or fog
 	if(!nosubdivide)
@@ -235,7 +235,7 @@ void ProcessSubModel(void)
 	// add references to the final drawsurfs in the apropriate clusters
 	FilterDrawsurfsIntoTree(e, tree);
 
-	EndModel(node);
+	EndModel(e, node);
 
 	FreeTree(tree);
 }

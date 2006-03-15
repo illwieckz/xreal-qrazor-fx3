@@ -376,8 +376,8 @@ int             EmitShader(const char *shader);
 void            BeginBSPFile(void);
 void            EndBSPFile(void);
 
-void            BeginModel(void);
-void            EndModel(node_t * headnode);
+void            BeginModel(entity_t * e);
+void            EndModel(entity_t * e, node_t * headnode);
 
 
 //=============================================================================
@@ -438,7 +438,7 @@ extern int      c_triangleSurfaces;
 extern int      c_triangleVertexes;
 extern int      c_triangleIndexes;
 
-void            AddTriangleModel(entity_t * e, tree_t * tree);
+void            AddTriangleModel(entity_t * e, tree_t * tree, qboolean applyTransform);
 void            AddTriangleModels(tree_t * tree);
 
 //=============================================================================
