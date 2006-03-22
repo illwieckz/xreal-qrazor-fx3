@@ -174,7 +174,7 @@ CM_GenerateFacetFor3Points
 qboolean CM_GenerateFacetFor3Points(cFacet_t * f, drawVert_t * a, drawVert_t * b, drawVert_t * c)
 {
 	// if we can't generate a valid plane for the points, ignore the facet
-	if(!PlaneFromPoints(f->surface, a->xyz, b->xyz, c->xyz))
+	if(!PlaneFromPoints(f->surface, a->xyz, b->xyz, c->xyz, qtrue))
 	{
 		f->numBoundaries = 0;
 		return qfalse;
@@ -211,7 +211,7 @@ qboolean CM_GenerateFacetFor4Points(cFacet_t * f, drawVert_t * a, drawVert_t * b
 	vec4_t          plane;
 
 	// if we can't generate a valid plane for the points, ignore the facet
-	if(!PlaneFromPoints(f->surface, a->xyz, b->xyz, c->xyz))
+	if(!PlaneFromPoints(f->surface, a->xyz, b->xyz, c->xyz, qtrue))
 	{
 		f->numBoundaries = 0;
 		return qfalse;
@@ -240,7 +240,7 @@ qboolean CM_GenerateFacetFor4Points(cFacet_t * f, drawVert_t * a, drawVert_t * b
 
 	for(i = 1; i < 4; i++)
 	{
-		if(!PlaneFromPoints(plane, f->points[i], f->points[(i + 1) % 4], f->points[(i + 2) % 4]))
+		if(!PlaneFromPoints(plane, f->points[i], f->points[(i + 1) % 4], f->points[(i + 2) % 4], qtrue))
 		{
 			f->numBoundaries = 0;
 			return qfalse;

@@ -393,7 +393,7 @@ void BeginModel(entity_t * e)
 
 	mod->firstSurface = numDrawSurfaces;
 	mod->firstBrush = numbrushes;
-
+	
 	EmitBrushes(e->brushes);
 }
 

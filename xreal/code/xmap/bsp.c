@@ -131,9 +131,9 @@ void ProcessWorldModel(void)
 
 	// add references to the detail brushes
 	FilterDetailBrushesIntoTree(e, tree);
-
+	
 	// create drawsurfs for triangle models
-	AddTriangleModels(tree);
+	AddTriangleModels();
 
 	// drawsurfs that cross fog boundaries will need to
 	// be split along the bound
@@ -208,7 +208,7 @@ void ProcessSubModel(void)
 	ClipSidesIntoTree(e, tree);
 	
 	// create drawsurfs for triangle models
-	AddTriangleModel(e, tree, qfalse);
+	AddTriangleModel(e, qfalse);
 
 	// subdivide each drawsurf as required by shader tesselation or fog
 	if(!nosubdivide)

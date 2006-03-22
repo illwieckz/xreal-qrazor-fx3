@@ -52,8 +52,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	ON_EPSILON	0.1
 
-#define VectorSet(v, x, y, z)		v[0] = x;v[1] = y;v[2] = z;
-
 typedef struct
 {
 	vec3_t          normal;

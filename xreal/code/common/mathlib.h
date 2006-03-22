@@ -66,6 +66,7 @@ extern vec3_t   vec3_origin;
 
 qboolean        VectorCompare(const vec3_t v1, const vec3_t v2);
 
+#define VectorSet(v,x,y,z) {v[0]=x;v[1]=y;v[2]=z;}
 #define DotProduct(x,y) (x[0]*y[0]+x[1]*y[1]+x[2]*y[2])
 #define VectorSubtract(a,b,c) {c[0]=a[0]-b[0];c[1]=a[1]-b[1];c[2]=a[2]-b[2];}
 #define VectorAdd(a,b,c) {c[0]=a[0]+b[0];c[1]=a[1]+b[1];c[2]=a[2]+b[2];}
@@ -94,7 +95,7 @@ void            VectorInverse(vec3_t v);
 void            ClearBounds(vec3_t mins, vec3_t maxs);
 void            AddPointToBounds(const vec3_t v, vec3_t mins, vec3_t maxs);
 
-qboolean        PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c);
+qboolean        PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c, qboolean cw);
 
 void            NormalToLatLong(const vec3_t normal, byte bytes[2]);
 

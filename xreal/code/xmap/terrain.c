@@ -30,8 +30,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define GROW_INDICES	512
 #define GROW_SURFACES	128
 
-#define VectorSet(v, x, y, z)		v[0] = x;v[1] = y;v[2] = z;
-
 void            QuakeTextureVecs(plane_t * plane, vec_t shift[2], vec_t rotate, vec_t scale[2], vec_t mappingVecs[2][4]);
 
 typedef struct
@@ -919,7 +917,7 @@ void EmitTerrainVerts2(terrainSurf_t * surf, terrainVert_t ** verts, int alpha[3
 	assert(maxindices >= 0);
 	indices = malloc(maxindices * sizeof(*indices));
 
-	PlaneFromPoints(plane, verts[0]->xyz, verts[1]->xyz, verts[2]->xyz);
+	PlaneFromPoints(plane, verts[0]->xyz, verts[1]->xyz, verts[2]->xyz, qtrue);
 
 	for(i = 0; i < 3; i++)
 	{

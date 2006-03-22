@@ -282,6 +282,8 @@ void            LoadMapFile(char *filename);
 int             FindFloatPlane(vec3_t normal, vec_t dist);
 int             PlaneTypeForNormal(vec3_t normal);
 bspbrush_t     *FinishBrush(void);
+void            AdjustBrushesForOrigin(entity_t * ent, vec3_t origin);
+
 mapDrawSurface_t *AllocDrawSurf(void);
 mapDrawSurface_t *DrawSurfaceForSide(bspbrush_t * b, side_t * s, winding_t * w);
 
@@ -372,6 +374,7 @@ void            SetModelNumbers(void);
 void            SetLightStyles(void);
 
 int             EmitShader(const char *shader);
+void            EmitBrushes(bspbrush_t * brushes);
 
 void            BeginBSPFile(void);
 void            EndBSPFile(void);
@@ -438,8 +441,8 @@ extern int      c_triangleSurfaces;
 extern int      c_triangleVertexes;
 extern int      c_triangleIndexes;
 
-void            AddTriangleModel(entity_t * e, tree_t * tree, qboolean applyTransform);
-void            AddTriangleModels(tree_t * tree);
+void            AddTriangleModel(entity_t * e, qboolean applyTransform);
+void            AddTriangleModels(void);
 
 //=============================================================================
 

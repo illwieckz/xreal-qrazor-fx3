@@ -78,16 +78,25 @@ void NormalToLatLong(const vec3_t normal, byte bytes[2])
 PlaneFromPoints
 
 Returns false if the triangle is degenrate.
-The normal will point out of the clock for clockwise ordered points
+The normal will point out of the clock for clockwise ordered points if cw == qtrue
 =====================
 */
-qboolean PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c)
+qboolean PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c, qboolean cw)
 {
 	vec3_t          d1, d2;
 
 	VectorSubtract(b, a, d1);
 	VectorSubtract(c, a, d2);
-	CrossProduct(d2, d1, plane);
+
+	if(cw)
+	{
+		CrossProduct(d2, d1, plane);
+	}
+	else
+	{
+		CrossProduct(d1, d2, plane);
+	}
+
 	if(VectorNormalize(plane, plane) == 0)
 	{
 		return qfalse;

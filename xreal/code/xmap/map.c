@@ -1128,7 +1128,6 @@ void MovePatchesToWorld(entity_t * mapent)
 	}
 }
 
-
 /*
 ================
 AdjustBrushesForOrigin
@@ -1296,11 +1295,13 @@ qboolean ParseMapEntity(void)
 	name = ValueForKey(mapent, "name");
 	model = ValueForKey(mapent, "model");
 	
-	// Tr3B - convert Doom3's func_static entities with custom models into misc_models
+	#if 1
+	// HACK: convert Doom3's func_static entities with custom models into misc_models
 	if(!Q_stricmp("func_static", classname) && !mapent->brushes && !mapent->patches && model[0] != '\0')
 	{
 		SetKeyValue(mapent, "classname", "misc_model");	
 	}
+	#endif
 	
 	#if 0
 	// HACK: we should support Doom3 style doors in engine code but get rid of them for now
@@ -1320,7 +1321,8 @@ qboolean ParseMapEntity(void)
 	}
 	#endif
 
-	// Tr3B - determine if this is a func_static that can be merged into worldspawn
+	#if 1
+	// HACK: determine if this is a func_static that can be merged into worldspawn
 	if(!Q_stricmp("func_static", classname) && name[0] != '\0' && model[0] != '\0' && !Q_stricmp(name, model))
 	{
 		bspbrush_t     *brush;
@@ -1356,6 +1358,7 @@ qboolean ParseMapEntity(void)
 		num_entities--;
 		return qtrue;
 	}
+	#endif
 		
 	// if there was an origin brush, offset all of the planes and texinfo
 	// for all the brushes in the entity

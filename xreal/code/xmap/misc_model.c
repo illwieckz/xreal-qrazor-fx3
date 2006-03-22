@@ -42,13 +42,15 @@ int             c_triangleIndexes;
 loadedModel_t   loadedModels[MAX_LOADED_MODELS];
 int             numLoadedModels;
 
+
+
 /*
 =================
 MD3_Load
 =================
 */
 #define	LL(x) x=LittleLong(x)
-md3Header_t    *MD3_Load(const char *mod_name)
+static md3Header_t    *MD3_Load(const char *mod_name)
 {
 	int             i, j;
 	md3Header_t    *md3;
@@ -178,7 +180,7 @@ md3Header_t    *MD3_Load(const char *mod_name)
 LoadModel
 ================
 */
-md3Header_t    *LoadModel(const char *modelName)
+static md3Header_t    *LoadModel(const char *modelName)
 {
 	int             i;
 	loadedModel_t  *lm;
@@ -213,7 +215,7 @@ InsertMD3Model
 Convert a model entity to raw geometry surfaces and insert it in the tree
 ============
 */
-void InsertMD3Model(const char *modelName, const matrix_t transform, tree_t * tree)
+static void InsertMD3Model(const char *modelName, const matrix_t transform)
 {
 	int             i, j;
 	md3Header_t    *md3;
@@ -329,7 +331,7 @@ InsertASEModel
 Convert a model entity to raw geometry surfaces and insert it in the tree
 ============
 */
-void InsertASEModel(const char *modelName, const matrix_t transform, tree_t * tree)
+static void InsertASEModel(const char *modelName, const matrix_t transform)
 {
 	int             i, j;
 	drawVert_t     *outv;
@@ -440,7 +442,7 @@ InsertLWOModel
 Convert a LWO model entity to raw geometry surfaces and insert it in the tree
 ============
 */
-void InsertLWOModel(const char *modelName, const matrix_t transform, tree_t * tree)
+static void InsertLWOModel(const char *modelName, const matrix_t transform)
 {
 	int             i, j, k, l;
 	char            filename[1024];
@@ -585,6 +587,9 @@ void InsertLWOModel(const char *modelName, const matrix_t transform, tree_t * tr
 				outv->normal[2] = 1;
 
 				//MatrixTransformNormal(transform, tmp, outv->normal);
+				
+				outv->st[0] = 0;
+				outv->st[1] = 0;
 
 				// fetch texcoords base from points
 				for(l = 0; l < pt->nvmaps; l++)
@@ -636,7 +641,7 @@ void InsertLWOModel(const char *modelName, const matrix_t transform, tree_t * tr
 AddTriangleModel
 =====================
 */
-void AddTriangleModel(entity_t * entity, tree_t * tree, qboolean applyTransform)
+void AddTriangleModel(entity_t * entity, qboolean applyTransform)
 {
 	qprintf("----- AddTriangleModel -----\n");
 
@@ -693,15 +698,15 @@ void AddTriangleModel(entity_t * entity, tree_t * tree, qboolean applyTransform)
 
 	if(strstr(model, ".md3") || strstr(model, ".MD3"))
 	{
-		InsertMD3Model(model, transform, tree);
+		InsertMD3Model(model, transform);
 	}
 	else if(strstr(model, ".ase") || strstr(model, ".ASE"))
 	{
-		InsertASEModel(model, transform, tree);
+		InsertASEModel(model, transform);
 	}
 	else if(strstr(model, ".lwo") || strstr(model, ".LWO"))
 	{
-		InsertLWOModel(model, transform, tree);
+		InsertLWOModel(model, transform);
 	}
 	else
 	{
@@ -716,7 +721,7 @@ void AddTriangleModel(entity_t * entity, tree_t * tree, qboolean applyTransform)
 AddTriangleModels
 =====================
 */
-void AddTriangleModels(tree_t * tree)
+void AddTriangleModels(void)
 {
 	int             entity_num;
 	entity_t       *entity;
@@ -730,7 +735,7 @@ void AddTriangleModels(tree_t * tree)
 		// convert misc_models into raw geometry
 		if(!Q_stricmp("misc_model", ValueForKey(entity, "classname")))
 		{
-			AddTriangleModel(entity, tree, qtrue);
+			AddTriangleModel(entity, qtrue);
 		}
 	}
 
