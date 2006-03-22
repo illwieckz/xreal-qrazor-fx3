@@ -57,7 +57,7 @@ void SetPlaneSignbits(cplane_t * out)
 
 clipMap_t       cm;
 int             c_pointcontents;
-int             c_traces, c_brush_traces, c_patch_traces;
+int             c_traces, c_brush_traces, c_patch_traces, c_trisoup_traces;
 
 
 byte           *cmod_base;
@@ -65,6 +65,7 @@ byte           *cmod_base;
 #ifndef BSPC
 cvar_t         *cm_noAreas;
 cvar_t         *cm_noCurves;
+cvar_t         *cm_noTriangles;
 cvar_t         *cm_playerCurveClip;
 #endif
 
@@ -504,67 +505,119 @@ void CMod_LoadVisibility(lump_t * l)
 
 /*
 =================
-CMod_LoadPatches
+CMod_LoadSurfaces
 =================
 */
 #define	MAX_PATCH_VERTS		1024
-void CMod_LoadPatches(lump_t * surfs, lump_t * verts)
+void CMod_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexesLump)
 {
 	drawVert_t     *dv, *dv_p;
 	dsurface_t     *in;
 	int             count;
 	int             i, j;
-	int             c;
-	cPatch_t       *patch;
-	vec3_t          points[MAX_PATCH_VERTS];
+	cSurface_t     *surface;
+	int             numVertexes;
+	vec3_t          vertexes[SHADER_MAX_VERTEXES];
 	int             width, height;
 	int             shaderNum;
+	int             numIndexes;
+	int             indexes[SHADER_MAX_INDEXES];
+	int            *index;
+	int            *index_p;
 
 	in = (void *)(cmod_base + surfs->fileofs);
 	if(surfs->filelen % sizeof(*in))
-		Com_Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
+		Com_Error(ERR_DROP, "CMod_LoadSurfaces: funny lump size");
 	cm.numSurfaces = count = surfs->filelen / sizeof(*in);
 	cm.surfaces = Hunk_Alloc(cm.numSurfaces * sizeof(cm.surfaces[0]), h_high);
 
 	dv = (void *)(cmod_base + verts->fileofs);
 	if(verts->filelen % sizeof(*dv))
-		Com_Error(ERR_DROP, "MOD_LoadBmodel: funny lump size");
+		Com_Error(ERR_DROP, "CMod_LoadSurfaces: funny lump size");
+
+	index = (void *)(cmod_base + indexesLump->fileofs);
+	if(indexesLump->filelen % sizeof(*index))
+		Com_Error(ERR_DROP, "CMod_LoadSurfaces: funny lump size");
 
 	// scan through all the surfaces, but only load patches,
 	// not planar faces
 	for(i = 0; i < count; i++, in++)
 	{
-		if(LittleLong(in->surfaceType) != MST_PATCH)
+		if(LittleLong(in->surfaceType) == MST_PATCH)
 		{
-			continue;			// ignore other surfaces
+			// FIXME: check for non-colliding patches
+
+			cm.surfaces[i] = surface = Hunk_Alloc(sizeof(*surface), h_high);
+
+			// load the full drawverts onto the stack
+			width = LittleLong(in->patchWidth);
+			height = LittleLong(in->patchHeight);
+			numVertexes = width * height;
+			if(numVertexes > MAX_PATCH_VERTS)
+			{
+				Com_Error(ERR_DROP, "CMod_LoadSurfaces: MAX_PATCH_VERTS");
+			}
+
+			dv_p = dv + LittleLong(in->firstVert);
+			for(j = 0; j < numVertexes; j++, dv_p++)
+			{
+				vertexes[j][0] = LittleFloat(dv_p->xyz[0]);
+				vertexes[j][1] = LittleFloat(dv_p->xyz[1]);
+				vertexes[j][2] = LittleFloat(dv_p->xyz[2]);
+			}
+
+			shaderNum = LittleLong(in->shaderNum);
+			surface->contents = cm.shaders[shaderNum].contentFlags;
+			surface->surfaceFlags = cm.shaders[shaderNum].surfaceFlags;
+
+			// create the internal facet structure
+			surface->pc = CM_GeneratePatchCollide(width, height, vertexes);
 		}
-		// FIXME: check for non-colliding patches
-
-		cm.surfaces[i] = patch = Hunk_Alloc(sizeof(*patch), h_high);
-
-		// load the full drawverts onto the stack
-		width = LittleLong(in->patchWidth);
-		height = LittleLong(in->patchHeight);
-		c = width * height;
-		if(c > MAX_PATCH_VERTS)
+		else if(LittleLong(in->surfaceType) == MST_TRIANGLE_SOUP)
 		{
-			Com_Error(ERR_DROP, "ParseMesh: MAX_PATCH_VERTS");
+			// FIXME: check for non-colliding triangle soups
+
+			cm.surfaces[i] = surface = Hunk_Alloc(sizeof(*surface), h_high);
+
+			// load the full drawverts onto the stack
+			numVertexes = LittleLong(in->numVerts);
+			if(numVertexes > SHADER_MAX_VERTEXES)
+			{
+				Com_Error(ERR_DROP, "CMod_LoadSurfaces: SHADER_MAX_VERTEXES");
+			}
+
+			dv_p = dv + LittleLong(in->firstVert);
+			for(j = 0; j < numVertexes; j++, dv_p++)
+			{
+				vertexes[j][0] = LittleFloat(dv_p->xyz[0]);
+				vertexes[j][1] = LittleFloat(dv_p->xyz[1]);
+				vertexes[j][2] = LittleFloat(dv_p->xyz[2]);
+			}
+			
+			numIndexes = LittleLong(in->numIndexes);
+			if(numIndexes > SHADER_MAX_INDEXES)
+			{
+				Com_Error(ERR_DROP, "CMod_LoadSurfaces: SHADER_MAX_INDEXES");
+			}
+
+			index_p = index + LittleLong(in->firstIndex);
+			for(j = 0; j < numIndexes; j++, index_p++)
+			{
+				indexes[j] = LittleLong(*index_p);
+				
+				if(indexes[j] < 0 || indexes[j] >= numVertexes)
+				{
+					Com_Error(ERR_DROP, "CMod_LoadSurfaces: Bad index in trisoup surface");
+				}
+			}
+
+			shaderNum = LittleLong(in->shaderNum);
+			surface->contents = cm.shaders[shaderNum].contentFlags;
+			surface->surfaceFlags = cm.shaders[shaderNum].surfaceFlags;
+
+			// create the internal facet structure
+			surface->tc = CM_GenerateTriangleSoupCollide(numVertexes, vertexes, numIndexes, indexes);
 		}
-
-		dv_p = dv + LittleLong(in->firstVert);
-		for(j = 0; j < c; j++, dv_p++)
-		{
-			points[j][0] = LittleFloat(dv_p->xyz[0]);
-			points[j][1] = LittleFloat(dv_p->xyz[1]);
-			points[j][2] = LittleFloat(dv_p->xyz[2]);
-		}
-
-		shaderNum = LittleLong(in->shaderNum);
-		patch->contents = cm.shaders[shaderNum].contentFlags;
-		patch->surfaceFlags = cm.shaders[shaderNum].surfaceFlags;
-
-		// create the internal facet structure
-		patch->pc = CM_GeneratePatchCollide(width, height, points);
 	}
 }
 
@@ -617,6 +670,7 @@ void CM_LoadMap(const char *name, qboolean clientload, int *checksum)
 #ifndef BSPC
 	cm_noAreas = Cvar_Get("cm_noAreas", "0", CVAR_CHEAT);
 	cm_noCurves = Cvar_Get("cm_noCurves", "0", CVAR_CHEAT);
+	cm_noTriangles = Cvar_Get("cm_noTriangles", "0", CVAR_CHEAT);
 	cm_playerCurveClip = Cvar_Get("cm_playerCurveClip", "1", CVAR_ARCHIVE | CVAR_CHEAT);
 #endif
 	Com_DPrintf("CM_LoadMap( %s, %i )\n", name, clientload);
@@ -683,7 +737,7 @@ void CM_LoadMap(const char *name, qboolean clientload, int *checksum)
 	CMod_LoadNodes(&header.lumps[LUMP_NODES]);
 	CMod_LoadEntityString(&header.lumps[LUMP_ENTITIES]);
 	CMod_LoadVisibility(&header.lumps[LUMP_VISIBILITY]);
-	CMod_LoadPatches(&header.lumps[LUMP_SURFACES], &header.lumps[LUMP_DRAWVERTS]);
+	CMod_LoadSurfaces(&header.lumps[LUMP_SURFACES], &header.lumps[LUMP_DRAWVERTS], &header.lumps[LUMP_DRAWINDEXES]);
 
 	// we are NOT freeing the file, because it is cached for the ref
 	FS_FreeFile(buf);

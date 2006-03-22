@@ -263,7 +263,7 @@ void CM_TestInLeaf(traceWork_t * tw, cLeaf_t * leaf)
 	int             k;
 	int             brushnum;
 	cbrush_t       *b;
-	cPatch_t       *patch;
+	cSurface_t     *surface;
 
 	// test box position against all brushes in the leaf
 	for(k = 0; k < leaf->numLeafBrushes; k++)
@@ -288,42 +288,63 @@ void CM_TestInLeaf(traceWork_t * tw, cLeaf_t * leaf)
 		}
 	}
 
-	// test against all patches
-#ifdef BSPC
-	if(1)
+	// test against all surfaces
+
+	for(k = 0; k < leaf->numLeafSurfaces; k++)
 	{
-#else
-	if(!cm_noCurves->integer)
-	{
-#endif							//BSPC
-		for(k = 0; k < leaf->numLeafSurfaces; k++)
+		surface = cm.surfaces[cm.leafsurfaces[leaf->firstLeafSurface + k]];
+
+		if(!surface)
 		{
-			patch = cm.surfaces[cm.leafsurfaces[leaf->firstLeafSurface + k]];
-			if(!patch)
-			{
-				continue;
-			}
-			if(patch->checkcount == cm.checkcount)
-			{
-				continue;		// already checked this brush in another leaf
-			}
-			patch->checkcount = cm.checkcount;
+			continue;
+		}
 
-			if(!(patch->contents & tw->contents))
-			{
-				continue;
-			}
+		if(surface->checkcount == cm.checkcount)
+		{
+			continue;			// already checked this surface in another leaf
+		}
 
-			if(CM_PositionTestInPatchCollide(tw, patch->pc))
+		surface->checkcount = cm.checkcount;
+
+		if(!(surface->contents & tw->contents))
+		{
+			continue;
+		}
+
+#ifdef BSPC
+		if(1)
+		{
+#else
+		if(!cm_noCurves->integer)
+		{
+#endif
+			if(surface->pc && CM_PositionTestInPatchCollide(tw, surface->pc))
 			{
 				tw->trace.startsolid = tw->trace.allsolid = qtrue;
 				tw->trace.fraction = 0;
-				tw->trace.contents = patch->contents;
+				tw->trace.contents = surface->contents;
+				return;
+			}
+		}
+		
+#ifdef BSPC
+		if(1)
+		{
+#else
+		if(!cm_noTriangles->integer)
+		{
+#endif
+			if(surface->tc && CM_PositionTestInTriangleSoupCollide(tw, surface->tc))
+			{
+				tw->trace.startsolid = tw->trace.allsolid = qtrue;
+				tw->trace.fraction = 0;
+				tw->trace.contents = surface->contents;
 				return;
 			}
 		}
 	}
 }
+
 
 /*
 ==================
@@ -499,24 +520,41 @@ TRACING
 
 /*
 ================
-CM_TraceThroughPatch
+CM_TraceThroughSurface
 ================
 */
-
-void CM_TraceThroughPatch(traceWork_t * tw, cPatch_t * patch)
+void CM_TraceThroughSurface(traceWork_t * tw, cSurface_t * surface)
 {
 	float           oldFrac;
 
-	c_patch_traces++;
-
 	oldFrac = tw->trace.fraction;
 
-	CM_TraceThroughPatchCollide(tw, patch->pc);
+#ifdef BSPC
+	if(1)
+	{
+#else
+	if(!cm_noCurves->integer && surface->pc)
+	{
+#endif
+		CM_TraceThroughPatchCollide(tw, surface->pc);
+		c_patch_traces++;
+	}
+	
+#ifdef BSPC
+	if(1)
+	{
+#else
+	if(!cm_noTriangles->integer && surface->tc)
+	{
+#endif
+		CM_TraceThroughTriangleSoupCollide(tw, surface->tc);
+		c_trisoup_traces++;
+	}
 
 	if(tw->trace.fraction < oldFrac)
 	{
-		tw->trace.surfaceFlags = patch->surfaceFlags;
-		tw->trace.contents = patch->contents;
+		tw->trace.surfaceFlags = surface->surfaceFlags;
+		tw->trace.contents = surface->contents;
 	}
 }
 
@@ -747,7 +785,7 @@ void CM_TraceThroughLeaf(traceWork_t * tw, cLeaf_t * leaf)
 	int             k;
 	int             brushnum;
 	cbrush_t       *b;
-	cPatch_t       *patch;
+	cSurface_t     *surface;
 
 	// trace line against all brushes in the leaf
 	for(k = 0; k < leaf->numLeafBrushes; k++)
@@ -773,39 +811,35 @@ void CM_TraceThroughLeaf(traceWork_t * tw, cLeaf_t * leaf)
 		}
 	}
 
-	// trace line against all patches in the leaf
-#ifdef BSPC
-	if(1)
-	{
-#else
-	if(!cm_noCurves->integer)
-	{
-#endif
+	// trace line against all surfaces in the leaf
 		for(k = 0; k < leaf->numLeafSurfaces; k++)
 		{
-			patch = cm.surfaces[cm.leafsurfaces[leaf->firstLeafSurface + k]];
-			if(!patch)
+			surface = cm.surfaces[cm.leafsurfaces[leaf->firstLeafSurface + k]];
+			
+			if(!surface)
 			{
 				continue;
 			}
-			if(patch->checkcount == cm.checkcount)
+			
+			if(surface->checkcount == cm.checkcount)
 			{
-				continue;		// already checked this patch in another leaf
+				continue;		// already checked this surface in another leaf
 			}
-			patch->checkcount = cm.checkcount;
+			
+			surface->checkcount = cm.checkcount;
 
-			if(!(patch->contents & tw->contents))
+			if(!(surface->contents & tw->contents))
 			{
 				continue;
 			}
 
-			CM_TraceThroughPatch(tw, patch);
+			CM_TraceThroughSurface(tw, surface);
+			
 			if(!tw->trace.fraction)
 			{
 				return;
 			}
 		}
-	}
 }
 
 #define RADIUS_EPSILON		1.0f

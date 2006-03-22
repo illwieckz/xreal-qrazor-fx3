@@ -566,6 +566,24 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\qcommon\cm_trisoup.c">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="csg.c">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1264,6 +1282,9 @@
 			</File>
 			<File
 				RelativePath="..\qcommon\cm_public.h">
+			</File>
+			<File
+				RelativePath="..\qcommon\cm_trisoup.h">
 			</File>
 			<File
 				RelativePath="..\ui\keycodes.h">

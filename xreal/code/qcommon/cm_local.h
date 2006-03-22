@@ -78,7 +78,8 @@ typedef struct
 	int             surfaceFlags;
 	int             contents;
 	struct patchCollide_s *pc;
-} cPatch_t;
+	struct triSoupCollide_s *tc;
+} cSurface_t;
 
 
 typedef struct
@@ -131,7 +132,7 @@ typedef struct
 	int            *areaPortals;	// [ numAreas*numAreas ] reference counts
 
 	int             numSurfaces;
-	cPatch_t      **surfaces;	// non-patches will be NULL
+	cSurface_t    **surfaces;	// non-patches will be NULL
 
 	int             floodvalid;
 	int             checkcount;	// incremented on each trace
@@ -144,9 +145,10 @@ typedef struct
 
 extern clipMap_t cm;
 extern int      c_pointcontents;
-extern int      c_traces, c_brush_traces, c_patch_traces;
+extern int      c_traces, c_brush_traces, c_patch_traces, c_trisoup_traces;
 extern cvar_t  *cm_noAreas;
 extern cvar_t  *cm_noCurves;
+extern cvar_t  *cm_noTriangles;
 extern cvar_t  *cm_playerCurveClip;
 
 // cm_test.c
@@ -203,3 +205,10 @@ struct patchCollide_s *CM_GeneratePatchCollide(int width, int height, vec3_t * p
 void            CM_TraceThroughPatchCollide(traceWork_t * tw, const struct patchCollide_s *pc);
 qboolean        CM_PositionTestInPatchCollide(traceWork_t * tw, const struct patchCollide_s *pc);
 void            CM_ClearLevelPatches(void);
+
+// cm_trisoup.c
+
+struct triSoupCollide_s *CM_GenerateTriangleSoupCollide(int numVertexes, vec3_t * vertexes, int numIndexes, int * indexes);
+void            CM_TraceThroughTriangleSoupCollide(traceWork_t * tw, const struct triSoupCollide_s *tc);
+qboolean        CM_PositionTestInTriangleSoupCollide(traceWork_t * tw, const struct triSoupCollide_s *tc);
+

@@ -26,6 +26,7 @@ bspc_src = [
 'code/qcommon/cm_patch.c',
 'code/qcommon/cm_test.c',
 'code/qcommon/cm_trace.c',
+'code/qcommon/cm_trisoup.c',
 'code/bspc/csg.c',
 'code/bspc/glfile.c',
 'code/bspc/l_bsp_ent.c',

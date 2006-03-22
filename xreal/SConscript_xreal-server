@@ -13,6 +13,7 @@ xreal_server_src = [
 'code/qcommon/cm_polylib.c',
 'code/qcommon/cm_test.c',
 'code/qcommon/cm_trace.c',
+'code/qcommon/cm_trisoup.c',
 'code/qcommon/cmd.c',
 'code/qcommon/common.c',
 'code/qcommon/cvar.c',

@@ -1635,9 +1635,13 @@ A bmodel that just sits there, doing nothing.  Can be used for conditional walls
 void SP_func_static(gentity_t * ent)
 {
 	trap_SetBrushModel(ent, ent->model);
+	
 	InitMover(ent);
+	
 	VectorCopy(ent->s.origin, ent->s.pos.trBase);
 	VectorCopy(ent->s.origin, ent->r.currentOrigin);
+	
+	trap_LinkEntity(ent);
 }
 
 
