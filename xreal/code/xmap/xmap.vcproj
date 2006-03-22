@@ -306,106 +306,106 @@
 			RelativePath="..\common\imagelib.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jcapimin.c">
+			RelativePath="..\jpeg-6\jcapimin.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jccoefct.c">
+			RelativePath="..\jpeg-6\jccoefct.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jccolor.c">
+			RelativePath="..\jpeg-6\jccolor.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jcdctmgr.c">
+			RelativePath="..\jpeg-6\jcdctmgr.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jchuff.c">
+			RelativePath="..\jpeg-6\jchuff.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jcinit.c">
+			RelativePath="..\jpeg-6\jcinit.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jcmainct.c">
+			RelativePath="..\jpeg-6\jcmainct.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jcmarker.c">
+			RelativePath="..\jpeg-6\jcmarker.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jcmaster.c">
+			RelativePath="..\jpeg-6\jcmaster.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jcomapi.c">
+			RelativePath="..\jpeg-6\jcomapi.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jcparam.c">
+			RelativePath="..\jpeg-6\jcparam.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jcphuff.c">
+			RelativePath="..\jpeg-6\jcphuff.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jcprepct.c">
+			RelativePath="..\jpeg-6\jcprepct.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jcsample.c">
+			RelativePath="..\jpeg-6\jcsample.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jdapimin.c">
+			RelativePath="..\jpeg-6\jdapimin.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jdapistd.c">
+			RelativePath="..\jpeg-6\jdapistd.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jdatasrc.c">
+			RelativePath="..\jpeg-6\jdatasrc.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jdcoefct.c">
+			RelativePath="..\jpeg-6\jdcoefct.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jdcolor.c">
+			RelativePath="..\jpeg-6\jdcolor.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jddctmgr.c">
+			RelativePath="..\jpeg-6\jddctmgr.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jdhuff.c">
+			RelativePath="..\jpeg-6\jdhuff.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jdinput.c">
+			RelativePath="..\jpeg-6\jdinput.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jdmainct.c">
+			RelativePath="..\jpeg-6\jdmainct.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jdmarker.c">
+			RelativePath="..\jpeg-6\jdmarker.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jdmaster.c">
+			RelativePath="..\jpeg-6\jdmaster.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jdpostct.c">
+			RelativePath="..\jpeg-6\jdpostct.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jdsample.c">
+			RelativePath="..\jpeg-6\jdsample.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jdtrans.c">
+			RelativePath="..\jpeg-6\jdtrans.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jerror.c">
+			RelativePath="..\jpeg-6\jerror.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jfdctflt.c">
+			RelativePath="..\jpeg-6\jfdctflt.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jidctflt.c">
+			RelativePath="..\jpeg-6\jidctflt.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jmemansi.c">
+			RelativePath="..\jpeg-6\jmemansi.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jmemmgr.c">
+			RelativePath="..\jpeg-6\jmemmgr.c">
 		</File>
 		<File
-			RelativePath="..\code\jpeg-6\jutils.c">
+			RelativePath="..\jpeg-6\jutils.c">
 		</File>
 		<File
 			RelativePath=".\leakfile.c">
