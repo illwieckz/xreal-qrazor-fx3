@@ -329,32 +329,6 @@ static int CM_EdgePlaneNum(cTriangleSoup_t * triSoup, int trianglePlanes[SHADER_
 				break;
 			VectorMA(p1, 4, planes[p].plane, up);
 			return CM_FindPlane(p2, p1, up);
-
-		/*
-		case 3:				
-			p1 = triSoup->points[tri][1];
-			p2 = triSoup->points[tri][2];
-			p = CM_TrianglePlane(trianglePlanes, tri);
-			VectorMA(p1, 4, planes[p].plane, up);
-			return CM_FindPlane(p2, p1, up);
-		*/
-
-
-		/*
-		case 4:				// diagonal out of triangle 0
-			p1 = triSoup->points[i + 1][j + 1];
-			p2 = triSoup->points[i][j];
-			p = CM_GridPlane(trianglePlanes, i, j, 0);
-			VectorMA(p1, 4, planes[p].plane, up);
-			return CM_FindPlane(p1, p2, up);
-
-		case 5:				// diagonal out of triangle 1
-			p1 = triSoup->points[i][j];
-			p2 = triSoup->points[i + 1][j + 1];
-			p = CM_GridPlane(trianglePlanes, i, j, 1);
-			VectorMA(p1, 4, planes[p].plane, up);
-			return CM_FindPlane(p1, p2, up);
-		*/
 		
 		default:
 			Com_Error(ERR_DROP, "CM_EdgePlaneNum: bad edgeType=%i", edgeType);
@@ -573,8 +547,8 @@ static void CM_AddTriangleBevels(cTriangle_t * triangle)
 
 			if(i == triangle->numBorders)
 			{
-				if(triangle->numBorders > 4 + 6 + 16)
-					Com_Printf("ERROR: too many bevels\n");
+				if(triangle->numBorders > MAX_TRIANGLE_BEVELS)
+					Com_Printf("ERROR: CM_AddTriangleBevels: too many bevels\n");
 				triangle->borderPlanes[triangle->numBorders] = CM_FindPlane2(plane, &flipped);
 				triangle->borderNoAdjust[triangle->numBorders] = 0;
 				triangle->borderInward[triangle->numBorders] = flipped;
@@ -640,7 +614,7 @@ static void CM_AddTriangleBevels(cTriangle_t * triangle)
 
 				if(i == triangle->numBorders)
 				{
-					if(triangle->numBorders > 4 + 6 + 16)
+					if(triangle->numBorders > MAX_TRIANGLE_BEVELS)
 						Com_Printf("ERROR: too many bevels\n");
 					triangle->borderPlanes[triangle->numBorders] = CM_FindPlane2(plane, &flipped);
 
@@ -768,18 +742,6 @@ static void CM_TriangleSoupCollideFromTriangleSoup(cTriangleSoup_t * triSoup, tr
 		triangle->borderNoAdjust[1] = noAdjust[EN_SECOND];
 		triangle->borderPlanes[2] = borders[EN_THIRD];
 		triangle->borderNoAdjust[2] = noAdjust[EN_THIRD];
-		
-		/*
-		triangle->borderPlanes[2] = trianglePlanes[i];
-		if(triangle->borderPlanes[2] == -1)
-		{
-			triangle->borderPlanes[2] = borders[EN_SECOND];
-			if(triangle->borderPlanes[2] == -1)
-			{
-				triangle->borderPlanes[2] = CM_EdgePlaneNum(triSoup, trianglePlanes, i, 4);
-			}
-		}
-		*/
 		
 		CM_SetBorderInward(triangle, triSoup, trianglePlanes, i, 0);
 		

@@ -21,7 +21,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-//#define   CULL_BBOX
+// 3 + 6 axial bevels + 3 * 4 edge bevels
+#define MAX_TRIANGLE_BEVELS		(3 + 6 + 12)
 
 typedef struct
 {
@@ -32,10 +33,10 @@ typedef struct
 typedef struct
 {
 	int             surfacePlane;
-	int             numBorders;	// 3 or four + 6 axial bevels + 4 or 3 * 4 edge bevels
-	int             borderPlanes[4 + 6 + 16];
-	int             borderInward[4 + 6 + 16];
-	qboolean        borderNoAdjust[4 + 6 + 16];
+	int             numBorders;	
+	int             borderPlanes[MAX_TRIANGLE_BEVELS];
+	int             borderInward[MAX_TRIANGLE_BEVELS];
+	qboolean        borderNoAdjust[MAX_TRIANGLE_BEVELS];
 } cTriangle_t;
 
 typedef struct triSoupCollide_s
