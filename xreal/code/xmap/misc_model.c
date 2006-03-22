@@ -643,8 +643,6 @@ AddTriangleModel
 */
 void AddTriangleModel(entity_t * entity, qboolean applyTransform)
 {
-	qprintf("----- AddTriangleModel -----\n");
-
 	const char     *classname;
 	const char     *model;
 	const char     *value;
@@ -652,6 +650,8 @@ void AddTriangleModel(entity_t * entity, qboolean applyTransform)
 	vec3_t          angles;
 	matrix_t        rotation;
 	matrix_t        transform;
+	
+	qprintf("----- AddTriangleModel -----\n");
 
 	MatrixIdentity(transform);
 
