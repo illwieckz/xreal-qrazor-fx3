@@ -280,6 +280,12 @@ typedef struct localEntity_s
 	trajectory_t    pos;
 	trajectory_t    angles;
 
+	// Tr3B - added from http://www.icculus.org/~phaethon/q3a/misc/quats.html
+	quat_t          quatOrient;
+	quat_t          quatRot;
+	vec3_t          rotAxis;
+	float           angVel;
+
 	float           bounceFactor;	// 0.0 = no bounce, 1.0 = perfect
 
 	float           color[4];
@@ -664,11 +670,11 @@ typedef struct
 	refExtEntity_t  testModelEntity;
 	char            testModelName[MAX_QPATH];
 	qboolean        testGun;
-	
+
 	// this will only change the skeleton of testModelEntity
 	char            testAnimationName[MAX_QPATH];
 	qhandle_t       testAnimation;
-	
+
 	char            testAnimation2Name[MAX_QPATH];
 	qhandle_t       testAnimation2;
 
@@ -768,7 +774,7 @@ typedef struct
 	qhandle_t       lagometerShader;
 	qhandle_t       backTileShader;
 	qhandle_t       noammoShader;
-	
+
 	qhandle_t       sideBarItemLShader;
 	qhandle_t       sideBarItemRShader;
 
@@ -1352,7 +1358,8 @@ void            CG_GetTeamColor(vec4_t * color);
 const char     *CG_GetGameStatusText();
 const char     *CG_GetKillerText();
 void            CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vec3_t origin, vec3_t angles);
-void            CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponModel, qhandle_t barrelModel, qhandle_t skin, vec3_t origin, vec3_t angles);
+void            CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponModel, qhandle_t barrelModel,
+									 qhandle_t skin, vec3_t origin, vec3_t angles);
 void            CG_Text_PaintChar(float x, float y, float width, float height, float scale, float s, float t, float s2, float t2,
 								  qhandle_t hShader);
 void            CG_CheckOrderPending();
@@ -1642,7 +1649,8 @@ void            trap_R_ModelBounds(clipHandle_t model, vec3_t mins, vec3_t maxs)
 int             trap_R_LerpTag(orientation_t * tag, clipHandle_t mod, int startFrame, int endFrame,
 							   float frac, const char *tagName);
 int             trap_R_ResetSkeleton(refSkeleton_t * skel, qhandle_t model);
-int             trap_R_SetAnimation(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac, qboolean blend);
+int             trap_R_SetAnimation(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac,
+									qboolean blend);
 void            trap_R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset);
 
 // The glconfig_t will not change during the life of a cgame.

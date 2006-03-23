@@ -2056,11 +2056,12 @@ void MatrixMultiplyShear(matrix_t m, vec_t x, vec_t y)
 
 void MatrixToAngles(const matrix_t m, vec3_t angles)
 {
-	double			theta;
-	double			cp;
-	double			sp;
+#if 1
+	double          theta;
+	double          cp;
+	double          sp;
 
-	sp = m[ 2];
+	sp = m[2];
 
 	// cap off our sin value so that we don't get any NANs
 	if(sp > 1.0)
@@ -2077,17 +2078,39 @@ void MatrixToAngles(const matrix_t m, vec3_t angles)
 
 	if(cp > 8192 * FLT_EPSILON)
 	{
-		angles[PITCH]	= theta * 180 / M_PI;
-		angles[YAW]		= atan2(m[ 1], m[ 0]) * 180 / M_PI;
-		angles[ROLL]	= atan2(m[ 6], m[10]) * 180 / M_PI;
+		angles[PITCH] = RAD2DEG(theta);
+		angles[YAW] = RAD2DEG(atan2(m[1], m[0]));
+		angles[ROLL] = RAD2DEG(atan2(m[6], m[10]));
 	}
 	else
 	{
-		angles[PITCH]	= theta * 180 / M_PI;
-		angles[YAW]		= -atan2(m[ 4], m[ 5]) * 180 / M_PI;
-		angles[ROLL]	= 0;
+		angles[PITCH] = RAD2DEG(theta);
+		angles[YAW] = RAD2DEG(-atan2(m[4], m[5]));
+		angles[ROLL] = 0;
 	}
+#else
+	double          a;
+	double          ca;
+	
+	a = asin(-m[2]);
+	ca = cos(a);
+
+	if(fabs(ca) > 0.005)		// Gimbal lock?
+	{
+		angles[PITCH] = RAD2DEG(atan2(m[6] / ca, m[10] / ca));
+		angles[YAW] = RAD2DEG(a);
+		angles[ROLL] = RAD2DEG(atan2(m[1] / ca, m[0] / ca));
+	}
+	else
+	{
+		// Gimbal lock has occurred
+		angles[PITCH] = RAD2DEG(atan2(-m[9], m[5]));
+		angles[YAW] = RAD2DEG(a);
+		angles[ROLL] = 0;
+	}
+#endif
 }
+
 
 void MatrixFromAngles(matrix_t m, vec_t pitch, vec_t yaw, vec_t roll)
 {
@@ -2319,6 +2342,157 @@ void MatrixTransform4(const matrix_t m, const vec4_t in, vec4_t out)
 }
 
 // *INDENT-ON*
+
+
+vec_t QuatNormalize(quat_t q)
+{
+	float           length, ilength;
+
+	length = q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3];
+	length = sqrt(length);
+
+	if(length)
+	{
+		ilength = 1 / length;
+		q[0] *= ilength;
+		q[1] *= ilength;
+		q[2] *= ilength;
+		q[3] *= ilength;
+	}
+
+	return length;
+}
+
+void QuatFromAngles(quat_t q, vec_t pitch, vec_t yaw, vec_t roll)
+{
+#if 0
+	matrix_t        tmp;
+	
+	MatrixFromAngles(tmp, pitch, yaw, roll);
+	QuatFromMatrix(q, tmp);
+#else
+	static float    sr, sp, sy, cr, cp, cy;
+
+    // static to help MS compiler fp bugs
+	sp = sin(DEG2RAD(pitch));
+	cp = cos(DEG2RAD(pitch));
+
+	sy = sin(DEG2RAD(yaw));
+	cy = cos(DEG2RAD(yaw));
+
+	sr = sin(DEG2RAD(roll));
+	cr = cos(DEG2RAD(roll));
+	
+	q[0] = sr * cp * cy - cr * sp * sy; // x
+	q[1] = cr * sp * cy + sr * cp * sy; // y
+	q[2] = cr * cp * sy - sr * sp * cy; // z
+	q[3] = cr * cp * cy + sr * sp * sy; // w
+#endif
+}
+
+void QuatFromMatrix(quat_t q, const matrix_t m)
+{
+	float           trace;
+	float           s;
+	int             i;
+	int             j;
+	int             k;
+
+	static int      next[3] = { 1, 2, 0 };
+
+	trace = m[0] + m[5] + m[10];
+	if(trace > 0.0f)
+	{
+		s = (float)sqrt(trace + 1.0f);
+		q[3] = s * 0.5f;
+		s = 0.5f / s;
+
+		q[0] = (m[9] - m[6]) * s;
+		q[1] = (m[2] - m[8]) * s;
+		q[2] = (m[4] - m[1]) * s;
+	}
+	else
+	{
+		i = 0;
+		if(m[5] > m[0])
+		{
+			i = 1;
+		}
+		if(m[10] > m[i * 4 + i])
+		{
+			i = 2;
+		}
+
+		j = next[i];
+		k = next[j];
+
+		s = (float)sqrt((m[i * 4 + i] - (m[j * 4 + j] + m[k * 4 + k])) + 1.0f);
+		q[i] = s * 0.5f;
+
+		s = 0.5f / s;
+
+		q[3] = (m[k * 4 + j] - m[j * 4 + k]) * s;
+		q[j] = (m[j * 4 + i] + m[i * 4 + j]) * s;
+		q[k] = (m[k * 4 + i] + m[i * 4 + k]) * s;
+	}
+}
+
+void QuatToAxis(const quat_t q, vec3_t axis[3])
+{
+	matrix_t        tmp;
+	
+	MatrixFromQuat(tmp, q);
+	MatrixToVectorsFLU(tmp, axis[0], axis[1], axis[2]);
+}
+
+void QuatMultiply0(quat_t qa, const quat_t qb)
+{
+	quat_t          tmp;
+
+	QuatCopy(qa, tmp);
+	QuatMultiply1(tmp, qb, qa);
+}
+
+void QuatMultiply1(const quat_t qa, const quat_t qb, quat_t qc)
+{
+	/*
+	   from matrix and quaternion faq
+	   x = w1x2 + x1w2 + y1z2 - z1y2
+	   y = w1y2 + y1w2 + z1x2 - x1z2
+	   z = w1z2 + z1w2 + x1y2 - y1x2
+
+	   w = w1w2 - x1x2 - y1y2 - z1z2
+	*/
+
+	qc[0] = qa[3] * qb[0] + qa[0] * qb[3] + qa[1] * qb[2] - qa[2] * qb[1];
+	qc[1] = qa[3] * qb[1] + qa[1] * qb[3] + qa[2] * qb[0] - qa[0] * qb[2];
+	qc[2] = qa[3] * qb[2] + qa[2] * qb[3] + qa[0] * qb[1] - qa[1] * qb[0];
+	qc[3] = qa[3] * qb[3] - qa[0] * qb[0] - qa[1] * qb[1] - qa[2] * qb[2];
+}
+
+void QuatMultiply2(const quat_t qa, const quat_t qb, quat_t qc)
+{
+	qc[0] = qa[3] * qb[0] + qa[0] * qb[3] + qa[1] * qb[2] + qa[2] * qb[1];
+	qc[1] = qa[3] * qb[1] - qa[1] * qb[3] - qa[2] * qb[0] + qa[0] * qb[2];
+	qc[2] = qa[3] * qb[2] - qa[2] * qb[3] - qa[0] * qb[1] + qa[1] * qb[0];
+	qc[3] = qa[3] * qb[3] - qa[0] * qb[0] - qa[1] * qb[1] + qa[2] * qb[2];
+}
+
+void QuatMultiply3(const quat_t qa, const quat_t qb, quat_t qc)
+{
+	qc[0] = qa[3] * qb[0] + qa[0] * qb[3] + qa[1] * qb[2] + qa[2] * qb[1];
+	qc[1] =-qa[3] * qb[1] + qa[1] * qb[3] - qa[2] * qb[0] + qa[0] * qb[2];
+	qc[2] =-qa[3] * qb[2] + qa[2] * qb[3] - qa[0] * qb[1] + qa[1] * qb[0];
+	qc[3] =-qa[3] * qb[3] + qa[0] * qb[0] - qa[1] * qb[1] + qa[2] * qb[2];
+}
+
+void QuatMultiply4(const quat_t qa, const quat_t qb, quat_t qc)
+{
+	qc[0] = qa[3] * qb[0] - qa[0] * qb[3] - qa[1] * qb[2] - qa[2] * qb[1];
+	qc[1] =-qa[3] * qb[1] - qa[1] * qb[3] + qa[2] * qb[0] - qa[0] * qb[2];
+	qc[2] =-qa[3] * qb[2] - qa[2] * qb[3] + qa[0] * qb[1] - qa[1] * qb[0];
+	qc[3] =-qa[3] * qb[3] - qa[0] * qb[0] + qa[1] * qb[1] - qa[2] * qb[2];
+}
 
 
 void QuatSlerp(const quat_t from, const quat_t to, float frac, quat_t out)

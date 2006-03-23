@@ -90,10 +90,21 @@ static void CG_MachineGunEjectBrass(centity_t * cent)
 	le->angles.trBase[0] = rand() & 31;
 	le->angles.trBase[1] = rand() & 31;
 	le->angles.trBase[2] = rand() & 31;
+#if 0
 	le->angles.trDelta[0] = 2;
 	le->angles.trDelta[1] = 1;
 	le->angles.trDelta[2] = 0;
-
+#else
+	// Tr3B - new quaternion code
+	QuatFromAngles(le->quatOrient, le->angles.trBase[PITCH], le->angles.trBase[YAW], le->angles.trBase[ROLL]);
+	le->angVel = 10 * random();
+	le->rotAxis[0] = crandom();
+	le->rotAxis[1] = crandom();
+	le->rotAxis[2] = crandom();
+	VectorNormalize(le->rotAxis);
+	le->radius = 4;
+	QuatClear(le->quatRot);
+#endif
 	le->leFlags = LEF_TUMBLE;
 	le->leBounceSoundType = LEBS_BRASS;
 	le->leMarkType = LEMT_NONE;
@@ -173,9 +184,21 @@ static void CG_ShotgunEjectBrass(centity_t * cent)
 		le->angles.trBase[0] = rand() & 31;
 		le->angles.trBase[1] = rand() & 31;
 		le->angles.trBase[2] = rand() & 31;
+#if 0
 		le->angles.trDelta[0] = 1;
 		le->angles.trDelta[1] = 0.5;
 		le->angles.trDelta[2] = 0;
+#else
+		// Tr3B - new quaternion code
+		QuatFromAngles(le->quatOrient, le->angles.trBase[PITCH], le->angles.trBase[YAW], le->angles.trBase[ROLL]);
+		le->angVel = 10 * random();
+		le->rotAxis[0] = crandom();
+		le->rotAxis[1] = crandom();
+		le->rotAxis[2] = crandom();
+		VectorNormalize(le->rotAxis);
+		le->radius = 6;
+		QuatClear(le->quatRot);
+#endif
 
 		le->leFlags = LEF_TUMBLE;
 		le->leBounceSoundType = LEBS_BRASS;
@@ -1643,7 +1666,7 @@ void CG_DrawWeaponSelect(void)
 	int             x, y, w;
 	char           *name;
 	float          *color;
-	
+
 	if(!cg_drawWeaponSelect.integer)
 		return;
 
@@ -1985,8 +2008,9 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 	qboolean        alphaFade;
 	qboolean        isSprite;
 	int             duration;
-//	vec3_t          sprOrg;
-//	vec3_t          sprVel;
+
+//  vec3_t          sprOrg;
+//  vec3_t          sprVel;
 
 	mark = 0;
 	radius = 32;
@@ -2074,15 +2098,15 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			lightColor[1] = 0.75;
 			lightColor[2] = 0.0;
 			/*
-			if(cg_oldRocket.integer == 0)
-			{
-				// explosion sprite animation
-				VectorMA(origin, 24, dir, sprOrg);
-				VectorScale(dir, 64, sprVel);
+			   if(cg_oldRocket.integer == 0)
+			   {
+			   // explosion sprite animation
+			   VectorMA(origin, 24, dir, sprOrg);
+			   VectorScale(dir, 64, sprVel);
 
-				CG_ParticleExplosion("explode1", sprOrg, sprVel, 1400, 20, 30);
-			}
-			*/
+			   CG_ParticleExplosion("explode1", sprOrg, sprVel, 1400, 20, 30);
+			   }
+			 */
 			// Tr3B - shockwave test
 			//CG_ShockWaveEffect(origin);
 			break;

@@ -272,7 +272,18 @@ void CG_ReflectVelocity(localEntity_t * le, trace_t * trace)
 	}
 	else
 	{
+		if(le->leFlags & LEF_TUMBLE)
+		{
+			// collided with a surface so calculate the new rotation axis
+			CrossProduct(trace->plane.normal, velocity, le->rotAxis);
+			le->angVel = VectorNormalize(le->rotAxis) / le->radius;
 
+			// save current orientation as a rotation from model's base orientation
+			QuatMultiply0(le->quatRot, le->quatOrient);
+
+			// reset the orientation
+			QuatClear(le->quatOrient);
+		}
 	}
 }
 
@@ -325,10 +336,33 @@ void CG_AddFragment(localEntity_t * le)
 
 		if(le->leFlags & LEF_TUMBLE)
 		{
+#if 0
 			vec3_t          angles;
 
 			BG_EvaluateTrajectory(&le->angles, cg.time, angles);
 			AnglesToAxis(angles, le->refEntity.axis);
+#else
+			// Tr3B - new quaternion code
+			quat_t          qrot;
+
+			// angular rotation for this frame
+			float           angle = le->angVel * (cg.time - le->angles.trTime) * 0.001 / 2;
+
+			// create the rotation quaternion
+			qrot[3] = cos(angle);	// real part
+			VectorScale(le->rotAxis, sin(angle), qrot);	// imaginary part
+			QuatNormalize(qrot);
+
+			// create the new orientation
+			QuatMultiply0(le->quatOrient, qrot);
+
+			// apply the combined previous rotations around other axes
+			QuatMultiply1(le->quatOrient, le->quatRot, qrot);
+
+			// convert the orientation into the form the renderer wants
+			QuatToAxis(qrot, le->refEntity.axis);
+			le->angles.trTime = cg.time;
+#endif
 		}
 
 		trap_R_AddRefEntityToScene(&le->refEntity);
@@ -1109,7 +1143,7 @@ void CG_AddLocalEntities(void)
 			case LE_SCOREPLUM:
 				CG_AddScorePlum(le);
 				break;
-				
+
 			case LE_SHOCKWAVE:
 				CG_AddShockWave(le);
 

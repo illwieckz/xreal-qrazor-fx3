@@ -624,7 +624,7 @@ typedef vec_t   vec5_t[5];
 
 typedef vec_t   axis_t[3][3];
 typedef vec_t   matrix_t[16];
-typedef vec_t   quat_t[4];
+typedef vec_t   quat_t[4];		// | x y z w |
 
 typedef int     fixed4_t;
 typedef int     fixed8_t;
@@ -1045,8 +1045,16 @@ void            MatrixTransformPoint(const matrix_t m, const vec3_t in, vec3_t o
 void            MatrixTransform4(const matrix_t m, const vec4_t in, vec4_t out);
 
 
-#define QuatSet(w, x, y, z, q)  ((q)[0]=(w), (q)[1]=(x), (q)[2]=(y), (q)[3]=(z))
-#define QuatCopy(a, b)          ((b)[0]=(a)[0], (b)[1]=(a)[1], (b)[2]=(a)[2], (b)[3]=(a)[3])
+#define QuatSet(q,x,y,z,w)	((q)[0]=(x),(q)[1]=(y),(q)[2]=(z),(q)[3]=(w))
+#define QuatCopy(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
+
+static ID_INLINE void QuatClear(quat_t q)
+{
+	q[0] = 0;
+	q[1] = 0;
+	q[2] = 0;
+	q[3] = 1;
+}
 
 static ID_INLINE void QuatCalcW(quat_t q)
 {
@@ -1058,6 +1066,13 @@ static ID_INLINE void QuatCalcW(quat_t q)
 		q[3] = -sqrt(term);
 }
 
+static ID_INLINE void QuatInverse(quat_t q)
+{
+	q[0] = -q[0];
+	q[1] = -q[1];
+	q[2] = -q[2];
+}
+
 static ID_INLINE void QuatAntipodal(quat_t q)
 {
 	q[0] = -q[0];
@@ -1065,6 +1080,35 @@ static ID_INLINE void QuatAntipodal(quat_t q)
 	q[2] = -q[2];
 	q[3] = -q[3];
 }
+
+static ID_INLINE vec_t QuatLength(const quat_t q)
+{
+	return (vec_t) sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
+}
+
+vec_t			QuatNormalize(quat_t q);
+
+void            QuatFromAngles(quat_t q, vec_t pitch, vec_t yaw, vec_t roll);
+void            QuatFromMatrix(quat_t q, const matrix_t m);
+void            QuatToAxis(const quat_t q, vec3_t axis[3]);
+
+// Quaternion multiplication, analogous to the matrix multiplication routines.
+
+// qa = rotate by qa, then qb
+void            QuatMultiply0(quat_t qa, const quat_t qb);
+
+// qc = rotate by qa, then qb
+void            QuatMultiply1(const quat_t qa, const quat_t qb, quat_t qc);
+
+// qc = rotate by qa, then by inverse of qb
+void            QuatMultiply2(const quat_t qa, const quat_t qb, quat_t qc);
+
+// qc = rotate by inverse of qa, then by qb
+void            QuatMultiply3(const quat_t qa, const quat_t qb, quat_t qc);
+
+// qc = rotate by inverse of qa, then by inverse of qb
+void            QuatMultiply4(const quat_t qa, const quat_t qb, quat_t qc);
+
 
 void            QuatSlerp(const quat_t from, const quat_t to, float frac, quat_t out);
 

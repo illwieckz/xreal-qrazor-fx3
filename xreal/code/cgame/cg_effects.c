@@ -617,6 +617,19 @@ void CG_LaunchGib(vec3_t origin, vec3_t velocity, qhandle_t hModel)
 
 	le->leBounceSoundType = LEBS_BLOOD;
 	le->leMarkType = LEMT_BLOOD;
+
+	// Tr3B - new quaternion code
+	le->angles.trType = TR_LINEAR;
+	le->angles.trTime = cg.time;
+	le->angVel = 20 * crandom();	// random angular velocity
+	le->rotAxis[0] = crandom();		// random axis of rotation
+	le->rotAxis[1] = crandom();
+	le->rotAxis[2] = crandom();
+	VectorNormalize(le->rotAxis);	// normalize the rotation axis
+	QuatClear(le->quatRot);
+	QuatClear(le->quatOrient);
+	le->radius = 12;
+	le->leFlags = LEF_TUMBLE;
 }
 
 /*
