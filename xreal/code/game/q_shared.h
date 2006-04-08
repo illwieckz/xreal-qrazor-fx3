@@ -706,6 +706,7 @@ struct cplane_s;
 extern vec3_t   vec3_origin;
 extern vec3_t   axisDefault[3];
 extern matrix_t matrixIdentity;
+extern quat_t   quatIdentity;
 
 #define	nanmask (255<<23)
 
@@ -1044,9 +1045,16 @@ void            MatrixTransformNormal(const matrix_t m, const vec3_t in, vec3_t 
 void            MatrixTransformPoint(const matrix_t m, const vec3_t in, vec3_t out);
 void            MatrixTransform4(const matrix_t m, const vec4_t in, vec4_t out);
 
+static ID_INLINE void AnglesToMatrix(const vec3_t angles, matrix_t m)
+{
+	MatrixFromAngles(m, angles[PITCH], angles[YAW], angles[ROLL]);
+}
+
 
 #define QuatSet(q,x,y,z,w)	((q)[0]=(x),(q)[1]=(y),(q)[2]=(z),(q)[3]=(w))
 #define QuatCopy(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
+
+#define QuatCompare(a,b)	((a)[0]==(b)[0] && (a)[1]==(b)[1] && (a)[2]==(b)[2] && (a)[3]==(b)[3])
 
 static ID_INLINE void QuatClear(quat_t q)
 {
@@ -1055,6 +1063,17 @@ static ID_INLINE void QuatClear(quat_t q)
 	q[2] = 0;
 	q[3] = 1;
 }
+
+/*
+static ID_INLINE int QuatCompare(const quat_t a, const quat_t b)
+{
+	if(a[0] != b[0] || a[1] != b[1] || a[2] != b[2] || a[3] != b[3])
+	{
+		return 0;
+	}
+	return 1;
+}
+*/
 
 static ID_INLINE void QuatCalcW(quat_t q)
 {
@@ -1089,8 +1108,16 @@ static ID_INLINE vec_t QuatLength(const quat_t q)
 vec_t			QuatNormalize(quat_t q);
 
 void            QuatFromAngles(quat_t q, vec_t pitch, vec_t yaw, vec_t roll);
+
+static ID_INLINE void AnglesToQuat(const vec3_t angles, quat_t q)
+{
+	QuatFromAngles(q, angles[PITCH], angles[YAW], angles[ROLL]);	
+}
+
 void            QuatFromMatrix(quat_t q, const matrix_t m);
+void            QuatToVectors(const quat_t quat, vec3_t forward, vec3_t right, vec3_t up);
 void            QuatToAxis(const quat_t q, vec3_t axis[3]);
+void            QuatToAngles(const quat_t q, vec3_t angles);
 
 // Quaternion multiplication, analogous to the matrix multiplication routines.
 

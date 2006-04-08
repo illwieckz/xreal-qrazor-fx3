@@ -26,13 +26,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <float.h>
 
 // *INDENT-OFF*
-vec3_t  vec3_origin = {0, 0, 0};
+vec3_t          vec3_origin = { 0, 0, 0 };
+
 vec3_t  axisDefault[3] = {{ 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 }};
+
 matrix_t matrixIdentity = {	1, 0, 0, 0,
 							0, 1, 0, 0,
 							0, 0, 1, 0,
 							0, 0, 0, 1};
 
+quat_t          quatIdentity = { 0, 0, 0, 1 };
 
 vec4_t          colorBlack      = {0, 0, 0, 1};
 vec4_t          colorRed        = {1, 0, 0, 1};
@@ -2231,31 +2234,50 @@ void MatrixFromPlanes(matrix_t m, const vec4_t left, const vec4_t right, const v
 
 void MatrixToVectorsFLU(const matrix_t m, vec3_t forward, vec3_t left, vec3_t up)
 {
-	forward[0] = m[ 0];     // cp*cy;
-	forward[1] = m[ 1];     // cp*sy;
-	forward[2] = m[ 2];     //-sp;
-        
-	left[0] = m[ 4];        // sr*sp*cy+cr*-sy;
-	left[1] = m[ 5];        // sr*sp*sy+cr*cy;
-	left[2] = m[ 6];        // sr*cp;
-	up[0] = m[ 8];  // cr*sp*cy+-sr*-sy;
-	up[1] = m[ 9];  // cr*sp*sy+-sr*cy;
-	up[2] = m[10];  // cr*cp;
+	if(forward)
+	{
+		forward[0] = m[ 0];     // cp*cy;
+		forward[1] = m[ 1];     // cp*sy;
+		forward[2] = m[ 2];     //-sp;
+	}
+     
+    if(left)
+    {   
+		left[0] = m[ 4];        // sr*sp*cy+cr*-sy;
+		left[1] = m[ 5];        // sr*sp*sy+cr*cy;
+		left[2] = m[ 6];        // sr*cp;
+    }
+	
+	if(up)
+	{
+		up[0] = m[ 8];  // cr*sp*cy+-sr*-sy;
+		up[1] = m[ 9];  // cr*sp*sy+-sr*cy;
+		up[2] = m[10];  // cr*cp;
+	}
 }
 
 void MatrixToVectorsFRU(const matrix_t m, vec3_t forward, vec3_t right, vec3_t up)
 {
-	forward[0] = m[ 0];
-	forward[1] = m[ 1];
-	forward[2] = m[ 2];
-        
-	right[0] =-m[ 4];
-	right[1] =-m[ 5];
-	right[2] =-m[ 6];
+	if(forward)
+	{
+		forward[0] = m[ 0];
+		forward[1] = m[ 1];
+		forward[2] = m[ 2];
+	}
+	
+	if(right)
+	{   
+		right[0] =-m[ 4];
+		right[1] =-m[ 5];
+		right[2] =-m[ 6];
+	}
 
-	up[0] = m[ 8];
-	up[1] = m[ 9];
-	up[2] = m[10];
+	if(up)
+	{
+		up[0] = m[ 8];
+		up[1] = m[ 9];
+		up[2] = m[10];
+	}
 }
 
 void MatrixSetupTransform(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up, const vec3_t origin)
@@ -2437,6 +2459,14 @@ void QuatFromMatrix(quat_t q, const matrix_t m)
 	}
 }
 
+void QuatToVectors(const quat_t q, vec3_t forward, vec3_t right, vec3_t up)
+{
+	matrix_t        tmp;
+	
+	MatrixFromQuat(tmp, q);
+	MatrixToVectorsFRU(tmp, forward, right, up);
+}
+
 void QuatToAxis(const quat_t q, vec3_t axis[3])
 {
 	matrix_t        tmp;
@@ -2444,6 +2474,21 @@ void QuatToAxis(const quat_t q, vec3_t axis[3])
 	MatrixFromQuat(tmp, q);
 	MatrixToVectorsFLU(tmp, axis[0], axis[1], axis[2]);
 }
+
+void QuatToAngles(const quat_t q, vec3_t angles)
+{
+	quat_t          q2;
+
+	q2[0] = q[0] * q[0];
+	q2[1] = q[1] * q[1];
+	q2[2] = q[2] * q[2];
+	q2[3] = q[3] * q[3];
+	
+	angles[PITCH] = RAD2DEG(asin(-2 * (q[2] * q[0] - q[3] * q[1])));
+	angles[YAW] = RAD2DEG(atan2(2 * (q[2] * q[3] + q[0] * q[1]), (q2[2] - q2[3] - q2[0] + q2[1])));
+	angles[ROLL] = RAD2DEG(atan2(2 * (q[3] * q[0] + q[2] * q[1]), (-q2[2] - q2[3] + q2[0] + q2[1])));
+}
+
 
 void QuatMultiply0(quat_t qa, const quat_t qb)
 {
