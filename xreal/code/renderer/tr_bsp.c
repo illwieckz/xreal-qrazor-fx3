@@ -2595,12 +2595,16 @@ void R_LoadEntities(lump_t * l)
 	// basic light setup
 	for(i = 0, dl = s_worldData.dlights; i < s_worldData.numDlights; i++, dl++)
 	{
+		dl->l.color[0] = 1;
+		dl->l.color[1] = 1;
+		dl->l.color[2] = 1;
+		
 		dl->l.radius[0] = 300;
 		dl->l.radius[1] = 300;
 		dl->l.radius[2] = 300;
+		
 		AxisCopy(axisDefault, dl->l.axis);
-		//dl->l.noShadows = qtrue;
-
+		
 		dl->isStatic = qtrue;
 		dl->additive = qtrue;
 	}
