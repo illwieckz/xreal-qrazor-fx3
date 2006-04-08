@@ -2024,7 +2024,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		// vertexColor
 		else if(!Q_stricmp(token, "vertexColor"))
 		{
-			stage->rgbGen = CGEN_VERTEX;
+			stage->rgbGen = CGEN_EXACT_VERTEX;
 		}
 		// inverseVertexColor
 		else if(!Q_stricmp(token, "inverseVertexColor"))
@@ -2314,6 +2314,36 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		else if(!Q_stricmp(token, "specularExponent"))
 		{
 			ParseExpression(text, &stage->specularExponentExp);
+		}
+		// refractionIndex <arithmetic expression>
+		else if(!Q_stricmp(token, "refractionIndex"))
+		{
+			ParseExpression(text, &stage->refractionIndexExp);
+		}
+		// fresnelPower <arithmetic expression>
+		else if(!Q_stricmp(token, "fresnelPower"))
+		{
+			ParseExpression(text, &stage->fresnelPowerExp);
+		}
+		// fresnelScale <arithmetic expression>
+		else if(!Q_stricmp(token, "fresnelScale"))
+		{
+			ParseExpression(text, &stage->fresnelScaleExp);
+		}
+		// fresnelBias <arithmetic expression>
+		else if(!Q_stricmp(token, "fresnelBias"))
+		{
+			ParseExpression(text, &stage->fresnelBiasExp);
+		}
+		// heightScale <arithmetic expression>
+		else if(!Q_stricmp(token, "heightScale"))
+		{
+			ParseExpression(text, &stage->heightScaleExp);
+		}
+		// heightBias <arithmetic expression>
+		else if(!Q_stricmp(token, "heightBias"))
+		{
+			ParseExpression(text, &stage->heightBiasExp);
 		}
 		// deformMagnitude <arithmetic expression>
 		else if(!Q_stricmp(token, "deformMagnitude"))

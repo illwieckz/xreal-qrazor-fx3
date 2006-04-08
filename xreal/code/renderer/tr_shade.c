@@ -435,6 +435,44 @@ void RB_InitGPUShaders(void)
 	qglUseProgramObjectARB(0);
 	
 	//
+	// omni-directional specular parallax bump mapping ( Doom3 style )
+	//
+	RB_InitGPUShader(&tr.lightShader_DBSP_omni,
+					  "lighting_DBSP_omni",
+					  GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD2 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+
+	tr.lightShader_DBSP_omni.u_DiffuseMap =
+			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_DiffuseMap");
+	tr.lightShader_DBSP_omni.u_NormalMap =
+			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_NormalMap");
+	tr.lightShader_DBSP_omni.u_SpecularMap =
+			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_SpecularMap");
+	tr.lightShader_DBSP_omni.u_AttenuationMapXY =
+			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_AttenuationMapXY");
+	tr.lightShader_DBSP_omni.u_AttenuationMapZ =
+			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_AttenuationMapZ");
+	tr.lightShader_DBSP_omni.u_ViewOrigin =
+			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_ViewOrigin");
+	tr.lightShader_DBSP_omni.u_LightOrigin =
+			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_LightOrigin");
+	tr.lightShader_DBSP_omni.u_LightColor =
+			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_LightColor");
+	tr.lightShader_DBSP_omni.u_SpecularExponent =
+			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_SpecularExponent");
+	tr.lightShader_DBSP_omni.u_HeightScale =
+			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_HeightScale");
+	tr.lightShader_DBSP_omni.u_HeightBias =
+			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_HeightBias");
+
+	qglUseProgramObjectARB(tr.lightShader_DBSP_omni.program);
+	qglUniform1iARB(tr.lightShader_DBSP_omni.u_DiffuseMap, 0);
+	qglUniform1iARB(tr.lightShader_DBSP_omni.u_NormalMap, 1);
+	qglUniform1iARB(tr.lightShader_DBSP_omni.u_SpecularMap, 2);
+	qglUniform1iARB(tr.lightShader_DBSP_omni.u_AttenuationMapXY, 3);
+	qglUniform1iARB(tr.lightShader_DBSP_omni.u_AttenuationMapZ, 4);
+	qglUseProgramObjectARB(0);
+	
+	//
 	// projective lighting ( Doom3 style )
 	//
 	RB_InitGPUShader(&tr.lightShader_D_proj,
@@ -793,6 +831,12 @@ void RB_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.lightShader_DBS_omni.program);
 		tr.lightShader_DBS_omni.program = 0;
+	}
+	
+	if(tr.lightShader_DBSP_omni.program)
+	{
+		qglDeleteObjectARB(tr.lightShader_DBSP_omni.program);
+		tr.lightShader_DBSP_omni.program = 0;
 	}
 	
 	if(tr.lightShader_D_proj.program)
@@ -1778,15 +1822,11 @@ static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
 	
 	GL_SelectTexture(2);
 	R_BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
-	
-	R_DrawElements();
-	
-	/*
-	GL_SelectTexture(0);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
-	*/
+	
+	R_DrawElements();
 	
 	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
@@ -1837,13 +1877,6 @@ static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
 	R_BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 	
 	R_DrawElements();
-	
-	/*
-	GL_SelectTexture(0);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadIdentity();
-	qglMatrixMode(GL_MODELVIEW);
-	*/
 	
 	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
@@ -1907,10 +1940,69 @@ static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 	
 	R_DrawElements();
 	
+	// update performance counters
+	backEnd.pc.c_dlightVertexes += tess.numVertexes;
+	backEnd.pc.c_dlightIndexes += tess.numIndexes;
+}
+
+static void Render_lighting_DBSP_omni(	shaderStage_t * diffuseStage,
+										shaderStage_t * attenuationXYStage,
+										shaderStage_t * attenuationZStage,
+										trRefDlight_t * dlight)
+{
+	vec3_t			viewOrigin;
+	vec3_t          lightOrigin;
+	vec4_t          lightColor;
+	float           specularExponent;
+	
+	GLimp_LogComment("--- Render_lighting_DBSP_omni ---\n");
+	
+	// enable shader, set arrays
+	GL_Program(tr.lightShader_DBSP_omni.program);
+	GL_ClientState(tr.lightShader_DBSP_omni.attribs);
+	GL_SetVertexAttribs();
+
+	// set uniforms
+	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
+	VectorCopy(dlight->transformed, lightOrigin);
+	VectorCopy(tess.svars.color, lightColor);
+	specularExponent = RB_EvalExpression(&diffuseStage->specularExponentExp, 32.0);
+	
+	qglUniform3fARB(tr.lightShader_DBSP_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	qglUniform3fARB(tr.lightShader_DBSP_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
+	qglUniform3fARB(tr.lightShader_DBSP_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
+	qglUniform1fARB(tr.lightShader_DBSP_omni.u_SpecularExponent, specularExponent);
+	qglUniform1fARB(tr.lightShader_DBSP_omni.u_HeightScale, RB_EvalExpression(&diffuseStage->heightScaleExp, 0.05));
+	qglUniform1fARB(tr.lightShader_DBSP_omni.u_HeightBias, RB_EvalExpression(&diffuseStage->heightBiasExp, 0));
+
 	GL_SelectTexture(0);
+	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
-	qglLoadIdentity();
+	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
+	
+	GL_SelectTexture(1);
+	GL_Bind(diffuseStage->bundle[TB_NORMALMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
+	qglMatrixMode(GL_MODELVIEW);
+	
+	GL_SelectTexture(2);
+	GL_Bind(diffuseStage->bundle[TB_SPECULARMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_SPECULARMAP]);
+	qglMatrixMode(GL_MODELVIEW);
+	
+	GL_SelectTexture(3);
+	R_BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(dlight->attenuationMatrix2);
+	qglMatrixMode(GL_MODELVIEW);
+	
+	GL_SelectTexture(4);
+	R_BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
+	
+	R_DrawElements();
 	
 	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
@@ -3570,7 +3662,22 @@ void RB_StageIteratorLighting()
 				case ST_COLLAPSE_lighting_DBS_generic:
 					if(glConfig2.shadingLanguage100Available)
 					{
-						if(r_lighting->integer == 2)
+						if(r_lighting->integer == 3)
+						{
+							if(dl->l.rlType == RL_OMNI)
+							{
+								Render_lighting_DBSP_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							}
+							else if(dl->l.rlType == RL_PROJ)
+							{
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							}
+							else
+							{
+								// TODO
+							}
+						}
+						else if(r_lighting->integer == 2)
 						{
 							if(dl->l.rlType == RL_OMNI)
 							{
@@ -3834,7 +3941,22 @@ void RB_StageIteratorLightingStencilShadowed()
 				case ST_COLLAPSE_lighting_DBS_generic:
 					if(glConfig2.shadingLanguage100Available)
 					{
-						if(r_lighting->integer == 2)
+						if(r_lighting->integer == 3)
+						{
+							if(dl->l.rlType == RL_OMNI)
+							{
+								Render_lighting_DBSP_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							}
+							else if(dl->l.rlType == RL_PROJ)
+							{
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							}
+							else
+							{
+								// TODO
+							}
+						}
+						else if(r_lighting->integer == 2)
 						{
 							if(dl->l.rlType == RL_OMNI)
 							{

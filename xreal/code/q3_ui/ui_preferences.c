@@ -90,6 +90,7 @@ static const char *lighting_names[] =
 	"simple diffuse",
 	"bump mapping",
 	"specular bump mapping",
+	"parallax bump mapping",
 	0
 };
 
@@ -116,7 +117,7 @@ static void Preferences_SetMenuItems( void ) {
 	s_preferences.brass.curvalue			= trap_Cvar_VariableValue( "cg_brassTime" ) != 0;
 	s_preferences.wallmarks.curvalue		= trap_Cvar_VariableValue( "cg_marks" ) != 0;
 	s_preferences.identifytarget.curvalue	= trap_Cvar_VariableValue( "cg_drawCrosshairNames" ) != 0;
-	s_preferences.lighting.curvalue			= Com_Clamp(0, 2, trap_Cvar_VariableValue("r_lighting"));
+	s_preferences.lighting.curvalue			= Com_Clamp(0, 3, trap_Cvar_VariableValue("r_lighting"));
 	s_preferences.dynamiclights.curvalue	= trap_Cvar_VariableValue( "r_dynamiclight" ) != 0;
 	s_preferences.highqualitysky.curvalue	= trap_Cvar_VariableValue ( "r_fastsky" ) == 0;
 	s_preferences.synceveryframe.curvalue	= trap_Cvar_VariableValue( "r_finish" ) != 0;

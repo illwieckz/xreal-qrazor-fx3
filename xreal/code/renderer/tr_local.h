@@ -610,6 +610,9 @@ typedef struct
 	expression_t    etaExp;
 	expression_t    etaDeltaExp;
 	
+	expression_t    heightScaleExp;
+	expression_t    heightBiasExp;
+	
 	expression_t    deformMagnitudeExp;
 	
 	expression_t    blurMagnitudeExp;
@@ -783,6 +786,9 @@ typedef struct shaderProgram_s
 	GLint			u_FresnelBias;
 	
 	GLint			u_EtaRatio;
+	
+	GLint			u_HeightScale;
+	GLint			u_HeightBias;
 	
 	GLint			u_DeformMagnitude;
 	GLint			u_BlurMagnitude;
@@ -1602,6 +1608,7 @@ typedef struct
 	shaderProgram_t lightShader_D_omni;
 	shaderProgram_t lightShader_DB_omni;
 	shaderProgram_t lightShader_DBS_omni;
+	shaderProgram_t lightShader_DBSP_omni;
 	
 	shaderProgram_t lightShader_D_proj;
 	
