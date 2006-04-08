@@ -19,6 +19,7 @@ opts.Add(BoolOption('smp', 'Set to 1 to compile engine with symetric multiproces
 opts.Add(BoolOption('purevm', 'Set to 1 to compile engine with scrict checking for vm/*.qvm modules in paks', 0))
 opts.Add(BoolOption('mtr', 'Set to 1 to compile engine and map compiler with .mtr shader support', 0))
 opts.Add(BoolOption('gtkradiant', 'Set to 1 to compile GtkRadiant', 0))
+opts.Add(BoolOption('vectorize', 'Set to 1 to compile engine with auto-vectorization support', 0))
 
 #
 # initialize compiler environment base
@@ -55,6 +56,9 @@ if env['optimize'] != '0':
 
 #if env['cpu'] == 'athlon-xp':
 #	env.Append(CCFLAGS = '-march=athlon-xp') # -msse -mfpmath=sse')
+
+if env['arch'] == 'linux-i386' and env['vectorize'] == 1:
+	env.Append(CCFLAGS = '-ftree-vectorize -msse -ftree-vectorizer-verbose=1')
 
 if env['simd'] == 'sse':
 	env.Append(CCFLAGS = '-DSIMD_SSE')
