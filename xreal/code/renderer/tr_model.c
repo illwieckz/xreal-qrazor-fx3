@@ -611,7 +611,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 	md5Model_t     *md5;
 	md5Bone_t      *bone;
 	md5Surface_t   *surf;
-	int            *triIndex;
+	srfTriangle_t  *tri;
 	md5Vertex_t    *v;
 	md5Weight_t    *weight;
 	int             version;
@@ -891,16 +891,16 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 			return qfalse;
 		}
 		token = Com_ParseExt(&buf_p, qfalse);
-		surf->numIndexes = atoi(token) * 3;
+		surf->numTriangles = atoi(token);
 		
-		if(surf->numIndexes > SHADER_MAX_INDEXES)
+		if(surf->numTriangles > SHADER_MAX_TRIANGLES)
 		{
 			ri.Error(ERR_DROP, "R_LoadMD5: '%s' has more than %i triangles on a surface (%i)",
-					 modName, SHADER_MAX_INDEXES / 3, surf->numIndexes / 3);
+					 modName, SHADER_MAX_TRIANGLES, surf->numTriangles);
 		}
 		
-		surf->indexes = ri.Hunk_Alloc(sizeof(*triIndex) * surf->numIndexes, h_low);
-		for(j = 0, triIndex = surf->indexes; j < (surf->numIndexes / 3); j++, triIndex += 3)
+		surf->triangles = ri.Hunk_Alloc(sizeof(*tri) * surf->numTriangles, h_low);
+		for(j = 0, tri = surf->triangles; j < surf->numTriangles; j++, tri++)
 		{
 			// skip tri <number>
 			token = Com_ParseExt(&buf_p, qtrue);
@@ -914,9 +914,11 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 			for(k = 0; k < 3; k++)
 			{
 				token = Com_ParseExt(&buf_p, qfalse);
-				triIndex[k] = atoi(token);
+				tri->indexes[k] = atoi(token);
 			}
 		}
+		
+		R_CalcSurfaceTriangleNeighbors(surf->numTriangles, surf->triangles);
 		
 		// parse numWeights <number>
 		token = Com_ParseExt(&buf_p, qtrue);

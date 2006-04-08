@@ -1279,6 +1279,14 @@ typedef struct
 	md5Weight_t   **weights;
 } md5Vertex_t;
 
+/*
+typedef struct
+{
+	int             indexes[3];
+	int             neighbors[3];
+} md5Triangle_t;
+*/
+
 typedef struct
 {
 	int             ident;	// this is set to SF_MD5 and
@@ -1291,8 +1299,8 @@ typedef struct
 	int             numVerts;
 	md5Vertex_t    *verts;
 
-	int             numIndexes;
-	int            *indexes;
+	int             numTriangles;
+	srfTriangle_t  *triangles;
 	
 	int             numWeights;
 	md5Weight_t    *weights;

@@ -310,7 +310,7 @@ void RB_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexe
 				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[1];
 				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[0];
 				tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[0] + cv->numVerts;
-				
+
 				tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[1];
 				tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[0] + cv->numVerts;
 				tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[1] + cv->numVerts;
@@ -324,7 +324,7 @@ void RB_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexe
 				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[2];
 				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[1];
 				tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[1] + cv->numVerts;
-				
+
 				tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[2];
 				tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[1] + cv->numVerts;
 				tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
@@ -338,7 +338,7 @@ void RB_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexe
 				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[0];
 				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[2];
 				tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
-				
+
 				tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[0];
 				tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
 				tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[0] + cv->numVerts;
@@ -357,22 +357,22 @@ void RB_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexe
 				{
 					continue;
 				}
-				
+
 				// light cap
 				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[0];
 				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[1];
 				tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[2];
-				
+
 				// dark cap
 				tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
 				tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[1] + cv->numVerts;
 				tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[0] + cv->numVerts;
-				
+
 				tess.numIndexes += 6;
 				backEnd.pc.c_shadowIndexes += 6;
 			}
 		}
-		
+
 		// copy vertexes and extrude to infinity
 		for(i = 0, dv = cv->verts, xyz = tess.xyz[tess.numVertexes]; i < cv->numVerts; i++, dv++, xyz += 4)
 		{
@@ -381,7 +381,7 @@ void RB_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexe
 			xyz[2] = dv->xyz[2];
 			xyz[3] = 1.0;
 		}
-		
+
 		for(i = 0, dv = cv->verts, xyz = tess.xyz[tess.numVertexes + cv->numVerts]; i < cv->numVerts; i++, dv++, xyz += 4)
 		{
 			xyz[0] = dv->xyz[0];
@@ -389,10 +389,10 @@ void RB_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexe
 			xyz[2] = dv->xyz[2];
 			xyz[3] = 0.0;
 		}
-		
+
 		tess.numVertexes += cv->numVerts * 2;
 		backEnd.pc.c_shadowVertexes += cv->numVerts * 2;
-		
+
 		backEnd.pc.c_shadowSurfaces++;
 	}
 	else
@@ -556,7 +556,7 @@ void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, 
 				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[1];
 				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[0];
 				tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[0] + cv->numVerts;
-				
+
 				tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[1];
 				tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[0] + cv->numVerts;
 				tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[1] + cv->numVerts;
@@ -570,7 +570,7 @@ void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, 
 				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[2];
 				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[1];
 				tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[1] + cv->numVerts;
-				
+
 				tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[2];
 				tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[1] + cv->numVerts;
 				tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
@@ -584,7 +584,7 @@ void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, 
 				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[0];
 				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[2];
 				tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
-				
+
 				tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[0];
 				tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
 				tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[0] + cv->numVerts;
@@ -603,22 +603,22 @@ void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, 
 				{
 					continue;
 				}
-				
+
 				// light cap
 				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[0];
 				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[1];
 				tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[2];
-				
+
 				// dark cap
 				tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
 				tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[1] + cv->numVerts;
 				tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[0] + cv->numVerts;
-				
+
 				tess.numIndexes += 6;
 				backEnd.pc.c_shadowIndexes += 6;
 			}
 		}
-		
+
 		// copy vertexes and extrude to infinity
 		for(i = 0, dv = cv->verts, xyz = tess.xyz[tess.numVertexes]; i < cv->numVerts; i++, dv++, xyz += 4)
 		{
@@ -627,7 +627,7 @@ void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, 
 			xyz[2] = dv->xyz[2];
 			xyz[3] = 1.0;
 		}
-		
+
 		for(i = 0, dv = cv->verts, xyz = tess.xyz[tess.numVertexes + cv->numVerts]; i < cv->numVerts; i++, dv++, xyz += 4)
 		{
 			xyz[0] = dv->xyz[0];
@@ -635,20 +635,20 @@ void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, 
 			xyz[2] = dv->xyz[2];
 			xyz[3] = 0.0;
 		}
-		
+
 		tess.numVertexes += cv->numVerts * 2;
 		backEnd.pc.c_shadowVertexes += cv->numVerts * 2;
-		
+
 		backEnd.pc.c_shadowSurfaces++;
 	}
 	else
 	{
-		if(glConfig2.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboCurves ->integer)
+		if(glConfig2.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboCurves->integer)
 		{
 			RB_EndBeginSurface();
 		}
 
-		if(glConfig2.vertexBufferObjectAvailable && cv->indexesVBO && r_vboCurves ->integer)
+		if(glConfig2.vertexBufferObjectAvailable && cv->indexesVBO && r_vboCurves->integer)
 		{
 			RB_CHECKOVERFLOW(cv->numVerts, cv->numTriangles * 3);
 
@@ -687,7 +687,7 @@ void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, 
 			}
 		}
 
-		if(glConfig2.vertexBufferObjectAvailable && cv->vertsVBO && r_vboCurves ->integer)
+		if(glConfig2.vertexBufferObjectAvailable && cv->vertsVBO && r_vboCurves->integer)
 		{
 			tess.vertexesVBO = cv->vertsVBO;
 			tess.ofsXYZ = cv->ofsXYZ;
@@ -711,7 +711,7 @@ void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, 
 			color = tess.colors[tess.numVertexes];
 
 			for(i = 0; i < cv->numVerts;
-						 i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, color += 4)
+				i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, color += 4)
 			{
 				xyz[0] = dv->xyz[0];
 				xyz[1] = dv->xyz[1];
@@ -802,7 +802,7 @@ void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightInd
 				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[1];
 				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[0];
 				tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[0] + cv->numVerts;
-				
+
 				tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[1];
 				tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[0] + cv->numVerts;
 				tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[1] + cv->numVerts;
@@ -816,7 +816,7 @@ void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightInd
 				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[2];
 				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[1];
 				tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[1] + cv->numVerts;
-				
+
 				tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[2];
 				tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[1] + cv->numVerts;
 				tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
@@ -830,7 +830,7 @@ void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightInd
 				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[0];
 				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[2];
 				tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
-				
+
 				tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[0];
 				tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
 				tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[0] + cv->numVerts;
@@ -849,22 +849,22 @@ void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightInd
 				{
 					continue;
 				}
-				
+
 				// light cap
 				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[0];
 				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[1];
 				tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[2];
-				
+
 				// dark cap
 				tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
 				tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[1] + cv->numVerts;
 				tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[0] + cv->numVerts;
-				
+
 				tess.numIndexes += 6;
 				backEnd.pc.c_shadowIndexes += 6;
 			}
 		}
-		
+
 		// copy vertexes and extrude to infinity
 		for(i = 0, dv = cv->verts, xyz = tess.xyz[tess.numVertexes]; i < cv->numVerts; i++, dv++, xyz += 4)
 		{
@@ -873,7 +873,7 @@ void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightInd
 			xyz[2] = dv->xyz[2];
 			xyz[3] = 1.0;
 		}
-		
+
 		for(i = 0, dv = cv->verts, xyz = tess.xyz[tess.numVertexes + cv->numVerts]; i < cv->numVerts; i++, dv++, xyz += 4)
 		{
 			xyz[0] = dv->xyz[0];
@@ -881,10 +881,10 @@ void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightInd
 			xyz[2] = dv->xyz[2];
 			xyz[3] = 0.0;
 		}
-		
+
 		tess.numVertexes += cv->numVerts * 2;
 		backEnd.pc.c_shadowVertexes += cv->numVerts * 2;
-		
+
 		backEnd.pc.c_shadowSurfaces++;
 	}
 	else
@@ -957,7 +957,7 @@ void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightInd
 			color = tess.colors[tess.numVertexes];
 
 			for(i = 0; i < cv->numVerts;
-						 i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, color += 4)
+				i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, color += 4)
 			{
 				xyz[0] = dv->xyz[0];
 				xyz[1] = dv->xyz[1];
@@ -1793,120 +1793,287 @@ void RB_SurfaceMDS(mdsSurface_t * surface, int numLightIndexes, int *lightIndexe
 RB_SurfaceMD5
 ==============
 */
-void RB_SurfaceMD5(md5Surface_t * surface, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+void RB_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
-	int             j, k;
-	int            *indexes;
+	int             i, j, k;
 	int             numIndexes = 0;
 	int             numVertexes;
 	md5Model_t     *model;
 	md5Vertex_t    *v;
 	md5Bone_t      *bone;
+	srfTriangle_t  *tri;
 	vec3_t          offsetVec;
+	vec3_t          lightOrigin;
+	float          *xyzw, *xyzw2;
 
 	if(tess.shadowVolume)
 	{
-		return;
-	}
-
-	model = surface->model;
-
-	RB_CHECKOVERFLOW(surface->numVerts, surface->numIndexes);
-
-	indexes = surface->indexes;
-	numIndexes = surface->numIndexes;
-	for(j = 0; j < numIndexes; j++)
-	{
-		tess.indexes[tess.numIndexes + j] = tess.numVertexes + indexes[j];
-	}
-
-	// deform the vertexes by the lerped bones
-	numVertexes = surface->numVerts;
-	for(j = 0, v = surface->verts; j < numVertexes; j++, v++)
-	{
-		vec3_t          tmpVert;
-		md5Weight_t    *w;
-
-		VectorClear(tmpVert);
-
-		for(k = 0, w = v->weights[0]; k < v->numWeights; k++, w++)
+		if(backEnd.currentEntity->needZFail)
 		{
-			bone = &model->bones[w->boneIndex];
+			RB_CHECKOVERFLOW(srf->numVerts * 2, srf->numTriangles * (6 + 2) * 3);
+		}
+		else
+		{
+			RB_CHECKOVERFLOW(srf->numVerts * 2, srf->numTriangles * 6 * 3);
+		}
+		
+		model = srf->model;
 
-			if(backEnd.currentEntity->e.renderfx & RF_SKELETON)
+		VectorCopy(backEnd.currentLight->transformed, lightOrigin);
+
+		// deform the vertexes by the lerped bones and extrude to infinity
+		numVertexes = srf->numVerts;
+		xyzw = tess.xyz[tess.numVertexes];
+		xyzw2 = tess.xyz[tess.numVertexes + srf->numVerts];
+		for(j = 0, v = srf->verts; j < numVertexes; j++, v++, xyzw += 4, xyzw2 += 4)
+		{
+			vec3_t          tmpVert;
+			md5Weight_t    *w;
+
+			VectorClear(tmpVert);
+
+			for(k = 0, w = v->weights[0]; k < v->numWeights; k++, w++)
 			{
-				MatrixTransformPoint(backEnd.currentEntity->e.skeleton.bones[w->boneIndex].transform, w->offset, offsetVec);
+				bone = &model->bones[w->boneIndex];
+
+				if(backEnd.currentEntity->e.renderfx & RF_SKELETON)
+				{
+					MatrixTransformPoint(backEnd.currentEntity->e.skeleton.bones[w->boneIndex].transform, w->offset, offsetVec);
+				}
+				else
+				{
+					MatrixTransformPoint(bone->transform, w->offset, offsetVec);
+				}
+
+				VectorMA(tmpVert, w->boneWeight, offsetVec, tmpVert);
+			}
+
+			xyzw[0] = tmpVert[0];
+			xyzw[1] = tmpVert[1];
+			xyzw[2] = tmpVert[2];
+			xyzw[3] = 1;
+
+			xyzw2[0] = tmpVert[0];
+			xyzw2[1] = tmpVert[1];
+			xyzw2[2] = tmpVert[2];
+			xyzw2[3] = 0;
+		}
+
+		// decide which triangles face the light
+		for(i = 0, tri = srf->triangles; i < srf->numTriangles; i++, tri++)
+		{
+			float          *v1, *v2, *v3;
+			vec3_t          d1, d2;
+			vec4_t          plane;
+			float           d;
+
+			v1 = tess.xyz[tess.numVertexes + tri->indexes[0]];
+			v2 = tess.xyz[tess.numVertexes + tri->indexes[1]];
+			v3 = tess.xyz[tess.numVertexes + tri->indexes[2]];
+
+			VectorSubtract(v2, v1, d1);
+			VectorSubtract(v3, v1, d2);
+
+			CrossProduct(d2, d1, plane);
+			plane[3] = DotProduct(plane, v1);
+			
+			d = DotProduct(plane, lightOrigin) - plane[3];
+			if(d > 0)
+			{
+				sh.facing[i] = qtrue;
 			}
 			else
 			{
-				MatrixTransformPoint(bone->transform, w->offset, offsetVec);
+				sh.facing[i] = qfalse;
 			}
-			VectorMA(tmpVert, w->boneWeight, offsetVec, tmpVert);
 		}
 
-		tess.xyz[tess.numVertexes + j][0] = tmpVert[0];
-		tess.xyz[tess.numVertexes + j][1] = tmpVert[1];
-		tess.xyz[tess.numVertexes + j][2] = tmpVert[2];
-
-		tess.texCoords[tess.numVertexes + j][0][0] = v->texCoords[0];
-		tess.texCoords[tess.numVertexes + j][0][1] = v->texCoords[1];
-	}
-
-	// calc tangent spaces
-	if(!tess.skipTangentSpaces)
-	{
-		int             i;
-		vec3_t          faceNormal;
-		float          *v;
-		const float    *v0, *v1, *v2;
-		const float    *t0, *t1, *t2;
-		vec3_t          tangent;
-		vec3_t          binormal;
-		vec3_t          normal;
-		int            *indices;
-
-		for(i = 0; i < numVertexes; i++)
+		// set up indices for silhouette edges
+		for(i = 0, tri = srf->triangles; i < srf->numTriangles; i++, tri++)
 		{
-			VectorClear(tess.tangents[tess.numVertexes + i]);
-			VectorClear(tess.binormals[tess.numVertexes + i]);
-			VectorClear(tess.normals[tess.numVertexes + i]);
-		}
-
-		for(i = 0, indices = tess.indexes + tess.numIndexes; i < numIndexes; i += 3, indices += 3)
-		{
-			v0 = tess.xyz[indices[0]];
-			v1 = tess.xyz[indices[1]];
-			v2 = tess.xyz[indices[2]];
-
-			t0 = tess.texCoords[indices[0]][0];
-			t1 = tess.texCoords[indices[1]][0];
-			t2 = tess.texCoords[indices[2]][0];
-#if 1
-			R_CalcNormalForTriangle(faceNormal, v0, v1, v2);
-			R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2, faceNormal);
-#else
-			R_CalcNormalForTriangle(normal, v0, v1, v2);
-			R_CalcTangentsForTriangle(tangent, binormal, v0, v1, v2, t0, t1, t2);
-#endif
-			for(j = 0; j < 3; j++)
+			if(!sh.facing[i])
 			{
-				v = tess.tangents[indices[j]];
-				VectorAdd(v, tangent, v);
-				v = tess.binormals[indices[j]];
-				VectorAdd(v, binormal, v);
-				v = tess.normals[indices[j]];
-				VectorAdd(v, normal, v);
+				continue;
+			}
+
+			if((tri->neighbors[0] < 0) || (tri->neighbors[0] >= 0 && !sh.facing[tri->neighbors[0]]))
+			{
+				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[1];
+				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[0];
+				tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[0] + srf->numVerts;
+
+				tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[1];
+				tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[0] + srf->numVerts;
+				tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[1] + srf->numVerts;
+
+				tess.numIndexes += 6;
+				backEnd.pc.c_shadowIndexes += 6;
+			}
+
+			if((tri->neighbors[1] < 0) || (tri->neighbors[1] >= 0 && !sh.facing[tri->neighbors[1]]))
+			{
+				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[2];
+				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[1];
+				tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[1] + srf->numVerts;
+
+				tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[2];
+				tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[1] + srf->numVerts;
+				tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[2] + srf->numVerts;
+
+				tess.numIndexes += 6;
+				backEnd.pc.c_shadowIndexes += 6;
+			}
+
+			if((tri->neighbors[2] < 0) || (tri->neighbors[2] >= 0 && !sh.facing[tri->neighbors[2]]))
+			{
+				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[0];
+				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[2];
+				tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[2] + srf->numVerts;
+
+				tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[0];
+				tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[2] + srf->numVerts;
+				tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[0] + srf->numVerts;
+
+				tess.numIndexes += 6;
+				backEnd.pc.c_shadowIndexes += 6;
 			}
 		}
 
-		VectorArrayNormalize((vec4_t *) tess.tangents[tess.numVertexes], numVertexes);
-		VectorArrayNormalize((vec4_t *) tess.binormals[tess.numVertexes], numVertexes);
-		VectorArrayNormalize((vec4_t *) tess.normals[tess.numVertexes], numVertexes);
-	}
+		// set up indices for light and dark caps
+		if(backEnd.currentEntity->needZFail)
+		{
+			for(i = 0, tri = srf->triangles; i < srf->numTriangles; i++, tri++)
+			{
+				if(!sh.facing[i])
+				{
+					continue;
+				}
 
-	tess.numIndexes += numIndexes;
-	tess.numVertexes += numVertexes;
+				// light cap
+				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[0];
+				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[1];
+				tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[2];
+
+				// dark cap
+				tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[2] + srf->numVerts;
+				tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[1] + srf->numVerts;
+				tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[0] + srf->numVerts;
+
+				tess.numIndexes += 6;
+				backEnd.pc.c_shadowIndexes += 6;
+			}
+		}
+
+		tess.numVertexes += srf->numVerts * 2;
+		backEnd.pc.c_shadowVertexes += srf->numVerts * 2;
+
+		backEnd.pc.c_shadowSurfaces++;
+	}
+	else
+	{
+		RB_CHECKOVERFLOW(srf->numVerts, srf->numTriangles * 3);
+		
+		model = srf->model;
+
+		numIndexes = srf->numTriangles * 3;
+		for(i = 0, tri = srf->triangles; i < srf->numTriangles; i++, tri++)
+		{
+			tess.indexes[tess.numIndexes + i * 3 + 0] = tess.numVertexes + tri->indexes[0];
+			tess.indexes[tess.numIndexes + i * 3 + 1] = tess.numVertexes + tri->indexes[1];
+			tess.indexes[tess.numIndexes + i * 3 + 2] = tess.numVertexes + tri->indexes[2];
+		}
+
+		// deform the vertexes by the lerped bones
+		numVertexes = srf->numVerts;
+		for(j = 0, v = srf->verts; j < numVertexes; j++, v++)
+		{
+			vec3_t          tmpVert;
+			md5Weight_t    *w;
+
+			VectorClear(tmpVert);
+
+			for(k = 0, w = v->weights[0]; k < v->numWeights; k++, w++)
+			{
+				bone = &model->bones[w->boneIndex];
+
+				if(backEnd.currentEntity->e.renderfx & RF_SKELETON)
+				{
+					MatrixTransformPoint(backEnd.currentEntity->e.skeleton.bones[w->boneIndex].transform, w->offset, offsetVec);
+				}
+				else
+				{
+					MatrixTransformPoint(bone->transform, w->offset, offsetVec);
+				}
+
+				VectorMA(tmpVert, w->boneWeight, offsetVec, tmpVert);
+			}
+
+			tess.xyz[tess.numVertexes + j][0] = tmpVert[0];
+			tess.xyz[tess.numVertexes + j][1] = tmpVert[1];
+			tess.xyz[tess.numVertexes + j][2] = tmpVert[2];
+			tess.xyz[tess.numVertexes + j][3] = 1;
+
+			tess.texCoords[tess.numVertexes + j][0][0] = v->texCoords[0];
+			tess.texCoords[tess.numVertexes + j][0][1] = v->texCoords[1];
+		}
+
+		// calc tangent spaces
+		if(!tess.skipTangentSpaces)
+		{
+			int             i;
+			vec3_t          faceNormal;
+			float          *v;
+			const float    *v0, *v1, *v2;
+			const float    *t0, *t1, *t2;
+			vec3_t          tangent;
+			vec3_t          binormal;
+			vec3_t          normal;
+			int            *indices;
+
+			for(i = 0; i < numVertexes; i++)
+			{
+				VectorClear(tess.tangents[tess.numVertexes + i]);
+				VectorClear(tess.binormals[tess.numVertexes + i]);
+				VectorClear(tess.normals[tess.numVertexes + i]);
+			}
+
+			for(i = 0, indices = tess.indexes + tess.numIndexes; i < numIndexes; i += 3, indices += 3)
+			{
+				v0 = tess.xyz[indices[0]];
+				v1 = tess.xyz[indices[1]];
+				v2 = tess.xyz[indices[2]];
+
+				t0 = tess.texCoords[indices[0]][0];
+				t1 = tess.texCoords[indices[1]][0];
+				t2 = tess.texCoords[indices[2]][0];
+#if 1
+				R_CalcNormalForTriangle(faceNormal, v0, v1, v2);
+				R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2, faceNormal);
+#else
+				R_CalcNormalForTriangle(normal, v0, v1, v2);
+				R_CalcTangentsForTriangle(tangent, binormal, v0, v1, v2, t0, t1, t2);
+#endif
+				for(j = 0; j < 3; j++)
+				{
+					v = tess.tangents[indices[j]];
+					VectorAdd(v, tangent, v);
+					v = tess.binormals[indices[j]];
+					VectorAdd(v, binormal, v);
+					v = tess.normals[indices[j]];
+					VectorAdd(v, normal, v);
+				}
+			}
+
+			VectorArrayNormalize((vec4_t *) tess.tangents[tess.numVertexes], numVertexes);
+			VectorArrayNormalize((vec4_t *) tess.binormals[tess.numVertexes], numVertexes);
+			VectorArrayNormalize((vec4_t *) tess.normals[tess.numVertexes], numVertexes);
+		}
+
+		tess.numIndexes += numIndexes;
+		tess.numVertexes += numVertexes;
+	}
 }
+
 
 
 /*
