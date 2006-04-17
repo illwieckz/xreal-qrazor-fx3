@@ -1071,8 +1071,9 @@ void SP_func_door(gentity_t * ent)
 {
 	vec3_t          abs_movedir;
 	float           distance;
-	vec3_t          size;
+	vec3_t          size, sizeRotated;
 	float           lip;
+	matrix_t        rotation;
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.wav");
 	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.wav");
@@ -1108,8 +1109,13 @@ void SP_func_door(gentity_t * ent)
 	abs_movedir[0] = fabs(ent->movedir[0]);
 	abs_movedir[1] = fabs(ent->movedir[1]);
 	abs_movedir[2] = fabs(ent->movedir[2]);
+	
 	VectorSubtract(ent->r.maxs, ent->r.mins, size);
-	distance = DotProduct(abs_movedir, size) - lip;
+	
+	AnglesToMatrix(ent->s.angles, rotation);
+	MatrixTransformNormal(rotation, size, sizeRotated);
+	
+	distance = DotProduct(abs_movedir, sizeRotated) - lip;
 	VectorMA(ent->pos1, distance, ent->movedir, ent->pos2);
 
 	// if "start_open", reverse position 1 and 2
@@ -1123,6 +1129,9 @@ void SP_func_door(gentity_t * ent)
 	}
 
 	InitMover(ent);
+	
+	VectorCopy(ent->s.angles, ent->s.apos.trBase);
+	VectorCopy(ent->s.angles, ent->r.currentAngles);
 
 	ent->nextthink = level.time + FRAMETIME;
 
@@ -1640,6 +1649,9 @@ void SP_func_static(gentity_t * ent)
 	
 	VectorCopy(ent->s.origin, ent->s.pos.trBase);
 	VectorCopy(ent->s.origin, ent->r.currentOrigin);
+	
+	VectorCopy(ent->s.angles, ent->s.apos.trBase);
+	VectorCopy(ent->s.angles, ent->r.currentAngles);
 	
 	trap_LinkEntity(ent);
 }
