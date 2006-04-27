@@ -541,7 +541,7 @@ void CM_TraceThroughSurface(traceWork_t * tw, cSurface_t * surface)
 	}
 	
 #ifdef BSPC
-	if(1)
+	if(0)
 	{
 #else
 	if(!cm_noTriangles->integer && surface->tc)
