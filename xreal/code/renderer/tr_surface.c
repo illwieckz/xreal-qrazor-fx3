@@ -1816,7 +1816,7 @@ void RB_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightIndexes, i
 		{
 			RB_CHECKOVERFLOW(srf->numVerts * 2, srf->numTriangles * 6 * 3);
 		}
-		
+
 		model = srf->model;
 
 		VectorCopy(backEnd.currentLight->transformed, lightOrigin);
@@ -1876,7 +1876,7 @@ void RB_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightIndexes, i
 
 			CrossProduct(d2, d1, plane);
 			plane[3] = DotProduct(plane, v1);
-			
+
 			d = DotProduct(plane, lightOrigin) - plane[3];
 			if(d > 0)
 			{
@@ -1972,7 +1972,7 @@ void RB_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightIndexes, i
 	else
 	{
 		RB_CHECKOVERFLOW(srf->numVerts, srf->numTriangles * 3);
-		
+
 		model = srf->model;
 
 		numIndexes = srf->numTriangles * 3;
@@ -2156,10 +2156,9 @@ void RB_SurfaceBad(surfaceType_t * surfType, int numLightIndexes, int *lightInde
 	ri.Printf(PRINT_ALL, "Bad surface tesselated.\n");
 }
 
-#if 0
-
 void RB_SurfaceFlare(srfFlare_t * surf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
+#if 0
 	vec3_t          left, up;
 	float           radius;
 	byte            color[4];
@@ -2200,13 +2199,8 @@ void RB_SurfaceFlare(srfFlare_t * surf, int numLightIndexes, int *lightIndexes, 
 #endif
 
 	RB_AddQuadStamp(origin, left, up, color);
-}
 
-#else
-
-void RB_SurfaceFlare(srfFlare_t * surf)
-{
-#if 0
+#elif 0
 	vec3_t          left, up;
 	byte            color[4];
 
@@ -2228,10 +2222,40 @@ void RB_SurfaceFlare(srfFlare_t * surf)
 	up[1] = r_ignore->value;
 
 	RB_AddQuadStampExt(surf->origin, left, up, color, 0, 0, 1, 1);
+
+#elif 0
+	vec3_t          left, up;
+	float           radius;
+	vec3_t          color;
+	vec3_t          dir;
+	vec3_t          origin;
+	float           d;
+
+	// calculate the xyz locations for the four corners
+	radius = 30;
+	VectorScale(backEnd.viewParms.or.axis[1], radius, left);
+	VectorScale(backEnd.viewParms.or.axis[2], radius, up);
+	if(backEnd.viewParms.isMirror)
+	{
+		VectorSubtract(vec3_origin, left, left);
+	}
+
+	color[0] = color[1] = color[2] = 1.0;
+
+	VectorMA(surf->origin, 3, surf->normal, origin);
+	VectorSubtract(origin, backEnd.viewParms.or.origin, dir);
+	VectorNormalize(dir);
+	VectorMA(origin, r_ignore->value, dir, origin);
+
+	d = -DotProduct(dir, surf->normal);
+	if(d < 0)
+	{
+		return;
+	}
+	
+	RB_AddFlare((void *)surf, 0, origin, color, surf->normal);
 #endif
 }
-
-#endif
 
 
 

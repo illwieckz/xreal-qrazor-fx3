@@ -1077,7 +1077,11 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 	RB_BeginSurface(shader, NULL, lightmapNum, fogNum, qfalse, qfalse);
 	rb_surfaceTable[*drawSurf->surface] (drawSurf->surface, 0, NULL, 0, NULL);
 
-	assert(tess.numVertexes < 128);
+	// Tr3B: former assertion
+	if(tess.numVertexes >= 128)
+	{
+		return qfalse;	
+	}
 
 	for(i = 0; i < tess.numVertexes; i++)
 	{

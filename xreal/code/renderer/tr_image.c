@@ -3089,8 +3089,6 @@ static void R_CreateNoFalloffImage(void)
 {
 	byte            data[DEFAULT_SIZE][DEFAULT_SIZE][4];
 
-	R_CreateDefaultImage();
-
 	// we use a solid white image instead of disabling texturing
 	Com_Memset(data, 255, sizeof(data));
 	tr.noFalloffImage = R_CreateImage("_noFalloff", (byte *) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_EDGE_CLAMP);
@@ -3110,8 +3108,8 @@ static void R_CreateAttenuationXYImage(void)
 		{
 			float           d;
 
-			d = (DLIGHT_SIZE / 2 - 0.5f - x) * (DLIGHT_SIZE / 2 - 0.5f - x) +
-					(DLIGHT_SIZE / 2 - 0.5f - y) * (DLIGHT_SIZE / 2 - 0.5f - y);
+			d = (ATTENUATION_XY_SIZE / 2 - 0.5f - x) * (ATTENUATION_XY_SIZE / 2 - 0.5f - x) +
+					(ATTENUATION_XY_SIZE / 2 - 0.5f - y) * (ATTENUATION_XY_SIZE / 2 - 0.5f - y);
 			b = 4000 / d;
 			if(b > 255)
 			{
@@ -3125,7 +3123,7 @@ static void R_CreateAttenuationXYImage(void)
 			data[y][x][3] = 255;
 		}
 	}
-	tr.attenuationXYImage = R_CreateImage("_attenuationXY", (byte *) data, DLIGHT_SIZE, DLIGHT_SIZE, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
+	tr.attenuationXYImage = R_CreateImage("_attenuationXY", (byte *) data, ATTENUATION_XY_SIZE, ATTENUATION_XY_SIZE, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
 }
 
 static void R_CreateCurrentRenderImage(void)

@@ -2458,12 +2458,6 @@ static void ParseDeform(char **text)
 		ds->deformation = DEFORM_AUTOSPRITE2;
 		return;
 	}
-	
-	if(!Q_stricmp(token, "sprite"))
-	{
-		ds->deformation = DEFORM_SPRITE;
-		return;
-	}
 
 	if(!Q_stricmpn(token, "text", 4))
 	{
@@ -2571,6 +2565,24 @@ static void ParseDeform(char **text)
 
 		ParseWaveForm(text, &ds->deformationWave);
 		ds->deformation = DEFORM_MOVE;
+		return;
+	}
+	
+	if(!Q_stricmp(token, "sprite"))
+	{
+		ds->deformation = DEFORM_SPRITE;
+		return;
+	}
+	
+	if(!Q_stricmp(token, "flare"))
+	{
+		token = Com_ParseExt(text, qfalse);
+		if(token[0] == 0)
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: missing deformVertexes flare parm in shader '%s'\n", shader.name);
+			return;
+		}
+		ds->flareSize = atof(token);
 		return;
 	}
 

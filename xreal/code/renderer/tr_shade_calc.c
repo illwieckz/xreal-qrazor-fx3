@@ -966,10 +966,6 @@ void RB_DeformTessGeometry(void)
 				Autosprite2Deform();
 				break;
 				
-			case DEFORM_SPRITE:
-				// TODO
-				break;
-				
 			case DEFORM_TEXT0:
 			case DEFORM_TEXT1:
 			case DEFORM_TEXT2:
@@ -979,6 +975,14 @@ void RB_DeformTessGeometry(void)
 			case DEFORM_TEXT6:
 			case DEFORM_TEXT7:
 				DeformText(backEnd.refdef.text[ds->deformation - DEFORM_TEXT0]);
+				break;
+				
+			case DEFORM_SPRITE:
+				//AutospriteDeform();
+				break;
+				
+			case DEFORM_FLARE:
+				//Autosprite2Deform();
 				break;
 		}
 	}

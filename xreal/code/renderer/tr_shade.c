@@ -1282,16 +1282,14 @@ Draws triangle outlines for debugging
 */
 static void DrawTris()
 {
-	GL_Program(0);
-	GL_SelectTexture(0);
-	GL_Bind(tr.whiteImage);
-	
 	switch (tess.currentStageIteratorType)
 	{
 		case SIT_LIGHTING:
-		case SIT_LIGHTING_STENCIL:
 			qglColor3f(1, 0, 0);
 			break;
+		
+		case SIT_LIGHTING_STENCIL:
+			return;	
 		
 		default:
 		case SIT_DEFAULT:
@@ -1313,6 +1311,10 @@ static void DrawTris()
 			}
 			break;
 	}
+	
+	GL_Program(0);
+	GL_SelectTexture(0);
+	GL_Bind(tr.whiteImage);
 	
 	GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
 	GL_ClientState(GLCS_VERTEX);

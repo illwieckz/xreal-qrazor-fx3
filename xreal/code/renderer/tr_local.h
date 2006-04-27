@@ -267,7 +267,6 @@ typedef enum
 	DEFORM_PROJECTION_SHADOW,
 	DEFORM_AUTOSPRITE,
 	DEFORM_AUTOSPRITE2,
-	DEFORM_SPRITE,
 	DEFORM_TEXT0,
 	DEFORM_TEXT1,
 	DEFORM_TEXT2,
@@ -275,7 +274,9 @@ typedef enum
 	DEFORM_TEXT4,
 	DEFORM_TEXT5,
 	DEFORM_TEXT6,
-	DEFORM_TEXT7
+	DEFORM_TEXT7,
+	DEFORM_SPRITE,
+	DEFORM_FLARE
 } deform_t;
 
 typedef enum
@@ -447,6 +448,8 @@ typedef struct
 	float           bulgeWidth;
 	float           bulgeHeight;
 	float           bulgeSpeed;
+	
+	float			flareSize;
 } deformStage_t;
 
 typedef struct
