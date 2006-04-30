@@ -4108,7 +4108,7 @@ void RB_StageIteratorGeneric()
 			case ST_COLLAPSE_lighting_DB_generic:
 			case ST_COLLAPSE_lighting_DBS_generic:
 			{
-				if(r_dynamiclight->integer == 2)
+				if(r_dynamicLighting->integer == 2)
 				{
 					Render_zfill_FFP(stage);
 				}
@@ -4121,7 +4121,7 @@ void RB_StageIteratorGeneric()
 			
 			case ST_LIGHTMAP:
 			{
-				if(r_dynamiclight->integer == 2)
+				if(r_dynamicLighting->integer == 2)
 				{
 					Render_zfill_FFP(stage);
 				}
@@ -4153,7 +4153,7 @@ void RB_StageIteratorGeneric()
 				{
 					Render_deluxemap_FFP(stage, TB_LIGHTMAP);
 				}
-				else if(r_dynamiclight->integer == 2)
+				else if(r_dynamicLighting->integer == 2)
 				{
 					Render_zfill_FFP(stage);
 				}
@@ -4178,7 +4178,7 @@ void RB_StageIteratorGeneric()
 				{
 					Render_deluxemap_FFP(stage, TB_LIGHTMAP);
 				}
-				else if(r_dynamiclight->integer == 2)
+				else if(r_dynamicLighting->integer == 2)
 				{
 					Render_zfill_FFP(stage);
 				}
@@ -4210,7 +4210,7 @@ void RB_StageIteratorGeneric()
 				{
 					Render_deluxemap_FFP(stage, TB_LIGHTMAP);
 				}
-				else if(r_dynamiclight->integer == 2)
+				else if(r_dynamicLighting->integer == 2)
 				{
 					Render_zfill_FFP(stage);
 				}
@@ -4238,7 +4238,7 @@ void RB_StageIteratorGeneric()
 			
 			case ST_COLLAPSE_lighting_DB_direct:
 			{
-				if(r_dynamiclight->integer == 2)
+				if(r_dynamicLighting->integer == 2)
 				{
 					Render_zfill_FFP(stage);
 				}
@@ -4262,7 +4262,7 @@ void RB_StageIteratorGeneric()
 			
 			case ST_COLLAPSE_lighting_DBS_direct:
 			{
-				if(r_dynamiclight->integer == 2)
+				if(r_dynamicLighting->integer == 2)
 				{
 					Render_zfill_FFP(stage);
 				}

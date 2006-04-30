@@ -1752,19 +1752,18 @@ extern cvar_t  *r_directedScale;
 extern cvar_t  *r_lightScale;
 extern cvar_t  *r_debugLight;
 
-extern cvar_t  *r_inGameVideo;	// controls whether in game video should be draw
-extern cvar_t  *r_fastsky;		// controls whether sky should be cleared or drawn
-extern cvar_t  *r_drawSun;		// controls drawing of sun quad
-extern cvar_t  *r_lighting;		// lighting mode, 0 = diffuse, 1 = bump mapping and so on
-extern cvar_t  *r_dynamiclight;	// dynamic lights enabled/disabled
-extern cvar_t  *r_dlightBacks;	// dlight non-facing surfaces for continuity
+extern cvar_t  *r_inGameVideo;		// controls whether in game video should be draw
+extern cvar_t  *r_fastsky;			// controls whether sky should be cleared or drawn
+extern cvar_t  *r_drawSun;			// controls drawing of sun quad
+extern cvar_t  *r_lighting;			// lighting mode, 0 = diffuse, 1 = bump mapping and so on
+extern cvar_t  *r_dynamicLighting;	// dynamic lights enabled/disabled
 
-extern cvar_t  *r_norefresh;	// bypasses the ref rendering
-extern cvar_t  *r_drawentities;	// disable/enable entity rendering
-extern cvar_t  *r_drawworld;	// disable/enable world rendering
-extern cvar_t  *r_speeds;		// various levels of information display
+extern cvar_t  *r_norefresh;		// bypasses the ref rendering
+extern cvar_t  *r_drawentities;		// disable/enable entity rendering
+extern cvar_t  *r_drawworld;		// disable/enable world rendering
+extern cvar_t  *r_speeds;			// various levels of information display
 extern cvar_t  *r_detailTextures;	// enables/disables detail texturing stages
-extern cvar_t  *r_novis;		// disable/enable usage of PVS
+extern cvar_t  *r_novis;			// disable/enable usage of PVS
 extern cvar_t  *r_nocull;
 extern cvar_t  *r_facePlaneCull;	// enables culling of planar surfaces with back side test
 extern cvar_t  *r_nocurves;

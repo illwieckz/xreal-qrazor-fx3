@@ -1663,7 +1663,7 @@ void R_AddSlightInteractions()
 		return;
 	}
 
-	if(r_dynamiclight->integer != 2)
+	if(r_dynamicLighting->integer != 2)
 	{
 		return;
 	}
@@ -1734,7 +1734,7 @@ void R_AddDlightInteractions()
 	int             i;
 	trRefDlight_t  *dl;
 
-	if(!r_dynamiclight->integer)
+	if(!r_dynamicLighting->integer)
 	{
 		return;
 	}

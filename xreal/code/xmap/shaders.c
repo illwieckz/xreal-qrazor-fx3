@@ -32,7 +32,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "shaders.h"
 
-//#define USE_MTR
+#ifndef USE_MTR
+#define USE_MTR
+#endif
 
 // 5% backsplash by default
 #define	DEFAULT_BACKSPLASH_FRACTION		0.05

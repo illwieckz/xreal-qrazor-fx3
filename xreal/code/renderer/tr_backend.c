@@ -1397,7 +1397,7 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 		vec3_t          forward, left, up;
 		vec3_t          tmp;
 
-		if(r_dynamiclight->integer)
+		if(r_dynamicLighting->integer)
 		{
 			GL_Program(0);
 			GL_State(0);

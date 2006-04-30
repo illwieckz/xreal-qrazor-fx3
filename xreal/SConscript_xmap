@@ -89,9 +89,6 @@ xmap_src = [
 xmap_env = env.Copy()
 xmap_env.Append(CCFLAGS='-DXMAP')
 
-if env['mtr'] == 1:
-	xmap_env.Append(CCFLAGS='-DUSE_MTR')
-
 if env['arch'] == 'linux-i386':
 	xmap_env.Append(LIBS=['m'])
 	xmap_env.Program('xmap.x86', xmap_src)
