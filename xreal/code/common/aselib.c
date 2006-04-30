@@ -116,12 +116,15 @@ static void     ASE_FreeGeomObject(int ndx);
 /*
 ** ASE_Load
 */
-void ASE_Load(const char *filename, qboolean verbose, qboolean grabAnims)
+qboolean ASE_Load(const char *filename, qboolean verbose, qboolean grabAnims)
 {
 	FILE           *fp = fopen(filename, "rb");
 
 	if(!fp)
-		Error("File not found '%s'", filename);
+	{
+		_printf("ASE_Load: File not found '%s'\n", filename);
+		return qfalse;
+	}
 
 	memset(&ase, 0, sizeof(ase));
 
@@ -137,11 +140,14 @@ void ASE_Load(const char *filename, qboolean verbose, qboolean grabAnims)
 	{
 		fclose(fp);
 		Error("fread() != -1 for '%s'", filename);
+		return qfalse;
 	}
 
 	fclose(fp);
 
 	ASE_Process();
+	
+	return qtrue;
 }
 
 /*

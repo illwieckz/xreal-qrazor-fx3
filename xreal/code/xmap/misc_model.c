@@ -346,7 +346,10 @@ static void InsertASEModel(const char *modelName, const matrix_t transform)
 	sprintf(filename, "%s%s", gamedir, modelName);
 
 	// load the model
-	ASE_Load(filename, qfalse, qfalse);
+	if(!ASE_Load(filename, qfalse, qfalse))
+	{
+		return;	
+	}
 
 	// each ase surface will become a new bsp surface
 	numSurfaces = ASE_GetNumSurfaces();
@@ -467,7 +470,7 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 	obj = lwGetObject(filename, &failID, &failpos);
 	if(!obj)
 	{
-		Error("%s\nLoading failed near byte %d\n\n", filename, failpos);
+		_printf("%s\nLoading failed near byte %d\n\n", filename, failpos);
 		return;
 	}
 
