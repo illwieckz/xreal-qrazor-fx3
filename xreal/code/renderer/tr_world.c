@@ -426,7 +426,7 @@ static void R_RecursiveWorldNode(mnode_t * node, int planeBits)
 			int             i;
 			int             r;
 
-			for(i = 0; i < 4; i++)
+			for(i = 0; i < FRUSTUM_PLANES; i++)
 			{
 				if(planeBits & (1 << i))
 				{
@@ -533,7 +533,7 @@ static void R_RecursiveInteractionNode(mnode_t * node, trRefDlight_t * light, in
 	// can cast shadows into the view frustum
 	if(!r_nocull->integer && r_shadows->integer <= 2)
 	{
-		for(i = 0; i < 4; i++)
+		for(i = 0; i < FRUSTUM_PLANES; i++)
 		{
 			if(planeBits & (1 << i))
 			{
@@ -852,7 +852,7 @@ void R_AddWorldSurfaces(void)
 	ClearBounds(tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]);
 
 	// perform frustum culling and add all the potentially visible surfaces
-	R_RecursiveWorldNode(tr.world->nodes, 15);
+	R_RecursiveWorldNode(tr.world->nodes, FRUSTUM_CLIPALL);
 	
 	// dynamically compute far clip plane distance for sky
 	R_SetFarClip();
@@ -879,7 +879,7 @@ void R_AddWorldInteractions(trRefDlight_t * light)
 
 	// perform frustum culling and add all the potentially visible surfaces
 	tr.lightCount++;
-	R_RecursiveInteractionNode(tr.world->nodes, light, 15);
+	R_RecursiveInteractionNode(tr.world->nodes, light, FRUSTUM_CLIPALL);
 }
 
 /*

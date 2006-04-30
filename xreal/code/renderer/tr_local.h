@@ -73,6 +73,21 @@ typedef struct screenRect_s
 	struct screenRect_s *next;
 } screenRect_t;
 
+typedef enum
+{
+	FRUSTUM_NEAR,
+	FRUSTUM_LEFT,
+	FRUSTUM_RIGHT,
+	FRUSTUM_BOTTOM,
+	FRUSTUM_TOP,
+	FRUSTUM_FAR,
+	FRUSTUM_PLANES          = 5,
+	FRUSTUM_CLIPALL         = 1 | 2 | 4 | 8 | 16 //| 32
+} frustumBits_t;
+
+typedef cplane_t        frustum_t[6];
+
+
 // a trRefDlight_t has all the information passed in by
 // the client game, as well as some locally derived info
 typedef struct trRefDlight_s
@@ -99,7 +114,7 @@ typedef struct trRefDlight_s
 	float			depthBounds[2];			// zNear, zFar for GL_EXT_depth_bounds_test
 	qboolean		noDepthBoundsTest;
 	
-	cplane_t        frustum[6];
+	frustum_t       frustum;
 	
 	screenRect_t    scissor;
 	
@@ -885,7 +900,7 @@ typedef struct
 	int             viewportX, viewportY, viewportWidth, viewportHeight;
 	float           fovX, fovY;
 	float           projectionMatrix[16];
-	cplane_t        frustum[5];
+	frustum_t       frustum;
 	vec3_t          visBounds[2];
 	float           skyFar;
 } viewParms_t;

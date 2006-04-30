@@ -1058,7 +1058,7 @@ static void R_AddEdgeToLightScissor(trRefDlight_t * light, vec3_t local1, vec3_t
 	qboolean        side1, side2;
 	cplane_t       *frust;
 	
-	for(i = 0; i < 5; i++)
+	for(i = 0; i < FRUSTUM_PLANES; i++)
 	{
 		R_LocalPointToWorld(local1, world1);
 		R_LocalPointToWorld(local2, world2);
@@ -1186,7 +1186,7 @@ void R_SetupDlightDepthBounds(trRefDlight_t * dl)
 		radius = RadiusFromBounds(dl->localBounds[0], dl->localBounds[1]);
 		
 		// distance from light origin to near plane
-		nearPlane = &tr.viewParms.frustum[4];
+		nearPlane = &tr.viewParms.frustum[FRUSTUM_NEAR];
 		
 		dist = DotProduct(dl->l.origin, nearPlane->normal) - nearPlane->dist;
 		

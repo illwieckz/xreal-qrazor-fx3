@@ -333,7 +333,7 @@ int R_CullLocalBox(vec3_t bounds[2])
 
 	// check against frustum planes
 	anyBack = 0;
-	for(i = 0; i < 4; i++)
+	for(i = 0; i < FRUSTUM_PLANES; i++)
 	{
 		frust = &tr.viewParms.frustum[i];
 
@@ -400,7 +400,7 @@ int R_CullPointAndRadius(vec3_t pt, float radius)
 	}
 
 	// check against frustum planes
-	for(i = 0; i < 4; i++)
+	for(i = 0; i < FRUSTUM_PLANES; i++)
 	{
 		frust = &tr.viewParms.frustum[i];
 
@@ -719,46 +719,72 @@ R_SetupFrustum
 Setup that culling frustum planes for the current view
 =================
 */
+// *INDENT-OFF*
 void R_SetupFrustum(void)
 {
-	int             i;
-	float           xs, xc;
-	float           ang;
+	// http://www2.ravensoft.com/users/ggribb/plane%20extraction.pdf
+	int				i;
+	matrix_t        m;
+	
+	MatrixMultiply(tr.viewParms.projectionMatrix, tr.or.modelViewMatrix, m);
 
-	ang = tr.viewParms.fovX / 180 * M_PI * 0.5f;
-	xs = sin(ang);
-	xc = cos(ang);
+	// left
+	tr.viewParms.frustum[FRUSTUM_LEFT].normal[0]	=  m[ 3] + m[ 0];
+	tr.viewParms.frustum[FRUSTUM_LEFT].normal[1]	=  m[ 7] + m[ 4];
+	tr.viewParms.frustum[FRUSTUM_LEFT].normal[2]	=  m[11] + m[ 8];
+	tr.viewParms.frustum[FRUSTUM_LEFT].dist			=-(m[15] + m[12]);
+	
+	// right
+	tr.viewParms.frustum[FRUSTUM_RIGHT].normal[0]	=  m[ 3] - m[ 0];
+	tr.viewParms.frustum[FRUSTUM_RIGHT].normal[1]	=  m[ 7] - m[ 4];
+	tr.viewParms.frustum[FRUSTUM_RIGHT].normal[2]	=  m[11] - m[ 8];
+	tr.viewParms.frustum[FRUSTUM_RIGHT].dist		=-(m[15] - m[12]);
+	
+	// bottom
+	tr.viewParms.frustum[FRUSTUM_BOTTOM].normal[0]	=  m[ 3] + m[ 1];
+	tr.viewParms.frustum[FRUSTUM_BOTTOM].normal[1]	=  m[ 7] + m[ 5];
+	tr.viewParms.frustum[FRUSTUM_BOTTOM].normal[2]	=  m[11] + m[ 9];
+	tr.viewParms.frustum[FRUSTUM_BOTTOM].dist		=-(m[15] + m[13]);
+	
+	// top
+	tr.viewParms.frustum[FRUSTUM_TOP].normal[0]		=  m[ 3] - m[ 1];
+	tr.viewParms.frustum[FRUSTUM_TOP].normal[1]		=  m[ 7] - m[ 5];
+	tr.viewParms.frustum[FRUSTUM_TOP].normal[2]		=  m[11] - m[ 9];
+	tr.viewParms.frustum[FRUSTUM_TOP].dist			=-(m[15] - m[13]);
+	
+	// near
+	tr.viewParms.frustum[FRUSTUM_NEAR].normal[0]	=  m[ 3] + m[ 2];
+	tr.viewParms.frustum[FRUSTUM_NEAR].normal[1]	=  m[ 7] + m[ 6];
+	tr.viewParms.frustum[FRUSTUM_NEAR].normal[2]	=  m[11] + m[10];
+	tr.viewParms.frustum[FRUSTUM_NEAR].dist			=-(m[15] + m[14]);
+	
+	// far
+	tr.viewParms.frustum[FRUSTUM_FAR].normal[0]		=  m[ 3] - m[ 2];
+	tr.viewParms.frustum[FRUSTUM_FAR].normal[1]		=  m[ 7] - m[ 6];
+	tr.viewParms.frustum[FRUSTUM_FAR].normal[2]		=  m[11] - m[10];
+	tr.viewParms.frustum[FRUSTUM_FAR].dist			=-(m[15] - m[14]);
 
-	VectorScale(tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[0].normal);
-	VectorMA(tr.viewParms.frustum[0].normal, xc, tr.viewParms.or.axis[1], tr.viewParms.frustum[0].normal);
-
-	VectorScale(tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[1].normal);
-	VectorMA(tr.viewParms.frustum[1].normal, -xc, tr.viewParms.or.axis[1], tr.viewParms.frustum[1].normal);
-
-	ang = tr.viewParms.fovY / 180 * M_PI * 0.5f;
-	xs = sin(ang);
-	xc = cos(ang);
-
-	VectorScale(tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[2].normal);
-	VectorMA(tr.viewParms.frustum[2].normal, xc, tr.viewParms.or.axis[2], tr.viewParms.frustum[2].normal);
-
-	VectorScale(tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[3].normal);
-	VectorMA(tr.viewParms.frustum[3].normal, -xc, tr.viewParms.or.axis[2], tr.viewParms.frustum[3].normal);
-
-	for(i = 0; i < 4; i++)
+	for(i = 0; i < 6; i++)
 	{
+		vec_t           length, ilength;
+		
 		tr.viewParms.frustum[i].type = PLANE_NON_AXIAL;
-		tr.viewParms.frustum[i].dist = DotProduct(tr.viewParms.or.origin, tr.viewParms.frustum[i].normal);
+		
+		// normalize
+		length = VectorLength(tr.viewParms.frustum[i].normal);
+		if(length)
+		{
+			ilength = 1.0 / length;
+			tr.viewParms.frustum[i].normal[0] *= ilength;
+			tr.viewParms.frustum[i].normal[1] *= ilength;
+			tr.viewParms.frustum[i].normal[2] *= ilength;
+			tr.viewParms.frustum[i].dist *= ilength;
+		}
+		
 		SetPlaneSignbits(&tr.viewParms.frustum[i]);
 	}
-
-	// Tr3B - set extra near plane
-	tr.viewParms.frustum[4].type = PLANE_NON_AXIAL;
-	VectorCopy(tr.viewParms.or.axis[0], tr.viewParms.frustum[4].normal);
-	tr.viewParms.frustum[4].dist = r_znear->value;
-	SetPlaneSignbits(&tr.viewParms.frustum[4]);
 }
-
+// *INDENT-ON*
 
 
 /*
@@ -1956,13 +1982,14 @@ void R_RenderView(viewParms_t * parms)
 	// set viewParms.world
 	R_RotateForViewer();
 
-	R_SetupFrustum();
-
 	// set the projection matrix now that we have the world bounded
 	// this needs to be done before entities are
 	// added, because they use the projection
 	// matrix for lod calculation
 	R_SetupProjection();
+	
+	// set camera frustum planes in world space
+	R_SetupFrustum();
 
 	R_AddWorldSurfaces();
 
