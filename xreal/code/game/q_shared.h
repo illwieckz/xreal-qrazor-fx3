@@ -472,12 +472,6 @@ typedef int     clipHandle_t;
 #define	MAX_QINT			0x7fffffff
 #define	MIN_QINT			(-MAX_QINT-1)
 
-
-// angle indexes
-#define	PITCH				0	// up / down
-#define	YAW					1	// left / right
-#define	ROLL				2	// fall over
-
 // the game guarantees that no string from the network will ever
 // exceed MAX_STRING_CHARS
 #define	MAX_STRING_CHARS	1024	// max length of a string passed to Cmd_TokenizeString
@@ -633,6 +627,20 @@ typedef int     fixed16_t;
 #ifndef M_PI
 #define M_PI		3.14159265358979323846f	// matches value in gcc v2 math.h
 #endif
+
+// angle indexes
+#define	PITCH				0	// up / down
+#define	YAW					1	// left / right
+#define	ROLL				2	// fall over
+
+// plane sides
+typedef enum
+{
+	SIDE_FRONT			 = 0,
+	SIDE_BACK			 = 1,
+	SIDE_ON				 = 2,
+	SIDE_CROSS			 = 3
+} planeSide_t;
 
 #define NUMVERTEXNORMALS	162
 extern vec3_t   bytedirs[NUMVERTEXNORMALS];
