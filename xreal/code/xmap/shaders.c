@@ -60,6 +60,7 @@ infoParm_t	infoParms[] = {
 	{"lava",			1,	0,	CONTENTS_LAVA},			// very damaging
 	{"playerclip",		1,	0,	CONTENTS_PLAYERCLIP},
 	{"monsterclip",		1,	0,	CONTENTS_MONSTERCLIP},
+	{"moveableclip",	1,	0,	0},						//FIXME
 	{"nodrop",			1,	0,	CONTENTS_NODROP},		// don't drop items or leave bodies (death fog, lava, etc)
 	{"nonsolid",		1,	SURF_NONSOLID,	0},			// clears the solid flag
 	
