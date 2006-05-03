@@ -924,7 +924,6 @@ typedef enum
 	SF_TRIANGLES,
 	SF_POLY,
 	SF_MDX,
-	SF_MDS,
 	SF_MD5,
 	SF_FLARE,
 	SF_ENTITY,					// beams, rails, lightning, etc that can be determined by entity
@@ -1453,7 +1452,6 @@ typedef enum
 	MOD_BAD,
 	MOD_BRUSH,
 	MOD_MDX,
-	MOD_MDS,
 	MOD_MD5
 } modtype_t;
 
@@ -1466,7 +1464,6 @@ typedef struct model_s
 	int             dataSize;	// just for listing purposes
 	bmodel_t       *bmodel;		// only if type == MOD_BRUSH
 	mdxModel_t     *mdx[MD3_MAX_LODS];	// only if type == MOD_MD3
-	mdsHeader_t    *mds;		// only if type == MOD_MDS
 	md5Model_t     *md5;		// only if type == MOD_MD5
 
 	int             numLods;
