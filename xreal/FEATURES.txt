@@ -30,29 +30,37 @@ code/renderer
 - cubemap based reflection mapping
 - cubemap based refraction mapping
 - cubemap based dispersion mapping
-- dlights use Doom3 style lighting attenuation
+- dynamic and static lights use Doom3 style boxed lighting attenuation
 - heatHaze post process effect
 - simple glow post process effect
 - light bloom post process effects
 - anisotropic texture filtering
 - skeletal animation
-- Return to Castle Wolfenstein .mds model file format support
 - Doom3 .md5mesh model file format support
 - Doom3 .md5anim animation file format support
 - deluxe mapping: N dot L based lightmapping supported by q3map2
   compile your maps with -light -deluxe to use this feature
 - added uniform lighting and shadowing model
-  correct dynamic lighting and shadowing on everything: world surfaces, brush model surfaces and .md3 surfaces
-  [cg/r]_shadows 1 = blob, 2 = planar projection, 3 = robust stencil shadow volumes (Doom3/Nvidia style)
+  dynamic lighting and shadowing on everything: world surfaces, brush model surfaces, .md3 surfaces and .md5 surfaces
+  [cg/r]_shadows
+  1 = blob
+  2 = planar projection
+  3 = robust stencil shadow volumes (Doom3/Nvidia style)
 - r_dynamiclight 2 skips precomputed lighting and uses pure realtime lighting and shadowing
 - r_lighting cvar determines lighting mode
-  0 = diffuse lighting, 1 = bump mapping, 2 = specular bump mapping
+  0 = diffuse lighting
+  1 = bump mapping
+  2 = specular bump mapping
+  3 = specular parallax bump mapping
 - usage of vertex buffer objects to speed up rendering of large static models
 
 code/q3_ui
 - lighting mode game option
 - bloom rendering game option
 - anisotropic filter value slider in graphics options
+
+code/qcommon
+- optional per triangle collision detection for world surfaces
 
 code/common/aselib
 - fixed bad Doom3 paths
