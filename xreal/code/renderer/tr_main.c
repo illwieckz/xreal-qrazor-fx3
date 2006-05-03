@@ -1524,8 +1524,8 @@ void R_AddEntitySurfaces(void)
 				{
 					switch (tr.currentModel->type)
 					{
-						case MOD_MD3:
-							R_AddMD3Surfaces(ent);
+						case MOD_MDX:
+							R_AddMDXSurfaces(ent);
 							break;
 
 						case MOD_MDS:
@@ -1614,8 +1614,8 @@ void R_AddEntityInteractions(trRefDlight_t * light)
 				{
 					switch (tr.currentModel->type)
 					{
-						case MOD_MD3:
-							R_AddMD3Interactions(ent, light);
+						case MOD_MDX:
+							R_AddMDXInteractions(ent, light);
 							break;
 
 						case MOD_MDS:

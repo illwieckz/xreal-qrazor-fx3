@@ -1586,7 +1586,7 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 				tri = (srfTriangles_t *) surface;
 				R_DebugBoundingBox(vec3_origin, tri->bounds[0], tri->bounds[1], colorCyan);
 			}
-			else if(*surface == SF_MD3)
+			else if(*surface == SF_MDX)
 			{
 				R_DebugBoundingBox(vec3_origin, entity->localBounds[0], entity->localBounds[1], colorMdGrey);
 			}

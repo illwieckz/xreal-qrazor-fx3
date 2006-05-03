@@ -923,7 +923,7 @@ typedef enum
 	SF_GRID,
 	SF_TRIANGLES,
 	SF_POLY,
-	SF_MD3,
+	SF_MDX,
 	SF_MDS,
 	SF_MD5,
 	SF_FLARE,
@@ -1156,17 +1156,9 @@ extern void     (*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *, int numLightIn
 
 /*
 ==============================================================================
-
-BRUSH MODELS
-
+BRUSH MODELS - in memory representation
 ==============================================================================
 */
-
-
-//
-// in memory representation
-//
-
 typedef struct msurface_s
 {
 	int             viewCount;	// if == tr.viewCount, already added
@@ -1177,7 +1169,6 @@ typedef struct msurface_s
 
 	surfaceType_t  *data;		// any of srf*_t
 } msurface_t;
-
 
 
 #define	CONTENTS_NODE		-1
@@ -1260,20 +1251,81 @@ typedef struct
 } world_t;
 
 
+
 /*
 ==============================================================================
-
-MD5 MODELS
-
+MDX MODELS - meta format for .md2, .md3, .mdc and so on
 ==============================================================================
 */
+typedef struct
+{
+	float           bounds[2][3];
+	float           localOrigin[3];
+	float           radius;
+} mdxFrame_t;
+
+typedef struct
+{
+	char            name[MAX_QPATH];	// tag name
+	float           origin[3];
+	float           axis[3][3];
+} mdxTag_t;
+
+typedef struct
+{
+	short           xyz[3];
+	float           st[2];
+} mdxVertex_t;
+
+typedef struct
+{
+	float           st[2];
+} mdxSt_t;
+
+typedef struct
+{
+	int             shaderIndex;	// for in-game use
+} mdxShader_t;
+
+typedef struct
+{
+	int             ident;		// 
+
+	char            name[MAX_QPATH];	// polyset name
+
+	int             numShaders;	// all surfaces in a model should have the same
+	mdxShader_t    *shaders;
+	
+	int             numVerts;
+	mdxVertex_t    *verts;
+	mdxSt_t        *st;
+
+	int             numTriangles;
+	srfTriangle_t  *triangles;
+	
+	struct mdxModel_s *model;
+} mdxSurface_t;
+
+typedef struct mdxModel_s
+{
+	int             numFrames;
+	mdxFrame_t     *frames;
+	
+	int             numTags;
+	mdxTag_t       *tags;
+	
+	int             numSurfaces;
+	mdxSurface_t   *surfaces;
+
+	int             numSkins;
+} mdxModel_t;
 
 
-//
-// in memory representation
-//
-
-
+/*
+==============================================================================
+MD5 MODELS - in memory representation
+==============================================================================
+*/
 #define MD5_IDENTSTRING     "MD5Version"
 #define MD5_VERSION			10
 #define	MD5_MAX_BONES		128
@@ -1333,11 +1385,6 @@ typedef struct
 
 typedef struct md5Model_s
 {
-	int             ident;
-	int             version;
-
-	char            name[MAX_QPATH];	// model name
-	
 	int             numBones;
 	md5Bone_t      *bones;
 	
@@ -1405,7 +1452,7 @@ typedef enum
 {
 	MOD_BAD,
 	MOD_BRUSH,
-	MOD_MD3,
+	MOD_MDX,
 	MOD_MDS,
 	MOD_MD5
 } modtype_t;
@@ -1418,7 +1465,7 @@ typedef struct model_s
 
 	int             dataSize;	// just for listing purposes
 	bmodel_t       *bmodel;		// only if type == MOD_BRUSH
-	md3Header_t    *md3[MD3_MAX_LODS];	// only if type == MOD_MD3
+	mdxModel_t     *mdx[MD3_MAX_LODS];	// only if type == MOD_MD3
 	mdsHeader_t    *mds;		// only if type == MOD_MDS
 	md5Model_t     *md5;		// only if type == MOD_MD5
 
@@ -1463,8 +1510,8 @@ typedef struct
 {
 	int             c_sphere_cull_patch_in, c_sphere_cull_patch_clip, c_sphere_cull_patch_out;
 	int             c_box_cull_patch_in, c_box_cull_patch_clip, c_box_cull_patch_out;
-	int             c_sphere_cull_md3_in, c_sphere_cull_md3_clip, c_sphere_cull_md3_out;
-	int             c_box_cull_md3_in, c_box_cull_md3_clip, c_box_cull_md3_out;
+	int             c_sphere_cull_mdx_in, c_sphere_cull_mdx_clip, c_sphere_cull_mdx_out;
+	int             c_box_cull_mdx_in, c_box_cull_mdx_clip, c_box_cull_mdx_out;
 	int             c_sphere_cull_mds_in, c_sphere_cull_mds_clip, c_sphere_cull_mds_out;
 	int             c_box_cull_mds_in, c_box_cull_mds_clip, c_box_cull_mds_out;
 	int             c_box_cull_dlight_in, c_box_cull_dlight_clip, c_box_cull_dlight_out;
@@ -1880,8 +1927,8 @@ void            R_SwapBuffers(int);
 
 void            R_RenderView(viewParms_t * parms);
 
-void            R_AddMD3Surfaces(trRefEntity_t * e);
-void            R_AddMD3Interactions(trRefEntity_t * e, trRefDlight_t * light);
+void            R_AddMDXSurfaces(trRefEntity_t * e);
+void            R_AddMDXInteractions(trRefEntity_t * e, trRefDlight_t * light);
 void            R_AddNullModelSurfaces(trRefEntity_t * e);
 void            R_AddBeamSurfaces(trRefEntity_t * e);
 void            R_AddRailSurfaces(trRefEntity_t * e, qboolean isUnderwater);
