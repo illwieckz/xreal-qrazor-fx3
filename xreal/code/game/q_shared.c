@@ -62,29 +62,28 @@ char           *Com_SkipPath(char *pathname)
 Com_StripExtension
 ============
 */
-void Com_StripExtension(const char *in, char *out)
+void Com_StripExtension(const char *src, char *dest, int destsize)
 {
-	while(*in && *in != '.')
+	int             length;
+	
+	Q_strncpyz(dest, src, destsize);
+	
+	length = strlen(dest) -1;
+	
+	while(length > 0 && dest[length] != '.')
 	{
-		*out++ = *in++;
+		length--;
+		
+		if(dest[length] == '/')
+			return;         // no extension
 	}
-	*out = 0;
+	
+	if(length)
+	{
+		dest[length] = 0;
+	}
 }
 
-
-/*
-============
-Com_StripExtensionExt
-============
-*/
-void Com_StripExtensionExt(const char *in, char *out, char terminator)
-{
-	while(*in && *in != '.')
-	{
-		*out++ = *in++;
-	}
-	*out = terminator;
-}
 
 /*
 ==================

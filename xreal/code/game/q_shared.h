@@ -1152,8 +1152,7 @@ void            QuatSlerp(const quat_t from, const quat_t to, float frac, quat_t
 float           Com_Clamp(float min, float max, float value);
 
 char           *Com_SkipPath(char *pathname);
-void            Com_StripExtension(const char *in, char *out);
-void            Com_StripExtensionExt(const char *in, char *out, char terminator);
+void            Com_StripExtension(const char *src, char *dest, int destsize);
 void            Com_DefaultExtension(char *path, int maxSize, const char *extension);
 
 void            Com_BeginParseSession(const char *name);

@@ -120,7 +120,7 @@ void R_RemapShader(const char *shaderName, const char *newShaderName, const char
 
 	// remap all the shaders with the given name
 	// even tho they might have different lightmaps
-	Com_StripExtension(shaderName, strippedName);
+	Com_StripExtension(shaderName, strippedName, sizeof(strippedName));
 	hash = generateHashValue(strippedName, FILE_HASH_SIZE);
 	for(sh = shaderHashTable[hash]; sh; sh = sh->next)
 	{
@@ -4806,7 +4806,7 @@ shader_t       *R_FindShaderByName(const char *name)
 		return tr.defaultShader;
 	}
 
-	Com_StripExtension(name, strippedName);
+	Com_StripExtension(name, strippedName, sizeof(strippedName));
 
 	hash = generateHashValue(strippedName, FILE_HASH_SIZE);
 
@@ -4870,7 +4870,7 @@ shader_t       *R_FindShader(const char *name, shaderType_t type, qboolean mipRa
 		return tr.defaultShader;
 	}
 
-	Com_StripExtension(name, strippedName);
+	Com_StripExtension(name, strippedName, sizeof(strippedName));
 
 	hash = generateHashValue(strippedName, FILE_HASH_SIZE);
 
