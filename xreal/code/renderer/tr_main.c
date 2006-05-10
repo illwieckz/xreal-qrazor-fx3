@@ -1673,6 +1673,7 @@ void R_AddSlightInteractions()
 		switch (R_CullLocalBox(dl->localBounds))
 		{
 			case CULL_IN:
+			default:
 				tr.pc.c_box_cull_slight_in++;
 				dl->cull = CULL_IN;
 				break;
@@ -1683,7 +1684,6 @@ void R_AddSlightInteractions()
 				break;
 
 			case CULL_OUT:
-			default:
 				// light is not visible so skip other light setup stuff to save speed
 				tr.pc.c_box_cull_slight_out++;
 				dl->cull = CULL_OUT;
@@ -1691,8 +1691,8 @@ void R_AddSlightInteractions()
 		}
 
 		// ignore if not in visible bounds
-		if(!BoundsIntersect(dl->worldBounds[0], dl->worldBounds[1], tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]))
-			continue;
+		//if(!BoundsIntersect(dl->worldBounds[0], dl->worldBounds[1], tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]))
+		//	continue;
 
 		// set up view dependent light scissor
 		R_SetupDlightScissor(dl);
@@ -1745,6 +1745,7 @@ void R_AddDlightInteractions()
 		switch (R_CullLocalBox(dl->localBounds))
 		{
 			case CULL_IN:
+			default:
 				tr.pc.c_box_cull_dlight_in++;
 				dl->cull = CULL_IN;
 				break;
@@ -1755,7 +1756,6 @@ void R_AddDlightInteractions()
 				break;
 
 			case CULL_OUT:
-			default:
 				// light is not visible so skip other light setup stuff to save speed
 				tr.pc.c_box_cull_dlight_out++;
 				dl->cull = CULL_OUT;

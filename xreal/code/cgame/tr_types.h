@@ -324,6 +324,8 @@ typedef struct
 	qboolean        depthTextureAvailable;
 	qboolean        vertexProgramAvailable;
 	qboolean        vertexBufferObjectAvailable;
+	qboolean        occlusionQueryAvailable;
+	int             occlusionQueryBits;
 	qboolean        shaderObjectsAvailable;
 	qboolean        vertexShaderAvailable;
 	qboolean        fragmentShaderAvailable;

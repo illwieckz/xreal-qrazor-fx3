@@ -68,11 +68,6 @@ void R_PerformanceCounters(void)
 				  tr.pc.c_sphere_cull_mdx_in, tr.pc.c_sphere_cull_mdx_clip,
 				  tr.pc.c_sphere_cull_mdx_out, tr.pc.c_box_cull_mdx_in, tr.pc.c_box_cull_mdx_clip,
 				  tr.pc.c_box_cull_mdx_out);
-		
-		ri.Printf(PRINT_ALL, "(mds) %i sin %i sclip %i sout %i bin %i bclip %i bout\n",
-				  tr.pc.c_sphere_cull_mds_in, tr.pc.c_sphere_cull_mds_clip,
-				  tr.pc.c_sphere_cull_mds_out, tr.pc.c_box_cull_mds_in, tr.pc.c_box_cull_mds_clip,
-				  tr.pc.c_box_cull_mds_out);
 				  
 		ri.Printf(PRINT_ALL, "(md5) %i bin %i bclip %i bout\n",
 				  tr.pc.c_box_cull_md5_in, tr.pc.c_box_cull_md5_clip, tr.pc.c_box_cull_md5_out);
@@ -111,6 +106,12 @@ void R_PerformanceCounters(void)
 	{
 		ri.Printf(PRINT_ALL, "flare adds:%i tests:%i renders:%i\n",
 				  backEnd.pc.c_flareAdds, backEnd.pc.c_flareTests, backEnd.pc.c_flareRenders);
+	}
+	else if(r_speeds->integer == 8)
+	{
+		ri.Printf(PRINT_ALL, "occlusion queries:%i avail:%i culled:%i\n",
+				  backEnd.pc.c_occlusionQueries, backEnd.pc.c_occlusionQueriesAvailable,
+				  backEnd.pc.c_occlusionQueriesCulled);
 	}
 
 	Com_Memset(&tr.pc, 0, sizeof(tr.pc));

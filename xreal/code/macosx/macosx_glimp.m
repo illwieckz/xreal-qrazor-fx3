@@ -995,6 +995,43 @@ static void GLW_InitExtensions( void )
 	{
 		ri.Printf(PRINT_ALL, "...GL_ARB_vertex_buffer_object not found\n");
 	}
+
+	// GL_ARB_occlusion_query
+	glConfig2.occlusionQueryAvailable = qfalse;
+	glConfig2.occlusionQueryBits = 0;
+	qglGenQueriesARB = NULL;
+	qglDeleteQueriesARB = NULL;
+	qglIsQueryARB = NULL;
+	qglBeginQueryARB = NULL;
+	qglEndQueryARB = NULL;
+	qglGetQueryivARB = NULL;
+	qglGetQueryObjectivARB = NULL;
+	qglGetQueryObjectuivARB = NULL;
+	if(strstr(glConfig.extensions_string, "GL_ARB_occlusion_query"))
+	{
+		if(r_ext_occlusion_query->value)
+		{
+			qglGenQueriesARB = (PFNGLGENQUERIESARBPROC) qwglGetProcAddress("glGenQueriesARB");
+			qglDeleteQueriesARB = (PFNGLDELETEQUERIESARBPROC) qwglGetProcAddress("glDeleteQueriesARB");
+			qglIsQueryARB = (PFNGLISQUERYARBPROC) qwglGetProcAddress("glIsQueryARB");
+			qglBeginQueryARB = (PFNGLBEGINQUERYARBPROC) qwglGetProcAddress("glBeginQueryARB");
+			qglEndQueryARB = (PFNGLENDQUERYARBPROC) qwglGetProcAddress("glEndQueryARB");
+			qglGetQueryivARB = (PFNGLGETQUERYIVARBPROC) qwglGetProcAddress("glGetQueryivARB");
+			qglGetQueryObjectivARB = (PFNGLGETQUERYOBJECTIVARBPROC) qwglGetProcAddress("glGetQueryObjectivARB");
+			qglGetQueryObjectuivARB = (PFNGLGETQUERYOBJECTUIVARBPROC) qwglGetProcAddress("glGetQueryObjectuivARB");
+			glConfig2.occlusionQueryAvailable = qtrue;
+			qglGetQueryivARB(GL_SAMPLES_PASSED, GL_QUERY_COUNTER_BITS, &glConfig2.occlusionQueryBits); 
+			ri.Printf(PRINT_ALL, "...using GL_ARB_occlusion_query\n");
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_ARB_occlusion_query\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_ARB_occlusion_query not found\n");
+	}
 	
 	// GL_ARB_shader_objects
 	glConfig2.shaderObjectsAvailable = qfalse;

@@ -125,6 +125,9 @@ typedef struct trRefDlight_s
 	int             firstInteractionIndex;
 	int             lastInteractionIndex;
 	qboolean        noSort;				// don't sort interactions by material
+	
+	int             occlusionQueryObject;	// OpenGL object Id
+	int             occlusionQuerySamples;	// visible fragment count
 } trRefDlight_t;
 
 
@@ -1509,8 +1512,6 @@ typedef struct
 	int             c_box_cull_patch_in, c_box_cull_patch_clip, c_box_cull_patch_out;
 	int             c_sphere_cull_mdx_in, c_sphere_cull_mdx_clip, c_sphere_cull_mdx_out;
 	int             c_box_cull_mdx_in, c_box_cull_mdx_clip, c_box_cull_mdx_out;
-	int             c_sphere_cull_mds_in, c_sphere_cull_mds_clip, c_sphere_cull_mds_out;
-	int             c_box_cull_mds_in, c_box_cull_mds_clip, c_box_cull_mds_out;
 	int             c_box_cull_dlight_in, c_box_cull_dlight_clip, c_box_cull_dlight_out;
 	int             c_box_cull_slight_in, c_box_cull_slight_clip, c_box_cull_slight_out;
 	int             c_box_cull_md5_in, c_box_cull_md5_clip, c_box_cull_md5_out;
@@ -1574,6 +1575,10 @@ typedef struct
 	int             c_flareAdds;
 	int             c_flareTests;
 	int             c_flareRenders;
+	
+	int             c_occlusionQueries;
+	int             c_occlusionQueriesAvailable;
+	int             c_occlusionQueriesCulled;
 
 	int             msec;		// total msec for backend run
 } backEndCounters_t;
@@ -1834,6 +1839,7 @@ extern cvar_t  *r_ext_texture_cube_map;
 extern cvar_t  *r_ext_depth_texture;
 extern cvar_t  *r_ext_vertex_program;
 extern cvar_t  *r_ext_vertex_buffer_object;
+extern cvar_t  *r_ext_occlusion_query;
 extern cvar_t  *r_ext_shader_objects;
 extern cvar_t  *r_ext_vertex_shader;
 extern cvar_t  *r_ext_fragment_shader;
@@ -2359,6 +2365,7 @@ void            R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * su
 									   interactionType_t iaType);
 
 void            R_SortInteractions(trRefDlight_t * light);
+qboolean        R_DlightIntersectsPoint(trRefDlight_t * light, const vec3_t p);
 
 void            R_SetupDlightScissor(trRefDlight_t * light);
 void            R_SetupDlightDepthBounds(trRefDlight_t * light);

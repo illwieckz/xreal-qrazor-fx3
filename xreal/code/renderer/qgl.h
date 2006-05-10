@@ -239,16 +239,14 @@ extern void     (APIENTRY * qglGetBufferParameterivARB) (GLenum target, GLenum p
 extern void     (APIENTRY * qglGetBufferPointervARB) (GLenum target, GLenum pname, GLvoid * *params);
 
 // GL_ARB_occlusion_query
-/*
-extern void ( APIENTRY * qglGenQueriesARB )(GLsizei, GLuint * ); 
-extern void ( APIENTRY * qglDeleteQueriesARB )( GLsizei, const GLuint * ); 
-extern GLboolean ( APIENTRY * qglIsQueryARB )( GLuint ); 
-extern void ( APIENTRY * qglBeginQueryARB )( GLenum, GLuint ); 
-extern void ( APIENTRY * qglEndQueryARB )( GLenum ); 
-extern void ( APIENTRY * qglGetQueryivARB )( GLenum, GLenum, GLint * ); 
-extern void ( APIENTRY * qglGetQueryObjectivARB ) ( GLuint, GLenum, GLint * ); 
-extern void ( APIENTRY * qglGetQueryObjectuivARB ) ( GLuint, GLenum, GLuint * ); 
-*/
+extern void     (APIENTRY * qglGenQueriesARB) (GLsizei n, GLuint * ids);
+extern void     (APIENTRY * qglDeleteQueriesARB) (GLsizei n, const GLuint * ids);
+extern GLboolean (APIENTRY * qglIsQueryARB) (GLuint id);
+extern void     (APIENTRY * qglBeginQueryARB) (GLenum target, GLuint id);
+extern void     (APIENTRY * qglEndQueryARB) (GLenum target);
+extern void     (APIENTRY * qglGetQueryivARB) (GLenum target, GLenum pname, GLint * params);
+extern void     (APIENTRY * qglGetQueryObjectivARB) (GLuint id, GLenum pname, GLint * params);
+extern void     (APIENTRY * qglGetQueryObjectuivARB) (GLuint id, GLenum pname, GLuint * params);
 
 // GL_ARB_shader_objects
 //typedef char GLcharARB;           /* native character */

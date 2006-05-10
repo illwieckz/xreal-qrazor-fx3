@@ -89,6 +89,7 @@ cvar_t         *r_ext_texture_cube_map;
 cvar_t         *r_ext_depth_texture;
 cvar_t         *r_ext_vertex_program;
 cvar_t         *r_ext_vertex_buffer_object;
+cvar_t         *r_ext_occlusion_query;
 cvar_t         *r_ext_shader_objects;
 cvar_t         *r_ext_vertex_shader;
 cvar_t         *r_ext_fragment_shader;
@@ -206,6 +207,16 @@ void            (APIENTRY * qglBufferDataARB) (GLenum target, GLsizeiptrARB size
 void            (APIENTRY * qglBufferSubDataARB) (GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid * data);
 void            (APIENTRY * qglGetBufferSubDataARB) (GLenum target, GLintptrARB offset, GLsizeiptrARB size, GLvoid * data);
 GLvoid         *(APIENTRY * qglMapBufferARB) (GLenum target, GLenum access);
+
+// GL_ARB_occlusion_query
+void            (APIENTRY * qglGenQueriesARB) (GLsizei n, GLuint * ids);
+void            (APIENTRY * qglDeleteQueriesARB) (GLsizei n, const GLuint * ids);
+GLboolean       (APIENTRY * qglIsQueryARB) (GLuint id);
+void            (APIENTRY * qglBeginQueryARB) (GLenum target, GLuint id);
+void            (APIENTRY * qglEndQueryARB) (GLenum target);
+void            (APIENTRY * qglGetQueryivARB) (GLenum target, GLenum pname, GLint * params);
+void            (APIENTRY * qglGetQueryObjectivARB) (GLuint id, GLenum pname, GLint * params);
+void            (APIENTRY * qglGetQueryObjectuivARB) (GLuint id, GLenum pname, GLuint * params);
 
 GLboolean(APIENTRY * qglUnmapBufferARB) (GLenum target);
 void            (APIENTRY * qglGetBufferParameterivARB) (GLenum target, GLenum pname, GLint * params);
@@ -993,15 +1004,20 @@ void GfxInfo_f(void)
 	ri.Printf(PRINT_ALL, "GL_MAX_TEXTURE_UNITS_ARB: %d\n", glConfig.maxTextureUnits);
 
 	/*
-	if(glConfig2.fragmentProgramAvailable)
-	{
-		ri.Printf(PRINT_ALL, "GL_MAX_TEXTURE_IMAGE_UNITS_ARB: %d\n", glConfig.maxTextureImageUnits);
-	}
-	*/
+	   if(glConfig2.fragmentProgramAvailable)
+	   {
+	   ri.Printf(PRINT_ALL, "GL_MAX_TEXTURE_IMAGE_UNITS_ARB: %d\n", glConfig.maxTextureImageUnits);
+	   }
+	 */
 
 	if(glConfig2.textureAnisotropyAvailable)
 	{
 		ri.Printf(PRINT_ALL, "GL_TEXTURE_MAX_ANISOTROPY_EXT: %f\n", glConfig2.maxTextureAnisotropy);
+	}
+	
+	if(glConfig2.occlusionQueryAvailable)
+	{
+		ri.Printf(PRINT_ALL, "%d occlusion query bits\n", glConfig2.occlusionQueryBits);
 	}
 
 	ri.Printf(PRINT_ALL, "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits,
@@ -1045,7 +1061,7 @@ void GfxInfo_f(void)
 	{
 		ri.Printf(PRINT_ALL, "HACK: riva128 approximations\n");
 	}
-	
+
 	if(glConfig.hardwareType == GLHW_ATI)
 	{
 		ri.Printf(PRINT_ALL, "HACK: ATI approximations\n");
@@ -1088,6 +1104,7 @@ void R_Register(void)
 	r_ext_depth_texture = ri.Cvar_Get("r_ext_depth_texture", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_vertex_program = ri.Cvar_Get("r_ext_vertex_program", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_vertex_buffer_object = ri.Cvar_Get("r_ext_vertex_buffer_object", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_occlusion_query = ri.Cvar_Get("r_ext_occlusion_query", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_shader_objects = ri.Cvar_Get("r_ext_shader_objects", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_vertex_shader = ri.Cvar_Get("r_ext_vertex_shader", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_fragment_shader = ri.Cvar_Get("r_ext_fragment_shader", "1", CVAR_ARCHIVE | CVAR_LATCH);
@@ -1164,11 +1181,11 @@ void R_Register(void)
 	r_ambientScale = ri.Cvar_Get("r_ambientScale", "0.6", CVAR_CHEAT);
 	r_directedScale = ri.Cvar_Get("r_directedScale", "1", CVAR_CHEAT);
 	r_lightScale = ri.Cvar_Get("r_lightScale", "3", CVAR_ARCHIVE);
-	
+
 	r_vboFaces = ri.Cvar_Get("r_vboFaces", "0", CVAR_ARCHIVE);
 	r_vboCurves = ri.Cvar_Get("r_vboCurves", "0", CVAR_ARCHIVE);
 	r_vboTriangles = ri.Cvar_Get("r_vboTriangles", "1", CVAR_ARCHIVE);
-	
+
 	r_printShaders = ri.Cvar_Get("r_printShaders", "0", CVAR_ARCHIVE);
 
 	//
@@ -1384,7 +1401,8 @@ void RE_Shutdown(qboolean destroyWindow)
 		R_SyncRenderThread();
 		R_ShutdownCommandBuffers();
 		R_DeleteTextures();
-		R_DeleteSurfaceVBOs();
+		R_DeleteVBOs();
+		R_DeleteQueries();
 		RB_ShutdownGPUShaders();
 	}
 

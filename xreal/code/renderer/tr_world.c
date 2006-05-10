@@ -939,10 +939,10 @@ void R_AddPrecachedWorldInteractions(trRefDlight_t * light)
 
 /*
 ===============
-R_DeleteSurfaceVBOs
+R_DeleteVBOs
 ===============
 */
-void R_DeleteSurfaceVBOs()
+void R_DeleteVBOs()
 {
 	int             i;
 	msurface_t     *surface;
@@ -1000,6 +1000,37 @@ void R_DeleteSurfaceVBOs()
 			{
 				qglDeleteBuffersARB(1, &tri->vertsVBO);
 			}
+		}
+	}
+}
+
+/*
+===============
+R_DeleteQueries
+===============
+*/
+void R_DeleteQueries()
+{
+	int             i;
+	trRefDlight_t  *dl;
+	
+	if(!tr.world || (tr.refdef.rdflags & RDF_NOWORLDMODEL))
+	{
+		return;
+	}
+	
+	if(!glConfig2.occlusionQueryBits)
+	{
+		return;
+	}
+	
+	for(i = 0; i < tr.world->numDlights; i++)
+	{
+		dl = tr.currentDlight = &tr.world->dlights[i];
+		
+		if(dl->occlusionQueryObject)
+		{
+			qglDeleteQueriesARB(1, &dl->occlusionQueryObject);
 		}
 	}
 }
