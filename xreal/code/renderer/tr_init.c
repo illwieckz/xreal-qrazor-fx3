@@ -177,6 +177,7 @@ cvar_t         *r_showEntityTransforms;
 cvar_t         *r_showLightTransforms;
 cvar_t         *r_showLightInteractions;
 cvar_t         *r_showLightScissors;
+cvar_t         *r_showOcclusionQueries;
 
 cvar_t         *r_vboFaces;
 cvar_t         *r_vboCurves;
@@ -1250,6 +1251,7 @@ void R_Register(void)
 	r_showLightTransforms = ri.Cvar_Get("r_showLightTransforms", "0", CVAR_CHEAT);
 	r_showLightInteractions = ri.Cvar_Get("r_showLightInteractions", "0", CVAR_CHEAT);
 	r_showLightScissors = ri.Cvar_Get("r_showLightScissors", "0", CVAR_CHEAT);
+	r_showOcclusionQueries = ri.Cvar_Get("r_showOcclusionQueries", "0", CVAR_CHEAT);
 
 	// make sure all the commands added here are also
 	// removed in R_Shutdown

@@ -834,7 +834,19 @@ void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shad
 	
 	light->lastInteractionIndex = iaIndex;
 	
+	// update counters
 	light->numInteractions++;
+	
+	switch (iaType)
+	{
+		case IA_SHADOWONLY:
+			light->numShadowOnlyInteractions++;
+			break;
+			
+		case IA_LIGHTONLY:
+			light->numLightOnlyInteractions++;
+			break;	
+	}
 
 	// check what kind of attenuationShader is used
 	if(!light->l.attenuationShader)

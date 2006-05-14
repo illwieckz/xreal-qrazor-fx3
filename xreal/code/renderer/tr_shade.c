@@ -1288,9 +1288,6 @@ static void DrawTris()
 			qglColor3f(1, 0, 0);
 			break;
 		
-		case SIT_LIGHTING_STENCIL:
-			return;	
-		
 		default:
 		case SIT_DEFAULT:
 			if(tess.indexesVBO && tess.vertexesVBO)
@@ -1453,10 +1450,6 @@ void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader,
 	{
 		case SIT_LIGHTING:
 			tess.currentStageIteratorFunc = RB_StageIteratorLighting;
-			break;
-			
-		case SIT_LIGHTING_STENCIL:
-			tess.currentStageIteratorFunc = RB_StageIteratorLightingStencilShadowed;
 			break;
 		
 		default:
@@ -3751,291 +3744,6 @@ void RB_StageIteratorLighting()
 	}
 }
 
-void RB_StageIteratorLightingStencilShadowed()
-{
-	int				i, j;
-	trRefDlight_t  *dl;
-	shaderStage_t  *attenuationXYStage;
-	shaderStage_t  *attenuationZStage;
-	
-	dl = backEnd.currentLight;
-	
-	RB_DeformTessGeometry();
-
-	// log this call
-	if(r_logFile->integer)
-	{
-		// don't just call LogComment, or we will get
-		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorLightingStencilShadowed( %s, %s ) ---\n", tess.surfaceShader->name, tess.lightShader->name));
-	}
-
-	// set face culling appropriately
-	switch (tess.surfaceShader->cullType)
-	{
-		case CT_FRONT_SIDED:
-			if(backEnd.viewParms.isMirror)
-			{
-				qglCullFace(GL_BACK);
-			}
-			else
-			{
-				qglCullFace(GL_FRONT);
-			}
-			break;
-			
-		case CT_BACK_SIDED:
-			if(backEnd.viewParms.isMirror)
-			{
-				qglCullFace(GL_FRONT);
-			}
-			else
-			{
-				qglCullFace(GL_BACK);
-			}
-			break;
-		
-		case CT_TWO_SIDED:
-			qglDisable(GL_CULL_FACE);
-			break;
-	};
-
-	// set polygon offset if necessary
-	if(tess.surfaceShader->polygonOffset)
-	{
-		qglEnable(GL_POLYGON_OFFSET_FILL);
-		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
-	}
-
-	// lock XYZ
-	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
-	{
-		qglVertexPointer(3, GL_FLOAT, 16, BUFFER_OFFSET(tess.ofsXYZ));
-	}
-	else
-	{
-		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
-	}
-	
-	if(qglLockArraysEXT)
-	{
-		qglLockArraysEXT(0, tess.numVertexes);
-		GLimp_LogComment("glLockArraysEXT\n");
-	}
-
-	// call shader function
-	attenuationZStage = tess.lightShader->stages[0];
-		
-	for(i = 0; i < MAX_SHADER_STAGES; i++)
-	{
-		shaderStage_t  *diffuseStage = tess.surfaceStages[i];
-
-		if(!diffuseStage)
-		{
-			break;
-		}
-		
-		if(!RB_EvalExpression(&diffuseStage->ifExp, 1.0))
-		{
-			continue;
-		}
-			
-		if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
-		{
-			ComputeTexMatrices(diffuseStage);
-		}
-		else
-		{
-			ComputeTexCoords(diffuseStage);
-		}
-		
-		for(j = 1; j < MAX_SHADER_STAGES; j++)
-		{
-			attenuationXYStage = tess.lightShader->stages[j];
-						
-			if(!attenuationXYStage)
-			{
-				break;
-			}
-			
-			if(attenuationXYStage->type != ST_ATTENUATIONMAP_XY)
-			{
-				continue;
-			}
-			
-			if(!RB_EvalExpression(&attenuationXYStage->ifExp, 1.0))
-			{
-				continue;
-			}
-		
-			ComputeColor(attenuationXYStage);
-			ComputeFinalAttenuation(attenuationXYStage, dl);
-				
-			switch(diffuseStage->type)
-			{
-				case ST_DIFFUSEMAP:
-				case ST_COLLAPSE_lighting_D_radiosity:
-					if(glConfig2.shadingLanguage100Available)
-					{
-						if(dl->l.rlType == RL_OMNI)
-						{
-							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-						}
-						else if(dl->l.rlType == RL_PROJ)
-						{
-							Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-						}
-						else
-						{
-							// TODO
-						}
-					}
-					else
-					{
-							// TODO
-					}
-					break;
-						
-				case ST_COLLAPSE_lighting_DB_radiosity:
-				case ST_COLLAPSE_lighting_DB_direct:
-				case ST_COLLAPSE_lighting_DB_generic:
-					if(glConfig2.shadingLanguage100Available)
-					{
-						if(r_lighting->integer == 1)
-						{
-							if(dl->l.rlType == RL_OMNI)
-							{
-								Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-							}
-							else if(dl->l.rlType == RL_PROJ)
-							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-							}
-							else
-							{
-								// TODO
-							}
-						}
-						else
-						{
-							if(dl->l.rlType == RL_OMNI)
-							{
-								Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-							}
-							else if(dl->l.rlType == RL_PROJ)
-							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-							}
-							else
-							{
-								// TODO
-							}
-						}
-					}
-					else
-					{
-							// TODO
-					}
-					break;
-						
-				case ST_COLLAPSE_lighting_DBS_radiosity:
-				case ST_COLLAPSE_lighting_DBS_direct:
-				case ST_COLLAPSE_lighting_DBS_generic:
-					if(glConfig2.shadingLanguage100Available)
-					{
-						if(r_lighting->integer == 3)
-						{
-							if(dl->l.rlType == RL_OMNI)
-							{
-								Render_lighting_DBSP_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-							}
-							else if(dl->l.rlType == RL_PROJ)
-							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-							}
-							else
-							{
-								// TODO
-							}
-						}
-						else if(r_lighting->integer == 2)
-						{
-							if(dl->l.rlType == RL_OMNI)
-							{
-								Render_lighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-							}
-							else if(dl->l.rlType == RL_PROJ)
-							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-							}
-							else
-							{
-								// TODO
-							}
-						}
-						else if(r_lighting->integer == 1)
-						{
-							if(dl->l.rlType == RL_OMNI)
-							{
-								Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-							}
-							else if(dl->l.rlType == RL_PROJ)
-							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-							}
-							else
-							{
-								// TODO
-							}
-						}
-						else
-						{
-							if(dl->l.rlType == RL_OMNI)
-							{
-								Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-							}
-							else if(dl->l.rlType == RL_PROJ)
-							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
-							}
-							else
-							{
-								// TODO
-							}
-						}
-					}
-					else
-					{
-							// TODO
-					}
-					break;
-						
-				default:
-					break;
-			}
-		}
-	}
-
-	// unlock arrays
-	if(qglUnlockArraysEXT)
-	{
-		qglUnlockArraysEXT();
-		GLimp_LogComment("glUnlockArraysEXT\n");
-	}
-
-	// reset polygon offset
-	if(tess.surfaceShader->polygonOffset)
-	{
-		qglDisable(GL_POLYGON_OFFSET_FILL);
-	}
-	
-	// reenable culling if necessary
-	if(tess.surfaceShader->cullType == CT_TWO_SIDED)
-	{
-		qglEnable(GL_CULL_FACE);
-	}
-}
-
 void RB_StageIteratorGeneric()
 {
 	int             stage;
@@ -4437,44 +4145,42 @@ static void Render_shadowVolume()
 	
 	if(r_showShadowVolumes->integer)
 	{
+		GL_State(GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+		
+		/*
 		qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 		qglDepthMask(GL_TRUE);
 		//qglDisable(GL_CULL_FACE);
 		qglDisable(GL_STENCIL_TEST);
 		//qglDisable(GL_DEPTH_TEST);
 		//qglDisable(GL_BLEND);
-		
 		qglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		qglCullFace(GL_FRONT);
+		*/
+		
+		GL_Cull(CT_FRONT_SIDED);
 		qglColor4f(1.0f, 1.0f, 0.7, 0.05f);
 		R_DrawElements();
 		
 #if 0
-		qglCullFace(GL_BACK);
+		GL_Cull(CT_BACK_SIDED);
 		qglColor3f(1.0f, 0.0f, 0.0f);//, 0.05f);
 		R_DrawElements();
 #endif
 
-		qglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-		qglDepthMask(GL_FALSE);
-		//qglEnable(GL_CULL_FACE);
-		qglEnable(GL_STENCIL_TEST);
-		//qglEnable(GL_DEPTH_TEST);
-		//qglEnable(GL_BLEND);
+		
 	}
 	else
 	{
 		if(backEnd.currentEntity->needZFail)
 		{
 			// mirrors have the culling order reversed
-			if(backEnd.viewParms.isMirror)
-				qglFrontFace(GL_CW);
+			//if(backEnd.viewParms.isMirror)
+			//	qglFrontFace(GL_CW);
 			
 			if(qglActiveStencilFaceEXT && glConfig2.stencilWrapAvailable)
 			{
 				// render both sides at once
-				qglDisable(GL_CULL_FACE);
+				GL_Cull(CT_TWO_SIDED);
 				
 				qglEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
 				
@@ -4491,13 +4197,11 @@ static void Render_shadowVolume()
 				R_DrawElements();
 				
 				qglDisable(GL_STENCIL_TEST_TWO_SIDE_EXT);
-				
-				qglEnable(GL_CULL_FACE);
 			}
 			else
 			{
 				// draw only the front faces of the shadow volume
-				qglCullFace(GL_FRONT);
+				GL_Cull(CT_FRONT_SIDED);
 		
 				// increment the stencil value on zfail
 				if(glConfig2.stencilWrapAvailable)
@@ -4512,7 +4216,7 @@ static void Render_shadowVolume()
 				R_DrawElements();
 		
 				// draw only the back faces of the shadow volume
-				qglCullFace(GL_BACK);
+				GL_Cull(CT_BACK_SIDED);
 		
 				// decrement the stencil value on zfail
 				if(glConfig2.stencilWrapAvailable)
@@ -4527,8 +4231,8 @@ static void Render_shadowVolume()
 				R_DrawElements();
 			}
 			
-			if(backEnd.viewParms.isMirror)
-				qglFrontFace(GL_CCW);
+			//if(backEnd.viewParms.isMirror)
+			//	qglFrontFace(GL_CCW);
 		}
 		else
 		{
@@ -4536,13 +4240,13 @@ static void Render_shadowVolume()
 			// see GPU Gems1 9.5.4
 			
 			// mirrors have the culling order reversed
-			if(backEnd.viewParms.isMirror)
-				qglFrontFace(GL_CW);
+			//if(backEnd.viewParms.isMirror)
+			//	qglFrontFace(GL_CW);
 			
 			if(qglActiveStencilFaceEXT && glConfig2.stencilWrapAvailable)
 			{
 				// render both sides at once
-				qglDisable(GL_CULL_FACE);
+				GL_Cull(CT_TWO_SIDED);
 				
 				qglEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
 
@@ -4564,9 +4268,8 @@ static void Render_shadowVolume()
 			}
 			else
 			{
-			
 				// draw only the back faces of the shadow volume
-				qglCullFace(GL_BACK);
+				GL_Cull(CT_BACK_SIDED);
 					
 				// increment the stencil value on zpass
 				if(glConfig2.stencilWrapAvailable)
@@ -4581,7 +4284,7 @@ static void Render_shadowVolume()
 				R_DrawElements();
 		
 				// draw only the front faces of the shadow volume
-				qglCullFace(GL_FRONT);
+				GL_Cull(CT_FRONT_SIDED);
 		
 				// decrement the stencil value on zpass
 				if(glConfig2.stencilWrapAvailable)
@@ -4596,8 +4299,8 @@ static void Render_shadowVolume()
 				R_DrawElements();
 			}
 			
-			if(backEnd.viewParms.isMirror)
-				qglFrontFace(GL_CCW);
+			//if(backEnd.viewParms.isMirror)
+			//	qglFrontFace(GL_CCW);
 		}
 	}
 	

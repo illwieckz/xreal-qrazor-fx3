@@ -1702,6 +1702,8 @@ void R_AddSlightInteractions()
 
 		// setup interactions
 		dl->numInteractions = 0;
+		dl->numShadowOnlyInteractions = 0;
+		dl->numLightOnlyInteractions = 0;
 		dl->firstInteractionIndex = -1;
 		dl->lastInteractionIndex = -1;
 
@@ -1710,7 +1712,7 @@ void R_AddSlightInteractions()
 
 		R_SortInteractions(dl);
 
-		if(dl->numInteractions)
+		if(dl->numInteractions && dl->numInteractions != dl->numShadowOnlyInteractions)
 			tr.pc.c_slights++;
 	}
 }
@@ -1792,6 +1794,8 @@ void R_AddDlightInteractions()
 
 		// setup interactions
 		dl->numInteractions = 0;
+		dl->numShadowOnlyInteractions = 0;
+		dl->numLightOnlyInteractions = 0;
 		dl->firstInteractionIndex = -1;
 		dl->lastInteractionIndex = -1;
 
@@ -1800,7 +1804,7 @@ void R_AddDlightInteractions()
 
 		R_SortInteractions(dl);
 
-		if(dl->numInteractions)
+		if(dl->numInteractions && dl->numInteractions != dl->numShadowOnlyInteractions)
 			tr.pc.c_dlights++;
 	}
 }

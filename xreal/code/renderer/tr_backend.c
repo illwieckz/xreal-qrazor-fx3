@@ -985,18 +985,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 	depthRange = qfalse;
 	drawShadows = qtrue;
 
-	tess.currentStageIteratorType = SIT_LIGHTING_STENCIL;
-
-	// store current OpenGL state
-	GL_Program(0);
-	GL_SelectTexture(0);
-	GL_Bind(tr.whiteImage);
-	qglPushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	qglDisable(GL_ALPHA_TEST);
-	qglEnable(GL_CULL_FACE);
-	qglEnable(GL_DEPTH_TEST);
-	qglEnable(GL_STENCIL_TEST);
-	qglEnable(GL_BLEND);
+	tess.currentStageIteratorType = SIT_LIGHTING;
 
 	// render interactions
 	for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
@@ -1030,22 +1019,23 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 
 			if(drawShadows)
 			{
+				/*
 				if(r_showShadowVolumes->integer)
 				{
 					qglEnable(GL_STENCIL_TEST);
 				}
-
-				qglClear(GL_STENCIL_BUFFER_BIT);
-
+				*/
+				
 				// don't write to the color buffer or depth buffer
 				// enable stencil testing for this light
-				qglDepthFunc(GL_LEQUAL);
-				qglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-				qglDepthMask(GL_FALSE);
+				GL_State(GLS_COLORMASK_BITS | GLS_STENCILTEST_ENABLE);
+
+				qglClear(GL_STENCIL_BUFFER_BIT);
 
 				// set the reference stencil value
 				qglStencilFunc(GL_ALWAYS, 0, ~0);
 				qglStencilMask(~0);
+				qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
 
 				//qglStencilFunc(GL_ALWAYS, 128, ~0);
 				//qglStencilMask(1);
@@ -1061,10 +1051,12 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			}
 			else
 			{
+				/*
 				if(r_showShadowVolumes->integer)
 				{
 					qglDisable(GL_STENCIL_TEST);
 				}
+				*/
 
 				// Tr3B - see RobustShadowVolumes.pdf by Nvidia
 				// Set stencil testing to render only pixels with a zero
@@ -1081,12 +1073,9 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				   else
 				 */
 				{
-					qglBlendFunc(GL_ONE, GL_ONE);
+					//qglBlendFunc(GL_ONE, GL_ONE);
+					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
 				}
-
-				qglDepthFunc(GL_EQUAL);
-				qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-				qglDepthMask(GL_FALSE);
 
 				qglStencilFunc(GL_EQUAL, 0, ~0);
 				qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
@@ -1311,16 +1300,6 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 		qglDisable(GL_DEPTH_BOUNDS_TEST_EXT);
 	}
 
-	// restore OpenGL state
-	GL_Program(0);
-	GL_SelectTexture(0);
-	GL_Bind(tr.whiteImage);
-	qglDisable(GL_CULL_FACE);
-	qglDisable(GL_DEPTH_TEST);
-	qglDisable(GL_STENCIL_TEST);
-	qglDisable(GL_BLEND);
-	qglPopAttrib();
-
 	// reset stage iterator
 	tess.currentStageIteratorType = SIT_DEFAULT;
 }
@@ -1396,18 +1375,24 @@ void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions
 		int             iaCount;
 		trRefDlight_t  *dl;
 
-		qglColor3f(1, 1, 1);
+		qglColor4f(1.0f, 0.0f, 0.0f, 0.05f);
 
 		GL_Program(0);
-		GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 		GL_Cull(CT_TWO_SIDED);
 		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
 		
 		// don't write to the color buffer or depth buffer
 		qglDepthFunc(GL_LEQUAL);
-		qglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-		qglDepthMask(GL_FALSE);
+		
+		if(r_showOcclusionQueries->integer)
+		{
+			GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_COLORMASK_BITS);
+		}
+		else
+		{
+			GL_State(GLS_COLORMASK_BITS);
+		}
 
 		// loop trough all light interactions and render the light OBB for each last interaction
 		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
@@ -1492,11 +1477,10 @@ void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions
 		backEnd.or = backEnd.viewParms.world;
 		qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 		
-		//qglFinish();
+		qglFlush();
 		
 		// reenable writes to depth and color buffers
-		qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		qglDepthMask(GL_TRUE);
+		GL_State(GLS_DEPTHMASK_TRUE);
 		
 		// loop trough all light interactions and fetch results for each last interaction
 		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
@@ -1505,7 +1489,7 @@ void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions
 		
 			if(!ia->next)
 			{
-				qboolean		available;
+				GLint			available;
 				
 				//if(qglIsQueryARB(dl->occlusionQueryObject))
 				if(dl->occlusionQueryObject && !R_DlightIntersectsPoint(dl, backEnd.viewParms.or.origin))
@@ -1825,8 +1809,8 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 		GL_Program(0);
 		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
-
-		GL_State(GLS_POLYMODE_LINE);
+		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
+		GL_Cull(CT_TWO_SIDED);
 
 		// set 2D virtual screen size
 		qglPushMatrix();
@@ -1834,10 +1818,10 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 		qglMatrixMode(GL_PROJECTION);
 		qglPushMatrix();
 		qglLoadIdentity();
-		//qglOrtho(0, glConfig.vidWidth, 0, glConfig.vidHeight, 0, 1);
 		qglOrtho(backEnd.viewParms.viewportX,
 				 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-				 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+				 backEnd.viewParms.viewportY,
+				 backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
 
 		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
 		{

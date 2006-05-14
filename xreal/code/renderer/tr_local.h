@@ -121,7 +121,9 @@ typedef struct trRefDlight_s
 	struct interactionCache_s *firstInteractionCache;	// only used by static lights
 	struct interactionCache_s *lastInteractionCache;	// only used by static lights
 	
-	int             numInteractions;
+	int             numInteractions;	// total interactions
+	int             numShadowOnlyInteractions;
+	int             numLightOnlyInteractions;
 	int             firstInteractionIndex;
 	int             lastInteractionIndex;
 	qboolean        noSort;				// don't sort interactions by material
@@ -1915,6 +1917,7 @@ extern cvar_t  *r_showEntityTransforms;
 extern cvar_t  *r_showLightTransforms;
 extern cvar_t  *r_showLightInteractions;
 extern cvar_t  *r_showLightScissors;
+extern cvar_t  *r_showOcclusionQueries;
 
 extern cvar_t  *r_vboFaces;
 extern cvar_t  *r_vboCurves;
@@ -2215,8 +2218,7 @@ TESSELATOR/SHADER DECLARATIONS
 typedef enum
 {
 	SIT_DEFAULT,
-	SIT_LIGHTING,
-	SIT_LIGHTING_STENCIL
+	SIT_LIGHTING
 } stageIteratorType_t;
 
 typedef byte    color4ub_t[4];
