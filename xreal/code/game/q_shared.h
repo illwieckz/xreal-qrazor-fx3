@@ -793,22 +793,6 @@ void            ByteToDir(int b, vec3_t dir);
 
 #endif
 
-#ifdef __LCC__
-#ifdef VectorCopy
-#undef VectorCopy
-// this is a little hack to get more efficient copies in our interpreter
-typedef struct
-{
-	float           v[3];
-} vec3struct_t;
-
-#define VectorCopy(a,b)	(*(vec3struct_t *)b=*(vec3struct_t *)a)
-#define ID_INLINE static
-#endif
-#endif
-
-
-
 #define	SnapVector(v) {v[0]=((int)(v[0]));v[1]=((int)(v[1]));v[2]=((int)(v[2]));}
 // just in case you do't want to use the macros
 vec_t           _DotProduct(const vec3_t a, const vec3_t b);
@@ -831,7 +815,6 @@ qboolean        BoundsIntersect(const vec3_t mins, const vec3_t maxs, const vec3
 qboolean        BoundsIntersectSphere(const vec3_t mins, const vec3_t maxs, const vec3_t origin, vec_t radius);
 qboolean        BoundsIntersectPoint(const vec3_t mins, const vec3_t maxs, const vec3_t origin);
 
-#ifndef __LCC__
 static ID_INLINE int VectorCompare(const vec3_t v1, const vec3_t v2)
 {
 	if(v1[0] != v2[0] || v1[1] != v2[1] || v1[2] != v2[2])
@@ -950,25 +933,6 @@ static ID_INLINE void VectorLerp(const vec3_t from, const vec3_t to, float frac,
 	out[1] = to[1] + ((from[1] - to[1]) * frac);
 	out[2] = to[2] + ((from[2] - to[2]) * frac);
 }
-
-#else
-int             VectorCompare(const vec3_t v1, const vec3_t v2);
-
-vec_t           VectorLength(const vec3_t v);
-
-vec_t           VectorLengthSquared(const vec3_t v);
-
-vec_t           Distance(const vec3_t p1, const vec3_t p2);
-
-vec_t           DistanceSquared(const vec3_t p1, const vec3_t p2);
-
-void            VectorNormalizeFast(vec3_t v);
-
-void            VectorInverse(vec3_t v);
-
-void            CrossProduct(const vec3_t v1, const vec3_t v2, vec3_t cross);
-
-#endif
 
 vec_t           VectorNormalize(vec3_t v);	// returns vector length
 vec_t           VectorNormalize2(const vec3_t v, vec3_t out);
