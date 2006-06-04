@@ -1003,34 +1003,3 @@ void R_DeleteVBOs()
 		}
 	}
 }
-
-/*
-===============
-R_DeleteQueries
-===============
-*/
-void R_DeleteQueries()
-{
-	int             i;
-	trRefDlight_t  *dl;
-	
-	if(!tr.world || (tr.refdef.rdflags & RDF_NOWORLDMODEL))
-	{
-		return;
-	}
-	
-	if(!glConfig2.occlusionQueryBits)
-	{
-		return;
-	}
-	
-	for(i = 0; i < tr.world->numDlights; i++)
-	{
-		dl = tr.currentDlight = &tr.world->dlights[i];
-		
-		if(dl->occlusionQueryObject)
-		{
-			qglDeleteQueriesARB(1, &dl->occlusionQueryObject);
-		}
-	}
-}

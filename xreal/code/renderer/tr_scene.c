@@ -313,8 +313,6 @@ void RE_AddRefDlightToScene(const refDlight_t * light)
 	
 	dl->isStatic = qfalse;
 	dl->additive = qtrue;
-	
-	dl->occlusionQueryObject = 0;
 }
 
 /*
@@ -364,8 +362,6 @@ static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r
 	
 	dl->isStatic = qfalse;
 	dl->additive = additive;
-	
-	dl->occlusionQueryObject = 0;
 }
 
 /*

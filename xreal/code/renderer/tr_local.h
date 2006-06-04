@@ -58,6 +58,8 @@ long            myftol(float f);
 #define MAX_STATES_PER_SHADER 32
 #define MAX_STATE_NAME 32
 
+#define MAX_OCCLUSION_QUERIES	128
+
 // can't be increased without changing bit packing for drawsurfs
 
 typedef enum
@@ -127,9 +129,6 @@ typedef struct trRefDlight_s
 	int             firstInteractionIndex;
 	int             lastInteractionIndex;
 	qboolean        noSort;				// don't sort interactions by material
-	
-	int             occlusionQueryObject;	// OpenGL object Id
-	int             occlusionQuerySamples;	// visible fragment count
 } trRefDlight_t;
 
 
@@ -994,6 +993,10 @@ typedef struct interaction_s
 	float			depthNear;			// for GL_EXT_depth_bounds_test
 	float           depthFar;
 	qboolean		noDepthBoundsTest;
+	
+	int             occlusionQuerySamples;	// visible fragment count
+	
+	qboolean		badLighting;	// light caused only shadowing interactions
 } interaction_t;
 
 #define	MAX_EDGES	32
@@ -1528,6 +1531,8 @@ typedef struct
 	int             c_dlightSurfaces;
 	int             c_dlightSurfacesCulled;
 	int             c_dlightInteractions;
+	
+	int				c_badInteractions;
 } frontEndCounters_t;
 
 #define	FOG_TABLE_SIZE		256
@@ -1754,6 +1759,8 @@ typedef struct
 	float           sawToothTable[FUNCTABLE_SIZE];
 	float           inverseSawToothTable[FUNCTABLE_SIZE];
 	float           fogTable[FOG_TABLE_SIZE];
+	
+	int				occlusionQueryObjects[MAX_OCCLUSION_QUERIES];
 } trGlobals_t;
 
 extern const matrix_t  quakeToOpenGLMatrix;

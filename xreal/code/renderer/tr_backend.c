@@ -749,7 +749,7 @@ static void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, in
 RB_RenderInteractions
 =================
 */
-void RB_RenderInteractions(float originalTime, interaction_t * interactions, int numInteractions)
+static void RB_RenderInteractions(float originalTime, interaction_t * interactions, int numInteractions)
 {
 	shader_t       *shader, *oldShader;
 	trRefEntity_t  *entity, *oldEntity;
@@ -780,7 +780,7 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 		surface = ia->surface;
 		shader = ia->surfaceShader;
 		
-		if(glConfig2.occlusionQueryBits && light->occlusionQueryObject && !light->occlusionQuerySamples)
+		if(glConfig2.occlusionQueryBits && !ia->occlusionQuerySamples)
 		{
 			// skip all interactions of this light because it failed the occlusion query
 			goto nextInteraction;
@@ -904,6 +904,16 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 	  nextInteraction:
 		if(!ia->next)
 		{
+			if(glConfig2.occlusionQueryBits && !ia->occlusionQuerySamples)
+			{
+				// do nothing
+			}
+			else
+			{
+				// draw the contents of the current shader batch
+				RB_EndSurface();
+			}
+			
 			if(iaCount < (numInteractions - 1))
 			{
 				// jump to next interaction and continue
@@ -915,9 +925,6 @@ void RB_RenderInteractions(float originalTime, interaction_t * interactions, int
 				// increase last time to leave for loop
 				iaCount++;
 			}
-
-			// draw the contents of the current shader batch
-			RB_EndSurface();
 		}
 		else
 		{
@@ -994,6 +1001,15 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 		backEnd.currentEntity = entity = ia->entity;
 		surface = ia->surface;
 		shader = ia->surfaceShader;
+		
+		#if 0
+		if(ia->badLighting)
+		{
+			// skip all interactions of this light because it caused only shadow volumes
+			// but no lighting
+			goto nextInteraction;
+		}
+		#endif
 
 		// only iaFirst == iaCount if first iteration or counters were reset
 		if(light != oldLight || iaFirst == iaCount)
@@ -1367,27 +1383,31 @@ static void RB_RenderLightScale()
 	qglColor4f(1, 1, 1, 1);
 }
 
-void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions)
+static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions)
 {
 	if(glConfig2.occlusionQueryBits)
 	{
+		int				i;
 		interaction_t  *ia;
 		int             iaCount;
-		trRefDlight_t  *dl;
+		int             iaFirst;
+		trRefDlight_t  *light, *oldLight;
+		int             ocCount;
+		GLint           ocSamples;
+		qboolean        queryObjects;
+		GLint			available;
 
 		qglColor4f(1.0f, 0.0f, 0.0f, 0.05f);
 
 		GL_Program(0);
 		GL_Cull(CT_TWO_SIDED);
 		GL_SelectTexture(0);
-		GL_Bind(tr.whiteImage);
+		qglDisable(GL_TEXTURE_2D);
 		
 		// don't write to the color buffer or depth buffer
-		qglDepthFunc(GL_LEQUAL);
-		
 		if(r_showOcclusionQueries->integer)
 		{
-			GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_COLORMASK_BITS);
+			GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 		}
 		else
 		{
@@ -1395,54 +1415,55 @@ void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions
 		}
 
 		// loop trough all light interactions and render the light OBB for each last interaction
+		ocCount = -1;
 		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
 		{
-			backEnd.currentLight = dl = ia->dlight;
+			backEnd.currentLight = light = ia->dlight;
 			
 			if(!ia->next)
 			{
-				// last interaction of current light
+				ocCount++;
 				
-				//if(qglIsQueryARB(dl->occlusionQueryObject))
-				if(dl->occlusionQueryObject && !R_DlightIntersectsPoint(dl, backEnd.viewParms.or.origin))
+				// last interaction of current light
+				if(ocCount < (MAX_OCCLUSION_QUERIES - 1) && !R_DlightIntersectsPoint(light, backEnd.viewParms.or.origin))
 				{
-					R_RotateForDlight(dl, &backEnd.viewParms, &backEnd.or);
+					R_RotateForDlight(light, &backEnd.viewParms, &backEnd.or);
 					qglLoadMatrixf(backEnd.or.modelViewMatrix);
 				
 					// begin the occlusion query
-					qglBeginQueryARB(GL_SAMPLES_PASSED, dl->occlusionQueryObject);
+					qglBeginQueryARB(GL_SAMPLES_PASSED, tr.occlusionQueryObjects[ocCount]);
 
 					qglBegin(GL_QUADS);
 
-					qglVertex3f(dl->localBounds[0][0], dl->localBounds[0][1], dl->localBounds[0][2]);
-					qglVertex3f(dl->localBounds[0][0], dl->localBounds[1][1], dl->localBounds[0][2]);
-					qglVertex3f(dl->localBounds[0][0], dl->localBounds[1][1], dl->localBounds[1][2]);
-					qglVertex3f(dl->localBounds[0][0], dl->localBounds[0][1], dl->localBounds[1][2]);
+					qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
+					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
+					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
+					qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
 
-					qglVertex3f(dl->localBounds[1][0], dl->localBounds[0][1], dl->localBounds[0][2]);
-					qglVertex3f(dl->localBounds[1][0], dl->localBounds[1][1], dl->localBounds[0][2]);
-					qglVertex3f(dl->localBounds[1][0], dl->localBounds[1][1], dl->localBounds[1][2]);
-					qglVertex3f(dl->localBounds[1][0], dl->localBounds[0][1], dl->localBounds[1][2]);
+					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
+					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
 
-					qglVertex3f(dl->localBounds[0][0], dl->localBounds[0][1], dl->localBounds[1][2]);
-					qglVertex3f(dl->localBounds[0][0], dl->localBounds[1][1], dl->localBounds[1][2]);
-					qglVertex3f(dl->localBounds[1][0], dl->localBounds[1][1], dl->localBounds[1][2]);
-					qglVertex3f(dl->localBounds[1][0], dl->localBounds[0][1], dl->localBounds[1][2]);
+					qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
+					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
+					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
 
-					qglVertex3f(dl->localBounds[0][0], dl->localBounds[0][1], dl->localBounds[0][2]);
-					qglVertex3f(dl->localBounds[0][0], dl->localBounds[1][1], dl->localBounds[0][2]);
-					qglVertex3f(dl->localBounds[1][0], dl->localBounds[1][1], dl->localBounds[0][2]);
-					qglVertex3f(dl->localBounds[1][0], dl->localBounds[0][1], dl->localBounds[0][2]);
+					qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
+					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
+					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
 	
-					qglVertex3f(dl->localBounds[0][0], dl->localBounds[0][1], dl->localBounds[0][2]);
-					qglVertex3f(dl->localBounds[0][0], dl->localBounds[0][1], dl->localBounds[1][2]);
-					qglVertex3f(dl->localBounds[1][0], dl->localBounds[0][1], dl->localBounds[1][2]);
-					qglVertex3f(dl->localBounds[1][0], dl->localBounds[0][1], dl->localBounds[0][2]);
+					qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
+					qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
+					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
+					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
 	
-					qglVertex3f(dl->localBounds[0][0], dl->localBounds[1][1], dl->localBounds[0][2]);
-					qglVertex3f(dl->localBounds[0][0], dl->localBounds[1][1], dl->localBounds[1][2]);
-					qglVertex3f(dl->localBounds[1][0], dl->localBounds[1][1], dl->localBounds[1][2]);
-					qglVertex3f(dl->localBounds[1][0], dl->localBounds[1][1], dl->localBounds[0][2]);
+					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
+					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
+					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
 
 					qglEnd();
 				
@@ -1477,57 +1498,107 @@ void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions
 		backEnd.or = backEnd.viewParms.world;
 		qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 		
+		if(!ocCount)
+		{
+			qglEnable(GL_TEXTURE_2D);
+			return;	
+		}
+		
 		qglFlush();
+		
+		// do other work until "most" of the queries are back, to avoid
+        // wasting time spinning
+        #if 1
+        i = (int)(ocCount * 3 / 4); // instead of N-1, to prevent the GPU from going idle
+        do
+        {
+        	i++;
+        	
+        	//if(i >= ocCount)
+        	//	i = (int)(ocCount * 3 / 4);
+        	
+       		qglGetQueryObjectivARB(tr.occlusionQueryObjects[i], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+	    }while(!available && i < ocCount);
+	    #endif
 		
 		// reenable writes to depth and color buffers
 		GL_State(GLS_DEPTHMASK_TRUE);
+		qglEnable(GL_TEXTURE_2D);
 		
 		// loop trough all light interactions and fetch results for each last interaction
+		// then copy result to all other interactions that belong to the same light
+		ocCount = -1;
+		iaFirst = 0;
+		queryObjects = qtrue;
+		oldLight = NULL;
 		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
 		{
-			backEnd.currentLight = dl = ia->dlight;
+			backEnd.currentLight = light = ia->dlight;
+			
+			if(light != oldLight)
+			{
+				iaFirst = iaCount;
+			}
+			
+			if(!queryObjects)
+			{
+				ia->occlusionQuerySamples = ocSamples;
+			}
 		
 			if(!ia->next)
 			{
-				GLint			available;
-				
-				//if(qglIsQueryARB(dl->occlusionQueryObject))
-				if(dl->occlusionQueryObject && !R_DlightIntersectsPoint(dl, backEnd.viewParms.or.origin))
+				if(queryObjects)
 				{
-					qglGetQueryObjectivARB(dl->occlusionQueryObject, GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+					ocCount++;
 					
-					if(available)
+					if(ocCount < (MAX_OCCLUSION_QUERIES - 1) && !R_DlightIntersectsPoint(light, backEnd.viewParms.or.origin))
 					{
-						backEnd.pc.c_occlusionQueriesAvailable++;
-						
-						// get the object and store it in the occlusion bits for the light
-						qglGetQueryObjectivARB(dl->occlusionQueryObject, GL_QUERY_RESULT, &dl->occlusionQuerySamples);
-				
-						if(!dl->occlusionQuerySamples)
+						#if 1
+						qglGetQueryObjectivARB(tr.occlusionQueryObjects[ocCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+						if(available)
+						#else
+						if(1)
+						#endif
 						{
-							backEnd.pc.c_occlusionQueriesCulled++;
+							backEnd.pc.c_occlusionQueriesAvailable++;
+						
+							// get the object and store it in the occlusion bits for the light
+							qglGetQueryObjectivARB(tr.occlusionQueryObjects[ocCount], GL_QUERY_RESULT, &ocSamples);
+					
+							if(ocSamples <= 0)
+							{
+								backEnd.pc.c_occlusionQueriesCulled++;
+							}
+						}
+						else
+						{
+							ocSamples = 1;
 						}
 					}
 					else
 					{
-						dl->occlusionQuerySamples = 1;
+						ocSamples = 1;
 					}
+					
+					// jump back to first interaction of this light copy query result
+					ia = &interactions[iaFirst];
+					iaCount = iaFirst;
+					queryObjects = qfalse;
 				}
 				else
 				{
-					dl->occlusionQuerySamples = 1;
-				}
-				
-				if(iaCount < (numInteractions - 1))
-				{
-					// jump to next interaction and continue
-					ia++;
-					iaCount++;
-				}
-				else
-				{
-					// increase last time to leave for loop
-					iaCount++;
+					if(iaCount < (numInteractions - 1))
+					{
+						// jump to next interaction and start querying
+						ia++;
+						iaCount++;
+						queryObjects = qtrue;
+					}
+					else
+					{
+						// increase last time to leave for loop
+						iaCount++;
+					}
 				}
 			}
 			else
@@ -1536,11 +1607,187 @@ void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions
 				ia = ia->next;
 				iaCount++;
 			}
+			
+			oldLight = light;
 		}
 	}
+#if 0
+	// Tr3B - try to cull light interactions manually with stencil overdraw test
+	else
+	{
+		interaction_t  *ia;
+		int             iaCount;
+		int             iaFirst = 0;
+		trRefDlight_t  *light, *oldLight;
+		int             i;
+		long            sum = 0;
+		unsigned char  *stencilReadback;
+		qboolean        calcSum;
+
+		qglColor4f(1.0f, 0.0f, 0.0f, 0.05f);
+
+		GL_Program(0);
+		GL_Cull(CT_TWO_SIDED);
+		GL_SelectTexture(0);
+		GL_Bind(tr.whiteImage);
+		
+		stencilReadback = ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight);		
+		
+		// don't write to the color buffer or depth buffer
+		if(r_showOcclusionQueries->integer)
+		{
+			GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+		}
+		else
+		{
+			GL_State(GLS_COLORMASK_BITS | GLS_STENCILTEST_ENABLE);
+		}
+		
+		oldLight = NULL;
+		calcSum = qtrue;
+
+		// loop trough all light interactions and render the light OBB for each last interaction
+		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
+		{
+			backEnd.currentLight = light = ia->dlight;
+			
+			if(light != oldLight)
+			{
+				iaFirst = iaCount;
+			}
+			
+			if(!calcSum)
+			{
+				ia->occlusionQuerySamples = sum;
+			}
+			
+			if(!ia->next)
+			{
+				// last interaction of current light
+				if(calcSum)
+				{
+					if(!R_DlightIntersectsPoint(light, backEnd.viewParms.or.origin))
+					{
+						// clear stencil buffer
+						qglClear(GL_STENCIL_BUFFER_BIT);
+						
+						// set the reference stencil value
+						//qglClearStencil(0U);
+						qglStencilMask(~0);
+						qglStencilFunc(GL_ALWAYS, 0, ~0);
+						qglStencilOp(GL_KEEP, GL_INCR, GL_INCR);
+					
+						R_RotateForDlight(light, &backEnd.viewParms, &backEnd.or);
+						qglLoadMatrixf(backEnd.or.modelViewMatrix);
+				
+						qglBegin(GL_QUADS);
+
+						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
+						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
+						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
+						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
+
+						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
+						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
+
+						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
+						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
+						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
+
+						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
+						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
+						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
+		
+						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
+						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
+						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
+						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
+	
+						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
+						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
+						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+
+						qglEnd();
+				
+						backEnd.pc.c_occlusionQueries++;
+						backEnd.pc.c_occlusionQueriesAvailable++;
+					
+						#if 1
+						qglReadPixels(0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback);
+						
+						for(i = 0, sum = 0; i < glConfig.vidWidth * glConfig.vidHeight; i++)
+						{
+							sum += stencilReadback[i];
+						}
+						#else
+						// only consider the 2D light scissor of current light
+						qglReadPixels(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback);
+						
+						for(i = 0, sum = 0; i < ia->scissorWidth * ia->scissorHeight; i++)
+						{
+							sum += stencilReadback[i];
+						}
+						#endif
+					
+						if(!sum)
+						{
+							backEnd.pc.c_occlusionQueriesCulled++;
+						}
+					}
+					else
+					{
+						sum = 1;
+					}
+					
+					// jump back to first interaction of this light copy sum to all interactions
+					ia = &interactions[iaFirst];
+					iaCount = iaFirst;
+					calcSum = qfalse;
+				}
+				else
+				{
+					if(iaCount < (numInteractions - 1))
+					{
+						// jump to next interaction and continue
+						ia++;
+						iaCount++;
+						calcSum = qtrue;
+					}
+					else
+					{
+						// increase last time to leave for loop
+						iaCount++;
+					}
+				}
+			}
+			else
+			{
+				// just continue
+				ia = ia->next;
+				iaCount++;
+			}
+			
+			oldLight = light;
+		}
+
+		// go back to the world modelview matrix
+		backEnd.or = backEnd.viewParms.world;
+		qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+		
+		// reenable writes to depth and color buffers
+		GL_State(GLS_DEPTHMASK_TRUE);
+		
+		ri.Hunk_FreeTempMemory(stencilReadback);
+	}
+#endif
 }
 
-void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
+static void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 {
 	if(r_showLightTransforms->integer)
 	{
@@ -1825,16 +2072,37 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 
 		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
 		{
-			qglBegin(GL_QUADS);
-			qglColor4fv(colorRed);
-			qglVertex2f(ia->scissorX, ia->scissorY);
-			qglColor4fv(colorGreen);
-			qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
-			qglColor4fv(colorBlue);
-			qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
-			qglColor4fv(colorWhite);
-			qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
-			qglEnd();
+			if(glConfig2.occlusionQueryBits)
+			{
+				if(ia->occlusionQuerySamples)
+				{
+					qglColor4fv(colorGreen);
+				}
+				else
+				{
+					qglColor4fv(colorRed);
+				}
+				
+				qglBegin(GL_QUADS);
+				qglVertex2f(ia->scissorX, ia->scissorY);
+				qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
+				qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
+				qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
+				qglEnd();
+			}
+			else
+			{
+				qglBegin(GL_QUADS);
+				qglColor4fv(colorRed);
+				qglVertex2f(ia->scissorX, ia->scissorY);
+				qglColor4fv(colorGreen);
+				qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
+				qglColor4fv(colorBlue);
+				qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
+				qglColor4fv(colorWhite);
+				qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
+				qglEnd();
+			}
 
 			if(!ia->next)
 			{
@@ -1871,7 +2139,7 @@ void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 RB_RenderDrawSurfList
 ==================
 */
-void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * interactions, int numInteractions)
+static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * interactions, int numInteractions)
 {
 	float           originalTime;
 

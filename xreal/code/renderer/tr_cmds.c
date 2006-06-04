@@ -47,15 +47,22 @@ void R_PerformanceCounters(void)
 		ri.Printf(PRINT_ALL, "%i batches %i surfs %i leafs %i verts %i tris\n",
 				  backEnd.pc.c_batches, backEnd.pc.c_surfaces, tr.pc.c_leafs,
 				  backEnd.pc.c_vertexes, backEnd.pc.c_indexes / 3);
+				  
+		ri.Printf(PRINT_ALL, "%i lights %i interactions %i shadows\n",
+				  tr.pc.c_dlights + tr.pc.c_slights,
+				  tr.pc.c_dlightInteractions + tr.pc.c_slightInteractions,
+				  backEnd.pc.c_shadowBatches);
 		
 		ri.Printf(PRINT_ALL, "%i draws %.2f mtex %.2f dc\n",
 				  backEnd.pc.c_drawElements,
 				  R_SumOfUsedImages() / (1000000.0f),
 				  backEnd.pc.c_overDraw / (float)(glConfig.vidWidth * glConfig.vidHeight));
 		
+		/*
 		ri.Printf(PRINT_ALL, "vbo arrays:%i elements:%i verts:%i tris:%i\n",
 				  backEnd.pc.c_vboVertexBuffers, backEnd.pc.c_vboIndexBuffers,
 				  backEnd.pc.c_vboVertexes, backEnd.pc.c_vboIndexes / 3);
+		*/
 	}
 	else if(r_speeds->integer == 2)
 	{
@@ -78,8 +85,9 @@ void R_PerformanceCounters(void)
 	}
 	else if(r_speeds->integer == 4)
 	{
-		ri.Printf(PRINT_ALL, "dlight srf:%i culled:%i  verts:%i  tris:%i\n",
+		ri.Printf(PRINT_ALL, "dlight srf:%i culled:%i bad:%i verts:%i  tris:%i\n",
 				  tr.pc.c_dlightSurfaces, tr.pc.c_dlightSurfacesCulled,
+				  tr.pc.c_badInteractions,
 				  backEnd.pc.c_dlightVertexes, backEnd.pc.c_dlightIndexes / 3);
 		
 		ri.Printf(PRINT_ALL, "dlights:%i interactions:%i bin:%i bclip:%i bout:%i\n",

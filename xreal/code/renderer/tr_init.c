@@ -1366,6 +1366,11 @@ void R_Init(void)
 	R_InitAnimations();
 
 	R_InitFreeType();
+	
+	if(glConfig2.occlusionQueryBits)
+	{
+		qglGenQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
+	}
 
 
 	err = qglGetError();
@@ -1404,7 +1409,12 @@ void RE_Shutdown(qboolean destroyWindow)
 		R_ShutdownCommandBuffers();
 		R_DeleteTextures();
 		R_DeleteVBOs();
-		R_DeleteQueries();
+		
+		if(glConfig2.occlusionQueryBits)
+		{
+			qglDeleteQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
+		}
+		
 		RB_ShutdownGPUShaders();
 	}
 

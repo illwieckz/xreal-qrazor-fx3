@@ -1691,8 +1691,11 @@ void R_AddSlightInteractions()
 		}
 
 		// ignore if not in visible bounds
-		//if(!BoundsIntersect(dl->worldBounds[0], dl->worldBounds[1], tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]))
-		//	continue;
+		if(!BoundsIntersect(dl->worldBounds[0], dl->worldBounds[1], tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]))
+			continue;
+		
+		// ignore if not in PVS
+		// TODO
 
 		// set up view dependent light scissor
 		R_SetupDlightScissor(dl);
@@ -1706,6 +1709,7 @@ void R_AddSlightInteractions()
 		dl->numLightOnlyInteractions = 0;
 		dl->firstInteractionIndex = -1;
 		dl->lastInteractionIndex = -1;
+		dl->noSort = qfalse;
 
 		R_AddPrecachedWorldInteractions(dl);
 		R_AddEntityInteractions(dl);
@@ -1798,6 +1802,7 @@ void R_AddDlightInteractions()
 		dl->numLightOnlyInteractions = 0;
 		dl->firstInteractionIndex = -1;
 		dl->lastInteractionIndex = -1;
+		dl->noSort = qfalse;
 
 		R_AddWorldInteractions(dl);
 		R_AddEntityInteractions(dl);

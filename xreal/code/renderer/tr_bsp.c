@@ -2607,11 +2607,6 @@ void R_LoadEntities(lump_t * l)
 		
 		dl->isStatic = qtrue;
 		dl->additive = qtrue;
-		
-		if(glConfig2.occlusionQueryBits)
-		{
-			qglGenQueriesARB(1, &dl->occlusionQueryObject);	
-		}
 	}
 #endif
 

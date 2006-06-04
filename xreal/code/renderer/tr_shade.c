@@ -1628,7 +1628,7 @@ static void Render_generic_multi_FFP(int stage)
 //	qglDisable(GL_TEXTURE_2D);
 }
 
-void Render_lighting_D_direct(int stage)
+static void Render_lighting_D_direct(int stage)
 {
 	shaderStage_t  *pStage;
 
