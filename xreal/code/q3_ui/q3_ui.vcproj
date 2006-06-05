@@ -208,7 +208,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\q3_ui___Win32_Debug"
+			OutputDirectory=".\..\..\base"
 			IntermediateDirectory=".\q3_ui___Win32_Debug"
 			ConfigurationType="2"
 			UseOfMFC="0"
@@ -235,7 +235,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib"
-				OutputFile="../Debug/uix86.dll"
+				OutputFile="$(OutDir)/uix86.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile=".\ui.def"
