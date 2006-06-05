@@ -80,7 +80,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\Debug"
+			OutputDirectory=".\..\..\base"
 			IntermediateDirectory=".\Debug"
 			ConfigurationType="2"
 			UseOfMFC="0"
@@ -99,13 +99,14 @@
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
-				DebugInformationFormat="4"/>
+				DebugInformationFormat="4"
+				DisableSpecificWarnings="4142"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="winmm.lib"
-				OutputFile="../Debug/qagamex86.dll"
+				OutputFile="$(OutDir)/qagamex86.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile=".\game.def"
