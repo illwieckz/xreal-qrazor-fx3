@@ -1281,7 +1281,6 @@ typedef struct
 typedef struct
 {
 	short           xyz[3];
-	float           st[2];
 } mdxVertex_t;
 
 typedef struct

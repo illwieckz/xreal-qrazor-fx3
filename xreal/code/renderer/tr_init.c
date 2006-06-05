@@ -932,8 +932,11 @@ void GL_SetDefaultState(void)
 
 	if(glConfig.stencilBits >= 4)
 	{
-		//qglClearStencil(128);
-		//qglClearStencil(0U);
+		#if 0
+		qglClearStencil(0U);
+		#else
+		qglClearStencil(128);
+		#endif
 	}
 
 	qglFrontFace(GL_CCW);

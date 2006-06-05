@@ -4186,13 +4186,13 @@ static void Render_shadowVolume()
 				
 				qglActiveStencilFaceEXT(GL_BACK);
 				qglStencilOp(GL_KEEP, GL_DECR_WRAP_EXT, GL_KEEP);
-				qglStencilMask(~0);
-				qglStencilFunc(GL_ALWAYS, 0, ~0);
+				//qglStencilMask(~0);
+				//qglStencilFunc(GL_ALWAYS, 0, ~0);
 
 				qglActiveStencilFaceEXT(GL_FRONT);
 				qglStencilOp(GL_KEEP, GL_INCR_WRAP_EXT, GL_KEEP);
-				qglStencilMask(~0);
-				qglStencilFunc(GL_ALWAYS, 0, ~0);
+				//qglStencilMask(~0);
+				//qglStencilFunc(GL_ALWAYS, 0, ~0);
 				
 				R_DrawElements();
 				
@@ -4252,13 +4252,13 @@ static void Render_shadowVolume()
 
 				qglActiveStencilFaceEXT(GL_BACK);
 				qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP_EXT);
-				qglStencilMask(~0);
-				qglStencilFunc(GL_ALWAYS, 0, ~0);
+				//qglStencilMask(~0);
+				//qglStencilFunc(GL_ALWAYS, 0, ~0);
 
 				qglActiveStencilFaceEXT(GL_FRONT);
 				qglStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP_EXT);
-				qglStencilMask(~0);
-				qglStencilFunc(GL_ALWAYS, 0, ~0);
+				//qglStencilMask(~0);
+				//qglStencilFunc(GL_ALWAYS, 0, ~0);
 				
 				R_DrawElements();
 				

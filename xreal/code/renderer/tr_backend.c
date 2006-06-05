@@ -1049,12 +1049,15 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				qglClear(GL_STENCIL_BUFFER_BIT);
 
 				// set the reference stencil value
+				#if 0
 				qglStencilFunc(GL_ALWAYS, 0, ~0);
 				qglStencilMask(~0);
 				qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
-
-				//qglStencilFunc(GL_ALWAYS, 128, ~0);
-				//qglStencilMask(1);
+				#else
+				qglStencilFunc(GL_ALWAYS, 128, 255);
+				qglStencilMask(255);
+				qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+				#endif
 
 				qglEnable(GL_POLYGON_OFFSET_FILL);
 				qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
@@ -1093,16 +1096,18 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
 				}
 
+				#if 0
 				qglStencilFunc(GL_EQUAL, 0, ~0);
-				qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
-
-				//qglStencilFunc(GL_EQUAL, 128, ~0);
-				//qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+				#else
+				qglStencilFunc(GL_EQUAL, 128, 255);
+				#endif
+				
+				qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
 				qglDisable(GL_POLYGON_OFFSET_FILL);
 
 				// disable shadow volume extrusion shader
-				//GL_Program(0);
+				GL_Program(0);
 			}
 		}
 
