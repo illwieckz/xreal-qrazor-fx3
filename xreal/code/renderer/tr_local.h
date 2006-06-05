@@ -745,7 +745,7 @@ typedef struct shader_s
 	int             numStages;
 	shaderStage_t  *stages[MAX_SHADER_STAGES];
 
-	void            (*optimalStageIteratorFunc) (void);
+	void            (*optimalStageIteratorFunc) ();
 
 	float           clampTime;	// time this shader is clamped to
 	float           timeOffset;	// current time offset for this shader
@@ -2279,7 +2279,7 @@ typedef struct shaderCommands_s
 
 	// info extracted from current shader or backend mode
 	stageIteratorType_t currentStageIteratorType;
-	void            (*currentStageIteratorFunc) (void);
+	void            (*currentStageIteratorFunc) ();
 	
 	int             numSurfaceStages;
 	shaderStage_t **surfaceStages;
@@ -2330,6 +2330,7 @@ qboolean        R_inPVS(const vec3_t p1, const vec3_t p2);
 
 void            R_AddWorldInteractions(trRefDlight_t * light);
 void            R_AddPrecachedWorldInteractions(trRefDlight_t * light);
+void			R_DeleteVBOs();
 
 /*
 ============================================================
