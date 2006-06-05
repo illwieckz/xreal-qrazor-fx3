@@ -123,10 +123,15 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				OptimizeForProcessor="1"
+				OptimizeForProcessor="0"
+				OptimizeForWindowsApplication="TRUE"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				BasicRuntimeChecks="3"
+				SmallerTypeCheck="FALSE"
 				RuntimeLibrary="1"
+				EnableEnhancedInstructionSet="2"
+				ForceConformanceInForLoopScope="TRUE"
+				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderFile=".\Debug/renderer.pch"
 				AssemblerListingLocation=".\Debug/"
@@ -134,8 +139,10 @@
 				ProgramDataBaseFileName=".\Debug/"
 				BrowseInformation="1"
 				WarningLevel="3"
+				WarnAsError="FALSE"
 				SuppressStartupBanner="TRUE"
-				DebugInformationFormat="4"/>
+				DebugInformationFormat="4"
+				DisableSpecificWarnings="4142"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
