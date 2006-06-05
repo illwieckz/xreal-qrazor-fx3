@@ -550,7 +550,7 @@ Copy a fully specified file from one place to another
 static void FS_CopyFile(char *fromOSPath, char *toOSPath)
 {
 	FILE           *f;
-	int             len;
+	unsigned int    len;
 	byte           *buf;
 
 	Com_Printf("copy %s to %s\n", fromOSPath, toOSPath);
