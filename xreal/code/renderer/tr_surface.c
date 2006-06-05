@@ -1344,14 +1344,15 @@ RB_SurfaceMDX
 */
 void RB_SurfaceMDX(mdxSurface_t * srf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
-	int             i, j, k;
+	int             i, j;
+	//int		    k; // unreferenced local (bj0ern)
 	int             numIndexes = 0;
 	int             numVertexes;
 	mdxModel_t     *model;
 	mdxVertex_t    *oldVert, *newVert;
 	mdxSt_t        *st;
 	srfTriangle_t  *tri;
-	vec3_t          offsetVec;
+	//vec3_t          offsetVec; // unreferenced local (bj0ern)
 	vec3_t          lightOrigin;
 	float           backlerp;
 	float           oldXyzScale, newXyzScale;
