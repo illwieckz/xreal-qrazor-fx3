@@ -853,14 +853,15 @@ NET_GetLocalAddress
 */
 void NET_GetLocalAddress(void)
 {
-	char            hostname[256];
+#define NAMESIZE 256
+	char            hostname[NAMESIZE];
 	struct hostent *hostInfo;
 	int             error;
 	char           *p;
 	int             ip;
 	int             n;
 
-	if(gethostname(hostname, 256) == SOCKET_ERROR)
+	if(gethostname(hostname, NAMESIZE) == SOCKET_ERROR)
 	{
 		error = WSAGetLastError();
 		return;
@@ -874,7 +875,9 @@ void NET_GetLocalAddress(void)
 	}
 
 	Com_Printf("Hostname: %s\n", hostInfo->h_name);
+
 	n = 0;
+
 	while((p = hostInfo->h_aliases[n++]) != NULL)
 	{
 		Com_Printf("Alias: %s\n", p);
