@@ -339,7 +339,7 @@ static void ResampleTexture(unsigned *in, int inwidth, int inheight, unsigned *o
 	unsigned        frac, fracstep;
 	unsigned        p1[2048], p2[2048];
 	byte           *pix1, *pix2, *pix3, *pix4;
-	float			inv127 = 1.0 / 127.0;
+	float			inv127 = 1.0f / 127.0f;
 	vec3_t			n, n2, n3, n4;
 
 	// NOTE: Tr3B - limitation not needed anymore
@@ -693,7 +693,7 @@ static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale
 	float			r, g, b;
 	float			c, cx, cy;
 //	float			dcx, dcy, sqlen, reciplen;
-	float			inv255 = 1.0 / 255.0;
+	float			inv255 = 1.0f / 255.0f;
 //	float           inv127 = 1.0 / 127.0;
 	vec3_t			n;
 	byte           *out;
@@ -760,7 +760,7 @@ static void R_AddNormals(byte * in, byte * in2, int width, int height)
 	int				x, y;
 	vec3_t			n;
 	vec3_t			n2;
-	float           inv127 = 1.0 / 127.0;
+	float           inv127 = 1.0f / 127.0f;
 	byte           *out;
 	
 	out = in;
