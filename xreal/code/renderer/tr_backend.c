@@ -1398,7 +1398,7 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 		int             iaFirst;
 		trRefDlight_t  *light, *oldLight;
 		int             ocCount;
-		GLint           ocSamples;
+		GLint           ocSamples = 0;
 		qboolean        queryObjects;
 		GLint			available;
 
