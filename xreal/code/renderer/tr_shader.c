@@ -3168,7 +3168,7 @@ static char    *CreateShaderByGuide(const char *guideName, char *shaderText)
 			if(!token[0])
 			{
 				ri.Printf(PRINT_WARNING, "WARNING: no concluding '}' in guide %s\n", guideName);
-				return qfalse;
+				return NULL;
 			}
 			
 			// end of guide definition
@@ -3810,7 +3810,7 @@ static void CollapseStages(void)
 	
 	Com_Memcpy(&tmpStages[0], &stages[0], sizeof(stages));
 	Com_Memcpy(&tmpShader, &shader, sizeof(shader));
-	
+
 	for(j = 0; j < MAX_SHADER_STAGES; j++)
 	{
 		hasDiffuseStage = qfalse;
@@ -3818,7 +3818,12 @@ static void CollapseStages(void)
 		hasSpecularStage = qfalse;
 		hasLightStage = qfalse;
 		hasColorStage = qfalse;
-		
+
+		Com_Memset(&tmpDiffuseStage, 0, sizeof(shaderStage_t));
+		Com_Memset(&tmpNormalStage, 0, sizeof(shaderStage_t));
+		Com_Memset(&tmpSpecularStage, 0, sizeof(shaderStage_t));
+		Com_Memset(&tmpLightStage, 0, sizeof(shaderStage_t));
+
 		if(!stages[j].active)
 			continue;
 		
