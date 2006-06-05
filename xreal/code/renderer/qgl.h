@@ -201,7 +201,7 @@ typedef void    (APIENTRY * PFNGLCLIENTACTIVETEXTUREARBPROC) (GLenum target);
 #endif
 
 // TTimo - VC7 / XP ?
-#ifdef WIN32
+#if defined(WIN32) && ! defined(__MINGW32__) 
 typedef void    (APIENTRY * PFNGLMULTITEXCOORD2FARBPROC) (GLenum target, GLfloat s, GLfloat t);
 typedef void    (APIENTRY * PFNGLACTIVETEXTUREARBPROC) (GLenum target);
 typedef void    (APIENTRY * PFNGLCLIENTACTIVETEXTUREARBPROC) (GLenum target);
