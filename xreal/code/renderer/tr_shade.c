@@ -1967,8 +1967,8 @@ static void Render_lighting_DBSP_omni(	shaderStage_t * diffuseStage,
 	qglUniform3fARB(tr.lightShader_DBSP_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.lightShader_DBSP_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
 	qglUniform1fARB(tr.lightShader_DBSP_omni.u_SpecularExponent, specularExponent);
-	qglUniform1fARB(tr.lightShader_DBSP_omni.u_HeightScale, RB_EvalExpression(&diffuseStage->heightScaleExp, 0.05));
-	qglUniform1fARB(tr.lightShader_DBSP_omni.u_HeightBias, RB_EvalExpression(&diffuseStage->heightBiasExp, 0));
+	qglUniform1fARB(tr.lightShader_DBSP_omni.u_HeightScale, RB_EvalExpression(&diffuseStage->heightScaleExp, 0.05f));
+	qglUniform1fARB(tr.lightShader_DBSP_omni.u_HeightBias, RB_EvalExpression(&diffuseStage->heightBiasExp, 0.0f));
 
 	GL_SelectTexture(0);
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
@@ -2424,14 +2424,14 @@ static void Render_dispersion_C(int stage)
 	
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
-	eta	= RB_EvalExpression(&pStage->etaExp, 1.1);
-	etaDelta = RB_EvalExpression(&pStage->etaDeltaExp, -0.02);
+	eta	= RB_EvalExpression(&pStage->etaExp, (float)1.1);
+	etaDelta = RB_EvalExpression(&pStage->etaDeltaExp, (float)-0.02);
 	
 	qglUniform3fARB(tr.dispersionShader_C.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform3fARB(tr.dispersionShader_C.u_EtaRatio, eta, eta + etaDelta, eta + (etaDelta * 2));
-	qglUniform1fARB(tr.dispersionShader_C.u_FresnelPower, RB_EvalExpression(&pStage->fresnelPowerExp, 2.0));
-	qglUniform1fARB(tr.dispersionShader_C.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 2.0));
-	qglUniform1fARB(tr.dispersionShader_C.u_FresnelBias, RB_EvalExpression(&pStage->fresnelBiasExp, 1.0));
+	qglUniform1fARB(tr.dispersionShader_C.u_FresnelPower, RB_EvalExpression(&pStage->fresnelPowerExp, 2.0f));
+	qglUniform1fARB(tr.dispersionShader_C.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 2.0f));
+	qglUniform1fARB(tr.dispersionShader_C.u_FresnelBias, RB_EvalExpression(&pStage->fresnelBiasExp, 1.0f));
 
 	// bind colormap
 	GL_SelectTexture(0);
@@ -4158,7 +4158,7 @@ static void Render_shadowVolume()
 		*/
 		
 		GL_Cull(CT_FRONT_SIDED);
-		qglColor4f(1.0f, 1.0f, 0.7, 0.05f);
+		qglColor4f(1.0f, 1.0f, 0.7f, 0.05f);
 		R_DrawElements();
 		
 #if 0
