@@ -866,7 +866,7 @@ char           *Q_strrchr(const char *string, int c)
 */
 // bk001130 - from cvs1.17 (mkv), const
 // bk001130 - made first argument const
-char           *Q_stristr(const char *s, const char *find)
+char * Q_stristr(const char *s, const char *find)
 {
 	char            c, sc;
 	size_t          len;
@@ -895,7 +895,7 @@ char           *Q_stristr(const char *s, const char *find)
 		} while(Q_stricmpn(s, find, len) != 0);
 		s--;
 	}
-	return s;
+	return (char *)s;
 }
 
 
