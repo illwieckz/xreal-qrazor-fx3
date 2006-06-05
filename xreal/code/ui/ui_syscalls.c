@@ -293,7 +293,7 @@ void trap_GetGlconfig(glconfig_t * glconfig)
 	syscall(UI_GETGLCONFIG, glconfig);
 }
 
-void trap_GetGlconfig2(glconfig_t * glconfig)
+void trap_GetGlconfig2(glconfig2_t * glconfig)
 {
 	syscall(UI_GETGLCONFIG2, glconfig);
 }
