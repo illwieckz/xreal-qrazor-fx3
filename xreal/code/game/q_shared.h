@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef Q3_VM
 typedef long intptr_t;
-#elif _MSC_VER && !defined(intptr_t)
+#elif defined(_MSC_VER) && !defined(intptr_t) 
 typedef long intptr_t;
 #else
 //#include <inttypes.h>
