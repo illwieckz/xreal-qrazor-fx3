@@ -84,7 +84,7 @@ static float EvalWaveFormClamped(const waveForm_t * wf)
 static float GetOpValue(const expOperation_t * op)
 {
 	float			value;
-	float			inv255 = 1.0 / 255.0;
+	float			inv255 = 1.0f / 255.0f;
 	
 	switch(op->type)
 	{
