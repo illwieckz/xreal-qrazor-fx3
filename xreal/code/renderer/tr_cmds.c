@@ -85,9 +85,8 @@ void R_PerformanceCounters(void)
 	}
 	else if(r_speeds->integer == 4)
 	{
-		ri.Printf(PRINT_ALL, "dlight srf:%i culled:%i bad:%i verts:%i  tris:%i\n",
+		ri.Printf(PRINT_ALL, "dlight srf:%i culled:%i verts:%i tris:%i\n",
 				  tr.pc.c_dlightSurfaces, tr.pc.c_dlightSurfacesCulled,
-				  tr.pc.c_badInteractions,
 				  backEnd.pc.c_dlightVertexes, backEnd.pc.c_dlightIndexes / 3);
 		
 		ri.Printf(PRINT_ALL, "dlights:%i interactions:%i bin:%i bclip:%i bout:%i\n",
@@ -103,7 +102,6 @@ void R_PerformanceCounters(void)
 		ri.Printf(PRINT_ALL, "shadow batches:%i srf:%i verts:%i tris:%i\n",
 				  backEnd.pc.c_shadowBatches, backEnd.pc.c_shadowSurfaces,
 				  backEnd.pc.c_shadowVertexes, backEnd.pc.c_shadowIndexes / 3);
-		
 	}
 	else if(r_speeds->integer == 6)
 	{

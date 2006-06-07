@@ -914,8 +914,6 @@ void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shad
 		ia->depthFar = light->depthBounds[1];
 		ia->noDepthBoundsTest = light->noDepthBoundsTest;
 	}
-	
-	ia->badLighting = qfalse;
 
 	if(light->isStatic)
 	{
@@ -981,20 +979,6 @@ void R_SortInteractions(trRefDlight_t * light)
 
 	if(!light->numInteractions || light->noSort)
 	{
-		return;
-	}
-	
-	if(light->numInteractions == light->numShadowOnlyInteractions)
-	{
-		// interactions are bad because no interaction will bright up the scene
-		for(i = 0; i < light->numInteractions; i++)
-		{
-			ia = &tr.refdef.interactions[light->firstInteractionIndex + i];
-			
-			ia->badLighting = qtrue;
-			
-			tr.pc.c_badInteractions++;
-		}
 		return;
 	}
 	

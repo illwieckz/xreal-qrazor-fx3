@@ -1117,10 +1117,12 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			{
 				if(!(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK)) &&
 				   shader->sort == SS_OPAQUE &&
-				   !shader->fogLight && !shader->noShadows && !light->l.noShadows && ia->type != IA_LIGHTONLY)
+				   !shader->noShadows &&
+				   !light->l.noShadows &&
+				   ia->type != IA_LIGHTONLY)
 				{
 					// fast path, same as previous
-					rb_surfaceTable[*surface] (surface, 0, NULL, 0, NULL);
+					rb_surfaceTable[*surface] (surface, 0, NULL, ia->numShadowIndexes, ia->shadowIndexes);
 					goto nextInteraction;
 				}
 			}
@@ -1140,7 +1142,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 		{
 			if(!r_nobatching->integer && light == oldLight && entity == oldEntity && shader == oldShader)
 			{
-				if(!shader->fogLight && ia->type != IA_SHADOWONLY)
+				if(ia->type != IA_SHADOWONLY)
 				{
 					// fast path, same as previous
 					rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
@@ -1242,15 +1244,17 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 		{
 			if(!(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK)) &&
 			   shader->sort == SS_OPAQUE &&
-			   !shader->fogLight && !shader->noShadows && !light->l.noShadows && ia->type != IA_LIGHTONLY)
+			   !shader->noShadows &&
+			   !light->l.noShadows &&
+			   ia->type != IA_LIGHTONLY)
 			{
 				// add the triangles for this surface
-				rb_surfaceTable[*surface] (surface, 0, NULL, 0, NULL);
+				rb_surfaceTable[*surface] (surface, 0, NULL, ia->numShadowIndexes, ia->shadowIndexes);
 			}
 		}
 		else
 		{
-			if(!shader->fogLight && ia->type != IA_SHADOWONLY)
+			if(ia->type != IA_SHADOWONLY)
 			{
 				// add the triangles for this surface
 				rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);

@@ -1714,10 +1714,18 @@ void R_AddSlightInteractions()
 		R_AddPrecachedWorldInteractions(dl);
 		R_AddEntityInteractions(dl);
 
-		R_SortInteractions(dl);
-
 		if(dl->numInteractions && dl->numInteractions != dl->numShadowOnlyInteractions)
+		{
+			R_SortInteractions(dl);
+			
 			tr.pc.c_slights++;
+		}
+		else
+		{
+			// skip all interactions of this light because it caused only shadow volumes
+			// but no lighting
+			tr.refdef.numInteractions -= dl->numInteractions;
+		}
 	}
 }
 
@@ -1807,10 +1815,18 @@ void R_AddDlightInteractions()
 		R_AddWorldInteractions(dl);
 		R_AddEntityInteractions(dl);
 
-		R_SortInteractions(dl);
-
 		if(dl->numInteractions && dl->numInteractions != dl->numShadowOnlyInteractions)
+		{
+			R_SortInteractions(dl);
+			
 			tr.pc.c_dlights++;
+		}
+		else
+		{
+			// skip all interactions of this light because it caused only shadow volumes
+			// but no lighting
+			tr.refdef.numInteractions -= dl->numInteractions;
+		}
 	}
 }
 

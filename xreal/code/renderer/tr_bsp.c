@@ -39,6 +39,8 @@ static int      s_lightCount;
 static int      s_interactionCount;
 static int      s_lightIndexes[SHADER_MAX_INDEXES];
 static int      s_numLightIndexes;
+static int      s_shadowIndexes[SHADER_MAX_INDEXES];
+static int      s_numShadowIndexes;
 static byte    *fileBase;
 
 int             c_culledFaceTriangles;
@@ -189,7 +191,7 @@ static void R_LoadLightmaps(lump_t * l)
 	int             i, j;
 	float           maxIntensity = 0;
 	double          sumIntensity = 0;
-	
+
 	ri.Printf(PRINT_ALL, "...loading lightmaps\n");
 
 	len = l->filelen;
@@ -315,7 +317,7 @@ static void R_LoadVisibility(lump_t * l)
 {
 	int             len;
 	byte           *buf;
-	
+
 	ri.Printf(PRINT_ALL, "...loading visibility\n");
 
 	len = (s_worldData.numClusters + 63) & ~63;
@@ -368,7 +370,7 @@ static shader_t *ShaderForShaderNum(int shaderNum, int lightmapNum)
 		ri.Error(ERR_DROP, "ShaderForShaderNum: bad num %i", shaderNum);
 	}
 	dsh = &s_worldData.shaders[shaderNum];
-	
+
 	if(lightmapNum >= 0)
 	{
 		shaderType = SHADER_3D_LIGHTMAP;
@@ -377,19 +379,19 @@ static shader_t *ShaderForShaderNum(int shaderNum, int lightmapNum)
 	{
 		shaderType = SHADER_3D_STATIC;
 	}
-	
-//	ri.Printf(PRINT_ALL, "ShaderForShaderNum: '%s'\n", dsh->shader);
+
+//  ri.Printf(PRINT_ALL, "ShaderForShaderNum: '%s'\n", dsh->shader);
 
 	shader = R_FindShader(dsh->shader, shaderType, qtrue);
 
 	// if the shader had errors, just use default shader
 	if(shader->defaultShader)
 	{
-//		ri.Printf(PRINT_ALL, "failed\n");
+//      ri.Printf(PRINT_ALL, "failed\n");
 		return tr.defaultShader;
 	}
 
-//	ri.Printf(PRINT_ALL, "success\n");
+//  ri.Printf(PRINT_ALL, "success\n");
 	return shader;
 }
 
@@ -429,13 +431,13 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 
 	cv = ri.Hunk_Alloc(sizeof(*cv), h_low);
 	cv->surfaceType = SF_FACE;
-	
+
 	cv->numTriangles = numTriangles;
 	cv->triangles = ri.Hunk_Alloc(numTriangles * sizeof(cv->triangles[0]), h_low);
-	
+
 	cv->numVerts = numVerts;
 	cv->verts = ri.Hunk_Alloc(numVerts * sizeof(cv->verts[0]), h_low);
-	
+
 	surf->data = (surfaceType_t *) cv;
 
 	// copy vertexes
@@ -465,14 +467,14 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 		for(j = 0; j < 3; j++)
 		{
 			tri->indexes[j] = LittleLong(indexes[i * 3 + j]);
-			
+
 			if(tri->indexes[j] < 0 || tri->indexes[j] >= numVerts)
 			{
 				ri.Error(ERR_DROP, "Bad index in face surface");
 			}
 		}
 	}
-	
+
 	R_CalcSurfaceTriangleNeighbors(numTriangles, cv->triangles);
 	R_CalcSurfaceTrianglePlanes(numTriangles, cv->triangles, cv->verts);
 
@@ -533,7 +535,7 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 			VectorNormalize(cv->verts[i].normal);
 		}
 	}
-	
+
 	// create VBOs
 	if(glConfig2.vertexBufferObjectAvailable)
 	{
@@ -542,40 +544,40 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 			byte           *data;
 			int             dataSize;
 			int             dataOfs;
-		
+
 			qglGenBuffersARB(1, &cv->indexesVBO);
-			
+
 			dataSize = numTriangles * sizeof(cv->triangles[0].indexes);
 			data = ri.Hunk_AllocateTempMemory(dataSize);
 			dataOfs = 0;
-		
+
 			for(i = 0, tri = cv->triangles; i < numTriangles; i++, tri++)
 			{
 				memcpy(data + dataOfs, tri->indexes, sizeof(tri->indexes));
 				dataOfs += sizeof(tri->indexes);
 			}
-		
+
 			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, cv->indexesVBO);
 			qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, dataSize, indexes, GL_STATIC_DRAW_ARB);
-		
+
 			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-			
+
 			ri.Hunk_FreeTempMemory(data);
 		}
-		
+
 		if(cv->numVerts)
 		{
 			byte           *data;
 			int             dataSize;
 			int             dataOfs;
 			vec4_t          tmp;
-			
+
 			qglGenBuffersARB(1, &cv->vertsVBO);
-			
+
 			dataSize = cv->numVerts * (sizeof(vec4_t) * 6 + sizeof(color4ub_t));
 			data = ri.Hunk_AllocateTempMemory(dataSize);
 			dataOfs = 0;
-			
+
 			// set up xyz array
 			cv->ofsXYZ = 0;
 			for(i = 0; i < cv->numVerts; i++)
@@ -585,11 +587,11 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 					tmp[j] = cv->verts[i].xyz[j];
 				}
 				tmp[3] = 1;
-				
+
 				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 				dataOfs += sizeof(vec4_t);
 			}
-			
+
 			// set up texcoords array
 			cv->ofsTexCoords = dataOfs;
 			for(i = 0; i < cv->numVerts; i++)
@@ -600,11 +602,11 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 				}
 				tmp[2] = 0;
 				tmp[3] = 1;
-				
+
 				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 				dataOfs += sizeof(vec4_t);
 			}
-			
+
 			// set up texcoords2 array
 			cv->ofsTexCoords2 = dataOfs;
 			for(i = 0; i < cv->numVerts; i++)
@@ -615,11 +617,11 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 				}
 				tmp[2] = 0;
 				tmp[3] = 1;
-				
+
 				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 				dataOfs += sizeof(vec4_t);
 			}
-			
+
 			// set up tangents array
 			cv->ofsTangents = dataOfs;
 			for(i = 0; i < cv->numVerts; i++)
@@ -629,11 +631,11 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 					tmp[j] = cv->verts[i].tangent[j];
 				}
 				tmp[3] = 1;
-				
+
 				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 				dataOfs += sizeof(vec4_t);
 			}
-			
+
 			// set up binormals array
 			cv->ofsBinormals = dataOfs;
 			for(i = 0; i < cv->numVerts; i++)
@@ -643,11 +645,11 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 					tmp[j] = cv->verts[i].binormal[j];
 				}
 				tmp[3] = 1;
-				
+
 				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 				dataOfs += sizeof(vec4_t);
 			}
-			
+
 			// set up normals array
 			cv->ofsNormals = dataOfs;
 			for(i = 0; i < cv->numVerts; i++)
@@ -657,11 +659,11 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 					tmp[j] = cv->verts[i].normal[j];
 				}
 				tmp[3] = 1;
-				
+
 				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 				dataOfs += sizeof(vec4_t);
 			}
-			
+
 			// set up colors array
 			cv->ofsColors = dataOfs;
 			for(i = 0; i < cv->numVerts; i++)
@@ -669,10 +671,10 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 				memcpy(data + dataOfs, cv->verts[i].color, sizeof(color4ub_t));
 				dataOfs += sizeof(color4ub_t);
 			}
-		
+
 			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, cv->vertsVBO);
 			qglBufferDataARB(GL_ARRAY_BUFFER_ARB, dataSize, data, GL_STATIC_DRAW_ARB);
-			
+
 			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 			ri.Hunk_FreeTempMemory(data);
 		}
@@ -765,7 +767,7 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 	srfTriangle_t  *tri;
 	int             i, j;
 	int             numVerts, numTriangles;
-	
+
 	// set lightmap
 	surf->lightmapNum = -1;
 
@@ -784,13 +786,13 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 
 	cv = ri.Hunk_Alloc(sizeof(*cv), h_low);
 	cv->surfaceType = SF_TRIANGLES;
-	
+
 	cv->numTriangles = numTriangles;
 	cv->triangles = ri.Hunk_Alloc(numTriangles * sizeof(cv->triangles[0]), h_low);
-	
+
 	cv->numVerts = numVerts;
 	cv->verts = ri.Hunk_Alloc(numVerts * sizeof(cv->verts[0]), h_low);
-	
+
 	surf->data = (surfaceType_t *) cv;
 
 	// copy vertexes
@@ -820,17 +822,17 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 		for(j = 0; j < 3; j++)
 		{
 			tri->indexes[j] = LittleLong(indexes[i * 3 + j]);
-			
+
 			if(tri->indexes[j] < 0 || tri->indexes[j] >= numVerts)
 			{
 				ri.Error(ERR_DROP, "Bad index in face surface");
 			}
 		}
 	}
-	
+
 	R_CalcSurfaceTriangleNeighbors(numTriangles, cv->triangles);
 	R_CalcSurfaceTrianglePlanes(numTriangles, cv->triangles, cv->verts);
-	
+
 	// Tr3B - calc tangent spaces
 	{
 		vec3_t          faceNormal;
@@ -879,7 +881,7 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 			VectorNormalize(cv->verts[i].normal);
 		}
 	}
-	
+
 	// create VBOs
 	if(glConfig2.vertexBufferObjectAvailable)
 	{
@@ -888,40 +890,40 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 			byte           *data;
 			int             dataSize;
 			int             dataOfs;
-		
+
 			qglGenBuffersARB(1, &cv->indexesVBO);
-			
+
 			dataSize = numTriangles * sizeof(cv->triangles[0].indexes);
 			data = ri.Hunk_AllocateTempMemory(dataSize);
 			dataOfs = 0;
-		
+
 			for(i = 0, tri = cv->triangles; i < numTriangles; i++, tri++)
 			{
 				memcpy(data + dataOfs, tri->indexes, sizeof(tri->indexes));
 				dataOfs += sizeof(tri->indexes);
 			}
-		
+
 			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, cv->indexesVBO);
 			qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, dataSize, indexes, GL_STATIC_DRAW_ARB);
-		
+
 			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-			
+
 			ri.Hunk_FreeTempMemory(data);
 		}
-		
+
 		if(numVerts)
 		{
 			byte           *data;
 			int             dataSize;
 			int             dataOfs;
 			vec4_t          tmp;
-			
+
 			qglGenBuffersARB(1, &cv->vertsVBO);
-			
+
 			dataSize = numVerts * (sizeof(vec4_t) * 5 + sizeof(color4ub_t));
 			data = ri.Hunk_AllocateTempMemory(dataSize);
 			dataOfs = 0;
-			
+
 			// set up xyz array
 			cv->ofsXYZ = 0;
 			for(i = 0; i < numVerts; i++)
@@ -931,11 +933,11 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 					tmp[j] = cv->verts[i].xyz[j];
 				}
 				tmp[3] = 1;
-				
+
 				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 				dataOfs += sizeof(vec4_t);
 			}
-			
+
 			// set up texcoords array
 			cv->ofsTexCoords = dataOfs;
 			for(i = 0; i < numVerts; i++)
@@ -946,11 +948,11 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 				}
 				tmp[2] = 0;
 				tmp[3] = 1;
-				
+
 				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 				dataOfs += sizeof(vec4_t);
 			}
-			
+
 			// set up tangents array
 			cv->ofsTangents = dataOfs;
 			for(i = 0; i < numVerts; i++)
@@ -960,11 +962,11 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 					tmp[j] = cv->verts[i].tangent[j];
 				}
 				tmp[3] = 1;
-				
+
 				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 				dataOfs += sizeof(vec4_t);
 			}
-			
+
 			// set up binormals array
 			cv->ofsBinormals = dataOfs;
 			for(i = 0; i < numVerts; i++)
@@ -974,11 +976,11 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 					tmp[j] = cv->verts[i].binormal[j];
 				}
 				tmp[3] = 1;
-				
+
 				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 				dataOfs += sizeof(vec4_t);
 			}
-			
+
 			// set up normals array
 			cv->ofsNormals = dataOfs;
 			for(i = 0; i < numVerts; i++)
@@ -988,11 +990,11 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 					tmp[j] = cv->verts[i].normal[j];
 				}
 				tmp[3] = 1;
-				
+
 				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 				dataOfs += sizeof(vec4_t);
 			}
-			
+
 			// set up colors array
 			cv->ofsColors = dataOfs;
 			for(i = 0; i < numVerts; i++)
@@ -1000,10 +1002,10 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 				memcpy(data + dataOfs, cv->verts[i].color, sizeof(color4ub_t));
 				dataOfs += sizeof(color4ub_t);
 			}
-		
+
 			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, cv->vertsVBO);
 			qglBufferDataARB(GL_ARRAY_BUFFER_ARB, dataSize, data, GL_STATIC_DRAW_ARB);
-			
+
 			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 			ri.Hunk_FreeTempMemory(data);
 		}
@@ -1019,7 +1021,7 @@ static void ParseFlare(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, i
 {
 	srfFlare_t     *flare;
 	int             i;
-	
+
 	// set lightmap
 	surf->lightmapNum = -1;
 
@@ -1809,7 +1811,7 @@ void R_StitchAllPatches(void)
 {
 	int             i, stitched, numstitches;
 	srfGridMesh_t  *grid1;
-	
+
 	ri.Printf(PRINT_ALL, "...stitching LoD cracks\n");
 
 	numstitches = 0;
@@ -1832,8 +1834,7 @@ void R_StitchAllPatches(void)
 			//
 			numstitches += R_TryStitchingPatch(i);
 		}
-	}
-	while(stitched);
+	} while(stitched);
 	ri.Printf(PRINT_ALL, "stitched %d LoD cracks\n", numstitches);
 }
 
@@ -1851,7 +1852,7 @@ void R_MovePatchSurfacesToHunk(void)
 	{
 		//
 		grid = (srfGridMesh_t *) s_worldData.surfaces[i].data;
-		
+
 		// if this surface is not a grid
 		if(grid->surfaceType != SF_GRID)
 			continue;
@@ -1865,11 +1866,11 @@ void R_MovePatchSurfacesToHunk(void)
 
 		hunkgrid->heightLodError = ri.Hunk_Alloc(grid->height * 4, h_low);
 		Com_Memcpy(hunkgrid->heightLodError, grid->heightLodError, grid->height * 4);
-		
+
 		hunkgrid->numTriangles = grid->numTriangles;
 		hunkgrid->triangles = ri.Hunk_Alloc(grid->numTriangles * sizeof(srfTriangle_t), h_low);
 		Com_Memcpy(hunkgrid->triangles, grid->triangles, grid->numTriangles * sizeof(srfTriangle_t));
-	
+
 		hunkgrid->numVerts = grid->numVerts;
 		hunkgrid->verts = ri.Hunk_Alloc(grid->numVerts * sizeof(srfVert_t), h_low);
 		Com_Memcpy(hunkgrid->verts, grid->verts, grid->numVerts * sizeof(srfVert_t));
@@ -1894,7 +1895,7 @@ static void R_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexLump)
 	int             count;
 	int             numFaces, numMeshes, numTriSurfs, numFlares;
 	int             i;
-	
+
 	ri.Printf(PRINT_ALL, "...loading surfaces\n");
 
 	numFaces = 0;
@@ -1944,7 +1945,7 @@ static void R_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexLump)
 				ri.Error(ERR_DROP, "Bad surfaceType");
 		}
 	}
-	
+
 	ri.Printf(PRINT_ALL, "...loaded %d faces, %i meshes, %i trisurfs, %i flares\n", numFaces, numMeshes, numTriSurfs, numFlares);
 
 #ifdef PATCH_STITCHING
@@ -1970,7 +1971,7 @@ static void R_LoadSubmodels(lump_t * l)
 	dmodel_t       *in;
 	bmodel_t       *out;
 	int             i, j, count;
-	
+
 	ri.Printf(PRINT_ALL, "...loading submodels\n");
 
 	in = (void *)(fileBase + l->fileofs);
@@ -2033,7 +2034,7 @@ static void R_LoadNodesAndLeafs(lump_t * nodeLump, lump_t * leafLump)
 	dleaf_t        *inLeaf;
 	mnode_t        *out;
 	int             numNodes, numLeafs;
-	
+
 	ri.Printf(PRINT_ALL, "...loading nodes and leaves\n");
 
 	in = (void *)(fileBase + nodeLump->fileofs);
@@ -2111,7 +2112,7 @@ static void R_LoadShaders(lump_t * l)
 {
 	int             i, count;
 	dshader_t      *in, *out;
-	
+
 	ri.Printf(PRINT_ALL, "...loading shaders\n");
 
 	in = (void *)(fileBase + l->fileofs);
@@ -2143,7 +2144,7 @@ static void R_LoadMarksurfaces(lump_t * l)
 	int             i, j, count;
 	int            *in;
 	msurface_t    **out;
-	
+
 	ri.Printf(PRINT_ALL, "...loading mark surfaces\n");
 
 	in = (void *)(fileBase + l->fileofs);
@@ -2175,7 +2176,7 @@ static void R_LoadPlanes(lump_t * l)
 	dplane_t       *in;
 	int             count;
 	int             bits;
-	
+
 	ri.Printf(PRINT_ALL, "...loading planes\n");
 
 	in = (void *)(fileBase + l->fileofs);
@@ -2224,7 +2225,7 @@ static void R_LoadFogs(lump_t * l, lump_t * brushesLump, lump_t * sidesLump)
 	shader_t       *shader;
 	float           d;
 	int             firstSide;
-	
+
 	ri.Printf(PRINT_ALL, "...loading fogs\n");
 
 	fogs = (void *)(fileBase + l->fileofs);
@@ -2346,7 +2347,7 @@ void R_LoadLightGrid(lump_t * l)
 	int             numGridPoints;
 	world_t        *w;
 	float          *wMins, *wMaxs;
-	
+
 	ri.Printf(PRINT_ALL, "...loading light grid\n");
 
 	w = &s_worldData;
@@ -2404,7 +2405,7 @@ void R_LoadEntities(lump_t * l)
 	int             numProjLights = 0;
 	int             numDirectLights = 0;
 	trRefDlight_t  *dl;
-	
+
 	ri.Printf(PRINT_ALL, "...loading entities\n");
 
 	w = &s_worldData;
@@ -2416,7 +2417,7 @@ void R_LoadEntities(lump_t * l)
 	w->entityString = ri.Hunk_Alloc(l->filelen + 1, h_low);
 	strcpy(w->entityString, (char *)(fileBase + l->fileofs));
 	w->entityParsePoint = w->entityString;
-	
+
 #if 1
 	p = w->entityString;
 #else
@@ -2428,33 +2429,33 @@ void R_LoadEntities(lump_t * l)
 	{
 		// parse key
 		token = Com_ParseExt(&p, qtrue);
-		
+
 		if(!*token)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: unexpected end of entities string while parsing worldspawn\n", token);
 			break;
 		}
-		
+
 		if(*token == '{')
 		{
 			continue;
 		}
-		
+
 		if(*token == '}')
 		{
 			break;
 		}
-		
+
 		Q_strncpyz(keyname, token, sizeof(keyname));
 
 		// parse value
 		token = Com_ParseExt(&p, qfalse);
-		
+
 		if(!*token)
 		{
 			continue;
 		}
-		
+
 		Q_strncpyz(value, token, sizeof(value));
 
 		// check for remapping of shaders for vertex lighting
@@ -2494,13 +2495,12 @@ void R_LoadEntities(lump_t * l)
 		}
 
 		// check for deluxe mapping support
-		if((!Q_stricmp(keyname, "deluxeMapping") && !Q_stricmp(value, "1")) ||
-		   (!Q_stricmp(keyname, "message") && !Q_stricmp(value, "camo-retro"))) // HACK: this map has it
+		if((!Q_stricmp(keyname, "deluxeMapping") && !Q_stricmp(value, "1")) || (!Q_stricmp(keyname, "message") && !Q_stricmp(value, "camo-retro")))	// HACK: this map has it
 		{
 			tr.worldDeluxeMapping = qtrue;
 			continue;
 		}
-		
+
 		if(!Q_stricmp(keyname, "classname") && Q_stricmp(value, "worldspawn"))
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: expected worldspawn found '%s'\n", value);
@@ -2508,11 +2508,11 @@ void R_LoadEntities(lump_t * l)
 		}
 	}
 
-//	ri.Printf(PRINT_ALL, "-----------\n%s\n----------\n", p);
+//  ri.Printf(PRINT_ALL, "-----------\n%s\n----------\n", p);
 
 #if 1
 	pOld = p;
-	numEntities = 1; // parsed worldspawn so far
+	numEntities = 1;			// parsed worldspawn so far
 
 	// count lights
 	while(1)
@@ -2525,45 +2525,45 @@ void R_LoadEntities(lump_t * l)
 			// end of entities string
 			break;
 		}
-		
+
 		if(*token != '{')
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: expected { found '%s'\n", token);
 			break;
 		}
-		
+
 		// new entity
 		isLight = qfalse;
 
 		// parse epairs
 		while(1)
-		{			
+		{
 			// parse key
 			token = Com_ParseExt(&p, qtrue);
-			
+
 			if(*token == '}')
 			{
 				break;
 			}
-	
+
 			if(!*token)
 			{
 				ri.Printf(PRINT_WARNING, "WARNING: EOF without closing bracket\n");
 				break;
 			}
-			
+
 			Q_strncpyz(keyname, token, sizeof(keyname));
-	
+
 			// parse value
 			token = Com_ParseExt(&p, qfalse);
-			
+
 			if(!*token)
 			{
 				continue;
 			}
-	
+
 			Q_strncpyz(value, token, sizeof(value));
-	
+
 			// check if this entity is a light
 			if(!Q_stricmp(keyname, "classname") && !Q_stricmp(value, "light"))
 			{
@@ -2571,21 +2571,21 @@ void R_LoadEntities(lump_t * l)
 				continue;
 			}
 		}
-		
+
 		if(*token != '}')
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: expected } found '%s'\n", token);
 			break;
 		}
-		
+
 		if(isLight)
 		{
 			numLights++;
 		}
-		
+
 		numEntities++;
 	}
-	
+
 	ri.Printf(PRINT_ALL, "%i total entities counted\n", numEntities);
 	ri.Printf(PRINT_ALL, "%i total lights counted\n", numLights);
 
@@ -2598,13 +2598,13 @@ void R_LoadEntities(lump_t * l)
 		dl->l.color[0] = 1;
 		dl->l.color[1] = 1;
 		dl->l.color[2] = 1;
-		
+
 		dl->l.radius[0] = 300;
 		dl->l.radius[1] = 300;
 		dl->l.radius[2] = 300;
-		
+
 		AxisCopy(axisDefault, dl->l.axis);
-		
+
 		dl->isStatic = qtrue;
 		dl->additive = qtrue;
 	}
@@ -2625,7 +2625,7 @@ void R_LoadEntities(lump_t * l)
 			// end of entities string
 			break;
 		}
-		
+
 		if(*token != '{')
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: expected { found '%s'\n", token);
@@ -2634,36 +2634,36 @@ void R_LoadEntities(lump_t * l)
 
 		// new entity
 		isLight = qfalse;
-		
+
 		// parse epairs
 		while(1)
 		{
 			// parse key
 			token = Com_ParseExt(&p, qtrue);
-	
+
 			if(*token == '}')
 			{
 				break;
 			}
-	
+
 			if(!*token)
 			{
 				ri.Printf(PRINT_WARNING, "WARNING: EOF without closing bracket\n");
 				break;
 			}
-			
+
 			Q_strncpyz(keyname, token, sizeof(keyname));
-	
+
 			// parse value
 			token = Com_ParseExt(&p, qfalse);
-	
+
 			if(!*token)
 			{
 				continue;
 			}
-			
+
 			Q_strncpyz(value, token, sizeof(value));
-	
+
 			// check if this entity is a light
 			if(!Q_stricmp(keyname, "classname") && !Q_stricmp(value, "light"))
 			{
@@ -2711,7 +2711,7 @@ void R_LoadEntities(lump_t * l)
 			else if(!Q_stricmp(keyname, "light") || !Q_stricmp(keyname, "_light"))
 			{
 				vec_t           value2;
-	
+
 				value2 = atof(value);
 				dl->l.radius[0] = value2;
 				dl->l.radius[1] = value2;
@@ -2727,7 +2727,7 @@ void R_LoadEntities(lump_t * l)
 			else if(!Q_stricmp(keyname, "rotation") || !Q_stricmp(keyname, "light_rotation"))
 			{
 				matrix_t        rotation;
-	
+
 				sscanf(value, "%f %f %f %f %f %f %f %f %f", &rotation[0], &rotation[1], &rotation[2],
 					   &rotation[4], &rotation[5], &rotation[6], &rotation[8], &rotation[9], &rotation[10]);
 				MatrixToVectorsFLU(rotation, dl->l.axis[0], dl->l.axis[1], dl->l.axis[2]);
@@ -2738,43 +2738,43 @@ void R_LoadEntities(lump_t * l)
 				dl->l.noShadows = qtrue;
 			}
 		}
-			
+
 		if(*token != '}')
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: expected } found '%s'\n", token);
 			break;
 		}
-		
+
 		if(isLight)
 		{
 			if((numOmniLights + numProjLights + numDirectLights) < s_worldData.numDlights);
 			{
 				dl++;
-	
+
 				switch (dl->l.rlType)
 				{
 					case RL_OMNI:
 						numOmniLights++;
 						break;
-	
+
 					case RL_PROJ:
 						numProjLights++;
 						break;
-	
+
 					case RL_DIRECT:
 						numDirectLights++;
 						break;
-	
+
 					default:
 						break;
 				}
 			}
 		}
-		
+
 		numEntities++;
 	}
 #endif
-	
+
 	ri.Printf(PRINT_ALL, "%i total entities parsed\n", numEntities);
 	ri.Printf(PRINT_ALL, "%i total lights parsed\n", numOmniLights + numProjLights + numDirectLights);
 	ri.Printf(PRINT_ALL, "%i omni-directional lights parsed\n", numOmniLights);
@@ -2851,12 +2851,12 @@ static void R_PrecacheInteraction(trRefDlight_t * light, msurface_t * surface)
 		iaCache->numLightIndexes = 0;
 		iaCache->lightIndexes = NULL;
 	}
-	
-	if(sh.numIndexes >= 2)
+
+	if(s_numShadowIndexes >= (6 + 2) * 3)
 	{
-		iaCache->numShadowIndexes = sh.numIndexes;
-		iaCache->shadowIndexes = ri.Hunk_Alloc(sh.numIndexes * sizeof(int), h_low);
-		Com_Memcpy(iaCache->shadowIndexes, sh.indexes, sh.numIndexes * sizeof(int));
+		iaCache->numShadowIndexes = s_numShadowIndexes;
+		iaCache->shadowIndexes = ri.Hunk_Alloc(s_numShadowIndexes * sizeof(int), h_low);
+		Com_Memcpy(iaCache->shadowIndexes, s_shadowIndexes, s_numShadowIndexes * sizeof(int));
 	}
 	else
 	{
@@ -3365,7 +3365,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 	int             i;
 	srfTriangle_t  *tri;
 	int             numIndexes;
-	int            *iaIndexes;
+	int            *indexes;
 	float           d;
 
 	// check if bounds intersect
@@ -3373,8 +3373,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 	   dl->worldBounds[1][1] < cv->bounds[0][1] ||
 	   dl->worldBounds[1][2] < cv->bounds[0][2] ||
 	   dl->worldBounds[0][0] > cv->bounds[1][0] ||
-	   dl->worldBounds[0][1] > cv->bounds[1][1] ||
-	   dl->worldBounds[0][2] > cv->bounds[1][2])
+	   dl->worldBounds[0][1] > cv->bounds[1][1] || dl->worldBounds[0][2] > cv->bounds[1][2])
 	{
 		return qfalse;
 	}
@@ -3404,20 +3403,21 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 	}
 #endif
 
-	iaIndexes = s_lightIndexes;
-
 	// build a list of triangles that need light
 	Com_Memset(sh.numEdges, 0, 4 * cv->numVerts);
-	
+
 	numIndexes = 0;
+	indexes = s_lightIndexes;
+	
 	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
 	{
 		int             i1, i2, i3;
 		vec3_t          verts[3];
+
 		//vec3_t          d1, d2;
 		vec4_t          plane;
 		float           d;
-		
+
 		sh.facing[i] = qtrue;
 
 		i1 = tri->indexes[0];
@@ -3427,25 +3427,25 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 		VectorCopy(cv->verts[i1].xyz, verts[0]);
 		VectorCopy(cv->verts[i2].xyz, verts[1]);
 		VectorCopy(cv->verts[i3].xyz, verts[2]);
-		
-		/*
-		VectorSubtract(verts[1], verts[0], d1);
-		VectorSubtract(verts[2], verts[0], d2);
-			
-		CrossProduct(d1, d2, plane);
-		plane[3] = DotProduct(plane, verts[0]);
 
-		d = DotProduct(plane, dl->origin) - plane[3];
-		if(d > 0)
-		{
-			sh.facing[i] = qtrue;
-		}
-		else
-		{
-			sh.facing[i] = qfalse;
-		}
-		*/
-		
+		/*
+		   VectorSubtract(verts[1], verts[0], d1);
+		   VectorSubtract(verts[2], verts[0], d2);
+
+		   CrossProduct(d1, d2, plane);
+		   plane[3] = DotProduct(plane, verts[0]);
+
+		   d = DotProduct(plane, dl->origin) - plane[3];
+		   if(d > 0)
+		   {
+		   sh.facing[i] = qtrue;
+		   }
+		   else
+		   {
+		   sh.facing[i] = qfalse;
+		   }
+		 */
+
 		if(PlaneFromPoints(plane, verts[0], verts[1], verts[2], qtrue))
 		{
 #if 1
@@ -3484,14 +3484,16 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 		{
 			ri.Error(ERR_DROP, "R_PrecacheFaceInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
 		}
-		
+
 		// create triangle indices
 		if(sh.facing[i])
 		{
-			iaIndexes[numIndexes + 0] = i1;
-			iaIndexes[numIndexes + 1] = i2;
-			iaIndexes[numIndexes + 2] = i3;
+			indexes[numIndexes + 0] = i1;
+			indexes[numIndexes + 1] = i2;
+			indexes[numIndexes + 2] = i3;
 			numIndexes += 3;
+			
+			sh.numFacing++;
 		}
 	}
 
@@ -3503,7 +3505,90 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 #endif
 
 	s_numLightIndexes = numIndexes;
-//	R_CalcShadowIndexes(cv->numVerts);
+
+
+#if 1
+	// calculate zfail shadow volume
+	numIndexes = 0;
+	indexes = s_shadowIndexes;
+
+	if((sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
+	{
+		return qtrue;
+	}
+
+	// set up indices for silhouette edges
+	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+	{
+		if(!sh.facing[i])
+		{
+			continue;
+		}
+
+		if((tri->neighbors[0] < 0) || (tri->neighbors[0] >= 0 && !sh.facing[tri->neighbors[0]]))
+		{
+			indexes[numIndexes + 0] = tri->indexes[1];
+			indexes[numIndexes + 1] = tri->indexes[0];
+			indexes[numIndexes + 2] = tri->indexes[0] + cv->numVerts;
+
+			indexes[numIndexes + 3] = tri->indexes[1];
+			indexes[numIndexes + 4] = tri->indexes[0] + cv->numVerts;
+			indexes[numIndexes + 5] = tri->indexes[1] + cv->numVerts;
+
+			numIndexes += 6;
+		}
+
+		if((tri->neighbors[1] < 0) || (tri->neighbors[1] >= 0 && !sh.facing[tri->neighbors[1]]))
+		{
+			indexes[numIndexes + 0] = tri->indexes[2];
+			indexes[numIndexes + 1] = tri->indexes[1];
+			indexes[numIndexes + 2] = tri->indexes[1] + cv->numVerts;
+
+			indexes[numIndexes + 3] = tri->indexes[2];
+			indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
+			indexes[numIndexes + 5] = tri->indexes[2] + cv->numVerts;
+
+			numIndexes += 6;
+		}
+
+		if((tri->neighbors[2] < 0) || (tri->neighbors[2] >= 0 && !sh.facing[tri->neighbors[2]]))
+		{
+			indexes[numIndexes + 0] = tri->indexes[0];
+			indexes[numIndexes + 1] = tri->indexes[2];
+			indexes[numIndexes + 2] = tri->indexes[2] + cv->numVerts;
+
+			indexes[numIndexes + 3] = tri->indexes[0];
+			indexes[numIndexes + 4] = tri->indexes[2] + cv->numVerts;
+			indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
+
+			numIndexes += 6;
+		}
+	}
+
+	// set up indices for light and dark caps
+	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+	{
+		if(!sh.facing[i])
+		{
+			continue;
+		}
+
+		// light cap
+		indexes[numIndexes + 0] = tri->indexes[0];
+		indexes[numIndexes + 1] = tri->indexes[1];
+		indexes[numIndexes + 2] = tri->indexes[2];
+
+		// dark cap
+		indexes[numIndexes + 3] = tri->indexes[2] + cv->numVerts;
+		indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
+		indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
+
+		numIndexes += 6;
+	}
+	
+	s_numShadowIndexes = numIndexes;
+#endif
+
 	return qtrue;
 }
 
@@ -3513,32 +3598,31 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 	int             i;
 	srfTriangle_t  *tri;
 	int             numIndexes;
-	int            *iaIndexes;
-	
+	int            *indexes;
+
 	// check if bounds intersect
 	if(dl->worldBounds[1][0] < cv->meshBounds[0][0] ||
 	   dl->worldBounds[1][1] < cv->meshBounds[0][1] ||
 	   dl->worldBounds[1][2] < cv->meshBounds[0][2] ||
 	   dl->worldBounds[0][0] > cv->meshBounds[1][0] ||
-	   dl->worldBounds[0][1] > cv->meshBounds[1][1] ||
-	   dl->worldBounds[0][2] > cv->meshBounds[1][2])
+	   dl->worldBounds[0][1] > cv->meshBounds[1][1] || dl->worldBounds[0][2] > cv->meshBounds[1][2])
 	{
 		return qfalse;
 	}
 
-	iaIndexes = s_lightIndexes;
-
 	// build a list of triangles that need light
 	Com_Memset(sh.numEdges, 0, 4 * cv->numVerts);
-	
+
 	numIndexes = 0;
+	indexes = s_lightIndexes;
+	
 	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
 	{
 		int             i1, i2, i3;
 		vec3_t          verts[3];
 		vec4_t          plane;
 		float           d;
-		
+
 		sh.facing[i] = qtrue;
 
 		i1 = tri->indexes[0];
@@ -3573,7 +3657,7 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 			}
 #endif
 		}
-		
+
 #if 1
 		// check with ODE's triangle<->OBB collider for an intersection
 		if(!_cldTestOneTriangle(dl, verts[0], verts[1], verts[2]))
@@ -3591,10 +3675,12 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 		// create triangle indices
 		if(sh.facing[i])
 		{
-			iaIndexes[numIndexes + 0] = i1;
-			iaIndexes[numIndexes + 1] = i2;
-			iaIndexes[numIndexes + 2] = i3;
+			indexes[numIndexes + 0] = i1;
+			indexes[numIndexes + 1] = i2;
+			indexes[numIndexes + 2] = i3;
 			numIndexes += 3;
+			
+			sh.numFacing++;
 		}
 	}
 
@@ -3606,7 +3692,89 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 #endif
 
 	s_numLightIndexes = numIndexes;
-//	R_CalcShadowIndexes(cv->numVerts);
+	
+#if 1
+	// calculate zfail shadow volume
+	numIndexes = 0;
+	indexes = s_shadowIndexes;
+
+	if((sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
+	{
+		return qtrue;
+	}
+
+	// set up indices for silhouette edges
+	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+	{
+		if(!sh.facing[i])
+		{
+			continue;
+		}
+
+		if((tri->neighbors[0] < 0) || (tri->neighbors[0] >= 0 && !sh.facing[tri->neighbors[0]]))
+		{
+			indexes[numIndexes + 0] = tri->indexes[1];
+			indexes[numIndexes + 1] = tri->indexes[0];
+			indexes[numIndexes + 2] = tri->indexes[0] + cv->numVerts;
+
+			indexes[numIndexes + 3] = tri->indexes[1];
+			indexes[numIndexes + 4] = tri->indexes[0] + cv->numVerts;
+			indexes[numIndexes + 5] = tri->indexes[1] + cv->numVerts;
+
+			numIndexes += 6;
+		}
+
+		if((tri->neighbors[1] < 0) || (tri->neighbors[1] >= 0 && !sh.facing[tri->neighbors[1]]))
+		{
+			indexes[numIndexes + 0] = tri->indexes[2];
+			indexes[numIndexes + 1] = tri->indexes[1];
+			indexes[numIndexes + 2] = tri->indexes[1] + cv->numVerts;
+
+			indexes[numIndexes + 3] = tri->indexes[2];
+			indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
+			indexes[numIndexes + 5] = tri->indexes[2] + cv->numVerts;
+
+			numIndexes += 6;
+		}
+
+		if((tri->neighbors[2] < 0) || (tri->neighbors[2] >= 0 && !sh.facing[tri->neighbors[2]]))
+		{
+			indexes[numIndexes + 0] = tri->indexes[0];
+			indexes[numIndexes + 1] = tri->indexes[2];
+			indexes[numIndexes + 2] = tri->indexes[2] + cv->numVerts;
+
+			indexes[numIndexes + 3] = tri->indexes[0];
+			indexes[numIndexes + 4] = tri->indexes[2] + cv->numVerts;
+			indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
+
+			numIndexes += 6;
+		}
+	}
+
+	// set up indices for light and dark caps
+	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+	{
+		if(!sh.facing[i])
+		{
+			continue;
+		}
+
+		// light cap
+		indexes[numIndexes + 0] = tri->indexes[0];
+		indexes[numIndexes + 1] = tri->indexes[1];
+		indexes[numIndexes + 2] = tri->indexes[2];
+
+		// dark cap
+		indexes[numIndexes + 3] = tri->indexes[2] + cv->numVerts;
+		indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
+		indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
+
+		numIndexes += 6;
+	}
+	
+	s_numShadowIndexes = numIndexes;
+#endif
+
 	return qtrue;
 }
 
@@ -3616,32 +3784,31 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 	int             i;
 	srfTriangle_t  *tri;
 	int             numIndexes;
-	int            *iaIndexes;
+	int            *indexes;
 
 	// check if bounds intersect
 	if(dl->worldBounds[1][0] < cv->bounds[0][0] ||
 	   dl->worldBounds[1][1] < cv->bounds[0][1] ||
 	   dl->worldBounds[1][2] < cv->bounds[0][2] ||
 	   dl->worldBounds[0][0] > cv->bounds[1][0] ||
-	   dl->worldBounds[0][1] > cv->bounds[1][1] ||
-	   dl->worldBounds[0][2] > cv->bounds[1][2])
+	   dl->worldBounds[0][1] > cv->bounds[1][1] || dl->worldBounds[0][2] > cv->bounds[1][2])
 	{
 		return qfalse;
 	}
 
-	iaIndexes = s_lightIndexes;
-
 	// build a list of triangles that need light
 	Com_Memset(sh.numEdges, 0, 4 * cv->numVerts);
-	
+
 	numIndexes = 0;
+	indexes = s_lightIndexes;
+	
 	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
 	{
 		int             i1, i2, i3;
 		vec3_t          verts[3];
 		vec4_t          plane;
 		float           d;
-		
+
 		sh.facing[i] = qtrue;
 
 		i1 = tri->indexes[0];
@@ -3715,14 +3882,16 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 		{
 			ri.Error(ERR_DROP, "R_PrecacheTrisurfInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
 		}
-		
+
 		// create triangle indices
 		if(sh.facing[i])
 		{
-			iaIndexes[numIndexes + 0] = i1;
-			iaIndexes[numIndexes + 1] = i2;
-			iaIndexes[numIndexes + 2] = i3;
+			indexes[numIndexes + 0] = i1;
+			indexes[numIndexes + 1] = i2;
+			indexes[numIndexes + 2] = i3;
 			numIndexes += 3;
+			
+			sh.numFacing++;
 		}
 	}
 
@@ -3734,7 +3903,89 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 #endif
 
 	s_numLightIndexes = numIndexes;
-//	R_CalcShadowIndexes(cv->numVerts);
+	
+#if 1
+	// calculate zfail shadow volume
+	numIndexes = 0;
+	indexes = s_shadowIndexes;
+
+	if((sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
+	{
+		return qtrue;
+	}
+
+	// set up indices for silhouette edges
+	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+	{
+		if(!sh.facing[i])
+		{
+			continue;
+		}
+
+		if((tri->neighbors[0] < 0) || (tri->neighbors[0] >= 0 && !sh.facing[tri->neighbors[0]]))
+		{
+			indexes[numIndexes + 0] = tri->indexes[1];
+			indexes[numIndexes + 1] = tri->indexes[0];
+			indexes[numIndexes + 2] = tri->indexes[0] + cv->numVerts;
+
+			indexes[numIndexes + 3] = tri->indexes[1];
+			indexes[numIndexes + 4] = tri->indexes[0] + cv->numVerts;
+			indexes[numIndexes + 5] = tri->indexes[1] + cv->numVerts;
+
+			numIndexes += 6;
+		}
+
+		if((tri->neighbors[1] < 0) || (tri->neighbors[1] >= 0 && !sh.facing[tri->neighbors[1]]))
+		{
+			indexes[numIndexes + 0] = tri->indexes[2];
+			indexes[numIndexes + 1] = tri->indexes[1];
+			indexes[numIndexes + 2] = tri->indexes[1] + cv->numVerts;
+
+			indexes[numIndexes + 3] = tri->indexes[2];
+			indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
+			indexes[numIndexes + 5] = tri->indexes[2] + cv->numVerts;
+
+			numIndexes += 6;
+		}
+
+		if((tri->neighbors[2] < 0) || (tri->neighbors[2] >= 0 && !sh.facing[tri->neighbors[2]]))
+		{
+			indexes[numIndexes + 0] = tri->indexes[0];
+			indexes[numIndexes + 1] = tri->indexes[2];
+			indexes[numIndexes + 2] = tri->indexes[2] + cv->numVerts;
+
+			indexes[numIndexes + 3] = tri->indexes[0];
+			indexes[numIndexes + 4] = tri->indexes[2] + cv->numVerts;
+			indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
+
+			numIndexes += 6;
+		}
+	}
+
+	// set up indices for light and dark caps
+	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+	{
+		if(!sh.facing[i])
+		{
+			continue;
+		}
+
+		// light cap
+		indexes[numIndexes + 0] = tri->indexes[0];
+		indexes[numIndexes + 1] = tri->indexes[1];
+		indexes[numIndexes + 2] = tri->indexes[2];
+
+		// dark cap
+		indexes[numIndexes + 3] = tri->indexes[2] + cv->numVerts;
+		indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
+		indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
+
+		numIndexes += 6;
+	}
+	
+	s_numShadowIndexes = numIndexes;
+#endif	
+	
 	return qtrue;
 }
 
@@ -3759,6 +4010,7 @@ static void R_PrecacheInteractionSurface(msurface_t * surf, trRefDlight_t * ligh
 		return;
 
 	s_numLightIndexes = 0;
+	s_numShadowIndexes = 0;
 
 	if(*surf->data == SF_FACE)
 	{
@@ -3900,19 +4152,19 @@ void R_PrecacheInteractions()
 		// setup interactions
 		dl->firstInteractionCache = NULL;
 		dl->lastInteractionCache = NULL;
-		
+
 		switch (dl->l.rlType)
 		{
 			case RL_OMNI:
 				break;
-	
+
 			case RL_PROJ:
 				// FIXME support these in the future
 				continue;
-	
+
 			case RL_DIRECT:
 				break;
-	
+
 			default:
 				break;
 		}
@@ -3947,7 +4199,7 @@ void RE_LoadWorldMap(const char *name)
 	{
 		ri.Error(ERR_DROP, "ERROR: attempted to redundantly load world map\n");
 	}
-	
+
 	ri.Printf(PRINT_ALL, "----- RE_LoadWorldMap( %s ) -----\n", name);
 
 	// set default sun direction to be used if it isn't

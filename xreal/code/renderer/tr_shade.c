@@ -4146,28 +4146,23 @@ static void Render_shadowVolume()
 	if(r_showShadowVolumes->integer)
 	{
 		GL_State(GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+		//GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+		//GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 		
-		/*
-		qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		qglDepthMask(GL_TRUE);
-		//qglDisable(GL_CULL_FACE);
-		qglDisable(GL_STENCIL_TEST);
-		//qglDisable(GL_DEPTH_TEST);
-		//qglDisable(GL_BLEND);
-		qglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		*/
-		
+#if 0
 		GL_Cull(CT_FRONT_SIDED);
 		qglColor4f(1.0f, 1.0f, 0.7f, 0.05f);
 		R_DrawElements();
 		
-#if 0
 		GL_Cull(CT_BACK_SIDED);
 		qglColor3f(1.0f, 0.0f, 0.0f);//, 0.05f);
 		R_DrawElements();
-#endif
-
 		
+#else
+		GL_Cull(CT_TWO_SIDED);
+		qglColor4f(1.0f, 1.0f, 0.7, 0.05f);
+		R_DrawElements();
+#endif
 	}
 	else
 	{

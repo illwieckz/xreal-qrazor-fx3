@@ -123,12 +123,17 @@ typedef struct trRefDlight_s
 	struct interactionCache_s *firstInteractionCache;	// only used by static lights
 	struct interactionCache_s *lastInteractionCache;	// only used by static lights
 	
-	int             numInteractions;	// total interactions
+	int             numInteractions;		// total interactions
 	int             numShadowOnlyInteractions;
 	int             numLightOnlyInteractions;
 	int             firstInteractionIndex;
 	int             lastInteractionIndex;
-	qboolean        noSort;				// don't sort interactions by material
+	qboolean        noSort;					// don't sort interactions by material
+	
+	// TODO
+	int             visCount;				// node needs to be traversed if current
+	struct mnode_s *nodes;
+	int             numNodes;
 } trRefDlight_t;
 
 
@@ -995,8 +1000,6 @@ typedef struct interaction_s
 	qboolean		noDepthBoundsTest;
 	
 	int             occlusionQuerySamples;	// visible fragment count
-	
-	qboolean		badLighting;	// light caused only shadowing interactions
 } interaction_t;
 
 #define	MAX_EDGES	32
@@ -1010,7 +1013,9 @@ typedef struct
 {
 	edge_t          edges[SHADER_MAX_VERTEXES][MAX_EDGES];
 	int             numEdges[SHADER_MAX_VERTEXES];
+    
     qboolean        facing[SHADER_MAX_INDEXES / 3];
+    int				numFacing;
 	
 	int             numIndexes;
 	int             indexes[SHADER_MAX_INDEXES];
@@ -1530,8 +1535,6 @@ typedef struct
 	int             c_dlightSurfaces;
 	int             c_dlightSurfacesCulled;
 	int             c_dlightInteractions;
-	
-	int				c_badInteractions;
 } frontEndCounters_t;
 
 #define	FOG_TABLE_SIZE		256

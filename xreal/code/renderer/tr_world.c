@@ -764,6 +764,61 @@ static void R_MarkLeaves(void)
 
 
 /*
+===============
+R_MarkLights
+
+Mark the lights that are in the PVS for the current cluster
+===============
+*/
+static void R_MarkLights()
+{
+	int             i;
+	trRefDlight_t  *light;
+	mnode_t        *leaf;//, *parent;
+	int             cluster;
+	
+	if(tr.refdef.rdflags & RDF_NOWORLDMODEL)
+	{
+		return;
+	}
+
+	if(r_dynamicLighting->integer != 2)
+	{
+		return;
+	}
+
+	// lockpvs lets designers walk around to determine the
+	// extent of the current pvs
+	if(r_lockpvs->integer)
+	{
+		return;
+	}
+
+	// current viewcluster
+	leaf = R_PointInLeaf(tr.viewParms.pvsOrigin);
+	cluster = leaf->cluster;
+
+	// if the cluster is the same and the area visibility matrix
+	// hasn't changed, we don't need to mark everything again
+
+	// if r_showcluster was just turned on, remark everything
+	if(tr.viewCluster == cluster && !tr.refdef.areamaskModified && !r_showcluster->modified)
+	{
+		return;
+	}
+
+	for(i = 0; i < tr.world->numDlights; i++)
+	{
+		light = tr.currentDlight = &tr.world->dlights[i];
+
+		// TODO check its leaves touched by the light radius
+		
+		light->visCount = tr.visCount;
+	}
+}
+
+
+/*
 ** SetFarClip
 */
 static void R_SetFarClip(void)
@@ -847,6 +902,9 @@ void R_AddWorldSurfaces(void)
 
 	// determine which leaves are in the PVS / areamask
 	R_MarkLeaves();
+	
+	// determine which lights are in the PVS / areamask by check their leaves
+	R_MarkLights();
 
 	// clear out the visible min/max
 	ClearBounds(tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]);
