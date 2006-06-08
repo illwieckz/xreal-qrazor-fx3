@@ -31,9 +31,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // 1.32 released 7-10-2002
 
 #ifdef Q3_VM
-typedef long intptr_t;
-#elif defined(_MSC_VER) && !defined(intptr_t) 
-typedef long intptr_t;
+typedef long    intptr_t;
+#elif defined(_MSC_VER) && !defined(intptr_t)
+typedef long    intptr_t;
 #else
 //#include <inttypes.h>
 #include <stdint.h>
@@ -105,7 +105,7 @@ typedef long intptr_t;
 #include <time.h>
 #include <ctype.h>
 #include <limits.h>
-#include <float.h>	// Tr3B - for DBL_MAX and FLT_MAX
+#include <float.h>				// Tr3B - for DBL_MAX and FLT_MAX
 
 #endif
 
@@ -472,6 +472,15 @@ typedef int     clipHandle_t;
 #define	MAX_QINT			0x7fffffff
 #define	MIN_QINT			(-MAX_QINT-1)
 
+#ifndef max
+#define max( x, y ) ( ( ( x ) > ( y ) ) ? ( x ) : ( y ) )
+#define min( x, y ) ( ( ( x ) < ( y ) ) ? ( x ) : ( y ) )
+#endif
+
+#ifndef sign
+#define sign( f )	( ( f > 0 ) ? 1 : ( ( f < 0 ) ? -1 : 0 ) )
+#endif
+
 // the game guarantees that no string from the network will ever
 // exceed MAX_STRING_CHARS
 #define	MAX_STRING_CHARS	1024	// max length of a string passed to Cmd_TokenizeString
@@ -595,6 +604,9 @@ void            Com_Memcpy(void *dest, const void *src, const size_t count);
 #define Com_Memcpy memcpy
 #endif
 
+#define Com_Allocate malloc
+#define Com_Dealloc free
+
 #define CIN_system	1
 #define CIN_loop	2
 #define	CIN_hold	4
@@ -636,10 +648,10 @@ typedef int     fixed16_t;
 // plane sides
 typedef enum
 {
-	SIDE_FRONT			 = 0,
-	SIDE_BACK			 = 1,
-	SIDE_ON				 = 2,
-	SIDE_CROSS			 = 3
+	SIDE_FRONT = 0,
+	SIDE_BACK = 1,
+	SIDE_ON = 2,
+	SIDE_CROSS = 3
 } planeSide_t;
 
 #define NUMVERTEXNORMALS	162
@@ -752,7 +764,7 @@ float           Q_fabs(float f);
 float           Q_rsqrt(float f);	// reciprocal square root
 #endif
 
-float			Q_recip(float f);
+float           Q_recip(float f);
 
 signed char     ClampChar(int i);
 signed short    ClampShort(int i);
@@ -824,6 +836,7 @@ static ID_INLINE int VectorCompare(const vec3_t v1, const vec3_t v2)
 	return 1;
 }
 
+// *INDENT-OFF*
 static ID_INLINE vec_t VectorLength(const vec3_t v)
 {
 #if id386_3dnow && defined __GNUC__ && 0
@@ -855,7 +868,9 @@ static ID_INLINE vec_t VectorLength(const vec3_t v)
 	return (vec_t) sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
 #endif
 }
+// *INDENT-ON*
 
+// *INDENT-OFF*
 static ID_INLINE vec_t VectorLengthSquared(const vec3_t v)
 {
 #if id386_3dnow && defined __GNUC__ && 0
@@ -881,6 +896,7 @@ static ID_INLINE vec_t VectorLengthSquared(const vec3_t v)
 	return (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
 #endif
 }
+// *INDENT-ON*
 
 static ID_INLINE vec_t Distance(const vec3_t p1, const vec3_t p2)
 {
@@ -928,7 +944,7 @@ static ID_INLINE void CrossProduct(const vec3_t v1, const vec3_t v2, vec3_t cros
 static ID_INLINE void VectorLerp(const vec3_t from, const vec3_t to, float frac, vec3_t out)
 {
 	//*this = to + ((from - to) * f);
-	
+
 	out[0] = to[0] + ((from[0] - to[0]) * frac);
 	out[1] = to[1] + ((from[1] - to[1]) * frac);
 	out[2] = to[2] + ((from[2] - to[2]) * frac);
@@ -1006,7 +1022,8 @@ void            MatrixFromAngles(matrix_t m, vec_t pitch, vec_t yaw, vec_t roll)
 void            MatrixFromVectorsFLU(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up);
 void            MatrixFromVectorsFRU(matrix_t m, const vec3_t forward, const vec3_t right, const vec3_t up);
 void            MatrixFromQuat(matrix_t m, const quat_t q);
-void            MatrixFromPlanes(matrix_t m, const vec4_t left, const vec4_t right, const vec4_t bottom, const vec4_t top, const vec4_t front, const vec4_t back);
+void            MatrixFromPlanes(matrix_t m, const vec4_t left, const vec4_t right, const vec4_t bottom, const vec4_t top,
+								 const vec4_t front, const vec4_t back);
 void            MatrixToVectorsFLU(const matrix_t m, vec3_t forward, vec3_t left, vec3_t up);
 void            MatrixToVectorsFRU(const matrix_t m, vec3_t forward, vec3_t right, vec3_t up);
 void            MatrixSetupTransform(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up, const vec3_t origin);
@@ -1049,8 +1066,8 @@ static ID_INLINE int QuatCompare(const quat_t a, const quat_t b)
 
 static ID_INLINE void QuatCalcW(quat_t q)
 {
-	vec_t term = 1.0f - q[0]*q[0] - q[1]*q[1] - q[2]*q[2];
-	
+	vec_t           term = 1.0f - q[0] * q[0] - q[1] * q[1] - q[2] * q[2];
+
 	if(term < 0.0)
 		q[3] = 0.0;
 	else
@@ -1077,13 +1094,13 @@ static ID_INLINE vec_t QuatLength(const quat_t q)
 	return (vec_t) sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
 }
 
-vec_t			QuatNormalize(quat_t q);
+vec_t           QuatNormalize(quat_t q);
 
 void            QuatFromAngles(quat_t q, vec_t pitch, vec_t yaw, vec_t roll);
 
 static ID_INLINE void AnglesToQuat(const vec3_t angles, quat_t q)
 {
-	QuatFromAngles(q, angles[PITCH], angles[YAW], angles[ROLL]);	
+	QuatFromAngles(q, angles[PITCH], angles[YAW], angles[ROLL]);
 }
 
 void            QuatFromMatrix(quat_t q, const matrix_t m);
@@ -1113,8 +1130,29 @@ void            QuatSlerp(const quat_t from, const quat_t to, float frac, quat_t
 
 //=============================================
 
+typedef struct
+{
+	qboolean        frameMemory;
+	int             currentElements;
+	int             maxElements;	// will reallocate and move when exceeded
+	void          **elements;
+} growList_t;
+
+// you don't need to init the growlist if you don't mind it growing and moving
+// the list as it expands
+void            Com_InitGrowList(growList_t * list, int maxElements);
+int             Com_AddToGrowList(growList_t * list, void *data);
+void           *Com_GrowListElement(const growList_t * list, int index);
+int             Com_IndexForGrowListElement(const growList_t * list, const void *element);
+
+//=============================================
+
 float           Com_Clamp(float min, float max, float value);
 
+const char     *Com_StringContains(const char *str1, const char *str2, int casesensitive);
+int             Com_Filter(const char *filter, const char *name, int casesensitive);
+int             Com_FilterPath(const char *filter, const char *name, int casesensitive);
+int             Com_HashKey(const char *string, int maxlen);
 char           *Com_SkipPath(char *pathname);
 void            Com_StripExtension(const char *src, char *dest, int destsize);
 void            Com_DefaultExtension(char *path, int maxSize, const char *extension);
@@ -1151,12 +1189,12 @@ typedef struct pc_token_s
 
 void            Com_MatchToken(char **buf_p, char *match);
 
-void            SkipBracedSection(char **program);
-void            SkipRestOfLine(char **data);
+void            Com_SkipBracedSection(char **program);
+void            Com_SkipRestOfLine(char **data);
 
-void            Parse1DMatrix(char **buf_p, int x, float *m);
-void            Parse2DMatrix(char **buf_p, int y, int x, float *m);
-void            Parse3DMatrix(char **buf_p, int z, int y, int x, float *m);
+void            Com_Parse1DMatrix(char **buf_p, int x, float *m);
+void            Com_Parse2DMatrix(char **buf_p, int y, int x, float *m);
+void            Com_Parse3DMatrix(char **buf_p, int z, int y, int x, float *m);
 
 void QDECL      Com_sprintf(char *dest, int size, const char *fmt, ...);
 

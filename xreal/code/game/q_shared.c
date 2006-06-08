@@ -24,6 +24,93 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // q_shared.c -- stateless support routines that are included in each code dll
 #include "q_shared.h"
 
+/*
+============================================================================
+
+GROWLISTS
+
+============================================================================
+*/
+
+// malloc / free all in one place for debugging
+//extern          "C" void *Com_Allocate(int bytes);
+//extern          "C" void Com_Dealloc(void *ptr);
+
+void Com_InitGrowList(growList_t * list, int maxElements)
+{
+	list->maxElements = maxElements;
+	list->currentElements = 0;
+	list->elements = (void **)Com_Allocate(list->maxElements * sizeof(void *));
+}
+
+int Com_AddToGrowList(growList_t * list, void *data)
+{
+	void          **old;
+
+	if(list->currentElements != list->maxElements)
+	{
+		list->elements[list->currentElements] = data;
+		return list->currentElements++;
+	}
+
+	// grow, reallocate and move
+	old = list->elements;
+
+	if(list->maxElements < 0)
+	{
+		Com_Error(ERR_FATAL, "Com_AddToGrowList: maxElements = %i", list->maxElements);
+	}
+
+	if(list->maxElements == 0)
+	{
+		// initialize the list to hold 100 elements
+		Com_InitGrowList(list, 100);
+		return Com_AddToGrowList(list, data);
+	}
+
+	list->maxElements *= 2;
+
+//	Com_DPrintf("Resizing growlist to %i maxElements\n", list->maxElements);
+
+	list->elements = (void **)Com_Allocate(list->maxElements * sizeof(void *));
+
+	if(!list->elements)
+	{
+		Com_Error(ERR_DROP, "Growlist alloc failed");
+	}
+
+	memcpy(list->elements, old, list->currentElements * sizeof(void *));
+
+	Com_Dealloc(old);
+
+	return Com_AddToGrowList(list, data);
+}
+
+void           *Com_GrowListElement(const growList_t * list, int index)
+{
+	if(index < 0 || index >= list->currentElements)
+	{
+		Com_Error(ERR_DROP, "Com_GrowListElement: %i out of range of %i", index, list->currentElements);
+	}
+	return list->elements[index];
+}
+
+int Com_IndexForGrowListElement(const growList_t * list, const void *element)
+{
+	int             i;
+
+	for(i = 0; i < list->currentElements; i++)
+	{
+		if(list->elements[i] == element)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+//============================================================================
+
 float Com_Clamp(float min, float max, float value)
 {
 	if(value < min)
@@ -35,6 +122,207 @@ float Com_Clamp(float min, float max, float value)
 		return max;
 	}
 	return value;
+}
+
+/*
+============
+Com_StringContains
+============
+*/
+const char  *Com_StringContains(const char *str1, const char *str2, int casesensitive)
+{
+	int             len, i, j;
+
+	len = strlen(str1) - strlen(str2);
+	for(i = 0; i <= len; i++, str1++)
+	{
+		for(j = 0; str2[j]; j++)
+		{
+			if(casesensitive)
+			{
+				if(str1[j] != str2[j])
+				{
+					break;
+				}
+			}
+			else
+			{
+				if(toupper(str1[j]) != toupper(str2[j]))
+				{
+					break;
+				}
+			}
+		}
+		if(!str2[j])
+		{
+			return str1;
+		}
+	}
+	return NULL;
+}
+
+/*
+============
+Com_Filter
+============
+*/
+int Com_Filter(const char *filter, const char *name, int casesensitive)
+{
+	char            buf[MAX_TOKEN_CHARS];
+	char           *ptr;
+	int             i, found;
+
+	while(*filter)
+	{
+		if(*filter == '*')
+		{
+			filter++;
+			for(i = 0; *filter; i++)
+			{
+				if(*filter == '*' || *filter == '?')
+					break;
+				buf[i] = *filter;
+				filter++;
+			}
+			buf[i] = '\0';
+			if(strlen(buf))
+			{
+				ptr = Com_StringContains(name, buf, casesensitive);
+				if(!ptr)
+					return qfalse;
+				name = ptr + strlen(buf);
+			}
+		}
+		else if(*filter == '?')
+		{
+			filter++;
+			name++;
+		}
+		else if(*filter == '[' && *(filter + 1) == '[')
+		{
+			filter++;
+		}
+		else if(*filter == '[')
+		{
+			filter++;
+			found = qfalse;
+			while(*filter && !found)
+			{
+				if(*filter == ']' && *(filter + 1) != ']')
+					break;
+				if(*(filter + 1) == '-' && *(filter + 2) && (*(filter + 2) != ']' || *(filter + 3) == ']'))
+				{
+					if(casesensitive)
+					{
+						if(*name >= *filter && *name <= *(filter + 2))
+							found = qtrue;
+					}
+					else
+					{
+						if(toupper(*name) >= toupper(*filter) && toupper(*name) <= toupper(*(filter + 2)))
+							found = qtrue;
+					}
+					filter += 3;
+				}
+				else
+				{
+					if(casesensitive)
+					{
+						if(*filter == *name)
+							found = qtrue;
+					}
+					else
+					{
+						if(toupper(*filter) == toupper(*name))
+							found = qtrue;
+					}
+					filter++;
+				}
+			}
+			if(!found)
+				return qfalse;
+			while(*filter)
+			{
+				if(*filter == ']' && *(filter + 1) != ']')
+					break;
+				filter++;
+			}
+			filter++;
+			name++;
+		}
+		else
+		{
+			if(casesensitive)
+			{
+				if(*filter != *name)
+					return qfalse;
+			}
+			else
+			{
+				if(toupper(*filter) != toupper(*name))
+					return qfalse;
+			}
+			filter++;
+			name++;
+		}
+	}
+	return qtrue;
+}
+
+/*
+============
+Com_FilterPath
+============
+*/
+int Com_FilterPath(const char *filter, const char *name, int casesensitive)
+{
+	int             i;
+	char            new_filter[MAX_QPATH];
+	char            new_name[MAX_QPATH];
+
+	for(i = 0; i < MAX_QPATH - 1 && filter[i]; i++)
+	{
+		if(filter[i] == '\\' || filter[i] == ':')
+		{
+			new_filter[i] = '/';
+		}
+		else
+		{
+			new_filter[i] = filter[i];
+		}
+	}
+	new_filter[i] = '\0';
+	for(i = 0; i < MAX_QPATH - 1 && name[i]; i++)
+	{
+		if(name[i] == '\\' || name[i] == ':')
+		{
+			new_name[i] = '/';
+		}
+		else
+		{
+			new_name[i] = name[i];
+		}
+	}
+	new_name[i] = '\0';
+	return Com_Filter(new_filter, new_name, casesensitive);
+}
+
+/*
+============
+Com_HashKey
+============
+*/
+int Com_HashKey(const char *string, int maxlen)
+{
+	int register    hash, i;
+
+	hash = 0;
+	for(i = 0; i < maxlen && string[i] != '\0'; i++)
+	{
+		hash += string[i] * (119 + i);
+	}
+	hash = (hash ^ (hash >> 10) ^ (hash >> 20));
+	return hash;
 }
 
 
@@ -65,19 +353,19 @@ Com_StripExtension
 void Com_StripExtension(const char *src, char *dest, int destsize)
 {
 	int             length;
-	
+
 	Q_strncpyz(dest, src, destsize);
-	
-	length = strlen(dest) -1;
-	
+
+	length = strlen(dest) - 1;
+
 	while(length > 0 && dest[length] != '.')
 	{
 		length--;
-		
+
 		if(dest[length] == '/')
-			return;         // no extension
+			return;				// no extension
 	}
-	
+
 	if(length)
 	{
 		dest[length] = 0;
@@ -292,26 +580,26 @@ char           *Com_Parse(char **data_p)
 
 void Com_ParseError(char *format, ...)
 {
-        va_list         argptr;
-        static char     string[4096];
+	va_list         argptr;
+	static char     string[4096];
 
-        va_start(argptr, format);
-        vsprintf(string, format, argptr);
-        va_end(argptr);
+	va_start(argptr, format);
+	vsprintf(string, format, argptr);
+	va_end(argptr);
 
-        Com_Printf(S_COLOR_RED "ERROR: '%s', line %d: '%s'\n", com_parsename, com_lines, string);
+	Com_Printf(S_COLOR_RED "ERROR: '%s', line %d: '%s'\n", com_parsename, com_lines, string);
 }
 
 void Com_ParseWarning(char *format, ...)
 {
-        va_list         argptr;
-        static char     string[4096];
+	va_list         argptr;
+	static char     string[4096];
 
-        va_start(argptr, format);
-        vsprintf(string, format, argptr);
-        va_end(argptr);
+	va_start(argptr, format);
+	vsprintf(string, format, argptr);
+	va_end(argptr);
 
-        Com_Printf(S_COLOR_YELLOW "WARNING: '%s', line %d: '%s'\n", com_parsename, com_lines, string);
+	Com_Printf(S_COLOR_YELLOW "WARNING: '%s', line %d: '%s'\n", com_parsename, com_lines, string);
 }
 
 
@@ -706,14 +994,14 @@ void Com_MatchToken(char **buf_p, char *match)
 
 /*
 =================
-SkipBracedSection
+Com_SkipBracedSection
 
 The next token should be an open brace.
 Skips until a matching close brace is found.
 Internal brace depths are properly skipped.
 =================
 */
-void SkipBracedSection(char **program)
+void Com_SkipBracedSection(char **program)
 {
 	char           *token;
 	int             depth;
@@ -738,10 +1026,10 @@ void SkipBracedSection(char **program)
 
 /*
 =================
-SkipRestOfLine
+Com_SkipRestOfLine
 =================
 */
-void SkipRestOfLine(char **data)
+void Com_SkipRestOfLine(char **data)
 {
 	char           *p;
 	int             c;
@@ -760,7 +1048,7 @@ void SkipRestOfLine(char **data)
 }
 
 
-void Parse1DMatrix(char **buf_p, int x, float *m)
+void Com_Parse1DMatrix(char **buf_p, int x, float *m)
 {
 	char           *token;
 	int             i;
@@ -776,7 +1064,7 @@ void Parse1DMatrix(char **buf_p, int x, float *m)
 	Com_MatchToken(buf_p, ")");
 }
 
-void Parse2DMatrix(char **buf_p, int y, int x, float *m)
+void Com_Parse2DMatrix(char **buf_p, int y, int x, float *m)
 {
 	int             i;
 
@@ -784,13 +1072,13 @@ void Parse2DMatrix(char **buf_p, int y, int x, float *m)
 
 	for(i = 0; i < y; i++)
 	{
-		Parse1DMatrix(buf_p, x, m + i * x);
+		Com_Parse1DMatrix(buf_p, x, m + i * x);
 	}
 
 	Com_MatchToken(buf_p, ")");
 }
 
-void Parse3DMatrix(char **buf_p, int z, int y, int x, float *m)
+void Com_Parse3DMatrix(char **buf_p, int z, int y, int x, float *m)
 {
 	int             i;
 
@@ -798,7 +1086,7 @@ void Parse3DMatrix(char **buf_p, int z, int y, int x, float *m)
 
 	for(i = 0; i < z; i++)
 	{
-		Parse2DMatrix(buf_p, y, x, m + i * x * y);
+		Com_Parse2DMatrix(buf_p, y, x, m + i * x * y);
 	}
 
 	Com_MatchToken(buf_p, ")");
@@ -866,7 +1154,7 @@ char           *Q_strrchr(const char *string, int c)
 */
 // bk001130 - from cvs1.17 (mkv), const
 // bk001130 - made first argument const
-char * Q_stristr(const char *s, const char *find)
+char           *Q_stristr(const char *s, const char *find)
 {
 	char            c, sc;
 	size_t          len;
@@ -1051,18 +1339,18 @@ replaces content of find by replace in dest
 */
 qboolean Q_strreplace(char *dest, int destsize, const char *find, const char *replace)
 {
-	int				lstart, lfind, lreplace, lend;
+	int             lstart, lfind, lreplace, lend;
 	char           *s;
 	char            backup[32000];	// big, but small enough to fit in PPC stack
-	
-	lend = strlen(dest);	
+
+	lend = strlen(dest);
 	if(lend >= destsize)
 	{
 		Com_Error(ERR_FATAL, "Q_strreplace: already overflowed");
 	}
-	
+
 	Q_strncpyz(backup, dest, lend + 1);
-	
+
 	s = strstr(dest, find);
 	if(!s)
 	{
@@ -1073,10 +1361,10 @@ qboolean Q_strreplace(char *dest, int destsize, const char *find, const char *re
 		lstart = s - dest;
 		lfind = strlen(find);
 		lreplace = strlen(replace);
-			
+
 		strncpy(dest + lstart, replace, destsize - 1);
-		strncpy(dest + lstart + lreplace, backup + lstart + lfind, destsize -1);
-		
+		strncpy(dest + lstart + lreplace, backup + lstart + lfind, destsize - 1);
+
 		return qtrue;
 	}
 }

@@ -791,16 +791,16 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 			// set light scissor to reduce fillrate
 			qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
 
-			/*
-			   if(!dl->additive)
-			   {
-			   GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
-			   }
-			   else
-			 */
+			#if 0
+			if(!dl->additive)
+			{
+				GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+			}
+			else
 			{
 				GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
 			}
+			#endif
 		}
 
 		// Tr3B - this should never happen in the first iteration
@@ -992,7 +992,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 	depthRange = qfalse;
 	drawShadows = qtrue;
 
-	tess.currentStageIteratorType = SIT_LIGHTING;
+	tess.currentStageIteratorType = SIT_LIGHTING_STENCIL;
 
 	// render interactions
 	for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
@@ -1084,17 +1084,16 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				// visible fragments, and then, increment stencil to avoid
 				// double blending. Re-enable color buffer writes again.
 
-				/*
-				   if(!light->additive)
-				   {
-				   qglBlendFunc(GL_DST_COLOR, GL_ONE);
-				   }
-				   else
-				 */
+				#if 0
+				if(!dl->additive)
 				{
-					//qglBlendFunc(GL_ONE, GL_ONE);
+					GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
+				}
+				else
+				{
 					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
 				}
+				#endif
 
 				#if 0
 				qglStencilFunc(GL_EQUAL, 0, ~0);

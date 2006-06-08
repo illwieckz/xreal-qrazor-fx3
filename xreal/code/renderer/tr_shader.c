@@ -658,7 +658,7 @@ static void ParseExpression(char **text, expression_t *exp)
 		if(numInFixOps == MAX_EXPRESSION_OPS)
 		{
 			ri.Printf(PRINT_ALL, "WARNING: too many arithmetic expression operations in shader '%s'\n", shader.name);
-			SkipRestOfLine(text);
+			Com_SkipRestOfLine(text);
 			return;
 		}
 		
@@ -3026,7 +3026,7 @@ static char    *FindGuideInGuideText(const char *guideName)
 		}
 
 		// skip guide body
-		SkipBracedSection(&p);
+		Com_SkipBracedSection(&p);
 	}
 
 	return NULL;
@@ -3311,19 +3311,19 @@ static qboolean ParseShader(char *_text)
 		// skip stuff that only the QuakeEdRadient needs
 		else if(!Q_stricmpn(token, "qer", 3))
 		{
-			SkipRestOfLine(text);
+			Com_SkipRestOfLine(text);
 			continue;
 		}
 		// skip description
 		else if(!Q_stricmp(token, "description"))
 		{
-			SkipRestOfLine(text);
+			Com_SkipRestOfLine(text);
 			continue;
 		}
 		// skip renderbump
 		else if(!Q_stricmp(token, "renderbump"))
 		{
-			SkipRestOfLine(text);
+			Com_SkipRestOfLine(text);
 			continue;
 		}
 		// skip unsmoothedTangents
@@ -3334,13 +3334,13 @@ static qboolean ParseShader(char *_text)
 		// skip guiSurf
 		else if(!Q_stricmp(token, "guiSurf"))
 		{
-			SkipRestOfLine(text);
+			Com_SkipRestOfLine(text);
 			continue;
 		}
 		// skip decalInfo
 		else if(!Q_stricmp(token, "decalInfo"))
 		{
-			SkipRestOfLine(text);
+			Com_SkipRestOfLine(text);
 			continue;
 		}
 		// sun parms
@@ -3469,7 +3469,7 @@ static qboolean ParseShader(char *_text)
 		}
 		else if(!Q_stricmp(token, "tesssize"))
 		{
-			SkipRestOfLine(text);
+			Com_SkipRestOfLine(text);
 			continue;
 		}
 		// skip noFragment
@@ -3488,7 +3488,7 @@ static qboolean ParseShader(char *_text)
 		// skip stuff that only the q3map needs
 		else if(!Q_stricmpn(token, "q3map", 5))
 		{
-			SkipRestOfLine(text);
+			Com_SkipRestOfLine(text);
 			continue;
 		}
 		// skip stuff that only q3map or the server needs
@@ -3548,7 +3548,7 @@ static qboolean ParseShader(char *_text)
 			shader.fogParms.depthForOpaque = atof(token);
 
 			// skip any old gradient directions
-			SkipRestOfLine(text);
+			Com_SkipRestOfLine(text);
 			continue;
 		}
 		// noFog
@@ -4740,7 +4740,7 @@ static char    *FindShaderInShaderText(const char *shaderName)
 			// skip table name
 			token = Com_ParseExt(&p, qtrue);
 
-			SkipBracedSection(&p);
+			Com_SkipBracedSection(&p);
 		}
 		// support shader templates
 		else if(!Q_stricmp(token, "guide"))
@@ -4783,7 +4783,7 @@ static char    *FindShaderInShaderText(const char *shaderName)
 		else
 		{
 			// skip the shader body
-			SkipBracedSection(&p);
+			Com_SkipBracedSection(&p);
 		}
 	}
 
@@ -5582,7 +5582,7 @@ static void ScanAndLoadGuideFiles(void)
 			}
 				
 			// skip guide body
-			SkipBracedSection(&p);
+			Com_SkipBracedSection(&p);
 			
 			// if we passed the pointer to the next shader file
 			if(i < numGuides - 1)
@@ -5666,7 +5666,7 @@ static void ScanAndLoadGuideFiles(void)
 			}
 				
 			// skip guide body
-			SkipBracedSection(&p);
+			Com_SkipBracedSection(&p);
 			
 			// if we passed the pointer to the next shader file
 			if(i < numGuides - 1)
@@ -5791,7 +5791,7 @@ static void ScanAndLoadShaderFiles(void)
 				// skip table name
 				token = Com_ParseExt(&p, qtrue);
 				
-				SkipBracedSection(&p);
+				Com_SkipBracedSection(&p);
 			}
 			// support shader templates
 			else if(!Q_stricmp(token, "guide"))
@@ -5839,7 +5839,7 @@ static void ScanAndLoadShaderFiles(void)
 				shaderTextHashTableSizes[hash]++;
 				size++;
 			
-				SkipBracedSection(&p);
+				Com_SkipBracedSection(&p);
 			}
 			
 			// if we passed the pointer to the next shader file
@@ -6003,7 +6003,7 @@ static void ScanAndLoadShaderFiles(void)
 				shaderTextHashTable[hash][shaderTextHashTableSizes[hash]++] = oldp;
 
 				// skip shaderbody
-				SkipBracedSection(&p);
+				Com_SkipBracedSection(&p);
 			}
 			
 			// if we passed the pointer to the next shader file

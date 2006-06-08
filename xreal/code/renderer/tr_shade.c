@@ -1285,6 +1285,7 @@ static void DrawTris()
 	switch (tess.currentStageIteratorType)
 	{
 		case SIT_LIGHTING:
+		case SIT_LIGHTING_STENCIL:
 			qglColor3f(1, 0, 0);
 			break;
 		
@@ -1449,6 +1450,7 @@ void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader,
 	switch (tess.currentStageIteratorType)
 	{
 		case SIT_LIGHTING:
+		case SIT_LIGHTING_STENCIL:
 			tess.currentStageIteratorFunc = RB_StageIteratorLighting;
 			break;
 		
@@ -1791,6 +1793,39 @@ static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
 	
 	GLimp_LogComment("--- Render_lighting_D_omni ---\n");
 	
+	// set blend mode
+	switch (tess.currentStageIteratorType)
+	{
+		case SIT_LIGHTING:
+			#if 0
+			if(!dl->additive)
+			{
+				GL_State(diffuseStage->stateBits | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+			}
+			else
+			#endif
+			{
+				GL_State(diffuseStage->stateBits | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+			}
+			break;
+			
+		case SIT_LIGHTING_STENCIL:
+			#if 0
+			if(!dl->additive)
+			{
+				GL_State(diffuseStage->stateBits | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
+			}
+			else
+			#endif
+			{
+				GL_State(diffuseStage->stateBits | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
+			}
+			break;
+			
+		default:
+			break; // shut up compiler
+	}
+	
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_D_omni.program);
 	GL_ClientState(tr.lightShader_D_omni.attribs);
@@ -1837,6 +1872,39 @@ static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
 	vec4_t          lightColor;
 	
 	GLimp_LogComment("--- Render_lighting_DB_omni ---\n");
+	
+	// set blend mode
+	switch (tess.currentStageIteratorType)
+	{
+		case SIT_LIGHTING:
+			#if 0
+			if(!dl->additive)
+			{
+				GL_State(diffuseStage->stateBits | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+			}
+			else
+			#endif
+			{
+				GL_State(diffuseStage->stateBits | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+			}
+			break;
+			
+		case SIT_LIGHTING_STENCIL:
+			#if 0
+			if(!dl->additive)
+			{
+				GL_State(diffuseStage->stateBits | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
+			}
+			else
+			#endif
+			{
+				GL_State(diffuseStage->stateBits | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
+			}
+			break;
+			
+		default:
+			break; // shut up compiler
+	}
 	
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_DB_omni.program);
@@ -1889,6 +1957,39 @@ static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 	float           specularExponent;
 	
 	GLimp_LogComment("--- Render_lighting_DBS_omni ---\n");
+	
+	// set blend mode
+	switch (tess.currentStageIteratorType)
+	{
+		case SIT_LIGHTING:
+			#if 0
+			if(!dl->additive)
+			{
+				GL_State(diffuseStage->stateBits | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+			}
+			else
+			#endif
+			{
+				GL_State(diffuseStage->stateBits | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+			}
+			break;
+			
+		case SIT_LIGHTING_STENCIL:
+			#if 0
+			if(!dl->additive)
+			{
+				GL_State(diffuseStage->stateBits | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
+			}
+			else
+			#endif
+			{
+				GL_State(diffuseStage->stateBits | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
+			}
+			break;
+			
+		default:
+			break; // shut up compiler
+	}
 	
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_DBS_omni.program);
@@ -1952,6 +2053,39 @@ static void Render_lighting_DBSP_omni(	shaderStage_t * diffuseStage,
 	
 	GLimp_LogComment("--- Render_lighting_DBSP_omni ---\n");
 	
+	// set blend mode
+	switch (tess.currentStageIteratorType)
+	{
+		case SIT_LIGHTING:
+			#if 0
+			if(!dl->additive)
+			{
+				GL_State(diffuseStage->stateBits | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+			}
+			else
+			#endif
+			{
+				GL_State(diffuseStage->stateBits | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+			}
+			break;
+			
+		case SIT_LIGHTING_STENCIL:
+			#if 0
+			if(!dl->additive)
+			{
+				GL_State(diffuseStage->stateBits | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
+			}
+			else
+			#endif
+			{
+				GL_State(diffuseStage->stateBits | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
+			}
+			break;
+			
+		default:
+			break; // shut up compiler
+	}
+	
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_DBSP_omni.program);
 	GL_ClientState(tr.lightShader_DBSP_omni.attribs);
@@ -2013,6 +2147,39 @@ static void Render_lighting_D_proj(	shaderStage_t * diffuseStage,
 	vec4_t          lightColor;	
 	
 	GLimp_LogComment("--- Render_lighting_D_proj ---\n");
+	
+	// set blend mode
+	switch (tess.currentStageIteratorType)
+	{
+		case SIT_LIGHTING:
+			#if 0
+			if(!dl->additive)
+			{
+				GL_State(diffuseStage->stateBits | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+			}
+			else
+			#endif
+			{
+				GL_State(diffuseStage->stateBits | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+			}
+			break;
+			
+		case SIT_LIGHTING_STENCIL:
+			#if 0
+			if(!dl->additive)
+			{
+				GL_State(diffuseStage->stateBits | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
+			}
+			else
+			#endif
+			{
+				GL_State(diffuseStage->stateBits | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
+			}
+			break;
+			
+		default:
+			break; // shut up compiler
+	}
 	
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_D_proj.program);

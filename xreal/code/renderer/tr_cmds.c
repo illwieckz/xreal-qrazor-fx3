@@ -48,8 +48,10 @@ void R_PerformanceCounters(void)
 				  backEnd.pc.c_batches, backEnd.pc.c_surfaces, tr.pc.c_leafs,
 				  backEnd.pc.c_vertexes, backEnd.pc.c_indexes / 3);
 				  
-		ri.Printf(PRINT_ALL, "%i lights %i interactions %i shadows\n",
+		ri.Printf(PRINT_ALL, "%i lights %i bout %i pvsout %i interactions %i shadows\n",
 				  tr.pc.c_dlights + tr.pc.c_slights,
+				  tr.pc.c_box_cull_dlight_out + tr.pc.c_box_cull_slight_out,
+				  tr.pc.c_pvs_cull_slight_out,
 				  tr.pc.c_dlightInteractions + tr.pc.c_slightInteractions,
 				  backEnd.pc.c_shadowBatches);
 		

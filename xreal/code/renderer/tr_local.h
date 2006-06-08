@@ -1521,9 +1521,10 @@ typedef struct
 	int             c_box_cull_patch_in, c_box_cull_patch_clip, c_box_cull_patch_out;
 	int             c_sphere_cull_mdx_in, c_sphere_cull_mdx_clip, c_sphere_cull_mdx_out;
 	int             c_box_cull_mdx_in, c_box_cull_mdx_clip, c_box_cull_mdx_out;
+	int             c_box_cull_md5_in, c_box_cull_md5_clip, c_box_cull_md5_out;
 	int             c_box_cull_dlight_in, c_box_cull_dlight_clip, c_box_cull_dlight_out;
 	int             c_box_cull_slight_in, c_box_cull_slight_clip, c_box_cull_slight_out;
-	int             c_box_cull_md5_in, c_box_cull_md5_clip, c_box_cull_md5_out;
+	int             c_pvs_cull_slight_out;
 
 	int             c_leafs;
 	
@@ -2227,7 +2228,8 @@ TESSELATOR/SHADER DECLARATIONS
 typedef enum
 {
 	SIT_DEFAULT,
-	SIT_LIGHTING
+	SIT_LIGHTING,
+	SIT_LIGHTING_STENCIL
 } stageIteratorType_t;
 
 typedef byte    color4ub_t[4];
