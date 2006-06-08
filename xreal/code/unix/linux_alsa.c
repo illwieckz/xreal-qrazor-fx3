@@ -200,7 +200,7 @@ qboolean SNDDMA_Init(void)
 			}
 			else
 			{
-				//rate succeeded, but is perhaps slightly different
+				// rate succeeded, but is perhaps slightly different
 				if(dir != 0)
 					Com_Printf("ALSA snd error, rate %d not supported, using %d\n", dma.speed, test);
 
@@ -218,7 +218,7 @@ qboolean SNDDMA_Init(void)
 		test = dma.speed;
 		dir = 0;
 
-		dma.speed = 0;			//zero so we're caught on failure
+		dma.speed = 0;			// zero so we're caught on failure
 
 		err = snd_pcm_hw_params_set_rate_near(pcm_handle, hw_params, &test, &dir);
 		if(err < 0)
@@ -227,7 +227,7 @@ qboolean SNDDMA_Init(void)
 		}
 		else
 		{
-			//rate succeeded, but is perhaps slightly different
+			// rate succeeded, but is perhaps slightly different
 			if(dir != 0)
 				Com_Printf("ALSA snd error, rate %d not supported, using %d\n", dma.speed, test);
 
@@ -265,13 +265,15 @@ qboolean SNDDMA_Init(void)
 		snd_pcm_hw_params_free(hw_params);
 		return qfalse;
 	}
+	
+	Com_Printf("ALSA: period size %d, buffer size %d\n", period_size, buffer_size);
 
 	sample_bytes = dma.samplebits / 8;
 	buffer_bytes = buffer_size * dma.channels * sample_bytes;
 
 	// allocate pcm frame buffer
-	dma.buffer = malloc(buffer_bytes);
-	memset(dma.buffer, 0, buffer_bytes);
+	dma.buffer = Com_Allocate(buffer_bytes);
+	Com_Memset(dma.buffer, 0, buffer_bytes);
 
 	dma.samples = buffer_size * dma.channels;
 	dma.submission_chunk = period_size * dma.channels;
@@ -303,11 +305,12 @@ void SNDDMA_Shutdown(void)
 	{
 		snd_pcm_drop(pcm_handle);
 		snd_pcm_close(pcm_handle);
+		
+		Com_Dealloc(dma.buffer);
+		dma.buffer = NULL;
+		
 		snd_inited = 0;
 	}
-
-	free(dma.buffer);
-	dma.buffer = NULL;
 }
 
 /*
@@ -329,15 +332,15 @@ void SNDDMA_Submit(void)
 
 	if((w = snd_pcm_writei(pcm_handle, start, frames)) < 0)
 	{
-		//write to card
-		snd_pcm_prepare(pcm_handle);	//xrun occured
+		// write to card
+		snd_pcm_prepare(pcm_handle);	// xrun occured
 		return;
 	}
 
-	dma.samplepos += w * dma.channels;	//mark progress
+	dma.samplepos += w * dma.channels;	// mark progress
 
 	if(dma.samplepos >= dma.samples)
-		dma.samplepos = 0;		//wrap buffer
+		dma.samplepos = 0;		// wrap buffer
 }
 
 
