@@ -1,9 +1,32 @@
+/*
+===========================================================================
+Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006 Jason Thomas Dolan <jay@jaydolan.com>
+
+This file is part of XreaL source code.
+
+XreaL source code is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
+
+XreaL source code is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with XreaL source code; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+===========================================================================
+*/
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
-#include <sys/mman.h>
+//#include <sys/mman.h>
 #include <sys/shm.h>
 #include <sys/wait.h>
 
@@ -13,11 +36,22 @@
 #include "../client/snd_local.h"
 
 
-static int      snd_inited;
+static int      snd_inited = 0;
 
 static snd_pcm_t *pcm_handle;
 static snd_pcm_hw_params_t *hw_params;
-static snd_pcm_sw_params_t *sw_params;
+
+/*
+ * These are reasonable default values for good latency.  If ALSA
+ * playback stutters or plain does not work, try adjusting these.
+ * Period must always be a multiple of 2.  Buffer must always be
+ * a multiple of period.  See http://alsa-project.org.
+ */
+static snd_pcm_uframes_t period_size = 1024;
+static snd_pcm_uframes_t buffer_size = 4096;
+
+static int      sample_bytes;
+static int      buffer_bytes;
 
 cvar_t         *sndbits;
 cvar_t         *sndspeed;
@@ -26,8 +60,7 @@ cvar_t         *snddevice;
 
 /* Some devices may work only with 48000 */
 //static int      tryrates[] = { 22050, 11025, 44100, 48000, 8000 };
-
-static int      tryrates[] = { 48000, 44100, 22051, 11025, 8000 };
+static int      tryrates[] = { 48000, 44100, 22050, 11025, 8000 };
 
 static qboolean use_custom_memset = qfalse;
 
@@ -45,7 +78,7 @@ https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=371
 <TTimo> so I think I ended up attempting opening with read/write, then try write only
 <TTimo> and use my own copy instead of the glibc crap
 ===============
-*/ 
+*/
 void Snd_Memset(void *dest, const int val, const size_t count)
 {
 	int            *pDest;
@@ -69,14 +102,10 @@ qboolean SNDDMA_Init(void)
 {
 	int             i;
 	int             err;
-	int             framesize;
-	snd_pcm_format_t format = SND_PCM_FORMAT_S16;
-	snd_pcm_uframes_t buffersize;
-	snd_pcm_uframes_t fragsize;
 
 	if(snd_inited)
 	{
-		return 1;
+		return qtrue;
 	}
 
 	sndbits = Cvar_Get("sndbits", "16", CVAR_ARCHIVE);
@@ -88,21 +117,14 @@ qboolean SNDDMA_Init(void)
 	if(err < 0)
 	{
 		Com_Printf("ALSA snd error, cannot open device %s (%s)\n", snddevice->string, snd_strerror(err));
-		return 0;
+		return qfalse;
 	}
 
 	err = snd_pcm_hw_params_malloc(&hw_params);
 	if(err < 0)
 	{
 		Com_Printf("ALSA snd error, cannot allocate hw params (%s)\n", snd_strerror(err));
-		return 0;
-	}
-
-	err = snd_pcm_sw_params_malloc(&sw_params);
-	if(err < 0)
-	{
-		Com_Printf("ALSA snd error, cannot allocate hw params (%s)\n", snd_strerror(err));
-		return 0;
+		return qfalse;
 	}
 
 	err = snd_pcm_hw_params_any(pcm_handle, hw_params);
@@ -110,17 +132,15 @@ qboolean SNDDMA_Init(void)
 	{
 		Com_Printf("ALSA snd error, cannot init hw params (%s)\n", snd_strerror(err));
 		snd_pcm_hw_params_free(hw_params);
-		snd_pcm_sw_params_free(sw_params);
-		return 0;
+		return qfalse;
 	}
 
-	err = snd_pcm_hw_params_set_access(pcm_handle, hw_params, SND_PCM_ACCESS_MMAP_INTERLEAVED);
+	err = snd_pcm_hw_params_set_access(pcm_handle, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED);
 	if(err < 0)
 	{
 		Com_Printf("ALSA snd error, cannot set access (%s)\n", snd_strerror(err));
 		snd_pcm_hw_params_free(hw_params);
-		snd_pcm_sw_params_free(sw_params);
-		return 0;
+		return qfalse;
 	}
 
 	dma.samplebits = sndbits->integer;
@@ -134,7 +154,7 @@ qboolean SNDDMA_Init(void)
 		}
 		else
 		{
-			format = SND_PCM_FORMAT_S16;
+			dma.samplebits = 16;	
 		}
 	}
 
@@ -145,12 +165,7 @@ qboolean SNDDMA_Init(void)
 		{
 			Com_Printf("ALSA snd error, cannot set sample format (%s)\n", snd_strerror(err));
 			snd_pcm_hw_params_free(hw_params);
-			snd_pcm_sw_params_free(sw_params);
-			return 0;
-		}
-		else
-		{
-			format = SND_PCM_FORMAT_U8;
+			return qfalse;
 		}
 	}
 
@@ -163,28 +178,60 @@ qboolean SNDDMA_Init(void)
 	{
 		Com_Printf("ALSA snd error couldn't set channels %d (%s).\n", dma.channels, snd_strerror(err));
 		snd_pcm_hw_params_free(hw_params);
-		snd_pcm_sw_params_free(sw_params);
-		return 0;
+		return qfalse;
 	}
 
 	dma.speed = sndspeed->integer;
 	if(!dma.speed)
 	{
+		// try all rates
+		int             test;
+		int             dir;
+
 		for(i = 0; i < sizeof(tryrates) / 4; i++)
 		{
-			int             test = tryrates[i];
+			test = tryrates[i];
+			dir = 0;
 
-			err = snd_pcm_hw_params_set_rate_near(pcm_handle, hw_params, &test, 0);
+			err = snd_pcm_hw_params_set_rate_near(pcm_handle, hw_params, &test, &dir);
 			if(err < 0)
 			{
 				Com_Printf("ALSA snd error, cannot set sample rate %d (%s)\n", tryrates[i], snd_strerror(err));
 			}
 			else
 			{
+				//rate succeeded, but is perhaps slightly different
+				if(dir != 0)
+					Com_Printf("ALSA snd error, rate %d not supported, using %d\n", dma.speed, test);
+
 				dma.speed = test;
-				fragsize = 8 * dma.samplebits * dma.speed / 11025;
 				break;
 			}
+		}
+	}
+	else
+	{
+		// try specific rate
+		int             test;
+		int             dir;
+
+		test = dma.speed;
+		dir = 0;
+
+		dma.speed = 0;			//zero so we're caught on failure
+
+		err = snd_pcm_hw_params_set_rate_near(pcm_handle, hw_params, &test, &dir);
+		if(err < 0)
+		{
+			Com_Printf("ALSA snd error, cannot set sample rate %d (%s)\n", tryrates[i], snd_strerror(err));
+		}
+		else
+		{
+			//rate succeeded, but is perhaps slightly different
+			if(dir != 0)
+				Com_Printf("ALSA snd error, rate %d not supported, using %d\n", dma.speed, test);
+
+			dma.speed = test;
 		}
 	}
 
@@ -192,17 +239,23 @@ qboolean SNDDMA_Init(void)
 	{
 		Com_Printf("ALSA snd error couldn't set rate.\n");
 		snd_pcm_hw_params_free(hw_params);
-		snd_pcm_sw_params_free(sw_params);
-		return 0;
+		return qfalse;
 	}
 
-	err = snd_pcm_hw_params_set_period_size_near(pcm_handle, hw_params, &fragsize, 0);
+	err = snd_pcm_hw_params_set_period_size_near(pcm_handle, hw_params, &period_size, 0);
 	if(err < 0)
 	{
-		Com_Printf("ALSA unable to set period size near %i. %s\n", (int)fragsize, snd_strerror(err));
+		Com_Printf("ALSA unable to set period size near (%s)\n", snd_strerror(err));
 		snd_pcm_hw_params_free(hw_params);
-		snd_pcm_sw_params_free(sw_params);
-		return 0;
+		return qfalse;
+	}
+
+	err = snd_pcm_hw_params_set_buffer_size_near(pcm_handle, hw_params, &buffer_size);
+	if(err < 0)
+	{
+		Com_Printf("ALSA unable to set buffer size near (%s)\n", snd_strerror(err));
+		snd_pcm_hw_params_free(hw_params);
+		return qfalse;
 	}
 
 	err = snd_pcm_hw_params(pcm_handle, hw_params);
@@ -210,105 +263,38 @@ qboolean SNDDMA_Init(void)
 	{
 		Com_Printf("ALSA snd error couldn't set hw params (%s).\n", snd_strerror(err));
 		snd_pcm_hw_params_free(hw_params);
-		snd_pcm_sw_params_free(sw_params);
-		return 0;
+		return qfalse;
 	}
 
-	err = snd_pcm_sw_params_current(pcm_handle, sw_params);
-	if(err < 0)
-	{
-		Com_Printf("ALSA snd error couldn't determine sw params (%s).\n", snd_strerror(err));
-		snd_pcm_hw_params_free(hw_params);
-		snd_pcm_sw_params_free(sw_params);
-		return 0;
-	}
+	sample_bytes = dma.samplebits / 8;
+	buffer_bytes = buffer_size * dma.channels * sample_bytes;
 
-	err = snd_pcm_sw_params_set_start_threshold(pcm_handle, sw_params, ~0U);
-	if(err < 0)
-	{
-		Com_Printf("ALSA snd error couldn't set playback threshold (%s).\n", snd_strerror(err));
-		snd_pcm_hw_params_free(hw_params);
-		snd_pcm_sw_params_free(sw_params);
-		return 0;
-	}
+	// allocate pcm frame buffer
+	dma.buffer = malloc(buffer_bytes);
+	memset(dma.buffer, 0, buffer_bytes);
 
-	err = snd_pcm_sw_params_set_stop_threshold(pcm_handle, sw_params, ~0U);
-	if(err < 0)
-	{
-		Com_Printf("ALSA snd error couldn't set stop threshold (%s).\n", snd_strerror(err));
-		snd_pcm_hw_params_free(hw_params);
-		snd_pcm_sw_params_free(sw_params);
-		return 0;
-	}
+	dma.samples = buffer_size * dma.channels;
+	dma.submission_chunk = period_size * dma.channels;
 
-	err = snd_pcm_sw_params(pcm_handle, sw_params);
-	if(err < 0)
-	{
-		Com_Printf("ALSA snd error couldn't set sw params (%s).\n", snd_strerror(err));
-		snd_pcm_hw_params_free(hw_params);
-		snd_pcm_sw_params_free(sw_params);
-		return 0;
-	}
+	dma.samplepos = 0;
 
-	err = snd_pcm_hw_params_get_buffer_size(hw_params, &buffersize);
-	if(err < 0)
-	{
-		Com_Printf("ALSA snd error couldn't get buffersize (%s).\n", snd_strerror(err));
-		snd_pcm_hw_params_free(hw_params);
-		snd_pcm_sw_params_free(sw_params);
-		return 0;
-	}
-
-	framesize = (snd_pcm_format_physical_width(format) * dma.channels) / 8;
-
-
-	snd_pcm_hw_params_free(hw_params);
-	snd_pcm_sw_params_free(sw_params);
-	hw_params = NULL;
-	sw_params = NULL;
-
-	/*
-	   if ( ( err = snd_pcm_prepare( pcm_handle ) ) < 0 ) {
-	   Com_Printf("ALSA snd error preparing audio (%s)\n", snd_strerror( err ) );
-	   return 0;
-	   }
-	 */
-
-//  snd_bufferSize = buffersize * framesize;
-//  snd_buffer = malloc( snd_bufferSize );
-//    memset( snd_buffer, 0, snd_bufferSize );
-
-//  dma.samples = info.fragstotal * info.fragsize / (dma.samplebits/8);
-	dma.samples = buffersize * framesize / (dma.samplebits / 8);
-//  dma.samples = buffersize * dma.channels;
-	dma.submission_chunk = 1;
-//  dma.buffer = (char *)snd_buffer;
-
-	SNDDMA_GetDMAPos();			// sets dma.buffer
+	snd_pcm_prepare(pcm_handle);
 
 	snd_inited = 1;
-	return 1;
+	return qtrue;
 }
 
 int SNDDMA_GetDMAPos(void)
 {
-	const snd_pcm_channel_area_t *areas;
-	snd_pcm_uframes_t offset;
-	snd_pcm_uframes_t nframes = dma.samples / dma.channels;
-
 	if(!snd_inited)
 	{
 		Com_Printf("Sound not inizialized\n");
 		return 0;
 	}
-
-	snd_pcm_avail_update(pcm_handle);
-	snd_pcm_mmap_begin(pcm_handle, &areas, &offset, &nframes);
-	offset *= dma.channels;
-	nframes *= dma.channels;
-//  dma.samplepos = offset;
-	dma.buffer = areas->addr;
-	return offset;
+	else
+	{
+		return dma.samplepos;
+	}
 }
 
 void SNDDMA_Shutdown(void)
@@ -320,8 +306,8 @@ void SNDDMA_Shutdown(void)
 		snd_inited = 0;
 	}
 
-//  free( dma.buffer );
-//  dma.buffer = NULL;
+	free(dma.buffer);
+	dma.buffer = NULL;
 }
 
 /*
@@ -330,33 +316,28 @@ Send sound to device if buffer isn't really the dma buffer
 */
 void SNDDMA_Submit(void)
 {
-	extern int      s_soundtime;	// sample PAIRS
-	extern int      s_paintedtime;	// sample PAIRS
-	int             state;
-	int             count = s_paintedtime - s_soundtime;
-	const snd_pcm_channel_area_t *areas;
-	snd_pcm_uframes_t nframes;
-	snd_pcm_uframes_t offset;
+	int             s, w, frames;
+	void           *start;
 
-	nframes = count / dma.channels;
+	if(!dma.buffer)
+		return;
 
-	snd_pcm_avail_update(pcm_handle);
-	snd_pcm_mmap_begin(pcm_handle, &areas, &offset, &nframes);
+	s = dma.samplepos * sample_bytes;
+	start = (void *)&dma.buffer[s];
 
-	state = snd_pcm_state(pcm_handle);
+	frames = dma.submission_chunk / dma.channels;
 
-	switch (state)
+	if((w = snd_pcm_writei(pcm_handle, start, frames)) < 0)
 	{
-		case SND_PCM_STATE_PREPARED:
-			snd_pcm_mmap_commit(pcm_handle, offset, nframes);
-			snd_pcm_start(pcm_handle);
-			break;
-		case SND_PCM_STATE_RUNNING:
-			snd_pcm_mmap_commit(pcm_handle, offset, nframes);
-			break;
-		default:
-			break;
+		//write to card
+		snd_pcm_prepare(pcm_handle);	//xrun occured
+		return;
 	}
+
+	dma.samplepos += w * dma.channels;	//mark progress
+
+	if(dma.samplepos >= dma.samples)
+		dma.samplepos = 0;		//wrap buffer
 }
 
 
