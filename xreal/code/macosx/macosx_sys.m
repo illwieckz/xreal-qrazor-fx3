@@ -1,21 +1,22 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
 
-This file is part of Quake III Arena source code.
+This file is part of XreaL source code.
 
-Quake III Arena source code is free software; you can redistribute it
+XreaL source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Quake III Arena source code is distributed in the hope that it will be
+XreaL source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Foobar; if not, write to the Free Software
+along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
@@ -80,13 +81,14 @@ Sys_LoadDll
 Used to load a development dll instead of a virtual machine
 =================
 */
-extern char		*FS_BuildOSPath( const char *base, const char *game, const char *qpath );
+extern char	*FS_BuildOSPath( const char *base, const char *game, const char *qpath );
 
-void	* QDECL Sys_LoadDll( const char *name, char *fqpath , int (QDECL **entryPoint)(int, ...),
-				  int (QDECL *systemcalls)(int, ...) ) {
+void * QDECL Sys_LoadDll( const char *name, char *fqpath , intptr_t (QDECL **entryPoint)(int, ...), intptr_t (QDECL *systemcalls)(intptr_t, ...) )
+{
     void *libHandle;
-    void	(*dllEntry)( int (*syscallptr)(int, ...) );
-    NSString *bundlePath, *libraryPath;
+    void (*dllEntry)( intptr_t (*syscallptr)(intptr_t, ...) );
+//  NSString *bundlePath;
+	NSString *libraryPath;
     const char *path;
     
 	// TTimo
@@ -96,14 +98,13 @@ void	* QDECL Sys_LoadDll( const char *name, char *fqpath , int (QDECL **entryPoi
     bundlePath = [[NSBundle mainBundle] pathForResource: [NSString stringWithCString: name] ofType: @"bundle"];
     libraryPath = [NSString stringWithFormat: @"%@/Contents/MacOS/%s", bundlePath, name];
 	*/	
-	// libraryPath = [NSString stringWithFormat: @"%s.bundle/Contents/MacOS/%s", name, name];
-	libraryPath = [NSString stringWithFormat: @"%s.dylib", name];
+	libraryPath = [NSString stringWithFormat: @"%s.bundle/Contents/MacOS/%s", name, name];
     if (!libraryPath)
         return NULL;
     
     path = [libraryPath cString];
     Com_Printf("Loading '%s'.\n", path);
-    libHandle = dlopen( [libraryPath cString], RTLD_LAZY );
+    libHandle = dlopen( path, RTLD_LAZY );
     if (!libHandle) {
         libHandle = dlopen( name, RTLD_LAZY );
         if (!libHandle) {
@@ -316,167 +317,9 @@ Sys_CheckCD
 Return true if the proper CD is in the drive
 ================
 */
-
-qboolean Sys_ObjectIsCDRomDevice(io_object_t object)
+qboolean Sys_CheckCD( void )
 {
-    CFStringRef value;
-    kern_return_t krc;
-    CFDictionaryRef properties;
-    qboolean isCDROM = qfalse;
-    io_iterator_t parentIterator;
-    io_object_t parent;
-    
-    krc = IORegistryEntryCreateCFProperties(object, &properties, kCFAllocatorDefault, (IOOptionBits)0);
-    if (krc != KERN_SUCCESS) {
-        fprintf(stderr, "IORegistryEntryCreateCFProperties returned 0x%08x -- %s\n", krc, mach_error_string(krc));
-        return qfalse;
-    }
-
-    //NSLog(@"properties = %@", properties);
-    
-    // See if this is a CD-ROM
-    value = CFDictionaryGetValue(properties, CFSTR(kIOCDMediaTypeKey));
-    if (value && CFStringCompare(value, CFSTR("CD-ROM"), 0) == kCFCompareEqualTo)
-        isCDROM = qtrue;
-    CFRelease(properties);
-
-    // If it isn't check each of its parents.  It seems that the parent enumerator only returns the immediate parent.  Maybe the plural indicates that an object can have multiple direct parents.  So, we'll call ourselves recursively for each parent.
-    if (!isCDROM) {
-        krc = IORegistryEntryGetParentIterator(object, kIOServicePlane, &parentIterator);
-        if (krc != KERN_SUCCESS) {
-            fprintf(stderr, "IOServiceGetMatchingServices returned 0x%08x -- %s\n",
-                    krc, mach_error_string(krc));
-        } else {
-            while (!isCDROM && (parent = IOIteratorNext(parentIterator))) {
-                if (Sys_ObjectIsCDRomDevice(parent))
-                    isCDROM = qtrue;
-                IOObjectRelease(parent);
-            }
-    
-            IOObjectRelease(parentIterator);
-        }
-    }
-    
-    //NSLog(@"Sys_ObjectIsCDRomDevice -> %d", isCDROM);
-    return isCDROM;
-}
-
-qboolean Sys_IsCDROMDevice(const char *deviceName)
-{
-    kern_return_t krc;
-    io_iterator_t deviceIterator;
-    mach_port_t masterPort;
-    io_object_t object;
-    qboolean isCDROM = qfalse;
-    
-    krc = IOMasterPort(bootstrap_port, &masterPort);
-    if (krc != KERN_SUCCESS) {
-        fprintf(stderr, "IOMasterPort returned 0x%08x -- %s\n", krc, mach_error_string(krc));
-        return qfalse;
-    }
-
-    // Get an iterator for this BSD device.  If it is a CD, it will likely only be one partition of the larger CD-ROM device.
-    krc = IOServiceGetMatchingServices(masterPort,
-                                       IOBSDNameMatching(masterPort, 0, deviceName),
-                                       &deviceIterator);
-    if (krc != KERN_SUCCESS) {
-        fprintf(stderr, "IOServiceGetMatchingServices returned 0x%08x -- %s\n",
-                krc, mach_error_string(krc));
-        return qfalse;
-    }
-
-    while (!isCDROM && (object = IOIteratorNext(deviceIterator))) {
-        if (Sys_ObjectIsCDRomDevice(object)) {
-            isCDROM = qtrue;
-        }
-        IOObjectRelease(object);
-    }
-    
-    IOObjectRelease(deviceIterator);
-
-    //NSLog(@"Sys_IsCDROMDevice -> %d", isCDROM);
-    return isCDROM;
-}
-
-qboolean        Sys_CheckCD( void )
-{
-    // DO NOT just return success here if we have a library directory.
-    // Actually look for the CD.
-
-    // We'll look through the actual mount points rather than just looking
-    // for a particular directory since (a) the mount point may change
-    // between OS version (/foo in Public Beta, /Volumes/foo after Public Beta)
-    // and (b) this way someone can't just create a directory and warez the files.
-    
-    unsigned int mountCount;
-    struct statfs  *mounts;
-    
-    mountCount = getmntinfo(&mounts, MNT_NOWAIT);
-    if (mountCount <= 0) {
-        perror("getmntinfo");
-#if 1 // Q3:TA doesn't need a CD, but we still need to locate it to allow for partial installs
-        return qtrue;
-#else
-        return qfalse;
-#endif
-    }
-    
-    while (mountCount--) {
-        const char *lastComponent;
-        
-        if ((mounts[mountCount].f_flags & MNT_RDONLY) != MNT_RDONLY) {
-            // Should have been a read only CD... this isn't it
-            continue;
-        }
-        
-        if ((mounts[mountCount].f_flags & MNT_LOCAL) != MNT_LOCAL) {
-            // Should have been a local filesystem
-            continue;
-        }
-        
-        lastComponent = strrchr(mounts[mountCount].f_mntonname, '/');
-        if (!lastComponent) {
-            // No slash in the mount point!  How is that possible?
-            continue;
-        }
-        
-        // Skip the slash and look for the game name
-        lastComponent++;
-        if ((strcasecmp(lastComponent, "Quake3") != 0)) {
-            continue;
-        }
-
-            
-#if 0
-        fprintf(stderr, "f_bsize: %d\n", mounts[mountCount].f_bsize);
-        fprintf(stderr, "f_blocks: %d\n", mounts[mountCount].f_blocks);
-        fprintf(stderr, "type: %d\n", mounts[mountCount].f_type);
-        fprintf(stderr, "flags: %d\n", mounts[mountCount].f_flags);
-        fprintf(stderr, "fstype: %s\n", mounts[mountCount].f_fstypename);
-        fprintf(stderr, "f_mntonname: %s\n", mounts[mountCount].f_mntonname);
-        fprintf(stderr, "f_mntfromname: %s\n", mounts[mountCount].f_mntfromname);
-        fprintf(stderr, "\n\n");
-#endif
-
-        lastComponent = strrchr(mounts[mountCount].f_mntfromname, '/');
-        if (!lastComponent) {
-            // No slash in the device name!  How is that possible?
-            continue;
-        }
-        lastComponent++;
-        if (!Sys_IsCDROMDevice(lastComponent))
-            continue;
-
-        // This looks good
-        Sys_SetDefaultCDPath(mounts[mountCount].f_mntonname);
-        return qtrue;
-    }
-    
-#if 1 // Q3:TA doesn't need a CD, but we still need to locate it to allow for partial installs
-    return qtrue;
-#else
-    return qfalse;
-#endif
+	return qtrue;   
 }
 
 
