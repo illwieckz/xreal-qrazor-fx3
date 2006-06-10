@@ -1647,8 +1647,10 @@ R_AddSlightInteractions
 */
 void R_AddSlightInteractions()
 {
-	int             i;
+	int             i, j;
 	trRefDlight_t  *dl;
+	mnode_t       **leafs;
+	mnode_t        *leaf;
 
 	if(tr.refdef.rdflags & RDF_NOWORLDMODEL)
 	{
@@ -1691,11 +1693,28 @@ void R_AddSlightInteractions()
 		}
 
 		// ignore if not in visible bounds
-		if(!BoundsIntersect(dl->worldBounds[0], dl->worldBounds[1], tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]))
-			continue;
+		//if(!BoundsIntersect(dl->worldBounds[0], dl->worldBounds[1], tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]))
+		//	continue;
 		
 		// ignore if not in PVS
-		// TODO
+		if(!r_noLightVisCull->integer)
+		{
+			for(j = 0, leafs = dl->leafs; j < dl->numLeafs; j++, leafs++)
+			{
+				leaf = *leafs;
+			
+				if(leaf->visCount == tr.visCount)
+				{
+					dl->visCount = tr.visCount;
+				}
+			}
+			
+			if(dl->visCount != tr.visCount)
+			{
+				tr.pc.c_pvs_cull_slight_out++;
+				continue;
+			}
+		}
 
 		// set up view dependent light scissor
 		R_SetupDlightScissor(dl);
@@ -1713,7 +1732,7 @@ void R_AddSlightInteractions()
 
 		R_AddPrecachedWorldInteractions(dl);
 		R_AddEntityInteractions(dl);
-
+		
 		if(dl->numInteractions && dl->numInteractions != dl->numShadowOnlyInteractions)
 		{
 			R_SortInteractions(dl);

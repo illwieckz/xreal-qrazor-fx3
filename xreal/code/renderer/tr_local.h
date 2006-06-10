@@ -130,10 +130,9 @@ typedef struct trRefDlight_s
 	int             lastInteractionIndex;
 	qboolean        noSort;					// don't sort interactions by material
 	
-	// TODO
 	int             visCount;				// node needs to be traversed if current
-	struct mnode_s *nodes;
-	int             numNodes;
+	struct mnode_s **leafs;
+	int             numLeafs;
 } trRefDlight_t;
 
 
@@ -1830,6 +1829,7 @@ extern cvar_t  *r_facePlaneCull;	// enables culling of planar surfaces with back
 extern cvar_t  *r_nocurves;
 extern cvar_t  *r_nobatching;
 extern cvar_t  *r_noLightScissors;
+extern cvar_t  *r_noLightVisCull;
 extern cvar_t  *r_noInteractionSort;
 extern cvar_t  *r_showcluster;
 

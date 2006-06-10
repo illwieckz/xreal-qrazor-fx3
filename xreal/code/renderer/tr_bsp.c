@@ -4068,6 +4068,7 @@ static void R_RecursivePrecacheInteractionNode(mnode_t * node, trRefDlight_t * l
 			R_PrecacheInteractionSurface(surf, light);
 			mark++;
 		}
+		
 		return;
 	}
 
@@ -4095,6 +4096,57 @@ static void R_RecursivePrecacheInteractionNode(mnode_t * node, trRefDlight_t * l
 }
 
 /*
+================
+R_RecursiveAddInteractionNode
+================
+*/
+static void R_RecursiveAddInteractionNode(mnode_t * node, trRefDlight_t * light, int *numLeafs, qboolean onlyCount)
+{
+	int             r;
+
+	// light already hit node
+	if(node->lightCount == s_lightCount)
+	{
+		return;
+	}
+	node->lightCount = s_lightCount;
+
+	if(node->contents != -1)
+	{
+		if(!onlyCount)
+		{
+			// assign leave and increase leave counter
+			light->leafs[*numLeafs] = node;
+		}
+		
+		*numLeafs = *numLeafs + 1;
+		return;
+	}
+
+	// node is just a decision point, so go down both sides
+	// since we don't care about sort orders, just go positive to negative
+	r = BoxOnPlaneSide(light->worldBounds[0], light->worldBounds[1], node->plane);
+
+	switch (r)
+	{
+		case 1:
+			R_RecursiveAddInteractionNode(node->children[0], light, numLeafs, onlyCount);
+			break;
+
+		case 2:
+			R_RecursiveAddInteractionNode(node->children[1], light, numLeafs, onlyCount);
+			break;
+
+		case 3:
+		default:
+			// recurse down the children, front side first
+			R_RecursiveAddInteractionNode(node->children[0], light, numLeafs, onlyCount);
+			R_RecursiveAddInteractionNode(node->children[1], light, numLeafs, onlyCount);
+			break;
+	}
+}
+
+/*
 =============
 R_PrecacheInteractions
 =============
@@ -4103,6 +4155,7 @@ void R_PrecacheInteractions()
 {
 	int             i;
 	trRefDlight_t  *dl;
+	int				numLeafs;
 
 	s_lightCount = 0;
 	s_interactionCount = 0;
@@ -4172,6 +4225,19 @@ void R_PrecacheInteractions()
 		// perform frustum culling and add all the potentially visible surfaces
 		s_lightCount++;
 		R_RecursivePrecacheInteractionNode(s_worldData.nodes, dl);
+		
+		s_lightCount++;
+		numLeafs = 0;
+		R_RecursiveAddInteractionNode(s_worldData.nodes, dl, &numLeafs, qtrue);
+		
+		//ri.Printf(PRINT_ALL, "light %i touched %i leaves\n", i, numLeafs);
+		
+		dl->leafs = (struct mnode_s **) ri.Hunk_Alloc(numLeafs * sizeof(*dl->leafs), h_low);
+		dl->numLeafs = numLeafs;
+		
+		s_lightCount++;
+		numLeafs = 0;
+		R_RecursiveAddInteractionNode(s_worldData.nodes, dl, &numLeafs, qfalse);
 	}
 
 	ri.Printf(PRINT_ALL, "%i interactions precached\n", s_interactionCount);
