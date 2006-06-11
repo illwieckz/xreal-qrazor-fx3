@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_public.h"
 #include "qgl.h"
 
+#include "libxml/parser.h"	// Tr3B - for DAE loader
+
 #define GL_INDEX_TYPE		GL_UNSIGNED_INT
 typedef unsigned int glIndex_t;
 
@@ -933,6 +935,7 @@ typedef enum
 	SF_POLY,
 	SF_MDX,
 	SF_MD5,
+	SF_DAE,
 	SF_FLARE,
 	SF_ENTITY,					// beams, rails, lightning, etc that can be determined by entity
 	SF_DISPLAY_LIST,
@@ -1456,6 +1459,39 @@ typedef struct md5Animation_s
 //	struct md5Animation_s *next;
 } md5Animation_t;
 
+
+/*
+==============================================================================
+DAE COLLADA MODELS - in memory representation
+==============================================================================
+*/
+
+
+typedef struct
+{
+	int             ident;	// this is set to SF_DAE and
+							// needs to be the first variable
+
+//	char            name[MAX_QPATH];	// polyset name
+	char            shader[MAX_QPATH];
+	int             shaderIndex;	// for in-game use
+	
+//	int             numVerts;
+//	daeVertex_t    *verts;
+
+	int             numTriangles;
+	srfTriangle_t  *triangles;
+	
+	struct daeModel_s *model;
+} daeSurface_t;
+
+typedef struct daeModel_s
+{
+	int             numSurfaces;
+	daeSurface_t   *surfaces;
+} daeModel_t;
+
+
 //======================================================================
 
 typedef enum
@@ -1463,7 +1499,8 @@ typedef enum
 	MOD_BAD,
 	MOD_BRUSH,
 	MOD_MDX,
-	MOD_MD5
+	MOD_MD5,
+	MOD_DAE
 } modtype_t;
 
 typedef struct model_s
@@ -1476,6 +1513,7 @@ typedef struct model_s
 	bmodel_t       *bmodel;		// only if type == MOD_BRUSH
 	mdxModel_t     *mdx[MD3_MAX_LODS];	// only if type == MOD_MD3
 	md5Model_t     *md5;		// only if type == MOD_MD5
+	daeModel_t     *dae;		// only if type == MOD_DAE
 
 	int             numLods;
 } model_t;
@@ -1945,6 +1983,8 @@ void            R_RenderView(viewParms_t * parms);
 
 void            R_AddMDXSurfaces(trRefEntity_t * e);
 void            R_AddMDXInteractions(trRefEntity_t * e, trRefDlight_t * light);
+void            R_AddDAESurfaces(trRefEntity_t * e);
+void            R_AddDAEInteractions(trRefEntity_t * e, trRefDlight_t * light);
 void            R_AddNullModelSurfaces(trRefEntity_t * e);
 void            R_AddBeamSurfaces(trRefEntity_t * e);
 void            R_AddRailSurfaces(trRefEntity_t * e, qboolean isUnderwater);

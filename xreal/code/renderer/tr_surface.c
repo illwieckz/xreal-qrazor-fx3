@@ -1968,6 +1968,15 @@ void RB_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightIndexes, i
 }
 
 
+/*
+==============
+RB_SurfaceDAE
+==============
+*/
+void RB_SurfaceDAE(daeSurface_t * srf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+{
+	//TODO
+}
 
 /*
 ===========================================================================
@@ -2181,6 +2190,7 @@ void            (*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *, int numLightIn
 		(void (*)(void *, int, int *, int, int *))RB_SurfacePolychain,	// SF_POLY,
 		(void (*)(void *, int, int *, int, int *))RB_SurfaceMDX,	// SF_MDX,
 		(void (*)(void *, int, int *, int, int *))RB_SurfaceMD5,	// SF_MD5,
+		(void (*)(void *, int, int *, int, int *))RB_SurfaceDAE,	// SF_DAE,
 		(void (*)(void *, int, int *, int, int *))RB_SurfaceFlare,	// SF_FLARE,
 		(void (*)(void *, int, int *, int, int *))RB_SurfaceEntity,	// SF_ENTITY
 		(void (*)(void *, int, int *, int, int *))RB_SurfaceDisplayList	// SF_DISPLAY_LIST

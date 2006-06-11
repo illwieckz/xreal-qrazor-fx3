@@ -194,6 +194,8 @@ if env['arch'] == 'linux-i386':
 	xreal_env.Append(LIBPATH='/usr/X11R6/lib')
 	xreal_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm'])
 	xreal_env.Append(LIBS=['dl', 'm'])
+	xreal_env.Append(CCFLAGS='`xml2-config --cflags`')
+	xreal_env.Append(LINKFLAGS='`xml2-config --libs`')
 	
 	if env['qvm'] == 1:
 		vm_src += ['code/qcommon/vm_x86.c']
@@ -220,6 +222,8 @@ elif env['arch'] == 'linux-x86_64':
 	xreal_env.Append(LIBPATH='/usr/X11R6/lib')
 	xreal_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm'])
 	xreal_env.Append(LIBS=['dl', 'm'])
+	xreal_env.Append(CCFLAGS='`xml2-config --cflags`')
+	xreal_env.Append(LINKFLAGS='`xml2-config --libs`')
 	
 	if env['qvm'] == 1:
 		vm_src += ['code/qcommon/vm_x86_64.c']
@@ -249,5 +253,7 @@ elif env['arch'] == 'win32-mingw' or env['arch'] == 'win32-xmingw':
 		xreal_env.Append(CCFLAGS='-DDLL_ONLY')
 
 	xreal_env.Append(LIBS=['m', 'gdi32', 'ole32', 'wsock32', 'winmm'])
+	xreal_env.Append(CCFLAGS='`xml2-config --cflags`')
+	xreal_env.Append(LINKFLAGS='`xml2-config --libs`')
 	xreal_env.Program('xreal', [xreal_src, win_src, vm_src])
 	xreal_env.Install('#', 'xreal.exe')

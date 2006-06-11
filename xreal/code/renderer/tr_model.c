@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *name);
 static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *name);
+static qboolean R_LoadDAE(model_t * mod, void *buffer, int bufferLen, const char *name);
 
 model_t        *loadmodel;
 
@@ -87,13 +88,14 @@ asked for again.
 qhandle_t RE_RegisterModel(const char *name)
 {
 	model_t        *mod;
-	unsigned       *buf;
+	unsigned       *buffer;
+	int             bufferLen;
 	int             lod;
 	int             ident;
 	qboolean        loaded;
 	qhandle_t       hModel;
-	int             numLoaded;
-
+	int             numLoaded;	
+	
 	if(!name || !name[0])
 	{
 		ri.Printf(PRINT_ALL, "RE_RegisterModel: NULL name\n");
@@ -141,6 +143,7 @@ qhandle_t RE_RegisterModel(const char *name)
 	for(lod = MD3_MAX_LODS - 1; lod >= 0; lod--)
 	{
 		char            filename[1024];
+		int             len;
 
 		strcpy(filename, name);
 
@@ -156,19 +159,25 @@ qhandle_t RE_RegisterModel(const char *name)
 			strcat(filename, namebuf);
 		}
 
-		ri.FS_ReadFile(filename, (void **)&buf);
-		if(!buf)
+		bufferLen = ri.FS_ReadFile(filename, (void **)&buffer);
+		if(!buffer)
 		{
 			continue;
 		}
 
 		loadmodel = mod;
 
-		ident = LittleLong(*(unsigned *)buf);
+		ident = LittleLong(*(unsigned *)buffer);
 		
-		if(!Q_stricmpn((const char*)buf, "MD5Version", 10))
+		len = strlen(filename);
+		
+		if(!Q_stricmpn((const char*)buffer, "MD5Version", 10))
 		{
-			loaded = R_LoadMD5(mod, buf, name);
+			loaded = R_LoadMD5(mod, buffer, name);
+		}
+		else if(!Q_stricmp(filename + len - 4, ".dae"))
+		{
+			loaded = R_LoadDAE(mod, buffer, bufferLen, name);
 		}
 		else
 		{
@@ -178,10 +187,10 @@ qhandle_t RE_RegisterModel(const char *name)
 				goto fail;
 			}
 
-			loaded = R_LoadMD3(mod, lod, buf, name);
+			loaded = R_LoadMD3(mod, lod, buffer, name);
 		}
 
-		ri.FS_FreeFile(buf);
+		ri.FS_FreeFile(buffer);
 
 		if(!loaded)
 		{
@@ -839,6 +848,73 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 	return qtrue;
 }
 
+/*
+=================
+R_XMLError
+=================
+*/
+void R_XMLError(void *ctx, const char *fmt, ...)
+{
+	va_list         argptr;
+	static char     msg[4096];
+
+	va_start(argptr, fmt);
+#ifdef _MSC_VER
+	vsprintf(msg, fmt, argptr);
+#else
+	vsnprintf(msg, sizeof(msg), fmt, argptr);
+#endif
+	va_end(argptr);
+
+	ri.Printf(PRINT_WARNING, "%s", msg);
+}
+
+/*
+=================
+R_LoadDAE
+=================
+*/
+static qboolean R_LoadDAE(model_t * mod, void *buffer, int bufferLen, const char *modName)
+{
+	xmlDocPtr       doc;
+	xmlNodePtr      node;
+
+	// setup error function handler
+	xmlInitParser();
+	xmlSetGenericErrorFunc(NULL, R_XMLError);
+
+	ri.Printf(PRINT_ALL, "...loading DAE '%s'\n", modName);
+
+	doc = xmlParseMemory(buffer, bufferLen);
+	if(doc == NULL)
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadDAE: '%s' xmlParseMemory returned NULL\n", modName);
+		return qfalse;
+	}
+	node = xmlDocGetRootElement(doc);
+	
+	if(node == NULL)
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadDAE: '%s' empty document\n", modName);
+		xmlFreeDoc(doc);
+		return qfalse;
+	}
+	
+	if(xmlStrcmp(node->name, (const xmlChar *) "COLLADA"))
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadDAE: '%s' document of the wrong type, root node != COLLADA", modName);
+		xmlFreeDoc(doc);
+		return qfalse;
+	}
+
+	//TODO
+
+	xmlFreeDoc(doc);
+
+	ri.Printf(PRINT_ALL, "...finished DAE '%s'\n", modName);
+	
+	return qfalse;
+}
 
 //=============================================================================
 

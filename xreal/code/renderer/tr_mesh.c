@@ -534,3 +534,24 @@ void R_AddMDXInteractions(trRefEntity_t * ent, trRefDlight_t * light)
 		}
 	}
 }
+
+
+/*
+=================
+R_AddDAESurfaces
+=================
+*/
+void R_AddDAESurfaces(trRefEntity_t * ent)
+{
+	//TODO
+}
+
+/*
+=================
+R_AddDAEInteractions
+=================
+*/
+void R_AddDAEInteractions(trRefEntity_t * ent, trRefDlight_t * light)
+{
+	//TODO
+}

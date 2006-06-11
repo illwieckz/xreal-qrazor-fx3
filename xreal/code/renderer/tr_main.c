@@ -1531,6 +1531,10 @@ void R_AddEntitySurfaces(void)
 						case MOD_MD5:
 							R_AddMD5Surfaces(ent);
 							break;
+							
+						case MOD_DAE:
+							R_AddDAESurfaces(ent);
+							break;
 
 						case MOD_BRUSH:
 							R_AddBrushModelSurfaces(ent);
@@ -1616,6 +1620,10 @@ void R_AddEntityInteractions(trRefDlight_t * light)
 
 						case MOD_MD5:
 							R_AddMD5Interactions(ent, light);
+							break;
+							
+						case MOD_DAE:
+							R_AddDAEInteractions(ent, light);
 							break;
 
 						case MOD_BRUSH:
