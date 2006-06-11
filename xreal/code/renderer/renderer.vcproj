@@ -74,6 +74,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="2"
 				OptimizeForProcessor="2"
+				AdditionalIncludeDirectories="..\win32\libiconv\include;..\win32\libxml\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="TRUE"
 				RuntimeLibrary="4"
@@ -83,13 +84,15 @@
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
-				WarningLevel="4"
+				WarningLevel="3"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="libxml2.lib iconv.lib"
 				OutputFile=".\Release\renderer.lib"
+				AdditionalLibraryDirectories="..\win32\libiconv\lib;..\win32\libxml\lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -125,6 +128,7 @@
 				Optimization="0"
 				OptimizeForProcessor="0"
 				OptimizeForWindowsApplication="TRUE"
+				AdditionalIncludeDirectories="..\win32\libiconv\include;..\win32\libxml\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="FALSE"
@@ -147,7 +151,9 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="libxml2.lib iconv.lib"
 				OutputFile=".\Debug\renderer.lib"
+				AdditionalLibraryDirectories="..\win32\libiconv\lib;..\win32\libxml\lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
