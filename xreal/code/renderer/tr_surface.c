@@ -272,6 +272,8 @@ void RB_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexe
 
 	if(tess.shadowVolume)
 	{
+		VectorCopy(backEnd.currentLight->transformed, lightOrigin);
+		
 		if(numShadowIndexes)
 		{
 			// this case is always zfail with light and dark caps
@@ -287,8 +289,6 @@ void RB_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexe
 		}
 		else
 		{
-			VectorCopy(backEnd.currentLight->transformed, lightOrigin);
-
 			// decide which triangles face the light
 			sh.numFacing = 0;
 			for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
@@ -402,9 +402,15 @@ void RB_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexe
 
 		for(i = 0, dv = cv->verts, xyz = tess.xyz[tess.numVertexes + cv->numVerts]; i < cv->numVerts; i++, dv++, xyz += 4)
 		{
+			#if 1
 			xyz[0] = dv->xyz[0];
 			xyz[1] = dv->xyz[1];
 			xyz[2] = dv->xyz[2];
+			#else
+			xyz[0] = dv->xyz[0] - lightOrigin[0];
+			xyz[1] = dv->xyz[1] - lightOrigin[1];
+			xyz[2] = dv->xyz[2] - lightOrigin[2];
+			#endif
 			xyz[3] = 0.0;
 		}
 
@@ -534,6 +540,8 @@ void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, 
 
 	if(tess.shadowVolume)
 	{
+		VectorCopy(backEnd.currentLight->transformed, lightOrigin);
+		
 		if(numShadowIndexes)
 		{
 			// this case is always zfail with light and dark caps
@@ -549,8 +557,6 @@ void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, 
 		}
 		else
 		{
-			VectorCopy(backEnd.currentLight->transformed, lightOrigin);
-
 			// decide which triangles face the light
 			sh.numFacing = 0;
 			for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
@@ -664,9 +670,15 @@ void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, 
 
 		for(i = 0, dv = cv->verts, xyz = tess.xyz[tess.numVertexes + cv->numVerts]; i < cv->numVerts; i++, dv++, xyz += 4)
 		{
+			#if 1
 			xyz[0] = dv->xyz[0];
 			xyz[1] = dv->xyz[1];
 			xyz[2] = dv->xyz[2];
+			#else
+			xyz[0] = dv->xyz[0] - lightOrigin[0];
+			xyz[1] = dv->xyz[1] - lightOrigin[1];
+			xyz[2] = dv->xyz[2] - lightOrigin[2];
+			#endif
 			xyz[3] = 0.0;
 		}
 
@@ -796,6 +808,8 @@ void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightInd
 
 	if(tess.shadowVolume)
 	{
+		VectorCopy(backEnd.currentLight->transformed, lightOrigin);
+		
 		if(numShadowIndexes)
 		{
 			// this case is always zfail with light and dark caps
@@ -811,8 +825,6 @@ void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightInd
 		}
 		else
 		{
-			VectorCopy(backEnd.currentLight->transformed, lightOrigin);
-
 			// decide which triangles face the light
 			sh.numFacing = 0;
 			for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
@@ -926,9 +938,15 @@ void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightInd
 
 		for(i = 0, dv = cv->verts, xyz = tess.xyz[tess.numVertexes + cv->numVerts]; i < cv->numVerts; i++, dv++, xyz += 4)
 		{
+			#if 1
 			xyz[0] = dv->xyz[0];
 			xyz[1] = dv->xyz[1];
 			xyz[2] = dv->xyz[2];
+			#else
+			xyz[0] = dv->xyz[0] - lightOrigin[0];
+			xyz[1] = dv->xyz[1] - lightOrigin[1];
+			xyz[2] = dv->xyz[2] - lightOrigin[2];
+			#endif
 			xyz[3] = 0.0;
 		}
 
@@ -1393,14 +1411,12 @@ RB_SurfaceMDX
 void RB_SurfaceMDX(mdxSurface_t * srf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	int             i, j;
-	//int		    k; // unreferenced local (bj0ern)
 	int             numIndexes = 0;
 	int             numVertexes;
 	mdxModel_t     *model;
 	mdxVertex_t    *oldVert, *newVert;
 	mdxSt_t        *st;
 	srfTriangle_t  *tri;
-	//vec3_t          offsetVec; // unreferenced local (bj0ern)
 	vec3_t          lightOrigin;
 	float           backlerp;
 	float           oldXyzScale, newXyzScale;
@@ -1461,10 +1477,17 @@ void RB_SurfaceMDX(mdxSurface_t * srf, int numLightIndexes, int *lightIndexes, i
 			tess.xyz[tess.numVertexes + j][2] = tmpVert[2];
 			tess.xyz[tess.numVertexes + j][3] = 1;
 			
+			#if 1
 			tess.xyz[tess.numVertexes + numVertexes + j][0] = tmpVert[0];
 			tess.xyz[tess.numVertexes + numVertexes + j][1] = tmpVert[1];
 			tess.xyz[tess.numVertexes + numVertexes + j][2] = tmpVert[2];
 			tess.xyz[tess.numVertexes + numVertexes + j][3] = 0;
+			#else
+			tess.xyz[tess.numVertexes + numVertexes + j][0] = tmpVert[0] - lightOrigin[0];
+			tess.xyz[tess.numVertexes + numVertexes + j][1] = tmpVert[1] - lightOrigin[1];
+			tess.xyz[tess.numVertexes + numVertexes + j][2] = tmpVert[2] - lightOrigin[2];
+			tess.xyz[tess.numVertexes + numVertexes + j][3] = 0;
+			#endif
 		}
 
 		// decide which triangles face the light
@@ -1746,9 +1769,15 @@ void RB_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightIndexes, i
 			xyzw[2] = tmpVert[2];
 			xyzw[3] = 1;
 
+			#if 1
 			xyzw2[0] = tmpVert[0];
 			xyzw2[1] = tmpVert[1];
 			xyzw2[2] = tmpVert[2];
+			#else
+			xyzw2[0] = tmpVert[0] - lightOrigin[0];
+			xyzw2[1] = tmpVert[1] - lightOrigin[1];
+			xyzw2[2] = tmpVert[2] - lightOrigin[2];
+			#endif
 			xyzw2[3] = 0;
 		}
 

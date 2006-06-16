@@ -4312,22 +4312,27 @@ static void Render_shadowVolume()
 	
 	if(r_showShadowVolumes->integer)
 	{
-		GL_State(GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
-		//GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+		//GL_State(GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+		GL_State(GLS_DEPTHFUNC_LESS | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
 		//GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
-		
-#if 0
+		//GL_State(GLS_DEPTHMASK_TRUE);
+#if 1
 		GL_Cull(CT_FRONT_SIDED);
-		qglColor4f(1.0f, 1.0f, 0.7f, 0.05f);
+		//qglColor4f(1.0f, 1.0f, 0.7f, 0.05f);
+		qglColor4f(1.0f, 0.0f, 0.0f, 0.05f);
 		R_DrawElements();
-		
+#endif
+
+#if 1
 		GL_Cull(CT_BACK_SIDED);
-		qglColor3f(1.0f, 0.0f, 0.0f);//, 0.05f);
+		qglColor4f(0.0f, 1.0f, 0.0f, 0.05f);
 		R_DrawElements();
-		
-#else
+#endif
+	
+#if 1
+		GL_State(GLS_DEPTHFUNC_LESS | GLS_POLYMODE_LINE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
 		GL_Cull(CT_TWO_SIDED);
-		qglColor4f(1.0f, 1.0f, 0.7, 0.05f);
+		qglColor4f(0.0f, 0.0f, 1.0f, 0.05f);
 		R_DrawElements();
 #endif
 	}
@@ -4348,13 +4353,9 @@ static void Render_shadowVolume()
 				
 				qglActiveStencilFaceEXT(GL_BACK);
 				qglStencilOp(GL_KEEP, GL_DECR_WRAP_EXT, GL_KEEP);
-				//qglStencilMask(~0);
-				//qglStencilFunc(GL_ALWAYS, 0, ~0);
 
 				qglActiveStencilFaceEXT(GL_FRONT);
 				qglStencilOp(GL_KEEP, GL_INCR_WRAP_EXT, GL_KEEP);
-				//qglStencilMask(~0);
-				//qglStencilFunc(GL_ALWAYS, 0, ~0);
 				
 				R_DrawElements();
 				
@@ -4414,13 +4415,9 @@ static void Render_shadowVolume()
 
 				qglActiveStencilFaceEXT(GL_BACK);
 				qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP_EXT);
-				//qglStencilMask(~0);
-				//qglStencilFunc(GL_ALWAYS, 0, ~0);
-
+				
 				qglActiveStencilFaceEXT(GL_FRONT);
 				qglStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP_EXT);
-				//qglStencilMask(~0);
-				//qglStencilFunc(GL_ALWAYS, 0, ~0);
 				
 				R_DrawElements();
 				

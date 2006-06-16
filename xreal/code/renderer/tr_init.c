@@ -933,11 +933,7 @@ void GL_SetDefaultState(void)
 
 	if(glConfig.stencilBits >= 4)
 	{
-		#if 0
-		qglClearStencil(0U);
-		#else
 		qglClearStencil(128);
-		#endif
 	}
 
 	qglFrontFace(GL_CCW);
@@ -1242,7 +1238,7 @@ void R_Register(void)
 	r_shadows = ri.Cvar_Get("cg_shadows", "3", 0);
 	AssertCvarRange(r_shadows, 0, 3, qtrue);
 	r_shadowOffsetFactor = ri.Cvar_Get("r_shadowOffsetFactor", "0", CVAR_CHEAT);
-	r_shadowOffsetUnits = ri.Cvar_Get("r_shadowOffsetUnits", "1", CVAR_CHEAT);
+	r_shadowOffsetUnits = ri.Cvar_Get("r_shadowOffsetUnits", "0", CVAR_CHEAT);
 
 	r_maxpolys = ri.Cvar_Get("r_maxpolys", va("%d", MAX_POLYS), 0);
 	r_maxpolyverts = ri.Cvar_Get("r_maxpolyverts", va("%d", MAX_POLYVERTS), 0);

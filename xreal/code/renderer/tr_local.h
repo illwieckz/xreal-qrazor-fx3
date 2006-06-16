@@ -2129,29 +2129,34 @@ enum
 	GLS_POLYMODE_LINE					= (1 << 18),
 
 	GLS_DEPTHTEST_DISABLE				= (1 << 19),
-	GLS_DEPTHFUNC_EQUAL					= (1 << 20),
+	
+	GLS_DEPTHFUNC_LESS					= (1 << 20),
+	GLS_DEPTHFUNC_EQUAL					= (1 << 21),
+	
+	GLS_DEPTHFUNC_BITS					= GLS_DEPTHFUNC_LESS
+											| GLS_DEPTHFUNC_EQUAL,
 
-	GLS_ATEST_GT_0						= (1 << 21),
-	GLS_ATEST_LT_80						= (1 << 22),
-	GLS_ATEST_GE_80						= (1 << 23),
-	GLS_ATEST_GT_CUSTOM					= (1 << 24),
+	GLS_ATEST_GT_0						= (1 << 22),
+	GLS_ATEST_LT_80						= (1 << 23),
+	GLS_ATEST_GE_80						= (1 << 24),
+	GLS_ATEST_GT_CUSTOM					= (1 << 25),
 
 	GLS_ATEST_BITS						= GLS_ATEST_GT_0
 											| GLS_ATEST_LT_80
 											| GLS_ATEST_GE_80
 											| GLS_ATEST_GT_CUSTOM,
 	
-	GLS_REDMASK_FALSE					= (1 << 25),
-	GLS_GREENMASK_FALSE					= (1 << 26),
-	GLS_BLUEMASK_FALSE					= (1 << 27),
-	GLS_ALPHAMASK_FALSE					= (1 << 28),
+	GLS_REDMASK_FALSE					= (1 << 26),
+	GLS_GREENMASK_FALSE					= (1 << 27),
+	GLS_BLUEMASK_FALSE					= (1 << 28),
+	GLS_ALPHAMASK_FALSE					= (1 << 29),
 	
 	GLS_COLORMASK_BITS					= GLS_REDMASK_FALSE
 											| GLS_GREENMASK_FALSE
 											| GLS_BLUEMASK_FALSE
 											| GLS_ALPHAMASK_FALSE,
 	
-	GLS_STENCILTEST_ENABLE				= (1 << 29),
+	GLS_STENCILTEST_ENABLE				= (1 << 30),
 	
 	GLS_DEFAULT							= GLS_DEPTHMASK_TRUE
 };

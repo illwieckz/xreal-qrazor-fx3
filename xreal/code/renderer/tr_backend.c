@@ -225,15 +225,22 @@ void GL_State(unsigned long stateBits)
 	}
 
 	// check depthFunc bits
-	if(diff & GLS_DEPTHFUNC_EQUAL)
+	if(diff & GLS_DEPTHFUNC_BITS)
 	{
-		if(stateBits & GLS_DEPTHFUNC_EQUAL)
+		switch (stateBits & GLS_DEPTHFUNC_BITS)
 		{
-			qglDepthFunc(GL_EQUAL);
-		}
-		else
-		{
-			qglDepthFunc(GL_LEQUAL);
+			case 0:
+				qglDepthFunc(GL_LEQUAL);
+				break;
+			case GLS_DEPTHFUNC_LESS:
+				qglDepthFunc(GL_LESS);
+				break;
+			case GLS_DEPTHFUNC_EQUAL:
+				qglDepthFunc(GL_EQUAL);
+				break;
+			default:
+				assert(0);
+				break;
 		}
 	}
 
@@ -1002,15 +1009,6 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 		surface = ia->surface;
 		shader = ia->surfaceShader;
 		
-		#if 0
-		if(ia->badLighting)
-		{
-			// skip all interactions of this light because it caused only shadow volumes
-			// but no lighting
-			goto nextInteraction;
-		}
-		#endif
-
 		// only iaFirst == iaCount if first iteration or counters were reset
 		if(light != oldLight || iaFirst == iaCount)
 		{
@@ -1035,48 +1033,35 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 
 			if(drawShadows)
 			{
-				/*
-				if(r_showShadowVolumes->integer)
-				{
-					qglEnable(GL_STENCIL_TEST);
-				}
-				*/
+				// set the reference stencil value
+				qglClearStencil(128);
+				qglClear(GL_STENCIL_BUFFER_BIT);
 				
 				// don't write to the color buffer or depth buffer
 				// enable stencil testing for this light
-				GL_State(GLS_COLORMASK_BITS | GLS_STENCILTEST_ENABLE);
+				GL_State(GLS_DEPTHFUNC_LESS | GLS_COLORMASK_BITS | GLS_STENCILTEST_ENABLE);
 
-				qglClear(GL_STENCIL_BUFFER_BIT);
-
-				// set the reference stencil value
-				#if 0
-				qglStencilFunc(GL_ALWAYS, 0, ~0);
-				qglStencilMask(~0);
-				qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
-				#else
 				qglStencilFunc(GL_ALWAYS, 128, 255);
 				qglStencilMask(255);
-				qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-				#endif
 
 				qglEnable(GL_POLYGON_OFFSET_FILL);
 				qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
 
 				// enable shadow volume extrusion shader
+				#if 1
 				GL_Program(tr.shadowShader.program);
 				GL_ClientState(tr.shadowShader.attribs);
+				#else
+				GL_Program(0);
+				GL_ClientState(GLCS_VERTEX);
+				GL_SelectTexture(0);
+				GL_Bind(tr.whiteImage);
+				#endif
 
 				qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
 			}
 			else
 			{
-				/*
-				if(r_showShadowVolumes->integer)
-				{
-					qglDisable(GL_STENCIL_TEST);
-				}
-				*/
-
 				// Tr3B - see RobustShadowVolumes.pdf by Nvidia
 				// Set stencil testing to render only pixels with a zero
 				// stencil value, i.e., visible fragments illuminated by the
@@ -1095,12 +1080,15 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				}
 				#endif
 
-				#if 0
-				qglStencilFunc(GL_EQUAL, 0, ~0);
-				#else
-				qglStencilFunc(GL_EQUAL, 128, 255);
-				#endif
-				
+				if(light->l.noShadows)
+				{
+					// don't consider shadow volumes
+					qglStencilFunc(GL_ALWAYS, 128, 255);
+				}
+				else
+				{
+					qglStencilFunc(GL_EQUAL, 128, 255);
+				}
 				qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
 				qglDisable(GL_POLYGON_OFFSET_FILL);
@@ -1226,8 +1214,10 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			if(drawShadows)
 			{
 				// set uniform parameter u_LightOrigin for GLSL shader
+				#if 1
 				qglUniform3fARB(tr.shadowShader.u_LightOrigin,
 								light->transformed[0], light->transformed[1], light->transformed[2]);
+				#endif
 			}
 
 			// build the attenuation matrix using the entity transform          
