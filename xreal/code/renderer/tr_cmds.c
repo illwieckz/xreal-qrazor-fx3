@@ -121,6 +121,11 @@ void R_PerformanceCounters(void)
 				  backEnd.pc.c_occlusionQueries, backEnd.pc.c_occlusionQueriesAvailable,
 				  backEnd.pc.c_occlusionQueriesCulled);
 	}
+	else if(r_speeds->integer == 9)
+	{
+		ri.Printf(PRINT_ALL, "depth bounds tests:%i rejected:%i\n",
+				  tr.pc.c_depthBoundsTests, tr.pc.c_depthBoundsTestsRejected);
+	}
 
 	Com_Memset(&tr.pc, 0, sizeof(tr.pc));
 	Com_Memset(&backEnd.pc, 0, sizeof(backEnd.pc));

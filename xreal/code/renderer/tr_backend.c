@@ -1035,14 +1035,17 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			{
 				// set the reference stencil value
 				qglClearStencil(128);
+				
+				// reset stencil buffer
 				qglClear(GL_STENCIL_BUFFER_BIT);
 				
+				// use less compare as depthfunc
 				// don't write to the color buffer or depth buffer
 				// enable stencil testing for this light
 				GL_State(GLS_DEPTHFUNC_LESS | GLS_COLORMASK_BITS | GLS_STENCILTEST_ENABLE);
 
-				qglStencilFunc(GL_ALWAYS, 128, 255);
-				qglStencilMask(255);
+				qglStencilFunc(GL_ALWAYS, 128, ~0);
+				qglStencilMask(~0);
 
 				qglEnable(GL_POLYGON_OFFSET_FILL);
 				qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
@@ -1083,11 +1086,11 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				if(light->l.noShadows)
 				{
 					// don't consider shadow volumes
-					qglStencilFunc(GL_ALWAYS, 128, 255);
+					qglStencilFunc(GL_ALWAYS, 128, ~0);
 				}
 				else
 				{
-					qglStencilFunc(GL_EQUAL, 128, 255);
+					qglStencilFunc(GL_EQUAL, 128, ~0);
 				}
 				qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
@@ -2070,15 +2073,15 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 
 		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
 		{
-			if(glConfig2.occlusionQueryBits)
+			if(qglDepthBoundsEXT)
 			{
-				if(ia->occlusionQuerySamples)
+				if(ia->noDepthBoundsTest)
 				{
-					qglColor4fv(colorGreen);
+					qglColor4fv(colorRed);
 				}
 				else
 				{
-					qglColor4fv(colorRed);
+					qglColor4fv(colorGreen);
 				}
 				
 				qglBegin(GL_QUADS);

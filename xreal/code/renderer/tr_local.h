@@ -1573,6 +1573,8 @@ typedef struct
 	int             c_dlightSurfaces;
 	int             c_dlightSurfacesCulled;
 	int             c_dlightInteractions;
+	
+	int             c_depthBoundsTests, c_depthBoundsTestsRejected;
 } frontEndCounters_t;
 
 #define	FOG_TABLE_SIZE		256

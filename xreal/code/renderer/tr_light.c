@@ -1192,26 +1192,66 @@ R_SetupDlightDepthBounds
 */
 void R_SetupDlightDepthBounds(trRefDlight_t * dl)
 {
-	float           radius;
-	float           dist;
-	cplane_t       *nearPlane;
-
+	int             i, j;
+	vec3_t          v, world;
+	vec4_t          eye, clip, normalized, window;
+	float           depthMin, depthMax;
+	
 	if(qglDepthBoundsEXT)
 	{
-		radius = RadiusFromBounds(dl->localBounds[0], dl->localBounds[1]);
+		tr.pc.c_depthBoundsTestsRejected++;
 		
-		// distance from light origin to near plane
-		nearPlane = &tr.viewParms.frustum[FRUSTUM_NEAR];
+		depthMin = 1.0;
+		depthMax = 0.0;
 		
-		dist = DotProduct(dl->l.origin, nearPlane->normal) - nearPlane->dist;
+		for(j = 0; j < 8; j++)
+		{
+			v[0] = dl->localBounds[j & 1][0];
+			v[1] = dl->localBounds[(j >> 1) & 1][1];
+			v[2] = dl->localBounds[(j >> 2) & 1][2];
+
+			// transform local bounds vertices into world space
+			MatrixTransformPoint(dl->transformMatrix, v, world);
+			
+			R_TransformWorldToClip(world, tr.viewParms.world.viewMatrix, tr.viewParms.projectionMatrix, eye, clip);
+			
+			// check to see if the point is completely off screen
+			for(i = 0; i < 3; i++)
+			{
+				if(clip[i] >= clip[3] || clip[i] <= -clip[3])
+				{
+					dl->noDepthBoundsTest = qtrue;
+					return;
+				}
+			}
+			
+			R_TransformClipToWindow(clip, &tr.viewParms, normalized, window);
+			
+			if(window[0] < 0 || window[0] >= tr.viewParms.viewportWidth
+			|| window[1] < 0 || window[1] >= tr.viewParms.viewportHeight)
+			{
+				// shouldn't happen, since we check the clip[] above, except for FP rounding
+				dl->noDepthBoundsTest = qtrue;
+				return;
+			}
+
+			depthMin = min(normalized[2], depthMin);
+			depthMax = max(normalized[2], depthMax);
+		}
 		
-		if((dist < -radius) || (dist <= radius))
+		if(depthMin > depthMax)
 		{
 			// light behind near plane or clipped
 			dl->noDepthBoundsTest = qtrue;
 		}
-		
-		dl->depthBounds[0] = dist - radius;
-		dl->depthBounds[1] = dist + radius;
+		else
+		{
+			dl->noDepthBoundsTest = qfalse;
+			dl->depthBounds[0] = depthMin;
+			dl->depthBounds[1] = depthMax;
+			
+			tr.pc.c_depthBoundsTestsRejected--;
+			tr.pc.c_depthBoundsTests++;
+		}
 	}
 }
