@@ -799,15 +799,15 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 			qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
 
 			#if 0
-			if(!dl->additive)
+			if(!light->additive)
 			{
 				GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
 			}
 			else
+			#endif
 			{
 				GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
 			}
-			#endif
 		}
 
 		// Tr3B - this should never happen in the first iteration
@@ -1073,15 +1073,15 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				// double blending. Re-enable color buffer writes again.
 
 				#if 0
-				if(!dl->additive)
+				if(!light->additive)
 				{
 					GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
 				}
 				else
+				#endif
 				{
 					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
 				}
-				#endif
 
 				if(light->l.noShadows)
 				{
@@ -1092,7 +1092,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				{
 					qglStencilFunc(GL_EQUAL, 128, ~0);
 				}
-				qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+				qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
 
 				qglDisable(GL_POLYGON_OFFSET_FILL);
 
