@@ -476,9 +476,7 @@ public:
     for(std::size_t i=0; i<count; ++i)
     {
       Vector3 world_point(vector4_projected(matrix4_transformed_vector4(m_inverse, clipped[i])));
-      m_primitives.back().m_points[i].vertex.x = world_point[0];
-      m_primitives.back().m_points[i].vertex.y = world_point[1];
-      m_primitives.back().m_points[i].vertex.z = world_point[2];
+      m_primitives.back().m_points[i].vertex = vertex3f_for_vector3(world_point);
     }
   }
 
@@ -640,7 +638,7 @@ void BestPoint(std::size_t count, Vector4 clipped[9], SelectionIntersection& bes
     Point3D point = segment_closest_point_to_point(segment, Vector3(0, 0, 0));
     assign_if_closer(best, SelectionIntersection(point.z(), 0));
   }
-  else if(count > 2 && !point_test_polygon_2d(Vector4(0, 0, 0, 0), normalised, normalised + count))
+  else if(count > 2 && !point_test_polygon_2d(Vector3(0, 0, 0), normalised, normalised + count))
   {
     point_iterator_t end = normalised + count;
     for(point_iterator_t previous = end-1, current = normalised; current != end; previous = current, ++current)
@@ -1252,15 +1250,15 @@ class TripleRemapXYZ
 public:
   static float& x(Triple& triple)
   {
-    return triple.x;
+    return triple.x();
   }
   static float& y(Triple& triple)
   {
-    return triple.y;
+    return triple.y();
   }
   static float& z(Triple& triple)
   {
-    return triple.z;
+    return triple.z();
   }
 };
 
@@ -1270,15 +1268,15 @@ class TripleRemapYZX
 public:
   static float& x(Triple& triple)
   {
-    return triple.y;
+    return triple.y();
   }
   static float& y(Triple& triple)
   {
-    return triple.z;
+    return triple.z();
   }
   static float& z(Triple& triple)
   {
-    return triple.x;
+    return triple.x();
   }
 };
 
@@ -1288,15 +1286,15 @@ class TripleRemapZXY
 public:
   static float& x(Triple& triple)
   {
-    return triple.z;
+    return triple.z();
   }
   static float& y(Triple& triple)
   {
-    return triple.x;
+    return triple.x();
   }
   static float& z(Triple& triple)
   {
-    return triple.y;
+    return triple.y();
   }
 };
 
@@ -2835,7 +2833,7 @@ public:
   {
     SetManipulatorMode(eTranslate);
     pivotChanged();
-    addSelectionChangeCallback(pivotChangedSelectionCaller(*this));
+    addSelectionChangeCallback(PivotChangedSelectionCaller(*this));
     AddGridChangeCallback(PivotChangedCaller(*this));
   }
   void pivotChanged() const
@@ -2848,7 +2846,7 @@ public:
   {
     pivotChanged();
   }
-  typedef MemberCaller1<RadiantSelectionSystem, const Selectable&, &RadiantSelectionSystem::pivotChangedSelection> pivotChangedSelectionCaller;
+  typedef MemberCaller1<RadiantSelectionSystem, const Selectable&, &RadiantSelectionSystem::pivotChangedSelection> PivotChangedSelectionCaller;
 
   void SetMode(EMode mode)
   {
@@ -3287,7 +3285,7 @@ public:
   /// \todo Support view-dependent nudge.
   void NudgeManipulator(const Vector3& nudge, const Vector3& view)
   {
-    if(ManipulatorMode() == eTranslate)
+    if(ManipulatorMode() == eTranslate || ManipulatorMode() == eDrag)
     {
       translateSelected(nudge);
     }
@@ -3580,11 +3578,11 @@ inline AABB Instance_getPivotBounds(scene::Instance& instance)
     Editable* editable = Node_getEditable(instance.path().top());
     if(editable != 0)
     {
-      return AABB(matrix4_multiplied_by_matrix4(instance.localToWorld(), editable->getLocalPivot()).t(), Vector3(0, 0, 0));
+      return AABB(vector4_to_vector3(matrix4_multiplied_by_matrix4(instance.localToWorld(), editable->getLocalPivot()).t()), Vector3(0, 0, 0));
     }
     else
     {
-      return AABB(instance.localToWorld().t(), Vector3(0, 0, 0));
+      return AABB(vector4_to_vector3(instance.localToWorld().t()), Vector3(0, 0, 0));
     }
   }
 
@@ -3989,8 +3987,8 @@ public:
   typedef MemberCaller1<Manipulator_, DeviceVector, &Manipulator_::mouseUp> MouseUpCaller;
 };
 
-void Scene_copyClosestFaceTexture(SelectionTest& test);
-void Scene_applyClosestFaceTexture(SelectionTest& test);
+void Scene_copyClosestTexture(SelectionTest& test);
+void Scene_applyClosestTexture(SelectionTest& test);
 
 class RadiantWindowObserver : public SelectionSystemWindowObserver
 {
@@ -4060,11 +4058,11 @@ public:
 
       if(modifiers == c_modifier_apply_texture)
       {
-        Scene_applyClosestFaceTexture(volume);
+        Scene_applyClosestTexture(volume);
       }
       else if(modifiers == c_modifier_copy_texture)
       {
-        Scene_copyClosestFaceTexture(volume);
+        Scene_copyClosestTexture(volume);
       }
     }
   }

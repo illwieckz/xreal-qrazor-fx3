@@ -67,6 +67,7 @@ gtkradiant_src = [
 'code/gtkradiant/radiant/selection.cpp',
 'code/gtkradiant/radiant/server.cpp',
 'code/gtkradiant/radiant/shaders.cpp',
+'code/gtkradiant/radiant/sockets.cpp',
 'code/gtkradiant/radiant/surfacedialog.cpp',
 'code/gtkradiant/radiant/texmanip.cpp',
 'code/gtkradiant/radiant/textures.cpp',
@@ -260,7 +261,7 @@ vfspk3_src = [
 ]
 
 gtkradiant_env = env.Copy()
-gtkradiant_env.Append(CCFLAGS='-Wno-non-virtual-dtor -fno-exceptions -fno-rtti')
+gtkradiant_env.Append(CCFLAGS='-DPOSIX -DXWINDOWS -W -Wall -Wcast-align -Wcast-qual -Wno-unused-parameter -Wno-non-virtual-dtor -Wreorder -fno-exceptions -fno-rtti')
 gtkradiant_env.Append(CCFLAGS='-Icode/gtkradiant/include')
 gtkradiant_env.Append(CCFLAGS='-Icode/gtkradiant/libs')
 gtkradiant_env.Append(CCFLAGS='`pkg-config gtk+-2.0 --cflags`')

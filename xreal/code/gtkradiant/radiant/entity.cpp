@@ -178,23 +178,27 @@ void Entity_connectSelected()
   }
 }
 
-const float Doom3Light_defaultRadius = 300;
-
 AABB Doom3Light_getBounds(const AABB& workzone)
 {
   AABB aabb(workzone);
 
+  Vector3 defaultRadius(300, 300, 300);
+  if(!string_parse_vector3(EntityClass_valueForKey(*GlobalEntityClassManager().findOrInsert("light", false), "light_radius"), defaultRadius))
+  {
+    globalErrorStream() << "Doom3Light_getBounds: failed to parse default light radius\n";
+  }
+
   if(aabb.extents[0] == 0)
   {
-    aabb.extents[0] = Doom3Light_defaultRadius;
+    aabb.extents[0] = defaultRadius[0];
   }
   if(aabb.extents[1] == 0)
   {
-    aabb.extents[1] = Doom3Light_defaultRadius;
+    aabb.extents[1] = defaultRadius[1];
   }
   if(aabb.extents[2] == 0)
   {
-    aabb.extents[2] = Doom3Light_defaultRadius;
+    aabb.extents[2] = defaultRadius[2];
   }
 
   if(aabb_valid(aabb))
@@ -262,6 +266,11 @@ void Entity_createFromSelection(const char* name, const Vector3& origin)
   {
     Scene_parentSelectedBrushesToEntity(GlobalSceneGraph(), node);
     Scene_forEachChildSelectable(SelectableSetSelected(true), instance.path());
+
+    if (g_pGameDescription->mGameType == "doom3")
+    {
+      Node_getEntity(node)->setKeyValue("model", Node_getEntity(node)->getKeyValue("name"));
+    }
   }
 
   // tweaking: when right clic dropping a light entity, ask for light value in a custom dialog box
