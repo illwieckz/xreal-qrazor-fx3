@@ -181,10 +181,7 @@ EntityXreaLModule g_EntityXreaLModule;
 
 extern "C" void RADIANT_DLLEXPORT Radiant_RegisterModules(ModuleServer& server)
 {
-  GlobalErrorStream::instance().setOutputStream(server.getErrorStream());
-  GlobalOutputStream::instance().setOutputStream(server.getOutputStream());
-  GlobalDebugMessageHandler::instance().setHandler(server.getDebugMessageHandler());
-  GlobalModuleServer::instance().set(server);
+  initialiseModule(server);
 
   g_EntityQ3Module.selfRegister();
   g_EntityWolfModule.selfRegister();
