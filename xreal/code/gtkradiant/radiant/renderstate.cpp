@@ -224,15 +224,15 @@ class GLSLBumpProgram : public GLProgram
 {
 public:
   GLhandleARB m_program;
-  qtexture_t* m_light_attenuation_xy;
-  qtexture_t* m_light_attenuation_z;
-  GLint u_view_origin;
-  GLint u_light_origin;
-  GLint u_light_color;
-  GLint u_bump_scale;
-  GLint u_specular_exponent;
+  
+  
+  GLint u_ViewOrigin;
+  GLint u_LightOrigin;
+  GLint u_LightColor;
+  GLint u_BumpScale;
+  GLint u_SpecularExponent;
 
-  GLSLBumpProgram() : m_program(0), m_light_attenuation_xy(0), m_light_attenuation_z(0)
+  GLSLBumpProgram() : m_program(0)
   {
   }
 
@@ -260,17 +260,17 @@ public:
     glBindAttribLocationARB(m_program, c_attr_Tangent, "attr_Tangent");
     glBindAttribLocationARB(m_program, c_attr_Binormal, "attr_Binormal");
 
-    glUniform1iARB(glGetUniformLocationARB(m_program, "u_diffusemap"), 0);
-    glUniform1iARB(glGetUniformLocationARB(m_program, "u_bumpmap"), 1);
-    glUniform1iARB(glGetUniformLocationARB(m_program, "u_specularmap"), 2);
-    glUniform1iARB(glGetUniformLocationARB(m_program, "u_attenuationmap_xy"), 3);
-    glUniform1iARB(glGetUniformLocationARB(m_program, "u_attenuationmap_z"), 4);
+    glUniform1iARB(glGetUniformLocationARB(m_program, "u_DiffuseMap"), 0);
+    glUniform1iARB(glGetUniformLocationARB(m_program, "u_BumpMap"), 1);
+    glUniform1iARB(glGetUniformLocationARB(m_program, "u_SpecularMap"), 2);
+    glUniform1iARB(glGetUniformLocationARB(m_program, "u_AttenuationMapXY"), 3);
+    glUniform1iARB(glGetUniformLocationARB(m_program, "u_AttenuationMapZ"), 4);
     
-    u_view_origin = glGetUniformLocationARB(m_program, "u_view_origin");
-    u_light_origin = glGetUniformLocationARB(m_program, "u_light_origin");
-    u_light_color = glGetUniformLocationARB(m_program, "u_light_color");
-    u_bump_scale = glGetUniformLocationARB(m_program, "u_bump_scale");
-    u_specular_exponent = glGetUniformLocationARB(m_program, "u_specular_exponent");
+    u_ViewOrigin = glGetUniformLocationARB(m_program, "u_ViewOrigin");
+    u_LightOrigin = glGetUniformLocationARB(m_program, "u_LightOrigin");
+    u_LightColor = glGetUniformLocationARB(m_program, "u_LightColor");
+    u_BumpScale = glGetUniformLocationARB(m_program, "u_BumpScale");
+    u_SpecularExponent = glGetUniformLocationARB(m_program, "u_SpecularExponent");
 
     glUseProgramObjectARB(0);
 
@@ -325,11 +325,11 @@ public:
     Matrix4 local2light(world2light);
     matrix4_multiply_by_matrix4(local2light, localToWorld); // local->world->light
 
-    glUniform3fARB(u_view_origin, localViewer.x(), localViewer.y(), localViewer.z());
-    glUniform3fARB(u_light_origin, localLight.x(), localLight.y(), localLight.z());
-    glUniform3fARB(u_light_color, colour.x(), colour.y(), colour.z());
-    glUniform1fARB(u_bump_scale, 1.0);
-    glUniform1fARB(u_specular_exponent, 32.0);
+    glUniform3fARB(u_ViewOrigin, localViewer.x(), localViewer.y(), localViewer.z());
+    glUniform3fARB(u_LightOrigin, localLight.x(), localLight.y(), localLight.z());
+    glUniform3fARB(u_LightColor, colour.x(), colour.y(), colour.z());
+    glUniform1fARB(u_BumpScale, 1.0);
+    glUniform1fARB(u_SpecularExponent, 32.0);
 
     glActiveTexture(GL_TEXTURE3);
     glClientActiveTexture(GL_TEXTURE3);
@@ -397,9 +397,8 @@ public:
 
 GLSLDepthFillProgram g_depthFillGLSL;
 
-
 // ARB path
-
+#if 0
 void createProgram(const char* filename, GLenum type)
 {
   std::size_t size = file_size(filename);
@@ -592,7 +591,7 @@ public:
 
 ARBBumpProgram g_bumpARB;
 ARBDepthFillProgram g_depthFillARB;
-
+#endif
 
 #if 0
 // NV20 path (unfinished)
@@ -1285,7 +1284,7 @@ public:
     m_unrealised(3), // wait until shaders, gl-context and textures are realised before creating any render-states
     m_lightingEnabled(true),
     m_lightingSupported(false),
-    m_useShaderLanguage(false),
+    m_useShaderLanguage(GlobalOpenGL().ARB_shader_objects()),
     m_lightsChanged(true),
     m_traverseRenderablesMutex(false)
   {
@@ -1439,11 +1438,11 @@ public:
           g_bumpGLSL.create();
           g_depthFillGLSL.create();
         }
-        else
+        /*else
         {
           g_bumpARB.create();
           g_depthFillARB.create();
-        }
+        }*/
       }
 
       for(Shaders::iterator i = m_shaders.begin(); i != m_shaders.end(); ++i)
@@ -1473,11 +1472,11 @@ public:
           g_bumpGLSL.destroy();
           g_depthFillGLSL.destroy();
         }
-        else
+        /*else
         {
           g_bumpARB.destroy();
           g_depthFillARB.destroy();
-        }
+        }*/
       }
     }
   }
@@ -2536,10 +2535,10 @@ void OpenGLShader::construct(const char* name)
       {
         state.m_program = &g_depthFillGLSL;
       }
-      else
+      /*else
       {
         state.m_program = &g_depthFillARB;
-      }
+      }*/
 
       OpenGLState& bumpPass = appendDefaultPass();
       bumpPass.m_texture = m_shader->getDiffuse()->texture_number;
@@ -2553,10 +2552,10 @@ void OpenGLShader::construct(const char* name)
         bumpPass.m_state |= RENDER_LIGHTING;
         bumpPass.m_program = &g_bumpGLSL;
       }
-      else
+      /*else
       {
         bumpPass.m_program = &g_bumpARB;
-      }
+      }*/
 
       bumpPass.m_depthfunc = GL_LEQUAL;
       bumpPass.m_sort = OpenGLState::eSortMultiFirst;
