@@ -276,10 +276,15 @@ module_env.Append(CXXFLAGS='-Wno-non-virtual-dtor -fno-exceptions -fno-rtti')
 module_env.Append(CCFLAGS='-Icode/gtkradiant/include')
 module_env.Append(CCFLAGS='-Icode/gtkradiant/libs')
 
-if env['arch'] == 'linux-i386':
+if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	l_net_src += ['code/gtkradiant/libs/l_net/l_net_berkley.c']
-	gtkradiant_env.Program('gtkradiant.x86', [gtkradiant_src, gtkutil_src, profile_src, cmdlib_src, l_net_src])
-	gtkradiant_env.Install('#gtkradiant', 'gtkradiant.x86')
+	
+	if env['arch'] == 'linux-i386':
+		gtkradiant_env.Program('gtkradiant.x86', [gtkradiant_src, gtkutil_src, profile_src, cmdlib_src, l_net_src])
+		gtkradiant_env.Install('#gtkradiant', 'gtkradiant.x86')
+	elif env['arch'] == 'linux-x86_64':
+		gtkradiant_env.Program('gtkradiant.x86_64', [gtkradiant_src, gtkutil_src, profile_src, cmdlib_src, l_net_src])
+		gtkradiant_env.Install('#gtkradiant', 'gtkradiant.x86_64')
 	
 	archivezip_env = module_env.Copy()
 	archivezip_env.SharedLibrary('archivezip', archivezip_src, LIBS=['z'])
