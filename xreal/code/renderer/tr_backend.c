@@ -1321,69 +1321,6 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 	tess.currentStageIteratorType = SIT_DEFAULT;
 }
 
-
-static void RB_RenderLightScale()
-{
-	float           lightScale;
-
-	GLimp_LogComment("--- RB_RenderLightScale ---\n");
-
-	lightScale = r_lightScale->value;
-	if(lightScale < 1.0 || (backEnd.refdef.rdflags & RDF_NOLIGHTSCALE) || backEnd.viewParms.isPortal)
-	{
-		return;
-	}
-
-	qglDisable(GL_CLIP_PLANE0);
-	qglDisable(GL_CULL_FACE);
-
-	GL_Program(0);
-	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_SRC_COLOR);
-
-	GL_SelectTexture(0);
-	GL_Bind(tr.whiteImage);
-	qglLoadIdentity();
-
-	// draw fullscreen quads
-	qglMatrixMode(GL_PROJECTION);
-	qglPushMatrix();
-	qglLoadIdentity();
-
-	while(lightScale >= 2.0)
-	{
-		lightScale *= 0.5;
-
-		qglColor3f(1.0, 1.0, 1.0);
-
-		qglBegin(GL_QUADS);
-		qglVertex3f(-1.0, -1.0, -1.0);
-		qglVertex3f(1.0, -1.0, -1.0);
-		qglVertex3f(1.0, 1.0, -1.0);
-		qglVertex3f(-1.0, 1.0, -1.0);
-		qglEnd();
-	}
-
-	if(lightScale > 1.0)
-	{
-		lightScale *= 0.5;
-
-		qglColor3f(lightScale, lightScale, lightScale);
-
-		qglBegin(GL_QUADS);
-		qglVertex3f(-1.0, -1.0, -1.0);
-		qglVertex3f(1.0, -1.0, -1.0);
-		qglVertex3f(1.0, 1.0, -1.0);
-		qglVertex3f(-1.0, 1.0, -1.0);
-		qglEnd();
-	}
-
-	qglMatrixMode(GL_PROJECTION);
-	qglPopMatrix();
-	qglMatrixMode(GL_MODELVIEW);
-
-	qglColor4f(1, 1, 1, 1);
-}
-
 static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions)
 {
 	if(glConfig2.occlusionQueryBits)
@@ -2174,9 +2111,6 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 		// render dynamic lighting
 		RB_RenderInteractions(originalTime, interactions, numInteractions);
 	}
-
-	// render light scale hack to brighten up the scene
-	RB_RenderLightScale();
 
 	// draw everything that is translucent
 	RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qfalse);

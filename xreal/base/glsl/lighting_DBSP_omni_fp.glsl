@@ -29,6 +29,7 @@ uniform sampler2D	u_AttenuationMapZ;
 uniform vec3		u_ViewOrigin;
 uniform vec3		u_LightOrigin;
 uniform vec3		u_LightColor;
+uniform float       u_LightScale;
 uniform float		u_SpecularExponent;
 uniform float		u_HeightScale;
 uniform float		u_HeightBias;
@@ -75,9 +76,12 @@ void	main()
 //	vec3 attenuationCube	= textureCube(u_AttenuationMapCube, var_tex_atten_cube).rgb;
 					
 	// compute final color
-	gl_FragColor.rgba = diffuse;
-	gl_FragColor.rgb += specular;
-	gl_FragColor.rgb *= attenuationXY;
-	gl_FragColor.rgb *= attenuationZ;
-//	gl_FragColor.rgb *= attenuationCube;
+	vec4 color = diffuse;
+	color.rgb += specular;
+	color.rgb *= attenuationXY;
+	color.rgb *= attenuationZ;
+//	color.rgb *= attenuationCube;
+	color.rgb *= u_LightScale;
+
+	gl_FragColor = color;
 }

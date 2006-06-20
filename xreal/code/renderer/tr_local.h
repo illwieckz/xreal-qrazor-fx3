@@ -804,6 +804,7 @@ typedef struct shaderProgram_s
 	GLint           u_LightDir;
 	GLint			u_LightOrigin;
 	GLint           u_LightColor;
+	GLint           u_LightScale;
 	
 	GLint			u_SpecularExponent;
 	
@@ -1915,6 +1916,7 @@ extern cvar_t  *r_swapInterval;
 extern cvar_t  *r_textureMode;
 extern cvar_t  *r_offsetFactor;
 extern cvar_t  *r_offsetUnits;
+extern cvar_t  *r_specularExponent;
 
 extern cvar_t  *r_fullbright;	// avoid lightmap pass
 extern cvar_t  *r_uiFullScreen;	// ui is running fullscreen

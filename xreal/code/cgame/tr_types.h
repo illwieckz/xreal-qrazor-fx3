@@ -48,7 +48,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // refdef flags
 #define RDF_NOWORLDMODEL	1	// used for player configuration screen
-#define RDF_NOLIGHTSCALE	2	// don't use r_lightScale, good for hud
 #define RDF_HYPERSPACE		4	// teleportation effect
 
 typedef struct

@@ -27,6 +27,7 @@ uniform sampler2D	u_AttenuationMapZ;
 //uniform samplerCube	u_AttenuationMapCube;
 uniform vec3		u_LightOrigin;
 uniform vec3		u_LightColor;
+uniform float       u_LightScale;
 
 varying vec3		var_Vertex;
 varying vec2		var_TexDiffuse;
@@ -54,10 +55,11 @@ void	main()
 //	vec3 attenuationCube	= textureCube(u_AttenuationMapCube, var_tex_atten_cube).rgb;
 					
 	// compute final color
-//	gl_FragColor.rgba = vec4(1.0, 1.0, 1.0, 1.0);
-//	gl_FragColor.rgb *= u_LightColor * clamp(dot(N, L), 0.0, 1.0);
-	gl_FragColor.rgba = diffuse;
-	gl_FragColor.rgb *= attenuationXY;
-	gl_FragColor.rgb *= attenuationZ;
-//	gl_FragColor.rgb *= attenuationCube;
+	vec4 color = diffuse;
+	color.rgb *= attenuationXY;
+	color.rgb *= attenuationZ;
+//	color.rgb *= attenuationCube;
+	color.rgb *= u_LightScale;
+
+	gl_FragColor = color;
 }

@@ -366,6 +366,8 @@ void RB_InitGPUShaders(void)
 			qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_LightOrigin");
 	tr.lightShader_D_omni.u_LightColor =
 			qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_LightColor");
+	tr.lightShader_D_omni.u_LightScale =
+			qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_LightScale");
 
 	qglUseProgramObjectARB(tr.lightShader_D_omni.program);
 	qglUniform1iARB(tr.lightShader_D_omni.u_DiffuseMap, 0);
@@ -392,6 +394,8 @@ void RB_InitGPUShaders(void)
 			qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_LightOrigin");
 	tr.lightShader_DB_omni.u_LightColor =
 			qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_LightColor");
+	tr.lightShader_DB_omni.u_LightScale =
+			qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_LightScale");
 
 	qglUseProgramObjectARB(tr.lightShader_DB_omni.program);
 	qglUniform1iARB(tr.lightShader_DB_omni.u_DiffuseMap, 0);
@@ -423,6 +427,8 @@ void RB_InitGPUShaders(void)
 			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_LightOrigin");
 	tr.lightShader_DBS_omni.u_LightColor =
 			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_LightColor");
+	tr.lightShader_DBS_omni.u_LightScale =
+			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_LightScale");
 	tr.lightShader_DBS_omni.u_SpecularExponent =
 			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_SpecularExponent");
 
@@ -457,6 +463,8 @@ void RB_InitGPUShaders(void)
 			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_LightOrigin");
 	tr.lightShader_DBSP_omni.u_LightColor =
 			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_LightColor");
+	tr.lightShader_DBSP_omni.u_LightScale =
+			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_LightScale");
 	tr.lightShader_DBSP_omni.u_SpecularExponent =
 			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_SpecularExponent");
 	tr.lightShader_DBSP_omni.u_HeightScale =
@@ -489,6 +497,8 @@ void RB_InitGPUShaders(void)
 			qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightOrigin");
 	tr.lightShader_D_proj.u_LightColor =
 			qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightColor");
+	tr.lightShader_D_proj.u_LightScale =
+			qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightScale");
 
 	qglUseProgramObjectARB(tr.lightShader_D_proj.program);
 	qglUniform1iARB(tr.lightShader_D_proj.u_DiffuseMap, 0);
@@ -1750,7 +1760,7 @@ static void Render_lighting_DBS_direct(int stage)
 	VectorScale(ent->directedLight, 1.0 / 255.0, directedLight);
 	ClampColor(directedLight);
 	VectorCopy(ent->lightDir, lightDir);
-	specularExponent = RB_EvalExpression(&pStage->specularExponentExp, 32.0);
+	specularExponent = RB_EvalExpression(&pStage->specularExponentExp, r_specularExponent->value);
 	
 	qglUniform3fARB(tr.lightShader_DBS_direct.u_AmbientColor, ambientLight[0], ambientLight[1], ambientLight[2]);
 	qglUniform3fARB(tr.lightShader_DBS_direct.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
@@ -1804,6 +1814,7 @@ static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
 	
 	qglUniform3fARB(tr.lightShader_D_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.lightShader_D_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
+	qglUniform1fARB(tr.lightShader_D_omni.u_LightScale, r_lightScale->value);
 
 	GL_SelectTexture(0);
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
@@ -1851,6 +1862,7 @@ static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
 	
 	qglUniform3fARB(tr.lightShader_DB_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.lightShader_DB_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
+	qglUniform1fARB(tr.lightShader_DB_omni.u_LightScale, r_lightScale->value);
 
 	GL_SelectTexture(0);
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
@@ -1901,11 +1913,12 @@ static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
 	VectorCopy(dlight->transformed, lightOrigin);
 	VectorCopy(tess.svars.color, lightColor);
-	specularExponent = RB_EvalExpression(&diffuseStage->specularExponentExp, 32.0);
+	specularExponent = RB_EvalExpression(&diffuseStage->specularExponentExp, r_specularExponent->value);
 	
 	qglUniform3fARB(tr.lightShader_DBS_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform3fARB(tr.lightShader_DBS_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.lightShader_DBS_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
+	qglUniform1fARB(tr.lightShader_DBS_omni.u_LightScale, r_lightScale->value);
 	qglUniform1fARB(tr.lightShader_DBS_omni.u_SpecularExponent, specularExponent);
 
 	GL_SelectTexture(0);
@@ -1963,11 +1976,12 @@ static void Render_lighting_DBSP_omni(	shaderStage_t * diffuseStage,
 	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
 	VectorCopy(dlight->transformed, lightOrigin);
 	VectorCopy(tess.svars.color, lightColor);
-	specularExponent = RB_EvalExpression(&diffuseStage->specularExponentExp, 32.0);
+	specularExponent = RB_EvalExpression(&diffuseStage->specularExponentExp, r_specularExponent->value);
 	
 	qglUniform3fARB(tr.lightShader_DBSP_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform3fARB(tr.lightShader_DBSP_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.lightShader_DBSP_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
+	qglUniform1fARB(tr.lightShader_DBSP_omni.u_LightScale, r_lightScale->value);
 	qglUniform1fARB(tr.lightShader_DBSP_omni.u_SpecularExponent, specularExponent);
 	qglUniform1fARB(tr.lightShader_DBSP_omni.u_HeightScale, RB_EvalExpression(&diffuseStage->heightScaleExp, 0.05f));
 	qglUniform1fARB(tr.lightShader_DBSP_omni.u_HeightBias, RB_EvalExpression(&diffuseStage->heightBiasExp, 0.0f));
@@ -2027,6 +2041,7 @@ static void Render_lighting_D_proj(	shaderStage_t * diffuseStage,
 	
 	qglUniform3fARB(tr.lightShader_D_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.lightShader_D_proj.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
+	qglUniform1fARB(tr.lightShader_D_proj.u_LightScale, r_lightScale->value);
 
 	GL_SelectTexture(0);
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
@@ -2294,7 +2309,7 @@ static void Render_lighting_DBS_radiosity(int stage)
 	
 	// set uniforms
 	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
-	specularExponent = RB_EvalExpression(&pStage->specularExponentExp, 32.0);
+	specularExponent = RB_EvalExpression(&pStage->specularExponentExp, r_specularExponent->value);
 	
 	qglUniform3fARB(tr.lightShader_DBS_radiosity.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform1fARB(tr.lightShader_DBS_radiosity.u_SpecularExponent, specularExponent);

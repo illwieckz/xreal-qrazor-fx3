@@ -134,6 +134,7 @@ cvar_t         *r_swapInterval;
 cvar_t         *r_textureMode;
 cvar_t         *r_offsetFactor;
 cvar_t         *r_offsetUnits;
+cvar_t         *r_specularExponent;
 cvar_t         *r_gamma;
 cvar_t         *r_intensity;
 cvar_t         *r_lockpvs;
@@ -1150,7 +1151,7 @@ void R_Register(void)
 	r_displayRefresh = ri.Cvar_Get("r_displayRefresh", "0", CVAR_LATCH);
 	AssertCvarRange(r_displayRefresh, 0, 200, qtrue);
 	r_fullbright = ri.Cvar_Get("r_fullbright", "0", CVAR_LATCH | CVAR_CHEAT);
-	r_mapOverBrightBits = ri.Cvar_Get("r_mapOverBrightBits", "0", CVAR_LATCH);
+	r_mapOverBrightBits = ri.Cvar_Get("r_mapOverBrightBits", "2", CVAR_LATCH);
 	r_intensity = ri.Cvar_Get("r_intensity", "1", CVAR_LATCH);
 	r_singleShader = ri.Cvar_Get("r_singleShader", "0", CVAR_CHEAT | CVAR_LATCH);
 
@@ -1181,7 +1182,7 @@ void R_Register(void)
 
 	r_ambientScale = ri.Cvar_Get("r_ambientScale", "0.6", CVAR_CHEAT);
 	r_directedScale = ri.Cvar_Get("r_directedScale", "1", CVAR_CHEAT);
-	r_lightScale = ri.Cvar_Get("r_lightScale", "3", CVAR_ARCHIVE);
+	r_lightScale = ri.Cvar_Get("r_lightScale", "2", CVAR_CHEAT);
 
 	r_vboFaces = ri.Cvar_Get("r_vboFaces", "0", CVAR_ARCHIVE);
 	r_vboCurves = ri.Cvar_Get("r_vboCurves", "0", CVAR_ARCHIVE);
@@ -1232,6 +1233,7 @@ void R_Register(void)
 	r_clear = ri.Cvar_Get("r_clear", "1", CVAR_CHEAT);
 	r_offsetFactor = ri.Cvar_Get("r_offsetFactor", "-1", CVAR_CHEAT);
 	r_offsetUnits = ri.Cvar_Get("r_offsetUnits", "-2", CVAR_CHEAT);
+	r_specularExponent = ri.Cvar_Get("r_specularExponent", "16", CVAR_CHEAT);
 	r_drawBuffer = ri.Cvar_Get("r_drawBuffer", "GL_BACK", CVAR_CHEAT);
 	r_lockpvs = ri.Cvar_Get("r_lockpvs", "0", CVAR_CHEAT);
 	r_noportals = ri.Cvar_Get("r_noportals", "0", CVAR_CHEAT);
