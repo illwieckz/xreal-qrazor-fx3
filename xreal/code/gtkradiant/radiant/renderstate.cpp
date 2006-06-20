@@ -229,7 +229,7 @@ public:
   GLint u_ViewOrigin;
   GLint u_LightOrigin;
   GLint u_LightColor;
-  GLint u_BumpScale;
+  GLint u_LightScale;
   GLint u_SpecularExponent;
 
   GLSLBumpProgram() : m_program(0)
@@ -269,7 +269,7 @@ public:
     u_ViewOrigin = glGetUniformLocationARB(m_program, "u_ViewOrigin");
     u_LightOrigin = glGetUniformLocationARB(m_program, "u_LightOrigin");
     u_LightColor = glGetUniformLocationARB(m_program, "u_LightColor");
-    u_BumpScale = glGetUniformLocationARB(m_program, "u_BumpScale");
+    u_LightScale = glGetUniformLocationARB(m_program, "u_LightScale");
     u_SpecularExponent = glGetUniformLocationARB(m_program, "u_SpecularExponent");
 
     glUseProgramObjectARB(0);
@@ -328,8 +328,8 @@ public:
     glUniform3fARB(u_ViewOrigin, localViewer.x(), localViewer.y(), localViewer.z());
     glUniform3fARB(u_LightOrigin, localLight.x(), localLight.y(), localLight.z());
     glUniform3fARB(u_LightColor, colour.x(), colour.y(), colour.z());
-    glUniform1fARB(u_BumpScale, 1.0);
-    glUniform1fARB(u_SpecularExponent, 32.0);
+    glUniform1fARB(u_LightScale, 2.0);
+    glUniform1fARB(u_SpecularExponent, 16.0);
 
     glActiveTexture(GL_TEXTURE3);
     glClientActiveTexture(GL_TEXTURE3);
