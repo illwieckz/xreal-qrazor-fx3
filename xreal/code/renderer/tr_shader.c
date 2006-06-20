@@ -4948,7 +4948,7 @@ shader_t       *R_FindShader(const char *name, shaderType_t type, qboolean mipRa
 							mipRawImage ? WT_REPEAT : WT_CLAMP);
 	if(!image)
 	{
-		ri.Printf(PRINT_DEVELOPER, "Couldn't find image for shader %s\n", name);
+		ri.Printf(PRINT_WARNING, "Couldn't find image for shader '%s'\n", name);
 		shader.defaultShader = qtrue;
 		return FinishShader();
 	}

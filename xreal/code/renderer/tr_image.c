@@ -1933,9 +1933,12 @@ static void LoadTGA(const char *name, byte ** pic, int *width, int *height)
 	// bit 5 set => top-down
 	if(targa_header.attributes & 0x20)
 	{
-		unsigned char  *flip = (unsigned char *)malloc(columns * 4);
+		unsigned char  *flip;
 		unsigned char  *src, *dst;
+		
+		ri.Printf(PRINT_WARNING, "WARNING: '%s' TGA file header declares top-down image, flipping\n", name);
 
+		flip = (unsigned char *)malloc(columns * 4);
 		for(row = 0; row < rows / 2; row++)
 		{
 			src = targa_rgba + row * 4 * columns;
@@ -2509,7 +2512,8 @@ static void ParseAddNormals(char **text, byte ** pic, int *width, int *height, i
 	
 	if(*width != width2 || *height != height2)
 	{
-		ri.Printf(PRINT_WARNING, "WARNING: images for addNormals have different dimensions\n");
+		ri.Printf(PRINT_WARNING, "WARNING: images for addNormals have different dimensions (%i x %i != %i x %i)\n",
+									*width, *height, width2, height2);
 		
 		//ri.Free(*pic);
 		//*pic = NULL;
