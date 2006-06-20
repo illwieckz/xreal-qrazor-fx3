@@ -102,6 +102,9 @@ static char    *shaderAnimNames[MAX_SHADER_ANIMS] = {
 	NULL
 };
 static qhandle_t shaderAnims[MAX_SHADER_ANIMS][MAX_SHADER_ANIM_FRAMES];
+
+#if 0
+// Tr3B - we don't need them for now
 static int      shaderAnimCounts[MAX_SHADER_ANIMS] = {
 	23,
 	25,
@@ -110,6 +113,16 @@ static int      shaderAnimCounts[MAX_SHADER_ANIMS] = {
 	23,
 	5,
 };
+#else
+static int      shaderAnimCounts[MAX_SHADER_ANIMS] = {
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+};
+#endif
 static float    shaderAnimSTRatio[MAX_SHADER_ANIMS] = {
 	1.405f,
 	1.0f,
