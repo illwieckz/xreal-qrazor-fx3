@@ -7458,3 +7458,298 @@ textures/decals/lightgrate
 
 
 //Verified good complete by Eutectic - Sep 14-04
+
+//----------------------------------
+//	GRUNGE MAPS
+//----------------------------------
+
+textures/decals/_grungemaps/grunge2
+{
+	qer_editorimage textures/decals/_grungemaps/grunge2.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+
+	{
+       	blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR								//inverse multiplicative blend
+		Map textures/decals/_grungemaps/grunge2.tga
+	}
+}
+
+textures/decals/_grungemaps/grunge3
+{
+	qer_editorimage textures/decals/_grungemaps/grunge3.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+
+	{
+       	blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR								//inverse multiplicative blend
+		Map textures/decals/_grungemaps/grunge3.tga
+	}
+}
+
+
+textures/decals/_grungemaps/grunge5
+{
+	qer_editorimage textures/decals/_grungemaps/grunge5.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+
+	{
+		blend GL_DST_COLOR, GL_SRC_COLOR		
+		Map textures/decals/_grungemaps/grunge5.tga
+	}
+}
+
+textures/decals/_grungemaps/grunge6
+{
+	qer_editorimage textures/decals/_grungemaps/grunge6.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+
+	{
+		blend GL_DST_COLOR, GL_SRC_COLOR		
+		Map textures/decals/_grungemaps/grunge6.tga
+	}
+}
+
+textures/decals/_grungemaps/grunge7
+{
+	qer_editorimage textures/decals/_grungemaps/grunge7.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+
+	{
+		blend GL_DST_COLOR, GL_SRC_COLOR		
+		Map textures/decals/_grungemaps/grunge7.tga
+	}
+}
+
+textures/decals/_grungemaps/grunge8
+{
+	qer_editorimage textures/decals/_grungemaps/grunge8.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+
+	{
+		blend GL_DST_COLOR, GL_SRC_COLOR		
+		Map textures/decals/_grungemaps/grunge8.tga
+	}
+}
+
+textures/decals/_grungemaps/grunge9
+{
+	qer_editorimage textures/decals/_grungemaps/grunge9.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+
+	{
+		blend GL_DST_COLOR, GL_SRC_COLOR		
+		Map textures/decals/_grungemaps/grunge9.tga
+	}
+}
+
+
+textures/decals/_grungemaps/grunge1
+{
+	qer_editorimage textures/decals/_grungemaps/grunge1.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+
+	{
+       	blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR								//inverse multiplicative blend
+		Map textures/decals/_grungemaps/grunge1.tga
+	}
+}
+
+
+textures/decals/_grungemaps/grunge10
+{
+	qer_editorimage textures/decals/_grungemaps/grunge10.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+
+	{
+		blend GL_DST_COLOR, GL_SRC_COLOR		
+		Map textures/decals/_grungemaps/grunge10.tga
+	}
+}
+
+textures/decals/_grungemaps/grunge11
+{
+	qer_editorimage textures/decals/_grungemaps/grunge11.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+
+	{
+		blend GL_DST_COLOR, GL_SRC_COLOR		
+		Map textures/decals/_grungemaps/grunge11.tga
+	}
+}
+
+textures/decals/_grungemaps/grunge12
+{
+	qer_editorimage textures/decals/_grungemaps/grunge12.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+
+	{
+		blend GL_DST_COLOR, GL_SRC_COLOR		
+		Map textures/decals/_grungemaps/grunge12.tga
+	}
+}
+
+textures/decals/_grungemaps/grunge13
+{
+	qer_editorimage textures/decals/_grungemaps/grunge13.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+
+	{
+		blend GL_DST_COLOR, GL_SRC_COLOR		
+		Map textures/decals/_grungemaps/grunge13.tga
+	}
+}
+
+textures/decals/_grungemaps/grunge14
+{
+	qer_editorimage textures/decals/_grungemaps/grunge14.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+
+	{
+		blend GL_DST_COLOR, GL_SRC_COLOR		
+		Map textures/decals/_grungemaps/grunge14.tga
+	}
+}
+
+textures/decals/_grungemaps/grunge17
+{
+	qer_editorimage textures/decals/_grungemaps/grunge17.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+
+	{
+		blend GL_DST_COLOR, GL_SRC_COLOR		
+		Map textures/decals/_grungemaps/grunge17.tga
+	}
+}
+
+textures/decals/_grungemaps/grunge18
+{
+	qer_editorimage textures/decals/_grungemaps/grunge18.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+
+	{
+		blend GL_DST_COLOR, GL_SRC_COLOR		
+		Map textures/decals/_grungemaps/grunge18.tga
+	}
+}
+
+textures/decals/_grungemaps/damage1
+{
+	qer_editorimage textures/decals/_grungemaps/damage1.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+
+	{
+		blend GL_DST_COLOR, GL_SRC_COLOR		
+		Map textures/decals/_grungemaps/damage1.tga
+	}
+}
+
+textures/decals/_grungemaps/grunge_stroyent1
+{
+	qer_editorimage textures/decals/_grungemaps/grunge_stroyent1.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+
+	{
+       	blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR								//inverse multiplicative blend
+		Map textures/decals/_grungemaps/grunge_stroyent1.tga
+	}
+}
+
+textures/decals/_grungemaps/grunge_stroyent2
+{
+	qer_editorimage textures/decals/_grungemaps/grunge_stroyent2.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+
+	{
+       	blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR								//inverse multiplicative blend
+		Map textures/decals/_grungemaps/grunge_stroyent2.tga
+	}
+}
+
+textures/decals/_grungemaps/grunge_scratches1
+{
+	qer_editorimage textures/decals/_grungemaps/grunge_scratches1.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+
+	{
+       	blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR								//inverse multiplicative blend
+		Map textures/decals/_grungemaps/grunge_scratches1.tga
+	}
+}
+
+
+textures/decals/_grungemaps/stain01bwet
+{
+	DECAL_MACRO
+	translucent
+	twosided
+	nonsolid
+	noimpact
+	noshadows
+
+	qer_editorimage	textures/decals/_grungemaps/stain01bwet.tga
+	{
+		blend gl_dst_color,gl_zero
+		map textures/decals/stain01bwet.tga
+	}	
+
+	{
+		blend specularMap
+		map	 textures/decals/_grungemaps/stain01b_s.tga
+	}
+}
