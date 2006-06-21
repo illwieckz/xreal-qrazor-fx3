@@ -971,7 +971,7 @@ textures/sfx/flare
 	{
 		if ( parm7 == 0 )
 		blend		add
-		map		_quadratic
+		map		lights/squarelight.tga
 		colored
 		vertexcolor
 	}
@@ -987,7 +987,7 @@ textures/sfx/flare_8
 	{
 		if ( parm7 == 0 )
 		blend		add
-		map		_quadratic
+		map		lights/squarelight.tga
 		colored
 		vertexcolor
 	}
@@ -1003,7 +1003,7 @@ textures/sfx/flare_2
 	{
 		if ( parm7 == 0 )
 		blend		add
-		map		_quadratic
+		map		lights/squarelight.tga
 		colored
 		vertexcolor
 	}
@@ -1020,7 +1020,7 @@ textures/sfx/flare_1
 	{
 		if ( parm7 == 0 )
 		blend		add
-		map		_quadratic
+		map		lights/squarelight.tga
 		colored
 		vertexcolor
 	}
@@ -1037,7 +1037,7 @@ textures/sfx/flareSizeable
 	{
 		if ( parm7 == 0 )
 		blend		add
-		map		_quadratic
+		map		lights/squarelight.tga
 		colored
 		vertexcolor
 	}
@@ -1054,7 +1054,7 @@ textures/sfx/flare_cv
 
 	{
 		blend		add
-		map		_quadratic
+		map		lights/squarelight.tga
 		colored
 		vertexcolor
 	}
@@ -1070,7 +1070,7 @@ textures/sfx/flare_toggle
 
 	{
 		blend		add
-		map		_quadratic
+		map		lights/squarelight.tga
 		rgba
 		red		parm0 * parm7
 		green	parm1 * parm7
@@ -1090,7 +1090,7 @@ textures/sfx/flare_toggle2
 
 	{
 		blend		add
-		map		_quadratic
+		map		lights/squarelight.tga
 		rgba
 		red		parm0 * parm7
 		green	parm1 * parm7
@@ -1113,7 +1113,7 @@ textures/sfx/flare_cv2
 
 	{
 		blend		add
-		map		_quadratic
+		map		lights/squarelight.tga
 		colored
 		vertexcolor
 	}
@@ -1138,7 +1138,7 @@ textures/sfx/flare_cv2
 //		if ( parm7 == 1 )
 //		colored
 //		blend		add
-//		map		_quadratic
+//		map		lights/squarelight.tga
 //		colored
 //		vertexcolor
 //	}
@@ -1156,7 +1156,7 @@ textures/sfx/flare2
 
 	{
 		blend		add
-		map		_quadratic
+		map		lights/squarelight.tga
 		colored
 		vertexcolor
 	}
@@ -1173,7 +1173,7 @@ textures/sfx/flare3
 
 	{
 		blend		add
-		map		_quadratic
+		map		lights/squarelight.tga
 		colored
 		vertexcolor
 	}
@@ -1191,7 +1191,7 @@ textures/sfx/flare4
 
 	{
 		blend		add
-		map		_quadratic
+		map		lights/squarelight.tga
 		colored
 		vertexcolor
 	}
@@ -1208,7 +1208,7 @@ textures/sfx/flare5
 
 	{
 		blend		add
-		map		_quadratic
+		map		lights/squarelight.tga
 		colored
 		vertexcolor
 	}
@@ -2266,7 +2266,7 @@ textures/sfx/flare_global
 	{
 		if ( parm7 == 0 )
 		blend		add
-		map			_quadratic
+		map			lights/squarelight.tga
 		red			parm0 * global0
 		green		parm1 * global0
 		blue		parm2 * global0
@@ -2284,7 +2284,7 @@ textures/sfx/flare_global1
 	{
 		if ( parm7 == 0 )
 		blend		add
-		map			_quadratic
+		map			lights/squarelight.tga
 		red			parm0 * global1
 		green		parm1 * global1
 		blue		parm2 * global1
