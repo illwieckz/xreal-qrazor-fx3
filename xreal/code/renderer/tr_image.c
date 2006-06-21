@@ -87,21 +87,21 @@ static long generateHashValue(const char *fname)
 	int             i;
 	long            hash;
 	char            letter;
-	
-//	ri.Printf(PRINT_ALL, "tr_image::generateHashValue: '%s'\n", fname);
+
+//  ri.Printf(PRINT_ALL, "tr_image::generateHashValue: '%s'\n", fname);
 
 	hash = 0;
 	i = 0;
 	while(fname[i] != '\0')
 	{
 		letter = tolower(fname[i]);
-		
+
 		//if(letter == '.')
-		//	break;				// don't include extension
-		
+		//  break;              // don't include extension
+
 		if(letter == '\\')
 			letter = '/';		// damn path names
-		
+
 		hash += (long)(letter) * (i + 119);
 		i++;
 	}
@@ -144,7 +144,7 @@ void GL_TextureMode(const char *string)
 
 	gl_filter_min = modes[i].minimize;
 	gl_filter_max = modes[i].maximize;
-	
+
 	// bound texture anisotropy
 	if(glConfig2.textureAnisotropyAvailable)
 	{
@@ -162,15 +162,15 @@ void GL_TextureMode(const char *string)
 	for(i = 0; i < tr.numImages; i++)
 	{
 		image = tr.images[i];
-		
+
 		if(image->filterType == FT_DEFAULT)
 		{
 			GL_Bind(image);
-			
+
 			// set texture filter
 			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, gl_filter_min);
 			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
-			
+
 			// set texture anisotropy
 			if(glConfig2.textureAnisotropyAvailable)
 				qglTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
@@ -224,59 +224,59 @@ void R_ImageList_f(void)
 		texels += image->uploadWidth * image->uploadHeight;
 		ri.Printf(PRINT_ALL, "%4i: %4i %4i  %s   ",
 				  i, image->uploadWidth, image->uploadHeight, yesno[image->filterType == FT_DEFAULT]);
-		
+
 		switch (image->type)
 		{
 			case GL_TEXTURE_2D:
 				ri.Printf(PRINT_ALL, "2D   ");
 				break;
-				
+
 			case GL_TEXTURE_CUBE_MAP_ARB:
 				ri.Printf(PRINT_ALL, "CUBE ");
 				break;
-	
+
 			default:
 				ri.Printf(PRINT_ALL, "???? ");
 		}
-		
+
 		switch (image->internalFormat)
 		{
 			case 1:
 				ri.Printf(PRINT_ALL, "I    ");
 				break;
-				
+
 			case 2:
 				ri.Printf(PRINT_ALL, "IA   ");
 				break;
-				
+
 			case 3:
 				ri.Printf(PRINT_ALL, "RGB  ");
 				break;
-				
+
 			case 4:
 				ri.Printf(PRINT_ALL, "RGBA ");
 				break;
-				
+
 			case GL_RGBA8:
 				ri.Printf(PRINT_ALL, "RGBA8");
 				break;
-				
+
 			case GL_RGB8:
 				ri.Printf(PRINT_ALL, "RGB8");
 				break;
-				
+
 			case GL_RGB4_S3TC:
 				ri.Printf(PRINT_ALL, "S3TC ");
 				break;
-				
+
 			case GL_RGBA4:
 				ri.Printf(PRINT_ALL, "RGBA4");
 				break;
-				
+
 			case GL_RGB5:
 				ri.Printf(PRINT_ALL, "RGB5 ");
 				break;
-				
+
 			default:
 				ri.Printf(PRINT_ALL, "???? ");
 		}
@@ -286,23 +286,23 @@ void R_ImageList_f(void)
 			case WT_REPEAT:
 				ri.Printf(PRINT_ALL, "rept  ");
 				break;
-			
+
 			case WT_CLAMP:
 				ri.Printf(PRINT_ALL, "clmp  ");
 				break;
-				
+
 			case WT_EDGE_CLAMP:
 				ri.Printf(PRINT_ALL, "eclmp ");
 				break;
-				
+
 			case WT_ZERO_CLAMP:
 				ri.Printf(PRINT_ALL, "zclmp ");
 				break;
-			
+
 			case WT_ALPHA_ZERO_CLAMP:
 				ri.Printf(PRINT_ALL, "azclmp");
 				break;
-			
+
 			default:
 				ri.Printf(PRINT_ALL, "%4i  ", image->wrapType);
 				break;
@@ -332,19 +332,20 @@ If a larger shrinking is needed, use the mipmap function
 before or after.
 ================
 */
-static void ResampleTexture(unsigned *in, int inwidth, int inheight, unsigned *out, int outwidth, int outheight, qboolean normalMap)
+static void ResampleTexture(unsigned *in, int inwidth, int inheight, unsigned *out, int outwidth, int outheight,
+							qboolean normalMap)
 {
 	int             x, y;
 	unsigned       *inrow, *inrow2;
 	unsigned        frac, fracstep;
 	unsigned        p1[2048], p2[2048];
 	byte           *pix1, *pix2, *pix3, *pix4;
-	float			inv127 = 1.0f / 127.0f;
-	vec3_t			n, n2, n3, n4;
+	float           inv127 = 1.0f / 127.0f;
+	vec3_t          n, n2, n3, n4;
 
 	// NOTE: Tr3B - limitation not needed anymore
-//	if(outwidth > 2048)
-//		ri.Error(ERR_DROP, "ResampleTexture: max width");
+//  if(outwidth > 2048)
+//      ri.Error(ERR_DROP, "ResampleTexture: max width");
 
 	fracstep = inwidth * 0x10000 / outwidth;
 
@@ -360,50 +361,50 @@ static void ResampleTexture(unsigned *in, int inwidth, int inheight, unsigned *o
 		p2[x] = 4 * (frac >> 16);
 		frac += fracstep;
 	}
-	
+
 	if(normalMap)
 	{
 		for(y = 0; y < outheight; y++, out += outwidth)
 		{
 			inrow = in + inwidth * (int)((y + 0.25) * inheight / outheight);
 			inrow2 = in + inwidth * (int)((y + 0.75) * inheight / outheight);
-			
+
 			//frac = fracstep >> 1;
-			
+
 			for(x = 0; x < outwidth; x++)
 			{
 				pix1 = (byte *) inrow + p1[x];
 				pix2 = (byte *) inrow + p2[x];
 				pix3 = (byte *) inrow2 + p1[x];
 				pix4 = (byte *) inrow2 + p2[x];
-				
+
 				n[0] = (pix1[0] * inv127 - 1.0);
 				n[1] = (pix1[1] * inv127 - 1.0);
 				n[2] = (pix1[2] * inv127 - 1.0);
-				
+
 				n2[0] = (pix2[0] * inv127 - 1.0);
 				n2[1] = (pix2[1] * inv127 - 1.0);
 				n2[2] = (pix2[2] * inv127 - 1.0);
-				
+
 				n3[0] = (pix3[0] * inv127 - 1.0);
 				n3[1] = (pix3[1] * inv127 - 1.0);
 				n3[2] = (pix3[2] * inv127 - 1.0);
-				
+
 				n4[0] = (pix4[0] * inv127 - 1.0);
 				n4[1] = (pix4[1] * inv127 - 1.0);
 				n4[2] = (pix4[2] * inv127 - 1.0);
-			
+
 				VectorAdd(n, n2, n);
 				VectorAdd(n, n3, n);
 				VectorAdd(n, n4, n);
-			
+
 				if(!VectorNormalize(n))
 					VectorSet(n, 0, 0, 1);
-				
-				((byte *) (out + x))[0] = (byte)(128 + 127 * n[0]);
-				((byte *) (out + x))[1] = (byte)(128 + 127 * n[1]);
-				((byte *) (out + x))[2] = (byte)(128 + 127 * n[2]);
-				((byte *) (out + x))[3] = (byte)(128 + 127 * 1.0);
+
+				((byte *) (out + x))[0] = (byte) (128 + 127 * n[0]);
+				((byte *) (out + x))[1] = (byte) (128 + 127 * n[1]);
+				((byte *) (out + x))[2] = (byte) (128 + 127 * n[2]);
+				((byte *) (out + x))[3] = (byte) (128 + 127 * 1.0);
 			}
 		}
 	}
@@ -413,16 +414,16 @@ static void ResampleTexture(unsigned *in, int inwidth, int inheight, unsigned *o
 		{
 			inrow = in + inwidth * (int)((y + 0.25) * inheight / outheight);
 			inrow2 = in + inwidth * (int)((y + 0.75) * inheight / outheight);
-			
+
 			//frac = fracstep >> 1;
-			
+
 			for(x = 0; x < outwidth; x++)
 			{
 				pix1 = (byte *) inrow + p1[x];
 				pix2 = (byte *) inrow + p2[x];
 				pix3 = (byte *) inrow2 + p1[x];
 				pix4 = (byte *) inrow2 + p2[x];
-				
+
 				((byte *) (out + x))[0] = (pix1[0] + pix2[0] + pix3[0] + pix4[0]) >> 2;
 				((byte *) (out + x))[1] = (pix1[1] + pix2[1] + pix3[1] + pix4[1]) >> 2;
 				((byte *) (out + x))[2] = (pix1[2] + pix2[2] + pix3[2] + pix4[2]) >> 2;
@@ -524,26 +525,23 @@ static void R_MipMap2(unsigned *in, int inWidth, int inHeight)
 			outpix = (byte *) (temp + i * outWidth + j);
 			for(k = 0; k < 4; k++)
 			{
-				total = 
-					1 * ((byte *)&in[ ((i*2-1)&inHeightMask)*inWidth + ((j*2-1)&inWidthMask) ])[k] +
-					2 * ((byte *)&in[ ((i*2-1)&inHeightMask)*inWidth + ((j*2)&inWidthMask) ])[k] +
-					2 * ((byte *)&in[ ((i*2-1)&inHeightMask)*inWidth + ((j*2+1)&inWidthMask) ])[k] +
-					1 * ((byte *)&in[ ((i*2-1)&inHeightMask)*inWidth + ((j*2+2)&inWidthMask) ])[k] +
-
-					2 * ((byte *)&in[ ((i*2)&inHeightMask)*inWidth + ((j*2-1)&inWidthMask) ])[k] +
-					4 * ((byte *)&in[ ((i*2)&inHeightMask)*inWidth + ((j*2)&inWidthMask) ])[k] +
-					4 * ((byte *)&in[ ((i*2)&inHeightMask)*inWidth + ((j*2+1)&inWidthMask) ])[k] +
-					2 * ((byte *)&in[ ((i*2)&inHeightMask)*inWidth + ((j*2+2)&inWidthMask) ])[k] +
-
-					2 * ((byte *)&in[ ((i*2+1)&inHeightMask)*inWidth + ((j*2-1)&inWidthMask) ])[k] +
-					4 * ((byte *)&in[ ((i*2+1)&inHeightMask)*inWidth + ((j*2)&inWidthMask) ])[k] +
-					4 * ((byte *)&in[ ((i*2+1)&inHeightMask)*inWidth + ((j*2+1)&inWidthMask) ])[k] +
-					2 * ((byte *)&in[ ((i*2+1)&inHeightMask)*inWidth + ((j*2+2)&inWidthMask) ])[k] +
-
-					1 * ((byte *)&in[ ((i*2+2)&inHeightMask)*inWidth + ((j*2-1)&inWidthMask) ])[k] +
-					2 * ((byte *)&in[ ((i*2+2)&inHeightMask)*inWidth + ((j*2)&inWidthMask) ])[k] +
-					2 * ((byte *)&in[ ((i*2+2)&inHeightMask)*inWidth + ((j*2+1)&inWidthMask) ])[k] +
-					1 * ((byte *)&in[ ((i*2+2)&inHeightMask)*inWidth + ((j*2+2)&inWidthMask) ])[k];
+				total =
+					1 * ((byte *) & in[((i * 2 - 1) & inHeightMask) * inWidth + ((j * 2 - 1) & inWidthMask)])[k] +
+					2 * ((byte *) & in[((i * 2 - 1) & inHeightMask) * inWidth + ((j * 2) & inWidthMask)])[k] +
+					2 * ((byte *) & in[((i * 2 - 1) & inHeightMask) * inWidth + ((j * 2 + 1) & inWidthMask)])[k] +
+					1 * ((byte *) & in[((i * 2 - 1) & inHeightMask) * inWidth + ((j * 2 + 2) & inWidthMask)])[k] +
+					2 * ((byte *) & in[((i * 2) & inHeightMask) * inWidth + ((j * 2 - 1) & inWidthMask)])[k] +
+					4 * ((byte *) & in[((i * 2) & inHeightMask) * inWidth + ((j * 2) & inWidthMask)])[k] +
+					4 * ((byte *) & in[((i * 2) & inHeightMask) * inWidth + ((j * 2 + 1) & inWidthMask)])[k] +
+					2 * ((byte *) & in[((i * 2) & inHeightMask) * inWidth + ((j * 2 + 2) & inWidthMask)])[k] +
+					2 * ((byte *) & in[((i * 2 + 1) & inHeightMask) * inWidth + ((j * 2 - 1) & inWidthMask)])[k] +
+					4 * ((byte *) & in[((i * 2 + 1) & inHeightMask) * inWidth + ((j * 2) & inWidthMask)])[k] +
+					4 * ((byte *) & in[((i * 2 + 1) & inHeightMask) * inWidth + ((j * 2 + 1) & inWidthMask)])[k] +
+					2 * ((byte *) & in[((i * 2 + 1) & inHeightMask) * inWidth + ((j * 2 + 2) & inWidthMask)])[k] +
+					1 * ((byte *) & in[((i * 2 + 2) & inHeightMask) * inWidth + ((j * 2 - 1) & inWidthMask)])[k] +
+					2 * ((byte *) & in[((i * 2 + 2) & inHeightMask) * inWidth + ((j * 2) & inWidthMask)])[k] +
+					2 * ((byte *) & in[((i * 2 + 2) & inHeightMask) * inWidth + ((j * 2 + 1) & inWidthMask)])[k] +
+					1 * ((byte *) & in[((i * 2 + 2) & inHeightMask) * inWidth + ((j * 2 + 2) & inWidthMask)])[k];
 				outpix[k] = total / 36;
 			}
 		}
@@ -689,82 +687,84 @@ static void R_MipNormalMap(byte * in, int width, int height)
 
 static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale)
 {
-	int				x, y;
-	float			r, g, b;
-	float			c, cx, cy;
-//	float			dcx, dcy, sqlen, reciplen;
-	float			inv255 = 1.0f / 255.0f;
-//	float           inv127 = 1.0 / 127.0;
-	vec3_t			n;
+	int             x, y;
+	float           r, g, b;
+	float           c, cx, cy;
+
+//  float           dcx, dcy, sqlen, reciplen;
+	float           inv255 = 1.0f / 255.0f;
+
+//  float           inv127 = 1.0 / 127.0;
+	vec3_t          n;
 	byte           *out;
-	
+
 	out = in;
-	
+
 	for(y = 0; y < height; y++)
 	{
 		for(x = 0; x < width; x++)
 		{
 			// convert the pixel at x, y in the bump map to a normal (float)
-			
+
 			// expand [0,255] texel values to the [0,1] range
 			r = in[4 * (y * width + x) + 0];
 			g = in[4 * (y * width + x) + 1];
 			b = in[4 * (y * width + x) + 2];
-	
+
 			c = (r + g + b) * inv255;
-	
+
 			// expand the texel to its right
 			r = in[4 * (y * width + ((x + 1) % width)) + 0];
 			g = in[4 * (y * width + ((x + 1) % width)) + 1];
 			b = in[4 * (y * width + ((x + 1) % width)) + 2];
-	
+
 			cx = (r + g + b) * inv255;
-	
+
 			// expand the texel one up
 			r = in[4 * (((y + 1) % height) * width + x) + 0];
 			g = in[4 * (((y + 1) % height) * width + x) + 1];
 			b = in[4 * (((y + 1) % height) * width + x) + 2];
-	
+
 			cy = (r + g + b) * inv255;
 
 			/*
-			dcx = scale * (c - cx);
-			dcy = scale * (c - cy);
+			   dcx = scale * (c - cx);
+			   dcy = scale * (c - cy);
 
-			// normalize the vector
-			sqlen = dcx * dcx + dcy * dcy + 1;
-			reciplen = 1.0 / (float)sqrt(sqlen);
-			n[0] = dcx * reciplen;
-			n[1] =-dcy * reciplen;
-			n[2] = reciplen;
-			*/
-			
-			
+			   // normalize the vector
+			   sqlen = dcx * dcx + dcy * dcy + 1;
+			   reciplen = 1.0 / (float)sqrt(sqlen);
+			   n[0] = dcx * reciplen;
+			   n[1] =-dcy * reciplen;
+			   n[2] = reciplen;
+			 */
+
+
 			n[0] = scale * (c - cx);
 			n[1] = scale * (c - cy);
 			n[2] = 1.0;
-			
+
 			if(!VectorNormalize(n))
 				VectorSet(n, 0, 0, 1);
-			
-			*out++ = (byte)(128 + 127 * n[0]);
-			*out++ = (byte)(128 + 127 * n[1]);
-			*out++ = (byte)(128 + 127 * n[2]);
-			*out++ = (byte)(128 + 127 * 1.0);
+
+			*out++ = (byte) (128 + 127 * n[0]);
+			*out++ = (byte) (128 + 127 * n[1]);
+			*out++ = (byte) (128 + 127 * n[2]);
+			*out++ = (byte) (128 + 127 * 1.0);
 		}
 	}
 }
 
 static void R_AddNormals(byte * in, byte * in2, int width, int height)
 {
-	int				x, y;
-	vec3_t			n;
-	vec3_t			n2;
+	int             x, y;
+	vec3_t          n;
+	vec3_t          n2;
 	float           inv127 = 1.0f / 127.0f;
 	byte           *out;
-	
+
 	out = in;
-	
+
 	for(y = 0; y < height; y++)
 	{
 		for(x = 0; x < width; x++)
@@ -772,31 +772,31 @@ static void R_AddNormals(byte * in, byte * in2, int width, int height)
 			n[0] = (in[4 * (y * width + x) + 0] * inv127 - 1.0);
 			n[1] = (in[4 * (y * width + x) + 1] * inv127 - 1.0);
 			n[2] = (in[4 * (y * width + x) + 2] * inv127 - 1.0);
-			
+
 			n2[0] = (in2[4 * (y * width + x) + 0] * inv127 - 1.0);
 			n2[1] = (in2[4 * (y * width + x) + 1] * inv127 - 1.0);
 			n2[2] = (in2[4 * (y * width + x) + 2] * inv127 - 1.0);
-			
+
 			VectorAdd(n, n2, n);
-			
+
 			if(!VectorNormalize(n))
 				VectorSet(n, 0, 0, 1);
-			
-			*out++ = (byte)(128 + 127 * n[0]);
-			*out++ = (byte)(128 + 127 * n[1]);
-			*out++ = (byte)(128 + 127 * n[2]);
-			*out++ = (byte)(128 + 127 * 1.0);
+
+			*out++ = (byte) (128 + 127 * n[0]);
+			*out++ = (byte) (128 + 127 * n[1]);
+			*out++ = (byte) (128 + 127 * n[2]);
+			*out++ = (byte) (128 + 127 * 1.0);
 		}
 	}
 }
 
 static void R_InvertAlpha(byte * in, int width, int height)
 {
-	int				x, y;
+	int             x, y;
 	byte           *out;
-	
+
 	out = in;
-	
+
 	for(y = 0; y < height; y++)
 	{
 		for(x = 0; x < width; x++)
@@ -808,11 +808,11 @@ static void R_InvertAlpha(byte * in, int width, int height)
 
 static void R_InvertColor(byte * in, int width, int height)
 {
-	int				x, y;
+	int             x, y;
 	byte           *out;
-	
+
 	out = in;
-	
+
 	for(y = 0; y < height; y++)
 	{
 		for(x = 0; x < width; x++)
@@ -826,18 +826,18 @@ static void R_InvertColor(byte * in, int width, int height)
 
 static void R_MakeIntensity(byte * in, int width, int height)
 {
-	int				x, y;
+	int             x, y;
 	byte           *out;
-	byte			red;
-	
+	byte            red;
+
 	out = in;
-	
+
 	for(y = 0; y < height; y++)
 	{
 		for(x = 0; x < width; x++)
 		{
 			red = out[4 * (y * width + x) + 0];
-			
+
 			out[4 * (y * width + x) + 1] = red;
 			out[4 * (y * width + x) + 2] = red;
 			out[4 * (y * width + x) + 3] = red;
@@ -847,12 +847,12 @@ static void R_MakeIntensity(byte * in, int width, int height)
 
 static void R_MakeAlpha(byte * in, int width, int height)
 {
-	int				x, y;
+	int             x, y;
 	byte           *out;
-	byte			avg;
-	
+	byte            avg;
+
 	out = in;
-	
+
 	for(y = 0; y < height; y++)
 	{
 		for(x = 0; x < width; x++)
@@ -862,7 +862,7 @@ static void R_MakeAlpha(byte * in, int width, int height)
 			avg += out[4 * (y * width + x) + 1];
 			avg += out[4 * (y * width + x) + 2];
 			avg /= 3;
-			
+
 			out[4 * (y * width + x) + 0] = 255;
 			out[4 * (y * width + x) + 1] = 255;
 			out[4 * (y * width + x) + 2] = 255;
@@ -899,23 +899,39 @@ static void R_BlendOverTexture(byte * data, int pixelCount, byte blend[4])
 }
 
 
-byte	mipBlendColors[16][4] = {
-	{0,0,0,0},
-	{255,0,0,128},
-	{0,255,0,128},
-	{0,0,255,128},
-	{255,0,0,128},
-	{0,255,0,128},
-	{0,0,255,128},
-	{255,0,0,128},
-	{0,255,0,128},
-	{0,0,255,128},
-	{255,0,0,128},
-	{0,255,0,128},
-	{0,0,255,128},
-	{255,0,0,128},
-	{0,255,0,128},
-	{0,0,255,128},
+byte            mipBlendColors[16][4] = {
+	{0, 0, 0, 0}
+	,
+	{255, 0, 0, 128}
+	,
+	{0, 255, 0, 128}
+	,
+	{0, 0, 255, 128}
+	,
+	{255, 0, 0, 128}
+	,
+	{0, 255, 0, 128}
+	,
+	{0, 0, 255, 128}
+	,
+	{255, 0, 0, 128}
+	,
+	{0, 255, 0, 128}
+	,
+	{0, 0, 255, 128}
+	,
+	{255, 0, 0, 128}
+	,
+	{0, 255, 0, 128}
+	,
+	{0, 0, 255, 128}
+	,
+	{255, 0, 0, 128}
+	,
+	{0, 255, 0, 128}
+	,
+	{0, 0, 255, 128}
+	,
 };
 
 
@@ -925,7 +941,7 @@ Upload32
 ===============
 */
 extern qboolean charSet;
-static void R_UploadImage(const byte **dataArray, int numData, image_t * image)
+static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 {
 	int             samples;
 	const byte     *data = dataArray[0];
@@ -933,11 +949,11 @@ static void R_UploadImage(const byte **dataArray, int numData, image_t * image)
 	int             scaledWidth, scaledHeight;
 	int             i, c;
 	const byte     *scan;
-	GLenum			target;
+	GLenum          target;
 	GLenum          internalFormat = GL_RGB;
 	float           rMax = 0, gMax = 0, bMax = 0;
-	vec4_t			zeroClampBorder = {0, 0, 0, 1};
-	vec4_t			alphaZeroClampBorder = {0, 0, 0, 0};
+	vec4_t          zeroClampBorder = { 0, 0, 0, 1 };
+	vec4_t          alphaZeroClampBorder = { 0, 0, 0, 0 };
 
 	// convert to exact power of 2 sizes
 	for(scaledWidth = 1; scaledWidth < image->width; scaledWidth <<= 1)
@@ -987,14 +1003,14 @@ static void R_UploadImage(const byte **dataArray, int numData, image_t * image)
 	}
 
 	scaledBuffer = ri.Hunk_AllocateTempMemory(sizeof(byte) * scaledWidth * scaledHeight * 4);
-	
+
 	// set target
-	switch(image->type)
+	switch (image->type)
 	{
 		case GL_TEXTURE_CUBE_MAP_ARB:
 			target = GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB;
 			break;
-				
+
 		default:
 			target = GL_TEXTURE_2D;
 			break;
@@ -1027,7 +1043,7 @@ static void R_UploadImage(const byte **dataArray, int numData, image_t * image)
 				break;
 			}
 		}
-		
+
 		// select proper internal format
 		if(samples == 3)
 		{
@@ -1076,11 +1092,11 @@ static void R_UploadImage(const byte **dataArray, int numData, image_t * image)
 	{
 		internalFormat = 3;
 	}
-	
+
 	for(i = 0; i < numData; i++)
 	{
 		data = dataArray[i];
-		
+
 		// copy or resample data as appropriate for first MIP level
 		if((scaledWidth == image->width) && (scaledHeight == image->height))
 		{
@@ -1090,112 +1106,115 @@ static void R_UploadImage(const byte **dataArray, int numData, image_t * image)
 				image->uploadWidth = scaledWidth;
 				image->uploadHeight = scaledHeight;
 				image->internalFormat = internalFormat;
-	
+
 				goto done;
 			}
 			Com_Memcpy(scaledBuffer, data, scaledWidth * scaledHeight * 4);
 		}
 		else
 		{
-			ResampleTexture((unsigned *)data, image->width, image->height, (unsigned *)scaledBuffer, scaledWidth
-					, scaledHeight, (image->bits & IF_NORMALMAP));
+			ResampleTexture((unsigned *)data, image->width, image->height, (unsigned *)scaledBuffer, scaledWidth, scaledHeight,
+							(image->bits & IF_NORMALMAP));
 		}
-	
+
 		if(!(image->bits & IF_NORMALMAP))
 		{
 			R_LightScaleTexture((unsigned *)scaledBuffer, scaledWidth, scaledHeight, image->filterType == FT_DEFAULT);
 		}
-	
+
 		image->uploadWidth = scaledWidth;
 		image->uploadHeight = scaledHeight;
 		image->internalFormat = internalFormat;
-	
-		switch(image->type)
+
+		switch (image->type)
 		{
 			case GL_TEXTURE_CUBE_MAP_ARB:
-				qglTexImage2D(target + i, 0, internalFormat, scaledWidth, scaledHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer);
+				qglTexImage2D(target + i, 0, internalFormat, scaledWidth, scaledHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+							  scaledBuffer);
 				break;
-				
+
 			default:
 				qglTexImage2D(target, 0, internalFormat, scaledWidth, scaledHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer);
 				break;
 		}
-	
+
 		if(image->filterType == FT_DEFAULT)
 		{
 			int             mipLevel;
 			int             mipWidth, mipHeight;
-	
+
 			mipLevel = 0;
 			mipWidth = scaledWidth;
 			mipHeight = scaledHeight;
-			
+
 			while(mipWidth > 1 || mipHeight > 1)
 			{
 				if(image->bits & IF_NORMALMAP)
 					R_MipNormalMap(scaledBuffer, mipWidth, mipHeight);
 				else
 					R_MipMap(scaledBuffer, mipWidth, mipHeight);
-	
+
 				mipWidth >>= 1;
 				mipHeight >>= 1;
-				
+
 				if(mipWidth < 1)
 					mipWidth = 1;
-				
+
 				if(mipHeight < 1)
 					mipHeight = 1;
-				
+
 				mipLevel++;
-	
+
 				if(r_colorMipLevels->integer && !(image->bits & IF_NORMALMAP))
 				{
 					R_BlendOverTexture(scaledBuffer, mipWidth * mipHeight, mipBlendColors[mipLevel]);
 				}
-	
-				switch(image->type)
+
+				switch (image->type)
 				{
 					case GL_TEXTURE_CUBE_MAP_ARB:
-						qglTexImage2D(target + i, mipLevel, internalFormat, mipWidth, mipHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer);
+						qglTexImage2D(target + i, mipLevel, internalFormat, mipWidth, mipHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+									  scaledBuffer);
 						break;
-						
+
 					default:
-						qglTexImage2D(target, mipLevel, internalFormat, mipWidth, mipHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer);
+						qglTexImage2D(target, mipLevel, internalFormat, mipWidth, mipHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+									  scaledBuffer);
 						break;
 				}
 			}
 		}
 	  done:
-	
+
 		// set filter type
 		switch (image->filterType)
 		{
 			case FT_DEFAULT:
 				qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, gl_filter_min);
 				qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
-				
+
 				// set texture anisotropy
 				if(glConfig2.textureAnisotropyAvailable)
 					qglTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
 				break;
-				
+
 			case FT_LINEAR:
 				qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 				break;
-			
+
 			case FT_NEAREST:
 				qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 				break;
-				
+
 			default:
 				ri.Printf(PRINT_WARNING, "WARNING: unknown filter type for image '%s'\n", image->name);
 				qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 				break;
 		}
-		
+
 		// set wrap type
 		switch (image->wrapType)
 		{
@@ -1203,29 +1222,29 @@ static void R_UploadImage(const byte **dataArray, int numData, image_t * image)
 				qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_REPEAT);
 				qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_REPEAT);
 				break;
-				
+
 			case WT_CLAMP:
 				qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP);
 				qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP);
 				break;
-				
+
 			case WT_EDGE_CLAMP:
 				qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 				qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 				break;
-				
+
 			case WT_ZERO_CLAMP:
 				qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 				qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 				qglTexParameterfv(image->type, GL_TEXTURE_BORDER_COLOR, zeroClampBorder);
 				break;
-				
+
 			case WT_ALPHA_ZERO_CLAMP:
 				qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 				qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 				qglTexParameterfv(image->type, GL_TEXTURE_BORDER_COLOR, alphaZeroClampBorder);
 				break;
-				
+
 			default:
 				ri.Printf(PRINT_WARNING, "WARNING: unknown wrap type for image '%s'\n", image->name);
 				qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -1248,15 +1267,13 @@ R_CreateImage
 ================
 */
 image_t        *R_CreateImage(const char *name,
-							  const byte * pic, 
-							  int width, int height, 
-							  int bits, filterType_t filterType, wrapType_t wrapType)
+							  const byte * pic, int width, int height, int bits, filterType_t filterType, wrapType_t wrapType)
 {
-	image_t *       image;
+	image_t        *image;
 	long            hash;
 	char            buffer[1024];
 
-//	if(strlen(name) >= MAX_QPATH)
+//  if(strlen(name) >= MAX_QPATH)
 	if(strlen(name) >= 1024)
 	{
 		ri.Error(ERR_DROP, "R_CreateImage: \"%s\" is too long\n", name);
@@ -1276,11 +1293,11 @@ image_t        *R_CreateImage(const char *name,
 
 	image->width = width;
 	image->height = height;
-	
+
 	image->bits = bits;
 	image->filterType = filterType;
 	image->wrapType = wrapType;
-	
+
 	if(!strncmp(name, "_lightmap", 9))
 	{
 		image->bits |= IF_LIGHTMAP;
@@ -1306,16 +1323,15 @@ R_CreateCubeImage
 ================
 */
 image_t        *R_CreateCubeImage(const char *name,
-								const byte *pic[6], 
-								int width, int height, 
-								int bits, filterType_t filterType, wrapType_t wrapType)
+								  const byte * pic[6],
+								  int width, int height, int bits, filterType_t filterType, wrapType_t wrapType)
 {
 #if 1
-	image_t *       image;
+	image_t        *image;
 	long            hash;
 	char            buffer[1024];
 
-//	if(strlen(name) >= MAX_QPATH)
+//  if(strlen(name) >= MAX_QPATH)
 	if(strlen(name) >= 1024)
 	{
 		ri.Error(ERR_DROP, "R_CreateCubeImage: \"%s\" is too long\n", name);
@@ -1335,11 +1351,11 @@ image_t        *R_CreateCubeImage(const char *name,
 
 	image->width = width;
 	image->height = height;
-	
+
 	image->bits = bits;
 	image->filterType = filterType;
 	image->wrapType = wrapType;
-	
+
 	if(!strncmp(name, "_lightmap", 9))
 	{
 		image->bits |= IF_LIGHTMAP;
@@ -1457,8 +1473,7 @@ static void LoadBMP(const char *name, byte ** pic, int *width, int *height)
 	}
 	if(bmpHeader.fileSize != length)
 	{
-		ri.Error(ERR_DROP, "LoadBMP: header size does not match file size (%d vs. %d) (%s)\n",
-				 bmpHeader.fileSize, length, name);
+		ri.Error(ERR_DROP, "LoadBMP: header size does not match file size (%d vs. %d) (%s)\n", bmpHeader.fileSize, length, name);
 	}
 	if(bmpHeader.compression != 0)
 	{
@@ -1532,8 +1547,7 @@ static void LoadBMP(const char *name, byte ** pic, int *width, int *height)
 					*pixbuf++ = alpha;
 					break;
 				default:
-					ri.Error(ERR_DROP, "LoadBMP: illegal pixel_size '%d' in file '%s'\n",
-							 bmpHeader.bitsPerPixel, name);
+					ri.Error(ERR_DROP, "LoadBMP: illegal pixel_size '%d' in file '%s'\n", bmpHeader.bitsPerPixel, name);
 					break;
 			}
 		}
@@ -1591,11 +1605,9 @@ static void LoadPCX(const char *filename, byte ** pic, byte ** palette, int *wid
 	ymax = LittleShort(pcx->ymax);
 
 	if(pcx->manufacturer != 0x0a
-	   || pcx->version != 5
-	   || pcx->encoding != 1 || pcx->bits_per_pixel != 8 || xmax >= 1024 || ymax >= 1024)
+	   || pcx->version != 5 || pcx->encoding != 1 || pcx->bits_per_pixel != 8 || xmax >= 1024 || ymax >= 1024)
 	{
-		ri.Printf(PRINT_ALL, "Bad pcx file %s (%i x %i) (%i x %i)\n", filename, xmax + 1, ymax + 1,
-				  pcx->xmax, pcx->ymax);
+		ri.Printf(PRINT_ALL, "Bad pcx file %s (%i x %i) (%i x %i)\n", filename, xmax + 1, ymax + 1, pcx->xmax, pcx->ymax);
 		return;
 	}
 
@@ -1741,21 +1753,19 @@ static void LoadTGA(const char *name, byte ** pic, int *width, int *height)
 	targa_header.pixel_size = *buf_p++;
 	targa_header.attributes = *buf_p++;
 
-	if(targa_header.image_type != 2
-	   && targa_header.image_type != 10 && targa_header.image_type != 3)
+	if(targa_header.image_type != 2 && targa_header.image_type != 10 && targa_header.image_type != 3)
 	{
-		ri.Error(ERR_DROP, "LoadTGA: Only type 2 (RGB), 3 (gray), and 10 (RGB) TGA images supported\n");
+		ri.Error(ERR_DROP, "LoadTGA: Only type 2 (RGB), 3 (gray), and 10 (RGB) TGA images supported (%s)\n", name);
 	}
 
 	if(targa_header.colormap_type != 0)
 	{
-		ri.Error(ERR_DROP, "LoadTGA: colormaps not supported\n");
+		ri.Error(ERR_DROP, "LoadTGA: colormaps not supported (%s)\n", name);
 	}
 
-	if((targa_header.pixel_size != 32 && targa_header.pixel_size != 24) &&
-	   targa_header.image_type != 3)
+	if((targa_header.pixel_size != 32 && targa_header.pixel_size != 24) && targa_header.image_type != 3)
 	{
-		ri.Error(ERR_DROP, "LoadTGA: Only 32 or 24 bit images supported (no colormaps)\n");
+		ri.Error(ERR_DROP, "LoadTGA: Only 32 or 24 bit images supported (no colormaps) (%s)\n", name);
 	}
 
 	columns = targa_header.width;
@@ -1816,8 +1826,7 @@ static void LoadTGA(const char *name, byte ** pic, int *width, int *height)
 						*pixbuf++ = alphabyte;
 						break;
 					default:
-						ri.Error(ERR_DROP, "LoadTGA: illegal pixel_size '%d' in file '%s'\n",
-								 targa_header.pixel_size, name);
+						ri.Error(ERR_DROP, "LoadTGA: illegal pixel_size '%d' in file '%s'\n", targa_header.pixel_size, name);
 						break;
 				}
 			}
@@ -1856,8 +1865,7 @@ static void LoadTGA(const char *name, byte ** pic, int *width, int *height)
 							alphabyte = *buf_p++;
 							break;
 						default:
-							ri.Error(ERR_DROP, "LoadTGA: illegal pixel_size '%d' in file '%s'\n",
-									 targa_header.pixel_size, name);
+							ri.Error(ERR_DROP, "LoadTGA: illegal pixel_size '%d' in file '%s'\n", targa_header.pixel_size, name);
 							break;
 					}
 
@@ -1906,8 +1914,7 @@ static void LoadTGA(const char *name, byte ** pic, int *width, int *height)
 								break;
 							default:
 								ri.Error(ERR_DROP,
-										 "LoadTGA: illegal pixel_size '%d' in file '%s'\n",
-										 targa_header.pixel_size, name);
+										 "LoadTGA: illegal pixel_size '%d' in file '%s'\n", targa_header.pixel_size, name);
 								break;
 						}
 						column++;
@@ -1935,8 +1942,8 @@ static void LoadTGA(const char *name, byte ** pic, int *width, int *height)
 	{
 		unsigned char  *flip;
 		unsigned char  *src, *dst;
-		
-		ri.Printf(PRINT_WARNING, "WARNING: '%s' TGA file header declares top-down image, flipping\n", name);
+
+		//ri.Printf(PRINT_WARNING, "WARNING: '%s' TGA file header declares top-down image, flipping\n", name);
 
 		flip = (unsigned char *)malloc(columns * 4);
 		for(row = 0; row < rows / 2; row++)
@@ -1961,6 +1968,14 @@ static void LoadTGA(const char *name, byte ** pic, int *width, int *height)
 	ri.FS_FreeFile(buffer);
 }
 
+
+/*
+=========================================================
+
+JPEG LOADING
+
+=========================================================
+*/
 
 static void LoadJPG(const char *filename, unsigned char **pic, int *width, int *height)
 {
@@ -2113,6 +2128,15 @@ static void LoadJPG(const char *filename, unsigned char **pic, int *width, int *
 }
 
 
+/*
+=========================================================
+
+JPEG SAVING
+
+=========================================================
+*/
+
+
 /* Expanded data destination object for stdio output */
 
 typedef struct
@@ -2222,8 +2246,7 @@ GLOBAL void jpeg_start_compress(j_compress_ptr cinfo, boolean write_all_tables)
  * when using a multiple-scanline buffer.
  */
 
-GLOBAL          JDIMENSION
-jpeg_write_scanlines(j_compress_ptr cinfo, JSAMPARRAY scanlines, JDIMENSION num_lines)
+GLOBAL          JDIMENSION jpeg_write_scanlines(j_compress_ptr cinfo, JSAMPARRAY scanlines, JDIMENSION num_lines)
 {
 	JDIMENSION      row_ctr, rows_left;
 
@@ -2298,8 +2321,7 @@ void jpegDest(j_compress_ptr cinfo, byte * outfile, int size)
 	if(cinfo->dest == NULL)
 	{							/* first time for this JPEG object? */
 		cinfo->dest = (struct jpeg_destination_mgr *)
-			(*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
-										sizeof(my_destination_mgr));
+			(*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT, sizeof(my_destination_mgr));
 	}
 
 	dest = (my_dest_ptr) cinfo->dest;
@@ -2310,8 +2332,7 @@ void jpegDest(j_compress_ptr cinfo, byte * outfile, int size)
 	dest->size = size;
 }
 
-void SaveJPG(char *filename, int quality, int image_width, int image_height,
-			 unsigned char *image_buffer)
+void SaveJPG(char *filename, int quality, int image_width, int image_height, unsigned char *image_buffer)
 {
 	/* This struct contains the JPEG compression parameters and pointers to
 	 * working space (which is allocated as needed by the JPEG library).
@@ -2400,9 +2421,7 @@ void SaveJPG(char *filename, int quality, int image_width, int image_height,
 		 * Here the array is only one element long, but you could pass
 		 * more than one scanline at a time if that's more convenient.
 		 */
-		row_pointer[0] =
-			&image_buffer[((cinfo.image_height - 1) * row_stride) -
-						  cinfo.next_scanline * row_stride];
+		row_pointer[0] = &image_buffer[((cinfo.image_height - 1) * row_stride) - cinfo.next_scanline * row_stride];
 		(void)jpeg_write_scanlines(&cinfo, row_pointer, 1);
 	}
 
@@ -2422,15 +2441,939 @@ void SaveJPG(char *filename, int quality, int image_width, int image_height,
 	/* And we're done! */
 }
 
+/*
+=========================================================
+
+DDS LOADING
+
+=========================================================
+*/
+
+/* -----------------------------------------------------------------------------
+
+DDS Library 
+
+Based on code from Nvidia's DDS example:
+http://www.nvidia.com/object/dxtc_decompression_code.html
+
+Copyright (c) 2003 Randy Reddig
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this list
+of conditions and the following disclaimer.
+
+Redistributions in binary form must reproduce the above copyright notice, this
+list of conditions and the following disclaimer in the documentation and/or
+other materials provided with the distribution.
+
+Neither the names of the copyright holders nor the names of its contributors may
+be used to endorse or promote products derived from this software without
+specific prior written permission. 
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+----------------------------------------------------------------------------- */
+
+/* dds definition */
+typedef enum
+{
+	DDS_PF_ARGB8888,
+	DDS_PF_DXT1,
+	DDS_PF_DXT2,
+	DDS_PF_DXT3,
+	DDS_PF_DXT4,
+	DDS_PF_DXT5,
+	DDS_PF_UNKNOWN
+}
+ddsPF_t;
+
+
+/* 16bpp stuff */
+#define DDS_LOW_5		0x001F;
+#define DDS_MID_6		0x07E0;
+#define DDS_HIGH_5		0xF800;
+#define DDS_MID_555		0x03E0;
+#define DDS_HI_555		0x7C00;
+
+
+/* structures */
+typedef struct ddsColorKey_s
+{
+	unsigned int    colorSpaceLowValue;
+	unsigned int    colorSpaceHighValue;
+}
+ddsColorKey_t;
+
+
+typedef struct ddsCaps_s
+{
+	unsigned int    caps1;
+	unsigned int    caps2;
+	unsigned int    caps3;
+	unsigned int    caps4;
+}
+ddsCaps_t;
+
+
+typedef struct ddsMultiSampleCaps_s
+{
+	unsigned short  flipMSTypes;
+	unsigned short  bltMSTypes;
+}
+ddsMultiSampleCaps_t;
+
+
+typedef struct ddsPixelFormat_s
+{
+	unsigned int    size;
+	unsigned int    flags;
+	unsigned int    fourCC;
+	union
+	{
+		unsigned int    rgbBitCount;
+		unsigned int    yuvBitCount;
+		unsigned int    zBufferBitDepth;
+		unsigned int    alphaBitDepth;
+		unsigned int    luminanceBitCount;
+		unsigned int    bumpBitCount;
+		unsigned int    privateFormatBitCount;
+	};
+	union
+	{
+		unsigned int    rBitMask;
+		unsigned int    yBitMask;
+		unsigned int    stencilBitDepth;
+		unsigned int    luminanceBitMask;
+		unsigned int    bumpDuBitMask;
+		unsigned int    operations;
+	};
+	union
+	{
+		unsigned int    gBitMask;
+		unsigned int    uBitMask;
+		unsigned int    zBitMask;
+		unsigned int    bumpDvBitMask;
+		ddsMultiSampleCaps_t multiSampleCaps;
+	};
+	union
+	{
+		unsigned int    bBitMask;
+		unsigned int    vBitMask;
+		unsigned int    stencilBitMask;
+		unsigned int    bumpLuminanceBitMask;
+	};
+	union
+	{
+		unsigned int    rgbAlphaBitMask;
+		unsigned int    yuvAlphaBitMask;
+		unsigned int    luminanceAlphaBitMask;
+		unsigned int    rgbZBitMask;
+		unsigned int    yuvZBitMask;
+	};
+}
+ddsPixelFormat_t;
+
+
+typedef struct ddsBuffer_s
+{
+	/* magic: 'dds ' */
+	char            magic[4];
+
+	/* directdraw surface */
+	unsigned int    size;
+	unsigned int    flags;
+	unsigned int    height;
+	unsigned int    width;
+	union
+	{
+		int             pitch;
+		unsigned int    linearSize;
+	};
+	unsigned int    backBufferCount;
+	union
+	{
+		unsigned int    mipMapCount;
+		unsigned int    refreshRate;
+		unsigned int    srcVBHandle;
+	};
+	unsigned int    alphaBitDepth;
+	unsigned int    reserved;
+	void           *surface;
+	union
+	{
+		ddsColorKey_t   ckDestOverlay;
+		unsigned int    emptyFaceColor;
+	};
+	ddsColorKey_t   ckDestBlt;
+	ddsColorKey_t   ckSrcOverlay;
+	ddsColorKey_t   ckSrcBlt;
+	union
+	{
+		ddsPixelFormat_t pixelFormat;
+		unsigned int    fvf;
+	};
+	ddsCaps_t       ddsCaps;
+	unsigned int    textureStage;
+
+	/* data (Varying size) */
+	unsigned char   data[4];
+}
+ddsBuffer_t;
+
+
+typedef struct ddsColorBlock_s
+{
+	unsigned short  colors[2];
+	unsigned char   row[4];
+}
+ddsColorBlock_t;
+
+
+typedef struct ddsAlphaBlockExplicit_s
+{
+	unsigned short  row[4];
+}
+ddsAlphaBlockExplicit_t;
+
+
+typedef struct ddsAlphaBlock3BitLinear_s
+{
+	unsigned char   alpha0;
+	unsigned char   alpha1;
+	unsigned char   stuff[6];
+}
+ddsAlphaBlock3BitLinear_t;
+
+
+typedef struct ddsColor_s
+{
+	unsigned char   r, g, b, a;
+}
+ddsColor_t;
+
+/*
+DDSDecodePixelFormat()
+determines which pixel format the dds texture is in
+*/
+
+static void DDSDecodePixelFormat(ddsBuffer_t * dds, ddsPF_t * pf)
+{
+	unsigned int    fourCC;
+
+
+	/* dummy check */
+	if(dds == NULL || pf == NULL)
+		return;
+
+	/* extract fourCC */
+	fourCC = dds->pixelFormat.fourCC;
+
+	/* test it */
+	if(fourCC == 0)
+		*pf = DDS_PF_ARGB8888;
+	else if(fourCC == *((unsigned int *)"DXT1"))
+		*pf = DDS_PF_DXT1;
+	else if(fourCC == *((unsigned int *)"DXT2"))
+		*pf = DDS_PF_DXT2;
+	else if(fourCC == *((unsigned int *)"DXT3"))
+		*pf = DDS_PF_DXT3;
+	else if(fourCC == *((unsigned int *)"DXT4"))
+		*pf = DDS_PF_DXT4;
+	else if(fourCC == *((unsigned int *)"DXT5"))
+		*pf = DDS_PF_DXT5;
+	else
+		*pf = DDS_PF_UNKNOWN;
+}
+
+
+
+/*
+DDSGetInfo()
+extracts relevant info from a dds texture, returns 0 on success
+*/
+
+int DDSGetInfo(ddsBuffer_t * dds, int *width, int *height, ddsPF_t * pf)
+{
+	/* dummy test */
+	if(dds == NULL)
+		return -1;
+
+	/* test dds header */
+	if(*((int *)dds->magic) != *((int *)"DDS "))
+		return -1;
+	if(LittleLong(dds->size) != 124)
+		return -1;
+
+	/* extract width and height */
+	if(width != NULL)
+		*width = LittleLong(dds->width);
+	if(height != NULL)
+		*height = LittleLong(dds->height);
+
+	/* get pixel format */
+	DDSDecodePixelFormat(dds, pf);
+
+	/* return ok */
+	return 0;
+}
+
+
+
+/*
+DDSGetColorBlockColors()
+extracts colors from a dds color block
+*/
+
+static void DDSGetColorBlockColors(ddsColorBlock_t * block, ddsColor_t colors[4])
+{
+	unsigned short  word;
+
+
+	/* color 0 */
+	word = LittleShort(block->colors[0]);
+	colors[0].a = 0xff;
+
+	/* extract rgb bits */
+	colors[0].b = (unsigned char)word;
+	colors[0].b <<= 3;
+	colors[0].b |= (colors[0].b >> 5);
+	word >>= 5;
+	colors[0].g = (unsigned char)word;
+	colors[0].g <<= 2;
+	colors[0].g |= (colors[0].g >> 5);
+	word >>= 6;
+	colors[0].r = (unsigned char)word;
+	colors[0].r <<= 3;
+	colors[0].r |= (colors[0].r >> 5);
+
+	/* same for color 1 */
+	word = LittleShort(block->colors[1]);
+	colors[1].a = 0xff;
+
+	/* extract rgb bits */
+	colors[1].b = (unsigned char)word;
+	colors[1].b <<= 3;
+	colors[1].b |= (colors[1].b >> 5);
+	word >>= 5;
+	colors[1].g = (unsigned char)word;
+	colors[1].g <<= 2;
+	colors[1].g |= (colors[1].g >> 5);
+	word >>= 6;
+	colors[1].r = (unsigned char)word;
+	colors[1].r <<= 3;
+	colors[1].r |= (colors[1].r >> 5);
+
+	/* use this for all but the super-freak math method */
+	if(block->colors[0] > block->colors[1])
+	{
+		/* four-color block: derive the other two colors.    
+		   00 = color 0, 01 = color 1, 10 = color 2, 11 = color 3
+		   these two bit codes correspond to the 2-bit fields 
+		   stored in the 64-bit block. */
+
+		word = ((unsigned short)colors[0].r * 2 + (unsigned short)colors[1].r) / 3;
+		/* no +1 for rounding */
+		/* as bits have been shifted to 888 */
+		colors[2].r = (unsigned char)word;
+		word = ((unsigned short)colors[0].g * 2 + (unsigned short)colors[1].g) / 3;
+		colors[2].g = (unsigned char)word;
+		word = ((unsigned short)colors[0].b * 2 + (unsigned short)colors[1].b) / 3;
+		colors[2].b = (unsigned char)word;
+		colors[2].a = 0xff;
+
+		word = ((unsigned short)colors[0].r + (unsigned short)colors[1].r * 2) / 3;
+		colors[3].r = (unsigned char)word;
+		word = ((unsigned short)colors[0].g + (unsigned short)colors[1].g * 2) / 3;
+		colors[3].g = (unsigned char)word;
+		word = ((unsigned short)colors[0].b + (unsigned short)colors[1].b * 2) / 3;
+		colors[3].b = (unsigned char)word;
+		colors[3].a = 0xff;
+	}
+	else
+	{
+		/* three-color block: derive the other color.
+		   00 = color 0, 01 = color 1, 10 = color 2,  
+		   11 = transparent.
+		   These two bit codes correspond to the 2-bit fields 
+		   stored in the 64-bit block */
+
+		word = ((unsigned short)colors[0].r + (unsigned short)colors[1].r) / 2;
+		colors[2].r = (unsigned char)word;
+		word = ((unsigned short)colors[0].g + (unsigned short)colors[1].g) / 2;
+		colors[2].g = (unsigned char)word;
+		word = ((unsigned short)colors[0].b + (unsigned short)colors[1].b) / 2;
+		colors[2].b = (unsigned char)word;
+		colors[2].a = 0xff;
+
+		/* random color to indicate alpha */
+		colors[3].r = 0x00;
+		colors[3].g = 0xff;
+		colors[3].b = 0xff;
+		colors[3].a = 0x00;
+	}
+}
+
+
+
+/*
+DDSDecodeColorBlock()
+decodes a dds color block
+fixme: make endian-safe
+*/
+
+static void DDSDecodeColorBlock(unsigned int *pixel, ddsColorBlock_t * block, int width, unsigned int colors[4])
+{
+	int             r, n;
+	unsigned int    bits;
+	unsigned int    masks[] = { 3, 12, 3 << 4, 3 << 6 };	/* bit masks = 00000011, 00001100, 00110000, 11000000 */
+	int             shift[] = { 0, 2, 4, 6 };
+
+
+	/* r steps through lines in y */
+	for(r = 0; r < 4; r++, pixel += (width - 4))	/* no width * 4 as unsigned int ptr inc will * 4 */
+	{
+		/* width * 4 bytes per pixel per line, each j dxtc row is 4 lines of pixels */
+
+		/* n steps through pixels */
+		for(n = 0; n < 4; n++)
+		{
+			bits = block->row[r] & masks[n];
+			bits >>= shift[n];
+
+			switch (bits)
+			{
+				case 0:
+					*pixel = colors[0];
+					pixel++;
+					break;
+
+				case 1:
+					*pixel = colors[1];
+					pixel++;
+					break;
+
+				case 2:
+					*pixel = colors[2];
+					pixel++;
+					break;
+
+				case 3:
+					*pixel = colors[3];
+					pixel++;
+					break;
+
+				default:
+					/* invalid */
+					pixel++;
+					break;
+			}
+		}
+	}
+}
+
+
+
+/*
+DDSDecodeAlphaExplicit()
+decodes a dds explicit alpha block
+*/
+
+static void DDSDecodeAlphaExplicit(unsigned int *pixel, ddsAlphaBlockExplicit_t * alphaBlock, int width, unsigned int alphaZero)
+{
+	int             row, pix;
+	unsigned short  word;
+	ddsColor_t      color;
+
+
+	/* clear color */
+	color.r = 0;
+	color.g = 0;
+	color.b = 0;
+
+	/* walk rows */
+	for(row = 0; row < 4; row++, pixel += (width - 4))
+	{
+		word = LittleShort(alphaBlock->row[row]);
+
+		/* walk pixels */
+		for(pix = 0; pix < 4; pix++)
+		{
+			/* zero the alpha bits of image pixel */
+			*pixel &= alphaZero;
+			color.a = word & 0x000F;
+			color.a = color.a | (color.a << 4);
+			*pixel |= *((unsigned int *)&color);
+			word >>= 4;			/* move next bits to lowest 4 */
+			pixel++;			/* move to next pixel in the row */
+
+		}
+	}
+}
+
+
+
+/*
+DDSDecodeAlpha3BitLinear()
+decodes interpolated alpha block
+*/
+
+static void DDSDecodeAlpha3BitLinear(unsigned int *pixel, ddsAlphaBlock3BitLinear_t * alphaBlock, int width,
+									 unsigned int alphaZero)
+{
+
+	int             row, pix;
+	unsigned int    stuff;
+	unsigned char   bits[4][4];
+	unsigned short  alphas[8];
+	ddsColor_t      aColors[4][4];
+
+
+	/* get initial alphas */
+	alphas[0] = alphaBlock->alpha0;
+	alphas[1] = alphaBlock->alpha1;
+
+	/* 8-alpha block */
+	if(alphas[0] > alphas[1])
+	{
+		/* 000 = alpha_0, 001 = alpha_1, others are interpolated */
+		alphas[2] = (6 * alphas[0] + alphas[1]) / 7;	/* bit code 010 */
+		alphas[3] = (5 * alphas[0] + 2 * alphas[1]) / 7;	/* bit code 011 */
+		alphas[4] = (4 * alphas[0] + 3 * alphas[1]) / 7;	/* bit code 100 */
+		alphas[5] = (3 * alphas[0] + 4 * alphas[1]) / 7;	/* bit code 101 */
+		alphas[6] = (2 * alphas[0] + 5 * alphas[1]) / 7;	/* bit code 110 */
+		alphas[7] = (alphas[0] + 6 * alphas[1]) / 7;	/* bit code 111 */
+	}
+
+	/* 6-alpha block */
+	else
+	{
+		/* 000 = alpha_0, 001 = alpha_1, others are interpolated */
+		alphas[2] = (4 * alphas[0] + alphas[1]) / 5;	/* bit code 010 */
+		alphas[3] = (3 * alphas[0] + 2 * alphas[1]) / 5;	/* bit code 011 */
+		alphas[4] = (2 * alphas[0] + 3 * alphas[1]) / 5;	/* bit code 100 */
+		alphas[5] = (alphas[0] + 4 * alphas[1]) / 5;	/* bit code 101 */
+		alphas[6] = 0;			/* bit code 110 */
+		alphas[7] = 255;		/* bit code 111 */
+	}
+
+	/* decode 3-bit fields into array of 16 bytes with same value */
+
+	/* first two rows of 4 pixels each */
+	stuff = *((unsigned int *)&(alphaBlock->stuff[0]));
+
+	bits[0][0] = (unsigned char)(stuff & 0x00000007);
+	stuff >>= 3;
+	bits[0][1] = (unsigned char)(stuff & 0x00000007);
+	stuff >>= 3;
+	bits[0][2] = (unsigned char)(stuff & 0x00000007);
+	stuff >>= 3;
+	bits[0][3] = (unsigned char)(stuff & 0x00000007);
+	stuff >>= 3;
+	bits[1][0] = (unsigned char)(stuff & 0x00000007);
+	stuff >>= 3;
+	bits[1][1] = (unsigned char)(stuff & 0x00000007);
+	stuff >>= 3;
+	bits[1][2] = (unsigned char)(stuff & 0x00000007);
+	stuff >>= 3;
+	bits[1][3] = (unsigned char)(stuff & 0x00000007);
+
+	/* last two rows */
+	stuff = *((unsigned int *)&(alphaBlock->stuff[3]));	/* last 3 bytes */
+
+	bits[2][0] = (unsigned char)(stuff & 0x00000007);
+	stuff >>= 3;
+	bits[2][1] = (unsigned char)(stuff & 0x00000007);
+	stuff >>= 3;
+	bits[2][2] = (unsigned char)(stuff & 0x00000007);
+	stuff >>= 3;
+	bits[2][3] = (unsigned char)(stuff & 0x00000007);
+	stuff >>= 3;
+	bits[3][0] = (unsigned char)(stuff & 0x00000007);
+	stuff >>= 3;
+	bits[3][1] = (unsigned char)(stuff & 0x00000007);
+	stuff >>= 3;
+	bits[3][2] = (unsigned char)(stuff & 0x00000007);
+	stuff >>= 3;
+	bits[3][3] = (unsigned char)(stuff & 0x00000007);
+
+	/* decode the codes into alpha values */
+	for(row = 0; row < 4; row++)
+	{
+		for(pix = 0; pix < 4; pix++)
+		{
+			aColors[row][pix].r = 0;
+			aColors[row][pix].g = 0;
+			aColors[row][pix].b = 0;
+			aColors[row][pix].a = (unsigned char)alphas[bits[row][pix]];
+		}
+	}
+
+	/* write out alpha values to the image bits */
+	for(row = 0; row < 4; row++, pixel += width - 4)
+	{
+		for(pix = 0; pix < 4; pix++)
+		{
+			/* zero the alpha bits of image pixel */
+			*pixel &= alphaZero;
+
+			/* or the bits into the prev. nulled alpha */
+			*pixel |= *((unsigned int *)&(aColors[row][pix]));
+			pixel++;
+		}
+	}
+}
+
+
+
+/*
+DDSDecompressDXT1()
+decompresses a dxt1 format texture
+*/
+
+static int DDSDecompressDXT1(ddsBuffer_t * dds, int width, int height, unsigned char *pixels)
+{
+	int             x, y, xBlocks, yBlocks;
+	unsigned int   *pixel;
+	ddsColorBlock_t *block;
+	ddsColor_t      colors[4];
+
+
+	/* setup */
+	xBlocks = width / 4;
+	yBlocks = height / 4;
+
+	/* walk y */
+	for(y = 0; y < yBlocks; y++)
+	{
+		/* 8 bytes per block */
+		block = (ddsColorBlock_t *) ((unsigned int)dds->data + y * xBlocks * 8);
+
+		/* walk x */
+		for(x = 0; x < xBlocks; x++, block++)
+		{
+			DDSGetColorBlockColors(block, colors);
+			pixel = (unsigned int *)(pixels + x * 16 + (y * 4) * width * 4);
+			DDSDecodeColorBlock(pixel, block, width, (unsigned int *)colors);
+		}
+	}
+
+	/* return ok */
+	return 0;
+}
+
+
+
+/*
+DDSDecompressDXT3()
+decompresses a dxt3 format texture
+*/
+
+static int DDSDecompressDXT3(ddsBuffer_t * dds, int width, int height, unsigned char *pixels)
+{
+	int             x, y, xBlocks, yBlocks;
+	unsigned int   *pixel, alphaZero;
+	ddsColorBlock_t *block;
+	ddsAlphaBlockExplicit_t *alphaBlock;
+	ddsColor_t      colors[4];
+
+
+	/* setup */
+	xBlocks = width / 4;
+	yBlocks = height / 4;
+
+	/* create zero alpha */
+	colors[0].a = 0;
+	colors[0].r = 0xFF;
+	colors[0].g = 0xFF;
+	colors[0].b = 0xFF;
+	alphaZero = *((unsigned int *)&colors[0]);
+
+	/* walk y */
+	for(y = 0; y < yBlocks; y++)
+	{
+		/* 8 bytes per block, 1 block for alpha, 1 block for color */
+		block = (ddsColorBlock_t *) ((unsigned int)dds->data + y * xBlocks * 16);
+
+		/* walk x */
+		for(x = 0; x < xBlocks; x++, block++)
+		{
+			/* get alpha block */
+			alphaBlock = (ddsAlphaBlockExplicit_t *) block;
+
+			/* get color block */
+			block++;
+			DDSGetColorBlockColors(block, colors);
+
+			/* decode color block */
+			pixel = (unsigned int *)(pixels + x * 16 + (y * 4) * width * 4);
+			DDSDecodeColorBlock(pixel, block, width, (unsigned int *)colors);
+
+			/* overwrite alpha bits with alpha block */
+			DDSDecodeAlphaExplicit(pixel, alphaBlock, width, alphaZero);
+		}
+	}
+
+	/* return ok */
+	return 0;
+}
+
+
+
+/*
+DDSDecompressDXT5()
+decompresses a dxt5 format texture
+*/
+
+static int DDSDecompressDXT5(ddsBuffer_t * dds, int width, int height, unsigned char *pixels)
+{
+	int             x, y, xBlocks, yBlocks;
+	unsigned int   *pixel, alphaZero;
+	ddsColorBlock_t *block;
+	ddsAlphaBlock3BitLinear_t *alphaBlock;
+	ddsColor_t      colors[4];
+
+
+	/* setup */
+	xBlocks = width / 4;
+	yBlocks = height / 4;
+
+	/* create zero alpha */
+	colors[0].a = 0;
+	colors[0].r = 0xFF;
+	colors[0].g = 0xFF;
+	colors[0].b = 0xFF;
+	alphaZero = *((unsigned int *)&colors[0]);
+
+	/* walk y */
+	for(y = 0; y < yBlocks; y++)
+	{
+		/* 8 bytes per block, 1 block for alpha, 1 block for color */
+		block = (ddsColorBlock_t *) ((unsigned int)dds->data + y * xBlocks * 16);
+
+		/* walk x */
+		for(x = 0; x < xBlocks; x++, block++)
+		{
+			/* get alpha block */
+			alphaBlock = (ddsAlphaBlock3BitLinear_t *) block;
+
+			/* get color block */
+			block++;
+			DDSGetColorBlockColors(block, colors);
+
+			/* decode color block */
+			pixel = (unsigned int *)(pixels + x * 16 + (y * 4) * width * 4);
+			DDSDecodeColorBlock(pixel, block, width, (unsigned int *)colors);
+
+			/* overwrite alpha bits with alpha block */
+			DDSDecodeAlpha3BitLinear(pixel, alphaBlock, width, alphaZero);
+		}
+	}
+
+	/* return ok */
+	return 0;
+}
+
+
+
+/*
+DDSDecompressDXT2()
+decompresses a dxt2 format texture (fixme: un-premultiply alpha)
+*/
+
+static int DDSDecompressDXT2(ddsBuffer_t * dds, int width, int height, unsigned char *pixels)
+{
+	int             r;
+
+
+	/* decompress dxt3 first */
+	r = DDSDecompressDXT3(dds, width, height, pixels);
+
+	/* return to sender */
+	return r;
+}
+
+
+
+/*
+DDSDecompressDXT4()
+decompresses a dxt4 format texture (fixme: un-premultiply alpha)
+*/
+
+static int DDSDecompressDXT4(ddsBuffer_t * dds, int width, int height, unsigned char *pixels)
+{
+	int             r;
+
+
+	/* decompress dxt5 first */
+	r = DDSDecompressDXT5(dds, width, height, pixels);
+
+	/* return to sender */
+	return r;
+}
+
+
+
+/*
+DDSDecompressARGB8888()
+decompresses an argb 8888 format texture
+*/
+
+static int DDSDecompressARGB8888(ddsBuffer_t * dds, int width, int height, unsigned char *pixels)
+{
+	int             x, y;
+	unsigned char  *in, *out;
+
+
+	/* setup */
+	in = dds->data;
+	out = pixels;
+
+	/* walk y */
+	for(y = 0; y < height; y++)
+	{
+		/* walk x */
+		for(x = 0; x < width; x++)
+		{
+			*out++ = *in++;
+			*out++ = *in++;
+			*out++ = *in++;
+			*out++ = *in++;
+		}
+	}
+
+	/* return ok */
+	return 0;
+}
+
+
+
+/*
+DDSDecompress()
+decompresses a dds texture into an rgba image buffer, returns 0 on success
+*/
+
+int DDSDecompress(ddsBuffer_t * dds, unsigned char *pixels)
+{
+	int             width, height, r;
+	ddsPF_t         pf;
+
+
+	/* get dds info */
+	r = DDSGetInfo(dds, &width, &height, &pf);
+	if(r)
+		return r;
+
+	/* decompress */
+	switch (pf)
+	{
+		case DDS_PF_ARGB8888:
+			/* fixme: support other [a]rgb formats */
+			r = DDSDecompressARGB8888(dds, width, height, pixels);
+			break;
+
+		case DDS_PF_DXT1:
+			r = DDSDecompressDXT1(dds, width, height, pixels);
+			break;
+
+		case DDS_PF_DXT2:
+			r = DDSDecompressDXT2(dds, width, height, pixels);
+			break;
+
+		case DDS_PF_DXT3:
+			r = DDSDecompressDXT3(dds, width, height, pixels);
+			break;
+
+		case DDS_PF_DXT4:
+			r = DDSDecompressDXT4(dds, width, height, pixels);
+			break;
+
+		case DDS_PF_DXT5:
+			r = DDSDecompressDXT5(dds, width, height, pixels);
+			break;
+
+		default:
+		case DDS_PF_UNKNOWN:
+			memset(pixels, 0xFF, width * height * 4);
+			r = -1;
+			break;
+	}
+
+	/* return to sender */
+	return r;
+}
+
+/*
+=============
+LoadDDS
+loads a dxtc (1, 3, 5) dds buffer into a valid rgba image
+=============
+*/
+static void LoadDDS(const char *name, byte ** pic, int *width, int *height)
+{
+	int             w, h;
+	ddsPF_t         pf;
+	byte           *buffer;
+
+	*pic = NULL;
+
+	// load the file
+	ri.FS_ReadFile((char *)name, (void **)&buffer);
+	if(!buffer)
+	{
+		return;
+	}
+
+	// null out
+	*pic = 0;
+	*width = 0;
+	*height = 0;
+
+	// get dds info
+	if(DDSGetInfo((ddsBuffer_t *) buffer, &w, &h, &pf))
+	{
+		ri.Error(ERR_DROP, "LoadDDS: Invalid DDS texture '%s'\n", name);
+		return;
+	}
+
+	// only certain types of dds textures are supported
+	if(pf != DDS_PF_ARGB8888 && pf != DDS_PF_DXT1 && pf != DDS_PF_DXT3 && pf != DDS_PF_DXT5)
+	{
+		ri.Error(ERR_DROP, "LoadDDS: Only DDS texture formats ARGB8888, DXT1, DXT3, and DXT5 are supported (%d) '%s'\n", pf, name);
+		return;
+	}
+
+	// create image pixel buffer
+	*width = w;
+	*height = h;
+	*pic = ri.Malloc(w * h * 4);
+
+	// decompress the dds texture
+	DDSDecompress((ddsBuffer_t *) buffer, *pic);
+	
+	ri.FS_FreeFile(buffer);
+}
+
 //===================================================================
 
 
-static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int *bits);
+static void     R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int *bits);
 
 static void ParseHeightMap(char **text, byte ** pic, int *width, int *height, int *bits)
 {
 	char           *token;
-	float			scale;
+	float           scale;
 
 	token = Com_ParseExt(text, qfalse);
 	if(token[0] != '(')
@@ -2438,21 +3381,21 @@ static void ParseHeightMap(char **text, byte ** pic, int *width, int *height, in
 		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for heightMap\n", token);
 		return;
 	}
-	
+
 	R_LoadImage(text, pic, width, height, bits);
 	if(!pic)
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: failed loading of image for heightMap\n", token);
 		return;
 	}
-		
+
 	token = Com_ParseExt(text, qfalse);
 	if(token[0] != ',')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: no matching ',' found\n");
 		return;
 	}
-	
+
 	token = Com_ParseExt(text, qfalse);
 	scale = atof(token);
 
@@ -2462,9 +3405,9 @@ static void ParseHeightMap(char **text, byte ** pic, int *width, int *height, in
 		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for heightMap\n", token);
 		return;
 	}
-	
+
 	R_HeightMapToNormalMap(*pic, *width, *height, scale);
-	
+
 	*bits &= ~IF_INTENSITY;
 	*bits &= ~IF_ALPHA;
 	*bits |= IF_NORMALMAP;
@@ -2475,28 +3418,28 @@ static void ParseAddNormals(char **text, byte ** pic, int *width, int *height, i
 	char           *token;
 	byte           *pic2;
 	int             width2, height2;
-	
+
 	token = Com_ParseExt(text, qfalse);
 	if(token[0] != '(')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for addNormals\n", token);
 		return;
 	}
-	
+
 	R_LoadImage(text, pic, width, height, bits);
 	if(!pic)
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: failed loading of first image for addNormals\n", token);
 		return;
 	}
-		
+
 	token = Com_ParseExt(text, qfalse);
 	if(token[0] != ',')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: no matching ',' found\n");
 		return;
 	}
-	
+
 	R_LoadImage(text, &pic2, &width2, &height2, bits);
 	if(!pic2)
 	{
@@ -2509,23 +3452,23 @@ static void ParseAddNormals(char **text, byte ** pic, int *width, int *height, i
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for addNormals\n", token);
 	}
-	
+
 	if(*width != width2 || *height != height2)
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: images for addNormals have different dimensions (%i x %i != %i x %i)\n",
-									*width, *height, width2, height2);
-		
+				  *width, *height, width2, height2);
+
 		//ri.Free(*pic);
 		//*pic = NULL;
-		
+
 		ri.Free(pic2);
 		return;
 	}
-	
+
 	R_AddNormals(*pic, pic2, *width, *height);
-	
+
 	ri.Free(pic2);
-	
+
 	*bits &= ~IF_INTENSITY;
 	*bits &= ~IF_ALPHA;
 	*bits |= IF_NORMALMAP;
@@ -2541,7 +3484,7 @@ static void ParseInvertAlpha(char **text, byte ** pic, int *width, int *height, 
 		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for invertAlpha\n", token);
 		return;
 	}
-	
+
 	R_LoadImage(text, pic, width, height, bits);
 	if(!pic)
 	{
@@ -2555,7 +3498,7 @@ static void ParseInvertAlpha(char **text, byte ** pic, int *width, int *height, 
 		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for invertAlpha\n", token);
 		return;
 	}
-	
+
 	R_InvertAlpha(*pic, *width, *height);
 }
 
@@ -2569,7 +3512,7 @@ static void ParseInvertColor(char **text, byte ** pic, int *width, int *height, 
 		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for invertColor\n", token);
 		return;
 	}
-	
+
 	R_LoadImage(text, pic, width, height, bits);
 	if(!pic)
 	{
@@ -2583,7 +3526,7 @@ static void ParseInvertColor(char **text, byte ** pic, int *width, int *height, 
 		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for invertColor\n", token);
 		return;
 	}
-	
+
 	R_InvertColor(*pic, *width, *height);
 }
 
@@ -2597,7 +3540,7 @@ static void ParseMakeIntensity(char **text, byte ** pic, int *width, int *height
 		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for makeIntensity\n", token);
 		return;
 	}
-	
+
 	R_LoadImage(text, pic, width, height, bits);
 	if(!pic)
 	{
@@ -2611,9 +3554,9 @@ static void ParseMakeIntensity(char **text, byte ** pic, int *width, int *height
 		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for makeIntensity\n", token);
 		return;
 	}
-	
+
 	R_MakeIntensity(*pic, *width, *height);
-	
+
 	*bits |= IF_INTENSITY;
 	*bits &= ~IF_ALPHA;
 	*bits &= ~IF_NORMALMAP;
@@ -2629,7 +3572,7 @@ static void ParseMakeAlpha(char **text, byte ** pic, int *width, int *height, in
 		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for makeAlpha\n", token);
 		return;
 	}
-	
+
 	R_LoadImage(text, pic, width, height, bits);
 	if(!pic)
 	{
@@ -2643,9 +3586,9 @@ static void ParseMakeAlpha(char **text, byte ** pic, int *width, int *height, in
 		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for makeAlpha\n", token);
 		return;
 	}
-	
+
 	R_MakeAlpha(*pic, *width, *height);
-	
+
 	*bits &= ~IF_INTENSITY;
 	*bits |= IF_ALPHA;
 	*bits &= IF_NORMALMAP;
@@ -2668,16 +3611,16 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 	*pic = NULL;
 	*width = 0;
 	*height = 0;
-	
+
 	token = Com_ParseExt(buffer, qfalse);
 	if(!token[0])
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: NULL parameter for R_LoadImage\n");
 		return;
 	}
-	
-//	ri.Printf(PRINT_ALL, "R_LoadImage: token '%s'\n", token);
-	
+
+//  ri.Printf(PRINT_ALL, "R_LoadImage: token '%s'\n", token);
+
 	// heightMap(<map>, <float>)  Turns a grayscale height map into a normal map. <float> varies the bumpiness
 	if(!Q_stricmp(token, "heightMap"))
 	{
@@ -2727,17 +3670,30 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 	{
 		Q_strncpyz(filename, token, sizeof(filename));
 		Com_DefaultExtension(filename, sizeof(filename), ".tga");
-		
-//		ri.Printf(PRINT_ALL, "R_LoadImage: filename '%s'\n", filename);
-		
+
+//      ri.Printf(PRINT_ALL, "R_LoadImage: filename '%s'\n", filename);
+
 		len = strlen(filename);
 
 		if(!Q_stricmp(filename + len - 4, ".tga"))
 		{
 			LoadTGA(filename, pic, width, height);	// try tga first
+
 			if(!*pic)
-			{						//
-				char            altname[MAX_QPATH];	// try jpg in place of tga 
+			{
+				char            altname[MAX_QPATH];	// try dds in place of tga 
+
+				strcpy(altname, filename);
+				len = strlen(altname);
+				altname[len - 3] = 'd';
+				altname[len - 2] = 'd';
+				altname[len - 1] = 's';
+				LoadDDS(altname, pic, width, height);
+			}
+
+			if(!*pic)
+			{
+				char            altname[MAX_QPATH];	// try jpg in place of tga
 
 				strcpy(altname, filename);
 				len = strlen(altname);
@@ -2758,6 +3714,10 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 		else if(!Q_stricmp(filename + len - 4, ".jpg"))
 		{
 			LoadJPG(filename, pic, width, height);
+		}
+		else if(!Q_stricmp(filename + len - 4, ".dds"))
+		{
+			LoadDDS(filename, pic, width, height);
 		}
 	}
 }
@@ -2786,35 +3746,35 @@ image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterT
 	{
 		return NULL;
 	}
-	
+
 	Q_strncpyz(buffer, name, sizeof(buffer));
 	hash = generateHashValue(buffer);
-	
-//	ri.Printf(PRINT_ALL, "R_FindImageFile: buffer '%s'\n", buffer);
+
+//  ri.Printf(PRINT_ALL, "R_FindImageFile: buffer '%s'\n", buffer);
 
 	// see if the image is already loaded
 	for(image = hashTable[hash]; image; image = image->next)
 	{
 		if(!Q_stricmp(name, image->name))
-		//if(!strcmp(name, image->name))
+			//if(!strcmp(name, image->name))
 		{
 			// the white image can be used with any set of parms, but other mismatches are errors
 			if(strcmp(buffer, "_white"))
 			{
 				diff = bits ^ image->bits;
-				
+
 				/*
-				if(diff & IF_NOMIPMAPS)
-				{
-					ri.Printf(PRINT_DEVELOPER, "WARNING: reused image %s with mixed mipmap parm\n", name);
-				}
-				*/
-				
+				   if(diff & IF_NOMIPMAPS)
+				   {
+				   ri.Printf(PRINT_DEVELOPER, "WARNING: reused image %s with mixed mipmap parm\n", name);
+				   }
+				 */
+
 				if(diff & IF_NOPICMIP)
 				{
 					ri.Printf(PRINT_DEVELOPER, "WARNING: reused image %s with mixed allowPicmip parm\n", name);
 				}
-				
+
 				if(image->wrapType != wrapType)
 				{
 					ri.Printf(PRINT_ALL, "WARNING: reused image %s with mixed glWrapType parm\n", name);
@@ -2832,7 +3792,7 @@ image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterT
 		return NULL;
 	}
 
-	image =	R_CreateImage((char *)name, pic, width, height, bits, filterType, wrapType);
+	image = R_CreateImage((char *)name, pic, width, height, bits, filterType, wrapType);
 	ri.Free(pic);
 	return image;
 }
@@ -2860,7 +3820,7 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 	{
 		return NULL;
 	}
-	
+
 	Q_strncpyz(filename, name, sizeof(filename));
 	hash = generateHashValue(filename);
 
@@ -2868,12 +3828,12 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 	for(image = hashTable[hash]; image; image = image->next)
 	{
 		if(!Q_stricmp(name, image->name))
-		//if(!strcmp(name, image->name))
+			//if(!strcmp(name, image->name))
 		{
 			return image;
 		}
 	}
-	
+
 	for(i = 0; i < 6; i++)
 	{
 		pic[i] = NULL;
@@ -2884,7 +3844,7 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 	{
 		Com_sprintf(filename, sizeof(filename), "%s_%s.tga", name, suf[i]);
 		LoadTGA(filename, &pic[i], &width, &height);
-		
+
 		if(!pic[i] || width != height)
 		{
 			image = NULL;
@@ -2892,9 +3852,9 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 		}
 	}
 
-	image =	R_CreateCubeImage((char *)name, (const byte **)pic, width, height, bits, filterType, wrapType);
-	
-done:
+	image = R_CreateCubeImage((char *)name, (const byte **)pic, width, height, bits, filterType, wrapType);
+
+  done:
 	for(i = 0; i < 6; i++)
 	{
 		if(pic[i])
@@ -3066,25 +4026,15 @@ static void R_CreateDefaultImage(void)
 	Com_Memset(data, 32, sizeof(data));
 	for(x = 0; x < DEFAULT_SIZE; x++)
 	{
-		data[0][x][0] =
-		data[0][x][1] =
-		data[0][x][2] =
-		data[0][x][3] = 255;
-		
-		data[x][0][0] =
-		data[x][0][1] =
-		data[x][0][2] =
-		data[x][0][3] = 255;
+		data[0][x][0] = data[0][x][1] = data[0][x][2] = data[0][x][3] = 255;
+
+		data[x][0][0] = data[x][0][1] = data[x][0][2] = data[x][0][3] = 255;
 
 		data[DEFAULT_SIZE - 1][x][0] =
-		data[DEFAULT_SIZE - 1][x][1] = 
-		data[DEFAULT_SIZE - 1][x][2] = 
-		data[DEFAULT_SIZE - 1][x][3] = 255;
+			data[DEFAULT_SIZE - 1][x][1] = data[DEFAULT_SIZE - 1][x][2] = data[DEFAULT_SIZE - 1][x][3] = 255;
 
 		data[x][DEFAULT_SIZE - 1][0] =
-		data[x][DEFAULT_SIZE - 1][1] =
-		data[x][DEFAULT_SIZE - 1][2] =
-		data[x][DEFAULT_SIZE - 1][3] = 255;
+			data[x][DEFAULT_SIZE - 1][1] = data[x][DEFAULT_SIZE - 1][2] = data[x][DEFAULT_SIZE - 1][3] = 255;
 	}
 	tr.defaultImage = R_CreateImage("_default", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, IF_NOPICMIP, FT_DEFAULT, WT_REPEAT);
 }
@@ -3113,7 +4063,7 @@ static void R_CreateAttenuationXYImage(void)
 			float           d;
 
 			d = (ATTENUATION_XY_SIZE / 2 - 0.5f - x) * (ATTENUATION_XY_SIZE / 2 - 0.5f - x) +
-					(ATTENUATION_XY_SIZE / 2 - 0.5f - y) * (ATTENUATION_XY_SIZE / 2 - 0.5f - y);
+				(ATTENUATION_XY_SIZE / 2 - 0.5f - y) * (ATTENUATION_XY_SIZE / 2 - 0.5f - y);
 			b = 4000 / d;
 			if(b > 255)
 			{
@@ -3127,57 +4077,60 @@ static void R_CreateAttenuationXYImage(void)
 			data[y][x][3] = 255;
 		}
 	}
-	tr.attenuationXYImage = R_CreateImage("_attenuationXY", (byte *) data, ATTENUATION_XY_SIZE, ATTENUATION_XY_SIZE, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
+	tr.attenuationXYImage =
+		R_CreateImage("_attenuationXY", (byte *) data, ATTENUATION_XY_SIZE, ATTENUATION_XY_SIZE, IF_NOPICMIP, FT_LINEAR,
+					  WT_CLAMP);
 }
 
 static void R_CreateCurrentRenderImage(void)
 {
-	int				width, height;
+	int             width, height;
 	byte           *data;
-	
+
 	for(width = 1; width < glConfig.vidWidth; width <<= 1)
 		;
 	for(height = 1; height < glConfig.vidHeight; height <<= 1)
 		;
-	
+
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
-	
+
 	tr.currentRenderImage = R_CreateImage("_currentRender", data, width, height, IF_NOPICMIP, FT_DEFAULT, WT_REPEAT);
-	
+
 	ri.Hunk_FreeTempMemory(data);
 }
 
 static void R_CreateCurrentRenderLinearImage(void)
 {
-	int				width, height;
+	int             width, height;
 	byte           *data;
-	
+
 	for(width = 1; width < glConfig.vidWidth; width <<= 1)
 		;
 	for(height = 1; height < glConfig.vidHeight; height <<= 1)
 		;
-	
+
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
-	
+
 	tr.currentRenderLinearImage = R_CreateImage("_currentRenderLinear", data, width, height, IF_NOPICMIP, FT_LINEAR, WT_REPEAT);
-	
+
 	ri.Hunk_FreeTempMemory(data);
 }
 
 static void R_CreateCurrentRenderNearestImage(void)
 {
-	int				width, height;
+	int             width, height;
 	byte           *data;
-	
+
 	for(width = 1; width < glConfig.vidWidth; width <<= 1)
 		;
 	for(height = 1; height < glConfig.vidHeight; height <<= 1)
 		;
-	
+
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
-	
-	tr.currentRenderNearestImage = R_CreateImage("_currentRenderNearest", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
-	
+
+	tr.currentRenderNearestImage =
+		R_CreateImage("_currentRenderNearest", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+
 	ri.Hunk_FreeTempMemory(data);
 }
 
@@ -3669,7 +4622,7 @@ void R_InitSkins(void)
 R_GetSkinByHandle
 ===============
 */
-skin_t *R_GetSkinByHandle(qhandle_t hSkin)
+skin_t         *R_GetSkinByHandle(qhandle_t hSkin)
 {
 	if(hSkin < 1 || hSkin >= tr.numSkins)
 	{
