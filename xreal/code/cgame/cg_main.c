@@ -2127,8 +2127,6 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	cgs.media.charsetProp1 = trap_R_RegisterShaderNoMip("menu/art/font1_prop.tga");
 	cgs.media.charsetProp1Glow = trap_R_RegisterShaderNoMip("menu/art/font1_prop_glo.tga");
 	cgs.media.charsetProp2 = trap_R_RegisterShaderNoMip("menu/art/font2_prop.tga");
-	cgs.media.charsetProp3 = trap_R_RegisterShaderNoMip("menu/art/font3_prop.tga");
-	cgs.media.charsetProp3Glow = trap_R_RegisterShaderNoMip("menu/art/font3_prop_glo.tga");
 
 	CG_RegisterCvars();
 
