@@ -65,19 +65,18 @@ textures/editor/visportal
 {
 	qer_editorimage	textures/editor/vis_p.tga
 	qer_trans 0.5
-			
+	
 	areaportal
 	noshadows
 	
-//	nonsolid
-//	noshadows
-	
-//	nodraw
-//	nonsolid
-//	structural
-//	trans
-//	nomarks
-//	areaportal
+	/*
+	nodraw
+	nonsolid
+	structural
+	trans
+	nomarks
+	areaportal
+	*/
 }
 
 // aassolid brushes create solid space in AAS files
@@ -347,6 +346,13 @@ textures/common/full_clip
 	playerclip
 	moveableclip
 	noshadows
+	
+	/*
+	{
+		map textures/common/full_clip.tga
+		blend blend
+	}
+	*/
 }
 
 // a player clip brush is solid to players only, not monsters or anything else
@@ -549,3 +555,40 @@ textures/common/npc_pda
 //*****************************************************Moved from aaduffyTest.mtr - end*****************************************
 
 //Verified good complete by Eutectic - Sep 15-04
+
+textures/common/mirror1
+{
+	qer_editorimage textures/common/qer_mirror.tga
+	surfaceparm nolightmap
+	portal
+
+	{
+		map textures/common/mirror1.tga
+		blend GL_ONE , GL_ONE_MINUS_SRC_ALPHA
+		depthWrite
+	}
+}
+
+textures/common/mirror2
+{
+	qer_editorimage textures/common/qer_mirror.tga
+	surfaceparm nolightmap
+	portal
+	{
+		map textures/common/mirror1.tga
+		blend GL_ONE , GL_ONE_MINUS_SRC_ALPHA
+		depthWrite
+	}
+	{
+		if(fragmentPrograms == 0)
+		map textures/sfx/mirror.tga
+		blend GL_ZERO , GL_ONE_MINUS_SRC_COLOR
+	}
+	{
+		if(fragmentPrograms == 1)
+		stage	heathazemap
+		map		textures/liquids/liquid12_n.tga
+		scroll		0 , time * -0.2
+		deformMagnitude	1
+	}
+}
