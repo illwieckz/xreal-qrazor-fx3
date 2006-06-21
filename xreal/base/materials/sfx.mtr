@@ -977,6 +977,22 @@ textures/sfx/flare
 	}
 }
 
+textures/sfx/flare_32
+{
+	noshadows
+	translucent
+	nonsolid
+	deform flare 		32
+	qer_editorimage		textures/editor/flare.tga
+	{
+		if ( parm7 == 0 )
+		blend		add
+		map		lights/squarelight.tga
+		colored
+		vertexcolor
+	}
+}
+
 textures/sfx/flare_8
 {
 	noshadows
