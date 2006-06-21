@@ -3861,17 +3861,20 @@ models/powerups/ammo/railammo2
 
 models/powerups/ammo/rockammo
 {
-       {
-	        map textures/effects/tinfx2d.tga
+	{
+		map textures/effects/tinfx2d.tga
 		tcGen environment
 		blendfunc GL_ONE GL_ZERO
-                rgbGen identity
-       }
-       {
-	        map models/powerups/ammo/rockammo.tga
-		blendfunc blend
-                rgbGen lightingDiffuse
-       }
+		rgbGen identity
+	}
+	{
+		blend diffuseMap
+		map models/powerups/ammo/rockammo.tga
+		rgbGen lightingDiffuse
+		alphaFunc GE128
+	}
+	normalMap models/powerups/ammo/plasammo_n.tga
+	//specularMap models/powerups/ammo/plasammo_s.tga
 }
 
 models/powerups/ammo/rockammo1
@@ -3898,15 +3901,16 @@ models/powerups/ammo/rockammo1
 models/powerups/ammo/rockammo2
 {
 	{
+		if( 0 )
 		map models/powerups/ammo/rockammo2.tga
-		//rgbGen identity
 		rgbGen lightingDiffuse
 	}
-//	{
-//		map models/powerups/ammo/rockammo2_glow.tga
-//		blendfunc GL_ONE GL_ONE
-//		rgbGen identity
-//	}
+	{
+		if( 1 )
+		map models/powerups/ammo/rockammo2.tga
+		blend add
+		rgbGen identity
+	}
 }
 
 models/powerups/ammo/shotammo
@@ -4038,7 +4042,6 @@ models/powerups/health/blue
 	{
 		map textures/effects/envmapbfg.tga
 		tcGen environment
-		
 	}
 }
 
@@ -4047,17 +4050,15 @@ models/powerups/health/blue_sphere
 	{
 		map textures/effects/tinfx2b.tga
 		tcGen environment
-		blendfunc GL_ONE GL_ONE
+		blend add
 	}
 }
 
 models/powerups/health/green
 {
-	
 	{
 		map textures/effects/envmaprail.tga
 		tcGen environment
-		
 	}
 }
 
@@ -4066,18 +4067,27 @@ models/powerups/health/green_sphere
 	{
 		map textures/effects/tinfx2b.tga
 		tcGen environment
-		blendfunc GL_ONE GL_ONE
+		blend add
 	}
+	/*
+	{
+		map textures/effects/envmaprail.tga
+		rotate time * 45
+		scroll time * 3, time * 2
+		tcGen environment
+		blend add
+	}
+	*/
 }
 
 models/powerups/health/mega1
 {
 	{
 		map textures/effects/envmapblue2.tga
-                tcGen environment
-                tcmod rotate 33
-                tcmod scroll 1 1
-		blendfunc GL_ONE GL_ONE
+		tcGen environment
+		rotate time * 33
+		scroll time * 1, time * 1
+		blend add
 	}
 }
 
@@ -4086,17 +4096,15 @@ models/powerups/health/mega2
 	
 	{
 		map textures/effects/envmapblue.tga
-                tcGen environment
-		blendfunc GL_ONE GL_ZERO
-		
+        tcGen environment
+		blend GL_ONE , GL_ZERO
 	}
-        {
-		map textures/sfx/kenelectric.tga
-                tcmod scale 2 2
-                tcmod rotate 333
-                tcmod scroll 9 9
-		blendfunc GL_ONE GL_ONE
-		
+    {
+    	map textures/sfx/kenelectric.tga
+    	scale 2, 2
+        rotate time * 333
+        scroll time * 9, time * 9
+		blend add
 	}
 }
 
@@ -4105,17 +4113,15 @@ models/powerups/health/red
 	
 	{
 		map textures/effects/envmapgold.tga
-                tcGen environment
-		blendfunc GL_ONE GL_ZERO
-		
+        tcGen environment
+		blend GL_ONE, GL_ZERO
 	}
-        {
+    {
 		map textures/sfx/kenelectric.tga
-                tcmod scale 2 2
-                tcmod rotate 333
-                tcmod scroll 9 9
+        tcmod scale 2 2
+        tcmod rotate 333
+        tcmod scroll 9 9
 		blendfunc GL_ONE GL_ONE
-		
 	}
 }
 
@@ -4123,9 +4129,9 @@ models/powerups/health/red_sphere
 {
 	{
 		map textures/effects/envmapgold2.tga
-                tcGen environment
-                tcmod rotate 33
-                tcmod scroll 1 1
+        tcGen environment
+        tcmod rotate 33
+        tcmod scroll 1 1
 		blendfunc GL_ONE GL_ONE
 	}
 }
@@ -4135,11 +4141,9 @@ models/powerups/health/yellow
 	
 	{
 		map textures/effects/envmapyel.tga
-                tcGen environment
+        tcGen environment
 		//blendfunc GL_ONE GL_ONE
-		
 	}
-        
 }
 
 models/powerups/health/yellow_sphere
@@ -4147,7 +4151,7 @@ models/powerups/health/yellow_sphere
 	{
 		map textures/effects/tinfx2b.tga
 		tcGen environment
-		blendfunc GL_ONE GL_ONE
+		blend add
 	}
 }
 
@@ -5022,7 +5026,7 @@ models/weapons2/shotgun/shotgun08
 	}
 }
 
-models/weapons2/shotgun/shotgun09
+models/weapons2/shotgun/shotgun09.glow
 {
 	{
 		blend diffuseMap
