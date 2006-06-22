@@ -623,6 +623,8 @@ float Q_rsqrt(float number)
 		rsqrtss xmm0, number
 		movss y, xmm0
 	}
+#elif __x86_64__
+	y = 1.0f / sqrt(number);
 #else
 	long            i;
 	float           x2;
@@ -634,7 +636,7 @@ float Q_rsqrt(float number)
 	i = 0x5f3759df - (i >> 1);	// what the fuck?
 	y = *(float *)&i;
 	y = y * (threehalfs - (x2 * y * y));	// 1st iteration
-//      y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
+//  y = y * (threehalfs - (x2 * y * y));	// 2nd iteration, this can be removed
 //#ifndef Q3_VM
 //#ifdef __linux__
 //	assert(!isnan(y));			// bk010122 - FPE?
