@@ -914,17 +914,20 @@ static ID_INLINE vec_t DistanceSquared(const vec3_t p1, const vec3_t p2)
 	return v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
 }
 
-// fast vector normalize routine that does not check to make sure
-// that length != 0, nor does it return length, uses rsqrt approximation
+// fast vector normalize routine that uses rsqrt approximation, nor does it return length
 static ID_INLINE void VectorNormalizeFast(vec3_t v)
 {
-	float           ilength;
+	float           lengthSquared, lengthInversed;
 
-	ilength = Q_rsqrt(DotProduct(v, v));
+	lengthSquared = DotProduct(v, v);
 
-	v[0] *= ilength;
-	v[1] *= ilength;
-	v[2] *= ilength;
+	if(lengthSquared)
+	{
+		lengthInversed = Q_rsqrt(lengthSquared);
+		v[0] *= lengthInversed;
+		v[1] *= lengthInversed;
+		v[2] *= lengthInversed;
+	}
 }
 
 static ID_INLINE void VectorInverse(vec3_t v)

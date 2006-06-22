@@ -624,7 +624,7 @@ float Q_rsqrt(float number)
 		movss y, xmm0
 	}
 #elif __x86_64__
-	y = 1.0f / sqrt(number);
+	y = 1 / sqrt(number);
 #else
 	long            i;
 	float           x2;
