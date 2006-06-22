@@ -4,7 +4,7 @@ from types import *
 import os
 from os import path
 
-GAMEDIR = '/opt/xreal/base/'
+GAMEDIR = '/opt/XreaL/base/'
 MAX_QPATH = 64
 
 def asciiz(s):
