@@ -2502,6 +2502,11 @@ static void Com_PrintMatrix(const matrix_t m)
 			   (int)m[8], (int)m[9], (int)m[10], (int)m[11], (int)m[12], (int)m[13], (int)m[14], (int)m[15]);
 }
 
+static void Com_PrintQuat(const quat_t q)
+{
+	Com_Printf("%f %f %f %f\n", q[0], q[1], q[2], q[3]);
+}
+
 static void Com_MathTest_f(void)
 {
 	matrix_t        q2gl = {
@@ -2523,7 +2528,11 @@ static void Com_MathTest_f(void)
 	matrix_t        r;
 	matrix_t        gl2q;
 	matrix_t        tmp;
+	
+	quat_t          q;
 
+
+	Com_Printf("...matrices\n");
 	Com_PrintMatrix(q2gl);
 	Com_PrintMatrix(m);
 
@@ -2536,6 +2545,16 @@ static void Com_MathTest_f(void)
 	MatrixCopy(r, tmp);
 	MatrixMultiply(gl2q, tmp, r);
 	Com_PrintMatrix(r);
+	
+	Com_Printf("...quaterions\n");
+	QuatFromAngles(q, 90, 45, 3);
+	Com_PrintQuat(q);
+	
+	MatrixFromAngles(r, 90, 45, 3);
+	Com_PrintMatrix(r);
+	QuatFromMatrix(q, r);
+	Com_PrintQuat(q);
+	
 }
 
 /*
