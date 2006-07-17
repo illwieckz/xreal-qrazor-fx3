@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#define	Q3_VERSION		"Q3 1.32b"
+#define	Q3_VERSION		"XreaL:Q3A 1.32b"
 // 1.32 released 7-10-2002
 
 #ifdef Q3_VM
@@ -1130,6 +1130,7 @@ void            QuatMultiply4(const quat_t qa, const quat_t qb, quat_t qc);
 
 
 void            QuatSlerp(const quat_t from, const quat_t to, float frac, quat_t out);
+void            QuatTransformVector(const quat_t q, const vec3_t in, vec3_t out);
 
 //=============================================
 

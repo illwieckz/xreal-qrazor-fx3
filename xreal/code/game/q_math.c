@@ -2089,62 +2089,81 @@ void MatrixFromVectorsFRU(matrix_t m, const vec3_t forward, const vec3_t right, 
 void MatrixFromQuat(matrix_t m, const quat_t q)
 {
 	/*
+	http://www.gamedev.net/reference/articles/article1691.asp#Q54
+	Q54. How do I convert a quaternion to a rotation matrix?
+	
 	Assuming that a quaternion has been created in the form:
 
-	Q = |X Y Z W|
-	
-	Then the quaternion can then be converted into a 4x4 row major rotation
-	matrix using the following expression
-	
-	
-	?        2     2                                      ?
+    Q = |X Y Z W|
+    
+    Then the quaternion can then be converted into a 4x4 rotation
+    matrix using the following expression (Warning: you might have to
+    transpose this matrix if you (do not) follow the OpenGL order!):
 
-	? 1 - (2Y  + 2Z )   2XY - 2ZW         2XZ + 2YW       ?
-
-	?                                                     ?
-
-	?                          2     2                    ?
-
-	M = ? 2XY + 2ZW         1 - (2X  + 2Z )   2YZ - 2XW       ?
-
-	?                                                     ?
-
-	?                                            2     2  ?
-
-	? 2XZ - 2YW         2YZ + 2XW         1 - (2X  + 2Y ) ?
-
-	?                                                     ?
-
-	If a 4x4 matrix is required, then the bottom row and right-most column
-	may be added.
+         ?        2     2                                      ?
+         ? 1 - (2Y  + 2Z )   2XY - 2ZW         2XZ + 2YW       ?
+         ?                                                     ?
+         ?                          2     2                    ?
+     M = ? 2XY + 2ZW         1 - (2X  + 2Z )   2YZ - 2XW       ?
+         ?                                                     ?
+         ?                                            2     2  ?
+         ? 2XZ - 2YW         2YZ + 2XW         1 - (2X  + 2Y ) ?
+         ?                                                     ?
 	*/
 	
-	/*
-	dReal qq1 = 2*q[0]*q[0];
-	dReal qq2 = 2*q[1]*q[1];
-	dReal qq3 = 2*q[2]*q[2];
+	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
 	
-	_R(0,0) = 1 - qq2 - qq3;		_R(0,1) = 2*(q[0]*q[1] - q[3]*q[2]);	_R(0,2) = 2*(q[0]*q[2] + q[3]*q[1]);
-	_R(1,0) = 2*(q[0]*q[1] + q[3]*q[2]);	_R(1,1) = 1 - qq1 - qq3;		_R(1,2) = 2*(q[1]*q[2] - q[3]*q[0]);
-	_R(2,0) = 2*(q[0]*q[2] - q[3]*q[1]);	_R(2,1) = 2*(q[1]*q[2] + q[3]*q[0]);	_R(2,2) = 1 - qq1 - qq2;
-	*/
-	
-	vec_t xx = q[0] * q[0];
-	vec_t xy = q[0] * q[1];
-	vec_t xz = q[0] * q[2];
-	vec_t xw = q[0] * q[3];
-	
-	vec_t yy = q[1] * q[1];
-	vec_t yz = q[1] * q[2];
-	vec_t yw = q[1] * q[3];
-	
-	vec_t zz = q[2] * q[2];
-	vec_t zw = q[2] * q[3];
+#if 1
+	float			xx, xy, xz, xw, yy, yz, yw, zz, zw;
 
-	m[ 0] = 1-2*(yy+zz);	m[ 4] =   2*(xy-zw);	m[ 8] =   2*(xz+yw);	m[12] = 0;
-	m[ 1] =   2*(xy+zw);	m[ 5] = 1-2*(xx+zz);	m[ 9] =   2*(yz-xw);	m[13] = 0;
-	m[ 2] =   2*(xz-yw);	m[ 6] =   2*(yz+xw);	m[10] = 1-2*(xx+yy);	m[14] = 0;
-	m[ 3] =   0;            m[ 7] =   0;            m[11] =   0;            m[15] = 1;
+	xx = q[0] * q[0];
+    xy = q[0] * q[1];
+    xz = q[0] * q[2];
+    xw = q[0] * q[3];
+    yy = q[1] * q[1];
+    yz = q[1] * q[2];
+    yw = q[1] * q[3];
+    zz = q[2] * q[2];
+    zw = q[2] * q[3];
+    
+    m[ 0] = 1 - 2 * ( yy + zz );
+    m[ 1] =     2 * ( xy + zw );
+    m[ 2] =     2 * ( xz - yw );
+    m[ 4] =     2 * ( xy - zw );
+    m[ 5] = 1 - 2 * ( xx + zz );
+    m[ 6] =     2 * ( yz + xw );
+    m[ 8] =     2 * ( xz + yw );
+    m[ 9] =     2 * ( yz - xw );
+    m[10] = 1 - 2 * ( xx + yy );
+    m[ 3] = m[ 7] = m[11] = m[12] = m[13] = m[14] = 0;
+    m[15] = 1;
+#else
+	float			wx, wy, wz;
+	float			xx, yy, yz;
+	float			xy, xz, zz;
+	float			x2, y2, z2;
+
+	x2 = q[0] + q[0];
+	y2 = q[1] + q[1];
+	z2 = q[2] + q[2];
+
+	xx = q[0] * x2;
+	xy = q[0] * y2;
+	xz = q[0] * z2;
+
+	yy = q[1] * y2;
+	yz = q[1] * z2;
+	zz = q[2] * z2;
+
+	wx = q[3] * x2;
+	wy = q[3] * y2;
+	wz = q[3] * z2;
+
+	m[ 0] = 1.0f - ( yy + zz );		m[ 4] = xy - wz;				m[ 8] = xz + wy;			m[12] = 0;
+	m[ 1] = xy + wz;				m[ 5] = 1.0f - ( xx + zz );		m[ 9] = yz - wx;			m[13] = 0;
+	m[ 2] = xz - wy;				m[ 6] = yz + wx;				m[10] = 1.0f - ( xx + yy );	m[14] = 0;
+	m[ 3] = 0;						m[ 7] = 0;						m[11] = 0;					m[15] = 1;
+#endif
 }
 
 void MatrixFromPlanes(matrix_t m, const vec4_t left, const vec4_t right, const vec4_t bottom, const vec4_t top, const vec4_t front, const vec4_t back)
@@ -2322,7 +2341,7 @@ vec_t QuatNormalize(quat_t q)
 
 void QuatFromAngles(quat_t q, vec_t pitch, vec_t yaw, vec_t roll)
 {
-#if 0
+#if 1
 	matrix_t        tmp;
 	
 	MatrixFromAngles(tmp, pitch, yaw, roll);
@@ -2350,48 +2369,55 @@ void QuatFromAngles(quat_t q, vec_t pitch, vec_t yaw, vec_t roll)
 void QuatFromMatrix(quat_t q, const matrix_t m)
 {
 	float           trace;
-	float           s;
-	int             i;
-	int             j;
-	int             k;
-
-	static int      next[3] = { 1, 2, 0 };
-
-	trace = m[0] + m[5] + m[10];
-	if(trace > 0.0f)
+	
+	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
+	
+	trace = 1.0f + m[0] + m[5] + m[10];
+		
+	if(trace > 0)
 	{
-		s = (float)sqrt(trace + 1.0f);
-		q[3] = s * 0.5f;
-		s = 0.5f / s;
-
-		q[0] = (m[9] - m[6]) * s;
-		q[1] = (m[2] - m[8]) * s;
-		q[2] = (m[4] - m[1]) * s;
+		vec_t s = 0.5f / sqrt(trace);
+		
+		q[0] = (m[6] - m[9]) * s;
+		q[1] = (m[8] - m[2]) * s;
+		q[2] = (m[1] - m[4]) * s;
+		q[3] = 0.25f / s;
 	}
 	else
 	{
-		i = 0;
-		if(m[5] > m[0])
-		{
-			i = 1;
+		if(m[0] > m[5] && m[0] > m[10])
+		{	
+			// column 0
+			float s = sqrt(1.0f + m[0] - m[5] - m[10]) * 2.0f;
+				
+			q[0] = 0.25f * s;
+			q[1] = (m[4] + m[1]) / s;
+			q[2] = (m[8] + m[2]) / s;
+			q[3] = (m[9] - m[6]) / s;
 		}
-		if(m[10] > m[i * 4 + i])
+		else if(m[5] > m[10])
 		{
-			i = 2;
+			// column 1
+			float s = sqrt(1.0f + m[5] - m[0] - m[10]) * 2.0f;
+			
+			q[0] = (m[4] + m[1]) / s;
+			q[1] = 0.25f * s;
+			q[2] = (m[9] + m[6]) / s;
+			q[3] = (m[8] - m[2]) / s;
 		}
-
-		j = next[i];
-		k = next[j];
-
-		s = (float)sqrt((m[i * 4 + i] - (m[j * 4 + j] + m[k * 4 + k])) + 1.0f);
-		q[i] = s * 0.5f;
-
-		s = 0.5f / s;
-
-		q[3] = (m[k * 4 + j] - m[j * 4 + k]) * s;
-		q[j] = (m[j * 4 + i] + m[i * 4 + j]) * s;
-		q[k] = (m[k * 4 + i] + m[i * 4 + k]) * s;
+		else
+		{
+			// column 2
+			float s = sqrt(1.0f + m[10] - m[0] - m[5]) * 2.0f;
+			
+			q[0] = (m[8] + m[2]) / s;
+			q[1] = (m[9] + m[6]) / s;
+			q[2] = 0.25f * s;
+			q[3] = (m[4] - m[1]) / s;
+		}
 	}
+
+	QuatNormalize(q);
 }
 
 void QuatToVectors(const quat_t q, vec3_t forward, vec3_t right, vec3_t up)
@@ -2511,4 +2537,12 @@ void QuatSlerp(const quat_t from, const quat_t to, float frac, quat_t out)
 	out[1] = scale0 * from[1] + scale1 * to1[1];
 	out[2] = scale0 * from[2] + scale1 * to1[2];
 	out[3] = scale0 * from[3] + scale1 * to1[3];
+}
+
+void QuatTransformVector(const quat_t q, const vec3_t in, vec3_t out)
+{
+	matrix_t        m;
+	
+	MatrixFromQuat(m, q);
+	MatrixTransformNormal(m, in, out);
 }
