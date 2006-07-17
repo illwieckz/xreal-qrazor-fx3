@@ -380,9 +380,9 @@ int trap_R_ResetSkeleton(refSkeleton_t * skel, qhandle_t model)
 	return syscall(CG_R_RESETSKELETON, skel, model);
 }
 
-int trap_R_SetAnimation(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac, qboolean blend)
+int trap_R_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac)
 {
-	return syscall(CG_R_SETANIMATION, skel, anim, startFrame, endFrame, PASSFLOAT(frac), blend);
+	return syscall(CG_R_BUILDSKELETON, skel, anim, startFrame, endFrame, PASSFLOAT(frac));
 }
 
 void trap_R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset)

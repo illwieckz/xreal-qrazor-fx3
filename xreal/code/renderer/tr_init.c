@@ -1491,7 +1491,7 @@ refexport_t    *GetRefAPI(int apiVersion, refimport_t * rimp)
 	re.MarkFragments = R_MarkFragments;
 	re.LerpTag = RE_LerpTag;
 	re.ResetSkeleton = RE_ResetSkeleton;
-	re.SetAnimation = RE_SetAnimation;
+	re.BuildSkeleton = RE_BuildSkeleton;
 	re.ModelBounds = R_ModelBounds;
 
 	re.ClearScene = RE_ClearScene;

@@ -602,7 +602,12 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 		}
 		QuatCalcW(boneQuat);
 		MatrixFromQuat(boneMat, boneQuat);
+#ifdef USE_BONEMATRIX
 		MatrixSetupTransformFromRotation(bone->transform, boneMat, boneOrigin);
+#else
+		VectorCopy(boneOrigin, bone->origin);
+		QuatCopy(boneQuat, bone->rotation);
+#endif
 		
 		// skip )
 		token = Com_ParseExt(&buf_p, qfalse);
@@ -1111,7 +1116,12 @@ int RE_ResetSkeleton(refSkeleton_t * skel, qhandle_t hModel)
 	skel->numBones = md5->numBones;
 	for(i = 0, bone = md5->bones; i < md5->numBones; i++, bone++)
 	{
+#ifdef USE_BONEMATRIX
 		MatrixCopy(bone->transform, skel->bones[i].transform);
+#else
+		VectorCopy(bone->origin, skel->bones[i].origin);
+		QuatCopy(bone->rotation, skel->bones[i].rotation);
+#endif
 	}
 
 	return qtrue;

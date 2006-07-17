@@ -1392,9 +1392,12 @@ typedef struct
 {
 	char			name[MAX_QPATH];
 	int				parentIndex; // parent index (-1 if root)
-//	vec3_t			origin;
-//	matrix_t		rotation;
+#ifdef USE_BONEMATRIX
 	matrix_t		transform;
+#else
+	vec3_t			origin;
+	quat_t			rotation;
+#endif
 } md5Bone_t;
 
 typedef struct md5Model_s
@@ -2522,7 +2525,7 @@ void            R_AddMDSSurfaces(trRefEntity_t * ent);
 void            R_AddMD5Surfaces(trRefEntity_t * ent);
 void            R_AddMD5Interactions(trRefEntity_t * ent, trRefDlight_t * light);
 
-int             RE_SetAnimation(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac, qboolean blend);
+int             RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac);
 
 /*
 =============================================================

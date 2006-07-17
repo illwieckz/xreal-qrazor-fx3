@@ -114,14 +114,14 @@ typedef struct
 	float           rotation;
 } refEntity_t;
 
+//#define USE_BONEMATRIX
 typedef struct
 {
-#if 0
-	// FIXME: use quaternions to save memory
-	quat_t          rotation;
-	vec3_t          translation;
-#else
+#ifdef USE_BONEMATRIX
 	matrix_t        transform;	// contains rotation and translation
+#else
+	vec3_t          origin;
+	quat_t          rotation;
 #endif
 } refBone_t;
 
@@ -130,7 +130,7 @@ typedef struct
 	int             numBones;
 	refBone_t       bones[MAX_BONES];
 	
-	vec3_t          bounds[2]; // trap_R_[Set/Blend]Animation will modify this
+	vec3_t          bounds[2];	// bounds of all applied animations
 } refSkeleton_t;
 
 typedef struct

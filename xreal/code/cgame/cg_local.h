@@ -677,6 +677,7 @@ typedef struct
 
 	char            testAnimation2Name[MAX_QPATH];
 	qhandle_t       testAnimation2;
+	refSkeleton_t   testAnimation2Skeleton;
 
 	// play with doom3 style light materials
 	refDlight_t     testLight;
@@ -1647,8 +1648,7 @@ void            trap_R_ModelBounds(clipHandle_t model, vec3_t mins, vec3_t maxs)
 int             trap_R_LerpTag(orientation_t * tag, clipHandle_t mod, int startFrame, int endFrame,
 							   float frac, const char *tagName);
 int             trap_R_ResetSkeleton(refSkeleton_t * skel, qhandle_t model);
-int             trap_R_SetAnimation(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac,
-									qboolean blend);
+int             trap_R_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac);
 void            trap_R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset);
 
 // The glconfig_t will not change during the life of a cgame.

@@ -739,10 +739,10 @@ void R_AddMD5Interactions(trRefEntity_t * ent, trRefDlight_t * light)
 
 /*
 ==============
-RE_SetAnimation
+RE_BuildSkeleton
 ==============
 */
-int RE_SetAnimation(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int endFrame, float frac, qboolean blend)
+int RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int endFrame, float frac)
 {
 	int             i;
 	md5Animation_t *anim;
@@ -750,12 +750,13 @@ int RE_SetAnimation(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int e
 	md5Frame_t     *newFrame, *oldFrame;
 	vec3_t          newOrigin, oldOrigin, lerpedOrigin;
 	quat_t          newQuat, oldQuat, lerpedQuat;
-	matrix_t        mat, mat2;
+	matrix_t        mat;
 //	vec3_t          v;
 //	vec3_t          transformed;
 	int             componentsApplied;
 //	vec3_t          boneOrigins[MAX_BONES];
 //	quat_t          boneQuats[MAX_BONES];
+	matrix_t		boneMatrices[MAX_BONES];
 
 	anim = R_GetAnimationByHandle(hAnim);
 	
@@ -767,7 +768,7 @@ int RE_SetAnimation(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int e
 		// range checked again.
 		if((startFrame >= anim->numFrames) || (startFrame < 0) || (endFrame >= anim->numFrames) || (endFrame < 0))
 		{
-			ri.Printf(PRINT_DEVELOPER, "RE_SetAnimation: no such frame %d to %d for '%s'\n",
+			ri.Printf(PRINT_DEVELOPER, "RE_BuildSkeleton: no such frame %d to %d for '%s'\n",
 					  startFrame, endFrame, anim->name);
 			startFrame = 0;
 			endFrame = 0;
@@ -784,7 +785,6 @@ int RE_SetAnimation(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int e
 		for(i = 0; i < 3; i++)
 		{
 			skel->bounds[0][i] = oldFrame->bounds[0][i] < newFrame->bounds[0][i] ? oldFrame->bounds[0][i] : newFrame->bounds[0][i];
-		
 			skel->bounds[1][i] = oldFrame->bounds[1][i] > newFrame->bounds[1][i] ? oldFrame->bounds[1][i] : newFrame->bounds[1][i];
 		}
 		
@@ -842,6 +842,9 @@ int RE_SetAnimation(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int e
 				((vec_t*)newQuat)[2] = newFrame->components[channel->componentsOffset + componentsApplied];
 			}
 			
+			QuatCalcW(newQuat);
+			QuatNormalize(newQuat);
+			
 #if 0
 			VectorCopy(newOrigin, lerpedOrigin);
 			QuatCopy(newQuat, lerpedQuat);
@@ -850,40 +853,58 @@ int RE_SetAnimation(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int e
 			QuatSlerp(oldQuat, newQuat, frac, lerpedQuat);
 #endif	
 			// calculate absolute transforms
-			if(blend)
+#ifdef USE_BONEMATRIX
+			if(channel->parentIndex < 0)
 			{
-				// blend new bone transform onto existing transform: animation blending
-				if(channel->parentIndex < 0)
-				{
-					MatrixFromQuat(mat, lerpedQuat);
-					MatrixMultiply2(skel->bones[i].transform, mat);
-				}
-				else
-				{
-					MatrixSetupTransformFromQuat(mat, lerpedQuat, lerpedOrigin);
-					MatrixMultiply(skel->bones[channel->parentIndex].transform, mat, mat2);
-					MatrixMultiply2(skel->bones[i].transform, mat2);
-				}
+				MatrixFromQuat(skel->bones[i].transform, lerpedQuat);
 			}
 			else
 			{
-				// override any previous animation data
-				if(channel->parentIndex < 0)
-				{
-					MatrixFromQuat(skel->bones[i].transform, lerpedQuat);
-				}
-				else
-				{
-					MatrixSetupTransformFromQuat(mat, lerpedQuat, lerpedOrigin);
-					MatrixMultiply(skel->bones[channel->parentIndex].transform, mat, skel->bones[i].transform);
-				}
+				MatrixSetupTransformFromQuat(mat, lerpedQuat, lerpedOrigin);
+				MatrixMultiply(skel->bones[channel->parentIndex].transform, mat, skel->bones[i].transform);
 			}
+#else
+			/*
+			if(channel->parentIndex < 0)
+			{
+				VectorClear(skel->bones[i].origin);
+				QuatCopy(lerpedQuat, skel->bones[i].rotation);
+			}
+			else
+			{
+				vec3_t			tmp;
+					
+				VectorCopy(lerpedOrigin, tmp);
+				QuatTransformVector(lerpedQuat, tmp, lerpedOrigin);
+				VectorAdd(skel->bones[channel->parentIndex].origin, lerpedOrigin, skel->bones[i].origin);
+					
+				QuatMultiply1(skel->bones[channel->parentIndex].rotation, lerpedQuat, skel->bones[i].rotation);
+			}
+			*/
+			
+			if(channel->parentIndex < 0)
+			{
+				MatrixFromQuat(boneMatrices[i], lerpedQuat);
+			}
+			else
+			{
+				MatrixSetupTransformFromQuat(mat, lerpedQuat, lerpedOrigin);
+				MatrixMultiply(boneMatrices[channel->parentIndex], mat, boneMatrices[i]);
+			}
+			
+			// encode full transform matrix into vec3/quat to save memory
+			skel->bones[i].origin[0] = boneMatrices[i][12];
+			skel->bones[i].origin[1] = boneMatrices[i][13];
+			skel->bones[i].origin[2] = boneMatrices[i][14];
+				
+			QuatFromMatrix(skel->bones[i].rotation, boneMatrices[i]);
+#endif
 		}
 		
 		return qtrue;
 	}
 	
-	//ri.Printf(PRINT_WARNING, "RE_SetAnimation: bad animation '%s' with handle %i\n", anim->name, hAnim);
+	//ri.Printf(PRINT_WARNING, "RE_BuildSkeleton: bad animation '%s' with handle %i\n", anim->name, hAnim);
 	
 	// FIXME: clear existing bones and bounds?
 	return qfalse;
