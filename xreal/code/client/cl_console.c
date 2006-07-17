@@ -61,6 +61,10 @@ console_t       con;
 
 cvar_t         *con_conspeed;
 cvar_t         *con_notifytime;
+cvar_t         *con_showDate;
+cvar_t         *con_showClock;
+cvar_t         *con_clock12hr;
+cvar_t         *con_clockSeconds;
 
 #define	DEFAULT_CONSOLE_WIDTH	78
 
@@ -328,6 +332,10 @@ void Con_Init(void)
 
 	con_notifytime = Cvar_Get("con_notifytime", "3", 0);
 	con_conspeed = Cvar_Get("scr_conspeed", "3", 0);
+	con_clock12hr = Cvar_Get("con_clock12hr", "0", CVAR_ARCHIVE);
+	con_clockSeconds = Cvar_Get("con_clockSeconds", "1", CVAR_ARCHIVE);
+	con_showClock = Cvar_Get("con_showClock", "1", CVAR_ARCHIVE);
+	con_showDate = Cvar_Get("con_showDate", "1", CVAR_ARCHIVE);
 
 	Field_Clear(&g_consoleField);
 	g_consoleField.widthInChars = g_console_field_width;
@@ -618,6 +626,12 @@ void Con_DrawSolidConsole(float frac)
 	int             currentColor;
 	vec4_t          color;
 
+	int             t, d;
+	char            displayTime[12];
+	char            displayDate[15];
+	qtime_t         tm;
+	qtime_t         dt;
+
 	lines = cls.glconfig.vidHeight * frac;
 	if(lines <= 0)
 		return;
@@ -648,7 +662,6 @@ void Con_DrawSolidConsole(float frac)
 
 
 	// draw the version number
-
 	re.SetColor(g_color_table[ColorIndex(COLOR_RED)]);
 
 	i = strlen(Q3_VERSION);
@@ -660,6 +673,64 @@ void Con_DrawSolidConsole(float frac)
 						  (lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2)), Q3_VERSION[x]);
 
 	}
+
+
+	// draw the date
+	if(con_showDate->integer)
+	{
+		re.SetColor(g_color_table[ColorIndex(COLOR_GREEN)]);
+		
+		Com_RealTime(&dt);
+		displayDate[0] = '\0';
+		Q_strcat(displayDate, sizeof(displayDate), va("%02d/%02d/%04d", dt.tm_mday, dt.tm_mon + 1, 1900 + dt.tm_year));
+		d = strlen(displayDate);
+		for(x = 0; x < d; x++)
+		{
+			if(con_showClock->integer)
+			{
+				SCR_DrawSmallChar(cls.glconfig.vidWidth - (d - x) * SMALLCHAR_WIDTH,
+								  (lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2) - (SMALLCHAR_HEIGHT * 2)), displayDate[x]);
+			}
+			else
+			{
+
+				SCR_DrawSmallChar(cls.glconfig.vidWidth - (d - x) * SMALLCHAR_WIDTH,
+								  (lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2) - SMALLCHAR_HEIGHT), displayDate[x]);
+			}
+		}
+	}
+
+	// draw the current time
+	if(con_showClock->integer)
+	{
+		Com_RealTime(&tm);
+		displayTime[0] = '\0';
+		if(con_clock12hr->integer)
+		{
+			Q_strcat(displayTime, sizeof(displayTime),
+					 va("%d:%02d", ((tm.tm_hour == 0 || tm.tm_hour == 12) ? 12 : tm.tm_hour % 12), tm.tm_min));
+			if(con_clockSeconds->integer)
+			{
+				Q_strcat(displayTime, sizeof(displayTime), va(":%02d", tm.tm_sec));
+			}
+			Q_strcat(displayTime, sizeof(displayTime), (tm.tm_hour < 12) ? " AM" : " PM");
+		}
+		else
+		{
+			Q_strcat(displayTime, sizeof(displayTime), va("%d:%02d", tm.tm_hour, tm.tm_min));
+			if(con_clockSeconds->integer)
+			{
+				Q_strcat(displayTime, sizeof(displayTime), va(":%02d", tm.tm_sec));
+			}
+		}
+		t = strlen(displayTime);
+		for(x = 0; x < t; x++)
+		{
+			SCR_DrawSmallChar(cls.glconfig.vidWidth - (t - x) * SMALLCHAR_WIDTH,
+							  (lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2) - SMALLCHAR_HEIGHT), displayTime[x]);
+		}
+	}
+
 
 
 	// draw the text
