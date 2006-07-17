@@ -1492,6 +1492,7 @@ refexport_t    *GetRefAPI(int apiVersion, refimport_t * rimp)
 	re.LerpTag = RE_LerpTag;
 	re.ResetSkeleton = RE_ResetSkeleton;
 	re.BuildSkeleton = RE_BuildSkeleton;
+	re.BlendSkeleton = RE_BlendSkeleton;
 	re.ModelBounds = R_ModelBounds;
 
 	re.ClearScene = RE_ClearScene;

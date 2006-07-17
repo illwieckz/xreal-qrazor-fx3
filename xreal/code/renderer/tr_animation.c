@@ -901,6 +901,7 @@ int RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int 
 #endif
 		}
 		
+		skel->numBones = anim->numChannels;
 		return qtrue;
 	}
 	
@@ -908,4 +909,45 @@ int RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int 
 	
 	// FIXME: clear existing bones and bounds?
 	return qfalse;
+}
+
+
+/*
+==============
+RE_BlendSkeleton
+==============
+*/
+int RE_BlendSkeleton(refSkeleton_t * skel, const refSkeleton_t * blend, float frac)
+{
+	int             i;
+	vec3_t			lerpedOrigin;
+	quat_t          lerpedQuat;
+	vec3_t          bounds[2];
+	
+	if(skel->numBones != blend->numBones)
+	{
+		ri.Printf(PRINT_WARNING, "RE_BlendSkeleton: different number of bones %d != %d\n", skel->numBones, blend->numBones);
+		return qfalse;
+	}
+	
+	// lerp between the 2 bone poses
+	for(i = 0; i < skel->numBones; i++)
+	{
+		VectorLerp(skel->bones[i].origin, blend->bones[i].origin, frac, lerpedOrigin);
+		QuatSlerp(skel->bones[i].rotation, blend->bones[i].rotation, frac, lerpedQuat);
+		
+		VectorCopy(lerpedOrigin, skel->bones[i].origin);
+		QuatCopy(lerpedQuat, skel->bones[i].rotation);
+	}
+	
+	// calculate a bounding box in the current coordinate system
+	for(i = 0; i < 3; i++)
+	{
+		bounds[0][i] = skel->bounds[0][i] < blend->bounds[0][i] ? skel->bounds[0][i] : blend->bounds[0][i];
+		bounds[1][i] = skel->bounds[1][i] > blend->bounds[1][i] ? skel->bounds[1][i] : blend->bounds[1][i];
+	}
+	VectorCopy(bounds[0], skel->bounds[0]);
+	VectorCopy(bounds[1], skel->bounds[1]);
+	
+	return qtrue;
 }

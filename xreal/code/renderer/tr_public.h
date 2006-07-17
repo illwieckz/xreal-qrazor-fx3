@@ -97,7 +97,8 @@ typedef struct
 	
 	int             (*ResetSkeleton) (refSkeleton_t * skel, qhandle_t model);
 	int             (*BuildSkeleton) (refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac);
-//	int             (*BlendSkeleton) (const refSkeleton_t * skel, const refSkeleton * skel2, refSkeleton * out, float frac);
+	int             (*BlendSkeleton) (refSkeleton_t * skel, const refSkeleton_t * blend, float frac);
+//	int             (*BoneIndex) (qhandle_t model, const char *boneName);
 	
 	void            (*ModelBounds) (qhandle_t model, vec3_t mins, vec3_t maxs);
 

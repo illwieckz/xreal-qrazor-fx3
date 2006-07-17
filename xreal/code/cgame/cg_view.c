@@ -150,7 +150,7 @@ void CG_TestAnimation_f(void)
 						  cg.testModelEntity.frame,
 						  1.0 - cg.testModelEntity.backlerp))
 	{
-		CG_Printf("Can't set animation\n");
+		CG_Printf("Can't build animation\n");
 		return;
 	}
 	
@@ -166,8 +166,6 @@ CG_TestAnimation2_f
 */
 void CG_TestAnimation2_f(void)
 {
-	refSkeleton_t   skel;
-	
 	if(!cg.testAnimation)
 	{
 		CG_Printf("Use testAnimation first to set a valid animation\n");
@@ -179,7 +177,7 @@ void CG_TestAnimation2_f(void)
 
 	if(!cg.testAnimation2)
 	{
-		CG_Printf("Can't register animation for blending\n");
+		CG_Printf("Can't register animation2 for blending\n");
 		return;
 	}
 	
@@ -190,12 +188,16 @@ void CG_TestAnimation2_f(void)
 		cg.testModelEntity.frame,
 		1.0 - cg.testModelEntity.backlerp))
 	{
-		CG_Printf("Can't build animation\n");
+		CG_Printf("Can't build animation2\n");
 		return;
 	}
 	
-	// TODO
-	// trap_R_BlendSkeletons
+	// lerp between first and second animation
+	if(!trap_R_BlendSkeleton(&cg.testModelEntity.skeleton, &cg.testAnimation2Skeleton, 0.5))
+	{
+		CG_Printf("Can't blend animation2\n");
+		return;
+	}
 }
 
 void CG_TestModelNextFrame_f(void)
@@ -211,7 +213,7 @@ void CG_TestModelNextFrame_f(void)
 			cg.testModelEntity.frame,
 			1.0 - cg.testModelEntity.backlerp))
 		{
-			CG_Printf("Can't set animation\n");
+			CG_Printf("Can't build animation\n");
 		}
 	}
 	
@@ -223,10 +225,13 @@ void CG_TestModelNextFrame_f(void)
 			cg.testModelEntity.frame,
 			1.0 - cg.testModelEntity.backlerp))
 		{
-			CG_Printf("Can't blend animation\n");
+			CG_Printf("Can't build animation2\n");
 		}
 		
-		// TODO blend animation2 to cg.testModelEntity.skeleton
+		if(!trap_R_BlendSkeleton(&cg.testModelEntity.skeleton, &cg.testAnimation2Skeleton, 0.5))
+		{
+			CG_Printf("Can't blend animation2\n");
+		}
 	}
 }
 
@@ -247,7 +252,7 @@ void CG_TestModelPrevFrame_f(void)
 			cg.testModelEntity.frame,
 			1.0 - cg.testModelEntity.backlerp))
 		{
-			CG_Printf("Can't set animation\n");
+			CG_Printf("Can't build animation\n");
 		}
 	}
 	
@@ -259,10 +264,13 @@ void CG_TestModelPrevFrame_f(void)
 			cg.testModelEntity.frame,
 			1.0 - cg.testModelEntity.backlerp))
 		{
-			CG_Printf("Can't blend animation\n");
+			CG_Printf("Can't build animation2\n");
 		}
 		
-		// TODO blend animation2 to cg.testModelEntity.skeleton
+		if(!trap_R_BlendSkeleton(&cg.testModelEntity.skeleton, &cg.testAnimation2Skeleton, 0.5))
+		{
+			CG_Printf("Can't blend animation2\n");
+		}
 	}
 }
 
