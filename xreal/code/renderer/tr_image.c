@@ -1608,6 +1608,7 @@ static void LoadPCX(const char *filename, byte ** pic, byte ** palette, int *wid
 	   || pcx->version != 5 || pcx->encoding != 1 || pcx->bits_per_pixel != 8 || xmax >= 1024 || ymax >= 1024)
 	{
 		ri.Printf(PRINT_ALL, "Bad pcx file %s (%i x %i) (%i x %i)\n", filename, xmax + 1, ymax + 1, pcx->xmax, pcx->ymax);
+		ri.FS_FreeFile(pcx);
 		return;
 	}
 
@@ -3429,7 +3430,7 @@ static void ParseAddNormals(char **text, byte ** pic, int *width, int *height, i
 	R_LoadImage(text, pic, width, height, bits);
 	if(!pic)
 	{
-		ri.Printf(PRINT_WARNING, "WARNING: failed loading of first image for addNormals\n", token);
+		ri.Printf(PRINT_WARNING, "WARNING: failed loading of first image for addNormals\n");
 		return;
 	}
 
@@ -3443,7 +3444,7 @@ static void ParseAddNormals(char **text, byte ** pic, int *width, int *height, i
 	R_LoadImage(text, &pic2, &width2, &height2, bits);
 	if(!pic2)
 	{
-		ri.Printf(PRINT_WARNING, "WARNING: failed loading of second image for addNormals\n", token);
+		ri.Printf(PRINT_WARNING, "WARNING: failed loading of second image for addNormals\n");
 		return;
 	}
 
@@ -3488,7 +3489,7 @@ static void ParseInvertAlpha(char **text, byte ** pic, int *width, int *height, 
 	R_LoadImage(text, pic, width, height, bits);
 	if(!pic)
 	{
-		ri.Printf(PRINT_WARNING, "WARNING: failed loading of image for invertAlpha\n", token);
+		ri.Printf(PRINT_WARNING, "WARNING: failed loading of image for invertAlpha\n");
 		return;
 	}
 
@@ -3516,7 +3517,7 @@ static void ParseInvertColor(char **text, byte ** pic, int *width, int *height, 
 	R_LoadImage(text, pic, width, height, bits);
 	if(!pic)
 	{
-		ri.Printf(PRINT_WARNING, "WARNING: failed loading of image for invertColor\n", token);
+		ri.Printf(PRINT_WARNING, "WARNING: failed loading of image for invertColor\n");
 		return;
 	}
 
@@ -3544,7 +3545,7 @@ static void ParseMakeIntensity(char **text, byte ** pic, int *width, int *height
 	R_LoadImage(text, pic, width, height, bits);
 	if(!pic)
 	{
-		ri.Printf(PRINT_WARNING, "WARNING: failed loading of image for makeIntensity\n", token);
+		ri.Printf(PRINT_WARNING, "WARNING: failed loading of image for makeIntensity\n");
 		return;
 	}
 
@@ -3576,7 +3577,7 @@ static void ParseMakeAlpha(char **text, byte ** pic, int *width, int *height, in
 	R_LoadImage(text, pic, width, height, bits);
 	if(!pic)
 	{
-		ri.Printf(PRINT_WARNING, "WARNING: failed loading of image for makeAlpha\n", token);
+		ri.Printf(PRINT_WARNING, "WARNING: failed loading of image for makeAlpha\n");
 		return;
 	}
 
