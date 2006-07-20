@@ -182,6 +182,16 @@ void CG_TestAnimation2_f(void)
 	}
 	
 	// modify bones and set proper local bounds for culling
+	if(!trap_R_BuildSkeleton(&cg.testModelEntity.skeleton,
+		cg.testAnimation,
+		cg.testModelEntity.oldframe,
+		cg.testModelEntity.frame,
+		1.0 - cg.testModelEntity.backlerp))
+	{
+		CG_Printf("Can't build animation\n");
+		return;
+	}
+	
 	if(!trap_R_BuildSkeleton(&cg.testAnimation2Skeleton,
 		cg.testAnimation2,
 		cg.testModelEntity.oldframe,
