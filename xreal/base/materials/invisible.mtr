@@ -458,14 +458,37 @@ textures/common/mirror
 textures/common/mirror1
 {
 	qer_editorimage textures/common/qer_mirror.tga
-	
-	nolightmap
+	surfaceparm nolightmap
 	portal
-  
+
 	{
 		map textures/common/mirror1.tga
-		blendfunc GL_ONE GL_ONE_MINUS_SRC_ALPHA
+		blend GL_ONE , GL_ONE_MINUS_SRC_ALPHA
 		depthWrite
+	}
+}
+
+textures/common/mirror2
+{
+	qer_editorimage textures/common/qer_mirror.tga
+	surfaceparm nolightmap
+	portal
+	{
+		map textures/common/mirror1.tga
+		blend GL_ONE , GL_ONE_MINUS_SRC_ALPHA
+		depthWrite
+	}
+	{
+		if(fragmentPrograms == 0)
+		map textures/sfx/mirror.tga
+		blend GL_ZERO , GL_ONE_MINUS_SRC_COLOR
+	}
+	{
+		if(fragmentPrograms == 1)
+		stage	heathazemap
+		map		textures/liquids/liquid12_n.tga
+		scroll		0 , time * -0.2
+		deformMagnitude	1
 	}
 }
 
@@ -555,40 +578,3 @@ textures/common/npc_pda
 //*****************************************************Moved from aaduffyTest.mtr - end*****************************************
 
 //Verified good complete by Eutectic - Sep 15-04
-
-textures/common/mirror1
-{
-	qer_editorimage textures/common/qer_mirror.tga
-	surfaceparm nolightmap
-	portal
-
-	{
-		map textures/common/mirror1.tga
-		blend GL_ONE , GL_ONE_MINUS_SRC_ALPHA
-		depthWrite
-	}
-}
-
-textures/common/mirror2
-{
-	qer_editorimage textures/common/qer_mirror.tga
-	surfaceparm nolightmap
-	portal
-	{
-		map textures/common/mirror1.tga
-		blend GL_ONE , GL_ONE_MINUS_SRC_ALPHA
-		depthWrite
-	}
-	{
-		if(fragmentPrograms == 0)
-		map textures/sfx/mirror.tga
-		blend GL_ZERO , GL_ONE_MINUS_SRC_COLOR
-	}
-	{
-		if(fragmentPrograms == 1)
-		stage	heathazemap
-		map		textures/liquids/liquid12_n.tga
-		scroll		0 , time * -0.2
-		deformMagnitude	1
-	}
-}
