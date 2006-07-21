@@ -59,8 +59,6 @@ dll_src = [
 ]
 
 ui_env = env.Copy()
-#ui_env.Append(CCFLAGS='-DMISSIONPACK')
-#ui_env.Append(CCFLAGS='-DXREAL')
 
 if env['arch'] == 'linux-i386':
 	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])

@@ -78,8 +78,7 @@ lua_src = [
 ]
 
 game_env = env.Copy()
-#game_env.Append(CCFLAGS='-DMISSIONPACK')
-#game_env.Append(CCFLAGS='-DXREAL')
+game_env.Append(CCFLAGS='-DMISSIONPACK')
 
 if env['lua'] == 1:
 	game_src += lua_src
@@ -88,13 +87,13 @@ if env['lua'] == 1:
 
 if env['arch'] == 'linux-i386':
 	game_env.SharedLibrary('game', [game_src, dll_src], LIBS=['m'])
-	game_env.InstallAs('#base/qagamei386.so', 'libgame.so')
+	game_env.InstallAs('#baseta/qagamei386.so', 'libgame.so')
 	
 elif env['arch'] == 'linux-x86_64':
 	game_env.SharedLibrary('game', [game_src, dll_src], LIBS=['m'])
-	game_env.InstallAs('#base/qagamex86_64.so', 'libgame.so')
+	game_env.InstallAs('#baseta/qagamex86_64.so', 'libgame.so')
 
 elif env['arch'] == 'win32-mingw' or env['arch'] == 'win32-xmingw':
 	game_env.SharedLibrary('game', [game_src, dll_src], LIBS=['m'])
-	game_env.InstallAs('#base/qagamex86.dll', 'game.dll')
+	game_env.InstallAs('#baseta/qagamex86.dll', 'game.dll')
 

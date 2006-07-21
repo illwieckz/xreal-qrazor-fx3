@@ -40,8 +40,6 @@ dll_src = [
 ]
 
 cgame_env = env.Copy()
-#cgame_env.Append(CCFLAGS='-DMISSIONPACK')
-#cgame_env.Append(CCFLAGS='-DXREAL')
 
 if env['lua'] == 1:
 		cgame_env.Append(CCFLAGS='-DLUA')

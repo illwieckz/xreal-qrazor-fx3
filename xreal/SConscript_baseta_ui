@@ -1,0 +1,37 @@
+import os, string, sys
+
+Import('env')
+
+# the file with vmMain function MUST be the first one of the list
+ui_src = [
+'code/ui/ui_main.c',
+'code/ui/ui_atoms.c',
+'code/ui/ui_gameinfo.c',
+'code/ui/ui_players.c',
+'code/ui/ui_util.c',
+'code/ui/ui_shared.c',
+'code/game/bg_misc.c',
+'code/game/q_math.c',
+'code/game/q_shared.c'
+]
+
+dll_src = [
+'code/ui/ui_syscalls.c'
+]
+
+ui_env = env.Copy()
+ui_env.Append(CCFLAGS='-DMISSIONPACK')
+
+if env['arch'] == 'linux-i386':
+	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
+	ui_env.InstallAs('#baseta/uii386.so', 'libui.so')
+
+elif env['arch'] == 'linux-x86_64':
+	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
+	ui_env.InstallAs('#baseta/uix86_64.so', 'libui.so')
+
+elif env['arch'] == 'win32-mingw' or env['arch'] == 'win32-xmingw':
+	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
+	ui_env.InstallAs('#baseta/uix86.dll', 'ui.dll')
+
+
