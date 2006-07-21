@@ -114,8 +114,6 @@ static char    *opnames[256] = {
 #endif
 
 #if idppc
-
-//FIXME: these, um... look the same to me
 #if defined(__GNUC__)
 static ID_INLINE unsigned int loadWord(void *addr)
 {
