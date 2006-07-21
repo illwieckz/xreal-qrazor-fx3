@@ -47,17 +47,19 @@ COMPILING ON WIN32 WITH MINGW
 1. Download and install MinGW from http://www.mingw.org/.
 2. Download http://www.libsdl.org/extras/win32/common/directx-devel.tar.gz
      and untar it into your MinGW directory (usually C:\MinGW).
-3. Download and install Python from http://www.python.org/.
-4. Download and install SCons from http://www.scons.org/.
-5. Download libxml2 from http://www.xmlsoft.org/.
-6. Configure libxml2:
+3. Download http://oss.sgi.com/projects/ogl-sample/ABI/glext.h
+	and copy it over the existing C:\MingW\include\GL\glext.h.
+4. Download and install Python from http://www.python.org/.
+5. Download and install SCons from http://www.scons.org/.
+6. Download libxml2 from http://www.xmlsoft.org/.
+7. Configure libxml2:
 	in libxml2-2.6.26\win32
 	>cscript configure.js ftp=no http=no iconv=no compiler=mingw prefix=C:\MingW bindir=C:\MingW\bin incdir=C:\MingW\include libdir=C:\MingW\lib sodir=C:\MingW\lib
-7. Compile libxml2:
+8. Compile libxml2:
 	>mingw32-make -f Makefile.mingw
-8. Install libxml2:
+9. Install libxml2:
 	>mingw32-make -f Makefile.mingw install
-9. Compile XreaL:
+10. Compile XreaL:
 	>scons arch=win32-mingw
 
 
