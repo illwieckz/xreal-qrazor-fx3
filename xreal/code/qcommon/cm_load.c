@@ -517,11 +517,11 @@ void CMod_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexesLump)
 	int             i, j;
 	cSurface_t     *surface;
 	int             numVertexes;
-	vec3_t          vertexes[SHADER_MAX_VERTEXES];
+	static vec3_t   vertexes[SHADER_MAX_VERTEXES];
 	int             width, height;
 	int             shaderNum;
 	int             numIndexes;
-	int             indexes[SHADER_MAX_INDEXES];
+	static int      indexes[SHADER_MAX_INDEXES];
 	int            *index;
 	int            *index_p;
 

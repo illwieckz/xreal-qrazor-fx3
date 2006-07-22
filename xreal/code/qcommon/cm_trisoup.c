@@ -680,7 +680,7 @@ static void CM_TriangleSoupCollideFromTriangleSoup(cTriangleSoup_t * triSoup, tr
 {
 	int             i;
 	float          *p1, *p2, *p3;
-	int             trianglePlanes[SHADER_MAX_TRIANGLES];
+	static int      trianglePlanes[SHADER_MAX_TRIANGLES];
 	cTriangle_t    *triangle;
 	int             borders[4];
 	int             noAdjust[4];
@@ -777,7 +777,7 @@ Points is packed as concatenated rows.
 struct triSoupCollide_s *CM_GenerateTriangleSoupCollide(int numVertexes, vec3_t * vertexes, int numIndexes, int * indexes)
 {
 	triSoupCollide_t *tc;
-	cTriangleSoup_t triSoup;
+	static cTriangleSoup_t triSoup;
 	int             i, j;
 
 	if(numVertexes <= 2 || !vertexes || numIndexes <= 2 || !indexes)
@@ -842,8 +842,8 @@ CM_TracePointThroughTriangleSoupCollide
 */
 void CM_TracePointThroughTriangleSoupCollide(traceWork_t * tw, const struct triSoupCollide_s *tc)
 {
-	qboolean        frontFacing[SHADER_MAX_TRIANGLES];
-	float           intersection[SHADER_MAX_TRIANGLES];
+	static qboolean frontFacing[SHADER_MAX_TRIANGLES];
+	static float    intersection[SHADER_MAX_TRIANGLES];
 	float           intersect;
 	const trianglePlane_t *planes;
 	const cTriangle_t *triangle;
@@ -1010,7 +1010,7 @@ void CM_TraceThroughTriangleSoupCollide(traceWork_t * tw, const struct triSoupCo
 	float           offset, enterFrac, leaveFrac, t;
 	trianglePlane_t *planes;
 	cTriangle_t    *triangle;
-	float           plane[4], bestplane[4];
+	float           plane[4] = {0, 0, 0, 0}, bestplane[4] =	{0, 0, 0, 0};
 	vec3_t          startp, endp;
 
 	if(tw->isPoint)
