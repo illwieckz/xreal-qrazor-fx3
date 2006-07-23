@@ -1,0 +1,41 @@
+//
+// Team definition is as follows
+// 
+// English name
+// asset name
+// 5 team member names ( can be character or aliases or if non-existant, assumed to be human
+// 
+// Three assets are loaded based on the above asset name
+// "asset name" - general branding logo used in the ui and to brand levels
+// "asset name_metal" - metal logo for ui
+// "asset name_name" - graphic represenation of the name
+//
+teams {
+  { "Crusaders" "ui/assets/crusaders"  "Janet" "James" "Bradamante" "Furioso" "Aria"  }
+  { "Pagans"  "ui/assets/pagans" "James" "Janet" "Enforcer" "Aria" "Deadeye" }
+  { "Stroggs" "ui/assets/stroggs" "Janet" "James" "Icarus" "Gladiator" "Paracyte" }
+}
+
+
+// character name ( used for display and head derivation ), sex
+characters {
+  { "James"  "male" }
+  { "Janet"  "female" }
+}
+
+aliases {
+	{ "Bradamante"			"Janet"		"d"			}
+	{ "Furioso"			"James"	"a"				}
+	{ "Aria"			"Janet" 	"o"			  	}
+	{ "Deadeye"			"James"		"d"				}
+	{ "Enforcer"			"Janet"	"d"			}
+	{ "Icarus"			"James"		"o"		}
+	{ "Gammy"			"Janet"		"a"			}
+	{ "Gladiator"			"Janet"		"d"				}
+	{ "Paracyte"			"James"	"a"			}
+	{ "James"			"James"	"a"			}
+	{ "Janet"			"Janet"	"a"			}
+}
+
+
+		   
