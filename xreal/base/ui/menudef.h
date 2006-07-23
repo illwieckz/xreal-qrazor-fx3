@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+
+This file is part of XreaL source code.
+
+XreaL source code is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
+
+XreaL source code is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with XreaL source code; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+===========================================================================
+*/
 
 #define ITEM_TYPE_TEXT 0                  // simple text
 #define ITEM_TYPE_BUTTON 1                // button, basically text with a border 
@@ -79,31 +101,31 @@
 #define CG_SHOW_SINGLEPLAYER              0x00000100
 #define CG_SHOW_TOURNAMENT                0x00000200
 #define CG_SHOW_DURINGINCOMINGVOICE       0x00000400
-#define CG_SHOW_IF_PLAYER_HAS_FLAG				0x00000800
-#define CG_SHOW_LANPLAYONLY								0x00001000
-#define CG_SHOW_MINED											0x00002000
-#define CG_SHOW_HEALTHOK			            0x00004000
-#define CG_SHOW_TEAMINFO			            0x00008000
-#define CG_SHOW_NOTEAMINFO		            0x00010000
+#define CG_SHOW_IF_PLAYER_HAS_FLAG        0x00000800
+#define CG_SHOW_LANPLAYONLY               0x00001000
+#define CG_SHOW_MINED                     0x00002000
+#define CG_SHOW_HEALTHOK			      0x00004000
+#define CG_SHOW_TEAMINFO			      0x00008000
+#define CG_SHOW_NOTEAMINFO		          0x00010000
 #define CG_SHOW_OTHERTEAMHASFLAG          0x00020000
 #define CG_SHOW_YOURTEAMHASENEMYFLAG      0x00040000
 #define CG_SHOW_ANYNONTEAMGAME            0x00080000
-#define CG_SHOW_2DONLY										0x10000000
+#define CG_SHOW_2DONLY                    0x10000000
 
 
-#define UI_SHOW_LEADER				            0x00000001
-#define UI_SHOW_NOTLEADER			            0x00000002
-#define UI_SHOW_FAVORITESERVERS						0x00000004
-#define UI_SHOW_ANYNONTEAMGAME						0x00000008
-#define UI_SHOW_ANYTEAMGAME								0x00000010
-#define UI_SHOW_NEWHIGHSCORE							0x00000020
-#define UI_SHOW_DEMOAVAILABLE							0x00000040
-#define UI_SHOW_NEWBESTTIME								0x00000080
-#define UI_SHOW_FFA												0x00000100
-#define UI_SHOW_NOTFFA										0x00000200
-#define UI_SHOW_NETANYNONTEAMGAME	 				0x00000400
-#define UI_SHOW_NETANYTEAMGAME		 				0x00000800
-#define UI_SHOW_NOTFAVORITESERVERS				0x00001000
+#define UI_SHOW_LEADER				      0x00000001
+#define UI_SHOW_NOTLEADER			      0x00000002
+#define UI_SHOW_FAVORITESERVERS           0x00000004
+#define UI_SHOW_ANYNONTEAMGAME            0x00000008
+#define UI_SHOW_ANYTEAMGAME               0x00000010
+#define UI_SHOW_NEWHIGHSCORE              0x00000020
+#define UI_SHOW_DEMOAVAILABLE             0x00000040
+#define UI_SHOW_NEWBESTTIME               0x00000080
+#define UI_SHOW_FFA                       0x00000100
+#define UI_SHOW_NOTFFA                    0x00000200
+#define UI_SHOW_NETANYNONTEAMGAME         0x00000400
+#define UI_SHOW_NETANYTEAMGAME            0x00000800
+#define UI_SHOW_NOTFAVORITESERVERS        0x00001000
 
 
 
@@ -188,6 +210,8 @@
 #define CG_1STPLACE 67
 #define CG_2NDPLACE 68
 #define CG_CAPTURES 69
+
+
 
 
 #define UI_OWNERDRAW_BASE 200
@@ -278,3 +302,8 @@
 #define VOICECHAT_WHOISLEADER		"whoisleader"			// who is the team leader
 #define VOICECHAT_WANTONDEFENSE		"wantondefense"			// I want to be on defense
 #define VOICECHAT_WANTONOFFENSE		"wantonoffense"			// I want to be on offense
+#define VOICECHAT_KILLINSULT		"kill_insult"			// I just killed you
+#define VOICECHAT_TAUNT				"taunt"					// I want to taunt you
+#define VOICECHAT_DEATHINSULT		"death_insult"			// you just killed me
+#define VOICECHAT_KILLGAUNTLET		"kill_gauntlet"			// I just killed you with the gauntlet
+#define VOICECHAT_PRAISE			"praise"				// you did something good
