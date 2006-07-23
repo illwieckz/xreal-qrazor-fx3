@@ -293,7 +293,7 @@ void Sys_CreateConsole(void)
 	HDC             hDC;
 	WNDCLASS        wc;
 	RECT            rect;
-	const char     *DEDCLASS = "Q3 WinConsole";
+	const char     *DEDCLASS = "XreaL WinConsole";
 	int             nHeight;
 	int             swidth, sheight;
 	int             DEDSTYLE = WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX;
@@ -330,7 +330,7 @@ void Sys_CreateConsole(void)
 
 	s_wcd.hWnd = CreateWindowEx(0,
 								DEDCLASS,
-								"Quake 3 Console",
+								"XreaL Console",
 								DEDSTYLE,
 								(swidth - 600) / 2, (sheight - 450) / 2, rect.right - rect.left + 1, rect.bottom - rect.top + 1,
 								NULL, NULL, g_wv.hInstance, NULL);

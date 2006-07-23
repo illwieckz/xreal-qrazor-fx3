@@ -59,7 +59,7 @@ typedef enum
 #define TRY_PFD_FAIL_SOFT	1
 #define TRY_PFD_FAIL_HARD	2
 
-#define	WINDOW_CLASS_NAME	"Quake 3: Arena"
+#define	WINDOW_CLASS_NAME	"XreaL"
 
 static void     GLW_InitExtensions(void);
 static rserr_t  GLW_SetMode(const char *drivername, int mode, int colorbits, qboolean cdsFullscreen);
@@ -668,7 +668,7 @@ static qboolean GLW_CreateWindow(const char *drivername, int width, int height, 
 		}
 
 		g_wv.hWnd = CreateWindowEx(exstyle,
-								   WINDOW_CLASS_NAME, "Quake 3: Arena", stylebits, x, y, w, h, NULL, NULL, g_wv.hInstance, NULL);
+								   WINDOW_CLASS_NAME, "XreaL", stylebits, x, y, w, h, NULL, NULL, g_wv.hInstance, NULL);
 
 		if(!g_wv.hWnd)
 		{
