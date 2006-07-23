@@ -16,12 +16,9 @@
 	shadowY  5					// y amount for shadow offset
 	shadowColor 0.1 0.1 0.1 0.25			// shadow color
 
-	//hudShader "ui/assets/hudbar.tga"		// 
-   	//font "fonts/kenycb__.ttf"				// font
-   	//smallFont "fonts/kenyc___.ttf"				// font
-    font "fonts/impact.ttf" 16				// font
-    smallFont "fonts/impact.ttf" 12				// font
-    bigFont "fonts/impact.ttf" 20				// font
+    	font "fonts/impact.ttf" 16			// font
+    	smallFont "fonts/impact.ttf" 12			// font
+    	bigFont "fonts/impact.ttf" 20			// font
 
 
   }

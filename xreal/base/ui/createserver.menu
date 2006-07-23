@@ -8,7 +8,6 @@
     	visible 0
     	fullscreen 1
     	rect 0 0 640 480
-	//background uibackground4
 	background "menuback_a"
 	outOfBoundsClick	
 	focusColor 1 .75 0 1
@@ -19,7 +18,13 @@
 	playlooped "music/fla_mp03.wav" ;
 	fadeout fadebox ; 
 	transition mappreview 7 127 190 1 7 57 190 141 20 10 ; 
-	uiScript loadArenas }
+	uiScript loadArenas ;
+	hide lightning ; 
+	hide accept_alt ; 
+	show accept ;
+	hide back_alt ;
+	show back ;
+	hide grpmessage }
 	
 
 itemDef {
@@ -36,7 +41,7 @@ itemDef {
 
 itemDef {
 	name window
-      	rect 204 50 227 98	
+	rect 204 50 227 113	
 	style WINDOW_STYLE_FILLED
 	border 1
 	bordercolor 1 1 1 .25
@@ -49,7 +54,7 @@ itemDef {
 
 itemDef {
 	name window
-      	rect 204 150 227 270	
+	rect 204 165 227 270	
 	style WINDOW_STYLE_FILLED
 	border 1
 	bordercolor 1 1 1 .25
@@ -309,6 +314,22 @@ itemDef {
      	visible 1 
     	}
 
+	itemDef {
+		name normal
+		group grpsettings
+		type ITEM_TYPE_MULTI
+		text "Punkbuster:"
+		cvar "sv_punkbuster"
+		cvarFloatList { "No" 0 "Yes" 1 }
+		rect 260 145 128 12 
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 65
+		textaligny 12
+		textscale .25        
+		forecolor 1 1 1 1
+		visible 1 
+	}
+
 
 // 	EXPERT	//	
 
@@ -320,7 +341,7 @@ itemDef {
 	cvar "sv_hostname"
 	maxChars 32
 	maxPaintChars 10
-      	rect 260 160 128 12 
+      	rect 260 175 128 12 
       	textalign ITEM_ALIGN_RIGHT
       	textalignx 65
       	textaligny 12
@@ -337,7 +358,7 @@ itemDef {
       	type ITEM_TYPE_YESNO
 	text "Auto Download:"
 	cvar "sv_allowdownload"
-	rect 260 175 128 12 
+	rect 260 190 128 12 
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 65
 	textaligny 12
@@ -352,7 +373,7 @@ itemDef {
       	type ITEM_TYPE_YESNO
 	text "Enable Voting:"
 	cvar "g_allowvote"
-      	rect 260 190 128 12 
+      	rect 260 205 128 12 
       	textalign ITEM_ALIGN_RIGHT
       	textalignx 65
       	textaligny 12
@@ -369,7 +390,7 @@ itemDef {
       	type ITEM_TYPE_NUMERICFIELD
 	text "Maximum Players:"
 	cvar "sv_maxclients"
-      	rect 260 205 128 12 
+      	rect 260 220 128 12 
       	textalign ITEM_ALIGN_RIGHT
       	textalignx 65
 	maxchars 4
@@ -387,7 +408,7 @@ itemDef {
       	type ITEM_TYPE_NUMERICFIELD
 	text "Minimum Ping:"
 	cvar "sv_minping"
-      	rect 260 220 128 12 
+      	rect 260 235 128 12 
       	textalign ITEM_ALIGN_RIGHT
       	textalignx 65
 	maxchars 4
@@ -403,7 +424,7 @@ itemDef {
       	type ITEM_TYPE_NUMERICFIELD
 	text "Maximum Ping:"
 	cvar "sv_maxping"
-      	rect 260 235 128 12 
+      	rect 260 250 128 12 
       	textalign ITEM_ALIGN_RIGHT
       	textalignx 65
       	textaligny 12
@@ -419,7 +440,7 @@ itemDef {
       	type ITEM_TYPE_YESNO
 	text "Force Join:"
 	cvar "g_teamautojoin"
-      	rect 260 250 128 12 
+      	rect 260 265 128 12 
       	textalign ITEM_ALIGN_RIGHT
       	textalignx 65
       	textaligny 12
@@ -434,7 +455,7 @@ itemDef {
       	type ITEM_TYPE_YESNO
 	text "Even Teams:"
 	cvar "g_teamforcebalance"
-      	rect 260 265 128 12 
+      	rect 260 280 128 12 
       	textalign ITEM_ALIGN_RIGHT
       	textalignx 65
       	textaligny 12
@@ -449,7 +470,7 @@ itemDef {
       	type ITEM_TYPE_YESNO
 	text "Do Warmup:"
 	cvar "g_dowarmup"
-      	rect 260 280 128 12 
+      	rect 260 295 128 12 
       	textalign ITEM_ALIGN_RIGHT
       	textalignx 65
       	textaligny 12
@@ -464,7 +485,7 @@ itemDef {
       	type ITEM_TYPE_NUMERICFIELD
 	text "Warmup time:"
 	cvar "g_warmup"
-      	rect 260 295 128 12 
+      	rect 260 310 128 12 
       	textalign ITEM_ALIGN_RIGHT
       	textalignx 65
       	textaligny 12
@@ -480,7 +501,7 @@ itemDef {
       	type ITEM_TYPE_YESNO
 	text "Synchronous Client:"
 	cvar "g_synchronousclients"
-      	rect 260 310 128 12 
+      	rect 260 325 128 12 
       	textalign ITEM_ALIGN_RIGHT
       	textalignx 65
       	textaligny 12
@@ -495,7 +516,7 @@ itemDef {
       	type ITEM_TYPE_NUMERICFIELD
 	text "Max Rate:"
 	cvar "sv_maxrate"
-      	rect 260 325 128 12 
+      	rect 260 340 128 12 
       	textalign ITEM_ALIGN_RIGHT
       	textalignx 65
 	maxchars 4
@@ -511,7 +532,7 @@ itemDef {
       	type ITEM_TYPE_NUMERICFIELD
 	text "Zombie Time:"
 	cvar "sv_zombietime"
-      	rect 260 340 128 12 
+      	rect 260 355 128 12 
 	maxchars 4
       	textalign ITEM_ALIGN_RIGHT
       	textalignx 65
@@ -528,7 +549,7 @@ itemDef {
 	text "Reconnect Limit:"
 	cvar "sv_reconnectlimit"
 	maxchars 4
-      	rect 260 355 128 12 
+      	rect 260 370 128 12 
       	textalign ITEM_ALIGN_RIGHT
       	textalignx 65
       	textaligny 12
@@ -542,7 +563,7 @@ itemDef {
  	type ITEM_TYPE_YESNO
 	text "Require Password:"
 	cvar "g_needpassword"
-      	rect 260 370 128 12 
+      	rect 260 385 128 12 
       	textalign ITEM_ALIGN_RIGHT
       	textalignx 65
       	textaligny 12
@@ -557,7 +578,7 @@ itemDef {
       	type 4
 	text "Password:"
 	cvar "g_password"
-      	rect 260 385 128 12 
+      	rect 260 400 128 12 
 	maxchars 10
 	maxPaintChars 10
       	textalign ITEM_ALIGN_RIGHT
@@ -1108,9 +1129,11 @@ itemDef {
       	visible 1 
 	mouseEnter { playlooped "sound/misc/loop_electricity_05.wav" ; show lightning ; hide accept ; show accept_alt ; fadein message_accept }
       	action { close fight ; uiScript StartServer }
+/*	
 	//	demo_only
 	cvarTest "ui_actualNetGameType"
 	hideCvar { "0" ; "1" }
+*/
   	}
 
 	itemDef {
@@ -1124,9 +1147,11 @@ itemDef {
 		type ITEM_TYPE_BUTTON
       	action { close fight ; uiScript StartServer }
       	mouseExit { hide lightning ; hide accept_alt ; show accept ; fadeout message_accept ; playlooped "music/fla_mp03.wav" }	
+/*	
 	//	demo_only
 	cvarTest "ui_actualNetGameType"
 	hideCvar { "0" ; "1" }
+*/
   	}
 itemDef {
       	name lightning
@@ -1151,6 +1176,7 @@ itemDef {
 
 itemDef {
 	name message_back
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1166,6 +1192,7 @@ itemDef {
 
 itemDef {
 	name message_accept
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1181,6 +1208,7 @@ itemDef {
 
 itemDef {
 	name message_gametype
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1196,6 +1224,7 @@ itemDef {
 
 itemDef {
 	name message_skill
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1210,6 +1239,7 @@ itemDef {
 	}
 itemDef {
 	name message_arena
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1224,6 +1254,7 @@ itemDef {
 	}
 itemDef {
 	name message_clan
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1238,6 +1269,7 @@ itemDef {
 	}
 itemDef {
 	name message_slot
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1252,6 +1284,7 @@ itemDef {
 	}
 itemDef {
 	name message_normal
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1266,6 +1299,7 @@ itemDef {
 	}
 itemDef {
 	name message_expert
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1

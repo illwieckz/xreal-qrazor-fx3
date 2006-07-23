@@ -19,6 +19,7 @@ menuDef {
 		hide grpControls ; 
 		show look ; 
 		uiScript loadControls }
+	onEsc { close control_menu ; close setup_menu ; open main }
 
 
 itemDef {
@@ -1356,72 +1357,6 @@ itemDef {
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
-/*
-	itemDef {
-      		name chat
-		group grpControls
-      		type ITEM_TYPE_BIND
-		text "Kill Insult:"
-		cvar "tauntKillInsult"
-		rect 99 175 256 20
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .333            
-      		forecolor 1 1 1 1
-      		visible 0 
-		mouseenter { show keyBindStatus }
-		mouseexit { hide keyBindStatus }
-    		}
-	itemDef {
-      		name chat
-		group grpControls
-      		type ITEM_TYPE_BIND
-		text "Praise:"
-		cvar "tauntPraise"
-		rect 99 200 256 20
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .333            
-      		forecolor 1 1 1 1
-      		visible 0 
-		mouseenter { show keyBindStatus }
-		mouseexit { hide keyBindStatus }
-    		}
-	itemDef {
-      		name chat
-		group grpControls
-      		type ITEM_TYPE_BIND
-		text "General Taunt:"
-		cvar "tauntTaunt"
-		rect 99 225 256 20
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .333            
-      		forecolor 1 1 1 1
-      		visible 0 
-		mouseenter { show keyBindStatus }
-		mouseexit { hide keyBindStatus }
-    		}
-	itemDef {
-      		name chat
-		group grpControls
-      		type ITEM_TYPE_BIND
-		text "Death Insult:"
-		cvar "tauntDeathInsult"
-		rect 99 250 256 20
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .333            
-      		forecolor 1 1 1 1
-      		visible 0 
-		mouseenter { show keyBindStatus }
-		mouseexit { hide keyBindStatus }
-    		}
-*/
 
 
 

@@ -7,10 +7,8 @@ menuDef {
 	name "quake3_popmenu"
     	visible 0
     	fullscreen 0
-    	//rect 217 200 210 85
 	rect 204 122 235 235
-	//outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
-    	focusColor 1 .75 0 1
+	focusColor 1 .75 0 1
     	style 1
     	border 1
 	popup
@@ -35,7 +33,7 @@ itemDef {
 	decoration
 	}
 
-
+/*
 //	DEMO ONLY OPTION	//
 
 itemDef {
@@ -83,10 +81,8 @@ itemDef {
 	visible 1
 	}
 
-//	COMMENTED OUT FOR DEMO	//
+*/
 
-
-/*
 	// Quake 3	//
 
 itemDef {
@@ -214,7 +210,7 @@ itemDef {
 		decoration  	  
     		}
 
-*/
+
 
 }
 

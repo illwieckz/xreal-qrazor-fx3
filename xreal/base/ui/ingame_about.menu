@@ -189,10 +189,12 @@ itemDef {
 	}
 itemDef {
 	name about
-	rect 0 55 256 20
+	rect 0 70 256 20
 	type 4
       	style 0	
 	text "Capture Limit:" 
+	cvarTest "G_GAMETYPE"
+	hideCvar { "0" ; "1" ; "2" ; "3" }
 	maxPaintChars 12
 	cvar capturelimit 
       	textalign ITEM_ALIGN_RIGHT		
@@ -209,6 +211,8 @@ itemDef {
 	type 4
       	style 0	
 	text "Frag Limit:"
+	cvarTest "G_GAMETYPE"
+	showCvar { "0" ; "1" ; "2" ; "3" }
 	maxPaintChars 12
 	cvar fraglimit 
       	textalign ITEM_ALIGN_RIGHT		

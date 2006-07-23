@@ -27,7 +27,6 @@ menuDef {
 	rect 0 0 640 480				// Size and position of the menu
     	visible MENU_TRUE				// Visible on open
 	focusColor 1 .75 0 1				// Menu focus color for text and items
-	//soundLoop "music/sonic1.wav"  			// Background music
 
 						
 	onOpen { 
@@ -493,6 +492,8 @@ itemDef {
       	mouseExit { setitemcolor quitbar backcolor 0 0 .75 .25 }
    	}
 
+/*
+
 //	DEMO ONLY OPTION	//
 
 itemDef {
@@ -509,6 +510,7 @@ itemDef {
       	visible 1 
       	decoration 
 	}
+*/
 
 
 

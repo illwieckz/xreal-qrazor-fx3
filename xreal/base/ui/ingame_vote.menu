@@ -8,10 +8,10 @@ menuDef {
  	visible 0
  	fullscreen 0
 	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
-  rect 430 30 128 125
-  focusColor 1 .75 0 1
-  style 1
-  border 1
+  	rect 430 30 128 125
+  	focusColor 1 .75 0 1
+  	style 1
+  	border 1
 
 	itemDef {
 		name window

@@ -1,24 +1,3 @@
-/*
-===========================================================================
-Copyright (C) 1999-2005 Id Software, Inc.
-
-This file is part of Quake III Arena source code.
-
-Quake III Arena source code is free software; you can redistribute it
-and/or modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 2 of the License,
-or (at your option) any later version.
-
-Quake III Arena source code is distributed in the hope that it will be
-useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Foobar; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-===========================================================================
-*/
 
 #define ITEM_TYPE_TEXT 0                  // simple text
 #define ITEM_TYPE_BUTTON 1                // button, basically text with a border 
@@ -211,8 +190,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CG_CAPTURES 69
 
 
-
-
 #define UI_OWNERDRAW_BASE 200
 #define UI_HANDICAP 200
 #define UI_EFFECTS 201
@@ -301,8 +278,3 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define VOICECHAT_WHOISLEADER		"whoisleader"			// who is the team leader
 #define VOICECHAT_WANTONDEFENSE		"wantondefense"			// I want to be on defense
 #define VOICECHAT_WANTONOFFENSE		"wantonoffense"			// I want to be on offense
-#define VOICECHAT_KILLINSULT		"kill_insult"			// I just killed you
-#define VOICECHAT_TAUNT				"taunt"					// I want to taunt you
-#define VOICECHAT_DEATHINSULT		"death_insult"			// you just killed me
-#define VOICECHAT_KILLGAUNTLET		"kill_gauntlet"			// I just killed you with the gauntlet
-#define VOICECHAT_PRAISE			"praise"				// you did something good

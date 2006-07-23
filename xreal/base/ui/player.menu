@@ -18,7 +18,10 @@ menuDef {
 		fadeout fadebox ; 
 		uiScript update "ui_GetName" ; 
 		transition menuback_g 0 0 640 480 195 120 255 202 20 10 ;
-		transition clancinematic 107 82 426 316 238 153 170 133 20 10 }
+		transition clancinematic 107 82 426 316 238 153 170 133 20 10 ;
+		hide back_alt ;
+		show back ;
+		hide grpmessage }
 		onClose { uiScript update "ui_SetName" }
 		onEsc { close player_menu ; open main }
 
@@ -441,6 +444,7 @@ itemDef {
 //	MESSAGES	//
 itemDef {
 	name message_back
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textstyle 1
@@ -456,6 +460,7 @@ itemDef {
 
 itemDef {
 	name message_name
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -471,6 +476,7 @@ itemDef {
 
 itemDef {
 	name message_handicap
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -486,6 +492,7 @@ itemDef {
 
 itemDef {
 	name message_effect
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -501,6 +508,7 @@ itemDef {
 
 itemDef {
 	name message_clan
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -515,6 +523,7 @@ itemDef {
 	}
 itemDef {
 	name message_type
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -530,6 +539,7 @@ itemDef {
 
 itemDef {
 	name message_model
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1

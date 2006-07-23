@@ -16,7 +16,13 @@
 	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ;
 	playlooped "music/fla_mp03.wav" ;
 	fadeout fadebox ; 
-	uiScript loadMods }
+	uiScript loadMods ; 
+	hide lightning ; 
+	hide accept_alt ; 
+	show accept ;
+	hide back_alt ;
+	show back ;
+	hide grpmessage }
 	
 		 
 
@@ -69,7 +75,7 @@ itemDef {
 	decoration
 	visible 1
 	}
-
+/*
 
 //	DEMO ONLY	//
 itemDef {
@@ -87,9 +93,9 @@ itemDef {
 	visible 1
 	}
 
-//	COMMENTED OUT FOR DEMO ONLY 	//
- 
-/*
+*/
+
+
 
 itemDef {
 	name modlist
@@ -109,10 +115,11 @@ itemDef {
 	backcolor 0 0 .5 .25
 	outlinecolor .1 .1 .7 .5
 	visible 1
+	doubleClick { uiScript RunMod }
 	mouseEnter { fadein message_mod ; setitemcolor modlist bordercolor .7 0 0 1 } 
 	mouseExit { fadeout message_mod ; setitemcolor modlist bordercolor .5 .5 .5 .5 } 
   	}
-*/
+
 
 
 
@@ -161,15 +168,13 @@ itemDef {
       	forecolor 1 1 1 1
       	visible 0
 	type ITEM_TYPE_BUTTON
-      	mouseExit { hide back_alt ; show back ; fadeout message_back }	  
-      	//action { play "sound/misc/tim_pump.wav" ; close mod ; open main }	  
+      	mouseExit { hide back_alt ; show back ; fadeout message_back }	    
       	action { close mod ; open main }	  
 	}
 
 
-//	COMMENTED OUT FOR DEMO ONLY //
 
-/*
+
 
 itemDef {
       	name accept
@@ -180,7 +185,7 @@ itemDef {
       	forecolor 1 1 1 1
       	visible 1 
 	mouseEnter { show lightning ; hide accept ; show accept_alt ; show message_accept ; playlooped "sound/misc/loop_electricity_05.wav" }
-      	action { close mod ; uiScript SinglePlayerStart }
+      	action { close mod ; uiScript RunMod }
   	}
 
 itemDef {
@@ -192,10 +197,10 @@ itemDef {
       	forecolor 1 1 1 1
       	visible 0
 	type ITEM_TYPE_BUTTON   
-      	action { close mod ; uiScript SinglePlayerStart }
+      	action { close mod ; uiScript RunMod }
       	mouseExit { hide lightning ; hide accept_alt ; show accept ; hide message_accept ; playlooped "music/fla_mp03.wav" }	 
   }
-*/
+
 
  itemDef {
       	name lightning
@@ -220,6 +225,7 @@ itemDef {
 
 itemDef {
 	name message_back
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textstyle 1
@@ -235,6 +241,7 @@ itemDef {
 
 itemDef {
 	name message_accept
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -249,6 +256,7 @@ itemDef {
 	}
 itemDef {
 	name message_mod
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1

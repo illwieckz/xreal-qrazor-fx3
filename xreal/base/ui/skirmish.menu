@@ -19,9 +19,15 @@
 		setitemcolor fadebox backcolor 0 0 0 1 ; 
 		playlooped "music/fla_mp03.wav" ;
 		fadeout fadebox ;
-		uiScript loadGameInfo 
-		uiScript updateSPMenu
-		}
+		uiScript loadGameInfo ;
+		uiScript updateSPMenu ;
+		hide lightning ; 
+		hide accept_alt ; 
+		show accept ;
+		hide back_alt ;
+		show back ;
+		hide grpmessage }
+		
  	
 
 	
@@ -1112,11 +1118,14 @@ itemDef {
 	visible 1
 	mouseenter { setitemcolor maplist bordercolor .7 0 0 1 ; show message_arena }
 	mouseexit { setitemcolor maplist bordercolor .5 .5 .5 .5 ; hide message_arena }
+/*	
 	//	demo_only
 	cvarTest "ui_gametype"
 	hideCvar { "1" }
+*/
 	}
 
+/*
 
 //	DEMO ONLY OPTION	//
 
@@ -1136,6 +1145,7 @@ itemDef {
 	cvarTest "ui_gametype"
 	showCvar { "1" }
     	}
+*/
 
 
 
@@ -1320,9 +1330,11 @@ itemDef {
       	visible 1 
 	mouseEnter { show lightning ; hide accept ; show accept_alt ; fadein message_accept ; playlooped "sound/misc/loop_electricity_05.wav" }
       	action { uiScript skirmishStart }
+/*	
 	//	demo_only
 	cvarTest "ui_gametype"
 	hideCvar { "1" }
+*/
   	}
 
 itemDef {
@@ -1336,9 +1348,11 @@ itemDef {
 	type ITEM_TYPE_BUTTON   
       	action { uiScript skirmishStart }
       	mouseExit { hide lightning ; hide accept_alt ; show accept ; fadeout message_accept ; playlooped "music/fla_mp03.wav" }	
+/*	
 	//	demo_only
 	cvarTest "ui_gametype"
 	hideCvar { "1" }
+*/
   	}
 
 
@@ -1365,6 +1379,7 @@ itemDef {
 
 itemDef {
 	name message_back
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textstyle 1
@@ -1380,6 +1395,7 @@ itemDef {
 
 itemDef {
 	name message_accept
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1395,6 +1411,7 @@ itemDef {
 
 itemDef {
 	name message_type
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1410,6 +1427,7 @@ itemDef {
 
 itemDef {
 	name message_skill
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textstyle 1
@@ -1425,6 +1443,7 @@ itemDef {
 
 itemDef {
 	name message_arena
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textstyle 1
@@ -1440,6 +1459,7 @@ itemDef {
 
 itemDef {
 	name message_assist
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textstyle 1
@@ -1454,6 +1474,7 @@ itemDef {
 	}
 itemDef {
 	name message_perfect
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textstyle 1
@@ -1468,6 +1489,7 @@ itemDef {
 	}
 itemDef {
 	name message_accuracy
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textstyle 1
@@ -1482,6 +1504,7 @@ itemDef {
 	}
 itemDef {
 	name message_defend
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textstyle 1
@@ -1496,6 +1519,7 @@ itemDef {
 	}
 itemDef {
 	name message_excellent
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textstyle 1
@@ -1510,6 +1534,7 @@ itemDef {
 	}
 itemDef {
 	name message_gauntlet
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textstyle 1
@@ -1524,6 +1549,7 @@ itemDef {
 	}
 itemDef {
 	name message_impressive
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textstyle 1
@@ -1538,6 +1564,7 @@ itemDef {
 	}
 itemDef {
 	name message_capture
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textstyle 1
@@ -1552,6 +1579,7 @@ itemDef {
 	}
 itemDef {
 	name message_opponent
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textstyle 1
@@ -1566,6 +1594,7 @@ itemDef {
 	}
 itemDef {
 	name message_recordDemo
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textstyle 1
@@ -1581,6 +1610,7 @@ itemDef {
 
 itemDef {
 	name demo_message
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textstyle 1

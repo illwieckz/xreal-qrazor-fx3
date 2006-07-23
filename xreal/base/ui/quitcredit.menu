@@ -17,21 +17,9 @@
 	fadeout fadebox ; 
 	show grpidcredit }
 
-//	COMMENTED OUT FOR DEMO	//
-	
-/*
-itemDef {
-      	name actionback
-      	style WINDOW_STYLE_EMPTY
-	rect 0 0 640 480
-	type 1
-      	visible 1 
-	action { play "sound/misc/nomenu.wav" ; 
-	uiScript "quit" }
-    	}
-*/
 
-//	DEMO ONLY	//
+
+
 
 itemDef {
       	name demo_only
@@ -41,8 +29,9 @@ itemDef {
       	visible 1 
 	action { play "sound/misc/nomenu.wav" ; 
 	close quitCredit ;
-	open demo_quit }
+	uiScript "quit"  }
     	}
+
     
 
 // LEVEL SELECTION BAR	//

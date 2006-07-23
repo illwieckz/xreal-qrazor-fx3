@@ -474,11 +474,7 @@ itemDef {
 
 itemdef {
 	name playername
-	//type 4
-	//text "Name:"
-	//cvar name
 	text "Use Score Scroll Keys"
-	//maxPaintChars 27
    	rect 225 440 256 24
 	forecolor 1 .75 0 1
    	textalignx 10

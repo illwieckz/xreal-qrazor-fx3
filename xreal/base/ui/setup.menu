@@ -9,13 +9,15 @@ menuDef {
     	fullscreen 1
     	rect 186 0 454 480
 	background "menuback_a"
-    	//background uibackground4
     	focusColor 1 .75 0 1
     	style 1
     	border 1
 	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; 
 		playlooped "music/fla_mp03.wav" ;
-		fadeout fadebox }
+		fadeout fadebox ;
+		hide back_alt ;
+		show back ;
+		hide grpmessage }
 	onEsc { close setup_menu ; open main }
 
 
@@ -275,7 +277,6 @@ itemDef {
       	forecolor 1 1 1 1
       	visible 0
 	type ITEM_TYPE_BUTTON
-	//action {  play "sound/misc/tim_pump.wav" ; 
 	action { hide grpControls ; 
 	close control_menu ; 
 	close setup_menu ; 
@@ -293,6 +294,7 @@ itemDef {
 
 itemDef {
 	name message_back
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textstyle 1
@@ -308,6 +310,7 @@ itemDef {
 
 itemDef {
 	name message_accept
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -323,6 +326,7 @@ itemDef {
 
 itemDef {
 	name message_controls
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -338,6 +342,7 @@ itemDef {
 
 itemDef {
 	name message_nowork
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -353,6 +358,7 @@ itemDef {
 
 itemDef {
 	name message_look
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -368,6 +374,7 @@ itemDef {
 
 itemDef {
 	name message_move
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -383,6 +390,7 @@ itemDef {
 
 itemDef {
 	name message_shoot
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -397,6 +405,7 @@ itemDef {
 	}
 itemDef {
 	name message_misc
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -411,6 +420,7 @@ itemDef {
 	}
 itemDef {
 	name message_system
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -425,6 +435,7 @@ itemDef {
 	}
 itemDef {
 	name message_gameoptions
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -439,6 +450,7 @@ itemDef {
 	}
 itemDef {
 	name message_cdkey
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -453,6 +465,7 @@ itemDef {
 	}
 itemDef {
 	name message_default
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -467,6 +480,7 @@ itemDef {
 	}
 itemDef {
 	name message_scores
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1

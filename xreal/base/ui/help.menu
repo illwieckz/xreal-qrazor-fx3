@@ -18,7 +18,10 @@
 	fadeout fadebox ; 
  	hide grphelptext ; 
 	show grpbttn ; 
-	show ctf }
+	show ctf ;
+	hide back_alt ;
+	show back ;
+	hide grpmessage }
 
 
 
@@ -603,6 +606,7 @@ itemDef {
 
 itemDef {
 	name message_back
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textstyle 1
@@ -618,6 +622,7 @@ itemDef {
 
 itemDef {
 	name message_help
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1

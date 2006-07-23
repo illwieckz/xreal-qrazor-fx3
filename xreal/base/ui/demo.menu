@@ -14,7 +14,13 @@
     	border 1
 	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; 
 	playlooped "music/fla_mp03.wav" ;
-	fadeout fadebox ; uiScript LoadDemos }
+	fadeout fadebox ; uiScript LoadDemos ;
+	hide lightning ; 
+	hide accept_alt ; 
+	show accept ;
+	hide back_alt ;
+	show back ;
+	hide grpmessage }
 	onEsc { close demo ; open main }
 
 	    
@@ -193,6 +199,7 @@ itemDef {
 
 itemDef {
 	name message_back
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textstyle 1
@@ -208,6 +215,7 @@ itemDef {
 
 itemDef {
 	name message_accept
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -222,6 +230,7 @@ itemDef {
 	}
 itemDef {
 	name message_demos
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1

@@ -18,8 +18,6 @@ itemDef {
 	name window
 	rect 10 15 172 108
 	style 1
-	//border 1
-	//bordercolor .5 .5 .5 1
 	backcolor 0 .1 0 1
 	visible 1
 	decoration

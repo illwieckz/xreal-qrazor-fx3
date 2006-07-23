@@ -18,8 +18,13 @@
 	playlooped "music/fla_mp03.wav" ;
 	fadeout fadebox ; 
 	transition mappreview 0 0 640 480 54 144 256 192 20 10 ; 
-	uiScript loadMovies 
-	}
+	uiScript loadMovies ;
+	hide lightning ; 
+	hide accept_alt ; 
+	show accept ;
+	hide back_alt ;
+	show back ;
+	hide grpmessage }
 		 
 
 
@@ -69,26 +74,26 @@ itemDef {
 // LEVEL SELECTION BAR	//
 
 
-  itemDef {
-      name levelbar
+  	itemDef {
+      	name levelbar
 	text "TEAM ARENA CINEMATICS"
 	textstyle 6
-      style 2
-      rect 0 16 640 40 
-      textscale 0.416
-      textalign 1		        // center
-      textalignx 320        // x alignment point for text
+      	style 2
+      	rect 0 16 640 40 
+      	textscale 0.416
+      	textalign 1		        // center
+      	textalignx 320        // x alignment point for text
                             // use it to offset left/right text from the edge 
                             // or to center the text on a different point
-      textaligny 27        
-      style 2
-      border 4
-      bordercolor 0.5 0.5 0.5 0.5
-      bordersize 2
-      backcolor 0 0 .75 0.5
-      visible 1 
-      decoration 
-    }
+      	textaligny 27        
+      	style 2
+      	border 4
+      	bordercolor 0.5 0.5 0.5 0.5
+      	bordersize 2
+      	backcolor 0 0 .75 0.5
+      	visible 1 
+      	decoration 
+    	}
 
 
 
@@ -124,24 +129,24 @@ itemDef {
 
 
   itemDef {
-      name gotobar
-      style 2
-      rect 0 430 640 30 
-      textscale 0.4
-      textalign 0		        // center
-      textalignx 60        // x alignment point for text
+	name gotobar
+      	style 2
+      	rect 0 430 640 30 
+      	textscale 0.4
+      	textalign 0		        // center
+      	textalignx 60        // x alignment point for text
                             // use it to offset left/right text from the edge 
                             // or to center the text on a different point
-      textaligny 21        
-      style 2
-      border 4
-      bordercolor 0.5 0.5 0.5 0.5
-      bordersize 2
-      backcolor 0 0 .75 0.5
-      visible 1 
-      mouseEnter { setcolor backcolor .75 0 0 .5 }
-      mouseExit { setcolor backcolor 0 0 .75 .5 }
-      decoration 
+      	textaligny 21        
+      	style 2
+      	border 4
+      	bordercolor 0.5 0.5 0.5 0.5
+      	bordersize 2
+      	backcolor 0 0 .75 0.5
+      	visible 1 
+      	mouseEnter { setcolor backcolor .75 0 0 .5 }
+      	mouseExit { setcolor backcolor 0 0 .75 .5 }
+      	decoration 
     	}
 
 
@@ -211,14 +216,11 @@ itemDef {
     	}
 
 
-
-
-
-
 //	MESSAGES	//
 
 itemDef {
 	name message_back
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textstyle 1
@@ -234,6 +236,7 @@ itemDef {
 
 itemDef {
 	name message_cinematic
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -248,6 +251,7 @@ itemDef {
 	}
 itemDef {
 	name message_accept
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1

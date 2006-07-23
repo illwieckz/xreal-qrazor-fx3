@@ -369,9 +369,6 @@ itemdef {
 
 itemdef {
 	name playername
-	//type 4
-	//text "Name:"
-	//cvar name
 	text "Use Score Scroll Keys"
    	rect 30 435 256 20
 	forecolor 1 .75 0 1

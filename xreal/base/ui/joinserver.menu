@@ -4,11 +4,10 @@
 \\ Server Join \\
 
   menuDef {
-    name "joinserver"
-    visible 0
-    fullscreen 1
-    rect 0 0 640 480
-	//background uibackground4
+    	name "joinserver"
+    	visible 0
+    	fullscreen 1
+    	rect 0 0 640 480
 	background "menuback_a"
 	focusColor 1 .75 0 1
 	outOfBoundsClick	
@@ -17,7 +16,13 @@
 	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; 
 	playlooped "music/fla_mp03.wav" ;
 	fadeout fadebox ; 
-	uiScript UpdateFilter }
+	uiScript UpdateFilter ;
+	hide lightning ; 
+	hide accept_alt ; 
+	show accept ;
+	hide back_alt ;
+	show back ;
+	hide grpmessage }
 	onEsc { uiScript closeJoin }
 
 
@@ -225,7 +230,7 @@ itemDef {
 itemDef {
 	name serverColumn
 	group grpColumn
-	rect 10 128 265 235
+	rect 10 128 233 235
 	style WINDOW_STYLE_FILLED
 	border 1
 	backcolor 0 0 0 0
@@ -237,7 +242,7 @@ itemDef {
 itemDef {
 	name mapColumn
 	group grpColumn
-	rect 275 128 125 235
+	rect 243 128 125 235
 	style WINDOW_STYLE_FILLED
 	border 1
 	backcolor 0 0 0 0
@@ -249,7 +254,7 @@ itemDef {
 itemDef {
 	name playerColumn
 	group grpColumn
-	rect 400 128 60 235
+	rect 368 128 60 235
 	style WINDOW_STYLE_FILLED
 	border 1
 	backcolor 0 0 0 0
@@ -261,7 +266,7 @@ itemDef {
 itemDef {
 	name typeColumn
 	group grpColumn
-	rect 460 128 100 235
+	rect 428 128 100 235
 	style WINDOW_STYLE_FILLED
 	border 1
 	backcolor 0 0 0 0
@@ -273,7 +278,19 @@ itemDef {
 itemDef {
 	name pingColumn
 	group grpColumn
-	rect 560 128 52 235
+	rect 528 128 52 235
+	style WINDOW_STYLE_FILLED
+	border 1
+	backcolor 0 0 0 0
+	bordersize 1
+	bordercolor .5 .5 .5 1
+	visible 1
+	decoration
+  }
+itemDef {
+	name pbColumn
+	group grpColumn
+	rect 580 128 32 235
 	style WINDOW_STYLE_FILLED
 	border 1
 	backcolor 0 0 0 0
@@ -301,7 +318,15 @@ itemDef {
 	backcolor 0 0 .7 .25
 	outlinecolor 0 1 0 .25
 	visible 1
-	columns 5 2 40 40 275 40 20 400 5 10 460 20 10 560 20 20
+	// numcols [ xpos xwitdth textlen ], [ xpos xwidth textlen ] ..
+	columns 
+	6 
+	2 	40 	40 
+	243 40 	20 
+	368 5 	10 
+	428 20 	10 
+	528 20 	20
+	572 20  10
 	mouseenter { setitemcolor serverlist bordercolor .7 0 0 1 }
 	mouseexit { setitemcolor serverlist bordercolor .5 .5 .5 .5 }
 	doubleClick { uiScript JoinServer }
@@ -349,7 +374,7 @@ itemDef {
       	textscale .25
 	style WINDOW_STYLE_FILLED
 	background "ui/assets/sorttab.tga"
-      	rect 275 103 100 26
+      	rect 243 103 100 26
 	textalign 1
       	textalignx 50		// center
       	textaligny 21
@@ -376,7 +401,7 @@ itemDef {
 	textscale .25
 	style WINDOW_STYLE_FILLED
 	background "ui/assets/sorttab.tga"
-	rect 400 103 50 26
+	rect 368 103 50 26
 	textalign 1
 	textalignx 25		// center
 	textaligny 21
@@ -402,7 +427,7 @@ itemDef {
 	type ITEM_TYPE_BUTTON
 	style WINDOW_STYLE_FILLED
 	background "ui/assets/sorttab.tga"
-	rect 460 103 60 26
+	rect 428 103 60 26
 	textalign 1
 	textalignx 30		// center
 	textaligny 21
@@ -428,9 +453,9 @@ itemDef {
 	textscale .25
 	style WINDOW_STYLE_FILLED
 	background "ui/assets/sorttab.tga"
-	rect 560 103 52 26
+	rect 528 103 46 26
 	textalign 1
-	textalignx 26		// center
+	textalignx 23		// center
 	textaligny 21
 	backcolor .1 .1 .37 1
 	forecolor 1 1 1 1
@@ -445,6 +470,30 @@ itemDef {
       	mouseExit { hide message_sort ; setitemcolor pingColumn bordercolor .5 .5 .5 1 }	  
     }
 
+itemDef {
+	name Punkbuster
+	group grpTabs
+	text "PB"
+	type ITEM_TYPE_BUTTON
+	textscale .25
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/sorttab.tga"
+	rect 580 103 32 26
+	textalign 1
+	textalignx 16		// center
+	textaligny 21
+	backcolor .1 .1 .37 1
+	forecolor 1 1 1 1
+	visible 1 
+	action { play "sound/misc/nomenu.wav" ; 
+		uiScript ServerSort 5 ;
+		setitemcolor grpTabs backcolor .1 .1 .37 1 ; 
+		setitemcolor Punkbuster backcolor .1 .37 .1 1 ;  
+		setitemcolor grpColumn backcolor 0 0 0 0 ;
+		setitemcolor pbColumn backcolor 0 1 0 .25 }
+			mouseEnter { show message_sort ; setitemcolor pbColumn bordercolor 1 0 0 1 }
+			mouseExit { hide message_sort ; setitemcolor pbColumn bordercolor .5 .5 .5 1 }	  
+	}
 
 
 
@@ -500,8 +549,7 @@ itemDef {
 	decoration  	  
     	}
 
-
-
+// refresh list --------------------
 
 itemDef {
       	name refreshFilter
@@ -552,6 +600,55 @@ itemDef {
       	visible 1 
 	decoration  	  
     	}
+
+// filter settings --------------------
+
+itemDef {
+	name viewSettings
+	text "View Settings"
+	textscale .3
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	background "ui/assets/button_back.tga"
+	rect 271 67 94 26
+	textalign 1
+	textalignx 48		// center
+	textaligny 20
+	backcolor .37 .1 .1 1 
+	forecolor 1 1 1 1
+	visible 1 
+	mouseEnter { show message_viewSettings ; setitemcolor viewSettings backcolor .1 .37 .1 1 }
+	mouseExit { hide message_viewSettings ; setitemcolor viewSettings backcolor .37 .1 .1 1 }	  	  
+	action { play "sound/misc/nomenu.wav" ; 
+		open filter_popmenu }
+	}
+
+itemDef {
+	name viewSettings
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/framebutton.tga"
+	rect 271 67 94 26
+	visible 1 
+	decoration  	  
+	}
+
+itemDef {
+	name viewSettings
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/leftbutton.tga"
+	rect 259 67 13 26
+	visible 1 
+	decoration  	  
+	}
+
+itemDef {
+	name viewSettings
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rightbutton.tga"
+	rect 364 67 13 26
+	visible 1 
+	decoration  	  
+	}
 
 
 
@@ -855,53 +952,47 @@ itemDef {
 	decoration  	  
     	}
 
+// PunkBuster //
 
-
-
-
-
-
-
-//	VIEW OPTIONS	//
 
 itemDef {
-      	name viewEmpty
-	type ITEM_TYPE_YESNO
-      	text "View Empty:"
+	name			PunkBusterInfo
+	group			pbgrp
+	text			"PunkBuster"
+	type			ITEM_TYPE_BUTTON
+	textscale .25
+	style			WINDOW_STYLE_FILLED
+	rect			392 71 140 15
+	textalign		1
+	textalignx		28		// center
+	textaligny		11
+	forecolor		1 1 1 1
+	visible			1
+	action {
+		play "sound/misc/kcaction.wav" ; 
+		conditionalopen cl_punkbuster pbdisable_popmenu pbenable_popmenu
+		}
+}
 
-	cvar "ui_browserShowEmpty"
-      	textscale .25
-      	rect 262 71 125 20
-	textalign 0
-      	textalignx 0		
-      	textaligny 17
-      	forecolor 1 1 1 1
-      	visible 1 
-	    action { play "sound/misc/nomenu.wav" ;
-		uiScript RefreshFilter }
-	mouseEnter { show message_viewEmpty }
-      	mouseExit { hide message_viewEmpty }	  	  
-    }
 itemDef {
-      	name viewEmpty
-	type 11
-      	text "View Full:"
-	cvar "ui_browserShowFull"
-      	textscale .25
-      	rect 387 71 125 20
-	textalign 0
-      	textalignx 0		
-      	textaligny 17
-      	forecolor 1 1 1 1
-      	visible 1 
-	    action { uiScript RefreshFilter ; 
-		play "sound/misc/nomenu.wav" }
-	mouseEnter { show message_viewFull }
-      	mouseExit { hide message_viewFull }	  	  
-    }
-
-
-
+	name			pbstatus
+	group			pbgrp
+	type			ITEM_TYPE_MULTI
+	text			""
+	cvar			"cl_punkbuster"
+	cvarFloatList	{ "Off" 0 "On" 1 }
+	rect			437 71 100 15
+	textalign		ITEM_ALIGN_CENTER
+	textalignx		21
+	textaligny		13
+	textscale		.25 		 
+	forecolor		1 1 1 1
+	style			WINDOW_STYLE_FILLED
+	backcolor		0 0 0 0
+	visible			1
+	decoration
+	}
+ 
 
 
 // BACK BAR	//
@@ -1004,6 +1095,7 @@ itemDef {
 
 itemDef {
 	name message_back
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1019,6 +1111,7 @@ itemDef {
 
 itemDef {
 	name message_accept
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1033,6 +1126,7 @@ itemDef {
 	}
 itemDef {
 	name message_source
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1048,6 +1142,7 @@ itemDef {
 
 itemDef {
 	name message_gamefilter
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1062,6 +1157,7 @@ itemDef {
 	}
 itemDef {
 	name message_typefilter
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1077,6 +1173,7 @@ itemDef {
 
 itemDef {
 	name message_sort
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1091,6 +1188,7 @@ itemDef {
 	}
 itemDef {
 	name message_refreshSource
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1105,6 +1203,7 @@ itemDef {
 	}
 itemDef {
 	name message_refreshFilter
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1119,6 +1218,7 @@ itemDef {
 	}
 itemDef {
 	name message_addFavorite
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1133,6 +1233,7 @@ itemDef {
 	}
 itemDef {
 	name message_delFavorite
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1147,6 +1248,7 @@ itemDef {
 	}
 itemDef {
 	name message_createFavorite
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1161,6 +1263,7 @@ itemDef {
 	}
 itemDef {
 	name message_addfilter
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1175,6 +1278,7 @@ itemDef {
 	}
 itemDef {
 	name message_password
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1189,6 +1293,7 @@ itemDef {
 	}
 itemDef {
 	name message_serverinfo
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1203,6 +1308,7 @@ itemDef {
 	}
 itemDef {
 	name message_findplayer
+	group grpmessage
 	style 0 
 	rect 320 430 128 30
 	textalign 1
@@ -1211,6 +1317,36 @@ itemDef {
 	textaligny 25
 	textscale .416
 	text "Search Current Server List for Friends"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_punkbuster
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .416
+	text "Enable or Disable PunkBuster client"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_viewSettings
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .416
+	text "Configure Server Filtering"
 	forecolor 1 1 1 1
 	decoration 
 	visible 0
