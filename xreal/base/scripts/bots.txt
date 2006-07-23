@@ -4,3 +4,17 @@ model		visor
 aifile		bots/visor_c.c
 }
 
+{
+name		James
+model		james
+headmodel	*James
+aifile		bots/tao_c.c
+}
+
+{
+name		Janet
+model		janet
+headmodel	*janet
+aifile		bots/taa_c.c
+}
+
