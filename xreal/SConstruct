@@ -20,7 +20,6 @@ opts.Add(BoolOption('purevm', 'Set to 1 to compile engine with scrict checking f
 #opts.Add(BoolOption('mtr', 'Set to 1 to compile engine and map compiler with .mtr shader support', 0))
 opts.Add(BoolOption('gtkradiant', 'Set to 1 to compile GtkRadiant', 0))
 opts.Add(BoolOption('vectorize', 'Set to 1 to compile engine with auto-vectorization support', 0))
-opts.Add(BoolOption('baseta', 'Set to 1 to compile XreaL with Team Arena support', 0))
 
 #
 # initialize compiler environment base
@@ -88,8 +87,3 @@ SConscript('SConscript_bspc', build_dir='build/bspc', duplicate=0)
 
 if env['gtkradiant'] == 1:
 	SConscript('SConscript_gtkradiant', build_dir='build/gtkradiant', duplicate=0)
-
-if env['baseta'] == 1:
-	SConscript('SConscript_baseta_cgame', build_dir='build/baseta/cgame', duplicate=0)
-	SConscript('SConscript_baseta_game', build_dir='build/baseta/game', duplicate=0)
-	SConscript('SConscript_baseta_ui', build_dir='build/baseta/ui', duplicate=0)
