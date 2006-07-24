@@ -1,0 +1,12 @@
+This file lists the contents of the xreal.pk3 and it shows information about each file.
+Here you can see which files are from id Software that need to be replaced.
+
+FILE										SOURCE		ARTIST		LICENSE
+===========================================================================
+fonts/fontImage_0_12.tga					tademo		id			EULA
+fonts/fontImage_0_16.tga					tademo		id			EULA
+fonts/fontImage_0_20.tga					tademo		id			EULA
+fonts/fontImage_1_20.tga					tademo		id			EULA
+fonts/fontImage_12.dat						tademo		id			EULA
+fonts/fontImage_16.dat						tademo		id			EULA
+fonts/fontImage_20.dat						tademo		id			EULA
