@@ -672,11 +672,7 @@ models/weaphits/rlboom/rlboom_6.tga							id Software					EULA					q3demo
 models/weaphits/rlboom/rlboom_7.jpg							id Software					EULA					q3demo
 models/weaphits/rlboom/rlboom_7.tga							id Software					EULA					q3demo
 models/weaphits/rlboom/rlboom_8.jpg							id Software					EULA					q3demo
-models/weaphits/rlboom/rlboom_8.tga							id Software					EULA					q3test
-models/weaphits/bfg01.jpg									id Software					EULA					q3test
-models/weaphits/bfg02.jpg									id Software					EULA					q3test
-models/weaphits/bfg03.jpg									id Software					EULA					q3test
-models/weaphits/bfg.md3										id Software					EULA					q3test
+models/weaphits/rlboom/rlboom_8.tga							id Software					EULA					q3demo
 models/weaphits/blood201.tga								id Software					EULA					q3demo
 models/weaphits/blood202.tga								id Software					EULA					q3demo
 models/weaphits/blood203.tga								id Software					EULA					q3demo
@@ -719,3 +715,171 @@ models/weaphits/ring02_2.tga								id Software					EULA					q3demo
 models/weaphits/ring02_3.tga								id Software					EULA					q3demo
 models/weaphits/ring02_4.tga								id Software					EULA					q3demo
 models/weaphits/ring02.md3									id Software					EULA					q3demo
+models/weapons/proxmine/f_proxmine.tga						id Software					EULA					tademo
+models/weapons/proxmine/proxmine1b.tga						id Software					EULA					tademo
+models/weapons/proxmine/proxmine_1.md3						id Software					EULA					tademo
+models/weapons/proxmine/proxmine1.tga						id Software					EULA					tademo
+models/weapons/proxmine/proxmine2b.tga						id Software					EULA					tademo
+models/weapons/proxmine/proxmine_2.md3						id Software					EULA					tademo
+models/weapons/proxmine/proxmine2.tga						id Software					EULA					tademo
+models/weapons/proxmine/proxmine3.tga						id Software					EULA					tademo
+models/weapons/proxmine/proxmine_flash.md3					id Software					EULA					tademo
+models/weapons/proxmine/proxmine_hand.md3					id Software					EULA					tademo
+models/weapons/proxmine/proxmine.md3						id Software					EULA					tademo
+models/weapons2/gauntlet/fx.jpg								Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/gauntlet_1.md3						Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/gauntlet_1.qc						Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/gauntlet_2.md3						Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/gauntlet_2.qc						Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/gauntlet_barrel.md3				Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/gauntlet_barrel.qc					Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/gauntlet_flash.md3					Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/gauntlet_flash.ms3d				Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/gauntlet_flash.qc					Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/gauntlet_hand.md3					Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/gauntlet_hand.ms3d					Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/gauntlet_hand.qc					Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/gauntlet.md3						Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/gauntlet.qc						Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/ldagauntlet_afx1.jpg				Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/ldagauntlet_afx2.jpg				Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/ldagauntlet_afx3.jpg				Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/ldagauntlet_b_d.tga				Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/ldagauntlet_b_h.tga				Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/ldagauntlet_b.ms3d					Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/ldagauntlet_b_s.tga				Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/ldagauntlet_b.tga					Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/ldagauntlet_d.tga					Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/ldagauntlet_h.tga					Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/ldagauntlet_ifx.jpg				Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/ldagauntlet.ms3d					Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/ldagauntlet_s.tga					Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/ldagauntlet.tga					Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/sparky1.jpg						Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/sparky2.jpg						Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/sparky3.jpg						Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/sparky4.jpg						Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/sparky5.jpg						Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/sparky6.jpg						Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/gauntlet/sparky7.jpg						Lee David Ash				custom					http://violatione.planetquake.gamespy.com
+models/weapons2/lightning/paneldisp/h_lg_panel_1.tga		James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/paneldisp/h_lg_panel_2.jpg		James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/paneldisp/h_lg_panel_3.jpg		James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/paneldisp/h_lg_panel_4.jpg		James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/paneldisp/h_lg_panel_5.jpg		James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/paneldisp/h_lg_panel_6.jpg		James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/paneldisp/h_lg_panel_7.jpg		James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/paneldisp/h_lg_panel_8.jpg		James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/trail/h-trail1.jpg				James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/trail/h-trail2.jpg				James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/fireflare1.jpg					James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/fireflare2.jpg					James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/fireflare3.jpg					James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/h_lg_bodylight.tga				James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/h_lg_body_n.tga					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/lightning/h_lg_body_s.tga					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/lightning/h_lg_body.tga						James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/h_lg_cara_n.tga					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/lightning/h_lg_cara_s.tga					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/lightning/h_lg_cara.tga						James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/h_lg_panel.tga					James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/h_spark1.jpg						James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/lightning_1.md3					James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/lightning_2.md3					James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/lightning_flash.md3				James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/lightning_hand.md3				James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/lightning/lightning.md3						James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
+models/weapons2/machinegun/f_machinegun.jpg					id Software					EULA					q3demo
+models/weapons2/machinegun/machinegun_1.md3					id Software					EULA					q3demo
+models/weapons2/machinegun/machinegun_2.md3					id Software					EULA					q3demo
+models/weapons2/machinegun/machinegun_barrel_1.md3			id Software					EULA					q3demo
+models/weapons2/machinegun/machinegun_barrel_2.md3			id Software					EULA					q3demo
+models/weapons2/machinegun/machinegun_barrel.md3			id Software					EULA					q3demo
+models/weapons2/machinegun/machinegun_big.tga				id Software					EULA					q3demo
+models/weapons2/machinegun/machinegun_flash.md3				id Software					EULA					q3demo
+models/weapons2/machinegun/machinegun_hand.md3				id Software					EULA					q3demo
+models/weapons2/machinegun/machinegun.jpg					id Software					EULA					q3demo
+models/weapons2/machinegun/machinegun.md3					id Software					EULA					q3demo
+models/weapons2/machinegun/machinegun_norm.tga				Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/machinegun/machinegun_s.tga					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/plasma/f_plasma.tga							id Software					EULA					q3test-1.07
+models/weapons2/plasma/plasma_1.md3							id Software					EULA					q3test-1.07
+models/weapons2/plasma/plasma_2.md3							id Software					EULA					q3test-1.07
+models/weapons2/plasma/plasma_flash.md3						id Software					EULA					q3test-1.07
+models/weapons2/plasma/plasma_glass.tga						id Software					EULA					q3test-1.07
+models/weapons2/plasma/plasma_glo.tga						id Software					EULA					q3test-1.07
+models/weapons2/plasma/plasma_hand.md3						id Software					EULA					q3test-1.07
+models/weapons2/plasma/plasma.md3							id Software					EULA					q3test-1.07
+models/weapons2/plasma/plasma_n.tga							Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/plasma/plasma_s.tga							Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/plasma/plasma.tga							id Software					EULA					q3test-1.07
+models/weapons2/railgun/f_railgun.tga						id Software					EULA					q3test-1.07
+models/weapons2/railgun/railgun1.jpg						id Software					EULA					q3test-1.05
+models/weapons2/railgun/railgun1_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/railgun/railgun1_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/railgun/railgun2_glow.tga					id Software					EULA					q3test-1.05
+models/weapons2/railgun/railgun3_glow.tga					id Software					EULA					q3test-1.05
+models/weapons2/railgun/railgun3_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/railgun/railgun3_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/railgun/railgun3.tga						id Software					EULA					q3test-1.05
+models/weapons2/railgun/railgun4.tga						id Software					EULA					q3test-1.05
+models/weapons2/railgun/railgun_flash.md3					id Software					EULA					q3test-1.07
+models/weapons2/railgun/railgun_hand.md3					id Software					EULA					q3test-1.07
+models/weapons2/railgun/railgun.md3							id Software					EULA					q3test-1.07
+models/weapons2/rocketl/f_rocketl.jpg						id Software					EULA					q3demo
+models/weapons2/rocketl/rocketl_1.md3						id Software					EULA					q3demo
+models/weapons2/rocketl/rocketl2.jpg						id Software					EULA					q3demo
+models/weapons2/rocketl/rocketl_2.md3						id Software					EULA					q3demo
+models/weapons2/rocketl/rocketl2_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/rocketl/rocketl2_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/rocketl/rocketl3_n.jpg						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/rocketl/rocketl3_n.xcf						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/rocketl/rocketl3.xcf						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/rocketl/rocketl4_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/rocketl/rocketl4_n.xcf						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/rocketl/rocketl_flash.md3					id Software					EULA					q3demo
+models/weapons2/rocketl/rocketl_hand.md3					id Software					EULA					q3demo
+models/weapons2/rocketl/rocketl.jpg							id Software					EULA					q3demo
+models/weapons2/rocketl/rocketl.md3							id Software					EULA					q3demo
+models/weapons2/rocketl/rocketl_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/rocketl/rocketl_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/shells/m_shell_1.md3						id Software					EULA					q3demo
+models/weapons2/shells/m_shell.jpg							id Software					EULA					q3demo
+models/weapons2/shells/m_shell.md3							id Software					EULA					q3demo
+models/weapons2/shells/s_shell.jpg							id Software					EULA					q3demo
+models/weapons2/shells/s_shell.md3							id Software					EULA					q3demo
+models/weapons2/shells/s_shell.tga							id Software					EULA					q3demo
+models/weapons2/shotgun/f_shotgun.jpg						id Software					EULA					q3test-ihv
+models/weapons2/shotgun/shotgun01_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/shotgun/shotgun01_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/shotgun/shotgun01.tga						id Software					EULA					q3test-ihv
+models/weapons2/shotgun/shotgun02_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/shotgun/shotgun02_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/shotgun/shotgun02.tga						id Software					EULA					q3test-ihv
+models/weapons2/shotgun/shotgun03_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/shotgun/shotgun03_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/shotgun/shotgun03.tga						id Software					EULA					q3test-ihv
+models/weapons2/shotgun/shotgun04_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/shotgun/shotgun04_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/shotgun/shotgun04.tga						id Software					EULA					q3test-ihv
+models/weapons2/shotgun/shotgun05_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/shotgun/shotgun05_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/shotgun/shotgun05.tga						id Software					EULA					q3test-ihv
+models/weapons2/shotgun/shotgun06_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/shotgun/shotgun06_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/shotgun/shotgun06.tga						id Software					EULA					q3test-ihv
+models/weapons2/shotgun/shotgun07.tga						id Software					EULA					q3test-ihv
+models/weapons2/shotgun/shotgun08.tga						id Software					EULA					q3test-ihv
+models/weapons2/shotgun/shotgun09_glow.tga					id Software					EULA					q3test-ihv
+models/weapons2/shotgun/shotgun09.tga						id Software					EULA					q3test-ihv
+models/weapons2/shotgun/shotgun10_glow.tga					id Software					EULA					q3test-ihv
+models/weapons2/shotgun/shotgun10_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/shotgun/shotgun10_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons2/shotgun/shotgun10.tga						id Software					EULA					q3test-ihv
+models/weapons2/shotgun/shotgun_1.md3						id Software					EULA					q3test-ihv
+models/weapons2/shotgun/shotgun_2.md3						id Software					EULA					q3test-ihv
+models/weapons2/shotgun/shotgun.blend						id Software					EULA					q3test-ihv
+models/weapons2/shotgun/shotgun_flash.md3					id Software					EULA					q3test-ihv
+models/weapons2/shotgun/shotgun_hand.md3					id Software					EULA					q3test-ihv
+models/weapons2/shotgun/shotgun_laser.jpg					id Software					EULA					q3test-ihv
+models/weapons2/shotgun/shotgun.md3							id Software					EULA					q3test-ihv
