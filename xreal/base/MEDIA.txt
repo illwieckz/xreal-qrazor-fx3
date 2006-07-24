@@ -1491,3 +1491,156 @@ sound/world/teleout.wav										id Software					EULA					q1demo
 sound/world/xchoir1.wav										id Software					EULA					q3demo
 sound/world/xchoir2.wav										id Software					EULA					q3demo
 sound/world/xforce2.wav										id Software					EULA					q3demo
+sprites/balloon4.tga										id Software					EULA					q3test-ihv
+sprites/bubble.tga											id Software					EULA					q3demo
+sprites/foe2.tga											id Software					EULA					q3demo
+sprites/plasmaa.jpg											Randall "Ravenant" P.		custom					http://www.planetquake.com/crypt
+sprites/splash.jpg											id Software					EULA					q3demo
+team_icon/crusaders_blue.tga								id Software					EULA					tademo
+team_icon/crusaders_red.tga									id Software					EULA					tademo
+team_icon/pagans_blue.tga									id Software					EULA					tademo
+team_icon/pagans_red.tga									id Software					EULA					tademo
+team_icon/stroggs_blue.tga									id Software					EULA					tademo
+team_icon/stroggs_red.tga									id Software					EULA					tademo
+textures/common/antiportal.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/areaportal.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/botclip.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/caulk.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/clip.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/clusterportal.tga							William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/cushion.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/donotenter.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/full_clip.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/guisurface.tga								Eutectic					custom					http://www.pcgamemods.com/mod/9082.html
+textures/common/hint.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/invisible.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/lightgrid.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/metalclip.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/mirror1.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/missileclip.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/nodrawnonsolid.tga							William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/nodraw.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/nodrop.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/noimpact.tga								Eutectic					custom					http://www.pcgamemods.com/mod/9082.html
+textures/common/nolightmap.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/npc_pda.tga									Eutectic					custom					http://www.pcgamemods.com/mod/9082.html
+textures/common/origin.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/overdraw.tga								Eutectic					custom					http://www.pcgamemods.com/mod/9082.html
+textures/common/particle.tga								Eutectic					custom					http://www.pcgamemods.com/mod/9082.html
+textures/common/qer_mirror.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/qer_portal.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/slick.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/speaker.tga									Eutectic					custom					http://www.pcgamemods.com/mod/9082.html
+textures/common/terrain.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/trigair.tga									Eutectic					custom					http://www.pcgamemods.com/mod/9082.html
+textures/common/trigfade.tga								Eutectic					custom					http://www.pcgamemods.com/mod/9082.html
+textures/common/trigger.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/triggui.tga									Eutectic					custom					http://www.pcgamemods.com/mod/9082.html
+textures/common/trigrelay.tga								Eutectic					custom					http://www.pcgamemods.com/mod/9082.html
+textures/common/trigtimer.tga								Eutectic					custom					http://www.pcgamemods.com/mod/9082.html
+textures/common/weapclip.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/white.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/decals/blood_splat01.tga							Tenebrae Team				custom					tenebrae
+textures/decals/blood_splat02.tga							Tenebrae Team				custom					tenebrae
+textures/decals/blood_splat03.tga							Tenebrae Team				custom					tenebrae
+textures/decals/explo_burn01.tga							Tenebrae Team				custom					tenebrae
+textures/decals/glow2.tga									Tenebrae Team				custom					tenebrae
+textures/decals/lavaburn.tga								Tenebrae Team				custom					tenebrae
+textures/decals/particle_burn01.tga							Tenebrae Team				custom					tenebrae
+textures/editor/entityGui1.tga								otty						custom
+textures/editor/entityGui2.tga								otty						custom
+textures/editor/entityGui3.tga								otty						custom
+textures/effects/blueflagmap.tga							id Software					EULA					q3demo
+textures/effects/envmapbfg.jpg								id Software					EULA					q3demo
+textures/effects/envmapblue2.jpg							id Software					EULA					q3demo
+textures/effects/envmapblue.jpg								id Software					EULA					q3demo
+textures/effects/envmapdim.jpg								id Software					EULA					q3demo
+textures/effects/envmapgold2.jpg							id Software					EULA					q3demo
+textures/effects/envmapgold.jpg								id Software					EULA					q3demo
+textures/effects/envmap.jpg									id Software					EULA					q3demo
+textures/effects/envmapligh.jpg								id Software					EULA					q3demo
+textures/effects/envmapmach.jpg								id Software					EULA					q3demo
+textures/effects/envmapplas.jpg								id Software					EULA					q3demo
+textures/effects/envmappurp.jpg								id Software					EULA					q3demo
+textures/effects/envmaprail.jpg								id Software					EULA					q3demo
+textures/effects/envmapred.jpg								id Software					EULA					q3demo
+textures/effects/envmapyel.jpg								id Software					EULA					q3demo
+textures/effects/invismap.jpg								id Software					EULA					q3demo
+textures/effects/quadmap2.jpg								id Software					EULA					q3demo
+textures/effects/regenmap2.jpg								id Software					EULA					q3demo
+textures/effects/tinfx2b.jpg								id Software					EULA					q3demo
+textures/effects/tinfx2c.jpg								id Software					EULA					q3demo
+textures/effects/tinfx2d.jpg								id Software					EULA					q3demo
+textures/effects/tinfx2.jpg									id Software					EULA					q3demo
+textures/effects/tinfx3.jpg									id Software					EULA					q3demo
+textures/effects/tinfxb.jpg									id Software					EULA					q3demo
+textures/effects/tinfx.jpg									id Software					EULA					q3demo
+textures/effects2/console01.tga								id Software					EULA					tademo
+textures/effects2/envmap_blu.tga							id Software					EULA					tademo
+textures/effects2/envmap_red.tga							id Software					EULA					tademo
+textures/effects2/envmap_sky.tga							id Software					EULA					tademo
+textures/effects2/tinfx_scr.tga								id Software					EULA					tademo
+textures/liquids/liquid12_n.tga								Zombie13					custom
+textures/particles/blood2.tga								Tenebrae Team				custom					tenebrae
+textures/particles/blood.tga								Tenebrae Team				custom					tenebrae
+textures/particles/explosion01.tga							Tenebrae Team				custom					tenebrae
+textures/particles/flare1.tga								Tenebrae Team				custom					tenebrae
+textures/particles/flare2.tga								Tenebrae Team				custom					tenebrae
+textures/particles/glow1.tga								Tenebrae Team				custom					tenebrae
+textures/particles/glow.tga									Tenebrae Team				custom					tenebrae
+textures/particles/lavasplash.tga							Tenebrae Team				custom					tenebrae
+textures/particles/slime.tga								Tenebrae Team				custom					tenebrae
+textures/particles/smoke.tga								Tenebrae Team				custom					tenebrae
+textures/radiant/notex.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/radiant/shadernotex.tga							William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/reflex_layout/bridge.jpg							Stefan "ReFlex" Lautner		custom					http://www.reflexsuite.com
+textures/reflex_layout/ceiling.tga							Stefan "ReFlex" Lautner		custom					http://www.reflexsuite.com
+textures/reflex_layout/floor.tga							Stefan "ReFlex" Lautner		custom					http://www.reflexsuite.com
+textures/reflex_layout/lift.tga								Stefan "ReFlex" Lautner		custom					http://www.reflexsuite.com
+textures/reflex_layout/pad2.tga								Stefan "ReFlex" Lautner		custom					http://www.reflexsuite.com
+textures/reflex_layout/pad.tga								Stefan "ReFlex" Lautner		custom					http://www.reflexsuite.com
+textures/reflex_layout/stairs.tga							Stefan "ReFlex" Lautner		custom					http://www.reflexsuite.com
+textures/reflex_layout/wall.tga								Stefan "ReFlex" Lautner		custom					http://www.reflexsuite.com
+textures/sfx/beam_1.jpg										id Software					EULA					q3demo
+textures/sfx/beam.jpg										id Software					EULA					q3demo
+textures/sfx/bolts.jpg										id Software					EULA					q3demo
+textures/sfx/console01.tga									id Software					EULA					q3demo
+textures/sfx/console02.tga									id Software					EULA					q3demo
+textures/sfx/detail.jpg										id Software					EULA					q3demo
+textures/sfx/electricgrade3.jpg								id Software					EULA					q3demo
+textures/sfx/electricslime.jpg								id Software					EULA					q3demo
+textures/sfx/firegorre2.jpg									id Software					EULA					q3demo
+textures/sfx/firegorre.tga									id Software					EULA					q3demo
+textures/sfx/fireswirl2.jpg									id Software					EULA					q3demo
+textures/sfx/firewalla.tga									id Software					EULA					q3demo
+textures/sfx/fog_black.tga									id Software					EULA					q3demo
+textures/sfx/fog_blue.tga									id Software					EULA					q3demo
+textures/sfx/fog_green.tga									id Software					EULA					q3demo
+textures/sfx/fog_grey.tga									id Software					EULA					q3demo
+textures/sfx/fog_purp.tga									id Software					EULA					q3demo
+textures/sfx/fog_red.jpg									id Software					EULA					q3demo
+textures/sfx/fog_yel.tga									id Software					EULA					q3demo
+textures/sfx/kenelectric.jpg								id Software					EULA					q3demo
+textures/sfx/portal_sfx_ring_electric.jpg					id Software					EULA					q3demo
+textures/sfx/proto_zzztblu2.jpg								id Software					EULA					q3demo
+textures/sfx/proto_zzzt.jpg									id Software					EULA					q3demo
+textures/sfx/shadow.tga										id Software					EULA					q3demo
+textures/sfx/specular.tga									id Software					EULA					q3demo
+textures/sfx2/beam01.tga									id Software					EULA					tademo
+textures/sfx2/blaunch2.tga									id Software					EULA					tademo
+textures/sfx2/blaunch.tga									id Software					EULA					tademo
+textures/sfx2/detail2.tga									id Software					EULA					tademo
+textures/sfx2/dm3padwallglow_red.tga						id Software					EULA					tademo
+textures/sfx2/dm3padwall_red.tga							id Software					EULA					tademo
+textures/sfx2/fan01.tga										id Software					EULA					tademo
+textures/sfx2/jumpad01.tga									id Software					EULA					tademo
+textures/sfx2/jumpadb2.tga									id Software					EULA					tademo
+textures/sfx2/jumpadb.tga									id Software					EULA					tademo
+textures/sfx2/jumpadr2.tga									id Software					EULA					tademo
+textures/sfx2/jumpadr.tga									id Software					EULA					tademo
+textures/sfx2/launchpad03.tga								id Software					EULA					tademo
+textures/sfx2/ouchfog.tga									id Software					EULA					tademo
+textures/sfx2/rlaunch2.tga									id Software					EULA					tademo
+textures/sfx2/rlaunch.tga									id Software					EULA					tademo
+textures/sfx2/screen01.tga									id Software					EULA					tademo
+textures/sfx2/tread.tga										id Software					EULA					tademo
