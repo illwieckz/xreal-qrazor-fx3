@@ -442,7 +442,7 @@ textures/common/noimpact
 textures/common/mirror
 {
 	discrete		// never merge with other surfaces
-	qer_editorimage textures/common/qer_mirror_editor.tga
+	qer_editorimage textures/common/qer_mirror.tga
 	
 	solid
 	mirror
