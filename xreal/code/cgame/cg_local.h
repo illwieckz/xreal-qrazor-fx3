@@ -234,7 +234,6 @@ typedef enum
 	LE_FADE_RGB,
 	LE_SCALE_FADE,
 	LE_SCOREPLUM,
-	LE_SHOCKWAVE,
 #ifdef MISSIONPACK
 	LE_KAMIKAZE,
 	LE_INVULIMPACT,
@@ -886,9 +885,6 @@ typedef struct
 	sfxHandle_t     sfx_railg;
 	sfxHandle_t     sfx_rockexp;
 	sfxHandle_t     sfx_plasmaexp;
-	sfxHandle_t     shockWaveExplodeSound;
-	sfxHandle_t     shockWaveImplodeSound;
-	sfxHandle_t     shockWaveFarSound;
 #ifdef MISSIONPACK
 	sfxHandle_t     sfx_proxexp;
 	sfxHandle_t     sfx_nghit;
