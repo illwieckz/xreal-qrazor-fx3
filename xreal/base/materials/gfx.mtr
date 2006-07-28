@@ -1034,13 +1034,14 @@ wake
 // viewBloodBlend gives the blended directional cue when you get hit
 viewBloodBlend
 {
+	nopicmip			// make sure a border remains
 	sort	nearest
 	{
 		//map models/weaphits/blood201.tga
-        map gfx/damage/blood_screen.tga
-		//map textures/particles/blood2.tga
-		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-		//blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
+        //map gfx/damage/blood_screen.tga
+		clampmap textures/decals/blood_splat02.tga
+		//blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
 		//rgbGen identityLighting
 		rgbGen		vertex
 		alphaGen	vertex
