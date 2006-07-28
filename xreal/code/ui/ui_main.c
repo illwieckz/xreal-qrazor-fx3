@@ -3504,7 +3504,7 @@ static void UI_LoadMovies()
 			{
 				moviename[len - 4] = '\0';
 			}
-			Q_strupr(moviename);
+			//Q_strupr(moviename);
 			uiInfo.movieList[i] = String_Alloc(moviename);
 			moviename += len + 1;
 		}
@@ -3546,7 +3546,7 @@ static void UI_LoadDemos()
 			{
 				demoname[len - strlen(demoExt)] = '\0';
 			}
-			Q_strupr(demoname);
+			//Q_strupr(demoname);
 			uiInfo.demoList[i] = String_Alloc(demoname);
 			demoname += len + 1;
 		}
