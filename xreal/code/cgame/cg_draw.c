@@ -310,6 +310,7 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 {
 	refdef_t        refdef;
 	refEntity_t     ent;
+	vec3_t          lightOrigin;
 
 	if(!cg_draw3dIcons.integer || !cg_drawIcons.integer)
 	{
@@ -343,6 +344,13 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 
 	trap_R_ClearScene();
 	trap_R_AddRefEntityToScene(&ent);
+	
+	VectorCopy(origin, lightOrigin);
+	lightOrigin[0] -= 90;
+	lightOrigin[1] += 10;
+	lightOrigin[2] += 30;
+	trap_R_AddLightToScene(lightOrigin, 200, 1.0, 1.0, 1.0);
+	
 	trap_R_RenderScene(&refdef);
 }
 
