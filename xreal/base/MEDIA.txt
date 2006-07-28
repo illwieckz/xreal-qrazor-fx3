@@ -1540,6 +1540,10 @@ textures/common/trigrelay.tga								Eutectic					custom					http://www.pcgamemo
 textures/common/trigtimer.tga								Eutectic					custom					http://www.pcgamemods.com/mod/9082.html
 textures/common/weapclip.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
 textures/common/white.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/ctf2/blue_banner02.tga								id Software					EULA					tademo
+textures/ctf2/blueteam01.tga								id Software					EULA					tademo
+textures/ctf2/red_banner02.tga								id Software					EULA					tademo
+textures/ctf2/redteam01.tga									id Software					EULA					tademo
 textures/decals/blood_splat01.tga							Tenebrae Team				custom					tenebrae
 textures/decals/blood_splat02.tga							Tenebrae Team				custom					tenebrae
 textures/decals/blood_splat03.tga							Tenebrae Team				custom					tenebrae
