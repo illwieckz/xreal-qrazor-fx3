@@ -1462,8 +1462,8 @@ sound/weapons/proxmine/wstbtick.wav							id Software					EULA					tademo
 sound/weapons/railgun/railgf1a.wav							id Software					EULA					q3demo
 sound/weapons/railgun/rg_hum.wav							id Software					EULA					q3demo
 sound/weapons/rocket/rockfly.wav							id Software					EULA					q3demo
-sound/weapons/rocket/rocklf1a.wav							id Software					EULA					q3demo
-sound/weapons/rocket/rocklx1a.wav							id Software					EULA					q3demo
+sound/weapons/rocket/rocklf1a.wav							Randall "Ravenant" P.		custom					http://www.planetquake.com/crypt
+sound/weapons/rocket/rocklx1a.wav							Randall "Ravenant" P.		custom					http://www.planetquake.com/crypt
 sound/weapons/shotgun/sshotf1b.wav							id Software					EULA					q3demo
 sound/weapons/vulcan/wvulimpd.wav							id Software					EULA					tademo
 sound/weapons/vulcan/wvulimpl.wav							id Software					EULA					tademo
