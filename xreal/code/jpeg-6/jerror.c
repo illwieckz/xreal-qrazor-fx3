@@ -19,8 +19,10 @@
 #include "jversion.h"
 #include "jerror.h"
 
-#ifdef XMAP
+#if defined(XMAP)
 #include "../common/cmdlib.h"
+#elif defined(RADIANT)
+//#include "debugging/debugging.h"
 #else
 #include "../renderer/tr_local.h"
 #endif
@@ -73,8 +75,10 @@ METHODDEF void error_exit(j_common_ptr cinfo)
 	/* Let the memory manager delete any temp files before we die */
 	jpeg_destroy(cinfo);
 
-#ifdef XMAP
+#if defined(XMAP)
 	Error("%s\n", buffer);
+#elif defined(RADIANT)
+//	globalErrorStream() << "WARNING: JPEG library error: " << buffer << "\n";
 #else
 	ri.Error(ERR_FATAL, "%s\n", buffer);
 #endif
@@ -95,8 +99,10 @@ METHODDEF void output_message(j_common_ptr cinfo)
 	(*cinfo->err->format_message) (cinfo, buffer);
 
 	/* Send it to stderr, adding a newline */
-#ifdef XMAP
+#if defined(XMAP)
 	fprintf(stderr, "%s\n", buffer);
+#elif defined(RADIANT)
+// TODO
 #else
 	ri.Printf(PRINT_ALL, "%s\n", buffer);
 #endif

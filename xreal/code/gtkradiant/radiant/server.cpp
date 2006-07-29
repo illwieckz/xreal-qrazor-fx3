@@ -173,6 +173,16 @@ public:
   DynamicLibrary(const char* filename)
   {
     m_library = dlopen(filename, RTLD_NOW);
+    if(m_library == 0)
+    {
+      globalErrorStream() << "dlopen failed: '" << filename << "'\n";
+      
+      const char* error = reinterpret_cast<const char*>(dlerror());
+      if(error != 0)
+      {
+        globalErrorStream() << "dlerror: '" << error << "'\n";
+      }
+    }
   }
   ~DynamicLibrary()
   {
@@ -188,10 +198,12 @@ public:
     FunctionPointer p = (FunctionPointer)dlsym(m_library, symbol);
     if(p == 0)
     {
+      globalErrorStream() << "dlsym failed: '" << symbol << "'\n";
+    	
       const char* error = reinterpret_cast<const char*>(dlerror());
       if(error != 0)
       {
-        globalErrorStream() << error;
+        globalErrorStream() << "dlerror: '" << error << "'\n";
       }
     }
     return p;

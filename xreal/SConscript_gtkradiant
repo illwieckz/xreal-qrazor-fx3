@@ -303,12 +303,10 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	image_env.SharedLibrary('image', image_src)
 	image_env.InstallAs('#gtkradiant/modules/image.so', 'libimage.so')
 	
-	"""
 	imagejpeg_env = module_env.Copy()
-	imagejpeg_env.Append(CCFLAGS='-DXMAP')
+	imagejpeg_env.Append(CCFLAGS='-DRADIANT')
 	imagejpeg_env.SharedLibrary('imagejpeg', imagejpeg_src)
 	imagejpeg_env.InstallAs('#gtkradiant/modules/imagejpeg.so', 'libimagejpeg.so')
-	"""
 	
 	imagepng_env = module_env.Copy()
 	imagepng_env.Append(CCFLAGS='`libpng-config --cflags`')

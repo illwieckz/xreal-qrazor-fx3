@@ -15,7 +15,7 @@
   unknowngamename="Custom XreaL modification"
   shaderpath="materials"
   archivetypes="pk3"
-  texturetypes="tga dds"
+  texturetypes="tga jpg dds"
   modeltypes="md3 ase lwo"
   maptypes="mapdoom3"
   shaders="doom3"
