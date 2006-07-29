@@ -68,6 +68,7 @@ gtkradiant_src = [
 'code/gtkradiant/radiant/server.cpp',
 'code/gtkradiant/radiant/shaders.cpp',
 'code/gtkradiant/radiant/sockets.cpp',
+'code/gtkradiant/radiant/stacktrace.cpp',
 'code/gtkradiant/radiant/surfacedialog.cpp',
 'code/gtkradiant/radiant/texmanip.cpp',
 'code/gtkradiant/radiant/textures.cpp',
@@ -261,7 +262,7 @@ vfspk3_src = [
 ]
 
 gtkradiant_env = env.Copy()
-gtkradiant_env.Append(CCFLAGS='-DPOSIX -DXWINDOWS -W -Wall -Wcast-align -Wcast-qual -Wno-unused-parameter -Wno-non-virtual-dtor -Wreorder -fno-exceptions -fno-rtti')
+gtkradiant_env.Append(CCFLAGS='-W -Wall -Wcast-align -Wcast-qual -Wno-unused-parameter -Wno-non-virtual-dtor -Wreorder -fno-exceptions -fno-rtti')
 gtkradiant_env.Append(CCFLAGS='-Icode/gtkradiant/include')
 gtkradiant_env.Append(CCFLAGS='-Icode/gtkradiant/libs')
 gtkradiant_env.Append(CCFLAGS='`pkg-config gtk+-2.0 --cflags`')
@@ -279,12 +280,16 @@ module_env.Append(CCFLAGS='-Icode/gtkradiant/libs')
 if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	l_net_src += ['code/gtkradiant/libs/l_net/l_net_berkley.c']
 	
+	gtkradiant_env.Append(CCFLAGS='-DPOSIX -DXWINDOWS')
+	
 	if env['arch'] == 'linux-i386':
 		gtkradiant_env.Program('gtkradiant.x86', [gtkradiant_src, gtkutil_src, profile_src, cmdlib_src, l_net_src])
 		gtkradiant_env.Install('#gtkradiant', 'gtkradiant.x86')
 	elif env['arch'] == 'linux-x86_64':
 		gtkradiant_env.Program('gtkradiant.x86_64', [gtkradiant_src, gtkutil_src, profile_src, cmdlib_src, l_net_src])
 		gtkradiant_env.Install('#gtkradiant', 'gtkradiant.x86_64')
+		
+	module_env.Append(CCFLAGS='-DPOSIX')
 	
 	archivezip_env = module_env.Copy()
 	archivezip_env.SharedLibrary('archivezip', archivezip_src, LIBS=['z'])

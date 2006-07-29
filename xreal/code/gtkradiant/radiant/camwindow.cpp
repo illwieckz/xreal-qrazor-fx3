@@ -1556,8 +1556,8 @@ void CamWnd::Cam_Draw()
       | RENDER_SMOOTH
       | RENDER_SCALED
       | RENDER_BUMP
-      | RENDER_PROGRAM
-      | RENDER_SCREEN;
+      | RENDER_PROGRAM;
+      //| RENDER_SCREEN;
     break;
   default:
     globalstate = 0;

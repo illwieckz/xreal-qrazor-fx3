@@ -1239,7 +1239,7 @@ inline void setFogState(const OpenGLFogState& state)
 	glFogfv(GL_FOG_COLOR, vector4_to_array(state.colour));
 }
 
-#define DEBUG_SHADERS 0
+#define DEBUG_SHADERS 1
 
 class OpenGLShaderCache : public ShaderCache, public TexturesCacheObserver, public ModuleObserver
 {
@@ -1722,6 +1722,13 @@ void ShaderCache_Destroy()
     }
 #endif
   }
+  
+  // Tr3B: FIXME: avoid "HashedCache::~HashedCache: not empty" using a better solution
+  g_ShaderCache->release("$Q3MAP2_LIGHT_SPHERE");
+  g_ShaderCache->release("$PIVOT");
+  g_ShaderCache->release("$BIGPOINT");
+  g_ShaderCache->release("$SELPOINT");
+  g_ShaderCache->release("$POINT");
 
   GlobalShaderSystem().detach(*g_ShaderCache);
   GlobalTexturesCache().detach(*g_ShaderCache);

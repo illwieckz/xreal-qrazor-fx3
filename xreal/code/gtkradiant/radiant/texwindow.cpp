@@ -868,7 +868,7 @@ void TextureDirectory_loadTexture(const char* directory, const char* texture)
     return;
   }
 
-  if (!texdef_name_valid(name.c_str()))
+  if (!shader_valid(name.c_str()))
   {
     globalOutputStream() << "Skipping invalid texture name: [" << name.c_str() << "]\n";
     return;
@@ -888,7 +888,7 @@ public:
     : m_dirstring(dirstring)
   {
   }
-  void visit(const char* minor, const _QERPlugImageTable& table)
+  void visit(const char* minor, const _QERPlugImageTable& table) const
   {
     GlobalFileSystem().forEachFile(m_dirstring, minor, TextureDirectoryLoadTextureCaller(m_dirstring));
   }
@@ -919,10 +919,7 @@ void TextureBrowser_ShowDirectory(TextureBrowser& textureBrowser, const char* di
       StringOutputStream dirstring(64);
       dirstring << "textures/" << directory;
 
-      {
-        LoadTexturesByTypeVisitor visitor(dirstring.c_str());
-        Radiant_getImageModules().foreachModule(visitor);
-      }
+      Radiant_getImageModules().foreachModule(LoadTexturesByTypeVisitor(dirstring.c_str()));
     }
   }
 

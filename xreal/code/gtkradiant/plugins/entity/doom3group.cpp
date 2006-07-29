@@ -198,7 +198,7 @@ private:
 
   void updateIsModel()
   {
-    setIsModel(!string_empty(m_modelKey.c_str()) && !string_equal(m_modelKey.c_str(), m_name.c_str()));
+    setIsModel(!string_equal(m_modelKey.c_str(), m_name.c_str()));
   }
 
   void nameChanged(const char* value)
@@ -228,8 +228,8 @@ private:
     m_transform.localToParent() = g_matrix4_identity;
     if(isModel())
     {
-      matrix4_translate_by_vec3(m_transform.localToParent(), m_originKey.m_origin);
-      matrix4_multiply_by_matrix4(m_transform.localToParent(), rotation_toMatrix(m_rotationKey.m_rotation));
+      matrix4_translate_by_vec3(m_transform.localToParent(), m_origin);
+      matrix4_multiply_by_matrix4(m_transform.localToParent(), rotation_toMatrix(m_rotation));
     }
     m_transformChanged();
     if(!isModel())
