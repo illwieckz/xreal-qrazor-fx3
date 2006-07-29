@@ -30,12 +30,57 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // ====== JPEG loader functionality ======
 
-#if 1
 extern "C" {
 #define JPEG_INTERNALS
 #include "../../../jpeg-6/jpeglib.h"
+
+
+/*
+ * Error exit handler: must not return to caller.
+ *
+ * Applications may override this if they want to get control back after
+ * an error.  Typically one would longjmp somewhere instead of exiting.
+ * The setjmp buffer can be made a private field within an expanded error
+ * handler object.  Note that the info needed to generate an error message
+ * is stored in the error object, so you can generate the message now or
+ * later, at your convenience.
+ * You should make sure that the JPEG object is cleaned up (with jpeg_abort
+ * or jpeg_destroy) at some point.
+ */
+
+void jpeg_error_exit(j_common_ptr cinfo)
+{
+	char            buffer[JMSG_LENGTH_MAX];
+
+	/* Create the message */
+	(*cinfo->err->format_message) (cinfo, buffer);
+
+	/* Let the memory manager delete any temp files before we die */
+	jpeg_destroy(cinfo);
+
+	globalErrorStream() << "WARNING: JPEG library error: " << buffer << "\n";
 }
-#endif
+
+
+/*
+ * Actual output of an error or trace message.
+ * Applications may override this method to send JPEG messages somewhere
+ * other than stderr.
+ */
+
+void jpeg_output_message(j_common_ptr cinfo)
+{
+	char            buffer[JMSG_LENGTH_MAX];
+
+	/* Create the message */
+	(*cinfo->err->format_message) (cinfo, buffer);
+
+	/* Send it to stderr, adding a newline */
+	globalErrorStream() << "WARNING: JPEG library error: " << buffer << "\n";
+}
+
+} // extern "C"
+
 
 /*
 =============
@@ -44,7 +89,6 @@ LoadJPGBuffer
 */
 static Image* LoadJPGBuffer(byte * fbuffer)
 {
-#if 1
 	/* This struct contains the JPEG decompression parameters and pointers to
 	* working space (which is allocated as needed by the JPEG library).
 	*/
@@ -130,11 +174,6 @@ static Image* LoadJPGBuffer(byte * fbuffer)
 	
 	RGBAImage* image = new RGBAImage(cinfo.output_width, cinfo.output_height);
 	out = image->getRGBAPixels();
-	//out = malloc(cinfo.output_width * cinfo.output_height * cinfo.output_components);
-
-	//*pic = out;
-	//*width = cinfo.output_width;
-	//*height = cinfo.output_height;
 
 	/* Step 6: while (scan lines remain to be read) */
 	/*           jpeg_read_scanlines(...); */
@@ -192,15 +231,12 @@ static Image* LoadJPGBuffer(byte * fbuffer)
 
 	/* And we're done! */
 	return image;
-#else
-	return 0;
-#endif
 }
 
 Image* LoadJPG(ArchiveFile& file)
 {
   ScopedArchiveBuffer buffer(file);
-  return LoadJPGBuffer(buffer.buffer);//, static_cast<int>(buffer.length));
+  return LoadJPGBuffer(buffer.buffer);
 }
 
 

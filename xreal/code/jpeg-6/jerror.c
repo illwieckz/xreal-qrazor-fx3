@@ -22,7 +22,7 @@
 #if defined(XMAP)
 #include "../common/cmdlib.h"
 #elif defined(RADIANT)
-//#include "debugging/debugging.h"
+// include nothing
 #else
 #include "../renderer/tr_local.h"
 #endif
@@ -64,8 +64,11 @@ const char     *const jpeg_std_message_table[] = {
  * You should make sure that the JPEG object is cleaned up (with jpeg_abort
  * or jpeg_destroy) at some point.
  */
-
-METHODDEF void error_exit(j_common_ptr cinfo)
+ 
+#if defined(RADIANT)
+EXTERN void jpeg_error_exit(j_common_ptr cinfo);
+#else
+METHODDEF void jpeg_error_exit(j_common_ptr cinfo)
 {
 	char            buffer[JMSG_LENGTH_MAX];
 
@@ -77,12 +80,11 @@ METHODDEF void error_exit(j_common_ptr cinfo)
 
 #if defined(XMAP)
 	Error("%s\n", buffer);
-#elif defined(RADIANT)
-//	globalErrorStream() << "WARNING: JPEG library error: " << buffer << "\n";
 #else
 	ri.Error(ERR_FATAL, "%s\n", buffer);
 #endif
 }
+#endif
 
 
 /*
@@ -91,7 +93,10 @@ METHODDEF void error_exit(j_common_ptr cinfo)
  * other than stderr.
  */
 
-METHODDEF void output_message(j_common_ptr cinfo)
+#if defined(RADIANT)
+EXTERN void jpeg_output_message(j_common_ptr cinfo);
+#else
+METHODDEF void jpeg_output_message(j_common_ptr cinfo)
 {
 	char            buffer[JMSG_LENGTH_MAX];
 
@@ -101,13 +106,11 @@ METHODDEF void output_message(j_common_ptr cinfo)
 	/* Send it to stderr, adding a newline */
 #if defined(XMAP)
 	fprintf(stderr, "%s\n", buffer);
-#elif defined(RADIANT)
-// TODO
 #else
 	ri.Printf(PRINT_ALL, "%s\n", buffer);
 #endif
 }
-
+#endif
 
 /*
  * Decide whether to emit a trace or warning message.
@@ -229,9 +232,9 @@ METHODDEF void reset_error_mgr(j_common_ptr cinfo)
 
 GLOBAL struct jpeg_error_mgr *jpeg_std_error(struct jpeg_error_mgr *err)
 {
-	err->error_exit = error_exit;
+	err->error_exit = jpeg_error_exit;
 	err->emit_message = emit_message;
-	err->output_message = output_message;
+	err->output_message = jpeg_output_message;
 	err->format_message = format_message;
 	err->reset_error_mgr = reset_error_mgr;
 
