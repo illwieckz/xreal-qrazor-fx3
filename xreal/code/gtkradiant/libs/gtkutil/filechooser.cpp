@@ -92,7 +92,7 @@ public:
   }
 };
 
-#ifdef WIN32
+#if defined(WIN32) && defined(_MSC_VER)
 
 class Win32Filters
 {
@@ -470,7 +470,7 @@ const char* file_dialog(GtkWidget* parent, bool open, const char* title, const c
   for(;;)
   {
     const char* file =
-#ifdef WIN32
+#if defined(WIN32) && defined(_MSC_VER)
 	                g_FileChooser_nativeGUI
       ? file_dialog_show_win32(parent, open, title, path, pattern) :
 #endif

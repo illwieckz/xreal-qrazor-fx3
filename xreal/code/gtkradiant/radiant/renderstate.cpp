@@ -1239,7 +1239,7 @@ inline void setFogState(const OpenGLFogState& state)
 	glFogfv(GL_FOG_COLOR, vector4_to_array(state.colour));
 }
 
-#define DEBUG_SHADERS 1
+#define DEBUG_SHADERS 0
 
 class OpenGLShaderCache : public ShaderCache, public TexturesCacheObserver, public ModuleObserver
 {

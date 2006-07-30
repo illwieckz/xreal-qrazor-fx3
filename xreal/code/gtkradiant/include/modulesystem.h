@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "generic/static.h"
 #include "debugging/debugging.h"
 
-#if defined(WIN32)
+#if defined(WIN32) && defined(_MSC_VER)
 #define RADIANT_DLLEXPORT __stdcall
 #else
 #define RADIANT_DLLEXPORT
