@@ -153,6 +153,8 @@ void environment_init(int argc, char* argv[])
 
 #if defined(_MSC_VER)
 #include <shfolder.h>
+#else
+#include <shlobj.h>
 #endif
 
 void environment_init(int argc, char* argv[])
@@ -162,11 +164,7 @@ void environment_init(int argc, char* argv[])
   {
     char appdata[MAX_PATH+1];
     
-#if defined(_MSC_VER)
     SHGetFolderPath(0, CSIDL_APPDATA, 0, 0, appdata);
-#else
-    string_copy(appdata, getenv("HOMEPATH"));
-#endif
 
     StringOutputStream home(256);
     if(string_empty(appdata))
