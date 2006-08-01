@@ -3,6 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="bspc"
+	RootNamespace="bspc"
 	SccProjectName="&quot;$/source/code/bspc&quot;, IGAAAAAA"
 	SccLocalPath=".">
 	<Platforms>
@@ -36,7 +37,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\Debug\bspc.exe"
+				OutputFile="..\..\bspc.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
@@ -1317,10 +1318,10 @@
 				RelativePath="..\botlib\l_libvar.h">
 			</File>
 			<File
-				RelativePath="l_log.h">
+				RelativePath="..\botlib\l_log.h">
 			</File>
 			<File
-				RelativePath="..\botlib\l_log.h">
+				RelativePath="l_log.h">
 			</File>
 			<File
 				RelativePath="l_math.h">
