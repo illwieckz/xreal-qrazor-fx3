@@ -14,7 +14,7 @@
 	<Configurations>
 		<Configuration
 			Name="Release TA|Win32"
-			OutputDirectory=".\Release_TA"
+			OutputDirectory=".\.."
 			IntermediateDirectory=".\Release_TA"
 			ConfigurationType="1"
 			UseOfMFC="0"
@@ -26,7 +26,7 @@
 				OptimizeForProcessor="2"
 				PreprocessorDefinitions="_WIN32;WIN32;NDEBUG;_WINDOWS"
 				StringPooling="TRUE"
-				RuntimeLibrary="4"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderFile=".\Release_TA/xreal.pch"
@@ -41,9 +41,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="winmm.lib wsock32.lib"
-				OutputFile=".\Release_TA/xreal.exe"
+				OutputFile="$(OutDir)/xreal.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="D:\xreal\code\win32\libxml\lib"
 				ProgramDatabaseFile="Release_TA/xreal.pdb"
 				GenerateMapFile="TRUE"
 				MapFileName="Release_TA/xreal.map"
@@ -427,7 +428,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug TA|Win32"
-			OutputDirectory=".\Debug_TA"
+			OutputDirectory=".\.."
 			IntermediateDirectory=".\Debug_TA"
 			ConfigurationType="1"
 			UseOfMFC="0"
@@ -453,7 +454,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="winmm.lib wsock32.lib"
-				OutputFile=".\Debug_TA/xreal.exe"
+				OutputFile="$(OutDir)/xreal.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
