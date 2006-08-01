@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="glaux.lib glu32.lib wsock32.lib opengl32.lib odbc32.lib odbccp32.lib"
-				OutputFile=".\Debug/xmap.exe"
+				OutputFile="../../xmap.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
