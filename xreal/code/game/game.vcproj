@@ -12,7 +12,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug TA|Win32"
-			OutputDirectory=".\Debug_TA"
+			OutputDirectory=".\..\..\base"
 			IntermediateDirectory=".\Debug_TA"
 			ConfigurationType="2"
 			UseOfMFC="0"
@@ -37,7 +37,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="winmm.lib"
-				OutputFile="..\Debug_TA\qagamex86.dll"
+				OutputFile="$(OutDir)/qagamex86.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile=".\game.def"
@@ -347,7 +347,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release TA|Win32"
-			OutputDirectory=".\Release_TA"
+			OutputDirectory=".\..\..\base"
 			IntermediateDirectory=".\Release_TA"
 			ConfigurationType="2"
 			UseOfMFC="0"
@@ -359,7 +359,7 @@
 				OptimizeForProcessor="2"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;MISSIONPACK"
 				StringPooling="TRUE"
-				RuntimeLibrary="4"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderFile=".\Release_TA/game.pch"
@@ -373,7 +373,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="winmm.lib"
-				OutputFile="../Release_TA/qagamex86.dll"
+				OutputFile="$(OutDir)/qagamex86.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile=".\game.def"
