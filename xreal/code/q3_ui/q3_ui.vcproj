@@ -12,7 +12,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug TA|Win32"
-			OutputDirectory=".\Debug_TA"
+			OutputDirectory=".\..\..\base"
 			IntermediateDirectory=".\Debug_TA"
 			ConfigurationType="2"
 			UseOfMFC="0"
@@ -39,7 +39,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib"
-				OutputFile="../Debug_TA/uix86_old.dll"
+				OutputFile="$(OutDir)/uix86.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile=".\ui.def"
@@ -81,7 +81,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release TA|Win32"
-			OutputDirectory=".\Release_TA"
+			OutputDirectory=".\..\..\base"
 			IntermediateDirectory=".\Release_TA"
 			ConfigurationType="2"
 			UseOfMFC="0"
@@ -107,7 +107,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib"
-				OutputFile="../Release_TA/uix86_old.dll"
+				OutputFile="$(OutDir)/uix86.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile=".\ui.def"
