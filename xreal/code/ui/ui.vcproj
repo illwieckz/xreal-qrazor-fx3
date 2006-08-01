@@ -82,7 +82,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release TA|Win32"
-			OutputDirectory=".\Release_TA"
+			OutputDirectory=".\..\..\base"
 			IntermediateDirectory=".\Release_TA"
 			ConfigurationType="2"
 			UseOfMFC="0"
@@ -95,7 +95,7 @@
 				OptimizeForProcessor="2"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;UI_EXPORTS"
 				StringPooling="TRUE"
-				RuntimeLibrary="4"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderFile=".\Release_TA/ui.pch"
@@ -109,7 +109,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib"
-				OutputFile="../Release_TA/uix86.dll"
+				OutputFile="$(OutDir)/uix86_new.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile=".\ui.def"
@@ -285,7 +285,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug TA|Win32"
-			OutputDirectory=".\Debug_TA"
+			OutputDirectory=".\..\..\base"
 			IntermediateDirectory=".\Debug_TA"
 			ConfigurationType="2"
 			UseOfMFC="0"
@@ -312,7 +312,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib"
-				OutputFile="../Debug_TA/uix86.dll"
+				OutputFile="$(OutDir)/uix86_new.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile=".\ui.def"
