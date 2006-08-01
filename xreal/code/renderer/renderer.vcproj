@@ -22,6 +22,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				OptimizeForProcessor="1"
+				AdditionalIncludeDirectories="..\win32\libiconv\include;..\win32\libxml\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -38,7 +39,9 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="libxml2.lib iconv.lib"
 				OutputFile=".\Debug_TA\renderer.lib"
+				AdditionalLibraryDirectories="..\win32\libiconv\lib;..\win32\libxml\lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -189,6 +192,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="2"
 				OptimizeForProcessor="2"
+				AdditionalIncludeDirectories="..\win32\libiconv\include;..\win32\libxml\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="TRUE"
 				RuntimeLibrary="4"
@@ -204,7 +208,9 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="libxml2.lib iconv.lib"
 				OutputFile=".\Release_TA\renderer.lib"
+				AdditionalLibraryDirectories="..\win32\libiconv\lib;..\win32\libxml\lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
