@@ -24,7 +24,6 @@
 	loadMenu { "ui/connect.menu" }
 	loadMenu { "ui/powerup.menu" } 
 	loadMenu { "ui/password.menu" }
-	loadMenu { "ui/quake3.menu" }
 	loadMenu { "ui/quit.menu" }
 	loadMenu { "ui/vid_restart.menu" }
 	loadMenu { "ui/default.menu" }

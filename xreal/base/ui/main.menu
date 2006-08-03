@@ -85,7 +85,7 @@ itemDef {
 
 itemDef {
 	name cinematic
-      	style 5						// Style for cinematic
+	style WINDOW_STYLE_CINEMATIC	// Style for cinematic
 	cinematic "mpintro.roq"
 	rect 390 163 250 155
 	backcolor 1 1 1 .25
@@ -97,11 +97,11 @@ itemDef {
 
 
 itemDef {
-      	name menuback_d					// Team arena text		
-      	style WINDOW_STYLE_SHADER
-      	rect 0 163 255 155
-     	background "menuback_d"
-      	visible 1
+	name menuback_d					// Team arena text		
+	style WINDOW_STYLE_SHADER
+	rect 0 163 255 155
+	background "menuback_d"
+	visible 1
 	decoration
     }
 
@@ -162,7 +162,7 @@ itemDef {
 itemDef {
       	name gametype
 	type 1
-      	text "TEAM ARENA"
+      	text "XreaL"
       	style 0	
 	textstyle 6
       	rect 0 40 640 30
@@ -177,7 +177,7 @@ itemDef {
 
 
 	
-
+/*
 itemDef {
       	name teamarena
 	type 1
@@ -195,25 +195,26 @@ itemDef {
 	action { play "sound/misc/kcaction.wav" ; 
 	open quake3_popmenu  }
 }
+*/
 
 itemDef {
-      	name teamarena
-      	text "Rules"
+	name teamarena
+	text "Rules"
 	type 1
-      	style 0	
+	style 0	
 	textstyle 6
-     	rect 200 40 80 30
+	rect 140 40 80 30
 	textscale .333
 	textalignx 40
 	textaligny 22	 
-      	textalign 1		
-      	backcolor 0 0 0 0
-      	forecolor 1 1 1 1 
+	textalign 1
+	backcolor 0 0 0 0
+	forecolor 1 1 1 1 
 	visible 0
 	action { play "sound/misc/kcaction.wav" ; 
 	close main ; 
 	open help_menu } 
-	}
+}
 
 itemDef {
       	name teamarena
@@ -222,7 +223,7 @@ itemDef {
 	textstyle 6
 	textscale .333
       	style 0	
-     	rect 280 40 80 30
+     	rect 230 40 80 30
 	textalignx 40
 	textaligny 22	 
       	textalign 1		
@@ -242,7 +243,7 @@ itemDef {
       	style 0	
 	textstyle 6
 	textscale .333
-      	rect 360 40 80 30 
+      	rect 330 40 80 30 
 	textalignx 40
 	textaligny 22
      	textalign 1		
@@ -260,7 +261,7 @@ itemDef {
       	style 0	
 	textstyle 6
 	textscale .333
-      	rect 440 40 80 30 
+      	rect 420 40 80 30 
 	textalignx 40
 	textaligny 22
      	textalign 1		
@@ -540,7 +541,16 @@ itemDef {
     	}
 
 
-
+/*
+itemDef {
+	name layout_table				// for development
+	style WINDOW_STYLE_SHADER
+	rect 0 0 640 480
+	background "layoutTable"
+	visible 1
+	decoration
+}
+*/
 
 
 
