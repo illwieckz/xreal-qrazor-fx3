@@ -1,8 +1,8 @@
 
 textures/reflex_layout/bridge
 {
-    qer_editorimage textures/reflex_layout/wall.tga
-	diffusemap textures/reflex_layout/wall.tga
+    qer_editorimage textures/reflex_layout/bridge.tga
+	diffusemap textures/reflex_layout/bridge.tga
 }
 
 textures/reflex_layout/ceiling
