@@ -1370,6 +1370,11 @@ void R_Init(void)
 
 	R_InitFreeType();
 	
+	if(glConfig2.textureAnisotropyAvailable)
+	{
+		AssertCvarRange(r_ext_texture_filter_anisotropic, 0, glConfig2.maxTextureAnisotropy, qfalse);
+	}
+	
 	if(glConfig2.occlusionQueryBits)
 	{
 		qglGenQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
