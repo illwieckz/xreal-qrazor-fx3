@@ -2866,7 +2866,7 @@ static void ComputeColors(shaderStage_t * pStage)
 			break;
 			
 		case CGEN_CUSTOM_RGBs:
-			RB_CalcCustomColors(&pStage->redExp, &pStage->greenExp, &pStage->redExp, (unsigned char *)tess.svars.colors);
+			RB_CalcCustomColors(&pStage->redExp, &pStage->greenExp, &pStage->blueExp, (unsigned char *)tess.svars.colors);
 			break;
 	}
 
