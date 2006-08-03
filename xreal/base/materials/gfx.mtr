@@ -981,7 +981,7 @@ teleportEffect
 		blend GL_ONE , GL_ONE
 		rgbGen entity
 		scale 1 , 4
-		scroll 0, time * 1
+		scroll time * 1, time * 1
 	}
 }
 

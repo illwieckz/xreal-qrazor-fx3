@@ -636,11 +636,6 @@ models/powerups/overload_mapbw.tga							id Software					EULA					tademo
 models/powerups/overload_map.tga							id Software					EULA					tademo
 models/powerups/overload_target_1.md3						id Software					EULA					tademo
 models/powerups/overload_target.md3							id Software					EULA					tademo
-models/powerups/pop_1.md3									id Software					EULA					tademo
-models/powerups/pop2.tga									id Software					EULA					tademo
-models/powerups/pop_bw.tga									id Software					EULA					tademo
-models/powerups/pop.md3										id Software					EULA					tademo
-models/powerups/pop.tga										id Software					EULA					tademo
 models/powerups/regen1.tga									id Software					EULA					tademo
 models/powerups/regen2.tga									id Software					EULA					tademo
 models/powerups/regen.md3									id Software					EULA					tademo
@@ -1648,7 +1643,7 @@ ui/assets/assault.tga										id Software					EULA					tademo
 ui/assets/backarrow_alt.tga									id Software					EULA					tademo
 ui/assets/backarrow.tga										id Software					EULA					tademo
 ui/assets/background3.tga									id Software					EULA					tademo
-ui/assets/backscreen.tga									id Software					EULA					tademo
+ui/assets/backscreen.tga									Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 ui/assets/blu01.tga											id Software					EULA					tademo
 ui/assets/blu02.tga											id Software					EULA					tademo
 ui/assets/blu03.tga											id Software					EULA					tademo

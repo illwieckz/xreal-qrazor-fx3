@@ -823,8 +823,6 @@ typedef struct
 	qhandle_t       ringFlashModel;
 	qhandle_t       dishFlashModel;
 	qhandle_t       lightningExplosionModel;
-	qhandle_t       shockWaveModel;
-	qhandle_t       shockWaveEffectModel;
 
 	// weapon effect shaders
 	qhandle_t       railExplosionShader;
