@@ -42,7 +42,7 @@ itemDef {
 
 itemDef {
 	name confirm
-	text "Quit Team Arena?"
+	text "Quit XreaL?"
 	style 0
 	textscale .3 
 	textstyle 3

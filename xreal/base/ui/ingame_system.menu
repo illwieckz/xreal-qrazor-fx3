@@ -278,6 +278,7 @@ itemDef {
 			action { uiScript glCustom }
     		}
 
+	/*
 	itemDef {
       		name graphics
 		group grpSystem
@@ -294,6 +295,7 @@ itemDef {
       		visible 0 
 			action { uiScript glCustom }
     		}
+    */
 
 	itemDef {
       		name graphics
@@ -302,7 +304,7 @@ itemDef {
 		text "Geometric Detail:"
 		cvar "r_lodbias"
 		cvarFloatList { "High" 0 "Medium" 1 "Low" 2 }
-		rect 0 190 256 20
+		rect 0 170 256 20
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 133
       		textaligny 17
@@ -319,7 +321,7 @@ itemDef {
 		text "Texture Detail:"
 		cvar "r_picmip"
 		cvarFloatList { "Low" 2 "Normal" 1 "High" 0 }
-		rect 0 210 256 20
+		rect 0 190 256 20
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 133
       		textaligny 17
@@ -336,7 +338,7 @@ itemDef {
 		text "Texture Quality:"
 		cvar "r_texturebits"
 		cvarFloatList { "Default" 0 "16 bit" 16 "32 bit" 32 }
-		rect 0 230 256 20
+		rect 0 210 256 20
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 133
       		textaligny 17
@@ -352,7 +354,7 @@ itemDef {
 		text "Texture Filter:"
 		cvar "r_texturemode"
 		cvarStrList { "Bilinear", "GL_LINEAR_MIPMAP_NEAREST", "Trilinear", "GL_LINEAR_MIPMAP_LINEAR"  }
-		rect 0 250 256 20
+		rect 0 230 256 20
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 133
       		textaligny 17
@@ -368,6 +370,22 @@ itemDef {
       		type ITEM_TYPE_YESNO
 		text "Compress Textures:"
 		cvar "r_ext_compressed_textures "
+		rect 0 250 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 133
+      		textaligny 17
+		textscale .25        
+      		forecolor 1 1 1 1
+      		visible 0 
+		action { uiScript glCustom }
+    		}
+    		
+    itemDef {
+      		name graphics
+		group grpSystem
+      		type ITEM_TYPE_SLIDER
+		text "Anisotropic Filter:"
+		cvarFloat "r_ext_texture_filter_anisotropic" 0 0 16
 		rect 0 270 256 20
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 133
