@@ -1799,21 +1799,17 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 				blendDstBits = GLS_DSTBLEND_ONE;
 			}
 			// check for other semantic meanings
-			else if(!Q_stricmp(token, "diffusemap"))
+			else if(!Q_stricmp(token, "diffuseMap"))
 			{
 				stage->type = ST_DIFFUSEMAP;
 			}
-			else if(!Q_stricmp(token, "bumpmap"))
+			else if(!Q_stricmp(token, "bumpMap"))
 			{
 				stage->type = ST_NORMALMAP;
 			}
-			else if(!Q_stricmp(token, "specularmap"))
+			else if(!Q_stricmp(token, "specularMap"))
 			{
 				stage->type = ST_SPECULARMAP;
-			}
-			else if(!Q_stricmp(token, "lightmap"))
-			{
-				stage->type = ST_LIGHTMAP;
 			}
 			else
 			{
@@ -2024,12 +2020,12 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		// vertexColor
 		else if(!Q_stricmp(token, "vertexColor"))
 		{
-			stage->rgbGen = CGEN_EXACT_VERTEX;
+			ri.Printf(PRINT_WARNING, "WARNING: vertexColor keyword not supported in shader '%s'\n", shader.name);
 		}
 		// inverseVertexColor
 		else if(!Q_stricmp(token, "inverseVertexColor"))
 		{
-			stage->rgbGen = CGEN_ONE_MINUS_VERTEX;
+			ri.Printf(PRINT_WARNING, "WARNING: inverseVertexColor keyword not supported in shader '%s'\n", shader.name);
 		}
 		// alphaGen 
 		else if(!Q_stricmp(token, "alphaGen"))
