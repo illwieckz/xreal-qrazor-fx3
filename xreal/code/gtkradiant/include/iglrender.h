@@ -26,15 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "generic/vector.h"
 class AABB;
 class Matrix4;
-
-
-class GLProgram
-{
-public:
-  virtual void enable() = 0;
-  virtual void disable() = 0;
-  virtual void setParameters(const Vector3& viewer, const Matrix4& localToWorld, const Vector3& origin, const Vector3& colour, const Matrix4& world2light) = 0;
-};
+class GLSLProgram;
 
 class OpenGLFogState
 {
@@ -93,7 +85,7 @@ public:
   GLint m_linestipple_factor;
   GLushort m_linestipple_pattern;
   OpenGLFogState m_fog;
-  GLProgram* m_program;
+  GLSLProgram* m_program;
 
   OpenGLState() : m_program(0)
   {

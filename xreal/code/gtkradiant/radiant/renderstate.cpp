@@ -134,8 +134,116 @@ const char* Renderer_GetStats()
   return g_renderer_stats.c_str();
 }
 
+class UniformViewOrigin
+{
+private:
+	UniformViewOrigin();
 
-void printShaderLog(GLhandleARB object)
+protected:
+	UniformViewOrigin(GLhandleARB program)
+	{
+		m_ViewOrigin = glGetUniformLocationARB(program, "u_ViewOrigin");
+	}
+	
+public:
+	void setUniform_ViewOrigin(const Vector3 &localViewer)
+	{
+		glUniform3fARB(m_ViewOrigin, localViewer.x(), localViewer.y(), localViewer.z());
+	}
+
+private:
+	GLint m_ViewOrigin;
+};
+
+class UniformLightOrigin
+{
+private:
+	UniformLightOrigin();
+
+protected:
+	UniformLightOrigin(GLhandleARB program)
+	{
+		m_LightOrigin = glGetUniformLocationARB(program, "u_LightOrigin");
+	}
+	
+public:
+	void setUniform_LightOrigin(const Vector3 &localLight)
+	{
+		glUniform3fARB(m_LightOrigin, localLight.x(), localLight.y(), localLight.z());	
+	}
+
+private:
+	GLint m_LightOrigin;
+};
+
+
+class UniformLightColor
+{
+private:
+	UniformLightColor();
+
+protected:
+	UniformLightColor(GLhandleARB program)
+	{
+		m_LightColor = glGetUniformLocationARB(program, "u_LightColor");
+	}
+	
+public:
+	void setUniform_LightColor(const Vector3 &color)
+	{
+		glUniform3fARB(m_LightColor, color.x(), color.y(), color.z());
+	}
+
+private:
+	GLint m_LightColor;
+};
+
+
+class UniformLightScale
+{
+private:
+	UniformLightScale();
+
+protected:
+	UniformLightScale(GLhandleARB program)
+	{
+		m_LightScale = glGetUniformLocationARB(program, "u_LightScale");
+	}
+	
+public:
+	void setUniform_LightScale()
+	{
+		glUniform1fARB(m_LightScale, 2.0);
+	}
+
+private:
+	GLint m_LightScale;
+};
+
+
+class UniformSpecularExponent
+{
+private:
+	UniformSpecularExponent();
+
+protected:
+	UniformSpecularExponent(GLhandleARB program)
+	{
+		m_SpecularExponent = glGetUniformLocationARB(program, "u_SpecularExponent");
+	}
+	
+public:
+	void setUniform_SpecularExponent()
+	{
+		glUniform1fARB(m_SpecularExponent, 16.0);
+	}
+
+private:
+	GLint m_SpecularExponent;
+};
+
+
+static void printShaderLog(GLhandleARB object)
 {
   GLint log_length = 0;
   glGetObjectParameterivARB(object, GL_OBJECT_INFO_LOG_LENGTH_ARB, &log_length);
@@ -146,7 +254,7 @@ void printShaderLog(GLhandleARB object)
   globalErrorStream() << StringRange(log.begin(), log.begin() + log_length) << "\n";
 }
 
-void createShader(GLhandleARB program, const char* filename, GLenum type)
+static void createShader(GLhandleARB program, const char* filename, GLenum type)
 {
   GLhandleARB shader = glCreateShaderObjectARB(type);
   GlobalOpenGL_debugAssertNoErrors();
@@ -187,7 +295,7 @@ void createShader(GLhandleARB program, const char* filename, GLenum type)
   GlobalOpenGL_debugAssertNoErrors();
 }
 
-void GLSLProgram_link(GLhandleARB program)
+static void GLSLProgram_link(GLhandleARB program)
 {
   glLinkProgramARB(program);
   
@@ -202,7 +310,7 @@ void GLSLProgram_link(GLhandleARB program)
   ASSERT_MESSAGE(linked, "program link failed");
 }
 
-void GLSLProgram_validate(GLhandleARB program)
+static void GLSLProgram_validate(GLhandleARB program)
 {
   glValidateProgramARB(program);
   
@@ -217,75 +325,160 @@ void GLSLProgram_validate(GLhandleARB program)
   ASSERT_MESSAGE(validated, "program validation failed");
 }
 
-bool g_bumpGLSLPass_enabled = false;
-bool g_depthfillPass_enabled = false;
 
-class GLSLBumpProgram : public GLProgram
+class GLSLProgram
+{
+private:
+  GLhandleARB m_program;
+
+public:
+  GLSLProgram(const char *name)
+  {
+  	// create program
+  	m_program = glCreateProgramObjectARB();
+  	
+  	// create shader
+  	{
+  	  StringOutputStream filename(256);
+  	  filename << GlobalRadiant().getAppPath() << "gl/" << name << "_vp.glsl";
+  	  createShader(m_program, filename.c_str(), GL_VERTEX_SHADER_ARB);
+  	  filename.clear();
+  	  filename << GlobalRadiant().getAppPath() << "gl/" << name << "_fp.glsl";
+  	  createShader(m_program, filename.c_str(), GL_FRAGMENT_SHADER_ARB);
+  	}
+  	
+  	GLSLProgram_link(m_program);
+  	GLSLProgram_validate(m_program);	
+  }
+  
+  virtual ~GLSLProgram()
+  {
+  	glDeleteObjectARB(m_program);
+  	m_program = 0;
+  }
+  
+  virtual void enable() = 0;
+  virtual void disable() = 0;
+  virtual void setParameters(const Vector3& viewer, const Matrix4& localToWorld, const Vector3& origin, const Vector3& colour, const Matrix4& world2light) = 0;
+  
+  GLhandleARB getProgram() const
+  {
+  	return m_program;
+  }
+};
+
+
+class GLSLProgram_lighting_D_omni :
+public GLSLProgram,
+public UniformLightOrigin,
+public UniformLightColor,
+public UniformLightScale
 {
 public:
-  GLhandleARB m_program;
-  
-  
-  GLint u_ViewOrigin;
-  GLint u_LightOrigin;
-  GLint u_LightColor;
-  GLint u_LightScale;
-  GLint u_SpecularExponent;
-
-  GLSLBumpProgram() : m_program(0)
+  GLSLProgram_lighting_D_omni() :
+  GLSLProgram("lighting_D_omni"),
+  UniformLightOrigin(getProgram()),
+  UniformLightColor(getProgram()),
+  UniformLightScale(getProgram())
   {
-  }
-
-  void create()
-  {
-    // create program
-    m_program = glCreateProgramObjectARB();
+    glUseProgramObjectARB(getProgram());
     
-    // create shader
-    {
-      StringOutputStream filename(256);
-      filename << GlobalRadiant().getAppPath() << "gl/lighting_DBS_omni_vp.glsl";
-      createShader(m_program, filename.c_str(), GL_VERTEX_SHADER_ARB);
-      filename.clear();
-      filename << GlobalRadiant().getAppPath() << "gl/lighting_DBS_omni_fp.glsl";
-      createShader(m_program, filename.c_str(), GL_FRAGMENT_SHADER_ARB);
-    }
+    glBindAttribLocationARB(getProgram(), c_attr_TexCoord0, "attr_TexCoord0");
 
-    GLSLProgram_link(m_program);
-    GLSLProgram_validate(m_program);
-
-    glUseProgramObjectARB(m_program);
-    
-    glBindAttribLocationARB(m_program, c_attr_TexCoord0, "attr_TexCoord0");
-    glBindAttribLocationARB(m_program, c_attr_Tangent, "attr_Tangent");
-    glBindAttribLocationARB(m_program, c_attr_Binormal, "attr_Binormal");
-
-    glUniform1iARB(glGetUniformLocationARB(m_program, "u_DiffuseMap"), 0);
-    glUniform1iARB(glGetUniformLocationARB(m_program, "u_BumpMap"), 1);
-    glUniform1iARB(glGetUniformLocationARB(m_program, "u_SpecularMap"), 2);
-    glUniform1iARB(glGetUniformLocationARB(m_program, "u_AttenuationMapXY"), 3);
-    glUniform1iARB(glGetUniformLocationARB(m_program, "u_AttenuationMapZ"), 4);
-    
-    u_ViewOrigin = glGetUniformLocationARB(m_program, "u_ViewOrigin");
-    u_LightOrigin = glGetUniformLocationARB(m_program, "u_LightOrigin");
-    u_LightColor = glGetUniformLocationARB(m_program, "u_LightColor");
-    u_LightScale = glGetUniformLocationARB(m_program, "u_LightScale");
-    u_SpecularExponent = glGetUniformLocationARB(m_program, "u_SpecularExponent");
+    glUniform1iARB(glGetUniformLocationARB(getProgram(), "u_DiffuseMap"), 0);
+    glUniform1iARB(glGetUniformLocationARB(getProgram(), "u_AttenuationMapXY"), 3);
+    glUniform1iARB(glGetUniformLocationARB(getProgram(), "u_AttenuationMapZ"), 4);
 
     glUseProgramObjectARB(0);
 
     GlobalOpenGL_debugAssertNoErrors();
   }
 
-  void destroy()
+  void enable()
   {
-    glDeleteObjectARB(m_program);
-    m_program = 0;
+    glUseProgramObjectARB(getProgram());
+
+    glEnableVertexAttribArrayARB(c_attr_TexCoord0);
+
+    GlobalOpenGL_debugAssertNoErrors();
+
+    debug_string("enable diffuse");
+  }
+
+  void disable()
+  {
+    glUseProgramObjectARB(0);
+
+    glDisableVertexAttribArrayARB(c_attr_TexCoord0);
+
+    GlobalOpenGL_debugAssertNoErrors();
+
+    debug_string("disable diffuse");
+  }
+
+  void setParameters(const Vector3& viewer, const Matrix4& localToWorld, const Vector3& origin, const Vector3& colour, const Matrix4& world2light)
+  {
+    Matrix4 world2local(localToWorld);
+    matrix4_affine_invert(world2local);
+
+    Vector3 localLight(origin);
+    matrix4_transform_point(world2local, localLight);
+
+    Vector3 localViewer(viewer);
+    matrix4_transform_point(world2local, localViewer);
+
+    Matrix4 local2light(world2light);
+    matrix4_multiply_by_matrix4(local2light, localToWorld); // local->world->light
+
+	setUniform_LightOrigin(localLight);
+	setUniform_LightColor(colour);
+	setUniform_LightScale();
+
+    glActiveTexture(GL_TEXTURE3);
+    glClientActiveTexture(GL_TEXTURE3);
+
+    glMatrixMode(GL_TEXTURE);
+    glLoadMatrixf(reinterpret_cast<const float*>(&local2light));
+    glMatrixMode(GL_MODELVIEW);
+
+    GlobalOpenGL_debugAssertNoErrors();
+  }
+};
+GLSLProgram_lighting_D_omni *g_lighting_D_omni = NULL;
+
+
+class GLSLProgram_lighting_DB_omni :
+public GLSLProgram,
+public UniformLightOrigin,
+public UniformLightColor,
+public UniformLightScale
+{
+public:
+  GLSLProgram_lighting_DB_omni() :
+  GLSLProgram("lighting_DB_omni"),
+  UniformLightOrigin(getProgram()),
+  UniformLightColor(getProgram()),
+  UniformLightScale(getProgram())
+  {
+    glUseProgramObjectARB(getProgram());
+    
+    glBindAttribLocationARB(getProgram(), c_attr_TexCoord0, "attr_TexCoord0");
+    glBindAttribLocationARB(getProgram(), c_attr_Tangent, "attr_Tangent");
+    glBindAttribLocationARB(getProgram(), c_attr_Binormal, "attr_Binormal");
+
+    glUniform1iARB(glGetUniformLocationARB(getProgram(), "u_DiffuseMap"), 0);
+    glUniform1iARB(glGetUniformLocationARB(getProgram(), "u_BumpMap"), 1);
+    glUniform1iARB(glGetUniformLocationARB(getProgram(), "u_AttenuationMapXY"), 3);
+    glUniform1iARB(glGetUniformLocationARB(getProgram(), "u_AttenuationMapZ"), 4);
+
+    glUseProgramObjectARB(0);
+
+    GlobalOpenGL_debugAssertNoErrors();
   }
 
   void enable()
   {
-    glUseProgramObjectARB(m_program);
+    glUseProgramObjectARB(getProgram());
 
     glEnableVertexAttribArrayARB(c_attr_TexCoord0);
     glEnableVertexAttribArrayARB(c_attr_Tangent);
@@ -294,7 +487,6 @@ public:
     GlobalOpenGL_debugAssertNoErrors();
 
     debug_string("enable bump");
-    g_bumpGLSLPass_enabled = true;
   }
 
   void disable()
@@ -308,7 +500,6 @@ public:
     GlobalOpenGL_debugAssertNoErrors();
 
     debug_string("disable bump");
-    g_bumpGLSLPass_enabled = false;
   }
 
   void setParameters(const Vector3& viewer, const Matrix4& localToWorld, const Vector3& origin, const Vector3& colour, const Matrix4& world2light)
@@ -325,11 +516,9 @@ public:
     Matrix4 local2light(world2light);
     matrix4_multiply_by_matrix4(local2light, localToWorld); // local->world->light
 
-    glUniform3fARB(u_ViewOrigin, localViewer.x(), localViewer.y(), localViewer.z());
-    glUniform3fARB(u_LightOrigin, localLight.x(), localLight.y(), localLight.z());
-    glUniform3fARB(u_LightColor, colour.x(), colour.y(), colour.z());
-    glUniform1fARB(u_LightScale, 2.0);
-    glUniform1fARB(u_SpecularExponent, 16.0);
+    setUniform_LightOrigin(localLight);
+	setUniform_LightColor(colour);
+	setUniform_LightScale();
 
     glActiveTexture(GL_TEXTURE3);
     glClientActiveTexture(GL_TEXTURE3);
@@ -341,477 +530,130 @@ public:
     GlobalOpenGL_debugAssertNoErrors();
   }
 };
+GLSLProgram_lighting_DB_omni *g_lighting_DB_omni = NULL;
 
-GLSLBumpProgram g_bumpGLSL;
 
-
-class GLSLDepthFillProgram : public GLProgram
+class GLSLProgram_lighting_DBS_omni :
+public GLSLProgram,
+public UniformViewOrigin,
+public UniformLightOrigin,
+public UniformLightColor,
+public UniformLightScale,
+public UniformSpecularExponent
 {
 public:
-  GLhandleARB m_program;
-
-  void create()
+  GLSLProgram_lighting_DBS_omni() :
+  GLSLProgram("lighting_DBS_omni"),
+  UniformViewOrigin(getProgram()),
+  UniformLightOrigin(getProgram()),
+  UniformLightColor(getProgram()),
+  UniformLightScale(getProgram()),
+  UniformSpecularExponent(getProgram())
   {
-    // create program
-    m_program = glCreateProgramObjectARB();
+    glUseProgramObjectARB(getProgram());
+    
+    glBindAttribLocationARB(getProgram(), c_attr_TexCoord0, "attr_TexCoord0");
+    glBindAttribLocationARB(getProgram(), c_attr_Tangent, "attr_Tangent");
+    glBindAttribLocationARB(getProgram(), c_attr_Binormal, "attr_Binormal");
 
-    // create shader
-    {
-      StringOutputStream filename(256);
-      filename << GlobalRadiant().getAppPath() << "gl/zfill_vp.glsl";
-      createShader(m_program, filename.c_str(), GL_VERTEX_SHADER_ARB);
-      filename.clear();
-      filename << GlobalRadiant().getAppPath() << "gl/zfill_fp.glsl";
-      createShader(m_program, filename.c_str(), GL_FRAGMENT_SHADER_ARB);
-    }
+    glUniform1iARB(glGetUniformLocationARB(getProgram(), "u_DiffuseMap"), 0);
+    glUniform1iARB(glGetUniformLocationARB(getProgram(), "u_BumpMap"), 1);
+    glUniform1iARB(glGetUniformLocationARB(getProgram(), "u_SpecularMap"), 2);
+    glUniform1iARB(glGetUniformLocationARB(getProgram(), "u_AttenuationMapXY"), 3);
+    glUniform1iARB(glGetUniformLocationARB(getProgram(), "u_AttenuationMapZ"), 4);
 
-    GLSLProgram_link(m_program);
-    GLSLProgram_validate(m_program);
+    glUseProgramObjectARB(0);
 
     GlobalOpenGL_debugAssertNoErrors();
   }
 
-  void destroy()
-  {
-    glDeleteObjectARB(m_program);
-    m_program = 0;
-  }
   void enable()
   {
-    glUseProgramObjectARB(m_program);
+    glUseProgramObjectARB(getProgram());
+
+    glEnableVertexAttribArrayARB(c_attr_TexCoord0);
+    glEnableVertexAttribArrayARB(c_attr_Tangent);
+    glEnableVertexAttribArrayARB(c_attr_Binormal);
+
     GlobalOpenGL_debugAssertNoErrors();
-    debug_string("enable depthfill");
-    g_depthfillPass_enabled = true;
+
+    debug_string("enable specular bump");
   }
+
+  void disable()
+  {
+    glUseProgramObjectARB(0);
+
+    glDisableVertexAttribArrayARB(c_attr_TexCoord0);
+    glDisableVertexAttribArrayARB(c_attr_Tangent);
+    glDisableVertexAttribArrayARB(c_attr_Binormal);
+
+    GlobalOpenGL_debugAssertNoErrors();
+
+    debug_string("disable specular bump");
+  }
+
+  void setParameters(const Vector3& viewer, const Matrix4& localToWorld, const Vector3& origin, const Vector3& colour, const Matrix4& world2light)
+  {
+    Matrix4 world2local(localToWorld);
+    matrix4_affine_invert(world2local);
+
+    Vector3 localLight(origin);
+    matrix4_transform_point(world2local, localLight);
+
+    Vector3 localViewer(viewer);
+    matrix4_transform_point(world2local, localViewer);
+
+    Matrix4 local2light(world2light);
+    matrix4_multiply_by_matrix4(local2light, localToWorld); // local->world->light
+
+    setUniform_ViewOrigin(localViewer);
+    setUniform_LightOrigin(localLight);
+	setUniform_LightColor(colour);
+	setUniform_LightScale();
+    setUniform_SpecularExponent();
+
+    glActiveTexture(GL_TEXTURE3);
+    glClientActiveTexture(GL_TEXTURE3);
+
+    glMatrixMode(GL_TEXTURE);
+    glLoadMatrixf(reinterpret_cast<const float*>(&local2light));
+    glMatrixMode(GL_MODELVIEW);
+
+    GlobalOpenGL_debugAssertNoErrors();
+  }
+};
+GLSLProgram_lighting_DBS_omni *g_lighting_DBS_omni = NULL;
+
+
+class GLSLProgram_zfill :
+public GLSLProgram
+{
+public:
+  GLSLProgram_zfill() :
+  GLSLProgram("zfill")
+  {
+  }
+
+  void enable()
+  {
+    glUseProgramObjectARB(getProgram());
+    GlobalOpenGL_debugAssertNoErrors();
+    debug_string("enable zfill");
+  }
+  
   void disable()
   {
     glUseProgramObjectARB(0);
     GlobalOpenGL_debugAssertNoErrors();
-    debug_string("disable depthfill");
-    g_depthfillPass_enabled = false;
+    debug_string("disable zfill");
   }
+  
   void setParameters(const Vector3& viewer, const Matrix4& localToWorld, const Vector3& origin, const Vector3& colour, const Matrix4& world2light)
   {
   }
 };
-
-GLSLDepthFillProgram g_depthFillGLSL;
-
-// ARB path
-#if 0
-void createProgram(const char* filename, GLenum type)
-{
-  std::size_t size = file_size(filename);
-  FileInputStream file(filename);
-  ASSERT_MESSAGE(!file.failed(), "failed to open " << makeQuoted(filename));
-  Array<GLcharARB> buffer(size);
-  size = file.read(reinterpret_cast<StreamBase::byte_type*>(buffer.data()), size);
-
-  glProgramStringARB(type, GL_PROGRAM_FORMAT_ASCII_ARB, GLsizei(size), buffer.data());
-
-  if(GL_INVALID_OPERATION == glGetError())
-  {
-    GLint errPos;
-    glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errPos);
-    const GLubyte* errString = glGetString(GL_PROGRAM_ERROR_STRING_ARB);
-
-    globalErrorStream() << reinterpret_cast<const char*>(filename) << ":" <<  errPos << "\n" << reinterpret_cast<const char*>(errString);
-
-    ERROR_MESSAGE("error in gl program");
-  }
-}
-
-class ARBBumpProgram : public GLProgram
-{
-public:
-  GLuint m_vertex_program;
-  GLuint m_fragment_program;
-
-  void create()
-  {
-    glEnable(GL_VERTEX_PROGRAM_ARB);
-    glEnable(GL_FRAGMENT_PROGRAM_ARB);
-
-    {
-      glGenProgramsARB(1, &m_vertex_program);
-      glBindProgramARB(GL_VERTEX_PROGRAM_ARB, m_vertex_program);
-      StringOutputStream filename(256);
-      filename << GlobalRadiant().getAppPath() << "gl/lighting_DBS_omni_vp.glp";
-      createProgram(filename.c_str(), GL_VERTEX_PROGRAM_ARB);
-
-      glGenProgramsARB(1, &m_fragment_program);
-      glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, m_fragment_program);
-      filename.clear();
-      filename << GlobalRadiant().getAppPath() << "gl/lighting_DBS_omni_fp.glp";
-      createProgram(filename.c_str(), GL_FRAGMENT_PROGRAM_ARB);
-    }
-
-    glDisable(GL_VERTEX_PROGRAM_ARB);
-    glDisable(GL_FRAGMENT_PROGRAM_ARB);
-
-    GlobalOpenGL_debugAssertNoErrors();
-  }
-
-  void destroy()
-  {
-    glDeleteProgramsARB(1, &m_vertex_program);
-    glDeleteProgramsARB(1, &m_fragment_program);
-    GlobalOpenGL_debugAssertNoErrors();
-  }
-
-  void enable()
-  {
-    glEnable(GL_VERTEX_PROGRAM_ARB);
-    glEnable(GL_FRAGMENT_PROGRAM_ARB);
-    glBindProgramARB(GL_VERTEX_PROGRAM_ARB, m_vertex_program);
-    glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, m_fragment_program);
-
-    glEnableVertexAttribArrayARB(8);
-    glEnableVertexAttribArrayARB(9);
-    glEnableVertexAttribArrayARB(10);
-    glEnableVertexAttribArrayARB(11);
-
-    GlobalOpenGL_debugAssertNoErrors();
-  }
-
-  void disable()
-  {
-    glDisable(GL_VERTEX_PROGRAM_ARB);
-    glDisable(GL_FRAGMENT_PROGRAM_ARB);
-
-    glDisableVertexAttribArrayARB(8);
-    glDisableVertexAttribArrayARB(9);
-    glDisableVertexAttribArrayARB(10);
-    glDisableVertexAttribArrayARB(11);
-
-    GlobalOpenGL_debugAssertNoErrors();
-  }
-
-  void setParameters(const Vector3& viewer, const Matrix4& localToWorld, const Vector3& origin, const Vector3& colour, const Matrix4& world2light)
-  {
-    Matrix4 world2local(localToWorld);
-    matrix4_affine_invert(world2local);
-
-    Vector3 localLight(origin);
-    matrix4_transform_point(world2local, localLight);
-
-    Vector3 localViewer(viewer);
-    matrix4_transform_point(world2local, localViewer);
-
-    Matrix4 local2light(world2light);
-    matrix4_multiply_by_matrix4(local2light, localToWorld); // local->world->light
-
-    // view origin
-    glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 4, localViewer.x(), localViewer.y(), localViewer.z(), 0);
-
-    // light origin
-    glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 2, localLight.x(), localLight.y(), localLight.z(), 1);
-
-    // light colour
-    glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 3, colour.x(), colour.y(), colour.z(), 0);
-
-    // bump scale
-    glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 1, 1, 0, 0, 0);
-
-    // specular exponent
-    glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 5, 32, 0, 0, 0);
-
-
-    glActiveTexture(GL_TEXTURE3);
-    glClientActiveTexture(GL_TEXTURE3);
-
-    glMatrixMode(GL_TEXTURE);
-    glLoadMatrixf(reinterpret_cast<const float*>(&local2light));
-    glMatrixMode(GL_MODELVIEW);
-
-    GlobalOpenGL_debugAssertNoErrors();
-  }
-};
-
-class ARBDepthFillProgram : public GLProgram
-{
-public:
-  GLuint m_vertex_program;
-  GLuint m_fragment_program;
-
-  void create()
-  {
-    glEnable(GL_VERTEX_PROGRAM_ARB);
-    glEnable(GL_FRAGMENT_PROGRAM_ARB);
-
-    {
-      glGenProgramsARB(1, &m_vertex_program);
-      glBindProgramARB(GL_VERTEX_PROGRAM_ARB, m_vertex_program);
-      StringOutputStream filename(256);
-      filename << GlobalRadiant().getAppPath() << "gl/zfill_vp.glp";
-      createProgram(filename.c_str(), GL_VERTEX_PROGRAM_ARB);
-
-      glGenProgramsARB(1, &m_fragment_program);
-      glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, m_fragment_program);
-      filename.clear();
-      filename << GlobalRadiant().getAppPath() << "gl/zfill_fp.glp";
-      createProgram(filename.c_str(), GL_FRAGMENT_PROGRAM_ARB);
-    }
-
-    glDisable(GL_VERTEX_PROGRAM_ARB);
-    glDisable(GL_FRAGMENT_PROGRAM_ARB);
-
-    GlobalOpenGL_debugAssertNoErrors();
-  }
-
-  void destroy()
-  {
-    glDeleteProgramsARB(1, &m_vertex_program);
-    glDeleteProgramsARB(1, &m_fragment_program);
-    GlobalOpenGL_debugAssertNoErrors();
-  }
-
-  void enable()
-  {
-    glEnable(GL_VERTEX_PROGRAM_ARB);
-    glEnable(GL_FRAGMENT_PROGRAM_ARB);
-    glBindProgramARB(GL_VERTEX_PROGRAM_ARB, m_vertex_program);
-    glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, m_fragment_program);
-
-    GlobalOpenGL_debugAssertNoErrors();
-  }
-
-  void disable()
-  {
-    glDisable(GL_VERTEX_PROGRAM_ARB);
-    glDisable(GL_FRAGMENT_PROGRAM_ARB);
-
-    GlobalOpenGL_debugAssertNoErrors();
-  }
-
-  void setParameters(const Vector3& viewer, const Matrix4& localToWorld, const Vector3& origin, const Vector3& colour, const Matrix4& world2light)
-  {
-  }
-};
-
-ARBBumpProgram g_bumpARB;
-ARBDepthFillProgram g_depthFillARB;
-#endif
-
-#if 0
-// NV20 path (unfinished)
-
-void createProgram(GLint program, const char* filename, GLenum type)
-{
-  std::size_t size = file_size(filename);
-  FileInputStream file(filename);
-  ASSERT_MESSAGE(!file.failed(), "failed to open " << makeQuoted(filename));
-  Array<GLubyte> buffer(size);
-  size = file.read(reinterpret_cast<StreamBase::byte_type*>(buffer.data()), size);
-
-  glLoadProgramNV(type, program, GLsizei(size), buffer.data());
-
-  if(GL_INVALID_OPERATION == glGetError())
-  {
-    GLint errPos;
-    glGetIntegerv(GL_PROGRAM_ERROR_POSITION_NV, &errPos);
-    const GLubyte* errString = glGetString(GL_PROGRAM_ERROR_STRING_NV);
-
-    globalErrorStream() << filename << ":" <<  errPos << "\n" << errString;
-
-    ERROR_MESSAGE("error in gl program");
-  }
-}
-
-GLuint m_vertex_program;
-GLuint m_fragment_program;
-qtexture_t* g_cube = 0;
-qtexture_t* g_specular_lookup = 0;
-qtexture_t* g_attenuation_xy = 0;
-qtexture_t* g_attenuation_z = 0;
-
-void createVertexProgram()
-{
-  {
-    glGenProgramsNV(1, &m_vertex_program);
-    glBindProgramNV(GL_VERTEX_PROGRAM_NV, m_vertex_program);
-    StringOutputStream filename(256);
-    filename << GlobalRadiant().getAppPath() << "gl/lighting_DBS_omni_vp.nv30";
-    createProgram(m_vertex_program, filename.c_str(), GL_VERTEX_PROGRAM_NV);
-
-    glGenProgramsNV(1, &m_fragment_program);
-    glBindProgramNV(GL_FRAGMENT_PROGRAM_NV, m_fragment_program);
-    filename.clear();
-    filename << GlobalRadiant().getAppPath() << "gl/lighting_DBS_omni_fp.nv30";
-    createProgram(m_fragment_program, filename.c_str(), GL_FRAGMENT_PROGRAM_NV);
-  }
-
-  g_cube = GlobalTexturesCache().capture("generated/cube");
-  g_specular_lookup = GlobalTexturesCache().capture("generated/specular");
-
-  g_attenuation_xy = GlobalTexturesCache().capture("lights/squarelight1");
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, g_attenuation_xy->texture_number);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-  g_attenuation_z = GlobalTexturesCache().capture("lights/squarelight1a");
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, g_attenuation_z->texture_number);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-  GlobalOpenGL_debugAssertNoErrors();
-}
-
-void destroyVertexProgram()
-{
-  glDeleteProgramsNV(1, &m_vertex_program);
-  glDeleteProgramsNV(1, &m_fragment_program);
-  GlobalOpenGL_debugAssertNoErrors();
-
-  GlobalTexturesCache().release(g_cube);
-  GlobalTexturesCache().release(g_specular_lookup);
-  GlobalTexturesCache().release(g_attenuation_xy);
-  GlobalTexturesCache().release(g_attenuation_z);
-}
-
-bool g_vertexProgram_enabled = false;
-
-void enableVertexProgram()
-{
-	//set up the register combiners
-	//two general combiners
-	glCombinerParameteriNV(GL_NUM_GENERAL_COMBINERS_NV, 2);
-
-	//combiner 0 does tex0+tex1 -> spare0
-	glCombinerInputNV(GL_COMBINER0_NV, GL_RGB, GL_VARIABLE_A_NV, GL_TEXTURE0_ARB,
-						GL_UNSIGNED_IDENTITY_NV, GL_RGB);
-	glCombinerInputNV(GL_COMBINER0_NV, GL_RGB, GL_VARIABLE_B_NV, GL_ZERO,
-						GL_UNSIGNED_INVERT_NV, GL_RGB);
-	glCombinerInputNV(GL_COMBINER0_NV, GL_RGB, GL_VARIABLE_C_NV, GL_TEXTURE1_ARB,
-						GL_UNSIGNED_IDENTITY_NV, GL_RGB);
-	glCombinerInputNV(GL_COMBINER0_NV, GL_RGB, GL_VARIABLE_D_NV, GL_ZERO,
-						GL_UNSIGNED_INVERT_NV, GL_RGB);
-	glCombinerOutputNV(GL_COMBINER0_NV, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, GL_SPARE0_NV,
-						GL_NONE, GL_NONE, GL_FALSE, GL_FALSE, GL_FALSE);
-
-	//combiner 1 does tex2 dot tex3 -> spare1
-	glCombinerInputNV(GL_COMBINER1_NV, GL_RGB, GL_VARIABLE_A_NV, GL_TEXTURE2_ARB,
-						GL_EXPAND_NORMAL_NV, GL_RGB);
-	glCombinerInputNV(GL_COMBINER1_NV, GL_RGB, GL_VARIABLE_B_NV, GL_TEXTURE3_ARB,
-						GL_EXPAND_NORMAL_NV, GL_RGB);
-	glCombinerOutputNV(GL_COMBINER1_NV, GL_RGB, GL_SPARE1_NV, GL_DISCARD_NV, GL_DISCARD_NV,
-						GL_NONE, GL_NONE, GL_TRUE, GL_FALSE, GL_FALSE);
-
-
-
-	//final combiner outputs (1-spare0)*constant color 0*spare1
-	//do constant color 0*spare1 in the EF multiplier
-	glFinalCombinerInputNV(GL_VARIABLE_E_NV, GL_SPARE1_NV, GL_UNSIGNED_IDENTITY_NV, GL_RGB);
-	glFinalCombinerInputNV(GL_VARIABLE_F_NV, GL_CONSTANT_COLOR0_NV, GL_UNSIGNED_IDENTITY_NV, GL_RGB);
-	
-	//now do (1-spare0)*EF
-	glFinalCombinerInputNV(GL_VARIABLE_A_NV, GL_SPARE0_NV, GL_UNSIGNED_IDENTITY_NV, GL_RGB);
-	glFinalCombinerInputNV(GL_VARIABLE_B_NV, GL_ZERO, GL_UNSIGNED_IDENTITY_NV, GL_RGB);
-	glFinalCombinerInputNV(GL_VARIABLE_C_NV, GL_E_TIMES_F_NV, GL_UNSIGNED_IDENTITY_NV, GL_RGB);
-	glFinalCombinerInputNV(GL_VARIABLE_D_NV, GL_ZERO, GL_UNSIGNED_IDENTITY_NV, GL_RGB);
-
-  glEnable(GL_VERTEX_PROGRAM_NV);
-	glEnable(GL_REGISTER_COMBINERS_NV);
-  glBindProgramNV(GL_VERTEX_PROGRAM_NV, m_vertex_program);
-  glBindProgramNV(GL_FRAGMENT_PROGRAM_NV, m_fragment_program);
-
-  glActiveTexture(GL_TEXTURE0);
-  glEnable(GL_TEXTURE_2D);
-  glActiveTexture(GL_TEXTURE1);
-  glEnable(GL_TEXTURE_1D);
-  glActiveTexture(GL_TEXTURE2);
-  glEnable(GL_TEXTURE_2D);
-  glActiveTexture(GL_TEXTURE3);
-  glEnable(GL_TEXTURE_2D);
-
-  glEnableClientState(GL_VERTEX_ATTRIB_ARRAY8_NV);
-  glEnableClientState(GL_VERTEX_ATTRIB_ARRAY9_NV);
-  glEnableClientState(GL_VERTEX_ATTRIB_ARRAY10_NV);
-  glEnableClientState(GL_VERTEX_ATTRIB_ARRAY11_NV);
-
-  GlobalOpenGL_debugAssertNoErrors();
-  g_vertexProgram_enabled = true;
-}
-
-void disableVertexProgram()
-{
-  glDisable(GL_VERTEX_PROGRAM_NV);
-  glDisable(GL_REGISTER_COMBINERS_NV);
-
-  glActiveTexture(GL_TEXTURE0);
-  glDisable(GL_TEXTURE_2D);
-  glActiveTexture(GL_TEXTURE1);
-  glDisable(GL_TEXTURE_1D);
-  glActiveTexture(GL_TEXTURE2);
-  glDisable(GL_TEXTURE_2D);
-  glActiveTexture(GL_TEXTURE3);
-  glDisable(GL_TEXTURE_2D);
-
-  glDisableClientState(GL_VERTEX_ATTRIB_ARRAY8_NV);
-  glDisableClientState(GL_VERTEX_ATTRIB_ARRAY9_NV);
-  glDisableClientState(GL_VERTEX_ATTRIB_ARRAY10_NV);
-  glDisableClientState(GL_VERTEX_ATTRIB_ARRAY11_NV);
-
-  GlobalOpenGL_debugAssertNoErrors();
-  g_vertexProgram_enabled = false;
-}
-
-class GLstringNV
-{
-public:
-  const GLubyte* m_string;
-  const GLint m_length;
-  GLstringNV(const char* string) : m_string(reinterpret_cast<const GLubyte*>(string)), m_length(GLint(string_length(string)))
-  {
-  }
-};
-
-GLstringNV g_light_origin("light_origin");
-GLstringNV g_view_origin("view_origin");
-GLstringNV g_light_color("light_color");
-GLstringNV g_bumpGLSL_scale("bump_scale");
-GLstringNV g_specular_exponent("specular_exponent");
-
-void setVertexProgramEnvironment(const Vector3& localViewer)
-{
-  Matrix4 local2light(g_matrix4_identity);
-  matrix4_translate_by_vec3(local2light, Vector3(0.5, 0.5, 0.5));
-  matrix4_scale_by_vec3(local2light, Vector3(0.5, 0.5, 0.5));
-  matrix4_scale_by_vec3(local2light, Vector3(1.0 / 512.0, 1.0 / 512.0, 1.0 / 512.0));
-  matrix4_translate_by_vec3(local2light, vector3_negated(localViewer));
-
-  glActiveTexture(GL_TEXTURE3);
-  glClientActiveTexture(GL_TEXTURE3);
-
-  glMatrixMode(GL_TEXTURE);
-  glLoadMatrixf(reinterpret_cast<const float*>(&local2light));
-  glMatrixMode(GL_MODELVIEW);
-
-  glTrackMatrixNV(GL_VERTEX_PROGRAM_NV, 0, GL_MODELVIEW_PROJECTION_NV, GL_IDENTITY_NV);
-  glTrackMatrixNV(GL_VERTEX_PROGRAM_NV, 4, GL_TEXTURE0_ARB, GL_IDENTITY_NV);
-
-  // view origin
-  //qglProgramNamedParameter4fNV(m_fragment_program, g_view_origin.m_length, g_view_origin.m_string, localViewer.x(), localViewer.y(), localViewer.z(), 0);
-
-  // light origin
-  glProgramParameter4fNV(GL_VERTEX_PROGRAM_NV, 8, localViewer.x(), localViewer.y(), localViewer.z(), 1.0f);
-
-  // light colour
-  glCombinerParameterfNV(GL_CONSTANT_COLOR0_NV, 1, 1, 1, 1)
-
-  // bump scale
-  //qglProgramNamedParameter4fNV(m_fragment_program, g_bumpGLSL_scale.m_length, g_bumpGLSL_scale.m_string, 1, 0, 0, 0);
-
-  // specular exponent
-  //qglProgramNamedParameter4fNV(m_fragment_program, g_specular_exponent.m_length, g_specular_exponent.m_string, 32, 0, 0, 0);
-
-  GlobalOpenGL_debugAssertNoErrors();
-}
-
-#endif
-
+GLSLProgram_zfill *g_zfill = NULL;
 
 bool g_vertexArray_enabled = false;
 bool g_normalArray_enabled = false;
@@ -1435,14 +1277,11 @@ public:
       {
         if(useShaderLanguage())
         {
-          g_bumpGLSL.create();
-          g_depthFillGLSL.create();
+          g_lighting_D_omni = new GLSLProgram_lighting_D_omni();
+          g_lighting_DB_omni = new GLSLProgram_lighting_DB_omni();
+          g_lighting_DBS_omni = new GLSLProgram_lighting_DBS_omni();
+          g_zfill = new GLSLProgram_zfill();
         }
-        /*else
-        {
-          g_bumpARB.create();
-          g_depthFillARB.create();
-        }*/
       }
 
       for(Shaders::iterator i = m_shaders.begin(); i != m_shaders.end(); ++i)
@@ -1469,14 +1308,11 @@ public:
       {
         if(useShaderLanguage())
         {
-          g_bumpGLSL.destroy();
-          g_depthFillGLSL.destroy();
+          delete g_lighting_D_omni;
+          delete g_lighting_DB_omni;
+          delete g_lighting_DBS_omni;
+          delete g_zfill;
         }
-        /*else
-        {
-          g_bumpARB.destroy();
-          g_depthFillARB.destroy();
-        }*/
       }
     }
   }
@@ -1795,7 +1631,7 @@ void OpenGLState_apply(const OpenGLState& self, OpenGLState& current, unsigned i
 
   GlobalOpenGL_debugAssertNoErrors();
 
-  GLProgram* program = (state & RENDER_PROGRAM) != 0 ? self.m_program : 0;
+  GLSLProgram* program = (state & RENDER_PROGRAM) != 0 ? self.m_program : 0;
 
   if(program != current.m_program)
   {
@@ -2529,7 +2365,7 @@ void OpenGLShader::construct(const char* name)
     // construction from IShader
     m_shader = QERApp_Shader_ForName(name);
 
-    if(g_ShaderCache->lightingSupported() && g_ShaderCache->lightingEnabled() && m_shader->getBump() != 0 && m_shader->getBump()->texture_number != 0) // is a bump shader
+    if(g_ShaderCache->lightingSupported() && g_ShaderCache->lightingEnabled() && m_shader->getDiffuse() != 0 && m_shader->getDiffuse()->texture_number != 0)
     {
       state.m_state = RENDER_FILL | RENDER_CULLFACE | RENDER_TEXTURE | RENDER_DEPTHTEST | RENDER_DEPTHWRITE | RENDER_COLOURWRITE | RENDER_PROGRAM;
       state.m_colour[0] = 0;
@@ -2540,34 +2376,50 @@ void OpenGLShader::construct(const char* name)
 
       if(g_ShaderCache->useShaderLanguage())
       {
-        state.m_program = &g_depthFillGLSL;
+        state.m_program = g_zfill;
       }
-      /*else
+
+      OpenGLState& lightPass = appendDefaultPass();
+      
+      lightPass.m_state = RENDER_BLEND|RENDER_FILL|RENDER_CULLFACE|RENDER_DEPTHTEST|RENDER_COLOURWRITE|RENDER_SMOOTH|RENDER_BUMP|RENDER_PROGRAM;
+      
+      lightPass.m_texture = m_shader->getDiffuse()->texture_number;
+      
+      if(m_shader->getBump() != 0 && m_shader->getBump()->texture_number != 0 &&
+         m_shader->getSpecular() != 0 && m_shader->getSpecular()->texture_number != 0)
       {
-        state.m_program = &g_depthFillARB;
-      }*/
-
-      OpenGLState& bumpPass = appendDefaultPass();
-      bumpPass.m_texture = m_shader->getDiffuse()->texture_number;
-      bumpPass.m_texture1 = m_shader->getBump()->texture_number;
-      bumpPass.m_texture2 = m_shader->getSpecular()->texture_number;
-
-      bumpPass.m_state = RENDER_BLEND|RENDER_FILL|RENDER_CULLFACE|RENDER_DEPTHTEST|RENDER_COLOURWRITE|RENDER_SMOOTH|RENDER_BUMP|RENDER_PROGRAM;
-
-      if(g_ShaderCache->useShaderLanguage())
-      {
-        bumpPass.m_state |= RENDER_LIGHTING;
-        bumpPass.m_program = &g_bumpGLSL;
+      	lightPass.m_texture1 = m_shader->getBump()->texture_number;
+      	lightPass.m_texture2 = m_shader->getSpecular()->texture_number;
+      	
+      	if(g_ShaderCache->useShaderLanguage())
+        {
+          lightPass.m_state |= RENDER_LIGHTING;
+          lightPass.m_program = g_lighting_DBS_omni;
+        }
       }
-      /*else
+      else if(m_shader->getBump() != 0 && m_shader->getBump()->texture_number != 0)
       {
-        bumpPass.m_program = &g_bumpARB;
-      }*/
+      	lightPass.m_texture1 = m_shader->getBump()->texture_number;
+      	
+      	if(g_ShaderCache->useShaderLanguage())
+        {
+          lightPass.m_state |= RENDER_LIGHTING;
+          lightPass.m_program = g_lighting_DB_omni;
+        }
+      }
+      else
+      {
+      	if(g_ShaderCache->useShaderLanguage())
+        {
+          lightPass.m_state |= RENDER_LIGHTING;
+          lightPass.m_program = g_lighting_D_omni;
+        }
+      }
 
-      bumpPass.m_depthfunc = GL_LEQUAL;
-      bumpPass.m_sort = OpenGLState::eSortMultiFirst;
-      bumpPass.m_blend_src = GL_ONE;
-      bumpPass.m_blend_dst = GL_ONE;
+      lightPass.m_depthfunc = GL_LEQUAL;
+      lightPass.m_sort = OpenGLState::eSortMultiFirst;
+      lightPass.m_blend_src = GL_ONE;
+      lightPass.m_blend_dst = GL_ONE;
     }
     else
     {
