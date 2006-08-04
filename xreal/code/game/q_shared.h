@@ -1509,6 +1509,8 @@ typedef struct
 //=========================================================
 
 // bit field limits
+// Tr3B: NOTE: never go beyond 32 without recoding the delta compression of playerState_t
+// in msg.c
 #define	MAX_STATS				16
 #define	MAX_PERSISTANT			16
 #define	MAX_POWERUPS			16
