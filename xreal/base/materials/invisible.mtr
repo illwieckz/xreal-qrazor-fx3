@@ -181,17 +181,6 @@ textures/common/hint
 	hint
 }
 
-textures/common/skip
-{
-	qer_editorimage textures/common/skip.tga
-	qer_nocarve
-	qer_trans 0.40
-	
-	nonsolid
-	noshadows
-	structural
-}
-
 //==============================================================================
 // shadows
 //==============================================================================
@@ -522,6 +511,37 @@ textures/common/missileclip
 	noshadows
 }
 
+textures/common/weapclip
+{
+	qer_editorimage textures/common/weapclip.tga
+	qer_trans 0.40
+	
+	noshadows
+}
+
+textures/common/metalclip
+{
+	qer_editorimage textures/common/metalclip.tga
+	qer_trans 0.40
+	
+	nonsolid
+	noimpact
+	playerclip
+	noshadows
+	metalsteps
+}
+
+textures/common/botclip
+{
+	qer_editorimage textures/common/botclip.tga
+	qer_trans 0.40
+	
+	nonsolid
+	noimpact
+	noshadows
+	botclip
+}
+
 // a ladder brush is solid to players and monsters, but not missiles (11/06/01)
 // players can climb ladder brushes
 textures/common/ladder
@@ -545,7 +565,7 @@ textures/common/ladder
 
 textures/common/origin
 {
-	qer_editorimage textures/common/missileclip.tga
+	qer_editorimage textures/common/origin.tga
 	qer_nocarve
 	
 	nonsolid
