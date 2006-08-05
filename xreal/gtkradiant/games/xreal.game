@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <game
-  type="doom3"
+  type="xreal"
   index="1"
   name="XreaL"
   enginepath_win32="C:/Program Files/XreaL/"
