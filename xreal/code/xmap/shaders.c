@@ -744,7 +744,9 @@ static void ParseShaderFile(const char *filename)
 		if(!si->hasPasses)
 		{
 			qprintf("shader '%s' has no passes\n", si->shader);
+			si->surfaceFlags |= SURF_NOMARKS;
 			si->surfaceFlags |= SURF_NODRAW;
+			si->surfaceFlags |= SURF_NOLIGHTMAP;
 
 			if(!si->forceOpaque)
 			{
