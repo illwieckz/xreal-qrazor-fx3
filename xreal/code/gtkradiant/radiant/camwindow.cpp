@@ -1752,7 +1752,7 @@ void CamWnd_registerShortcuts()
 {
   toggle_add_accelerator("ToggleCubicClip");
   
-  if(g_pGameDescription->mGameType == "doom3")
+  if(g_pGameDescription->mGameType == "doom3" || g_pGameDescription->mGameType == "xreal")
   {
     command_connect_accelerator("TogglePreview");
   }
@@ -1790,7 +1790,7 @@ void CamWnd_TogglePreview(void)
   // gametype must be doom3 for this function to work
   // if the gametype is not doom3 something is wrong with the
   // global command list or somebody else calls this function.
-  ASSERT_MESSAGE(g_pGameDescription->mGameType == "doom3", "CamWnd_TogglePreview called although mGameType is not doom3 compatible");
+  //ASSERT_MESSAGE(g_pGameDescription->mGameType == "doom3", "CamWnd_TogglePreview called although mGameType is not doom3 compatible");
 
   // switch between textured and lighting mode
   CamWnd_SetMode((CamWnd_GetMode() == cd_lighting) ? cd_texture : cd_lighting);
@@ -1906,7 +1906,7 @@ void Camera_constructPreferences(PreferencesPage& page)
     BoolExportCaller(g_camwindow_globals_private.m_bCubicClipping)
   );
 
-  if(g_pGameDescription->mGameType == "doom3")
+  if(g_pGameDescription->mGameType == "doom3" || g_pGameDescription->mGameType == "xreal")
   {
     const char* render_mode[] = { "Wireframe", "Flatshade", "Textured", "Lighting" };
 
@@ -1961,7 +1961,7 @@ void CamWnd_Construct()
   GlobalCommands_insert("LookThroughSelected", FreeCaller<GlobalCamera_LookThroughSelected>());
   GlobalCommands_insert("LookThroughCamera", FreeCaller<GlobalCamera_LookThroughCamera>());
 
-  if(g_pGameDescription->mGameType == "doom3")
+  if(g_pGameDescription->mGameType == "doom3" || g_pGameDescription->mGameType == "xreal")
   {
     GlobalCommands_insert("TogglePreview", FreeCaller<CamWnd_TogglePreview>(), Accelerator(GDK_F3));
   }

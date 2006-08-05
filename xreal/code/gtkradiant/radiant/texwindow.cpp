@@ -294,7 +294,7 @@ void TextureGroupsMenu_Construct()
   else
   {
     // scan texture dirs and pak files only if not restricting to shaderlist
-    if(g_pGameDescription->mGameType != "doom3" && !g_TexturesMenu_shaderlistOnly)
+    if(g_pGameDescription->mGameType != "doom3" && g_pGameDescription->mGameType != "xreal" && !g_TexturesMenu_shaderlistOnly)
     {
       GlobalFileSystem().forEachDirectory("textures/", TextureGroupsAddDirectoryCaller(groups));
     }
@@ -912,7 +912,7 @@ void TextureBrowser_ShowDirectory(TextureBrowser& textureBrowser, const char* di
     GlobalShaderSystem().foreachShaderName(makeCallback1(TextureCategoryLoadShader(directory, shaders_count)));
     globalOutputStream() << "Showing " << Unsigned(shaders_count) << " shaders.\n";
 
-    if(g_pGameDescription->mGameType != "doom3")
+    if(g_pGameDescription->mGameType != "doom3" && g_pGameDescription->mGameType != "xreal")
     {
       // load remaining texture files
 

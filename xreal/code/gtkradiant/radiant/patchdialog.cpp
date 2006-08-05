@@ -785,7 +785,7 @@ GtkWindow* PatchInspector::BuildDialog()
             }
           }
         }
-        if(g_pGameDescription->mGameType == "doom3")
+        if(g_pGameDescription->mGameType == "doom3" || g_pGameDescription->mGameType == "xreal")
         {
           GtkFrame* frame = GTK_FRAME(gtk_frame_new("Tesselation"));
           gtk_widget_show(GTK_WIDGET(frame));
@@ -1090,7 +1090,7 @@ void PatchInspector::importData()
 // read the map and feed in the stuff to the dialog box
 void PatchInspector::GetPatchInfo()
 {
-  if(g_pGameDescription->mGameType == "doom3")
+  if(g_pGameDescription->mGameType == "doom3" || g_pGameDescription->mGameType == "xreal")
   {
     m_subdivisions.update();
   }

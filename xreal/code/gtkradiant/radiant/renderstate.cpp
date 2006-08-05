@@ -1503,7 +1503,7 @@ void ShaderCache_Construct()
   GlobalTexturesCache().attach(*g_ShaderCache);
   GlobalShaderSystem().attach(*g_ShaderCache);
 
-  if(g_pGameDescription->mGameType == "doom3")
+  if(g_pGameDescription->mGameType == "doom3" || g_pGameDescription->mGameType == "xreal")
   {
     g_defaultPointLight = g_ShaderCache->capture("lights/defaultPointLight");
     //Shader* overbright =
@@ -1542,7 +1542,7 @@ void ShaderCache_Construct()
 
 void ShaderCache_Destroy()
 {
-  if(g_pGameDescription->mGameType == "doom3")
+  if(g_pGameDescription->mGameType == "doom3" || g_pGameDescription->mGameType == "xreal")
   {
     g_ShaderCache->release("lights/defaultPointLight");
     g_ShaderCache->release("$OVERBRIGHT");

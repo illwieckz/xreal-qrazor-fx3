@@ -264,7 +264,7 @@ void Entity_createFromSelection(const char* name, const Vector3& origin)
   }
   else
   {
-    if (g_pGameDescription->mGameType == "doom3")
+    if (g_pGameDescription->mGameType == "doom3" || g_pGameDescription->mGameType == "xreal")
     {
       Node_getEntity(node)->setKeyValue("model", Node_getEntity(node)->getKeyValue("name"));
     }
@@ -296,7 +296,7 @@ void Entity_createFromSelection(const char* name, const Vector3& origin)
   }
   else if(string_equal_nocase(name, "light"))
   {
-    if(g_pGameDescription->mGameType != "doom3")
+    if(g_pGameDescription->mGameType != "doom3" && g_pGameDescription->mGameType != "xreal")
     {
       int intensity = g_iLastLightIntensity;
 
@@ -384,7 +384,7 @@ void Entity_setColour()
         }
       }
 
-      if(g_pGameDescription->mGameType == "doom3"
+      if((g_pGameDescription->mGameType == "doom3" || g_pGameDescription->mGameType == "xreal")
         ? color_dialog(GTK_WIDGET(MainFrame_getWindow()), g_entity_globals.color_entity)
         : DoNormalisedColor(g_entity_globals.color_entity))
       {
