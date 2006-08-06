@@ -2772,7 +2772,8 @@ infoParm_t	infoParms[] = {
 	{"structural",		0,	0,	CONTENTS_STRUCTURAL},	// force into structural bsp even if trnas
 	{"areaportal",		1,	0,	CONTENTS_AREAPORTAL},	// divides areas
 	{"clusterportal",	1,	0,  CONTENTS_CLUSTERPORTAL},	// for bots
-	{"donotenter",  	1,  0,  CONTENTS_DONOTENTER},		// for bots
+	{"donotenter",  	1,  0,  CONTENTS_DONOTENTER},	// for bots
+	{"botclip",			1,  0,  CONTENTS_BOTCLIP},		// for bots
 
 	{"fog",				1,	0,	CONTENTS_FOG},			// carves surfaces entering
 	{"sky",				0,	SURF_SKY,		0},			// emit light from an environment map
