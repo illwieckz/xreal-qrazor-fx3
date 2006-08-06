@@ -313,7 +313,7 @@ textures/common/trigair
 // trigger entities use this material
 textures/common/trigentityname
 {
-	qer_editorimage textures/common/trigentityname.tga
+	qer_editorimage textures/common/trigentity.tga
 	qer_nocarve		// don't let an awry CSG operation cut it up
 	qer_trans 0.5
 	
@@ -324,7 +324,7 @@ textures/common/trigentityname
 // trigger entities use this material
 textures/common/trigentityname_once
 {
-	qer_editorimage textures/common/trigentityname_once.tga
+	qer_editorimage textures/common/trigentity.tga
 	qer_nocarve		// don't let an awry CSG operation cut it up
 	qer_trans 0.5
 	
@@ -335,7 +335,7 @@ textures/common/trigentityname_once
 // flashlight trigger entities use this material
 textures/common/trigflashlight
 {
-	qer_editorimage textures/common/trigflashlight.tga
+	qer_editorimage textures/common/trigflash.tga
 	qer_nocarve		// don't let an awry CSG operation cut it up
 	qer_trans 0.5
 	
@@ -389,7 +389,7 @@ textures/common/full_clip
 // a player clip brush is solid to players only, not monsters or anything else
 textures/common/player_clip
 {
-	qer_editorimage textures/common/player_clip.tga
+	qer_editorimage textures/common/clip.tga
 	qer_trans 0.5
 	
 	noimpact
