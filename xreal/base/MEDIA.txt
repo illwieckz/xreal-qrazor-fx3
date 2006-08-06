@@ -1,4 +1,4 @@
-This file lists the contents of the xreal.pk3 and it shows information about each file.
+This file lists the contents of the XreaL.pk3 and it shows information about each file.
 Here you can see which files are from id Software that need to be replaced.
 
 
@@ -1502,18 +1502,25 @@ textures/common/areaportal.tga								William "SPoG" Joseph		custom					http://z
 textures/common/botclip.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
 textures/common/caulk.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
 textures/common/clip.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/clipplus.tga								Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 textures/common/clusterportal.tga							William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/collision.tga								Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 textures/common/cushion.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
 textures/common/donotenter.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
 textures/common/full_clip.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
 textures/common/guisurface.tga								Eutectic					custom					http://www.pcgamemods.com/mod/9082.html
 textures/common/hint.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/ikclip.tga									Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 textures/common/invisible.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/ladder.tga									Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 textures/common/lightgrid.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
 textures/common/metalclip.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
-textures/common/mirror1.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/mirror1.tga									Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 textures/common/missileclip.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/monster_clip.tga							Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+textures/common/moveable_clip.tga							Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 textures/common/nodrawnonsolid.tga							William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/nodrawsolid.tga								Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 textures/common/nodraw.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
 textures/common/nodrop.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
 textures/common/noimpact.tga								Eutectic					custom					http://www.pcgamemods.com/mod/9082.html
@@ -1524,13 +1531,19 @@ textures/common/overdraw.tga								Eutectic					custom					http://www.pcgamemod
 textures/common/particle.tga								Eutectic					custom					http://www.pcgamemods.com/mod/9082.html
 textures/common/qer_mirror.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
 textures/common/qer_portal.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
+textures/common/shadow.tga									Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 textures/common/slick.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
 textures/common/speaker.tga									Eutectic					custom					http://www.pcgamemods.com/mod/9082.html
 textures/common/terrain.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
 textures/common/trigair.tga									Eutectic					custom					http://www.pcgamemods.com/mod/9082.html
+textures/common/trigentity.tga								Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 textures/common/trigfade.tga								Eutectic					custom					http://www.pcgamemods.com/mod/9082.html
+textures/common/trigflash.tga								Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 textures/common/trigger.tga									William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
 textures/common/triggui.tga									Eutectic					custom					http://www.pcgamemods.com/mod/9082.html
+textures/common/trighurt.tga								Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+textures/common/trigmulti.tga								Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+textures/common/trigonce.tga								Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 textures/common/trigrelay.tga								Eutectic					custom					http://www.pcgamemods.com/mod/9082.html
 textures/common/trigtimer.tga								Eutectic					custom					http://www.pcgamemods.com/mod/9082.html
 textures/common/weapclip.tga								William "SPoG" Joseph		custom					http://zerowing.idsoftware.com
