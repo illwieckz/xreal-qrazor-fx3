@@ -325,7 +325,6 @@ void OnlyEnts(void)
 
 	LoadMapFile(name);
 	SetModelNumbers();
-	SetLightStyles();
 
 	UnparseEntities();
 
@@ -609,7 +608,6 @@ int main(int argc, char **argv)
 	ProcessModels();
 	
 	SetModelNumbers();
-	SetLightStyles();
 
 	EndBSPFile();
 

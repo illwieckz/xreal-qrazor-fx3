@@ -371,7 +371,6 @@ void            WritePortalFile(tree_t * tree);
 // writebsp.c
 
 void            SetModelNumbers(void);
-void            SetLightStyles(void);
 
 int             EmitShader(const char *shader);
 void            EmitBrushes(bspbrush_t * brushes);
