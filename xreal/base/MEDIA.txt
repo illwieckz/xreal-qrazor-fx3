@@ -878,6 +878,15 @@ models/weapons2/shotgun/shotgun_flash.md3					id Software					EULA					q3test-ih
 models/weapons2/shotgun/shotgun_hand.md3					id Software					EULA					q3test-ihv
 models/weapons2/shotgun/shotgun_laser.jpg					id Software					EULA					q3test-ihv
 models/weapons2/shotgun/shotgun.md3							id Software					EULA					q3test-ihv
+models/zogg/jump_pad/jump_pad.ase							Ryan "Quaker-X" Rutherford	custom					www.planetquake.com/quakerx
+models/zogg/jump_pad/jump_pad_d.tga							Ryan "Quaker-X" Rutherford	custom					www.planetquake.com/quakerx
+models/zogg/jump_pad/jump_pad_g2.tga						Ryan "Quaker-X" Rutherford	custom					www.planetquake.com/quakerx
+models/zogg/jump_pad/jump_pad_g3.tga						Ryan "Quaker-X" Rutherford	custom					www.planetquake.com/quakerx
+models/zogg/jump_pad/jump_pad_g.tga							Ryan "Quaker-X" Rutherford	custom					www.planetquake.com/quakerx
+models/zogg/jump_pad/jump_pad_h.tga							Ryan "Quaker-X" Rutherford	custom					www.planetquake.com/quakerx
+models/zogg/jump_pad/jump_pad_local.tga						Ryan "Quaker-X" Rutherford	custom					www.planetquake.com/quakerx
+models/zogg/jump_pad/jump_pad_mask.tga						Ryan "Quaker-X" Rutherford	custom					www.planetquake.com/quakerx
+models/zogg/jump_pad/jump_pad_s.tga							Ryan "Quaker-X" Rutherford	custom					www.planetquake.com/quakerx
 music/fla_mp01.wav											id Software					EULA					tademo
 music/fla_mp03.wav											id Software					EULA					tademo
 music/sonic1.wav											id Software					EULA					tademo
