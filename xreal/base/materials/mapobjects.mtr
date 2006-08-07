@@ -10067,7 +10067,7 @@ models/mapobjects/steve_temp/stetile1grnstone1
 
 
 // XreaL additions by QuakerX
-jumppadtable { snap { 2, 1.95, 1.85, 1.75, 1.65, 1.55, 1.45, 1.35, 1.25, 1.15 , 1.05, 1, .95, .85, .75, .65, .55, .45, .35, .25, .15 , .05} }
+table jumppadtable { snap { 2, 1.95, 1.85, 1.75, 1.65, 1.55, 1.45, 1.35, 1.25, 1.15 , 1.05, 1, .95, .85, .75, .65, .55, .45, .35, .25, .15 , .05} }
 
 models/zogg/jump_pad/jump_pad
 {
