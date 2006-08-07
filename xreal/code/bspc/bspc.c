@@ -1015,7 +1015,7 @@ int main(int argc, char **argv)
 				  "Example 2: bspc -bsp2aas /quake3/baseq3/pak0.pk3/maps/q3dm*.bsp\n"
 #endif
 				  "\n" "Switches:\n"
-				  //"   bsp2map  <[pakfilter/]filter.bsp>    = convert BSP to MAP\n"
+				  "   bsp2map  <[pakfilter/]filter.bsp>    = convert BSP to MAP\n"
 				  //"   aasall   <quake3folder>              = create AAS files for all BSPs\n"
 				  "   bsp2aas  <[pakfilter/]filter.bsp>    = convert BSP to AAS\n"
 				  "   reach    <filter.bsp>                = compute reachability & clusters\n"
