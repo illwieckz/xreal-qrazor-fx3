@@ -319,10 +319,10 @@ void G_FindTeams(void)
 				e2->flags |= FL_TEAMSLAVE;
 
 				// make sure that targets only point at the master
-				if(e2->targetname)
+				if(e2->name)
 				{
-					e->targetname = e2->targetname;
-					e2->targetname = NULL;
+					e->name = e2->name;
+					e2->name = NULL;
 				}
 			}
 		}

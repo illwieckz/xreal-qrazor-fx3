@@ -108,14 +108,13 @@ typedef struct
 
 field_t         fields[] = {
 	{"classname", FOFS(classname), F_LSTRING},
-	{"name", FOFS(targetname), F_LSTRING},	// Tr3B - every Doom3 entity provides a name
 	{"origin", FOFS(s.origin), F_VECTOR},
 	{"model", FOFS(model), F_LSTRING},
 	{"model2", FOFS(model2), F_LSTRING},
 	{"spawnflags", FOFS(spawnflags), F_INT},
 	{"speed", FOFS(speed), F_FLOAT},
 	{"target", FOFS(target), F_LSTRING},
-	{"targetname", FOFS(targetname), F_LSTRING},
+	{"name", FOFS(name), F_LSTRING},
 	{"message", FOFS(message), F_LSTRING},
 	{"team", FOFS(team), F_LSTRING},
 	{"wait", FOFS(wait), F_FLOAT},
@@ -334,9 +333,9 @@ qboolean G_CallSpawn(gentity_t * ent)
 		if(!strcmp(s->name, ent->classname))
 		{
 			// found it
-			if(ent->targetname)
+			if(ent->name)
 			{
-				G_Printf("...spawning %s\n", ent->targetname);
+				G_Printf("...spawning %s\n", ent->name);
 			}
 			else
 			{

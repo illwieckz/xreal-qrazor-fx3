@@ -479,7 +479,7 @@ entity_t       *FindTargetEntity(const char *target)
 
 	for(i = 0; i < num_entities; i++)
 	{
-		n = ValueForKey(&entities[i], "targetname");
+		n = ValueForKey(&entities[i], "name");
 		if(!strcmp(n, target))
 		{
 			return &entities[i];

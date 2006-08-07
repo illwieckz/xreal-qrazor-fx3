@@ -473,19 +473,19 @@ mapbrush_t     *AAS_CopyMapBrush(mapbrush_t * brush, entity_t * mapent)
 //===========================================================================
 int             mark_entities[MAX_MAP_ENTITIES];
 
-int AAS_AlwaysTriggered_r(char *targetname)
+int AAS_AlwaysTriggered_r(char *name)
 {
 	int             i;
 
-	if(!strlen(targetname))
+	if(!strlen(name))
 	{
 		return false;
 	}
 	//
 	for(i = 0; i < num_entities; i++)
 	{
-		// if the entity will activate the given targetname
-		if(!strcmp(targetname, ValueForKey(&entities[i], "target")))
+		// if the entity will activate the given name
+		if(!strcmp(name, ValueForKey(&entities[i], "target")))
 		{
 			// if this activator is present in deathmatch
 			if(!(atoi(ValueForKey(&entities[i], "spawnflags")) & SPAWNFLAG_NOT_DEATHMATCH))
@@ -498,12 +498,12 @@ int AAS_AlwaysTriggered_r(char *targetname)
 				// check for possible trigger_always entities activating this entity
 				if(mark_entities[i])
 				{
-					Warning("entity %d, classname %s has recursive targetname %s\n", i,
-							ValueForKey(&entities[i], "classname"), targetname);
+					Warning("entity %d, classname %s has recursive name %s\n", i,
+							ValueForKey(&entities[i], "classname"), name);
 					return false;
 				}
 				mark_entities[i] = true;
-				if(AAS_AlwaysTriggered_r(ValueForKey(&entities[i], "targetname")))
+				if(AAS_AlwaysTriggered_r(ValueForKey(&entities[i], "name")))
 				{
 					return true;
 				}
@@ -513,10 +513,10 @@ int AAS_AlwaysTriggered_r(char *targetname)
 	return false;
 }
 
-int AAS_AlwaysTriggered(char *targetname)
+int AAS_AlwaysTriggered(char *name)
 {
 	memset(mark_entities, 0, sizeof(mark_entities));
-	return AAS_AlwaysTriggered_r(targetname);
+	return AAS_AlwaysTriggered_r(name);
 }
 
 //===========================================================================
@@ -552,9 +552,9 @@ int AAS_ValidEntity(entity_t * mapent)
 		if(!(atoi(ValueForKey(mapent, "spawnflags")) & SPAWNFLAG_NOT_DEATHMATCH))
 		{
 			//if the func_door_rotating is always activated in deathmatch
-			if(AAS_AlwaysTriggered(ValueForKey(mapent, "targetname")))
+			if(AAS_AlwaysTriggered(ValueForKey(mapent, "name")))
 			{
-				//Log_Print("found func_door_rotating in deathmatch\ntargetname %s\n", ValueForKey(mapent, "targetname"));
+				//Log_Print("found func_door_rotating in deathmatch\nname %s\n", ValueForKey(mapent, "name"));
 				return true;
 			}					//end if
 		}						//end if
@@ -574,8 +574,8 @@ int AAS_ValidEntity(entity_t * mapent)
 		strcpy(target, ValueForKey(mapent, "target"));
 		for(i = 0; i < num_entities; i++)
 		{
-			//if the entity will activate the given targetname
-			if(!strcmp(target, ValueForKey(&entities[i], "targetname")))
+			//if the entity will activate the given name
+			if(!strcmp(target, ValueForKey(&entities[i], "name")))
 			{
 				if(!strcmp("target_teleporter", ValueForKey(&entities[i], "classname")))
 				{

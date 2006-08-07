@@ -388,16 +388,7 @@ epair_t        *ParseEpair(void)
 	{
 		Error("ParseEpar: token too long");
 	}
-	
-	// HACK: convert Doom3 "name" keys to "targetname" keys
-	if(!Q_stricmp("name", token))
-	{
-		e->key = copystring("targetname");
-	}
-	else
-	{
-		e->key = copystring(token);	
-	}
+	e->key = copystring(token);
 	
 	GetToken(qfalse);
 	if(strlen(token) >= MAX_VALUE - 1)

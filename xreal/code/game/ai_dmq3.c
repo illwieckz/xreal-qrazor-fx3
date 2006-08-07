@@ -4806,7 +4806,7 @@ int BotGetActivateGoal(bot_state_t * bs, int entitynum, bot_activategoal_t * act
 	char            model[MAX_INFO_STRING], tmpmodel[128];
 	char            target[128], classname[128];
 	float           health;
-	char            targetname[10][128];
+	char            name[10][128];
 	aas_entityinfo_t entinfo;
 	aas_areainfo_t  areainfo;
 	vec3_t          origin, angles, absmins, absmaxs;
@@ -4906,12 +4906,12 @@ int BotGetActivateGoal(bot_state_t * bs, int entitynum, bot_activategoal_t * act
 	{
 		return 0;
 	}
-	// get the targetname so we can find an entity with a matching target
-	if(!trap_AAS_ValueForBSPEpairKey(ent, "targetname", targetname[0], sizeof(targetname[0])))
+	// get the name so we can find an entity with a matching target
+	if(!trap_AAS_ValueForBSPEpairKey(ent, "name", name[0], sizeof(name[0])))
 	{
 		if(bot_developer.integer)
 		{
-			BotAI_Print(PRT_ERROR, "BotGetActivateGoal: entity with model \"%s\" has no targetname\n", model);
+			BotAI_Print(PRT_ERROR, "BotGetActivateGoal: entity with model \"%s\" has no name\n", model);
 		}
 		return 0;
 	}
@@ -4923,7 +4923,7 @@ int BotGetActivateGoal(bot_state_t * bs, int entitynum, bot_activategoal_t * act
 		{
 			if(!trap_AAS_ValueForBSPEpairKey(ent, "target", target, sizeof(target)))
 				continue;
-			if(!strcmp(targetname[i], target))
+			if(!strcmp(name[i], target))
 			{
 				cur_entities[i] = trap_AAS_NextBSPEntity(ent);
 				break;
@@ -4933,7 +4933,7 @@ int BotGetActivateGoal(bot_state_t * bs, int entitynum, bot_activategoal_t * act
 		{
 			if(bot_developer.integer)
 			{
-				BotAI_Print(PRT_ERROR, "BotGetActivateGoal: no entity with target \"%s\"\n", targetname[i]);
+				BotAI_Print(PRT_ERROR, "BotGetActivateGoal: no entity with target \"%s\"\n", name[i]);
 			}
 			i--;
 			continue;
@@ -4942,7 +4942,7 @@ int BotGetActivateGoal(bot_state_t * bs, int entitynum, bot_activategoal_t * act
 		{
 			if(bot_developer.integer)
 			{
-				BotAI_Print(PRT_ERROR, "BotGetActivateGoal: entity with target \"%s\" has no classname\n", targetname[i]);
+				BotAI_Print(PRT_ERROR, "BotGetActivateGoal: entity with target \"%s\" has no classname\n", name[i]);
 			}
 			continue;
 		}
@@ -5008,7 +5008,7 @@ int BotGetActivateGoal(bot_state_t * bs, int entitynum, bot_activategoal_t * act
 		// the actual button or trigger might be linked through a target_relay or target_delay
 		else if(!strcmp(classname, "target_relay") || !strcmp(classname, "target_delay"))
 		{
-			if(trap_AAS_ValueForBSPEpairKey(ent, "targetname", targetname[i + 1], sizeof(targetname[0])))
+			if(trap_AAS_ValueForBSPEpairKey(ent, "name", name[i + 1], sizeof(name[0])))
 			{
 				i++;
 				cur_entities[i] = trap_AAS_NextBSPEntity(0);
@@ -5016,7 +5016,7 @@ int BotGetActivateGoal(bot_state_t * bs, int entitynum, bot_activategoal_t * act
 		}
 	}
 #ifdef OBSTACLEDEBUG
-	BotAI_Print(PRT_ERROR, "BotGetActivateGoal: no valid activator for entity with target \"%s\"\n", targetname[0]);
+	BotAI_Print(PRT_ERROR, "BotGetActivateGoal: no valid activator for entity with target \"%s\"\n", name[0]);
 #endif
 	return 0;
 }

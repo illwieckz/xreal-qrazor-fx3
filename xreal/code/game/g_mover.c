@@ -1058,7 +1058,7 @@ NOMONSTER	monsters will not trigger this door
 
 "model2"	.md3 model to also draw
 "movedir"	determines the opening direction
-"targetname" if set, no touch field will be spawned and a remote button or trigger field activates the door.
+"name" if set, no touch field will be spawned and a remote button or trigger field activates the door.
 "speed"		movement speed (100 default)
 "wait"		wait before returning (3 default, -1 = never return)
 "lip"		lip remaining at end of move (8 default)
@@ -1141,7 +1141,7 @@ void SP_func_door(gentity_t * ent)
 
 		G_SpawnInt("health", "0", &health);
 		
-		// Tr3B - Doom3 entities have always a targetname
+		// Tr3B - Doom3 entities have always a name
 		if(health)
 		{
 			ent->takedamage = qtrue;
@@ -1306,8 +1306,8 @@ void SP_func_plat(gentity_t * ent)
 
 	// spawn the trigger if one hasn't been custom made
 	
-	// Tr3B - Doom3 entities have always a targetname
-	//if(!ent->targetname)
+	// Tr3B - Doom3 entities have always a name
+	//if(!ent->name)
 	{
 		SpawnPlatTrigger(ent);
 	}
@@ -1347,7 +1347,7 @@ When a button is touched, it moves some distance in the direction of it's angle,
 
 "model2"	.md3 model to also draw
 "movedir"	determines the opening direction
-"target"	all entities with a matching targetname will be used
+"target"	all entities with a matching name will be used
 "speed"		override the default 40 speed
 "wait"		override the default 1 second wait (-1 = never return)
 "lip"		override the default 4 pixel lip remaining at end of move
@@ -1512,7 +1512,7 @@ void Think_SetupTrainTargets(gentity_t * ent)
 {
 	gentity_t      *path, *next, *start;
 
-	ent->nextTrain = G_Find(NULL, FOFS(targetname), ent->target);
+	ent->nextTrain = G_Find(NULL, FOFS(name), ent->target);
 	if(!ent->nextTrain)
 	{
 		G_Printf("func_train at %s with an unfound target\n", vtos(ent->r.absmin));
@@ -1539,7 +1539,7 @@ void Think_SetupTrainTargets(gentity_t * ent)
 		next = NULL;
 		do
 		{
-			next = G_Find(next, FOFS(targetname), path->target);
+			next = G_Find(next, FOFS(name), path->target);
 			if(!next)
 			{
 				G_Printf("Train corner at %s without a target path_corner\n", vtos(path->s.origin));
@@ -1564,9 +1564,9 @@ Target: next path corner and other targets to fire
 */
 void SP_path_corner(gentity_t * self)
 {
-	if(!self->targetname)
+	if(!self->name)
 	{
-		G_Printf("path_corner with no targetname at %s\n", vtos(self->s.origin));
+		G_Printf("path_corner with no name at %s\n", vtos(self->s.origin));
 		G_FreeEntity(self);
 		return;
 	}

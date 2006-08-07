@@ -45,7 +45,7 @@ void Use_Target_Give(gentity_t * ent, gentity_t * other, gentity_t * activator)
 
 	memset(&trace, 0, sizeof(trace));
 	t = NULL;
-	while((t = G_Find(t, FOFS(targetname), ent->target)) != NULL)
+	while((t = G_Find(t, FOFS(name), ent->target)) != NULL)
 	{
 		if(!t->item)
 		{
@@ -360,7 +360,7 @@ void target_laser_start(gentity_t * self)
 
 	if(self->target)
 	{
-		ent = G_Find(NULL, FOFS(targetname), self->target);
+		ent = G_Find(NULL, FOFS(name), self->target);
 		if(!ent)
 		{
 			G_Printf("%s at %s: %s is a bad target\n", self->classname, vtos(self->s.origin), self->target);
@@ -417,7 +417,7 @@ The activator will be teleported away.
 */
 void SP_target_teleporter(gentity_t * self)
 {
-	if(!self->targetname)
+	if(!self->name)
 		G_Printf("untargeted %s at %s\n", self->classname, vtos(self->s.origin));
 
 	self->use = target_teleporter_use;

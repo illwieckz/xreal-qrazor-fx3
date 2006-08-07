@@ -225,7 +225,7 @@ int AAS_GetJumpPadInfo(int ent, vec3_t areastart, vec3_t absmins, vec3_t absmaxs
 	vec3_t          origin, angles, teststart, ent2origin;
 	aas_trace_t     trace;
 	char            model[MAX_EPAIRKEY];
-	char            target[MAX_EPAIRKEY], targetname[MAX_EPAIRKEY];
+	char            target[MAX_EPAIRKEY], name[MAX_EPAIRKEY];
 
 	//
 	AAS_FloatForBSPEpairKey(ent, "speed", &speed);
@@ -264,9 +264,9 @@ int AAS_GetJumpPadInfo(int ent, vec3_t areastart, vec3_t absmins, vec3_t absmaxs
 	AAS_ValueForBSPEpairKey(ent, "target", target, MAX_EPAIRKEY);
 	for(ent2 = AAS_NextBSPEntity(0); ent2; ent2 = AAS_NextBSPEntity(ent2))
 	{
-		if(!AAS_ValueForBSPEpairKey(ent2, "targetname", targetname, MAX_EPAIRKEY))
+		if(!AAS_ValueForBSPEpairKey(ent2, "name", name, MAX_EPAIRKEY))
 			continue;
-		if(!strcmp(targetname, target))
+		if(!strcmp(name, target))
 			break;
 	}							//end for
 	if(!ent2)
@@ -2879,11 +2879,11 @@ int AAS_TravelFlagsForTeam(int ent)
 // target = "t1"
 //
 // classname = target_teleporter
-// targetname = "t1"
+// name = "t1"
 // target = "t2"
 //
 // classname = misc_teleporter_dest
-// targetname = "t2"
+// name = "t2"
 //
 // Parameter:               -
 // Returns:                 -
@@ -2892,7 +2892,7 @@ int AAS_TravelFlagsForTeam(int ent)
 void AAS_Reachability_Teleport(void)
 {
 	int             area1num, area2num;
-	char            target[MAX_EPAIRKEY], targetname[MAX_EPAIRKEY];
+	char            target[MAX_EPAIRKEY], name[MAX_EPAIRKEY];
 	char            classname[MAX_EPAIRKEY], model[MAX_EPAIRKEY];
 	int             ent, dest;
 	float           angle;
@@ -2928,9 +2928,9 @@ void AAS_Reachability_Teleport(void)
 					continue;
 				if(!strcmp(classname, "target_teleporter"))
 				{
-					if(!AAS_ValueForBSPEpairKey(dest, "targetname", targetname, MAX_EPAIRKEY))
+					if(!AAS_ValueForBSPEpairKey(dest, "name", name, MAX_EPAIRKEY))
 						continue;
-					if(!strcmp(targetname, target))
+					if(!strcmp(name, target))
 					{
 						break;
 					}			//end if
@@ -2972,9 +2972,9 @@ void AAS_Reachability_Teleport(void)
 			//classname should be misc_teleporter_dest
 			//but I've also seen target_position and actually any
 			//entity could be used... burp
-			if(AAS_ValueForBSPEpairKey(dest, "targetname", targetname, MAX_EPAIRKEY))
+			if(AAS_ValueForBSPEpairKey(dest, "name", name, MAX_EPAIRKEY))
 			{
-				if(!strcmp(targetname, target))
+				if(!strcmp(name, target))
 				{
 					break;
 				}				//end if
@@ -3728,7 +3728,7 @@ void AAS_Reachability_JumpPad(void)
 	//aas_trace_t trace;
 	aas_link_t     *areas, *link;
 
-	//char target[MAX_EPAIRKEY], targetname[MAX_EPAIRKEY], model[MAX_EPAIRKEY];
+	//char target[MAX_EPAIRKEY], name[MAX_EPAIRKEY], model[MAX_EPAIRKEY];
 	char            classname[MAX_EPAIRKEY];
 
 #ifdef BSPC
@@ -3788,8 +3788,8 @@ void AAS_Reachability_JumpPad(void)
 		   AAS_ValueForBSPEpairKey(ent, "target", target, MAX_EPAIRKEY);
 		   for (ent2 = AAS_NextBSPEntity(0); ent2; ent2 = AAS_NextBSPEntity(ent2))
 		   {
-		   if (!AAS_ValueForBSPEpairKey(ent2, "targetname", targetname, MAX_EPAIRKEY)) continue;
-		   if (!strcmp(targetname, target)) break;
+		   if (!AAS_ValueForBSPEpairKey(ent2, "name", name, MAX_EPAIRKEY)) continue;
+		   if (!strcmp(name, target)) break;
 		   } //end for
 		   if (!ent2)
 		   {

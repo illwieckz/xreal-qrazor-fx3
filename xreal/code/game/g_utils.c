@@ -211,21 +211,21 @@ Selects a random entity from among the targets
 */
 #define MAXCHOICES	32
 
-gentity_t      *G_PickTarget(char *targetname)
+gentity_t      *G_PickTarget(char *name)
 {
 	gentity_t      *ent = NULL;
 	int             num_choices = 0;
 	gentity_t      *choice[MAXCHOICES];
 
-	if(!targetname)
+	if(!name)
 	{
-		G_Printf("G_PickTarget called with NULL targetname\n");
+		G_Printf("G_PickTarget called with NULL name\n");
 		return NULL;
 	}
 
 	while(1)
 	{
-		ent = G_Find(ent, FOFS(targetname), targetname);
+		ent = G_Find(ent, FOFS(name), name);
 		if(!ent)
 			break;
 		choice[num_choices++] = ent;
@@ -235,7 +235,7 @@ gentity_t      *G_PickTarget(char *targetname)
 
 	if(!num_choices)
 	{
-		G_Printf("G_PickTarget: target %s not found\n", targetname);
+		G_Printf("G_PickTarget: target %s not found\n", name);
 		return NULL;
 	}
 
@@ -249,7 +249,7 @@ G_UseTargets
 
 "activator" should be set to the entity that initiated the firing.
 
-Search for (string)targetname in all entities that
+Search for (string)name in all entities that
 match (string)self.target and call their .use function
 
 ==============================
@@ -277,7 +277,7 @@ void G_UseTargets(gentity_t * ent, gentity_t * activator)
 	}
 
 	t = NULL;
-	while((t = G_Find(t, FOFS(targetname), ent->target)) != NULL)
+	while((t = G_Find(t, FOFS(name), ent->target)) != NULL)
 	{
 		if(t == ent)
 		{
