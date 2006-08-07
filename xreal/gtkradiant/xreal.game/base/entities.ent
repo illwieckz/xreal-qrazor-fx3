@@ -227,7 +227,7 @@ Nailgun ammo. Gives the player 25 by default.
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when picked up (default 10).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notbot" name="Invisible To Bots">used to make an item invisible for bot attraction.</boolean>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
@@ -253,7 +253,7 @@ Prox Launcher ammo. Gives the player 5 by default.
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when picked up (default 10).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string> Any teamed item with the same value will be part of this team.
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notbot" name="Invisible To Bots">used to make an item invisible for bot attraction.</boolean>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
@@ -279,7 +279,7 @@ Chaingun ammo. Gives the player 100 by default.
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when picked up (default 10).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notbot" name="Invisible To Bots">used to make an item invisible for bot attraction.</boolean>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
@@ -641,7 +641,7 @@ One use kamikaze item that can be picked up and used later. Does an initial wave
 <real key="random" name="Respawn Delay Variance">random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes).</real>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notbot" name="Invisible To Bots">used to make an item invisible for bot attraction.</boolean>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
@@ -666,7 +666,7 @@ Invulnerability. Creates an energy shield that protects the player against all w
 <real key="random" name="Respawn Delay Variance">random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes).</real>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notbot" name="Invisible To Bots">used to make an item invisible for bot attraction.</boolean>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
@@ -696,7 +696,7 @@ Scout power-up.  Player moves at 2/3 haste speed.  Increases rate of fire. Lasts
 <real key="count" name="Powerup Duration">time in seconds power-up will last when picked up (default 30).</real>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notbot" name="Invisible To Bots">used to make an item invisible for bot attraction.</boolean>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
@@ -727,7 +727,7 @@ Guard power-up.  Gives player 200 regenerating health and 200 armor (without dec
 <real key="count" name="Powerup Duration">time in seconds power-up will last when picked up (default 30).</real>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notbot" name="Invisible To Bots">used to make an item invisible for bot attraction.</boolean>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
@@ -755,7 +755,7 @@ Doubler power-up.  Doubles the damage of player's weapons.  Lasts until death.
 <real key="count" name="Powerup Duration">time in seconds power-up will last when picked up (default 30).</real>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notbot" name="Invisible To Bots">used to make an item invisible for bot attraction.</boolean>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
@@ -783,7 +783,7 @@ Ammo Regen power-up. Slowly regenerates ammo count for all weapons currently pos
 <real key="random" name="Respawn Delay Variance">random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes).</real>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notbot" name="Invisible To Bots">used to make an item invisible for bot attraction.</boolean>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
@@ -2134,7 +2134,7 @@ Chaingun. A rapid fire instant hit weapon.
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when weapon is picked up (default 10).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notbot" name="Invisible To Bots">used to make an item invisible for bot attraction.</boolean>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
@@ -2160,7 +2160,7 @@ Nailgun.
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when weapon is picked up (default 10).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notbot" name="Invisible To Bots">used to make an item invisible for bot attraction.</boolean>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
@@ -2185,7 +2185,7 @@ Proximity Mine Launcher. Lobs a mine which checks for proximity of a player or a
 <integer key="count" name="Ammo Given">sets the amount of ammo given to the player when weapon is picked up (default 10).</integer>
 <string key="team" name="Team Name">set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes).</string>
 <target key="target" name="Target">picking up the item will trigger the entity this points to.</target>
-<targetname key="targetname" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
+<targetname key="name" name="Target Name">a target_give entity can point to this for respawn freebies.</targetname>
 <boolean key="notbot" name="Invisible To Bots">used to make an item invisible for bot attraction.</boolean>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
