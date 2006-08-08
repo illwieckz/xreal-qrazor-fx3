@@ -939,10 +939,10 @@ void R_AddPrecachedWorldInteractions(trRefDlight_t * light)
 
 /*
 ===============
-R_DeleteVBOs
+R_ShutdownVBOs
 ===============
 */
-void R_DeleteVBOs()
+void R_ShutdownVBOs()
 {
 	int             i;
 	msurface_t     *surface;

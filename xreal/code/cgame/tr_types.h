@@ -333,6 +333,8 @@ typedef struct
 	float			maxTextureAnisotropy;
 	qboolean		textureAnisotropyAvailable;
 	qboolean        framebufferObjectAvailable;
+	int             maxRenderbufferSize;
+	int             maxColorAttachments;
 } glconfig2_t;
 
 // FIXME: VM should be OS agnostic .. in theory

@@ -1021,6 +1021,12 @@ void GfxInfo_f(void)
 	{
 		ri.Printf(PRINT_ALL, "%d occlusion query bits\n", glConfig2.occlusionQueryBits);
 	}
+	
+	if(glConfig2.framebufferObjectAvailable)
+	{
+		ri.Printf(PRINT_ALL, "GL_MAX_RENDERBUFFER_SIZE_EXT: %d\n", glConfig2.maxRenderbufferSize);
+		ri.Printf(PRINT_ALL, "GL_MAX_COLOR_ATTACHMENTS_EXT: %d\n", glConfig2.maxColorAttachments);
+	}
 
 	ri.Printf(PRINT_ALL, "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits,
 			  glConfig.depthBits, glConfig.stencilBits);
@@ -1265,6 +1271,7 @@ void R_Register(void)
 	ri.Cmd_AddCommand("modellist", R_Modellist_f);
 	ri.Cmd_AddCommand("modelist", R_ModeList_f);
 	ri.Cmd_AddCommand("animationlist", R_AnimationList_f);
+	ri.Cmd_AddCommand("fbolist", R_FBOList_f);
 	ri.Cmd_AddCommand("screenshot", R_ScreenShot_f);
 	ri.Cmd_AddCommand("screenshotJPEG", R_ScreenShotJPEG_f);
 	ri.Cmd_AddCommand("gfxinfo", GfxInfo_f);
@@ -1359,6 +1366,8 @@ void R_Init(void)
 	RB_InitGPUShaders();
 
 	R_InitImages();
+	
+	R_InitFBOs();
 
 	R_InitShaders();
 
@@ -1409,14 +1418,15 @@ void RE_Shutdown(qboolean destroyWindow)
 	ri.Cmd_RemoveCommand("modelist");
 	ri.Cmd_RemoveCommand("shaderstate");
 	ri.Cmd_RemoveCommand("animationlist");
-
+	ri.Cmd_RemoveCommand("fbolist");
 
 	if(tr.registered)
 	{
 		R_SyncRenderThread();
 		R_ShutdownCommandBuffers();
-		R_DeleteTextures();
-		R_DeleteVBOs();
+		R_ShutdownImages();
+		R_ShutdownVBOs();
+		R_ShutdownFBOs();
 		
 		if(glConfig2.occlusionQueryBits)
 		{

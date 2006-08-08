@@ -4322,10 +4322,10 @@ void R_InitImages(void)
 
 /*
 ===============
-R_DeleteTextures
+R_ShutdownImages
 ===============
 */
-void R_DeleteTextures(void)
+void R_ShutdownImages(void)
 {
 	int             i;
 

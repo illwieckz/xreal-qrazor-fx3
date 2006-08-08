@@ -62,6 +62,8 @@ long            myftol(float f);
 
 #define MAX_OCCLUSION_QUERIES	128
 
+#define	MAX_FBOS				64
+
 // can't be increased without changing bit packing for drawsurfs
 
 typedef enum
@@ -216,6 +218,29 @@ typedef struct image_s
 
 	struct image_s *next;
 } image_t;
+
+typedef struct frameBuffer_s
+{
+	char            name[MAX_QPATH];
+
+	int             index;
+
+	GLuint          frameBuffer;
+
+	GLuint          colorBuffers[16];
+	int             colorFormat;
+
+	GLuint          depthBuffer;
+	int             depthFormat;
+
+	GLuint          stencilBuffer;
+	int             stencilFormat;
+
+	int             width;
+	int             height;
+	
+//	struct frameBuffer_s *next;
+} frameBuffer_t;
 
 //===============================================================================
 
@@ -1596,6 +1621,7 @@ typedef struct
 	unsigned long   glStateBits;
 	unsigned long	glClientStateBits;
 	GLhandleARB		currentProgram;
+	frameBuffer_t  *currentFBO;
 } glstate_t;
 
 
@@ -1783,6 +1809,14 @@ typedef struct
 
 	int             numImages;
 	image_t        *images[MAX_DRAWIMAGES];
+	
+	int             numFBOs;
+	frameBuffer_t  *fbos[MAX_FBOS];
+	
+//	frameBuffer_t  *positionFBO;
+//	frameBuffer_t  *visibilityFBO;
+//	frameBuffer_t  *portalFBO;
+	
 
 	// shader indexes from other modules will be looked up in tr.shaders[]
 	// shader indexes from drawsurfs will be looked up in sortedShaders[]
@@ -2220,7 +2254,7 @@ void            R_ScreenShot_f(void);
 void            R_InitFogTable(void);
 float           R_FogFactor(float s, float t);
 void            R_InitImages(void);
-void            R_DeleteTextures(void);
+void            R_ShutdownImages(void);
 int             R_SumOfUsedImages(void);
 void            R_InitSkins(void);
 skin_t         *R_GetSkinByHandle(qhandle_t hSkin);
@@ -2385,7 +2419,7 @@ qboolean        R_inPVS(const vec3_t p1, const vec3_t p2);
 
 void            R_AddWorldInteractions(trRefDlight_t * light);
 void            R_AddPrecachedWorldInteractions(trRefDlight_t * light);
-void			R_DeleteVBOs();
+void			R_ShutdownVBOs();
 
 /*
 ============================================================
@@ -2484,6 +2518,32 @@ MARKERS, POLYGON PROJECTION ON WORLD POLYGONS
 int             R_MarkFragments(int numPoints, const vec3_t * points, const vec3_t projection,
 								int maxPoints, vec3_t pointBuffer, int maxFragments,
 								markFragment_t * fragmentBuffer);
+								
+
+/*
+============================================================
+
+FRAME BUFFER OBJECTS
+
+============================================================
+*/
+frameBuffer_t  *R_CreateFBO(const char *name, int width, int height);
+
+void            R_CreateFBOColorBuffer(frameBuffer_t * fbo, int format, int index);
+void            R_CreateFBODepthBuffer(frameBuffer_t * fbo, int format);
+void            R_CreateFBOStencilBuffer(frameBuffer_t * fbo, int format);
+
+void            R_AttachFBOTexture1D(int texId, int attachmentIndex);
+void            R_AttachFBOTexture2D(int target, int texId, int attachmentIndex);
+void            R_AttachFBOTexture3D(int texId, int attachmentIndex, int zOffset);
+void            R_AttachFBOTextureDepth(int texId);
+
+void            R_BindFBO(frameBuffer_t * fbo);
+void            R_BindNullFBO(void);
+
+void            R_InitFBOs(void);
+void            R_ShutdownFBOs(void);
+void            R_FBOList_f(void);
 
 
 /*

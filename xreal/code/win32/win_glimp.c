@@ -1522,6 +1522,9 @@ static void GLW_InitExtensions(void)
 	qglGenerateMipmapEXT = NULL;
 	if(strstr(glConfig.extensions_string, "GL_EXT_framebuffer_object"))
 	{
+		qglGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &glConfig2.maxRenderbufferSize);
+		qglGetIntegerv(GL_MAX_COLOR_ATTACHMENTS_EXT, &glConfig2.maxColorAttachments);
+		
 		if(r_ext_framebuffer_object->value)
 		{
 			qglIsRenderbufferEXT = (PFNGLISRENDERBUFFEREXTPROC) qwglGetProcAddress("glIsRenderbufferEXT");
