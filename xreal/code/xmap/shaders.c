@@ -62,7 +62,8 @@ infoParm_t	infoParms[] = {
 	{"lava",			1,	0,	CONTENTS_LAVA},			// very damaging
 	{"playerclip",		1,	0,	CONTENTS_PLAYERCLIP},
 	{"monsterclip",		1,	0,	CONTENTS_MONSTERCLIP},
-	{"moveableclip",	1,	0,	0},						//FIXME
+	{"moveableclip",	1,	0,	0},						// FIXME
+	{"ikclip",			1,	0,	0},						// FIXME
 	{"nodrop",			1,	0,	CONTENTS_NODROP},		// don't drop items or leave bodies (death fog, lava, etc)
 	{"nonsolid",		1,	SURF_NONSOLID,	0},			// clears the solid flag
 	
@@ -84,29 +85,18 @@ infoParm_t	infoParms[] = {
 	{"lightfilter",		0,	SURF_LIGHTFILTER, 0},		// filter light going through it
 	{"alphashadow",		0,	SURF_ALPHASHADOW, 0},		// test light on a per-pixel basis
 	{"hint",			0,	SURF_HINT,		0},			// use as a primary splitter
-	
-	{"discrete",		0,	0,				0},
 
 	// server attributes
 	{"slick",			0,	SURF_SLICK,		0},
 	{"collision",		0,	SURF_NODRAW,	0},
 	{"noimpact",		0,	SURF_NOIMPACT,	0},			// don't make impact explosions or marks
 	{"nomarks",			0,	SURF_NOMARKS,	0},			// don't make impact marks, but still explode
+	{"nooverlays",		0,	SURF_NOMARKS,	0},			// don't make impact marks, but still explode
 	{"ladder",			0,	SURF_LADDER,	0},
 	{"nodamage",		0,	SURF_NODAMAGE,	0},
 	{"metalsteps",		0,	SURF_METALSTEPS,0},
 	{"flesh",			0,	SURF_FLESH,		0},
 	{"nosteps",			0,	SURF_NOSTEPS,	0},
-	
-	// surface types for sound effects and blood splats
-	{"metal",			0,	0,				0},
-	{"stone",			0,	0,				0},
-	{"wood",			0,	0,				0},
-	{"cardboard",		0,	0,				0},
-	{"liquid",			0,	0,				0},
-	{"glass",			0,	0,				0},
-	{"plastic",			0,	0,				0},
-	{"ricochet",		0,	0,				0},
 
 	// drawsurf attributes
 	{"nodraw",			0,	SURF_NODRAW,		0},		// don't generate a drawsurface (or a lightmap)
@@ -115,11 +105,30 @@ infoParm_t	infoParms[] = {
 	{"nodlight",		0,	SURF_NODLIGHT,		0},		// don't ever add dynamic lights
 	{"dust",			0,	SURF_DUST,			0},		// leave a dust trail when walking on this surface
 	
-	{"noshadows",		0,	0,				0},
-	{"noselfshadow",	0,	0,				0},
-	{"forceshadows",	0,	0,				0},
-	{"nooverlays",		0,	0,				0},
-	{"forceoverlays",	0,	0,				0},
+	// unsupported Doom3 surface types for sound effects and blood splats
+	{"metal",			0,	0,				0},
+	{"stone",			0,	0,				0},
+	{"wood",			0,	0,				0},
+	{"cardboard",		0,	0,				0},
+	{"liquid",			0,	0,				0},
+	{"glass",			0,	0,				0},
+	{"plastic",			0,	0,				0},
+	{"ricochet",		0,	0,				0},
+	{"surftype10",		0,	0,				0},
+	{"surftype11",		0,	0,				0},
+	{"surftype12",		0,	0,				0},
+	{"surftype13",		0,	0,				0},
+	{"surftype14",		0,	0,				0},
+	{"surftype15",		0,	0,				0},
+	
+	// other unsupported Doom3 surface types
+	{"trigger",			0,	0,				0},
+	{"flashlight_trigger",0,0,				0},
+	{"aassolid",		0,	0,				0},
+	{"aasobstacle",		0,	0,				0},
+	{"nullNormal",		0,	0,				0},
+	{"discrete",		0,	0,				0},
+	
 };
 // *INDENT-ON*
 

@@ -1466,6 +1466,18 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 				loadMap = qtrue;	
 			}
 		}
+		// remoteRenderMap <int> <int>
+		else if(!Q_stricmp(token, "remoteRenderMap"))
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: remoteRenderMap keyword not supported in shader '%s'\n", shader.name);
+			Com_SkipRestOfLine(text);
+		}
+		// mirrorRenderMap <int> <int>
+		else if(!Q_stricmp(token, "mirrorRenderMap"))
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: mirrorRenderMap keyword not supported in shader '%s'\n", shader.name);
+			Com_SkipRestOfLine(text);
+		}
 		// clampmap <name>
 		else if(!Q_stricmp(token, "clampmap"))
 		{
@@ -1563,6 +1575,12 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 				stage->bundle[0].image[0] = tr.scratchImage[stage->bundle[0].videoMapHandle];
 			}
 		}
+		// soundmap [waveform]
+		else if(!Q_stricmp(token, "soundMap"))
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: soundMap keyword not supported in shader '%s'\n", shader.name);
+			Com_SkipRestOfLine(text);
+		}
 		else if(!Q_stricmp(token, "cubeMap"))
 		{
 			token = Com_ParseExt(text, qfalse);
@@ -1593,6 +1611,12 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 				ri.Printf(PRINT_WARNING, "WARNING: R_FindCubeImage could not find '%s' in shader '%s'\n", token, shader.name);
 				return qfalse;
 			}
+		}
+		// cameraCubeMap <map>
+		else if(!Q_stricmp(token, "cameraCubeMap"))
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: cameraCubeMap keyword not supported in shader '%s'\n", shader.name);
+			Com_SkipRestOfLine(text);
 		}
 		// alphafunc <func>
 		else if(!Q_stricmp(token, "alphaFunc"))
@@ -2351,6 +2375,42 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		{
 			ParseExpression(text, &stage->blurMagnitudeExp);
 		}
+		// fragmentProgram <prog>
+		else if(!Q_stricmp(token, "fragmentProgram"))
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: fragmentProgram keyword not supported in shader '%s'\n", shader.name);
+			Com_SkipRestOfLine(text);
+		}
+		// vertexProgram <prog>
+		else if(!Q_stricmp(token, "vertexProgram"))
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: vertexProgram keyword not supported in shader '%s'\n", shader.name);
+			Com_SkipRestOfLine(text);
+		}
+		// program <prog>
+		else if(!Q_stricmp(token, "program"))
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: program keyword not supported in shader '%s'\n", shader.name);
+			Com_SkipRestOfLine(text);
+		}
+		// vertexParm <index> <exp0> [,exp1] [,exp2] [,exp3]
+		else if(!Q_stricmp(token, "vertexParm"))
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: vertexParm keyword not supported in shader '%s'\n", shader.name);
+			Com_SkipRestOfLine(text);
+		}
+		// fragmentMap <index> [options] <map>	
+		else if(!Q_stricmp(token, "fragmentMap"))
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: fragmentMap keyword not supported in shader '%s'\n", shader.name);
+			Com_SkipRestOfLine(text);
+		}
+		// megaTexture <mega>
+		else if(!Q_stricmp(token, "megaTexture"))
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: megaTexture keyword not supported in shader '%s'\n", shader.name);
+			Com_SkipRestOfLine(text);
+		}
 		else
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: unknown parameter '%s' in shader '%s'\n", token, shader.name);
@@ -2758,7 +2818,8 @@ infoParm_t	infoParms[] = {
 	{"lava",			1,	0,	CONTENTS_LAVA},			// very damaging
 	{"playerclip",		1,	0,	CONTENTS_PLAYERCLIP},
 	{"monsterclip",		1,	0,	CONTENTS_MONSTERCLIP},
-	{"moveableclip",	1,	0,	0},						//FIXME
+	{"moveableclip",	1,	0,	0},						// FIXME
+	{"ikclip",			1,	0,	0},						// FIXME
 	{"nodrop",			1,	0,	CONTENTS_NODROP},		// don't drop items or leave bodies (death fog, lava, etc)
 	{"nonsolid",		1,	SURF_NONSOLID,	0},			// clears the solid flag
 	
@@ -2780,29 +2841,18 @@ infoParm_t	infoParms[] = {
 	{"lightfilter",		0,	SURF_LIGHTFILTER, 0},		// filter light going through it
 	{"alphashadow",		0,	SURF_ALPHASHADOW, 0},		// test light on a per-pixel basis
 	{"hint",			0,	SURF_HINT,		0},			// use as a primary splitter
-	
-	{"discrete",		0,	0,				0},
 
 	// server attributes
 	{"slick",			0,	SURF_SLICK,		0},
 	{"collision",		0,	SURF_NODRAW,	0},
 	{"noimpact",		0,	SURF_NOIMPACT,	0},			// don't make impact explosions or marks
 	{"nomarks",			0,	SURF_NOMARKS,	0},			// don't make impact marks, but still explode
+	{"nooverlays",		0,	SURF_NOMARKS,	0},			// don't make impact marks, but still explode
 	{"ladder",			0,	SURF_LADDER,	0},
 	{"nodamage",		0,	SURF_NODAMAGE,	0},
 	{"metalsteps",		0,	SURF_METALSTEPS,0},
 	{"flesh",			0,	SURF_FLESH,		0},
 	{"nosteps",			0,	SURF_NOSTEPS,	0},
-	
-	// surface types for sound effects and blood splats
-	{"metal",			0,	0,				0},
-	{"stone",			0,	0,				0},
-	{"wood",			0,	0,				0},
-	{"cardboard",		0,	0,				0},
-	{"liquid",			0,	0,				0},
-	{"glass",			0,	0,				0},
-	{"plastic",			0,	0,				0},
-	{"ricochet",		0,	0,				0},
 
 	// drawsurf attributes
 	{"nodraw",			0,	SURF_NODRAW,		0},		// don't generate a drawsurface (or a lightmap)
@@ -2811,11 +2861,30 @@ infoParm_t	infoParms[] = {
 	{"nodlight",		0,	SURF_NODLIGHT,		0},		// don't ever add dynamic lights
 	{"dust",			0,	SURF_DUST,			0},		// leave a dust trail when walking on this surface
 	
-	{"noshadows",		0,	0,				0},
-	{"noselfshadow",	0,	0,				0},
-	{"forceshadows",	0,	0,				0},
-	{"nooverlays",		0,	0,				0},
-	{"forceoverlays",	0,	0,				0},
+	// unsupported Doom3 surface types for sound effects and blood splats
+	{"metal",			0,	0,				0},
+	{"stone",			0,	0,				0},
+	{"wood",			0,	0,				0},
+	{"cardboard",		0,	0,				0},
+	{"liquid",			0,	0,				0},
+	{"glass",			0,	0,				0},
+	{"plastic",			0,	0,				0},
+	{"ricochet",		0,	0,				0},
+	{"surftype10",		0,	0,				0},
+	{"surftype11",		0,	0,				0},
+	{"surftype12",		0,	0,				0},
+	{"surftype13",		0,	0,				0},
+	{"surftype14",		0,	0,				0},
+	{"surftype15",		0,	0,				0},
+	
+	// other unsupported Doom3 surface types
+	{"trigger",			0,	0,				0},
+	{"flashlight_trigger",0,0,				0},
+	{"aassolid",		0,	0,				0},
+	{"aasobstacle",		0,	0,				0},
+	{"nullNormal",		0,	0,				0},
+	{"discrete",		0,	0,				0},
+	
 };
 // *INDENT-ON*
 
@@ -3326,6 +3395,7 @@ static qboolean ParseShader(char *_text)
 		// skip unsmoothedTangents
 		else if(!Q_stricmp(token, "unsmoothedTangents"))
 		{
+			ri.Printf(PRINT_WARNING, "WARNING: unsmoothedTangents keyword not supported in shader '%s'\n", shader.name);
 			continue;
 		}
 		// skip guiSurf
@@ -3337,6 +3407,7 @@ static qboolean ParseShader(char *_text)
 		// skip decalInfo
 		else if(!Q_stricmp(token, "decalInfo"))
 		{
+			ri.Printf(PRINT_WARNING, "WARNING: decalInfo keyword not supported in shader '%s'\n", shader.name);
 			Com_SkipRestOfLine(text);
 			continue;
 		}
@@ -3408,37 +3479,50 @@ static qboolean ParseShader(char *_text)
 		else if(!Q_stricmp(token, "noShadows"))
 		{
 			shader.noShadows = qtrue;
-			SurfaceParm("noShadows");
 			continue;
+		}
+		// noSelfShadow
+		else if(!Q_stricmp(token, "noSelfShadow"))
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: noSelfShadow keyword not supported in shader '%s'\n", shader.name);
+			continue;	
 		}
 		// forceShadows
 		else if(!Q_stricmp(token, "forceShadows"))
 		{
-			shader.forceShadows = qtrue;
-			SurfaceParm("forceShadows");
+			ri.Printf(PRINT_WARNING, "WARNING: forceShadows keyword not supported in shader '%s'\n", shader.name);
+			continue;
+		}
+		// forceOverlays
+		else if(!Q_stricmp(token, "forceOverlays"))
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: forceOverlays keyword not supported in shader '%s'\n", shader.name);
 			continue;
 		}
 		// noPortalFog
 		else if(!Q_stricmp(token, "noPortalFog"))
 		{
-			shader.noPortalFog = qtrue;
+			ri.Printf(PRINT_WARNING, "WARNING: noPortalFog keyword not supported in shader '%s'\n", shader.name);
 			continue;
 		}
 		// fogLight
 		else if(!Q_stricmp(token, "fogLight"))
 		{
+			ri.Printf(PRINT_WARNING, "WARNING: fogLight keyword not supported in shader '%s'\n", shader.name);
 			shader.fogLight = qtrue;
 			continue;
 		}
 		// blendLight
 		else if(!Q_stricmp(token, "blendLight"))
 		{
+			ri.Printf(PRINT_WARNING, "WARNING: blendLight keyword not supported in shader '%s'\n", shader.name);
 			shader.blendLight = qtrue;
 			continue;
 		}
 		// ambientLight
 		else if(!Q_stricmp(token, "ambientLight"))
 		{
+			ri.Printf(PRINT_WARNING, "WARNING: ambientLight keyword not supported in shader '%s'\n", shader.name);
 			shader.ambientLight = qtrue;
 			continue;
 		}
@@ -3551,7 +3635,7 @@ static qboolean ParseShader(char *_text)
 		// noFog
 		else if(!Q_stricmp(token, "noFog"))
 		{
-			// TODO: implement ?
+			ri.Printf(PRINT_WARNING, "WARNING: noFog keyword not supported in shader '%s'\n", shader.name);
 			continue;
 		}
 		// portal
@@ -3643,6 +3727,8 @@ static qboolean ParseShader(char *_text)
 		// spectrum
 		else if(!Q_stricmp(token, "spectrum"))
 		{
+			ri.Printf(PRINT_WARNING, "WARNING: spectrum keyword not supported in shader '%s'\n", shader.name);
+			
 			token = Com_ParseExt(text, qfalse);
 			if(!token[0])
 			{

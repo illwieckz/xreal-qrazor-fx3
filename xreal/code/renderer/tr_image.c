@@ -3635,17 +3635,17 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 	// smoothNormals(<map>)  Does a box filter on the normal map, and normalizes the result.
 	else if(!Q_stricmp(token, "smoothNormals"))
 	{
-		// TODO
+		ri.Printf(PRINT_WARNING, "WARNING: smoothNormals(<map>) keyword not supported\n");
 	}
 	// add(<map>, <map>)  Adds two images without normalizing the result
 	else if(!Q_stricmp(token, "add"))
 	{
-		// TODO
+		ri.Printf(PRINT_WARNING, "WARNING: add(<map>, <map>) keyword not supported\n");
 	}
 	// scale(<map>, <float> [,float] [,float] [,float])  Scales the RGBA by the specified factors. Defaults to 0.
 	else if(!Q_stricmp(token, "scale"))
 	{
-		// TODO
+		ri.Printf(PRINT_WARNING, "WARNING: scale(<map>, <float> [,float] [,float] [,float]) keyword not supported\n");
 	}
 	// invertAlpha(<map>)  Inverts the alpha channel (0 becomes 1, 1 becomes 0)
 	else if(!Q_stricmp(token, "invertAlpha"))

@@ -708,8 +708,6 @@ typedef struct shader_s
 	qboolean        entityMergable;	// merge across entites optimizable (smoke, blood)
 
 	qboolean		noShadows;
-	qboolean        forceShadows;
-	qboolean        noPortalFog;
 	qboolean        fogLight;
 	qboolean        blendLight;
 	qboolean        ambientLight;
