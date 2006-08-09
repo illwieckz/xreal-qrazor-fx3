@@ -202,7 +202,10 @@ typedef enum
 
 typedef struct image_s
 {
-	char            name[MAX_QPATH];	// game path, including extension
+	char            name[1024];			// formerly MAX_QPATH, game path, including extension
+										// can contain stuff like this now:
+										// addnormals ( textures/base_floor/stetile4_local.tga ,
+										// heightmap ( textures/base_floor/stetile4_bmp.tga , 4 ) )
 	GLenum			type;
 	int             width, height;	// source image
 	int             uploadWidth, uploadHeight;	// after power of two and picmip but not including clamp to MAX_TEXTURE_SIZE

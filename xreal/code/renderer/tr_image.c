@@ -1288,7 +1288,7 @@ image_t        *R_CreateImage(const char *name,
 	image->texnum = 1024 + tr.numImages;
 	tr.numImages++;
 
-	strcpy(image->name, name);
+	Q_strncpyz(image->name, name, sizeof(image->name));
 	image->type = GL_TEXTURE_2D;
 
 	image->width = width;
@@ -1346,7 +1346,7 @@ image_t        *R_CreateCubeImage(const char *name,
 	image->texnum = 1024 + tr.numImages;
 	tr.numImages++;
 
-	strcpy(image->name, name);
+	Q_strncpyz(image->name, name, sizeof(image->name));
 	image->type = GL_TEXTURE_CUBE_MAP_ARB;
 
 	image->width = width;
@@ -3607,7 +3607,6 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 {
 	int             len;
 	char           *token;
-	char            filename[MAX_QPATH];
 
 	*pic = NULL;
 	*width = 0;
@@ -3669,6 +3668,8 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 	}
 	else
 	{
+		char            filename[MAX_QPATH];
+		
 		Q_strncpyz(filename, token, sizeof(filename));
 		Com_DefaultExtension(filename, sizeof(filename), ".tga");
 
@@ -3684,7 +3685,7 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 			{
 				char            altname[MAX_QPATH];	// try dds in place of tga 
 
-				strcpy(altname, filename);
+				Q_strncpyz(altname, filename, sizeof(altname));
 				len = strlen(altname);
 				altname[len - 3] = 'd';
 				altname[len - 2] = 'd';
@@ -3696,7 +3697,7 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 			{
 				char            altname[MAX_QPATH];	// try jpg in place of tga
 
-				strcpy(altname, filename);
+				Q_strncpyz(altname, filename, sizeof(altname));
 				len = strlen(altname);
 				altname[len - 3] = 'j';
 				altname[len - 2] = 'p';
@@ -3756,11 +3757,11 @@ image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterT
 	// see if the image is already loaded
 	for(image = hashTable[hash]; image; image = image->next)
 	{
-		if(!Q_stricmp(name, image->name))
+		if(!Q_stricmpn(buffer, image->name, sizeof(image->name)))
 			//if(!strcmp(name, image->name))
 		{
 			// the white image can be used with any set of parms, but other mismatches are errors
-			if(strcmp(buffer, "_white"))
+			if(!Q_stricmp(buffer, "_white"))
 			{
 				diff = bits ^ image->bits;
 
@@ -3793,7 +3794,7 @@ image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterT
 		return NULL;
 	}
 
-	image = R_CreateImage((char *)name, pic, width, height, bits, filterType, wrapType);
+	image = R_CreateImage((char *)buffer, pic, width, height, bits, filterType, wrapType);
 	ri.Free(pic);
 	return image;
 }
