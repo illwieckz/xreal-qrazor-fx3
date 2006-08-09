@@ -215,6 +215,7 @@ void SetModelNumbers(void)
 	entity_t       *ent;
 	int             models;
 	char            value[10];
+	const char     *classname;
 	const char     *model;
 
 	models = 1;
@@ -222,9 +223,10 @@ void SetModelNumbers(void)
 	{
 		ent = &entities[i];
 		
+		classname = ValueForKey(ent, "classname");
 		model = ValueForKey(ent, "model");
 		
-		if(ent->brushes || ent->patches || (!ent->brushes && !ent->patches && model[0] != '\0'))
+		if(ent->brushes || ent->patches || (!ent->brushes && !ent->patches && model[0] != '\0' && Q_stricmp("misc_model", classname)))
 		{
 			sprintf(value, "*%i", models);
 			models++;

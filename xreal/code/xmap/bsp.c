@@ -249,6 +249,7 @@ ProcessModels
 void ProcessModels(void)
 {
 	entity_t       *entity;
+	const char     *classname;
 	const char     *model;
 
 	BeginBSPFile();
@@ -257,9 +258,10 @@ void ProcessModels(void)
 	{
 		entity = &entities[entity_num];
 		
+		classname = ValueForKey(entity, "classname");
 		model = ValueForKey(entity, "model");
 		
-		if(entity->brushes || entity->patches || (!entity->brushes && !entity->patches && model[0] != '\0'))
+		if(entity->brushes || entity->patches || (!entity->brushes && !entity->patches && model[0] != '\0' && Q_stricmp("misc_model", classname)))
 		{
 			qprintf("############### model %i ###############\n", nummodels);
 			if(entity_num == 0)
