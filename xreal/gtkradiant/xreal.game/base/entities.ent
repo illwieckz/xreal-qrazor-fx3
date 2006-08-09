@@ -1272,7 +1272,7 @@ Non-displayed point light source. The -pointscale and -scale arguments to Q3Map2
 <real key="radius" name="Spotlight Radius">overrides the default 64 unit radius of a spotlight at the target point.</real>
 -->
 <string key="texture" name="Light Material Shader">Shader to use for light attenuation.</string>
-<real3 key="light_radius" name="Boxed Light Radius"></real3>
+<real3 key="light_radius" name="Boxed Light Radius">overrides the default 300 300 300 box radius</real3>
 <boolean key="noshadows" name="No Shadows">Set this key to 1 to disable shadow casting.</boolean>
 <boolean key="nospecular" name="No Specular Term">Set this key to 1 to disable specular rendering.</boolean>
 -------- SPAWNFLAGS --------
@@ -1286,17 +1286,6 @@ Non-displayed point light source. The -pointscale and -scale arguments to Q3Map2
 
 MISC_* ENTITIES
 
-=============================================================================
--->
-
-<point name="misc_model" color="1 .5 .25" box="-16 -16 -16 16 16 16">
-Generic placeholder for inserting MD3 models in game. Requires compilation of map geometry to be added to level. If the map is compiled with Q3Map2, then ASE, 3DS, OBJ and other model formats are supported.
--------- KEYS --------
-<angle key="angle" name="Yaw Angle">direction in which model will be oriented.</angle>
-<model key="model" name="Model File">path/name of model to use (eg: models/mapobjects/teleporter/teleporter.md3).</model>
-</point>
-
-<!--
 =============================================================================
 -->
 
