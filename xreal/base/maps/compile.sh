@@ -40,7 +40,7 @@ case $1 in
 		../../bspc.x86 -bsp2aas $2.bsp
 		;;
 	*)
-		echo "specify command: -bsp, -fastvis, -vis, -light, -xlight, -vlight, -aas or -all <mapname>"
+		echo "specify command: -bsp, -fastvis, -vis, -light, -xlight, -vlight, -onlyents, -aas or -all <mapname>"
 		;;
 esac
 

@@ -1648,6 +1648,8 @@ textures/sfx/proto_zzzt.jpg									id Software					EULA					q3demo
 textures/sfx/shadow.tga										id Software					EULA					q3demo
 textures/sfx/specular.tga									id Software					EULA					q3demo
 textures/sfx2/screen01.tga									id Software					EULA					tademo
+textures/tr3b_fog/deathfog.tga								Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+textures/tr3b_water/watertest_local.tga						inolen						custom					www.doom3world.org
 ui/assets/statusbar/assault.tga								id Software					EULA					tademo
 ui/assets/statusbar/camp.tga								id Software					EULA					tademo
 ui/assets/statusbar/defend.tga								id Software					EULA					tademo
