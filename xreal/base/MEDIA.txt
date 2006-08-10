@@ -19,13 +19,13 @@ http://creativecommons.org/licenses/by-nc-nd/2.5/
 
 FILE														ARTIST						LICENSE					SOURCE
 ======================================================================================================================
-fonts/fontImage_0_12.tga									id Software					EULA					tademo
-fonts/fontImage_0_16.tga									id Software					EULA					tademo
-fonts/fontImage_0_20.tga									id Software					EULA					tademo
-fonts/fontImage_1_20.tga									id Software					EULA					tademo
-fonts/fontImage_12.dat										id Software					EULA					tademo
-fonts/fontImage_16.dat										id Software					EULA					tademo
-fonts/fontImage_20.dat										id Software					EULA					tademo
+fonts/fontImage_0_12.tga									Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+fonts/fontImage_0_16.tga									Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+fonts/fontImage_0_20.tga									Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+fonts/fontImage_1_20.tga									Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+fonts/fontImage_12.dat										Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+fonts/fontImage_16.dat										Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+fonts/fontImage_20.dat										Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 gfx/2d/hud/sidebaritem_left.tga								Josef "cnuke" Söntgen		custom
 gfx/2d/hud/sidebaritem_right.tga							Josef "cnuke" Söntgen		custom
 gfx/2d/numbers/eight_32b.tga								Paul "JTR" Steffens 		custom					http://www.xs4all.nl/~caliberx
