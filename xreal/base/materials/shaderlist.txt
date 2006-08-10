@@ -28,6 +28,7 @@ fogs
 #gw_dm1_tower
 #gw_dm1_tree
 #gw_dm2
+gw_mapobject
 #gwdm2_sky
 glass
 hell
