@@ -2,7 +2,7 @@
 
 case $1 in
 	-bsp)
-		../../xmap.x86 -v -leaktest -nofog $2.map
+		../../xmap.x86 -v -leaktest $2.map
 		;;
 
 	-fastvis)
