@@ -1,0 +1,14 @@
+
+textures/tr3b_lights/roqVideoLight
+{
+//	lightFalloffImage	makeintensity(lights/squarelight1a.tga)
+	lightFalloffImage	_noFalloff
+	{
+		stage attenuationMapXY
+		//rotate	time * 3.7
+		colored
+		//rgb		flickerblink[ time * 1 ]
+		videoMap video/idlogo.RoQ
+		//map lights/squarelight1.tga
+	}
+}
