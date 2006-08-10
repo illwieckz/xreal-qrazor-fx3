@@ -162,7 +162,7 @@ itemDef {
 itemDef {
       	name gametype
 	type 1
-      	text "XreaL"
+      	text "EXTENDED REALITY"
       	style 0	
 	textstyle 6
       	rect 0 40 640 30

@@ -76,7 +76,7 @@ itemDef {
 
   	itemDef {
       	name levelbar
-	text "TEAM ARENA CINEMATICS"
+	text "EXTENDED REALITY CINEMATICS"
 	textstyle 6
       	style 2
       	rect 0 16 640 40 

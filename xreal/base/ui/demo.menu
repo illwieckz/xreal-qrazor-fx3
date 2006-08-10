@@ -35,7 +35,7 @@
   itemDef {
       name levelbar
       style 2
-	text "TEAM ARENA DEMOS"
+	text "EXTENDED REALITY DEMOS"
       rect 0 16 640 40 
 	textstyle 6
       textscale 0.416
