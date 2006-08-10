@@ -311,7 +311,6 @@ static void R_AddInteractionSurface(msurface_t * surf, trRefDlight_t * light)
 	}
 }
 
-
 /*
 ======================
 R_AddWorldSurface
@@ -345,6 +344,28 @@ static void R_AddWorldSurface(msurface_t * surf)
 */
 
 /*
+======================
+R_AddBrushModelSurface
+======================
+*/
+static void R_AddBrushModelSurface(msurface_t * surf, int fogIndex)
+{
+	if(surf->viewCount == tr.viewCount)
+	{
+		return;					// already in this view
+	}
+	surf->viewCount = tr.viewCount;
+
+	// try to cull before dlighting or adding
+	if(R_CullSurface(surf->data, surf->shader))
+	{
+		return;
+	}
+
+	R_AddDrawSurf(surf->data, surf->shader, surf->lightmapNum, fogIndex);
+}
+
+/*
 =================
 R_AddBrushModelSurfaces
 =================
@@ -356,6 +377,7 @@ void R_AddBrushModelSurfaces(trRefEntity_t * ent)
 	int             i;
 	vec3_t          v;
 	vec3_t          transformed;
+	int             fogNum = 0;
 
 	pModel = R_GetModelByHandle(ent->e.hModel);
 	bModel = pModel->bmodel;
@@ -387,10 +409,12 @@ void R_AddBrushModelSurfaces(trRefEntity_t * ent)
 	{
 		return;
 	}
+	
+	fogNum = R_FogWorldBox(ent->worldBounds);
 
 	for(i = 0; i < bModel->numSurfaces; i++)
 	{
-		R_AddWorldSurface(bModel->firstSurface + i);
+		R_AddBrushModelSurface(bModel->firstSurface + i, fogNum);
 	}
 }
 

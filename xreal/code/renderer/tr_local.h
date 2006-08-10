@@ -2037,12 +2037,16 @@ void            R_AddPolygonSurfaces(void);
 void            R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int lightmapIndex, int fogIndex);
 
 
-void            R_LocalNormalToWorld(vec3_t local, vec3_t world);
-void            R_LocalPointToWorld(vec3_t local, vec3_t world);
+void            R_LocalNormalToWorld(const vec3_t local, vec3_t world);
+void            R_LocalPointToWorld(const vec3_t local, vec3_t world);
 
 int             R_CullLocalBox(vec3_t bounds[2]);
 int             R_CullLocalPointAndRadius(vec3_t origin, float radius);
 int             R_CullPointAndRadius(vec3_t origin, float radius);
+
+int             R_FogLocalPointAndRadius(const vec3_t pt, float radius);
+int             R_FogPointAndRadius(const vec3_t pt, float radius);
+int             R_FogWorldBox(const vec3_t bounds[2]);
 
 void            R_SetupEntityWorldBounds(trRefEntity_t * ent);
 

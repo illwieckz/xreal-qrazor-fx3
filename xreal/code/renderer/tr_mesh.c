@@ -255,49 +255,6 @@ int R_ComputeLOD(trRefEntity_t * ent)
 
 /*
 =================
-R_ComputeFogNum
-=================
-*/
-int R_ComputeFogNum(mdxModel_t * model, trRefEntity_t * ent)
-{
-	int             i, j;
-	fog_t          *fog;
-	mdxFrame_t     *mdxFrame;
-	vec3_t          localOrigin;
-
-	if(tr.refdef.rdflags & RDF_NOWORLDMODEL)
-	{
-		return 0;
-	}
-
-	// FIXME: non-normalized axis issues
-	mdxFrame = model->frames + ent->e.frame;
-	VectorAdd(ent->e.origin, mdxFrame->localOrigin, localOrigin);
-	for(i = 1; i < tr.world->numfogs; i++)
-	{
-		fog = &tr.world->fogs[i];
-		for(j = 0; j < 3; j++)
-		{
-			if(localOrigin[j] - mdxFrame->radius >= fog->bounds[1][j])
-			{
-				break;
-			}
-			if(localOrigin[j] + mdxFrame->radius <= fog->bounds[0][j])
-			{
-				break;
-			}
-		}
-		if(j == 3)
-		{
-			return i;
-		}
-	}
-
-	return 0;
-}
-
-/*
-=================
 R_AddMDXSurfaces
 =================
 */
@@ -305,6 +262,7 @@ void R_AddMDXSurfaces(trRefEntity_t * ent)
 {
 	int             i;
 	mdxModel_t     *model = 0;
+	mdxFrame_t     *frame = 0;
 	mdxSurface_t   *surface = 0;
 	mdxShader_t    *mdxShader = 0;
 	shader_t       *shader = 0;
@@ -355,7 +313,9 @@ void R_AddMDXSurfaces(trRefEntity_t * ent)
 	}
 
 	// see if we are in a fog volume
-	fogNum = R_ComputeFogNum(model, ent);
+	// FIXME: non-normalized axis issues
+	frame = model->frames + ent->e.frame;
+	fogNum = R_FogLocalPointAndRadius(frame->localOrigin, frame->radius);
 
 	// draw all surfaces
 	for(i = 0, surface = model->surfaces; i < model->numSurfaces; i++, surface++)

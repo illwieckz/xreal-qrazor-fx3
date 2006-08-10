@@ -372,7 +372,9 @@ int R_CullLocalBox(vec3_t bounds[2])
 
 
 /*
-** R_CullLocalPointAndRadius
+=================
+R_CullLocalPointAndRadius
+=================
 */
 int R_CullLocalPointAndRadius(vec3_t pt, float radius)
 {
@@ -385,7 +387,9 @@ int R_CullLocalPointAndRadius(vec3_t pt, float radius)
 
 
 /*
-** R_CullPointAndRadius
+=================
+R_CullPointAndRadius
+=================
 */
 int R_CullPointAndRadius(vec3_t pt, float radius)
 {
@@ -423,6 +427,101 @@ int R_CullPointAndRadius(vec3_t pt, float radius)
 	return CULL_IN;				// completely inside frustum
 }
 
+/*
+=================
+R_FogLocalPointAndRadius
+=================
+*/
+int R_FogLocalPointAndRadius(const vec3_t pt, float radius)
+{
+	vec3_t          transformed;
+
+	R_LocalPointToWorld(pt, transformed);
+
+	return R_FogPointAndRadius(transformed, radius);
+}
+
+/*
+=================
+R_FogPointAndRadius
+=================
+*/
+int R_FogPointAndRadius(const vec3_t pt, float radius)
+{
+	int             i, j;
+	fog_t          *fog;
+
+	if(tr.refdef.rdflags & RDF_NOWORLDMODEL)
+	{
+		return 0;
+	}
+
+	// FIXME: non-normalized axis issues
+	for(i = 1; i < tr.world->numfogs; i++)
+	{
+		fog = &tr.world->fogs[i];
+		for(j = 0; j < 3; j++)
+		{
+			if(pt[j] - radius >= fog->bounds[1][j])
+			{
+				break;
+			}
+			
+			if(pt[j] + radius <= fog->bounds[0][j])
+			{
+				break;
+			}
+		}
+		if(j == 3)
+		{
+			return i;
+		}
+	}
+
+	return 0;
+}
+
+
+/*
+=================
+R_FogWorldBox
+=================
+*/
+int R_FogWorldBox(const vec3_t bounds[2])
+{
+	int             i, j;
+	fog_t          *fog;
+
+	if(tr.refdef.rdflags & RDF_NOWORLDMODEL)
+	{
+		return 0;
+	}
+
+	for(i = 1; i < tr.world->numfogs; i++)
+	{
+		fog = &tr.world->fogs[i];
+		
+		for(j = 0; j < 3; j++)
+		{
+			if(bounds[0][j] >= fog->bounds[1][j])
+			{
+				break;
+			}
+			
+			if(bounds[1][j] <= fog->bounds[0][j])
+			{
+				break;
+			}
+		}
+		
+		if(j == 3)
+		{
+			return i;
+		}
+	}
+
+	return 0;
+}
 
 
 /*
@@ -430,7 +529,7 @@ int R_CullPointAndRadius(vec3_t pt, float radius)
 R_LocalNormalToWorld
 =================
 */
-void R_LocalNormalToWorld(vec3_t local, vec3_t world)
+void R_LocalNormalToWorld(const vec3_t local, vec3_t world)
 {
 	MatrixTransformNormal(tr.or.transformMatrix, local, world);
 }
@@ -440,7 +539,7 @@ void R_LocalNormalToWorld(vec3_t local, vec3_t world)
 R_LocalPointToWorld
 =================
 */
-void R_LocalPointToWorld(vec3_t local, vec3_t world)
+void R_LocalPointToWorld(const vec3_t local, vec3_t world)
 {
 	MatrixTransformPoint(tr.or.transformMatrix, local, world);
 }
