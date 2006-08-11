@@ -4556,6 +4556,10 @@ static shader_t *FinishShader(void)
 					ri.Printf(PRINT_WARNING, "Shader %s has a diffusemap stage with no image\n", shader.name);
 					pStage->bundle[0].image[0] = tr.defaultImage;
 				}
+				else
+				{
+					shader.interactLight = qtrue;
+				}
 				break;
 			}
 			
@@ -4993,14 +4997,6 @@ shader_t       *R_FindShader(const char *name, shaderType_t type, qboolean mipRa
 		stages[i].bundle[0].texMods = texMods[i];
 	}
 
-	// FIXME: set these "need" values apropriately
-	shader.needsTangent = qtrue;
-	shader.needsBinormal = qtrue;
-	shader.needsNormal = qtrue;
-	shader.needsST1 = qtrue;
-	shader.needsST2 = qtrue;
-	shader.needsColor = qtrue;
-
 	// attempt to define shader from an explicit parameter file
 	shaderText = FindShaderInShaderText(strippedName);
 	if(shaderText)
@@ -5152,14 +5148,6 @@ qhandle_t RE_RegisterShaderFromImage(const char *name, image_t * image, qboolean
 	{
 		stages[i].bundle[0].texMods = texMods[i];
 	}
-
-	// FIXME: set these "need" values apropriately
-	shader.needsTangent = qtrue;
-	shader.needsBinormal = qtrue;
-	shader.needsNormal = qtrue;
-	shader.needsST1 = qtrue;
-	shader.needsST2 = qtrue;
-	shader.needsColor = qtrue;
 
 	// create the default shading commands
 	

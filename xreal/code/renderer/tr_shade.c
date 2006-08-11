@@ -272,6 +272,20 @@ void RB_InitGPUShaders(void)
 	qglUseProgramObjectARB(tr.genericShader_single.program);
 	qglUniform1iARB(tr.genericShader_single.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
+	
+	//
+	// black depth fill rendering with textures
+	//
+	RB_InitGPUShader(&tr.depthFillShader,
+					  "depthFill",
+					  GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
+
+	tr.depthFillShader.u_ColorMap =
+			qglGetUniformLocationARB(tr.depthFillShader.program, "u_ColorMap");
+
+	qglUseProgramObjectARB(tr.depthFillShader.program);
+	qglUniform1iARB(tr.depthFillShader.u_ColorMap, 0);
+	qglUseProgramObjectARB(0);
 
 	//
 	// directional lighting ( Q3A style )
@@ -805,6 +819,12 @@ void RB_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.genericShader_single.program);
 		tr.genericShader_single.program = 0;
+	}
+	
+	if(tr.depthFillShader.program)
+	{
+		qglDeleteObjectARB(tr.depthFillShader.program);
+		tr.depthFillShader.program = 0;
 	}
 
 	if(tr.lightShader_D_direct.program)
@@ -1532,11 +1552,38 @@ static void Render_generic_single_FFP(int stage)
 //	qglDisable(GL_TEXTURE_2D);
 }
 
-static void Render_zfill_FFP(int stage)
+static void Render_generic_single(int stage)
 {
 	shaderStage_t  *pStage;
 	
-	GLimp_LogComment("--- Render_zfill_FFP ---\n");
+	GLimp_LogComment("--- Render_generic_single ---\n");
+
+	pStage = tess.surfaceStages[stage];
+	
+	GL_State(pStage->stateBits);
+	
+	// enable shader, set arrays
+	
+	// FIXME: VBO surfaces have only tess.svars.color
+	GL_Program(tr.genericShader_single.program);
+	GL_ClientState(tr.genericShader_single.attribs);
+	GL_SetVertexAttribs();
+
+	// bind colorMap
+	GL_SelectTexture(0);
+	R_BindAnimatedImage(&pStage->bundle[TB_COLORMAP]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
+	qglMatrixMode(GL_MODELVIEW);
+	
+	R_DrawElements();
+}
+
+static void Render_depthFill_FFP(int stage)
+{
+	shaderStage_t  *pStage;
+	
+	GLimp_LogComment("--- Render_depthFill_FFP ---\n");
 
 	pStage = tess.surfaceStages[stage];
 	
@@ -1580,6 +1627,39 @@ static void Render_zfill_FFP(int stage)
 	
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 //	qglDisable(GL_TEXTURE_2D);
+}
+
+static void Render_depthFill(int stage)
+{
+	shaderStage_t  *pStage;
+	
+	GLimp_LogComment("--- Render_depthFill ---\n");
+
+	pStage = tess.surfaceStages[stage];
+	
+	GL_State(pStage->stateBits);
+	
+	// enable shader, set arrays
+	GL_Program(tr.depthFillShader.program);
+	GL_ClientState(tr.depthFillShader.attribs);
+	GL_SetVertexAttribs();
+
+	// bind colorMap
+	GL_SelectTexture(0);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
+	qglMatrixMode(GL_MODELVIEW);
+	
+	if(pStage->stateBits & GLS_ATEST_BITS)
+	{
+		GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
+	}
+	else
+	{
+		GL_Bind(tr.whiteImage);
+	}
+
+	R_DrawElements();
 }
 
 /*
@@ -3835,11 +3915,25 @@ void RB_StageIteratorGeneric()
 			{
 				if(r_dynamicLighting->integer == 2)
 				{
-					Render_zfill_FFP(stage);
+					if(glConfig2.shadingLanguage100Available)
+					{
+						Render_depthFill(stage);
+					}
+					else
+					{
+						Render_depthFill_FFP(stage);
+					}
 				}
 				else
 				{
-					Render_generic_single_FFP(stage);
+					if(glConfig2.shadingLanguage100Available)
+					{
+						Render_generic_single(stage);
+					}
+					else
+					{
+						Render_generic_single_FFP(stage);
+					}
 				}
 				break;
 			}
@@ -3848,7 +3942,14 @@ void RB_StageIteratorGeneric()
 			{
 				if(r_dynamicLighting->integer == 2)
 				{
-					Render_zfill_FFP(stage);
+					if(glConfig2.shadingLanguage100Available)
+					{
+						Render_depthFill(stage);
+					}
+					else
+					{
+						Render_depthFill_FFP(stage);
+					}
 				}
 				else
 				{
@@ -3880,15 +3981,25 @@ void RB_StageIteratorGeneric()
 				}
 				else if(r_dynamicLighting->integer == 2)
 				{
-					Render_zfill_FFP(stage);
-				}
-				else if(glConfig2.shadingLanguage100Available)
-				{
-					Render_lighting_D_radiosity(stage);
+					if(glConfig2.shadingLanguage100Available)
+					{
+						Render_depthFill(stage);
+					}
+					else
+					{
+						Render_depthFill_FFP(stage);
+					}
 				}
 				else
 				{
-					Render_lighting_D_radiosity_FFP(stage);
+					if(glConfig2.shadingLanguage100Available)
+					{
+						Render_lighting_D_radiosity(stage);
+					}
+					else
+					{
+						Render_lighting_D_radiosity_FFP(stage);
+					}
 				}
 				break;
 			}
@@ -3905,22 +4016,32 @@ void RB_StageIteratorGeneric()
 				}
 				else if(r_dynamicLighting->integer == 2)
 				{
-					Render_zfill_FFP(stage);
-				}
-				else if(glConfig2.shadingLanguage100Available)
-				{
-					if(tr.worldDeluxeMapping && r_lighting->integer == 1)
+					if(glConfig2.shadingLanguage100Available)
 					{
-						Render_lighting_DB_radiosity(stage);
+						Render_depthFill(stage);
 					}
 					else
 					{
-						Render_lighting_D_radiosity(stage);
+						Render_depthFill_FFP(stage);
 					}
 				}
 				else
 				{
-					Render_lighting_D_radiosity_FFP(stage);
+					if(glConfig2.shadingLanguage100Available)
+					{
+						if(tr.worldDeluxeMapping && r_lighting->integer == 1)
+						{
+							Render_lighting_DB_radiosity(stage);
+						}
+						else
+						{
+							Render_lighting_D_radiosity(stage);
+						}
+					}
+					else
+					{
+						Render_lighting_D_radiosity_FFP(stage);
+					}
 				}
 				break;
 			}
@@ -3937,26 +4058,36 @@ void RB_StageIteratorGeneric()
 				}
 				else if(r_dynamicLighting->integer == 2)
 				{
-					Render_zfill_FFP(stage);
-				}
-				else if(glConfig2.shadingLanguage100Available)
-				{
-					if(tr.worldDeluxeMapping && r_lighting->integer == 2)
+					if(glConfig2.shadingLanguage100Available)
 					{
-						Render_lighting_DBS_radiosity(stage);
-					}
-					else if(tr.worldDeluxeMapping && r_lighting->integer == 1)
-					{
-						Render_lighting_DB_radiosity(stage);
+						Render_depthFill(stage);
 					}
 					else
 					{
-						Render_lighting_D_radiosity(stage);
+						Render_depthFill_FFP(stage);
 					}
 				}
 				else
 				{
-					Render_lighting_D_radiosity_FFP(stage);
+					if(glConfig2.shadingLanguage100Available)
+					{
+						if(tr.worldDeluxeMapping && r_lighting->integer == 2)
+						{
+							Render_lighting_DBS_radiosity(stage);
+						}
+						else if(tr.worldDeluxeMapping && r_lighting->integer == 1)
+						{
+							Render_lighting_DB_radiosity(stage);
+						}
+						else
+						{
+							Render_lighting_D_radiosity(stage);
+						}
+					}
+					else
+					{
+						Render_lighting_D_radiosity_FFP(stage);
+					}
 				}
 				break;
 			}
@@ -3965,22 +4096,32 @@ void RB_StageIteratorGeneric()
 			{
 				if(r_dynamicLighting->integer == 2)
 				{
-					Render_zfill_FFP(stage);
-				}
-				else if(glConfig2.shadingLanguage100Available)
-				{
-					if(r_lighting->integer == 1)
+					if(glConfig2.shadingLanguage100Available)
 					{
-						Render_lighting_DB_direct(stage);
+						Render_depthFill(stage);
 					}
 					else
 					{
-						Render_lighting_D_direct(stage);
+						Render_depthFill_FFP(stage);
 					}
 				}
 				else
 				{
-					Render_generic_single_FFP(stage);
+					if(glConfig2.shadingLanguage100Available)
+					{
+						if(r_lighting->integer == 1)
+						{
+							Render_lighting_DB_direct(stage);
+						}
+						else
+						{
+							Render_lighting_D_direct(stage);
+						}
+					}
+					else
+					{
+						Render_generic_single_FFP(stage);
+					}
 				}
 				break;
 			}
@@ -3989,26 +4130,36 @@ void RB_StageIteratorGeneric()
 			{
 				if(r_dynamicLighting->integer == 2)
 				{
-					Render_zfill_FFP(stage);
-				}
-				else if(glConfig2.shadingLanguage100Available)
-				{
-					if(r_lighting->integer == 2)
+					if(glConfig2.shadingLanguage100Available)
 					{
-						Render_lighting_DBS_direct(stage);
-					}
-					else if(r_lighting->integer == 1)
-					{
-						Render_lighting_DB_direct(stage);
+						Render_depthFill(stage);
 					}
 					else
 					{
-						Render_lighting_D_direct(stage);
+						Render_depthFill_FFP(stage);
 					}
 				}
 				else
 				{
-					Render_generic_single_FFP(stage);
+					if(glConfig2.shadingLanguage100Available)
+					{
+						if(r_lighting->integer == 2)
+						{
+							Render_lighting_DBS_direct(stage);
+						}
+						else if(r_lighting->integer == 1)
+						{
+							Render_lighting_DB_direct(stage);
+						}
+						else
+						{
+							Render_lighting_D_direct(stage);
+						}
+					}
+					else
+					{
+						Render_generic_single_FFP(stage);
+					}
 				}
 				break;
 			}
@@ -4120,7 +4271,14 @@ void RB_StageIteratorGeneric()
 			default:
 			case ST_COLORMAP:
 			{
-				Render_generic_single_FFP(stage);
+				if(glConfig2.shadingLanguage100Available)
+				{
+					Render_generic_single(stage);
+				}
+				else
+				{
+					Render_generic_single_FFP(stage);
+				}
 				break;
 			}
 		}

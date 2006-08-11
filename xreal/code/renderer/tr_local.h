@@ -763,13 +763,8 @@ typedef struct shader_s
 	// spectrums are used for "invisible writing" that can only be illuminated by a light of matching spectrum
 	qboolean		spectrum;	
 	int				spectrumValue;
-
-	qboolean        needsTangent;	// not all shaders will need all data to be gathered
-	qboolean        needsBinormal;
-	qboolean        needsNormal;
-	qboolean        needsST1;
-	qboolean        needsST2;
-	qboolean        needsColor;
+	
+	qboolean        interactLight;	// this shader can interact with light shaders
 
 	int             numDeforms;
 	deformStage_t   deforms[MAX_SHADER_DEFORMS];
@@ -1751,6 +1746,8 @@ typedef struct
 
 	// GPU shader programs
 	shaderProgram_t genericShader_single;
+	
+	shaderProgram_t depthFillShader;
 	
 	shaderProgram_t lightShader_D_direct;
 	shaderProgram_t lightShader_DB_direct;

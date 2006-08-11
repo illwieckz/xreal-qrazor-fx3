@@ -306,8 +306,9 @@ R_CullLocalBox
 Returns CULL_IN, CULL_CLIP, or CULL_OUT
 =================
 */
-int R_CullLocalBox(vec3_t bounds[2])
+int R_CullLocalBox(vec3_t localBounds[2])
 {
+#if 0
 	int             i, j;
 	vec3_t          transformed[8];
 	float           dists[8];
@@ -324,9 +325,9 @@ int R_CullLocalBox(vec3_t bounds[2])
 	// transform into world space
 	for(i = 0; i < 8; i++)
 	{
-		v[0] = bounds[i & 1][0];
-		v[1] = bounds[(i >> 1) & 1][1];
-		v[2] = bounds[(i >> 2) & 1][2];
+		v[0] = localBounds[i & 1][0];
+		v[1] = localBounds[(i >> 1) & 1][1];
+		v[2] = localBounds[(i >> 2) & 1][2];
 
 		R_LocalPointToWorld(v, transformed[i]);
 	}
@@ -368,6 +369,59 @@ int R_CullLocalBox(vec3_t bounds[2])
 	}
 
 	return CULL_CLIP;			// partially clipped
+#else
+	int             i, j;
+	vec3_t          transformed;
+	vec3_t          v;
+	cplane_t       *frust;
+	qboolean        anyClip;
+	int             r;
+	vec3_t          worldBounds[2];
+
+	if(r_nocull->integer)
+	{
+		return CULL_CLIP;
+	}
+
+	// transform into world space
+	ClearBounds(worldBounds[0], worldBounds[1]);
+
+	for(j = 0; j < 8; j++)
+	{
+		v[0] = localBounds[j & 1][0];
+		v[1] = localBounds[(j >> 1) & 1][1];
+		v[2] = localBounds[(j >> 2) & 1][2];
+
+		R_LocalPointToWorld(v, transformed);
+		
+		AddPointToBounds(transformed, worldBounds[0], worldBounds[1]);
+	}
+
+	// check against frustum planes
+	anyClip = qfalse;
+	for(i = 0; i < FRUSTUM_PLANES; i++)
+	{
+		frust = &tr.viewParms.frustum[i];
+
+		r = BoxOnPlaneSide(worldBounds[0], worldBounds[1], frust);
+		
+		if(r == 2)
+		{
+			return CULL_OUT; // completely outside frustum
+		}
+		if(r == 1)
+		{
+			anyClip = qtrue;
+		}
+	}
+
+	if(!anyClip)
+	{
+		return CULL_CLIP; // partially clipped
+	}
+
+	return CULL_IN;	// completely inside frustum
+#endif
 }
 
 

@@ -807,6 +807,10 @@ void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shad
 	int             iaIndex;
 	interaction_t  *ia;
 	interaction_t  *iaLast;
+	
+	// skip all surfaces that don't matter for lighting only pass
+	if((surfaceShader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY)) || !surfaceShader->interactLight)
+		return;
 
 	// instead of checking for overflow, we just mask the index
 	// so it wraps around
