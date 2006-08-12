@@ -24,8 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 
-glconfig_t      glConfig;
-glconfig2_t     glConfig2;
+glConfig_t      glConfig;
 glstate_t       glState;
 
 static void     GfxInfo_f(void);
@@ -1012,26 +1011,26 @@ void GfxInfo_f(void)
 	ri.Printf(PRINT_ALL, "GL_MAX_TEXTURE_UNITS_ARB: %d\n", glConfig.maxTextureUnits);
 
 	/*
-	   if(glConfig2.fragmentProgramAvailable)
+	   if(glConfig.fragmentProgramAvailable)
 	   {
 	   ri.Printf(PRINT_ALL, "GL_MAX_TEXTURE_IMAGE_UNITS_ARB: %d\n", glConfig.maxTextureImageUnits);
 	   }
 	 */
 
-	if(glConfig2.textureAnisotropyAvailable)
+	if(glConfig.textureAnisotropyAvailable)
 	{
-		ri.Printf(PRINT_ALL, "GL_TEXTURE_MAX_ANISOTROPY_EXT: %f\n", glConfig2.maxTextureAnisotropy);
+		ri.Printf(PRINT_ALL, "GL_TEXTURE_MAX_ANISOTROPY_EXT: %f\n", glConfig.maxTextureAnisotropy);
 	}
 	
-	if(glConfig2.occlusionQueryAvailable)
+	if(glConfig.occlusionQueryAvailable)
 	{
-		ri.Printf(PRINT_ALL, "%d occlusion query bits\n", glConfig2.occlusionQueryBits);
+		ri.Printf(PRINT_ALL, "%d occlusion query bits\n", glConfig.occlusionQueryBits);
 	}
 	
-	if(glConfig2.framebufferObjectAvailable)
+	if(glConfig.framebufferObjectAvailable)
 	{
-		ri.Printf(PRINT_ALL, "GL_MAX_RENDERBUFFER_SIZE_EXT: %d\n", glConfig2.maxRenderbufferSize);
-		ri.Printf(PRINT_ALL, "GL_MAX_COLOR_ATTACHMENTS_EXT: %d\n", glConfig2.maxColorAttachments);
+		ri.Printf(PRINT_ALL, "GL_MAX_RENDERBUFFER_SIZE_EXT: %d\n", glConfig.maxRenderbufferSize);
+		ri.Printf(PRINT_ALL, "GL_MAX_COLOR_ATTACHMENTS_EXT: %d\n", glConfig.maxColorAttachments);
 	}
 
 	ri.Printf(PRINT_ALL, "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits,
@@ -1385,12 +1384,12 @@ void R_Init(void)
 
 	R_InitFreeType();
 	
-	if(glConfig2.textureAnisotropyAvailable)
+	if(glConfig.textureAnisotropyAvailable)
 	{
-		AssertCvarRange(r_ext_texture_filter_anisotropic, 0, glConfig2.maxTextureAnisotropy, qfalse);
+		AssertCvarRange(r_ext_texture_filter_anisotropic, 0, glConfig.maxTextureAnisotropy, qfalse);
 	}
 	
-	if(glConfig2.occlusionQueryBits)
+	if(glConfig.occlusionQueryBits)
 	{
 		qglGenQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
 	}
@@ -1434,7 +1433,7 @@ void RE_Shutdown(qboolean destroyWindow)
 		R_ShutdownVBOs();
 		R_ShutdownFBOs();
 		
-		if(glConfig2.occlusionQueryBits)
+		if(glConfig.occlusionQueryBits)
 		{
 			qglDeleteQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
 		}

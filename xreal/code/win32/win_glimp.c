@@ -1068,13 +1068,13 @@ static void GLW_InitExtensions(void)
 	}
 
 	// GL_ARB_texture_cube_map
-	glConfig2.textureCubeAvailable = qfalse;
+	glConfig.textureCubeAvailable = qfalse;
 	if(strstr(glConfig.extensions_string, "GL_ARB_texture_cube_map"))
 	{
 		if(r_ext_texture_cube_map->integer)
 		{
-			qglGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB, &glConfig2.maxCubeMapTextureSize);
-			glConfig2.textureCubeAvailable = qtrue;
+			qglGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB, &glConfig.maxCubeMapTextureSize);
+			glConfig.textureCubeAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_texture_cube_map\n");
 		}
 		else
@@ -1088,12 +1088,12 @@ static void GLW_InitExtensions(void)
 	}
 	
 	// GL_ARB_depth_texture
-	glConfig2.depthTextureAvailable = qfalse;
+	glConfig.depthTextureAvailable = qfalse;
 	if(strstr(glConfig.extensions_string, "GL_ARB_depth_texture"))
 	{
 		if(r_ext_depth_texture->integer)
 		{
-			glConfig2.depthTextureAvailable = qtrue;
+			glConfig.depthTextureAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_depth_texture\n");
 		}
 		else
@@ -1107,7 +1107,7 @@ static void GLW_InitExtensions(void)
 	}
 
 	// GL_ARB_vertex_program
-	glConfig2.vertexProgramAvailable = qfalse;
+	glConfig.vertexProgramAvailable = qfalse;
 	qglVertexAttribPointerARB = NULL;
 	qglEnableVertexAttribArrayARB = NULL;
 	qglDisableVertexAttribArrayARB = NULL;
@@ -1120,7 +1120,7 @@ static void GLW_InitExtensions(void)
 				(PFNGLENABLEVERTEXATTRIBARRAYARBPROC) qwglGetProcAddress("glEnableVertexAttribArrayARB");
 			qglDisableVertexAttribArrayARB =
 				(PFNGLDISABLEVERTEXATTRIBARRAYARBPROC) qwglGetProcAddress("glDisableVertexAttribArrayARB");
-			glConfig2.vertexProgramAvailable = qtrue;
+			glConfig.vertexProgramAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_vertex_program\n");
 		}
 		else
@@ -1134,7 +1134,7 @@ static void GLW_InitExtensions(void)
 	}
 	
 	// GL_ARB_vertex_buffer_object
-	glConfig2.vertexBufferObjectAvailable = qfalse;
+	glConfig.vertexBufferObjectAvailable = qfalse;
 	qglBindBufferARB = NULL;
 	qglDeleteBuffersARB = NULL;
 	qglGenBuffersARB = NULL;
@@ -1161,7 +1161,7 @@ static void GLW_InitExtensions(void)
 			qglUnmapBufferARB = (PFNGLUNMAPBUFFERARBPROC) qwglGetProcAddress("glUnmapBufferARB");
 			qglGetBufferParameterivARB = (PFNGLGETBUFFERPARAMETERIVARBPROC) qwglGetProcAddress("glGetBufferParameterivARB");
 			qglGetBufferPointervARB = (PFNGLGETBUFFERPOINTERVARBPROC) qwglGetProcAddress("glGetBufferPointervARB");
-			glConfig2.vertexBufferObjectAvailable = qtrue;
+			glConfig.vertexBufferObjectAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_vertex_buffer_object\n");
 		}
 		else
@@ -1175,8 +1175,8 @@ static void GLW_InitExtensions(void)
 	}
 	
 	// GL_ARB_occlusion_query
-	glConfig2.occlusionQueryAvailable = qfalse;
-	glConfig2.occlusionQueryBits = 0;
+	glConfig.occlusionQueryAvailable = qfalse;
+	glConfig.occlusionQueryBits = 0;
 	qglGenQueriesARB = NULL;
 	qglDeleteQueriesARB = NULL;
 	qglIsQueryARB = NULL;
@@ -1197,8 +1197,8 @@ static void GLW_InitExtensions(void)
 			qglGetQueryivARB = (PFNGLGETQUERYIVARBPROC) qwglGetProcAddress("glGetQueryivARB");
 			qglGetQueryObjectivARB = (PFNGLGETQUERYOBJECTIVARBPROC) qwglGetProcAddress("glGetQueryObjectivARB");
 			qglGetQueryObjectuivARB = (PFNGLGETQUERYOBJECTUIVARBPROC) qwglGetProcAddress("glGetQueryObjectuivARB");
-			glConfig2.occlusionQueryAvailable = qtrue;
-			qglGetQueryivARB(GL_SAMPLES_PASSED, GL_QUERY_COUNTER_BITS, &glConfig2.occlusionQueryBits); 
+			glConfig.occlusionQueryAvailable = qtrue;
+			qglGetQueryivARB(GL_SAMPLES_PASSED, GL_QUERY_COUNTER_BITS, &glConfig.occlusionQueryBits); 
 			ri.Printf(PRINT_ALL, "...using GL_ARB_occlusion_query\n");
 		}
 		else
@@ -1212,7 +1212,7 @@ static void GLW_InitExtensions(void)
 	}
 
 	// GL_ARB_shader_objects
-	glConfig2.shaderObjectsAvailable = qfalse;
+	glConfig.shaderObjectsAvailable = qfalse;
 	qglDeleteObjectARB = NULL;
 	qglGetHandleARB = NULL;
 	qglDetachObjectARB = NULL;
@@ -1291,7 +1291,7 @@ static void GLW_InitExtensions(void)
 			qglGetUniformfvARB = (PFNGLGETUNIFORMFVARBPROC) qwglGetProcAddress("glGetUniformfvARB");
 			qglGetUniformivARB = (PFNGLGETUNIFORMIVARBPROC) qwglGetProcAddress("glGetUniformivARB");
 			qglGetShaderSourceARB = (PFNGLGETSHADERSOURCEARBPROC) qwglGetProcAddress("glGetShaderSourceARB");
-			glConfig2.shaderObjectsAvailable = qtrue;
+			glConfig.shaderObjectsAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_shader_objects\n");
 		}
 		else
@@ -1305,7 +1305,7 @@ static void GLW_InitExtensions(void)
 	}
 
 	// GL_ARB_vertex_shader
-	glConfig2.vertexShaderAvailable = qfalse;
+	glConfig.vertexShaderAvailable = qfalse;
 	qglBindAttribLocationARB = NULL;
 	qglGetActiveAttribARB = NULL;
 	qglGetAttribLocationARB = NULL;
@@ -1316,7 +1316,7 @@ static void GLW_InitExtensions(void)
 			qglBindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONARBPROC) qwglGetProcAddress("glBindAttribLocationARB");
 			qglGetActiveAttribARB = (PFNGLGETACTIVEATTRIBARBPROC) qwglGetProcAddress("glGetActiveAttribARB");
 			qglGetAttribLocationARB = (PFNGLGETATTRIBLOCATIONARBPROC) qwglGetProcAddress("glGetAttribLocationARB");
-			glConfig2.vertexShaderAvailable = qtrue;
+			glConfig.vertexShaderAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_vertex_shader\n");
 		}
 		else
@@ -1330,12 +1330,12 @@ static void GLW_InitExtensions(void)
 	}
 
 	// GL_ARB_fragment_shader
-	glConfig2.fragmentShaderAvailable = qfalse;
+	glConfig.fragmentShaderAvailable = qfalse;
 	if(strstr(glConfig.extensions_string, "GL_ARB_fragment_shader"))
 	{
 		if(r_ext_fragment_shader->value)
 		{
-			glConfig2.fragmentShaderAvailable = qtrue;
+			glConfig.fragmentShaderAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_fragment_shader\n");
 		}
 		else
@@ -1349,12 +1349,12 @@ static void GLW_InitExtensions(void)
 	}
 
 	// GL_ARB_shading_language_100
-	glConfig2.shadingLanguage100Available = qfalse;
+	glConfig.shadingLanguage100Available = qfalse;
 	if(strstr(glConfig.extensions_string, "GL_ARB_shading_language_100"))
 	{
 		if(r_ext_shading_language_100->value)
 		{
-			glConfig2.shadingLanguage100Available = qtrue;
+			glConfig.shadingLanguage100Available = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_shading_language_100\n");
 		}
 		else
@@ -1424,12 +1424,12 @@ static void GLW_InitExtensions(void)
 	}
 
 	// GL_EXT_stencil_wrap
-	glConfig2.stencilWrapAvailable = qfalse;
+	glConfig.stencilWrapAvailable = qfalse;
 	if(strstr(glConfig.extensions_string, "GL_EXT_stencil_wrap"))
 	{
 		if(r_ext_stencil_wrap->value)
 		{
-			glConfig2.stencilWrapAvailable = qtrue;
+			glConfig.stencilWrapAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_EXT_stencil_wrap\n");
 		}
 		else
@@ -1443,14 +1443,14 @@ static void GLW_InitExtensions(void)
 	}
 
 	// GL_EXT_texture_filter_anisotropic
-	glConfig2.textureAnisotropyAvailable = qfalse;
+	glConfig.textureAnisotropyAvailable = qfalse;
 	if(strstr(glConfig.extensions_string, "GL_EXT_texture_filter_anisotropic"))
 	{
-		qglGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glConfig2.maxTextureAnisotropy);
+		qglGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glConfig.maxTextureAnisotropy);
 
 		if(r_ext_texture_filter_anisotropic->value)
 		{
-			glConfig2.textureAnisotropyAvailable = qtrue;
+			glConfig.textureAnisotropyAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_EXT_texture_filter_anisotropic\n");
 		}
 		else
@@ -1502,7 +1502,7 @@ static void GLW_InitExtensions(void)
 	}
 
 	// GL_EXT_framebuffer_object
-	glConfig2.framebufferObjectAvailable = qfalse;
+	glConfig.framebufferObjectAvailable = qfalse;
 	qglIsRenderbufferEXT = NULL;
 	qglBindRenderbufferEXT = NULL;
 	qglDeleteRenderbuffersEXT = NULL;
@@ -1522,8 +1522,8 @@ static void GLW_InitExtensions(void)
 	qglGenerateMipmapEXT = NULL;
 	if(strstr(glConfig.extensions_string, "GL_EXT_framebuffer_object"))
 	{
-		qglGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &glConfig2.maxRenderbufferSize);
-		qglGetIntegerv(GL_MAX_COLOR_ATTACHMENTS_EXT, &glConfig2.maxColorAttachments);
+		qglGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &glConfig.maxRenderbufferSize);
+		qglGetIntegerv(GL_MAX_COLOR_ATTACHMENTS_EXT, &glConfig.maxColorAttachments);
 		
 		if(r_ext_framebuffer_object->value)
 		{
@@ -1547,7 +1547,7 @@ static void GLW_InitExtensions(void)
 			qglGetFramebufferAttachmentParameterivEXT =
 				(PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC) qwglGetProcAddress("glGetFramebufferAttachmentParameterivEXT");
 			qglGenerateMipmapEXT = (PFNGLGENERATEMIPMAPEXTPROC) qwglGetProcAddress("glGenerateMipmapEXT");
-			glConfig2.framebufferObjectAvailable = qtrue;
+			glConfig.framebufferObjectAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_EXT_framebuffer_object\n");
 		}
 		else
@@ -1988,7 +1988,6 @@ void GLimp_Shutdown(void)
 	QGL_Shutdown();
 
 	memset(&glConfig, 0, sizeof(glConfig));
-	memset(&glConfig2, 0, sizeof(glConfig2));
 	memset(&glState, 0, sizeof(glState));
 }
 

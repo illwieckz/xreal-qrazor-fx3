@@ -744,9 +744,9 @@ static void GraphicsOptions_SetMenuItems(void)
 	{
 		s_graphicsoptions.anisotropicFilter.curvalue = 0;
 	}
-	else if(s_graphicsoptions.anisotropicFilter.curvalue > uis.glconfig2.maxTextureAnisotropy)
+	else if(s_graphicsoptions.anisotropicFilter.curvalue > uis.glconfig.maxTextureAnisotropy)
 	{
-		s_graphicsoptions.anisotropicFilter.curvalue = uis.glconfig2.maxTextureAnisotropy;
+		s_graphicsoptions.anisotropicFilter.curvalue = uis.glconfig.maxTextureAnisotropy;
 	}
 }
 
@@ -1026,7 +1026,7 @@ void GraphicsOptions_MenuInit( void )
 		s_graphicsoptions.anisotropicFilter.generic.x		= 400;
 		s_graphicsoptions.anisotropicFilter.generic.y		= y;
 		s_graphicsoptions.anisotropicFilter.minvalue       = 0;
-		s_graphicsoptions.anisotropicFilter.maxvalue       = uis.glconfig2.maxTextureAnisotropy;
+		s_graphicsoptions.anisotropicFilter.maxvalue       = uis.glconfig.maxTextureAnisotropy;
 		s_graphicsoptions.anisotropicFilter.generic.callback = GraphicsOptions_AnisotropicFilterEvent;
 		y += 2*BIGCHAR_HEIGHT;
 	}

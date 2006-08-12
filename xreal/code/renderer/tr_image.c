@@ -146,11 +146,11 @@ void GL_TextureMode(const char *string)
 	gl_filter_max = modes[i].maximize;
 
 	// bound texture anisotropy
-	if(glConfig2.textureAnisotropyAvailable)
+	if(glConfig.textureAnisotropyAvailable)
 	{
-		if(r_ext_texture_filter_anisotropic->value > glConfig2.maxTextureAnisotropy)
+		if(r_ext_texture_filter_anisotropic->value > glConfig.maxTextureAnisotropy)
 		{
-			ri.Cvar_Set("r_ext_texture_filter_anisotropic", va("%f", glConfig2.maxTextureAnisotropy));
+			ri.Cvar_Set("r_ext_texture_filter_anisotropic", va("%f", glConfig.maxTextureAnisotropy));
 		}
 		else if(r_ext_texture_filter_anisotropic->value < 1.0)
 		{
@@ -172,7 +172,7 @@ void GL_TextureMode(const char *string)
 			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 
 			// set texture anisotropy
-			if(glConfig2.textureAnisotropyAvailable)
+			if(glConfig.textureAnisotropyAvailable)
 				qglTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
 		}
 	}
@@ -987,7 +987,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 	// deal with a half mip resampling
 	if(image->type == GL_TEXTURE_CUBE_MAP_ARB || (image->bits & IF_CUBEMAP))
 	{
-		while(scaledWidth > glConfig2.maxCubeMapTextureSize || scaledHeight > glConfig2.maxCubeMapTextureSize)
+		while(scaledWidth > glConfig.maxCubeMapTextureSize || scaledHeight > glConfig.maxCubeMapTextureSize)
 		{
 			scaledWidth >>= 1;
 			scaledHeight >>= 1;
@@ -1194,7 +1194,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 				qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 
 				// set texture anisotropy
-				if(glConfig2.textureAnisotropyAvailable)
+				if(glConfig.textureAnisotropyAvailable)
 					qglTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
 				break;
 

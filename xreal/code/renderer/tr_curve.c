@@ -543,7 +543,7 @@ static srfGridMesh_t  *R_CreateSurfaceGridMesh(int width, int height,
 	}
 	
 	// compute VBOs
-	if(glConfig2.vertexBufferObjectAvailable)
+	if(glConfig.vertexBufferObjectAvailable)
 	{
 		if(numTriangles)
 		{
@@ -705,7 +705,7 @@ R_FreeSurfaceGridMesh
 */
 void R_FreeSurfaceGridMesh(srfGridMesh_t * grid)
 {
-	if(glConfig2.vertexBufferObjectAvailable)
+	if(glConfig.vertexBufferObjectAvailable)
 	{
 		if(grid->indexesVBO)
 		{

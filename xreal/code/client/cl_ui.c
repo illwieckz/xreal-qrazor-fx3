@@ -713,19 +713,9 @@ int LAN_GetServerStatus(char *serverAddress, char *serverStatus, int maxLen)
 CL_GetGlConfig
 ====================
 */
-static void CL_GetGlconfig(glconfig_t * config)
+static void CL_GetGlconfig(glConfig_t * config)
 {
 	*config = cls.glconfig;
-}
-
-/*
-====================
-CL_GetGlConfig2
-====================
-*/
-static void CL_GetGlconfig2(glconfig2_t * config)
-{
-	*config = cls.glconfig2;
 }
 
 /*
@@ -1078,10 +1068,6 @@ intptr_t CL_UISystemCalls(intptr_t *args)
 
 		case UI_GETGLCONFIG:
 			CL_GetGlconfig(VMA(1));
-			return 0;
-			
-		case UI_GETGLCONFIG2:
-			CL_GetGlconfig2(VMA(1));
 			return 0;
 
 		case UI_GETCONFIGSTRING:

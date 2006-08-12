@@ -1133,7 +1133,6 @@ void UI_Init(void)
 
 	// cache redundant calulations
 	trap_GetGlconfig(&uis.glconfig);
-	trap_GetGlconfig2(&uis.glconfig2);
 
 	// for 640x480 virtualized screen
 	uis.scale = uis.glconfig.vidHeight * (1.0 / 480.0);

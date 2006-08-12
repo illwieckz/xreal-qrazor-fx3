@@ -60,7 +60,7 @@ RB_CheckOverflow
 */
 void RB_CheckOverflow(int verts, int indexes)
 {
-	if(glConfig2.vertexBufferObjectAvailable && (tess.indexesVBO || tess.vertexesVBO))
+	if(glConfig.vertexBufferObjectAvailable && (tess.indexesVBO || tess.vertexesVBO))
 	{
 		RB_EndBeginSurface();
 		return;
@@ -421,12 +421,12 @@ void RB_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexe
 	}
 	else
 	{
-		if(glConfig2.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboFaces->integer)
+		if(glConfig.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboFaces->integer)
 		{
 			RB_EndBeginSurface();
 		}
 
-		if(glConfig2.vertexBufferObjectAvailable && cv->indexesVBO && r_vboFaces->integer)
+		if(glConfig.vertexBufferObjectAvailable && cv->indexesVBO && r_vboFaces->integer)
 		{
 			RB_CHECKOVERFLOW(cv->numVerts, cv->numTriangles * 3);
 
@@ -463,7 +463,7 @@ void RB_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexe
 			}
 		}
 
-		if(glConfig2.vertexBufferObjectAvailable && cv->vertsVBO && r_vboFaces->integer)
+		if(glConfig.vertexBufferObjectAvailable && cv->vertsVBO && r_vboFaces->integer)
 		{
 			tess.vertexesVBO = cv->vertsVBO;
 			tess.ofsXYZ = cv->ofsXYZ;
@@ -689,12 +689,12 @@ void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, 
 	}
 	else
 	{
-		if(glConfig2.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboCurves->integer)
+		if(glConfig.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboCurves->integer)
 		{
 			RB_EndBeginSurface();
 		}
 
-		if(glConfig2.vertexBufferObjectAvailable && cv->indexesVBO && r_vboCurves->integer)
+		if(glConfig.vertexBufferObjectAvailable && cv->indexesVBO && r_vboCurves->integer)
 		{
 			RB_CHECKOVERFLOW(cv->numVerts, cv->numTriangles * 3);
 
@@ -731,7 +731,7 @@ void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, 
 			}
 		}
 
-		if(glConfig2.vertexBufferObjectAvailable && cv->vertsVBO && r_vboCurves->integer)
+		if(glConfig.vertexBufferObjectAvailable && cv->vertsVBO && r_vboCurves->integer)
 		{
 			tess.vertexesVBO = cv->vertsVBO;
 			tess.ofsXYZ = cv->ofsXYZ;
@@ -957,12 +957,12 @@ void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightInd
 	}
 	else
 	{
-		if(glConfig2.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboTriangles->integer)
+		if(glConfig.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboTriangles->integer)
 		{
 			RB_EndBeginSurface();
 		}
 
-		if(glConfig2.vertexBufferObjectAvailable && cv->indexesVBO && r_vboTriangles->integer)
+		if(glConfig.vertexBufferObjectAvailable && cv->indexesVBO && r_vboTriangles->integer)
 		{
 			RB_CHECKOVERFLOW(cv->numVerts, cv->numTriangles * 3);
 
@@ -999,7 +999,7 @@ void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightInd
 			}
 		}
 
-		if(glConfig2.vertexBufferObjectAvailable && cv->vertsVBO && r_vboTriangles->integer)
+		if(glConfig.vertexBufferObjectAvailable && cv->vertsVBO && r_vboTriangles->integer)
 		{
 			tess.vertexesVBO = cv->vertsVBO;
 			tess.ofsXYZ = cv->ofsXYZ;

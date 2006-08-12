@@ -95,12 +95,12 @@ frameBuffer_t  *R_CreateFBO(const char *name, int width, int height)
 		ri.Error(ERR_DROP, "R_CreateFBO: \"%s\" is too long\n", name);
 	}
 
-	if(width <= 0 || width > glConfig2.maxRenderbufferSize)
+	if(width <= 0 || width > glConfig.maxRenderbufferSize)
 	{
 		ri.Error(ERR_DROP, "R_CreateFBO: bad width %i", width);
 	}
 		
-	if(height <= 0 || height > glConfig2.maxRenderbufferSize)
+	if(height <= 0 || height > glConfig.maxRenderbufferSize)
 	{
 		ri.Error(ERR_DROP, "R_CreateFBO: bad height %i", height);
 	}
@@ -132,7 +132,7 @@ void R_CreateFBOColorBuffer(frameBuffer_t * fbo, int format, int index)
 {
 	qboolean        absent;
 
-	if(index < 0 || index >= glConfig2.maxColorAttachments)
+	if(index < 0 || index >= glConfig.maxColorAttachments)
 	{
 		ri.Printf(PRINT_WARNING, "R_CreateFBOColorBuffer: invalid attachment index %i\n", index);
 		return;
@@ -233,7 +233,7 @@ R_AttachFBOTexture1D
 */
 void R_AttachFBOTexture1D(int texId, int index)
 {
-	if(index < 0 || index >= glConfig2.maxColorAttachments)
+	if(index < 0 || index >= glConfig.maxColorAttachments)
 	{
 		ri.Printf(PRINT_WARNING, "R_AttachFBOTexture1D: invalid attachment index %i\n", index);
 		return;
@@ -255,7 +255,7 @@ void R_AttachFBOTexture2D(int target, int texId, int index)
 		return;
 	}
 
-	if(index < 0 || index >= glConfig2.maxColorAttachments)
+	if(index < 0 || index >= glConfig.maxColorAttachments)
 	{
 		ri.Printf(PRINT_WARNING, "R_AttachFBOTexture2D: invalid attachment index %i\n", index);
 		return;
@@ -271,7 +271,7 @@ R_AttachFBOTexture3D
 */
 void R_AttachFBOTexture3D(int texId, int index, int zOffset)
 {
-	if(index < 0 || index >= glConfig2.maxColorAttachments)
+	if(index < 0 || index >= glConfig.maxColorAttachments)
 	{
 		ri.Printf(PRINT_WARNING, "R_AttachFBOTexture3D: invalid attachment index %i\n", index);
 		return;
@@ -342,7 +342,7 @@ R_InitFBOs
 */
 void R_InitFBOs(void)
 {
-	if(!glConfig2.framebufferObjectAvailable)
+	if(!glConfig.framebufferObjectAvailable)
 		return;
 
 	tr.numFBOs = 0;
@@ -390,7 +390,7 @@ void R_ShutdownFBOs(void)
 	int             i, j;
 	frameBuffer_t  *fbo;
 
-	if(!glConfig2.framebufferObjectAvailable)
+	if(!glConfig.framebufferObjectAvailable)
 		return;
 
 	R_BindNullFBO();
@@ -399,7 +399,7 @@ void R_ShutdownFBOs(void)
 	{
 		fbo = tr.fbos[i];
 
-		for(j = 0; j < glConfig2.maxColorAttachments; j++)
+		for(j = 0; j < glConfig.maxColorAttachments; j++)
 		{
 			if(fbo->colorBuffers[j])
 				qglDeleteRenderbuffersEXT(1, &fbo->colorBuffers[j]);
@@ -426,7 +426,7 @@ void R_FBOList_f(void)
 	int             i;
 	frameBuffer_t  *fbo;
 
-	if(!glConfig2.framebufferObjectAvailable)
+	if(!glConfig.framebufferObjectAvailable)
 	{
 		ri.Printf(PRINT_ALL, "GL_EXT_framebuffer_object is not available.\n");
 		return;

@@ -976,7 +976,7 @@ void R_ShutdownVBOs()
 		return;
 	}
 	
-	if(!glConfig2.vertexBufferObjectAvailable)
+	if(!glConfig.vertexBufferObjectAvailable)
 	{
 		return;
 	}

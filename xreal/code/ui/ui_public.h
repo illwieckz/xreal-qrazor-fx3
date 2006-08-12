@@ -127,8 +127,6 @@ typedef enum
 	// 1.32
 	UI_FS_SEEK,
 	UI_SET_PBCLSTATUS,
-	// Tr3B - XreaL extensions
-	UI_GETGLCONFIG2,
 
 	UI_MEMSET = 100,
 	UI_MEMCPY,

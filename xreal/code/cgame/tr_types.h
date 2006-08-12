@@ -244,7 +244,7 @@ typedef enum
 
 
 /*
-** glconfig_t
+** glConfig_t
 **
 ** Contains variables specific to the OpenGL configuration
 ** being run right now.  These are constant once the OpenGL
@@ -287,7 +287,7 @@ typedef struct
 	char            version_string[MAX_STRING_CHARS];
 	char            extensions_string[BIG_INFO_STRING];
 
-	int             maxTextureSize;	// queried from GL
+	int             maxTextureSize;		// queried from GL
 	int             maxTextureUnits;	// multitexture ability
 
 	int             colorBits, depthBits, stencilBits;
@@ -298,26 +298,7 @@ typedef struct
 	qboolean        deviceSupportsGamma;
 	textureCompression_t textureCompression;
 	qboolean        textureEnvAddAvailable;
-
-	int             vidWidth, vidHeight;
-	// aspect is the screen's physical width / height, which may be different
-	// than scrWidth / scrHeight if the pixels are non-square
-	// normal screens should be 4/3, but wide aspect monitors may be 16/9
-	float           windowAspect;
-
-	int             displayFrequency;
-
-	// synonymous with "does rendering consume the entire screen?", therefore
-	// a Voodoo or Voodoo2 will have this set to TRUE, as will a Win32 ICD that
-	// used CDS.
-	qboolean        isFullscreen;
-	qboolean        stereoEnabled;
-	qboolean        smpActive;	// dual processor
-} glconfig_t;
-
-// Tr3B - add any new variables here to not break compatibility with qvm dlls
-typedef struct
-{
+	
 	int             maxCubeMapTextureSize;
 	qboolean        textureCubeAvailable;
 	qboolean        depthTextureAvailable;
@@ -335,18 +316,25 @@ typedef struct
 	qboolean        framebufferObjectAvailable;
 	int             maxRenderbufferSize;
 	int             maxColorAttachments;
-} glconfig2_t;
+
+	int             vidWidth, vidHeight;
+	// aspect is the screen's physical width / height, which may be different
+	// than scrWidth / scrHeight if the pixels are non-square
+	// normal screens should be 4/3, but wide aspect monitors may be 16/9
+	float           windowAspect;
+
+	int             displayFrequency;
+
+	// synonymous with "does rendering consume the entire screen?", therefore
+	// a Voodoo or Voodoo2 will have this set to TRUE, as will a Win32 ICD that
+	// used CDS.
+	qboolean        isFullscreen;
+	qboolean        stereoEnabled;
+	qboolean        smpActive;	// dual processor
+} glConfig_t;
+
 
 // FIXME: VM should be OS agnostic .. in theory
-
-/*
-#ifdef Q3_VM
-
-#define _3DFX_DRIVER_NAME	"Voodoo"
-#define OPENGL_DRIVER_NAME	"Default"
-
-#elif defined(_WIN32)
-*/
 
 #if defined(Q3_VM) || defined(_WIN32)
 

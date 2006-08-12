@@ -537,7 +537,7 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 	}
 
 	// create VBOs
-	if(glConfig2.vertexBufferObjectAvailable)
+	if(glConfig.vertexBufferObjectAvailable)
 	{
 		if(numTriangles)
 		{
@@ -883,7 +883,7 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 	}
 
 	// create VBOs
-	if(glConfig2.vertexBufferObjectAvailable)
+	if(glConfig.vertexBufferObjectAvailable)
 	{
 		if(numTriangles)
 		{

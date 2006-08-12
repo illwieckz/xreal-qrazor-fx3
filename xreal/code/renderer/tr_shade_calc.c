@@ -180,7 +180,7 @@ static float GetOpValue(const expOperation_t * op)
 			break;
 			
 		case OP_FRAGMENTPROGRAMS:
-			value = glConfig2.shadingLanguage100Available;
+			value = glConfig.shadingLanguage100Available;
 			break;
 			
 		case OP_SOUND:

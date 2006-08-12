@@ -59,7 +59,7 @@ void GL_Bind(image_t * image)
 
 void GL_Program(GLhandleARB program)
 {
-	if(glConfig2.shadingLanguage100Available)
+	if(glConfig.shadingLanguage100Available)
 	{
 		if(glState.currentProgram != program)
 		{
@@ -791,7 +791,7 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 		surface = ia->surface;
 		shader = ia->surfaceShader;
 		
-		if(glConfig2.occlusionQueryBits && !ia->occlusionQuerySamples)
+		if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
 		{
 			// skip all interactions of this light because it failed the occlusion query
 			goto nextInteraction;
@@ -915,7 +915,7 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 	  nextInteraction:
 		if(!ia->next)
 		{
-			if(glConfig2.occlusionQueryBits && !ia->occlusionQuerySamples)
+			if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
 			{
 				// do nothing
 			}
@@ -989,7 +989,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 	matrix_t        modelToLight;
 	qboolean        drawShadows;
 
-	if(glConfig.stencilBits < 4 || !glConfig2.shadingLanguage100Available)
+	if(glConfig.stencilBits < 4 || !glConfig.shadingLanguage100Available)
 	{
 		RB_RenderInteractions(originalTime, interactions, numInteractions);
 		return;
@@ -1331,7 +1331,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 
 static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions)
 {
-	if(glConfig2.occlusionQueryBits)
+	if(glConfig.occlusionQueryBits)
 	{
 		int				i;
 		interaction_t  *ia;

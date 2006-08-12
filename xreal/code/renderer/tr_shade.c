@@ -256,7 +256,7 @@ void RB_InitGPUShaders(void)
 {
 	ri.Printf(PRINT_ALL, "------- RB_InitGPUShaders -------\n");
 
-	if(!glConfig2.shadingLanguage100Available)
+	if(!glConfig.shadingLanguage100Available)
 		return;
 	
 	//
@@ -810,7 +810,7 @@ void RB_ShutdownGPUShaders(void)
 {
 	ri.Printf(PRINT_ALL, "------- RB_ShutdownGPUShaders -------\n");
 
-	if(!glConfig2.shadingLanguage100Available)
+	if(!glConfig.shadingLanguage100Available)
 		return;
 	
 	GL_Program(0);
@@ -1087,7 +1087,7 @@ static void GL_SetVertexAttribs()
 {
 	//static GLuint   oldVertexesVBO = 0;
 	
-	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
 	{
 		/*
 		if(oldVertexesVBO == tess.vertexesVBO)
@@ -1166,7 +1166,7 @@ R_DrawElements
 static void R_DrawElements()
 {
 	// move tess data through the GPU, finally
-	if(glConfig2.vertexBufferObjectAvailable && tess.indexesVBO)
+	if(glConfig.vertexBufferObjectAvailable && tess.indexesVBO)
 	{
 		//qglDrawRangeElementsEXT(GL_TRIANGLES, 0, tessmesh->vertexes.size(), mesh->indexes.size(), GL_UNSIGNED_INT, VBO_BUFFER_OFFSET(mesh->vbo_indexes_ofs));
 		
@@ -1348,7 +1348,7 @@ static void DrawTris()
 	GL_ClientState(GLCS_VERTEX);
 	qglDepthRange(0, 0);
 
-	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
 	{
 		qglVertexPointer(3, GL_FLOAT, 16, BUFFER_OFFSET(tess.ofsXYZ));
 	}
@@ -1516,7 +1516,7 @@ static void Render_generic_single_FFP(int stage)
 	GL_Program(0);
 	GL_State(pStage->stateBits);
 	
-	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
 	{
 		qglColor4fv(tess.svars.color);
 		GL_ClientState(GLCS_VERTEX);
@@ -1535,7 +1535,7 @@ static void Render_generic_single_FFP(int stage)
 	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 	
-	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
 	{
 		qglTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsTexCoords));
 	}
@@ -1609,7 +1609,7 @@ static void Render_depthFill_FFP(int stage)
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
-	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
 	{
 		qglTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsTexCoords));
 	}
@@ -2184,7 +2184,7 @@ static void Render_lightmap_FFP(int stage, int texCoordsIndex)
 	qglLoadMatrixf(tess.svars.texMatrices[texCoordsIndex]);
 	qglMatrixMode(GL_MODELVIEW);
 	
-	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
 	{
 		if(texCoordsIndex == TB_LIGHTMAP)
 			qglTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsTexCoords2));
@@ -2238,7 +2238,7 @@ static void Render_deluxemap_FFP(int stage, int texCoordsIndex)
 	qglLoadMatrixf(tess.svars.texMatrices[texCoordsIndex]);
 	qglMatrixMode(GL_MODELVIEW);
 	
-	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
 	{
 		if(texCoordsIndex == TB_LIGHTMAP)
 			qglTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsTexCoords2));
@@ -3627,7 +3627,7 @@ void RB_StageIteratorLighting()
 	}
 
 	// lock XYZ
-	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
 	{
 		qglVertexPointer(3, GL_FLOAT, 16, BUFFER_OFFSET(tess.ofsXYZ));
 	}
@@ -3659,7 +3659,7 @@ void RB_StageIteratorLighting()
 			continue;
 		}
 			
-		if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+		if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
 		{
 			ComputeTexMatrices(diffuseStage);
 		}
@@ -3694,7 +3694,7 @@ void RB_StageIteratorLighting()
 			{
 				case ST_DIFFUSEMAP:
 				case ST_COLLAPSE_lighting_D_radiosity:
-					if(glConfig2.shadingLanguage100Available)
+					if(glConfig.shadingLanguage100Available)
 					{
 						if(dl->l.rlType == RL_OMNI)
 						{
@@ -3718,7 +3718,7 @@ void RB_StageIteratorLighting()
 				case ST_COLLAPSE_lighting_DB_radiosity:
 				case ST_COLLAPSE_lighting_DB_direct:
 				case ST_COLLAPSE_lighting_DB_generic:
-					if(glConfig2.shadingLanguage100Available)
+					if(glConfig.shadingLanguage100Available)
 					{
 						if(r_lighting->integer == 1)
 						{
@@ -3760,7 +3760,7 @@ void RB_StageIteratorLighting()
 				case ST_COLLAPSE_lighting_DBS_radiosity:
 				case ST_COLLAPSE_lighting_DBS_direct:
 				case ST_COLLAPSE_lighting_DBS_generic:
-					if(glConfig2.shadingLanguage100Available)
+					if(glConfig.shadingLanguage100Available)
 					{
 						if(r_lighting->integer == 3)
 						{
@@ -3874,7 +3874,7 @@ void RB_StageIteratorGeneric()
 	}
 
 	// lock XYZ
-	if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
 	{
 		qglVertexPointer(3, GL_FLOAT, 16, BUFFER_OFFSET(tess.ofsXYZ));
 	}
@@ -3904,7 +3904,7 @@ void RB_StageIteratorGeneric()
 			continue;
 		}
 
-		if(glConfig2.vertexBufferObjectAvailable && tess.vertexesVBO)
+		if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
 		{
 			ComputeColor(pStage);
 			ComputeTexMatrices(pStage);
@@ -3923,7 +3923,7 @@ void RB_StageIteratorGeneric()
 			{
 				if(r_dynamicLighting->integer == 2)
 				{
-					if(glConfig2.shadingLanguage100Available)
+					if(glConfig.shadingLanguage100Available)
 					{
 						Render_depthFill(stage);
 					}
@@ -3934,7 +3934,7 @@ void RB_StageIteratorGeneric()
 				}
 				else
 				{
-					if(glConfig2.shadingLanguage100Available)
+					if(glConfig.shadingLanguage100Available)
 					{
 						Render_generic_single(stage);
 					}
@@ -3950,7 +3950,7 @@ void RB_StageIteratorGeneric()
 			{
 				if(r_dynamicLighting->integer == 2)
 				{
-					if(glConfig2.shadingLanguage100Available)
+					if(glConfig.shadingLanguage100Available)
 					{
 						Render_depthFill(stage);
 					}
@@ -3989,7 +3989,7 @@ void RB_StageIteratorGeneric()
 				}
 				else if(r_dynamicLighting->integer == 2)
 				{
-					if(glConfig2.shadingLanguage100Available)
+					if(glConfig.shadingLanguage100Available)
 					{
 						Render_depthFill(stage);
 					}
@@ -4000,7 +4000,7 @@ void RB_StageIteratorGeneric()
 				}
 				else
 				{
-					if(glConfig2.shadingLanguage100Available)
+					if(glConfig.shadingLanguage100Available)
 					{
 						Render_lighting_D_radiosity(stage);
 					}
@@ -4024,7 +4024,7 @@ void RB_StageIteratorGeneric()
 				}
 				else if(r_dynamicLighting->integer == 2)
 				{
-					if(glConfig2.shadingLanguage100Available)
+					if(glConfig.shadingLanguage100Available)
 					{
 						Render_depthFill(stage);
 					}
@@ -4035,7 +4035,7 @@ void RB_StageIteratorGeneric()
 				}
 				else
 				{
-					if(glConfig2.shadingLanguage100Available)
+					if(glConfig.shadingLanguage100Available)
 					{
 						if(tr.worldDeluxeMapping && r_lighting->integer == 1)
 						{
@@ -4066,7 +4066,7 @@ void RB_StageIteratorGeneric()
 				}
 				else if(r_dynamicLighting->integer == 2)
 				{
-					if(glConfig2.shadingLanguage100Available)
+					if(glConfig.shadingLanguage100Available)
 					{
 						Render_depthFill(stage);
 					}
@@ -4077,7 +4077,7 @@ void RB_StageIteratorGeneric()
 				}
 				else
 				{
-					if(glConfig2.shadingLanguage100Available)
+					if(glConfig.shadingLanguage100Available)
 					{
 						if(tr.worldDeluxeMapping && r_lighting->integer == 2)
 						{
@@ -4104,7 +4104,7 @@ void RB_StageIteratorGeneric()
 			{
 				if(r_dynamicLighting->integer == 2)
 				{
-					if(glConfig2.shadingLanguage100Available)
+					if(glConfig.shadingLanguage100Available)
 					{
 						Render_depthFill(stage);
 					}
@@ -4115,7 +4115,7 @@ void RB_StageIteratorGeneric()
 				}
 				else
 				{
-					if(glConfig2.shadingLanguage100Available)
+					if(glConfig.shadingLanguage100Available)
 					{
 						if(r_lighting->integer == 1)
 						{
@@ -4138,7 +4138,7 @@ void RB_StageIteratorGeneric()
 			{
 				if(r_dynamicLighting->integer == 2)
 				{
-					if(glConfig2.shadingLanguage100Available)
+					if(glConfig.shadingLanguage100Available)
 					{
 						Render_depthFill(stage);
 					}
@@ -4149,7 +4149,7 @@ void RB_StageIteratorGeneric()
 				}
 				else
 				{
-					if(glConfig2.shadingLanguage100Available)
+					if(glConfig.shadingLanguage100Available)
 					{
 						if(r_lighting->integer == 2)
 						{
@@ -4174,7 +4174,7 @@ void RB_StageIteratorGeneric()
 			
 			case ST_REFLECTIONMAP:
 			{
-				if(glConfig2.shadingLanguage100Available)
+				if(glConfig.shadingLanguage100Available)
 				{
 					Render_reflection_C(stage);
 				}
@@ -4187,7 +4187,7 @@ void RB_StageIteratorGeneric()
 			
 			case ST_REFRACTIONMAP:
 			{
-				if(glConfig2.shadingLanguage100Available)
+				if(glConfig.shadingLanguage100Available)
 				{
 					Render_refraction_C(stage);
 				}
@@ -4200,7 +4200,7 @@ void RB_StageIteratorGeneric()
 			
 			case ST_DISPERSIONMAP:
 			{
-				if(glConfig2.shadingLanguage100Available)
+				if(glConfig.shadingLanguage100Available)
 				{
 					Render_dispersion_C(stage);
 				}
@@ -4213,7 +4213,7 @@ void RB_StageIteratorGeneric()
 			
 			case ST_SKYBOXMAP:
 			{
-				if(glConfig2.shadingLanguage100Available)
+				if(glConfig.shadingLanguage100Available)
 				{
 					Render_skybox(stage);
 				}
@@ -4226,7 +4226,7 @@ void RB_StageIteratorGeneric()
 			
 			case ST_HEATHAZEMAP:
 			{
-				if(glConfig2.shadingLanguage100Available)
+				if(glConfig.shadingLanguage100Available)
 				{
 					Render_heatHaze(stage);
 				}
@@ -4239,7 +4239,7 @@ void RB_StageIteratorGeneric()
 			
 			case ST_GLOWMAP:
 			{
-				if(glConfig2.shadingLanguage100Available)
+				if(glConfig.shadingLanguage100Available)
 				{
 					Render_glow(stage);
 				}
@@ -4252,7 +4252,7 @@ void RB_StageIteratorGeneric()
 			
 			case ST_BLOOMMAP:
 			{
-				if(glConfig2.shadingLanguage100Available)
+				if(glConfig.shadingLanguage100Available)
 				{
 					Render_bloom(stage);
 				}
@@ -4265,7 +4265,7 @@ void RB_StageIteratorGeneric()
 			
 			case ST_BLOOM2MAP:
 			{
-				if(glConfig2.shadingLanguage100Available)
+				if(glConfig.shadingLanguage100Available)
 				{
 					Render_bloom2(stage);
 				}
@@ -4279,7 +4279,7 @@ void RB_StageIteratorGeneric()
 			default:
 			case ST_COLORMAP:
 			{
-				if(glConfig2.shadingLanguage100Available)
+				if(glConfig.shadingLanguage100Available)
 				{
 					Render_generic_single(stage);
 				}
@@ -4360,7 +4360,7 @@ static void Render_shadowVolume()
 			//if(backEnd.viewParms.isMirror)
 			//	qglFrontFace(GL_CW);
 			
-			if(qglActiveStencilFaceEXT && glConfig2.stencilWrapAvailable)
+			if(qglActiveStencilFaceEXT && glConfig.stencilWrapAvailable)
 			{
 				// render both sides at once
 				GL_Cull(CT_TWO_SIDED);
@@ -4383,7 +4383,7 @@ static void Render_shadowVolume()
 				GL_Cull(CT_FRONT_SIDED);
 		
 				// increment the stencil value on zfail
-				if(glConfig2.stencilWrapAvailable)
+				if(glConfig.stencilWrapAvailable)
 				{
 					qglStencilOp(GL_KEEP, GL_INCR_WRAP_EXT, GL_KEEP);
 				}
@@ -4398,7 +4398,7 @@ static void Render_shadowVolume()
 				GL_Cull(CT_BACK_SIDED);
 		
 				// decrement the stencil value on zfail
-				if(glConfig2.stencilWrapAvailable)
+				if(glConfig.stencilWrapAvailable)
 				{
 					qglStencilOp(GL_KEEP, GL_DECR_WRAP_EXT, GL_KEEP);
 				}
@@ -4422,7 +4422,7 @@ static void Render_shadowVolume()
 			//if(backEnd.viewParms.isMirror)
 			//	qglFrontFace(GL_CW);
 			
-			if(qglActiveStencilFaceEXT && glConfig2.stencilWrapAvailable)
+			if(qglActiveStencilFaceEXT && glConfig.stencilWrapAvailable)
 			{
 				// render both sides at once
 				GL_Cull(CT_TWO_SIDED);
@@ -4447,7 +4447,7 @@ static void Render_shadowVolume()
 				GL_Cull(CT_BACK_SIDED);
 					
 				// increment the stencil value on zpass
-				if(glConfig2.stencilWrapAvailable)
+				if(glConfig.stencilWrapAvailable)
 				{
 					qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP_EXT);
 				}
@@ -4462,7 +4462,7 @@ static void Render_shadowVolume()
 				GL_Cull(CT_FRONT_SIDED);
 		
 				// decrement the stencil value on zpass
-				if(glConfig2.stencilWrapAvailable)
+				if(glConfig.stencilWrapAvailable)
 				{
 					qglStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP_EXT);
 				}
@@ -4533,7 +4533,7 @@ void RB_EndSurface()
 	}
 	
 	// unbind VBO
-	if(glConfig2.vertexBufferObjectAvailable)
+	if(glConfig.vertexBufferObjectAvailable)
 	{
 		if(tess.indexesVBO)
 		{
