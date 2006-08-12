@@ -400,6 +400,12 @@ void GL_CheckErrors_(const char *filename, int line)
 {
 	int             err;
 	char            s[128];
+	
+	if(glConfig.smpActive)
+	{
+		// we can't print onto the console while rendering in another thread
+		return;
+	}
 
 	err = qglGetError();
 	if(err == GL_NO_ERROR)

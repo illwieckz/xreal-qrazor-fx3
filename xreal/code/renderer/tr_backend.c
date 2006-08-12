@@ -605,6 +605,8 @@ static void RB_BeginDrawingView(void)
 	{
 		qglDisable(GL_CLIP_PLANE0);
 	}
+	
+	GL_CheckErrors();
 }
 
 static void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, int numDrawSurfs, qboolean opaque)
@@ -749,6 +751,8 @@ static void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, in
 	{
 		qglDepthRange(0, 1);
 	}
+	
+	GL_CheckErrors();
 }
 
 /*
@@ -961,6 +965,8 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 
 	// reset stage iterator
 	tess.currentStageIteratorType = SIT_DEFAULT;
+	
+	GL_CheckErrors();
 }
 
 
@@ -1092,7 +1098,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				{
 					qglStencilFunc(GL_EQUAL, 128, ~0);
 				}
-				qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+				qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);//GL_INCR);
 
 				qglDisable(GL_POLYGON_OFFSET_FILL);
 
@@ -1319,6 +1325,8 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 
 	// reset stage iterator
 	tess.currentStageIteratorType = SIT_DEFAULT;
+	
+	GL_CheckErrors();
 }
 
 static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions)
@@ -1723,6 +1731,8 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 		ri.Hunk_FreeTempMemory(stencilReadback);
 	}
 #endif
+
+	GL_CheckErrors();
 }
 
 static void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
@@ -2068,6 +2078,8 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 		qglMatrixMode(GL_MODELVIEW);
 		qglPopMatrix();
 	}
+	
+	GL_CheckErrors();
 }
 
 
@@ -2086,6 +2098,8 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 		// don't just call LogComment, or we will get a call to va() every frame!
 		GLimp_LogComment(va("--- RB_RenderDrawSurfList( %i, %i ) ---\n", numDrawSurfs, numInteractions));
 	}
+	
+	GL_CheckErrors();
 
 	// save original time for entity shader offsets
 	originalTime = backEnd.refdef.floatTime;
