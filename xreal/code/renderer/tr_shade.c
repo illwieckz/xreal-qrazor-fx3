@@ -1552,6 +1552,9 @@ static void Render_generic_single_FFP(int stage)
 //	qglDisable(GL_TEXTURE_2D);
 }
 
+#if 1
+#define Render_generic_single Render_generic_single_FFP
+#else
 static void Render_generic_single(int stage)
 {
 	shaderStage_t  *pStage;
@@ -1578,6 +1581,7 @@ static void Render_generic_single(int stage)
 	
 	R_DrawElements();
 }
+#endif
 
 static void Render_depthFill_FFP(int stage)
 {
@@ -1629,6 +1633,9 @@ static void Render_depthFill_FFP(int stage)
 //	qglDisable(GL_TEXTURE_2D);
 }
 
+#if 1
+#define Render_depthFill Render_depthFill_FFP
+#else
 static void Render_depthFill(int stage)
 {
 	shaderStage_t  *pStage;
@@ -1661,6 +1668,7 @@ static void Render_depthFill(int stage)
 
 	R_DrawElements();
 }
+#endif
 
 /*
 ===================
