@@ -619,10 +619,10 @@ static void R_MipNormalMap(byte * in, int width, int height)
 {
 	int             i, j;
 	byte           *out;
-	vec3_t          n;
+	vec4_t          n;
 	vec_t           length;
 
-//  float   inv255  = 1.0f/255.0f;
+	float			inv255 = 1.0f / 255.0f;
 	float           inv127 = 1.0f / 127.0f;
 
 	if(width == 1 && height == 1)
@@ -653,13 +653,11 @@ static void R_MipNormalMap(byte * in, int width, int height)
 					(inv127 * in[6] - 1.0) +
 					(inv127 * in[width + 2] - 1.0) +
 					(inv127 * in[width + 6] - 1.0);
-
-			/*
-			   g =  (inv255*in[3])+
-			   (inv255*in[7])+
-			   (inv255*in[width+3])+
-			   (inv255*in[width+7]);
-			 */
+					
+			n[3] =	(inv255 * in[3]) +
+					(inv255 * in[7]) +
+					(inv255 * in[width + 3]) +
+					(inv255 * in[width + 7]);
 
 			length = VectorLength(n);
 
@@ -677,8 +675,8 @@ static void R_MipNormalMap(byte * in, int width, int height)
 			out[0] = (byte) (128 + 127 * n[0]);
 			out[1] = (byte) (128 + 127 * n[1]);
 			out[2] = (byte) (128 + 127 * n[2]);
-			//out[3] = (byte)(g * 255.0/4.0);
-			out[3] = (in[3] + in[7] + in[width + 3] + in[width + 7]) >> 2;
+			out[3] = (byte) (n[3] * 255.0 / 4.0);
+			//out[3] = (in[3] + in[7] + in[width + 3] + in[width + 7]) >> 2;
 		}
 	}
 }
@@ -691,10 +689,9 @@ static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale
 	float           r, g, b;
 	float           c, cx, cy;
 
-//  float           dcx, dcy, sqlen, reciplen;
+	float           dcx, dcy, sqlen, reciplen;
 	float           inv255 = 1.0f / 255.0f;
-
-//  float           inv127 = 1.0 / 127.0;
+	float           inv127 = 1.0f / 127.0f;
 	vec3_t          n;
 	byte           *out;
 
@@ -727,26 +724,18 @@ static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale
 
 			cy = (r + g + b) * inv255;
 
-			/*
-			   dcx = scale * (c - cx);
-			   dcy = scale * (c - cy);
+			dcx = scale * (c - cx);
+			dcy = scale * (c - cy);
+			
+			// normalize the vector
+			sqlen = dcx * dcx + dcy * dcy + 1;
+			reciplen = 1.0 / (float)sqrt(sqlen);
+			n[0] = dcx * reciplen;
+			n[1] =-dcy * reciplen;
+			n[2] = reciplen;
 
-			   // normalize the vector
-			   sqlen = dcx * dcx + dcy * dcy + 1;
-			   reciplen = 1.0 / (float)sqrt(sqlen);
-			   n[0] = dcx * reciplen;
-			   n[1] =-dcy * reciplen;
-			   n[2] = reciplen;
-			 */
-
-
-			n[0] = scale * (c - cx);
-			n[1] = scale * (c - cy);
-			n[2] = 1.0;
-
-			if(!VectorNormalize(n))
-				VectorSet(n, 0, 0, 1);
-
+			// repack the normalized vector into an RGB unsigned byte
+			// vector in the normal map image
 			*out++ = (byte) (128 + 127 * n[0]);
 			*out++ = (byte) (128 + 127 * n[1]);
 			*out++ = (byte) (128 + 127 * n[2]);
