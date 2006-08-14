@@ -167,14 +167,8 @@ void Filters_constructMenu(GtkMenu* menu_in_menu)
 {
   create_check_menu_item_with_mnemonic(menu_in_menu, "World", "FilterWorldBrushes");
   create_check_menu_item_with_mnemonic(menu_in_menu, "Entities", "FilterEntities");
-  if(g_pGameDescription->mGameType == "doom3")
-  {
-    create_check_menu_item_with_mnemonic(menu_in_menu, "Visportals", "FilterVisportals");
-  }
-  else
-  {
-    create_check_menu_item_with_mnemonic(menu_in_menu, "Areaportals", "FilterAreaportals");
-  }
+  create_check_menu_item_with_mnemonic(menu_in_menu, "Visportals", "FilterVisportals");
+  create_check_menu_item_with_mnemonic(menu_in_menu, "Areaportals", "FilterAreaportals");
   create_check_menu_item_with_mnemonic(menu_in_menu, "Translucent", "FilterTranslucent");
   if(g_pGameDescription->mGameType != "doom3")
   {
@@ -214,14 +208,8 @@ void ConstructFilters()
 
   add_filter_command(EXCLUDE_WORLD, "FilterWorldBrushes", Accelerator('1', (GdkModifierType)GDK_MOD1_MASK));
   add_filter_command(EXCLUDE_ENT, "FilterEntities", Accelerator('2', (GdkModifierType)GDK_MOD1_MASK));
-  if(g_pGameDescription->mGameType == "doom3")
-  {
-    add_filter_command(EXCLUDE_VISPORTALS, "FilterVisportals", Accelerator('3', (GdkModifierType)GDK_MOD1_MASK));
-  }
-  else
-  {
-    add_filter_command(EXCLUDE_AREAPORTALS, "FilterAreaportals", Accelerator('3', (GdkModifierType)GDK_MOD1_MASK));
-  }
+  add_filter_command(EXCLUDE_VISPORTALS, "FilterVisportals", accelerator_null());
+  add_filter_command(EXCLUDE_AREAPORTALS, "FilterAreaportals", Accelerator('3', (GdkModifierType)GDK_MOD1_MASK));
   add_filter_command(EXCLUDE_TRANSLUCENT, "FilterTranslucent", Accelerator('4', (GdkModifierType)GDK_MOD1_MASK));
   add_filter_command(EXCLUDE_LIQUIDS, "FilterLiquids", Accelerator('5', (GdkModifierType)GDK_MOD1_MASK));
   add_filter_command(EXCLUDE_CAULK, "FilterCaulk", Accelerator('6', (GdkModifierType)GDK_MOD1_MASK ));
