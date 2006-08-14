@@ -35,9 +35,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../jpeg-6/jpeglib.h"
 
 
-static void     LoadBMP(const char *name, byte ** pic, int *width, int *height);
-static void     LoadTGA(const char *name, byte ** pic, int *width, int *height);
-static void     LoadJPG(const char *name, byte ** pic, int *width, int *height);
+static void     LoadBMP(const char *name, byte ** pic, int *width, int *height, byte alphaByte);
+static void     LoadTGA(const char *name, byte ** pic, int *width, int *height, byte alphaByte);
+static void     LoadJPG(const char *name, byte ** pic, int *width, int *height, byte alphaByte);
 
 static byte     s_intensitytable[256];
 static unsigned char s_gammatable[256];
@@ -691,7 +691,7 @@ static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale
 
 	float           dcx, dcy, sqlen, reciplen;
 	float           inv255 = 1.0f / 255.0f;
-	float           inv127 = 1.0f / 127.0f;
+//	float           inv127 = 1.0f / 127.0f;
 	vec3_t          n;
 	byte           *out;
 
@@ -739,16 +739,18 @@ static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale
 			*out++ = (byte) (128 + 127 * n[0]);
 			*out++ = (byte) (128 + 127 * n[1]);
 			*out++ = (byte) (128 + 127 * n[2]);
-			*out++ = (byte) (128 + 127 * 1.0);
+			
+			// put in height as displacement map by default
+			*out++ = (byte) (Q_bound(0, c * 255.0 / 3.0, 255));
 		}
 	}
 }
 
-static void R_AddNormals(byte * in, byte * in2, int width, int height)
+static void R_DisplaceMap(byte * in, byte * in2, int width, int height)
 {
 	int             x, y;
 	vec3_t          n;
-	vec3_t          n2;
+	int             avg;
 	float           inv127 = 1.0f / 127.0f;
 	byte           *out;
 
@@ -761,10 +763,46 @@ static void R_AddNormals(byte * in, byte * in2, int width, int height)
 			n[0] = (in[4 * (y * width + x) + 0] * inv127 - 1.0);
 			n[1] = (in[4 * (y * width + x) + 1] * inv127 - 1.0);
 			n[2] = (in[4 * (y * width + x) + 2] * inv127 - 1.0);
+			
+			avg = 0;
+			avg += in2[4 * (y * width + x) + 0];
+			avg += in2[4 * (y * width + x) + 1];
+			avg += in2[4 * (y * width + x) + 2];
+			avg /= 3;
+
+			*out++ = (byte) (128 + 127 * n[0]);
+			*out++ = (byte) (128 + 127 * n[1]);
+			*out++ = (byte) (128 + 127 * n[2]);
+			*out++ = (byte) (avg);
+		}
+	}
+}
+
+static void R_AddNormals(byte * in, byte * in2, int width, int height)
+{
+	int             x, y;
+	vec3_t          n;
+	byte            a;
+	vec3_t          n2;
+	byte            a2;
+	float           inv127 = 1.0f / 127.0f;
+	byte           *out;
+
+	out = in;
+
+	for(y = 0; y < height; y++)
+	{
+		for(x = 0; x < width; x++)
+		{
+			n[0] = (in[4 * (y * width + x) + 0] * inv127 - 1.0);
+			n[1] = (in[4 * (y * width + x) + 1] * inv127 - 1.0);
+			n[2] = (in[4 * (y * width + x) + 2] * inv127 - 1.0);
+			a = in[4 * (y * width + x) + 3];
 
 			n2[0] = (in2[4 * (y * width + x) + 0] * inv127 - 1.0);
 			n2[1] = (in2[4 * (y * width + x) + 1] * inv127 - 1.0);
 			n2[2] = (in2[4 * (y * width + x) + 2] * inv127 - 1.0);
+			a2 = in2[4 * (y * width + x) + 3];
 
 			VectorAdd(n, n2, n);
 
@@ -774,7 +812,7 @@ static void R_AddNormals(byte * in, byte * in2, int width, int height)
 			*out++ = (byte) (128 + 127 * n[0]);
 			*out++ = (byte) (128 + 127 * n[1]);
 			*out++ = (byte) (128 + 127 * n[2]);
-			*out++ = (byte) (128 + 127 * 1.0);
+			*out++ = (byte) (Q_bound(0, a + a2, 255));
 		}
 	}
 }
@@ -838,7 +876,7 @@ static void R_MakeAlpha(byte * in, int width, int height)
 {
 	int             x, y;
 	byte           *out;
-	byte            avg;
+	int             avg;
 
 	out = in;
 
@@ -855,7 +893,7 @@ static void R_MakeAlpha(byte * in, int width, int height)
 			out[4 * (y * width + x) + 0] = 255;
 			out[4 * (y * width + x) + 1] = 255;
 			out[4 * (y * width + x) + 2] = 255;
-			out[4 * (y * width + x) + 3] = avg;
+			out[4 * (y * width + x) + 3] = (byte) avg;
 		}
 	}
 }
@@ -1012,27 +1050,36 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 	samples = 3;
 	if(!(image->bits & IF_LIGHTMAP))
 	{
-		for(i = 0; i < c; i++)
+		// Tr3B: normalmaps have the displacement maps in the alpha channel
+		// samples 3 would cause an opaque alpha channel and odd displacements!
+		if(image->bits & IF_NORMALMAP)
 		{
-			if(scan[i * 4 + 0] > rMax)
+			samples = 4;	
+		}
+		else
+		{		
+			for(i = 0; i < c; i++)
 			{
-				rMax = scan[i * 4 + 0];
-			}
-			if(scan[i * 4 + 1] > gMax)
-			{
-				gMax = scan[i * 4 + 1];
-			}
-			if(scan[i * 4 + 2] > bMax)
-			{
-				bMax = scan[i * 4 + 2];
-			}
-			if(scan[i * 4 + 3] != 255)
-			{
-				samples = 4;
-				break;
+				if(scan[i * 4 + 0] > rMax)
+				{
+					rMax = scan[i * 4 + 0];
+				}
+				if(scan[i * 4 + 1] > gMax)
+				{
+					gMax = scan[i * 4 + 1];
+				}
+				if(scan[i * 4 + 2] > bMax)
+				{
+					bMax = scan[i * 4 + 2];
+				}
+				if(scan[i * 4 + 3] != 255)
+				{
+					samples = 4;
+					break;
+				}
 			}
 		}
-
+	
 		// select proper internal format
 		if(samples == 3)
 		{
@@ -1396,7 +1443,7 @@ typedef struct
 	unsigned char   palette[256][4];
 } BMPHeader_t;
 
-static void LoadBMP(const char *name, byte ** pic, int *width, int *height)
+static void LoadBMP(const char *name, byte ** pic, int *width, int *height, byte alphaByte)
 {
 	int             columns, rows, numPixels;
 	byte           *pixbuf;
@@ -1505,7 +1552,7 @@ static void LoadBMP(const char *name, byte ** pic, int *width, int *height)
 					*pixbuf++ = bmpHeader.palette[palIndex][2];
 					*pixbuf++ = bmpHeader.palette[palIndex][1];
 					*pixbuf++ = bmpHeader.palette[palIndex][0];
-					*pixbuf++ = 0xff;
+					*pixbuf++ = alphaByte;
 					break;
 				case 16:
 					shortPixel = *(unsigned short *)pixbuf;
@@ -1513,7 +1560,7 @@ static void LoadBMP(const char *name, byte ** pic, int *width, int *height)
 					*pixbuf++ = (shortPixel & (31 << 10)) >> 7;
 					*pixbuf++ = (shortPixel & (31 << 5)) >> 2;
 					*pixbuf++ = (shortPixel & (31)) << 3;
-					*pixbuf++ = 0xff;
+					*pixbuf++ = alphaByte;
 					break;
 
 				case 24:
@@ -1523,7 +1570,7 @@ static void LoadBMP(const char *name, byte ** pic, int *width, int *height)
 					*pixbuf++ = red;
 					*pixbuf++ = green;
 					*pixbuf++ = blue;
-					*pixbuf++ = 255;
+					*pixbuf++ = alphaByte;
 					break;
 				case 32:
 					blue = *buf_p++;
@@ -1656,7 +1703,7 @@ static void LoadPCX(const char *filename, byte ** pic, byte ** palette, int *wid
 LoadPCX32
 ==============
 */
-static void LoadPCX32(const char *filename, byte ** pic, int *width, int *height)
+static void LoadPCX32(const char *filename, byte ** pic, int *width, int *height, byte alphaByte)
 {
 	byte           *palette;
 	byte           *pic8;
@@ -1678,7 +1725,7 @@ static void LoadPCX32(const char *filename, byte ** pic, int *width, int *height
 		pic32[0] = palette[p * 3];
 		pic32[1] = palette[p * 3 + 1];
 		pic32[2] = palette[p * 3 + 2];
-		pic32[3] = 255;
+		pic32[3] = alphaByte;
 		pic32 += 4;
 	}
 
@@ -1700,7 +1747,7 @@ TARGA LOADING
 LoadTGA
 =============
 */
-static void LoadTGA(const char *name, byte ** pic, int *width, int *height)
+static void LoadTGA(const char *name, byte ** pic, int *width, int *height, byte alphaByte)
 {
 	int             columns, rows, numPixels;
 	byte           *pixbuf;
@@ -1781,7 +1828,7 @@ static void LoadTGA(const char *name, byte ** pic, int *width, int *height)
 			pixbuf = targa_rgba + row * columns * 4;
 			for(column = 0; column < columns; column++)
 			{
-				unsigned char   red, green, blue, alphabyte;
+				unsigned char   red, green, blue, alpha;
 
 				switch (targa_header.pixel_size)
 				{
@@ -1793,7 +1840,7 @@ static void LoadTGA(const char *name, byte ** pic, int *width, int *height)
 						*pixbuf++ = red;
 						*pixbuf++ = green;
 						*pixbuf++ = blue;
-						*pixbuf++ = 255;
+						*pixbuf++ = alphaByte;
 						break;
 
 					case 24:
@@ -1803,17 +1850,17 @@ static void LoadTGA(const char *name, byte ** pic, int *width, int *height)
 						*pixbuf++ = red;
 						*pixbuf++ = green;
 						*pixbuf++ = blue;
-						*pixbuf++ = 255;
+						*pixbuf++ = alphaByte;
 						break;
 					case 32:
 						blue = *buf_p++;
 						green = *buf_p++;
 						red = *buf_p++;
-						alphabyte = *buf_p++;
+						alpha = *buf_p++;
 						*pixbuf++ = red;
 						*pixbuf++ = green;
 						*pixbuf++ = blue;
-						*pixbuf++ = alphabyte;
+						*pixbuf++ = alpha;
 						break;
 					default:
 						ri.Error(ERR_DROP, "LoadTGA: illegal pixel_size '%d' in file '%s'\n", targa_header.pixel_size, name);
@@ -1824,12 +1871,12 @@ static void LoadTGA(const char *name, byte ** pic, int *width, int *height)
 	}
 	else if(targa_header.image_type == 10)
 	{							// Runlength encoded RGB images
-		unsigned char   red, green, blue, alphabyte, packetHeader, packetSize, j;
+		unsigned char   red, green, blue, alpha, packetHeader, packetSize, j;
 
 		red = 0;
 		green = 0;
 		blue = 0;
-		alphabyte = 0xff;
+		alpha = alphaByte;
 
 		for(row = rows - 1; row >= 0; row--)
 		{
@@ -1846,13 +1893,13 @@ static void LoadTGA(const char *name, byte ** pic, int *width, int *height)
 							blue = *buf_p++;
 							green = *buf_p++;
 							red = *buf_p++;
-							alphabyte = 255;
+							alpha = alphaByte;
 							break;
 						case 32:
 							blue = *buf_p++;
 							green = *buf_p++;
 							red = *buf_p++;
-							alphabyte = *buf_p++;
+							alpha = *buf_p++;
 							break;
 						default:
 							ri.Error(ERR_DROP, "LoadTGA: illegal pixel_size '%d' in file '%s'\n", targa_header.pixel_size, name);
@@ -1864,7 +1911,7 @@ static void LoadTGA(const char *name, byte ** pic, int *width, int *height)
 						*pixbuf++ = red;
 						*pixbuf++ = green;
 						*pixbuf++ = blue;
-						*pixbuf++ = alphabyte;
+						*pixbuf++ = alpha;
 						column++;
 						if(column == columns)
 						{		// run spans across rows
@@ -1890,17 +1937,17 @@ static void LoadTGA(const char *name, byte ** pic, int *width, int *height)
 								*pixbuf++ = red;
 								*pixbuf++ = green;
 								*pixbuf++ = blue;
-								*pixbuf++ = 255;
+								*pixbuf++ = alphaByte;
 								break;
 							case 32:
 								blue = *buf_p++;
 								green = *buf_p++;
 								red = *buf_p++;
-								alphabyte = *buf_p++;
+								alpha = *buf_p++;
 								*pixbuf++ = red;
 								*pixbuf++ = green;
 								*pixbuf++ = blue;
-								*pixbuf++ = alphabyte;
+								*pixbuf++ = alpha;
 								break;
 							default:
 								ri.Error(ERR_DROP,
@@ -1967,7 +2014,7 @@ JPEG LOADING
 =========================================================
 */
 
-static void LoadJPG(const char *filename, unsigned char **pic, int *width, int *height)
+static void LoadJPG(const char *filename, unsigned char **pic, int *width, int *height, byte alphaByte)
 {
 	/* This struct contains the JPEG decompression parameters and pointers to
 	 * working space (which is allocated as needed by the JPEG library).
@@ -2087,7 +2134,7 @@ static void LoadJPG(const char *filename, unsigned char **pic, int *width, int *
 		j = cinfo.output_width * cinfo.output_height * 4;
 		for(i = 3; i < j; i += 4)
 		{
-			buf[i] = 255;
+			buf[i] = alphaByte;
 		}
 	}
 
@@ -3403,6 +3450,67 @@ static void ParseHeightMap(char **text, byte ** pic, int *width, int *height, in
 	*bits |= IF_NORMALMAP;
 }
 
+static void ParseDisplaceMap(char **text, byte ** pic, int *width, int *height, int *bits)
+{
+	char           *token;
+	byte           *pic2;
+	int             width2, height2;
+
+	token = Com_ParseExt(text, qfalse);
+	if(token[0] != '(')
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for displaceMap\n", token);
+		return;
+	}
+
+	R_LoadImage(text, pic, width, height, bits);
+	if(!pic)
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: failed loading of first image for displaceMap\n");
+		return;
+	}
+
+	token = Com_ParseExt(text, qfalse);
+	if(token[0] != ',')
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: no matching ',' found\n");
+		return;
+	}
+
+	R_LoadImage(text, &pic2, &width2, &height2, bits);
+	if(!pic2)
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: failed loading of second image for displaceMap\n");
+		return;
+	}
+
+	token = Com_ParseExt(text, qfalse);
+	if(token[0] != ')')
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for displaceMap\n", token);
+	}
+
+	if(*width != width2 || *height != height2)
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: images for displaceMap have different dimensions (%i x %i != %i x %i)\n",
+				  *width, *height, width2, height2);
+
+		//ri.Free(*pic);
+		//*pic = NULL;
+
+		ri.Free(pic2);
+		return;
+	}
+
+	R_DisplaceMap(*pic, pic2, *width, *height);
+
+	ri.Free(pic2);
+
+	*bits &= ~IF_INTENSITY;
+	*bits &= ~IF_ALPHA;
+	*bits |= IF_NORMALMAP;
+}
+
 static void ParseAddNormals(char **text, byte ** pic, int *width, int *height, int *bits)
 {
 	char           *token;
@@ -3615,6 +3723,11 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 	{
 		ParseHeightMap(buffer, pic, width, height, bits);
 	}
+	// displaceMap(<map>, <map>)  Sets the alpha channel to an average of the second image's RGB channels.
+	else if(!Q_stricmp(token, "displaceMap"))
+	{
+		ParseDisplaceMap(buffer, pic, width, height, bits);
+	}
 	// addNormals(<map>, <map>)  Adds two normal maps together. Result is normalized.
 	else if(!Q_stricmp(token, "addNormals"))
 	{
@@ -3658,6 +3771,13 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 	else
 	{
 		char            filename[MAX_QPATH];
+		byte            alphaByte;
+		
+		// Tr3B: clear alpha of normalmaps for displacement mapping
+		if(*bits & IF_NORMALMAP)
+			alphaByte = 0x00;
+		else
+			alphaByte = 0xFF;
 		
 		Q_strncpyz(filename, token, sizeof(filename));
 		Com_DefaultExtension(filename, sizeof(filename), ".tga");
@@ -3668,7 +3788,7 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 
 		if(!Q_stricmp(filename + len - 4, ".tga"))
 		{
-			LoadTGA(filename, pic, width, height);	// try tga first
+			LoadTGA(filename, pic, width, height, alphaByte);	// try tga first
 
 			if(!*pic)
 			{
@@ -3691,20 +3811,20 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 				altname[len - 3] = 'j';
 				altname[len - 2] = 'p';
 				altname[len - 1] = 'g';
-				LoadJPG(altname, pic, width, height);
+				LoadJPG(altname, pic, width, height, alphaByte);
 			}
 		}
 		else if(!Q_stricmp(filename + len - 4, ".pcx"))
 		{
-			LoadPCX32(filename, pic, width, height);
+			LoadPCX32(filename, pic, width, height, alphaByte);
 		}
 		else if(!Q_stricmp(filename + len - 4, ".bmp"))
 		{
-			LoadBMP(filename, pic, width, height);
+			LoadBMP(filename, pic, width, height, alphaByte);
 		}
 		else if(!Q_stricmp(filename + len - 4, ".jpg"))
 		{
-			LoadJPG(filename, pic, width, height);
+			LoadJPG(filename, pic, width, height, alphaByte);
 		}
 		else if(!Q_stricmp(filename + len - 4, ".dds"))
 		{
@@ -3834,7 +3954,7 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 	for(i = 0; i < 6; i++)
 	{
 		Com_sprintf(filename, sizeof(filename), "%s_%s.tga", name, suf[i]);
-		LoadTGA(filename, &pic[i], &width, &height);
+		LoadTGA(filename, &pic[i], &width, &height, 0xFF);
 
 		if(!pic[i] || width != height)
 		{
