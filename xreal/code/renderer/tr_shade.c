@@ -1726,6 +1726,8 @@ static void Render_generic_multi_FFP(int stage)
 	GL_SelectTexture(0);
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 //	qglDisable(GL_TEXTURE_2D);
+
+	GL_CheckErrors();
 }
 
 static void Render_lighting_D_direct(int stage)
@@ -1767,6 +1769,8 @@ static void Render_lighting_D_direct(int stage)
 	qglMatrixMode(GL_MODELVIEW);
 	
 	R_DrawElements();
+	
+	GL_CheckErrors();
 }
 
 
@@ -1817,6 +1821,8 @@ static void Render_lighting_DB_direct(int stage)
 	qglMatrixMode(GL_MODELVIEW);
 	
 	R_DrawElements();
+	
+	GL_CheckErrors();
 }
 
 static void Render_lighting_DBS_direct(int stage)
@@ -1879,6 +1885,8 @@ static void Render_lighting_DBS_direct(int stage)
 	qglMatrixMode(GL_MODELVIEW);
 	
 	R_DrawElements();
+	
+	GL_CheckErrors();
 }
 
 static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
@@ -1927,6 +1935,8 @@ static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
 	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
 	backEnd.pc.c_dlightIndexes += tess.numIndexes;
+	
+	GL_CheckErrors();
 }
 
 static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
@@ -1978,6 +1988,8 @@ static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
 	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
 	backEnd.pc.c_dlightIndexes += tess.numIndexes;
+	
+	GL_CheckErrors();
 }
 
 static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
@@ -2041,6 +2053,8 @@ static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
 	backEnd.pc.c_dlightIndexes += tess.numIndexes;
+	
+	GL_CheckErrors();
 }
 
 static void Render_lighting_DBSP_omni(	shaderStage_t * diffuseStage,
@@ -2106,6 +2120,8 @@ static void Render_lighting_DBSP_omni(	shaderStage_t * diffuseStage,
 	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
 	backEnd.pc.c_dlightIndexes += tess.numIndexes;
+	
+	GL_CheckErrors();
 }
 
 static void Render_lighting_D_proj(	shaderStage_t * diffuseStage,
@@ -2151,6 +2167,8 @@ static void Render_lighting_D_proj(	shaderStage_t * diffuseStage,
 	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
 	backEnd.pc.c_dlightIndexes += tess.numIndexes;
+	
+	GL_CheckErrors();
 }
 
 static void Render_lightmap_FFP(int stage, int texCoordsIndex)
@@ -2202,6 +2220,8 @@ static void Render_lightmap_FFP(int stage, int texCoordsIndex)
 	
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 //	qglDisable(GL_TEXTURE_2D);
+
+	GL_CheckErrors();
 }
 
 static void Render_deluxemap_FFP(int stage, int texCoordsIndex)
@@ -2256,6 +2276,8 @@ static void Render_deluxemap_FFP(int stage, int texCoordsIndex)
 	
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 //	qglDisable(GL_TEXTURE_2D);
+
+	GL_CheckErrors();
 }
 
 static void Render_lighting_D_radiosity_FFP(int stage)
@@ -2301,6 +2323,8 @@ static void Render_lighting_D_radiosity_FFP(int stage)
 	GL_SelectTexture(0);
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 //	qglDisable(GL_TEXTURE_2D);
+
+	GL_CheckErrors();
 }
 
 static void Render_lighting_D_radiosity(int stage)
@@ -2333,6 +2357,8 @@ static void Render_lighting_D_radiosity(int stage)
 	qglMatrixMode(GL_MODELVIEW);
 	
 	R_DrawElements();
+	
+	GL_CheckErrors();
 }
 
 static void Render_lighting_DB_radiosity(int stage)
@@ -2376,6 +2402,8 @@ static void Render_lighting_DB_radiosity(int stage)
 	R_BindDeluxeMap();
 	
 	R_DrawElements();
+	
+	GL_CheckErrors();
 }
 
 static void Render_lighting_DBS_radiosity(int stage)
@@ -2435,6 +2463,8 @@ static void Render_lighting_DBS_radiosity(int stage)
 	R_BindDeluxeMap();
 	
 	R_DrawElements();
+	
+	GL_CheckErrors();
 }
 
 static void Render_reflection_C(int stage)
@@ -2464,12 +2494,7 @@ static void Render_reflection_C(int stage)
 	
 	R_DrawElements();
 	
-//	GL_SelectTexture(0);
-	/*
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadIdentity();
-	qglMatrixMode(GL_MODELVIEW);
-	*/
+	GL_CheckErrors();
 }
 
 static void Render_refraction_C(int stage)
@@ -2503,12 +2528,7 @@ static void Render_refraction_C(int stage)
 	
 	R_DrawElements();
 	
-//	GL_SelectTexture(0);
-	/*
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadIdentity();
-	qglMatrixMode(GL_MODELVIEW);
-	*/
+	GL_CheckErrors();
 }
 
 static void Render_dispersion_C(int stage)
@@ -2547,12 +2567,7 @@ static void Render_dispersion_C(int stage)
 	
 	R_DrawElements();
 	
-//	GL_SelectTexture(0);
-	/*
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadIdentity();
-	qglMatrixMode(GL_MODELVIEW);
-	*/
+	GL_CheckErrors();
 }
 
 static void Render_skybox(int stage)
@@ -2582,12 +2597,7 @@ static void Render_skybox(int stage)
 	
 	R_DrawElements();
 	
-//	GL_SelectTexture(0);
-	/*
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadIdentity();
-	qglMatrixMode(GL_MODELVIEW);
-	*/
+	GL_CheckErrors();
 }
 
 static void Render_heatHaze(int stage)
@@ -2638,6 +2648,8 @@ static void Render_heatHaze(int stage)
 	qglMatrixMode(GL_MODELVIEW);
 	
 	R_DrawElements();
+	
+	GL_CheckErrors();
 }
 
 static void Render_glow(int stage)
@@ -2677,6 +2689,8 @@ static void Render_glow(int stage)
 	qglMatrixMode(GL_MODELVIEW);
 	
 	R_DrawElements();
+	
+	GL_CheckErrors();
 }
 
 static void Render_bloom(int stage)
@@ -2728,6 +2742,8 @@ static void Render_bloom(int stage)
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderLinearImage->uploadWidth, tr.currentRenderLinearImage->uploadHeight);
 	
 	R_DrawElements();
+	
+	GL_CheckErrors();
 }
 
 static void Render_bloom2(int stage)
@@ -2807,6 +2823,8 @@ static void Render_bloom2(int stage)
 	GL_Bind(tr.currentRenderLinearImage);
 	
 	R_DrawElements();
+	
+	GL_CheckErrors();
 }
 
 static void Render_fog()
@@ -2848,6 +2866,8 @@ static void Render_fog()
 
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 //	qglDisable(GL_TEXTURE_2D);
+
+	GL_CheckErrors();
 }
 
 /*
