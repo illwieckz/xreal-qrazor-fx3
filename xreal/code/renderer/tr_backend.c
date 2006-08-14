@@ -1020,25 +1020,25 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 		{
 			iaFirst = iaCount;
 
-			// set light scissor to reduce fillrate
-			qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
-
-			// set depth test to reduce fillrate
-			if(qglDepthBoundsEXT)
-			{
-				if(!ia->noDepthBoundsTest)
-				{
-					qglEnable(GL_DEPTH_BOUNDS_TEST_EXT);
-					qglDepthBoundsEXT(ia->depthNear, ia->depthFar);
-				}
-				else
-				{
-					qglDisable(GL_DEPTH_BOUNDS_TEST_EXT);
-				}
-			}
-
 			if(drawShadows)
 			{
+				// set light scissor to reduce fillrate
+				qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
+
+				// set depth test to reduce fillrate
+				if(qglDepthBoundsEXT)
+				{
+					if(!ia->noDepthBoundsTest)
+					{
+						qglEnable(GL_DEPTH_BOUNDS_TEST_EXT);
+						qglDepthBoundsEXT(ia->depthNear, ia->depthFar);
+					}
+					else
+					{
+						qglDisable(GL_DEPTH_BOUNDS_TEST_EXT);
+					}
+				}
+				
 				// set the reference stencil value
 				qglClearStencil(128);
 				
