@@ -4006,7 +4006,7 @@ static void R_PrecacheInteractionSurface(msurface_t * surf, trRefDlight_t * ligh
 	surf->lightCount = s_lightCount;
 
 	// skip all surfaces that don't matter for lighting only pass
-	if((surf->shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY)) || !surf->shader->interactLight)
+	if(surf->shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY))
 		return;
 
 	s_numLightIndexes = 0;
