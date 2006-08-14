@@ -1999,6 +1999,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			}
 			else if(!Q_stricmp(token, "lightingDiffuse"))
 			{
+				stage->type = ST_DIFFUSEMAP;
 				stage->rgbGen = CGEN_LIGHTING_DIFFUSE;
 			}
 			else if(!Q_stricmp(token, "oneMinusVertex"))
