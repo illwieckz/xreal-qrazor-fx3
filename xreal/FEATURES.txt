@@ -1,58 +1,65 @@
 code/cgame
 - light bloom rendering
-- new hud
 
 code/game/shared
 - matrix math
 - quaternion math
 - improved tokenizer
+- handy string utilities like Q_strreplace
 
 code/game
 - experimental Lua 5.1 layer for level entity scripting allowing map designers to control entities like in Doom3
 
 code/renderer
-- new OpenGL extension GL_ARB_transpose_matrix
-- new OpenGL extension GL_ARB_vertex_program
-- new OpenGL extension GL_ARB_vertex_buffer_object
-- new OpenGL extension GL_ARB_shader_objects
-- new OpenGL extension GL_ARB_vertex_shader
-- new OpenGL extension GL_ARB_fragment_shader
-- new OpenGL extension GL_ARB_shading_language_100
-- new OpenGL extension GL_EXT_texture_filter_anisotropic
-- new OpenGL extension GL_EXT_stencil_wrap
-- new OpenGL extension GL_EXT_stencil_two_side
-- new OpenGL extension GL_EXT_depth_bounds_test
-- new OpenGL extension GL_EXT_framebuffer_object
-- GLSL rendering capabilities in renderer backend
-- tangent space calculations for normal mapping based rendering techniques
-- directional specular bump mapping
-- basic .mtr shader support
-- cubemap based reflection mapping
-- cubemap based refraction mapping
-- cubemap based dispersion mapping
-- dynamic and static lights use Doom3 style boxed lighting attenuation
-- heatHaze post process effect
-- simple glow post process effect
-- light bloom post process effects
+- OpenGL extension GL_ARB_transpose_matrix
+- OpenGL extension GL_ARB_vertex_program
+- OpenGL extension GL_ARB_vertex_buffer_object
+- OpenGL extension GL_ARB_shader_objects
+- OpenGL extension GL_ARB_vertex_shader
+- OpenGL extension GL_ARB_fragment_shader
+- OpenGL extension GL_ARB_shading_language_100
+- OpenGL extension GL_EXT_texture_filter_anisotropic
+- OpenGL extension GL_EXT_stencil_wrap
+- OpenGL extension GL_EXT_stencil_two_side
+- OpenGL extension GL_EXT_depth_bounds_test
+- OpenGL extension GL_EXT_framebuffer_object
+- OpenGL shader language usage in renderer backend
+- optional pure GLSL renderer path without fixed function pipeline
 - anisotropic texture filtering
+- DirectX .dds image file format support
 - skeletal animation
 - Doom3 .md5mesh model file format support
 - Doom3 .md5anim animation file format support
-- deluxe mapping: N dot L based lightmapping supported by q3map2
-  compile your maps with -light -deluxe to use this feature
-- added uniform lighting and shadowing model
+- Doom3 .mtr material shader language support
+- cubemap based reflection mapping
+- cubemap based refraction mapping
+- cubemap based dispersion mapping
+- deluxe mapping: advanced N dot L lightmapping
+- dynamic and static lights use Doom3 style boxed lighting attenuation
+- directional lighting (sun lights)
+- omni-directional lighting (point lights)
+- projective lighting (spot lights)
+- uniform lighting and shadowing model
   dynamic lighting and shadowing on everything: world surfaces, brush model surfaces, .md3 surfaces and .md5 surfaces
   [cg/r]_shadows
   1 = blob
   2 = planar projection
-  3 = robust stencil shadow volumes (Doom3/Nvidia style)
-- r_dynamiclight 2 skips precomputed lighting and uses pure realtime lighting and shadowing
+  3 = stencil shadow volumes (Doom3/Nvidia style)
 - r_lighting cvar determines lighting mode
-  0 = diffuse lighting
+  0 = simple diffuse N dot L lighting
   1 = bump mapping
   2 = specular bump mapping
   3 = specular parallax bump mapping
-- usage of vertex buffer objects to speed up rendering of large static models
+- usage of vertex buffer objects (VBO) to speed up rendering of large static models
+- usage of frame buffer objects (FBO) to perfom offscreen rendering effects
+- heat haze post process effect
+  you can render many different distorsion effects with this:
+  heat shimmer, water and glass
+- light bloom post process effects
+  cg_drawBloom cvar determines bloom mode
+  0 = no bloom
+  1 = simple bloom with diamond filter only
+  2 = strong bloom with combined gauss and diamond filters
 
 code/q3_ui
 - lighting mode game option
@@ -75,5 +82,5 @@ code/xmap
 - Doom3 .map file support Version 2
 - Quake4 .map file support Version 3
 - support for new entity epairs like "rotation" matrix
-- basic .mtr shader support
-- .lwo misc_model support
+- Doom3 .mtr shader support
+- .lwo model support
