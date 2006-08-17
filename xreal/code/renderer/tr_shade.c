@@ -1505,6 +1505,9 @@ void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader,
 }
 // *INDENT-ON*
 
+static void ComputeColors(shaderStage_t * pStage);
+static void ComputeColor(shaderStage_t * pStage);
+
 static void Render_generic_single_FFP(int stage)
 {
 	shaderStage_t  *pStage;
@@ -1518,11 +1521,13 @@ static void Render_generic_single_FFP(int stage)
 	
 	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
 	{
+		ComputeColor(pStage);
 		qglColor4fv(tess.svars.color);
 		GL_ClientState(GLCS_VERTEX);
 	}
 	else
 	{
+		ComputeColors(pStage);
 		GL_ClientState(GLCS_VERTEX | GLCS_COLOR);
 	}
 	
@@ -1562,6 +1567,8 @@ static void Render_generic_single(int stage)
 	GLimp_LogComment("--- Render_generic_single ---\n");
 
 	pStage = tess.surfaceStages[stage];
+	
+	ComputeColors(pStage);
 	
 	GL_State(pStage->stateBits);
 	
@@ -1603,23 +1610,24 @@ static void Render_depthFill_FFP(int stage)
 	GL_SetVertexAttribs();
 	
 	GL_SelectTexture(0);
-//	qglEnable(GL_TEXTURE_2D);
-	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
-	qglMatrixMode(GL_MODELVIEW);
-
-	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
-	{
-		qglTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsTexCoords));
-	}
-	else
-	{
-		qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
-	}
 	
 	if(pStage->stateBits & GLS_ATEST_BITS)
 	{
+		//qglEnable(GL_TEXTURE_2D);
+		qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		qglMatrixMode(GL_TEXTURE);
+		qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
+		qglMatrixMode(GL_MODELVIEW);
+
+		if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
+		{
+			qglTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsTexCoords));
+		}
+		else
+		{
+			qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
+		}
+		
 		GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
 	}
 	else
@@ -1629,8 +1637,11 @@ static void Render_depthFill_FFP(int stage)
 
 	R_DrawElements();
 	
-	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-//	qglDisable(GL_TEXTURE_2D);
+	if(pStage->stateBits & GLS_ATEST_BITS)
+	{
+		qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		//qglDisable(GL_TEXTURE_2D);
+	}
 }
 
 #if 1
@@ -1653,12 +1664,13 @@ static void Render_depthFill(int stage)
 
 	// bind colorMap
 	GL_SelectTexture(0);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
-	qglMatrixMode(GL_MODELVIEW);
 	
 	if(pStage->stateBits & GLS_ATEST_BITS)
 	{
+		qglMatrixMode(GL_TEXTURE);
+		qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
+		qglMatrixMode(GL_MODELVIEW);
+		
 		GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 	}
 	else
@@ -1687,6 +1699,8 @@ static void Render_generic_multi_FFP(int stage)
 	GLimp_LogComment("--- Render_generic_multi_FFP ---\n");
 
 	pStage = tess.surfaceStages[stage];
+	
+	ComputeColors(pStage);
 	
 	GL_Program(0);
 	GL_State(pStage->stateBits);
@@ -2288,6 +2302,8 @@ static void Render_lighting_D_radiosity_FFP(int stage)
 
 	pStage = tess.surfaceStages[stage];
 	
+	ComputeColors(pStage);
+	
 	GL_Program(0);
 	GL_SelectTexture(0);
 	GL_State(pStage->stateBits);
@@ -2878,6 +2894,8 @@ ComputeColors
 static void ComputeColors(shaderStage_t * pStage)
 {
 	int             i;
+	
+	GLimp_LogComment("--- ComputeColors ---\n");
 
 	// rgbGen
 	switch (pStage->rgbGen)
@@ -3113,6 +3131,8 @@ static void ComputeColor(shaderStage_t * pStage)
 	float			green;
 	float			blue;
 	float           alpha;
+	
+	GLimp_LogComment("--- ComputeColor ---\n");
 
 	// rgbGen
 	switch (pStage->rgbGen)
@@ -3316,6 +3336,8 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 {
 	int             i;
 	int             b;
+	
+	GLimp_LogComment("--- ComputeTexCoords ---\n");
 
 	for(b = 0; b < MAX_TEXTURE_BUNDLES; b++)
 	{
@@ -3454,6 +3476,8 @@ static void ComputeTexMatrices(shaderStage_t * pStage)
 	int             i, j;
 	vec_t          *matrix;
 	float           x, y;
+	
+	GLimp_LogComment("--- ComputeTexMatrices ---\n");
 
 	for(i = 0; i < MAX_TEXTURE_BUNDLES; i++)
 	{
@@ -3542,6 +3566,8 @@ static void ComputeFinalAttenuation(shaderStage_t * pStage, trRefDlight_t * dlig
 	matrix_t		matrix;
 	float           x, y;
 	
+	GLimp_LogComment("--- ComputeFinalAttenuation ---\n");
+	
 	MatrixIdentity(matrix);
 
 	for(i = 0; i < pStage->bundle[TB_COLORMAP].numTexMods; i++)
@@ -3624,17 +3650,24 @@ void RB_StageIteratorLighting()
 	shaderStage_t  *attenuationXYStage;
 	shaderStage_t  *attenuationZStage;
 	
-	dl = backEnd.currentLight;
-	
-	RB_DeformTessGeometry();
-
 	// log this call
 	if(r_logFile->integer)
 	{
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorLighting( %s, %s ) ---\n", tess.surfaceShader->name, tess.lightShader->name));
+		GLimp_LogComment(va("--- RB_StageIteratorLighting( %s surface, %s light, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name, tess.lightShader->name, tess.numVertexes, tess.numIndexes / 3));
 	}
+	
+	if(!tess.surfaceShader->interactLight)
+	{
+		// Tr3B: abort if surface shader has no ability to interact with light
+		// this will save texcoords and matrix calculations
+		return;	
+	}
+	
+	dl = backEnd.currentLight;
+	
+	RB_DeformTessGeometry();
 
 	// set face culling appropriately
 	GL_Cull(tess.surfaceShader->cullType);
@@ -3873,15 +3906,15 @@ void RB_StageIteratorGeneric()
 {
 	int             stage;
 	
-	RB_DeformTessGeometry();
-
 	// log this call
 	if(r_logFile->integer)
 	{
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorGeneric( %s ) ---\n", tess.surfaceShader->name));
+		GLimp_LogComment(va("--- RB_StageIteratorGeneric( %s surface, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name, tess.numVertexes, tess.numIndexes / 3));
 	}
+	
+	RB_DeformTessGeometry();
 
 	// set face culling appropriately
 	GL_Cull(tess.surfaceShader->cullType);
@@ -3931,7 +3964,6 @@ void RB_StageIteratorGeneric()
 		}
 		else
 		{
-			ComputeColors(pStage);
 			ComputeTexCoords(pStage);
 		}
 
@@ -4344,7 +4376,13 @@ Render_shadowVolume
 */
 static void Render_shadowVolume()
 {
-	GLimp_LogComment("--- Render_shadowVolume ---\n");
+	// log this call
+	if(r_logFile->integer)
+	{
+		// don't just call LogComment, or we will get
+		// a call to va() every frame!
+		GLimp_LogComment(va("--- Render_shadowVolume( %i vertices, %i triangles ) ---\n", tess.numVertexes, tess.numIndexes / 3));
+	}
 	
 	if(r_showShadowVolumes->integer)
 	{

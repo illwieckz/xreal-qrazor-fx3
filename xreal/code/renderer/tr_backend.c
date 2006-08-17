@@ -796,6 +796,13 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 			// skip all interactions of this light because it failed the occlusion query
 			goto nextInteraction;
 		}
+		
+		if(!shader->interactLight)
+		{
+			// skip this interaction because the surface shader has no ability to interact with light
+			// this will save texcoords and matrix calculations
+			goto nextInteraction;
+		}
 
 		if(light != oldLight)
 		{
@@ -918,6 +925,10 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 			if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
 			{
 				// do nothing
+			}
+			else if(!shader->interactLight)
+			{
+				// do nothing as well
 			}
 			else
 			{
@@ -1138,7 +1149,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 		{
 			if(!r_nobatching->integer && light == oldLight && entity == oldEntity && shader == oldShader)
 			{
-				if(ia->type != IA_SHADOWONLY)
+				if(shader->interactLight && ia->type != IA_SHADOWONLY)
 				{
 					// fast path, same as previous
 					rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
@@ -1252,7 +1263,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 		}
 		else
 		{
-			if(ia->type != IA_SHADOWONLY)
+			if(shader->interactLight && ia->type != IA_SHADOWONLY)
 			{
 				// add the triangles for this surface
 				rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
@@ -1331,6 +1342,8 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 
 static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions)
 {
+	GLimp_LogComment("--- RB_RenderOcclusionQueries ---\n");
+	
 	if(glConfig.occlusionQueryBits)
 	{
 		int				i;
@@ -1737,6 +1750,8 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 
 static void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 {
+	GLimp_LogComment("--- RB_RenderDebugUtils ---\n");
+	
 	if(r_showLightTransforms->integer)
 	{
 		int             i;
@@ -2096,7 +2111,7 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 	if(r_logFile->integer)
 	{
 		// don't just call LogComment, or we will get a call to va() every frame!
-		GLimp_LogComment(va("--- RB_RenderDrawSurfList( %i, %i ) ---\n", numDrawSurfs, numInteractions));
+		GLimp_LogComment(va("--- RB_RenderDrawSurfList( %i surfaces, %i interactions ) ---\n", numDrawSurfs, numInteractions));
 	}
 	
 	GL_CheckErrors();
