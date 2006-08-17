@@ -368,6 +368,7 @@ static void CG_TouchTriggerPrediction(void)
 	trace_t         trace;
 	entityState_t  *ent;
 	clipHandle_t    cmodel;
+	vec3_t          origin, angles;
 	centity_t      *cent;
 	qboolean        spectator;
 
@@ -405,9 +406,15 @@ static void CG_TouchTriggerPrediction(void)
 		{
 			continue;
 		}
+		
+		// Tr3B: Doom3 triggers have the "origin" epair
+		// so a simple trap_CM_BoxTrace caused a bug where the triggers were located
+		// to the world origin
+		VectorCopy(cent->lerpAngles, angles);
+		BG_EvaluateTrajectory(&cent->currentState.pos, cg.physicsTime, origin);
 
-		trap_CM_BoxTrace(&trace, cg.predictedPlayerState.origin, cg.predictedPlayerState.origin,
-						 cg_pmove.mins, cg_pmove.maxs, cmodel, -1);
+		trap_CM_TransformedBoxTrace(&trace, cg.predictedPlayerState.origin, cg.predictedPlayerState.origin,
+						 cg_pmove.mins, cg_pmove.maxs, cmodel, -1, origin, angles);
 
 		if(!trace.startsolid)
 		{
