@@ -744,6 +744,20 @@ models/weapons/proxmine/proxmine3.tga						id Software					EULA					tademo
 models/weapons/proxmine/proxmine_flash.md3					id Software					EULA					tademo
 models/weapons/proxmine/proxmine_hand.md3					id Software					EULA					tademo
 models/weapons/proxmine/proxmine.md3						id Software					EULA					tademo
+models/weapons/shotgun/hotgun_flash.md3						Open Arena Team				GPL						oa subversion repository
+models/weapons/shotgun/muzzley.tga							Open Arena Team				GPL						oa subversion repository
+models/weapons/shotgun/oldshotgun.md3						Open Arena Team				GPL						oa subversion repository
+models/weapons/shotgun/shotgun.blend						Robert "Tr3B" Beckebans		GPL
+models/weapons/shotgun/shotgun_flash.md3					Open Arena Team				GPL						oa subversion repository
+models/weapons/shotgun/shotgun_flashside.tga				Open Arena Team				GPL						oa subversion repository
+models/weapons/shotgun/shotgun_flash.tga					Open Arena Team				GPL						oa subversion repository
+models/weapons/shotgun/shotgun_hand.md3						Open Arena Team				GPL						oa subversion repository
+models/weapons/shotgun/shotgun.jpg							Open Arena Team				GPL						oa subversion repository
+models/weapons/shotgun/shotgun_laser.jpg					Open Arena Team				GPL						oa subversion repository
+models/weapons/shotgun/shotgun.md3							Open Arena Team				GPL						oa subversion repository
+models/weapons/shotgun/shotgun_n.tga						Robert "Tr3B" Beckebans		GPL
+models/weapons/shotgun/shotgun_s.tga						Robert "Tr3B" Beckebans		GPL
+models/weapons/shotgun/shotgun.tga							Open Arena Team				GPL						oa subversion repository
 models/weapons2/gauntlet/fx.jpg								Lee David Ash				custom					http://violatione.planetquake.gamespy.com
 models/weapons2/gauntlet/gauntlet_1.md3						Lee David Ash				custom					http://violatione.planetquake.gamespy.com
 models/weapons2/gauntlet/gauntlet_1.qc						Lee David Ash				custom					http://violatione.planetquake.gamespy.com
@@ -867,40 +881,6 @@ models/weapons2/shells/m_shell.md3							id Software					EULA					q3demo
 models/weapons2/shells/s_shell.jpg							id Software					EULA					q3demo
 models/weapons2/shells/s_shell.md3							id Software					EULA					q3demo
 models/weapons2/shells/s_shell.tga							id Software					EULA					q3demo
-models/weapons2/shotgun/f_shotgun.jpg						id Software					EULA					q3test-ihv
-models/weapons2/shotgun/shotgun01_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/shotgun/shotgun01_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/shotgun/shotgun01.tga						id Software					EULA					q3test-ihv
-models/weapons2/shotgun/shotgun02_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/shotgun/shotgun02_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/shotgun/shotgun02.tga						id Software					EULA					q3test-ihv
-models/weapons2/shotgun/shotgun03_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/shotgun/shotgun03_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/shotgun/shotgun03.tga						id Software					EULA					q3test-ihv
-models/weapons2/shotgun/shotgun04_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/shotgun/shotgun04_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/shotgun/shotgun04.tga						id Software					EULA					q3test-ihv
-models/weapons2/shotgun/shotgun05_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/shotgun/shotgun05_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/shotgun/shotgun05.tga						id Software					EULA					q3test-ihv
-models/weapons2/shotgun/shotgun06_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/shotgun/shotgun06_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/shotgun/shotgun06.tga						id Software					EULA					q3test-ihv
-models/weapons2/shotgun/shotgun07.tga						id Software					EULA					q3test-ihv
-models/weapons2/shotgun/shotgun08.tga						id Software					EULA					q3test-ihv
-models/weapons2/shotgun/shotgun09_glow.tga					id Software					EULA					q3test-ihv
-models/weapons2/shotgun/shotgun09.tga						id Software					EULA					q3test-ihv
-models/weapons2/shotgun/shotgun10_glow.tga					id Software					EULA					q3test-ihv
-models/weapons2/shotgun/shotgun10_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/shotgun/shotgun10_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/shotgun/shotgun10.tga						id Software					EULA					q3test-ihv
-models/weapons2/shotgun/shotgun_1.md3						id Software					EULA					q3test-ihv
-models/weapons2/shotgun/shotgun_2.md3						id Software					EULA					q3test-ihv
-models/weapons2/shotgun/shotgun.blend						id Software					EULA					q3test-ihv
-models/weapons2/shotgun/shotgun_flash.md3					id Software					EULA					q3test-ihv
-models/weapons2/shotgun/shotgun_hand.md3					id Software					EULA					q3test-ihv
-models/weapons2/shotgun/shotgun_laser.jpg					id Software					EULA					q3test-ihv
-models/weapons2/shotgun/shotgun.md3							id Software					EULA					q3test-ihv
 music/fla_mp01.wav											id Software					EULA					tademo
 music/fla_mp03.wav											id Software					EULA					tademo
 music/sonic1.wav											id Software					EULA					tademo

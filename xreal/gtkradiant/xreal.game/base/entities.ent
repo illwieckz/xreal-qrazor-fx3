@@ -2090,7 +2090,7 @@ When the random key is set, its value is used to calculate a minimum and a maxim
 =============================================================================
 -->
 
-<point name="weapon_shotgun" color="1 0 .5" box="-16 -16 -16 16 16 16" model="models/weapons2/shotgun/shotgun.md3">
+<point name="weapon_shotgun" color="1 0 .5" box="-16 -16 -16 16 16 16" model="models/weapons/shotgun/shotgun.md3">
 Shotgun.
 -------- KEYS --------
 <real key="wait" name="Respawn Delay">time in seconds before item respawns after being picked up (default 5, -1 = never respawn).</real>

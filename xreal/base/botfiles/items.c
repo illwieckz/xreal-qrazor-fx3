@@ -130,7 +130,7 @@ iteminfo "weapon_gauntlet"
 iteminfo "weapon_shotgun"
 {
 	name					"Shotgun"
-	model					"models/weapons2/shotgun/shotgun.md3"
+	model					"models/weapons/shotgun/shotgun.md3"
 	modelindex				MODELINDEX_SHOTGUN
 	type					ITEM_WEAPON
 	index					INVENTORY_SHOTGUN

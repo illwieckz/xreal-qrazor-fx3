@@ -789,7 +789,7 @@ void CG_RegisterWeapon(int weaponNum)
 
 	if(!weaponInfo->handsModel)
 	{
-		weaponInfo->handsModel = trap_R_RegisterModel("models/weapons2/shotgun/shotgun_hand.md3");
+		weaponInfo->handsModel = trap_R_RegisterModel("models/weapons/shotgun/shotgun_hand.md3");
 	}
 
 	weaponInfo->loopFireSound = qfalse;

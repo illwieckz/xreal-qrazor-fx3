@@ -226,7 +226,7 @@ gitem_t         bg_itemlist[] = {
 	{
 	 "weapon_shotgun",
 	 "sound/misc/w_pkup.wav",
-	 {"models/weapons2/shotgun/shotgun.md3",
+	 {"models/weapons/shotgun/shotgun.md3",
 	  0, 0, 0}
 	 ,
 /* icon */ "icons/iconw_shotgun",

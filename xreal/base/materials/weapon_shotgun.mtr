@@ -1,0 +1,77 @@
+
+models/weapons/shotgun/shotgun
+{
+	{
+		blend diffuseMap
+		rgbGen lightingDiffuse
+		map	models/weapons/shotgun/shotgun.tga
+	}
+	{
+		blend bumpMap
+		map	models/weapons/shotgun/shotgun_n.tga
+	}
+	{
+		blend specularMap
+		map	models/weapons/shotgun/shotgun_s.tga
+	}
+}
+
+/*
+models/weapons/shotgun/f_shotgun
+{
+	sort additive
+	cull disable
+	{
+		map	models/weapons/shotgun/f_shotgun.tga
+		blend add
+	}
+}
+*/
+
+models/weapons/shotgun/shotgun_laser
+{
+	{
+		map	models/weapons/shotgun/shotgun_laser.tga
+		blend add
+	}
+}
+
+shotgunFlash
+{
+	cull disable
+	{
+		map models/weapons/shotgun/muzzley.tga
+		blend add
+	}
+}
+
+muzzleSprite
+{
+	sort additive
+	cull disable
+	deformVertexes autosprite
+	{
+		map	models/weapons/shotgun/shotgun_flash.tga
+		blend add
+	}
+}
+
+muzzleSide
+{
+	sort additive
+	deformVertexes autosprite2
+	{
+		map	models/weapons/shotgun/shotgun_flashside.tga
+		blend add
+	}
+}
+
+muzzleSphere
+{
+	sort additive
+	cull disable
+	{
+		map	models/weapons/shotgun/shotgun_flash.tga
+		blend add
+	}
+}
