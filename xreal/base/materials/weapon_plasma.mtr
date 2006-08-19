@@ -1,0 +1,50 @@
+
+models/weapons2/plasma/plasma
+{
+	{
+		blend diffuseMap
+		map models/weapons2/plasma/plasma.tga
+		rgbGen lightingDiffuse
+	}
+	bumpMap models/weapons2/plasma/plasma_n.tga
+	specularMap models/weapons2/plasma/plasma_s.tga
+}
+
+models/weapons2/plasma/f_plasma
+{
+	cull disable
+	sort additive
+	{
+		map models/weapons2/plasma/f_plasma.tga
+		blendfunc GL_ONE GL_ONE
+	}
+}
+
+models/weapons2/plasma/plasma_glass
+{
+	{
+		map textures/effects/tinfxb.tga
+		tcGen environment
+		tcMod scroll .01 .02
+		blendfunc GL_ONE GL_ONE
+		rgbGen lightingDiffuse
+		//rgbGen identity
+	}
+}
+
+models/weapons2/plasma/plasma_glo
+{
+	{
+		map models/weapons2/plasma/plasma_glo.tga
+		tcmod rotate 33
+		tcMod scroll .7 1
+		rgbGen identity
+	}
+	{
+		map textures/effects/tinfxb.tga
+		tcGen environment
+		tcMod scroll .01 .02
+		blendfunc GL_ONE GL_ONE
+		rgbGen lightingDiffuse
+	}
+}

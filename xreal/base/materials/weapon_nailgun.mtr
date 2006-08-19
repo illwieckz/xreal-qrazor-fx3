@@ -1,0 +1,7 @@
+
+models/powerups/ammo/nailammo1
+{
+	diffuseMap models/powerups/ammo/nailammo1.tga
+	bumpMap models/powerups/ammo/nailammo1_n.tga
+	specularMap models/powerups/ammo/nailammo1_s.tga
+}

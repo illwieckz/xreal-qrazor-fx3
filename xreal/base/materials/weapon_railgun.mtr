@@ -1,0 +1,127 @@
+
+models/weapons2/railgun/f_railgun2
+{
+	sort additive
+	cull disable
+	{
+		map	models/weapons2/railgun/f_railgun.tga
+		//map	models/weapons2/railgun/f_railgun2.tga
+		blendfunc GL_ONE GL_ONE
+		//rgbgen entity
+	}
+}
+
+models/weapons2/railgun/railgun1
+{
+	{
+		blend diffuseMap
+		map models/weapons2/railgun/railgun1.tga
+		rgbGen lightingDiffuse
+	}
+	bumpMap models/weapons2/railgun/railgun1_n.tga
+	specularMap models/weapons2/railgun/railgun1_s.tga
+}
+
+models/weapons2/railgun/railgun2
+{
+	sort additive
+	cull disable
+	{
+		map	models/weapons2/railgun/railgun2_glow.tga
+		blendfunc GL_ONE GL_ONE
+		rgbGen identity	// entity
+	}
+}
+
+models/weapons2/railgun/railgun3
+{
+	{
+		blend diffuseMap
+		map	models/weapons2/railgun/railgun3.tga
+		rgbGen lightingDiffuse
+	}
+	bumpMap models/weapons2/railgun/railgun3_n.tga
+	specularMap models/weapons2/railgun/railgun3_s.tga
+
+	{
+		map	models/weapons2/railgun/railgun3_glow.tga
+		blendfunc GL_ONE GL_ONE
+		rgbGen identity	// entity
+	}
+}
+
+models/weapons2/railgun/railgun4
+{
+	{
+		map models/weapons2/railgun/railgun4.tga
+		tcMod scroll 0 1
+		rgbGen identity	// entity
+	}
+}
+
+
+models/powerups/ammo/railammo
+{
+	{
+		map textures/effects/envmaprail.tga
+		//tcmod scale 3 3
+		tcmod rotate 350
+		tcmod scroll 3 1
+		//tcGen environment
+		blendfunc GL_ONE GL_ZERO
+		rgbGen identity
+	}
+	{
+		map models/powerups/ammo/railammo.tga
+		blendfunc blend
+		rgbGen lightingDiffuse
+	}
+}
+
+models/powerups/ammo/railammo1
+{
+	/*
+	{
+		map textures/effects/envmaprail.tga
+		tcGen environment
+		//tcmod scale 4 4
+		//tcmod rotate 70
+		//tcmod scroll .5 .5
+		blendfunc GL_ONE GL_ZERO
+		rgbGen lightingDiffuse
+	}
+	*/
+	{
+		stage diffuseMap
+		map models/powerups/ammo/railammo1.tga
+		//rgbGen lightingDiffuse
+	}
+	bumpMap models/powerups/ammo/generalmmo1_n.tga
+	specularMap models/powerups/ammo/railammo1_s.tga
+	{
+		map models/powerups/ammo/railammo1_glow.tga
+		blend add
+		rgbGen wave sin 0.75 0.25 0 1
+	}
+}
+
+models/powerups/ammo/railammo2
+{
+	/*
+	{
+		map models/powerups/ammo/railammo2.tga
+		rgbGen identity
+	}
+	*/
+	{
+		stage diffuseMap
+		map models/powerups/ammo/railammo2.tga
+		//rgbGen lightingDiffuse
+	}
+	bumpMap models/powerups/ammo/railammo2_n.tga
+	specularMap models/powerups/ammo/railammo2_s.tga
+	{
+		map models/powerups/ammo/railammo2_glow.tga
+		blend add
+	}
+}
