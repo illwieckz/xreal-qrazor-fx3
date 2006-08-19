@@ -903,7 +903,7 @@ void CG_RegisterWeapon(int weaponNum)
 //      weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/nailgun/wnalflit.wav", qfalse );
 			weaponInfo->trailRadius = 16;
 			weaponInfo->wiTrailTime = 250;
-			weaponInfo->missileModel = trap_R_RegisterModel("models/weaphits/nail.md3");
+			weaponInfo->missileModel = trap_R_RegisterModel("models/projectiles/spike/spike.md3");
 			MAKERGB(weaponInfo->flashDlightColor, 1, 0.75f, 0);
 			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/nailgun/wnalfire.wav", qfalse);
 			break;

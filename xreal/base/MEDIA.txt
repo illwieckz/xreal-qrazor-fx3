@@ -671,6 +671,11 @@ models/projectiles/missile/missile_glow.tga					MonkeyRat					custom					http://
 models/projectiles/missile/missile.md3						MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
 models/projectiles/missile/missile_spec.tga					MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
 models/projectiles/missile/missile.tga						MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/spike/spike.blend						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/projectiles/spike/spike_local.tga					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/projectiles/spike/spike.md3							MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/spike/spike_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/projectiles/spike/spike.tga							MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
 models/weaphits/bfgboom/bfgboom_1.tga						id Software					EULA					q3test
 models/weaphits/bfgboom/bfgboom_2.tga						id Software					EULA					q3test
 models/weaphits/bfgboom/bfgboom_3.tga						id Software					EULA					q3test

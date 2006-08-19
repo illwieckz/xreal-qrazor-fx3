@@ -5,3 +5,15 @@ models/powerups/ammo/nailammo1
 	bumpMap models/powerups/ammo/nailammo1_n.tga
 	specularMap models/powerups/ammo/nailammo1_s.tga
 }
+
+
+models/projectiles/spike/spike
+{
+	{
+		stage diffuseMap
+		map	models/projectiles/spike/spike.tga
+		rgbGen lightingDiffuse
+	}
+	bumpMap models/projectiles/spike/spike_local.tga
+	specularMap models/projectiles/spike/spike_s.tga
+}
