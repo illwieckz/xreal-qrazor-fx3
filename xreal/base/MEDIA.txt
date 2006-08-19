@@ -1569,31 +1569,31 @@ textures/decals/particle_burn01.tga							Tenebrae Team				custom					tenebrae
 textures/editor/entityGui1.tga								otty						custom
 textures/editor/entityGui2.tga								otty						custom
 textures/editor/entityGui3.tga								otty						custom
-textures/effects/blueflagmap.tga							id Software					EULA					q3demo
-textures/effects/envmapbfg.jpg								id Software					EULA					q3demo
-textures/effects/envmapblue2.jpg							id Software					EULA					q3demo
-textures/effects/envmapblue.jpg								id Software					EULA					q3demo
-textures/effects/envmapdim.jpg								id Software					EULA					q3demo
-textures/effects/envmapgold2.jpg							id Software					EULA					q3demo
-textures/effects/envmapgold.jpg								id Software					EULA					q3demo
-textures/effects/envmap.jpg									id Software					EULA					q3demo
-textures/effects/envmapligh.jpg								id Software					EULA					q3demo
-textures/effects/envmapmach.jpg								id Software					EULA					q3demo
-textures/effects/envmapplas.jpg								id Software					EULA					q3demo
-textures/effects/envmappurp.jpg								id Software					EULA					q3demo
-textures/effects/envmaprail.jpg								id Software					EULA					q3demo
-textures/effects/envmapred.jpg								id Software					EULA					q3demo
-textures/effects/envmapyel.jpg								id Software					EULA					q3demo
-textures/effects/invismap.jpg								id Software					EULA					q3demo
-textures/effects/quadmap2.jpg								id Software					EULA					q3demo
-textures/effects/regenmap2.jpg								id Software					EULA					q3demo
-textures/effects/tinfx2b.jpg								id Software					EULA					q3demo
-textures/effects/tinfx2c.jpg								id Software					EULA					q3demo
-textures/effects/tinfx2d.jpg								id Software					EULA					q3demo
-textures/effects/tinfx2.jpg									id Software					EULA					q3demo
-textures/effects/tinfx3.jpg									id Software					EULA					q3demo
-textures/effects/tinfxb.jpg									id Software					EULA					q3demo
-textures/effects/tinfx.jpg									id Software					EULA					q3demo
+textures/effects/blueflagmap.tga							Open Arena Team				GPL						oa subversion repository
+textures/effects/envmapbfg.jpg								Open Arena Team				GPL						oa subversion repository
+textures/effects/envmapblue2.jpg							Open Arena Team				GPL						oa subversion repository
+textures/effects/envmapblue.jpg								Open Arena Team				GPL						oa subversion repository
+textures/effects/envmapdim.jpg								Open Arena Team				GPL						oa subversion repository
+textures/effects/envmapgold2.jpg							Open Arena Team				GPL						oa subversion repository
+textures/effects/envmapgold.jpg								Open Arena Team				GPL						oa subversion repository
+textures/effects/envmap.jpg									Open Arena Team				GPL						oa subversion repository
+textures/effects/envmapligh.jpg								Open Arena Team				GPL						oa subversion repository
+textures/effects/envmapmach.jpg								Open Arena Team				GPL						oa subversion repository
+textures/effects/envmapplas.jpg								Open Arena Team				GPL						oa subversion repository
+textures/effects/envmappurp.jpg								Open Arena Team				GPL						oa subversion repository
+textures/effects/envmaprail.jpg								Open Arena Team				GPL						oa subversion repository
+textures/effects/envmapred.jpg								Open Arena Team				GPL						oa subversion repository
+textures/effects/envmapyel.jpg								Open Arena Team				GPL						oa subversion repository
+textures/effects/invismap.jpg								Open Arena Team				GPL						oa subversion repository
+textures/effects/quadmap2.jpg								Open Arena Team				GPL						oa subversion repository
+textures/effects/regenmap2.jpg								Open Arena Team				GPL						oa subversion repository
+textures/effects/tinfx2b.jpg								Open Arena Team				GPL						oa subversion repository
+textures/effects/tinfx2c.jpg								Open Arena Team				GPL						oa subversion repository
+textures/effects/tinfx2d.jpg								Open Arena Team				GPL						oa subversion repository
+textures/effects/tinfx2.jpg									Open Arena Team				GPL						oa subversion repository
+textures/effects/tinfx3.jpg									Open Arena Team				GPL						oa subversion repository
+textures/effects/tinfxb.jpg									Open Arena Team				GPL						oa subversion repository
+textures/effects/tinfx.jpg									Open Arena Team				GPL						oa subversion repository
 textures/effects2/console01.tga								id Software					EULA					tademo
 textures/effects2/envmap_blu.tga							id Software					EULA					tademo
 textures/effects2/envmap_red.tga							id Software					EULA					tademo
