@@ -656,6 +656,12 @@ models/powerups/scout2.tga									id Software					EULA					tademo
 models/powerups/scout_player_1.md3							id Software					EULA					tademo
 models/powerups/scout_player.md3							id Software					EULA					tademo
 models/powerups/trailtest.md3								id Software					EULA					tademo
+models/projectiles/grenade/grenade.blend					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/projectiles/grenade/grenade_bump.tga					MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/grenade/grenade_glow.tga					MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/grenade/grenade.md3						MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/grenade/grenade_spec.tga					MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/grenade/grenade.tga						MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
 models/projectiles/missile/missile.blend					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 models/projectiles/missile/missile_bump.tga					MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
 models/projectiles/missile/missileflar.jpg					Randall "Ravenant" P.		custom					http://www.planetquake.com/crypt

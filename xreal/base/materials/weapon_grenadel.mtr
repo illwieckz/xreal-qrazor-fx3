@@ -1,0 +1,15 @@
+
+models/projectiles/grenade/grenade
+{
+	{
+		stage diffuseMap
+		map	models/projectiles/grenade/grenade.tga
+		rgbGen lightingDiffuse
+	}
+	bumpMap heightmap(models/projectiles/grenade/grenade_bump.tga, 3)
+	specularMap models/projectiles/grenade/grenade_spec.tga
+	{
+		map models/projectiles/grenade/grenade_glow.tga
+		blend add
+	}
+}
