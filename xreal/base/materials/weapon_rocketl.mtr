@@ -43,3 +43,48 @@ models/weapons2/rocketl/rocketl14
 		blendfunc GL_ONE GL_ONE
 	}
 }
+
+
+
+models/ammo/missile/missile
+{
+	{
+		stage diffuseMap
+		map	models/ammo/missile/missile.tga
+		rgbGen lightingDiffuse
+	}
+	bumpMap heightmap(models/ammo/missile/missile_bump.tga, 3)
+	specularMap models/ammo/missile/missile_spec.tga
+	{
+		map models/ammo/missile/missile_glow.tga
+		blend add
+	}
+}
+
+models/ammo/missile/missileflar
+{
+	twoSided
+	{
+		map models/ammo/missile/missileflar.tga
+		blend add
+		scroll time * 10.0, 0
+	}
+}
+
+models/ammo/missile/missilefls1
+{
+	twoSided
+	{
+		map models/ammo/missile/missilefls1.tga
+		blend add
+	}
+}
+
+models/ammo/missile/missilefls2
+{
+	twoSided
+	{
+		map models/ammo/missile/missilefls2.tga
+		blend add
+	}
+}
