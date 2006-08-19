@@ -279,20 +279,6 @@ menu/tab/ping.tga											Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 menu/tab/rating.tga											Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 menu/tab/score.tga											Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 menu/tab/time.tga											Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/ammo/grenade1.md3									id Software					EULA					q3demo
-models/ammo/grenade_g.jpg									id Software					EULA					q3demo
-models/ammo/grenade.jpg										id Software					EULA					q3demo
-models/ammo/grenade_r.jpg									id Software					EULA					q3demo
-models/ammo/rocket/rocket.md3								id Software					EULA					q3demo
-models/ammo/missile/missile.blend							Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/ammo/missile/missile_bump.tga						MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
-models/ammo/missile/missileflar.jpg							Randall "Ravenant" P.		custom					http://www.planetquake.com/crypt
-models/ammo/missile/missilefls1.jpg							Randall "Ravenant" P.		custom					http://www.planetquake.com/crypt
-models/ammo/missile/missilefls2.jpg							Randall "Ravenant" P.		custom					http://www.planetquake.com/crypt
-models/ammo/missile/missile_glow.tga						MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
-models/ammo/missile/missile.md3								MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
-models/ammo/missile/missile_spec.tga						MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
-models/ammo/missile/missile.tga								MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
 models/flag/pole.tga										id Software					EULA					tademo
 models/flag/r_flag2.tga										id Software					EULA					tademo
 models/flag/skull.tga										id Software					EULA					tademo
@@ -670,6 +656,15 @@ models/powerups/scout2.tga									id Software					EULA					tademo
 models/powerups/scout_player_1.md3							id Software					EULA					tademo
 models/powerups/scout_player.md3							id Software					EULA					tademo
 models/powerups/trailtest.md3								id Software					EULA					tademo
+models/projectiles/missile/missile.blend					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/projectiles/missile/missile_bump.tga					MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/missile/missileflar.jpg					Randall "Ravenant" P.		custom					http://www.planetquake.com/crypt
+models/projectiles/missile/missilefls1.jpg					Randall "Ravenant" P.		custom					http://www.planetquake.com/crypt
+models/projectiles/missile/missilefls2.jpg					Randall "Ravenant" P.		custom					http://www.planetquake.com/crypt
+models/projectiles/missile/missile_glow.tga					MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/missile/missile.md3						MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/missile/missile_spec.tga					MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/missile/missile.tga						MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
 models/weaphits/bfgboom/bfgboom_1.tga						id Software					EULA					q3test
 models/weaphits/bfgboom/bfgboom_2.tga						id Software					EULA					q3test
 models/weaphits/bfgboom/bfgboom_3.tga						id Software					EULA					q3test
