@@ -113,49 +113,51 @@ shaderdemos/testRotate {
 	}
 }
 
-// shaderdemos/testScale {
-// 	{
-// 		map		gfx/misc/console01.tga
-// 		scale	scaleTable[time * 0.1] , scaleTable[time * 0.1]
-// 	}
-// }
-// 
-// shaderdemos/testShear {
-// 	{
-// 		map		gfx/misc/console01.tga
-// 		shear	scaleTable[time * 0.1] , 0
-// 	}
-// }
-// 
-// shaderdemos/testTranslate {
-// 	{
-// 		map		gfx/misc/console01.tga
-// 		translate	time * 0.1 , time * 0.2
-// 	}
-// }
-// 
-// shaderdemos/testSos {
-// 	{
-// 		map		gfx/misc/console01.tga
-// 		rgb		sosTable[ time * 0.25 ]
-// 	}
-// }
-// 
-// shaderdemos/testNearest {
-// 	{
-// 		map		lights/window.tga
-// 		nearest
-// 		scale	.25 , .25
-// 	}
-// }
-// 
-// shaderdemos/testLinear {
-// 	{
-// 		map		lights/window.tga
-// 		linear
-// 		scale	4 , 4
-// 	}
-// }
+/*
+shaderdemos/testScale {
+	{
+		map		gfx/misc/console01.tga
+		scale	scaleTable[time * 0.1] , scaleTable[time * 0.1]
+	}
+}
+
+shaderdemos/testShear {
+	{
+		map		gfx/misc/console01.tga
+		shear	scaleTable[time * 0.1] , 0
+	}
+}
+
+shaderdemos/testTranslate {
+	{
+		map		gfx/misc/console01.tga
+		translate	time * 0.1 , time * 0.2
+	}
+}
+
+shaderdemos/testSos {
+	{
+		map		gfx/misc/console01.tga
+		rgb		sosTable[ time * 0.25 ]
+	}
+}
+
+shaderdemos/testNearest {
+	{
+		map		lights/window.tga
+		nearest
+		scale	.25 , .25
+	}
+}
+
+shaderdemos/testLinear {
+	{
+		map		lights/window.tga
+		linear
+		scale	4 , 4
+	}
+}
+*/
 
 shaderdemos/testClamp {
 	{
@@ -171,153 +173,155 @@ shaderdemos/testZeroClamp {
 	}
 }
 
-// shaderdemos/testBlendOverLight {
-// 	bumpmap	addnormals( textures/base_wall/panel01_local.tga  , heightmap( textures/base_wall/panel01_add.tga, 6 ) )
-// 	diffusemap	textures/base_wall/panel01_d.tga
-// 	specularmap textures/base_wall/panel01_s.tga
-// 	{
-// 		blend	add
-// 		color	0.25 * scaleTable[ time ] , 0.2, 0.2, 1
-// 		map		lights/window.tga
-// 	}
-// }
-// 
-// shaderdemos/tableTest {
-// 	{
-// 		map		gfx/misc/console01.tga
-// 		translate	scaleTable[ time ] * 0.1 , 0
-// 	}
-// 	{
-// 		blend	add
-// 		map		_default
-// 		translate	0, scaleTable[ time * 4 ] * 0.1
-// 	}
-// }
-// 
-// shaderdemos/testAnim {
-// 	{
-// 		if ( ( time * 4 ) % 3 == 0 )
-// 		map		gfx/misc/console01.tga
-// 	}
-// 	{
-// 		if ( ( time * 4 ) % 3 == 1 )
-// 		map		textures/base_wall/panel01_d.tga
-// 	}
-// 	{
-// 		if ( ( time * 4 ) % 3 == 2 )
-// 		map		lights/window.tga
-// 	}
-// }
-// 
-// shaderdemos/testFadedAnim {
-// 	{
-// 		rgb		oneThirdTable[time]
-// 		map		gfx/misc/console01.tga
-// 	}
-// 	{
-// 		blend	add
-// 		rgb		oneThirdTable[time + ( 1 / 3 ) ]
-// 		map		textures/base_wall/panel01_d.tga
-// 	}
-// 	{
-// 		blend	add
-// 		rgb		oneThirdTable[time + ( 2 / 3 ) ]
-// 		map		lights/window.tga
-// 	}
-// }
-// 
-// shaderdemos/testBlend {
-// 	translucent
-// 	{
-// 		blend	GL_ONE, GL_ONE
-// 		map		lights/window.tga
-// 	}
-// }
-// 
-// shaderdemos/testAlphaTest {
-// 	noshadows
-// 	twosided
-// 	{
-// 		blend	bumpmap
-// 		map		ase\testroom1f_local.tga
-// 	}
-// 	{
-// 		blend	diffusemap
-// 		map		ase\testroom1fdif.tga
-// 		alphaTest 0.5
-// 	}
-// 	{
-// 		blend	specularmap
-// 		map		ase\testroom1fspec.tga
-// 	}
-// }
-// 
-// shaderdemos/testScrollingBump {
-// 	{
-// 		blend	bumpmap
-// 		map		addnormals( textures/base_wall/panel01_local.tga  , heightmap( textures/base_wall/panel01_add.tga, 6 ) )
-// 		translate	time * 0.1 , time * 0.2
-// 	}
-// 	{
-// 		blend	diffusemap
-// 		map		textures/base_wall/panel01_d.tga
-// 	}
-// 	{
-// 		blend	specularmap
-// 		map		textures/base_wall/panel01_s.tga
-// 	}
-// }
-// 
-// shaderdemos/testScrollingColor {
-// 	{
-// 		blend	bumpmap
-// 		map		addnormals( textures/base_wall/panel01_local.tga  , heightmap( textures/base_wall/panel01_add.tga, 6 ) )
-// 	}
-// 	{
-// 		blend	diffusemap
-// 		map		textures/base_wall/panel01_d.tga
-// 		translate	time * 0.1 , time * 0.2
-// 	}
-// 	{
-// 		blend	specularmap
-// 		map		textures/base_wall/panel01_s.tga
-// 		translate	time * 0.1 , time * 0.2
-// 	}
-// }
-// 
-// shaderdemos/testBlendingColor {
-// 	{
-// 		blend	bumpmap
-// 		map		addnormals( textures/base_wall/panel01_local.tga  , heightmap( textures/base_wall/panel01_add.tga, 6 ) )
-// 	}
-// 	{
-// 		blend	diffusemap
-// 		rgb		fadeTable[ time ]
-// 		map		textures/base_wall/panel01_d.tga
-// 	}
-// 	{
-// 		blend	diffusemap
-// 		rgb		1.0 - fadeTable[ time ]
-// 		map		lights/window.tga
-// 	}
-// 	{
-// 		blend	specularmap
-// 		map		textures/base_wall/panel01_s.tga
-// 	}
-// }
-// 
-// shaderdemos/testOrderOfOperations {
-// 	{
-// 		map		lights/window.tga
-// 		rgb		fadeTable[time] + 0.1 * 0.01
-// 	}
-// }
-// 
-// shaderdemos/guiSurf {
-// 	discrete
-// 	qer_editorimage	textures/editor/gui.tga
-// 	guiSurf	guis/test.gui
-// }
+/*
+shaderdemos/testBlendOverLight {
+	bumpmap	addnormals( textures/base_wall/panel01_local.tga  , heightmap( textures/base_wall/panel01_add.tga, 6 ) )
+	diffusemap	textures/base_wall/panel01_d.tga
+	specularmap textures/base_wall/panel01_s.tga
+	{
+		blend	add
+		color	0.25 * scaleTable[ time ] , 0.2, 0.2, 1
+		map		lights/window.tga
+	}
+}
+
+shaderdemos/tableTest {
+	{
+		map		gfx/misc/console01.tga
+		translate	scaleTable[ time ] * 0.1 , 0
+	}
+	{
+		blend	add
+		map		_default
+		translate	0, scaleTable[ time * 4 ] * 0.1
+	}
+}
+
+shaderdemos/testAnim {
+	{
+		if ( ( time * 4 ) % 3 == 0 )
+		map		gfx/misc/console01.tga
+	}
+	{
+		if ( ( time * 4 ) % 3 == 1 )
+		map		textures/base_wall/panel01_d.tga
+	}
+	{
+		if ( ( time * 4 ) % 3 == 2 )
+		map		lights/window.tga
+	}
+}
+
+shaderdemos/testFadedAnim {
+	{
+		rgb		oneThirdTable[time]
+		map		gfx/misc/console01.tga
+	}
+	{
+		blend	add
+		rgb		oneThirdTable[time + ( 1 / 3 ) ]
+		map		textures/base_wall/panel01_d.tga
+	}
+	{
+		blend	add
+		rgb		oneThirdTable[time + ( 2 / 3 ) ]
+		map		lights/window.tga
+	}
+}
+
+shaderdemos/testBlend {
+	translucent
+	{
+		blend	GL_ONE, GL_ONE
+		map		lights/window.tga
+	}
+}
+
+shaderdemos/testAlphaTest {
+	noshadows
+	twosided
+	{
+		blend	bumpmap
+		map		ase\testroom1f_local.tga
+	}
+	{
+		blend	diffusemap
+		map		ase\testroom1fdif.tga
+		alphaTest 0.5
+	}
+	{
+		blend	specularmap
+		map		ase\testroom1fspec.tga
+	}
+}
+
+shaderdemos/testScrollingBump {
+	{
+		blend	bumpmap
+		map		addnormals( textures/base_wall/panel01_local.tga  , heightmap( textures/base_wall/panel01_add.tga, 6 ) )
+		translate	time * 0.1 , time * 0.2
+	}
+	{
+		blend	diffusemap
+		map		textures/base_wall/panel01_d.tga
+	}
+	{
+		blend	specularmap
+		map		textures/base_wall/panel01_s.tga
+	}
+}
+
+shaderdemos/testScrollingColor {
+	{
+		blend	bumpmap
+		map		addnormals( textures/base_wall/panel01_local.tga  , heightmap( textures/base_wall/panel01_add.tga, 6 ) )
+	}
+	{
+		blend	diffusemap
+		map		textures/base_wall/panel01_d.tga
+		translate	time * 0.1 , time * 0.2
+	}
+	{
+		blend	specularmap
+		map		textures/base_wall/panel01_s.tga
+		translate	time * 0.1 , time * 0.2
+	}
+}
+
+shaderdemos/testBlendingColor {
+	{
+		blend	bumpmap
+		map		addnormals( textures/base_wall/panel01_local.tga  , heightmap( textures/base_wall/panel01_add.tga, 6 ) )
+	}
+	{
+		blend	diffusemap
+		rgb		fadeTable[ time ]
+		map		textures/base_wall/panel01_d.tga
+	}
+	{
+		blend	diffusemap
+		rgb		1.0 - fadeTable[ time ]
+		map		lights/window.tga
+	}
+	{
+		blend	specularmap
+		map		textures/base_wall/panel01_s.tga
+	}
+}
+
+shaderdemos/testOrderOfOperations {
+	{
+		map		lights/window.tga
+		rgb		fadeTable[time] + 0.1 * 0.01
+	}
+}
+
+shaderdemos/guiSurf {
+	discrete
+	qer_editorimage	textures/editor/gui.tga
+	guiSurf	guis/test.gui
+}
+*/
 
 shaderdemos/entityGui {
 	discrete
@@ -337,114 +341,116 @@ shaderdemos/entityGui3 {
 	guiSurf	entity3
 }
 
-// shaderdemos/sargeNoSelfShadow
-// {
-// 	noSelfShadow
-//     bumpmap		addnormals( models/characters/sarge/hsarge_hi_local.tga, heightmap( models/characters/sarge/hsarge_add.tga, 3 ) )
-//     diffusemap	models/characters/sarge/hsarge_df.tga
-//     specularmap	models/characters/sarge/hsarge_sp.tga
-// }
-// 
-// shaderdemos/sargeNoShadow
-// {
-// 	noShadows
-//     bumpmap		addnormals( models/characters/sarge/hsarge_hi_local.tga, heightmap( models/characters/sarge/hsarge_add.tga, 3 ) )
-//     diffusemap	models/characters/sarge/hsarge_df.tga
-//     specularmap	models/characters/sarge/hsarge_sp.tga
-// }
-// 
-// shaderdemos/sargeHighQuality
-// {
-// 	noShadows
-// 	{
-// 		blend bumpmap
-// 		map			addnormals( models/characters/sarge/hsarge_hi_local.tga, heightmap( models/characters/sarge/hsarge_add.tga, 3 ) )
-// 		
-// 	}
-// 	{
-// 		blend diffusemap
-// 	    map			models/characters/sarge/hsarge_df.tga
-// 		
-// 	}
-// 	{
-// 		blend specularmap
-// 		map			models/characters/sarge/hsarge_sp.tga
-// 	}
-// }
-// 
-// shaderDemos/mumble
-// {
-// 		translucent
-// 		noShadows
-// 		{
-// 			blend	bumpmap
-// 	        map		addnormals( models/monsters/mumble/mumble_hm.tga, heightmap( models/monsters/mumble/mumble_add.tga, 3 ) )
-// 		}
-// 		{
-// 			blend	diffusemap
-// 			map		models/monsters/mumble/mumble.tga
-// 			color	0.1, 0.1, 0.1, 0.1
-// 		}
-// 		{
-// 			blend	specularmap
-// 			map		models/monsters/mumble/mumble_s.tga
-// 		}
-// }
-// 
-// 
-// shaderDemos/hmumble
-// {
-// 		translucent
-// 		noShadows
-//         bumpmap		addnormals( models/monsters/mumble/hmumble_hm.tga, heightmap( models/monsters/mumble/hmumble_add.tga, 4 ) )
-//         diffusemap	models/monsters/mumble/hmumble.tga
-//         specularmap	models/monsters/mumble/hmumble_s.tga
-// }
-// 
-// shaderDemos/cubeMap
-// {
-// 	{
-// 		cubeMap		env/test
-// 		texgen		reflect
-// 	}
-// }
-// 
-// shaderDemos/env2
-// {
-// 	{
-// 		cubeMap		env/e3_2_amb
-// 		texgen		normal
-// 	}
-// }
-// 
-// shaderDemos/env3
-// {
-// 	{
-// 		cubeMap		env/e3_3_amb
-// 		texgen		normal
-// 	}
-// }
-// 
-// shaderDemos/envBath
-// {
-// 	{
-// 		cubeMap		env/bath_spec
-// 		texgen		normal
-// 	}
-// }
-// 
-// shaderDemos/diffuseCubeMap
-// {
-// 	{
-// 		blend		diffusemap
-// 		cubeMap		env/test
-// 		texgen		reflect
-// 	}
-// 	{
-// 		blend		bumpmap
-// 		map			_flat
-// 	}
-// }
+/*
+shaderdemos/sargeNoSelfShadow
+{
+	noSelfShadow
+    bumpmap		addnormals( models/characters/sarge/hsarge_hi_local.tga, heightmap( models/characters/sarge/hsarge_add.tga, 3 ) )
+    diffusemap	models/characters/sarge/hsarge_df.tga
+    specularmap	models/characters/sarge/hsarge_sp.tga
+}
+
+shaderdemos/sargeNoShadow
+{
+	noShadows
+    bumpmap		addnormals( models/characters/sarge/hsarge_hi_local.tga, heightmap( models/characters/sarge/hsarge_add.tga, 3 ) )
+    diffusemap	models/characters/sarge/hsarge_df.tga
+    specularmap	models/characters/sarge/hsarge_sp.tga
+}
+
+shaderdemos/sargeHighQuality
+{
+	noShadows
+	{
+		blend bumpmap
+		map			addnormals( models/characters/sarge/hsarge_hi_local.tga, heightmap( models/characters/sarge/hsarge_add.tga, 3 ) )
+		
+	}
+	{
+		blend diffusemap
+	    map			models/characters/sarge/hsarge_df.tga
+		
+	}
+	{
+		blend specularmap
+		map			models/characters/sarge/hsarge_sp.tga
+	}
+}
+
+shaderDemos/mumble
+{
+		translucent
+		noShadows
+		{
+			blend	bumpmap
+	        map		addnormals( models/monsters/mumble/mumble_hm.tga, heightmap( models/monsters/mumble/mumble_add.tga, 3 ) )
+		}
+		{
+			blend	diffusemap
+			map		models/monsters/mumble/mumble.tga
+			color	0.1, 0.1, 0.1, 0.1
+		}
+		{
+			blend	specularmap
+			map		models/monsters/mumble/mumble_s.tga
+		}
+}
+
+
+shaderDemos/hmumble
+{
+		translucent
+		noShadows
+        bumpmap		addnormals( models/monsters/mumble/hmumble_hm.tga, heightmap( models/monsters/mumble/hmumble_add.tga, 4 ) )
+        diffusemap	models/monsters/mumble/hmumble.tga
+        specularmap	models/monsters/mumble/hmumble_s.tga
+}
+
+shaderDemos/cubeMap
+{
+	{
+		cubeMap		env/test
+		texgen		reflect
+	}
+}
+
+shaderDemos/env2
+{
+	{
+		cubeMap		env/e3_2_amb
+		texgen		normal
+	}
+}
+
+shaderDemos/env3
+{
+	{
+		cubeMap		env/e3_3_amb
+		texgen		normal
+	}
+}
+
+shaderDemos/envBath
+{
+	{
+		cubeMap		env/bath_spec
+		texgen		normal
+	}
+}
+
+shaderDemos/diffuseCubeMap
+{
+	{
+		blend		diffusemap
+		cubeMap		env/test
+		texgen		reflect
+	}
+	{
+		blend		bumpmap
+		map			_flat
+	}
+}
+*/
 
 shaderDemos/skybox
 {
@@ -461,140 +467,144 @@ shaderDemos/skybox
 // alpha test demos
 //=========================================================
 
-// shaderDemos/alphaTestBasic
-// {
-// 	qer_editorimage	textures/decals/ember2.tga
-// 	noshadows
-// 
-// 	// this stage serves as both the diffusemap and the alphatest map
-// 	{
-// 		blend	diffusemap
-// 		map textures/decals/ember2_dif.tga
-// 		alphaTest 0.55
-// 	}
-// 	bumpmap		heightmap (textures/decals/ember2_bmp.tga, 4)
-// 	specularmap		textures/decals/ember2_dif.tga
-// }
-// 
-// shaderDemos/alphaTestWithAdditive
-// {
-// 	qer_editorimage	textures/decals/ember2.tga
-// 	noshadows
-// 
-// 	// this stage serves as both the diffusemap and the alphatest map
-// 	{
-// 		blend	diffusemap
-// 		map textures/decals/ember2_dif.tga
-// 		alphaTest 0.55
-// 	}
-// 	bumpmap		heightmap (textures/decals/ember2_bmp.tga, 4)
-// 	specularmap		textures/decals/ember2_dif.tga
-// 
-// 	// the additive pass will only draw on the pixels passed by the alphatest map
-// 	{
-// 		blend gl_one, gl_one
-// 		map textures/decals/ember2_add.tga
-// 		rgb ember1 [ time * .25 ]
-// 	}	
-// }
-// 
-// shaderDemos/alphaTestWithAdditiveIgnore
-// {
-// 	qer_editorimage	textures/decals/ember2.tga
-// 	noshadows
-// 
-// 	// this stage serves as both the diffusemap and the alphatest map
-// 	{
-// 		blend	diffusemap
-// 		map textures/decals/ember2_dif.tga
-// 		alphaTest 0.55
-// 	}
-// 	bumpmap		heightmap (textures/decals/ember2_bmp.tga, 4)
-// 	specularmap		textures/decals/ember2_dif.tga
-// 
-// 	// the additive pass will draw over the entire polygon, not just inside the alpha test
-// 	{
-// 		ignoreAlphaTest
-// 		blend gl_one, gl_one
-// 		map textures/decals/ember2_add.tga
-// 		rgb ember1 [ time * .25 ]
-// 	}	
-// }
-// 
-// shaderDemos/alphaTestAsMask
-// {
-// 	qer_editorimage	textures/decals/ember2.tga
-// 	noshadows
-// 
-// 	// this stage will define the alphatest map, but not draw anything
-// 	{
-// 		blend	gl_zero, gl_one		// doesn't draw at all
-// 		scale	0.25, 0.25				// much larger than the diffusemap
-// 		map textures/decals/ember2_dif.tga
-// 		alphaTest 0.55
-// 	}
-// 
-// 	diffusemap	textures/decals/ember2_dif.tga
-// 	bumpmap		heightmap (textures/decals/ember2_bmp.tga, 4)
-// 	specularmap		textures/decals/ember2_dif.tga
-// }
-// 
-// shaderDemos/alphaTestMultiple
-// {
-// 	qer_editorimage	textures/decals/ember2.tga
-// 	noshadows
-// 
-// 	// this stage will define the alphatest map, but not draw anything
-// 	{
-// 		blend	gl_zero, gl_one		// doesn't draw at all
-// 		rotate	0.1 * time
-// 		map textures/decals/ember2_dif.tga
-// 		alphaTest 0.55
-// 	}
-// 	// this stage will define another alphatest map, but not draw anything
-// 	{
-// 		blend	gl_zero, gl_one		// doesn't draw at all
-// 		rotate	-0.1 * time
-// 		scale	1.2, 1.2
-// 		map textures/decals/ember2_dif.tga
-// 		alphaTest 0.55
-// 	}
-// 
-// 	diffusemap	textures/decals/ember2_dif.tga
-// 	bumpmap		heightmap (textures/decals/ember2_bmp.tga, 4)
-// 	specularmap		textures/decals/ember2_dif.tga
-// }
+/*
+shaderDemos/alphaTestBasic
+{
+	qer_editorimage	textures/decals/ember2.tga
+	noshadows
+
+	// this stage serves as both the diffusemap and the alphatest map
+	{
+		blend	diffusemap
+		map textures/decals/ember2_dif.tga
+		alphaTest 0.55
+	}
+	bumpmap		heightmap (textures/decals/ember2_bmp.tga, 4)
+	specularmap		textures/decals/ember2_dif.tga
+}
+
+shaderDemos/alphaTestWithAdditive
+{
+	qer_editorimage	textures/decals/ember2.tga
+	noshadows
+
+	// this stage serves as both the diffusemap and the alphatest map
+	{
+		blend	diffusemap
+		map textures/decals/ember2_dif.tga
+		alphaTest 0.55
+	}
+	bumpmap		heightmap (textures/decals/ember2_bmp.tga, 4)
+	specularmap		textures/decals/ember2_dif.tga
+
+	// the additive pass will only draw on the pixels passed by the alphatest map
+	{
+		blend gl_one, gl_one
+		map textures/decals/ember2_add.tga
+		rgb ember1 [ time * .25 ]
+	}	
+}
+
+shaderDemos/alphaTestWithAdditiveIgnore
+{
+	qer_editorimage	textures/decals/ember2.tga
+	noshadows
+
+	// this stage serves as both the diffusemap and the alphatest map
+	{
+		blend	diffusemap
+		map textures/decals/ember2_dif.tga
+		alphaTest 0.55
+	}
+	bumpmap		heightmap (textures/decals/ember2_bmp.tga, 4)
+	specularmap		textures/decals/ember2_dif.tga
+
+	// the additive pass will draw over the entire polygon, not just inside the alpha test
+	{
+		ignoreAlphaTest
+		blend gl_one, gl_one
+		map textures/decals/ember2_add.tga
+		rgb ember1 [ time * .25 ]
+	}	
+}
+
+shaderDemos/alphaTestAsMask
+{
+	qer_editorimage	textures/decals/ember2.tga
+	noshadows
+
+	// this stage will define the alphatest map, but not draw anything
+	{
+		blend	gl_zero, gl_one		// doesn't draw at all
+		scale	0.25, 0.25				// much larger than the diffusemap
+		map textures/decals/ember2_dif.tga
+		alphaTest 0.55
+	}
+
+	diffusemap	textures/decals/ember2_dif.tga
+	bumpmap		heightmap (textures/decals/ember2_bmp.tga, 4)
+	specularmap		textures/decals/ember2_dif.tga
+}
+
+shaderDemos/alphaTestMultiple
+{
+	qer_editorimage	textures/decals/ember2.tga
+	noshadows
+
+	// this stage will define the alphatest map, but not draw anything
+	{
+		blend	gl_zero, gl_one		// doesn't draw at all
+		rotate	0.1 * time
+		map textures/decals/ember2_dif.tga
+		alphaTest 0.55
+	}
+	// this stage will define another alphatest map, but not draw anything
+	{
+		blend	gl_zero, gl_one		// doesn't draw at all
+		rotate	-0.1 * time
+		scale	1.2, 1.2
+		map textures/decals/ember2_dif.tga
+		alphaTest 0.55
+	}
+
+	diffusemap	textures/decals/ember2_dif.tga
+	bumpmap		heightmap (textures/decals/ember2_bmp.tga, 4)
+	specularmap		textures/decals/ember2_dif.tga
+}
+*/
 
 
 //=========================================================
 // auto sprite test demos
 //=========================================================
 
-// shaderDemos/autoSpriteFlat
-// {
-// 	noshadows
-// 	nonsolid
-// 	deform	sprite
-// 	
-// 	// this tests the re-generation of tangents on deformed surfaces
-// 	qer_editorimage		textures/base_door/door1.tga
-// 	
-// 	bumpmap				models/seneca/textures/door1_local.tga
-// 	diffusemap			models/seneca/textures/door1_d.tga
-// 	specularmap			models/seneca/textures/door1_s.tga
-// }
-// 
-// shaderDemos/autoSpriteTube
-// {
-// 	translucent
-// 	nonsolid
-// 	deform	tube
-// 	{
-// 		blend	add
-// 		map		textures/decals/ember2_dif.tga
-// 		colored
-// 	}
-// }
+/*
+shaderDemos/autoSpriteFlat
+{
+	noshadows
+	nonsolid
+	deform	sprite
+	
+	// this tests the re-generation of tangents on deformed surfaces
+	qer_editorimage		textures/base_door/door1.tga
+	
+	bumpmap				models/seneca/textures/door1_local.tga
+	diffusemap			models/seneca/textures/door1_d.tga
+	specularmap			models/seneca/textures/door1_s.tga
+}
+
+shaderDemos/autoSpriteTube
+{
+	translucent
+	nonsolid
+	deform	tube
+	{
+		blend	add
+		map		textures/decals/ember2_dif.tga
+		colored
+	}
+}
+*/
 
 shaderDemos/deformFlare
 {
@@ -630,103 +640,105 @@ shaderDemos/deformFlareDimmed
 	}
 }
 
-// testRoq	// this is used by the testRoQ command, which will override the videoMap based on the command line
-// {
-// 	qer_editorimage	textures/editor/video.tga
-// 	{
-// 		videoMap	video/mpintro.roq
-// 	}
-// }
-// 
-// shaderDemos/videoMap
-// {
-// 	qer_editorimage	textures/editor/video.tga
-// 	{
-// 		videoMap	video/mpintro.roq
-// 	}
-// }
-// 
-// shaderDemos/diffuseVideoMap
-// {
-// 	qer_editorimage	textures/editor/video.tga
-// 	bumpmap _flat
-// 	{
-// 		blend	diffusemap
-// 		videoMap	video/mpintro.roq
-// 	}
-// }
-// 
-// shaderDemos/videoMap2
-// {
-// 	qer_editorimage	textures/editor/video.tga
-// 	{
-// 		videoMap	video/moon.roq
-// 	}
-// }
-// 
-// shaderDemos/vertexBlend
-// {
-// 	{
-// 		blend bumpmap
-// 		map		addnormals( textures/base_wall/bluetex3e_local.tga, heightmap( textures/base_wall/bluetex3ebmp.tga, 6 ) )
-// 	}
-// 	{
-// 		blend diffusemap
-// 		map		textures/base_wall/dlongwall_d.tga
-// 		vertexColor
-// 	}
-// 	{
-// 		blend diffusemap
-// 		map		textures/base_wall/redtex1dif.tga
-// 		inverseVertexColor
-// 	}
-// }
-// 
-// shaderDemos/ambientVertexBlend
-// {
-// 	{
-// 		map		textures/base_wall/dlongwall_d.tga
-// 		vertexColor
-// 	}
-// 	{
-// 		blend add
-// 		map		textures/base_wall/redtex1dif.tga
-// 		inverseVertexColor
-// 	}
-// }
-// 
-// shaderDemos/blendBumpMap
-// {
-// 	// blended part
-// 
-// 	{
-// 		blend bumpmap
-// 		map		heightmap (textures/rock/skysand1_bmp.tga, 4)
-// 		// note that you do NOT put vertexColor on the bumpmap
-// 	}
-// 	{
-// 		blend diffusemap
-// 		map		textures/rock/skysand1_d.tga
-// 		vertexColor
-// 	}
-// 	{
-// 		blend specularmap
-// 		map		textures/rock/skysand1_s.tga
-// 		vertexColor
-// 	}
-// 
-// 	// inverse blended part
-// 
-// 	{
-// 		blend	bumpmap
-// 		map		models/seneca/textures/factoutwall1_local.tga
-// 	}
-// 	{
-// 		blend	diffusemap
-// 		map		models/seneca/textures/factoutwall1_d.tga
-// 		inverseVertexColor
-// 	}
-// }
+/*
+testRoq	// this is used by the testRoQ command, which will override the videoMap based on the command line
+{
+	qer_editorimage	textures/editor/video.tga
+	{
+		videoMap	video/mpintro.roq
+	}
+}
+
+shaderDemos/videoMap
+{
+	qer_editorimage	textures/editor/video.tga
+	{
+		videoMap	video/mpintro.roq
+	}
+}
+
+shaderDemos/diffuseVideoMap
+{
+	qer_editorimage	textures/editor/video.tga
+	bumpmap _flat
+	{
+		blend	diffusemap
+		videoMap	video/mpintro.roq
+	}
+}
+
+shaderDemos/videoMap2
+{
+	qer_editorimage	textures/editor/video.tga
+	{
+		videoMap	video/moon.roq
+	}
+}
+
+shaderDemos/vertexBlend
+{
+	{
+		blend bumpmap
+		map		addnormals( textures/base_wall/bluetex3e_local.tga, heightmap( textures/base_wall/bluetex3ebmp.tga, 6 ) )
+	}
+	{
+		blend diffusemap
+		map		textures/base_wall/dlongwall_d.tga
+		vertexColor
+	}
+	{
+		blend diffusemap
+		map		textures/base_wall/redtex1dif.tga
+		inverseVertexColor
+	}
+}
+
+shaderDemos/ambientVertexBlend
+{
+	{
+		map		textures/base_wall/dlongwall_d.tga
+		vertexColor
+	}
+	{
+		blend add
+		map		textures/base_wall/redtex1dif.tga
+		inverseVertexColor
+	}
+}
+
+shaderDemos/blendBumpMap
+{
+	// blended part
+
+	{
+		blend bumpmap
+		map		heightmap (textures/rock/skysand1_bmp.tga, 4)
+		// note that you do NOT put vertexColor on the bumpmap
+	}
+	{
+		blend diffusemap
+		map		textures/rock/skysand1_d.tga
+		vertexColor
+	}
+	{
+		blend specularmap
+		map		textures/rock/skysand1_s.tga
+		vertexColor
+	}
+
+	// inverse blended part
+
+	{
+		blend	bumpmap
+		map		models/seneca/textures/factoutwall1_local.tga
+	}
+	{
+		blend	diffusemap
+		map		models/seneca/textures/factoutwall1_d.tga
+		inverseVertexColor
+	}
+}
+*/
 
 shaderDemos/lightSoundShader
 {	
@@ -739,23 +751,25 @@ shaderDemos/lightSoundShader
 	}
 }
 
-// shaderDemos/expand
-// {	
-// 	deform	expand	4*sintable[time*0.5]
-// 	noshadows
-// 	{
-// 		map		models/mapobjects/corpses/corpse1_d.tga
-// 	}
-// }
-// 
-// shaderDemos/move
-// {	
-// 	deform	move	10*sintable[time*0.5] // *sound
-// 	noshadows
-// 	{
-// 		map		models/mapobjects/corpses/corpse1_d.tga
-// 	}
-// }
+/*
+shaderDemos/expand
+{	
+	deform	expand	4*sintable[time*0.5]
+	noshadows
+	{
+		map		models/mapobjects/corpses/corpse1_d.tga
+	}
+}
+
+shaderDemos/move
+{	
+	deform	move	10*sintable[time*0.5] // *sound
+	noshadows
+	{
+		map		models/mapobjects/corpses/corpse1_d.tga
+	}
+}
+*/
 
 shaderDemos/scratchMaterial
 {	
@@ -784,82 +798,83 @@ shaderDemos/invertedScratchMaterial
 	}
 }
 
-// shaderDemos/remoteCamera
-// {	
-// 	qer_editorimage	textures/editor/camera.tga
-// 	noshadows
-// 	forceOpaque
-// 
-// 	bumpmap		textures/sfx/monitor_glass_local.tga
-// 	specularmap		textures/sfx/monitor_glass_s.tga
-// 	diffusemap	_black
-// 	{
-// 		blend add
-// 		remoteRenderMap	512 256	// width / height of render image
-// 		scale 1 , -1		// the render view ars upside down otherwise
-// 		translate 0, -1
-// 	}
-// 
-// 	           
-// 	{
-//    
-//     		  	 blend	filter
-// 				 map	textures/sfx/monitor_glass.tga
-// 				scale	2, 2
-// 				translate	time * 5 , time * 3
-// 	}
-// 
-// 
-// }
-// 
-// shaderdemos/shadowDrawLight {
-// 	// this would default the same if not specified
-// 	lightFalloffImage	makeintensity( lights/squarelight1a.tga )
-// 
-// 	{
-// 	// this stage will be drawn normally
-// 		map lights/squarelight1.tga
-// 		colored
-// 		zeroClamp
-// 	}
-// 
-// 	{
-// 	// this stage will be drawn on the shadows, still modulated by the lightFalloffImage
-// 		shadowDraw
-// 		map		lights/squarelight1.tga
-// 		rgb		0.5
-// 		blend	GL_ZERO, GL_ONE_MINUS_SRC_COLOR
-// 
-// 	}
-// }
-// 
-// shaderDemos/transparentMirror {
-// 	discrete			// each surface needs to make a separate mirror view
-// 	qer_editorimage textures/common/qer_mirror.tga
-// 	translucent
-// 	noshadows
-// 	{
-// 		mirrorRenderMap		512	256		// size of the texture to draw the mirror view in
-// 		blend	blend
-// 
-// 		// give it a greenish tint
-// 		red		0.6
-// 		green	1
-// 		blue	0.6
-// 
-// 		// opacity
-// 		alpha	0.7
-// 
-// 		// fix up the projection
-// 		translate	0.5 , 0.5
-// 		scale	0.5 , 0.5
-// 	}
-// }
+/*
+shaderDemos/remoteCamera
+{	
+	qer_editorimage	textures/editor/camera.tga
+	noshadows
+	forceOpaque
+
+	bumpmap		textures/sfx/monitor_glass_local.tga
+	specularmap		textures/sfx/monitor_glass_s.tga
+	diffusemap	_black
+	{
+		blend add
+		remoteRenderMap	512 256	// width / height of render image
+		scale 1 , -1		// the render view ars upside down otherwise
+		translate 0, -1
+	}
+
+	           
+	{
+   
+    		  	 blend	filter
+				 map	textures/sfx/monitor_glass.tga
+				scale	2, 2
+				translate	time * 5 , time * 3
+	}
+
+
+}
+
+shaderdemos/shadowDrawLight {
+	// this would default the same if not specified
+	lightFalloffImage	makeintensity( lights/squarelight1a.tga )
+
+	{
+	// this stage will be drawn normally
+		map lights/squarelight1.tga
+		colored
+		zeroClamp
+	}
+
+	{
+	// this stage will be drawn on the shadows, still modulated by the lightFalloffImage
+		shadowDraw
+		map		lights/squarelight1.tga
+		rgb		0.5
+		blend	GL_ZERO, GL_ONE_MINUS_SRC_COLOR
+
+	}
+}
+
+shaderDemos/transparentMirror {
+	discrete			// each surface needs to make a separate mirror view
+	qer_editorimage textures/common/qer_mirror.tga
+	translucent
+	noshadows
+	{
+		mirrorRenderMap		512	256		// size of the texture to draw the mirror view in
+		blend	blend
+
+		// give it a greenish tint
+		red		0.6
+		green	1
+		blue	0.6
+
+		// opacity
+		alpha	0.7
+
+		// fix up the projection
+		translate	0.5 , 0.5
+		scale	0.5 , 0.5
+	}
+}
+*/
 
 // the transition between the loading screen and gameplay
 // parm3 will ramp from 0.0 to 1.0 during the wipe time
-wipeMaterial
-{
+wipeMaterial {
 	{
 		blend blend
 		alpha	parm3
@@ -869,14 +884,14 @@ wipeMaterial
 	}
 }
 
-wipe2Material
-{
-// 	{	// fill the alpha channel with 0
-// 		maskcolor				// write only to the alpha channel
-// 		map _white
-// 		alpha	0
-// 	}
-
+wipe2Material {
+/*
+	{	// fill the alpha channel with 0
+		maskcolor				// write only to the alpha channel
+		map _white
+		alpha	0
+	}
+*/	
 	{	// blend the image capture over the screen where the alpha test passed
 		blend	blend
 		map		_black		// the image we are wiping from
@@ -938,8 +953,7 @@ table table32 { snap { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
 
 table tableTest { { 1, 0 } }
 
-lights/tableTest
-{
+lights/tableTest {
 	{
 
 		map	lights/squareishlight.tga
@@ -964,71 +978,99 @@ shaderDemos/heatHaze
 	}
 }
 
+/*
+shaderDemos/heatHazeWithMaskAndVertex
+{
+	translucent
+	{
+		program		heatHazeWithMaskAndVertex.vfp
+		vertexParm		0		0				// texture scrolling
+		vertexParm		1		4				// magnitude of the distortion
+		fragmentMap		0		_currentRender
+		fragmentMap     1       textures/sfx/vpsphere   // the normal map for distortion
+		fragmentMap		2       textures/particles/vpring1_alpha.tga   // the distortion blend map
+	}				
+}
 
-// shaderDemos/heatHazeWithMaskAndVertex
-// {
-// 	translucent
-// 	{
-// 		program		heatHazeWithMaskAndVertex.vfp
-// 		vertexParm		0		0				// texture scrolling
-// 		vertexParm		1		4				// magnitude of the distortion
-// 		fragmentMap		0		_currentRender
-// 		fragmentMap     1       textures/sfx/vpsphere   // the normal map for distortion
-// 		fragmentMap		2       textures/particles/vpring1_alpha.tga   // the distortion blend map
-// 	}				
-// }
-//
+particle heatHazeWithMaskAndVertex {
+	depthHack	100
+	{
+		count				12
+		material			shaderDemos/heatHazeWithMaskAndVertex
+		time				2
+		cycles				0.000
+		bunching			1.000
+		distribution		rect 3.000 3.000 3.000 
+		direction			cone 1.000 
+		orientation			view 
+		speed				 "39.000"  to "47.000"
+		size				 "5.000"  to "15.000"
+		aspect				 "1.000" 
+		rotation				 "100.000" 
+		fadeIn				0.500
+		fadeOut				0.500
+		fadeIndex				0.000
+		color 				1.000 1.000 1.000 1.000
+		fadeColor 			0.000 0.000 0.000 0.000
+		offset 				0.000 0.000 -10.000
+		gravity 			world -13.000
+	}
+	
+}
+*/
 
 //==============================================
 
-// shaderDemos/bumpyReflect
-// {
-// 	{
-// 		vertexProgram	bumpyEnvironment.vfp
-// 		vertexParm		0		1	// color modulation
-// 		fragmentProgram	bumpyEnvironment.vfp
-// 		fragmentMap		0		cubeMap env/soulz
-// //		fragmentMap		1		addnormals( models/monsters/pinky/pinky_local.tga, heightmap( models/monsters/pinky/pinky_b.tga, 9 ) )
-// 		fragmentMap		1		models/monsters/pinky/pinky_local.tga
-// 	}
-// }
-// 
-// skin bumpyReflect {
-// //	models/monsters/pinky/pinky_metal	shaderDemos/bumpyReflect
-// 	* shaderDemos/bumpyReflect
-// }
-// 
-// //==============================================
-// 
-// shaderDemos/pinch
-// {
-// 	{
-// 		vertexProgram	pinch.cg
-// 		vertexParm		0		sinTable[ time * 0.1 ]	// pinch factorcolor modulation
-// 		fragmentProgram	pinch.cg
-// 		fragmentMap		0		_currentRender
-// 	}
-// }
-// 
-// skin pinch {
-// 	* shaderDemos/pinch
-// }
-// 
-// //==============================================
-// 
-// shaderDemos/megaTexture
-// {
-// 	qer_editorImage		area3_preview.tga
-// 	{
-// 		blend gl_one, gl_zero
-// 		
-// //		megaTexture		nonPOT.mega
-// //		megaTexture		croppedSat.mega
-// //		megaTexture		ochipdata.mega
-// //		megaTexture		area1.mega
-// 		megaTexture		area3.mega
-// 	}
-// }
+/*
+shaderDemos/bumpyReflect
+{
+	{
+		vertexProgram	bumpyEnvironment.vfp
+		vertexParm		0		1	// color modulation
+		fragmentProgram	bumpyEnvironment.vfp
+		fragmentMap		0		cubeMap env/soulz
+//		fragmentMap		1		addnormals( models/monsters/pinky/pinky_local.tga, heightmap( models/monsters/pinky/pinky_b.tga, 9 ) )
+		fragmentMap		1		models/monsters/pinky/pinky_local.tga
+	}
+}
+
+skin bumpyReflect {
+//	models/monsters/pinky/pinky_metal	shaderDemos/bumpyReflect
+	* shaderDemos/bumpyReflect
+}
+
+//==============================================
+
+shaderDemos/pinch
+{
+	{
+		vertexProgram	pinch.cg
+		vertexParm		0		sinTable[ time * 0.1 ]	// pinch factorcolor modulation
+		fragmentProgram	pinch.cg
+		fragmentMap		0		_currentRender
+	}
+}
+
+skin pinch {
+	* shaderDemos/pinch
+}
+
+//==============================================
+
+shaderDemos/megaTexture
+{
+	qer_editorImage		area3_preview.tga
+	{
+		blend gl_one, gl_zero
+		
+//		megaTexture		nonPOT.mega
+//		megaTexture		croppedSat.mega
+//		megaTexture		ochipdata.mega
+//		megaTexture		area1.mega
+		megaTexture		area3.mega
+	}
+}
+*/
 
 //==============================================
 
@@ -1044,29 +1086,31 @@ shaderDemos/colorProcess
 
 //==============================================
 
-// shaderDemos/cloudySky
-// {
-// 	{
-// 		cameraCubeMap	env/marssky
-// 		texgen			skybox
-// 	}
-// 	{
-// 		blend			blend
-// 		cameraCubeMap	env/marscloud
-// 		texgen			skybox
-// 		rotate			time*-0.001
-// 	}
-// 	{
-// 		blend			blend
-// 		cameraCubeMap	env/marssky_dust
-// 		texgen			skybox
-// 		rotate			time*0.002
-// 	}
-// 	{
-// 		blend			blend
-// 		cameraCubeMap	env/marssky_foreground
-// 		texgen			skybox
-// 	}
-// }
+/*
+shaderDemos/cloudySky
+{
+	{
+		cameraCubeMap	env/marssky
+		texgen			skybox
+	}
+	{
+		blend			blend
+		cameraCubeMap	env/marscloud
+		texgen			skybox
+		rotate			time*-0.001
+	}
+	{
+		blend			blend
+		cameraCubeMap	env/marssky_dust
+		texgen			skybox
+		rotate			time*0.002
+	}
+	{
+		blend			blend
+		cameraCubeMap	env/marssky_foreground
+		texgen			skybox
+	}
+}
+*/
 
 //Verified good complete by Eutectic - Nov 22-04

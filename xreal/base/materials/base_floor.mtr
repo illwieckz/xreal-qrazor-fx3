@@ -2279,7 +2279,7 @@ textures/base_floor/insettrim_burn_glow
 	{
 		blend		gl_one , gl_one
 		map			textures/sfx/radiogoop_red
-		rotate		time*-0.00015
+		rotate		time*-.00015
 		translate	time*.002,1
 		vertexColor
 	}

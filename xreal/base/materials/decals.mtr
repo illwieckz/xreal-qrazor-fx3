@@ -17,7 +17,7 @@ table roachLegs { snap { -1, 1 } }
 table wormTable { { 1,1.2 } }
 table woundFade { clamp { 1, 0 } }
 table bugwings  { snap { -1, 1 } }
-table telemars  { { 1, .5, .1, .05, .2, .4, .7, .8 } }
+table telemars  {{ 1, .5, .1, .05, .2, .4, .7, .8 }}
 
 
 
@@ -65,29 +65,27 @@ textures/decals/bloodyfilmred
 }
 
 textures/decals/telemars
+
+
 {
-	qer_editorimage textures/decals/telemars.tga
+	
 
 	noShadows
 	twoSided
-	nolightmap
+	qer_editorimage textures/decals/telemars.tga
 
 	{
 		blend	diffuseMap
   		map     textures/decals/telemars.tga
 		alphatest 0.5
-		rgbGen exactVertex
 	}
-//	bumpmap		textures/decals/telemars_local.tga
-//  specularmap	textures/decals/telemars_s.tga
-//  lightmap	_lightmap
 	{
 		blend	add
   		map     textures/decals/telemars_add.tga
 		rgb		telemars[ time * 1 ]
 
-	}
-    {
+	}     
+      	{
 		blend	add
   		map     textures/decals/telemars_b_add.tga
 		rgb		telemars[ time * .3 ]
@@ -100,9 +98,14 @@ textures/decals/telemars
   		map     textures/decals/telemars_c_add.tga
 		rgb		telemars[ time * .1 ]
 		
-		rotate time * -0.035
-		centerScale 1 + (sinTable[time * 0.25] * 0.3) , 1 + (sinTable[time * 0.25] * 0.3)
-	}
+		rotate time * -.035
+
+	} 			
+	 	bumpmap	textures/decals/telemars_local.tga
+        	specularmap	textures/decals/telemars_s.tga
+        
+
+
 }
 
 
@@ -605,7 +608,7 @@ textures/decals/webcorner
 		diffusemap	models/mapobjects/webs/corner.tga
 		//specularmap	models/mapobjects/webs/corner.tga
 		//bumpmap	   heightmap(models/mapobjects/webs/corner.tga , 1 )
-		lightmap	_lightmap
+
 
 
 }
@@ -736,7 +739,7 @@ textures/decals/tunnel
 		alpha		tunnelVisionSolidAlpha[ parm3 ] - (time-parm0)*0.25
 	    blend		blend
 		centerscale	0.65+0.05*sinTable[time], 0.65+0.05*sinTable[time]
-		rotate time * -0.01
+		rotate time * -.01
 		map    textures/decals/tunnel.tga
 		clamp
 	}
@@ -763,7 +766,7 @@ textures/decals/bfgvision
 		alpha		0.15
 	    blend		blend
 		//centerscale	0.65+0.05*sinTable[time], 0.65+0.05*sinTable[time]
-		rotate time * -0.21
+		rotate time * -.21
 		map    textures/decals/bfgtunnel.tga
 		clamp
 	}
@@ -1465,20 +1468,22 @@ textures/decals/bite01
 //
 //}
 
-// textures/decals/bloodspray
-// {
-// 	noshadows
-// 	translucent
-// 
-// 	qer_editorimage		textures/decals/bloodspray.tga
-// 
-// 	{
-// 	   blend  blend  
-// 		map    textures/decals/bloodspray.tga
-// 		colored
-// 	}
-// 
-// }
+/*
+textures/decals/bloodspray
+{
+	noshadows
+	translucent
+
+	qer_editorimage		textures/decals/bloodspray.tga
+
+	{
+	   blend  blend  
+		map    textures/decals/bloodspray.tga
+		colored
+	}
+
+}
+*/
 
 
 
@@ -1526,15 +1531,15 @@ leftSlash
 	noshadows
 	translucent
 
-// 	{
-//                 program         heatHazeWithMaskAndVertex.vfp
-//                 vertexParm              0               0                               // texture scrolling
-//                 vertexParm              1               .2                             // magnitude of the distortion
-//                 fragmentMap             0               _currentRender
-//                 fragmentMap     		1       textures/decals/slash01_vp  // the normal map for distortion
-//                 fragmentMap             2       textures/decals/slash01_vpalpha.tga   // the distortion blend map
-//      }
-
+/*	{
+                program         heatHazeWithMaskAndVertex.vfp
+                vertexParm              0               0                               // texture scrolling
+                vertexParm              1               .2                             // magnitude of the distortion
+                fragmentMap             0               _currentRender
+                fragmentMap     		1       textures/decals/slash01_vp  // the normal map for distortion
+                fragmentMap             2       textures/decals/slash01_vpalpha.tga   // the distortion blend map
+      }
+*/
 	{
 		blend  blend
 		map    textures/decals/slash01.tga
@@ -1547,15 +1552,15 @@ rightSlash
 {
 	noshadows
 	translucent
-// 	{
-//                 program         heatHazeWithMaskAndVertex.vfp
-//                 vertexParm              0               0                               // texture scrolling
-//                 vertexParm              1               .2                             // magnitude of the distortion
-//                 fragmentMap             0               _currentRender
-//                 fragmentMap     		1       textures/decals/slash01b_vp  // the normal map for distortion
-//                 fragmentMap             2       textures/decals/slash01b_vpalpha.tga   // the distortion blend map
-//     }
-
+/*	{
+                program         heatHazeWithMaskAndVertex.vfp
+                vertexParm              0               0                               // texture scrolling
+                vertexParm              1               .2                             // magnitude of the distortion
+                fragmentMap             0               _currentRender
+                fragmentMap     		1       textures/decals/slash01b_vp  // the normal map for distortion
+                fragmentMap             2       textures/decals/slash01b_vpalpha.tga   // the distortion blend map
+    }
+*/
 	{
 		blend  blend
 		map    textures/decals/slash01.tga
@@ -4647,15 +4652,15 @@ bite
 {
 	noshadows
 	translucent
-// 	    {
-//                 program         heatHazeWithMaskAndVertex.vfp
-//                 vertexParm              0               0                               // texture scrolling
-//                 vertexParm              1               .2                            // magnitude of the distortion
-//                 fragmentMap             0               _currentRender
-//                 fragmentMap     		1       textures/decals/bite01_vp  // the normal map for distortion
-//                 fragmentMap             2       textures/decals/bite01_vpalpha.tga   // the distortion blend map
-//       }
-
+/*	    {
+                program         heatHazeWithMaskAndVertex.vfp
+                vertexParm              0               0                               // texture scrolling
+                vertexParm              1               .2                            // magnitude of the distortion
+                fragmentMap             0               _currentRender
+                fragmentMap     		1       textures/decals/bite01_vp  // the normal map for distortion
+                fragmentMap             2       textures/decals/bite01_vpalpha.tga   // the distortion blend map
+      }
+*/
 	{
 		blend  blend
 		map    textures/decals/bite01.tga
@@ -4669,15 +4674,16 @@ tentacle_smack
 {
 	noshadows
 	translucent
-// 	    {
-//                 program         heatHazeWithMaskAndVertex.vfp
-//                 vertexParm              0               0                               // texture scrolling
-//                 vertexParm              1               .2                            // magnitude of the distortion
-//                 fragmentMap             0               _currentRender
-//                 fragmentMap     		1       textures/decals/smack01_vp  // the normal map for distortion
-//                 fragmentMap             2       textures/decals/smack01_vpalpha.tga   // the distortion blend map
-//       }
-
+/*
+	    {
+                program         heatHazeWithMaskAndVertex.vfp
+                vertexParm              0               0                               // texture scrolling
+                vertexParm              1               .2                            // magnitude of the distortion
+                fragmentMap             0               _currentRender
+                fragmentMap     		1       textures/decals/smack01_vp  // the normal map for distortion
+                fragmentMap             2       textures/decals/smack01_vpalpha.tga   // the distortion blend map
+      }
+*/
 
 	{
 		blend  blend
@@ -4695,15 +4701,15 @@ leftSmack
 {
 	noshadows
 	translucent
-// 	    {
-//                 program         heatHazeWithMaskAndVertex.vfp
-//                 vertexParm              0               0                               // texture scrolling
-//                 vertexParm              1               .2                            // magnitude of the distortion
-//                 fragmentMap             0               _currentRender
-//                 fragmentMap     		1       textures/decals/smack01_vp  // the normal map for distortion
-//                 fragmentMap             2       textures/decals/smack01_vpalpha.tga   // the distortion blend map
-//       }
-
+/*	    {
+                program         heatHazeWithMaskAndVertex.vfp
+                vertexParm              0               0                               // texture scrolling
+                vertexParm              1               .2                            // magnitude of the distortion
+                fragmentMap             0               _currentRender
+                fragmentMap     		1       textures/decals/smack01_vp  // the normal map for distortion
+                fragmentMap             2       textures/decals/smack01_vpalpha.tga   // the distortion blend map
+      }
+*/
 	{
 		blend  blend
 		map    textures/decals/smack01.tga
@@ -4717,15 +4723,15 @@ rightSmack
 {
 	noshadows
 	translucent
-// 	 {
-//                 program         heatHazeWithMaskAndVertex.vfp
-//                 vertexParm              0               0                               // texture scrolling
-//                 vertexParm              1               .2                            // magnitude of the distortion
-//                 fragmentMap             0               _currentRender
-//                 fragmentMap     		1       textures/decals/smack01b_vp  // the normal map for distortion
-//                 fragmentMap             2       textures/decals/smack01b_vpalpha.tga   // the distortion blend map
-//       }
-
+/*	 {
+                program         heatHazeWithMaskAndVertex.vfp
+                vertexParm              0               0                               // texture scrolling
+                vertexParm              1               .2                            // magnitude of the distortion
+                fragmentMap             0               _currentRender
+                fragmentMap     		1       textures/decals/smack01b_vp  // the normal map for distortion
+                fragmentMap             2       textures/decals/smack01b_vpalpha.tga   // the distortion blend map
+      }
+*/
 	{
 		blend  blend
 		map    textures/decals/smack01.tga
@@ -4851,25 +4857,27 @@ mancubusStomp
 }
 
 
-// textures/decals/bulleth02
-// {
-//  	noShadows
-// 	//polygonOffset
-// 	DECAL_MACRO
-// 	nonsolid
-// 	noimpact
-// 	translucent
-// 	qer_editorimage textures/decals/bulleth02.tga
-// 	{       
-//       	 blend	diffusemap
-// 		 map	textures/decals/bulleth02.tga
-// 	}
-// 	//specularmap 	textures/decals/bulleth01_s.tga	
-// 	//bumpmap 	    textures/decals/bulleth01_local.tga
-//     
-// 
-// }
+/*
+textures/decals/bulleth02
 
+{
+ 	noShadows
+	//polygonOffset
+	DECAL_MACRO
+	nonsolid
+	noimpact
+	translucent
+	qer_editorimage textures/decals/bulleth02.tga
+	{       
+      	 blend	diffusemap
+		 map	textures/decals/bulleth02.tga
+	}
+	//specularmap 	textures/decals/bulleth01_s.tga	
+	//bumpmap 	    textures/decals/bulleth01_local.tga
+    
+
+}
+*/
 
 textures/decals/a_fanvent_fin
 {
@@ -4972,7 +4980,6 @@ textures/decals/a_pipecap2a_d
 	}
 	specularmap	textures/decals/a_pipecap2a_s.tga
 	bumpmap 	textures/decals/a_pipecap2a_local.tga
-	lightmap	_lightmap
 }
 
 //textures/decals/a_pipecap3_d01
@@ -5366,7 +5373,6 @@ textures/decals/boothspeaker
 	}
 	specularmap	textures/decals/boothspeaker_s.tga
 	bumpmap 	textures/decals/boothspeaker_local.tga
-	lightmap	_lightmap
 }
 
 textures/decals/pipecap2vent
@@ -5583,7 +5589,6 @@ textures/decals/pipecapsquare
 	}
 	specularmap	textures/decals/pipecapsquare_s.tga
 	bumpmap 	addnormals (textures/decals/pipecapsquare_local.tga, heightmap (textures/decals/pipecap2_bmp.tga, 1 ))
-	lightmap	_lightmap
 }
 
 textures/decals/dirtblast
@@ -7458,298 +7463,3 @@ textures/decals/lightgrate
 
 
 //Verified good complete by Eutectic - Sep 14-04
-
-//----------------------------------
-//	GRUNGE MAPS
-//----------------------------------
-
-textures/decals/_grungemaps/grunge2
-{
-	qer_editorimage textures/decals/_grungemaps/grunge2.tga
-	DECAL_MACRO
-	noShadows
-	noimpact
-	translucent
-
-	{
-       	blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR								//inverse multiplicative blend
-		Map textures/decals/_grungemaps/grunge2.tga
-	}
-}
-
-textures/decals/_grungemaps/grunge3
-{
-	qer_editorimage textures/decals/_grungemaps/grunge3.tga
-	DECAL_MACRO
-	noShadows
-	noimpact
-	translucent
-
-	{
-       	blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR								//inverse multiplicative blend
-		Map textures/decals/_grungemaps/grunge3.tga
-	}
-}
-
-
-textures/decals/_grungemaps/grunge5
-{
-	qer_editorimage textures/decals/_grungemaps/grunge5.tga
-	DECAL_MACRO
-	noShadows
-	noimpact
-	translucent
-
-	{
-		blend GL_DST_COLOR, GL_SRC_COLOR		
-		Map textures/decals/_grungemaps/grunge5.tga
-	}
-}
-
-textures/decals/_grungemaps/grunge6
-{
-	qer_editorimage textures/decals/_grungemaps/grunge6.tga
-	DECAL_MACRO
-	noShadows
-	noimpact
-	translucent
-
-	{
-		blend GL_DST_COLOR, GL_SRC_COLOR		
-		Map textures/decals/_grungemaps/grunge6.tga
-	}
-}
-
-textures/decals/_grungemaps/grunge7
-{
-	qer_editorimage textures/decals/_grungemaps/grunge7.tga
-	DECAL_MACRO
-	noShadows
-	noimpact
-	translucent
-
-	{
-		blend GL_DST_COLOR, GL_SRC_COLOR		
-		Map textures/decals/_grungemaps/grunge7.tga
-	}
-}
-
-textures/decals/_grungemaps/grunge8
-{
-	qer_editorimage textures/decals/_grungemaps/grunge8.tga
-	DECAL_MACRO
-	noShadows
-	noimpact
-	translucent
-
-	{
-		blend GL_DST_COLOR, GL_SRC_COLOR		
-		Map textures/decals/_grungemaps/grunge8.tga
-	}
-}
-
-textures/decals/_grungemaps/grunge9
-{
-	qer_editorimage textures/decals/_grungemaps/grunge9.tga
-	DECAL_MACRO
-	noShadows
-	noimpact
-	translucent
-
-	{
-		blend GL_DST_COLOR, GL_SRC_COLOR		
-		Map textures/decals/_grungemaps/grunge9.tga
-	}
-}
-
-
-textures/decals/_grungemaps/grunge1
-{
-	qer_editorimage textures/decals/_grungemaps/grunge1.tga
-	DECAL_MACRO
-	noShadows
-	noimpact
-	translucent
-
-	{
-       	blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR								//inverse multiplicative blend
-		Map textures/decals/_grungemaps/grunge1.tga
-	}
-}
-
-
-textures/decals/_grungemaps/grunge10
-{
-	qer_editorimage textures/decals/_grungemaps/grunge10.tga
-	DECAL_MACRO
-	noShadows
-	noimpact
-	translucent
-
-	{
-		blend GL_DST_COLOR, GL_SRC_COLOR		
-		Map textures/decals/_grungemaps/grunge10.tga
-	}
-}
-
-textures/decals/_grungemaps/grunge11
-{
-	qer_editorimage textures/decals/_grungemaps/grunge11.tga
-	DECAL_MACRO
-	noShadows
-	noimpact
-	translucent
-
-	{
-		blend GL_DST_COLOR, GL_SRC_COLOR		
-		Map textures/decals/_grungemaps/grunge11.tga
-	}
-}
-
-textures/decals/_grungemaps/grunge12
-{
-	qer_editorimage textures/decals/_grungemaps/grunge12.tga
-	DECAL_MACRO
-	noShadows
-	noimpact
-	translucent
-
-	{
-		blend GL_DST_COLOR, GL_SRC_COLOR		
-		Map textures/decals/_grungemaps/grunge12.tga
-	}
-}
-
-textures/decals/_grungemaps/grunge13
-{
-	qer_editorimage textures/decals/_grungemaps/grunge13.tga
-	DECAL_MACRO
-	noShadows
-	noimpact
-	translucent
-
-	{
-		blend GL_DST_COLOR, GL_SRC_COLOR		
-		Map textures/decals/_grungemaps/grunge13.tga
-	}
-}
-
-textures/decals/_grungemaps/grunge14
-{
-	qer_editorimage textures/decals/_grungemaps/grunge14.tga
-	DECAL_MACRO
-	noShadows
-	noimpact
-	translucent
-
-	{
-		blend GL_DST_COLOR, GL_SRC_COLOR		
-		Map textures/decals/_grungemaps/grunge14.tga
-	}
-}
-
-textures/decals/_grungemaps/grunge17
-{
-	qer_editorimage textures/decals/_grungemaps/grunge17.tga
-	DECAL_MACRO
-	noShadows
-	noimpact
-	translucent
-
-	{
-		blend GL_DST_COLOR, GL_SRC_COLOR		
-		Map textures/decals/_grungemaps/grunge17.tga
-	}
-}
-
-textures/decals/_grungemaps/grunge18
-{
-	qer_editorimage textures/decals/_grungemaps/grunge18.tga
-	DECAL_MACRO
-	noShadows
-	noimpact
-	translucent
-
-	{
-		blend GL_DST_COLOR, GL_SRC_COLOR		
-		Map textures/decals/_grungemaps/grunge18.tga
-	}
-}
-
-textures/decals/_grungemaps/damage1
-{
-	qer_editorimage textures/decals/_grungemaps/damage1.tga
-	DECAL_MACRO
-	noShadows
-	noimpact
-	translucent
-
-	{
-		blend GL_DST_COLOR, GL_SRC_COLOR		
-		Map textures/decals/_grungemaps/damage1.tga
-	}
-}
-
-textures/decals/_grungemaps/grunge_stroyent1
-{
-	qer_editorimage textures/decals/_grungemaps/grunge_stroyent1.tga
-	DECAL_MACRO
-	noShadows
-	noimpact
-	translucent
-
-	{
-       	blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR								//inverse multiplicative blend
-		Map textures/decals/_grungemaps/grunge_stroyent1.tga
-	}
-}
-
-textures/decals/_grungemaps/grunge_stroyent2
-{
-	qer_editorimage textures/decals/_grungemaps/grunge_stroyent2.tga
-	DECAL_MACRO
-	noShadows
-	noimpact
-	translucent
-
-	{
-       	blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR								//inverse multiplicative blend
-		Map textures/decals/_grungemaps/grunge_stroyent2.tga
-	}
-}
-
-textures/decals/_grungemaps/grunge_scratches1
-{
-	qer_editorimage textures/decals/_grungemaps/grunge_scratches1.tga
-	DECAL_MACRO
-	noShadows
-	noimpact
-	translucent
-
-	{
-       	blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR								//inverse multiplicative blend
-		Map textures/decals/_grungemaps/grunge_scratches1.tga
-	}
-}
-
-
-textures/decals/_grungemaps/stain01bwet
-{
-	DECAL_MACRO
-	translucent
-	twosided
-	nonsolid
-	noimpact
-	noshadows
-
-	qer_editorimage	textures/decals/_grungemaps/stain01bwet.tga
-	{
-		blend gl_dst_color,gl_zero
-		map textures/decals/stain01bwet.tga
-	}	
-
-	{
-		blend specularMap
-		map	 textures/decals/_grungemaps/stain01b_s.tga
-	}
-}

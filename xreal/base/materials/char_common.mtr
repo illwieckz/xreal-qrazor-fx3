@@ -1056,32 +1056,38 @@ models/characters/common/leftblue
 
 }
 
-//models/characters/common/rightdead
-//{
-//	translucent
-//	noshadows
-//	deform	eyeBall
-//	sort decal
-//
-//	{
-//		blend filter
-//		map models/characters/common/dead.tga
-//		centerScale	0.6, 0.6	
-//	}	
-//}
+/*
+models/characters/common/rightdead
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
 
-//models/characters/common/leftdead
-//{
-//	translucent
-//	noshadows
-//	deform	eyeBall
-//	sort decal
-//
-//	{
-//		blend filter
-//		map models/characters/common/dead.tga
-//		centerScale	0.6, 0.6	
-//	}	
-//}
+	{
+		blend filter
+		map models/characters/common/dead.tga
+		centerScale	0.6, 0.6	
+	}	
+
+
+}
+
+models/characters/common/leftdead
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/dead.tga
+		centerScale	0.6, 0.6	
+	}	
+
+
+}
+*/
 
 //Verified good complete by Eutectic - Nov 29-04

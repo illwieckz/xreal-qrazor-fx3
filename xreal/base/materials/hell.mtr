@@ -59,7 +59,7 @@ textures/hell/lavascroll_ns
 		map textures/hell/lava1fx.tga
 		rgb			fireballtable[ time *.25 ]
 		scale		3,3
-		translate	time * -0.02 , 1
+		translate	time * -.02 , 1
 	}
 }
 
@@ -254,7 +254,6 @@ textures/hell/bustage
 	    diffusemap		textures/hell/bustage
 		bumpmap		    textures/hell/bustage_local
 		specularmap	    textures/hell/bustage_s
-		lightmap		_lightmap
 }
 
 //textures/hell/dirt02sand
@@ -802,7 +801,7 @@ textures/hell/pentabase_decal
 		blend gl_dst_alpha, gl_one
 	    maskalpha
 		map textures/hell/pentastic1fx.tga
-		rotate	( time * -0.06 )
+		rotate	( time * -.06 )
 		clamp
 	}
 
@@ -837,7 +836,7 @@ textures/hell/pentabase
 		blend gl_dst_alpha, gl_one
 	    maskalpha
 		map textures/hell/pentastic1fx.tga
-		rotate	( time * -0.06 )
+		rotate	( time * -.06 )
 		clamp
 	}
 
@@ -1164,33 +1163,37 @@ textures/hell/lava1movenoshadow
 	}
  }
 
-// textures/hell/lava1movenoshadow
-// {
-// 	qer_editorimage		textures/hell/lava1.tga
-// 	 noSelfShadow
-// 	    noshadows
-// 	    	
-// 	{
-// 		blend 		diffusemap
-// 		map		textures/hell/lava1.tga
-// 		translate	time * 0 , time * -0.1
-// 	} 
-// 	{
-// 		blend 		bumpmap
-// 		map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
-// 		translate	time * 0 , time * -0.1
-// 	} 
-// 	{
-// 		blend 		specularmap
-// 		map		textures/hell/lava1_s.tga
-// 	}   
-// 	{
-// 		blend add
-// 		map textures/hell/lava1fx.tga
-// 		rgb		fireballtable[ time * .5 ]
-// 		translate	time * 0 , time * -0.1
-// 	}
-//  }
+/*
+
+textures/hell/lava1movenoshadow
+{
+	qer_editorimage		textures/hell/lava1.tga
+	 noSelfShadow
+	    noshadows
+	    	
+	{
+		blend 		diffusemap
+		map		textures/hell/lava1.tga
+		translate	time * 0 , time * -0.1
+	} 
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+		translate	time * 0 , time * -0.1
+	} 
+	{
+		blend 		specularmap
+		map		textures/hell/lava1_s.tga
+	}   
+	{
+		blend add
+		map textures/hell/lava1fx.tga
+		rgb		fireballtable[ time * .5 ]
+		translate	time * 0 , time * -0.1
+	}
+ }
+
+*/
 
 textures/hell/dirt02sharprock02noshadow
 {
@@ -1472,7 +1475,7 @@ textures/hell/dirt02
 //	{
 //		blend		bumpmap
 //		map	addnormals( models/kenneth/tunnel_local.tga, heightmap( models/kenneth/tunnel_h.tga, 7 ) )
-//		translate	time * -0.1 , time * -0.1
+//		translate	time * -.1 , time * -0.1
 //	}
 //	{
 //		blend		diffusemap
@@ -1509,12 +1512,12 @@ textures/hell/dirt02
 //    {
 //		blend		bumpmap
 //		map	heightmap(textures/hell/blood_stream1_h.tga, 8 )
-//		translate	time * -0.01 , time * -0.01
+//		translate	time * -.01 , time * -0.01
 //	}
 //		{
 //		blend		diffusemap
 //		map		textures/hell/blood_stream1.tga   
-//		translate	time * .015 , time * -0.03
+//		translate	time * .015 , time * -.03
 //		inverseVertexColor
 //	}
 //	{
@@ -1550,13 +1553,13 @@ textures/hell/bloodcrackblend
 	{
 		blend		diffusemap
 		map		textures/hell/blood_stream1.tga   
-		translate	time * .015 , time * -0.03
+		translate	time * .015 , time * -.03
 		inverseVertexColor
 	}
     {
 		blend		bumpmap
 		map	heightmap(textures/hell/blood_stream1_h.tga, 8 )
-		translate	time * -0.01 , time * -0.01
+		translate	time * -.01 , time * -0.01
 	}
 	{
 		blend 		specularmap
@@ -1575,12 +1578,12 @@ textures/hell/blood_stream1
 	{
 		blend		diffusemap
 		map		textures/hell/blood_stream1.tga   
-		translate	time * .015 , time * -0.03
+		translate	time * .015 , time * -.03
 	}
     {
 		blend		bumpmap
 		map	heightmap(textures/hell/blood_stream1_h.tga, 8 )
-		translate	time * -0.01 , time * -0.01
+		translate	time * -.01 , time * -0.01
 	}
 	{
 		blend 		specularmap
@@ -1627,34 +1630,36 @@ textures/hell/blood_stream1
 //		specularmap	    textures/hell/bushes_s.tga
 //}
 
-// models/kenneth/tunnel
-// {
-//         noSelfShadow
-// 		//unsmoothedTangents
-// renderbump  -size 2048 1024 -trace .2  -colorMap -aa 2 models/kenneth/tunnel_local.tga models/kenneth/tunnel_hi.lwo
-// 
-// 
-// 
-//         	
-// 		//  bumpmap		addnormals( models/kenneth/tunnel_local.tga, heightmap( models/kenneth/tunnel_h.tga, 7 ) )
-// 	{ 
-//             blend	bumpmap
-// 	 		map	addnormals( models/kenneth/tunnel_local.tga, heightmap( models/kenneth/tunnel_h.tga, 7 ) )
-// 			translate	time * -0.1 , time * -0.1
-// 	}
-// 	{ 
-//             blend	diffusemap
-// 	 		map	models/kenneth/tunnel.tga
-// 			translate	time * .047 , time * .03
-// 	}
-// 	{ 
-//         	blend	specularmap
-// 	 		map	models/kenneth/tunnel_s.tga
-// 			//translate	time * .02 , time * -0.4
-// 	}
-//    
-//     
-// }
+/*
+models/kenneth/tunnel
+{
+        noSelfShadow
+		//unsmoothedTangents
+renderbump  -size 2048 1024 -trace .2  -colorMap -aa 2 models/kenneth/tunnel_local.tga models/kenneth/tunnel_hi.lwo
+
+
+
+        	
+		//  bumpmap		addnormals( models/kenneth/tunnel_local.tga, heightmap( models/kenneth/tunnel_h.tga, 7 ) )
+	{ 
+            blend	bumpmap
+	 		map	addnormals( models/kenneth/tunnel_local.tga, heightmap( models/kenneth/tunnel_h.tga, 7 ) )
+			translate	time * -.1 , time * -0.1
+	}
+	{ 
+            blend	diffusemap
+	 		map	models/kenneth/tunnel.tga
+			translate	time * .047 , time * .03
+	}
+	{ 
+        	blend	specularmap
+	 		map	models/kenneth/tunnel_s.tga
+			//translate	time * .02 , time * -0.4
+	}
+   
+    
+}
+*/
 
 textures/hell/wood1
 {
@@ -1663,7 +1668,6 @@ textures/hell/wood1
 	    diffusemap		textures/hell/wood1.tga
 		bumpmap		    addnormals( textures/hell/wood1_local.tga, heightmap( textures/hell/wood1_h.tga, 4 ) )
 		specularmap	    textures/hell/wood1_s.tga
-		lightmap		_lightmap
 }
 
 
@@ -1768,7 +1772,6 @@ textures/hell/cracked1
 	    diffusemap		textures/hell/cracked1.tga
 		bumpmap		    addnormals( textures/hell/cracked1_local.tga, heightmap( textures/hell/cracked1_h.tga, 6 ) )
 		specularmap	    textures/hell/cracked1_s.tga
-		lightmap		_lightmap
 }
 
 //textures/hell/sharprock3
@@ -1792,7 +1795,6 @@ textures/hell/sharprock2
 	    diffusemap		textures/hell/sharprock2.tga
 		bumpmap		    addnormals( textures/hell/sharprock2_local.tga, heightmap( textures/hell/sharprock2_h.tga, 8 ) )
 		specularmap	    textures/hell/sharprock2_s.tga
-		lightmap		_lightmap
 }
 
 
@@ -2759,7 +2761,7 @@ table lava		{ { .4,.32,.44,.375,.225,.35,.45,.5,.7,.6,.5,.7,.5,.65,.5,.45,.6,.5,
 // 		blend filter
 // 		map textures/hell/hellcloud_filter.tga
 // 		vertexcolor
-//		rotate	time * -0.1
+//		rotate	time * -.1
 //		//alphatest .5
 //
 // 	}
@@ -2850,18 +2852,18 @@ textures/hell/anustubescroll
 	{
 		blend		bumpmap	 
 		map		textures/hell/anustubescroll_local.tga
-		translate	time*-0.01,time*-0.025
+		translate	time*-.01,time*-.025
 	}
 	{
 		blend		diffusemap	 
 		map		textures/hell/anustubescroll.tga
-		translate	time*-0.01,time*-0.025
+		translate	time*-.01,time*-.025
 		
 	}
 	{
 		blend		specularmap	 
 		map		textures/hell/anustubescroll_s.tga
-		translate	time*-0.01,time*-0.025
+		translate	time*-.01,time*-.025
 	}
 
 }
@@ -2876,38 +2878,38 @@ qer_editorimage		textures/hell/anustubescrollblend.tga
 	{
 		blend 		bumpmap
 		map		 textures/hell/anustubescroll_local.tga
-		translate	time*-0.01,time*-0.025
+		translate	time*-.01,time*-.025
 		
 	}
 	{
 		blend 		diffusemap
 		map		textures/hell/anustubescroll.tga
-		translate	time*-0.01,time*-0.025
+		translate	time*-.01,time*-.025
 		VertexColor
 	}
 	{
 		blend		specularmap
 		map	     	textures/hell/anustubescroll_s.tga
-		translate	time*-0.01,time*-0.025
+		translate	time*-.01,time*-.025
 		VertexColor
 	}
 	{
 		blend 		bumpmap
 		map		 textures/hell/anustubescroll_local.tga
-		translate	time*-0.01,time*-0.025
+		translate	time*-.01,time*-.025
 		
 		
 	}
 	{
 		blend		diffusemap
 		map		textures/hell/anustubescroll_dark.tga
-		translate	time*-0.01,time*-0.025
+		translate	time*-.01,time*-.025
 		inversevertexColor
 	}
 	{
 		blend		specularmap
 		map	     	textures/hell/anustubescroll_dark_s.tga
-		translate	time*-0.01,time*-0.025
+		translate	time*-.01,time*-.025
 		inversevertexColor
 
 	}
@@ -2966,21 +2968,21 @@ textures/hell/wrinkle2
 	{
 		blend		diffusemap	 
 		map			textures/hell/wrinkle2.tga
-		translate	time*-0.02,time*-0.01
+		translate	time*-.02,time*-.01
 		rotate	( time * 0.002 )
 
 	}
 	{
 		blend		bumpmap	 
 		map		addnormals( textures/hell/wrinkle2_local.tga, heightmap( textures/hell/wrinkle2_h.tga, 14 ) )
-		translate	time*-0.02,time*-0.01
+		translate	time*-.02,time*-.01
 		rotate	( time * 0.002 )
 
 	}
 	{
 		blend		specularmap	 
 		map		textures/hell/wrinkle2_s.tga
-		translate	time*-0.02,time*-0.01
+		translate	time*-.02,time*-.01
 		rotate	( time * 0.002 )
 
 	}
@@ -2998,21 +3000,21 @@ textures/hell/wrinkle2
 //	{
 //		blend		diffusemap	 
 //		map			textures/hell/wrinkle3.tga
-//		translate	time*-0.01,time*-0.01
+//		translate	time*-.01,time*-.01
 //		rotate	( time * 0.005 )
 //
 //	}
 //	{
 //		blend		bumpmap	 
 //		map	        textures/hell/wrinkle3_local.tga
-//		translate	time*-0.01,time*-0.01
+//		translate	time*-.01,time*-.01
 //		rotate	( time * 0.005)
 //
 //	}
 //	{
 //		blend		specularmap	 
 //		map		textures/hell/wrinkle3_s.tga
-//		translate	time*-0.01,time*-0.01
+//		translate	time*-.01,time*-.01
 //		rotate	( time * 0.005 )
 //
 //	}
@@ -3771,19 +3773,19 @@ textures/hell/bacteria_3_d
 	{
 		Blend		diffusemap	
 		map		textures/hell/bacteria_3_d.tga
-		translate	time *.02, time*-0.03
+		translate	time *.02, time*-.03
 	}
 	{
 
 		blend		bumpmap	 
 		map		textures/hell/bacteria_3_local.tga
-		translate	time *.02, time*-0.03
+		translate	time *.02, time*-.03
 	}
 	{
 
 		blend		specularmap	 
 		map		textures/hell/bacteria_3_s.tga
-		translate	time *.02, time*-0.03
+		translate	time *.02, time*-.03
 	}
 
 			    
@@ -3918,38 +3920,38 @@ textures/hell/anustubescrollblend2
 	{
 		blend		bumpmap	 
 		map		textures/hell/anustubescroll_local.tga
-		translate	time*-0.01,time*-0.025
+		translate	time*-.01,time*-.025
 	}
 	{
 		blend		diffusemap	 
 		map		textures/hell/anustubescroll.tga
-		translate	time*-0.01,time*-0.025
+		translate	time*-.01,time*-.025
 		VertexColor
 		
 	}
 	{
 		blend		specularmap	 
 		map		textures/hell/anustubescroll_s.tga
-		translate	time*-0.01,time*-0.025
+		translate	time*-.01,time*-.025
 		VertexColor
 	}
 	{
 
 		blend		bumpmap	 
 		map		textures/hell/bacteria_3_local.tga
-		translate	time *.02, time*-0.03
+		translate	time *.02, time*-.03
 	}
 	{
 		Blend		diffusemap	
 		map		textures/hell/bacteria_3_d.tga
-		translate	time *.02, time*-0.03
+		translate	time *.02, time*-.03
 		inverseVertexColor
 	}
 	{
 
 		blend		specularmap	 
 		map		textures/hell/bacteria_3_s.tga
-		translate	time *.02, time*-0.03
+		translate	time *.02, time*-.03
 		inverseVertexColor
 	}
 
@@ -3965,38 +3967,38 @@ textures/hell/bacteriablend
 	{
 		blend		bumpmap	 
 		map		textures/hell/anustubescroll_local.tga
-		translate	time*-0.01,time*-0.025
+		translate	time*-.01,time*-.025
 	}
 	{
 		blend		diffusemap	 
 		map		textures/hell/anustubescroll.tga
-		translate	time*-0.01,time*-0.025
+		translate	time*-.01,time*-.025
 		VertexColor
 		
 	}
 	{
 		blend		specularmap	 
 		map		textures/hell/anustubescroll_s.tga
-		translate	time*-0.01,time*-0.025
+		translate	time*-.01,time*-.025
 		VertexColor
 	}
 	{
 
 		blend		bumpmap	 
 		map		textures/hell/bacteria_3_local.tga
-		translate	time *.02, time*-0.03
+		translate	time *.02, time*-.03
 	}
 	{
 		Blend		diffusemap	
 		map		textures/hell/bacteria_3_d.tga
-		translate	time *.02, time*-0.03
+		translate	time *.02, time*-.03
 		inverseVertexColor
 	}
 	{
 
 		blend		specularmap	 
 		map		textures/hell/bacteria_3_s.tga
-		translate	time *.02, time*-0.03
+		translate	time *.02, time*-.03
 		inverseVertexColor
 	}
 
@@ -4035,19 +4037,19 @@ textures/hell/burnedflyblend
 
 		blend		bumpmap	 
 		map		textures/hell/bacteria_6_local.tga
-		translate	time *.02, time*-0.03
+		translate	time *.02, time*-.03
 	}
 	{
 		Blend		diffusemap	
 		map		textures/hell/bacteria_6.tga
-		translate	time *.02, time*-0.03
+		translate	time *.02, time*-.03
 		inverseVertexColor
 	}
 	{
 
 		blend		specularmap	 
 		map		textures/hell/bacteria_6_s.tga
-		translate	time *.02, time*-0.03
+		translate	time *.02, time*-.03
 		inverseVertexColor
 	}
 
@@ -4071,7 +4073,7 @@ textures/hell/burnedflyblend
 //		blend		diffusemap	 
 //		map		textures/hell/blood_stream2_d.tga
 //		alphaTest 0.5
-//		translate	time*.2,time*-0.00
+//		translate	time*.2,time*-.00
 //		
 //	}
 //	{
@@ -4182,7 +4184,7 @@ textures/hell/wrinklewall_blendb
 // 	{
 //		blend		filter	 
 //		map		textures/hell/smoke
-//		translate	time*.00,time*-0.1
+//		translate	time*.00,time*-.1
 //		
 //	}
 //
@@ -4202,7 +4204,7 @@ textures/hell/wrinklewall_blendb
 // 	{
 //		blend		filter	 
 //		map		textures/hell/smoke
-//		translate	time*.00,time*-0.1
+//		translate	time*.00,time*-.1
 //		vertexblend
 //	}
 //	{
@@ -4226,19 +4228,19 @@ textures/hell/anustubescrollblend3
 	{
 		blend		bumpmap	 
 		map		textures/hell/anustubescroll_local.tga
-		translate	time*-0.01,time*-0.025
+		translate	time*-.01,time*-.025
 	}
 	{
 		blend		diffusemap	 
 		map		textures/hell/anustubescroll.tga
-		translate	time*-0.01,time*-0.025
+		translate	time*-.01,time*-.025
 		VertexColor
 		
 	}
 	{
 		blend		specularmap	 
 		map		textures/hell/anustubescroll_s.tga
-		translate	time*-0.01,time*-0.025
+		translate	time*-.01,time*-.025
 		VertexColor
 	}
 	{
@@ -4277,19 +4279,19 @@ textures/hell/anustubescrollblend4
 	{
 		blend		bumpmap	 
 		map		textures/hell/anustubescroll_local.tga
-		translate	time*-0.01,time*-0.025
+		translate	time*-.01,time*-.025
 	}
 	{
 		blend		diffusemap	 
 		map		textures/hell/anustubescroll.tga
-		translate	time*-0.01,time*-0.025
+		translate	time*-.01,time*-.025
 		inverseVertexColor
 		
 	}
 	{
 		blend		specularmap	 
 		map		textures/hell/anustubescroll_s.tga
-		translate	time*-0.01,time*-0.025
+		translate	time*-.01,time*-.025
 		inverseVertexColor
 	}
 	{
@@ -4326,18 +4328,18 @@ textures/hell/anustubescrollblend4
 //	{
 //		blend		bumpmap	 
 //		map		textures/hell/gizpool_local.tga
-//		translate	time*.02,time*-0.1
+//		translate	time*.02,time*-.1
 //	}
 //	{
 //		blend		diffusemap	 
 //		map		textures/hell/gizpool_d.tga
-//		translate	time*.02,time*-0.1
+//		translate	time*.02,time*-.1
 //		
 //	}
 //	{
 //		blend		specularmap	 
 //		map		textures/hell/gizpool_s.tga
-//		translate	time*.02,time*-0.1
+//		translate	time*.02,time*-.1
 //		
 //	}
 //	
@@ -4355,18 +4357,18 @@ textures/hell/anustubescrollblend4
 //	{
 //		blend		bumpmap	 
 //		map		textures/hell/gizpool2_local.tga
-//		translate	time*.0,time*-0.05
+//		translate	time*.0,time*-.05
 //	}
 //	{
 //		blend		diffusemap	 
 //		map		textures/hell/gizpool_d.tga
-//		translate	time*.0,time*-0.05
+//		translate	time*.0,time*-.05
 //		
 //	}
 //	{
 //		blend		specularmap	 
 //		map		textures/hell/gizpool2_s.tga
-//		translate	time*.0,time*-0.05
+//		translate	time*.0,time*-.05
 //		
 //	}
 //	
@@ -4384,35 +4386,35 @@ textures/hell/anustubescrollblend4
 //	{
 //		blend		bumpmap	 
 //		map		textures/hell/gizpool_local.tga
-//		translate	time*.0,time*-0.05
+//		translate	time*.0,time*-.05
 //	}
 //	{
 //		blend		diffusemap	 
 //		map		textures/hell/gizpool_d.tga
-//		translate	time*.0,time*-0.05
+//		translate	time*.0,time*-.05
 //		
 //	}
 //	{
 //		blend		specularmap	 
 //		map		textures/hell/gizpool_s.tga
-//		translate	time*.0,time*-0.05
+//		translate	time*.0,time*-.05
 //		
 //	}
 //	{
 //		blend		bumpmap	 
 //		map		textures/hell/gizpool2_local.tga
-//		translate	time*.0,time*-0.05
+//		translate	time*.0,time*-.05
 //	}
 //	{
 //		blend		diffusemap	 
 //		map		textures/hell/gizpool_d.tga
-//		translate	time*.0,time*-0.05
+//		translate	time*.0,time*-.05
 //		
 //	}
 //	{
 //		blend		specularmap	 
 //		map		textures/hell/gizpool2_s.tga
-//		translate	time*.0,time*-0.05
+//		translate	time*.0,time*-.05
 //		
 //	}
 //		
@@ -4704,7 +4706,7 @@ textures/hell/dirtywater
 		{
 		blend		filter	
 		map		textures/hell/dirtywater
-		translate	time*.0,time*-0.01
+		translate	time*.0,time*-.01
 		}
 	
 
@@ -4728,7 +4730,7 @@ textures/hell/dirtywaterb
 		{
 		blend		filter	
 		map		textures/hell/dirtywaterb
-		translate	time*.0,time*-0.01
+		translate	time*.0,time*-.01
 		}
 	
 
@@ -4815,7 +4817,7 @@ textures/hell/cracked1_lavascroll
 		scale		2,2
 		vertexColor
 	}
-	{ //black verts
+	{//black verts
 		blend		bumpmap
 		map		    addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
 		scale		2,2
@@ -4851,7 +4853,7 @@ textures/hell/cracked1_lavascroll
 		map textures/hell/lava1fx.tga
 		rgb			fireballtable[ time * .25  ]
 		scale		3,3
-		translate	time * -0.02 , 1
+		translate	time * -.02 , 1
 		inverseVertexColor
 	}
 }
@@ -4862,7 +4864,7 @@ textures/hell/hhconcrete_bustage
 	stone
 	noSelfShadow
     noshadows
-	{ //white verts
+	{//white verts
 		blend 		bumpmap
 		map		    addnormals( textures/hell/hhconcrete_local.tga, heightmap( textures/hell/hhconcrete_h.tga, 8 ) )
 		scale		0.5,0.5
@@ -4880,7 +4882,7 @@ textures/hell/hhconcrete_bustage
 		vertexColor
 	}
 
-	{ //black verts
+	{//black verts
 		blend		bumpmap
 		map		    textures/hell/bustage_local
 	}
@@ -4899,7 +4901,7 @@ textures/hell/hhconcrete_bustage
 textures/hell/lavascroll_lava21hell_hub
 {
 	qer_editorimage		textures/hell/lavascroll_lava21hell_hub
-	{ //white verts
+	{//white verts
 		blend 		bumpmap
 		map		    textures/hell/hhlava_local.tga
 		translate	time * 0 , time * -0.02
@@ -4926,7 +4928,7 @@ textures/hell/lavascroll_lava21hell_hub
 		vertexColor
 	}
 
-	{ //black verts
+	{//black verts
 		blend		bumpmap
 		map		    addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
 		scale		2,2
@@ -4962,7 +4964,7 @@ textures/hell/lavascroll_lava21hell_hub
 		map textures/hell/lava1fx.tga
 		rgb			fireballtable[ time * .25  ]
 		scale		3,3
-		translate	time * -0.02 , 1
+		translate	time * -.02 , 1
 		inverseVertexColor
 	}
 }
@@ -5017,7 +5019,7 @@ textures/hell/lavascroll
 		green			parm1*fireballtable[ time *.25 ]
 		blue			parm2*fireballtable[ time *.25 ]
 		scale			3,3
-		translate		time * -0.02 , 1
+		translate		time * -.02 , 1
 	}
 }
 
@@ -5160,26 +5162,26 @@ textures/hell/lfwall27alava
 		map			textures/hell/lfwall27alava_s
 		inverseVertexColor
 	}
-// 	{
-// 		map			textures/hell/lfwall27alava_add
-// 		scale		.5,.5
-// 		maskcolor
-// 	}
-// 	{
-// 		blend		gl_dst_alpha , gl_one
-// 		map			textures/hell/lfwall27alava_add
-// 		scale		.5,.5
-// 		translate	time*.1,time*.1
-// 		rgb			ember1[time*.1]
-// 		inverseVertexColor
-// 	}
-// 	{
-// 		blend		gl_dst_alpha , gl_one
-// 		map			textures/hell/lfwall27alava_add
-// 		scale		.5,.5
-// 		translate	time*.02,time*-0.1
-// 		inverseVertexColor
-// 	}
+/*	{
+		map			textures/hell/lfwall27alava_add
+		scale		.5,.5
+		maskcolor
+	}
+	{
+		blend		gl_dst_alpha , gl_one
+		map			textures/hell/lfwall27alava_add
+		scale		.5,.5
+		translate	time*.1,time*.1
+		rgb			ember1[time*.1]
+		inverseVertexColor
+	}
+	{
+		blend		gl_dst_alpha , gl_one
+		map			textures/hell/lfwall27alava_add
+		scale		.5,.5
+		translate	time*.02,time*-.1
+		inverseVertexColor
+	}*/
 }
 
 
@@ -5521,8 +5523,7 @@ textures/hell/rock1
 		blend			bumpmap
 		map				addnormals (textures/hell/rock1_local.tga, heightmap (textures/hell/rock1_bmp.tga,9) ) 
 	}
-	diffusemap		textures/hell/rock1
-	lightmap		_lightmap
+		diffusemap		textures/hell/rock1
 }
 
 textures/hell/bricks1a
@@ -5614,12 +5615,12 @@ textures/hell/stitches1_trans
 		map			addnormals (textures/hell/stitches1_local.tga, heightmap (textures/hell/stitches1_bmp.tga, 4) ) 
 		translate	1,time*.1
 	}
-// 	{
-// 		blend		gl_one_minus_dst_color,gl_one_minus_src_color
-// 		map			textures/hell/stitches1
-// 		translate	1,time*.1
-// 		
-// 	}
+/*	{
+		blend		gl_one_minus_dst_color,gl_one_minus_src_color
+		map			textures/hell/stitches1
+		translate	1,time*.1
+		
+	}*/
 	{
 		blend		diffusemap		
 		map			textures/hell/stitches1
@@ -5703,12 +5704,12 @@ textures/hell/bloodsharprock2blend
     {
 		blend		bumpmap
 		map	heightmap(textures/hell/blood_stream1_h.tga, 8 )
-		translate	time * -0.01 , time * -0.01
+		translate	time * -.01 , time * -0.01
 	}
 		{
 		blend		diffusemap
 		map		textures/hell/blood_stream1.tga   
-		translate	time * .015 , time * -0.03
+		translate	time * .015 , time * -.03
 		inverseVertexColor
 	}
 	{

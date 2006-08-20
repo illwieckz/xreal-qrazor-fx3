@@ -13,7 +13,6 @@ textures/alphalabs/a_lfwall21b
 	bumpmap		textures/base_wall/lfwall21_local
 	diffusemap		textures/alphalabs/a_lfwall21b
 	specularmap		textures/alphalabs/a_lfwall21b_s
-	lightmap		_lightmap
 }
 
 textures/alphalabs/a_lfwall18a
@@ -22,7 +21,6 @@ textures/alphalabs/a_lfwall18a
 	bumpmap		textures/base_wall/lfwall18_local
 	diffusemap		textures/alphalabs/a_lfwall18a
 	specularmap		textures/alphalabs/a_lfwall18a_s
-	lightmap		_lightmap
 }
 
 textures/alphalabs/a_lfwall17a
@@ -31,7 +29,6 @@ textures/alphalabs/a_lfwall17a
 	bumpmap		textures/base_wall/lfwall17_local
 	diffusemap		textures/alphalabs/a_lfwall17a
 	specularmap		textures/alphalabs/a_lfwall17a_s
-	lightmap		_lightmap
 }
 
 textures/alphalabs/a_lfwall16a
@@ -40,7 +37,6 @@ textures/alphalabs/a_lfwall16a
 	bumpmap		textures/base_wall/lfwall16_local
 	diffusemap		textures/alphalabs/a_lfwall16a
 	specularmap		textures/alphalabs/a_lfwall16a_s
-	lightmap		_lightmap
 }
 
 textures/alphalabs/a_lfwall14g4
@@ -49,7 +45,6 @@ textures/alphalabs/a_lfwall14g4
 	bumpmap		textures/base_wall/lfwall14g2_local
 	diffusemap		textures/alphalabs/a_lfwall14g4
 	specularmap		textures/alphalabs/a_lfwall14g_s
-	lightmap		_lightmap
 }
 
 textures/alphalabs/a_lfwall13g4
@@ -58,7 +53,6 @@ textures/alphalabs/a_lfwall13g4
 		bumpmap			textures/base_wall/lfwall13g_local
 		diffusemap		textures/alphalabs/a_lfwall13g4
 		specularmap		textures/alphalabs/a_lfwall13g4_s
-		lightmap		_lightmap
 }
 
 textures/alphalabs/a_lfwall13f3
@@ -67,7 +61,6 @@ textures/alphalabs/a_lfwall13f3
 	bumpmap			textures/base_wall/lfwall13f_local
 	diffusemap		textures/alphalabs/a_lfwall13f3
 	specularmap		textures/alphalabs/a_lfwall13f3_s
-	lightmap		_lightmap
 }
 
 textures/alphalabs/a_lfwall13e
@@ -76,7 +69,6 @@ textures/alphalabs/a_lfwall13e
 	bumpmap			textures/base_wall/lfwall13e_local
 	diffusemap		textures/alphalabs/a_lfwall13e
 	specularmap		textures/alphalabs/a_lfwall13e_s
-	lightmap		_lightmap
 }
 
 textures/alphalabs/a_lfwall13d
@@ -85,7 +77,6 @@ textures/alphalabs/a_lfwall13d
 	bumpmap			textures/base_wall/lfwall13d_local
 	diffusemap		textures/alphalabs/a_lfwall13d
 	specularmap		textures/alphalabs/a_lfwall13d_s
-	lightmap		_lightmap
 }
 
 textures/alphalabs/a_lfwall13c
@@ -94,7 +85,6 @@ textures/alphalabs/a_lfwall13c
 	bumpmap			textures/base_wall/lfwall13c_local
 	diffusemap		textures/alphalabs/a_lfwall13c
 	specularmap		textures/alphalabs/a_lfwall13c_s
-	lightmap		_lightmap
 }
 
 textures/alphalabs/a_lfwall13b
@@ -103,7 +93,6 @@ textures/alphalabs/a_lfwall13b
 	bumpmap			textures/base_wall/lfwall13b_local
 	diffusemap		textures/alphalabs/a_lfwall13b
 	specularmap		textures/alphalabs/a_lfwall13b_s
-	lightmap		_lightmap
 }
 
 textures/alphalabs/a_lfwall13a
@@ -112,7 +101,6 @@ textures/alphalabs/a_lfwall13a
 	bumpmap			textures/base_wall/lfwall13a_local
 	diffusemap		textures/alphalabs/a_lfwall13a
 	specularmap		textures/alphalabs/a_lfwall13a_s
-	lightmap		_lightmap
 }
 
 //textures/alphalabs/a_lfwall12b2
@@ -137,7 +125,6 @@ textures/alphalabs/a_lfwall12a2
 	}
 	diffusemap		textures/alphalabs/a_lfwall12a2
 	specularmap		textures/alphalabs/a_lfwall12a_s
-	lightmap		_lightmap
 }
 
 textures/alphalabs/a_enwall22b
@@ -146,7 +133,6 @@ textures/alphalabs/a_enwall22b
 	bumpmap				textures/base_wall/snpanel18_local
 	diffusemap			textures/alphalabs/a_enwall22b
 	specularmap			textures/alphalabs/a_enwall22a_s
-	lightmap		_lightmap
 }
 
 textures/alphalabs/a_enwall21a
@@ -155,7 +141,6 @@ textures/alphalabs/a_enwall21a
 	bumpmap				textures/base_wall/snpanel17_local
 	diffusemap			textures/alphalabs/a_enwall21a
 	specularmap			textures/alphalabs/a_enwall21_s
-	lightmap		_lightmap
 }
 
 textures/alphalabs/a_enwall20d
@@ -164,7 +149,6 @@ textures/alphalabs/a_enwall20d
 	bumpmap				textures/enpro/enwall20_local
 	diffusemap			textures/alphalabs/a_enwall20d
 	specularmap			textures/alphalabs/a_enwall20a_s
-	lightmap		_lightmap
 }
 
 textures/alphalabs/a_enwall13c
@@ -173,7 +157,6 @@ textures/alphalabs/a_enwall13c
 	bumpmap				textures/enpro/enwall13_local
 	diffusemap			textures/alphalabs/a_enwall13c
 	specularmap			textures/alphalabs/a_enwall13_s
-	lightmap		_lightmap
 }
 
 

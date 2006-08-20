@@ -72,7 +72,6 @@ textures/base_door/stedoorframe2_trim
 	bumpmap			textures/base_door/stedoorframe2_trim_local.tga
 	diffusemap		textures/base_door/stedoorframe2_trim_d.tga
 	specularmap		textures/base_door/stedoorframe2_trim_s.tga
-	lightmap		_lightmap
 }
 
 textures/base_door/smalldoortexdirty
@@ -82,7 +81,6 @@ textures/base_door/smalldoortexdirty
 	diffusemap		textures/base_door/smalldoortexdirty_d.tga
 	bumpmap			addnormals( textures/base_door/smalldoortex_local.tga	, heightmap( textures/base_door/smalldoortexdirty_b.tga, 1 ) )
 	specularmap		textures/base_door/smalldoortexdirty_s.tga
-	lightmap		_lightmap
 }
 
 
@@ -94,7 +92,7 @@ textures/base_door/leftframe2
 	diffusemap	textures/base_door/leftframe2_d.tga
 	specularmap	textures/base_door/leftframe2_s.tga
     bumpmap		textures/base_door/leftframe2_local.tga 
-	lightmap		_lightmap
+
  }
 
 
@@ -189,7 +187,6 @@ textures/base_door/nobbydoor
 	bumpmap			addnormals( textures/base_door/nobbydoor_local.tga  , heightmap( textures/base_door/nobbydoor_h.tga, 7 ) )
 	diffusemap		textures/base_door/nobbydoor_d.tga
 	specularmap		textures/base_door/nobbydoor_s.tga
-	lightmap		_lightmap
 }
 
 
@@ -251,8 +248,8 @@ textures/base_door/stor_door
 
 	diffusemap	textures/base_wall/squarepanel_d.tga
 	specularmap	textures/base_wall/squarepanel_s.tga
-	bumpmap		addnormals( textures/base_wall/squarepanel_local.tga  , heightmap( textures/base_wall/squarepanel_h.tga, 3 ) )
-	lightmap	_lightmap
+        bumpmap		addnormals( textures/base_wall/squarepanel_local.tga  , heightmap( textures/base_wall/squarepanel_h.tga, 3 ) )
+
  }
 
 
@@ -304,7 +301,6 @@ textures/base_door/a_delelev1_d03
 	bumpmap 		textures/base_door/a_delelev1_local02.tga
 	diffusemap		textures/base_door/a_delelev1_d03.tga
 	specularmap		textures/base_door/a_delelev1_s03.tga
-	lightmap		_lightmap
 }
 
 //textures/base_door/a_delelev1_d04
@@ -357,8 +353,7 @@ textures/base_door/doorlight_grn
 	//noShadows
 	qer_editorimage	textures/base_door/doorlight_grn.tga
 	bumpmap		textures/base_door/doorlight_local.tga
-	diffusemap	textures/base_door/doorlight_grn.tga
-	lightmap	_lightmap
+       	diffusemap	textures/base_door/doorlight_grn.tga
 	{
 		blend 	add
 		map		textures/base_door/doorlight_grn.tga
@@ -372,7 +367,6 @@ textures/base_door/airwheel
 	bumpmap			textures/base_door/airwheel_local.tga
 	diffusemap		textures/base_door/airwheel_d.tga
 	specularmap		textures/base_door/airwheel_s.tga
-	lightmap		_lightmap
 }
 
 
@@ -382,7 +376,6 @@ textures/base_door/airdoor
 	bumpmap			addnormals (textures/base_door/airdoor_local.tga, heightmap (textures/base_door/airdoor_bmp.tga, 3 ))
 	diffusemap		textures/base_door/airdoor_d.tga
 	specularmap		textures/base_door/airdoor_s.tga
-	lightmap		_lightmap
 }
 
 textures/base_door/airdoorfrm
@@ -391,7 +384,6 @@ textures/base_door/airdoorfrm
 	bumpmap			textures/base_door/airdoorfrm_local.tga
 	diffusemap		textures/base_door/airdoorfrm_d.tga
 	specularmap		textures/base_door/airdoorfrm_s.tga
-	lightmap		_lightmap
 }
 
 textures/base_door/jumbofrm
@@ -400,7 +392,6 @@ textures/base_door/jumbofrm
 	bumpmap			textures/base_door/jumbofrm_local.tga
 	diffusemap		textures/base_door/jumbofrm_d.tga
 	specularmap		textures/base_door/jumbofrm_s.tga
-	lightmap		_lightmap
 }
 
 
@@ -410,7 +401,6 @@ textures/base_door/jumbodoorguts
 	bumpmap			textures/base_door/jumbodoorguts_local.tga
 	diffusemap		textures/base_door/jumbodoorguts_d.tga
 	specularmap		textures/base_door/jumbodoorguts_s.tga
-	lightmap		_lightmap
 }
 
 textures/base_door/jumbodoor
@@ -419,7 +409,6 @@ textures/base_door/jumbodoor
 	bumpmap			addnormals (textures/base_door/jumbodoor_local.tga, heightmap (textures/base_door/jumbodoor_bmp.tga, 3 ))
 	diffusemap		textures/base_door/jumbodoor_d.tga
 	specularmap		textures/base_door/jumbodoor_s.tga
-	lightmap		_lightmap
 }
 
 //textures/base_door/deldoor2glass
@@ -450,7 +439,6 @@ textures/base_door/delelev1
 	bumpmap 		textures/base_door/delelev1_local.tga
 	diffusemap		textures/base_door/delelev1_d.tga
 	specularmap		textures/base_door/delelev1_s.tga
-	lightmap		_lightmap
 }
 
 //textures/base_door/delelev1a
@@ -476,7 +464,6 @@ textures/base_door/delelev2
 	bumpmap 		textures/base_door/delelev2_local.tga
 	diffusemap		textures/base_door/delelev2_d.tga
 	specularmap		textures/base_door/delelev2_s.tga
-	lightmap		_lightmap
 }
 
 textures/base_door/deldoorgutter
@@ -485,7 +472,6 @@ textures/base_door/deldoorgutter
 	bumpmap 		textures/base_door/deldoorgutter_local.tga
 	diffusemap		textures/base_door/deldoorgutter_d.tga
 	specularmap		textures/base_door/deldoorgutter_s.tga
-	lightmap		_lightmap
 }
 
 textures/base_door/deldoorgutter2
@@ -494,7 +480,6 @@ textures/base_door/deldoorgutter2
 	bumpmap 		textures/base_door/deldoorgutter_local.tga
 	diffusemap		textures/base_door/deldoorgutter2_d.tga
 	specularmap		textures/base_door/deldoorgutter_s.tga
-	lightmap		_lightmap
 }
 
 textures/base_door/deldoor1frm
@@ -503,7 +488,6 @@ textures/base_door/deldoor1frm
 	bumpmap 		textures/base_door/deldoor1frm_local.tga
 	diffusemap		textures/base_door/deldoor1frm_d.tga
 	specularmap		textures/base_door/deldoor1frm_s.tga
-	lightmap		_lightmap
 }
 
 textures/base_door/deldoor1
@@ -512,7 +496,6 @@ textures/base_door/deldoor1
 	bumpmap 		textures/base_door/deldoor1_local.tga
 	diffusemap		textures/base_door/deldoor1_d.tga
 	specularmap		textures/base_door/deldoor1_s.tga
-	lightmap		_lightmap
 }
 
 textures/base_door/deldoor1vert
@@ -521,7 +504,6 @@ textures/base_door/deldoor1vert
 	bumpmap 		textures/base_door/deldoor1vert_local.tga
 	diffusemap		textures/base_door/deldoor1vert_d.tga
 	specularmap		textures/base_door/deldoor1vert_s.tga
-	lightmap		_lightmap
 }
 
 textures/base_door/deldoor2frm
@@ -530,7 +512,6 @@ textures/base_door/deldoor2frm
 	bumpmap 		textures/base_door/deldoor2frm_local.tga
 	diffusemap		textures/base_door/deldoor2frm_d.tga
 	specularmap		textures/base_door/deldoor2frm_s.tga
-	lightmap		_lightmap
 }
 
 textures/base_door/deldoor2combo
@@ -539,7 +520,6 @@ textures/base_door/deldoor2combo
 	bumpmap 		textures/base_door/deldoor2combo_local.tga
 	diffusemap		textures/base_door/deldoor2combo_d.tga
 	specularmap		textures/base_door/deldoor2combo_s.tga
-	lightmap		_lightmap
 }
 
 textures/base_door/doorlamp
@@ -548,7 +528,6 @@ textures/base_door/doorlamp
 	bumpmap			textures/base_door/doorlight_local.tga
 	diffusemap		textures/base_door/doorlamp.tga
 	specularmap		textures/base_door/doorlight_s.tga
-	lightmap		_lightmap
 	{
 		blend 	add
 		map		textures/base_door/doorlamp.tga
@@ -562,7 +541,6 @@ textures/base_door/doorlamp2
 	bumpmap			textures/base_door/doorlamp2_local.tga
 	diffusemap		textures/base_door/doorlamp2_d.tga
 	specularmap		textures/base_door/doorlamp2_s.tga
-	lightmap		_lightmap
 	{
 		blend 	add
 		map		textures/base_door/doorlamp2_add.tga
@@ -584,7 +562,6 @@ textures/base_door/gothatch2
 	bumpmap		addnormals (textures/base_door/gothatch2_local.tga, heightmap (textures/base_door/gothatch2_bmp.tga, 4))
 	diffusemap		textures/base_door/gothatch2_d.tga
 	specularmap		textures/base_door/gothatch2_s.tga
-	lightmap		_lightmap
 }
 
 textures/base_door/stedoorpanel1
@@ -593,7 +570,6 @@ textures/base_door/stedoorpanel1
 	bumpmap		textures/base_door/stedoorpanel1_local.tga
 	diffusemap		textures/base_door/stedoorpanel1_d.tga
 	specularmap		textures/base_door/stedoorpanel1_s.tga
-	lightmap		_lightmap
 	{
 		blend 	add
 		map		textures/base_door/stedoorpanel1_add.tga
@@ -656,7 +632,6 @@ textures/base_door/stedoorgromit
 	bumpmap		textures/base_door/stedoorgromit_local.tga
 	diffusemap		textures/base_door/stedoorgromit_d.tga
 	specularmap		textures/base_door/stedoorgromit_s.tga
-	lightmap		_lightmap
 }
 
 textures/base_door/stedoorframe2
@@ -665,7 +640,6 @@ textures/base_door/stedoorframe2
 	bumpmap		textures/base_door/stedoorframe2_local.tga
 	diffusemap		textures/base_door/stedoorframe2_d.tga
 	specularmap		textures/base_door/stedoorframe2_s.tga
-	lightmap		_lightmap
 }
 
 //textures/base_door/stedoorframe2e3
@@ -722,7 +696,6 @@ textures/base_door/stedoortrim
 	bumpmap		textures/base_door/stedoortrim_local.tga
 	diffusemap		textures/base_door/stedoortrim_d.tga
 	specularmap		textures/base_door/stedoortrim_s.tga
-	lightmap		_lightmap
 }
 
 textures/base_door/stegreenswatch
@@ -730,7 +703,7 @@ textures/base_door/stegreenswatch
 	qer_editorimage	textures/base_door/stegreenswatch_d.tga
 	bumpmap		textures/base_door/flatswatch.tga
 	diffusemap		textures/base_door/stegreenswatch_d.tga
-	lightmap		_lightmap
+	
 }
 
 
@@ -743,8 +716,7 @@ textures/base_door/doorlightdel
 {
 	qer_editorimage	textures/editor/doorlightdel.tga
 	bumpmap		textures/base_door/doorlightdel_local.tga
-	diffusemap	textures/base_door/doorlightdel_d.tga
-	lightmap		_lightmap
+       	diffusemap	textures/base_door/doorlightdel_d.tga
 	 {
 		blend 	add
 		map		textures/base_door/doorlightdel_add.tga
@@ -758,7 +730,6 @@ textures/base_door/doorlight
 	qer_editorimage	textures/base_door/doorlight_red.tga
 	bumpmap		textures/base_door/doorlight_local.tga
        	diffusemap	textures/base_door/doorlight_red.tga
-       	lightmap		_lightmap
 	{
 		if ( parm7 == 0 )
 		blend 	add
@@ -780,7 +751,6 @@ textures/base_door/doorlightcav
 	bumpmap		textures/base_door/doorlightcav_local.tga
        	diffusemap	textures/base_door/doorlightcav_d.tga
 	specularmap	textures/base_door/doorlightcav_s.tga
-	lightmap		_lightmap
 	{
 		blend 	add
 		map		textures/base_door/doorlightcav_yel_add.tga
@@ -793,7 +763,6 @@ textures/base_door/doorlight_red_to_green
 	qer_editorimage	textures/base_door/doorlight_red.tga
 	bumpmap		textures/base_door/doorlight_local.tga
        	diffusemap	textures/base_door/doorlight_red.tga
-       	lightmap		_lightmap
 		{
 		if ( parm7 == 1 )
 		blend 	add
@@ -866,7 +835,6 @@ textures/base_door/cpubossdoor
 	bumpmap			textures/base_door/cpubossdoor_local
 	diffusemap		textures/base_door/cpubossdoor
 	specularmap		textures/base_door/cpubossdoor_s
-	lightmap		_lightmap
 }
 
 textures/base_door/smdoor1b
@@ -875,7 +843,6 @@ textures/base_door/smdoor1b
 	bumpmap			addnormals (textures/base_door/smdoor1a_local, heightmap (textures/base_door/smdoor1b_bmp.tga,4) ) 
 	diffusemap		textures/base_door/smdoor1b
 	specularmap		textures/base_door/smdoor1b_s
-	lightmap		_lightmap
 }
 
 textures/base_door/smdoor1a
@@ -884,7 +851,6 @@ textures/base_door/smdoor1a
 	bumpmap			textures/base_door/smdoor1a_local
 	diffusemap		textures/base_door/smdoor1a
 	specularmap		textures/base_door/smdoor1a_s
-	lightmap		_lightmap
 }
 
 //textures/base_door/airdoor_cpu
@@ -901,7 +867,6 @@ textures/base_door/airwheel_enpro
 	bumpmap			textures/base_door/airwheel_local	
 	diffusemap		textures/base_door/airwheel_enpro
 	specularmap		textures/base_door/airwheel_enpro_s
-	lightmap		_lightmap
 }
 
 textures/base_door/deldoorgutter2_enpro
@@ -910,7 +875,6 @@ textures/base_door/deldoorgutter2_enpro
 	bumpmap		textures/base_door/deldoorgutter_local
 	diffusemap	textures/base_door/deldoorgutter2_enpro
 	specularmap	textures/base_door/deldoorgutter2_enpro_s
-	lightmap		_lightmap
 }
 
 textures/base_door/airdoorfrm_enpro
@@ -919,7 +883,6 @@ textures/base_door/airdoorfrm_enpro
 	bumpmap		textures/base_door/airdoorfrm_local
 	diffusemap	textures/base_door/airdoorfrm_enpro
 	specularmap	textures/base_door/airdoorfrm_enpro_s
-	lightmap		_lightmap
 }
 
 textures/base_door/airdoor_enpro
@@ -928,7 +891,6 @@ textures/base_door/airdoor_enpro
 	bumpmap		addnormals (textures/base_door/airdoor_local, heightmap (textures/base_door/airdoor_bmp, 4) ) 
 	diffusemap	textures/base_door/airdoor_enpro
 	specularmap	textures/base_door/airdoor_enpro_s
-	lightmap		_lightmap
 }
 
 textures/base_door/bighangardoors
@@ -937,7 +899,6 @@ textures/base_door/bighangardoors
 	bumpmap				textures/base_door/bighangardoors_local
 	diffusemap			textures/base_door/bighangardoors
 	specularmap			textures/base_door/bighangardoors_s
-	lightmap		_lightmap
 }
 
 textures/base_door/jumbofrm_hangar
@@ -946,7 +907,6 @@ textures/base_door/jumbofrm_hangar
 	bumpmap				textures/base_door/jumbofrm_local
 	diffusemap			textures/base_door/jumbofrm_hangar
 	specularmap			textures/base_door/jumbofrm_hangar_s
-	lightmap		_lightmap
 }
 
 textures/base_door/jumbodoor_hangar
@@ -955,7 +915,6 @@ textures/base_door/jumbodoor_hangar
 	bumpmap				addnormals (textures/base_door/jumbodoor_local.tga, heightmap (textures/base_door/jumbodoor_bmp.tga, 3 ))
 	diffusemap			textures/base_door/jumbodoor_hangar
 	specularmap			textures/base_door/jumbodoor_hangar_s
-	lightmap		_lightmap
 }
 
 
@@ -1021,7 +980,6 @@ textures/base_door/smalldoortex
 	bumpmap			textures/base_door/smalldoortex_local.tga
 	diffusemap		textures/base_door/smalldoortex_d.tga
 	specularmap		textures/base_door/smalldoortex_s.tga
-	lightmap		_lightmap
 }
 
 //textures/base_door/smdoor1

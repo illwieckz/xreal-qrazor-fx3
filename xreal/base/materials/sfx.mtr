@@ -960,7 +960,7 @@ textures/sfx/monitor_glass2
 //
 //}
 
-// this flare dissapears when SHADERPARM_MODE (parm7) is set, indicating a broken light
+/* this flare dissapears when SHADERPARM_MODE (parm7) is set, indicating a broken light */
 textures/sfx/flare
 {
 	noshadows
@@ -971,23 +971,7 @@ textures/sfx/flare
 	{
 		if ( parm7 == 0 )
 		blend		add
-		map		lights/squarelight.tga
-		colored
-		vertexcolor
-	}
-}
-
-textures/sfx/flare_32
-{
-	noshadows
-	translucent
-	nonsolid
-	deform flare 		32
-	qer_editorimage		textures/editor/flare.tga
-	{
-		if ( parm7 == 0 )
-		blend		add
-		map		lights/squarelight.tga
+		map		_quadratic
 		colored
 		vertexcolor
 	}
@@ -1003,7 +987,7 @@ textures/sfx/flare_8
 	{
 		if ( parm7 == 0 )
 		blend		add
-		map		lights/squarelight.tga
+		map		_quadratic
 		colored
 		vertexcolor
 	}
@@ -1019,7 +1003,7 @@ textures/sfx/flare_2
 	{
 		if ( parm7 == 0 )
 		blend		add
-		map		lights/squarelight.tga
+		map		_quadratic
 		colored
 		vertexcolor
 	}
@@ -1036,13 +1020,13 @@ textures/sfx/flare_1
 	{
 		if ( parm7 == 0 )
 		blend		add
-		map		lights/squarelight.tga
+		map		_quadratic
 		colored
 		vertexcolor
 	}
 }
 
-// this flare uses parm4 to modify the size
+/* this flare uses parm4 to modify the size */
 textures/sfx/flareSizeable
 {
 	noshadows
@@ -1053,7 +1037,7 @@ textures/sfx/flareSizeable
 	{
 		if ( parm7 == 0 )
 		blend		add
-		map		lights/squarelight.tga
+		map		_quadratic
 		colored
 		vertexcolor
 	}
@@ -1070,7 +1054,7 @@ textures/sfx/flare_cv
 
 	{
 		blend		add
-		map		lights/squarelight.tga
+		map		_quadratic
 		colored
 		vertexcolor
 	}
@@ -1086,7 +1070,7 @@ textures/sfx/flare_toggle
 
 	{
 		blend		add
-		map		lights/squarelight.tga
+		map		_quadratic
 		rgba
 		red		parm0 * parm7
 		green	parm1 * parm7
@@ -1106,7 +1090,7 @@ textures/sfx/flare_toggle2
 
 	{
 		blend		add
-		map		lights/squarelight.tga
+		map		_quadratic
 		rgba
 		red		parm0 * parm7
 		green	parm1 * parm7
@@ -1129,7 +1113,7 @@ textures/sfx/flare_cv2
 
 	{
 		blend		add
-		map		lights/squarelight.tga
+		map		_quadratic
 		colored
 		vertexcolor
 	}
@@ -1154,7 +1138,7 @@ textures/sfx/flare_cv2
 //		if ( parm7 == 1 )
 //		colored
 //		blend		add
-//		map		lights/squarelight.tga
+//		map		_quadratic
 //		colored
 //		vertexcolor
 //	}
@@ -1172,7 +1156,7 @@ textures/sfx/flare2
 
 	{
 		blend		add
-		map		lights/squarelight.tga
+		map		_quadratic
 		colored
 		vertexcolor
 	}
@@ -1189,7 +1173,7 @@ textures/sfx/flare3
 
 	{
 		blend		add
-		map		lights/squarelight.tga
+		map		_quadratic
 		colored
 		vertexcolor
 	}
@@ -1207,7 +1191,7 @@ textures/sfx/flare4
 
 	{
 		blend		add
-		map		lights/squarelight.tga
+		map		_quadratic
 		colored
 		vertexcolor
 	}
@@ -1224,7 +1208,7 @@ textures/sfx/flare5
 
 	{
 		blend		add
-		map		lights/squarelight.tga
+		map		_quadratic
 		colored
 		vertexcolor
 	}
@@ -2271,7 +2255,7 @@ textures/sfx/muzzleflash
 //	}
 //}
 
-// this flare uses global parms to affect the color of all using this shader
+/* this flare uses global parms to affect the color of all using this shader */
 textures/sfx/flare_global
 {
 	noshadows
@@ -2282,7 +2266,7 @@ textures/sfx/flare_global
 	{
 		if ( parm7 == 0 )
 		blend		add
-		map			lights/squarelight.tga
+		map			_quadratic
 		red			parm0 * global0
 		green		parm1 * global0
 		blue		parm2 * global0
@@ -2300,7 +2284,7 @@ textures/sfx/flare_global1
 	{
 		if ( parm7 == 0 )
 		blend		add
-		map			lights/squarelight.tga
+		map			_quadratic
 		red			parm0 * global1
 		green		parm1 * global1
 		blue		parm2 * global1
@@ -2333,14 +2317,15 @@ textures/sfx/refract {
 		rgba refract[ time * 0.4 ] * 0.5
 		scroll	sintable[time * 0.08], time * 1.14
 	}
-	
-// 	{
-// 	 	 blend	blend
-// 		map textures/particles/smokepuff.tga
-// 		//scroll 0, time * 0.1
-// 		alpha refract[ time * 0.1 ] * 0.2
-// 		//scale	 16 , 16
-// 	}
+/*	
+	{
+	 	 blend	blend
+		map textures/particles/smokepuff.tga
+		//scroll 0, time * 0.1
+		alpha refract[ time * 0.1 ] * 0.2
+		//scale	 16 , 16
+	}
+*/	
 }
 
 
@@ -2563,7 +2548,7 @@ table lightning2 	{ { .2, .3 , 0, 0.1, 0, .2 , .3 ,.2 , 0 , 0 , 0 , 0.02 , 0 , 0
 //	{
 //		maskcolor
 //		map		makealpha(textures/sfx/drip_mask)
-//		scroll 		time *0 , time * -0.65 
+//		scroll 		time *0 , time * -.65 
 //	}
 //
 //	{
@@ -2584,7 +2569,7 @@ table lightning2 	{ { .2, .3 , 0, 0.1, 0, .2 , .3 ,.2 , 0 , 0 , 0 , 0.02 , 0 , 0
 //	{
 //		maskcolor
 //		map		makealpha(textures/sfx/drip_mask)
-//		scroll 		time *0 , time * -0.55
+//		scroll 		time *0 , time * -.55
 //	}
 //
 //	{
@@ -2605,7 +2590,7 @@ table lightning2 	{ { .2, .3 , 0, 0.1, 0, .2 , .3 ,.2 , 0 , 0 , 0 , 0.02 , 0 , 0
 //	{
 //		maskcolor
 //		map		makealpha(textures/sfx/drip_mask)
-//		scroll 		time *0 , time * -0.74
+//		scroll 		time *0 , time * -.74
 //	}
 //
 //	{
@@ -3097,7 +3082,7 @@ table s_lightningtable2 { { 1, 2, 1, 3 } }
 //	//	map				textures/sfx/hellhole_endflame1d2
 //	//	rgb				fireballtable[ time * .15 ]
 //	//	scale			1,2
-//	//	translate		time * -0.1 , time * 2
+//	//	translate		time * -.1 , time * 2
 //	//}
 //}
 
@@ -3468,12 +3453,12 @@ textures/sfx/waterbump
 //		blend		bumpmap
 //		map			textures/hell/hellanustube2_local.tga
 //	
-//		translate	1,time*-0.1
+//		translate	1,time*-.1
 //	}
 //	{
 //		blend		gl_dst_color,gl_src_color
 //		map			textures/sfx/pustulefilter
-//		rotate		time*-0.02
+//		rotate		time*-.02
 //	}
 //	{
 //		blend		specularmap		

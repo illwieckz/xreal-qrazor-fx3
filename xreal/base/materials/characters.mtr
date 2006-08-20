@@ -153,24 +153,27 @@ models/characters/player/playergoestohell
 
 }
 
+/*
+models/characters/player/playerheaddead
+{
+        noselfShadow
+		noShadows
+		clamp
+	renderbump  -size 512 512 -trace 0.07 -colorMap -aa 2  models/characters/player/playerheaddead_local.tga models/characters/player/playerheaddead_hi.lwo
 
-//models/characters/player/playerheaddead
-//{
- //       noselfShadow
-//		noShadows
-//		clamp
-//	renderbump  -size 512 512 -trace 0.07 -colorMap -aa 2  models/characters/player/playerheaddead_local.tga models/characters/player/playerheaddead_hi.lwo
 
-//       
-// 	diffusemap  models/characters/player/playerheaddead.tga
-// 		 
-//		{
-// 		  blend bumpmap
- //         map  addnormals(models/characters/player/playerheaddead_local.tga, heightmap(models/characters/player/playerheaddead_h.tga, 3 ) )
- //		  
-  //   	}	
- //         specularmap	 models/characters/player/playerheaddead_s.tga
-//}
+
+        
+ 	diffusemap  models/characters/player/playerheaddead.tga
+ 		 
+		{
+ 		  blend bumpmap
+          map  addnormals(models/characters/player/playerheaddead_local.tga, heightmap(models/characters/player/playerheaddead_h.tga, 3 ) )
+ 		  
+     	}	
+          specularmap	 models/characters/player/playerheaddead_s.tga
+}
+*/
 
 
 models/characters/swann/frame
@@ -907,12 +910,7 @@ models/characters/male_npc/marine/marine
 
 	renderbump  -size 1024 1024 -trace 0.07 -colorMap -aa 2  models/characters/male_npc/marine/marine_local.tga models/characters/male_npc/marine/marine_hi.lwo
 		forceoverlays
-	
-	{
-		blend diffusemap
-        map	  models/characters/male_npc/marine/marine.tga
-        rgbGen lightingDiffuse
-	}
+        diffusemap	  models/characters/male_npc/marine/marine.tga
 		bumpmap		  addnormals(models/characters/male_npc/marine/marine_local.tga, heightmap(models/characters/male_npc/marine/marine_h.tga, 5 ) )
         specularmap	  models/characters/male_npc/marine/marine_s.tga
 }
@@ -1087,7 +1085,6 @@ models/characters/sarge2/helmet
 		blend diffusemap	
 		map  models/characters/sarge2/helmet.tga
 		//alphaTest parm6
-		rgbGen lightingDiffuse
 	} 
 	
 			bumpmap			models/characters/sarge2/helmet_local.tga
@@ -1095,17 +1092,21 @@ models/characters/sarge2/helmet
 }
 
 
-//models/characters/sarge2/sarge
-//{
- //      noselfShadow
-//	   unsmoothedTangents
-//		clamp
-//	renderbump  -size 1024 1024 -aa 2  models/characters/sarge2/sarge_local.tga models/characters/sarge2/sarge_hi.lwo
-//
-//       	diffusemap	models/characters/sarge2/sarge.tga
-//	bumpmap		addnormals(models/characters/sarge2/sarge_local.tga, heightmap(models/characters/sarge2/sarge_h.tga, 5 ) )
-//                  specularmap	models/characters/sarge2/sarge_s.tga
-//}
+/*
+models/characters/sarge2/sarge
+{
+       noselfShadow
+	   unsmoothedTangents
+		clamp
+	renderbump  -size 1024 1024 -aa 2  models/characters/sarge2/sarge_local.tga models/characters/sarge2/sarge_hi.lwo
+
+
+
+        	diffusemap	models/characters/sarge2/sarge.tga
+	bumpmap		addnormals(models/characters/sarge2/sarge_local.tga, heightmap(models/characters/sarge2/sarge_h.tga, 5 ) )
+                  specularmap	models/characters/sarge2/sarge_s.tga
+}
+*/
 
 models/characters/swann/lense
 {
@@ -1262,33 +1263,41 @@ models/characters/swann/swann
                   specularmap	models/characters/swann/swann_s.tga
 }
 
-//models/characters/sarge2/cigar
-//{
-//        noselfShadow
-//	renderbump  -size 128 128 -aa 4  models/characters/sarge2/cigar_local.tga models/characters/sarge2/cigar_hi.lwo
+/*
+models/characters/sarge2/cigar
+{
+        noselfShadow
+	renderbump  -size 128 128 -aa 4  models/characters/sarge2/cigar_local.tga models/characters/sarge2/cigar_hi.lwo
 
-//        	diffusemap	models/characters/sarge2/cigar.tga
-//	bumpmap		addnormals(models/characters/sarge2/cigar_local.tga, heightmap(models/characters/sarge2/cigar_h.tga, 5 ) )
-//		{
-// 		  blend add
-//         map  models/characters/sarge2/cigar_fx.tga
-//		  rgb		eyestable[ time * .1 ]
-//     	}
-//}
 
-//models/characters/sarge2/cigar2
-//{
-//        noselfShadow
-//	renderbump  -size 128 128 -aa 4  models/characters/sarge2/cigar_local.tga models/characters/sarge2/cigar_hi.lwo
 
-//        	diffusemap	models/characters/sarge2/cigar.tga
-//	bumpmap		addnormals(models/characters/sarge2/cigar_local.tga, heightmap(models/characters/sarge2/cigar_h.tga, 5 ) )
-//		{
-// 		  blend add
-//         map  models/characters/sarge2/cigar_fx.tga
-//		  rgb		eyestable[ time * .1 ]
-//     	}
-//}
+        	diffusemap	models/characters/sarge2/cigar.tga
+	bumpmap		addnormals(models/characters/sarge2/cigar_local.tga, heightmap(models/characters/sarge2/cigar_h.tga, 5 ) )
+		{
+ 		  blend add
+          map  models/characters/sarge2/cigar_fx.tga
+		  rgb		eyestable[ time * .1 ]
+     	}
+                  
+}
+
+models/characters/sarge2/cigar2
+{
+        noselfShadow
+	renderbump  -size 128 128 -aa 4  models/characters/sarge2/cigar_local.tga models/characters/sarge2/cigar_hi.lwo
+
+
+
+        	diffusemap	models/characters/sarge2/cigar.tga
+	bumpmap		addnormals(models/characters/sarge2/cigar_local.tga, heightmap(models/characters/sarge2/cigar_h.tga, 5 ) )
+		{
+ 		  blend add
+          map  models/characters/sarge2/cigar_fx.tga
+		  rgb		eyestable[ time * .1 ]
+     	}
+                  
+}
+*/
 
 models/characters/scientist/head06/head06
 {
@@ -1336,27 +1345,28 @@ models/characters/scientist/head05/head05
                   specularmap	models/characters/scientist/head05/head05_s.tga
 }
 
+/*
+models/characters/scientist/head05/head05b
+{
+        noselfShadow
+		  clamp
+		unsmoothedTangents
+		flesh
+		forceOverlays
+	renderbump  -size 256 256  models/characters/scientist/head05/head05b_local.tga models/characters/scientist/head05/head05_hi.lwo
 
-//models/characters/scientist/head05/head05b
-//{
-//        noselfShadow
-// 		  clamp
-// 		unsmoothedTangents
-// 		flesh
-// 		forceOverlays
-// 	renderbump  -size 256 256  models/characters/scientist/head05/head05b_local.tga models/characters/scientist/head05/head05_hi.lwo
-// 
-// 
-//  				diffusemap	  models/characters/scientist/head05/head05b.tga
-// 
-// 		{
-//  		  blend bumpmap
-//           map  addnormals(models/characters/scientist/head05/head05b_local.tga, heightmap(models/characters/scientist/head05/head05_h.tga, 5 ) )
-//  		  
-//      	}
-// 		
-//                   specularmap	models/characters/scientist/head05/head05_s.tga
-//}
+
+ 				diffusemap	  models/characters/scientist/head05/head05b.tga
+
+		{
+ 		  blend bumpmap
+          map  addnormals(models/characters/scientist/head05/head05b_local.tga, heightmap(models/characters/scientist/head05/head05_h.tga, 5 ) )
+ 		  
+     	}
+		
+                  specularmap	models/characters/scientist/head05/head05_s.tga
+}
+*/
 
 models/characters/male_npc/suit/dsuit
 {
@@ -1425,38 +1435,40 @@ models/characters/male_npc/suit/suit
                   specularmap	models/characters/male_npc/suit/suit_s.tga
 }
 
-// models/characters/male_npc/suit/suit2
-// {
-//         noselfShadow
-// 		clamp
-// 		unsmoothedTangents
-// 		flesh
-// 		forceOverlays
-// 
-// 
-// 	{	// burning corpse effect
-// 		if	parm7			// only when dead
-// 		// make a burned away alpha test for the normal skin
-// 		blend	gl_zero, gl_one			// don't draw anything
-// 		
-// 		map models/monsters/spectre/dis2.tga	// replace this with a monster-specific texture
-// 		alphaTest 0.05 + 2 * (time - parm7)
-// 	}
-// 
-// 
-// 	renderbump  -size 1024 1024 -trace 0.03 -colorMap -aa 2  models/characters/male_npc/suit/suit_local.tga models/characters/male_npc/suit/suit_hi.lwo
-// 
-// 
-//  				diffusemap	  models/characters/male_npc/suit/suit2.tga
-// 
-// 		{
-//  		  blend bumpmap
-//           map  addnormals(models/characters/male_npc/suit/suit_local.tga, heightmap(models/characters/male_npc/suit/suit2_h.tga, 5 ) )
-//  		  
-//      	}
-// 		
-//                   specularmap	models/characters/male_npc/suit/suit2_s.tga
-// }
+/*
+models/characters/male_npc/suit/suit2
+{
+        noselfShadow
+		clamp
+		unsmoothedTangents
+		flesh
+		forceOverlays
+
+
+	{	// burning corpse effect
+		if	parm7			// only when dead
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		map models/monsters/spectre/dis2.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 2 * (time - parm7)
+	}
+
+
+	renderbump  -size 1024 1024 -trace 0.03 -colorMap -aa 2  models/characters/male_npc/suit/suit_local.tga models/characters/male_npc/suit/suit_hi.lwo
+
+
+ 				diffusemap	  models/characters/male_npc/suit/suit2.tga
+
+		{
+ 		  blend bumpmap
+          map  addnormals(models/characters/male_npc/suit/suit_local.tga, heightmap(models/characters/male_npc/suit/suit2_h.tga, 5 ) )
+ 		  
+     	}
+		
+                  specularmap	models/characters/male_npc/suit/suit2_s.tga
+}
+*/
 
 models/characters/male_npc/soldier/soldier
 {
@@ -1525,34 +1537,36 @@ models/characters/male_npc/soldier/soldier_b
                   specularmap	models/characters/male_npc/soldier/soldier_b_s.tga
 }
 
-// models/characters/male_npc/soldier/soldier_a
-// {
-//         noselfShadow
-// 		clamp
-// 		unsmoothedTangents
-// 		flesh
-// 		forceOverlays
-// 
-// 
-// 		{	// burning corpse effect
-// 		if	parm7			// only when dead
-// 		// make a burned away alpha test for the normal skin
-// 		blend	gl_zero, gl_one			// don't draw anything
-// 		
-// 		map models/monsters/spectre/dis2.tga	// replace this with a monster-specific texture
-// 		alphaTest 0.05 + 2 * (time - parm7)
-// 	}
-// 
-//  				diffusemap	  models/characters/male_npc/soldier/soldier_a.tga
-// 
-// 		{
-//  		  blend bumpmap
-//           map  addnormals(models/characters/male_npc/soldier/soldier_local.tga, heightmap(models/characters/male_npc/soldier/soldier_h.tga, 5 ) )
-//  		  
-//      	}
-// 		
-//                   specularmap	models/characters/male_npc/soldier/soldier_s.tga
-// }
+/*
+models/characters/male_npc/soldier/soldier_a
+{
+        noselfShadow
+		clamp
+		unsmoothedTangents
+		flesh
+		forceOverlays
+
+
+		{	// burning corpse effect
+		if	parm7			// only when dead
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		map models/monsters/spectre/dis2.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 2 * (time - parm7)
+	}
+
+ 				diffusemap	  models/characters/male_npc/soldier/soldier_a.tga
+
+		{
+ 		  blend bumpmap
+          map  addnormals(models/characters/male_npc/soldier/soldier_local.tga, heightmap(models/characters/male_npc/soldier/soldier_h.tga, 5 ) )
+ 		  
+     	}
+		
+                  specularmap	models/characters/male_npc/soldier/soldier_s.tga
+}
+*/
 
 models/characters/male_npc/labcoat/labcoat
 {
@@ -1683,26 +1697,28 @@ models/characters/male_npc/jumpsuit/jumpsuit
                   specularmap	models/characters/male_npc/jumpsuit/jumpsuit_s.tga
 }
 
-// models/characters/scientist/clipboard
-// {
-//     noselfShadow
-// 	renderbump  -size 256 256 -trace 0.07 -colorMap models/characters/scientist/clipboard_local.tga models/characters/scientist/clipboard_hi.lwo
-// 
-// 
-// 
-//         	diffusemap		models/characters/scientist/clipboard.tga
-// 			bumpmap			models/characters/scientist/clipboard_local.tga
-//            specularmap		models/characters/scientist/clipboard_s.tga
-// }
-// 
-// models/characters/player/helmet
-// {
-// 
-//    clamp
-//         	diffusemap		models/characters/player/helmet.tga
-// 			bumpmap			models/characters/sarge2/helmet_local.tga
-//            specularmap		models/characters/player/helmet_s.tga
-// }
+/*
+models/characters/scientist/clipboard
+{
+    noselfShadow
+	renderbump  -size 256 256 -trace 0.07 -colorMap models/characters/scientist/clipboard_local.tga models/characters/scientist/clipboard_hi.lwo
+
+
+
+        	diffusemap		models/characters/scientist/clipboard.tga
+			bumpmap			models/characters/scientist/clipboard_local.tga
+           specularmap		models/characters/scientist/clipboard_s.tga
+}
+
+models/characters/player/helmet
+{
+
+   clamp
+        	diffusemap		models/characters/player/helmet.tga
+			bumpmap			models/characters/sarge2/helmet_local.tga
+           specularmap		models/characters/player/helmet_s.tga
+}
+*/
 
 models/characters/player/body
 {
@@ -1743,62 +1759,64 @@ models/characters/player/body2
                   specularmap	models/characters/player/body_s.tga
 }
 
-// models/characters/player/bodyred
-// {
-//         noselfShadow
-// 		noShadows
-// 		clamp
-// 	renderbump  -size 1024 2048 -trace 0.03 -colorMap -aa 2  models/characters/player/body_local.tga models/characters/player/body_hi.lwo
-// 
-// 
-//  				diffusemap	  models/characters/player/bodyred.tga
-// 
-// 		{
-//  		  blend bumpmap
-//           map  addnormals(models/characters/player/body_local.tga, heightmap(models/characters/player/body_h.tga, 5 ) )
-//  		  
-//      	}
-// 		
-//                   specularmap	models/characters/player/body_s.tga
-// }
-// 
-// models/characters/player/bodyblue
-// {
-//         noselfShadow
-// 		noShadows
-// 		clamp
-// 	renderbump  -size 1024 2048 -trace 0.03 -colorMap -aa 2  models/characters/player/body_local.tga models/characters/player/body_hi.lwo
-// 
-// 
-//  				diffusemap	  models/characters/player/bodyblue.tga
-// 
-// 		{
-//  		  blend bumpmap
-//           map  addnormals(models/characters/player/body_local.tga, heightmap(models/characters/player/body_h.tga, 5 ) )
-//  		  
-//      	}
-// 		
-//                   specularmap	models/characters/player/body_s.tga
-// }
-// 
-// models/characters/player/arm1
-// {
-//         noselfShadow
-// 		noShadows
-// 		clamp
-// 		//unsmoothedTangents
-// 	renderbump  -size 1024 2048 -trace 0.03 -colorMap -aa 2  models/characters/player/arm1_local.tga models/characters/player/arm1_hi.lwo
-// 
-// 
-// 
-//           diffusemap	models/characters/player/arm1.tga
-// 		{
-//  		  blend bumpmap
-//           map  addnormals(models/characters/player/arm1_local.tga, heightmap(models/characters/player/arm1_h.tga, 5 ) )
-//  		  
-//      	}
-//           specularmap	models/characters/player/arm1_s.tga
-// }
+/*
+models/characters/player/bodyred
+{
+        noselfShadow
+		noShadows
+		clamp
+	renderbump  -size 1024 2048 -trace 0.03 -colorMap -aa 2  models/characters/player/body_local.tga models/characters/player/body_hi.lwo
+
+
+ 				diffusemap	  models/characters/player/bodyred.tga
+
+		{
+ 		  blend bumpmap
+          map  addnormals(models/characters/player/body_local.tga, heightmap(models/characters/player/body_h.tga, 5 ) )
+ 		  
+     	}
+		
+                  specularmap	models/characters/player/body_s.tga
+}
+
+models/characters/player/bodyblue
+{
+        noselfShadow
+		noShadows
+		clamp
+	renderbump  -size 1024 2048 -trace 0.03 -colorMap -aa 2  models/characters/player/body_local.tga models/characters/player/body_hi.lwo
+
+
+ 				diffusemap	  models/characters/player/bodyblue.tga
+
+		{
+ 		  blend bumpmap
+          map  addnormals(models/characters/player/body_local.tga, heightmap(models/characters/player/body_h.tga, 5 ) )
+ 		  
+     	}
+		
+                  specularmap	models/characters/player/body_s.tga
+}
+
+models/characters/player/arm1
+{
+        noselfShadow
+		noShadows
+		clamp
+		//unsmoothedTangents
+	renderbump  -size 1024 2048 -trace 0.03 -colorMap -aa 2  models/characters/player/arm1_local.tga models/characters/player/arm1_hi.lwo
+
+
+
+          diffusemap	models/characters/player/arm1.tga
+		{
+ 		  blend bumpmap
+          map  addnormals(models/characters/player/arm1_local.tga, heightmap(models/characters/player/arm1_h.tga, 5 ) )
+ 		  
+     	}
+          specularmap	models/characters/player/arm1_s.tga
+}
+*/
 
 models/characters/player/arm2
 {
@@ -1864,27 +1882,29 @@ models/characters/player/playerhead
           specularmap	 models/characters/player/playerhead_s.tga
 }
 
-// models/characters/player/coophead
-// {
-//         noselfShadow
-// 		noOverlays
-// 		clamp
-// 	renderbump  -size 512 512 -trace 0.07 -colorMap -aa 2  models/characters/player/coophead_local.tga models/characters/player/coophead_hi.lwo
-// 
-// 
-// 		{
-//  		  blend diffusemap
-//           map  models/characters/player/coophead.tga
-//  		  
-// 		 
-//      	}
-// 		{
-//  		  blend bumpmap
-//           map  addnormals(models/characters/player/coophead_local.tga, heightmap(models/characters/player/coophead_h.tga, 3 ) )
-//  		  
-//      	}	
-//           specularmap	 models/characters/player/coophead_s.tga
-// }
+/*
+models/characters/player/coophead
+{
+        noselfShadow
+		noOverlays
+		clamp
+	renderbump  -size 512 512 -trace 0.07 -colorMap -aa 2  models/characters/player/coophead_local.tga models/characters/player/coophead_hi.lwo
+
+
+		{
+ 		  blend diffusemap
+          map  models/characters/player/coophead.tga
+ 		  
+		 
+     	}
+		{
+ 		  blend bumpmap
+          map  addnormals(models/characters/player/coophead_local.tga, heightmap(models/characters/player/coophead_h.tga, 3 ) )
+ 		  
+     	}	
+          specularmap	 models/characters/player/coophead_s.tga
+}
+*/
 
 models/characters/player/bodycin
 {
@@ -1924,62 +1944,63 @@ models/characters/player/body2cin
                   specularmap	models/characters/player/body_s.tga
 }
 
+/*
+models/characters/player/bodyredcin
+{
+        //noselfShadow
+		//noShadows
+		clamp
+	renderbump  -size 1024 2048 -trace 0.03 -colorMap -aa 2  models/characters/player/body_local.tga models/characters/player/body_hi.lwo
 
-// models/characters/player/bodyredcin
-// {
-//         //noselfShadow
-// 		//noShadows
-// 		clamp
-// 	renderbump  -size 1024 2048 -trace 0.03 -colorMap -aa 2  models/characters/player/body_local.tga models/characters/player/body_hi.lwo
-// 
-// 
-//  				diffusemap	  models/characters/player/bodyred.tga
-// 
-// 		{
-//  		  blend bumpmap
-//           map  addnormals(models/characters/player/body_local.tga, heightmap(models/characters/player/body_h.tga, 5 ) )
-//  		  
-//      	}
-// 		
-//                   specularmap	models/characters/player/body_s.tga
-// }
-// 
-// models/characters/player/bodybluecin
-// {
-//         //noselfShadow
-// 		//noShadows
-// 		clamp
-// 	renderbump  -size 1024 2048 -trace 0.03 -colorMap -aa 2  models/characters/player/body_local.tga models/characters/player/body_hi.lwo
-// 
-// 
-//  				diffusemap	  models/characters/player/bodyblue.tga
-// 
-// 		{
-//  		  blend bumpmap
-//           map  addnormals(models/characters/player/body_local.tga, heightmap(models/characters/player/body_h.tga, 5 ) )
-//  		  
-//      	}
-// 		
-//                   specularmap	models/characters/player/body_s.tga
-// }
-// 
-// models/characters/player/arm1cin
-// {
-//         //noselfShadow
-// 		//noShadows
-// 		clamp
-// 	renderbump  -size 1024 2048 -trace 0.03 -colorMap -aa 2  models/characters/player/arm1_local.tga models/characters/player/arm1_hi.lwo
-// 
-// 
-// 
-//         	diffusemap	models/characters/player/arm1.tga
-// 		{
-//  		  blend bumpmap
-//           map  addnormals(models/characters/player/arm1_local.tga, heightmap(models/characters/player/arm1_h.tga, 5 ) )
-//  		  
-//      	}
-//                   specularmap	models/characters/player/arm1_s.tga
-// }
+
+ 				diffusemap	  models/characters/player/bodyred.tga
+
+		{
+ 		  blend bumpmap
+          map  addnormals(models/characters/player/body_local.tga, heightmap(models/characters/player/body_h.tga, 5 ) )
+ 		  
+     	}
+		
+                  specularmap	models/characters/player/body_s.tga
+}
+
+models/characters/player/bodybluecin
+{
+        //noselfShadow
+		//noShadows
+		clamp
+	renderbump  -size 1024 2048 -trace 0.03 -colorMap -aa 2  models/characters/player/body_local.tga models/characters/player/body_hi.lwo
+
+
+ 				diffusemap	  models/characters/player/bodyblue.tga
+
+		{
+ 		  blend bumpmap
+          map  addnormals(models/characters/player/body_local.tga, heightmap(models/characters/player/body_h.tga, 5 ) )
+ 		  
+     	}
+		
+                  specularmap	models/characters/player/body_s.tga
+}
+
+models/characters/player/arm1cin
+{
+        //noselfShadow
+		//noShadows
+		clamp
+	renderbump  -size 1024 2048 -trace 0.03 -colorMap -aa 2  models/characters/player/arm1_local.tga models/characters/player/arm1_hi.lwo
+
+
+
+        	diffusemap	models/characters/player/arm1.tga
+		{
+ 		  blend bumpmap
+          map  addnormals(models/characters/player/arm1_local.tga, heightmap(models/characters/player/arm1_h.tga, 5 ) )
+ 		  
+     	}
+                  specularmap	models/characters/player/arm1_s.tga
+}
+*/
 
 models/characters/player/arm2cin
 {
@@ -2017,85 +2038,86 @@ models/characters/player/playerheadcin
           specularmap	 models/characters/player/playerhead_s.tga
 }
 
+/*
+models/characters/sarge2/arm2new
+{
+        noselfShadow
+	clamp
+	renderbump  -size 512 512 -aa 2 -trace 0.02 models/characters/sarge2/arm2new_local.tga models/characters/sarge2/arm2new_hi.lwo
 
-// models/characters/sarge2/arm2new
-// {
-//         noselfShadow
-// 	clamp
-// 	renderbump  -size 512 512 -aa 2 -trace 0.02 models/characters/sarge2/arm2new_local.tga models/characters/sarge2/arm2new_hi.lwo
-// 
-// 
-// 
-//         	diffusemap	models/characters/sarge2/arm1new.tga
-// 	bumpmap		addnormals(models/characters/sarge2/arm2new2_local.tga, heightmap(models/characters/sarge2/arm1new_h.tga, 5 ) )
-//                   specularmap	models/characters/sarge2/arm1new_s.tga
-// }
-// 
-// 
-// 
-// models/characters/sarge2/arm1new
-// {
-//         noselfShadow
-// 	clamp
-// 	renderbump  -size 512 512 -aa 2  models/characters/sarge2/arm1new_local.tga models/characters/sarge2/arm1new_hi.lwo
-// 
-// 
-// 
-//         	diffusemap	models/characters/sarge2/arm1new.tga
-// 	bumpmap		addnormals(models/characters/sarge2/arm2new2_local.tga, heightmap(models/characters/sarge2/arm1new_h.tga, 5 ) )
-//                   specularmap	models/characters/sarge2/arm1new_s.tga
-// }
-// 
-// models/johnc/stest
-// {
-//     noselfShadow
-// 	clamp
-// 	renderbump  -size 256 256 -trace 0.07 -colorMap models/johnc/stest_local.tga models/johnc/stest_hi.lwo
-// 
-// 
-// 
-//         	diffusemap		models/johnc/stest.tga
-// 			bumpmap			models/johnc/stest_local.tga
-//            specularmap		models/johnc/stest_s.tga
-// }
-// 
-// models/characters/sarge2/pwac
-// {
-//     noselfShadow
-// 	renderbump  -size 512 512 -aa 2  models/characters/sarge2/pwac_local.tga models/characters/sarge2/pwac_hi.lwo
-// 
-// 
-// 
-//         	diffusemap		models/characters/sarge2/pwac.tga
-// 			bumpmap			models/characters/sarge2/pwac_local.tga
-//            specularmap		models/characters/sarge2/pwac_s.tga
-// }
-// 
-// 
-// models/characters/sarge2/arm2
-// {
-//         noselfShadow
-// 	clamp
-// 	renderbump  -size 512 512 -aa 2  models/characters/sarge2/arm2_local.tga models/characters/sarge2/arm2_hi.lwo
-// 
-// 
-// 
-//         	diffusemap	models/characters/sarge2/arm1.tga
-// 	bumpmap		addnormals(models/characters/sarge2/arm1_local.tga, heightmap(models/characters/sarge2/arm1_h.tga, 5 ) )
-//                   specularmap	models/characters/sarge2/arm1_s.tga
-// }
-// models/characters/sarge2/arm1
-// {
-//         noselfShadow
-// 	clamp
-// 	renderbump  -size 512 512 -aa 2  models/characters/sarge2/arm1_local.tga models/characters/sarge2/arm1_hi.lwo
-// 
-// 
-// 
-//         	diffusemap	models/characters/sarge2/arm1.tga
-// 	bumpmap		addnormals(models/characters/sarge2/arm1_local.tga, heightmap(models/characters/sarge2/arm1_h.tga, 5 ) )
-//                   specularmap	models/characters/sarge2/arm1_s.tga
-// }
+
+
+        	diffusemap	models/characters/sarge2/arm1new.tga
+	bumpmap		addnormals(models/characters/sarge2/arm2new2_local.tga, heightmap(models/characters/sarge2/arm1new_h.tga, 5 ) )
+                  specularmap	models/characters/sarge2/arm1new_s.tga
+}
+
+
+
+models/characters/sarge2/arm1new
+{
+        noselfShadow
+	clamp
+	renderbump  -size 512 512 -aa 2  models/characters/sarge2/arm1new_local.tga models/characters/sarge2/arm1new_hi.lwo
+
+
+
+        	diffusemap	models/characters/sarge2/arm1new.tga
+	bumpmap		addnormals(models/characters/sarge2/arm2new2_local.tga, heightmap(models/characters/sarge2/arm1new_h.tga, 5 ) )
+                  specularmap	models/characters/sarge2/arm1new_s.tga
+}
+
+models/johnc/stest
+{
+    noselfShadow
+	clamp
+	renderbump  -size 256 256 -trace 0.07 -colorMap models/johnc/stest_local.tga models/johnc/stest_hi.lwo
+
+
+
+        	diffusemap		models/johnc/stest.tga
+			bumpmap			models/johnc/stest_local.tga
+           specularmap		models/johnc/stest_s.tga
+}
+
+models/characters/sarge2/pwac
+{
+    noselfShadow
+	renderbump  -size 512 512 -aa 2  models/characters/sarge2/pwac_local.tga models/characters/sarge2/pwac_hi.lwo
+
+
+
+        	diffusemap		models/characters/sarge2/pwac.tga
+			bumpmap			models/characters/sarge2/pwac_local.tga
+           specularmap		models/characters/sarge2/pwac_s.tga
+}
+
+
+models/characters/sarge2/arm2
+{
+        noselfShadow
+	clamp
+	renderbump  -size 512 512 -aa 2  models/characters/sarge2/arm2_local.tga models/characters/sarge2/arm2_hi.lwo
+
+
+
+        	diffusemap	models/characters/sarge2/arm1.tga
+	bumpmap		addnormals(models/characters/sarge2/arm1_local.tga, heightmap(models/characters/sarge2/arm1_h.tga, 5 ) )
+                  specularmap	models/characters/sarge2/arm1_s.tga
+}
+models/characters/sarge2/arm1
+{
+        noselfShadow
+	clamp
+	renderbump  -size 512 512 -aa 2  models/characters/sarge2/arm1_local.tga models/characters/sarge2/arm1_hi.lwo
+
+
+
+        	diffusemap	models/characters/sarge2/arm1.tga
+	bumpmap		addnormals(models/characters/sarge2/arm1_local.tga, heightmap(models/characters/sarge2/arm1_h.tga, 5 ) )
+                  specularmap	models/characters/sarge2/arm1_s.tga
+}
+*/
 
 
 models/characters/sarge2/hsarge
@@ -2128,90 +2150,91 @@ models/characters/scientist/head04/head04
                   specularmap	models/characters/scientist/head04/head04_s.tga
 }
 
+/*
+models/characters/scientist/fhead02/fhead02
+{
+        noselfShadow
+	clamp
+		flesh
+		forceOverlays
+	renderbump  -size 512 512 -aa 2  models/characters/scientist/fhead02/fhead02_local.tga models/characters/scientist/fhead02/fhead02_hi.ase
 
-// models/characters/scientist/fhead02/fhead02
-// {
-//         noselfShadow
-// 	clamp
-// 		flesh
-// 		forceOverlays
-// 	renderbump  -size 512 512 -aa 2  models/characters/scientist/fhead02/fhead02_local.tga models/characters/scientist/fhead02/fhead02_hi.ase
-// 
-// 
-// 
-//         	diffusemap	models/characters/scientist/fhead02/fhead02.tga
-// 	bumpmap		addnormals(models/characters/scientist/fhead02/fhead02_local.tga, heightmap(models/characters/scientist/fhead02/fhead02_h.tga, 5 ) )
-//                   specularmap	models/characters/scientist/fhead02/fhead02_s.tga
-// }
-// 
-// models/characters/scientist/fhead01/fhair
-// {
-//         noselfShadow
-// 
-//         	
-// 		{       
-//       			 blend	diffusemap
-// 			 map	models/characters/scientist/fhead01/fhair.tga
-// 			 alphaTest 0.3
-// 		}	
-// 	specularmap	models/characters/scientist/fhead01/fhair_s.tga
-// 
-// }
-// 
-// models/characters/scientist/fhead01/fhead01
-// {
-//         noselfShadow
-// 	clamp
-// 		flesh
-// 		forceOverlays
-// 	renderbump  -size 512 512 -aa 2  models/characters/scientist/fhead01/fhead01_local.tga models/characters/scientist/fhead01/fhead01_hi.ase
-// 
-// 
-// 
-//         	diffusemap	models/characters/scientist/fhead01/fhead01.tga
-// 	bumpmap		addnormals(models/characters/scientist/fhead01/fhead01_local.tga, heightmap(models/characters/scientist/fhead01/fhead01_h.tga, 5 ) )
-//                   specularmap	models/characters/scientist/fhead01/fhead01_s.tga
-// }
-// 
-// models/characters/scientist/fhead01/lashes
-// {
-// 	translucent
-// 	twosided
-// 	nonsolid
-// 	noimpact
-// 	noshadows
-// 	noselfshadow
-// 
-// 	{
-// 		blend filter
-// 		map models/characters/scientist/fhead01/lashes.tga
-// 	}	
-// }
-// 
-// models/characters/scientist/head03/r_hair2
-// {
-//         noselfShadow
-//         	
-// 		{       
-//       			 blend	diffusemap
-// 			 map	models/characters/scientist/head03/r_hair2.tga
-// 			 alphaTest 0.9
-// 		}	
-// 
-// }
-// 
-// models/characters/scientist/head03/r_hair
-// {
-//         noselfShadow
-//         	
-// 		{       
-//       			 blend	diffusemap
-// 			 map	models/characters/scientist/head03/r_hair.tga
-// 			 alphaTest 0.9
-// 		}	
-// 	 specularmap	models/characters/scientist/head03/r_hair_s.tga
-// 
-// }
+
+
+        	diffusemap	models/characters/scientist/fhead02/fhead02.tga
+	bumpmap		addnormals(models/characters/scientist/fhead02/fhead02_local.tga, heightmap(models/characters/scientist/fhead02/fhead02_h.tga, 5 ) )
+                  specularmap	models/characters/scientist/fhead02/fhead02_s.tga
+}
+
+models/characters/scientist/fhead01/fhair
+{
+        noselfShadow
+
+        	
+		{       
+      			 blend	diffusemap
+			 map	models/characters/scientist/fhead01/fhair.tga
+			 alphaTest 0.3
+		}	
+	specularmap	models/characters/scientist/fhead01/fhair_s.tga
+
+}
+
+models/characters/scientist/fhead01/fhead01
+{
+        noselfShadow
+	clamp
+		flesh
+		forceOverlays
+	renderbump  -size 512 512 -aa 2  models/characters/scientist/fhead01/fhead01_local.tga models/characters/scientist/fhead01/fhead01_hi.ase
+
+
+
+        	diffusemap	models/characters/scientist/fhead01/fhead01.tga
+	bumpmap		addnormals(models/characters/scientist/fhead01/fhead01_local.tga, heightmap(models/characters/scientist/fhead01/fhead01_h.tga, 5 ) )
+                  specularmap	models/characters/scientist/fhead01/fhead01_s.tga
+}
+
+models/characters/scientist/fhead01/lashes
+{
+	translucent
+	twosided
+	nonsolid
+	noimpact
+	noshadows
+	noselfshadow
+
+	{
+		blend filter
+		map models/characters/scientist/fhead01/lashes.tga
+	}	
+}
+
+models/characters/scientist/head03/r_hair2
+{
+        noselfShadow
+        	
+		{       
+      			 blend	diffusemap
+			 map	models/characters/scientist/head03/r_hair2.tga
+			 alphaTest 0.9
+		}	
+
+}
+
+models/characters/scientist/head03/r_hair
+{
+        noselfShadow
+        	
+		{       
+      			 blend	diffusemap
+			 map	models/characters/scientist/head03/r_hair.tga
+			 alphaTest 0.9
+		}	
+	 specularmap	models/characters/scientist/head03/r_hair_s.tga
+
+}
+*/
 
 models/characters/scientist/head03/dhead03
 {
@@ -2242,19 +2265,21 @@ models/characters/scientist/head03/head03
                   specularmap	models/characters/scientist/head03/head03_s.tga
 }
 
-// models/characters/scientist/head01/thair
-// {
-// 	translucent
-// 	twosided
-// 	nonsolid
-// 	noimpact
-// 	noshadows
-// 
-// 	{
-// 		blend diffuseMap
-// 		map models/characters/scientist/head01/thair.tga
-// 	}	
-// }
+/*
+models/characters/scientist/head01/thair
+{
+	translucent
+	twosided
+	nonsolid
+	noimpact
+	noshadows
+
+	{
+		blend diffuseMap
+		map models/characters/scientist/head01/thair.tga
+	}	
+}
+*/
 
 models/characters/scientist/head02/glasses2_fx
 {
@@ -2293,43 +2318,44 @@ models/characters/scientist/head02/glasses2
 
 }
 
+/*
+models/characters/scientist/head02/glasses_fx
+{
+	translucent
+	twosided
+	nonsolid
+	noimpact
+	noshadows
 
-// models/characters/scientist/head02/glasses_fx
-// {
-// 	translucent
-// 	twosided
-// 	nonsolid
-// 	noimpact
-// 	noshadows
-// 
-// 	{
-// 		blend filter
-// 		map models/characters/scientist/head02/glasses_fx.tga
-// 	}
-//  //specularmap	models/characters/scientist/head02/glasses_fx_s.tga
-// }
-// 
-// 
-// 
-// models/characters/scientist/head02/glasses
-// {
-//         noselfShadow
-// 	noshadows	
-// 	//twosided
-// 	renderbump  -size 256 128 -aa 2  models/characters/scientist/head02/glasses_local.tga models/characters/scientist/head02/glasses_hi.lwo
-// 
-// 	
-//         	
-// 		{       
-//       			 blend	diffusemap
-// 			 map	models/characters/scientist/head02/glasses.tga
-// 			 alphaTest 0.5
-// 		}
-// 		bumpmap		models/characters/scientist/head02/glasses_local.tga
-//                  	                  specularmap	models/characters/scientist/head02/glasses_s.tga
-// 	
-// 
-// }
+	{
+		blend filter
+		map models/characters/scientist/head02/glasses_fx.tga
+	}
+ //specularmap	models/characters/scientist/head02/glasses_fx_s.tga
+}
+
+
+
+models/characters/scientist/head02/glasses
+{
+        noselfShadow
+	noshadows	
+	//twosided
+	renderbump  -size 256 128 -aa 2  models/characters/scientist/head02/glasses_local.tga models/characters/scientist/head02/glasses_hi.lwo
+
+	
+        	
+		{       
+      			 blend	diffusemap
+			 map	models/characters/scientist/head02/glasses.tga
+			 alphaTest 0.5
+		}
+		bumpmap		models/characters/scientist/head02/glasses_local.tga
+                 	                  specularmap	models/characters/scientist/head02/glasses_s.tga
+	
+
+}
+*/
 
 models/characters/scientist/head02/hair
 {
@@ -2380,29 +2406,31 @@ models/characters/scientist/head02/scihead02
 				
 }
 
-// models/characters/scientist/sci01
-// {
-//         noselfShadow
-// 		clamp
-// 		flesh
-// 		forceOverlays
-// 	renderbump  -size 1024 1024 -trace 0.07 -colorMap -aa 2  models/characters/scientist/sci01_local.tga models/characters/scientist/sci01_hi.lwo
-// 
-// 
-// 			{
-//         		blend diffusemap	
-// 				map models/characters/scientist/sci01.tga
-// 
-// 			}
-// 
-// 			{
-//         		blend bumpmap		
-// 				map addnormals( models/characters/scientist/sci01_local.tga, heightmap( models/characters/scientist/sci01_h.tga, 4 ) )
-// 			}
-//         	//diffusemap	models/characters/scientist/sci01.tga
-// 	//bumpmap		addnormals( models/characters/scientist/sci01_local.tga, heightmap( models/characters/scientist/sci01_h.tga, 4 ) )
-//                   specularmap	models/characters/scientist/sci01_s.tga
-// }
+/*
+models/characters/scientist/sci01
+{
+        noselfShadow
+		clamp
+		flesh
+		forceOverlays
+	renderbump  -size 1024 1024 -trace 0.07 -colorMap -aa 2  models/characters/scientist/sci01_local.tga models/characters/scientist/sci01_hi.lwo
+
+
+			{
+        		blend diffusemap	
+				map models/characters/scientist/sci01.tga
+
+			}
+
+			{
+        		blend bumpmap		
+				map addnormals( models/characters/scientist/sci01_local.tga, heightmap( models/characters/scientist/sci01_h.tga, 4 ) )
+			}
+        	//diffusemap	models/characters/scientist/sci01.tga
+	//bumpmap		addnormals( models/characters/scientist/sci01_local.tga, heightmap( models/characters/scientist/sci01_h.tga, 4 ) )
+                  specularmap	models/characters/scientist/sci01_s.tga
+}
+*/
 
 models/characters/scientist/head01/scihead01
 {
@@ -2423,89 +2451,90 @@ models/characters/scientist/head01/scihead01
                   specularmap	models/characters/scientist/head01/scihead01_s.tga
 }
 
+/*
+ase/bfgguy
+{
+//	translucent
+//	noshadows
+	{
+		blend	diffusemap 
+		map	ase/bfgguydif.tga
+	
+//		alphaTest .5 + 0.5 * sintable [ time * .1  ]
 
-// ase/bfgguy
-// {
-// //	translucent
-// //	noshadows
-// 	{
-// 		blend	diffusemap 
-// 		map	ase/bfgguydif.tga
-// 	
-// //		alphaTest .5 + 0.5 * sintable [ time * .1  ]
-// 
-// 	}
-// 	{
-// 		blend bumpmap
-// 		map	ase/hpbfgguy_local.tga
-// 	}
-// //	{
-// //		blend	diffusemap	
-// //		map	ase/bfgguydif.tga
-// //		rgb 1
-// //	}
-// 	{
-// 		blend	specularmap
-// 		map	ase/bfgguyspec.tga
-// 	}
-// 	{
-// 		blend gl_one, gl_zero
-// 		maskcolor
-// 		map ase/bfgguydif.tga
-// 	}
-// //	{
-// //		blend gl_dst_alpha, gl_one
-// //		cubeMap env/test
-// //		rgb sinTable[ time ]
-// //		texgen reflect
-// //	}
-// }
-// 
-// ase/bfgguy_V
-// {
-// 	diffusemap 		ase/bfgguy_Vdif.tga
-// 	specularmap		ase/girder1spec.tga
-// 	{
-// 		blend gl_one,gl_one
-// 		map ase/bfgguy_vadd.tga
-// 	}
-// }
-// 
-// models/characters/sarge2/sarm
-// {
-//         noSelfShadow
-// 		clamp
-//         bumpmap		addnormals ( models/characters/sarge2/sarm_local.tga, heightmap ( models/characters/sarge2/sarm_h.tga, 3 ) )
-//         diffusemap	models/characters/sarge2/sarm.tga
-//        specularmap	models/characters/sarge2/sarm_s.tga
-// }
-// 
-// models/characters/sarge2/armor/armor
-// {
-//         noSelfShadow
-// 		clamp
-//         bumpmap		addnormals ( models/characters/sarge2/armor/armorhi_local.tga, heightmap ( models/characters/sarge2/armor/armor_h.tga, 3 ) )
-//         diffusemap	models/characters/sarge2/armor/armor_d.tga
-//        specularmap	models/characters/sarge2/armor/armor_s.tga
-// }
-// 
-// models/characters/sarge2/helmet/helmet
-// {
-//         noSelfShadow
-// 		clamp
-// 		metal
-//         bumpmap		models/characters/sarge2/helmet/helmet_hi_local.tga
-//         diffusemap	models/characters/sarge2/helmet/helmet.tga
-//        specularmap	models/characters/sarge2/helmet/helmet_s.tga
-// }
-// 
-// models/characters/uac_marine/uac_marine
-// {
-// 		clamp
-//         bumpmap		addnormals( ase/marine_hi_smoothed.tga, heightmap( ase/marine_hi_add.tga, 11 ) )
-//         diffusemap	ase/marine_df.tga
-//         specularmap	ase/marine_sp.tga
-// }
+	}
+	{
+		blend bumpmap
+		map	ase/hpbfgguy_local.tga
+	}
+//	{
+//		blend	diffusemap	
+//		map	ase/bfgguydif.tga
+//		rgb 1
+//	}
+	{
+		blend	specularmap
+		map	ase/bfgguyspec.tga
+	}
+	{
+		blend gl_one, gl_zero
+		maskcolor
+		map ase/bfgguydif.tga
+	}
+//	{
+//		blend gl_dst_alpha, gl_one
+//		cubeMap env/test
+//		rgb sinTable[ time ]
+//		texgen reflect
+//	}
+}
+
+ase/bfgguy_V
+{
+	diffusemap 		ase/bfgguy_Vdif.tga
+	specularmap		ase/girder1spec.tga
+	{
+		blend gl_one,gl_one
+		map ase/bfgguy_vadd.tga
+	}
+}
+
+models/characters/sarge2/sarm
+{
+        noSelfShadow
+		clamp
+        bumpmap		addnormals ( models/characters/sarge2/sarm_local.tga, heightmap ( models/characters/sarge2/sarm_h.tga, 3 ) )
+        diffusemap	models/characters/sarge2/sarm.tga
+       specularmap	models/characters/sarge2/sarm_s.tga
+}
+
+models/characters/sarge2/armor/armor
+{
+        noSelfShadow
+		clamp
+        bumpmap		addnormals ( models/characters/sarge2/armor/armorhi_local.tga, heightmap ( models/characters/sarge2/armor/armor_h.tga, 3 ) )
+        diffusemap	models/characters/sarge2/armor/armor_d.tga
+       specularmap	models/characters/sarge2/armor/armor_s.tga
+}
+
+models/characters/sarge2/helmet/helmet
+{
+        noSelfShadow
+		clamp
+		metal
+        bumpmap		models/characters/sarge2/helmet/helmet_hi_local.tga
+        diffusemap	models/characters/sarge2/helmet/helmet.tga
+       specularmap	models/characters/sarge2/helmet/helmet_s.tga
+}
+
+models/characters/uac_marine/uac_marine
+{
+		clamp
+        bumpmap		addnormals( ase/marine_hi_smoothed.tga, heightmap( ase/marine_hi_add.tga, 11 ) )
+        diffusemap	ase/marine_df.tga
+        specularmap	ase/marine_sp.tga
+}
+*/
 
 models/characters/male_npc/marine/h_mp2_invis
 {
@@ -2516,13 +2545,13 @@ models/characters/male_npc/marine/h_mp2_invis
 	translucent
 	clamp
 
-
-// 	{
-// 		blend diffusemap	
-// 		map models/characters/male_npc/marine/h_mp2.tga
-// 		alphaTest parm6
-// 	}
-
+/*
+	{
+		blend diffusemap	
+		map models/characters/male_npc/marine/h_mp2.tga
+		alphaTest parm6
+	}
+*/	
 			bumpmap			models/characters/sarge2/helmet_local.tga
             specularmap		models/characters/male_npc/marine/h_mp1_s.tga
 }
@@ -2535,13 +2564,13 @@ models/characters/male_npc/marine/h_mp3_invis
 	forceOverlays
 	translucent
 		clamp
-
-// 	{
-// 		blend diffusemap	
-// 		map models/characters/male_npc/marine/h_mp3.tga
-// 		alphaTest parm6
-// 	}
-
+/*
+	{
+		blend diffusemap	
+		map models/characters/male_npc/marine/h_mp3.tga
+		alphaTest parm6
+	}
+*/	
 	bumpmap			models/characters/sarge2/helmet_local.tga
 	specularmap		models/characters/male_npc/marine/h_mp1_s.tga
 }
@@ -2554,12 +2583,13 @@ models/characters/male_npc/marine/h_mp4_invis
 	forceOverlays
 	translucent
 		clamp
-	
-// 	{
-// 		blend diffusemap	
-// 		map models/characters/male_npc/marine/h_mp4.tga
-// 		alphaTest parm6
-// 	}
+/*	
+	{
+		blend diffusemap	
+		map models/characters/male_npc/marine/h_mp4.tga
+		alphaTest parm6
+	}
+*/
 		bumpmap			models/characters/sarge2/helmet_local.tga
         specularmap		models/characters/male_npc/marine/h_mp1_s.tga
 }
@@ -2575,13 +2605,14 @@ models/characters/male_npc/marine/mp4_invis
 		forceOverlays
 		translucent
 		clamp
-	
-//  		{
-// 
-//         	blend diffusemap	
-// 			map models/characters/male_npc/marine/mp4.tga
-// 			alphaTest parm6
-// 		}
+/*		
+ 		{
+
+        	blend diffusemap	
+			map models/characters/male_npc/marine/mp4.tga
+			alphaTest parm6
+		}
+*/
 		{
  		  blend bumpmap
           map  addnormals(models/characters/male_npc/marine/marine_local.tga, heightmap(models/characters/male_npc/marine/marine_h.tga, 5 ) )
@@ -2601,13 +2632,13 @@ models/characters/male_npc/marine/mp3_invis
 		forceOverlays
 		translucent
 		clamp
-
-// 		{
-// 	       	blend diffusemap	
-// 			map models/characters/male_npc/marine/mp3.tga
-// 			alphaTest parm6
-// 		}
-				
+/*		
+		{
+	       	blend diffusemap	
+			map models/characters/male_npc/marine/mp3.tga
+			alphaTest parm6
+		}
+*/
 		{
  		  blend bumpmap
           map  addnormals(models/characters/male_npc/marine/marine_local.tga, heightmap(models/characters/male_npc/marine/marine_h.tga, 5 ) )
@@ -2627,14 +2658,14 @@ models/characters/male_npc/marine/mp2_invis
 		forceOverlays
 		translucent
 		clamp
-		
-//  		{
-// 
-//         	blend diffusemap	
-// 			map models/characters/male_npc/marine/mp2.tga
-// 			alphaTest parm6
-// 		}
+/*		
+ 		{
 
+        	blend diffusemap	
+			map models/characters/male_npc/marine/mp2.tga
+			alphaTest parm6
+		}
+*/
 		{
  		  blend bumpmap
           map  addnormals(models/characters/male_npc/marine/marine_local.tga, heightmap(models/characters/male_npc/marine/marine_h.tga, 5 ) )
@@ -2700,21 +2731,23 @@ models/characters/male_npc/marine/mp1_invis
 
 //*****************************************************Moved from char_common.mtr - start*****************************************
 
-// models/characters/player/eyes
-// {
-// 	translucent
-// 	noshadows
-// 	deform	eyeBall
-// 	sort decal
-// 
-// 	{
-// 		blend filter
-// 		map models/characters/player/eyes.tga
-// 		centerScale	0.6, 0.6	
-// 	}	
-// 
-// 
-// }
+/*
+models/characters/player/eyes
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/player/eyes.tga
+		centerScale	0.6, 0.6	
+	}	
+
+
+}
+*/
 
 
 //*****************************************************Moved from char_common.mtr - end*****************************************

@@ -15,7 +15,6 @@ textures/enpro/minpanel1cut2a
 	bumpmap				textures/base_wall/minpanel1cut_local
 	diffusemap			textures/enpro/minpanel1cut2a
 	specularmap			textures/enpro/minpanel1cut1a_s
-	lightmap			_lightmap
 }
 
 textures/enpro/minpanel1cut2
@@ -24,7 +23,6 @@ textures/enpro/minpanel1cut2
 	bumpmap				textures/base_wall/minpanel1cut_local
 	diffusemap			textures/enpro/minpanel1cut2
 	specularmap			textures/enpro/minpanel1cut1_s
-	lightmap			_lightmap
 }
 
 textures/enpro/minpanel1cut1a
@@ -33,7 +31,6 @@ textures/enpro/minpanel1cut1a
 	bumpmap				textures/base_wall/minpanel1cut_local
 	diffusemap			textures/enpro/minpanel1cut1a
 	specularmap			textures/enpro/minpanel1cut1a_s
-	lightmap			_lightmap
 }
 
 textures/enpro/minpanel1cut1
@@ -42,7 +39,6 @@ textures/enpro/minpanel1cut1
 	bumpmap				textures/base_wall/minpanel1cut_local
 	diffusemap			textures/enpro/minpanel1cut1
 	specularmap			textures/enpro/minpanel1cut1_s
-	lightmap			_lightmap
 }
 
 
@@ -52,11 +48,11 @@ textures/enpro/encyl10_glow
 	bumpmap				textures/enpro/encyl10_local
 	diffusemap			textures/enpro/encyl10
 	specularmap			textures/enpro/encyl10_s
-	lightmap			_lightmap
 	{
 		blend			add
 		map				textures/enpro/encyl10_add
 		colored
+		
 	}
 }
 
@@ -66,7 +62,6 @@ textures/enpro/encyl10_glow_global
 	bumpmap				textures/enpro/encyl10_local
 	diffusemap			textures/enpro/encyl10
 	specularmap			textures/enpro/encyl10_s
-	lightmap			_lightmap
 	{
 		blend			add
 		map				textures/enpro/encyl10_add
@@ -83,7 +78,6 @@ textures/enpro/encyl10
 	bumpmap				textures/enpro/encyl10_local
 	diffusemap			textures/enpro/encyl10
 	specularmap			textures/enpro/encyl10_s
-	lightmap			_lightmap
 }
 
 textures/enpro/encyl9
@@ -92,7 +86,6 @@ textures/enpro/encyl9
 	bumpmap				textures/enpro/encyl9_local
 	diffusemap			textures/enpro/encyl9
 	specularmap			textures/enpro/encyl9_s
-	lightmap			_lightmap
 }
 
 textures/enpro/encyl8
@@ -101,7 +94,6 @@ textures/enpro/encyl8
 	bumpmap				textures/enpro/encyl8_local
 	diffusemap			textures/enpro/encyl8
 	specularmap			textures/enpro/encyl8_s
-	lightmap			_lightmap
 }
 
 textures/enpro/encyl7
@@ -110,7 +102,6 @@ textures/enpro/encyl7
 	bumpmap				textures/enpro/encyl7_local
 	diffusemap			textures/enpro/encyl7
 	specularmap			textures/enpro/encyl7_s
-	lightmap			_lightmap
 //	{
 //		blend			add
 //		map				textures/enpro/encyl7_add
@@ -123,7 +114,6 @@ textures/enpro/encyl6
 	bumpmap				textures/enpro/encyl6_local
 	diffusemap			textures/enpro/encyl6
 	specularmap			textures/enpro/encyl6_s
-	lightmap			_lightmap
 }
 
 textures/enpro/encyl5
@@ -134,9 +124,9 @@ textures/enpro/encyl5
 		map				textures/enpro/encyl5_local
 		
 	}
+
 	diffusemap			textures/enpro/encyl5
 	specularmap			textures/enpro/encyl5_s
-	lightmap			_lightmap
 }
 
 textures/enpro/encyl4
@@ -145,7 +135,6 @@ textures/enpro/encyl4
 	bumpmap				textures/enpro/encyl4_local
 	diffusemap			textures/enpro/encyl4
 	specularmap			textures/enpro/encyl4_s
-	lightmap			_lightmap
 }
 
 textures/enpro/encyl3
@@ -160,7 +149,6 @@ textures/enpro/encyl3
 		alphatest		.65
 	}
 	specularmap			textures/enpro/encyl3_s
-	lightmap			_lightmap
 }
 
 textures/enpro/encyl2
@@ -181,7 +169,6 @@ textures/enpro/encyl1
 	bumpmap				textures/enpro/encyl1_local
 	diffusemap			textures/enpro/encyl1
 	specularmap			textures/enpro/encyl1_s
-	lightmap			_lightmap
 	{
 		blend			add
 		map				textures/enpro/encyl1_add
@@ -195,7 +182,6 @@ textures/enpro/encyl1_global
 	bumpmap				textures/enpro/encyl1_local
 	diffusemap			textures/enpro/encyl1
 	specularmap			textures/enpro/encyl1_s
-	lightmap			_lightmap
 	{
 		blend			add
 		map				textures/enpro/encyl1_add
@@ -211,7 +197,6 @@ textures/enpro/enwall22e
 	bumpmap				textures/base_wall/snpanel18_local
 	diffusemap			textures/enpro/enwall22e
 	specularmap			textures/enpro/enwall22_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall22d
@@ -220,7 +205,6 @@ textures/enpro/enwall22d
 	bumpmap				textures/base_wall/snpanel18_local
 	diffusemap			textures/enpro/enwall22d
 	specularmap			textures/enpro/enwall22_s
-	lightmap			_lightmap
 }
 
 //textures/enpro/enwall22c
@@ -237,7 +221,6 @@ textures/enpro/enwall22b
 	bumpmap				textures/base_wall/snpanel18_local
 	diffusemap			textures/enpro/enwall22b
 	specularmap			textures/enpro/enwall22a_s
-	lightmap			_lightmap
 }
 
 //textures/enpro/enwall22a
@@ -254,7 +237,6 @@ textures/enpro/enwall22
 	bumpmap				textures/base_wall/snpanel18_local
 	diffusemap			textures/enpro/enwall22
 	specularmap			textures/enpro/enwall22_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall21c
@@ -263,7 +245,6 @@ textures/enpro/enwall21c
 	bumpmap				textures/base_wall/snpanel17_local
 	diffusemap			textures/enpro/enwall21c
 	specularmap			textures/enpro/enwall21c_s
-	lightmap			_lightmap
 }
 
 //textures/enpro/enwall21b
@@ -280,7 +261,6 @@ textures/enpro/enwall21a
 	bumpmap				textures/base_wall/snpanel17_local
 	diffusemap			textures/enpro/enwall21a
 	specularmap			textures/enpro/enwall21_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall21
@@ -289,7 +269,6 @@ textures/enpro/enwall21
 	bumpmap				textures/base_wall/snpanel17_local
 	diffusemap			textures/enpro/enwall21
 	specularmap			textures/enpro/enwall21_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall20f
@@ -298,7 +277,6 @@ textures/enpro/enwall20f
 	bumpmap				textures/enpro/enwall20_local
 	diffusemap			textures/enpro/enwall20f
 	specularmap			textures/enpro/enwall20f_s
-	lightmap			_lightmap
 }
 
 //textures/enpro/enwall20e
@@ -315,7 +293,6 @@ textures/enpro/enwall20d
 	bumpmap				textures/enpro/enwall20_local
 	diffusemap			textures/enpro/enwall20d
 	specularmap			textures/enpro/enwall20a_s
-	lightmap			_lightmap
 }
 
 //textures/enpro/enwall20c
@@ -340,7 +317,6 @@ textures/enpro/enwall20a
 	bumpmap				textures/enpro/enwall20_local
 	diffusemap			textures/enpro/enwall20a
 	specularmap			textures/enpro/enwall20a_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall20
@@ -349,7 +325,6 @@ textures/enpro/enwall20
 	bumpmap				textures/enpro/enwall20_local
 	diffusemap			textures/enpro/enwall20
 	specularmap			textures/enpro/enwall20_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall19f
@@ -358,7 +333,6 @@ textures/enpro/enwall19f
 	bumpmap				textures/base_wall/stepanel5_local
 	diffusemap			textures/enpro/enwall19f
 	specularmap			textures/enpro/enwall19_s
-	lightmap			_lightmap
 }
 
 //textures/enpro/enwall19e
@@ -375,7 +349,6 @@ textures/enpro/enwall19d
 	bumpmap				textures/base_wall/stepanel5_local
 	diffusemap			textures/enpro/enwall19d
 	specularmap			textures/enpro/enwall19_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall19c
@@ -384,7 +357,6 @@ textures/enpro/enwall19c
 	bumpmap				textures/base_wall/stepanel5_local
 	diffusemap			textures/enpro/enwall19c
 	specularmap			textures/enpro/enwall19_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall19b
@@ -393,7 +365,6 @@ textures/enpro/enwall19b
 	bumpmap				textures/base_wall/stepanel5_local
 	diffusemap			textures/enpro/enwall19b
 	specularmap			textures/enpro/enwall19_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall19a
@@ -402,7 +373,6 @@ textures/enpro/enwall19a
 	bumpmap				textures/base_wall/stepanel5_local
 	diffusemap			textures/enpro/enwall19a
 	specularmap			textures/enpro/enwall19_s
-	lightmap			_lightmap
 }
 
 //textures/enpro/enwall19
@@ -419,7 +389,6 @@ textures/enpro/enwall18e
 	bumpmap				textures/enpro/enwall18_local
 	diffusemap			textures/enpro/enwall18e
 	specularmap			textures/enpro/enwall18e_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall18d
@@ -428,7 +397,6 @@ textures/enpro/enwall18d
 	bumpmap				textures/enpro/enwall18_local
 	diffusemap			textures/enpro/enwall18d
 	specularmap			textures/enpro/enwall18_s
-	lightmap			_lightmap
 }
 
 //textures/enpro/enwall18c
@@ -453,7 +421,6 @@ textures/enpro/enwall18a
 	bumpmap				textures/enpro/enwall18_local
 	diffusemap			textures/enpro/enwall18a
 	specularmap			textures/enpro/enwall18_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall18
@@ -462,7 +429,6 @@ textures/enpro/enwall18
 	bumpmap				textures/enpro/enwall18_local
 	diffusemap			textures/enpro/enwall18
 	specularmap			textures/enpro/enwall18_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall17a
@@ -471,7 +437,6 @@ textures/enpro/enwall17a
 	bumpmap				textures/enpro/enwall17_local
 	diffusemap			textures/enpro/enwall17a
 	specularmap			textures/enpro/enwall17_s
-	lightmap			_lightmap
 }
 
 //textures/enpro/enwall17
@@ -506,7 +471,6 @@ textures/enpro/enwall16c
 	}
 	diffusemap			textures/enpro/enwall16c
 	specularmap			textures/enpro/enwall16_s
-	lightmap			_lightmap
 }
 
 //textures/enpro/enwall16b
@@ -540,7 +504,6 @@ textures/enpro/enwall16
 	}
 	diffusemap			textures/enpro/enwall16
 	specularmap			textures/enpro/enwall16_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall15a
@@ -549,7 +512,6 @@ textures/enpro/enwall15a
 	bumpmap				textures/enpro/enwall15a_local
 	diffusemap			textures/enpro/enwall15a
 	specularmap			textures/enpro/enwall15a_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall15
@@ -558,7 +520,6 @@ textures/enpro/enwall15
 	bumpmap				textures/enpro/enwall15_local
 	diffusemap			textures/enpro/enwall15
 	specularmap			textures/enpro/enwall15_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall14
@@ -570,7 +531,6 @@ textures/enpro/enwall14
 	}
 	diffusemap			textures/enpro/enwall14
 	specularmap			textures/enpro/enwall14_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall13c
@@ -579,7 +539,6 @@ textures/enpro/enwall13c
 	bumpmap				textures/enpro/enwall13_local
 	diffusemap			textures/enpro/enwall13c
 	specularmap			textures/enpro/enwall13_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall13b
@@ -588,7 +547,6 @@ textures/enpro/enwall13b
 	bumpmap				textures/enpro/enwall13_local
 	diffusemap			textures/enpro/enwall13b
 	specularmap			textures/enpro/enwall13a_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall13a
@@ -597,7 +555,6 @@ textures/enpro/enwall13a
 	bumpmap				textures/enpro/enwall13_local
 	diffusemap			textures/enpro/enwall13a
 	specularmap			textures/enpro/enwall13a_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall13
@@ -606,7 +563,6 @@ textures/enpro/enwall13
 	bumpmap				textures/enpro/enwall13_local
 	diffusemap			textures/enpro/enwall13
 	specularmap			textures/enpro/enwall13_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall12
@@ -615,7 +571,6 @@ textures/enpro/enwall12
 	bumpmap				textures/enpro/enwall12_local
 	diffusemap			textures/enpro/enwall12
 	specularmap			textures/enpro/enwall12_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall11
@@ -624,7 +579,6 @@ textures/enpro/enwall11
 	bumpmap				textures/enpro/enwall11_local
 	diffusemap			textures/enpro/enwall11
 	specularmap			textures/enpro/enwall11_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall10
@@ -645,7 +599,6 @@ textures/enpro/enwall10
 		map				textures/enpro/enwall10_s
 	//	
 	}
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall9
@@ -654,40 +607,38 @@ textures/enpro/enwall9
 	bumpmap				textures/enpro/enwall9_local
 	diffusemap			textures/enpro/enwall9
 	specularmap			textures/enpro/enwall9_s
-	lightmap			_lightmap
+}
+/**
+textures/enpro/enwall8a6
+{
+	qer_editorimage		textures/enpro/enwall8a6
+	bumpmap				textures/enpro/enwall8a_local
+	{
+		blend			diffusemap			
+		map				textures/enpro/enwall8a6
+		scale			0.5,1
+	}
+	{
+		blend			specularmap			
+		map				textures/enpro/enwall8a6_s
+		scale			0.5,1
+	}
 }
 
-// textures/enpro/enwall8a6
-// {
-// 	qer_editorimage		textures/enpro/enwall8a6
-// 	bumpmap				textures/enpro/enwall8a_local
-// 	{
-// 		blend			diffusemap			
-// 		map				textures/enpro/enwall8a6
-// 		scale			0.5,1
-// 	}
-// 	{
-// 		blend			specularmap			
-// 		map				textures/enpro/enwall8a6_s
-// 		scale			0.5,1
-// 	}
-// }
-// 
-// textures/enpro/enwall8a5
-// {
-// 	qer_editorimage		textures/enpro/enwall8a5
-// 	bumpmap				textures/enpro/enwall8_local
-// 	diffusemap			textures/enpro/enwall8a5
-// 	specularmap			textures/enpro/enwall8a5_s
-// }
-
+textures/enpro/enwall8a5
+{
+	qer_editorimage		textures/enpro/enwall8a5
+	bumpmap				textures/enpro/enwall8_local
+	diffusemap			textures/enpro/enwall8a5
+	specularmap			textures/enpro/enwall8a5_s
+}
+**/
 textures/enpro/enwall8a4
 {
 	qer_editorimage		textures/enpro/enwall8a4
 	bumpmap				textures/enpro/enwall8a_local
 	diffusemap			textures/enpro/enwall8a4
 	specularmap			textures/enpro/enwall8a4_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall8a3
@@ -696,7 +647,6 @@ textures/enpro/enwall8a3
 	bumpmap				textures/enpro/enwall8a_local
 	diffusemap			textures/enpro/enwall8a3
 	specularmap			textures/enpro/enwall8a3_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall8a2
@@ -705,7 +655,6 @@ textures/enpro/enwall8a2
 	bumpmap				textures/enpro/enwall8_local
 	diffusemap			textures/enpro/enwall8a2
 	specularmap			textures/enpro/enwall8a2_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall8a
@@ -714,7 +663,6 @@ textures/enpro/enwall8a
 	bumpmap				textures/enpro/enwall8a_local
 	diffusemap			textures/enpro/enwall8a
 	specularmap			textures/enpro/enwall8a_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall8
@@ -723,7 +671,6 @@ textures/enpro/enwall8
 	bumpmap				textures/enpro/enwall8_local
 	diffusemap			textures/enpro/enwall8
 	specularmap			textures/enpro/enwall8_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall7
@@ -732,7 +679,6 @@ textures/enpro/enwall7
 	bumpmap				textures/enpro/enwall7_local
 	diffusemap			textures/enpro/enwall7
 	specularmap			textures/enpro/enwall7_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall6
@@ -741,7 +687,6 @@ textures/enpro/enwall6
 	bumpmap				textures/enpro/enwall6_local
 	diffusemap			textures/enpro/enwall6
 	specularmap			textures/enpro/enwall6_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall5
@@ -750,7 +695,6 @@ textures/enpro/enwall5
 	bumpmap				textures/enpro/enwall5_local
 	diffusemap			textures/enpro/enwall5
 	specularmap			textures/enpro/enwall5_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall4
@@ -759,7 +703,6 @@ textures/enpro/enwall4
 	bumpmap				textures/enpro/enwall4_local
 	diffusemap			textures/enpro/enwall4
 	specularmap			textures/enpro/enwall4_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall3a
@@ -768,7 +711,6 @@ textures/enpro/enwall3a
 	bumpmap				textures/enpro/enwall3a_local
 	diffusemap			textures/enpro/enwall3a
 	specularmap			textures/enpro/enwall3a_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall3
@@ -777,7 +719,6 @@ textures/enpro/enwall3
 	bumpmap				textures/enpro/enwall3_local
 	diffusemap			textures/enpro/enwall3
 	specularmap			textures/enpro/enwall3_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall2
@@ -789,7 +730,6 @@ textures/enpro/enwall2
 	}
 	diffusemap			textures/enpro/enwall2
 	specularmap			textures/enpro/enwall2_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall1a
@@ -798,7 +738,6 @@ textures/enpro/enwall1a
 	bumpmap				textures/enpro/enwall1_local
 	diffusemap			textures/enpro/enwall1a
 	specularmap			textures/enpro/enwall1a_s
-	lightmap			_lightmap
 }
 
 textures/enpro/enwall1
@@ -807,7 +746,6 @@ textures/enpro/enwall1
 	bumpmap				textures/enpro/enwall1_local
 	diffusemap			textures/enpro/enwall1
 	specularmap			textures/enpro/enwall1_s
-	lightmap			_lightmap
 }
 
 
