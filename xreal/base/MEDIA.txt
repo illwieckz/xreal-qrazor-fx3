@@ -469,44 +469,24 @@ models/players/visor/upper_red.skin							id Software					EULA					q3demo
 models/players/visor/visor_d.tga							id Software					EULA					q3demo
 models/players/visor/visor_n.tga							Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 models/players/visor/visor_s.tga							Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/powerups/ammo/bfgam_1.md3							id Software					EULA					q3demo
-models/powerups/ammo/bfgam.md3								id Software					EULA					q3demo
-models/powerups/ammo/bfgammo2.jpg							id Software					EULA					q3demo
-models/powerups/ammo/bfgammo.tga							id Software					EULA					q3demo
-models/powerups/ammo/grenadeam_1.md3						id Software					EULA					q3demo
-models/powerups/ammo/grenadeam.md3							id Software					EULA					q3demo
-models/powerups/ammo/grenammo2.jpg							id Software					EULA					q3demo
-models/powerups/ammo/grenammo.tga							id Software					EULA					q3demo
-models/powerups/ammo/lighammo2.jpg							id Software					EULA					q3demo
-models/powerups/ammo/lighammo.tga							id Software					EULA					q3demo
-models/powerups/ammo/lightningam_1.md3						id Software					EULA					q3demo
-models/powerups/ammo/lightningam.md3						id Software					EULA					q3demo
-models/powerups/ammo/machammo2.tga							id Software					EULA					q3demo
-models/powerups/ammo/machammo.tga							id Software					EULA					q3demo
-models/powerups/ammo/machinegunam_1.md3						id Software					EULA					q3demo
-models/powerups/ammo/machinegunam.md3						id Software					EULA					q3demo
-models/powerups/ammo/plasammo2.jpg							id Software					EULA					q3demo
-models/powerups/ammo/plasammo_n.tga							Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/powerups/ammo/plasammo_s.tga							Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/powerups/ammo/plasammo.tga							id Software					EULA					q3demo
-models/powerups/ammo/plasmaam_1.md3							id Software					EULA					q3demo
-models/powerups/ammo/plasmaam.md3							id Software					EULA					q3demo
-models/powerups/ammo/proxammo2.tga							id Software					EULA					tademo
-models/powerups/ammo/proxammo.tga							id Software					EULA					tademo
-models/powerups/ammo/proxmineam_1.md3						id Software					EULA					tademo
-models/powerups/ammo/proxmineam.md3							id Software					EULA					tademo
-models/powerups/ammo/railammo2.jpg							id Software					EULA					q3demo
-models/powerups/ammo/railammo.tga							id Software					EULA					q3demo
-models/powerups/ammo/railgunam_1.md3						id Software					EULA					q3demo
-models/powerups/ammo/railgunam.md3							id Software					EULA					q3demo
-models/powerups/ammo/rockammo2.jpg							id Software					EULA					q3demo
-models/powerups/ammo/rockammo.tga							id Software					EULA					q3demo
-models/powerups/ammo/rocketam_1.md3							id Software					EULA					q3demo
-models/powerups/ammo/rocketam.md3							id Software					EULA					q3demo
-models/powerups/ammo/shotammo2.jpg							id Software					EULA					q3demo
-models/powerups/ammo/shotammo.tga							id Software					EULA					q3demo
-models/powerups/ammo/shotgunam_1.md3						id Software					EULA					q3demo
-models/powerups/ammo/shotgunam.md3							id Software					EULA					q3demo
+models/powerups/ammo/ammobox.tga							Open Arena Team				GPL						oa subversion repository
+models/powerups/ammo/ammolights.tga							Open Arena Team				GPL						oa subversion repository
+models/powerups/ammo/bfgam.md3								Open Arena Team				GPL						oa subversion repository
+models/powerups/ammo/bfgammo2.tga							Open Arena Team				GPL						oa subversion repository
+models/powerups/ammo/grenadeam.md3							Open Arena Team				GPL						oa subversion repository
+models/powerups/ammo/grenammo2.tga							Open Arena Team				GPL						oa subversion repository
+models/powerups/ammo/lighammo2.tga							Open Arena Team				GPL						oa subversion repository
+models/powerups/ammo/lightningam.md3						Open Arena Team				GPL						oa subversion repository
+models/powerups/ammo/machammo2.tga							Open Arena Team				GPL						oa subversion repository
+models/powerups/ammo/machinegunam.md3						Open Arena Team				GPL						oa subversion repository
+models/powerups/ammo/plasammo2.tga							Open Arena Team				GPL						oa subversion repository
+models/powerups/ammo/plasmaam.md3							Open Arena Team				GPL						oa subversion repository
+models/powerups/ammo/railammo2.tga							Open Arena Team				GPL						oa subversion repository
+models/powerups/ammo/railgunam.md3							Open Arena Team				GPL						oa subversion repository
+models/powerups/ammo/rockammo2.tga							Open Arena Team				GPL						oa subversion repository
+models/powerups/ammo/rocketam.md3							Open Arena Team				GPL						oa subversion repository
+models/powerups/ammo/shotammo2.tga							Open Arena Team				GPL						oa subversion repository
+models/powerups/ammo/shotgunam.md3							Open Arena Team				GPL						oa subversion repository
 models/powerups/armor/armor_red_1.md3						id Software					EULA					q3demo
 models/powerups/armor/armor_red_2.md3						id Software					EULA					q3demo
 models/powerups/armor/armor_red.md3							id Software					EULA					q3demo
