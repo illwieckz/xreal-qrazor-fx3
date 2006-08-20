@@ -289,9 +289,9 @@ static void InsertMD3Model(const char *modelName, const matrix_t transform)
 			outv->lightmap[1] = 0;
 
 			// the colors will be set by the lighting pass
-			outv->color[0] = 255;
-			outv->color[1] = 255;
-			outv->color[2] = 255;
+			outv->color[0] = 0;
+			outv->color[1] = 0;
+			outv->color[2] = 0;
 			outv->color[3] = 255;
 
 			// transform the position
@@ -410,9 +410,9 @@ static void InsertASEModel(const char *modelName, const matrix_t transform)
 			outv->lightmap[1] = 0;
 
 			// the colors will be set by the lighting pass
-			outv->color[0] = 255;
-			outv->color[1] = 255;
-			outv->color[2] = 255;
+			outv->color[0] = 0;
+			outv->color[1] = 0;
+			outv->color[2] = 0;
 			outv->color[3] = 255;
 
 			// transform the position
@@ -624,9 +624,9 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 				outv->lightmap[1] = 0;
 
 				// the colors will be set by the lighting pass
-				outv->color[0] = 255;
-				outv->color[1] = 255;
-				outv->color[2] = 255;
+				outv->color[0] = 0;
+				outv->color[1] = 0;
+				outv->color[2] = 0;
 				outv->color[3] = 255;
 			}
 		}

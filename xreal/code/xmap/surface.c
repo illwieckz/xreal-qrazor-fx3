@@ -1012,9 +1012,9 @@ void EmitPlanarSurf(mapDrawSurface_t * ds)
 		outv = &drawVerts[numDrawVerts];
 		numDrawVerts++;
 		memcpy(outv, &ds->verts[j], sizeof(*outv));
-		outv->color[0] = 255;
-		outv->color[1] = 255;
-		outv->color[2] = 255;
+		outv->color[0] = 0;
+		outv->color[1] = 0;
+		outv->color[2] = 0;
 		outv->color[3] = 255;
 	}
 
@@ -1070,9 +1070,9 @@ void EmitPatchSurf(mapDrawSurface_t * ds)
 		outv = &drawVerts[numDrawVerts];
 		numDrawVerts++;
 		memcpy(outv, &ds->verts[j], sizeof(*outv));
-		outv->color[0] = 255;
-		outv->color[1] = 255;
-		outv->color[2] = 255;
+		outv->color[0] = 0;
+		outv->color[1] = 0;
+		outv->color[2] = 0;
 		outv->color[3] = 255;
 	}
 
@@ -1160,9 +1160,9 @@ void EmitModelSurf(mapDrawSurface_t * ds)
 		outv = &drawVerts[numDrawVerts];
 		numDrawVerts++;
 		memcpy(outv, &ds->verts[j], sizeof(*outv));
-		outv->color[0] = 255;
-		outv->color[1] = 255;
-		outv->color[2] = 255;
+		outv->color[0] = 0;
+		outv->color[1] = 0;
+		outv->color[2] = 0;
 	}
 
 	for(j = 0; j < ds->numIndexes; j++)
