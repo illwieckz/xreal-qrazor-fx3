@@ -1518,11 +1518,11 @@ void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader,
 static void ComputeColors(shaderStage_t * pStage);
 static void ComputeColor(shaderStage_t * pStage);
 
-static void Render_generic_single_FFP(int stage)
+static void Render_genericSingle_FFP(int stage)
 {
 	shaderStage_t  *pStage;
 	
-	GLimp_LogComment("--- Render_generic_single_FFP ---\n");
+	GLimp_LogComment("--- Render_genericSingle_FFP ---\n");
 
 	pStage = tess.surfaceStages[stage];
 	
@@ -1568,13 +1568,13 @@ static void Render_generic_single_FFP(int stage)
 }
 
 #if 1
-#define Render_generic_single Render_generic_single_FFP
+#define Render_genericSingle Render_genericSingle_FFP
 #else
-static void Render_generic_single(int stage)
+static void Render_genericSingle(int stage)
 {
 	shaderStage_t  *pStage;
 	
-	GLimp_LogComment("--- Render_generic_single ---\n");
+	GLimp_LogComment("--- Render_genericSingle ---\n");
 
 	pStage = tess.surfaceStages[stage];
 	
@@ -1702,11 +1702,11 @@ t0 = most upstream according to spec
 t1 = most downstream according to spec
 ===================
 */
-static void Render_generic_multi_FFP(int stage)
+static void Render_genericMulti_FFP(int stage)
 {
 	shaderStage_t  *pStage;
 	
-	GLimp_LogComment("--- Render_generic_multi_FFP ---\n");
+	GLimp_LogComment("--- Render_genericMulti_FFP ---\n");
 
 	pStage = tess.surfaceStages[stage];
 	
@@ -3348,8 +3348,23 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 	int             b;
 	
 	GLimp_LogComment("--- ComputeTexCoords ---\n");
+	
+	// generate the lightmap coordinates
+	if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
+	{
+		MatrixIdentity(tess.svars.texMatrices[TB_LIGHTMAP]);
+		
+		for(i = 0; i < tess.numVertexes; i++)
+		{
+			tess.svars.texCoords[TB_LIGHTMAP][i][0] = tess.texCoords[i][1][0];
+			tess.svars.texCoords[TB_LIGHTMAP][i][1] = tess.texCoords[i][1][1];
+		}
+			
+		// tcMods will be ignored
+	}
 
-	for(b = 0; b < MAX_TEXTURE_BUNDLES; b++)
+	// generate the texture coordinates
+	for(b = 0; b < TB_LIGHTMAP; b++)
 	{
 		int             tm;
 		
@@ -3358,8 +3373,7 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 		
 		// generate the texture coordinates by default
 		tess.svars.skipCoords[b] = qfalse;
-
-		// generate the texture coordinates
+		
 		switch(pStage->bundle[b].tcGen)
 		{
 			case TCGEN_BAD:
@@ -3376,14 +3390,6 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 				{
 					tess.svars.texCoords[b][i][0] = tess.texCoords[i][0][0];
 					tess.svars.texCoords[b][i][1] = tess.texCoords[i][0][1];
-				}
-				break;
-				
-			case TCGEN_LIGHTMAP:
-				for(i = 0; i < tess.numVertexes; i++)
-				{
-					tess.svars.texCoords[b][i][0] = tess.texCoords[i][1][0];
-					tess.svars.texCoords[b][i][1] = tess.texCoords[i][1][1];
 				}
 				break;
 				
@@ -3758,7 +3764,6 @@ void RB_StageIteratorLighting()
 			switch(diffuseStage->type)
 			{
 				case ST_DIFFUSEMAP:
-				case ST_COLLAPSE_lighting_D_radiosity:
 					if(glConfig.shadingLanguage100Available)
 					{
 						if(dl->l.rlType == RL_OMNI)
@@ -3780,7 +3785,6 @@ void RB_StageIteratorLighting()
 					}
 					break;
 						
-				case ST_COLLAPSE_lighting_DB_radiosity:
 				case ST_COLLAPSE_lighting_DB_direct:
 				case ST_COLLAPSE_lighting_DB_generic:
 					if(glConfig.shadingLanguage100Available)
@@ -3822,7 +3826,6 @@ void RB_StageIteratorLighting()
 					}
 					break;
 						
-				case ST_COLLAPSE_lighting_DBS_radiosity:
 				case ST_COLLAPSE_lighting_DBS_direct:
 				case ST_COLLAPSE_lighting_DBS_generic:
 					if(glConfig.shadingLanguage100Available)
@@ -3982,7 +3985,110 @@ void RB_StageIteratorGeneric()
 		switch(pStage->type)
 		{
 			case ST_DIFFUSEMAP:
+			{
+				if(r_dynamicLighting->integer == 2)
+				{
+					if(glConfig.shadingLanguage100Available)
+					{
+						Render_depthFill(stage);
+					}
+					else
+					{
+						Render_depthFill_FFP(stage);
+					}
+				}
+				else if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
+				{
+					if(r_showLightMaps->integer)
+					{
+						Render_lightmap_FFP(stage, TB_LIGHTMAP);
+					}
+					else if(tr.worldDeluxeMapping && r_showDeluxeMaps->integer)
+					{
+						Render_deluxemap_FFP(stage, TB_LIGHTMAP);
+					}
+					else
+					{
+						if(glConfig.shadingLanguage100Available)
+						{
+							Render_lighting_D_radiosity(stage);
+						}
+						else
+						{
+							Render_lighting_D_radiosity_FFP(stage);
+						}
+					}
+				}
+				else
+				{
+					if(glConfig.shadingLanguage100Available)
+					{
+						Render_genericSingle(stage);
+					}
+					else
+					{
+						Render_genericSingle_FFP(stage);
+					}
+				}
+				break;
+			}
+			
 			case ST_COLLAPSE_lighting_DB_generic:
+			{
+				if(r_dynamicLighting->integer == 2)
+				{
+					if(glConfig.shadingLanguage100Available)
+					{
+						Render_depthFill(stage);
+					}
+					else
+					{
+						Render_depthFill_FFP(stage);
+					}
+				}
+				else if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
+				{
+					if(r_showLightMaps->integer)
+					{
+						Render_lightmap_FFP(stage, TB_LIGHTMAP);
+					}
+					else if(tr.worldDeluxeMapping && r_showDeluxeMaps->integer)
+					{
+						Render_deluxemap_FFP(stage, TB_LIGHTMAP);
+					}
+					else
+					{
+						if(glConfig.shadingLanguage100Available)
+						{
+							if(tr.worldDeluxeMapping && r_lighting->integer == 1)
+							{
+								Render_lighting_DB_radiosity(stage);
+							}
+							else
+							{
+								Render_lighting_D_radiosity(stage);
+							}
+						}
+						else
+						{
+							Render_lighting_D_radiosity_FFP(stage);
+						}
+					}
+				}
+				else
+				{
+					if(glConfig.shadingLanguage100Available)
+					{
+						Render_genericSingle(stage);
+					}
+					else
+					{
+						Render_genericSingle_FFP(stage);
+					}
+				}
+				break;	
+			}
+			
 			case ST_COLLAPSE_lighting_DBS_generic:
 			{
 				if(r_dynamicLighting->integer == 2)
@@ -3996,15 +4102,48 @@ void RB_StageIteratorGeneric()
 						Render_depthFill_FFP(stage);
 					}
 				}
+				else if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
+				{
+					if(r_showLightMaps->integer)
+					{
+						Render_lightmap_FFP(stage, TB_LIGHTMAP);
+					}
+					else if(tr.worldDeluxeMapping && r_showDeluxeMaps->integer)
+					{
+						Render_deluxemap_FFP(stage, TB_LIGHTMAP);
+					}
+					else
+					{
+						if(glConfig.shadingLanguage100Available)
+						{
+							if(tr.worldDeluxeMapping && r_lighting->integer == 2)
+							{
+								Render_lighting_DBS_radiosity(stage);
+							}
+							else if(tr.worldDeluxeMapping && r_lighting->integer == 1)
+							{
+								Render_lighting_DB_radiosity(stage);
+							}
+							else
+							{
+								Render_lighting_D_radiosity(stage);
+							}
+						}
+						else
+						{
+							Render_lighting_D_radiosity_FFP(stage);
+						}
+					}
+				}
 				else
 				{
 					if(glConfig.shadingLanguage100Available)
 					{
-						Render_generic_single(stage);
+						Render_genericSingle(stage);
 					}
 					else
 					{
-						Render_generic_single_FFP(stage);
+						Render_genericSingle_FFP(stage);
 					}
 				}
 				break;
@@ -4035,132 +4174,9 @@ void RB_StageIteratorGeneric()
 			case ST_SPECULARMAP:
 				break;
 			
-			case ST_COLLAPSE_Generic_multi:
+			case ST_COLLAPSE_genericMulti:
 			{
-				Render_generic_multi_FFP(stage);
-				break;
-			}
-			
-			case ST_COLLAPSE_lighting_D_radiosity:
-			{
-				if(r_showLightMaps->integer)
-				{
-					Render_lightmap_FFP(stage, TB_LIGHTMAP);
-				}
-				else if(tr.worldDeluxeMapping && r_showDeluxeMaps->integer)
-				{
-					Render_deluxemap_FFP(stage, TB_LIGHTMAP);
-				}
-				else if(r_dynamicLighting->integer == 2)
-				{
-					if(glConfig.shadingLanguage100Available)
-					{
-						Render_depthFill(stage);
-					}
-					else
-					{
-						Render_depthFill_FFP(stage);
-					}
-				}
-				else
-				{
-					if(glConfig.shadingLanguage100Available)
-					{
-						Render_lighting_D_radiosity(stage);
-					}
-					else
-					{
-						Render_lighting_D_radiosity_FFP(stage);
-					}
-				}
-				break;
-			}
-			
-			case ST_COLLAPSE_lighting_DB_radiosity:
-			{
-				if(r_showLightMaps->integer)
-				{
-					Render_lightmap_FFP(stage, TB_LIGHTMAP);
-				}
-				else if(tr.worldDeluxeMapping && r_showDeluxeMaps->integer)
-				{
-					Render_deluxemap_FFP(stage, TB_LIGHTMAP);
-				}
-				else if(r_dynamicLighting->integer == 2)
-				{
-					if(glConfig.shadingLanguage100Available)
-					{
-						Render_depthFill(stage);
-					}
-					else
-					{
-						Render_depthFill_FFP(stage);
-					}
-				}
-				else
-				{
-					if(glConfig.shadingLanguage100Available)
-					{
-						if(tr.worldDeluxeMapping && r_lighting->integer == 1)
-						{
-							Render_lighting_DB_radiosity(stage);
-						}
-						else
-						{
-							Render_lighting_D_radiosity(stage);
-						}
-					}
-					else
-					{
-						Render_lighting_D_radiosity_FFP(stage);
-					}
-				}
-				break;
-			}
-			
-			case ST_COLLAPSE_lighting_DBS_radiosity:
-			{
-				if(r_showLightMaps->integer)
-				{
-					Render_lightmap_FFP(stage, TB_LIGHTMAP);
-				}
-				else if(tr.worldDeluxeMapping && r_showDeluxeMaps->integer)
-				{
-					Render_deluxemap_FFP(stage, TB_LIGHTMAP);
-				}
-				else if(r_dynamicLighting->integer == 2)
-				{
-					if(glConfig.shadingLanguage100Available)
-					{
-						Render_depthFill(stage);
-					}
-					else
-					{
-						Render_depthFill_FFP(stage);
-					}
-				}
-				else
-				{
-					if(glConfig.shadingLanguage100Available)
-					{
-						if(tr.worldDeluxeMapping && r_lighting->integer == 2)
-						{
-							Render_lighting_DBS_radiosity(stage);
-						}
-						else if(tr.worldDeluxeMapping && r_lighting->integer == 1)
-						{
-							Render_lighting_DB_radiosity(stage);
-						}
-						else
-						{
-							Render_lighting_D_radiosity(stage);
-						}
-					}
-					else
-					{
-						Render_lighting_D_radiosity_FFP(stage);
-					}
-				}
+				Render_genericMulti_FFP(stage);
 				break;
 			}
 			
@@ -4192,7 +4208,7 @@ void RB_StageIteratorGeneric()
 					}
 					else
 					{
-						Render_generic_single_FFP(stage);
+						Render_genericSingle_FFP(stage);
 					}
 				}
 				break;
@@ -4230,7 +4246,7 @@ void RB_StageIteratorGeneric()
 					}
 					else
 					{
-						Render_generic_single_FFP(stage);
+						Render_genericSingle_FFP(stage);
 					}
 				}
 				break;
@@ -4345,18 +4361,18 @@ void RB_StageIteratorGeneric()
 			{
 				if(glConfig.shadingLanguage100Available)
 				{
-					Render_generic_single(stage);
+					Render_genericSingle(stage);
 				}
 				else
 				{
-					Render_generic_single_FFP(stage);
+					Render_genericSingle_FFP(stage);
 				}
 				break;
 			}
 		}
 		
 		// allow skipping out to show just lightmaps during development
-		if(r_showLightMaps->integer && (pStage->type == ST_LIGHTMAP || pStage->bundle[TB_LIGHTMAP].isLightMap))
+		if(r_showLightMaps->integer && (pStage->type == ST_LIGHTMAP))
 		{
 			break;
 		}

@@ -96,7 +96,7 @@ void R_RemapShader(const char *shaderName, const char *newShaderName, const char
 	sh = R_FindShaderByName(shaderName);
 	if(sh == NULL || sh == tr.defaultShader)
 	{
-		h = RE_RegisterShaderLightMap(shaderName, 0);
+		h = RE_RegisterShader(shaderName);
 		sh = R_GetShaderByHandle(h);
 	}
 	if(sh == NULL || sh == tr.defaultShader)
@@ -108,7 +108,7 @@ void R_RemapShader(const char *shaderName, const char *newShaderName, const char
 	sh2 = R_FindShaderByName(newShaderName);
 	if(sh2 == NULL || sh2 == tr.defaultShader)
 	{
-		h = RE_RegisterShaderLightMap(newShaderName, 0);
+		h = RE_RegisterShader(newShaderName);
 		sh2 = R_GetShaderByHandle(h);
 	}
 
@@ -1374,7 +1374,6 @@ static qboolean LoadMap(shaderStage_t * stage, char *buffer)
 	else if(!Q_stricmp(token, "$lightmap") || !Q_stricmp(token, "_lightmap") || !Q_stricmp(token, "*lightmap"))
 	{
 		stage->type = ST_LIGHTMAP;
-		stage->bundle[0].isLightMap = qtrue;
 		return qtrue;
 	}
 	
@@ -2165,7 +2164,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			}
 			else if(!Q_stricmp(token, "lightmap"))
 			{
-				stage->bundle[0].tcGen = TCGEN_LIGHTMAP;
+				ri.Printf(PRINT_WARNING, "WARNING: obselete tcGen lightmap in shader '%s': tcMods will be ignored\n", shader.name);
 			}
 			else if(!Q_stricmp(token, "texture") || !Q_stricmp(token, "base"))
 			{
@@ -2434,6 +2433,17 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		if(blendSrcBits == 0 || blendSrcBits == GLS_SRCBLEND_ONE || blendSrcBits == GLS_SRCBLEND_SRC_ALPHA)
 		{
 			stage->rgbGen = CGEN_IDENTITY_LIGHTING;
+		}
+		else if(stage->type == ST_DIFFUSEMAP)
+		{
+			if(shader.type == SHADER_3D_DYNAMIC)
+			{
+				stage->rgbGen = CGEN_LIGHTING_DIFFUSE;
+			}
+			else if(shader.type == SHADER_3D_STATIC)
+			{
+				stage->rgbGen = CGEN_EXACT_VERTEX;
+			}
 		}
 		else
 		{
@@ -2934,7 +2944,7 @@ static void ParseDiffuseMap(shaderStage_t * stage, char **text)
 	
 	stage->active = qtrue;
 	stage->type = ST_DIFFUSEMAP;
-	stage->rgbGen = CGEN_IDENTITY;
+	stage->rgbGen = CGEN_EXACT_VERTEX;
 	stage->stateBits = GLS_DEFAULT;
 	
 	if(ParseMap(stage, text, buffer, sizeof(buffer)))
@@ -2964,21 +2974,6 @@ static void ParseSpecularMap(shaderStage_t * stage, char **text)
 	
 	stage->active = qtrue;
 	stage->type = ST_SPECULARMAP;
-	stage->rgbGen = CGEN_IDENTITY;
-	stage->stateBits = GLS_DEFAULT;
-	
-	if(ParseMap(stage, text, buffer, sizeof(buffer)))
-	{
-		LoadMap(stage, buffer);
-	}
-}
-
-static void ParseLightMap(shaderStage_t * stage, char **text)
-{
-	char			buffer[1024] = "";
-	
-	stage->active = qtrue;
-	stage->type = ST_LIGHTMAP;
 	stage->rgbGen = CGEN_IDENTITY;
 	stage->stateBits = GLS_DEFAULT;
 	
@@ -3764,8 +3759,8 @@ static qboolean ParseShader(char *_text)
 		// lightMap <image>
 		else if(!Q_stricmp(token, "lightMap"))
 		{
-			ParseLightMap(&stages[s], text);
-			s++;
+			ri.Printf(PRINT_WARNING, "WARNING: obselete lightMap keyword not supported in shader '%s'\n", shader.name);
+			Com_SkipRestOfLine(text);
 			continue;
 		}
 		// lightFalloffImage <image>
@@ -3873,13 +3868,11 @@ static void CollapseStages(void)
 	qboolean		hasDiffuseStage;
 	qboolean		hasNormalStage;
 	qboolean		hasSpecularStage;
-	qboolean		hasLightStage;
 	qboolean		hasColorStage;
 	
 	shaderStage_t	tmpDiffuseStage;
 	shaderStage_t	tmpNormalStage;
 	shaderStage_t	tmpSpecularStage;
-	shaderStage_t	tmpLightStage;
 	
 	int				numStages = 0;
 	shaderStage_t	tmpStages[MAX_SHADER_STAGES];
@@ -3900,13 +3893,11 @@ static void CollapseStages(void)
 		hasDiffuseStage = qfalse;
 		hasNormalStage = qfalse;
 		hasSpecularStage = qfalse;
-		hasLightStage = qfalse;
 		hasColorStage = qfalse;
 
 		Com_Memset(&tmpDiffuseStage, 0, sizeof(shaderStage_t));
 		Com_Memset(&tmpNormalStage, 0, sizeof(shaderStage_t));
 		Com_Memset(&tmpSpecularStage, 0, sizeof(shaderStage_t));
-		Com_Memset(&tmpLightStage, 0, sizeof(shaderStage_t));
 
 		if(!stages[j].active)
 			continue;
@@ -3916,6 +3907,7 @@ static void CollapseStages(void)
 			stages[j].type == ST_GLOWMAP ||
 			stages[j].type == ST_BLOOMMAP ||
 			stages[j].type == ST_BLOOM2MAP ||
+			stages[j].type == ST_LIGHTMAP ||
 			stages[j].type == ST_REFLECTIONMAP ||
 			stages[j].type == ST_REFRACTIONMAP ||
 			stages[j].type == ST_DISPERSIONMAP ||
@@ -3930,7 +3922,7 @@ static void CollapseStages(void)
 			continue;
 		}
 		
-		for(i = 0; i < 4; i++)
+		for(i = 0; i < 3; i++)
 		{
 			if((j+i) >= MAX_SHADER_STAGES)
 				continue;
@@ -3953,11 +3945,6 @@ static void CollapseStages(void)
 				hasSpecularStage = qtrue;
 				tmpSpecularStage = stages[j+i];
 			}
-			else if(stages[j+i].type == ST_LIGHTMAP && !hasLightStage)
-			{
-				hasLightStage = qtrue;
-				tmpLightStage = stages[j+i];
-			}
 			else if(stages[j+i].type == ST_COLORMAP && !hasColorStage)
 			{
 				hasColorStage = qtrue;
@@ -3967,109 +3954,8 @@ static void CollapseStages(void)
 		
 		// NOTE: Tr3B - merge as many stages as possible
 		
-		// try to merge diffuse/normal/specular/light
-		if(	hasDiffuseStage		&&
-			hasNormalStage		&&
-			hasSpecularStage	&&
-			hasLightStage
-		)
-		{
-			//ri.Printf(PRINT_ALL, "lighting_DBS_radiosity\n");
-			
-			tmpShader.collapseType = COLLAPSE_lighting_DBS_radiosity;
-			
-			tmpStages[numStages] = tmpDiffuseStage;
-			tmpStages[numStages].type = ST_COLLAPSE_lighting_DBS_radiosity;
-			
-			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
-			if(!tmpStages[numStages].bundle[TB_NORMALMAP].numTexMods)
-			{
-				tmpStages[numStages].bundle[TB_NORMALMAP].tcGen = TCGEN_SKIP;
-			}
-			
-			tmpStages[numStages].bundle[TB_SPECULARMAP] = tmpSpecularStage.bundle[0];
-			if(!tmpStages[numStages].bundle[TB_SPECULARMAP].numTexMods)
-			{
-				tmpStages[numStages].bundle[TB_SPECULARMAP].tcGen = TCGEN_SKIP;
-			}
-			
-			tmpStages[numStages].bundle[TB_LIGHTMAP] = tmpLightStage.bundle[0];
-			
-			tmpStages[numStages].stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
-			
-			numStages++;
-			j += 3;
-			continue;
-		}
-		// try to merge diffuse/bump/light
-		else if(hasDiffuseStage		&&
-				hasNormalStage		&&
-				hasLightStage
-		)
-		{
-			//ri.Printf(PRINT_ALL, "lighting_DB_radiosity\n");
-			
-			tmpShader.collapseType = COLLAPSE_lighting_DB_radiosity;
-			
-			tmpStages[numStages] = tmpDiffuseStage;
-			tmpStages[numStages].type = ST_COLLAPSE_lighting_DB_radiosity;
-			
-			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
-			if(!tmpStages[numStages].bundle[TB_NORMALMAP].numTexMods)
-			{
-				tmpStages[numStages].bundle[TB_NORMALMAP].tcGen = TCGEN_SKIP;
-			}
-			
-			tmpStages[numStages].bundle[TB_LIGHTMAP] = tmpLightStage.bundle[0];
-			
-			tmpStages[numStages].stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
-	
-			numStages++;
-			j += 2;
-			continue;
-		}
-		else if(hasDiffuseStage		&&
-				hasSpecularStage	&&
-				hasLightStage
-		)
-		{
-			//ri.Printf(PRINT_ALL, "lighting_D_radiosity\n");
-			
-			tmpShader.collapseType = COLLAPSE_lighting_D_radiosity;
-			
-			tmpStages[numStages] = tmpDiffuseStage;
-			tmpStages[numStages].type = ST_COLLAPSE_lighting_D_radiosity;
-			
-			tmpStages[numStages].bundle[TB_LIGHTMAP] = tmpLightStage.bundle[0];
-			
-			tmpStages[numStages].stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
-	
-			numStages++;
-			j += 2;
-			continue;
-		}
-		// try to merge diffuse/light
-		else if(hasDiffuseStage		&&
-				hasLightStage
-		)
-		{
-			//ri.Printf(PRINT_ALL, "lighting_D_radiosity\n");
-			
-			tmpShader.collapseType = COLLAPSE_lighting_D_radiosity;
-			
-			tmpStages[numStages] = tmpDiffuseStage;
-			tmpStages[numStages].type = ST_COLLAPSE_lighting_D_radiosity;
-			
-			tmpStages[numStages].bundle[TB_LIGHTMAP] = tmpLightStage.bundle[0];
-			
-			tmpStages[numStages].stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
-	
-			numStages++;
-			j += 1;
-			continue;
-		}
 		// try to merge diffuse/normal/specular
-		else if(hasDiffuseStage		&&
+		if(		hasDiffuseStage		&&
 				hasNormalStage		&&
 				hasSpecularStage	&&
 				tmpDiffuseStage.rgbGen == CGEN_LIGHTING_DIFFUSE
@@ -4626,15 +4512,7 @@ static shader_t *FinishShader(void)
 			}
 			
 			case ST_LIGHTMAP:
-			{
-				if(!pStage->bundle[0].isLightMap)
-				{
-					ri.Printf(PRINT_WARNING, "Shader %s has a lightmap stage with no image\n", shader.name);
-					pStage->active = qfalse;
-					continue;
-				}
 				break;
-			}
 			
 			case ST_ATTENUATIONMAP_XY:
 			{
@@ -4675,19 +4553,9 @@ static shader_t *FinishShader(void)
 		{
 			case ST_COLORMAP:
 			{
-				if(pStage->bundle[0].isLightMap)
+				if(pStage->bundle[0].tcGen == TCGEN_BAD)
 				{
-					if(pStage->bundle[0].tcGen == TCGEN_BAD)
-					{
-						pStage->bundle[0].tcGen = TCGEN_LIGHTMAP;
-					}
-				}
-				else
-				{
-					if(pStage->bundle[0].tcGen == TCGEN_BAD)
-					{
-						pStage->bundle[0].tcGen = TCGEN_TEXTURE;
-					}
+					pStage->bundle[0].tcGen = TCGEN_TEXTURE;
 				}
 				break;
 			}
@@ -4700,15 +4568,6 @@ static shader_t *FinishShader(void)
 				if(pStage->bundle[0].tcGen == TCGEN_BAD)
 				{
 					pStage->bundle[0].tcGen = TCGEN_TEXTURE;
-				}
-				break;
-			}
-			
-			case ST_LIGHTMAP:
-			{
-				if(pStage->bundle[0].tcGen == TCGEN_BAD)
-				{
-					pStage->bundle[0].tcGen = TCGEN_LIGHTMAP;
 				}
 				break;
 			}
@@ -4973,21 +4832,16 @@ In the interest of not requiring an explicit shader text entry to
 be defined for every single image used in the game, three default
 shader behaviors can be auto-created for any image:
 
+If type == SHADER_2D, then the image will be used
+for 2D rendering unless an explicit shader is found
+
 If type == SHADER_3D_DYNAMIC, then the image will have
 dynamic diffuse lighting applied to it, as apropriate for most
 entity skin surfaces.
 
-If type == SHADER_2D, then the image will be used
-for 2D rendering unless an explicit shader is found
-
 If type == SHADER_3D_STATIC, then the image will use
 the vertex rgba modulate values, as apropriate for misc_model
 pre-lit surfaces.
-
-Other lightmapIndex values will have a lightmap stage created
-and src*dest blending applied with the texture, as apropriate for
-most world construction surfaces.
-
 ===============
 */
 shader_t       *R_FindShader(const char *name, shaderType_t type, qboolean mipRawImage)
@@ -5088,6 +4942,7 @@ shader_t       *R_FindShader(const char *name, shaderType_t type, qboolean mipRa
 					GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
 			break;
 		}
+		
 		case SHADER_3D_DYNAMIC:
 		{
 			// dynamic colors at vertexes
@@ -5098,6 +4953,7 @@ shader_t       *R_FindShader(const char *name, shaderType_t type, qboolean mipRa
 			stages[0].stateBits = GLS_DEFAULT;
 			break;
 		}
+		
 		case SHADER_3D_STATIC:
 		{
 			// explicit colors at vertexes
@@ -5109,25 +4965,7 @@ shader_t       *R_FindShader(const char *name, shaderType_t type, qboolean mipRa
 			stages[0].stateBits = GLS_DEFAULT;
 			break;
 		}
-		case SHADER_3D_LIGHTMAP:
-		{
-			// diffuseMap
-			stages[0].type = ST_DIFFUSEMAP;
-			stages[0].bundle[0].image[0] = image;
-			stages[0].active = qtrue;
-			stages[0].rgbGen = CGEN_IDENTITY;
-			//stages[0].stateBits |= GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO;
-			stages[0].stateBits = GLS_DEFAULT;
-			
-			// lightMap
-			stages[1].type = ST_LIGHTMAP;
-			stages[1].bundle[0].isLightMap = qtrue;
-			stages[1].active = qtrue;
-			stages[1].rgbGen = CGEN_IDENTITY;	// lightmaps are scaled on creation
-			// for identitylight
-			stages[1].stateBits = GLS_DEFAULT;
-			break;
-		}
+		
 		case SHADER_LIGHT:
 		{
 			stages[0].type = ST_ATTENUATIONMAP_Z;
@@ -5202,43 +5040,6 @@ qhandle_t RE_RegisterShaderFromImage(const char *name, image_t * image, qboolean
 		GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
 
 	sh = FinishShader();
-	return sh->index;
-}
-
-
-/* 
-====================
-RE_RegisterShader
-
-This is the exported shader entry point for the rest of the system
-It will always return an index that will be valid.
-
-This should really only be used for explicit shaders, because there is no
-way to ask for different implicit lighting modes (vertex, lightmap, etc)
-====================
-*/
-qhandle_t RE_RegisterShaderLightMap(const char *name, int lightmapIndex)
-{
-	shader_t       *sh;
-
-	if(strlen(name) >= MAX_QPATH)
-	{
-		Com_Printf("Shader name exceeds MAX_QPATH\n");
-		return 0;
-	}
-
-	sh = R_FindShader(name, lightmapIndex, qtrue);
-
-	// we want to return 0 if the shader failed to
-	// load for some reason, but R_FindShader should
-	// still keep a name allocated for it, so if
-	// something calls RE_RegisterShader again with
-	// the same name, we don't try looking for it again
-	if(sh->defaultShader)
-	{
-		return 0;
-	}
-
 	return sh->index;
 }
 
@@ -5420,10 +5221,6 @@ void R_ShaderList_f(void)
 			case SHADER_3D_STATIC:
 				ri.Printf(PRINT_ALL, "3D_S ");
 				break;
-			
-			case SHADER_3D_LIGHTMAP:
-				ri.Printf(PRINT_ALL, "3D_L ");
-				break;
 				
 			case SHADER_LIGHT:
 				ri.Printf(PRINT_ALL, "ATTN ");
@@ -5444,18 +5241,6 @@ void R_ShaderList_f(void)
 			{
 				ri.Printf(PRINT_ALL, "MT(d)          ");
 			}
-		}
-		else if(shader->collapseType == COLLAPSE_lighting_D_radiosity)
-		{
-			ri.Printf(PRINT_ALL, "D_radiosity    ");
-		}
-		else if(shader->collapseType == COLLAPSE_lighting_DB_radiosity)
-		{
-			ri.Printf(PRINT_ALL, "DB_radiosity   ");
-		}
-		else if(shader->collapseType == COLLAPSE_lighting_DBS_radiosity)
-		{
-			ri.Printf(PRINT_ALL, "DBS_radiosity  ");
 		}
 		else if(shader->collapseType == COLLAPSE_lighting_DB_direct)
 		{
@@ -5499,28 +5284,6 @@ void R_ShaderList_f(void)
 		{
 			ri.Printf(PRINT_ALL, "sky ");
 		}
-		/*
-		else if(shader->optimalStageIteratorFunc == RB_StageIteratorLightmappedMultitexture)
-		{
-			ri.Printf(PRINT_ALL, "lmmt");
-		}
-		else if(shader->optimalStageIteratorFunc == RB_StageIteratorVertexLitTexture)
-		{
-			ri.Printf(PRINT_ALL, "vlt ");
-		}
-		else if(shader->optimalStageIteratorFunc == RB_StageIteratorPerPixelLit_D)
-		{
-			ri.Printf(PRINT_ALL, "pplD ");
-		}
-		else if(shader->optimalStageIteratorFunc == RB_StageIteratorPerPixelLit_DB)
-		{
-			ri.Printf(PRINT_ALL, "pplDB ");
-		}
-		else if(shader->optimalStageIteratorFunc == RB_StageIteratorPerPixelLit_DBS)
-		{
-			ri.Printf(PRINT_ALL, "pplDBS ");
-		}
-		*/
 		else
 		{
 			ri.Printf(PRINT_ALL, "    ");

@@ -370,7 +370,6 @@ typedef enum
 	TCGEN_BAD,
 	TCGEN_SKIP,
 	TCGEN_IDENTITY,				// clear to 0,0
-	TCGEN_LIGHTMAP,
 	TCGEN_TEXTURE,
 	TCGEN_ENVIRONMENT_MAPPED,
 	TCGEN_FOG,
@@ -561,7 +560,6 @@ typedef struct
 	texModInfo_t   *texMods;
 
 	int             videoMapHandle;
-	qboolean        isLightMap;
 	qboolean        isVideoMap;
 } textureBundle_t;
 
@@ -577,17 +575,13 @@ typedef enum
 	ST_BLOOMMAP,
 	ST_BLOOM2MAP,
 	ST_LIGHTMAP,
-	ST_DELUXEMAP,
 	ST_REFLECTIONMAP,						// cubeMap based reflection
 	ST_REFRACTIONMAP,
 	ST_DISPERSIONMAP,
 	ST_SKYBOXMAP,
 	ST_LIQUIDMAP,							// reflective water shader
 	
-	ST_COLLAPSE_Generic_multi,				// two colormaps
-	ST_COLLAPSE_lighting_D_radiosity,		// diffusemap + lightmap
-	ST_COLLAPSE_lighting_DB_radiosity,		// diffusemap + bumpmap + lightmap
-	ST_COLLAPSE_lighting_DBS_radiosity,		// diffusemap + bumpmap + specularmap + lightmap
+	ST_COLLAPSE_genericMulti,				// two colormaps
 	ST_COLLAPSE_lighting_DB_direct,			// directional entity lighting like rgbGen lightingDiffuse
 	ST_COLLAPSE_lighting_DBS_direct,		// direction entity lighting with diffuse + bump + specular
 	ST_COLLAPSE_lighting_DB_generic,		// diffusemap + bumpmap
@@ -602,9 +596,6 @@ typedef enum
 {
 	COLLAPSE_none,
 	COLLAPSE_Generic_multi,
-	COLLAPSE_lighting_D_radiosity,
-	COLLAPSE_lighting_DB_radiosity,
-	COLLAPSE_lighting_DBS_radiosity,
 	COLLAPSE_lighting_DB_direct,
 	COLLAPSE_lighting_DBS_direct,
 	COLLAPSE_lighting_DB_generic,
@@ -707,7 +698,6 @@ typedef enum
 	SHADER_2D,				// surface material: shader is for 2D rendering
 	SHADER_3D_DYNAMIC,		// surface material: shader is for cGen diffuseLighting lighting
 	SHADER_3D_STATIC,		// surface material: pre-lit triangle models
-	SHADER_3D_LIGHTMAP,
 	SHADER_LIGHT			// light material: attenuation
 } shaderType_t;
 
@@ -2265,7 +2255,6 @@ void            R_DeleteSurfaceVBOs();
 //
 // tr_shader.c
 //
-qhandle_t       RE_RegisterShaderLightMap(const char *name, int lightmapIndex);
 qhandle_t       RE_RegisterShader(const char *name);
 qhandle_t       RE_RegisterShaderNoMip(const char *name);
 qhandle_t       RE_RegisterShaderLightAttenuation(const char *name);

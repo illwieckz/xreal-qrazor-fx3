@@ -371,18 +371,9 @@ static shader_t *ShaderForShaderNum(int shaderNum, int lightmapNum)
 	}
 	dsh = &s_worldData.shaders[shaderNum];
 
-	if(lightmapNum >= 0)
-	{
-		shaderType = SHADER_3D_LIGHTMAP;
-	}
-	else
-	{
-		shaderType = SHADER_3D_STATIC;
-	}
-
 //  ri.Printf(PRINT_ALL, "ShaderForShaderNum: '%s'\n", dsh->shader);
 
-	shader = R_FindShader(dsh->shader, shaderType, qtrue);
+	shader = R_FindShader(dsh->shader, SHADER_3D_STATIC, qtrue);
 
 	// if the shader had errors, just use default shader
 	if(shader->defaultShader)
