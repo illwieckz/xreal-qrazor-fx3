@@ -368,7 +368,7 @@ typedef enum
 typedef enum
 {
 	TCGEN_BAD,
-//	TCGEN_SKIP,
+	TCGEN_SKIP,
 	TCGEN_IDENTITY,				// clear to 0,0
 	TCGEN_LIGHTMAP,
 	TCGEN_TEXTURE,
@@ -1324,7 +1324,7 @@ typedef struct
 
 typedef struct
 {
-	int             ident;		// 
+	surfaceType_t   surfaceType;
 
 	char            name[MAX_QPATH];	// polyset name
 
@@ -1390,8 +1390,7 @@ typedef struct
 
 typedef struct
 {
-	int             ident;	// this is set to SF_MD5 and
-							// needs to be the first variable
+	surfaceType_t   surfaceType;
 
 //	char            name[MAX_QPATH];	// polyset name
 	char            shader[MAX_QPATH];
@@ -1494,8 +1493,7 @@ DAE COLLADA MODELS - in memory representation
 
 typedef struct
 {
-	int             ident;	// this is set to SF_DAE and
-							// needs to be the first variable
+	surfaceType_t   surfaceType;
 
 //	char            name[MAX_QPATH];	// polyset name
 	char            shader[MAX_QPATH];
@@ -2042,7 +2040,7 @@ int             R_CullPointAndRadius(vec3_t origin, float radius);
 
 int             R_FogLocalPointAndRadius(const vec3_t pt, float radius);
 int             R_FogPointAndRadius(const vec3_t pt, float radius);
-int             R_FogWorldBox(const vec3_t bounds[2]);
+int             R_FogWorldBox(vec3_t bounds[2]);
 
 void            R_SetupEntityWorldBounds(trRefEntity_t * ent);
 
@@ -2326,6 +2324,7 @@ typedef struct stageVars
 {
 	color4f_t       color;
 	color4ub_t      colors[SHADER_MAX_VERTEXES];
+	qboolean		skipCoords[MAX_TEXTURE_BUNDLES];
 	vec2_t          texCoords[MAX_TEXTURE_BUNDLES][SHADER_MAX_VERTEXES];
 	matrix_t        texMatrices[MAX_TEXTURE_BUNDLES];
 } stageVars_t;

@@ -541,7 +541,7 @@ int R_FogPointAndRadius(const vec3_t pt, float radius)
 R_FogWorldBox
 =================
 */
-int R_FogWorldBox(const vec3_t bounds[2])
+int R_FogWorldBox(vec3_t bounds[2])
 {
 	int             i, j;
 	fog_t          *fog;

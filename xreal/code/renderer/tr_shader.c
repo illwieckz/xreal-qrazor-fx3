@@ -3982,7 +3982,17 @@ static void CollapseStages(void)
 			tmpStages[numStages].type = ST_COLLAPSE_lighting_DBS_radiosity;
 			
 			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
+			if(!tmpStages[numStages].bundle[TB_NORMALMAP].numTexMods)
+			{
+				tmpStages[numStages].bundle[TB_NORMALMAP].tcGen = TCGEN_SKIP;
+			}
+			
 			tmpStages[numStages].bundle[TB_SPECULARMAP] = tmpSpecularStage.bundle[0];
+			if(!tmpStages[numStages].bundle[TB_SPECULARMAP].numTexMods)
+			{
+				tmpStages[numStages].bundle[TB_SPECULARMAP].tcGen = TCGEN_SKIP;
+			}
+			
 			tmpStages[numStages].bundle[TB_LIGHTMAP] = tmpLightStage.bundle[0];
 			
 			tmpStages[numStages].stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
@@ -4005,6 +4015,11 @@ static void CollapseStages(void)
 			tmpStages[numStages].type = ST_COLLAPSE_lighting_DB_radiosity;
 			
 			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
+			if(!tmpStages[numStages].bundle[TB_NORMALMAP].numTexMods)
+			{
+				tmpStages[numStages].bundle[TB_NORMALMAP].tcGen = TCGEN_SKIP;
+			}
+			
 			tmpStages[numStages].bundle[TB_LIGHTMAP] = tmpLightStage.bundle[0];
 			
 			tmpStages[numStages].stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
@@ -4068,7 +4083,16 @@ static void CollapseStages(void)
 			tmpStages[numStages].type = ST_COLLAPSE_lighting_DBS_direct;
 			
 			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
+			if(!tmpStages[numStages].bundle[TB_NORMALMAP].numTexMods)
+			{
+				tmpStages[numStages].bundle[TB_NORMALMAP].tcGen = TCGEN_SKIP;
+			}
+			
 			tmpStages[numStages].bundle[TB_SPECULARMAP] = tmpSpecularStage.bundle[0];
+			if(!tmpStages[numStages].bundle[TB_SPECULARMAP].numTexMods)
+			{
+				tmpStages[numStages].bundle[TB_SPECULARMAP].tcGen = TCGEN_SKIP;
+			}
 			
 			numStages++;
 			j += 2;
@@ -4088,6 +4112,10 @@ static void CollapseStages(void)
 			tmpStages[numStages].type = ST_COLLAPSE_lighting_DB_direct;
 			
 			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
+			if(!tmpStages[numStages].bundle[TB_NORMALMAP].numTexMods)
+			{
+				tmpStages[numStages].bundle[TB_NORMALMAP].tcGen = TCGEN_SKIP;
+			}
 	
 			numStages++;
 			j += 1;
@@ -4107,7 +4135,16 @@ static void CollapseStages(void)
 			tmpStages[numStages].type = ST_COLLAPSE_lighting_DBS_generic;
 			
 			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
+			if(!tmpStages[numStages].bundle[TB_NORMALMAP].numTexMods)
+			{
+				tmpStages[numStages].bundle[TB_NORMALMAP].tcGen = TCGEN_SKIP;
+			}
+			
 			tmpStages[numStages].bundle[TB_SPECULARMAP] = tmpSpecularStage.bundle[0];
+			if(!tmpStages[numStages].bundle[TB_SPECULARMAP].numTexMods)
+			{
+				tmpStages[numStages].bundle[TB_SPECULARMAP].tcGen = TCGEN_SKIP;
+			}
 			
 			numStages++;
 			j += 2;
@@ -4126,6 +4163,10 @@ static void CollapseStages(void)
 			tmpStages[numStages].type = ST_COLLAPSE_lighting_DB_generic;
 			
 			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
+			if(!tmpStages[numStages].bundle[TB_NORMALMAP].numTexMods)
+			{
+				tmpStages[numStages].bundle[TB_NORMALMAP].tcGen = TCGEN_SKIP;
+			}
 	
 			numStages++;
 			j += 1;

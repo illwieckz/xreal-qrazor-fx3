@@ -371,7 +371,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 		}
 
 		// change to surface identifier
-		surf->ident = SF_MDX;
+		surf->surfaceType = SF_MDX;
 		
 		// give pointer to model for RB_SurfaceMDX
 		surf->model = mdxModel;
@@ -652,7 +652,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 		}
 		
 		// change to surface identifier
-		surf->ident = SF_MD5;
+		surf->surfaceType = SF_MD5;
 		
 		// give pointer to model for RB_SurfaceMD5
 		surf->model = md5;

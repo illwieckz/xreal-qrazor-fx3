@@ -1135,10 +1135,20 @@ static void GL_SetVertexAttribs()
 			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_COLORMAP]);
 	
 		if(glState.glClientStateBits & GLCS_TEXCOORD1)
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_NORMALMAP]);
+		{
+			if(tess.svars.skipCoords[TB_NORMALMAP])
+				qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
+			else
+				qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_NORMALMAP]);
+		}
 		
 		if(glState.glClientStateBits & GLCS_TEXCOORD2)
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD2, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_SPECULARMAP]);
+		{
+			if(tess.svars.skipCoords[TB_SPECULARMAP])
+				qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD2, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
+			else
+				qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD2, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_SPECULARMAP]);
+		}
 		
 		if(glState.glClientStateBits & GLCS_TEXCOORD3)
 			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD3, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_LIGHTMAP]);
@@ -3345,12 +3355,18 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 		
 		// reset texture matrix
 		MatrixIdentity(tess.svars.texMatrices[b]);
+		
+		// generate the texture coordinates by default
+		tess.svars.skipCoords[b] = qfalse;
 
 		// generate the texture coordinates
 		switch(pStage->bundle[b].tcGen)
 		{
-			//case TCGEN_SKIP:
-			//	break;
+			case TCGEN_BAD:
+			case TCGEN_SKIP:
+				tess.svars.skipCoords[b] = qtrue;
+				continue;
+			
 			case TCGEN_IDENTITY:
 				Com_Memset(tess.svars.texCoords[b], 0, sizeof(float) * 2 * tess.numVertexes);
 				break;
@@ -3386,17 +3402,13 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 			case TCGEN_ENVIRONMENT_MAPPED:
 				RB_CalcEnvironmentTexCoords((float *)tess.svars.texCoords[b]);
 				break;
-				
-			case TCGEN_BAD:
-				continue;
 		}
 
 		// alter texture coordinates
 		for(tm = 0; tm < pStage->bundle[b].numTexMods; tm++)
 		{
-			// Tr3B - for multiple images per shader stage
-			//if(pStage->bundle[b].tcGen == TCGEN_SKIP)
-			//	continue;
+			if(pStage->bundle[b].tcGen == TCGEN_SKIP)
+				break;
 			
 			switch(pStage->bundle[b].texMods[tm].type)
 			{
