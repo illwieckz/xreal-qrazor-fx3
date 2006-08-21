@@ -873,10 +873,6 @@ models/weapons2/shells/m_shell.md3							id Software					EULA					q3demo
 models/weapons2/shells/s_shell.jpg							id Software					EULA					q3demo
 models/weapons2/shells/s_shell.md3							id Software					EULA					q3demo
 models/weapons2/shells/s_shell.tga							id Software					EULA					q3demo
-music/fla_mp01.wav											id Software					EULA					tademo
-music/fla_mp03.wav											id Software					EULA					tademo
-music/sonic1.wav											id Software					EULA					tademo
-music/win.wav												id Software					EULA					tademo
 sound/feedback/1_frag.wav									id Software					EULA					tademo
 sound/feedback/1_minute.wav									id Software					EULA					tademo
 sound/feedback/2_frags.wav									id Software					EULA					tademo
@@ -1757,7 +1753,6 @@ ui/assets/stroggs.roq										id Software					EULA					tademo
 ui/assets/stroggs.tga										id Software					EULA					tademo
 ui/assets/teamarenaimage2.tga								id Software					EULA					tademo
 ui/assets/teamarenaimage.tga								id Software					EULA					tademo
-ui/assets/teamarena.tga										id Software					EULA					tademo
 ui/assets/verticalgradient.tga								id Software					EULA					tademo
 ui/assets/voice_window.tga									id Software					EULA					tademo
 ui/assets/warning.tga										id Software					EULA					tademo
