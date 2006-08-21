@@ -7134,7 +7134,7 @@ static cvarTable_t cvarTable[] = {
 	{&ui_redteam, "ui_redteam", "Pagans", CVAR_ARCHIVE},
 	{&ui_blueteam, "ui_blueteam", "Stroggs", CVAR_ARCHIVE},
 	{&ui_dedicated, "ui_dedicated", "0", CVAR_ARCHIVE},
-	{&ui_gameType, "ui_gametype", "3", CVAR_ARCHIVE},
+	{&ui_gameType, "ui_gametype", "1", CVAR_ARCHIVE},
 	{&ui_joinGameType, "ui_joinGametype", "0", CVAR_ARCHIVE},
 	{&ui_netGameType, "ui_netGametype", "0", CVAR_ARCHIVE},
 	{&ui_actualNetGameType, "ui_actualNetGametype", "0", CVAR_ARCHIVE},
