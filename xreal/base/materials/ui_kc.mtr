@@ -215,15 +215,16 @@ menuback_d
 	nopicmip
 	nomipmaps
 	{
-		map ui/assets/teamarena.tga
-		blendfunc filter
+		map ui/assets/extended_reality.tga
+		blend add
 	}
+	/*
 	{
-		map ui/assets/teamarena.tga
-		blendfunc add
+		map ui/assets/extended_reality_redglow.tga
+		blend add
 		rgbgen wave sin .25 .25 0 5
 	}
-	
+	*/
 }
 menuback_f
 {	
