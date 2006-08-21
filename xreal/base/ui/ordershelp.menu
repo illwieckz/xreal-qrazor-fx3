@@ -11,7 +11,7 @@
     	focusColor 1 .67 0 1
     	border 1
 	style 1
-	soundLoop "music/fla_mp03.wav"
+	soundLoop "music/di.fm-progressive-blue_room_project-5b.wav"
 	onEsc { close help_menu ; close powerup_menu ; close ordersHelp_menu ; open main }
 	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; 
 		fadeout fadebox ;

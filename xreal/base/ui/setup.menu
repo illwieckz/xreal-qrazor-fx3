@@ -13,7 +13,7 @@ menuDef {
     	style 1
     	border 1
 	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; 
-		playlooped "music/fla_mp03.wav" ;
+		playlooped "music/di.fm-progressive-blue_room_project-5b.wav" ;
 		fadeout fadebox ;
 		hide back_alt ;
 		show back ;

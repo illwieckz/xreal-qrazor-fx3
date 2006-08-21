@@ -31,7 +31,7 @@ menuDef {
 						
 	onOpen { 
 		setitemcolor fadebox backcolor 0 0 0 1 ; 
-		playlooped "music/sonic1.wav" ;
+		playlooped "music/di.fm-progressive-shiodome-arena.wav" ;
 		fadeout fadebox ;
 		transition cinematic 390 198 250 1 390 163 250 155 20 12 ; 
 		transition menuback_d 0 198 250 1 0 163 255 155 20 12 ;

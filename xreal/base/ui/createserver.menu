@@ -15,7 +15,7 @@
     	border 1
 	onEsc { close createserver ; open main }
 	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; 
-	playlooped "music/fla_mp03.wav" ;
+	playlooped "music/di.fm-progressive-blue_room_project-5b.wav" ;
 	fadeout fadebox ; 
 	transition mappreview 7 127 190 1 7 57 190 141 20 10 ; 
 	uiScript loadArenas ;
@@ -1146,7 +1146,7 @@ itemDef {
       	visible 0   
 		type ITEM_TYPE_BUTTON
       	action { close fight ; uiScript StartServer }
-      	mouseExit { hide lightning ; hide accept_alt ; show accept ; fadeout message_accept ; playlooped "music/fla_mp03.wav" }	
+      	mouseExit { hide lightning ; hide accept_alt ; show accept ; fadeout message_accept ; playlooped "music/di.fm-progressive-blue_room_project-5b.wav" }	
 /*	
 	//	demo_only
 	cvarTest "ui_actualNetGameType"

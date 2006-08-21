@@ -21,16 +21,20 @@
 
 
 
-itemDef {
-      	name demo_only
-      	style WINDOW_STYLE_EMPTY
+itemDef
+{
+	name demo_only
+	style WINDOW_STYLE_EMPTY
 	rect 0 0 640 480
 	type 1
-      	visible 1 
-	action { play "sound/misc/nomenu.wav" ; 
-	close quitCredit ;
-	uiScript "quit"  }
-    	}
+	visible 1 
+	action
+	{
+		play "sound/misc/nomenu.wav" ;
+		close quitCredit ;
+		uiScript "quit"
+	}
+}
 
     
 

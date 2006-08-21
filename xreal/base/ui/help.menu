@@ -14,7 +14,7 @@
     	border 1
 	onEsc { close help_menu ; close powerup_menu ; close ordersHelp_menu ; open main }
 	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; 
-	playlooped "music/fla_mp03.wav" ;
+	playlooped "music/di.fm-progressive-blue_room_project-5b.wav" ;
 	fadeout fadebox ; 
  	hide grphelptext ; 
 	show grpbttn ; 

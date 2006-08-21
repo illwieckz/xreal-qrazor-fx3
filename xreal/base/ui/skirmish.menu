@@ -17,7 +17,7 @@
 	onEsc { close skirmish ; open main }
 	onOpen { 
 		setitemcolor fadebox backcolor 0 0 0 1 ; 
-		playlooped "music/fla_mp03.wav" ;
+		playlooped "music/di.fm-progressive-blue_room_project-5b.wav" ;
 		fadeout fadebox ;
 		uiScript loadGameInfo ;
 		uiScript updateSPMenu ;
@@ -1347,7 +1347,7 @@ itemDef {
       	visible 0
 	type ITEM_TYPE_BUTTON   
       	action { uiScript skirmishStart }
-      	mouseExit { hide lightning ; hide accept_alt ; show accept ; fadeout message_accept ; playlooped "music/fla_mp03.wav" }	
+      	mouseExit { hide lightning ; hide accept_alt ; show accept ; fadeout message_accept ; playlooped "music/di.fm-progressive-blue_room_project-5b.wav" }	
 /*	
 	//	demo_only
 	cvarTest "ui_gametype"

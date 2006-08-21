@@ -13,7 +13,7 @@ menuDef {
 	focusColor 1 .75 0 1
 	
 		onOpen { play "sound/misc/kcswish.wav" ;
-		playlooped "music/fla_mp03.wav" ;
+		playlooped "music/di.fm-progressive-blue_room_project-5b.wav" ;
 		setitemcolor fadebox backcolor 0 0 0 1 ; 
 		fadeout fadebox ; 
 		uiScript update "ui_GetName" ; 
