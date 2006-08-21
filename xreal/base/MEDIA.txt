@@ -469,7 +469,9 @@ models/players/visor/upper_red.skin							id Software					EULA					q3demo
 models/players/visor/visor_d.tga							id Software					EULA					q3demo
 models/players/visor/visor_n.tga							Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 models/players/visor/visor_s.tga							Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/powerups/ammo/ammobox.tga							Open Arena Team				GPL						oa subversion repository
+models/powerups/ammo/ammobox.jpg							Open Arena Team				GPL						oa subversion repository
+models/powerups/ammo/ammobox_n.jpg							Robert "Tr3B" Beckebans		GPL
+models/powerups/ammo/ammobox_s.jpg							Robert "Tr3B" Beckebans		GPL
 models/powerups/ammo/ammolights.tga							Open Arena Team				GPL						oa subversion repository
 models/powerups/ammo/bfgam.md3								Open Arena Team				GPL						oa subversion repository
 models/powerups/ammo/bfgammo2.tga							Open Arena Team				GPL						oa subversion repository

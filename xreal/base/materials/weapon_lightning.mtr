@@ -157,18 +157,3 @@ models/weapons2/lightning/h_lg_panel
 		rgbGen lightingDiffuse
 	}
 }
-
-/*
-models/powerups/ammo/lighammo2
-{
-	{
-		clampmap models/powerups/ammo/lighammo2.tga
-		tcMod stretch sin 1.2 0.2 0 1 
-		tcMod rotate -180
-	}
-	{
-		map models/powerups/ammo/lighammo2b.tga
-		blendfunc blend
-	}
-}
-*/
