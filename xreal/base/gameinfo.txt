@@ -10,7 +10,6 @@
 // 5 - GT_1FCTF,			// one flag ctf
 // 6 - GT_OBELISK,			// obelisk
 // 7 - GT_HARVESTER,		// harvester
-// 8 - GT_TEAMTOURNAMENT	// team tournament
 
 gametypes {
   { "Free For All" 0 }
@@ -26,7 +25,8 @@ gametypes {
 // english name, map name, vs count, par times per gametype valid gametyes for ui
 // 
 maps {
-  { "Inner Sanctums" "mpteam3" "3"		  "Sarge"			2 "0" 4 "240" 5 "210" 6 "210" 7 "210" }
+  { "DEAD SIMPLE REDUX" "redm08" "1" "Visor"			2 "0" 1 "180" }
+//{ "Inner Sanctums" "mpteam3" "3"   "Visor"			2 "0" 4 "240" 5 "210" 6 "210" 7 "210" }
 }										  
 
 joingametypes {
