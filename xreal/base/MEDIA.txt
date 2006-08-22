@@ -1,5 +1,8 @@
-This file lists the contents of the XreaL.pk3 and it shows information about each file.
-Here you can see which files are from id Software that need to be replaced.
+This file lists the contents of the development XreaL.pk3 and it shows information about each file.
+Here you can see which files are copyrighted by id Software and need to be replaced.
+
+
+BTW: use Tab width = 4 spaces to display this file correctly
 
 
 LICENSE
@@ -513,26 +516,26 @@ models/powerups/harvester/red_h2.tga						id Software					EULA					tademo
 models/powerups/harvester/red_hb.tga						id Software					EULA					tademo
 models/powerups/harvester/red_h.tga							id Software					EULA					tademo
 models/powerups/harvester/red.skin							id Software					EULA					tademo
-models/powerups/health/green.tga							id Software					EULA					q3demo
-models/powerups/health/large_cross.md3						id Software					EULA					q3demo
-models/powerups/health/large_sphere_1.md3					id Software					EULA					q3demo
-models/powerups/health/large_sphere_2.md3					id Software					EULA					q3demo
-models/powerups/health/large_sphere.md3						id Software					EULA					q3demo
-models/powerups/health/medium_cross.md3						id Software					EULA					q3demo
-models/powerups/health/medium_sphere_1.md3					id Software					EULA					q3demo
-models/powerups/health/medium_sphere_2.md3					id Software					EULA					q3demo
-models/powerups/health/medium_sphere.md3					id Software					EULA					q3demo
-models/powerups/health/mega2.tga							id Software					EULA					q3demo
-models/powerups/health/mega_cross.md3						id Software					EULA					q3demo
-models/powerups/health/mega_sphere_1.md3					id Software					EULA					q3demo
-models/powerups/health/mega_sphere_2.md3					id Software					EULA					q3demo
-models/powerups/health/mega_sphere.md3						id Software					EULA					q3demo
-models/powerups/health/red.tga								id Software					EULA					q3demo
-models/powerups/health/small_cross.md3						id Software					EULA					q3demo
-models/powerups/health/small_sphere_1.md3					id Software					EULA					q3demo
-models/powerups/health/small_sphere_2.md3					id Software					EULA					q3demo
-models/powerups/health/small_sphere.md3						id Software					EULA					q3demo
-models/powerups/health/yellow.tga							id Software					EULA					q3demo
+models/powerups/health/large.blend							Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/powerups/health/large_cross.md3						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/powerups/health/large_sphere_1.md3					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/powerups/health/large_sphere_2.md3					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/powerups/health/large_sphere.md3						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/powerups/health/medium.blend							Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/powerups/health/medium_cross.md3						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/powerups/health/medium_sphere_1.md3					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/powerups/health/medium_sphere_2.md3					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/powerups/health/medium_sphere.md3					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/powerups/health/mega.blend							Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/powerups/health/mega_cross.md3						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/powerups/health/mega_sphere_1.md3					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/powerups/health/mega_sphere_2.md3					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/powerups/health/mega_sphere.md3						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/powerups/health/small.blend							Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/powerups/health/small_cross.md3						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/powerups/health/small_sphere_1.md3					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/powerups/health/small_sphere_2.md3					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/powerups/health/small_sphere.md3						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 models/powerups/holdable/medkit_1.md3						id Software					EULA					q3demo
 models/powerups/holdable/medkit_base.tga					id Software					EULA					q3demo
 models/powerups/holdable/medkit_fluid.jpg					id Software					EULA					q3demo
@@ -1584,6 +1587,31 @@ textures/effects2/envmap_red.tga							id Software					EULA					tademo
 textures/effects2/envmap_sky.tga							id Software					EULA					tademo
 textures/effects2/tinfx_scr.tga								id Software					EULA					tademo
 textures/liquids/liquid12_n.tga								Zombie13					custom
+textures/oa_sfx/bfgfx2.tga									Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/bfgfx3.tga									Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/bfgfx.tga									Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/bloodmult.jpg								Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/bloodscreenmult.jpg							Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/bloodsplatmult.jpg							Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/burnme.tga									Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/flare.jpg									Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/greenchrm.jpg								Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/greenflr1.jpg								Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/greenflr2.jpg								Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/inviso.jpg									Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/lightningscroll2.jpg						Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/lightningscroll.jpg							Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/lightningscroll.tga							Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/orangechrm_2.jpg							Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/orangechrm.jpg								Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/orangeflr1.jpg								Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/orangeflr2.jpg								Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/plastrail.jpg								Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/quadmultshell.jpg							Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/quadshell.jpg								Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/regenshell.jpg								Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/rocketflare.jpg								Open Arena Team				GPL						oa subversion repository
+textures/oa_sfx/suitshell.jpg								Open Arena Team				GPL						oa subversion repository
 textures/particles/blood2.tga								Tenebrae Team				custom					tenebrae
 textures/particles/blood.tga								Tenebrae Team				custom					tenebrae
 textures/particles/explosion01.tga							Tenebrae Team				custom					tenebrae
@@ -1604,6 +1632,33 @@ textures/reflex_layout/pad2.tga								Stefan "ReFlex" Lautner		custom					http:
 textures/reflex_layout/pad.tga								Stefan "ReFlex" Lautner		custom					http://www.reflexsuite.com
 textures/reflex_layout/stairs.tga							Stefan "ReFlex" Lautner		custom					http://www.reflexsuite.com
 textures/reflex_layout/wall.tga								Stefan "ReFlex" Lautner		custom					http://www.reflexsuite.com
+textures/sfx/beam_1.jpg										Open Arena Team				GPL						oa subversion repository
+textures/sfx/beam_blue4.jpg									Open Arena Team				GPL						oa subversion repository
+textures/sfx/beam.jpg										Open Arena Team				GPL						oa subversion repository
+textures/sfx/beam_red.jpg									Open Arena Team				GPL						oa subversion repository
+textures/sfx/beam_waterlight.jpg							Open Arena Team				GPL						oa subversion repository
+textures/sfx/beam_waterlight.tga							Open Arena Team				GPL						oa subversion repository
+textures/sfx/b_flameball.jpg								Open Arena Team				GPL						oa subversion repository
+textures/sfx/console01.tga									id Software					EULA					tademo
+textures/sfx/console02.tga									id Software					EULA					tademo
+textures/sfx/detail.jpg										Open Arena Team				GPL						oa subversion repository
+textures/sfx/electric2.blend.jpg							Open Arena Team				GPL						oa subversion repository
+textures/sfx/electricgrade3.jpg								Open Arena Team				GPL						oa subversion repository
+textures/sfx/electricslime.jpg								Open Arena Team				GPL						oa subversion repository
+textures/sfx/kenelectric.jpg								Open Arena Team				GPL						oa subversion repository
+textures/sfx/lavabeam.jpg									Open Arena Team				GPL						oa subversion repository
+textures/sfx/portal_sfx.jpg									Open Arena Team				GPL						oa subversion repository
+textures/sfx/portal_sfx_ring_electric.jpg					Open Arena Team				GPL						oa subversion repository
+textures/sfx/r_flameball.jpg								Open Arena Team				GPL						oa subversion repository
+textures/sfx/snow.jpg										Open Arena Team				GPL						oa subversion repository
+textures/sfx/specular.jpg									Open Arena Team				GPL						oa subversion repository
+textures/sfx/tesla1b.jpg									Open Arena Team				GPL						oa subversion repository
+textures/sfx/tesla1.jpg										Open Arena Team				GPL						oa subversion repository
+textures/sfx/x_conduit2.jpg									Open Arena Team				GPL						oa subversion repository
+textures/sfx/x_conduit3.jpg									Open Arena Team				GPL						oa subversion repository
+textures/sfx/xian_dm3padwallglow.jpg						Open Arena Team				GPL						oa subversion repository
+textures/sfx/zap_scroll2.jpg								Open Arena Team				GPL						oa subversion repository
+textures/sfx/zap_scroll.jpg									Open Arena Team				GPL						oa subversion repository
 textures/sfx/beam_1.jpg										id Software					EULA					q3demo
 textures/sfx/beam.jpg										id Software					EULA					q3demo
 textures/sfx/bolts.jpg										id Software					EULA					q3demo
