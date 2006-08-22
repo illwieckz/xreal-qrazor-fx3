@@ -56,7 +56,7 @@ itemDef {
       	name arenatype
 	type ITEM_TYPE_MULTI	
 	cvar "ui_q3model"
-	cvarFloatList { "Team Arena" 0 "Quake III" 1 }
+	cvarFloatList { "Team" 0 "Single" 1 }
 	text "Model Type:"
 	textstyle 6
       	rect 0 10 320 31 
@@ -69,111 +69,6 @@ itemDef {
 	mouseEnter { show message_type } 
 	mouseExit { hide message_type } 
 	action { play "sound/misc/kcaction.wav" } 
-    	}
-
-itemDef {
-      	name quakeimage
-      	style WINDOW_STYLE_SHADER
-	group grpquaketype
-	cvarTest "ui_q3model"
-	showCVar { "1" }	
- 	background "ui/assets/playerpatriot.tga"
- 	rect 60 24 128 256
-      	forecolor .25 .25 .25 1
-	decoration
-    	}
-
-itemDef {
-      	name quakeimage
-	group grpquaketype
-	cvarTest "ui_q3model"
-	showCVar { "1" }	
-      	style WINDOW_STYLE_SHADER	
- 	background "ui/assets/playerpi.tga"
- 	rect 100 24 128 256
-      	visible 1 
-	decoration
-    	}
-itemDef {
-      	name quakeimage
-	group grpquaketype
-	cvarTest "ui_q3model"
-	showCVar { "1" }		
-      	style WINDOW_STYLE_SHADER	
- 	background "ui/assets/playerklesk.tga"
- 	rect 440 24 128 256
-      	forecolor .5 .5 .5 1
-      	visible 1 
-	decoration
-    	}
-
-
-itemDef {
-      	name quakeimage
-	group grpquaketype	
-	cvarTest "ui_q3model"
-	showCVar { "1" }	
-      	style WINDOW_STYLE_SHADER	
- 	background "ui/assets/playerbiker.tga"
- 	rect 384 24 128 256
-      	visible 1 
-	decoration
-    	}
-
-
-
-itemDef {
-      	name clanlogo1
-      	style WINDOW_STYLE_SHADER
-	group grparenatype
-	cvarTest "ui_q3model"
-	showCVar { "0" }		
- 	background "ui/assets/pagans.tga"
- 	rect 0 150 128 128
-      	forecolor .5 .5 .5 .25
-      	visible 1 
-	decoration
-    	}
-
-itemDef {
-      	name clanlogo1
-	group grparenatype
-	cvarTest "ui_q3model"
-	showCVar { "0" }		
-      	style WINDOW_STYLE_SHADER	
- 	background "ui/assets/crusaders.tga"
- 	rect 128 150 128 128
-      	forecolor .5 .5 .5 .25
-      	visible 1 
-	decoration
-    	}
-
-
-itemDef {
-      	name clanlogo1
-	group grparenatype	
-	cvarTest "ui_q3model"
-	showCVar { "0" }	
-      	style WINDOW_STYLE_SHADER	
- 	background "ui/assets/stroggs.tga"
- 	rect 384 150 128 128
-      	forecolor .5 .5 .5 .25
-      	visible 1 
-	decoration
-    	}
-
-
-itemDef {
-      	name clanlogo1
-	group grparenatype	
-	cvarTest "ui_q3model"
-	showCVar { "0" }	
-      	style WINDOW_STYLE_SHADER	
- 	background "ui/assets/intruders.tga"
- 	rect 512 150 128 128
-      	forecolor .5 .5 .5 .25
-      	visible 1 
-	decoration
     	}
 
 itemDef {
