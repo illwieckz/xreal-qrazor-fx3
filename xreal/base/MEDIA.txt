@@ -1650,6 +1650,7 @@ textures/sfx/lavabeam.jpg									Open Arena Team				GPL						oa subversion repo
 textures/sfx/portal_sfx.jpg									Open Arena Team				GPL						oa subversion repository
 textures/sfx/portal_sfx_ring_electric.jpg					Open Arena Team				GPL						oa subversion repository
 textures/sfx/r_flameball.jpg								Open Arena Team				GPL						oa subversion repository
+textures/sfx/shadow.tga										Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 textures/sfx/snow.jpg										Open Arena Team				GPL						oa subversion repository
 textures/sfx/specular.jpg									Open Arena Team				GPL						oa subversion repository
 textures/sfx/tesla1b.jpg									Open Arena Team				GPL						oa subversion repository
@@ -1775,10 +1776,6 @@ ui/assets/pagans_name.tga									id Software					EULA					tademo
 ui/assets/pagans.roq										id Software					EULA					tademo
 ui/assets/pagans.tga										id Software					EULA					tademo
 ui/assets/patrol.tga										id Software					EULA					tademo
-ui/assets/playerbiker.tga									id Software					EULA					tademo
-ui/assets/playerklesk.tga									id Software					EULA					tademo
-ui/assets/playerpatriot.tga									id Software					EULA					tademo
-ui/assets/playerpi.tga										id Software					EULA					tademo
 ui/assets/q3imagepage.tga									id Software					EULA					tademo
 ui/assets/radial.tga										id Software					EULA					tademo
 ui/assets/red_box.tga										id Software					EULA					tademo
