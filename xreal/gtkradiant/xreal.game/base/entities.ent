@@ -1717,7 +1717,7 @@ Initial Red team spawning position for CTF games. This is where players spawn wh
 =============================================================================
 -->
 
-<point name="team_CTF_redspawn" color="0 .2 1" box="-16 -16 -24 16 16 32">
+<point name="team_CTF_redspawn" color="1 .2 0" box="-16 -16 -24 16 16 32">
 Red team respawning position for CTF games. This is where Red team players respawn after they get fragged.
 -------- KEYS --------
 <target key="target" name="Target">this can point at a target_give entity for respawn freebies.</target>
