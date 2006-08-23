@@ -1661,12 +1661,12 @@ railExplosion
 {
 	cull disable
     {
-		animmap 5 models/weaphits/ring02_1.tga  models/weaphits/ring02_2.tga  models/weaphits/ring02_3.tga models/weaphits/ring02_4.tga gfx/colors/black.tga
+		animmap 5 models/weaphits/ring02_1.tga  models/weaphits/ring02_2.tga  models/weaphits/ring02_3.tga models/weaphits/ring02_4.tga _black
 		alphaGen wave inversesawtooth 0 1 0 5
 		blendfunc blend
 	}
 	{
-		animmap 5 models/weaphits/ring02_2.tga  models/weaphits/ring02_3.tga models/weaphits/ring02_4.tga gfx/colors/black.tga gfx/colors/black.tga
+		animmap 5 models/weaphits/ring02_2.tga  models/weaphits/ring02_3.tga models/weaphits/ring02_4.tga _black _black
 		alphaGen wave sawtooth 0 1 0 5
 		blendfunc blend
 	}
@@ -1676,12 +1676,12 @@ lightningExplosion
 {
 	cull disable
 	{
-		animmap 5 models/weaphits/ring02_1.tga  models/weaphits/ring02_3.tga  models/weaphits/ring02_3.tga gfx/colors/black.tga
+		animmap 5 models/weaphits/ring02_1.tga  models/weaphits/ring02_3.tga  models/weaphits/ring02_3.tga _black
 		rgbGen wave inversesawtooth 0 1 0 5
 		blendfunc add
 	}
 	{
-		animmap 5 models/weaphits/ring02_2.tga  models/weaphits/ring02_3.tga  gfx/colors/black.tga gfx/colors/black.tga
+		animmap 5 models/weaphits/ring02_2.tga  models/weaphits/ring02_3.tga  _black _black
 		rgbGen wave sawtooth 0 1 0 5
 		blendfunc add
 	}
@@ -1691,12 +1691,12 @@ bulletExplosion
 {
 	cull disable
 	{
-		animmap 5 models/weaphits/bullet1.tga  models/weaphits/bullet2.tga  models/weaphits/bullet3.tga gfx/colors/black.tga
+		animmap 5 models/weaphits/bullet1.tga  models/weaphits/bullet2.tga  models/weaphits/bullet3.tga _black
 		rgbGen wave inversesawtooth 0 1 0 5
 		blendfunc add
 	}
 	{
-		animmap 5 models/weaphits/bullet2.tga  models/weaphits/bullet3.tga  gfx/colors/black.tga gfx/colors/black.tga
+		animmap 5 models/weaphits/bullet2.tga  models/weaphits/bullet3.tga  _black _black
 		rgbGen wave sawtooth 0 1 0 5
 		blendfunc add
 	}
@@ -1704,32 +1704,36 @@ bulletExplosion
 
 rocketExplosion
 {
-	cull disable
+	twoSided
 	{
-		animmap 8 models/weaphits/rlboom/rlboom_1.tga  models/weaphits/rlboom/rlboom_2.tga models/weaphits/rlboom/rlboom_3.tga models/weaphits/rlboom/rlboom_4.tga models/weaphits/rlboom/rlboom_5.tga models/weaphits/rlboom/rlboom_6.tga models/weaphits/rlboom/rlboom_7.tga models/weaphits/rlboom/rlboom_8.tga
-		rgbGen wave inversesawtooth 0 1 0 8
-		blendfunc add
+		animmap 13 models/weaphits/rlboom_0.tga models/weaphits/rlboom_1.tga  models/weaphits/rlboom_2.tga models/weaphits/rlboom_3.tga models/weaphits/rlboom_4.tga models/weaphits/rlboom_5.tga models/weaphits/rlboom_6.tga models/weaphits/rlboom_7.tga models/weaphits/rlboom_8.tga models/weaphits/rlboom_9.tga models/weaphits/rlboom_10.tga models/weaphits/rlboom_11.tga models/weaphits/rlboom_12.tga
+		//rgbGen wave inversesawtooth 0 1 0 8
+		blend add
 	}
+	/*
 	{
-		animmap 8 models/weaphits/rlboom/rlboom_2.tga models/weaphits/rlboom/rlboom_3.tga models/weaphits/rlboom/rlboom_4.tga models/weaphits/rlboom/rlboom_5.tga models/weaphits/rlboom/rlboom_6.tga models/weaphits/rlboom/rlboom_7.tga models/weaphits/rlboom/rlboom_8.tga gfx/colors/black.tga
+		animmap 13 models/weaphits/rlboom_1.tga models/weaphits/rlboom_3.tga models/weaphits/rlboom_4.tga models/weaphits/rlboom_5.tga models/weaphits/rlboom_6.tga models/weaphits/rlboom_7.tga models/weaphits/rlboom_8.tga models/weaphits/rlboom_9.tga models/weaphits/rlboom_10.tga models/weaphits/rlboom_11.tga models/weaphits/rlboom_12.tga _black
 		rgbGen wave sawtooth 0 1 0 8
-		blendfunc add
+		blend add
 	}
+	*/
 }
 
 grenadeExplosion
 {
-	cull disable
+	twoSided
 	{
-		animmap 5 models/weaphits/glboom/glboom_1.tga  models/weaphits/glboom/glboom_2.tga models/weaphits/glboom/glboom_3.tga
-		rgbGen wave inversesawtooth 0 1 0 5
-		blendfunc add
+		animmap 13 models/weaphits/rlboom_0.tga models/weaphits/rlboom_1.tga  models/weaphits/rlboom_2.tga models/weaphits/rlboom_3.tga models/weaphits/rlboom_4.tga models/weaphits/rlboom_5.tga models/weaphits/rlboom_6.tga models/weaphits/rlboom_7.tga models/weaphits/rlboom_8.tga models/weaphits/rlboom_9.tga models/weaphits/rlboom_10.tga models/weaphits/rlboom_11.tga models/weaphits/rlboom_12.tga
+		//rgbGen wave inversesawtooth 0 1 0 8
+		blend add
 	}
+	/*
 	{
-		animmap 5 models/weaphits/glboom/glboom_2.tga  models/weaphits/glboom/glboom_3.tga gfx/colors/black.tga
+		animmap 5 models/weaphits/glboom/glboom_2.tga  models/weaphits/glboom/glboom_3.tga _black
 		rgbGen wave sawtooth 0 1 0 5
 		blendfunc add
 	}
+	*/
 }
 
 bfgExplosion
@@ -1741,7 +1745,7 @@ bfgExplosion
 		blendfunc add
 	}
 	{
-		animmap 5 models/weaphits/bfgboom/bfgboom_2.tga models/weaphits/bfgboom/bfgboom_3.tga gfx/colors/black.tga
+		animmap 5 models/weaphits/bfgboom/bfgboom_2.tga models/weaphits/bfgboom/bfgboom_3.tga _black
 		rgbGen wave sawtooth 0 1 0 5
 		blendfunc add
 	}

@@ -6998,24 +6998,6 @@ models/powerups/harvester/blue_h
 
 }
 
-models/weaphits/rlboom/rlboom_1  
-{
-	cull disable
-        
-	{
-		animmap 8 models/weaphits/rlboom/rlboom_1.tga  models/weaphits/rlboom/rlboom_2.tga models/weaphits/rlboom/rlboom_3.tga models/weaphits/rlboom/rlboom_4.tga models/weaphits/rlboom/rlboom_5.tga models/weaphits/rlboom/rlboom_6.tga models/weaphits/rlboom/rlboom_7.tga models/weaphits/rlboom/rlboom_8.tga
-                //tcmod rotate 30 
-		rgbGen wave inversesawtooth 0 1 0 8
-		blendfunc add
-	}
-	{
-		animmap 8 models/weaphits/rlboom/rlboom_2.tga models/weaphits/rlboom/rlboom_3.tga models/weaphits/rlboom/rlboom_4.tga models/weaphits/rlboom/rlboom_5.tga models/weaphits/rlboom/rlboom_6.tga models/weaphits/rlboom/rlboom_7.tga models/weaphits/rlboom/rlboom_8.tga gfx/colors/black.tga
-		//tcmod rotate 30
-                rgbGen wave sawtooth 0 1 0 8
-		blendfunc add
-	}
-}
-
 models/powerups/shield/juicer
 {
  deformVertexes wave 80 sin 0 1 0 .6

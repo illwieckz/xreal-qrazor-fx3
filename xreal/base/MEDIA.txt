@@ -59,7 +59,6 @@ gfx/2d/defer.tga											id Software					EULA					q3demo
 gfx/2d/lag.jpg												id Software					EULA					q3demo
 gfx/2d/net.jpg												id Software					EULA					q3demo
 gfx/2d/select.tga											id Software					EULA					q3demo
-gfx/colors/black.jpg										id Software					EULA					q3demo
 gfx/damage/bullet_mrk.tga									Tenebrae Team				custom					tenebrae
 gfx/damage/burn_med_mrk.jpg									Tenebrae Team				custom					tenebrae
 gfx/damage/hole_lg_mrk.jpg									Tenebrae Team				custom					tenebrae
@@ -661,31 +660,6 @@ models/projectiles/spike/spike_local.tga					Robert "Tr3B" Beckebans		CC BY-NC-S
 models/projectiles/spike/spike.md3							MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
 models/projectiles/spike/spike_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 models/projectiles/spike/spike.tga							MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
-models/weaphits/bfgboom/bfgboom_1.tga						id Software					EULA					q3test
-models/weaphits/bfgboom/bfgboom_2.tga						id Software					EULA					q3test
-models/weaphits/bfgboom/bfgboom_3.tga						id Software					EULA					q3test
-models/weaphits/glboom/glboom_1.jpg							id Software					EULA					q3demo
-models/weaphits/glboom/glboom_1.tga							id Software					EULA					q3demo
-models/weaphits/glboom/glboom_2.jpg							id Software					EULA					q3demo
-models/weaphits/glboom/glboom_2.tga							id Software					EULA					q3demo
-models/weaphits/glboom/glboom_3.jpg							id Software					EULA					q3demo
-models/weaphits/glboom/glboom_3.tga							id Software					EULA					q3demo
-models/weaphits/rlboom/rlboom_1.jpg							id Software					EULA					q3demo
-models/weaphits/rlboom/rlboom_1.tga							id Software					EULA					q3demo
-models/weaphits/rlboom/rlboom_2.jpg							id Software					EULA					q3demo
-models/weaphits/rlboom/rlboom_2.tga							id Software					EULA					q3demo
-models/weaphits/rlboom/rlboom_3.jpg							id Software					EULA					q3demo
-models/weaphits/rlboom/rlboom_3.tga							id Software					EULA					q3demo
-models/weaphits/rlboom/rlboom_4.jpg							id Software					EULA					q3demo
-models/weaphits/rlboom/rlboom_4.tga							id Software					EULA					q3demo
-models/weaphits/rlboom/rlboom_5.jpg							id Software					EULA					q3demo
-models/weaphits/rlboom/rlboom_5.tga							id Software					EULA					q3demo
-models/weaphits/rlboom/rlboom_6.jpg							id Software					EULA					q3demo
-models/weaphits/rlboom/rlboom_6.tga							id Software					EULA					q3demo
-models/weaphits/rlboom/rlboom_7.jpg							id Software					EULA					q3demo
-models/weaphits/rlboom/rlboom_7.tga							id Software					EULA					q3demo
-models/weaphits/rlboom/rlboom_8.jpg							id Software					EULA					q3demo
-models/weaphits/rlboom/rlboom_8.tga							id Software					EULA					q3demo
 models/weaphits/blood201.tga								id Software					EULA					q3demo
 models/weaphits/blood202.tga								id Software					EULA					q3demo
 models/weaphits/blood203.tga								id Software					EULA					q3demo
@@ -701,6 +675,19 @@ models/weaphits/bullet3.tga									id Software					EULA					q3demo
 models/weaphits/bullet.md3									id Software					EULA					q3demo
 models/weaphits/crackle.md3									id Software					EULA					q3demo
 models/weaphits/electric.jpg								id Software					EULA					q3demo
+models/weaphits/rlboom_0.tga								Tenebrae Team				custom					tenebrae
+models/weaphits/rlboom_10.tga								Tenebrae Team				custom					tenebrae
+models/weaphits/rlboom_11.tga								Tenebrae Team				custom					tenebrae
+models/weaphits/rlboom_12.tga								Tenebrae Team				custom					tenebrae
+models/weaphits/rlboom_1.tga								Tenebrae Team				custom					tenebrae
+models/weaphits/rlboom_2.tga								Tenebrae Team				custom					tenebrae
+models/weaphits/rlboom_3.tga								Tenebrae Team				custom					tenebrae
+models/weaphits/rlboom_4.tga								Tenebrae Team				custom					tenebrae
+models/weaphits/rlboom_5.tga								Tenebrae Team				custom					tenebrae
+models/weaphits/rlboom_6.tga								Tenebrae Team				custom					tenebrae
+models/weaphits/rlboom_7.tga								Tenebrae Team				custom					tenebrae
+models/weaphits/rlboom_8.tga								Tenebrae Team				custom					tenebrae
+models/weaphits/rlboom_9.tga								Tenebrae Team				custom					tenebrae
 models/weaphits/kam03b.tga									id Software					EULA					tademo
 models/weaphits/kam03.tga									id Software					EULA					tademo
 models/weaphits/kamboom2.blend								Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
