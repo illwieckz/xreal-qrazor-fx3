@@ -2008,9 +2008,8 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 	qboolean        alphaFade;
 	qboolean        isSprite;
 	int             duration;
-
-//  vec3_t          sprOrg;
-//  vec3_t          sprVel;
+	vec3_t          partOrigin;
+	vec3_t          partVel;
 
 	mark = 0;
 	radius = 32;
@@ -2107,8 +2106,15 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			   CG_ParticleExplosion("explode1", sprOrg, sprVel, 1400, 20, 30);
 			   }
 			 */
-			// Tr3B - shockwave test
-			//CG_ShockWaveEffect(origin);
+			
+			// explosion spark particles
+			//if(cg_explosionSparks.integer)
+			{
+				VectorMA(origin, 24, dir, partOrigin);
+				VectorScale(dir, 64, partVel);
+				
+				CG_ParticleSparks(partOrigin, partVel, 1400, 20, 30, 600);
+			}
 			break;
 		case WP_RAILGUN:
 			mod = cgs.media.ringFlashModel;

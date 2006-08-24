@@ -985,6 +985,18 @@ teleportEffect
 	}
 }
 
+teleportFlare
+{
+	twoSided
+	
+	{
+		map textures/particles/flare2.tga
+		blend add
+		rgbGen vertex
+		alphaGen vertex
+	}
+}
+
 // markShadow is the very cheap blurry blob underneat the player
 markShadow
 {
@@ -1306,6 +1318,30 @@ gfx/damage/plasma_mrk
 	{
 		map gfx/damage/plasma_mrk.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		rgbGen vertex
+		alphaGen vertex
+	}
+}
+
+
+
+textures/particles/glow
+{
+	twoSided
+	{
+		map textures/particles/glow.tga
+		blend add
+		rgbGen vertex
+		alphaGen vertex
+	}
+}
+
+textures/particles/glow1
+{
+	twoSided
+	{
+		map textures/particles/glow1.tga
+		blend add
 		rgbGen vertex
 		alphaGen vertex
 	}

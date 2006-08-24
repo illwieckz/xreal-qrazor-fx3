@@ -75,8 +75,6 @@ gfx/misc/smokepuffragepro.tga								id Software					EULA					q3demo
 gfx/misc/smokepuff.tga										id Software					EULA					q3test-1.05
 gfx/misc/stripes.jpg										Wakey						GPL						q2k5
 gfx/misc/sun.jpg											id Software					EULA					q3demo
-gfx/misc/teleportEffect2.jpg								Randall "Ravenant" P.		custom					http://www.planetquake.com/crypt
-gfx/misc/teleportEffect.tga									id Software					EULA					q3test-1.05
 gfx/misc/tracer.tga											id Software					EULA					q3test-1.03
 icons/ammo_proxmine.tga										id Software					EULA					tademo
 icons/ammo_regen.tga										id Software					EULA					tademo
@@ -342,7 +340,6 @@ models/mapobjects/zogg/jump_pad_h.tga						Ryan "Quaker-X" Rutherford	custom				
 models/mapobjects/zogg/jump_pad_local.tga					Ryan "Quaker-X" Rutherford	custom					www.planetquake.com/quakerx
 models/mapobjects/zogg/jump_pad_mask.tga					Ryan "Quaker-X" Rutherford	custom					www.planetquake.com/quakerx
 models/mapobjects/zogg/jump_pad_s.tga						Ryan "Quaker-X" Rutherford	custom					www.planetquake.com/quakerx
-models/misc/telep.md3										id Software					EULA					tademo
 models/players/heads/james/head_blue.skin					id Software					EULA					tademo
 models/players/heads/james/head_default.skin				id Software					EULA					tademo
 models/players/heads/james/head_red.skin					id Software					EULA					tademo

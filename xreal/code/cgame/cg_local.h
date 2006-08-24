@@ -778,6 +778,8 @@ typedef struct
 
 	qhandle_t       bloomShader;
 	qhandle_t       bloom2Shader;
+	
+	qhandle_t       sparkShader;
 
 	qhandle_t       smokePuffShader;
 	qhandle_t       smokePuffRageProShader;
@@ -834,8 +836,7 @@ typedef struct
 	qhandle_t       bloodExplosionShader;
 
 	// special effects models
-	qhandle_t       teleportEffectModel;
-	qhandle_t       teleportEffectShader;
+	qhandle_t       teleportFlareShader;
 #ifdef MISSIONPACK
 	qhandle_t       kamikazeEffectModel;
 	qhandle_t       kamikazeShockWave;
@@ -1456,7 +1457,6 @@ localEntity_t  *CG_SmokePuff(const vec3_t p,
 							 float r, float g, float b, float a,
 							 float duration, int startTime, int fadeInTime, int leFlags, qhandle_t hShader);
 void            CG_BubbleTrail(vec3_t start, vec3_t end, float spacing);
-void            CG_SpawnEffect(vec3_t org);
 void            CG_ShockWaveEffect(vec3_t org);
 
 #ifdef MISSIONPACK
@@ -1726,5 +1726,6 @@ void            CG_ParticleSparks(vec3_t org, vec3_t vel, int duration, float x,
 void            CG_ParticleDust(centity_t * cent, vec3_t origin, vec3_t dir);
 void            CG_ParticleMisc(qhandle_t pshader, vec3_t origin, int size, int duration, float alpha);
 void            CG_ParticleExplosion(char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd);
+void            CG_ParticleTeleportEffect(const vec3_t origin);
 extern qboolean initparticles;
 int             CG_NewParticleArea(int num);

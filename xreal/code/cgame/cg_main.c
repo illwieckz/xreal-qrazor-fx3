@@ -938,6 +938,8 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.bloomShader = trap_R_RegisterShader("bloom");
 	cgs.media.bloom2Shader = trap_R_RegisterShader("bloom2");
+	
+	cgs.media.sparkShader = trap_R_RegisterShader("textures/particles/glow1");
 
 	// powerup shaders
 	cgs.media.quadShader = trap_R_RegisterShader("powerups/quad");
@@ -1057,8 +1059,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.ringFlashModel = trap_R_RegisterModel("models/weaphits/ring02.md3");
 	cgs.media.dishFlashModel = trap_R_RegisterModel("models/weaphits/boom01.md3");
 	
-	cgs.media.teleportEffectModel = trap_R_RegisterModel("models/misc/telep.md3");
-	cgs.media.teleportEffectShader = trap_R_RegisterShader("teleportEffect");
+	cgs.media.teleportFlareShader = trap_R_RegisterShader("teleportFlare");
 
 #ifdef MISSIONPACK
 	cgs.media.kamikazeEffectModel = trap_R_RegisterModel("models/weaphits/kamboom2.md3");
