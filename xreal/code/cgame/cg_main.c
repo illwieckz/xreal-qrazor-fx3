@@ -229,7 +229,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_drawStatus, "cg_drawStatus", "1", CVAR_ARCHIVE},
 	{&cg_drawSideBar, "cg_drawSideBar", "1", CVAR_ARCHIVE},
 	{&cg_drawPickupItem, "cg_drawPickupItem", "0", CVAR_ARCHIVE},
-	{&cg_drawWeaponSelect, "cg_drawWeaponSelect", "0", CVAR_ARCHIVE},
+	{&cg_drawWeaponSelect, "cg_drawWeaponSelect", "1", CVAR_ARCHIVE},
 	{&cg_drawTimer, "cg_drawTimer", "0", CVAR_ARCHIVE},
 	{&cg_drawFPS, "cg_drawFPS", "0", CVAR_ARCHIVE},
 	{&cg_drawSnapshot, "cg_drawSnapshot", "0", CVAR_ARCHIVE},
