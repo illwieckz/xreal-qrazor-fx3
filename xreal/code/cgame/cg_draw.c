@@ -2651,7 +2651,7 @@ static void CG_DrawCrosshair(void)
 	float           x, y;
 	int             ca;
 
-	if(!cg_drawCrosshair.integer)
+	if(cg_drawCrosshair.integer < 0)
 	{
 		return;
 	}
