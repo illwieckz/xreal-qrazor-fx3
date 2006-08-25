@@ -37,7 +37,11 @@ gfx/2d/numbers/three_32b.tga								Paul "JTR" Steffens 		custom					http://www.
 gfx/2d/numbers/two_32b.tga									Paul "JTR" Steffens 		custom					http://www.xs4all.nl/~caliberx
 gfx/2d/numbers/zero_32b.tga									Paul "JTR" Steffens 		custom					http://www.xs4all.nl/~caliberx
 gfx/2d/backtile.jpg											Open Arena Team				GPL						oa subversion repository
-gfx/2d/bigchars.tga											id Software					EULA					q3demo
+gfx/2d/bigchars.tga											Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+gfx/2d/bigchars.txt											Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+gfx/2d/bigchars.xcf											Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+gfx/2d/chromechars.tga										Christian Ballsieper		CC BY-NC-SA 2.5
+gfx/2d/chromechars.xcf										Christian Ballsieper		CC BY-NC-SA 2.5
 gfx/2d/colorbar.jpg											Open Arena Team				GPL						oa subversion repository
 gfx/2d/crosshaira.tga										[IH] Malice					custom					http://www.bullseyecrosshairs.com/q3test3.shtm
 gfx/2d/crosshairb.tga										[IH] Malice					custom					http://www.bullseyecrosshairs.com/q3test3.shtm
