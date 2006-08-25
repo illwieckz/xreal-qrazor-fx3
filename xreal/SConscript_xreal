@@ -195,8 +195,11 @@ if env['arch'] == 'linux-i386':
 	xreal_env.Append(LIBPATH='/usr/X11R6/lib')
 	xreal_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm'])
 	xreal_env.Append(LIBS=['dl', 'm'])
-	xreal_env.Append(CCFLAGS='`xml2-config --cflags`')
-	xreal_env.Append(LINKFLAGS='`xml2-config --libs`')
+	xreal_env.ParseConfig('xml2-config --cflags --libs')
+	
+	if env['freetype'] == 1:
+		xreal_env.ParseConfig('freetype-config --cflags --libs')
+		xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
 	
 	if env['qvm'] == 1:
 		vm_src += ['code/qcommon/vm_x86.c']
@@ -213,8 +216,7 @@ if env['arch'] == 'linux-i386':
 		xreal_env.Append(LIBS=['asound'])
 		xreal_env.Program('xreal.x86', [xreal_src, unix_src, linux_src, vm_src, 'code/unix/linux_alsa.c'])
 	else:
-		xreal_env.Append(CCFLAGS='`sdl-config --cflags`')
-		xreal_env.Append(LINKFLAGS='`sdl-config --libs`')
+		xreal_env.ParseConfig('sdl-config --cflags --libs')
 		xreal_env.Program('xreal.x86', [xreal_src, unix_src, linux_src, vm_src, 'code/unix/sdl_snd.c'])
 		
 	xreal_env.Install('#', 'xreal.x86')
@@ -223,8 +225,11 @@ elif env['arch'] == 'linux-x86_64':
 	xreal_env.Append(LIBPATH='/usr/X11R6/lib')
 	xreal_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm'])
 	xreal_env.Append(LIBS=['dl', 'm'])
-	xreal_env.Append(CCFLAGS='`xml2-config --cflags`')
-	xreal_env.Append(LINKFLAGS='`xml2-config --libs`')
+	xreal_env.ParseConfig('xml2-config --cflags --libs')
+	
+	if env['freetype'] == 1:
+		xreal_env.ParseConfig('freetype-config --cflags --libs')
+		xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
 	
 	if env['qvm'] == 1:
 		vm_src += ['code/qcommon/vm_x86_64.c']
@@ -241,13 +246,16 @@ elif env['arch'] == 'linux-x86_64':
 		xreal_env.Append(LIBS=['asound'])
 		xreal_env.Program('xreal.x86_64', [xreal_src, unix_src, linux_src, vm_src, 'code/unix/linux_alsa.c'])
 	else:
-		xreal_env.Append(CCFLAGS='`sdl-config --cflags`')
-		xreal_env.Append(LINKFLAGS='`sdl-config --libs`')
+		xreal_env.ParseConfig('sdl-config --cflags --libs')
 		xreal_env.Program('xreal.x86_64', [xreal_src, unix_src, linux_src, vm_src, 'code/unix/sdl_snd.c'])
 		
 	xreal_env.Install('#', 'xreal.x86_64')
 
 elif env['arch'] == 'win32-mingw' or env['arch'] == 'win32-xmingw':
+	if env['freetype'] == 1:
+		xreal_env.ParseConfig('freetype-config --cflags --libs')
+		xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
+
 	if env['qvm'] == 1:
 		vm_src += ['code/qcommon/vm_x86.c']
 	else:

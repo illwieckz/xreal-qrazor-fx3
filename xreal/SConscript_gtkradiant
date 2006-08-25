@@ -275,12 +275,9 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	l_net_src += ['code/gtkradiant/libs/l_net/l_net_berkley.c']
 	
 	gtkradiant_env.Append(CCFLAGS='-DPOSIX -DXWINDOWS')
-	gtkradiant_env.Append(CCFLAGS='`pkg-config gtk+-2.0 --cflags`')
-	gtkradiant_env.Append(LINKFLAGS='`pkg-config gtk+-2.0 --libs`')
-	gtkradiant_env.Append(CCFLAGS='`pkg-config gtkglext-1.0 --cflags`')
-	gtkradiant_env.Append(LINKFLAGS='`pkg-config gtkglext-1.0 --libs`')
-	gtkradiant_env.Append(CCFLAGS='`xml2-config --cflags`')
-	gtkradiant_env.Append(LINKFLAGS='`xml2-config --libs`')
+	gtkradiant_env.ParseConfig('pkg-config gtk+-2.0 --cflags --libs')
+	gtkradiant_env.ParseConfig('pkg-config gtkglext-1.0 --cflags --libs')
+	gtkradiant_env.ParseConfig('xml2-config --cflags --libs')
 	
 	if env['arch'] == 'linux-i386':
 		gtkradiant_env.Program('gtkradiant.x86', [gtkradiant_src, gtkutil_src, profile_src, cmdlib_src, l_net_src])
@@ -309,8 +306,7 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	imagejpeg_env.InstallAs('#gtkradiant/modules/imagejpeg.so', 'libimagejpeg.so')
 	
 	imagepng_env = module_env.Copy()
-	imagepng_env.Append(CCFLAGS='`libpng-config --cflags`')
-	imagepng_env.Append(LINKFLAGS='`libpng-config --libs`')
+	imagepng_env.ParseConfig('libpng-config --cflags --libs')
 	imagepng_env.SharedLibrary('imagepng', imagepng_src)
 	imagepng_env.InstallAs('#gtkradiant/modules/imagepng.so', 'libimagepng.so')
 	
@@ -318,29 +314,17 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	mapq3_env.SharedLibrary('mapq3', mapq3_src)
 	mapq3_env.InstallAs('#gtkradiant/modules/mapq3.so', 'libmapq3.so')
 	
-	"""
-	mapxml_env = module_env.Copy()
-	mapxml_env.Append(CCFLAGS='`pkg-config glib-2.0 --cflags`')
-	mapxml_env.Append(LINKFLAGS='`pkg-config glib-2.0 --libs`')
-	mapxml_env.Append(CCFLAGS='`xml2-config --cflags`')
-	mapxml_env.Append(LINKFLAGS='`xml2-config --libs`')
-	mapxml_env.SharedLibrary('mapxml', mapxml_src)
-	mapxml_env.InstallAs('#gtkradiant/modules/mapxml.so', 'libmapxml.so')
-	"""
-	
 	model_env = module_env.Copy()
 	model_env.SharedLibrary('model', model_src)
 	model_env.InstallAs('#gtkradiant/modules/model.so', 'libmodel.so')
 	
 	shaders_env = module_env.Copy()
-	shaders_env.Append(CCFLAGS='`pkg-config glib-2.0 --cflags`')
-	shaders_env.Append(LINKFLAGS='`pkg-config glib-2.0 --libs`')
+	shaders_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
 	shaders_env.SharedLibrary('shaders', shaders_src)
 	shaders_env.InstallAs('#gtkradiant/modules/shaders.so', 'libshaders.so')
 	
 	vfspk3_env = module_env.Copy()
-	vfspk3_env.Append(CCFLAGS='`pkg-config glib-2.0 --cflags`')
-	vfspk3_env.Append(LINKFLAGS='`pkg-config glib-2.0 --libs`')
+	vfspk3_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
 	vfspk3_env.SharedLibrary('vfspk3', vfspk3_src)
 	vfspk3_env.InstallAs('#gtkradiant/modules/vfspk3.so', 'libvfspk3.so')
 	

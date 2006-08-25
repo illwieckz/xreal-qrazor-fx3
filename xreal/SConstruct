@@ -12,7 +12,7 @@ opts.Add(EnumOption('debug', 'Set to >= 1 to build for debug', '0', allowed_valu
 opts.Add(EnumOption('optimize', 'Set to >= 1 to build with general optimizations', '2', allowed_values=('0', '1', '2', '3', '4', '5', '6')))
 opts.Add(EnumOption('simd', 'Choose special CPU register optimizations', 'none', allowed_values=('none', 'sse', '3dnow')))
 #opts.Add(EnumOption('cpu', 'Set to 1 to build with special CPU register optimizations', 'i386', allowed_values=('i386', #'athlon-xp', 'pentium4')))
-opts.Add(EnumOption('sound', 'Choose sound api', 'oss', allowed_values=('oss', 'alsa', 'sdl')))
+opts.Add(EnumOption('sound', 'Choose sound api', 'sdl', allowed_values=('oss', 'alsa', 'sdl')))
 opts.Add(BoolOption('lua', 'Set to 1 to compile qagame with Lua scripting support', 0))
 opts.Add(BoolOption('qvm', 'Set to 1 to compile engine with Quake virtual machine support', 0))
 opts.Add(BoolOption('smp', 'Set to 1 to compile engine with symetric multiprocessor support', 0))
@@ -20,6 +20,7 @@ opts.Add(BoolOption('purevm', 'Set to 1 to compile engine with scrict checking f
 #opts.Add(BoolOption('mtr', 'Set to 1 to compile engine and map compiler with .mtr shader support', 0))
 opts.Add(BoolOption('gtkradiant', 'Set to 1 to compile GtkRadiant', 0))
 opts.Add(BoolOption('vectorize', 'Set to 1 to compile engine with auto-vectorization support', 0))
+opts.Add(BoolOption('freetype', 'Set to 1 to compile engine with FreeType 2.x support', 0))
 
 #
 # initialize compiler environment base

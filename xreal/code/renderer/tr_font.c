@@ -75,11 +75,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 
 #ifdef BUILD_FREETYPE
-#include "../ft2/fterrors.h"
-#include "../ft2/ftsystem.h"
-#include "../ft2/ftimage.h"
-#include "../ft2/freetype.h"
-#include "../ft2/ftoutln.h"
+//#include <freetype/fterrors.h>
+#include <freetype/ftsystem.h>
+#include <freetype/ftimage.h>
+#include <freetype/freetype.h>
+#include <freetype/ftoutln.h>
 
 #define _FLOOR(x)  ((x) & -64)
 #define _CEIL(x)   (((x)+63) & -64)
@@ -547,7 +547,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 
 			//Com_sprintf (name, sizeof(name), "fonts/fontImage_%i_%i", imageNumber++, pointSize);
 			image = R_CreateImage(name, imageBuff, 256, 256, qfalse, qfalse, WT_CLAMP);
-			h = RE_RegisterShaderFromImage(name, LIGHTMAP_2D, image, qfalse);
+			h = RE_RegisterShaderFromImage(name, image, qfalse);
 			for(j = lastStart; j < i; j++)
 			{
 				font->glyphs[j].glyph = h;
