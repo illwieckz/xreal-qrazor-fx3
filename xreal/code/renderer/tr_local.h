@@ -1980,7 +1980,6 @@ extern cvar_t  *r_showImages;
 extern cvar_t  *r_debugSort;
 
 extern cvar_t  *r_printShaders;
-extern cvar_t  *r_saveFontData;
 
 extern cvar_t  *r_showLightMaps;		// render lightmaps only
 extern cvar_t  *r_showDeluxeMaps;

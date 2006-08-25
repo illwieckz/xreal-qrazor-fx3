@@ -162,7 +162,6 @@ cvar_t         *r_lightScale;
 cvar_t         *r_debugLight;
 cvar_t         *r_debugSort;
 cvar_t         *r_printShaders;
-cvar_t         *r_saveFontData;
 
 cvar_t         *r_maxpolys;
 int             max_polys;
@@ -1208,7 +1207,6 @@ void R_Register(void)
 
 	r_debugLight = ri.Cvar_Get("r_debuglight", "0", CVAR_TEMP);
 	r_debugSort = ri.Cvar_Get("r_debugSort", "0", CVAR_CHEAT);
-	r_saveFontData = ri.Cvar_Get("r_saveFontData", "0", 0);
 
 	r_nocurves = ri.Cvar_Get("r_nocurves", "0", CVAR_CHEAT);
 	r_nobatching = ri.Cvar_Get("r_nobatching", "0", CVAR_CHEAT);

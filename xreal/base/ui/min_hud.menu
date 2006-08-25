@@ -1,31 +1,29 @@
 #include "ui/menudef.h"
-
-// team menu
-// 
-// defines from ui_shared.h
-
 {
-  assetGlobalDef {
-    	cursor "menuCursor"			// cursor	
-    	gradientBar "ui/assets/gradientbar2.tga"	// gradient bar
-    	fadeClamp 1.0					// sets the fadeup alpha
-	fadeCycle 1					// how often fade happens in milliseconds
+
+assetGlobalClientGameDef
+{
+	font "fonts/Turok.ttf" 16		// font
+	smallFont "fonts/Turok.ttf" 12	// font
+	bigFont "fonts/Turok.ttf" 20	// font
+
+//	font "fonts/Quake.ttf" 16		// font
+//	smallFont "fonts/Quake.ttf" 12	// font
+//	bigFont "fonts/Quake.ttf" 20	// font
+	
+	cursor "menuCursor"			// cursor
+	
+	gradientBar "ui/assets/gradientbar2.tga"	// gradient bar
+//	itemFocusSound "sound/misc/menu2.wav"		// sound for item getting focus (via keyboard or mouse )
+	
+	fadeClamp 1.0					// sets the fadeup alpha
+	fadeCycle 1						// how often fade happens in milliseconds
 	fadeAmount 0.1					// amount to adjust alpha per cycle
-
-	shadowX  5					// x amount for shadow offset
-	shadowY  5					// y amount for shadow offset
-	shadowColor 0.1 0.1 0.1 0.25			// shadow color
-
-    	font "fonts/impact.ttf" 16			// font
-    	smallFont "fonts/impact.ttf" 12			// font
-    	bigFont "fonts/impact.ttf" 20			// font
-
-
-  }
-
-
-
-
+	
+	shadowX  5						// x amount for shadow offset
+	shadowY  5						// y amount for shadow offset
+	shadowColor 0.1 0.1 0.1 0.25	// shadow color
+}
 
 
 //	SELECTED PLAYER		//

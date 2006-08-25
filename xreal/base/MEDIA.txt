@@ -22,13 +22,7 @@ http://creativecommons.org/licenses/by-nc-nd/2.5/
 
 FILE														ARTIST						LICENSE					SOURCE
 ======================================================================================================================
-fonts/fontImage_0_12.tga									Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-fonts/fontImage_0_16.tga									Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-fonts/fontImage_0_20.tga									Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-fonts/fontImage_1_20.tga									Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-fonts/fontImage_12.dat										Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-fonts/fontImage_16.dat										Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-fonts/fontImage_20.dat										Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+fonts/Turok.ttf												Neale Davidson				custom					http://www.thealmightyguru.com/Games/Games-Fonts.html
 gfx/2d/hud/sidebaritem_left.tga								Josef "cnuke" Söntgen		custom
 gfx/2d/hud/sidebaritem_right.tga							Josef "cnuke" Söntgen		custom
 gfx/2d/numbers/eight_32b.tga								Paul "JTR" Steffens 		custom					http://www.xs4all.nl/~caliberx
@@ -42,19 +36,19 @@ gfx/2d/numbers/six_32b.tga									Paul "JTR" Steffens 		custom					http://www.x
 gfx/2d/numbers/three_32b.tga								Paul "JTR" Steffens 		custom					http://www.xs4all.nl/~caliberx
 gfx/2d/numbers/two_32b.tga									Paul "JTR" Steffens 		custom					http://www.xs4all.nl/~caliberx
 gfx/2d/numbers/zero_32b.tga									Paul "JTR" Steffens 		custom					http://www.xs4all.nl/~caliberx
-gfx/2d/backtile.jpg											id Software					EULA					q3demo
+gfx/2d/backtile.jpg											Open Arena Team				GPL						oa subversion repository
 gfx/2d/bigchars.tga											id Software					EULA					q3demo
-gfx/2d/colorbar.jpg											id Software					EULA					q3demo
-gfx/2d/crosshaira.tga										id Software					EULA					q3demo
-gfx/2d/crosshairb.tga										id Software					EULA					q3demo
-gfx/2d/crosshairc.tga										id Software					EULA					q3demo
-gfx/2d/crosshaird.tga										id Software					EULA					q3demo
-gfx/2d/crosshaire.tga										id Software					EULA					q3demo
-gfx/2d/crosshairf.tga										id Software					EULA					q3demo
-gfx/2d/crosshairg.tga										id Software					EULA					q3demo
-gfx/2d/crosshairh.tga										id Software					EULA					q3demo
-gfx/2d/crosshairi.tga										id Software					EULA					q3demo
-gfx/2d/crosshairj.tga										id Software					EULA					q3demo
+gfx/2d/colorbar.jpg											Open Arena Team				GPL						oa subversion repository
+gfx/2d/crosshaira.tga										[IH] Malice					custom					http://www.bullseyecrosshairs.com/q3test3.shtm
+gfx/2d/crosshairb.tga										[IH] Malice					custom					http://www.bullseyecrosshairs.com/q3test3.shtm
+gfx/2d/crosshairc.tga										[IH] Malice					custom					http://www.bullseyecrosshairs.com/q3test3.shtm
+gfx/2d/crosshaird.tga										[IH] Malice					custom					http://www.bullseyecrosshairs.com/q3test3.shtm
+gfx/2d/crosshaire.tga										[IH] Malice					custom					http://www.bullseyecrosshairs.com/q3test3.shtm
+gfx/2d/crosshairf.tga										Daz							custom					http://www.bullseyecrosshairs.com/q3test3.shtm
+gfx/2d/crosshairg.tga										Daz							custom					http://www.bullseyecrosshairs.com/q3test3.shtm
+gfx/2d/crosshairh.tga										tbird						custom					http://www.bullseyecrosshairs.com/q3test3.shtm
+gfx/2d/crosshairi.tga										lotek						custom					http://www.bullseyecrosshairs.com/q3test4.shtm
+gfx/2d/crosshairj.tga										mechcow						custom					http://www.bullseyecrosshairs.com/q3test5.shtm
 gfx/2d/defer.tga											id Software					EULA					q3demo
 gfx/2d/lag.jpg												id Software					EULA					q3demo
 gfx/2d/net.jpg												id Software					EULA					q3demo

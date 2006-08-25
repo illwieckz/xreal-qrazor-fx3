@@ -961,7 +961,7 @@ void UI_ParseMenu(const char *menuFile)
 	int             handle;
 	pc_token_t      token;
 
-	Com_Printf("Parsing menu file:%s\n", menuFile);
+	Com_Printf("...parsing ui menu file '%s'\n", menuFile);
 
 	handle = trap_PC_LoadSource(menuFile);
 	if(!handle)
@@ -992,7 +992,7 @@ void UI_ParseMenu(const char *menuFile)
 			break;
 		}
 
-		if(Q_stricmp(token.string, "assetGlobalDef") == 0)
+		if(Q_stricmp(token.string, "assetGlobalMenuDef") == 0)
 		{
 			if(Asset_Parse(handle))
 			{

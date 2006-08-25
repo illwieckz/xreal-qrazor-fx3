@@ -1505,6 +1505,8 @@ void CG_ParseMenu(const char *menuFile)
 {
 	pc_token_t      token;
 	int             handle;
+	
+	Com_Printf("...parsing cgame menu file '%s'\n", menuFile);
 
 	handle = trap_PC_LoadSource(menuFile);
 	if(!handle)
@@ -1534,7 +1536,7 @@ void CG_ParseMenu(const char *menuFile)
 			break;
 		}
 
-		if(Q_stricmp(token.string, "assetGlobalDef") == 0)
+		if(Q_stricmp(token.string, "assetGlobalClientGameDef") == 0)
 		{
 			if(CG_Asset_Parse(handle))
 			{

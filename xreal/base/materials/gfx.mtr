@@ -1394,11 +1394,11 @@ scoreboardPing
 
 //===============================================================
 
-gfx/2d/crosshair
+gfx/2d/crosshaira
 {
 	nopicmip
 	{
-		map gfx/2d/crosshair.tga          
+		map gfx/2d/crosshaira.tga          
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA                
         rgbGen identity
 	}
@@ -1511,7 +1511,7 @@ gfx/2d/bigchars
 	nopicmip
 	nomipmaps
 	{
-		map gfx/2d/bigchars.tga
+		map gfx/2d/chromechars.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 		rgbgen vertex
 	}

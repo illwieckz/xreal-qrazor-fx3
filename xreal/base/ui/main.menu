@@ -1,20 +1,23 @@
 #include "ui/menudef.h"
-
 {
-  assetGlobalDef {
-    	font "fonts/font" 16				// font
-    	smallFont "fonts/smallfont" 12				// font
-    	bigFont "fonts/bigfont" 20				// font
-	cursor "menuCursor"			// cursor	
+
+assetGlobalMenuDef
+{
+	font "fonts/Turok.ttf" 16		// font
+	smallFont "fonts/Turok.ttf" 12	// font
+	bigFont "fonts/Turok.ttf" 20	// font
+	
+	cursor "menuCursor"			// cursor
+	
 	gradientBar "ui/assets/gradientbar2.tga"	// gradient bar
 	itemFocusSound "sound/misc/menu2.wav"		// sound for item getting focus (via keyboard or mouse )
 	
-    	fadeClamp 1.0					// sets the fadeup alpha
-	fadeCycle 1					// how often fade happens in milliseconds
+	fadeClamp 1.0					// sets the fadeup alpha
+	fadeCycle 1						// how often fade happens in milliseconds
 	fadeAmount 0.1					// amount to adjust alpha per cycle
-
-	shadowColor 0.1 0.1 0.1 0.25			// shadow color
-  	}
+	
+	shadowColor 0.1 0.1 0.1 0.25	// shadow color
+}
 							   
 
 
