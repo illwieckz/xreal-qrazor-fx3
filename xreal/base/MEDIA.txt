@@ -730,9 +730,7 @@ models/weapons/proxmine/proxmine3.tga						id Software					EULA					tademo
 models/weapons/proxmine/proxmine_flash.md3					id Software					EULA					tademo
 models/weapons/proxmine/proxmine_hand.md3					id Software					EULA					tademo
 models/weapons/proxmine/proxmine.md3						id Software					EULA					tademo
-models/weapons/rocketl/f_rocketl.jpg						id Software					EULA					q3demo
 models/weapons/rocketl/rocketl.blend						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons/rocketl/rocketl_flash.md3					id Software					EULA					q3demo
 models/weapons/rocketl/rocketl_hand.md3						id Software					EULA					q3demo
 models/weapons/rocketl/rocketl.md3							Ruohis						custom					http://www.kolumbus.fi/ruohis/home.htm
 models/weapons/rocketl/rocketl_norm.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
