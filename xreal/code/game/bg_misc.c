@@ -280,7 +280,7 @@ gitem_t         bg_itemlist[] = {
 	{
 	 "weapon_rocketlauncher",
 	 "sound/misc/w_pkup.wav",
-	 {"models/weapons2/rocketl/rocketl.md3",
+	 {"models/weapons/rocketl/rocketl.md3",
 	  0, 0, 0}
 	 ,
 /* icon */ "icons/iconw_rocket",
@@ -298,7 +298,7 @@ gitem_t         bg_itemlist[] = {
 	{
 	 "weapon_lightning",
 	 "sound/misc/w_pkup.wav",
-	 {"models/weapons2/lightning/lightning.md3",
+	 {"models/weapons/lightning/lightning.md3",
 	  0, 0, 0}
 	 ,
 /* icon */ "icons/iconw_lightning",

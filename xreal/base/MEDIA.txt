@@ -64,6 +64,7 @@ gfx/damage/plasma_mrk.tga									id Software					EULA					q3demo
 gfx/damage/shadow.tga										id Software					EULA					q3demo
 gfx/misc/detail_strip.jpg									Wakey						GPL						q2k5
 gfx/misc/flare.jpg											id Software					EULA					q3demo
+gfx/misc/lightning3.jpg										Open Arena Team				GPL						oa subversion repository
 gfx/misc/railcorethin_mono.tga								id Software					EULA					tademo
 gfx/misc/raildisc_mono2.tga									id Software					EULA					tademo
 gfx/misc/smokepuff2b.tga									id Software					EULA					q3demo
@@ -636,25 +637,25 @@ models/powerups/scout_player_1.md3							id Software					EULA					tademo
 models/powerups/scout_player.md3							id Software					EULA					tademo
 models/powerups/trailtest.md3								id Software					EULA					tademo
 models/projectiles/grenade/grenade.blend					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/projectiles/grenade/grenade_bump.tga					MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
-models/projectiles/grenade/grenade_glow.tga					MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
-models/projectiles/grenade/grenade.md3						MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
-models/projectiles/grenade/grenade_spec.tga					MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
-models/projectiles/grenade/grenade.tga						MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/grenade/grenade_bump.tga					Julian "Plague" Morris		custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/grenade/grenade_glow.tga					Julian "Plague" Morris		custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/grenade/grenade.md3						Julian "Plague" Morris		custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/grenade/grenade_spec.tga					Julian "Plague" Morris		custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/grenade/grenade.tga						Julian "Plague" Morris		custom					http://members.optusnet.com.au/%7eplaguespak/
 models/projectiles/missile/missile.blend					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/projectiles/missile/missile_bump.tga					MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/missile/missile_bump.tga					Julian "Plague" Morris		custom					http://members.optusnet.com.au/%7eplaguespak/
 models/projectiles/missile/missileflar.jpg					Randall "Ravenant" P.		custom					http://www.planetquake.com/crypt
 models/projectiles/missile/missilefls1.jpg					Randall "Ravenant" P.		custom					http://www.planetquake.com/crypt
 models/projectiles/missile/missilefls2.jpg					Randall "Ravenant" P.		custom					http://www.planetquake.com/crypt
-models/projectiles/missile/missile_glow.tga					MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
-models/projectiles/missile/missile.md3						MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
-models/projectiles/missile/missile_spec.tga					MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
-models/projectiles/missile/missile.tga						MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/missile/missile_glow.tga					Julian "Plague" Morris		custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/missile/missile.md3						Julian "Plague" Morris		custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/missile/missile_spec.tga					Julian "Plague" Morris		custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/missile/missile.tga						Julian "Plague" Morris		custom					http://members.optusnet.com.au/%7eplaguespak/
 models/projectiles/spike/spike.blend						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 models/projectiles/spike/spike_local.tga					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/projectiles/spike/spike.md3							MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/spike/spike.md3							Julian "Plague" Morris		custom					http://members.optusnet.com.au/%7eplaguespak/
 models/projectiles/spike/spike_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/projectiles/spike/spike.tga							MonkeyRat					custom					http://members.optusnet.com.au/%7eplaguespak/
+models/projectiles/spike/spike.tga							Julian "Plague" Morris		custom					http://members.optusnet.com.au/%7eplaguespak/
 models/weaphits/blood201.tga								id Software					EULA					q3demo
 models/weaphits/blood202.tga								id Software					EULA					q3demo
 models/weaphits/blood203.tga								id Software					EULA					q3demo
@@ -710,6 +711,14 @@ models/weaphits/ring02_2.tga								id Software					EULA					q3demo
 models/weaphits/ring02_3.tga								id Software					EULA					q3demo
 models/weaphits/ring02_4.tga								id Software					EULA					q3demo
 models/weaphits/ring02.md3									id Software					EULA					q3demo
+models/weapons/lightning/f_lightning.jpg					Open Arena Team				GPL						oa subversion repository
+models/weapons/lightning/lightning.blend					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons/lightning/lightning_flash.md3				Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons/lightning/lightning_hand.md3					id Software					EULA					q3demo
+models/weapons/lightning/lightning.md3						Ruohis						custom					http://www.kolumbus.fi/ruohis/home.htm
+models/weapons/lightning/lightning_norm.tga					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons/lightning/lightning_spec.tga					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons/lightning/lightning.tga						Ruohis						custom					http://www.kolumbus.fi/ruohis/home.htm
 models/weapons/proxmine/f_proxmine.tga						id Software					EULA					tademo
 models/weapons/proxmine/proxmine1b.tga						id Software					EULA					tademo
 models/weapons/proxmine/proxmine_1.md3						id Software					EULA					tademo
@@ -721,9 +730,15 @@ models/weapons/proxmine/proxmine3.tga						id Software					EULA					tademo
 models/weapons/proxmine/proxmine_flash.md3					id Software					EULA					tademo
 models/weapons/proxmine/proxmine_hand.md3					id Software					EULA					tademo
 models/weapons/proxmine/proxmine.md3						id Software					EULA					tademo
-models/weapons/shotgun/hotgun_flash.md3						Open Arena Team				GPL						oa subversion repository
+models/weapons/rocketl/f_rocketl.jpg						id Software					EULA					q3demo
+models/weapons/rocketl/rocketl.blend						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons/rocketl/rocketl_flash.md3					id Software					EULA					q3demo
+models/weapons/rocketl/rocketl_hand.md3						id Software					EULA					q3demo
+models/weapons/rocketl/rocketl.md3							Ruohis						custom					http://www.kolumbus.fi/ruohis/home.htm
+models/weapons/rocketl/rocketl_norm.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons/rocketl/rocketl_spec.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
+models/weapons/rocketl/rocketl.tga							Ruohis						custom					http://www.kolumbus.fi/ruohis/home.htm
 models/weapons/shotgun/muzzley.tga							Open Arena Team				GPL						oa subversion repository
-models/weapons/shotgun/oldshotgun.md3						Open Arena Team				GPL						oa subversion repository
 models/weapons/shotgun/shotgun.blend						Robert "Tr3B" Beckebans		GPL
 models/weapons/shotgun/shotgun_flash.md3					Open Arena Team				GPL						oa subversion repository
 models/weapons/shotgun/shotgun_flashside.tga				Open Arena Team				GPL						oa subversion repository
@@ -771,33 +786,6 @@ models/weapons2/gauntlet/sparky4.jpg						Lee David Ash				custom					http://vio
 models/weapons2/gauntlet/sparky5.jpg						Lee David Ash				custom					http://violatione.planetquake.gamespy.com
 models/weapons2/gauntlet/sparky6.jpg						Lee David Ash				custom					http://violatione.planetquake.gamespy.com
 models/weapons2/gauntlet/sparky7.jpg						Lee David Ash				custom					http://violatione.planetquake.gamespy.com
-models/weapons2/lightning/paneldisp/h_lg_panel_1.tga		James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/paneldisp/h_lg_panel_2.jpg		James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/paneldisp/h_lg_panel_3.jpg		James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/paneldisp/h_lg_panel_4.jpg		James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/paneldisp/h_lg_panel_5.jpg		James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/paneldisp/h_lg_panel_6.jpg		James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/paneldisp/h_lg_panel_7.jpg		James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/paneldisp/h_lg_panel_8.jpg		James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/trail/h-trail1.jpg				James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/trail/h-trail2.jpg				James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/fireflare1.jpg					James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/fireflare2.jpg					James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/fireflare3.jpg					James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/h_lg_bodylight.tga				James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/h_lg_body_n.tga					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/lightning/h_lg_body_s.tga					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/lightning/h_lg_body.tga						James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/h_lg_cara_n.tga					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/lightning/h_lg_cara_s.tga					Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/lightning/h_lg_cara.tga						James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/h_lg_panel.tga					James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/h_spark1.jpg						James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/lightning_1.md3					James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/lightning_2.md3					James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/lightning_flash.md3				James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/lightning_hand.md3				James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
-models/weapons2/lightning/lightning.md3						James "HarlequiN" Taylor	custom					http://www.planetquake.com/polycount/cottages/qbranch
 models/weapons2/machinegun/f_machinegun.jpg					id Software					EULA					q3demo
 models/weapons2/machinegun/machinegun_1.md3					id Software					EULA					q3demo
 models/weapons2/machinegun/machinegun_2.md3					id Software					EULA					q3demo
@@ -835,23 +823,6 @@ models/weapons2/railgun/railgun4.tga						id Software					EULA					q3test-1.05
 models/weapons2/railgun/railgun_flash.md3					id Software					EULA					q3test-1.07
 models/weapons2/railgun/railgun_hand.md3					id Software					EULA					q3test-1.07
 models/weapons2/railgun/railgun.md3							id Software					EULA					q3test-1.07
-models/weapons2/rocketl/f_rocketl.jpg						id Software					EULA					q3demo
-models/weapons2/rocketl/rocketl_1.md3						id Software					EULA					q3demo
-models/weapons2/rocketl/rocketl2.jpg						id Software					EULA					q3demo
-models/weapons2/rocketl/rocketl_2.md3						id Software					EULA					q3demo
-models/weapons2/rocketl/rocketl2_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/rocketl/rocketl2_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/rocketl/rocketl3_n.jpg						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/rocketl/rocketl3_n.xcf						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/rocketl/rocketl3.xcf						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/rocketl/rocketl4_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/rocketl/rocketl4_n.xcf						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/rocketl/rocketl_flash.md3					id Software					EULA					q3demo
-models/weapons2/rocketl/rocketl_hand.md3					id Software					EULA					q3demo
-models/weapons2/rocketl/rocketl.jpg							id Software					EULA					q3demo
-models/weapons2/rocketl/rocketl.md3							id Software					EULA					q3demo
-models/weapons2/rocketl/rocketl_n.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/weapons2/rocketl/rocketl_s.tga						Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 models/weapons2/shells/m_shell_1.md3						id Software					EULA					q3demo
 models/weapons2/shells/m_shell.jpg							id Software					EULA					q3demo
 models/weapons2/shells/m_shell.md3							id Software					EULA					q3demo

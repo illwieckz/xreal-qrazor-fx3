@@ -1,49 +1,26 @@
 
-models/weapons2/rocketl/rocketl
+models/weapons/rocketl/rocketl
 {
-	//cull back
 	{
 		blend diffuseMap
-		map models/weapons2/rocketl/rocketl.tga
+		map models/weapons/rocketl/rocketl.tga
 		rgbGen lightingDiffuse
 	}
-	bumpMap models/weapons2/rocketl/rocketl_n.tga
-	specularMap models/weapons2/rocketl/rocketl_s.tga
+	//bumpMap heightMap(models/weapons/rocketl/rocketl_bump.tga, 3)
+	bumpMap models/weapons/rocketl/rocketl_norm.tga
+	specularMap models/weapons/rocketl/rocketl_spec.tga
 }
 
-models/weapons2/rocketl/rocketl2
-{
-	//cull back
-	{
-		blend diffuseMap
-		map models/weapons2/rocketl/rocketl2.tga
-		rgbGen lightingDiffuse
-	}
-	normalMap models/weapons2/rocketl/rocketl2_n.tga
-	specularMap models/weapons2/rocketl/rocketl2_s.tga
-}
 
 models/weapons2/rocketl/f_rocketl
 {
-	cull disable
+	twoSided
 	sort additive
 	{
 		map models/weapons2/rocketl/f_rocketl.tga
-		blendfunc GL_ONE GL_ONE
+		blend add
 	}
 }
-
-// this one can go away eventually
-models/weapons2/rocketl/rocketl14
-{
-	cull disable
-	sort additive
-	{
-		map models/weapons2/rocketl/f_rocketl.tga
-		blendfunc GL_ONE GL_ONE
-	}
-}
-
 
 
 models/projectiles/missile/missile

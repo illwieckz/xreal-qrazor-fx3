@@ -166,7 +166,7 @@ iteminfo "weapon_grenadelauncher"
 iteminfo "weapon_rocketlauncher"
 {
 	name					"Rocket Launcher"
-	model					"models/weapons2/rocketl/rocketl.md3"
+	model					"models/weapons/rocketl/rocketl.md3"
 	modelindex				MODELINDEX_ROCKETLAUNCHER
 	type					ITEM_WEAPON
 	index					INVENTORY_ROCKETLAUNCHER
@@ -178,7 +178,7 @@ iteminfo "weapon_rocketlauncher"
 iteminfo "weapon_lightning"
 {
 	name					"Lightning Gun"
-	model					"models/weapons2/lightning/lightning.md3"
+	model					"models/weapons/lightning/lightning.md3"
 	modelindex				MODELINDEX_LIGHTNING
 	type					ITEM_WEAPON
 	index					INVENTORY_LIGHTNING
