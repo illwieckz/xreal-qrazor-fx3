@@ -778,6 +778,7 @@ typedef struct
 
 	qhandle_t       bloomShader;
 	qhandle_t       bloom2Shader;
+	qhandle_t       rotoscopeShader;
 	
 	qhandle_t       sparkShader;
 
@@ -1227,6 +1228,7 @@ extern vmCvar_t cg_oldPlasma;
 extern vmCvar_t cg_trueLightning;
 
 extern vmCvar_t cg_drawBloom;
+extern vmCvar_t cg_drawRotoscope;
 
 #ifdef MISSIONPACK
 extern vmCvar_t cg_redTeamName;

@@ -574,6 +574,7 @@ typedef enum
 	ST_GLOWMAP,								// glow post process effect
 	ST_BLOOMMAP,
 	ST_BLOOM2MAP,
+	ST_ROTOSCOPEMAP,
 	ST_LIGHTMAP,
 	ST_REFLECTIONMAP,						// cubeMap based reflection
 	ST_REFRACTIONMAP,
@@ -1766,6 +1767,7 @@ typedef struct
 	shaderProgram_t contrastShader;
 	shaderProgram_t blurXShader;
 	shaderProgram_t blurYShader;
+	shaderProgram_t rotoscopeShader;
 
 	viewParms_t     viewParms;
 

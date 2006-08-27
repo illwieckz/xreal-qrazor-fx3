@@ -804,6 +804,26 @@ void RB_InitGPUShaders(void)
 	qglUseProgramObjectARB(tr.blurYShader.program);
 	qglUniform1iARB(tr.blurYShader.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
+	
+	//
+	// rotoscope post process effect
+	//
+	RB_InitGPUShader(&tr.rotoscopeShader,
+					  "rotoscope",
+					  GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
+
+	tr.rotoscopeShader.u_ColorMap =
+			qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_ColorMap");
+	tr.rotoscopeShader.u_FBufScale =
+			qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_FBufScale");
+	tr.rotoscopeShader.u_NPotScale =
+			qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_NPotScale");
+	tr.rotoscopeShader.u_BlurMagnitude =
+			qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_BlurMagnitude");
+
+	qglUseProgramObjectARB(tr.rotoscopeShader.program);
+	qglUniform1iARB(tr.rotoscopeShader.u_ColorMap, 0);
+	qglUseProgramObjectARB(0);
 }
 
 void RB_ShutdownGPUShaders(void)
@@ -957,6 +977,12 @@ void RB_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.blurYShader.program);
 		tr.blurYShader.program = 0;
+	}
+	
+	if(tr.rotoscopeShader.program)
+	{
+		qglDeleteObjectARB(tr.rotoscopeShader.program);
+		tr.rotoscopeShader.program = 0;
 	}
 }
 
@@ -2853,6 +2879,46 @@ static void Render_bloom2(int stage)
 	GL_CheckErrors();
 }
 
+static void Render_rotoscope(int stage)
+{
+	float           blurMagnitude;
+	float			fbufWidthScale, fbufHeightScale;
+	float			npotWidthScale, npotHeightScale;
+	shaderStage_t  *pStage = tess.surfaceStages[stage];
+	
+	GLimp_LogComment("--- Render_rotoscope ---\n");
+	
+	GL_State(pStage->stateBits);
+	
+	// enable shader, set arrays
+	GL_Program(tr.rotoscopeShader.program);
+	GL_ClientState(tr.rotoscopeShader.attribs);
+	GL_SetVertexAttribs();
+	
+	// set uniforms
+	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
+	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
+	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
+	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderNearestImage->uploadWidth;
+	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderNearestImage->uploadHeight;
+	
+	qglUniform1fARB(tr.rotoscopeShader.u_BlurMagnitude, blurMagnitude);
+	qglUniform2fARB(tr.rotoscopeShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
+	qglUniform2fARB(tr.rotoscopeShader.u_NPotScale, npotWidthScale, npotHeightScale);
+
+	// bind colormap
+	GL_SelectTexture(0);
+	GL_Bind(tr.currentRenderNearestImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderNearestImage->uploadWidth, tr.currentRenderNearestImage->uploadHeight);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
+	qglMatrixMode(GL_MODELVIEW);
+	
+	R_DrawElements();
+	
+	GL_CheckErrors();
+}
+
 static void Render_fog()
 {
 	fog_t          *fog;
@@ -4348,6 +4414,19 @@ void RB_StageIteratorGeneric()
 				if(glConfig.shadingLanguage100Available)
 				{
 					Render_bloom2(stage);
+				}
+				else
+				{
+					// TODO
+				}
+				break;
+			}
+			
+			case ST_ROTOSCOPEMAP:
+			{
+				if(glConfig.shadingLanguage100Available)
+				{
+					Render_rotoscope(stage);
 				}
 				else
 				{

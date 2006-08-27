@@ -1788,11 +1788,6 @@ nailTrail
 
 bloom
 {
-	qer_editorimage _black
-
-	nonsolid
-	twosided
-	
 	{
 		stage bloomMap
 		blurMagnitude 1
@@ -1802,11 +1797,6 @@ bloom
 
 bloomDynamic
 {
-	qer_editorimage _black
-
-	nonsolid
-	twosided
-	
 	{
 		//if(sinTable[ time * 0.2] * 1)
 		
@@ -1818,15 +1808,17 @@ bloomDynamic
 
 bloom2
 {
-	qer_editorimage _black
-
-	nonsolid
-	twosided
-	
 	{
 		stage bloom2Map
 		blurMagnitude 1
 	}
 }
 
-
+rotoscope
+{
+	{
+		stage rotoscopeMap
+		blurMagnitude 1
+		//blurMagnitude 3 + (sinTable[ time * 1] * 2)
+	}
+}

@@ -1903,6 +1903,10 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			{
 				stage->type = ST_BLOOM2MAP;
 			}
+			else if(!Q_stricmp(token, "rotoscopeMap"))
+			{
+				stage->type = ST_ROTOSCOPEMAP;
+			}
 			else if(!Q_stricmp(token, "lightMap"))
 			{
 				stage->type = ST_LIGHTMAP;
@@ -3907,6 +3911,7 @@ static void CollapseStages(void)
 			stages[j].type == ST_GLOWMAP ||
 			stages[j].type == ST_BLOOMMAP ||
 			stages[j].type == ST_BLOOM2MAP ||
+			stages[j].type == ST_ROTOSCOPEMAP ||
 			stages[j].type == ST_LIGHTMAP ||
 			stages[j].type == ST_REFLECTIONMAP ||
 			stages[j].type == ST_REFRACTIONMAP ||
@@ -4462,6 +4467,7 @@ static shader_t *FinishShader(void)
 			case ST_GLOWMAP:
 			case ST_BLOOMMAP:
 			case ST_BLOOM2MAP:
+			case ST_ROTOSCOPEMAP:
 				// skip
 				break;
 			

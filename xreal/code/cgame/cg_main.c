@@ -192,6 +192,7 @@ vmCvar_t        cg_oldPlasma;
 vmCvar_t        cg_trueLightning;
 
 vmCvar_t        cg_drawBloom;
+vmCvar_t        cg_drawRotoscope;
 
 #ifdef MISSIONPACK
 vmCvar_t        cg_redTeamName;
@@ -331,7 +332,8 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
 //  { &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 
-	{&cg_drawBloom, "cg_drawBloom", "0", CVAR_ARCHIVE}
+	{&cg_drawBloom, "cg_drawBloom", "0", CVAR_ARCHIVE},
+	{&cg_drawRotoscope, "cg_drawRotoscope", "0", CVAR_ARCHIVE}
 };
 
 static int      cvarTableSize = sizeof(cvarTable) / sizeof(cvarTable[0]);
@@ -938,6 +940,7 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.bloomShader = trap_R_RegisterShader("bloom");
 	cgs.media.bloom2Shader = trap_R_RegisterShader("bloom2");
+	cgs.media.rotoscopeShader = trap_R_RegisterShader("rotoscope");
 	
 	cgs.media.sparkShader = trap_R_RegisterShader("textures/particles/glow1");
 

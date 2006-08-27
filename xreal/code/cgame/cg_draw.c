@@ -2266,6 +2266,19 @@ static void CG_DrawBloom(void)
 	}
 }
 
+/*
+==============
+CG_DrawRotoscope
+==============
+*/
+static void CG_DrawRotoscope(void)
+{
+	if(cg_drawRotoscope.integer == 1)
+	{
+		CG_DrawPic(0, 0, 640, 480, cgs.media.rotoscopeShader);
+	}
+}
+
 
 /*
 ===============================================================================
@@ -3502,6 +3515,9 @@ void CG_DrawActive(stereoFrame_t stereoView)
 
 	// draw bloom post process effect
 	CG_DrawBloom();
+	
+	// draw rotoscope post process effect
+	CG_DrawRotoscope();
 
 	// draw status bar and other floating elements
 	CG_Draw2D();
