@@ -224,7 +224,7 @@ typedef struct
 	int             numfiles;	// number of files in pk3
 	int             referenced;	// referenced file flags
 	int             hashSize;	// hash table size (power of 2)
-	fileInPack_t   **hashTable;	// hash table
+	fileInPack_t  **hashTable;	// hash table
 	fileInPack_t   *buildBuffer;	// buffer with the filenames etc.
 } pack_t;
 
@@ -603,6 +603,18 @@ static void FS_Remove(const char *osPath)
 {
 	remove(osPath);
 }
+
+/*
+===========
+FS_HomeRemove
+
+===========
+*/
+void FS_HomeRemove(const char *homePath)
+{
+	remove(FS_BuildOSPath(fs_homepath->string, fs_gamedir, homePath));
+}
+
 
 /*
 ================
@@ -2801,7 +2813,7 @@ static void FS_AddGameDirectory(const char *path, const char *dir)
 		sorted[i] = pakfiles[i];
 	}
 
- 	qsort(sorted, numfiles, sizeof(char*), paksort);
+	qsort(sorted, numfiles, sizeof(char *), paksort);
 
 	for(i = 0; i < numfiles; i++)
 	{

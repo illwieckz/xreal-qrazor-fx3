@@ -580,6 +580,7 @@ char          **FS_ListFiles(const char *directory, const char *extension, int *
 
 void            FS_FreeFileList(char **list);
 
+void            FS_HomeRemove(const char *homePath);
 qboolean        FS_FileExists(const char *file);
 
 int             FS_LoadStack();

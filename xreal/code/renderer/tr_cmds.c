@@ -45,23 +45,21 @@ void R_PerformanceCounters(void)
 	if(r_speeds->integer == 1)
 	{
 		ri.Printf(PRINT_ALL, "%i batches %i surfs %i leafs %i verts %i tris\n",
-				  backEnd.pc.c_batches, backEnd.pc.c_surfaces, tr.pc.c_leafs,
-				  backEnd.pc.c_vertexes, backEnd.pc.c_indexes / 3);
-				  
+				  backEnd.pc.c_batches, backEnd.pc.c_surfaces, tr.pc.c_leafs, backEnd.pc.c_vertexes, backEnd.pc.c_indexes / 3);
+
 		ri.Printf(PRINT_ALL, "%i lights %i bout %i pvsout %i interactions %i shadows\n",
 				  tr.pc.c_dlights + tr.pc.c_slights,
 				  tr.pc.c_box_cull_dlight_out + tr.pc.c_box_cull_slight_out,
 				  tr.pc.c_pvs_cull_slight_out,
-				  tr.pc.c_dlightInteractions + tr.pc.c_slightInteractions,
-				  backEnd.pc.c_shadowBatches);
-		
+				  tr.pc.c_dlightInteractions + tr.pc.c_slightInteractions, backEnd.pc.c_shadowBatches);
+
 		/*
-		ri.Printf(PRINT_ALL, "%i draws %.2f mtex %.2f dc\n",
-				  backEnd.pc.c_drawElements,
-				  R_SumOfUsedImages() / (1000000.0f),
-				  backEnd.pc.c_overDraw / (float)(glConfig.vidWidth * glConfig.vidHeight));
-		*/
-		
+		   ri.Printf(PRINT_ALL, "%i draws %.2f mtex %.2f dc\n",
+		   backEnd.pc.c_drawElements,
+		   R_SumOfUsedImages() / (1000000.0f),
+		   backEnd.pc.c_overDraw / (float)(glConfig.vidWidth * glConfig.vidHeight));
+		 */
+
 		ri.Printf(PRINT_ALL, "%i draws VBO: %i arrays %i elements %i verts %i tris\n",
 				  backEnd.pc.c_drawElements,
 				  backEnd.pc.c_vboVertexBuffers, backEnd.pc.c_vboIndexBuffers,
@@ -73,12 +71,11 @@ void R_PerformanceCounters(void)
 				  tr.pc.c_sphere_cull_patch_in, tr.pc.c_sphere_cull_patch_clip,
 				  tr.pc.c_sphere_cull_patch_out, tr.pc.c_box_cull_patch_in,
 				  tr.pc.c_box_cull_patch_clip, tr.pc.c_box_cull_patch_out);
-		
+
 		ri.Printf(PRINT_ALL, "(mdx) %i sin %i sclip %i sout %i bin %i bclip %i bout\n",
 				  tr.pc.c_sphere_cull_mdx_in, tr.pc.c_sphere_cull_mdx_clip,
-				  tr.pc.c_sphere_cull_mdx_out, tr.pc.c_box_cull_mdx_in, tr.pc.c_box_cull_mdx_clip,
-				  tr.pc.c_box_cull_mdx_out);
-				  
+				  tr.pc.c_sphere_cull_mdx_out, tr.pc.c_box_cull_mdx_in, tr.pc.c_box_cull_mdx_clip, tr.pc.c_box_cull_mdx_out);
+
 		ri.Printf(PRINT_ALL, "(md5) %i bin %i bclip %i bout\n",
 				  tr.pc.c_box_cull_md5_in, tr.pc.c_box_cull_md5_clip, tr.pc.c_box_cull_md5_out);
 	}
@@ -91,11 +88,11 @@ void R_PerformanceCounters(void)
 		ri.Printf(PRINT_ALL, "dlight srf:%i culled:%i verts:%i tris:%i\n",
 				  tr.pc.c_dlightSurfaces, tr.pc.c_dlightSurfacesCulled,
 				  backEnd.pc.c_dlightVertexes, backEnd.pc.c_dlightIndexes / 3);
-		
+
 		ri.Printf(PRINT_ALL, "dlights:%i interactions:%i bin:%i bclip:%i bout:%i\n",
 				  tr.pc.c_dlights, tr.pc.c_dlightInteractions,
 				  tr.pc.c_box_cull_dlight_in, tr.pc.c_box_cull_dlight_clip, tr.pc.c_box_cull_dlight_out);
-		
+
 		ri.Printf(PRINT_ALL, "slights:%i interactions:%i bin:%i bclip:%i bout:%i\n",
 				  tr.pc.c_slights, tr.pc.c_slightInteractions,
 				  tr.pc.c_box_cull_slight_in, tr.pc.c_box_cull_slight_clip, tr.pc.c_box_cull_slight_out);
@@ -108,8 +105,7 @@ void R_PerformanceCounters(void)
 	}
 	else if(r_speeds->integer == 6)
 	{
-		ri.Printf(PRINT_ALL, "fog srf:%i batches:%i\n",
-				  backEnd.pc.c_fogSurfaces, backEnd.pc.c_fogBatches);
+		ri.Printf(PRINT_ALL, "fog srf:%i batches:%i\n", backEnd.pc.c_fogSurfaces, backEnd.pc.c_fogBatches);
 	}
 	else if(r_speeds->integer == 7)
 	{
@@ -119,13 +115,11 @@ void R_PerformanceCounters(void)
 	else if(r_speeds->integer == 8)
 	{
 		ri.Printf(PRINT_ALL, "occlusion queries:%i avail:%i culled:%i\n",
-				  backEnd.pc.c_occlusionQueries, backEnd.pc.c_occlusionQueriesAvailable,
-				  backEnd.pc.c_occlusionQueriesCulled);
+				  backEnd.pc.c_occlusionQueries, backEnd.pc.c_occlusionQueriesAvailable, backEnd.pc.c_occlusionQueriesCulled);
 	}
 	else if(r_speeds->integer == 9)
 	{
-		ri.Printf(PRINT_ALL, "depth bounds tests:%i rejected:%i\n",
-				  tr.pc.c_depthBoundsTests, tr.pc.c_depthBoundsTestsRejected);
+		ri.Printf(PRINT_ALL, "depth bounds tests:%i rejected:%i\n", tr.pc.c_depthBoundsTests, tr.pc.c_depthBoundsTestsRejected);
 	}
 
 	Com_Memset(&tr.pc, 0, sizeof(tr.pc));
@@ -312,7 +306,7 @@ void R_AddDrawSurfCmd(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * 
 
 	cmd->drawSurfs = drawSurfs;
 	cmd->numDrawSurfs = numDrawSurfs;
-	
+
 	cmd->interactions = interactions;
 	cmd->numInteractions = numInteractions;
 
@@ -361,8 +355,7 @@ void RE_SetColor(const float *rgba)
 RE_StretchPic
 =============
 */
-void RE_StretchPic(float x, float y, float w, float h,
-				   float s1, float t1, float s2, float t2, qhandle_t hShader)
+void RE_StretchPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader)
 {
 	stretchPicCommand_t *cmd;
 
@@ -414,15 +407,13 @@ void RE_BeginFrame(stereoFrame_t stereoFrame)
 	{
 		if(glConfig.stencilBits < 4)
 		{
-			ri.Printf(PRINT_ALL, "Warning: not enough stencil bits to measure overdraw: %d\n",
-					  glConfig.stencilBits);
+			ri.Printf(PRINT_ALL, "Warning: not enough stencil bits to measure overdraw: %d\n", glConfig.stencilBits);
 			ri.Cvar_Set("r_measureOverdraw", "0");
 			r_measureOverdraw->modified = qfalse;
 		}
 		else if(r_shadows->integer == 3)
 		{
-			ri.Printf(PRINT_ALL,
-					  "Warning: stencil shadows and overdraw measurement are mutually exclusive\n");
+			ri.Printf(PRINT_ALL, "Warning: stencil shadows and overdraw measurement are mutually exclusive\n");
 			ri.Cvar_Set("r_measureOverdraw", "0");
 			r_measureOverdraw->modified = qfalse;
 		}
@@ -497,16 +488,14 @@ void RE_BeginFrame(stereoFrame_t stereoFrame)
 		}
 		else
 		{
-			ri.Error(ERR_FATAL, "RE_BeginFrame: Stereo is enabled, but stereoFrame was %i",
-					 stereoFrame);
+			ri.Error(ERR_FATAL, "RE_BeginFrame: Stereo is enabled, but stereoFrame was %i", stereoFrame);
 		}
 	}
 	else
 	{
 		if(stereoFrame != STEREO_CENTER)
 		{
-			ri.Error(ERR_FATAL, "RE_BeginFrame: Stereo is disabled, but stereoFrame was %i",
-					 stereoFrame);
+			ri.Error(ERR_FATAL, "RE_BeginFrame: Stereo is disabled, but stereoFrame was %i", stereoFrame);
 		}
 		if(!Q_stricmp(r_drawBuffer->string, "GL_FRONT"))
 		{
@@ -558,4 +547,33 @@ void RE_EndFrame(int *frontEndMsec, int *backEndMsec)
 		*backEndMsec = backEnd.pc.msec;
 	}
 	backEnd.pc.msec = 0;
+}
+
+/*
+=============
+RE_TakeVideoFrame
+=============
+*/
+void RE_TakeVideoFrame(int width, int height, byte * captureBuffer, byte * encodeBuffer, qboolean motionJpeg)
+{
+	videoFrameCommand_t *cmd;
+
+	if(!tr.registered)
+	{
+		return;
+	}
+
+	cmd = R_GetCommandBuffer(sizeof(*cmd));
+	if(!cmd)
+	{
+		return;
+	}
+
+	cmd->commandId = RC_VIDEOFRAME;
+
+	cmd->width = width;
+	cmd->height = height;
+	cmd->captureBuffer = captureBuffer;
+	cmd->encodeBuffer = encodeBuffer;
+	cmd->motionJpeg = motionJpeg;
 }

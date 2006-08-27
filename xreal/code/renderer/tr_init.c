@@ -212,7 +212,8 @@ GLvoid         *(APIENTRY * qglMapBufferARB) (GLenum target, GLenum access);
 // GL_ARB_occlusion_query
 void            (APIENTRY * qglGenQueriesARB) (GLsizei n, GLuint * ids);
 void            (APIENTRY * qglDeleteQueriesARB) (GLsizei n, const GLuint * ids);
-GLboolean       (APIENTRY * qglIsQueryARB) (GLuint id);
+
+GLboolean(APIENTRY * qglIsQueryARB) (GLuint id);
 void            (APIENTRY * qglBeginQueryARB) (GLenum target, GLuint id);
 void            (APIENTRY * qglEndQueryARB) (GLenum target);
 void            (APIENTRY * qglGetQueryivARB) (GLenum target, GLenum pname, GLint * params);
@@ -398,7 +399,7 @@ void GL_CheckErrors_(const char *filename, int line)
 {
 	int             err;
 	char            s[128];
-	
+
 	if(glConfig.smpActive)
 	{
 		// we can't print onto the console while rendering in another thread
@@ -926,6 +927,49 @@ void R_ScreenShotJPEG_f(void)
 //============================================================================
 
 /*
+==================
+RB_TakeVideoFrameCmd
+==================
+*/
+const void     *RB_TakeVideoFrameCmd(const void *data)
+{
+	const videoFrameCommand_t *cmd;
+	int             frameSize;
+	int             i;
+
+	cmd = (const videoFrameCommand_t *)data;
+
+	qglReadPixels(0, 0, cmd->width, cmd->height, GL_RGBA, GL_UNSIGNED_BYTE, cmd->captureBuffer);
+
+	// gamma correct
+	if((tr.overbrightBits > 0) && glConfig.deviceSupportsGamma)
+		R_GammaCorrect(cmd->captureBuffer, cmd->width * cmd->height * 4);
+
+	if(cmd->motionJpeg)
+	{
+		frameSize = SaveJPGToBuffer(cmd->encodeBuffer, 90, cmd->width, cmd->height, cmd->captureBuffer);
+		ri.CL_WriteAVIVideoFrame(cmd->encodeBuffer, frameSize);
+	}
+	else
+	{
+		frameSize = cmd->width * cmd->height;
+
+		for(i = 0; i < frameSize; i++)	// Pack to 24bpp and swap R and B
+		{
+			cmd->encodeBuffer[i * 3] = cmd->captureBuffer[i * 4 + 2];
+			cmd->encodeBuffer[i * 3 + 1] = cmd->captureBuffer[i * 4 + 1];
+			cmd->encodeBuffer[i * 3 + 2] = cmd->captureBuffer[i * 4];
+		}
+
+		ri.CL_WriteAVIVideoFrame(cmd->encodeBuffer, frameSize * 3);
+	}
+
+	return (const void *)(cmd + 1);
+}
+
+//============================================================================
+
+/*
 ** GL_SetDefaultState
 */
 void GL_SetDefaultState(void)
@@ -1020,12 +1064,12 @@ void GfxInfo_f(void)
 	{
 		ri.Printf(PRINT_ALL, "GL_TEXTURE_MAX_ANISOTROPY_EXT: %f\n", glConfig.maxTextureAnisotropy);
 	}
-	
+
 	if(glConfig.occlusionQueryAvailable)
 	{
 		ri.Printf(PRINT_ALL, "%d occlusion query bits\n", glConfig.occlusionQueryBits);
 	}
-	
+
 	if(glConfig.framebufferObjectAvailable)
 	{
 		ri.Printf(PRINT_ALL, "GL_MAX_RENDERBUFFER_SIZE_EXT: %d\n", glConfig.maxRenderbufferSize);
@@ -1369,7 +1413,7 @@ void R_Init(void)
 	RB_InitGPUShaders();
 
 	R_InitImages();
-	
+
 	R_InitFBOs();
 
 	R_InitShaders();
@@ -1381,12 +1425,12 @@ void R_Init(void)
 	R_InitAnimations();
 
 	R_InitFreeType();
-	
+
 	if(glConfig.textureAnisotropyAvailable)
 	{
 		AssertCvarRange(r_ext_texture_filter_anisotropic, 0, glConfig.maxTextureAnisotropy, qfalse);
 	}
-	
+
 	if(glConfig.occlusionQueryBits)
 	{
 		qglGenQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
@@ -1430,12 +1474,12 @@ void RE_Shutdown(qboolean destroyWindow)
 		R_ShutdownImages();
 		R_ShutdownVBOs();
 		R_ShutdownFBOs();
-		
+
 		if(glConfig.occlusionQueryBits)
 		{
 			qglDeleteQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
 		}
-		
+
 		RB_ShutdownGPUShaders();
 	}
 
@@ -1532,6 +1576,8 @@ refexport_t    *GetRefAPI(int apiVersion, refimport_t * rimp)
 	re.RemapShader = R_RemapShader;
 	re.GetEntityToken = R_GetEntityToken;
 	re.inPVS = R_inPVS;
+
+	re.TakeVideoFrame = RE_TakeVideoFrame;
 
 	return &re;
 }

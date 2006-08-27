@@ -5,6 +5,7 @@ Import('env')
 xreal_env = env.Copy()
 
 xreal_src = [
+'code/client/cl_avi.c',
 'code/client/cl_cgame.c',
 'code/client/cl_cin.c',
 'code/client/cl_console.c',

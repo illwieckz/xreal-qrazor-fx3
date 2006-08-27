@@ -691,7 +691,8 @@ static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale
 
 	float           dcx, dcy, sqlen, reciplen;
 	float           inv255 = 1.0f / 255.0f;
-//	float           inv127 = 1.0f / 127.0f;
+
+//  float           inv127 = 1.0f / 127.0f;
 	vec3_t          n;
 	byte           *out;
 
@@ -726,12 +727,12 @@ static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale
 
 			dcx = scale * (c - cx);
 			dcy = scale * (c - cy);
-			
+
 			// normalize the vector
 			sqlen = dcx * dcx + dcy * dcy + 1;
 			reciplen = 1.0 / (float)sqrt(sqlen);
 			n[0] = dcx * reciplen;
-			n[1] =-dcy * reciplen;
+			n[1] = -dcy * reciplen;
 			n[2] = reciplen;
 
 			// repack the normalized vector into an RGB unsigned byte
@@ -739,7 +740,7 @@ static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale
 			*out++ = (byte) (128 + 127 * n[0]);
 			*out++ = (byte) (128 + 127 * n[1]);
 			*out++ = (byte) (128 + 127 * n[2]);
-			
+
 			// put in height as displacement map by default
 			*out++ = (byte) (Q_bound(0, c * 255.0 / 3.0, 255));
 		}
@@ -763,7 +764,7 @@ static void R_DisplaceMap(byte * in, byte * in2, int width, int height)
 			n[0] = (in[4 * (y * width + x) + 0] * inv127 - 1.0);
 			n[1] = (in[4 * (y * width + x) + 1] * inv127 - 1.0);
 			n[2] = (in[4 * (y * width + x) + 2] * inv127 - 1.0);
-			
+
 			avg = 0;
 			avg += in2[4 * (y * width + x) + 0];
 			avg += in2[4 * (y * width + x) + 1];
@@ -1054,10 +1055,10 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		// samples 3 would cause an opaque alpha channel and odd displacements!
 		if(image->bits & IF_NORMALMAP)
 		{
-			samples = 4;	
+			samples = 4;
 		}
 		else
-		{		
+		{
 			for(i = 0; i < c; i++)
 			{
 				if(scan[i * 4 + 0] > rMax)
@@ -1079,7 +1080,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 				}
 			}
 		}
-	
+
 		// select proper internal format
 		if(samples == 3)
 		{
@@ -2283,7 +2284,7 @@ GLOBAL void jpeg_start_compress(j_compress_ptr cinfo, boolean write_all_tables)
  * when using a multiple-scanline buffer.
  */
 
-GLOBAL          JDIMENSION jpeg_write_scanlines(j_compress_ptr cinfo, JSAMPARRAY scanlines, JDIMENSION num_lines)
+GLOBAL JDIMENSION jpeg_write_scanlines(j_compress_ptr cinfo, JSAMPARRAY scanlines, JDIMENSION num_lines)
 {
 	JDIMENSION      row_ctr, rows_left;
 
@@ -2476,6 +2477,69 @@ void SaveJPG(char *filename, int quality, int image_width, int image_height, uns
 	jpeg_destroy_compress(&cinfo);
 
 	/* And we're done! */
+}
+
+/*
+=================
+SaveJPGToBuffer
+=================
+*/
+int SaveJPGToBuffer(byte * buffer, int quality, int image_width, int image_height, byte * image_buffer)
+{
+	struct jpeg_compress_struct cinfo;
+	struct jpeg_error_mgr jerr;
+	JSAMPROW        row_pointer[1];	/* pointer to JSAMPLE row[s] */
+	int             row_stride;	/* physical row width in image buffer */
+
+	/* Step 1: allocate and initialize JPEG compression object */
+	cinfo.err = jpeg_std_error(&jerr);
+	/* Now we can initialize the JPEG compression object. */
+	jpeg_create_compress(&cinfo);
+
+	/* Step 2: specify data destination (eg, a file) */
+	/* Note: steps 2 and 3 can be done in either order. */
+	jpegDest(&cinfo, buffer, image_width * image_height * 4);
+
+	/* Step 3: set parameters for compression */
+	cinfo.image_width = image_width;	/* image width and height, in pixels */
+	cinfo.image_height = image_height;
+	cinfo.input_components = 4;	/* # of color components per pixel */
+	cinfo.in_color_space = JCS_RGB;	/* colorspace of input image */
+
+	jpeg_set_defaults(&cinfo);
+	jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */ );
+	/* If quality is set high, disable chroma subsampling */
+	if(quality >= 85)
+	{
+		cinfo.comp_info[0].h_samp_factor = 1;
+		cinfo.comp_info[0].v_samp_factor = 1;
+	}
+
+	/* Step 4: Start compressor */
+	jpeg_start_compress(&cinfo, TRUE);
+
+	/* Step 5: while (scan lines remain to be written) */
+	/*           jpeg_write_scanlines(...); */
+	row_stride = image_width * 4;	/* JSAMPLEs per row in image_buffer */
+
+	while(cinfo.next_scanline < cinfo.image_height)
+	{
+		/* jpeg_write_scanlines expects an array of pointers to scanlines.
+		 * Here the array is only one element long, but you could pass
+		 * more than one scanline at a time if that's more convenient.
+		 */
+		row_pointer[0] = &image_buffer[((cinfo.image_height - 1) * row_stride) - cinfo.next_scanline * row_stride];
+		(void)jpeg_write_scanlines(&cinfo, row_pointer, 1);
+	}
+
+	/* Step 6: Finish compression */
+	jpeg_finish_compress(&cinfo);
+
+	/* Step 7: release JPEG compression object */
+	jpeg_destroy_compress(&cinfo);
+
+	/* And we're done! */
+	return hackSize;
 }
 
 /*
@@ -3387,7 +3451,8 @@ static void LoadDDS(const char *name, byte ** pic, int *width, int *height)
 	// only certain types of dds textures are supported
 	if(pf != DDS_PF_ARGB8888 && pf != DDS_PF_DXT1 && pf != DDS_PF_DXT3 && pf != DDS_PF_DXT5)
 	{
-		ri.Error(ERR_DROP, "LoadDDS: Only DDS texture formats ARGB8888, DXT1, DXT3, and DXT5 are supported (%d) '%s'\n", pf, name);
+		ri.Error(ERR_DROP, "LoadDDS: Only DDS texture formats ARGB8888, DXT1, DXT3, and DXT5 are supported (%d) '%s'\n", pf,
+				 name);
 		return;
 	}
 
@@ -3398,7 +3463,7 @@ static void LoadDDS(const char *name, byte ** pic, int *width, int *height)
 
 	// decompress the dds texture
 	DDSDecompress((ddsBuffer_t *) buffer, *pic);
-	
+
 	ri.FS_FreeFile(buffer);
 }
 
@@ -3772,13 +3837,13 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 	{
 		char            filename[MAX_QPATH];
 		byte            alphaByte;
-		
+
 		// Tr3B: clear alpha of normalmaps for displacement mapping
 		if(*bits & IF_NORMALMAP)
 			alphaByte = 0x00;
 		else
 			alphaByte = 0xFF;
-		
+
 		Q_strncpyz(filename, token, sizeof(filename));
 		Com_DefaultExtension(filename, sizeof(filename), ".tga");
 

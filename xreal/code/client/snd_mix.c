@@ -32,7 +32,7 @@ int            *snd_p;
 int             snd_linear_count;
 short          *snd_out;
 
-#if defined C_ONLY || !( (defined __linux__ || defined __FreeBSD__ || defined __MINGW32__ ) && (defined __i386__) ) // rb010123
+#if defined C_ONLY || !( (defined __linux__ || defined __FreeBSD__ || defined __MINGW32__ ) && (defined __i386__) )	// rb010123
 #if	defined C_ONLY || !id386
 
 void S_WriteLinearBlastStereo16(void)
@@ -139,6 +139,9 @@ void S_TransferStereo16(unsigned long *pbuf, int endtime)
 
 		snd_p += snd_linear_count;
 		ls_paintedtime += (snd_linear_count >> 1);
+
+		if(CL_VideoRecording())
+			CL_WriteAVIAudioFrame((byte *) snd_out, snd_linear_count << 1);
 	}
 }
 

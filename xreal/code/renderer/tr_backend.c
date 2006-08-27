@@ -605,7 +605,7 @@ static void RB_BeginDrawingView(void)
 	{
 		qglDisable(GL_CLIP_PLANE0);
 	}
-	
+
 	GL_CheckErrors();
 }
 
@@ -751,7 +751,7 @@ static void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, in
 	{
 		qglDepthRange(0, 1);
 	}
-	
+
 	GL_CheckErrors();
 }
 
@@ -790,13 +790,13 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 		backEnd.currentEntity = entity = ia->entity;
 		surface = ia->surface;
 		shader = ia->surfaceShader;
-		
+
 		if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
 		{
 			// skip all interactions of this light because it failed the occlusion query
 			goto nextInteraction;
 		}
-		
+
 		if(!shader->interactLight)
 		{
 			// skip this interaction because the surface shader has no ability to interact with light
@@ -809,13 +809,13 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 			// set light scissor to reduce fillrate
 			qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
 
-			#if 0
+#if 0
 			if(!light->additive)
 			{
 				GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
 			}
 			else
-			#endif
+#endif
 			{
 				GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
 			}
@@ -935,7 +935,7 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 				// draw the contents of the current shader batch
 				RB_EndSurface();
 			}
-			
+
 			if(iaCount < (numInteractions - 1))
 			{
 				// jump to next interaction and continue
@@ -976,7 +976,7 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 
 	// reset stage iterator
 	tess.currentStageIteratorType = SIT_DEFAULT;
-	
+
 	GL_CheckErrors();
 }
 
@@ -1025,7 +1025,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 		backEnd.currentEntity = entity = ia->entity;
 		surface = ia->surface;
 		shader = ia->surfaceShader;
-		
+
 		// only iaFirst == iaCount if first iteration or counters were reset
 		if(light != oldLight || iaFirst == iaCount)
 		{
@@ -1049,13 +1049,13 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 						qglDisable(GL_DEPTH_BOUNDS_TEST_EXT);
 					}
 				}
-				
+
 				// set the reference stencil value
 				qglClearStencil(128);
-				
+
 				// reset stencil buffer
 				qglClear(GL_STENCIL_BUFFER_BIT);
-				
+
 				// use less compare as depthfunc
 				// don't write to the color buffer or depth buffer
 				// enable stencil testing for this light
@@ -1068,15 +1068,15 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
 
 				// enable shadow volume extrusion shader
-				#if 1
+#if 1
 				GL_Program(tr.shadowShader.program);
 				GL_ClientState(tr.shadowShader.attribs);
-				#else
+#else
 				GL_Program(0);
 				GL_ClientState(GLCS_VERTEX);
 				GL_SelectTexture(0);
 				GL_Bind(tr.whiteImage);
-				#endif
+#endif
 
 				qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
 			}
@@ -1089,13 +1089,13 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				// visible fragments, and then, increment stencil to avoid
 				// double blending. Re-enable color buffer writes again.
 
-				#if 0
+#if 0
 				if(!light->additive)
 				{
 					GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
 				}
 				else
-				#endif
+#endif
 				{
 					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
 				}
@@ -1109,7 +1109,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				{
 					qglStencilFunc(GL_EQUAL, 128, ~0);
 				}
-				qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);//GL_INCR);
+				qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);	//GL_INCR);
 
 				qglDisable(GL_POLYGON_OFFSET_FILL);
 
@@ -1123,10 +1123,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			if(!r_nobatching->integer && light == oldLight && entity == oldEntity && shader == oldShader)
 			{
 				if(!(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK)) &&
-				   shader->sort == SS_OPAQUE &&
-				   !shader->noShadows &&
-				   !light->l.noShadows &&
-				   ia->type != IA_LIGHTONLY)
+				   shader->sort == SS_OPAQUE && !shader->noShadows && !light->l.noShadows && ia->type != IA_LIGHTONLY)
 				{
 					// fast path, same as previous
 					rb_surfaceTable[*surface] (surface, 0, NULL, ia->numShadowIndexes, ia->shadowIndexes);
@@ -1234,10 +1231,10 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			if(drawShadows)
 			{
 				// set uniform parameter u_LightOrigin for GLSL shader
-				#if 1
+#if 1
 				qglUniform3fARB(tr.shadowShader.u_LightOrigin,
 								light->transformed[0], light->transformed[1], light->transformed[2]);
-				#endif
+#endif
 			}
 
 			// build the attenuation matrix using the entity transform          
@@ -1252,10 +1249,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 		if(drawShadows)
 		{
 			if(!(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK)) &&
-			   shader->sort == SS_OPAQUE &&
-			   !shader->noShadows &&
-			   !light->l.noShadows &&
-			   ia->type != IA_LIGHTONLY)
+			   shader->sort == SS_OPAQUE && !shader->noShadows && !light->l.noShadows && ia->type != IA_LIGHTONLY)
 			{
 				// add the triangles for this surface
 				rb_surfaceTable[*surface] (surface, 0, NULL, ia->numShadowIndexes, ia->shadowIndexes);
@@ -1336,17 +1330,17 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 
 	// reset stage iterator
 	tess.currentStageIteratorType = SIT_DEFAULT;
-	
+
 	GL_CheckErrors();
 }
 
 static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions)
 {
 	GLimp_LogComment("--- RB_RenderOcclusionQueries ---\n");
-	
+
 	if(glConfig.occlusionQueryBits)
 	{
-		int				i;
+		int             i;
 		interaction_t  *ia;
 		int             iaCount;
 		int             iaFirst;
@@ -1354,7 +1348,7 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 		int             ocCount;
 		GLint           ocSamples = 0;
 		qboolean        queryObjects;
-		GLint			available;
+		GLint           available;
 
 		qglColor4f(1.0f, 0.0f, 0.0f, 0.05f);
 
@@ -1362,7 +1356,7 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 		GL_Cull(CT_TWO_SIDED);
 		GL_SelectTexture(0);
 		qglDisable(GL_TEXTURE_2D);
-		
+
 		// don't write to the color buffer or depth buffer
 		if(r_showOcclusionQueries->integer)
 		{
@@ -1378,17 +1372,17 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
 		{
 			backEnd.currentLight = light = ia->dlight;
-			
+
 			if(!ia->next)
 			{
 				ocCount++;
-				
+
 				// last interaction of current light
 				if(ocCount < (MAX_OCCLUSION_QUERIES - 1) && !R_DlightIntersectsPoint(light, backEnd.viewParms.or.origin))
 				{
 					R_RotateForDlight(light, &backEnd.viewParms, &backEnd.or);
 					qglLoadMatrixf(backEnd.or.modelViewMatrix);
-				
+
 					// begin the occlusion query
 					qglBeginQueryARB(GL_SAMPLES_PASSED, tr.occlusionQueryObjects[ocCount]);
 
@@ -1413,26 +1407,26 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
 					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
 					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
-	
+
 					qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
 					qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
 					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
 					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
-	
+
 					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
 					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
 					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
 					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
 
 					qglEnd();
-				
+
 					// end the query
 					// don't read back immediately so that we give the query time to be ready
 					qglEndQueryARB(GL_SAMPLES_PASSED);
-				
+
 					backEnd.pc.c_occlusionQueries++;
 				}
-				
+
 				if(iaCount < (numInteractions - 1))
 				{
 					// jump to next interaction and continue
@@ -1456,34 +1450,34 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 		// go back to the world modelview matrix
 		backEnd.or = backEnd.viewParms.world;
 		qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
-		
+
 		if(!ocCount)
 		{
 			qglEnable(GL_TEXTURE_2D);
-			return;	
+			return;
 		}
-		
+
 		qglFlush();
-		
+
 		// do other work until "most" of the queries are back, to avoid
-        // wasting time spinning
-        #if 1
-        i = (int)(ocCount * 3 / 4); // instead of N-1, to prevent the GPU from going idle
-        do
-        {
-        	i++;
-        	
-        	//if(i >= ocCount)
-        	//	i = (int)(ocCount * 3 / 4);
-        	
-       		qglGetQueryObjectivARB(tr.occlusionQueryObjects[i], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
-	    }while(!available && i < ocCount);
-	    #endif
-		
+		// wasting time spinning
+#if 1
+		i = (int)(ocCount * 3 / 4);	// instead of N-1, to prevent the GPU from going idle
+		do
+		{
+			i++;
+
+			//if(i >= ocCount)
+			//  i = (int)(ocCount * 3 / 4);
+
+			qglGetQueryObjectivARB(tr.occlusionQueryObjects[i], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+		} while(!available && i < ocCount);
+#endif
+
 		// reenable writes to depth and color buffers
 		GL_State(GLS_DEPTHMASK_TRUE);
 		qglEnable(GL_TEXTURE_2D);
-		
+
 		// loop trough all light interactions and fetch results for each last interaction
 		// then copy result to all other interactions that belong to the same light
 		ocCount = -1;
@@ -1493,37 +1487,37 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
 		{
 			backEnd.currentLight = light = ia->dlight;
-			
+
 			if(light != oldLight)
 			{
 				iaFirst = iaCount;
 			}
-			
+
 			if(!queryObjects)
 			{
 				ia->occlusionQuerySamples = ocSamples;
 			}
-		
+
 			if(!ia->next)
 			{
 				if(queryObjects)
 				{
 					ocCount++;
-					
+
 					if(ocCount < (MAX_OCCLUSION_QUERIES - 1) && !R_DlightIntersectsPoint(light, backEnd.viewParms.or.origin))
 					{
-						#if 1
+#if 1
 						qglGetQueryObjectivARB(tr.occlusionQueryObjects[ocCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
 						if(available)
-						#else
+#else
 						if(1)
-						#endif
+#endif
 						{
 							backEnd.pc.c_occlusionQueriesAvailable++;
-						
+
 							// get the object and store it in the occlusion bits for the light
 							qglGetQueryObjectivARB(tr.occlusionQueryObjects[ocCount], GL_QUERY_RESULT, &ocSamples);
-					
+
 							if(ocSamples <= 0)
 							{
 								backEnd.pc.c_occlusionQueriesCulled++;
@@ -1538,7 +1532,7 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 					{
 						ocSamples = 1;
 					}
-					
+
 					// jump back to first interaction of this light copy query result
 					ia = &interactions[iaFirst];
 					iaCount = iaFirst;
@@ -1566,7 +1560,7 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 				ia = ia->next;
 				iaCount++;
 			}
-			
+
 			oldLight = light;
 		}
 	}
@@ -1589,9 +1583,9 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 		GL_Cull(CT_TWO_SIDED);
 		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
-		
-		stencilReadback = ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight);		
-		
+
+		stencilReadback = ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight);
+
 		// don't write to the color buffer or depth buffer
 		if(r_showOcclusionQueries->integer)
 		{
@@ -1601,7 +1595,7 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 		{
 			GL_State(GLS_COLORMASK_BITS | GLS_STENCILTEST_ENABLE);
 		}
-		
+
 		oldLight = NULL;
 		calcSum = qtrue;
 
@@ -1609,17 +1603,17 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
 		{
 			backEnd.currentLight = light = ia->dlight;
-			
+
 			if(light != oldLight)
 			{
 				iaFirst = iaCount;
 			}
-			
+
 			if(!calcSum)
 			{
 				ia->occlusionQuerySamples = sum;
 			}
-			
+
 			if(!ia->next)
 			{
 				// last interaction of current light
@@ -1629,16 +1623,16 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 					{
 						// clear stencil buffer
 						qglClear(GL_STENCIL_BUFFER_BIT);
-						
+
 						// set the reference stencil value
 						//qglClearStencil(0U);
 						qglStencilMask(~0);
 						qglStencilFunc(GL_ALWAYS, 0, ~0);
 						qglStencilOp(GL_KEEP, GL_INCR, GL_INCR);
-					
+
 						R_RotateForDlight(light, &backEnd.viewParms, &backEnd.or);
 						qglLoadMatrixf(backEnd.or.modelViewMatrix);
-				
+
 						qglBegin(GL_QUADS);
 
 						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
@@ -1660,39 +1654,41 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
 						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
 						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
-		
+
 						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
 						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
 						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
 						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
-	
+
 						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
 						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
 						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
 						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
 
 						qglEnd();
-				
+
 						backEnd.pc.c_occlusionQueries++;
 						backEnd.pc.c_occlusionQueriesAvailable++;
-					
-						#if 1
-						qglReadPixels(0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback);
-						
+
+#if 1
+						qglReadPixels(0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE,
+									  stencilReadback);
+
 						for(i = 0, sum = 0; i < glConfig.vidWidth * glConfig.vidHeight; i++)
 						{
 							sum += stencilReadback[i];
 						}
-						#else
+#else
 						// only consider the 2D light scissor of current light
-						qglReadPixels(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback);
-						
+						qglReadPixels(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight, GL_STENCIL_INDEX,
+									  GL_UNSIGNED_BYTE, stencilReadback);
+
 						for(i = 0, sum = 0; i < ia->scissorWidth * ia->scissorHeight; i++)
 						{
 							sum += stencilReadback[i];
 						}
-						#endif
-					
+#endif
+
 						if(!sum)
 						{
 							backEnd.pc.c_occlusionQueriesCulled++;
@@ -1702,7 +1698,7 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 					{
 						sum = 1;
 					}
-					
+
 					// jump back to first interaction of this light copy sum to all interactions
 					ia = &interactions[iaFirst];
 					iaCount = iaFirst;
@@ -1730,17 +1726,17 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 				ia = ia->next;
 				iaCount++;
 			}
-			
+
 			oldLight = light;
 		}
 
 		// go back to the world modelview matrix
 		backEnd.or = backEnd.viewParms.world;
 		qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
-		
+
 		// reenable writes to depth and color buffers
 		GL_State(GLS_DEPTHMASK_TRUE);
-		
+
 		ri.Hunk_FreeTempMemory(stencilReadback);
 	}
 #endif
@@ -1751,7 +1747,7 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 static void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
 {
 	GLimp_LogComment("--- RB_RenderDebugUtils ---\n");
-	
+
 	if(r_showLightTransforms->integer)
 	{
 		int             i;
@@ -2030,8 +2026,7 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 		qglLoadIdentity();
 		qglOrtho(backEnd.viewParms.viewportX,
 				 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-				 backEnd.viewParms.viewportY,
-				 backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+				 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
 
 		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
 		{
@@ -2045,7 +2040,7 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 				{
 					qglColor4fv(colorGreen);
 				}
-				
+
 				qglBegin(GL_QUADS);
 				qglVertex2f(ia->scissorX, ia->scissorY);
 				qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
@@ -2093,7 +2088,7 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 		qglMatrixMode(GL_MODELVIEW);
 		qglPopMatrix();
 	}
-	
+
 	GL_CheckErrors();
 }
 
@@ -2113,7 +2108,7 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 		// don't just call LogComment, or we will get a call to va() every frame!
 		GLimp_LogComment(va("--- RB_RenderDrawSurfList( %i surfaces, %i interactions ) ---\n", numDrawSurfs, numInteractions));
 	}
-	
+
 	GL_CheckErrors();
 
 	// save original time for entity shader offsets
@@ -2614,6 +2609,9 @@ void RB_ExecuteRenderCommands(const void *data)
 				break;
 			case RC_SCREENSHOT:
 				data = RB_TakeScreenshotCmd(data);
+				break;
+			case RC_VIDEOFRAME:
+				data = RB_TakeVideoFrameCmd(data);
 				break;
 
 			case RC_END_OF_LIST:

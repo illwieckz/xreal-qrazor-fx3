@@ -110,7 +110,7 @@ portable_samplepair_t s_rawsamples[MAX_RAW_SAMPLES];
 void S_SoundInfo_f(void)
 {
 	Com_Printf("----- Sound Info -----\n");
-	
+
 	if(!s_soundStarted)
 	{
 		Com_Printf("sound system not started\n");
@@ -128,7 +128,7 @@ void S_SoundInfo_f(void)
 		Com_Printf("%5d submission_chunk\n", dma.submission_chunk);
 		Com_Printf("%5d speed\n", dma.speed);
 		Com_Printf("0x%x dma buffer\n", dma.buffer);
-		
+
 		if(s_backgroundFile)
 		{
 			Com_Printf("Background file: %s\n", s_backgroundLoop);
@@ -1346,6 +1346,12 @@ void S_GetSoundtime(void)
 	int             fullsamples;
 
 	fullsamples = dma.samples / dma.channels;
+
+	if(CL_VideoRecording())
+	{ 
+		s_soundtime += (int)ceil(dma.speed / cl_aviFrameRate->value);
+		return;
+	}
 
 	// it is possible to miscount buffers if it has wrapped twice between
 	// calls to S_Update.  Oh well.

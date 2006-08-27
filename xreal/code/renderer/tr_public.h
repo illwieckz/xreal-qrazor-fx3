@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../cgame/tr_types.h"
 
-#define	REF_API_VERSION		9
+#define	REF_API_VERSION		10
 
 //
 // these are the functions exported by the refresh module
@@ -47,12 +47,12 @@ typedef struct
 	// and height, which can be used by the client to intelligently
 	// size display elements
 	void            (*BeginRegistration) (glConfig_t * config);
-	qhandle_t       (*RegisterModel) (const char *name);
-	qhandle_t       (*RegisterAnimation) (const char *name);
-	qhandle_t       (*RegisterSkin) (const char *name);
-	qhandle_t       (*RegisterShader) (const char *name);
-	qhandle_t       (*RegisterShaderNoMip) (const char *name);
-	qhandle_t       (*RegisterShaderLightAttenuation) (const char *name);
+	                qhandle_t(*RegisterModel) (const char *name);
+	                qhandle_t(*RegisterAnimation) (const char *name);
+	                qhandle_t(*RegisterSkin) (const char *name);
+	                qhandle_t(*RegisterShader) (const char *name);
+	                qhandle_t(*RegisterShaderNoMip) (const char *name);
+	                qhandle_t(*RegisterShaderLightAttenuation) (const char *name);
 	void            (*LoadWorld) (const char *name);
 
 	// the vis data is a large enough block of data that we go to the trouble
@@ -94,12 +94,12 @@ typedef struct
 
 	int             (*LerpTag) (orientation_t * tag, qhandle_t model, int startFrame, int endFrame,
 								float frac, const char *tagName);
-	
+
 	int             (*ResetSkeleton) (refSkeleton_t * skel, qhandle_t model);
 	int             (*BuildSkeleton) (refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac);
 	int             (*BlendSkeleton) (refSkeleton_t * skel, const refSkeleton_t * blend, float frac);
-//	int             (*BoneIndex) (qhandle_t model, const char *boneName);
-	
+//  int             (*BoneIndex) (qhandle_t model, const char *boneName);
+
 	void            (*ModelBounds) (qhandle_t model, vec3_t mins, vec3_t maxs);
 
 #ifdef __USEA3D
@@ -109,6 +109,8 @@ typedef struct
 	void            (*RemapShader) (const char *oldShader, const char *newShader, const char *offsetTime);
 	                qboolean(*GetEntityToken) (char *buffer, int size);
 	                qboolean(*inPVS) (const vec3_t p1, const vec3_t p2);
+
+	void            (*TakeVideoFrame) (int h, int w, byte * captureBuffer, byte * encodeBuffer, qboolean motionJpeg);
 } refexport_t;
 
 //
@@ -169,6 +171,7 @@ typedef struct
 	int             (*CIN_PlayCinematic) (const char *arg0, int xpos, int ypos, int width, int height, int bits);
 	                e_status(*CIN_RunCinematic) (int handle);
 
+	void            (*CL_WriteAVIVideoFrame) (const byte * buffer, int size);
 } refimport_t;
 
 
