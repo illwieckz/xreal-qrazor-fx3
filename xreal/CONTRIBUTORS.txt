@@ -1,0 +1,49 @@
+CODING
+======
+Robert "Tr3B" Beckebans - lead coding
+Josef "cnuke" Söntgen - cgame stuff
+Björn "bj0ern" Paschen - win32 specific fixes
+Pat "raynorpat" Raynor - bugfixes
+Iain "Jock" Mckay - x86_64 patch
+Tim "Timbo" Angus - .avi video recording patch
+ensiform - console clock enhancements
+
+
+
+MODELLING
+=========
+Robert "Tr3B" Beckebans - health pickup models
+Lee David Ash - weapon models
+Julian "Plaque" Morris - weapon and projectile models
+Ruohis - weapon models
+jzero - OpenArena weapon models
+CheapAlert - OpenArena models
+
+
+
+LEVEL DESIGN
+============
+Stefan "ReFlex" Lautner - redm08
+
+
+
+2D ART
+======
+Christian "Lorax" Ballsieper
+Josef "cnuke" Söntgen
+Willi "whammes" Hammes
+Robin "Wakey" Pengelstorfer
+Stefan "ReFlex" Lautner
+Garth "Zombie13" Hendy
+CheapAlert
+
+
+SFX
+===
+Randall "Ravenant" P. - cool weapon sounds
+
+
+DEVELOPMENT ASSISTANCE
+======================
+Josef "cnuke" Söntgen - development media mirror and game server
+
