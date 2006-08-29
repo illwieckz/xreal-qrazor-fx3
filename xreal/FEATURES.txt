@@ -35,6 +35,7 @@ code/renderer
 - Doom3 .md5anim animation file format support
 - Doom3 .mtr material shader language support
 - cubemap based reflection mapping
+- cubemap based reflective bump mapping (EMBM)
 - cubemap based refraction mapping
 - cubemap based dispersion mapping
 - deluxe mapping: advanced N dot L lightmapping
