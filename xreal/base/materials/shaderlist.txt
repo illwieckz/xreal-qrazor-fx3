@@ -27,11 +27,12 @@ fogs
 #gw_dm1_skies
 #gw_dm1_tower
 #gw_dm1_tree
-#gw_dm2
+gw_dm2
 gw_mapobject
-#gwdm2_sky
+gwdm2_sky
 glass
 hell
+hi_volt_sky
 ice
 #incubation
 invisible
@@ -92,10 +93,12 @@ tim
 tools
 tr3b_fog
 tr3b_water
+tr3b_nvidia
 #vehicles
 video
 #washroom
 #weapons
+z13d3dm2
 zgraeme
 #zogg_env
 #zogg_floor

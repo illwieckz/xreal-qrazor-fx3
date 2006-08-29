@@ -583,11 +583,12 @@ typedef enum
 	ST_SKYBOXMAP,
 	ST_LIQUIDMAP,				// reflective water shader
 
-	ST_COLLAPSE_genericMulti,	// two colormaps
-	ST_COLLAPSE_lighting_DB_direct,	// directional entity lighting like rgbGen lightingDiffuse
+	ST_COLLAPSE_genericMulti,			// two colormaps
+	ST_COLLAPSE_lighting_DB_direct,		// directional entity lighting like rgbGen lightingDiffuse
 	ST_COLLAPSE_lighting_DBS_direct,	// direction entity lighting with diffuse + bump + specular
 	ST_COLLAPSE_lighting_DB_generic,	// diffusemap + bumpmap
 	ST_COLLAPSE_lighting_DBS_generic,	// diffusemap + bumpmap + specularmap + lightmap
+	ST_COLLAPSE_reflection_CB,			// color cubemap + bumpmap
 
 	// light shader stage types
 	ST_ATTENUATIONMAP_XY,
@@ -597,11 +598,12 @@ typedef enum
 typedef enum
 {
 	COLLAPSE_none,
-	COLLAPSE_Generic_multi,
+	COLLAPSE_genericMulti,
 	COLLAPSE_lighting_DB_direct,
 	COLLAPSE_lighting_DBS_direct,
 	COLLAPSE_lighting_DB_generic,
 	COLLAPSE_lighting_DBS_generic,
+	COLLAPSE_reflection_CB
 } collapseType_t;
 
 typedef struct
@@ -839,6 +841,7 @@ typedef struct shaderProgram_s
 	GLint           u_NPotScale;
 
 	GLint           u_ProjectionMatrixTranspose;
+	GLint           u_ModelMatrix;
 } shaderProgram_t;
 
 
@@ -1757,6 +1760,7 @@ typedef struct
 	shaderProgram_t shadowShader;
 
 	shaderProgram_t reflectionShader_C;
+	shaderProgram_t reflectionShader_CB;
 	shaderProgram_t refractionShader_C;
 	shaderProgram_t dispersionShader_C;
 

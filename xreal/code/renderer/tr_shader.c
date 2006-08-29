@@ -2436,17 +2436,24 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 	{
 		if(blendSrcBits == 0 || blendSrcBits == GLS_SRCBLEND_ONE || blendSrcBits == GLS_SRCBLEND_SRC_ALPHA)
 		{
-			stage->rgbGen = CGEN_IDENTITY_LIGHTING;
-		}
-		else if(stage->type == ST_DIFFUSEMAP)
-		{
-			if(shader.type == SHADER_3D_DYNAMIC)
+			if(stage->type == ST_DIFFUSEMAP)
 			{
-				stage->rgbGen = CGEN_LIGHTING_DIFFUSE;
+				if(shader.type == SHADER_3D_DYNAMIC)
+				{
+					stage->rgbGen = CGEN_LIGHTING_DIFFUSE;
+				}
+				else if(shader.type == SHADER_3D_STATIC)
+				{
+					stage->rgbGen = CGEN_EXACT_VERTEX;
+				}
+				else
+				{
+					stage->rgbGen = CGEN_IDENTITY_LIGHTING;
+				}
 			}
-			else if(shader.type == SHADER_3D_STATIC)
+			else
 			{
-				stage->rgbGen = CGEN_EXACT_VERTEX;
+				stage->rgbGen = CGEN_IDENTITY_LIGHTING;
 			}
 		}
 		else
@@ -3872,11 +3879,12 @@ static void CollapseStages(void)
 	qboolean		hasDiffuseStage;
 	qboolean		hasNormalStage;
 	qboolean		hasSpecularStage;
-	qboolean		hasColorStage;
+	qboolean		hasReflectionStage;
 	
 	shaderStage_t	tmpDiffuseStage;
 	shaderStage_t	tmpNormalStage;
 	shaderStage_t	tmpSpecularStage;
+	shaderStage_t   tmpReflectionStage;
 	
 	int				numStages = 0;
 	shaderStage_t	tmpStages[MAX_SHADER_STAGES];
@@ -3897,7 +3905,7 @@ static void CollapseStages(void)
 		hasDiffuseStage = qfalse;
 		hasNormalStage = qfalse;
 		hasSpecularStage = qfalse;
-		hasColorStage = qfalse;
+		hasReflectionStage = qfalse;
 
 		Com_Memset(&tmpDiffuseStage, 0, sizeof(shaderStage_t));
 		Com_Memset(&tmpNormalStage, 0, sizeof(shaderStage_t));
@@ -3913,7 +3921,6 @@ static void CollapseStages(void)
 			stages[j].type == ST_BLOOM2MAP ||
 			stages[j].type == ST_ROTOSCOPEMAP ||
 			stages[j].type == ST_LIGHTMAP ||
-			stages[j].type == ST_REFLECTIONMAP ||
 			stages[j].type == ST_REFRACTIONMAP ||
 			stages[j].type == ST_DISPERSIONMAP ||
 			stages[j].type == ST_SKYBOXMAP ||
@@ -3950,9 +3957,10 @@ static void CollapseStages(void)
 				hasSpecularStage = qtrue;
 				tmpSpecularStage = stages[j+i];
 			}
-			else if(stages[j+i].type == ST_COLORMAP && !hasColorStage)
+			else if(stages[j+i].type == ST_REFLECTIONMAP && !hasReflectionStage)
 			{
-				hasColorStage = qtrue;
+				hasReflectionStage = qtrue;
+				tmpReflectionStage = stages[j+i];
 			}
 		}
 	
@@ -4058,6 +4066,24 @@ static void CollapseStages(void)
 			{
 				tmpStages[numStages].bundle[TB_NORMALMAP].tcGen = TCGEN_SKIP;
 			}
+	
+			numStages++;
+			j += 1;
+			continue;
+		}
+		// try to merge env/normal
+		else if(hasReflectionStage &&
+				hasNormalStage
+		)
+		{
+			//ri.Printf(PRINT_ALL, "reflection_CB\n");
+			
+			tmpShader.collapseType = COLLAPSE_reflection_CB;
+			
+			tmpStages[numStages] = tmpReflectionStage;
+			tmpStages[numStages].type = ST_COLLAPSE_reflection_CB;
+			
+			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
 	
 			numStages++;
 			j += 1;
@@ -5233,7 +5259,7 @@ void R_ShaderList_f(void)
 				break;
 		}
 	
-		if(shader->collapseType == COLLAPSE_Generic_multi)
+		if(shader->collapseType == COLLAPSE_genericMulti)
 		{
 			if(shader->collapseTextureEnv == GL_ADD)
 			{
@@ -5263,6 +5289,10 @@ void R_ShaderList_f(void)
 		else if(shader->collapseType == COLLAPSE_lighting_DBS_generic)
 		{
 			ri.Printf(PRINT_ALL, "DBS_generic    ");
+		}
+		else if(shader->collapseType == COLLAPSE_reflection_CB)
+		{
+			ri.Printf(PRINT_ALL, "reflection_CB  ");
 		}
 		else
 		{

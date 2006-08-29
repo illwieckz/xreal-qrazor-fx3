@@ -617,6 +617,27 @@ void RB_InitGPUShaders(void)
 	qglUseProgramObjectARB(0);
 	
 	//
+	// bumped cubemap reflection for abitrary polygons ( EMBM )
+	//
+	RB_InitGPUShader(&tr.reflectionShader_CB,
+					  "reflection_CB",
+					  GLCS_VERTEX | GLCS_TEXCOORD1 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+
+	tr.reflectionShader_CB.u_ColorMap =
+			qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_ColorMap");
+	tr.reflectionShader_CB.u_NormalMap =
+			qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_NormalMap");
+	tr.reflectionShader_CB.u_ViewOrigin =
+			qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_ViewOrigin");
+	tr.reflectionShader_CB.u_ModelMatrix = 
+			qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_ModelMatrix");
+
+	qglUseProgramObjectARB(tr.reflectionShader_CB.program);
+	qglUniform1iARB(tr.reflectionShader_CB.u_ColorMap, 0);
+	qglUniform1iARB(tr.reflectionShader_CB.u_NormalMap, 1);
+	qglUseProgramObjectARB(0);
+	
+	//
 	// cubemap refraction for abitrary polygons
 	//
 	RB_InitGPUShader(&tr.refractionShader_C,
@@ -923,6 +944,12 @@ void RB_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.reflectionShader_C.program);
 		tr.reflectionShader_C.program = 0;
+	}
+	
+	if(tr.reflectionShader_CB.program)
+	{
+		qglDeleteObjectARB(tr.reflectionShader_CB.program);
+		tr.reflectionShader_CB.program = 0;
 	}
 	
 	if(tr.refractionShader_C.program)
@@ -2542,6 +2569,46 @@ static void Render_reflection_C(int stage)
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(backEnd.or.transformMatrix);
+	qglMatrixMode(GL_MODELVIEW);
+	
+	R_DrawElements();
+	
+	GL_CheckErrors();
+}
+
+static void Render_reflection_CB(int stage)
+{
+	vec3_t			viewOrigin;
+	shaderStage_t  *pStage = tess.surfaceStages[stage];
+	
+	GLimp_LogComment("--- Render_reflection_CB ---\n");
+	
+	GL_State(pStage->stateBits);
+	
+	// enable shader, set arrays
+	GL_Program(tr.reflectionShader_CB.program);
+	GL_ClientState(tr.reflectionShader_CB.attribs);
+	GL_SetVertexAttribs();
+	
+	// set uniforms
+	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+	qglUniform3fARB(tr.reflectionShader_CB.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	qglUniformMatrix4fvARB(tr.reflectionShader_CB.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
+
+	// bind colormap
+	GL_SelectTexture(0);
+	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
+	/*
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(backEnd.or.transformMatrix);
+	qglMatrixMode(GL_MODELVIEW);
+	*/
+	
+	// bind normalmap
+	GL_SelectTexture(1);
+	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 	
 	R_DrawElements();
@@ -4314,6 +4381,19 @@ void RB_StageIteratorGeneric()
 					{
 						Render_genericSingle_FFP(stage);
 					}
+				}
+				break;
+			}
+			
+			case ST_COLLAPSE_reflection_CB:
+			{
+				if(glConfig.shadingLanguage100Available)
+				{
+					Render_reflection_CB(stage);
+				}
+				else
+				{
+					// TODO
 				}
 				break;
 			}

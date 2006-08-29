@@ -4234,6 +4234,7 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 	long            hash;
 	static char    *suf[6] = { "px", "nx", "py", "ny", "pz", "nz" };
 	char            filename[MAX_QPATH];
+	int             bitsIgnore;
 
 	if(!name)
 	{
@@ -4262,6 +4263,7 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 	for(i = 0; i < 6; i++)
 	{
 		Com_sprintf(filename, sizeof(filename), "%s_%s.tga", name, suf[i]);
+		//R_LoadImage(filename, &pic[i], &width, &height, &bitsIgnore);
 		LoadTGA(filename, &pic[i], &width, &height, 0xFF);
 
 		if(!pic[i] || width != height)
