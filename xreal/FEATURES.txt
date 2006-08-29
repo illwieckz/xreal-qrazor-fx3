@@ -1,5 +1,8 @@
 code/cgame
-- Tenebrae style Player teleporter effect
+- Tenebrae style player teleporter effect
+
+code/client
+- .avi video and audio recording
 
 code/game/shared
 - matrix math
@@ -24,7 +27,6 @@ code/renderer
 - OpenGL extension GL_EXT_depth_bounds_test
 - OpenGL extension GL_EXT_framebuffer_object
 - OpenGL shader language usage in renderer backend
-- optional pure GLSL renderer path without fixed function pipeline
 - anisotropic texture filtering
 - DirectX .dds image file format support
 - skeletal animation
