@@ -356,6 +356,11 @@ if env['arch'] == 'win32-mingw':
 	imagejpeg_env.SharedLibrary('imagejpeg', imagejpeg_src)
 	imagejpeg_env.InstallAs('#gtkradiant/modules/imagejpeg.dll', 'imagejpeg.dll')
 	
+	imagepng_env = module_env.Copy()
+	imagepng_env.ParseConfig('libpng-config --cflags --libs')
+	imagepng_env.SharedLibrary('imagepng', imagepng_src)
+	imagepng_env.InstallAs('#gtkradiant/modules/imagepng.dll', 'imagepng.dll')
+	
 	mapq3_env = module_env.Copy()
 	mapq3_env.SharedLibrary('mapq3', mapq3_src)
 	mapq3_env.InstallAs('#gtkradiant/modules/mapq3.dll', 'mapq3.dll')

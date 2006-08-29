@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define JPEG_INTERNALS
 #include "../jpeg-6/jpeglib.h"
+#include "../png/png.h"
 
 
 static void     LoadBMP(const char *name, byte ** pic, int *width, int *height, byte alphaByte);
@@ -2545,6 +2546,232 @@ int SaveJPGToBuffer(byte * buffer, int quality, int image_width, int image_heigh
 /*
 =========================================================
 
+PNG LOADING
+
+=========================================================
+*/
+static void png_read_data(png_structp png, png_bytep data, png_size_t length)
+{
+	memcpy(data, png->io_ptr, length);
+
+	// raynorpat: msvc is gay
+#if _MSC_VER
+	(byte *) png->io_ptr += length;
+#else
+	png->io_ptr += length;
+#endif
+
+}
+
+void LoadPNG(const char *name, byte ** pic, int *width, int *height, byte alphaByte)
+{
+	int             bit_depth;
+	int             color_type;
+	unsigned int    w;
+	unsigned int    h;
+	unsigned int    row;
+	size_t          rowbytes;
+	png_infop       info;
+	png_structp     png;
+	png_bytep      *row_pointers;
+	byte           *data;
+	int             size;
+
+	// load png
+	size = ri.FS_ReadFile(name, (void **)&data);
+
+	if(!data)
+		return;
+
+	png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+
+	if(!png)
+	{
+		ri.FS_FreeFile(data);
+		return;
+	}
+
+	info = png_create_info_struct(png);
+	if(!info)
+	{
+		ri.FS_FreeFile(data);
+		png_destroy_read_struct(&png, (png_infopp) NULL, (png_infopp) NULL);
+		return;
+	}
+
+	if(setjmp(png_jmpbuf(png)))
+	{
+		// if we get here, we had a problem reading the file
+		ri.FS_FreeFile(data);
+		png_destroy_read_struct(&png, (png_infopp) NULL, (png_infopp) NULL);
+		return;
+	}
+
+	png_set_read_fn(png, data, png_read_data);
+
+	png_read_info(png, info);
+
+	// get picture info
+	png_get_IHDR(png, info, (unsigned long *)&w, (unsigned long *)&h, &bit_depth, &color_type, NULL, NULL, NULL);
+
+	// tell libpng to strip 16 bit/color files down to 8 bits/color
+	png_set_strip_16(png);
+
+	// expand paletted images to RGB triplets
+	if(color_type & PNG_COLOR_MASK_PALETTE)
+		png_set_expand(png);
+
+	// expand gray-scaled images to RGB triplets
+	if(!(color_type & PNG_COLOR_MASK_COLOR))
+		png_set_gray_to_rgb(png);
+
+	// if there is no alpha information, fill with alphaByte
+	if(!(color_type & PNG_COLOR_MASK_ALPHA))
+		png_set_filler(png, alphaByte, PNG_FILLER_AFTER);
+
+	// expand pictures with less than 8bpp to 8bpp
+	if(bit_depth < 8)
+		png_set_packing(png);
+
+	// update structure with the above settings
+	png_read_update_info(png, info);
+
+	// allocate the memory to hold the image
+	*width = w;
+	*height = w;
+	*pic = (byte *) ri.Malloc(w * h * 4);
+
+	row_pointers = (png_bytep *) ri.Hunk_AllocateTempMemory(sizeof(png_bytep) * h);
+
+	// set a new exception handler
+	if(setjmp(png_jmpbuf(png)))
+	{
+		ri.Hunk_FreeTempMemory(row_pointers);
+		ri.FS_FreeFile(data);
+		png_destroy_read_struct(&png, (png_infopp) NULL, (png_infopp) NULL);
+		return;
+	}
+
+	rowbytes = png_get_rowbytes(png, info);
+
+	for(row = 0; row < h; row++)
+		row_pointers[row] = (png_bytep) & (*pic)[row * rowbytes];
+
+	// read image data
+	png_read_image(png, row_pointers);
+
+	// read rest of file, and get additional chunks in info
+	png_read_end(png, info);
+
+	// clean up after the read, and free any memory allocated
+	png_destroy_read_struct(&png, &info, (png_infopp) NULL);
+
+	ri.Hunk_FreeTempMemory(row_pointers);
+	ri.FS_FreeFile(data);
+}
+
+/*
+=========================================================
+
+PNG SAVING
+
+=========================================================
+*/
+static int      png_compressed_size;
+
+static void png_write_data(png_structp png, png_bytep data, png_size_t length)
+{
+	memcpy(png->io_ptr, data, length);
+
+	// raynorpat: msvc is gay
+#if _MSC_VER
+	(byte *) png->io_ptr += length;
+#else
+	png->io_ptr += length;
+#endif
+
+	png_compressed_size += length;
+}
+
+static void png_flush_data(png_structp png)
+{
+}
+
+void SavePNG(const char *name, const byte * pic, int width, int height)
+{
+	png_structp     png;
+	png_infop       info;
+	int             i;
+	int             row_stride;
+	byte           *buffer;
+	const byte     *row;
+	png_bytep      *row_pointers;
+
+	png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+
+	if(!png)
+		return;
+
+	// Allocate/initialize the image information data
+	info = png_create_info_struct(png);
+	if(!info)
+	{
+		png_destroy_write_struct(&png, (png_infopp) NULL);
+		return;
+	}
+
+	png_compressed_size = 0;
+	buffer = ri.Hunk_AllocateTempMemory(width * height * 3);
+
+	// set error handling
+	if(setjmp(png_jmpbuf(png)))
+	{
+		ri.Hunk_FreeTempMemory(buffer);
+		png_destroy_write_struct(&png, &info);
+		return;
+	}
+
+	png_set_write_fn(png, buffer, png_write_data, png_flush_data);
+	png_set_IHDR(png, info, width, height, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
+				 PNG_FILTER_TYPE_DEFAULT);
+
+	// write the file header information
+	png_write_info(png, info);
+
+	row_pointers = ri.Hunk_AllocateTempMemory(height * sizeof(png_bytep));
+
+	if(setjmp(png_jmpbuf(png)))
+	{
+		ri.Hunk_FreeTempMemory(row_pointers);
+		ri.Hunk_FreeTempMemory(buffer);
+		png_destroy_write_struct(&png, &info);
+		return;
+	}
+
+	row_stride = width * 3;
+	row = pic + (height - 1) * row_stride;
+	for(i = 0; i < height; i++)
+	{
+		row_pointers[i] = row;
+		row -= row_stride;
+	}
+
+	png_write_image(png, row_pointers);
+	png_write_end(png, info);
+
+	// clean up after the write, and free any memory allocated
+	png_destroy_write_struct(&png, &info);
+
+	ri.Hunk_FreeTempMemory(row_pointers);
+
+	ri.FS_WriteFile(name, buffer, png_compressed_size);
+
+	ri.Hunk_FreeTempMemory(buffer);
+}
+
+/*
+=========================================================
+
 DDS LOADING
 
 =========================================================
@@ -3854,6 +4081,30 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 		if(!Q_stricmp(filename + len - 4, ".tga"))
 		{
 			LoadTGA(filename, pic, width, height, alphaByte);	// try tga first
+			
+			if(!*pic)
+			{
+				char            altname[MAX_QPATH];	// try png in place of tga 
+
+				Q_strncpyz(altname, filename, sizeof(altname));
+				len = strlen(altname);
+				altname[len - 3] = 'p';
+				altname[len - 2] = 'n';
+				altname[len - 1] = 'g';
+				LoadPNG(altname, pic, width, height, alphaByte);
+			}
+			
+			if(!*pic)
+			{
+				char            altname[MAX_QPATH];	// try jpg in place of tga
+
+				Q_strncpyz(altname, filename, sizeof(altname));
+				len = strlen(altname);
+				altname[len - 3] = 'j';
+				altname[len - 2] = 'p';
+				altname[len - 1] = 'g';
+				LoadJPG(altname, pic, width, height, alphaByte);
+			}
 
 			if(!*pic)
 			{
@@ -3866,18 +4117,6 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 				altname[len - 1] = 's';
 				LoadDDS(altname, pic, width, height);
 			}
-
-			if(!*pic)
-			{
-				char            altname[MAX_QPATH];	// try jpg in place of tga
-
-				Q_strncpyz(altname, filename, sizeof(altname));
-				len = strlen(altname);
-				altname[len - 3] = 'j';
-				altname[len - 2] = 'p';
-				altname[len - 1] = 'g';
-				LoadJPG(altname, pic, width, height, alphaByte);
-			}
 		}
 		else if(!Q_stricmp(filename + len - 4, ".pcx"))
 		{
@@ -3886,6 +4125,10 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 		else if(!Q_stricmp(filename + len - 4, ".bmp"))
 		{
 			LoadBMP(filename, pic, width, height, alphaByte);
+		}
+		else if(!Q_stricmp(filename + len - 4, ".png"))
+		{
+			LoadPNG(filename, pic, width, height, alphaByte);
 		}
 		else if(!Q_stricmp(filename + len - 4, ".jpg"))
 		{

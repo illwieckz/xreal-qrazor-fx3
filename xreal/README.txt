@@ -241,3 +241,34 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+PNG library
+-----------------------------------------------------------------------------
+code/png
+Copyright (c) 2004, 2006 Glenn Randers-Pehrson
+
+Permission is hereby granted to use, copy, modify, and distribute this
+source code, or portions hereof, for any purpose, without fee, subject
+to the following restrictions:
+
+1. The origin of this source code must not be misrepresented.
+
+2. Altered versions must be plainly marked as such and must not
+   be misrepresented as being the original source.
+
+3. This Copyright notice may not be removed or altered from any
+   source or altered source distribution.
+
+The Contributing Authors and Group 42, Inc. specifically permit, without
+fee, and encourage the use of this source code as a component to
+supporting the PNG file format in commercial products.  If you use this
+source code in a product, acknowledgment is not required but would be
+appreciated.
+
+The PNG Reference Library is supplied "AS IS".  The Contributing Authors
+and Group 42, Inc. disclaim all warranties, expressed or implied,
+including, without limitation, the warranties of merchantability and of
+fitness for any purpose.  The Contributing Authors and Group 42, Inc.
+assume no liability for direct, indirect, incidental, special, exemplary,
+or consequential damages, which may result from the use of the PNG
+Reference Library, even if advised of the possibility of such damage.

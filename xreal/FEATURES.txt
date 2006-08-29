@@ -28,6 +28,7 @@ code/renderer
 - OpenGL extension GL_EXT_framebuffer_object
 - OpenGL shader language usage in renderer backend
 - anisotropic texture filtering
+- .png image file format support
 - DirectX .dds image file format support
 - skeletal animation
 - Doom3 .md5mesh model file format support
