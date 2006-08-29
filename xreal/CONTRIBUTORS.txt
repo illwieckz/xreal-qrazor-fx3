@@ -1,9 +1,9 @@
-CODING
-======
-Robert "Tr3B" Beckebans - lead coding
+PROGRAMMING
+===========
+Robert "Tr3B" Beckebans - lead programming
 Josef "cnuke" Söntgen - cgame stuff
 Björn "bj0ern" Paschen - win32 specific fixes
-Pat "raynorpat" Raynor - bugfixes
+Pat "raynorpat" Raynor - bugfixes, PNG patch
 Iain "Jock" Mckay - x86_64 patch
 Tim "Timbo" Angus - .avi video recording patch
 ensiform - console clock enhancements
@@ -15,7 +15,7 @@ MODELLING
 Robert "Tr3B" Beckebans - health pickup models
 Lee David Ash - weapon models
 Julian "Plaque" Morris - weapon and projectile models
-Ruohis - weapon models
+Mikael "Ruohis" Ruohomaa - weapon models
 jzero - OpenArena weapon models
 CheapAlert - OpenArena models
 
@@ -38,9 +38,11 @@ Garth "Zombie13" Hendy
 CheapAlert
 
 
+
 SFX
 ===
 Randall "Ravenant" P. - cool weapon sounds
+
 
 
 DEVELOPMENT ASSISTANCE
