@@ -6,7 +6,7 @@ menuDef {
 	name "filter_popmenu"
 	visible 0
 	fullscreen 0
-	rect 204 122 235 235
+	rect 219 160 190 140
 	focusColor 1 .75 0 1
 	style 1
 	border 1
@@ -15,21 +15,28 @@ menuDef {
 
 itemDef {
 	name window
-	rect 0 0 235 235
+	rect 0 0 190 140
 	style 3
-	background "ui/assets/mainpop.tga"
+	background "ui_main_background"
 	visible 1
+	bordersize 2
+	border 1
+      	bordercolor 0.5 0.0 0.1 .5
 	decoration
 	}
 itemDef {
-	name window
-	rect 47 47 144 144 
-	style 3
-	background "centerconsole2"
-	visible 1
+	name viewEmpty
+	type 1
+	text "FILTERSETTINGS"
+	textscale .25
+	rect 0 20 190 20
+	textalign ITEM_ALIGN_CENTER
+	textalignx 95		
+	textaligny 0
+	forecolor 1 1 1 1
+	visible 1 
 	decoration
 	}
-
 // settings
 
 itemDef {
@@ -37,10 +44,10 @@ itemDef {
 	type ITEM_TYPE_YESNO
 	text "View Empty:"
 	cvar "ui_browserShowEmpty"
-	textscale .25
-	rect 107 81 110 20
+	textscale .15
+	rect 0 40 190 20
 	textalign ITEM_ALIGN_CENTER
-	textalignx 0		
+	textalignx 85		
 	textaligny 17
 	forecolor 1 1 1 1
 	visible 1 
@@ -54,10 +61,10 @@ itemDef {
 	type 11
 	text "View Full:"
 	cvar "ui_browserShowFull"
-	textscale .25
-	rect 107 112 110 20
+	textscale .15
+	rect 0 65 190 20
 	textalign ITEM_ALIGN_CENTER
-	textalignx 0		
+	textalignx 85		
 	textaligny 17
 	forecolor 1 1 1 1
 	visible 1 
@@ -74,11 +81,10 @@ itemDef {
 	text "Ok"
 	type 1
 	textscale .25
-	style WINDOW_STYLE_FILLED
-	background "ui/assets/button_back.tga"
-	rect 103 158 30 26
+	style 0
+	rect 0 95 190 26
 	textalign 1
-	textalignx 15
+	textalignx 95
 	textaligny 20
 	forecolor 1 1 1 1
 	backcolor .37 .1 .1 1 
@@ -89,31 +95,5 @@ itemDef {
 	mouseEnter { setitemcolor yes backcolor .1 .37 .1 1 } 
 	mouseExit { setitemcolor yes backcolor .37 .1 .1 1 } 	
 	}
-	itemDef {
-		name yes
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/framebutton.tga"
-		rect 103 158 30 26
-		visible 1 
-		decoration  	  
-		}
-
-	itemDef {
-		name yes
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/leftbutton.tga"
-		rect 97 158 7 26
-		visible 1 
-		decoration  	  
-		}
-
-	itemDef {
-		name yes
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/rightbutton.tga"
-		rect 132 158 7 26
-		visible 1 
-		decoration  	  
-		}
 }
 }

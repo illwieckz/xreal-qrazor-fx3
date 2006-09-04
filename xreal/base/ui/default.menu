@@ -7,9 +7,10 @@ menuDef {
     	name "default_menu"
     	visible 0
     	fullscreen 0
-	rect 186 0 443 426
+	rect 0 125 640 250
     	focusColor 1 .75 0 1
     	style 1
+
     	border 1
 	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; 
 		fadeout fadebox ; 
@@ -23,12 +24,10 @@ menuDef {
 itemDef {
 	name window
 	group grpControlbutton
-	rect 0 2 443 426	
-	style WINDOW_STYLE_FILLED
-	border 1
-	bordercolor .5 .5 .5 .5
-	forecolor 1 1 1 1
-	backcolor 0 0 0 .25
+	rect 120 2 400 250	
+	style 1
+	border 4
+      	bordercolor 0.5 0.0 0.1 .5
 	visible 1
 	decoration
 }
@@ -41,11 +40,11 @@ itemDef {
 		group grpdefault
       		style 0
 		text "This will set your Controls,"
-		rect 0 140 443 20
+		rect 320 40 400 20
       		textalign ITEM_ALIGN_CENTER
-      		textalignx 221
+      		textalignx 0
       		textaligny 20
-		textscale .333        
+		textscale .25        
       		forecolor 1 1 1 1
       		visible 1 
 		decoration
@@ -55,11 +54,11 @@ itemDef {
 		group grpdefault
       		style 0
 		text "Graphics and game Options"
-		rect 0 160 443 20
+		rect 320 60 400 20
       		textalign ITEM_ALIGN_CENTER
-      		textalignx 221
+      		textalignx 0
       		textaligny 20
-		textscale .333        
+		textscale .25        
       		forecolor 1 1 1 1
       		visible 1
 		decoration 
@@ -69,11 +68,11 @@ itemDef {
 		group grpdefault
       		style 0
 		text "to their original defaults."
-		rect 0 180 443 20
+		rect 320 80 400 20
       		textalign ITEM_ALIGN_CENTER
-      		textalignx 221
+      		textalignx 0
       		textaligny 20
-		textscale .333        
+		textscale .25        
       		forecolor 1 1 1 1
       		visible 1 
 		decoration
@@ -83,11 +82,11 @@ itemDef {
 		group grpdefault
       		style 0
 		text "Are you sure?"
-		rect 0 220 443 20
+		rect 320 100 400 20
       		textalign ITEM_ALIGN_CENTER
-      		textalignx 221
+      		textalignx 0
       		textaligny 20
-		textscale .333        
+		textscale .25        
       		forecolor 1 1 1 1
       		visible 1 
 		decoration
@@ -97,137 +96,40 @@ itemDef {
 
 
 itemDef {
-	name yes
+	name default
 	text "YES"
-	group grpdefault
-	type 1
-	textscale .3
-	style WINDOW_STYLE_FILLED
-	background "ui/assets/button_back.tga"
-	rect 135 250 70 26
+	textscale .25
+	group grpControlbutton
+	type ITEM_TYPE_BUTTON
+	style 0
+	rect 260 160 45 26
 	textalign 1
-	textalignx 35
-	textaligny 20
+	textalignx 22
+	textaligny 15
+	border 4
+      	bordercolor 0.5 0.0 0.1 .15
 	forecolor 1 1 1 1
-	backcolor .37 .1 .1 1 
 	visible 1
-	action { play "sound/misc/nomenu.wav" ; 
-	hide grpdefault ; 
-	show grpfinish ; 
-	uiScript resetDefaults }
-	mouseEnter { setitemcolor yes backcolor .1 .37 .1 1 } 
-	mouseExit { setitemcolor yes backcolor .37 .1 .1 1 } 	
+	action { play "sound/misc/kcaction.wav" ; uiScript resetDefaults}
+
 	}
-	
-	itemDef {
-      		name yes
-		group grpdefault
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/framebutton.tga"
- 		rect 135 250 70 26
-      		visible 1 
-		decoration  	  
-    		}
-
-	itemDef {
-      		name yes
-		group grpdefault
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/leftbutton.tga"
-   	   	rect 123 250 13 26
-   	   	visible 1 
-		decoration  	  
-   	 	}
-
-	itemDef {
-	      	name yes
-		group grpdefault
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/rightbutton.tga"
-      		rect 204 250 13 26
-     	 	visible 1 
-		decoration  	  
-    		}
-
 itemDef {
-	name no
-	text "No"
-	group grpdefault
-	type 1
-	textscale .3
-	style WINDOW_STYLE_FILLED
-	background "ui/assets/button_back.tga"
-	rect 235 250 70 26
+	name default
+	text "NO"
+	textscale .25
+	group grpControlbutton
+	type ITEM_TYPE_BUTTON
+	style 0
+	rect 340 160 45 26
 	textalign 1
-	textalignx 35
-	textaligny 20
+	textalignx 22
+	textaligny 15
+	border 4
+      	bordercolor 0.5 0.0 0.1 .15
 	forecolor 1 1 1 1
-	backcolor .37 .1 .1 1 
 	visible 1
-	action { play "sound/misc/nomenu.wav" ; 
-	close default_menu ; open control_menu }
-	mouseEnter { setitemcolor no backcolor .1 .37 .1 1 } 
-	mouseExit { setitemcolor no backcolor .37 .1 .1 1 } 	
+	action { play "sound/misc/kcaction.wav" ; close default_menu ; open control_menu}
 	}
-	
-	itemDef {
-      		name no
-		group grpdefault
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/framebutton.tga"
- 		rect 235 250 70 26
-      		visible 1 
-		decoration  	  
-    		}
-
-	itemDef {
-      		name no
-		group grpdefault
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/leftbutton.tga"
-   	   	rect 223 250 13 26
-   	   	visible 1 
-		decoration  	  
-   	 	}
-
-	itemDef {
-	      	name no
-		group grpdefault
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/rightbutton.tga"
-      		rect 304 250 13 26
-     	 	visible 1 
-		decoration  	  
-    		}
-
-itemDef {
-      		name finish_message 
-		group grpfinish
-      		style 0
-		text "Your settings are now set"
-		rect 0 160 443 20
-      		textalign ITEM_ALIGN_CENTER
-      		textalignx 221
-      		textaligny 20
-		textscale .333        
-      		forecolor 1 1 1 1
-      		visible 0 
-		decoration
-    		}
-	itemDef {
-      		name finish_message 
-		group grpfinish
-      		style 0
-		text "to their original default values."
-		rect 0 180 443 20
-      		textalign ITEM_ALIGN_CENTER
-      		textalignx 221
-      		textaligny 20
-		textscale .333        
-      		forecolor 1 1 1 1
-      		visible 0 
-		decoration
-    		}
 
 
 itemDef {
@@ -240,11 +142,6 @@ itemDef {
       	visible 1 
 	decoration
     	}
-
-
-
-
-
 
 
 

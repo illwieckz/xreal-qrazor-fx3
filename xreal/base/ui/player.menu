@@ -8,12 +8,12 @@ menuDef {
     	visible 0
     	fullscreen 1
     	rect 0 0 640 480
-    	background "menuback_a"
+    	background "ui_main_background"
     	style 1
 	focusColor 1 .75 0 1
 	
 		onOpen { play "sound/misc/kcswish.wav" ;
-		playlooped "music/di.fm-progressive-blue_room_project-5b.wav" ;
+
 		setitemcolor fadebox backcolor 0 0 0 1 ; 
 		fadeout fadebox ; 
 		uiScript update "ui_GetName" ; 
@@ -29,27 +29,34 @@ menuDef {
 
 
 
+itemDef {
+	name ctr_look
+	text "Player Configuration"
+	textscale .3
+	type 0
+	style 0
+	rect 0 50 640 26
+	textalign 1
+	textalignx 320
+	textaligny 15
+	border 4
+      	bordercolor 0.5 0.0 0.1 .5
+	forecolor 1 1 1 1
+	visible 1
+	decoration
+	}
 
 itemDef {
-      	name gametypebar
-      	style 2
-      	rect 0 5 640 40 
-      	textscale 0.4
-      	textalign 0		        // center
-      	textalignx 60       		// x alignment point for text
-                            		// use it to offset left/right text from the edge 
-                            		// or to center the text on a different point
-      	textaligny 21        
-      	style 2
-      	border 4
-      	bordercolor 0.5 0.5 0.5 0.5
-      	bordersize 2
-      	backcolor 0 0 .75 .5
+      	name solid_box
+      	style 1 
+	rect 0 125 640 250
+      	border 4 
+      	bordersize 1
+      	bordercolor 0.5 0.0 0.1 .5
       	visible 1 
-	decoration
-	mouseEnter { setcolor backcolor .75 0 0 .5 }
-      	mouseExit { setcolor backcolor 0 0 .75 .5 }
-}
+      	decoration 
+	}
+
 
 
 itemDef {
@@ -59,11 +66,11 @@ itemDef {
 	cvarFloatList { "Team" 0 "Single" 1 }
 	text "Model Type:"
 	textstyle 6
-      	rect 0 10 320 31 
-      	textalign ITEM_ALIGN_LEFT
-      	textalignx 20     
+      	rect 0 75 320 31 
+      	textalign ITEM_ALIGN_CENTER		
+      	textalignx 160     
       	textaligny 26    
-	textscale .35     
+	textscale .25     
       	forecolor 1 1 1 1
       	visible 1
 	mouseEnter { show message_type } 
@@ -72,81 +79,9 @@ itemDef {
     	}
 
 itemDef {
-      	name window
-	style WINDOW_STYLE_FILLED
-      	rect 238 153 170 133
-	forecolor 0 0 0 1
-	backcolor 0 0 0 1
-      	visible 1
-	decoration
-   	}
-
-
-
-itemDef {
-      	name playerbar
-      	style 2
-      	rect 0 130 640 170 
-      	backcolor 0 0 .75 0
-      	forecolor 1 1 1 1
-      	border 4
-      	bordercolor 0.5 0.5 0.5 .75
-      	bordersize 2
-      	visible 1
-      	decoration 
-    	}
-
-itemDef {
-	name window
-	rect 10 50 620 60	
-	style WINDOW_STYLE_EMPTY
-	border 1
-	bordercolor .5 .5 .5 .5
-	forecolor 1 1 1 1
-	backcolor 0 0 0 0
-	visible 1
-	decoration
-	}
-
-itemDef {
-	name window
-	rect 10 112 205 216	
-	style WINDOW_STYLE_EMPTY
-	border 1
-	bordercolor .5 .5 .5 .5
-	forecolor 1 1 1 1
-	backcolor 0 0 0 0
-	visible 1
-	decoration
-	}
-itemDef {
-	name window
-	rect 217 112 205 216	
-	style WINDOW_STYLE_EMPTY
-	border 1
-	bordercolor .5 .5 .5 .5
-	forecolor 1 1 1 1
-	backcolor 0 0 0 0
-	visible 1
-	decoration
-	}
-
-itemDef {
-	name window
-	rect 424 112 206 216	
-	style WINDOW_STYLE_EMPTY
-	border 1
-	bordercolor .5 .5 .5 .5
-	forecolor 1 1 1 1
-	backcolor 0 0 0 0
-	visible 1
-	decoration
-	}
-
-itemDef {
 	name modelselection
 	ownerdraw UI_PLAYERMODEL
-	rect 424 80 260 260
+	rect 360 125 180 180
 	style 1
 	decoration 
 	visible 1
@@ -161,11 +96,13 @@ itemDef {
 	cvar "ui_Name"
 	textstyle 6
 	maxChars 32
-      	rect 0 70 215 32 
-      	textalign ITEM_ALIGN_LEFT		
-      	textalignx 20
-      	textaligny 21 
-	textscale .333        
+      	rect 320 75 320 31 
+      	textalign ITEM_ALIGN_CENTER		
+      	textalignx 160     
+      	textaligny 26    
+	textscale .25     
+      	forecolor 1 1 1 1
+      	visible 1
       	outlinecolor 1 .5 .5 .5
       	backcolor 0 0 0 0
       	forecolor 1 1 1 1
@@ -183,11 +120,11 @@ itemDef {
 	text "Handicap:"
 	ownerdraw UI_HANDICAP
 	textstyle 6
-	rect 0 175 215 32 
+	rect 60 175 215 32 
       	textalign ITEM_ALIGN_LEFT		
       	textalignx 20
-      	textaligny 21 
-	textscale .333        
+      	textaligny 10 
+	textscale .25        
       	outlinecolor 1 .5 .5 .5
       	backcolor 0 0 0 0
       	forecolor 1 1 1 1
@@ -204,12 +141,12 @@ itemDef {
       	style 0	
 	text "Effect:"
 	ownerdraw UI_EFFECTS
-      	rect 0 205 215 32 
+      	rect 60 220 215 32 
 	textstyle 6
       	textalign ITEM_ALIGN_LEFT		
       	textalignx 20     
-      	textaligny 21 
-	textscale .333        
+      	textaligny 0 
+	textscale .25        
       	outlinecolor 1 .5 .5 .5
       	backcolor 0 0 0 0
       	forecolor 1 1 1 1
@@ -226,11 +163,11 @@ itemDef {
 	ownerdraw UI_CLANNAME
 	text "Clan:"
 	textstyle 6
-      	rect 20 235 215 31 
+      	rect 80 235 215 31 
 	textalign ITEM_ALIGN_LEFT		
       	textalignx 0
-      	textaligny 21 
-	textscale .333        
+      	textaligny 10 
+	textscale .25        
       	forecolor 1 1 1 1
 	cvarTest "ui_q3model"
 	showCVar { "0" }	
@@ -245,14 +182,14 @@ itemDef {
 
 itemDef {
 	name headlist
-      	rect 10 330 620 80
+      	rect 50 300 540 60
 	group grparenatype	
 	cvarTest "ui_q3model"
 	hideCvar { "1" }
 	type ITEM_TYPE_LISTBOX
 	style WINDOW_STYLE_FILLED
-	elementwidth 61.75
-	elementheight 61.75
+	elementwidth 41.75
+	elementheight 41.75
 	elementtype LISTBOX_IMAGE
 	feeder FEEDER_HEADS
 	horizontalscroll
@@ -267,14 +204,14 @@ itemDef {
 	}
 itemDef {
 	name headlist
-      	rect 10 330 620 80
+      	rect 50 300 540 60
 	group grpquaketype	
 	cvarTest "ui_q3model"
 	showCVar { "1" }	
 	type ITEM_TYPE_LISTBOX
 	style WINDOW_STYLE_FILLED
-	elementwidth 61.75
-	elementheight 61.75
+	elementwidth 41.75
+	elementheight 41.75
 	elementtype LISTBOX_IMAGE
 	feeder FEEDER_Q3HEADS
 	horizontalscroll
@@ -289,66 +226,52 @@ itemDef {
 	}
 
 
-
-// BACK BAR	//
-
 itemDef {
       	name gotobar
-      	style 2
+      	style 1 
       	rect 0 430 640 30 
-      	textscale 0.4
-      	textalign 0		        // center
-      	textalignx 60        // x alignment point for text
-                            // use it to offset left/right text from the edge 
-                            // or to center the text on a different point
-      	textaligny 21        
-      	style 2
-      	border 4
-      	bordercolor 0.5 0.5 0.5 0.5
-      	bordersize 2
-      	backcolor 0 0 .75 0.5
+      	border 4 
+      	bordersize 1
+      	bordercolor 0.5 0.0 0.1 .5
       	visible 1 
-      	mouseEnter { setcolor backcolor .75 0 0 .5 }
-      	mouseExit { setcolor backcolor 0 0 .75 .5 }
       	decoration 
-    	}
+	}
+
 
 itemDef {
-      	name back
-	style 3
-      	background "ui/assets/backarrow.tga"
-	rect 16 424 50 50 
-      	visible 1 
-      	action { close player_menu ; open main }
-	mouseEnter { hide back ; show back_alt ; show message_back }
-    	}
+	name back
+	text "BACK TO MAINMENU"
+	textscale .30
+	style 0	
+	type 1
+	textstyle 6
+      	rect 0 430 640 30 
+	textalign 1	 
+	textalignx 320  	
+       	textaligny 20        
+	backcolor 0 0 0 0
+	forecolor 1 1 1 1
+	visible 1 
+	action { play "sound/misc/kcaction.wav" ; close player_menu ; open main }
+	mouseenter { fadein message_back }
+	mouseexit { fadeout message_back }
+	}
 
-itemDef {
-      	name back_alt
-      	style WINDOW_STYLE_SHADER
-	background "ui/assets/backarrow_alt.tga"
-	rect 14 422 54 54 
-      	backcolor 0 0 0 0
-      	forecolor 1 1 1 1
-      	visible 0
-	type ITEM_TYPE_BUTTON
-      	mouseExit { hide back_alt ; show back ; hide message_back }	  
-      	action { close player_menu ; open main }
-    	}
+
 
 //	MESSAGES	//
 itemDef {
 	name message_back
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
+	rect 320 385 128 30
 	textstyle 1
 	textalign 1
 	textalignx 0
 	textaligny 25
-	textscale .416
+	textscale .15
 	text "Return to Main Menu"
-	forecolor 1 1 1 1
+	forecolor 1 .75 0 1
 	decoration 
 	visible 0
 	}
@@ -357,136 +280,103 @@ itemDef {
 	name message_name
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textalign 1
+	rect 320 385 128 30
 	textstyle 1
+	textalign 1
 	textalignx 0
 	textaligny 25
-	textscale .416
-	text "Enter Player Name"
-	forecolor 1 1 1 1
+	textscale .15
+	forecolor 1 .75 0 1
 	decoration 
 	visible 0
+	text "Enter Player Name"
+
 	}
 
 itemDef {
 	name message_handicap
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textalign 1
+	rect 320 385 128 30
 	textstyle 1
+	textalign 1
 	textalignx 0
 	textaligny 25
-	textscale .416
-	text "Click to Change Handicap"
-	forecolor 1 1 1 1
+	textscale .15
+	forecolor 1 .75 0 1
 	decoration 
 	visible 0
+	text "Click to Change Handicap"
+
 	}
 
 itemDef {
 	name message_effect
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textalign 1
+	rect 320 385 128 30
 	textstyle 1
+	textalign 1
 	textalignx 0
 	textaligny 25
-	textscale .416
-	text "Select Bar to Change Effect Color"
-	forecolor 1 1 1 1
+	textscale .15
+	forecolor 1 .75 0 1
 	decoration 
 	visible 0
+	text "Select Bar to Change Effect Color"
+
 	}
 
 itemDef {
 	name message_clan
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textalign 1
+	rect 320 385 128 30
 	textstyle 1
+	textalign 1
 	textalignx 0
 	textaligny 25
-	textscale .416
-	text "Click to Cycle Clan Selection"
-	forecolor 1 1 1 1
+	textscale .15
+	forecolor 1 .75 0 1
 	decoration 
 	visible 0
+	text "Click to Cycle Clan Selection"
+
 	}
 itemDef {
 	name message_type
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textalign 1
+	rect 320 385 128 30
 	textstyle 1
+	textalign 1
 	textalignx 0
 	textaligny 25
-	textscale .416
-	text "Click to View Team Arena or Quake III Models"
-	forecolor 1 1 1 1
+	textscale .15
+	forecolor 1 .75 0 1
 	decoration 
 	visible 0
+	text "Click to View Team or Single Models"
+
 	}
 
 itemDef {
 	name message_model
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textalign 1
+	rect 320 385 128 30
 	textstyle 1
+	textalign 1
 	textalignx 0
 	textaligny 25
-	textscale .416
-	text "Click to Change Player Model"
-	forecolor 1 1 1 1
+	textscale .15
+	forecolor 1 .75 0 1
 	decoration 
 	visible 0
+	text "Click to Change Player Model"
+
 	}
 
-itemDef {
-      	name clancinematic
-      	rect 238 157 170 133
-	group grparenatype
-	cvarTest "ui_q3model"
-	showCVar { "0" }	
-	ownerdraw UI_CLANCINEMATIC 
-      	visible 1
-	decoration
-    	}
-itemDef {
-      	name clancinematic
-	group grpquaketype
-	cvarTest "ui_q3model"
-	showCVar { "1" }	
-      	style 3	
- 	background "ui/assets/q3imagepage.tga"
-	rect 238 157 170 133
-      	visible 1 
-	decoration
-    	}
-
-itemDef {
-      	name clancinematic
-      	style 3	
- 	background "menuscreen"
-	rect 238 153 170 133
-      	visible 1 
-	decoration
-    	}
-
-itemDef {
-  	name menuback_g
-    	style WINDOW_STYLE_SHADER
-     	rect 195 120 255 202
-     	background "menuback_g"
-   	visible 1
-	decoration
-	}
 
 itemDef {
       	name fadebox

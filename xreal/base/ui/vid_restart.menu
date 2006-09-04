@@ -8,7 +8,7 @@ menuDef {
     	visible 0
     	fullscreen 0
     	//rect 217 200 210 85
-	rect 204 122 235 235
+	rect 224 227 235 235
 	//outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
     	focusColor 1 .75 0 1
     	style 1
@@ -22,78 +22,38 @@ menuDef {
 
 itemDef {
 	name window
-	rect 0 0 235 235
+	rect 0 0 180 80
 	style 3
-	background "ui/assets/mainpop.tga"
+	background "ui_main_background"
 	visible 1
+	bordersize 1
+	border 1
+      	bordercolor 0.5 0.0 0.1 .5
 	decoration
 	}
 itemDef {
 	name window
-	rect 47 47 144 144 
-	style 3
-	background "centerconsole2"
-	visible 1
-	decoration
-	}
-
-
-
-
-
-	// VID_RESTART	//
-
-itemDef {
-	name confirm
-	text "This will apply video"
-	style 0
-	textscale .25 
-	textstyle 3
-	rect 0 85 110 20
-	textalign 1
-	textalignx 117
-	textaligny 15
-	decoration
+	type 1
+	text "Apply Settings?"
+	textscale .25
+	rect 0 30 180 20
+	textalign ITEM_ALIGN_CENTER
+	textalignx 90		
+	textaligny 0
 	forecolor 1 1 1 1
-	visible 1
-	}
-itemDef {
-	name confirm
-	text "settings and return"
-	style 0
-	textscale .25 
-	textstyle 3
-	rect 0 100 110 20
-	textalign 1
-	textalignx 117
-	textaligny 15
+	visible 1 
 	decoration
-	forecolor 1 1 1 1
-	visible 1
 	}
-itemDef {
-	name confirm
-	text "to the Main Menu." 
-	style 0
-	textscale .25 
-	textstyle 3
-	rect 0 115 110 20
-	textalign 1
-	textalignx 117
-	textaligny 15
-	decoration
-	forecolor 1 1 1 1
-	visible 1
-	}
+
+
 
 itemDef {
 	name yes
 	text "YES"
 	type 1
 	textscale .25
-	style WINDOW_STYLE_FILLED
-	background "ui/assets/button_back.tga"
-	rect 75 140 30 26
+	style 0
+	rect 60 40 30 26
 	textalign 1
 	textalignx 15
 	textaligny 20
@@ -107,35 +67,6 @@ itemDef {
 	mouseExit { setitemcolor yes backcolor .37 .1 .1 1 } 	
 	}
 	
-	itemDef {
-      		name yes
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/framebutton.tga"
- 		rect 75 140 30 26
-      		visible 1 
-		decoration  	  
-    		}
-
-	itemDef {
-      		name yes
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/leftbutton.tga"
-   	   	rect 69 140 7 26
-   	   	visible 1 
-		decoration  	  
-   	 	}
-
-	itemDef {
-	      	name yes
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/rightbutton.tga"
-      		rect 104 140 7 26
-     	 	visible 1 
-		decoration  	  
-    		}
-
-
-
 
 
 itemDef {
@@ -143,9 +74,8 @@ itemDef {
 	text "NO"
 	type 1
 	textscale .25
-	style WINDOW_STYLE_FILLED
-	background "ui/assets/button_back.tga"
-	rect 128 140 30 26
+	style 0
+	rect 100 40 30 26
 	textalign 1
 	textalignx 15
 	textaligny 20
@@ -159,32 +89,6 @@ itemDef {
 	mouseEnter { setitemcolor no backcolor .1 .37 .1 1 } 
 	mouseExit { setitemcolor no backcolor .37 .1 .1 1 } 		
 	}
-	itemDef {
-      		name no
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/framebutton.tga"
- 		rect 128 140 30 26
-      		visible 1 
-		decoration  	  
-    		}
-
-	itemDef {
-      		name no
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/leftbutton.tga"
-   	   	rect 122 140 7 26
-   	   	visible 1 
-		decoration  	  
-   	 	}
-
-	itemDef {
-	      	name no
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/rightbutton.tga"
-      		rect 157 140 7 26
-     	 	visible 1 
-		decoration  	  
-    		}
 
 }
 

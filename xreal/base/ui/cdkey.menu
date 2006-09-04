@@ -7,7 +7,7 @@ menuDef {
     	name "cdkey_menu"
     	visible 0
     	fullscreen 0
-	rect 186 0 443 426
+	rect 0 125 640 250
     	focusColor 1 .75 0 1
     	style 1
     	border 1
@@ -26,50 +26,26 @@ menuDef {
 itemDef {
 	name window
 	group grpSystembutton
-	rect 0 2 443 426	
-	style WINDOW_STYLE_FILLED
-	border 1
-	bordercolor .5 .5 .5 .5
-	forecolor 1 1 1 1
-	backcolor 0 0 0 .25
+	rect 120 2 400 250	
+	style 1
+	border 4
+      	bordercolor 0.5 0.0 0.1 .5
 	visible 1
 	decoration
 	}
-
-
-/*
-//	DEMO ONLY OPTION	//
-
-	itemDef {
-		name demo_only
-		group grpcdkey
-		rect 0 145 454 30
-		text"This Option is Not Available in Demo."
-		textalign 1
-		textstyle 1
-		textscale .333
-		textalignx 217
-		textaligny 23
-		forecolor 1 1 1 1
-		visible 1
-		decoration
-		}
-*/
-
-
 
 
 
 	itemDef {
 		name data
 		group grpcdkey
-		rect 0 145 454 30
 		text"Enter your encryption code in the field below."
-		textalign 1
-		textscale .333
-		textalignx 217
-		textaligny 23
-		forecolor 1 1 1 1
+		rect 200 35 256 20
+   		textalign ITEM_ALIGN_RIGHT
+  		textalignx 128
+   		textaligny 10
+		textscale .2        
+   		forecolor 1 1 1 1
 		visible 1
 		decoration
 		}

@@ -8,7 +8,7 @@
    	visible 0
    	fullscreen 1
    	rect 0 0 640 480
-   	background "menuback_a"
+   	background "ui_main_background"
    	focusColor 1 .75 0 1
    	style 1
 	fadeClamp 1.0
@@ -17,8 +17,8 @@
 	onEsc { close skirmish ; open main }
 	onOpen { 
 		setitemcolor fadebox backcolor 0 0 0 1 ; 
-		playlooped "music/di.fm-progressive-blue_room_project-5b.wav" ;
-		fadeout fadebox ;
+		play "sound/misc/kcswish.wav" ; 
+	fadeout fadebox ;
 		uiScript loadGameInfo ;
 		uiScript updateSPMenu ;
 		hide lightning ; 
@@ -30,102 +30,91 @@
 		
  	
 
-	
-	
-	
-	
-
-
-
-
-
-
-// GAMETYPE BAR	//
-
-
 
 itemDef {
-      	name gametypebar
-      	style 2
-      	rect 0 5 640 40 
-      	textscale 0.4
-      	textalign 0		        // center
-      	textalignx 60       		// x alignment point for text
-                            		// use it to offset left/right text from the edge 
-                            		// or to center the text on a different point
-      	textaligny 21        
-      	style 2
-      	border 4
-      	bordercolor 0.5 0.5 0.5 0.5
-      	bordersize 2
-      	backcolor 0 0 .75 0.5
+	name window
+	text "Start a Singleplayergame"
+	textscale .3
+	type 0
+	style 0
+	rect 0 50 640 26
+	textalign 1
+	textalignx 320
+	textaligny 15
+	border 4
+      	bordercolor 0.5 0.0 0.1 .5
+	forecolor 1 1 1 1
+	visible 1
+	decoration
+	}
+
+itemDef {
+      	name solid_box
+      	style 1 
+	rect 0 125 640 250
+      	border 4 
+      	bordersize 1
+      	bordercolor 0.5 0.0 0.1 .5
       	visible 1 
-	mouseEnter { setcolor backcolor .75 0 0 .5 }
-      	mouseExit { setcolor backcolor 0 0 .75 .5 }
       	decoration 
 	}
 
-
-
-itemDef {
-      	name gametypefield
-      	style 0	
-	ownerdraw UI_GAMETYPE
-	textstyle 6
-	text "Type:"
-      	rect 0 10 213 31 
-      	textalign ITEM_ALIGN_LEFT		
-      	textalignx 20     
-      	textaligny 26    
-	textscale .35     
-      	forecolor 1 1 1 1
-      	border 0
-      	bordercolor 0 0 0 0
-      	visible 1
-	action { play "sound/misc/kcaction.wav" }
-	mouseEnter { fadein message_type } 
-	mouseExit { fadeout message_type } 
-    	}
+	
+// BACK BAR	//
 
   itemDef {
-	name opposingteamfield
-	text "Opponent: "
-      	ownerdraw UI_OPPONENT_NAME
-	textstyle 6
- 	rect 213 10 213 31 
-	textalign ITEM_ALIGN_LEFT
-	textalignx 20     
-      	textaligny 26    
-	textscale .35     
+      	name gotobar
+      	rect 20 430 640 30 
+      	textscale 0.4
+      	textalign 0		        // center
+      	style 0
+	border 4
+      	bordercolor 0.5 0.0 0.1 .5
 	forecolor 1 1 1 1
-	visible 1 
-	cvarTest "ui_gametype"
-	hideCvar { "1" }
-	action { play "sound/misc/kcaction.wav" }
-	mouseenter { show message_opponent }
-	mouseexit { hide message_opponent }
+      	visible 1 
+      	mouseEnter { setcolor backcolor .75 0 0 .5 }
+      	mouseExit { setcolor backcolor 0 0 .75 .5 }
+      	decoration 
     	}
 
 
 itemDef {
-      	name gametypefield
-      	style 0	
-	ownerdraw UI_SKILL
-	textstyle 6
-	text "Skill:"
-      	rect 426 10 213 31 
-      	textalign ITEM_ALIGN_LEFT		
-      	textalignx 20     
-      	textaligny 26    
-	textscale .35     
-      	forecolor 1 1 1 1
-      	border 0
-      	bordercolor 0 0 0 0
-      	visible 1
-	action { play "sound/misc/kcaction.wav" }
-	mouseEnter { fadein message_skill } 
-	mouseExit { fadeout message_skill }  
-    	}
+	name back
+	text "BACK"
+	textscale .30
+	group grpControlbutton
+	type ITEM_TYPE_BUTTON
+	style 0
+	rect 20 430 54 54 
+	textalign 1
+	textalignx 22
+	textaligny 20
+	forecolor 1 1 1 1
+	visible 1
+      	action {  close skirmish ; open main }
+     	mouseEnter { fadein message_back}
+      	mouseExit { fadeout message_back}
+	}
+
+itemDef {
+	name accept
+	text "START"
+	textscale .30
+	group grpControlbutton
+	type ITEM_TYPE_BUTTON
+	style 0
+	rect 520 430 54 54 
+	textalign 1
+	textalignx 22
+	textaligny 20
+	forecolor 1 1 1 1
+	visible 1
+      	action { close skirmish ; uiScript skirmishStart }
+  	mouseEnter { fadein message_accept}
+      	mouseExit { fadeout message_accept}
+	}
+
+
 
 //	DECORATIVE	//
 
@@ -133,7 +122,7 @@ itemDef {
 itemDef {
 	name mappreview
 	ownerdraw UI_MAPCINEMATIC
-	rect 320 170 320 192
+	rect 320 180 210 160
 	backcolor 1 1 1 .25
 	decoration
 	visible 1
@@ -143,25 +132,13 @@ itemDef {
       	name mappscreen
       	style 3	
  	background "menuscreen"
-	rect 320 170 320 192
+	rect 320 180 210 160
       	visible 1 
 	decoration
     	}
 
 
 
-
-itemDef {
-	name window
-	rect 0 170 640 192	
-	style WINDOW_STYLE_EMPTY
-	border 1
-	bordercolor .5 .5 .5 .5
-	forecolor 1 1 1 1
-	backcolor 0 0 0 .25
-	visible 1
-	decoration
-	}
 
 //	MAP INFORMATION BARS	//
 
@@ -197,21 +174,14 @@ itemDef {
 	decoration
 	}
 
+
 //	CENTER IMAGE AND INFORMATION 	//
 
-itemDef {
-      	name menuback_e
-      	style WINDOW_STYLE_SHADER
-     	rect 254 194 140 140
-     	background "centerconsole"
-      	visible 1
-	decoration
-    	}
 
 itemDef {
       	name opposinglogo
         ownerdraw UI_OPPONENTLOGO_METAL
-      	rect 264 200 120 120
+	rect 320 180 210 160
 	cvarTest "ui_gametype"
 	hideCvar { "1" }
       	visible 1
@@ -223,50 +193,34 @@ itemDef {
       	name mappscreen
       	style 3	
  	background menuscreen
-	rect 254 194 140 140
+	rect 320 180 210 160
       	visible 1 
 	decoration
     	}
 
-itemDef {
-      	name menuback_e
-	group grpCenter
-      	style WINDOW_STYLE_SHADER
-     	rect 254 194 140 140
-     	background "centerconsole"
-      	visible 1
-	decoration
-    	}
+
 
 itemDef {
       	name opposinglogo
         ownerdraw UI_OPPONENTLOGO_METAL
 	cvarTest "ui_gametype"
 	hideCvar { "1" }
-      	rect 264 200 120 120
+	rect 320 180 210 160
       	visible 1
       	forecolor .7 .7 1 .25
       	decoration 
 	}
 
-itemDef {
-      	name mappscreen
-	group grpCenter
-      	style 3	
- 	background menuscreen
-	rect 254 194 140 140
-      	visible 1 
-	decoration
-    	}
+
 
 itemDef {
       	name level_info
 	group grplevelinfo2
       	textscale .35
 	text "Best Score"
-	rect 258 250 128 20 
+	rect 320 240 210 160
        	textalign 1
-      	textalignx 64 		// x alignment point for text
+      	textalignx 100 		// x alignment point for text
    				// use it to offset left/right text from the edge 
             			// or to center the text on a different point
       	textaligny 12
@@ -282,7 +236,7 @@ itemDef {
 itemDef {
       	name backwindow
       	style WINDOW_STYLE_FILLED
-      	rect 254 194 140 140
+	rect 320 180 210 160
 	ownerdrawflag UI_SHOW_NEWHIGHSCORE 
      	backcolor 0 0 0 1
 	forecolor 0 0 0 1
@@ -294,7 +248,7 @@ itemDef {
       	name menuback_e
       	style WINDOW_STYLE_SHADER
 	ownerdrawflag UI_SHOW_NEWHIGHSCORE 
-      	rect 254 194 140 140
+	rect 320 180 210 160
      	background "centerconsole"
       	visible 1
 	decoration
@@ -305,7 +259,7 @@ itemDef {
         ownerdraw UI_PLAYERLOGO_METAL
 	cvarTest "ui_gametype"
 	hideCvar { "1" }
-      	rect 264 200 120 120
+	rect 320 180 210 160
 	ownerdrawflag UI_SHOW_NEWHIGHSCORE 
       	visible 1
       	forecolor .7 .7 1 .25
@@ -317,7 +271,7 @@ itemDef {
       	style 3	
  	background menuscreen
 	ownerdrawflag UI_SHOW_NEWHIGHSCORE 
-	rect 254 190 140 150
+	rect 320 180 210 160
       	visible 1 
 	decoration
     	}
@@ -328,10 +282,10 @@ itemDef {
 	textstyle ITEM_TEXTSTYLE_BLINK 
       	textscale .35
 	text "New High Score"
-	rect 258 248 128 20 
+	rect 320 240 210 160
 	ownerdrawflag UI_SHOW_NEWHIGHSCORE 
        	textalign 1
-      	textalignx 64 		// x alignment point for text
+      	textalignx 80 		// x alignment point for text
    				// use it to offset left/right text from the edge 
             			// or to center the text on a different point
       	textaligny 12
@@ -343,9 +297,11 @@ itemDef {
 
 itemDef {
       	name menuback_g
-      	style WINDOW_STYLE_SHADER
-      	rect 215 160 215 212
-     	background "menuback_g"
+      	style 0
+	rect 318 178 212 162
+     	border 1
+      	bordersize 2
+      	bordercolor 0.5 0.0 0.1 .5
       	visible 1
 	decoration
     	}
@@ -361,9 +317,9 @@ itemDef {
 	text ""
 	type ITEM_TYPE_EDITFIELD
 	cvar "ui_scoreScore"
-	rect 258 265 128 20 
+	rect 320 265 128 20 
        	textalign 1
-      	textalignx 64 		// x alignment point for text
+      	textalignx 100 		// x alignment point for text
    				// use it to offset left/right text from the edge 
             			// or to center the text on a different point
       	textaligny 12
@@ -885,7 +841,7 @@ itemdef {
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 0
 	textaligny 12
-	textscale .25        
+	textscale .20        
 	forecolor 1 1 1 1
 	decoration
 	visible 1 
@@ -904,7 +860,7 @@ itemdef {
       	textalign ITEM_ALIGN_RIGHT
       	textalignx 0
       	textaligny 12
-	textscale .25        
+	textscale .20        
       	forecolor 1 1 1 1
       	visible 1 
 	decoration 
@@ -921,7 +877,7 @@ itemdef {
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 0
 	textaligny 12
-	textscale .25     
+	textscale .20     
 	forecolor 1 1 1 1
 	visible 1 
 	decoration
@@ -936,7 +892,7 @@ itemdef {
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 0
 	textaligny 12
-	textscale .25     
+	textscale .20     
 	forecolor 1 1 1 1
 	visible 1 
 	decoration
@@ -951,7 +907,7 @@ itemdef {
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 0
 	textaligny 12
-	textscale .25     
+	textscale .20     
 	forecolor 1 1 1 1
 	visible 1 
 	decoration
@@ -967,7 +923,7 @@ itemdef {
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 0
 	textaligny 12
-	textscale .25     
+	textscale .20     
 	forecolor 1 1 1 1
 	visible 1 
 	decoration
@@ -976,13 +932,13 @@ itemdef {
       	name normal
 	group grpsettings
         type ITEM_TYPE_NUMERICFIELD
-	text "Completion Time:"
+	text "Completion:"
 	cvar "ui_scoreTime" 
  	rect 120 278 128 12 
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 0
 	textaligny 12
-	textscale .25     
+	textscale .20     
 	forecolor 1 1 1 1
 	visible 1 
 	decoration
@@ -998,7 +954,7 @@ itemdef {
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 0
 	textaligny 12
-	textscale .25     
+	textscale .20     
 	forecolor 1 1 1 1
 	visible 1 
 	decoration
@@ -1016,7 +972,7 @@ itemdef {
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 0
 	textaligny 12
-	textscale .25     
+	textscale .20     
 	forecolor 1 1 1 1
 	visible 1 
 	decoration
@@ -1033,7 +989,7 @@ itemDef {
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 0
 	textaligny 12
-	textscale .25     
+	textscale .20     
 	forecolor 1 1 1 1
 	visible 1 
 	decoration
@@ -1050,7 +1006,7 @@ itemDef {
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 0
 	textaligny 12
-	textscale .25     
+	textscale .20     
 	forecolor 1 1 1 1
 	visible 1 
 	decoration
@@ -1067,7 +1023,7 @@ itemDef {
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 0
 	textaligny 12
-	textscale .25     
+	textscale .20     
 	forecolor 1 1 1 1
 	visible 1 
 	decoration
@@ -1084,7 +1040,7 @@ itemDef {
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 0
 	textaligny 22
-	textscale .333     
+	textscale .20     
 	forecolor 1 1 1 1
       	forecolor 1 1 1 1
       	visible 1 
@@ -1092,61 +1048,6 @@ itemDef {
 	mouseEnter { show message_recordDemo }
       	mouseExit { hide message_recordDemo}	  	  
     }
-
-
-
-
-
-
-//	LEVEL SELECTION	//
-
-
-
-itemDef {
-	name maplist
-	rect 119 60 403 91
-	type ITEM_TYPE_LISTBOX
-	style WINDOW_STYLE_FILLED
-	elementwidth 100
-	elementheight 75
-	elementtype LISTBOX_IMAGE
-	feeder FEEDER_MAPS
-	horizontalscroll
-	border 1
-	bordercolor .5 .5 .5 .5  
-	forecolor 1 1 1 1
-	visible 1
-	mouseenter { setitemcolor maplist bordercolor .7 0 0 1 ; show message_arena }
-	mouseexit { setitemcolor maplist bordercolor .5 .5 .5 .5 ; hide message_arena }
-/*	
-	//	demo_only
-	cvarTest "ui_gametype"
-	hideCvar { "1" }
-*/
-	}
-
-/*
-
-//	DEMO ONLY OPTION	//
-
-itemDef {
-	name demo_only
-	text "Opponent: "
-      	text "Tournament Maps are Not Available in Demo."
-	textstyle 3
- 	rect 119 60 403 91
-	textalign ITEM_ALIGN_CENTER
-	textalignx 200     
-      	textaligny 26    
-	textscale .35     
-	forecolor 1 1 1 1
-	visible 1 
-	decoration
-	cvarTest "ui_gametype"
-	showCvar { "1" }
-    	}
-*/
-
 
 
 
@@ -1199,17 +1100,15 @@ itemDef {
       	name playDemobttn
 	group grpbttn
 	type 1
-      	style WINDOW_STYLE_FILLED
-	background "ui/assets/button_back.tga"
+      	style 0
 	text "No Demo"
       	rect 500 385 100 26
       	textalign 1		
       	textalignx 50
 	textaligny 20        
-	textscale .25   
+	textscale .20   
 	decoration  
       	forecolor .5 .5 .5 1
-	backcolor .17 .05 .05 1
       	visible 1
 	}
 
@@ -1218,8 +1117,7 @@ itemDef {
       	name playDemobttn
 	group grpbttn
 	type 1
-      	style WINDOW_STYLE_FILLED
-	background "ui/assets/button_back.tga"
+      	style 0
 	text "View Last Game"
       	rect 500 385 100 26
       	textalign 1		
@@ -1227,7 +1125,6 @@ itemDef {
 	textaligny 20        
 	textscale .25     
       	forecolor 1 1 1 1
-	backcolor .37 .1 .1 1
       	visible 1
 	ownerdrawflag UI_SHOW_DEMOAVAILABLE 
 	action { play "sound/misc/kcaction.wav" ; 
@@ -1236,396 +1133,356 @@ itemDef {
 	mouseExit { setitemcolor playDemobttn backcolor .37 .1 .1 1 ; hide demo_message } 
 	}
 
-itemDef {
-      	name playDemo
-	group grpbttn
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/framebutton.tga"
- 	rect 500 385 100 26
-      	visible 1 
-	decoration  	  
-    	}
+
+// GAMETYPE BAR	//
+
 
 itemDef {
-      	name playDemo
-	group grpbttn
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/leftbutton.tga"
-      	rect 488 385 13 26
-      	visible 1 
-	decoration  	  
+      	name gametypefield
+      	style 0	
+	ownerdraw UI_GAMETYPE
+	textstyle 6
+	text "Type:"
+      	rect 40 75 160 31 
+      	textalign ITEM_ALIGN_CENTER		
+      	textalignx 80     
+      	textaligny 26    
+	textscale .25     
+      	forecolor 1 1 1 1
+      	border 0
+      	visible 1
+	action { play "sound/misc/kcaction.wav" }
+	mouseEnter { fadein message_type } 
+	mouseExit { fadeout message_type } 
     	}
-
-itemDef {
-      	name playDemo
-	group grpbttn
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/rightbutton.tga"
-      	rect 599 385 13 26
-      	visible 1 
-	decoration  	  
-    	}
-
-
-
-
-
-
-
-
-// BACK BAR	//
-
 
   itemDef {
-      	name gotobar
-      	style 2
-      	rect 0 430 640 30 
-      	textscale 0.4
-      	textalign 0		        // center
-      	textalignx 60        // x alignment point for text
-                            // use it to offset left/right text from the edge 
-                            // or to center the text on a different point
-      	textaligny 21        
-      	style 2
-      	border 4
-      	bordercolor 0.5 0.5 0.5 0.5
-      	bordersize 2
-      	backcolor 0 0 .75 0.5
-      	visible 1 
-      	mouseEnter { setcolor backcolor .75 0 0 .5 }
-      	mouseExit { setcolor backcolor 0 0 .75 .5 }
-      	decoration 
+	name opposingteamfield
+	text "Opponent: "
+      	ownerdraw UI_OPPONENT_NAME
+	textstyle 6
+ 	rect 200 75 160 31 
+      	textalign ITEM_ALIGN_CENTER		
+      	textalignx 80     
+      	textaligny 26    
+	textscale .25     
+      	forecolor 1 1 1 1
+      	border 0
+      	visible 1
+	cvarTest "ui_gametype"
+	hideCvar { "1" }
+	action { play "sound/misc/kcaction.wav" }
+	mouseenter { show message_opponent }
+	mouseexit { hide message_opponent }
     	}
 
-    itemDef {
-      	name back
-	style 3
-      	background "ui/assets/backarrow.tga"
-	rect 16 424 50 50 
-      	visible 1 
-      	action { close skirmish ; open main }
-	mouseEnter { hide back ; show back_alt ; fadein message_back }
-    	}
 
 itemDef {
-      	name back_alt
-      	style WINDOW_STYLE_SHADER
-	background "ui/assets/backarrow_alt.tga"
-	rect 14 422 54 54 
-      	backcolor 0 0 0 0
+      	name gametypefield
+      	style 0	
+	ownerdraw UI_SKILL
+	textstyle 6
+	text "Skill:"
+      	rect 420 75 160 31 
+      	textalign ITEM_ALIGN_CENTER		
+      	textalignx 80     
+      	textaligny 26    
+	textscale .25     
       	forecolor 1 1 1 1
-      	visible 0
+      	border 0
+      	visible 1
+	action { play "sound/misc/kcaction.wav" }
+	mouseEnter { fadein message_skill } 
+	mouseExit { fadeout message_skill }  
+    	}
+
+
+
+itemDef {
+      	name selectmap
+      	text "Select Map"
 	type ITEM_TYPE_BUTTON
-      	mouseExit { hide back_alt ; show back ; fadeout message_back }	  
-      	action { close skirmish ; open main }	  
-	}
-
-itemDef {
-      	name accept
-      	style 3	
-     	rect 574 424 50 50 
-     	background "ui/assets/forwardarrow.tga"
-      	backcolor 0 0 0 0
-      	forecolor 1 1 1 1
+      	textscale .25
+	style 0
+      	rect 0 140 640 26
+	textalign 1
+      	textalignx 320		// center
+      	textaligny 10
+      	bordercolor 0.5 0.0 0.1 .15
+	forecolor 1 1 1 1
       	visible 1 
-	mouseEnter { show lightning ; hide accept ; show accept_alt ; fadein message_accept ; playlooped "sound/misc/loop_electricity_05.wav" }
-      	action { uiScript skirmishStart }
-/*	
-	//	demo_only
-	cvarTest "ui_gametype"
-	hideCvar { "1" }
-*/
-  	}
+      	action { play "sound/misc/kcaction.wav" ; 
+	open selectmap_popup }
+	mouseEnter { show message_selectmap }
+      	mouseExit { hide message_selectmap }	  	  
+    }
 
-itemDef {
-      	name accept_alt
-      	style 3	
-     	rect 572 422 54 54 
-     	background "ui/assets/forwardarrow_alt.tga"
-      	backcolor 0 0 0 0
-      	forecolor 1 1 1 1
-      	visible 0
-	type ITEM_TYPE_BUTTON   
-      	action { uiScript skirmishStart }
-      	mouseExit { hide lightning ; hide accept_alt ; show accept ; fadeout message_accept ; playlooped "music/di.fm-progressive-blue_room_project-5b.wav" }	
-/*	
-	//	demo_only
-	cvarTest "ui_gametype"
-	hideCvar { "1" }
-*/
-  	}
-
-
- itemDef {
-      	name lightning
-      	style 3
-	background lightningkc
-      	rect 46 385 236 128  
-      	visible 0 
-      	decoration 
-    	}
-itemDef {
-      	name lightning
-      	style 3
-	background lightningkc
-      	rect 355 385 236 128     
-      	visible 0 
-      	decoration 
-    	}
 
 
 
 //	MESSAGES	//
+itemDef {
+	name message_selectmap
+	group grpmessage
+	style 0 
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
+	textalign 1
+	textaligny 20
+	decoration 
+	visible 0
+	text "Choose your Startmap"
+
+	}
 
 itemDef {
 	name message_back
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textstyle 1
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Exit to Main Menu"
-	forecolor 1 1 1 1
+	textaligny 20
 	decoration 
 	visible 0
+	text "Exit to Main Menu"
+
 	}
 
 itemDef {
 	name message_accept
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textstyle 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Enter Arena"
-	forecolor 1 1 1 1
+	textaligny 20
 	decoration 
 	visible 0
+	text "Enter Arena"
+
 	}
 
 itemDef {
 	name message_type
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textstyle 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Select Gametype"
-	forecolor 1 1 1 1
+	textaligny 20
 	decoration 
 	visible 0
+	text "Select Gametype"
+
 	}
 
 itemDef {
 	name message_skill
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textstyle 1
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Set Skill Level"
-	forecolor 1 1 1 1
+	textaligny 20
 	decoration 
 	visible 0
+	text "Set Skill Level"
+
 	}
 
 itemDef {
 	name message_arena
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textstyle 1
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Choose Your Arena"
-	forecolor 1 1 1 1
+	textaligny 20
 	decoration 
 	visible 0
+	text "Choose Your Arena"
+
 	}
 
 itemDef {
 	name message_assist
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textstyle 1
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Assist"
-	forecolor 1 1 1 1
+	textaligny 20
 	decoration 
 	visible 0
+	text "Assist"
+
 	}
 itemDef {
 	name message_perfect
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textstyle 1
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Perfect"
-	forecolor 1 1 1 1
+	textaligny 20
 	decoration 
 	visible 0
+	text "Perfect"
+
 	}
 itemDef {
 	name message_accuracy
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textstyle 1
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Accuracy"
-	forecolor 1 1 1 1
+	textaligny 20
 	decoration 
 	visible 0
+	text "Accuracy"
+
 	}
 itemDef {
 	name message_defend
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textstyle 1
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Defense"
-	forecolor 1 1 1 1
+	textaligny 20
 	decoration 
 	visible 0
+	text "Defense"
+
 	}
 itemDef {
 	name message_excellent
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textstyle 1
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Excellent"
-	forecolor 1 1 1 1
+	textaligny 20
 	decoration 
 	visible 0
+	text "Excellent"
+
 	}
 itemDef {
 	name message_gauntlet
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textstyle 1
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Gauntlet"
-	forecolor 1 1 1 1
+	textaligny 20
 	decoration 
 	visible 0
+	text "Gauntlet"
+
 	}
 itemDef {
 	name message_impressive
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textstyle 1
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Impressive"
-	forecolor 1 1 1 1
+	textaligny 20
 	decoration 
 	visible 0
+	text "Impressive"
+
 	}
 itemDef {
 	name message_capture
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textstyle 1
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Captures"
-	forecolor 1 1 1 1
+	textaligny 20
 	decoration 
 	visible 0
+	text "Captures"
+
 	}
 itemDef {
 	name message_opponent
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textstyle 1
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Cycle through Opponent Clans"
-	forecolor 1 1 1 1
+	textaligny 20
 	decoration 
 	visible 0
+	text "Cycle through Opponent Clans"
+
 	}
 itemDef {
 	name message_recordDemo
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textstyle 1
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Record Next Game"
-	forecolor 1 1 1 1
+	textaligny 20
 	decoration 
 	visible 0
+	text "Record Next Game"
+
 	}
 
 itemDef {
 	name demo_message
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textstyle 1
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "View Last Recorded Game for this Map"
-	forecolor 1 1 1 1
+	textaligny 20
 	decoration 
 	visible 0
+	text "View Last Recorded Game for this Map"
+
 	}
-
-
-
 
 
 

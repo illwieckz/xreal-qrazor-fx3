@@ -8,16 +8,19 @@
     	visible 0
     	fullscreen 1
     	rect 0 0 640 480
-	background "menuback_a"
+	background "ui_main_background"
 	outOfBoundsClick	
 	focusColor 1 .75 0 1
     	style 1
     	border 1
 	onEsc { close createserver ; open main }
 	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; 
-	playlooped "music/di.fm-progressive-blue_room_project-5b.wav" ;
+	play "sound/misc/kcswish.wav" ; 
+
 	fadeout fadebox ; 
-	transition mappreview 7 127 190 1 7 57 190 141 20 10 ; 
+
+//	transition mappreview 7 127 190 1 7 57 190 141 20 10 ; 
+
 	uiScript loadArenas ;
 	hide lightning ; 
 	hide accept_alt ; 
@@ -25,103 +28,34 @@
 	hide back_alt ;
 	show back ;
 	hide grpmessage }
-	
 
 itemDef {
-	name window
-      	rect 2 50 200 370	
-	style WINDOW_STYLE_FILLED
-	border 1
-	bordercolor 1 1 1 .25
+	name ctr_look
+	text "Start a new Server"
+	textscale .3
+	type 0
+	style 0
+	rect 0 50 640 26
+	textalign 1
+	textalignx 320
+	textaligny 15
+	border 4
+      	bordercolor 0.5 0.0 0.1 .5
 	forecolor 1 1 1 1
-	backcolor 0 0 0 .25
 	visible 1
 	decoration
-}
+	}
 
 itemDef {
-	name window
-	rect 204 50 227 113	
-	style WINDOW_STYLE_FILLED
-	border 1
-	bordercolor 1 1 1 .25
-	forecolor 1 1 1 1
-	backcolor 0 0 0 .25
-	visible 1
-	decoration
-}
-
-
-itemDef {
-	name window
-	rect 204 165 227 270	
-	style WINDOW_STYLE_FILLED
-	border 1
-	bordercolor 1 1 1 .25
-	forecolor 1 1 1 1
-	backcolor 0 0 0 .25
-	visible 1
-	decoration
-}
-
-itemDef {
-	name window
-      	rect 433 50 200 183	
-	style WINDOW_STYLE_FILLED
-	border 1
-	bordercolor 1 1 1 .25
-	forecolor 1 1 1 1
-	backcolor 0 0 0 .25
-	visible 1
-	 cvarTest "ui_actualNetGameType"
-	  hideCvar { "0" ; "1" ; "2" }
-	decoration
-}
-
-itemDef {
-	name window
-      	rect 433 235 200 185	
-	style WINDOW_STYLE_FILLED
-	border 1
-	bordercolor 1 1 1 .25
-	forecolor 1 1 1 1
-	backcolor 0 0 0 .25
-	visible 1
-	 cvarTest "ui_actualNetGameType"
-	  hideCvar { "0" ; "1" ; "2" }
-	decoration
-}
-itemDef {
-	name window
-      	rect 433 50 200 370	
-	style WINDOW_STYLE_FILLED
-	border 1
-	bordercolor 1 1 1 .25
-	forecolor 1 1 1 1
-	backcolor 0 0 0 .25
-	visible 1
-	 cvarTest "ui_actualNetGameType"
-	  showCvar { "0" ; "1" ; "2" }
-	decoration
-}
-
-
-
-//	top bar	//
-  itemDef {
-      	name topbar
-      	style 2
-      	rect 0 5 640 40 
-      	style 2
-      	border 4
-      	bordercolor 0.5 0.5 0.5 0.5
-      	bordersize 2
-	backcolor 0 0 .75 .5
+      	name solid_box
+      	style 1 
+	rect 0 125 640 250
+      	border 4 
+      	bordersize 1
+      	bordercolor 0.5 0.0 0.1 .5
       	visible 1 
       	decoration 
-	mouseEnter { setcolor backcolor .75 0 0 .5 }
-      	mouseExit { setcolor backcolor 0 0 .75 .5 }
-    }
+	}
 
 
 // GLOBAL SETTINGS
@@ -134,11 +68,11 @@ itemDef {
 	ownerdraw UI_NETGAMETYPE
 	text "Type:"
 	textstyle 6
-      	rect 0 10 320 31 
-      	textalign ITEM_ALIGN_LEFT		
-      	textalignx 20     
+      	rect 0 75 320 31 
+      	textalign ITEM_ALIGN_CENTER		
+      	textalignx 160     
       	textaligny 26    
-	textscale .416     
+	textscale .25     
       	forecolor 1 1 1 1
       	visible 1
 	action { play "sound/misc/kcaction.wav" }
@@ -152,11 +86,11 @@ itemDef {
 	ownerdraw UI_SKILL
 	textstyle 6
 	text "Skill:"
-      	rect 320 10 320 31 
-      	textalign ITEM_ALIGN_LEFT		
-      	textalignx 90     
+      	rect 320 75 320 31 
+      	textalign ITEM_ALIGN_CENTER		
+      	textalignx 120     
       	textaligny 26    
-	textscale .416    
+	textscale .25    
       	forecolor 1 1 1 1
       	visible 1
 	action { play "sound/misc/kcaction.wav" }
@@ -171,44 +105,46 @@ itemDef {
       	name mappreview
       	style 0	
  	ownerdraw UI_STARTMAPCINEMATIC
-      	rect 7 57 190 141
+      	rect 31 140 140 100
       	border 1
-      	bordercolor .5 .5 .5 .5
+      	bordercolor .3 .0 .0 .5
       	visible 1 
     	}
 
 itemDef {
       	name mappreview
      	style WINDOW_STYLE_FILLED
-      	rect 6 56 192 143
+      	rect 30 139 142 102
       	border 1
-      	bordercolor .5 .5 .5 .5
+      	bordercolor .3 .0 .0 .5
       	visible 1
     }
 
  itemDef {
 	name maplist
-      	rect 6 205 192 211
+      	rect 210 140 240 100
 	type ITEM_TYPE_LISTBOX
 	style WINDOW_STYLE_FILLED
-	elementwidth 120
-	elementheight 20
-	textscale .25
+	elementwidth 140
+	elementheight 15
+	textscale .2
 	elementtype LISTBOX_TEXT
 	feeder FEEDER_ALLMAPS
 	textstyle 6
 	textalign 3
 	textaligny 14
 	border 1
-	bordercolor .5 .5 .5 .5
+	bordercolor .3 .0 .0 .5
 	forecolor 1 1 1 1
-	backcolor 0 0 .5 .25
-	outlinecolor .1 .1 .7 .5
+	backcolor .2 0 .0 .25
+	outlinecolor .3 .0 .0 .5
 	visible 1
 	columns 1 2 190 25
 	mouseEnter { fadein message_arena ; setitemcolor maplist bordercolor .7 0 0 1 } 
 	mouseExit { fadeout message_arena ; setitemcolor maplist bordercolor .5 .5 .5 .5 } 
   	}
+
+
 
 //	SETTINGS	//
 
@@ -223,12 +159,12 @@ itemDef {
 	text "Capture Limit:"
 	cvar "capturelimit" 
 	ownerdrawflag UI_SHOW_NETANYTEAMGAME  
- 	rect 260 60 128 12 
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 65
+ 	rect 30 260 128 12 
+	textalign ITEM_ALIGN_LEFT
+	textalignx 0
 	textaligny 12
 	maxchars 4
-	textscale .25        
+	textscale .2        
 	forecolor 1 1 1 1
 	visible 1 
     	}
@@ -239,12 +175,12 @@ itemDef {
 	text "Frag Limit:"
 	cvar "fraglimit"
 	ownerdrawflag UI_SHOW_NETANYNONTEAMGAME 
-      	rect 260 60 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
+      	rect 30 260 128 12 
+      	textalign ITEM_ALIGN_LEFT
+      	textalignx 0
 	maxchars 4
       	textaligny 12
-	textscale .25        
+	textscale .2        
       	forecolor 1 1 1 1
       	visible 1  
     }
@@ -255,12 +191,12 @@ itemDef {
       	type ITEM_TYPE_NUMERICFIELD
 	text "Time Limit:"
 	cvar "timelimit"
-      	rect 260 77 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
+      	rect 30 275 128 12 
+      	textalign ITEM_ALIGN_LEFT
+      	textalignx 0
 	maxchars 4
       	textaligny 12
-	textscale .25        
+	textscale .2        
       	forecolor 1 1 1 1
       	visible 1  
     }
@@ -272,11 +208,11 @@ itemDef {
       	type ITEM_TYPE_YESNO
 	text "Friendly Fire:"
 	cvar "g_friendlyfire"
-      	rect 260 94 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
+      	rect 30 290 128 12 
+      	textalign ITEM_ALIGN_LEFT
+      	textalignx 0
       	textaligny 12
-	textscale .25        
+	textscale .2        
       	forecolor 1 1 1 1
       	visible 1  
     }
@@ -287,11 +223,11 @@ itemDef {
       	type ITEM_TYPE_YESNO
 	text "Pure Server:"
 	cvar "sv_pure"
-      	rect 260 111 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
+      	rect 30 305 128 12 
+      	textalign ITEM_ALIGN_LEFT
+      	textalignx 0
       	textaligny 12
-	textscale .25        
+	textscale .2        
       	forecolor 1 1 1 1
       	visible 1  
     	}
@@ -305,31 +241,31 @@ itemDef {
 	// dedicated is a special cvar in that as soon as it is set, the game goes to console only so the ui catches this one specifically
 	cvar "ui_dedicated"
 	cvarFloatList { "No" 0 "LAN" 1 "Internet" 2 }
-	rect 260 128 128 12 
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 65
+	rect 30 320 128 12 
+	textalign ITEM_ALIGN_LEFT
+	textalignx 0
 	textaligny 12
-	textscale .25        
+	textscale .2        
       	forecolor 1 1 1 1
      	visible 1 
     	}
 
-	itemDef {
+/*	itemDef {
 		name normal
 		group grpsettings
 		type ITEM_TYPE_MULTI
 		text "Punkbuster:"
 		cvar "sv_punkbuster"
 		cvarFloatList { "No" 0 "Yes" 1 }
-		rect 260 145 128 12 
-		textalign ITEM_ALIGN_RIGHT
-		textalignx 65
+		rect 220 180 128 12 
+		textalign ITEM_ALIGN_LEFT
+		textalignx 0
 		textaligny 12
-		textscale .25        
+		textscale .15        
 		forecolor 1 1 1 1
 		visible 1 
 	}
-
+*/
 
 // 	EXPERT	//	
 
@@ -341,11 +277,11 @@ itemDef {
 	cvar "sv_hostname"
 	maxChars 32
 	maxPaintChars 10
-      	rect 260 175 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
+      	rect 30 335 128 12 
+      	textalign ITEM_ALIGN_LEFT
+      	textalignx 0
       	textaligny 12
-	textscale .25        
+	textscale .2        
       	forecolor 1 1 1 1
       	visible 1  
     }
@@ -358,12 +294,12 @@ itemDef {
       	type ITEM_TYPE_YESNO
 	text "Auto Download:"
 	cvar "sv_allowdownload"
-	rect 260 190 128 12 
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 65
+	rect 30 350 128 12 
+	textalign ITEM_ALIGN_LEFT
+	textalignx 0
 	textaligny 12
-	textscale .25        
-	forecolor 1 1 1 1
+	textscale .2        
+      	forecolor 1 1 1 1
 	visible 1  
     }
 
@@ -373,11 +309,11 @@ itemDef {
       	type ITEM_TYPE_YESNO
 	text "Enable Voting:"
 	cvar "g_allowvote"
-      	rect 260 205 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25        
+      	rect 200 260 128 12 
+	textalign ITEM_ALIGN_LEFT
+	textalignx 0
+	textaligny 12
+	textscale .2        
       	forecolor 1 1 1 1
       	visible 1  
     	}
@@ -390,12 +326,11 @@ itemDef {
       	type ITEM_TYPE_NUMERICFIELD
 	text "Maximum Players:"
 	cvar "sv_maxclients"
-      	rect 260 220 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-	maxchars 4
-      	textaligny 12
-	textscale .25        
+      	rect 200 275 128 12 
+	textalign ITEM_ALIGN_LEFT
+	textalignx 0
+	textaligny 12
+	textscale .2        
       	forecolor 1 1 1 1
       	visible 1  
     	}
@@ -408,12 +343,11 @@ itemDef {
       	type ITEM_TYPE_NUMERICFIELD
 	text "Minimum Ping:"
 	cvar "sv_minping"
-      	rect 260 235 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-	maxchars 4
-      	textaligny 12
-	textscale .25        
+      	rect 200 290 128 12 
+	textalign ITEM_ALIGN_LEFT
+	textalignx 0
+	textaligny 12
+	textscale .2        
       	forecolor 1 1 1 1
       	visible 1  
     }
@@ -424,12 +358,11 @@ itemDef {
       	type ITEM_TYPE_NUMERICFIELD
 	text "Maximum Ping:"
 	cvar "sv_maxping"
-      	rect 260 250 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	maxchars 4
-	textscale .25        
+      	rect 200 305 128 12 
+	textalign ITEM_ALIGN_LEFT
+	textalignx 0
+	textaligny 12
+	textscale .2        
       	forecolor 1 1 1 1
       	visible 1  
     }
@@ -440,11 +373,11 @@ itemDef {
       	type ITEM_TYPE_YESNO
 	text "Force Join:"
 	cvar "g_teamautojoin"
-      	rect 260 265 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25        
+      	rect 200 320 128 12 
+	textalign ITEM_ALIGN_LEFT
+	textalignx 0
+	textaligny 12
+	textscale .2        
       	forecolor 1 1 1 1
       	visible 1  
     	}
@@ -453,13 +386,13 @@ itemDef {
       	name expert
 	group grpsettings
       	type ITEM_TYPE_YESNO
-	text "Even Teams:"
+	text "Balance Teams:"
 	cvar "g_teamforcebalance"
-      	rect 260 280 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25        
+      	rect 200 335 128 12 
+	textalign ITEM_ALIGN_LEFT
+	textalignx 0
+	textaligny 12
+	textscale .2        
       	forecolor 1 1 1 1
       	visible 1  
     	}
@@ -470,11 +403,11 @@ itemDef {
       	type ITEM_TYPE_YESNO
 	text "Do Warmup:"
 	cvar "g_dowarmup"
-      	rect 260 295 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25        
+      	rect 200 350 128 12 
+	textalign ITEM_ALIGN_LEFT
+	textalignx 0
+	textaligny 12
+	textscale .2        
       	forecolor 1 1 1 1
       	visible 1  
     	}
@@ -483,14 +416,13 @@ itemDef {
 	name expert
 	group grpsettings
       	type ITEM_TYPE_NUMERICFIELD
-	text "Warmup time:"
+	text "Warmup:"
 	cvar "g_warmup"
-      	rect 260 310 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25  
-	maxchars 4
+      	rect 360 260 128 12 
+	textalign ITEM_ALIGN_LEFT
+	textalignx 0
+	textaligny 12
+	textscale .2        
       	forecolor 1 1 1 1
       	visible 1  
     	}
@@ -499,13 +431,13 @@ itemDef {
       	name expert
 	group grpsettings
       	type ITEM_TYPE_YESNO
-	text "Synchronous Client:"
+	text "Sync Client:"
 	cvar "g_synchronousclients"
-      	rect 260 325 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25        
+      	rect 360 275 128 12 
+	textalign ITEM_ALIGN_LEFT
+	textalignx 0
+	textaligny 12
+	textscale .2        
       	forecolor 1 1 1 1
       	visible 1  
     	}
@@ -516,12 +448,11 @@ itemDef {
       	type ITEM_TYPE_NUMERICFIELD
 	text "Max Rate:"
 	cvar "sv_maxrate"
-      	rect 260 340 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-	maxchars 4
-      	textaligny 12
-	textscale .25        
+      	rect 360 290 128 12 
+	textalign ITEM_ALIGN_LEFT
+	textalignx 0
+	textaligny 12
+	textscale .2        
       	forecolor 1 1 1 1
       	visible 1  
     	}
@@ -532,12 +463,11 @@ itemDef {
       	type ITEM_TYPE_NUMERICFIELD
 	text "Zombie Time:"
 	cvar "sv_zombietime"
-      	rect 260 355 128 12 
-	maxchars 4
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25        
+      	rect 360 305 128 12 
+	textalign ITEM_ALIGN_LEFT
+	textalignx 0
+	textaligny 12
+	textscale .2        
       	forecolor 1 1 1 1
       	visible 1  
     	}
@@ -546,14 +476,14 @@ itemDef {
       	name expert
 	group grpsettings
       	type ITEM_TYPE_NUMERICFIELD
-	text "Reconnect Limit:"
+	text "Reconnects:"
 	cvar "sv_reconnectlimit"
 	maxchars 4
-      	rect 260 370 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25        
+      	rect 360 320 128 12 
+	textalign ITEM_ALIGN_LEFT
+	textalignx 0
+	textaligny 12
+	textscale .2        
       	forecolor 1 1 1 1
       	visible 1  
     	}
@@ -561,13 +491,13 @@ itemDef {
       	name expert
 	group grpsettings
  	type ITEM_TYPE_YESNO
-	text "Require Password:"
+	text "Use Password:"
 	cvar "g_needpassword"
-      	rect 260 385 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25        
+      	rect 120 395 128 12 
+	textalign ITEM_ALIGN_LEFT
+	textalignx 0
+	textaligny 12
+	textscale .2        
       	forecolor 1 1 1 1
       	visible 1  
     	}
@@ -578,30 +508,79 @@ itemDef {
       	type 4
 	text "Password:"
 	cvar "g_password"
-      	rect 260 400 128 12 
-	maxchars 10
-	maxPaintChars 10
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25        
+      	rect 350 395 128 12 
+	textalign ITEM_ALIGN_LEFT
+	textalignx 0
+	textaligny 12
+	textscale .2        
       	forecolor 1 1 1 1
       	visible 1  
     	}
 
 
 
+
+
+
+
+	
+itemDef {
+	name window
+      	rect 470 140 140 100	
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordercolor .5 0 0 .35
+	forecolor 1 1 1 1
+	bordercolor .7 0 0 .15
+	visible 1
+	 cvarTest "ui_actualNetGameType"
+	  hideCvar { "0" ; "1" ; "2" }
+	decoration
+}
+
+itemDef {
+	name window
+      	rect 470 260 140 100	
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordercolor .5 0 0 .35
+	forecolor 1 1 1 1
+	bordercolor .7 0 0 .15
+	visible 1
+	 cvarTest "ui_actualNetGameType"
+	  hideCvar { "0" ; "1" ; "2" }
+	decoration
+}
+itemDef {
+	name window
+      	rect 470 140 140 220	
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordercolor .5 0 0 .35
+	forecolor 1 1 1 1
+	bordercolor .7 0 0 .15
+	visible 1
+	 cvarTest "ui_actualNetGameType"
+	  showCvar { "0" ; "1" ; "2" }
+	decoration
+}
+
+
+
+/*
+
+*/
 // BOT LIST FOR TEAM GAMES
 
 itemDef {
       name gametypefield
       style 0	
  	  ownerdraw UI_BLUETEAMNAME
-      rect 450 70 128 28 
+      rect 485 145 128 28 
       textalign ITEM_ALIGN_LEFT		
       textalignx 0     
-      textaligny 26    
-	 textscale .333     
+      textaligny 10    
+	 textscale .25     
       forecolor 0 0 1 1
       border 0
       bordercolor 0 0 0 0
@@ -619,12 +598,12 @@ itemDef {
       name gametypefield
       style 0	
  	  ownerdraw UI_BLUETEAM1
-      rect 450 100 128 20 
+      rect 500 160 128 20 
 	text "1."
      textalign ITEM_ALIGN_LEFT	
       textalignx 0     
-      textaligny 18    
-	  textscale .333
+      textaligny 10    
+	  textscale .2
       forecolor 1 1 1 1
       border 0
       bordercolor 0 0 0 0
@@ -640,12 +619,12 @@ itemDef {
       name gametypefield
       style 0	
  	  ownerdraw UI_BLUETEAM2
-      rect 450 122 128 20 
+      rect 500 175 128 20 
       textalign ITEM_ALIGN_LEFT		
       textalignx 0     
-      textaligny 18 
+      textaligny 10 
 	text "2."   
-	  textscale .333
+	  textscale .2
       forecolor 1 1 1 1
       border 0
       bordercolor 0 0 0 0
@@ -662,11 +641,11 @@ itemDef {
       style 0	
 	text "3."
  	  ownerdraw UI_BLUETEAM3
-      rect 450 144 128 20 
+      rect 500 190 128 20 
       textalign ITEM_ALIGN_LEFT		
       textalignx 0     
-      textaligny 18    
-	  textscale .333
+      textaligny 10    
+	  textscale .2
       forecolor 1 1 1 1
       border 0
       bordercolor 0 0 0 0
@@ -683,11 +662,11 @@ itemDef {
       style 0	
 	text "4."
  	  ownerdraw UI_BLUETEAM4
-      rect 450 166 128 20 
+      rect 500 205 128 20 
       textalign ITEM_ALIGN_LEFT		
       textalignx 0     
-      textaligny 18    
-	  textscale .333
+      textaligny 10    
+	  textscale .2
       forecolor 1 1 1 1
       border 0
       bordercolor 0 0 0 0
@@ -704,11 +683,11 @@ itemDef {
       style 0	
 	text "5."
  	  ownerdraw UI_BLUETEAM5
-      rect 450 188 128 20 
+      rect 500 220 128 20 
       textalign ITEM_ALIGN_LEFT		
       textalignx 0     
-      textaligny 18    
-	  textscale .333
+      textaligny 10    
+	  textscale .2
       forecolor 1 1 1 1
       border 0
       bordercolor 0 0 0 0
@@ -727,11 +706,11 @@ itemDef {
       name gametypefield
       style 0	
  	  ownerdraw UI_REDTEAMNAME
-      rect 450 250 128 28 
+      rect 485 265 128 28 
       textalign ITEM_ALIGN_LEFT		
       textalignx 0     
-      textaligny 26    
-	  textscale .333
+      textaligny 10    
+	  textscale .25
       forecolor 1 0 0 1
       border 0
       bordercolor 0 0 0 0
@@ -749,11 +728,11 @@ itemDef {
       style 0	
  	  ownerdraw UI_REDTEAM1
 	text "1."
-      rect 450 280 128 20 
+      rect 500 280 128 20 
       textalign ITEM_ALIGN_LEFT		
       textalignx 0     
-      textaligny 18    
-	  textscale .333
+      textaligny 10    
+	  textscale .2
       forecolor 1 1 1 1
       border 0
       bordercolor 0 0 0 0
@@ -770,11 +749,11 @@ itemDef {
       style 0	
 	text "2."
  	  ownerdraw UI_REDTEAM2
-      rect 450 302 128 20 
+      rect 500 295 128 20 
       textalign ITEM_ALIGN_LEFT		
       textalignx 0     
-      textaligny 18    
-	  textscale .333
+      textaligny 10    
+	  textscale .2
       forecolor 1 1 1 1
       border 0
       bordercolor 0 0 0 0
@@ -791,11 +770,11 @@ itemDef {
       style 0	
 	text "3."
  	  ownerdraw UI_REDTEAM3
-      rect 450 324 128 20 
+      rect 500 310 128 20 
       textalign ITEM_ALIGN_LEFT		
       textalignx 0     
-      textaligny 18    
-	  textscale .333
+      textaligny 10    
+	  textscale .2
       forecolor 1 1 1 1
       border 0
       bordercolor 0 0 0 0
@@ -812,11 +791,11 @@ itemDef {
       style 0	
 	text "4."
  	  ownerdraw UI_REDTEAM4
-      rect 450 346 128 20 
+      rect 500 325 128 20 
       textalign ITEM_ALIGN_LEFT		
       textalignx 0     
-      textaligny 18    
-	  textscale .333
+      textaligny 10    
+	  textscale .2
       forecolor 1 1 1 1
       border 0
       bordercolor 0 0 0 0
@@ -833,11 +812,11 @@ itemDef {
       	style 0	
 	text "5."
 	ownerdraw UI_REDTEAM5
-      	rect 450 368 128 20 
+      	rect 500 340 128 20 
      	textalign ITEM_ALIGN_LEFT		
       	textalignx 0     
-      	textaligny 18    
-	textscale .333
+      	textaligny 10    
+	textscale .2
       	forecolor 1 1 1 1
       	border 0
       	bordercolor 0 0 0 0
@@ -851,17 +830,35 @@ itemDef {
 
 // BOT LIST FOR NONTEAMGAMES
 
+itemDef {
+      name gametypefield
+      style 0	
+       text "Players"
+      rect 485 155 128 28 
+      textalign ITEM_ALIGN_LEFT		
+      textalignx 0     
+      textaligny 10    
+	  textscale .25
+      forecolor 0 1 0 1
+      border 0
+      bordercolor 0 0 0 0
+      visible 1 
+	 cvarTest "ui_actualNetGameType"
+	  showCvar { "0" ; "1" ; "2" }
+      decoration
+    }
+
 
 itemDef {
       name gametypefield
       style 0	
-	text "1."
+	text "1. "
  	  ownerdraw UI_BLUETEAM1
-      rect 450 100 128 20 
+      rect 500 180 128 20 
       textalign ITEM_ALIGN_LEFT		
       textalignx 0     
-      textaligny 18    
-	  textscale .333
+      textaligny 10    
+	  textscale .2
       forecolor 1 1 1 1
       border 0
       bordercolor 0 0 0 0
@@ -878,11 +875,11 @@ itemDef {
       style 0	
 	text "2."
  	  ownerdraw UI_REDTEAM1
-      rect 450 125 128 20 
+      rect 500 195 128 20 
       textalign ITEM_ALIGN_LEFT		
       textalignx 0     
-      textaligny 18    
-	  textscale .333
+      textaligny 10    
+	  textscale .2
       forecolor 1 1 1 1
       border 0
       bordercolor 0 0 0 0
@@ -899,11 +896,11 @@ itemDef {
       style 0
 	text "3."	
  	  ownerdraw UI_BLUETEAM2
-      rect 450 150 128 20 
+      rect 500 210 128 20 
       textalign ITEM_ALIGN_LEFT		
       textalignx 0     
-      textaligny 18    
-	  textscale .333
+      textaligny 10    
+	  textscale .2
       forecolor 1 1 1 1
       border 0
       bordercolor 0 0 0 0
@@ -920,11 +917,11 @@ itemDef {
       style 0
 	text "4."	
  	  ownerdraw UI_REDTEAM2
-      rect 450 175 128 20 
+      rect 500 225 128 20 
       textalign ITEM_ALIGN_LEFT		
       textalignx 0     
-      textaligny 18    
-	  textscale .333
+      textaligny 10    
+	  textscale .2
       forecolor 1 1 1 1
       border 0
       bordercolor 0 0 0 0
@@ -941,11 +938,11 @@ itemDef {
       style 0	
 	text "5."
  	  ownerdraw UI_BLUETEAM3
-      rect 450 200 128 20 
+      rect 500 240 128 20 
       textalign ITEM_ALIGN_LEFT		
       textalignx 0     
-      textaligny 18    
-	  textscale .333
+      textaligny 10    
+	  textscale .2
       forecolor 1 1 1 1
       border 0
       bordercolor 0 0 0 0
@@ -968,11 +965,11 @@ itemDef {
       	style 0	
 	text "6."
 	ownerdraw UI_REDTEAM3
-      	rect 450 225 128 20 
+      	rect 500 255 128 20 
       	textalign ITEM_ALIGN_LEFT		
       	textalignx 0     
-      	textaligny 18    
-	textscale .333
+      	textaligny 10    
+	textscale .2
       	forecolor 1 1 1 1
       	border 0
       	bordercolor 0 0 0 0
@@ -989,11 +986,11 @@ itemDef {
       	style 0	
 	text "7."
  	ownerdraw UI_BLUETEAM4
-      	rect 450 250 128 20 
+      	rect 500 270 128 20 
       	textalign ITEM_ALIGN_LEFT		
       	textalignx 0     
-      	textaligny 18    
-	textscale .333
+      	textaligny 10    
+	textscale .2
       	forecolor 1 1 1 1
       	border 0
       	bordercolor 0 0 0 0
@@ -1010,11 +1007,11 @@ itemDef {
       	style 0	
 	text "8."
  	ownerdraw UI_REDTEAM4
-      	rect 450 275 128 20 
+      	rect 500 285 128 20 
       	textalign ITEM_ALIGN_LEFT		
       	textalignx 0     
-      	textaligny 18    
-	textscale .333
+      	textaligny 10    
+	textscale .2
       	forecolor 1 1 1 1
  	border 0
       	bordercolor 0 0 0 0
@@ -1031,11 +1028,11 @@ itemDef {
       style 0
 	text "9."	
  	  ownerdraw UI_BLUETEAM5
-      rect 450 300 128 20 
+      rect 500 300 128 20 
       textalign ITEM_ALIGN_LEFT		
       textalignx 0     
-      textaligny 18    
-	  textscale .333
+      textaligny 10    
+	  textscale .2
       forecolor 1 1 1 1
       border 0
       bordercolor 0 0 0 0
@@ -1052,11 +1049,11 @@ itemDef {
       	style 0	
 	text "10."
 	ownerdraw UI_REDTEAM5
-      	rect 443 325 128 20 
+      	rect 500 315 128 20 
      	textalign ITEM_ALIGN_LEFT		
       	textalignx 0     
-      	textaligny 18    
-	textscale .333
+      	textaligny 10    
+	textscale .2
       	forecolor 1 1 1 1
       	border 0
       	bordercolor 0 0 0 0
@@ -1072,104 +1069,57 @@ itemDef {
 
 // BACK BAR	//
 
-
   itemDef {
       	name gotobar
-      	style 2
-      	rect 0 430 640 30 
+      	rect 20 430 640 30 
       	textscale 0.4
       	textalign 0		        // center
-      	textalignx 60        // x alignment point for text
-                            // use it to offset left/right text from the edge 
-                            // or to center the text on a different point
-      	textaligny 21        
-      	style 2
-      	border 4
-      	bordercolor 0.5 0.5 0.5 0.75
-      	bordersize 2
-      	backcolor 0 0 .75 0.5
+      	style 0
+	border 4
+      	bordercolor 0.5 0.0 0.1 .5
+	forecolor 1 1 1 1
       	visible 1 
       	mouseEnter { setcolor backcolor .75 0 0 .5 }
       	mouseExit { setcolor backcolor 0 0 .75 .5 }
       	decoration 
     	}
 
-    itemDef {
-      	name back
-	style 3
-      	background "ui/assets/backarrow.tga"
-	rect 16 424 50 50 
-      	visible 1 
-      	action {  close createserver ; open main }
-	mouseEnter { hide back ; show back_alt ; fadein message_back }
-    	}
 
 itemDef {
-      	name back_alt
-      	style WINDOW_STYLE_SHADER
-	background "ui/assets/backarrow_alt.tga"
-	rect 14 422 54 54 
-      	backcolor 0 0 0 0
-      	forecolor 1 1 1 1
-      	visible 0
+	name back
+	text "BACK"
+	textscale .30
+	group grpControlbutton
 	type ITEM_TYPE_BUTTON
-      	mouseExit { hide back_alt ; show back ; fadeout message_back }	  
-      	action { close createserver ; open main }	  
-    	}
+	style 0
+	rect 20 430 54 54 
+	textalign 1
+	textalignx 22
+	textaligny 20
+	forecolor 1 1 1 1
+	visible 1
+      	action {  close createserver ; open main }
+     	mouseEnter { fadein message_back}
+      	mouseExit { fadeout message_back}
+	}
 
-
-
-    itemDef {
-      	name accept
-      	style 3	
-     	rect 574 424 50 50 
-     	background "ui/assets/forwardarrow.tga"
-      	backcolor 0 0 0 0
-      	forecolor 1 1 1 1
-      	visible 1 
-	mouseEnter { playlooped "sound/misc/loop_electricity_05.wav" ; show lightning ; hide accept ; show accept_alt ; fadein message_accept }
-      	action { close fight ; uiScript StartServer }
-/*	
-	//	demo_only
-	cvarTest "ui_actualNetGameType"
-	hideCvar { "0" ; "1" }
-*/
-  	}
-
-	itemDef {
-      	name accept_alt
-      	style 3	
-     	rect 572 422 54 54 
-     	background "ui/assets/forwardarrow_alt.tga"
-      	backcolor 0 0 0 0
-      	forecolor 1 1 1 1
-      	visible 0   
-		type ITEM_TYPE_BUTTON
-      	action { close fight ; uiScript StartServer }
-      	mouseExit { hide lightning ; hide accept_alt ; show accept ; fadeout message_accept ; playlooped "music/di.fm-progressive-blue_room_project-5b.wav" }	
-/*	
-	//	demo_only
-	cvarTest "ui_actualNetGameType"
-	hideCvar { "0" ; "1" }
-*/
-  	}
 itemDef {
-      	name lightning
-      	style 3
-	background lightningkc
-      	rect 46 385 236 128     
-      	visible 0 
-      	decoration 
-    	}
-itemDef {
-      	name lightning
-      	style 3
-	background lightningkc
-      	rect 355 385 236 128     
-      	visible 0 
-      	decoration 
-    	}
-
+	name accept
+	text "START"
+	textscale .30
+	group grpControlbutton
+	type ITEM_TYPE_BUTTON
+	style 0
+	rect 520 430 54 54 
+	textalign 1
+	textalignx 22
+	textaligny 20
+	forecolor 1 1 1 1
+	visible 1
+      	action { close fight ; uiScript StartServer }
+  	mouseEnter { fadein message_accept}
+      	mouseExit { fadeout message_accept}
+	}
 
 
 //	MESSAGES	//
@@ -1178,139 +1128,138 @@ itemDef {
 	name message_back
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textalign 1
-	textstyle 1
-	textalignx 0
-	textaligny 25
-	textscale .416
+	rect 0 430 128 30
 	text "Exit to Main Menu"
-	forecolor 1 1 1 1
-	decoration 
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
+	textalign 1
+	textaligny 20
 	visible 0
+      	decoration 
 	}
 
 itemDef {
 	name message_accept
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textalignx 0
-	textstyle 1
-	textaligny 25
-	textscale .416
-	text "Start Server"
-	forecolor 1 1 1 1
-	decoration 
+	textaligny 20
 	visible 0
+      	decoration 
+	text "Start Server"
+
 	}
 
 itemDef {
 	name message_gametype
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textstyle 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Set GameType"
-	forecolor 1 1 1 1
-	decoration 
+	textaligny 20
 	visible 0
+      	decoration 
+	text "Set GameType"
+
 	}
 
 itemDef {
 	name message_skill
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textstyle 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Set Skill Level"
-	forecolor 1 1 1 1
-	decoration 
+	textaligny 20
 	visible 0
+      	decoration 
+	text "Set Skill Level"
+
 	}
 itemDef {
 	name message_arena
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textstyle 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Choose Your Arena"
-	forecolor 1 1 1 1
-	decoration 
+	textaligny 20
 	visible 0
+      	decoration 
+	text "Choose Your Arena"
+
 	}
 itemDef {
 	name message_clan
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textstyle 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Click to toggle through clan list"
-	forecolor 1 1 1 1
-	decoration 
+	textaligny 20
 	visible 0
+      	decoration 
+	text "Click to toggle through clan list"
+
 	}
 itemDef {
 	name message_slot
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textstyle 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Click to toggle botnames, human, or closed slots"
-	forecolor 1 1 1 1
-	decoration 
+	textaligny 20
 	visible 0
+      	decoration 
+	text "Click to toggle botnames, human, or closed slots"
+
 	}
 itemDef {
 	name message_normal
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
+	rect 0 430 128 30
+	forecolor 1 .75 0 1
+	textscale .15
+	textalignx 320
 	textalign 1
-	textstyle 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Select to Modify Normal Server Settings"
-	forecolor 1 1 1 1
-	decoration 
+	textaligny 20
 	visible 0
+      	decoration 
+	text "Select to Modify Normal Server Settings"
+
 	}
 itemDef {
 	name message_expert
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
+	forecolor 1 .75 0 1
+	rect 0 430 128 30
+	textscale .15
+	textalignx 320
 	textalign 1
-	textstyle 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Select to Modify Expert Server Settings"
-	forecolor 1 1 1 1
-	decoration 
+	textaligny 20
 	visible 0
+      	decoration 
+	text "Select to Modify Expert Server Settings"
+
 	}
 
 itemDef {

@@ -7,7 +7,7 @@ menuDef {
     	name "createfavorite_popmenu"
     	visible 0
     	fullscreen 0
-	rect 204 122 235 235
+	rect 230 160 190 140
 	focusColor 1 .75 0 1
     	style 1
     	border 1
@@ -18,125 +18,111 @@ menuDef {
 
 itemDef {
 	name window
-	rect 0 0 235 235
+	rect 0 0 190 140
 	style 3
-	background "ui/assets/mainpop.tga"
+	background "ui_main_background"
 	visible 1
+	bordersize 2
+	border 1
+      	bordercolor 0.5 0.0 0.1 .5
 	decoration
 	}
 itemDef {
 	name window
-	rect 47 47 144 144 
-	style 3
-	background "centerconsole2"
-	visible 1
+	type 1
+	text "NEW FAVORITE"
+	textscale .25
+	rect 0 20 190 20
+	textalign ITEM_ALIGN_CENTER
+	textalignx 95		
+	textaligny 0
+	forecolor 1 1 1 1
+	visible 1 
 	decoration
 	}
 
+	//NAME //
 
 
 
 
-	// ENTER NAME AND ADDRESS	//
+	// IP	//
 
 itemDef {
-	name name
-	text "Name"
+	name window
+	text "Enter Servername:"
 	style 0
 	decoration
-	textscale .3
-	rect 1 62 110 20
+	textscale .2
+	rect 0 20 110 20
 	textalign 1
-	textalignx 117
-	textaligny 16
-	forecolor 0 0 0 1
-	visible 1
-	
-	}
-itemDef {
-	name name
-	text "Name"
-	style 0
-	decoration
-	textscale .3
-	rect 0 61 110 20
-	textalign 1
-	textalignx 117
+	textalignx 95
 	textaligny 16
 	forecolor 1 1 1 1
 	visible 1
+	
 	}
+
 itemDef {
 	name nameEntry
 	style 1
-	maxchars 15
 	text ":"
-	textscale .25
+	maxchars 21
+	textscale .2
 	TYPE 4
-	cvar "ui_favoriteName"
-	rect 60 81 120 20
+	cvar "ui_favoriteName" 
+	rect 30 40 130 25
 	textalign 0
 	textalignx 0
 	textaligny 16
 	forecolor 1 1 1 1
-	backcolor 0 0 0 .5
+	backcolor .1 0 0 .5
+	border 4
+      	bordercolor 0.5 0.0 0.1 .5
 	visible 1
-	mouseenter { setitemcolor nameentry backcolor 0 0 0 .75 }
-	mouseexit { setitemcolor nameentry backcolor 0 0 0 .5 }
+	mouseenter { setitemcolor nameEntry backcolor 0 0 0 .75 }
+	mouseexit { setitemcolor nameEntry backcolor 0 0 0 .25 }
 	}
 
 
 
-
+	// IP	//
 
 itemDef {
-	name address
-	text "IP Address"
+	name window
+	text "Enter IP:"
 	style 0
 	decoration
-	textscale .3
-	rect 1 112 110 20
+	textscale .2
+	rect 0 65 110 20
 	textalign 1
-	textalignx 117
+	textalignx 95
 	textaligny 16
-	forecolor 0 0 0 1
+	forecolor 1 1 1 1
 	visible 1
 	
 	}
-itemDef {
-	name address
-	text "IP Address"
-	style 0
-	decoration
-	textscale .3
-	rect 0 111 110 20
-	textalign 1
-	textalignx 117
-	textaligny 16
-	forecolor 1 1 1 1
-	visible 1
-	}
+
 itemDef {
 	name addressEntry
 	style 1
-	maxchars 20
-	maxPaintChars 12
 	text ":"
-	textscale .25
+	maxchars 15
+	textscale .2
 	TYPE 4
-	maxchars 21
-	cvar "ui_favoriteAddress"
-	rect 60 131 120 20
+	cvar "ui_favoriteAddress" 
+	rect 30 85 130 22
 	textalign 0
 	textalignx 0
 	textaligny 16
 	forecolor 1 1 1 1
-	backcolor 0 0 0 .25
+	backcolor .1 0 0 .5
+	border 4
+      	bordercolor 0.5 0.0 0.1 .5
 	visible 1
 	mouseenter { setitemcolor addressEntry backcolor 0 0 0 .75 }
 	mouseexit { setitemcolor addressEntry backcolor 0 0 0 .25 }
 	}
-
 
 
 
@@ -145,11 +131,10 @@ itemDef {
 	text "Ok"
 	type 1
 	textscale .25
-	style WINDOW_STYLE_FILLED
-	background "ui/assets/button_back.tga"
-	rect 103 158 30 26
+	style 0
+	rect 0 105 190 26
 	textalign 1
-	textalignx 15
+	textalignx 95
 	textaligny 20
 	forecolor 1 1 1 1
 	backcolor .37 .1 .1 1 
@@ -162,35 +147,7 @@ itemDef {
 	mouseExit { setitemcolor yes backcolor .37 .1 .1 1 } 	
 	}
 	
-	itemDef {
-      		name yes
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/framebutton.tga"
- 		rect 103 158 30 26
-      		visible 1 
-		decoration  	  
-    		}
-
-	itemDef {
-      		name yes
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/leftbutton.tga"
-   	   	rect 97 158 7 26
-   	   	visible 1 
-		decoration  	  
-   	 	}
-
-	itemDef {
-	      	name yes
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/rightbutton.tga"
-      		rect 132 158 7 26
-     	 	visible 1 
-		decoration  	  
-    		}
-
-
-
+	
 
 
 

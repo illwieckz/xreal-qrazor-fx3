@@ -9,7 +9,7 @@ menuDef {
    	fullscreen 1
    	rect 0 0 640 480
 	backcolor 0 0 0 1
-	background "menuback_a"
+	background "ui_main_background"
 	fadeClamp 1.0					// sets the fadeup alpha
 	fadeCycle 1					// how often fade happens in milliseconds
 	fadeAmount 0.05	
@@ -18,7 +18,7 @@ menuDef {
 	onESC { close endOfGame ; open skirmish }	
 	onOpen { close ingame ; 
 		play "sound/misc/kcswish.wav" ; 
-		playlooped "music/win.wav" ;
+
 		setitemcolor fadebox backcolor 0 0 0 1 ;
 		transition mappreview 0 0 640 480 120 111 400 300 20 10 ;  
 		transition playerlogo 250 160 160 160 110 30 80 80 20 10 ; 
@@ -27,7 +27,7 @@ menuDef {
 	
 
 
-
+/*
 
 
 itemDef {
@@ -1307,7 +1307,7 @@ itemDef {
       	visible 1 
 	decoration  	  
     	}
-	
+	*/
 itemDef {
       	name fadebox
       	style WINDOW_STYLE_FILLED

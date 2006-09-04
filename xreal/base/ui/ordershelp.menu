@@ -16,6 +16,8 @@
 	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; 
 		fadeout fadebox ;
 		hide grphelptext ; 
+		play "sound/misc/kcswish.wav" ; 
+
 		show helptext ; 
 		hide grpIconAlt ; 
 		hide grpVoiceHead }
