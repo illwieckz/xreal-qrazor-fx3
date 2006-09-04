@@ -362,7 +362,6 @@ static shader_t *ShaderForShaderNum(int shaderNum, int lightmapNum)
 {
 	shader_t       *shader;
 	dshader_t      *dsh;
-	shaderType_t    shaderType;
 
 	shaderNum = LittleLong(shaderNum);
 	if(shaderNum < 0 || shaderNum >= s_worldData.numShaders)

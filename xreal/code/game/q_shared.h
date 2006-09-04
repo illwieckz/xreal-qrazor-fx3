@@ -27,15 +27,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#define	Q3_VERSION		"XreaL:Q3A 1.32b"
-// 1.32 released 7-10-2002
+#define	Q3_VERSION		"XreaL 1.32c"
 
 #ifdef Q3_VM
 typedef long    intptr_t;
 #elif defined(_MSC_VER) && !defined(intptr_t)
-typedef long    intptr_t;
+//typedef long    intptr_t;
 #else
-//#include <inttypes.h>
 #include <stdint.h>
 #endif
 
@@ -71,6 +69,7 @@ typedef long    intptr_t;
 #pragma warning(disable : 4702)	// unreachable code
 #pragma warning(disable : 4711)	// selected for automatic inline expansion
 #pragma warning(disable : 4220)	// varargs matches remaining parameters
+#pragma warning(disable : 4996) // deprecated functions
 #define _CRT_SECURE_NO_DEPRECATE
 #endif
 
