@@ -3,9 +3,9 @@
 
 assetGlobalMenuDef
 {
-	font "fonts/Turok.ttf" 32		// font
-	smallFont "fonts/Turok.ttf" 24	// font
-	bigFont "fonts/Turok.ttf" 40	// font
+	font "fonts/Turok.ttf" 16		// font
+	smallFont "fonts/Turok.ttf" 12	// font
+	bigFont "fonts/Turok.ttf" 20	// font
 
 	cursor "menuCursor"			// cursor
 	
