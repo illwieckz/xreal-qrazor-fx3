@@ -35,7 +35,7 @@ svn co https://svn.sourceforge.net/svnroot/xreal/trunk/xreal xreal
 COMPILING ON WIN32 WITH VISUAL STUDIO
 =====================================
 
-VC7 / Visual C++ 2003 project files are provided:
+VC8 / Visual C++ 2005 project files are provided:
 code/xreal.sln
 code/bspc/bspc.sln
 code/xmap/xmap.sln
@@ -272,3 +272,24 @@ fitness for any purpose.  The Contributing Authors and Group 42, Inc.
 assume no liability for direct, indirect, incidental, special, exemplary,
 or consequential damages, which may result from the use of the PNG
 Reference Library, even if advised of the possibility of such damage.
+
+ZLIB library
+-----------------------------------------------------------------------------
+code/zlib
+(C) 1995-2004 Jean-loup Gailly and Mark Adler
+
+This software is provided 'as-is', without any express or implied
+warranty.  In no event will the authors be held liable for any damages
+arising from the use of this software.
+
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not
+   claim that you wrote the original software. If you use this software
+   in a product, an acknowledgment in the product documentation would be
+   appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be
+   misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
