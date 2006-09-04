@@ -7,7 +7,6 @@
 	loadMenu { "ui/punkbuster.menu" }
  	loadMenu { "ui/player.menu" }
  	loadMenu { "ui/setup.menu" }
- 	loadMenu { "ui/fight.menu" }
  	loadMenu { "ui/skirmish.menu" }
 	loadMenu { "ui/selectskirmishmap.menu" }
  	loadMenu { "ui/createserver.menu" }
