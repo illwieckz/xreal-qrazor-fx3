@@ -19,7 +19,6 @@
  	loadMenu { "ui/mod.menu" }
 	loadMenu { "ui/demo.menu" }
 	loadMenu { "ui/cinematicmenu.menu" }
-	loadMenu { "ui/demo_quit.menu" }
 	loadMenu { "ui/connect.menu" }
 	loadMenu { "ui/powerup.menu" } 
 	loadMenu { "ui/password.menu" }
