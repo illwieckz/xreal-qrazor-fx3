@@ -1,38 +1,25 @@
-Microsoft Visual Studio Solution File, Format Version 8.00
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xmap", "xmap.vcproj", "{F1162C55-66E7-4486-B1F3-071CFAA78332}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
 EndProject
 Global
-	GlobalSection(SolutionConfiguration) = preSolution
-		Debug = Debug
-		Release = Release
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		DebugTTimo|Win32 = DebugTTimo|Win32
+		Release|Win32 = Release|Win32
+		ReleaseTTimo|Win32 = ReleaseTTimo|Win32
 	EndGlobalSection
-	GlobalSection(ProjectConfiguration) = postSolution
-		{F1162C55-66E7-4486-B1F3-071CFAA78332}.Debug.ActiveCfg = Debug|Win32
-		{F1162C55-66E7-4486-B1F3-071CFAA78332}.Debug.Build.0 = Debug|Win32
-		{F1162C55-66E7-4486-B1F3-071CFAA78332}.Release.ActiveCfg = Release|Win32
-		{F1162C55-66E7-4486-B1F3-071CFAA78332}.Release.Build.0 = Release|Win32
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F1162C55-66E7-4486-B1F3-071CFAA78332}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F1162C55-66E7-4486-B1F3-071CFAA78332}.Debug|Win32.Build.0 = Debug|Win32
+		{F1162C55-66E7-4486-B1F3-071CFAA78332}.DebugTTimo|Win32.ActiveCfg = DebugTTimo|Win32
+		{F1162C55-66E7-4486-B1F3-071CFAA78332}.DebugTTimo|Win32.Build.0 = DebugTTimo|Win32
+		{F1162C55-66E7-4486-B1F3-071CFAA78332}.Release|Win32.ActiveCfg = Release|Win32
+		{F1162C55-66E7-4486-B1F3-071CFAA78332}.Release|Win32.Build.0 = Release|Win32
+		{F1162C55-66E7-4486-B1F3-071CFAA78332}.ReleaseTTimo|Win32.ActiveCfg = ReleaseTTimo|Win32
+		{F1162C55-66E7-4486-B1F3-071CFAA78332}.ReleaseTTimo|Win32.Build.0 = ReleaseTTimo|Win32
 	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-	EndGlobalSection
-	GlobalSection(ExtensibilityAddIns) = postSolution
-	EndGlobalSection
-	GlobalSection(SourceCodeControl) = preSolution
-		SccNumberOfProjects = 3
-		SccProjectUniqueName0 = ..\\libs\\jpeg6\\jpeg6.vcproj
-		SccProjectName0 = \u0022$/source/q3radiant\u0022,\u0020FEFAAAAA
-		SccLocalPath0 = ..\\q3radiant
-		SccProvider0 = MSSCCI:Perforce\u0020SCM
-		SccProjectFilePathRelativizedFromConnection0 = ..\\libs\\jpeg6\\
-		SccProjectUniqueName1 = ..\\libs\\pak\\pak.vcproj
-		SccProjectName1 = \u0022$/source/q3radiant\u0022,\u0020FEFAAAAA
-		SccLocalPath1 = ..\\q3radiant
-		SccProvider1 = MSSCCI:Perforce\u0020SCM
-		SccProjectFilePathRelativizedFromConnection1 = ..\\libs\\pak\\
-		SccProjectUniqueName2 = xmap.vcproj
-		SccProjectName2 = \u0022$/source/xmap\u0022,\u0020PADAAAAA
-		SccLocalPath2 = .
-		SccProvider2 = MSSCCI:Perforce\u0020SCM
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal

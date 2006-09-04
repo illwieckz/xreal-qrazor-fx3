@@ -10,6 +10,17 @@ Ernie Wright  17 Sep 00
 #ifndef LWO2_H
 #define LWO2_H
 
+#ifdef _MSC_VER
+#pragma warning(disable : 4244)	// MIPS
+#pragma warning(disable : 4136)	// X86
+#pragma warning(disable : 4051)	// ALPHA
+
+#pragma warning(disable : 4018)	// signed/unsigned mismatch
+#pragma warning(disable : 4305)	// truncate from double to float
+#pragma warning(disable : 4996) // deprecated functions
+#define _CRT_SECURE_NO_DEPRECATE
+#endif
+
 /* chunk and subchunk IDs */
 #define LWID_(a,b,c,d) (((a)<<24)|((b)<<16)|((c)<<8)|(d))
 

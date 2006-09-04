@@ -1,513 +1,718 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="8,00"
 	Name="xmap"
+	ProjectGUID="{F1162C55-66E7-4486-B1F3-071CFAA78332}"
 	RootNamespace="xmap"
 	SccProjectName="&quot;$/source/xmap&quot;, PADAAAAA"
-	SccLocalPath=".">
+	SccLocalPath="."
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory=".\Debug"
 			IntermediateDirectory=".\Debug"
 			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\Debug/xmap.tlb"
+				HeaderFileName=""
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="../common,c:\quake3\common,c:\quake3\libs"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;XMAP;_WIN32"
 				RuntimeLibrary="1"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Debug/xmap.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
 				BrowseInformation="1"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
-				CompileAs="0"/>
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="glaux.lib glu32.lib wsock32.lib opengl32.lib odbc32.lib odbccp32.lib"
 				OutputFile="../../xmap.exe"
 				LinkIncremental="2"
-				SuppressStartupBanner="TRUE"
-				GenerateDebugInformation="TRUE"
+				SuppressStartupBanner="true"
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/xmap.pdb"
 				SubSystem="1"
 				StackReserveSize="4194304"
-				TargetMachine="1"/>
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/xmap.tlb"
-				HeaderFileName=""/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCWebDeploymentTool"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory=".\Release"
 			IntermediateDirectory=".\Release"
 			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\Release/xmap.tlb"
+				HeaderFileName=""
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../common,c:\quake3\common,c:\quake3\libs"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;XMAP"
-				StringPooling="TRUE"
+				StringPooling="true"
 				RuntimeLibrary="0"
-				EnableFunctionLevelLinking="TRUE"
-				UsePrecompiledHeader="2"
+				EnableFunctionLevelLinking="true"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Release/xmap.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
-				CompileAs="0"/>
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="glaux.lib glu32.lib wsock32.lib opengl32.lib odbc32.lib odbccp32.lib"
 				OutputFile=".\Release/xmap.exe"
 				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
-				GenerateDebugInformation="TRUE"
+				SuppressStartupBanner="true"
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Release/xmap.pdb"
 				SubSystem="1"
 				StackReserveSize="4194304"
-				TargetMachine="1"/>
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/xmap.tlb"
-				HeaderFileName=""/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCWebDeploymentTool"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="DebugTTimo|Win32"
 			OutputDirectory=".\xmap___Win32_DebugTTimo"
 			IntermediateDirectory=".\xmap___Win32_DebugTTimo"
 			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\xmap___Win32_DebugTTimo/xmap.tlb"
+				HeaderFileName=""
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="../common,../../Libs,c:\quake3\common,c:\quake3\libs"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_TTIMOBUILD"
 				RuntimeLibrary="1"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\xmap___Win32_DebugTTimo/xmap.pch"
 				AssemblerListingLocation=".\xmap___Win32_DebugTTimo/"
 				ObjectFile=".\xmap___Win32_DebugTTimo/"
 				ProgramDataBaseFileName=".\xmap___Win32_DebugTTimo/"
 				BrowseInformation="1"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
-				CompileAs="0"/>
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="glaux.lib glu32.lib wsock32.lib opengl32.lib odbc32.lib odbccp32.lib pakd.lib jpeg6d.lib"
 				OutputFile=".\xmap___Win32_DebugTTimo/xmap.exe"
 				LinkIncremental="2"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="../../Libs"
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\xmap___Win32_DebugTTimo/xmap.pdb"
 				SubSystem="1"
 				StackReserveSize="4194304"
-				TargetMachine="1"/>
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName=".\xmap___Win32_DebugTTimo/xmap.tlb"
-				HeaderFileName=""/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCWebDeploymentTool"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="ReleaseTTimo|Win32"
 			OutputDirectory=".\xmap___Win32_ReleaseTTimo"
 			IntermediateDirectory=".\xmap___Win32_ReleaseTTimo"
 			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\xmap___Win32_ReleaseTTimo/xmap.tlb"
+				HeaderFileName=""
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../common,../../Libs,c:\quake3\common,c:\quake3\libs"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_TTIMOBUILD"
-				StringPooling="TRUE"
+				StringPooling="true"
 				RuntimeLibrary="0"
-				EnableFunctionLevelLinking="TRUE"
-				UsePrecompiledHeader="2"
+				EnableFunctionLevelLinking="true"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\xmap___Win32_ReleaseTTimo/xmap.pch"
 				AssemblerListingLocation=".\xmap___Win32_ReleaseTTimo/"
 				ObjectFile=".\xmap___Win32_ReleaseTTimo/"
 				ProgramDataBaseFileName=".\xmap___Win32_ReleaseTTimo/"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
-				CompileAs="0"/>
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="glaux.lib glu32.lib wsock32.lib opengl32.lib odbc32.lib odbccp32.lib pak.lib jpeg6.lib"
 				OutputFile=".\xmap___Win32_ReleaseTTimo/xmap.exe"
 				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="../../Libs"
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\xmap___Win32_ReleaseTTimo/xmap.pdb"
 				SubSystem="1"
 				StackReserveSize="4194304"
-				TargetMachine="1"/>
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName=".\xmap___Win32_ReleaseTTimo/xmap.tlb"
-				HeaderFileName=""/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCWebDeploymentTool"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
 	</References>
 	<Files>
 		<File
-			RelativePath="..\common\aselib.c">
+			RelativePath="..\common\aselib.c"
+			>
 		</File>
 		<File
-			RelativePath=".\brush.c">
+			RelativePath=".\brush.c"
+			>
 		</File>
 		<File
-			RelativePath=".\brush_primit.c">
+			RelativePath=".\brush_primit.c"
+			>
 		</File>
 		<File
-			RelativePath=".\bsp.c">
+			RelativePath=".\bsp.c"
+			>
 		</File>
 		<File
-			RelativePath="..\common\bspfile.c">
+			RelativePath="..\common\bspfile.c"
+			>
 		</File>
 		<File
-			RelativePath="..\lwobject\clip.c">
+			RelativePath="..\lwobject\clip.c"
+			>
 		</File>
 		<File
-			RelativePath="..\common\cmdlib.c">
+			RelativePath="..\common\cmdlib.c"
+			>
 		</File>
 		<File
-			RelativePath="..\lwobject\envelope.c">
+			RelativePath="..\lwobject\envelope.c"
+			>
 		</File>
 		<File
-			RelativePath=".\facebsp.c">
+			RelativePath=".\facebsp.c"
+			>
 		</File>
 		<File
-			RelativePath=".\fog.c">
+			RelativePath=".\fog.c"
+			>
 		</File>
 		<File
-			RelativePath=".\glfile.c">
+			RelativePath=".\glfile.c"
+			>
 		</File>
 		<File
-			RelativePath="..\common\imagelib.c">
+			RelativePath="..\common\imagelib.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jcapimin.c">
+			RelativePath="..\jpeg-6\jcapimin.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jccoefct.c">
+			RelativePath="..\jpeg-6\jccoefct.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jccolor.c">
+			RelativePath="..\jpeg-6\jccolor.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jcdctmgr.c">
+			RelativePath="..\jpeg-6\jcdctmgr.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jchuff.c">
+			RelativePath="..\jpeg-6\jchuff.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jcinit.c">
+			RelativePath="..\jpeg-6\jcinit.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jcmainct.c">
+			RelativePath="..\jpeg-6\jcmainct.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jcmarker.c">
+			RelativePath="..\jpeg-6\jcmarker.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jcmaster.c">
+			RelativePath="..\jpeg-6\jcmaster.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jcomapi.c">
+			RelativePath="..\jpeg-6\jcomapi.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jcparam.c">
+			RelativePath="..\jpeg-6\jcparam.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jcphuff.c">
+			RelativePath="..\jpeg-6\jcphuff.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jcprepct.c">
+			RelativePath="..\jpeg-6\jcprepct.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jcsample.c">
+			RelativePath="..\jpeg-6\jcsample.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jdapimin.c">
+			RelativePath="..\jpeg-6\jdapimin.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jdapistd.c">
+			RelativePath="..\jpeg-6\jdapistd.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jdatasrc.c">
+			RelativePath="..\jpeg-6\jdatasrc.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jdcoefct.c">
+			RelativePath="..\jpeg-6\jdcoefct.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jdcolor.c">
+			RelativePath="..\jpeg-6\jdcolor.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jddctmgr.c">
+			RelativePath="..\jpeg-6\jddctmgr.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jdhuff.c">
+			RelativePath="..\jpeg-6\jdhuff.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jdinput.c">
+			RelativePath="..\jpeg-6\jdinput.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jdmainct.c">
+			RelativePath="..\jpeg-6\jdmainct.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jdmarker.c">
+			RelativePath="..\jpeg-6\jdmarker.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jdmaster.c">
+			RelativePath="..\jpeg-6\jdmaster.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jdpostct.c">
+			RelativePath="..\jpeg-6\jdpostct.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jdsample.c">
+			RelativePath="..\jpeg-6\jdsample.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jdtrans.c">
+			RelativePath="..\jpeg-6\jdtrans.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jerror.c">
+			RelativePath="..\jpeg-6\jerror.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jfdctflt.c">
+			RelativePath="..\jpeg-6\jfdctflt.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jidctflt.c">
+			RelativePath="..\jpeg-6\jidctflt.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jmemansi.c">
+			RelativePath="..\jpeg-6\jmemansi.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jmemmgr.c">
+			RelativePath="..\jpeg-6\jmemmgr.c"
+			>
 		</File>
 		<File
-			RelativePath="..\jpeg-6\jutils.c">
+			RelativePath="..\jpeg-6\jutils.c"
+			>
 		</File>
 		<File
-			RelativePath=".\leakfile.c">
+			RelativePath=".\leakfile.c"
+			>
 		</File>
 		<File
-			RelativePath=".\light.c">
+			RelativePath=".\light.c"
+			>
 		</File>
 		<File
-			RelativePath=".\light_trace.c">
+			RelativePath=".\light_trace.c"
+			>
 		</File>
 		<File
-			RelativePath=".\lightmaps.c">
+			RelativePath=".\lightmaps.c"
+			>
 		</File>
 		<File
-			RelativePath=".\lightv.c">
+			RelativePath=".\lightv.c"
+			>
 		</File>
 		<File
-			RelativePath="..\lwobject\list.c">
+			RelativePath="..\lwobject\list.c"
+			>
 		</File>
 		<File
-			RelativePath="..\lwobject\lwio.c">
+			RelativePath="..\lwobject\lwio.c"
+			>
 		</File>
 		<File
-			RelativePath="..\lwobject\lwo2.c">
+			RelativePath="..\lwobject\lwo2.c"
+			>
 		</File>
 		<File
-			RelativePath="..\lwobject\lwob.c">
+			RelativePath="..\lwobject\lwob.c"
+			>
 		</File>
 		<File
-			RelativePath="..\lwobject\lwsurface.c">
+			RelativePath="..\lwobject\lwsurface.c"
+			>
 		</File>
 		<File
-			RelativePath=".\map.c">
+			RelativePath=".\map.c"
+			>
 		</File>
 		<File
-			RelativePath="..\common\mathlib.c">
+			RelativePath="..\common\mathlib.c"
+			>
 		</File>
 		<File
-			RelativePath=".\mesh.c">
+			RelativePath=".\mesh.c"
+			>
 		</File>
 		<File
-			RelativePath=".\misc_model.c">
+			RelativePath=".\misc_model.c"
+			>
 		</File>
 		<File
-			RelativePath="..\common\mutex.c">
+			RelativePath="..\common\mutex.c"
+			>
 		</File>
 		<File
-			RelativePath=".\nodraw.c">
+			RelativePath=".\nodraw.c"
+			>
 		</File>
 		<File
-			RelativePath=".\patch.c">
+			RelativePath=".\patch.c"
+			>
 		</File>
 		<File
-			RelativePath="..\lwobject\pntspols.c">
+			RelativePath="..\lwobject\pntspols.c"
+			>
 		</File>
 		<File
-			RelativePath="..\common\polylib.c">
+			RelativePath="..\common\polylib.c"
+			>
 		</File>
 		<File
-			RelativePath=".\portals.c">
+			RelativePath=".\portals.c"
+			>
 		</File>
 		<File
-			RelativePath=".\prtfile.c">
+			RelativePath=".\prtfile.c"
+			>
 		</File>
 		<File
-			RelativePath="..\common\scriplib.c">
+			RelativePath="..\common\scriplib.c"
+			>
 		</File>
 		<File
-			RelativePath=".\shaders.c">
+			RelativePath=".\shaders.c"
+			>
 		</File>
 		<File
-			RelativePath=".\soundv.c">
+			RelativePath=".\soundv.c"
+			>
 		</File>
 		<File
-			RelativePath=".\surface.c">
+			RelativePath=".\surface.c"
+			>
 		</File>
 		<File
-			RelativePath=".\terrain.c">
+			RelativePath=".\terrain.c"
+			>
 		</File>
 		<File
-			RelativePath="..\common\threads.c">
+			RelativePath="..\common\threads.c"
+			>
 		</File>
 		<File
-			RelativePath=".\tjunction.c">
+			RelativePath=".\tjunction.c"
+			>
 		</File>
 		<File
-			RelativePath=".\tree.c">
+			RelativePath=".\tree.c"
+			>
 		</File>
 		<File
-			RelativePath="..\lwobject\vecmath.c">
+			RelativePath="..\lwobject\vecmath.c"
+			>
 		</File>
 		<File
-			RelativePath=".\vis.c">
+			RelativePath=".\vis.c"
+			>
 		</File>
 		<File
-			RelativePath=".\visflow.c">
+			RelativePath=".\visflow.c"
+			>
 		</File>
 		<File
-			RelativePath="..\lwobject\vmap.c">
+			RelativePath="..\lwobject\vmap.c"
+			>
 		</File>
 		<File
-			RelativePath=".\writebsp.c">
+			RelativePath=".\writebsp.c"
+			>
 		</File>
 	</Files>
 	<Globals>
