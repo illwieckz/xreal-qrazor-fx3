@@ -639,6 +639,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories=".\win32\libxml\include;.\win32\libiconv\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
@@ -666,10 +667,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib wsock32.lib"
+				AdditionalDependencies="winmm.lib wsock32.lib libxml2.lib"
 				OutputFile="$(OutDir)/xreal.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories=".\win32\libxml\lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug_TA/xreal.pdb"
 				GenerateMapFile="true"
