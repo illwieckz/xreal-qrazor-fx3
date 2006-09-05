@@ -11,10 +11,6 @@ assetGlobalClientGameDef
 //	smallFont "fonts/Quake.ttf" 12	// font
 //	bigFont "fonts/Quake.ttf" 20	// font
 	
-//	font "fonts/UnrealTournament.ttf" 16		// font
-//	smallFont "fonts/UnrealTournament.ttf" 12	// font
-//	bigFont "fonts/UnrealTournament.ttf" 20		// font
-	
 	cursor "menuCursor"			// cursor
 	
 	gradientBar "ui/assets/gradientbar2.tga"	// gradient bar
@@ -29,28 +25,6 @@ assetGlobalClientGameDef
 	shadowColor 0.1 0.1 0.1 0.25	// shadow color
 }
 
-//	POWERUP AREA	//
-
-menuDef {
-	name "powerup area"
-	fullScreen MENU_FALSE
-	visible MENU_TRUE
-	rect 570 220 50 100
-
-	itemDef {
-	name "powerupArea"
-	rect 0 0 40 40
-    	visible 1
-	decoration
-	ownerdraw CG_AREA_POWERUP
-	special 4			// spacing
-	align HUD_VERTICAL
-	}
-
-
-}
-
-
 
 //	SELECTED PLAYER		//
 							   
@@ -58,22 +32,37 @@ menuDef {
     	name "SelectedPlayer"
     	fullScreen MENU_FALSE
     	visible 1
-	rect 2 363 180 64 
+	rect 0 390 222 64 
 	ownerdrawflag CG_SHOW_ANYTEAMGAME
 	
 	
 	itemDef {
 	name "b"
-    	rect 2 4 170 57
+    	rect 0 0 222 64
 	style 4
+	border 1
+	bordersize 1
+	bordercolor .5 .5 .5 1
 	visible 1
+	ownerdrawflag CG_SHOW_TEAMINFO
 	}
+	itemDef {
+	name "b"
+    	rect 0 40 222 24
+	style 4
+	border 1
+	bordersize 1
+	bordercolor .5 .5 .5 1
+	visible 1
+	ownerdrawflag CG_SHOW_NOTEAMINFO
+	}
+
 
 	itemDef {
 	name "b"
-	rect 2 4 172 60
+	rect 0 4 221 64
 	visible 1
-	textscale .17
+	textscale .2
 	textaligny 10
 	textalignx 0
 	forecolor 1 1 1 1
@@ -81,63 +70,28 @@ menuDef {
 	ownerdraw CG_TEAMINFO
 	}
 
+
 	itemDef {
    	name "b"
-	rect 4 3 32 32
+	rect 2 41 20 20
     	visible 1
 	ownerdrawflag CG_SHOW_NOTEAMINFO
 	ownerdraw CG_SELECTEDPLAYER_HEAD
 	}
-
-
 itemDef {
       	name "b"
-        rect 75 35 22 11
+        rect 21 44 16 16
 	visible 1
-	style 1
-	textscale .25
 	decoration
-	addColorRange -999 25 1 0 0 1
-	addColorRange 26 100 1 .75 0 1
-	addColorRange 101 999 1 1 1 1
 	ownerdrawflag CG_SHOW_NOTEAMINFO
-	ownerdraw CG_SELECTEDPLAYER_HEALTH
-	}
-
-	itemDef {
-      	name "b"
-        rect 50 48 22 11
-	visible 1
-	style 3
-	decoration
-	background "ui/assets/statusbar/selectedarmor.tga"
-	addColorRange -999 25 1 0 0 1
-	addColorRange 26 100 1 .75 0 1
-	addColorRange 101 999 1 1 1 1
-	ownerdrawflag CG_SHOW_NOTEAMINFO
-	ownerdraw CG_SELECTEDPLAYER_ARMOR
-	}
-
-	itemDef {
-      	name "b"
-        rect 75 48 22 11
-	visible 1
-	textstyle 3
-	style 1
-	textscale .25
-	decoration
-	addColorRange -999 25 1 0 0 1
-	addColorRange 26 100 1 .75 0 1
-	addColorRange 101 999 1 1 1 1
-	ownerdrawflag CG_SHOW_NOTEAMINFO
-	ownerdraw CG_SELECTEDPLAYER_ARMOR
+	ownerdraw CG_SELECTEDPLAYER_STATUS
 	}
 
 
 	itemDef {
       	name "b"
-        rect 35 3 35 15
-	textscale 0.25
+        rect 41 43 35 15
+	textscale 0.2125
 	textstyle 3
 	forecolor 1 1 1 1
 	visible 1
@@ -146,13 +100,12 @@ itemDef {
 	ownerdraw CG_SELECTEDPLAYER_NAME
 	}
 
-
-
-	itemDef {
+/*
+itemDef {
       	name "b"
-        rect 35 15 45 15
+        rect 90 43 45 15
+	textscale 0.2125
 	textstyle 3
-	textscale 0.25
 	forecolor 1 1 1 1
 	visible 1
 	decoration
@@ -160,52 +113,10 @@ itemDef {
 	ownerdraw CG_SELECTEDPLAYER_LOCATION
 	}
 
-	itemDef {
-      	name "b"
-        rect 7 40 16 16
-	visible 1
-	decoration
-	ownerdrawflag CG_SHOW_NOTEAMINFO
-	ownerdraw CG_SELECTEDPLAYER_STATUS
-	}
-
-	itemDef {
-      	name "b"
-        rect 30 40 16 16
-	visible 1
-	decoration
-	ownerdrawflag CG_SHOW_NOTEAMINFO
-	ownerdraw CG_SELECTEDPLAYER_POWERUP
-	}
-
-	itemDef {
-      	name "b"
-        rect 100 33 24 24
-	visible 1
-	decoration
-	ownerdrawflag CG_SHOW_NOTEAMINFO
-	ownerdraw CG_SELECTEDPLAYER_WEAPON
-	}
-
-	itemDef {
-	name "statusscreen"
-	visible 1
-	style 3
-	background "menuscreen2"
-	rect 2 4 170 57
-	}
-
-itemDef {
-      	name "sback"
-        rect 0 0 256 64
-	visible 1
-	style 3
-	decoration
-	background "ui/assets/selectedstatus.tga"
-	} 
+*/
+	
 
 	}
-
 
 
 //	PLAYER STATUS	//
@@ -214,17 +125,11 @@ menuDef {
     	name "playerStatus"
     	fullScreen MENU_FALSE
     	visible MENU_TRUE
-    	rect 0 416 128 64
+    	rect 142 455 80 24
 
 	itemDef {
-      	name "playerStatusRect"
-	style 4
-	rect 12 13 116 48
-	visible 1
-	}
-	itemDef {
 	name "playerRect"
-	rect 12 13 116 48
+	rect 1 1 78 22
 	style 3
 	background hudalert_good
 	visible 1
@@ -232,8 +137,19 @@ menuDef {
 	}
 
 	itemDef {
+      	name "playerStatusRect"
+	style 4
+	rect 0 0 80 24
+	border 1
+	bordersize 1
+	bordercolor .5 .5 .5 1
+	visible 1
+	}
+
+
+	itemDef {
       	name "playeritem"
-        rect 27 25 22 22 
+        rect 5 4 16 16 
 	visible 1
 	decoration
 	ownerdraw CG_PLAYER_ITEM  
@@ -241,7 +157,7 @@ menuDef {
 
 	itemDef {
       	name "CTFPOWERUP"
-        rect 54 25 22 22
+        rect 25 4 16 16 
 	visible 1
 	decoration
 	ownerdraw CG_CTF_POWERUP	
@@ -249,32 +165,76 @@ menuDef {
 
 	itemDef {
       	name "flag"
-        rect 85 15 40 40
+        rect 45 4 16 16 
 	visible 1
 	decoration
-	ownerdraw CG_PLAYER_HASFLAG 
+	ownerdraw CG_PLAYER_HASFLAG2D
+	ownerdrawflag CG_SHOW_IF_PLAYER_HAS_FLAG    
+	
 	}
 
 	itemDef {
       	name "skulls"
-        rect 72 10 48 34
-	visible 1
-	decoration
-	textaligny 12
+        rect 39 -14 40 32
+	textaligny 4
 	textalignx 0
-	textscale 0.333
+	visible 1
+	textscale .25
+	decoration
 	textstyle 3
-	ownerdraw CG_HARVESTER_SKULLS
+	ownerdraw CG_HARVESTER_SKULLS2D 
 	}
 
-	itemDef {
-	name "statusscreen"
+	}
+
+//	POWERUP AREA	//
+
+menuDef {
+	name "powerup area"
+	fullScreen MENU_FALSE
+	visible MENU_TRUE
+    	rect 0 455 141 24
+
+
+itemDef {
+	name "powerRect"
 	visible 1
-	style 3
-	background "menuscreen2"
-	rect 12 13 116 48
+	style 4
+	rect 0 0 35 24
 	}
+itemDef {
+	name "powerRect"
+	visible 1
+	style 4
+	rect 70 0 35 24
 	}
+
+itemDef {
+	name "powerRect"
+	visible 1
+	style 4
+	border 1
+	bordersize 1
+	bordercolor .5 .5 .5 1
+	rect 0 0 141 24
+	}
+
+
+
+	itemDef {
+	name "powerupArea"
+	rect 2 3 18 18
+	textscale .25
+    	visible 1
+	decoration
+	ownerdraw CG_AREA_POWERUP
+	special 18			// spacing
+	align HUD_HORIZONTAL
+	}
+
+
+}
+
 
 
 //	AMMO	//
@@ -283,32 +243,27 @@ menuDef {
     	name "Ammo"
     	fullScreen MENU_FALSE
     	visible MENU_TRUE
-    	rect 128 416 128 64
+    	rect 223 455 64 24
 	
 
 	itemDef {
 	name "ammoRect"
 	visible 1
 	style 4
-	rect 3 13 122 48
+	border 1
+	bordersize 1
+	bordercolor .5 .5 .5 1
+	rect 0 0 64 24
 	}
 	
-	itemDef {
-     	name "a"
-	rect 85 25 30 30 
-	visible 1
-	decoration
-	ownerdraw CG_PLAYER_AMMO_ICON2D
-	}
-
 
 	itemDef {
  	name "a"
-	rect 10 43 63 12
+	rect 30 1 24 19
 	visible 1
 	textstyle 3
 	decoration
-	textscale .75
+	textscale .333
 	forecolor 1 1 1 1
 	ownerdraw CG_PLAYER_AMMO_VALUE
 	addColorRange -999 5 1 0 0 1
@@ -316,12 +271,13 @@ menuDef {
 	}
 
 	itemDef {
-	name "statusscreen"
+     	name "a"
+	rect 5 2 20 20 
 	visible 1
-	style 3
-	background "menuscreen2"
-	rect 3 13 122 48
+	decoration
+	ownerdraw CG_PLAYER_AMMO_ICON2D
 	}
+
 	}
 
 
@@ -335,34 +291,36 @@ menuDef {
     	name "Player"
     	fullScreen MENU_FALSE
     	visible MENU_TRUE
-   	rect 256 416 128 64
-
-
-	itemDef {
-	name "playerRect"
-	rect 0 2 128 60
-	style 4
-	visible 1
-	}
+   	rect 288 455 64 24
 
 	itemDef {
 	name "playerRect"
-	rect 0 2 128 60
+	rect 1 1 62 23
 	style 3
 	background hudalert
 	visible 1
 	ownerdrawflag CG_SHOW_HEALTHCRITICAL            
 	}
 
+	itemDef {
+	name "playerRect"
+	rect 0 0 64 24
+	style 4
+	visible 1
+	border 1
+	bordersize 1
+	bordercolor .5 .5 .5 1
+	}
+
 
 	itemDef {
       	name "healthok"
-        rect 12 42 63 12
+        rect 30 1 24 19
 	visible 1
-	decoration
 	textstyle 3
+	decoration
 	forecolor 1 1 1 1
-	textscale .75
+	textscale .333
 	ownerdraw CG_PLAYER_HEALTH
 	addColorRange -999 25 1 0 0 1
 	addColorRange 26 100 1 .75 0 1
@@ -370,16 +328,8 @@ menuDef {
 	}
 
 	itemDef {
-	name "statusscreen"
-	visible 1
-	style 3
-	background "menuscreen2"
-	rect 0 2 128 60
-	}
-
-	itemDef {
       	name "b"
-	rect 70 10 45 45
+	rect 2 1 22 22
 	visible 1
     	decoration
 	ownerdraw CG_PLAYER_HEAD 
@@ -398,68 +348,58 @@ menuDef {
     	name "Armor"
     	fullScreen MENU_FALSE
     	visible MENU_TRUE	
-    	rect 384 416 128 64
+    	rect 353 455 64 24
 
 
 	itemDef {
 	name "armorRect"
-	rect 0 13 125 48
+	rect 0 0 64 24
 	visible 1
 	style 4
+	border 1
+	bordersize 1
+	bordercolor .5 .5 .5 1
 	}
 
 	itemDef {
      	name "armor"
-	rect 10 7 30 30 
+	rect 5 -8 20 20
 	visible 1
    	decoration
 	ownerdraw CG_PLAYER_ARMOR_ICON2D
 	}
 
-
 	itemDef {
       	name "armor2"
-        rect 55 43 63 12
+	textstyle 3
+        rect 30 1 24 19
 	visible 1
 	decoration
-	textstyle 3	
-	textscale .75
+	textscale .333
 	ownerdraw CG_PLAYER_ARMOR_VALUE 
 	addColorRange -999 25 .67 0 0 1
 	addColorRange 26 100  1 .75 0 1
 	addColorRange 101 999 .75 .75 .75 1
 	}
-
-	itemDef {
-	name "statusscreen"
-	visible 1
-	style 3
-	background "menuscreen2"
-	rect 0 13 125 48
-	}
  	}
 
 
-//	PLAYERSCORE	//
+
+
+
+
+//	TEAMSCORE	//
 
 menuDef {
-    	name "PlayerScore"
+    	name "teamScore"
     	fullScreen MENU_FALSE
     	visible MENU_TRUE
-    	rect 512 416 128 64
-	ownerdrawflag CG_SHOW_ANYTEAMGAME               
-
-
-	itemDef {
-	name "playerScoreRect"
-	visible 1
-	rect 0 13 126 48
-	style 4
-	}
+    	rect 418 455 150 24
+	ownerdrawflag CG_SHOW_ANYTEAMGAME
 
 	itemDef {
-	name "playerRect"
-	rect 0 13 63 48
+	name "teamRect"
+	rect 53 1 47 22
 	style 3
 	background hudalert_blue
 	visible 1
@@ -467,18 +407,27 @@ menuDef {
 	}
 
 itemDef {
-	name "playerRect"
-	rect 63 13 63 48 
+	name "teamRect"
+	rect 100 1 50 22 
 	style 3
 	background hudalert_red
 	visible 1
 	ownerdrawflag CG_SHOW_RED_TEAM_HAS_BLUEFLAG            
 	}
 
+	itemDef {
+	name "teamScoreRect"
+	visible 1
+	rect 0 0 150 24
+	border 1
+	bordersize 1
+	bordercolor .5 .5 .5 1
+	style 4
+	}
 
 	itemDef {
 	name "f"
-	rect 30 22 16 16
+	rect 55 5 16 16
 	visible 1
 	bordercolor 1 1 1 .75
 	decoration	
@@ -487,7 +436,7 @@ itemDef {
 	}
 itemDef {
 	name "f"
-	rect 30 22 16 16
+	rect 55 5 16 16
 	visible 1
 	bordercolor 1 1 1 .75
 	decoration	
@@ -498,26 +447,35 @@ itemDef {
 
 	itemDef {
      	name "blueflag"
-        rect 30 22 16 16
+        rect 55 5 16 16
 	visible 1
 	decoration    
 	ownerdrawflag CG_SHOW_CTF                    	
 	ownerdraw CG_BLUE_FLAGSTATUS
 	}
-
+itemDef {
+      	name "playerScore"
+        rect 5 18 40 12
+	visible 1
+	textstyle 3
+    	decoration
+	forecolor 1 1 1 1
+	textscale .25
+	text ""
+	ownerdraw CG_CAPFRAGLIMIT 
+	}
 
 itemDef {
      	name "oneflagstatus"
-        rect 30 40 16 16
+        rect 34 5 16 16
 	visible 1
 	decoration                	
 	ownerdraw CG_ONEFLAG_STATUS 
 	}
 
-
 	itemDef {
       	name "r"
-        rect 35 21 30 15
+        rect 71 6 18 12
 	textstyle 3
 	visible 1
 	decoration
@@ -528,7 +486,7 @@ itemDef {
 
 	itemDef {
 	name "f"
-	rect 77 22 16 16
+	rect 110 5 16 16
 	visible 1
 	bordercolor 1 1 1 1
 	decoration	
@@ -538,7 +496,7 @@ itemDef {
 
 	itemDef {
 	name "f"
-	rect 77 22 16 16
+	rect 110 5 16 16
 	visible 1
 	bordercolor 1 1 1 1
 	decoration	
@@ -549,16 +507,17 @@ itemDef {
 
 	itemDef {
       	name "f"
-        rect 77 22 16 16
+        rect 110 5 16 16
 	visible 1
 	decoration
 	ownerdrawflag CG_SHOW_CTF                       
 	ownerdraw CG_RED_FLAGSTATUS
 	}
 
+
 	itemDef {
       	name "r"
-        rect 87 21 30 15
+        rect 126 6 18 12
 	textstyle 3
 	visible 1
 	decoration
@@ -566,184 +525,103 @@ itemDef {
 	textscale 0.25
 	ownerdraw CG_RED_SCORE
 	}
-
-	itemDef {
-	name "statusscreen"
-	visible 1
-	style 3
-	background "menuscreen2"
-	rect 0 13 126 48
-	}
-
-	itemDef {
-      	name "playerScore"
-	type 4
-        rect 8 36 40 12
-	visible 1
-	textstyle 3
-    	decoration
-	forecolor 1 1 1 1
-	textscale .25
-	ownerdraw CG_CAPFRAGLIMIT
-	}
-
-
-
-	itemDef {
-      	name "playerScore"
-	style 0
-        rect 60 43 65 12
-	visible 1
-	textstyle 3
-    	decoration
-	forecolor 1 1 1 1
-	textscale .25
-	ownerdraw CG_PLAYER_SCORE
-	}
   	}
 
+//	TEAMSCORE	//
+
+menuDef {
+    	name "teamScore"
+    	fullScreen MENU_FALSE
+    	visible MENU_TRUE
+    	rect 418 455 150 24
+	ownerdrawflag CG_SHOW_ANYNONTEAMGAME    
+
+
+	itemDef {
+	name "teamScoreRect"
+	visible 1
+	rect 0 0 150 24
+	border 1
+	bordersize 1
+	bordercolor .5 .5 .5 1
+	style 4
+	}
+
+
+	itemDef {
+      	name "playerScore"
+        rect 8 18 40 0
+	visible 1
+	textstyle 3
+    	decoration
+	forecolor 1 1 1 1
+	textscale .25
+	text ""
+	ownerdraw CG_CAPFRAGLIMIT 
+	}
+
+
+
+
+	itemDef {
+      	name "r"
+        rect 40 18 18 12
+	textstyle 3
+	text "1st:"
+	visible 1
+	decoration
+	forecolor .25 .25 1 1
+	textscale 0.25
+	ownerdraw CG_1STPLACE 
+	}
+
+
+	itemDef {
+      	name "r"
+        rect 105 18 18 12
+	textstyle 3
+	text "2nd:"
+	visible 1
+	decoration
+	forecolor 1 0 0 1
+	textscale 0.25
+	ownerdraw CG_2NDPLACE
+	}
+  	}
 
 //	PLAYERSCORE	//
 
 menuDef {
-    	name "PlayerScore"
+    	name "playerScore"
     	fullScreen MENU_FALSE
     	visible MENU_TRUE
-    	rect 512 416 128 64
-	ownerdrawflag CG_SHOW_ANYNONTEAMGAME            
+    	rect 569 455 70 24
 
 	itemDef {
 	name "playerScoreRect"
 	visible 1
-	rect 0 13 126 48
+	rect 0 0 70 24
+	border 1
+	bordersize 1
+	bordercolor .5 .5 .5 1
 	style 4
 	}
 
-	itemDef {
-	name "statusscreen"
-	visible 1
-	style 3
-	background "menuscreen2"
-	rect 0 13 126 48
-	}
-	
-	itemDef {
-      	name "playerScore"
-        rect 8 32 40 12
-	visible 1
-	textstyle 3
-    	decoration
-	forecolor 1 1 1 1
-	textscale .25
-	text "FragLimit:"
-	ownerdraw CG_CAPFRAGLIMIT 
-	}
-	itemDef {
-      	name "playerScore"
-	style 0
-        rect 10 45 65 12
-	visible 1
-	textstyle 3
-	text "1st:"
-	ownerdraw CG_1STPLACE 
-    	decoration
-	forecolor .25 .25 1 1
-	textscale .25
-	}
-	itemDef {
-      	name "playerScore"
-	style 0
-        rect 70 45 65 12
-	visible 1
-	textstyle 3
-	text "2nd:"
-	ownerdraw CG_2NDPLACE
-    	decoration
-	forecolor 1 0 0 1
-	textscale .25
-	}
-
 
 	itemDef {
       	name "playerScore"
-	style 0
-        rect 10 58 40 0
-	visible 1
+        rect 4 6 75 12
 	textstyle 3
-	text "Score:"
+	visible 1
     	decoration
 	forecolor 1 1 1 1
 	textscale .25
 	ownerdraw CG_PLAYER_SCORE
 	}
-  	}
+
+}
 
 
-//	LOCATION	//
-
-menuDef {
-    	name "location"
-    	fullScreen MENU_FALSE
-	visible MENU_TRUE
-    	rect 463 395 256 32
-	ownerdrawflag CG_SHOW_ANYTEAMGAME
-
-
-	itemDef {
-	name "locationRect"
-	visible MENU_TRUE
-	rect 2 6 170 26
-	style 4	
-	}
-itemDef {
-      	name "playerStatus"
-        rect 16 10 16 16
-	visible 1
-	decoration
-	ownerdraw CG_PLAYER_STATUS
-	}
-
-	itemDef {
-     	name "playerlocation"
-        rect 37 7 16 16    
-	visible 1
-	textstyle 3
-	decoration
-	textscale .25	
-	ownerdraw CG_PLAYER_LOCATION 
-	}
-itemDef {
-      	name "lback"
-        rect 0 0 256 32
-	visible 1
-	style 3
-	decoration
-	background "ui/assets/locationstatus.tga"
-	} 
-	}
-
-
-
-//	STATUSBAR //
-
-menuDef {
-    	name "statusbar"
-    	fullScreen 0
-    	visible 1
-   	rect 0 416 640 64
-	
-
-itemDef {
-      	name "statusbar"
-        rect 0 0 640 64
-	style 3
-	background "ui/assets/statusbar_full.tga"
-	visible 1
-	decoration
-	forecolor 1 1 1 1
-	backcolor 1 1 1 1
-	}
-	}
 
 
 
@@ -761,6 +639,9 @@ itemDef {
       		name "voiceMenuRect"
 		style 4
 		rect 2 2 50 50
+		border 1
+		bordersize 1
+		bordercolor .5 .5 .5 1
 		visible 1
 		}
 
@@ -770,23 +651,6 @@ itemDef {
     		visible 1
 		decoration
 		ownerdraw CG_VOICE_HEAD
-		}
-	
-	itemDef {
-		name "b"
-		rect 2 2 50 50
-		style WINDOW_STYLE_SHADER
-		background "menuscreen2"
-    		visible 1
-		decoration
-		}
-
-	itemDef {
-		name "voiceWindow"
-		visible 1
-		style 3
-		background "ui/assets/voice_window.tga"
-		rect 0 0 54 54
 		}
 
 

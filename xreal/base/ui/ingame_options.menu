@@ -221,7 +221,7 @@ menuDef
       		forecolor 1 1 1 1
       		visible 1 
     		}
-itemDef {
+        itemDef {
       		name options				
 		group grpOptions
       		type ITEM_TYPE_YESNO
@@ -235,7 +235,7 @@ itemDef {
       		forecolor 1 1 1 1
       		visible 1 
     		}
-itemDef {
+        itemDef {
       		name options				
 		group grpOptions
       		type ITEM_TYPE_YESNO
@@ -249,7 +249,7 @@ itemDef {
       		forecolor 1 1 1 1
       		visible 1 
     		}
-itemDef {
+        itemDef {
       		name options				
 		group grpOptions
       		type ITEM_TYPE_YESNO
@@ -264,7 +264,7 @@ itemDef {
       		visible 1 
     		}
 
-itemDef {
+        itemDef {
       		name options				
 		group grpOptions
       		type ITEM_TYPE_YESNO
@@ -279,7 +279,9 @@ itemDef {
       		visible 1 
     		}
 
-itemDef {
+        /*
+        itemDef
+        {
       		name options				
 		group grpOptions
       		type ITEM_TYPE_MULTI	
@@ -294,15 +296,16 @@ itemDef {
       		forecolor 1 1 1 1
       		visible 1 
 		action { exec "loadhud" }
-    		}
+    	}
+        */
 
-itemDef {
+        itemDef {
       		name options				
 		group grpOptions
       		type ITEM_TYPE_YESNO
 		text "In Game Videos:"
 		cvar "r_inGameVideo"
-		rect 0 326 200 20
+		rect 0 309 200 20
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 143
       		textaligny 17
@@ -312,12 +315,12 @@ itemDef {
     		}
 
 
-itemDef {
+        itemDef {
       		name options				
 		group grpOptions
 		text "Crosshair:"
 		ownerdraw UI_CROSSHAIR
-		rect 143 343 20 17
+		rect 143 326 20 17
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 0 
       		textaligny 17
