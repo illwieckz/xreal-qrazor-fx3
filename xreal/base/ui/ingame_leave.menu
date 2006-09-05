@@ -4,74 +4,26 @@
 {
 \\ INGAME_LEAVE MENU \\
 
-  menuDef {
+menuDef
+{
     	name "ingame_leave"
     	visible 1
     	fullScreen 0
-	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	outOfBoundsClick // this closes the window if it gets a click out of the rectangle
     	rect 511 30 128 125
 	focusColor 1 .75 0 1
 	onOpen { show grpMenu ; hide grpConfirm }
 
-
-
 itemDef {
      	name leave
 	style WINDOW_STYLE_FILLED
-     	rect 10 15 108 110   
-	backcolor 0 .1 0 1
+        border 1
+        bordercolor .5 .5 .5 1
+        backcolor 0 0 0 .5
+     	rect 10 15 108 110
       	visible 1 
      	decoration
     	}
-
-
-// FRAME	//
-
-
-itemDef {
-	name window
-	rect 0 10 64 64
-	style 3
-	background "ui/assets/ingameleftcorner.tga"
-	visible 1
-	decoration
-	}
-
-itemDef {
-	name window
-	rect 112 10 16 64
-	style 3
-	background "ui/assets/ingameright.tga"
-	visible 1
-	decoration
-	}
-itemDef {
-	name window
-	rect 64 0 63 16
-	style 3
-	background "ui/assets/ingameconnection.tga"
-	visible 1
-	decoration
-	}
-
-itemDef {
-	name window
-	rect 0 64 64 64
-	style 3
-	background "ui/assets/ingameleftcornerb.tga"
-	visible 1
-	decoration
-	}
-itemDef {
-	name window
-	rect 64 64 64 64
-	style 3
-	background "ui/assets/ingamerightcornerb.tga"
-	visible 1
-	decoration
-	}
-
-
 
 itemDef {
      	name leave
