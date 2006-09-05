@@ -1,0 +1,11 @@
+base/ui
+- remove credit.menu ?
+- finish endofgame.menu
+- finish error.menu
+- remove punkbuster.menu ?
+- finish quitcredit.menu
+
+code/renderer
+- fix stencil shadow flickering bug
+- allow pure GLSL renderer path
+- finish COLLADA .dae model support ?
