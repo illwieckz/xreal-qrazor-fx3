@@ -50,7 +50,7 @@ itemDef {
 		group grpicon
 		style 3		
 		rect 84 45 32 32
-		background "ui/assets/statusbar/assault.tga"    	 
+		background "ui/assets/assault.tga"    	 
       		visible 0 
     		}
 	itemDef {
@@ -58,7 +58,7 @@ itemDef {
 		group grpicon
 		style 3		
 		rect 84 45 32 32
-		background "ui/assets/statusbar/defend.tga"    	 
+		background "ui/assets/defend.tga"    	 
       		visible 0 
     		}
 	itemDef {
@@ -66,7 +66,7 @@ itemDef {
 		group grpicon
 		style 3		
 		rect 84 45 32 32
-		background "ui/assets/statusbar/patrol.tga"    	 
+		background "ui/assets/patrol.tga"    	 
       		visible 0 
     		}
 	itemDef {
@@ -74,7 +74,7 @@ itemDef {
 		group grpicon
 		style 3		
 		rect 84 45 32 32
-		background "ui/assets/statusbar/follow.tga"    	 
+		background "ui/assets/follow.tga"    	 
       		visible 0 
     		}
 	itemDef {
@@ -82,7 +82,7 @@ itemDef {
 		group grpicon
 		style 3		
 		rect 84 45 32 32
-		background "ui/assets/statusbar/camp.tga"    	 
+		background "ui/assets/camp.tga"    	 
       		visible 0 
     		}
 	itemDef {
@@ -90,7 +90,7 @@ itemDef {
 		group grpicon
 		style 3		
 		rect 84 45 32 32
-		background "ui/assets/statusbar/team_leader.tga"    	 
+		background "ui/assets/team_leader.tga"    	 
       		visible 0 
     		}
 itemDef 	{
@@ -98,7 +98,7 @@ itemDef 	{
 		group grpicon
 		style 3		
 		rect 84 45 32 32
-		background "ui/assets/statusbar/retrieve.tga"    	 
+		background "ui/assets/retrieve.tga"    	 
       		visible 0 
     		}
 itemDef 	{
@@ -106,7 +106,7 @@ itemDef 	{
 		group grpicon
 		style 3		
 		rect 84 45 32 32
-		background "ui/assets/statusbar/escort.tga"    	 
+		background "ui/assets/escort.tga"    	 
       		visible 0 
     		}
 	

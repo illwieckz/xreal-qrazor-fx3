@@ -1076,7 +1076,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.invulnerabilityImpactModel = trap_R_RegisterModel("models/powerups/shield/impact.md3");
 	cgs.media.invulnerabilityJuicedModel = trap_R_RegisterModel("models/powerups/shield/juicer.md3");
 	cgs.media.medkitUsageModel = trap_R_RegisterModel("models/powerups/regen.md3");
-	cgs.media.heartShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/selectedhealth.tga");
+	cgs.media.heartShader = trap_R_RegisterShaderNoMip("ui/assets/selectedhealth.tga");
 
 #endif
 
@@ -1147,20 +1147,20 @@ static void CG_RegisterGraphics(void)
 
 #ifdef MISSIONPACK
 	// new stuff
-	cgs.media.patrolShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/patrol.tga");
-	cgs.media.assaultShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/assault.tga");
-	cgs.media.campShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/camp.tga");
-	cgs.media.followShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/follow.tga");
-	cgs.media.defendShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/defend.tga");
-	cgs.media.teamLeaderShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/team_leader.tga");
-	cgs.media.retrieveShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/retrieve.tga");
-	cgs.media.escortShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/escort.tga");
+	cgs.media.patrolShader = trap_R_RegisterShaderNoMip("ui/assets/patrol.tga");
+	cgs.media.assaultShader = trap_R_RegisterShaderNoMip("ui/assets/assault.tga");
+	cgs.media.campShader = trap_R_RegisterShaderNoMip("ui/assets/camp.tga");
+	cgs.media.followShader = trap_R_RegisterShaderNoMip("ui/assets/follow.tga");
+	cgs.media.defendShader = trap_R_RegisterShaderNoMip("ui/assets/defend.tga");
+	cgs.media.teamLeaderShader = trap_R_RegisterShaderNoMip("ui/assets/team_leader.tga");
+	cgs.media.retrieveShader = trap_R_RegisterShaderNoMip("ui/assets/retrieve.tga");
+	cgs.media.escortShader = trap_R_RegisterShaderNoMip("ui/assets/escort.tga");
 	cgs.media.cursor = trap_R_RegisterShaderNoMip("menuCursor");
 	cgs.media.sizeCursor = trap_R_RegisterShaderNoMip("ui/assets/sizecursor.tga");
 	cgs.media.selectCursor = trap_R_RegisterShaderNoMip("ui/assets/selectcursor.tga");
-	cgs.media.flagShaders[0] = trap_R_RegisterShaderNoMip("ui/assets/statusbar/flag_in_base.tga");
-	cgs.media.flagShaders[1] = trap_R_RegisterShaderNoMip("ui/assets/statusbar/flag_capture.tga");
-	cgs.media.flagShaders[2] = trap_R_RegisterShaderNoMip("ui/assets/statusbar/flag_missing.tga");
+	cgs.media.flagShaders[0] = trap_R_RegisterShaderNoMip("ui/assets/flag_in_base.tga");
+	cgs.media.flagShaders[1] = trap_R_RegisterShaderNoMip("ui/assets/flag_capture.tga");
+	cgs.media.flagShaders[2] = trap_R_RegisterShaderNoMip("ui/assets/flag_missing.tga");
 
 	trap_R_RegisterModel("models/players/james/lower.md3");
 	trap_R_RegisterModel("models/players/james/upper.md3");
