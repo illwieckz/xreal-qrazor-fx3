@@ -5,7 +5,12 @@ base/ui
 - remove punkbuster.menu ?
 - finish quitcredit.menu
 
+code/cgame
+- better particle system
+- atmospheric effects
+
 code/renderer
 - fix stencil shadow flickering bug
 - allow pure GLSL renderer path
 - finish COLLADA .dae model support ?
+- proper water shader with reflection and refraction
