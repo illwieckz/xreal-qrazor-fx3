@@ -310,6 +310,7 @@ typedef struct
 	qboolean        vertexShaderAvailable;
 	qboolean        fragmentShaderAvailable;
 	qboolean        shadingLanguage100Available;
+	qboolean        textureNPOTAvailable;
 	qboolean		stencilWrapAvailable;
 	float			maxTextureAnisotropy;
 	qboolean		textureAnisotropyAvailable;
