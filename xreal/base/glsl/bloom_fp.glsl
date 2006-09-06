@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uniform sampler2D	u_ColorMap;
 uniform sampler2D	u_ContrastMap;
 uniform vec2		u_FBufScale;
-uniform vec2		u_NPotScale;
+uniform vec2		u_NPOTScale;
 uniform float		u_BlurMagnitude;
 
 void	main()
@@ -34,7 +34,7 @@ void	main()
 	st00 *= u_FBufScale;
 	
 	// scale by the screen non-power-of-two-adjust
-	st00 *= u_NPotScale;
+	st00 *= u_NPOTScale;
 	
 	// set so a magnitude of 1 is approximately 1 pixel with 640x480
 	vec2 deform = vec2(u_BlurMagnitude * 0.0016, u_BlurMagnitude * 0.00213333);
@@ -60,14 +60,14 @@ void	main()
 	vec2 st08 = st00 + offset08 * deform;
 	
 	// cap the coordinates to the edge of the texture
-//	st01 = min(st01, u_NPotScale);
-//	st02 = min(st02, u_NPotScale);
-//	st03 = min(st03, u_NPotScale);
-//	st04 = min(st04, u_NPotScale);
-//	st05 = min(st05, u_NPotScale);
-//	st06 = min(st06, u_NPotScale);
-//	st07 = min(st07, u_NPotScale);
-//	st08 = min(st08, u_NPotScale);
+//	st01 = clamp(st01, 0.0, 1.0) * u_NPOTScale;
+//	st02 = min(st02, u_NPOTScale);
+//	st03 = min(st03, u_NPOTScale);
+//	st04 = min(st04, u_NPOTScale);
+//	st05 = min(st05, u_NPOTScale);
+//	st06 = min(st06, u_NPOTScale);
+//	st07 = min(st07, u_NPOTScale);
+//	st08 = min(st08, u_NPOTScale);
 	
 	// base color
 	vec4 c00 = texture2D(u_ColorMap, st00);

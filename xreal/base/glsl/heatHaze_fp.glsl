@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uniform sampler2D	u_ColorMap;
 uniform sampler2D	u_NormalMap;
 uniform vec2		u_FBufScale;
-uniform vec2		u_NPotScale;
+uniform vec2		u_NPOTScale;
 
 varying vec2		var_TexNormal;
 varying float		var_Deform;
@@ -43,7 +43,7 @@ void	main()
 	s_coord = clamp(s_coord, 0.0, 1.0);
 	
 	// scale by the screen non-power-of-two-adjust
-	s_coord *= u_NPotScale;
+	s_coord *= u_NPOTScale;
 
 	gl_FragColor = texture2D(u_ColorMap, s_coord);
 }

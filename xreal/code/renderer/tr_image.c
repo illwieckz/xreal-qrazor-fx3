@@ -984,11 +984,20 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 	vec4_t          zeroClampBorder = { 0, 0, 0, 1 };
 	vec4_t          alphaZeroClampBorder = { 0, 0, 0, 0 };
 
-	// convert to exact power of 2 sizes
-	for(scaledWidth = 1; scaledWidth < image->width; scaledWidth <<= 1)
-		;
-	for(scaledHeight = 1; scaledHeight < image->height; scaledHeight <<= 1)
-		;
+	if(glConfig.textureNPOTAvailable)
+	{
+		scaledWidth = image->width;
+		scaledHeight = image->height;
+	}
+	else
+	{
+		// convert to exact power of 2 sizes
+		for(scaledWidth = 1; scaledWidth < image->width; scaledWidth <<= 1)
+			;
+		for(scaledHeight = 1; scaledHeight < image->height; scaledHeight <<= 1)
+			;	
+	}
+	
 	if(r_roundImagesDown->integer && scaledWidth > image->width)
 		scaledWidth >>= 1;
 	if(r_roundImagesDown->integer && scaledHeight > image->height)
@@ -4555,6 +4564,21 @@ static void R_CreateCurrentRenderNearestImage(void)
 	ri.Hunk_FreeTempMemory(data);
 }
 
+static void R_CreateVisibilityFBOImage(void)
+{
+	if(glConfig.textureNPOTAvailable)
+	{
+		byte           *data;
+
+		data = ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight * 4);
+
+		tr.visibilityFBOImage =
+			R_CreateImage("_visibilityFBO", data, glConfig.vidWidth, glConfig.vidHeight, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+
+		ri.Hunk_FreeTempMemory(data);
+	}
+}
+
 /*
 ==================
 R_CreateBuiltinImages
@@ -4613,6 +4637,7 @@ void R_CreateBuiltinImages(void)
 	R_CreateCurrentRenderImage();
 	R_CreateCurrentRenderLinearImage();
 	R_CreateCurrentRenderNearestImage();
+	R_CreateVisibilityFBOImage();
 }
 
 

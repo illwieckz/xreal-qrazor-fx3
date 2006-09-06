@@ -1283,46 +1283,6 @@ static void GLW_InitExtensions(void)
 
 	ri.Printf(PRINT_ALL, "Initializing OpenGL extensions\n");
 
-	// GL_S3_s3tc
-	if(Q_stristr(glConfig.extensions_string, "GL_S3_s3tc"))
-	{
-		if(r_ext_compressed_textures->integer == 1)
-		{
-			glConfig.textureCompression = TC_S3TC;
-			ri.Printf(PRINT_ALL, "...using GL_S3_s3tc\n");
-		}
-		else
-		{
-			glConfig.textureCompression = TC_NONE;
-			ri.Printf(PRINT_ALL, "...ignoring GL_S3_s3tc\n");
-		}
-	}
-	else
-	{
-		glConfig.textureCompression = TC_NONE;
-		ri.Printf(PRINT_ALL, "...GL_S3_s3tc not found\n");
-	}
-
-	// GL_EXT_texture_env_add
-	glConfig.textureEnvAddAvailable = qfalse;
-	if(Q_stristr(glConfig.extensions_string, "EXT_texture_env_add"))
-	{
-		if(r_ext_texture_env_add->integer)
-		{
-			glConfig.textureEnvAddAvailable = qtrue;
-			ri.Printf(PRINT_ALL, "...using GL_EXT_texture_env_add\n");
-		}
-		else
-		{
-			glConfig.textureEnvAddAvailable = qfalse;
-			ri.Printf(PRINT_ALL, "...ignoring GL_EXT_texture_env_add\n");
-		}
-	}
-	else
-	{
-		ri.Printf(PRINT_ALL, "...GL_EXT_texture_env_add not found\n");
-	}
-
 	// GL_ARB_multitexture
 	qglMultiTexCoord2fARB = NULL;
 	qglActiveTextureARB = NULL;
@@ -1417,7 +1377,7 @@ static void GLW_InitExtensions(void)
 	}
 	else
 	{
-		ri.Printf(PRINT_ALL, "...GL_ARB_depth_texture\n");
+		ri.Printf(PRINT_ALL, "...GL_ARB_depth_texture not found\n");
 	}
 
 	// GL_ARB_vertex_program
@@ -1680,6 +1640,45 @@ static void GLW_InitExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, "...GL_ARB_shading_language_100 not found\n");
 	}
+	
+	// GL_ARB_texture_non_power_of_two
+	glConfig.textureNPOTAvailable = qfalse;
+	if(Q_stristr(glConfig.extensions_string, "GL_ARB_texture_non_power_of_two"))
+	{
+		if(r_ext_texture_non_power_of_two->integer)
+		{
+			glConfig.textureNPOTAvailable = qtrue;
+			ri.Printf(PRINT_ALL, "...using GL_ARB_texture_non_power_of_two\n");
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_ARB_texture_non_power_of_two\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_ARB_texture_non_power_of_two not found\n");
+	}
+	
+	// GL_EXT_texture_env_add
+	glConfig.textureEnvAddAvailable = qfalse;
+	if(Q_stristr(glConfig.extensions_string, "EXT_texture_env_add"))
+	{
+		if(r_ext_texture_env_add->integer)
+		{
+			glConfig.textureEnvAddAvailable = qtrue;
+			ri.Printf(PRINT_ALL, "...using GL_EXT_texture_env_add\n");
+		}
+		else
+		{
+			glConfig.textureEnvAddAvailable = qfalse;
+			ri.Printf(PRINT_ALL, "...ignoring GL_EXT_texture_env_add\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_EXT_texture_env_add not found\n");
+	}
 
 	// GL_EXT_compiled_vertex_array
 	if(Q_stristr(glConfig.extensions_string, "GL_EXT_compiled_vertex_array"))
@@ -1702,6 +1701,26 @@ static void GLW_InitExtensions(void)
 	else
 	{
 		ri.Printf(PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n");
+	}
+	
+	// GL_S3_s3tc
+	if(Q_stristr(glConfig.extensions_string, "GL_S3_s3tc"))
+	{
+		if(r_ext_compressed_textures->integer == 1)
+		{
+			glConfig.textureCompression = TC_S3TC;
+			ri.Printf(PRINT_ALL, "...using GL_S3_s3tc\n");
+		}
+		else
+		{
+			glConfig.textureCompression = TC_NONE;
+			ri.Printf(PRINT_ALL, "...ignoring GL_S3_s3tc\n");
+		}
+	}
+	else
+	{
+		glConfig.textureCompression = TC_NONE;
+		ri.Printf(PRINT_ALL, "...GL_S3_s3tc not found\n");
 	}
 	
 	// GL_EXT_stencil_wrap

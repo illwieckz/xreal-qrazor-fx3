@@ -31,20 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   This file deals with applying shaders to surface data in the tess struct.
 */
 
-enum
-{
-	ATTR_INDEX_TEXCOORD0	= 8,
-	ATTR_INDEX_TEXCOORD1	= 9,
-	ATTR_INDEX_TEXCOORD2	= 10,
-	ATTR_INDEX_TEXCOORD3	= 11,
-	ATTR_INDEX_TANGENT		= 12,
-	ATTR_INDEX_BINORMAL		= 13,
-//  ATTR_INDEX_NORMAL       = 2,
-//  ATTR_INDEX_COLOR        = 3
-};
-
-
-static char    *RB_PrintInfoLog(GLhandleARB object)
+static char    *GLSL_PrintInfoLog(GLhandleARB object)
 {
 	static char     msg[4096];
 	int             maxLength = 0;
@@ -62,11 +49,11 @@ static char    *RB_PrintInfoLog(GLhandleARB object)
 	return msg;
 }
 
-char    *RB_PrintShaderSource(GLhandleARB object)
+char           *GLSL_PrintShaderSource(GLhandleARB object)
 {
 	static char     msg[4096];
 	int             maxLength = 0;
-	
+
 	qglGetObjectParameterivARB(object, GL_OBJECT_SHADER_SOURCE_LENGTH_ARB, &maxLength);
 
 	if(maxLength >= (int)sizeof(msg))
@@ -80,7 +67,7 @@ char    *RB_PrintShaderSource(GLhandleARB object)
 	return msg;
 }
 
-static void RB_LoadGPUShader(GLhandleARB program, const char *name, GLenum shaderType)
+static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum shaderType)
 {
 
 	char            filename[MAX_QPATH];
@@ -104,28 +91,28 @@ static void RB_LoadGPUShader(GLhandleARB program, const char *name, GLenum shade
 	{
 		ri.Error(ERR_DROP, "Couldn't load %s", filename);
 	}
-	
+
 	shader = qglCreateShaderObjectARB(shaderType);
-	
+
 	// HACK: add ATI's GLSL quirks
 	if(glConfig.hardwareType == GLHW_ATI && shaderType == GL_VERTEX_SHADER_ARB)
 	{
 		GLcharARB      *bufferATI = "#define ATI\n";
 		int             sizeATI;
-	
+
 		GLcharARB      *bufferFinal = NULL;
 		int             sizeFinal;
-		
+
 		sizeATI = strlen(bufferATI);
 		sizeFinal = sizeATI + size;
-		
+
 		bufferFinal = ri.Hunk_AllocateTempMemory(size + sizeATI);
-		
+
 		strcpy(bufferFinal, bufferATI);
 		Q_strcat(bufferFinal, sizeFinal, buffer);
-		
+
 		qglShaderSourceARB(shader, 1, (const GLcharARB **)&bufferFinal, &sizeFinal);
-		
+
 		ri.Hunk_FreeTempMemory(bufferFinal);
 	}
 	else
@@ -140,12 +127,12 @@ static void RB_LoadGPUShader(GLhandleARB program, const char *name, GLenum shade
 	qglGetObjectParameterivARB(shader, GL_OBJECT_COMPILE_STATUS_ARB, &compiled);
 	if(!compiled)
 	{
-		ri.Error(ERR_DROP, "Couldn't compile %s", RB_PrintInfoLog(shader));
+		ri.Error(ERR_DROP, "Couldn't compile %s", GLSL_PrintInfoLog(shader));
 		ri.FS_FreeFile(buffer);
 		return;
 	}
-//	ri.Printf(PRINT_ALL, "info log: %s\n", RB_PrintInfoLog(shader));
-//	ri.Printf(PRINT_ALL, "%s\n", RB_PrintShaderSource(shader));
+//  ri.Printf(PRINT_ALL, "info log: %s\n", RB_PrintInfoLog(shader));
+//  ri.Printf(PRINT_ALL, "%s\n", RB_PrintShaderSource(shader));
 
 	// attach shader to program
 	qglAttachObjectARB(program, shader);
@@ -156,7 +143,7 @@ static void RB_LoadGPUShader(GLhandleARB program, const char *name, GLenum shade
 	ri.FS_FreeFile(buffer);
 }
 
-static void RB_LinkProgram(GLhandleARB program)
+static void GLSL_LinkProgram(GLhandleARB program)
 {
 	GLint           linked;
 
@@ -165,11 +152,11 @@ static void RB_LinkProgram(GLhandleARB program)
 	qglGetObjectParameterivARB(program, GL_OBJECT_LINK_STATUS_ARB, &linked);
 	if(!linked)
 	{
-		ri.Error(ERR_DROP, "%s\nshaders failed to link", RB_PrintInfoLog(program));
+		ri.Error(ERR_DROP, "%s\nshaders failed to link", GLSL_PrintInfoLog(program));
 	}
 }
 
-static void RB_ValidateProgram(GLhandleARB program)
+static void GLSL_ValidateProgram(GLhandleARB program)
 {
 
 	GLint           validated;
@@ -179,15 +166,15 @@ static void RB_ValidateProgram(GLhandleARB program)
 	qglGetObjectParameterivARB(program, GL_OBJECT_VALIDATE_STATUS_ARB, &validated);
 	if(!validated)
 	{
-		ri.Error(ERR_DROP, "%s\nshaders failed to validate", RB_PrintInfoLog(program));
+		ri.Error(ERR_DROP, "%s\nshaders failed to validate", GLSL_PrintInfoLog(program));
 	}
 }
 
-void RB_ShowProgramUniforms(GLhandleARB program)
+static void GLSL_ShowProgramUniforms(GLhandleARB program)
 {
-	int				i, count, size, type;
-	char			uniformName[1000];
-	
+	int             i, count, size, type;
+	char            uniformName[1000];
+
 	// install the executables in the program object as part of current state.
 	qglUseProgramObjectARB(program);
 
@@ -200,25 +187,25 @@ void RB_ShowProgramUniforms(GLhandleARB program)
 	for(i = 0; i < count; i++)
 	{
 		qglGetActiveUniformARB(program, i, sizeof(uniformName), NULL, &size, &type, uniformName);
-		
+
 		ri.Printf(PRINT_DEVELOPER, "active uniform: '%s'\n", uniformName);
 	}
-	
+
 	qglUseProgramObjectARB(0);
 }
 
-static void RB_InitGPUShader(shaderProgram_t * program, const char *name, int attribs, qboolean fragmentShader)
+static void GLSL_InitGPUShader(shaderProgram_t * program, const char *name, int attribs, qboolean fragmentShader)
 {
-	
+
 	ri.Printf(PRINT_DEVELOPER, "------- GPU shader -------\n");
 
 	program->program = qglCreateProgramObjectARB();
 	program->attribs = attribs;
 
-	RB_LoadGPUShader(program->program, name, GL_VERTEX_SHADER_ARB);
-	
+	GLSL_LoadGPUShader(program->program, name, GL_VERTEX_SHADER_ARB);
+
 	if(fragmentShader)
-		RB_LoadGPUShader(program->program, name, GL_FRAGMENT_SHADER_ARB);
+		GLSL_LoadGPUShader(program->program, name, GL_FRAGMENT_SHADER_ARB);
 
 //  if( attribs & ATTRVERTEX )
 //      qglBindAttribLocationARB( program->program, ATTR_INDEX_VERTEX, "attr_Vertex");
@@ -228,10 +215,10 @@ static void RB_InitGPUShader(shaderProgram_t * program, const char *name, int at
 
 	if(attribs & GLCS_TEXCOORD1)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD1, "attr_TexCoord1");
-	
+
 	if(attribs & GLCS_TEXCOORD2)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD2, "attr_TexCoord2");
-	
+
 	if(attribs & GLCS_TEXCOORD3)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD3, "attr_TexCoord3");
 
@@ -247,41 +234,35 @@ static void RB_InitGPUShader(shaderProgram_t * program, const char *name, int at
 //  if( attribs & GLCS_COLOR )
 //      qglBindAttribLocationARB( program->program, ATTR_INDEX_COLOR, "attr_Color");
 
-	RB_LinkProgram(program->program);
-	RB_ValidateProgram(program->program);
-	RB_ShowProgramUniforms(program->program);
+	GLSL_LinkProgram(program->program);
+	GLSL_ValidateProgram(program->program);
+	GLSL_ShowProgramUniforms(program->program);
 }
 
-void RB_InitGPUShaders(void)
+void GLSL_InitGPUShaders(void)
 {
-	ri.Printf(PRINT_ALL, "------- RB_InitGPUShaders -------\n");
+	ri.Printf(PRINT_ALL, "------- GLSL_InitGPUShaders -------\n");
 
 	if(!glConfig.shadingLanguage100Available)
 		return;
-	
+
 	//
 	// single texture rendering
 	//
-	RB_InitGPUShader(&tr.genericShader_single,
-					  "generic_single",
-					  GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_COLOR, qtrue);
+	GLSL_InitGPUShader(&tr.genericShader_single, "generic_single", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_COLOR, qtrue);
 
-	tr.genericShader_single.u_ColorMap =
-			qglGetUniformLocationARB(tr.genericShader_single.program, "u_ColorMap");
+	tr.genericShader_single.u_ColorMap = qglGetUniformLocationARB(tr.genericShader_single.program, "u_ColorMap");
 
 	qglUseProgramObjectARB(tr.genericShader_single.program);
 	qglUniform1iARB(tr.genericShader_single.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// black depth fill rendering with textures
 	//
-	RB_InitGPUShader(&tr.depthFillShader,
-					  "depthFill",
-					  GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
+	GLSL_InitGPUShader(&tr.depthFillShader, "depthFill", GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
 
-	tr.depthFillShader.u_ColorMap =
-			qglGetUniformLocationARB(tr.depthFillShader.program, "u_ColorMap");
+	tr.depthFillShader.u_ColorMap = qglGetUniformLocationARB(tr.depthFillShader.program, "u_ColorMap");
 
 	qglUseProgramObjectARB(tr.depthFillShader.program);
 	qglUniform1iARB(tr.depthFillShader.u_ColorMap, 0);
@@ -290,18 +271,12 @@ void RB_InitGPUShaders(void)
 	//
 	// directional lighting ( Q3A style )
 	//
-	RB_InitGPUShader(&tr.lightShader_D_direct,
-					 "lighting_D_direct",
-					 GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_NORMAL, qtrue);
+	GLSL_InitGPUShader(&tr.lightShader_D_direct, "lighting_D_direct", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_NORMAL, qtrue);
 
-	tr.lightShader_D_direct.u_DiffuseMap =
-		qglGetUniformLocationARB(tr.lightShader_D_direct.program, "u_DiffuseMap");
-	tr.lightShader_D_direct.u_AmbientColor =
-		qglGetUniformLocationARB(tr.lightShader_D_direct.program, "u_AmbientColor");
-	tr.lightShader_D_direct.u_LightDir =
-		qglGetUniformLocationARB(tr.lightShader_D_direct.program, "u_LightDir");
-	tr.lightShader_D_direct.u_LightColor =
-		qglGetUniformLocationARB(tr.lightShader_D_direct.program, "u_LightColor");
+	tr.lightShader_D_direct.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_D_direct.program, "u_DiffuseMap");
+	tr.lightShader_D_direct.u_AmbientColor = qglGetUniformLocationARB(tr.lightShader_D_direct.program, "u_AmbientColor");
+	tr.lightShader_D_direct.u_LightDir = qglGetUniformLocationARB(tr.lightShader_D_direct.program, "u_LightDir");
+	tr.lightShader_D_direct.u_LightColor = qglGetUniformLocationARB(tr.lightShader_D_direct.program, "u_LightColor");
 
 	qglUseProgramObjectARB(tr.lightShader_D_direct.program);
 	qglUniform1iARB(tr.lightShader_D_direct.u_DiffuseMap, 0);
@@ -310,50 +285,38 @@ void RB_InitGPUShaders(void)
 	//
 	// directional bump mapping
 	//
-	RB_InitGPUShader(&tr.lightShader_DB_direct,
+	GLSL_InitGPUShader(&tr.lightShader_DB_direct,
 					 "lighting_DB_direct",
 					 GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
 
-	tr.lightShader_DB_direct.u_DiffuseMap =
-		qglGetUniformLocationARB(tr.lightShader_DB_direct.program, "u_DiffuseMap");
-	tr.lightShader_DB_direct.u_NormalMap =
-		qglGetUniformLocationARB(tr.lightShader_DB_direct.program, "u_NormalMap");
-	tr.lightShader_DB_direct.u_AmbientColor =
-		qglGetUniformLocationARB(tr.lightShader_DB_direct.program, "u_AmbientColor");
-	tr.lightShader_DB_direct.u_LightDir =
-		qglGetUniformLocationARB(tr.lightShader_DB_direct.program, "u_LightDir");
-	tr.lightShader_DB_direct.u_LightColor =
-		qglGetUniformLocationARB(tr.lightShader_DB_direct.program, "u_LightColor");
-//	tr.lightShader_DB_direct.u_BumpScale =
-//		qglGetUniformLocationARB(tr.lightShader_DB_direct.program, "u_BumpScale");
+	tr.lightShader_DB_direct.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_DB_direct.program, "u_DiffuseMap");
+	tr.lightShader_DB_direct.u_NormalMap = qglGetUniformLocationARB(tr.lightShader_DB_direct.program, "u_NormalMap");
+	tr.lightShader_DB_direct.u_AmbientColor = qglGetUniformLocationARB(tr.lightShader_DB_direct.program, "u_AmbientColor");
+	tr.lightShader_DB_direct.u_LightDir = qglGetUniformLocationARB(tr.lightShader_DB_direct.program, "u_LightDir");
+	tr.lightShader_DB_direct.u_LightColor = qglGetUniformLocationARB(tr.lightShader_DB_direct.program, "u_LightColor");
+//  tr.lightShader_DB_direct.u_BumpScale =
+//      qglGetUniformLocationARB(tr.lightShader_DB_direct.program, "u_BumpScale");
 
 	qglUseProgramObjectARB(tr.lightShader_DB_direct.program);
 	qglUniform1iARB(tr.lightShader_DB_direct.u_DiffuseMap, 0);
 	qglUniform1iARB(tr.lightShader_DB_direct.u_NormalMap, 1);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// directional specular bump mapping
 	//
-	RB_InitGPUShader(&tr.lightShader_DBS_direct,
+	GLSL_InitGPUShader(&tr.lightShader_DBS_direct,
 					 "lighting_DBS_direct",
 					 GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD2 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL,
 					 qtrue);
 
-	tr.lightShader_DBS_direct.u_DiffuseMap =
-		qglGetUniformLocationARB(tr.lightShader_DBS_direct.program, "u_DiffuseMap");
-	tr.lightShader_DBS_direct.u_NormalMap =
-		qglGetUniformLocationARB(tr.lightShader_DBS_direct.program, "u_NormalMap");
-	tr.lightShader_DBS_direct.u_SpecularMap =
-		qglGetUniformLocationARB(tr.lightShader_DBS_direct.program, "u_SpecularMap");
-	tr.lightShader_DBS_direct.u_ViewOrigin =
-		qglGetUniformLocationARB(tr.lightShader_DBS_direct.program, "u_ViewOrigin");
-	tr.lightShader_DBS_direct.u_AmbientColor =
-		qglGetUniformLocationARB(tr.lightShader_DBS_direct.program, "u_AmbientColor");
-	tr.lightShader_DBS_direct.u_LightDir =
-		qglGetUniformLocationARB(tr.lightShader_DBS_direct.program, "u_LightDir");
-	tr.lightShader_DBS_direct.u_LightColor =
-		qglGetUniformLocationARB(tr.lightShader_DBS_direct.program, "u_LightColor");
+	tr.lightShader_DBS_direct.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_DBS_direct.program, "u_DiffuseMap");
+	tr.lightShader_DBS_direct.u_NormalMap = qglGetUniformLocationARB(tr.lightShader_DBS_direct.program, "u_NormalMap");
+	tr.lightShader_DBS_direct.u_SpecularMap = qglGetUniformLocationARB(tr.lightShader_DBS_direct.program, "u_SpecularMap");
+	tr.lightShader_DBS_direct.u_ViewOrigin = qglGetUniformLocationARB(tr.lightShader_DBS_direct.program, "u_ViewOrigin");
+	tr.lightShader_DBS_direct.u_AmbientColor = qglGetUniformLocationARB(tr.lightShader_DBS_direct.program, "u_AmbientColor");
+	tr.lightShader_DBS_direct.u_LightDir = qglGetUniformLocationARB(tr.lightShader_DBS_direct.program, "u_LightDir");
+	tr.lightShader_DBS_direct.u_LightColor = qglGetUniformLocationARB(tr.lightShader_DBS_direct.program, "u_LightColor");
 	tr.lightShader_DBS_direct.u_SpecularExponent =
 		qglGetUniformLocationARB(tr.lightShader_DBS_direct.program, "u_SpecularExponent");
 
@@ -362,54 +325,39 @@ void RB_InitGPUShaders(void)
 	qglUniform1iARB(tr.lightShader_DBS_direct.u_NormalMap, 1);
 	qglUniform1iARB(tr.lightShader_DBS_direct.u_SpecularMap, 2);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// omni-directional lighting ( Doom3 style )
 	//
-	RB_InitGPUShader(&tr.lightShader_D_omni,
-					  "lighting_D_omni",
-					  GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_NORMAL, qtrue);
+	GLSL_InitGPUShader(&tr.lightShader_D_omni, "lighting_D_omni", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_NORMAL, qtrue);
 
-	tr.lightShader_D_omni.u_DiffuseMap =
-			qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_DiffuseMap");
-	tr.lightShader_D_omni.u_AttenuationMapXY =
-			qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_AttenuationMapXY");
-	tr.lightShader_D_omni.u_AttenuationMapZ =
-			qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_AttenuationMapZ");
-	tr.lightShader_D_omni.u_LightOrigin =
-			qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_LightOrigin");
-	tr.lightShader_D_omni.u_LightColor =
-			qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_LightColor");
-	tr.lightShader_D_omni.u_LightScale =
-			qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_LightScale");
+	tr.lightShader_D_omni.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_DiffuseMap");
+	tr.lightShader_D_omni.u_AttenuationMapXY = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_AttenuationMapXY");
+	tr.lightShader_D_omni.u_AttenuationMapZ = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_AttenuationMapZ");
+	tr.lightShader_D_omni.u_LightOrigin = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_LightOrigin");
+	tr.lightShader_D_omni.u_LightColor = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_LightColor");
+	tr.lightShader_D_omni.u_LightScale = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_LightScale");
 
 	qglUseProgramObjectARB(tr.lightShader_D_omni.program);
 	qglUniform1iARB(tr.lightShader_D_omni.u_DiffuseMap, 0);
 	qglUniform1iARB(tr.lightShader_D_omni.u_AttenuationMapXY, 1);
 	qglUniform1iARB(tr.lightShader_D_omni.u_AttenuationMapZ, 2);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// omni-directional bump mapping ( Doom3 style )
 	//
-	RB_InitGPUShader(&tr.lightShader_DB_omni,
-					  "lighting_DB_omni",
-					  GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+	GLSL_InitGPUShader(&tr.lightShader_DB_omni,
+					 "lighting_DB_omni",
+					 GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
 
-	tr.lightShader_DB_omni.u_DiffuseMap =
-			qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_DiffuseMap");
-	tr.lightShader_DB_omni.u_NormalMap =
-			qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_NormalMap");
-	tr.lightShader_DB_omni.u_AttenuationMapXY =
-			qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_AttenuationMapXY");
-	tr.lightShader_DB_omni.u_AttenuationMapZ =
-			qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_AttenuationMapZ");
-	tr.lightShader_DB_omni.u_LightOrigin =
-			qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_LightOrigin");
-	tr.lightShader_DB_omni.u_LightColor =
-			qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_LightColor");
-	tr.lightShader_DB_omni.u_LightScale =
-			qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_LightScale");
+	tr.lightShader_DB_omni.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_DiffuseMap");
+	tr.lightShader_DB_omni.u_NormalMap = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_NormalMap");
+	tr.lightShader_DB_omni.u_AttenuationMapXY = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_AttenuationMapXY");
+	tr.lightShader_DB_omni.u_AttenuationMapZ = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_AttenuationMapZ");
+	tr.lightShader_DB_omni.u_LightOrigin = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_LightOrigin");
+	tr.lightShader_DB_omni.u_LightColor = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_LightColor");
+	tr.lightShader_DB_omni.u_LightScale = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_LightScale");
 
 	qglUseProgramObjectARB(tr.lightShader_DB_omni.program);
 	qglUniform1iARB(tr.lightShader_DB_omni.u_DiffuseMap, 0);
@@ -417,34 +365,25 @@ void RB_InitGPUShaders(void)
 	qglUniform1iARB(tr.lightShader_DB_omni.u_AttenuationMapXY, 2);
 	qglUniform1iARB(tr.lightShader_DB_omni.u_AttenuationMapZ, 3);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// omni-directional specular bump mapping ( Doom3 style )
 	//
-	RB_InitGPUShader(&tr.lightShader_DBS_omni,
-					  "lighting_DBS_omni",
-					  GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD2 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+	GLSL_InitGPUShader(&tr.lightShader_DBS_omni,
+					 "lighting_DBS_omni",
+					 GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD2 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL,
+					 qtrue);
 
-	tr.lightShader_DBS_omni.u_DiffuseMap =
-			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_DiffuseMap");
-	tr.lightShader_DBS_omni.u_NormalMap =
-			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_NormalMap");
-	tr.lightShader_DBS_omni.u_SpecularMap =
-			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_SpecularMap");
-	tr.lightShader_DBS_omni.u_AttenuationMapXY =
-			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_AttenuationMapXY");
-	tr.lightShader_DBS_omni.u_AttenuationMapZ =
-			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_AttenuationMapZ");
-	tr.lightShader_DBS_omni.u_ViewOrigin =
-			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_ViewOrigin");
-	tr.lightShader_DBS_omni.u_LightOrigin =
-			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_LightOrigin");
-	tr.lightShader_DBS_omni.u_LightColor =
-			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_LightColor");
-	tr.lightShader_DBS_omni.u_LightScale =
-			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_LightScale");
-	tr.lightShader_DBS_omni.u_SpecularExponent =
-			qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_SpecularExponent");
+	tr.lightShader_DBS_omni.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_DiffuseMap");
+	tr.lightShader_DBS_omni.u_NormalMap = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_NormalMap");
+	tr.lightShader_DBS_omni.u_SpecularMap = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_SpecularMap");
+	tr.lightShader_DBS_omni.u_AttenuationMapXY = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_AttenuationMapXY");
+	tr.lightShader_DBS_omni.u_AttenuationMapZ = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_AttenuationMapZ");
+	tr.lightShader_DBS_omni.u_ViewOrigin = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_ViewOrigin");
+	tr.lightShader_DBS_omni.u_LightOrigin = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_LightOrigin");
+	tr.lightShader_DBS_omni.u_LightColor = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_LightColor");
+	tr.lightShader_DBS_omni.u_LightScale = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_LightScale");
+	tr.lightShader_DBS_omni.u_SpecularExponent = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_SpecularExponent");
 
 	qglUseProgramObjectARB(tr.lightShader_DBS_omni.program);
 	qglUniform1iARB(tr.lightShader_DBS_omni.u_DiffuseMap, 0);
@@ -453,38 +392,29 @@ void RB_InitGPUShaders(void)
 	qglUniform1iARB(tr.lightShader_DBS_omni.u_AttenuationMapXY, 3);
 	qglUniform1iARB(tr.lightShader_DBS_omni.u_AttenuationMapZ, 4);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// omni-directional specular parallax bump mapping ( Doom3 style )
 	//
-	RB_InitGPUShader(&tr.lightShader_DBSP_omni,
-					  "lighting_DBSP_omni",
-					  GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD2 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+	GLSL_InitGPUShader(&tr.lightShader_DBSP_omni,
+					 "lighting_DBSP_omni",
+					 GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD2 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL,
+					 qtrue);
 
-	tr.lightShader_DBSP_omni.u_DiffuseMap =
-			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_DiffuseMap");
-	tr.lightShader_DBSP_omni.u_NormalMap =
-			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_NormalMap");
-	tr.lightShader_DBSP_omni.u_SpecularMap =
-			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_SpecularMap");
+	tr.lightShader_DBSP_omni.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_DiffuseMap");
+	tr.lightShader_DBSP_omni.u_NormalMap = qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_NormalMap");
+	tr.lightShader_DBSP_omni.u_SpecularMap = qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_SpecularMap");
 	tr.lightShader_DBSP_omni.u_AttenuationMapXY =
-			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_AttenuationMapXY");
-	tr.lightShader_DBSP_omni.u_AttenuationMapZ =
-			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_AttenuationMapZ");
-	tr.lightShader_DBSP_omni.u_ViewOrigin =
-			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_ViewOrigin");
-	tr.lightShader_DBSP_omni.u_LightOrigin =
-			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_LightOrigin");
-	tr.lightShader_DBSP_omni.u_LightColor =
-			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_LightColor");
-	tr.lightShader_DBSP_omni.u_LightScale =
-			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_LightScale");
+		qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_AttenuationMapXY");
+	tr.lightShader_DBSP_omni.u_AttenuationMapZ = qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_AttenuationMapZ");
+	tr.lightShader_DBSP_omni.u_ViewOrigin = qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_ViewOrigin");
+	tr.lightShader_DBSP_omni.u_LightOrigin = qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_LightOrigin");
+	tr.lightShader_DBSP_omni.u_LightColor = qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_LightColor");
+	tr.lightShader_DBSP_omni.u_LightScale = qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_LightScale");
 	tr.lightShader_DBSP_omni.u_SpecularExponent =
-			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_SpecularExponent");
-	tr.lightShader_DBSP_omni.u_HeightScale =
-			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_HeightScale");
-	tr.lightShader_DBSP_omni.u_HeightBias =
-			qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_HeightBias");
+		qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_SpecularExponent");
+	tr.lightShader_DBSP_omni.u_HeightScale = qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_HeightScale");
+	tr.lightShader_DBSP_omni.u_HeightBias = qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_HeightBias");
 
 	qglUseProgramObjectARB(tr.lightShader_DBSP_omni.program);
 	qglUniform1iARB(tr.lightShader_DBSP_omni.u_DiffuseMap, 0);
@@ -493,65 +423,51 @@ void RB_InitGPUShaders(void)
 	qglUniform1iARB(tr.lightShader_DBSP_omni.u_AttenuationMapXY, 3);
 	qglUniform1iARB(tr.lightShader_DBSP_omni.u_AttenuationMapZ, 4);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// projective lighting ( Doom3 style )
 	//
-	RB_InitGPUShader(&tr.lightShader_D_proj,
-					  "lighting_D_proj",
-					  GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_NORMAL, qtrue);
+	GLSL_InitGPUShader(&tr.lightShader_D_proj, "lighting_D_proj", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_NORMAL, qtrue);
 
-	tr.lightShader_D_proj.u_DiffuseMap =
-			qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_DiffuseMap");
-	tr.lightShader_D_proj.u_AttenuationMapXY =
-			qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_AttenuationMapXY");
-	tr.lightShader_D_proj.u_AttenuationMapZ =
-			qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_AttenuationMapZ");
-	tr.lightShader_D_proj.u_LightOrigin =
-			qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightOrigin");
-	tr.lightShader_D_proj.u_LightColor =
-			qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightColor");
-	tr.lightShader_D_proj.u_LightScale =
-			qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightScale");
+	tr.lightShader_D_proj.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_DiffuseMap");
+	tr.lightShader_D_proj.u_AttenuationMapXY = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_AttenuationMapXY");
+	tr.lightShader_D_proj.u_AttenuationMapZ = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_AttenuationMapZ");
+	tr.lightShader_D_proj.u_LightOrigin = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightOrigin");
+	tr.lightShader_D_proj.u_LightColor = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightColor");
+	tr.lightShader_D_proj.u_LightScale = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightScale");
 
 	qglUseProgramObjectARB(tr.lightShader_D_proj.program);
 	qglUniform1iARB(tr.lightShader_D_proj.u_DiffuseMap, 0);
 	qglUniform1iARB(tr.lightShader_D_proj.u_AttenuationMapXY, 1);
 	qglUniform1iARB(tr.lightShader_D_proj.u_AttenuationMapZ, 2);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// radiosity lighting ( Q3A style )
 	//
-	RB_InitGPUShader(&tr.lightShader_D_radiosity,
-					  "lighting_D_radiosity",
-					  GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD3 | GLCS_NORMAL, qtrue);
+	GLSL_InitGPUShader(&tr.lightShader_D_radiosity,
+					 "lighting_D_radiosity", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD3 | GLCS_NORMAL, qtrue);
 
-	tr.lightShader_D_radiosity.u_DiffuseMap =
-			qglGetUniformLocationARB(tr.lightShader_D_radiosity.program, "u_DiffuseMap");
-	tr.lightShader_D_radiosity.u_LightMap =
-			qglGetUniformLocationARB(tr.lightShader_D_radiosity.program, "u_LightMap");
+	tr.lightShader_D_radiosity.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_D_radiosity.program, "u_DiffuseMap");
+	tr.lightShader_D_radiosity.u_LightMap = qglGetUniformLocationARB(tr.lightShader_D_radiosity.program, "u_LightMap");
 
 	qglUseProgramObjectARB(tr.lightShader_D_radiosity.program);
 	qglUniform1iARB(tr.lightShader_D_radiosity.u_DiffuseMap, 0);
 	qglUniform1iARB(tr.lightShader_D_radiosity.u_LightMap, 1);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// radiosity bump mapping
 	//
-	RB_InitGPUShader(&tr.lightShader_DB_radiosity,
-					  "lighting_DB_radiosity",
-					  GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD3 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+	GLSL_InitGPUShader(&tr.lightShader_DB_radiosity,
+					 "lighting_DB_radiosity",
+					 GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD3 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL,
+					 qtrue);
 
-	tr.lightShader_DB_radiosity.u_DiffuseMap =
-			qglGetUniformLocationARB(tr.lightShader_DB_radiosity.program, "u_DiffuseMap");
-	tr.lightShader_DB_radiosity.u_NormalMap =
-			qglGetUniformLocationARB(tr.lightShader_DB_radiosity.program, "u_NormalMap");
-	tr.lightShader_DB_radiosity.u_LightMap =
-			qglGetUniformLocationARB(tr.lightShader_DB_radiosity.program, "u_LightMap");
-	tr.lightShader_DB_radiosity.u_DeluxeMap =
-			qglGetUniformLocationARB(tr.lightShader_DB_radiosity.program, "u_DeluxeMap");
+	tr.lightShader_DB_radiosity.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_DB_radiosity.program, "u_DiffuseMap");
+	tr.lightShader_DB_radiosity.u_NormalMap = qglGetUniformLocationARB(tr.lightShader_DB_radiosity.program, "u_NormalMap");
+	tr.lightShader_DB_radiosity.u_LightMap = qglGetUniformLocationARB(tr.lightShader_DB_radiosity.program, "u_LightMap");
+	tr.lightShader_DB_radiosity.u_DeluxeMap = qglGetUniformLocationARB(tr.lightShader_DB_radiosity.program, "u_DeluxeMap");
 
 	qglUseProgramObjectARB(tr.lightShader_DB_radiosity.program);
 	qglUniform1iARB(tr.lightShader_DB_radiosity.u_DiffuseMap, 0);
@@ -559,28 +475,23 @@ void RB_InitGPUShaders(void)
 	qglUniform1iARB(tr.lightShader_DB_radiosity.u_LightMap, 2);
 	qglUniform1iARB(tr.lightShader_DB_radiosity.u_DeluxeMap, 3);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// radiosity specular bump mapping
 	//
-	RB_InitGPUShader(&tr.lightShader_DBS_radiosity,
-					  "lighting_DBS_radiosity",
-					  GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD2 | GLCS_TEXCOORD3 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+	GLSL_InitGPUShader(&tr.lightShader_DBS_radiosity,
+					 "lighting_DBS_radiosity",
+					 GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD2 | GLCS_TEXCOORD3 | GLCS_TANGENT |
+					 GLCS_BINORMAL | GLCS_NORMAL, qtrue);
 
-	tr.lightShader_DBS_radiosity.u_DiffuseMap =
-			qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_DiffuseMap");
-	tr.lightShader_DBS_radiosity.u_NormalMap =
-			qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_NormalMap");
-	tr.lightShader_DBS_radiosity.u_SpecularMap =
-			qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_SpecularMap");
-	tr.lightShader_DBS_radiosity.u_LightMap =
-			qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_LightMap");
-	tr.lightShader_DBS_radiosity.u_DeluxeMap =
-			qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_DeluxeMap");
-	tr.lightShader_DBS_radiosity.u_ViewOrigin =
-			qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_ViewOrigin");
+	tr.lightShader_DBS_radiosity.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_DiffuseMap");
+	tr.lightShader_DBS_radiosity.u_NormalMap = qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_NormalMap");
+	tr.lightShader_DBS_radiosity.u_SpecularMap = qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_SpecularMap");
+	tr.lightShader_DBS_radiosity.u_LightMap = qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_LightMap");
+	tr.lightShader_DBS_radiosity.u_DeluxeMap = qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_DeluxeMap");
+	tr.lightShader_DBS_radiosity.u_ViewOrigin = qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_ViewOrigin");
 	tr.lightShader_DBS_radiosity.u_SpecularExponent =
-			qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_SpecularExponent");
+		qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_SpecularExponent");
 
 	qglUseProgramObjectARB(tr.lightShader_DBS_radiosity.program);
 	qglUniform1iARB(tr.lightShader_DBS_radiosity.u_DiffuseMap, 0);
@@ -589,279 +500,204 @@ void RB_InitGPUShaders(void)
 	qglUniform1iARB(tr.lightShader_DBS_radiosity.u_LightMap, 3);
 	qglUniform1iARB(tr.lightShader_DBS_radiosity.u_DeluxeMap, 4);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// shadow volume extrusion
 	//
-	RB_InitGPUShader(&tr.shadowShader,
-					  "shadow",
-					  GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.shadowShader, "shadow", GLCS_VERTEX, qtrue);
 
-	tr.shadowShader.u_LightOrigin =
-			qglGetUniformLocationARB(tr.shadowShader.program, "u_LightOrigin");
-	
+	tr.shadowShader.u_LightOrigin = qglGetUniformLocationARB(tr.shadowShader.program, "u_LightOrigin");
+
 	//
 	// cubemap reflection for abitrary polygons
 	//
-	RB_InitGPUShader(&tr.reflectionShader_C,
-					  "reflection_C",
-					  GLCS_VERTEX | GLCS_NORMAL, qtrue);
+	GLSL_InitGPUShader(&tr.reflectionShader_C, "reflection_C", GLCS_VERTEX | GLCS_NORMAL, qtrue);
 
-	tr.reflectionShader_C.u_ColorMap =
-			qglGetUniformLocationARB(tr.reflectionShader_C.program, "u_ColorMap");
-	tr.reflectionShader_C.u_ViewOrigin =
-			qglGetUniformLocationARB(tr.reflectionShader_C.program, "u_ViewOrigin");
+	tr.reflectionShader_C.u_ColorMap = qglGetUniformLocationARB(tr.reflectionShader_C.program, "u_ColorMap");
+	tr.reflectionShader_C.u_ViewOrigin = qglGetUniformLocationARB(tr.reflectionShader_C.program, "u_ViewOrigin");
 
 	qglUseProgramObjectARB(tr.reflectionShader_C.program);
 	qglUniform1iARB(tr.reflectionShader_C.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// bumped cubemap reflection for abitrary polygons ( EMBM )
 	//
-	RB_InitGPUShader(&tr.reflectionShader_CB,
-					  "reflection_CB",
-					  GLCS_VERTEX | GLCS_TEXCOORD1 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+	GLSL_InitGPUShader(&tr.reflectionShader_CB,
+					 "reflection_CB", GLCS_VERTEX | GLCS_TEXCOORD1 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
 
-	tr.reflectionShader_CB.u_ColorMap =
-			qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_ColorMap");
-	tr.reflectionShader_CB.u_NormalMap =
-			qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_NormalMap");
-	tr.reflectionShader_CB.u_ViewOrigin =
-			qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_ViewOrigin");
-	tr.reflectionShader_CB.u_ModelMatrix = 
-			qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_ModelMatrix");
+	tr.reflectionShader_CB.u_ColorMap = qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_ColorMap");
+	tr.reflectionShader_CB.u_NormalMap = qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_NormalMap");
+	tr.reflectionShader_CB.u_ViewOrigin = qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_ViewOrigin");
+	tr.reflectionShader_CB.u_ModelMatrix = qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_ModelMatrix");
 
 	qglUseProgramObjectARB(tr.reflectionShader_CB.program);
 	qglUniform1iARB(tr.reflectionShader_CB.u_ColorMap, 0);
 	qglUniform1iARB(tr.reflectionShader_CB.u_NormalMap, 1);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// cubemap refraction for abitrary polygons
 	//
-	RB_InitGPUShader(&tr.refractionShader_C,
-					  "refraction_C",
-					  GLCS_VERTEX | GLCS_NORMAL, qtrue);
+	GLSL_InitGPUShader(&tr.refractionShader_C, "refraction_C", GLCS_VERTEX | GLCS_NORMAL, qtrue);
 
-	tr.reflectionShader_C.u_ColorMap =
-			qglGetUniformLocationARB(tr.refractionShader_C.program, "u_ColorMap");
-	tr.refractionShader_C.u_ViewOrigin =
-			qglGetUniformLocationARB(tr.refractionShader_C.program, "u_ViewOrigin");
-	tr.refractionShader_C.u_RefractionIndex =
-			qglGetUniformLocationARB(tr.refractionShader_C.program, "u_RefractionIndex");
-	tr.refractionShader_C.u_FresnelPower =
-			qglGetUniformLocationARB(tr.refractionShader_C.program, "u_FresnelPower");
-	tr.refractionShader_C.u_FresnelScale =
-			qglGetUniformLocationARB(tr.refractionShader_C.program, "u_FresnelScale");
-	tr.refractionShader_C.u_FresnelBias =
-			qglGetUniformLocationARB(tr.refractionShader_C.program, "u_FresnelBias");
+	tr.reflectionShader_C.u_ColorMap = qglGetUniformLocationARB(tr.refractionShader_C.program, "u_ColorMap");
+	tr.refractionShader_C.u_ViewOrigin = qglGetUniformLocationARB(tr.refractionShader_C.program, "u_ViewOrigin");
+	tr.refractionShader_C.u_RefractionIndex = qglGetUniformLocationARB(tr.refractionShader_C.program, "u_RefractionIndex");
+	tr.refractionShader_C.u_FresnelPower = qglGetUniformLocationARB(tr.refractionShader_C.program, "u_FresnelPower");
+	tr.refractionShader_C.u_FresnelScale = qglGetUniformLocationARB(tr.refractionShader_C.program, "u_FresnelScale");
+	tr.refractionShader_C.u_FresnelBias = qglGetUniformLocationARB(tr.refractionShader_C.program, "u_FresnelBias");
 
 	qglUseProgramObjectARB(tr.refractionShader_C.program);
 	qglUniform1iARB(tr.refractionShader_C.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// cubemap dispersion for abitrary polygons
 	//
-	RB_InitGPUShader(&tr.dispersionShader_C,
-					  "dispersion_C",
-					  GLCS_VERTEX | GLCS_NORMAL, qtrue);
+	GLSL_InitGPUShader(&tr.dispersionShader_C, "dispersion_C", GLCS_VERTEX | GLCS_NORMAL, qtrue);
 
-	tr.reflectionShader_C.u_ColorMap =
-			qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_ColorMap");
-	tr.dispersionShader_C.u_ViewOrigin =
-			qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_ViewOrigin");
-	tr.dispersionShader_C.u_EtaRatio =
-			qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_EtaRatio");
-	tr.dispersionShader_C.u_FresnelPower =
-			qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_FresnelPower");
-	tr.dispersionShader_C.u_FresnelScale =
-			qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_FresnelScale");
-	tr.dispersionShader_C.u_FresnelBias =
-			qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_FresnelBias");
+	tr.reflectionShader_C.u_ColorMap = qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_ColorMap");
+	tr.dispersionShader_C.u_ViewOrigin = qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_ViewOrigin");
+	tr.dispersionShader_C.u_EtaRatio = qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_EtaRatio");
+	tr.dispersionShader_C.u_FresnelPower = qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_FresnelPower");
+	tr.dispersionShader_C.u_FresnelScale = qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_FresnelScale");
+	tr.dispersionShader_C.u_FresnelBias = qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_FresnelBias");
 
 	qglUseProgramObjectARB(tr.dispersionShader_C.program);
 	qglUniform1iARB(tr.dispersionShader_C.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// skybox drawing for abitrary polygons
 	//
-	RB_InitGPUShader(&tr.skyBoxShader,
-					  "skybox",
-					  GLCS_VERTEX | GLCS_NORMAL, qtrue);
+	GLSL_InitGPUShader(&tr.skyBoxShader, "skybox", GLCS_VERTEX | GLCS_NORMAL, qtrue);
 
-	tr.skyBoxShader.u_ColorMap =
-			qglGetUniformLocationARB(tr.skyBoxShader.program, "u_ColorMap");
-	tr.skyBoxShader.u_ViewOrigin =
-			qglGetUniformLocationARB(tr.skyBoxShader.program, "u_ViewOrigin");
+	tr.skyBoxShader.u_ColorMap = qglGetUniformLocationARB(tr.skyBoxShader.program, "u_ColorMap");
+	tr.skyBoxShader.u_ViewOrigin = qglGetUniformLocationARB(tr.skyBoxShader.program, "u_ViewOrigin");
 
 	qglUseProgramObjectARB(tr.skyBoxShader.program);
 	qglUniform1iARB(tr.skyBoxShader.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// heatHaze post process effect
 	//
-	RB_InitGPUShader(&tr.heatHazeShader,
-					  "heatHaze",
-					  GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
+	GLSL_InitGPUShader(&tr.heatHazeShader, "heatHaze", GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
 
 	if(glConfig.hardwareType == GLHW_ATI)
 	{
 		tr.heatHazeShader.u_ProjectionMatrixTranspose =
-				qglGetUniformLocationARB(tr.heatHazeShader.program, "u_ProjectionMatrixTranspose");
+			qglGetUniformLocationARB(tr.heatHazeShader.program, "u_ProjectionMatrixTranspose");
 	}
-	tr.heatHazeShader.u_DeformMagnitude =
-			qglGetUniformLocationARB(tr.heatHazeShader.program, "u_DeformMagnitude");
-	tr.heatHazeShader.u_ColorMap =
-			qglGetUniformLocationARB(tr.heatHazeShader.program, "u_ColorMap");
-	tr.heatHazeShader.u_NormalMap =
-			qglGetUniformLocationARB(tr.heatHazeShader.program, "u_NormalMap");
-	tr.heatHazeShader.u_FBufScale =
-			qglGetUniformLocationARB(tr.heatHazeShader.program, "u_FBufScale");
-	tr.heatHazeShader.u_NPotScale =
-			qglGetUniformLocationARB(tr.heatHazeShader.program, "u_NPotScale");
+	tr.heatHazeShader.u_DeformMagnitude = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_DeformMagnitude");
+	tr.heatHazeShader.u_ColorMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_ColorMap");
+	tr.heatHazeShader.u_NormalMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_NormalMap");
+	tr.heatHazeShader.u_FBufScale = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_FBufScale");
+	tr.heatHazeShader.u_NPOTScale = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_NPOTScale");
 
 	qglUseProgramObjectARB(tr.heatHazeShader.program);
 	qglUniform1iARB(tr.heatHazeShader.u_ColorMap, 0);
 	qglUniform1iARB(tr.heatHazeShader.u_NormalMap, 1);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// glow post process effect
 	//
-	RB_InitGPUShader(&tr.glowShader,
-					  "glow",
-					  GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
+	GLSL_InitGPUShader(&tr.glowShader, "glow", GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
 
-	tr.glowShader.u_ColorMap =
-			qglGetUniformLocationARB(tr.glowShader.program, "u_ColorMap");
-	tr.glowShader.u_FBufScale =
-			qglGetUniformLocationARB(tr.glowShader.program, "u_FBufScale");
-	tr.glowShader.u_NPotScale =
-			qglGetUniformLocationARB(tr.glowShader.program, "u_NPotScale");
-	tr.glowShader.u_BlurMagnitude =
-			qglGetUniformLocationARB(tr.glowShader.program, "u_BlurMagnitude");
+	tr.glowShader.u_ColorMap = qglGetUniformLocationARB(tr.glowShader.program, "u_ColorMap");
+	tr.glowShader.u_FBufScale = qglGetUniformLocationARB(tr.glowShader.program, "u_FBufScale");
+	tr.glowShader.u_NPOTScale = qglGetUniformLocationARB(tr.glowShader.program, "u_NPOTScale");
+	tr.glowShader.u_BlurMagnitude = qglGetUniformLocationARB(tr.glowShader.program, "u_BlurMagnitude");
 
 	qglUseProgramObjectARB(tr.glowShader.program);
 	qglUniform1iARB(tr.glowShader.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// bloom post process effect
 	//
-	RB_InitGPUShader(&tr.bloomShader,
-					  "bloom",
-					  GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.bloomShader, "bloom", GLCS_VERTEX, qtrue);
 
-	tr.bloomShader.u_ColorMap =
-			qglGetUniformLocationARB(tr.bloomShader.program, "u_ColorMap");
-	tr.bloomShader.u_ContrastMap =
-			qglGetUniformLocationARB(tr.bloomShader.program, "u_ContrastMap");
-	tr.bloomShader.u_FBufScale =
-			qglGetUniformLocationARB(tr.bloomShader.program, "u_FBufScale");
-	tr.bloomShader.u_NPotScale =
-			qglGetUniformLocationARB(tr.bloomShader.program, "u_NPotScale");
-	tr.bloomShader.u_BlurMagnitude =
-			qglGetUniformLocationARB(tr.bloomShader.program, "u_BlurMagnitude");
+	tr.bloomShader.u_ColorMap = qglGetUniformLocationARB(tr.bloomShader.program, "u_ColorMap");
+	tr.bloomShader.u_ContrastMap = qglGetUniformLocationARB(tr.bloomShader.program, "u_ContrastMap");
+	tr.bloomShader.u_FBufScale = qglGetUniformLocationARB(tr.bloomShader.program, "u_FBufScale");
+	tr.bloomShader.u_NPOTScale = qglGetUniformLocationARB(tr.bloomShader.program, "u_NPOTScale");
+	tr.bloomShader.u_BlurMagnitude = qglGetUniformLocationARB(tr.bloomShader.program, "u_BlurMagnitude");
 
 	qglUseProgramObjectARB(tr.bloomShader.program);
 	qglUniform1iARB(tr.bloomShader.u_ColorMap, 0);
 	qglUniform1iARB(tr.bloomShader.u_ContrastMap, 1);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// contrast post process effect
 	//
-	RB_InitGPUShader(&tr.contrastShader,
-					  "contrast",
-					  GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.contrastShader, "contrast", GLCS_VERTEX, qtrue);
 
-	tr.contrastShader.u_ColorMap =
-			qglGetUniformLocationARB(tr.contrastShader.program, "u_ColorMap");
-	tr.contrastShader.u_FBufScale =
-			qglGetUniformLocationARB(tr.contrastShader.program, "u_FBufScale");
-	tr.contrastShader.u_NPotScale =
-			qglGetUniformLocationARB(tr.contrastShader.program, "u_NPotScale");
+	tr.contrastShader.u_ColorMap = qglGetUniformLocationARB(tr.contrastShader.program, "u_ColorMap");
+	tr.contrastShader.u_FBufScale = qglGetUniformLocationARB(tr.contrastShader.program, "u_FBufScale");
+	tr.contrastShader.u_NPOTScale = qglGetUniformLocationARB(tr.contrastShader.program, "u_NPOTScale");
 
 	qglUseProgramObjectARB(tr.contrastShader.program);
 	qglUniform1iARB(tr.contrastShader.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// blurX post process effect
 	//
-	RB_InitGPUShader(&tr.blurXShader,
-					  "blurX",
-					  GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.blurXShader, "blurX", GLCS_VERTEX, qtrue);
 
-	tr.blurXShader.u_ColorMap =
-			qglGetUniformLocationARB(tr.blurXShader.program, "u_ColorMap");
-	tr.blurXShader.u_FBufScale =
-			qglGetUniformLocationARB(tr.blurXShader.program, "u_FBufScale");
-	tr.blurXShader.u_NPotScale =
-			qglGetUniformLocationARB(tr.blurXShader.program, "u_NPotScale");
+	tr.blurXShader.u_ColorMap = qglGetUniformLocationARB(tr.blurXShader.program, "u_ColorMap");
+	tr.blurXShader.u_FBufScale = qglGetUniformLocationARB(tr.blurXShader.program, "u_FBufScale");
+	tr.blurXShader.u_NPOTScale = qglGetUniformLocationARB(tr.blurXShader.program, "u_NPOTScale");
 
 	qglUseProgramObjectARB(tr.blurXShader.program);
 	qglUniform1iARB(tr.blurXShader.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// blurY post process effect
 	//
-	RB_InitGPUShader(&tr.blurYShader,
-					  "blurY",
-					  GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.blurYShader, "blurY", GLCS_VERTEX, qtrue);
 
-	tr.blurYShader.u_ColorMap =
-			qglGetUniformLocationARB(tr.blurYShader.program, "u_ColorMap");
-	tr.blurYShader.u_FBufScale =
-			qglGetUniformLocationARB(tr.blurYShader.program, "u_FBufScale");
-	tr.blurYShader.u_NPotScale =
-			qglGetUniformLocationARB(tr.blurYShader.program, "u_NPotScale");
+	tr.blurYShader.u_ColorMap = qglGetUniformLocationARB(tr.blurYShader.program, "u_ColorMap");
+	tr.blurYShader.u_FBufScale = qglGetUniformLocationARB(tr.blurYShader.program, "u_FBufScale");
+	tr.blurYShader.u_NPOTScale = qglGetUniformLocationARB(tr.blurYShader.program, "u_NPOTScale");
 
 	qglUseProgramObjectARB(tr.blurYShader.program);
 	qglUniform1iARB(tr.blurYShader.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
-	
+
 	//
 	// rotoscope post process effect
 	//
-	RB_InitGPUShader(&tr.rotoscopeShader,
-					  "rotoscope",
-					  GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
+	GLSL_InitGPUShader(&tr.rotoscopeShader, "rotoscope", GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
 
-	tr.rotoscopeShader.u_ColorMap =
-			qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_ColorMap");
-	tr.rotoscopeShader.u_FBufScale =
-			qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_FBufScale");
-	tr.rotoscopeShader.u_NPotScale =
-			qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_NPotScale");
-	tr.rotoscopeShader.u_BlurMagnitude =
-			qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_BlurMagnitude");
+	tr.rotoscopeShader.u_ColorMap = qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_ColorMap");
+	tr.rotoscopeShader.u_FBufScale = qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_FBufScale");
+	tr.rotoscopeShader.u_NPOTScale = qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_NPOTScale");
+	tr.rotoscopeShader.u_BlurMagnitude = qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_BlurMagnitude");
 
 	qglUseProgramObjectARB(tr.rotoscopeShader.program);
 	qglUniform1iARB(tr.rotoscopeShader.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
 }
 
-void RB_ShutdownGPUShaders(void)
+void GLSL_ShutdownGPUShaders(void)
 {
-	ri.Printf(PRINT_ALL, "------- RB_ShutdownGPUShaders -------\n");
+	ri.Printf(PRINT_ALL, "------- GLSL_ShutdownGPUShaders -------\n");
 
 	if(!glConfig.shadingLanguage100Available)
 		return;
-	
-	GL_Program(0);
-	
+
 	if(tr.genericShader_single.program)
 	{
 		qglDeleteObjectARB(tr.genericShader_single.program);
 		tr.genericShader_single.program = 0;
 	}
-	
+
 	if(tr.depthFillShader.program)
 	{
 		qglDeleteObjectARB(tr.depthFillShader.program);
@@ -879,360 +715,155 @@ void RB_ShutdownGPUShaders(void)
 		qglDeleteObjectARB(tr.lightShader_DB_direct.program);
 		tr.lightShader_DB_direct.program = 0;
 	}
-	
+
 	if(tr.lightShader_DBS_direct.program)
 	{
 		qglDeleteObjectARB(tr.lightShader_DBS_direct.program);
 		tr.lightShader_DBS_direct.program = 0;
 	}
-	
+
 	if(tr.lightShader_D_omni.program)
 	{
 		qglDeleteObjectARB(tr.lightShader_D_omni.program);
 		tr.lightShader_D_omni.program = 0;
 	}
-	
+
 	if(tr.lightShader_DB_omni.program)
 	{
 		qglDeleteObjectARB(tr.lightShader_DB_omni.program);
 		tr.lightShader_DB_omni.program = 0;
 	}
-	
+
 	if(tr.lightShader_DBS_omni.program)
 	{
 		qglDeleteObjectARB(tr.lightShader_DBS_omni.program);
 		tr.lightShader_DBS_omni.program = 0;
 	}
-	
+
 	if(tr.lightShader_DBSP_omni.program)
 	{
 		qglDeleteObjectARB(tr.lightShader_DBSP_omni.program);
 		tr.lightShader_DBSP_omni.program = 0;
 	}
-	
+
 	if(tr.lightShader_D_proj.program)
 	{
 		qglDeleteObjectARB(tr.lightShader_D_proj.program);
 		tr.lightShader_D_proj.program = 0;
 	}
-	
+
 	if(tr.lightShader_D_radiosity.program)
 	{
 		qglDeleteObjectARB(tr.lightShader_D_radiosity.program);
 		tr.lightShader_D_radiosity.program = 0;
 	}
-	
+
 	if(tr.lightShader_DB_radiosity.program)
 	{
 		qglDeleteObjectARB(tr.lightShader_DB_radiosity.program);
 		tr.lightShader_DB_radiosity.program = 0;
 	}
-	
+
 	if(tr.lightShader_DBS_radiosity.program)
 	{
 		qglDeleteObjectARB(tr.lightShader_DBS_radiosity.program);
 		tr.lightShader_DBS_radiosity.program = 0;
 	}
-	
+
 	if(tr.shadowShader.program)
 	{
 		qglDeleteObjectARB(tr.shadowShader.program);
 		tr.shadowShader.program = 0;
 	}
-	
+
 	if(tr.reflectionShader_C.program)
 	{
 		qglDeleteObjectARB(tr.reflectionShader_C.program);
 		tr.reflectionShader_C.program = 0;
 	}
-	
+
 	if(tr.reflectionShader_CB.program)
 	{
 		qglDeleteObjectARB(tr.reflectionShader_CB.program);
 		tr.reflectionShader_CB.program = 0;
 	}
-	
+
 	if(tr.refractionShader_C.program)
 	{
 		qglDeleteObjectARB(tr.refractionShader_C.program);
 		tr.refractionShader_C.program = 0;
 	}
-	
+
 	if(tr.dispersionShader_C.program)
 	{
 		qglDeleteObjectARB(tr.dispersionShader_C.program);
 		tr.dispersionShader_C.program = 0;
 	}
-	
+
 	if(tr.skyBoxShader.program)
 	{
 		qglDeleteObjectARB(tr.skyBoxShader.program);
 		tr.skyBoxShader.program = 0;
 	}
-	
+
 	if(tr.heatHazeShader.program)
 	{
 		qglDeleteObjectARB(tr.heatHazeShader.program);
 		tr.heatHazeShader.program = 0;
 	}
-	
+
 	if(tr.glowShader.program)
 	{
 		qglDeleteObjectARB(tr.glowShader.program);
 		tr.glowShader.program = 0;
 	}
-	
+
 	if(tr.bloomShader.program)
 	{
 		qglDeleteObjectARB(tr.bloomShader.program);
 		tr.bloomShader.program = 0;
 	}
-	
+
 	if(tr.contrastShader.program)
 	{
 		qglDeleteObjectARB(tr.contrastShader.program);
 		tr.contrastShader.program = 0;
 	}
-	
+
 	if(tr.blurXShader.program)
 	{
 		qglDeleteObjectARB(tr.blurXShader.program);
 		tr.blurXShader.program = 0;
 	}
-	
+
 	if(tr.blurYShader.program)
 	{
 		qglDeleteObjectARB(tr.blurYShader.program);
 		tr.blurYShader.program = 0;
 	}
-	
+
 	if(tr.rotoscopeShader.program)
 	{
 		qglDeleteObjectARB(tr.rotoscopeShader.program);
 		tr.rotoscopeShader.program = 0;
 	}
+	
+	glState.currentProgram = 0;
+	qglUseProgramObjectARB(0);
 }
-
-void GL_ClientState(unsigned long stateBits)
-{
-	unsigned long   diff = stateBits ^ glState.glClientStateBits;
-
-	if(!diff)
-	{
-		return;
-	}
-	
-	/*
-	if(diff & GLCS_VERTEX)
-	{
-		if(stateBits & GLCS_VERTEX)
-		{
-			qglEnableClientState(GL_VERTEX_ARRAY);
-		}
-		else
-		{
-			qglDisableClientState(GL_VERTEX_ARRAY);
-		}
-	}
-	*/
-	
-	if(diff & GLCS_TEXCOORD0)
-	{
-		if(stateBits & GLCS_TEXCOORD0)
-		{
-			qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD0);
-		}
-		else
-		{
-			qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD0);
-		}
-	}
-	
-	if(diff & GLCS_TEXCOORD1)
-	{
-		if(stateBits & GLCS_TEXCOORD1)
-		{
-			qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD1);
-		}
-		else
-		{
-			qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD1);
-		}
-	}
-	
-	if(diff & GLCS_TEXCOORD2)
-	{
-		if(stateBits & GLCS_TEXCOORD2)
-		{
-			qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD2);
-		}
-		else
-		{
-			qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD2);
-		}
-	}
-	
-	if(diff & GLCS_TEXCOORD3)
-	{
-		if(stateBits & GLCS_TEXCOORD3)
-		{
-			qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD3);
-		}
-		else
-		{
-			qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD3);
-		}
-	}
-
-	if(diff & GLCS_TANGENT)
-	{
-		if(stateBits & GLCS_TANGENT)
-		{
-			qglEnableVertexAttribArrayARB(ATTR_INDEX_TANGENT);
-		}
-		else
-		{
-			qglDisableVertexAttribArrayARB(ATTR_INDEX_TANGENT);
-		}
-	}
-
-	if(diff & GLCS_BINORMAL)
-	{
-		if(stateBits & GLCS_BINORMAL)
-		{
-			qglEnableVertexAttribArrayARB(ATTR_INDEX_BINORMAL);
-		}
-		else
-		{
-			qglDisableVertexAttribArrayARB(ATTR_INDEX_BINORMAL);
-		}
-	}
-	
-	if(diff & GLCS_NORMAL)
-	{
-		if(stateBits & GLCS_NORMAL)
-		{
-			qglEnableClientState(GL_NORMAL_ARRAY);
-		}
-		else
-		{
-			qglDisableClientState(GL_NORMAL_ARRAY);
-		}
-	}
-	
-	if(diff & GLCS_COLOR)
-	{
-		if(stateBits & GLCS_COLOR)
-		{
-			qglEnableClientState(GL_COLOR_ARRAY);
-		}
-		else
-		{
-			qglDisableClientState(GL_COLOR_ARRAY);
-		}
-	}
-	
-	glState.glClientStateBits = stateBits;
-}
-
-
-static void GL_SetVertexAttribs()
-{
-	//static GLuint   oldVertexesVBO = 0;
-	
-	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
-	{
-		/*
-		if(oldVertexesVBO == tess.vertexesVBO)
-		{
-			// no update needed so avoid expensive glVertexPointer call
-			return;
-		}
-		
-		oldVertexesVBO = tess.vertexesVBO;
-		*/
-		
-		//if(glState.glClientStateBits & GLCS_VERTEX)
-		//	qglVertexPointer(3, GL_FLOAT, 16, BUFFER_OFFSET(tess.ofsXYZ));
-	
-		if(glState.glClientStateBits & GLCS_TEXCOORD0)
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.ofsTexCoords));
-	
-		if(glState.glClientStateBits & GLCS_TEXCOORD1)
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.ofsTexCoords));
-		
-		if(glState.glClientStateBits & GLCS_TEXCOORD2)
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD2, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.ofsTexCoords));
-		
-		if(glState.glClientStateBits & GLCS_TEXCOORD3)
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD3, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.ofsTexCoords2));
-	
-		if(glState.glClientStateBits & GLCS_TANGENT)
-			qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.ofsTangents));
-	
-		if(glState.glClientStateBits & GLCS_BINORMAL)
-			qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.ofsBinormals));
-	
-		if(glState.glClientStateBits & GLCS_NORMAL)
-			qglNormalPointer(GL_FLOAT, 16, BUFFER_OFFSET(tess.ofsNormals));
-	
-		if(glState.glClientStateBits & GLCS_COLOR)
-			qglColorPointer(4, GL_UNSIGNED_BYTE, 0, BUFFER_OFFSET(tess.ofsColors));
-	}
-	else
-	{
-		//if(glState.glClientStateBits & GLCS_VERTEX)
-		//	qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
-	
-		if(glState.glClientStateBits & GLCS_TEXCOORD0)
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_COLORMAP]);
-	
-		if(glState.glClientStateBits & GLCS_TEXCOORD1)
-		{
-			if(tess.svars.skipCoords[TB_NORMALMAP])
-				qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
-			else
-				qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_NORMALMAP]);
-		}
-		
-		if(glState.glClientStateBits & GLCS_TEXCOORD2)
-		{
-			if(tess.svars.skipCoords[TB_SPECULARMAP])
-				qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD2, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
-			else
-				qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD2, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_SPECULARMAP]);
-		}
-		
-		if(glState.glClientStateBits & GLCS_TEXCOORD3)
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD3, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_LIGHTMAP]);
-	
-		if(glState.glClientStateBits & GLCS_TANGENT)
-			qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, tess.tangents);
-	
-		if(glState.glClientStateBits & GLCS_BINORMAL)
-			qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, tess.binormals);
-	
-		if(glState.glClientStateBits & GLCS_NORMAL)
-			qglNormalPointer(GL_FLOAT, 16, tess.normals);
-	
-		if(glState.glClientStateBits & GLCS_COLOR)
-			qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.svars.colors);
-	}
-}
-
 
 /*
 ==================
-R_DrawElements
+DrawElements
 ==================
 */
-static void R_DrawElements()
+static void DrawElements()
 {
 	// move tess data through the GPU, finally
 	if(glConfig.vertexBufferObjectAvailable && tess.indexesVBO)
 	{
 		//qglDrawRangeElementsEXT(GL_TRIANGLES, 0, tessmesh->vertexes.size(), mesh->indexes.size(), GL_UNSIGNED_INT, VBO_BUFFER_OFFSET(mesh->vbo_indexes_ofs));
-		
+
 		qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, 0);
 		backEnd.pc.c_indexes += tess.numIndexes;
 	}
@@ -1248,16 +879,16 @@ static void R_DrawElements()
 		qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, tess.indexes);
 		backEnd.pc.c_indexes += tess.numIndexes;
 	}
-	
+
 	// update performance counters
 	backEnd.pc.c_drawElements++;
 	backEnd.pc.c_vertexes += tess.numVertexes;
-	
+
 	if(tess.indexesVBO)
 	{
 		backEnd.pc.c_vboIndexes += tess.numIndexes;
 	}
-		
+
 	if(tess.vertexesVBO)
 	{
 		backEnd.pc.c_vboVertexes += tess.numVertexes;
@@ -1278,10 +909,10 @@ shaderCommands_t tess;
 
 /*
 =================
-R_BindAnimatedImage
+BindAnimatedImage
 =================
 */
-static void R_BindAnimatedImage(textureBundle_t * bundle)
+static void BindAnimatedImage(textureBundle_t * bundle)
 {
 	int             index;
 
@@ -1314,22 +945,22 @@ static void R_BindAnimatedImage(textureBundle_t * bundle)
 
 /*
 =================
-R_BindLightMap
+BindLightMap
 =================
 */
-static void R_BindLightMap()
+static void BindLightMap()
 {
 	image_t        *lightmap;
-	
+
 	if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
 	{
 		lightmap = tr.lightmaps[tess.lightmapNum];
 	}
 	else
 	{
-		lightmap = NULL;	
+		lightmap = NULL;
 	}
-	
+
 	if(!tr.numLightmaps || !lightmap)
 	{
 		GL_Bind(tr.whiteImage);
@@ -1341,13 +972,13 @@ static void R_BindLightMap()
 
 /*
 =================
-R_BindDeluxeMap
+BindDeluxeMap
 =================
 */
-static void R_BindDeluxeMap()
+static void BindDeluxeMap()
 {
 	image_t        *deluxemap;
-	
+
 	if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
 	{
 		deluxemap = tr.lightmaps[tess.lightmapNum + 1];
@@ -1356,7 +987,7 @@ static void R_BindDeluxeMap()
 	{
 		deluxemap = NULL;
 	}
-	
+
 	if(!tr.numLightmaps || !deluxemap)
 	{
 		GL_Bind(tr.flatImage);
@@ -1381,7 +1012,7 @@ static void DrawTris()
 		case SIT_LIGHTING_STENCIL:
 			qglColor3f(1, 0, 0);
 			break;
-		
+
 		default:
 		case SIT_DEFAULT:
 			if(tess.indexesVBO && tess.vertexesVBO)
@@ -1402,11 +1033,11 @@ static void DrawTris()
 			}
 			break;
 	}
-	
+
 	GL_Program(0);
 	GL_SelectTexture(0);
 	GL_Bind(tr.whiteImage);
-	
+
 	GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
 	GL_ClientState(GLCS_VERTEX);
 	qglDepthRange(0, 0);
@@ -1419,14 +1050,14 @@ static void DrawTris()
 	{
 		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
 	}
-	
+
 	if(qglLockArraysEXT)
 	{
 		qglLockArraysEXT(0, tess.numVertexes);
 		GLimp_LogComment("glLockArraysEXT\n");
 	}
 
-	R_DrawElements();
+	DrawElements();
 
 	if(qglUnlockArraysEXT)
 	{
@@ -1568,20 +1199,20 @@ void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader,
 }
 // *INDENT-ON*
 
-static void ComputeColors(shaderStage_t * pStage);
-static void ComputeColor(shaderStage_t * pStage);
+static void     ComputeColors(shaderStage_t * pStage);
+static void     ComputeColor(shaderStage_t * pStage);
 
 static void Render_genericSingle_FFP(int stage)
 {
 	shaderStage_t  *pStage;
-	
+
 	GLimp_LogComment("--- Render_genericSingle_FFP ---\n");
 
 	pStage = tess.surfaceStages[stage];
-	
+
 	GL_Program(0);
 	GL_State(pStage->stateBits);
-	
+
 	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
 	{
 		ComputeColor(pStage);
@@ -1593,16 +1224,16 @@ static void Render_genericSingle_FFP(int stage)
 		ComputeColors(pStage);
 		GL_ClientState(GLCS_VERTEX | GLCS_COLOR);
 	}
-	
+
 	GL_SetVertexAttribs();
-	
+
 	GL_SelectTexture(0);
-//	qglEnable(GL_TEXTURE_2D);
+//  qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
 	{
 		qglTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsTexCoords));
@@ -1612,31 +1243,31 @@ static void Render_genericSingle_FFP(int stage)
 		qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_COLORMAP]);
 	}
 
-	R_BindAnimatedImage(&pStage->bundle[0]);
+	BindAnimatedImage(&pStage->bundle[0]);
 
-	R_DrawElements();
-	
+	DrawElements();
+
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-//	qglDisable(GL_TEXTURE_2D);
+//  qglDisable(GL_TEXTURE_2D);
 }
 
-#if 1
+#if 0
 #define Render_genericSingle Render_genericSingle_FFP
 #else
 static void Render_genericSingle(int stage)
 {
 	shaderStage_t  *pStage;
-	
+
 	GLimp_LogComment("--- Render_genericSingle ---\n");
 
 	pStage = tess.surfaceStages[stage];
-	
+
 	ComputeColors(pStage);
-	
+
 	GL_State(pStage->stateBits);
-	
+
 	// enable shader, set arrays
-	
+
 	// FIXME: VBO surfaces have only tess.svars.color
 	GL_Program(tr.genericShader_single.program);
 	GL_ClientState(tr.genericShader_single.attribs);
@@ -1644,36 +1275,154 @@ static void Render_genericSingle(int stage)
 
 	// bind colorMap
 	GL_SelectTexture(0);
-	R_BindAnimatedImage(&pStage->bundle[TB_COLORMAP]);
+	BindAnimatedImage(&pStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
-	R_DrawElements();
+
+	DrawElements();
 }
 #endif
+
+
+static void Render_fboTest(int stage)
+{
+	shaderStage_t  *pStage;
+
+	GLimp_LogComment("--- Render_fboTest ---\n");
+
+	pStage = tess.surfaceStages[stage];
+
+	if(glConfig.framebufferObjectAvailable && glConfig.textureNPOTAvailable)
+	{
+		static float	yawAngle = 0.0f;
+		static float	pitchAngle = 0.0f;
+		matrix_t		transformMatrix, modelViewMatrix;
+		vec3_t          origin;
+		
+		R_BindFBO(tr.visibilityFBO);
+		
+		qglMatrixMode(GL_PROJECTION);
+		qglLoadMatrixf(backEnd.viewParms.projectionMatrix);
+		qglMatrixMode(GL_MODELVIEW);
+		
+		// set the window clipping
+		qglViewport(0, 0, glConfig.vidWidth, glConfig.vidHeight);
+		qglScissor(0, 0, glConfig.vidWidth, glConfig.vidHeight);
+		
+		qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		// transform by the camera placement
+		VectorCopy(backEnd.viewParms.or.origin, origin);
+		VectorMA(origin, 32, backEnd.viewParms.or.axis[0], origin);
+		
+		MatrixSetupTransform(transformMatrix,
+						 backEnd.viewParms.or.axis[0], backEnd.viewParms.or.axis[1], backEnd.viewParms.or.axis[2], origin);
+
+		MatrixMultiply(backEnd.viewParms.world.viewMatrix, transformMatrix, modelViewMatrix);
+		qglLoadMatrixf(modelViewMatrix);
+		
+		yawAngle += 0.3f;
+		pitchAngle += 0.21f;
+		qglRotatef(yawAngle, 0.0f, 1.0f, 0.0f);
+		qglRotatef(pitchAngle, 1.0f, 0.0f, 0.0f);
+		qglRotatef(55.0f, 1.0f, 0.0f, 1.0f);
+		qglScalef(8.0f, 8.0f, 8.0f);
+		
+		GL_Program(0);
+		GL_State(GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE);
+		GL_Cull(CT_TWO_SIDED);
+		
+		GL_SelectTexture(0);
+		GL_Bind(tr.whiteImage);
+		
+		// draw cube
+		qglBegin(GL_QUADS);
+		
+		qglColor3f(1.0f, 1.0f, 1.0f);
+		qglVertex3f(-1.0f, -1.0f, -1.0f);
+		qglVertex3f(-1.0f, 1.0f, -1.0f);
+		qglVertex3f(-1.0f, 1.0f, 1.0f);
+		qglVertex3f(-1.0f, -1.0f, 1.0f);
+
+		qglColor3f(1.0f, 0.7f, 0.7f);
+		qglVertex3f(1.0f, -1.0f, -1.0f);
+		qglVertex3f(1.0f, 1.0f, -1.0f);
+		qglVertex3f(1.0f, 1.0f, 1.0f);
+		qglVertex3f(1.0f, -1.0f, 1.0f);
+
+		qglColor3f(0.7f, 1.0f, 0.7f);
+		qglVertex3f(-1.0f, -1.0f, 1.0f);
+		qglVertex3f(-1.0f, 1.0f, 1.0f);
+		qglVertex3f(1.0f, 1.0f, 1.0f);
+		qglVertex3f(1.0f, -1.0f, 1.0f);
+
+		qglColor3f(0.7f, 0.7f, 1.0f);
+		qglVertex3f(-1.0f, -1.0f, -1.0f);
+		qglVertex3f(-1.0f, 1.0f, -1.0f);
+		qglVertex3f(1.0f, 1.0f, -1.0f);
+		qglVertex3f(1.0f, -1.0f, -1.0f);
+
+		qglColor3f(1.0f, 1.0f, 0.7f);
+		qglVertex3f(-1.0f, -1.0f, -1.0f);
+		qglVertex3f(-1.0f, -1.0f, 1.0f);
+		qglVertex3f(1.0f, -1.0f, 1.0f);
+		qglVertex3f(1.0f, -1.0f, -1.0f);
+
+		qglColor3f(0.7f, 1.0f, 1.0f);
+		qglVertex3f(-1.0f, 1.0f, -1.0f);
+		qglVertex3f(-1.0f, 1.0f, 1.0f);
+		qglVertex3f(1.0f, 1.0f, 1.0f);
+		qglVertex3f(1.0f, 1.0f, -1.0f);
+
+		qglEnd();
+		
+		qglLoadMatrixf(backEnd.or.modelViewMatrix);
+
+		R_BindNullFBO();
+		
+		ComputeColors(pStage);
+		GL_State(pStage->stateBits);
+
+		// enable shader, set arrays
+
+		// FIXME: VBO surfaces have only tess.svars.color
+		GL_Program(tr.genericShader_single.program);
+		GL_ClientState(tr.genericShader_single.attribs);
+		GL_SetVertexAttribs();
+		
+		// bind FBO image
+		GL_SelectTexture(0);
+		GL_Bind(tr.visibilityFBOImage);
+		qglMatrixMode(GL_TEXTURE);
+		qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
+		qglMatrixMode(GL_MODELVIEW);
+
+		DrawElements();
+	}
+}
 
 static void Render_depthFill_FFP(int stage)
 {
 	shaderStage_t  *pStage;
-	
+
 	GLimp_LogComment("--- Render_depthFill_FFP ---\n");
 
 	pStage = tess.surfaceStages[stage];
-	
+
 #if 1
 	qglColor3f(0, 0, 0);
 #else
 	qglColor3f(1, 1, 1);
 #endif
-	
+
 	GL_Program(0);
 	GL_State(pStage->stateBits);
 	GL_ClientState(GLCS_VERTEX);
 	GL_SetVertexAttribs();
-	
+
 	GL_SelectTexture(0);
-	
+
 	if(pStage->stateBits & GLS_ATEST_BITS)
 	{
 		//qglEnable(GL_TEXTURE_2D);
@@ -1690,7 +1439,7 @@ static void Render_depthFill_FFP(int stage)
 		{
 			qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
 		}
-		
+
 		GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
 	}
 	else
@@ -1698,8 +1447,8 @@ static void Render_depthFill_FFP(int stage)
 		GL_Bind(tr.whiteImage);
 	}
 
-	R_DrawElements();
-	
+	DrawElements();
+
 	if(pStage->stateBits & GLS_ATEST_BITS)
 	{
 		qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -1707,19 +1456,19 @@ static void Render_depthFill_FFP(int stage)
 	}
 }
 
-#if 1
+#if 0
 #define Render_depthFill Render_depthFill_FFP
 #else
 static void Render_depthFill(int stage)
 {
 	shaderStage_t  *pStage;
-	
+
 	GLimp_LogComment("--- Render_depthFill ---\n");
 
 	pStage = tess.surfaceStages[stage];
-	
+
 	GL_State(pStage->stateBits);
-	
+
 	// enable shader, set arrays
 	GL_Program(tr.depthFillShader.program);
 	GL_ClientState(tr.depthFillShader.attribs);
@@ -1727,13 +1476,13 @@ static void Render_depthFill(int stage)
 
 	// bind colorMap
 	GL_SelectTexture(0);
-	
+
 	if(pStage->stateBits & GLS_ATEST_BITS)
 	{
 		qglMatrixMode(GL_TEXTURE);
 		qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
 		qglMatrixMode(GL_MODELVIEW);
-		
+
 		GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 	}
 	else
@@ -1741,7 +1490,7 @@ static void Render_depthFill(int stage)
 		GL_Bind(tr.whiteImage);
 	}
 
-	R_DrawElements();
+	DrawElements();
 }
 #endif
 
@@ -1758,13 +1507,13 @@ t1 = most downstream according to spec
 static void Render_genericMulti_FFP(int stage)
 {
 	shaderStage_t  *pStage;
-	
+
 	GLimp_LogComment("--- Render_genericMulti_FFP ---\n");
 
 	pStage = tess.surfaceStages[stage];
-	
+
 	ComputeColors(pStage);
-	
+
 	GL_Program(0);
 	GL_State(pStage->stateBits);
 	GL_ClientState(GLCS_VERTEX | GLCS_COLOR);
@@ -1772,10 +1521,10 @@ static void Render_genericMulti_FFP(int stage)
 
 	// base
 	GL_SelectTexture(0);
-//	qglEnable(GL_TEXTURE_2D);
+//  qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
-	R_BindAnimatedImage(&pStage->bundle[0]);
+	BindAnimatedImage(&pStage->bundle[0]);
 
 	// lightmap/secondary pass
 	GL_SelectTexture(1);
@@ -1792,17 +1541,17 @@ static void Render_genericMulti_FFP(int stage)
 		GL_TexEnv(tess.surfaceShader->collapseTextureEnv);
 	}
 
-	R_BindAnimatedImage(&pStage->bundle[1]);
+	BindAnimatedImage(&pStage->bundle[1]);
 
-	R_DrawElements();
+	DrawElements();
 
 	// clean up
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglDisable(GL_TEXTURE_2D);
-	
+
 	GL_SelectTexture(0);
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-//	qglDisable(GL_TEXTURE_2D);
+//  qglDisable(GL_TEXTURE_2D);
 
 	GL_CheckErrors();
 }
@@ -1815,13 +1564,13 @@ static void Render_lighting_D_direct(int stage)
 	vec3_t          lightDir;
 	vec4_t          directedLight;
 	trRefEntity_t  *ent = backEnd.currentEntity;
-	
+
 	GLimp_LogComment("--- Render_lighting_D_direct ---\n");
-	
+
 	pStage = tess.surfaceStages[stage];
-	
+
 	GL_State(pStage->stateBits);
-	
+
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_D_direct.program);
 	GL_ClientState(tr.lightShader_D_direct.attribs);
@@ -1833,7 +1582,7 @@ static void Render_lighting_D_direct(int stage)
 	VectorScale(ent->directedLight, 1.0 / 255.0, directedLight);
 	ClampColor(directedLight);
 	VectorCopy(ent->lightDir, lightDir);
-	
+
 	qglUniform3fARB(tr.lightShader_D_direct.u_AmbientColor, ambientLight[0], ambientLight[1], ambientLight[2]);
 	qglUniform3fARB(tr.lightShader_D_direct.u_LightDir, lightDir[0], lightDir[1], lightDir[2]);
 	qglUniform3fARB(tr.lightShader_D_direct.u_LightColor, directedLight[0], directedLight[1], directedLight[2]);
@@ -1844,9 +1593,9 @@ static void Render_lighting_D_direct(int stage)
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
-	R_DrawElements();
-	
+
+	DrawElements();
+
 	GL_CheckErrors();
 }
 
@@ -1859,13 +1608,13 @@ static void Render_lighting_DB_direct(int stage)
 	vec3_t          lightDir;
 	vec4_t          directedLight;
 	trRefEntity_t  *ent = backEnd.currentEntity;
-	
+
 	GLimp_LogComment("--- Render_lighting_DB_direct ---\n");
-	
+
 	pStage = tess.surfaceStages[stage];
-	
+
 	GL_State(pStage->stateBits);
-	
+
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_DB_direct.program);
 	GL_ClientState(tr.lightShader_DB_direct.attribs);
@@ -1877,7 +1626,7 @@ static void Render_lighting_DB_direct(int stage)
 	VectorScale(ent->directedLight, 1.0 / 255.0, directedLight);
 	ClampColor(directedLight);
 	VectorCopy(ent->lightDir, lightDir);
-	
+
 	qglUniform3fARB(tr.lightShader_DB_direct.u_AmbientColor, ambientLight[0], ambientLight[1], ambientLight[2]);
 	qglUniform3fARB(tr.lightShader_DB_direct.u_LightDir, lightDir[0], lightDir[1], lightDir[2]);
 	qglUniform3fARB(tr.lightShader_DB_direct.u_LightColor, directedLight[0], directedLight[1], directedLight[2]);
@@ -1889,16 +1638,16 @@ static void Render_lighting_DB_direct(int stage)
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	// bind normalmap
 	GL_SelectTexture(1);
 	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
-	R_DrawElements();
-	
+
+	DrawElements();
+
 	GL_CheckErrors();
 }
 
@@ -1906,17 +1655,17 @@ static void Render_lighting_DBS_direct(int stage)
 {
 	shaderStage_t  *pStage;
 
-	vec3_t			viewOrigin;
+	vec3_t          viewOrigin;
 	vec4_t          ambientLight;
 	vec3_t          lightDir;
 	vec4_t          directedLight;
 	float           specularExponent;
 	trRefEntity_t  *ent = backEnd.currentEntity;
-	
+
 	GLimp_LogComment("--- Render_lighting_DBS_direct ---\n");
-	
+
 	pStage = tess.surfaceStages[stage];
-	
+
 	GL_State(pStage->stateBits);
 
 	// enable shader, set arrays
@@ -1932,7 +1681,7 @@ static void Render_lighting_DBS_direct(int stage)
 	ClampColor(directedLight);
 	VectorCopy(ent->lightDir, lightDir);
 	specularExponent = RB_EvalExpression(&pStage->specularExponentExp, r_specularExponent->value);
-	
+
 	qglUniform3fARB(tr.lightShader_DBS_direct.u_AmbientColor, ambientLight[0], ambientLight[1], ambientLight[2]);
 	qglUniform3fARB(tr.lightShader_DBS_direct.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform3fARB(tr.lightShader_DBS_direct.u_LightDir, lightDir[0], lightDir[1], lightDir[2]);
@@ -1946,36 +1695,34 @@ static void Render_lighting_DBS_direct(int stage)
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	// bind normalmap
 	GL_SelectTexture(1);
 	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	// bind specularmap
 	GL_SelectTexture(2);
 	GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_SPECULARMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
-	R_DrawElements();
-	
+
+	DrawElements();
+
 	GL_CheckErrors();
 }
 
-static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
-									shaderStage_t * attenuationXYStage,
-									shaderStage_t * attenuationZStage,
-									trRefDlight_t * dlight)
+static void Render_lighting_D_omni(shaderStage_t * diffuseStage,
+								   shaderStage_t * attenuationXYStage, shaderStage_t * attenuationZStage, trRefDlight_t * dlight)
 {
 	vec3_t          lightOrigin;
-	vec4_t          lightColor;	
-	
+	vec4_t          lightColor;
+
 	GLimp_LogComment("--- Render_lighting_D_omni ---\n");
-	
+
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_D_omni.program);
 	GL_ClientState(tr.lightShader_D_omni.attribs);
@@ -1984,7 +1731,7 @@ static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
 	// set uniforms
 	VectorCopy(dlight->transformed, lightOrigin);
 	VectorCopy(tess.svars.color, lightColor);
-	
+
 	qglUniform3fARB(tr.lightShader_D_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.lightShader_D_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
 	qglUniform1fARB(tr.lightShader_D_omni.u_LightScale, r_lightScale->value);
@@ -1994,38 +1741,36 @@ static void Render_lighting_D_omni(	shaderStage_t * diffuseStage,
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	GL_SelectTexture(1);
-	R_BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
+	BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(dlight->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	GL_SelectTexture(2);
-	R_BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
+	BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
-	
-	R_DrawElements();
-	
+
+	DrawElements();
+
 	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
 	backEnd.pc.c_dlightIndexes += tess.numIndexes;
-	
+
 	GL_CheckErrors();
 }
 
-static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
-										shaderStage_t * attenuationXYStage,
-										shaderStage_t * attenuationZStage,
-										trRefDlight_t * dlight)
+static void Render_lighting_DB_omni(shaderStage_t * diffuseStage,
+									shaderStage_t * attenuationXYStage, shaderStage_t * attenuationZStage, trRefDlight_t * dlight)
 {
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
-	
+
 	GLimp_LogComment("--- Render_lighting_DB_omni ---\n");
-	
+
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_DB_omni.program);
 	GL_ClientState(tr.lightShader_DB_omni.attribs);
@@ -2034,7 +1779,7 @@ static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
 	// set uniforms
 	VectorCopy(dlight->transformed, lightOrigin);
 	VectorCopy(tess.svars.color, lightColor);
-	
+
 	qglUniform3fARB(tr.lightShader_DB_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.lightShader_DB_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
 	qglUniform1fARB(tr.lightShader_DB_omni.u_LightScale, r_lightScale->value);
@@ -2044,43 +1789,42 @@ static void Render_lighting_DB_omni(	shaderStage_t * diffuseStage,
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	GL_SelectTexture(1);
 	GL_Bind(diffuseStage->bundle[TB_NORMALMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	GL_SelectTexture(2);
-	R_BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
+	BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(dlight->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	GL_SelectTexture(3);
-	R_BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
-	
-	R_DrawElements();
-	
+	BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
+
+	DrawElements();
+
 	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
 	backEnd.pc.c_dlightIndexes += tess.numIndexes;
-	
+
 	GL_CheckErrors();
 }
 
-static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
-										shaderStage_t * attenuationXYStage,
-										shaderStage_t * attenuationZStage,
-										trRefDlight_t * dlight)
+static void Render_lighting_DBS_omni(shaderStage_t * diffuseStage,
+									 shaderStage_t * attenuationXYStage,
+									 shaderStage_t * attenuationZStage, trRefDlight_t * dlight)
 {
-	vec3_t			viewOrigin;
+	vec3_t          viewOrigin;
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
 	float           specularExponent;
-	
+
 	GLimp_LogComment("--- Render_lighting_DBS_omni ---\n");
-	
+
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_DBS_omni.program);
 	GL_ClientState(tr.lightShader_DBS_omni.attribs);
@@ -2091,7 +1835,7 @@ static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 	VectorCopy(dlight->transformed, lightOrigin);
 	VectorCopy(tess.svars.color, lightColor);
 	specularExponent = RB_EvalExpression(&diffuseStage->specularExponentExp, r_specularExponent->value);
-	
+
 	qglUniform3fARB(tr.lightShader_DBS_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform3fARB(tr.lightShader_DBS_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.lightShader_DBS_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
@@ -2103,49 +1847,48 @@ static void Render_lighting_DBS_omni(	shaderStage_t * diffuseStage,
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	GL_SelectTexture(1);
 	GL_Bind(diffuseStage->bundle[TB_NORMALMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	GL_SelectTexture(2);
 	GL_Bind(diffuseStage->bundle[TB_SPECULARMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_SPECULARMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	GL_SelectTexture(3);
-	R_BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
+	BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(dlight->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	GL_SelectTexture(4);
-	R_BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
-	
-	R_DrawElements();
-	
+	BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
+
+	DrawElements();
+
 	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
 	backEnd.pc.c_dlightIndexes += tess.numIndexes;
-	
+
 	GL_CheckErrors();
 }
 
-static void Render_lighting_DBSP_omni(	shaderStage_t * diffuseStage,
-										shaderStage_t * attenuationXYStage,
-										shaderStage_t * attenuationZStage,
-										trRefDlight_t * dlight)
+static void Render_lighting_DBSP_omni(shaderStage_t * diffuseStage,
+									  shaderStage_t * attenuationXYStage,
+									  shaderStage_t * attenuationZStage, trRefDlight_t * dlight)
 {
-	vec3_t			viewOrigin;
+	vec3_t          viewOrigin;
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
 	float           specularExponent;
-	
+
 	GLimp_LogComment("--- Render_lighting_DBSP_omni ---\n");
-	
+
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_DBSP_omni.program);
 	GL_ClientState(tr.lightShader_DBSP_omni.attribs);
@@ -2156,7 +1899,7 @@ static void Render_lighting_DBSP_omni(	shaderStage_t * diffuseStage,
 	VectorCopy(dlight->transformed, lightOrigin);
 	VectorCopy(tess.svars.color, lightColor);
 	specularExponent = RB_EvalExpression(&diffuseStage->specularExponentExp, r_specularExponent->value);
-	
+
 	qglUniform3fARB(tr.lightShader_DBSP_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform3fARB(tr.lightShader_DBSP_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.lightShader_DBSP_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
@@ -2170,47 +1913,45 @@ static void Render_lighting_DBSP_omni(	shaderStage_t * diffuseStage,
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	GL_SelectTexture(1);
 	GL_Bind(diffuseStage->bundle[TB_NORMALMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	GL_SelectTexture(2);
 	GL_Bind(diffuseStage->bundle[TB_SPECULARMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_SPECULARMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	GL_SelectTexture(3);
-	R_BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
+	BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(dlight->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	GL_SelectTexture(4);
-	R_BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
-	
-	R_DrawElements();
-	
+	BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
+
+	DrawElements();
+
 	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
 	backEnd.pc.c_dlightIndexes += tess.numIndexes;
-	
+
 	GL_CheckErrors();
 }
 
-static void Render_lighting_D_proj(	shaderStage_t * diffuseStage,
-									shaderStage_t * attenuationXYStage,
-									shaderStage_t * attenuationZStage,
-									trRefDlight_t * dlight)
+static void Render_lighting_D_proj(shaderStage_t * diffuseStage,
+								   shaderStage_t * attenuationXYStage, shaderStage_t * attenuationZStage, trRefDlight_t * dlight)
 {
 	vec3_t          lightOrigin;
-	vec4_t          lightColor;	
-	
+	vec4_t          lightColor;
+
 	GLimp_LogComment("--- Render_lighting_D_proj ---\n");
-	
+
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_D_proj.program);
 	GL_ClientState(tr.lightShader_D_proj.attribs);
@@ -2219,7 +1960,7 @@ static void Render_lighting_D_proj(	shaderStage_t * diffuseStage,
 	// set uniforms
 	VectorCopy(dlight->transformed, lightOrigin);
 	VectorCopy(tess.svars.color, lightColor);
-	
+
 	qglUniform3fARB(tr.lightShader_D_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.lightShader_D_proj.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
 	qglUniform1fARB(tr.lightShader_D_proj.u_LightScale, r_lightScale->value);
@@ -2229,37 +1970,37 @@ static void Render_lighting_D_proj(	shaderStage_t * diffuseStage,
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	GL_SelectTexture(1);
-	R_BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
+	BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(dlight->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	GL_SelectTexture(2);
-	R_BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
-	
-	R_DrawElements();
-	
+	BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
+
+	DrawElements();
+
 	// update performance counters
 	backEnd.pc.c_dlightVertexes += tess.numVertexes;
 	backEnd.pc.c_dlightIndexes += tess.numIndexes;
-	
+
 	GL_CheckErrors();
 }
 
 static void Render_lightmap_FFP(int stage, int texCoordsIndex)
 {
 	shaderStage_t  *pStage;
-	
+
 	GLimp_LogComment("--- Render_lightmap_FFP ---\n");
 
 	pStage = tess.surfaceStages[stage];
-	
+
 	GL_Program(0);
-	
+
 	qglColor4fv(colorWhite);
-	
+
 	if(r_showLightMaps->integer)
 	{
 		GL_State(pStage->stateBits & ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS));
@@ -2268,17 +2009,17 @@ static void Render_lightmap_FFP(int stage, int texCoordsIndex)
 	{
 		GL_State(pStage->stateBits);
 	}
-	
+
 	GL_ClientState(GLCS_VERTEX);
 	GL_SetVertexAttribs();
 
 	GL_SelectTexture(0);
-//	qglEnable(GL_TEXTURE_2D);
+//  qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[texCoordsIndex]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
 	{
 		if(texCoordsIndex == TB_LIGHTMAP)
@@ -2290,13 +2031,13 @@ static void Render_lightmap_FFP(int stage, int texCoordsIndex)
 	{
 		qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[texCoordsIndex]);
 	}
-	
-	R_BindLightMap();
 
-	R_DrawElements();
-	
+	BindLightMap();
+
+	DrawElements();
+
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-//	qglDisable(GL_TEXTURE_2D);
+//  qglDisable(GL_TEXTURE_2D);
 
 	GL_CheckErrors();
 }
@@ -2304,18 +2045,18 @@ static void Render_lightmap_FFP(int stage, int texCoordsIndex)
 static void Render_deluxemap_FFP(int stage, int texCoordsIndex)
 {
 	shaderStage_t  *pStage;
-	
+
 	GLimp_LogComment("--- Render_deluxemap_FFP ---\n");
 
 	pStage = tess.surfaceStages[stage];
-	
+
 	if(!pStage->bundle[TB_LIGHTMAP].image[1])
 		return;
-	
+
 	GL_Program(0);
-	
+
 	qglColor4fv(colorWhite);
-	
+
 	if(r_showLightMaps->integer)
 	{
 		GL_State(pStage->stateBits & ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS));
@@ -2324,17 +2065,17 @@ static void Render_deluxemap_FFP(int stage, int texCoordsIndex)
 	{
 		GL_State(pStage->stateBits);
 	}
-	
+
 	GL_ClientState(GLCS_VERTEX);
 	GL_SetVertexAttribs();
 
 	GL_SelectTexture(0);
-//	qglEnable(GL_TEXTURE_2D);
+//  qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[texCoordsIndex]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
 	{
 		if(texCoordsIndex == TB_LIGHTMAP)
@@ -2346,13 +2087,13 @@ static void Render_deluxemap_FFP(int stage, int texCoordsIndex)
 	{
 		qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[texCoordsIndex]);
 	}
-	
-	R_BindDeluxeMap();
 
-	R_DrawElements();
-	
+	BindDeluxeMap();
+
+	DrawElements();
+
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-//	qglDisable(GL_TEXTURE_2D);
+//  qglDisable(GL_TEXTURE_2D);
 
 	GL_CheckErrors();
 }
@@ -2360,13 +2101,13 @@ static void Render_deluxemap_FFP(int stage, int texCoordsIndex)
 static void Render_lighting_D_radiosity_FFP(int stage)
 {
 	shaderStage_t  *pStage;
-	
+
 	GLimp_LogComment("--- Render_lighting_D_radiosity_FFP ---\n");
 
 	pStage = tess.surfaceStages[stage];
-	
+
 	ComputeColors(pStage);
-	
+
 	GL_Program(0);
 	GL_SelectTexture(0);
 	GL_State(pStage->stateBits);
@@ -2375,8 +2116,8 @@ static void Render_lighting_D_radiosity_FFP(int stage)
 
 	// base
 	GL_SelectTexture(0);
-//	qglEnable(GL_TEXTURE_2D);
-	R_BindAnimatedImage(&pStage->bundle[TB_DIFFUSEMAP]);
+//  qglEnable(GL_TEXTURE_2D);
+	BindAnimatedImage(&pStage->bundle[TB_DIFFUSEMAP]);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_TEXTURE);
@@ -2391,17 +2132,17 @@ static void Render_lighting_D_radiosity_FFP(int stage)
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_LIGHTMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	R_BindLightMap();
+	BindLightMap();
 
-	R_DrawElements();
+	DrawElements();
 
 	// clean up
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglDisable(GL_TEXTURE_2D);
-	
+
 	GL_SelectTexture(0);
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-//	qglDisable(GL_TEXTURE_2D);
+//  qglDisable(GL_TEXTURE_2D);
 
 	GL_CheckErrors();
 }
@@ -2409,13 +2150,13 @@ static void Render_lighting_D_radiosity_FFP(int stage)
 static void Render_lighting_D_radiosity(int stage)
 {
 	shaderStage_t  *pStage;
-	
+
 	GLimp_LogComment("--- Render_lighting_D_radiosity ---\n");
-	
+
 	pStage = tess.surfaceStages[stage];
-	
+
 	GL_State(pStage->stateBits);
-	
+
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_D_radiosity.program);
 	GL_ClientState(tr.lightShader_D_radiosity.attribs);
@@ -2427,29 +2168,29 @@ static void Render_lighting_D_radiosity(int stage)
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	// bind lightmap
 	GL_SelectTexture(1);
-	R_BindLightMap();
+	BindLightMap();
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_LIGHTMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
-	R_DrawElements();
-	
+
+	DrawElements();
+
 	GL_CheckErrors();
 }
 
 static void Render_lighting_DB_radiosity(int stage)
 {
 	shaderStage_t  *pStage;
-	
+
 	GLimp_LogComment("--- Render_lighting_DB_radiosity ---\n");
-	
+
 	pStage = tess.surfaceStages[stage];
-	
+
 	GL_State(pStage->stateBits);
-	
+
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_DB_radiosity.program);
 	GL_ClientState(tr.lightShader_DB_radiosity.attribs);
@@ -2461,51 +2202,51 @@ static void Render_lighting_DB_radiosity(int stage)
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	// bind normalmap
 	GL_SelectTexture(1);
 	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	// bind lightmap
 	GL_SelectTexture(2);
-	R_BindLightMap();
+	BindLightMap();
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_LIGHTMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	// bind deluxemap
 	GL_SelectTexture(3);
-	R_BindDeluxeMap();
-	
-	R_DrawElements();
-	
+	BindDeluxeMap();
+
+	DrawElements();
+
 	GL_CheckErrors();
 }
 
 static void Render_lighting_DBS_radiosity(int stage)
 {
-	vec3_t			viewOrigin;
+	vec3_t          viewOrigin;
 	float           specularExponent;
 	shaderStage_t  *pStage;
-	
+
 	GLimp_LogComment("--- Render_lighting_DBS_radiosity ---\n");
-	
+
 	pStage = tess.surfaceStages[stage];
-	
+
 	GL_State(pStage->stateBits);
-	
+
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_DBS_radiosity.program);
 	GL_ClientState(tr.lightShader_DBS_radiosity.attribs);
 	GL_SetVertexAttribs();
-	
+
 	// set uniforms
 	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
 	specularExponent = RB_EvalExpression(&pStage->specularExponentExp, r_specularExponent->value);
-	
+
 	qglUniform3fARB(tr.lightShader_DBS_radiosity.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform1fARB(tr.lightShader_DBS_radiosity.u_SpecularExponent, specularExponent);
 
@@ -2515,51 +2256,51 @@ static void Render_lighting_DBS_radiosity(int stage)
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	// bind normalmap
 	GL_SelectTexture(1);
 	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	// bind specular
 	GL_SelectTexture(2);
 	GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_SPECULARMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	// bind lightmap
 	GL_SelectTexture(3);
-	R_BindLightMap();
+	BindLightMap();
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_LIGHTMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
+
 	// bind deluxemap
 	GL_SelectTexture(4);
-	R_BindDeluxeMap();
-	
-	R_DrawElements();
-	
+	BindDeluxeMap();
+
+	DrawElements();
+
 	GL_CheckErrors();
 }
 
 static void Render_reflection_C(int stage)
 {
-	vec3_t			viewOrigin;
+	vec3_t          viewOrigin;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
-	
+
 	GLimp_LogComment("--- Render_reflection_C ---\n");
-	
+
 	GL_State(pStage->stateBits);
-	
+
 	// enable shader, set arrays
 	GL_Program(tr.reflectionShader_C.program);
 	GL_ClientState(tr.reflectionShader_C.attribs);
 	GL_SetVertexAttribs();
-	
+
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 	qglUniform3fARB(tr.reflectionShader_C.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
@@ -2570,26 +2311,26 @@ static void Render_reflection_C(int stage)
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(backEnd.or.transformMatrix);
 	qglMatrixMode(GL_MODELVIEW);
-	
-	R_DrawElements();
-	
+
+	DrawElements();
+
 	GL_CheckErrors();
 }
 
 static void Render_reflection_CB(int stage)
 {
-	vec3_t			viewOrigin;
+	vec3_t          viewOrigin;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
-	
+
 	GLimp_LogComment("--- Render_reflection_CB ---\n");
-	
+
 	GL_State(pStage->stateBits);
-	
+
 	// enable shader, set arrays
 	GL_Program(tr.reflectionShader_CB.program);
 	GL_ClientState(tr.reflectionShader_CB.attribs);
 	GL_SetVertexAttribs();
-	
+
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 	qglUniform3fARB(tr.reflectionShader_CB.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
@@ -2599,37 +2340,37 @@ static void Render_reflection_CB(int stage)
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 	/*
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(backEnd.or.transformMatrix);
-	qglMatrixMode(GL_MODELVIEW);
-	*/
-	
+	   qglMatrixMode(GL_TEXTURE);
+	   qglLoadMatrixf(backEnd.or.transformMatrix);
+	   qglMatrixMode(GL_MODELVIEW);
+	 */
+
 	// bind normalmap
 	GL_SelectTexture(1);
 	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
-	R_DrawElements();
-	
+
+	DrawElements();
+
 	GL_CheckErrors();
 }
 
 static void Render_refraction_C(int stage)
 {
-	vec3_t			viewOrigin;
+	vec3_t          viewOrigin;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
-	
+
 	GLimp_LogComment("--- Render_refraction_C ---\n");
-	
+
 	GL_State(pStage->stateBits);
-	
+
 	// enable shader, set arrays
 	GL_Program(tr.refractionShader_C.program);
 	GL_ClientState(tr.refractionShader_C.attribs);
 	GL_SetVertexAttribs();
-	
+
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 	qglUniform3fARB(tr.refractionShader_C.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
@@ -2644,33 +2385,33 @@ static void Render_refraction_C(int stage)
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(backEnd.or.transformMatrix);
 	qglMatrixMode(GL_MODELVIEW);
-	
-	R_DrawElements();
-	
+
+	DrawElements();
+
 	GL_CheckErrors();
 }
 
 static void Render_dispersion_C(int stage)
 {
-	vec3_t			viewOrigin;
+	vec3_t          viewOrigin;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
-	float			eta;
-	float			etaDelta;
-	
+	float           eta;
+	float           etaDelta;
+
 	GLimp_LogComment("--- Render_dispersion_C ---\n");
-	
+
 	GL_State(pStage->stateBits);
-	
+
 	// enable shader, set arrays
 	GL_Program(tr.dispersionShader_C.program);
 	GL_ClientState(tr.dispersionShader_C.attribs);
 	GL_SetVertexAttribs();
-	
+
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
-	eta	= RB_EvalExpression(&pStage->etaExp, (float)1.1);
+	eta = RB_EvalExpression(&pStage->etaExp, (float)1.1);
 	etaDelta = RB_EvalExpression(&pStage->etaDeltaExp, (float)-0.02);
-	
+
 	qglUniform3fARB(tr.dispersionShader_C.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform3fARB(tr.dispersionShader_C.u_EtaRatio, eta, eta + etaDelta, eta + (etaDelta * 2));
 	qglUniform1fARB(tr.dispersionShader_C.u_FresnelPower, RB_EvalExpression(&pStage->fresnelPowerExp, 2.0f));
@@ -2683,26 +2424,26 @@ static void Render_dispersion_C(int stage)
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(backEnd.or.transformMatrix);
 	qglMatrixMode(GL_MODELVIEW);
-	
-	R_DrawElements();
-	
+
+	DrawElements();
+
 	GL_CheckErrors();
 }
 
 static void Render_skybox(int stage)
 {
-	vec3_t			viewOrigin;
+	vec3_t          viewOrigin;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
-	
+
 	GLimp_LogComment("--- Render_skybox ---\n");
-	
+
 	GL_State(pStage->stateBits);
-	
+
 	// enable shader, set arrays
 	GL_Program(tr.skyBoxShader.program);
 	GL_ClientState(tr.skyBoxShader.attribs);
 	GL_SetVertexAttribs();
-	
+
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 	qglUniform3fARB(tr.skyBoxShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
@@ -2713,276 +2454,281 @@ static void Render_skybox(int stage)
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(backEnd.or.transformMatrix);
 	qglMatrixMode(GL_MODELVIEW);
-	
-	R_DrawElements();
-	
+
+	DrawElements();
+
 	GL_CheckErrors();
 }
 
 static void Render_heatHaze(int stage)
 {
 	float           deformMagnitude;
-	float			fbufWidthScale, fbufHeightScale;
-	float			npotWidthScale, npotHeightScale;
+	float           fbufWidthScale, fbufHeightScale;
+	float           npotWidthScale, npotHeightScale;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
-	
+
 	GLimp_LogComment("--- Render_heatHaze ---\n");
-	
-	GL_State(pStage->stateBits);
 	
 	// enable shader, set arrays
 	GL_Program(tr.heatHazeShader.program);
+	GL_State(pStage->stateBits);
 	GL_ClientState(tr.heatHazeShader.attribs);
 	GL_SetVertexAttribs();
-	
+
 	// set uniforms
 	deformMagnitude = RB_EvalExpression(&pStage->deformMagnitudeExp, 1.0);
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
 	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderLinearImage->uploadWidth;
 	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderLinearImage->uploadHeight;
-	
+
 	qglUniform1fARB(tr.heatHazeShader.u_DeformMagnitude, deformMagnitude);
 	qglUniform2fARB(tr.heatHazeShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.heatHazeShader.u_NPotScale, npotWidthScale, npotHeightScale);
-	
+	qglUniform2fARB(tr.heatHazeShader.u_NPOTScale, npotWidthScale, npotHeightScale);
+
 	if(glConfig.hardwareType == GLHW_ATI)
 	{
 		matrix_t        projectionMatrixTranspose;
-		
+
 		MatrixTranspose(backEnd.viewParms.projectionMatrix, projectionMatrixTranspose);
 		qglUniformMatrix4fvARB(tr.heatHazeShader.u_ProjectionMatrixTranspose, 1, GL_FALSE, projectionMatrixTranspose);
 	}
-
+	
 	// bind colormap
 	GL_SelectTexture(0);
 	GL_Bind(tr.currentRenderLinearImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderLinearImage->uploadWidth, tr.currentRenderLinearImage->uploadHeight);
-	
+
 	// bind normalmap
 	GL_SelectTexture(1);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
-	R_DrawElements();
-	
+
+	DrawElements();
+
 	GL_CheckErrors();
 }
 
 static void Render_glow(int stage)
 {
 	float           blurMagnitude;
-	float			fbufWidthScale, fbufHeightScale;
-	float			npotWidthScale, npotHeightScale;
+	float           fbufWidthScale, fbufHeightScale;
+	float           npotWidthScale, npotHeightScale;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
-	
+
 	GLimp_LogComment("--- Render_glow ---\n");
-	
+
 	GL_State(pStage->stateBits);
-	
+
 	// enable shader, set arrays
 	GL_Program(tr.glowShader.program);
 	GL_ClientState(tr.glowShader.attribs);
 	GL_SetVertexAttribs();
-	
+
 	// set uniforms
 	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
 	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderImage->uploadWidth;
 	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderImage->uploadHeight;
-	
+
 	qglUniform1fARB(tr.glowShader.u_BlurMagnitude, blurMagnitude);
 	qglUniform2fARB(tr.glowShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.glowShader.u_NPotScale, npotWidthScale, npotHeightScale);
+	qglUniform2fARB(tr.glowShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 	// bind colormap
 	GL_SelectTexture(0);
-//	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
+//  GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 	GL_Bind(tr.currentRenderImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
-	R_DrawElements();
-	
+
+	DrawElements();
+
 	GL_CheckErrors();
 }
 
 static void Render_bloom(int stage)
 {
 	float           blurMagnitude;
-	float			fbufWidthScale, fbufHeightScale;
-	float			npotWidthScale, npotHeightScale;
+	float           fbufWidthScale, fbufHeightScale;
+	float           npotWidthScale, npotHeightScale;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
-	
+
 	GLimp_LogComment("--- Render_bloom ---\n");
-	
+
 	GL_State(pStage->stateBits);
-	
+
 	// calc uniforms
 	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
 	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderNearestImage->uploadWidth;
 	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderNearestImage->uploadHeight;
-	
+
 	// render contrast
 	GL_Program(tr.contrastShader.program);
 	GL_ClientState(tr.contrastShader.attribs);
 	GL_SetVertexAttribs();
 
 	qglUniform2fARB(tr.contrastShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.contrastShader.u_NPotScale, npotWidthScale, npotHeightScale);
+	qglUniform2fARB(tr.contrastShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 	GL_SelectTexture(0);
 	GL_Bind(tr.currentRenderNearestImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderNearestImage->uploadWidth, tr.currentRenderNearestImage->uploadHeight);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderNearestImage->uploadWidth,
+						 tr.currentRenderNearestImage->uploadHeight);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
-	R_DrawElements();
-	
+
+	DrawElements();
+
 	// render bloom
 	GL_Program(tr.bloomShader.program);
 	GL_ClientState(tr.bloomShader.attribs);
 	GL_SetVertexAttribs();
-	
+
 	qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, blurMagnitude);
 	qglUniform2fARB(tr.bloomShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.bloomShader.u_NPotScale, npotWidthScale, npotHeightScale);
-	
+	qglUniform2fARB(tr.bloomShader.u_NPOTScale, npotWidthScale, npotHeightScale);
+
 	GL_SelectTexture(1);
 	GL_Bind(tr.currentRenderLinearImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderLinearImage->uploadWidth, tr.currentRenderLinearImage->uploadHeight);
-	
-	R_DrawElements();
-	
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderLinearImage->uploadWidth,
+						 tr.currentRenderLinearImage->uploadHeight);
+
+	DrawElements();
+
 	GL_CheckErrors();
 }
 
 static void Render_bloom2(int stage)
 {
 	float           blurMagnitude;
-	float			fbufWidthScale, fbufHeightScale;
-	float			npotWidthScale, npotHeightScale;
+	float           fbufWidthScale, fbufHeightScale;
+	float           npotWidthScale, npotHeightScale;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
-	
+
 	GLimp_LogComment("--- Render_bloom2 ---\n");
-	
+
 	GL_State(pStage->stateBits);
-	
+
 	// calc uniforms
 	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
 	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderNearestImage->uploadWidth;
 	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderNearestImage->uploadHeight;
-	
+
 	// render contrast
 	GL_Program(tr.contrastShader.program);
 	GL_ClientState(tr.contrastShader.attribs);
 	GL_SetVertexAttribs();
 
 	qglUniform2fARB(tr.contrastShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.contrastShader.u_NPotScale, npotWidthScale, npotHeightScale);
+	qglUniform2fARB(tr.contrastShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 	GL_SelectTexture(0);
 	GL_Bind(tr.currentRenderNearestImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderNearestImage->uploadWidth, tr.currentRenderNearestImage->uploadHeight);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderNearestImage->uploadWidth,
+						 tr.currentRenderNearestImage->uploadHeight);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
-	R_DrawElements();
-	
+
+	DrawElements();
+
 	// render blurX
 	GL_Program(tr.blurXShader.program);
 	GL_ClientState(tr.blurXShader.attribs);
 	GL_SetVertexAttribs();
 
 	qglUniform2fARB(tr.blurXShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.blurXShader.u_NPotScale, npotWidthScale, npotHeightScale);
+	qglUniform2fARB(tr.blurXShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 	GL_Bind(tr.currentRenderLinearImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderLinearImage->uploadWidth, tr.currentRenderLinearImage->uploadHeight);
-	
-	R_DrawElements();
-	
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderLinearImage->uploadWidth,
+						 tr.currentRenderLinearImage->uploadHeight);
+
+	DrawElements();
+
 	// render blurY
 	GL_Program(tr.blurYShader.program);
 	GL_ClientState(tr.blurYShader.attribs);
 	GL_SetVertexAttribs();
 
 	qglUniform2fARB(tr.blurYShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.blurYShader.u_NPotScale, npotWidthScale, npotHeightScale);
+	qglUniform2fARB(tr.blurYShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 	GL_Bind(tr.currentRenderLinearImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderLinearImage->uploadWidth, tr.currentRenderLinearImage->uploadHeight);
-	
-	R_DrawElements();
-	
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderLinearImage->uploadWidth,
+						 tr.currentRenderLinearImage->uploadHeight);
+
+	DrawElements();
+
 	// render bloom
 	GL_Program(tr.bloomShader.program);
 	GL_ClientState(tr.bloomShader.attribs);
 	GL_SetVertexAttribs();
-	
+
 	qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, blurMagnitude);
 	qglUniform2fARB(tr.bloomShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.bloomShader.u_NPotScale, npotWidthScale, npotHeightScale);
+	qglUniform2fARB(tr.bloomShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 	GL_SelectTexture(0);
 	GL_Bind(tr.currentRenderNearestImage);
-	
+
 	GL_SelectTexture(1);
 	GL_Bind(tr.currentRenderLinearImage);
-	
-	R_DrawElements();
-	
+
+	DrawElements();
+
 	GL_CheckErrors();
 }
 
 static void Render_rotoscope(int stage)
 {
 	float           blurMagnitude;
-	float			fbufWidthScale, fbufHeightScale;
-	float			npotWidthScale, npotHeightScale;
+	float           fbufWidthScale, fbufHeightScale;
+	float           npotWidthScale, npotHeightScale;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
-	
+
 	GLimp_LogComment("--- Render_rotoscope ---\n");
-	
+
 	GL_State(pStage->stateBits);
-	
+
 	// enable shader, set arrays
 	GL_Program(tr.rotoscopeShader.program);
 	GL_ClientState(tr.rotoscopeShader.attribs);
 	GL_SetVertexAttribs();
-	
+
 	// set uniforms
 	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
 	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderNearestImage->uploadWidth;
 	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderNearestImage->uploadHeight;
-	
+
 	qglUniform1fARB(tr.rotoscopeShader.u_BlurMagnitude, blurMagnitude);
 	qglUniform2fARB(tr.rotoscopeShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.rotoscopeShader.u_NPotScale, npotWidthScale, npotHeightScale);
+	qglUniform2fARB(tr.rotoscopeShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 	// bind colormap
 	GL_SelectTexture(0);
 	GL_Bind(tr.currentRenderNearestImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderNearestImage->uploadWidth, tr.currentRenderNearestImage->uploadHeight);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderNearestImage->uploadWidth,
+						 tr.currentRenderNearestImage->uploadHeight);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
 	qglMatrixMode(GL_MODELVIEW);
-	
-	R_DrawElements();
-	
+
+	DrawElements();
+
 	GL_CheckErrors();
 }
 
@@ -2990,7 +2736,7 @@ static void Render_fog()
 {
 	fog_t          *fog;
 	int             i;
-	
+
 	GLimp_LogComment("--- Render_fog ---\n");
 
 	fog = tr.world->fogs + tess.fogNum;
@@ -3007,7 +2753,7 @@ static void Render_fog()
 	GL_SetVertexAttribs();
 
 	GL_SelectTexture(0);
-//	qglEnable(GL_TEXTURE_2D);
+//  qglEnable(GL_TEXTURE_2D);
 	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_COLORMAP]);
 	GL_Bind(tr.fogImage);
@@ -3021,10 +2767,10 @@ static void Render_fog()
 		GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
 	}
 
-	R_DrawElements();
+	DrawElements();
 
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-//	qglDisable(GL_TEXTURE_2D);
+//  qglDisable(GL_TEXTURE_2D);
 
 	GL_CheckErrors();
 }
@@ -3037,7 +2783,7 @@ ComputeColors
 static void ComputeColors(shaderStage_t * pStage)
 {
 	int             i;
-	
+
 	GLimp_LogComment("--- ComputeColors ---\n");
 
 	// rgbGen
@@ -3046,27 +2792,27 @@ static void ComputeColors(shaderStage_t * pStage)
 		case CGEN_IDENTITY:
 			Com_Memset(tess.svars.colors, 0xff, tess.numVertexes * 4);
 			break;
-			
+
 		default:
 		case CGEN_IDENTITY_LIGHTING:
 			Com_Memset(tess.svars.colors, tr.identityLightByte, tess.numVertexes * 4);
 			break;
-			
+
 		case CGEN_LIGHTING_DIFFUSE:
 			RB_CalcDiffuseColor((unsigned char *)tess.svars.colors);
 			break;
-			
+
 		case CGEN_EXACT_VERTEX:
 			Com_Memcpy(tess.svars.colors, tess.colors, tess.numVertexes * sizeof(tess.colors[0]));
 			break;
-			
+
 		case CGEN_CONST:
 			for(i = 0; i < tess.numVertexes; i++)
 			{
 				*(int *)tess.svars.colors[i] = *(int *)pStage->constantColor;
 			}
 			break;
-			
+
 		case CGEN_VERTEX:
 			if(tr.identityLight == 1)
 			{
@@ -3083,7 +2829,7 @@ static void ComputeColors(shaderStage_t * pStage)
 				}
 			}
 			break;
-			
+
 		case CGEN_ONE_MINUS_VERTEX:
 			if(tr.identityLight == 1)
 			{
@@ -3104,7 +2850,7 @@ static void ComputeColors(shaderStage_t * pStage)
 				}
 			}
 			break;
-			
+
 		case CGEN_FOG:
 		{
 			fog_t          *fog;
@@ -3117,23 +2863,23 @@ static void ComputeColors(shaderStage_t * pStage)
 			}
 			break;
 		}
-			
+
 		case CGEN_WAVEFORM:
 			RB_CalcWaveColor(&pStage->rgbWave, (unsigned char *)tess.svars.colors);
 			break;
-			
+
 		case CGEN_ENTITY:
 			RB_CalcColorFromEntity((unsigned char *)tess.svars.colors);
 			break;
-			
+
 		case CGEN_ONE_MINUS_ENTITY:
 			RB_CalcColorFromOneMinusEntity((unsigned char *)tess.svars.colors);
 			break;
-			
+
 		case CGEN_CUSTOM_RGB:
 			RB_CalcCustomColor(&pStage->rgbExp, (unsigned char *)tess.svars.colors);
 			break;
-			
+
 		case CGEN_CUSTOM_RGBs:
 			RB_CalcCustomColors(&pStage->redExp, &pStage->greenExp, &pStage->blueExp, (unsigned char *)tess.svars.colors);
 			break;
@@ -3144,7 +2890,7 @@ static void ComputeColors(shaderStage_t * pStage)
 	{
 		case AGEN_SKIP:
 			break;
-			
+
 		case AGEN_IDENTITY:
 			if(pStage->rgbGen != CGEN_IDENTITY)
 			{
@@ -3157,7 +2903,7 @@ static void ComputeColors(shaderStage_t * pStage)
 				}
 			}
 			break;
-			
+
 		case AGEN_CONST:
 			if(pStage->rgbGen != CGEN_CONST)
 			{
@@ -3167,23 +2913,23 @@ static void ComputeColors(shaderStage_t * pStage)
 				}
 			}
 			break;
-			
+
 		case AGEN_WAVEFORM:
 			RB_CalcWaveAlpha(&pStage->alphaWave, (unsigned char *)tess.svars.colors);
 			break;
-			
+
 		case AGEN_LIGHTING_SPECULAR:
 			RB_CalcSpecularAlpha((unsigned char *)tess.svars.colors);
 			break;
-			
+
 		case AGEN_ENTITY:
 			RB_CalcAlphaFromEntity((unsigned char *)tess.svars.colors);
 			break;
-			
+
 		case AGEN_ONE_MINUS_ENTITY:
 			RB_CalcAlphaFromOneMinusEntity((unsigned char *)tess.svars.colors);
 			break;
-			
+
 		case AGEN_VERTEX:
 			if(pStage->rgbGen != CGEN_VERTEX)
 			{
@@ -3193,14 +2939,14 @@ static void ComputeColors(shaderStage_t * pStage)
 				}
 			}
 			break;
-			
+
 		case AGEN_ONE_MINUS_VERTEX:
 			for(i = 0; i < tess.numVertexes; i++)
 			{
 				tess.svars.colors[i][3] = 255 - tess.colors[i][3];
 			}
 			break;
-			
+
 		case AGEN_PORTAL:
 		{
 			unsigned char   alpha;
@@ -3232,7 +2978,7 @@ static void ComputeColors(shaderStage_t * pStage)
 			}
 			break;
 		}
-		
+
 		case AGEN_CUSTOM:
 			RB_CalcCustomAlpha(&pStage->alphaExp, (unsigned char *)tess.svars.colors);
 			break;
@@ -3246,15 +2992,15 @@ static void ComputeColors(shaderStage_t * pStage)
 			case ACFF_MODULATE_RGB:
 				RB_CalcModulateColorsByFog((unsigned char *)tess.svars.colors);
 				break;
-				
+
 			case ACFF_MODULATE_ALPHA:
 				RB_CalcModulateAlphasByFog((unsigned char *)tess.svars.colors);
 				break;
-				
+
 			case ACFF_MODULATE_RGBA:
 				RB_CalcModulateRGBAsByFog((unsigned char *)tess.svars.colors);
 				break;
-				
+
 			case ACFF_NONE:
 				break;
 		}
@@ -3271,10 +3017,10 @@ static void ComputeColor(shaderStage_t * pStage)
 {
 	float           rgb;
 	float           red;
-	float			green;
-	float			blue;
+	float           green;
+	float           blue;
 	float           alpha;
-	
+
 	GLimp_LogComment("--- ComputeColor ---\n");
 
 	// rgbGen
@@ -3288,7 +3034,7 @@ static void ComputeColor(shaderStage_t * pStage)
 			tess.svars.color[3] = 1.0;
 			break;
 		}
-			
+
 		default:
 		case CGEN_IDENTITY_LIGHTING:
 		{
@@ -3298,7 +3044,7 @@ static void ComputeColor(shaderStage_t * pStage)
 			tess.svars.color[3] = tr.identityLightByte * (1.0 / 255.0);
 			break;
 		}
-			
+
 		case CGEN_CONST:
 		{
 			tess.svars.color[0] = pStage->constantColor[0] * (1.0 / 255.0);
@@ -3307,7 +3053,7 @@ static void ComputeColor(shaderStage_t * pStage)
 			tess.svars.color[3] = pStage->constantColor[3] * (1.0 / 255.0);
 			break;
 		}
-			
+
 		case CGEN_ENTITY:
 		{
 			if(backEnd.currentLight)
@@ -3333,7 +3079,7 @@ static void ComputeColor(shaderStage_t * pStage)
 			}
 			break;
 		}
-			
+
 		case CGEN_ONE_MINUS_ENTITY:
 		{
 			if(backEnd.currentLight)
@@ -3359,17 +3105,17 @@ static void ComputeColor(shaderStage_t * pStage)
 			}
 			break;
 		}
-			
+
 		case CGEN_CUSTOM_RGB:
 		{
 			rgb = Q_bound(0.0, RB_EvalExpression(&pStage->rgbExp, 1.0), 1.0);
-			
+
 			tess.svars.color[0] = rgb;
 			tess.svars.color[1] = rgb;
 			tess.svars.color[2] = rgb;
 			break;
 		}
-			
+
 		case CGEN_CUSTOM_RGBs:
 		{
 			if(backEnd.currentLight)
@@ -3380,9 +3126,14 @@ static void ComputeColor(shaderStage_t * pStage)
 			}
 			else if(backEnd.currentEntity)
 			{
-				red = Q_bound(0.0, RB_EvalExpression(&pStage->redExp, backEnd.currentEntity->e.shaderRGBA[0] * (1.0 / 255.0)), 1.0);
-				green = Q_bound(0.0, RB_EvalExpression(&pStage->greenExp, backEnd.currentEntity->e.shaderRGBA[1] * (1.0 / 255.0)), 1.0);
-				blue = Q_bound(0.0, RB_EvalExpression(&pStage->blueExp, backEnd.currentEntity->e.shaderRGBA[2] * (1.0 / 255.0)), 1.0);
+				red =
+					Q_bound(0.0, RB_EvalExpression(&pStage->redExp, backEnd.currentEntity->e.shaderRGBA[0] * (1.0 / 255.0)), 1.0);
+				green =
+					Q_bound(0.0, RB_EvalExpression(&pStage->greenExp, backEnd.currentEntity->e.shaderRGBA[1] * (1.0 / 255.0)),
+							1.0);
+				blue =
+					Q_bound(0.0, RB_EvalExpression(&pStage->blueExp, backEnd.currentEntity->e.shaderRGBA[2] * (1.0 / 255.0)),
+							1.0);
 			}
 			else
 			{
@@ -3390,7 +3141,7 @@ static void ComputeColor(shaderStage_t * pStage)
 				green = Q_bound(0.0, RB_EvalExpression(&pStage->greenExp, 1.0), 1.0);
 				blue = Q_bound(0.0, RB_EvalExpression(&pStage->blueExp, 1.0), 1.0);
 			}
-			
+
 			tess.svars.color[0] = red;
 			tess.svars.color[1] = green;
 			tess.svars.color[2] = blue;
@@ -3403,7 +3154,7 @@ static void ComputeColor(shaderStage_t * pStage)
 	{
 		case AGEN_SKIP:
 			break;
-			
+
 		default:
 		case AGEN_IDENTITY:
 		{
@@ -3416,7 +3167,7 @@ static void ComputeColor(shaderStage_t * pStage)
 			}
 			break;
 		}
-			
+
 		case AGEN_CONST:
 		{
 			if(pStage->rgbGen != CGEN_CONST)
@@ -3425,7 +3176,7 @@ static void ComputeColor(shaderStage_t * pStage)
 			}
 			break;
 		}
-			
+
 		case AGEN_ENTITY:
 		{
 			if(backEnd.currentLight)
@@ -3442,7 +3193,7 @@ static void ComputeColor(shaderStage_t * pStage)
 			}
 			break;
 		}
-			
+
 		case AGEN_ONE_MINUS_ENTITY:
 		{
 			if(backEnd.currentLight)
@@ -3459,11 +3210,11 @@ static void ComputeColor(shaderStage_t * pStage)
 			}
 			break;
 		}
-		
+
 		case AGEN_CUSTOM:
 		{
 			alpha = Q_bound(0.0, RB_EvalExpression(&pStage->alphaExp, 1.0), 1.0);
-			
+
 			tess.svars.color[3] = alpha;
 			break;
 		}
@@ -3479,20 +3230,20 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 {
 	int             i;
 	int             b;
-	
+
 	GLimp_LogComment("--- ComputeTexCoords ---\n");
-	
+
 	// generate the lightmap coordinates
 	if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
 	{
 		MatrixIdentity(tess.svars.texMatrices[TB_LIGHTMAP]);
-		
+
 		for(i = 0; i < tess.numVertexes; i++)
 		{
 			tess.svars.texCoords[TB_LIGHTMAP][i][0] = tess.texCoords[i][1][0];
 			tess.svars.texCoords[TB_LIGHTMAP][i][1] = tess.texCoords[i][1][1];
 		}
-			
+
 		// tcMods will be ignored
 	}
 
@@ -3500,24 +3251,24 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 	for(b = 0; b < TB_LIGHTMAP; b++)
 	{
 		int             tm;
-		
+
 		// reset texture matrix
 		MatrixIdentity(tess.svars.texMatrices[b]);
-		
+
 		// generate the texture coordinates by default
 		tess.svars.skipCoords[b] = qfalse;
-		
-		switch(pStage->bundle[b].tcGen)
+
+		switch (pStage->bundle[b].tcGen)
 		{
 			case TCGEN_BAD:
 			case TCGEN_SKIP:
 				tess.svars.skipCoords[b] = qtrue;
 				continue;
-			
+
 			case TCGEN_IDENTITY:
 				Com_Memset(tess.svars.texCoords[b], 0, sizeof(float) * 2 * tess.numVertexes);
 				break;
-				
+
 			case TCGEN_TEXTURE:
 				for(i = 0; i < tess.numVertexes; i++)
 				{
@@ -3525,7 +3276,7 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 					tess.svars.texCoords[b][i][1] = tess.texCoords[i][0][1];
 				}
 				break;
-				
+
 			case TCGEN_VECTOR:
 				for(i = 0; i < tess.numVertexes; i++)
 				{
@@ -3533,11 +3284,11 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 					tess.svars.texCoords[b][i][1] = DotProduct(tess.xyz[i], pStage->bundle[b].tcGenVectors[1]);
 				}
 				break;
-				
+
 			case TCGEN_FOG:
 				RB_CalcFogTexCoords((float *)tess.svars.texCoords[b]);
 				break;
-				
+
 			case TCGEN_ENVIRONMENT_MAPPED:
 				RB_CalcEnvironmentTexCoords((float *)tess.svars.texCoords[b]);
 				break;
@@ -3548,8 +3299,8 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 		{
 			if(pStage->bundle[b].tcGen == TCGEN_SKIP)
 				break;
-			
-			switch(pStage->bundle[b].texMods[tm].type)
+
+			switch (pStage->bundle[b].texMods[tm].type)
 			{
 				case TMOD_NONE:
 					tm = TR_MAX_TEXMODS;	// break out of for loop
@@ -3566,7 +3317,7 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 				case TMOD_SCROLL:
 					RB_CalcScrollTexCoords(pStage->bundle[b].texMods[tm].scroll, (float *)tess.svars.texCoords[b]);
 					break;
-					
+
 				case TMOD_SCALE:
 					RB_CalcScaleTexCoords(pStage->bundle[b].texMods[tm].scale, (float *)tess.svars.texCoords[b]);
 					break;
@@ -3582,31 +3333,31 @@ static void ComputeTexCoords(shaderStage_t * pStage)
 				case TMOD_ROTATE:
 					RB_CalcRotateTexCoords(pStage->bundle[b].texMods[tm].rotateSpeed, (float *)tess.svars.texCoords[b]);
 					break;
-				
+
 				case TMOD_SCROLL2:
-					RB_CalcScrollTexCoords2( &pStage->bundle[b].texMods[tm].sExp,
-											 &pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
+					RB_CalcScrollTexCoords2(&pStage->bundle[b].texMods[tm].sExp,
+											&pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
 					break;
-					
+
 				case TMOD_SCALE2:
-					RB_CalcScaleTexCoords2( &pStage->bundle[b].texMods[tm].sExp,
-											&pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
+					RB_CalcScaleTexCoords2(&pStage->bundle[b].texMods[tm].sExp,
+										   &pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
 					break;
-					
+
 				case TMOD_CENTERSCALE:
-					RB_CalcCenterScaleTexCoords(	&pStage->bundle[b].texMods[tm].sExp,
-													&pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
+					RB_CalcCenterScaleTexCoords(&pStage->bundle[b].texMods[tm].sExp,
+												&pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
 					break;
-					
+
 				case TMOD_SHEAR:
-					RB_CalcShearTexCoords(	&pStage->bundle[b].texMods[tm].sExp,
-											&pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
+					RB_CalcShearTexCoords(&pStage->bundle[b].texMods[tm].sExp,
+										  &pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
 					break;
-					
+
 				case TMOD_ROTATE2:
 					RB_CalcRotateTexCoords2(&pStage->bundle[b].texMods[tm].rExp, (float *)tess.svars.texCoords[b]);
 					break;
-				
+
 				default:
 					ri.Error(ERR_DROP, "ERROR: unknown texmod '%d' in shader '%s'\n",
 							 pStage->bundle[b].texMods[tm].type, tess.surfaceShader->name);
@@ -3627,23 +3378,23 @@ static void ComputeTexMatrices(shaderStage_t * pStage)
 	int             i, j;
 	vec_t          *matrix;
 	float           x, y;
-	
+
 	GLimp_LogComment("--- ComputeTexMatrices ---\n");
 
 	for(i = 0; i < MAX_TEXTURE_BUNDLES; i++)
 	{
 		matrix = tess.svars.texMatrices[i];
-		
+
 		MatrixIdentity(matrix);
 
 		for(j = 0; j < pStage->bundle[i].numTexMods; j++)
 		{
-			switch(pStage->bundle[i].texMods[j].type)
+			switch (pStage->bundle[i].texMods[j].type)
 			{
 				case TMOD_NONE:
 					j = TR_MAX_TEXMODS;	// break out of for loop
 					break;
-					
+
 				case TMOD_SCROLL2:
 				{
 					x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
@@ -3653,52 +3404,52 @@ static void ComputeTexMatrices(shaderStage_t * pStage)
 					// with hardware limits
 					x = x - floor(x);
 					y = y - floor(y);
-				
+
 					MatrixMultiplyTranslation(matrix, x, y, 0.0);
 					break;
 				}
-			
+
 				case TMOD_SCALE2:
 				{
 					x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
 					y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
-				
+
 					MatrixMultiplyScale(matrix, x, y, 0.0);
 					break;
 				}
-				
+
 				case TMOD_CENTERSCALE:
 				{
 					x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
 					y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
-				
+
 					MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
 					MatrixMultiplyScale(matrix, x, y, 0.0);
 					MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
 					break;
 				}
-				
+
 				case TMOD_SHEAR:
 				{
 					x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
 					y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
-				
+
 					MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
 					MatrixMultiplyShear(matrix, x, y);
 					MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
 					break;
 				}
-				
+
 				case TMOD_ROTATE2:
 				{
 					x = RAD2DEG(RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].rExp, 0)) * 5.0;
-	
+
 					MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
 					MatrixMultiplyZRotation(matrix, x);
 					MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
 					break;
 				}
-				
+
 				default:
 					break;
 			}
@@ -3714,22 +3465,22 @@ ComputeFinalAttenuation
 static void ComputeFinalAttenuation(shaderStage_t * pStage, trRefDlight_t * dlight)
 {
 	int             i;
-	matrix_t		matrix;
+	matrix_t        matrix;
 	float           x, y;
-	
+
 	GLimp_LogComment("--- ComputeFinalAttenuation ---\n");
-	
+
 	MatrixIdentity(matrix);
 
 	for(i = 0; i < pStage->bundle[TB_COLORMAP].numTexMods; i++)
 	{
-		switch(pStage->bundle[TB_COLORMAP].texMods[i].type)
+		switch (pStage->bundle[TB_COLORMAP].texMods[i].type)
 		{
 			case TMOD_NONE:
 				i = TR_MAX_TEXMODS;	// break out of for loop
 				break;
 
-			
+
 			case TMOD_SCROLL2:
 			{
 				x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
@@ -3739,85 +3490,87 @@ static void ComputeFinalAttenuation(shaderStage_t * pStage, trRefDlight_t * dlig
 				// with hardware limits
 				x = x - floor(x);
 				y = y - floor(y);
-				
+
 				MatrixMultiplyTranslation(matrix, x, y, 0.0);
 				break;
 			}
-			
+
 			case TMOD_SCALE2:
 			{
 				x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
 				y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
-				
+
 				MatrixMultiplyScale(matrix, x, y, 0.0);
 				break;
 			}
-				
+
 			case TMOD_CENTERSCALE:
 			{
 				x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
 				y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
-				
+
 				MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
 				MatrixMultiplyScale(matrix, x, y, 0.0);
 				MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
 				break;
 			}
-				
+
 			case TMOD_SHEAR:
 			{
 				x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
 				y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
-				
+
 				MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
 				MatrixMultiplyShear(matrix, x, y);
 				MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
 				break;
 			}
-				
+
 			case TMOD_ROTATE2:
 			{
 				x = RAD2DEG(RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].rExp, 0)) * 5.0;
-	
+
 				MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
 				MatrixMultiplyZRotation(matrix, x);
 				MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
 				break;
 			}
-			
+
 			default:
 				break;
 		}
 	}
-	
+
 	MatrixMultiply(matrix, dlight->attenuationMatrix, dlight->attenuationMatrix2);
 }
 
 
 void RB_StageIteratorLighting()
 {
-	int				i, j;
+	int             i, j;
 	trRefDlight_t  *dl;
 	shaderStage_t  *attenuationXYStage;
 	shaderStage_t  *attenuationZStage;
-	
+
 	// log this call
 	if(r_logFile->integer)
 	{
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorLighting( %s surface, %s light, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name, tess.lightShader->name, tess.numVertexes, tess.numIndexes / 3));
+		GLimp_LogComment(va
+						 ("--- RB_StageIteratorLighting( %s surface, %s light, %i vertices, %i triangles ) ---\n",
+						  tess.surfaceShader->name, tess.lightShader->name, tess.numVertexes, tess.numIndexes / 3));
 	}
-	
+
 	if(!tess.surfaceShader->interactLight)
 	{
 		// Tr3B: abort if surface shader has no ability to interact with light
 		// this will save texcoords and matrix calculations
-		return;	
+		return;
 	}
-	
+
 	dl = backEnd.currentLight;
-	
+
 	RB_DeformTessGeometry();
 
 	// set face culling appropriately
@@ -3839,7 +3592,7 @@ void RB_StageIteratorLighting()
 	{
 		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
 	}
-	
+
 	if(qglLockArraysEXT)
 	{
 		qglLockArraysEXT(0, tess.numVertexes);
@@ -3848,7 +3601,7 @@ void RB_StageIteratorLighting()
 
 	// call shader function
 	attenuationZStage = tess.lightShader->stages[0];
-		
+
 	for(i = 0; i < MAX_SHADER_STAGES; i++)
 	{
 		shaderStage_t  *diffuseStage = tess.surfaceStages[i];
@@ -3857,12 +3610,12 @@ void RB_StageIteratorLighting()
 		{
 			break;
 		}
-		
+
 		if(!RB_EvalExpression(&diffuseStage->ifExp, 1.0))
 		{
 			continue;
 		}
-			
+
 		if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
 		{
 			ComputeTexMatrices(diffuseStage);
@@ -3871,30 +3624,30 @@ void RB_StageIteratorLighting()
 		{
 			ComputeTexCoords(diffuseStage);
 		}
-		
+
 		for(j = 1; j < MAX_SHADER_STAGES; j++)
 		{
 			attenuationXYStage = tess.lightShader->stages[j];
-						
+
 			if(!attenuationXYStage)
 			{
 				break;
 			}
-			
+
 			if(attenuationXYStage->type != ST_ATTENUATIONMAP_XY)
 			{
 				continue;
 			}
-			
+
 			if(!RB_EvalExpression(&attenuationXYStage->ifExp, 1.0))
 			{
 				continue;
 			}
-		
+
 			ComputeColor(attenuationXYStage);
 			ComputeFinalAttenuation(attenuationXYStage, dl);
-				
-			switch(diffuseStage->type)
+
+			switch (diffuseStage->type)
 			{
 				case ST_DIFFUSEMAP:
 					if(glConfig.shadingLanguage100Available)
@@ -3914,10 +3667,10 @@ void RB_StageIteratorLighting()
 					}
 					else
 					{
-							// TODO
+						// TODO
 					}
 					break;
-						
+
 				case ST_COLLAPSE_lighting_DB_direct:
 				case ST_COLLAPSE_lighting_DB_generic:
 					if(glConfig.shadingLanguage100Available)
@@ -3955,10 +3708,10 @@ void RB_StageIteratorLighting()
 					}
 					else
 					{
-							// TODO
+						// TODO
 					}
 					break;
-						
+
 				case ST_COLLAPSE_lighting_DBS_direct:
 				case ST_COLLAPSE_lighting_DBS_generic:
 					if(glConfig.shadingLanguage100Available)
@@ -4026,10 +3779,10 @@ void RB_StageIteratorLighting()
 					}
 					else
 					{
-							// TODO
+						// TODO
 					}
 					break;
-						
+
 				default:
 					break;
 			}
@@ -4053,15 +3806,17 @@ void RB_StageIteratorLighting()
 void RB_StageIteratorGeneric()
 {
 	int             stage;
-	
+
 	// log this call
 	if(r_logFile->integer)
 	{
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
-		GLimp_LogComment(va("--- RB_StageIteratorGeneric( %s surface, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name, tess.numVertexes, tess.numIndexes / 3));
+		GLimp_LogComment(va
+						 ("--- RB_StageIteratorGeneric( %s surface, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name,
+						  tess.numVertexes, tess.numIndexes / 3));
 	}
-	
+
 	RB_DeformTessGeometry();
 
 	// set face culling appropriately
@@ -4083,7 +3838,7 @@ void RB_StageIteratorGeneric()
 	{
 		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
 	}
-	
+
 	if(qglLockArraysEXT)
 	{
 		qglLockArraysEXT(0, tess.numVertexes);
@@ -4099,7 +3854,7 @@ void RB_StageIteratorGeneric()
 		{
 			break;
 		}
-		
+
 		if(!RB_EvalExpression(&pStage->ifExp, 1.0))
 		{
 			continue;
@@ -4115,7 +3870,7 @@ void RB_StageIteratorGeneric()
 			ComputeTexCoords(pStage);
 		}
 
-		switch(pStage->type)
+		switch (pStage->type)
 		{
 			case ST_DIFFUSEMAP:
 			{
@@ -4165,7 +3920,7 @@ void RB_StageIteratorGeneric()
 				}
 				break;
 			}
-			
+
 			case ST_COLLAPSE_lighting_DB_generic:
 			{
 				if(r_dynamicLighting->integer == 2)
@@ -4219,9 +3974,9 @@ void RB_StageIteratorGeneric()
 						Render_genericSingle_FFP(stage);
 					}
 				}
-				break;	
+				break;
 			}
-			
+
 			case ST_COLLAPSE_lighting_DBS_generic:
 			{
 				if(r_dynamicLighting->integer == 2)
@@ -4281,7 +4036,7 @@ void RB_StageIteratorGeneric()
 				}
 				break;
 			}
-			
+
 			case ST_LIGHTMAP:
 			{
 				if(r_dynamicLighting->integer == 2)
@@ -4301,18 +4056,18 @@ void RB_StageIteratorGeneric()
 				}
 				break;
 			}
-			
-			// skip these if not merge into diffuse stage
+
+				// skip these if not merge into diffuse stage
 			case ST_NORMALMAP:
 			case ST_SPECULARMAP:
 				break;
-			
+
 			case ST_COLLAPSE_genericMulti:
 			{
 				Render_genericMulti_FFP(stage);
 				break;
 			}
-			
+
 			case ST_COLLAPSE_lighting_DB_direct:
 			{
 				if(r_dynamicLighting->integer == 2)
@@ -4346,7 +4101,7 @@ void RB_StageIteratorGeneric()
 				}
 				break;
 			}
-			
+
 			case ST_COLLAPSE_lighting_DBS_direct:
 			{
 				if(r_dynamicLighting->integer == 2)
@@ -4384,7 +4139,7 @@ void RB_StageIteratorGeneric()
 				}
 				break;
 			}
-			
+
 			case ST_COLLAPSE_reflection_CB:
 			{
 				if(glConfig.shadingLanguage100Available)
@@ -4397,7 +4152,7 @@ void RB_StageIteratorGeneric()
 				}
 				break;
 			}
-			
+
 			case ST_REFLECTIONMAP:
 			{
 				if(glConfig.shadingLanguage100Available)
@@ -4410,7 +4165,7 @@ void RB_StageIteratorGeneric()
 				}
 				break;
 			}
-			
+
 			case ST_REFRACTIONMAP:
 			{
 				if(glConfig.shadingLanguage100Available)
@@ -4423,7 +4178,7 @@ void RB_StageIteratorGeneric()
 				}
 				break;
 			}
-			
+
 			case ST_DISPERSIONMAP:
 			{
 				if(glConfig.shadingLanguage100Available)
@@ -4436,7 +4191,7 @@ void RB_StageIteratorGeneric()
 				}
 				break;
 			}
-			
+
 			case ST_SKYBOXMAP:
 			{
 				if(glConfig.shadingLanguage100Available)
@@ -4449,7 +4204,7 @@ void RB_StageIteratorGeneric()
 				}
 				break;
 			}
-			
+
 			case ST_HEATHAZEMAP:
 			{
 				if(glConfig.shadingLanguage100Available)
@@ -4462,7 +4217,7 @@ void RB_StageIteratorGeneric()
 				}
 				break;
 			}
-			
+
 			case ST_GLOWMAP:
 			{
 				if(glConfig.shadingLanguage100Available)
@@ -4475,7 +4230,7 @@ void RB_StageIteratorGeneric()
 				}
 				break;
 			}
-			
+
 			case ST_BLOOMMAP:
 			{
 				if(glConfig.shadingLanguage100Available)
@@ -4488,7 +4243,7 @@ void RB_StageIteratorGeneric()
 				}
 				break;
 			}
-			
+
 			case ST_BLOOM2MAP:
 			{
 				if(glConfig.shadingLanguage100Available)
@@ -4501,7 +4256,7 @@ void RB_StageIteratorGeneric()
 				}
 				break;
 			}
-			
+
 			case ST_ROTOSCOPEMAP:
 			{
 				if(glConfig.shadingLanguage100Available)
@@ -4514,7 +4269,7 @@ void RB_StageIteratorGeneric()
 				}
 				break;
 			}
-			
+
 			default:
 			case ST_COLORMAP:
 			{
@@ -4529,14 +4284,14 @@ void RB_StageIteratorGeneric()
 				break;
 			}
 		}
-		
+
 		// allow skipping out to show just lightmaps during development
 		if(r_showLightMaps->integer && (pStage->type == ST_LIGHTMAP))
 		{
 			break;
 		}
 	}
-	
+
 	if(tess.fogNum >= 1 && tess.surfaceShader->fogPass)
 	{
 		Render_fog();
@@ -4570,7 +4325,7 @@ static void Render_shadowVolume()
 		// a call to va() every frame!
 		GLimp_LogComment(va("--- Render_shadowVolume( %i vertices, %i triangles ) ---\n", tess.numVertexes, tess.numIndexes / 3));
 	}
-	
+
 	if(r_showShadowVolumes->integer)
 	{
 		//GL_State(GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
@@ -4581,20 +4336,20 @@ static void Render_shadowVolume()
 		GL_Cull(CT_FRONT_SIDED);
 		//qglColor4f(1.0f, 1.0f, 0.7f, 0.05f);
 		qglColor4f(1.0f, 0.0f, 0.0f, 0.05f);
-		R_DrawElements();
+		DrawElements();
 #endif
 
 #if 1
 		GL_Cull(CT_BACK_SIDED);
 		qglColor4f(0.0f, 1.0f, 0.0f, 0.05f);
-		R_DrawElements();
+		DrawElements();
 #endif
-	
+
 #if 1
 		GL_State(GLS_DEPTHFUNC_LESS | GLS_POLYMODE_LINE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
 		GL_Cull(CT_TWO_SIDED);
 		qglColor4f(0.0f, 0.0f, 1.0f, 0.05f);
-		R_DrawElements();
+		DrawElements();
 #endif
 	}
 	else
@@ -4603,30 +4358,30 @@ static void Render_shadowVolume()
 		{
 			// mirrors have the culling order reversed
 			//if(backEnd.viewParms.isMirror)
-			//	qglFrontFace(GL_CW);
-			
+			//  qglFrontFace(GL_CW);
+
 			if(qglActiveStencilFaceEXT && glConfig.stencilWrapAvailable)
 			{
 				// render both sides at once
 				GL_Cull(CT_TWO_SIDED);
-				
+
 				qglEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
-				
+
 				qglActiveStencilFaceEXT(GL_BACK);
 				qglStencilOp(GL_KEEP, GL_DECR_WRAP_EXT, GL_KEEP);
 
 				qglActiveStencilFaceEXT(GL_FRONT);
 				qglStencilOp(GL_KEEP, GL_INCR_WRAP_EXT, GL_KEEP);
-				
-				R_DrawElements();
-				
+
+				DrawElements();
+
 				qglDisable(GL_STENCIL_TEST_TWO_SIDE_EXT);
 			}
 			else
 			{
 				// draw only the front faces of the shadow volume
 				GL_Cull(CT_FRONT_SIDED);
-		
+
 				// increment the stencil value on zfail
 				if(glConfig.stencilWrapAvailable)
 				{
@@ -4636,12 +4391,12 @@ static void Render_shadowVolume()
 				{
 					qglStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
 				}
-		
-				R_DrawElements();
-		
+
+				DrawElements();
+
 				// draw only the back faces of the shadow volume
 				GL_Cull(CT_BACK_SIDED);
-		
+
 				// decrement the stencil value on zfail
 				if(glConfig.stencilWrapAvailable)
 				{
@@ -4651,46 +4406,46 @@ static void Render_shadowVolume()
 				{
 					qglStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
 				}
-		
-				R_DrawElements();
+
+				DrawElements();
 			}
-			
+
 			//if(backEnd.viewParms.isMirror)
-			//	qglFrontFace(GL_CCW);
+			//  qglFrontFace(GL_CCW);
 		}
 		else
 		{
 			// Tr3B - zpass rendering is cheaper because we can skip the lightcap and darkcap
 			// see GPU Gems1 9.5.4
-			
+
 			// mirrors have the culling order reversed
 			//if(backEnd.viewParms.isMirror)
-			//	qglFrontFace(GL_CW);
-			
+			//  qglFrontFace(GL_CW);
+
 			if(qglActiveStencilFaceEXT && glConfig.stencilWrapAvailable)
 			{
 				// render both sides at once
 				GL_Cull(CT_TWO_SIDED);
-				
+
 				qglEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
 
 				qglActiveStencilFaceEXT(GL_BACK);
 				qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP_EXT);
-				
+
 				qglActiveStencilFaceEXT(GL_FRONT);
 				qglStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP_EXT);
-				
-				R_DrawElements();
-				
+
+				DrawElements();
+
 				qglDisable(GL_STENCIL_TEST_TWO_SIDE_EXT);
-				
+
 				qglEnable(GL_CULL_FACE);
 			}
 			else
 			{
 				// draw only the back faces of the shadow volume
 				GL_Cull(CT_BACK_SIDED);
-					
+
 				// increment the stencil value on zpass
 				if(glConfig.stencilWrapAvailable)
 				{
@@ -4700,12 +4455,12 @@ static void Render_shadowVolume()
 				{
 					qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
 				}
-					
-				R_DrawElements();
-		
+
+				DrawElements();
+
 				// draw only the front faces of the shadow volume
 				GL_Cull(CT_FRONT_SIDED);
-		
+
 				// decrement the stencil value on zpass
 				if(glConfig.stencilWrapAvailable)
 				{
@@ -4715,15 +4470,15 @@ static void Render_shadowVolume()
 				{
 					qglStencilOp(GL_KEEP, GL_KEEP, GL_DECR);
 				}
-		
-				R_DrawElements();
+
+				DrawElements();
 			}
-			
+
 			//if(backEnd.viewParms.isMirror)
-			//	qglFrontFace(GL_CCW);
+			//  qglFrontFace(GL_CCW);
 		}
 	}
-	
+
 	backEnd.pc.c_shadowBatches++;
 }
 
@@ -4742,7 +4497,7 @@ void RB_EndSurface()
 	{
 		ri.Error(ERR_DROP, "RB_EndSurface() - SHADER_MAX_VERTEXES hit");
 	}
-	
+
 	// for debugging of sort order issues, stop rendering after a given sort value
 	if(r_debugSort->integer && r_debugSort->integer < tess.surfaceShader->sort)
 	{
@@ -4752,7 +4507,7 @@ void RB_EndSurface()
 	// update performance counter
 	backEnd.pc.c_batches++;
 
-	// draw content	
+	// draw content 
 	if(tess.shadowVolume)
 	{
 		Render_shadowVolume();
@@ -4761,7 +4516,7 @@ void RB_EndSurface()
 	{
 		// call off to shader specific tess end function
 		tess.currentStageIteratorFunc();
-	
+
 		// draw debugging stuff
 		if(r_showtris->integer)
 		{
@@ -4776,7 +4531,7 @@ void RB_EndSurface()
 			DrawTangentSpaces(&tess);
 		}
 	}
-	
+
 	// unbind VBO
 	if(glConfig.vertexBufferObjectAvailable)
 	{
@@ -4784,15 +4539,15 @@ void RB_EndSurface()
 		{
 			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 			tess.indexesVBO = 0;
-			
+
 			backEnd.pc.c_vboIndexBuffers++;
 		}
-		
+
 		if(tess.vertexesVBO)
 		{
 			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 			tess.vertexesVBO = 0;
-			
+
 			backEnd.pc.c_vboVertexBuffers++;
 		}
 	}

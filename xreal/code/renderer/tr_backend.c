@@ -41,6 +41,12 @@ void GL_Bind(image_t * image)
 	}
 	else
 	{
+		if(r_logFile->integer)
+		{
+			// don't just call LogComment, or we will get a call to va() every frame!
+			GLimp_LogComment(va("--- GL_Bind( %s ) ---\n", image->name));
+		}
+		
 		texnum = image->texnum;
 	}
 
@@ -429,6 +435,212 @@ void GL_State(unsigned long stateBits)
 	glState.glStateBits = stateBits;
 }
 
+void GL_ClientState(unsigned long stateBits)
+{
+	unsigned long   diff = stateBits ^ glState.glClientStateBits;
+
+	if(!diff)
+	{
+		return;
+	}
+
+	/*
+	   if(diff & GLCS_VERTEX)
+	   {
+	   if(stateBits & GLCS_VERTEX)
+	   {
+	   qglEnableClientState(GL_VERTEX_ARRAY);
+	   }
+	   else
+	   {
+	   qglDisableClientState(GL_VERTEX_ARRAY);
+	   }
+	   }
+	 */
+
+	if(diff & GLCS_TEXCOORD0)
+	{
+		if(stateBits & GLCS_TEXCOORD0)
+		{
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD0);
+		}
+		else
+		{
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD0);
+		}
+	}
+
+	if(diff & GLCS_TEXCOORD1)
+	{
+		if(stateBits & GLCS_TEXCOORD1)
+		{
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD1);
+		}
+		else
+		{
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD1);
+		}
+	}
+
+	if(diff & GLCS_TEXCOORD2)
+	{
+		if(stateBits & GLCS_TEXCOORD2)
+		{
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD2);
+		}
+		else
+		{
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD2);
+		}
+	}
+
+	if(diff & GLCS_TEXCOORD3)
+	{
+		if(stateBits & GLCS_TEXCOORD3)
+		{
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD3);
+		}
+		else
+		{
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD3);
+		}
+	}
+
+	if(diff & GLCS_TANGENT)
+	{
+		if(stateBits & GLCS_TANGENT)
+		{
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_TANGENT);
+		}
+		else
+		{
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_TANGENT);
+		}
+	}
+
+	if(diff & GLCS_BINORMAL)
+	{
+		if(stateBits & GLCS_BINORMAL)
+		{
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_BINORMAL);
+		}
+		else
+		{
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_BINORMAL);
+		}
+	}
+
+	if(diff & GLCS_NORMAL)
+	{
+		if(stateBits & GLCS_NORMAL)
+		{
+			qglEnableClientState(GL_NORMAL_ARRAY);
+		}
+		else
+		{
+			qglDisableClientState(GL_NORMAL_ARRAY);
+		}
+	}
+
+	if(diff & GLCS_COLOR)
+	{
+		if(stateBits & GLCS_COLOR)
+		{
+			qglEnableClientState(GL_COLOR_ARRAY);
+		}
+		else
+		{
+			qglDisableClientState(GL_COLOR_ARRAY);
+		}
+	}
+
+	glState.glClientStateBits = stateBits;
+}
+
+
+void GL_SetVertexAttribs()
+{
+	//static GLuint   oldVertexesVBO = 0;
+
+	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
+	{
+		/*
+		   if(oldVertexesVBO == tess.vertexesVBO)
+		   {
+		   // no update needed so avoid expensive glVertexPointer call
+		   return;
+		   }
+
+		   oldVertexesVBO = tess.vertexesVBO;
+		 */
+
+		//if(glState.glClientStateBits & GLCS_VERTEX)
+		//  qglVertexPointer(3, GL_FLOAT, 16, BUFFER_OFFSET(tess.ofsXYZ));
+
+		if(glState.glClientStateBits & GLCS_TEXCOORD0)
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.ofsTexCoords));
+
+		if(glState.glClientStateBits & GLCS_TEXCOORD1)
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.ofsTexCoords));
+
+		if(glState.glClientStateBits & GLCS_TEXCOORD2)
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD2, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.ofsTexCoords));
+
+		if(glState.glClientStateBits & GLCS_TEXCOORD3)
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD3, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.ofsTexCoords2));
+
+		if(glState.glClientStateBits & GLCS_TANGENT)
+			qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.ofsTangents));
+
+		if(glState.glClientStateBits & GLCS_BINORMAL)
+			qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.ofsBinormals));
+
+		if(glState.glClientStateBits & GLCS_NORMAL)
+			qglNormalPointer(GL_FLOAT, 16, BUFFER_OFFSET(tess.ofsNormals));
+
+		if(glState.glClientStateBits & GLCS_COLOR)
+			qglColorPointer(4, GL_UNSIGNED_BYTE, 0, BUFFER_OFFSET(tess.ofsColors));
+	}
+	else
+	{
+		//if(glState.glClientStateBits & GLCS_VERTEX)
+		//  qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
+
+		if(glState.glClientStateBits & GLCS_TEXCOORD0)
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_COLORMAP]);
+
+		if(glState.glClientStateBits & GLCS_TEXCOORD1)
+		{
+			if(tess.svars.skipCoords[TB_NORMALMAP])
+				qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
+			else
+				qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_NORMALMAP]);
+		}
+
+		if(glState.glClientStateBits & GLCS_TEXCOORD2)
+		{
+			if(tess.svars.skipCoords[TB_SPECULARMAP])
+				qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD2, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
+			else
+				qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD2, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_SPECULARMAP]);
+		}
+
+		if(glState.glClientStateBits & GLCS_TEXCOORD3)
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD3, 2, GL_FLOAT, 0, 0, tess.svars.texCoords[TB_LIGHTMAP]);
+
+		if(glState.glClientStateBits & GLCS_TANGENT)
+			qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, tess.tangents);
+
+		if(glState.glClientStateBits & GLCS_BINORMAL)
+			qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, tess.binormals);
+
+		if(glState.glClientStateBits & GLCS_NORMAL)
+			qglNormalPointer(GL_FLOAT, 16, tess.normals);
+
+		if(glState.glClientStateBits & GLCS_COLOR)
+			qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.svars.colors);
+	}
+}
 
 
 /*
@@ -2088,7 +2300,7 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 		qglMatrixMode(GL_MODELVIEW);
 		qglPopMatrix();
 	}
-
+	
 	GL_CheckErrors();
 }
 
@@ -2504,6 +2716,40 @@ void RB_ShowImages(void)
 
 }
 
+static void RB_ShowVisibilityFBO(void)
+{
+	GLimp_LogComment("--- RB_ShowVisibilityFBO ---\n");
+
+	if(!backEnd.projection2D)
+	{
+		RB_SetGL2D();
+	}
+
+	if(glConfig.framebufferObjectAvailable && glConfig.textureNPOTAvailable)
+	{
+		float           x, y, w, h;
+
+		GL_SelectTexture(0);
+		GL_Bind(tr.visibilityFBOImage);
+				 
+		w = glConfig.vidWidth / 3;
+		h = glConfig.vidHeight / 3;
+		x = 0;
+		y = 0;
+
+		qglBegin(GL_QUADS);
+		qglTexCoord2f(0, 0);
+		qglVertex2f(x, y);
+		qglTexCoord2f(1, 0);
+		qglVertex2f(x + w, y);
+		qglTexCoord2f(1, 1);
+		qglVertex2f(x + w, y + h);
+		qglTexCoord2f(0, 1);
+		qglVertex2f(x, y + h);
+		qglEnd();
+	}
+}
+
 
 /*
 =============
@@ -2524,6 +2770,12 @@ const void     *RB_SwapBuffers(const void *data)
 	if(r_showImages->integer)
 	{
 		RB_ShowImages();
+	}
+	
+	// FBO test
+	if(r_showVisibilityFBO->integer)
+	{
+		RB_ShowVisibilityFBO();
 	}
 
 	cmd = (const swapBuffersCommand_t *)data;

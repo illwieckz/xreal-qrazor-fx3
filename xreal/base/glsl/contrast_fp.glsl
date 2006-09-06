@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 uniform sampler2D	u_ColorMap;
 uniform vec2		u_FBufScale;
-uniform vec2		u_NPotScale;
+uniform vec2		u_NPOTScale;
 
 void	main()
 {
@@ -32,7 +32,7 @@ void	main()
 	st00 *= u_FBufScale;
 	
 	// scale by the screen non-power-of-two-adjust
-	st00 *= u_NPotScale;
+	st00 *= u_NPOTScale;
 	
 	// calculate contrast color
 #if 1

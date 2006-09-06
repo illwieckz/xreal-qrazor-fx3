@@ -793,6 +793,19 @@ typedef struct shaderState_s
 	shader_t       *shader;
 } shaderState_t;
 
+
+enum
+{
+	ATTR_INDEX_TEXCOORD0 = 8,
+	ATTR_INDEX_TEXCOORD1 = 9,
+	ATTR_INDEX_TEXCOORD2 = 10,
+	ATTR_INDEX_TEXCOORD3 = 11,
+	ATTR_INDEX_TANGENT = 12,
+	ATTR_INDEX_BINORMAL = 13,
+//  ATTR_INDEX_NORMAL       = 2,
+//  ATTR_INDEX_COLOR        = 3
+};
+
 // Tr3B - shaderProgram_t represents a pair of one
 // GLSL vertex and one GLSL fragment shader
 typedef struct shaderProgram_s
@@ -838,7 +851,7 @@ typedef struct shaderProgram_s
 	GLint           u_BlurMagnitude;
 
 	GLint           u_FBufScale;
-	GLint           u_NPotScale;
+	GLint           u_NPOTScale;
 
 	GLint           u_ProjectionMatrixTranspose;
 	GLint           u_ModelMatrix;
@@ -1714,6 +1727,10 @@ typedef struct
 	image_t        *currentRenderImage;
 	image_t        *currentRenderLinearImage;
 	image_t        *currentRenderNearestImage;
+	image_t        *visibilityFBOImage;
+	
+	// framebuffer objects
+	frameBuffer_t  *visibilityFBO;
 
 	// internal shaders
 	shader_t       *defaultShader;
@@ -1926,6 +1943,7 @@ extern cvar_t  *r_ext_shader_objects;
 extern cvar_t  *r_ext_vertex_shader;
 extern cvar_t  *r_ext_fragment_shader;
 extern cvar_t  *r_ext_shading_language_100;
+extern cvar_t  *r_ext_texture_non_power_of_two;
 extern cvar_t  *r_ext_stencil_wrap;
 extern cvar_t  *r_ext_texture_filter_anisotropic;
 extern cvar_t  *r_ext_stencil_two_side;
@@ -1999,6 +2017,7 @@ extern cvar_t  *r_showLightTransforms;
 extern cvar_t  *r_showLightInteractions;
 extern cvar_t  *r_showLightScissors;
 extern cvar_t  *r_showOcclusionQueries;
+extern cvar_t  *r_showVisibilityFBO;
 
 extern cvar_t  *r_vboFaces;
 extern cvar_t  *r_vboCurves;
@@ -2079,6 +2098,7 @@ void            GL_CheckErrors_(const char *filename, int line);
 
 void            GL_State(unsigned long stateVector);
 void            GL_ClientState(unsigned long stateBits);
+void            GL_SetVertexAttribs();
 void            GL_TexEnv(int env);
 void            GL_Cull(int cullType);
 
@@ -2387,8 +2407,8 @@ void            RB_CheckOverflow(int verts, int indexes);
 
 #define RB_CHECKOVERFLOW(v,i) {RB_CheckOverflow(v,i);}
 
-void            RB_InitGPUShaders();
-void            RB_ShutdownGPUShaders();
+void            GLSL_InitGPUShaders();
+void            GLSL_ShutdownGPUShaders();
 
 void            RB_StageIteratorLighting();
 void            RB_StageIteratorLightingStencilShadowed();

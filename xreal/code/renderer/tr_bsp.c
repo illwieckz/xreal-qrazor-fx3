@@ -3497,7 +3497,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 	s_numLightIndexes = numIndexes;
 
 
-#if 1
+#if 0
 	// calculate zfail shadow volume
 	numIndexes = 0;
 	indexes = s_shadowIndexes;
@@ -3683,7 +3683,7 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 
 	s_numLightIndexes = numIndexes;
 	
-#if 1
+#if 0
 	// calculate zfail shadow volume
 	numIndexes = 0;
 	indexes = s_shadowIndexes;
@@ -3894,7 +3894,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 
 	s_numLightIndexes = numIndexes;
 	
-#if 1
+#if 0
 	// calculate zfail shadow volume
 	numIndexes = 0;
 	indexes = s_shadowIndexes;

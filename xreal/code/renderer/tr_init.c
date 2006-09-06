@@ -94,6 +94,7 @@ cvar_t         *r_ext_shader_objects;
 cvar_t         *r_ext_vertex_shader;
 cvar_t         *r_ext_fragment_shader;
 cvar_t         *r_ext_shading_language_100;
+cvar_t         *r_ext_texture_non_power_of_two;
 cvar_t         *r_ext_stencil_wrap;
 cvar_t         *r_ext_texture_filter_anisotropic;
 cvar_t         *r_ext_stencil_two_side;
@@ -178,6 +179,7 @@ cvar_t         *r_showLightTransforms;
 cvar_t         *r_showLightInteractions;
 cvar_t         *r_showLightScissors;
 cvar_t         *r_showOcclusionQueries;
+cvar_t         *r_showVisibilityFBO;
 
 cvar_t         *r_vboFaces;
 cvar_t         *r_vboCurves;
@@ -1018,6 +1020,11 @@ void GL_SetDefaultState(void)
 	glState.glStateBits = GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE;
 	glState.glClientStateBits = GLCS_DEFAULT;
 	glState.currentProgram = 0;
+	
+	if(glConfig.shadingLanguage100Available)
+	{
+		qglUseProgramObjectARB(0);
+	}
 
 	qglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	qglDepthMask(GL_TRUE);
@@ -1164,8 +1171,9 @@ void R_Register(void)
 	r_ext_shader_objects = ri.Cvar_Get("r_ext_shader_objects", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_vertex_shader = ri.Cvar_Get("r_ext_vertex_shader", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_fragment_shader = ri.Cvar_Get("r_ext_fragment_shader", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_stencil_wrap = ri.Cvar_Get("r_ext_stencil_wrap", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_shading_language_100 = ri.Cvar_Get("r_ext_shading_language_100", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_texture_non_power_of_two = ri.Cvar_Get("r_ext_texture_non_power_of_two", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_stencil_wrap = ri.Cvar_Get("r_ext_stencil_wrap", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_texture_filter_anisotropic = ri.Cvar_Get("r_ext_texture_filter_anisotropic", "8", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_stencil_two_side = ri.Cvar_Get("r_ext_stencil_two_side", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_depth_bounds_test = ri.Cvar_Get("r_ext_depth_bounds_test", "1", CVAR_ARCHIVE | CVAR_LATCH);
@@ -1308,6 +1316,7 @@ void R_Register(void)
 	r_showLightInteractions = ri.Cvar_Get("r_showLightInteractions", "0", CVAR_CHEAT);
 	r_showLightScissors = ri.Cvar_Get("r_showLightScissors", "0", CVAR_CHEAT);
 	r_showOcclusionQueries = ri.Cvar_Get("r_showOcclusionQueries", "0", CVAR_CHEAT);
+	r_showVisibilityFBO = ri.Cvar_Get("r_showVisibilityFBO", "0", CVAR_CHEAT);
 
 	// make sure all the commands added here are also
 	// removed in R_Shutdown
@@ -1406,11 +1415,12 @@ void R_Init(void)
 	{
 		backEndData[1] = NULL;
 	}
+	
 	R_ToggleSmpFrame();
 
 	InitOpenGL();
 
-	RB_InitGPUShaders();
+	GLSL_InitGPUShaders();
 
 	R_InitImages();
 
@@ -1435,7 +1445,6 @@ void R_Init(void)
 	{
 		qglGenQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
 	}
-
 
 	err = qglGetError();
 	if(err != GL_NO_ERROR)
@@ -1480,12 +1489,14 @@ void RE_Shutdown(qboolean destroyWindow)
 			qglDeleteQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
 		}
 
-		RB_ShutdownGPUShaders();
+		GLSL_ShutdownGPUShaders();
 	}
 
 	R_DoneFreeType();
 
 	// shut down platform specific OpenGL stuff
+	
+	// Tr3B: this should be always executed if we want to avoid some GLSL problems with SMP
 	if(destroyWindow)
 	{
 		GLimp_Shutdown();
@@ -1533,7 +1544,6 @@ refexport_t    *GetRefAPI(int apiVersion, refimport_t * rimp)
 	}
 
 	// the RE_ functions are Renderer Entry points
-
 	re.Shutdown = RE_Shutdown;
 
 	re.BeginRegistration = RE_BeginRegistration;

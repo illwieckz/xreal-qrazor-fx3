@@ -342,6 +342,8 @@ R_InitFBOs
 */
 void R_InitFBOs(void)
 {
+	int             width, height;
+	
 	if(!glConfig.framebufferObjectAvailable)
 		return;
 
@@ -356,14 +358,16 @@ void R_InitFBOs(void)
 	R_CheckFBO(tr.positionFBO);
 	*/
 
-	/*
-	tr.visibilityFBO = R_CreateFBO("_visibility", glConfig.vidWidth, glConfig.vidHeight);
-	R_BindFBO(tr.visibilityFBO);
-	R_CreateFBODepthBuffer(tr.visibilityFBO, GL_DEPTH_COMPONENT24_ARB);
-//  R_CreateFBOStencilBuffer(tr.visibilityFBO, GL_STENCIL_INDEX8_EXT);
-	R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.visibilityImage->texId, 0);
-	R_CheckFBO(tr.visibilityFBO);
-	*/
+	if(glConfig.textureNPOTAvailable)
+	{
+		tr.visibilityFBO = R_CreateFBO("_visibility", glConfig.vidWidth, glConfig.vidHeight);
+		R_BindFBO(tr.visibilityFBO);
+		R_CreateFBOColorBuffer(tr.visibilityFBO, GL_RGBA, 0);
+		R_CreateFBODepthBuffer(tr.visibilityFBO, GL_DEPTH_COMPONENT24_ARB);
+//  	R_CreateFBOStencilBuffer(tr.visibilityFBO, GL_STENCIL_INDEX8_EXT);
+		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.visibilityFBOImage->texnum, 0);
+		R_CheckFBO(tr.visibilityFBO);
+	}
 
 /*
 	tr.mirrorFBO = R_CreateFBO("_mirror", 512, 512);
