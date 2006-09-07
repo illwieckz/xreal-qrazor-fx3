@@ -312,6 +312,25 @@ void R_BindFBO(frameBuffer_t * fbo)
 	if(glState.currentFBO != fbo)
 	{
 		qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo->frameBuffer);
+		
+		/*
+		for(j = 0; j < glConfig.maxColorAttachments; j++)
+		{
+			if(fbo->colorBuffers[j])
+			{
+				qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, fbo->colorBuffers[j]);
+			}
+		}
+		*/
+		
+		/*
+		if(fbo->depthBuffer)
+		{
+			qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, fbo->depthBuffer);
+			qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, fbo->depthBuffer);
+		}
+		*/
+		
 		glState.currentFBO = fbo;
 	}
 }
@@ -331,6 +350,7 @@ void R_BindNullFBO(void)
 	if(glState.currentFBO)
 	{
 		qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
 		glState.currentFBO = NULL;
 	}
 }
@@ -342,20 +362,22 @@ R_InitFBOs
 */
 void R_InitFBOs(void)
 {
-	int             width, height;
-	
 	if(!glConfig.framebufferObjectAvailable)
 		return;
 
 	tr.numFBOs = 0;
 	
 	/*
-	tr.positionFBO = R_CreateFBO("_position", glConfig.vidWidth, glConfig.vidHeight);
-	R_BindFBO(tr.positionFBO);
-	R_CreateFBODepthBuffer(tr.positionFBO, GL_DEPTH_COMPONENT24_ARB);
-//  R_CreateFBOStencilBuffer(tr.positionFBO, GL_STENCIL_INDEX8_EXT);
-	R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.positionImage->texId, 0);
-	R_CheckFBO(tr.positionFBO);
+	if(glConfig.textureNPOTAvailable)
+	{
+		tr.portalRender = R_CreateFBO("_portalRender", glConfig.vidWidth, glConfig.vidHeight);
+		R_BindFBO(tr.portalRenderFBO);
+		R_CreateFBOColorBuffer(tr.portalRenderFBO, GL_RGBA, 0);
+		R_CreateFBODepthBuffer(tr.portalRenderFBO, GL_DEPTH_COMPONENT24_ARB);
+//		R_CreateFBOStencilBuffer(tr.portalRenderFBO, GL_STENCIL_INDEX8_EXT);
+		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.portalRenderFBOImage->texnum, 0);
+		R_CheckFBO(tr.portalRenderFBO);
+	}
 	*/
 
 	if(glConfig.textureNPOTAvailable)
@@ -363,8 +385,8 @@ void R_InitFBOs(void)
 		tr.visibilityFBO = R_CreateFBO("_visibility", glConfig.vidWidth, glConfig.vidHeight);
 		R_BindFBO(tr.visibilityFBO);
 		R_CreateFBOColorBuffer(tr.visibilityFBO, GL_RGBA, 0);
-		R_CreateFBODepthBuffer(tr.visibilityFBO, GL_DEPTH_COMPONENT24_ARB);
-//  	R_CreateFBOStencilBuffer(tr.visibilityFBO, GL_STENCIL_INDEX8_EXT);
+//		R_CreateFBODepthBuffer(tr.visibilityFBO, GL_DEPTH_COMPONENT24_ARB);
+//		R_CreateFBOStencilBuffer(tr.visibilityFBO, GL_STENCIL_INDEX8_EXT);
 		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.visibilityFBOImage->texnum, 0);
 		R_CheckFBO(tr.visibilityFBO);
 	}

@@ -1251,7 +1251,7 @@ static void Render_genericSingle_FFP(int stage)
 //  qglDisable(GL_TEXTURE_2D);
 }
 
-#if 0
+#if 1
 #define Render_genericSingle Render_genericSingle_FFP
 #else
 static void Render_genericSingle(int stage)
@@ -1310,7 +1310,7 @@ static void Render_fboTest(int stage)
 		qglViewport(0, 0, glConfig.vidWidth, glConfig.vidHeight);
 		qglScissor(0, 0, glConfig.vidWidth, glConfig.vidHeight);
 		
-		qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		
 		// transform by the camera placement
 		VectorCopy(backEnd.viewParms.or.origin, origin);
@@ -1330,7 +1330,8 @@ static void Render_fboTest(int stage)
 		qglScalef(8.0f, 8.0f, 8.0f);
 		
 		GL_Program(0);
-		GL_State(GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE);
+		//qglEnable(GL_DEPTH_TEST);
+		GL_State(/*GLS_DEPTHTEST_DISABLE |*/ GLS_DEPTHMASK_TRUE);
 		GL_Cull(CT_TWO_SIDED);
 		
 		GL_SelectTexture(0);
@@ -1456,7 +1457,7 @@ static void Render_depthFill_FFP(int stage)
 	}
 }
 
-#if 0
+#if 1
 #define Render_depthFill Render_depthFill_FFP
 #else
 static void Render_depthFill(int stage)
@@ -2468,6 +2469,40 @@ static void Render_heatHaze(int stage)
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
 	GLimp_LogComment("--- Render_heatHaze ---\n");
+	
+	if(glConfig.framebufferObjectAvailable && glConfig.textureNPOTAvailable)
+	{
+		R_BindFBO(tr.visibilityFBO);
+		
+		// set the window clipping
+		//qglViewport(0, 0, glConfig.vidWidth, glConfig.vidHeight);
+		//qglScissor(0, 0, glConfig.vidWidth, glConfig.vidHeight);
+		
+		qglClear(GL_COLOR_BUFFER_BIT); // | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		
+		// enable shader, set arrays
+		GL_Program(tr.genericShader_single.program);
+		GL_ClientState(tr.genericShader_single.attribs);
+		GL_SetVertexAttribs();
+		
+		//qglEnable(GL_DEPTH_TEST);
+		GL_State(/*GLS_DEPTHTEST_DISABLE |*/ GLS_DEPTHMASK_TRUE);
+		GL_Cull(CT_TWO_SIDED);
+		
+		ComputeColors(pStage);
+		//GL_State(pStage->stateBits);
+		
+		// bind FBO image
+		GL_SelectTexture(0);
+		GL_Bind(tr.whiteImage);
+		qglMatrixMode(GL_TEXTURE);
+		qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
+		qglMatrixMode(GL_MODELVIEW);
+
+		DrawElements();
+		
+		R_BindNullFBO();
+	}
 	
 	// enable shader, set arrays
 	GL_Program(tr.heatHazeShader.program);
@@ -4210,6 +4245,7 @@ void RB_StageIteratorGeneric()
 				if(glConfig.shadingLanguage100Available)
 				{
 					Render_heatHaze(stage);
+					//Render_fboTest(stage);
 				}
 				else
 				{
