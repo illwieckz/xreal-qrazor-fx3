@@ -1165,11 +1165,34 @@ static qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, orientation_t * s
 	return qfalse;
 }
 
-static qboolean IsMirror(const cplane_t *originalPlane)
+static qboolean IsMirror(const drawSurf_t * drawSurf)
 {
 	int             i;
+	cplane_t        originalPlane, plane;
 	trRefEntity_t  *e;
 	float           d;
+
+	// create plane axis for the portal we are seeing
+	R_PlaneForSurface(drawSurf->surface, &originalPlane);
+
+	// rotate the plane if necessary
+	if(tr.currentEntity != &tr.worldEntity)
+	{
+		// get the orientation of the entity
+		R_RotateForEntity(tr.currentEntity, &tr.viewParms, &tr.or);
+
+		// rotate the plane, but keep the non-rotated version for matching
+		// against the portalSurface entities
+		R_LocalNormalToWorld(originalPlane.normal, plane.normal);
+		plane.dist = originalPlane.dist + DotProduct(plane.normal, tr.or.origin);
+
+		// translate the original plane
+		originalPlane.dist = originalPlane.dist + DotProduct(originalPlane.normal, tr.or.origin);
+	}
+	else
+	{
+		plane = originalPlane;
+	}
 
 	// locate the portal entity closest to this plane.
 	// origin will be the origin of the portal, origin2 will be
@@ -1182,7 +1205,7 @@ static qboolean IsMirror(const cplane_t *originalPlane)
 			continue;
 		}
 
-		d = DotProduct(e->e.origin, originalPlane->normal) - originalPlane->dist;
+		d = DotProduct(e->e.origin, originalPlane.normal) - originalPlane.dist;
 		if(d > 64 || d < -64)
 		{
 			continue;
@@ -1215,15 +1238,12 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 	int             i;
 	unsigned int    pointOr = 0;
 	unsigned int    pointAnd = (unsigned int)~0;
-	cplane_t        originalPlane, plane;
 
 	if(glConfig.smpActive)
 	{
 		// FIXME!  we can't do RB_BeginSurface/RB_EndSurface stuff with smp!
 		return qfalse;
 	}
-
-	R_RotateForViewer();
 
 	tr.currentEntity = drawSurf->entity;
 	shader = tr.sortedShaders[drawSurf->shaderNum];
@@ -1238,7 +1258,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 	}
 	else
 	{
-		tr.or = tr.viewParms.world;	
+		tr.or = tr.viewParms.world;
 	}
 
 	RB_BeginSurface(shader, NULL, lightmapNum, fogNum, qfalse, qfalse);
@@ -1247,7 +1267,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 	// Tr3B: former assertion
 	if(tess.numVertexes >= 128)
 	{
-		return qfalse;	
+		return qfalse;
 	}
 
 	for(i = 0; i < tess.numVertexes; i++)
@@ -1284,36 +1304,24 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 	// range to the surface), but it's good enough for the types of portals
 	// we have in the game right now.
 	numTriangles = tess.numIndexes / 3;
-
+	
 	for(i = 0; i < tess.numIndexes; i += 3)
 	{
-		int             j;
-		vec3_t          diff;
-		vec3_t          verts[3];
-		vec4_t          plane;		// triangle plane
-		vec3_t          world;		// triangle plane normal in world space
+		vec3_t          normal;
+		float           dot;
 		float           len;
-		
-		for(j = 0; j < 3; j++)
-		{
-			VectorCopy(tess.xyz[tess.indexes[i + j]], verts[j]);
-			VectorSubtract(verts[j], tr.or.viewOrigin, diff);
 
-			len = VectorLengthSquared(diff);	// lose the sqrt
-			if(len < shortest)
-			{
-				shortest = len;
-			}
-		}
-		
-		if(PlaneFromPoints(plane, verts[0], verts[1], verts[2], qtrue))
+		VectorSubtract(tess.xyz[tess.indexes[i]], tr.or.viewOrigin, normal);
+
+		len = VectorLengthSquared(normal);	// lose the sqrt
+		if(len < shortest)
 		{
-			R_LocalNormalToWorld(plane, world);
-			
-			if(DotProduct(world, tr.viewParms.or.axis[0]) >= 0)
-			{
-				numTriangles--;
-			}
+			shortest = len;
+		}
+
+		if((dot = DotProduct(normal, tess.normals[tess.indexes[i]])) >= 0)
+		{
+			numTriangles--;
 		}
 	}
 	if(!numTriangles)
@@ -1321,34 +1329,10 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 		//ri.Printf(PRINT_ALL, "entity Portal surface triangles culled\n");
 		return qtrue;
 	}
-
-	// create plane axis for the portal we are seeing
-	R_PlaneForSurface(drawSurf->surface, &originalPlane);
-
-	// rotate the plane if necessary
-	if(tr.currentEntity != &tr.worldEntity)
-	{
-		// rotate the plane, but keep the non-rotated version for matching
-		// against the portalSurface entities
-		R_LocalNormalToWorld(originalPlane.normal, plane.normal);
-		plane.dist = originalPlane.dist + DotProduct(plane.normal, tr.or.origin);
-	}
-	else
-	{
-		plane = originalPlane;
-	}
-	
-	// determine if this surface is backfaced
-	/*
-	if(DotProduct(tr.viewParms.or.axis[0], plane.normal) >= 0)
-	{
-		return qtrue;
-	}
-	*/
 	
 	// mirrors can early out at this point, since we don't do a fade over distance
 	// with them (although we could)
-	if(IsMirror(&originalPlane))
+	if(IsMirror(drawSurf))
 	{
 		return qfalse;
 	}
