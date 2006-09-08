@@ -749,20 +749,10 @@ static void RB_BeginDrawingView(void)
 		glState.finishCalled = qtrue;
 	}
 	
-	// check for portal offscreen rendering
-	if(backEnd.viewParms.isPortal)
+	// disable offscreen rendering
+	if(glConfig.framebufferObjectAvailable && glConfig.textureNPOTAvailable)
 	{
-		if(glConfig.framebufferObjectAvailable && glConfig.textureNPOTAvailable)
-		{
-			R_BindFBO(tr.portalRenderFBO);
-		}
-	}
-	else
-	{
-		if(glConfig.framebufferObjectAvailable && glConfig.textureNPOTAvailable)
-		{
-			R_BindNullFBO();
-		}
+		R_BindNullFBO();
 	}
 
 	// we will need to change the projection matrix before drawing
@@ -832,6 +822,22 @@ static void RB_BeginDrawingView(void)
 	else
 	{
 		qglDisable(GL_CLIP_PLANE0);
+	}
+	
+	// check for offscreen rendering
+	if(glConfig.shadingLanguage100Available && glConfig.framebufferObjectAvailable && glConfig.textureNPOTAvailable)
+	{
+		if(backEnd.viewParms.isPortal)
+		{
+			R_BindFBO(tr.portalRenderFBO);
+		}
+		else
+		{
+			R_BindFBO(tr.currentRenderFBO);
+		}
+		
+		// FIXME: GL_STENCIL_BUFFER_BIT with FBOs
+		qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	GL_CheckErrors();
@@ -2378,6 +2384,54 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 
 	// render debug information
 	RB_RenderDebugUtils(interactions, numInteractions);
+	
+	// render offscreen result
+	if(glConfig.shadingLanguage100Available && glConfig.framebufferObjectAvailable && glConfig.textureNPOTAvailable)
+	{
+		float           fbufWidthScale, fbufHeightScale;
+		
+		R_BindNullFBO();
+		
+		// enable shader, set arrays
+		GL_Program(tr.screenShader.program);
+		GL_State(GLS_DEPTHTEST_DISABLE);
+		GL_ClientState(tr.screenShader.attribs);
+		//GL_SetVertexAttribs();
+		GL_Cull(CT_TWO_SIDED);
+	
+		// set uniforms
+		fbufWidthScale = Q_recip((float)glConfig.vidWidth);
+		fbufHeightScale = Q_recip((float)glConfig.vidHeight);
+
+		qglUniform2fARB(tr.screenShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
+
+		// bind colorMap
+		GL_SelectTexture(0);
+		GL_Bind(tr.currentRenderFBOImage);
+
+		// set 2D virtual screen size
+		qglPushMatrix();
+		qglLoadIdentity();
+		qglMatrixMode(GL_PROJECTION);
+		qglPushMatrix();
+		qglLoadIdentity();
+		qglOrtho(backEnd.viewParms.viewportX,
+				 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+				 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+
+		qglBegin(GL_QUADS);
+		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
+		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
+		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+		qglEnd();
+
+		qglPopMatrix();
+		qglMatrixMode(GL_MODELVIEW);
+		qglPopMatrix();
+	}
+	
+	GL_CheckErrors();
 }
 
 
