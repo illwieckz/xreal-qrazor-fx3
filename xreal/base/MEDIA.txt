@@ -436,11 +436,7 @@ models/players/janet/upper_1.md3							id Software					EULA					tademo
 models/players/janet/upper_2.md3							id Software					EULA					tademo
 models/players/janet/upper.md3								id Software					EULA					tademo
 models/players/visor/animation.cfg							id Software					EULA					q3demo
-models/players/visor/blue_d.tga								Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/players/visor/blue_h.tga								Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/players/visor/blue.jpg								id Software					EULA					q3demo
-models/players/visor/blue_n.tga								Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/players/visor/blue_rgba.tga							id Software					EULA					q3demo
+models/players/visor/blue.tga								id Software					EULA					q3test-1.03
 models/players/visor/blue_s.tga								Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 models/players/visor/head_1.md3								id Software					EULA					q3demo
 models/players/visor/head_2.md3								id Software					EULA					q3demo
@@ -457,16 +453,13 @@ models/players/visor/lower_blue.skin						id Software					EULA					q3demo
 models/players/visor/lower_default.skin						id Software					EULA					q3demo
 models/players/visor/lower.md3								id Software					EULA					q3demo
 models/players/visor/lower_red.skin							id Software					EULA					q3demo
-models/players/visor/red.jpg								id Software					EULA					q3demo
+models/players/visor/red.tga								id Software					EULA					q3test-1.03
 models/players/visor/upper_1.md3							id Software					EULA					q3demo
 models/players/visor/upper_2.md3							id Software					EULA					q3demo
 models/players/visor/upper_blue.skin						id Software					EULA					q3demo
 models/players/visor/upper_default.skin						id Software					EULA					q3demo
 models/players/visor/upper.md3								id Software					EULA					q3demo
 models/players/visor/upper_red.skin							id Software					EULA					q3demo
-models/players/visor/visor_d.tga							id Software					EULA					q3demo
-models/players/visor/visor_n.tga							Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
-models/players/visor/visor_s.tga							Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 models/powerups/ammo/ammobox.jpg							Open Arena Team				GPL						oa subversion repository
 models/powerups/ammo/ammobox_n.jpg							Robert "Tr3B" Beckebans		GPL
 models/powerups/ammo/ammobox_s.jpg							Robert "Tr3B" Beckebans		GPL

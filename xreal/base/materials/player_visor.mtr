@@ -1,0 +1,51 @@
+
+models/players/visor/visor
+{
+	{
+		stage diffuseMap
+		map models/players/visor/red.tga
+		rgbGen lightingDiffuse
+	}
+	{
+		stage bumpMap
+		map heightMap(models/players/visor/visor_h.tga, 1)
+	}
+	{
+		stage specularMap
+		map models/players/visor/red_s.tga
+	}
+}
+
+models/players/visor/red
+{
+	{
+		stage diffuseMap
+		map models/players/visor/red.tga
+		rgbGen lightingDiffuse
+	}
+	{
+		stage bumpMap
+		map heightMap(models/players/visor/visor_h.tga, 1)
+	}
+	{
+		stage specularMap
+		map models/players/visor/red_s.tga
+	}
+}
+
+models/players/visor/blue
+{
+	{
+		stage diffuseMap
+		map models/players/visor/blue.tga
+		rgbGen lightingDiffuse
+	}
+	{
+		stage bumpMap
+		map heightMap(models/players/visor/visor_h.tga, 1)
+	}
+	{
+		stage specularMap
+		map models/players/visor/blue_s.tga
+	}
+}
