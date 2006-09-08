@@ -748,6 +748,22 @@ static void RB_BeginDrawingView(void)
 	{
 		glState.finishCalled = qtrue;
 	}
+	
+	// check for portal offscreen rendering
+	if(backEnd.viewParms.isPortal)
+	{
+		if(glConfig.framebufferObjectAvailable && glConfig.textureNPOTAvailable)
+		{
+			R_BindFBO(tr.portalRenderFBO);
+		}
+	}
+	else
+	{
+		if(glConfig.framebufferObjectAvailable && glConfig.textureNPOTAvailable)
+		{
+			R_BindNullFBO();
+		}
+	}
 
 	// we will need to change the projection matrix before drawing
 	// 2D images again
@@ -2716,9 +2732,9 @@ void RB_ShowImages(void)
 
 }
 
-static void RB_ShowVisibilityFBO(void)
+static void RB_ShowPortalRenderFBO(void)
 {
-	GLimp_LogComment("--- RB_ShowVisibilityFBO ---\n");
+	GLimp_LogComment("--- RB_ShowPortalRenderFBO ---\n");
 
 	if(!backEnd.projection2D)
 	{
@@ -2730,7 +2746,7 @@ static void RB_ShowVisibilityFBO(void)
 		float           x, y, w, h;
 
 		GL_SelectTexture(0);
-		GL_Bind(tr.visibilityFBOImage);
+		GL_Bind(tr.portalRenderFBOImage);
 				 
 		w = glConfig.vidWidth / 3;
 		h = glConfig.vidHeight / 3;
@@ -2773,9 +2789,9 @@ const void     *RB_SwapBuffers(const void *data)
 	}
 	
 	// FBO test
-	if(r_showVisibilityFBO->integer)
+	if(r_showPortalRenderFBO->integer)
 	{
-		RB_ShowVisibilityFBO();
+		RB_ShowPortalRenderFBO();
 	}
 
 	cmd = (const swapBuffersCommand_t *)data;

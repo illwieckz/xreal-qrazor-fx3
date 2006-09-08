@@ -602,20 +602,6 @@ void GLSL_InitGPUShaders(void)
 	qglUseProgramObjectARB(0);
 
 	//
-	// glow post process effect
-	//
-	GLSL_InitGPUShader(&tr.glowShader, "glow", GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
-
-	tr.glowShader.u_ColorMap = qglGetUniformLocationARB(tr.glowShader.program, "u_ColorMap");
-	tr.glowShader.u_FBufScale = qglGetUniformLocationARB(tr.glowShader.program, "u_FBufScale");
-	tr.glowShader.u_NPOTScale = qglGetUniformLocationARB(tr.glowShader.program, "u_NPOTScale");
-	tr.glowShader.u_BlurMagnitude = qglGetUniformLocationARB(tr.glowShader.program, "u_BlurMagnitude");
-
-	qglUseProgramObjectARB(tr.glowShader.program);
-	qglUniform1iARB(tr.glowShader.u_ColorMap, 0);
-	qglUseProgramObjectARB(0);
-
-	//
 	// bloom post process effect
 	//
 	GLSL_InitGPUShader(&tr.bloomShader, "bloom", GLCS_VERTEX, qtrue);
@@ -682,6 +668,18 @@ void GLSL_InitGPUShaders(void)
 
 	qglUseProgramObjectARB(tr.rotoscopeShader.program);
 	qglUniform1iARB(tr.rotoscopeShader.u_ColorMap, 0);
+	qglUseProgramObjectARB(0);
+	
+	//
+	// screen post process effect
+	//
+	GLSL_InitGPUShader(&tr.screenShader, "screen", GLCS_VERTEX, qtrue);
+
+	tr.screenShader.u_ColorMap = qglGetUniformLocationARB(tr.screenShader.program, "u_ColorMap");
+	tr.screenShader.u_FBufScale = qglGetUniformLocationARB(tr.screenShader.program, "u_FBufScale");
+
+	qglUseProgramObjectARB(tr.screenShader.program);
+	qglUniform1iARB(tr.screenShader.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
 }
 
@@ -812,12 +810,6 @@ void GLSL_ShutdownGPUShaders(void)
 		tr.heatHazeShader.program = 0;
 	}
 
-	if(tr.glowShader.program)
-	{
-		qglDeleteObjectARB(tr.glowShader.program);
-		tr.glowShader.program = 0;
-	}
-
 	if(tr.bloomShader.program)
 	{
 		qglDeleteObjectARB(tr.bloomShader.program);
@@ -846,6 +838,12 @@ void GLSL_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.rotoscopeShader.program);
 		tr.rotoscopeShader.program = 0;
+	}
+	
+	if(tr.screenShader.program)
+	{
+		qglDeleteObjectARB(tr.screenShader.program);
+		tr.screenShader.program = 0;
 	}
 	
 	glState.currentProgram = 0;
@@ -1284,7 +1282,7 @@ static void Render_genericSingle(int stage)
 }
 #endif
 
-
+/*
 static void Render_fboTest(int stage)
 {
 	shaderStage_t  *pStage;
@@ -1331,7 +1329,7 @@ static void Render_fboTest(int stage)
 		
 		GL_Program(0);
 		//qglEnable(GL_DEPTH_TEST);
-		GL_State(/*GLS_DEPTHTEST_DISABLE |*/ GLS_DEPTHMASK_TRUE);
+		GL_State(GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE);
 		GL_Cull(CT_TWO_SIDED);
 		
 		GL_SelectTexture(0);
@@ -1402,6 +1400,7 @@ static void Render_fboTest(int stage)
 		DrawElements();
 	}
 }
+*/
 
 static void Render_depthFill_FFP(int stage)
 {
@@ -2461,6 +2460,35 @@ static void Render_skybox(int stage)
 	GL_CheckErrors();
 }
 
+static void Render_portal(int stage)
+{
+	float           fbufWidthScale, fbufHeightScale;
+	shaderStage_t  *pStage = tess.surfaceStages[stage];
+
+	GLimp_LogComment("--- Render_portal ---\n");
+
+	GL_State(pStage->stateBits);
+
+	// enable shader, set arrays
+	GL_Program(tr.screenShader.program);
+	GL_ClientState(tr.screenShader.attribs);
+	GL_SetVertexAttribs();
+	
+	// set uniforms
+	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
+	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
+
+	qglUniform2fARB(tr.screenShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
+
+	// bind colormap
+	GL_SelectTexture(0);
+	GL_Bind(tr.portalRenderFBOImage);
+
+	DrawElements();
+
+	GL_CheckErrors();
+}
+
 static void Render_heatHaze(int stage)
 {
 	float           deformMagnitude;
@@ -2470,13 +2498,14 @@ static void Render_heatHaze(int stage)
 
 	GLimp_LogComment("--- Render_heatHaze ---\n");
 	
+	/*
 	if(glConfig.framebufferObjectAvailable && glConfig.textureNPOTAvailable)
 	{
-		R_BindFBO(tr.visibilityFBO);
+		R_BindFBO(tr.portalRenderFBO);
 		
 		// set the window clipping
-		//qglViewport(0, 0, glConfig.vidWidth, glConfig.vidHeight);
-		//qglScissor(0, 0, glConfig.vidWidth, glConfig.vidHeight);
+		qglViewport(0, 0, glConfig.vidWidth, glConfig.vidHeight);
+		qglScissor(0, 0, glConfig.vidWidth, glConfig.vidHeight);
 		
 		qglClear(GL_COLOR_BUFFER_BIT); // | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		
@@ -2486,7 +2515,7 @@ static void Render_heatHaze(int stage)
 		GL_SetVertexAttribs();
 		
 		//qglEnable(GL_DEPTH_TEST);
-		GL_State(/*GLS_DEPTHTEST_DISABLE |*/ GLS_DEPTHMASK_TRUE);
+		GL_State(GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE);
 		GL_Cull(CT_TWO_SIDED);
 		
 		ComputeColors(pStage);
@@ -2503,6 +2532,7 @@ static void Render_heatHaze(int stage)
 		
 		R_BindNullFBO();
 	}
+	*/
 	
 	// enable shader, set arrays
 	GL_Program(tr.heatHazeShader.program);
@@ -2537,47 +2567,6 @@ static void Render_heatHaze(int stage)
 	// bind normalmap
 	GL_SelectTexture(1);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
-	qglMatrixMode(GL_MODELVIEW);
-
-	DrawElements();
-
-	GL_CheckErrors();
-}
-
-static void Render_glow(int stage)
-{
-	float           blurMagnitude;
-	float           fbufWidthScale, fbufHeightScale;
-	float           npotWidthScale, npotHeightScale;
-	shaderStage_t  *pStage = tess.surfaceStages[stage];
-
-	GLimp_LogComment("--- Render_glow ---\n");
-
-	GL_State(pStage->stateBits);
-
-	// enable shader, set arrays
-	GL_Program(tr.glowShader.program);
-	GL_ClientState(tr.glowShader.attribs);
-	GL_SetVertexAttribs();
-
-	// set uniforms
-	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
-	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
-	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderImage->uploadWidth;
-	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderImage->uploadHeight;
-
-	qglUniform1fARB(tr.glowShader.u_BlurMagnitude, blurMagnitude);
-	qglUniform2fARB(tr.glowShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.glowShader.u_NPOTScale, npotWidthScale, npotHeightScale);
-
-	// bind colormap
-	GL_SelectTexture(0);
-//  GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
-	GL_Bind(tr.currentRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
 	qglMatrixMode(GL_MODELVIEW);
@@ -4239,13 +4228,12 @@ void RB_StageIteratorGeneric()
 				}
 				break;
 			}
-
-			case ST_HEATHAZEMAP:
+			
+			case ST_PORTALMAP:
 			{
-				if(glConfig.shadingLanguage100Available)
+				if(glConfig.shadingLanguage100Available && glConfig.framebufferObjectAvailable && glConfig.textureNPOTAvailable)
 				{
-					Render_heatHaze(stage);
-					//Render_fboTest(stage);
+					Render_portal(stage);
 				}
 				else
 				{
@@ -4254,11 +4242,12 @@ void RB_StageIteratorGeneric()
 				break;
 			}
 
-			case ST_GLOWMAP:
+			case ST_HEATHAZEMAP:
 			{
 				if(glConfig.shadingLanguage100Available)
 				{
-					Render_glow(stage);
+					Render_heatHaze(stage);
+					//Render_fboTest(stage);
 				}
 				else
 				{

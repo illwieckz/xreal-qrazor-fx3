@@ -64,8 +64,14 @@ textures/common/mirror
 	nolightmap
 	
 	{
+		if(fragmentShaders == 0 || frameBufferObjects == 0)
 		map textures/common/mirror1.tga
 		blend GL_ONE , GL_ONE_MINUS_SRC_ALPHA
+		depthWrite
+	}
+	{
+		if(fragmentShaders == 1 && frameBufferObjects == 1)
+		stage portalMap
 		depthWrite
 	}
 }
@@ -78,8 +84,14 @@ textures/common/mirror1
 	portal
 	
 	{
+		if(fragmentShaders == 0 || frameBufferObjects == 0)
 		map textures/common/mirror1.tga
 		blend GL_ONE , GL_ONE_MINUS_SRC_ALPHA
+		depthWrite
+	}
+	{
+		if(fragmentShaders == 1 && frameBufferObjects == 1)
+		stage portalMap
 		depthWrite
 	}
 }
@@ -92,17 +104,23 @@ textures/common/mirror2
 	portal
 	
 	{
+		if(fragmentShaders == 0 || frameBufferObjects == 0)
 		map textures/common/mirror1.tga
 		blend GL_ONE , GL_ONE_MINUS_SRC_ALPHA
 		depthWrite
 	}
 	{
-		if(fragmentPrograms == 0)
+		if(fragmentShaders == 1 && frameBufferObjects == 1)
+		stage portalMap
+		depthWrite
+	}
+	{
+		if(fragmentShaders == 0)
 		map textures/sfx/mirror.tga
 		blend GL_ZERO , GL_ONE_MINUS_SRC_COLOR
 	}
 	{
-		if(fragmentPrograms == 1)
+		if(fragmentShaders == 1)
 		stage	heathazemap
 		map		textures/liquids/liquid12_n.tga
 		scroll		0 , time * -0.2
@@ -118,11 +136,18 @@ textures/common/portal
 	portal
 	
 	{
+		if(fragmentShaders == 0 || frameBufferObjects == 0)
 		map textures/common/mirror1.tga
 //		map textures/common/portal.tga
 		tcMod turb 0 0.25 0 0.05
 //		blend GL_ONE, GL_SRC_ALPHA
 		blend GL_ONE, GL_ONE_MINUS_SRC_ALPHA
+		depthWrite
+	}
+	{
+		if(fragmentShaders == 1 && frameBufferObjects == 1)
+		stage portalMap
+		// TODO tcMod
 		depthWrite
 	}
 }

@@ -229,7 +229,8 @@ opstring_t opStrings[] =
 	{"global5", OP_GLOBAL5},
 	{"global6", OP_GLOBAL6},
 	{"global7", OP_GLOBAL7},
-	{"fragmentPrograms", OP_FRAGMENTPROGRAMS},
+	{"fragmentShaders", OP_FRAGMENTSHADERS},
+	{"frameBufferObjects", OP_FRAMEBUFFEROBJECTS},
 	{"sound", OP_SOUND},
 	
 	{"table", OP_TABLE},
@@ -305,7 +306,8 @@ static qboolean IsOperand(opcode_t oc)
 		case OP_GLOBAL5:
 		case OP_GLOBAL6:
 		case OP_GLOBAL7:
-		case OP_FRAGMENTPROGRAMS:
+		case OP_FRAGMENTSHADERS:
+		case OP_FRAMEBUFFEROBJECTS:
 		case OP_SOUND:
 			return qtrue;
 			
@@ -1887,26 +1889,6 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			{
 				stage->type = ST_SPECULARMAP;
 			}
-			else if(!Q_stricmp(token, "heathazeMap"))
-			{
-				stage->type = ST_HEATHAZEMAP;
-			}
-			else if(!Q_stricmp(token, "glowMap"))
-			{
-				stage->type = ST_GLOWMAP;
-			}
-			else if(!Q_stricmp(token, "bloomMap"))
-			{
-				stage->type = ST_BLOOMMAP;
-			}
-			else if(!Q_stricmp(token, "bloom2Map"))
-			{
-				stage->type = ST_BLOOM2MAP;
-			}
-			else if(!Q_stricmp(token, "rotoscopeMap"))
-			{
-				stage->type = ST_ROTOSCOPEMAP;
-			}
 			else if(!Q_stricmp(token, "lightMap"))
 			{
 				stage->type = ST_LIGHTMAP;
@@ -1927,9 +1909,25 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			{
 				stage->type = ST_SKYBOXMAP;
 			}
-			else if(!Q_stricmp(token, "liquidMap"))
+			else if(!Q_stricmp(token, "portalMap"))
 			{
-				stage->type = ST_LIQUIDMAP;
+				stage->type = ST_PORTALMAP;
+			}
+			else if(!Q_stricmp(token, "heathazeMap"))
+			{
+				stage->type = ST_HEATHAZEMAP;
+			}
+			else if(!Q_stricmp(token, "bloomMap"))
+			{
+				stage->type = ST_BLOOMMAP;
+			}
+			else if(!Q_stricmp(token, "bloom2Map"))
+			{
+				stage->type = ST_BLOOM2MAP;
+			}
+			else if(!Q_stricmp(token, "rotoscopeMap"))
+			{
+				stage->type = ST_ROTOSCOPEMAP;
 			}
 			else if(!Q_stricmp(token, "attenuationMapXY"))
 			{
@@ -3915,16 +3913,15 @@ static void CollapseStages(void)
 			continue;
 		
 		if(	stages[j].type == ST_COLORMAP ||
-			stages[j].type == ST_HEATHAZEMAP ||
-			stages[j].type == ST_GLOWMAP ||
-			stages[j].type == ST_BLOOMMAP ||
-			stages[j].type == ST_BLOOM2MAP ||
-			stages[j].type == ST_ROTOSCOPEMAP ||
 			stages[j].type == ST_LIGHTMAP ||
 			stages[j].type == ST_REFRACTIONMAP ||
 			stages[j].type == ST_DISPERSIONMAP ||
 			stages[j].type == ST_SKYBOXMAP ||
-			stages[j].type == ST_LIQUIDMAP ||
+			stages[j].type == ST_PORTALMAP ||
+			stages[j].type == ST_HEATHAZEMAP ||
+			stages[j].type == ST_BLOOMMAP ||
+			stages[j].type == ST_BLOOM2MAP ||
+			stages[j].type == ST_ROTOSCOPEMAP ||
 			stages[j].type == ST_ATTENUATIONMAP_XY ||
 			stages[j].type == ST_ATTENUATIONMAP_Z)
 		{
@@ -4490,10 +4487,10 @@ static shader_t *FinishShader(void)
 		// check for a missing texture
 		switch(pStage->type)
 		{
-			case ST_GLOWMAP:
 			case ST_BLOOMMAP:
 			case ST_BLOOM2MAP:
 			case ST_ROTOSCOPEMAP:
+			case ST_PORTALMAP:
 				// skip
 				break;
 			

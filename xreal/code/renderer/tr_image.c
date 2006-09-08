@@ -4564,7 +4564,7 @@ static void R_CreateCurrentRenderNearestImage(void)
 	ri.Hunk_FreeTempMemory(data);
 }
 
-static void R_CreateVisibilityFBOImage(void)
+static void R_CreateCurrentRenderFBOImage(void)
 {
 	if(glConfig.textureNPOTAvailable)
 	{
@@ -4572,8 +4572,23 @@ static void R_CreateVisibilityFBOImage(void)
 
 		data = ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight * 4);
 
-		tr.visibilityFBOImage =
-			R_CreateImage("_visibilityFBO", data, glConfig.vidWidth, glConfig.vidHeight, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+		tr.currentRenderFBOImage =
+			R_CreateImage("_currentRenderFBO", data, glConfig.vidWidth, glConfig.vidHeight, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+
+		ri.Hunk_FreeTempMemory(data);
+	}
+}
+
+static void R_CreatePortalRenderFBOImage(void)
+{
+	if(glConfig.textureNPOTAvailable)
+	{
+		byte           *data;
+
+		data = ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight * 4);
+
+		tr.portalRenderFBOImage =
+			R_CreateImage("_portalRenderFBO", data, glConfig.vidWidth, glConfig.vidHeight, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 
 		ri.Hunk_FreeTempMemory(data);
 	}
@@ -4637,7 +4652,8 @@ void R_CreateBuiltinImages(void)
 	R_CreateCurrentRenderImage();
 	R_CreateCurrentRenderLinearImage();
 	R_CreateCurrentRenderNearestImage();
-	R_CreateVisibilityFBOImage();
+	R_CreateCurrentRenderFBOImage();
+	R_CreatePortalRenderFBOImage();
 }
 
 

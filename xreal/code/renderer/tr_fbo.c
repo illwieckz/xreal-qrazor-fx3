@@ -367,10 +367,20 @@ void R_InitFBOs(void)
 
 	tr.numFBOs = 0;
 	
-	/*
 	if(glConfig.textureNPOTAvailable)
 	{
-		tr.portalRender = R_CreateFBO("_portalRender", glConfig.vidWidth, glConfig.vidHeight);
+		tr.currentRenderFBO = R_CreateFBO("_currentRender", glConfig.vidWidth, glConfig.vidHeight);
+		R_BindFBO(tr.currentRenderFBO);
+		R_CreateFBOColorBuffer(tr.currentRenderFBO, GL_RGBA, 0);
+		R_CreateFBODepthBuffer(tr.currentRenderFBO, GL_DEPTH_COMPONENT24_ARB);
+//		R_CreateFBOStencilBuffer(tr.currentRenderFBO, GL_STENCIL_INDEX8_EXT);
+		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.currentRenderFBOImage->texnum, 0);
+		R_CheckFBO(tr.currentRenderFBO);
+	}
+	
+	if(glConfig.textureNPOTAvailable)
+	{
+		tr.portalRenderFBO = R_CreateFBO("_portalRender", glConfig.vidWidth, glConfig.vidHeight);
 		R_BindFBO(tr.portalRenderFBO);
 		R_CreateFBOColorBuffer(tr.portalRenderFBO, GL_RGBA, 0);
 		R_CreateFBODepthBuffer(tr.portalRenderFBO, GL_DEPTH_COMPONENT24_ARB);
@@ -378,27 +388,7 @@ void R_InitFBOs(void)
 		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.portalRenderFBOImage->texnum, 0);
 		R_CheckFBO(tr.portalRenderFBO);
 	}
-	*/
 
-	if(glConfig.textureNPOTAvailable)
-	{
-		tr.visibilityFBO = R_CreateFBO("_visibility", glConfig.vidWidth, glConfig.vidHeight);
-		R_BindFBO(tr.visibilityFBO);
-		R_CreateFBOColorBuffer(tr.visibilityFBO, GL_RGBA, 0);
-//		R_CreateFBODepthBuffer(tr.visibilityFBO, GL_DEPTH_COMPONENT24_ARB);
-//		R_CreateFBOStencilBuffer(tr.visibilityFBO, GL_STENCIL_INDEX8_EXT);
-		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.visibilityFBOImage->texnum, 0);
-		R_CheckFBO(tr.visibilityFBO);
-	}
-
-/*
-	tr.mirrorFBO = R_CreateFBO("_mirror", 512, 512);
-	R_BindFBO(tr.mirrorFBO);
-	R_CreateFBODepthBuffer(tr.mirrorFBO, GL_DEPTH_COMPONENT24_ARB);
-	R_CreateFBOStencilBuffer(tr.mirrorFBO, GL_STENCIL_INDEX);
-	R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.mirrorRenderImage->texId, 0);
-	R_CheckFBO(tr.mirrorFBO);
-*/
 
 //	tr.shadowMapFBO = R_CreateFBO("_shadowMap", MAX_SHADOWMAP_SIZE * 3, MAX_SHADOWMAP_SIZE * 2);
 	GL_CheckErrors();

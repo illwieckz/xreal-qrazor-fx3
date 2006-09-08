@@ -432,7 +432,8 @@ typedef enum
 	OP_GLOBAL5,
 	OP_GLOBAL6,
 	OP_GLOBAL7,
-	OP_FRAGMENTPROGRAMS,
+	OP_FRAGMENTSHADERS,
+	OP_FRAMEBUFFEROBJECTS,
 	OP_SOUND,
 	// table access
 	OP_TABLE
@@ -571,17 +572,16 @@ typedef enum
 	ST_DIFFUSEMAP,
 	ST_NORMALMAP,
 	ST_SPECULARMAP,
-	ST_HEATHAZEMAP,				// heatHaze post process effect
-	ST_GLOWMAP,					// glow post process effect
-	ST_BLOOMMAP,
-	ST_BLOOM2MAP,
-	ST_ROTOSCOPEMAP,
-	ST_LIGHTMAP,
 	ST_REFLECTIONMAP,			// cubeMap based reflection
 	ST_REFRACTIONMAP,
 	ST_DISPERSIONMAP,
 	ST_SKYBOXMAP,
-	ST_LIQUIDMAP,				// reflective water shader
+	ST_PORTALMAP,				// offscreen portal shader
+	ST_HEATHAZEMAP,				// heatHaze post process effect
+	ST_BLOOMMAP,
+	ST_BLOOM2MAP,
+	ST_ROTOSCOPEMAP,
+	ST_LIGHTMAP,
 
 	ST_COLLAPSE_genericMulti,			// two colormaps
 	ST_COLLAPSE_lighting_DB_direct,		// directional entity lighting like rgbGen lightingDiffuse
@@ -1727,10 +1727,13 @@ typedef struct
 	image_t        *currentRenderImage;
 	image_t        *currentRenderLinearImage;
 	image_t        *currentRenderNearestImage;
-	image_t        *visibilityFBOImage;
+	
+	image_t        *currentRenderFBOImage;
+	image_t        *portalRenderFBOImage;
 	
 	// framebuffer objects
-	frameBuffer_t  *visibilityFBO;
+	frameBuffer_t  *currentRenderFBO;
+	frameBuffer_t  *portalRenderFBO;
 
 	// internal shaders
 	shader_t       *defaultShader;
@@ -1784,12 +1787,13 @@ typedef struct
 	shaderProgram_t skyBoxShader;
 
 	shaderProgram_t heatHazeShader;
-	shaderProgram_t glowShader;
 	shaderProgram_t bloomShader;
 	shaderProgram_t contrastShader;
 	shaderProgram_t blurXShader;
 	shaderProgram_t blurYShader;
 	shaderProgram_t rotoscopeShader;
+	
+	shaderProgram_t screenShader;
 
 	viewParms_t     viewParms;
 
@@ -1824,11 +1828,6 @@ typedef struct
 
 	int             numFBOs;
 	frameBuffer_t  *fbos[MAX_FBOS];
-
-//  frameBuffer_t  *positionFBO;
-//  frameBuffer_t  *visibilityFBO;
-//  frameBuffer_t  *portalFBO;
-
 
 	// shader indexes from other modules will be looked up in tr.shaders[]
 	// shader indexes from drawsurfs will be looked up in sortedShaders[]
@@ -2017,7 +2016,7 @@ extern cvar_t  *r_showLightTransforms;
 extern cvar_t  *r_showLightInteractions;
 extern cvar_t  *r_showLightScissors;
 extern cvar_t  *r_showOcclusionQueries;
-extern cvar_t  *r_showVisibilityFBO;
+extern cvar_t  *r_showPortalRenderFBO;
 
 extern cvar_t  *r_vboFaces;
 extern cvar_t  *r_vboCurves;
