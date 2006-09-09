@@ -299,6 +299,9 @@ extern void     (APIENTRY * qglGetActiveAttribARB) (GLhandleARB programObj, GLui
 													GLint * size, GLenum * type, GLcharARB * name);
 extern          GLint(APIENTRY * qglGetAttribLocationARB) (GLhandleARB programObj, const GLcharARB * name);
 
+// GL_ARB_draw_buffers
+extern void     (APIENTRY * qglDrawBuffersARB) (GLsizei n, const GLenum *bufs);
+
 // GL_EXT_compiled_vertex_array
 extern void     (APIENTRY * qglLockArraysEXT) (GLint, GLint);
 extern void     (APIENTRY * qglUnlockArraysEXT) (void);

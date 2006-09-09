@@ -2411,7 +2411,7 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 
 		// bind colorMap
 		GL_SelectTexture(0);
-		GL_Bind(tr.currentRenderFBOImage);
+		GL_Bind(tr.currentRenderFBOImage[0]);
 
 		// set 2D virtual screen size
 		qglPushMatrix();
@@ -2804,7 +2804,7 @@ static void RB_ShowPortalRenderFBO(void)
 		float           x, y, w, h;
 
 		GL_SelectTexture(0);
-		GL_Bind(tr.portalRenderFBOImage);
+		GL_Bind(tr.portalRenderFBOImage[0]);
 				 
 		w = glConfig.vidWidth / 3;
 		h = glConfig.vidHeight / 3;

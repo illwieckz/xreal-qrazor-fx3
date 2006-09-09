@@ -22,6 +22,7 @@ code/renderer
 - OpenGL extension GL_ARB_fragment_shader
 - OpenGL extension GL_ARB_shading_language_100
 - OpenGL extension GL_ARB_non_power_of_two
+- OpenGL extension GL_ARB_draw_buffers
 - OpenGL extension GL_EXT_texture_filter_anisotropic
 - OpenGL extension GL_EXT_stencil_wrap
 - OpenGL extension GL_EXT_stencil_two_side

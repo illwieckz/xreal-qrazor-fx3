@@ -312,6 +312,8 @@ typedef struct
 	qboolean        shadingLanguage100Available;
 	char            shadingLanguageVersion[MAX_STRING_CHARS];
 	qboolean        textureNPOTAvailable;
+	qboolean        drawBuffersAvailable;
+	int             maxDrawBuffers;
 	qboolean		stencilWrapAvailable;
 	float			maxTextureAnisotropy;
 	qboolean		textureAnisotropyAvailable;

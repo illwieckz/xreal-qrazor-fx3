@@ -1337,6 +1337,28 @@ static void GLW_InitExtensions(void)
 		ri.Printf(PRINT_ALL, "...GL_ARB_texture_non_power_of_two not found\n");
 	}
 	
+	// GL_ARB_draw_buffers
+	glConfig.drawBuffersAvailable = qfalse;
+	if(Q_stristr(glConfig.extensions_string, "GL_ARB_draw_buffers"))
+	{
+		qglGetIntegerv(GL_MAX_DRAW_BUFFERS_ARB, &glConfig.maxDrawBuffers);
+		
+		if(r_ext_draw_buffers->integer)
+		{
+			qglDrawBuffersARB = (PFNGLDRAWBUFFERSARBPROC) qwglGetProcAddress("glDrawBuffersARB");
+			glConfig.drawBuffersAvailable = qtrue;
+			ri.Printf(PRINT_ALL, "...using GL_ARB_draw_buffers\n");
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_ARB_draw_buffers\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_ARB_draw_buffers not found\n");
+	}
+	
 	// WGL_EXT_swap_control
 	qwglSwapIntervalEXT = (BOOL(WINAPI *) (int))qwglGetProcAddress("wglSwapIntervalEXT");
 	if(qwglSwapIntervalEXT)

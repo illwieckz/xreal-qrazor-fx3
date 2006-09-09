@@ -2487,7 +2487,7 @@ static void Render_portal(int stage)
 
 	// bind colormap
 	GL_SelectTexture(0);
-	GL_Bind(tr.portalRenderFBOImage);
+	GL_Bind(tr.portalRenderFBOImage[0]);
 
 	DrawElements();
 
@@ -2503,16 +2503,11 @@ static void Render_heatHaze(int stage)
 
 	GLimp_LogComment("--- Render_heatHaze ---\n");
 	
-	/*
-	if(glConfig.framebufferObjectAvailable && glConfig.textureNPOTAvailable)
+#if 0
+	if(glConfig.framebufferObjectAvailable && glState.currentFBO && glState.currentFBO->colorBuffers[1])
 	{
-		R_BindFBO(tr.portalRenderFBO);
-		
-		// set the window clipping
-		qglViewport(0, 0, glConfig.vidWidth, glConfig.vidHeight);
-		qglScissor(0, 0, glConfig.vidWidth, glConfig.vidHeight);
-		
-		qglClear(GL_COLOR_BUFFER_BIT); // | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, glState.currentFBO->colorBuffers[3]);
+		//qglClear(GL_COLOR_BUFFER_BIT);
 		
 		// enable shader, set arrays
 		GL_Program(tr.genericShader_single.program);
@@ -2520,11 +2515,12 @@ static void Render_heatHaze(int stage)
 		GL_SetVertexAttribs();
 		
 		//qglEnable(GL_DEPTH_TEST);
-		GL_State(GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE);
-		GL_Cull(CT_TWO_SIDED);
+		//GL_State(GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE);
+		//GL_State(GLS_DEFAULT);
+		//GL_Cull(CT_TWO_SIDED);
 		
 		ComputeColors(pStage);
-		//GL_State(pStage->stateBits);
+		GL_State(pStage->stateBits);
 		
 		// bind FBO image
 		GL_SelectTexture(0);
@@ -2535,9 +2531,9 @@ static void Render_heatHaze(int stage)
 
 		DrawElements();
 		
-		R_BindNullFBO();
+		qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, glState.currentFBO->colorBuffers[0]);
 	}
-	*/
+#endif
 	
 	// enable shader, set arrays
 	GL_Program(tr.heatHazeShader.program);
@@ -2549,8 +2545,8 @@ static void Render_heatHaze(int stage)
 	deformMagnitude = RB_EvalExpression(&pStage->deformMagnitudeExp, 1.0);
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderLinearImage->uploadWidth;
-	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderLinearImage->uploadHeight;
+	npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+	npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
 
 	qglUniform1fARB(tr.heatHazeShader.u_DeformMagnitude, deformMagnitude);
 	qglUniform2fARB(tr.heatHazeShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
@@ -2564,12 +2560,19 @@ static void Render_heatHaze(int stage)
 		qglUniformMatrix4fvARB(tr.heatHazeShader.u_ProjectionMatrixTranspose, 1, GL_FALSE, projectionMatrixTranspose);
 	}
 	
-	// bind colormap
+	// bind colorMap
 	GL_SelectTexture(0);
-	GL_Bind(tr.currentRenderLinearImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderLinearImage->uploadWidth, tr.currentRenderLinearImage->uploadHeight);
+	if(glConfig.framebufferObjectAvailable)
+	{
+		GL_Bind(tr.currentRenderFBOImage[0]);
+	}
+	else
+	{
+		GL_Bind(tr.currentRenderLinearImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderLinearImage->uploadWidth, tr.currentRenderLinearImage->uploadHeight);
+	}
 
-	// bind normalmap
+	// bind normalMap
 	GL_SelectTexture(1);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
@@ -2596,8 +2599,8 @@ static void Render_bloom(int stage)
 	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderNearestImage->uploadWidth;
-	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderNearestImage->uploadHeight;
+	npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+	npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
 
 	// render contrast
 	GL_Program(tr.contrastShader.program);
@@ -2651,8 +2654,8 @@ static void Render_bloom2(int stage)
 	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderNearestImage->uploadWidth;
-	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderNearestImage->uploadHeight;
+	npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+	npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
 
 	// render contrast
 	GL_Program(tr.contrastShader.program);
@@ -2740,8 +2743,8 @@ static void Render_rotoscope(int stage)
 	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)glConfig.vidWidth / (float)tr.currentRenderNearestImage->uploadWidth;
-	npotHeightScale = (float)glConfig.vidHeight / (float)tr.currentRenderNearestImage->uploadHeight;
+	npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+	npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
 
 	qglUniform1fARB(tr.rotoscopeShader.u_BlurMagnitude, blurMagnitude);
 	qglUniform2fARB(tr.rotoscopeShader.u_FBufScale, fbufWidthScale, fbufHeightScale);

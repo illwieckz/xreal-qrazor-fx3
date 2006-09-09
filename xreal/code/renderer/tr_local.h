@@ -1728,8 +1728,8 @@ typedef struct
 	image_t        *currentRenderLinearImage;
 	image_t        *currentRenderNearestImage;
 	
-	image_t        *currentRenderFBOImage;
-	image_t        *portalRenderFBOImage;
+	image_t        *currentRenderFBOImage[4];
+	image_t        *portalRenderFBOImage[4];
 	
 	// framebuffer objects
 	frameBuffer_t  *currentRenderFBO;
@@ -1943,6 +1943,7 @@ extern cvar_t  *r_ext_vertex_shader;
 extern cvar_t  *r_ext_fragment_shader;
 extern cvar_t  *r_ext_shading_language_100;
 extern cvar_t  *r_ext_texture_non_power_of_two;
+extern cvar_t  *r_ext_draw_buffers;
 extern cvar_t  *r_ext_stencil_wrap;
 extern cvar_t  *r_ext_texture_filter_anisotropic;
 extern cvar_t  *r_ext_stencil_two_side;

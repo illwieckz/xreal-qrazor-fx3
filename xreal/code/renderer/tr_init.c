@@ -95,6 +95,7 @@ cvar_t         *r_ext_vertex_shader;
 cvar_t         *r_ext_fragment_shader;
 cvar_t         *r_ext_shading_language_100;
 cvar_t         *r_ext_texture_non_power_of_two;
+cvar_t         *r_ext_draw_buffers;
 cvar_t         *r_ext_stencil_wrap;
 cvar_t         *r_ext_texture_filter_anisotropic;
 cvar_t         *r_ext_stencil_two_side;
@@ -205,7 +206,7 @@ void            (APIENTRY * qglBindBufferARB) (GLenum target, GLuint buffer);
 void            (APIENTRY * qglDeleteBuffersARB) (GLsizei n, const GLuint * buffers);
 void            (APIENTRY * qglGenBuffersARB) (GLsizei n, GLuint * buffers);
 
-GLboolean(APIENTRY * qglIsBufferARB) (GLuint buffer);
+GLboolean       (APIENTRY * qglIsBufferARB) (GLuint buffer);
 void            (APIENTRY * qglBufferDataARB) (GLenum target, GLsizeiptrARB size, const GLvoid * data, GLenum usage);
 void            (APIENTRY * qglBufferSubDataARB) (GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid * data);
 void            (APIENTRY * qglGetBufferSubDataARB) (GLenum target, GLintptrARB offset, GLsizeiptrARB size, GLvoid * data);
@@ -215,14 +216,14 @@ GLvoid         *(APIENTRY * qglMapBufferARB) (GLenum target, GLenum access);
 void            (APIENTRY * qglGenQueriesARB) (GLsizei n, GLuint * ids);
 void            (APIENTRY * qglDeleteQueriesARB) (GLsizei n, const GLuint * ids);
 
-GLboolean(APIENTRY * qglIsQueryARB) (GLuint id);
+GLboolean       (APIENTRY * qglIsQueryARB) (GLuint id);
 void            (APIENTRY * qglBeginQueryARB) (GLenum target, GLuint id);
 void            (APIENTRY * qglEndQueryARB) (GLenum target);
 void            (APIENTRY * qglGetQueryivARB) (GLenum target, GLenum pname, GLint * params);
 void            (APIENTRY * qglGetQueryObjectivARB) (GLuint id, GLenum pname, GLint * params);
 void            (APIENTRY * qglGetQueryObjectuivARB) (GLuint id, GLenum pname, GLuint * params);
 
-GLboolean(APIENTRY * qglUnmapBufferARB) (GLenum target);
+GLboolean       (APIENTRY * qglUnmapBufferARB) (GLenum target);
 void            (APIENTRY * qglGetBufferParameterivARB) (GLenum target, GLenum pname, GLint * params);
 void            (APIENTRY * qglGetBufferPointervARB) (GLenum target, GLenum pname, GLvoid * *params);
 
@@ -237,7 +238,7 @@ void            (APIENTRY * qglShaderSourceARB) (GLhandleARB shaderObj, GLsizei 
 												 const GLint * length);
 void            (APIENTRY * qglCompileShaderARB) (GLhandleARB shaderObj);
 
-GLhandleARB(APIENTRY * qglCreateProgramObjectARB) (void);
+GLhandleARB     (APIENTRY * qglCreateProgramObjectARB) (void);
 void            (APIENTRY * qglAttachObjectARB) (GLhandleARB containerObj, GLhandleARB obj);
 void            (APIENTRY * qglLinkProgramARB) (GLhandleARB programObj);
 void            (APIENTRY * qglUseProgramObjectARB) (GLhandleARB programObj);
@@ -264,7 +265,7 @@ void            (APIENTRY * qglGetObjectParameterivARB) (GLhandleARB obj, GLenum
 void            (APIENTRY * qglGetInfoLogARB) (GLhandleARB obj, GLsizei maxLength, GLsizei * length, GLcharARB * infoLog);
 void            (APIENTRY * qglGetAttachedObjectsARB) (GLhandleARB containerObj, GLsizei maxCount, GLsizei * count,
 													   GLhandleARB * obj);
-GLint(APIENTRY * qglGetUniformLocationARB) (GLhandleARB programObj, const GLcharARB * name);
+GLint           (APIENTRY * qglGetUniformLocationARB) (GLhandleARB programObj, const GLcharARB * name);
 void            (APIENTRY * qglGetActiveUniformARB) (GLhandleARB programObj, GLuint index, GLsizei maxIndex, GLsizei * length,
 													 GLint * size, GLenum * type, GLcharARB * name);
 void            (APIENTRY * qglGetUniformfvARB) (GLhandleARB programObj, GLint location, GLfloat * params);
@@ -275,7 +276,10 @@ void            (APIENTRY * qglGetShaderSourceARB) (GLhandleARB obj, GLsizei max
 void            (APIENTRY * qglBindAttribLocationARB) (GLhandleARB programObj, GLuint index, const GLcharARB * name);
 void            (APIENTRY * qglGetActiveAttribARB) (GLhandleARB programObj, GLuint index, GLsizei maxLength, GLsizei * length,
 													GLint * size, GLenum * type, GLcharARB * name);
-GLint(APIENTRY * qglGetAttribLocationARB) (GLhandleARB programObj, const GLcharARB * name);
+GLint           (APIENTRY * qglGetAttribLocationARB) (GLhandleARB programObj, const GLcharARB * name);
+
+// GL_ARB_draw_buffers
+void            (APIENTRY * qglDrawBuffersARB) (GLsizei n, const GLenum *bufs);
 
 // GL_EXT_compiled_vertex_array
 void            (APIENTRY * qglLockArraysEXT) (GLint, GLint);
@@ -288,19 +292,19 @@ void            (APIENTRY * qglActiveStencilFaceEXT) (GLenum face);
 void            (APIENTRY * qglDepthBoundsEXT) (GLclampd zmin, GLclampd zmax);
 
 // GL_EXT_framebuffer_object
-GLboolean(APIENTRY * qglIsRenderbufferEXT) (GLuint renderbuffer);
+GLboolean       (APIENTRY * qglIsRenderbufferEXT) (GLuint renderbuffer);
 void            (APIENTRY * qglBindRenderbufferEXT) (GLenum target, GLuint renderbuffer);
 void            (APIENTRY * qglDeleteRenderbuffersEXT) (GLsizei n, const GLuint * renderbuffers);
 void            (APIENTRY * qglGenRenderbuffersEXT) (GLsizei n, GLuint * renderbuffers);
 void            (APIENTRY * qglRenderbufferStorageEXT) (GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
 void            (APIENTRY * qglGetRenderbufferParameterivEXT) (GLenum target, GLenum pname, GLint * params);
 
-GLboolean(APIENTRY * qglIsFramebufferEXT) (GLuint framebuffer);
+GLboolean       (APIENTRY * qglIsFramebufferEXT) (GLuint framebuffer);
 void            (APIENTRY * qglBindFramebufferEXT) (GLenum target, GLuint framebuffer);
 void            (APIENTRY * qglDeleteFramebuffersEXT) (GLsizei n, const GLuint * framebuffers);
 void            (APIENTRY * qglGenFramebuffersEXT) (GLsizei n, GLuint * framebuffers);
 
-GLenum(APIENTRY * qglCheckFramebufferStatusEXT) (GLenum target);
+GLenum          (APIENTRY * qglCheckFramebufferStatusEXT) (GLenum target);
 void            (APIENTRY * qglFramebufferTexture1DEXT) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture,
 														 GLint level);
 void            (APIENTRY * qglFramebufferTexture2DEXT) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture,
@@ -1077,6 +1081,11 @@ void GfxInfo_f(void)
 		ri.Printf(PRINT_ALL, "GL_SHADING_LANGUAGE_VERSION_ARB: %s\n", glConfig.shadingLanguageVersion);
 	}
 	
+	if(glConfig.drawBuffersAvailable)
+	{
+		ri.Printf(PRINT_ALL, "GL_MAX_DRAW_BUFFERS_ARB: %d\n", glConfig.maxDrawBuffers);
+	}
+	
 	if(glConfig.textureAnisotropyAvailable)
 	{
 		ri.Printf(PRINT_ALL, "GL_TEXTURE_MAX_ANISOTROPY_EXT: %f\n", glConfig.maxTextureAnisotropy);
@@ -1178,6 +1187,7 @@ void R_Register(void)
 	r_ext_fragment_shader = ri.Cvar_Get("r_ext_fragment_shader", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_shading_language_100 = ri.Cvar_Get("r_ext_shading_language_100", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_texture_non_power_of_two = ri.Cvar_Get("r_ext_texture_non_power_of_two", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_draw_buffers = ri.Cvar_Get("r_ext_draw_buffers", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_stencil_wrap = ri.Cvar_Get("r_ext_stencil_wrap", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_texture_filter_anisotropic = ri.Cvar_Get("r_ext_texture_filter_anisotropic", "8", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_stencil_two_side = ri.Cvar_Get("r_ext_stencil_two_side", "1", CVAR_ARCHIVE | CVAR_LATCH);
