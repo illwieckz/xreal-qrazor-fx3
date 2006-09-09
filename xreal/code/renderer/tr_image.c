@@ -984,12 +984,14 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 	vec4_t          zeroClampBorder = { 0, 0, 0, 1 };
 	vec4_t          alphaZeroClampBorder = { 0, 0, 0, 0 };
 
+	/*
 	if(glConfig.textureNPOTAvailable)
 	{
 		scaledWidth = image->width;
 		scaledHeight = image->height;
 	}
 	else
+	*/
 	{
 		// convert to exact power of 2 sizes
 		for(scaledWidth = 1; scaledWidth < image->width; scaledWidth <<= 1)
@@ -4517,14 +4519,9 @@ static void R_CreateCurrentRenderImage(void)
 	int             width, height;
 	byte           *data;
 
-	for(width = 1; width < glConfig.vidWidth; width <<= 1)
-		;
-	for(height = 1; height < glConfig.vidHeight; height <<= 1)
-		;
-
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	tr.currentRenderImage = R_CreateImage("_currentRender", data, width, height, IF_NOPICMIP, FT_DEFAULT, WT_REPEAT);
+	tr.currentRenderImage = R_CreateImage("_currentRender", data, NearestPowerOfTwo(glConfig.vidWidth), NearestPowerOfTwo(glConfig.vidHeight), IF_NOPICMIP, FT_DEFAULT, WT_REPEAT);
 
 	ri.Hunk_FreeTempMemory(data);
 }
@@ -4534,14 +4531,9 @@ static void R_CreateCurrentRenderLinearImage(void)
 	int             width, height;
 	byte           *data;
 
-	for(width = 1; width < glConfig.vidWidth; width <<= 1)
-		;
-	for(height = 1; height < glConfig.vidHeight; height <<= 1)
-		;
-
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	tr.currentRenderLinearImage = R_CreateImage("_currentRenderLinear", data, width, height, IF_NOPICMIP, FT_LINEAR, WT_REPEAT);
+	tr.currentRenderLinearImage = R_CreateImage("_currentRenderLinear", data, NearestPowerOfTwo(glConfig.vidWidth), NearestPowerOfTwo(glConfig.vidHeight), IF_NOPICMIP, FT_LINEAR, WT_REPEAT);
 
 	ri.Hunk_FreeTempMemory(data);
 }
@@ -4551,47 +4543,36 @@ static void R_CreateCurrentRenderNearestImage(void)
 	int             width, height;
 	byte           *data;
 
-	for(width = 1; width < glConfig.vidWidth; width <<= 1)
-		;
-	for(height = 1; height < glConfig.vidHeight; height <<= 1)
-		;
-
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
 	tr.currentRenderNearestImage =
-		R_CreateImage("_currentRenderNearest", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+		R_CreateImage("_currentRenderNearest", data, NearestPowerOfTwo(glConfig.vidWidth), NearestPowerOfTwo(glConfig.vidHeight), IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 
 	ri.Hunk_FreeTempMemory(data);
 }
 
 static void R_CreateCurrentRenderFBOImage(void)
 {
-	if(glConfig.textureNPOTAvailable)
-	{
-		byte           *data;
+	byte           *data;
 
-		data = ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight * 4);
+	data = ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight * 4);
 
-		tr.currentRenderFBOImage =
-			R_CreateImage("_currentRenderFBO", data, glConfig.vidWidth, glConfig.vidHeight, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+	tr.currentRenderFBOImage =
+		R_CreateImage("_currentRenderFBO", data, NearestPowerOfTwo(glConfig.vidWidth), NearestPowerOfTwo(glConfig.vidHeight), IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 
 		ri.Hunk_FreeTempMemory(data);
-	}
 }
 
 static void R_CreatePortalRenderFBOImage(void)
 {
-	if(glConfig.textureNPOTAvailable)
-	{
-		byte           *data;
+	byte           *data;
 
-		data = ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight * 4);
+	data = ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight * 4);
 
-		tr.portalRenderFBOImage =
-			R_CreateImage("_portalRenderFBO", data, glConfig.vidWidth, glConfig.vidHeight, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+	tr.portalRenderFBOImage =
+		R_CreateImage("_portalRenderFBO", data, NearestPowerOfTwo(glConfig.vidWidth), NearestPowerOfTwo(glConfig.vidHeight), IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 
-		ri.Hunk_FreeTempMemory(data);
-	}
+	ri.Hunk_FreeTempMemory(data);
 }
 
 /*

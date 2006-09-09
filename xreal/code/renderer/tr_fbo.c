@@ -367,27 +367,21 @@ void R_InitFBOs(void)
 
 	tr.numFBOs = 0;
 	
-	if(glConfig.textureNPOTAvailable)
-	{
-		tr.currentRenderFBO = R_CreateFBO("_currentRender", glConfig.vidWidth, glConfig.vidHeight);
-		R_BindFBO(tr.currentRenderFBO);
-		R_CreateFBOColorBuffer(tr.currentRenderFBO, GL_RGBA, 0);
-		R_CreateFBODepthBuffer(tr.currentRenderFBO, GL_DEPTH_COMPONENT24_ARB);
-//		R_CreateFBOStencilBuffer(tr.currentRenderFBO, GL_STENCIL_INDEX8_EXT);
-		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.currentRenderFBOImage->texnum, 0);
-		R_CheckFBO(tr.currentRenderFBO);
-	}
+	tr.currentRenderFBO = R_CreateFBO("_currentRender", NearestPowerOfTwo(glConfig.vidWidth), NearestPowerOfTwo(glConfig.vidHeight));
+	R_BindFBO(tr.currentRenderFBO);
+	R_CreateFBOColorBuffer(tr.currentRenderFBO, GL_RGBA, 0);
+	R_CreateFBODepthBuffer(tr.currentRenderFBO, GL_DEPTH_COMPONENT24_ARB);
+//	R_CreateFBOStencilBuffer(tr.currentRenderFBO, GL_STENCIL_INDEX8_EXT);
+	R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.currentRenderFBOImage->texnum, 0);
+	R_CheckFBO(tr.currentRenderFBO);
 	
-	if(glConfig.textureNPOTAvailable)
-	{
-		tr.portalRenderFBO = R_CreateFBO("_portalRender", glConfig.vidWidth, glConfig.vidHeight);
-		R_BindFBO(tr.portalRenderFBO);
-		R_CreateFBOColorBuffer(tr.portalRenderFBO, GL_RGBA, 0);
-		R_CreateFBODepthBuffer(tr.portalRenderFBO, GL_DEPTH_COMPONENT24_ARB);
-//		R_CreateFBOStencilBuffer(tr.portalRenderFBO, GL_STENCIL_INDEX8_EXT);
-		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.portalRenderFBOImage->texnum, 0);
-		R_CheckFBO(tr.portalRenderFBO);
-	}
+	tr.portalRenderFBO = R_CreateFBO("_portalRender", NearestPowerOfTwo(glConfig.vidWidth), NearestPowerOfTwo(glConfig.vidHeight));
+	R_BindFBO(tr.portalRenderFBO);
+	R_CreateFBOColorBuffer(tr.portalRenderFBO, GL_RGBA, 0);
+	R_CreateFBODepthBuffer(tr.portalRenderFBO, GL_DEPTH_COMPONENT24_ARB);
+//	R_CreateFBOStencilBuffer(tr.portalRenderFBO, GL_STENCIL_INDEX8_EXT);
+	R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.portalRenderFBOImage->texnum, 0);
+	R_CheckFBO(tr.portalRenderFBO);
 
 
 //	tr.shadowMapFBO = R_CreateFBO("_shadowMap", MAX_SHADOWMAP_SIZE * 3, MAX_SHADOWMAP_SIZE * 2);

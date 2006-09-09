@@ -750,7 +750,7 @@ static void RB_BeginDrawingView(void)
 	}
 	
 	// disable offscreen rendering
-	if(glConfig.framebufferObjectAvailable && glConfig.textureNPOTAvailable)
+	if(glConfig.framebufferObjectAvailable)
 	{
 		R_BindNullFBO();
 	}
@@ -825,7 +825,7 @@ static void RB_BeginDrawingView(void)
 	}
 	
 	// check for offscreen rendering
-	if(glConfig.shadingLanguage100Available && glConfig.framebufferObjectAvailable && glConfig.textureNPOTAvailable)
+	if(glConfig.shadingLanguage100Available && glConfig.framebufferObjectAvailable)
 	{
 		if(backEnd.viewParms.isPortal)
 		{
@@ -2386,9 +2386,10 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 	RB_RenderDebugUtils(interactions, numInteractions);
 	
 	// render offscreen result
-	if(glConfig.shadingLanguage100Available && glConfig.framebufferObjectAvailable && glConfig.textureNPOTAvailable)
+	if(glConfig.shadingLanguage100Available && glConfig.framebufferObjectAvailable)
 	{
 		float           fbufWidthScale, fbufHeightScale;
+		float           npotWidthScale, npotHeightScale;
 		
 		R_BindNullFBO();
 		
@@ -2402,8 +2403,11 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 		// set uniforms
 		fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 		fbufHeightScale = Q_recip((float)glConfig.vidHeight);
+		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
 
 		qglUniform2fARB(tr.screenShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
+		qglUniform2fARB(tr.screenShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 		// bind colorMap
 		GL_SelectTexture(0);
@@ -2795,7 +2799,7 @@ static void RB_ShowPortalRenderFBO(void)
 		RB_SetGL2D();
 	}
 
-	if(glConfig.framebufferObjectAvailable && glConfig.textureNPOTAvailable)
+	if(glConfig.framebufferObjectAvailable)
 	{
 		float           x, y, w, h;
 

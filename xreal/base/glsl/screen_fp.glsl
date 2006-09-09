@@ -22,8 +22,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 uniform sampler2D	u_ColorMap;
 uniform vec2		u_FBufScale;
+uniform vec2		u_NPOTScale;
 
 void	main()
 {
-	gl_FragColor = texture2D(u_ColorMap, gl_FragCoord.st * u_FBufScale);
+	// calculate the screen texcoord in the 0.0 to 1.0 range
+	vec2 st = gl_FragCoord.st * u_FBufScale;
+	
+	// scale by the screen non-power-of-two-adjust
+	st *= u_NPOTScale;
+
+	gl_FragColor = texture2D(u_ColorMap, st);
 }

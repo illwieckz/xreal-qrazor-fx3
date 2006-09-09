@@ -1471,6 +1471,14 @@ void _VectorScale(const vec3_t in, vec_t scale, vec3_t out)
 #endif
 }
 
+int NearestPowerOfTwo(int val)
+{
+	int            answer;
+	
+	for(answer = 1; answer < val; answer <<= 1)
+		;
+	return answer;
+}
 
 int Q_log2(int val)
 {

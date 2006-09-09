@@ -1019,9 +1019,10 @@ static void GLW_InitExtensions(void)
 	glConfig.textureCubeAvailable = qfalse;
 	if(strstr(glConfig.extensions_string, "GL_ARB_texture_cube_map"))
 	{
+		qglGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB, &glConfig.maxCubeMapTextureSize);
+		
 		if(r_ext_texture_cube_map->integer)
 		{
-			qglGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB, &glConfig.maxCubeMapTextureSize);
 			glConfig.textureCubeAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_texture_cube_map\n");
 		}
@@ -1146,7 +1147,7 @@ static void GLW_InitExtensions(void)
 			qglGetQueryObjectivARB = (PFNGLGETQUERYOBJECTIVARBPROC) qwglGetProcAddress("glGetQueryObjectivARB");
 			qglGetQueryObjectuivARB = (PFNGLGETQUERYOBJECTUIVARBPROC) qwglGetProcAddress("glGetQueryObjectuivARB");
 			glConfig.occlusionQueryAvailable = qtrue;
-			qglGetQueryivARB(GL_SAMPLES_PASSED, GL_QUERY_COUNTER_BITS, &glConfig.occlusionQueryBits); 
+			qglGetQueryivARB(GL_SAMPLES_PASSED, GL_QUERY_COUNTER_BITS, &glConfig.occlusionQueryBits);
 			ri.Printf(PRINT_ALL, "...using GL_ARB_occlusion_query\n");
 		}
 		else
@@ -1300,6 +1301,8 @@ static void GLW_InitExtensions(void)
 	glConfig.shadingLanguage100Available = qfalse;
 	if(strstr(glConfig.extensions_string, "GL_ARB_shading_language_100"))
 	{
+		Q_strncpyz(glConfig.shadingLanguageVersion, qglGetString(GL_SHADING_LANGUAGE_VERSION_ARB), sizeof(glConfig.shadingLanguageVersion));
+		
 		if(r_ext_shading_language_100->value)
 		{
 			glConfig.shadingLanguage100Available = qtrue;

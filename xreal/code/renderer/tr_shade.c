@@ -677,6 +677,7 @@ void GLSL_InitGPUShaders(void)
 
 	tr.screenShader.u_ColorMap = qglGetUniformLocationARB(tr.screenShader.program, "u_ColorMap");
 	tr.screenShader.u_FBufScale = qglGetUniformLocationARB(tr.screenShader.program, "u_FBufScale");
+	tr.screenShader.u_NPOTScale = qglGetUniformLocationARB(tr.screenShader.program, "u_NPOTScale");
 
 	qglUseProgramObjectARB(tr.screenShader.program);
 	qglUniform1iARB(tr.screenShader.u_ColorMap, 0);
@@ -2463,6 +2464,7 @@ static void Render_skybox(int stage)
 static void Render_portal(int stage)
 {
 	float           fbufWidthScale, fbufHeightScale;
+	float           npotWidthScale, npotHeightScale;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
 	GLimp_LogComment("--- Render_portal ---\n");
@@ -2477,8 +2479,11 @@ static void Render_portal(int stage)
 	// set uniforms
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
+	npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+	npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
 
 	qglUniform2fARB(tr.screenShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
+	qglUniform2fARB(tr.screenShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 	// bind colormap
 	GL_SelectTexture(0);
@@ -4231,7 +4236,7 @@ void RB_StageIteratorGeneric()
 			
 			case ST_PORTALMAP:
 			{
-				if(glConfig.shadingLanguage100Available && glConfig.framebufferObjectAvailable && glConfig.textureNPOTAvailable)
+				if(glConfig.shadingLanguage100Available && glConfig.framebufferObjectAvailable)
 				{
 					Render_portal(stage);
 				}

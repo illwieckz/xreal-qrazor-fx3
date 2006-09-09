@@ -1067,14 +1067,19 @@ void GfxInfo_f(void)
 	   }
 	 */
 
-	if(glConfig.textureAnisotropyAvailable)
-	{
-		ri.Printf(PRINT_ALL, "GL_TEXTURE_MAX_ANISOTROPY_EXT: %f\n", glConfig.maxTextureAnisotropy);
-	}
-
 	if(glConfig.occlusionQueryAvailable)
 	{
 		ri.Printf(PRINT_ALL, "%d occlusion query bits\n", glConfig.occlusionQueryBits);
+	}
+	
+	if(glConfig.shadingLanguage100Available)
+	{
+		ri.Printf(PRINT_ALL, "GL_SHADING_LANGUAGE_VERSION_ARB: %s\n", glConfig.shadingLanguageVersion);
+	}
+	
+	if(glConfig.textureAnisotropyAvailable)
+	{
+		ri.Printf(PRINT_ALL, "GL_TEXTURE_MAX_ANISOTROPY_EXT: %f\n", glConfig.maxTextureAnisotropy);
 	}
 
 	if(glConfig.framebufferObjectAvailable)
