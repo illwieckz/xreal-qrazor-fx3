@@ -70,14 +70,14 @@ itemDef {
 	rect 210 220 640 155
 	textscale .2
 	wrapped	
-	text "^1Robert ^3-Tr3B-^1 Beckebans - lead programming\r"
-	"^1Adrian ^3-otty- Fuhrmann - user interface\r"
-	"^1Josef ^3-cnuke-^1 Soentgen - cgame stuff\r"
-	"^1Bjoern ^3-bj0ern-^1 Paschen - win32 specific fixes\r"
-	"^1Pat ^3-raynorpat-^1 Raynor- bugfixes, PNG patch\r"
-	"^1Iain ^3-Jock-^1 Mckay - x86_64 patch\r"
-	"^1Tim ^3-Timbo-^1 Angus - .avi video recording patch\r"
-	"^3ensiform^1 - console clock enhancements"
+	text "^1Robert ^3-Tr3B-^1 Beckebans ^7- lead programming\r"
+	"^1Adrian ^3-otty- ^1Fuhrmann ^7- user interface\r"
+	"^1Josef ^3-cnuke-^1 Soentgen ^7- cgame stuff\r"
+	"^1Bjoern ^3-bj0ern-^1 Paschen ^7- win32 specific fixes\r"
+	"^1Pat ^3-raynorpat-^1 Raynor ^7- bugfixes, PNG patch\r"
+	"^1Iain ^3-Jock-^1 Mckay ^7- x86_64 patch\r"
+	"^1Tim ^3-Timbo-^1 Angus ^7- .avi video recording patch\r"
+	"^3ensiform^1 ^7- console clock enhancements"
 
 	forecolor 1 1 1 1
 	decoration 
@@ -102,12 +102,12 @@ itemDef {
 	rect 200 220 200 155
 	textscale .2
 	wrapped	
-	text "^1Robert ^3-Tr3B-^1 Beckebans - health pickup models\r"
-	"^1Lee David Ash - weapon models\r"
-	"^1Julian ^3-Plaque-^1 Morris - weapon and projectile models\r"
-	"^1Mikael  ^3-Ruohis-^1 Ruohomaa - weapon models\r"
-	"^1jzero - OpenArena weapon models\r"
-	"^3CheapAlert^1 - OpenArena models"
+	text "^1Robert ^3-Tr3B-^1 Beckebans - ^7health pickup models\r"
+	"^1Lee David Ash ^7- weapon models\r"
+	"^1Julian ^3-Plaque-^1 Morris ^7- weapon and projectile models\r"
+	"^1Mikael  ^3-Ruohis-^1 Ruohomaa ^7- weapon models\r"
+	"^3jzero ^7- OpenArena weapon models\r"
+	"^3CheapAlert^1 ^7- OpenArena models"
 
 	forecolor 1 1 1 1
 	decoration 
@@ -133,7 +133,7 @@ itemDef {
 	rect 240 220 200 155
 	textscale .2
 	wrapped	
-	text "^1Stefan  ^3-Reflex-^1 Lautner - redm08"
+	text "^1Stefan ^3-Reflex-^1 Lautner ^7- redm08"
 
 	forecolor 1 1 1 1
 	decoration 
@@ -190,7 +190,7 @@ itemDef {
 	rect 200 220 200 155
 	textscale .2
 	wrapped	
-	text "^1Randall ^3-Ravenant-^1 P. - cool weapon sounds"
+	text "^1Randall ^3-Ravenant-^1 P. ^7- cool weapon sounds"
 	forecolor 1 1 1 1
 	decoration 
 	visible 0
@@ -215,7 +215,7 @@ itemDef {
 	rect 140 220 200 155
 	textscale .2
 	wrapped	
-	text "^1Josef ^3-cnuke-^1 Soentgen - development media mirror and game server"
+	text "^1Josef ^3-cnuke-^1 Soentgen ^7- development media mirror and game server"
 	forecolor 1 1 1 1
 	decoration 
 	visible 0
