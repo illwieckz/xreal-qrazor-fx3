@@ -1726,10 +1726,9 @@ typedef struct
 	image_t        *identityLightImage;	// full of tr.identityLightByte
 	image_t        *noFalloffImage;
 	image_t        *attenuationXYImage;
+	
 	image_t        *contrastRenderImage;
 	image_t        *currentRenderImage;
-	image_t        *currentRenderLinearImage;
-	image_t        *currentRenderNearestImage;
 	
 	image_t        *currentRenderFBOImage[4];
 	image_t        *portalRenderFBOImage[4];

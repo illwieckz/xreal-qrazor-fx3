@@ -2637,9 +2637,8 @@ static void Render_heatHaze(int stage)
 		
 		// capture current color buffer for u_CurrentMap
 		GL_SelectTexture(0);
-		GL_Bind(tr.currentRenderNearestImage);
-		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderNearestImage->uploadWidth,
-							 tr.currentRenderNearestImage->uploadHeight);
+		GL_Bind(tr.currentRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
 							 
 		// clear color buffer
 		qglClear(GL_COLOR_BUFFER_BIT);
@@ -2668,7 +2667,7 @@ static void Render_heatHaze(int stage)
 		
 		// bind u_CurrentMap
 		GL_SelectTexture(1);
-		GL_Bind(tr.currentRenderNearestImage);
+		GL_Bind(tr.currentRenderImage);
 
 		DrawElements();
 		
@@ -2695,7 +2694,7 @@ static void Render_heatHaze(int stage)
 
 		// bind u_CurrentMap
 		GL_SelectTexture(0);
-		GL_Bind(tr.currentRenderNearestImage);
+		GL_Bind(tr.currentRenderImage);
 
 		// set 2D virtual screen size
 		qglPushMatrix();
@@ -2765,8 +2764,8 @@ static void Render_heatHaze(int stage)
 	}
 	else
 	{
-		GL_Bind(tr.currentRenderLinearImage);
-		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderLinearImage->uploadWidth, tr.currentRenderLinearImage->uploadHeight);
+		GL_Bind(tr.currentRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
 	}
 	
 	// bind u_ContrastMap
@@ -2822,9 +2821,8 @@ static void Render_bloom(int stage)
 	qglUniform2fARB(tr.contrastShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 	GL_SelectTexture(0);
-	GL_Bind(tr.currentRenderNearestImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderNearestImage->uploadWidth,
-						 tr.currentRenderNearestImage->uploadHeight);
+	GL_Bind(tr.currentRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
 	qglMatrixMode(GL_MODELVIEW);
@@ -2841,9 +2839,8 @@ static void Render_bloom(int stage)
 	qglUniform2fARB(tr.bloomShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 	GL_SelectTexture(1);
-	GL_Bind(tr.currentRenderLinearImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderLinearImage->uploadWidth,
-						 tr.currentRenderLinearImage->uploadHeight);
+	GL_Bind(tr.contrastRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth, tr.contrastRenderImage->uploadHeight);
 
 	DrawElements();
 
@@ -2877,9 +2874,8 @@ static void Render_bloom2(int stage)
 	qglUniform2fARB(tr.contrastShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 	GL_SelectTexture(0);
-	GL_Bind(tr.currentRenderNearestImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderNearestImage->uploadWidth,
-						 tr.currentRenderNearestImage->uploadHeight);
+	GL_Bind(tr.currentRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
 	qglMatrixMode(GL_MODELVIEW);
@@ -2894,9 +2890,8 @@ static void Render_bloom2(int stage)
 	qglUniform2fARB(tr.blurXShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
 	qglUniform2fARB(tr.blurXShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
-	GL_Bind(tr.currentRenderLinearImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderLinearImage->uploadWidth,
-						 tr.currentRenderLinearImage->uploadHeight);
+	GL_Bind(tr.contrastRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth, tr.contrastRenderImage->uploadHeight);
 
 	DrawElements();
 
@@ -2908,9 +2903,8 @@ static void Render_bloom2(int stage)
 	qglUniform2fARB(tr.blurYShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
 	qglUniform2fARB(tr.blurYShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
-	GL_Bind(tr.currentRenderLinearImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderLinearImage->uploadWidth,
-						 tr.currentRenderLinearImage->uploadHeight);
+	GL_Bind(tr.contrastRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth, tr.contrastRenderImage->uploadHeight);
 
 	DrawElements();
 
@@ -2924,10 +2918,10 @@ static void Render_bloom2(int stage)
 	qglUniform2fARB(tr.bloomShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 	GL_SelectTexture(0);
-	GL_Bind(tr.currentRenderNearestImage);
+	GL_Bind(tr.currentRenderImage);
 
 	GL_SelectTexture(1);
-	GL_Bind(tr.currentRenderLinearImage);
+	GL_Bind(tr.contrastRenderImage);
 
 	DrawElements();
 
@@ -2963,9 +2957,8 @@ static void Render_rotoscope(int stage)
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
-	GL_Bind(tr.currentRenderNearestImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderNearestImage->uploadWidth,
-						 tr.currentRenderNearestImage->uploadHeight);
+	GL_Bind(tr.currentRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
 	qglMatrixMode(GL_MODELVIEW);

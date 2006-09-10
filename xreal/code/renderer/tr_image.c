@@ -4540,38 +4540,7 @@ static void R_CreateCurrentRenderImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	tr.currentRenderImage = R_CreateImage("_currentRender", data, width, height, IF_NOPICMIP, FT_DEFAULT, WT_REPEAT);
-
-	ri.Hunk_FreeTempMemory(data);
-}
-
-static void R_CreateCurrentRenderLinearImage(void)
-{
-	int             width, height;
-	byte           *data;
-	
-	width = NearestPowerOfTwo(glConfig.vidWidth);
-	height = NearestPowerOfTwo(glConfig.vidHeight);
-
-	data = ri.Hunk_AllocateTempMemory(width * height * 4);
-
-	tr.currentRenderLinearImage = R_CreateImage("_currentRenderLinear", data, width, height, IF_NOPICMIP, FT_LINEAR, WT_REPEAT);
-
-	ri.Hunk_FreeTempMemory(data);
-}
-
-static void R_CreateCurrentRenderNearestImage(void)
-{
-	int             width, height;
-	byte           *data;
-	
-	width = NearestPowerOfTwo(glConfig.vidWidth);
-	height = NearestPowerOfTwo(glConfig.vidHeight);
-
-	data = ri.Hunk_AllocateTempMemory(width * height * 4);
-
-	tr.currentRenderNearestImage =
-		R_CreateImage("_currentRenderNearest", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+	tr.currentRenderImage = R_CreateImage("_currentRender", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 
 	ri.Hunk_FreeTempMemory(data);
 }
@@ -4673,8 +4642,6 @@ void R_CreateBuiltinImages(void)
 	R_CreateAttenuationXYImage();
 	R_CreateContrastRenderImage();
 	R_CreateCurrentRenderImage();
-	R_CreateCurrentRenderLinearImage();
-	R_CreateCurrentRenderNearestImage();
 	R_CreateCurrentRenderFBOImage();
 	R_CreatePortalRenderFBOImage();
 }
