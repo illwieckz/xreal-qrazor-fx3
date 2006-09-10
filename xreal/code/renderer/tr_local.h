@@ -816,6 +816,7 @@ typedef struct shaderProgram_s
 
 	// uniform parameters
 	GLint           u_ColorMap;
+	GLint           u_CurrentMap;
 	GLint           u_ContrastMap;
 	GLint           u_DiffuseMap;
 	GLint           u_NormalMap;
@@ -827,6 +828,7 @@ typedef struct shaderProgram_s
 
 	GLint           u_ViewOrigin;
 
+	GLint           u_Color;
 	GLint           u_AmbientColor;
 
 	GLint           u_LightDir;
@@ -1758,9 +1760,11 @@ typedef struct
 	trRefDlight_t  *currentDlight;
 
 	// GPU shader programs
-	shaderProgram_t genericShader_single;
-
+	shaderProgram_t genericSingleShader;
+	shaderProgram_t genericSingleMRTShader;
+	
 	shaderProgram_t depthFillShader;
+	shaderProgram_t depthTestShader;
 
 	shaderProgram_t lightShader_D_direct;
 	shaderProgram_t lightShader_DB_direct;

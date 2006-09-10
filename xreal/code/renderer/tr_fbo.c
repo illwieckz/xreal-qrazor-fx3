@@ -313,10 +313,12 @@ void R_BindFBO(frameBuffer_t * fbo)
 	{
 		qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo->frameBuffer);
 		
+		/*
 		if(fbo->colorBuffers[0])
 		{
 			qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, fbo->colorBuffers[0]);
 		}
+		*/
 		
 		/*
 		if(fbo->depthBuffer)

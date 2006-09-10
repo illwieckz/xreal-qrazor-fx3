@@ -1029,6 +1029,19 @@ void GL_SetDefaultState(void)
 	{
 		qglUseProgramObjectARB(0);
 	}
+	
+	/*
+	if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	{
+		// enable all attachments as draw buffers
+       	GLenum drawbuffers[] = {GL_DRAW_BUFFER0_ARB,
+       							GL_DRAW_BUFFER1_ARB,
+       							GL_DRAW_BUFFER2_ARB,
+       							GL_DRAW_BUFFER3_ARB};
+     
+       	qglDrawBuffersARB(4, drawbuffers);
+	}
+	*/
 
 	qglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	qglDepthMask(GL_TRUE);

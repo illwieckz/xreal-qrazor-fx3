@@ -21,40 +21,29 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-// ATI bugfix, set by renderer at compile time
-//#define ATI
+uniform sampler2D	u_ColorMap;
+uniform sampler2D	u_CurrentMap;
+uniform vec2		u_FBufScale;
+uniform vec2		u_NPOTScale;
 
-attribute vec4		attr_TexCoord0;
-
-#if defined(ATI)
-uniform mat4		u_ProjectionMatrixTranspose;
-#endif
-
-uniform float		u_DeformMagnitude;
-
-varying vec2		var_TexNormal;
-varying float		var_Deform;
+varying vec2		var_Tex;
 
 void	main()
 {
-	// transform vertex position into homogenous clip-space
-	gl_Position = ftransform();
-	
-	// transform normalmap texcoords
-	var_TexNormal = (gl_TextureMatrix[2] * attr_TexCoord0).st;
-	
-	// take the deform magnitude and scale it by the projection distance
-	vec4 tmp0 = vec4(1, 0, 0, 1);
-	tmp0.z = dot(gl_ModelViewMatrixTranspose[2], gl_Vertex);
+	vec4 color = texture2D(u_ColorMap, var_Tex);
 
-#if defined(ATI)
-	float tmp1 = dot(u_ProjectionMatrixTranspose[0],  tmp0);
+	// calculate the screen texcoord in the 0.0 to 1.0 range
+	vec2 st = gl_FragCoord.st * u_FBufScale;
+	
+	// scale by the screen non-power-of-two-adjust
+	st *= u_NPOTScale;
+
+#if defined(GL_ARB_draw_buffers)
+	gl_FragData[0] = texture2D(u_CurrentMap, st);
+	gl_FragData[1] = vec4(1.0, 1.0, 1.0, 1.0);
+	gl_FragData[2] = vec4(0.0, 0.0, 0.0, 1.0);
+	gl_FragData[3] = vec4(0.0, 0.0, 0.0, 1.0);
 #else
-	float tmp1 = dot(gl_ProjectionMatrixTranspose[0],  tmp0);
+	gl_FragColor = texture2D(u_CurrentMap, st);
 #endif
-	
-	// clamp the distance so the the deformations don't get too wacky near the view
-	tmp1 = min(tmp1, 0.02);
-	
-	var_Deform = tmp1 * u_DeformMagnitude;
 }

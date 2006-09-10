@@ -38,8 +38,18 @@ void	main()
 	vec3 R = reflect(I, N);
 	
 	// compute reflection color
-	vec4 reflect_color = textureCube(u_ColorMap, R).rgba;
+	vec4 reflectColor = textureCube(u_ColorMap, R).rgba;
 
 	// compute final color
-	gl_FragColor = reflect_color;
+	vec4 color = reflectColor;
+	
+#if defined(GL_ARB_draw_buffers)
+	gl_FragData[0] = color;
+	vec4 black = vec4(0.0, 0.0, 0.0, color.a);
+	gl_FragData[1] = black;
+	gl_FragData[2] = black;
+	gl_FragData[3] = black;
+#else
+	gl_FragColor = color;
+#endif
 }

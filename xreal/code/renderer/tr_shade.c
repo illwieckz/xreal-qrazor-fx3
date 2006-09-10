@@ -94,30 +94,39 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 
 	shader = qglCreateShaderObjectARB(shaderType);
 
-	// HACK: add ATI's GLSL quirks
-	if(glConfig.hardwareType == GLHW_ATI && shaderType == GL_VERTEX_SHADER_ARB)
 	{
-		GLcharARB      *bufferATI = "#define ATI\n";
-		int             sizeATI;
+		static GLcharARB bufferExtra[32000];
+		int             sizeExtra;
 
 		GLcharARB      *bufferFinal = NULL;
 		int             sizeFinal;
+		
+		Com_Memset(bufferExtra, 0, sizeof(bufferExtra));
 
-		sizeATI = strlen(bufferATI);
-		sizeFinal = sizeATI + size;
+		// HACK: add ATI's GLSL quirks		
+		if(glConfig.hardwareType == GLHW_ATI)
+		{
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ATI\n#define ATI\n#endif\n");
+		}
+		
+		if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+		{
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GL_ARB_draw_buffers\n#define GL_ARB_draw_buffers 1\n#endif\n");
+		}
 
-		bufferFinal = ri.Hunk_AllocateTempMemory(size + sizeATI);
+		sizeExtra = strlen(bufferExtra);
+		sizeFinal = sizeExtra + size;
+		
+		//ri.Printf(PRINT_ALL, "GLSL extra: %s\n", bufferExtra);
 
-		strcpy(bufferFinal, bufferATI);
+		bufferFinal = ri.Hunk_AllocateTempMemory(size + sizeExtra);
+
+		strcpy(bufferFinal, bufferExtra);
 		Q_strcat(bufferFinal, sizeFinal, buffer);
 
 		qglShaderSourceARB(shader, 1, (const GLcharARB **)&bufferFinal, &sizeFinal);
 
 		ri.Hunk_FreeTempMemory(bufferFinal);
-	}
-	else
-	{
-		qglShaderSourceARB(shader, 1, (const GLcharARB **)&buffer, &size);
 	}
 
 	// compile shader
@@ -131,8 +140,10 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 		ri.FS_FreeFile(buffer);
 		return;
 	}
-//  ri.Printf(PRINT_ALL, "info log: %s\n", RB_PrintInfoLog(shader));
-//  ri.Printf(PRINT_ALL, "%s\n", RB_PrintShaderSource(shader));
+#ifdef _DEBUG
+	ri.Printf(PRINT_ALL, "GLSL compile log:\n%s\n", GLSL_PrintInfoLog(shader));
+#endif
+//  ri.Printf(PRINT_ALL, "%s\n", GLSL_PrintShaderSource(shader));
 
 	// attach shader to program
 	qglAttachObjectARB(program, shader);
@@ -249,12 +260,24 @@ void GLSL_InitGPUShaders(void)
 	//
 	// single texture rendering
 	//
-	GLSL_InitGPUShader(&tr.genericShader_single, "generic_single", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_COLOR, qtrue);
+	GLSL_InitGPUShader(&tr.genericSingleShader, "genericSingle", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_COLOR, qtrue);
 
-	tr.genericShader_single.u_ColorMap = qglGetUniformLocationARB(tr.genericShader_single.program, "u_ColorMap");
+	tr.genericSingleShader.u_ColorMap = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_ColorMap");
 
-	qglUseProgramObjectARB(tr.genericShader_single.program);
-	qglUniform1iARB(tr.genericShader_single.u_ColorMap, 0);
+	qglUseProgramObjectARB(tr.genericSingleShader.program);
+	qglUniform1iARB(tr.genericSingleShader.u_ColorMap, 0);
+	qglUseProgramObjectARB(0);
+	
+	//
+	// simple texture rendering into gl_FragData[0] and everything blackened (good for MRT testing)
+	//
+	GLSL_InitGPUShader(&tr.genericSingleMRTShader, "genericSingleMRT", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_COLOR, qtrue);
+
+	tr.genericSingleMRTShader.u_ColorMap = qglGetUniformLocationARB(tr.genericSingleMRTShader.program, "u_ColorMap");
+	tr.genericSingleMRTShader.u_Color = qglGetUniformLocationARB(tr.genericSingleMRTShader.program, "u_Color");
+
+	qglUseProgramObjectARB(tr.genericSingleMRTShader.program);
+	qglUniform1iARB(tr.genericSingleMRTShader.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
 
 	//
@@ -266,6 +289,21 @@ void GLSL_InitGPUShaders(void)
 
 	qglUseProgramObjectARB(tr.depthFillShader.program);
 	qglUniform1iARB(tr.depthFillShader.u_ColorMap, 0);
+	qglUseProgramObjectARB(0);
+	
+	//
+	// colored depth test rendering with textures into gl_FragData[1]
+	//
+	GLSL_InitGPUShader(&tr.depthTestShader, "depthTest", GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
+
+	tr.depthTestShader.u_ColorMap = qglGetUniformLocationARB(tr.depthTestShader.program, "u_ColorMap");
+	tr.depthTestShader.u_CurrentMap = qglGetUniformLocationARB(tr.depthTestShader.program, "u_CurrentMap");
+	tr.depthTestShader.u_FBufScale = qglGetUniformLocationARB(tr.depthTestShader.program, "u_FBufScale");
+	tr.depthTestShader.u_NPOTScale = qglGetUniformLocationARB(tr.depthTestShader.program, "u_NPOTScale");
+
+	qglUseProgramObjectARB(tr.depthTestShader.program);
+	qglUniform1iARB(tr.depthTestShader.u_ColorMap, 0);
+	qglUniform1iARB(tr.depthTestShader.u_CurrentMap, 1);
 	qglUseProgramObjectARB(0);
 
 	//
@@ -591,14 +629,16 @@ void GLSL_InitGPUShaders(void)
 			qglGetUniformLocationARB(tr.heatHazeShader.program, "u_ProjectionMatrixTranspose");
 	}
 	tr.heatHazeShader.u_DeformMagnitude = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_DeformMagnitude");
-	tr.heatHazeShader.u_ColorMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_ColorMap");
 	tr.heatHazeShader.u_NormalMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_NormalMap");
+	tr.heatHazeShader.u_CurrentMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_CurrentMap");
+	tr.heatHazeShader.u_ContrastMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_ContrastMap");
 	tr.heatHazeShader.u_FBufScale = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_FBufScale");
 	tr.heatHazeShader.u_NPOTScale = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_NPOTScale");
 
 	qglUseProgramObjectARB(tr.heatHazeShader.program);
-	qglUniform1iARB(tr.heatHazeShader.u_ColorMap, 0);
-	qglUniform1iARB(tr.heatHazeShader.u_NormalMap, 1);
+	qglUniform1iARB(tr.heatHazeShader.u_NormalMap, 0);
+	qglUniform1iARB(tr.heatHazeShader.u_CurrentMap, 1);
+	qglUniform1iARB(tr.heatHazeShader.u_ContrastMap, 2);
 	qglUseProgramObjectARB(0);
 
 	//
@@ -675,12 +715,12 @@ void GLSL_InitGPUShaders(void)
 	//
 	GLSL_InitGPUShader(&tr.screenShader, "screen", GLCS_VERTEX, qtrue);
 
-	tr.screenShader.u_ColorMap = qglGetUniformLocationARB(tr.screenShader.program, "u_ColorMap");
+	tr.screenShader.u_CurrentMap = qglGetUniformLocationARB(tr.screenShader.program, "u_CurrentMap");
 	tr.screenShader.u_FBufScale = qglGetUniformLocationARB(tr.screenShader.program, "u_FBufScale");
 	tr.screenShader.u_NPOTScale = qglGetUniformLocationARB(tr.screenShader.program, "u_NPOTScale");
 
 	qglUseProgramObjectARB(tr.screenShader.program);
-	qglUniform1iARB(tr.screenShader.u_ColorMap, 0);
+	qglUniform1iARB(tr.screenShader.u_CurrentMap, 0);
 	qglUseProgramObjectARB(0);
 }
 
@@ -691,16 +731,28 @@ void GLSL_ShutdownGPUShaders(void)
 	if(!glConfig.shadingLanguage100Available)
 		return;
 
-	if(tr.genericShader_single.program)
+	if(tr.genericSingleShader.program)
 	{
-		qglDeleteObjectARB(tr.genericShader_single.program);
-		tr.genericShader_single.program = 0;
+		qglDeleteObjectARB(tr.genericSingleShader.program);
+		tr.genericSingleShader.program = 0;
+	}
+
+	if(tr.genericSingleMRTShader.program)
+	{
+		qglDeleteObjectARB(tr.genericSingleMRTShader.program);
+		tr.genericSingleMRTShader.program = 0;
 	}
 
 	if(tr.depthFillShader.program)
 	{
 		qglDeleteObjectARB(tr.depthFillShader.program);
 		tr.depthFillShader.program = 0;
+	}
+	
+	if(tr.depthTestShader.program)
+	{
+		qglDeleteObjectARB(tr.depthTestShader.program);
+		tr.depthTestShader.program = 0;
 	}
 
 	if(tr.lightShader_D_direct.program)
@@ -1250,7 +1302,7 @@ static void Render_genericSingle_FFP(int stage)
 //  qglDisable(GL_TEXTURE_2D);
 }
 
-#if 1
+#if 0
 #define Render_genericSingle Render_genericSingle_FFP
 #else
 static void Render_genericSingle(int stage)
@@ -1266,13 +1318,20 @@ static void Render_genericSingle(int stage)
 	GL_State(pStage->stateBits);
 
 	// enable shader, set arrays
+	if(glConfig.framebufferObjectAvailable && glState.currentFBO)
+	{
+		GL_Program(tr.genericSingleMRTShader.program);
+		GL_ClientState(tr.genericSingleMRTShader.attribs);
+		GL_SetVertexAttribs();
+	}
+	else
+	{
+		GL_Program(tr.genericSingleShader.program);
+		GL_ClientState(tr.genericSingleShader.attribs);
+		GL_SetVertexAttribs();
+	}
 
-	// FIXME: VBO surfaces have only tess.svars.color
-	GL_Program(tr.genericShader_single.program);
-	GL_ClientState(tr.genericShader_single.attribs);
-	GL_SetVertexAttribs();
-
-	// bind colorMap
+	// bind u_ColorMap
 	GL_SelectTexture(0);
 	BindAnimatedImage(&pStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
@@ -1475,7 +1534,7 @@ static void Render_depthFill(int stage)
 	GL_ClientState(tr.depthFillShader.attribs);
 	GL_SetVertexAttribs();
 
-	// bind colorMap
+	// bind u_ColorMap
 	GL_SelectTexture(0);
 
 	if(pStage->stateBits & GLS_ATEST_BITS)
@@ -1588,7 +1647,7 @@ static void Render_lighting_D_direct(int stage)
 	qglUniform3fARB(tr.lightShader_D_direct.u_LightDir, lightDir[0], lightDir[1], lightDir[2]);
 	qglUniform3fARB(tr.lightShader_D_direct.u_LightColor, directedLight[0], directedLight[1], directedLight[2]);
 
-	// bind diffusemap
+	// bind u_DiffuseMap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
@@ -1633,14 +1692,14 @@ static void Render_lighting_DB_direct(int stage)
 	qglUniform3fARB(tr.lightShader_DB_direct.u_LightColor, directedLight[0], directedLight[1], directedLight[2]);
 
 
-	// bind diffusemap
+	// bind u_DiffuseMap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
-	// bind normalmap
+	// bind u_NormalMap
 	GL_SelectTexture(1);
 	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
@@ -1689,22 +1748,21 @@ static void Render_lighting_DBS_direct(int stage)
 	qglUniform3fARB(tr.lightShader_DBS_direct.u_LightColor, directedLight[0], directedLight[1], directedLight[2]);
 	qglUniform1fARB(tr.lightShader_DBS_direct.u_SpecularExponent, specularExponent);
 
-
-	// bind diffusemap
+	// bind u_DiffuseMap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
-	// bind normalmap
+	// bind u_NormalMap
 	GL_SelectTexture(1);
 	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
-	// bind specularmap
+	// bind u_SpecularMap
 	GL_SelectTexture(2);
 	GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
@@ -1737,18 +1795,21 @@ static void Render_lighting_D_omni(shaderStage_t * diffuseStage,
 	qglUniform3fARB(tr.lightShader_D_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
 	qglUniform1fARB(tr.lightShader_D_omni.u_LightScale, r_lightScale->value);
 
+	// bind u_DiffuseMap
 	GL_SelectTexture(0);
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
+	// bind u_AttenuationMapXY
 	GL_SelectTexture(1);
 	BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(dlight->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
 
+	// bind u_AttenuationMapZ
 	GL_SelectTexture(2);
 	BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
@@ -1785,24 +1846,28 @@ static void Render_lighting_DB_omni(shaderStage_t * diffuseStage,
 	qglUniform3fARB(tr.lightShader_DB_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
 	qglUniform1fARB(tr.lightShader_DB_omni.u_LightScale, r_lightScale->value);
 
+	// bind u_DiffuseMap
 	GL_SelectTexture(0);
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
+	// bind u_NormalMap
 	GL_SelectTexture(1);
 	GL_Bind(diffuseStage->bundle[TB_NORMALMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
+	// bind u_AttenuationMapXY
 	GL_SelectTexture(2);
 	BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(dlight->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
 
+	// bind u_AttenuationMapZ
 	GL_SelectTexture(3);
 	BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 
@@ -1843,30 +1908,35 @@ static void Render_lighting_DBS_omni(shaderStage_t * diffuseStage,
 	qglUniform1fARB(tr.lightShader_DBS_omni.u_LightScale, r_lightScale->value);
 	qglUniform1fARB(tr.lightShader_DBS_omni.u_SpecularExponent, specularExponent);
 
+	// bind u_DiffuseMap
 	GL_SelectTexture(0);
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
+	// bind u_NormalMap
 	GL_SelectTexture(1);
 	GL_Bind(diffuseStage->bundle[TB_NORMALMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
+	// bind u_SpecularMap
 	GL_SelectTexture(2);
 	GL_Bind(diffuseStage->bundle[TB_SPECULARMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_SPECULARMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
+	// bind u_AttenuationMapXY
 	GL_SelectTexture(3);
 	BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(dlight->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
 
+	// bind u_AttenuationMapZ
 	GL_SelectTexture(4);
 	BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 
@@ -1909,30 +1979,35 @@ static void Render_lighting_DBSP_omni(shaderStage_t * diffuseStage,
 	qglUniform1fARB(tr.lightShader_DBSP_omni.u_HeightScale, RB_EvalExpression(&diffuseStage->heightScaleExp, 0.05f));
 	qglUniform1fARB(tr.lightShader_DBSP_omni.u_HeightBias, RB_EvalExpression(&diffuseStage->heightBiasExp, 0.0f));
 
+	// bind u_DiffuseMap
 	GL_SelectTexture(0);
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
+	// bind u_NormalMap
 	GL_SelectTexture(1);
 	GL_Bind(diffuseStage->bundle[TB_NORMALMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
+	// bind u_SpecularMap
 	GL_SelectTexture(2);
 	GL_Bind(diffuseStage->bundle[TB_SPECULARMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_SPECULARMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
+	// bind u_AttenuationMapXY
 	GL_SelectTexture(3);
 	BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(dlight->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
 
+	// bind u_AttenuationMapZ
 	GL_SelectTexture(4);
 	BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 
@@ -1966,18 +2041,21 @@ static void Render_lighting_D_proj(shaderStage_t * diffuseStage,
 	qglUniform3fARB(tr.lightShader_D_proj.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
 	qglUniform1fARB(tr.lightShader_D_proj.u_LightScale, r_lightScale->value);
 
+	// bind u_DiffuseMap
 	GL_SelectTexture(0);
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
+	// bind u_AttenuationMapXY
 	GL_SelectTexture(1);
 	BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(dlight->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
 
+	// bind u_AttenuationMapZ
 	GL_SelectTexture(2);
 	BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 
@@ -2163,14 +2241,14 @@ static void Render_lighting_D_radiosity(int stage)
 	GL_ClientState(tr.lightShader_D_radiosity.attribs);
 	GL_SetVertexAttribs();
 
-	// bind diffusemap
+	// bind u_DiffuseMap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
-	// bind lightmap
+	// bind u_LightMap
 	GL_SelectTexture(1);
 	BindLightMap();
 	qglMatrixMode(GL_TEXTURE);
@@ -2197,28 +2275,28 @@ static void Render_lighting_DB_radiosity(int stage)
 	GL_ClientState(tr.lightShader_DB_radiosity.attribs);
 	GL_SetVertexAttribs();
 
-	// bind diffusemap
+	// bind u_DiffuseMap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
-	// bind normalmap
+	// bind u_NormalMap
 	GL_SelectTexture(1);
 	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
-	// bind lightmap
+	// bind u_LightMap
 	GL_SelectTexture(2);
 	BindLightMap();
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_LIGHTMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
-	// bind deluxemap
+	// bind u_DeluxeMap
 	GL_SelectTexture(3);
 	BindDeluxeMap();
 
@@ -2251,35 +2329,35 @@ static void Render_lighting_DBS_radiosity(int stage)
 	qglUniform3fARB(tr.lightShader_DBS_radiosity.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform1fARB(tr.lightShader_DBS_radiosity.u_SpecularExponent, specularExponent);
 
-	// bind diffusemap
+	// bind u_DiffuseMap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
-	// bind normalmap
+	// bind u_NormalMap
 	GL_SelectTexture(1);
 	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
-	// bind specular
+	// bind u_SpecularMap
 	GL_SelectTexture(2);
 	GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_SPECULARMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
-	// bind lightmap
+	// bind u_LightMap
 	GL_SelectTexture(3);
 	BindLightMap();
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_LIGHTMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
-	// bind deluxemap
+	// bind u_DeluxeMap
 	GL_SelectTexture(4);
 	BindDeluxeMap();
 
@@ -2306,7 +2384,7 @@ static void Render_reflection_C(int stage)
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 	qglUniform3fARB(tr.reflectionShader_C.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 
-	// bind colormap
+	// bind u_ColorMap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
@@ -2337,7 +2415,7 @@ static void Render_reflection_CB(int stage)
 	qglUniform3fARB(tr.reflectionShader_CB.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniformMatrix4fvARB(tr.reflectionShader_CB.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 
-	// bind colormap
+	// bind u_ColorMap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 	/*
@@ -2346,7 +2424,7 @@ static void Render_reflection_CB(int stage)
 	   qglMatrixMode(GL_MODELVIEW);
 	 */
 
-	// bind normalmap
+	// bind u_NormalMap
 	GL_SelectTexture(1);
 	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
@@ -2380,7 +2458,7 @@ static void Render_refraction_C(int stage)
 	qglUniform1fARB(tr.refractionShader_C.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 2.0));
 	qglUniform1fARB(tr.refractionShader_C.u_FresnelBias, RB_EvalExpression(&pStage->fresnelBiasExp, 1.0));
 
-	// bind colormap
+	// bind u_ColorMap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
@@ -2419,7 +2497,7 @@ static void Render_dispersion_C(int stage)
 	qglUniform1fARB(tr.dispersionShader_C.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 2.0f));
 	qglUniform1fARB(tr.dispersionShader_C.u_FresnelBias, RB_EvalExpression(&pStage->fresnelBiasExp, 1.0f));
 
-	// bind colormap
+	// bind u_ColorMap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
@@ -2449,7 +2527,7 @@ static void Render_skybox(int stage)
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 	qglUniform3fARB(tr.skyBoxShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 
-	// bind colormap
+	// bind u_ColorMap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 	qglMatrixMode(GL_TEXTURE);
@@ -2485,7 +2563,7 @@ static void Render_portal(int stage)
 	qglUniform2fARB(tr.screenShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
 	qglUniform2fARB(tr.screenShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
-	// bind colormap
+	// bind u_CurrentMap
 	GL_SelectTexture(0);
 	GL_Bind(tr.portalRenderFBOImage[0]);
 
@@ -2503,38 +2581,48 @@ static void Render_heatHaze(int stage)
 
 	GLimp_LogComment("--- Render_heatHaze ---\n");
 	
-#if 0
-	if(glConfig.framebufferObjectAvailable && glState.currentFBO && glState.currentFBO->colorBuffers[1])
+	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
+	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
+	npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+	npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+	
+#if 1
+	if(glConfig.framebufferObjectAvailable && glConfig.maxColorAttachments >= 4 &&
+	   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 	{
-		qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, glState.currentFBO->colorBuffers[3]);
-		//qglClear(GL_COLOR_BUFFER_BIT);
+		unsigned        stateBits;
+		
+		// remove blend mode
+		stateBits = pStage->stateBits;
+		stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
+		
+		GL_State(stateBits);
 		
 		// enable shader, set arrays
-		GL_Program(tr.genericShader_single.program);
-		GL_ClientState(tr.genericShader_single.attribs);
+		GL_Program(tr.depthTestShader.program);
+		GL_ClientState(tr.depthTestShader.attribs);
 		GL_SetVertexAttribs();
 		
-		//qglEnable(GL_DEPTH_TEST);
-		//GL_State(GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE);
-		//GL_State(GLS_DEFAULT);
-		//GL_Cull(CT_TWO_SIDED);
+		// set uniforms		
+		qglUniform2fARB(tr.depthTestShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
+		qglUniform2fARB(tr.depthTestShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 		
-		ComputeColors(pStage);
-		GL_State(pStage->stateBits);
-		
-		// bind FBO image
+		// bind u_ColorMap
 		GL_SelectTexture(0);
-		GL_Bind(tr.whiteImage);
+		GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 		qglMatrixMode(GL_TEXTURE);
 		qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
 		qglMatrixMode(GL_MODELVIEW);
+		
+		// bind u_CurrentMap
+		GL_SelectTexture(1);
+		GL_Bind(tr.currentRenderFBOImage[0]);
 
 		DrawElements();
-		
-		qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, glState.currentFBO->colorBuffers[0]);
 	}
 #endif
 	
+#if 1
 	// enable shader, set arrays
 	GL_Program(tr.heatHazeShader.program);
 	GL_State(pStage->stateBits);
@@ -2543,11 +2631,7 @@ static void Render_heatHaze(int stage)
 
 	// set uniforms
 	deformMagnitude = RB_EvalExpression(&pStage->deformMagnitudeExp, 1.0);
-	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
-	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-	npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
-
+	
 	qglUniform1fARB(tr.heatHazeShader.u_DeformMagnitude, deformMagnitude);
 	qglUniform2fARB(tr.heatHazeShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
 	qglUniform2fARB(tr.heatHazeShader.u_NPOTScale, npotWidthScale, npotHeightScale);
@@ -2560,8 +2644,15 @@ static void Render_heatHaze(int stage)
 		qglUniformMatrix4fvARB(tr.heatHazeShader.u_ProjectionMatrixTranspose, 1, GL_FALSE, projectionMatrixTranspose);
 	}
 	
-	// bind colorMap
+	// bind u_NormalMap
 	GL_SelectTexture(0);
+	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
+	qglMatrixMode(GL_MODELVIEW);
+	
+	// bind u_CurrentMap
+	GL_SelectTexture(1);
 	if(glConfig.framebufferObjectAvailable)
 	{
 		GL_Bind(tr.currentRenderFBOImage[0]);
@@ -2571,15 +2662,20 @@ static void Render_heatHaze(int stage)
 		GL_Bind(tr.currentRenderLinearImage);
 		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderLinearImage->uploadWidth, tr.currentRenderLinearImage->uploadHeight);
 	}
-
-	// bind normalMap
-	GL_SelectTexture(1);
-	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
-	qglMatrixMode(GL_MODELVIEW);
+	
+	// bind u_ContrastMap
+	GL_SelectTexture(2);
+	if(glConfig.framebufferObjectAvailable)
+	{
+		GL_Bind(tr.currentRenderFBOImage[1]);
+	}
+	else
+	{
+		GL_Bind(tr.currentRenderLinearImage);
+	}
 
 	DrawElements();
+#endif
 
 	GL_CheckErrors();
 }
@@ -2750,7 +2846,7 @@ static void Render_rotoscope(int stage)
 	qglUniform2fARB(tr.rotoscopeShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
 	qglUniform2fARB(tr.rotoscopeShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
-	// bind colormap
+	// bind u_ColorMap
 	GL_SelectTexture(0);
 	GL_Bind(tr.currentRenderNearestImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderNearestImage->uploadWidth,

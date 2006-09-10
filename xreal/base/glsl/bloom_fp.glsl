@@ -86,7 +86,5 @@ void	main()
 	vec4 sum = c01 + c02 + c03 + c04 + c05 + c06 + c07 + c08;
 	sum *= 0.125;
 	
-//	gl_FragColor = c00;
 	gl_FragColor = c00 + sum;
-//	gl_FragColor = sum;
 }

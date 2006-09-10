@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-uniform sampler2D	u_ColorMap;
+uniform sampler2D	u_CurrentMap;
 uniform vec2		u_FBufScale;
 uniform vec2		u_NPOTScale;
 
@@ -31,6 +31,17 @@ void	main()
 	
 	// scale by the screen non-power-of-two-adjust
 	st *= u_NPOTScale;
+	
+	vec4 color = texture2D(u_CurrentMap, st);
+//	color *= var_Color;
 
-	gl_FragColor = texture2D(u_ColorMap, st);
+#if defined(GL_ARB_draw_buffers)
+	gl_FragData[0] = color;
+	vec4 black = vec4(0.0, 0.0, 0.0, 1.0);
+	gl_FragData[1] = black;
+	gl_FragData[2] = black;
+	gl_FragData[3] = black;
+#else
+	gl_FragColor = color;
+#endif
 }

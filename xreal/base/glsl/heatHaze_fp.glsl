@@ -21,8 +21,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-uniform sampler2D	u_ColorMap;
 uniform sampler2D	u_NormalMap;
+uniform sampler2D	u_CurrentMap;
+uniform sampler2D	u_ContrastMap;
 uniform vec2		u_FBufScale;
 uniform vec2		u_NPOTScale;
 
@@ -31,19 +32,44 @@ varying float		var_Deform;
 
 void	main()
 {
+	vec4 color0, color1;
+
 	// compute normal in tangent space from normalmap
 	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).xyz - 0.5);
 	N = normalize(N);
 
 	// calculate the screen texcoord in the 0.0 to 1.0 range
-	vec2 s_coord = gl_FragCoord.st * u_FBufScale;
+	vec2 st = gl_FragCoord.st * u_FBufScale;
 	
 	// offset by the scaled normal and clamp it to 0.0 - 1.0
-	s_coord += N.xy * var_Deform;
-	s_coord = clamp(s_coord, 0.0, 1.0);
+	st += N.xy * var_Deform;
+	st = clamp(st, 0.0, 1.0);
 	
 	// scale by the screen non-power-of-two-adjust
-	s_coord *= u_NPOTScale;
-
-	gl_FragColor = texture2D(u_ColorMap, s_coord);
+	st *= u_NPOTScale;
+	
+	// check if the distortion got too far
+	vec3 vis = texture2D(u_ContrastMap, st).rgb;
+	if(length(vis) > 0.0)
+	{
+		color0 = texture2D(u_CurrentMap, st);
+		color1 = vec4(0.0, 1.0, 0.0, color0.a);
+	}
+	else
+	{
+		// reset st and don't offset
+		st = gl_FragCoord.st * u_FBufScale * u_NPOTScale;
+		
+		color0 = texture2D(u_CurrentMap, st);
+		color1 = vec4(1.0, 0.0, 0.0, color0.a);
+	}
+	
+#if defined(GL_ARB_draw_buffers)
+	gl_FragData[0] = color0;
+	gl_FragData[1] = color1;
+	gl_FragData[2] = vec4(0.0, 0.0, 0.0, color0.a);
+	gl_FragData[3] = vec4(0.0, 0.0, 0.0, color0.a);
+#else
+	gl_FragColor = color0;
+#endif
 }

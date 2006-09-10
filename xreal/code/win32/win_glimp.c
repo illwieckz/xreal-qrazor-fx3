@@ -1339,7 +1339,7 @@ static void GLW_InitExtensions(void)
 	
 	// GL_ARB_draw_buffers
 	glConfig.drawBuffersAvailable = qfalse;
-	if(Q_stristr(glConfig.extensions_string, "GL_ARB_draw_buffers"))
+	if(strstr(glConfig.extensions_string, "GL_ARB_draw_buffers"))
 	{
 		qglGetIntegerv(GL_MAX_DRAW_BUFFERS_ARB, &glConfig.maxDrawBuffers);
 		
