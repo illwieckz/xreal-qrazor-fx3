@@ -2586,7 +2586,6 @@ static void Render_heatHaze(int stage)
 	npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
 	npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
 	
-#if 1
 	if(glConfig.framebufferObjectAvailable && glConfig.maxColorAttachments >= 4 &&
 	   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 	{
@@ -2616,11 +2615,109 @@ static void Render_heatHaze(int stage)
 		
 		// bind u_CurrentMap
 		GL_SelectTexture(1);
-		GL_Bind(tr.currentRenderFBOImage[0]);
+		if(backEnd.viewParms.isPortal)
+		{
+			GL_Bind(tr.portalRenderFBOImage[0]);
+			GL_TextureFilter(tr.portalRenderFBOImage[0], FT_NEAREST);
+		}
+		else
+		{
+			GL_Bind(tr.currentRenderFBOImage[0]);
+			GL_TextureFilter(tr.currentRenderFBOImage[0], FT_NEAREST);
+		}
+		qglMatrixMode(GL_TEXTURE);
+		qglLoadIdentity();
+		qglMatrixMode(GL_MODELVIEW);
 
 		DrawElements();
 	}
-#endif
+	else
+	{
+		unsigned        stateBits;
+		
+		// capture current color buffer for u_CurrentMap
+		GL_SelectTexture(0);
+		GL_Bind(tr.currentRenderNearestImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderNearestImage->uploadWidth,
+							 tr.currentRenderNearestImage->uploadHeight);
+							 
+		// clear color buffer
+		qglClear(GL_COLOR_BUFFER_BIT);
+		
+		// remove blend mode
+		stateBits = pStage->stateBits;
+		stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
+		
+		GL_State(stateBits);
+		
+		// enable shader, set arrays
+		GL_Program(tr.depthTestShader.program);
+		GL_ClientState(tr.depthTestShader.attribs);
+		GL_SetVertexAttribs();
+		
+		// set uniforms	
+		qglUniform2fARB(tr.depthTestShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
+		qglUniform2fARB(tr.depthTestShader.u_NPOTScale, npotWidthScale, npotHeightScale);
+		
+		// bind u_ColorMap
+		GL_SelectTexture(0);
+		GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
+		qglMatrixMode(GL_TEXTURE);
+		qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
+		qglMatrixMode(GL_MODELVIEW);
+		
+		// bind u_CurrentMap
+		GL_SelectTexture(1);
+		GL_Bind(tr.currentRenderNearestImage);
+
+		DrawElements();
+		
+		// capture current color buffer for u_ContrastMap 
+		GL_SelectTexture(0);
+		GL_Bind(tr.contrastRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth, tr.contrastRenderImage->uploadHeight);
+		
+		
+		//
+		// backup color buffer
+		//
+		
+		// enable shader, set arrays
+		GL_Program(tr.screenShader.program);
+		GL_State(GLS_DEPTHTEST_DISABLE);
+		GL_ClientState(tr.screenShader.attribs);
+		//GL_SetVertexAttribs();
+		GL_Cull(CT_TWO_SIDED);
+	
+		// set uniforms
+		qglUniform2fARB(tr.screenShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
+		qglUniform2fARB(tr.screenShader.u_NPOTScale, npotWidthScale, npotHeightScale);
+
+		// bind u_CurrentMap
+		GL_SelectTexture(0);
+		GL_Bind(tr.currentRenderNearestImage);
+
+		// set 2D virtual screen size
+		qglPushMatrix();
+		qglLoadIdentity();
+		qglMatrixMode(GL_PROJECTION);
+		qglPushMatrix();
+		qglLoadIdentity();
+		qglOrtho(backEnd.viewParms.viewportX,
+				 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+				 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+
+		qglBegin(GL_QUADS);
+		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
+		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
+		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+		qglEnd();
+
+		qglPopMatrix();
+		qglMatrixMode(GL_MODELVIEW);
+		qglPopMatrix();
+	}
 	
 #if 1
 	// enable shader, set arrays
@@ -2655,7 +2752,16 @@ static void Render_heatHaze(int stage)
 	GL_SelectTexture(1);
 	if(glConfig.framebufferObjectAvailable)
 	{
-		GL_Bind(tr.currentRenderFBOImage[0]);
+		if(backEnd.viewParms.isPortal)
+		{
+			GL_Bind(tr.portalRenderFBOImage[0]);
+			GL_TextureFilter(tr.portalRenderFBOImage[0], FT_NEAREST);
+		}
+		else
+		{
+			GL_Bind(tr.currentRenderFBOImage[0]);
+			GL_TextureFilter(tr.currentRenderFBOImage[0], FT_NEAREST);
+		}
 	}
 	else
 	{
@@ -2667,11 +2773,20 @@ static void Render_heatHaze(int stage)
 	GL_SelectTexture(2);
 	if(glConfig.framebufferObjectAvailable)
 	{
-		GL_Bind(tr.currentRenderFBOImage[1]);
+		if(backEnd.viewParms.isPortal)
+		{
+			GL_Bind(tr.portalRenderFBOImage[1]);
+			GL_TextureFilter(tr.portalRenderFBOImage[1], FT_NEAREST);
+		}
+		else
+		{
+			GL_Bind(tr.currentRenderFBOImage[1]);
+			GL_TextureFilter(tr.currentRenderFBOImage[1], FT_NEAREST);
+		}
 	}
 	else
 	{
-		GL_Bind(tr.currentRenderLinearImage);
+		GL_Bind(tr.contrastRenderImage);
 	}
 
 	DrawElements();

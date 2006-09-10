@@ -48,9 +48,10 @@ void	main()
 	// scale by the screen non-power-of-two-adjust
 	st *= u_NPOTScale;
 	
+#if 1
 	// check if the distortion got too far
-	vec3 vis = texture2D(u_ContrastMap, st).rgb;
-	if(length(vis) > 0.0)
+	float vis = texture2D(u_ContrastMap, st).r;
+	if(vis > 0.0)
 	{
 		color0 = texture2D(u_CurrentMap, st);
 		color1 = vec4(0.0, 1.0, 0.0, color0.a);
@@ -63,10 +64,14 @@ void	main()
 		color0 = texture2D(u_CurrentMap, st);
 		color1 = vec4(1.0, 0.0, 0.0, color0.a);
 	}
+#else
+	color0 = texture2D(u_CurrentMap, st);
+	color1 = vec4(0.0, 0.0, 0.0, color0.a);
+#endif
 	
 #if defined(GL_ARB_draw_buffers)
-	gl_FragData[0] = color0;
-	gl_FragData[1] = color1;
+	gl_FragData[0] = color1;
+	gl_FragData[1] = color0;
 	gl_FragData[2] = vec4(0.0, 0.0, 0.0, color0.a);
 	gl_FragData[3] = vec4(0.0, 0.0, 0.0, color0.a);
 #else

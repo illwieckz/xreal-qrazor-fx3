@@ -4514,6 +4514,22 @@ static void R_CreateAttenuationXYImage(void)
 					  WT_CLAMP);
 }
 
+static void R_CreateContrastRenderImage(void)
+{
+	int             width, height;
+	byte           *data;
+	
+	width = NearestPowerOfTwo(glConfig.vidWidth);
+	height = NearestPowerOfTwo(glConfig.vidHeight);
+
+	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+
+	tr.contrastRenderImage =
+		R_CreateImage("_contrastRender", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+
+	ri.Hunk_FreeTempMemory(data);
+}
+
 static void R_CreateCurrentRenderImage(void)
 {
 	int             width, height;
@@ -4655,6 +4671,7 @@ void R_CreateBuiltinImages(void)
 	R_CreateFogImage();
 	R_CreateNoFalloffImage();
 	R_CreateAttenuationXYImage();
+	R_CreateContrastRenderImage();
 	R_CreateCurrentRenderImage();
 	R_CreateCurrentRenderLinearImage();
 	R_CreateCurrentRenderNearestImage();

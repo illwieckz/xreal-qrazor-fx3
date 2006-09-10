@@ -1,7 +1,6 @@
 /*
 ===========================================================================
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2006 defconx          <defcon-x@ns-co.net>
 
 This file is part of XreaL source code.
 
@@ -40,10 +39,11 @@ void	main()
 
 #if defined(GL_ARB_draw_buffers)
 	gl_FragData[0] = texture2D(u_CurrentMap, st);
-	gl_FragData[1] = vec4(1.0, 1.0, 1.0, 1.0);
+//	gl_FragData[0] = texture2D(u_ColorMap, var_Tex);
+	gl_FragData[1] = vec4(1.0, 0.0, 0.0, color.a);
 	gl_FragData[2] = vec4(0.0, 0.0, 0.0, 1.0);
 	gl_FragData[3] = vec4(0.0, 0.0, 0.0, 1.0);
 #else
-	gl_FragColor = texture2D(u_CurrentMap, st);
+	gl_FragColor = vec4(1.0, 0.0, 0.0, color.a);
 #endif
 }

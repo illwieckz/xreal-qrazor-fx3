@@ -27,9 +27,6 @@ backEndState_t  backEnd;
 
 
 
-/*
-** GL_Bind
-*/
 void GL_Bind(image_t * image)
 {
 	int             texnum;
@@ -60,6 +57,53 @@ void GL_Bind(image_t * image)
 		image->frameUsed = tr.frameCount;
 		glState.currenttextures[glState.currenttmu] = texnum;
 		qglBindTexture(image->type, texnum);
+	}
+}
+
+void GL_TextureFilter(image_t * image, filterType_t filterType)
+{
+	if(!image)
+	{
+		ri.Printf(PRINT_WARNING, "GL_TextureFilter: NULL image\n");
+	}
+	else
+	{
+		if(r_logFile->integer)
+		{
+			// don't just call LogComment, or we will get a call to va() every frame!
+			GLimp_LogComment(va("--- GL_TextureFilter( %s ) ---\n", image->name));
+		}
+	}
+	
+	if(image->filterType == filterType)
+		return;
+
+	// set filter type
+	switch (image->filterType)
+	{
+		/*
+		case FT_DEFAULT:
+			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+
+			// set texture anisotropy
+			if(glConfig.textureAnisotropyAvailable)
+				qglTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
+			break;
+		*/
+
+		case FT_LINEAR:
+			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			break;
+
+		case FT_NEAREST:
+			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			break;
+
+		default:
+			break;
 	}
 }
 
@@ -775,11 +819,11 @@ static void RB_BeginDrawingView(void)
 	if(r_fastsky->integer && !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 	{
 		clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
-#ifdef _DEBUG
+		#ifdef _DEBUG
 		qglClearColor(0.0f, 0.0f, 1.0f, 1.0f);	// FIXME: get color of sky
-#else
+		#else
 		qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
-#endif
+		#endif
 	}
 	qglClear(clearBits);
 
@@ -836,8 +880,22 @@ static void RB_BeginDrawingView(void)
 			R_BindFBO(tr.currentRenderFBO);
 		}
 		
+		// clear relevant buffers
+		clearBits = GL_DEPTH_BUFFER_BIT;
+
 		// FIXME: GL_STENCIL_BUFFER_BIT with FBOs
-		qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		/*
+		if(r_measureOverdraw->integer || r_shadows->integer == 3)
+		{
+			clearBits |= GL_STENCIL_BUFFER_BIT;
+		}
+		*/
+		
+		if(r_fastsky->integer && !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
+		{
+			clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
+		}
+		qglClear(clearBits);
 	}
 
 	GL_CheckErrors();
@@ -2412,6 +2470,7 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 		// bind colorMap
 		GL_SelectTexture(0);
 		GL_Bind(tr.currentRenderFBOImage[0]);
+		GL_TextureFilter(tr.currentRenderFBOImage[0], FT_NEAREST);
 
 		// set 2D virtual screen size
 		qglPushMatrix();
