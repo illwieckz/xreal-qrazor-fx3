@@ -16,7 +16,7 @@
 	fadeAmount 0.1		
 	onEsc { close skirmish ; open main }
 	onOpen { 
-		setitemcolor fadebox backcolor 0 0 0 1 ; 
+		//setitemcolor fadebox backcolor 0 0 0 1 ; 
 		play "sound/misc/kcswish.wav" ; 
 	fadeout fadebox ;
 		uiScript loadGameInfo ;
@@ -28,9 +28,20 @@
 		show back ;
 		hide grpmessage }
 		
- 	
+ 	/* OTTY disabled: black model background looks not good.
+itemDef {
+	name modelselection
+	ownerdraw UI_PLAYERMODEL
+	cvarTest "ui_gametype"
+	showCvar { "1" }
+      	rect 10 40 140 140
+	style 1
+	decoration 
+	visible 1
+	background "ui_main_background"
 
-
+    	}
+*/
 itemDef {
 	name window
 	text "Start a Singleplayergame"
@@ -1064,16 +1075,7 @@ itemDef {
 	decoration
      	}
 
-itemDef {
-	name modelselection
-	ownerdraw UI_PLAYERMODEL
-	cvarTest "ui_gametype"
-	showCvar { "1" }
-      	rect 10 40 140 140
-	style 1
-	decoration 
-	visible 1
-    	}
+
 
 itemDef {
       	name opposinglogo

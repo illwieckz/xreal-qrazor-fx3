@@ -370,7 +370,7 @@ itemDef {
 	visible 0 	
 	action { play "sound/misc/kcaction.wav" ; 
 	close main ; 
-	open quitCredit } 
+	open Credit } 
     	}
 
 

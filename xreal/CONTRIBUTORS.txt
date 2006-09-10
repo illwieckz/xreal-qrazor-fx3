@@ -1,6 +1,7 @@
 PROGRAMMING
 ===========
 Robert "Tr3B" Beckebans - lead programming
+Adrian "otty" Fuhrmann - user interface
 Josef "cnuke" Söntgen - cgame stuff
 Björn "bj0ern" Paschen - win32 specific fixes
 Pat "raynorpat" Raynor - bugfixes, PNG patch

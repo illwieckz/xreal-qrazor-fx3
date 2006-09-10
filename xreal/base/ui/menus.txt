@@ -4,7 +4,6 @@
 	loadMenu { "ui/main.menu" }
  	loadMenu { "ui/joinserver.menu" }
  	loadMenu { "ui/filter.menu" }
-	loadMenu { "ui/punkbuster.menu" }
  	loadMenu { "ui/player.menu" }
  	loadMenu { "ui/setup.menu" }
  	loadMenu { "ui/skirmish.menu" }
@@ -30,7 +29,7 @@
 	loadMenu { "ui/serverinfo.menu" }
 	loadMenu { "ui/findplayer.menu" }
 	loadMenu { "ui/endofgame.menu" }
-	loadMenu { "ui/quitcredit.menu" }
+	loadMenu { "ui/credit.menu" }
 	loadMenu { "ui/resetscore.menu" }
 	loadMenu { "ui/createfavorite.menu" }
 }

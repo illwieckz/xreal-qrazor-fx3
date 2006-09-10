@@ -1,418 +1,319 @@
 #include "ui/menudef.h"
 
 {
-\\ CREDIT \\
+\\ QUIT CREDIT \\
 
   menuDef {
-    	name "credit"
+    	name "Credit"
     	visible 0
     	fullscreen 1
     	rect 0 0 640 480
-    	background "menuback_a"
+    	background "ui_main_background"
     	focusColor 1 .67 0 1
     	style 1
     	border 1
-	soundloop ""
-	onEsc { close credit ; open menu }
-	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; 	
-	fadeout fadebox ; 
-	show grpidcredit ; 
-	hide grpoutcredit ; 
-	transition programming 0 0 640 30 0 80 640 30 20 10 ; 
-	transition artist 0 0 640 30 0 110 640 30 20 10 ; 
-	transition levelDesign 0 0 640 30 0 140 640 30 20 10 ; 
-	transition gameDesign 0 0 640 30 0 170 640 30 20 10 ; 
-	transition ceo 0 0 640 30 0 200 640 30 20 10 ; 
-	transition bizdev 0 0 640 30 0 230 640 30 20 10 ; 
-	transition idMom 0 0 640 30 0 260 640 30 20 10 ; 
-	transition devAssist 0 0 640 30 0 290 640 30 20 10 ;
-	transition progAssist 0 0 640 30 0 340 640 30 20 10 ;
-	hide back_alt ;
-	show back ;
-	hide grpmessage }
+	onEsc { close Credit ; open main}
+	onOpen { show credits ;
+		 show credits1 ;
+		 hide credits2 ;
+		 hide credits3 ;
+		 hide credits4 ;
+		 hide credits5 ;
+		 hide credits6 ;
+		  hide message_back;
 
+		setitemcolor fadebox backcolor 0 0 0 1 ;
+ 	play "sound/misc/kcswish.wav" ; 
 
-	    
-
-// LEVEL SELECTION BAR	//
+	fadeout fadebox  }
+		 
 
 
 itemDef {
-	name mappreview
-      	style 5
-	cinematic "idlogo.roq"
-	rect 0 0 640 480
-	backcolor 1 1 1 .25
-	border 1
-	bordersize 1
-	bordercolor .5 .5 .5 1
+      	name ui_main_logo					// fire "extended reality"
+     	style WINDOW_STYLE_SHADER
+     	rect 0 0 640 155
+     	visible 1
+     	background "ui_main_logo"
+	}
+
+
+//CREDITS: //
+ itemDef {
+      	name credits
+      	style 1 
+	rect 0 125 640 250
+      	border 4 
+      	bordersize 1
+      	bordercolor 0.5 0.0 0.1 .5
+      	visible 1 
+      	decoration 
+	}
+
+
+itemDef {
+      	name credits1			
+     	style 0
+	text "PROGRAMMING"
+	textalign 1
+	textalignx 320
+	textscale .3
 	decoration
+     	rect 0 178 640 155
+     	visible 1
+	}
+
+itemDef {
+	name credits1
+	style 0
+	textalign 0
+	rect 210 220 640 155
+	textscale .2
+	wrapped	
+	text "^1Robert ^3-Tr3B-^1 Beckebans - lead programming\r"
+	"^1Adrian ^3-otty- Fuhrmann - user interface\r"
+	"^1Josef ^3-cnuke-^1 Soentgen - cgame stuff\r"
+	"^1Bjoern ^3-bj0ern-^1 Paschen - win32 specific fixes\r"
+	"^1Pat ^3-raynorpat-^1 Raynor- bugfixes, PNG patch\r"
+	"^1Iain ^3-Jock-^1 Mckay - x86_64 patch\r"
+	"^1Tim ^3-Timbo-^1 Angus - .avi video recording patch\r"
+	"^3ensiform^1 - console clock enhancements"
+
+	forecolor 1 1 1 1
+	decoration 
 	visible 1
 	}
 
-
 itemDef {
-	name idcredit
-	group grpidcredit
-	rect 0 50 620 20
-	style 1
+      	name credits2			
+     	style 0
+	text "MODELLING"
 	textalign 1
 	textalignx 320
-	textaligny 10
-	textstyle 6
-	textscale .4
-	text "id Software is:"
-	forecolor 1 1 1 1
-	decoration 
-	visible 0
-	}
-
-
-itemDef {
-	name programming
-	group grpidcredit
-	style 0 
-	rect 0 80 640 30
-	textalign 1
-	textstyle 6
-	textalignx 320
-	textaligny 10
-	textscale .333
-	text "PROGRAMMING:  John Carmack,  Robert Duffy,  Jim Dose'"
-	forecolor  1 1 1 1
-	decoration 
-	visible 0
+	textscale .3
+	decoration
+     	rect 0 178 640 155
+     	visible 1
 	}
 
 itemDef {
-	name artist
-	group grpidcredit
-	style 0 
-	rect 0 110 640 30
-	textstyle 6
-	textalign 1
-	textalignx 320
-	textaligny 10
-	textscale .333
-	text "ART:   Adrian Carmack, Kevin Cloud, Kenneth Scott, Seneca Menard, Fred Nilsson  "
-	forecolor 1 1 1 1
-	decoration 
-	visible 0
-	}
-
-
-itemDef {
-	name levelDesign
-	group grpidcredit
-	style 0 
-	rect 0 140 640 30
-	textalign 1
-	textalignx 320
-	textstyle 6
-	textaligny 10
-	textscale .333
-	text "LEVEL DESIGN:   Tim Willits,  Christian Antkow,  Paul Jaquays"
-	forecolor 1 1 1 1
-	decoration 
-	visible 0
-	}
-
-itemDef {
-	name gameDesign
-	group grpidcredit
-	style 0 
-	rect 0 170 640 30
-	textalign 1
-	textalignx 320
-	textstyle 6
-	textaligny 10
-	textscale .333
-	text "GAME DESIGN:   Graeme Devine"
-	forecolor 1 1 1 1
-	decoration 
-	visible 0
-	}
-
-itemDef {
-	name ceo
-	group grpidcredit
-	style 0 
-	rect 0 200 640 30
-	textstyle 6
-	textalign 1
-	textalignx 320
-	textaligny 10
-	textscale .333
-	text "CEO:   Todd Hollenshead"
-	forecolor 1 1 1 1
-	decoration 
-	visible 0
-	}
-
-itemDef {
-	name bizDev
-	group grpidcredit
-	style 0 
-	rect 0 230 640 30
-	textalign 1
-	textalignx 320
-	textstyle 6
-	textaligny 10
-	textscale .333
-	text "BUSINESS DEVELOPMENT:   Marty Stratton"
-	forecolor 1 1 1 1
-	decoration 
-	visible 0
-	}
-
-itemDef {
-	name idMom
-	group grpidcredit
-	style 0 
-	rect 0 260 640 30
-	textalign 1
-	textalignx 320
-	textstyle 6
-	textaligny 10
-	textscale .333
-	text "OFFICE MANAGER AND ID MOM:   Donna Jackson"
-	forecolor 1 1 1 1
-	decoration 
-	visible 0
-	}
-
-itemDef {
-	name devAssist
-	group grpidcredit
-	style 0 
-	rect 0 290 640 30
-	textalign 1
-	textalignx 320
-	textstyle 6
-	textaligny 10
-	textscale .333
-	text "DEVELOPMENT ASSISTANCE:   Eric Webb"
-	forecolor 1 1 1 1
-	decoration 
-	visible 0
-	}
-
-itemDef {
-	name progAssist
-	group grpidcredit
-	style 0 
-	rect 0 340 640 30
-	textalign 1
-	textalignx 320
-	textstyle 6
-	textaligny 10
-	textscale .333
-	text "BOT AI & PROGRAMMING ASSISTANCE:   Jan Paul van Waveren"
-	forecolor 1 1 1 1
-	decoration 
-	visible 0
-	}
-
-
-itemDef {
-	name outcreditbttn
-      	group grpidcredit
-      	rect 255 400 130 26
-	type 1
-  	text "Additional Credit"
-	style WINDOW_STYLE_FILLED
-	background "ui/assets/button_back.tga"
-	textalign 1   	
-	textscale .25
-	textalignx 65
-	textaligny 20
-      	visible 0
-	backcolor .37 .1 .1 1
-      	forecolor 1 1 1 1
-	action { play "sound/misc/kcaction.wav" ;  
-	hide grpidcredit ; 
-	show grpoutcredit }
-	mouseEnter { setitemcolor outcreditbttn backcolor .1 .37 .1 1 }
-      	mouseExit { setitemcolor outcreditbttn backcolor .37 .1 .1 1 }	
-	}
-itemDef {
-      	name idcreditbttn
-	group grpidcredit
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/framebutton.tga"
-	rect 255 400 130 26
-      	visible 0 
-	decoration  	  
-    	}
-
-itemDef {
-      	name idcreditbttn
-	group grpidcredit
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/leftbutton.tga"
-      	rect 243 400 13 26
-      	visible 0 
-	decoration  	  
-    	}
-
-itemDef {
-      	name idcreditbttn
-	group grpidcredit
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/rightbutton.tga"
-      	rect 384 400 13 26
-      	visible 0 
-	decoration  	  
-    	}
-
-// 	OUTSIDE CREDIT	//
-
-itemDef {
-	name outcredit
-	group grpoutcredit
-	rect 0 50 620 20
-	style 1
-	textalign 1
-	textalignx 320
-	textaligny 10
-	textstyle 6
-	textscale .4
-	text "Additional Assistance"
-	forecolor 1 1 1 1
-	decoration 
-	visible 0
-	}
-
-itemDef {
-	name outcredit
-	group grpoutcredit
-	style 1 
-	rect 75 100 620 15
-	textalign 0
-	textstyle 3
-	textalignx 5
-	textaligny 10
-	textscale .25
+	name credits2
+	style 0
+	rect 200 220 200 155
+	textscale .2
 	wrapped	
-	text"Additional Map Work by Ka'ai Cluney\r"
-	"Additional Progamming by John Cash\r"
-	"Character Models and Animation by Paul Steed\r"
-	"Additional Model Work by Beau Anderson\r"
-	"Motion Capture by Pyros Pictures, House of Moves, and LocoMotion Studios\r\r\r"	
-	"Sound Design by Soundelux Showorks\r"
-	"Music by Sonic Mayhem (www.sonicmayhem.com)\r"
-	"Music by Front Line Assembly\r\r\r"
-	"Manual by William W. Connors\r"
-	"Manual & Package Design by Focus2\r"
-	"Portions of Team Arena based in part on the work of the Independent JPEG Group\r"
-	"Font rendering performed by FreeType ( www.freetype.org )"
+	text "^1Robert ^3-Tr3B-^1 Beckebans - health pickup models\r"
+	"^1Lee David Ash - weapon models\r"
+	"^1Julian ^3-Plaque-^1 Morris - weapon and projectile models\r"
+	"^1Mikael  ^3-Ruohis-^1 Ruohomaa - weapon models\r"
+	"^1jzero - OpenArena weapon models\r"
+	"^3CheapAlert^1 - OpenArena models"
+
 	forecolor 1 1 1 1
 	decoration 
 	visible 0
 	}
+
+
 itemDef {
-      	name idcreditbttn
-	group grpoutcredit
-	type 1
-      	rect 260 400 120 26
-  	text "id Credit"
-	style WINDOW_STYLE_FILLED
-	background "ui/assets/button_back.tga"
-	textalign 1   	
-	textscale .25
-	textalignx 60
-	textaligny 20 
-      	visible 0
-	backcolor .37 .1 .1 1
-      	forecolor 1 1 1 1
-	action { play "sound/misc/kcaction.wav" ; 
-	hide grpoutcredit ; 
-	show grpidcredit }
-	mouseEnter { setitemcolor idcreditbttn backcolor .1 .37 .1 1 }
-      	mouseExit { setitemcolor idcreditbttn backcolor .37 .1 .1 1 }	  	  
+      	name credits3			
+     	style 0
+	text "LEVEL DESIGN"
+	textalign 1
+	textalignx 320
+	textscale .3
+	decoration
+     	rect 0 178 640 155
+     	visible 1
 	}
-itemDef {
-      	name outcredit
-	group grpoutcredit
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/framebutton.tga"
-	rect 260 400 120 26
-      	visible 0 
-	decoration  	  
-    	}
 
 itemDef {
-      	name outcredit
-	group grpoutcredit
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/leftbutton.tga"
-      	rect 248 400 13 26
-      	visible 0 
-	decoration  	  
-    	}
+	name credits3
+	style 0
+	rect 240 220 200 155
+	textscale .2
+	wrapped	
+	text "^1Stefan  ^3-Reflex-^1 Lautner - redm08"
+
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
 
 itemDef {
-      	name outcredit
-	group grpoutcredit
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/rightbutton.tga"
-      	rect 379 400 13 26
-      	visible 0 
-	decoration  	  
-    	}
+      	name credits4			
+     	style 0
+	text "2D ART"
+	textalign 1
+	textalignx 320
+	textscale .3
+	decoration
+     	rect 0 178 640 155
+     	visible 1
+	}
+
+itemDef {
+	name credits4
+	style 0
+	rect 250 220 200 155
+	textscale .2
+	wrapped	
+	text "^1Christian ^3-Lorax-^1 Ballsieper\r"
+	"^1Josef ^3-cnuke-^1 Soentgen\r"
+	"^1Willi ^3-whammes-^1 Hammes\r"
+	"^1Robin ^3-Wakey-^1 Pengelstorfer\r"
+	"^1Stefan ^3-ReFlex-^1 Lautner\r"
+	"^1Garth ^3-Zombie13-^1 Hendy\r"
+	"^1CheapAlert"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
 
 
+itemDef {
+      	name credits5			
+     	style 0
+	text "SFX"
+	textalign 1
+	textalignx 320
+	textscale .3
+	decoration
+     	rect 0 178 640 155
+     	visible 1
+	}
+
+itemDef {
+	name credits5
+	style 0
+	rect 200 220 200 155
+	textscale .2
+	wrapped	
+	text "^1Randall ^3-Ravenant-^1 P. - cool weapon sounds"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
 
 
+itemDef {
+      	name credits6			
+     	style 0
+	text "DEVELOPMENT ASSISTANCE"
+	textalign 1
+	textalignx 320
+	textscale .3
+	decoration
+     	rect 0 178 640 155
+     	visible 1
+	}
+
+itemDef {
+	name credits6
+	style 0
+	rect 140 220 200 155
+	textscale .2
+	wrapped	
+	text "^1Josef ^3-cnuke-^1 Soentgen - development media mirror and game server"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
 
 
 // BACK BAR	//
 
-
   itemDef {
-      name gotobar
-      style 2
-      rect 0 430 640 30 
-      textscale 0.4
-      textalign 0		// center
-      textalignx 60        	// x alignment point for text
-                            	// use it to offset left/right text from the edge 
-                            	// or to center the text on a different point
-      textaligny 21        
-      style 2
-      border 4
-      bordercolor 0.5 0.5 0.5 0.5
-      bordersize 2
-      backcolor 0 0 .75 0.5
-      visible 1 
-      mouseEnter { setcolor backcolor .75 0 0 .5 }
-      mouseExit { setcolor backcolor 0 0 .75 .5 }
-      decoration 
-    }
-
-    itemDef {
       	name back
-	style 3
-      	background "ui/assets/backarrow.tga"
-	rect 16 424 50 50 
-      	visible 1 
-      	action { close credit ; open main }
-	mouseEnter { hide back ; show back_alt ; show message_back }
+      	rect 20 430 640 30 
+      	textscale 0.4
+      	textalign 0		        // center
+      	style 0
+	border 4
+      	bordercolor 0.5 0.0 0.1 .5
+	forecolor 1 1 1 1
+      	visible 1
+      	mouseEnter { setcolor backcolor .75 0 0 .5 }
+      	mouseExit { setcolor backcolor 0 0 .75 .5 }
+      	decoration 
     	}
 
 itemDef {
-      	name back_alt
-      	style WINDOW_STYLE_SHADER
-	background "ui/assets/backarrow_alt.tga"
-	rect 14 422 54 54 
-      	backcolor 0 0 0 0
-      	forecolor 1 1 1 1
-      	visible 0
-	type ITEM_TYPE_BUTTON
-      	mouseExit { hide back_alt ; show back ; hide message_back }	  
-      	action { close credit ; open main }	  
+	name credits1
+	style 4
+	type 1
+      	rect 0 0 640 480 
+	backcolor 0 0 0 0
+	action { play "sound/misc/kcaction.wav" ; hide credits1 ; fadein credits2 }
+	visible 1
+	}
+itemDef {
+	name credits2
+	style 4
+	type 1
+      	rect 0 0 640 480 
+	backcolor 0 0 0 0
+	action { play "sound/misc/kcaction.wav" ; hide credits2 ; fadein credits3 }
+	visible 1
+	}
+itemDef {
+	name credits3
+	style 4
+	type 1
+      	rect 0 0 640 480 
+	backcolor 0 0 0 0
+	action { play "sound/misc/kcaction.wav" ; hide credits3 ; fadein credits4 }
+	visible 1
 	}
 
+itemDef {
+	name credits4
+	style 4
+	type 1
+      	rect 0 0 640 480 
+	backcolor 0 0 0 0
+	action { play "sound/misc/kcaction.wav" ; hide credits4 ; fadein credits5 }
+	visible 1
+	}
+itemDef {
+	name credits5
+	style 4
+	type 1
+      	rect 0 0 640 480 
+	backcolor 0 0 0 0
+	action { play "sound/misc/kcaction.wav" ; hide credits5 ; fadein credits6 }
+	visible 1
+	}
+
+itemDef {
+	name credits6
+	style 4
+	type 1
+      	rect 0 0 640 480 
+	backcolor 0 0 0 0
+	action { play "sound/misc/kcaction.wav" ; close Credit ; open main }
+	visible 1
+	}
+
+itemDef {
+	name back
+	text "BACK TO MAINMENU"
+	textscale .30
+	style 0	
+	type 1
+	textstyle 6
+      	rect 0 430 640 30 
+	textalign 1	 
+	textalignx 320  	
+       	textaligny 20        
+	backcolor 0 0 0 0
+	forecolor 1 1 1 1
+	action { play "sound/misc/kcaction.wav" ; close Credit ; open main }
+	mouseenter { fadein message_back }
+	mouseexit { fadeout message_back }
+	visible 1
+	}
 
 
 //	MESSAGES	//
@@ -421,16 +322,15 @@ itemDef {
 	name message_back
 	group grpmessage
 	style 0 
-	rect 320 430 128 30
-	textstyle 1
+	forecolor 1 .75 0 1
+	rect 0 385 128 30
+	textscale .15
+	textalignx 320
 	textalign 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Exit to Main Menu"
-	forecolor 1 1 1 1
-	decoration 
+	textaligny 20
 	visible 0
+      	decoration 
+	text "Exit to Main Menu"
 	}
 
 
