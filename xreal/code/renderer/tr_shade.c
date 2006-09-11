@@ -169,7 +169,6 @@ static void GLSL_LinkProgram(GLhandleARB program)
 
 static void GLSL_ValidateProgram(GLhandleARB program)
 {
-
 	GLint           validated;
 
 	qglValidateProgramARB(program);
@@ -240,14 +239,12 @@ static void GLSL_InitGPUShader(shaderProgram_t * program, const char *name, int 
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_BINORMAL, "attr_Binormal");
 
 //  if( attribs & GLCS_NORMAL )
-//      qglBindAttribLocationARB( program->program, ATTR_INDEX_NORMAL, "attr_Color");
+//      qglBindAttribLocationARB( program->program, ATTR_INDEX_NORMAL, "attr_Normal");
 
 //  if( attribs & GLCS_COLOR )
 //      qglBindAttribLocationARB( program->program, ATTR_INDEX_COLOR, "attr_Color");
 
 	GLSL_LinkProgram(program->program);
-	GLSL_ValidateProgram(program->program);
-	GLSL_ShowProgramUniforms(program->program);
 }
 
 void GLSL_InitGPUShaders(void)
@@ -268,6 +265,9 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.genericSingleShader.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
 	
+	GLSL_ValidateProgram(tr.genericSingleShader.program);
+	GLSL_ShowProgramUniforms(tr.genericSingleShader.program);
+	
 	//
 	// simple texture rendering into gl_FragData[0] and everything blackened (good for MRT testing)
 	//
@@ -280,6 +280,9 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.genericSingleMRTShader.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
 
+	GLSL_ValidateProgram(tr.genericSingleMRTShader.program);
+	GLSL_ShowProgramUniforms(tr.genericSingleMRTShader.program);
+
 	//
 	// black depth fill rendering with textures
 	//
@@ -290,6 +293,9 @@ void GLSL_InitGPUShaders(void)
 	qglUseProgramObjectARB(tr.depthFillShader.program);
 	qglUniform1iARB(tr.depthFillShader.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.depthFillShader.program);
+	GLSL_ShowProgramUniforms(tr.depthFillShader.program);
 	
 	//
 	// colored depth test rendering with textures into gl_FragData[1]
@@ -306,6 +312,9 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.depthTestShader.u_CurrentMap, 1);
 	qglUseProgramObjectARB(0);
 
+	GLSL_ValidateProgram(tr.depthTestShader.program);
+	GLSL_ShowProgramUniforms(tr.depthTestShader.program);
+
 	//
 	// directional lighting ( Q3A style )
 	//
@@ -319,6 +328,9 @@ void GLSL_InitGPUShaders(void)
 	qglUseProgramObjectARB(tr.lightShader_D_direct.program);
 	qglUniform1iARB(tr.lightShader_D_direct.u_DiffuseMap, 0);
 	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.lightShader_D_direct.program);
+	GLSL_ShowProgramUniforms(tr.lightShader_D_direct.program);
 
 	//
 	// directional bump mapping
@@ -339,6 +351,9 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.lightShader_DB_direct.u_DiffuseMap, 0);
 	qglUniform1iARB(tr.lightShader_DB_direct.u_NormalMap, 1);
 	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.lightShader_DB_direct.program);
+	GLSL_ShowProgramUniforms(tr.lightShader_DB_direct.program);
 
 	//
 	// directional specular bump mapping
@@ -364,6 +379,9 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.lightShader_DBS_direct.u_SpecularMap, 2);
 	qglUseProgramObjectARB(0);
 
+	GLSL_ValidateProgram(tr.lightShader_DBS_direct.program);
+	GLSL_ShowProgramUniforms(tr.lightShader_DBS_direct.program);
+
 	//
 	// omni-directional lighting ( Doom3 style )
 	//
@@ -381,6 +399,9 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.lightShader_D_omni.u_AttenuationMapXY, 1);
 	qglUniform1iARB(tr.lightShader_D_omni.u_AttenuationMapZ, 2);
 	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.lightShader_D_omni.program);
+	GLSL_ShowProgramUniforms(tr.lightShader_D_omni.program);
 
 	//
 	// omni-directional bump mapping ( Doom3 style )
@@ -403,6 +424,9 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.lightShader_DB_omni.u_AttenuationMapXY, 2);
 	qglUniform1iARB(tr.lightShader_DB_omni.u_AttenuationMapZ, 3);
 	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.lightShader_DB_omni.program);
+	GLSL_ShowProgramUniforms(tr.lightShader_DB_omni.program);
 
 	//
 	// omni-directional specular bump mapping ( Doom3 style )
@@ -430,6 +454,9 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.lightShader_DBS_omni.u_AttenuationMapXY, 3);
 	qglUniform1iARB(tr.lightShader_DBS_omni.u_AttenuationMapZ, 4);
 	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.lightShader_DBS_omni.program);
+	GLSL_ShowProgramUniforms(tr.lightShader_DBS_omni.program);
 
 	//
 	// omni-directional specular parallax bump mapping ( Doom3 style )
@@ -462,6 +489,9 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.lightShader_DBSP_omni.u_AttenuationMapZ, 4);
 	qglUseProgramObjectARB(0);
 
+	GLSL_ValidateProgram(tr.lightShader_DBSP_omni.program);
+	GLSL_ShowProgramUniforms(tr.lightShader_DBSP_omni.program);
+
 	//
 	// projective lighting ( Doom3 style )
 	//
@@ -480,6 +510,9 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.lightShader_D_proj.u_AttenuationMapZ, 2);
 	qglUseProgramObjectARB(0);
 
+	GLSL_ValidateProgram(tr.lightShader_D_proj.program);
+	GLSL_ShowProgramUniforms(tr.lightShader_D_proj.program);
+
 	//
 	// radiosity lighting ( Q3A style )
 	//
@@ -493,6 +526,9 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.lightShader_D_radiosity.u_DiffuseMap, 0);
 	qglUniform1iARB(tr.lightShader_D_radiosity.u_LightMap, 1);
 	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.lightShader_D_radiosity.program);
+	GLSL_ShowProgramUniforms(tr.lightShader_D_radiosity.program);
 
 	//
 	// radiosity bump mapping
@@ -513,6 +549,9 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.lightShader_DB_radiosity.u_LightMap, 2);
 	qglUniform1iARB(tr.lightShader_DB_radiosity.u_DeluxeMap, 3);
 	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.lightShader_DB_radiosity.program);
+	GLSL_ShowProgramUniforms(tr.lightShader_DB_radiosity.program);
 
 	//
 	// radiosity specular bump mapping
@@ -539,12 +578,18 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.lightShader_DBS_radiosity.u_DeluxeMap, 4);
 	qglUseProgramObjectARB(0);
 
+	GLSL_ValidateProgram(tr.lightShader_DBS_radiosity.program);
+	GLSL_ShowProgramUniforms(tr.lightShader_DBS_radiosity.program);
+
 	//
 	// shadow volume extrusion
 	//
 	GLSL_InitGPUShader(&tr.shadowShader, "shadow", GLCS_VERTEX, qtrue);
 
 	tr.shadowShader.u_LightOrigin = qglGetUniformLocationARB(tr.shadowShader.program, "u_LightOrigin");
+
+	GLSL_ValidateProgram(tr.shadowShader.program);
+	GLSL_ShowProgramUniforms(tr.shadowShader.program);
 
 	//
 	// cubemap reflection for abitrary polygons
@@ -557,6 +602,9 @@ void GLSL_InitGPUShaders(void)
 	qglUseProgramObjectARB(tr.reflectionShader_C.program);
 	qglUniform1iARB(tr.reflectionShader_C.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.reflectionShader_C.program);
+	GLSL_ShowProgramUniforms(tr.reflectionShader_C.program);
 
 	//
 	// bumped cubemap reflection for abitrary polygons ( EMBM )
@@ -574,6 +622,9 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.reflectionShader_CB.u_NormalMap, 1);
 	qglUseProgramObjectARB(0);
 
+	GLSL_ValidateProgram(tr.reflectionShader_CB.program);
+	GLSL_ShowProgramUniforms(tr.reflectionShader_CB.program);
+
 	//
 	// cubemap refraction for abitrary polygons
 	//
@@ -589,6 +640,9 @@ void GLSL_InitGPUShaders(void)
 	qglUseProgramObjectARB(tr.refractionShader_C.program);
 	qglUniform1iARB(tr.refractionShader_C.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.refractionShader_C.program);
+	GLSL_ShowProgramUniforms(tr.refractionShader_C.program);
 
 	//
 	// cubemap dispersion for abitrary polygons
@@ -606,6 +660,9 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.dispersionShader_C.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
 
+	GLSL_ValidateProgram(tr.dispersionShader_C.program);
+	GLSL_ShowProgramUniforms(tr.dispersionShader_C.program);
+
 	//
 	// skybox drawing for abitrary polygons
 	//
@@ -617,6 +674,9 @@ void GLSL_InitGPUShaders(void)
 	qglUseProgramObjectARB(tr.skyBoxShader.program);
 	qglUniform1iARB(tr.skyBoxShader.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.skyBoxShader.program);
+	GLSL_ShowProgramUniforms(tr.skyBoxShader.program);
 
 	//
 	// heatHaze post process effect
@@ -641,6 +701,9 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.heatHazeShader.u_ContrastMap, 2);
 	qglUseProgramObjectARB(0);
 
+	GLSL_ValidateProgram(tr.heatHazeShader.program);
+	GLSL_ShowProgramUniforms(tr.heatHazeShader.program);
+
 	//
 	// bloom post process effect
 	//
@@ -657,6 +720,9 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.bloomShader.u_ContrastMap, 1);
 	qglUseProgramObjectARB(0);
 
+	GLSL_ValidateProgram(tr.bloomShader.program);
+	GLSL_ShowProgramUniforms(tr.bloomShader.program);
+
 	//
 	// contrast post process effect
 	//
@@ -669,6 +735,9 @@ void GLSL_InitGPUShaders(void)
 	qglUseProgramObjectARB(tr.contrastShader.program);
 	qglUniform1iARB(tr.contrastShader.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.contrastShader.program);
+	GLSL_ShowProgramUniforms(tr.contrastShader.program);
 
 	//
 	// blurX post process effect
@@ -683,6 +752,9 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.blurXShader.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
 
+	GLSL_ValidateProgram(tr.blurXShader.program);
+	GLSL_ShowProgramUniforms(tr.blurXShader.program);
+
 	//
 	// blurY post process effect
 	//
@@ -695,6 +767,9 @@ void GLSL_InitGPUShaders(void)
 	qglUseProgramObjectARB(tr.blurYShader.program);
 	qglUniform1iARB(tr.blurYShader.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.blurYShader.program);
+	GLSL_ShowProgramUniforms(tr.blurYShader.program);
 
 	//
 	// rotoscope post process effect
@@ -709,6 +784,9 @@ void GLSL_InitGPUShaders(void)
 	qglUseProgramObjectARB(tr.rotoscopeShader.program);
 	qglUniform1iARB(tr.rotoscopeShader.u_ColorMap, 0);
 	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.rotoscopeShader.program);
+	GLSL_ShowProgramUniforms(tr.rotoscopeShader.program);
 	
 	//
 	// screen post process effect
@@ -722,6 +800,9 @@ void GLSL_InitGPUShaders(void)
 	qglUseProgramObjectARB(tr.screenShader.program);
 	qglUniform1iARB(tr.screenShader.u_CurrentMap, 0);
 	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.screenShader.program);
+	GLSL_ShowProgramUniforms(tr.screenShader.program);
 }
 
 void GLSL_ShutdownGPUShaders(void)
