@@ -2147,8 +2147,9 @@ lights/rspot01drk
 
 lights/flashlight2
 {
-	//lightFalloffImage	makeintensity(lights/flashoff.tga)
-	//lightFalloffImage	_noFalloff
+	lightFalloffImage	makeintensity(lights/squarelight1b.tga)
+//	lightFalloffImage	makeintensity(lights/flashoff.tga)
+//	lightFalloffImage	_noFalloff
 	{
 		forceHighQuality
 		map	lights/flashlight2.tga

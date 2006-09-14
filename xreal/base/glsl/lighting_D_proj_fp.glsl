@@ -48,7 +48,7 @@ void	main()
 	
 	// compute attenuation	
 	vec3 attenuationXY = var_TexAtten.w < 0.0 ? vec3(0.0, 0.0, 0.0) : texture2DProj(u_AttenuationMapXY, var_TexAtten.xyw).rgb;
-//	vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(var_TexAtten.z, 0.0)).rgb;
+	vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(var_TexAtten.z, 0.0)).rgb;
 
 	// compute shadow
 //	vec3 shadow = textureCube(u_ShadowMap, var_TexShadow).rgb;
@@ -56,7 +56,7 @@ void	main()
 	// compute final color
 	vec4 color = diffuse;
 	color.rgb *= attenuationXY;
-//	color.rgb *= attenuationZ;
+	color.rgb *= attenuationZ;
 	color.rgb *= u_LightScale;
 	
 #if defined(GL_ARB_draw_buffers)

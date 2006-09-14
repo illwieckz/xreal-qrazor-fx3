@@ -553,6 +553,7 @@ void R_SetupDlightFrustum(trRefDlight_t * dl)
 R_SetupDlightProjection
 =================
 */
+// *INDENT-OFF*
 void R_SetupDlightProjection(trRefDlight_t * dl)
 {
 	switch (dl->l.rlType)
@@ -570,18 +571,14 @@ void R_SetupDlightProjection(trRefDlight_t * dl)
 			float           width, height, depth;
 			float           zNear, zFar;
 			float           fovX, fovY;
-			vec3_t          target, right, up;
+			//matrix_t        proj;
 			float          *proj = dl->projectionMatrix;
 
-			MatrixTransformNormal(dl->transformMatrix, dl->l.target, target);
-			MatrixTransformNormal(dl->transformMatrix, dl->l.right, right);
-			MatrixTransformNormal(dl->transformMatrix, dl->l.up, up);
-
 			fovX = 30;
-			fovY = R_CalcFov(fovX, VectorLength(right) * 2, VectorLength(up) * 2);
+			fovY = R_CalcFov(fovX, VectorLength(dl->l.right) * 2, VectorLength(dl->l.up) * 2);
 
 			zNear = 1.0;
-			zFar = VectorLength(target);
+			zFar = VectorLength(dl->l.target);
 
 			xMax = zNear * tan(fovX * M_PI / 360.0f);
 			xMin = -xMax;
@@ -593,29 +590,15 @@ void R_SetupDlightProjection(trRefDlight_t * dl)
 			height = yMax - yMin;
 			depth = zFar - zNear;
 
-			// standard OpenGL projection matrix
-			proj[0] = 2 * zNear / width;
-			proj[4] = 0;
-			proj[8] = (xMax + xMin) / width;
-			proj[12] = 0;
-
-			proj[1] = 0;
-			proj[5] = 2 * zNear / height;
-			proj[9] = (yMax + yMin) / height;
-			proj[13] = 0;
-
-			proj[2] = 0;
-			proj[6] = 0;
-			proj[10] = -(zFar + zNear) / depth;
-			proj[14] = -2 * zFar * zNear / depth;
-
-			proj[3] = 0;
-			proj[7] = 0;
-			proj[11] = -1;
-			proj[15] = 0;
+			// OpenGL projection matrix with flipped Z axis
+			proj[0] = (2 * zNear) / width;	proj[4] = 0;					proj[8] = (xMax + xMin) / width;	proj[12] = 0;
+			proj[1] = 0;					proj[5] = (2 * zNear) / height;	proj[9] = (yMax + yMin) / height;	proj[13] = 0;
+			proj[2] = 0;					proj[6] = 0;					proj[10] = (zFar + zNear) / depth;	proj[14] = (2 * zFar * zNear) / depth;
+			proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;
 			
-			// HACK: rotate transform into the direction we are facing
+			// convert from looking down -Z to looking down X
 			MatrixMultiplyRotation(proj, 90, 90, 0);
+			//MatrixMultiply(openGLToQuakeMatrix, proj, dl->projectionMatrix);
 #else
 			// Tr3B - recoded from GtkRadiant entity plugin source
 			int             i;
@@ -739,6 +722,7 @@ void R_SetupDlightProjection(trRefDlight_t * dl)
 			ri.Error(ERR_DROP, "R_SetupDlightProjection: Bad rlType");
 	}
 }
+// *INDENT-ON*
 
 
 

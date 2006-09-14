@@ -429,7 +429,7 @@ void CG_TestProjLight_f(void)
 	AxisClear(cg.testLight.axis);
 #endif
 	
-	VectorSet(cg.testLight.target, 200, 0, 0);
+	VectorSet(cg.testLight.target, 500, 0, 0);
 	VectorSet(cg.testLight.right, 0, -35, 0);
 	VectorSet(cg.testLight.up, 0, 0, 35);
 	
