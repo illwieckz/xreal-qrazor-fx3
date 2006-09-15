@@ -3221,7 +3221,19 @@ lights/roqVideoLight
 	}
 }
 
-
+lights/stormLight
+{
+	{
+		if(storm3Table[time * 0.1])
+	
+		forceHighQuality		
+		map	lights/squarelight.tga
+		colored
+	    rotate	time * .1
+		zeroClamp
+		rgb storm3Table[time * 0.1]
+	}
+}
 
 //*****************************************************Moved from zgraeme.mtr - end*****************************************
 

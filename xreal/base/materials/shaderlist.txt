@@ -94,6 +94,7 @@ tools
 tr3b_fog
 tr3b_water
 tr3b_nvidia
+tr3b_sky
 #vehicles
 video
 #washroom

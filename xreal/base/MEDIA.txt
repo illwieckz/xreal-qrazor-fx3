@@ -1628,6 +1628,11 @@ textures/sfx/specular.tga									id Software					EULA					q3demo
 textures/sfx2/screen01.tga									id Software					EULA					tademo
 textures/tr3b_fog/deathfog.tga								Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 textures/tr3b_water/watertest_local.tga						inolen						custom					www.doom3world.org
+textures/tr3b_sky/basesky.jpg								hi_volt						custom					www.doom3world.org
+textures/tr3b_sky/baseskystormy.jpg							hi_volt						custom					www.doom3world.org
+textures/tr3b_sky/clouds_d.jpg								hi_volt						custom					www.doom3world.org
+textures/tr3b_sky/cloudstormy_d.jpg							hi_volt						custom					www.doom3world.org
+textures/tr3b_sky/thunders.jpg								hi_volt						custom					www.doom3world.org
 ui/assets/assault.tga										id Software					EULA					tademo
 ui/assets/backscreen.tga									id Software					EULA					tademo
 ui/assets/blue_box.tga										id Software					EULA					tademo
