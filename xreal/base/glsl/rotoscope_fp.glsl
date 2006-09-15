@@ -87,7 +87,7 @@ void	main()
 	tmp.x = max(tmp.x, tmp.z);
 	
 	// write result from edge detection into sobel variable
-	vec4 sobel = pow(tmp.x, 0.5);
+	vec4 sobel = vec4(pow(tmp.x, 0.5), 0, 0, 0);
 	
 	//
 	// normalize the color hue
