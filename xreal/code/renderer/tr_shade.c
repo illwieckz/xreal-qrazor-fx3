@@ -251,10 +251,14 @@ static void GLSL_InitGPUShader(shaderProgram_t * program, const char *name, int 
 
 void GLSL_InitGPUShaders(void)
 {
+	int             startTime, endTime;
+	
 	ri.Printf(PRINT_ALL, "------- GLSL_InitGPUShaders -------\n");
 
 	if(!glConfig.shadingLanguage100Available)
 		return;
+		
+	startTime = ri.Milliseconds();
 
 	//
 	// single texture rendering
@@ -805,6 +809,10 @@ void GLSL_InitGPUShaders(void)
 
 	GLSL_ValidateProgram(tr.screenShader.program);
 	GLSL_ShowProgramUniforms(tr.screenShader.program);
+	
+	endTime = ri.Milliseconds();
+	
+	ri.Printf(PRINT_ALL, "GLSL shaders load time = %5.2f seconds\n", (endTime - startTime) / 1000.0);
 }
 
 void GLSL_ShutdownGPUShaders(void)
