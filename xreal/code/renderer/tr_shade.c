@@ -109,10 +109,12 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ATI\n#define ATI\n#endif\n");
 		}
 		
+		/*
 		if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GL_ARB_draw_buffers\n#define GL_ARB_draw_buffers 1\n#endif\n");
 		}
+		*/
 
 		sizeExtra = strlen(bufferExtra);
 		sizeFinal = sizeExtra + size;
@@ -2667,6 +2669,7 @@ static void Render_heatHaze(int stage)
 	npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
 	npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
 	
+	/*
 	if(glConfig.framebufferObjectAvailable && glConfig.maxColorAttachments >= 4 &&
 	   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 	{
@@ -2713,6 +2716,7 @@ static void Render_heatHaze(int stage)
 		DrawElements();
 	}
 	else
+	*/
 	{
 		unsigned        stateBits;
 		
@@ -2759,7 +2763,7 @@ static void Render_heatHaze(int stage)
 		
 		
 		//
-		// backup color buffer
+		// restore color buffer
 		//
 		
 		// enable shader, set arrays
@@ -2830,6 +2834,7 @@ static void Render_heatHaze(int stage)
 	
 	// bind u_CurrentMap
 	GL_SelectTexture(1);
+	/*
 	if(glConfig.framebufferObjectAvailable)
 	{
 		if(backEnd.viewParms.isPortal)
@@ -2844,6 +2849,7 @@ static void Render_heatHaze(int stage)
 		}
 	}
 	else
+	*/
 	{
 		GL_Bind(tr.currentRenderImage);
 		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
@@ -2851,6 +2857,7 @@ static void Render_heatHaze(int stage)
 	
 	// bind u_ContrastMap
 	GL_SelectTexture(2);
+	/*
 	if(glConfig.framebufferObjectAvailable)
 	{
 		if(backEnd.viewParms.isPortal)
@@ -2865,6 +2872,7 @@ static void Render_heatHaze(int stage)
 		}
 	}
 	else
+	*/
 	{
 		GL_Bind(tr.contrastRenderImage);
 	}

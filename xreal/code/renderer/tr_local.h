@@ -2021,7 +2021,6 @@ extern cvar_t  *r_showLightTransforms;
 extern cvar_t  *r_showLightInteractions;
 extern cvar_t  *r_showLightScissors;
 extern cvar_t  *r_showOcclusionQueries;
-extern cvar_t  *r_showPortalRenderFBO;
 
 extern cvar_t  *r_vboFaces;
 extern cvar_t  *r_vboCurves;

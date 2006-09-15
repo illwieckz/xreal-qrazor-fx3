@@ -869,6 +869,7 @@ static void RB_BeginDrawingView(void)
 	}
 	
 	// check for offscreen rendering
+	/*
 	if(glConfig.shadingLanguage100Available && glConfig.framebufferObjectAvailable)
 	{
 		if(backEnd.viewParms.isPortal)
@@ -884,12 +885,10 @@ static void RB_BeginDrawingView(void)
 		clearBits = GL_DEPTH_BUFFER_BIT;
 
 		// FIXME: GL_STENCIL_BUFFER_BIT with FBOs
-		/*
 		if(r_measureOverdraw->integer || r_shadows->integer == 3)
 		{
 			clearBits |= GL_STENCIL_BUFFER_BIT;
 		}
-		*/
 		
 		if(r_fastsky->integer && !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 		{
@@ -897,6 +896,7 @@ static void RB_BeginDrawingView(void)
 		}
 		qglClear(clearBits);
 	}
+	*/
 
 	GL_CheckErrors();
 }
@@ -2444,6 +2444,7 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 	RB_RenderDebugUtils(interactions, numInteractions);
 	
 	// render offscreen result
+	/*
 	if(glConfig.shadingLanguage100Available && glConfig.framebufferObjectAvailable)
 	{
 		float           fbufWidthScale, fbufHeightScale;
@@ -2493,6 +2494,7 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 		qglMatrixMode(GL_MODELVIEW);
 		qglPopMatrix();
 	}
+	*/
 	
 	GL_CheckErrors();
 }
@@ -2849,41 +2851,6 @@ void RB_ShowImages(void)
 
 }
 
-static void RB_ShowPortalRenderFBO(void)
-{
-	GLimp_LogComment("--- RB_ShowPortalRenderFBO ---\n");
-
-	if(!backEnd.projection2D)
-	{
-		RB_SetGL2D();
-	}
-
-	if(glConfig.framebufferObjectAvailable)
-	{
-		float           x, y, w, h;
-
-		GL_SelectTexture(0);
-		GL_Bind(tr.portalRenderFBOImage[0]);
-				 
-		w = glConfig.vidWidth / 3;
-		h = glConfig.vidHeight / 3;
-		x = 0;
-		y = 0;
-
-		qglBegin(GL_QUADS);
-		qglTexCoord2f(0, 0);
-		qglVertex2f(x, y);
-		qglTexCoord2f(1, 0);
-		qglVertex2f(x + w, y);
-		qglTexCoord2f(1, 1);
-		qglVertex2f(x + w, y + h);
-		qglTexCoord2f(0, 1);
-		qglVertex2f(x, y + h);
-		qglEnd();
-	}
-}
-
-
 /*
 =============
 RB_SwapBuffers
@@ -2903,12 +2870,6 @@ const void     *RB_SwapBuffers(const void *data)
 	if(r_showImages->integer)
 	{
 		RB_ShowImages();
-	}
-	
-	// FBO test
-	if(r_showPortalRenderFBO->integer)
-	{
-		RB_ShowPortalRenderFBO();
 	}
 
 	cmd = (const swapBuffersCommand_t *)data;
