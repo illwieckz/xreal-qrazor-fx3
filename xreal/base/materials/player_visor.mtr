@@ -8,7 +8,7 @@ models/players/visor/visor
 	}
 	{
 		stage bumpMap
-		map heightMap(models/players/visor/visor_h.tga, 1)
+		map heightMap(models/players/visor/red_h.tga, 2)
 	}
 	{
 		stage specularMap
@@ -25,7 +25,7 @@ models/players/visor/red
 	}
 	{
 		stage bumpMap
-		map heightMap(models/players/visor/visor_h.tga, 1)
+		map heightMap(models/players/visor/red_h.tga, 2)
 	}
 	{
 		stage specularMap
@@ -42,10 +42,27 @@ models/players/visor/blue
 	}
 	{
 		stage bumpMap
-		map heightMap(models/players/visor/visor_h.tga, 1)
+		map heightMap(models/players/visor/red_h.tga, 2)
 	}
 	{
 		stage specularMap
 		map models/players/visor/blue_s.tga
+	}
+}
+
+models/players/visor/zindahsh
+{
+	{
+		stage diffuseMap
+		map models/players/visor/zindahsh.tga
+		rgbGen lightingDiffuse
+	}
+	{
+		stage bumpMap
+		map heightMap(models/players/visor/zindahsh_h.tga, 2)
+	}
+	{
+		stage specularMap
+		map models/players/visor/zindahsh_s.tga
 	}
 }
