@@ -2563,7 +2563,7 @@ PNG LOADING
 */
 static void png_read_data(png_structp png, png_bytep data, png_size_t length)
 {
-	memcpy(data, png->io_ptr, length);
+	Com_Memcpy(data, png->io_ptr, length);
 
 	// raynorpat: msvc is gay
 #if _MSC_VER
@@ -2615,6 +2615,7 @@ void LoadPNG(const char *name, byte ** pic, int *width, int *height, byte alphaB
 		// if we get here, we had a problem reading the file
 		ri.FS_FreeFile(data);
 		png_destroy_read_struct(&png, (png_infopp) NULL, (png_infopp) NULL);
+		ri.Error(ERR_DROP, "LoadPNG: first exception handler called for (%s)\n", name);
 		return;
 	}
 
@@ -2623,7 +2624,7 @@ void LoadPNG(const char *name, byte ** pic, int *width, int *height, byte alphaB
 	png_read_info(png, info);
 
 	// get picture info
-	png_get_IHDR(png, info, (unsigned long *)&w, (unsigned long *)&h, &bit_depth, &color_type, NULL, NULL, NULL);
+	png_get_IHDR(png, info, (png_uint_32 *)&w, (png_uint_32 *)&h, &bit_depth, &color_type, NULL, NULL, NULL);
 
 	// tell libpng to strip 16 bit/color files down to 8 bits/color
 	png_set_strip_16(png);
@@ -2660,6 +2661,7 @@ void LoadPNG(const char *name, byte ** pic, int *width, int *height, byte alphaB
 		ri.Hunk_FreeTempMemory(row_pointers);
 		ri.FS_FreeFile(data);
 		png_destroy_read_struct(&png, (png_infopp) NULL, (png_infopp) NULL);
+		ri.Error(ERR_DROP, "LoadPNG: second exception handler called for (%s)\n", name);
 		return;
 	}
 
