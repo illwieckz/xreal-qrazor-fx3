@@ -1132,6 +1132,7 @@ typedef struct srfGridMesh_s
 	int             numTriangles;
 	srfTriangle_t  *triangles;
 	GLuint          indexesVBO;
+	GLuint          ofsIndexes;
 
 	int             numVerts;
 	srfVert_t      *verts;
@@ -1157,6 +1158,7 @@ typedef struct
 	int             numTriangles;
 	srfTriangle_t  *triangles;
 	GLuint          indexesVBO;
+	GLuint          ofsIndexes;
 
 	int             numVerts;
 	srfVert_t      *verts;
@@ -1185,6 +1187,7 @@ typedef struct
 	int             numTriangles;
 	srfTriangle_t  *triangles;
 	GLuint          indexesVBO;
+	GLuint          ofsIndexes;
 
 	int             numVerts;
 	srfVert_t      *verts;
@@ -1295,6 +1298,9 @@ typedef struct
 
 	char           *entityString;
 	char           *entityParsePoint;
+	
+	GLuint          vertsVBO;
+	GLuint          indexesVBO;
 } world_t;
 
 
@@ -2321,6 +2327,8 @@ typedef struct shaderCommands_s
 	color4ub_t      colors[SHADER_MAX_VERTEXES];
 
 	GLuint          indexesVBO;
+	GLuint          ofsIndexes;
+	
 	GLuint          vertexesVBO;
 	GLuint          ofsXYZ;
 	GLuint          ofsTexCoords;
@@ -2482,7 +2490,7 @@ CURVE TESSELATION
 ============================================================
 */
 
-//#define PATCH_STITCHING
+#define PATCH_STITCHING
 
 srfGridMesh_t  *R_SubdividePatchToGrid(int width, int height, srfVert_t points[MAX_PATCH_SIZE * MAX_PATCH_SIZE]);
 srfGridMesh_t  *R_GridInsertColumn(srfGridMesh_t * grid, int column, int row, vec3_t point, float loderror);

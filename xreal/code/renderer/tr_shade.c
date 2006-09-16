@@ -1006,7 +1006,7 @@ static void DrawElements()
 	{
 		//qglDrawRangeElementsEXT(GL_TRIANGLES, 0, tessmesh->vertexes.size(), mesh->indexes.size(), GL_UNSIGNED_INT, VBO_BUFFER_OFFSET(mesh->vbo_indexes_ofs));
 
-		qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, 0);
+		qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(tess.ofsIndexes));
 		backEnd.pc.c_indexes += tess.numIndexes;
 	}
 #if 0
@@ -1159,7 +1159,7 @@ static void DrawTris()
 		case SIT_DEFAULT:
 			if(tess.indexesVBO && tess.vertexesVBO)
 			{
-				qglColor3f(1, 0, 0);
+				qglColor3f(0, 0, 1);
 			}
 			else if(tess.indexesVBO)
 			{
@@ -1167,7 +1167,7 @@ static void DrawTris()
 			}
 			else if(tess.vertexesVBO)
 			{
-				qglColor3f(0, 0, 1);
+				qglColor3f(1, 0, 0);
 			}
 			else
 			{
@@ -4772,8 +4772,6 @@ static void Render_shadowVolume()
 				DrawElements();
 
 				qglDisable(GL_STENCIL_TEST_TWO_SIDE_EXT);
-
-				qglEnable(GL_CULL_FACE);
 			}
 			else
 			{

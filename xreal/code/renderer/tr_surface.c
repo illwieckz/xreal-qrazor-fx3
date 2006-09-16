@@ -431,6 +431,7 @@ void RB_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexe
 			RB_CHECKOVERFLOW(cv->numVerts, cv->numTriangles * 3);
 
 			tess.indexesVBO = cv->indexesVBO;
+			tess.ofsIndexes = cv->ofsIndexes;
 			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tess.indexesVBO);
 
 			tess.numIndexes += cv->numTriangles * 3;
@@ -699,6 +700,7 @@ void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, 
 			RB_CHECKOVERFLOW(cv->numVerts, cv->numTriangles * 3);
 
 			tess.indexesVBO = cv->indexesVBO;
+			tess.ofsIndexes = cv->ofsIndexes;
 			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tess.indexesVBO);
 
 			tess.numIndexes += cv->numTriangles * 3;
@@ -967,6 +969,7 @@ void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightInd
 			RB_CHECKOVERFLOW(cv->numVerts, cv->numTriangles * 3);
 
 			tess.indexesVBO = cv->indexesVBO;
+			tess.ofsIndexes = cv->ofsIndexes;
 			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tess.indexesVBO);
 
 			tess.numIndexes += cv->numTriangles * 3;

@@ -980,7 +980,18 @@ void R_ShutdownVBOs()
 	{
 		return;
 	}
+	
+	if(tr.world->vertsVBO)
+	{
+		qglDeleteBuffersARB(1, &tr.world->vertsVBO);
+	}
+	
+	if(tr.world->indexesVBO)
+	{
+		qglDeleteBuffersARB(1, &tr.world->indexesVBO);
+	}
 
+	/*
 	for(i = 0, surface = &tr.world->surfaces[0]; i < tr.world->numsurfaces; i++, surface++)
 	{
 		if(*surface->data == SF_FACE)
@@ -1026,4 +1037,5 @@ void R_ShutdownVBOs()
 			}
 		}
 	}
+	*/
 }
