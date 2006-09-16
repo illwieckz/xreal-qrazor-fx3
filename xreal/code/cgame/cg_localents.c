@@ -572,7 +572,7 @@ static void CG_AddExplosion(localEntity_t * ex)
 	// add the entity
 	trap_R_AddRefEntityToScene(ent);
 
-	// add the dlight
+	// add the light
 	if(ex->light)
 	{
 		float           light;
@@ -619,7 +619,7 @@ static void CG_AddSpriteExplosion(localEntity_t * le)
 
 	trap_R_AddRefEntityToScene(&re);
 
-	// add the dlight
+	// add the light
 	if(le->light)
 	{
 		float           light;
@@ -728,7 +728,7 @@ void CG_AddKamikaze(localEntity_t * le)
 		re->nonNormalizedAxes = qtrue;
 
 		trap_R_AddRefEntityToScene(re);
-		// add the dlight
+		// add the light
 		trap_R_AddLightToScene(re->origin, c * 1000.0, 1.0, 1.0, c);
 	}
 

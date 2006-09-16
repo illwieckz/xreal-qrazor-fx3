@@ -737,10 +737,10 @@ void R_RotateForEntity(const trRefEntity_t * ent, const viewParms_t * viewParms,
 
 /*
 =================
-R_RotateForDlight
+R_RotateForLight
 =================
 */
-void R_RotateForDlight(const trRefDlight_t * light, const viewParms_t * viewParms, orientationr_t * or)
+void R_RotateForLight(const trRefLight_t * light, const viewParms_t * viewParms, orientationr_t * or)
 {
 	vec3_t          delta;
 	float           axisLength;
@@ -1730,7 +1730,7 @@ void R_AddEntitySurfaces(void)
 R_AddEntityInteractions
 =============
 */
-void R_AddEntityInteractions(trRefDlight_t * light)
+void R_AddEntityInteractions(trRefLight_t * light)
 {
 	int             i;
 	trRefEntity_t  *ent;
@@ -1818,7 +1818,7 @@ R_AddSlightInteractions
 void R_AddSlightInteractions()
 {
 	int             i, j;
-	trRefDlight_t  *dl;
+	trRefLight_t   *light;
 	mnode_t       **leafs;
 	mnode_t        *leaf;
 
@@ -1832,54 +1832,54 @@ void R_AddSlightInteractions()
 		return;
 	}
 
-	//ri.Printf(PRINT_ALL, "R_AddSlightInteractions: adding %i lights\n", tr.world->numDlights);
+	//ri.Printf(PRINT_ALL, "R_AddSlightInteractions: adding %i lights\n", tr.world->numLights);
 
-	for(i = 0; i < tr.world->numDlights; i++)
+	for(i = 0; i < tr.world->numLights; i++)
 	{
-		dl = tr.currentDlight = &tr.world->dlights[i];
+		light = tr.currentLight = &tr.world->lights[i];
 
 		// we must set up parts of tr.or for light culling
-		R_RotateForDlight(dl, &tr.viewParms, &tr.or);
+		R_RotateForLight(light, &tr.viewParms, &tr.or);
 
 		// look if we have to draw the light including its interactions
-		switch (R_CullLocalBox(dl->localBounds))
+		switch (R_CullLocalBox(light->localBounds))
 		{
 			case CULL_IN:
 			default:
 				tr.pc.c_box_cull_slight_in++;
-				dl->cull = CULL_IN;
+				light->cull = CULL_IN;
 				break;
 
 			case CULL_CLIP:
 				tr.pc.c_box_cull_slight_clip++;
-				dl->cull = CULL_CLIP;
+				light->cull = CULL_CLIP;
 				break;
 
 			case CULL_OUT:
 				// light is not visible so skip other light setup stuff to save speed
 				tr.pc.c_box_cull_slight_out++;
-				dl->cull = CULL_OUT;
+				light->cull = CULL_OUT;
 				continue;
 		}
 
 		// ignore if not in visible bounds
-		//if(!BoundsIntersect(dl->worldBounds[0], dl->worldBounds[1], tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]))
+		//if(!BoundsIntersect(light->worldBounds[0], light->worldBounds[1], tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]))
 		//	continue;
 		
 		// ignore if not in PVS
 		if(!r_noLightVisCull->integer)
 		{
-			for(j = 0, leafs = dl->leafs; j < dl->numLeafs; j++, leafs++)
+			for(j = 0, leafs = light->leafs; j < light->numLeafs; j++, leafs++)
 			{
 				leaf = *leafs;
 			
 				if(leaf->visCount == tr.visCount)
 				{
-					dl->visCount = tr.visCount;
+					light->visCount = tr.visCount;
 				}
 			}
 			
-			if(dl->visCount != tr.visCount)
+			if(light->visCount != tr.visCount)
 			{
 				tr.pc.c_pvs_cull_slight_out++;
 				continue;
@@ -1887,25 +1887,25 @@ void R_AddSlightInteractions()
 		}
 
 		// set up view dependent light scissor
-		R_SetupDlightScissor(dl);
+		R_SetupLightScissor(light);
 		
 		// set up view dependent light depth bounds
-		R_SetupDlightDepthBounds(dl);
+		R_SetupLightDepthBounds(light);
 
 		// setup interactions
-		dl->numInteractions = 0;
-		dl->numShadowOnlyInteractions = 0;
-		dl->numLightOnlyInteractions = 0;
-		dl->firstInteractionIndex = -1;
-		dl->lastInteractionIndex = -1;
-		dl->noSort = qfalse;
+		light->numInteractions = 0;
+		light->numShadowOnlyInteractions = 0;
+		light->numLightOnlyInteractions = 0;
+		light->firstInteractionIndex = -1;
+		light->lastInteractionIndex = -1;
+		light->noSort = qfalse;
 
-		R_AddPrecachedWorldInteractions(dl);
-		R_AddEntityInteractions(dl);
+		R_AddPrecachedWorldInteractions(light);
+		R_AddEntityInteractions(light);
 		
-		if(dl->numInteractions && dl->numInteractions != dl->numShadowOnlyInteractions)
+		if(light->numInteractions && light->numInteractions != light->numShadowOnlyInteractions)
 		{
-			R_SortInteractions(dl);
+			R_SortInteractions(light);
 			
 			tr.pc.c_slights++;
 		}
@@ -1913,7 +1913,7 @@ void R_AddSlightInteractions()
 		{
 			// skip all interactions of this light because it caused only shadow volumes
 			// but no lighting
-			tr.refdef.numInteractions -= dl->numInteractions;
+			tr.refdef.numInteractions -= light->numInteractions;
 		}
 	}
 }
@@ -1921,92 +1921,92 @@ void R_AddSlightInteractions()
 
 /*
 =============
-R_AddDlightInteractions
+R_AddLightInteractions
 =============
 */
-void R_AddDlightInteractions()
+void R_AddLightInteractions()
 {
 	int             i;
-	trRefDlight_t  *dl;
+	trRefLight_t   *light;
 
 	if(!r_dynamicLighting->integer)
 	{
 		return;
 	}
 
-	for(i = 0; i < tr.refdef.numDlights; i++)
+	for(i = 0; i < tr.refdef.numLights; i++)
 	{
-		dl = tr.currentDlight = &tr.refdef.dlights[i];
+		light = tr.currentLight = &tr.refdef.lights[i];
 
 		// we must set up parts of tr.or for light culling
-		R_RotateForDlight(dl, &tr.viewParms, &tr.or);
+		R_RotateForLight(light, &tr.viewParms, &tr.or);
 
 		// calc local bounds for culling
-		R_SetupDlightLocalBounds(dl);
+		R_SetupLightLocalBounds(light);
 
 		// look if we have to draw the light including its interactions
-		switch (R_CullLocalBox(dl->localBounds))
+		switch (R_CullLocalBox(light->localBounds))
 		{
 			case CULL_IN:
 			default:
 				tr.pc.c_box_cull_dlight_in++;
-				dl->cull = CULL_IN;
+				light->cull = CULL_IN;
 				break;
 
 			case CULL_CLIP:
 				tr.pc.c_box_cull_dlight_clip++;
-				dl->cull = CULL_CLIP;
+				light->cull = CULL_CLIP;
 				break;
 
 			case CULL_OUT:
 				// light is not visible so skip other light setup stuff to save speed
 				tr.pc.c_box_cull_dlight_out++;
-				dl->cull = CULL_OUT;
+				light->cull = CULL_OUT;
 				continue;
 		}
 
 		// set up light transform matrix
-		MatrixSetupTransform(dl->transformMatrix, dl->l.axis[0], dl->l.axis[1], dl->l.axis[2], dl->l.origin);
+		MatrixSetupTransform(light->transformMatrix, light->l.axis[0], light->l.axis[1], light->l.axis[2], light->l.origin);
 
 		// set up light origin for lighting and shadowing
-		R_SetupDlightOrigin(dl);
+		R_SetupLightOrigin(light);
 
 		// setup world bounds for intersection tests
-		R_SetupDlightWorldBounds(dl);
+		R_SetupLightWorldBounds(light);
 
 		// setup frustum planes for intersection tests
-		R_SetupDlightFrustum(dl);
+		R_SetupLightFrustum(light);
 
 		// ignore if not in visible bounds
-		if(!BoundsIntersect(dl->worldBounds[0], dl->worldBounds[1], tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]))
+		if(!BoundsIntersect(light->worldBounds[0], light->worldBounds[1], tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]))
 			continue;
 
 		// set up model to light view matrix
-		MatrixAffineInverse(dl->transformMatrix, dl->viewMatrix);
+		MatrixAffineInverse(light->transformMatrix, light->viewMatrix);
 
 		// set up projection
-		R_SetupDlightProjection(dl);
+		R_SetupLightProjection(light);
 
 		// set up view dependent light scissor
-		R_SetupDlightScissor(dl);
+		R_SetupLightScissor(light);
 		
 		// set up view dependent light depth bounds
-		R_SetupDlightDepthBounds(dl);
+		R_SetupLightDepthBounds(light);
 
 		// setup interactions
-		dl->numInteractions = 0;
-		dl->numShadowOnlyInteractions = 0;
-		dl->numLightOnlyInteractions = 0;
-		dl->firstInteractionIndex = -1;
-		dl->lastInteractionIndex = -1;
-		dl->noSort = qfalse;
+		light->numInteractions = 0;
+		light->numShadowOnlyInteractions = 0;
+		light->numLightOnlyInteractions = 0;
+		light->firstInteractionIndex = -1;
+		light->lastInteractionIndex = -1;
+		light->noSort = qfalse;
 
-		R_AddWorldInteractions(dl);
-		R_AddEntityInteractions(dl);
+		R_AddWorldInteractions(light);
+		R_AddEntityInteractions(light);
 
-		if(dl->numInteractions && dl->numInteractions != dl->numShadowOnlyInteractions)
+		if(light->numInteractions && light->numInteractions != light->numShadowOnlyInteractions)
 		{
-			R_SortInteractions(dl);
+			R_SortInteractions(light);
 			
 			tr.pc.c_dlights++;
 		}
@@ -2014,7 +2014,7 @@ void R_AddDlightInteractions()
 		{
 			// skip all interactions of this light because it caused only shadow volumes
 			// but no lighting
-			tr.refdef.numInteractions -= dl->numInteractions;
+			tr.refdef.numInteractions -= light->numInteractions;
 		}
 	}
 }
@@ -2205,7 +2205,7 @@ void R_RenderView(viewParms_t * parms)
 
 	R_AddSlightInteractions();
 
-	R_AddDlightInteractions();
+	R_AddLightInteractions();
 
 	/*
 	   ri.Printf(PRINT_ALL, "R_RenderView: %i %i %i %i\n",

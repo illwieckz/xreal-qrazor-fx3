@@ -102,47 +102,47 @@ tryagain:
 
 	switch( weaponNum ) {
 	case WP_GAUNTLET:
-		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
+		MAKERGB( pi->flashLightColor, 0.6f, 0.6f, 1 );
 		break;
 
 	case WP_MACHINEGUN:
-		MAKERGB( pi->flashDlightColor, 1, 1, 0 );
+		MAKERGB( pi->flashLightColor, 1, 1, 0 );
 		break;
 
 	case WP_SHOTGUN:
-		MAKERGB( pi->flashDlightColor, 1, 1, 0 );
+		MAKERGB( pi->flashLightColor, 1, 1, 0 );
 		break;
 
 	case WP_GRENADE_LAUNCHER:
-		MAKERGB( pi->flashDlightColor, 1, 0.7f, 0.5f );
+		MAKERGB( pi->flashLightColor, 1, 0.7f, 0.5f );
 		break;
 
 	case WP_ROCKET_LAUNCHER:
-		MAKERGB( pi->flashDlightColor, 1, 0.75f, 0 );
+		MAKERGB( pi->flashLightColor, 1, 0.75f, 0 );
 		break;
 
 	case WP_LIGHTNING:
-		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
+		MAKERGB( pi->flashLightColor, 0.6f, 0.6f, 1 );
 		break;
 
 	case WP_RAILGUN:
-		MAKERGB( pi->flashDlightColor, 1, 0.5f, 0 );
+		MAKERGB( pi->flashLightColor, 1, 0.5f, 0 );
 		break;
 
 	case WP_PLASMAGUN:
-		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
+		MAKERGB( pi->flashLightColor, 0.6f, 0.6f, 1 );
 		break;
 
 	case WP_BFG:
-		MAKERGB( pi->flashDlightColor, 1, 0.7f, 1 );
+		MAKERGB( pi->flashLightColor, 1, 0.7f, 1 );
 		break;
 
 	case WP_GRAPPLING_HOOK:
-		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
+		MAKERGB( pi->flashLightColor, 0.6f, 0.6f, 1 );
 		break;
 
 	default:
-		MAKERGB( pi->flashDlightColor, 1, 1, 1 );
+		MAKERGB( pi->flashLightColor, 1, 1, 1 );
 		break;
 	}
 }
@@ -864,10 +864,10 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 			trap_R_AddRefEntityToScene( &flash );
 		}
 
-		// make a dlight for the flash
-		if ( pi->flashDlightColor[0] || pi->flashDlightColor[1] || pi->flashDlightColor[2] ) {
-			trap_R_AddLightToScene( flash.origin, 200 + (rand()&31), pi->flashDlightColor[0],
-				pi->flashDlightColor[1], pi->flashDlightColor[2] );
+		// make a light for the flash
+		if ( pi->flashLightColor[0] || pi->flashLightColor[1] || pi->flashLightColor[2] ) {
+			trap_R_AddLightToScene( flash.origin, 200 + (rand()&31), pi->flashLightColor[0],
+				pi->flashLightColor[1], pi->flashLightColor[2] );
 		}
 	}
 

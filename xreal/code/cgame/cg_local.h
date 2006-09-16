@@ -412,8 +412,8 @@ typedef struct weaponInfo_s
 
 	vec3_t          weaponMidpoint;	// so it will rotate centered instead of by tag
 
-	float           flashDlight;
-	vec3_t          flashDlightColor;
+	float           flashLight;
+	vec3_t          flashLightColor;
 	sfxHandle_t     flashSound[4];	// fast firing weapons randomly choose
 
 	qhandle_t       weaponIcon;
@@ -424,8 +424,8 @@ typedef struct weaponInfo_s
 	qhandle_t       missileModel;
 	sfxHandle_t     missileSound;
 	void            (*missileTrailFunc) (centity_t *, const struct weaponInfo_s * wi);
-	float           missileDlight;
-	vec3_t          missileDlightColor;
+	float           missileLight;
+	vec3_t          missileLightColor;
 	int             missileRenderfx;
 
 	void            (*ejectBrassFunc) (centity_t *);
@@ -679,7 +679,7 @@ typedef struct
 	refSkeleton_t   testAnimation2Skeleton;
 
 	// play with doom3 style light materials
-	refDlight_t     testLight;
+	refLight_t     testLight;
 	char            testLightName[MAX_QPATH];
 	qboolean        testFlashLight;
 } cg_t;
@@ -1027,7 +1027,7 @@ typedef struct
 	sfxHandle_t     wstbactvSound;
 
 	// light attenuation
-	qhandle_t       defaultDlightShader;
+	qhandle_t       defaultLightShader;
 
 } cgMedia_t;
 
@@ -1628,7 +1628,7 @@ qhandle_t       trap_R_RegisterShaderLightAttenuation(const char *name);
 void            trap_R_ClearScene(void);
 void            trap_R_AddRefEntityToScene(const refEntity_t * ent);
 void            trap_R_AddRefExtendedEntityToScene(const refExtEntity_t * ent);
-void            trap_R_AddRefDlightToScene(const refDlight_t * light);
+void            trap_R_AddRefLightToScene(const refLight_t * light);
 
 // polys are intended for simple wall marks, not really for doing
 // significant construction

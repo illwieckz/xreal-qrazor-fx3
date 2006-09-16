@@ -1173,7 +1173,7 @@ static void CG_RegisterGraphics(void)
 #endif
 
 	// light attenuation
-	cgs.media.defaultDlightShader = trap_R_RegisterShaderLightAttenuation("lights/defaultDynamicLight");
+	cgs.media.defaultLightShader = trap_R_RegisterShaderLightAttenuation("lights/defaultDynamicLight");
 
 	CG_ClearParticles();
 /*

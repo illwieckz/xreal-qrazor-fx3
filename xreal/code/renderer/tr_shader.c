@@ -5146,7 +5146,7 @@ qhandle_t RE_RegisterShaderNoMip(const char *name)
 ====================
 RE_RegisterShaderLightAttenuation
 
-For different Doom3 style dlight effects
+For different Doom3 style light effects
 ====================
 */
 qhandle_t RE_RegisterShaderLightAttenuation(const char *name)
@@ -5954,9 +5954,9 @@ static void CreateInternalShaders(void)
 	stages[0].stateBits = GLS_DEFAULT;
 	tr.defaultShader = FinishShader();
 	
-	// dlight shader
+	// light shader
 	/*
-	Q_strncpyz(shader.name, "<dlight>", sizeof(shader.name));
+	Q_strncpyz(shader.name, "<light>", sizeof(shader.name));
 	stages[0].type = ST_ATTENUATIONMAP_Z;
 	stages[0].bundle[0].image[0] = tr.attenuationZImage;
 	stages[0].active = qtrue;
@@ -5966,7 +5966,7 @@ static void CreateInternalShaders(void)
 	stages[1].bundle[0].image[0] = tr.attenuationXYImage;
 	stages[1].active = qtrue;
 	stages[1].stateBits = GLS_DEFAULT;
-	tr.defaultDlightShader = FinishShader();
+	tr.defaultLightShader = FinishShader();
 	*/
 }
 
@@ -5980,7 +5980,7 @@ static void CreateExternalShaders(void)
 	
 	tr.defaultPointLightShader = R_FindShader("lights/defaultPointLight", SHADER_LIGHT, qtrue);
 	tr.defaultProjectedLightShader = R_FindShader("lights/defaultProjectedLight", SHADER_LIGHT, qtrue);
-	tr.defaultDlightShader = R_FindShader("lights/defaultDynamicLight", SHADER_LIGHT, qtrue);
+	tr.defaultDynamicLightShader = R_FindShader("lights/defaultDynamicLight", SHADER_LIGHT, qtrue);
 }
 
 /*

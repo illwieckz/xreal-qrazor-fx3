@@ -386,7 +386,7 @@ void R_AddMDXSurfaces(trRefEntity_t * ent)
 R_AddMDXInteractions
 =================
 */
-void R_AddMDXInteractions(trRefEntity_t * ent, trRefDlight_t * light)
+void R_AddMDXInteractions(trRefEntity_t * ent, trRefLight_t * light)
 {
 	int             i;
 	mdxModel_t     *model = 0;
@@ -489,7 +489,7 @@ void R_AddMDXInteractions(trRefEntity_t * ent, trRefDlight_t * light)
 		// don't add third_person objects if not viewing through a portal
 		if(!personalModel)
 		{
-			R_AddDlightInteraction(light, (void *)surface, shader, 0, NULL, 0, NULL, iaType);
+			R_AddLightInteraction(light, (void *)surface, shader, 0, NULL, 0, NULL, iaType);
 			tr.pc.c_dlightSurfaces++;
 		}
 	}
@@ -511,7 +511,7 @@ void R_AddDAESurfaces(trRefEntity_t * ent)
 R_AddDAEInteractions
 =================
 */
-void R_AddDAEInteractions(trRefEntity_t * ent, trRefDlight_t * light)
+void R_AddDAEInteractions(trRefEntity_t * ent, trRefLight_t * light)
 {
 	//TODO
 }

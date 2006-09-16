@@ -319,9 +319,9 @@ void trap_R_AddRefExtendedEntityToScene(const refExtEntity_t * ent)
 	syscall(CG_R_ADDREFEXTENDEDENTITYTOSCENE, ent);
 }
 
-void trap_R_AddRefDlightToScene(const refDlight_t * light)
+void trap_R_AddRefLightToScene(const refLight_t * light)
 {
-	syscall(CG_R_ADDREFDLIGHTTOSCENE, light);
+	syscall(CG_R_ADDREFLIGHTSTOSCENE, light);
 }
 
 void trap_R_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts)

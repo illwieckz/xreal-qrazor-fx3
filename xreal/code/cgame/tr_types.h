@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define __TR_TYPES_H
 
 
-#define	MAX_DLIGHTS		1024
+#define	MAX_LIGHTS		1024
 #define	MAX_ENTITIES	1023	// can't be increased without changing drawsurf bit packing
 #define MAX_BONES       128
 
@@ -209,7 +209,7 @@ typedef struct
 	vec3_t          axis[3];	// rotation vectors
 	qboolean        nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
 	qboolean        noShadows;
-} refDlight_t;
+} refLight_t;
 
 
 #define	MAX_RENDER_STRINGS			8

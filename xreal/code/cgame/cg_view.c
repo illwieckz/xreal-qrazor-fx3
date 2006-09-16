@@ -337,7 +337,7 @@ static void CG_AddTestModel(void)
 =================
 CG_TestOmniLight_f
 
-Creates a omni-directional dlight in front of the current position, which can then be moved around
+Creates a omni-directional light in front of the current position, which can then be moved around
 =================
 */
 void CG_TestOmniLight_f(void)
@@ -387,7 +387,7 @@ void CG_TestOmniLight_f(void)
 =================
 CG_TestProjLight_f
 
-Creates a projective dlight in front of the current position, which can then be moved around
+Creates a projective light in front of the current position, which can then be moved around
 =================
 */
 void CG_TestProjLight_f(void)
@@ -477,7 +477,7 @@ static void CG_AddTestLight(void)
 		VectorCopy(cg.refdef.viewaxis[2], cg.testLight.axis[2]);
 	}
 
-	trap_R_AddRefDlightToScene(&cg.testLight);
+	trap_R_AddRefLightToScene(&cg.testLight);
 }
 
 

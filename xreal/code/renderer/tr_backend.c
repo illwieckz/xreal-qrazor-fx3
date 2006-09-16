@@ -1056,7 +1056,7 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 {
 	shader_t       *shader, *oldShader;
 	trRefEntity_t  *entity, *oldEntity;
-	trRefDlight_t  *light, *oldLight;
+	trRefLight_t  *light, *oldLight;
 	interaction_t  *ia;
 	qboolean        depthRange, oldDepthRange;
 	int             iaCount;
@@ -1078,7 +1078,7 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 	// render interactions
 	for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
 	{
-		backEnd.currentLight = light = ia->dlight;
+		backEnd.currentLight = light = ia->light;
 		backEnd.currentEntity = entity = ia->entity;
 		surface = ia->surface;
 		shader = ia->surfaceShader;
@@ -1131,7 +1131,7 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 		}
 
 		// we need a new batch
-		RB_BeginSurface(shader, ia->dlightShader, -1, 0, qfalse, qfalse);
+		RB_BeginSurface(shader, ia->lightShader, -1, 0, qfalse, qfalse);
 
 		// change the modelview matrix if needed
 		if(entity != oldEntity)
@@ -1282,7 +1282,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 {
 	shader_t       *shader, *oldShader;
 	trRefEntity_t  *entity, *oldEntity;
-	trRefDlight_t  *light, *oldLight;
+	trRefLight_t  *light, *oldLight;
 	interaction_t  *ia;
 	int             iaCount;
 	int             iaFirst = 0;
@@ -1313,7 +1313,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 	// render interactions
 	for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
 	{
-		backEnd.currentLight = light = ia->dlight;
+		backEnd.currentLight = light = ia->light;
 		backEnd.currentEntity = entity = ia->entity;
 		surface = ia->surface;
 		shader = ia->surfaceShader;
@@ -1431,7 +1431,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				}
 
 				// we don't need tangent space calculations here
-				RB_BeginSurface(shader, ia->dlightShader, -1, 0, qtrue, qtrue);
+				RB_BeginSurface(shader, ia->lightShader, -1, 0, qtrue, qtrue);
 			}
 		}
 		else
@@ -1453,7 +1453,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					RB_EndSurface();
 				}
 
-				RB_BeginSurface(shader, ia->dlightShader, -1, 0, qfalse, qfalse);
+				RB_BeginSurface(shader, ia->lightShader, -1, 0, qfalse, qfalse);
 			}
 		}
 
@@ -1636,7 +1636,7 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 		interaction_t  *ia;
 		int             iaCount;
 		int             iaFirst;
-		trRefDlight_t  *light, *oldLight;
+		trRefLight_t  *light, *oldLight;
 		int             ocCount;
 		GLint           ocSamples = 0;
 		qboolean        queryObjects;
@@ -1663,16 +1663,16 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 		ocCount = -1;
 		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
 		{
-			backEnd.currentLight = light = ia->dlight;
+			backEnd.currentLight = light = ia->light;
 
 			if(!ia->next)
 			{
 				ocCount++;
 
 				// last interaction of current light
-				if(ocCount < (MAX_OCCLUSION_QUERIES - 1) && !R_DlightIntersectsPoint(light, backEnd.viewParms.or.origin))
+				if(ocCount < (MAX_OCCLUSION_QUERIES - 1) && !R_LightIntersectsPoint(light, backEnd.viewParms.or.origin))
 				{
-					R_RotateForDlight(light, &backEnd.viewParms, &backEnd.or);
+					R_RotateForLight(light, &backEnd.viewParms, &backEnd.or);
 					qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
 					// begin the occlusion query
@@ -1778,7 +1778,7 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 		oldLight = NULL;
 		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
 		{
-			backEnd.currentLight = light = ia->dlight;
+			backEnd.currentLight = light = ia->light;
 
 			if(light != oldLight)
 			{
@@ -1796,7 +1796,7 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 				{
 					ocCount++;
 
-					if(ocCount < (MAX_OCCLUSION_QUERIES - 1) && !R_DlightIntersectsPoint(light, backEnd.viewParms.or.origin))
+					if(ocCount < (MAX_OCCLUSION_QUERIES - 1) && !R_LightIntersectsPoint(light, backEnd.viewParms.or.origin))
 					{
 #if 1
 						qglGetQueryObjectivARB(tr.occlusionQueryObjects[ocCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
@@ -1863,7 +1863,7 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 		interaction_t  *ia;
 		int             iaCount;
 		int             iaFirst = 0;
-		trRefDlight_t  *light, *oldLight;
+		trRefLight_t  *light, *oldLight;
 		int             i;
 		long            sum = 0;
 		unsigned char  *stencilReadback;
@@ -1894,7 +1894,7 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 		// loop trough all light interactions and render the light OBB for each last interaction
 		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
 		{
-			backEnd.currentLight = light = ia->dlight;
+			backEnd.currentLight = light = ia->light;
 
 			if(light != oldLight)
 			{
@@ -1911,7 +1911,7 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 				// last interaction of current light
 				if(calcSum)
 				{
-					if(!R_DlightIntersectsPoint(light, backEnd.viewParms.or.origin))
+					if(!R_LightIntersectsPoint(light, backEnd.viewParms.or.origin))
 					{
 						// clear stencil buffer
 						qglClear(GL_STENCIL_BUFFER_BIT);
@@ -1922,7 +1922,7 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 						qglStencilFunc(GL_ALWAYS, 0, ~0);
 						qglStencilOp(GL_KEEP, GL_INCR, GL_INCR);
 
-						R_RotateForDlight(light, &backEnd.viewParms, &backEnd.or);
+						R_RotateForLight(light, &backEnd.viewParms, &backEnd.or);
 						qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
 						qglBegin(GL_QUADS);
@@ -2043,7 +2043,7 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 	if(r_showLightTransforms->integer)
 	{
 		int             i;
-		trRefDlight_t  *dl;
+		trRefLight_t   *light;
 		vec3_t          forward, left, up;
 		vec3_t          tmp;
 
@@ -2054,11 +2054,11 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 			GL_SelectTexture(0);
 			GL_Bind(tr.whiteImage);
 
-			dl = backEnd.refdef.dlights;
-			for(i = 0; i < backEnd.refdef.numDlights; i++, dl++)
+			light = backEnd.refdef.lights;
+			for(i = 0; i < backEnd.refdef.numLights; i++, light++)
 			{
 				// set up the transformation matrix
-				R_RotateForDlight(dl, &backEnd.viewParms, &backEnd.or);
+				R_RotateForLight(light, &backEnd.viewParms, &backEnd.or);
 				qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
 				MatrixToVectorsFLU(matrixIdentity, forward, left, up);
@@ -2084,39 +2084,39 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 
 				qglColor4fv(colorYellow);
 				qglVertex3fv(vec3_origin);
-				VectorSubtract(dl->origin, backEnd.or.origin, tmp);
-				dl->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
-				dl->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
-				dl->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
-				qglVertex3fv(dl->transformed);
+				VectorSubtract(light->origin, backEnd.or.origin, tmp);
+				light->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
+				light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
+				light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
+				qglVertex3fv(light->transformed);
 
 				qglColor4fv(colorMagenta);
 				qglVertex3fv(vec3_origin);
-				qglVertex3fv(dl->l.target);
+				qglVertex3fv(light->l.target);
 
 				qglColor4fv(colorCyan);
 				qglVertex3fv(vec3_origin);
-				qglVertex3fv(dl->l.right);
+				qglVertex3fv(light->l.right);
 
 				qglColor4fv(colorWhite);
 				qglVertex3fv(vec3_origin);
-				qglVertex3fv(dl->l.up);
+				qglVertex3fv(light->l.up);
 
 				qglColor4fv(colorMdGrey);
 				qglVertex3fv(vec3_origin);
-				VectorAdd(dl->l.target, dl->l.up, tmp);
+				VectorAdd(light->l.target, light->l.up, tmp);
 				qglVertex3fv(tmp);
 
 				qglEnd();
 				//qglLineWidth(1);
 
-				R_DebugBoundingBox(vec3_origin, dl->localBounds[0], dl->localBounds[1], colorRed);
+				R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorRed);
 
 				// go back to the world modelview matrix
 				backEnd.or = backEnd.viewParms.world;
 				qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 
-				R_DebugBoundingBox(vec3_origin, dl->worldBounds[0], dl->worldBounds[1], colorGreen);
+				R_DebugBoundingBox(vec3_origin, light->worldBounds[0], light->worldBounds[1], colorGreen);
 			}
 		}
 
@@ -2127,12 +2127,12 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 			GL_SelectTexture(0);
 			GL_Bind(tr.whiteImage);
 
-			for(i = 0; i < tr.world->numDlights; i++)
+			for(i = 0; i < tr.world->numLights; i++)
 			{
-				dl = &tr.world->dlights[i];
+				light = &tr.world->lights[i];
 
 				// set up the transformation matrix
-				R_RotateForDlight(dl, &backEnd.viewParms, &backEnd.or);
+				R_RotateForLight(light, &backEnd.viewParms, &backEnd.or);
 				qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
 				MatrixToVectorsFLU(matrixIdentity, forward, left, up);
@@ -2158,39 +2158,39 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 
 				qglColor4fv(colorYellow);
 				qglVertex3fv(vec3_origin);
-				VectorSubtract(dl->origin, backEnd.or.origin, tmp);
-				dl->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
-				dl->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
-				dl->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
-				qglVertex3fv(dl->transformed);
+				VectorSubtract(light->origin, backEnd.or.origin, tmp);
+				light->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
+				light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
+				light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
+				qglVertex3fv(light->transformed);
 
 				qglColor4fv(colorMagenta);
 				qglVertex3fv(vec3_origin);
-				qglVertex3fv(dl->l.target);
+				qglVertex3fv(light->l.target);
 
 				qglColor4fv(colorCyan);
 				qglVertex3fv(vec3_origin);
-				qglVertex3fv(dl->l.right);
+				qglVertex3fv(light->l.right);
 
 				qglColor4fv(colorWhite);
 				qglVertex3fv(vec3_origin);
-				qglVertex3fv(dl->l.up);
+				qglVertex3fv(light->l.up);
 
 				qglColor4fv(colorMdGrey);
 				qglVertex3fv(vec3_origin);
-				VectorAdd(dl->l.target, dl->l.up, tmp);
+				VectorAdd(light->l.target, light->l.up, tmp);
 				qglVertex3fv(tmp);
 
 				qglEnd();
 				//qglLineWidth(1);
 
-				R_DebugBoundingBox(vec3_origin, dl->localBounds[0], dl->localBounds[1], colorBlue);
+				R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorBlue);
 
 				// go back to the world modelview matrix
 				backEnd.or = backEnd.viewParms.world;
 				qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 
-				R_DebugBoundingBox(vec3_origin, dl->worldBounds[0], dl->worldBounds[1], colorYellow);
+				R_DebugBoundingBox(vec3_origin, light->worldBounds[0], light->worldBounds[1], colorYellow);
 			}
 		}
 	}

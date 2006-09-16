@@ -26,8 +26,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 int             r_firstSceneDrawSurf;
 int             r_firstSceneInteraction;
 
-int             r_numdlights;
-int             r_firstSceneDlight;
+int             r_numlights;
+int             r_firstSceneLight;
 
 int             r_numentities;
 int             r_firstSceneEntity;
@@ -61,8 +61,8 @@ void R_ToggleSmpFrame(void)
 	r_firstSceneDrawSurf = 0;
 	r_firstSceneInteraction = 0;
 
-	r_numdlights = 0;
-	r_firstSceneDlight = 0;
+	r_numlights = 0;
+	r_firstSceneLight = 0;
 
 	r_numentities = 0;
 	r_firstSceneEntity = 0;
@@ -81,7 +81,7 @@ RE_ClearScene
 */
 void RE_ClearScene(void)
 {
-	r_firstSceneDlight = r_numdlights;
+	r_firstSceneLight = r_numlights;
 	r_firstSceneEntity = r_numentities;
 	r_firstScenePoly = r_numpolys;
 }
@@ -281,38 +281,38 @@ void RE_AddRefExtendedEntityToScene(const refExtEntity_t * ent)
 
 /*
 =====================
-RE_AddRefDlightToScene
+RE_AddRefLightToScene
 =====================
 */
-void RE_AddRefDlightToScene(const refDlight_t * light)
+void RE_AddRefLightToScene(const refLight_t * l)
 {
-	trRefDlight_t *dl;
+	trRefLight_t *light;
 		
 	if(!tr.registered)
 	{
 		return;
 	}
 	
-	if(r_numdlights >= MAX_DLIGHTS)
+	if(r_numlights >= MAX_LIGHTS)
 	{
 		return;
 	}
 	
-	if(light->radius[0] <= 0 && !VectorLength(light->radius))
+	if(l->radius[0] <= 0 && !VectorLength(l->radius))
 	{
 		return;
 	}
 	
-	if(light->rlType < 0 || light->rlType >= RL_MAX_REF_LIGHT_TYPE)
+	if(l->rlType < 0 || l->rlType >= RL_MAX_REF_LIGHT_TYPE)
 	{
-		ri.Error(ERR_DROP, "RE_AddRefDlightToScene: bad rlType %i", light->rlType);
+		ri.Error(ERR_DROP, "RE_AddRefLightToScene: bad rlType %i", l->rlType);
 	}
 	
-	dl = &backEndData[tr.smpFrame]->dlights[r_numdlights++];
-	dl->l = *light;
+	light = &backEndData[tr.smpFrame]->lights[r_numlights++];
+	light->l = *l;
 	
-	dl->isStatic = qfalse;
-	dl->additive = qtrue;
+	light->isStatic = qfalse;
+	light->additive = qtrue;
 }
 
 /*
@@ -322,14 +322,14 @@ RE_AddDynamicLightToScene
 */
 static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r, float g, float b, int additive)
 {
-	trRefDlight_t *dl;
+	trRefLight_t *light;
 		
 	if(!tr.registered)
 	{
 		return;
 	}
 	
-	if(r_numdlights >= MAX_DLIGHTS)
+	if(r_numlights >= MAX_LIGHTS)
 	{
 		return;
 	}
@@ -339,29 +339,29 @@ static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r
 		return;
 	}
 	
-	dl = &backEndData[tr.smpFrame]->dlights[r_numdlights++];
+	light = &backEndData[tr.smpFrame]->lights[r_numlights++];
 	
-	dl->l.rlType = RL_OMNI;
-//	dl->l.lightfx = 0;
-	VectorCopy(org, dl->l.origin);
+	light->l.rlType = RL_OMNI;
+//	light->l.lightfx = 0;
+	VectorCopy(org, light->l.origin);
 
-	// HACK: this will tell the renderer backend to use tr.defaultDlightShader
-	dl->l.attenuationShader = 0;
+	// HACK: this will tell the renderer backend to use tr.defaultLightShader
+	light->l.attenuationShader = 0;
 	
-	dl->l.radius[0] = intensity;
-	dl->l.radius[1] = intensity;
-	dl->l.radius[2] = intensity;
+	light->l.radius[0] = intensity;
+	light->l.radius[1] = intensity;
+	light->l.radius[2] = intensity;
 
-	dl->l.color[0] = r;
-	dl->l.color[1] = g;
-	dl->l.color[2] = b;
+	light->l.color[0] = r;
+	light->l.color[1] = g;
+	light->l.color[2] = b;
 	
-	AxisCopy(axisDefault, dl->l.axis);
-	dl->l.nonNormalizedAxes = qfalse;
-	dl->l.noShadows = qfalse;
+	AxisCopy(axisDefault, light->l.axis);
+	light->l.nonNormalizedAxes = qfalse;
+	light->l.noShadows = qfalse;
 	
-	dl->isStatic = qfalse;
-	dl->additive = additive;
+	light->isStatic = qfalse;
+	light->additive = additive;
 }
 
 /*
@@ -471,8 +471,8 @@ void RE_RenderScene(const refdef_t * fd)
 	tr.refdef.numEntities = r_numentities - r_firstSceneEntity;
 	tr.refdef.entities = &backEndData[tr.smpFrame]->entities[r_firstSceneEntity];
 
-	tr.refdef.numDlights = r_numdlights - r_firstSceneDlight;
-	tr.refdef.dlights = &backEndData[tr.smpFrame]->dlights[r_firstSceneDlight];
+	tr.refdef.numLights = r_numlights - r_firstSceneLight;
+	tr.refdef.lights = &backEndData[tr.smpFrame]->lights[r_firstSceneLight];
 
 	tr.refdef.numPolys = r_numpolys - r_firstScenePoly;
 	tr.refdef.polys = &backEndData[tr.smpFrame]->polys[r_firstScenePoly];
@@ -514,7 +514,7 @@ void RE_RenderScene(const refdef_t * fd)
 	r_firstSceneDrawSurf = tr.refdef.numDrawSurfs;
 	r_firstSceneInteraction = tr.refdef.numInteractions;
 	r_firstSceneEntity = r_numentities;
-	r_firstSceneDlight = r_numdlights;
+	r_firstSceneLight = r_numlights;
 	r_firstScenePoly = r_numpolys;
 
 	tr.frontEndMsec += ri.Milliseconds() - startTime;

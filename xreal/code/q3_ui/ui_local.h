@@ -492,7 +492,7 @@ typedef struct
 	qhandle_t       weaponModel;
 	qhandle_t       barrelModel;
 	qhandle_t       flashModel;
-	vec3_t          flashDlightColor;
+	vec3_t          flashLightColor;
 	int             muzzleFlashTime;
 
 	// currently in use drawing parms

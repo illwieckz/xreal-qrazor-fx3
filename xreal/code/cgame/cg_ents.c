@@ -466,16 +466,16 @@ static void CG_Missile(centity_t * cent)
 	}
 
 	// add dynamic light
-	if ( weapon->missileDlight ) {
-		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileDlight, 
-			weapon->missileDlightColor[col][0], weapon->missileDlightColor[col][1], weapon->missileDlightColor[col][2] );
+	if ( weapon->missileLight ) {
+		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileLight, 
+			weapon->missileLightColor[col][0], weapon->missileLightColor[col][1], weapon->missileLightColor[col][2] );
 	}
 */
 	// add dynamic light
-	if(weapon->missileDlight)
+	if(weapon->missileLight)
 	{
-		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileDlight,
-							   weapon->missileDlightColor[0], weapon->missileDlightColor[1], weapon->missileDlightColor[2]);
+		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileLight,
+							   weapon->missileLightColor[0], weapon->missileLightColor[1], weapon->missileLightColor[2]);
 	}
 
 	// add missile sound

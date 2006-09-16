@@ -489,7 +489,6 @@ static srfGridMesh_t  *R_CreateSurfaceGridMesh(int width, int height,
 	srfVert_t      *vert;
 	vec3_t          tmpVec;
 	srfGridMesh_t  *grid;
-	srfTriangle_t  *tri;
 
 	// copy the results out to a grid
 	size = sizeof(*grid);

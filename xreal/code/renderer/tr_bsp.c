@@ -2592,7 +2592,7 @@ void R_LoadEntities(lump_t * l)
 	int             numOmniLights = 0;
 	int             numProjLights = 0;
 	int             numDirectLights = 0;
-	trRefDlight_t  *dl;
+	trRefLight_t   *light;
 
 	ri.Printf(PRINT_ALL, "...loading entities\n");
 
@@ -2777,24 +2777,24 @@ void R_LoadEntities(lump_t * l)
 	ri.Printf(PRINT_ALL, "%i total entities counted\n", numEntities);
 	ri.Printf(PRINT_ALL, "%i total lights counted\n", numLights);
 
-	s_worldData.numDlights = numLights;
-	s_worldData.dlights = ri.Hunk_Alloc(s_worldData.numDlights * sizeof(trRefDlight_t), h_low);
+	s_worldData.numLights = numLights;
+	s_worldData.lights = ri.Hunk_Alloc(s_worldData.numLights * sizeof(trRefLight_t), h_low);
 
 	// basic light setup
-	for(i = 0, dl = s_worldData.dlights; i < s_worldData.numDlights; i++, dl++)
+	for(i = 0, light = s_worldData.lights; i < s_worldData.numLights; i++, light++)
 	{
-		dl->l.color[0] = 1;
-		dl->l.color[1] = 1;
-		dl->l.color[2] = 1;
+		light->l.color[0] = 1;
+		light->l.color[1] = 1;
+		light->l.color[2] = 1;
 
-		dl->l.radius[0] = 300;
-		dl->l.radius[1] = 300;
-		dl->l.radius[2] = 300;
+		light->l.radius[0] = 300;
+		light->l.radius[1] = 300;
+		light->l.radius[2] = 300;
 
-		AxisCopy(axisDefault, dl->l.axis);
+		AxisCopy(axisDefault, light->l.axis);
 
-		dl->isStatic = qtrue;
-		dl->additive = qtrue;
+		light->isStatic = qtrue;
+		light->additive = qtrue;
 	}
 #endif
 
@@ -2802,7 +2802,7 @@ void R_LoadEntities(lump_t * l)
 	// parse lights
 	p = pOld;
 	numEntities = 1;
-	dl = s_worldData.dlights;
+	light = s_worldData.lights;
 
 	while(1)
 	{
@@ -2860,40 +2860,40 @@ void R_LoadEntities(lump_t * l)
 			// check for origin
 			else if(!Q_stricmp(keyname, "origin") || !Q_stricmp(keyname, "light_origin"))
 			{
-				sscanf(value, "%f %f %f", &dl->l.origin[0], &dl->l.origin[1], &dl->l.origin[2]);
+				sscanf(value, "%f %f %f", &light->l.origin[0], &light->l.origin[1], &light->l.origin[2]);
 			}
 			// check for center
 			else if(!Q_stricmp(keyname, "light_center"))
 			{
-				sscanf(value, "%f %f %f", &dl->l.center[0], &dl->l.center[1], &dl->l.center[2]);
+				sscanf(value, "%f %f %f", &light->l.center[0], &light->l.center[1], &light->l.center[2]);
 			}
 			// check for color
 			else if(!Q_stricmp(keyname, "_color"))
 			{
-				sscanf(value, "%f %f %f", &dl->l.color[0], &dl->l.color[1], &dl->l.color[2]);
+				sscanf(value, "%f %f %f", &light->l.color[0], &light->l.color[1], &light->l.color[2]);
 			}
 			// check for radius
 			else if(!Q_stricmp(keyname, "light_radius"))
 			{
-				sscanf(value, "%f %f %f", &dl->l.radius[0], &dl->l.radius[1], &dl->l.radius[2]);
+				sscanf(value, "%f %f %f", &light->l.radius[0], &light->l.radius[1], &light->l.radius[2]);
 			}
 			// check for target
 			else if(!Q_stricmp(keyname, "light_target"))
 			{
-				sscanf(value, "%f %f %f", &dl->l.target[0], &dl->l.target[1], &dl->l.target[2]);
-				dl->l.rlType = RL_PROJ;
+				sscanf(value, "%f %f %f", &light->l.target[0], &light->l.target[1], &light->l.target[2]);
+				light->l.rlType = RL_PROJ;
 			}
 			// check for right
 			else if(!Q_stricmp(keyname, "light_right"))
 			{
-				sscanf(value, "%f %f %f", &dl->l.right[0], &dl->l.right[1], &dl->l.right[2]);
-				dl->l.rlType = RL_PROJ;
+				sscanf(value, "%f %f %f", &light->l.right[0], &light->l.right[1], &light->l.right[2]);
+				light->l.rlType = RL_PROJ;
 			}
 			// check for up
 			else if(!Q_stricmp(keyname, "light_up"))
 			{
-				sscanf(value, "%f %f %f", &dl->l.up[0], &dl->l.up[1], &dl->l.up[2]);
-				dl->l.rlType = RL_PROJ;
+				sscanf(value, "%f %f %f", &light->l.up[0], &light->l.up[1], &light->l.up[2]);
+				light->l.rlType = RL_PROJ;
 			}
 			// check for radius
 			else if(!Q_stricmp(keyname, "light") || !Q_stricmp(keyname, "_light"))
@@ -2901,15 +2901,15 @@ void R_LoadEntities(lump_t * l)
 				vec_t           value2;
 
 				value2 = atof(value);
-				dl->l.radius[0] = value2;
-				dl->l.radius[1] = value2;
-				dl->l.radius[2] = value2;
+				light->l.radius[0] = value2;
+				light->l.radius[1] = value2;
+				light->l.radius[2] = value2;
 			}
 			// check for light shader
 			else if(!Q_stricmp(keyname, "texture"))
 			{
 				//FIXME
-				dl->l.attenuationShader = RE_RegisterShaderLightAttenuation(value);
+				light->l.attenuationShader = RE_RegisterShaderLightAttenuation(value);
 			}
 			// check for rotation
 			else if(!Q_stricmp(keyname, "rotation") || !Q_stricmp(keyname, "light_rotation"))
@@ -2918,12 +2918,12 @@ void R_LoadEntities(lump_t * l)
 
 				sscanf(value, "%f %f %f %f %f %f %f %f %f", &rotation[0], &rotation[1], &rotation[2],
 					   &rotation[4], &rotation[5], &rotation[6], &rotation[8], &rotation[9], &rotation[10]);
-				MatrixToVectorsFLU(rotation, dl->l.axis[0], dl->l.axis[1], dl->l.axis[2]);
+				MatrixToVectorsFLU(rotation, light->l.axis[0], light->l.axis[1], light->l.axis[2]);
 			}
 			// check if this light does not cast any shadows
 			else if(!Q_stricmp(keyname, "noShadows") && !Q_stricmp(value, "1"))
 			{
-				dl->l.noShadows = qtrue;
+				light->l.noShadows = qtrue;
 			}
 		}
 
@@ -2935,11 +2935,11 @@ void R_LoadEntities(lump_t * l)
 
 		if(isLight)
 		{
-			if((numOmniLights + numProjLights + numDirectLights) < s_worldData.numDlights);
+			if((numOmniLights + numProjLights + numDirectLights) < s_worldData.numLights);
 			{
-				dl++;
+				light++;
 
-				switch (dl->l.rlType)
+				switch (light->l.rlType)
 				{
 					case RL_OMNI:
 						numOmniLights++;
@@ -2999,7 +2999,7 @@ qboolean R_GetEntityToken(char *buffer, int size)
 R_PrecacheInteraction
 =================
 */
-static void R_PrecacheInteraction(trRefDlight_t * light, msurface_t * surface)
+static void R_PrecacheInteraction(trRefLight_t * light, msurface_t * surface)
 {
 	interactionCache_t *iaCache;
 
@@ -3289,7 +3289,7 @@ static qboolean _cldTestEdge(vec_t fp0, vec_t fp1, vec_t fR, vec_t fD, vec3_t vN
 	return qtrue;
 }
 
-static qboolean _cldTestSeparatingAxes(trRefDlight_t * dl, const vec3_t v0, const vec3_t v1, const vec3_t v2)
+static qboolean _cldTestSeparatingAxes(trRefLight_t * light, const vec3_t v0, const vec3_t v1, const vec3_t v2)
 {
 	vec3_t          vA0, vA1, vA2;
 	vec_t           fa0, fa1, fa2;
@@ -3312,17 +3312,17 @@ static qboolean _cldTestSeparatingAxes(trRefDlight_t * dl, const vec3_t v0, cons
 	CrossProduct(vE0, vE1, vN);
 
 	// extract box axes as vectors
-	VectorCopy(dl->l.axis[0], vA0);
-	VectorCopy(dl->l.axis[1], vA1);
-	VectorCopy(dl->l.axis[2], vA2);
+	VectorCopy(light->l.axis[0], vA0);
+	VectorCopy(light->l.axis[1], vA1);
+	VectorCopy(light->l.axis[2], vA2);
 
 	// box halfsizes
-	fa0 = dl->l.radius[0];
-	fa1 = dl->l.radius[1];
-	fa2 = dl->l.radius[2];
+	fa0 = light->l.radius[0];
+	fa1 = light->l.radius[1];
+	fa2 = light->l.radius[2];
 
 	// calculate relative position between box and triangle
-	VectorSubtract(v0, dl->l.origin, vD);
+	VectorSubtract(v0, light->l.origin, vD);
 
 	// calculate length of face normal
 	fNLen = VectorLength(vN);
@@ -3524,10 +3524,10 @@ static qboolean _cldTestSeparatingAxes(trRefDlight_t * dl, const vec3_t v0, cons
 }
 
 // test one mesh triangle on intersection with given box
-static qboolean _cldTestOneTriangle(trRefDlight_t * dl, const vec3_t v0, const vec3_t v1, const vec3_t v2)
+static qboolean _cldTestOneTriangle(trRefLight_t * light, const vec3_t v0, const vec3_t v1, const vec3_t v2)
 {
 	// do intersection test and find best separating axis
-	if(!_cldTestSeparatingAxes(dl, v0, v1, v2))
+	if(!_cldTestSeparatingAxes(light, v0, v1, v2))
 	{
 		// if not found do nothing
 		return qfalse;
@@ -3548,7 +3548,7 @@ static qboolean _cldTestOneTriangle(trRefDlight_t * dl, const vec3_t v0, const v
 	 */
 }
 
-static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shader, trRefDlight_t * dl)
+static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shader, trRefLight_t * light)
 {
 	int             i;
 	srfTriangle_t  *tri;
@@ -3557,18 +3557,18 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 	float           d;
 
 	// check if bounds intersect
-	if(dl->worldBounds[1][0] < cv->bounds[0][0] ||
-	   dl->worldBounds[1][1] < cv->bounds[0][1] ||
-	   dl->worldBounds[1][2] < cv->bounds[0][2] ||
-	   dl->worldBounds[0][0] > cv->bounds[1][0] ||
-	   dl->worldBounds[0][1] > cv->bounds[1][1] || dl->worldBounds[0][2] > cv->bounds[1][2])
+	if(light->worldBounds[1][0] < cv->bounds[0][0] ||
+	   light->worldBounds[1][1] < cv->bounds[0][1] ||
+	   light->worldBounds[1][2] < cv->bounds[0][2] ||
+	   light->worldBounds[0][0] > cv->bounds[1][0] ||
+	   light->worldBounds[0][1] > cv->bounds[1][1] || light->worldBounds[0][2] > cv->bounds[1][2])
 	{
 		return qfalse;
 	}
 
 #if 1
 	// check if light origin is behind surface
-	d = DotProduct(cv->plane.normal, dl->origin);
+	d = DotProduct(cv->plane.normal, light->origin);
 
 	// don't cull exactly on the plane, because there are levels of rounding
 	// through the BSP, ICD, and hardware that may cause pixel gaps if an
@@ -3623,7 +3623,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 		   CrossProduct(d1, d2, plane);
 		   plane[3] = DotProduct(plane, verts[0]);
 
-		   d = DotProduct(plane, dl->origin) - plane[3];
+		   d = DotProduct(plane, light->origin) - plane[3];
 		   if(d > 0)
 		   {
 		   sh.facing[i] = qtrue;
@@ -3638,7 +3638,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 		{
 #if 1
 			// check if light origin is behind triangle
-			d = DotProduct(plane, dl->origin) - plane[3];
+			d = DotProduct(plane, light->origin) - plane[3];
 
 			if(shader->cullType == CT_FRONT_SIDED)
 			{
@@ -3661,7 +3661,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 
 #if 1
 		// check with ODE's triangle<->OBB collider for an intersection
-		if(!_cldTestOneTriangle(dl, verts[0], verts[1], verts[2]))
+		if(!_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
 		{
 			c_culledFaceTriangles++;
 			sh.facing[i] = qfalse;
@@ -3781,7 +3781,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 }
 
 
-static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRefDlight_t * dl)
+static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRefLight_t * light)
 {
 	int             i;
 	srfTriangle_t  *tri;
@@ -3789,11 +3789,11 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 	int            *indexes;
 
 	// check if bounds intersect
-	if(dl->worldBounds[1][0] < cv->meshBounds[0][0] ||
-	   dl->worldBounds[1][1] < cv->meshBounds[0][1] ||
-	   dl->worldBounds[1][2] < cv->meshBounds[0][2] ||
-	   dl->worldBounds[0][0] > cv->meshBounds[1][0] ||
-	   dl->worldBounds[0][1] > cv->meshBounds[1][1] || dl->worldBounds[0][2] > cv->meshBounds[1][2])
+	if(light->worldBounds[1][0] < cv->meshBounds[0][0] ||
+	   light->worldBounds[1][1] < cv->meshBounds[0][1] ||
+	   light->worldBounds[1][2] < cv->meshBounds[0][2] ||
+	   light->worldBounds[0][0] > cv->meshBounds[1][0] ||
+	   light->worldBounds[0][1] > cv->meshBounds[1][1] || light->worldBounds[0][2] > cv->meshBounds[1][2])
 	{
 		return qfalse;
 	}
@@ -3825,7 +3825,7 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 		{
 #if 1
 			// check if light origin is behind triangle
-			d = DotProduct(plane, dl->origin) - plane[3];
+			d = DotProduct(plane, light->origin) - plane[3];
 
 			if(shader->cullType == CT_FRONT_SIDED)
 			{
@@ -3848,7 +3848,7 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 
 #if 1
 		// check with ODE's triangle<->OBB collider for an intersection
-		if(!_cldTestOneTriangle(dl, verts[0], verts[1], verts[2]))
+		if(!_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
 		{
 			c_culledGridTriangles++;
 			sh.facing[i] = qfalse;
@@ -3967,7 +3967,7 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 }
 
 
-static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, trRefDlight_t * dl)
+static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, trRefLight_t * light)
 {
 	int             i;
 	srfTriangle_t  *tri;
@@ -3975,11 +3975,11 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 	int            *indexes;
 
 	// check if bounds intersect
-	if(dl->worldBounds[1][0] < cv->bounds[0][0] ||
-	   dl->worldBounds[1][1] < cv->bounds[0][1] ||
-	   dl->worldBounds[1][2] < cv->bounds[0][2] ||
-	   dl->worldBounds[0][0] > cv->bounds[1][0] ||
-	   dl->worldBounds[0][1] > cv->bounds[1][1] || dl->worldBounds[0][2] > cv->bounds[1][2])
+	if(light->worldBounds[1][0] < cv->bounds[0][0] ||
+	   light->worldBounds[1][1] < cv->bounds[0][1] ||
+	   light->worldBounds[1][2] < cv->bounds[0][2] ||
+	   light->worldBounds[0][0] > cv->bounds[1][0] ||
+	   light->worldBounds[0][1] > cv->bounds[1][1] || light->worldBounds[0][2] > cv->bounds[1][2])
 	{
 		return qfalse;
 	}
@@ -4011,7 +4011,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 		{
 #if 1
 			// check if light origin is behind triangle
-			d = DotProduct(plane, dl->origin) - plane[3];
+			d = DotProduct(plane, light->origin) - plane[3];
 
 			if(shader->cullType == CT_FRONT_SIDED)
 			{
@@ -4033,7 +4033,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 
 #if 0
 			// check if light bounds do not intersect with with triangle plane
-			r = BoxOnPlaneSide2(dl->worldBounds[0], dl->worldBounds[1], plane);
+			r = BoxOnPlaneSide2(light->worldBounds[0], light->worldBounds[1], plane);
 			if(r != 3)
 			{
 				c_culledTriTriangles++;
@@ -4044,7 +4044,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 
 #if 0
 		// check if the triangle is inside light frustum
-		switch (R_CullDlightTriangle(dl, verts))
+		switch (R_CullLightTriangle(dl, verts))
 		{
 			case CULL_IN:
 			case CULL_CLIP:
@@ -4059,7 +4059,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 
 #if 1
 		// check with ODE's triangle<->OBB collider for an intersection
-		if(!_cldTestOneTriangle(dl, verts[0], verts[1], verts[2]))
+		if(!_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
 		{
 			c_culledTriTriangles++;
 			sh.facing[i] = qfalse;
@@ -4183,7 +4183,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 R_PrecacheInteractionSurface
 ======================
 */
-static void R_PrecacheInteractionSurface(msurface_t * surf, trRefDlight_t * light)
+static void R_PrecacheInteractionSurface(msurface_t * surf, trRefLight_t * light)
 {
 	qboolean        intersects;
 
@@ -4228,7 +4228,7 @@ static void R_PrecacheInteractionSurface(msurface_t * surf, trRefDlight_t * ligh
 R_RecursivePrecacheInteractionNode
 ================
 */
-static void R_RecursivePrecacheInteractionNode(mnode_t * node, trRefDlight_t * light)
+static void R_RecursivePrecacheInteractionNode(mnode_t * node, trRefLight_t * light)
 {
 	int             r;
 
@@ -4288,7 +4288,7 @@ static void R_RecursivePrecacheInteractionNode(mnode_t * node, trRefDlight_t * l
 R_RecursiveAddInteractionNode
 ================
 */
-static void R_RecursiveAddInteractionNode(mnode_t * node, trRefDlight_t * light, int *numLeafs, qboolean onlyCount)
+static void R_RecursiveAddInteractionNode(mnode_t * node, trRefLight_t * light, int *numLeafs, qboolean onlyCount)
 {
 	int             r;
 
@@ -4342,7 +4342,7 @@ R_PrecacheInteractions
 void R_PrecacheInteractions()
 {
 	int             i;
-	trRefDlight_t  *dl;
+	trRefLight_t   *light;
 	int				numLeafs;
 
 	s_lightCount = 0;
@@ -4356,45 +4356,45 @@ void R_PrecacheInteractions()
 	s_worldData.numInteractions = s_worldData.numsurfaces * 16;
 	s_worldData.interactions = ri.Hunk_Alloc(s_worldData.numInteractions * sizeof(interactionCache_t), h_low);
 
-	ri.Printf(PRINT_ALL, "...precaching %i lights\n", s_worldData.numDlights);
+	ri.Printf(PRINT_ALL, "...precaching %i lights\n", s_worldData.numLights);
 
-	for(i = 0; i < s_worldData.numDlights; i++)
+	for(i = 0; i < s_worldData.numLights; i++)
 	{
-		dl = &s_worldData.dlights[i];
+		light = &s_worldData.lights[i];
 
 #if 0
 		ri.Printf(PRINT_ALL, "origin(%i %i %i) radius(%i %i %i) color(%f %f %f)\n",
-				  (int)dl->l.origin[0], (int)dl->l.origin[1], (int)dl->l.origin[2],
-				  (int)dl->l.radius[0], (int)dl->l.radius[1], (int)dl->l.radius[2],
-				  dl->l.color[0], dl->l.color[1], dl->l.color[2]);
+				  (int)light->l.origin[0], (int)light->l.origin[1], (int)light->l.origin[2],
+				  (int)light->l.radius[0], (int)light->l.radius[1], (int)light->l.radius[2],
+				  light->l.color[0], light->l.color[1], light->l.color[2]);
 #endif
 
 		// set up light transform matrix
-		MatrixSetupTransform(dl->transformMatrix, dl->l.axis[0], dl->l.axis[1], dl->l.axis[2], dl->l.origin);
+		MatrixSetupTransform(light->transformMatrix, light->l.axis[0], light->l.axis[1], light->l.axis[2], light->l.origin);
 
 		// set up light origin for lighting and shadowing
-		R_SetupDlightOrigin(dl);
+		R_SetupLightOrigin(light);
 
 		// calc local bounds for culling
-		R_SetupDlightLocalBounds(dl);
+		R_SetupLightLocalBounds(light);
 
 		// setup world bounds for intersection tests
-		R_SetupDlightWorldBounds(dl);
+		R_SetupLightWorldBounds(light);
 
 		// setup frustum planes for intersection tests
-		R_SetupDlightFrustum(dl);
+		R_SetupLightFrustum(light);
 
 		// set up model to light view matrix
-		MatrixAffineInverse(dl->transformMatrix, dl->viewMatrix);
+		MatrixAffineInverse(light->transformMatrix, light->viewMatrix);
 
 		// set up projection
-		R_SetupDlightProjection(dl);
+		R_SetupLightProjection(light);
 
 		// setup interactions
-		dl->firstInteractionCache = NULL;
-		dl->lastInteractionCache = NULL;
+		light->firstInteractionCache = NULL;
+		light->lastInteractionCache = NULL;
 
-		switch (dl->l.rlType)
+		switch (light->l.rlType)
 		{
 			case RL_OMNI:
 				break;
@@ -4412,20 +4412,20 @@ void R_PrecacheInteractions()
 
 		// perform frustum culling and add all the potentially visible surfaces
 		s_lightCount++;
-		R_RecursivePrecacheInteractionNode(s_worldData.nodes, dl);
+		R_RecursivePrecacheInteractionNode(s_worldData.nodes, light);
 		
 		s_lightCount++;
 		numLeafs = 0;
-		R_RecursiveAddInteractionNode(s_worldData.nodes, dl, &numLeafs, qtrue);
+		R_RecursiveAddInteractionNode(s_worldData.nodes, light, &numLeafs, qtrue);
 		
 		//ri.Printf(PRINT_ALL, "light %i touched %i leaves\n", i, numLeafs);
 		
-		dl->leafs = (struct mnode_s **) ri.Hunk_Alloc(numLeafs * sizeof(*dl->leafs), h_low);
-		dl->numLeafs = numLeafs;
+		light->leafs = (struct mnode_s **) ri.Hunk_Alloc(numLeafs * sizeof(*light->leafs), h_low);
+		light->numLeafs = numLeafs;
 		
 		s_lightCount++;
 		numLeafs = 0;
-		R_RecursiveAddInteractionNode(s_worldData.nodes, dl, &numLeafs, qfalse);
+		R_RecursiveAddInteractionNode(s_worldData.nodes, light, &numLeafs, qfalse);
 	}
 
 	ri.Printf(PRINT_ALL, "%i interactions precached\n", s_interactionCount);
@@ -4513,7 +4513,7 @@ void RE_LoadWorldMap(const char *name)
 	R_LoadVisibility(&header->lumps[LUMP_VISIBILITY]);
 	R_LoadLightGrid(&header->lumps[LUMP_LIGHTGRID]);
 
-	// we precache interactions between dlights and surfaces
+	// we precache interactions between lights and surfaces
 	// to reduce the polygon count
 	R_PrecacheInteractions();
 

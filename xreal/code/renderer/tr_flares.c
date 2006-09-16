@@ -204,12 +204,12 @@ void RB_AddFlare(void *surface, int fogNum, vec3_t point, vec3_t color, vec3_t n
 
 /*
 ==================
-RB_AddDlightFlares
+RB_AddLightFlares
 ==================
 */
-void RB_AddDlightFlares(void)
+void RB_AddLightFlares(void)
 {
-	trRefDlight_t  *l;
+	trRefLight_t  *l;
 	int             i, j, k;
 	fog_t          *fog;
 
@@ -218,9 +218,9 @@ void RB_AddDlightFlares(void)
 		return;
 	}
 
-	l = backEnd.refdef.dlights;
+	l = backEnd.refdef.lights;
 	fog = tr.world->fogs;
-	for(i = 0; i < backEnd.refdef.numDlights; i++, l++)
+	for(i = 0; i < backEnd.refdef.numLights; i++, l++)
 	{
 		// find which fog volume the light is in 
 		for(j = 1; j < tr.world->numfogs; j++)
@@ -424,7 +424,7 @@ void RB_RenderFlares(void)
 		return;
 	}
 
-	RB_AddDlightFlares();
+	RB_AddLightFlares();
 
 	// perform z buffer readback on each flare in this view
 	draw = qfalse;

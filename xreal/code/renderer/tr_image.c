@@ -4300,11 +4300,11 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 
 /*
 ================
-R_CreateDlightImage
+R_CreateLightImage
 ================
 */
 #define	DLIGHT_SIZE	16
-static void R_CreateDlightImage(void)
+static void R_CreateLightImage(void)
 {
 	int             x, y;
 	byte            data[DLIGHT_SIZE][DLIGHT_SIZE][4];
@@ -4638,7 +4638,7 @@ void R_CreateBuiltinImages(void)
 		tr.scratchImage[x] = R_CreateImage("_scratch", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, IF_NONE, FT_LINEAR, WT_CLAMP);
 	}
 
-	R_CreateDlightImage();
+	R_CreateLightImage();
 	R_CreateFogImage();
 	R_CreateNoFalloffImage();
 	R_CreateAttenuationXYImage();

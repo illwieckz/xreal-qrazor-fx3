@@ -180,26 +180,26 @@ static qboolean R_CullSurface(surfaceType_t * surface, shader_t * shader)
 }
 
 // *INDENT-OFF*
-static qboolean R_DlightFace(srfSurfaceFace_t * face, trRefDlight_t  * dl)
+static qboolean R_LightFace(srfSurfaceFace_t * face, trRefLight_t  * light)
 {
 #if 0
-	if(	dl->l.origin[0] - dl->l.radius[0] > face->bounds[1][0] ||
-		dl->l.origin[0] + dl->l.radius[0] < face->bounds[0][0] ||
-		dl->l.origin[1] - dl->l.radius[0] > face->bounds[1][1] ||
-		dl->l.origin[1] + dl->l.radius[0] < face->bounds[0][1] ||
-		dl->l.origin[2] - dl->l.radius[0] > face->bounds[1][2] ||
-		dl->l.origin[2] + dl->l.radius[0] < face->bounds[0][2])
+	if(	light->l.origin[0] - light->l.radius[0] > face->bounds[1][0] ||
+		light->l.origin[0] + light->l.radius[0] < face->bounds[0][0] ||
+		light->l.origin[1] - light->l.radius[0] > face->bounds[1][1] ||
+		light->l.origin[1] + light->l.radius[0] < face->bounds[0][1] ||
+		light->l.origin[2] - light->l.radius[0] > face->bounds[1][2] ||
+		light->l.origin[2] + light->l.radius[0] < face->bounds[0][2])
 	{
-		// dlight doesn't reach the bounds
+		// light doesn't reach the bounds
 		return qfalse;
 	}
 #else
-	if(	dl->worldBounds[1][0] < face->bounds[0][0] ||
-		dl->worldBounds[1][1] < face->bounds[0][1] ||
-		dl->worldBounds[1][2] < face->bounds[0][2] ||
-		dl->worldBounds[0][0] > face->bounds[1][0] ||
-		dl->worldBounds[0][1] > face->bounds[1][1] ||
-		dl->worldBounds[0][2] > face->bounds[1][2])
+	if(	light->worldBounds[1][0] < face->bounds[0][0] ||
+		light->worldBounds[1][1] < face->bounds[0][1] ||
+		light->worldBounds[1][2] < face->bounds[0][2] ||
+		light->worldBounds[0][0] > face->bounds[1][0] ||
+		light->worldBounds[0][1] > face->bounds[1][1] ||
+		light->worldBounds[0][2] > face->bounds[1][2])
 	{
 		return qfalse;
 	}
@@ -209,16 +209,16 @@ static qboolean R_DlightFace(srfSurfaceFace_t * face, trRefDlight_t  * dl)
 }
 // *INDENT-ON*
 
-static int R_DlightGrid(srfGridMesh_t * grid, trRefDlight_t * dl)
+static int R_LightGrid(srfGridMesh_t * grid, trRefLight_t * light)
 {
-	if(	dl->worldBounds[1][0] < grid->meshBounds[0][0] ||
-		dl->worldBounds[1][1] < grid->meshBounds[0][1] ||
-		dl->worldBounds[1][2] < grid->meshBounds[0][2] ||
-		dl->worldBounds[0][0] > grid->meshBounds[1][0] ||
-		dl->worldBounds[0][1] > grid->meshBounds[1][1] ||
-		dl->worldBounds[0][2] > grid->meshBounds[1][2])
+	if(	light->worldBounds[1][0] < grid->meshBounds[0][0] ||
+		light->worldBounds[1][1] < grid->meshBounds[0][1] ||
+		light->worldBounds[1][2] < grid->meshBounds[0][2] ||
+		light->worldBounds[0][0] > grid->meshBounds[1][0] ||
+		light->worldBounds[0][1] > grid->meshBounds[1][1] ||
+		light->worldBounds[0][2] > grid->meshBounds[1][2])
 	{
-		// dlight doesn't reach the bounds
+		// light doesn't reach the bounds
 		return qfalse;
 	}
 
@@ -226,16 +226,16 @@ static int R_DlightGrid(srfGridMesh_t * grid, trRefDlight_t * dl)
 }
 
 
-static int R_DlightTrisurf(srfTriangles_t * tri, trRefDlight_t * dl)
+static int R_LightTrisurf(srfTriangles_t * tri, trRefLight_t * light)
 {
-	if(	dl->worldBounds[1][0] < tri->bounds[0][0] ||
-		   dl->worldBounds[1][1] < tri->bounds[0][1] ||
-		   dl->worldBounds[1][2] < tri->bounds[0][2] ||
-		   dl->worldBounds[0][0] > tri->bounds[1][0] ||
-		   dl->worldBounds[0][1] > tri->bounds[1][1] ||
-		   dl->worldBounds[0][2] > tri->bounds[1][2])
+	if(	light->worldBounds[1][0] < tri->bounds[0][0] ||
+		   light->worldBounds[1][1] < tri->bounds[0][1] ||
+		   light->worldBounds[1][2] < tri->bounds[0][2] ||
+		   light->worldBounds[0][0] > tri->bounds[1][0] ||
+		   light->worldBounds[0][1] > tri->bounds[1][1] ||
+		   light->worldBounds[0][2] > tri->bounds[1][2])
 	{
-		// dlight doesn't reach the bounds
+		// light doesn't reach the bounds
 		return qfalse;
 	}
 
@@ -248,7 +248,7 @@ static int R_DlightTrisurf(srfTriangles_t * tri, trRefDlight_t * dl)
 R_AddInteractionSurface
 ======================
 */
-static void R_AddInteractionSurface(msurface_t * surf, trRefDlight_t * light)
+static void R_AddInteractionSurface(msurface_t * surf, trRefLight_t * light)
 {
 	qboolean        intersects;
 	interactionType_t iaType = IA_DEFAULT;
@@ -280,15 +280,15 @@ static void R_AddInteractionSurface(msurface_t * surf, trRefDlight_t * light)
 
 	if(*surf->data == SF_FACE)
 	{
-		intersects = R_DlightFace((srfSurfaceFace_t *) surf->data, light);
+		intersects = R_LightFace((srfSurfaceFace_t *) surf->data, light);
 	}
 	else if(*surf->data == SF_GRID)
 	{
-		intersects = R_DlightGrid((srfGridMesh_t *) surf->data, light);
+		intersects = R_LightGrid((srfGridMesh_t *) surf->data, light);
 	}
 	else if(*surf->data == SF_TRIANGLES)
 	{
-		intersects = R_DlightTrisurf((srfTriangles_t *) surf->data, light);
+		intersects = R_LightTrisurf((srfTriangles_t *) surf->data, light);
 	}
 	else
 	{
@@ -297,7 +297,7 @@ static void R_AddInteractionSurface(msurface_t * surf, trRefDlight_t * light)
 	
 	if(intersects)
 	{
-		R_AddDlightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, iaType);
+		R_AddLightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, iaType);
 		
 		if(light->isStatic)
 			tr.pc.c_slightSurfaces++;
@@ -326,7 +326,7 @@ static void R_AddWorldSurface(msurface_t * surf)
 	
 	// FIXME: bmodel fog?
 
-	// try to cull before dlighting or adding
+	// try to cull before lighting or adding
 	if(R_CullSurface(surf->data, surf->shader))
 	{
 		return;
@@ -356,7 +356,7 @@ static void R_AddBrushModelSurface(msurface_t * surf, int fogIndex)
 	}
 	surf->viewCount = tr.viewCount;
 
-	// try to cull before dlighting or adding
+	// try to cull before lighting or adding
 	if(R_CullSurface(surf->data, surf->shader))
 	{
 		return;
@@ -532,7 +532,7 @@ static void R_RecursiveWorldNode(mnode_t * node, int planeBits)
 R_RecursiveInteractionNode
 ================
 */
-static void R_RecursiveInteractionNode(mnode_t * node, trRefDlight_t * light, int planeBits)
+static void R_RecursiveInteractionNode(mnode_t * node, trRefLight_t * light, int planeBits)
 {
 	int             i;
 	int             r;
@@ -887,7 +887,7 @@ void R_AddWorldSurfaces(void)
 R_AddWorldInteractions
 =============
 */
-void R_AddWorldInteractions(trRefDlight_t * light)
+void R_AddWorldInteractions(trRefLight_t * light)
 {
 	if(!r_drawworld->integer)
 	{
@@ -911,7 +911,7 @@ void R_AddWorldInteractions(trRefDlight_t * light)
 R_AddPrecachedWorldInteractions
 =============
 */
-void R_AddPrecachedWorldInteractions(trRefDlight_t * light)
+void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 {
 	interactionCache_t  *iaCache;
 	msurface_t     *surface;
@@ -956,7 +956,7 @@ void R_AddPrecachedWorldInteractions(trRefDlight_t * light)
 				iaType = IA_DEFAULT;
 		}
 		
-		R_AddDlightInteraction(light, surface->data, surface->shader, iaCache->numLightIndexes, iaCache->lightIndexes, iaCache->numShadowIndexes, iaCache->shadowIndexes, iaType);
+		R_AddLightInteraction(light, surface->data, surface->shader, iaCache->numLightIndexes, iaCache->lightIndexes, iaCache->numShadowIndexes, iaCache->shadowIndexes, iaType);
 	}
 }
 

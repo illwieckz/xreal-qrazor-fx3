@@ -1866,7 +1866,7 @@ static void Render_lighting_DBS_direct(int stage)
 }
 
 static void Render_lighting_D_omni(shaderStage_t * diffuseStage,
-								   shaderStage_t * attenuationXYStage, shaderStage_t * attenuationZStage, trRefDlight_t * dlight)
+								   shaderStage_t * attenuationXYStage, shaderStage_t * attenuationZStage, trRefLight_t * light)
 {
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
@@ -1879,7 +1879,7 @@ static void Render_lighting_D_omni(shaderStage_t * diffuseStage,
 	GL_SetVertexAttribs();
 
 	// set uniforms
-	VectorCopy(dlight->transformed, lightOrigin);
+	VectorCopy(light->transformed, lightOrigin);
 	VectorCopy(tess.svars.color, lightColor);
 
 	qglUniform3fARB(tr.lightShader_D_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
@@ -1897,7 +1897,7 @@ static void Render_lighting_D_omni(shaderStage_t * diffuseStage,
 	GL_SelectTexture(1);
 	BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(dlight->attenuationMatrix2);
+	qglLoadMatrixf(light->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
 
 	// bind u_AttenuationMapZ
@@ -1917,7 +1917,7 @@ static void Render_lighting_D_omni(shaderStage_t * diffuseStage,
 }
 
 static void Render_lighting_DB_omni(shaderStage_t * diffuseStage,
-									shaderStage_t * attenuationXYStage, shaderStage_t * attenuationZStage, trRefDlight_t * dlight)
+									shaderStage_t * attenuationXYStage, shaderStage_t * attenuationZStage, trRefLight_t * light)
 {
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
@@ -1930,7 +1930,7 @@ static void Render_lighting_DB_omni(shaderStage_t * diffuseStage,
 	GL_SetVertexAttribs();
 
 	// set uniforms
-	VectorCopy(dlight->transformed, lightOrigin);
+	VectorCopy(light->transformed, lightOrigin);
 	VectorCopy(tess.svars.color, lightColor);
 
 	qglUniform3fARB(tr.lightShader_DB_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
@@ -1955,7 +1955,7 @@ static void Render_lighting_DB_omni(shaderStage_t * diffuseStage,
 	GL_SelectTexture(2);
 	BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(dlight->attenuationMatrix2);
+	qglLoadMatrixf(light->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
 
 	// bind u_AttenuationMapZ
@@ -1973,7 +1973,7 @@ static void Render_lighting_DB_omni(shaderStage_t * diffuseStage,
 
 static void Render_lighting_DBS_omni(shaderStage_t * diffuseStage,
 									 shaderStage_t * attenuationXYStage,
-									 shaderStage_t * attenuationZStage, trRefDlight_t * dlight)
+									 shaderStage_t * attenuationZStage, trRefLight_t * light)
 {
 	vec3_t          viewOrigin;
 	vec3_t          lightOrigin;
@@ -1989,7 +1989,7 @@ static void Render_lighting_DBS_omni(shaderStage_t * diffuseStage,
 
 	// set uniforms
 	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
-	VectorCopy(dlight->transformed, lightOrigin);
+	VectorCopy(light->transformed, lightOrigin);
 	VectorCopy(tess.svars.color, lightColor);
 	specularExponent = RB_EvalExpression(&diffuseStage->specularExponentExp, r_specularExponent->value);
 
@@ -2024,7 +2024,7 @@ static void Render_lighting_DBS_omni(shaderStage_t * diffuseStage,
 	GL_SelectTexture(3);
 	BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(dlight->attenuationMatrix2);
+	qglLoadMatrixf(light->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
 
 	// bind u_AttenuationMapZ
@@ -2042,7 +2042,7 @@ static void Render_lighting_DBS_omni(shaderStage_t * diffuseStage,
 
 static void Render_lighting_DBSP_omni(shaderStage_t * diffuseStage,
 									  shaderStage_t * attenuationXYStage,
-									  shaderStage_t * attenuationZStage, trRefDlight_t * dlight)
+									  shaderStage_t * attenuationZStage, trRefLight_t * light)
 {
 	vec3_t          viewOrigin;
 	vec3_t          lightOrigin;
@@ -2058,7 +2058,7 @@ static void Render_lighting_DBSP_omni(shaderStage_t * diffuseStage,
 
 	// set uniforms
 	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
-	VectorCopy(dlight->transformed, lightOrigin);
+	VectorCopy(light->transformed, lightOrigin);
 	VectorCopy(tess.svars.color, lightColor);
 	specularExponent = RB_EvalExpression(&diffuseStage->specularExponentExp, r_specularExponent->value);
 
@@ -2095,7 +2095,7 @@ static void Render_lighting_DBSP_omni(shaderStage_t * diffuseStage,
 	GL_SelectTexture(3);
 	BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(dlight->attenuationMatrix2);
+	qglLoadMatrixf(light->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
 
 	// bind u_AttenuationMapZ
@@ -2112,7 +2112,7 @@ static void Render_lighting_DBSP_omni(shaderStage_t * diffuseStage,
 }
 
 static void Render_lighting_D_proj(shaderStage_t * diffuseStage,
-								   shaderStage_t * attenuationXYStage, shaderStage_t * attenuationZStage, trRefDlight_t * dlight)
+								   shaderStage_t * attenuationXYStage, shaderStage_t * attenuationZStage, trRefLight_t * light)
 {
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
@@ -2125,7 +2125,7 @@ static void Render_lighting_D_proj(shaderStage_t * diffuseStage,
 	GL_SetVertexAttribs();
 
 	// set uniforms
-	VectorCopy(dlight->transformed, lightOrigin);
+	VectorCopy(light->transformed, lightOrigin);
 	VectorCopy(tess.svars.color, lightColor);
 
 	qglUniform3fARB(tr.lightShader_D_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
@@ -2143,7 +2143,7 @@ static void Render_lighting_D_proj(shaderStage_t * diffuseStage,
 	GL_SelectTexture(1);
 	BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(dlight->attenuationMatrix2);
+	qglLoadMatrixf(light->attenuationMatrix2);
 	qglMatrixMode(GL_MODELVIEW);
 
 	// bind u_AttenuationMapZ
@@ -3795,7 +3795,7 @@ static void ComputeTexMatrices(shaderStage_t * pStage)
 ComputeFinalAttenuation
 ===============
 */
-static void ComputeFinalAttenuation(shaderStage_t * pStage, trRefDlight_t * dlight)
+static void ComputeFinalAttenuation(shaderStage_t * pStage, trRefLight_t * light)
 {
 	int             i;
 	matrix_t        matrix;
@@ -3874,14 +3874,14 @@ static void ComputeFinalAttenuation(shaderStage_t * pStage, trRefDlight_t * dlig
 		}
 	}
 
-	MatrixMultiply(matrix, dlight->attenuationMatrix, dlight->attenuationMatrix2);
+	MatrixMultiply(matrix, light->attenuationMatrix, light->attenuationMatrix2);
 }
 
 
 void RB_StageIteratorLighting()
 {
 	int             i, j;
-	trRefDlight_t  *dl;
+	trRefLight_t   *light;
 	shaderStage_t  *attenuationXYStage;
 	shaderStage_t  *attenuationZStage;
 
@@ -3902,7 +3902,7 @@ void RB_StageIteratorLighting()
 		return;
 	}
 
-	dl = backEnd.currentLight;
+	light = backEnd.currentLight;
 
 	RB_DeformTessGeometry();
 
@@ -3978,20 +3978,20 @@ void RB_StageIteratorLighting()
 			}
 
 			ComputeColor(attenuationXYStage);
-			ComputeFinalAttenuation(attenuationXYStage, dl);
+			ComputeFinalAttenuation(attenuationXYStage, light);
 
 			switch (diffuseStage->type)
 			{
 				case ST_DIFFUSEMAP:
 					if(glConfig.shadingLanguage100Available)
 					{
-						if(dl->l.rlType == RL_OMNI)
+						if(light->l.rlType == RL_OMNI)
 						{
-							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, light);
 						}
-						else if(dl->l.rlType == RL_PROJ)
+						else if(light->l.rlType == RL_PROJ)
 						{
-							Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+							Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
 						}
 						else
 						{
@@ -4010,13 +4010,13 @@ void RB_StageIteratorLighting()
 					{
 						if(r_lighting->integer == 1)
 						{
-							if(dl->l.rlType == RL_OMNI)
+							if(light->l.rlType == RL_OMNI)
 							{
-								Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+								Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, light);
 							}
-							else if(dl->l.rlType == RL_PROJ)
+							else if(light->l.rlType == RL_PROJ)
 							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
 							}
 							else
 							{
@@ -4025,13 +4025,13 @@ void RB_StageIteratorLighting()
 						}
 						else
 						{
-							if(dl->l.rlType == RL_OMNI)
+							if(light->l.rlType == RL_OMNI)
 							{
-								Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+								Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, light);
 							}
-							else if(dl->l.rlType == RL_PROJ)
+							else if(light->l.rlType == RL_PROJ)
 							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
 							}
 							else
 							{
@@ -4051,13 +4051,13 @@ void RB_StageIteratorLighting()
 					{
 						if(r_lighting->integer == 3)
 						{
-							if(dl->l.rlType == RL_OMNI)
+							if(light->l.rlType == RL_OMNI)
 							{
-								Render_lighting_DBSP_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+								Render_lighting_DBSP_omni(diffuseStage, attenuationXYStage, attenuationZStage, light);
 							}
-							else if(dl->l.rlType == RL_PROJ)
+							else if(light->l.rlType == RL_PROJ)
 							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
 							}
 							else
 							{
@@ -4066,13 +4066,13 @@ void RB_StageIteratorLighting()
 						}
 						else if(r_lighting->integer == 2)
 						{
-							if(dl->l.rlType == RL_OMNI)
+							if(light->l.rlType == RL_OMNI)
 							{
-								Render_lighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+								Render_lighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, light);
 							}
-							else if(dl->l.rlType == RL_PROJ)
+							else if(light->l.rlType == RL_PROJ)
 							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
 							}
 							else
 							{
@@ -4081,13 +4081,13 @@ void RB_StageIteratorLighting()
 						}
 						else if(r_lighting->integer == 1)
 						{
-							if(dl->l.rlType == RL_OMNI)
+							if(light->l.rlType == RL_OMNI)
 							{
-								Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+								Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, light);
 							}
-							else if(dl->l.rlType == RL_PROJ)
+							else if(light->l.rlType == RL_PROJ)
 							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
 							}
 							else
 							{
@@ -4096,13 +4096,13 @@ void RB_StageIteratorLighting()
 						}
 						else
 						{
-							if(dl->l.rlType == RL_OMNI)
+							if(light->l.rlType == RL_OMNI)
 							{
-								Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+								Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, light);
 							}
-							else if(dl->l.rlType == RL_PROJ)
+							else if(light->l.rlType == RL_PROJ)
 							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, dl);
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
 							}
 							else
 							{

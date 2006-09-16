@@ -563,7 +563,7 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 		return;
 	}
 	
-	// set up world bounds for dlight intersection tests
+	// set up world bounds for light intersection tests
 	R_SetupEntityWorldBounds(ent);
 	
 	// set up lighting now that we know we aren't culled
@@ -637,7 +637,7 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 R_AddMD5Interactions
 =================
 */
-void R_AddMD5Interactions(trRefEntity_t * ent, trRefDlight_t * light)
+void R_AddMD5Interactions(trRefEntity_t * ent, trRefLight_t * light)
 {
 	int             i;
 	md5Model_t     *model;
@@ -731,7 +731,7 @@ void R_AddMD5Interactions(trRefEntity_t * ent, trRefDlight_t * light)
 		// don't add third_person objects if not viewing through a portal
 		if(!personalModel)
 		{
-			R_AddDlightInteraction(light, (void *)surface, shader, 0, NULL, 0, NULL, iaType);
+			R_AddLightInteraction(light, (void *)surface, shader, 0, NULL, 0, NULL, iaType);
 			tr.pc.c_dlightSurfaces++;
 		}
 	}

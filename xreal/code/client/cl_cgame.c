@@ -610,8 +610,8 @@ intptr_t CL_CgameSystemCalls(intptr_t *args)
 		case CG_R_ADDREFEXTENDEDENTITYTOSCENE:
 			re.AddRefExtendedEntityToScene(VMA(1));
 			return 0;
-		case CG_R_ADDREFDLIGHTTOSCENE:
-			re.AddRefDlightToScene(VMA(1));
+		case CG_R_ADDREFLIGHTSTOSCENE:
+			re.AddRefLightToScene(VMA(1));
 			return 0;
 		case CG_R_ADDPOLYTOSCENE:
 			re.AddPolyToScene(args[1], args[2], VMA(3), 1);

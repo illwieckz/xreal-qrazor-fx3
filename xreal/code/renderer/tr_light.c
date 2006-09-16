@@ -26,24 +26,24 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 /*
 ===============
-R_TransformDlights
+R_TransformLights
 
-Transforms the origins of an array of dlights.
-Used by both the front end (for DlightBmodel) and
+Transforms the origins of an array of lights.
+Used by both the front end (for LightBmodel) and
 the back end (before doing the lighting calculation)
 ===============
 */
-void R_TransformDlights(int count, trRefDlight_t * dl, orientationr_t * or)
+void R_TransformLights(int count, trRefLight_t * light, orientationr_t * or)
 {
 	int             i;
 	vec3_t          temp;
 
-	for(i = 0; i < count; i++, dl++)
+	for(i = 0; i < count; i++, light++)
 	{
-		VectorSubtract(dl->l.origin, or->origin, temp);
-		dl->transformed[0] = DotProduct(temp, or->axis[0]);
-		dl->transformed[1] = DotProduct(temp, or->axis[1]);
-		dl->transformed[2] = DotProduct(temp, or->axis[2]);
+		VectorSubtract(light->l.origin, or->origin, temp);
+		light->transformed[0] = DotProduct(temp, or->axis[0]);
+		light->transformed[1] = DotProduct(temp, or->axis[1]);
+		light->transformed[2] = DotProduct(temp, or->axis[2]);
 	}
 }
 
@@ -54,7 +54,7 @@ R_AddBrushModelInteractions
 Determine which dynamic lights may effect this bmodel
 =============
 */
-void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefDlight_t * light)
+void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 {
 #if 1
 	int             i;
@@ -93,7 +93,7 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefDlight_t * light)
 		return;
 	}
 
-	// set the dlight bits in all the surfaces
+	// set the light bits in all the surfaces
 	for(i = 0; i < bModel->numSurfaces; i++)
 	{
 		surf = bModel->firstSurface + i;
@@ -119,7 +119,7 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefDlight_t * light)
 		if(surf->shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY))
 			continue;
 
-		R_AddDlightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, iaType);
+		R_AddLightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, iaType);
 		tr.pc.c_dlightSurfaces++;
 	}
 #endif
@@ -427,47 +427,47 @@ int R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec
 
 /*
 =================
-R_SetupDlightOrigin
+R_SetupLightOrigin
 Tr3B - needs finished transformMatrix
 =================
 */
-void R_SetupDlightOrigin(trRefDlight_t * dl)
+void R_SetupLightOrigin(trRefLight_t * light)
 {
 	vec3_t          transformed;
 	
-	MatrixTransformNormal(dl->transformMatrix, dl->l.center, transformed);
-	VectorAdd(dl->l.origin, transformed, dl->origin);
+	MatrixTransformNormal(light->transformMatrix, light->l.center, transformed);
+	VectorAdd(light->l.origin, transformed, light->origin);
 }
 
 /*
 =================
-R_SetupDlightLocalBounds
+R_SetupLightLocalBounds
 =================
 */
-void R_SetupDlightLocalBounds(trRefDlight_t * dl)
+void R_SetupLightLocalBounds(trRefLight_t * light)
 {
-	switch (dl->l.rlType)
+	switch (light->l.rlType)
 	{
 		default:
 		case RL_OMNI:
 		{
-			dl->localBounds[0][0] = dl->l.radius[0];
-			dl->localBounds[0][1] = dl->l.radius[1];
-			dl->localBounds[0][2] = dl->l.radius[2];
-			dl->localBounds[1][0] = -dl->l.radius[0];
-			dl->localBounds[1][1] = -dl->l.radius[1];
-			dl->localBounds[1][2] = -dl->l.radius[2];
+			light->localBounds[0][0] = light->l.radius[0];
+			light->localBounds[0][1] = light->l.radius[1];
+			light->localBounds[0][2] = light->l.radius[2];
+			light->localBounds[1][0] = -light->l.radius[0];
+			light->localBounds[1][1] = -light->l.radius[1];
+			light->localBounds[1][2] = -light->l.radius[2];
 			break;
 		}
 		
 		case RL_PROJ:
 		{
-			dl->localBounds[0][0] = dl->l.radius[0];
-			dl->localBounds[0][1] = dl->l.radius[1];
-			dl->localBounds[0][2] = dl->l.radius[2];
-			dl->localBounds[1][0] = 0;
-			dl->localBounds[1][1] = -dl->l.radius[1];
-			dl->localBounds[1][2] = -dl->l.radius[2];
+			light->localBounds[0][0] = light->l.radius[0];
+			light->localBounds[0][1] = light->l.radius[1];
+			light->localBounds[0][2] = light->l.radius[2];
+			light->localBounds[1][0] = 0;
+			light->localBounds[1][1] = -light->l.radius[1];
+			light->localBounds[1][2] = -light->l.radius[2];
 			break;
 		}
 	}
@@ -475,38 +475,38 @@ void R_SetupDlightLocalBounds(trRefDlight_t * dl)
 
 /*
 =================
-R_SetupDlightWorldBounds
+R_SetupLightWorldBounds
 Tr3B - needs finished transformMatrix
 =================
 */
-void R_SetupDlightWorldBounds(trRefDlight_t * dl)
+void R_SetupLightWorldBounds(trRefLight_t * light)
 {
 	int             j;
 	vec3_t          v, transformed;
 
-	ClearBounds(dl->worldBounds[0], dl->worldBounds[1]);
+	ClearBounds(light->worldBounds[0], light->worldBounds[1]);
 
 	for(j = 0; j < 8; j++)
 	{
-		v[0] = dl->localBounds[j & 1][0];
-		v[1] = dl->localBounds[(j >> 1) & 1][1];
-		v[2] = dl->localBounds[(j >> 2) & 1][2];
+		v[0] = light->localBounds[j & 1][0];
+		v[1] = light->localBounds[(j >> 1) & 1][1];
+		v[2] = light->localBounds[(j >> 2) & 1][2];
 
 		// transform local bounds vertices into world space
-		MatrixTransformPoint(dl->transformMatrix, v, transformed);
+		MatrixTransformPoint(light->transformMatrix, v, transformed);
 
-		AddPointToBounds(transformed, dl->worldBounds[0], dl->worldBounds[1]);
+		AddPointToBounds(transformed, light->worldBounds[0], light->worldBounds[1]);
 	}
 }
 
 /*
 =================
-R_SetupDlightFrustum
+R_SetupLightFrustum
 =================
 */
-void R_SetupDlightFrustum(trRefDlight_t * dl)
+void R_SetupLightFrustum(trRefLight_t * light)
 {
-	switch (dl->l.rlType)
+	switch (light->l.rlType)
 	{
 		case RL_OMNI:
 		{
@@ -516,28 +516,28 @@ void R_SetupDlightFrustum(trRefDlight_t * dl)
 
 			for(i = 0; i < 3; i++)
 			{
-				VectorCopy(dl->l.origin, planeOrigin);
+				VectorCopy(light->l.origin, planeOrigin);
 
-				VectorNegate(dl->l.axis[i], planeNormal);
-				planeOrigin[i] += dl->l.radius[i];
+				VectorNegate(light->l.axis[i], planeNormal);
+				planeOrigin[i] += light->l.radius[i];
 
-				VectorCopy(planeNormal, dl->frustum[i].normal);
-				dl->frustum[i].type = PlaneTypeForNormal(planeNormal);
-				dl->frustum[i].dist = DotProduct(planeOrigin, planeNormal);
-				SetPlaneSignbits(&dl->frustum[i]);
+				VectorCopy(planeNormal, light->frustum[i].normal);
+				light->frustum[i].type = PlaneTypeForNormal(planeNormal);
+				light->frustum[i].dist = DotProduct(planeOrigin, planeNormal);
+				SetPlaneSignbits(&light->frustum[i]);
 			}
 
 			for(i = 0; i < 3; i++)
 			{
-				VectorCopy(dl->l.origin, planeOrigin);
+				VectorCopy(light->l.origin, planeOrigin);
 
-				VectorCopy(dl->l.axis[i], planeNormal);
-				planeOrigin[i] -= dl->l.radius[i];
+				VectorCopy(light->l.axis[i], planeNormal);
+				planeOrigin[i] -= light->l.radius[i];
 
-				VectorCopy(planeNormal, dl->frustum[i + 3].normal);
-				dl->frustum[i + 3].type = PlaneTypeForNormal(planeNormal);
-				dl->frustum[i + 3].dist = DotProduct(planeOrigin, planeNormal);
-				SetPlaneSignbits(&dl->frustum[i + 3]);
+				VectorCopy(planeNormal, light->frustum[i + 3].normal);
+				light->frustum[i + 3].type = PlaneTypeForNormal(planeNormal);
+				light->frustum[i + 3].dist = DotProduct(planeOrigin, planeNormal);
+				SetPlaneSignbits(&light->frustum[i + 3]);
 			}
 			break;
 		}
@@ -550,17 +550,17 @@ void R_SetupDlightFrustum(trRefDlight_t * dl)
 
 /*
 =================
-R_SetupDlightProjection
+R_SetupLightProjection
 =================
 */
 // *INDENT-OFF*
-void R_SetupDlightProjection(trRefDlight_t * dl)
+void R_SetupLightProjection(trRefLight_t * light)
 {
-	switch (dl->l.rlType)
+	switch (light->l.rlType)
 	{
 		case RL_OMNI:
 		{
-			MatrixSetupScale(dl->projectionMatrix, 1.0 / dl->l.radius[0], 1.0 / dl->l.radius[1], 1.0 / dl->l.radius[2]);
+			MatrixSetupScale(light->projectionMatrix, 1.0 / light->l.radius[0], 1.0 / light->l.radius[1], 1.0 / light->l.radius[2]);
 			break;
 		}
 
@@ -572,13 +572,13 @@ void R_SetupDlightProjection(trRefDlight_t * dl)
 			float           zNear, zFar;
 			float           fovX, fovY;
 			//matrix_t        proj;
-			float          *proj = dl->projectionMatrix;
+			float          *proj = light->projectionMatrix;
 
 			fovX = 30;
-			fovY = R_CalcFov(fovX, VectorLength(dl->l.right) * 2, VectorLength(dl->l.up) * 2);
+			fovY = R_CalcFov(fovX, VectorLength(light->l.right) * 2, VectorLength(light->l.up) * 2);
 
 			zNear = 1.0;
-			zFar = VectorLength(dl->l.target);
+			zFar = VectorLength(light->l.target);
 
 			xMax = zNear * tan(fovX * M_PI / 360.0f);
 			xMin = -xMax;
@@ -598,7 +598,7 @@ void R_SetupDlightProjection(trRefDlight_t * dl)
 			
 			// convert from looking down -Z to looking down X
 			MatrixMultiplyRotation(proj, 90, 90, 0);
-			//MatrixMultiply(openGLToQuakeMatrix, proj, dl->projectionMatrix);
+			//MatrixMultiply(openGLToQuakeMatrix, proj, light->projectionMatrix);
 #else
 			// Tr3B - recoded from GtkRadiant entity plugin source
 			int             i;
@@ -612,21 +612,21 @@ void R_SetupDlightProjection(trRefDlight_t * dl)
 			vec_t           dist;
 			vec3_t          falloff;
 			
-			float          *proj = dl->projectionMatrix;
+			float          *proj = light->projectionMatrix;
 
-			//MatrixTransformNormal(dl->transformMatrix, dl->l.target, target);
-			//MatrixTransformNormal(dl->transformMatrix, dl->l.right, right);
-			//MatrixTransformNormal(dl->transformMatrix, dl->l.up, up);
+			//MatrixTransformNormal(light->transformMatrix, light->l.target, target);
+			//MatrixTransformNormal(light->transformMatrix, light->l.right, right);
+			//MatrixTransformNormal(light->transformMatrix, light->l.up, up);
 			
 
-			VectorNormalize2(dl->l.target, start);
-			VectorCopy(dl->l.target, stop);
+			VectorNormalize2(light->l.target, start);
+			VectorCopy(light->l.target, stop);
 
-			rLen = VectorNormalize2(dl->l.right, right);
-			uLen = VectorNormalize2(dl->l.up, up);
+			rLen = VectorNormalize2(light->l.right, right);
+			uLen = VectorNormalize2(light->l.up, up);
 			
 			CrossProduct(up, right, normal);
-			dist = DotProduct(dl->l.target, normal);
+			dist = DotProduct(light->l.target, normal);
 
 			if(dist < 0)
 			{
@@ -647,7 +647,7 @@ void R_SetupDlightProjection(trRefDlight_t * dl)
 			lightProject[1][3] = 0;
 
 			// now offset to center
-			VectorCopy(dl->l.target, targetGlobal);
+			VectorCopy(light->l.target, targetGlobal);
 			targetGlobal[3] = 1;
 
 			{
@@ -709,17 +709,17 @@ void R_SetupDlightProjection(trRefDlight_t * dl)
 			for(i = 0; i < 6; i++)
 			{
 				PlaneNormalize(frustum[i]);
-				VectorNegate(frustum[i], dl->frustum[i].normal);
-				dl->frustum[i].type = PlaneTypeForNormal(dl->frustum[i].normal);
-				dl->frustum[i].dist = frustum[i][3];
-				SetPlaneSignbits(&dl->frustum[i]);
+				VectorNegate(frustum[i], light->frustum[i].normal);
+				light->frustum[i].type = PlaneTypeForNormal(light->frustum[i].normal);
+				light->frustum[i].dist = frustum[i][3];
+				SetPlaneSignbits(&light->frustum[i]);
 			}
 #endif
 			break;
 		}
 
 		default:
-			ri.Error(ERR_DROP, "R_SetupDlightProjection: Bad rlType");
+			ri.Error(ERR_DROP, "R_SetupLightProjection: Bad rlType");
 	}
 }
 // *INDENT-ON*
@@ -728,12 +728,12 @@ void R_SetupDlightProjection(trRefDlight_t * dl)
 
 /*
 =================
-R_CullDlightTriangle
+R_CullLightTriangle
 
 Returns CULL_IN, CULL_CLIP, or CULL_OUT
 =================
 */
-int R_CullDlightTriangle(trRefDlight_t * dl, vec3_t verts[3])
+int R_CullLightTriangle(trRefLight_t * light, vec3_t verts[3])
 {
 	int             i, j;
 	float           dists[3];
@@ -745,7 +745,7 @@ int R_CullDlightTriangle(trRefDlight_t * dl, vec3_t verts[3])
 	anyBack = 0;
 	for(i = 0; i < 6; i++)
 	{
-		frust = &dl->frustum[i];
+		frust = &light->frustum[i];
 
 		front = back = 0;
 		for(j = 0; j < 3; j++)
@@ -783,10 +783,10 @@ int R_CullDlightTriangle(trRefDlight_t * dl, vec3_t verts[3])
 
 /*
 =================
-R_AddDlightInteraction
+R_AddLightInteraction
 =================
 */
-void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * surfaceShader, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes, interactionType_t iaType)
+void R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader_t * surfaceShader, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes, interactionType_t iaType)
 {
 	int             iaIndex;
 	interaction_t  *ia;
@@ -851,11 +851,11 @@ void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shad
 			{
 				default:
 				case RL_OMNI:
-					ia->dlightShader = tr.defaultPointLightShader;
+					ia->lightShader = tr.defaultPointLightShader;
 					break;
 				
 				case RL_PROJ:
-					ia->dlightShader = tr.defaultProjectedLightShader;
+					ia->lightShader = tr.defaultProjectedLightShader;
 					break;
 			}
 		}
@@ -865,25 +865,25 @@ void R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shad
 			{
 				default:
 				case RL_OMNI:
-					ia->dlightShader = tr.defaultDlightShader;
+					ia->lightShader = tr.defaultDynamicLightShader;
 					break;
 				
 				case RL_PROJ:
-					ia->dlightShader = tr.defaultProjectedLightShader;
+					ia->lightShader = tr.defaultProjectedLightShader;
 					break;
 			}
 		}
 	}
 	else
 	{
-		ia->dlightShader = R_GetShaderByHandle(light->l.attenuationShader);
+		ia->lightShader = R_GetShaderByHandle(light->l.attenuationShader);
 	}
 
 	ia->next = NULL;
 	
 	ia->type = iaType;
 	
-	ia->dlight = light;
+	ia->light = light;
 	ia->entity = tr.currentEntity;
 	ia->surface = surface;
 	ia->surfaceShader = surfaceShader;
@@ -957,7 +957,7 @@ static int InteractionCompare(const void *a, const void *b)
 R_SortInteractions
 =================
 */
-void R_SortInteractions(trRefDlight_t * light)
+void R_SortInteractions(trRefLight_t * light)
 {
 	int             i;
 	interaction_t  *ia;
@@ -998,10 +998,10 @@ void R_SortInteractions(trRefDlight_t * light)
 
 /*
 =================
-R_DlightIntersectsPoint
+R_LightIntersectsPoint
 =================
 */
-qboolean R_DlightIntersectsPoint(trRefDlight_t * light, const vec3_t p)
+qboolean R_LightIntersectsPoint(trRefLight_t * light, const vec3_t p)
 {
 	// TODO light frustum test
 
@@ -1031,7 +1031,7 @@ static void R_IntersectRayPlane(const vec3_t v1, const vec3_t v2, cplane_t * pla
 R_AddPointToLightScissor
 =================
 */
-static void R_AddPointToLightScissor(trRefDlight_t * light, const vec3_t world)
+static void R_AddPointToLightScissor(trRefLight_t * light, const vec3_t world)
 {
 	vec4_t          eye, clip, normalized, window;
 	
@@ -1056,7 +1056,7 @@ static void R_AddPointToLightScissor(trRefDlight_t * light, const vec3_t world)
 R_AddEdgeToLightScissor
 =================
 */
-static void R_AddEdgeToLightScissor(trRefDlight_t * light, vec3_t local1, vec3_t local2)
+static void R_AddEdgeToLightScissor(trRefLight_t * light, vec3_t local1, vec3_t local2)
 {
 	int             i;
 	vec3_t          intersect;
@@ -1097,17 +1097,17 @@ static void R_AddEdgeToLightScissor(trRefDlight_t * light, vec3_t local1, vec3_t
 
 /*
 =================
-R_SetDlightScissor
+R_SetLightScissor
 Recturns the screen space rectangle taken by the box.
 	(Clips the box to the near plane to have correct results even if the box intersects the near plane)
 Tr3B - recoded from Tenebrae2
 =================
 */
-void R_SetupDlightScissor(trRefDlight_t * light)
+void R_SetupLightScissor(trRefLight_t * light)
 {
 	vec3_t          v1, v2;
 
-	if(r_noLightScissors->integer || R_DlightIntersectsPoint(light, tr.viewParms.or.origin))
+	if(r_noLightScissors->integer || R_LightIntersectsPoint(light, tr.viewParms.or.origin))
 	{
 		light->scissor.coords[0] = tr.viewParms.viewportX;
 		light->scissor.coords[1] = tr.viewParms.viewportY;
@@ -1178,10 +1178,10 @@ void R_SetupDlightScissor(trRefDlight_t * light)
 
 /*
 =================
-R_SetupDlightDepthBounds
+R_SetupLightDepthBounds
 =================
 */
-void R_SetupDlightDepthBounds(trRefDlight_t * dl)
+void R_SetupLightDepthBounds(trRefLight_t * light)
 {
 	int             i, j;
 	vec3_t          v, world;
@@ -1197,12 +1197,12 @@ void R_SetupDlightDepthBounds(trRefDlight_t * dl)
 		
 		for(j = 0; j < 8; j++)
 		{
-			v[0] = dl->localBounds[j & 1][0];
-			v[1] = dl->localBounds[(j >> 1) & 1][1];
-			v[2] = dl->localBounds[(j >> 2) & 1][2];
+			v[0] = light->localBounds[j & 1][0];
+			v[1] = light->localBounds[(j >> 1) & 1][1];
+			v[2] = light->localBounds[(j >> 2) & 1][2];
 
 			// transform local bounds vertices into world space
-			MatrixTransformPoint(dl->transformMatrix, v, world);
+			MatrixTransformPoint(light->transformMatrix, v, world);
 			
 			R_TransformWorldToClip(world, tr.viewParms.world.viewMatrix, tr.viewParms.projectionMatrix, eye, clip);
 			
@@ -1211,7 +1211,7 @@ void R_SetupDlightDepthBounds(trRefDlight_t * dl)
 			{
 				if(clip[i] >= clip[3] || clip[i] <= -clip[3])
 				{
-					dl->noDepthBoundsTest = qtrue;
+					light->noDepthBoundsTest = qtrue;
 					return;
 				}
 			}
@@ -1222,7 +1222,7 @@ void R_SetupDlightDepthBounds(trRefDlight_t * dl)
 			|| window[1] < 0 || window[1] >= tr.viewParms.viewportHeight)
 			{
 				// shouldn't happen, since we check the clip[] above, except for FP rounding
-				dl->noDepthBoundsTest = qtrue;
+				light->noDepthBoundsTest = qtrue;
 				return;
 			}
 
@@ -1233,13 +1233,13 @@ void R_SetupDlightDepthBounds(trRefDlight_t * dl)
 		if(depthMin > depthMax)
 		{
 			// light behind near plane or clipped
-			dl->noDepthBoundsTest = qtrue;
+			light->noDepthBoundsTest = qtrue;
 		}
 		else
 		{
-			dl->noDepthBoundsTest = qfalse;
-			dl->depthBounds[0] = depthMin;
-			dl->depthBounds[1] = depthMax;
+			light->noDepthBoundsTest = qfalse;
+			light->depthBounds[0] = depthMin;
+			light->depthBounds[1] = depthMax;
 			
 			tr.pc.c_depthBoundsTestsRejected--;
 			tr.pc.c_depthBoundsTests++;

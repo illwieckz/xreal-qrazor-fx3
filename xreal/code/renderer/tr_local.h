@@ -94,12 +94,12 @@ typedef enum
 typedef cplane_t frustum_t[6];
 
 
-// a trRefDlight_t has all the information passed in by
+// a trRefLight_t has all the information passed in by
 // the client game, as well as some locally derived info
-typedef struct trRefDlight_s
+typedef struct trRefLight_s
 {
 	// public from client game
-	refDlight_t     l;
+	refLight_t      l;
 
 	// local
 	qboolean        isStatic;	// loaded from the BSP entities lump
@@ -137,7 +137,7 @@ typedef struct trRefDlight_s
 	int             visCount;	// node needs to be traversed if current
 	struct mnode_s **leafs;
 	int             numLeafs;
-} trRefDlight_t;
+} trRefLight_t;
 
 
 // a trRefEntity_t has all the information passed in by
@@ -158,7 +158,7 @@ typedef struct
 
 	cullResult_t    cull;
 	vec3_t          localBounds[2];
-	vec3_t          worldBounds[2];	// only set when not completely culled. use them for dlight interactions
+	vec3_t          worldBounds[2];	// only set when not completely culled. use them for light interactions
 } trRefEntity_t;
 
 typedef struct
@@ -583,12 +583,12 @@ typedef enum
 	ST_ROTOSCOPEMAP,
 	ST_LIGHTMAP,
 
-	ST_COLLAPSE_genericMulti,			// two colormaps
-	ST_COLLAPSE_lighting_DB_direct,		// directional entity lighting like rgbGen lightingDiffuse
+	ST_COLLAPSE_genericMulti,	// two colormaps
+	ST_COLLAPSE_lighting_DB_direct,	// directional entity lighting like rgbGen lightingDiffuse
 	ST_COLLAPSE_lighting_DBS_direct,	// direction entity lighting with diffuse + bump + specular
 	ST_COLLAPSE_lighting_DB_generic,	// diffusemap + bumpmap
 	ST_COLLAPSE_lighting_DBS_generic,	// diffusemap + bumpmap + specularmap + lightmap
-	ST_COLLAPSE_reflection_CB,			// color cubemap + bumpmap
+	ST_COLLAPSE_reflection_CB,	// color cubemap + bumpmap
 
 	// light shader stage types
 	ST_ATTENUATIONMAP_XY,
@@ -884,8 +884,8 @@ typedef struct
 	int             numEntities;
 	trRefEntity_t  *entities;
 
-	int             numDlights;
-	trRefDlight_t  *dlights;
+	int             numLights;
+	trRefLight_t   *lights;
 
 	int             numPolys;
 	struct srfPoly_s *polys;
@@ -993,7 +993,7 @@ typedef enum
 	IA_LIGHTONLY
 } interactionType_t;
 
-// an interactionCache is a node between a dlight and a precached world surface
+// an interactionCache is a node between a light and a precached world surface
 typedef struct interactionCache_s
 {
 	struct interactionCache_s *next;
@@ -1007,15 +1007,15 @@ typedef struct interactionCache_s
 	int            *shadowIndexes;	// precached triangle indices of shadow edges
 } interactionCache_t;
 
-// an interaction is a node between a dlight and any surface
+// an interaction is a node between a light and any surface
 typedef struct interaction_s
 {
 	struct interaction_s *next;
 
 	interactionType_t type;
 
-	trRefDlight_t  *dlight;
-	shader_t       *dlightShader;
+	trRefLight_t   *light;
+	shader_t       *lightShader;
 
 	trRefEntity_t  *entity;
 	surfaceType_t  *surface;	// any of surface*_t
@@ -1284,8 +1284,8 @@ typedef struct
 	int             lightGridBounds[3];
 	byte           *lightGridData;
 
-	int             numDlights;
-	trRefDlight_t  *dlights;
+	int             numLights;
+	trRefLight_t   *lights;
 
 	int             numInteractions;	// should be always numSurfaces * 32
 	interactionCache_t *interactions;
@@ -1298,7 +1298,7 @@ typedef struct
 
 	char           *entityString;
 	char           *entityParsePoint;
-	
+
 	GLuint          vertsVBO;
 	GLuint          indexesVBO;
 } world_t;
@@ -1683,7 +1683,7 @@ typedef struct
 	backEndCounters_t pc;
 	qboolean        isHyperspace;
 	trRefEntity_t  *currentEntity;
-	trRefDlight_t  *currentLight;	// only used when lighting interactions
+	trRefLight_t   *currentLight;	// only used when lighting interactions
 	qboolean        skyRenderedThisView;	// flag for drawing sun
 
 	qboolean        projection2D;	// if qtrue, drawstretchpic doesn't need to change modes
@@ -1732,13 +1732,13 @@ typedef struct
 	image_t        *identityLightImage;	// full of tr.identityLightByte
 	image_t        *noFalloffImage;
 	image_t        *attenuationXYImage;
-	
+
 	image_t        *contrastRenderImage;
 	image_t        *currentRenderImage;
-	
+
 	image_t        *currentRenderFBOImage[4];
 	image_t        *portalRenderFBOImage[4];
-	
+
 	// framebuffer objects
 	frameBuffer_t  *currentRenderFBO;
 	frameBuffer_t  *portalRenderFBO;
@@ -1747,7 +1747,7 @@ typedef struct
 	shader_t       *defaultShader;
 	shader_t       *defaultPointLightShader;
 	shader_t       *defaultProjectedLightShader;
-	shader_t       *defaultDlightShader;
+	shader_t       *defaultDynamicLightShader;
 
 	// external shaders
 	shader_t       *projectionShadowShader;
@@ -1763,12 +1763,12 @@ typedef struct
 	model_t        *currentModel;
 
 	// render lights
-	trRefDlight_t  *currentDlight;
+	trRefLight_t   *currentLight;
 
 	// GPU shader programs
 	shaderProgram_t genericSingleShader;
 	shaderProgram_t genericSingleMRTShader;
-	
+
 	shaderProgram_t depthFillShader;
 	shaderProgram_t depthTestShader;
 
@@ -1802,7 +1802,7 @@ typedef struct
 	shaderProgram_t blurXShader;
 	shaderProgram_t blurYShader;
 	shaderProgram_t rotoscopeShader;
-	
+
 	shaderProgram_t screenShader;
 
 	viewParms_t     viewParms;
@@ -2043,9 +2043,9 @@ void            R_SwapBuffers(int);
 void            R_RenderView(viewParms_t * parms);
 
 void            R_AddMDXSurfaces(trRefEntity_t * e);
-void            R_AddMDXInteractions(trRefEntity_t * e, trRefDlight_t * light);
+void            R_AddMDXInteractions(trRefEntity_t * e, trRefLight_t * light);
 void            R_AddDAESurfaces(trRefEntity_t * e);
-void            R_AddDAEInteractions(trRefEntity_t * e, trRefDlight_t * light);
+void            R_AddDAEInteractions(trRefEntity_t * e, trRefLight_t * light);
 void            R_AddNullModelSurfaces(trRefEntity_t * e);
 void            R_AddBeamSurfaces(trRefEntity_t * e);
 void            R_AddRailSurfaces(trRefEntity_t * e, qboolean isUnderwater);
@@ -2070,7 +2070,7 @@ int             R_FogWorldBox(vec3_t bounds[2]);
 void            R_SetupEntityWorldBounds(trRefEntity_t * ent);
 
 void            R_RotateForEntity(const trRefEntity_t * ent, const viewParms_t * viewParms, orientationr_t * or);
-void            R_RotateForDlight(const trRefDlight_t * ent, const viewParms_t * viewParms, orientationr_t * or);
+void            R_RotateForLight(const trRefLight_t * ent, const viewParms_t * viewParms, orientationr_t * or);
 
 
 void            R_CalcNormalForTriangle(vec3_t normal, const vec3_t v0, const vec3_t v1, const vec3_t v2);
@@ -2328,7 +2328,7 @@ typedef struct shaderCommands_s
 
 	GLuint          indexesVBO;
 	GLuint          ofsIndexes;
-	
+
 	GLuint          vertexesVBO;
 	GLuint          ofsXYZ;
 	GLuint          ofsTexCoords;
@@ -2407,8 +2407,8 @@ void            R_AddBrushModelSurfaces(trRefEntity_t * e);
 void            R_AddWorldSurfaces(void);
 qboolean        R_inPVS(const vec3_t p1, const vec3_t p2);
 
-void            R_AddWorldInteractions(trRefDlight_t * light);
-void            R_AddPrecachedWorldInteractions(trRefDlight_t * light);
+void            R_AddWorldInteractions(trRefLight_t * light);
+void            R_AddPrecachedWorldInteractions(trRefLight_t * light);
 void            R_ShutdownVBOs();
 
 /*
@@ -2422,7 +2422,7 @@ FLARES
 void            R_ClearFlares(void);
 
 void            RB_AddFlare(void *surface, int fogNum, vec3_t point, vec3_t color, vec3_t normal);
-void            RB_AddDlightFlares(void);
+void            RB_AddLightFlares(void);
 void            RB_RenderFlares(void);
 
 /*
@@ -2433,29 +2433,29 @@ LIGHTS
 ============================================================
 */
 
-void            R_AddBrushModelInteractions(trRefEntity_t * ent, trRefDlight_t * light);
+void            R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light);
 void            R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent);
-void            R_TransformDlights(int count, trRefDlight_t * dl, orientationr_t * or);
+void            R_TransformLights(int count, trRefLight_t * light, orientationr_t * or);
 int             R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir);
 
-void            R_SetupDlightOrigin(trRefDlight_t * dl);
-void            R_SetupDlightLocalBounds(trRefDlight_t * light);
-void            R_SetupDlightWorldBounds(trRefDlight_t * light);
+void            R_SetupLightOrigin(trRefLight_t * light);
+void            R_SetupLightLocalBounds(trRefLight_t * light);
+void            R_SetupLightWorldBounds(trRefLight_t * light);
 
-void            R_SetupDlightFrustum(trRefDlight_t * dl);
-void            R_SetupDlightProjection(trRefDlight_t * dl);
+void            R_SetupLightFrustum(trRefLight_t * light);
+void            R_SetupLightProjection(trRefLight_t * light);
 
-int             R_CullDlightTriangle(trRefDlight_t * dl, vec3_t verts[3]);
+int             R_CullLightTriangle(trRefLight_t * light, vec3_t verts[3]);
 
-void            R_AddDlightInteraction(trRefDlight_t * light, surfaceType_t * surface, shader_t * surfaceShader,
-									   int numLightIndexes, int *lightIndexes,
-									   int numShadowIndexes, int *shadowIndexes, interactionType_t iaType);
+void            R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader_t * surfaceShader,
+									  int numLightIndexes, int *lightIndexes,
+									  int numShadowIndexes, int *shadowIndexes, interactionType_t iaType);
 
-void            R_SortInteractions(trRefDlight_t * light);
-qboolean        R_DlightIntersectsPoint(trRefDlight_t * light, const vec3_t p);
+void            R_SortInteractions(trRefLight_t * light);
+qboolean        R_LightIntersectsPoint(trRefLight_t * light, const vec3_t p);
 
-void            R_SetupDlightScissor(trRefDlight_t * light);
-void            R_SetupDlightDepthBounds(trRefDlight_t * light);
+void            R_SetupLightScissor(trRefLight_t * light);
+void            R_SetupLightDepthBounds(trRefLight_t * light);
 
 /*
 ============================================================
@@ -2548,7 +2548,7 @@ void            R_ToggleSmpFrame(void);
 void            RE_ClearScene(void);
 void            RE_AddRefEntityToScene(const refEntity_t * ent);
 void            RE_AddRefExtendedEntityToScene(const refExtEntity_t * ent);
-void            RE_AddRefDlightToScene(const refDlight_t * light);
+void            RE_AddRefLightToScene(const refLight_t * light);
 void            RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts, int num);
 void            RE_AddLightToScene(const vec3_t org, float intensity, float r, float g, float b);
 void            RE_AddAdditiveLightToScene(const vec3_t org, float intensity, float r, float g, float b);
@@ -2570,7 +2570,7 @@ void            R_AnimationList_f(void);
 void            R_AddMDSSurfaces(trRefEntity_t * ent);
 
 void            R_AddMD5Surfaces(trRefEntity_t * ent);
-void            R_AddMD5Interactions(trRefEntity_t * ent, trRefDlight_t * light);
+void            R_AddMD5Interactions(trRefEntity_t * ent, trRefLight_t * light);
 
 int             RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac);
 int             RE_BlendSkeleton(refSkeleton_t * skel, const refSkeleton_t * blend, float frac);
@@ -2749,7 +2749,7 @@ typedef struct
 	drawSurf_t      drawSurfs[MAX_DRAWSURFS];
 	interaction_t   interactions[MAX_INTERACTIONS];
 
-	trRefDlight_t   dlights[MAX_DLIGHTS];
+	trRefLight_t    lights[MAX_LIGHTS];
 	trRefEntity_t   entities[MAX_ENTITIES];
 
 	srfPoly_t      *polys;		//[MAX_POLYS];
