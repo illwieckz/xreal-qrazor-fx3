@@ -43,26 +43,25 @@ use the shader system.
 
 /*
 ==============
-RB_EndBeginSurface
+Tess_EndBeginSurface
 ==============
 */
-void RB_EndBeginSurface()
+void Tess_EndBeginSurface()
 {
-	RB_EndSurface();
-	RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.lightmapNum, tess.fogNum, tess.skipTangentSpaces,
-					tess.shadowVolume);
+	Tess_EndSurface();
+	Tess_BeginSurface(tess.surfaceShader, tess.lightShader, tess.lightmapNum, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume);
 }
 
 /*
 ==============
-RB_CheckOverflow
+Tess_CheckOverflow
 ==============
 */
-void RB_CheckOverflow(int verts, int indexes)
+void Tess_CheckOverflow(int verts, int indexes)
 {
 	if(glConfig.vertexBufferObjectAvailable && (tess.indexesVBO || tess.vertexesVBO))
 	{
-		RB_EndBeginSurface();
+		Tess_EndBeginSurface();
 		return;
 	}
 
@@ -71,7 +70,7 @@ void RB_CheckOverflow(int verts, int indexes)
 		return;
 	}
 
-	RB_EndSurface();
+	Tess_EndSurface();
 
 	if(verts >= SHADER_MAX_VERTEXES)
 	{
@@ -82,22 +81,22 @@ void RB_CheckOverflow(int verts, int indexes)
 		ri.Error(ERR_DROP, "RB_CheckOverflow: indices > MAX (%d > %d)", indexes, SHADER_MAX_INDEXES);
 	}
 
-	RB_BeginSurface(tess.surfaceShader, tess.lightShader, tess.lightmapNum, tess.fogNum, tess.skipTangentSpaces,
+	Tess_BeginSurface(tess.surfaceShader, tess.lightShader, tess.lightmapNum, tess.fogNum, tess.skipTangentSpaces,
 					tess.shadowVolume);
 }
 
 
 /*
 ==============
-RB_AddQuadStampExt
+Tess_AddQuadStampExt
 ==============
 */
-void RB_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, byte * color, float s1, float t1, float s2, float t2)
+void Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, byte * color, float s1, float t1, float s2, float t2)
 {
 	vec3_t          normal;
 	int             ndx;
 
-	RB_CHECKOVERFLOW(4, 6);
+	Tess_CheckOverflow(4, 6);
 
 	ndx = tess.numVertexes;
 
@@ -164,20 +163,20 @@ void RB_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, byte * color, flo
 
 /*
 ==============
-RB_AddQuadStamp
+Tess_AddQuadStamp
 ==============
 */
-void RB_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, byte * color)
+void Tess_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, byte * color)
 {
-	RB_AddQuadStampExt(origin, left, up, color, 0, 0, 1, 1);
+	Tess_AddQuadStampExt(origin, left, up, color, 0, 0, 1, 1);
 }
 
 /*
 ==============
-RB_SurfaceSprite
+Tess_SurfaceSprite
 ==============
 */
-static void RB_SurfaceSprite(void)
+static void Tess_SurfaceSprite(void)
 {
 	vec3_t          left, up;
 	float           radius;
@@ -209,16 +208,16 @@ static void RB_SurfaceSprite(void)
 		VectorSubtract(vec3_origin, left, left);
 	}
 
-	RB_AddQuadStamp(backEnd.currentEntity->e.origin, left, up, backEnd.currentEntity->e.shaderRGBA);
+	Tess_AddQuadStamp(backEnd.currentEntity->e.origin, left, up, backEnd.currentEntity->e.shaderRGBA);
 }
 
 
 /*
 =============
-RB_SurfacePolychain
+Tess_SurfacePolychain
 =============
 */
-void RB_SurfacePolychain(srfPoly_t * p, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+static void Tess_SurfacePolychain(srfPoly_t * p, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	int             i;
 	int             numv;
@@ -228,7 +227,7 @@ void RB_SurfacePolychain(srfPoly_t * p, int numLightIndexes, int *lightIndexes, 
 		return;
 	}
 
-	RB_CHECKOVERFLOW(p->numVerts, 3 * (p->numVerts - 2));
+	Tess_CheckOverflow(p->numVerts, 3 * (p->numVerts - 2));
 
 	// fan triangles into the tess array
 	numv = tess.numVertexes;
@@ -257,10 +256,10 @@ void RB_SurfacePolychain(srfPoly_t * p, int numLightIndexes, int *lightIndexes, 
 
 /*
 ==============
-RB_SurfaceFace
+Tess_SurfaceFace
 ==============
 */
-void RB_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+static void Tess_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	int             i;
 	srfTriangle_t  *tri;
@@ -277,7 +276,7 @@ void RB_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexe
 		if(numShadowIndexes)
 		{
 			// this case is always zfail with light and dark caps
-			RB_CHECKOVERFLOW(cv->numVerts, numShadowIndexes);
+			Tess_CheckOverflow(cv->numVerts, numShadowIndexes);
 
 			for(i = 0; i < numShadowIndexes; i++)
 			{
@@ -307,11 +306,11 @@ void RB_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexe
 
 			if(backEnd.currentEntity->needZFail)
 			{
-				RB_CHECKOVERFLOW(cv->numVerts * 2, sh.numFacing * (6 + 2) * 3);
+				Tess_CheckOverflow(cv->numVerts * 2, sh.numFacing * (6 + 2) * 3);
 			}
 			else
 			{
-				RB_CHECKOVERFLOW(cv->numVerts * 2, sh.numFacing * 6 * 3);
+				Tess_CheckOverflow(cv->numVerts * 2, sh.numFacing * 6 * 3);
 			}
 
 			// set up indices for silhouette edges
@@ -423,12 +422,12 @@ void RB_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexe
 	{
 		if(glConfig.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboFaces->integer)
 		{
-			RB_EndBeginSurface();
+			Tess_EndBeginSurface();
 		}
 
 		if(glConfig.vertexBufferObjectAvailable && cv->indexesVBO && r_vboFaces->integer)
 		{
-			RB_CHECKOVERFLOW(cv->numVerts, cv->numTriangles * 3);
+			Tess_CheckOverflow(cv->numVerts, cv->numTriangles * 3);
 
 			tess.indexesVBO = cv->indexesVBO;
 			tess.ofsIndexes = cv->ofsIndexes;
@@ -440,7 +439,7 @@ void RB_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexe
 		{
 			if(numLightIndexes)
 			{
-				RB_CHECKOVERFLOW(cv->numVerts, numLightIndexes);
+				Tess_CheckOverflow(cv->numVerts, numLightIndexes);
 
 				for(i = 0; i < numLightIndexes; i++)
 				{
@@ -451,7 +450,7 @@ void RB_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexe
 			}
 			else
 			{
-				RB_CHECKOVERFLOW(cv->numVerts, cv->numTriangles * 3);
+				Tess_CheckOverflow(cv->numVerts, cv->numTriangles * 3);
 
 				for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
 				{
@@ -526,10 +525,10 @@ void RB_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexe
 
 /*
 =============
-RB_SurfaceGrid
+Tess_SurfaceGrid
 =============
 */
-void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+static void Tess_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	int             i;
 	srfTriangle_t  *tri;
@@ -546,7 +545,7 @@ void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, 
 		if(numShadowIndexes)
 		{
 			// this case is always zfail with light and dark caps
-			RB_CHECKOVERFLOW(cv->numVerts, numShadowIndexes);
+			Tess_CheckOverflow(cv->numVerts, numShadowIndexes);
 
 			for(i = 0; i < numShadowIndexes; i++)
 			{
@@ -576,11 +575,11 @@ void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, 
 
 			if(backEnd.currentEntity->needZFail)
 			{
-				RB_CHECKOVERFLOW(cv->numVerts * 2, sh.numFacing * (6 + 2) * 3);
+				Tess_CheckOverflow(cv->numVerts * 2, sh.numFacing * (6 + 2) * 3);
 			}
 			else
 			{
-				RB_CHECKOVERFLOW(cv->numVerts * 2, sh.numFacing * 6 * 3);
+				Tess_CheckOverflow(cv->numVerts * 2, sh.numFacing * 6 * 3);
 			}
 
 			// set up indices for silhouette edges
@@ -692,12 +691,12 @@ void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, 
 	{
 		if(glConfig.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboCurves->integer)
 		{
-			RB_EndBeginSurface();
+			Tess_EndBeginSurface();
 		}
 
 		if(glConfig.vertexBufferObjectAvailable && cv->indexesVBO && r_vboCurves->integer)
 		{
-			RB_CHECKOVERFLOW(cv->numVerts, cv->numTriangles * 3);
+			Tess_CheckOverflow(cv->numVerts, cv->numTriangles * 3);
 
 			tess.indexesVBO = cv->indexesVBO;
 			tess.ofsIndexes = cv->ofsIndexes;
@@ -709,7 +708,7 @@ void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, 
 		{
 			if(numLightIndexes)
 			{
-				RB_CHECKOVERFLOW(cv->numVerts, numLightIndexes);
+				Tess_CheckOverflow(cv->numVerts, numLightIndexes);
 
 				for(i = 0; i < numLightIndexes; i++)
 				{
@@ -720,7 +719,7 @@ void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, 
 			}
 			else
 			{
-				RB_CHECKOVERFLOW(cv->numVerts, cv->numTriangles * 3);
+				Tess_CheckOverflow(cv->numVerts, cv->numTriangles * 3);
 
 				for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
 				{
@@ -795,10 +794,10 @@ void RB_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *lightIndexes, 
 
 /*
 =============
-RB_SurfaceTriangles
+Tess_SurfaceTriangles
 =============
 */
-void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+static void Tess_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	int             i;
 	srfTriangle_t  *tri;
@@ -815,7 +814,7 @@ void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightInd
 		if(numShadowIndexes)
 		{
 			// this case is always zfail with light and dark caps
-			RB_CHECKOVERFLOW(cv->numVerts, numShadowIndexes);
+			Tess_CheckOverflow(cv->numVerts, numShadowIndexes);
 
 			for(i = 0; i < numShadowIndexes; i++)
 			{
@@ -845,11 +844,11 @@ void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightInd
 
 			if(backEnd.currentEntity->needZFail)
 			{
-				RB_CHECKOVERFLOW(cv->numVerts * 2, sh.numFacing * (6 + 2) * 3);
+				Tess_CheckOverflow(cv->numVerts * 2, sh.numFacing * (6 + 2) * 3);
 			}
 			else
 			{
-				RB_CHECKOVERFLOW(cv->numVerts * 2, sh.numFacing * 6 * 3);
+				Tess_CheckOverflow(cv->numVerts * 2, sh.numFacing * 6 * 3);
 			}
 
 			// set up indices for silhouette edges
@@ -961,12 +960,12 @@ void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightInd
 	{
 		if(glConfig.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboTriangles->integer)
 		{
-			RB_EndBeginSurface();
+			Tess_EndBeginSurface();
 		}
 
 		if(glConfig.vertexBufferObjectAvailable && cv->indexesVBO && r_vboTriangles->integer)
 		{
-			RB_CHECKOVERFLOW(cv->numVerts, cv->numTriangles * 3);
+			Tess_CheckOverflow(cv->numVerts, cv->numTriangles * 3);
 
 			tess.indexesVBO = cv->indexesVBO;
 			tess.ofsIndexes = cv->ofsIndexes;
@@ -978,7 +977,7 @@ void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightInd
 		{
 			if(numLightIndexes)
 			{
-				RB_CHECKOVERFLOW(cv->numVerts, numLightIndexes);
+				Tess_CheckOverflow(cv->numVerts, numLightIndexes);
 
 				for(i = 0; i < numLightIndexes; i++)
 				{
@@ -989,7 +988,7 @@ void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightInd
 			}
 			else
 			{
-				RB_CHECKOVERFLOW(cv->numVerts, cv->numTriangles * 3);
+				Tess_CheckOverflow(cv->numVerts, cv->numTriangles * 3);
 
 				for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
 				{
@@ -1066,10 +1065,10 @@ void RB_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightInd
 
 /*
 ==============
-RB_SurfaceBeam
+Tess_SurfaceBeam
 ==============
 */
-void RB_SurfaceBeam(void)
+static void Tess_SurfaceBeam(void)
 {
 #define NUM_BEAM_SEGS 6
 	refExtEntity_t *e;
@@ -1126,7 +1125,7 @@ void RB_SurfaceBeam(void)
 
 //================================================================================
 
-static void DoRailCore(const vec3_t start, const vec3_t end, const vec3_t up, float len, float spanWidth)
+static void Tess_DoRailCore(const vec3_t start, const vec3_t end, const vec3_t up, float len, float spanWidth)
 {
 	float           spanWidth2;
 	int             vbase;
@@ -1182,7 +1181,7 @@ static void DoRailCore(const vec3_t start, const vec3_t end, const vec3_t up, fl
 	tess.indexes[tess.numIndexes++] = vbase + 3;
 }
 
-static void DoRailDiscs(int numSegs, const vec3_t start, const vec3_t dir, const vec3_t right, const vec3_t up)
+static void Tess_DoRailDiscs(int numSegs, const vec3_t start, const vec3_t dir, const vec3_t right, const vec3_t up)
 {
 	int             i;
 	vec3_t          pos[4];
@@ -1218,7 +1217,7 @@ static void DoRailDiscs(int numSegs, const vec3_t start, const vec3_t dir, const
 	{
 		int             j;
 
-		RB_CHECKOVERFLOW(4, 6);
+		Tess_CheckOverflow(4, 6);
 
 		for(j = 0; j < 4; j++)
 		{
@@ -1244,9 +1243,11 @@ static void DoRailDiscs(int numSegs, const vec3_t start, const vec3_t dir, const
 }
 
 /*
-** RB_SurfaceRailRinges
+==============
+Tess_SurfaceRailRings
+==============
 */
-void RB_SurfaceRailRings(void)
+static void Tess_SurfaceRailRings(void)
 {
 	refExtEntity_t *e;
 	int             numSegs;
@@ -1272,13 +1273,15 @@ void RB_SurfaceRailRings(void)
 
 	VectorScale(vec, r_railSegmentLength->value, vec);
 
-	DoRailDiscs(numSegs, start, vec, right, up);
+	Tess_DoRailDiscs(numSegs, start, vec, right, up);
 }
 
 /*
-** RB_SurfaceRailCore
+==============
+Tess_SurfaceRailCore
+==============
 */
-void RB_SurfaceRailCore(void)
+static void Tess_SurfaceRailCore(void)
 {
 	refExtEntity_t *e;
 	int             len;
@@ -1303,13 +1306,15 @@ void RB_SurfaceRailCore(void)
 	CrossProduct(v1, v2, right);
 	VectorNormalize(right);
 
-	DoRailCore(start, end, right, len, r_railCoreWidth->integer);
+	Tess_DoRailCore(start, end, right, len, r_railCoreWidth->integer);
 }
 
 /*
-** RB_SurfaceLightningBolt
+==============
+Tess_SurfaceLightningBolt
+==============
 */
-void RB_SurfaceLightningBolt(void)
+static void Tess_SurfaceLightningBolt(void)
 {
 	refExtEntity_t *e;
 	int             len;
@@ -1340,17 +1345,19 @@ void RB_SurfaceLightningBolt(void)
 	{
 		vec3_t          temp;
 
-		DoRailCore(start, end, right, len, 8);
+		Tess_DoRailCore(start, end, right, len, 8);
 		RotatePointAroundVector(temp, vec, right, 45);
 		VectorCopy(temp, right);
 	}
 }
 
 /*
-** VectorArrayNormalize
-*
-* The inputs to this routing seem to always be close to length = 1.0 (about 0.6 to 2.0)
-* This means that we don't have to worry about zero length or enormously long vectors.
+==============
+VectorArrayNormalize
+
+The inputs to this routing seem to always be close to length = 1.0 (about 0.6 to 2.0)
+This means that we don't have to worry about zero length or enormously long vectors.
+==============
 */
 static void VectorArrayNormalize(vec4_t * normals, unsigned int count)
 {
@@ -1408,10 +1415,10 @@ static void VectorArrayNormalize(vec4_t * normals, unsigned int count)
 
 /*
 =============
-RB_SurfaceMDX
+Tess_SurfaceMDX
 =============
 */
-void RB_SurfaceMDX(mdxSurface_t * srf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+static void Tess_SurfaceMDX(mdxSurface_t * srf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	int             i, j;
 	int             numIndexes = 0;
@@ -1440,11 +1447,11 @@ void RB_SurfaceMDX(mdxSurface_t * srf, int numLightIndexes, int *lightIndexes, i
 	{
 		if(backEnd.currentEntity->needZFail)
 		{
-			RB_CHECKOVERFLOW(srf->numVerts * 2, srf->numTriangles * (6 + 2) * 3);
+			Tess_CheckOverflow(srf->numVerts * 2, srf->numTriangles * (6 + 2) * 3);
 		}
 		else
 		{
-			RB_CHECKOVERFLOW(srf->numVerts * 2, srf->numTriangles * 6 * 3);
+			Tess_CheckOverflow(srf->numVerts * 2, srf->numTriangles * 6 * 3);
 		}
 
 		model = srf->model;
@@ -1605,7 +1612,7 @@ void RB_SurfaceMDX(mdxSurface_t * srf, int numLightIndexes, int *lightIndexes, i
 	}
 	else
 	{
-		RB_CHECKOVERFLOW(srf->numVerts, srf->numTriangles * 3);
+		Tess_CheckOverflow(srf->numVerts, srf->numTriangles * 3);
 
 		model = srf->model;
 
@@ -1709,10 +1716,10 @@ void RB_SurfaceMDX(mdxSurface_t * srf, int numLightIndexes, int *lightIndexes, i
 
 /*
 ==============
-RB_SurfaceMD5
+Tess_SurfaceMD5
 ==============
 */
-void RB_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+static void Tess_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	int             i, j, k;
 	int             numIndexes = 0;
@@ -1729,11 +1736,11 @@ void RB_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightIndexes, i
 	{
 		if(backEnd.currentEntity->needZFail)
 		{
-			RB_CHECKOVERFLOW(srf->numVerts * 2, srf->numTriangles * (6 + 2) * 3);
+			Tess_CheckOverflow(srf->numVerts * 2, srf->numTriangles * (6 + 2) * 3);
 		}
 		else
 		{
-			RB_CHECKOVERFLOW(srf->numVerts * 2, srf->numTriangles * 6 * 3);
+			Tess_CheckOverflow(srf->numVerts * 2, srf->numTriangles * 6 * 3);
 		}
 
 		model = srf->model;
@@ -1910,7 +1917,7 @@ void RB_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightIndexes, i
 	}
 	else
 	{
-		RB_CHECKOVERFLOW(srf->numVerts, srf->numTriangles * 3);
+		Tess_CheckOverflow(srf->numVerts, srf->numTriangles * 3);
 
 		model = srf->model;
 
@@ -2030,10 +2037,10 @@ void RB_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightIndexes, i
 
 /*
 ==============
-RB_SurfaceDAE
+Tess_SurfaceDAE
 ==============
 */
-void RB_SurfaceDAE(daeSurface_t * srf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+static void Tess_SurfaceDAE(daeSurface_t * srf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	//TODO
 }
@@ -2048,12 +2055,12 @@ NULL MODEL
 
 /*
 ===================
-RB_SurfaceAxis
+Tess_SurfaceAxis
 
 Draws x/y/z lines from the origin for orientation debugging
 ===================
 */
-void RB_SurfaceAxis(void)
+static void Tess_SurfaceAxis(void)
 {
 	GL_Program(0);
 	GL_SelectTexture(0);
@@ -2077,12 +2084,12 @@ void RB_SurfaceAxis(void)
 
 /*
 ====================
-RB_SurfaceEntity
+Tess_SurfaceEntity
 
 Entities that have a single procedurally generated surface
 ====================
 */
-void RB_SurfaceEntity(surfaceType_t * surfType, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+static void Tess_SurfaceEntity(surfaceType_t * surfType, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	if(tess.shadowVolume)
 	{
@@ -2092,33 +2099,33 @@ void RB_SurfaceEntity(surfaceType_t * surfType, int numLightIndexes, int *lightI
 	switch (backEnd.currentEntity->e.reType)
 	{
 		case RT_SPRITE:
-			RB_SurfaceSprite();
+			Tess_SurfaceSprite();
 			break;
 		case RT_BEAM:
-			RB_SurfaceBeam();
+			Tess_SurfaceBeam();
 			break;
 		case RT_RAIL_CORE:
-			RB_SurfaceRailCore();
+			Tess_SurfaceRailCore();
 			break;
 		case RT_RAIL_RINGS:
-			RB_SurfaceRailRings();
+			Tess_SurfaceRailRings();
 			break;
 		case RT_LIGHTNING:
-			RB_SurfaceLightningBolt();
+			Tess_SurfaceLightningBolt();
 			break;
 		default:
-			RB_SurfaceAxis();
+			Tess_SurfaceAxis();
 			break;
 	}
 	return;
 }
 
-void RB_SurfaceBad(surfaceType_t * surfType, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+static void Tess_SurfaceBad(surfaceType_t * surfType, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 	ri.Printf(PRINT_ALL, "Bad surface tesselated.\n");
 }
 
-void RB_SurfaceFlare(srfFlare_t * surf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+static void Tess_SurfaceFlare(srfFlare_t * surf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 #if 0
 	vec3_t          left, up;
@@ -2160,7 +2167,7 @@ void RB_SurfaceFlare(srfFlare_t * surf, int numLightIndexes, int *lightIndexes, 
 	color[2] *= d;
 #endif
 
-	RB_AddQuadStamp(origin, left, up, color);
+	Tess_AddQuadStamp(origin, left, up, color);
 
 #elif 0
 	vec3_t          left, up;
@@ -2183,7 +2190,7 @@ void RB_SurfaceFlare(srfFlare_t * surf, int numLightIndexes, int *lightIndexes, 
 
 	up[1] = r_ignore->value;
 
-	RB_AddQuadStampExt(surf->origin, left, up, color, 0, 0, 1, 1);
+	Tess_AddQuadStampExt(surf->origin, left, up, color, 0, 0, 1, 1);
 
 #elif 0
 	vec3_t          left, up;
@@ -2221,7 +2228,7 @@ void RB_SurfaceFlare(srfFlare_t * surf, int numLightIndexes, int *lightIndexes, 
 
 
 
-void RB_SurfaceDisplayList(srfDisplayList_t * surf, int numLightIndexes, int *lightIndexes, int numShadowIndexes,
+static void Tess_SurfaceDisplayList(srfDisplayList_t * surf, int numLightIndexes, int *lightIndexes, int numShadowIndexes,
 						   int *shadowIndexes)
 {
 	if(tess.shadowVolume)
@@ -2229,12 +2236,12 @@ void RB_SurfaceDisplayList(srfDisplayList_t * surf, int numLightIndexes, int *li
 		return;
 	}
 
-	// all apropriate state must be set in RB_BeginSurface
+	// all apropriate state must be set in Tess_BeginSurface
 	// this isn't implemented yet...
 	qglCallList(surf->listNum);
 }
 
-void RB_SurfaceSkip(void *surf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+static void Tess_SurfaceSkip(void *surf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 }
 
@@ -2242,16 +2249,16 @@ void RB_SurfaceSkip(void *surf, int numLightIndexes, int *lightIndexes, int numS
 void            (*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *, int numLightIndexes, int *lightIndexes, int numShadowIndexes,
 														  int *shadowIndexes) =
 {
-	(void (*)(void *, int, int *, int, int *))RB_SurfaceBad,	// SF_BAD, 
-		(void (*)(void *, int, int *, int, int *))RB_SurfaceSkip,	// SF_SKIP, 
-		(void (*)(void *, int, int *, int, int *))RB_SurfaceFace,	// SF_FACE,
-		(void (*)(void *, int, int *, int, int *))RB_SurfaceGrid,	// SF_GRID,
-		(void (*)(void *, int, int *, int, int *))RB_SurfaceTriangles,	// SF_TRIANGLES,
-		(void (*)(void *, int, int *, int, int *))RB_SurfacePolychain,	// SF_POLY,
-		(void (*)(void *, int, int *, int, int *))RB_SurfaceMDX,	// SF_MDX,
-		(void (*)(void *, int, int *, int, int *))RB_SurfaceMD5,	// SF_MD5,
-		(void (*)(void *, int, int *, int, int *))RB_SurfaceDAE,	// SF_DAE,
-		(void (*)(void *, int, int *, int, int *))RB_SurfaceFlare,	// SF_FLARE,
-		(void (*)(void *, int, int *, int, int *))RB_SurfaceEntity,	// SF_ENTITY
-		(void (*)(void *, int, int *, int, int *))RB_SurfaceDisplayList	// SF_DISPLAY_LIST
+	(void (*)(void *, int, int *, int, int *))Tess_SurfaceBad,	// SF_BAD, 
+		(void (*)(void *, int, int *, int, int *))Tess_SurfaceSkip,	// SF_SKIP, 
+		(void (*)(void *, int, int *, int, int *))Tess_SurfaceFace,	// SF_FACE,
+		(void (*)(void *, int, int *, int, int *))Tess_SurfaceGrid,	// SF_GRID,
+		(void (*)(void *, int, int *, int, int *))Tess_SurfaceTriangles,	// SF_TRIANGLES,
+		(void (*)(void *, int, int *, int, int *))Tess_SurfacePolychain,	// SF_POLY,
+		(void (*)(void *, int, int *, int, int *))Tess_SurfaceMDX,	// SF_MDX,
+		(void (*)(void *, int, int *, int, int *))Tess_SurfaceMD5,	// SF_MD5,
+		(void (*)(void *, int, int *, int, int *))Tess_SurfaceDAE,	// SF_DAE,
+		(void (*)(void *, int, int *, int, int *))Tess_SurfaceFlare,	// SF_FLARE,
+		(void (*)(void *, int, int *, int, int *))Tess_SurfaceEntity,	// SF_ENTITY
+		(void (*)(void *, int, int *, int, int *))Tess_SurfaceDisplayList	// SF_DISPLAY_LIST
 };

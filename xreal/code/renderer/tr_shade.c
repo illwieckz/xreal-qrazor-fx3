@@ -1285,7 +1285,7 @@ static void DrawNormals()
 
 /*
 ==============
-RB_BeginSurface
+Tess_BeginSurface
 
 We must set some things up before beginning any tesselation,
 because a surface may be forced to perform a RB_End due
@@ -1293,7 +1293,7 @@ to overflow.
 ==============
 */
 // *INDENT-OFF*
-void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader,
+void Tess_BeginSurface(shader_t * surfaceShader, shader_t * lightShader,
 					 int lightmapNum,
 					 int fogNum,
 					 qboolean skipTangentSpaces,
@@ -1317,12 +1317,12 @@ void RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader,
 	{
 		case SIT_LIGHTING:
 		case SIT_LIGHTING_STENCIL:
-			tess.currentStageIteratorFunc = RB_StageIteratorLighting;
+			tess.currentStageIteratorFunc = Tess_StageIteratorLighting;
 			break;
 		
 		default:
 		case SIT_DEFAULT:
-			tess.currentStageIteratorFunc = state->isSky ? RB_StageIteratorSky : RB_StageIteratorGeneric;
+			tess.currentStageIteratorFunc = state->isSky ? Tess_StageIteratorSky : Tess_StageIteratorGeneric;
 			break;
 	}
 
@@ -3878,7 +3878,7 @@ static void ComputeFinalAttenuation(shaderStage_t * pStage, trRefLight_t * light
 }
 
 
-void RB_StageIteratorLighting()
+void Tess_StageIteratorLighting()
 {
 	int             i, j;
 	trRefLight_t   *light;
@@ -3904,7 +3904,7 @@ void RB_StageIteratorLighting()
 
 	light = backEnd.currentLight;
 
-	RB_DeformTessGeometry();
+	Tess_DeformGeometry();
 
 	// set face culling appropriately
 	GL_Cull(tess.surfaceShader->cullType);
@@ -4136,7 +4136,7 @@ void RB_StageIteratorLighting()
 	}
 }
 
-void RB_StageIteratorGeneric()
+void Tess_StageIteratorGeneric()
 {
 	int             stage;
 
@@ -4150,7 +4150,7 @@ void RB_StageIteratorGeneric()
 						  tess.numVertexes, tess.numIndexes / 3));
 	}
 
-	RB_DeformTessGeometry();
+	Tess_DeformGeometry();
 
 	// set face culling appropriately
 	GL_Cull(tess.surfaceShader->cullType);
@@ -4814,7 +4814,15 @@ static void Render_shadowVolume()
 	backEnd.pc.c_shadowBatches++;
 }
 
-void RB_EndSurface()
+
+/*
+=================
+Tess_EndSurface
+
+Render tesselated data
+=================
+*/
+void Tess_EndSurface()
 {
 	if(tess.numIndexes == 0)
 	{

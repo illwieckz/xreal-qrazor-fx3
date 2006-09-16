@@ -2293,7 +2293,9 @@ void            GLimp_SetGamma(unsigned char red[256], unsigned char green[256],
 
 /*
 ====================================================================
+
 TESSELATOR/SHADER DECLARATIONS
+
 ====================================================================
 */
 
@@ -2367,30 +2369,25 @@ typedef struct shaderCommands_s
 
 extern shaderCommands_t tess;
 
+void            GLSL_InitGPUShaders();
+void            GLSL_ShutdownGPUShaders();
+
 // *INDENT-OFF*
-void            RB_BeginSurface(shader_t * surfaceShader, shader_t * lightShader,
+void            Tess_BeginSurface(shader_t * surfaceShader, shader_t * lightShader,
 								int lightmapNum,
 								int fogNum,
 								qboolean skipTangentSpaces,
 								qboolean shadowVolume);
 // *INDENT-ON*
-void            RB_EndSurface(void);
-void            RB_CheckOverflow(int verts, int indexes);
+void            Tess_EndSurface(void);
+void            Tess_CheckOverflow(int verts, int indexes);
 
-//#define RB_CHECKOVERFLOW(v,i) if (tess.numVertexes + (v) >= SHADER_MAX_VERTEXES || tess.numIndexes + (i) >= SHADER_MAX_INDEXES ) {RB_CheckOverflow(v,i);}
+void            Tess_StageIteratorLighting();
+void            Tess_StageIteratorGeneric();
+void            Tess_StageIteratorSky();
 
-#define RB_CHECKOVERFLOW(v,i) {RB_CheckOverflow(v,i);}
-
-void            GLSL_InitGPUShaders();
-void            GLSL_ShutdownGPUShaders();
-
-void            RB_StageIteratorLighting();
-void            RB_StageIteratorLightingStencilShadowed();
-void            RB_StageIteratorGeneric();
-void            RB_StageIteratorSky();
-
-void            RB_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, byte * color);
-void            RB_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, byte * color, float s1, float t1, float s2, float t2);
+void            Tess_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, byte * color);
+void            Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, byte * color, float s1, float t1, float s2, float t2);
 
 void            RB_ShowImages(void);
 
@@ -2465,7 +2462,6 @@ SHADOWS
 ============================================================
 */
 
-void            RB_ShadowTessEnd();
 void            RB_ProjectionShadowDeform();
 
 /*
@@ -2476,11 +2472,8 @@ SKIES
 ============================================================
 */
 
-void            R_BuildCloudData(shaderCommands_t * shader);
 void            R_InitSkyTexCoords(float cloudLayerHeight);
-void            R_DrawSkyBox(shaderCommands_t * shader);
 void            RB_DrawSun(void);
-void            RB_ClipSkyPolygons(shaderCommands_t * shader);
 
 /*
 ============================================================
@@ -2586,7 +2579,7 @@ void            R_TransformModelToClip(const vec3_t src, const float *modelViewM
 									   const float *projectionMatrix, vec4_t eye, vec4_t dst);
 void            R_TransformClipToWindow(const vec4_t clip, const viewParms_t * view, vec4_t normalized, vec4_t window);
 
-void            RB_DeformTessGeometry(void);
+void            Tess_DeformGeometry(void);
 
 float           RB_EvalExpression(const expression_t * exp, float defaultValue);
 

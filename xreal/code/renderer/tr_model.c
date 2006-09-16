@@ -373,7 +373,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 		// change to surface identifier
 		surf->surfaceType = SF_MDX;
 		
-		// give pointer to model for RB_SurfaceMDX
+		// give pointer to model for Tess_SurfaceMDX
 		surf->model = mdxModel;
 		
 		// copy surface name
@@ -654,7 +654,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 		// change to surface identifier
 		surf->surfaceType = SF_MD5;
 		
-		// give pointer to model for RB_SurfaceMD5
+		// give pointer to model for Tess_SurfaceMD5
 		surf->model = md5;
 		
 		// parse shader <name>

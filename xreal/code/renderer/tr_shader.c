@@ -5309,11 +5309,11 @@ void R_ShaderList_f(void)
 			ri.Printf(PRINT_ALL, "  ");
 		}
 
-		if(shader->optimalStageIteratorFunc == RB_StageIteratorGeneric)
+		if(shader->optimalStageIteratorFunc == Tess_StageIteratorGeneric)
 		{
 			ri.Printf(PRINT_ALL, "gen ");
 		}
-		else if(shader->optimalStageIteratorFunc == RB_StageIteratorSky)
+		else if(shader->optimalStageIteratorFunc == Tess_StageIteratorSky)
 		{
 			ri.Printf(PRINT_ALL, "sky ");
 		}

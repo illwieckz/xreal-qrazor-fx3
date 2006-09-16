@@ -963,10 +963,10 @@ static void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, in
 		{
 			if(oldShader != NULL)
 			{
-				RB_EndSurface();
+				Tess_EndSurface();
 			}
 
-			RB_BeginSurface(shader, NULL, lightmapNum, fogNum, qfalse, qfalse);
+			Tess_BeginSurface(shader, NULL, lightmapNum, fogNum, qfalse, qfalse);
 			oldShader = shader;
 			oldLightmapNum = lightmapNum;
 			oldFogNum = fogNum;
@@ -1034,7 +1034,7 @@ static void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, in
 	// draw the contents of the last shader batch
 	if(oldShader != NULL)
 	{
-		RB_EndSurface();
+		Tess_EndSurface();
 	}
 
 	// go back to the world modelview matrix
@@ -1114,7 +1114,7 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 		}
 
 		// Tr3B - this should never happen in the first iteration
-		if(!r_nobatching->integer && light == oldLight && entity == oldEntity && shader == oldShader)
+		if(light == oldLight && entity == oldEntity && shader == oldShader)
 		{
 			if(ia->type != IA_SHADOWONLY)
 			{
@@ -1127,11 +1127,11 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 		// draw the contents of the last shader batch
 		if(oldEntity != NULL || oldLight != NULL || oldShader != NULL)
 		{
-			RB_EndSurface();
+			Tess_EndSurface();
 		}
 
 		// we need a new batch
-		RB_BeginSurface(shader, ia->lightShader, -1, 0, qfalse, qfalse);
+		Tess_BeginSurface(shader, ia->lightShader, -1, 0, qfalse, qfalse);
 
 		// change the modelview matrix if needed
 		if(entity != oldEntity)
@@ -1225,7 +1225,7 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 			else
 			{
 				// draw the contents of the current shader batch
-				RB_EndSurface();
+				Tess_EndSurface();
 			}
 
 			if(iaCount < (numInteractions - 1))
@@ -1427,11 +1427,11 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				// draw the contents of the last shader batch
 				if(oldEntity != NULL || oldLight != NULL || oldShader != NULL)
 				{
-					RB_EndSurface();
+					Tess_EndSurface();
 				}
 
 				// we don't need tangent space calculations here
-				RB_BeginSurface(shader, ia->lightShader, -1, 0, qtrue, qtrue);
+				Tess_BeginSurface(shader, ia->lightShader, -1, 0, qtrue, qtrue);
 			}
 		}
 		else
@@ -1450,10 +1450,10 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				// draw the contents of the last shader batch
 				if(oldEntity != NULL || oldLight != NULL || oldShader != NULL)
 				{
-					RB_EndSurface();
+					Tess_EndSurface();
 				}
 
-				RB_BeginSurface(shader, ia->lightShader, -1, 0, qfalse, qfalse);
+				Tess_BeginSurface(shader, ia->lightShader, -1, 0, qfalse, qfalse);
 			}
 		}
 
@@ -1586,7 +1586,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			}
 
 			// draw the contents of the current shader batch
-			RB_EndSurface();
+			Tess_EndSurface();
 		}
 		else
 		{
@@ -2669,13 +2669,13 @@ const void     *RB_StretchPic(const void *data)
 	{
 		if(tess.numIndexes)
 		{
-			RB_EndSurface();
+			Tess_EndSurface();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
-		RB_BeginSurface(shader, NULL, -1, 0, qfalse, qfalse);
+		Tess_BeginSurface(shader, NULL, -1, 0, qfalse, qfalse);
 	}
 
-	RB_CHECKOVERFLOW(4, 6);
+	Tess_CheckOverflow(4, 6);
 	numVerts = tess.numVertexes;
 	numIndexes = tess.numIndexes;
 
@@ -2743,7 +2743,7 @@ const void     *RB_DrawSurfs(const void *data)
 	// finish any 2D drawing if needed
 	if(tess.numIndexes)
 	{
-		RB_EndSurface();
+		Tess_EndSurface();
 	}
 
 	cmd = (const drawSurfsCommand_t *)data;
@@ -2863,7 +2863,7 @@ const void     *RB_SwapBuffers(const void *data)
 	// finish any 2D drawing if needed
 	if(tess.numIndexes)
 	{
-		RB_EndSurface();
+		Tess_EndSurface();
 	}
 
 	// texture swapping test

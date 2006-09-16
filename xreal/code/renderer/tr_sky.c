@@ -256,22 +256,23 @@ static void ClearSkyBox(void)
 
 /*
 ================
-RB_ClipSkyPolygons
+Tess_ClipSkyPolygons
 ================
 */
-void RB_ClipSkyPolygons(shaderCommands_t * input)
+void Tess_ClipSkyPolygons()
 {
 	vec3_t          p[5];		// need one extra point for clipping
 	int             i, j;
 
 	ClearSkyBox();
 
-	for(i = 0; i < input->numIndexes; i += 3)
+	for(i = 0; i < tess.numIndexes; i += 3)
 	{
 		for(j = 0; j < 3; j++)
 		{
-			VectorSubtract(input->xyz[input->indexes[i + j]], backEnd.viewParms.or.origin, p[j]);
+			VectorSubtract(tess.xyz[tess.indexes[i + j]], backEnd.viewParms.or.origin, p[j]);
 		}
+		
 		ClipSkyPolygon(3, p[0], 0);
 	}
 }
@@ -431,9 +432,7 @@ static void DrawSkyBox(shader_t * shader)
 		else if(sky_maxs_subd[1] > HALF_SKY_SUBDIVISIONS)
 			sky_maxs_subd[1] = HALF_SKY_SUBDIVISIONS;
 
-		//
 		// iterate through the subdivisions
-		//
 		for(t = sky_mins_subd[1] + HALF_SKY_SUBDIVISIONS; t <= sky_maxs_subd[1] + HALF_SKY_SUBDIVISIONS; t++)
 		{
 			for(s = sky_mins_subd[0] + HALF_SKY_SUBDIVISIONS; s <= sky_maxs_subd[0] + HALF_SKY_SUBDIVISIONS;
@@ -574,9 +573,7 @@ static void FillCloudBox(const shader_t * shader, int stage)
 		else if(sky_maxs_subd[1] > HALF_SKY_SUBDIVISIONS)
 			sky_maxs_subd[1] = HALF_SKY_SUBDIVISIONS;
 
-		//
 		// iterate through the subdivisions
-		//
 		for(t = sky_mins_subd[1] + HALF_SKY_SUBDIVISIONS; t <= sky_maxs_subd[1] + HALF_SKY_SUBDIVISIONS; t++)
 		{
 			for(s = sky_mins_subd[0] + HALF_SKY_SUBDIVISIONS; s <= sky_maxs_subd[0] + HALF_SKY_SUBDIVISIONS;
@@ -596,15 +593,12 @@ static void FillCloudBox(const shader_t * shader, int stage)
 	}
 }
 
-/*
-** R_BuildCloudData
-*/
-void R_BuildCloudData(shaderCommands_t * input)
+static void BuildCloudData()
 {
 	int             i;
 	shader_t       *shader;
 
-	shader = input->surfaceShader;
+	shader = tess.surfaceShader;
 
 	assert(shader->isSky);
 
@@ -615,7 +609,7 @@ void R_BuildCloudData(shaderCommands_t * input)
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
 
-	if(input->surfaceShader->sky.cloudHeight)
+	if(tess.surfaceShader->sky.cloudHeight)
 	{
 		for(i = 0; i < MAX_SHADER_STAGES; i++)
 		{
@@ -623,7 +617,8 @@ void R_BuildCloudData(shaderCommands_t * input)
 			{
 				break;
 			}
-			FillCloudBox(input->surfaceShader, i);
+			
+			FillCloudBox(tess.surfaceShader, i);
 		}
 	}
 }
@@ -724,7 +719,7 @@ void RB_DrawSun(void)
 	qglDepthRange(1.0, 1.0);
 
 	// FIXME: use quad stamp
-	RB_BeginSurface(tr.sunShader, NULL, tess.lightmapNum, tess.fogNum, tess.skipTangentSpaces, qfalse);
+	Tess_BeginSurface(tr.sunShader, NULL, tess.lightmapNum, tess.fogNum, tess.skipTangentSpaces, qfalse);
 	VectorCopy(origin, temp);
 	VectorSubtract(temp, vec1, temp);
 	VectorSubtract(temp, vec2, temp);
@@ -780,7 +775,7 @@ void RB_DrawSun(void)
 	tess.indexes[tess.numIndexes++] = 2;
 	tess.indexes[tess.numIndexes++] = 3;
 
-	RB_EndSurface();
+	Tess_EndSurface();
 
 	// back to normal depth range
 	qglDepthRange(0.0, 1.0);
@@ -791,14 +786,14 @@ void RB_DrawSun(void)
 
 /*
 ================
-RB_StageIteratorSky
+Tess_StageIteratorSky
 
 All of the visible sky triangles are in tess
 
 Other things could be stuck in here, like birds in the sky, etc
 ================
 */
-void RB_StageIteratorSky(void)
+void Tess_StageIteratorSky(void)
 {
 	if(r_fastsky->integer)
 	{
@@ -808,7 +803,7 @@ void RB_StageIteratorSky(void)
 	// go through all the polygons and project them onto
 	// the sky box to see which blocks on each side need
 	// to be drawn
-	RB_ClipSkyPolygons(&tess);
+	Tess_ClipSkyPolygons();
 
 	// r_showsky will let all the sky blocks be drawn in
 	// front of everything to allow developers to see how
@@ -842,9 +837,9 @@ void RB_StageIteratorSky(void)
 
 	// generate the vertexes for all the clouds, which will be drawn
 	// by the generic shader routine
-	R_BuildCloudData(&tess);
+	BuildCloudData();
 
-	RB_StageIteratorGeneric();
+	Tess_StageIteratorGeneric();
 
 	// draw the inner skybox
 

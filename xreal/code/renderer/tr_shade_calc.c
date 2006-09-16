@@ -683,7 +683,7 @@ void DeformText(const char *text)
 			fcol = col * 0.0625f;
 			size = 0.0625f;
 
-			RB_AddQuadStampExt(origin, width, height, color, fcol, frow, fcol + size, frow + size);
+			Tess_AddQuadStampExt(origin, width, height, color, fcol, frow, fcol + size, frow + size);
 		}
 		VectorMA(origin, -2, width, origin);
 	}
@@ -781,7 +781,7 @@ static void AutospriteDeform(void)
 			VectorScale(up, axisLength, up);
 		}
 
-		RB_AddQuadStamp(mid, left, up, tess.colors[i]);
+		Tess_AddQuadStamp(mid, left, up, tess.colors[i]);
 	}
 }
 
@@ -925,11 +925,10 @@ static void Autosprite2Deform(void)
 
 /*
 =====================
-RB_DeformTessGeometry
-
+Tess_DeformGeometry
 =====================
 */
-void RB_DeformTessGeometry(void)
+void Tess_DeformGeometry(void)
 {
 	int             i;
 	deformStage_t  *ds;
