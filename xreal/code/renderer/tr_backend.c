@@ -963,10 +963,10 @@ static void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, in
 		{
 			if(oldShader != NULL)
 			{
-				Tess_EndSurface();
+				Tess_End();
 			}
 
-			Tess_BeginSurface(shader, NULL, lightmapNum, fogNum, qfalse, qfalse);
+			Tess_Begin(shader, NULL, lightmapNum, fogNum, qfalse, qfalse);
 			oldShader = shader;
 			oldLightmapNum = lightmapNum;
 			oldFogNum = fogNum;
@@ -1034,7 +1034,7 @@ static void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, in
 	// draw the contents of the last shader batch
 	if(oldShader != NULL)
 	{
-		Tess_EndSurface();
+		Tess_End();
 	}
 
 	// go back to the world modelview matrix
@@ -1086,21 +1086,28 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 		if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
 		{
 			// skip all interactions of this light because it failed the occlusion query
-			goto nextInteraction;
+			goto skipInteraction;
 		}
 
 		if(!shader->interactLight)
 		{
 			// skip this interaction because the surface shader has no ability to interact with light
 			// this will save texcoords and matrix calculations
-			goto nextInteraction;
+			goto skipInteraction;
+		}
+		
+		if(ia->type == IA_SHADOWONLY)
+		{
+			// skip this interaction because the interaction is meant for shadowing only
+			goto skipInteraction;
 		}
 
 		if(light != oldLight)
 		{
+			GLimp_LogComment("----- Rendering new light -----\n");
+			
 			// set light scissor to reduce fillrate
 			qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
-
 #if 0
 			if(!light->additive)
 			{
@@ -1113,25 +1120,19 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 			}
 		}
 
-		// Tr3B - this should never happen in the first iteration
+		// Tr3B: this should never happen in the first iteration
 		if(light == oldLight && entity == oldEntity && shader == oldShader)
 		{
-			if(ia->type != IA_SHADOWONLY)
-			{
-				// fast path, same as previous
-				rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
-				goto nextInteraction;
-			}
+			// fast path, same as previous
+			rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
+			goto nextInteraction;
 		}
 
 		// draw the contents of the last shader batch
-		if(oldEntity != NULL || oldLight != NULL || oldShader != NULL)
-		{
-			Tess_EndSurface();
-		}
+		Tess_End();
 
-		// we need a new batch
-		Tess_BeginSurface(shader, ia->lightShader, -1, 0, qfalse, qfalse);
+		// begin a new batch
+		Tess_Begin(shader, ia->lightShader, -1, 0, qfalse, qfalse);
 
 		// change the modelview matrix if needed
 		if(entity != oldEntity)
@@ -1205,29 +1206,19 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 			MatrixMultiply2(light->attenuationMatrix, modelToLight);
 		}
 
-		if(ia->type != IA_SHADOWONLY)
-		{
-			// add the triangles for this surface
-			rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
-		}
+		// add the triangles for this surface
+		rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
 
 	  nextInteraction:
+	  	
+	  	// remember values
+		oldLight = light;
+		oldEntity = entity;
+		oldShader = shader;
+		
+	  skipInteraction:
 		if(!ia->next)
 		{
-			if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
-			{
-				// do nothing
-			}
-			else if(!shader->interactLight)
-			{
-				// do nothing as well
-			}
-			else
-			{
-				// draw the contents of the current shader batch
-				Tess_EndSurface();
-			}
-
 			if(iaCount < (numInteractions - 1))
 			{
 				// jump to next interaction and continue
@@ -1239,6 +1230,20 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 				// increase last time to leave for loop
 				iaCount++;
 			}
+			
+			if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
+			{
+				// do nothing
+			}
+			else if(!shader->interactLight)
+			{
+				// do nothing as well
+			}
+			else
+			{
+				// draw the contents of the last shader batch
+				Tess_End();
+			}
 		}
 		else
 		{
@@ -1246,11 +1251,6 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 			ia = ia->next;
 			iaCount++;
 		}
-
-		// remember values
-		oldLight = light;
-		oldEntity = entity;
-		oldShader = shader;
 	}
 
 	backEnd.refdef.floatTime = originalTime;
@@ -1285,7 +1285,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 	trRefLight_t  *light, *oldLight;
 	interaction_t  *ia;
 	int             iaCount;
-	int             iaFirst = 0;
+	int             iaFirst;
 	surfaceType_t  *surface;
 	qboolean        depthRange, oldDepthRange;
 	vec3_t          tmp;
@@ -1311,18 +1311,23 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 	tess.currentStageIteratorType = SIT_LIGHTING_STENCIL;
 
 	// render interactions
-	for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
+	for(iaCount = 0, iaFirst = 0, ia = &interactions[0]; iaCount < numInteractions;)
 	{
 		backEnd.currentLight = light = ia->light;
 		backEnd.currentEntity = entity = ia->entity;
 		surface = ia->surface;
 		shader = ia->surfaceShader;
-
-		// only iaFirst == iaCount if first iteration or counters were reset
-		if(light != oldLight || iaFirst == iaCount)
+		
+		// only iaCount == iaFirst if first iteration or counters were reset
+		if(iaCount == iaFirst)
 		{
-			iaFirst = iaCount;
-
+			if(r_logFile->integer)
+			{
+				// don't just call LogComment, or we will get
+				// a call to va() every frame!
+				GLimp_LogComment(va("----- First Interaction: %i -----\n", iaCount));
+			}
+			
 			if(drawShadows)
 			{
 				// set light scissor to reduce fillrate
@@ -1341,46 +1346,38 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 						qglDisable(GL_DEPTH_BOUNDS_TEST_EXT);
 					}
 				}
+				
+				if(!light->l.noShadows)
+				{
+					GLimp_LogComment("--- Rendering shadow volumes ---\n");
+				
+					// set the reference stencil value
+					qglClearStencil(128);
 
-				// set the reference stencil value
-				qglClearStencil(128);
+					// reset stencil buffer
+					qglClear(GL_STENCIL_BUFFER_BIT);
 
-				// reset stencil buffer
-				qglClear(GL_STENCIL_BUFFER_BIT);
+					// use less compare as depthfunc
+					// don't write to the color buffer or depth buffer
+					// enable stencil testing for this light
+					GL_State(GLS_DEPTHFUNC_LESS | GLS_COLORMASK_BITS | GLS_STENCILTEST_ENABLE);
+	
+					qglStencilFunc(GL_ALWAYS, 128, 255);
+					qglStencilMask(255);
 
-				// use less compare as depthfunc
-				// don't write to the color buffer or depth buffer
-				// enable stencil testing for this light
-				GL_State(GLS_DEPTHFUNC_LESS | GLS_COLORMASK_BITS | GLS_STENCILTEST_ENABLE);
+					qglEnable(GL_POLYGON_OFFSET_FILL);
+					qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
 
-				qglStencilFunc(GL_ALWAYS, 128, 255);
-				qglStencilMask(255);
-
-				qglEnable(GL_POLYGON_OFFSET_FILL);
-				qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
-
-				// enable shadow volume extrusion shader
-#if 1
-				GL_Program(tr.shadowShader.program);
-				GL_ClientState(tr.shadowShader.attribs);
-#else
-				GL_Program(0);
-				GL_ClientState(GLCS_VERTEX);
-				GL_SelectTexture(0);
-				GL_Bind(tr.whiteImage);
-#endif
-
-				qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
+					// enable shadow volume extrusion shader
+					GL_Program(tr.shadowShader.program);
+					GL_ClientState(tr.shadowShader.attribs);
+	
+					qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
+				}
 			}
 			else
 			{
-				// Tr3B - see RobustShadowVolumes.pdf by Nvidia
-				// Set stencil testing to render only pixels with a zero
-				// stencil value, i.e., visible fragments illuminated by the
-				// current light. Use equal depth testing to update only the
-				// visible fragments, and then, increment stencil to avoid
-				// double blending. Re-enable color buffer writes again.
-
+				GLimp_LogComment("--- Rendering lighting ---\n");
 #if 0
 				if(!light->additive)
 				{
@@ -1392,14 +1389,14 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
 				}
 
-				if(light->l.noShadows)
+				if(!light->l.noShadows)
 				{
-					// don't consider shadow volumes
-					qglStencilFunc(GL_ALWAYS, 128, 255);
+					qglStencilFunc(GL_EQUAL, 128, 255);
 				}
 				else
 				{
-					qglStencilFunc(GL_EQUAL, 128, 255);
+					// don't consider shadow volumes
+					qglStencilFunc(GL_ALWAYS, 128, 255);
 				}
 				qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);	//GL_INCR);
 
@@ -1409,51 +1406,74 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				GL_Program(0);
 			}
 		}
-
+		
 		if(drawShadows)
 		{
-			if(!r_nobatching->integer && light == oldLight && entity == oldEntity && shader == oldShader)
+			if(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK))
 			{
-				if(!(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK)) &&
-				   shader->sort == SS_OPAQUE && !shader->noShadows && !light->l.noShadows && ia->type != IA_LIGHTONLY)
-				{
-					// fast path, same as previous
-					rb_surfaceTable[*surface] (surface, 0, NULL, ia->numShadowIndexes, ia->shadowIndexes);
-					goto nextInteraction;
-				}
+				goto skipInteraction;
 			}
-			else
+			
+			if(shader->sort > SS_OPAQUE)
 			{
-				// draw the contents of the last shader batch
-				if(oldEntity != NULL || oldLight != NULL || oldShader != NULL)
-				{
-					Tess_EndSurface();
-				}
-
-				// we don't need tangent space calculations here
-				Tess_BeginSurface(shader, ia->lightShader, -1, 0, qtrue, qtrue);
+				goto skipInteraction;
+			}
+			
+			if(shader->noShadows || light->l.noShadows)
+			{
+				goto skipInteraction;
+			}
+			
+			if(ia->type == IA_LIGHTONLY)
+			{
+				goto skipInteraction;
 			}
 		}
 		else
 		{
-			if(!r_nobatching->integer && light == oldLight && entity == oldEntity && shader == oldShader)
+			if(!shader->interactLight)
 			{
-				if(shader->interactLight && ia->type != IA_SHADOWONLY)
-				{
-					// fast path, same as previous
-					rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
-					goto nextInteraction;
-				}
+				goto skipInteraction;
+			}
+			
+			if(ia->type == IA_SHADOWONLY)
+			{
+				goto skipInteraction;
+			}
+		}
+
+		if(drawShadows)
+		{
+			if(light == oldLight && entity == oldEntity && shader == oldShader && iaCount != iaFirst)
+			{
+				// fast path, same as previous
+				rb_surfaceTable[*surface] (surface, 0, NULL, ia->numShadowIndexes, ia->shadowIndexes);
+				goto nextInteraction;
 			}
 			else
 			{
 				// draw the contents of the last shader batch
-				if(oldEntity != NULL || oldLight != NULL || oldShader != NULL)
-				{
-					Tess_EndSurface();
-				}
+				Tess_End();
 
-				Tess_BeginSurface(shader, ia->lightShader, -1, 0, qfalse, qfalse);
+				// we don't need tangent space calculations here
+				Tess_Begin(shader, ia->lightShader, -1, 0, qtrue, qtrue);
+			}
+		}
+		else
+		{
+			if(light == oldLight && entity == oldEntity && shader == oldShader && iaCount != iaFirst)
+			{
+				// fast path, same as previous
+				rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
+				goto nextInteraction;
+			}
+			else
+			{
+				// draw the contents of the last shader batch
+				Tess_End();
+
+				// begin a new batch
+				Tess_Begin(shader, ia->lightShader, -1, 0, qfalse, qfalse);
 			}
 		}
 
@@ -1523,10 +1543,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			if(drawShadows)
 			{
 				// set uniform parameter u_LightOrigin for GLSL shader
-#if 1
-				qglUniform3fARB(tr.shadowShader.u_LightOrigin,
-								light->transformed[0], light->transformed[1], light->transformed[2]);
-#endif
+				qglUniform3fARB(tr.shadowShader.u_LightOrigin, light->transformed[0], light->transformed[1], light->transformed[2]);
 			}
 
 			// build the attenuation matrix using the entity transform          
@@ -1540,27 +1557,34 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 
 		if(drawShadows)
 		{
-			if(!(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK)) &&
-			   shader->sort == SS_OPAQUE && !shader->noShadows && !light->l.noShadows && ia->type != IA_LIGHTONLY)
-			{
-				// add the triangles for this surface
-				rb_surfaceTable[*surface] (surface, 0, NULL, ia->numShadowIndexes, ia->shadowIndexes);
-			}
+			// add the triangles for this surface
+			rb_surfaceTable[*surface] (surface, 0, NULL, ia->numShadowIndexes, ia->shadowIndexes);
 		}
 		else
 		{
-			if(shader->interactLight && ia->type != IA_SHADOWONLY)
-			{
-				// add the triangles for this surface
-				rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
-			}
+			// add the triangles for this surface
+			rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
 		}
 
 	  nextInteraction:
+	  	
+	  	// remember values
+		oldLight = light;
+		oldEntity = entity;
+		oldShader = shader;
+		
+	  skipInteraction:
 		if(!ia->next)
 		{
 			// if ia->next does not point to any other interaction then
 			// this is the last interaction of the current light
+			
+			if(r_logFile->integer)
+			{
+				// don't just call LogComment, or we will get
+				// a call to va() every frame!
+				GLimp_LogComment(va("----- Last Interaction: %i -----\n", iaCount));
+			}
 
 			if(drawShadows)
 			{
@@ -1576,6 +1600,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					// jump to next interaction and start shadowing
 					ia++;
 					iaCount++;
+					iaFirst = iaCount;
 					drawShadows = qtrue;
 				}
 				else
@@ -1585,8 +1610,8 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				}
 			}
 
-			// draw the contents of the current shader batch
-			Tess_EndSurface();
+			// draw the contents of the last shader batch
+			Tess_End();
 		}
 		else
 		{
@@ -1594,11 +1619,6 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			ia = ia->next;
 			iaCount++;
 		}
-
-		// remember values
-		oldLight = light;
-		oldEntity = entity;
-		oldShader = shader;
 	}
 
 	backEnd.refdef.floatTime = originalTime;
@@ -2669,10 +2689,10 @@ const void     *RB_StretchPic(const void *data)
 	{
 		if(tess.numIndexes)
 		{
-			Tess_EndSurface();
+			Tess_End();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
-		Tess_BeginSurface(shader, NULL, -1, 0, qfalse, qfalse);
+		Tess_Begin(shader, NULL, -1, 0, qfalse, qfalse);
 	}
 
 	Tess_CheckOverflow(4, 6);
@@ -2743,7 +2763,7 @@ const void     *RB_DrawSurfs(const void *data)
 	// finish any 2D drawing if needed
 	if(tess.numIndexes)
 	{
-		Tess_EndSurface();
+		Tess_End();
 	}
 
 	cmd = (const drawSurfsCommand_t *)data;
@@ -2863,7 +2883,7 @@ const void     *RB_SwapBuffers(const void *data)
 	// finish any 2D drawing if needed
 	if(tess.numIndexes)
 	{
-		Tess_EndSurface();
+		Tess_End();
 	}
 
 	// texture swapping test

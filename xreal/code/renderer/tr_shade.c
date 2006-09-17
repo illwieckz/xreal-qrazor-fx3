@@ -1285,7 +1285,7 @@ static void DrawNormals()
 
 /*
 ==============
-Tess_BeginSurface
+Tess_Begin
 
 We must set some things up before beginning any tesselation,
 because a surface may be forced to perform a RB_End due
@@ -1293,14 +1293,14 @@ to overflow.
 ==============
 */
 // *INDENT-OFF*
-void Tess_BeginSurface(shader_t * surfaceShader, shader_t * lightShader,
+void Tess_Begin(shader_t * surfaceShader, shader_t * lightShader,
 					 int lightmapNum,
 					 int fogNum,
 					 qboolean skipTangentSpaces,
 					 qboolean shadowVolume)
 {
 	shader_t       *state = (surfaceShader->remappedShader) ? surfaceShader->remappedShader : surfaceShader;
-	
+		
 	tess.indexesVBO = 0;
 	tess.vertexesVBO = 0;
 
@@ -1333,11 +1333,17 @@ void Tess_BeginSurface(shader_t * surfaceShader, shader_t * lightShader,
 	}
 	
 	tess.lightmapNum = lightmapNum;
-	
 	tess.fogNum = fogNum;
 	
 	tess.skipTangentSpaces = skipTangentSpaces;
 	tess.shadowVolume = shadowVolume;
+	
+	if(r_logFile->integer)
+	{
+		// don't just call LogComment, or we will get
+		// a call to va() every frame!
+		GLimp_LogComment(va("--- Tess_Begin( %s, %s, %i, %i, %i, %i ) ---\n", tess.surfaceShader->name, tess.lightShader ? tess.lightShader->name : NULL, tess.lightmapNum, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume));
+	}
 }
 // *INDENT-ON*
 
@@ -3890,9 +3896,7 @@ void Tess_StageIteratorLighting()
 	{
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
-		GLimp_LogComment(va
-						 ("--- RB_StageIteratorLighting( %s surface, %s light, %i vertices, %i triangles ) ---\n",
-						  tess.surfaceShader->name, tess.lightShader->name, tess.numVertexes, tess.numIndexes / 3));
+		GLimp_LogComment(va("--- Tess_StageIteratorLighting( %s, %s, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name, tess.lightShader->name, tess.numVertexes, tess.numIndexes / 3));
 	}
 
 	if(!tess.surfaceShader->interactLight)
@@ -4145,9 +4149,7 @@ void Tess_StageIteratorGeneric()
 	{
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
-		GLimp_LogComment(va
-						 ("--- RB_StageIteratorGeneric( %s surface, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name,
-						  tess.numVertexes, tess.numIndexes / 3));
+		GLimp_LogComment(va("--- Tess_StageIteratorGeneric( %s, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name, tess.numVertexes, tess.numIndexes / 3));
 	}
 
 	Tess_DeformGeometry();
@@ -4817,12 +4819,12 @@ static void Render_shadowVolume()
 
 /*
 =================
-Tess_EndSurface
+Tess_End
 
 Render tesselated data
 =================
 */
-void Tess_EndSurface()
+void Tess_End()
 {
 	if(tess.numIndexes == 0)
 	{
@@ -4831,11 +4833,11 @@ void Tess_EndSurface()
 
 	if(tess.indexes[SHADER_MAX_INDEXES - 1] != 0)
 	{
-		ri.Error(ERR_DROP, "RB_EndSurface() - SHADER_MAX_INDEXES hit");
+		ri.Error(ERR_DROP, "Tess_End() - SHADER_MAX_INDEXES hit");
 	}
 	if(tess.xyz[SHADER_MAX_VERTEXES - 1][0] != 0)
 	{
-		ri.Error(ERR_DROP, "RB_EndSurface() - SHADER_MAX_VERTEXES hit");
+		ri.Error(ERR_DROP, "Tess_End() - SHADER_MAX_VERTEXES hit");
 	}
 
 	// for debugging of sort order issues, stop rendering after a given sort value
@@ -4860,15 +4862,17 @@ void Tess_EndSurface()
 		// draw debugging stuff
 		if(r_showtris->integer)
 		{
-			DrawTris(&tess);
+			DrawTris();
 		}
+		
 		if(r_shownormals->integer)
 		{
-			DrawNormals(&tess);
+			DrawNormals();
 		}
+		
 		if(r_showTangentSpaces->integer)
 		{
-			DrawTangentSpaces(&tess);
+			DrawTangentSpaces();
 		}
 	}
 
@@ -4894,6 +4898,7 @@ void Tess_EndSurface()
 
 	// clear shader so we can tell we don't have any unclosed surfaces
 	tess.numIndexes = 0;
+	tess.numVertexes = 0;
 
-	GLimp_LogComment("----------\n");
+	GLimp_LogComment("--- Tess_End ---\n");
 }

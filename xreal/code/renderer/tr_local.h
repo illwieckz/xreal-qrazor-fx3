@@ -2350,7 +2350,6 @@ typedef struct shaderCommands_s
 	float           shaderTime;
 
 	int             lightmapNum;
-
 	int             fogNum;
 
 	qboolean        skipTangentSpaces;
@@ -2373,13 +2372,13 @@ void            GLSL_InitGPUShaders();
 void            GLSL_ShutdownGPUShaders();
 
 // *INDENT-OFF*
-void            Tess_BeginSurface(shader_t * surfaceShader, shader_t * lightShader,
+void            Tess_Begin(shader_t * surfaceShader, shader_t * lightShader,
 								int lightmapNum,
 								int fogNum,
 								qboolean skipTangentSpaces,
 								qboolean shadowVolume);
 // *INDENT-ON*
-void            Tess_EndSurface(void);
+void            Tess_End(void);
 void            Tess_CheckOverflow(int verts, int indexes);
 
 void            Tess_StageIteratorLighting();

@@ -43,13 +43,13 @@ use the shader system.
 
 /*
 ==============
-Tess_EndBeginSurface
+Tess_EndBegin
 ==============
 */
-void Tess_EndBeginSurface()
+void Tess_EndBegin()
 {
-	Tess_EndSurface();
-	Tess_BeginSurface(tess.surfaceShader, tess.lightShader, tess.lightmapNum, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume);
+	Tess_End();
+	Tess_Begin(tess.surfaceShader, tess.lightShader, tess.lightmapNum, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume);
 }
 
 /*
@@ -61,7 +61,7 @@ void Tess_CheckOverflow(int verts, int indexes)
 {
 	if(glConfig.vertexBufferObjectAvailable && (tess.indexesVBO || tess.vertexesVBO))
 	{
-		Tess_EndBeginSurface();
+		Tess_EndBegin();
 		return;
 	}
 
@@ -70,19 +70,25 @@ void Tess_CheckOverflow(int verts, int indexes)
 		return;
 	}
 
-	Tess_EndSurface();
+	if(r_logFile->integer)
+	{
+		// don't just call LogComment, or we will get
+		// a call to va() every frame!
+		GLimp_LogComment(va("--- Tess_CheckOverflow(%i + %i vertices, %i + %i triangles ) ---\n", tess.numVertexes, verts, (tess.numIndexes / 3), indexes));
+	}
+
+	Tess_End();
 
 	if(verts >= SHADER_MAX_VERTEXES)
 	{
-		ri.Error(ERR_DROP, "RB_CheckOverflow: verts > MAX (%d > %d)", verts, SHADER_MAX_VERTEXES);
+		ri.Error(ERR_DROP, "Tess_CheckOverflow: verts > MAX (%d > %d)", verts, SHADER_MAX_VERTEXES);
 	}
 	if(indexes >= SHADER_MAX_INDEXES)
 	{
-		ri.Error(ERR_DROP, "RB_CheckOverflow: indices > MAX (%d > %d)", indexes, SHADER_MAX_INDEXES);
+		ri.Error(ERR_DROP, "Tess_CheckOverflow: indices > MAX (%d > %d)", indexes, SHADER_MAX_INDEXES);
 	}
 
-	Tess_BeginSurface(tess.surfaceShader, tess.lightShader, tess.lightmapNum, tess.fogNum, tess.skipTangentSpaces,
-					tess.shadowVolume);
+	Tess_Begin(tess.surfaceShader, tess.lightShader, tess.lightmapNum, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume);
 }
 
 
@@ -95,6 +101,8 @@ void Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, byte * color, f
 {
 	vec3_t          normal;
 	int             ndx;
+	
+	GLimp_LogComment("--- Tess_AddQuadStampExt ---\n");
 
 	Tess_CheckOverflow(4, 6);
 
@@ -180,6 +188,8 @@ static void Tess_SurfaceSprite(void)
 {
 	vec3_t          left, up;
 	float           radius;
+	
+	GLimp_LogComment("--- Tess_SurfaceSprite ---\n");
 
 	// calculate the xyz locations for the four corners
 	radius = backEnd.currentEntity->e.radius;
@@ -221,6 +231,8 @@ static void Tess_SurfacePolychain(srfPoly_t * p, int numLightIndexes, int *light
 {
 	int             i;
 	int             numv;
+	
+	GLimp_LogComment("--- Tess_SurfacePolychain ---\n");
 
 	if(tess.shadowVolume)
 	{
@@ -268,6 +280,8 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *li
 	byte           *color;
 	vec3_t          lightOrigin;
 	float           d;
+	
+	GLimp_LogComment("--- Tess_SurfaceFace ---\n");
 
 	if(tess.shadowVolume)
 	{
@@ -422,7 +436,7 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *li
 	{
 		if(glConfig.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboFaces->integer)
 		{
-			Tess_EndBeginSurface();
+			Tess_EndBegin();
 		}
 
 		if(glConfig.vertexBufferObjectAvailable && cv->indexesVBO && r_vboFaces->integer)
@@ -537,6 +551,8 @@ static void Tess_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *light
 	byte           *color;
 	vec3_t          lightOrigin;
 	float           d;
+	
+	GLimp_LogComment("--- Tess_SurfaceGrid ---\n");
 
 	if(tess.shadowVolume)
 	{
@@ -691,7 +707,7 @@ static void Tess_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *light
 	{
 		if(glConfig.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboCurves->integer)
 		{
-			Tess_EndBeginSurface();
+			Tess_EndBegin();
 		}
 
 		if(glConfig.vertexBufferObjectAvailable && cv->indexesVBO && r_vboCurves->integer)
@@ -806,6 +822,8 @@ static void Tess_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int 
 	byte           *color;
 	vec3_t          lightOrigin;
 	float           d;
+	
+	GLimp_LogComment("--- Tess_SurfaceTriangles ---\n");
 
 	if(tess.shadowVolume)
 	{
@@ -960,7 +978,7 @@ static void Tess_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int 
 	{
 		if(glConfig.vertexBufferObjectAvailable && (cv->indexesVBO || cv->vertsVBO) && r_vboTriangles->integer)
 		{
-			Tess_EndBeginSurface();
+			Tess_EndBegin();
 		}
 
 		if(glConfig.vertexBufferObjectAvailable && cv->indexesVBO && r_vboTriangles->integer)
@@ -1077,6 +1095,8 @@ static void Tess_SurfaceBeam(void)
 	vec3_t          direction, normalized_direction;
 	vec3_t          start_points[NUM_BEAM_SEGS], end_points[NUM_BEAM_SEGS];
 	vec3_t          oldorigin, origin;
+	
+	GLimp_LogComment("--- Tess_SurfaceBeam ---\n");
 
 	e = &backEnd.currentEntity->e;
 
@@ -1255,6 +1275,8 @@ static void Tess_SurfaceRailRings(void)
 	vec3_t          vec;
 	vec3_t          right, up;
 	vec3_t          start, end;
+	
+	GLimp_LogComment("--- Tess_SurfaceRailRings ---\n");
 
 	e = &backEnd.currentEntity->e;
 
@@ -1289,6 +1311,8 @@ static void Tess_SurfaceRailCore(void)
 	vec3_t          vec;
 	vec3_t          start, end;
 	vec3_t          v1, v2;
+	
+	GLimp_LogComment("--- Tess_SurfaceRailCore ---\n");
 
 	e = &backEnd.currentEntity->e;
 
@@ -1323,6 +1347,8 @@ static void Tess_SurfaceLightningBolt(void)
 	vec3_t          start, end;
 	vec3_t          v1, v2;
 	int             i;
+	
+	GLimp_LogComment("--- Tess_SurfaceLightningBolt ---\n");
 
 	e = &backEnd.currentEntity->e;
 
@@ -1430,6 +1456,8 @@ static void Tess_SurfaceMDX(mdxSurface_t * srf, int numLightIndexes, int *lightI
 	vec3_t          lightOrigin;
 	float           backlerp;
 	float           oldXyzScale, newXyzScale;
+	
+	GLimp_LogComment("--- Tess_SurfaceMDX ---\n");
 	
 	if(backEnd.currentEntity->e.oldframe == backEnd.currentEntity->e.frame)
 	{
@@ -1731,6 +1759,8 @@ static void Tess_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightI
 	vec3_t          offsetVec;
 	vec3_t          lightOrigin;
 	float          *xyzw, *xyzw2;
+	
+	GLimp_LogComment("--- Tess_SurfaceMD5 ---\n");
 
 	if(tess.shadowVolume)
 	{
@@ -2042,6 +2072,8 @@ Tess_SurfaceDAE
 */
 static void Tess_SurfaceDAE(daeSurface_t * srf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
+	GLimp_LogComment("--- Tess_SurfaceDAE ---\n");
+	
 	//TODO
 }
 
@@ -2062,6 +2094,8 @@ Draws x/y/z lines from the origin for orientation debugging
 */
 static void Tess_SurfaceAxis(void)
 {
+	GLimp_LogComment("--- Tess_SurfaceAxis ---\n");
+	
 	GL_Program(0);
 	GL_SelectTexture(0);
 	GL_Bind(tr.whiteImage);
@@ -2091,6 +2125,8 @@ Entities that have a single procedurally generated surface
 */
 static void Tess_SurfaceEntity(surfaceType_t * surfType, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
+	GLimp_LogComment("--- Tess_SurfaceEntity ---\n");
+	
 	if(tess.shadowVolume)
 	{
 		return;
@@ -2122,6 +2158,8 @@ static void Tess_SurfaceEntity(surfaceType_t * surfType, int numLightIndexes, in
 
 static void Tess_SurfaceBad(surfaceType_t * surfType, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
+	GLimp_LogComment("--- Tess_SurfaceBad ---\n");
+	
 	ri.Printf(PRINT_ALL, "Bad surface tesselated.\n");
 }
 
@@ -2134,6 +2172,8 @@ static void Tess_SurfaceFlare(srfFlare_t * surf, int numLightIndexes, int *light
 	vec3_t          dir;
 	vec3_t          origin;
 	float           d;
+	
+	GLimp_LogComment("--- Tess_SurfaceFlare ---\n");
 
 	if(tess.shadowVolume)
 	{
@@ -2228,15 +2268,16 @@ static void Tess_SurfaceFlare(srfFlare_t * surf, int numLightIndexes, int *light
 
 
 
-static void Tess_SurfaceDisplayList(srfDisplayList_t * surf, int numLightIndexes, int *lightIndexes, int numShadowIndexes,
-						   int *shadowIndexes)
+static void Tess_SurfaceDisplayList(srfDisplayList_t * surf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
+	GLimp_LogComment("--- Tess_SurfaceDisplayist ---\n");
+	
 	if(tess.shadowVolume)
 	{
 		return;
 	}
 
-	// all apropriate state must be set in Tess_BeginSurface
+	// all apropriate state must be set in Tess_Begin
 	// this isn't implemented yet...
 	qglCallList(surf->listNum);
 }

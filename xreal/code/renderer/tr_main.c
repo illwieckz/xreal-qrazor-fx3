@@ -1241,7 +1241,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 
 	if(glConfig.smpActive)
 	{
-		// FIXME!  we can't do Tess_BeginSurface/Tess_EndSurface stuff with smp!
+		// FIXME!  we can't do Tess_Begin/Tess_End stuff with smp!
 		return qfalse;
 	}
 
@@ -1261,7 +1261,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 		tr.or = tr.viewParms.world;
 	}
 
-	Tess_BeginSurface(shader, NULL, lightmapNum, fogNum, qfalse, qfalse);
+	Tess_Begin(shader, NULL, lightmapNum, fogNum, qfalse, qfalse);
 	rb_surfaceTable[*drawSurf->surface] (drawSurf->surface, 0, NULL, 0, NULL);
 
 	// Tr3B: former assertion
@@ -1467,7 +1467,16 @@ void R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int lightmapNum, 
 	drawSurf->entity = tr.currentEntity;
 	drawSurf->surface = surface;
 	drawSurf->shaderNum = shader->sortedIndex;
-	drawSurf->lightmapNum = lightmapNum;
+	
+	if(r_dynamicLighting->integer == 2)
+	{
+		drawSurf->lightmapNum = -1;
+	}
+	else
+	{
+		drawSurf->lightmapNum = lightmapNum;
+	}
+	
 	drawSurf->fogNum = fogNum;
 
 	tr.refdef.numDrawSurfs++;
