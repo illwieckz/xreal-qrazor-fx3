@@ -211,6 +211,7 @@ if env['arch'] == 'linux-i386':
 	xreal_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm'])
 	xreal_env.Append(LIBS=['dl', 'm'])
 	xreal_env.ParseConfig('xml2-config --cflags --libs')
+	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
 	
 	if env['freetype'] == 1:
 		xreal_env.ParseConfig('freetype-config --cflags --libs')
