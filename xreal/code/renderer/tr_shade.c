@@ -506,6 +506,7 @@ void GLSL_InitGPUShaders(void)
 	tr.lightShader_D_proj.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_DiffuseMap");
 	tr.lightShader_D_proj.u_AttenuationMapXY = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_AttenuationMapXY");
 	tr.lightShader_D_proj.u_AttenuationMapZ = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_AttenuationMapZ");
+	tr.lightShader_D_proj.u_ShadowMap = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_ShadowMap");
 	tr.lightShader_D_proj.u_LightOrigin = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightOrigin");
 	tr.lightShader_D_proj.u_LightColor = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightColor");
 	tr.lightShader_D_proj.u_LightScale = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightScale");
@@ -514,6 +515,7 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.lightShader_D_proj.u_DiffuseMap, 0);
 	qglUniform1iARB(tr.lightShader_D_proj.u_AttenuationMapXY, 1);
 	qglUniform1iARB(tr.lightShader_D_proj.u_AttenuationMapZ, 2);
+	qglUniform1iARB(tr.lightShader_D_proj.u_ShadowMap, 3);
 	qglUseProgramObjectARB(0);
 
 	GLSL_ValidateProgram(tr.lightShader_D_proj.program);
@@ -1386,7 +1388,7 @@ static void Render_genericSingle_FFP(int stage)
 //  qglDisable(GL_TEXTURE_2D);
 }
 
-#if 0
+#if 1
 #define Render_genericSingle Render_genericSingle_FFP
 #else
 static void Render_genericSingle(int stage)
@@ -2142,6 +2144,10 @@ static void Render_lighting_D_proj(shaderStage_t * diffuseStage,
 	// bind u_AttenuationMapZ
 	GL_SelectTexture(2);
 	BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
+	
+	// bind u_ShadowMap
+	GL_SelectTexture(3);
+	GL_Bind(tr.shadowRenderFBOImage);
 
 	DrawElements();
 
@@ -3882,6 +3888,8 @@ void Tess_StageIteratorGeneric()
 		// a call to va() every frame!
 		GLimp_LogComment(va("--- Tess_StageIteratorGeneric( %s, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name, tess.numVertexes, tess.numIndexes / 3));
 	}
+	
+	GL_CheckErrors();
 
 	Tess_DeformGeometry();
 
@@ -4389,6 +4397,8 @@ void Tess_StageIteratorDepthFill()
 		// a call to va() every frame!
 		GLimp_LogComment(va("--- Tess_StageIteratorDepthFill( %s, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name, tess.numVertexes, tess.numIndexes / 3));
 	}
+	
+	GL_CheckErrors();
 
 	Tess_DeformGeometry();
 
@@ -4494,6 +4504,8 @@ void Tess_StageIteratorStencilShadowVolume()
 		// a call to va() every frame!
 		GLimp_LogComment(va("--- Tess_StageIteratorStencilShadowVolume( %s, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name, tess.numVertexes, tess.numIndexes / 3));
 	}
+	
+	GL_CheckErrors();
 
 	// lock XYZ
 	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
@@ -4714,6 +4726,8 @@ void Tess_StageIteratorLighting()
 		// a call to va() every frame!
 		GLimp_LogComment(va("--- Tess_StageIteratorLighting( %s, %s, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name, tess.lightShader->name, tess.numVertexes, tess.numIndexes / 3));
 	}
+	
+	GL_CheckErrors();
 
 	if(!tess.surfaceShader->interactLight)
 	{

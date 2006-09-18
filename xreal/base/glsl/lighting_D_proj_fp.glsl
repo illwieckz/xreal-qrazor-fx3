@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uniform sampler2D	u_DiffuseMap;
 uniform sampler2D	u_AttenuationMapXY;
 uniform sampler2D	u_AttenuationMapZ;
-//uniform sampler2D	u_ShadowMap;
+uniform sampler2DShadow	u_ShadowMap;
 uniform vec3		u_LightOrigin;
 uniform vec3		u_LightColor;
 uniform float		u_LightScale;
@@ -51,13 +51,14 @@ void	main()
 	vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(var_TexAtten.z, 0.0)).rgb;
 
 	// compute shadow
-//	vec3 shadow = textureCube(u_ShadowMap, var_TexShadow).rgb;
+	vec3 shadow = shadow2DProj(u_ShadowMap, var_TexAtten).rgb;
 	
 	// compute final color
 	vec4 color = diffuse;
 	color.rgb *= attenuationXY;
 	color.rgb *= attenuationZ;
 	color.rgb *= u_LightScale;
+	color.rgb *= shadow;
 	
 #if defined(GL_ARB_draw_buffers)
 	gl_FragData[0] = color;

@@ -277,6 +277,12 @@ void R_ImageList_f(void)
 			case GL_RGB5:
 				ri.Printf(PRINT_ALL, "RGB5 ");
 				break;
+				
+			case GL_DEPTH_COMPONENT16_ARB:
+			case GL_DEPTH_COMPONENT24_ARB:
+			case GL_DEPTH_COMPONENT32_ARB:
+				ri.Printf(PRINT_ALL, "D    ");
+				break;
 
 			default:
 				ri.Printf(PRINT_ALL, "???? ");
@@ -1062,7 +1068,12 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 	c = scaledWidth * scaledHeight;
 	scan = data;
 	samples = 3;
-	if(!(image->bits & IF_LIGHTMAP))
+	if((image->bits & IF_DEPTHMAP) && glConfig.depthTextureAvailable)
+	{
+		format = GL_DEPTH_COMPONENT;
+		internalFormat = GL_DEPTH_COMPONENT24_ARB;
+	}
+	else if(!(image->bits & IF_LIGHTMAP))
 	{
 		// Tr3B: normalmaps have the displacement maps in the alpha channel
 		// samples 3 would cause an opaque alpha channel and odd displacements!
@@ -1138,11 +1149,6 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 			}
 		}
 	}
-	else if((image->bits & IF_DEPTHMAP) && glConfig.depthTextureAvailable)
-	{
-		format = GL_DEPTH_COMPONENT32_ARB;
-		internalFormat = GL_DEPTH_COMPONENT24_ARB;
-	}
 	else
 	{
 		internalFormat = 3;
@@ -1157,7 +1163,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		{
 			if(image->filterType != FT_DEFAULT)
 			{
-				qglTexImage2D(target, 0, internalFormat, scaledWidth, scaledHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+				qglTexImage2D(target, 0, internalFormat, scaledWidth, scaledHeight, 0, format, GL_UNSIGNED_BYTE, data);
 				image->uploadWidth = scaledWidth;
 				image->uploadHeight = scaledHeight;
 				image->internalFormat = internalFormat;

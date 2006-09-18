@@ -1815,7 +1815,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				// show shadowRender for debugging
 				
 				// enable shader, set arrays
-				GL_Program(tr.genericSingleShader.program);
+				GL_Program(0);//tr.genericSingleShader.program);
 				GL_State(GLS_DEPTHTEST_DISABLE);
 				GL_ClientState(tr.genericSingleShader.attribs);
 				//GL_SetVertexAttribs();
@@ -2012,12 +2012,6 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 			else
 			{
 				VectorCopy(light->origin, light->transformed);
-			}
-
-			if(drawShadows)
-			{
-				// set uniform parameter u_LightOrigin for GLSL shader
-				qglUniform3fARB(tr.shadowShader.u_LightOrigin, light->transformed[0], light->transformed[1], light->transformed[2]);
 			}
 
 			// build the attenuation matrix using the entity transform          
