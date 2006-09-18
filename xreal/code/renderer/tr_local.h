@@ -181,7 +181,8 @@ enum
 	IF_ALPHA = (1 << 4),
 	IF_NORMALMAP = (1 << 5),
 	IF_LIGHTMAP = (1 << 6),
-	IF_CUBEMAP = (1 << 7)
+	IF_CUBEMAP = (1 << 7),
+	IF_DEPTHMAP = (1 << 8)
 };
 
 typedef enum
@@ -1738,10 +1739,12 @@ typedef struct
 
 	image_t        *currentRenderFBOImage[4];
 	image_t        *portalRenderFBOImage[4];
+	image_t        *shadowRenderFBOImage;
 
 	// framebuffer objects
 	frameBuffer_t  *currentRenderFBO;
 	frameBuffer_t  *portalRenderFBO;
+	frameBuffer_t  *shadowRenderFBO;
 
 	// internal shaders
 	shader_t       *defaultShader;

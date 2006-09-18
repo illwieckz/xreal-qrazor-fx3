@@ -979,6 +979,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 	int             i, c;
 	const byte     *scan;
 	GLenum          target;
+	GLenum          format = GL_RGBA;
 	GLenum          internalFormat = GL_RGB;
 	float           rMax = 0, gMax = 0, bMax = 0;
 	vec4_t          zeroClampBorder = { 0, 0, 0, 1 };
@@ -1137,6 +1138,11 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 			}
 		}
 	}
+	else if((image->bits & IF_DEPTHMAP) && glConfig.depthTextureAvailable)
+	{
+		format = GL_DEPTH_COMPONENT32_ARB;
+		internalFormat = GL_DEPTH_COMPONENT24_ARB;
+	}
 	else
 	{
 		internalFormat = 3;
@@ -1166,7 +1172,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 							(image->bits & IF_NORMALMAP));
 		}
 
-		if(!(image->bits & IF_NORMALMAP))
+		if(!(image->bits & (IF_NORMALMAP | IF_DEPTHMAP)))
 		{
 			R_LightScaleTexture((unsigned *)scaledBuffer, scaledWidth, scaledHeight, image->filterType == FT_DEFAULT);
 		}
@@ -1178,12 +1184,11 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		switch (image->type)
 		{
 			case GL_TEXTURE_CUBE_MAP_ARB:
-				qglTexImage2D(target + i, 0, internalFormat, scaledWidth, scaledHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-							  scaledBuffer);
+				qglTexImage2D(target + i, 0, internalFormat, scaledWidth, scaledHeight, 0, format, GL_UNSIGNED_BYTE, scaledBuffer);
 				break;
 
 			default:
-				qglTexImage2D(target, 0, internalFormat, scaledWidth, scaledHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer);
+				qglTexImage2D(target, 0, internalFormat, scaledWidth, scaledHeight, 0, format, GL_UNSIGNED_BYTE, scaledBuffer);
 				break;
 		}
 
@@ -1222,13 +1227,11 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 				switch (image->type)
 				{
 					case GL_TEXTURE_CUBE_MAP_ARB:
-						qglTexImage2D(target + i, mipLevel, internalFormat, mipWidth, mipHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-									  scaledBuffer);
+						qglTexImage2D(target + i, mipLevel, internalFormat, mipWidth, mipHeight, 0, format, GL_UNSIGNED_BYTE, scaledBuffer);
 						break;
 
 					default:
-						qglTexImage2D(target, mipLevel, internalFormat, mipWidth, mipHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-									  scaledBuffer);
+						qglTexImage2D(target, mipLevel, internalFormat, mipWidth, mipHeight, 0, format, GL_UNSIGNED_BYTE, scaledBuffer);
 						break;
 				}
 			}
@@ -4587,6 +4590,22 @@ static void R_CreatePortalRenderFBOImage(void)
 	ri.Hunk_FreeTempMemory(data);
 }
 
+static void R_CreateShadowRenderFBOImage(void)
+{
+	int             width, height;
+	byte           *data;
+	
+	width = 512;
+	height = 512;
+
+	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+
+	tr.shadowRenderFBOImage =
+			R_CreateImage("_shadowRenderFBO", data, width, height, IF_NOPICMIP | IF_DEPTHMAP, FT_NEAREST, WT_REPEAT);
+
+	ri.Hunk_FreeTempMemory(data);
+}
+
 /*
 ==================
 R_CreateBuiltinImages
@@ -4646,6 +4665,7 @@ void R_CreateBuiltinImages(void)
 	R_CreateCurrentRenderImage();
 	R_CreateCurrentRenderFBOImage();
 	R_CreatePortalRenderFBOImage();
+	R_CreateShadowRenderFBOImage();
 }
 
 

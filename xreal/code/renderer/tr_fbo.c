@@ -361,7 +361,7 @@ void R_InitFBOs(void)
 {
 	int             i;
 	
-	if(!glConfig.framebufferObjectAvailable)
+	if(!glConfig.framebufferObjectAvailable || !glConfig.depthTextureAvailable)
 		return;
 
 	tr.numFBOs = 0;
@@ -418,7 +418,17 @@ void R_InitFBOs(void)
 	R_CheckFBO(tr.portalRenderFBO);
 
 
-//	tr.shadowMapFBO = R_CreateFBO("_shadowMap", MAX_SHADOWMAP_SIZE * 3, MAX_SHADOWMAP_SIZE * 2);
+	//
+	// shadowRender for shadowmap offscreen rendering
+	//
+	tr.shadowRenderFBO = R_CreateFBO("_shadowRender", 512, 512);
+	R_BindFBO(tr.shadowRenderFBO);
+	R_CreateFBOColorBuffer(tr.shadowRenderFBO, GL_RGBA, 0);
+//	R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowRenderFBOImage->texnum, 0);
+	R_AttachFBOTextureDepth(tr.shadowRenderFBOImage->texnum);
+	R_CreateFBODepthBuffer(tr.shadowRenderFBO, GL_DEPTH_COMPONENT24_ARB);
+	R_CheckFBO(tr.shadowRenderFBO);
+	
 	GL_CheckErrors();
 
 	R_BindNullFBO();

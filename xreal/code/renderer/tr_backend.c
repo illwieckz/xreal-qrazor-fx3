@@ -1721,21 +1721,151 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				{
 					GLimp_LogComment("--- Rendering shadow map ---\n");
 				
-					// TODO initiate shadow map pass
+					R_BindFBO(tr.shadowRenderFBO);
 					
+					// set the window clipping
+					qglViewport(0, 0, 512, 512);
+					qglScissor(0, 0, 512, 512);
 					
+					//qglClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+					qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+					//qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+					
+					switch (light->l.rlType)
+					{
+						case RL_OMNI:
+						{
+							// TODO
+							break;	
+						}
+							
+						case RL_PROJ:
+						{
+							float           xMin, xMax, yMin, yMax;
+							float           width, height, depth;
+							float           zNear, zFar;
+							float           fovX, fovY;
+							matrix_t        proj;
+			
+							fovX = 30;
+							fovY = R_CalcFov(fovX, VectorLength(light->l.right) * 2, VectorLength(light->l.up) * 2);
+
+							zNear = 1.0;
+							zFar = VectorLength(light->l.target);
+
+							xMax = zNear * tan(fovX * M_PI / 360.0f);
+							xMin = -xMax;
+
+							yMax = zNear * tan(fovY * M_PI / 360.0f);
+							yMin = -yMax;
+
+							width = xMax - xMin;
+							height = yMax - yMin;
+							depth = zFar - zNear;
+							
+							// standard OpenGL projection matrix
+							proj[0] = (2 * zNear) / width;	proj[4] = 0;					proj[8] = (xMax + xMin) / width;	proj[12] = 0;
+							proj[1] = 0;					proj[5] = (2 * zNear) / height;	proj[9] = (yMax + yMin) / height;	proj[13] = 0;
+							proj[2] = 0;					proj[6] = 0;					proj[10] = -(zFar + zNear) / depth;	proj[14] = -(2 * zFar * zNear) / depth;
+							proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;
+			
+							// convert from looking down -Z to looking down X
+							MatrixMultiplyRotation(proj, 90, 90, 0);
+							
+							qglMatrixMode(GL_PROJECTION);
+							qglLoadMatrixf(proj);
+							qglMatrixMode(GL_MODELVIEW);
+							break;
+						}
+						
+						case RL_DIRECT:
+						{
+							// TODO
+							break;
+						}
+						
+						default:
+							break;
+					}
 				}
 			}
 			else
 			{
+				float           x, y, w, h;
+				
 				GLimp_LogComment("--- Rendering lighting ---\n");
-#if 0
+				
+				R_BindNullFBO();
+				
+				// set the window clipping
+				qglViewport(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+							backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
+
+				qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+						   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
+				
+				// restore camera matrices
+				qglMatrixMode(GL_PROJECTION);
+				qglLoadMatrixf(backEnd.viewParms.projectionMatrix);
+				qglMatrixMode(GL_MODELVIEW);
+				
+				qglLoadMatrixf(backEnd.or.modelViewMatrix);
+				
+				#if 1
+				// show shadowRender for debugging
+				
+				// enable shader, set arrays
+				GL_Program(tr.genericSingleShader.program);
+				GL_State(GLS_DEPTHTEST_DISABLE);
+				GL_ClientState(tr.genericSingleShader.attribs);
+				//GL_SetVertexAttribs();
+				GL_Cull(CT_TWO_SIDED);
+				
+				qglColor3f(1, 1, 1);
+	
+				// bind u_ColorMap
+				GL_SelectTexture(0);
+				GL_Bind(tr.shadowRenderFBOImage);
+				
+				// set 2D virtual screen size
+				qglPushMatrix();
+				qglLoadIdentity();
+				qglMatrixMode(GL_PROJECTION);
+				qglPushMatrix();
+				qglLoadIdentity();
+				qglOrtho(backEnd.viewParms.viewportX,
+						 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+						 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+				
+				x = 0;
+				y = 0;
+				w = backEnd.viewParms.viewportWidth / 3;
+				h =  backEnd.viewParms.viewportHeight / 3;
+		
+				qglBegin(GL_QUADS);
+				qglTexCoord2f(0, 0);
+				qglVertex2f(x, y);
+				qglTexCoord2f(1, 0);
+				qglVertex2f(x + w, y);
+				qglTexCoord2f(1, 1);
+				qglVertex2f(x + w, y + h);
+				qglTexCoord2f(0, 1);
+				qglVertex2f(x, y + h);
+				qglEnd();
+
+				qglPopMatrix();
+				qglMatrixMode(GL_MODELVIEW);
+				qglPopMatrix();
+				#endif
+				
+				// set OpenGL state for lighting
+				#if 0
 				if(!light->additive)
 				{
 					GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
 				}
 				else
-#endif
+				#endif
 				{
 					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
 				}
@@ -1841,8 +1971,17 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				// the world (like water) continue with the wrong frame
 				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 			}
-
-			qglLoadMatrixf(backEnd.or.modelViewMatrix);
+			
+			if(drawShadows)
+			{
+				// transform by the light placement
+				MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
+				qglLoadMatrixf(modelToLight);
+			}
+			else
+			{
+				qglLoadMatrixf(backEnd.or.modelViewMatrix);
+			}
 
 			// change depthrange if needed
 			if(oldDepthRange != depthRange)
