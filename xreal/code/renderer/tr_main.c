@@ -1261,7 +1261,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 		tr.or = tr.viewParms.world;
 	}
 
-	Tess_Begin(shader, NULL, lightmapNum, fogNum, qfalse, qfalse);
+	Tess_Begin(Tess_StageIteratorGeneric, shader, NULL, lightmapNum, fogNum, qfalse, qfalse);
 	rb_surfaceTable[*drawSurf->surface] (drawSurf->surface, 0, NULL, 0, NULL);
 
 	// Tr3B: former assertion

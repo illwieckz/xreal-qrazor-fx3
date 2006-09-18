@@ -334,9 +334,7 @@ void RB_RenderFlare(flare_t * f)
 
 	size = backEnd.viewParms.viewportWidth * (r_flareSize->value / 640.0f + 8 / -f->eyeZ);
 
-	tess.currentStageIteratorFunc = Tess_StageIteratorGeneric;
-	
-	Tess_Begin(tr.flareShader, NULL, -1, f->fogNum, qfalse, qfalse);
+	Tess_Begin(Tess_StageIteratorGeneric, tr.flareShader, NULL, -1, f->fogNum, qfalse, qfalse);
 
 	// FIXME: use quadstamp?
 	tess.xyz[tess.numVertexes][0] = f->windowX - size;

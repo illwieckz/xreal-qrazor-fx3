@@ -966,7 +966,7 @@ static void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, in
 				Tess_End();
 			}
 
-			Tess_Begin(shader, NULL, lightmapNum, fogNum, qfalse, qfalse);
+			Tess_Begin(Tess_StageIteratorGeneric, shader, NULL, lightmapNum, fogNum, qfalse, qfalse);
 			oldShader = shader;
 			oldLightmapNum = lightmapNum;
 			oldFogNum = fogNum;
@@ -1073,8 +1073,6 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 	oldDepthRange = qfalse;
 	depthRange = qfalse;
 
-	tess.currentStageIteratorType = SIT_LIGHTING;
-
 	// render interactions
 	for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
 	{
@@ -1132,7 +1130,7 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 		Tess_End();
 
 		// begin a new batch
-		Tess_Begin(shader, ia->lightShader, -1, 0, qfalse, qfalse);
+		Tess_Begin(Tess_StageIteratorLighting, shader, ia->lightShader, -1, 0, qfalse, qfalse);
 
 		// change the modelview matrix if needed
 		if(entity != oldEntity)
@@ -1266,9 +1264,6 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 	qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
-	// reset stage iterator
-	tess.currentStageIteratorType = SIT_DEFAULT;
-
 	GL_CheckErrors();
 }
 
@@ -1308,7 +1303,12 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 	depthRange = qfalse;
 	drawShadows = qtrue;
 
-	tess.currentStageIteratorType = SIT_LIGHTING_STENCIL;
+	/*
+	if(qglActiveStencilFaceEXT)
+	{
+		qglEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
+	}
+	*/
 
 	// render interactions
 	for(iaCount = 0, iaFirst = 0, ia = &interactions[0]; iaCount < numInteractions;)
@@ -1352,7 +1352,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					GLimp_LogComment("--- Rendering shadow volumes ---\n");
 				
 					// set the reference stencil value
-					qglClearStencil(128);
+					qglClearStencil(0);
 
 					// reset stencil buffer
 					qglClear(GL_STENCIL_BUFFER_BIT);
@@ -1362,7 +1362,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					// enable stencil testing for this light
 					GL_State(GLS_DEPTHFUNC_LESS | GLS_COLORMASK_BITS | GLS_STENCILTEST_ENABLE);
 	
-					qglStencilFunc(GL_ALWAYS, 128, 255);
+					qglStencilFunc(GL_ALWAYS, 0, 255);
 					qglStencilMask(255);
 
 					qglEnable(GL_POLYGON_OFFSET_FILL);
@@ -1371,8 +1371,6 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					// enable shadow volume extrusion shader
 					GL_Program(tr.shadowShader.program);
 					GL_ClientState(tr.shadowShader.attribs);
-	
-					qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
 				}
 			}
 			else
@@ -1391,14 +1389,28 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 
 				if(!light->l.noShadows)
 				{
-					qglStencilFunc(GL_EQUAL, 128, 255);
+					qglStencilFunc(GL_EQUAL, 0, 255);
 				}
 				else
 				{
 					// don't consider shadow volumes
-					qglStencilFunc(GL_ALWAYS, 128, 255);
+					qglStencilFunc(GL_ALWAYS, 0, 255);
 				}
-				qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);	//GL_INCR);
+				
+				/*
+				if(qglActiveStencilFaceEXT)
+				{
+					qglActiveStencilFaceEXT(GL_BACK);
+					qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+					qglActiveStencilFaceEXT(GL_FRONT);
+					qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+				}
+				else
+				*/
+				{
+					qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+				}
 
 				qglDisable(GL_POLYGON_OFFSET_FILL);
 
@@ -1456,7 +1468,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				Tess_End();
 
 				// we don't need tangent space calculations here
-				Tess_Begin(shader, ia->lightShader, -1, 0, qtrue, qtrue);
+				Tess_Begin(Tess_StageIteratorStencilShadowVolume, shader, ia->lightShader, -1, 0, qtrue, qtrue);
 			}
 		}
 		else
@@ -1473,7 +1485,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				Tess_End();
 
 				// begin a new batch
-				Tess_Begin(shader, ia->lightShader, -1, 0, qfalse, qfalse);
+				Tess_Begin(Tess_StageIteratorLighting, shader, ia->lightShader, -1, 0, qfalse, qfalse);
 			}
 		}
 
@@ -1639,9 +1651,323 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 	{
 		qglDisable(GL_DEPTH_BOUNDS_TEST_EXT);
 	}
+	
+	/*
+	if(qglActiveStencilFaceEXT)
+	{
+		qglDisable(GL_STENCIL_TEST_TWO_SIDE_EXT);
+	}
+	*/
 
-	// reset stage iterator
-	tess.currentStageIteratorType = SIT_DEFAULT;
+	GL_CheckErrors();
+}
+
+/*
+=================
+RB_RenderInteractionsShadowMapped
+=================
+*/
+static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t * interactions, int numInteractions)
+{
+	shader_t       *shader, *oldShader;
+	trRefEntity_t  *entity, *oldEntity;
+	trRefLight_t  *light, *oldLight;
+	interaction_t  *ia;
+	int             iaCount;
+	int             iaFirst;
+	surfaceType_t  *surface;
+	qboolean        depthRange, oldDepthRange;
+	vec3_t          tmp;
+	matrix_t        modelToLight;
+	qboolean        drawShadows;
+
+	if(!glConfig.framebufferObjectAvailable || !glConfig.shadingLanguage100Available)
+	{
+		RB_RenderInteractions(originalTime, interactions, numInteractions);
+		return;
+	}
+
+	GLimp_LogComment("--- RB_RenderInteractionsShadowMapped ---\n");
+
+	// draw everything
+	oldLight = NULL;
+	oldEntity = NULL;
+	oldShader = NULL;
+	oldDepthRange = qfalse;
+	depthRange = qfalse;
+	drawShadows = qtrue;
+
+	// render interactions
+	for(iaCount = 0, iaFirst = 0, ia = &interactions[0]; iaCount < numInteractions;)
+	{
+		backEnd.currentLight = light = ia->light;
+		backEnd.currentEntity = entity = ia->entity;
+		surface = ia->surface;
+		shader = ia->surfaceShader;
+		
+		// only iaCount == iaFirst if first iteration or counters were reset
+		if(iaCount == iaFirst)
+		{
+			if(r_logFile->integer)
+			{
+				// don't just call LogComment, or we will get
+				// a call to va() every frame!
+				GLimp_LogComment(va("----- First Interaction: %i -----\n", iaCount));
+			}
+			
+			if(drawShadows)
+			{
+				if(!light->l.noShadows)
+				{
+					GLimp_LogComment("--- Rendering shadow map ---\n");
+				
+					// TODO initiate shadow map pass
+					
+					
+				}
+			}
+			else
+			{
+				GLimp_LogComment("--- Rendering lighting ---\n");
+#if 0
+				if(!light->additive)
+				{
+					GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
+				}
+				else
+#endif
+				{
+					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
+				}
+			}
+		}
+		
+		if(drawShadows)
+		{
+			if(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK))
+			{
+				goto skipInteraction;
+			}
+			
+			if(shader->sort > SS_OPAQUE)
+			{
+				goto skipInteraction;
+			}
+			
+			if(shader->noShadows || light->l.noShadows)
+			{
+				goto skipInteraction;
+			}
+			
+			if(ia->type == IA_LIGHTONLY)
+			{
+				goto skipInteraction;
+			}
+		}
+		else
+		{
+			if(!shader->interactLight)
+			{
+				goto skipInteraction;
+			}
+			
+			if(ia->type == IA_SHADOWONLY)
+			{
+				goto skipInteraction;
+			}
+		}
+
+		if(drawShadows)
+		{
+			if(light == oldLight && entity == oldEntity && shader == oldShader && iaCount != iaFirst)
+			{
+				// fast path, same as previous
+				rb_surfaceTable[*surface] (surface, 0, NULL, ia->numShadowIndexes, ia->shadowIndexes);
+				goto nextInteraction;
+			}
+			else
+			{
+				// draw the contents of the last shader batch
+				Tess_End();
+
+				// we don't need tangent space calculations here
+				Tess_Begin(Tess_StageIteratorDepthFill, shader, ia->lightShader, -1, 0, qtrue, qfalse);
+			}
+		}
+		else
+		{
+			if(light == oldLight && entity == oldEntity && shader == oldShader && iaCount != iaFirst)
+			{
+				// fast path, same as previous
+				rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
+				goto nextInteraction;
+			}
+			else
+			{
+				// draw the contents of the last shader batch
+				Tess_End();
+
+				// begin a new batch
+				Tess_Begin(Tess_StageIteratorLighting, shader, ia->lightShader, -1, 0, qfalse, qfalse);
+			}
+		}
+
+		// change the modelview matrix if needed
+		if(entity != oldEntity)
+		{
+			depthRange = qfalse;
+
+			if(entity != &tr.worldEntity)
+			{
+				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
+				// we have to reset the shaderTime as well otherwise image animations start
+				// from the wrong frame
+				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
+
+				// set up the transformation matrix
+				R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
+
+				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
+				{
+					// hack the depth range to prevent view model from poking into walls
+					depthRange = qtrue;
+				}
+			}
+			else
+			{
+				backEnd.refdef.floatTime = originalTime;
+				backEnd.or = backEnd.viewParms.world;
+				// we have to reset the shaderTime as well otherwise image animations on
+				// the world (like water) continue with the wrong frame
+				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
+			}
+
+			qglLoadMatrixf(backEnd.or.modelViewMatrix);
+
+			// change depthrange if needed
+			if(oldDepthRange != depthRange)
+			{
+				if(depthRange)
+				{
+					qglDepthRange(0, 0.3);
+				}
+				else
+				{
+					qglDepthRange(0, 1);
+				}
+				oldDepthRange = depthRange;
+			}
+		}
+
+		// change the attenuation matrix if needed
+		if(light != oldLight || entity != oldEntity)
+		{
+			// transform light origin into model space for u_LightOrigin parameter
+			if(entity != &tr.worldEntity)
+			{
+				VectorSubtract(light->origin, backEnd.or.origin, tmp);
+				light->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
+				light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
+				light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
+			}
+			else
+			{
+				VectorCopy(light->origin, light->transformed);
+			}
+
+			if(drawShadows)
+			{
+				// set uniform parameter u_LightOrigin for GLSL shader
+				qglUniform3fARB(tr.shadowShader.u_LightOrigin, light->transformed[0], light->transformed[1], light->transformed[2]);
+			}
+
+			// build the attenuation matrix using the entity transform          
+			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
+
+			MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
+			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
+			MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
+			MatrixMultiply2(light->attenuationMatrix, modelToLight);
+		}
+
+		if(drawShadows)
+		{
+			// add the triangles for this surface
+			rb_surfaceTable[*surface] (surface, 0, NULL, ia->numShadowIndexes, ia->shadowIndexes);
+		}
+		else
+		{
+			// add the triangles for this surface
+			rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
+		}
+
+	  nextInteraction:
+	  	
+	  	// remember values
+		oldLight = light;
+		oldEntity = entity;
+		oldShader = shader;
+		
+	  skipInteraction:
+		if(!ia->next)
+		{
+			// if ia->next does not point to any other interaction then
+			// this is the last interaction of the current light
+			
+			if(r_logFile->integer)
+			{
+				// don't just call LogComment, or we will get
+				// a call to va() every frame!
+				GLimp_LogComment(va("----- Last Interaction: %i -----\n", iaCount));
+			}
+
+			if(drawShadows)
+			{
+				// jump back to first interaction of this light and start lighting
+				ia = &interactions[iaFirst];
+				iaCount = iaFirst;
+				drawShadows = qfalse;
+			}
+			else
+			{
+				if(iaCount < (numInteractions - 1))
+				{
+					// jump to next interaction and start shadowing
+					ia++;
+					iaCount++;
+					iaFirst = iaCount;
+					drawShadows = qtrue;
+				}
+				else
+				{
+					// increase last time to leave for loop
+					iaCount++;
+				}
+			}
+
+			// draw the contents of the last shader batch
+			Tess_End();
+		}
+		else
+		{
+			// just continue
+			ia = ia->next;
+			iaCount++;
+		}
+	}
+
+	backEnd.refdef.floatTime = originalTime;
+
+	// go back to the world modelview matrix
+	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+	if(depthRange)
+	{
+		qglDepthRange(0, 1);
+	}
+
+	// reset scissor clamping
+	qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 	GL_CheckErrors();
 }
@@ -2437,7 +2763,12 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 	// try to cull lights using occlusion queries
 	RB_RenderOcclusionQueries(interactions, numInteractions);
 
-	if(r_shadows->integer == 3)
+	if(r_shadows->integer == 4)
+	{
+		// render dynamic shadowing and lighting using shadow mapping
+		RB_RenderInteractionsShadowMapped(originalTime, interactions, numInteractions);
+	}
+	else if(r_shadows->integer == 3)
 	{
 		// render dynamic shadowing and lighting using stencil shadow volumes
 		RB_RenderInteractionsStencilShadowed(originalTime, interactions, numInteractions);
@@ -2692,7 +3023,7 @@ const void     *RB_StretchPic(const void *data)
 			Tess_End();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
-		Tess_Begin(shader, NULL, -1, 0, qfalse, qfalse);
+		Tess_Begin(Tess_StageIteratorGeneric, shader, NULL, -1, 0, qfalse, qfalse);
 	}
 
 	Tess_CheckOverflow(4, 6);

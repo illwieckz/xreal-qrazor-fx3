@@ -3555,6 +3555,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 	int             numIndexes;
 	int            *indexes;
 	float           d;
+	qboolean        shadowVolume;
 
 	// check if bounds intersect
 	if(light->worldBounds[1][0] < cv->bounds[0][0] ||
@@ -3657,6 +3658,12 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 				}
 			}
 #endif
+			shadowVolume = qtrue;
+		}
+		else
+		{
+			//ri.Printf(PRINT_WARNING, "degenerated planar surface triangle\n");
+			shadowVolume = qtrue;
 		}
 
 #if 1
@@ -3700,7 +3707,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 	numIndexes = 0;
 	indexes = s_shadowIndexes;
 
-	if((sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
+	if(!shadowVolume || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
 	{
 		return qtrue;
 	}
@@ -3787,6 +3794,7 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 	srfTriangle_t  *tri;
 	int             numIndexes;
 	int            *indexes;
+	qboolean        shadowVolume;
 
 	// check if bounds intersect
 	if(light->worldBounds[1][0] < cv->meshBounds[0][0] ||
@@ -3844,6 +3852,12 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 				}
 			}
 #endif
+			shadowVolume = qtrue;
+		}
+		else
+		{
+			//ri.Printf(PRINT_WARNING, "degenerated bezier surface triangle\n");
+			shadowVolume = qtrue;
 		}
 
 #if 1
@@ -3886,7 +3900,7 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 	numIndexes = 0;
 	indexes = s_shadowIndexes;
 
-	if((sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
+	if(!shadowVolume || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
 	{
 		return qtrue;
 	}
@@ -3973,6 +3987,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 	srfTriangle_t  *tri;
 	int             numIndexes;
 	int            *indexes;
+	qboolean        shadowVolume;
 
 	// check if bounds intersect
 	if(light->worldBounds[1][0] < cv->bounds[0][0] ||
@@ -4040,6 +4055,12 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 				sh.facing[i] = false;
 			}
 #endif
+			shadowVolume = qtrue;
+		}
+		else
+		{
+			//ri.Printf(PRINT_WARNING, "degenerated abitrary surface triangle\n");
+			shadowVolume = qtrue;
 		}
 
 #if 0
@@ -4097,7 +4118,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 	numIndexes = 0;
 	indexes = s_shadowIndexes;
 
-	if((sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
+	if(!shadowVolume || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
 	{
 		return qtrue;
 	}

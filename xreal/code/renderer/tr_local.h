@@ -2299,13 +2299,6 @@ TESSELATOR/SHADER DECLARATIONS
 ====================================================================
 */
 
-typedef enum
-{
-	SIT_DEFAULT,
-	SIT_LIGHTING,
-	SIT_LIGHTING_STENCIL
-} stageIteratorType_t;
-
 typedef byte    color4ub_t[4];
 typedef float   color4f_t[4];
 
@@ -2359,8 +2352,7 @@ typedef struct shaderCommands_s
 	int             numVertexes;
 
 	// info extracted from current shader or backend mode
-	stageIteratorType_t currentStageIteratorType;
-	void            (*currentStageIteratorFunc) ();
+	void            (*stageIteratorFunc) ();
 
 	int             numSurfaceStages;
 	shaderStage_t **surfaceStages;
@@ -2372,17 +2364,20 @@ void            GLSL_InitGPUShaders();
 void            GLSL_ShutdownGPUShaders();
 
 // *INDENT-OFF*
-void            Tess_Begin(shader_t * surfaceShader, shader_t * lightShader,
-								int lightmapNum,
-								int fogNum,
-								qboolean skipTangentSpaces,
-								qboolean shadowVolume);
+void            Tess_Begin(	void (*stageIteratorFunc)(),
+							shader_t * surfaceShader, shader_t * lightShader,
+							int lightmapNum,
+							int fogNum,
+							qboolean skipTangentSpaces,
+							qboolean shadowVolume);
 // *INDENT-ON*
 void            Tess_End(void);
 void            Tess_CheckOverflow(int verts, int indexes);
 
-void            Tess_StageIteratorLighting();
 void            Tess_StageIteratorGeneric();
+void            Tess_StageIteratorDepthFill();
+void			Tess_StageIteratorStencilShadowVolume();
+void            Tess_StageIteratorLighting();
 void            Tess_StageIteratorSky();
 
 void            Tess_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, byte * color);
