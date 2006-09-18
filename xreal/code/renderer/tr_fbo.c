@@ -425,8 +425,8 @@ void R_InitFBOs(void)
 	R_BindFBO(tr.shadowRenderFBO);
 	R_CreateFBOColorBuffer(tr.shadowRenderFBO, GL_RGBA, 0);
 //	R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowRenderFBOImage->texnum, 0);
-	R_AttachFBOTextureDepth(tr.shadowRenderFBOImage->texnum);
 	R_CreateFBODepthBuffer(tr.shadowRenderFBO, GL_DEPTH_COMPONENT24_ARB);
+	R_AttachFBOTextureDepth(tr.shadowRenderFBOImage->texnum);
 	R_CheckFBO(tr.shadowRenderFBO);
 	
 	GL_CheckErrors();
