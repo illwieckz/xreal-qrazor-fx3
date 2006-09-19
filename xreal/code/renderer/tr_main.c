@@ -653,7 +653,7 @@ void R_TransformClipToWindow(const vec4_t clip, const viewParms_t * view, vec4_t
 /*
 =================
 R_SetupEntityWorldBounds
-Tr3B - needs R_RotateForEntity
+Tr3B - needs R_RotateEntityForViewParms
 =================
 */
 void R_SetupEntityWorldBounds(trRefEntity_t * ent)
@@ -679,14 +679,14 @@ void R_SetupEntityWorldBounds(trRefEntity_t * ent)
 
 /*
 =================
-R_RotateForEntity
+R_RotateEntityForViewParms
 
 Generates an orientation for an entity and viewParms
 Does NOT produce any GL calls
 Called by both the front end and the back end
 =================
 */
-void R_RotateForEntity(const trRefEntity_t * ent, const viewParms_t * viewParms, orientationr_t * or)
+void R_RotateEntityForViewParms(const trRefEntity_t * ent, const viewParms_t * viewParms, orientationr_t * or)
 {
 	vec3_t          delta;
 	float           axisLength;
@@ -737,10 +737,69 @@ void R_RotateForEntity(const trRefEntity_t * ent, const viewParms_t * viewParms,
 
 /*
 =================
-R_RotateForLight
+R_RotateEntityForLight
+
+Generates an orientation for an entity and light
+Does NOT produce any GL calls
+Called by both the front end and the back end
 =================
 */
-void R_RotateForLight(const trRefLight_t * light, const viewParms_t * viewParms, orientationr_t * or)
+void R_RotateEntityForLight(const trRefEntity_t * ent, const trRefLight_t * light, orientationr_t * or)
+{
+	vec3_t          delta;
+	float           axisLength;
+//	matrix_t        viewMatrix;
+
+	if(ent->e.reType != RT_MODEL)
+	{
+		//*or = viewParms->world;
+		return;
+	}
+
+	VectorCopy(ent->e.origin, or->origin);
+
+	VectorCopy(ent->e.axis[0], or->axis[0]);
+	VectorCopy(ent->e.axis[1], or->axis[1]);
+	VectorCopy(ent->e.axis[2], or->axis[2]);
+
+	MatrixSetupTransform(or->transformMatrix, or->axis[0], or->axis[1], or->axis[2], or->origin);
+	MatrixAffineInverse(or->transformMatrix, or->viewMatrix);
+	
+	MatrixMultiply(light->viewMatrix, or->transformMatrix, or->modelViewMatrix);
+
+	// calculate the viewer origin in the model's space
+	// needed for fog, specular, and environment mapping
+	VectorSubtract(light->l.origin, or->origin, delta);
+
+	// compensate for scale in the axes if necessary
+	if(ent->e.nonNormalizedAxes)
+	{
+		axisLength = VectorLength(ent->e.axis[0]);
+		if(!axisLength)
+		{
+			axisLength = 0;
+		}
+		else
+		{
+			axisLength = 1.0f / axisLength;
+		}
+	}
+	else
+	{
+		axisLength = 1.0f;
+	}
+
+	or->viewOrigin[0] = DotProduct(delta, or->axis[0]) * axisLength;
+	or->viewOrigin[1] = DotProduct(delta, or->axis[1]) * axisLength;
+	or->viewOrigin[2] = DotProduct(delta, or->axis[2]) * axisLength;
+}
+
+/*
+=================
+R_RotateLightForViewParms
+=================
+*/
+void R_RotateLightForViewParms(const trRefLight_t * light, const viewParms_t * viewParms, orientationr_t * or)
 {
 	vec3_t          delta;
 	float           axisLength;
@@ -1053,7 +1112,7 @@ static qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, orientation_t * s
 		tr.currentEntity = drawSurf->entity;
 
 		// get the orientation of the entity
-		R_RotateForEntity(tr.currentEntity, &tr.viewParms, &tr.or);
+		R_RotateEntityForViewParms(tr.currentEntity, &tr.viewParms, &tr.or);
 
 		// rotate the plane, but keep the non-rotated version for matching
 		// against the portalSurface entities
@@ -1179,7 +1238,7 @@ static qboolean IsMirror(const drawSurf_t * drawSurf)
 	if(tr.currentEntity != &tr.worldEntity)
 	{
 		// get the orientation of the entity
-		R_RotateForEntity(tr.currentEntity, &tr.viewParms, &tr.or);
+		R_RotateEntityForViewParms(tr.currentEntity, &tr.viewParms, &tr.or);
 
 		// rotate the plane, but keep the non-rotated version for matching
 		// against the portalSurface entities
@@ -1254,7 +1313,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 	if(tr.currentEntity != &tr.worldEntity)
 	{
 		//ri.Printf(PRINT_ALL, "entity Portal surface\n");
-		R_RotateForEntity(tr.currentEntity, &tr.viewParms, &tr.or);
+		R_RotateEntityForViewParms(tr.currentEntity, &tr.viewParms, &tr.or);
 	}
 	else
 	{
@@ -1684,7 +1743,7 @@ void R_AddEntitySurfaces(void)
 
 			case RT_MODEL:
 				// we must set up parts of tr.or for model culling
-				R_RotateForEntity(ent, &tr.viewParms, &tr.or);
+				R_RotateEntityForViewParms(ent, &tr.viewParms, &tr.or);
 
 				tr.currentModel = R_GetModelByHandle(ent->e.hModel);
 				if(!tr.currentModel)
@@ -1848,7 +1907,7 @@ void R_AddSlightInteractions()
 		light = tr.currentLight = &tr.world->lights[i];
 
 		// we must set up parts of tr.or for light culling
-		R_RotateForLight(light, &tr.viewParms, &tr.or);
+		R_RotateLightForViewParms(light, &tr.viewParms, &tr.or);
 
 		// look if we have to draw the light including its interactions
 		switch (R_CullLocalBox(light->localBounds))
@@ -1948,7 +2007,7 @@ void R_AddLightInteractions()
 		light = tr.currentLight = &tr.refdef.lights[i];
 
 		// we must set up parts of tr.or for light culling
-		R_RotateForLight(light, &tr.viewParms, &tr.or);
+		R_RotateLightForViewParms(light, &tr.viewParms, &tr.or);
 
 		// calc local bounds for culling
 		R_SetupLightLocalBounds(light);

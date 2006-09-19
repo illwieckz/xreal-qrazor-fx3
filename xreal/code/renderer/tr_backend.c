@@ -987,7 +987,7 @@ static void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, in
 				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 
 				// set up the transformation matrix
-				R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
+				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
 
 				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
 				{
@@ -1145,7 +1145,7 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 
 				// set up the transformation matrix
-				R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
+				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
 
 				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
 				{
@@ -1456,7 +1456,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 
 		if(drawShadows)
 		{
-			if(light == oldLight && entity == oldEntity && shader == oldShader && iaCount != iaFirst)
+			if(light == oldLight && entity == oldEntity && shader == oldShader)
 			{
 				// fast path, same as previous
 				rb_surfaceTable[*surface] (surface, 0, NULL, ia->numShadowIndexes, ia->shadowIndexes);
@@ -1464,8 +1464,11 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			}
 			else
 			{
-				// draw the contents of the last shader batch
-				Tess_End();
+				if(oldLight)
+				{
+					// draw the contents of the last shader batch
+					Tess_End();
+				}
 
 				// we don't need tangent space calculations here
 				Tess_Begin(Tess_StageIteratorStencilShadowVolume, shader, ia->lightShader, -1, 0, qtrue, qtrue);
@@ -1473,7 +1476,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 		}
 		else
 		{
-			if(light == oldLight && entity == oldEntity && shader == oldShader && iaCount != iaFirst)
+			if(light == oldLight && entity == oldEntity && shader == oldShader)
 			{
 				// fast path, same as previous
 				rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
@@ -1481,8 +1484,11 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			}
 			else
 			{
-				// draw the contents of the last shader batch
-				Tess_End();
+				if(oldLight)
+				{
+					// draw the contents of the last shader batch
+					Tess_End();
+				}
 
 				// begin a new batch
 				Tess_Begin(Tess_StageIteratorLighting, shader, ia->lightShader, -1, 0, qfalse, qfalse);
@@ -1502,7 +1508,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 
 				// set up the transformation matrix
-				R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
+				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
 
 				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
 				{
@@ -1624,6 +1630,11 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 
 			// draw the contents of the last shader batch
 			Tess_End();
+			
+			// force updates
+			oldLight = NULL;
+			oldEntity = NULL;
+			oldShader = NULL;
 		}
 		else
 		{
@@ -1733,12 +1744,6 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 					
 					switch (light->l.rlType)
 					{
-						case RL_OMNI:
-						{
-							// TODO
-							break;	
-						}
-							
 						case RL_PROJ:
 						{
 							float           xMin, xMax, yMin, yMax;
@@ -1778,12 +1783,6 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 							break;
 						}
 						
-						case RL_DIRECT:
-						{
-							// TODO
-							break;
-						}
-						
 						default:
 							break;
 					}
@@ -1815,7 +1814,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				// show shadowRender for debugging
 				
 				// enable shader, set arrays
-				GL_Program(0);//tr.genericSingleShader.program);
+				GL_Program(tr.genericSingleShader.program);
 				GL_State(GLS_DEPTHTEST_DISABLE);
 				GL_ClientState(tr.genericSingleShader.attribs);
 				//GL_SetVertexAttribs();
@@ -1840,7 +1839,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				x = 0;
 				y = 0;
 				w = backEnd.viewParms.viewportWidth / 3;
-				h =  backEnd.viewParms.viewportHeight / 3;
+				h = backEnd.viewParms.viewportHeight / 3;
 		
 				qglBegin(GL_QUADS);
 				qglTexCoord2f(0, 0);
@@ -1870,7 +1869,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
 				}
 			}
-		}
+		} // end if(iaCount == iaFirst)
 		
 		if(drawShadows)
 		{
@@ -1893,6 +1892,34 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 			{
 				goto skipInteraction;
 			}
+			
+			switch (light->l.rlType)
+			{
+				case RL_PROJ:
+				{
+					if(light == oldLight && entity == oldEntity && shader == oldShader)
+					{
+						// fast path, same as previous
+						rb_surfaceTable[*surface] (surface, 0, NULL, ia->numShadowIndexes, ia->shadowIndexes);
+						goto nextInteraction;
+					}
+					else
+					{
+						if(oldLight)
+						{
+							// draw the contents of the last shader batch
+							Tess_End();
+						}
+
+						// we don't need tangent space calculations here
+						Tess_Begin(Tess_StageIteratorDepthFill, shader, ia->lightShader, -1, 0, qtrue, qfalse);
+					}
+					break;
+				}
+				
+				default:
+					break;
+			}
 		}
 		else
 		{
@@ -1905,28 +1932,8 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 			{
 				goto skipInteraction;
 			}
-		}
-
-		if(drawShadows)
-		{
-			if(light == oldLight && entity == oldEntity && shader == oldShader && iaCount != iaFirst)
-			{
-				// fast path, same as previous
-				rb_surfaceTable[*surface] (surface, 0, NULL, ia->numShadowIndexes, ia->shadowIndexes);
-				goto nextInteraction;
-			}
-			else
-			{
-				// draw the contents of the last shader batch
-				Tess_End();
-
-				// we don't need tangent space calculations here
-				Tess_Begin(Tess_StageIteratorDepthFill, shader, ia->lightShader, -1, 0, qtrue, qfalse);
-			}
-		}
-		else
-		{
-			if(light == oldLight && entity == oldEntity && shader == oldShader && iaCount != iaFirst)
+			
+			if(light == oldLight && entity == oldEntity && shader == oldShader)
 			{
 				// fast path, same as previous
 				rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
@@ -1934,8 +1941,11 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 			}
 			else
 			{
-				// draw the contents of the last shader batch
-				Tess_End();
+				if(oldLight)
+				{
+					// draw the contents of the last shader batch
+					Tess_End();
+				}
 
 				// begin a new batch
 				Tess_Begin(Tess_StageIteratorLighting, shader, ia->lightShader, -1, 0, qfalse, qfalse);
@@ -1949,15 +1959,22 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 
 			if(entity != &tr.worldEntity)
 			{
-				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
+				backEnd.refdef.floatTime = originalTime - entity->e.shaderTime;
 				// we have to reset the shaderTime as well otherwise image animations start
 				// from the wrong frame
 				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 
 				// set up the transformation matrix
-				R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
+				if(drawShadows)
+				{
+					R_RotateEntityForLight(entity, light, &backEnd.or);
+				}
+				else
+				{
+					R_RotateEntityForViewParms(entity, &backEnd.viewParms, &backEnd.or);
+				}
 
-				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
+				if(entity->e.renderfx & RF_DEPTHHACK)
 				{
 					// hack the depth range to prevent view model from poking into walls
 					depthRange = qtrue;
@@ -1966,22 +1983,41 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 			else
 			{
 				backEnd.refdef.floatTime = originalTime;
-				backEnd.or = backEnd.viewParms.world;
 				// we have to reset the shaderTime as well otherwise image animations on
 				// the world (like water) continue with the wrong frame
 				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
+				
+				
+				// set up the transformation matrix
+				if(drawShadows)
+				{
+					Com_Memset(&backEnd.or, 0, sizeof(backEnd.or));
+					
+					backEnd.or.axis[0][0] = 1;
+					backEnd.or.axis[1][1] = 1;
+					backEnd.or.axis[2][2] = 1;
+					VectorCopy(light->l.origin, backEnd.or.viewOrigin);
+					
+					// transform by the light placement
+					MatrixIdentity(backEnd.or.transformMatrix);
+					//MatrixIdentity(backEnd.or.viewMatrix);
+					
+					// convert from our coordinate system (looking down X)
+					// to OpenGL's coordinate system (looking down -Z)
+					//MatrixMultiply(quakeToOpenGLMatrix, light->viewMatrix, backEnd.or.viewMatrix);
+					//MatrixCopy(backEnd.or.viewMatrix, backEnd.or.modelViewMatrix);
+					
+					MatrixAffineInverse(backEnd.or.transformMatrix, backEnd.or.viewMatrix);
+					MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, backEnd.or.modelViewMatrix);
+				}
+				else
+				{
+					// transform by the camera placement
+					backEnd.or = backEnd.viewParms.world;
+				}
 			}
 			
-			if(drawShadows)
-			{
-				// transform by the light placement
-				MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
-				qglLoadMatrixf(modelToLight);
-			}
-			else
-			{
-				qglLoadMatrixf(backEnd.or.modelViewMatrix);
-			}
+			qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
 			// change depthrange if needed
 			if(oldDepthRange != depthRange)
@@ -2018,15 +2054,25 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
 
 			MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
+			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
 			MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
 			MatrixMultiply2(light->attenuationMatrix, modelToLight);
 		}
 
 		if(drawShadows)
 		{
-			// add the triangles for this surface
-			rb_surfaceTable[*surface] (surface, 0, NULL, ia->numShadowIndexes, ia->shadowIndexes);
+			switch (light->l.rlType)
+			{
+				case RL_PROJ:
+				{
+					// add the triangles for this surface
+					rb_surfaceTable[*surface] (surface, 0, NULL, ia->numShadowIndexes, ia->shadowIndexes);
+					break;
+				}
+				
+				default:
+					break;
+			}
 		}
 		else
 		{
@@ -2060,6 +2106,19 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				ia = &interactions[iaFirst];
 				iaCount = iaFirst;
 				drawShadows = qfalse;
+				
+				switch (light->l.rlType)
+				{
+					case RL_PROJ:
+					{
+						// draw the contents of the last shader batch
+						Tess_End();
+						break;
+					}
+				
+					default:
+						break;
+				}
 			}
 			else
 			{
@@ -2076,10 +2135,15 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 					// increase last time to leave for loop
 					iaCount++;
 				}
+				
+				// draw the contents of the last shader batch
+				Tess_End();
 			}
-
-			// draw the contents of the last shader batch
-			Tess_End();
+			
+			// force updates
+			oldLight = NULL;
+			oldEntity = NULL;
+			oldShader = NULL;
 		}
 		else
 		{
@@ -2151,7 +2215,7 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 				// last interaction of current light
 				if(ocCount < (MAX_OCCLUSION_QUERIES - 1) && !R_LightIntersectsPoint(light, backEnd.viewParms.or.origin))
 				{
-					R_RotateForLight(light, &backEnd.viewParms, &backEnd.or);
+					R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
 					qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
 					// begin the occlusion query
@@ -2401,7 +2465,7 @@ static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInter
 						qglStencilFunc(GL_ALWAYS, 0, ~0);
 						qglStencilOp(GL_KEEP, GL_INCR, GL_INCR);
 
-						R_RotateForLight(light, &backEnd.viewParms, &backEnd.or);
+						R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
 						qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
 						qglBegin(GL_QUADS);
@@ -2537,7 +2601,7 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 			for(i = 0; i < backEnd.refdef.numLights; i++, light++)
 			{
 				// set up the transformation matrix
-				R_RotateForLight(light, &backEnd.viewParms, &backEnd.or);
+				R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
 				qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
 				MatrixToVectorsFLU(matrixIdentity, forward, left, up);
@@ -2611,7 +2675,7 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 				light = &tr.world->lights[i];
 
 				// set up the transformation matrix
-				R_RotateForLight(light, &backEnd.viewParms, &backEnd.or);
+				R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
 				qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
 				MatrixToVectorsFLU(matrixIdentity, forward, left, up);
@@ -2691,7 +2755,7 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 			backEnd.currentEntity = entity = ia->entity;
 			surface = ia->surface;
 
-			R_RotateForEntity(entity, &backEnd.viewParms, &backEnd.or);
+			R_RotateEntityForViewParms(entity, &backEnd.viewParms, &backEnd.or);
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
 			if(*surface == SF_FACE)
@@ -2764,7 +2828,7 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 				continue;
 
 			// set up the transformation matrix
-			R_RotateForEntity(ent, &backEnd.viewParms, &backEnd.or);
+			R_RotateEntityForViewParms(ent, &backEnd.viewParms, &backEnd.or);
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
 			R_DebugAxis(vec3_origin, matrixIdentity);

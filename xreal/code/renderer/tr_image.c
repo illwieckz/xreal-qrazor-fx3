@@ -4606,8 +4606,11 @@ static void R_CreateShadowRenderFBOImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	tr.shadowRenderFBOImage =
-			R_CreateImage("_shadowRenderFBO", data, width, height, IF_NOPICMIP | IF_DEPTHMAP, FT_NEAREST, WT_REPEAT);
+#if 1
+	tr.shadowRenderFBOImage = R_CreateImage("_shadowRenderFBO", data, width, height, IF_NOPICMIP | IF_DEPTHMAP, FT_NEAREST, WT_REPEAT);
+#else
+	tr.shadowRenderFBOImage = R_CreateImage("_shadowRenderFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+#endif
 
 	ri.Hunk_FreeTempMemory(data);
 }
