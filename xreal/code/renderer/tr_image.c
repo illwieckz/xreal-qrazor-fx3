@@ -1309,6 +1309,15 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 				qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_REPEAT);
 				break;
 		};
+		
+		// set special shadow texture mode
+		/*
+		if(image->bits & IF_DEPTHMAP)
+		{
+			qglTexParameteri(image->type, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
+			qglTexParameteri(image->type, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE);
+		}
+		*/
 	}
 
 	GL_CheckErrors();
@@ -4607,9 +4616,9 @@ static void R_CreateShadowRenderFBOImage(void)
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
 #if 1
-	tr.shadowRenderFBOImage = R_CreateImage("_shadowRenderFBO", data, width, height, IF_NOPICMIP | IF_DEPTHMAP, FT_NEAREST, WT_REPEAT);
+	tr.shadowRenderFBOImage = R_CreateImage("_shadowRenderFBO", data, width, height, IF_NOPICMIP | IF_DEPTHMAP, FT_NEAREST, WT_ZERO_CLAMP);
 #else
-	tr.shadowRenderFBOImage = R_CreateImage("_shadowRenderFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+	tr.shadowRenderFBOImage = R_CreateImage("_shadowRenderFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_ZERO_CLAMP);
 #endif
 
 	ri.Hunk_FreeTempMemory(data);

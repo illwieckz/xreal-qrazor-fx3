@@ -2050,7 +2050,7 @@ void R_AddLightInteractions()
 			continue;
 
 		// set up model to light view matrix
-		MatrixAffineInverse(light->transformMatrix, light->viewMatrix);
+		R_SetupLightView(light);
 
 		// set up projection
 		R_SetupLightProjection(light);

@@ -1325,10 +1325,10 @@ void R_Register(void)
 	r_drawBuffer = ri.Cvar_Get("r_drawBuffer", "GL_BACK", CVAR_CHEAT);
 	r_lockpvs = ri.Cvar_Get("r_lockpvs", "0", CVAR_CHEAT);
 	r_noportals = ri.Cvar_Get("r_noportals", "0", CVAR_CHEAT);
-	r_shadows = ri.Cvar_Get("cg_shadows", "1", 0);
+	r_shadows = ri.Cvar_Get("cg_shadows", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_shadows, 0, 4, qtrue);
-	r_shadowOffsetFactor = ri.Cvar_Get("r_shadowOffsetFactor", "0", CVAR_CHEAT);
-	r_shadowOffsetUnits = ri.Cvar_Get("r_shadowOffsetUnits", "0", CVAR_CHEAT);
+	r_shadowOffsetFactor = ri.Cvar_Get("r_shadowOffsetFactor", "4", CVAR_CHEAT);
+	r_shadowOffsetUnits = ri.Cvar_Get("r_shadowOffsetUnits", "2", CVAR_CHEAT);
 
 	r_maxpolys = ri.Cvar_Get("r_maxpolys", va("%d", MAX_POLYS), 0);
 	r_maxpolyverts = ri.Cvar_Get("r_maxpolyverts", va("%d", MAX_POLYVERTS), 0);

@@ -1365,8 +1365,8 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					qglStencilFunc(GL_ALWAYS, 0, 255);
 					qglStencilMask(255);
 
-					qglEnable(GL_POLYGON_OFFSET_FILL);
-					qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
+					//qglEnable(GL_POLYGON_OFFSET_FILL);
+					//qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
 
 					// enable shadow volume extrusion shader
 					GL_Program(tr.shadowShader.program);
@@ -1412,7 +1412,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 				}
 
-				qglDisable(GL_POLYGON_OFFSET_FILL);
+				//qglDisable(GL_POLYGON_OFFSET_FILL);
 
 				// disable shadow volume extrusion shader
 				GL_Program(0);
@@ -1738,47 +1738,17 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 					qglViewport(0, 0, 512, 512);
 					qglScissor(0, 0, 512, 512);
 					
-					//qglClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 					qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-					//qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+					
+					qglEnable(GL_POLYGON_OFFSET_FILL);
+					qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
 					
 					switch (light->l.rlType)
 					{
 						case RL_PROJ:
 						{
-							float           xMin, xMax, yMin, yMax;
-							float           width, height, depth;
-							float           zNear, zFar;
-							float           fovX, fovY;
-							matrix_t        proj;
-			
-							fovX = 30;
-							fovY = R_CalcFov(fovX, VectorLength(light->l.right) * 2, VectorLength(light->l.up) * 2);
-
-							zNear = 1.0;
-							zFar = VectorLength(light->l.target);
-
-							xMax = zNear * tan(fovX * M_PI / 360.0f);
-							xMin = -xMax;
-
-							yMax = zNear * tan(fovY * M_PI / 360.0f);
-							yMin = -yMax;
-
-							width = xMax - xMin;
-							height = yMax - yMin;
-							depth = zFar - zNear;
-							
-							// standard OpenGL projection matrix
-							proj[0] = (2 * zNear) / width;	proj[4] = 0;					proj[8] = (xMax + xMin) / width;	proj[12] = 0;
-							proj[1] = 0;					proj[5] = (2 * zNear) / height;	proj[9] = (yMax + yMin) / height;	proj[13] = 0;
-							proj[2] = 0;					proj[6] = 0;					proj[10] = -(zFar + zNear) / depth;	proj[14] = -(2 * zFar * zNear) / depth;
-							proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;
-			
-							// convert from looking down -Z to looking down X
-							MatrixMultiplyRotation(proj, 90, 90, 0);
-							
 							qglMatrixMode(GL_PROJECTION);
-							qglLoadMatrixf(proj);
+							qglLoadMatrixf(light->projectionMatrix);
 							qglMatrixMode(GL_MODELVIEW);
 							break;
 						}
@@ -1793,6 +1763,8 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				float           x, y, w, h;
 				
 				GLimp_LogComment("--- Rendering lighting ---\n");
+				
+				qglDisable(GL_POLYGON_OFFSET_FILL);
 				
 				R_BindNullFBO();
 				
@@ -1810,7 +1782,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				
 				qglLoadMatrixf(backEnd.or.modelViewMatrix);
 				
-				#if 1
+				#if 0
 				// show shadowRender for debugging
 				
 				// enable shader, set arrays
@@ -2050,13 +2022,21 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				VectorCopy(light->origin, light->transformed);
 			}
 
-			// build the attenuation matrix using the entity transform          
 			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
-
+			
+			// build the attenuation matrix using the entity transform
 			MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
 			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
 			MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
 			MatrixMultiply2(light->attenuationMatrix, modelToLight);
+			
+			// build the shadow matrix using the entity transform
+			/*
+			MatrixSetupTranslation(light->shadowMatrix, 0.5, 0.5, 0.5);			// bias
+			MatrixMultiplyScale(light->shadowMatrix, 0.5, 0.5, 0.5);			// scale
+			MatrixMultiply2(light->shadowMatrix, light->projectionMatrix);		// light projection (frustum)
+			MatrixMultiply2(light->shadowMatrix, modelToLight);
+			*/
 		}
 
 		if(drawShadows)

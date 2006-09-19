@@ -3707,7 +3707,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 	numIndexes = 0;
 	indexes = s_shadowIndexes;
 
-	if(!shadowVolume || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
+	if(r_shadows->integer != 3 || !shadowVolume || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
 	{
 		return qtrue;
 	}
@@ -3900,7 +3900,7 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 	numIndexes = 0;
 	indexes = s_shadowIndexes;
 
-	if(!shadowVolume || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
+	if(r_shadows->integer != 3 || !shadowVolume || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
 	{
 		return qtrue;
 	}
@@ -4118,7 +4118,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 	numIndexes = 0;
 	indexes = s_shadowIndexes;
 
-	if(!shadowVolume || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
+	if(r_shadows->integer != 3 || !shadowVolume || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
 	{
 		return qtrue;
 	}
@@ -4406,7 +4406,7 @@ void R_PrecacheInteractions()
 		R_SetupLightFrustum(light);
 
 		// set up model to light view matrix
-		MatrixAffineInverse(light->transformMatrix, light->viewMatrix);
+		R_SetupLightView(light);
 
 		// set up projection
 		R_SetupLightProjection(light);

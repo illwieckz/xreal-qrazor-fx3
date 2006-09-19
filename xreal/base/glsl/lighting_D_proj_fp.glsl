@@ -51,7 +51,7 @@ void	main()
 	vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(var_TexAtten.z, 0.0)).rgb;
 
 	// compute shadow
-	vec3 shadow = shadow2DProj(u_ShadowMap, var_TexAtten).rgb;
+	float shadow = shadow2DProj(u_ShadowMap, var_TexAtten).r;
 	
 	// compute final color
 	vec4 color = diffuse;

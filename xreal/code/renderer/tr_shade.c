@@ -2148,6 +2148,13 @@ static void Render_lighting_D_proj(shaderStage_t * diffuseStage,
 	// bind u_ShadowMap
 	GL_SelectTexture(3);
 	GL_Bind(tr.shadowRenderFBOImage);
+	
+#if 1
+	qglTexParameteri(tr.shadowRenderFBOImage->type, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
+	qglTexParameteri(tr.shadowRenderFBOImage->type, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE);
+#else
+	qglTexParameteri(tr.shadowRenderFBOImage->type, GL_DEPTH_TEXTURE_MODE_ARB, GL_INTENSITY);
+#endif
 
 	DrawElements();
 

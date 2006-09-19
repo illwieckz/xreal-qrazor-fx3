@@ -501,6 +501,38 @@ void R_SetupLightWorldBounds(trRefLight_t * light)
 
 /*
 =================
+R_SetupLightView
+=================
+*/
+void R_SetupLightView(trRefLight_t * light)
+{
+	switch (light->l.rlType)
+	{
+		case RL_OMNI:
+		{
+			MatrixAffineInverse(light->transformMatrix, light->viewMatrix);
+			break;
+		}
+
+		case RL_PROJ:
+		{
+			matrix_t        viewMatrix;
+
+			MatrixAffineInverse(light->transformMatrix, viewMatrix);
+
+			// convert from our coordinate system (looking down X)
+			// to OpenGL's coordinate system (looking down -Z)
+			MatrixMultiply(quakeToOpenGLMatrix, viewMatrix, light->viewMatrix);
+			break;
+		}
+
+		default:
+			ri.Error(ERR_DROP, "R_SetupLightView: Bad rlType");
+	}
+}
+
+/*
+=================
 R_SetupLightFrustum
 =================
 */
@@ -589,15 +621,39 @@ void R_SetupLightProjection(trRefLight_t * light)
 			width = xMax - xMin;
 			height = yMax - yMin;
 			depth = zFar - zNear;
-
+			
+			/*
+			0 0 -1 0
+			-1 0 0 0
+			0 1 0 0
+			0 0 0 1
+			   x
+			0 4 8 12
+			1 5 9 13
+			2 6 10 14
+			3 7 11 15
+			  =
+			-2 -6 -10 -14
+			0 -4 -8 -12
+			1 5 9 13
+			3 7 11 15
+			 */
+			 
+			/*
+			proj[0] = 0;					proj[4] = 0;					proj[8] = (zFar + zNear) / depth;	proj[12] = -(2 * zFar * zNear) / depth;
+			proj[1] = (2 * zNear) / width;	proj[5] = 0;					proj[9] = -(xMax + xMin) / width;	proj[13] = 0;
+			proj[2] = 0;					proj[6] = (2 * zNear) / height; proj[10] = (yMax + yMin) / height;	proj[14] = 0;
+			proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;
+			*/
+			
 			// OpenGL projection matrix with flipped Z axis
 			proj[0] = (2 * zNear) / width;	proj[4] = 0;					proj[8] = (xMax + xMin) / width;	proj[12] = 0;
 			proj[1] = 0;					proj[5] = (2 * zNear) / height;	proj[9] = (yMax + yMin) / height;	proj[13] = 0;
-			proj[2] = 0;					proj[6] = 0;					proj[10] = (zFar + zNear) / depth;	proj[14] = (2 * zFar * zNear) / depth;
+			proj[2] = 0;					proj[6] = 0;					proj[10] = -(zFar + zNear) / depth;	proj[14] = -(2 * zFar * zNear) / depth;
 			proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;
 			
 			// convert from looking down -Z to looking down X
-			MatrixMultiplyRotation(proj, 90, 90, 0);
+			//MatrixMultiplyRotation(proj, 90, 90, 0);
 			//MatrixMultiply(openGLToQuakeMatrix, proj, light->projectionMatrix);
 #else
 			// Tr3B - recoded from GtkRadiant entity plugin source

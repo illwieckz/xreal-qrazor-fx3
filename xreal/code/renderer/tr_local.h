@@ -1990,8 +1990,8 @@ extern cvar_t  *r_showTangentSpaces;	// draws wireframe tangents, binormals and 
 extern cvar_t  *r_clear;		// force screen clear every frame
 
 extern cvar_t  *r_shadows;		// controls shadows: 0 = none, 1 = blur, 2 = black planar projection,
-
-								// 3 = robust stencil shadow volumes
+								// 3 = stencil shadow volumes
+								// 4 = shadow mapping
 
 extern cvar_t  *r_shadowOffsetFactor;
 extern cvar_t  *r_shadowOffsetUnits;
@@ -2438,6 +2438,7 @@ void            R_SetupLightOrigin(trRefLight_t * light);
 void            R_SetupLightLocalBounds(trRefLight_t * light);
 void            R_SetupLightWorldBounds(trRefLight_t * light);
 
+void            R_SetupLightView(trRefLight_t * light);
 void            R_SetupLightFrustum(trRefLight_t * light);
 void            R_SetupLightProjection(trRefLight_t * light);
 
