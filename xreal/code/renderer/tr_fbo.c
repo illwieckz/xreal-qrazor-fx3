@@ -369,6 +369,7 @@ void R_InitFBOs(void)
 	//
 	// currentRender FBO for main scene offscreen rendering
 	//
+	/*
 	tr.currentRenderFBO = R_CreateFBO("_currentRender", NearestPowerOfTwo(glConfig.vidWidth), NearestPowerOfTwo(glConfig.vidHeight));
 	R_BindFBO(tr.currentRenderFBO);
 	
@@ -396,10 +397,12 @@ void R_InitFBOs(void)
 	R_CreateFBODepthBuffer(tr.currentRenderFBO, GL_DEPTH_COMPONENT24_ARB);
 //	R_CreateFBOStencilBuffer(tr.currentRenderFBO, GL_STENCIL_INDEX8_EXT);
 	R_CheckFBO(tr.currentRenderFBO);
+	*/
 	
 	//
 	// portalRender for portal scene offscreen rendering
 	//
+	/*
 	tr.portalRenderFBO = R_CreateFBO("_portalRender", NearestPowerOfTwo(glConfig.vidWidth), NearestPowerOfTwo(glConfig.vidHeight));
 	R_BindFBO(tr.portalRenderFBO);
 			
@@ -416,21 +419,27 @@ void R_InitFBOs(void)
 	R_CreateFBODepthBuffer(tr.portalRenderFBO, GL_DEPTH_COMPONENT24_ARB);
 //	R_CreateFBOStencilBuffer(tr.portalRenderFBO, GL_STENCIL_INDEX8_EXT);
 	R_CheckFBO(tr.portalRenderFBO);
-
+	*/
 
 	//
-	// shadowRender for shadowmap offscreen rendering
+	// shadowMap for shadow mapping offscreen rendering
 	//
-	tr.shadowRenderFBO = R_CreateFBO("_shadowRender", 512, 512);
-	R_BindFBO(tr.shadowRenderFBO);
-	R_CreateFBOColorBuffer(tr.shadowRenderFBO, GL_RGBA, 0);
-	R_CreateFBODepthBuffer(tr.shadowRenderFBO, GL_DEPTH_COMPONENT24_ARB);
-#if 1
-	R_AttachFBOTextureDepth(tr.shadowRenderFBOImage->texnum);
-#else
-	R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowRenderFBOImage->texnum, 0);
-#endif	
-	R_CheckFBO(tr.shadowRenderFBO);
+	tr.shadowMapFBO = R_CreateFBO("_shadowMap", 512, 512);
+	R_BindFBO(tr.shadowMapFBO);
+	R_CreateFBOColorBuffer(tr.shadowMapFBO, GL_RGBA, 0);
+	R_CreateFBODepthBuffer(tr.shadowMapFBO, GL_DEPTH_COMPONENT24_ARB);
+	R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage->texnum, 0);
+	R_CheckFBO(tr.shadowMapFBO);
+	
+	//
+	// shadowCube for shadow mapping offscreen rendering
+	//
+	tr.shadowCubeFBO = R_CreateFBO("_shadowCube", 512, 512);
+	R_BindFBO(tr.shadowCubeFBO);
+	R_CreateFBOColorBuffer(tr.shadowCubeFBO, GL_RGBA, 0);
+	R_CreateFBODepthBuffer(tr.shadowCubeFBO, GL_DEPTH_COMPONENT24_ARB);
+//	R_AttachFBOTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB, tr.shadowCubeFBOImage->texnum, 0);
+	R_CheckFBO(tr.shadowCubeFBO);
 	
 	GL_CheckErrors();
 

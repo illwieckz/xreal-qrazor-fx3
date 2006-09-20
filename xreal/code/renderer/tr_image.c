@@ -1032,7 +1032,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 	// clamp to the current upper OpenGL limit
 	// scale both axis down equally so we don't have to
 	// deal with a half mip resampling
-	if(image->type == GL_TEXTURE_CUBE_MAP_ARB || (image->bits & IF_CUBEMAP))
+	if(image->type == GL_TEXTURE_CUBE_MAP_ARB)
 	{
 		while(scaledWidth > glConfig.maxCubeMapTextureSize || scaledHeight > glConfig.maxCubeMapTextureSize)
 		{
@@ -1068,12 +1068,15 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 	c = scaledWidth * scaledHeight;
 	scan = data;
 	samples = 3;
+	/*
 	if((image->bits & IF_DEPTHMAP) && glConfig.depthTextureAvailable)
 	{
 		format = GL_DEPTH_COMPONENT;
 		internalFormat = GL_DEPTH_COMPONENT24_ARB;
 	}
-	else if(!(image->bits & IF_LIGHTMAP))
+	else
+	*/
+	if(!(image->bits & IF_LIGHTMAP))
 	{
 		// Tr3B: normalmaps have the displacement maps in the alpha channel
 		// samples 3 would cause an opaque alpha channel and odd displacements!
@@ -1178,7 +1181,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 							(image->bits & IF_NORMALMAP));
 		}
 
-		if(!(image->bits & (IF_NORMALMAP | IF_DEPTHMAP)))
+		if(!(image->bits & IF_NORMALMAP))
 		{
 			R_LightScaleTexture((unsigned *)scaledBuffer, scaledWidth, scaledHeight, image->filterType == FT_DEFAULT);
 		}
@@ -1309,15 +1312,6 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 				qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_REPEAT);
 				break;
 		};
-		
-		// set special shadow texture mode
-		/*
-		if(image->bits & IF_DEPTHMAP)
-		{
-			qglTexParameteri(image->type, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
-			qglTexParameteri(image->type, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE);
-		}
-		*/
 	}
 
 	GL_CheckErrors();
@@ -4565,6 +4559,7 @@ static void R_CreateCurrentRenderImage(void)
 	ri.Hunk_FreeTempMemory(data);
 }
 
+/*
 static void R_CreateCurrentRenderFBOImage(void)
 {
 	int             i;
@@ -4584,7 +4579,9 @@ static void R_CreateCurrentRenderFBOImage(void)
 
 	ri.Hunk_FreeTempMemory(data);
 }
+*/
 
+/*
 static void R_CreatePortalRenderFBOImage(void)
 {
 	int             i;
@@ -4604,8 +4601,9 @@ static void R_CreatePortalRenderFBOImage(void)
 
 	ri.Hunk_FreeTempMemory(data);
 }
+*/
 
-static void R_CreateShadowRenderFBOImage(void)
+static void R_CreateShadowMapFBOImage(void)
 {
 	int             width, height;
 	byte           *data;
@@ -4615,13 +4613,31 @@ static void R_CreateShadowRenderFBOImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-#if 1
-	tr.shadowRenderFBOImage = R_CreateImage("_shadowRenderFBO", data, width, height, IF_NOPICMIP | IF_DEPTHMAP, FT_NEAREST, WT_ZERO_CLAMP);
-#else
-	tr.shadowRenderFBOImage = R_CreateImage("_shadowRenderFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_ZERO_CLAMP);
-#endif
+	tr.shadowMapFBOImage = R_CreateImage("_shadowMapFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_ZERO_CLAMP);
 
 	ri.Hunk_FreeTempMemory(data);
+}
+
+static void R_CreateShadowCubeFBOImage(void)
+{
+	int             i;
+	int             width, height;
+	byte           *data[6];
+	
+	width = 512;
+	height = 512;
+
+	for(i = 0; i < 6; i++)
+	{
+		data[i] = ri.Hunk_AllocateTempMemory(width * height * 4);
+	}
+
+	tr.shadowCubeFBOImage = R_CreateCubeImage("_shadowCubeFBO", (const byte **)data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+
+	for(i = 5; i >= 0; i--)
+	{
+		ri.Hunk_FreeTempMemory(data[i]);
+	}
 }
 
 /*
@@ -4681,9 +4697,10 @@ void R_CreateBuiltinImages(void)
 	R_CreateAttenuationXYImage();
 	R_CreateContrastRenderImage();
 	R_CreateCurrentRenderImage();
-	R_CreateCurrentRenderFBOImage();
-	R_CreatePortalRenderFBOImage();
-	R_CreateShadowRenderFBOImage();
+//	R_CreateCurrentRenderFBOImage();
+//	R_CreatePortalRenderFBOImage();
+	R_CreateShadowMapFBOImage();
+	R_CreateShadowCubeFBOImage();
 }
 
 

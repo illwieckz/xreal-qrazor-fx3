@@ -20,28 +20,26 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-attribute vec4		attr_TexCoord0;
+uniform sampler2D	u_ColorMap;
 
 varying vec3		var_Vertex;
-varying vec3		var_Normal;
-varying vec2		var_TexDiffuse;
-varying vec4		var_TexAtten;
-//varying vec3		var_TexShadow;
+varying vec2		var_Tex;
 
 void	main()
 {
-	// transform vertex position into homogenous clip-space
-	gl_Position = ftransform();
+	/*
+	float alpha = texture2D(u_ColorMap, var_Tex).a;
+
+	if(alpha <= 0.0)
+	{
+		discard;
+	}
+	*/
 	
-	// assign position in object space
-	var_Vertex = gl_Vertex.xyz;
+	float distance = length(var_Vertex);
 	
-	// assign normal in object space
-	var_Normal = gl_Normal;
-	
-	// transform diffusemap texcoords
-	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;
-	
-	// calc light attenuation in light space
-	var_TexAtten = gl_TextureMatrix[1] * gl_Vertex;
+	gl_FragColor.r = frac(distance * 1.0);
+	gl_FragColor.g = frac(distance * 256.0);
+	gl_FragColor.b = frac(distance * 65536.0);
+	gl_FragColor.a = frac(distance * 16777216.0);
 }

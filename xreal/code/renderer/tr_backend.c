@@ -1369,8 +1369,8 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					//qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
 
 					// enable shadow volume extrusion shader
-					GL_Program(tr.shadowShader.program);
-					GL_ClientState(tr.shadowShader.attribs);
+					GL_Program(tr.shadowExtrudeShader.program);
+					GL_ClientState(tr.shadowExtrudeShader.attribs);
 				}
 			}
 			else
@@ -1561,7 +1561,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			if(drawShadows)
 			{
 				// set uniform parameter u_LightOrigin for GLSL shader
-				qglUniform3fARB(tr.shadowShader.u_LightOrigin, light->transformed[0], light->transformed[1], light->transformed[2]);
+				qglUniform3fARB(tr.shadowExtrudeShader.u_LightOrigin, light->transformed[0], light->transformed[1], light->transformed[2]);
 			}
 
 			// build the attenuation matrix using the entity transform          
@@ -1691,6 +1691,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 	vec3_t          tmp;
 	matrix_t        modelToLight;
 	qboolean        drawShadows;
+	int             cubeSide;
 
 	if(!glConfig.framebufferObjectAvailable || !glConfig.shadingLanguage100Available)
 	{
@@ -1707,6 +1708,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 	oldDepthRange = qfalse;
 	depthRange = qfalse;
 	drawShadows = qtrue;
+	cubeSide = 0;
 
 	// render interactions
 	for(iaCount = 0, iaFirst = 0, ia = &interactions[0]; iaCount < numInteractions;)
@@ -1715,6 +1717,13 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 		backEnd.currentEntity = entity = ia->entity;
 		surface = ia->surface;
 		shader = ia->surfaceShader;
+		
+		if(r_logFile->integer)
+			{
+				// don't just call LogComment, or we will get
+				// a call to va() every frame!
+				GLimp_LogComment(va("----- Current Interaction: %i -----\n", iaCount));
+			}
 		
 		// only iaCount == iaFirst if first iteration or counters were reset
 		if(iaCount == iaFirst)
@@ -1730,23 +1739,59 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 			{
 				if(!light->l.noShadows)
 				{
-					GLimp_LogComment("--- Rendering shadow map ---\n");
-				
-					R_BindFBO(tr.shadowRenderFBO);
-					
-					// set the window clipping
-					qglViewport(0, 0, 512, 512);
-					qglScissor(0, 0, 512, 512);
-					
-					qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-					
-					qglEnable(GL_POLYGON_OFFSET_FILL);
-					qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
-					
 					switch (light->l.rlType)
 					{
+						case RL_OMNI:
+						{
+							if(r_logFile->integer)
+							{
+								// don't just call LogComment, or we will get
+								// a call to va() every frame!
+								GLimp_LogComment(va("----- Rendering shadowCube side: %i -----\n", cubeSide));
+							}
+							
+							R_BindFBO(tr.shadowCubeFBO);
+							//R_AttachFBOTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + cubeSide, tr.shadowCubeFBOImage->texnum, 0);
+							//R_CheckFBO(tr.shadowCubeFBO);
+							
+							// set the window clipping
+							qglViewport(0, 0, 512, 512);
+							qglScissor(0, 0, 512, 512);
+					
+							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+					
+							qglEnable(GL_POLYGON_OFFSET_FILL);
+							qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
+							
+							/*
+							for(int i=0; i<6; ++i)
+							{
+								glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_fboID);
+								glFramebufferTexture2DEXT( GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, m_textCubeID, 0);
+								glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
+								
+								//clear buffers, rotate camera, render scene
+							}
+							*/
+							
+							break;
+						}
+						
 						case RL_PROJ:
 						{
+							GLimp_LogComment("--- Rendering shadowMap ---\n");
+							
+							R_BindFBO(tr.shadowMapFBO);
+							
+							// set the window clipping
+							qglViewport(0, 0, 512, 512);
+							qglScissor(0, 0, 512, 512);
+					
+							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+					
+							qglEnable(GL_POLYGON_OFFSET_FILL);
+							qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
+							
 							qglMatrixMode(GL_PROJECTION);
 							qglLoadMatrixf(light->projectionMatrix);
 							qglMatrixMode(GL_MODELVIEW);
@@ -1754,7 +1799,11 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 						}
 						
 						default:
+						{
+							// bind to shadowMap to avoid bad scene rendering
+							//R_BindFBO(tr.shadowMapFBO);
 							break;
+						}
 					}
 				}
 			}
@@ -1782,9 +1831,8 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				
 				qglLoadMatrixf(backEnd.or.modelViewMatrix);
 				
-				#if 0
 				// show shadowRender for debugging
-				
+				#if 1
 				// enable shader, set arrays
 				GL_Program(tr.genericSingleShader.program);
 				GL_State(GLS_DEPTHTEST_DISABLE);
@@ -1796,7 +1844,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 	
 				// bind u_ColorMap
 				GL_SelectTexture(0);
-				GL_Bind(tr.shadowRenderFBOImage);
+				GL_Bind(tr.shadowMapFBOImage);
 				
 				// set 2D virtual screen size
 				qglPushMatrix();
@@ -1867,12 +1915,13 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 			
 			switch (light->l.rlType)
 			{
+				case RL_OMNI:
 				case RL_PROJ:
 				{
 					if(light == oldLight && entity == oldEntity && shader == oldShader)
 					{
 						// fast path, same as previous
-						rb_surfaceTable[*surface] (surface, 0, NULL, ia->numShadowIndexes, ia->shadowIndexes);
+						rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
 						goto nextInteraction;
 					}
 					else
@@ -1884,7 +1933,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 						}
 
 						// we don't need tangent space calculations here
-						Tess_Begin(Tess_StageIteratorDepthFill, shader, ia->lightShader, -1, 0, qtrue, qfalse);
+						Tess_Begin(Tess_StageIteratorShadowFill, shader, ia->lightShader, -1, 0, qtrue, qfalse);
 					}
 					break;
 				}
@@ -2043,10 +2092,11 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 		{
 			switch (light->l.rlType)
 			{
+				case RL_OMNI:
 				case RL_PROJ:
 				{
 					// add the triangles for this surface
-					rb_surfaceTable[*surface] (surface, 0, NULL, ia->numShadowIndexes, ia->shadowIndexes);
+					rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
 					break;
 				}
 				
@@ -2082,17 +2132,43 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 
 			if(drawShadows)
 			{
-				// jump back to first interaction of this light and start lighting
-				ia = &interactions[iaFirst];
-				iaCount = iaFirst;
-				drawShadows = qfalse;
-				
 				switch (light->l.rlType)
 				{
+					case RL_OMNI:
+					{
+						if(oldLight)
+						{
+							// draw the contents of the last shader batch
+							Tess_End();
+						}
+						
+						if(cubeSide == 5)
+						{
+							drawShadows = qfalse;
+						}
+						else
+						{
+							cubeSide++;	
+						}
+						
+						// jump back to first interaction of this light
+						ia = &interactions[iaFirst];
+						iaCount = iaFirst;
+						break;
+					}
+					
 					case RL_PROJ:
 					{
-						// draw the contents of the last shader batch
-						Tess_End();
+						if(oldLight)
+						{
+							// draw the contents of the last shader batch
+							Tess_End();
+						}
+						
+						// jump back to first interaction of this light and start lighting
+						ia = &interactions[iaFirst];
+						iaCount = iaFirst;
+						drawShadows = qfalse;
 						break;
 					}
 				
@@ -2102,6 +2178,12 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 			}
 			else
 			{
+				if(oldLight)
+				{
+					// draw the contents of the last shader batch
+					Tess_End();
+				}
+				
 				if(iaCount < (numInteractions - 1))
 				{
 					// jump to next interaction and start shadowing
@@ -2109,15 +2191,13 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 					iaCount++;
 					iaFirst = iaCount;
 					drawShadows = qtrue;
+					cubeSide = 0;
 				}
 				else
 				{
 					// increase last time to leave for loop
 					iaCount++;
 				}
-				
-				// draw the contents of the last shader batch
-				Tess_End();
 			}
 			
 			// force updates

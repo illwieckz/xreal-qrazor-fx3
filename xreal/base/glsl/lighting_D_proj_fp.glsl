@@ -32,7 +32,6 @@ varying vec3		var_Vertex;
 varying vec3		var_Normal;
 varying vec2		var_TexDiffuse;
 varying vec4		var_TexAtten;
-//varying vec3		var_TexShadow;
 
 void	main()
 {
@@ -51,12 +50,14 @@ void	main()
 	vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(var_TexAtten.z, 0.0)).rgb;
 
 	// compute shadow
-	float shadow = shadow2DProj(u_ShadowMap, var_TexAtten).r;
+	vec4 extract = float4(1.0, 0.00390625, 0.0000152587890625, 0.000000059604644775390625);
+	float shadowDistance = dot(texture2DProj(u_ShadowMap, var_TexAtten), extract);
+	float shadow = var_TexAtten.z <= shadowDistance ? 1.0 : 0.0;
 	
 	// compute final color
 	vec4 color = diffuse;
 	color.rgb *= attenuationXY;
-	color.rgb *= attenuationZ;
+//	color.rgb *= attenuationZ;
 	color.rgb *= u_LightScale;
 	color.rgb *= shadow;
 	

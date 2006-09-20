@@ -320,6 +320,30 @@ void GLSL_InitGPUShaders(void)
 
 	GLSL_ValidateProgram(tr.depthTestShader.program);
 	GLSL_ShowProgramUniforms(tr.depthTestShader.program);
+	
+	//
+	// shadow volume extrusion
+	//
+	GLSL_InitGPUShader(&tr.shadowExtrudeShader, "shadowExtrude", GLCS_VERTEX, qtrue);
+
+	tr.shadowExtrudeShader.u_LightOrigin = qglGetUniformLocationARB(tr.shadowExtrudeShader.program, "u_LightOrigin");
+
+	GLSL_ValidateProgram(tr.shadowExtrudeShader.program);
+	GLSL_ShowProgramUniforms(tr.shadowExtrudeShader.program);
+	
+	//
+	// shadow distance RGBA compression
+	//
+	GLSL_InitGPUShader(&tr.shadowFillShader, "shadowFill", GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
+
+	tr.shadowFillShader.u_ColorMap = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_ColorMap");
+
+	qglUseProgramObjectARB(tr.shadowFillShader.program);
+	qglUniform1iARB(tr.shadowFillShader.u_ColorMap, 0);
+	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.shadowFillShader.program);
+	GLSL_ShowProgramUniforms(tr.shadowFillShader.program);
 
 	//
 	// directional lighting ( Q3A style )
@@ -590,16 +614,6 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ShowProgramUniforms(tr.lightShader_DBS_radiosity.program);
 
 	//
-	// shadow volume extrusion
-	//
-	GLSL_InitGPUShader(&tr.shadowShader, "shadow", GLCS_VERTEX, qtrue);
-
-	tr.shadowShader.u_LightOrigin = qglGetUniformLocationARB(tr.shadowShader.program, "u_LightOrigin");
-
-	GLSL_ValidateProgram(tr.shadowShader.program);
-	GLSL_ShowProgramUniforms(tr.shadowShader.program);
-
-	//
 	// cubemap reflection for abitrary polygons
 	//
 	GLSL_InitGPUShader(&tr.reflectionShader_C, "reflection_C", GLCS_VERTEX | GLCS_NORMAL, qtrue);
@@ -847,6 +861,18 @@ void GLSL_ShutdownGPUShaders(void)
 		qglDeleteObjectARB(tr.depthTestShader.program);
 		tr.depthTestShader.program = 0;
 	}
+	
+	if(tr.shadowExtrudeShader.program)
+	{
+		qglDeleteObjectARB(tr.shadowExtrudeShader.program);
+		tr.shadowExtrudeShader.program = 0;
+	}
+	
+	if(tr.shadowFillShader.program)
+	{
+		qglDeleteObjectARB(tr.shadowFillShader.program);
+		tr.shadowFillShader.program = 0;
+	}
 
 	if(tr.lightShader_D_direct.program)
 	{
@@ -912,12 +938,6 @@ void GLSL_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.lightShader_DBS_radiosity.program);
 		tr.lightShader_DBS_radiosity.program = 0;
-	}
-
-	if(tr.shadowShader.program)
-	{
-		qglDeleteObjectARB(tr.shadowShader.program);
-		tr.shadowShader.program = 0;
 	}
 
 	if(tr.reflectionShader_C.program)
@@ -1386,6 +1406,8 @@ static void Render_genericSingle_FFP(int stage)
 
 	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 //  qglDisable(GL_TEXTURE_2D);
+
+	GL_CheckErrors();
 }
 
 #if 1
@@ -1425,6 +1447,8 @@ static void Render_genericSingle(int stage)
 	qglMatrixMode(GL_MODELVIEW);
 
 	DrawElements();
+	
+	GL_CheckErrors();
 }
 #endif
 
@@ -1600,6 +1624,8 @@ static void Render_depthFill_FFP(int stage)
 		qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		//qglDisable(GL_TEXTURE_2D);
 	}
+	
+	GL_CheckErrors();
 }
 
 #if 1
@@ -1637,8 +1663,46 @@ static void Render_depthFill(int stage)
 	}
 
 	DrawElements();
+	
+	GL_CheckErrors();
 }
 #endif
+
+static void Render_shadowFill(int stage)
+{
+	shaderStage_t  *pStage;
+
+	GLimp_LogComment("--- Render_shadowFill ---\n");
+
+	pStage = tess.surfaceStages[stage];
+
+	GL_State(pStage->stateBits);
+
+	// enable shader, set arrays
+	GL_Program(tr.shadowFillShader.program);
+	GL_ClientState(tr.shadowFillShader.attribs);
+	GL_SetVertexAttribs();
+
+	// bind u_ColorMap
+	GL_SelectTexture(0);
+
+	if(pStage->stateBits & GLS_ATEST_BITS)
+	{
+		qglMatrixMode(GL_TEXTURE);
+		qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
+		qglMatrixMode(GL_MODELVIEW);
+
+		GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
+	}
+	else
+	{
+		GL_Bind(tr.whiteImage);
+	}
+
+	DrawElements();
+	
+	GL_CheckErrors();
+}
 
 /*
 ===================
@@ -2147,14 +2211,7 @@ static void Render_lighting_D_proj(shaderStage_t * diffuseStage,
 	
 	// bind u_ShadowMap
 	GL_SelectTexture(3);
-	GL_Bind(tr.shadowRenderFBOImage);
-	
-#if 1
-	qglTexParameteri(tr.shadowRenderFBOImage->type, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
-	qglTexParameteri(tr.shadowRenderFBOImage->type, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE);
-#else
-	qglTexParameteri(tr.shadowRenderFBOImage->type, GL_DEPTH_TEXTURE_MODE_ARB, GL_INTENSITY);
-#endif
+	GL_Bind(tr.shadowMapFBOImage);
 
 	DrawElements();
 
@@ -2638,6 +2695,7 @@ static void Render_skybox(int stage)
 
 static void Render_portal(int stage)
 {
+	/*
 	float           fbufWidthScale, fbufHeightScale;
 	float           npotWidthScale, npotHeightScale;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
@@ -2667,6 +2725,7 @@ static void Render_portal(int stage)
 	DrawElements();
 
 	GL_CheckErrors();
+	*/
 }
 
 static void Render_heatHaze(int stage)
@@ -4393,7 +4452,7 @@ void Tess_StageIteratorGeneric()
 	}
 }
 
-void Tess_StageIteratorDepthFill()
+void Tess_StageIteratorShadowFill()
 {
 	int             stage;
 
@@ -4402,7 +4461,7 @@ void Tess_StageIteratorDepthFill()
 	{
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
-		GLimp_LogComment(va("--- Tess_StageIteratorDepthFill( %s, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name, tess.numVertexes, tess.numIndexes / 3));
+		GLimp_LogComment(va("--- Tess_StageIteratorShadowFill( %s, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name, tess.numVertexes, tess.numIndexes / 3));
 	}
 	
 	GL_CheckErrors();
@@ -4461,11 +4520,11 @@ void Tess_StageIteratorDepthFill()
 				{
 					if(glConfig.shadingLanguage100Available)
 					{
-						Render_depthFill(stage);
+						Render_shadowFill(stage);
 					}
 					else
 					{
-						Render_depthFill_FFP(stage);
+						// TODO
 					}
 				}
 				break;
@@ -4480,11 +4539,11 @@ void Tess_StageIteratorDepthFill()
 			{
 				if(glConfig.shadingLanguage100Available)
 				{
-					Render_depthFill(stage);
+					Render_shadowFill(stage);
 				}
 				else
 				{
-					Render_depthFill_FFP(stage);
+					// TODO
 				}
 				break;
 			}

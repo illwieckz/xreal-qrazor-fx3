@@ -42,7 +42,7 @@ void	main()
 	// transform normalmap texcoords
 	var_TexNormal = (gl_TextureMatrix[1] * attr_TexCoord1).st;
 	
-	// construct object-space-to-tangent-space 3x3 matrix
+	// construct tangent-space-to-object-space 3x3 matrix
 	var_TS2OSMatrix = mat3(	attr_Tangent.x, attr_Tangent.y, attr_Tangent.z,
 							attr_Binormal.x, attr_Binormal.y, attr_Binormal.z,
 							gl_Normal.x, gl_Normal.y, gl_Normal.z	);

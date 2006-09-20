@@ -180,9 +180,7 @@ enum
 	IF_INTENSITY = (1 << 3),
 	IF_ALPHA = (1 << 4),
 	IF_NORMALMAP = (1 << 5),
-	IF_LIGHTMAP = (1 << 6),
-	IF_CUBEMAP = (1 << 7),
-	IF_DEPTHMAP = (1 << 8)
+	IF_LIGHTMAP = (1 << 6)
 };
 
 typedef enum
@@ -1738,14 +1736,16 @@ typedef struct
 	image_t        *contrastRenderImage;
 	image_t        *currentRenderImage;
 
-	image_t        *currentRenderFBOImage[4];
-	image_t        *portalRenderFBOImage[4];
-	image_t        *shadowRenderFBOImage;
+//	image_t        *currentRenderFBOImage[4];
+//	image_t        *portalRenderFBOImage[4];
+	image_t        *shadowMapFBOImage;
+	image_t        *shadowCubeFBOImage;
 
 	// framebuffer objects
-	frameBuffer_t  *currentRenderFBO;
-	frameBuffer_t  *portalRenderFBO;
-	frameBuffer_t  *shadowRenderFBO;
+//	frameBuffer_t  *currentRenderFBO;
+//	frameBuffer_t  *portalRenderFBO;
+	frameBuffer_t  *shadowMapFBO;
+	frameBuffer_t  *shadowCubeFBO;
 
 	// internal shaders
 	shader_t       *defaultShader;
@@ -1775,6 +1775,9 @@ typedef struct
 
 	shaderProgram_t depthFillShader;
 	shaderProgram_t depthTestShader;
+	
+	shaderProgram_t shadowExtrudeShader;
+	shaderProgram_t shadowFillShader;
 
 	shaderProgram_t lightShader_D_direct;
 	shaderProgram_t lightShader_DB_direct;
@@ -1790,8 +1793,6 @@ typedef struct
 	shaderProgram_t lightShader_D_radiosity;
 	shaderProgram_t lightShader_DB_radiosity;
 	shaderProgram_t lightShader_DBS_radiosity;
-
-	shaderProgram_t shadowShader;
 
 	shaderProgram_t reflectionShader_C;
 	shaderProgram_t reflectionShader_CB;
@@ -2380,7 +2381,7 @@ void            Tess_End(void);
 void            Tess_CheckOverflow(int verts, int indexes);
 
 void            Tess_StageIteratorGeneric();
-void            Tess_StageIteratorDepthFill();
+void            Tess_StageIteratorShadowFill();
 void			Tess_StageIteratorStencilShadowVolume();
 void            Tess_StageIteratorLighting();
 void            Tess_StageIteratorSky();

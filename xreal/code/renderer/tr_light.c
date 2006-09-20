@@ -622,39 +622,11 @@ void R_SetupLightProjection(trRefLight_t * light)
 			height = yMax - yMin;
 			depth = zFar - zNear;
 			
-			/*
-			0 0 -1 0
-			-1 0 0 0
-			0 1 0 0
-			0 0 0 1
-			   x
-			0 4 8 12
-			1 5 9 13
-			2 6 10 14
-			3 7 11 15
-			  =
-			-2 -6 -10 -14
-			0 -4 -8 -12
-			1 5 9 13
-			3 7 11 15
-			 */
-			 
-			/*
-			proj[0] = 0;					proj[4] = 0;					proj[8] = (zFar + zNear) / depth;	proj[12] = -(2 * zFar * zNear) / depth;
-			proj[1] = (2 * zNear) / width;	proj[5] = 0;					proj[9] = -(xMax + xMin) / width;	proj[13] = 0;
-			proj[2] = 0;					proj[6] = (2 * zNear) / height; proj[10] = (yMax + yMin) / height;	proj[14] = 0;
-			proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;
-			*/
-			
-			// OpenGL projection matrix with flipped Z axis
+			// OpenGL projection matrix
 			proj[0] = (2 * zNear) / width;	proj[4] = 0;					proj[8] = (xMax + xMin) / width;	proj[12] = 0;
 			proj[1] = 0;					proj[5] = (2 * zNear) / height;	proj[9] = (yMax + yMin) / height;	proj[13] = 0;
 			proj[2] = 0;					proj[6] = 0;					proj[10] = -(zFar + zNear) / depth;	proj[14] = -(2 * zFar * zNear) / depth;
 			proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;
-			
-			// convert from looking down -Z to looking down X
-			//MatrixMultiplyRotation(proj, 90, 90, 0);
-			//MatrixMultiply(openGLToQuakeMatrix, proj, light->projectionMatrix);
 #else
 			// Tr3B - recoded from GtkRadiant entity plugin source
 			int             i;
@@ -673,7 +645,6 @@ void R_SetupLightProjection(trRefLight_t * light)
 			//MatrixTransformNormal(light->transformMatrix, light->l.target, target);
 			//MatrixTransformNormal(light->transformMatrix, light->l.right, right);
 			//MatrixTransformNormal(light->transformMatrix, light->l.up, up);
-			
 
 			VectorNormalize2(light->l.target, start);
 			VectorCopy(light->l.target, stop);
