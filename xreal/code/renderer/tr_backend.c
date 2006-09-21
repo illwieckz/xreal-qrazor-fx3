@@ -1751,17 +1751,14 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 							}
 							
 							R_BindFBO(tr.shadowCubeFBO);
-							//R_AttachFBOTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + cubeSide, tr.shadowCubeFBOImage->texnum, 0);
-							//R_CheckFBO(tr.shadowCubeFBO);
+							R_AttachFBOTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + cubeSide, tr.shadowCubeFBOImage->texnum, 0);
+							R_CheckFBO(tr.shadowCubeFBO);
 							
 							// set the window clipping
 							qglViewport(0, 0, 512, 512);
 							qglScissor(0, 0, 512, 512);
 					
 							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-					
-							qglEnable(GL_POLYGON_OFFSET_FILL);
-							qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
 							
 							/*
 							for(int i=0; i<6; ++i)
@@ -1788,9 +1785,6 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 							qglScissor(0, 0, 512, 512);
 					
 							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-					
-							qglEnable(GL_POLYGON_OFFSET_FILL);
-							qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
 							
 							qglMatrixMode(GL_PROJECTION);
 							qglLoadMatrixf(light->projectionMatrix);
@@ -1812,8 +1806,6 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				float           x, y, w, h;
 				
 				GLimp_LogComment("--- Rendering lighting ---\n");
-				
-				qglDisable(GL_POLYGON_OFFSET_FILL);
 				
 				R_BindNullFBO();
 				
@@ -2018,7 +2010,6 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				// the world (like water) continue with the wrong frame
 				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 				
-				
 				// set up the transformation matrix
 				if(drawShadows)
 				{
@@ -2029,15 +2020,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 					backEnd.or.axis[2][2] = 1;
 					VectorCopy(light->l.origin, backEnd.or.viewOrigin);
 					
-					// transform by the light placement
 					MatrixIdentity(backEnd.or.transformMatrix);
-					//MatrixIdentity(backEnd.or.viewMatrix);
-					
-					// convert from our coordinate system (looking down X)
-					// to OpenGL's coordinate system (looking down -Z)
-					//MatrixMultiply(quakeToOpenGLMatrix, light->viewMatrix, backEnd.or.viewMatrix);
-					//MatrixCopy(backEnd.or.viewMatrix, backEnd.or.modelViewMatrix);
-					
 					MatrixAffineInverse(backEnd.or.transformMatrix, backEnd.or.viewMatrix);
 					MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, backEnd.or.modelViewMatrix);
 				}
@@ -2051,6 +2034,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
 			// change depthrange if needed
+			#if 0
 			if(oldDepthRange != depthRange)
 			{
 				if(depthRange)
@@ -2063,6 +2047,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				}
 				oldDepthRange = depthRange;
 			}
+			#endif
 		}
 
 		// change the attenuation matrix if needed
@@ -2146,6 +2131,9 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				// a call to va() every frame!
 				GLimp_LogComment(va("----- Last Interaction: %i -----\n", iaCount));
 			}
+			
+			// draw the contents of the last shader batch
+			Tess_End();
 
 			if(drawShadows)
 			{
@@ -2153,12 +2141,6 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				{
 					case RL_OMNI:
 					{
-						if(oldLight)
-						{
-							// draw the contents of the last shader batch
-							Tess_End();
-						}
-						
 						if(cubeSide == 5)
 						{
 							drawShadows = qfalse;
@@ -2176,12 +2158,6 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 					
 					case RL_PROJ:
 					{
-						if(oldLight)
-						{
-							// draw the contents of the last shader batch
-							Tess_End();
-						}
-						
 						// jump back to first interaction of this light and start lighting
 						ia = &interactions[iaFirst];
 						iaCount = iaFirst;
@@ -2195,12 +2171,6 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 			}
 			else
 			{
-				if(oldLight)
-				{
-					// draw the contents of the last shader batch
-					Tess_End();
-				}
-				
 				if(iaCount < (numInteractions - 1))
 				{
 					// jump to next interaction and start shadowing

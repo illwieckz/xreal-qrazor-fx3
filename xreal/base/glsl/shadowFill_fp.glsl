@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 uniform sampler2D	u_ColorMap;
+uniform vec3		u_LightOrigin;
 uniform float       u_LightRadius;
 
 varying vec3		var_Vertex;
@@ -28,14 +29,19 @@ varying vec2		var_Tex;
 
 void	main()
 {
+	/*
 	float alpha = texture2D(u_ColorMap, var_Tex).a;
 
 	if(alpha <= 0.0)
 	{
 		discard;
 	}
+	*/
 	
-	float distance = length(var_Vertex) / u_LightRadius;
+	// compute incident ray in world space
+	vec3 I = var_Vertex - u_LightOrigin;
+	
+	float distance = length(I) / u_LightRadius;
 	
 	gl_FragColor.r = frac(distance * 1.0);
 	gl_FragColor.g = frac(distance * 256.0);

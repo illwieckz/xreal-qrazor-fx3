@@ -748,11 +748,20 @@ void R_RotateEntityForLight(const trRefEntity_t * ent, const trRefLight_t * ligh
 {
 	vec3_t          delta;
 	float           axisLength;
-//	matrix_t        viewMatrix;
 
 	if(ent->e.reType != RT_MODEL)
 	{
-		//*or = viewParms->world;
+		Com_Memset(or, 0, sizeof(*or));
+					
+		or->axis[0][0] = 1;
+		or->axis[1][1] = 1;
+		or->axis[2][2] = 1;
+		
+		VectorCopy(light->l.origin, or->viewOrigin);
+					
+		MatrixIdentity(or->transformMatrix);
+		MatrixAffineInverse(or->transformMatrix, or->viewMatrix);
+		MatrixMultiply(light->viewMatrix, or->transformMatrix, or->modelViewMatrix);
 		return;
 	}
 

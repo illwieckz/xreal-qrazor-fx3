@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 attribute vec4		attr_TexCoord0;
 
+uniform mat4		u_ModelMatrix;
+
 varying vec3		var_Vertex;
 varying vec2		var_Tex;
 
@@ -30,8 +32,8 @@ void	main()
 	// transform vertex position into homogenous clip-space
 	gl_Position = ftransform();
 	
-	// transform vertex position into camera space
-	var_Vertex = (gl_ModelViewMatrix * gl_Vertex).xyz;
+	// transform position into world space
+	var_Vertex = (u_ModelMatrix * gl_Vertex).xyz;
 	
 	// transform texcoords
 	var_Tex = (gl_TextureMatrix[0] * attr_TexCoord0).st;

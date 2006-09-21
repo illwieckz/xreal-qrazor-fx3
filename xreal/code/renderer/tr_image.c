@@ -1240,8 +1240,6 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 			}
 		}
 	}
-	  done:
-
 	
 	// set filter type
 	switch (image->filterType)
@@ -4608,7 +4606,7 @@ static void R_CreateShadowMapFBOImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	tr.shadowMapFBOImage = R_CreateImage("_shadowMapFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_ZERO_CLAMP);
+	tr.shadowMapFBOImage = R_CreateImage("_shadowMapFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
 
 	ri.Hunk_FreeTempMemory(data);
 }

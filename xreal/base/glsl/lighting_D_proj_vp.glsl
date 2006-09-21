@@ -22,11 +22,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 attribute vec4		attr_TexCoord0;
 
+uniform mat4		u_ModelMatrix;
+
 varying vec3		var_Vertex;
-varying vec3		var_ViewVertex;
 varying vec3		var_Normal;
 varying vec2		var_TexDiffuse;
 varying vec4		var_TexAtten;
+varying vec3		var_Shadow;
 
 void	main()
 {
@@ -36,9 +38,6 @@ void	main()
 	// assign position in object space
 	var_Vertex = gl_Vertex.xyz;
 	
-	// transform vertex position into camera space
-	var_ViewVertex = (gl_ModelViewMatrix * gl_Vertex).xyz;
-	
 	// assign normal in object space
 	var_Normal = gl_Normal;
 	
@@ -47,4 +46,7 @@ void	main()
 	
 	// calc light attenuation in light space
 	var_TexAtten = gl_TextureMatrix[1] * gl_Vertex;
+	
+	// transform position into world space
+	var_Shadow = (u_ModelMatrix * gl_Vertex).xyz;
 }

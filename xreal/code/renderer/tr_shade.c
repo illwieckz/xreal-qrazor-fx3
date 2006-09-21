@@ -347,7 +347,9 @@ void GLSL_InitGPUShaders(void)
 	GLSL_InitGPUShader(&tr.shadowFillShader, "shadowFill", GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
 
 	tr.shadowFillShader.u_ColorMap = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_ColorMap");
+	tr.shadowFillShader.u_LightOrigin = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_LightOrigin");
 	tr.shadowFillShader.u_LightRadius = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_LightRadius");
+	tr.shadowFillShader.u_ModelMatrix = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_ModelMatrix");
 
 	qglUseProgramObjectARB(tr.shadowFillShader.program);
 	qglUniform1iARB(tr.shadowFillShader.u_ColorMap, 0);
@@ -546,6 +548,7 @@ void GLSL_InitGPUShaders(void)
 	tr.lightShader_D_proj.u_LightColor = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightColor");
 	tr.lightShader_D_proj.u_LightRadius = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightRadius");
 	tr.lightShader_D_proj.u_LightScale = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightScale");
+	tr.lightShader_D_proj.u_ModelMatrix = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_ModelMatrix");
 
 	qglUseProgramObjectARB(tr.lightShader_D_proj.program);
 	qglUniform1iARB(tr.lightShader_D_proj.u_DiffuseMap, 0);
@@ -1683,12 +1686,18 @@ static void Render_depthFill(int stage)
 static void Render_shadowFill(int stage)
 {
 	shaderStage_t  *pStage;
+	vec3_t			lightOrigin;
+	unsigned        stateBits;
 
 	GLimp_LogComment("--- Render_shadowFill ---\n");
 
 	pStage = tess.surfaceStages[stage];
 
-	GL_State(pStage->stateBits);
+	// remove blend mode
+	stateBits = pStage->stateBits;
+	stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
+		
+	GL_State(stateBits);
 
 	// enable shader, set arrays
 	GL_Program(tr.shadowFillShader.program);
@@ -1696,18 +1705,21 @@ static void Render_shadowFill(int stage)
 	GL_SetVertexAttribs();
 	
 	// set uniforms
+	VectorCopy(backEnd.currentLight->origin, lightOrigin);	// in world space
+	
+	qglUniform3fARB(tr.shadowFillShader.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform1fARB(tr.shadowFillShader.u_LightRadius, backEnd.currentLight->sphereRadius);
+	qglUniformMatrix4fvARB(tr.shadowFillShader.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
 
-	if(pStage->stateBits & GLS_ATEST_BITS)
+	if(stateBits & GLS_ATEST_BITS)
 	{
+		GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 		qglMatrixMode(GL_TEXTURE);
 		qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
 		qglMatrixMode(GL_MODELVIEW);
-
-		GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 	}
 	else
 	{
@@ -2206,6 +2218,7 @@ static void Render_lighting_D_proj(shaderStage_t * diffuseStage,
 	qglUniform3fARB(tr.lightShader_D_proj.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
 	qglUniform1fARB(tr.lightShader_D_proj.u_LightRadius, light->sphereRadius);
 	qglUniform1fARB(tr.lightShader_D_proj.u_LightScale, r_lightScale->value);
+	qglUniformMatrix4fvARB(tr.lightShader_D_proj.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 
 	// bind u_DiffuseMap
 	GL_SelectTexture(0);
@@ -4486,6 +4499,10 @@ void Tess_StageIteratorShadowFill()
 
 	// set face culling appropriately
 	GL_Cull(tess.surfaceShader->cullType);
+	
+	// set polygon offset if necessary
+	qglEnable(GL_POLYGON_OFFSET_FILL);
+	qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
 
 	// lock XYZ
 	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
@@ -4575,6 +4592,9 @@ void Tess_StageIteratorShadowFill()
 		qglUnlockArraysEXT();
 		GLimp_LogComment("glUnlockArraysEXT\n");
 	}
+	
+	// reset polygon offset
+	qglDisable(GL_POLYGON_OFFSET_FILL);
 }
 
 void Tess_StageIteratorStencilShadowVolume()

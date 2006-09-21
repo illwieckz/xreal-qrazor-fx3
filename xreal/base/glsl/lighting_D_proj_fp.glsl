@@ -23,17 +23,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uniform sampler2D	u_DiffuseMap;
 uniform sampler2D	u_AttenuationMapXY;
 uniform sampler2D	u_AttenuationMapZ;
-uniform sampler2DShadow	u_ShadowMap;
+uniform sampler2D	u_ShadowMap;
 uniform vec3		u_LightOrigin;
 uniform vec3		u_LightColor;
 uniform float		u_LightRadius;
 uniform float		u_LightScale;
 
 varying vec3		var_Vertex;
-varying vec3		var_ViewVertex;
 varying vec3		var_Normal;
 varying vec2		var_TexDiffuse;
 varying vec4		var_TexAtten;
+varying vec3		var_Shadow;
 
 void	main()
 {
@@ -59,11 +59,15 @@ void	main()
 
 #if defined(SHADOWMAPPING)
 	// compute shadow
-	float vertexDistance = length(var_ViewVertex) / u_LightRadius;
+#if 1
+	float vertexDistance = length(var_Shadow) / u_LightRadius;
 	vec4 extract = float4(1.0, 0.00390625, 0.0000152587890625, 0.000000059604644775390625);
-	float shadowDistance = dot(texture2DProj(u_ShadowMap, var_TexAtten), extract);
+	float shadowDistance = dot(texture2DProj(u_ShadowMap, var_TexAtten.xyw), extract);
 	float shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
 	color.rgb *= shadow;
+#else
+	color.rgb *= texture2DProj(u_ShadowMap, var_TexAtten.xyw).rgb;
+#endif
 #endif
 	
 #if defined(GL_ARB_draw_buffers)
