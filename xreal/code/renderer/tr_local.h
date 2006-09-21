@@ -1749,7 +1749,6 @@ typedef struct
 //	frameBuffer_t  *currentRenderFBO;
 //	frameBuffer_t  *portalRenderFBO;
 	frameBuffer_t  *shadowMapFBO;
-	frameBuffer_t  *shadowCubeFBO;
 
 	// internal shaders
 	shader_t       *defaultShader;

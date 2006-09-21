@@ -431,16 +431,6 @@ void R_InitFBOs(void)
 	R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage->texnum, 0);
 	R_CheckFBO(tr.shadowMapFBO);
 	
-	//
-	// shadowCube for shadow mapping offscreen rendering
-	//
-	tr.shadowCubeFBO = R_CreateFBO("_shadowCube", 512, 512);
-	R_BindFBO(tr.shadowCubeFBO);
-	R_CreateFBOColorBuffer(tr.shadowCubeFBO, GL_RGBA, 0);
-	R_CreateFBODepthBuffer(tr.shadowCubeFBO, GL_DEPTH_COMPONENT24_ARB);
-//	R_AttachFBOTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB, tr.shadowCubeFBOImage->texnum, 0);
-	R_CheckFBO(tr.shadowCubeFBO);
-	
 	GL_CheckErrors();
 
 	R_BindNullFBO();

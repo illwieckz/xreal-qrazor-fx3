@@ -1709,6 +1709,9 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 	depthRange = qfalse;
 	drawShadows = qtrue;
 	cubeSide = 0;
+	
+	// if we need to clear the FBO color buffers then it should be white
+	qglClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// render interactions
 	for(iaCount = 0, iaFirst = 0, ia = &interactions[0]; iaCount < numInteractions;)
@@ -1719,11 +1722,11 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 		shader = ia->surfaceShader;
 		
 		if(r_logFile->integer)
-			{
-				// don't just call LogComment, or we will get
-				// a call to va() every frame!
-				GLimp_LogComment(va("----- Current Interaction: %i -----\n", iaCount));
-			}
+		{
+			// don't just call LogComment, or we will get
+			// a call to va() every frame!
+			GLimp_LogComment(va("----- Current Interaction: %i -----\n", iaCount));
+		}
 		
 		// only iaCount == iaFirst if first iteration or counters were reset
 		if(iaCount == iaFirst)
@@ -1737,7 +1740,9 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 			
 			if(drawShadows)
 			{
-				if(!light->l.noShadows)
+				R_BindFBO(tr.shadowMapFBO);
+				
+				//if(!light->l.noShadows)
 				{
 					switch (light->l.rlType)
 					{
@@ -1750,41 +1755,29 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 								GLimp_LogComment(va("----- Rendering shadowCube side: %i -----\n", cubeSide));
 							}
 							
-							R_BindFBO(tr.shadowCubeFBO);
 							R_AttachFBOTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + cubeSide, tr.shadowCubeFBOImage->texnum, 0);
-							R_CheckFBO(tr.shadowCubeFBO);
+							R_CheckFBO(tr.shadowMapFBO);
 							
 							// set the window clipping
 							qglViewport(0, 0, 512, 512);
 							qglScissor(0, 0, 512, 512);
 					
-							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-							
-							/*
-							for(int i=0; i<6; ++i)
-							{
-								glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_fboID);
-								glFramebufferTexture2DEXT( GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, m_textCubeID, 0);
-								glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
-								
-								//clear buffers, rotate camera, render scene
-							}
-							*/
-							
+							qglClear(/*GL_COLOR_BUFFER_BIT |*/ GL_DEPTH_BUFFER_BIT);
 							break;
 						}
 						
 						case RL_PROJ:
 						{
-							GLimp_LogComment("--- Rendering shadowMap ---\n");
+							GLimp_LogComment("--- Rendering projective shadowMap ---\n");
 							
-							R_BindFBO(tr.shadowMapFBO);
+							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage->texnum, 0);
+							R_CheckFBO(tr.shadowMapFBO);
 							
 							// set the window clipping
 							qglViewport(0, 0, 512, 512);
 							qglScissor(0, 0, 512, 512);
 					
-							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+							qglClear(/*GL_COLOR_BUFFER_BIT |*/ GL_DEPTH_BUFFER_BIT);
 							
 							qglMatrixMode(GL_PROJECTION);
 							qglLoadMatrixf(light->projectionMatrix);
@@ -1792,19 +1785,21 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 							break;
 						}
 						
-						default:
+						case RL_DIRECT:
 						{
-							// bind to shadowMap to avoid bad scene rendering
-							//R_BindFBO(tr.shadowMapFBO);
+							GLimp_LogComment("--- Rendering projective shadowMap ---\n");
+							
+							// TODO
 							break;
 						}
+						
+						default:
+							break;
 					}
 				}
 			}
 			else
 			{
-				float           x, y, w, h;
-				
 				GLimp_LogComment("--- Rendering lighting ---\n");
 				
 				R_BindNullFBO();
@@ -1824,11 +1819,13 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				qglLoadMatrixf(backEnd.or.modelViewMatrix);
 				
 				// show shadowRender for debugging
-				#if 1
+				#if 0
 				switch (light->l.rlType)
 				{
 					case RL_PROJ:
 					{
+						float           x, y, w, h;
+						
 						// enable shader, set arrays
 						GL_Program(tr.genericSingleShader.program);
 						GL_State(GLS_DEPTHTEST_DISABLE);
@@ -1883,12 +1880,12 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				#if 0
 				if(!light->additive)
 				{
-					GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
+					GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
 				}
 				else
 				#endif
 				{
-					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
+					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
 				}
 			}
 		} // end if(iaCount == iaFirst)
@@ -2212,6 +2209,9 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 	// reset scissor clamping
 	qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
+			   
+	// reset clear color
+	qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	GL_CheckErrors();
 }
