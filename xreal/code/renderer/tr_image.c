@@ -1168,21 +1168,11 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		// copy or resample data as appropriate for first MIP level
 		if((scaledWidth == image->width) && (scaledHeight == image->height))
 		{
-			if(image->filterType != FT_DEFAULT)
-			{
-				qglTexImage2D(target, 0, internalFormat, scaledWidth, scaledHeight, 0, format, GL_UNSIGNED_BYTE, data);
-				image->uploadWidth = scaledWidth;
-				image->uploadHeight = scaledHeight;
-				image->internalFormat = internalFormat;
-
-				goto done;
-			}
 			Com_Memcpy(scaledBuffer, data, scaledWidth * scaledHeight * 4);
 		}
 		else
 		{
-			ResampleTexture((unsigned *)data, image->width, image->height, (unsigned *)scaledBuffer, scaledWidth, scaledHeight,
-							(image->bits & IF_NORMALMAP));
+			ResampleTexture((unsigned *)data, image->width, image->height, (unsigned *)scaledBuffer, scaledWidth, scaledHeight, (image->bits & IF_NORMALMAP));
 		}
 
 		if(!(image->bits & (IF_NORMALMAP | IF_RGBA32F)))
@@ -1252,71 +1242,72 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 	}
 	  done:
 
-		// set filter type
-		switch (image->filterType)
-		{
-			case FT_DEFAULT:
-				qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, gl_filter_min);
-				qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+	
+	// set filter type
+	switch (image->filterType)
+	{
+		case FT_DEFAULT:
+			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 
-				// set texture anisotropy
-				if(glConfig.textureAnisotropyAvailable)
-					qglTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
-				break;
+			// set texture anisotropy
+			if(glConfig.textureAnisotropyAvailable)
+				qglTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
+			break;
 
-			case FT_LINEAR:
-				qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				break;
+		case FT_LINEAR:
+			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			break;
 
-			case FT_NEAREST:
-				qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-				break;
+		case FT_NEAREST:
+			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			break;
 
-			default:
-				ri.Printf(PRINT_WARNING, "WARNING: unknown filter type for image '%s'\n", image->name);
-				qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				break;
-		}
+		default:
+			ri.Printf(PRINT_WARNING, "WARNING: unknown filter type for image '%s'\n", image->name);
+			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			break;
+	}
 
-		// set wrap type
-		switch (image->wrapType)
-		{
-			case WT_REPEAT:
-				qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_REPEAT);
-				qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_REPEAT);
-				break;
+	// set wrap type
+	switch (image->wrapType)
+	{
+		case WT_REPEAT:
+			qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			break;
 
-			case WT_CLAMP:
-				qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP);
-				qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP);
-				break;
+		case WT_CLAMP:
+			qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP);
+			qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP);
+			break;
 
-			case WT_EDGE_CLAMP:
-				qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-				qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-				break;
+		case WT_EDGE_CLAMP:
+			qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			break;
 
-			case WT_ZERO_CLAMP:
-				qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-				qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-				qglTexParameterfv(image->type, GL_TEXTURE_BORDER_COLOR, zeroClampBorder);
-				break;
+		case WT_ZERO_CLAMP:
+			qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+			qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+			qglTexParameterfv(image->type, GL_TEXTURE_BORDER_COLOR, zeroClampBorder);
+			break;
 
-			case WT_ALPHA_ZERO_CLAMP:
-				qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-				qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-				qglTexParameterfv(image->type, GL_TEXTURE_BORDER_COLOR, alphaZeroClampBorder);
-				break;
+		case WT_ALPHA_ZERO_CLAMP:
+			qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+			qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+			qglTexParameterfv(image->type, GL_TEXTURE_BORDER_COLOR, alphaZeroClampBorder);
+			break;
 
-			default:
-				ri.Printf(PRINT_WARNING, "WARNING: unknown wrap type for image '%s'\n", image->name);
-				qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_REPEAT);
-				qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_REPEAT);
-				break;
-		}
+		default:
+			ri.Printf(PRINT_WARNING, "WARNING: unknown wrap type for image '%s'\n", image->name);
+			qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			break;
+	}
 
 	GL_CheckErrors();
 
