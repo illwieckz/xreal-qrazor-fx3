@@ -28,25 +28,23 @@ varying vec3		var_Vertex;
 varying vec3		var_Normal;
 varying vec2		var_TexDiffuse;
 varying vec4		var_TexAtten;
-varying vec3		var_Shadow;
 
 void	main()
 {
 	// transform vertex position into homogenous clip-space
 	gl_Position = ftransform();
 	
-	// assign position in object space
-	var_Vertex = gl_Vertex.xyz;
+	// transform position into world space
+	var_Vertex = (u_ModelMatrix * gl_Vertex).xyz;
 	
-	// assign normal in object space
-	var_Normal = gl_Normal;
+	// transform normal into world space
+	var_Normal.x = dot(u_ModelMatrix[0].xyz, gl_Normal);
+	var_Normal.y = dot(u_ModelMatrix[1].xyz, gl_Normal);
+	var_Normal.z = dot(u_ModelMatrix[2].xyz, gl_Normal);
 	
 	// transform diffusemap texcoords
 	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;
 	
 	// calc light attenuation in light space
 	var_TexAtten = gl_TextureMatrix[1] * gl_Vertex;
-	
-	// transform position into world space
-	var_Shadow = (u_ModelMatrix * gl_Vertex).xyz;
 }

@@ -2211,7 +2211,7 @@ static void Render_lighting_D_proj(shaderStage_t * diffuseStage,
 	GL_SetVertexAttribs();
 
 	// set uniforms
-	VectorCopy(light->transformed, lightOrigin);
+	VectorCopy(light->origin, lightOrigin);
 	VectorCopy(tess.svars.color, lightColor);
 
 	qglUniform3fARB(tr.lightShader_D_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);

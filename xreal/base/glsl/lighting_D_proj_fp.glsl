@@ -33,7 +33,6 @@ varying vec3		var_Vertex;
 varying vec3		var_Normal;
 varying vec2		var_TexDiffuse;
 varying vec4		var_TexAtten;
-varying vec3		var_Shadow;
 
 void	main()
 {
@@ -60,7 +59,7 @@ void	main()
 #if defined(SHADOWMAPPING)
 	// compute shadow
 #if 1
-	float vertexDistance = length(var_Shadow) / u_LightRadius;
+	float vertexDistance = length(var_Vertex - u_LightOrigin) / u_LightRadius;
 	vec4 extract = float4(1.0, 0.00390625, 0.0000152587890625, 0.000000059604644775390625);
 	float shadowDistance = dot(texture2DProj(u_ShadowMap, var_TexAtten.xyw), extract);
 	float shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
