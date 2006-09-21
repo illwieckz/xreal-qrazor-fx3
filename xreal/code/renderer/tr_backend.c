@@ -1833,48 +1833,58 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				
 				// show shadowRender for debugging
 				#if 1
-				// enable shader, set arrays
-				GL_Program(tr.genericSingleShader.program);
-				GL_State(GLS_DEPTHTEST_DISABLE);
-				GL_ClientState(tr.genericSingleShader.attribs);
-				//GL_SetVertexAttribs();
-				GL_Cull(CT_TWO_SIDED);
+				switch (light->l.rlType)
+				{
+					case RL_PROJ:
+					{
+						// enable shader, set arrays
+						GL_Program(tr.genericSingleShader.program);
+						GL_State(GLS_DEPTHTEST_DISABLE);
+						GL_ClientState(tr.genericSingleShader.attribs);
+						//GL_SetVertexAttribs();
+						GL_Cull(CT_TWO_SIDED);
 				
-				qglColor3f(1, 1, 1);
-	
-				// bind u_ColorMap
-				GL_SelectTexture(0);
-				GL_Bind(tr.shadowMapFBOImage);
-				
-				// set 2D virtual screen size
-				qglPushMatrix();
-				qglLoadIdentity();
-				qglMatrixMode(GL_PROJECTION);
-				qglPushMatrix();
-				qglLoadIdentity();
-				qglOrtho(backEnd.viewParms.viewportX,
-						 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-						 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
-				
-				x = 0;
-				y = 0;
-				w = backEnd.viewParms.viewportWidth / 3;
-				h = backEnd.viewParms.viewportHeight / 3;
+						qglColor3f(1, 1, 1);
 		
-				qglBegin(GL_QUADS);
-				qglTexCoord2f(0, 0);
-				qglVertex2f(x, y);
-				qglTexCoord2f(1, 0);
-				qglVertex2f(x + w, y);
-				qglTexCoord2f(1, 1);
-				qglVertex2f(x + w, y + h);
-				qglTexCoord2f(0, 1);
-				qglVertex2f(x, y + h);
-				qglEnd();
+						// bind u_ColorMap
+						GL_SelectTexture(0);
+						GL_Bind(tr.shadowMapFBOImage);
+				
+						// set 2D virtual screen size
+						qglPushMatrix();
+						qglLoadIdentity();
+						qglMatrixMode(GL_PROJECTION);
+						qglPushMatrix();
+						qglLoadIdentity();
+						qglOrtho(backEnd.viewParms.viewportX,
+						 		backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+								 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+				
+						x = 0;
+						y = 0;
+						w = backEnd.viewParms.viewportWidth / 3;
+						h = backEnd.viewParms.viewportHeight / 3;
+		
+						qglBegin(GL_QUADS);
+						qglTexCoord2f(0, 0);
+						qglVertex2f(x, y);
+						qglTexCoord2f(1, 0);
+						qglVertex2f(x + w, y);
+						qglTexCoord2f(1, 1);
+						qglVertex2f(x + w, y + h);
+						qglTexCoord2f(0, 1);
+						qglVertex2f(x, y + h);
+						qglEnd();
 
-				qglPopMatrix();
-				qglMatrixMode(GL_MODELVIEW);
-				qglPopMatrix();
+						qglPopMatrix();
+						qglMatrixMode(GL_MODELVIEW);
+						qglPopMatrix();
+						break;
+					}
+					
+					default:
+						break;
+				}
 				#endif
 				
 				// set OpenGL state for lighting
@@ -2074,18 +2084,25 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
 			
 			// build the attenuation matrix using the entity transform
-			MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
-			MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
+			switch (light->l.rlType)
+			{
+				case RL_PROJ:
+				{
+					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0);		// scale
+					break;
+				}
+				
+				case RL_OMNI:
+				default:
+				{
+					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
+					break;
+				}
+			}
+			MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);
 			MatrixMultiply2(light->attenuationMatrix, modelToLight);
-			
-			// build the shadow matrix using the entity transform
-			/*
-			MatrixSetupTranslation(light->shadowMatrix, 0.5, 0.5, 0.5);			// bias
-			MatrixMultiplyScale(light->shadowMatrix, 0.5, 0.5, 0.5);			// scale
-			MatrixMultiply2(light->shadowMatrix, light->projectionMatrix);		// light projection (frustum)
-			MatrixMultiply2(light->shadowMatrix, modelToLight);
-			*/
 		}
 
 		if(drawShadows)

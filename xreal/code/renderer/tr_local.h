@@ -116,6 +116,7 @@ typedef struct trRefLight_s
 	cullResult_t    cull;
 	vec3_t          localBounds[2];
 	vec3_t          worldBounds[2];
+	float           sphereRadius;	// calculated from localBounds
 
 	float           depthBounds[2];	// zNear, zFar for GL_EXT_depth_bounds_test
 	qboolean        noDepthBoundsTest;
@@ -180,7 +181,9 @@ enum
 	IF_INTENSITY = (1 << 3),
 	IF_ALPHA = (1 << 4),
 	IF_NORMALMAP = (1 << 5),
-	IF_LIGHTMAP = (1 << 6)
+	IF_LIGHTMAP = (1 << 6),
+	IF_ALPHA32F = (1 << 7),
+	IF_RGBA32F = (1 << 8)
 };
 
 typedef enum
@@ -834,6 +837,7 @@ typedef struct shaderProgram_s
 	GLint           u_LightDir;
 	GLint           u_LightOrigin;
 	GLint           u_LightColor;
+	GLint           u_LightRadius;
 	GLint           u_LightScale;
 
 	GLint           u_SpecularExponent;
@@ -1949,7 +1953,6 @@ extern cvar_t  *r_ext_compiled_vertex_array;
 extern cvar_t  *r_ext_texture_env_add;
 extern cvar_t  *r_ext_transpose_matrix;
 extern cvar_t  *r_ext_texture_cube_map;
-extern cvar_t  *r_ext_depth_texture;
 extern cvar_t  *r_ext_vertex_program;
 extern cvar_t  *r_ext_vertex_buffer_object;
 extern cvar_t  *r_ext_occlusion_query;
@@ -1959,6 +1962,7 @@ extern cvar_t  *r_ext_fragment_shader;
 extern cvar_t  *r_ext_shading_language_100;
 extern cvar_t  *r_ext_texture_non_power_of_two;
 extern cvar_t  *r_ext_draw_buffers;
+extern cvar_t  *r_ext_texture_float;
 extern cvar_t  *r_ext_stencil_wrap;
 extern cvar_t  *r_ext_texture_filter_anisotropic;
 extern cvar_t  *r_ext_stencil_two_side;

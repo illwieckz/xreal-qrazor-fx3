@@ -23,10 +23,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 attribute vec4		attr_TexCoord0;
 
 varying vec3		var_Vertex;
+varying vec3		var_ViewVertex;
 varying vec3		var_Normal;
 varying vec2		var_TexDiffuse;
 varying vec4		var_TexAtten;
-//varying vec3		var_TexShadow;
 
 void	main()
 {
@@ -35,6 +35,9 @@ void	main()
 	
 	// assign position in object space
 	var_Vertex = gl_Vertex.xyz;
+	
+	// transform vertex position into camera space
+	var_ViewVertex = (gl_ModelViewMatrix * gl_Vertex).xyz;
 	
 	// assign normal in object space
 	var_Normal = gl_Normal;

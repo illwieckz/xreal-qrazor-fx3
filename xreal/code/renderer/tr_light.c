@@ -471,6 +471,8 @@ void R_SetupLightLocalBounds(trRefLight_t * light)
 			break;
 		}
 	}
+	
+	light->sphereRadius = RadiusFromBounds(light->localBounds[0], light->localBounds[1]);
 }
 
 /*

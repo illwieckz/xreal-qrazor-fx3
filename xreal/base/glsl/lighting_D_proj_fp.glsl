@@ -26,9 +26,11 @@ uniform sampler2D	u_AttenuationMapZ;
 uniform sampler2DShadow	u_ShadowMap;
 uniform vec3		u_LightOrigin;
 uniform vec3		u_LightColor;
+uniform float		u_LightRadius;
 uniform float		u_LightScale;
 
 varying vec3		var_Vertex;
+varying vec3		var_ViewVertex;
 varying vec3		var_Normal;
 varying vec2		var_TexDiffuse;
 varying vec4		var_TexAtten;
@@ -46,20 +48,23 @@ void	main()
 	diffuse.rgb *= u_LightColor * clamp(dot(N, L), 0.0, 1.0);
 	
 	// compute attenuation	
-	vec3 attenuationXY = var_TexAtten.w < 0.0 ? vec3(0.0, 0.0, 0.0) : texture2DProj(u_AttenuationMapXY, var_TexAtten.xyw).rgb;
+	vec3 attenuationXY = texture2DProj(u_AttenuationMapXY, var_TexAtten.xyw).rgb;
 	vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(var_TexAtten.z, 0.0)).rgb;
 
-	// compute shadow
-	vec4 extract = float4(1.0, 0.00390625, 0.0000152587890625, 0.000000059604644775390625);
-	float shadowDistance = dot(texture2DProj(u_ShadowMap, var_TexAtten), extract);
-	float shadow = var_TexAtten.z <= shadowDistance ? 1.0 : 0.0;
-	
 	// compute final color
 	vec4 color = diffuse;
 	color.rgb *= attenuationXY;
 //	color.rgb *= attenuationZ;
 	color.rgb *= u_LightScale;
+
+#if defined(SHADOWMAPPING)
+	// compute shadow
+	float vertexDistance = length(var_ViewVertex) / u_LightRadius;
+	vec4 extract = float4(1.0, 0.00390625, 0.0000152587890625, 0.000000059604644775390625);
+	float shadowDistance = dot(texture2DProj(u_ShadowMap, var_TexAtten), extract);
+	float shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
 	color.rgb *= shadow;
+#endif
 	
 #if defined(GL_ARB_draw_buffers)
 	gl_FragData[0] = color;

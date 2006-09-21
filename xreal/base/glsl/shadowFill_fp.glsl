@@ -21,22 +21,21 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 uniform sampler2D	u_ColorMap;
+uniform float       u_LightRadius;
 
 varying vec3		var_Vertex;
 varying vec2		var_Tex;
 
 void	main()
 {
-	/*
 	float alpha = texture2D(u_ColorMap, var_Tex).a;
 
 	if(alpha <= 0.0)
 	{
 		discard;
 	}
-	*/
 	
-	float distance = length(var_Vertex);
+	float distance = length(var_Vertex) / u_LightRadius;
 	
 	gl_FragColor.r = frac(distance * 1.0);
 	gl_FragColor.g = frac(distance * 256.0);

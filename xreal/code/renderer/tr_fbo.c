@@ -361,7 +361,7 @@ void R_InitFBOs(void)
 {
 	int             i;
 	
-	if(!glConfig.framebufferObjectAvailable || !glConfig.depthTextureAvailable)
+	if(!glConfig.framebufferObjectAvailable)
 		return;
 
 	tr.numFBOs = 0;

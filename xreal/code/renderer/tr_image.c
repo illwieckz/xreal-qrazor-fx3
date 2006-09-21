@@ -1068,15 +1068,19 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 	c = scaledWidth * scaledHeight;
 	scan = data;
 	samples = 3;
-	/*
-	if((image->bits & IF_DEPTHMAP) && glConfig.depthTextureAvailable)
+	
+	if(glConfig.textureFloatAvailable && (image->bits & (IF_ALPHA32F | IF_RGBA32F)))
 	{
-		format = GL_DEPTH_COMPONENT;
-		internalFormat = GL_DEPTH_COMPONENT24_ARB;
+		if(image->bits & IF_RGBA32F)
+		{
+			internalFormat = GL_RGBA32F_ARB;
+		}
+		else if(image->bits & IF_ALPHA32F)
+		{
+			internalFormat = GL_ALPHA32F_ARB;
+		}
 	}
-	else
-	*/
-	if(!(image->bits & IF_LIGHTMAP))
+	else if(!(image->bits & IF_LIGHTMAP))
 	{
 		// Tr3B: normalmaps have the displacement maps in the alpha channel
 		// samples 3 would cause an opaque alpha channel and odd displacements!
@@ -1181,7 +1185,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 							(image->bits & IF_NORMALMAP));
 		}
 
-		if(!(image->bits & IF_NORMALMAP))
+		if(!(image->bits & (IF_NORMALMAP | IF_RGBA32F)))
 		{
 			R_LightScaleTexture((unsigned *)scaledBuffer, scaledWidth, scaledHeight, image->filterType == FT_DEFAULT);
 		}
@@ -1245,6 +1249,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 				}
 			}
 		}
+	}
 	  done:
 
 		// set filter type
@@ -1311,8 +1316,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 				qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_REPEAT);
 				qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_REPEAT);
 				break;
-		};
-	}
+		}
 
 	GL_CheckErrors();
 

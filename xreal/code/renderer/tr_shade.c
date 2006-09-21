@@ -115,6 +115,16 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GL_ARB_draw_buffers\n#define GL_ARB_draw_buffers 1\n#endif\n");
 		}
 		*/
+		
+		if(glConfig.textureFloatAvailable)
+		{
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GL_ARB_texture_float\n#define GL_ARB_texture_float 1\n#endif\n");
+		}
+		
+		if(glConfig.framebufferObjectAvailable && r_shadows->integer == 4)
+		{
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef SHADOWMAPPING\n#define SHADOWMAPPING 1\n#endif\n");
+		}
 
 		sizeExtra = strlen(bufferExtra);
 		sizeFinal = sizeExtra + size;
@@ -337,6 +347,7 @@ void GLSL_InitGPUShaders(void)
 	GLSL_InitGPUShader(&tr.shadowFillShader, "shadowFill", GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
 
 	tr.shadowFillShader.u_ColorMap = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_ColorMap");
+	tr.shadowFillShader.u_LightRadius = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_LightRadius");
 
 	qglUseProgramObjectARB(tr.shadowFillShader.program);
 	qglUniform1iARB(tr.shadowFillShader.u_ColorMap, 0);
@@ -533,6 +544,7 @@ void GLSL_InitGPUShaders(void)
 	tr.lightShader_D_proj.u_ShadowMap = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_ShadowMap");
 	tr.lightShader_D_proj.u_LightOrigin = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightOrigin");
 	tr.lightShader_D_proj.u_LightColor = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightColor");
+	tr.lightShader_D_proj.u_LightRadius = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightRadius");
 	tr.lightShader_D_proj.u_LightScale = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightScale");
 
 	qglUseProgramObjectARB(tr.lightShader_D_proj.program);
@@ -1682,6 +1694,9 @@ static void Render_shadowFill(int stage)
 	GL_Program(tr.shadowFillShader.program);
 	GL_ClientState(tr.shadowFillShader.attribs);
 	GL_SetVertexAttribs();
+	
+	// set uniforms
+	qglUniform1fARB(tr.shadowFillShader.u_LightRadius, backEnd.currentLight->sphereRadius);
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
@@ -2189,6 +2204,7 @@ static void Render_lighting_D_proj(shaderStage_t * diffuseStage,
 
 	qglUniform3fARB(tr.lightShader_D_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.lightShader_D_proj.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
+	qglUniform1fARB(tr.lightShader_D_proj.u_LightRadius, light->sphereRadius);
 	qglUniform1fARB(tr.lightShader_D_proj.u_LightScale, r_lightScale->value);
 
 	// bind u_DiffuseMap

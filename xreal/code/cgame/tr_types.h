@@ -301,7 +301,6 @@ typedef struct
 	
 	int             maxCubeMapTextureSize;
 	qboolean        textureCubeAvailable;
-	qboolean        depthTextureAvailable;
 	qboolean        vertexProgramAvailable;
 	qboolean        vertexBufferObjectAvailable;
 	qboolean        occlusionQueryAvailable;
@@ -313,6 +312,7 @@ typedef struct
 	char            shadingLanguageVersion[MAX_STRING_CHARS];
 	qboolean        textureNPOTAvailable;
 	qboolean        drawBuffersAvailable;
+	qboolean        textureFloatAvailable;
 	int             maxDrawBuffers;
 	qboolean		stencilWrapAvailable;
 	float			maxTextureAnisotropy;

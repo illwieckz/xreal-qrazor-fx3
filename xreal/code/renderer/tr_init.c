@@ -86,7 +86,6 @@ cvar_t         *r_ext_compiled_vertex_array;
 cvar_t         *r_ext_texture_env_add;
 cvar_t         *r_ext_transpose_matrix;
 cvar_t         *r_ext_texture_cube_map;
-cvar_t         *r_ext_depth_texture;
 cvar_t         *r_ext_vertex_program;
 cvar_t         *r_ext_vertex_buffer_object;
 cvar_t         *r_ext_occlusion_query;
@@ -96,6 +95,7 @@ cvar_t         *r_ext_fragment_shader;
 cvar_t         *r_ext_shading_language_100;
 cvar_t         *r_ext_texture_non_power_of_two;
 cvar_t         *r_ext_draw_buffers;
+cvar_t         *r_ext_texture_float;
 cvar_t         *r_ext_stencil_wrap;
 cvar_t         *r_ext_texture_filter_anisotropic;
 cvar_t         *r_ext_stencil_two_side;
@@ -1190,7 +1190,6 @@ void R_Register(void)
 #endif
 	r_ext_transpose_matrix = ri.Cvar_Get("r_ext_transpose_matrix", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_texture_cube_map = ri.Cvar_Get("r_ext_texture_cube_map", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_depth_texture = ri.Cvar_Get("r_ext_depth_texture", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_vertex_program = ri.Cvar_Get("r_ext_vertex_program", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_vertex_buffer_object = ri.Cvar_Get("r_ext_vertex_buffer_object", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_occlusion_query = ri.Cvar_Get("r_ext_occlusion_query", "0", CVAR_ARCHIVE | CVAR_LATCH);
@@ -1200,6 +1199,7 @@ void R_Register(void)
 	r_ext_shading_language_100 = ri.Cvar_Get("r_ext_shading_language_100", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_texture_non_power_of_two = ri.Cvar_Get("r_ext_texture_non_power_of_two", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_draw_buffers = ri.Cvar_Get("r_ext_draw_buffers", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_texture_float = ri.Cvar_Get("r_ext_texture_float", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_stencil_wrap = ri.Cvar_Get("r_ext_stencil_wrap", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_texture_filter_anisotropic = ri.Cvar_Get("r_ext_texture_filter_anisotropic", "8", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_stencil_two_side = ri.Cvar_Get("r_ext_stencil_two_side", "1", CVAR_ARCHIVE | CVAR_LATCH);

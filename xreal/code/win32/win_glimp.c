@@ -1035,25 +1035,6 @@ static void GLW_InitExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, "...GL_ARB_texture_cube_map\n");
 	}
-	
-	// GL_ARB_depth_texture
-	glConfig.depthTextureAvailable = qfalse;
-	if(strstr(glConfig.extensions_string, "GL_ARB_depth_texture"))
-	{
-		if(r_ext_depth_texture->integer)
-		{
-			glConfig.depthTextureAvailable = qtrue;
-			ri.Printf(PRINT_ALL, "...using GL_ARB_depth_texture\n");
-		}
-		else
-		{
-			ri.Printf(PRINT_ALL, "...ignoring GL_ARB_depth_texture\n");
-		}
-	}
-	else
-	{
-		ri.Printf(PRINT_ALL, "...GL_ARB_depth_texture\n");
-	}
 
 	// GL_ARB_vertex_program
 	glConfig.vertexProgramAvailable = qfalse;
@@ -1357,6 +1338,25 @@ static void GLW_InitExtensions(void)
 	else
 	{
 		ri.Printf(PRINT_ALL, "...GL_ARB_draw_buffers not found\n");
+	}
+	
+	// GL_ARB_texture_float
+	glConfig.textureFloatAvailable = qfalse;
+	if(strstr(glConfig.extensions_string, "GL_ARB_texture_float"))
+	{
+		if(r_ext_texture_float->integer)
+		{
+			glConfig.textureFloatAvailable = qtrue;
+			ri.Printf(PRINT_ALL, "...using GL_ARB_texture_float\n");
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_ARB_texture_float\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_ARB_texture_float not found\n");
 	}
 	
 	// WGL_EXT_swap_control
