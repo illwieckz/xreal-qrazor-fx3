@@ -795,6 +795,129 @@ static void     (APIENTRY * dllVertex4sv) (const GLshort * v);
 static void     (APIENTRY * dllVertexPointer) (GLint size, GLenum type, GLsizei stride, const GLvoid * pointer);
 static void     (APIENTRY * dllViewport) (GLint x, GLint y, GLsizei width, GLsizei height);
 
+static const char *BooleanToString(GLboolean b)
+{
+	if(b == GL_FALSE)
+		return "GL_FALSE";
+	else if(b == GL_TRUE)
+		return "GL_TRUE";
+	else
+		return "OUT OF RANGE FOR BOOLEAN";
+}
+
+static const char *FuncToString(GLenum f)
+{
+	switch (f)
+	{
+		case GL_ALWAYS:
+			return "GL_ALWAYS";
+		case GL_NEVER:
+			return "GL_NEVER";
+		case GL_LEQUAL:
+			return "GL_LEQUAL";
+		case GL_LESS:
+			return "GL_LESS";
+		case GL_EQUAL:
+			return "GL_EQUAL";
+		case GL_GREATER:
+			return "GL_GREATER";
+		case GL_GEQUAL:
+			return "GL_GEQUAL";
+		case GL_NOTEQUAL:
+			return "GL_NOTEQUAL";
+		default:
+			return "!!! UNKNOWN !!!";
+	}
+}
+
+static const char *PrimToString(GLenum mode)
+{
+	static char     prim[1024];
+
+	if(mode == GL_TRIANGLES)
+		strcpy(prim, "GL_TRIANGLES");
+	else if(mode == GL_TRIANGLE_STRIP)
+		strcpy(prim, "GL_TRIANGLE_STRIP");
+	else if(mode == GL_TRIANGLE_FAN)
+		strcpy(prim, "GL_TRIANGLE_FAN");
+	else if(mode == GL_QUADS)
+		strcpy(prim, "GL_QUADS");
+	else if(mode == GL_QUAD_STRIP)
+		strcpy(prim, "GL_QUAD_STRIP");
+	else if(mode == GL_POLYGON)
+		strcpy(prim, "GL_POLYGON");
+	else if(mode == GL_POINTS)
+		strcpy(prim, "GL_POINTS");
+	else if(mode == GL_LINES)
+		strcpy(prim, "GL_LINES");
+	else if(mode == GL_LINE_STRIP)
+		strcpy(prim, "GL_LINE_STRIP");
+	else if(mode == GL_LINE_LOOP)
+		strcpy(prim, "GL_LINE_LOOP");
+	else
+		sprintf(prim, "0x%x", mode);
+
+	return prim;
+}
+
+static const char *CapToString(GLenum cap)
+{
+	static char     buffer[1024];
+
+	switch (cap)
+	{
+		case GL_TEXTURE_2D:
+			return "GL_TEXTURE_2D";
+		case GL_BLEND:
+			return "GL_BLEND";
+		case GL_DEPTH_TEST:
+			return "GL_DEPTH_TEST";
+		case GL_CULL_FACE:
+			return "GL_CULL_FACE";
+		case GL_CLIP_PLANE0:
+			return "GL_CLIP_PLANE0";
+		case GL_COLOR_ARRAY:
+			return "GL_COLOR_ARRAY";
+		case GL_TEXTURE_COORD_ARRAY:
+			return "GL_TEXTURE_COORD_ARRAY";
+		case GL_VERTEX_ARRAY:
+			return "GL_VERTEX_ARRAY";
+		case GL_ALPHA_TEST:
+			return "GL_ALPHA_TEST";
+		case GL_STENCIL_TEST:
+			return "GL_STENCIL_TEST";
+		default:
+			sprintf(buffer, "0x%x", cap);
+	}
+
+	return buffer;
+}
+
+static const char *TypeToString(GLenum t)
+{
+	switch (t)
+	{
+		case GL_BYTE:
+			return "GL_BYTE";
+		case GL_UNSIGNED_BYTE:
+			return "GL_UNSIGNED_BYTE";
+		case GL_SHORT:
+			return "GL_SHORT";
+		case GL_UNSIGNED_SHORT:
+			return "GL_UNSIGNED_SHORT";
+		case GL_INT:
+			return "GL_INT";
+		case GL_UNSIGNED_INT:
+			return "GL_UNSIGNED_INT";
+		case GL_FLOAT:
+			return "GL_FLOAT";
+		case GL_DOUBLE:
+			return "GL_DOUBLE";
+		default:
+			return "!!! UNKNOWN !!!";
+	}
+}
+
 static void APIENTRY logAccum(GLenum op, GLfloat value)
 {
 	fprintf(glw_state.log_fp, "glAccum\n");
@@ -821,7 +944,7 @@ static void APIENTRY logArrayElement(GLint i)
 
 static void APIENTRY logBegin(GLenum mode)
 {
-	fprintf(glw_state.log_fp, "glBegin( 0x%x )\n", mode);
+	fprintf(glw_state.log_fp, "glBegin( %s )\n", PrimToString(mode));
 	dllBegin(mode);
 }
 
@@ -838,9 +961,43 @@ static void APIENTRY logBitmap(GLsizei width, GLsizei height, GLfloat xorig, GLf
 	dllBitmap(width, height, xorig, yorig, xmove, ymove, bitmap);
 }
 
+static void BlendToName(char *n, GLenum f)
+{
+	switch (f)
+	{
+		case GL_ONE:
+			strcpy(n, "GL_ONE");
+			break;
+		case GL_ZERO:
+			strcpy(n, "GL_ZERO");
+			break;
+		case GL_SRC_ALPHA:
+			strcpy(n, "GL_SRC_ALPHA");
+			break;
+		case GL_ONE_MINUS_SRC_ALPHA:
+			strcpy(n, "GL_ONE_MINUS_SRC_ALPHA");
+			break;
+		case GL_DST_COLOR:
+			strcpy(n, "GL_DST_COLOR");
+			break;
+		case GL_ONE_MINUS_DST_COLOR:
+			strcpy(n, "GL_ONE_MINUS_DST_COLOR");
+			break;
+		case GL_DST_ALPHA:
+			strcpy(n, "GL_DST_ALPHA");
+			break;
+		default:
+			sprintf(n, "0x%x", f);
+	}
+}
 static void APIENTRY logBlendFunc(GLenum sfactor, GLenum dfactor)
 {
-	fprintf(glw_state.log_fp, "glBlendFunc( 0x%x, 0x%x )\n", sfactor, dfactor);
+	char            sf[128], df[128];
+
+	BlendToName(sf, sfactor);
+	BlendToName(df, dfactor);
+
+	fprintf(glw_state.log_fp, "glBlendFunc( %s, %s )\n", sf, df);
 	dllBlendFunc(sfactor, dfactor);
 }
 
@@ -858,7 +1015,18 @@ static void APIENTRY logCallLists(GLsizei n, GLenum type, const void *lists)
 
 static void APIENTRY logClear(GLbitfield mask)
 {
-	fprintf(glw_state.log_fp, "glClear\n");
+	fprintf(glw_state.log_fp, "glClear( 0x%x = ", mask);
+
+	if(mask & GL_COLOR_BUFFER_BIT)
+		fprintf(glw_state.log_fp, "GL_COLOR_BUFFER_BIT ");
+	if(mask & GL_DEPTH_BUFFER_BIT)
+		fprintf(glw_state.log_fp, "GL_DEPTH_BUFFER_BIT ");
+	if(mask & GL_STENCIL_BUFFER_BIT)
+		fprintf(glw_state.log_fp, "GL_STENCIL_BUFFER_BIT ");
+	if(mask & GL_ACCUM_BUFFER_BIT)
+		fprintf(glw_state.log_fp, "GL_ACCUM_BUFFER_BIT ");
+
+	fprintf(glw_state.log_fp, ")\n");
 	dllClear(mask);
 }
 
@@ -876,7 +1044,7 @@ static void APIENTRY logClearColor(GLclampf red, GLclampf green, GLclampf blue, 
 
 static void APIENTRY logClearDepth(GLclampd depth)
 {
-	fprintf(glw_state.log_fp, "glClearDepth\n");
+	fprintf(glw_state.log_fp, "glClearDepth( %f )\n", (float)depth);
 	dllClearDepth(depth);
 }
 
@@ -888,7 +1056,7 @@ static void APIENTRY logClearIndex(GLfloat c)
 
 static void APIENTRY logClearStencil(GLint s)
 {
-	fprintf(glw_state.log_fp, "glClearStencil\n");
+	fprintf(glw_state.log_fp, "glClearStencil( %d )\n", s);
 	dllClearStencil(s);
 }
 
@@ -1091,7 +1259,7 @@ static void APIENTRY logColorMaterial(GLenum face, GLenum mode)
 
 static void APIENTRY logColorPointer(GLint size, GLenum type, GLsizei stride, const void *pointer)
 {
-	SIG("glColorPointer");
+	fprintf(glw_state.log_fp, "glColorPointer( %d, %s, %d, MEM )\n", size, TypeToString(type), stride);
 	dllColorPointer(size, type, stride, pointer);
 }
 
@@ -1130,7 +1298,7 @@ static void APIENTRY logCopyTexSubImage2D(GLenum target, GLint level, GLint xoff
 
 static void APIENTRY logCullFace(GLenum mode)
 {
-	SIG("glCullFace");
+	fprintf(glw_state.log_fp, "glCullFace( %s )\n", (mode == GL_FRONT) ? "GL_FRONT" : "GL_BACK");
 	dllCullFace(mode);
 }
 
@@ -1148,31 +1316,31 @@ static void APIENTRY logDeleteTextures(GLsizei n, const GLuint * textures)
 
 static void APIENTRY logDepthFunc(GLenum func)
 {
-	SIG("glDepthFunc");
+	fprintf(glw_state.log_fp, "glDepthFunc( %s )\n", FuncToString(func));
 	dllDepthFunc(func);
 }
 
 static void APIENTRY logDepthMask(GLboolean flag)
 {
-	SIG("glDepthMask");
+	fprintf(glw_state.log_fp, "glDepthMask( %s )\n", BooleanToString(flag));
 	dllDepthMask(flag);
 }
 
 static void APIENTRY logDepthRange(GLclampd zNear, GLclampd zFar)
 {
-	SIG("glDepthRange");
+	fprintf(glw_state.log_fp, "glDepthRange( %f, %f )\n", (float)zNear, (float)zFar);
 	dllDepthRange(zNear, zFar);
 }
 
 static void APIENTRY logDisable(GLenum cap)
 {
-	fprintf(glw_state.log_fp, "glDisable( 0x%x )\n", cap);
+	fprintf(glw_state.log_fp, "glDisable( %s )\n", CapToString(cap));
 	dllDisable(cap);
 }
 
 static void APIENTRY logDisableClientState(GLenum array)
 {
-	SIG("glDisableClientState");
+	fprintf(glw_state.log_fp, "glDisableClientState( %s )\n", CapToString(array));
 	dllDisableClientState(array);
 }
 
@@ -1190,7 +1358,7 @@ static void APIENTRY logDrawBuffer(GLenum mode)
 
 static void APIENTRY logDrawElements(GLenum mode, GLsizei count, GLenum type, const void *indices)
 {
-	SIG("glDrawElements");
+	fprintf(glw_state.log_fp, "glDrawElements( %s, %d, %s, MEM )\n", PrimToString(mode), count, TypeToString(type));
 	dllDrawElements(mode, count, type, indices);
 }
 
@@ -1220,13 +1388,13 @@ static void APIENTRY logEdgeFlagv(const GLboolean * flag)
 
 static void APIENTRY logEnable(GLenum cap)
 {
-	fprintf(glw_state.log_fp, "glEnable( 0x%x )\n", cap);
+	fprintf(glw_state.log_fp, "glEnable( %s )\n", CapToString(cap));
 	dllEnable(cap);
 }
 
 static void APIENTRY logEnableClientState(GLenum array)
 {
-	SIG("glEnableClientState");
+	fprintf(glw_state.log_fp, "glEnableClientState( %s )\n", CapToString(array));
 	dllEnableClientState(array);
 }
 
@@ -2244,7 +2412,7 @@ static void APIENTRY logScalef(GLfloat x, GLfloat y, GLfloat z)
 
 static void APIENTRY logScissor(GLint x, GLint y, GLsizei width, GLsizei height)
 {
-	SIG("glScissor");
+	fprintf(glw_state.log_fp, "glScissor( %d, %d, %d, %d )\n", x, y, width, height);
 	dllScissor(x, y, width, height);
 }
 
@@ -2443,7 +2611,7 @@ static void APIENTRY logTexCoord4sv(const GLshort * v)
 }
 static void APIENTRY logTexCoordPointer(GLint size, GLenum type, GLsizei stride, const void *pointer)
 {
-	SIG("glTexCoordPointer");
+	fprintf(glw_state.log_fp, "glTexCoordPointer( %d, %s, %d, MEM )\n", size, TypeToString(type), stride);
 	dllTexCoordPointer(size, type, stride, pointer);
 }
 
@@ -2683,12 +2851,12 @@ static void APIENTRY logVertex4sv(const GLshort * v)
 }
 static void APIENTRY logVertexPointer(GLint size, GLenum type, GLsizei stride, const void *pointer)
 {
-	SIG("glVertexPointer");
+	fprintf(glw_state.log_fp, "glVertexPointer( %d, %s, %d, MEM )\n", size, TypeToString(type), stride);
 	dllVertexPointer(size, type, stride, pointer);
 }
 static void APIENTRY logViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
-	SIG("glViewport");
+	fprintf(glw_state.log_fp, "glViewport( %d, %d, %d, %d )\n", x, y, width, height);
 	dllViewport(x, y, width, height);
 }
 
