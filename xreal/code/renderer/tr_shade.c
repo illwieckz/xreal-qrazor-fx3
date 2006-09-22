@@ -4496,8 +4496,8 @@ void Tess_StageIteratorShadowFill()
 	GL_CheckErrors();
 
 	Tess_DeformGeometry();
-
-	// set face culling appropriately
+	
+	// set face culling appropriately	
 	GL_Cull(tess.surfaceShader->cullType);
 	
 	// set polygon offset if necessary
@@ -4814,6 +4814,269 @@ void Tess_StageIteratorStencilShadowVolume()
 	}
 }
 
+void Tess_StageIteratorStencilLighting()
+{
+	int             i, j;
+	trRefLight_t   *light;
+	shaderStage_t  *attenuationXYStage;
+	shaderStage_t  *attenuationZStage;
+
+	// log this call
+	if(r_logFile->integer)
+	{
+		// don't just call LogComment, or we will get
+		// a call to va() every frame!
+		GLimp_LogComment(va("--- Tess_StageIteratorStencilLighting( %s, %s, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name, tess.lightShader->name, tess.numVertexes, tess.numIndexes / 3));
+	}
+	
+	GL_CheckErrors();
+
+	light = backEnd.currentLight;
+
+	Tess_DeformGeometry();
+	
+	// set OpenGL state for lighting
+#if 0
+	if(!light->additive)
+	{
+		GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
+	}
+	else
+#endif
+	{
+		GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
+	}
+
+	// set face culling appropriately
+	GL_Cull(tess.surfaceShader->cullType);
+
+	// set polygon offset if necessary
+	if(tess.surfaceShader->polygonOffset)
+	{
+		qglEnable(GL_POLYGON_OFFSET_FILL);
+		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
+	}
+
+	// lock XYZ
+	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
+	{
+		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsXYZ));
+	}
+	else
+	{
+		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
+	}
+
+	if(qglLockArraysEXT)
+	{
+		qglLockArraysEXT(0, tess.numVertexes);
+		GLimp_LogComment("glLockArraysEXT\n");
+	}
+
+	// call shader function
+	attenuationZStage = tess.lightShader->stages[0];
+
+	for(i = 0; i < MAX_SHADER_STAGES; i++)
+	{
+		shaderStage_t  *diffuseStage = tess.surfaceStages[i];
+
+		if(!diffuseStage)
+		{
+			break;
+		}
+
+		if(!RB_EvalExpression(&diffuseStage->ifExp, 1.0))
+		{
+			continue;
+		}
+
+		if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
+		{
+			ComputeTexMatrices(diffuseStage);
+		}
+		else
+		{
+			ComputeTexCoords(diffuseStage);
+		}
+
+		for(j = 1; j < MAX_SHADER_STAGES; j++)
+		{
+			attenuationXYStage = tess.lightShader->stages[j];
+
+			if(!attenuationXYStage)
+			{
+				break;
+			}
+
+			if(attenuationXYStage->type != ST_ATTENUATIONMAP_XY)
+			{
+				continue;
+			}
+
+			if(!RB_EvalExpression(&attenuationXYStage->ifExp, 1.0))
+			{
+				continue;
+			}
+
+			ComputeColor(attenuationXYStage);
+			ComputeFinalAttenuation(attenuationXYStage, light);
+
+			switch (diffuseStage->type)
+			{
+				case ST_DIFFUSEMAP:
+					if(glConfig.shadingLanguage100Available)
+					{
+						if(light->l.rlType == RL_OMNI)
+						{
+							Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, light);
+						}
+						else if(light->l.rlType == RL_PROJ)
+						{
+							Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
+						}
+						else
+						{
+							// TODO
+						}
+					}
+					else
+					{
+						// TODO
+					}
+					break;
+
+				case ST_COLLAPSE_lighting_DB_direct:
+				case ST_COLLAPSE_lighting_DB_generic:
+					if(glConfig.shadingLanguage100Available)
+					{
+						if(r_lighting->integer == 1)
+						{
+							if(light->l.rlType == RL_OMNI)
+							{
+								Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, light);
+							}
+							else if(light->l.rlType == RL_PROJ)
+							{
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
+							}
+							else
+							{
+								// TODO
+							}
+						}
+						else
+						{
+							if(light->l.rlType == RL_OMNI)
+							{
+								Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, light);
+							}
+							else if(light->l.rlType == RL_PROJ)
+							{
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
+							}
+							else
+							{
+								// TODO
+							}
+						}
+					}
+					else
+					{
+						// TODO
+					}
+					break;
+
+				case ST_COLLAPSE_lighting_DBS_direct:
+				case ST_COLLAPSE_lighting_DBS_generic:
+					if(glConfig.shadingLanguage100Available)
+					{
+						if(r_lighting->integer == 3)
+						{
+							if(light->l.rlType == RL_OMNI)
+							{
+								Render_lighting_DBSP_omni(diffuseStage, attenuationXYStage, attenuationZStage, light);
+							}
+							else if(light->l.rlType == RL_PROJ)
+							{
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
+							}
+							else
+							{
+								// TODO
+							}
+						}
+						else if(r_lighting->integer == 2)
+						{
+							if(light->l.rlType == RL_OMNI)
+							{
+								Render_lighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, light);
+							}
+							else if(light->l.rlType == RL_PROJ)
+							{
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
+							}
+							else
+							{
+								// TODO
+							}
+						}
+						else if(r_lighting->integer == 1)
+						{
+							if(light->l.rlType == RL_OMNI)
+							{
+								Render_lighting_DB_omni(diffuseStage, attenuationXYStage, attenuationZStage, light);
+							}
+							else if(light->l.rlType == RL_PROJ)
+							{
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
+							}
+							else
+							{
+								// TODO
+							}
+						}
+						else
+						{
+							if(light->l.rlType == RL_OMNI)
+							{
+								Render_lighting_D_omni(diffuseStage, attenuationXYStage, attenuationZStage, light);
+							}
+							else if(light->l.rlType == RL_PROJ)
+							{
+								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
+							}
+							else
+							{
+								// TODO
+							}
+						}
+					}
+					else
+					{
+						// TODO
+					}
+					break;
+
+				default:
+					break;
+			}
+		}
+	}
+
+	// unlock arrays
+	if(qglUnlockArraysEXT)
+	{
+		qglUnlockArraysEXT();
+		GLimp_LogComment("glUnlockArraysEXT\n");
+	}
+
+	// reset polygon offset
+	if(tess.surfaceShader->polygonOffset)
+	{
+		qglDisable(GL_POLYGON_OFFSET_FILL);
+	}
+}
+
 void Tess_StageIteratorLighting()
 {
 	int             i, j;
@@ -4831,16 +5094,21 @@ void Tess_StageIteratorLighting()
 	
 	GL_CheckErrors();
 
-	if(!tess.surfaceShader->interactLight)
-	{
-		// Tr3B: abort if surface shader has no ability to interact with light
-		// this will save texcoords and matrix calculations
-		return;
-	}
-
 	light = backEnd.currentLight;
 
 	Tess_DeformGeometry();
+	
+	// set OpenGL state for lighting
+#if 0
+	if(!light->additive)
+	{
+		GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+	}
+	else
+#endif
+	{
+		GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+	}
 
 	// set face culling appropriately
 	GL_Cull(tess.surfaceShader->cullType);

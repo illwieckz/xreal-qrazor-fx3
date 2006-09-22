@@ -2386,6 +2386,7 @@ void            Tess_CheckOverflow(int verts, int indexes);
 void            Tess_StageIteratorGeneric();
 void            Tess_StageIteratorShadowFill();
 void			Tess_StageIteratorStencilShadowVolume();
+void            Tess_StageIteratorStencilLighting();
 void            Tess_StageIteratorLighting();
 void            Tess_StageIteratorSky();
 

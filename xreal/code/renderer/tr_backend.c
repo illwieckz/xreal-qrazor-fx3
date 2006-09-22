@@ -1106,16 +1106,6 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 			
 			// set light scissor to reduce fillrate
 			qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
-#if 0
-			if(!light->additive)
-			{
-				GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
-			}
-			else
-#endif
-			{
-				GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
-			}
 		}
 
 		// Tr3B: this should never happen in the first iteration
@@ -1376,16 +1366,6 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			else
 			{
 				GLimp_LogComment("--- Rendering lighting ---\n");
-#if 0
-				if(!light->additive)
-				{
-					GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
-				}
-				else
-#endif
-				{
-					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
-				}
 
 				if(!light->l.noShadows)
 				{
@@ -1491,7 +1471,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				}
 
 				// begin a new batch
-				Tess_Begin(Tess_StageIteratorLighting, shader, ia->lightShader, -1, 0, qfalse, qfalse);
+				Tess_Begin(Tess_StageIteratorStencilLighting, shader, ia->lightShader, -1, 0, qfalse, qfalse);
 			}
 		}
 
@@ -1762,7 +1742,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 							qglViewport(0, 0, 512, 512);
 							qglScissor(0, 0, 512, 512);
 					
-							qglClear(/*GL_COLOR_BUFFER_BIT |*/ GL_DEPTH_BUFFER_BIT);
+							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 							break;
 						}
 						
@@ -1777,7 +1757,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 							qglViewport(0, 0, 512, 512);
 							qglScissor(0, 0, 512, 512);
 					
-							qglClear(/*GL_COLOR_BUFFER_BIT |*/ GL_DEPTH_BUFFER_BIT);
+							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 							
 							qglMatrixMode(GL_PROJECTION);
 							qglLoadMatrixf(light->projectionMatrix);
@@ -1819,7 +1799,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				qglLoadMatrixf(backEnd.or.modelViewMatrix);
 				
 				// show shadowRender for debugging
-				#if 0
+				#if 1
 				switch (light->l.rlType)
 				{
 					case RL_PROJ:
@@ -1875,18 +1855,6 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 						break;
 				}
 				#endif
-				
-				// set OpenGL state for lighting
-				#if 0
-				if(!light->additive)
-				{
-					GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
-				}
-				else
-				#endif
-				{
-					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
-				}
 			}
 		} // end if(iaCount == iaFirst)
 		
@@ -2140,6 +2108,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 					{
 						if(cubeSide == 5)
 						{
+							cubeSide = 0;
 							drawShadows = qfalse;
 						}
 						else
@@ -2175,7 +2144,6 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 					iaCount++;
 					iaFirst = iaCount;
 					drawShadows = qtrue;
-					cubeSide = 0;
 				}
 				else
 				{
