@@ -36,6 +36,11 @@ varying vec4		var_TexAtten;
 
 void	main()
 {
+	if(var_TexAtten.q <= 0.0)
+	{
+		discard;
+	}
+
 	// compute normal
 	vec3 N = normalize(var_Normal);
 		
@@ -57,15 +62,35 @@ void	main()
 	color.rgb *= u_LightScale;
 
 #if defined(SHADOWMAPPING)
-	// compute shadow
+	float vertexDistance = length(var_Vertex - u_LightOrigin) / u_LightRadius - 0.005f;
+	vec4 extract = vec4(1.0, 0.00390625, 0.0000152587890625, 0.000000059604644775390625);
 #if 1
-	float vertexDistance = length(var_Vertex - u_LightOrigin) / u_LightRadius;
-	vec4 extract = float4(1.0, 0.00390625, 0.0000152587890625, 0.000000059604644775390625);
 	float shadowDistance = dot(texture2DProj(u_ShadowMap, var_TexAtten.xyw), extract);
 	float shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
 	color.rgb *= shadow;
 #else
-	color.rgb *= texture2DProj(u_ShadowMap, var_TexAtten.xyw).rgb;
+	float shadow = 0.0;
+	
+	vec2 projCoords = var_TexAtten.st / var_TexAtten.q;
+
+	float shadowDistance = dot(texture2D(u_ShadowMap, projCoords.st + vec2(0.02, 0.02)), extract);
+	if(vertexDistance <= shadowDistance)
+		shadow = shadow + 1.0;
+		
+	shadowDistance = dot(texture2D(u_ShadowMap, projCoords.st + vec2(0.02, -0.02)), extract);
+	if(vertexDistance <= shadowDistance)
+		shadow = shadow + 1.0;
+		
+	shadowDistance = dot(texture2D(u_ShadowMap, projCoords.st + vec2(-0.02, 0.02)), extract);
+	if(vertexDistance <= shadowDistance)
+		shadow = shadow + 1.0;
+		
+	shadowDistance = dot(texture2D(u_ShadowMap, projCoords.st + vec2(-0.02, -0.02)), extract);
+	if(vertexDistance <= shadowDistance)
+		shadow = shadow + 1.0;
+
+	shadow /= 4.0;
+	color.rgb *= shadow;
 #endif
 #endif
 	

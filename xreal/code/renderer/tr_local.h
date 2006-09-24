@@ -1996,7 +1996,7 @@ extern cvar_t  *r_clear;		// force screen clear every frame
 extern cvar_t  *r_shadows;		// controls shadows: 0 = none, 1 = blur, 2 = black planar projection,
 								// 3 = stencil shadow volumes
 								// 4 = shadow mapping
-
+extern cvar_t  *r_shadowMapSize;
 extern cvar_t  *r_shadowOffsetFactor;
 extern cvar_t  *r_shadowOffsetUnits;
 extern cvar_t  *r_flares;		// light flares

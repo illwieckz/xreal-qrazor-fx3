@@ -436,6 +436,7 @@ void GLSL_InitGPUShaders(void)
 	tr.lightShader_D_omni.u_ShadowMap = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_ShadowMap");
 	tr.lightShader_D_omni.u_LightOrigin = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_LightOrigin");
 	tr.lightShader_D_omni.u_LightColor = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_LightColor");
+	tr.lightShader_D_omni.u_LightRadius = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_LightRadius");
 	tr.lightShader_D_omni.u_LightScale = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_LightScale");
 	tr.lightShader_D_omni.u_ModelMatrix = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_ModelMatrix");
 
@@ -1979,6 +1980,7 @@ static void Render_lighting_D_omni(shaderStage_t * diffuseStage,
 
 	qglUniform3fARB(tr.lightShader_D_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.lightShader_D_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
+	qglUniform1fARB(tr.lightShader_D_omni.u_LightRadius, light->sphereRadius);
 	qglUniform1fARB(tr.lightShader_D_omni.u_LightScale, r_lightScale->value);
 	qglUniformMatrix4fvARB(tr.lightShader_D_omni.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 

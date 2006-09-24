@@ -1726,7 +1726,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 							float           width, height, depth;
 							float           zNear, zFar;
 							float           fovX, fovY;
-							qboolean        flipX, flipY, flipZ;
+							qboolean        flipX, flipY;
 							float          *proj;
 							vec3_t          angles;
 							matrix_t        rotationMatrix, transformMatrix, viewMatrix;
@@ -1742,8 +1742,8 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 							R_CheckFBO(tr.shadowMapFBO);
 							
 							// set the window clipping
-							qglViewport(0, 0, 512, 512);
-							qglScissor(0, 0, 512, 512);
+							qglViewport(0, 0, r_shadowMapSize->integer, r_shadowMapSize->integer);
+							qglScissor(0, 0, r_shadowMapSize->integer, r_shadowMapSize->integer);
 					
 							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 							
@@ -1757,16 +1757,14 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 									// projection parameters
 									flipX = qfalse;
 									flipY = qfalse;
-									flipZ = qtrue;
 									break;
 								}
 								
 								case 1:
 								{
 									VectorSet(angles, 0, 180, 90);
-									flipX = qfalse;
+									flipX = qtrue;
 									flipY = qtrue;
-									flipZ = qfalse;
 									break;
 								}
 								
@@ -1775,16 +1773,14 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 									VectorSet(angles, 0, 90, 0);
 									flipX = qfalse;
 									flipY = qfalse;
-									flipZ = qtrue;
 									break;
 								}
 								
 								case 3:
 								{
 									VectorSet(angles, 0,-90, 0);
-									flipX = qfalse;
+									flipX = qtrue;
 									flipY = qtrue;
-									flipZ = qfalse;
 									break;
 								}
 								
@@ -1793,16 +1789,14 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 									VectorSet(angles, -90, 90, 0);
 									flipX = qfalse;
 									flipY = qfalse;
-									flipZ = qtrue;
 									break;
 								}
 
 								case 5:
 								{
 									VectorSet(angles, 90, 90, 0);
-									flipX = qfalse;
+									flipX = qtrue;
 									flipY = qtrue;
-									flipZ = qfalse;
 									break;
 								}
 								
@@ -1821,39 +1815,31 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 			
 							// OpenGL projection matrix
 							fovX = 90;
-							fovY = R_CalcFov(fovX, 512, 512);
+							fovY = R_CalcFov(fovX, r_shadowMapSize->integer, r_shadowMapSize->integer);
+							
+							zNear = 1.0;
+							zFar = light->sphereRadius;
 							
 							if(!flipX)
-							{
-								zNear = 1.0;
-								zFar = light->sphereRadius;
-							}
-							else
-							{
-								zNear = light->sphereRadius;
-								zFar = 1.0;
-							}
-							
-							if(!flipY)
 							{
 								xMax = zNear * tan(fovX * M_PI / 360.0f);
 								xMin = -xMax;
 							}
 							else
 							{
-								xMax = -xMax;
 								xMin = zNear * tan(fovX * M_PI / 360.0f);
+								xMax = -xMax;
 							}
 							
-							if(!flipZ)
+							if(!flipY)
 							{		
 								yMax = zNear * tan(fovY * M_PI / 360.0f);
 								yMin = -yMax;
 							}
 							else
 							{
-								yMax = -yMax;
 								yMin = zNear * tan(fovY * M_PI / 360.0f);
+								yMax = -yMax;
 							}
 									
 							width = xMax - xMin;
@@ -1880,8 +1866,8 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 							R_CheckFBO(tr.shadowMapFBO);
 							
 							// set the window clipping
-							qglViewport(0, 0, 512, 512);
-							qglScissor(0, 0, 512, 512);
+							qglViewport(0, 0, r_shadowMapSize->integer, r_shadowMapSize->integer);
+							qglScissor(0, 0, r_shadowMapSize->integer, r_shadowMapSize->integer);
 					
 							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 							

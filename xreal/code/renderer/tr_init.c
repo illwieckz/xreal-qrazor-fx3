@@ -115,6 +115,7 @@ cvar_t         *r_drawBuffer;
 cvar_t         *r_glDriver;
 cvar_t         *r_uiFullScreen;
 cvar_t         *r_shadows;
+cvar_t         *r_shadowMapSize;
 cvar_t         *r_shadowOffsetFactor;
 cvar_t         *r_shadowOffsetUnits;
 cvar_t         *r_flares;
@@ -1327,6 +1328,8 @@ void R_Register(void)
 	r_noportals = ri.Cvar_Get("r_noportals", "0", CVAR_CHEAT);
 	r_shadows = ri.Cvar_Get("cg_shadows", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_shadows, 0, 4, qtrue);
+	r_shadowMapSize = ri.Cvar_Get("r_shadowMapSize", "512", CVAR_ARCHIVE | CVAR_LATCH);
+	AssertCvarRange(r_shadowMapSize, 256, 1024, qtrue);
 	r_shadowOffsetFactor = ri.Cvar_Get("r_shadowOffsetFactor", "4", CVAR_CHEAT);
 	r_shadowOffsetUnits = ri.Cvar_Get("r_shadowOffsetUnits", "2", CVAR_CHEAT);
 

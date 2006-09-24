@@ -26,6 +26,7 @@ uniform sampler2D	u_AttenuationMapZ;
 uniform samplerCube	u_ShadowMap;
 uniform vec3		u_LightOrigin;
 uniform vec3		u_LightColor;
+uniform float		u_LightRadius;
 uniform float       u_LightScale;
 
 varying vec3		var_Vertex;
@@ -57,14 +58,11 @@ void	main()
 	
 #if defined(SHADOWMAPPING)
 	// compute incident ray
-	vec3 I = normalize(var_Vertex - u_LightOrigin);
-	
-	// compute refraction ray
-	//vec3 R = refract(I, N, 1.0);
-#if 0
-	float vertexDistance = length(var_Vertex - u_LightOrigin) / u_LightRadius;
+	vec3 I = var_Vertex - u_LightOrigin;
+#if 1
+	float vertexDistance = length(I) / u_LightRadius - 0.005f;
 	vec4 extract = float4(1.0, 0.00390625, 0.0000152587890625, 0.000000059604644775390625);
-	float shadowDistance = dot(texture2DProj(u_ShadowMap, var_TexAtten.xyw), extract);
+	float shadowDistance = dot(textureCube(u_ShadowMap, I), extract);
 	float shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
 	color.rgb *= shadow;
 #else

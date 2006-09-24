@@ -4601,8 +4601,7 @@ static void R_CreateShadowMapFBOImage(void)
 	int             width, height;
 	byte           *data;
 	
-	width = 512;
-	height = 512;
+	width = height = r_shadowMapSize->integer;
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
@@ -4617,8 +4616,7 @@ static void R_CreateShadowCubeFBOImage(void)
 	int             width, height;
 	byte           *data[6];
 	
-	width = 512;
-	height = 512;
+	width = height = r_shadowMapSize->integer;
 
 	for(i = 0; i < 6; i++)
 	{

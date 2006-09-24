@@ -424,7 +424,7 @@ void R_InitFBOs(void)
 	//
 	// shadowMap for shadow mapping offscreen rendering
 	//
-	tr.shadowMapFBO = R_CreateFBO("_shadowMap", 512, 512);
+	tr.shadowMapFBO = R_CreateFBO("_shadowMap", r_shadowMapSize->integer, r_shadowMapSize->integer);
 	R_BindFBO(tr.shadowMapFBO);
 	R_CreateFBOColorBuffer(tr.shadowMapFBO, GL_RGBA, 0);
 	R_CreateFBODepthBuffer(tr.shadowMapFBO, GL_DEPTH_COMPONENT24_ARB);
