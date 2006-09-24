@@ -308,7 +308,7 @@ Returns CULL_IN, CULL_CLIP, or CULL_OUT
 */
 int R_CullLocalBox(vec3_t localBounds[2])
 {
-#if 0
+#if 1
 	int             i, j;
 	vec3_t          transformed[8];
 	float           dists[8];
@@ -885,7 +885,6 @@ void R_RotateForViewer(void)
 
 	tr.viewParms.world = tr.or;
 }
-
 
 /*
 ===============

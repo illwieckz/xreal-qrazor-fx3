@@ -433,14 +433,17 @@ void GLSL_InitGPUShaders(void)
 	tr.lightShader_D_omni.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_DiffuseMap");
 	tr.lightShader_D_omni.u_AttenuationMapXY = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_AttenuationMapXY");
 	tr.lightShader_D_omni.u_AttenuationMapZ = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_AttenuationMapZ");
+	tr.lightShader_D_omni.u_ShadowMap = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_ShadowMap");
 	tr.lightShader_D_omni.u_LightOrigin = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_LightOrigin");
 	tr.lightShader_D_omni.u_LightColor = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_LightColor");
 	tr.lightShader_D_omni.u_LightScale = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_LightScale");
+	tr.lightShader_D_omni.u_ModelMatrix = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_ModelMatrix");
 
 	qglUseProgramObjectARB(tr.lightShader_D_omni.program);
 	qglUniform1iARB(tr.lightShader_D_omni.u_DiffuseMap, 0);
 	qglUniform1iARB(tr.lightShader_D_omni.u_AttenuationMapXY, 1);
 	qglUniform1iARB(tr.lightShader_D_omni.u_AttenuationMapZ, 2);
+	qglUniform1iARB(tr.lightShader_D_omni.u_ShadowMap, 3);
 	qglUseProgramObjectARB(0);
 
 	GLSL_ValidateProgram(tr.lightShader_D_omni.program);
@@ -1971,12 +1974,13 @@ static void Render_lighting_D_omni(shaderStage_t * diffuseStage,
 	GL_SetVertexAttribs();
 
 	// set uniforms
-	VectorCopy(light->transformed, lightOrigin);
+	VectorCopy(light->origin, lightOrigin);
 	VectorCopy(tess.svars.color, lightColor);
 
 	qglUniform3fARB(tr.lightShader_D_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.lightShader_D_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
 	qglUniform1fARB(tr.lightShader_D_omni.u_LightScale, r_lightScale->value);
+	qglUniformMatrix4fvARB(tr.lightShader_D_omni.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 
 	// bind u_DiffuseMap
 	GL_SelectTexture(0);
@@ -1998,6 +2002,10 @@ static void Render_lighting_D_omni(shaderStage_t * diffuseStage,
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadIdentity();
 	qglMatrixMode(GL_MODELVIEW);
+	
+	// bind u_ShadowMap
+	GL_SelectTexture(3);
+	GL_Bind(tr.shadowCubeFBOImage);
 
 	DrawElements();
 

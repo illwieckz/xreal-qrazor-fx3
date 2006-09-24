@@ -22,33 +22,29 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 attribute vec4		attr_TexCoord0;
 
+uniform mat4		u_ModelMatrix;
+
 varying vec3		var_Vertex;
 varying vec3		var_Normal;
 varying vec2		var_TexDiffuse;
 varying vec3		var_TexAttenXYZ;
-//varying vec3		var_TexAttenCube;
-//varying vec3		var_TexShadow;
 
 void	main()
 {
 	// transform vertex position into homogenous clip-space
 	gl_Position = ftransform();
 	
-	// assign position in object space
-	var_Vertex = gl_Vertex.xyz;
+	// transform position into world space
+	var_Vertex = (u_ModelMatrix * gl_Vertex).xyz;
 	
-	// assign normal in object space
-	var_Normal = gl_Normal;
+	// transform normal into world space
+	var_Normal.x = dot(u_ModelMatrix[0].xyz, gl_Normal);
+	var_Normal.y = dot(u_ModelMatrix[1].xyz, gl_Normal);
+	var_Normal.z = dot(u_ModelMatrix[2].xyz, gl_Normal);
 	
 	// transform diffusemap texcoords
 	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;
 	
 	// calc light xy,z attenuation in light space
 	var_TexAttenXYZ = (gl_TextureMatrix[1] * gl_Vertex).xyz;
-	
-	// calc light cube attenuation in light space
-//	var_TexAttenCube = (gl_TextureMatrix[3] * gl_Vertex).xyz;
-
-	// calc shadow cube attenuation in light space
-//	var_tex_shadow = (gl_TextureMatrix[4] * gl_Vertex).xyz;
 }

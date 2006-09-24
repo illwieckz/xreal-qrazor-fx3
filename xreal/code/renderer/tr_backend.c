@@ -1690,8 +1690,8 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 	drawShadows = qtrue;
 	cubeSide = 0;
 	
-	// if we need to clear the FBO color buffers then it should be white
-	qglClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	// if we need to clear the FBO color buffers then it should be black
+	qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// render interactions
 	for(iaCount = 0, iaFirst = 0, ia = &interactions[0]; iaCount < numInteractions;)
@@ -1722,6 +1722,15 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 					{
 						case RL_OMNI:
 						{
+							float           xMin, xMax, yMin, yMax;
+							float           width, height, depth;
+							float           zNear, zFar;
+							float           fovX, fovY;
+							qboolean        flipX, flipY, flipZ;
+							float          *proj;
+							vec3_t          angles;
+							matrix_t        rotationMatrix, transformMatrix, viewMatrix;
+							
 							if(r_logFile->integer)
 							{
 								// don't just call LogComment, or we will get
@@ -1738,6 +1747,125 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 					
 							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 							
+							switch (cubeSide)
+							{
+								case 0:
+								{
+									// view parameters
+									VectorSet(angles, 0, 0, 90);
+									
+									// projection parameters
+									flipX = qfalse;
+									flipY = qfalse;
+									flipZ = qtrue;
+									break;
+								}
+								
+								case 1:
+								{
+									VectorSet(angles, 0, 180, 90);
+									flipX = qfalse;
+									flipY = qtrue;
+									flipZ = qfalse;
+									break;
+								}
+								
+								case 2:
+								{
+									VectorSet(angles, 0, 90, 0);
+									flipX = qfalse;
+									flipY = qfalse;
+									flipZ = qtrue;
+									break;
+								}
+								
+								case 3:
+								{
+									VectorSet(angles, 0,-90, 0);
+									flipX = qfalse;
+									flipY = qtrue;
+									flipZ = qfalse;
+									break;
+								}
+								
+								case 4:
+								{
+									VectorSet(angles, -90, 90, 0);
+									flipX = qfalse;
+									flipY = qfalse;
+									flipZ = qtrue;
+									break;
+								}
+
+								case 5:
+								{
+									VectorSet(angles, 90, 90, 0);
+									flipX = qfalse;
+									flipY = qtrue;
+									flipZ = qfalse;
+									break;
+								}
+								
+								default:
+									break;
+							}
+							
+							// Quake -> OpenGL view matrix from light perspective
+							MatrixFromAngles(rotationMatrix, angles[PITCH], angles[YAW], angles[ROLL]);
+							MatrixSetupTransformFromRotation(transformMatrix, rotationMatrix, light->origin);
+							MatrixAffineInverse(transformMatrix, viewMatrix);
+
+							// convert from our coordinate system (looking down X)
+							// to OpenGL's coordinate system (looking down -Z)
+							MatrixMultiply(quakeToOpenGLMatrix, viewMatrix, light->viewMatrix);
+			
+							// OpenGL projection matrix
+							fovX = 90;
+							fovY = R_CalcFov(fovX, 512, 512);
+							
+							if(!flipX)
+							{
+								zNear = 1.0;
+								zFar = light->sphereRadius;
+							}
+							else
+							{
+								zNear = light->sphereRadius;
+								zFar = 1.0;
+							}
+							
+							if(!flipY)
+							{
+								xMax = zNear * tan(fovX * M_PI / 360.0f);
+								xMin = -xMax;
+							}
+							else
+							{
+								xMax = -xMax;
+								xMin = zNear * tan(fovX * M_PI / 360.0f);
+							}
+							
+							if(!flipZ)
+							{		
+								yMax = zNear * tan(fovY * M_PI / 360.0f);
+								yMin = -yMax;
+							}
+							else
+							{
+								yMax = -yMax;
+								yMin = zNear * tan(fovY * M_PI / 360.0f);
+							}
+									
+							width = xMax - xMin;
+							height = yMax - yMin;
+							depth = zFar - zNear;
+							
+							proj = light->projectionMatrix;
+							proj[0] = (2 * zNear) / width;	proj[4] = 0;					proj[8] = (xMax + xMin) / width;	proj[12] = 0;
+							proj[1] = 0;					proj[5] = (2 * zNear) / height;	proj[9] = (yMax + yMin) / height;	proj[13] = 0;
+							proj[2] = 0;					proj[6] = 0;					proj[10] = -(zFar + zNear) / depth;	proj[14] = -(2 * zFar * zNear) / depth;
+							proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;	
+												
 							qglMatrixMode(GL_PROJECTION);
 							qglLoadMatrixf(light->projectionMatrix);
 							qglMatrixMode(GL_MODELVIEW);
@@ -1810,8 +1938,22 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				
 				qglLoadMatrixf(backEnd.or.modelViewMatrix);
 				
+				// reset light view and projection matrices
+				switch (light->l.rlType)
+				{
+					case RL_OMNI:
+					{
+						MatrixAffineInverse(light->transformMatrix, light->viewMatrix);
+						MatrixSetupScale(light->projectionMatrix, 1.0 / light->l.radius[0], 1.0 / light->l.radius[1], 1.0 / light->l.radius[2]);
+						break;
+					}
+					
+					default:
+						break;
+				}
+				
 				// show shadowRender for debugging
-				#if 1
+				/*
 				switch (light->l.rlType)
 				{
 					case RL_PROJ:
@@ -1866,7 +2008,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 					default:
 						break;
 				}
-				#endif
+				*/
 			}
 		} // end if(iaCount == iaFirst)
 		

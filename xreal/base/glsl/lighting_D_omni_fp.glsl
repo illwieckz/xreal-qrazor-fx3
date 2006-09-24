@@ -23,8 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uniform sampler2D	u_DiffuseMap;
 uniform sampler2D	u_AttenuationMapXY;
 uniform sampler2D	u_AttenuationMapZ;
-//uniform samplerCube	u_AttenuationMapCube;
-//uniform samplerCube	u_ShadowMap;
+uniform samplerCube	u_ShadowMap;
 uniform vec3		u_LightOrigin;
 uniform vec3		u_LightColor;
 uniform float       u_LightScale;
@@ -33,8 +32,6 @@ varying vec3		var_Vertex;
 varying vec3		var_Normal;
 varying vec2		var_TexDiffuse;
 varying vec3		var_TexAttenXYZ;
-//varying vec3		var_TexAttenCube;
-//varying vec3		var_TexShadow;
 
 void	main()
 {
@@ -51,18 +48,29 @@ void	main()
 	// compute attenuation	
 	vec3 attenuationXY		= texture2D(u_AttenuationMapXY, var_TexAttenXYZ.xy).rgb;
 	vec3 attenuationZ		= texture2D(u_AttenuationMapZ, vec2(var_TexAttenXYZ.z, 0)).rgb;
-//	vec3 attenuationCube	= textureCube(u_AttenuationMapCube, var_TexAttenCube).rgb;
-
-	// compute shadow
-//	vec3 shadow = textureCube(u_ShadowMap, var_TexShadow).rgb;
 	
 	// compute final color
 	vec4 color = diffuse;
 	color.rgb *= attenuationXY;
 	color.rgb *= attenuationZ;
-//	color.rgb *= attenuationCube;
-//  color.rgb *= shadow;
 	color.rgb *= u_LightScale;
+	
+#if defined(SHADOWMAPPING)
+	// compute incident ray
+	vec3 I = normalize(var_Vertex - u_LightOrigin);
+	
+	// compute refraction ray
+	//vec3 R = refract(I, N, 1.0);
+#if 0
+	float vertexDistance = length(var_Vertex - u_LightOrigin) / u_LightRadius;
+	vec4 extract = float4(1.0, 0.00390625, 0.0000152587890625, 0.000000059604644775390625);
+	float shadowDistance = dot(texture2DProj(u_ShadowMap, var_TexAtten.xyw), extract);
+	float shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
+	color.rgb *= shadow;
+#else
+	color.rgb *= textureCube(u_ShadowMap, I).rgb;
+#endif
+#endif
 
 #if defined(GL_ARB_draw_buffers)
 	gl_FragData[0] = color;
