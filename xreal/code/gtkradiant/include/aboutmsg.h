@@ -1,2 +1,2 @@
 // generated header, see makeversion.py
-#define RADIANT_ABOUTMSG "XreaL build based on Zerowing revision 95"
+#define RADIANT_ABOUTMSG "XreaL build based on Zerowing revision 106"
