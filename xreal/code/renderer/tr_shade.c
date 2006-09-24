@@ -1185,6 +1185,8 @@ Draws triangle outlines for debugging
 */
 static void DrawTris()
 {
+	GLimp_LogComment("--- DrawTris ---\n");
+	
 	if(tess.indexesVBO && tess.vertexesVBO)
 	{
 		qglColor3f(0, 0, 1);
@@ -1247,6 +1249,8 @@ static void DrawTangentSpaces()
 {
 	int             i;
 	vec3_t          temp;
+	
+	GLimp_LogComment("--- DrawTangentSpaces ---\n");
 
 	GL_Program(0);
 	GL_SelectTexture(0);
@@ -1289,6 +1293,8 @@ static void DrawNormals()
 {
 	int             i;
 	vec3_t          temp;
+	
+	GLimp_LogComment("--- DrawNormals ---\n");
 
 	GL_Program(0);
 	GL_SelectTexture(0);

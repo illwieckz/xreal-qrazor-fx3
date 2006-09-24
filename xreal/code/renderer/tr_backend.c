@@ -1701,25 +1701,19 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 		surface = ia->surface;
 		shader = ia->surfaceShader;
 		
-		if(r_logFile->integer)
-		{
-			// don't just call LogComment, or we will get
-			// a call to va() every frame!
-			GLimp_LogComment(va("----- Current Interaction: %i -----\n", iaCount));
-		}
-		
 		// only iaCount == iaFirst if first iteration or counters were reset
 		if(iaCount == iaFirst)
 		{
-			if(r_logFile->integer)
-			{
-				// don't just call LogComment, or we will get
-				// a call to va() every frame!
-				GLimp_LogComment(va("----- First Interaction: %i -----\n", iaCount));
-			}
-			
 			if(drawShadows)
 			{
+				// HACK: bring OpenGL into a safe state or strange FBO update problems will occur
+				GL_Program(0);
+				GL_State(GLS_DEFAULT);
+				GL_ClientState(GLCS_VERTEX);
+				
+				GL_SelectTexture(0);
+				GL_Bind(tr.whiteImage);
+				
 				R_BindFBO(tr.shadowMapFBO);
 				
 				//if(!light->l.noShadows)
@@ -1743,6 +1737,10 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 							qglScissor(0, 0, 512, 512);
 					
 							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+							
+							qglMatrixMode(GL_PROJECTION);
+							qglLoadMatrixf(light->projectionMatrix);
+							qglMatrixMode(GL_MODELVIEW);
 							break;
 						}
 						
@@ -1777,10 +1775,24 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 							break;
 					}
 				}
+				
+				if(r_logFile->integer)
+				{
+					// don't just call LogComment, or we will get
+					// a call to va() every frame!
+					GLimp_LogComment(va("----- First Shadow Interaction: %i -----\n", iaCount));
+				}
 			}
 			else
 			{
 				GLimp_LogComment("--- Rendering lighting ---\n");
+				
+				if(r_logFile->integer)
+				{
+					// don't just call LogComment, or we will get
+					// a call to va() every frame!
+					GLimp_LogComment(va("----- First Light Interaction: %i -----\n", iaCount));
+				}
 				
 				R_BindNullFBO();
 				
@@ -1887,6 +1899,13 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				{
 					if(light == oldLight && entity == oldEntity && shader == oldShader)
 					{
+						if(r_logFile->integer)
+						{
+							// don't just call LogComment, or we will get
+							// a call to va() every frame!
+							GLimp_LogComment(va("----- Batching Shadow Interaction: %i -----\n", iaCount));
+						}
+						
 						// fast path, same as previous
 						rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
 						goto nextInteraction;
@@ -1897,6 +1916,13 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 						{
 							// draw the contents of the last shader batch
 							Tess_End();
+						}
+						
+						if(r_logFile->integer)
+						{
+							// don't just call LogComment, or we will get
+							// a call to va() every frame!
+							GLimp_LogComment(va("----- Beginning Shadow Interaction: %i -----\n", iaCount));
 						}
 
 						// we don't need tangent space calculations here
@@ -1923,6 +1949,13 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 			
 			if(light == oldLight && entity == oldEntity && shader == oldShader)
 			{
+				if(r_logFile->integer)
+				{
+					// don't just call LogComment, or we will get
+					// a call to va() every frame!
+					GLimp_LogComment(va("----- Batching Light Interaction: %i -----\n", iaCount));
+				}
+				
 				// fast path, same as previous
 				rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
 				goto nextInteraction;
@@ -1933,6 +1966,13 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				{
 					// draw the contents of the last shader batch
 					Tess_End();
+				}
+				
+				if(r_logFile->integer)
+				{
+					// don't just call LogComment, or we will get
+					// a call to va() every frame!
+					GLimp_LogComment(va("----- Beginning Light Interaction: %i -----\n", iaCount));
 				}
 
 				// begin a new batch
@@ -1986,8 +2026,9 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 					VectorCopy(light->l.origin, backEnd.or.viewOrigin);
 					
 					MatrixIdentity(backEnd.or.transformMatrix);
-					MatrixAffineInverse(backEnd.or.transformMatrix, backEnd.or.viewMatrix);
-					MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, backEnd.or.modelViewMatrix);
+					//MatrixAffineInverse(backEnd.or.transformMatrix, backEnd.or.viewMatrix);
+					MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, backEnd.or.viewMatrix);
+					MatrixCopy(backEnd.or.viewMatrix, backEnd.or.modelViewMatrix);
 				}
 				else
 				{
@@ -1999,7 +2040,6 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
 			// change depthrange if needed
-			#if 0
 			if(oldDepthRange != depthRange)
 			{
 				if(depthRange)
@@ -2012,7 +2052,6 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				}
 				oldDepthRange = depthRange;
 			}
-			#endif
 		}
 
 		// change the attenuation matrix if needed

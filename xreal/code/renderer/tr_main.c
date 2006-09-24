@@ -760,8 +760,9 @@ void R_RotateEntityForLight(const trRefEntity_t * ent, const trRefLight_t * ligh
 		VectorCopy(light->l.origin, or->viewOrigin);
 					
 		MatrixIdentity(or->transformMatrix);
-		MatrixAffineInverse(or->transformMatrix, or->viewMatrix);
-		MatrixMultiply(light->viewMatrix, or->transformMatrix, or->modelViewMatrix);
+		//MatrixAffineInverse(or->transformMatrix, or->viewMatrix);
+		MatrixMultiply(light->viewMatrix, or->transformMatrix, or->viewMatrix);
+		MatrixCopy(or->viewMatrix, or->modelViewMatrix);
 		return;
 	}
 

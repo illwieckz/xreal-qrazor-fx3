@@ -2514,6 +2514,8 @@ FRAME BUFFER OBJECTS
 
 ============================================================
 */
+qboolean        R_CheckFBO(const frameBuffer_t * fbo);
+
 frameBuffer_t  *R_CreateFBO(const char *name, int width, int height);
 
 void            R_CreateFBOColorBuffer(frameBuffer_t * fbo, int format, int index);
