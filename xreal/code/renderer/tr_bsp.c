@@ -4502,6 +4502,10 @@ void R_PrecacheInteractions()
 	ri.Printf(PRINT_ALL, "%i planar surface triangles culled\n", c_culledFaceTriangles);
 	ri.Printf(PRINT_ALL, "%i bezier surface triangles culled\n", c_culledGridTriangles);
 	ri.Printf(PRINT_ALL, "%i abitrary surface triangles culled\n", c_culledTriTriangles);
+	
+	ri.Printf(PRINT_ALL, "%i omni pyramid surfaces visible\n", tr.pc.c_pyramid_cull_ent_in);
+	ri.Printf(PRINT_ALL, "%i omni pyramid surfaces clipped\n", tr.pc.c_pyramid_cull_ent_clip);
+	ri.Printf(PRINT_ALL, "%i omni pyramid surfaces culled\n", tr.pc.c_pyramid_cull_ent_out);
 }
 
 /*
