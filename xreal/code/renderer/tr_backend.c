@@ -1690,8 +1690,8 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 	drawShadows = qtrue;
 	cubeSide = 0;
 	
-	// if we need to clear the FBO color buffers then it should be black
-	qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	// if we need to clear the FBO color buffers then it should be white
+	qglClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// render interactions
 	for(iaCount = 0, iaFirst = 0, ia = &interactions[0]; iaCount < numInteractions;)
@@ -1801,7 +1801,13 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 								}
 								
 								default:
+								{
+									// shut up compiler
+									VectorSet(angles, 0, 0, 0);
+									flipX = qfalse;
+									flipY = qfalse;
 									break;
+								}
 							}
 							
 							// Quake -> OpenGL view matrix from light perspective
@@ -1828,7 +1834,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 							else
 							{
 								xMin = zNear * tan(fovX * M_PI / 360.0f);
-								xMax = -xMax;
+								xMax = -xMin;
 							}
 							
 							if(!flipY)
@@ -1839,7 +1845,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 							else
 							{
 								yMin = zNear * tan(fovY * M_PI / 360.0f);
-								yMax = -yMax;
+								yMax = -yMin;
 							}
 									
 							width = xMax - xMin;
