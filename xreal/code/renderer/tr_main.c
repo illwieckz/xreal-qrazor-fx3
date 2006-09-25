@@ -659,7 +659,7 @@ Tr3B - needs R_RotateEntityForViewParms
 void R_SetupEntityWorldBounds(trRefEntity_t * ent)
 {
 	int             j;
-	vec3_t          v, transformed;
+	vec3_t          v;
 
 	ClearBounds(ent->worldBounds[0], ent->worldBounds[1]);
 
@@ -670,9 +670,9 @@ void R_SetupEntityWorldBounds(trRefEntity_t * ent)
 		v[2] = ent->localBounds[(j >> 2) & 1][2];
 
 		// transform local bounds vertices into world space
-		R_LocalPointToWorld(v, transformed);
+		R_LocalPointToWorld(v, ent->worldCorners[j]);
 
-		AddPointToBounds(transformed, ent->worldBounds[0], ent->worldBounds[1]);
+		AddPointToBounds(ent->worldCorners[j], ent->worldBounds[0], ent->worldBounds[1]);
 	}
 }
 
@@ -941,68 +941,68 @@ Setup that culling frustum planes for the current view
 =================
 */
 // *INDENT-OFF*
-void R_SetupFrustum(void)
+void R_SetupFrustum(frustum_t frustum, const float *modelViewMatrix, const float *projectionMatrix)
 {
 	// http://www2.ravensoft.com/users/ggribb/plane%20extraction.pdf
 	int				i;
 	matrix_t        m;
 	
-	MatrixMultiply(tr.viewParms.projectionMatrix, tr.or.modelViewMatrix, m);
+	MatrixMultiply(projectionMatrix, modelViewMatrix, m);
 
 	// left
-	tr.viewParms.frustum[FRUSTUM_LEFT].normal[0]	=  m[ 3] + m[ 0];
-	tr.viewParms.frustum[FRUSTUM_LEFT].normal[1]	=  m[ 7] + m[ 4];
-	tr.viewParms.frustum[FRUSTUM_LEFT].normal[2]	=  m[11] + m[ 8];
-	tr.viewParms.frustum[FRUSTUM_LEFT].dist			=-(m[15] + m[12]);
+	frustum[FRUSTUM_LEFT].normal[0]	=  m[ 3] + m[ 0];
+	frustum[FRUSTUM_LEFT].normal[1]	=  m[ 7] + m[ 4];
+	frustum[FRUSTUM_LEFT].normal[2]	=  m[11] + m[ 8];
+	frustum[FRUSTUM_LEFT].dist			=-(m[15] + m[12]);
 	
 	// right
-	tr.viewParms.frustum[FRUSTUM_RIGHT].normal[0]	=  m[ 3] - m[ 0];
-	tr.viewParms.frustum[FRUSTUM_RIGHT].normal[1]	=  m[ 7] - m[ 4];
-	tr.viewParms.frustum[FRUSTUM_RIGHT].normal[2]	=  m[11] - m[ 8];
-	tr.viewParms.frustum[FRUSTUM_RIGHT].dist		=-(m[15] - m[12]);
+	frustum[FRUSTUM_RIGHT].normal[0]	=  m[ 3] - m[ 0];
+	frustum[FRUSTUM_RIGHT].normal[1]	=  m[ 7] - m[ 4];
+	frustum[FRUSTUM_RIGHT].normal[2]	=  m[11] - m[ 8];
+	frustum[FRUSTUM_RIGHT].dist		=-(m[15] - m[12]);
 	
 	// bottom
-	tr.viewParms.frustum[FRUSTUM_BOTTOM].normal[0]	=  m[ 3] + m[ 1];
-	tr.viewParms.frustum[FRUSTUM_BOTTOM].normal[1]	=  m[ 7] + m[ 5];
-	tr.viewParms.frustum[FRUSTUM_BOTTOM].normal[2]	=  m[11] + m[ 9];
-	tr.viewParms.frustum[FRUSTUM_BOTTOM].dist		=-(m[15] + m[13]);
+	frustum[FRUSTUM_BOTTOM].normal[0]	=  m[ 3] + m[ 1];
+	frustum[FRUSTUM_BOTTOM].normal[1]	=  m[ 7] + m[ 5];
+	frustum[FRUSTUM_BOTTOM].normal[2]	=  m[11] + m[ 9];
+	frustum[FRUSTUM_BOTTOM].dist		=-(m[15] + m[13]);
 	
 	// top
-	tr.viewParms.frustum[FRUSTUM_TOP].normal[0]		=  m[ 3] - m[ 1];
-	tr.viewParms.frustum[FRUSTUM_TOP].normal[1]		=  m[ 7] - m[ 5];
-	tr.viewParms.frustum[FRUSTUM_TOP].normal[2]		=  m[11] - m[ 9];
-	tr.viewParms.frustum[FRUSTUM_TOP].dist			=-(m[15] - m[13]);
+	frustum[FRUSTUM_TOP].normal[0]		=  m[ 3] - m[ 1];
+	frustum[FRUSTUM_TOP].normal[1]		=  m[ 7] - m[ 5];
+	frustum[FRUSTUM_TOP].normal[2]		=  m[11] - m[ 9];
+	frustum[FRUSTUM_TOP].dist			=-(m[15] - m[13]);
 	
 	// near
-	tr.viewParms.frustum[FRUSTUM_NEAR].normal[0]	=  m[ 3] + m[ 2];
-	tr.viewParms.frustum[FRUSTUM_NEAR].normal[1]	=  m[ 7] + m[ 6];
-	tr.viewParms.frustum[FRUSTUM_NEAR].normal[2]	=  m[11] + m[10];
-	tr.viewParms.frustum[FRUSTUM_NEAR].dist			=-(m[15] + m[14]);
+	frustum[FRUSTUM_NEAR].normal[0]	=  m[ 3] + m[ 2];
+	frustum[FRUSTUM_NEAR].normal[1]	=  m[ 7] + m[ 6];
+	frustum[FRUSTUM_NEAR].normal[2]	=  m[11] + m[10];
+	frustum[FRUSTUM_NEAR].dist			=-(m[15] + m[14]);
 	
 	// far
-	tr.viewParms.frustum[FRUSTUM_FAR].normal[0]		=  m[ 3] - m[ 2];
-	tr.viewParms.frustum[FRUSTUM_FAR].normal[1]		=  m[ 7] - m[ 6];
-	tr.viewParms.frustum[FRUSTUM_FAR].normal[2]		=  m[11] - m[10];
-	tr.viewParms.frustum[FRUSTUM_FAR].dist			=-(m[15] - m[14]);
+	frustum[FRUSTUM_FAR].normal[0]		=  m[ 3] - m[ 2];
+	frustum[FRUSTUM_FAR].normal[1]		=  m[ 7] - m[ 6];
+	frustum[FRUSTUM_FAR].normal[2]		=  m[11] - m[10];
+	frustum[FRUSTUM_FAR].dist			=-(m[15] - m[14]);
 
 	for(i = 0; i < 6; i++)
 	{
 		vec_t           length, ilength;
 		
-		tr.viewParms.frustum[i].type = PLANE_NON_AXIAL;
+		frustum[i].type = PLANE_NON_AXIAL;
 		
 		// normalize
-		length = VectorLength(tr.viewParms.frustum[i].normal);
+		length = VectorLength(frustum[i].normal);
 		if(length)
 		{
 			ilength = 1.0 / length;
-			tr.viewParms.frustum[i].normal[0] *= ilength;
-			tr.viewParms.frustum[i].normal[1] *= ilength;
-			tr.viewParms.frustum[i].normal[2] *= ilength;
-			tr.viewParms.frustum[i].dist *= ilength;
+			frustum[i].normal[0] *= ilength;
+			frustum[i].normal[1] *= ilength;
+			frustum[i].normal[2] *= ilength;
+			frustum[i].dist *= ilength;
 		}
 		
-		SetPlaneSignbits(&tr.viewParms.frustum[i]);
+		SetPlaneSignbits(&frustum[i]);
 	}
 }
 // *INDENT-ON*
@@ -2272,7 +2272,7 @@ void R_RenderView(viewParms_t * parms)
 	R_SetupProjection();
 	
 	// set camera frustum planes in world space
-	R_SetupFrustum();
+	R_SetupFrustum(tr.viewParms.frustum, tr.or.modelViewMatrix, tr.viewParms.projectionMatrix);
 
 	R_AddWorldSurfaces();
 

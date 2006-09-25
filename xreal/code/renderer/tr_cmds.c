@@ -99,6 +99,9 @@ void R_PerformanceCounters(void)
 	}
 	else if(r_speeds->integer == 5)
 	{
+		ri.Printf(PRINT_ALL, "omni pyramid ents: %i bin %i bclip %i bout\n",
+				  tr.pc.c_pyramid_cull_ent_in, tr.pc.c_pyramid_cull_ent_clip, tr.pc.c_pyramid_cull_ent_out);
+		
 		ri.Printf(PRINT_ALL, "shadow batches:%i srf:%i verts:%i tris:%i\n",
 				  backEnd.pc.c_shadowBatches, backEnd.pc.c_shadowSurfaces,
 				  backEnd.pc.c_shadowVertexes, backEnd.pc.c_shadowIndexes / 3);

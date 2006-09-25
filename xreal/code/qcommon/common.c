@@ -2509,33 +2509,29 @@ static void Com_PrintQuat(const quat_t q)
 
 static void Com_MathTest_f(void)
 {
-	matrix_t        q2gl = {
-		// convert from our coordinate system (looking down X)
-		// to OpenGL's coordinate system (looking down -Z)
-		0, 0, -1, 0,
-		-1, 0, 0, 0,
-		0, 1, 0, 0,
-		0, 0, 0, 1
-	};
-
-	matrix_t        m = {
-		0, 4, 8, 12,
-		1, 5, 9, 13,
-		2, 6, 10, 14,
-		3, 7, 11, 15
-	};
-
-	matrix_t        r;
-	matrix_t        gl2q;
-	matrix_t        tmp;
-	
-	quat_t          q;
-
+	matrix_t        m, m2;
 
 	Com_Printf("...matrices\n");
-	Com_PrintMatrix(q2gl);
+	
+	MatrixFromAngles(m, -90, 90, 0);
+	Com_PrintMatrix(m);
+	
+	MatrixFromAngles(m, 90, -90, 0);
+	Com_PrintMatrix(m);
+	
+	MatrixFromAngles(m, 90, 90, 0);
+	Com_PrintMatrix(m);
+	
+	m[ 0] = 0;      m[ 4] = 1;      m[ 8] = 2;      m[12] = 3;
+	m[ 1] = 4;      m[ 5] = 5;      m[ 9] = 6;      m[13] = 7;
+	m[ 2] = 8;      m[ 6] = 9;      m[10] =10;      m[14] =11;
+	m[ 3] =12;      m[ 7] =13;      m[11] =14;      m[15] =15;
+	Com_PrintMatrix(m);
+	
+	MatrixMultiplyRotation(m, 90, 90, 0);
 	Com_PrintMatrix(m);
 
+	/*
 	MatrixMultiply(q2gl, m, r);
 	Com_PrintMatrix(r);
 
@@ -2554,6 +2550,7 @@ static void Com_MathTest_f(void)
 	Com_PrintMatrix(r);
 	QuatFromMatrix(q, r);
 	Com_PrintQuat(q);
+	*/
 	
 }
 

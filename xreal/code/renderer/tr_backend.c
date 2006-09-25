@@ -2026,6 +2026,11 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				goto skipInteraction;
 			}
 			
+			if(light->l.rlType == RL_OMNI && !(ia->cubeSideBits & (1 << cubeSide)))
+			{
+				goto skipInteraction;	
+			}
+			
 			switch (light->l.rlType)
 			{
 				case RL_OMNI:

@@ -61,6 +61,7 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 	msurface_t     *surf;
 	bmodel_t       *bModel = NULL;
 	model_t        *pModel = NULL;
+	byte            cubeSideBits;
 	interactionType_t iaType = IA_DEFAULT;
 
 	// cull the entire model if it is outside the view frustum
@@ -87,11 +88,14 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 	   light->worldBounds[1][1] < ent->worldBounds[0][1] ||
 	   light->worldBounds[1][2] < ent->worldBounds[0][2] ||
 	   light->worldBounds[0][0] > ent->worldBounds[1][0] ||
-	   light->worldBounds[0][1] > ent->worldBounds[1][1] || light->worldBounds[0][2] > ent->worldBounds[1][2])
+	   light->worldBounds[0][1] > ent->worldBounds[1][1] ||
+	   light->worldBounds[0][2] > ent->worldBounds[1][2])
 	{
 		tr.pc.c_dlightSurfacesCulled += bModel->numSurfaces;
 		return;
 	}
+	
+	cubeSideBits = R_CalcLightCubeSideBits(light, NULL, ent->worldBounds);
 
 	// set the light bits in all the surfaces
 	for(i = 0; i < bModel->numSurfaces; i++)
@@ -119,7 +123,7 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 		if(surf->shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY))
 			continue;
 
-		R_AddLightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, iaType);
+		R_AddLightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, cubeSideBits, iaType);
 		tr.pc.c_dlightSurfaces++;
 	}
 #endif
@@ -815,7 +819,7 @@ int R_CullLightTriangle(trRefLight_t * light, vec3_t verts[3])
 R_AddLightInteraction
 =================
 */
-void R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader_t * surfaceShader, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes, interactionType_t iaType)
+void R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader_t * surfaceShader, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes, byte cubeSideBits, interactionType_t iaType)
 {
 	int             iaIndex;
 	interaction_t  *ia;
@@ -922,6 +926,8 @@ void R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader
 	
 	ia->numShadowIndexes = numShadowIndexes;
 	ia->shadowIndexes = shadowIndexes;
+	
+	ia->cubeSideBits = cubeSideBits;
 
 	ia->scissorX = light->scissor.coords[0];
 	ia->scissorY = light->scissor.coords[1];
@@ -1274,4 +1280,239 @@ void R_SetupLightDepthBounds(trRefLight_t * light)
 			tr.pc.c_depthBoundsTests++;
 		}
 	}
+}
+
+/*
+=============
+R_CalcLightCubeSideBits
+=============
+*/
+byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldCorners[8], vec3_t worldBounds[2])
+{
+	int             i, j;
+	int             cubeSide;
+	byte            cubeSideBits;
+	float           xMin, xMax, yMin, yMax;
+	float           width, height, depth;
+	float           zNear, zFar;
+	float           fovX, fovY;
+	qboolean        flipX, flipY;
+	float          *proj;
+	vec3_t          angles;
+	matrix_t        tmpMatrix, rotationMatrix, transformMatrix, viewMatrix, modelViewMatrix, projectionMatrix;
+	frustum_t       frustum;
+	cplane_t       *clipPlane;
+	int             r;
+	float           dists[8];
+	int             anyBack;
+	qboolean        anyClip;
+	int             front, back;
+	
+	if(light->l.rlType != RL_OMNI || r_shadows->integer != 4)
+		return 0;
+		
+	cubeSideBits = 0;
+	
+	for(cubeSide = 0; cubeSide < 6; cubeSide++)
+	{
+		switch (cubeSide)
+		{
+			case 0:
+			{
+				// view parameters
+				VectorSet(angles, 0, 0, 90);
+								
+				// projection parameters
+				flipX = qfalse;
+				flipY = qfalse;
+				break;
+			}
+								
+			case 1:
+			{
+				VectorSet(angles, 0, 180, 90);
+				flipX = qtrue;
+				flipY = qtrue;
+				break;
+			}
+								
+			case 2:
+			{
+				VectorSet(angles, 0, 90, 0);
+				flipX = qfalse;
+				flipY = qfalse;
+				break;
+			}
+								
+			case 3:
+			{
+				VectorSet(angles, 0,-90, 0);
+				flipX = qtrue;
+				flipY = qtrue;
+				break;
+			}
+								
+			case 4:
+			{
+				VectorSet(angles, -90, 90, 0);
+				flipX = qfalse;
+				flipY = qfalse;
+				break;
+			}
+
+			case 5:
+			{
+				VectorSet(angles, 90, 90, 0);
+				flipX = qtrue;
+				flipY = qtrue;
+				break;
+			}
+								
+			default:
+			{
+				// shut up compiler
+				VectorSet(angles, 0, 0, 0);
+				flipX = qfalse;
+				flipY = qfalse;
+				break;
+			}
+		}
+							
+		// Quake -> OpenGL view matrix from light perspective
+		MatrixFromAngles(rotationMatrix, angles[PITCH], angles[YAW], angles[ROLL]);
+		MatrixSetupTransformFromRotation(transformMatrix, rotationMatrix, light->origin);
+		MatrixAffineInverse(transformMatrix, tmpMatrix);
+
+		// convert from our coordinate system (looking down X)
+		// to OpenGL's coordinate system (looking down -Z)
+		MatrixMultiply(quakeToOpenGLMatrix, tmpMatrix, viewMatrix);
+		MatrixCopy(viewMatrix, modelViewMatrix); // because world transform is the identity matrix
+			
+		// OpenGL projection matrix
+		fovX = 90;
+		fovY = R_CalcFov(fovX, r_shadowMapSize->integer, r_shadowMapSize->integer);
+						
+		zNear = 1.0;
+		zFar = light->sphereRadius;
+							
+		if(!flipX)
+		{
+			xMax = zNear * tan(fovX * M_PI / 360.0f);
+			xMin = -xMax;
+		}
+		else
+		{
+			xMin = zNear * tan(fovX * M_PI / 360.0f);
+			xMax = -xMin;
+		}
+							
+		if(!flipY)
+		{		
+			yMax = zNear * tan(fovY * M_PI / 360.0f);
+			yMin = -yMax;
+		}
+		else
+		{
+			yMin = zNear * tan(fovY * M_PI / 360.0f);
+			yMax = -yMin;
+		}
+									
+		width = xMax - xMin;
+		height = yMax - yMin;
+		depth = zFar - zNear;
+							
+		proj = projectionMatrix;
+		proj[0] = (2 * zNear) / width;	proj[4] = 0;					proj[8] = (xMax + xMin) / width;	proj[12] = 0;
+		proj[1] = 0;					proj[5] = (2 * zNear) / height;	proj[9] = (yMax + yMin) / height;	proj[13] = 0;
+		proj[2] = 0;					proj[6] = 0;					proj[10] = -(zFar + zNear) / depth;	proj[14] = -(2 * zFar * zNear) / depth;
+		proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;
+		
+		// calculate frustum planes using the modelview projection matrix
+		R_SetupFrustum(frustum, modelViewMatrix, projectionMatrix);
+	
+		if(worldCorners)
+		{
+			// check against frustum planes
+			anyBack = 0;
+			for(i = 0; i < FRUSTUM_PLANES; i++)
+			{
+				clipPlane = &frustum[i];
+
+				front = back = 0;
+				for(j = 0; j < 8; j++)
+				{
+					dists[j] = DotProduct(worldCorners[j], clipPlane->normal);
+					if(dists[j] > clipPlane->dist)
+					{
+						front = 1;
+						if(back)
+						{
+							break;		// a point is in front
+						}
+					}
+					else
+					{
+						back = 1;
+					}
+				}
+				if(!front)
+				{
+					// all points were behind one of the planes
+					tr.pc.c_pyramid_cull_ent_out++;
+					goto skipCubeSide;
+				}
+				anyBack |= back;
+			}
+	
+			if(!anyBack)
+			{
+				// completely inside frustum
+				tr.pc.c_pyramid_cull_ent_in++;
+			}
+			else
+			{
+				// partially clipped
+				tr.pc.c_pyramid_cull_ent_clip++;
+			}
+		}
+		else
+		{
+			// determine wether worldBounds are in current cubeSide frustum or not
+			anyClip = qfalse;
+			for(i = 0; i < FRUSTUM_PLANES; i++)
+			{
+				clipPlane = &frustum[i];
+
+				r = BoxOnPlaneSide(worldBounds[0], worldBounds[1], clipPlane);
+		
+				if(r == 2)
+				{
+					tr.pc.c_pyramid_cull_ent_out++;
+					goto skipCubeSide;
+				}
+				if(r == 1)
+				{
+					anyClip = qtrue;
+				}
+			}
+			
+			if(!anyClip)
+			{
+				// partially clipped
+				tr.pc.c_pyramid_cull_ent_clip++;
+			}
+			else
+			{
+				// completely inside frustum
+				tr.pc.c_pyramid_cull_ent_in++;
+			}
+		}
+		
+		cubeSideBits |= (1 << cubeSide);
+			
+		skipCubeSide:
+			continue;
+	}
+
+	return cubeSideBits;
 }

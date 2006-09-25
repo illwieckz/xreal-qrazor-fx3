@@ -93,6 +93,17 @@ typedef enum
 
 typedef cplane_t frustum_t[6];
 
+enum
+{
+	CUBESIDE_PX = (1 << 0),
+	CUBESIDE_PY = (1 << 1),
+	CUBESIDE_PZ = (1 << 2),
+	CUBESIDE_NX = (1 << 3),
+	CUBESIDE_NY = (1 << 4),
+	CUBESIDE_NZ = (1 << 5),
+	CUBESIDE_CLIPALL = 1 | 2 | 4 | 8 | 16 | 32
+};
+
 
 // a trRefLight_t has all the information passed in by
 // the client game, as well as some locally derived info
@@ -160,6 +171,7 @@ typedef struct
 	cullResult_t    cull;
 	vec3_t          localBounds[2];
 	vec3_t          worldBounds[2];	// only set when not completely culled. use them for light interactions
+	vec3_t          worldCorners[8];
 } trRefEntity_t;
 
 typedef struct
@@ -1009,6 +1021,8 @@ typedef struct interactionCache_s
 
 	int             numShadowIndexes;
 	int            *shadowIndexes;	// precached triangle indices of shadow edges
+	
+	byte            cubeSideBits;
 } interactionCache_t;
 
 // an interaction is a node between a light and any surface
@@ -1030,6 +1044,8 @@ typedef struct interaction_s
 
 	int             numShadowIndexes;
 	int            *shadowIndexes;	// precached triangle indices of shadow edges
+	
+	byte            cubeSideBits;
 
 	int             scissorX, scissorY, scissorWidth, scissorHeight;
 
@@ -1119,7 +1135,7 @@ typedef struct srfGridMesh_s
 	vec3_t          meshBounds[2];
 	vec3_t          localOrigin;
 	float           meshRadius;
-
+	
 	// lod information, which may be different
 	// than the culling information to allow for
 	// groups of curves that LOD as a unit
@@ -1182,10 +1198,8 @@ typedef struct
 {
 	surfaceType_t   surfaceType;
 
-	// culling information (FIXME: use this!)
+	// culling information
 	vec3_t          bounds[2];
-	vec3_t          localOrigin;
-	float           radius;
 
 	// triangle definitions
 	int             numTriangles;
@@ -1605,6 +1619,8 @@ typedef struct
 	int             c_box_cull_dlight_in, c_box_cull_dlight_clip, c_box_cull_dlight_out;
 	int             c_box_cull_slight_in, c_box_cull_slight_clip, c_box_cull_slight_out;
 	int             c_pvs_cull_slight_out;
+	
+	int             c_pyramid_cull_ent_in, c_pyramid_cull_ent_clip, c_pyramid_cull_ent_out;
 
 	int             c_leafs;
 
@@ -2081,6 +2097,7 @@ void            R_RotateEntityForViewParms(const trRefEntity_t * ent, const view
 void            R_RotateEntityForLight(const trRefEntity_t * ent, const trRefLight_t * light, orientationr_t * or);
 void            R_RotateLightForViewParms(const trRefLight_t * ent, const viewParms_t * viewParms, orientationr_t * or);
 
+void            R_SetupFrustum(frustum_t frustum, const float *modelViewMatrix, const float *projectionMatrix);
 
 void            R_CalcNormalForTriangle(vec3_t normal, const vec3_t v0, const vec3_t v1, const vec3_t v2);
 
@@ -2451,13 +2468,17 @@ int             R_CullLightTriangle(trRefLight_t * light, vec3_t verts[3]);
 
 void            R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader_t * surfaceShader,
 									  int numLightIndexes, int *lightIndexes,
-									  int numShadowIndexes, int *shadowIndexes, interactionType_t iaType);
+									  int numShadowIndexes, int *shadowIndexes,
+									  byte cubeSideBits,
+									  interactionType_t iaType);
 
 void            R_SortInteractions(trRefLight_t * light);
 qboolean        R_LightIntersectsPoint(trRefLight_t * light, const vec3_t p);
 
 void            R_SetupLightScissor(trRefLight_t * light);
 void            R_SetupLightDepthBounds(trRefLight_t * light);
+
+byte            R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldCorners[8], vec3_t worldBounds[2]);
 
 /*
 ============================================================

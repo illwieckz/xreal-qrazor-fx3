@@ -395,6 +395,7 @@ void R_AddMDXInteractions(trRefEntity_t * ent, trRefLight_t * light)
 	shader_t       *shader = 0;
 	int             lod;
 	qboolean        personalModel;
+	byte            cubeSideBits;
 	interactionType_t iaType = IA_DEFAULT;
 	
 	// cull the entire model if merged bounding box of both frames
@@ -432,6 +433,8 @@ void R_AddMDXInteractions(trRefEntity_t * ent, trRefLight_t * light)
 		tr.pc.c_dlightSurfacesCulled += model->numSurfaces;
 		return;
 	}
+	
+	cubeSideBits = R_CalcLightCubeSideBits(light, NULL, ent->worldBounds);
 
 	// generate interactions with all surfaces
 	for(i = 0, surface = model->surfaces; i < model->numSurfaces; i++, surface++)
@@ -489,7 +492,7 @@ void R_AddMDXInteractions(trRefEntity_t * ent, trRefLight_t * light)
 		// don't add third_person objects if not viewing through a portal
 		if(!personalModel)
 		{
-			R_AddLightInteraction(light, (void *)surface, shader, 0, NULL, 0, NULL, iaType);
+			R_AddLightInteraction(light, (void *)surface, shader, 0, NULL, 0, NULL, cubeSideBits, iaType);
 			tr.pc.c_dlightSurfaces++;
 		}
 	}

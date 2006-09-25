@@ -1931,7 +1931,7 @@ void MatrixMultiply(const matrix_t a, const matrix_t b, matrix_t out)
 #endif
 }
 
-void MatrixMultiply2(matrix_t m, matrix_t m2)
+void MatrixMultiply2(matrix_t m, const matrix_t m2)
 {
 	matrix_t        tmp;
 

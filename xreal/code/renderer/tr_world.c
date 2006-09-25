@@ -297,7 +297,7 @@ static void R_AddInteractionSurface(msurface_t * surf, trRefLight_t * light)
 	
 	if(intersects)
 	{
-		R_AddLightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, iaType);
+		R_AddLightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, iaType);
 		
 		if(light->isStatic)
 			tr.pc.c_slightSurfaces++;
@@ -956,7 +956,7 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 				iaType = IA_DEFAULT;
 		}
 		
-		R_AddLightInteraction(light, surface->data, surface->shader, iaCache->numLightIndexes, iaCache->lightIndexes, iaCache->numShadowIndexes, iaCache->shadowIndexes, iaType);
+		R_AddLightInteraction(light, surface->data, surface->shader, iaCache->numLightIndexes, iaCache->lightIndexes, iaCache->numShadowIndexes, iaCache->shadowIndexes, iaCache->cubeSideBits, iaType);
 	}
 }
 

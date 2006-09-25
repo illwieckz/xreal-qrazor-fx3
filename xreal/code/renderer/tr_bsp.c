@@ -3562,7 +3562,8 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 	   light->worldBounds[1][1] < cv->bounds[0][1] ||
 	   light->worldBounds[1][2] < cv->bounds[0][2] ||
 	   light->worldBounds[0][0] > cv->bounds[1][0] ||
-	   light->worldBounds[0][1] > cv->bounds[1][1] || light->worldBounds[0][2] > cv->bounds[1][2])
+	   light->worldBounds[0][1] > cv->bounds[1][1] ||
+	   light->worldBounds[0][2] > cv->bounds[1][2])
 	{
 		return qfalse;
 	}
@@ -3801,7 +3802,8 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 	   light->worldBounds[1][1] < cv->meshBounds[0][1] ||
 	   light->worldBounds[1][2] < cv->meshBounds[0][2] ||
 	   light->worldBounds[0][0] > cv->meshBounds[1][0] ||
-	   light->worldBounds[0][1] > cv->meshBounds[1][1] || light->worldBounds[0][2] > cv->meshBounds[1][2])
+	   light->worldBounds[0][1] > cv->meshBounds[1][1] ||
+	   light->worldBounds[0][2] > cv->meshBounds[1][2])
 	{
 		return qfalse;
 	}
@@ -3994,7 +3996,8 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 	   light->worldBounds[1][1] < cv->bounds[0][1] ||
 	   light->worldBounds[1][2] < cv->bounds[0][2] ||
 	   light->worldBounds[0][0] > cv->bounds[1][0] ||
-	   light->worldBounds[0][1] > cv->bounds[1][1] || light->worldBounds[0][2] > cv->bounds[1][2])
+	   light->worldBounds[0][1] > cv->bounds[1][1] ||
+	   light->worldBounds[0][2] > cv->bounds[1][2])
 	{
 		return qfalse;
 	}
@@ -4365,6 +4368,9 @@ void R_PrecacheInteractions()
 	int             i;
 	trRefLight_t   *light;
 	int				numLeafs;
+	interactionCache_t  *iaCache;
+	msurface_t     *surface;
+	vec3_t          localBounds[2];
 
 	s_lightCount = 0;
 	s_interactionCount = 0;
@@ -4447,6 +4453,49 @@ void R_PrecacheInteractions()
 		s_lightCount++;
 		numLeafs = 0;
 		R_RecursiveAddInteractionNode(s_worldData.nodes, light, &numLeafs, qfalse);
+		
+		if(light->l.rlType == RL_OMNI)
+		{		
+			for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
+			{
+				surface = iaCache->surface;
+				
+				if(*surface->data == SF_FACE)
+				{
+					srfSurfaceFace_t *face;
+	
+					face = (srfSurfaceFace_t *) surface->data;
+				
+					VectorCopy(face->bounds[0], localBounds[0]);
+					VectorCopy(face->bounds[1], localBounds[1]);
+				}
+				else if(*surface->data == SF_GRID)
+				{
+					srfGridMesh_t  *grid;
+	
+					grid = (srfGridMesh_t *) surface;
+					
+					VectorCopy(grid->meshBounds[0], localBounds[0]);
+					VectorCopy(grid->meshBounds[1], localBounds[1]);
+				}
+				else if(*surface->data == SF_TRIANGLES)
+				{
+					srfTriangles_t *tri;
+	
+					tri = (srfTriangles_t *) surface;
+					
+					VectorCopy(tri->bounds[0], localBounds[0]);
+					VectorCopy(tri->bounds[1], localBounds[1]);
+				}
+				else
+				{
+					iaCache->cubeSideBits = CUBESIDE_CLIPALL;
+					continue;
+				}
+			
+				iaCache->cubeSideBits = R_CalcLightCubeSideBits(light, NULL, localBounds);
+			}
+		}
 	}
 
 	ri.Printf(PRINT_ALL, "%i interactions precached\n", s_interactionCount);
