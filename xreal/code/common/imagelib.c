@@ -22,8 +22,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // imagelib.c
 
+#include "inout.h"
 #include "cmdlib.h"
 #include "imagelib.h"
+#include "vfs.h"
 
 /*
  * Include file for users of JPEG library.
@@ -35,7 +37,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define JPEG_INTERNALS
 #include "../jpeg-6/jpeglib.h"
-
 
 int fgetLittleShort(FILE * f)
 {
@@ -59,6 +60,39 @@ int fgetLittleLong(FILE * f)
 	return b1 + (b2 << 8) + (b3 << 16) + (b4 << 24);
 }
 
+int bufLittleShort(byte * buf, int len, int *pos)
+{
+	byte            b1, b2;
+
+	if((len - *pos) < 2)
+		Error("Unexpected buffer end");
+
+	b1 = buf[*pos];
+	*pos += 1;
+	b2 = buf[*pos];
+	*pos += 1;
+
+	return (short)(b1 + b2 * 256);
+}
+
+int bufLittleLong(byte * buf, int len, int *pos)
+{
+	byte            b1, b2, b3, b4;
+
+	if((len - *pos) < 4)
+		Error("Unexpected buffer end");
+
+	b1 = buf[*pos];
+	*pos += 1;
+	b2 = buf[*pos];
+	*pos += 1;
+	b3 = buf[*pos];
+	*pos += 1;
+	b4 = buf[*pos];
+	*pos += 1;
+
+	return b1 + (b2 << 8) + (b3 << 16) + (b4 << 24);
+}
 
 
 /*
@@ -242,7 +276,7 @@ void LoadLBM(const char *filename, byte ** picture, byte ** palette)
 				break;
 
 			case CMAPID:
-				cmapbuffer = malloc(768);
+				cmapbuffer = safe_malloc(768);
 				memset(cmapbuffer, 0, 768);
 				memcpy(cmapbuffer, LBM_P, chunklength);
 				break;
@@ -250,7 +284,7 @@ void LoadLBM(const char *filename, byte ** picture, byte ** palette)
 			case BODYID:
 				body_p = LBM_P;
 
-				pic_p = picbuffer = malloc(bmhd.w * bmhd.h);
+				pic_p = picbuffer = safe_malloc(bmhd.w * bmhd.h);
 				if(formtype == PBMID)
 				{
 					//
@@ -310,7 +344,7 @@ void WriteLBMfile(const char *filename, byte * data, int width, int height, byte
 	int             length;
 	bmhd_t          basebmhd;
 
-	lbm = lbmptr = malloc(width * height + 1000);
+	lbm = lbmptr = safe_malloc(width * height + 1000);
 
 //
 // start FORM
@@ -441,23 +475,27 @@ typedef struct
 LoadPCX
 ==============
 */
+
+/* RR2DO2 */
+#define DECODEPCX( b, d, r ) d=*b++;if((d&0xC0)==0xC0){r=d&0x3F;d=*b++;}else{r=1;}
+
 void LoadPCX(const char *filename, byte ** pic, byte ** palette, int *width, int *height)
 {
 	byte           *raw;
 	pcx_t          *pcx;
-	int             x, y;
+	int             x, y, lsize;
 	int             len;
 	int             dataByte, runLength;
 	byte           *out, *pix;
 
-	//
-	// load the file
-	//
-	len = LoadFile(filename, (void **)&raw);
 
-	//
-	// parse the PCX file
-	//
+	/* load the file */
+	len = vfsLoadFile(filename, (void **)&raw, 0);
+	if(len == -1)
+		Error("LoadPCX: Couldn't read %s", filename);
+
+
+	/* parse the PCX file */
 	pcx = (pcx_t *) raw;
 	raw = &pcx->data;
 
@@ -476,7 +514,7 @@ void LoadPCX(const char *filename, byte ** pic, byte ** palette, int *width, int
 
 	if(palette)
 	{
-		*palette = malloc(768);
+		*palette = safe_malloc(768);
 		memcpy(*palette, (byte *) pcx + len - 768, 768);
 	}
 
@@ -488,46 +526,45 @@ void LoadPCX(const char *filename, byte ** pic, byte ** palette, int *width, int
 	if(!pic)
 		return;
 
-	out = malloc((pcx->ymax + 1) * (pcx->xmax + 1));
+	out = safe_malloc((pcx->ymax + 1) * (pcx->xmax + 1));
 	if(!out)
-		Error("Skin_Cache: couldn't allocate");
+		Error("LoadPCX: couldn't allocate");
 
 	*pic = out;
-
 	pix = out;
 
+	/* RR2DO2: pcx fix  */
+	lsize = pcx->color_planes * pcx->bytes_per_line;
+
+	/* go scanline by scanline */
 	for(y = 0; y <= pcx->ymax; y++, pix += pcx->xmax + 1)
 	{
+		/* do a scanline */
 		for(x = 0; x <= pcx->xmax;)
 		{
-			dataByte = *raw++;
-
-			if((dataByte & 0xC0) == 0xC0)
-			{
-				runLength = dataByte & 0x3F;
-				dataByte = *raw++;
-			}
-			else
-				runLength = 1;
-
-			// FIXME: this shouldn't happen, but it does.  Are we decoding the file wrong?
-			// Truncate runLength so we don't overrun the end of the buffer
-			if((y == pcx->ymax) && (x + runLength > pcx->xmax + 1))
-			{
-				runLength = pcx->xmax - x + 1;
-			}
-
+			/* RR2DO2 */
+			DECODEPCX(raw, dataByte, runLength);
 			while(runLength-- > 0)
 				pix[x++] = dataByte;
 		}
 
+		/* RR2DO2: discard any other data */
+		while(x < lsize)
+		{
+			DECODEPCX(raw, dataByte, runLength);
+			x++;
+		}
+		while(runLength-- > 0)
+			x++;
 	}
 
+	/* validity check */
 	if(raw - (byte *) pcx > len)
 		Error("PCX file %s was malformed", filename);
-
 	free(pcx);
 }
+
+
 
 /* 
 ============== 
@@ -540,7 +577,7 @@ void WritePCXfile(const char *filename, byte * data, int width, int height, byte
 	pcx_t          *pcx;
 	byte           *pack;
 
-	pcx = malloc(width * height * 2 + 1000);
+	pcx = safe_malloc(width * height * 2 + 1000);
 	memset(pcx, 0, sizeof(*pcx));
 
 	pcx->manufacturer = 0x0a;	// PCX id
@@ -651,52 +688,54 @@ LoadBMP
 void LoadBMP(const char *filename, byte ** pic, byte ** palette, int *width, int *height)
 {
 	byte           *out;
-	FILE           *fin;
 	int             i;
 	int             bfSize;
 	int             bfOffBits;
 	int             structSize;
-	int             bcWidth = 0;
-	int             bcHeight = 0;
-	int             bcPlanes = 0;
-	int             bcBitCount = 0;
+	int             bcWidth;
+	int             bcHeight;
+	int             bcPlanes;
+	int             bcBitCount;
 	byte            bcPalette[1024];
 	qboolean        flipped;
+	byte           *in;
+	int             len, pos = 0;
 
-	fin = fopen(filename, "rb");
-	if(!fin)
+	len = vfsLoadFile(filename, (void **)&in, 0);
+	if(len == -1)
 	{
 		Error("Couldn't read %s", filename);
 	}
 
-	i = fgetLittleShort(fin);
+	i = bufLittleShort(in, len, &pos);
 	if(i != 'B' + ('M' << 8))
 	{
 		Error("%s is not a bmp file", filename);
 	}
 
-	bfSize = fgetLittleLong(fin);
-	fgetLittleShort(fin);
-	fgetLittleShort(fin);
-	bfOffBits = fgetLittleLong(fin);
+	bfSize = bufLittleLong(in, len, &pos);
+	bufLittleShort(in, len, &pos);
+	bufLittleShort(in, len, &pos);
+	bfOffBits = bufLittleLong(in, len, &pos);
 
 	// the size will tell us if it is a
 	// bitmapinfo or a bitmapcore
-	structSize = fgetLittleLong(fin);
+	structSize = bufLittleLong(in, len, &pos);
 	if(structSize == 40)
 	{
 		// bitmapinfo
-		bcWidth = fgetLittleLong(fin);
-		bcHeight = fgetLittleLong(fin);
-		bcPlanes = fgetLittleShort(fin);
-		bcBitCount = fgetLittleShort(fin);
+		bcWidth = bufLittleLong(in, len, &pos);
+		bcHeight = bufLittleLong(in, len, &pos);
+		bcPlanes = bufLittleShort(in, len, &pos);
+		bcBitCount = bufLittleShort(in, len, &pos);
 
-		fseek(fin, 24, SEEK_CUR);
+		pos += 24;
 
 		if(palette)
 		{
-			fread(bcPalette, 1, 1024, fin);
-			*palette = malloc(768);
+			memcpy(bcPalette, in + pos, 1024);
+			pos += 1024;
+			*palette = safe_malloc(768);
 
 			for(i = 0; i < 256; i++)
 			{
@@ -709,15 +748,16 @@ void LoadBMP(const char *filename, byte ** pic, byte ** palette, int *width, int
 	else if(structSize == 12)
 	{
 		// bitmapcore
-		bcWidth = fgetLittleShort(fin);
-		bcHeight = fgetLittleShort(fin);
-		bcPlanes = fgetLittleShort(fin);
-		bcBitCount = fgetLittleShort(fin);
+		bcWidth = bufLittleShort(in, len, &pos);
+		bcHeight = bufLittleShort(in, len, &pos);
+		bcPlanes = bufLittleShort(in, len, &pos);
+		bcBitCount = bufLittleShort(in, len, &pos);
 
 		if(palette)
 		{
-			fread(bcPalette, 1, 768, fin);
-			*palette = malloc(768);
+			memcpy(bcPalette, in + pos, 768);
+			pos += 768;
+			*palette = safe_malloc(768);
 
 			for(i = 0; i < 256; i++)
 			{
@@ -759,27 +799,29 @@ void LoadBMP(const char *filename, byte ** pic, byte ** palette, int *width, int
 
 	if(!pic)
 	{
-		fclose(fin);
+		free(in);
 		return;
 	}
 
-	out = malloc(bcWidth * bcHeight);
+	out = safe_malloc(bcWidth * bcHeight);
 	*pic = out;
-	fseek(fin, bfOffBits, SEEK_SET);
+	pos = bfOffBits;
 
 	if(flipped)
 	{
 		for(i = 0; i < bcHeight; i++)
 		{
-			fread(out + bcWidth * (bcHeight - 1 - i), 1, bcWidth, fin);
+			memcpy(out + bcWidth * (bcHeight - 1 - i), in + pos, bcWidth);
+			pos += bcWidth;
 		}
 	}
 	else
 	{
-		fread(out, 1, bcWidth * bcHeight, fin);
+		memcpy(out, in + pos, bcWidth * bcHeight);
+		pos += bcWidth * bcHeight;
 	}
 
-	fclose(fin);
+	free(in);
 }
 
 
@@ -821,9 +863,7 @@ void Load256Image(const char *name, byte ** pixels, byte ** palette, int *width,
 		LoadBMP(name, pixels, palette, width, height);
 	}
 	else
-	{
 		Error("%s doesn't have a known image extension", name);
-	}
 }
 
 
@@ -933,7 +973,7 @@ void LoadTGABuffer(byte * buffer, byte ** pic, int *width, int *height)
 	if(height)
 		*height = rows;
 
-	targa_rgba = malloc(numPixels * 4);
+	targa_rgba = safe_malloc(numPixels * 4);
 	*pic = targa_rgba;
 
 	if(targa_header.id_length != 0)
@@ -1093,7 +1133,6 @@ void LoadTGABuffer(byte * buffer, byte ** pic, int *width, int *height)
 }
 
 
-
 /*
 =============
 LoadTGA
@@ -1107,7 +1146,7 @@ void LoadTGA(const char *name, byte ** pixels, int *width, int *height)
 	//
 	// load the file
 	//
-	nLen = LoadFile((char *)name, (void **)&buffer);
+	nLen = vfsLoadFile((char *)name, (void **)&buffer, 0);
 	if(nLen == -1)
 	{
 		Error("Couldn't read %s", name);
@@ -1130,7 +1169,7 @@ void WriteTGA(const char *filename, byte * data, int width, int height)
 	int             c;
 	FILE           *f;
 
-	buffer = malloc(width * height * 4 + 18);
+	buffer = safe_malloc(width * height * 4 + 18);
 	memset(buffer, 0, 18);
 	buffer[2] = 2;				// uncompressed type
 	buffer[12] = width & 255;
@@ -1194,7 +1233,7 @@ void Load32BitImage(const char *name, unsigned **pixels, int *width, int *height
 			return;
 		}
 		size = *width * *height;
-		pixels32 = malloc(size * 4);
+		pixels32 = safe_malloc(size * 4);
 		*pixels = (unsigned *)pixels32;
 		for(i = 0; i < size; i++)
 		{
@@ -1298,7 +1337,7 @@ void LoadJPGBuffer(byte * fbuffer, byte ** pic, int *width, int *height)
 	/* JSAMPLEs per row in output buffer */
 	row_stride = cinfo.output_width * cinfo.output_components;
 
-	out = malloc(cinfo.output_width * cinfo.output_height * cinfo.output_components);
+	out = safe_malloc(cinfo.output_width * cinfo.output_height * cinfo.output_components);
 
 	*pic = out;
 	*width = cinfo.output_width;

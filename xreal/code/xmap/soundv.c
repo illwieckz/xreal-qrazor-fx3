@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *****************************************************************************/
 
 #include "../common/cmdlib.h"
+#include "../common/inout.h"
 #include "../common/mathlib.h"
 #include "../common/bspfile.h"
 #include "../common/imagelib.h"
@@ -600,12 +601,12 @@ int VS_SplitWinding(winding_t * in, winding_t * back, plane_t * split, float eps
 
 		if(neww->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
 		{
-			_printf("WARNING: VS_SplitWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
+			Sys_Printf("WARNING: VS_SplitWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return SIDE_FRONT;	// can't chop -- fall back to original
 		}
 		if(back->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
 		{
-			_printf("WARNING: VS_SplitWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
+			Sys_Printf("WARNING: VS_SplitWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return SIDE_FRONT;
 		}
 
@@ -634,13 +635,13 @@ int VS_SplitWinding(winding_t * in, winding_t * back, plane_t * split, float eps
 
 		if(neww->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
 		{
-			_printf("WARNING: VS_SplitWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
+			Sys_Printf("WARNING: VS_SplitWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return SIDE_FRONT;	// can't chop -- fall back to original
 		}
 
 		if(back->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
 		{
-			_printf("WARNING: VS_SplitWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
+			Sys_Printf("WARNING: VS_SplitWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return SIDE_FRONT;	// can't chop -- fall back to original
 		}
 
@@ -990,34 +991,34 @@ void VS_LightmapMatrixFromPoints(dsurface_t * dsurf, shaderInfo_t * si, lFacet_t
 		s = (DotProduct(delta, f->lightmapMatrix[0]) + dsurf->lightmapX + 0.5) / LIGHTMAP_SIZE;
 		if(fabs(s - a->lightmap[0]) > 0.01)
 		{
-			_printf("Bad lightmapMatrix");
+			Sys_Printf("Bad lightmapMatrix");
 		}
 		t = (DotProduct(delta, f->lightmapMatrix[1]) + dsurf->lightmapY + 0.5) / LIGHTMAP_SIZE;
 		if(fabs(t - a->lightmap[1]) > 0.01)
 		{
-			_printf("Bad lightmapMatrix");
+			Sys_Printf("Bad lightmapMatrix");
 		}
 		VectorSubtract(b->xyz, f->mins, delta);
 		s = (DotProduct(delta, f->lightmapMatrix[0]) + dsurf->lightmapX + 0.5) / LIGHTMAP_SIZE;
 		if(fabs(s - b->lightmap[0]) > 0.01)
 		{
-			_printf("Bad lightmapMatrix");
+			Sys_Printf("Bad lightmapMatrix");
 		}
 		t = (DotProduct(delta, f->lightmapMatrix[1]) + dsurf->lightmapY + 0.5) / LIGHTMAP_SIZE;
 		if(fabs(t - b->lightmap[1]) > 0.01)
 		{
-			_printf("Bad lightmapMatrix");
+			Sys_Printf("Bad lightmapMatrix");
 		}
 		VectorSubtract(c->xyz, f->mins, delta);
 		s = (DotProduct(delta, f->lightmapMatrix[0]) + dsurf->lightmapX + 0.5) / LIGHTMAP_SIZE;
 		if(fabs(s - c->lightmap[0]) > 0.01)
 		{
-			_printf("Bad lightmapMatrix");
+			Sys_Printf("Bad lightmapMatrix");
 		}
 		t = (DotProduct(delta, f->lightmapMatrix[1]) + dsurf->lightmapY + 0.5) / LIGHTMAP_SIZE;
 		if(fabs(t - c->lightmap[1]) > 0.01)
 		{
-			_printf("Bad lightmapMatrix");
+			Sys_Printf("Bad lightmapMatrix");
 		}
 		VectorAdd(f->mins, surfaceOrigin[dsurf - drawSurfaces], f->mins);
 		return;
@@ -1141,7 +1142,7 @@ void VS_LightmapMatrixFromPoints(dsurface_t * dsurf, shaderInfo_t * si, lFacet_t
 		if(s > 0.01)
 		{
 			if(!message)
-				_printf("Bad lightmapMatrix\n");
+				Sys_Printf("Bad lightmapMatrix\n");
 			message = qtrue;
 		}
 		VectorSubtract(b->xyz, f->mins, delta);
@@ -1149,7 +1150,7 @@ void VS_LightmapMatrixFromPoints(dsurface_t * dsurf, shaderInfo_t * si, lFacet_t
 		if(s > 0.01)
 		{
 			if(!message)
-				_printf("Bad lightmapMatrix\n");
+				Sys_Printf("Bad lightmapMatrix\n");
 			message = qtrue;
 		}
 		VectorSubtract(c->xyz, f->mins, delta);
@@ -1157,7 +1158,7 @@ void VS_LightmapMatrixFromPoints(dsurface_t * dsurf, shaderInfo_t * si, lFacet_t
 		if(s > 0.01)
 		{
 			if(!message)
-				_printf("Bad lightmapMatrix\n");
+				Sys_Printf("Bad lightmapMatrix\n");
 			message = qtrue;
 		}
 		VectorAdd(f->mins, surfaceOrigin[dsurf - drawSurfaces], f->mins);
@@ -1617,8 +1618,8 @@ void VS_InitSurfacesForTesting(void)
 		}
 		VS_SphereFromBounds(test->mins, test->maxs, test->origin, &test->radius);
 	}
-	_printf("%6d facets\n", numfacets);
-	_printf("linking surfaces...\n");
+	Sys_Printf("%6d facets\n", numfacets);
+	Sys_Printf("linking surfaces...\n");
 	VS_LinkSurfaces();
 }
 
@@ -1684,7 +1685,7 @@ int VS_ChopWinding(winding_t * in, plane_t * split, float epsilon)
 
 		if(neww->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
 		{
-			_printf("WARNING: VS_ChopWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
+			Sys_Printf("WARNING: VS_ChopWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return SIDE_FRONT;	// can't chop -- fall back to original
 		}
 
@@ -1706,7 +1707,7 @@ int VS_ChopWinding(winding_t * in, plane_t * split, float epsilon)
 
 		if(neww->numpoints >= MAX_POINTS_ON_FIXED_WINDING)
 		{
-			_printf("WARNING: VS_ChopWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
+			Sys_Printf("WARNING: VS_ChopWinding -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return SIDE_FRONT;	// can't chop -- fall back to original
 		}
 
@@ -1764,7 +1765,7 @@ int VS_ChopWindingWithBrush(winding_t * w, dbrush_t * brush, winding_t * outwind
 		{
 			if(numout >= maxout)
 			{
-				_printf("WARNING: VS_ChopWindingWithBrush: more than %d windings\n", maxout);
+				Sys_Printf("WARNING: VS_ChopWindingWithBrush: more than %d windings\n", maxout);
 				return 0;
 			}
 			memcpy(outwindings[numout].points, back.points, back.numpoints * sizeof(vec3_t));
@@ -1937,7 +1938,7 @@ void VS_CalcVisibleLightmapPixelArea(void)
 	winding_t       w, tmpw;
 	float           area;
 
-	_printf("calculating visible lightmap pixel area...\n");
+	Sys_Printf("calculating visible lightmap pixel area...\n");
 	for(i = 0; i < numDrawSurfaces; i++)
 	{
 		test = lsurfaceTest[i];
@@ -2677,7 +2678,7 @@ void VS_StoreLightmap(void)
 	float          *src;
 	byte           *dst;
 
-	_printf("storing lightmaps...\n");
+	Sys_Printf("storing lightmaps...\n");
 	//fix lightmap edges before storing them
 	VS_FixLightmapEdges();
 	//
@@ -3215,7 +3216,7 @@ void VS_LightSurfaceWithVolume(int surfaceNum, int facetNum, vsound_t * light, l
 			float           s, t;
 
 			if(i >= MAX_POINTS_ON_WINDING)
-				_printf("coords overflow\n");
+				Sys_Printf("coords overflow\n");
 			if(ds->surfaceType != MST_PATCH)
 			{
 				VectorSubtract(w.points[i], facet->mins, delta);
@@ -3255,9 +3256,9 @@ void VS_LightSurfaceWithVolume(int surfaceNum, int facetNum, vsound_t * light, l
 			x = coords[i][0];
 			y = coords[i][1];
 			if(x < ds->lightmapX || x >= LIGHTMAP_SIZE)
-				_printf("VS_LightSurfaceWithVolume: x outside lightmap\n");
+				Sys_Printf("VS_LightSurfaceWithVolume: x outside lightmap\n");
 			if(y < ds->lightmapY || y >= LIGHTMAP_SIZE)
-				_printf("VS_LightSurfaceWithVolume: y outside lightmap\n");
+				Sys_Printf("VS_LightSurfaceWithVolume: y outside lightmap\n");
 		}
 		coords[i][0] = coords[0][0];
 		coords[i][1] = coords[0][1];
@@ -3323,9 +3324,9 @@ void VS_LightSurfaceWithVolume(int surfaceNum, int facetNum, vsound_t * light, l
 				while(1)
 				{
 					if(x < ds->lightmapX || x >= LIGHTMAP_SIZE)
-						_printf("VS_LightSurfaceWithVolume: x outside lightmap\n");
+						Sys_Printf("VS_LightSurfaceWithVolume: x outside lightmap\n");
 					if(y < ds->lightmapY || y >= LIGHTMAP_SIZE)
-						_printf("VS_LightSurfaceWithVolume: y outside lightmap\n");
+						Sys_Printf("VS_LightSurfaceWithVolume: y outside lightmap\n");
 					//
 					n = y * LIGHTMAP_SIZE + x;
 					polygonedges[n >> 3] |= 1 << (n & 7);
@@ -3394,9 +3395,9 @@ void VS_LightSurfaceWithVolume(int surfaceNum, int facetNum, vsound_t * light, l
 				while(1)
 				{
 					if(x < ds->lightmapX || x >= LIGHTMAP_SIZE)
-						_printf("VS_LightSurfaceWithVolume: x outside lightmap\n");
+						Sys_Printf("VS_LightSurfaceWithVolume: x outside lightmap\n");
 					if(y < ds->lightmapY || y >= LIGHTMAP_SIZE)
-						_printf("VS_LightSurfaceWithVolume: y outside lightmap\n");
+						Sys_Printf("VS_LightSurfaceWithVolume: y outside lightmap\n");
 					//
 					n = y * LIGHTMAP_SIZE + x;
 					polygonedges[n >> 3] |= 1 << (n & 7);
@@ -3704,9 +3705,9 @@ void VS_LightSurfaceWithVolume(int surfaceNum, int facetNum, vsound_t * light, l
 				{
 					mesh = test->detailMesh;
 					if(y - ds->lightmapY >= mesh->height - 1)
-						_printf("y outside mesh\n");
+						Sys_Printf("y outside mesh\n");
 					if(x - ds->lightmapX >= mesh->width - 1)
-						_printf("x outside mesh\n");
+						Sys_Printf("x outside mesh\n");
 					VectorCopy(mesh->verts[(y - ds->lightmapY) * mesh->width + x - ds->lightmapX].xyz, w.points[0]);
 					VectorCopy(mesh->verts[(y + 1 - ds->lightmapY) * mesh->width + x - ds->lightmapX].xyz, w.points[1]);
 					VectorCopy(mesh->verts[(y + 1 - ds->lightmapY) * mesh->width + x + 1 - ds->lightmapX].xyz, w.points[2]);
@@ -3825,12 +3826,12 @@ int VS_SplitLightVolume(lightvolume_t * volume, lightvolume_t * back, plane_t * 
 
 		if(f.numplanes >= MAX_POINTS_ON_FIXED_WINDING)
 		{
-			_printf("WARNING: VS_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
+			Sys_Printf("WARNING: VS_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return 0;			// can't chop -- fall back to original
 		}
 		if(b.numplanes >= MAX_POINTS_ON_FIXED_WINDING)
 		{
-			_printf("WARNING: VS_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
+			Sys_Printf("WARNING: VS_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return 0;			// can't chop -- fall back to original
 		}
 
@@ -3880,12 +3881,12 @@ int VS_SplitLightVolume(lightvolume_t * volume, lightvolume_t * back, plane_t * 
 
 		if(f.numplanes >= MAX_POINTS_ON_FIXED_WINDING)
 		{
-			_printf("WARNING: VS_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
+			Sys_Printf("WARNING: VS_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return 0;			// can't chop -- fall back to original
 		}
 		if(b.numplanes >= MAX_POINTS_ON_FIXED_WINDING)
 		{
-			_printf("WARNING: VS_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
+			Sys_Printf("WARNING: VS_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return 0;			// can't chop -- fall back to original
 		}
 
@@ -4885,9 +4886,9 @@ void VS_TestLightLeafs(void)
 		if(leaf->cluster == -1)
 		{
 			if(light->type == LIGHT_POINTRADIAL)
-				qprintf("light in solid at %1.1f %1.1f %1.1f\n", light->origin[0], light->origin[1], light->origin[2]);
+				Sys_FPrintf(SYS_VRB, "light in solid at %1.1f %1.1f %1.1f\n", light->origin[0], light->origin[1], light->origin[2]);
 			else if(light->type == LIGHT_POINTSPOT)
-				qprintf("spot light in solid at %1.1f %1.1f %1.1f\n", light->origin[0], light->origin[1], light->origin[2]);
+				Sys_FPrintf(SYS_VRB, "spot light in solid at %1.1f %1.1f %1.1f\n", light->origin[0], light->origin[1], light->origin[2]);
 		}
 	}
 }
@@ -4941,7 +4942,7 @@ VS_DoForcedTraceLightSurfaces
 */
 void VS_DoForcedTraceLightSurfaces(void)
 {
-	_printf("forced trace light\n");
+	Sys_Printf("forced trace light\n");
 	RunThreadsOnIndividual(numDrawSurfaces, qtrue, VS_DoForcedTraceLight);
 }
 
@@ -5043,7 +5044,7 @@ void VS_Radiosity(void)
 	oldLightFloats = lightFloats;
 	lightFloats = (float *)malloc(numLightBytes * sizeof(float));
 	memcpy(lightFloats, oldLightFloats, numLightBytes * sizeof(float));
-	_printf("%7i surfaces\n", numDrawSurfaces);
+	Sys_Printf("%7i surfaces\n", numDrawSurfaces);
 	RunThreadsOnIndividual(numDrawSurfaces, qtrue, VS_SurfaceRadiosity);
 	free(oldLightFloats);
 }
@@ -5063,15 +5064,15 @@ void VS_LightWorld(void)
 	f = FloatForKey(&entities[0], "ambient");
 	VectorScale(lightAmbientColor, f, lightAmbientColor);
 	/*
-	   _printf("\r%6d lights out of %d", 0, numvsounds);
+	  Sys_Printf("\r%6d lights out of %d", 0, numvsounds);
 	   for (i = 0; i < numvsounds; i++)
 	   {
-	   _printf("\r%6d", i);
+	  Sys_Printf("\r%6d", i);
 	   VS_FloodLight(vsounds[i]);
 	   }
-	   _printf("\r%6d lights out of %d\n", i, numvsounds);
+	  Sys_Printf("\r%6d lights out of %d\n", i, numvsounds);
 	 */
-	_printf("%7i lights\n", numvsounds);
+	Sys_Printf("%7i lights\n", numvsounds);
 	RunThreadsOnIndividual(numvsounds, qtrue, VS_FloodLightThread);
 
 	numcastedvolumes = 0;
@@ -5080,14 +5081,14 @@ void VS_LightWorld(void)
 		if(lsurfaceTest[i])
 			numcastedvolumes += lsurfaceTest[i]->numvolumes;
 	}
-	_printf("%7i light volumes casted\n", numcastedvolumes);
+	Sys_Printf("%7i light volumes casted\n", numcastedvolumes);
 	numvsoundsinsolid = 0;
 	for(i = 0; i < numvsounds; i++)
 	{
 		if(vsounds[i]->insolid)
 			numvsoundsinsolid++;
 	}
-	_printf("%7i lights in solid\n", numvsoundsinsolid);
+	Sys_Printf("%7i lights in solid\n", numvsoundsinsolid);
 	//
 	radiosity_scale = 1;
 	for(i = 0; i < radiosity; i++)
@@ -5122,7 +5123,7 @@ void VS_CreateEntitySpeakers(void)
 
 	//
 	c_entityLights = 0;
-	_printf("Creating entity lights...\n");
+	Sys_Printf("Creating entity lights...\n");
 	//
 	for(i = 0; i < num_entities; i++)
 	{
@@ -5192,7 +5193,7 @@ void VS_CreateEntitySpeakers(void)
 			e2 = FindTargetEntity(target);
 			if(!e2)
 			{
-				_printf("WARNING: light at (%i %i %i) has missing target\n",
+				Sys_Printf("WARNING: light at (%i %i %i) has missing target\n",
 						(int)dl->origin[0], (int)dl->origin[1], (int)dl->origin[2]);
 			}
 			else
@@ -5216,7 +5217,7 @@ void VS_CreateEntitySpeakers(void)
 		vsounds[numvsounds++] = dl;
 		c_entityLights++;
 	}
-	_printf("%7i entity lights\n", c_entityLights);
+	Sys_Printf("%7i entity lights\n", c_entityLights);
 }
 
 /*
@@ -5337,7 +5338,7 @@ void VS_CreateFakeSurfaceLights(void)
 
 
 	c_surfaceLights = 0;
-	_printf("Creating surface lights...\n");
+	Sys_Printf("Creating surface lights...\n");
 
 	for(i = 0; i < numDrawSurfaces; i++)
 	{
@@ -5373,7 +5374,7 @@ void VS_CreateFakeSurfaceLights(void)
 				f = lsurfaceTest[i]->facets;
 				if(lsurfaceTest[i]->numFacets != 1 || f->numpoints != 4)
 				{
-					_printf("WARNING: surface at (%i %i %i) has autosprite shader but isn't a quad\n",
+					Sys_Printf("WARNING: surface at (%i %i %i) has autosprite shader but isn't a quad\n",
 							(int)f->points[0], (int)f->points[1], (int)f->points[2]);
 				}
 				VectorAdd(f->points[0], f->points[1], origin);
@@ -5387,7 +5388,7 @@ void VS_CreateFakeSurfaceLights(void)
 				dv = &drawVerts[ds->firstVert];
 				if(ds->numVerts != 4)
 				{
-					_printf("WARNING: surface at (%i %i %i) has autosprite shader but %i verts\n",
+					Sys_Printf("WARNING: surface at (%i %i %i) has autosprite shader but %i verts\n",
 							(int)dv->xyz[0], (int)dv->xyz[1], (int)dv->xyz[2]);
 					continue;
 				}
@@ -5460,7 +5461,7 @@ void VS_CreateFakeSurfaceLights(void)
 		}
 	}
 
-	_printf("%7i light emitting surfaces\n", c_surfaceLights);
+	Sys_Printf("%7i light emitting surfaces\n", c_surfaceLights);
 }
 
 
@@ -5515,7 +5516,7 @@ void VS_CreateSkyLights(void)
 	VectorInverse(sunDir);
 
 	c_skyLights = 0;
-	_printf("Creating sky lights...\n");
+	Sys_Printf("Creating sky lights...\n");
 	// find the sky shader
 	for(i = 0; i < numDrawSurfaces; i++)
 	{
@@ -5559,7 +5560,7 @@ void VS_CreateSkyLights(void)
 			}
 		}
 	}
-	_printf("%7i light emitting sky surfaces\n", c_skyLights);
+	Sys_Printf("%7i light emitting sky surfaces\n", c_skyLights);
 }
 
 /*
@@ -5666,9 +5667,9 @@ void VS_LoadPortals(char *name)
 	if(strcmp(magic, PORTALFILE))
 		Error("LoadPortals: not a portal file");
 
-	_printf("%6i portalclusters\n", portalclusters);
-	_printf("%6i numportals\n", numportals);
-	_printf("%6i numfaces\n", numfaces);
+	Sys_Printf("%6i portalclusters\n", portalclusters);
+	Sys_Printf("%6i numportals\n", numportals);
+	Sys_Printf("%6i numfaces\n", numfaces);
 
 	if(portalclusters >= MAX_CLUSTERS)
 		Error("more than %d clusters in portal file\n", MAX_CLUSTERS);
@@ -5760,7 +5761,7 @@ int VSoundMain(int argc, char **argv)
 	double          start, end;
 	const char     *value;
 
-	_printf("----- VLighting ----\n");
+	Sys_Printf("----- VLighting ----\n");
 
 	for(i = 1; i < argc; i++)
 	{
@@ -5771,19 +5772,19 @@ int VSoundMain(int argc, char **argv)
 		else if(!strcmp(argv[i], "-threads"))
 		{
 			numthreads = atoi(argv[i + 1]);
-			_printf("num threads = %d\n", numthreads);
+			Sys_Printf("num threads = %d\n", numthreads);
 			i++;
 		}
 		else if(!strcmp(argv[i], "-area"))
 		{
 			lightAreaScale *= atof(argv[i + 1]);
-			_printf("area light scaling at %f\n", lightAreaScale);
+			Sys_Printf("area light scaling at %f\n", lightAreaScale);
 			i++;
 		}
 		else if(!strcmp(argv[i], "-point"))
 		{
 			lightPointScale *= atof(argv[i + 1]);
-			_printf("point light scaling at %f\n", lightPointScale);
+			Sys_Printf("point light scaling at %f\n", lightPointScale);
 			i++;
 		}
 		else if(!strcmp(argv[i], "-samplesize"))
@@ -5792,38 +5793,42 @@ int VSoundMain(int argc, char **argv)
 			if(samplesize < 1)
 				samplesize = 1;
 			i++;
-			_printf("lightmap sample size is %dx%d units\n", samplesize, samplesize);
+			Sys_Printf("lightmap sample size is %dx%d units\n", samplesize, samplesize);
 		}
 		else if(!strcmp(argv[i], "-nostitching"))
 		{
 			nostitching = qtrue;
-			_printf("no stitching = true\n");
+			Sys_Printf("no stitching = true\n");
 		}
 		else if(!strcmp(argv[i], "-noalphashading"))
 		{
 			noalphashading = qtrue;
-			_printf("no alpha shading = true\n");
+			Sys_Printf("no alpha shading = true\n");
 		}
 		else if(!strcmp(argv[i], "-nocolorshading"))
 		{
 			nocolorshading = qtrue;
-			_printf("old style alpha shading = true\n");
+			Sys_Printf("old style alpha shading = true\n");
 		}
 		else if(!strcmp(argv[i], "-nobackfaceculling"))
 		{
 			nobackfaceculling = qtrue;
-			_printf("no backface culling = true\n");
+			Sys_Printf("no backface culling = true\n");
 		}
 		else if(!strcmp(argv[i], "-tracelight"))
 		{
 			defaulttracelight = qtrue;
-			_printf("default trace light = true\n");
+			Sys_Printf("default trace light = true\n");
 		}
 		else if(!strcmp(argv[i], "-radiosity"))
 		{
 			radiosity = atoi(argv[i + 1]);
-			_printf("radiosity = %d\n", radiosity);
+			Sys_Printf("radiosity = %d\n", radiosity);
 			i++;
+		}
+		else if(!strcmp(argv[i], "-connect"))
+		{
+			Broadcast_Setup(argv[++i]);
 		}
 		else
 		{
@@ -5835,7 +5840,7 @@ int VSoundMain(int argc, char **argv)
 
 	if(i != argc - 1)
 	{
-		_printf("usage: xmap -vsound [-<switch> [-<switch> ...]] <mapname>\n"
+		Sys_Printf("usage: xmap -vsound [-<switch> [-<switch> ...]] <mapname>\n"
 				"\n"
 				"Switches:\n"
 				"   v              = verbose output\n"
@@ -5860,7 +5865,7 @@ int VSoundMain(int argc, char **argv)
 
 	LoadShaderInfo();
 
-	_printf("reading %s\n", source);
+	Sys_Printf("reading %s\n", source);
 
 	LoadBSPFile(source);
 	ParseEntities();
@@ -5869,7 +5874,7 @@ int VSoundMain(int argc, char **argv)
 	if(strlen(value))
 	{
 		sscanf(value, "%f %f %f", &gridSize[0], &gridSize[1], &gridSize[2]);
-		_printf("grid size = {%1.1f, %1.1f, %1.1f}\n", gridSize[0], gridSize[1], gridSize[2]);
+		Sys_Printf("grid size = {%1.1f, %1.1f, %1.1f}\n", gridSize[0], gridSize[1], gridSize[2]);
 	}
 
 	CountLightmaps();
@@ -5910,13 +5915,13 @@ int VSoundMain(int argc, char **argv)
 #ifndef LIGHTPOLYS
 	StripExtension(source);
 	DefaultExtension(source, ".bsp");
-	_printf("writing %s\n", source);
+	Sys_Printf("writing %s\n", source);
 	WriteBSPFile(source);
 #endif
 
 	end = clock();
 
-	_printf("%5.2f seconds elapsed\n", (end - start) / CLOCKS_PER_SEC);
+	Sys_Printf("%5.2f seconds elapsed\n", (end - start) / CLOCKS_PER_SEC);
 
 #ifdef LIGHTPOLYS
 	VS_DrawLightWindings();

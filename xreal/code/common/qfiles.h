@@ -349,7 +349,7 @@ typedef struct
 #define	MAX_MAP_FOGS		0x100
 #define	MAX_MAP_PLANES		0x20000
 #define	MAX_MAP_NODES		0x20000
-#define	MAX_MAP_BRUSHSIDES	0x20000
+#define	MAX_MAP_BRUSHSIDES	0x40000	//% 0x20000 /* ydnar */
 #define	MAX_MAP_LEAFS		0x20000
 #define	MAX_MAP_LEAFFACES	0x20000
 #define	MAX_MAP_LEAFBRUSHES 0x40000
@@ -374,9 +374,9 @@ typedef struct
 #define	LIGHTMAP_WIDTH		128
 #define	LIGHTMAP_HEIGHT		128
 
-#define MAX_WORLD_COORD		( 128*1024 )
-#define MIN_WORLD_COORD		( -128*1024 )
-#define WORLD_SIZE			( MAX_WORLD_COORD - MIN_WORLD_COORD )
+#define MIN_WORLD_COORD		(-65536)
+#define	MAX_WORLD_COORD		(65536)
+#define WORLD_SIZE			(MAX_WORLD_COORD - MIN_WORLD_COORD)
 
 //=============================================================================
 

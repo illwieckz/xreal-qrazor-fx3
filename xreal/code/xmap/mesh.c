@@ -78,10 +78,10 @@ void PrintMesh(mesh_t * m)
 	{
 		for(j = 0; j < m->width; j++)
 		{
-			_printf("(%5.2f %5.2f %5.2f) ", m->verts[i * m->width + j].xyz[0], m->verts[i * m->width + j].xyz[1],
+			Sys_Printf("(%5.2f %5.2f %5.2f) ", m->verts[i * m->width + j].xyz[0], m->verts[i * m->width + j].xyz[1],
 					m->verts[i * m->width + j].xyz[2]);
 		}
-		_printf("\n");
+		Sys_Printf("\n");
 	}
 }
 
@@ -275,7 +275,7 @@ void MakeMeshNormals(mesh_t in)
 			}
 			if(count == 0)
 			{
-//_printf("bad normal\n");
+//Sys_Printf("bad normal\n");
 				count = 1;
 			}
 			VectorNormalize(sum, dv->normal);

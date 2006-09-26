@@ -68,14 +68,14 @@ void CheckStack(leaf_t * leaf, threaddata_t * thread)
 
 	for(p = thread->pstack_head.next; p; p = p->next)
 	{
-//      _printf ("=");
+//     Sys_Printf ("=");
 		if(p->leaf == leaf)
 			Error("CheckStack: leaf recursion");
 		for(p2 = thread->pstack_head.next; p2 != p; p2 = p2->next)
 			if(p2->leaf == p->leaf)
 				Error("CheckStack: late leaf recursion");
 	}
-//  _printf ("\n");
+// Sys_Printf ("\n");
 }
 
 
@@ -627,7 +627,7 @@ void PortalFlow(int portalnum)
 	int             c_might, c_can;
 
 #ifdef MREDEBUG
-	_printf("\r%6d", portalnum);
+	Sys_Printf("\r%6d", portalnum);
 #endif
 
 	p = sorted_portals[portalnum];
@@ -658,7 +658,7 @@ void PortalFlow(int portalnum)
 
 	c_can = CountBits(p->portalvis, numportals * 2);
 
-	qprintf("portal:%4i  mightsee:%4i  cansee:%4i (%i chains)\n", (int)(p - portals), c_might, c_can, data.c_chains);
+	Sys_FPrintf(SYS_VRB, "portal:%4i  mightsee:%4i  cansee:%4i (%i chains)\n", (int)(p - portals), c_might, c_can, data.c_chains);
 }
 
 /*
@@ -757,7 +757,7 @@ void PassageFlow(int portalnum)
 //  int             c_might, c_can;
 
 #ifdef MREDEBUG
-	_printf("\r%6d", portalnum);
+	Sys_Printf("\r%6d", portalnum);
 #endif
 
 	p = sorted_portals[portalnum];
@@ -1021,7 +1021,7 @@ void PassagePortalFlow(int portalnum)
 //  int             c_might, c_can;
 
 #ifdef MREDEBUG
-	_printf("\r%6d", portalnum);
+	Sys_Printf("\r%6d", portalnum);
 #endif
 
 	p = sorted_portals[portalnum];
@@ -1312,7 +1312,7 @@ void CreatePassages(int portalnum)
 	winding_t       in, out, *res;
 
 #ifdef MREDEBUG
-	_printf("\r%6d", portalnum);
+	Sys_Printf("\r%6d", portalnum);
 #endif
 
 	portal = sorted_portals[portalnum];
@@ -1417,8 +1417,8 @@ void PassageMemory(void)
 			totalportals++;
 		}
 	}
-	_printf("%7i average number of passages per leaf\n", totalportals / numportals);
-	_printf("%7i MB required passage memory\n", totalmem >> 10 >> 10);
+	Sys_Printf("%7i average number of passages per leaf\n", totalportals / numportals);
+	Sys_Printf("%7i MB required passage memory\n", totalmem >> 10 >> 10);
 }
 
 /*
@@ -1566,7 +1566,7 @@ void BasePortalVis(int portalnum)
 	SimpleFlood(p, p->leaf);
 
 	p->nummightsee = CountBits(p->portalflood, numportals * 2);
-//  _printf ("portal %i: %i mightsee\n", portalnum, p->nummightsee);
+// Sys_Printf ("portal %i: %i mightsee\n", portalnum, p->nummightsee);
 	c_flood += p->nummightsee;
 }
 

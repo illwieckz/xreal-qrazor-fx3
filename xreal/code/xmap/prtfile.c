@@ -239,14 +239,14 @@ void NumberClusters(tree_t * tree)
 	num_visportals = 0;
 	num_solidfaces = 0;
 
-	qprintf("--- NumberClusters ---\n");
+	Sys_FPrintf(SYS_VRB, "--- NumberClusters ---\n");
 
 	// set the cluster field in every leaf and count the total number of portals
 	NumberLeafs_r(tree->headnode);
 
-	qprintf("%5i visclusters\n", num_visclusters);
-	qprintf("%5i visportals\n", num_visportals);
-	qprintf("%5i solidfaces\n", num_solidfaces);
+	Sys_FPrintf(SYS_VRB, "%5i visclusters\n", num_visclusters);
+	Sys_FPrintf(SYS_VRB, "%5i visportals\n", num_visportals);
+	Sys_FPrintf(SYS_VRB, "%5i solidfaces\n", num_solidfaces);
 }
 
 /*
@@ -258,11 +258,11 @@ void WritePortalFile(tree_t * tree)
 {
 	char            filename[1024];
 
-	qprintf("--- WritePortalFile ---\n");
+	Sys_FPrintf(SYS_VRB, "--- WritePortalFile ---\n");
 
 	// write the file
 	sprintf(filename, "%s.prt", source);
-	_printf("writing %s\n", filename);
+	Sys_Printf("writing %s\n", filename);
 	pf = fopen(filename, "w");
 	if(!pf)
 		Error("Error opening %s", filename);

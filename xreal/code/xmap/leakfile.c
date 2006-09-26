@@ -53,7 +53,7 @@ void LeakFile(tree_t * tree)
 	if(!tree->outside_node.occupied)
 		return;
 
-	qprintf("--- LeakFile ---\n");
+	Sys_FPrintf(SYS_VRB, "--- LeakFile ---\n");
 
 	//
 	// write the points to the file
@@ -93,7 +93,7 @@ void LeakFile(tree_t * tree)
 	GetVectorForKey(node->occupant, "origin", mid);
 
 	fprintf(linefile, "%f %f %f\n", mid[0], mid[1], mid[2]);
-	qprintf("%5i point linefile\n", count + 1);
+	Sys_FPrintf(SYS_VRB, "%5i point linefile\n", count + 1);
 
 	fclose(linefile);
 }

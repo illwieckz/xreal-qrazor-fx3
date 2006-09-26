@@ -161,7 +161,7 @@ void PrintPortal(portal_t * p)
 
 	w = p->winding;
 	for(i = 0; i < w->numpoints; i++)
-		_printf("(%5.0f,%5.0f,%5.0f)\n", w->p[i][0], w->p[i][1], w->p[i][2]);
+		Sys_Printf("(%5.0f,%5.0f,%5.0f)\n", w->p[i][0], w->p[i][1], w->p[i][2]);
 }
 
 /*
@@ -487,9 +487,9 @@ void MakeTreePortals_r(node_t * node)
 	CalcNodeBounds(node);
 	if(node->mins[0] >= node->maxs[0])
 	{
-		_printf("WARNING: node without a volume\n");
-		_printf("node has %d tiny portals\n", node->tinyportals);
-		_printf("node reference point %1.2f %1.2f %1.2f\n", node->referencepoint[0],
+		Sys_Printf("WARNING: node without a volume\n");
+		Sys_Printf("node has %d tiny portals\n", node->tinyportals);
+		Sys_Printf("node reference point %1.2f %1.2f %1.2f\n", node->referencepoint[0],
 				node->referencepoint[1], node->referencepoint[2]);
 	}
 
@@ -497,7 +497,7 @@ void MakeTreePortals_r(node_t * node)
 	{
 		if(node->mins[i] < MIN_WORLD_COORD || node->maxs[i] > MAX_WORLD_COORD)
 		{
-			_printf("WARNING: node with unbounded volume\n");
+			Sys_Printf("WARNING: node with unbounded volume\n");
 			break;
 		}
 	}
@@ -518,10 +518,10 @@ MakeTreePortals
 */
 void MakeTreePortals(tree_t * tree)
 {
-	qprintf("----- MakeTreePortals -----\n");
+	Sys_FPrintf(SYS_VRB, "----- MakeTreePortals -----\n");
 	MakeHeadnodePortals(tree);
 	MakeTreePortals_r(tree->headnode);
-	qprintf("%6d tiny portals\n", c_tinyportals);
+	Sys_FPrintf(SYS_VRB, "%6d tiny portals\n", c_tinyportals);
 }
 
 /*
@@ -612,7 +612,7 @@ qboolean FloodEntities(tree_t * tree)
 	node_t         *headnode;
 
 	headnode = tree->headnode;
-	qprintf("--- FloodEntities ---\n");
+	Sys_FPrintf(SYS_VRB, "--- FloodEntities ---\n");
 	inside = qfalse;
 	tree->outside_node.occupied = 0;
 
@@ -635,15 +635,15 @@ qboolean FloodEntities(tree_t * tree)
 			inside = qtrue;
 	}
 
-	qprintf("%5i flooded leafs\n", c_floodedleafs);
+	Sys_FPrintf(SYS_VRB, "%5i flooded leafs\n", c_floodedleafs);
 
 	if(!inside)
 	{
-		qprintf("no entities in open -- no filling\n");
+		Sys_FPrintf(SYS_VRB, "no entities in open -- no filling\n");
 	}
 	else if(tree->outside_node.occupied)
 	{
-		qprintf("entity reached from outside -- no filling\n");
+		Sys_FPrintf(SYS_VRB, "entity reached from outside -- no filling\n");
 	}
 
 	return (qboolean) (inside && !tree->outside_node.occupied);
@@ -688,7 +688,7 @@ void FloodAreas_r(node_t * node)
 		// note the current area as bounding the portal
 		if(b->portalareas[1] != -1)
 		{
-			_printf("WARNING: areaportal brush %i touches > 2 areas\n", b->brushnum);
+			Sys_Printf("WARNING: areaportal brush %i touches > 2 areas\n", b->brushnum);
 			return;
 		}
 		if(b->portalareas[0] != -1)
@@ -777,14 +777,14 @@ void CheckAreas_r(node_t * node)
 
 	if(node->cluster != -1)
 		if(node->area == -1)
-			_printf("WARNING: cluster %d has area set to -1\n", node->cluster);
+			Sys_Printf("WARNING: cluster %d has area set to -1\n", node->cluster);
 	if(node->areaportal)
 	{
 		b = node->brushlist->original;
 
 		// check if the areaportal touches two areas
 		if(b->portalareas[0] == -1 || b->portalareas[1] == -1)
-			_printf("WARNING: areaportal brush %i doesn't touch two areas\n", b->brushnum);
+			Sys_Printf("WARNING: areaportal brush %i doesn't touch two areas\n", b->brushnum);
 	}
 }
 
@@ -797,13 +797,13 @@ Mark each leaf with an area, bounded by CONTENTS_AREAPORTAL
 */
 void FloodAreas(tree_t * tree)
 {
-	qprintf("--- FloodAreas ---\n");
+	Sys_FPrintf(SYS_VRB, "--- FloodAreas ---\n");
 	FindAreas_r(tree->headnode);
 
 	// check for areaportal brushes that don't touch two areas
 	CheckAreas_r(tree->headnode);
 
-	qprintf("%5i areas\n", c_areas);
+	Sys_FPrintf(SYS_VRB, "%5i areas\n", c_areas);
 }
 
 //======================================================
@@ -854,11 +854,11 @@ void FillOutside(node_t * headnode)
 	c_outside = 0;
 	c_inside = 0;
 	c_solid = 0;
-	qprintf("--- FillOutside ---\n");
+	Sys_FPrintf(SYS_VRB, "--- FillOutside ---\n");
 	FillOutside_r(headnode);
-	qprintf("%5i solid leafs\n", c_solid);
-	qprintf("%5i leafs filled\n", c_outside);
-	qprintf("%5i inside leafs\n", c_inside);
+	Sys_FPrintf(SYS_VRB, "%5i solid leafs\n", c_solid);
+	Sys_FPrintf(SYS_VRB, "%5i leafs filled\n", c_outside);
+	Sys_FPrintf(SYS_VRB, "%5i inside leafs\n", c_inside);
 }
 
 

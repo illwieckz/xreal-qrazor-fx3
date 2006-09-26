@@ -64,7 +64,7 @@ mutex_t        *MutexAlloc(void)
 
 	if(numthreads == 1)
 		return NULL;
-	crit = (CRITICAL_SECTION *) malloc(sizeof(CRITICAL_SECTION));
+	crit = (CRITICAL_SECTION *) safe_malloc(sizeof(CRITICAL_SECTION));
 	InitializeCriticalSection(crit);
 	return (void *)crit;
 }
@@ -111,7 +111,7 @@ mutex_t        *MutexAlloc(void)
 
 	if(numthreads == 1)
 		return NULL;
-	my_mutex = malloc(sizeof(*my_mutex));
+	my_mutex = safe_malloc(sizeof(*my_mutex));
 	if(pthread_mutexattr_create(&mattrib) == -1)
 		Error("pthread_mutex_attr_create failed");
 	if(pthread_mutexattr_setkind_np(&mattrib, MUTEX_FAST_NP) == -1)
@@ -165,7 +165,7 @@ mutex_t        *MutexAlloc(void)
 
 	if(numthreads == 1)
 		return NULL;
-	lck = (abilock_t *) malloc(sizeof(abilock_t));
+	lck = (abilock_t *) safe_malloc(sizeof(abilock_t));
 	init_lock(lck);
 	return (void *)lck;
 }

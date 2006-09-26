@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cmdlib.h"
 #include "mathlib.h"
+#include "inout.h"
 #include "bspfile.h"
 #include "scriplib.h"
 
@@ -190,6 +191,9 @@ int CopyLump(dheader_t * header, int lump, void *dest, int size)
 	length = header->lumps[lump].filelen;
 	ofs = header->lumps[lump].fileofs;
 
+	if(length == 0)
+		return 0;
+
 	if(length % size)
 	{
 		Error("LoadBSPFile: odd lump size");
@@ -332,26 +336,26 @@ void PrintBSPFileSizes(void)
 		ParseEntities();
 	}
 
-	printf("%6i models       %7i\n", nummodels, (int)(nummodels * sizeof(dmodel_t)));
-	printf("%6i shaders      %7i\n", numShaders, (int)(numShaders * sizeof(dshader_t)));
-	printf("%6i brushes      %7i\n", numbrushes, (int)(numbrushes * sizeof(dbrush_t)));
-	printf("%6i brushsides   %7i\n", numbrushsides, (int)(numbrushsides * sizeof(dbrushside_t)));
-	printf("%6i fogs         %7i\n", numFogs, (int)(numFogs * sizeof(dfog_t)));
-	printf("%6i planes       %7i\n", numplanes, (int)(numplanes * sizeof(dplane_t)));
-	printf("%6i entdata      %7i\n", num_entities, entdatasize);
+	Sys_Printf("%6i models       %7i\n", nummodels, (int)(nummodels * sizeof(dmodel_t)));
+	Sys_Printf("%6i shaders      %7i\n", numShaders, (int)(numShaders * sizeof(dshader_t)));
+	Sys_Printf("%6i brushes      %7i\n", numbrushes, (int)(numbrushes * sizeof(dbrush_t)));
+	Sys_Printf("%6i brushsides   %7i\n", numbrushsides, (int)(numbrushsides * sizeof(dbrushside_t)));
+	Sys_Printf("%6i fogs         %7i\n", numFogs, (int)(numFogs * sizeof(dfog_t)));
+	Sys_Printf("%6i planes       %7i\n", numplanes, (int)(numplanes * sizeof(dplane_t)));
+	Sys_Printf("%6i entdata      %7i\n", num_entities, entdatasize);
 
-	printf("\n");
+	Sys_Printf("\n");
 
-	printf("%6i nodes        %7i\n", numnodes, (int)(numnodes * sizeof(dnode_t)));
-	printf("%6i leafs        %7i\n", numleafs, (int)(numleafs * sizeof(dleaf_t)));
-	printf("%6i leafsurfaces %7i\n", numleafsurfaces, (int)(numleafsurfaces * sizeof(dleafsurfaces[0])));
-	printf("%6i leafbrushes  %7i\n", numleafbrushes, (int)(numleafbrushes * sizeof(dleafbrushes[0])));
-	printf("%6i drawverts    %7i\n", numDrawVerts, (int)(numDrawVerts * sizeof(drawVerts[0])));
-	printf("%6i drawindexes  %7i\n", numDrawIndexes, (int)(numDrawIndexes * sizeof(drawIndexes[0])));
-	printf("%6i drawsurfaces %7i\n", numDrawSurfaces, (int)(numDrawSurfaces * sizeof(drawSurfaces[0])));
+	Sys_Printf("%6i nodes        %7i\n", numnodes, (int)(numnodes * sizeof(dnode_t)));
+	Sys_Printf("%6i leafs        %7i\n", numleafs, (int)(numleafs * sizeof(dleaf_t)));
+	Sys_Printf("%6i leafsurfaces %7i\n", numleafsurfaces, (int)(numleafsurfaces * sizeof(dleafsurfaces[0])));
+	Sys_Printf("%6i leafbrushes  %7i\n", numleafbrushes, (int)(numleafbrushes * sizeof(dleafbrushes[0])));
+	Sys_Printf("%6i drawverts    %7i\n", numDrawVerts, (int)(numDrawVerts * sizeof(drawVerts[0])));
+	Sys_Printf("%6i drawindexes  %7i\n", numDrawIndexes, (int)(numDrawIndexes * sizeof(drawIndexes[0])));
+	Sys_Printf("%6i drawsurfaces %7i\n", numDrawSurfaces, (int)(numDrawSurfaces * sizeof(drawSurfaces[0])));
 
-	printf("%6i lightmaps    %7i\n", numLightBytes / (LIGHTMAP_WIDTH * LIGHTMAP_HEIGHT * 3), numLightBytes);
-	printf("       visibility   %7i\n", numVisBytes);
+	Sys_Printf("%6i lightmaps    %7i\n", numLightBytes / (LIGHTMAP_WIDTH * LIGHTMAP_HEIGHT * 3), numLightBytes);
+	Sys_Printf("       visibility   %7i\n", numVisBytes);
 }
 
 
@@ -381,7 +385,7 @@ epair_t        *ParseEpair(void)
 {
 	epair_t        *e;
 
-	e = malloc(sizeof(epair_t));
+	e = safe_malloc(sizeof(epair_t));
 	memset(e, 0, sizeof(epair_t));
 
 	if(strlen(token) >= MAX_KEY - 1)
@@ -389,7 +393,6 @@ epair_t        *ParseEpair(void)
 		Error("ParseEpar: token too long");
 	}
 	e->key = copystring(token);
-	
 	GetToken(qfalse);
 	if(strlen(token) >= MAX_VALUE - 1)
 	{
@@ -526,10 +529,10 @@ void PrintEntity(const entity_t * ent)
 {
 	epair_t        *ep;
 
-	printf("------- entity %p -------\n", ent);
+	Sys_Printf("------- entity %p -------\n", ent);
 	for(ep = ent->epairs; ep; ep = ep->next)
 	{
-		printf("%s = %s\n", ep->key, ep->value);
+		Sys_Printf("%s = %s\n", ep->key, ep->value);
 	}
 
 }
@@ -547,7 +550,7 @@ void SetKeyValue(entity_t * ent, const char *key, const char *value)
 			return;
 		}
 	}
-	ep = malloc(sizeof(*ep));
+	ep = safe_malloc(sizeof(*ep));
 	ep->next = ent->epairs;
 	ent->epairs = ep;
 	ep->key = copystring(key);

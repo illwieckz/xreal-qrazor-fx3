@@ -553,7 +553,7 @@ void FixTJunctions(entity_t * ent)
 	int             axialEdgeLines;
 	originalEdge_t *e;
 
-	qprintf("----- FixTJunctions -----\n");
+	Sys_FPrintf(SYS_VRB, "----- FixTJunctions -----\n");
 
 	numEdgeLines = 0;
 	numOriginalEdges = 0;
@@ -592,9 +592,9 @@ void FixTJunctions(entity_t * ent)
 		e->dv[0]->lightmap[0] = AddEdge(e->dv[0]->xyz, e->dv[1]->xyz, qtrue);
 	}
 
-	qprintf("%6i axial edge lines\n", axialEdgeLines);
-	qprintf("%6i non-axial edge lines\n", numEdgeLines - axialEdgeLines);
-	qprintf("%6i degenerate edges\n", c_degenerateEdges);
+	Sys_FPrintf(SYS_VRB, "%6i axial edge lines\n", axialEdgeLines);
+	Sys_FPrintf(SYS_VRB, "%6i non-axial edge lines\n", numEdgeLines - axialEdgeLines);
+	Sys_FPrintf(SYS_VRB, "%6i degenerate edges\n", c_degenerateEdges);
 
 	// insert any needed vertexes
 	for(i = ent->firstDrawSurf; i < numMapDrawSurfs; i++)
@@ -612,9 +612,9 @@ void FixTJunctions(entity_t * ent)
 		FixSurfaceJunctions(ds);
 	}
 
-	qprintf("%6i verts added for tjunctions\n", c_addedVerts);
-	qprintf("%6i total verts\n", c_totalVerts);
-	qprintf("%6i naturally ordered\n", c_natural);
-	qprintf("%6i rotated orders\n", c_rotate);
-	qprintf("%6i can't order\n", c_cant);
+	Sys_FPrintf(SYS_VRB, "%6i verts added for tjunctions\n", c_addedVerts);
+	Sys_FPrintf(SYS_VRB, "%6i total verts\n", c_totalVerts);
+	Sys_FPrintf(SYS_VRB, "%6i naturally ordered\n", c_natural);
+	Sys_FPrintf(SYS_VRB, "%6i rotated orders\n", c_rotate);
+	Sys_FPrintf(SYS_VRB, "%6i can't order\n", c_cant);
 }

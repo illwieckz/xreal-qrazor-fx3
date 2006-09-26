@@ -99,13 +99,13 @@ void ProcessWorldModel(void)
 	}
 	else
 	{
-		_printf("**********************\n");
-		_printf("******* leaked *******\n");
-		_printf("**********************\n");
+		Sys_Printf("**********************\n");
+		Sys_Printf("******* leaked *******\n");
+		Sys_Printf("**********************\n");
 		LeakFile(tree);
 		if(leaktest)
 		{
-			_printf("--- MAP LEAKED, ABORTING LEAKTEST ---\n");
+			Sys_Printf("--- MAP LEAKED, ABORTING LEAKTEST ---\n");
 			exit(0);
 		}
 		leaked = qtrue;
@@ -263,7 +263,7 @@ void ProcessModels(void)
 		
 		if(entity->brushes || entity->patches || (!entity->brushes && !entity->patches && model[0] != '\0' && Q_stricmp("misc_model", classname)))
 		{
-			qprintf("############### model %i ###############\n", nummodels);
+			Sys_FPrintf(SYS_VRB, "############### model %i ###############\n", nummodels);
 			if(entity_num == 0)
 				ProcessWorldModel();
 			else
@@ -286,13 +286,13 @@ void Bspinfo(int count, char **fileNames)
 
 	if(count < 1)
 	{
-		_printf("No files to dump info for.\n");
+		Sys_Printf("No files to dump info for.\n");
 		return;
 	}
 
 	for(i = 0; i < count; i++)
 	{
-		_printf("---------------------\n");
+		Sys_Printf("---------------------\n");
 		strcpy(source, fileNames[i]);
 		DefaultExtension(source, ".bsp");
 		f = fopen(source, "rb");
@@ -303,11 +303,11 @@ void Bspinfo(int count, char **fileNames)
 		}
 		else
 			size = 0;
-		_printf("%s: %i\n", source, size);
+		Sys_Printf("%s: %i\n", source, size);
 
 		LoadBSPFile(source);
 		PrintBSPFileSizes();
-		_printf("---------------------\n");
+		Sys_Printf("---------------------\n");
 	}
 }
 
@@ -377,7 +377,7 @@ int main(int argc, char **argv)
 	double          start, end;
 	char            path[1024];
 
-	_printf("xmap v1.0s (c) 1999-2006 Id Software, Inc. and XreaL contributors\n");
+	Sys_Printf("xmap v1.0s (c) 1999-2006 Id Software, Inc. and XreaL contributors\n");
 
 	if(argc < 2)
 	{
@@ -413,7 +413,7 @@ int main(int argc, char **argv)
 
 	// do a bsp if nothing else was specified
 
-	_printf("---- xmap ----\n");
+	Sys_Printf("---- xmap ----\n");
 
 	tempsource[0] = '\0';
 
@@ -434,94 +434,94 @@ int main(int argc, char **argv)
 		}
 		else if(!strcmp(argv[i], "-v"))
 		{
-			_printf("verbose = true\n");
+			Sys_Printf("verbose = true\n");
 			verbose = qtrue;
 		}
 		else if(!strcmp(argv[i], "-draw"))
 		{
-			_printf("drawflag = true\n");
+			Sys_Printf("drawflag = true\n");
 			drawflag = qtrue;
 		}
 		else if(!strcmp(argv[i], "-nowater"))
 		{
-			_printf("nowater = true\n");
+			Sys_Printf("nowater = true\n");
 			nowater = qtrue;
 		}
 		else if(!strcmp(argv[i], "-noopt"))
 		{
-			_printf("noopt = true\n");
+			Sys_Printf("noopt = true\n");
 			noopt = qtrue;
 		}
 		else if(!strcmp(argv[i], "-nofill"))
 		{
-			_printf("nofill = true\n");
+			Sys_Printf("nofill = true\n");
 			nofill = qtrue;
 		}
 		else if(!strcmp(argv[i], "-nodetail"))
 		{
-			_printf("nodetail = true\n");
+			Sys_Printf("nodetail = true\n");
 			nodetail = qtrue;
 		}
 		else if(!strcmp(argv[i], "-fulldetail"))
 		{
-			_printf("fulldetail = true\n");
+			Sys_Printf("fulldetail = true\n");
 			fulldetail = qtrue;
 		}
 		else if(!strcmp(argv[i], "-onlyents"))
 		{
-			_printf("onlyents = true\n");
+			Sys_Printf("onlyents = true\n");
 			onlyents = qtrue;
 		}
 		else if(!strcmp(argv[i], "-onlytextures"))
 		{
-			_printf("onlytextures = true\n");	// FIXME: make work again!
+			Sys_Printf("onlytextures = true\n");	// FIXME: make work again!
 			onlytextures = qtrue;
 		}
 		else if(!strcmp(argv[i], "-micro"))
 		{
 			microvolume = atof(argv[i + 1]);
-			_printf("microvolume = %f\n", microvolume);
+			Sys_Printf("microvolume = %f\n", microvolume);
 			i++;
 		}
 		else if(!strcmp(argv[i], "-nofog"))
 		{
-			_printf("nofog = true\n");
+			Sys_Printf("nofog = true\n");
 			nofog = qtrue;
 		}
 		else if(!strcmp(argv[i], "-nosubdivide"))
 		{
-			_printf("nosubdivide = true\n");
+			Sys_Printf("nosubdivide = true\n");
 			nosubdivide = qtrue;
 		}
 		else if(!strcmp(argv[i], "-leaktest"))
 		{
-			_printf("leaktest = true\n");
+			Sys_Printf("leaktest = true\n");
 			leaktest = qtrue;
 		}
 		else if(!strcmp(argv[i], "-verboseentities"))
 		{
-			_printf("verboseentities = true\n");
+			Sys_Printf("verboseentities = true\n");
 			verboseentities = qtrue;
 		}
 		else if(!strcmp(argv[i], "-nocurves"))
 		{
 			noCurveBrushes = qtrue;
-			_printf("no curve brushes\n");
+			Sys_Printf("no curve brushes\n");
 		}
 		else if(!strcmp(argv[i], "-notjunc"))
 		{
 			notjunc = qtrue;
-			_printf("no tjunction fixing\n");
+			Sys_Printf("no tjunction fixing\n");
 		}
 		else if(!strcmp(argv[i], "-expand"))
 		{
 			testExpand = qtrue;
-			_printf("Writing expanded.map.\n");
+			Sys_Printf("Writing expanded.map.\n");
 		}
 		else if(!strcmp(argv[i], "-showseams"))
 		{
 			showseams = qtrue;
-			_printf("Showing seams on terrain.\n");
+			Sys_Printf("Showing seams on terrain.\n");
 		}
 		else if(!strcmp(argv[i], "-tmpout"))
 		{
@@ -530,7 +530,7 @@ int main(int argc, char **argv)
 		else if(!strcmp(argv[i], "-fakemap"))
 		{
 			fakemap = qtrue;
-			_printf("will generate fakemap.map\n");
+			Sys_Printf("will generate fakemap.map\n");
 		}
 		else if(!strcmp(argv[i], "-samplesize"))
 		{
@@ -538,7 +538,11 @@ int main(int argc, char **argv)
 			if(samplesize < 1)
 				samplesize = 1;
 			i++;
-			_printf("lightmap sample size is %dx%d units\n", samplesize, samplesize);
+			Sys_Printf("lightmap sample size is %dx%d units\n", samplesize, samplesize);
+		}
+		else if(!strcmp(argv[i], "-connect"))
+		{
+			Broadcast_Setup(argv[++i]);
 		}
 		else if(argv[i][0] == '-')
 			Error("Unknown option \"%s\"", argv[i]);
@@ -614,13 +618,16 @@ int main(int argc, char **argv)
 	EndBSPFile();
 
 	end = I_FloatTime();
-	_printf("%5.0f seconds elapsed\n", end - start);
+	Sys_Printf("%5.0f seconds elapsed\n", end - start);
 
 	// remove temp name if appropriate
 	if(strlen(tempsource) > 0)
 	{
 		remove(tempsource);
 	}
+	
+	// shut down connection
+	Broadcast_Shutdown();
 
 	return 0;
 }

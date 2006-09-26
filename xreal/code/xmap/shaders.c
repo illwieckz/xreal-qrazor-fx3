@@ -24,11 +24,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <string.h>
 #include <math.h>
 #include "../common/cmdlib.h"
+#include "../common/inout.h"
 #include "../common/mathlib.h"
 #include "../common/imagelib.h"
 #include "../common/scriplib.h"
-#include "../qcommon/qfiles.h"
-#include "../game/surfaceflags.h"
+#include "../common/qfiles.h"
+#include "../common/surfaceflags.h"
 
 #include "shaders.h"
 
@@ -181,6 +182,7 @@ static void LoadShaderImage(shaderInfo_t * si)
 	byte           *buffer;
 	qboolean        bTGA = qtrue;
 
+#if 0
 	// look for the lightimage if it is specified
 	if(si->lightimage[0])
 	{
@@ -222,7 +224,8 @@ static void LoadShaderImage(shaderInfo_t * si)
 	}
 
 	// couldn't load anything
-	_printf("WARNING: Couldn't find image for shader %s\n", si->shader);
+	Sys_Printf("WARNING: Couldn't find image for shader %s\n", si->shader);
+#endif
 
 	si->color[0] = 1;
 	si->color[1] = 1;
@@ -313,7 +316,7 @@ shaderInfo_t   *ShaderInfoForShader(const char *shaderName)
 	strcpy(shader, shaderName);
 	StripExtension(shader);
 	
-//	qprintf("looking for shader '%s' ...\n", shaderName);
+//	Sys_FPrintf(SYS_VRB, "looking for shader '%s' ...\n", shaderName);
 
 	// search for it
 	for(i = 0; i < numShaderInfo; i++)
@@ -348,8 +351,8 @@ static void ParseShaderFile(const char *filename)
 	int             numInfoParms = sizeof(infoParms) / sizeof(infoParms[0]);
 	shaderInfo_t   *si;
 
-//  qprintf( "shaderFile: %s\n", filename );
-	LoadScriptFile(filename);
+//  Sys_FPrintf(SYS_VRB,  "shaderFile: %s\n", filename );
+	LoadScriptFile(filename, -1);
 	while(1)
 	{
 		if(!GetToken(qtrue))
@@ -372,7 +375,7 @@ static void ParseShaderFile(const char *filename)
 			// parse shader name
 			GetToken(qtrue);
 
-			qprintf("shader '%s' is guided\n", token);
+			Sys_FPrintf(SYS_VRB, "shader '%s' is guided\n", token);
 			
 			//si = AllocShaderInfo();
 			//strcpy(si->shader, token);
@@ -716,7 +719,7 @@ static void ParseShaderFile(const char *filename)
 					// which are QuakeEdRadient parameters
 					if(Q_strncasecmp(token, "qer", 3))
 					{
-						_printf("Unknown surfaceparm: \"%s\"\n", token);
+						Sys_Printf("Unknown surfaceparm: \"%s\"\n", token);
 					}
 				}
 				continue;
@@ -753,7 +756,7 @@ static void ParseShaderFile(const char *filename)
 #ifdef USE_MTR
 		if(!si->hasPasses)
 		{
-			qprintf("shader '%s' has no passes\n", si->shader);
+			Sys_FPrintf(SYS_VRB, "shader '%s' has no passes\n", si->shader);
 			si->surfaceFlags |= SURF_NOMARKS;
 			si->surfaceFlags |= SURF_NODRAW;
 			si->surfaceFlags |= SURF_NOLIGHTMAP;
@@ -786,7 +789,7 @@ void LoadShaderInfo(void)
 #else
 	sprintf(filename, "%sscripts/shaderlist.txt", gamedir);
 #endif
-	LoadScriptFile(filename);
+	LoadScriptFile(filename, -1);
 
 	numShaderFiles = 0;
 	while(1)
@@ -811,5 +814,5 @@ void LoadShaderInfo(void)
 		free(shaderFiles[i]);
 	}
 
-	qprintf("%5i shaderInfo\n", numShaderInfo);
+	Sys_FPrintf(SYS_VRB, "%5i shaderInfo\n", numShaderInfo);
 }

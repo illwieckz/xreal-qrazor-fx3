@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // cmdlib.c
 
 #include "cmdlib.h"
+#include "mathlib.h"
+#include "inout.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -31,12 +33,40 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <windows.h>
 #endif
 
+#if defined(__linux__) || defined(__APPLE__)
+#include <unistd.h>
+#endif
+
 #ifdef NeXT
 #include <libc.h>
 #endif
 
 #define	BASEDIRNAME	"xreal"		// assumed to have a 2 or 3 following
 #define PATHSEPERATOR   '/'
+
+#ifdef SAFE_MALLOC
+void           *safe_malloc(size_t size)
+{
+	void           *p;
+
+	p = malloc(size);
+	if(!p)
+		Error("safe_malloc failed on allocation of %i bytes", size);
+
+	return p;
+}
+
+void           *safe_malloc_info(size_t size, char *info)
+{
+	void           *p;
+
+	p = malloc(size);
+	if(!p)
+		Error("%s: safe_malloc failed on allocation of %i bytes", info, size);
+
+	return p;
+}
+#endif
 
 // set these before calling CheckParm
 int             myargc;
@@ -105,111 +135,6 @@ void ExpandWildcards(int *argc, char ***argv)
 }
 #endif
 
-#ifdef WIN_ERROR
-#include <windows.h>
-/*
-=================
-Error
-
-For abnormal program terminations in windowed apps
-=================
-*/
-void Error(const char *error, ...)
-{
-	va_list         argptr;
-	char            text[1024];
-	char            text2[1024];
-	int             err;
-
-	err = GetLastError();
-
-	va_start(argptr, error);
-	vsprintf(text, error, argptr);
-	va_end(argptr);
-
-	sprintf(text2, "%s\nGetLastError() = %i", text, err);
-	MessageBox(NULL, text2, "Error", 0 /* MB_OK */ );
-
-	exit(1);
-}
-
-#else
-/*
-=================
-Error
-
-For abnormal program terminations in console apps
-=================
-*/
-void Error(const char *error, ...)
-{
-	va_list         argptr;
-
-	_printf("\n************ ERROR ************\n");
-
-	va_start(argptr, error);
-	vprintf(error, argptr);
-	va_end(argptr);
-	_printf("\r\n");
-
-	exit(1);
-}
-#endif
-
-// only printf if in verbose mode
-qboolean        verbose = qfalse;
-void qprintf(const char *format, ...)
-{
-	va_list         argptr;
-
-	if(!verbose)
-		return;
-
-	va_start(argptr, format);
-	vprintf(format, argptr);
-	va_end(argptr);
-
-}
-
-#ifdef WIN32
-HWND            hwndOut = NULL;
-qboolean        lookedForServer = qfalse;
-UINT            wm_BroadcastCommand = -1;
-#endif
-
-void _printf(const char *format, ...)
-{
-	va_list         argptr;
-	char            text[4096];
-
-#ifdef WIN32
-	ATOM            a;
-#endif
-	va_start(argptr, format);
-	vsprintf(text, format, argptr);
-	va_end(argptr);
-
-	printf(text);
-
-#ifdef WIN32
-	if(!lookedForServer)
-	{
-		lookedForServer = qtrue;
-		hwndOut = FindWindow(NULL, "Q3Map Process Server");
-		if(hwndOut)
-		{
-			wm_BroadcastCommand = RegisterWindowMessage("Q3MPS_BroadcastCommand");
-		}
-	}
-	if(hwndOut)
-	{
-		a = GlobalAddAtom(text);
-		PostMessage(hwndOut, wm_BroadcastCommand, 0, (LPARAM) a);
-	}
-#endif
-}
-
-
 /*
 
 qdir will hold the path up to the quake directory, including the slash
@@ -219,7 +144,7 @@ qdir will hold the path up to the quake directory, including the slash
 
 gamedir will hold qdir + the game directory (id1, id2, etc)
 
-  */
+*/
 
 char            qdir[1024];
 char            gamedir[1024];
@@ -261,7 +186,7 @@ void SetQdirFromPath(const char *path)
 				count++;
 			}
 			strncpy(qdir, path, c + len + count - path);
-			qprintf("qdir: %s\n", qdir);
+			Sys_Printf("qdir: %s\n", qdir);
 			for(i = 0; i < strlen(qdir); i++)
 			{
 				if(qdir[i] == '\\')
@@ -281,7 +206,7 @@ void SetQdirFromPath(const char *path)
 							gamedir[i] = '/';
 					}
 
-					qprintf("gamedir: %s\n", gamedir);
+					Sys_Printf("gamedir: %s\n", gamedir);
 
 					if(!writedir[0])
 						strcpy(writedir, gamedir);
@@ -366,7 +291,7 @@ char           *copystring(const char *s)
 {
 	char           *b;
 
-	b = malloc(strlen(s) + 1);
+	b = safe_malloc(strlen(s) + 1);
 	strcpy(b, s);
 	return b;
 }
@@ -411,8 +336,8 @@ void Q_getwd(char *out)
 	_getcwd(out, 256);
 	strcat(out, "\\");
 #else
-#include <unistd.h>
-	getwd(out);
+	// Gef: Changed from getwd() to getcwd() to avoid potential buffer overflow
+	getcwd(out, 256);
 	strcat(out, "/");
 #endif
 
@@ -537,7 +462,6 @@ char           *Com_Parse(char *data)
 	return data;
 }
 
-
 int Q_strncasecmp(const char *s1, const char *s2, int n)
 {
 	int             c1, c2;
@@ -569,21 +493,24 @@ int Q_stricmp(const char *s1, const char *s2)
 	return Q_strncasecmp(s1, s2, 99999);
 }
 
-
-char           *strupr(char *start)
+// NOTE TTimo when switching to Multithread DLL (Release/Debug) in the config
+//   started getting warnings about that function, prolly a duplicate with the runtime function
+//   maybe we still need to have it in linux builds
+/*
+char *strupr (char *start)
 {
-	char           *in;
-
+	char	*in;
 	in = start;
-	while(*in)
+	while (*in)
 	{
 		*in = toupper(*in);
 		in++;
 	}
 	return start;
 }
+*/
 
-char           *strlwr(char *start)
+char           *strlower(char *start)
 {
 	char           *in;
 
@@ -716,7 +643,7 @@ int LoadFile(const char *filename, void **bufferptr)
 
 	f = SafeOpenRead(filename);
 	length = Q_filelength(f);
-	buffer = malloc(length + 1);
+	buffer = safe_malloc(length + 1);
 	((char *)buffer)[length] = 0;
 	SafeRead(f, buffer, length);
 	fclose(f);
@@ -748,7 +675,7 @@ int LoadFileBlock(const char *filename, void **bufferptr)
 	{
 		nAllocSize += MEM_BLOCKSIZE - nBlock;
 	}
-	buffer = malloc(nAllocSize + 1);
+	buffer = safe_malloc(nAllocSize + 1);
 	memset(buffer, 0, nAllocSize + 1);
 	SafeRead(f, buffer, length);
 	fclose(f);
@@ -777,7 +704,7 @@ int TryLoadFile(const char *filename, void **bufferptr)
 	if(!f)
 		return -1;
 	length = Q_filelength(f);
-	buffer = malloc(length + 1);
+	buffer = safe_malloc(length + 1);
 	((char *)buffer)[length] = 0;
 	SafeRead(f, buffer, length);
 	fclose(f);
@@ -828,7 +755,7 @@ void DefaultPath(char *path, const char *basepath)
 {
 	char            temp[128];
 
-	if(path[0] == PATHSEPERATOR)
+	if(path[0] == '/' || path[0] == '\\')
 		return;					// absolute path location
 	strcpy(temp, path);
 	strcpy(path, basepath);
@@ -841,7 +768,7 @@ void StripFilename(char *path)
 	int             length;
 
 	length = strlen(path) - 1;
-	while(length > 0 && path[length] != PATHSEPERATOR)
+	while(length > 0 && path[length] != '/' && path[length] != '\\')
 		length--;
 	path[length] = 0;
 }
@@ -854,7 +781,7 @@ void StripExtension(char *path)
 	while(length > 0 && path[length] != '.')
 	{
 		length--;
-		if(path[length] == '/')
+		if(path[length] == '/' || path[length] == '\\')
 			return;				// no extension
 	}
 	if(length)
@@ -894,7 +821,7 @@ void ExtractFileBase(const char *path, char *dest)
 //
 // back up until a \ or the start
 //
-	while(src != path && *(src - 1) != PATHSEPERATOR)
+	while(src != path && *(src - 1) != '/' && *(src - 1) != '\\')
 		src--;
 
 	while(*src && *src != '.')
@@ -1224,4 +1151,14 @@ void QCopyFile(const char *from, const char *to)
 	CreatePath(to);
 	SaveFile(to, buffer, length);
 	free(buffer);
+}
+
+void Sys_Sleep(int n)
+{
+#ifdef WIN32
+	Sleep(n);
+#endif
+#if defined (__linux__) || defined (__APPLE__)
+	usleep(n * 1000);
+#endif
 }

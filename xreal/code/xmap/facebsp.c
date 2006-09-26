@@ -296,7 +296,7 @@ tree_t         *FaceBSP(bspface_t * list)
 	int             i;
 	int             count;
 
-	qprintf("--- FaceBSP ---\n");
+	Sys_FPrintf(SYS_VRB, "--- FaceBSP ---\n");
 
 	tree = AllocTree();
 
@@ -309,7 +309,7 @@ tree_t         *FaceBSP(bspface_t * list)
 			AddPointToBounds(face->w->p[i], tree->mins, tree->maxs);
 		}
 	}
-	qprintf("%5i faces\n", count);
+	Sys_FPrintf(SYS_VRB, "%5i faces\n", count);
 
 	tree->headnode = AllocNode();
 	VectorCopy(tree->mins, tree->headnode->mins);
@@ -318,7 +318,7 @@ tree_t         *FaceBSP(bspface_t * list)
 
 	BuildFaceTree_r(tree->headnode, list);
 
-	qprintf("%5i leafs\n", c_faceLeafs);
+	Sys_FPrintf(SYS_VRB, "%5i leafs\n", c_faceLeafs);
 
 	return tree;
 }

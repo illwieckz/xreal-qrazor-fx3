@@ -274,7 +274,7 @@ void EndBSPFile(void)
 
 	// write the map
 	sprintf(path, "%s.bsp", source);
-	_printf("Writing %s\n", path);
+	Sys_Printf("Writing %s\n", path);
 	WriteBSPFile(path);
 }
 
@@ -338,7 +338,7 @@ void BeginModel(entity_t * e)
 {
 	dmodel_t       *mod;
 	
-	qprintf("--- BeginModel ---\n");
+	Sys_FPrintf(SYS_VRB, "--- BeginModel ---\n");
 
 	if(nummodels == MAX_MAP_MODELS)
 	{
@@ -370,7 +370,7 @@ void EndModel(entity_t * e, node_t * headnode)
 	const char     *model;
 	int             i, j;
 
-	qprintf("--- EndModel ---\n");
+	Sys_FPrintf(SYS_VRB, "--- EndModel ---\n");
 
 	mod = &dmodels[nummodels];
 	
@@ -397,7 +397,7 @@ void EndModel(entity_t * e, node_t * headnode)
 	model = ValueForKey(e, "model");
 	if(!e->brushes && !e->patches && model[0] != '\0')
 	{
-		//qprintf("calculating bbox from draw surfaces...\n");
+		//Sys_FPrintf(SYS_VRB, "calculating bbox from draw surfaces...\n");
 		
 		for(i = e->firstDrawSurf; i < numMapDrawSurfs; i++)
 		{

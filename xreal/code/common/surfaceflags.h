@@ -79,3 +79,39 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	SURF_ALPHASHADOW		0x10000	// do per-pixel light shadow casting in q3map
 #define	SURF_NODLIGHT			0x20000	// don't dlight even if solid (solid lava, skies)
 #define SURF_DUST				0x40000	// leave a dust trail when walking on this surface
+
+
+
+
+/* ydnar flags */
+
+#define CONTENTS_OPAQUE			0x02
+#define CONTENTS_LIGHTGRID		0x04
+
+#define SURF_VERTEXLIT			(SURF_POINTLIGHT | SURF_NOLIGHTMAP)
+
+
+
+/* wolfenstein flags (collisions with valid q3a flags are noted) */
+
+#define	CONTENTS_MISSILECLIP	0x80
+#define CONTENTS_ITEM			0x100
+#define	CONTENTS_AI_NOSIGHT		0x1000
+#define	CONTENTS_CLIPSHOT		0x2000
+#define CONTENTS_DONOTENTER_LARGE	0x400000	/* CONTENTS_BOTCLIP */
+
+#define SURF_CERAMIC			0x40	/* SURF_FLESH */
+#define	SURF_METAL  			0x1000	/* SURF_METALSTEPS */
+#define	SURF_WOOD				0x40000	/* SURF_DUST */
+#define	SURF_GRASS				0x80000
+#define SURF_GRAVEL				0x100000
+#define SURF_GLASS				0x200000
+#define SURF_SNOW				0x400000
+#define SURF_ROOF				0x800000
+#define	SURF_RUBBLE				0x1000000
+#define	SURF_CARPET				0x2000000
+#define SURF_MONSTERSLICK		0x4000000
+#define SURF_MONSLICK_W			0x8000000
+#define SURF_MONSLICK_N			0x10000000
+#define SURF_MONSLICK_E			0x20000000
+#define SURF_MONSLICK_S			0x40000000

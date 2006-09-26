@@ -125,7 +125,7 @@ int CreateNewFloatPlane(vec3_t normal, vec_t dist)
 
 	if(VectorLength(normal) < 0.5)
 	{
-		_printf("FloatPlane: bad normal\n");
+		Sys_Printf("FloatPlane: bad normal\n");
 		return -1;
 	}
 
@@ -338,12 +338,12 @@ void SetBrushContents(bspbrush_t * b)
 
 	if(mixed)
 	{
-//		qprintf("Entity %i, Brush %i: mixed face contents\n", b->entitynum, b->brushnum);
+//		Sys_FPrintf(SYS_VRB, "Entity %i, Brush %i: mixed face contents\n", b->entitynum, b->brushnum);
 	}
 
 	if((contents & CONTENTS_DETAIL) && (contents & CONTENTS_STRUCTURAL))
 	{
-		_printf("Entity %i, Brush %i: mixed CONTENTS_DETAIL and CONTENTS_STRUCTURAL\n", num_entities - 1, entitySourceBrushes);
+		Sys_Printf("Entity %i, Brush %i: mixed CONTENTS_DETAIL and CONTENTS_STRUCTURAL\n", num_entities - 1, entitySourceBrushes);
 		contents &= ~CONTENTS_DETAIL;
 	}
 
@@ -629,7 +629,7 @@ bspbrush_t     *FinishBrush(void)
 
 		if(num_entities == 1)
 		{
-			_printf("Entity %i, Brush %i: origin brushes not allowed in world\n", num_entities - 1, entitySourceBrushes);
+			Sys_Printf("Entity %i, Brush %i: origin brushes not allowed in world\n", num_entities - 1, entitySourceBrushes);
 			return NULL;
 		}
 
@@ -649,7 +649,7 @@ bspbrush_t     *FinishBrush(void)
 	{
 		if(num_entities != 1)
 		{
-			_printf("Entity %i, Brush %i: areaportals only allowed in world\n", num_entities - 1, entitySourceBrushes);
+			Sys_Printf("Entity %i, Brush %i: areaportals only allowed in world\n", num_entities - 1, entitySourceBrushes);
 			return NULL;
 		}
 	}
@@ -999,7 +999,7 @@ qboolean RemoveDuplicateBrushPlanes(bspbrush_t * b)
 		// check for a degenerate plane
 		if(sides[i].planenum == -1)
 		{
-			_printf("Entity %i, Brush %i: degenerate plane\n", b->entitynum, b->brushnum);
+			Sys_Printf("Entity %i, Brush %i: degenerate plane\n", b->entitynum, b->brushnum);
 			// remove it
 			for(k = i + 1; k < b->numsides; k++)
 			{
@@ -1015,7 +1015,7 @@ qboolean RemoveDuplicateBrushPlanes(bspbrush_t * b)
 		{
 			if(sides[i].planenum == sides[j].planenum)
 			{
-				//_printf("Entity %i, Brush %i: duplicate plane\n", b->entitynum, b->brushnum);
+				//Sys_Printf("Entity %i, Brush %i: duplicate plane\n", b->entitynum, b->brushnum);
 				// remove the second duplicate
 				for(k = i + 1; k < b->numsides; k++)
 				{
@@ -1029,7 +1029,7 @@ qboolean RemoveDuplicateBrushPlanes(bspbrush_t * b)
 			if(sides[i].planenum == (sides[j].planenum ^ 1))
 			{
 				// mirror plane, brush is invalid
-				_printf("Entity %i, Brush %i: mirrored plane\n", b->entitynum, b->brushnum);
+				Sys_Printf("Entity %i, Brush %i: mirrored plane\n", b->entitynum, b->brushnum);
 				return qfalse;
 			}
 		}
@@ -1205,7 +1205,7 @@ qboolean ParseMapEntity(void)
 		}
 		else
 		{
-			_printf("WARNING: ParseEntity: bad version number.\n");
+			Sys_Printf("WARNING: ParseEntity: bad version number.\n");
 			return qfalse;
 		}
 
@@ -1414,10 +1414,10 @@ void LoadMapFile(char *filename)
 {
 	bspbrush_t     *b;
 
-	qprintf("--- LoadMapFile ---\n");
-	_printf("Loading map file %s\n", filename);
+	Sys_FPrintf(SYS_VRB, "--- LoadMapFile ---\n");
+	Sys_Printf("Loading map file %s\n", filename);
 
-	LoadScriptFile(filename);
+	LoadScriptFile(filename, -1);
 
 	num_entities = 0;
 	numMapDrawSurfs = 0;
@@ -1441,16 +1441,16 @@ void LoadMapFile(char *filename)
 		AddPointToBounds(b->maxs, map_mins, map_maxs);
 	}
 
-	qprintf("%5i total world brushes\n", CountBrushList(entities[0].brushes));
-	qprintf("%5i detail brushes\n", c_detail);
-	qprintf("%5i patches\n", numMapPatches);
-	qprintf("%5i boxbevels\n", c_boxbevels);
-	qprintf("%5i edgebevels\n", c_edgebevels);
-	qprintf("%5i merged func_static entities\n", c_mergedFuncStatics);
-	qprintf("%5i entities\n", num_entities);
-	qprintf("%5i planes\n", nummapplanes);
-	qprintf("%5i areaportals\n", c_areaportals);
-	qprintf("size: %5.0f,%5.0f,%5.0f to %5.0f,%5.0f,%5.0f\n", map_mins[0], map_mins[1], map_mins[2],
+	Sys_FPrintf(SYS_VRB, "%5i total world brushes\n", CountBrushList(entities[0].brushes));
+	Sys_FPrintf(SYS_VRB, "%5i detail brushes\n", c_detail);
+	Sys_FPrintf(SYS_VRB, "%5i patches\n", numMapPatches);
+	Sys_FPrintf(SYS_VRB, "%5i boxbevels\n", c_boxbevels);
+	Sys_FPrintf(SYS_VRB, "%5i edgebevels\n", c_edgebevels);
+	Sys_FPrintf(SYS_VRB, "%5i merged func_static entities\n", c_mergedFuncStatics);
+	Sys_FPrintf(SYS_VRB, "%5i entities\n", num_entities);
+	Sys_FPrintf(SYS_VRB, "%5i planes\n", nummapplanes);
+	Sys_FPrintf(SYS_VRB, "%5i areaportals\n", c_areaportals);
+	Sys_FPrintf(SYS_VRB, "size: %5.0f,%5.0f,%5.0f to %5.0f,%5.0f,%5.0f\n", map_mins[0], map_mins[1], map_mins[2],
 			map_maxs[0], map_maxs[1], map_maxs[2]);
 
 	if(fakemap)

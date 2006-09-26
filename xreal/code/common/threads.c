@@ -21,7 +21,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#ifndef WIN32
+// The below define is necessary to use
+// pthreads extensions like pthread_mutexattr_settype
+#define _GNU_SOURCE
+#include <pthread.h>
+#endif
+
 #include "cmdlib.h"
+#include "inout.h"
 #include "threads.h"
 
 #define	MAX_THREADS	64
@@ -57,7 +65,10 @@ int GetThreadWork(void)
 	{
 		oldf = f;
 		if(pacifier)
-			_printf("%i...", f);
+		{
+			Sys_Printf("%i...", f);
+			fflush(stdout);		/* ydnar */
+		}
 	}
 
 	r = dispatch;
@@ -79,7 +90,7 @@ void ThreadWorkerFunction(int threadnum)
 		work = GetThreadWork();
 		if(work == -1)
 			break;
-//_printf ("thread %i, work %i\n", threadnum, work);
+//Sys_Printf ("thread %i, work %i\n", threadnum, work);
 		workfunction(work);
 	}
 }
@@ -122,7 +133,7 @@ void ThreadSetDefault(void)
 			numthreads = 1;
 	}
 
-	qprintf("%i threads\n", numthreads);
+	Sys_Printf("%i threads\n", numthreads);
 }
 
 
@@ -179,11 +190,12 @@ void RunThreadsOn(int workcnt, qboolean showpacifier, void (*func) (int))
 		for(i = 0; i < numthreads; i++)
 		{
 			threadhandle[i] = CreateThread(NULL,	// LPSECURITY_ATTRIBUTES lpsa,
-										   0,	// DWORD cbStack,
-										   (LPTHREAD_START_ROUTINE) func,	// LPTHREAD_START_ROUTINE lpStartAddr,
+										   //0,     // DWORD cbStack,
+										   /* ydnar: cranking stack size to eliminate radiosity crash with 1MB stack on win32 */
+										   (4096 * 1024), (LPTHREAD_START_ROUTINE) func,	// LPTHREAD_START_ROUTINE lpStartAddr,
 										   (LPVOID) i,	// LPVOID lpvThreadParm,
 										   0,	//   DWORD fdwCreate,
-										   (LPDWORD) &threadid[i]);
+										   &threadid[i]);
 		}
 
 		for(i = 0; i < numthreads; i++)
@@ -194,7 +206,7 @@ void RunThreadsOn(int workcnt, qboolean showpacifier, void (*func) (int))
 	threaded = qfalse;
 	end = I_FloatTime();
 	if(pacifier)
-		_printf(" (%i)\n", end - start);
+		Sys_Printf(" (%i)\n", end - start);
 }
 
 
@@ -265,7 +277,7 @@ void RunThreadsOn(int workcnt, qboolean showpacifier, void (*func) (int))
 
 	if(!my_mutex)
 	{
-		my_mutex = malloc(sizeof(*my_mutex));
+		my_mutex = safe_malloc(sizeof(*my_mutex));
 		if(pthread_mutexattr_create(&mattrib) == -1)
 			Error("pthread_mutex_attr_create failed");
 		if(pthread_mutexattr_setkind_np(&mattrib, MUTEX_FAST_NP) == -1)
@@ -295,7 +307,7 @@ void RunThreadsOn(int workcnt, qboolean showpacifier, void (*func) (int))
 
 	end = I_FloatTime();
 	if(pacifier)
-		_printf(" (%i)\n", end - start);
+		Sys_Printf(" (%i)\n", end - start);
 }
 
 
@@ -325,7 +337,7 @@ void ThreadSetDefault(void)
 {
 	if(numthreads == -1)
 		numthreads = prctl(PR_MAXPPROCS);
-	_printf("%i threads\n", numthreads);
+	Sys_Printf("%i threads\n", numthreads);
 	usconfig(CONF_INITUSERS, numthreads);
 }
 
@@ -383,11 +395,175 @@ void RunThreadsOn(int workcnt, qboolean showpacifier, void (*func) (int))
 
 	end = I_FloatTime();
 	if(pacifier)
-		_printf(" (%i)\n", end - start);
+		Sys_Printf(" (%i)\n", end - start);
 }
 
 
 #endif
+
+
+/*
+=======================================================================
+
+  Linux pthreads
+
+=======================================================================
+*/
+
+#ifdef __linux__
+#define USED
+
+int             numthreads = 4;
+
+void ThreadSetDefault(void)
+{
+	if(numthreads == -1)		// not set manually
+	{
+		/* default to one thread, only multi-thread when specifically told to */
+		numthreads = 1;
+	}
+	if(numthreads > 1)
+		Sys_Printf("threads: %d\n", numthreads);
+}
+
+#include <pthread.h>
+
+typedef struct pt_mutex_s
+{
+	pthread_t      *owner;
+	pthread_mutex_t a_mutex;
+	pthread_cond_t  cond;
+	unsigned int    lock;
+} pt_mutex_t;
+
+pt_mutex_t      global_lock;
+
+void ThreadLock(void)
+{
+	pt_mutex_t     *pt_mutex = &global_lock;
+
+	if(!threaded)
+		return;
+
+	pthread_mutex_lock(&pt_mutex->a_mutex);
+	if(pthread_equal(pthread_self(), (pthread_t) & pt_mutex->owner))
+		pt_mutex->lock++;
+	else
+	{
+		if((!pt_mutex->owner) && (pt_mutex->lock == 0))
+		{
+			pt_mutex->owner = (pthread_t *) pthread_self();
+			pt_mutex->lock = 1;
+		}
+		else
+		{
+			while(1)
+			{
+				pthread_cond_wait(&pt_mutex->cond, &pt_mutex->a_mutex);
+				if((!pt_mutex->owner) && (pt_mutex->lock == 0))
+				{
+					pt_mutex->owner = (pthread_t *) pthread_self();
+					pt_mutex->lock = 1;
+					break;
+				}
+			}
+		}
+	}
+	pthread_mutex_unlock(&pt_mutex->a_mutex);
+}
+
+void ThreadUnlock(void)
+{
+	pt_mutex_t     *pt_mutex = &global_lock;
+
+	if(!threaded)
+		return;
+
+	pthread_mutex_lock(&pt_mutex->a_mutex);
+	pt_mutex->lock--;
+
+	if(pt_mutex->lock == 0)
+	{
+		pt_mutex->owner = NULL;
+		pthread_cond_signal(&pt_mutex->cond);
+	}
+
+	pthread_mutex_unlock(&pt_mutex->a_mutex);
+}
+
+void recursive_mutex_init(pthread_mutexattr_t attribs)
+{
+	pt_mutex_t     *pt_mutex = &global_lock;
+
+	pt_mutex->owner = NULL;
+	if(pthread_mutex_init(&pt_mutex->a_mutex, &attribs) != 0)
+		Error("pthread_mutex_init failed\n");
+	if(pthread_cond_init(&pt_mutex->cond, NULL) != 0)
+		Error("pthread_cond_init failed\n");
+
+	pt_mutex->lock = 0;
+}
+
+/*
+=============
+RunThreadsOn
+=============
+*/
+void RunThreadsOn(int workcnt, qboolean showpacifier, void (*func) (int))
+{
+	pthread_mutexattr_t mattrib;
+	pthread_t       work_threads[MAX_THREADS];
+
+	int             start, end;
+	int             i = 0, status = 0;
+
+	start = I_FloatTime();
+	pacifier = showpacifier;
+
+	dispatch = 0;
+	oldf = -1;
+	workcount = workcnt;
+
+	if(numthreads == 1)
+		func(0);
+	else
+	{
+		threaded = qtrue;
+
+		if(pacifier)
+			setbuf(stdout, NULL);
+
+		if(pthread_mutexattr_init(&mattrib) != 0)
+			Error("pthread_mutexattr_init failed");
+#if __GLIBC_MINOR__ == 1
+		if(pthread_mutexattr_settype(&mattrib, PTHREAD_MUTEX_FAST_NP) != 0)
+#else
+		if(pthread_mutexattr_settype(&mattrib, PTHREAD_MUTEX_ADAPTIVE_NP) != 0)
+#endif
+			Error("pthread_mutexattr_settype failed");
+		recursive_mutex_init(mattrib);
+
+		for(i = 0; i < numthreads; i++)
+		{
+			/* Default pthread attributes: joinable & non-realtime scheduling */
+			if(pthread_create(&work_threads[i], NULL, (void *)func, (void *)i) != 0)
+				Error("pthread_create failed");
+		}
+		for(i = 0; i < numthreads; i++)
+		{
+			if(pthread_join(work_threads[i], (void **)&status) != 0)
+				Error("pthread_join failed");
+		}
+		pthread_mutexattr_destroy(&mattrib);
+		threaded = qfalse;
+	}
+
+	end = I_FloatTime();
+	if(pacifier)
+		Sys_Printf(" (%i)\n", end - start);
+}
+#endif							// ifdef __linux__
+
 
 /*
 =======================================================================
@@ -421,7 +597,6 @@ RunThreadsOn
 */
 void RunThreadsOn(int workcnt, qboolean showpacifier, void (*func) (int))
 {
-//  int     i;
 	int             start, end;
 
 	dispatch = 0;
@@ -433,7 +608,7 @@ void RunThreadsOn(int workcnt, qboolean showpacifier, void (*func) (int))
 
 	end = I_FloatTime();
 	if(pacifier)
-		_printf(" (%i)\n", end - start);
+		Sys_Printf(" (%i)\n", end - start);
 }
 
 #endif

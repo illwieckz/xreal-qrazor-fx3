@@ -31,9 +31,9 @@ void PrintCtrl(vec3_t ctrl[9])
 	{
 		for(j = 0; j < 3; j++)
 		{
-			_printf("(%5.2f %5.2f %5.2f) ", ctrl[i * 3 + j][0], ctrl[i * 3 + j][1], ctrl[i * 3 + j][2]);
+			Sys_Printf("(%5.2f %5.2f %5.2f) ", ctrl[i * 3 + j][0], ctrl[i * 3 + j][1], ctrl[i * 3 + j][2]);
 		}
-		_printf("\n");
+		Sys_Printf("\n");
 	}
 }
 
@@ -219,7 +219,7 @@ void PatchMapDrawSurfs(entity_t * e)
 	qboolean        grouped[MAX_MAP_DRAW_SURFS];
 	byte            group[MAX_MAP_DRAW_SURFS];
 
-	qprintf("----- PatchMapDrawSurfs -----\n");
+	Sys_FPrintf(SYS_VRB, "----- PatchMapDrawSurfs -----\n");
 
 	patchCount = 0;
 	for(pm = e->patches; pm; pm = pm->next)
@@ -318,6 +318,6 @@ void PatchMapDrawSurfs(entity_t * e)
 		VectorCopy(bounds[1], ds->lightmapVecs[1]);
 	}
 
-	qprintf("%5i patches\n", patchCount);
-	qprintf("%5i patch LOD groups\n", groupCount);
+	Sys_FPrintf(SYS_VRB, "%5i patches\n", patchCount);
+	Sys_FPrintf(SYS_VRB, "%5i patch LOD groups\n", groupCount);
 }

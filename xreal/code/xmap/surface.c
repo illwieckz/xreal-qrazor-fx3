@@ -211,14 +211,14 @@ void MergeSides(entity_t * e, tree_t * tree)
 {
 	int             i;
 
-	qprintf("----- MergeSides -----\n");
+	Sys_FPrintf(SYS_VRB, "----- MergeSides -----\n");
 
 	for(i = e->firstDrawSurf; i < numMapDrawSurfs; i++)
 	{
 //          AddSideRef( side );
 	}
 
-	qprintf("%5i siderefs\n", numSideRefs);
+	Sys_FPrintf(SYS_VRB, "%5i siderefs\n", numSideRefs);
 }
 
 //=====================================================================
@@ -314,7 +314,7 @@ void SubdivideDrawSurfs(entity_t * e, tree_t * tree)
 	float           subdivision;
 	shaderInfo_t   *si;
 
-	qprintf("----- SubdivideDrawSurfs -----\n");
+	Sys_FPrintf(SYS_VRB, "----- SubdivideDrawSurfs -----\n");
 	numBaseDrawSurfs = numMapDrawSurfs;
 	for(i = e->firstDrawSurf; i < numBaseDrawSurfs; i++)
 	{
@@ -424,7 +424,7 @@ void ClipSidesIntoTree(entity_t * e, tree_t * tree)
 	side_t         *side, *newSide;
 	shaderInfo_t   *si;
 
-	qprintf("----- ClipSidesIntoTree -----\n");
+	Sys_FPrintf(SYS_VRB, "----- ClipSidesIntoTree -----\n");
 
 	for(b = e->brushes; b; b = b->next)
 	{
@@ -1234,7 +1234,7 @@ void FilterDrawsurfsIntoTree(entity_t * e, tree_t * tree)
 	int             refs;
 	int             c_surfs, c_refs;
 
-	qprintf("----- FilterDrawsurfsIntoTree -----\n");
+	Sys_FPrintf(SYS_VRB, "----- FilterDrawsurfsIntoTree -----\n");
 
 	c_surfs = 0;
 	c_refs = 0;
@@ -1277,8 +1277,8 @@ void FilterDrawsurfsIntoTree(entity_t * e, tree_t * tree)
 			c_refs += refs;
 		}
 	}
-	qprintf("%5i emited drawsurfs\n", c_surfs);
-	qprintf("%5i references\n", c_refs);
-	qprintf("%5i stripfaces\n", c_stripSurfaces);
-	qprintf("%5i fanfaces\n", c_fanSurfaces);
+	Sys_FPrintf(SYS_VRB, "%5i emited drawsurfs\n", c_surfs);
+	Sys_FPrintf(SYS_VRB, "%5i references\n", c_refs);
+	Sys_FPrintf(SYS_VRB, "%5i stripfaces\n", c_stripSurfaces);
+	Sys_FPrintf(SYS_VRB, "%5i fanfaces\n", c_fanSurfaces);
 }

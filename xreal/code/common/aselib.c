@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "aselib.h"
+#include "inout.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -32,7 +33,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_ASE_ANIMATIONS			32
 #define MAX_ASE_ANIMATION_FRAMES	512
 
-#define VERBOSE( x ) { if ( ase.verbose ) { printf x ; } }
+#define VERBOSE( x ) { if ( ase.verbose ) { Sys_Printf x ; } }
 
 typedef struct
 {
@@ -113,6 +114,23 @@ static ase_t    ase;
 static void     ASE_Process(void);
 static void     ASE_FreeGeomObject(int ndx);
 
+#if defined(__linux__) || defined(__APPLE__)
+
+static char    *strlwr(char *string)
+{
+	char           *cp;
+
+	for(cp = string; *cp; ++cp)
+	{
+		if('A' <= *cp && *cp <= 'Z')
+			*cp += 'a' - 'A';
+	}
+
+	return string;
+}
+
+#endif
+
 /*
 ** ASE_Load
 */
@@ -122,7 +140,7 @@ qboolean ASE_Load(const char *filename, qboolean verbose, qboolean grabAnims)
 
 	if(!fp)
 	{
-		_printf("ASE_Load: File not found '%s'\n", filename);
+		Sys_Printf("ASE_Load: File not found '%s'\n", filename);
 		return qfalse;
 	}
 
@@ -132,9 +150,9 @@ qboolean ASE_Load(const char *filename, qboolean verbose, qboolean grabAnims)
 	ase.grabAnims = grabAnims;
 	ase.len = Q_filelength(fp);
 
-	ase.curpos = ase.buffer = malloc(ase.len);
+	ase.curpos = ase.buffer = safe_malloc(ase.len);
 
-	printf("Processing '%s'\n", filename);
+	Sys_Printf("Processing '%s'\n", filename);
 
 	if(fread(ase.buffer, ase.len, 1, fp) != 1)
 	{
@@ -208,7 +226,7 @@ polyset_t      *ASE_GetSurfaceAnimation(int which, int *pNumFrames, int skipFram
 	{
 		numFramesInAnimation = pObject->anim.numFrames;
 		if(maxFrames != -1)
-			printf("WARNING: ASE_GetSurfaceAnimation maxFrames > numFramesInAnimation\n");
+			Sys_Printf("WARNING: ASE_GetSurfaceAnimation maxFrames > numFramesInAnimation\n");
 	}
 
 	if(skipFrameEnd != -1)
@@ -960,7 +978,7 @@ static void ASE_Process(void)
 		}
 		else if(s_token[0])
 		{
-			printf("Unknown token '%s'\n", s_token);
+			Sys_Printf("Unknown token '%s'\n", s_token);
 		}
 	}
 

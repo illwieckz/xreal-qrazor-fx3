@@ -64,7 +64,7 @@ extern vec3_t   vec3_origin;
 #define	PLANE_Z			2
 #define	PLANE_NON_AXIAL	3
 
-qboolean        VectorCompare(const vec3_t v1, const vec3_t v2);
+int             VectorCompare(const vec3_t v1, const vec3_t v2);
 
 #define VectorSet(v,x,y,z) {v[0]=x;v[1]=y;v[2]=z;}
 #define DotProduct(x,y) (x[0]*y[0]+x[1]*y[1]+x[2]*y[2])

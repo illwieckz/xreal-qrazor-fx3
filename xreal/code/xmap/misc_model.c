@@ -68,14 +68,14 @@ static md3Header_t    *MD3_Load(const char *mod_name)
 
 	if(len <= 0)
 	{
-		_printf("MD3_Load: File not found '%s'\n", filename);
+		Sys_Printf("MD3_Load: File not found '%s'\n", filename);
 		return NULL;
 	}
 
 	version = LittleLong(md3->version);
 	if(version != MD3_VERSION)
 	{
-		_printf("MD3_Load: %s has wrong version (%i should be %i)\n", mod_name, version, MD3_VERSION);
+		Sys_Printf("MD3_Load: %s has wrong version (%i should be %i)\n", mod_name, version, MD3_VERSION);
 		return NULL;
 	}
 
@@ -92,7 +92,7 @@ static md3Header_t    *MD3_Load(const char *mod_name)
 
 	if(md3->numFrames < 1)
 	{
-		_printf("MD3_Load: %s has no frames\n", mod_name);
+		Sys_Printf("MD3_Load: %s has no frames\n", mod_name);
 		return NULL;
 	}
 
@@ -470,17 +470,17 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 	obj = lwGetObject(filename, &failID, &failpos);
 	if(!obj)
 	{
-		_printf("%s\nLoading failed near byte %d\n\n", filename, failpos);
+		Sys_Printf("%s\nLoading failed near byte %d\n\n", filename, failpos);
 		return;
 	}
 
-	_printf("Processing '%s'\n", filename);
+	Sys_Printf("Processing '%s'\n", filename);
 
 	if(obj->nlayers != 1)
 		Error("..layers number %i != 1", obj->nlayers);
 
 #if 0
-	qprintf("Layers:  %d\n"
+	Sys_FPrintf(SYS_VRB, "Layers:  %d\n"
 			"Surfaces:  %d\n"
 			"Envelopes:  %d\n"
 			"Clips:  %d\n"
@@ -524,14 +524,14 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 			// only accept FACE surfaces
 			if(pol->type != ID_FACE)
 			{
-				_printf("WARNING: skipping ID_FACE polygon\n");
+				Sys_Printf("WARNING: skipping ID_FACE polygon\n");
 				continue;
 			}
 
 			// only accept triangulated surfaces
 			if(pol->nverts != 3)
 			{
-				_printf("WARNING: skipping non triangulated polygon\n");
+				Sys_Printf("WARNING: skipping non triangulated polygon\n");
 				continue;
 			}
 
@@ -558,14 +558,14 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 			// only accept FACE surfaces
 			if(pol->type != ID_FACE)
 			{
-				//_printf("WARNING: skipping ID_FACE polygon\n");
+				//Sys_Printf("WARNING: skipping ID_FACE polygon\n");
 				continue;
 			}
 
 			// only accept triangulated surfaces
 			if(pol->nverts != 3)
 			{
-				//_printf("WARNING: skipping non triangulated polygon\n");
+				//Sys_Printf("WARNING: skipping non triangulated polygon\n");
 				continue;
 			}
 
@@ -654,7 +654,7 @@ void AddTriangleModel(entity_t * entity, qboolean applyTransform)
 	matrix_t        rotation;
 	matrix_t        transform;
 	
-	qprintf("----- AddTriangleModel -----\n");
+	Sys_FPrintf(SYS_VRB, "----- AddTriangleModel -----\n");
 
 	MatrixIdentity(transform);
 
@@ -695,7 +695,7 @@ void AddTriangleModel(entity_t * entity, qboolean applyTransform)
 	model = ValueForKey(entity, "model");
 	if(!model[0])
 	{
-		_printf("WARNING: '%s' at %i %i %i without a model key\n", classname, (int)origin[0], (int)origin[1], (int)origin[2]);
+		Sys_Printf("WARNING: '%s' at %i %i %i without a model key\n", classname, (int)origin[0], (int)origin[1], (int)origin[2]);
 		return;
 	}
 
@@ -713,7 +713,7 @@ void AddTriangleModel(entity_t * entity, qboolean applyTransform)
 	}
 	else
 	{
-		_printf("Unknown model type: %s\n", model);
+		Sys_Printf("Unknown model type: %s\n", model);
 	}
 }
 
@@ -729,7 +729,7 @@ void AddTriangleModels(void)
 	int             entity_num;
 	entity_t       *entity;
 
-	qprintf("----- AddTriangleModels -----\n");
+	Sys_FPrintf(SYS_VRB, "----- AddTriangleModels -----\n");
 
 	for(entity_num = 1; entity_num < num_entities; entity_num++)
 	{
@@ -742,8 +742,8 @@ void AddTriangleModels(void)
 		}
 	}
 
-	qprintf("%5i triangle models\n", c_triangleModels);
-	qprintf("%5i triangle surfaces\n", c_triangleSurfaces);
-	qprintf("%5i triangle vertexes\n", c_triangleVertexes);
-	qprintf("%5i triangle indexes\n", c_triangleIndexes);
+	Sys_FPrintf(SYS_VRB, "%5i triangle models\n", c_triangleModels);
+	Sys_FPrintf(SYS_VRB, "%5i triangle surfaces\n", c_triangleSurfaces);
+	Sys_FPrintf(SYS_VRB, "%5i triangle vertexes\n", c_triangleVertexes);
+	Sys_FPrintf(SYS_VRB, "%5i triangle indexes\n", c_triangleIndexes);
 }

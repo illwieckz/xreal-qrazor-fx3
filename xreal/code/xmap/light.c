@@ -230,7 +230,7 @@ void CountLightmaps(void)
 	int             i;
 	dsurface_t     *ds;
 
-	qprintf("--- CountLightmaps ---\n");
+	Sys_FPrintf(SYS_VRB, "--- CountLightmaps ---\n");
 	count = 0;
 	for(i = 0; i < numDrawSurfaces; i++)
 	{
@@ -249,8 +249,8 @@ void CountLightmaps(void)
 		Error("MAX_MAP_LIGHTING exceeded");
 	}
 
-	qprintf("%5i drawSurfaces\n", numDrawSurfaces);
-	qprintf("%5i lightmaps\n", count);
+	Sys_FPrintf(SYS_VRB, "%5i drawSurfaces\n", numDrawSurfaces);
+	Sys_FPrintf(SYS_VRB, "%5i lightmaps\n", count);
 }
 
 /*
@@ -274,7 +274,7 @@ void CreateSurfaceLights(void)
 	float           lightSubdivide;
 	vec3_t          normal;
 
-	qprintf("--- CreateSurfaceLights ---\n");
+	Sys_FPrintf(SYS_VRB, "--- CreateSurfaceLights ---\n");
 	c_lightSurfaces = 0;
 
 	for(i = 0; i < numDrawSurfaces; i++)
@@ -311,7 +311,7 @@ void CreateSurfaceLights(void)
 				f = surfaceTest[i]->facets;
 				if(surfaceTest[i]->numFacets != 1 || f->numBoundaries != 4)
 				{
-					_printf("WARNING: surface at (%i %i %i) has autosprite shader but isn't a quad\n",
+					Sys_Printf("WARNING: surface at (%i %i %i) has autosprite shader but isn't a quad\n",
 							(int)f->points[0], (int)f->points[1], (int)f->points[2]);
 				}
 				VectorAdd(f->points[0], f->points[1], origin);
@@ -325,7 +325,7 @@ void CreateSurfaceLights(void)
 				dv = &drawVerts[ds->firstVert];
 				if(ds->numVerts != 4)
 				{
-					_printf("WARNING: surface at (%i %i %i) has autosprite shader but %i verts\n",
+					Sys_Printf("WARNING: surface at (%i %i %i) has autosprite shader but %i verts\n",
 							(int)dv->xyz[0], (int)dv->xyz[1], (int)dv->xyz[2]);
 					continue;
 				}
@@ -402,7 +402,7 @@ void CreateSurfaceLights(void)
 		}
 	}
 
-	_printf("%5i light emitting surfaces\n", c_lightSurfaces);
+	Sys_Printf("%5i light emitting surfaces\n", c_lightSurfaces);
 }
 
 
@@ -575,7 +575,7 @@ void CreateEntityLights(void)
 			e2 = FindTargetEntity(target);
 			if(!e2)
 			{
-				_printf("WARNING: light at (%i %i %i) has missing target\n",
+				Sys_Printf("WARNING: light at (%i %i %i) has missing target\n",
 						(int)dl->origin[0], (int)dl->origin[1], (int)dl->origin[2]);
 			}
 			else
@@ -713,7 +713,7 @@ float PointToPolygonFormFactor(const vec3_t point, const vec3_t normal, const wi
 			if(!printed)
 			{
 				printed = qtrue;
-				_printf("WARNING: bad PointToPolygonFormFactor: %f at %1.1f %1.1f %1.1f from %1.1f %1.1f %1.1f\n", total,
+				Sys_Printf("WARNING: bad PointToPolygonFormFactor: %f at %1.1f %1.1f %1.1f from %1.1f %1.1f %1.1f\n", total,
 						w->p[i][0], w->p[i][1], w->p[i][2], point[0], point[1], point[2]);
 			}
 			return 0;
@@ -1163,15 +1163,15 @@ void PrintOccluded(byte occluded[LIGHTMAP_WIDTH * EXTRASCALE][LIGHTMAP_HEIGHT * 
 {
 	int             i, j;
 
-	_printf("\n");
+	Sys_Printf("\n");
 
 	for(i = 0; i < height; i++)
 	{
 		for(j = 0; j < width; j++)
 		{
-			_printf("%i", (int)occluded[j][i]);
+			Sys_Printf("%i", (int)occluded[j][i]);
 		}
-		_printf("\n");
+		Sys_Printf("\n");
 	}
 }
 
@@ -1999,7 +1999,7 @@ void SetupGrid(void)
 	numGridPoints = gridBounds[0] * gridBounds[1] * gridBounds[2];
 	if(numGridPoints * 8 >= MAX_MAP_LIGHTGRID)
 		Error("MAX_MAP_LIGHTGRID");
-	qprintf("%5i gridPoints\n", numGridPoints);
+	Sys_FPrintf(SYS_VRB, "%5i gridPoints\n", numGridPoints);
 }
 
 //=============================================================================
@@ -2038,7 +2038,7 @@ void RemoveLightsInSolid(void)
 			light = light->next;
 		}
 	}
-	_printf(" %7i lights in solid\n", numsolid);
+	Sys_Printf(" %7i lights in solid\n", numsolid);
 }
 
 /*
@@ -2059,22 +2059,22 @@ void LightWorld(void)
 	VectorScale(ambientColor, f, ambientColor);
 
 	// create lights out of patches and lights
-	qprintf("--- CreateLights ---\n");
+	Sys_FPrintf(SYS_VRB, "--- CreateLights ---\n");
 	CreateEntityLights();
-	qprintf("%i point lights\n", numPointLights);
-	qprintf("%i area lights\n", numAreaLights);
+	Sys_FPrintf(SYS_VRB, "%i point lights\n", numPointLights);
+	Sys_FPrintf(SYS_VRB, "%i area lights\n", numAreaLights);
 
 	if(!nogridlighting)
 	{
-		qprintf("--- TraceGrid ---\n");
+		Sys_FPrintf(SYS_VRB, "--- TraceGrid ---\n");
 		RunThreadsOnIndividual(numGridPoints, qtrue, TraceGrid);
-		qprintf("%i x %i x %i = %i grid\n", gridBounds[0], gridBounds[1], gridBounds[2], numGridPoints);
+		Sys_FPrintf(SYS_VRB, "%i x %i x %i = %i grid\n", gridBounds[0], gridBounds[1], gridBounds[2], numGridPoints);
 	}
 
-	qprintf("--- TraceLtm ---\n");
+	Sys_FPrintf(SYS_VRB, "--- TraceLtm ---\n");
 	RunThreadsOnIndividual(numDrawSurfaces, qtrue, TraceLtm);
-	qprintf("%5i visible samples\n", c_visible);
-	qprintf("%5i occluded samples\n", c_occluded);
+	Sys_FPrintf(SYS_VRB, "%5i visible samples\n", c_visible);
+	Sys_FPrintf(SYS_VRB, "%5i occluded samples\n", c_occluded);
 }
 
 /*
@@ -2122,7 +2122,7 @@ void CreateFilters(void)
 
 		if(ds->patchWidth != 3 || ds->patchHeight != 3)
 		{
-			_printf("WARNING: patch at %i %i %i has SURF_LIGHTFILTER but isn't a 3 by 3\n", v1->xyz[0], v1->xyz[1], v1->xyz[2]);
+			Sys_Printf("WARNING: patch at %i %i %i has SURF_LIGHTFILTER but isn't a 3 by 3\n", v1->xyz[0], v1->xyz[1], v1->xyz[2]);
 			continue;
 		}
 
@@ -2157,7 +2157,7 @@ void CreateFilters(void)
 		if(vertNum != ds->numVerts)
 		{
 			numFilters--;
-			_printf("WARNING: patch at %i %i %i has SURF_LIGHTFILTER but isn't flat\n", v1->xyz[0], v1->xyz[1], v1->xyz[2]);
+			Sys_Printf("WARNING: patch at %i %i %i has SURF_LIGHTFILTER but isn't flat\n", v1->xyz[0], v1->xyz[1], v1->xyz[2]);
 			continue;
 		}
 	}
@@ -2256,17 +2256,17 @@ void GridAndVertexLighting(void)
 
 	if(!nogridlighting)
 	{
-		_printf("--- TraceGrid ---\n");
+		Sys_Printf("--- TraceGrid ---\n");
 		RunThreadsOnIndividual(numGridPoints, qtrue, TraceGrid);
 	}
 
 	if(!novertexlighting)
 	{
-		_printf("--- Vertex Lighting ---\n");
+		Sys_Printf("--- Vertex Lighting ---\n");
 		RunThreadsOnIndividual(numDrawSurfaces, qtrue, VertexLightingThread);
 	}
 
-	_printf("--- Model Lighting ---\n");
+	Sys_Printf("--- Model Lighting ---\n");
 	RunThreadsOnIndividual(numDrawSurfaces, qtrue, TriSoupLightingThread);
 }
 
@@ -2282,7 +2282,7 @@ int LightMain(int argc, char **argv)
 	double          start, end;
 	const char     *value;
 
-	_printf("----- Lighting ----\n");
+	Sys_Printf("----- Lighting ----\n");
 
 	verbose = qfalse;
 
@@ -2304,35 +2304,35 @@ int LightMain(int argc, char **argv)
 		else if(!strcmp(argv[i], "-area"))
 		{
 			areaScale *= atof(argv[i + 1]);
-			_printf("area light scaling at %f\n", areaScale);
+			Sys_Printf("area light scaling at %f\n", areaScale);
 			i++;
 		}
 		else if(!strcmp(argv[i], "-point"))
 		{
 			pointScale *= atof(argv[i + 1]);
-			_printf("point light scaling at %f\n", pointScale);
+			Sys_Printf("point light scaling at %f\n", pointScale);
 			i++;
 		}
 		else if(!strcmp(argv[i], "-notrace"))
 		{
 			notrace = qtrue;
-			_printf("No occlusion tracing\n");
+			Sys_Printf("No occlusion tracing\n");
 		}
 		else if(!strcmp(argv[i], "-patchshadows"))
 		{
 			patchshadows = qtrue;
-			_printf("Patch shadow casting enabled\n");
+			Sys_Printf("Patch shadow casting enabled\n");
 		}
 		else if(!strcmp(argv[i], "-extra"))
 		{
 			extra = qtrue;
-			_printf("Extra detail tracing\n");
+			Sys_Printf("Extra detail tracing\n");
 		}
 		else if(!strcmp(argv[i], "-extrawide"))
 		{
 			extra = qtrue;
 			extraWide = qtrue;
-			_printf("Extra wide detail tracing\n");
+			Sys_Printf("Extra wide detail tracing\n");
 		}
 		else if(!strcmp(argv[i], "-samplesize"))
 		{
@@ -2340,32 +2340,36 @@ int LightMain(int argc, char **argv)
 			if(samplesize < 1)
 				samplesize = 1;
 			i++;
-			_printf("lightmap sample size is %dx%d units\n", samplesize, samplesize);
+			Sys_Printf("lightmap sample size is %dx%d units\n", samplesize, samplesize);
 		}
 		else if(!strcmp(argv[i], "-novertex"))
 		{
 			novertexlighting = qtrue;
-			_printf("no vertex lighting = true\n");
+			Sys_Printf("no vertex lighting = true\n");
 		}
 		else if(!strcmp(argv[i], "-nogrid"))
 		{
 			nogridlighting = qtrue;
-			_printf("no grid lighting = true\n");
+			Sys_Printf("no grid lighting = true\n");
 		}
 		else if(!strcmp(argv[i], "-border"))
 		{
 			lightmapBorder = qtrue;
-			_printf("Adding debug border to lightmaps\n");
+			Sys_Printf("Adding debug border to lightmaps\n");
 		}
 		else if(!strcmp(argv[i], "-nosurf"))
 		{
 			noSurfaces = qtrue;
-			_printf("Not tracing against surfaces\n");
+			Sys_Printf("Not tracing against surfaces\n");
 		}
 		else if(!strcmp(argv[i], "-dump"))
 		{
 			dump = qtrue;
-			_printf("Dumping occlusion maps\n");
+			Sys_Printf("Dumping occlusion maps\n");
+		}
+		else if(!strcmp(argv[i], "-connect"))
+		{
+			Broadcast_Setup(argv[++i]);
 		}
 		else
 		{
@@ -2377,7 +2381,7 @@ int LightMain(int argc, char **argv)
 
 	if(i != argc - 1)
 	{
-		_printf("usage: xmap -light [-<switch> [-<switch> ...]] <mapname>\n"
+		Sys_Printf("usage: xmap -light [-<switch> [-<switch> ...]] <mapname>\n"
 				"\n"
 				"Switches:\n"
 				"   v              = verbose output\n"
@@ -2403,7 +2407,7 @@ int LightMain(int argc, char **argv)
 
 	LoadShaderInfo();
 
-	_printf("reading %s\n", source);
+	Sys_Printf("reading %s\n", source);
 
 	LoadBSPFile(source);
 
@@ -2415,7 +2419,7 @@ int LightMain(int argc, char **argv)
 	if(strlen(value))
 	{
 		sscanf(value, "%f %f %f", &gridSize[0], &gridSize[1], &gridSize[2]);
-		_printf("grid size = {%1.1f, %1.1f, %1.1f}\n", gridSize[0], gridSize[1], gridSize[2]);
+		Sys_Printf("grid size = {%1.1f, %1.1f, %1.1f}\n", gridSize[0], gridSize[1], gridSize[2]);
 	}
 
 	CreateFilters();
@@ -2430,11 +2434,11 @@ int LightMain(int argc, char **argv)
 
 	LightWorld();
 
-	_printf("writing %s\n", source);
+	Sys_Printf("writing %s\n", source);
 	WriteBSPFile(source);
 
 	end = I_FloatTime();
-	_printf("%5.0f seconds elapsed\n", end - start);
+	Sys_Printf("%5.0f seconds elapsed\n", end - start);
 
 	return 0;
 }

@@ -169,7 +169,7 @@ void WriteBrushList(char *name, bspbrush_t * brush, qboolean onlyvis)
 	side_t         *s;
 	FILE           *f;
 
-	qprintf("writing %s\n", name);
+	Sys_FPrintf(SYS_VRB, "writing %s\n", name);
 	f = SafeOpenWrite(name);
 
 	for(; brush; brush = brush->next)
@@ -198,11 +198,11 @@ void PrintBrush(bspbrush_t * brush)
 {
 	int             i;
 
-	_printf("brush: %p\n", brush);
+	Sys_Printf("brush: %p\n", brush);
 	for(i = 0; i < brush->numsides; i++)
 	{
 		pw(brush->sides[i].winding);
-		_printf("\n");
+		Sys_Printf("\n");
 	}
 }
 
@@ -383,7 +383,7 @@ void WriteBspBrushMap(char *name, bspbrush_t * list)
 	int             i;
 	winding_t      *w;
 
-	_printf("writing %s\n", name);
+	Sys_Printf("writing %s\n", name);
 	f = fopen(name, "wb");
 	if(!f)
 		Error("Can't write %s\b", name);
@@ -482,7 +482,7 @@ void FilterDetailBrushesIntoTree(entity_t * e, tree_t * tree)
 	int             c_unique, c_clusters;
 	int             i;
 
-	qprintf("----- FilterDetailBrushesIntoTree -----\n");
+	Sys_FPrintf(SYS_VRB, "----- FilterDetailBrushesIntoTree -----\n");
 
 	c_unique = 0;
 	c_clusters = 0;
@@ -510,8 +510,8 @@ void FilterDetailBrushesIntoTree(entity_t * e, tree_t * tree)
 		}
 	}
 
-	qprintf("%5i detail brushes\n", c_unique);
-	qprintf("%5i cluster references\n", c_clusters);
+	Sys_FPrintf(SYS_VRB, "%5i detail brushes\n", c_unique);
+	Sys_FPrintf(SYS_VRB, "%5i cluster references\n", c_clusters);
 }
 
 /*
@@ -528,7 +528,7 @@ void FilterStructuralBrushesIntoTree(entity_t * e, tree_t * tree)
 	int             c_unique, c_clusters;
 	int             i;
 
-	qprintf("----- FilterStructuralBrushesIntoTree -----\n");
+	Sys_FPrintf(SYS_VRB, "----- FilterStructuralBrushesIntoTree -----\n");
 
 	c_unique = 0;
 	c_clusters = 0;
@@ -556,8 +556,8 @@ void FilterStructuralBrushesIntoTree(entity_t * e, tree_t * tree)
 		}
 	}
 
-	qprintf("%5i structural brushes\n", c_unique);
-	qprintf("%5i cluster references\n", c_clusters);
+	Sys_FPrintf(SYS_VRB, "%5i structural brushes\n", c_unique);
+	Sys_FPrintf(SYS_VRB, "%5i cluster references\n", c_clusters);
 }
 
 
@@ -765,7 +765,7 @@ void SplitBrush(bspbrush_t * brush, int planenum, bspbrush_t ** front, bspbrush_
 
 	if(WindingIsHuge(w))
 	{
-		qprintf("WARNING: huge winding\n");
+		Sys_FPrintf(SYS_VRB, "WARNING: huge winding\n");
 	}
 
 	midwinding = w;
@@ -818,7 +818,7 @@ void SplitBrush(bspbrush_t * brush, int planenum, bspbrush_t ** front, bspbrush_
 		{
 			if(b[i]->mins[j] < MIN_WORLD_COORD || b[i]->maxs[j] > MAX_WORLD_COORD)
 			{
-				qprintf("bogus brush after clip\n");
+				Sys_FPrintf(SYS_VRB, "bogus brush after clip\n");
 				break;
 			}
 		}
@@ -833,9 +833,9 @@ void SplitBrush(bspbrush_t * brush, int planenum, bspbrush_t ** front, bspbrush_
 	if(!(b[0] && b[1]))
 	{
 		if(!b[0] && !b[1])
-			qprintf("split removed brush\n");
+			Sys_FPrintf(SYS_VRB, "split removed brush\n");
 		else
-			qprintf("split not on both sides\n");
+			Sys_FPrintf(SYS_VRB, "split not on both sides\n");
 		if(b[0])
 		{
 			FreeBrush(b[0]);

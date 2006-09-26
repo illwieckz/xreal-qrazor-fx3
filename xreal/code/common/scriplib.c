@@ -23,7 +23,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // scriplib.c
 
 #include "cmdlib.h"
+#include "mathlib.h"
+#include "inout.h"
 #include "scriplib.h"
+#include "vfs.h"
 
 
 typedef struct
@@ -46,7 +49,7 @@ qboolean        tokenready;		// only qtrue if UnGetToken was just called
 AddScriptToStack
 ==============
 */
-void AddScriptToStack(const char *filename)
+void AddScriptToStack(const char *filename, int index)
 {
 	int             size;
 
@@ -57,12 +60,20 @@ void AddScriptToStack(const char *filename)
 	
 	strcpy(script->filename, ExpandPath(filename));
 
-	size = LoadFile(script->filename, (void **)&script->buffer);
+	size = vfsLoadFile(script->filename, (void **)&script->buffer, index);
 
-	printf("entering %s\n", script->filename);
+	if(size == -1)
+		Sys_Printf("Script file %s was not found\n", script->filename);
+	else
+	{
+		if(index > 0)
+			Sys_Printf("entering %s (%d)\n", script->filename, index + 1);
+		else
+			Sys_Printf("entering %s\n", script->filename);
+	}
 
 	script->line = 1;
-
+	
 	script->script_p = script->buffer;
 	script->end_p = script->buffer + size;
 }
@@ -73,10 +84,10 @@ void AddScriptToStack(const char *filename)
 LoadScriptFile
 ==============
 */
-void LoadScriptFile(const char *filename)
+void LoadScriptFile(const char *filename, int index)
 {
 	script = scriptstack;
-	AddScriptToStack(filename);
+	AddScriptToStack(filename, index);
 
 	endofscript = qfalse;
 	tokenready = qfalse;
@@ -139,14 +150,18 @@ qboolean EndOfScript(qboolean crossline)
 		return qfalse;
 	}
 
-	free(script->buffer);
+	if(script->buffer == NULL)
+		Sys_Printf("WARNING: Attempt to free already freed script buffer\n");
+	else
+		free(script->buffer);
+	script->buffer = NULL;
 	if(script == scriptstack + 1)
 	{
 		endofscript = qtrue;
 		return qfalse;
 	}
 	script--;
-	printf("returning to %s\n", script->filename);
+	Sys_Printf("returning to %s\n", script->filename);
 	return GetToken(crossline);
 }
 
@@ -160,13 +175,17 @@ qboolean GetToken(qboolean crossline)
 {
 	char           *token_p;
 
-	if(tokenready)				// is a token allready waiting?
+	// ydnar: dummy testing
+	if(script == NULL || script->buffer == NULL)
+		return qfalse;
+
+	if(tokenready)				// is a token already waiting?
 	{
 		tokenready = qfalse;
 		return qtrue;
 	}
 
-	if(script->script_p >= script->end_p)
+	if((script->script_p >= script->end_p) || (script->script_p == NULL))
 		return EndOfScript(crossline);
 
 skipspace:
@@ -343,7 +362,7 @@ skipspace:
 	if(!strcmp(token, "$include"))
 	{
 		GetToken(qfalse);
-		AddScriptToStack(token);
+		AddScriptToStack(token, 0);
 		return GetToken(crossline);
 	}
 

@@ -119,7 +119,7 @@ void SplitMeshByPlane(mesh_t * in, vec3_t normal, float dist, mesh_t ** front, m
 		{
 			if(i == 1)
 			{
-				qprintf("No crossing points in patch\n");
+				Sys_FPrintf(SYS_VRB, "No crossing points in patch\n");
 				*front = in;
 				return;
 			}
@@ -138,7 +138,7 @@ void SplitMeshByPlane(mesh_t * in, vec3_t normal, float dist, mesh_t ** front, m
 				{
 					if(w != split)
 					{
-						_printf("multiple crossing points for patch -- can't clip\n");
+						Sys_Printf("multiple crossing points for patch -- can't clip\n");
 						*front = in;
 						return;
 					}
@@ -146,7 +146,7 @@ void SplitMeshByPlane(mesh_t * in, vec3_t normal, float dist, mesh_t ** front, m
 			}
 			if((d[h][split] < 0) == (d[h][split + 1] < 0))
 			{
-				_printf("differing crossing points for patch -- can't clip\n");
+				Sys_Printf("differing crossing points for patch -- can't clip\n");
 				*front = in;
 				return;
 			}
@@ -245,11 +245,11 @@ void SplitMeshByPlane(mesh_t * in, vec3_t normal, float dist, mesh_t ** front, m
 
 	/*
 	   PrintMesh( in );
-	   _printf("\n");
+	  Sys_Printf("\n");
 	   PrintMesh( f );
-	   _printf("\n");
+	  Sys_Printf("\n");
 	   PrintMesh( b );
-	   _printf("\n");
+	  Sys_Printf("\n");
 	 */
 
 	FreeMesh(in);
@@ -524,7 +524,7 @@ void FogDrawSurfs(void)
 	int             numBaseDrawSurfs;
 	dfog_t         *fog;
 
-	qprintf("----- FogDrawsurfs -----\n");
+	Sys_FPrintf(SYS_VRB, "----- FogDrawsurfs -----\n");
 
 	c_fogged = 0;
 	c_fogFragment = 0;
@@ -603,7 +603,7 @@ void FogDrawSurfs(void)
 					// this is a visible fog plane
 					if(fog->visibleSide != -1)
 					{
-						_printf("WARNING: fog brush %i has multiple visible sides\n", b->brushnum);
+						Sys_Printf("WARNING: fog brush %i has multiple visible sides\n", b->brushnum);
 					}
 					fog->visibleSide = s;
 				}
@@ -636,8 +636,8 @@ void FogDrawSurfs(void)
 
 	// split the drawsurfs by the fog brushes
 
-	qprintf("%5i fogs\n", numFogs);
-	qprintf("%5i fog polygon fragments\n", c_fogFragment);
-	qprintf("%5i fog patch fragments\n", c_fogPatchFragments);
-	qprintf("%5i fogged drawsurfs\n", c_fogged);
+	Sys_FPrintf(SYS_VRB, "%5i fogs\n", numFogs);
+	Sys_FPrintf(SYS_VRB, "%5i fog polygon fragments\n", c_fogFragment);
+	Sys_FPrintf(SYS_VRB, "%5i fog patch fragments\n", c_fogPatchFragments);
+	Sys_FPrintf(SYS_VRB, "%5i fogged drawsurfs\n", c_fogged);
 }

@@ -21,8 +21,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+
 #include "cmdlib.h"
 #include "mathlib.h"
+#include "inout.h"
 #include "polylib.h"
 #include "qfiles.h"
 
@@ -43,7 +45,7 @@ void pw(winding_t * w)
 	int             i;
 
 	for(i = 0; i < w->numpoints; i++)
-		printf("(%5.1f, %5.1f, %5.1f)\n", w->p[i][0], w->p[i][1], w->p[i][2]);
+		Sys_Printf("(%5.1f, %5.1f, %5.1f)\n", w->p[i][0], w->p[i][1], w->p[i][2]);
 }
 
 
@@ -57,6 +59,9 @@ winding_t      *AllocWinding(int points)
 	winding_t      *w;
 	int             s;
 
+	if(points >= MAX_POINTS_ON_WINDING)
+		Error("AllocWinding failed: MAX_POINTS_ON_WINDING exceeded");
+
 	if(numthreads == 1)
 	{
 		c_winding_allocs++;
@@ -66,7 +71,7 @@ winding_t      *AllocWinding(int points)
 			c_peak_windings = c_active_windings;
 	}
 	s = sizeof(vec_t) * 3 * points + sizeof(int);
-	w = malloc(s);
+	w = safe_malloc(s);
 	memset(w, 0, s);
 	return w;
 }
@@ -250,7 +255,7 @@ winding_t      *BaseWindingForPlane(vec3_t normal, vec_t dist)
 	VectorScale(vup, MAX_WORLD_COORD, vup);
 	VectorScale(vright, MAX_WORLD_COORD, vright);
 
-// project a really big axis aligned box onto the plane
+	// project a really big axis aligned box onto the plane
 	w = AllocWinding(4);
 
 	VectorSubtract(org, vright, w->p[0]);
@@ -569,7 +574,7 @@ void CheckWinding(winding_t * w)
 
 		for(j = 0; j < 3; j++)
 			if(p1[j] > MAX_WORLD_COORD || p1[j] < MIN_WORLD_COORD)
-				Error("CheckFace: BUGUS_RANGE: %f", p1[j]);
+				Error("CheckFace: MAX_WORLD_COORD exceeded: %f", p1[j]);
 
 		j = i + 1 == w->numpoints ? 0 : i + 1;
 

@@ -363,7 +363,7 @@ void AllocateLightmaps(entity_t * e)
 	mapDrawSurface_t *ds;
 	shaderInfo_t   *si;
 
-	qprintf("--- AllocateLightmaps ---\n");
+	Sys_FPrintf(SYS_VRB, "--- AllocateLightmaps ---\n");
 
 
 	// sort all surfaces by shader so common shaders will usually
@@ -406,7 +406,7 @@ void AllocateLightmaps(entity_t * e)
 			numSortShaders++;
 		}
 	}
-	qprintf("%5i unique shaders\n", numSortShaders);
+	Sys_FPrintf(SYS_VRB, "%5i unique shaders\n", numSortShaders);
 
 	// for each shader, allocate lightmaps for each surface
 
@@ -435,6 +435,6 @@ void AllocateLightmaps(entity_t * e)
 		}
 	}
 
-	qprintf("%7i exact lightmap texels\n", c_exactLightmap);
-	qprintf("%7i block lightmap texels\n", numLightmaps * LIGHTMAP_WIDTH * LIGHTMAP_HEIGHT);
+	Sys_FPrintf(SYS_VRB, "%7i exact lightmap texels\n", c_exactLightmap);
+	Sys_FPrintf(SYS_VRB, "%7i block lightmap texels\n", numLightmaps * LIGHTMAP_WIDTH * LIGHTMAP_HEIGHT);
 }

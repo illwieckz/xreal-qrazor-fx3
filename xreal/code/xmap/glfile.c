@@ -130,7 +130,7 @@ void WriteGLView(tree_t * tree, char *source)
 
 	c_glfaces = 0;
 	sprintf(name, "%s%s.gl", outbase, source);
-	_printf("Writing %s\n", name);
+	Sys_Printf("Writing %s\n", name);
 
 	glview = fopen(name, "w");
 	if(!glview)
@@ -138,5 +138,5 @@ void WriteGLView(tree_t * tree, char *source)
 	WriteGLView_r(tree->headnode, glview);
 	fclose(glview);
 
-	_printf("%5i c_glfaces\n", c_glfaces);
+	Sys_Printf("%5i c_glfaces\n", c_glfaces);
 }

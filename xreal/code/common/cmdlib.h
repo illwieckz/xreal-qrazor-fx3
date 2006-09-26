@@ -62,13 +62,19 @@ typedef unsigned char byte;
 // the dec offsetof macro doesnt work very well...
 #define myoffsetof(type,identifier) ((size_t)&((type *)0)->identifier)
 
+#define SAFE_MALLOC
+#ifdef SAFE_MALLOC
+void           *safe_malloc(size_t size);
+void           *safe_malloc_info(size_t size, char *info);
+#else
+#define safe_malloc(a) malloc(a)
+#endif							/* SAFE_MALLOC */
 
 // set these before calling CheckParm
 extern int      myargc;
 extern char   **myargv;
 
-char           *strupr(char *in);
-char           *strlwr(char *in);
+char           *strlower(char *in);
 int             Q_strncasecmp(const char *s1, const char *s2, int n);
 int             Q_stricmp(const char *s1, const char *s2);
 void            Q_getwd(char *out);
@@ -86,6 +92,7 @@ char           *ExpandArg(const char *path);	// from cmd line
 char           *ExpandPath(const char *path);	// from scripts
 char           *ExpandGamePath(const char *path);
 char           *ExpandPathAndArchive(const char *path);
+void            ExpandWildcards(int *argc, char ***argv);
 
 
 double          I_FloatTime(void);
@@ -141,13 +148,8 @@ void            QCopyFile(const char *from, const char *to);
 extern qboolean archive;
 extern char     archivedir[1024];
 
-
-extern qboolean verbose;
-void            qprintf(const char *format, ...);
-void            _printf(const char *format, ...);
-
-void            ExpandWildcards(int *argc, char ***argv);
-
+// sleep for the given amount of milliseconds
+void            Sys_Sleep(int n);
 
 // for compression routines
 typedef struct

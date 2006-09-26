@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define TRI_FACEL1    0x4120
 
 #define MAXVERTS	2000
+#define MAXTRIANGLES	750
 
 typedef struct
 {
@@ -286,7 +287,7 @@ void Load3DSTriangleList(char *filename, triangle_t ** pptri, int *numtriangles)
 // back to top of file so we can parse the first chunk descriptor
 	fseek(input, 0, SEEK_SET);
 
-	ptri = malloc(MAXTRIANGLES * sizeof(triangle_t));
+	ptri = safe_malloc(MAXTRIANGLES * sizeof(triangle_t));
 
 	*pptri = ptri;
 

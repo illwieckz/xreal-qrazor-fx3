@@ -39,6 +39,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //#define NOISY 1
 
+#if defined(__linux__) || defined(__APPLE__)
+#define strlwr strlower
+#endif
+
 typedef struct
 {
 	float           v[3];

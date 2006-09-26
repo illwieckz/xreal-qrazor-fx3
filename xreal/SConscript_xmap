@@ -36,10 +36,14 @@ xmap_src = [
 'code/common/polylib.c',
 'code/common/aselib.c',
 'code/common/imagelib.c',
+'code/common/inout.c',
 'code/common/scriplib.c',
 'code/common/threads.c',
 'code/common/bspfile.c',
 'code/common/mutex.c',
+'code/common/unzip.c',
+'code/common/vfs.c',
+'code/common/netlib.c',
 'code/lwobject/clip.c',
 'code/lwobject/envelope.c',
 'code/lwobject/list.c',
@@ -90,12 +94,16 @@ xmap_env = env.Copy()
 xmap_env.Append(CCFLAGS='-DXMAP')
 
 if env['arch'] == 'linux-i386':
-	xmap_env.Append(LIBS=['m'])
+	xmap_env.ParseConfig('xml2-config --cflags --libs')
+	xmap_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
+	xmap_env.Append(LIBS=['m', 'pthread'])
 	xmap_env.Program('xmap.x86', xmap_src)
 	xmap_env.Install('#', 'xmap.x86')
 	
 elif env['arch'] == 'linux-x86_64':
-	xmap_env.Append(LIBS=['m'])
+	xmap_env.ParseConfig('xml2-config --cflags --libs')
+	xmap_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
+	xmap_env.Append(LIBS=['m', 'pthread'])
 	xmap_env.Program('xmap.x86_64', xmap_src)
 	xmap_env.Install('#', 'xmap.x86_64')
 
