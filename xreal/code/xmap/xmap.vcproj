@@ -46,7 +46,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../common,c:\quake3\common,c:\quake3\libs"
+				AdditionalIncludeDirectories="../common;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;XMAP;_WIN32"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
@@ -73,7 +73,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="glaux.lib glu32.lib wsock32.lib opengl32.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="glaux.lib glu32.lib wsock32.lib opengl32.lib odbc32.lib odbccp32.lib xml2.lib z.lib iconv.lib ws2_32.lib xml2.lib z.lib iconv.lib ws2_32.lib xml2.lib z.lib iconv.lib ws2_32.lib intl.lib glib-2.0.lib"
 				OutputFile="../../xmap.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -443,6 +443,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\common\inout.c"
+			>
+		</File>
+		<File
+			RelativePath="..\common\inout.h"
+			>
+		</File>
+		<File
 			RelativePath="..\jpeg-6\jcapimin.c"
 			>
 		</File>
@@ -639,6 +647,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\common\netlib.c"
+			>
+		</File>
+		<File
+			RelativePath="..\common\netlib.h"
+			>
+		</File>
+		<File
 			RelativePath=".\nodraw.c"
 			>
 		</File>
@@ -695,7 +711,23 @@
 			>
 		</File>
 		<File
+			RelativePath="..\common\unzip.c"
+			>
+		</File>
+		<File
+			RelativePath="..\common\unzip.h"
+			>
+		</File>
+		<File
 			RelativePath="..\lwobject\vecmath.c"
+			>
+		</File>
+		<File
+			RelativePath="..\common\vfs.c"
+			>
+		</File>
+		<File
+			RelativePath="..\common\vfs.h"
 			>
 		</File>
 		<File
