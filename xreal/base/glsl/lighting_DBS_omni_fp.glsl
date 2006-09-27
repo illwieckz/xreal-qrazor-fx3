@@ -25,35 +25,41 @@ uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_SpecularMap;
 uniform sampler2D	u_AttenuationMapXY;
 uniform sampler2D	u_AttenuationMapZ;
-//uniform samplerCube	u_AttenuationMapCube;
+uniform samplerCube	u_ShadowMap;
 uniform vec3		u_ViewOrigin;
 uniform vec3		u_LightOrigin;
 uniform vec3		u_LightColor;
+uniform float		u_LightRadius;
 uniform float       u_LightScale;
 uniform float		u_SpecularExponent;
+uniform mat4		u_ModelMatrix;
 
 varying vec3		var_Vertex;
 varying vec2		var_TexDiffuse;
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
 varying vec3		var_TexAttenXYZ;
-//varying vec3		var_TexAttenCube;
-varying mat3		var_OS2TSMatrix;
+varying mat3		var_TS2OSMatrix;
 
 void	main()
 {
-	// compute view direction in tangent space
-	vec3 V = normalize(var_OS2TSMatrix * (u_ViewOrigin - var_Vertex));
+	// compute view direction in world space
+	vec3 V = normalize(u_ViewOrigin - var_Vertex);
 	
-	// compute light direction in tangent space
-	vec3 L = normalize(var_OS2TSMatrix * (u_LightOrigin - var_Vertex));
+	// compute light direction in world space
+	vec3 L = normalize(u_LightOrigin - var_Vertex);
 	
-	// compute half angle in tangent space
+	// compute half angle in world space
 	vec3 H = normalize(L + V);
 	
 	// compute normal in tangent space from normalmap
 	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).xyz - 0.5);
-	N = normalize(N);
+	
+	// transform normal into object space
+	N = var_TS2OSMatrix * N;
+	
+	// transform normal into world space
+	N = normalize((u_ModelMatrix * vec4(N, 0.0)).xyz);
 	
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
@@ -65,23 +71,27 @@ void	main()
 	// compute attenuation
 	vec3 attenuationXY		= texture2D(u_AttenuationMapXY, var_TexAttenXYZ.xy).rgb;
 	vec3 attenuationZ		= texture2D(u_AttenuationMapZ, vec2(var_TexAttenXYZ.z, 0)).rgb;
-//	vec3 attenuationCube	= textureCube(u_AttenuationMapCube, var_tex_atten_cube).rgb;
 					
 	// compute final color
 	vec4 color = diffuse;
 	color.rgb += specular;
 	color.rgb *= attenuationXY;
 	color.rgb *= attenuationZ;
-//	color.rgb *= attenuationCube;
 	color.rgb *= u_LightScale;
-
-#if defined(GL_ARB_draw_buffers)
-	gl_FragData[0] = color;
-	vec4 black = vec4(0.0, 0.0, 0.0, color.a);
-	gl_FragData[1] = black;
-	gl_FragData[2] = black;
-	gl_FragData[3] = black;
+	
+#if defined(SHADOWMAPPING)
+	// compute incident ray
+	vec3 I = var_Vertex - u_LightOrigin;
+#if 1
+	float vertexDistance = length(I) / u_LightRadius - 0.005f;
+	vec4 extract = float4(1.0, 0.00390625, 0.0000152587890625, 0.000000059604644775390625);
+	float shadowDistance = dot(textureCube(u_ShadowMap, I), extract);
+	float shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
+	color.rgb *= shadow;
 #else
-	gl_FragColor = color;
+	color.rgb *= textureCube(u_ShadowMap, I).rgb;
 #endif
+#endif
+
+	gl_FragColor = color;
 }

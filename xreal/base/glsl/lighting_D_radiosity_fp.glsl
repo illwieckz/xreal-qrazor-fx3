@@ -46,13 +46,5 @@ void	main()
 	// compute final color
 	vec4 color = diffuse;
 	
-#if defined(GL_ARB_draw_buffers)
-	gl_FragData[0] = color;
-	vec4 black = vec4(0.0, 0.0, 0.0, color.a);
-	gl_FragData[1] = black;
-	gl_FragData[2] = black;
-	gl_FragData[3] = black;
-#else
 	gl_FragColor = color;
-#endif
 }

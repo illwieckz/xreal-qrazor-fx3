@@ -24,13 +24,5 @@ varying vec4		var_Color;
 
 void	main()
 {
-#if defined(GL_ARB_draw_buffers)
-	gl_FragData[0] = var_Color;
-	vec4 black = vec4(0.0, 0.0, 0.0, 1.0);
-	gl_FragData[1] = black;
-	gl_FragData[2] = black;
-	gl_FragData[3] = black;
-#else
 	gl_FragColor = var_Color;
-#endif
 }

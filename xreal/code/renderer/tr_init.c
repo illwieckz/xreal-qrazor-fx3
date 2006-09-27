@@ -1260,7 +1260,7 @@ void R_Register(void)
 	r_inGameVideo = ri.Cvar_Get("r_inGameVideo", "1", CVAR_ARCHIVE);
 	r_drawSun = ri.Cvar_Get("r_drawSun", "0", CVAR_ARCHIVE);
 	r_lighting = ri.Cvar_Get("r_lighting", "2", CVAR_ARCHIVE);
-	AssertCvarRange(r_lighting, 0, 3, qtrue);
+	AssertCvarRange(r_lighting, 0, 2, qtrue);
 	r_dynamicLighting = ri.Cvar_Get("r_dynamicLighting", "2", CVAR_ARCHIVE);
 	r_finish = ri.Cvar_Get("r_finish", "0", CVAR_ARCHIVE);
 	r_textureMode = ri.Cvar_Get("r_textureMode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);

@@ -26,21 +26,22 @@ attribute vec4		attr_TexCoord2;
 attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
 
+uniform mat4		u_ModelMatrix;
+
 varying vec3		var_Vertex;
 varying vec2		var_TexDiffuse;
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
 varying vec3		var_TexAttenXYZ;
-//varying vec3		var_TexAttenCube;
-varying mat3		var_OS2TSMatrix;
+varying mat3		var_TS2OSMatrix;
 
 void	main()
 {
 	// transform vertex position into homogenous clip-space
 	gl_Position = ftransform();
 	
-	// assign position in object space
-	var_Vertex = gl_Vertex.xyz;
+	// transform position into world space
+	var_Vertex = (u_ModelMatrix * gl_Vertex).xyz;
 		
 	// transform diffusemap texcoords
 	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;
@@ -54,11 +55,6 @@ void	main()
 	// calc light xy,z attenuation in light space
 	var_TexAttenXYZ = (gl_TextureMatrix[3] * gl_Vertex).xyz;
 	
-	// calc light cube attenuation in light space
-//	var_TexAttenCube = (gl_TextureMatrix[1] * gl_Vertex).xyz;
-	
-	// construct object-space-to-tangent-space 3x3 matrix
-	var_OS2TSMatrix = mat3(	attr_Tangent.x, attr_Binormal.x, gl_Normal.x,
-							attr_Tangent.y, attr_Binormal.y, gl_Normal.y,
-							attr_Tangent.z, attr_Binormal.z, gl_Normal.z	);
+	// construct tangent-space-to-object-space 3x3 matrix
+	var_TS2OSMatrix = mat3(attr_Tangent, attr_Binormal, gl_Normal);
 }

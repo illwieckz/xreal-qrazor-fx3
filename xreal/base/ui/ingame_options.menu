@@ -94,7 +94,7 @@ menuDef
       		type ITEM_TYPE_MULTI
 		text "Lighting Mode:"
 		cvar "r_lighting"
-		cvarFloatList { "diffuse" 0 "bumped" 1 "specular" 2 "parallax" 3 }
+		cvarFloatList { "diffuse" 0 "bumped" 1 "specular" 2 }
 		rect 0 88 200 20
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 143

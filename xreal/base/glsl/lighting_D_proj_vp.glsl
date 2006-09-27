@@ -38,9 +38,7 @@ void	main()
 	var_Vertex = (u_ModelMatrix * gl_Vertex).xyz;
 	
 	// transform normal into world space
-	var_Normal.x = dot(u_ModelMatrix[0].xyz, gl_Normal);
-	var_Normal.y = dot(u_ModelMatrix[1].xyz, gl_Normal);
-	var_Normal.z = dot(u_ModelMatrix[2].xyz, gl_Normal);
+	var_Normal = (u_ModelMatrix * vec4(gl_Normal, 0.0)).xyz;
 	
 	// transform diffusemap texcoords
 	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;

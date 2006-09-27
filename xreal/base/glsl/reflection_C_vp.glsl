@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+uniform mat4		u_ModelMatrix;
+
 varying vec3		var_Vertex;
 varying vec3		var_Normal;
 
@@ -29,11 +31,9 @@ void	main()
 	gl_Position = ftransform();
 	
 	// transform position into world space
-	var_Vertex = (gl_TextureMatrix[0] * gl_Vertex).xyz;
+	var_Vertex = (u_ModelMatrix * gl_Vertex).xyz;
 	
 	// transform normal into world space
-	var_Normal.x = dot(gl_TextureMatrix[0][0].xyz, gl_Normal);
-	var_Normal.y = dot(gl_TextureMatrix[0][1].xyz, gl_Normal);
-	var_Normal.z = dot(gl_TextureMatrix[0][2].xyz, gl_Normal);
+	var_Normal = (u_ModelMatrix * vec4(gl_Normal, 0.0)).xyz;
 }
 

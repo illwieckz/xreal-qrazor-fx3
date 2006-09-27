@@ -1792,7 +1792,6 @@ typedef struct
 
 	// GPU shader programs
 	shaderProgram_t genericSingleShader;
-	shaderProgram_t genericSingleMRTShader;
 
 	shaderProgram_t depthFillShader;
 	shaderProgram_t depthTestShader;
@@ -1807,7 +1806,6 @@ typedef struct
 	shaderProgram_t lightShader_D_omni;
 	shaderProgram_t lightShader_DB_omni;
 	shaderProgram_t lightShader_DBS_omni;
-	shaderProgram_t lightShader_DBSP_omni;
 
 	shaderProgram_t lightShader_D_proj;
 

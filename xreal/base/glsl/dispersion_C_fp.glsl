@@ -61,13 +61,5 @@ void	main()
 	color.b = (1.0 - fresnel) * refractColor.b + reflectColor.b * fresnel;
 	color.a = 1.0;
 	
-#if defined(GL_ARB_draw_buffers)
-	gl_FragData[0] = color;
-	vec4 black = vec4(0.0, 0.0, 0.0, color.a);
-	gl_FragData[1] = black;
-	gl_FragData[2] = black;
-	gl_FragData[3] = black;
-#else
 	gl_FragColor = color;
-#endif
 }

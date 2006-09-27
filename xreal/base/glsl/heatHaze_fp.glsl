@@ -69,12 +69,5 @@ void	main()
 	color1 = vec4(0.0, 0.0, 0.0, color0.a);
 #endif
 	
-#if defined(GL_ARB_draw_buffers)
-	gl_FragData[0] = color0;
-	gl_FragData[1] = color1;
-	gl_FragData[2] = vec4(0.0, 0.0, 0.0, color0.a);
-	gl_FragData[3] = vec4(0.0, 0.0, 0.0, color0.a);
-#else
 	gl_FragColor = color0;
-#endif
 }

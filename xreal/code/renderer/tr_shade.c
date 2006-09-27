@@ -283,21 +283,6 @@ void GLSL_InitGPUShaders(void)
 	
 	GLSL_ValidateProgram(tr.genericSingleShader.program);
 	GLSL_ShowProgramUniforms(tr.genericSingleShader.program);
-	
-	//
-	// simple texture rendering into gl_FragData[0] and everything blackened (good for MRT testing)
-	//
-	GLSL_InitGPUShader(&tr.genericSingleMRTShader, "genericSingleMRT", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_COLOR, qtrue);
-
-	tr.genericSingleMRTShader.u_ColorMap = qglGetUniformLocationARB(tr.genericSingleMRTShader.program, "u_ColorMap");
-	tr.genericSingleMRTShader.u_Color = qglGetUniformLocationARB(tr.genericSingleMRTShader.program, "u_Color");
-
-	qglUseProgramObjectARB(tr.genericSingleMRTShader.program);
-	qglUniform1iARB(tr.genericSingleMRTShader.u_ColorMap, 0);
-	qglUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.genericSingleMRTShader.program);
-	GLSL_ShowProgramUniforms(tr.genericSingleMRTShader.program);
 
 	//
 	// black depth fill rendering with textures
@@ -387,8 +372,7 @@ void GLSL_InitGPUShaders(void)
 	tr.lightShader_DB_direct.u_AmbientColor = qglGetUniformLocationARB(tr.lightShader_DB_direct.program, "u_AmbientColor");
 	tr.lightShader_DB_direct.u_LightDir = qglGetUniformLocationARB(tr.lightShader_DB_direct.program, "u_LightDir");
 	tr.lightShader_DB_direct.u_LightColor = qglGetUniformLocationARB(tr.lightShader_DB_direct.program, "u_LightColor");
-//  tr.lightShader_DB_direct.u_BumpScale =
-//      qglGetUniformLocationARB(tr.lightShader_DB_direct.program, "u_BumpScale");
+//  tr.lightShader_DB_direct.u_BumpScale = qglGetUniformLocationARB(tr.lightShader_DB_direct.program, "u_BumpScale");
 
 	qglUseProgramObjectARB(tr.lightShader_DB_direct.program);
 	qglUniform1iARB(tr.lightShader_DB_direct.u_DiffuseMap, 0);
@@ -461,15 +445,19 @@ void GLSL_InitGPUShaders(void)
 	tr.lightShader_DB_omni.u_NormalMap = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_NormalMap");
 	tr.lightShader_DB_omni.u_AttenuationMapXY = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_AttenuationMapXY");
 	tr.lightShader_DB_omni.u_AttenuationMapZ = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_AttenuationMapZ");
+	tr.lightShader_DB_omni.u_ShadowMap = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_ShadowMap");
 	tr.lightShader_DB_omni.u_LightOrigin = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_LightOrigin");
 	tr.lightShader_DB_omni.u_LightColor = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_LightColor");
+	tr.lightShader_DB_omni.u_LightRadius = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_LightRadius");
 	tr.lightShader_DB_omni.u_LightScale = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_LightScale");
+	tr.lightShader_DB_omni.u_ModelMatrix = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_ModelMatrix");
 
 	qglUseProgramObjectARB(tr.lightShader_DB_omni.program);
 	qglUniform1iARB(tr.lightShader_DB_omni.u_DiffuseMap, 0);
 	qglUniform1iARB(tr.lightShader_DB_omni.u_NormalMap, 1);
 	qglUniform1iARB(tr.lightShader_DB_omni.u_AttenuationMapXY, 2);
 	qglUniform1iARB(tr.lightShader_DB_omni.u_AttenuationMapZ, 3);
+	qglUniform1iARB(tr.lightShader_DB_omni.u_ShadowMap, 4);
 	qglUseProgramObjectARB(0);
 
 	GLSL_ValidateProgram(tr.lightShader_DB_omni.program);
@@ -488,11 +476,14 @@ void GLSL_InitGPUShaders(void)
 	tr.lightShader_DBS_omni.u_SpecularMap = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_SpecularMap");
 	tr.lightShader_DBS_omni.u_AttenuationMapXY = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_AttenuationMapXY");
 	tr.lightShader_DBS_omni.u_AttenuationMapZ = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_AttenuationMapZ");
+	tr.lightShader_DBS_omni.u_ShadowMap = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_ShadowMap");
 	tr.lightShader_DBS_omni.u_ViewOrigin = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_ViewOrigin");
 	tr.lightShader_DBS_omni.u_LightOrigin = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_LightOrigin");
 	tr.lightShader_DBS_omni.u_LightColor = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_LightColor");
+	tr.lightShader_DBS_omni.u_LightRadius = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_LightRadius");
 	tr.lightShader_DBS_omni.u_LightScale = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_LightScale");
 	tr.lightShader_DBS_omni.u_SpecularExponent = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_SpecularExponent");
+	tr.lightShader_DBS_omni.u_ModelMatrix = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_ModelMatrix");
 
 	qglUseProgramObjectARB(tr.lightShader_DBS_omni.program);
 	qglUniform1iARB(tr.lightShader_DBS_omni.u_DiffuseMap, 0);
@@ -500,44 +491,11 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.lightShader_DBS_omni.u_SpecularMap, 2);
 	qglUniform1iARB(tr.lightShader_DBS_omni.u_AttenuationMapXY, 3);
 	qglUniform1iARB(tr.lightShader_DBS_omni.u_AttenuationMapZ, 4);
+	qglUniform1iARB(tr.lightShader_DBS_omni.u_ShadowMap, 5);
 	qglUseProgramObjectARB(0);
 
 	GLSL_ValidateProgram(tr.lightShader_DBS_omni.program);
 	GLSL_ShowProgramUniforms(tr.lightShader_DBS_omni.program);
-
-	//
-	// omni-directional specular parallax bump mapping ( Doom3 style )
-	//
-	GLSL_InitGPUShader(&tr.lightShader_DBSP_omni,
-					 "lighting_DBSP_omni",
-					 GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD2 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL,
-					 qtrue);
-
-	tr.lightShader_DBSP_omni.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_DiffuseMap");
-	tr.lightShader_DBSP_omni.u_NormalMap = qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_NormalMap");
-	tr.lightShader_DBSP_omni.u_SpecularMap = qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_SpecularMap");
-	tr.lightShader_DBSP_omni.u_AttenuationMapXY =
-		qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_AttenuationMapXY");
-	tr.lightShader_DBSP_omni.u_AttenuationMapZ = qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_AttenuationMapZ");
-	tr.lightShader_DBSP_omni.u_ViewOrigin = qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_ViewOrigin");
-	tr.lightShader_DBSP_omni.u_LightOrigin = qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_LightOrigin");
-	tr.lightShader_DBSP_omni.u_LightColor = qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_LightColor");
-	tr.lightShader_DBSP_omni.u_LightScale = qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_LightScale");
-	tr.lightShader_DBSP_omni.u_SpecularExponent =
-		qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_SpecularExponent");
-	tr.lightShader_DBSP_omni.u_HeightScale = qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_HeightScale");
-	tr.lightShader_DBSP_omni.u_HeightBias = qglGetUniformLocationARB(tr.lightShader_DBSP_omni.program, "u_HeightBias");
-
-	qglUseProgramObjectARB(tr.lightShader_DBSP_omni.program);
-	qglUniform1iARB(tr.lightShader_DBSP_omni.u_DiffuseMap, 0);
-	qglUniform1iARB(tr.lightShader_DBSP_omni.u_NormalMap, 1);
-	qglUniform1iARB(tr.lightShader_DBSP_omni.u_SpecularMap, 2);
-	qglUniform1iARB(tr.lightShader_DBSP_omni.u_AttenuationMapXY, 3);
-	qglUniform1iARB(tr.lightShader_DBSP_omni.u_AttenuationMapZ, 4);
-	qglUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.lightShader_DBSP_omni.program);
-	GLSL_ShowProgramUniforms(tr.lightShader_DBSP_omni.program);
 
 	//
 	// projective lighting ( Doom3 style )
@@ -639,6 +597,7 @@ void GLSL_InitGPUShaders(void)
 
 	tr.reflectionShader_C.u_ColorMap = qglGetUniformLocationARB(tr.reflectionShader_C.program, "u_ColorMap");
 	tr.reflectionShader_C.u_ViewOrigin = qglGetUniformLocationARB(tr.reflectionShader_C.program, "u_ViewOrigin");
+	tr.reflectionShader_C.u_ModelMatrix = qglGetUniformLocationARB(tr.reflectionShader_C.program, "u_ModelMatrix");
 
 	qglUseProgramObjectARB(tr.reflectionShader_C.program);
 	qglUniform1iARB(tr.reflectionShader_C.u_ColorMap, 0);
@@ -677,6 +636,7 @@ void GLSL_InitGPUShaders(void)
 	tr.refractionShader_C.u_FresnelPower = qglGetUniformLocationARB(tr.refractionShader_C.program, "u_FresnelPower");
 	tr.refractionShader_C.u_FresnelScale = qglGetUniformLocationARB(tr.refractionShader_C.program, "u_FresnelScale");
 	tr.refractionShader_C.u_FresnelBias = qglGetUniformLocationARB(tr.refractionShader_C.program, "u_FresnelBias");
+	tr.refractionShader_C.u_ModelMatrix = qglGetUniformLocationARB(tr.refractionShader_C.program, "u_ModelMatrix");
 
 	qglUseProgramObjectARB(tr.refractionShader_C.program);
 	qglUniform1iARB(tr.refractionShader_C.u_ColorMap, 0);
@@ -696,6 +656,7 @@ void GLSL_InitGPUShaders(void)
 	tr.dispersionShader_C.u_FresnelPower = qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_FresnelPower");
 	tr.dispersionShader_C.u_FresnelScale = qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_FresnelScale");
 	tr.dispersionShader_C.u_FresnelBias = qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_FresnelBias");
+	tr.dispersionShader_C.u_ModelMatrix = qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_ModelMatrix");
 
 	qglUseProgramObjectARB(tr.dispersionShader_C.program);
 	qglUniform1iARB(tr.dispersionShader_C.u_ColorMap, 0);
@@ -711,6 +672,7 @@ void GLSL_InitGPUShaders(void)
 
 	tr.skyBoxShader.u_ColorMap = qglGetUniformLocationARB(tr.skyBoxShader.program, "u_ColorMap");
 	tr.skyBoxShader.u_ViewOrigin = qglGetUniformLocationARB(tr.skyBoxShader.program, "u_ViewOrigin");
+	tr.skyBoxShader.u_ModelMatrix = qglGetUniformLocationARB(tr.skyBoxShader.program, "u_ModelMatrix");
 
 	qglUseProgramObjectARB(tr.skyBoxShader.program);
 	qglUniform1iARB(tr.skyBoxShader.u_ColorMap, 0);
@@ -863,12 +825,6 @@ void GLSL_ShutdownGPUShaders(void)
 		tr.genericSingleShader.program = 0;
 	}
 
-	if(tr.genericSingleMRTShader.program)
-	{
-		qglDeleteObjectARB(tr.genericSingleMRTShader.program);
-		tr.genericSingleMRTShader.program = 0;
-	}
-
 	if(tr.depthFillShader.program)
 	{
 		qglDeleteObjectARB(tr.depthFillShader.program);
@@ -927,12 +883,6 @@ void GLSL_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.lightShader_DBS_omni.program);
 		tr.lightShader_DBS_omni.program = 0;
-	}
-
-	if(tr.lightShader_DBSP_omni.program)
-	{
-		qglDeleteObjectARB(tr.lightShader_DBSP_omni.program);
-		tr.lightShader_DBSP_omni.program = 0;
 	}
 
 	if(tr.lightShader_D_proj.program)
@@ -2032,12 +1982,14 @@ static void Render_lighting_DB_omni(shaderStage_t * diffuseStage,
 	GL_SetVertexAttribs();
 
 	// set uniforms
-	VectorCopy(light->transformed, lightOrigin);
+	VectorCopy(light->origin, lightOrigin);
 	VectorCopy(tess.svars.color, lightColor);
 
 	qglUniform3fARB(tr.lightShader_DB_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.lightShader_DB_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
+	qglUniform1fARB(tr.lightShader_DB_omni.u_LightRadius, light->sphereRadius);
 	qglUniform1fARB(tr.lightShader_DB_omni.u_LightScale, r_lightScale->value);
+	qglUniformMatrix4fvARB(tr.lightShader_DB_omni.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 
 	// bind u_DiffuseMap
 	GL_SelectTexture(0);
@@ -2063,6 +2015,10 @@ static void Render_lighting_DB_omni(shaderStage_t * diffuseStage,
 	// bind u_AttenuationMapZ
 	GL_SelectTexture(3);
 	BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
+	
+	// bind u_ShadowMap
+	GL_SelectTexture(4);
+	GL_Bind(tr.shadowCubeFBOImage[light->shadowLOD]);
 
 	DrawElements();
 
@@ -2090,16 +2046,18 @@ static void Render_lighting_DBS_omni(shaderStage_t * diffuseStage,
 	GL_SetVertexAttribs();
 
 	// set uniforms
-	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
-	VectorCopy(light->transformed, lightOrigin);
+	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
+	VectorCopy(light->origin, lightOrigin);
 	VectorCopy(tess.svars.color, lightColor);
 	specularExponent = RB_EvalExpression(&diffuseStage->specularExponentExp, r_specularExponent->value);
 
 	qglUniform3fARB(tr.lightShader_DBS_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform3fARB(tr.lightShader_DBS_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.lightShader_DBS_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
+	qglUniform1fARB(tr.lightShader_DBS_omni.u_LightRadius, light->sphereRadius);
 	qglUniform1fARB(tr.lightShader_DBS_omni.u_LightScale, r_lightScale->value);
 	qglUniform1fARB(tr.lightShader_DBS_omni.u_SpecularExponent, specularExponent);
+	qglUniformMatrix4fvARB(tr.lightShader_DBS_omni.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 
 	// bind u_DiffuseMap
 	GL_SelectTexture(0);
@@ -2132,77 +2090,10 @@ static void Render_lighting_DBS_omni(shaderStage_t * diffuseStage,
 	// bind u_AttenuationMapZ
 	GL_SelectTexture(4);
 	BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
-
-	DrawElements();
-
-	// update performance counters
-	backEnd.pc.c_dlightVertexes += tess.numVertexes;
-	backEnd.pc.c_dlightIndexes += tess.numIndexes;
-
-	GL_CheckErrors();
-}
-
-static void Render_lighting_DBSP_omni(shaderStage_t * diffuseStage,
-									  shaderStage_t * attenuationXYStage,
-									  shaderStage_t * attenuationZStage, trRefLight_t * light)
-{
-	vec3_t          viewOrigin;
-	vec3_t          lightOrigin;
-	vec4_t          lightColor;
-	float           specularExponent;
-
-	GLimp_LogComment("--- Render_lighting_DBSP_omni ---\n");
-
-	// enable shader, set arrays
-	GL_Program(tr.lightShader_DBSP_omni.program);
-	GL_ClientState(tr.lightShader_DBSP_omni.attribs);
-	GL_SetVertexAttribs();
-
-	// set uniforms
-	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
-	VectorCopy(light->transformed, lightOrigin);
-	VectorCopy(tess.svars.color, lightColor);
-	specularExponent = RB_EvalExpression(&diffuseStage->specularExponentExp, r_specularExponent->value);
-
-	qglUniform3fARB(tr.lightShader_DBSP_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
-	qglUniform3fARB(tr.lightShader_DBSP_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
-	qglUniform3fARB(tr.lightShader_DBSP_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
-	qglUniform1fARB(tr.lightShader_DBSP_omni.u_LightScale, r_lightScale->value);
-	qglUniform1fARB(tr.lightShader_DBSP_omni.u_SpecularExponent, specularExponent);
-	qglUniform1fARB(tr.lightShader_DBSP_omni.u_HeightScale, RB_EvalExpression(&diffuseStage->heightScaleExp, 0.05f));
-	qglUniform1fARB(tr.lightShader_DBSP_omni.u_HeightBias, RB_EvalExpression(&diffuseStage->heightBiasExp, 0.0f));
-
-	// bind u_DiffuseMap
-	GL_SelectTexture(0);
-	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
-	qglMatrixMode(GL_MODELVIEW);
-
-	// bind u_NormalMap
-	GL_SelectTexture(1);
-	GL_Bind(diffuseStage->bundle[TB_NORMALMAP].image[0]);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
-	qglMatrixMode(GL_MODELVIEW);
-
-	// bind u_SpecularMap
-	GL_SelectTexture(2);
-	GL_Bind(diffuseStage->bundle[TB_SPECULARMAP].image[0]);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_SPECULARMAP]);
-	qglMatrixMode(GL_MODELVIEW);
-
-	// bind u_AttenuationMapXY
-	GL_SelectTexture(3);
-	BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(light->attenuationMatrix2);
-	qglMatrixMode(GL_MODELVIEW);
-
-	// bind u_AttenuationMapZ
-	GL_SelectTexture(4);
-	BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
+	
+	// bind u_ShadowMap
+	GL_SelectTexture(5);
+	GL_Bind(tr.shadowCubeFBOImage[light->shadowLOD]);
 
 	DrawElements();
 
@@ -2214,7 +2105,8 @@ static void Render_lighting_DBSP_omni(shaderStage_t * diffuseStage,
 }
 
 static void Render_lighting_D_proj(shaderStage_t * diffuseStage,
-								   shaderStage_t * attenuationXYStage, shaderStage_t * attenuationZStage, trRefLight_t * light)
+								   shaderStage_t * attenuationXYStage,
+								   shaderStage_t * attenuationZStage, trRefLight_t * light)
 {
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
@@ -2582,13 +2474,11 @@ static void Render_reflection_C(int stage)
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 	qglUniform3fARB(tr.reflectionShader_C.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	qglUniformMatrix4fvARB(tr.reflectionShader_C.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(backEnd.or.transformMatrix);
-	qglMatrixMode(GL_MODELVIEW);
 
 	DrawElements();
 
@@ -2617,11 +2507,6 @@ static void Render_reflection_CB(int stage)
 	// bind u_ColorMap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
-	/*
-	   qglMatrixMode(GL_TEXTURE);
-	   qglLoadMatrixf(backEnd.or.transformMatrix);
-	   qglMatrixMode(GL_MODELVIEW);
-	 */
 
 	// bind u_NormalMap
 	GL_SelectTexture(1);
@@ -2656,13 +2541,11 @@ static void Render_refraction_C(int stage)
 	qglUniform1fARB(tr.refractionShader_C.u_FresnelPower, RB_EvalExpression(&pStage->fresnelPowerExp, 2.0));
 	qglUniform1fARB(tr.refractionShader_C.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 2.0));
 	qglUniform1fARB(tr.refractionShader_C.u_FresnelBias, RB_EvalExpression(&pStage->fresnelBiasExp, 1.0));
+	qglUniformMatrix4fvARB(tr.refractionShader_C.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(backEnd.or.transformMatrix);
-	qglMatrixMode(GL_MODELVIEW);
 
 	DrawElements();
 
@@ -2695,13 +2578,11 @@ static void Render_dispersion_C(int stage)
 	qglUniform1fARB(tr.dispersionShader_C.u_FresnelPower, RB_EvalExpression(&pStage->fresnelPowerExp, 2.0f));
 	qglUniform1fARB(tr.dispersionShader_C.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 2.0f));
 	qglUniform1fARB(tr.dispersionShader_C.u_FresnelBias, RB_EvalExpression(&pStage->fresnelBiasExp, 1.0f));
+	qglUniformMatrix4fvARB(tr.dispersionShader_C.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(backEnd.or.transformMatrix);
-	qglMatrixMode(GL_MODELVIEW);
 
 	DrawElements();
 
@@ -2725,13 +2606,11 @@ static void Render_skybox(int stage)
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 	qglUniform3fARB(tr.skyBoxShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	qglUniformMatrix4fvARB(tr.skyBoxShader.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(backEnd.or.transformMatrix);
-	qglMatrixMode(GL_MODELVIEW);
 
 	DrawElements();
 
@@ -5006,22 +4885,7 @@ void Tess_StageIteratorStencilLighting()
 				case ST_COLLAPSE_lighting_DBS_generic:
 					if(glConfig.shadingLanguage100Available)
 					{
-						if(r_lighting->integer == 3)
-						{
-							if(light->l.rlType == RL_OMNI)
-							{
-								Render_lighting_DBSP_omni(diffuseStage, attenuationXYStage, attenuationZStage, light);
-							}
-							else if(light->l.rlType == RL_PROJ)
-							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
-							}
-							else
-							{
-								// TODO
-							}
-						}
-						else if(r_lighting->integer == 2)
+						if(r_lighting->integer == 2)
 						{
 							if(light->l.rlType == RL_OMNI)
 							{
@@ -5269,22 +5133,7 @@ void Tess_StageIteratorLighting()
 				case ST_COLLAPSE_lighting_DBS_generic:
 					if(glConfig.shadingLanguage100Available)
 					{
-						if(r_lighting->integer == 3)
-						{
-							if(light->l.rlType == RL_OMNI)
-							{
-								Render_lighting_DBSP_omni(diffuseStage, attenuationXYStage, attenuationZStage, light);
-							}
-							else if(light->l.rlType == RL_PROJ)
-							{
-								Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
-							}
-							else
-							{
-								// TODO
-							}
-						}
-						else if(r_lighting->integer == 2)
+						if(r_lighting->integer == 2)
 						{
 							if(light->l.rlType == RL_OMNI)
 							{

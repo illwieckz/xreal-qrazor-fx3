@@ -154,7 +154,7 @@ itemDef {
       		type ITEM_TYPE_MULTI
 		text "Lighting Mode:"
 		cvar "r_lighting"
-		cvarFloatList { "simple diffuse" 0 "bump mapping" 1 "specular bump mapping" 2 "parallax mapping" 3 }
+		cvarFloatList { "simple diffuse" 0 "bump mapping" 1 "specular bump mapping" 2 }
 		rect 200 120 256 20
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
