@@ -1080,11 +1080,13 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 		surface = ia->surface;
 		shader = ia->surfaceShader;
 
+		/*
 		if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
 		{
 			// skip all interactions of this light because it failed the occlusion query
 			goto skipInteraction;
 		}
+		*/
 
 		if(!shader->interactLight)
 		{
@@ -1206,6 +1208,9 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 	  skipInteraction:
 		if(!ia->next)
 		{
+			// draw the contents of the last shader batch
+			Tess_End();
+			
 			if(iaCount < (numInteractions - 1))
 			{
 				// jump to next interaction and continue
@@ -1218,19 +1223,10 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 				iaCount++;
 			}
 			
-			if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
-			{
-				// do nothing
-			}
-			else if(!shader->interactLight)
-			{
-				// do nothing as well
-			}
-			else
-			{
-				// draw the contents of the last shader batch
-				Tess_End();
-			}
+			// force updates
+			oldLight = NULL;
+			oldEntity = NULL;
+			oldShader = NULL;
 		}
 		else
 		{
@@ -1582,6 +1578,9 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				// a call to va() every frame!
 				GLimp_LogComment(va("----- Last Interaction: %i -----\n", iaCount));
 			}
+			
+			// draw the contents of the last shader batch
+			Tess_End();
 
 			if(drawShadows)
 			{
@@ -1606,9 +1605,6 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					iaCount++;
 				}
 			}
-
-			// draw the contents of the last shader batch
-			Tess_End();
 			
 			// force updates
 			oldLight = NULL;
@@ -2361,7 +2357,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 	GL_CheckErrors();
 }
 
-static void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions)
+void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions)
 {
 	GLimp_LogComment("--- RB_RenderOcclusionQueries ---\n");
 
@@ -3183,8 +3179,10 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 	// draw everything that is opaque
 	RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qtrue);
 
+#if 0
 	// try to cull lights using occlusion queries
 	RB_RenderOcclusionQueries(interactions, numInteractions);
+#endif
 
 	if(r_shadows->integer == 4)
 	{
