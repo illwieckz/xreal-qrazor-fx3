@@ -43,6 +43,7 @@ const matrix_t  openGLToQuakeMatrix = {
 	0, 0, 0, 1
 };
 
+const int     shadowMapResolutions[3] = {512, 256, 128};
 
 refimport_t     ri;
 
@@ -648,6 +649,58 @@ void R_TransformClipToWindow(const vec4_t clip, const viewParms_t * view, vec4_t
 
 	window[0] = (int)(window[0] + 0.5);
 	window[1] = (int)(window[1] + 0.5);
+}
+
+/*
+================
+R_ProjectRadius
+================
+*/
+float R_ProjectRadius(float r, vec3_t location)
+{
+	float		pr;
+	float		dist;
+	float		c;
+	vec3_t		p;
+	float		projected[4];
+
+	c = DotProduct(tr.viewParms.or.axis[0], tr.viewParms.or.origin);
+	dist = DotProduct(tr.viewParms.or.axis[0], location) - c;
+
+	if(dist <= 0)
+		return 0;
+
+	p[0] = 0;
+	p[1] = fabs(r);
+	p[2] = -dist;
+
+	projected[0] = p[0] * tr.viewParms.projectionMatrix[0] + 
+		           p[1] * tr.viewParms.projectionMatrix[4] +
+				   p[2] * tr.viewParms.projectionMatrix[8] +
+				   tr.viewParms.projectionMatrix[12];
+
+	projected[1] = p[0] * tr.viewParms.projectionMatrix[1] + 
+		           p[1] * tr.viewParms.projectionMatrix[5] +
+				   p[2] * tr.viewParms.projectionMatrix[9] +
+				   tr.viewParms.projectionMatrix[13];
+
+	projected[2] = p[0] * tr.viewParms.projectionMatrix[2] + 
+		           p[1] * tr.viewParms.projectionMatrix[6] +
+				   p[2] * tr.viewParms.projectionMatrix[10] +
+				   tr.viewParms.projectionMatrix[14];
+
+	projected[3] = p[0] * tr.viewParms.projectionMatrix[3] + 
+		           p[1] * tr.viewParms.projectionMatrix[7] +
+				   p[2] * tr.viewParms.projectionMatrix[11] +
+				   tr.viewParms.projectionMatrix[15];
+
+
+	pr = projected[1] / projected[3];
+
+	if(pr > 1.0f)
+		pr = 1.0f;
+
+	return pr;
 }
 
 /*
@@ -1968,6 +2021,9 @@ void R_AddSlightInteractions()
 		
 		// set up view dependent light depth bounds
 		R_SetupLightDepthBounds(light);
+		
+		// set up view dependent light Level of Detail
+		R_SetupLightLOD(light);
 
 		// setup interactions
 		light->numInteractions = 0;
@@ -2069,6 +2125,9 @@ void R_AddLightInteractions()
 		
 		// set up view dependent light depth bounds
 		R_SetupLightDepthBounds(light);
+		
+		// set up view dependent light Level of Detail
+		R_SetupLightLOD(light);
 
 		// setup interactions
 		light->numInteractions = 0;

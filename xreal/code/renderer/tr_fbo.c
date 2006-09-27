@@ -360,6 +360,7 @@ R_InitFBOs
 void R_InitFBOs(void)
 {
 	int             i;
+	int             width, height;
 	
 	if(!glConfig.framebufferObjectAvailable)
 		return;
@@ -424,13 +425,17 @@ void R_InitFBOs(void)
 	//
 	// shadowMap for shadow mapping offscreen rendering
 	//
-	tr.shadowMapFBO = R_CreateFBO("_shadowMap", r_shadowMapSize->integer, r_shadowMapSize->integer);
-	R_BindFBO(tr.shadowMapFBO);
-	R_CreateFBOColorBuffer(tr.shadowMapFBO, GL_RGBA, 0);
-	R_CreateFBODepthBuffer(tr.shadowMapFBO, GL_DEPTH_COMPONENT24_ARB);
-	R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage->texnum, 0);
-	R_CheckFBO(tr.shadowMapFBO);
-	
+	for(i = 0; i < 3; i++)
+	{
+		width = height = shadowMapResolutions[i];
+		
+		tr.shadowMapFBO[i] = R_CreateFBO(va("_shadowMap%d", i), width, height);
+		R_BindFBO(tr.shadowMapFBO[i]);
+		R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_RGBA, 0);
+		R_CreateFBODepthBuffer(tr.shadowMapFBO[i], GL_DEPTH_COMPONENT24_ARB);
+		R_CheckFBO(tr.shadowMapFBO[i]);
+	}
+		
 	GL_CheckErrors();
 
 	R_BindNullFBO();

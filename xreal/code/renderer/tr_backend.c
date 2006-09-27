@@ -958,8 +958,7 @@ static void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, in
 		// change the tess parameters if needed
 		// a "entityMergable" shader is a shader that can have surfaces from seperate
 		// entities merged into a single batch, like smoke and blood puff sprites
-		if(shader != oldShader
-		   || fogNum != oldFogNum || lightmapNum != oldLightmapNum || (entity != oldEntity && !shader->entityMergable))
+		if(shader != oldShader || fogNum != oldFogNum || lightmapNum != oldLightmapNum || (entity != oldEntity && !shader->entityMergable))
 		{
 			if(oldShader != NULL)
 			{
@@ -1714,7 +1713,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				GL_SelectTexture(0);
 				GL_Bind(tr.whiteImage);
 				
-				R_BindFBO(tr.shadowMapFBO);
+				R_BindFBO(tr.shadowMapFBO[light->shadowLOD]);
 				
 				//if(!light->l.noShadows)
 				{
@@ -1738,12 +1737,12 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 								GLimp_LogComment(va("----- Rendering shadowCube side: %i -----\n", cubeSide));
 							}
 							
-							R_AttachFBOTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + cubeSide, tr.shadowCubeFBOImage->texnum, 0);
-							R_CheckFBO(tr.shadowMapFBO);
+							R_AttachFBOTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + cubeSide, tr.shadowCubeFBOImage[light->shadowLOD]->texnum, 0);
+							R_CheckFBO(tr.shadowMapFBO[light->shadowLOD]);
 							
 							// set the window clipping
-							qglViewport(0, 0, r_shadowMapSize->integer, r_shadowMapSize->integer);
-							qglScissor(0, 0, r_shadowMapSize->integer, r_shadowMapSize->integer);
+							qglViewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+							qglScissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
 					
 							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 							
@@ -1821,7 +1820,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 			
 							// OpenGL projection matrix
 							fovX = 90;
-							fovY = R_CalcFov(fovX, r_shadowMapSize->integer, r_shadowMapSize->integer);
+							fovY = R_CalcFov(fovX, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
 							
 							zNear = 1.0;
 							zFar = light->sphereRadius;
@@ -1868,12 +1867,12 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 						{
 							GLimp_LogComment("--- Rendering projective shadowMap ---\n");
 							
-							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage->texnum, 0);
-							R_CheckFBO(tr.shadowMapFBO);
+							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage[light->shadowLOD]->texnum, 0);
+							R_CheckFBO(tr.shadowMapFBO[light->shadowLOD]);
 							
 							// set the window clipping
-							qglViewport(0, 0, r_shadowMapSize->integer, r_shadowMapSize->integer);
-							qglScissor(0, 0, r_shadowMapSize->integer, r_shadowMapSize->integer);
+							qglViewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+							qglScissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
 					
 							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 							
@@ -2845,14 +2844,31 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 
 				qglEnd();
 				//qglLineWidth(1);
-
-				R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorRed);
-
+				
+				if(light->shadowLOD == 0)
+				{
+					R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorRed);
+				}
+				else if(light->shadowLOD == 1)
+				{
+					R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorGreen);
+				}
+				else if(light->shadowLOD == 2)
+				{
+					R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorBlue);
+				}
+				else
+				{
+					R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorMdGrey);
+				}
+				
+				/*
 				// go back to the world modelview matrix
 				backEnd.or = backEnd.viewParms.world;
 				qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 
-				R_DebugBoundingBox(vec3_origin, light->worldBounds[0], light->worldBounds[1], colorGreen);
+				R_DebugBoundingBox(vec3_origin, light->worldBounds[0], light->worldBounds[1], colorWhite);
+				*/
 			}
 		}
 
@@ -2920,13 +2936,30 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 				qglEnd();
 				//qglLineWidth(1);
 
-				R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorBlue);
+				if(light->shadowLOD == 0)
+				{
+					R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorRed);
+				}
+				else if(light->shadowLOD == 1)
+				{
+					R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorGreen);
+				}
+				else if(light->shadowLOD == 2)
+				{
+					R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorBlue);
+				}
+				else
+				{
+					R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorMdGrey);
+				}
 
+				/*
 				// go back to the world modelview matrix
 				backEnd.or = backEnd.viewParms.world;
 				qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 
 				R_DebugBoundingBox(vec3_origin, light->worldBounds[0], light->worldBounds[1], colorYellow);
+				*/
 			}
 		}
 	}
@@ -3173,6 +3206,7 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 	RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qfalse);
 
 #if 0
+	// add the sun flare
 	RB_DrawSun();
 #endif
 

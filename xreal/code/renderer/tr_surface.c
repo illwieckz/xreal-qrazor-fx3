@@ -2165,13 +2165,9 @@ static void Tess_SurfaceBad(surfaceType_t * surfType, int numLightIndexes, int *
 
 static void Tess_SurfaceFlare(srfFlare_t * surf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
-#if 0
-	vec3_t          left, up;
-	float           radius;
-	byte            color[4];
-	vec3_t          dir;
-	vec3_t          origin;
-	float           d;
+	vec3_t      dir;
+	vec3_t      origin;
+	float		d;
 	
 	GLimp_LogComment("--- Tess_SurfaceFlare ---\n");
 
@@ -2180,90 +2176,16 @@ static void Tess_SurfaceFlare(srfFlare_t * surf, int numLightIndexes, int *light
 		return;
 	}
 
-	// calculate the xyz locations for the four corners
-	radius = 30;
-	VectorScale(backEnd.viewParms.or.axis[1], radius, left);
-	VectorScale(backEnd.viewParms.or.axis[2], radius, up);
-	if(backEnd.viewParms.isMirror)
-	{
-		VectorSubtract(vec3_origin, left, left);
-	}
-
-	color[0] = color[1] = color[2] = color[3] = 255;
-
-	VectorMA(surf->origin, 3, surf->normal, origin);
+	VectorMA(surf->origin, 2.0, surf->normal, origin);
 	VectorSubtract(origin, backEnd.viewParms.or.origin, dir);
 	VectorNormalize(dir);
+	d = -DotProduct(dir, surf->normal);
 	VectorMA(origin, r_ignore->value, dir, origin);
 
-	d = -DotProduct(dir, surf->normal);
 	if(d < 0)
-	{
 		return;
-	}
-#if 0
-	color[0] *= d;
-	color[1] *= d;
-	color[2] *= d;
-#endif
 
-	Tess_AddQuadStamp(origin, left, up, color);
-
-#elif 0
-	vec3_t          left, up;
-	byte            color[4];
-
-	if(tess.shadowVolume)
-	{
-		return;
-	}
-
-	color[0] = surf->color[0] * 255;
-	color[1] = surf->color[1] * 255;
-	color[2] = surf->color[2] * 255;
-	color[3] = 255;
-
-	VectorClear(left);
-	VectorClear(up);
-
-	left[0] = r_ignore->value;
-
-	up[1] = r_ignore->value;
-
-	Tess_AddQuadStampExt(surf->origin, left, up, color, 0, 0, 1, 1);
-
-#elif 0
-	vec3_t          left, up;
-	float           radius;
-	vec3_t          color;
-	vec3_t          dir;
-	vec3_t          origin;
-	float           d;
-
-	// calculate the xyz locations for the four corners
-	radius = 30;
-	VectorScale(backEnd.viewParms.or.axis[1], radius, left);
-	VectorScale(backEnd.viewParms.or.axis[2], radius, up);
-	if(backEnd.viewParms.isMirror)
-	{
-		VectorSubtract(vec3_origin, left, left);
-	}
-
-	color[0] = color[1] = color[2] = 1.0;
-
-	VectorMA(surf->origin, 3, surf->normal, origin);
-	VectorSubtract(origin, backEnd.viewParms.or.origin, dir);
-	VectorNormalize(dir);
-	VectorMA(origin, r_ignore->value, dir, origin);
-
-	d = -DotProduct(dir, surf->normal);
-	if(d < 0)
-	{
-		return;
-	}
-	
-	RB_AddFlare((void *)surf, 0, origin, color, surf->normal);
-#endif
+	RB_AddFlare((void *)surf, 0, origin, surf->color, surf->normal);
 }
 
 

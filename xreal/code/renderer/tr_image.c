@@ -4598,36 +4598,43 @@ static void R_CreatePortalRenderFBOImage(void)
 
 static void R_CreateShadowMapFBOImage(void)
 {
+	int             i;
 	int             width, height;
 	byte           *data;
 	
-	width = height = r_shadowMapSize->integer;
+	for(i = 0; i < 3; i++)
+	{
+		width = height = shadowMapResolutions[i];
+		
+		data = ri.Hunk_AllocateTempMemory(width * height * 4);
+		
+		tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
 
-	data = ri.Hunk_AllocateTempMemory(width * height * 4);
-
-	tr.shadowMapFBOImage = R_CreateImage("_shadowMapFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
-
-	ri.Hunk_FreeTempMemory(data);
+		ri.Hunk_FreeTempMemory(data);
+	}
 }
 
 static void R_CreateShadowCubeFBOImage(void)
 {
-	int             i;
+	int             i, j;
 	int             width, height;
 	byte           *data[6];
 	
-	width = height = r_shadowMapSize->integer;
-
-	for(i = 0; i < 6; i++)
+	for(j = 0; j < 3; j++)
 	{
-		data[i] = ri.Hunk_AllocateTempMemory(width * height * 4);
-	}
+		width = height = shadowMapResolutions[j];
+		
+		for(i = 0; i < 6; i++)
+		{
+			data[i] = ri.Hunk_AllocateTempMemory(width * height * 4);
+		}
 
-	tr.shadowCubeFBOImage = R_CreateCubeImage("_shadowCubeFBO", (const byte **)data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+		tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
 
-	for(i = 5; i >= 0; i--)
-	{
-		ri.Hunk_FreeTempMemory(data[i]);
+		for(i = 5; i >= 0; i--)
+		{
+			ri.Hunk_FreeTempMemory(data[i]);
+		}
 	}
 }
 

@@ -118,6 +118,8 @@ cvar_t         *r_shadows;
 cvar_t         *r_shadowMapSize;
 cvar_t         *r_shadowOffsetFactor;
 cvar_t         *r_shadowOffsetUnits;
+cvar_t         *r_shadowLodBias;
+cvar_t         *r_shadowLodScale;
 cvar_t         *r_flares;
 cvar_t         *r_mode;
 cvar_t         *r_collapseStages;
@@ -1332,6 +1334,9 @@ void R_Register(void)
 	AssertCvarRange(r_shadowMapSize, 256, 1024, qtrue);
 	r_shadowOffsetFactor = ri.Cvar_Get("r_shadowOffsetFactor", "4", CVAR_CHEAT);
 	r_shadowOffsetUnits = ri.Cvar_Get("r_shadowOffsetUnits", "2", CVAR_CHEAT);
+	r_shadowLodBias = ri.Cvar_Get("r_shadowLodBias", "0", CVAR_CHEAT);
+	r_shadowLodScale = ri.Cvar_Get("r_shadowLodScale", "0.7", CVAR_CHEAT);
+	
 
 	r_maxpolys = ri.Cvar_Get("r_maxpolys", va("%d", MAX_POLYS), 0);
 	r_maxpolyverts = ri.Cvar_Get("r_maxpolyverts", va("%d", MAX_POLYVERTS), 0);

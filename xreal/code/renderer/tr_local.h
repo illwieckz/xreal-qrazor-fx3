@@ -129,6 +129,8 @@ typedef struct trRefLight_s
 	vec3_t          worldBounds[2];
 	float           sphereRadius;	// calculated from localBounds
 
+	int             shadowLOD;		// Level of Detail for shadow mapping
+
 	float           depthBounds[2];	// zNear, zFar for GL_EXT_depth_bounds_test
 	qboolean        noDepthBoundsTest;
 
@@ -1758,13 +1760,13 @@ typedef struct
 
 //	image_t        *currentRenderFBOImage[4];
 //	image_t        *portalRenderFBOImage[4];
-	image_t        *shadowMapFBOImage;
-	image_t        *shadowCubeFBOImage;
+	image_t        *shadowMapFBOImage[3];
+	image_t        *shadowCubeFBOImage[3];
 
 	// framebuffer objects
 //	frameBuffer_t  *currentRenderFBO;
 //	frameBuffer_t  *portalRenderFBO;
-	frameBuffer_t  *shadowMapFBO;
+	frameBuffer_t  *shadowMapFBO[3];
 
 	// internal shaders
 	shader_t       *defaultShader;
@@ -1888,6 +1890,7 @@ typedef struct
 
 extern const matrix_t quakeToOpenGLMatrix;
 extern const matrix_t openGLToQuakeMatrix;
+extern const int shadowMapResolutions[3];
 
 extern backEndState_t backEnd;
 extern trGlobals_t tr;
@@ -2015,6 +2018,8 @@ extern cvar_t  *r_shadows;		// controls shadows: 0 = none, 1 = blur, 2 = black p
 extern cvar_t  *r_shadowMapSize;
 extern cvar_t  *r_shadowOffsetFactor;
 extern cvar_t  *r_shadowOffsetUnits;
+extern cvar_t  *r_shadowLodBias;
+extern cvar_t  *r_shadowLodScale;
 extern cvar_t  *r_flares;		// light flares
 
 extern cvar_t  *r_intensity;
@@ -2477,6 +2482,7 @@ qboolean        R_LightIntersectsPoint(trRefLight_t * light, const vec3_t p);
 
 void            R_SetupLightScissor(trRefLight_t * light);
 void            R_SetupLightDepthBounds(trRefLight_t * light);
+void            R_SetupLightLOD(trRefLight_t * light);
 
 byte            R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldCorners[8], vec3_t worldBounds[2]);
 
@@ -2606,6 +2612,8 @@ void            R_TransformWorldToClip(const vec3_t src, const float *cameraView
 void            R_TransformModelToClip(const vec3_t src, const float *modelViewMatrix,
 									   const float *projectionMatrix, vec4_t eye, vec4_t dst);
 void            R_TransformClipToWindow(const vec4_t clip, const viewParms_t * view, vec4_t normalized, vec4_t window);
+float           R_ProjectRadius(float r, vec3_t location);
+
 
 void            Tess_DeformGeometry(void);
 

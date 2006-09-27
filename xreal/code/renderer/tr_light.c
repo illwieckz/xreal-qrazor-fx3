@@ -1390,7 +1390,7 @@ byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldCorners[8], vec3_
 			
 		// OpenGL projection matrix
 		fovX = 90;
-		fovY = R_CalcFov(fovX, r_shadowMapSize->integer, r_shadowMapSize->integer);
+		fovY = R_CalcFov(fovX, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
 						
 		zNear = 1.0;
 		zFar = light->sphereRadius;
@@ -1515,4 +1515,62 @@ byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldCorners[8], vec3_
 	}
 
 	return cubeSideBits;
+}
+
+
+/*
+=================
+R_SetupLightLOD
+=================
+*/
+void R_SetupLightLOD(trRefLight_t * light)
+{
+	float           radius;
+	float           flod, lodscale;
+	float           projectedRadius;
+	int             lod;
+	int             numLods;
+	
+	numLods = 3;
+
+	// compute projected bounding sphere
+	// and use that as a criteria for selecting LOD
+	radius = light->sphereRadius;
+
+	if((projectedRadius = R_ProjectRadius(radius, light->l.origin)) != 0)
+	{
+		lodscale = r_shadowLodScale->value;
+		
+		if(lodscale > 20)
+			lodscale = 20;
+		
+		flod = 1.0f - projectedRadius * lodscale;
+	}
+	else
+	{
+		// object intersects near view plane, e.g. view weapon
+		flod = 0;
+	}
+
+	flod *= numLods;
+	lod = myftol(flod);
+
+	if(lod < 0)
+	{
+		lod = 0;
+	}
+	else if(lod >= numLods)
+	{
+		lod = numLods - 1;
+	}
+
+	lod += r_shadowLodBias->integer;
+
+	if(lod >= numLods)
+		lod = numLods - 1;
+		
+	if(lod < 0)
+		lod = 0;
+
+	light->shadowLOD = lod;
 }

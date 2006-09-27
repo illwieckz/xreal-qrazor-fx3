@@ -2007,7 +2007,7 @@ static void Render_lighting_D_omni(shaderStage_t * diffuseStage,
 	
 	// bind u_ShadowMap
 	GL_SelectTexture(3);
-	GL_Bind(tr.shadowCubeFBOImage);
+	GL_Bind(tr.shadowCubeFBOImage[light->shadowLOD]);
 
 	DrawElements();
 
@@ -2256,7 +2256,7 @@ static void Render_lighting_D_proj(shaderStage_t * diffuseStage,
 	
 	// bind u_ShadowMap
 	GL_SelectTexture(3);
-	GL_Bind(tr.shadowMapFBOImage);
+	GL_Bind(tr.shadowMapFBOImage[light->shadowLOD]);
 
 	DrawElements();
 
