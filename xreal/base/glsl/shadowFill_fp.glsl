@@ -43,8 +43,8 @@ void	main()
 	
 	float distance = length(I) / u_LightRadius;
 	
-	gl_FragColor.r = frac(distance * 1.0);
-	gl_FragColor.g = frac(distance * 256.0);
-	gl_FragColor.b = frac(distance * 65536.0);
-	gl_FragColor.a = frac(distance * 16777216.0);
+	gl_FragColor.r = fract(distance * 1.0);
+	gl_FragColor.g = fract(distance * 256.0);
+	gl_FragColor.b = fract(distance * 65536.0);
+	gl_FragColor.a = fract(distance * 16777216.0);
 }
