@@ -25,6 +25,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 /// \file
 /// \brief Text-output-formatting.
 
+#ifdef _MSC_VER
+#pragma warning(disable : 4996) // deprecated functions
+#define _CRT_SECURE_NO_DEPRECATE
+#endif
+
 #include "itextstream.h"
 
 #include <cctype>

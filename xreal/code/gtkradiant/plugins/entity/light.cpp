@@ -923,6 +923,10 @@ class Light :
     GlobalSelectionSystem().pivotChanged();
   }
 
+// VC8 compiler fix
+#if _MSC_VER >= 1400
+public:
+#endif
   void originChanged()
   {
     m_aabb_light.origin = m_useLightOrigin ? m_lightOrigin : m_originKey.m_origin;

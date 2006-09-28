@@ -25,6 +25,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 /// \file
 /// C-style null-terminated-character-array string library.
 
+#ifdef _MSC_VER
+#pragma warning(disable : 4244) // possible loss of data
+#pragma warning(disable : 4996) // deprecated functions
+#define _CRT_SECURE_NO_DEPRECATE
+#endif
+
 #include <cstring>
 #include <cctype>
 #include <algorithm>

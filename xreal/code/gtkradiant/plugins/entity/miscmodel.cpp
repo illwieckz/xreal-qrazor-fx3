@@ -117,6 +117,11 @@ class MiscModel :
     
     m_transformChanged();
   }
+
+// VC8 compiler fix
+#if _MSC_VER >= 1400
+public:
+#endif
   void originChanged()
   {
     m_origin = m_originKey.m_origin;

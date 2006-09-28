@@ -22,6 +22,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #if !defined(INCLUDED_STREAM_TEXTFILESTREAM_H)
 #define INCLUDED_STREAM_TEXTFILESTREAM_H
 
+#ifdef _MSC_VER
+#pragma warning(disable : 4996) // deprecated functions
+#define _CRT_SECURE_NO_DEPRECATE
+#endif
+
 #include "itextstream.h"
 #include <stdio.h>
 
