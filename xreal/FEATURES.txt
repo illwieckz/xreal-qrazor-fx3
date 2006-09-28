@@ -23,6 +23,7 @@ code/renderer
 - OpenGL extension GL_ARB_shading_language_100
 - OpenGL extension GL_ARB_non_power_of_two
 - OpenGL extension GL_ARB_draw_buffers
+- OpenGL extension GL_ARB_texture_float
 - OpenGL extension GL_EXT_texture_filter_anisotropic
 - OpenGL extension GL_EXT_stencil_wrap
 - OpenGL extension GL_EXT_stencil_two_side
@@ -51,11 +52,11 @@ code/renderer
   1 = blob
   2 = planar projection
   3 = stencil shadow volumes (Doom3/Nvidia style)
+  4 = shadow mapping
 - r_lighting cvar determines lighting mode
   0 = simple diffuse N dot L lighting
   1 = bump mapping
   2 = specular bump mapping
-  3 = specular parallax bump mapping
 - usage of vertex buffer objects (VBO) to speed up rendering of large static models
 - usage of frame buffer objects (FBO) to perfom offscreen rendering effects
 - heat haze post process effect
@@ -91,3 +92,9 @@ code/xmap
 - support for new entity epairs like "rotation" matrix
 - Doom3 .mtr shader support
 - .lwo model support
+- can be run by GtkRadiant and communicates with it using a XML based network protocol
+
+code/gtkradiant
+- lite version based on Zerowing code
+- modified for XreaL mapping
+- working realtime lighting preview with F3

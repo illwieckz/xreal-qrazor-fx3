@@ -49,4 +49,5 @@ Randall "Ravenant" P. - cool weapon sounds
 DEVELOPMENT ASSISTANCE
 ======================
 Josef "cnuke" Söntgen - development media mirror and game server
+Mathias "Skynet" Heyer - OpenGL guru
 
