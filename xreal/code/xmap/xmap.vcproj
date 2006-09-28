@@ -18,8 +18,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\Debug"
-			IntermediateDirectory=".\Debug"
+			OutputDirectory="../.."
+			IntermediateDirectory="Debug"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
@@ -74,7 +74,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="glaux.lib glu32.lib wsock32.lib opengl32.lib odbc32.lib odbccp32.lib xml2.lib z.lib iconv.lib ws2_32.lib xml2.lib z.lib iconv.lib ws2_32.lib xml2.lib z.lib iconv.lib ws2_32.lib intl.lib glib-2.0.lib"
-				OutputFile="../../xmap.exe"
+				OutputFile="$(OutDir)/xmap.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
@@ -110,8 +110,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\Release"
-			IntermediateDirectory=".\Release"
+			OutputDirectory="../.."
+			IntermediateDirectory="Release"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
@@ -167,8 +167,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="glaux.lib glu32.lib wsock32.lib opengl32.lib odbc32.lib odbccp32.lib"
-				OutputFile=".\Release/xmap.exe"
+				AdditionalDependencies="glaux.lib glu32.lib wsock32.lib opengl32.lib odbc32.lib odbccp32.lib xml2.lib z.lib iconv.lib ws2_32.lib xml2.lib z.lib iconv.lib ws2_32.lib xml2.lib z.lib iconv.lib ws2_32.lib intl.lib glib-2.0.lib"
+				OutputFile="$(OutDir)/xmap.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
