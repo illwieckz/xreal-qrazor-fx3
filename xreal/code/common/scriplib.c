@@ -372,6 +372,16 @@ skipspace:
 
 /*
 ==============
+GetLine
+==============
+*/
+int GetLine(void)
+{
+	return script->line;
+}
+
+/*
+==============
 TokenAvailable
 
 Returns qtrue if there is another token on the line

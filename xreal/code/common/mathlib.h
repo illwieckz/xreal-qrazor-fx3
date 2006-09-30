@@ -64,16 +64,17 @@ extern vec3_t   vec3_origin;
 #define	PLANE_Z			2
 #define	PLANE_NON_AXIAL	3
 
-int             VectorCompare(const vec3_t v1, const vec3_t v2);
+#define DotProduct(x,y)			((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
+#define VectorSubtract(a,b,c)	((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1],(c)[2]=(a)[2]-(b)[2])
+#define VectorAdd(a,b,c)		((c)[0]=(a)[0]+(b)[0],(c)[1]=(a)[1]+(b)[1],(c)[2]=(a)[2]+(b)[2])
+#define VectorCopy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2])
+#define	VectorScale(v, s, o)	((o)[0]=(v)[0]*(s),(o)[1]=(v)[1]*(s),(o)[2]=(v)[2]*(s))
+#define	VectorMA(v, s, b, o)	((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s),(o)[2]=(v)[2]+(b)[2]*(s))
+#define VectorClear(a)			((a)[0]=(a)[1]=(a)[2]=0)
+#define VectorNegate(a,b)		((b)[0]=-(a)[0],(b)[1]=-(a)[1],(b)[2]=-(a)[2])
+#define VectorSet(v, x, y, z)	((v)[0]=(x),(v)[1]=(y),(v)[2]=(z))
 
-#define VectorSet(v,x,y,z) {v[0]=x;v[1]=y;v[2]=z;}
-#define DotProduct(x,y) (x[0]*y[0]+x[1]*y[1]+x[2]*y[2])
-#define VectorSubtract(a,b,c) {c[0]=a[0]-b[0];c[1]=a[1]-b[1];c[2]=a[2]-b[2];}
-#define VectorAdd(a,b,c) {c[0]=a[0]+b[0];c[1]=a[1]+b[1];c[2]=a[2]+b[2];}
-#define VectorCopy(a,b) {b[0]=a[0];b[1]=a[1];b[2]=a[2];}
-#define VectorScale(a,b,c) {c[0]=b*a[0];c[1]=b*a[1];c[2]=b*a[2];}
-#define VectorClear(x) {x[0] = x[1] = x[2] = 0;}
-#define	VectorNegate(x) {x[0]=-x[0];x[1]=-x[1];x[2]=-x[2];}
+int             VectorCompare(const vec3_t v1, const vec3_t v2);
 void            Vec10Copy(vec_t * in, vec_t * out);
 
 vec_t           Q_rint(vec_t in);
@@ -82,10 +83,9 @@ void            _VectorSubtract(vec3_t va, vec3_t vb, vec3_t out);
 void            _VectorAdd(vec3_t va, vec3_t vb, vec3_t out);
 void            _VectorCopy(vec3_t in, vec3_t out);
 void            _VectorScale(vec3_t v, vec_t scale, vec3_t out);
+void            _VectorMA(const vec3_t va, double scale, const vec3_t vb, vec3_t vc);
 
 double          VectorLength(const vec3_t v);
-
-void            VectorMA(const vec3_t va, double scale, const vec3_t vb, vec3_t vc);
 
 void            CrossProduct(const vec3_t v1, const vec3_t v2, vec3_t cross);
 vec_t           VectorNormalize(const vec3_t in, vec3_t out);
@@ -112,8 +112,9 @@ void            MatrixSetupYRotation(matrix_t m, vec_t degrees);
 void            MatrixSetupZRotation(matrix_t m, vec_t degrees);
 void            MatrixSetupRotation(matrix_t m, vec_t x, vec_t y, vec_t z, vec_t degrees);
 void            MatrixSetupTranslation(matrix_t m, vec_t x, vec_t y, vec_t z);
-void            MatrixsetupScale(matrix_t m, vec_t x, vec_t y, vec_t z);
+void            MatrixSetupScale(matrix_t m, vec_t x, vec_t y, vec_t z);
 void            MatrixMultiply(const matrix_t a, const matrix_t b, matrix_t out);
+void            MatrixMultiply2(matrix_t m, const matrix_t m2);
 void            MatrixMultiplyRotation(matrix_t m, vec_t pitch, vec_t yaw, vec_t roll);
 void            MatrixMultiplyTranslation(matrix_t m, vec_t x, vec_t y, vec_t z);
 void            MatrixMultiplyScale(matrix_t m, vec_t x, vec_t y, vec_t z);
@@ -127,6 +128,8 @@ void            MatrixSetupTransform(matrix_t m, const vec3_t forward, const vec
 void            MatrixSetupTransformFromRotation(matrix_t m, const matrix_t rot, const vec3_t origin);
 void            MatrixAffineInverse(const matrix_t in, matrix_t out);
 void            MatrixTransformNormal(const matrix_t m, const vec3_t in, vec3_t out);
+void            MatrixTransformNormal2(const matrix_t m, vec3_t inout);
 void            MatrixTransformPoint(const matrix_t m, const vec3_t in, vec3_t out);
+void            MatrixTransformPoint2(const matrix_t m, vec3_t inout);
 
 #endif

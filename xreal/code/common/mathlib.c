@@ -182,13 +182,6 @@ vec_t Q_rint(vec_t in)
 	return floor(in + 0.5);
 }
 
-void VectorMA(const vec3_t va, double scale, const vec3_t vb, vec3_t vc)
-{
-	vc[0] = va[0] + scale * vb[0];
-	vc[1] = va[1] + scale * vb[1];
-	vc[2] = va[2] + scale * vb[2];
-}
-
 void CrossProduct(const vec3_t v1, const vec3_t v2, vec3_t cross)
 {
 	cross[0] = v1[1] * v2[2] - v1[2] * v2[1];
@@ -227,6 +220,13 @@ void _VectorScale(vec3_t v, vec_t scale, vec3_t out)
 	out[0] = v[0] * scale;
 	out[1] = v[1] * scale;
 	out[2] = v[2] * scale;
+}
+
+void _VectorMA(const vec3_t va, double scale, const vec3_t vb, vec3_t vc)
+{
+	vc[0] = va[0] + scale * vb[0];
+	vc[1] = va[1] + scale * vb[1];
+	vc[2] = va[2] + scale * vb[2];
 }
 
 vec_t VectorNormalize(const vec3_t in, vec3_t out)
@@ -553,6 +553,14 @@ void MatrixMultiply(const matrix_t a, const matrix_t b, matrix_t out)
 	out[15] = b[12]*a[ 3] + b[13]*a[ 7] + b[14]*a[11] + b[15]*a[15];
 }
 
+void MatrixMultiply2(matrix_t m, const matrix_t m2)
+{
+	matrix_t        tmp;
+
+	MatrixCopy(m, tmp);
+	MatrixMultiply(tmp, m2, m);
+}
+
 void MatrixMultiplyRotation(matrix_t m, vec_t pitch, vec_t yaw, vec_t roll)
 {
 	matrix_t        tmp, rot;
@@ -682,11 +690,33 @@ void MatrixTransformNormal(const matrix_t m, const vec3_t in, vec3_t out)
 	out[ 2] = m[ 2]*in[ 0] + m[ 6]*in[ 1] + m[10]*in[ 2];
 }
 
+void MatrixTransformNormal2(const matrix_t m, vec3_t inout)
+{
+	vec3_t          tmp;
+	
+	tmp[ 0] = m[ 0]*inout[ 0] + m[ 4]*inout[ 1] + m[ 8]*inout[ 2];
+	tmp[ 1] = m[ 1]*inout[ 0] + m[ 5]*inout[ 1] + m[ 9]*inout[ 2];
+	tmp[ 2] = m[ 2]*inout[ 0] + m[ 6]*inout[ 1] + m[10]*inout[ 2];
+	
+	VectorCopy(tmp, inout);
+}
+
 void MatrixTransformPoint(const matrix_t m, const vec3_t in, vec3_t out)
 {
 	out[ 0] = m[ 0]*in[ 0] + m[ 4]*in[ 1] + m[ 8]*in[ 2] + m[12];
 	out[ 1] = m[ 1]*in[ 0] + m[ 5]*in[ 1] + m[ 9]*in[ 2] + m[13];
 	out[ 2] = m[ 2]*in[ 0] + m[ 6]*in[ 1] + m[10]*in[ 2] + m[14];
+}
+
+void MatrixTransformPoint2(const matrix_t m, vec3_t inout)
+{
+	vec3_t          tmp;
+	
+	tmp[ 0] = m[ 0]*inout[ 0] + m[ 4]*inout[ 1] + m[ 8]*inout[ 2] + m[12];
+	tmp[ 1] = m[ 1]*inout[ 0] + m[ 5]*inout[ 1] + m[ 9]*inout[ 2] + m[13];
+	tmp[ 2] = m[ 2]*inout[ 0] + m[ 6]*inout[ 1] + m[10]*inout[ 2] + m[14];
+	
+	VectorCopy(tmp, inout);
 }
 
 // *INDENT-ON*

@@ -42,6 +42,7 @@ void            LoadScriptFile(const char *filename, int index);
 void            ParseFromMemory(char *buffer, int size);
 
 qboolean        GetToken(qboolean crossline);
+int             GetLine(void);
 void            UnGetToken(void);
 qboolean        TokenAvailable(void);
 

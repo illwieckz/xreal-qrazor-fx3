@@ -1328,8 +1328,7 @@ qboolean ParseMapEntity(void)
 		bspbrush_t     *brush;
 		vec3_t          originNeg;
 		
-		VectorCopy(mapent->origin, originNeg);
-		VectorInverse(originNeg);
+		VectorNegate(mapent->origin, originNeg);
 		AdjustBrushesForOrigin(mapent, originNeg);
 		
 		// NOTE: func_static entities should contain always detail brushes
