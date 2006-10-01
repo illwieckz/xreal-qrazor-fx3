@@ -627,32 +627,50 @@ void MatrixFromVectorsFRU(matrix_t m, const vec3_t forward, const vec3_t right, 
 
 void MatrixToVectorsFLU(const matrix_t m, vec3_t forward, vec3_t left, vec3_t up)
 {
-	forward[0] = m[ 0];     // cp*cy;
-	forward[1] = m[ 1];     // cp*sy;
-	forward[2] = m[ 2];     //-sp;
-
-	left[0] = m[ 4];        // sr*sp*cy+cr*-sy;
-	left[1] = m[ 5];        // sr*sp*sy+cr*cy;
-	left[2] = m[ 6];        // sr*cp;
+	if(forward)
+	{
+		forward[0] = m[ 0];     // cp*cy;
+		forward[1] = m[ 1];     // cp*sy;
+		forward[2] = m[ 2];     //-sp;
+	}
+     
+    if(left)
+    {   
+		left[0] = m[ 4];        // sr*sp*cy+cr*-sy;
+		left[1] = m[ 5];        // sr*sp*sy+cr*cy;
+		left[2] = m[ 6];        // sr*cp;
+    }
 	
-	up[0] = m[ 8];  // cr*sp*cy+-sr*-sy;
-	up[1] = m[ 9];  // cr*sp*sy+-sr*cy;
-	up[2] = m[10];  // cr*cp;
+	if(up)
+	{
+		up[0] = m[ 8];  // cr*sp*cy+-sr*-sy;
+		up[1] = m[ 9];  // cr*sp*sy+-sr*cy;
+		up[2] = m[10];  // cr*cp;
+	}
 }
 
 void MatrixToVectorsFRU(const matrix_t m, vec3_t forward, vec3_t right, vec3_t up)
 {
-	forward[0] = m[ 0];
-	forward[1] = m[ 1];
-	forward[2] = m[ 2];
+	if(forward)
+	{
+		forward[0] = m[ 0];
+		forward[1] = m[ 1];
+		forward[2] = m[ 2];
+	}
 	
-	right[0] =-m[ 4];
-	right[1] =-m[ 5];
-	right[2] =-m[ 6];
+	if(right)
+	{   
+		right[0] =-m[ 4];
+		right[1] =-m[ 5];
+		right[2] =-m[ 6];
+	}
 
-	up[0] = m[ 8];
-	up[1] = m[ 9];
-	up[2] = m[10];
+	if(up)
+	{
+		up[0] = m[ 8];
+		up[1] = m[ 9];
+		up[2] = m[10];
+	}
 }
 
 void MatrixSetupTransform(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up, const vec3_t origin)

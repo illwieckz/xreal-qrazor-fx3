@@ -118,10 +118,18 @@ void ProcessWorldModel(void)
 
 	// save out information for visibility processing
 	NumberClusters(tree);
+	
 	if(!leaked)
 	{
 		WritePortalFile(tree);
 	}
+	
+	if(drawFlag)
+	{
+		// draw portals in new window
+		DrawTree(tree);
+	}
+	
 	if(glview)
 	{
 		// dump the portals for debugging
@@ -440,7 +448,7 @@ int main(int argc, char **argv)
 		else if(!strcmp(argv[i], "-draw"))
 		{
 			Sys_Printf("drawflag = true\n");
-			drawflag = qtrue;
+			drawFlag = qtrue;
 		}
 		else if(!strcmp(argv[i], "-nowater"))
 		{
@@ -578,27 +586,21 @@ int main(int argc, char **argv)
 		DefaultExtension(name, ".map");	// might be .reg
 	}
 
-	//
 	// if onlyents, just grab the entites and resave
-	//
 	if(onlyents)
 	{
 		OnlyEnts();
 		return 0;
 	}
 
-	//
 	// if onlytextures, just grab the textures and resave
-	//
 	if(onlytextures)
 	{
 		OnlyTextures();
 		return 0;
 	}
 
-	//
 	// start from scratch
-	//
 	LoadShaderInfo();
 
 	// load original file from temp spot in case it was renamed by the editor on the way in

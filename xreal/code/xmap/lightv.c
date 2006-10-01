@@ -129,24 +129,27 @@ typedef struct lsurfaceTest_s
 typedef struct lightvolume_s
 {
 	int             num;
-	int             cluster;	//cluster this light volume started in
-	plane_t         endplane;	//end plane
-	plane_t         farplane;	//original end plane
-	vec3_t          points[MAX_POINTS_ON_WINDING];	//end winding points
-	plane_t         planes[MAX_POINTS_ON_WINDING];	//volume bounding planes
-	int             numplanes;	//number of volume bounding planes
-	int             type;		//light volume type
+	int             cluster;	// cluster this light volume started in
+	plane_t         endplane;	// end plane
+	plane_t         farplane;	// original end plane
+	vec3_t          points[MAX_POINTS_ON_WINDING];	// end winding points
+	plane_t         planes[MAX_POINTS_ON_WINDING];	// volume bounding planes
+	int             numplanes;	// number of volume bounding planes
+	int             type;		// light volume type
+	
 	//list with translucent surfaces the volume went through
 	int             transFacets[MAX_TRANSLUCENTFACETS];
 	int             transSurfaces[MAX_TRANSLUCENTFACETS];
 	int             numtransFacets;
+	
 	//clusters already tested
 	byte            clusterTested[MAX_CLUSTERS / 8];
+	
 	//facets already tested
 	byte            facetTested[MAX_FACETS / 8];
-	int             facetNum;	//number of the facet blocking the light in this volume
-	int             surfaceNum;	//number of the surface blocking the light in this volume
-} lightvolume_t;
+	int             facetNum;	// number of the facet blocking the light in this volume
+	int             surfaceNum;	// number of the surface blocking the light in this volume
+} lightVolume_t;
 
 //light types
 #define LIGHT_POINTRADIAL			1
@@ -168,24 +171,25 @@ typedef struct lightvolume_s
 
 typedef struct vlight_s
 {
-	vec3_t          origin;		//light origin, for point lights
-	winding_t       w;			//light winding, for area lights
-	vec4_t          plane;		//light winding plane
-	vec3_t          normal;		//direction of the light
-	int             type;		//light type
-	vec3_t          color;		//light color
-	qboolean        twosided;	//radiates light at both sides of the winding
-	int             style;		//light style (not used)
-	int             atten_disttype;	//light distance attenuation type
-	int             atten_angletype;	//light angle attenuation type
-	float           atten_distscale;	//distance attenuation scale
-	float           atten_anglescale;	//angle attenuation scale
-	float           radiusByDist;	//radius by distance for spot lights
-	float           photons;	//emitted photons
-	float           intensity;	//intensity
-	vec3_t          emitColor;	//full out-of-gamut value (not used)
-	struct shaderInfo_s *si;	//shader info
-	int             insolid;	//set when light is in solid
+	vec3_t          origin;		// light origin, for point lights
+	vec3_t			radius;		// Doom3 style light box radius
+	winding_t       w;			// light winding, for area lights
+	vec4_t          plane;		// light winding plane
+	vec3_t          normal;		// direction of the light
+	int             type;		// light type
+	vec3_t          color;		// light color
+	qboolean        twoSided;	// radiates light at both sides of the winding
+	int             style;		// light style (not used)
+	int             attenDistType;	// light distance attenuation type
+	int             attenAngleType;	// light angle attenuation type
+	float           attenDistScale;	// distance attenuation scale
+	float           attenAngleScale;	// angle attenuation scale
+	float           radiusByDist;	// radius by distance for spot lights
+	float           photons;	// emitted photons
+	float           intensity;	// intensity
+	vec3_t          emitColor;	// full out-of-gamut value (not used)
+	struct shaderInfo_s *si;	// shader info
+	int             insolid;	// set when light is in solid
 } vlight_t;
 
 float           lightLinearScale = 1.0 / 8000;
@@ -246,8 +250,7 @@ void            SetEntityOrigins(void);
 //#define DEBUGNET
 
 #ifdef DEBUGNET
-
-#include "l_net.h"
+#include "../common/netlib.h"
 
 socket_t       *debug_socket;
 
@@ -419,7 +422,7 @@ VL_DrawLightVolume
 */
 int             VL_ChopWinding(winding_t * in, plane_t * split, float epsilon);
 
-void VL_DrawLightVolume(vlight_t * light, lightvolume_t * volume)
+void VL_DrawLightVolume(vlight_t * light, lightVolume_t * volume)
 {
 	winding_t       w;
 	int             i;
@@ -2855,7 +2858,7 @@ void VL_DrawLightWindings(void)
 VL_LightSurfaceWithVolume
 =============
 */
-void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, lightvolume_t * volume)
+void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, lightVolume_t * volume)
 {
 	winding_t      *w;
 	lsurfaceTest_t *test;
@@ -3003,7 +3006,7 @@ FIXME:  don't use a lightmap pixel origin but use the four corner points
 		to map part of a translucent surface onto the lightmap pixel
 =============
 */
-void VL_GetFilter(vlight_t * light, lightvolume_t * volume, vec3_t lmp, vec3_t filter)
+void VL_GetFilter(vlight_t * light, lightVolume_t * volume, vec3_t lmp, vec3_t filter)
 {
 	lFacet_t       *facet;
 	lsurfaceTest_t *test;
@@ -3138,7 +3141,7 @@ void VL_GetFilter(vlight_t * light, lightvolume_t * volume, vec3_t lmp, vec3_t f
 VL_LightSurfaceWithVolume
 =============
 */
-void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, lightvolume_t * volume)
+void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, lightVolume_t * volume)
 {
 	int             i;
 	dsurface_t     *ds;
@@ -3502,39 +3505,39 @@ void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, l
 					angle = 1;
 				if(angle > 0)
 				{
-					if(light->atten_angletype == LAAT_QUADRATIC)
+					if(light->attenAngleType == LAAT_QUADRATIC)
 					{
 						angle = 1 - angle;
 						angle *= angle;
 						angle = 1 - angle;
 					}
-					else if(light->atten_angletype == LAAT_DOUBLEQUADRATIC)
+					else if(light->attenAngleType == LAAT_DOUBLEQUADRATIC)
 					{
 						angle = 1 - angle;
 						angle *= angle * angle;
 						angle = 1 - angle;
 					}
 				}
-				if(light->atten_anglescale > 0)
+				if(light->attenAngleScale > 0)
 				{
-					angle /= light->atten_anglescale;
+					angle /= light->attenAngleScale;
 					if(angle > 1)
 						angle = 1;
 				}
-				if(light->atten_distscale > 0)
+				if(light->attenDistScale > 0)
 				{
-					distscale = light->atten_distscale;
+					distscale = light->attenDistScale;
 				}
 				else
 				{
 					distscale = 1;
 				}
 				//
-				if(light->atten_disttype == LDAT_NOSCALE)
+				if(light->attenDistType == LDAT_NOSCALE)
 				{
 					add = angle * coneScale;
 				}
-				else if(light->atten_disttype == LDAT_LINEAR)
+				else if(light->attenDistType == LDAT_LINEAR)
 				{
 					add = angle * light->photons * lightLinearScale * coneScale - dist * distscale;
 					if(add < 0)
@@ -3555,7 +3558,7 @@ void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, l
 				add = PointToPolygonFormFactor(base, normal, &light->w);
 				if(add <= 0)
 				{
-					if(light->twosided)
+					if(light->twoSided)
 					{
 						add = -add;
 					}
@@ -3584,38 +3587,38 @@ void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, l
 					angle = 1;
 				if(angle > 0)
 				{
-					if(light->atten_angletype == LAAT_QUADRATIC)
+					if(light->attenAngleType == LAAT_QUADRATIC)
 					{
 						angle = 1 - angle;
 						angle *= angle;
 						angle = 1 - angle;
 					}
-					else if(light->atten_angletype == LAAT_DOUBLEQUADRATIC)
+					else if(light->attenAngleType == LAAT_DOUBLEQUADRATIC)
 					{
 						angle = 1 - angle;
 						angle *= angle * angle;
 						angle = 1 - angle;
 					}
 				}
-				if(light->atten_anglescale > 0)
+				if(light->attenAngleScale > 0)
 				{
-					angle /= light->atten_anglescale;
+					angle /= light->attenAngleScale;
 					if(angle > 1)
 						angle = 1;
 				}
-				if(light->atten_distscale > 0)
+				if(light->attenDistScale > 0)
 				{
-					distscale = light->atten_distscale;
+					distscale = light->attenDistScale;
 				}
 				else
 				{
 					distscale = 1;
 				}
-				if(light->atten_disttype == LDAT_NOSCALE)
+				if(light->attenDistType == LDAT_NOSCALE)
 				{
 					add = angle;
 				}
-				else if(light->atten_disttype == LDAT_LINEAR)
+				else if(light->attenDistType == LDAT_LINEAR)
 				{
 					add = angle * light->photons * lightLinearScale - dist * distscale;
 					if(add < 0)
@@ -3643,38 +3646,38 @@ void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, l
 					angle = 1;
 				if(angle > 0)
 				{
-					if(light->atten_angletype == LAAT_QUADRATIC)
+					if(light->attenAngleType == LAAT_QUADRATIC)
 					{
 						angle = 1 - angle;
 						angle *= angle;
 						angle = 1 - angle;
 					}
-					else if(light->atten_angletype == LAAT_DOUBLEQUADRATIC)
+					else if(light->attenAngleType == LAAT_DOUBLEQUADRATIC)
 					{
 						angle = 1 - angle;
 						angle *= angle * angle;
 						angle = 1 - angle;
 					}
 				}
-				if(light->atten_anglescale > 0)
+				if(light->attenAngleScale > 0)
 				{
-					angle /= light->atten_anglescale;
+					angle /= light->attenAngleScale;
 					if(angle > 1)
 						angle = 1;
 				}
-				if(light->atten_distscale > 0)
+				if(light->attenDistScale > 0)
 				{
-					distscale = light->atten_distscale;
+					distscale = light->attenDistScale;
 				}
 				else
 				{
 					distscale = 1;
 				}
-				if(light->atten_disttype == LDAT_NOSCALE)
+				if(light->attenDistType == LDAT_NOSCALE)
 				{
 					add = angle;
 				}
-				else if(light->atten_disttype == LDAT_LINEAR)
+				else if(light->attenDistType == LDAT_LINEAR)
 				{
 					add = angle * light->photons * lightLinearScale - dist * distscale;
 					if(add < 0)
@@ -3775,9 +3778,9 @@ void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, l
 VL_SplitLightVolume
 =============
 */
-int VL_SplitLightVolume(lightvolume_t * volume, lightvolume_t * back, plane_t * split, float epsilon)
+int VL_SplitLightVolume(lightVolume_t * volume, lightVolume_t * back, plane_t * split, float epsilon)
 {
-	lightvolume_t   f, b;
+	lightVolume_t   f, b;
 	vec_t           dists[128];
 	int             sides[128];
 	int             counts[3];
@@ -3988,9 +3991,9 @@ void VL_PlaneForEdgeToWinding(vec3_t p1, vec3_t p2, winding_t * w, int windingon
 VL_R_CastLightAtSurface
 =============
 */
-void            VL_R_FloodLight(vlight_t * light, lightvolume_t * volume, int cluster, int firstportal);
+void            VL_R_FloodLight(vlight_t * light, lightVolume_t * volume, int cluster, int firstportal);
 
-void VL_R_CastLightAtSurface(vlight_t * light, lightvolume_t * volume)
+void VL_R_CastLightAtSurface(vlight_t * light, lightVolume_t * volume)
 {
 	lsurfaceTest_t *test;
 	int             i, n;
@@ -4035,9 +4038,9 @@ VL_R_SplitLightVolume
 */
 int             numvolumes = 0;
 
-int VL_R_SplitLightVolume(vlight_t * light, lightvolume_t * volume, plane_t * split, int cluster, int firstportal)
+int VL_R_SplitLightVolume(vlight_t * light, lightVolume_t * volume, plane_t * split, int cluster, int firstportal)
 {
-	lightvolume_t   back;
+	lightVolume_t   back;
 	int             res;
 
 	//
@@ -4077,7 +4080,7 @@ int VL_R_SplitLightVolume(vlight_t * light, lightvolume_t * volume, plane_t * sp
 VL_R_FloodLight
 =============
 */
-void VL_R_FloodLight(vlight_t * light, lightvolume_t * volume, int cluster, int firstportal)
+void VL_R_FloodLight(vlight_t * light, lightVolume_t * volume, int cluster, int firstportal)
 {
 	int             i, j, k, res, surfaceNum, backfaceculled, testculled;
 	float           d;
@@ -4492,23 +4495,23 @@ void VL_FloodDirectedLight(vlight_t * light, winding_t * w, int leafnum)
 {
 	int             i;
 	float           dist;
-	lightvolume_t   volume;
+	lightVolume_t   volume;
 	vec3_t          dir;
 
-	if(light->atten_disttype == LDAT_NOSCALE)
+	if(light->attenDistType == LDAT_NOSCALE)
 	{
 		// light travels without decrease in intensity over distance
 		dist = MAX_WORLD_COORD;
 	}
 	else
 	{
-		if(light->atten_disttype == LDAT_LINEAR)
+		if(light->attenDistType == LDAT_LINEAR)
 			dist = light->photons * lightLinearScale;
 		else
 			dist = sqrt(light->photons);
 	}
 
-	memset(&volume, 0, sizeof(lightvolume_t));
+	memset(&volume, 0, sizeof(lightVolume_t));
 	for(i = 0; i < w->numpoints; i++)
 	{
 		VectorMA(w->points[i], dist, light->normal, volume.points[i]);
@@ -4588,7 +4591,7 @@ VL_FloodLight
 */
 void VL_FloodLight(vlight_t * light)
 {
-	lightvolume_t   volume;
+	lightVolume_t   volume;
 	dleaf_t        *leaf;
 	int             leafnum, i, j, k, dir[2][4] = { {1, 1, -1, -1}, {1, -1, -1, 1} };
 	float           a, step, dist, radius, windingdist;
@@ -4606,7 +4609,7 @@ void VL_FloodLight(vlight_t * light)
 			// create 6 volumes shining in the axis directions
 			// what about: 4 tetrahedrons instead?
 			//
-			if(light->atten_disttype == LDAT_LINEAR)
+			if(light->attenDistType == LDAT_LINEAR)
 				dist = light->photons * lightLinearScale;
 			else
 				dist = sqrt(light->photons);
@@ -4628,7 +4631,7 @@ void VL_FloodLight(vlight_t * light)
 				// for both directions on the axis
 				for(j = -1; j <= 1; j += 2)
 				{
-					memset(&volume, 0, sizeof(lightvolume_t));
+					memset(&volume, 0, sizeof(lightVolume_t));
 					volume.numplanes = 0;
 					for(k = 0; k < 4; k++)
 					{
@@ -4678,7 +4681,7 @@ void VL_FloodLight(vlight_t * light)
 			//
 			// what about using brushes to shape spot lights? that'd be pretty cool
 			//
-			if(light->atten_disttype == LDAT_LINEAR)
+			if(light->attenDistType == LDAT_LINEAR)
 				dist = light->photons * lightLinearScale;
 			else
 				dist = sqrt(light->photons);
@@ -4690,7 +4693,7 @@ void VL_FloodLight(vlight_t * light)
 			//take 8 times the cone radius because the spotlight also lights outside the cone
 			radius = 8 * windingdist * light->radiusByDist;
 			//
-			memset(&volume, 0, sizeof(lightvolume_t));
+			memset(&volume, 0, sizeof(lightVolume_t));
 			leafnum = VL_LightLeafnum(light->origin);
 			leaf = &dleafs[leafnum];
 			if(leaf->cluster == -1)
@@ -4747,7 +4750,7 @@ void VL_FloodLight(vlight_t * light)
 			int             n, axis = 0;
 			vec3_t          v, vecs[2];
 
-			if(light->atten_disttype == LDAT_LINEAR)
+			if(light->attenDistType == LDAT_LINEAR)
 				dist = light->photons * lightLinearScale;
 			else
 				dist = sqrt(light->photons);
@@ -4787,7 +4790,7 @@ void VL_FloodLight(vlight_t * light)
 				{
 					for(n = 0; n < 2; n++)
 					{
-						memset(&volume, 0, sizeof(lightvolume_t));
+						memset(&volume, 0, sizeof(lightVolume_t));
 						volume.numplanes = 3;
 						VectorMA(light->origin, i * windingdist, vecs[0], volume.points[(i == j) == n]);
 						VectorMA(light->origin, j * windingdist, vecs[1], volume.points[(i != j) == n]);
@@ -5135,23 +5138,23 @@ void VL_CreateEntityLights(void)
 		spawnflags = FloatForKey(e, "spawnflags");
 		if(spawnflags & 1)
 		{
-			dl->atten_disttype = LDAT_LINEAR;
+			dl->attenDistType = LDAT_LINEAR;
 		}
 		if(spawnflags & 2)
 		{
-			dl->atten_disttype = LDAT_NOSCALE;
+			dl->attenDistType = LDAT_NOSCALE;
 		}
 		if(spawnflags & 4)
 		{
-			dl->atten_angletype = LAAT_QUADRATIC;
+			dl->attenAngleType = LAAT_QUADRATIC;
 		}
 		if(spawnflags & 8)
 		{
-			dl->atten_angletype = LAAT_DOUBLEQUADRATIC;
+			dl->attenAngleType = LAAT_DOUBLEQUADRATIC;
 		}
 
-		dl->atten_distscale = FloatForKey(e, "atten_distscale");
-		dl->atten_anglescale = FloatForKey(e, "atten_anglescale");
+		dl->attenDistScale = FloatForKey(e, "atten_distscale");
+		dl->attenAngleScale = FloatForKey(e, "atten_anglescale");
 
 		GetVectorForKey(e, "origin", dl->origin);
 		dl->style = FloatForKey(e, "_style");
@@ -5160,7 +5163,10 @@ void VL_CreateEntityLights(void)
 		if(dl->style < 0)
 			dl->style = 0;
 
-		intensity = FloatForKey(e, "light");
+		GetVectorForKey(e, "light_radius", dl->radius);
+		intensity = VectorLength(dl->radius);
+		if(!intensity)
+			intensity = FloatForKey(e, "light");
 		if(!intensity)
 			intensity = FloatForKey(e, "_light");
 		if(!intensity)
@@ -5290,7 +5296,7 @@ void VL_SubdivideAreaLight(shaderInfo_t * ls, winding_t * w, vec3_t normal, floa
 
 	if(ls->contents & CONTENTS_FOG)
 	{
-		dl->twosided = qtrue;
+		dl->twoSided = qtrue;
 	}
 
 	vlights[numvlights++] = dl;
@@ -5548,7 +5554,7 @@ void VL_CreateSkyLights(void)
 				VectorCopy(dplanes[s->planeNum].normal, dl->plane);
 				dl->plane[3] = dplanes[s->planeNum].dist;
 				dl->type = LIGHT_SURFACEDIRECTED;
-				dl->atten_disttype = LDAT_NOSCALE;
+				dl->attenDistType = LDAT_NOSCALE;
 				VL_WindingForBrushSide(b, j, &dl->w);
 //              DebugNet_DrawWinding(&dl->w, 2);
 				//

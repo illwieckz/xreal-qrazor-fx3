@@ -170,8 +170,8 @@ void ParsePatch(qboolean patchDef3)
 	pm->mesh = m;
 
 	// link to the entity
-	pm->next = mapent->patches;
-	mapent->patches = pm;
+	pm->next = mapEnt->patches;
+	mapEnt->patches = pm;
 }
 
 

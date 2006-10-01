@@ -262,7 +262,7 @@ void WritePortalFile(tree_t * tree)
 
 	// write the file
 	sprintf(filename, "%s.prt", source);
-	Sys_Printf("writing %s\n", filename);
+	Sys_Printf("Writing %s\n", filename);
 	pf = fopen(filename, "w");
 	if(!pf)
 		Error("Error opening %s", filename);

@@ -108,7 +108,7 @@ int SelectSplitPlaneNum(node_t * node, bspface_t * list)
 		{
 			continue;
 		}
-		plane = &mapplanes[split->planenum];
+		plane = &mapPlanes[split->planenum];
 		splits = 0;
 		facing = 0;
 		front = 0;
@@ -203,7 +203,7 @@ void BuildFaceTree_r(node_t * node, bspface_t * list)
 	// partition the list
 	node->planenum = splitPlaneNum;
 	node->hint = hintsplit;
-	plane = &mapplanes[splitPlaneNum];
+	plane = &mapPlanes[splitPlaneNum];
 	childLists[0] = NULL;
 	childLists[1] = NULL;
 	for(split = list; split; split = next)

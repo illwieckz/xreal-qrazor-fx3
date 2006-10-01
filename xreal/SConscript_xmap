@@ -8,7 +8,7 @@ xmap_src = [
 'code/xmap/bsp.c',
 'code/xmap/facebsp.c',
 'code/xmap/fog.c',
-#'code/xmap/gldraw.c',
+'code/xmap/gldraw.c',
 'code/xmap/glfile.c',
 'code/xmap/leakfile.c',
 'code/xmap/light.c',
@@ -18,7 +18,7 @@ xmap_src = [
 'code/xmap/map.c',
 'code/xmap/mesh.c',
 'code/xmap/misc_model.c',
-'code/xmap/nodraw.c',
+#'code/xmap/nodraw.c',
 'code/xmap/patch.c',
 'code/xmap/portals.c',
 'code/xmap/prtfile.c',
@@ -96,14 +96,16 @@ xmap_env.Append(CCFLAGS='-DXMAP')
 if env['arch'] == 'linux-i386':
 	xmap_env.ParseConfig('xml2-config --cflags --libs')
 	xmap_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
-	xmap_env.Append(LIBS=['m', 'pthread'])
+	xmap_env.ParseConfig('sdl-config --cflags --libs')
+	xmap_env.Append(LIBS=['m', 'pthread', 'GL', 'GLU'])
 	xmap_env.Program('xmap.x86', xmap_src)
 	xmap_env.Install('#', 'xmap.x86')
 	
 elif env['arch'] == 'linux-x86_64':
 	xmap_env.ParseConfig('xml2-config --cflags --libs')
 	xmap_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
-	xmap_env.Append(LIBS=['m', 'pthread'])
+	xmap_env.ParseConfig('sdl-config --cflags --libs')
+	xmap_env.Append(LIBS=['m', 'pthread', 'GL', 'GLU'])
 	xmap_env.Program('xmap.x86_64', xmap_src)
 	xmap_env.Install('#', 'xmap.x86_64')
 

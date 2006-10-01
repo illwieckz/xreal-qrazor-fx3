@@ -142,18 +142,18 @@ void DrawBrushList(bspbrush_t * brush)
 	int             i;
 	side_t         *s;
 
-	GLS_BeginScene();
 	for(; brush; brush = brush->next)
 	{
 		for(i = 0; i < brush->numsides; i++)
 		{
 			s = &brush->sides[i];
+			
 			if(!s->winding)
 				continue;
-			GLS_Winding(s->winding, 0);
+			
+			DrawWinding(s->winding);
 		}
 	}
-	GLS_EndScene();
 }
 
 
@@ -177,10 +177,13 @@ void WriteBrushList(char *name, bspbrush_t * brush, qboolean onlyvis)
 		for(i = 0; i < brush->numsides; i++)
 		{
 			s = &brush->sides[i];
+			
 			if(!s->winding)
 				continue;
+			
 			if(onlyvis && !s->visible)
 				continue;
+			
 			OutputWinding(brush->sides[i].winding, f);
 		}
 	}
@@ -263,7 +266,7 @@ qboolean CreateBrushWindings(bspbrush_t * brush)
 		{
 			continue;
 		}
-		plane = &mapplanes[side->planenum];
+		plane = &mapPlanes[side->planenum];
 		w = BaseWindingForPlane(plane->normal, plane->dist);
 		for(j = 0; j < brush->numsides && w; j++)
 		{
@@ -275,7 +278,7 @@ qboolean CreateBrushWindings(bspbrush_t * brush)
 				continue;
 			if(brush->sides[j].backSide)
 				continue;
-			plane = &mapplanes[brush->sides[j].planenum ^ 1];
+			plane = &mapPlanes[brush->sides[j].planenum ^ 1];
 			ChopWindingInPlace(&w, plane->normal, plane->dist, 0);	//CLIP_EPSILON);
 		}
 		// free any existing winding
@@ -360,7 +363,7 @@ vec_t BrushVolume(bspbrush_t * brush)
 		w = brush->sides[i].winding;
 		if(!w)
 			continue;
-		plane = &mapplanes[brush->sides[i].planenum];
+		plane = &mapPlanes[brush->sides[i].planenum];
 		d = -(DotProduct(corner, plane->normal) - plane->dist);
 		area = WindingArea(w);
 		volume += d * area;
@@ -395,7 +398,7 @@ void WriteBspBrushMap(char *name, bspbrush_t * list)
 		fprintf(f, "{\n");
 		for(i = 0, s = list->sides; i < list->numsides; i++, s++)
 		{
-			w = BaseWindingForPlane(mapplanes[s->planenum].normal, mapplanes[s->planenum].dist);
+			w = BaseWindingForPlane(mapPlanes[s->planenum].normal, mapPlanes[s->planenum].dist);
 
 			fprintf(f, "( %i %i %i ) ", (int)w->p[0][0], (int)w->p[0][1], (int)w->p[0][2]);
 			fprintf(f, "( %i %i %i ) ", (int)w->p[1][0], (int)w->p[1][1], (int)w->p[1][2]);
@@ -709,7 +712,7 @@ void SplitBrush(bspbrush_t * brush, int planenum, bspbrush_t ** front, bspbrush_
 	float           d, d_front, d_back;
 
 	*front = *back = NULL;
-	plane = &mapplanes[planenum];
+	plane = &mapPlanes[planenum];
 
 	// check all points
 	d_front = d_back = 0;
@@ -747,7 +750,7 @@ void SplitBrush(bspbrush_t * brush, int planenum, bspbrush_t ** front, bspbrush_
 		{
 			continue;			// fake back-sided polygons never split
 		}
-		plane2 = &mapplanes[brush->sides[i].planenum ^ 1];
+		plane2 = &mapPlanes[brush->sides[i].planenum ^ 1];
 		ChopWindingInPlace(&w, plane2->normal, plane2->dist, 0);	// PLANESIDE_EPSILON);
 	}
 

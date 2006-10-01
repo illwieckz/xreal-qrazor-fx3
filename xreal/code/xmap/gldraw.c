@@ -21,36 +21,93 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#include <windows.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include <GL/glaux.h>
+#include <SDL.h>
 
 #include "qbsp.h"
 
 // can't use the glvertex3fv functions, because the vec3_t fields
 // could be either floats or doubles, depending on DOUBLEVEC_T
 
-qboolean        drawflag;
-vec3_t          draw_mins, draw_maxs;
+qboolean        drawFlag;
+static vec3_t   drawOrigin = { 0, 0, 0 };
+static vec3_t   drawAngles = { 0, 0, 0 };
+static SDL_VideoInfo *drawVideo = NULL;
+static SDL_Surface *drawScreen = NULL;
 
 
 #define	WIN_SIZE	512
 
-void InitWindow(void)
+
+static void Reshape(int width, int height)
 {
-	auxInitDisplayMode(AUX_SINGLE | AUX_RGB);
-	auxInitPosition(0, 0, WIN_SIZE, WIN_SIZE);
-	auxInitWindow("qcsg");
+	float           screenaspect;
+
+	// set up viewport
+	glViewport(0, 0, width, height);
+
+	// set up projection matrix
+	screenaspect = (float)width / (float)height;
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(90, screenaspect, 2, 16384);
+
+	// set up modelview matrix
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	glRotatef(-90, 1, 0, 0);	// put Z going up
+	glRotatef(90, 0, 0, 1);		// put Z going up
+	glRotatef(-drawAngles[2], 1, 0, 0);
+	glRotatef(-drawAngles[0], 0, 1, 0);
+	glRotatef(-drawAngles[1], 0, 0, 1);
+	glTranslatef(-drawOrigin[0], -drawOrigin[1], -drawOrigin[2]);
 }
 
-void Draw_ClearWindow(void)
+static void InitWindow(void)
 {
-	static int      init;
+	SDL_Init(SDL_INIT_VIDEO);
+
+	drawVideo = SDL_GetVideoInfo();
+	if(!drawVideo)
+	{
+		Error("Couldn't get video information: %s\n", SDL_GetError());
+	}
+
+	// Set the minimum requirements for the OpenGL window
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+	/* Note the SDL_DOUBLEBUF flag is not required to enable double 
+	 * buffering when setting an OpenGL video mode. 
+	 * Double buffering is enabled or disabled using the 
+	 * SDL_GL_DOUBLEBUFFER attribute.
+	 */
+
+	drawScreen = SDL_SetVideoMode(WIN_SIZE, WIN_SIZE, drawVideo->vfmt->BitsPerPixel, SDL_OPENGL | SDL_RESIZABLE);
+	if(!drawScreen)
+	{
+		SDL_Quit();
+		Error("Couldn't set GL video mode: %s\n", SDL_GetError());
+	}
+
+	SDL_WM_SetCaption("XMap", "xmap");
+
+	//SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+}
+
+void DrawBeginScene()
+{
 	int             w, h, g;
 	vec_t           mx, my;
+	static qboolean init = qfalse;
 
-	if(!drawflag)
+	if(!drawFlag)
 		return;
 
 	if(!init)
@@ -59,23 +116,27 @@ void Draw_ClearWindow(void)
 		InitWindow();
 	}
 
+	Reshape(drawScreen->w, drawScreen->h);
+
 	glClearColor(1, 0.8, 0.8, 0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	w = (draw_maxs[0] - draw_mins[0]);
-	h = (draw_maxs[1] - draw_mins[1]);
+	/*
+	   w = (drawMaxs[0] - drawMins[0]);
+	   h = (drawMaxs[1] - drawMins[1]);
 
-	mx = draw_mins[0] + w / 2;
-	my = draw_mins[1] + h / 2;
+	   mx = drawMins[0] + w / 2;
+	   my = drawMins[1] + h / 2;
 
-	g = w > h ? w : h;
+	   g = w > h ? w : h;
 
-	glLoadIdentity();
-	gluPerspective(90, 1, 2, 16384);
-	gluLookAt(mx, my, draw_maxs[2] + g / 2, mx, my, draw_maxs[2], 0, 1, 0);
+	   glLoadIdentity();
+	   gluPerspective(90, 1, 2, 16384);
+	   gluLookAt(mx, my, drawMaxs[2] + g / 2, mx, my, drawMaxs[2], 0, 1, 0);
+	 */
 
 	glColor3f(0, 0, 0);
-//  glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+//  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
@@ -94,12 +155,11 @@ void Draw_ClearWindow(void)
 #endif
 
 	glFlush();
-
 }
 
 void Draw_SetRed(void)
 {
-	if(!drawflag)
+	if(!drawFlag)
 		return;
 
 	glColor3f(1, 0, 0);
@@ -107,7 +167,7 @@ void Draw_SetRed(void)
 
 void Draw_SetGrey(void)
 {
-	if(!drawflag)
+	if(!drawFlag)
 		return;
 
 	glColor3f(0.5, 0.5, 0.5);
@@ -115,7 +175,7 @@ void Draw_SetGrey(void)
 
 void Draw_SetBlack(void)
 {
-	if(!drawflag)
+	if(!drawFlag)
 		return;
 
 	glColor3f(0, 0, 0);
@@ -125,7 +185,7 @@ void DrawWinding(winding_t * w)
 {
 	int             i;
 
-	if(!drawflag)
+	if(!drawFlag)
 		return;
 
 	glColor4f(0, 0, 0, 0.5);
@@ -147,7 +207,7 @@ void DrawAuxWinding(winding_t * w)
 {
 	int             i;
 
-	if(!drawflag)
+	if(!drawFlag)
 		return;
 
 	glColor4f(0, 0, 0, 0.5);
@@ -165,69 +225,267 @@ void DrawAuxWinding(winding_t * w)
 	glFlush();
 }
 
-//============================================================
-
-#define	GLSERV_PORT	25001
-
-qboolean        wins_init;
-int             draw_socket;
-
-void GLS_BeginScene(void)
+void DrawPortal(portal_t * p)
 {
-	WSADATA         winsockdata;
-	WORD            wVersionRequested;
-	struct sockaddr_in address;
-	int             r;
+	winding_t      *w;
+	int             sides;
 
-	if(!wins_init)
-	{
-		wins_init = qtrue;
-
-		wVersionRequested = MAKEWORD(1, 1);
-
-		r = WSAStartup(MAKEWORD(1, 1), &winsockdata);
-
-		if(r)
-			Error("Winsock initialization failed.");
-
-	}
-
-	// connect a socket to the server
-
-	draw_socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if(draw_socket == -1)
-		Error("draw_socket failed");
-
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-	address.sin_port = GLSERV_PORT;
-	r = connect(draw_socket, (struct sockaddr *)&address, sizeof(address));
-	if(r == -1)
-	{
-		closesocket(draw_socket);
-		draw_socket = 0;
-	}
-}
-
-void GLS_Winding(winding_t * w, int code)
-{
-	byte            buf[1024];
-	int             i, j;
-
-	if(!draw_socket)
+	sides = PortalVisibleSides(p);
+	if(!sides)
 		return;
 
-	((int *)buf)[0] = w->numpoints;
-	((int *)buf)[1] = code;
-	for(i = 0; i < w->numpoints; i++)
-		for(j = 0; j < 3; j++)
-			((float *)buf)[2 + i * 3 + j] = w->p[i][j];
+	w = p->winding;
 
-	send(draw_socket, buf, w->numpoints * 12 + 8, 0);
+	if(sides == 2)				// back side
+		w = ReverseWinding(w);
+
+	DrawWinding(w);
+
+	if(sides == 2)
+		FreeWinding(w);
 }
 
-void GLS_EndScene(void)
+static void DrawTree_r(node_t * node)
 {
-	closesocket(draw_socket);
-	draw_socket = 0;
+	portal_t       *p, *nextp;
+
+	if(node->planenum != PLANENUM_LEAF)
+	{
+		DrawTree_r(node->children[0]);
+		DrawTree_r(node->children[1]);
+		return;
+	}
+
+	// draw all the portals
+	for(p = node->portals; p; p = nextp)
+	{
+		if(p->nodes[0] == node)
+		{
+			DrawPortal(p);
+
+			nextp = p->next[0];
+		}
+		else
+		{
+			nextp = p->next[1];
+		}
+	}
+}
+
+void DrawTree(tree_t * tree)
+{
+	Uint8          *keys;
+	qboolean        done;
+	matrix_t        rotation;
+	vec3_t          forward, right, up;
+	qboolean        mouseGrabbed;
+	int             oldTime, newTime, deltaTime;	// for frame independent movement
+
+	done = qfalse;
+	mouseGrabbed = qfalse;
+
+	oldTime = SDL_GetTicks();
+	while(!done)
+	{
+		SDL_Event       event;
+		
+		newTime = SDL_GetTicks();
+		deltaTime = newTime - oldTime;
+
+		MatrixFromAngles(rotation, drawAngles[PITCH], drawAngles[YAW], drawAngles[ROLL]);
+		MatrixToVectorsFRU(rotation, forward, right, up);
+
+		while(SDL_PollEvent(&event))
+		{
+			switch (event.type)
+			{
+				case SDL_VIDEORESIZE:
+				{
+					drawScreen =
+						SDL_SetVideoMode(event.resize.w, event.resize.h, drawVideo->vfmt->BitsPerPixel,
+										 SDL_OPENGL | SDL_RESIZABLE);
+					if(drawScreen)
+					{
+						Reshape(drawScreen->w, drawScreen->h);
+					}
+					else
+					{
+						/* Uh oh, we couldn't set the new video mode?? */ ;
+					}
+					break;
+				}
+
+				case SDL_MOUSEMOTION:
+				{
+					if(mouseGrabbed)
+					{
+						drawAngles[PITCH] += event.motion.yrel;
+						drawAngles[YAW] -= event.motion.xrel;
+					}
+					break;
+				}
+
+				case SDL_MOUSEBUTTONDOWN:
+				{
+					switch (event.button.button)
+					{
+						case 3:
+						{		// K_MOUSE2;
+							if(!mouseGrabbed)
+							{
+								SDL_WM_GrabInput(SDL_GRAB_ON);
+								SDL_ShowCursor(0);
+								mouseGrabbed = qtrue;
+							}
+							else
+							{
+								SDL_ShowCursor(1);
+								SDL_WM_GrabInput(SDL_GRAB_OFF);
+								mouseGrabbed = qfalse;
+							}
+							break;
+						}
+
+						default:
+							break;
+					}
+					break;
+				}
+
+				case SDL_QUIT:
+				{
+					done = qtrue;
+					break;
+				}
+
+				default:
+					break;
+			}
+		}
+
+
+		keys = SDL_GetKeyState(NULL);
+
+		if(keys[SDLK_ESCAPE])
+		{
+			done = 1;
+		}
+
+		if(keys[SDLK_w])
+		{
+			if(SDL_GetModState() & KMOD_SHIFT)
+			{
+				VectorMA(drawOrigin, 0.5 * deltaTime, forward, drawOrigin);
+			}
+			else
+			{
+				VectorMA(drawOrigin, 1.0 * deltaTime, forward, drawOrigin);
+			}
+		}
+
+		if(keys[SDLK_s])
+		{
+			if(SDL_GetModState() & KMOD_SHIFT)
+			{
+				VectorMA(drawOrigin, -0.5 * deltaTime, forward, drawOrigin);
+			}
+			else
+			{
+				VectorMA(drawOrigin, -1.0 * deltaTime, forward, drawOrigin);
+			}
+		}
+
+		if(keys[SDLK_a])
+		{
+			if(SDL_GetModState() & KMOD_SHIFT)
+			{
+				VectorMA(drawOrigin, -0.5 * deltaTime, right, drawOrigin);
+			}
+			else
+			{
+				VectorMA(drawOrigin, -1.0 * deltaTime, right, drawOrigin);
+			}
+		}
+
+		if(keys[SDLK_d])
+		{
+			if(SDL_GetModState() & KMOD_SHIFT)
+			{
+				VectorMA(drawOrigin, 0.5 * deltaTime, right, drawOrigin);
+			}
+			else
+			{
+				VectorMA(drawOrigin, 1.0 * deltaTime, right, drawOrigin);
+			}
+		}
+
+		if(keys[SDLK_SPACE])
+		{
+			//drawOrigin[2] += 1.0 * deltaTime;
+			if(SDL_GetModState() & KMOD_SHIFT)
+			{
+				VectorMA(drawOrigin, 0.5 * deltaTime, up, drawOrigin);
+			}
+			else
+			{
+				VectorMA(drawOrigin, 1.0 * deltaTime, up, drawOrigin);
+			}
+		}
+
+		if(keys[SDLK_c])
+		{
+			//drawOrigin[2] -= 1.0 * deltaTime;
+			if(SDL_GetModState() & KMOD_SHIFT)
+			{
+				VectorMA(drawOrigin, -0.5 * deltaTime, up, drawOrigin);
+			}
+			else
+			{
+				VectorMA(drawOrigin, -1.0 * deltaTime, up, drawOrigin);
+			}
+		}
+
+		if(keys[SDLK_UP])
+		{
+			drawAngles[PITCH] -= 1.0 * deltaTime;
+		}
+
+		if(keys[SDLK_DOWN])
+		{
+			drawAngles[PITCH] += 1.0 * deltaTime;
+		}
+
+		if(keys[SDLK_LEFT])
+		{
+			drawAngles[YAW] += 1.0 * deltaTime;
+		}
+
+		if(keys[SDLK_RIGHT])
+		{
+			drawAngles[YAW] -= 1.0 * deltaTime;
+		}
+
+		// check to make sure the angles haven't wrapped
+		if(drawAngles[PITCH] < -90)
+		{
+			drawAngles[PITCH] = -90;
+		}
+		else if(drawAngles[PITCH] > 90)
+		{
+			drawAngles[PITCH] = 90;
+		}
+
+		DrawBeginScene();
+		DrawTree_r(tree->headnode);
+		DrawEndScene();
+		
+		oldTime = newTime;
+	}
+
+	SDL_Quit();
+}
+
+void DrawEndScene(void)
+{
+	SDL_GL_SwapBuffers();
 }

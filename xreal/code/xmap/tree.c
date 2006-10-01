@@ -34,7 +34,7 @@ node_t         *NodeForPoint(node_t * node, vec3_t origin)
 
 	while(node->planenum != PLANENUM_LEAF)
 	{
-		plane = &mapplanes[node->planenum];
+		plane = &mapPlanes[node->planenum];
 		d = DotProduct(origin, plane->normal) - plane->dist;
 		if(d >= 0)
 			node = node->children[0];
@@ -138,7 +138,7 @@ void PrintTree_r(node_t * node, int depth)
 		return;
 	}
 
-	plane = &mapplanes[node->planenum];
+	plane = &mapPlanes[node->planenum];
 	Sys_Printf("#%i (%5.2f %5.2f %5.2f):%5.2f\n", node->planenum, plane->normal[0], plane->normal[1], plane->normal[2], plane->dist);
 	PrintTree_r(node->children[0], depth + 1);
 	PrintTree_r(node->children[1], depth + 1);

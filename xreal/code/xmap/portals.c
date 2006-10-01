@@ -254,12 +254,12 @@ winding_t      *BaseWindingForNode(node_t * node)
 	vec3_t          normal;
 	vec_t           dist;
 
-	w = BaseWindingForPlane(mapplanes[node->planenum].normal, mapplanes[node->planenum].dist);
+	w = BaseWindingForPlane(mapPlanes[node->planenum].normal, mapPlanes[node->planenum].dist);
 
 	// clip by all the parents
 	for(n = node->parent; n && w;)
 	{
-		plane = &mapplanes[n->planenum];
+		plane = &mapPlanes[n->planenum];
 
 		if(n->children[0] == node)
 		{						// take front
@@ -332,7 +332,7 @@ void MakeNodePortal(node_t * node)
 	}
 
 	new_portal = AllocPortal();
-	new_portal->plane = mapplanes[node->planenum];
+	new_portal->plane = mapPlanes[node->planenum];
 	new_portal->onnode = node;
 	new_portal->winding = w;
 	new_portal->hint = node->hint;
@@ -356,7 +356,7 @@ void SplitNodePortals(node_t * node)
 	plane_t        *plane;
 	winding_t      *frontwinding, *backwinding;
 
-	plane = &mapplanes[node->planenum];
+	plane = &mapPlanes[node->planenum];
 	f = node->children[0];
 	b = node->children[1];
 
@@ -579,7 +579,7 @@ qboolean PlaceOccupant(node_t * headnode, vec3_t origin, entity_t * occupant)
 	node = headnode;
 	while(node->planenum != PLANENUM_LEAF)
 	{
-		plane = &mapplanes[node->planenum];
+		plane = &mapPlanes[node->planenum];
 		d = DotProduct(origin, plane->normal) - plane->dist;
 		if(d >= 0)
 			node = node->children[0];

@@ -265,15 +265,15 @@ extern int      entitySourceBrushes;
 
 // mapplanes[ num^1 ] will always be the mirror or mapplanes[ num ]
 // nummapplanes will always be even
-extern plane_t  mapplanes[MAX_MAP_PLANES];
-extern int      nummapplanes;
+extern plane_t  mapPlanes[MAX_MAP_PLANES];
+extern int      numMapPlanes;
 
-extern vec3_t   map_mins, map_maxs;
+extern vec3_t   mapMins, mapMaxs;
 
 extern char     mapIndexedShaders[MAX_MAP_BRUSHSIDES][MAX_QPATH];
 extern int      numMapIndexedShaders;
 
-extern entity_t *mapent;
+extern entity_t *mapEnt;
 
 #define		MAX_BUILD_SIDES		300
 extern bspbrush_t *buildBrush;
@@ -294,15 +294,12 @@ mapDrawSurface_t *DrawSurfaceForSide(bspbrush_t * b, side_t * s, winding_t * w);
 
 // draw.c
 
-extern vec3_t   draw_mins, draw_maxs;
-extern qboolean drawflag;
+extern qboolean drawFlag;
 
-void            Draw_ClearWindow(void);
+void            DrawBeginScene();
 void            DrawWinding(winding_t * w);
-
-void            GLS_BeginScene(void);
-void            GLS_Winding(winding_t * w, int code);
-void            GLS_EndScene(void);
+void            DrawTree(tree_t * tree);
+void            DrawEndScene(void);
 
 //=============================================================================
 

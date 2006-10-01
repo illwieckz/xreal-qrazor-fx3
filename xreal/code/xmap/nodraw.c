@@ -23,26 +23,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "qbsp.h"
 
-vec3_t          draw_mins, draw_maxs;
-qboolean        drawflag;
+qboolean        drawFlag;
 
-void Draw_ClearWindow(void)
+void DrawBeginScene(void)
 {
 }
 
-//============================================================
-
-#define	GLSERV_PORT	25001
-
-
-void GLS_BeginScene(void)
+void DrawWinding(winding_t * w)
 {
 }
 
-void GLS_Winding(winding_t * w, int code)
+void DrawTree(tree_t * tree)
 {
 }
 
-void GLS_EndScene(void)
+void DrawEndScene(void)
 {
 }

@@ -34,8 +34,8 @@ int             numMapPatches;
 #define	PLANE_HASHES	1024
 plane_t        *planehash[PLANE_HASHES];
 
-plane_t         mapplanes[MAX_MAP_PLANES];
-int             nummapplanes;
+plane_t         mapPlanes[MAX_MAP_PLANES];
+int             numMapPlanes;
 
 // as brushes and patches are read in, the shaders are stored out in order
 // here, so -onlytextures can just copy them out over the existing shaders
@@ -43,9 +43,9 @@ int             nummapplanes;
 char            mapIndexedShaders[MAX_MAP_BRUSHSIDES][MAX_QPATH];
 int             numMapIndexedShaders;
 
-vec3_t          map_mins, map_maxs;
+vec3_t          mapMins, mapMaxs;
 
-entity_t       *mapent;
+entity_t       *mapEnt;
 
 
 
@@ -130,10 +130,10 @@ int CreateNewFloatPlane(vec3_t normal, vec_t dist)
 	}
 
 	// create a new plane
-	if(nummapplanes + 2 > MAX_MAP_PLANES)
+	if(numMapPlanes + 2 > MAX_MAP_PLANES)
 		Error("MAX_MAP_PLANES");
 
-	p = &mapplanes[nummapplanes];
+	p = &mapPlanes[numMapPlanes];
 	VectorCopy(normal, p->normal);
 	p->dist = dist;
 	p->type = (p + 1)->type = PlaneTypeForNormal(p->normal);
@@ -141,7 +141,7 @@ int CreateNewFloatPlane(vec3_t normal, vec_t dist)
 	VectorSubtract(vec3_origin, normal, (p + 1)->normal);
 	(p + 1)->dist = -dist;
 
-	nummapplanes += 2;
+	numMapPlanes += 2;
 
 	// allways put axial planes facing positive first
 	if(p->type < 3)
@@ -155,13 +155,13 @@ int CreateNewFloatPlane(vec3_t normal, vec_t dist)
 
 			AddPlaneToHash(p);
 			AddPlaneToHash(p + 1);
-			return nummapplanes - 1;
+			return numMapPlanes - 1;
 		}
 	}
 
 	AddPlaneToHash(p);
 	AddPlaneToHash(p + 1);
-	return nummapplanes - 2;
+	return numMapPlanes - 2;
 }
 
 /*
@@ -216,7 +216,7 @@ int FindFloatPlane(vec3_t normal, vec_t dist)
 	plane_t        *p;
 
 	SnapPlane(normal, &dist);
-	for(i = 0, p = mapplanes; i < nummapplanes; i++, p++)
+	for(i = 0, p = mapPlanes; i < numMapPlanes; i++, p++)
 	{
 		if(PlaneEqual(p, normal, dist))
 			return i;
@@ -242,7 +242,7 @@ int FindFloatPlane(vec3_t normal, vec_t dist)
 		for(p = planehash[h]; p; p = p->hash_chain)
 		{
 			if(PlaneEqual(p, normal, dist))
-				return p - mapplanes;
+				return p - mapPlanes;
 		}
 	}
 
@@ -420,7 +420,7 @@ void AddBrushBevels(void)
 			// see if the plane is allready present
 			for(i = 0, s = buildBrush->sides; i < buildBrush->numsides; i++, s++)
 			{
-				if(mapplanes[s->planenum].normal[axis] == dir)
+				if(mapPlanes[s->planenum].normal[axis] == dir)
 					break;
 			}
 
@@ -508,7 +508,7 @@ void AddBrushBevels(void)
 						for(k = 0; k < buildBrush->numsides; k++)
 						{
 							// if this plane has allready been used, skip it
-							if(PlaneEqual(&mapplanes[buildBrush->sides[k].planenum], normal, dist))
+							if(PlaneEqual(&mapPlanes[buildBrush->sides[k].planenum], normal, dist))
 								break;
 
 							w2 = buildBrush->sides[k].winding;
@@ -664,8 +664,8 @@ bspbrush_t     *FinishBrush(void)
 
 	b->original = b;
 
-	b->next = mapent->brushes;
-	mapent->brushes = b;
+	b->next = mapEnt->brushes;
+	mapEnt->brushes = b;
 
 	return b;
 }
@@ -965,7 +965,7 @@ void ParseRawBrush()
 
 		if(g_bBrushPrimit == BPRIMIT_OLDBRUSHES)
 			// get the texture mapping for this texturedef / plane combination
-			QuakeTextureVecs(&mapplanes[planenum], shift, rotate, scale, side->vecs);
+			QuakeTextureVecs(&mapPlanes[planenum], shift, rotate, scale, side->vecs);
 
 	} while(1);
 
@@ -1146,9 +1146,9 @@ void AdjustBrushesForOrigin(entity_t * ent, vec3_t origin)
 		{
 			s = &b->sides[i];
 			
-			newdist = mapplanes[s->planenum].dist - DotProduct(mapplanes[s->planenum].normal, origin);
+			newdist = mapPlanes[s->planenum].dist - DotProduct(mapPlanes[s->planenum].normal, origin);
 			
-			s->planenum = FindFloatPlane(mapplanes[s->planenum].normal, newdist);
+			s->planenum = FindFloatPlane(mapPlanes[s->planenum].normal, newdist);
 		}
 		CreateBrushWindings(b);
 	}
@@ -1222,9 +1222,9 @@ qboolean ParseMapEntity(void)
 
 	entitySourceBrushes = 0;
 
-	mapent = &entities[num_entities];
+	mapEnt = &entities[num_entities];
 	num_entities++;
-	memset(mapent, 0, sizeof(*mapent));
+	memset(mapEnt, 0, sizeof(*mapEnt));
 
 	do
 	{
@@ -1283,29 +1283,29 @@ qboolean ParseMapEntity(void)
 		{
 			// parse a key / value pair
 			e = ParseEpair();
-			e->next = mapent->epairs;
-			mapent->epairs = e;
+			e->next = mapEnt->epairs;
+			mapEnt->epairs = e;
 		}
 	} while(1);
 
-	GetVectorForKey(mapent, "origin", mapent->origin);
+	GetVectorForKey(mapEnt, "origin", mapEnt->origin);
 
 	
-	classname = ValueForKey(mapent, "classname");
-	name = ValueForKey(mapent, "name");
-	model = ValueForKey(mapent, "model");
+	classname = ValueForKey(mapEnt, "classname");
+	name = ValueForKey(mapEnt, "name");
+	model = ValueForKey(mapEnt, "model");
 	
 	#if 1
 	// HACK: convert Doom3's func_static entities with custom models into misc_models
-	if(!Q_stricmp("func_static", classname) && !mapent->brushes && !mapent->patches && model[0] != '\0')
+	if(!Q_stricmp("func_static", classname) && !mapEnt->brushes && !mapEnt->patches && model[0] != '\0')
 	{
-		SetKeyValue(mapent, "classname", "misc_model");	
+		SetKeyValue(mapEnt, "classname", "misc_model");	
 	}
 	#endif
 	
 	#if 0
 	// HACK: we should support Doom3 style doors in engine code but get rid of them for now
-	if(!Q_stricmp("func_door", classname) && !mapent->brushes && !mapent->patches && model[0] != '\0')
+	if(!Q_stricmp("func_door", classname) && !mapEnt->brushes && !mapEnt->patches && model[0] != '\0')
 	{
 		num_entities--;
 		return qtrue;
@@ -1314,7 +1314,7 @@ qboolean ParseMapEntity(void)
 	
 	#if 0
 	// HACK:
-	if(!Q_stricmp("func_rotating", classname) && !mapent->brushes && !mapent->patches && model[0] != '\0')
+	if(!Q_stricmp("func_rotating", classname) && !mapEnt->brushes && !mapEnt->patches && model[0] != '\0')
 	{
 		num_entities--;
 		return qtrue;
@@ -1328,11 +1328,11 @@ qboolean ParseMapEntity(void)
 		bspbrush_t     *brush;
 		vec3_t          originNeg;
 		
-		VectorNegate(mapent->origin, originNeg);
-		AdjustBrushesForOrigin(mapent, originNeg);
+		VectorNegate(mapEnt->origin, originNeg);
+		AdjustBrushesForOrigin(mapEnt, originNeg);
 		
 		// NOTE: func_static entities should contain always detail brushes
-		for(brush = mapent->brushes; brush != NULL; brush = brush->next)
+		for(brush = mapEnt->brushes; brush != NULL; brush = brush->next)
 		{
 			if(!(brush->contents & CONTENTS_DETAIL) || !brush->detail)
 			{
@@ -1342,16 +1342,16 @@ qboolean ParseMapEntity(void)
 			}
 		}
 		
-		if(!strcmp("1", ValueForKey(mapent, "noclipmodel")))
+		if(!strcmp("1", ValueForKey(mapEnt, "noclipmodel")))
 		{
-			for(brush = mapent->brushes; brush != NULL; brush = brush->next)
+			for(brush = mapEnt->brushes; brush != NULL; brush = brush->next)
 			{
 				brush->contents &= ~CONTENTS_SOLID;
 			}
 		}
 		
-		MoveBrushesToWorld(mapent);
-		MovePatchesToWorld(mapent);
+		MoveBrushesToWorld(mapEnt);
+		MovePatchesToWorld(mapEnt);
 		
 		c_mergedFuncStatics++;
 		num_entities--;
@@ -1361,17 +1361,17 @@ qboolean ParseMapEntity(void)
 		
 	// if there was an origin brush, offset all of the planes and texinfo
 	// for all the brushes in the entity
-	if(mapent->origin[0] || mapent->origin[1] || mapent->origin[2])
+	if(mapEnt->origin[0] || mapEnt->origin[1] || mapEnt->origin[2])
 	{
 		if((name[0] != '\0' && model[0] != '\0' && !Q_stricmp(name, model)))// || !Q_stricmp("worldspawn", classname))
 		{
-			AdjustBrushesForOrigin(mapent, vec3_origin);
-			AdjustPatchesForOrigin(mapent);
+			AdjustBrushesForOrigin(mapEnt, vec3_origin);
+			AdjustPatchesForOrigin(mapEnt);
 		}
 		else
 		{
-			AdjustBrushesForOrigin(mapent, mapent->origin);
-			AdjustPatchesForOrigin(mapent);
+			AdjustBrushesForOrigin(mapEnt, mapEnt->origin);
+			AdjustPatchesForOrigin(mapEnt);
 		}
 	}
 
@@ -1388,12 +1388,12 @@ qboolean ParseMapEntity(void)
 	// toss all brushes into the world entity
 	if(!strcmp("func_group", classname))
 	{
-		if(!strcmp("1", ValueForKey(mapent, "terrain")))
+		if(!strcmp("1", ValueForKey(mapEnt, "terrain")))
 		{
 			SetTerrainTextures();
 		}
-		MoveBrushesToWorld(mapent);
-		MovePatchesToWorld(mapent);
+		MoveBrushesToWorld(mapEnt);
+		MovePatchesToWorld(mapEnt);
 		num_entities--;
 		return qtrue;
 	}
@@ -1433,11 +1433,11 @@ void LoadMapFile(char *filename)
 	{
 	}
 
-	ClearBounds(map_mins, map_maxs);
+	ClearBounds(mapMins, mapMaxs);
 	for(b = entities[0].brushes; b; b = b->next)
 	{
-		AddPointToBounds(b->mins, map_mins, map_maxs);
-		AddPointToBounds(b->maxs, map_mins, map_maxs);
+		AddPointToBounds(b->mins, mapMins, mapMaxs);
+		AddPointToBounds(b->maxs, mapMins, mapMaxs);
 	}
 
 	Sys_FPrintf(SYS_VRB, "%5i total world brushes\n", CountBrushList(entities[0].brushes));
@@ -1447,10 +1447,10 @@ void LoadMapFile(char *filename)
 	Sys_FPrintf(SYS_VRB, "%5i edgebevels\n", c_edgebevels);
 	Sys_FPrintf(SYS_VRB, "%5i merged func_static entities\n", c_mergedFuncStatics);
 	Sys_FPrintf(SYS_VRB, "%5i entities\n", num_entities);
-	Sys_FPrintf(SYS_VRB, "%5i planes\n", nummapplanes);
+	Sys_FPrintf(SYS_VRB, "%5i planes\n", numMapPlanes);
 	Sys_FPrintf(SYS_VRB, "%5i areaportals\n", c_areaportals);
-	Sys_FPrintf(SYS_VRB, "size: %5.0f,%5.0f,%5.0f to %5.0f,%5.0f,%5.0f\n", map_mins[0], map_mins[1], map_mins[2],
-			map_maxs[0], map_maxs[1], map_maxs[2]);
+	Sys_FPrintf(SYS_VRB, "size: %5.0f,%5.0f,%5.0f to %5.0f,%5.0f,%5.0f\n", mapMins[0], mapMins[1], mapMins[2],
+			mapMaxs[0], mapMaxs[1], mapMaxs[2]);
 
 	if(fakemap)
 	{
@@ -1495,7 +1495,7 @@ void TestExpandBrushes(void)
 		for(i = 0; i < brush->numsides; i++)
 		{
 			s = brush->sides + i;
-			plane = &mapplanes[s->planenum];
+			plane = &mapPlanes[s->planenum];
 			dist = plane->dist;
 			for(j = 0; j < 3; j++)
 			{

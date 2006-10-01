@@ -97,7 +97,7 @@ mapDrawSurface_t *DrawSurfaceForSide(bspbrush_t * b, side_t * s, winding_t * w)
 
 	// compute s/t coordinates from brush primitive texture matrix
 	// compute axis base
-	ComputeAxisBase(mapplanes[s->planenum].normal, texX, texY);
+	ComputeAxisBase(mapPlanes[s->planenum].normal, texX, texY);
 
 	for(j = 0; j < w->numpoints; j++)
 	{
@@ -139,7 +139,7 @@ mapDrawSurface_t *DrawSurfaceForSide(bspbrush_t * b, side_t * s, winding_t * w)
 		}
 
 		// copy normal
-		VectorCopy(mapplanes[s->planenum].normal, dv->normal);
+		VectorCopy(mapPlanes[s->planenum].normal, dv->normal);
 	}
 
 	// adjust the texture coordinates to be as close to 0 as possible
@@ -384,7 +384,7 @@ void ClipSideIntoTree_r(winding_t * w, side_t * side, node_t * node)
 			return;
 		}
 
-		plane = &mapplanes[node->planenum];
+		plane = &mapPlanes[node->planenum];
 		ClipWindingEpsilon(w, plane->normal, plane->dist, ON_EPSILON, &front, &back);
 		FreeWinding(w);
 
@@ -397,7 +397,7 @@ void ClipSideIntoTree_r(winding_t * w, side_t * side, node_t * node)
 	// if opaque leaf, don't add
 	if(!node->opaque)
 	{
-		AddWindingToConvexHull(w, &side->visibleHull, mapplanes[side->planenum].normal);
+		AddWindingToConvexHull(w, &side->visibleHull, mapPlanes[side->planenum].normal);
 	}
 
 	FreeWinding(w);
@@ -515,7 +515,7 @@ int FilterMapDrawSurfIntoTree(vec3_t point, mapDrawSurface_t * ds, node_t * node
 
 	if(node->planenum != PLANENUM_LEAF)
 	{
-		plane = &mapplanes[node->planenum];
+		plane = &mapPlanes[node->planenum];
 		d = DotProduct(point, plane->normal) - plane->dist;
 		c = 0;
 		if(d >= -ON_EPSILON)
@@ -567,7 +567,7 @@ int FilterMapDrawSurfIntoTree_r(winding_t * w, mapDrawSurface_t * ds, node_t * n
 
 	if(node->planenum != PLANENUM_LEAF)
 	{
-		plane = &mapplanes[node->planenum];
+		plane = &mapPlanes[node->planenum];
 		ClipWindingEpsilon(w, plane->normal, plane->dist, ON_EPSILON, &front, &back);
 
 		total = 0;
@@ -636,7 +636,7 @@ int FilterSideIntoTree_r(winding_t * w, side_t * side, mapDrawSurface_t * ds, no
 			return FilterSideIntoTree_r(w, side, ds, node->children[1]);
 		}
 
-		plane = &mapplanes[node->planenum];
+		plane = &mapPlanes[node->planenum];
 		ClipWindingEpsilon(w, plane->normal, plane->dist, ON_EPSILON, &front, &back);
 
 		total = FilterSideIntoTree_r(front, side, ds, node->children[0]);

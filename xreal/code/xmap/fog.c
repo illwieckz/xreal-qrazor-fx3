@@ -280,7 +280,7 @@ qboolean ChopPatchByBrush(mapDrawSurface_t * ds, bspbrush_t * b)
 	for(i = 4; i <= 5; i++)
 	{
 		s = &b->sides[i];
-		plane = &mapplanes[s->planenum];
+		plane = &mapPlanes[s->planenum];
 
 		SplitMeshByPlane(m, plane->normal, plane->dist, &front, &back);
 
@@ -385,7 +385,7 @@ qboolean ChopFaceByBrush(mapDrawSurface_t * ds, bspbrush_t * b)
 		{
 			continue;
 		}
-		plane = &mapplanes[s->planenum];
+		plane = &mapPlanes[s->planenum];
 
 		// handle coplanar outfacing (don't fog)
 		if(ds->side->planenum == s->planenum)
@@ -449,7 +449,7 @@ qboolean ChopFaceByBrush(mapDrawSurface_t * ds, bspbrush_t * b)
 
 	// compute s/t coordinates from brush primitive texture matrix
 	// compute axis base
-	ComputeAxisBase(mapplanes[s->planenum].normal, texX, texY);
+	ComputeAxisBase(mapPlanes[s->planenum].normal, texX, texY);
 
 	for(j = 0; j < w->numpoints; j++)
 	{
@@ -483,7 +483,7 @@ qboolean ChopFaceByBrush(mapDrawSurface_t * ds, bspbrush_t * b)
 		}
 
 		// copy normal
-		VectorCopy(mapplanes[s->planenum].normal, dv->normal);
+		VectorCopy(mapPlanes[s->planenum].normal, dv->normal);
 	}
 
 	// adjust the texture coordinates to be as close to 0 as possible

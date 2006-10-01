@@ -117,13 +117,13 @@ byte           *LoadAlphaMap(int *num_layers, int *alphawidth, int *alphaheight)
 	assert(alphaheight);
 	assert(num_layers);
 
-	layers = atoi(ValueForKey(mapent, "layers"));
+	layers = atoi(ValueForKey(mapEnt, "layers"));
 	if(layers < 1)
 	{
 		Error("SetTerrainTextures: invalid value for 'layers' (%d)", layers);
 	}
 
-	alphamapname = ValueForKey(mapent, "alphamap");
+	alphamapname = ValueForKey(mapEnt, "alphamap");
 	if(!alphamapname[0])
 	{
 		Error("LoadAlphaMap: No alphamap specified on terrain");
@@ -183,22 +183,22 @@ void CalcTerrainSize(vec3_t mins, vec3_t maxs, vec3_t size)
 
 	// calculate the size of the terrain
 	ClearBounds(mins, maxs);
-	for(brush = mapent->brushes; brush != NULL; brush = brush->next)
+	for(brush = mapEnt->brushes; brush != NULL; brush = brush->next)
 	{
 		AddPointToBounds(brush->mins, mins, maxs);
 		AddPointToBounds(brush->maxs, mins, maxs);
 	}
 
-	key = ValueForKey(mapent, "min");
+	key = ValueForKey(mapEnt, "min");
 	if(key[0])
 	{
-		GetVectorForKey(mapent, "min", mins);
+		GetVectorForKey(mapEnt, "min", mins);
 	}
 
-	key = ValueForKey(mapent, "max");
+	key = ValueForKey(mapEnt, "max");
 	if(key[0])
 	{
-		GetVectorForKey(mapent, "max", maxs);
+		GetVectorForKey(mapEnt, "max", maxs);
 	}
 
 	for(i = 0; i < 3; i++)
@@ -497,7 +497,7 @@ void EmitTerrainVerts(side_t * side, terrainSurf_t * surf, int maxlayer, int alp
 
 	// calculate the texture coordinate vectors
 	xyplane = FindFloatPlane(xynorm, 0);
-	QuakeTextureVecs(&mapplanes[xyplane], shift, 0, scale, vecs);
+	QuakeTextureVecs(&mapPlanes[xyplane], shift, 0, scale, vecs);
 
 	// emit the vertexes
 	numindices = 0;
@@ -534,7 +534,7 @@ void EmitTerrainVerts(side_t * side, terrainSurf_t * surf, int maxlayer, int alp
 			vert->st[1] = (side->vecs[1][3] + DotProduct(side->vecs[1], vert->xyz)) / surf->shader->height;
 		}
 
-		VectorCopy(mapplanes[side->planenum].normal, vert->normal);
+		VectorCopy(mapPlanes[side->planenum].normal, vert->normal);
 
 		for(j = 0; j < surf->numVerts; j++)
 		{
@@ -641,7 +641,7 @@ void SetTerrainTextures(void)
 		return;
 	}
 
-	shadername = ValueForKey(mapent, "shader");
+	shadername = ValueForKey(mapEnt, "shader");
 	if(!shadername[0])
 	{
 		Error("SetTerrainTextures: shader not specified");
@@ -649,7 +649,7 @@ void SetTerrainTextures(void)
 
 	alphamap = LoadAlphaMap(&num_layers, &alphawidth, &alphaheight);
 
-	mapent->firstDrawSurf = numMapDrawSurfs;
+	mapEnt->firstDrawSurf = numMapDrawSurfs;
 
 	// calculate the size of the terrain
 	CalcTerrainSize(mins, maxs, size);
@@ -670,7 +670,7 @@ void SetTerrainTextures(void)
 
 	terrainShader = ShaderInfoForShader("textures/common/terrain");
 
-	for(brush = mapent->brushes; brush != NULL; brush = brush->next)
+	for(brush = mapEnt->brushes; brush != NULL; brush = brush->next)
 	{
 		// only create surfaces for sides marked as terrain
 		for(side = brush->sides; side < &brush->sides[brush->numsides]; side++)
@@ -909,7 +909,7 @@ void EmitTerrainVerts2(terrainSurf_t * surf, terrainVert_t ** verts, int alpha[3
 
 	// calculate the texture coordinate vectors
 	xyplane = FindFloatPlane(xynorm, 0);
-	QuakeTextureVecs(&mapplanes[xyplane], shift, 0, scale, vecs);
+	QuakeTextureVecs(&mapPlanes[xyplane], shift, 0, scale, vecs);
 
 	// emit the vertexes
 	numindices = 0;
@@ -1205,7 +1205,7 @@ void ParseTerrain(void)
 	terrainSurf_t  *surf;
 	char            shadername[MAX_QPATH];
 
-	mapent->firstDrawSurf = numMapDrawSurfs;
+	mapEnt->firstDrawSurf = numMapDrawSurfs;
 
 	memset(&t, 0, sizeof(t));
 

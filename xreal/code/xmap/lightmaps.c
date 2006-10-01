@@ -230,7 +230,7 @@ void AllocateLightmapForSurface(mapDrawSurface_t * ds)
 	if(ds->shaderInfo->lightmapSampleSize)
 		ssize = ds->shaderInfo->lightmapSampleSize;
 
-	plane = &mapplanes[ds->side->planenum];
+	plane = &mapPlanes[ds->side->planenum];
 
 	// bound the surface
 	ClearBounds(mins, maxs);
@@ -383,7 +383,7 @@ void AllocateLightmaps(entity_t * e)
 		}
 		if(!ds->patch)
 		{
-			VectorCopy(mapplanes[ds->side->planenum].normal, ds->lightmapVecs[2]);
+			VectorCopy(mapPlanes[ds->side->planenum].normal, ds->lightmapVecs[2]);
 		}
 
 		// search for this shader

@@ -74,8 +74,8 @@ void EmitPlanes(void)
 	dplane_t       *dp;
 	plane_t        *mp;
 
-	mp = mapplanes;
-	for(i = 0; i < nummapplanes; i++, mp++)
+	mp = mapPlanes;
+	for(i = 0; i < numMapPlanes; i++, mp++)
 	{
 		dp = &dplanes[numplanes];
 		VectorCopy(mp->normal, dp->normal);
