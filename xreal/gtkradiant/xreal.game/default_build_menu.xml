@@ -19,8 +19,8 @@ build commands
 <build name="xmap: (single test) -vis -fast">
 <command>[xmap] -vis [connect] -saveprt -fast "[MapFile]"</command>
 </build>
-<build name="xmap: (single) -light -deluxe">
-<command>[xmap] -light -deluxe [connect] -patchshadows "[MapFile]"</command>
+<build name="xmap: (single) -light">
+<command>[xmap] -light [connect] -patchshadows "[MapFile]"</command>
 </build>
 <build name="xmap: (single test) -vlight">
 <command>[xmap] -vlight [connect] "[MapFile]"</command>
