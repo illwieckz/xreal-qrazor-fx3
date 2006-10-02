@@ -335,7 +335,8 @@ if env['arch'] == 'win32-mingw':
 	
 	gtkradiant_env.ParseConfig('pkg-config gtk+-2.0 --cflags --libs')
 	gtkradiant_env.ParseConfig('pkg-config gtkglext-1.0 --cflags --libs')
-	gtkradiant_env.Append(LIBS=['wsock32', 'libxml2']) 
+	gtkradiant_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
+	gtkradiant_env.Append(LIBS=['wsock32']) 
 	gtkradiant_env.Program('gtkradiant', [gtkradiant_src, gtkutil_src, profile_src, cmdlib_src, l_net_src])
 	gtkradiant_env.Install('#gtkradiant', 'gtkradiant.exe')
 	
@@ -357,7 +358,7 @@ if env['arch'] == 'win32-mingw':
 	imagejpeg_env.InstallAs('#gtkradiant/modules/imagejpeg.dll', 'imagejpeg.dll')
 	
 	imagepng_env = module_env.Copy()
-	imagepng_env.ParseConfig('libpng-config --cflags --libs')
+	imagepng_env.ParseConfig('pkg-config libpng --cflags --libs')
 	imagepng_env.SharedLibrary('imagepng', imagepng_src)
 	imagepng_env.InstallAs('#gtkradiant/modules/imagepng.dll', 'imagepng.dll')
 	

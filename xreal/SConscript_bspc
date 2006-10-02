@@ -81,7 +81,7 @@ elif env['arch'] == 'linux-x86_64':
 	bspc_env.Program('bspc.x86_64', bspc_src)
 	bspc_env.Install('#', 'bspc.x86_64')
 
-elif env['arch'] == 'win32-mingw' or env['arch'] == 'win32-xmingw':
+elif env['arch'] == 'win32-mingw':
 	bspc_env.Append(CCFLAGS='-Dstricmp=strcasecmp')
 	bspc_env.Append(LIBS=['m'])
 	bspc_env.Program('bspc', bspc_src)

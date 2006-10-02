@@ -268,16 +268,18 @@ elif env['arch'] == 'linux-x86_64':
 		
 	xreal_env.Install('#', 'xreal.x86_64')
 
-elif env['arch'] == 'win32-mingw' or env['arch'] == 'win32-xmingw':
+elif env['arch'] == 'win32-mingw':
+	xreal_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
+
 	if env['freetype'] == 1:
-		xreal_env.ParseConfig('freetype-config --cflags --libs')
+		xreal_env.ParseConfig('pkg-config freetype2 --cflags --libs')
 		xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
 
 	if env['qvm'] == 1:
 		vm_src += ['code/qcommon/vm_x86.c']
 	else:
 		xreal_env.Append(CCFLAGS='-DDLL_ONLY')
-
-	xreal_env.Append(LIBS=['m', 'gdi32', 'ole32', 'wsock32', 'winmm', 'libxml2'])
+	
+	xreal_env.Append(LIBS=['m', 'gdi32', 'ole32', 'wsock32', 'winmm'])
 	xreal_env.Program('xreal', [xreal_src, win_src, vm_src])
 	xreal_env.Install('#', 'xreal.exe')
