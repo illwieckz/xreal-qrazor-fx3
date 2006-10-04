@@ -36,7 +36,7 @@ void RE_LoadWorldMap( const char *name );
 
 static world_t  s_worldData;
 static int      s_lightCount;
-static int      s_interactionCount;
+static growList_t s_interactions;
 static int      s_lightIndexes[SHADER_MAX_INDEXES];
 static int      s_numLightIndexes;
 static int      s_shadowIndexes[SHADER_MAX_INDEXES];
@@ -3003,14 +3003,8 @@ static void R_PrecacheInteraction(trRefLight_t * light, msurface_t * surface)
 {
 	interactionCache_t *iaCache;
 
-	if(s_interactionCount >= s_worldData.numInteractions)
-	{
-		ri.Printf(PRINT_WARNING, "R_PrecacheInteraction: overflow, not enough interactions in pool\n");
-		return;
-	}
-
-	iaCache = &s_worldData.interactions[s_interactionCount];
-	s_interactionCount++;
+	iaCache = ri.Hunk_Alloc(sizeof(*iaCache), h_low);
+	Com_AddToGrowList(&s_interactions, iaCache);
 
 	// connect to interaction grid
 	if(!light->firstInteractionCache)
@@ -4373,15 +4367,11 @@ void R_PrecacheInteractions()
 	vec3_t          localBounds[2];
 
 	s_lightCount = 0;
-	s_interactionCount = 0;
+	Com_InitGrowList(&s_interactions, 100);
 
 	c_culledFaceTriangles = 0;
 	c_culledGridTriangles = 0;
 	c_culledTriTriangles = 0;
-
-	// FIXME use dynamic list
-	s_worldData.numInteractions = s_worldData.numsurfaces * 16;
-	s_worldData.interactions = ri.Hunk_Alloc(s_worldData.numInteractions * sizeof(interactionCache_t), h_low);
 
 	ri.Printf(PRINT_ALL, "...precaching %i lights\n", s_worldData.numLights);
 
@@ -4497,8 +4487,20 @@ void R_PrecacheInteractions()
 			}
 		}
 	}
+	
+	// move interactions grow list to hunk
+	s_worldData.numInteractions = s_interactions.currentElements;
+	s_worldData.interactions = ri.Hunk_Alloc(s_worldData.numInteractions * sizeof(*s_worldData.interactions), h_low);
+	
+	for(i = 0; i < s_worldData.numInteractions; i++)
+	{
+		s_worldData.interactions[i] = (interactionCache_t*) Com_GrowListElement(&s_interactions, i);
+	}
+	
+	Com_DestroyGrowList(&s_interactions);
 
-	ri.Printf(PRINT_ALL, "%i interactions precached\n", s_interactionCount);
+	
+	ri.Printf(PRINT_ALL, "%i interactions precached\n", s_worldData.numInteractions);
 	ri.Printf(PRINT_ALL, "%i planar surface triangles culled\n", c_culledFaceTriangles);
 	ri.Printf(PRINT_ALL, "%i bezier surface triangles culled\n", c_culledGridTriangles);
 	ri.Printf(PRINT_ALL, "%i abitrary surface triangles culled\n", c_culledTriTriangles);

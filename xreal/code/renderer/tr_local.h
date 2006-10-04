@@ -1014,8 +1014,6 @@ typedef enum
 // an interactionCache is a node between a light and a precached world surface
 typedef struct interactionCache_s
 {
-	struct interactionCache_s *next;
-
 	struct msurface_s *surface;
 
 	int             numLightIndexes;
@@ -1025,13 +1023,13 @@ typedef struct interactionCache_s
 	int            *shadowIndexes;	// precached triangle indices of shadow edges
 	
 	byte            cubeSideBits;
+	
+	struct interactionCache_s *next;
 } interactionCache_t;
 
 // an interaction is a node between a light and any surface
 typedef struct interaction_s
 {
-	struct interaction_s *next;
-
 	interactionType_t type;
 
 	trRefLight_t   *light;
@@ -1056,6 +1054,8 @@ typedef struct interaction_s
 	qboolean        noDepthBoundsTest;
 
 	int             occlusionQuerySamples;	// visible fragment count
+	
+	struct interaction_s *next;
 } interaction_t;
 
 #define	MAX_EDGES	32
@@ -1307,8 +1307,8 @@ typedef struct
 	int             numLights;
 	trRefLight_t   *lights;
 
-	int             numInteractions;	// should be always numSurfaces * 32
-	interactionCache_t *interactions;
+	int             numInteractions;
+	interactionCache_t **interactions;
 
 	int             numClusters;
 	int             clusterBytes;

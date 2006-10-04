@@ -43,6 +43,12 @@ void Com_InitGrowList(growList_t * list, int maxElements)
 	list->elements = (void **)Com_Allocate(list->maxElements * sizeof(void *));
 }
 
+void Com_DestroyGrowList(growList_t * list)
+{
+	Com_Dealloc(list->elements);
+	memset(list, 0, sizeof(*list));
+}
+
 int Com_AddToGrowList(growList_t * list, void *data)
 {
 	void          **old;
