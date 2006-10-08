@@ -121,7 +121,7 @@ void PrintTree_r(node_t * node, int depth)
 {
 	int             i;
 	plane_t        *plane;
-	bspbrush_t     *bb;
+	bspBrush_t     *bb;
 
 	for(i = 0; i < depth; i++)
 		Sys_Printf("  ");

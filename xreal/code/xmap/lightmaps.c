@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 int             numSortShaders;
-mapDrawSurface_t *surfsOnShader[MAX_MAP_SHADERS];
+drawSurface_t *surfsOnShader[MAX_MAP_SHADERS];
 
 
 int             allocated[LIGHTMAP_WIDTH];
@@ -103,7 +103,7 @@ AllocateLightmapForPatch
 */
 //#define LIGHTMAP_PATCHSHIFT
 
-void AllocateLightmapForPatch(mapDrawSurface_t * ds)
+void AllocateLightmapForPatch(drawSurface_t * ds)
 {
 	int             i, j, k;
 	drawVert_t     *verts;
@@ -205,7 +205,7 @@ AllocateLightmapForSurface
 ===================
 */
 //#define   LIGHTMAP_BLOCK  16
-void AllocateLightmapForSurface(mapDrawSurface_t * ds)
+void AllocateLightmapForSurface(drawSurface_t * ds)
 {
 	vec3_t          mins, maxs, size, exactSize, delta;
 	int             i;
@@ -360,7 +360,7 @@ AllocateLightmaps
 void AllocateLightmaps(entity_t * e)
 {
 	int             i, j;
-	mapDrawSurface_t *ds;
+	drawSurface_t *ds;
 	shaderInfo_t   *si;
 
 	Sys_FPrintf(SYS_VRB, "--- AllocateLightmaps ---\n");

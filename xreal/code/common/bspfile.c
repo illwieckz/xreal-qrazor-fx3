@@ -31,34 +31,34 @@ void            GetLeafNums(void);
 
 //=============================================================================
 
-int             nummodels;
+int             numModels;
 dmodel_t        dmodels[MAX_MAP_MODELS];
 
 int             numShaders;
 dshader_t       dshaders[MAX_MAP_SHADERS];
 
-int             entdatasize;
+int             entDataSize;
 char            dentdata[MAX_MAP_ENTSTRING];
 
-int             numleafs;
+int             numLeafs;
 dleaf_t         dleafs[MAX_MAP_LEAFS];
 
-int             numplanes;
+int             numPlanes;
 dplane_t        dplanes[MAX_MAP_PLANES];
 
-int             numnodes;
+int             numNodes;
 dnode_t         dnodes[MAX_MAP_NODES];
 
-int             numleafsurfaces;
+int             numLeafSurfaces;
 int             dleafsurfaces[MAX_MAP_LEAFFACES];
 
-int             numleafbrushes;
+int             numLeafBrushes;
 int             dleafbrushes[MAX_MAP_LEAFBRUSHES];
 
-int             numbrushes;
+int             numBrushes;
 dbrush_t        dbrushes[MAX_MAP_BRUSHES];
 
-int             numbrushsides;
+int             numBrushSides;
 dbrushside_t    dbrushsides[MAX_MAP_BRUSHSIDES];
 
 int             numLightBytes;
@@ -114,7 +114,7 @@ void SwapBSPFile(void)
 	int             i;
 
 	// models   
-	SwapBlock((int *)dmodels, nummodels * sizeof(dmodels[0]));
+	SwapBlock((int *)dmodels, numModels * sizeof(dmodels[0]));
 
 	// shaders (don't swap the name)
 	for(i = 0; i < numShaders; i++)
@@ -124,25 +124,25 @@ void SwapBSPFile(void)
 	}
 
 	// planes
-	SwapBlock((int *)dplanes, numplanes * sizeof(dplanes[0]));
+	SwapBlock((int *)dplanes, numPlanes * sizeof(dplanes[0]));
 
 	// nodes
-	SwapBlock((int *)dnodes, numnodes * sizeof(dnodes[0]));
+	SwapBlock((int *)dnodes, numNodes * sizeof(dnodes[0]));
 
 	// leafs
-	SwapBlock((int *)dleafs, numleafs * sizeof(dleafs[0]));
+	SwapBlock((int *)dleafs, numLeafs * sizeof(dleafs[0]));
 
 	// leaffaces
-	SwapBlock((int *)dleafsurfaces, numleafsurfaces * sizeof(dleafsurfaces[0]));
+	SwapBlock((int *)dleafsurfaces, numLeafSurfaces * sizeof(dleafsurfaces[0]));
 
 	// leafbrushes
-	SwapBlock((int *)dleafbrushes, numleafbrushes * sizeof(dleafbrushes[0]));
+	SwapBlock((int *)dleafbrushes, numLeafBrushes * sizeof(dleafbrushes[0]));
 
 	// brushes
-	SwapBlock((int *)dbrushes, numbrushes * sizeof(dbrushes[0]));
+	SwapBlock((int *)dbrushes, numBrushes * sizeof(dbrushes[0]));
 
 	// brushsides
-	SwapBlock((int *)dbrushsides, numbrushsides * sizeof(dbrushsides[0]));
+	SwapBlock((int *)dbrushsides, numBrushSides * sizeof(dbrushsides[0]));
 
 	// vis
 	((int *)&visBytes)[0] = LittleLong(((int *)&visBytes)[0]);
@@ -229,14 +229,14 @@ void LoadBSPFile(const char *filename)
 	}
 
 	numShaders = CopyLump(header, LUMP_SHADERS, dshaders, sizeof(dshader_t));
-	nummodels = CopyLump(header, LUMP_MODELS, dmodels, sizeof(dmodel_t));
-	numplanes = CopyLump(header, LUMP_PLANES, dplanes, sizeof(dplane_t));
-	numleafs = CopyLump(header, LUMP_LEAFS, dleafs, sizeof(dleaf_t));
-	numnodes = CopyLump(header, LUMP_NODES, dnodes, sizeof(dnode_t));
-	numleafsurfaces = CopyLump(header, LUMP_LEAFSURFACES, dleafsurfaces, sizeof(dleafsurfaces[0]));
-	numleafbrushes = CopyLump(header, LUMP_LEAFBRUSHES, dleafbrushes, sizeof(dleafbrushes[0]));
-	numbrushes = CopyLump(header, LUMP_BRUSHES, dbrushes, sizeof(dbrush_t));
-	numbrushsides = CopyLump(header, LUMP_BRUSHSIDES, dbrushsides, sizeof(dbrushside_t));
+	numModels = CopyLump(header, LUMP_MODELS, dmodels, sizeof(dmodel_t));
+	numPlanes = CopyLump(header, LUMP_PLANES, dplanes, sizeof(dplane_t));
+	numLeafs = CopyLump(header, LUMP_LEAFS, dleafs, sizeof(dleaf_t));
+	numNodes = CopyLump(header, LUMP_NODES, dnodes, sizeof(dnode_t));
+	numLeafSurfaces = CopyLump(header, LUMP_LEAFSURFACES, dleafsurfaces, sizeof(dleafsurfaces[0]));
+	numLeafBrushes = CopyLump(header, LUMP_LEAFBRUSHES, dleafbrushes, sizeof(dleafbrushes[0]));
+	numBrushes = CopyLump(header, LUMP_BRUSHES, dbrushes, sizeof(dbrush_t));
+	numBrushSides = CopyLump(header, LUMP_BRUSHSIDES, dbrushsides, sizeof(dbrushside_t));
 	numDrawVerts = CopyLump(header, LUMP_DRAWVERTS, drawVerts, sizeof(drawVert_t));
 	numDrawSurfaces = CopyLump(header, LUMP_SURFACES, drawSurfaces, sizeof(dsurface_t));
 	numFogs = CopyLump(header, LUMP_FOGS, dfogs, sizeof(dfog_t));
@@ -244,7 +244,7 @@ void LoadBSPFile(const char *filename)
 
 	numVisBytes = CopyLump(header, LUMP_VISIBILITY, visBytes, 1);
 	numLightBytes = CopyLump(header, LUMP_LIGHTMAPS, lightBytes, 1);
-	entdatasize = CopyLump(header, LUMP_ENTITIES, dentdata, 1);
+	entDataSize = CopyLump(header, LUMP_ENTITIES, dentdata, 1);
 
 	numGridPoints = CopyLump(header, LUMP_LIGHTGRID, gridData, 8);
 
@@ -298,20 +298,20 @@ void WriteBSPFile(const char *filename)
 	SafeWrite(bspfile, header, sizeof(dheader_t));	// overwritten later
 
 	AddLump(bspfile, header, LUMP_SHADERS, dshaders, numShaders * sizeof(dshader_t));
-	AddLump(bspfile, header, LUMP_PLANES, dplanes, numplanes * sizeof(dplane_t));
-	AddLump(bspfile, header, LUMP_LEAFS, dleafs, numleafs * sizeof(dleaf_t));
-	AddLump(bspfile, header, LUMP_NODES, dnodes, numnodes * sizeof(dnode_t));
-	AddLump(bspfile, header, LUMP_BRUSHES, dbrushes, numbrushes * sizeof(dbrush_t));
-	AddLump(bspfile, header, LUMP_BRUSHSIDES, dbrushsides, numbrushsides * sizeof(dbrushside_t));
-	AddLump(bspfile, header, LUMP_LEAFSURFACES, dleafsurfaces, numleafsurfaces * sizeof(dleafsurfaces[0]));
-	AddLump(bspfile, header, LUMP_LEAFBRUSHES, dleafbrushes, numleafbrushes * sizeof(dleafbrushes[0]));
-	AddLump(bspfile, header, LUMP_MODELS, dmodels, nummodels * sizeof(dmodel_t));
+	AddLump(bspfile, header, LUMP_PLANES, dplanes, numPlanes * sizeof(dplane_t));
+	AddLump(bspfile, header, LUMP_LEAFS, dleafs, numLeafs * sizeof(dleaf_t));
+	AddLump(bspfile, header, LUMP_NODES, dnodes, numNodes * sizeof(dnode_t));
+	AddLump(bspfile, header, LUMP_BRUSHES, dbrushes, numBrushes * sizeof(dbrush_t));
+	AddLump(bspfile, header, LUMP_BRUSHSIDES, dbrushsides, numBrushSides * sizeof(dbrushside_t));
+	AddLump(bspfile, header, LUMP_LEAFSURFACES, dleafsurfaces, numLeafSurfaces * sizeof(dleafsurfaces[0]));
+	AddLump(bspfile, header, LUMP_LEAFBRUSHES, dleafbrushes, numLeafBrushes * sizeof(dleafbrushes[0]));
+	AddLump(bspfile, header, LUMP_MODELS, dmodels, numModels * sizeof(dmodel_t));
 	AddLump(bspfile, header, LUMP_DRAWVERTS, drawVerts, numDrawVerts * sizeof(drawVert_t));
 	AddLump(bspfile, header, LUMP_SURFACES, drawSurfaces, numDrawSurfaces * sizeof(dsurface_t));
 	AddLump(bspfile, header, LUMP_VISIBILITY, visBytes, numVisBytes);
 	AddLump(bspfile, header, LUMP_LIGHTMAPS, lightBytes, numLightBytes);
 	AddLump(bspfile, header, LUMP_LIGHTGRID, gridData, 8 * numGridPoints);
-	AddLump(bspfile, header, LUMP_ENTITIES, dentdata, entdatasize);
+	AddLump(bspfile, header, LUMP_ENTITIES, dentdata, entDataSize);
 	AddLump(bspfile, header, LUMP_FOGS, dfogs, numFogs * sizeof(dfog_t));
 	AddLump(bspfile, header, LUMP_DRAWINDEXES, drawIndexes, numDrawIndexes * sizeof(drawIndexes[0]));
 
@@ -331,25 +331,25 @@ Dumps info about current file
 */
 void PrintBSPFileSizes(void)
 {
-	if(!num_entities)
+	if(!numEntities)
 	{
 		ParseEntities();
 	}
 
-	Sys_Printf("%6i models       %7i\n", nummodels, (int)(nummodels * sizeof(dmodel_t)));
+	Sys_Printf("%6i models       %7i\n", numModels, (int)(numModels * sizeof(dmodel_t)));
 	Sys_Printf("%6i shaders      %7i\n", numShaders, (int)(numShaders * sizeof(dshader_t)));
-	Sys_Printf("%6i brushes      %7i\n", numbrushes, (int)(numbrushes * sizeof(dbrush_t)));
-	Sys_Printf("%6i brushsides   %7i\n", numbrushsides, (int)(numbrushsides * sizeof(dbrushside_t)));
+	Sys_Printf("%6i brushes      %7i\n", numBrushes, (int)(numBrushes * sizeof(dbrush_t)));
+	Sys_Printf("%6i brushsides   %7i\n", numBrushSides, (int)(numBrushSides * sizeof(dbrushside_t)));
 	Sys_Printf("%6i fogs         %7i\n", numFogs, (int)(numFogs * sizeof(dfog_t)));
-	Sys_Printf("%6i planes       %7i\n", numplanes, (int)(numplanes * sizeof(dplane_t)));
-	Sys_Printf("%6i entdata      %7i\n", num_entities, entdatasize);
+	Sys_Printf("%6i planes       %7i\n", numPlanes, (int)(numPlanes * sizeof(dplane_t)));
+	Sys_Printf("%6i entdata      %7i\n", numEntities, entDataSize);
 
 	Sys_Printf("\n");
 
-	Sys_Printf("%6i nodes        %7i\n", numnodes, (int)(numnodes * sizeof(dnode_t)));
-	Sys_Printf("%6i leafs        %7i\n", numleafs, (int)(numleafs * sizeof(dleaf_t)));
-	Sys_Printf("%6i leafsurfaces %7i\n", numleafsurfaces, (int)(numleafsurfaces * sizeof(dleafsurfaces[0])));
-	Sys_Printf("%6i leafbrushes  %7i\n", numleafbrushes, (int)(numleafbrushes * sizeof(dleafbrushes[0])));
+	Sys_Printf("%6i nodes        %7i\n", numNodes, (int)(numNodes * sizeof(dnode_t)));
+	Sys_Printf("%6i leafs        %7i\n", numLeafs, (int)(numLeafs * sizeof(dleaf_t)));
+	Sys_Printf("%6i leafsurfaces %7i\n", numLeafSurfaces, (int)(numLeafSurfaces * sizeof(dleafsurfaces[0])));
+	Sys_Printf("%6i leafbrushes  %7i\n", numLeafBrushes, (int)(numLeafBrushes * sizeof(dleafbrushes[0])));
 	Sys_Printf("%6i drawverts    %7i\n", numDrawVerts, (int)(numDrawVerts * sizeof(drawVerts[0])));
 	Sys_Printf("%6i drawindexes  %7i\n", numDrawIndexes, (int)(numDrawIndexes * sizeof(drawIndexes[0])));
 	Sys_Printf("%6i drawsurfaces %7i\n", numDrawSurfaces, (int)(numDrawSurfaces * sizeof(drawSurfaces[0])));
@@ -361,7 +361,7 @@ void PrintBSPFileSizes(void)
 
 //============================================
 
-int             num_entities;
+int             numEntities;
 entity_t        entities[MAX_MAP_ENTITIES];
 
 void StripTrailing(char *e)
@@ -428,12 +428,12 @@ qboolean ParseEntity(void)
 	{
 		Error("ParseEntity: { not found");
 	}
-	if(num_entities == MAX_MAP_ENTITIES)
+	if(numEntities == MAX_MAP_ENTITIES)
 	{
 		Error("num_entities == MAX_MAP_ENTITIES");
 	}
-	mapent = &entities[num_entities];
-	num_entities++;
+	mapent = &entities[numEntities];
+	numEntities++;
 
 	do
 	{
@@ -462,8 +462,8 @@ Parses the dentdata string into entities
 */
 void ParseEntities(void)
 {
-	num_entities = 0;
-	ParseFromMemory(dentdata, entdatasize);
+	numEntities = 0;
+	ParseFromMemory(dentdata, entDataSize);
 
 	while(ParseEntity())
 	{
@@ -492,7 +492,7 @@ void UnparseEntities(void)
 	end = buf;
 	*end = 0;
 
-	for(i = 0; i < num_entities; i++)
+	for(i = 0; i < numEntities; i++)
 	{
 		ep = entities[i].epairs;
 		if(!ep)
@@ -522,7 +522,7 @@ void UnparseEntities(void)
 			Error("Entity text too long");
 		}
 	}
-	entdatasize = end - buf + 1;
+	entDataSize = end - buf + 1;
 }
 
 void PrintEntity(const entity_t * ent)

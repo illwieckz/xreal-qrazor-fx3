@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qbsp.h"
 
 
-mapDrawSurface_t mapDrawSurfs[MAX_MAP_DRAW_SURFS];
+drawSurface_t mapDrawSurfs[MAX_MAP_DRAW_SURFS];
 int             numMapDrawSurfs;
 
 /*
@@ -40,9 +40,9 @@ DRAWSURF CONSTRUCTION
 AllocDrawSurf
 =================
 */
-mapDrawSurface_t *AllocDrawSurf(void)
+drawSurface_t *AllocDrawSurf(void)
 {
-	mapDrawSurface_t *ds;
+	drawSurface_t *ds;
 
 	if(numMapDrawSurfs >= MAX_MAP_DRAW_SURFS)
 	{
@@ -62,9 +62,9 @@ DrawSurfaceForSide
 #define	SNAP_FLOAT_TO_INT	8
 #define	SNAP_INT_TO_FLOAT	(1.0/SNAP_FLOAT_TO_INT)
 
-mapDrawSurface_t *DrawSurfaceForSide(bspbrush_t * b, side_t * s, winding_t * w)
+drawSurface_t *DrawSurfaceForSide(bspBrush_t * b, side_t * s, winding_t * w)
 {
-	mapDrawSurface_t *ds;
+	drawSurface_t *ds;
 	int             i, j;
 	shaderInfo_t   *si;
 	drawVert_t     *dv;
@@ -228,7 +228,7 @@ void MergeSides(entity_t * e, tree_t * tree)
 SubdivideDrawSurf
 ===================
 */
-void SubdivideDrawSurf(mapDrawSurface_t * ds, winding_t * w, float subdivisions)
+void SubdivideDrawSurf(drawSurface_t * ds, winding_t * w, float subdivisions)
 {
 	int             i;
 	int             axis;
@@ -236,7 +236,7 @@ void SubdivideDrawSurf(mapDrawSurface_t * ds, winding_t * w, float subdivisions)
 	const float     epsilon = 0.1;
 	int             subFloor, subCeil;
 	winding_t      *frontWinding, *backWinding;
-	mapDrawSurface_t *newds;
+	drawSurface_t *newds;
 
 	if(!w)
 	{
@@ -308,7 +308,7 @@ Chop up surfaces that have subdivision attributes
 void SubdivideDrawSurfs(entity_t * e, tree_t * tree)
 {
 	int             i;
-	mapDrawSurface_t *ds;
+	drawSurface_t *ds;
 	int             numBaseDrawSurfs;
 	winding_t      *w;
 	float           subdivision;
@@ -418,7 +418,7 @@ to be trimmed off automatically.
 */
 void ClipSidesIntoTree(entity_t * e, tree_t * tree)
 {
-	bspbrush_t     *b;
+	bspBrush_t     *b;
 	int             i;
 	winding_t      *w;
 	side_t         *side, *newSide;
@@ -506,9 +506,9 @@ We assume that the point mesh aproximation to the curve will get a
 reference into all the leafs we need.
 ====================
 */
-int FilterMapDrawSurfIntoTree(vec3_t point, mapDrawSurface_t * ds, node_t * node)
+int FilterMapDrawSurfIntoTree(vec3_t point, drawSurface_t * ds, node_t * node)
 {
-	drawSurfRef_t  *dsr;
+	drawSurfaceRef_t  *dsr;
 	float           d;
 	plane_t        *plane;
 	int             c;
@@ -558,9 +558,9 @@ FilterDrawSurfIntoTree_r
 Place a reference to the given drawsurf in every leaf it is in
 ====================
 */
-int FilterMapDrawSurfIntoTree_r(winding_t * w, mapDrawSurface_t * ds, node_t * node)
+int FilterMapDrawSurfIntoTree_r(winding_t * w, drawSurface_t * ds, node_t * node)
 {
-	drawSurfRef_t  *dsr;
+	drawSurfaceRef_t  *dsr;
 	plane_t        *plane;
 	int             total;
 	winding_t      *front, *back;
@@ -613,9 +613,9 @@ FilterSideIntoTree_r
 Place a reference to the given drawsurf in every leaf it contacts
 ====================
 */
-int FilterSideIntoTree_r(winding_t * w, side_t * side, mapDrawSurface_t * ds, node_t * node)
+int FilterSideIntoTree_r(winding_t * w, side_t * side, drawSurface_t * ds, node_t * node)
 {
-	drawSurfRef_t  *dsr;
+	drawSurfaceRef_t  *dsr;
 	plane_t        *plane;
 	winding_t      *front, *back;
 	int             total;
@@ -667,7 +667,7 @@ int FilterSideIntoTree_r(winding_t * w, side_t * side, mapDrawSurface_t * ds, no
 FilterFaceIntoTree
 =====================
 */
-int FilterFaceIntoTree(mapDrawSurface_t * ds, tree_t * tree)
+int FilterFaceIntoTree(drawSurface_t * ds, tree_t * tree)
 {
 	int             l;
 	winding_t      *w;
@@ -686,7 +686,7 @@ FilterPatchSurfIntoTree
 =====================
 */
 #define	SUBDIVISION_LIMIT		8.0
-int FilterPatchSurfIntoTree(mapDrawSurface_t * ds, tree_t * tree)
+int FilterPatchSurfIntoTree(drawSurface_t * ds, tree_t * tree)
 {
 	int             i, j;
 	int             l;
@@ -735,7 +735,7 @@ int FilterPatchSurfIntoTree(mapDrawSurface_t * ds, tree_t * tree)
 FilterMiscModelSurfIntoTree
 =====================
 */
-int FilterMiscModelSurfIntoTree(mapDrawSurface_t * ds, tree_t * tree)
+int FilterMiscModelSurfIntoTree(drawSurface_t * ds, tree_t * tree)
 {
 	int             i;
 	int             l;
@@ -766,7 +766,7 @@ int FilterMiscModelSurfIntoTree(mapDrawSurface_t * ds, tree_t * tree)
 FilterFlareSurfIntoTree
 =====================
 */
-int FilterFlareSurfIntoTree(mapDrawSurface_t * ds, tree_t * tree)
+int FilterFlareSurfIntoTree(drawSurface_t * ds, tree_t * tree)
 {
 	return FilterMapDrawSurfIntoTree(ds->lightmapOrigin, ds, tree->headnode);
 }
@@ -974,7 +974,7 @@ static void SurfaceAsTristrip(dsurface_t * ds)
 EmitPlanarSurf
 ===============
 */
-void EmitPlanarSurf(mapDrawSurface_t * ds)
+void EmitPlanarSurf(drawSurface_t * ds)
 {
 	int             j;
 	dsurface_t     *out;
@@ -1028,7 +1028,7 @@ void EmitPlanarSurf(mapDrawSurface_t * ds)
 EmitPatchSurf
 ===============
 */
-void EmitPatchSurf(mapDrawSurface_t * ds)
+void EmitPatchSurf(drawSurface_t * ds)
 {
 	int             j;
 	dsurface_t     *out;
@@ -1092,7 +1092,7 @@ void EmitPatchSurf(mapDrawSurface_t * ds)
 EmitFlareSurf
 ===============
 */
-void EmitFlareSurf(mapDrawSurface_t * ds)
+void EmitFlareSurf(drawSurface_t * ds)
 {
 	dsurface_t     *out;
 
@@ -1118,7 +1118,7 @@ void EmitFlareSurf(mapDrawSurface_t * ds)
 EmitModelSurf
 ===============
 */
-void EmitModelSurf(mapDrawSurface_t * ds)
+void EmitModelSurf(drawSurface_t * ds)
 {
 	int             j;
 	dsurface_t     *out;
@@ -1185,9 +1185,9 @@ CreateFlareSurface
 Light flares from surface lights become 
 ==================
 */
-void CreateFlareSurface(mapDrawSurface_t * faceDs)
+void CreateFlareSurface(drawSurface_t * faceDs)
 {
-	mapDrawSurface_t *ds;
+	drawSurface_t *ds;
 	int             i;
 
 	ds = AllocDrawSurf();
@@ -1230,7 +1230,7 @@ will have valid final indexes
 void FilterDrawsurfsIntoTree(entity_t * e, tree_t * tree)
 {
 	int             i;
-	mapDrawSurface_t *ds;
+	drawSurface_t *ds;
 	int             refs;
 	int             c_surfs, c_refs;
 

@@ -114,7 +114,6 @@ void FreeStackWinding(winding_t * w, pstack_t * stack)
 /*
 ==============
 VisChopWinding
-
 ==============
 */
 winding_t      *VisChopWinding(winding_t * in, pstack_t * stack, plane_t * split)
@@ -1350,12 +1349,16 @@ void CreatePassages(int portalnum)
 		for(j = 0; j < numportals * 2; j++)
 		{
 			p = &portals[j];
+			
 			if(p->removed)
 				continue;
+			
 			if(!(target->portalflood[j >> 3] & (1 << (j & 7))))
 				continue;
+			
 			if(!(portal->portalflood[j >> 3] & (1 << (j & 7))))
 				continue;
+			
 			for(k = 0; k < numseperators; k++)
 			{
 				//
@@ -1375,9 +1378,12 @@ void CreatePassages(int portalnum)
 				if(n >= w->numpoints)
 					break;
 			}
+			
 			if(k < numseperators)
 				continue;
+			
 			memcpy(&in, p->winding, sizeof(winding_t));
+			
 			for(k = 0; k < numseperators; k++)
 			{
 				res = PassageChopWinding(&in, &out, &seperators[k]);
@@ -1386,8 +1392,10 @@ void CreatePassages(int portalnum)
 				if(res == NULL)
 					break;
 			}
+			
 			if(k < numseperators)
 				continue;
+			
 			passage->cansee[j >> 3] |= (1 << (j & 7));
 			numsee++;
 		}

@@ -31,7 +31,7 @@ int             c_fogPatchFragments;
 DrawSurfToMesh
 ====================
 */
-mesh_t         *DrawSurfToMesh(mapDrawSurface_t * ds)
+mesh_t         *DrawSurfToMesh(drawSurface_t * ds)
 {
 	mesh_t         *m;
 
@@ -261,7 +261,7 @@ void SplitMeshByPlane(mesh_t * in, vec3_t normal, float dist, mesh_t ** front, m
 ChopPatchByBrush
 ====================
 */
-qboolean ChopPatchByBrush(mapDrawSurface_t * ds, bspbrush_t * b)
+qboolean ChopPatchByBrush(drawSurface_t * ds, bspBrush_t * b)
 {
 	int             i, j;
 	side_t         *s;
@@ -269,7 +269,7 @@ qboolean ChopPatchByBrush(mapDrawSurface_t * ds, bspbrush_t * b)
 	mesh_t         *outside[MAX_BRUSH_SIDES];
 	int             numOutside;
 	mesh_t         *m, *front, *back;
-	mapDrawSurface_t *newds;
+	drawSurface_t *newds;
 
 	m = DrawSurfToMesh(ds);
 	numOutside = 0;
@@ -335,7 +335,7 @@ qboolean ChopPatchByBrush(mapDrawSurface_t * ds, bspbrush_t * b)
 WindingFromDrawSurf
 ====================
 */
-winding_t      *WindingFromDrawSurf(mapDrawSurface_t * ds)
+winding_t      *WindingFromDrawSurf(drawSurface_t * ds)
 {
 	winding_t      *w;
 	int             i;
@@ -356,7 +356,7 @@ ChopFaceByBrush
 There may be a fragment contained in the brush
 ====================
 */
-qboolean ChopFaceByBrush(mapDrawSurface_t * ds, bspbrush_t * b)
+qboolean ChopFaceByBrush(drawSurface_t * ds, bspBrush_t * b)
 {
 	int             i, j;
 	side_t         *s;
@@ -365,7 +365,7 @@ qboolean ChopFaceByBrush(mapDrawSurface_t * ds, bspbrush_t * b)
 	winding_t      *front, *back;
 	winding_t      *outside[MAX_BRUSH_SIDES];
 	int             numOutside;
-	mapDrawSurface_t *newds;
+	drawSurface_t *newds;
 	drawVert_t     *dv;
 	shaderInfo_t   *si;
 	float           mins[2];
@@ -517,8 +517,8 @@ before lightmap allocation
 void FogDrawSurfs(void)
 {
 	int             i, j, k;
-	mapDrawSurface_t *ds;
-	bspbrush_t     *b;
+	drawSurface_t *ds;
+	bspBrush_t     *b;
 	vec3_t          mins, maxs;
 	int             c_fogged;
 	int             numBaseDrawSurfs;

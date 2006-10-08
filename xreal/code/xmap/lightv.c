@@ -130,11 +130,11 @@ typedef struct lightvolume_s
 {
 	int             num;
 	int             cluster;	// cluster this light volume started in
-	plane_t         endplane;	// end plane
-	plane_t         farplane;	// original end plane
+	plane_t         endPlane;	// end plane
+	plane_t         farPlane;	// original end plane
 	vec3_t          points[MAX_POINTS_ON_WINDING];	// end winding points
 	plane_t         planes[MAX_POINTS_ON_WINDING];	// volume bounding planes
-	int             numplanes;	// number of volume bounding planes
+	int             numPlanes;	// number of volume bounding planes
 	int             type;		// light volume type
 	
 	//list with translucent surfaces the volume went through
@@ -428,18 +428,18 @@ void VL_DrawLightVolume(vlight_t * light, lightVolume_t * volume)
 	int             i;
 	vec3_t          p2, invlight;
 
-	memcpy(w.points, volume->points, volume->numplanes * sizeof(vec3_t));
-	w.numpoints = volume->numplanes;
+	memcpy(w.points, volume->points, volume->numPlanes * sizeof(vec3_t));
+	w.numpoints = volume->numPlanes;
 	DebugNet_DrawWinding(&w, 2);
 
 	if(volume->type == VOLUME_DIRECTED)
 	{
 		VectorCopy(light->normal, invlight);
 		VectorInverse(invlight);
-		for(i = 0; i < volume->numplanes; i++)
+		for(i = 0; i < volume->numPlanes; i++)
 		{
 			VectorCopy(volume->points[i], w.points[0]);
-			VectorCopy(volume->points[(i + 1) % volume->numplanes], w.points[1]);
+			VectorCopy(volume->points[(i + 1) % volume->numPlanes], w.points[1]);
 			VectorMA(w.points[1], MAX_WORLD_COORD, invlight, w.points[2]);
 			VectorMA(w.points[0], MAX_WORLD_COORD, invlight, w.points[3]);
 			w.numpoints = 4;
@@ -453,11 +453,11 @@ void VL_DrawLightVolume(vlight_t * light, lightVolume_t * volume)
 		//
 		VectorCopy(light->origin, w.points[0]);
 		w.numpoints = 3;
-		for(i = 0; i < volume->numplanes; i++)
+		for(i = 0; i < volume->numPlanes; i++)
 		{
 			VectorCopy(volume->points[i], w.points[1]);
-			VectorCopy(volume->points[(i + 1) % volume->numplanes], w.points[2]);
-			VL_ChopWinding(&w, &volume->endplane, 0);
+			VectorCopy(volume->points[(i + 1) % volume->numPlanes], w.points[2]);
+			VL_ChopWinding(&w, &volume->endPlane, 0);
 			DebugNet_DrawWinding(&w, 2);
 			VectorMA(volume->points[i], 8, volume->planes[i].normal, p2);
 			DebugNet_DrawLine(volume->points[i], p2, 3);
@@ -2873,7 +2873,7 @@ void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, l
 	memcpy(w->points, facet->points, sizeof(vec3_t) * facet->numpoints);
 	w->numpoints = facet->numpoints;
 
-	for(i = 0; i < volume->numplanes; i++)
+	for(i = 0; i < volume->numPlanes; i++)
 	{
 		//if totally on the back
 		if(VL_ChopWinding(w, &volume->planes[i], 0.01) == SIDE_BACK)
@@ -2898,7 +2898,7 @@ int VL_PointInsideLightVolume(vec3_t point, lightvolume_t *volume)
 	int i;
 	float d;
 
-	for (i = 0; i < volume->numplanes; i++)
+	for (i = 0; i < volume->numPlanes; i++)
 	{
 		d = DotProduct(volume->planes[i].normal, point) - volume->planes[i].dist;
 		if (d < 0) return qfalse;
@@ -3181,7 +3181,7 @@ void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, l
 	memcpy(w.points, facet->points, sizeof(vec3_t) * facet->numpoints);
 	w.numpoints = facet->numpoints;
 
-	for(i = 0; i < volume->numplanes; i++)
+	for(i = 0; i < volume->numPlanes; i++)
 	{
 		//if totally on the back
 		if(VL_ChopWinding(&w, &volume->planes[i], 0.01) == SIDE_BACK)
@@ -3738,14 +3738,14 @@ void VL_LightSurfaceWithVolume(int surfaceNum, int facetNum, vlight_t * light, l
 				if(area <= 0)
 					continue;
 				// chop the lightmap pixel winding with the light volume
-				for(i = 0; i < volume->numplanes; i++)
+				for(i = 0; i < volume->numPlanes; i++)
 				{
 					//if totally on the back
 					if(VL_ChopWinding(&w, &volume->planes[i], 0) == SIDE_BACK)
 						break;
 				}
 				// if the lightmap pixel is partly inside the light volume
-				if(i >= volume->numplanes)
+				if(i >= volume->numPlanes)
 				{
 					insidearea = WindingArea(&w);
 					if(insidearea <= 0)
@@ -3792,7 +3792,7 @@ int VL_SplitLightVolume(lightVolume_t * volume, lightVolume_t * back, plane_t * 
 	counts[0] = counts[1] = counts[2] = 0;
 
 	// determine sides for each point
-	for(i = 0; i < volume->numplanes; i++)
+	for(i = 0; i < volume->numPlanes; i++)
 	{
 		dot = DotProduct(volume->points[i], split->normal);
 		dot -= split->dist;
@@ -3817,19 +3817,19 @@ int VL_SplitLightVolume(lightVolume_t * volume, lightVolume_t * back, plane_t * 
 	sides[i] = sides[0];
 	dists[i] = dists[0];
 
-	f.numplanes = 0;
-	b.numplanes = 0;
+	f.numPlanes = 0;
+	b.numPlanes = 0;
 
-	for(i = 0; i < volume->numplanes; i++)
+	for(i = 0; i < volume->numPlanes; i++)
 	{
 		p1 = volume->points[i];
 
-		if(f.numplanes >= MAX_POINTS_ON_FIXED_WINDING)
+		if(f.numPlanes >= MAX_POINTS_ON_FIXED_WINDING)
 		{
 			Sys_Printf("WARNING: VL_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return 0;			// can't chop -- fall back to original
 		}
-		if(b.numplanes >= MAX_POINTS_ON_FIXED_WINDING)
+		if(b.numPlanes >= MAX_POINTS_ON_FIXED_WINDING)
 		{
 			Sys_Printf("WARNING: VL_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return 0;			// can't chop -- fall back to original
@@ -3837,61 +3837,61 @@ int VL_SplitLightVolume(lightVolume_t * volume, lightVolume_t * back, plane_t * 
 
 		if(sides[i] == SIDE_ON)
 		{
-			VectorCopy(p1, f.points[f.numplanes]);
-			VectorCopy(p1, b.points[b.numplanes]);
+			VectorCopy(p1, f.points[f.numPlanes]);
+			VectorCopy(p1, b.points[b.numPlanes]);
 			if(sides[i + 1] == SIDE_BACK)
 			{
-				f.planes[f.numplanes] = *split;
-				b.planes[b.numplanes] = volume->planes[i];
+				f.planes[f.numPlanes] = *split;
+				b.planes[b.numPlanes] = volume->planes[i];
 			}
 			else if(sides[i + 1] == SIDE_FRONT)
 			{
-				f.planes[f.numplanes] = volume->planes[i];
-				b.planes[b.numplanes] = *split;
-				VectorInverse(b.planes[b.numplanes].normal);
-				b.planes[b.numplanes].dist = -b.planes[b.numplanes].dist;
+				f.planes[f.numPlanes] = volume->planes[i];
+				b.planes[b.numPlanes] = *split;
+				VectorInverse(b.planes[b.numPlanes].normal);
+				b.planes[b.numPlanes].dist = -b.planes[b.numPlanes].dist;
 			}
 			else				//this shouldn't happen
 			{
-				f.planes[f.numplanes] = *split;
-				b.planes[b.numplanes] = *split;
-				VectorInverse(b.planes[b.numplanes].normal);
-				b.planes[b.numplanes].dist = -b.planes[b.numplanes].dist;
+				f.planes[f.numPlanes] = *split;
+				b.planes[b.numPlanes] = *split;
+				VectorInverse(b.planes[b.numPlanes].normal);
+				b.planes[b.numPlanes].dist = -b.planes[b.numPlanes].dist;
 			}
-			f.numplanes++;
-			b.numplanes++;
+			f.numPlanes++;
+			b.numPlanes++;
 			continue;
 		}
 
 		if(sides[i] == SIDE_FRONT)
 		{
-			VectorCopy(p1, f.points[f.numplanes]);
-			f.planes[f.numplanes] = volume->planes[i];
-			f.numplanes++;
+			VectorCopy(p1, f.points[f.numPlanes]);
+			f.planes[f.numPlanes] = volume->planes[i];
+			f.numPlanes++;
 		}
 		if(sides[i] == SIDE_BACK)
 		{
-			VectorCopy(p1, b.points[b.numplanes]);
-			b.planes[b.numplanes] = volume->planes[i];
-			b.numplanes++;
+			VectorCopy(p1, b.points[b.numPlanes]);
+			b.planes[b.numPlanes] = volume->planes[i];
+			b.numPlanes++;
 		}
 
 		if(sides[i + 1] == SIDE_ON || sides[i + 1] == sides[i])
 			continue;
 
-		if(f.numplanes >= MAX_POINTS_ON_FIXED_WINDING)
+		if(f.numPlanes >= MAX_POINTS_ON_FIXED_WINDING)
 		{
 			Sys_Printf("WARNING: VL_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return 0;			// can't chop -- fall back to original
 		}
-		if(b.numplanes >= MAX_POINTS_ON_FIXED_WINDING)
+		if(b.numPlanes >= MAX_POINTS_ON_FIXED_WINDING)
 		{
 			Sys_Printf("WARNING: VL_SplitLightVolume -> MAX_POINTS_ON_FIXED_WINDING overflowed\n");
 			return 0;			// can't chop -- fall back to original
 		}
 
 		// generate a split point
-		p2 = volume->points[(i + 1) % volume->numplanes];
+		p2 = volume->points[(i + 1) % volume->numPlanes];
 
 		dot = dists[i] / (dists[i] - dists[i + 1]);
 		for(j = 0; j < 3; j++)
@@ -3904,29 +3904,29 @@ int VL_SplitLightVolume(lightVolume_t * volume, lightVolume_t * back, plane_t * 
 				mid[j] = p1[j] + dot * (p2[j] - p1[j]);
 		}
 
-		VectorCopy(mid, f.points[f.numplanes]);
-		VectorCopy(mid, b.points[b.numplanes]);
+		VectorCopy(mid, f.points[f.numPlanes]);
+		VectorCopy(mid, b.points[b.numPlanes]);
 		if(sides[i + 1] == SIDE_BACK)
 		{
-			f.planes[f.numplanes] = *split;
-			b.planes[b.numplanes] = volume->planes[i];
+			f.planes[f.numPlanes] = *split;
+			b.planes[b.numPlanes] = volume->planes[i];
 		}
 		else
 		{
-			f.planes[f.numplanes] = volume->planes[i];
-			b.planes[b.numplanes] = *split;
-			VectorInverse(b.planes[b.numplanes].normal);
-			b.planes[b.numplanes].dist = -b.planes[b.numplanes].dist;
+			f.planes[f.numPlanes] = volume->planes[i];
+			b.planes[b.numPlanes] = *split;
+			VectorInverse(b.planes[b.numPlanes].normal);
+			b.planes[b.numPlanes].dist = -b.planes[b.numPlanes].dist;
 		}
-		f.numplanes++;
-		b.numplanes++;
+		f.numPlanes++;
+		b.numPlanes++;
 	}
-	memcpy(volume->points, f.points, sizeof(vec3_t) * f.numplanes);
-	memcpy(volume->planes, f.planes, sizeof(plane_t) * f.numplanes);
-	volume->numplanes = f.numplanes;
-	memcpy(back->points, b.points, sizeof(vec3_t) * b.numplanes);
-	memcpy(back->planes, b.planes, sizeof(plane_t) * b.numplanes);
-	back->numplanes = b.numplanes;
+	memcpy(volume->points, f.points, sizeof(vec3_t) * f.numPlanes);
+	memcpy(volume->planes, f.planes, sizeof(plane_t) * f.numPlanes);
+	volume->numPlanes = f.numPlanes;
+	memcpy(back->points, b.points, sizeof(vec3_t) * b.numPlanes);
+	memcpy(back->planes, b.planes, sizeof(plane_t) * b.numPlanes);
+	back->numPlanes = b.numPlanes;
 
 	return 2;
 }
@@ -4021,7 +4021,7 @@ void VL_R_CastLightAtSurface(vlight_t * light, lightVolume_t * volume)
 		volume->facetTested[n >> 3] |= 1 << (n & 7);
 	}
 	memset(volume->clusterTested, 0, sizeof(volume->clusterTested));
-	volume->endplane = volume->farplane;
+	volume->endPlane = volume->farPlane;
 	volume->surfaceNum = -1;
 	volume->facetNum = 0;
 	VL_R_FloodLight(light, volume, volume->cluster, 0);
@@ -4051,12 +4051,12 @@ int VL_R_SplitLightVolume(vlight_t * light, lightVolume_t * volume, plane_t * sp
 		memcpy(back.clusterTested, volume->clusterTested, sizeof(back.clusterTested));
 		memcpy(back.facetTested, volume->facetTested, sizeof(back.facetTested));
 		back.num = numvolumes++;
-		back.endplane = volume->endplane;
+		back.endPlane = volume->endPlane;
 		back.surfaceNum = volume->surfaceNum;
 		back.facetNum = volume->facetNum;
 		back.type = volume->type;
 		back.cluster = volume->cluster;
-		back.farplane = volume->farplane;
+		back.farPlane = volume->farPlane;
 		if(volume->numtransFacets > 0)
 		{
 			memcpy(back.transFacets, volume->transFacets, sizeof(back.transFacets));
@@ -4174,7 +4174,7 @@ void VL_R_FloodLight(vlight_t * light, lightVolume_t * volume, int cluster, int 
 				   // check if this facet is totally or partly in front of the volume end plane
 				   for (k = 0; k < facet->numpoints; k++)
 				   {
-				   d = DotProduct(volume->endplane.normal, facet->points[k]) - volume->endplane.dist;
+				   d = DotProduct(volume->endPlane.normal, facet->points[k]) - volume->endPlane.dist;
 				   if (d > ON_EPSILON)
 				   break;
 				   }
@@ -4203,7 +4203,7 @@ void VL_R_FloodLight(vlight_t * light, lightVolume_t * volume, int cluster, int 
 				{
 					testculled = qtrue;
 					// fast check if the surface sphere is totally behind the volume end plane
-					d = DotProduct(volume->endplane.normal, test->origin) - volume->endplane.dist;
+					d = DotProduct(volume->endPlane.normal, test->origin) - volume->endPlane.dist;
 					if(d < -test->radius)
 					{
 						for(k = 0; k < test->numFacets; k++)
@@ -4213,7 +4213,7 @@ void VL_R_FloodLight(vlight_t * light, lightVolume_t * volume, int cluster, int 
 						}
 						break;
 					}
-					for(k = 0; k < volume->numplanes; k++)
+					for(k = 0; k < volume->numPlanes; k++)
 					{
 						d = DotProduct(volume->planes[k].normal, test->origin) - volume->planes[k].dist;
 						if(d < -test->radius)
@@ -4226,25 +4226,25 @@ void VL_R_FloodLight(vlight_t * light, lightVolume_t * volume, int cluster, int 
 							break;
 						}
 					}
-					if(k < volume->numplanes)
+					if(k < volume->numPlanes)
 						break;
 				}
 				//NOTE: we have to chop the facet winding with the volume end plane because
 				//      the faces in Q3 are not stitched together nicely
-				res = VL_ChopWinding(&winding, &volume->endplane, 0.01);
+				res = VL_ChopWinding(&winding, &volume->endPlane, 0.01);
 				// if the facet is on or at the back of the volume end plane
 				if(res == SIDE_BACK || res == SIDE_ON)
 					continue;
 				// check if the facet winding is totally or partly inside the light volume
 				memcpy(&tmpwinding, &winding, sizeof(winding_t));
-				for(k = 0; k < volume->numplanes; k++)
+				for(k = 0; k < volume->numPlanes; k++)
 				{
 					res = VL_ChopWinding(&tmpwinding, &volume->planes[k], 0.01);
 					if(res == SIDE_BACK || res == SIDE_ON)
 						break;
 				}
 				// if no part of the light volume is occluded by this facet
-				if(k < volume->numplanes)
+				if(k < volume->numPlanes)
 					continue;
 				//
 				for(k = 0; k < winding.numpoints; k++)
@@ -4270,11 +4270,11 @@ void VL_R_FloodLight(vlight_t * light, lightVolume_t * volume, int cluster, int 
 				}
 				if(k >= winding.numpoints)
 				{
-					volume->endplane = facet->plane;
+					volume->endPlane = facet->plane;
 					if(backfaceculled)
 					{
-						VectorInverse(volume->endplane.normal);
-						volume->endplane.dist = -volume->endplane.dist;
+						VectorInverse(volume->endPlane.normal);
+						volume->endPlane.dist = -volume->endPlane.dist;
 					}
 					volume->surfaceNum = surfaceNum;
 					volume->facetNum = j;
@@ -4310,12 +4310,12 @@ void VL_R_FloodLight(vlight_t * light, lightVolume_t * volume, int cluster, int 
 		}
 		// check if this portal is totally or partly in front of the volume end plane
 		// fast check with portal sphere
-		d = DotProduct(volume->endplane.normal, p->origin) - volume->endplane.dist;
+		d = DotProduct(volume->endPlane.normal, p->origin) - volume->endPlane.dist;
 		if(d < -p->radius)
 			continue;
 		for(j = 0; j < p->winding->numpoints; j++)
 		{
-			d = DotProduct(volume->endplane.normal, p->winding->points[j]) - volume->endplane.dist;
+			d = DotProduct(volume->endPlane.normal, p->winding->points[j]) - volume->endPlane.dist;
 			if(d > -0.01)
 				break;
 		}
@@ -4329,14 +4329,14 @@ void VL_R_FloodLight(vlight_t * light, lightVolume_t * volume, int cluster, int 
 		{
 			// check if the portal is partly or totally inside the light volume
 			memcpy(&winding, p->winding, sizeof(winding_t));
-			for(j = 0; j < volume->numplanes; j++)
+			for(j = 0; j < volume->numPlanes; j++)
 			{
 				res = VL_ChopWinding(&winding, &volume->planes[j], 0.01);
 				if(res == SIDE_BACK || res == SIDE_ON)
 					break;
 			}
 			// if the light volume does not go through this portal at all
-			if(j < volume->numplanes)
+			if(j < volume->numPlanes)
 				continue;
 		}
 		// chop the light volume with the portal
@@ -4520,11 +4520,11 @@ void VL_FloodDirectedLight(vlight_t * light, winding_t * w, int leafnum)
 		VectorNormalize(volume.planes[i].normal, volume.planes[i].normal);
 		volume.planes[i].dist = DotProduct(volume.planes[i].normal, w->points[i]);
 	}
-	volume.numplanes = w->numpoints;
-	VectorCopy(light->normal, volume.endplane.normal);
-	VectorInverse(volume.endplane.normal);
-	volume.endplane.dist = DotProduct(volume.endplane.normal, volume.points[0]);
-	volume.farplane = volume.endplane;
+	volume.numPlanes = w->numpoints;
+	VectorCopy(light->normal, volume.endPlane.normal);
+	VectorInverse(volume.endPlane.normal);
+	volume.endPlane.dist = DotProduct(volume.endPlane.normal, volume.points[0]);
+	volume.farPlane = volume.endPlane;
 	volume.surfaceNum = -1;
 	volume.type = VOLUME_DIRECTED;
 	volume.cluster = dleafs[leafnum].cluster;
@@ -4632,13 +4632,13 @@ void VL_FloodLight(vlight_t * light)
 				for(j = -1; j <= 1; j += 2)
 				{
 					memset(&volume, 0, sizeof(lightVolume_t));
-					volume.numplanes = 0;
+					volume.numPlanes = 0;
 					for(k = 0; k < 4; k++)
 					{
-						volume.points[volume.numplanes][i] = light->origin[i] + j * windingdist;
-						volume.points[volume.numplanes][(i + 1) % 3] = light->origin[(i + 1) % 3] + dir[0][k] * windingdist;
-						volume.points[volume.numplanes][(i + 2) % 3] = light->origin[(i + 2) % 3] + dir[1][k] * windingdist;
-						volume.numplanes++;
+						volume.points[volume.numPlanes][i] = light->origin[i] + j * windingdist;
+						volume.points[volume.numPlanes][(i + 1) % 3] = light->origin[(i + 1) % 3] + dir[0][k] * windingdist;
+						volume.points[volume.numPlanes][(i + 2) % 3] = light->origin[(i + 2) % 3] + dir[1][k] * windingdist;
+						volume.numPlanes++;
 					}
 					if(j >= 0)
 					{
@@ -4646,18 +4646,18 @@ void VL_FloodLight(vlight_t * light)
 						VectorCopy(volume.points[2], volume.points[0]);
 						VectorCopy(temp, volume.points[2]);
 					}
-					for(k = 0; k < volume.numplanes; k++)
+					for(k = 0; k < volume.numPlanes; k++)
 					{
-						VL_PlaneFromPoints(&volume.planes[k], light->origin, volume.points[(k + 1) % volume.numplanes],
+						VL_PlaneFromPoints(&volume.planes[k], light->origin, volume.points[(k + 1) % volume.numPlanes],
 										   volume.points[k]);
 					}
 					VectorCopy(light->origin, temp);
 					temp[i] += (float)j *dist;
 
-					VectorClear(volume.endplane.normal);
-					volume.endplane.normal[i] = -j;
-					volume.endplane.dist = DotProduct(volume.endplane.normal, temp);	//DotProduct(volume.endplane.normal, volume.points[0]);
-					volume.farplane = volume.endplane;
+					VectorClear(volume.endPlane.normal);
+					volume.endPlane.normal[i] = -j;
+					volume.endPlane.dist = DotProduct(volume.endPlane.normal, temp);	//DotProduct(volume.endPlane.normal, volume.points[0]);
+					volume.farPlane = volume.endPlane;
 					volume.cluster = leaf->cluster;
 					volume.surfaceNum = -1;
 					volume.type = VOLUME_NORMAL;
@@ -4713,24 +4713,24 @@ void VL_FloodLight(vlight_t * light)
 			}
 			CrossProduct(light->normal, vec, r);
 			VectorScale(r, radius, p);
-			volume.numplanes = 0;
+			volume.numPlanes = 0;
 			step = 45;
 			for(a = step / 2; a < 360 + step / 2; a += step)
 			{
-				RotatePointAroundVector(volume.points[volume.numplanes], light->normal, p, a);
-				VectorAdd(light->origin, volume.points[volume.numplanes], volume.points[volume.numplanes]);
-				VectorMA(volume.points[volume.numplanes], windingdist, light->normal, volume.points[volume.numplanes]);
-				volume.numplanes++;
+				RotatePointAroundVector(volume.points[volume.numPlanes], light->normal, p, a);
+				VectorAdd(light->origin, volume.points[volume.numPlanes], volume.points[volume.numPlanes]);
+				VectorMA(volume.points[volume.numPlanes], windingdist, light->normal, volume.points[volume.numPlanes]);
+				volume.numPlanes++;
 			}
-			for(i = 0; i < volume.numplanes; i++)
+			for(i = 0; i < volume.numPlanes; i++)
 			{
-				VL_PlaneFromPoints(&volume.planes[i], light->origin, volume.points[(i + 1) % volume.numplanes], volume.points[i]);
+				VL_PlaneFromPoints(&volume.planes[i], light->origin, volume.points[(i + 1) % volume.numPlanes], volume.points[i]);
 			}
 			VectorMA(light->origin, dist, light->normal, temp);
-			VectorCopy(light->normal, volume.endplane.normal);
-			VectorInverse(volume.endplane.normal);
-			volume.endplane.dist = DotProduct(volume.endplane.normal, temp);	//DotProduct(volume.endplane.normal, volume.points[0]);
-			volume.farplane = volume.endplane;
+			VectorCopy(light->normal, volume.endPlane.normal);
+			VectorInverse(volume.endPlane.normal);
+			volume.endPlane.dist = DotProduct(volume.endPlane.normal, temp);	//DotProduct(volume.endPlane.normal, volume.points[0]);
+			volume.farPlane = volume.endPlane;
 			volume.cluster = leaf->cluster;
 			volume.surfaceNum = -1;
 			volume.type = VOLUME_NORMAL;
@@ -4791,22 +4791,22 @@ void VL_FloodLight(vlight_t * light)
 					for(n = 0; n < 2; n++)
 					{
 						memset(&volume, 0, sizeof(lightVolume_t));
-						volume.numplanes = 3;
+						volume.numPlanes = 3;
 						VectorMA(light->origin, i * windingdist, vecs[0], volume.points[(i == j) == n]);
 						VectorMA(light->origin, j * windingdist, vecs[1], volume.points[(i != j) == n]);
 						VectorMA(light->origin, windingdist, light->normal, volume.points[2]);
-						for(k = 0; k < volume.numplanes; k++)
+						for(k = 0; k < volume.numPlanes; k++)
 						{
-							VL_PlaneFromPoints(&volume.planes[k], light->origin, volume.points[(k + 1) % volume.numplanes],
+							VL_PlaneFromPoints(&volume.planes[k], light->origin, volume.points[(k + 1) % volume.numPlanes],
 											   volume.points[k]);
 						}
-						VL_PlaneFromPoints(&volume.endplane, volume.points[0], volume.points[1], volume.points[2]);
+						VL_PlaneFromPoints(&volume.endPlane, volume.points[0], volume.points[1], volume.points[2]);
 						VectorMA(light->origin, dist, light->normal, temp);
-						volume.endplane.dist = DotProduct(volume.endplane.normal, temp);
-						if(DotProduct(light->origin, volume.endplane.normal) - volume.endplane.dist > 0)
+						volume.endPlane.dist = DotProduct(volume.endPlane.normal, temp);
+						if(DotProduct(light->origin, volume.endPlane.normal) - volume.endPlane.dist > 0)
 							break;
 					}
-					volume.farplane = volume.endplane;
+					volume.farPlane = volume.endPlane;
 					volume.cluster = leaf->cluster;
 					volume.surfaceNum = -1;
 					volume.type = VOLUME_NORMAL;
@@ -5125,7 +5125,7 @@ void VL_CreateEntityLights(void)
 	c_entityLights = 0;
 	Sys_Printf("Creating entity lights...\n");
 	//
-	for(i = 0; i < num_entities; i++)
+	for(i = 0; i < numEntities; i++)
 	{
 		e = &entities[i];
 		name = ValueForKey(e, "classname");
@@ -5534,7 +5534,7 @@ void VL_CreateSkyLights(void)
 	}
 
 	// find the brushes
-	for(i = 0; i < numbrushes; i++)
+	for(i = 0; i < numBrushes; i++)
 	{
 		b = &dbrushes[i];
 		for(j = 0; j < b->numSides; j++)

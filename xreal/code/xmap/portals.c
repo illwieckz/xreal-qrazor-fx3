@@ -617,7 +617,7 @@ qboolean FloodEntities(tree_t * tree)
 	tree->outside_node.occupied = 0;
 
 	c_floodedleafs = 0;
-	for(i = 1; i < num_entities; i++)
+	for(i = 1; i < numEntities; i++)
 	{
 		GetVectorForKey(&entities[i], "origin", origin);
 		if(VectorCompare(origin, vec3_origin))
@@ -668,7 +668,7 @@ void FloodAreas_r(node_t * node)
 {
 	portal_t       *p;
 	int             s;
-	bspbrush_t     *b;
+	bspBrush_t     *b;
 
 	if(node->areaportal)
 	{
@@ -763,7 +763,7 @@ CheckAreas_r
 */
 void CheckAreas_r(node_t * node)
 {
-	bspbrush_t     *b;
+	bspBrush_t     *b;
 
 	if(node->planenum != PLANENUM_LEAF)
 	{

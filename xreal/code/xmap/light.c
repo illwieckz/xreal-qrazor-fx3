@@ -421,7 +421,7 @@ void FindSkyBrushes(void)
 	dbrushside_t   *s;
 
 	// find the brushes
-	for(i = 0; i < numbrushes; i++)
+	for(i = 0; i < numBrushes; i++)
 	{
 		b = &dbrushes[i];
 		for(j = 0; j < b->numSides; j++)
@@ -477,7 +477,7 @@ entity_t       *FindTargetEntity(const char *target)
 	int             i;
 	const char     *n;
 
-	for(i = 0; i < num_entities; i++)
+	for(i = 0; i < numEntities; i++)
 	{
 		n = ValueForKey(&entities[i], "name");
 		if(!strcmp(n, target))
@@ -511,7 +511,7 @@ void CreateEntityLights(void)
 	//
 	// entities
 	//
-	for(i = 0; i < num_entities; i++)
+	for(i = 0; i < numEntities; i++)
 	{
 		e = &entities[i];
 		name = ValueForKey(e, "classname");
@@ -617,7 +617,7 @@ void SetEntityOrigins(void)
 	int             modelnum;
 	dmodel_t       *dm;
 
-	for(i = 0; i < num_entities; i++)
+	for(i = 0; i < numEntities; i++)
 	{
 		e = &entities[i];
 		key = ValueForKey(e, "model");

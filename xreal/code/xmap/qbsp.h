@@ -51,15 +51,15 @@ typedef struct parseMesh_s
 	struct parseMesh_s *groupChain;
 } parseMesh_t;
 
-typedef struct bspface_s
+typedef struct bspFace_s
 {
-	struct bspface_s *next;
+	struct bspFace_s *next;
 	int             planenum;
 	int             priority;	// added to value calculation
 	qboolean        checked;
 	qboolean        hint;
 	winding_t      *w;
-} bspface_t;
+} bspFace_t;
 
 typedef struct plane_s
 {
@@ -95,9 +95,9 @@ typedef struct side_s
 
 #define	MAX_BRUSH_SIDES		1024
 
-typedef struct bspbrush_s
+typedef struct bspBrush_s
 {
-	struct bspbrush_s *next;
+	struct bspBrush_s *next;
 
 	int             entitynum;	// editor numbering
 	int             brushnum;	// editor numbering
@@ -111,23 +111,23 @@ typedef struct bspbrush_s
 
 	int             portalareas[2];
 
-	struct bspbrush_s *original;	// chopped up brushes will reference the originals
+	struct bspBrush_s *original;	// chopped up brushes will reference the originals
 
 	vec3_t          mins, maxs;
 	int             numsides;
 	side_t          sides[6];	// variably sized
-} bspbrush_t;
+} bspBrush_t;
 
 
 
-typedef struct drawsurf_s
+typedef struct drawSurface_s
 {
 	shaderInfo_t   *shaderInfo;
 
-	bspbrush_t     *mapBrush;	// not valid for patches
+	bspBrush_t     *mapBrush;	// not valid for patches
 	side_t         *side;		// not valid for patches
 
-	struct drawsurf_s *nextOnShader;	// when sorting by shader for lightmaps
+	struct drawSurface_s *nextOnShader;	// when sorting by shader for lightmaps
 
 	int             fogNum;		// set by FogDrawSurfs
 
@@ -156,13 +156,13 @@ typedef struct drawsurf_s
 	qboolean        miscModel;
 
 	qboolean        flareSurface;
-} mapDrawSurface_t;
+} drawSurface_t;
 
-typedef struct drawSurfRef_s
+typedef struct drawSurfaceRef_s
 {
-	struct drawSurfRef_s *nextRef;
+	struct drawSurfaceRef_s *nextRef;
 	int             outputNumber;
-} drawSurfRef_t;
+} drawSurfaceRef_t;
 
 typedef struct node_s
 {
@@ -170,7 +170,7 @@ typedef struct node_s
 	int             planenum;	// -1 = leaf node
 	struct node_s  *parent;
 	vec3_t          mins, maxs;	// valid after portalization
-	bspbrush_t     *volume;		// one for each leaf/node
+	bspBrush_t     *volume;		// one for each leaf/node
 
 	// nodes only
 	side_t         *side;		// the side that created the node
@@ -184,8 +184,8 @@ typedef struct node_s
 	qboolean        areaportal;
 	int             cluster;	// for portalfile writing
 	int             area;		// for areaportals
-	bspbrush_t     *brushlist;	// fragments of all brushes in this leaf
-	drawSurfRef_t  *drawSurfReferences;	// references to patches pushed down
+	bspBrush_t     *brushlist;	// fragments of all brushes in this leaf
+	drawSurfaceRef_t  *drawSurfReferences;	// references to patches pushed down
 
 	int             occupied;	// 1 or greater can reach entity
 	entity_t       *occupant;	// for leak file testing
@@ -213,9 +213,6 @@ typedef struct
 	vec3_t          mins, maxs;
 } tree_t;
 
-extern int      entity_num;
-
-
 extern qboolean noprune;
 extern qboolean nodetail;
 extern qboolean fulldetail;
@@ -240,19 +237,19 @@ extern int      nogridlighting;
 
 // brush.c
 
-int             CountBrushList(bspbrush_t * brushes);
-bspbrush_t     *AllocBrush(int numsides);
-void            FreeBrush(bspbrush_t * brushes);
-void            FreeBrushList(bspbrush_t * brushes);
-bspbrush_t     *CopyBrush(bspbrush_t * brush);
-void            DrawBrushList(bspbrush_t * brush);
-void            WriteBrushList(char *name, bspbrush_t * brush, qboolean onlyvis);
-void            PrintBrush(bspbrush_t * brush);
-qboolean        BoundBrush(bspbrush_t * brush);
-qboolean        CreateBrushWindings(bspbrush_t * brush);
-bspbrush_t     *BrushFromBounds(vec3_t mins, vec3_t maxs);
-vec_t           BrushVolume(bspbrush_t * brush);
-void            WriteBspBrushMap(char *name, bspbrush_t * list);
+int             CountBrushList(bspBrush_t * brushes);
+bspBrush_t     *AllocBrush(int numsides);
+void            FreeBrush(bspBrush_t * brushes);
+void            FreeBrushList(bspBrush_t * brushes);
+bspBrush_t     *CopyBrush(bspBrush_t * brush);
+void            DrawBrushList(bspBrush_t * brush);
+void            WriteBrushList(char *name, bspBrush_t * brush, qboolean onlyvis);
+void            PrintBrush(bspBrush_t * brush);
+qboolean        BoundBrush(bspBrush_t * brush);
+qboolean        CreateBrushWindings(bspBrush_t * brush);
+bspBrush_t     *BrushFromBounds(vec3_t mins, vec3_t maxs);
+vec_t           BrushVolume(bspBrush_t * brush);
+void            WriteBspBrushMap(char *name, bspBrush_t * list);
 
 void            FilterDetailBrushesIntoTree(entity_t * e, tree_t * tree);
 void            FilterStructuralBrushesIntoTree(entity_t * e, tree_t * tree);
@@ -276,17 +273,17 @@ extern int      numMapIndexedShaders;
 extern entity_t *mapEnt;
 
 #define		MAX_BUILD_SIDES		300
-extern bspbrush_t *buildBrush;
+extern bspBrush_t *buildBrush;
 
 
 void            LoadMapFile(char *filename);
 int             FindFloatPlane(vec3_t normal, vec_t dist);
 int             PlaneTypeForNormal(vec3_t normal);
-bspbrush_t     *FinishBrush(void);
+bspBrush_t     *FinishBrush(void);
 void            AdjustBrushesForOrigin(entity_t * ent, vec3_t origin);
 
-mapDrawSurface_t *AllocDrawSurf(void);
-mapDrawSurface_t *DrawSurfaceForSide(bspbrush_t * b, side_t * s, winding_t * w);
+drawSurface_t *AllocDrawSurf(void);
+drawSurface_t *DrawSurfaceForSide(bspBrush_t * b, side_t * s, winding_t * w);
 
 //=============================================================================
 
@@ -305,7 +302,7 @@ void            DrawEndScene(void);
 
 // csg
 
-bspbrush_t     *MakeBspBrushList(bspbrush_t * brushes, vec3_t clipmins, vec3_t clipmaxs);
+bspBrush_t     *MakeBspBrushList(bspBrush_t * brushes, vec3_t clipmins, vec3_t clipmaxs);
 
 //=============================================================================
 
@@ -319,12 +316,12 @@ bspbrush_t     *MakeBspBrushList(bspbrush_t * brushes, vec3_t clipmins, vec3_t c
 int             BoxOnPlaneSide(vec3_t mins, vec3_t maxs, plane_t * plane);
 qboolean        WindingIsTiny(winding_t * w);
 
-void            SplitBrush(bspbrush_t * brush, int planenum, bspbrush_t ** front, bspbrush_t ** back);
+void            SplitBrush(bspBrush_t * brush, int planenum, bspBrush_t ** front, bspBrush_t ** back);
 
 tree_t         *AllocTree(void);
 node_t         *AllocNode(void);
 
-tree_t         *BrushBSP(bspbrush_t * brushlist, vec3_t mins, vec3_t maxs);
+tree_t         *BrushBSP(bspBrush_t * brushlist, vec3_t mins, vec3_t maxs);
 
 //=============================================================================
 
@@ -339,7 +336,7 @@ qboolean        Portal_Passable(portal_t * p);
 qboolean        FloodEntities(tree_t * tree);
 void            FillOutside(node_t * headnode);
 void            FloodAreas(tree_t * tree);
-bspface_t      *VisibleFaces(entity_t * e, tree_t * tree);
+bspFace_t      *VisibleFaces(entity_t * e, tree_t * tree);
 void            FreePortal(portal_t * p);
 
 void            MakeTreePortals(tree_t * tree);
@@ -371,7 +368,7 @@ void            WritePortalFile(tree_t * tree);
 void            SetModelNumbers(void);
 
 int             EmitShader(const char *shader);
-void            EmitBrushes(bspbrush_t * brushes);
+void            EmitBrushes(bspBrush_t * brushes);
 
 void            BeginBSPFile(void);
 void            EndBSPFile(void);
@@ -395,7 +392,7 @@ void            FreeTreePortals_r(node_t * node);
 
 extern int      numMapPatches;
 
-mapDrawSurface_t *DrawSurfaceForMesh(mesh_t * m);
+drawSurface_t *DrawSurfaceForMesh(mesh_t * m);
 void            ParsePatch(qboolean patchDef3);
 mesh_t         *SubdivideMesh(mesh_t in, float maxError, float minLength);
 void            PatchMapDrawSurfs(entity_t * e);
@@ -418,16 +415,16 @@ void            FixTJunctions(entity_t * e);
 // fog.c
 
 void            FogDrawSurfs(void);
-winding_t      *WindingFromDrawSurf(mapDrawSurface_t * ds);
+winding_t      *WindingFromDrawSurf(drawSurface_t * ds);
 
 //=============================================================================
 
 // facebsp.c
 
-bspface_t      *BspFaceForPortal(portal_t * p);
-bspface_t      *MakeStructuralBspFaceList(bspbrush_t * list);
-bspface_t      *MakeVisibleBspFaceList(bspbrush_t * list);
-tree_t         *FaceBSP(bspface_t * list);
+bspFace_t      *BspFaceForPortal(portal_t * p);
+bspFace_t      *MakeStructuralBspFaceList(bspBrush_t * list);
+bspFace_t      *MakeVisibleBspFaceList(bspBrush_t * list);
+tree_t         *FaceBSP(bspFace_t * list);
 
 //=============================================================================
 
@@ -445,13 +442,13 @@ void            AddTriangleModels(void);
 
 // surface.c
 
-extern mapDrawSurface_t mapDrawSurfs[MAX_MAP_DRAW_SURFS];
+extern drawSurface_t mapDrawSurfs[MAX_MAP_DRAW_SURFS];
 extern int      numMapDrawSurfs;
 
-mapDrawSurface_t *AllocDrawSurf(void);
+drawSurface_t *AllocDrawSurf(void);
 void            MergeSides(entity_t * e, tree_t * tree);
 void            SubdivideDrawSurfs(entity_t * e, tree_t * tree);
-void            MakeDrawSurfaces(bspbrush_t * b);
+void            MakeDrawSurfaces(bspBrush_t * b);
 void            ClipSidesIntoTree(entity_t * e, tree_t * tree);
 void            FilterDrawsurfsIntoTree(entity_t * e, tree_t * tree);
 

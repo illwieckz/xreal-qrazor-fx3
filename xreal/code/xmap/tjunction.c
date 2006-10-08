@@ -221,7 +221,7 @@ int AddEdge(vec3_t v1, vec3_t v2, qboolean createNonAxial)
 AddSurfaceEdges
 ====================
 */
-void AddSurfaceEdges(mapDrawSurface_t * ds)
+void AddSurfaceEdges(drawSurface_t * ds)
 {
 	int             i;
 
@@ -272,7 +272,7 @@ Add colinear border edges, which will fix some classes of patch to
 brush tjunctions
 ====================
 */
-void AddPatchEdges(mapDrawSurface_t * ds)
+void AddPatchEdges(drawSurface_t * ds)
 {
 	int             i;
 	float          *v1, *v2, *v3;
@@ -333,7 +333,7 @@ FixSurfaceJunctions
 ====================
 */
 #define	MAX_SURFACE_VERTS	256
-void FixSurfaceJunctions(mapDrawSurface_t * ds)
+void FixSurfaceJunctions(drawSurface_t * ds)
 {
 	int             i, j, k;
 	edgeLine_t     *e;
@@ -549,7 +549,7 @@ Call after the surface list has been pruned, but before lightmap allocation
 void FixTJunctions(entity_t * ent)
 {
 	int             i;
-	mapDrawSurface_t *ds;
+	drawSurface_t *ds;
 	int             axialEdgeLines;
 	originalEdge_t *e;
 

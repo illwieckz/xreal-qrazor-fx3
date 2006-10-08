@@ -177,7 +177,7 @@ CalcTerrainSize
 */
 void CalcTerrainSize(vec3_t mins, vec3_t maxs, vec3_t size)
 {
-	bspbrush_t     *brush;
+	bspBrush_t     *brush;
 	int             i;
 	const char     *key;
 
@@ -408,7 +408,7 @@ void CreateTerrainSurface(terrainSurf_t * surf, shaderInfo_t * shader)
 	int             i, j, k;
 	drawVert_t     *out;
 	drawVert_t     *in;
-	mapDrawSurface_t *newsurf;
+	drawSurface_t *newsurf;
 
 	newsurf = AllocDrawSurf();
 
@@ -624,7 +624,7 @@ void SetTerrainTextures(void)
 	float           min_s, min_t;
 	int             alpha[MAX_POINTS_ON_WINDING];
 	shaderInfo_t   *si, *terrainShader;
-	bspbrush_t     *brush;
+	bspBrush_t     *brush;
 	side_t         *side;
 	const char     *shadername;
 	vec3_t          mins, maxs;
@@ -979,8 +979,8 @@ void EmitTerrainVerts2(terrainSurf_t * surf, terrainVert_t ** verts, int alpha[3
 
 int             MapPlaneFromPoints(vec3_t p0, vec3_t p1, vec3_t p2);
 void            QuakeTextureVecs(plane_t * plane, vec_t shift[2], vec_t rotate, vec_t scale[2], vec_t mappingVecs[2][4]);
-qboolean        RemoveDuplicateBrushPlanes(bspbrush_t * b);
-void            SetBrushContents(bspbrush_t * b);
+qboolean        RemoveDuplicateBrushPlanes(bspBrush_t * b);
+void            SetBrushContents(bspBrush_t * b);
 
 void AddBrushSide(vec3_t v1, vec3_t v2, vec3_t v3, shaderInfo_t * terrainShader)
 {
@@ -1000,7 +1000,7 @@ void AddBrushSide(vec3_t v1, vec3_t v2, vec3_t v3, shaderInfo_t * terrainShader)
 
 void MakeBrushFromTriangle(vec3_t v1, vec3_t v2, vec3_t v3, shaderInfo_t * terrainShader)
 {
-	bspbrush_t     *b;
+	bspBrush_t     *b;
 	vec3_t          d1;
 	vec3_t          d2;
 	vec3_t          d3;
@@ -1020,7 +1020,7 @@ void MakeBrushFromTriangle(vec3_t v1, vec3_t v2, vec3_t v3, shaderInfo_t * terra
 
 	buildBrush->portalareas[0] = -1;
 	buildBrush->portalareas[1] = -1;
-	buildBrush->entitynum = num_entities - 1;
+	buildBrush->entitynum = numEntities - 1;
 	buildBrush->brushnum = entitySourceBrushes;
 
 	// if there are mirrored planes, the entire brush is invalid
@@ -1185,7 +1185,7 @@ int LayerForShader(shaderInfo_t * shader)
 =================
 ParseTerrain
 
-Creates a mapDrawSurface_t from the terrain text
+Creates a drawSurface_t from the terrain text
 =================
 */
 

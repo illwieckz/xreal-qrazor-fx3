@@ -24,34 +24,34 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qfiles.h"
 #include "surfaceflags.h"
 
-extern int      nummodels;
+extern int      numModels;
 extern dmodel_t dmodels[MAX_MAP_MODELS];
 
 extern int      numShaders;
 extern dshader_t dshaders[MAX_MAP_MODELS];
 
-extern int      entdatasize;
+extern int      entDataSize;
 extern char     dentdata[MAX_MAP_ENTSTRING];
 
-extern int      numleafs;
+extern int      numLeafs;
 extern dleaf_t  dleafs[MAX_MAP_LEAFS];
 
-extern int      numplanes;
+extern int      numPlanes;
 extern dplane_t dplanes[MAX_MAP_PLANES];
 
-extern int      numnodes;
+extern int      numNodes;
 extern dnode_t  dnodes[MAX_MAP_NODES];
 
-extern int      numleafsurfaces;
+extern int      numLeafSurfaces;
 extern int      dleafsurfaces[MAX_MAP_LEAFFACES];
 
-extern int      numleafbrushes;
+extern int      numLeafBrushes;
 extern int      dleafbrushes[MAX_MAP_LEAFBRUSHES];
 
-extern int      numbrushes;
+extern int      numBrushes;
 extern dbrush_t dbrushes[MAX_MAP_BRUSHES];
 
-extern int      numbrushsides;
+extern int      numBrushSides;
 extern dbrushside_t dbrushsides[MAX_MAP_BRUSHSIDES];
 
 extern int      numLightBytes;
@@ -92,13 +92,13 @@ typedef struct epair_s
 typedef struct
 {
 	vec3_t          origin;
-	struct bspbrush_s *brushes;
+	struct bspBrush_s *brushes;
 	struct parseMesh_s *patches;
 	int             firstDrawSurf;
 	epair_t        *epairs;
 } entity_t;
 
-extern int      num_entities;
+extern int      numEntities;
 extern entity_t entities[MAX_MAP_ENTITIES];
 
 void            ParseEntities(void);

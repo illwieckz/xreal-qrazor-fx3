@@ -32,9 +32,9 @@ int             c_faceLeafs;
 AllocBspFace
 ================
 */
-bspface_t      *AllocBspFace(void)
+bspFace_t      *AllocBspFace(void)
 {
-	bspface_t      *f;
+	bspFace_t      *f;
 
 	f = malloc(sizeof(*f));
 	memset(f, 0, sizeof(*f));
@@ -47,7 +47,7 @@ bspface_t      *AllocBspFace(void)
 FreeBspFace
 ================
 */
-void FreeBspFace(bspface_t * f)
+void FreeBspFace(bspFace_t * f)
 {
 	if(f->w)
 	{
@@ -65,11 +65,11 @@ SelectSplitPlaneNum
 int             hintsplit;
 
 #define	BLOCK_SIZE	1024
-int SelectSplitPlaneNum(node_t * node, bspface_t * list)
+int SelectSplitPlaneNum(node_t * node, bspFace_t * list)
 {
-	bspface_t      *split;
-	bspface_t      *check;
-	bspface_t      *bestSplit;
+	bspFace_t      *split;
+	bspFace_t      *check;
+	bspFace_t      *bestSplit;
 	int             splits, facing, front, back;
 	int             side;
 	plane_t        *plane;
@@ -160,7 +160,7 @@ int SelectSplitPlaneNum(node_t * node, bspface_t * list)
 	return bestSplit->planenum;
 }
 
-int CountFaceList(bspface_t * list)
+int CountFaceList(bspFace_t * list)
 {
 	int             c;
 
@@ -177,14 +177,14 @@ int CountFaceList(bspface_t * list)
 BuildFaceTree_r
 ================
 */
-void BuildFaceTree_r(node_t * node, bspface_t * list)
+void BuildFaceTree_r(node_t * node, bspFace_t * list)
 {
-	bspface_t      *split;
-	bspface_t      *next;
+	bspFace_t      *split;
+	bspFace_t      *next;
 	int             side;
 	plane_t        *plane;
-	bspface_t      *newFace;
-	bspface_t      *childLists[2];
+	bspFace_t      *newFace;
+	bspFace_t      *childLists[2];
 	winding_t      *frontWinding, *backWinding;
 	int             i;
 	int             splitPlaneNum;
@@ -289,10 +289,10 @@ FaceBSP
 List will be freed before returning
 ================
 */
-tree_t         *FaceBSP(bspface_t * list)
+tree_t         *FaceBSP(bspFace_t * list)
 {
 	tree_t         *tree;
-	bspface_t      *face;
+	bspFace_t      *face;
 	int             i;
 	int             count;
 
@@ -329,9 +329,9 @@ tree_t         *FaceBSP(bspface_t * list)
 BspFaceForPortal
 =================
 */
-bspface_t      *BspFaceForPortal(portal_t * p)
+bspFace_t      *BspFaceForPortal(portal_t * p)
 {
-	bspface_t      *f;
+	bspFace_t      *f;
 
 	f = AllocBspFace();
 	f->w = CopyWinding(p->winding);
@@ -347,13 +347,13 @@ bspface_t      *BspFaceForPortal(portal_t * p)
 MakeStructuralBspFaceList
 =================
 */
-bspface_t      *MakeStructuralBspFaceList(bspbrush_t * list)
+bspFace_t      *MakeStructuralBspFaceList(bspBrush_t * list)
 {
-	bspbrush_t     *b;
+	bspBrush_t     *b;
 	int             i;
 	side_t         *s;
 	winding_t      *w;
-	bspface_t      *f, *flist;
+	bspFace_t      *f, *flist;
 
 	flist = NULL;
 	for(b = list; b; b = b->next)
@@ -391,13 +391,13 @@ bspface_t      *MakeStructuralBspFaceList(bspbrush_t * list)
 MakeVisibleBspFaceList
 =================
 */
-bspface_t      *MakeVisibleBspFaceList(bspbrush_t * list)
+bspFace_t      *MakeVisibleBspFaceList(bspBrush_t * list)
 {
-	bspbrush_t     *b;
+	bspBrush_t     *b;
 	int             i;
 	side_t         *s;
 	winding_t      *w;
-	bspface_t      *f, *flist;
+	bspFace_t      *f, *flist;
 
 	flist = NULL;
 	for(b = list; b; b = b->next)

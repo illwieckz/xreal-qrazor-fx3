@@ -226,7 +226,7 @@ static void InsertMD3Model(const char *modelName, const matrix_t transform)
 	md3XyzNormal_t *xyz;
 	drawVert_t     *outv;
 	float           lat, lng;
-	mapDrawSurface_t *out;
+	drawSurface_t *out;
 	vec3_t          tmp;
 
 	// load the model
@@ -335,7 +335,7 @@ static void InsertASEModel(const char *modelName, const matrix_t transform)
 {
 	int             i, j;
 	drawVert_t     *outv;
-	mapDrawSurface_t *out;
+	drawSurface_t *out;
 	int             numSurfaces;
 	const char     *name;
 	polyset_t      *pset;
@@ -449,7 +449,7 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 {
 	int             i, j, k, l;
 	char            filename[1024];
-	mapDrawSurface_t *out;
+	drawSurface_t *out;
 	drawVert_t     *outv;
 	vec3_t          tmp;
 
@@ -726,14 +726,14 @@ AddTriangleModels
 */
 void AddTriangleModels(void)
 {
-	int             entity_num;
+	int             i;
 	entity_t       *entity;
 
 	Sys_FPrintf(SYS_VRB, "----- AddTriangleModels -----\n");
 
-	for(entity_num = 1; entity_num < num_entities; entity_num++)
+	for(i = 1; i < numEntities; i++)
 	{
-		entity = &entities[entity_num];
+		entity = &entities[i];
 
 		// convert misc_models into raw geometry
 		if(!Q_stricmp("misc_model", ValueForKey(entity, "classname")))

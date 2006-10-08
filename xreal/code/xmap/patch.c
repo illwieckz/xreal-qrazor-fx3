@@ -42,9 +42,9 @@ void PrintCtrl(vec3_t ctrl[9])
 DrawSurfaceForMesh
 ================
 */
-mapDrawSurface_t *DrawSurfaceForMesh(mesh_t * m)
+drawSurface_t *DrawSurfaceForMesh(mesh_t * m)
 {
-	mapDrawSurface_t *ds;
+	drawSurface_t *ds;
 	int             i, j;
 	mesh_t         *copy;
 
@@ -84,7 +84,7 @@ mapDrawSurface_t *DrawSurfaceForMesh(mesh_t * m)
 =================
 ParsePatch
 
-Creates a mapDrawSurface_t from the patch text
+Creates a drawSurface_t from the patch text
 =================
 */
 void ParsePatch(qboolean patchDef3)
@@ -209,7 +209,7 @@ void PatchMapDrawSurfs(entity_t * e)
 {
 	parseMesh_t    *pm;
 	parseMesh_t    *check, *scan;
-	mapDrawSurface_t *ds;
+	drawSurface_t *ds;
 	int             patchCount, groupCount;
 	int             i, j, k, l, c1, c2;
 	drawVert_t     *v1, *v2;

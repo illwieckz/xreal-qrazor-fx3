@@ -40,7 +40,7 @@ int             c_nodes;
 CountBrushList
 ================
 */
-int CountBrushList(bspbrush_t * brushes)
+int CountBrushList(bspBrush_t * brushes)
 {
 	int             c;
 
@@ -56,12 +56,12 @@ int CountBrushList(bspbrush_t * brushes)
 AllocBrush
 ================
 */
-bspbrush_t     *AllocBrush(int numsides)
+bspBrush_t     *AllocBrush(int numsides)
 {
-	bspbrush_t     *bb;
+	bspBrush_t     *bb;
 	int             c;
 
-	c = (int)&(((bspbrush_t *) 0)->sides[numsides]);
+	c = (int)&(((bspBrush_t *) 0)->sides[numsides]);
 	bb = malloc(c);
 	memset(bb, 0, c);
 	if(numthreads == 1)
@@ -74,7 +74,7 @@ bspbrush_t     *AllocBrush(int numsides)
 FreeBrush
 ================
 */
-void FreeBrush(bspbrush_t * brushes)
+void FreeBrush(bspBrush_t * brushes)
 {
 	int             i;
 
@@ -92,9 +92,9 @@ void FreeBrush(bspbrush_t * brushes)
 FreeBrushList
 ================
 */
-void FreeBrushList(bspbrush_t * brushes)
+void FreeBrushList(bspBrush_t * brushes)
 {
-	bspbrush_t     *next;
+	bspBrush_t     *next;
 
 	for(; brushes; brushes = next)
 	{
@@ -111,13 +111,13 @@ CopyBrush
 Duplicates the brush, the sides, and the windings
 ==================
 */
-bspbrush_t     *CopyBrush(bspbrush_t * brush)
+bspBrush_t     *CopyBrush(bspBrush_t * brush)
 {
-	bspbrush_t     *newbrush;
+	bspBrush_t     *newbrush;
 	int             size;
 	int             i;
 
-	size = (int)&(((bspbrush_t *) 0)->sides[brush->numsides]);
+	size = (int)&(((bspBrush_t *) 0)->sides[brush->numsides]);
 
 	newbrush = AllocBrush(brush->numsides);
 	memcpy(newbrush, brush, size);
@@ -137,7 +137,7 @@ bspbrush_t     *CopyBrush(bspbrush_t * brush)
 DrawBrushList
 ================
 */
-void DrawBrushList(bspbrush_t * brush)
+void DrawBrushList(bspBrush_t * brush)
 {
 	int             i;
 	side_t         *s;
@@ -163,7 +163,7 @@ void DrawBrushList(bspbrush_t * brush)
 WriteBrushList
 ================
 */
-void WriteBrushList(char *name, bspbrush_t * brush, qboolean onlyvis)
+void WriteBrushList(char *name, bspBrush_t * brush, qboolean onlyvis)
 {
 	int             i;
 	side_t         *s;
@@ -197,7 +197,7 @@ void WriteBrushList(char *name, bspbrush_t * brush, qboolean onlyvis)
 PrintBrush
 =============
 */
-void PrintBrush(bspbrush_t * brush)
+void PrintBrush(bspBrush_t * brush)
 {
 	int             i;
 
@@ -217,7 +217,7 @@ Sets the mins/maxs based on the windings
 returns false if the brush doesn't enclose a valid volume
 ==================
 */
-qboolean BoundBrush(bspbrush_t * brush)
+qboolean BoundBrush(bspBrush_t * brush)
 {
 	int             i, j;
 	winding_t      *w;
@@ -251,7 +251,7 @@ makes basewindigs for sides and mins / maxs for the brush
 returns false if the brush doesn't enclose a valid volume
 ==================
 */
-qboolean CreateBrushWindings(bspbrush_t * brush)
+qboolean CreateBrushWindings(bspBrush_t * brush)
 {
 	int             i, j;
 	winding_t      *w;
@@ -299,9 +299,9 @@ BrushFromBounds
 Creates a new axial brush
 ==================
 */
-bspbrush_t     *BrushFromBounds(vec3_t mins, vec3_t maxs)
+bspBrush_t     *BrushFromBounds(vec3_t mins, vec3_t maxs)
 {
-	bspbrush_t     *b;
+	bspBrush_t     *b;
 	int             i;
 	vec3_t          normal;
 	vec_t           dist;
@@ -328,10 +328,9 @@ bspbrush_t     *BrushFromBounds(vec3_t mins, vec3_t maxs)
 /*
 ==================
 BrushVolume
-
 ==================
 */
-vec_t BrushVolume(bspbrush_t * brush)
+vec_t BrushVolume(bspBrush_t * brush)
 {
 	int             i;
 	winding_t      *w;
@@ -379,7 +378,7 @@ vec_t BrushVolume(bspbrush_t * brush)
 WriteBspBrushMap
 ==================
 */
-void WriteBspBrushMap(char *name, bspbrush_t * list)
+void WriteBspBrushMap(char *name, bspBrush_t * list)
 {
 	FILE           *f;
 	side_t         *s;
@@ -424,9 +423,9 @@ FilterBrushIntoTree_r
 
 ====================
 */
-int FilterBrushIntoTree_r(bspbrush_t * b, node_t * node)
+int FilterBrushIntoTree_r(bspBrush_t * b, node_t * node)
 {
-	bspbrush_t     *front, *back;
+	bspBrush_t     *front, *back;
 	int             c;
 
 	if(!b)
@@ -480,7 +479,7 @@ Fragment all the detail brushes into the structural leafs
 */
 void FilterDetailBrushesIntoTree(entity_t * e, tree_t * tree)
 {
-	bspbrush_t     *b, *newb;
+	bspBrush_t     *b, *newb;
 	int             r;
 	int             c_unique, c_clusters;
 	int             i;
@@ -526,7 +525,7 @@ Mark the leafs as opaque and areaportals
 */
 void FilterStructuralBrushesIntoTree(entity_t * e, tree_t * tree)
 {
-	bspbrush_t     *b, *newb;
+	bspBrush_t     *b, *newb;
 	int             r;
 	int             c_unique, c_clusters;
 	int             i;
@@ -659,10 +658,9 @@ qboolean WindingIsHuge(winding_t * w)
 /*
 ==================
 BrushMostlyOnSide
-
 ==================
 */
-int BrushMostlyOnSide(bspbrush_t * brush, plane_t * plane)
+int BrushMostlyOnSide(bspBrush_t * brush, plane_t * plane)
 {
 	int             i, j;
 	winding_t      *w;
@@ -702,9 +700,9 @@ Generates two new brushes, leaving the original
 unchanged
 ================
 */
-void SplitBrush(bspbrush_t * brush, int planenum, bspbrush_t ** front, bspbrush_t ** back)
+void SplitBrush(bspBrush_t * brush, int planenum, bspBrush_t ** front, bspBrush_t ** back)
 {
-	bspbrush_t     *b[2];
+	bspBrush_t     *b[2];
 	int             i, j;
 	winding_t      *w, *cw[2], *midwinding;
 	plane_t        *plane, *plane2;
@@ -778,7 +776,7 @@ void SplitBrush(bspbrush_t * brush, int planenum, bspbrush_t ** front, bspbrush_
 	for(i = 0; i < 2; i++)
 	{
 		b[i] = AllocBrush(brush->numsides + 1);
-		memcpy(b[i], brush, sizeof(bspbrush_t) - sizeof(brush->sides));
+		memcpy(b[i], brush, sizeof(bspBrush_t) - sizeof(brush->sides));
 		b[i]->numsides = 0;
 		b[i]->next = NULL;
 		b[i]->original = brush->original;

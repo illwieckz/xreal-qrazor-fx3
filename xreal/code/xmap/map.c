@@ -60,7 +60,7 @@ int				c_mergedFuncStatics;
 // brushes are parsed into a temporary array of sides,
 // which will have the bevels added and duplicates
 // removed before the final brush is allocated
-bspbrush_t     *buildBrush;
+bspBrush_t     *buildBrush;
 
 
 void            TestExpandBrushes(void);
@@ -303,7 +303,7 @@ The contents on all sides of a brush should be the same
 Sets contentsShader, contents, opaque, and detail
 ===========
 */
-void SetBrushContents(bspbrush_t * b)
+void SetBrushContents(bspBrush_t * b)
 {
 	int             contents, c2;
 	side_t         *s;
@@ -343,7 +343,7 @@ void SetBrushContents(bspbrush_t * b)
 
 	if((contents & CONTENTS_DETAIL) && (contents & CONTENTS_STRUCTURAL))
 	{
-		Sys_Printf("Entity %i, Brush %i: mixed CONTENTS_DETAIL and CONTENTS_STRUCTURAL\n", num_entities - 1, entitySourceBrushes);
+		Sys_Printf("Entity %i, Brush %i: mixed CONTENTS_DETAIL and CONTENTS_STRUCTURAL\n", numEntities - 1, entitySourceBrushes);
 		contents &= ~CONTENTS_DETAIL;
 	}
 
@@ -557,7 +557,7 @@ fog volumes need to have inside faces created
 void AddBackSides(void)
 {
 /*
-	bspbrush_t	*b;
+	bspBrush_t	*b;
 	int			i, originalSides;
 	side_t		*s;
 	side_t		*newSide;
@@ -594,9 +594,9 @@ Produces a final brush based on the buildBrush->sides array
 and links it to the current entity
 ===============
 */
-bspbrush_t     *FinishBrush(void)
+bspBrush_t     *FinishBrush(void)
 {
-	bspbrush_t     *b;
+	bspBrush_t     *b;
 
 	// liquids may need to have extra sides created for back sides
 	AddBackSides();
@@ -627,9 +627,9 @@ bspbrush_t     *FinishBrush(void)
 		char            string[32];
 		vec3_t          origin;
 
-		if(num_entities == 1)
+		if(numEntities == 1)
 		{
-			Sys_Printf("Entity %i, Brush %i: origin brushes not allowed in world\n", num_entities - 1, entitySourceBrushes);
+			Sys_Printf("Entity %i, Brush %i: origin brushes not allowed in world\n", numEntities - 1, entitySourceBrushes);
 			return NULL;
 		}
 
@@ -637,9 +637,9 @@ bspbrush_t     *FinishBrush(void)
 		VectorScale(origin, 0.5, origin);
 
 		sprintf(string, "%i %i %i", (int)origin[0], (int)origin[1], (int)origin[2]);
-		SetKeyValue(&entities[num_entities - 1], "origin", string);
+		SetKeyValue(&entities[numEntities - 1], "origin", string);
 
-		VectorCopy(origin, entities[num_entities - 1].origin);
+		VectorCopy(origin, entities[numEntities - 1].origin);
 
 		// don't keep this brush
 		return NULL;
@@ -647,9 +647,9 @@ bspbrush_t     *FinishBrush(void)
 
 	if(buildBrush->contents & CONTENTS_AREAPORTAL)
 	{
-		if(num_entities != 1)
+		if(numEntities != 1)
 		{
-			Sys_Printf("Entity %i, Brush %i: areaportals only allowed in world\n", num_entities - 1, entitySourceBrushes);
+			Sys_Printf("Entity %i, Brush %i: areaportals only allowed in world\n", numEntities - 1, entitySourceBrushes);
 			return NULL;
 		}
 	}
@@ -659,7 +659,7 @@ bspbrush_t     *FinishBrush(void)
 	// keep it
 	b = CopyBrush(buildBrush);
 
-	b->entitynum = num_entities - 1;
+	b->entitynum = numEntities - 1;
 	b->brushnum = entitySourceBrushes;
 
 	b->original = b;
@@ -986,7 +986,7 @@ meaning it encloses no volume.
 Also removes planes without any normal
 =================
 */
-qboolean RemoveDuplicateBrushPlanes(bspbrush_t * b)
+qboolean RemoveDuplicateBrushPlanes(bspBrush_t * b)
 {
 	int             i, j, k;
 	side_t         *sides;
@@ -1047,13 +1047,13 @@ ParseBrush
 */
 void ParseBrush(void)
 {
-	bspbrush_t     *b;
+	bspBrush_t     *b;
 
 	ParseRawBrush();
 
 	buildBrush->portalareas[0] = -1;
 	buildBrush->portalareas[1] = -1;
-	buildBrush->entitynum = num_entities - 1;
+	buildBrush->entitynum = numEntities - 1;
 	buildBrush->brushnum = entitySourceBrushes;
 
 	// if there are mirrored planes, the entire brush is invalid
@@ -1099,7 +1099,7 @@ Used by func_group
 */
 void MoveBrushesToWorld(entity_t * mapent)
 {
-	bspbrush_t     *b, *next;
+	bspBrush_t     *b, *next;
 
 	for(b = mapent->brushes; b; b = next)
 	{
@@ -1135,7 +1135,7 @@ AdjustBrushesForOrigin
 */
 void AdjustBrushesForOrigin(entity_t * ent, vec3_t origin)
 {
-	bspbrush_t     *b;
+	bspBrush_t     *b;
 	int             i;
 	side_t         *s;
 	vec_t           newdist;
@@ -1214,16 +1214,16 @@ qboolean ParseMapEntity(void)
 
 	if(strcmp(token, "{"))
 	{
-		Error("ParseEntity: { not found, found %s - last entity was at: <%4.2f, %4.2f, %4.2f>...", token,	entities[num_entities].origin[0], entities[num_entities].origin[1], entities[num_entities].origin[2]);
+		Error("ParseEntity: { not found, found %s - last entity was at: <%4.2f, %4.2f, %4.2f>...", token,	entities[numEntities].origin[0], entities[numEntities].origin[1], entities[numEntities].origin[2]);
 	}
 
-	if(num_entities == MAX_MAP_ENTITIES)
-		Error("num_entities == MAX_MAP_ENTITIES");
+	if(numEntities == MAX_MAP_ENTITIES)
+		Error("numEntities == MAX_MAP_ENTITIES");
 
 	entitySourceBrushes = 0;
 
-	mapEnt = &entities[num_entities];
-	num_entities++;
+	mapEnt = &entities[numEntities];
+	numEntities++;
 	memset(mapEnt, 0, sizeof(*mapEnt));
 
 	do
@@ -1307,7 +1307,7 @@ qboolean ParseMapEntity(void)
 	// HACK: we should support Doom3 style doors in engine code but get rid of them for now
 	if(!Q_stricmp("func_door", classname) && !mapEnt->brushes && !mapEnt->patches && model[0] != '\0')
 	{
-		num_entities--;
+		numEntities--;
 		return qtrue;
 	}
 	#endif
@@ -1316,7 +1316,7 @@ qboolean ParseMapEntity(void)
 	// HACK:
 	if(!Q_stricmp("func_rotating", classname) && !mapEnt->brushes && !mapEnt->patches && model[0] != '\0')
 	{
-		num_entities--;
+		numEntities--;
 		return qtrue;
 	}
 	#endif
@@ -1325,7 +1325,7 @@ qboolean ParseMapEntity(void)
 	// HACK: determine if this is a func_static that can be merged into worldspawn
 	if(!Q_stricmp("func_static", classname) && name[0] != '\0' && model[0] != '\0' && !Q_stricmp(name, model))
 	{
-		bspbrush_t     *brush;
+		bspBrush_t     *brush;
 		vec3_t          originNeg;
 		
 		VectorNegate(mapEnt->origin, originNeg);
@@ -1354,7 +1354,7 @@ qboolean ParseMapEntity(void)
 		MovePatchesToWorld(mapEnt);
 		
 		c_mergedFuncStatics++;
-		num_entities--;
+		numEntities--;
 		return qtrue;
 	}
 	#endif
@@ -1380,7 +1380,7 @@ qboolean ParseMapEntity(void)
 	// FIXME: leak!
 	if(!strcmp("group_info", classname))
 	{
-		num_entities--;
+		numEntities--;
 		return qtrue;
 	}
 
@@ -1394,7 +1394,7 @@ qboolean ParseMapEntity(void)
 		}
 		MoveBrushesToWorld(mapEnt);
 		MovePatchesToWorld(mapEnt);
-		num_entities--;
+		numEntities--;
 		return qtrue;
 	}
 
@@ -1411,14 +1411,14 @@ LoadMapFile
 */
 void LoadMapFile(char *filename)
 {
-	bspbrush_t     *b;
+	bspBrush_t     *b;
 
 	Sys_FPrintf(SYS_VRB, "--- LoadMapFile ---\n");
 	Sys_Printf("Loading map file %s\n", filename);
 
 	LoadScriptFile(filename, -1);
 
-	num_entities = 0;
+	numEntities = 0;
 	numMapDrawSurfs = 0;
 	c_detail = 0;
 	c_mergedFuncStatics = 0;
@@ -1446,7 +1446,7 @@ void LoadMapFile(char *filename)
 	Sys_FPrintf(SYS_VRB, "%5i boxbevels\n", c_boxbevels);
 	Sys_FPrintf(SYS_VRB, "%5i edgebevels\n", c_edgebevels);
 	Sys_FPrintf(SYS_VRB, "%5i merged func_static entities\n", c_mergedFuncStatics);
-	Sys_FPrintf(SYS_VRB, "%5i entities\n", num_entities);
+	Sys_FPrintf(SYS_VRB, "%5i entities\n", numEntities);
 	Sys_FPrintf(SYS_VRB, "%5i planes\n", numMapPlanes);
 	Sys_FPrintf(SYS_VRB, "%5i areaportals\n", c_areaportals);
 	Sys_FPrintf(SYS_VRB, "size: %5.0f,%5.0f,%5.0f to %5.0f,%5.0f,%5.0f\n", mapMins[0], mapMins[1], mapMins[2],
@@ -1479,7 +1479,7 @@ void TestExpandBrushes(void)
 {
 	side_t         *s;
 	int             i, j;
-	bspbrush_t     *brush, *list, *copy;
+	bspBrush_t     *brush, *list, *copy;
 	vec_t           dist;
 	plane_t        *plane;
 

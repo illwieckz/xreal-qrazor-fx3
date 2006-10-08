@@ -49,8 +49,6 @@ qboolean        showseams;
 
 char            outbase[32];
 
-int             entity_num;
-
 /*
 ============
 ProcessWorldModel
@@ -60,7 +58,7 @@ void ProcessWorldModel(void)
 {
 	entity_t       *e;
 	tree_t         *tree;
-	bspface_t      *faces;
+	bspFace_t      *faces;
 	qboolean        leaked;
 	
 	e = &entities[0];
@@ -185,14 +183,14 @@ void ProcessWorldModel(void)
 ProcessSubModel
 ============
 */
-void ProcessSubModel(void)
+void ProcessSubModel(int entityNum)
 {
 	entity_t       *e;
 	tree_t         *tree;
-	bspbrush_t     *b, *bc;
+	bspBrush_t     *b, *bc;
 	node_t         *node;
 	
-	e = &entities[entity_num];
+	e = &entities[entityNum];
 	e->firstDrawSurf = numMapDrawSurfs;
 
 	BeginModel(e);
@@ -256,26 +254,28 @@ ProcessModels
 */
 void ProcessModels(void)
 {
+	int             i;
 	entity_t       *entity;
 	const char     *classname;
 	const char     *model;
 
 	BeginBSPFile();
 
-	for(entity_num = 0; entity_num < num_entities; entity_num++)
+	for(i = 0; i < numEntities; i++)
 	{
-		entity = &entities[entity_num];
+		entity = &entities[i];
 		
 		classname = ValueForKey(entity, "classname");
 		model = ValueForKey(entity, "model");
 		
 		if(entity->brushes || entity->patches || (!entity->brushes && !entity->patches && model[0] != '\0' && Q_stricmp("misc_model", classname)))
 		{
-			Sys_FPrintf(SYS_VRB, "############### model %i ###############\n", nummodels);
-			if(entity_num == 0)
+			Sys_FPrintf(SYS_VRB, "############### model %i ###############\n", numModels);
+			
+			if(i == 0)
 				ProcessWorldModel();
 			else
-				ProcessSubModel();
+				ProcessSubModel(i);
 		}
 	}
 }
@@ -331,7 +331,7 @@ void OnlyEnts(void)
 
 	sprintf(out, "%s.bsp", source);
 	LoadBSPFile(out);
-	num_entities = 0;
+	numEntities = 0;
 
 	LoadMapFile(name);
 	SetModelNumbers();
