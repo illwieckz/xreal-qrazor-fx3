@@ -79,7 +79,7 @@ void CheckStack(leaf_t * leaf, threaddata_t * thread)
 }
 
 
-winding_t      *AllocStackWinding(pstack_t * stack)
+vwinding_t     *AllocStackWinding(pstack_t * stack)
 {
 	int             i;
 
@@ -97,7 +97,7 @@ winding_t      *AllocStackWinding(pstack_t * stack)
 	return NULL;
 }
 
-void FreeStackWinding(winding_t * w, pstack_t * stack)
+void FreeStackWinding(vwinding_t * w, pstack_t * stack)
 {
 	int             i;
 
@@ -116,7 +116,7 @@ void FreeStackWinding(winding_t * w, pstack_t * stack)
 VisChopWinding
 ==============
 */
-winding_t      *VisChopWinding(winding_t * in, pstack_t * stack, plane_t * split)
+vwinding_t     *VisChopWinding(vwinding_t * in, pstack_t * stack, plane_t * split)
 {
 	vec_t           dists[128];
 	int             sides[128];
@@ -125,7 +125,7 @@ winding_t      *VisChopWinding(winding_t * in, pstack_t * stack, plane_t * split
 	int             i, j;
 	vec_t          *p1, *p2;
 	vec3_t          mid;
-	winding_t      *neww;
+	vwinding_t     *neww;
 
 	counts[0] = counts[1] = counts[2] = 0;
 
@@ -234,7 +234,7 @@ order goes source, pass, target.  If the order goes pass, source, target then
 flipclip should be set.
 ==============
 */
-winding_t      *ClipToSeperators(winding_t * source, winding_t * pass, winding_t * target, qboolean flipclip, pstack_t * stack)
+vwinding_t     *ClipToSeperators(vwinding_t * source, vwinding_t * pass, vwinding_t * target, qboolean flipclip, pstack_t * stack)
 {
 	int             i, j, k, l;
 	plane_t         plane;
@@ -1057,7 +1057,7 @@ void PassagePortalFlow(int portalnum)
 	 */
 }
 
-winding_t      *PassageChopWinding(winding_t * in, winding_t * out, plane_t * split)
+vwinding_t     *PassageChopWinding(vwinding_t * in, vwinding_t * out, plane_t * split)
 {
 	vec_t           dists[128];
 	int             sides[128];
@@ -1066,7 +1066,7 @@ winding_t      *PassageChopWinding(winding_t * in, winding_t * out, plane_t * sp
 	int             i, j;
 	vec_t          *p1, *p2;
 	vec3_t          mid;
-	winding_t      *neww;
+	vwinding_t     *neww;
 
 	counts[0] = counts[1] = counts[2] = 0;
 
@@ -1076,10 +1076,15 @@ winding_t      *PassageChopWinding(winding_t * in, winding_t * out, plane_t * sp
 		dot = DotProduct(in->points[i], split->normal);
 		dot -= split->dist;
 		dists[i] = dot;
+
 		if(dot > ON_EPSILON)
+		{
 			sides[i] = SIDE_FRONT;
+		}
 		else if(dot < -ON_EPSILON)
+		{
 			sides[i] = SIDE_BACK;
+		}
 		else
 		{
 			sides[i] = SIDE_ON;
@@ -1139,11 +1144,17 @@ winding_t      *PassageChopWinding(winding_t * in, winding_t * out, plane_t * sp
 		for(j = 0; j < 3; j++)
 		{						// avoid round off error when possible
 			if(split->normal[j] == 1)
+			{
 				mid[j] = split->dist;
+			}
 			else if(split->normal[j] == -1)
+			{
 				mid[j] = -split->dist;
+			}
 			else
+			{
 				mid[j] = p1[j] + dot * (p2[j] - p1[j]);
+			}
 		}
 
 		VectorCopy(mid, neww->points[neww->numpoints]);
@@ -1158,7 +1169,7 @@ winding_t      *PassageChopWinding(winding_t * in, winding_t * out, plane_t * sp
 AddSeperators
 ===============
 */
-int AddSeperators(winding_t * source, winding_t * pass, qboolean flipclip, plane_t * seperators, int maxseperators)
+int AddSeperators(vwinding_t * source, vwinding_t * pass, qboolean flipclip, plane_t * seperators, int maxseperators)
 {
 	int             i, j, k, l;
 	plane_t         plane;
@@ -1307,8 +1318,8 @@ void CreatePassages(int portalnum)
 	leaf_t         *leaf;
 	passage_t      *passage, *lastpassage;
 	plane_t         seperators[MAX_SEPERATORS * 2];
-	winding_t      *w;
-	winding_t       in, out, *res;
+	vwinding_t     *w;
+	vwinding_t      in, out, *res;
 
 #ifdef MREDEBUG
 	Sys_Printf("\r%6d", portalnum);
@@ -1333,9 +1344,7 @@ void CreatePassages(int portalnum)
 		passage = (passage_t *) malloc(sizeof(passage_t) + portalbytes);
 		memset(passage, 0, sizeof(passage_t) + portalbytes);
 		numseperators = AddSeperators(portal->winding, target->winding, qfalse, seperators, MAX_SEPERATORS * 2);
-		numseperators +=
-			AddSeperators(target->winding, portal->winding, qtrue, &seperators[numseperators],
-						  MAX_SEPERATORS * 2 - numseperators);
+		numseperators += AddSeperators(target->winding, portal->winding, qtrue, &seperators[numseperators], MAX_SEPERATORS * 2 - numseperators);
 
 		passage->next = NULL;
 		if(lastpassage)
@@ -1349,23 +1358,25 @@ void CreatePassages(int portalnum)
 		for(j = 0; j < numportals * 2; j++)
 		{
 			p = &portals[j];
-			
+
 			if(p->removed)
 				continue;
-			
+
 			if(!(target->portalflood[j >> 3] & (1 << (j & 7))))
 				continue;
-			
+
 			if(!(portal->portalflood[j >> 3] & (1 << (j & 7))))
 				continue;
-			
+
 			for(k = 0; k < numseperators; k++)
 			{
 				//
 				d = DotProduct(p->origin, seperators[k].normal) - seperators[k].dist;
+
 				//if completely at the back of the seperator plane
 				if(d < -p->radius + ON_EPSILON)
 					break;
+
 				w = p->winding;
 				for(n = 0; n < w->numpoints; n++)
 				{
@@ -1374,28 +1385,37 @@ void CreatePassages(int portalnum)
 					if(d > ON_EPSILON)
 						break;
 				}
+
 				//if no points are at the front of the seperator
 				if(n >= w->numpoints)
 					break;
 			}
-			
+
 			if(k < numseperators)
 				continue;
-			
-			memcpy(&in, p->winding, sizeof(winding_t));
-			
+
+			memcpy(&in, p->winding, (int)((vwinding_t *) 0)->points[p->winding->numpoints]);
+
 			for(k = 0; k < numseperators; k++)
 			{
+				if(in.numpoints > MAX_POINTS_ON_FIXED_WINDING)
+				{
+					//Sys_Printf("[%d]", p->winding->numpoints);
+					in.numpoints = MAX_POINTS_ON_FIXED_WINDING;
+				}
+				
 				res = PassageChopWinding(&in, &out, &seperators[k]);
+
 				if(res == &out)
-					memcpy(&in, &out, sizeof(winding_t));
+					memcpy(&in, &out, sizeof(vwinding_t));
+
 				if(res == NULL)
 					break;
 			}
-			
+
 			if(k < numseperators)
 				continue;
-			
+
 			passage->cansee[j >> 3] |= (1 << (j & 7));
 			numsee++;
 		}
@@ -1517,7 +1537,7 @@ void BasePortalVis(int portalnum)
 	int             j, k;
 	vportal_t      *tp, *p;
 	float           d;
-	winding_t      *w;
+	vwinding_t     *w;
 
 	p = portals + portalnum;
 

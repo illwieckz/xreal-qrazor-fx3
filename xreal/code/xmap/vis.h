@@ -54,11 +54,11 @@ typedef struct
 {
 	int             numpoints;
 	vec3_t          points[MAX_POINTS_ON_FIXED_WINDING];	// variable sized
-} winding_t;
+} vwinding_t;
 
-winding_t      *NewWinding(int points);
-void            FreeWinding(winding_t * w);
-winding_t      *CopyWinding(winding_t * w);
+vwinding_t     *NewWinding(int points);
+void            FreeWinding(vwinding_t * w);
+vwinding_t     *CopyWinding(vwinding_t * w);
 
 
 typedef struct passage_s
@@ -68,7 +68,12 @@ typedef struct passage_s
 } passage_t;
 
 typedef enum
-{ stat_none, stat_working, stat_done } vstatus_t;
+{
+	stat_none,
+	stat_working,
+	stat_done
+} vstatus_t;
+
 typedef struct
 {
 	int             num;
@@ -80,7 +85,7 @@ typedef struct
 	vec3_t          origin;		// for fast clip testing
 	float           radius;
 
-	winding_t      *winding;
+	vwinding_t     *winding;
 	vstatus_t       status;
 	byte           *portalfront;	// [portals], preliminary
 	byte           *portalflood;	// [portals], intermediate
@@ -106,10 +111,10 @@ typedef struct pstack_s
 	struct pstack_s *next;
 	leaf_t         *leaf;
 	vportal_t      *portal;		// portal exiting
-	winding_t      *source;
-	winding_t      *pass;
+	vwinding_t     *source;
+	vwinding_t     *pass;
 
-	winding_t       windings[3];	// source, pass, temp in any order
+	vwinding_t      windings[3];	// source, pass, temp in any order
 	int             freewindings[3];
 
 	plane_t         portalplane;

@@ -68,7 +68,7 @@ void            PassageMemory(void);
 
 //=============================================================================
 
-void PlaneFromWinding(winding_t * w, plane_t * plane)
+void PlaneFromWinding(vwinding_t * w, plane_t * plane)
 {
 	vec3_t          v1, v2;
 
@@ -86,15 +86,15 @@ void PlaneFromWinding(winding_t * w, plane_t * plane)
 NewWinding
 ==================
 */
-winding_t      *NewWinding(int points)
+vwinding_t     *NewWinding(int points)
 {
-	winding_t      *w;
+	vwinding_t     *w;
 	int             size;
 
 	if(points > MAX_POINTS_ON_WINDING)
 		Error("NewWinding: %i points", points);
 
-	size = (int)((winding_t *) 0)->points[points];
+	size = (int)((vwinding_t *) 0)->points[points];
 	w = malloc(size);
 	memset(w, 0, size);
 
@@ -114,7 +114,7 @@ void prl(leaf_t * l)
 		p = l->portals[i];
 		pl = p->plane;
 		Sys_Printf("portal %4i to leaf %4i : %7.1f : (%4.1f, %4.1f, %4.1f)\n", (int)(p - portals), p->leaf, pl.dist, pl.normal[0],
-				pl.normal[1], pl.normal[2]);
+				   pl.normal[1], pl.normal[2]);
 	}
 }
 
@@ -377,7 +377,7 @@ void SetPortalSphere(vportal_t * p)
 {
 	int             i;
 	vec3_t          total, dist;
-	winding_t      *w;
+	vwinding_t     *w;
 	float           r, bestr;
 
 	w = p->winding;
@@ -409,7 +409,7 @@ Winding_PlanesConcave
 */
 #define WCONVEX_EPSILON		0.2
 
-int Winding_PlanesConcave(winding_t * w1, winding_t * w2, vec3_t normal1, vec3_t normal2, float dist1, float dist2)
+int Winding_PlanesConcave(vwinding_t * w1, vwinding_t * w2, vec3_t normal1, vec3_t normal2, float dist1, float dist2)
 {
 	int             i;
 
@@ -593,19 +593,16 @@ TryMergeWinding
 */
 #define	CONTINUOUS_EPSILON	0.005
 
-winding_t      *TryMergeWinding(winding_t * f1, winding_t * f2, vec3_t planenormal)
+vwinding_t     *TryMergeWinding(vwinding_t * f1, vwinding_t * f2, vec3_t planenormal)
 {
 	vec_t          *p1, *p2, *p3, *p4, *back;
-	winding_t      *newf;
+	vwinding_t     *newf;
 	int             i, j, k, l;
 	vec3_t          normal, delta;
 	vec_t           dot;
 	qboolean        keep1, keep2;
 
-
-	//
 	// find a common edge
-	//  
 	p1 = p2 = NULL;				// stop compiler warning
 	j = 0;						// 
 
@@ -634,10 +631,8 @@ winding_t      *TryMergeWinding(winding_t * f1, winding_t * f2, vec3_t planenorm
 	if(i == f1->numpoints)
 		return NULL;			// no matching edges
 
-	//
 	// check slope of connected lines
-	// if the slopes are colinear, the point can be removed
-	//
+	// if the slopes are colinear, the point can be remove
 	back = f1->points[(i + f1->numpoints - 1) % f1->numpoints];
 	VectorSubtract(p1, back, delta);
 	CrossProduct(planenormal, delta, normal);
@@ -662,9 +657,7 @@ winding_t      *TryMergeWinding(winding_t * f1, winding_t * f2, vec3_t planenorm
 		return NULL;			// not a convex polygon
 	keep2 = (qboolean) (dot < -CONTINUOUS_EPSILON);
 
-	//
 	// build the new polygon
-	//
 	newf = NewWinding(f1->numpoints + f2->numpoints);
 
 	// copy first polygon
@@ -682,6 +675,7 @@ winding_t      *TryMergeWinding(winding_t * f1, winding_t * f2, vec3_t planenorm
 	{
 		if(l == (j + 1) % f2->numpoints && !keep1)
 			continue;
+
 		VectorCopy(f2->points[l], newf->points[newf->numpoints]);
 		newf->numpoints++;
 	}
@@ -699,7 +693,7 @@ void MergeLeafPortals(void)
 	int             i, j, k, nummerges, hintsmerged;
 	leaf_t         *leaf;
 	vportal_t      *p1, *p2;
-	winding_t      *w;
+	vwinding_t     *w;
 
 	nummerges = 0;
 	hintsmerged = 0;
@@ -783,7 +777,7 @@ void WritePortals(char *filename)
 	int             i, j, num;
 	FILE           *pf;
 	vportal_t      *p;
-	winding_t      *w;
+	vwinding_t     *w;
 
 	// write the file
 	pf = fopen(filename, "w");
@@ -861,7 +855,7 @@ void LoadPortals(char *name)
 	char            magic[80];
 	FILE           *f;
 	int             numpoints;
-	winding_t      *w;
+	vwinding_t     *w;
 	int             leafnums[2];
 	plane_t         plane;
 
