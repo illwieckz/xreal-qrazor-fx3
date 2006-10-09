@@ -38,13 +38,11 @@ void	main()
 	}
 	*/
 	
-	// compute incident ray in world space
-	vec3 I = var_Vertex - u_LightOrigin;
-	
-	float distance = length(I) / u_LightRadius;
-	
-	gl_FragColor.r = fract(distance * 1.0);
-	gl_FragColor.g = fract(distance * 256.0);
-	gl_FragColor.b = fract(distance * 65536.0);
-	gl_FragColor.a = fract(distance * 16777216.0);
+	float distance = length(var_Vertex - u_LightOrigin) / u_LightRadius;
+	float distanceSquared = distance * distance;
+		
+	gl_FragColor.r = distance;
+	gl_FragColor.g = distanceSquared;
+	gl_FragColor.b = 0.0;
+	gl_FragColor.a = 0.0;
 }

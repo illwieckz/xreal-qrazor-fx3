@@ -196,8 +196,9 @@ enum
 	IF_ALPHA = (1 << 4),
 	IF_NORMALMAP = (1 << 5),
 	IF_LIGHTMAP = (1 << 6),
-	IF_ALPHA32F = (1 << 7),
-	IF_RGBA32F = (1 << 8)
+	IF_RGBA16F = (1 << 7),
+	IF_ALPHA32F = (1 << 8),
+	IF_RGBA32F = (1 << 9)
 };
 
 typedef enum

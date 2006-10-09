@@ -61,37 +61,22 @@ void	main()
 //	color.rgb *= attenuationZ;
 	color.rgb *= u_LightScale;
 
-#if defined(SHADOWMAPPING)
-	float vertexDistance = length(var_Vertex - u_LightOrigin) / u_LightRadius - 0.005f;
-	vec4 extract = vec4(1.0, 0.00390625, 0.0000152587890625, 0.000000059604644775390625);
-#if 1
-	float shadowDistance = dot(texture2DProj(u_ShadowMap, var_TexAtten.xyw), extract);
-	float shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
-	color.rgb *= shadow;
-#else
-	float shadow = 0.0;
+#if defined(VSM)
+	float vertexDistance = length(var_Vertex - u_LightOrigin) / u_LightRadius;
+	vec2 shadowDistances = texture2DProj(u_ShadowMap, var_TexAtten.xyw).rg;
 	
-	vec2 projCoords = var_TexAtten.st / var_TexAtten.q;
-
-	float shadowDistance = dot(texture2D(u_ShadowMap, projCoords.st + vec2(0.02, 0.02)), extract);
-	if(vertexDistance <= shadowDistance)
-		shadow = shadow + 1.0;
-		
-	shadowDistance = dot(texture2D(u_ShadowMap, projCoords.st + vec2(0.02, -0.02)), extract);
-	if(vertexDistance <= shadowDistance)
-		shadow = shadow + 1.0;
-		
-	shadowDistance = dot(texture2D(u_ShadowMap, projCoords.st + vec2(-0.02, 0.02)), extract);
-	if(vertexDistance <= shadowDistance)
-		shadow = shadow + 1.0;
-		
-	shadowDistance = dot(texture2D(u_ShadowMap, projCoords.st + vec2(-0.02, -0.02)), extract);
-	if(vertexDistance <= shadowDistance)
-		shadow = shadow + 1.0;
-
-	shadow /= 4.0;
-	color.rgb *= shadow;
-#endif
+	// standard shadow map comparison
+	float shadow = vertexDistance <= shadowDistances.r ? 1.0 : 0.0;
+	
+	// variance shadow mapping
+	float E_x2 = shadowDistances.g;
+	float Ex_2 = shadowDistances.r * shadowDistances.r;
+	const float	varianceBias = 0.00001;
+	float variance = min(max(E_x2 - Ex_2, 0.0) + varianceBias, 1.0);
+	float mD = shadowDistances.r - vertexDistance;
+	float pMax = variance / (variance + mD * mD);
+	
+	color.rgb *= max(shadow, pMax);
 #endif
 	
 	gl_FragColor = color;

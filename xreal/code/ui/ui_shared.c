@@ -4405,7 +4405,7 @@ void Item_Model_Paint(itemDef_t * item)
 
 	// setup the refdef
 	memset(&refdef, 0, sizeof(refdef));
-	refdef.rdflags = RDF_NOWORLDMODEL;
+	refdef.rdflags = RDF_NOWORLDMODEL | RDF_NOSHADOWS;
 	AxisClear(refdef.viewaxis);
 	x = item->window.rect.x + 1;
 	y = item->window.rect.y + 1;

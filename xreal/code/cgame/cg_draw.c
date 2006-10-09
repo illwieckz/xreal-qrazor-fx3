@@ -328,7 +328,7 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 	ent.customSkin = skin;
 	ent.renderfx = RF_NOSHADOW;	// no stencil shadows
 
-	refdef.rdflags = RDF_NOWORLDMODEL;
+	refdef.rdflags = RDF_NOWORLDMODEL | RDF_NOSHADOWS;
 
 	AxisClear(refdef.viewaxis);
 
@@ -383,7 +383,7 @@ void CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponMo
 	ent.customSkin = skin;
 	ent.renderfx = RF_NOSHADOW;	// no stencil shadows
 
-	refdef.rdflags = RDF_NOWORLDMODEL;
+	refdef.rdflags = RDF_NOWORLDMODEL | RDF_NOSHADOWS;
 
 	AxisClear(refdef.viewaxis);
 

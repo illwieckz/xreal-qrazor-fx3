@@ -1202,7 +1202,7 @@ void R_Register(void)
 	r_ext_shading_language_100 = ri.Cvar_Get("r_ext_shading_language_100", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_texture_non_power_of_two = ri.Cvar_Get("r_ext_texture_non_power_of_two", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_draw_buffers = ri.Cvar_Get("r_ext_draw_buffers", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_texture_float = ri.Cvar_Get("r_ext_texture_float", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_texture_float = ri.Cvar_Get("r_ext_texture_float", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_stencil_wrap = ri.Cvar_Get("r_ext_stencil_wrap", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_texture_filter_anisotropic = ri.Cvar_Get("r_ext_texture_filter_anisotropic", "8", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_stencil_two_side = ri.Cvar_Get("r_ext_stencil_two_side", "1", CVAR_ARCHIVE | CVAR_LATCH);
@@ -1332,8 +1332,8 @@ void R_Register(void)
 	AssertCvarRange(r_shadows, 0, 4, qtrue);
 	r_shadowMapSize = ri.Cvar_Get("r_shadowMapSize", "512", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_shadowMapSize, 256, 1024, qtrue);
-	r_shadowOffsetFactor = ri.Cvar_Get("r_shadowOffsetFactor", "4", CVAR_CHEAT);
-	r_shadowOffsetUnits = ri.Cvar_Get("r_shadowOffsetUnits", "2", CVAR_CHEAT);
+	r_shadowOffsetFactor = ri.Cvar_Get("r_shadowOffsetFactor", "0", CVAR_CHEAT);
+	r_shadowOffsetUnits = ri.Cvar_Get("r_shadowOffsetUnits", "0", CVAR_CHEAT);
 	r_shadowLodBias = ri.Cvar_Get("r_shadowLodBias", "0", CVAR_CHEAT);
 	r_shadowLodScale = ri.Cvar_Get("r_shadowLodScale", "0.7", CVAR_CHEAT);
 	

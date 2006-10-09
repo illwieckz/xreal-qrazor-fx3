@@ -52,7 +52,7 @@ code/renderer
   1 = blob
   2 = planar projection
   3 = stencil shadow volumes (Doom3/Nvidia style)
-  4 = shadow mapping
+  4 = variance shadow mapping
 - r_lighting cvar determines lighting mode
   0 = simple diffuse N dot L lighting
   1 = bump mapping

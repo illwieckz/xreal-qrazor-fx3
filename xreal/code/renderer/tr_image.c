@@ -1069,9 +1069,13 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 	scan = data;
 	samples = 3;
 	
-	if(glConfig.textureFloatAvailable && (image->bits & (IF_ALPHA32F | IF_RGBA32F)))
+	if(glConfig.textureFloatAvailable && (image->bits & (IF_RGBA16F | IF_ALPHA32F | IF_RGBA32F)))
 	{
-		if(image->bits & IF_RGBA32F)
+		if(image->bits & IF_RGBA16F)
+		{
+			internalFormat = GL_RGBA16F_ARB;
+		}
+		else if(image->bits & IF_RGBA32F)
 		{
 			internalFormat = GL_RGBA32F_ARB;
 		}
@@ -4608,7 +4612,10 @@ static void R_CreateShadowMapFBOImage(void)
 		
 		data = ri.Hunk_AllocateTempMemory(width * height * 4);
 		
-		tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+		if(glConfig.textureFloatAvailable)
+			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_LINEAR, WT_CLAMP);
+		else
+			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
 
 		ri.Hunk_FreeTempMemory(data);
 	}
@@ -4629,7 +4636,10 @@ static void R_CreateShadowCubeFBOImage(void)
 			data[i] = ri.Hunk_AllocateTempMemory(width * height * 4);
 		}
 
-		tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+		if(glConfig.textureFloatAvailable)
+			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_LINEAR, WT_CLAMP);
+		else
+			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
 
 		for(i = 5; i >= 0; i--)
 		{

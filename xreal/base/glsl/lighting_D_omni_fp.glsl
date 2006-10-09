@@ -56,18 +56,25 @@ void	main()
 	color.rgb *= attenuationZ;
 	color.rgb *= u_LightScale;
 	
-#if defined(SHADOWMAPPING)
+#if defined(VSM)
 	// compute incident ray
 	vec3 I = var_Vertex - u_LightOrigin;
-#if 1
-	float vertexDistance = length(I) / u_LightRadius - 0.005f;
-	vec4 extract = float4(1.0, 0.00390625, 0.0000152587890625, 0.000000059604644775390625);
-	float shadowDistance = dot(textureCube(u_ShadowMap, I), extract);
-	float shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
-	color.rgb *= shadow;
-#else
-	color.rgb *= textureCube(u_ShadowMap, I).rgb;
-#endif
+
+	float vertexDistance = length(I) / u_LightRadius;
+	vec2 shadowDistances = textureCube(u_ShadowMap, I).rg;
+	
+	// standard shadow map comparison
+	float shadow = vertexDistance <= shadowDistances.r ? 1.0 : 0.0;
+	
+	// variance shadow mapping
+	float E_x2 = shadowDistances.g;
+	float Ex_2 = shadowDistances.r * shadowDistances.r;
+	const float	varianceBias = 0.00001;
+	float variance = min(max(E_x2 - Ex_2, 0.0) + varianceBias, 1.0);
+	float mD = shadowDistances.r - vertexDistance;
+	float pMax = variance / (variance + mD * mD);
+	
+	color.rgb *= max(shadow, pMax);
 #endif
 
 	gl_FragColor = color;

@@ -728,7 +728,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	memset( &torso, 0, sizeof(torso) );
 	memset( &head, 0, sizeof(head) );
 
-	refdef.rdflags = RDF_NOWORLDMODEL;
+	refdef.rdflags = RDF_NOWORLDMODEL | RDF_NOSHADOWS;
 
 	AxisClear( refdef.viewaxis );
 

@@ -121,9 +121,9 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GL_ARB_texture_float\n#define GL_ARB_texture_float 1\n#endif\n");
 		}
 		
-		if(glConfig.framebufferObjectAvailable && r_shadows->integer == 4)
+		if(glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && r_shadows->integer == 4)
 		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef SHADOWMAPPING\n#define SHADOWMAPPING 1\n#endif\n");
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM\n#define VSM 1\n#endif\n");
 		}
 
 		sizeExtra = strlen(bufferExtra);

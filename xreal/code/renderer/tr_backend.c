@@ -1668,7 +1668,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 	qboolean        drawShadows;
 	int             cubeSide;
 
-	if(!glConfig.framebufferObjectAvailable || !glConfig.shadingLanguage100Available)
+	if(!glConfig.framebufferObjectAvailable || !glConfig.shadingLanguage100Available || !glConfig.textureFloatAvailable)
 	{
 		RB_RenderInteractions(originalTime, interactions, numInteractions);
 		return;

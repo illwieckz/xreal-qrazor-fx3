@@ -431,7 +431,12 @@ void R_InitFBOs(void)
 		
 		tr.shadowMapFBO[i] = R_CreateFBO(va("_shadowMap%d", i), width, height);
 		R_BindFBO(tr.shadowMapFBO[i]);
-		R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_RGBA, 0);
+		
+		if(glConfig.textureFloatAvailable)
+			R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_RGBA16F_ARB, 0);
+		else
+			R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_RGBA, 0);
+		
 		R_CreateFBODepthBuffer(tr.shadowMapFBO[i], GL_DEPTH_COMPONENT24_ARB);
 		R_CheckFBO(tr.shadowMapFBO[i]);
 	}
