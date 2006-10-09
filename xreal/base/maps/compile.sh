@@ -6,11 +6,11 @@ case $1 in
 		;;
 
 	-fastvis)
-		../../xmap.x86 -vis -saveprt -fast $2.map
+		../../xmap.x86 -vis -fast $2.map
 		;;
 		
 	-vis)
-		../../xmap.x86 -vis -saveprt $2.map
+		../../xmap.x86 -vis $2.map
 		;;
 
 	-light)
@@ -35,7 +35,7 @@ case $1 in
 	
 	-all)
 		../../xmap.x86 -v -leaktest $2.map
-		../../xmap.x86 -vis -saveprt $2.map
+		../../xmap.x86 -vis $2.map
 		#../../xmap.x86 -vlight -v $2.map
 		../../bspc.x86 -bsp2aas $2.bsp
 		;;
