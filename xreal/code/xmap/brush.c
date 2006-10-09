@@ -420,7 +420,6 @@ void WriteBspBrushMap(char *name, bspBrush_t * list)
 /*
 ====================
 FilterBrushIntoTree_r
-
 ====================
 */
 int FilterBrushIntoTree_r(bspBrush_t * b, node_t * node)

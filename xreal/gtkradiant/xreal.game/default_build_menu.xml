@@ -14,10 +14,16 @@ build commands
 <command>[xmap] -v [connect] -leaktest "[MapFile]"</command>
 </build>
 <build name="xmap: (single) -vis">
-<command>[xmap] -vis [connect] -saveprt "[MapFile]"</command>
+<command>[xmap] -vis [connect] "[MapFile]"</command>
+</build>
+<build name="xmap: (single) -vis -merge">
+<command>[xmap] -vis [connect] -merge "[MapFile]"</command>
 </build>
 <build name="xmap: (single test) -vis -fast">
-<command>[xmap] -vis [connect] -saveprt -fast "[MapFile]"</command>
+<command>[xmap] -vis [connect] -fast "[MapFile]"</command>
+</build>
+<build name="xmap: (single test) -vis -fast -merge">
+<command>[xmap] -vis [connect] -fast -merge "[MapFile]"</command>
 </build>
 <build name="xmap: (single) -light">
 <command>[xmap] -light [connect] -patchshadows "[MapFile]"</command>
@@ -30,7 +36,7 @@ build commands
 </build>
 <build name="xmap: (test) -bsp -leaktest, -vis -fast">
 <command>[xmap] -v [connect] -leaktest "[MapFile]"</command>
-<command>[xmap] -vis [connect] -saveprt -fast "[MapFile]"</command>
+<command>[xmap] -vis [connect] -fast "[MapFile]"</command>
 </build>
 
 <!--

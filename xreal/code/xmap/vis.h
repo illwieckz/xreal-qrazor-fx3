@@ -89,7 +89,7 @@ typedef struct
 	vstatus_t       status;
 	byte           *portalfront;	// [portals], preliminary
 	byte           *portalflood;	// [portals], intermediate
-	byte           *portalvis;	// [portals], final
+	byte           *portalvis;		// [portals], final
 
 	int             nummightsee;	// bit count on portalflood for sort
 	passage_t      *passages;	// there are just as many passages as there

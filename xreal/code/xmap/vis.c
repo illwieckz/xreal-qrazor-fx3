@@ -55,7 +55,6 @@ qboolean        noPassageVis;
 qboolean        passageVisOnly;
 qboolean        mergevis;
 qboolean        nosort;
-qboolean        saveprt;
 
 int             testlevel = 2;
 
@@ -137,6 +136,7 @@ int PComp(const void *a, const void *b)
 		return -1;
 	return 1;
 }
+
 void SortPortals(void)
 {
 	int             i;
@@ -146,6 +146,7 @@ void SortPortals(void)
 
 	if(nosort)
 		return;
+	
 	qsort(sorted_portals, numportals * 2, sizeof(sorted_portals[0]), PComp);
 }
 
@@ -222,8 +223,10 @@ void ClusterMerge(int leafnum)
 
 		if(p->status != stat_done)
 			Error("portal not done");
+		
 		for(j = 0; j < portallongs; j++)
 			((long *)portalvector)[j] |= ((long *)p->portalvis)[j];
+		
 		pnum = p - portals;
 		portalvector[pnum >> 3] |= 1 << (pnum & 7);
 	}
@@ -336,8 +339,7 @@ void CalcVis(void)
 	int             i;
 
 	RunThreadsOnIndividual(numportals * 2, qtrue, BasePortalVis);
-
-//  RunThreadsOnIndividual (numportals*2, qtrue, BetterPortalVis);
+//	RunThreadsOnIndividual(numportals * 2, qtrue, BetterPortalVis);
 
 	SortPortals();
 
@@ -357,9 +359,8 @@ void CalcVis(void)
 	{
 		CalcPassagePortalVis();
 	}
-	//
+	
 	// assemble the leaf vis lists by oring and compressing the portal lists
-	//
 	Sys_Printf("creating leaf vis...\n");
 	for(i = 0; i < portalclusters; i++)
 		ClusterMerge(i);
@@ -754,8 +755,10 @@ int CountActivePortals(void)
 	for(j = 0; j < numportals * 2; j++)
 	{
 		p = portals + j;
+		
 		if(p->removed)
 			continue;
+		
 		if(p->hint)
 			hints++;
 		num++;
@@ -1137,11 +1140,6 @@ int VisMain(int argc, char **argv)
 			Sys_Printf("nosort = true\n");
 			nosort = qtrue;
 		}
-		else if(!strcmp(argv[i], "-saveprt"))
-		{
-			Sys_Printf("saveprt = true\n");
-			saveprt = qtrue;
-		}
 		else if(!strcmp(argv[i], "-tmpin"))
 		{
 			strcpy(inbase, "/tmp");
@@ -1203,14 +1201,7 @@ int VisMain(int argc, char **argv)
 	Sys_Printf("visdatasize:%i\n", numVisBytes);
 
 	CalcVis();
-
-//  CalcPHS ();
-
-	// delete the prt file
-	if(!saveprt)
-	{
-		remove(portalfile);
-	}
+//  CalcPHS();
 
 	// write the bsp file
 	Sys_Printf("writing %s\n", name);

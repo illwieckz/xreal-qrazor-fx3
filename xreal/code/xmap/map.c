@@ -331,6 +331,7 @@ void SetBrushContents(bspBrush_t * b)
 		if(c2 != contents)
 		{
 			mixed = qtrue;
+			contents |= s->contents;
 		}
 
 		allFlags |= s->surfaceFlags;

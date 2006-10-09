@@ -157,7 +157,7 @@ void DrawBeginScene()
 	glFlush();
 }
 
-void Draw_SetRed(void)
+void DrawSetRed(void)
 {
 	if(!drawFlag)
 		return;
@@ -165,7 +165,7 @@ void Draw_SetRed(void)
 	glColor3f(1, 0, 0);
 }
 
-void Draw_SetGrey(void)
+void DrawSetGrey(void)
 {
 	if(!drawFlag)
 		return;
@@ -173,7 +173,7 @@ void Draw_SetGrey(void)
 	glColor3f(0.5, 0.5, 0.5);
 }
 
-void Draw_SetBlack(void)
+void DrawSetBlack(void)
 {
 	if(!drawFlag)
 		return;
@@ -194,7 +194,7 @@ void DrawWinding(winding_t * w)
 		glVertex3f(w->p[i][0], w->p[i][1], w->p[i][2]);
 	glEnd();
 
-	glColor4f(0, 1, 0, 0.3);
+	glColor4f(0, 0, 1, 0.3);
 	glBegin(GL_POLYGON);
 	for(i = 0; i < w->numpoints; i++)
 		glVertex3f(w->p[i][0], w->p[i][1], w->p[i][2]);
@@ -239,7 +239,14 @@ void DrawPortal(portal_t * p)
 	if(sides == 2)				// back side
 		w = ReverseWinding(w);
 
-	DrawWinding(w);
+	if(p->areaportal)
+	{
+		DrawAuxWinding(w);
+	}
+	else
+	{
+		DrawWinding(w);
+	}
 
 	if(sides == 2)
 		FreeWinding(w);

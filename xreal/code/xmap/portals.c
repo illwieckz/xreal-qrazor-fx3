@@ -336,6 +336,7 @@ void MakeNodePortal(node_t * node)
 	new_portal->onnode = node;
 	new_portal->winding = w;
 	new_portal->hint = node->hint;
+	new_portal->areaportal = node->areaportal;
 	AddPortalToNodes(new_portal, node->children[0], node->children[1]);
 }
 
@@ -677,6 +678,7 @@ void FloodAreas_r(node_t * node)
 		{
 			node->area = c_areas;
 		}
+		
 		// this node is part of an area portal brush
 		b = node->brushlist->original;
 
@@ -778,6 +780,7 @@ void CheckAreas_r(node_t * node)
 	if(node->cluster != -1)
 		if(node->area == -1)
 			Sys_Printf("WARNING: cluster %d has area set to -1\n", node->cluster);
+	
 	if(node->areaportal)
 	{
 		b = node->brushlist->original;

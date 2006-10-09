@@ -203,6 +203,7 @@ typedef struct portal_s
 
 	qboolean        sidefound;	// false if ->side hasn't been checked
 	qboolean        hint;
+	qboolean        areaportal;
 	side_t         *side;		// NULL = non-visible
 } portal_t;
 

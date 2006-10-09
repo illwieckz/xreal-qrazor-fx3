@@ -78,6 +78,7 @@ void WritePortalFile_r(node_t * node)
 	{
 		w = p->winding;
 		s = (p->nodes[1] == node);
+		
 		if(w && p->nodes[0] == node)
 		{
 			if(!Portal_Passable(p))
@@ -89,16 +90,25 @@ void WritePortalFile_r(node_t * node)
 			// plane the same way vis will, and flip the side orders if needed
 			// FIXME: is this still relevent?
 			WindingPlane(w, normal, &dist);
+			
 			if(DotProduct(p->plane.normal, normal) < 0.99)
 			{					// backwards...
 				fprintf(pf, "%i %i %i ", w->numpoints, p->nodes[1]->cluster, p->nodes[0]->cluster);
 			}
 			else
+			{
 				fprintf(pf, "%i %i %i ", w->numpoints, p->nodes[0]->cluster, p->nodes[1]->cluster);
+			}
+			
 			if(p->hint)
+			{
 				fprintf(pf, "1 ");
+			}
 			else
+			{
 				fprintf(pf, "0 ");
+			}
+			
 			for(i = 0; i < w->numpoints; i++)
 			{
 				fprintf(pf, "(");
