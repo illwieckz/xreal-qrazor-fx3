@@ -261,6 +261,14 @@ vfspk3_src = [
 'code/gtkradiant/plugins/vfspk3/archive.cpp'
 ]
 
+xml_src = [
+'code/gtkradiant/libs/xml/ixml.cpp',
+'code/gtkradiant/libs/xml/xmlparser.cpp',
+'code/gtkradiant/libs/xml/xmlwriter.cpp',
+'code/gtkradiant/libs/xml/xmlelement.cpp',
+'code/gtkradiant/libs/xml/xmltextags.cpp'
+]
+
 gtkradiant_env = env.Copy()
 gtkradiant_env.Append(CCFLAGS='-W -Wall -Wcast-align -Wcast-qual -Wno-unused-parameter -Wno-non-virtual-dtor -Wreorder -fno-exceptions -fno-rtti')
 gtkradiant_env.Append(CCFLAGS='-Icode/gtkradiant/include')
@@ -280,10 +288,10 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	gtkradiant_env.ParseConfig('xml2-config --cflags --libs')
 	
 	if env['arch'] == 'linux-i386':
-		gtkradiant_env.Program('gtkradiant.x86', [gtkradiant_src, gtkutil_src, profile_src, cmdlib_src, l_net_src])
+		gtkradiant_env.Program('gtkradiant.x86', [gtkradiant_src, gtkutil_src, profile_src, cmdlib_src, l_net_src, xml_src])
 		gtkradiant_env.Install('#gtkradiant', 'gtkradiant.x86')
 	elif env['arch'] == 'linux-x86_64':
-		gtkradiant_env.Program('gtkradiant.x86_64', [gtkradiant_src, gtkutil_src, profile_src, cmdlib_src, l_net_src])
+		gtkradiant_env.Program('gtkradiant.x86_64', [gtkradiant_src, gtkutil_src, profile_src, cmdlib_src, l_net_src, xml_src])
 		gtkradiant_env.Install('#gtkradiant', 'gtkradiant.x86_64')
 		
 	module_env.Append(CCFLAGS='-DPOSIX')
@@ -337,7 +345,7 @@ if env['arch'] == 'win32-mingw':
 	gtkradiant_env.ParseConfig('pkg-config gtkglext-1.0 --cflags --libs')
 	gtkradiant_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
 	gtkradiant_env.Append(LIBS=['wsock32']) 
-	gtkradiant_env.Program('gtkradiant', [gtkradiant_src, gtkutil_src, profile_src, cmdlib_src, l_net_src])
+	gtkradiant_env.Program('gtkradiant', [gtkradiant_src, gtkutil_src, profile_src, cmdlib_src, l_net_src, xml_src])
 	gtkradiant_env.Install('#gtkradiant', 'gtkradiant.exe')
 	
 	archivezip_env = module_env.Copy()

@@ -626,12 +626,12 @@ public:
 GLSLProgram_lighting_DBS_omni *g_lighting_DBS_omni = NULL;
 
 
-class GLSLProgram_zfill :
+class GLSLProgram_depthFill :
 public GLSLProgram
 {
 public:
-  GLSLProgram_zfill() :
-  GLSLProgram("zfill")
+  GLSLProgram_depthFill() :
+  GLSLProgram("depthFill")
   {
   }
 
@@ -639,21 +639,21 @@ public:
   {
     glUseProgramObjectARB(getProgram());
     GlobalOpenGL_debugAssertNoErrors();
-    debug_string("enable zfill");
+    debug_string("enable depthFill");
   }
   
   void disable()
   {
     glUseProgramObjectARB(0);
     GlobalOpenGL_debugAssertNoErrors();
-    debug_string("disable zfill");
+    debug_string("disable depthFill");
   }
   
   void setParameters(const Vector3& viewer, const Matrix4& localToWorld, const Vector3& origin, const Vector3& colour, const Matrix4& world2light)
   {
   }
 };
-GLSLProgram_zfill *g_zfill = NULL;
+GLSLProgram_depthFill *g_depthFill = NULL;
 
 bool g_vertexArray_enabled = false;
 bool g_normalArray_enabled = false;
@@ -1280,7 +1280,7 @@ public:
           g_lighting_D_omni = new GLSLProgram_lighting_D_omni();
           g_lighting_DB_omni = new GLSLProgram_lighting_DB_omni();
           g_lighting_DBS_omni = new GLSLProgram_lighting_DBS_omni();
-          g_zfill = new GLSLProgram_zfill();
+          g_depthFill = new GLSLProgram_depthFill();
         }
       }
 
@@ -1311,7 +1311,7 @@ public:
           delete g_lighting_D_omni;
           delete g_lighting_DB_omni;
           delete g_lighting_DBS_omni;
-          delete g_zfill;
+          delete g_depthFill;
         }
       }
     }
@@ -2376,7 +2376,7 @@ void OpenGLShader::construct(const char* name)
 
       if(g_ShaderCache->useShaderLanguage())
       {
-        state.m_program = g_zfill;
+        state.m_program = g_depthFill;
       }
 
       OpenGLState& lightPass = appendDefaultPass();

@@ -549,10 +549,6 @@ public:
 
   Doom3LightRadius(const char* defaultRadius) : m_defaultRadius(300, 300, 300), m_center(0, 0, 0), m_useCenterKey(false)
   {
-    if(!string_parse_vector3(defaultRadius, m_defaultRadius))
-    {
-      globalErrorStream() << "Doom3LightRadius: failed to parse default light radius\n";
-    }
     m_radius = m_defaultRadius;
   }
 

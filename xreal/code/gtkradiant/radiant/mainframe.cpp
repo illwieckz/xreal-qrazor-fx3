@@ -339,6 +339,19 @@ const char* AppPath_get()
   return g_strAppPath.c_str();
 }
 
+/// the path to the local rc-dir
+const char* LocalRcPath_get(void)
+{
+  static CopiedString rc_path;
+  if(rc_path.empty())
+  {
+    StringOutputStream stream(256);
+	stream << GlobalRadiant().getSettingsPath() << g_pGameDescription->mGameFile.c_str() << "/";
+	rc_path = stream.c_str();
+  }
+  return rc_path.c_str();
+}
+
 /// directory for temp files
 /// NOTE: on *nix this is were we check for .pid
 CopiedString g_strSettingsPath;
@@ -907,8 +920,12 @@ GtkMenuItem* create_colours_menu()
 {
   GtkMenuItem* colours_menu_item = new_sub_menu_item_with_mnemonic("Colors");
   GtkMenu* menu_in_menu = GTK_MENU(gtk_menu_item_get_submenu(colours_menu_item));
+  if (g_Layout_enableDetachableMenus.m_value)
+    menu_tearoff (menu_in_menu);
 
   GtkMenu* menu_3 = create_sub_menu_with_mnemonic(menu_in_menu, "Themes");
+  if (g_Layout_enableDetachableMenus.m_value)
+    menu_tearoff (menu_3);
 
   create_menu_item_with_mnemonic(menu_3, "QE4 Original", "ColorSchemeOriginal");
   create_menu_item_with_mnemonic(menu_3, "Q3Radiant Original", "ColorSchemeQER");
@@ -1967,8 +1984,12 @@ GtkMenuItem* create_edit_menu()
   menu_separator(menu);
   create_menu_item_with_mnemonic(menu, "C_lear Selection", "UnSelectSelection");
   create_menu_item_with_mnemonic(menu, "_Invert Selection", "InvertSelection");
+  create_menu_item_with_mnemonic(menu, "Select i_nside", "SelectInside");
+  create_menu_item_with_mnemonic(menu, "Select _touching", "SelectTouching");
 
   GtkMenu* convert_menu = create_sub_menu_with_mnemonic(menu, "E_xpand Selection");
+  if (g_Layout_enableDetachableMenus.m_value)
+    menu_tearoff (convert_menu);
   create_menu_item_with_mnemonic(convert_menu, "To Whole _Entities", "ExpandSelectionToEntities");
 
   menu_separator(menu);
@@ -2018,7 +2039,7 @@ GtkMenuItem* create_view_menu(MainFrame::EViewStyle style)
   if(style == MainFrame::eFloating || style == MainFrame::eSplit)
   {
     create_menu_item_with_mnemonic(menu, "Console View", "ToggleConsole");
-    create_menu_item_with_mnemonic(menu, "Texture Browser", "ViewTextures");
+    create_menu_item_with_mnemonic(menu, "Texture Browser", "ToggleTextures");
     create_menu_item_with_mnemonic(menu, "Entity Inspector", "ToggleEntityInspector");
   }
   else
@@ -2031,6 +2052,8 @@ GtkMenuItem* create_view_menu(MainFrame::EViewStyle style)
   menu_separator(menu);
   {
     GtkMenu* camera_menu = create_sub_menu_with_mnemonic (menu, "Camera");
+    if (g_Layout_enableDetachableMenus.m_value)
+      menu_tearoff (camera_menu);
     create_menu_item_with_mnemonic(camera_menu, "_Center", "CenterView");
     create_menu_item_with_mnemonic(camera_menu, "_Up Floor", "UpFloor");
     create_menu_item_with_mnemonic(camera_menu, "_Down Floor", "DownFloor");
@@ -2047,6 +2070,8 @@ GtkMenuItem* create_view_menu(MainFrame::EViewStyle style)
   menu_separator(menu);
   {
     GtkMenu* orthographic_menu = create_sub_menu_with_mnemonic(menu, "Orthographic");
+    if (g_Layout_enableDetachableMenus.m_value)
+      menu_tearoff (orthographic_menu);
     if(style == MainFrame::eRegular || style == MainFrame::eRegularLeft || style == MainFrame::eFloating)
     {
       create_menu_item_with_mnemonic(orthographic_menu, "_Next (XY, YZ, XY)", "NextView");
@@ -2065,6 +2090,8 @@ GtkMenuItem* create_view_menu(MainFrame::EViewStyle style)
 
   {
     GtkMenu* menu_in_menu = create_sub_menu_with_mnemonic (menu, "Show");
+    if (g_Layout_enableDetachableMenus.m_value)
+      menu_tearoff (menu_in_menu);
     create_check_menu_item_with_mnemonic(menu_in_menu, "Show _Angles", "ShowAngles");
     create_check_menu_item_with_mnemonic(menu_in_menu, "Show _Names", "ShowNames");
     create_check_menu_item_with_mnemonic(menu_in_menu, "Show Blocks", "ShowBlocks");
@@ -2072,21 +2099,28 @@ GtkMenuItem* create_view_menu(MainFrame::EViewStyle style)
     create_check_menu_item_with_mnemonic(menu_in_menu, "Show Window Outline", "ShowWindowOutline");
     create_check_menu_item_with_mnemonic(menu_in_menu, "Show Axes", "ShowAxes");
     create_check_menu_item_with_mnemonic(menu_in_menu, "Show Workzone", "ShowWorkzone");
+    create_check_menu_item_with_mnemonic(menu_in_menu, "Show Stats", "ShowStats");
   }
 
   {
     GtkMenu* menu_in_menu = create_sub_menu_with_mnemonic (menu, "Filter");
+    if (g_Layout_enableDetachableMenus.m_value)
+      menu_tearoff (menu_in_menu);
     Filters_constructMenu(menu_in_menu);
   }
   menu_separator(menu);
   {
     GtkMenu* menu_in_menu = create_sub_menu_with_mnemonic (menu, "Hide/Show");
+    if (g_Layout_enableDetachableMenus.m_value)
+      menu_tearoff (menu_in_menu);
     create_menu_item_with_mnemonic(menu_in_menu, "Hide Selected", "HideSelected");
     create_menu_item_with_mnemonic(menu_in_menu, "Show Hidden", "ShowHidden");
   }
   menu_separator(menu);
   {
     GtkMenu* menu_in_menu = create_sub_menu_with_mnemonic (menu, "Region");
+    if (g_Layout_enableDetachableMenus.m_value)
+      menu_tearoff (menu_in_menu);
     create_menu_item_with_mnemonic(menu_in_menu, "_Off", "RegionOff");
     create_menu_item_with_mnemonic(menu_in_menu, "_Set XY", "RegionSetXY");
     create_menu_item_with_mnemonic(menu_in_menu, "Set _Brush", "RegionSetBrush");
@@ -2108,13 +2142,15 @@ GtkMenuItem* create_view_menu(MainFrame::EViewStyle style)
 GtkMenuItem* create_selection_menu()
 {
   // Selection menu
-  GtkMenuItem* selection_menu_item = new_sub_menu_item_with_mnemonic("_Modify");
+  GtkMenuItem* selection_menu_item = new_sub_menu_item_with_mnemonic("M_odify");
   GtkMenu* menu = GTK_MENU(gtk_menu_item_get_submenu(selection_menu_item));
   if (g_Layout_enableDetachableMenus.m_value)
     menu_tearoff (menu);
 
   {
     GtkMenu* menu_in_menu = create_sub_menu_with_mnemonic (menu, "Components");
+    if (g_Layout_enableDetachableMenus.m_value)
+      menu_tearoff (menu_in_menu);
     create_check_menu_item_with_mnemonic(menu_in_menu, "_Edges", "DragEdges");
     create_check_menu_item_with_mnemonic(menu_in_menu, "_Vertices", "DragVertices");
     create_check_menu_item_with_mnemonic(menu_in_menu, "_Faces", "DragFaces");
@@ -2124,6 +2160,8 @@ GtkMenuItem* create_selection_menu()
 
   {
     GtkMenu* menu_in_menu = create_sub_menu_with_mnemonic(menu, "Nudge");
+    if (g_Layout_enableDetachableMenus.m_value)
+      menu_tearoff (menu_in_menu);
     create_menu_item_with_mnemonic(menu_in_menu, "Nudge Left", "SelectNudgeLeft");
     create_menu_item_with_mnemonic(menu_in_menu, "Nudge Right", "SelectNudgeRight");
     create_menu_item_with_mnemonic(menu_in_menu, "Nudge Up", "SelectNudgeUp");
@@ -2131,12 +2169,16 @@ GtkMenuItem* create_selection_menu()
   }
   {
     GtkMenu* menu_in_menu = create_sub_menu_with_mnemonic (menu, "Rotate");
+    if (g_Layout_enableDetachableMenus.m_value)
+      menu_tearoff (menu_in_menu);
     create_menu_item_with_mnemonic(menu_in_menu, "Rotate X", "RotateSelectionX");
     create_menu_item_with_mnemonic(menu_in_menu, "Rotate Y", "RotateSelectionY");
     create_menu_item_with_mnemonic(menu_in_menu, "Rotate Z", "RotateSelectionZ");
   }
   {
     GtkMenu* menu_in_menu = create_sub_menu_with_mnemonic (menu, "Flip");
+    if (g_Layout_enableDetachableMenus.m_value)
+      menu_tearoff (menu_in_menu);
     create_menu_item_with_mnemonic(menu_in_menu, "Flip _X", "MirrorSelectionX");
     create_menu_item_with_mnemonic(menu_in_menu, "Flip _Y", "MirrorSelectionY");
     create_menu_item_with_mnemonic(menu_in_menu, "Flip _Z", "MirrorSelectionZ");
@@ -2181,44 +2223,6 @@ GtkMenuItem* create_grid_menu()
   Grid_constructMenu(menu);
 
   return grid_menu_item;
-}
-
-void RefreshShaders()
-{
-  ScopeDisableScreenUpdates disableScreenUpdates("Processing...", "Loading Shaders");
-  GlobalShaderSystem().refresh();
-  UpdateAllWindows();
-}
-
-
-GtkMenuItem* create_textures_menu()
-{
-  // Textures menu
-  GtkMenuItem* textures_menu_item = new_sub_menu_item_with_mnemonic("_Textures");
-  GtkMenu* menu = GTK_MENU(gtk_menu_item_get_submenu(textures_menu_item));
-  g_textures_menu = menu;
-  if (g_Layout_enableDetachableMenus.m_value)
-    menu_tearoff (menu);
-
-  create_check_menu_item_with_mnemonic(menu, "Hide _Unused", "ShowInUse");
-  create_menu_item_with_mnemonic(menu, "Show All", "ShowAllTextures");
-
-  menu_separator(menu);
-  create_check_menu_item_with_mnemonic(menu, "Show shaders", "ToggleShowShaders");
-  create_menu_item_with_mnemonic(menu, "Flush & Reload Shaders", "RefreshShaders");
-  create_menu_item_with_mnemonic(menu, "Directory list...", "TextureDirectoryList");
-  menu_separator(menu);
-
-  create_menu_item_with_mnemonic(menu, "Find / Replace...", "FindReplaceTextures");
-
-
-  menu_separator(menu);
-  create_check_menu_item_with_mnemonic (menu, "Shaders Only", "ToggleShowShaderlistOnly");
-  g_textures_menu_separator = menu_separator(menu);
-
-  TextureGroupsMenu_Construct();
-
-  return textures_menu_item;
 }
 
 GtkMenuItem* create_misc_menu()
@@ -2315,7 +2319,6 @@ GtkMenuBar* create_main_menu(MainFrame::EViewStyle style)
   gtk_container_add(GTK_CONTAINER(menu_bar), GTK_WIDGET(create_selection_menu()));
   gtk_container_add(GTK_CONTAINER(menu_bar), GTK_WIDGET(create_bsp_menu()));
   gtk_container_add(GTK_CONTAINER(menu_bar), GTK_WIDGET(create_grid_menu()));
-  gtk_container_add(GTK_CONTAINER(menu_bar), GTK_WIDGET(create_textures_menu()));
   gtk_container_add(GTK_CONTAINER(menu_bar), GTK_WIDGET(create_misc_menu()));
   gtk_container_add(GTK_CONTAINER(menu_bar), GTK_WIDGET(create_entity_menu()));
   gtk_container_add(GTK_CONTAINER(menu_bar), GTK_WIDGET(create_brush_menu()));
@@ -2410,8 +2413,8 @@ void register_shortcuts()
 
 void File_constructToolbar(GtkToolbar* toolbar)
 {
-  toolbar_append_button(toolbar, "Open an existing map", "file_open.bmp", "OpenMap");
-  toolbar_append_button(toolbar, "Save the active map", "file_save.bmp", "SaveMap");
+  toolbar_append_button(toolbar, "Open an existing map (CTRL + O)", "file_open.bmp", "OpenMap");
+  toolbar_append_button(toolbar, "Save the active map (CTRL + S)", "file_save.bmp", "SaveMap");
 }
 
 void RotateFlip_constructToolbar(GtkToolbar* toolbar)
@@ -2424,24 +2427,30 @@ void RotateFlip_constructToolbar(GtkToolbar* toolbar)
   toolbar_append_button(toolbar, "z-axis Rotate", "brush_rotatez.bmp", "RotateSelectionZ");
 }
 
+void Select_constructToolbar(GtkToolbar* toolbar)
+{
+  toolbar_append_button(toolbar, "Select touching", "selection_selecttouching.bmp", "SelectTouching");
+  toolbar_append_button(toolbar, "Select inside", "selection_selectinside.bmp", "SelectInside");
+}
+
 void CSG_constructToolbar(GtkToolbar* toolbar)
 {
-  toolbar_append_button(toolbar, "CSG Subtract", "selection_csgsubtract.bmp", "CSGSubtract");
-  toolbar_append_button(toolbar, "CSG Merge", "selection_csgmerge.bmp", "CSGMerge");
+  toolbar_append_button(toolbar, "CSG Subtract (SHIFT + U)", "selection_csgsubtract.bmp", "CSGSubtract");
+  toolbar_append_button(toolbar, "CSG Merge (CTRL + U)", "selection_csgmerge.bmp", "CSGMerge");
   toolbar_append_button(toolbar, "Hollow", "selection_makehollow.bmp", "CSGHollow");
 }
 
 void ComponentModes_constructToolbar(GtkToolbar* toolbar)
 {
-  toolbar_append_toggle_button(toolbar, "Select Vertices", "modify_vertices.bmp", "DragVertices");
-  toolbar_append_toggle_button(toolbar, "Select Edges", "modify_edges.bmp", "DragEdges");
-  toolbar_append_toggle_button(toolbar, "Select Faces", "modify_faces.bmp", "DragFaces");
+  toolbar_append_toggle_button(toolbar, "Select Vertices (V)", "modify_vertices.bmp", "DragVertices");
+  toolbar_append_toggle_button(toolbar, "Select Edges (E)", "modify_edges.bmp", "DragEdges");
+  toolbar_append_toggle_button(toolbar, "Select Faces (F)", "modify_faces.bmp", "DragFaces");
 }
 
 void Clipper_constructToolbar(GtkToolbar* toolbar)
 {
 
-  toolbar_append_toggle_button(toolbar, "Clipper", "view_clipper.bmp", "ToggleClipper");
+  toolbar_append_toggle_button(toolbar, "Clipper (X)", "view_clipper.bmp", "ToggleClipper");
 }
 
 void XYWnd_constructToolbar(GtkToolbar* toolbar)
@@ -2451,10 +2460,10 @@ void XYWnd_constructToolbar(GtkToolbar* toolbar)
 
 void Manipulators_constructToolbar(GtkToolbar* toolbar)
 {
-  toolbar_append_toggle_button(toolbar, "Translate", "select_mousetranslate.bmp", "MouseTranslate");
-  toolbar_append_toggle_button(toolbar, "Rotate", "select_mouserotate.bmp", "MouseRotate");
+  toolbar_append_toggle_button(toolbar, "Translate (W)", "select_mousetranslate.bmp", "MouseTranslate");
+  toolbar_append_toggle_button(toolbar, "Rotate (R)", "select_mouserotate.bmp", "MouseRotate");
   toolbar_append_toggle_button(toolbar, "Scale", "select_mousescale.bmp", "MouseScale");
-  toolbar_append_toggle_button(toolbar, "Resize", "select_mouseresize.bmp", "MouseDrag");
+  toolbar_append_toggle_button(toolbar, "Resize (Q)", "select_mouseresize.bmp", "MouseDrag");
 
   Clipper_constructToolbar(toolbar);
 }
@@ -2472,6 +2481,10 @@ GtkToolbar* create_main_toolbar(MainFrame::EViewStyle style)
   gtk_toolbar_append_space (GTK_TOOLBAR (toolbar));
 
   RotateFlip_constructToolbar(toolbar);
+
+  gtk_toolbar_append_space (GTK_TOOLBAR (toolbar));
+
+  Select_constructToolbar(toolbar);
 
   gtk_toolbar_append_space (GTK_TOOLBAR (toolbar));
 
@@ -2505,7 +2518,22 @@ GtkToolbar* create_main_toolbar(MainFrame::EViewStyle style)
 
   gtk_toolbar_append_space (GTK_TOOLBAR (toolbar));
 
-  toolbar_append_toggle_button(toolbar, "Texture Lock", "texture_lock.bmp", "TogTexLock");
+  toolbar_append_toggle_button(toolbar, "Texture Lock (SHIFT +T)", "texture_lock.bmp", "TogTexLock");
+
+  gtk_toolbar_append_space (GTK_TOOLBAR (toolbar));
+
+  GtkButton* g_view_entities_button = toolbar_append_button(toolbar, "Entities (N)", "entities.bmp", "ToggleEntityInspector");
+  GtkButton* g_view_console_button = toolbar_append_button(toolbar, "Console (O)", "console.bmp", "ToggleConsole");
+  GtkButton* g_view_textures_button = toolbar_append_button(toolbar, "Texture Browser (T)", "texture_browser.bmp", "ToggleTextures");
+  // TODO: call light inspector
+  //GtkButton* g_view_lightinspector_button = toolbar_append_button(toolbar, "Light Inspector", "lightinspector.bmp", "ToggleLightInspector");
+
+  // disable the console and texture button in the regular layouts
+  if(style == MainFrame::eRegular || style == MainFrame::eRegularLeft)
+  {
+    gtk_widget_set_sensitive(GTK_WIDGET(g_view_console_button), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(g_view_textures_button), FALSE);
+  }
 
   return toolbar;
 }
@@ -2980,7 +3008,6 @@ void MainFrame::Create()
           GtkFrame* texture_window = create_framed_widget(TextureBrowser_constructWindow(window));
 
           gtk_paned_add2(GTK_PANED(vsplit2), GTK_WIDGET(texture_window));
-         
         }
       }
     }
@@ -3163,8 +3190,6 @@ void MainFrame::Shutdown()
   EverySecondTimer_disable();
 
   EntityList_destroyWindow();
-
-  g_textures_menu = 0;
 
   delete m_pXYWnd;
   m_pXYWnd = 0;
@@ -3358,6 +3383,8 @@ void MainFrame_Construct()
   GlobalCommands_insert("ParentSelection", FreeCaller<Scene_parentSelected>());
   GlobalCommands_insert("UnSelectSelection", FreeCaller<Selection_Deselect>(), Accelerator(GDK_Escape));
   GlobalCommands_insert("InvertSelection", FreeCaller<Select_Invert>(), Accelerator('I'));
+  GlobalCommands_insert("SelectInside", FreeCaller<Select_Inside>());
+  GlobalCommands_insert("SelectTouching", FreeCaller<Select_Touching>());
   GlobalCommands_insert("ExpandSelectionToEntities", FreeCaller<Scene_ExpandSelectionToEntities>(), Accelerator('E', (GdkModifierType)(GDK_MOD1_MASK|GDK_CONTROL_MASK)));
   GlobalCommands_insert("Preferences", FreeCaller<PreferencesDialog_showDialog>(), Accelerator('P'));
 
@@ -3419,10 +3446,6 @@ void MainFrame_Construct()
   GlobalCommands_insert("CSGSubtract", FreeCaller<CSG_Subtract>(), Accelerator('U', (GdkModifierType)GDK_SHIFT_MASK));
   GlobalCommands_insert("CSGMerge", FreeCaller<CSG_Merge>(), Accelerator('U', (GdkModifierType)GDK_CONTROL_MASK));
   GlobalCommands_insert("CSGHollow", FreeCaller<CSG_MakeHollow>());
-
-  GlobalCommands_insert("TextureDirectoryList", FreeCaller<DoTextureListDlg>());
-
-  GlobalCommands_insert("RefreshShaders", FreeCaller<RefreshShaders>());
 
   Grid_registerCommands();
 

@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ifilesystem.h"
 #include "iimage.h"
 
-//#include "jpeg.h"
 #include "tga.h"
 #include "bmp.h"
 #include "pcx.h"
@@ -58,28 +57,6 @@ typedef SingletonModule<ImageTGAAPI> ImageTGAModule;
 
 ImageTGAModule g_ImageTGAModule;
 
-/*
-class ImageJPGAPI
-{
-  _QERPlugImageTable m_imagejpg;
-public:
-  typedef _QERPlugImageTable Type;
-  STRING_CONSTANT(Name, "jpg");
-
-  ImageJPGAPI()
-  {
-    m_imagejpg.loadImage = LoadJPG;
-  }
-  _QERPlugImageTable* getTable()
-  {
-    return &m_imagejpg;
-  }
-};
-
-typedef SingletonModule<ImageJPGAPI, ImageDependencies> ImageJPGModule;
-
-ImageJPGModule g_ImageJPGModule;
-*/
 
 class ImageBMPAPI
 {
@@ -152,7 +129,6 @@ extern "C" void RADIANT_DLLEXPORT Radiant_RegisterModules(ModuleServer& server)
   initialiseModule(server);
 
   g_ImageTGAModule.selfRegister();
-//g_ImageJPGModule.selfRegister();
   g_ImageBMPModule.selfRegister();
   g_ImagePCXModule.selfRegister();
   g_ImageDDSModule.selfRegister();
