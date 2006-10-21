@@ -649,7 +649,7 @@ static void CG_RegisterSounds(void)
 		if(cgs.gametype == GT_1FCTF || cgs.gametype == GT_CTF || cg_buildScript.integer)
 		{
 			cgs.media.youHaveFlagSound = trap_S_RegisterSound("sound/teamplay/voc_you_flag.wav", qtrue);
-			cgs.media.holyShitSound = trap_S_RegisterSound("sound/feedback/voc_holyshit.wav", qtrue);
+			cgs.media.holyShitSound = trap_S_RegisterSound("sound/feedback/holyshit.wav", qtrue);
 		}
 
 		if(cgs.gametype == GT_OBELISK || cg_buildScript.integer)
@@ -658,7 +658,7 @@ static void CG_RegisterSounds(void)
 		}
 #else
 		cgs.media.youHaveFlagSound = trap_S_RegisterSound("sound/teamplay/voc_you_flag.wav", qtrue);
-		cgs.media.holyShitSound = trap_S_RegisterSound("sound/feedback/voc_holyshit.wav", qtrue);
+		cgs.media.holyShitSound = trap_S_RegisterSound("sound/feedback/holyshit.wav", qtrue);
 		cgs.media.neutralFlagReturnedSound = trap_S_RegisterSound("sound/teamplay/flagreturn_opponent.wav", qtrue);
 		cgs.media.yourTeamTookTheFlagSound = trap_S_RegisterSound("sound/teamplay/voc_team_1flag.wav", qtrue);
 		cgs.media.enemyTookTheFlagSound = trap_S_RegisterSound("sound/teamplay/voc_enemy_1flag.wav", qtrue);
@@ -712,11 +712,6 @@ static void CG_RegisterSounds(void)
 	cgs.media.humiliationSound = trap_S_RegisterSound("sound/feedback/humiliation.wav", qtrue);
 	cgs.media.assistSound = trap_S_RegisterSound("sound/feedback/assist.wav", qtrue);
 	cgs.media.defendSound = trap_S_RegisterSound("sound/feedback/defense.wav", qtrue);
-#ifdef MISSIONPACK
-	cgs.media.firstImpressiveSound = trap_S_RegisterSound("sound/feedback/first_impressive.wav", qtrue);
-	cgs.media.firstExcellentSound = trap_S_RegisterSound("sound/feedback/first_excellent.wav", qtrue);
-	cgs.media.firstHumiliationSound = trap_S_RegisterSound("sound/feedback/first_gauntlet.wav", qtrue);
-#endif
 
 	cgs.media.takenLeadSound = trap_S_RegisterSound("sound/feedback/takenlead.wav", qtrue);
 	cgs.media.tiedLeadSound = trap_S_RegisterSound("sound/feedback/tiedlead.wav", qtrue);

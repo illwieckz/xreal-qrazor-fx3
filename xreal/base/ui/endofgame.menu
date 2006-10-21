@@ -548,7 +548,7 @@ itemdef {
 	visible 1
 	mouseenter { setitemcolor medal_assist_team forecolor 0 0 0 0 ; setcolor forecolor 1 1 1 1 }
 	mouseexit { setitemcolor medal_assist_team forecolor 1 1 1 1 ; setcolor forecolor 1 1 1 0 }
-	action { exec "play sound/feedback/voc_menu_assist.wav" } 
+	action { exec "play sound/feedback/assist.wav" } 
 	}
 
 itemdef {
@@ -565,7 +565,7 @@ itemdef {
 	visible 1
 	mouseenter { setitemcolor medal_accuracy_team forecolor 0 0 0 0 ; setcolor forecolor 1 1 1 1 }
 	mouseexit { setitemcolor medal_accuracy_team forecolor 1 1 1 1 ; setcolor forecolor 1 1 1 0 }
-	action { exec "play sound/feedback/voc_menu_accuracy.wav" } 
+	action { exec "play sound/feedback/accuracy.wav" } 
 	}
 itemdef {
 	name medal_excellent_window
@@ -581,7 +581,7 @@ itemdef {
 	visible 1
 	mouseenter { setitemcolor medal_excellent_team forecolor 0 0 0 0 ; setcolor forecolor 1 1 1 1 }
 	mouseexit { setitemcolor medal_excellent_team forecolor 1 1 1 1 ; setcolor forecolor 1 1 1 0 }
-	action { exec "play sound/feedback/voc_menu_excellent.wav" } 
+	action { exec "play sound/feedback/excellent.wav" } 
 	}
 itemdef {
 	name medal_gauntlet_window
@@ -597,7 +597,7 @@ itemdef {
 	visible 1
 	mouseenter { setitemcolor medal_gauntlet_team forecolor 0 0 0 0 ; setcolor forecolor 1 1 1 1 }
 	mouseexit { setitemcolor medal_gauntlet_team forecolor 1 1 1 1 ; setcolor forecolor 1 1 1 0 }
-	action { exec "play sound/feedback/voc_menu_gauntlet.wav" } 
+	action { exec "play sound/feedback/gauntlet.wav" } 
 	}
 itemdef {
 	name medal_impressive_window
@@ -613,7 +613,7 @@ itemdef {
 	visible 1
 	mouseenter { setitemcolor medal_impressive_team forecolor 0 0 0 0 ; setcolor forecolor 1 1 1 1 }
 	mouseexit { setitemcolor medal_impressive_team forecolor 1 1 1 1 ; setcolor forecolor 1 1 1 0 }
-	action { exec "play sound/feedback/voc_menu_impressive.wav" } 
+	action { exec "play sound/feedback/impressive.wav" } 
 	}
 itemdef {
 	name medal_defend_window
@@ -629,7 +629,7 @@ itemdef {
 	visible 1
 	mouseenter { setitemcolor medal_defend_team forecolor 0 0 0 0 ; setcolor forecolor 1 1 1 1 }
 	mouseexit { setitemcolor medal_defend_team forecolor 1 1 1 1 ; setcolor forecolor 1 1 1 0 }
-	action { exec "play sound/feedback/voc_menu_defense.wav" } 
+	action { exec "play sound/feedback/defense.wav" } 
 	}
 itemdef {
 	name medal_capture_window
@@ -645,7 +645,7 @@ itemdef {
 	visible 1
 	mouseenter { setitemcolor medal_capture_team forecolor 0 0 0 0 ; setcolor forecolor 1 1 1 1 }
 	mouseexit { setitemcolor medal_capture_team forecolor 1 1 1 1 ; setcolor forecolor 1 1 1 0 }
-	action { exec "play sound/feedback/voc_menu_captures.wav" } 
+	action { exec "play sound/feedback/captures.wav" } 
 	}
 
 
@@ -686,7 +686,7 @@ itemdef {
 	visible 1
 	mouseenter { setitemcolor medal_accuracy_nonteam forecolor 0 0 0 0 ; setcolor forecolor 1 1 1 1 }
 	mouseexit { setitemcolor medal_accuracy_nonteam forecolor 1 1 1 1 ; setcolor forecolor 1 1 1 0 }
-	action { exec "play sound/feedback/voc_menu_accuracy.wav" } 
+	action { exec "play sound/feedback/accuracy.wav" } 
 	}
 
 
@@ -705,7 +705,7 @@ itemdef {
 	visible 1
 	mouseenter { setitemcolor medal_excellent_nonteam forecolor 0 0 0 0 ; setcolor forecolor 1 1 1 1 }
 	mouseexit { setitemcolor medal_excellent_nonteam forecolor 1 1 1 1 ; setcolor forecolor 1 1 1 0 }
-	action { exec "play sound/feedback/voc_menu_excellent.wav" } 
+	action { exec "play sound/feedback/excellent.wav" } 
 	}
 
 
@@ -723,7 +723,7 @@ itemdef {
 	visible 1
 	mouseenter { setitemcolor medal_gauntlet_nonteam forecolor 0 0 0 0 ; setcolor forecolor 1 1 1 1 }
 	mouseexit { setitemcolor medal_gauntlet_nonteam forecolor 1 1 1 1 ; setcolor forecolor 1 1 1 0 }
-	action { exec "play sound/feedback/voc_menu_gauntlet.wav" } 
+	action { exec "play sound/feedback/gauntlet.wav" } 
 	}
 
 
@@ -741,7 +741,7 @@ itemdef {
 	visible 1
 	mouseenter { setitemcolor medal_impressive_nonteam forecolor 0 0 0 0 ; setcolor forecolor 1 1 1 1 }
 	mouseexit { setitemcolor medal_impressive_nonteam forecolor 1 1 1 1 ; setcolor forecolor 1 1 1 0 }
-	action { exec "play sound/feedback/voc_menu_impressive.wav" } 
+	action { exec "play sound/feedback/impressive.wav" } 
 	}
 
 

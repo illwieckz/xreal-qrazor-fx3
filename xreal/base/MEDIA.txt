@@ -816,57 +816,47 @@ models/weapons2/shells/m_shell.md3							id Software					EULA					q3demo
 models/weapons2/shells/s_shell.jpg							id Software					EULA					q3demo
 models/weapons2/shells/s_shell.md3							id Software					EULA					q3demo
 models/weapons2/shells/s_shell.tga							id Software					EULA					q3demo
-sound/feedback/1_frag.wav									id Software					EULA					tademo
-sound/feedback/1_minute.wav									id Software					EULA					tademo
-sound/feedback/2_frags.wav									id Software					EULA					tademo
-sound/feedback/3_frags.wav									id Software					EULA					tademo
-sound/feedback/5_minute.wav									id Software					EULA					tademo
-sound/feedback/accuracy.wav									id Software					EULA					q3demo
-sound/feedback/assist.wav									id Software					EULA					tademo
-sound/feedback/blueleads.wav								id Software					EULA					tademo
-sound/feedback/defense.wav									id Software					EULA					tademo
-sound/feedback/denied.wav									id Software					EULA					tademo
-sound/feedback/excellent_a.wav								id Software					EULA					tademo
-sound/feedback/excellent.wav								id Software					EULA					tademo
-sound/feedback/fight.wav									id Software					EULA					tademo
-sound/feedback/first_excellent.wav							id Software					EULA					tademo
-sound/feedback/first_gauntlet.wav							id Software					EULA					tademo
-sound/feedback/first_impressive.wav							id Software					EULA					tademo
-sound/feedback/frags.wav									id Software					EULA					q3demo
-sound/feedback/gauntlet.wav									id Software					EULA					tademo
-sound/feedback/hithi.wav									id Software					EULA					tademo
-sound/feedback/hitlo.wav									id Software					EULA					tademo
-sound/feedback/hit_teammate.wav								id Software					EULA					tademo
-sound/feedback/hit.wav										id Software					EULA					tademo
-sound/feedback/humiliation.wav								id Software					EULA					tademo
-sound/feedback/impressive_a.wav								id Software					EULA					q3demo
-sound/feedback/impressive.wav								id Software					EULA					tademo
-sound/feedback/lostlead.wav									id Software					EULA					tademo
-sound/feedback/one.wav										id Software					EULA					tademo
-sound/feedback/perfect.wav									id Software					EULA					q3demo
-sound/feedback/prepare_team.wav								id Software					EULA					tademo
-sound/feedback/prepare.wav									id Software					EULA					tademo
-sound/feedback/redleads.wav									id Software					EULA					tademo
-sound/feedback/sudden_death.wav								id Software					EULA					tademo
-sound/feedback/takenlead.wav								id Software					EULA					tademo
-sound/feedback/teamstied.wav								id Software					EULA					tademo
-sound/feedback/three.wav									id Software					EULA					tademo
-sound/feedback/tiedlead.wav									id Software					EULA					tademo
-sound/feedback/two.wav										id Software					EULA					tademo
-sound/feedback/voc_holyshit.wav								id Software					EULA					tademo
-sound/feedback/voc_menu_accuracy.wav						id Software					EULA					tademo
-sound/feedback/voc_menu_assist.wav							id Software					EULA					tademo
-sound/feedback/voc_menu_captures.wav						id Software					EULA					tademo
-sound/feedback/voc_menu_defense.wav							id Software					EULA					tademo
-sound/feedback/voc_menu_excellent.wav						id Software					EULA					tademo
-sound/feedback/voc_menu_gauntlet.wav						id Software					EULA					tademo
-sound/feedback/voc_menu_impressive.wav						id Software					EULA					tademo
-sound/feedback/voc_newhighscore.wav							id Software					EULA					tademo
-sound/feedback/voc_youlose.wav								id Software					EULA					tademo
-sound/feedback/voc_youwin.wav								id Software					EULA					tademo
-sound/feedback/vote_failed.wav								id Software					EULA					tademo
-sound/feedback/vote_now.wav									id Software					EULA					tademo
-sound/feedback/vote_passed.wav								id Software					EULA					tademo
+sound/feedback/1_frag.wav									Open Arena Team				GPL						oa subversion repository
+sound/feedback/1_minute.wav									Open Arena Team				GPL						oa subversion repository
+sound/feedback/2_frags.wav									Open Arena Team				GPL						oa subversion repository
+sound/feedback/3_frags.wav									Open Arena Team				GPL						oa subversion repository
+sound/feedback/5_minute.wav									Open Arena Team				GPL						oa subversion repository
+sound/feedback/accuracy.wav									Open Arena Team				GPL						oa subversion repository
+sound/feedback/assist.wav									Open Arena Team				GPL						oa subversion repository
+sound/feedback/blueleads.wav								Open Arena Team				GPL						oa subversion repository
+sound/feedback/defense.wav									Open Arena Team				GPL						oa subversion repository
+sound/feedback/denied.wav									Open Arena Team				GPL						oa subversion repository
+sound/feedback/excellent_a.wav								Open Arena Team				GPL						oa subversion repository
+sound/feedback/excellent.wav								Open Arena Team				GPL						oa subversion repository
+sound/feedback/fight.wav									Open Arena Team				GPL						oa subversion repository
+sound/feedback/frags.wav									Open Arena Team				GPL						oa subversion repository
+sound/feedback/gauntlet.wav									Open Arena Team				GPL						oa subversion repository
+sound/feedback/hithi.wav									TODO
+sound/feedback/hitlo.wav									TODO
+sound/feedback/hit_teammate.wav								Open Arena Team				GPL						oa subversion repository
+sound/feedback/hit.wav										Open Arena Team				GPL						oa subversion repository
+sound/feedback/humiliation.wav								Open Arena Team				GPL						oa subversion repository
+sound/feedback/impressive_a.wav								Open Arena Team				GPL						oa subversion repository
+sound/feedback/impressive.wav								Open Arena Team				GPL						oa subversion repository
+sound/feedback/lostlead.wav									Open Arena Team				GPL						oa subversion repository
+sound/feedback/one.wav										Open Arena Team				GPL						oa subversion repository
+sound/feedback/perfect.wav									Open Arena Team				GPL						oa subversion repository
+sound/feedback/prepare_team.wav								Open Arena Team				GPL						oa subversion repository
+sound/feedback/prepare.wav									Open Arena Team				GPL						oa subversion repository
+sound/feedback/redleads.wav									Open Arena Team				GPL						oa subversion repository
+sound/feedback/sudden_death.wav								Open Arena Team				GPL						oa subversion repository
+sound/feedback/takenlead.wav								Open Arena Team				GPL						oa subversion repository
+sound/feedback/teamstied.wav								Open Arena Team				GPL						oa subversion repository
+sound/feedback/three.wav									Open Arena Team				GPL						oa subversion repository
+sound/feedback/tiedlead.wav									Open Arena Team				GPL						oa subversion repository
+sound/feedback/two.wav										Open Arena Team				GPL						oa subversion repository
+sound/feedback/holyshit.wav									Open Arena Team				GPL						oa subversion repository
+sound/feedback/newhighscore.wav								TODO
+sound/feedback/youlose.wav									TODO
+sound/feedback/youwin.wav									Open Arena Team				GPL						oa subversion repository
+sound/feedback/vote_failed.wav								TODO
+sound/feedback/vote_now.wav									TODO
+sound/feedback/vote_passed.wav								TODO
 sound/items/airout.wav										id Software					EULA					tademo
 sound/items/ammoregen.wav									id Software					EULA					tademo
 sound/items/cl_ammoregen.wav								id Software					EULA					tademo
