@@ -5480,7 +5480,7 @@ static void UI_FeederSelection(float feederID, int index)
 		if(index >= 0 && index < uiInfo.characterCount)
 		{
 			trap_Cvar_Set("model", va("%s", uiInfo.characterList[index].base));
-			trap_Cvar_Set("headmodel", va("*%s", uiInfo.characterList[index].name));
+			trap_Cvar_Set("headmodel", va("%s", uiInfo.characterList[index].name));
 			updateModel = qtrue;
 		}
 	}
