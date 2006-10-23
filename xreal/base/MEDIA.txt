@@ -129,45 +129,12 @@ icons/scout.tga												id Software					EULA					tademo
 icons/skull_blue.tga										id Software					EULA					tademo
 icons/skull_red.tga											id Software					EULA					tademo
 icons/teleporter.tga										id Software					EULA					q3demo
-lights/baronflash.tga										id Software					EULA					d3demo
-lights/biground1.tga										id Software					EULA					d3demo
-lights/blamplight_cv.tga									id Software					EULA					d3demo
-lights/blur_cv.tga											id Software					EULA					d3demo
-lights/cloudscroll2.tga										id Software					EULA					d3demo
-lights/desertlight.tga										id Software					EULA					d3demo
-lights/dropship.tga											id Software					EULA					d3demo
-lights/duolight02grey.tga									id Software					EULA					d3demo
-lights/falloff_exp2.tga										id Software					EULA					d3demo
-lights/fanblade3.tga										id Software					EULA					d3demo
 lights/flashlight2.tga										id Software					EULA					d3demo
-lights/flashlight5.tga										id Software					EULA					d3demo
-lights/flashoff.tga											id Software					EULA					d3demo
-lights/floorvent01x_cv.tga									id Software					EULA					d3demo
-lights/floorvent01x.tga										id Software					EULA					d3demo
-lights/grate5.tga											id Software					EULA					d3demo
-lights/grate6.tga											id Software					EULA					d3demo
-lights/grate7.tga											id Software					EULA					d3demo
-lights/grate8sqr.tga										id Software					EULA					d3demo
-lights/grate8.tga											id Software					EULA					d3demo
-lights/headlights.tga										id Software					EULA					d3demo
-lights/impflash.tga											id Software					EULA					d3demo
-lights/lightgratelight2.tga									id Software					EULA					d3demo
-lights/newalphagrate1.tga									id Software					EULA					d3demo
-lights/newalphagrate3b.tga									id Software					EULA					d3demo
-lights/newalphagrate3.tga									id Software					EULA					d3demo
-lights/rotate3.tga											id Software					EULA					d3demo
-lights/roundfire.tga										id Software					EULA					d3demo
 lights/round.tga											id Software					EULA					d3demo
-lights/spot01.tga											id Software					EULA					d3demo
-lights/squareblast.tga										id Software					EULA					d3demo
-lights/squareishlight.tga									id Software					EULA					d3demo
 lights/squarelight1a.tga									id Software					EULA					d3demo
 lights/squarelight1b.tga									id Software					EULA					d3demo
 lights/squarelight1.tga										id Software					EULA					d3demo
 lights/squarelight.tga										id Software					EULA					d3demo
-lights/triangle1.tga										id Software					EULA					d3demo
-lights/vivlight.tga											id Software					EULA					d3demo
-lights/xfalloff.tga											id Software					EULA					d3demo
 menu/art/accept_0.tga										Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 menu/art/accept_1.tga										Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
 menu/art/addbotframe.tga									Robert "Tr3B" Beckebans		CC BY-NC-SA 2.5
@@ -330,111 +297,6 @@ models/mapobjects/gw/teleporter_01.ase						gw							custom					www.doom3maps.or
 models/mapobjects/gw/teleporter_01_d.tga					gw							custom					www.doom3maps.org
 models/mapobjects/gw/teleporter_01_local.tga				gw							custom					www.doom3maps.org
 models/mapobjects/gw/teleporter_01_s.tga					gw							custom					www.doom3maps.org
-models/mapobjects/zogg/jump_pad.ase							Ryan "Quaker-X" Rutherford	custom					www.planetquake.com/quakerx
-models/mapobjects/zogg/jump_pad_d.tga						Ryan "Quaker-X" Rutherford	custom					www.planetquake.com/quakerx
-models/mapobjects/zogg/jump_pad_g2.tga						Ryan "Quaker-X" Rutherford	custom					www.planetquake.com/quakerx
-models/mapobjects/zogg/jump_pad_g3.tga						Ryan "Quaker-X" Rutherford	custom					www.planetquake.com/quakerx
-models/mapobjects/zogg/jump_pad_g.tga						Ryan "Quaker-X" Rutherford	custom					www.planetquake.com/quakerx
-models/mapobjects/zogg/jump_pad_h.tga						Ryan "Quaker-X" Rutherford	custom					www.planetquake.com/quakerx
-models/mapobjects/zogg/jump_pad_local.tga					Ryan "Quaker-X" Rutherford	custom					www.planetquake.com/quakerx
-models/mapobjects/zogg/jump_pad_mask.tga					Ryan "Quaker-X" Rutherford	custom					www.planetquake.com/quakerx
-models/mapobjects/zogg/jump_pad_s.tga						Ryan "Quaker-X" Rutherford	custom					www.planetquake.com/quakerx
-models/players/heads/james/head_blue.skin					id Software					EULA					tademo
-models/players/heads/james/head_default.skin				id Software					EULA					tademo
-models/players/heads/james/head_red.skin					id Software					EULA					tademo
-models/players/heads/james/icon_blue.tga					id Software					EULA					tademo
-models/players/heads/james/icon_default.tga					id Software					EULA					tademo
-models/players/heads/james/icon_red.tga						id Software					EULA					tademo
-models/players/heads/james/james_1.md3						id Software					EULA					tademo
-models/players/heads/james/james_2.md3						id Software					EULA					tademo
-models/players/heads/james/james_blu.tga					id Software					EULA					tademo
-models/players/heads/james/james_e_blu.tga					id Software					EULA					tademo
-models/players/heads/james/james_e_red.tga					id Software					EULA					tademo
-models/players/heads/james/james.md3						id Software					EULA					tademo
-models/players/heads/james/james_red.tga					id Software					EULA					tademo
-models/players/heads/janet/head_blue.skin					id Software					EULA					tademo
-models/players/heads/janet/head_default.skin				id Software					EULA					tademo
-models/players/heads/janet/head_red.skin					id Software					EULA					tademo
-models/players/heads/janet/icon_blue.tga					id Software					EULA					tademo
-models/players/heads/janet/icon_default.tga					id Software					EULA					tademo
-models/players/heads/janet/icon_red.tga						id Software					EULA					tademo
-models/players/heads/janet/janet_1.md3						id Software					EULA					tademo
-models/players/heads/janet/janet_2.md3						id Software					EULA					tademo
-models/players/heads/janet/janet_blu.tga					id Software					EULA					tademo
-models/players/heads/janet/janet.md3						id Software					EULA					tademo
-models/players/heads/janet/janet_red.tga					id Software					EULA					tademo
-models/players/james/crusaders/crusaders_blu.tga			id Software					EULA					tademo
-models/players/james/crusaders/crusaders_red.tga			id Software					EULA					tademo
-models/players/james/crusaders/lower_blue.skin				id Software					EULA					tademo
-models/players/james/crusaders/lower_default.skin			id Software					EULA					tademo
-models/players/james/crusaders/lower_red.skin				id Software					EULA					tademo
-models/players/james/crusaders/upper_blue.skin				id Software					EULA					tademo
-models/players/james/crusaders/upper_default.skin			id Software					EULA					tademo
-models/players/james/crusaders/upper_red.skin				id Software					EULA					tademo
-models/players/james/pagans/lower_blue.skin					id Software					EULA					tademo
-models/players/james/pagans/lower_default.skin				id Software					EULA					tademo
-models/players/james/pagans/lower_red.skin					id Software					EULA					tademo
-models/players/james/pagans/pagans_blu.tga					id Software					EULA					tademo
-models/players/james/pagans/pagans_red.tga					id Software					EULA					tademo
-models/players/james/pagans/upper_blue.skin					id Software					EULA					tademo
-models/players/james/pagans/upper_default.skin				id Software					EULA					tademo
-models/players/james/pagans/upper_red.skin					id Software					EULA					tademo
-models/players/james/stroggs/lower_blue.skin				id Software					EULA					tademo
-models/players/james/stroggs/lower_default.skin				id Software					EULA					tademo
-models/players/james/stroggs/lower_red.skin					id Software					EULA					tademo
-models/players/james/stroggs/stroggs_blu.tga				id Software					EULA					tademo
-models/players/james/stroggs/stroggs_red.tga				id Software					EULA					tademo
-models/players/james/stroggs/upper_blue.skin				id Software					EULA					tademo
-models/players/james/stroggs/upper_default.skin				id Software					EULA					tademo
-models/players/james/stroggs/upper_red.skin					id Software					EULA					tademo
-models/players/james/animation.cfg							id Software					EULA					tademo
-models/players/james/blue2.tga								id Software					EULA					tademo
-models/players/james/blue.tga								id Software					EULA					tademo
-models/players/james/icon_blue.tga							id Software					EULA					tademo
-models/players/james/icon_default.tga						id Software					EULA					tademo
-models/players/james/icon_red.tga							id Software					EULA					tademo
-models/players/james/lower_1.md3							id Software					EULA					tademo
-models/players/james/lower_2.md3							id Software					EULA					tademo
-models/players/james/lower.md3								id Software					EULA					tademo
-models/players/james/red2.tga								id Software					EULA					tademo
-models/players/james/red.tga								id Software					EULA					tademo
-models/players/james/upper_1.md3							id Software					EULA					tademo
-models/players/james/upper_2.md3							id Software					EULA					tademo
-models/players/james/upper.md3								id Software					EULA					tademo
-models/players/janet/crusaders/crusaders_blu.tga			id Software					EULA					tademo
-models/players/janet/crusaders/crusaders_red.tga			id Software					EULA					tademo
-models/players/janet/crusaders/lower_blue.skin				id Software					EULA					tademo
-models/players/janet/crusaders/lower_default.skin			id Software					EULA					tademo
-models/players/janet/crusaders/lower_red.skin				id Software					EULA					tademo
-models/players/janet/crusaders/upper_blue.skin				id Software					EULA					tademo
-models/players/janet/crusaders/upper_default.skin			id Software					EULA					tademo
-models/players/janet/crusaders/upper_red.skin				id Software					EULA					tademo
-models/players/janet/pagans/lower_blue.skin					id Software					EULA					tademo
-models/players/janet/pagans/lower_default.skin				id Software					EULA					tademo
-models/players/janet/pagans/lower_red.skin					id Software					EULA					tademo
-models/players/janet/pagans/pagans_blu.tga					id Software					EULA					tademo
-models/players/janet/pagans/pagans_red.tga					id Software					EULA					tademo
-models/players/janet/pagans/upper_blue.skin					id Software					EULA					tademo
-models/players/janet/pagans/upper_default.skin				id Software					EULA					tademo
-models/players/janet/pagans/upper_red.skin					id Software					EULA					tademo
-models/players/janet/stroggs/lower_blue.skin				id Software					EULA					tademo
-models/players/janet/stroggs/lower_default.skin				id Software					EULA					tademo
-models/players/janet/stroggs/lower_red.skin					id Software					EULA					tademo
-models/players/janet/stroggs/stroggs_blu.tga				id Software					EULA					tademo
-models/players/janet/stroggs/stroggs_red.tga				id Software					EULA					tademo
-models/players/janet/stroggs/upper_blue.skin				id Software					EULA					tademo
-models/players/janet/stroggs/upper_default.skin				id Software					EULA					tademo
-models/players/janet/stroggs/upper_red.skin					id Software					EULA					tademo
-models/players/janet/animation.cfg							id Software					EULA					tademo
-models/players/janet/icon_blue.tga							id Software					EULA					tademo
-models/players/janet/icon_default.tga						id Software					EULA					tademo
-models/players/janet/icon_red.tga							id Software					EULA					tademo
-models/players/janet/lower_1.md3							id Software					EULA					tademo
-models/players/janet/lower_2.md3							id Software					EULA					tademo
-models/players/janet/lower.md3								id Software					EULA					tademo
-models/players/janet/upper_1.md3							id Software					EULA					tademo
-models/players/janet/upper_2.md3							id Software					EULA					tademo
-models/players/janet/upper.md3								id Software					EULA					tademo
 models/players/visor/blue.tga								id Software					EULA					q3test-1.03
 models/players/visor/blue_s.tga								id Software					EULA					q3test-1.03
 models/players/visor/head_1.md3								id Software					EULA					q3demo
@@ -854,6 +716,7 @@ sound/feedback/holyshit.wav									Open Arena Team				GPL						oa subversion re
 sound/feedback/newhighscore.wav								TODO
 sound/feedback/youlose.wav									TODO
 sound/feedback/youwin.wav									Open Arena Team				GPL						oa subversion repository
+sound/feedback/yousuck.wav									TODO
 sound/feedback/vote_failed.wav								TODO
 sound/feedback/vote_now.wav									TODO
 sound/feedback/vote_passed.wav								TODO
@@ -905,7 +768,6 @@ sound/misc/ar2_pkup.wav										id Software					EULA					q1demo
 sound/misc/ar3_pkup.wav										id Software					EULA					q1demo
 sound/misc/kcaction.wav										id Software					EULA					tademo
 sound/misc/kcswish.wav										id Software					EULA					tademo
-sound/misc/loop_electricity_05.wav							id Software					EULA					tademo
 sound/misc/menu1.wav										id Software					EULA					q2demo
 sound/misc/menu2.wav										id Software					EULA					q2demo
 sound/misc/menu3.wav										id Software					EULA					q2demo
@@ -913,9 +775,7 @@ sound/misc/menu4.wav										id Software					EULA					q3demo
 sound/misc/nightmare.wav									id Software					EULA					tademo
 sound/misc/nomenu.wav										id Software					EULA					tademo
 sound/misc/silence.wav										id Software					EULA					tademo
-sound/misc/tim_pump.wav										id Software					EULA					tademo
 sound/misc/w_pkup.wav										id Software					EULA					q1demo
-sound/misc/yousuck.wav										id Software					EULA					tademo
 sound/player/footsteps/boot1.wav							id Software					EULA					q3demo
 sound/player/footsteps/boot2.wav							id Software					EULA					q3demo
 sound/player/footsteps/boot3.wav							id Software					EULA					q3demo
@@ -944,32 +804,6 @@ sound/player/footsteps/step1.wav							id Software					EULA					q3demo
 sound/player/footsteps/step2.wav							id Software					EULA					q3demo
 sound/player/footsteps/step3.wav							id Software					EULA					q3demo
 sound/player/footsteps/step4.wav							id Software					EULA					q3demo
-sound/player/james/death1.wav								id Software					EULA					tademo
-sound/player/james/death2.wav								id Software					EULA					tademo
-sound/player/james/death3.wav								id Software					EULA					tademo
-sound/player/james/drown.wav								id Software					EULA					tademo
-sound/player/james/fall1.wav								id Software					EULA					tademo
-sound/player/james/falling1.wav								id Software					EULA					tademo
-sound/player/james/gasp.wav									id Software					EULA					tademo
-sound/player/james/jump1.wav								id Software					EULA					tademo
-sound/player/james/pain100_1.wav							id Software					EULA					tademo
-sound/player/james/pain25_1.wav								id Software					EULA					tademo
-sound/player/james/pain50_1.wav								id Software					EULA					tademo
-sound/player/james/pain75_1.wav								id Software					EULA					tademo
-sound/player/james/taunt.wav								id Software					EULA					tademo
-sound/player/janet/death1.wav								id Software					EULA					tademo
-sound/player/janet/death2.wav								id Software					EULA					tademo
-sound/player/janet/death3.wav								id Software					EULA					tademo
-sound/player/janet/drown.wav								id Software					EULA					tademo
-sound/player/janet/fall1.wav								id Software					EULA					tademo
-sound/player/janet/falling1.wav								id Software					EULA					tademo
-sound/player/janet/gasp.wav									id Software					EULA					tademo
-sound/player/janet/jump1.wav								id Software					EULA					tademo
-sound/player/janet/pain100_1.wav							id Software					EULA					tademo
-sound/player/janet/pain25_1.wav								id Software					EULA					tademo
-sound/player/janet/pain50_1.wav								id Software					EULA					tademo
-sound/player/janet/pain75_1.wav								id Software					EULA					tademo
-sound/player/janet/taunt.wav								id Software					EULA					tademo
 sound/player/visor/death1.wav								id Software					EULA					q3demo
 sound/player/visor/death2.wav								id Software					EULA					q3demo
 sound/player/visor/death3.wav								id Software					EULA					q3demo
@@ -1000,350 +834,238 @@ sound/shamino2/windloop1.wav								Shamino						custom
 sound/shamino2/windloop2.wav								Shamino						custom
 sound/shamino2/wind.wav										Shamino						custom
 sound/teamplay/flagcapture_opponent.wav						id Software					EULA					tademo
-sound/teamplay/flagcapture_yourteam.wav						id Software					EULA					tademo
-sound/teamplay/flagreturn_opponent.wav						id Software					EULA					tademo
-sound/teamplay/flagreturn_yourteam.wav						id Software					EULA					tademo
-sound/teamplay/flagtaken_opponent.wav						id Software					EULA					tademo
-sound/teamplay/flagtaken_yourteam.wav						id Software					EULA					tademo
-sound/teamplay/voc_base_attack.wav							id Software					EULA					tademo
-sound/teamplay/voc_blue_returned.wav						id Software					EULA					tademo
-sound/teamplay/voc_blue_scores.wav							id Software					EULA					tademo
-sound/teamplay/voc_enemy_1flag.wav							id Software					EULA					tademo
-sound/teamplay/voc_enemy_flag.wav							id Software					EULA					tademo
-sound/teamplay/voc_red_returned.wav							id Software					EULA					tademo
-sound/teamplay/voc_red_scores.wav							id Software					EULA					tademo
-sound/teamplay/voc_team_1flag.wav							id Software					EULA					tademo
-sound/teamplay/voc_team_flag.wav							id Software					EULA					tademo
-sound/teamplay/voc_you_flag.wav								id Software					EULA					tademo
-sound/voices/female1/gs_01.wav								id Software					EULA					tademo
-sound/voices/female1/gs_02.wav								id Software					EULA					tademo
-sound/voices/female1/gs_03.wav								id Software					EULA					tademo
-sound/voices/female1/gs_04.wav								id Software					EULA					tademo
-sound/voices/female1/gs_05.wav								id Software					EULA					tademo
-sound/voices/female1/gs_06.wav								id Software					EULA					tademo
-sound/voices/female1/gs_07.wav								id Software					EULA					tademo
-sound/voices/female1/gs_08.wav								id Software					EULA					tademo
-sound/voices/female1/gs_09.wav								id Software					EULA					tademo
-sound/voices/female1/gs_10.wav								id Software					EULA					tademo
-sound/voices/female1/or_01.wav								id Software					EULA					tademo
-sound/voices/female1/or_02.wav								id Software					EULA					tademo
-sound/voices/female1/or_03.wav								id Software					EULA					tademo
-sound/voices/female1/or_04.wav								id Software					EULA					tademo
-sound/voices/female1/or_05.wav								id Software					EULA					tademo
-sound/voices/female1/or_06.wav								id Software					EULA					tademo
-sound/voices/female1/or_07.wav								id Software					EULA					tademo
-sound/voices/female1/or_08.wav								id Software					EULA					tademo
-sound/voices/female1/or_09.wav								id Software					EULA					tademo
-sound/voices/female1/or_10.wav								id Software					EULA					tademo
-sound/voices/female1/or_11.wav								id Software					EULA					tademo
-sound/voices/female1/or_12.wav								id Software					EULA					tademo
-sound/voices/female1/or_13.wav								id Software					EULA					tademo
-sound/voices/female1/ps_01.wav								id Software					EULA					tademo
-sound/voices/female1/ps_02.wav								id Software					EULA					tademo
-sound/voices/female1/ps_03.wav								id Software					EULA					tademo
-sound/voices/female1/ps_04.wav								id Software					EULA					tademo
-sound/voices/female1/ps_05.wav								id Software					EULA					tademo
-sound/voices/female1/ps_06.wav								id Software					EULA					tademo
-sound/voices/female1/ps_07.wav								id Software					EULA					tademo
-sound/voices/female1/ps_08.wav								id Software					EULA					tademo
-sound/voices/female1/ps_09.wav								id Software					EULA					tademo
-sound/voices/female1/ps_10.wav								id Software					EULA					tademo
-sound/voices/female1/ps_11.wav								id Software					EULA					tademo
-sound/voices/female1/ps_12.wav								id Software					EULA					tademo
-sound/voices/female1/ps_13.wav								id Software					EULA					tademo
-sound/voices/female1/ps_14.wav								id Software					EULA					tademo
-sound/voices/female1/re_01.wav								id Software					EULA					tademo
-sound/voices/female1/re_02.wav								id Software					EULA					tademo
-sound/voices/female1/re_03.wav								id Software					EULA					tademo
-sound/voices/female1/re_04.wav								id Software					EULA					tademo
-sound/voices/female1/re_05.wav								id Software					EULA					tademo
-sound/voices/female1/re_06.wav								id Software					EULA					tademo
-sound/voices/female1/re_07.wav								id Software					EULA					tademo
-sound/voices/female1/re_08.wav								id Software					EULA					tademo
-sound/voices/female1/re_09.wav								id Software					EULA					tademo
-sound/voices/female1/re_10.wav								id Software					EULA					tademo
-sound/voices/female1/re_11.wav								id Software					EULA					tademo
-sound/voices/female1/tt_01.wav								id Software					EULA					tademo
-sound/voices/female1/tt_02.wav								id Software					EULA					tademo
-sound/voices/female1/tt_03.wav								id Software					EULA					tademo
-sound/voices/female1/tt_04.wav								id Software					EULA					tademo
-sound/voices/female1/tt_05.wav								id Software					EULA					tademo
-sound/voices/female1/tt_06.wav								id Software					EULA					tademo
-sound/voices/female1/tt_07.wav								id Software					EULA					tademo
-sound/voices/female1/tt_08.wav								id Software					EULA					tademo
-sound/voices/female1/tt_09.wav								id Software					EULA					tademo
-sound/voices/female1/tt_10.wav								id Software					EULA					tademo
-sound/voices/female1/tt_11.wav								id Software					EULA					tademo
-sound/voices/female1/tt_12.wav								id Software					EULA					tademo
-sound/voices/female1/tt_13.wav								id Software					EULA					tademo
-sound/voices/female1/tt_14.wav								id Software					EULA					tademo
-sound/voices/female1/tt_15.wav								id Software					EULA					tademo
-sound/voices/female1/tt_16.wav								id Software					EULA					tademo
-sound/voices/female1/tt_17.wav								id Software					EULA					tademo
-sound/voices/female1/tt_18.wav								id Software					EULA					tademo
-sound/voices/female1/tt_19.wav								id Software					EULA					tademo
-sound/voices/female1/tt_20.wav								id Software					EULA					tademo
-sound/voices/female1/tt_21.wav								id Software					EULA					tademo
-sound/voices/female1/tt_22.wav								id Software					EULA					tademo
-sound/voices/female1/tt_23.wav								id Software					EULA					tademo
-sound/voices/female1/tt_24.wav								id Software					EULA					tademo
-sound/voices/female1/tt_25.wav								id Software					EULA					tademo
-sound/voices/female1/tt_26.wav								id Software					EULA					tademo
-sound/voices/female1/tt_27.wav								id Software					EULA					tademo
-sound/voices/female1/tt_28.wav								id Software					EULA					tademo
-sound/voices/female1/tt_29.wav								id Software					EULA					tademo
-sound/voices/female1/tt_30.wav								id Software					EULA					tademo
-sound/voices/female1/tt_31.wav								id Software					EULA					tademo
-sound/voices/female1/tt_32.wav								id Software					EULA					tademo
-sound/voices/female1/tt_33.wav								id Software					EULA					tademo
-sound/voices/female1/tt_34.wav								id Software					EULA					tademo
-sound/voices/female1/voc_01.wav								id Software					EULA					tademo
-sound/voices/female1/voc_02.wav								id Software					EULA					tademo
-sound/voices/female1/voc_03.wav								id Software					EULA					tademo
-sound/voices/female1/voc_04.wav								id Software					EULA					tademo
-sound/voices/female1/voc_05.wav								id Software					EULA					tademo
-sound/voices/female1/voc_06.wav								id Software					EULA					tademo
-sound/voices/female1/voc_07.wav								id Software					EULA					tademo
-sound/voices/female1/voc_08.wav								id Software					EULA					tademo
-sound/voices/female1/voc_09.wav								id Software					EULA					tademo
-sound/voices/female1/voc_10.wav								id Software					EULA					tademo
-sound/voices/female1/voc_11.wav								id Software					EULA					tademo
-sound/voices/female1/voc_12.wav								id Software					EULA					tademo
-sound/voices/female1/voc_13.wav								id Software					EULA					tademo
-sound/voices/female1/voc_14.wav								id Software					EULA					tademo
-sound/voices/female1/voc_15.wav								id Software					EULA					tademo
-sound/voices/female1/voc_16.wav								id Software					EULA					tademo
-sound/voices/female1/voc_17.wav								id Software					EULA					tademo
-sound/voices/female1/voc_18.wav								id Software					EULA					tademo
-sound/voices/female1/voc_19.wav								id Software					EULA					tademo
-sound/voices/female1/voc_20.wav								id Software					EULA					tademo
-sound/voices/female1/voc_21.wav								id Software					EULA					tademo
-sound/voices/female1/voc_22.wav								id Software					EULA					tademo
-sound/voices/female1/voc_23.wav								id Software					EULA					tademo
-sound/voices/female1/voc_24.wav								id Software					EULA					tademo
-sound/voices/female1/voc_25.wav								id Software					EULA					tademo
-sound/voices/female1/voc_26.wav								id Software					EULA					tademo
-sound/voices/female1/voc_27.wav								id Software					EULA					tademo
-sound/voices/female1/voc_28.wav								id Software					EULA					tademo
-sound/voices/male1/gs_01.wav								id Software					EULA					tademo
-sound/voices/male1/gs_02.wav								id Software					EULA					tademo
-sound/voices/male1/gs_03.wav								id Software					EULA					tademo
-sound/voices/male1/gs_04.wav								id Software					EULA					tademo
-sound/voices/male1/gs_05.wav								id Software					EULA					tademo
-sound/voices/male1/gs_06.wav								id Software					EULA					tademo
-sound/voices/male1/gs_07.wav								id Software					EULA					tademo
-sound/voices/male1/gs_08.wav								id Software					EULA					tademo
-sound/voices/male1/gs_09.wav								id Software					EULA					tademo
-sound/voices/male1/gs_10.wav								id Software					EULA					tademo
-sound/voices/male1/or_01.wav								id Software					EULA					tademo
-sound/voices/male1/or_02.wav								id Software					EULA					tademo
-sound/voices/male1/or_03.wav								id Software					EULA					tademo
-sound/voices/male1/or_04.wav								id Software					EULA					tademo
-sound/voices/male1/or_05.wav								id Software					EULA					tademo
-sound/voices/male1/or_06.wav								id Software					EULA					tademo
-sound/voices/male1/or_07.wav								id Software					EULA					tademo
-sound/voices/male1/or_08.wav								id Software					EULA					tademo
-sound/voices/male1/or_09.wav								id Software					EULA					tademo
-sound/voices/male1/or_10.wav								id Software					EULA					tademo
-sound/voices/male1/or_11.wav								id Software					EULA					tademo
-sound/voices/male1/or_12.wav								id Software					EULA					tademo
-sound/voices/male1/or_13.wav								id Software					EULA					tademo
-sound/voices/male1/ps_01.wav								id Software					EULA					tademo
-sound/voices/male1/ps_02.wav								id Software					EULA					tademo
-sound/voices/male1/ps_03.wav								id Software					EULA					tademo
-sound/voices/male1/ps_04.wav								id Software					EULA					tademo
-sound/voices/male1/ps_05.wav								id Software					EULA					tademo
-sound/voices/male1/ps_06.wav								id Software					EULA					tademo
-sound/voices/male1/ps_07.wav								id Software					EULA					tademo
-sound/voices/male1/ps_08.wav								id Software					EULA					tademo
-sound/voices/male1/ps_09.wav								id Software					EULA					tademo
-sound/voices/male1/ps_10.wav								id Software					EULA					tademo
-sound/voices/male1/ps_11.wav								id Software					EULA					tademo
-sound/voices/male1/ps_12.wav								id Software					EULA					tademo
-sound/voices/male1/ps_13.wav								id Software					EULA					tademo
-sound/voices/male1/ps_14.wav								id Software					EULA					tademo
-sound/voices/male1/re_01.wav								id Software					EULA					tademo
-sound/voices/male1/re_02.wav								id Software					EULA					tademo
-sound/voices/male1/re_03.wav								id Software					EULA					tademo
-sound/voices/male1/re_04.wav								id Software					EULA					tademo
-sound/voices/male1/re_05.wav								id Software					EULA					tademo
-sound/voices/male1/re_06.wav								id Software					EULA					tademo
-sound/voices/male1/re_07.wav								id Software					EULA					tademo
-sound/voices/male1/re_08.wav								id Software					EULA					tademo
-sound/voices/male1/re_09.wav								id Software					EULA					tademo
-sound/voices/male1/re_10.wav								id Software					EULA					tademo
-sound/voices/male1/re_11.wav								id Software					EULA					tademo
-sound/voices/male1/tt_01.wav								id Software					EULA					tademo
-sound/voices/male1/tt_02.wav								id Software					EULA					tademo
-sound/voices/male1/tt_03.wav								id Software					EULA					tademo
-sound/voices/male1/tt_04.wav								id Software					EULA					tademo
-sound/voices/male1/tt_05.wav								id Software					EULA					tademo
-sound/voices/male1/tt_06.wav								id Software					EULA					tademo
-sound/voices/male1/tt_07.wav								id Software					EULA					tademo
-sound/voices/male1/tt_08.wav								id Software					EULA					tademo
-sound/voices/male1/tt_09.wav								id Software					EULA					tademo
-sound/voices/male1/tt_10.wav								id Software					EULA					tademo
-sound/voices/male1/tt_11.wav								id Software					EULA					tademo
-sound/voices/male1/tt_12.wav								id Software					EULA					tademo
-sound/voices/male1/tt_13.wav								id Software					EULA					tademo
-sound/voices/male1/tt_14.wav								id Software					EULA					tademo
-sound/voices/male1/tt_15.wav								id Software					EULA					tademo
-sound/voices/male1/tt_16.wav								id Software					EULA					tademo
-sound/voices/male1/tt_17.wav								id Software					EULA					tademo
-sound/voices/male1/tt_18.wav								id Software					EULA					tademo
-sound/voices/male1/tt_19.wav								id Software					EULA					tademo
-sound/voices/male1/tt_20.wav								id Software					EULA					tademo
-sound/voices/male1/tt_21.wav								id Software					EULA					tademo
-sound/voices/male1/tt_22.wav								id Software					EULA					tademo
-sound/voices/male1/tt_23.wav								id Software					EULA					tademo
-sound/voices/male1/tt_24.wav								id Software					EULA					tademo
-sound/voices/male1/tt_25.wav								id Software					EULA					tademo
-sound/voices/male1/tt_26.wav								id Software					EULA					tademo
-sound/voices/male1/tt_30.wav								id Software					EULA					tademo
-sound/voices/male1/tt_31.wav								id Software					EULA					tademo
-sound/voices/male1/tt_32.wav								id Software					EULA					tademo
-sound/voices/male1/tt_33.wav								id Software					EULA					tademo
-sound/voices/male1/tt_34.wav								id Software					EULA					tademo
-sound/voices/male1/voc_01.wav								id Software					EULA					tademo
-sound/voices/male1/voc_02.wav								id Software					EULA					tademo
-sound/voices/male1/voc_03.wav								id Software					EULA					tademo
-sound/voices/male1/voc_04.wav								id Software					EULA					tademo
-sound/voices/male1/voc_05.wav								id Software					EULA					tademo
-sound/voices/male1/voc_06.wav								id Software					EULA					tademo
-sound/voices/male1/voc_07.wav								id Software					EULA					tademo
-sound/voices/male1/voc_08.wav								id Software					EULA					tademo
-sound/voices/male1/voc_09.wav								id Software					EULA					tademo
-sound/voices/male1/voc_10.wav								id Software					EULA					tademo
-sound/voices/male1/voc_11.wav								id Software					EULA					tademo
-sound/voices/male1/voc_12.wav								id Software					EULA					tademo
-sound/voices/male1/voc_13.wav								id Software					EULA					tademo
-sound/voices/male1/voc_14.wav								id Software					EULA					tademo
-sound/voices/male1/voc_15.wav								id Software					EULA					tademo
-sound/voices/male1/voc_16.wav								id Software					EULA					tademo
-sound/voices/male1/voc_17.wav								id Software					EULA					tademo
-sound/voices/male1/voc_18.wav								id Software					EULA					tademo
-sound/voices/male1/voc_19.wav								id Software					EULA					tademo
-sound/voices/male1/voc_20.wav								id Software					EULA					tademo
-sound/voices/male1/voc_21.wav								id Software					EULA					tademo
-sound/voices/male1/voc_22.wav								id Software					EULA					tademo
-sound/voices/male1/voc_23.wav								id Software					EULA					tademo
-sound/voices/male1/voc_24.wav								id Software					EULA					tademo
-sound/voices/male1/voc_25.wav								id Software					EULA					tademo
-sound/voices/male1/voc_26.wav								id Software					EULA					tademo
-sound/voices/male1/voc_27.wav								id Software					EULA					tademo
-sound/voices/male1/voc_28.wav								id Software					EULA					tademo
-sound/voices/male2/gs_01.wav								id Software					EULA					tademo
-sound/voices/male2/gs_02.wav								id Software					EULA					tademo
-sound/voices/male2/gs_03.wav								id Software					EULA					tademo
-sound/voices/male2/gs_04.wav								id Software					EULA					tademo
-sound/voices/male2/gs_05.wav								id Software					EULA					tademo
-sound/voices/male2/gs_06.wav								id Software					EULA					tademo
-sound/voices/male2/gs_07.wav								id Software					EULA					tademo
-sound/voices/male2/gs_08.wav								id Software					EULA					tademo
-sound/voices/male2/gs_09.wav								id Software					EULA					tademo
-sound/voices/male2/gs_10.wav								id Software					EULA					tademo
-sound/voices/male2/or_01.wav								id Software					EULA					tademo
-sound/voices/male2/or_02.wav								id Software					EULA					tademo
-sound/voices/male2/or_03.wav								id Software					EULA					tademo
-sound/voices/male2/or_04.wav								id Software					EULA					tademo
-sound/voices/male2/or_05.wav								id Software					EULA					tademo
-sound/voices/male2/or_06.wav								id Software					EULA					tademo
-sound/voices/male2/or_07.wav								id Software					EULA					tademo
-sound/voices/male2/or_08.wav								id Software					EULA					tademo
-sound/voices/male2/or_09.wav								id Software					EULA					tademo
-sound/voices/male2/or_10.wav								id Software					EULA					tademo
-sound/voices/male2/or_11.wav								id Software					EULA					tademo
-sound/voices/male2/or_12.wav								id Software					EULA					tademo
-sound/voices/male2/or_13.wav								id Software					EULA					tademo
-sound/voices/male2/ps_01.wav								id Software					EULA					tademo
-sound/voices/male2/ps_02.wav								id Software					EULA					tademo
-sound/voices/male2/ps_03.wav								id Software					EULA					tademo
-sound/voices/male2/ps_04.wav								id Software					EULA					tademo
-sound/voices/male2/ps_05.wav								id Software					EULA					tademo
-sound/voices/male2/ps_06.wav								id Software					EULA					tademo
-sound/voices/male2/ps_07.wav								id Software					EULA					tademo
-sound/voices/male2/ps_08.wav								id Software					EULA					tademo
-sound/voices/male2/ps_09.wav								id Software					EULA					tademo
-sound/voices/male2/ps_10.wav								id Software					EULA					tademo
-sound/voices/male2/ps_11.wav								id Software					EULA					tademo
-sound/voices/male2/ps_12.wav								id Software					EULA					tademo
-sound/voices/male2/ps_13.wav								id Software					EULA					tademo
-sound/voices/male2/ps_14.wav								id Software					EULA					tademo
-sound/voices/male2/re_01.wav								id Software					EULA					tademo
-sound/voices/male2/re_02.wav								id Software					EULA					tademo
-sound/voices/male2/re_03.wav								id Software					EULA					tademo
-sound/voices/male2/re_04.wav								id Software					EULA					tademo
-sound/voices/male2/re_05.wav								id Software					EULA					tademo
-sound/voices/male2/re_06.wav								id Software					EULA					tademo
-sound/voices/male2/re_07.wav								id Software					EULA					tademo
-sound/voices/male2/re_08.wav								id Software					EULA					tademo
-sound/voices/male2/re_09.wav								id Software					EULA					tademo
-sound/voices/male2/re_10.wav								id Software					EULA					tademo
-sound/voices/male2/re_11.wav								id Software					EULA					tademo
-sound/voices/male2/tt_02.wav								id Software					EULA					tademo
-sound/voices/male2/tt_03.wav								id Software					EULA					tademo
-sound/voices/male2/tt_04.wav								id Software					EULA					tademo
-sound/voices/male2/tt_05.wav								id Software					EULA					tademo
-sound/voices/male2/tt_06.wav								id Software					EULA					tademo
-sound/voices/male2/tt_07.wav								id Software					EULA					tademo
-sound/voices/male2/tt_08.wav								id Software					EULA					tademo
-sound/voices/male2/tt_09.wav								id Software					EULA					tademo
-sound/voices/male2/tt_10.wav								id Software					EULA					tademo
-sound/voices/male2/tt_11.wav								id Software					EULA					tademo
-sound/voices/male2/tt_12.wav								id Software					EULA					tademo
-sound/voices/male2/tt_13.wav								id Software					EULA					tademo
-sound/voices/male2/tt_14.wav								id Software					EULA					tademo
-sound/voices/male2/tt_15.wav								id Software					EULA					tademo
-sound/voices/male2/tt_16.wav								id Software					EULA					tademo
-sound/voices/male2/tt_17.wav								id Software					EULA					tademo
-sound/voices/male2/tt_18.wav								id Software					EULA					tademo
-sound/voices/male2/tt_19.wav								id Software					EULA					tademo
-sound/voices/male2/tt_20.wav								id Software					EULA					tademo
-sound/voices/male2/tt_21.wav								id Software					EULA					tademo
-sound/voices/male2/tt_22.wav								id Software					EULA					tademo
-sound/voices/male2/tt_23.wav								id Software					EULA					tademo
-sound/voices/male2/tt_24.wav								id Software					EULA					tademo
-sound/voices/male2/tt_25.wav								id Software					EULA					tademo
-sound/voices/male2/tt_26.wav								id Software					EULA					tademo
-sound/voices/male2/tt_27.wav								id Software					EULA					tademo
-sound/voices/male2/tt_28.wav								id Software					EULA					tademo
-sound/voices/male2/tt_29.wav								id Software					EULA					tademo
-sound/voices/male2/tt_30.wav								id Software					EULA					tademo
-sound/voices/male2/tt_31.wav								id Software					EULA					tademo
-sound/voices/male2/tt_32.wav								id Software					EULA					tademo
-sound/voices/male2/tt_33.wav								id Software					EULA					tademo
-sound/voices/male2/tt_34.wav								id Software					EULA					tademo
-sound/voices/male2/tt_35.wav								id Software					EULA					tademo
-sound/voices/male2/tt_36.wav								id Software					EULA					tademo
-sound/voices/male2/tt_37.wav								id Software					EULA					tademo
-sound/voices/male2/voc_01.wav								id Software					EULA					tademo
-sound/voices/male2/voc_02.wav								id Software					EULA					tademo
-sound/voices/male2/voc_03.wav								id Software					EULA					tademo
-sound/voices/male2/voc_04.wav								id Software					EULA					tademo
-sound/voices/male2/voc_05.wav								id Software					EULA					tademo
-sound/voices/male2/voc_06.wav								id Software					EULA					tademo
-sound/voices/male2/voc_07.wav								id Software					EULA					tademo
-sound/voices/male2/voc_08.wav								id Software					EULA					tademo
-sound/voices/male2/voc_09.wav								id Software					EULA					tademo
-sound/voices/male2/voc_10.wav								id Software					EULA					tademo
-sound/voices/male2/voc_11.wav								id Software					EULA					tademo
-sound/voices/male2/voc_12.wav								id Software					EULA					tademo
-sound/voices/male2/voc_13.wav								id Software					EULA					tademo
-sound/voices/male2/voc_14.wav								id Software					EULA					tademo
-sound/voices/male2/voc_15.wav								id Software					EULA					tademo
-sound/voices/male2/voc_16.wav								id Software					EULA					tademo
-sound/voices/male2/voc_17.wav								id Software					EULA					tademo
-sound/voices/male2/voc_18.wav								id Software					EULA					tademo
-sound/voices/male2/voc_19.wav								id Software					EULA					tademo
-sound/voices/male2/voc_20.wav								id Software					EULA					tademo
-sound/voices/male2/voc_21.wav								id Software					EULA					tademo
-sound/voices/male2/voc_22.wav								id Software					EULA					tademo
-sound/voices/male2/voc_23.wav								id Software					EULA					tademo
-sound/voices/male2/voc_24.wav								id Software					EULA					tademo
-sound/voices/male2/voc_25.wav								id Software					EULA					tademo
-sound/voices/male2/voc_26.wav								id Software					EULA					tademo
-sound/voices/male2/voc_27.wav								id Software					EULA					tademo
-sound/voices/male2/voc_28.wav								id Software					EULA					tademo
+sound/teamplay/flagcapture_yourteam.wav						TODO
+sound/teamplay/flagreturn_opponent.wav						TODO
+sound/teamplay/flagreturn_yourteam.wav						TODO
+sound/teamplay/flagtaken_opponent.wav						TODO
+sound/teamplay/flagtaken_yourteam.wav						TODO
+sound/teamplay/voc_base_attack.wav							TODO
+sound/teamplay/voc_blue_returned.wav						TODO
+sound/teamplay/voc_blue_scores.wav							TODO
+sound/teamplay/voc_enemy_1flag.wav							TODO
+sound/teamplay/voc_enemy_flag.wav							TODO
+sound/teamplay/voc_red_returned.wav							TODO
+sound/teamplay/voc_red_scores.wav							TODO
+sound/teamplay/voc_team_1flag.wav							TODO
+sound/teamplay/voc_team_flag.wav							TODO
+sound/teamplay/voc_you_flag.wav								TODO
+sound/voices/female1/gs_01.wav								TODO
+sound/voices/female1/gs_02.wav								TODO
+sound/voices/female1/gs_03.wav								TODO
+sound/voices/female1/gs_04.wav								TODO
+sound/voices/female1/gs_05.wav								TODO
+sound/voices/female1/gs_06.wav								TODO
+sound/voices/female1/gs_07.wav								TODO
+sound/voices/female1/gs_08.wav								TODO
+sound/voices/female1/gs_09.wav								TODO
+sound/voices/female1/gs_10.wav								TODO
+sound/voices/female1/or_01.wav								TODO
+sound/voices/female1/or_02.wav								TODO
+sound/voices/female1/or_03.wav								TODO
+sound/voices/female1/or_04.wav								TODO
+sound/voices/female1/or_05.wav								TODO
+sound/voices/female1/or_06.wav								TODO
+sound/voices/female1/or_07.wav								TODO
+sound/voices/female1/or_08.wav								TODO
+sound/voices/female1/or_09.wav								TODO
+sound/voices/female1/or_10.wav								TODO
+sound/voices/female1/or_11.wav								TODO
+sound/voices/female1/or_12.wav								TODO
+sound/voices/female1/or_13.wav								TODO
+sound/voices/female1/ps_01.wav								TODO
+sound/voices/female1/ps_02.wav								TODO
+sound/voices/female1/ps_03.wav								TODO
+sound/voices/female1/ps_04.wav								TODO
+sound/voices/female1/ps_05.wav								TODO
+sound/voices/female1/ps_06.wav								TODO
+sound/voices/female1/ps_07.wav								TODO
+sound/voices/female1/ps_08.wav								TODO
+sound/voices/female1/ps_09.wav								TODO
+sound/voices/female1/ps_10.wav								TODO
+sound/voices/female1/ps_11.wav								TODO
+sound/voices/female1/ps_12.wav								TODO
+sound/voices/female1/ps_13.wav								TODO
+sound/voices/female1/ps_14.wav								TODO
+sound/voices/female1/re_01.wav								TODO
+sound/voices/female1/re_02.wav								TODO
+sound/voices/female1/re_03.wav								TODO
+sound/voices/female1/re_04.wav								TODO
+sound/voices/female1/re_05.wav								TODO
+sound/voices/female1/re_06.wav								TODO
+sound/voices/female1/re_07.wav								TODO
+sound/voices/female1/re_08.wav								TODO
+sound/voices/female1/re_09.wav								TODO
+sound/voices/female1/re_10.wav								TODO
+sound/voices/female1/re_11.wav								TODO
+sound/voices/female1/tt_01.wav								TODO
+sound/voices/female1/tt_02.wav								TODO
+sound/voices/female1/tt_03.wav								TODO
+sound/voices/female1/tt_04.wav								TODO
+sound/voices/female1/tt_05.wav								TODO
+sound/voices/female1/tt_06.wav								TODO
+sound/voices/female1/tt_07.wav								TODO
+sound/voices/female1/tt_08.wav								TODO
+sound/voices/female1/tt_09.wav								TODO
+sound/voices/female1/tt_10.wav								TODO
+sound/voices/female1/tt_11.wav								TODO
+sound/voices/female1/tt_12.wav								TODO
+sound/voices/female1/tt_13.wav								TODO
+sound/voices/female1/tt_14.wav								TODO
+sound/voices/female1/tt_15.wav								TODO
+sound/voices/female1/tt_16.wav								TODO
+sound/voices/female1/tt_17.wav								TODO
+sound/voices/female1/tt_18.wav								TODO
+sound/voices/female1/tt_19.wav								TODO
+sound/voices/female1/tt_20.wav								TODO
+sound/voices/female1/tt_21.wav								TODO
+sound/voices/female1/tt_22.wav								TODO
+sound/voices/female1/tt_23.wav								TODO
+sound/voices/female1/tt_24.wav								TODO
+sound/voices/female1/tt_25.wav								TODO
+sound/voices/female1/tt_26.wav								TODO
+sound/voices/female1/tt_27.wav								TODO
+sound/voices/female1/tt_28.wav								TODO
+sound/voices/female1/tt_29.wav								TODO
+sound/voices/female1/tt_30.wav								TODO
+sound/voices/female1/tt_31.wav								TODO
+sound/voices/female1/tt_32.wav								TODO
+sound/voices/female1/tt_33.wav								TODO
+sound/voices/female1/tt_34.wav								TODO
+sound/voices/female1/voc_01.wav								TODO
+sound/voices/female1/voc_02.wav								TODO
+sound/voices/female1/voc_03.wav								TODO
+sound/voices/female1/voc_04.wav								TODO
+sound/voices/female1/voc_05.wav								TODO
+sound/voices/female1/voc_06.wav								TODO
+sound/voices/female1/voc_07.wav								TODO
+sound/voices/female1/voc_08.wav								TODO
+sound/voices/female1/voc_09.wav								TODO
+sound/voices/female1/voc_10.wav								TODO
+sound/voices/female1/voc_11.wav								TODO
+sound/voices/female1/voc_12.wav								TODO
+sound/voices/female1/voc_13.wav								TODO
+sound/voices/female1/voc_14.wav								TODO
+sound/voices/female1/voc_15.wav								TODO
+sound/voices/female1/voc_16.wav								TODO
+sound/voices/female1/voc_17.wav								TODO
+sound/voices/female1/voc_18.wav								TODO
+sound/voices/female1/voc_19.wav								TODO
+sound/voices/female1/voc_20.wav								TODO
+sound/voices/female1/voc_21.wav								TODO
+sound/voices/female1/voc_22.wav								TODO
+sound/voices/female1/voc_23.wav								TODO
+sound/voices/female1/voc_24.wav								TODO
+sound/voices/female1/voc_25.wav								TODO
+sound/voices/female1/voc_26.wav								TODO
+sound/voices/female1/voc_27.wav								TODO
+sound/voices/female1/voc_28.wav								TODO
+sound/voices/male1/gs_01.wav								TODO
+sound/voices/male1/gs_02.wav								TODO
+sound/voices/male1/gs_03.wav								TODO
+sound/voices/male1/gs_04.wav								TODO
+sound/voices/male1/gs_05.wav								TODO
+sound/voices/male1/gs_06.wav								TODO
+sound/voices/male1/gs_07.wav								TODO
+sound/voices/male1/gs_08.wav								TODO
+sound/voices/male1/gs_09.wav								TODO
+sound/voices/male1/gs_10.wav								TODO
+sound/voices/male1/or_01.wav								TODO
+sound/voices/male1/or_02.wav								TODO
+sound/voices/male1/or_03.wav								TODO
+sound/voices/male1/or_04.wav								TODO
+sound/voices/male1/or_05.wav								TODO
+sound/voices/male1/or_06.wav								TODO
+sound/voices/male1/or_07.wav								TODO
+sound/voices/male1/or_08.wav								TODO
+sound/voices/male1/or_09.wav								TODO
+sound/voices/male1/or_10.wav								TODO
+sound/voices/male1/or_11.wav								TODO
+sound/voices/male1/or_12.wav								TODO
+sound/voices/male1/or_13.wav								TODO
+sound/voices/male1/ps_01.wav								TODO
+sound/voices/male1/ps_02.wav								TODO
+sound/voices/male1/ps_03.wav								TODO
+sound/voices/male1/ps_04.wav								TODO
+sound/voices/male1/ps_05.wav								TODO
+sound/voices/male1/ps_06.wav								TODO
+sound/voices/male1/ps_07.wav								TODO
+sound/voices/male1/ps_08.wav								TODO
+sound/voices/male1/ps_09.wav								TODO
+sound/voices/male1/ps_10.wav								TODO
+sound/voices/male1/ps_11.wav								TODO
+sound/voices/male1/ps_12.wav								TODO
+sound/voices/male1/ps_13.wav								TODO
+sound/voices/male1/ps_14.wav								TODO
+sound/voices/male1/re_01.wav								TODO
+sound/voices/male1/re_02.wav								TODO
+sound/voices/male1/re_03.wav								TODO
+sound/voices/male1/re_04.wav								TODO
+sound/voices/male1/re_05.wav								TODO
+sound/voices/male1/re_06.wav								TODO
+sound/voices/male1/re_07.wav								TODO
+sound/voices/male1/re_08.wav								TODO
+sound/voices/male1/re_09.wav								TODO
+sound/voices/male1/re_10.wav								TODO
+sound/voices/male1/re_11.wav								TODO
+sound/voices/male1/tt_01.wav								TODO
+sound/voices/male1/tt_02.wav								TODO
+sound/voices/male1/tt_03.wav								TODO
+sound/voices/male1/tt_04.wav								TODO
+sound/voices/male1/tt_05.wav								TODO
+sound/voices/male1/tt_06.wav								TODO
+sound/voices/male1/tt_07.wav								TODO
+sound/voices/male1/tt_08.wav								TODO
+sound/voices/male1/tt_09.wav								TODO
+sound/voices/male1/tt_10.wav								TODO
+sound/voices/male1/tt_11.wav								TODO
+sound/voices/male1/tt_12.wav								TODO
+sound/voices/male1/tt_13.wav								TODO
+sound/voices/male1/tt_14.wav								TODO
+sound/voices/male1/tt_15.wav								TODO
+sound/voices/male1/tt_16.wav								TODO
+sound/voices/male1/tt_17.wav								TODO
+sound/voices/male1/tt_18.wav								TODO
+sound/voices/male1/tt_19.wav								TODO
+sound/voices/male1/tt_20.wav								TODO
+sound/voices/male1/tt_21.wav								TODO
+sound/voices/male1/tt_22.wav								TODO
+sound/voices/male1/tt_23.wav								TODO
+sound/voices/male1/tt_24.wav								TODO
+sound/voices/male1/tt_25.wav								TODO
+sound/voices/male1/tt_26.wav								TODO
+sound/voices/male1/tt_30.wav								TODO
+sound/voices/male1/tt_31.wav								TODO
+sound/voices/male1/tt_32.wav								TODO
+sound/voices/male1/tt_33.wav								TODO
+sound/voices/male1/tt_34.wav								TODO
+sound/voices/male1/voc_01.wav								TODO
+sound/voices/male1/voc_02.wav								TODO
+sound/voices/male1/voc_03.wav								TODO
+sound/voices/male1/voc_04.wav								TODO
+sound/voices/male1/voc_05.wav								TODO
+sound/voices/male1/voc_06.wav								TODO
+sound/voices/male1/voc_07.wav								TODO
+sound/voices/male1/voc_08.wav								TODO
+sound/voices/male1/voc_09.wav								TODO
+sound/voices/male1/voc_10.wav								TODO
+sound/voices/male1/voc_11.wav								TODO
+sound/voices/male1/voc_12.wav								TODO
+sound/voices/male1/voc_13.wav								TODO
+sound/voices/male1/voc_14.wav								TODO
+sound/voices/male1/voc_15.wav								TODO
+sound/voices/male1/voc_16.wav								TODO
+sound/voices/male1/voc_17.wav								TODO
+sound/voices/male1/voc_18.wav								TODO
+sound/voices/male1/voc_19.wav								TODO
+sound/voices/male1/voc_20.wav								TODO
+sound/voices/male1/voc_21.wav								TODO
+sound/voices/male1/voc_22.wav								TODO
+sound/voices/male1/voc_23.wav								TODO
+sound/voices/male1/voc_24.wav								TODO
+sound/voices/male1/voc_25.wav								TODO
+sound/voices/male1/voc_26.wav								TODO
+sound/voices/male1/voc_27.wav								TODO
+sound/voices/male1/voc_28.wav								TODO
 sound/weapons/bfg/bfg_fire.wav								id Software					EULA					q3demo
 sound/weapons/bfg/bfg_hum.wav								id Software					EULA					dkdemo
 sound/weapons/grenade/grenlf1a.wav							id Software					EULA					q1demo

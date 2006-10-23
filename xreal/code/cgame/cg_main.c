@@ -361,9 +361,7 @@ void CG_RegisterCvars(void)
 	forceModelModificationCount = cg_forceModel.modificationCount;
 
 	trap_Cvar_Register(NULL, "model", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE);
-	trap_Cvar_Register(NULL, "headmodel", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE);
-	trap_Cvar_Register(NULL, "team_model", DEFAULT_TEAM_MODEL, CVAR_USERINFO | CVAR_ARCHIVE);
-	trap_Cvar_Register(NULL, "team_headmodel", DEFAULT_TEAM_HEAD, CVAR_USERINFO | CVAR_ARCHIVE);
+	trap_Cvar_Register(NULL, "headmodel", DEFAULT_HEADMODEL, CVAR_USERINFO | CVAR_ARCHIVE);
 }
 
 /*																																			
@@ -799,9 +797,9 @@ static void CG_RegisterSounds(void)
 	cgs.media.kamikazeExplodeSound = trap_S_RegisterSound("sound/items/kam_explode.wav", qfalse);
 	cgs.media.kamikazeImplodeSound = trap_S_RegisterSound("sound/items/kam_implode.wav", qfalse);
 	cgs.media.kamikazeFarSound = trap_S_RegisterSound("sound/items/kam_explode_far.wav", qfalse);
-	cgs.media.winnerSound = trap_S_RegisterSound("sound/feedback/voc_youwin.wav", qfalse);
-	cgs.media.loserSound = trap_S_RegisterSound("sound/feedback/voc_youlose.wav", qfalse);
-	cgs.media.youSuckSound = trap_S_RegisterSound("sound/misc/yousuck.wav", qfalse);
+	cgs.media.winnerSound = trap_S_RegisterSound("sound/feedback/youwin.wav", qfalse);
+	cgs.media.loserSound = trap_S_RegisterSound("sound/feedback/youlose.wav", qfalse);
+	cgs.media.youSuckSound = trap_S_RegisterSound("sound/feedback/yousuck.wav", qfalse);
 
 	cgs.media.wstbimplSound = trap_S_RegisterSound("sound/weapons/proxmine/wstbimpl.wav", qfalse);
 	cgs.media.wstbimpmSound = trap_S_RegisterSound("sound/weapons/proxmine/wstbimpm.wav", qfalse);
@@ -1156,15 +1154,6 @@ static void CG_RegisterGraphics(void)
 	cgs.media.flagShaders[0] = trap_R_RegisterShaderNoMip("ui/assets/flag_in_base.tga");
 	cgs.media.flagShaders[1] = trap_R_RegisterShaderNoMip("ui/assets/flag_capture.tga");
 	cgs.media.flagShaders[2] = trap_R_RegisterShaderNoMip("ui/assets/flag_missing.tga");
-
-	trap_R_RegisterModel("models/players/james/lower.md3");
-	trap_R_RegisterModel("models/players/james/upper.md3");
-	trap_R_RegisterModel("models/players/heads/james/james.md3");
-
-	trap_R_RegisterModel("models/players/janet/lower.md3");
-	trap_R_RegisterModel("models/players/janet/upper.md3");
-	trap_R_RegisterModel("models/players/heads/janet/janet.md3");
-
 #endif
 
 	// light attenuation

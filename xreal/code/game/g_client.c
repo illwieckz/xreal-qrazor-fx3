@@ -870,16 +870,8 @@ void ClientUserinfoChanged(int clientNum)
 	client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
 
 	// set model
-	if(g_gametype.integer >= GT_TEAM)
-	{
-		Q_strncpyz(model, Info_ValueForKey(userinfo, "team_model"), sizeof(model));
-		Q_strncpyz(headModel, Info_ValueForKey(userinfo, "team_headmodel"), sizeof(headModel));
-	}
-	else
-	{
-		Q_strncpyz(model, Info_ValueForKey(userinfo, "model"), sizeof(model));
-		Q_strncpyz(headModel, Info_ValueForKey(userinfo, "headmodel"), sizeof(headModel));
-	}
+	Q_strncpyz(model, Info_ValueForKey(userinfo, "model"), sizeof(model));
+	Q_strncpyz(headModel, Info_ValueForKey(userinfo, "headmodel"), sizeof(headModel));
 
 	// bots set their team a few frames later
 	if(g_gametype.integer >= GT_TEAM && g_entities[clientNum].r.svFlags & SVF_BOT)

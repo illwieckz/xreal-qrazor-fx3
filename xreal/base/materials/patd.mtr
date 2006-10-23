@@ -8218,7 +8218,8 @@ gui/sm1/bg
 }
 
 gui/pdvideotest {  
-     translucent { 
+     translucent
+     { 
           videomap "video/level3_atommachine.roq" 
           linear 
      } 

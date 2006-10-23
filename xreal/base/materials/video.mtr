@@ -1,12 +1,16 @@
-gui/intro/introloop {
-	translucent {
+gui/intro/introloop
+{
+	translucent
+	{
 		videomap loop video/intro/introloop.RoQ
 		linear
 	}
 }
 
-gui/intro/introid {
-	translucent {
+gui/intro/introid
+{
+	translucent
+	{
 		videomap video/intro/introid.RoQ
 		linear
 	}
@@ -122,44 +126,53 @@ gui/mainmenu/intro {
 }
 */
 
-video/data {
-	translucent {
+video/data
+{
+	translucent
+	{
 		videomap loop video/data.roq
 		linear
 		colored
 	}
 }
 
-gui/mainmenu/fireball {
-	translucent {
+gui/mainmenu/fireball
+{
+	translucent
+	{
 		videomap loop video/fireball.RoQ
 		linear
 	}
 }
 
-gui/comm1/radar {
-	translucent {
+gui/comm1/radar
+{
+	translucent
+	{
 		videomap loop video/radar.RoQ
 		linear
 	}
 }
 
 gui/admin/betruger {
-	translucent {
+	translucent
+	{
 		videomap "video/admin/betruger.RoQ"
 		linear
 	}
 }
 
 gui/marscity/monoflyby {
-	translucent {
+	translucent
+	{
 		videomap video/marscity/monoflyby.RoQ
 		linear
 	}
 }
 
 gui/marscity/dropship {
-	translucent {
+	translucent
+	{
 		videomap video/marscity/dropship.RoQ
 		linear
 	}
@@ -175,7 +188,8 @@ gui/marscity/dropship2 {
 */
 
 gui/marscity/dropship3 {
-	translucent {
+	translucent
+	{
 		videomap video/marscity/ship.RoQ
 		linear
 	}
@@ -191,28 +205,32 @@ gui/marscity/comm2 {
 */
 
 gui/marscity/decom {
-	translucent {
+	translucent
+	{
 		videomap loop video/marscity/decom.RoQ
 		linear
 	}
 }
 
 gui/marscity/sci_team_request {
-	translucent {
+	translucent
+	{
 		videomap "video/marscity/sci_team_request.RoQ"
 		linear
 	}
 }
 
 gui/marscity/sarge_mission_brief {
-	translucent {
+	translucent
+	{
 		videomap "video/marscity/sarge_mission_brief.RoQ"
 		linear
 	}
 }
 
 gui/delta1/sarge_video1 {
-	translucent {
+	translucent
+	{
 		videomap "video/delta1/sarge_video1.RoQ"
 		linear
 	}
@@ -220,7 +238,8 @@ gui/delta1/sarge_video1 {
 
 //yes
 gui/recycling2/cs_bert01_composite {
-	translucent {
+	translucent
+	{
 		videomap "video/recycling2/cs_bert01_composite.RoQ"
 		linear
 	}
@@ -228,26 +247,30 @@ gui/recycling2/cs_bert01_composite {
 
 //no
 gui/recycling2/cs_bert02_composite {
-	translucent {
+	translucent
+	{
 		videomap "video/recycling2/cs_bert02_composite.RoQ"
 		linear
 	}
 }
 
 gui/comm1/swann_vidphone1 {
-	translucent {
+	translucent
+	{
 		videomap "video/comm1/swann_vidphone1.RoQ"
 		linear
 	}
 }
 gui/comm1/swann_vidphone2 {
-	translucent {
+	translucent
+	{
 		videomap "video/comm1/swann_vidphone2.RoQ"
 		linear
 	}
 }
 gui/comm1/swann_vidphone3 {
-	translucent {
+	translucent
+	{
 		videomap "video/comm1/swann_vidphone3.RoQ"
 		linear
 	}
@@ -276,7 +299,8 @@ gui/mc_underground/inv1 {
 */
 
 gui/mc_underground/inv1sm {
-	translucent {
+	translucent
+	{
 		videomap "video/mc_underground/inv1sm.RoQ"
 		linear
 	}
@@ -292,13 +316,15 @@ gui/mc_underground/inv2 {
 */
 
 gui/mc_underground/inv2sm {
-	translucent {
+	translucent
+	{
 		videomap "video/mc_underground/inv2sm.RoQ"
 		linear
 	}
 }
 gui/mc_underground/inv3 {
-	translucent {
+	translucent
+	{
 		videomap "video/mc_underground/inv3.RoQ"
 		linear
 	}
@@ -335,7 +361,8 @@ gui/mc_underground/inv5 {
 */
 
 gui/mc_underground/inv5sm {
-	translucent {
+	translucent
+	{
 		videomap "video/mc_underground/inv5sm.RoQ"
 		linear
 	}
@@ -351,7 +378,8 @@ gui/mc_underground/inv6 {
 */
 
 gui/mc_underground/inv6sm {
-	translucent {
+	translucent
+	{
 		videomap "video/mc_underground/inv6sm.RoQ"
 		linear
 	}
@@ -367,14 +395,16 @@ gui/mc_underground/inv7 {
 */
 
 gui/mc_underground/inv7sm {
-	translucent {
+	translucent
+	{
 		videomap "video/mc_underground/inv7sm.RoQ"
 		linear
 	}
 }
 
 gui/hellhole/rescue {
-	translucent {
+	translucent
+	{
 		videomap "video/hellhole/rescue.RoQ"
 		linear
 	}
@@ -384,14 +414,16 @@ gui/hellhole/rescue {
 // Video shaders with Roq's in sounds/VO folder
 
 pdas/video/epd {
-	translucent {
+	translucent
+	{
 		videomap "sound/vo/video/epd.roq"
 		linear
 	}
 }
 
 video/hydrocon {
-	translucent {
+	translucent
+	{
 		videomap "sound/VO/video/hydrocon.RoQ"
 		linear
 	}
@@ -400,35 +432,40 @@ video/hydrocon {
 pdas/video/mfs {
 	qer_editorimage	textures/editor/video.tga
 
-	translucent {
+	translucent
+	{
 		videomap "sound/vo/video/mfs.roq"
 		linear
 	}
 }
 
 video/video_alphalabs_intro {
-	translucent {
+	translucent
+	{
 		videomap "sound/VO/video/video_alphalabs_intro.roq"
 		linear
 	}
 }
 
 video/video_ancient_civ {
-	translucent {
+	translucent
+	{
 		videomap "sound/VO/video/video_ancient_civ.roq"
 		linear
 	}
 }
 
 video/video_bfg {
-	translucent {
+	translucent
+	{
 		videomap "sound/VO/video/video_bfg.roq"
 		linear
 	}
 }
 
 video/video_chaingun {
-	translucent {
+	translucent
+	{
 		videomap "sound/VO/video/video_chaingun.roq"
 		linear
 	}
@@ -444,28 +481,32 @@ video/video_delta2_medical {
 */
 
 video/video_ian_report {
-	translucent {
+	translucent
+	{
 		videomap sound/VO/video/video_ian_report.roq
 		linear
 	}
 }
 
 video/video_ipn_news {
-	translucent {
+	translucent
+	{
 		videomap "sound/VO/video/video_ipn_news.roq"
 		linear
 	}
 }
 
 video/video_marine_sops {
-	translucent {
+	translucent
+	{
 		videomap "sound/VO/video/video_marine_sops.roq"
 		linear
 	}
 }
 
 video/video_plasmagun {
-	translucent {
+	translucent
+	{
 		videomap "sound/VO/video/video_plasmagun.roq"
 		linear
 	}
@@ -481,35 +522,40 @@ video/video_template_logo {
 */
 
 video/video_uac_welcome {
-	translucent {
+	translucent
+	{
 		videomap "sound/VO/video/video_uac_welcome.roq"
 		linear
 	}
 }
 
 video/video_demon_museum {
-	translucent {
+	translucent
+	{
 		videomap "sound/VO/video/video_demon_museum.roq"
 		linear
 	}
 }
 
 video/video_recycling {
-	translucent {
+	translucent
+	{
 		videomap "sound/VO/video/video_recycling.roq"
 		linear
 	}
 }
 
 video/video_soulcube {
-	translucent {
+	translucent
+	{
 		videomap "sound/VO/video/video_soulcube.roq"
 		linear
 	}
 }
 
 video/video_tablets {
-	translucent {
+	translucent
+	{
 		videomap "sound/VO/video/video_tablets.roq"
 		linear
 	}

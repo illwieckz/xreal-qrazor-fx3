@@ -2654,8 +2654,6 @@ void CL_Init(void)
 	Cvar_Get("snaps", "20", CVAR_USERINFO | CVAR_ARCHIVE);
 	Cvar_Get("model", "visor", CVAR_USERINFO | CVAR_ARCHIVE);
 	Cvar_Get("headmodel", "visor", CVAR_USERINFO | CVAR_ARCHIVE);
-	Cvar_Get("team_model", "james", CVAR_USERINFO | CVAR_ARCHIVE);
-	Cvar_Get("team_headmodel", "*james", CVAR_USERINFO | CVAR_ARCHIVE);
 	Cvar_Get("g_redTeam", "Stroggs", CVAR_SERVERINFO | CVAR_ARCHIVE);
 	Cvar_Get("g_blueTeam", "Pagans", CVAR_SERVERINFO | CVAR_ARCHIVE);
 	Cvar_Get("color1", "4", CVAR_USERINFO | CVAR_ARCHIVE);

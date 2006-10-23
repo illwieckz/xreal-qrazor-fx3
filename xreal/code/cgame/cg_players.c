@@ -406,10 +406,12 @@ static qboolean CG_FindClientModelFile(char *filename, int length, clientInfo_t 
 				Com_sprintf(filename, length, "models/players/%s%s/%s_%s_%s.%s", charactersFolder, modelName, base, skinName,
 							team, ext);
 			}
+			
 			if(CG_FileExists(filename))
 			{
 				return qtrue;
 			}
+			
 			if(cgs.gametype >= GT_TEAM)
 			{
 				if(i == 0 && teamName && *teamName)
@@ -439,15 +441,18 @@ static qboolean CG_FindClientModelFile(char *filename, int length, clientInfo_t 
 								ext);
 				}
 			}
+			
 			if(CG_FileExists(filename))
 			{
 				return qtrue;
 			}
+			
 			if(!teamName || !*teamName)
 			{
 				break;
 			}
 		}
+		
 		// if tried the heads folder first
 		if(charactersFolder[0])
 		{
@@ -678,19 +683,21 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 
 	if(headName[0] == '*')
 	{
-		Com_sprintf(filename, sizeof(filename), "models/players/heads/%s/%s.md3", &headModelName[1], &headModelName[1]);
+		Com_sprintf(filename, sizeof(filename), "models/players/heads/%s/head.md3", &headModelName[1], &headModelName[1]);
 	}
 	else
 	{
 		Com_sprintf(filename, sizeof(filename), "models/players/%s/head.md3", headName);
 	}
 	ci->headModel = trap_R_RegisterModel(filename);
+	
 	// if the head model could not be found and we didn't load from the heads folder try to load from there
 	if(!ci->headModel && headName[0] != '*')
 	{
-		Com_sprintf(filename, sizeof(filename), "models/players/heads/%s/%s.md3", headModelName, headModelName);
+		Com_sprintf(filename, sizeof(filename), "models/players/heads/%s/head.md3", headModelName, headModelName);
 		ci->headModel = trap_R_RegisterModel(filename);
 	}
+	
 	if(!ci->headModel)
 	{
 		Com_Printf("Failed to load model file %s\n", filename);
@@ -702,8 +709,8 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 	{
 		if(teamName && *teamName)
 		{
-			Com_Printf("Failed to load skin file: %s : %s : %s, %s : %s\n", teamName, modelName, skinName, headName,
-					   headSkinName);
+			Com_Printf("Failed to load skin file: %s : %s : %s, %s : %s\n", teamName, modelName, skinName, headName, headSkinName);
+			
 			if(ci->team == TEAM_BLUE)
 			{
 				Com_sprintf(newTeamName, sizeof(newTeamName), "%s/", DEFAULT_BLUETEAM_NAME);
@@ -712,6 +719,7 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 			{
 				Com_sprintf(newTeamName, sizeof(newTeamName), "%s/", DEFAULT_REDTEAM_NAME);
 			}
+			
 			if(!CG_RegisterClientSkin(ci, newTeamName, modelName, skinName, headName, headSkinName))
 			{
 				Com_Printf("Failed to load skin file: %s : %s : %s, %s : %s\n", newTeamName, modelName, skinName, headName,
@@ -843,9 +851,10 @@ static void CG_LoadClientInfo(clientInfo_t * ci)
 			{
 				Q_strncpyz(teamname, DEFAULT_REDTEAM_NAME, sizeof(teamname));
 			}
-			if(!CG_RegisterClientModelname(ci, DEFAULT_TEAM_MODEL, ci->skinName, DEFAULT_TEAM_HEAD, ci->skinName, teamname))
+			
+			if(!CG_RegisterClientModelname(ci, DEFAULT_MODEL, ci->skinName, DEFAULT_HEADMODEL, ci->skinName, teamname))
 			{
-				CG_Error("DEFAULT_TEAM_MODEL / skin (%s/%s) failed to register", DEFAULT_TEAM_MODEL, ci->skinName);
+				CG_Error("DEFAULT_TEAM_MODEL / skin (%s/%s) failed to register", DEFAULT_MODEL, ci->skinName);
 			}
 		}
 		else
@@ -872,7 +881,7 @@ static void CG_LoadClientInfo(clientInfo_t * ci)
 
 	// sounds
 	dir = ci->modelName;
-	fallback = (cgs.gametype >= GT_TEAM) ? DEFAULT_TEAM_MODEL : DEFAULT_MODEL;
+	fallback = DEFAULT_MODEL;
 
 	for(i = 0; i < MAX_CUSTOM_SOUNDS; i++)
 	{
@@ -1137,7 +1146,7 @@ void CG_NewClientInfo(int clientNum)
 
 		if(cgs.gametype >= GT_TEAM)
 		{
-			Q_strncpyz(newInfo.modelName, DEFAULT_TEAM_MODEL, sizeof(newInfo.modelName));
+			Q_strncpyz(newInfo.modelName, DEFAULT_MODEL, sizeof(newInfo.modelName));
 			Q_strncpyz(newInfo.skinName, "default", sizeof(newInfo.skinName));
 		}
 		else
@@ -1195,7 +1204,7 @@ void CG_NewClientInfo(int clientNum)
 
 		if(cgs.gametype >= GT_TEAM)
 		{
-			Q_strncpyz(newInfo.headModelName, DEFAULT_TEAM_MODEL, sizeof(newInfo.headModelName));
+			Q_strncpyz(newInfo.headModelName, DEFAULT_MODEL, sizeof(newInfo.headModelName));
 			Q_strncpyz(newInfo.headSkinName, "default", sizeof(newInfo.headSkinName));
 		}
 		else

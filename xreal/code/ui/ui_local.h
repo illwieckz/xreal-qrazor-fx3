@@ -573,11 +573,10 @@ typedef struct
 } playerInfo_t;
 
 void            UI_DrawPlayer(float x, float y, float w, float h, playerInfo_t * pi, int time);
-void            UI_PlayerInfo_SetModel(playerInfo_t * pi, const char *model, const char *headmodel, char *teamName);
+void            UI_PlayerInfo_SetModel(playerInfo_t * pi, const char *model, const char *headmodel);
 void            UI_PlayerInfo_SetInfo(playerInfo_t * pi, int legsAnim, int torsoAnim, vec3_t viewAngles, vec3_t moveAngles,
 									  weapon_t weaponNum, qboolean chat);
-qboolean        UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName, const char *headName,
-										   const char *teamName);
+qboolean        UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName, const char *headName);
 
 //
 // ui_atoms.c
@@ -611,7 +610,7 @@ typedef struct
 
 // new ui stuff
 #define UI_NUMFX 7
-#define MAX_HEADS 64
+#define MAX_CHARACTERS 64
 #define MAX_ALIASES 64
 #define MAX_HEADNAME  32
 #define MAX_TEAMS 64
@@ -787,7 +786,7 @@ typedef struct
 
 	int             characterCount;
 	int             botIndex;
-	characterInfo   characterList[MAX_HEADS];
+	characterInfo   characterList[MAX_CHARACTERS];
 
 	int             aliasCount;
 	aliasInfo       aliasList[MAX_ALIASES];
@@ -854,11 +853,6 @@ typedef struct
 	int             currentCrosshair;
 	int             startPostGameTime;
 	sfxHandle_t     newHighScoreSound;
-
-	int             q3HeadCount;
-	char            q3HeadNames[MAX_PLAYERMODELS][64];
-	qhandle_t       q3HeadIcons[MAX_PLAYERMODELS];
-	int             q3SelectedHead;
 
 	int             effectsColor;
 

@@ -248,7 +248,7 @@ void AssetCache()
 		uiInfo.uiDC.Assets.crosshairShader[n] = trap_R_RegisterShaderNoMip(va("gfx/2d/crosshair%c", 'a' + n));
 	}
 
-	uiInfo.newHighScoreSound = trap_S_RegisterSound("sound/feedback/voc_newhighscore.wav", qfalse);
+	uiInfo.newHighScoreSound = trap_S_RegisterSound("sound/feedback/newhighscore.wav", qfalse);
 }
 
 void _UI_DrawSides(float x, float y, float w, float h, float size)
@@ -1482,40 +1482,22 @@ static void UI_DrawMapCinematic(rectDef_t * rect, float scale, vec4_t color, qbo
 
 
 static qboolean updateModel = qtrue;
-static qboolean q3Model = qfalse;
 
 static void UI_DrawPlayerModel(rectDef_t * rect)
 {
 	static playerInfo_t info;
 	char            model[MAX_QPATH];
-	char            team[256];
-	char            head[256];
+	char            head[MAX_QPATH];
 	vec3_t          viewangles;
 	vec3_t          moveangles;
 
-	if(trap_Cvar_VariableValue("ui_Q3Model"))
+	strcpy(model, UI_Cvar_VariableString("model"));
+	strcpy(head, UI_Cvar_VariableString("headmodel"));
+	//if(!q3Model)
 	{
-		strcpy(model, UI_Cvar_VariableString("model"));
-		strcpy(head, UI_Cvar_VariableString("headmodel"));
-		if(!q3Model)
-		{
-			q3Model = qtrue;
-			updateModel = qtrue;
-		}
-		team[0] = '\0';
+		updateModel = qtrue;
 	}
-	else
-	{
-
-		strcpy(team, UI_Cvar_VariableString("ui_teamName"));
-		strcpy(model, UI_Cvar_VariableString("team_model"));
-		strcpy(head, UI_Cvar_VariableString("team_headmodel"));
-		if(q3Model)
-		{
-			q3Model = qfalse;
-			updateModel = qtrue;
-		}
-	}
+	
 	if(updateModel)
 	{
 		memset(&info, 0, sizeof(playerInfo_t));
@@ -1523,14 +1505,13 @@ static void UI_DrawPlayerModel(rectDef_t * rect)
 		viewangles[PITCH] = 0;
 		viewangles[ROLL] = 0;
 		VectorClear(moveangles);
-		UI_PlayerInfo_SetModel(&info, model, head, team);
+		UI_PlayerInfo_SetModel(&info, model, head);
 		UI_PlayerInfo_SetInfo(&info, LEGS_IDLE, TORSO_STAND, viewangles, vec3_origin, WP_MACHINEGUN, qfalse);
-//      UI_RegisterClientModelname( &info, model, head, team);
+//      UI_RegisterClientModelname( &info, model, head);
 		updateModel = qfalse;
 	}
 
 	UI_DrawPlayer(rect->x, rect->y, rect->w, rect->h, &info, uiInfo.uiDC.realTime / 2);
-
 }
 
 static void UI_DrawNetSource(rectDef_t * rect, float scale, vec4_t color, int textStyle)
@@ -1689,7 +1670,7 @@ static const char *UI_AIFromName(const char *name)
 			return uiInfo.aliasList[j].ai;
 		}
 	}
-	return "James";
+	return "Visor";
 }
 
 #ifndef MISSIONPACK				// bk001206
@@ -1747,7 +1728,7 @@ static const char *UI_OpponentLeaderModel()
 			return uiInfo.characterList[i].base;
 		}
 	}
-	return "James";
+	return "Visor";
 }
 #endif
 
@@ -1758,25 +1739,22 @@ static void UI_DrawOpponent(rectDef_t * rect)
 	static playerInfo_t info2;
 	char            model[MAX_QPATH];
 	char            headmodel[MAX_QPATH];
-	char            team[256];
 	vec3_t          viewangles;
 	vec3_t          moveangles;
 
 	if(updateOpponentModel)
 	{
-
 		strcpy(model, UI_Cvar_VariableString("ui_opponentModel"));
 		strcpy(headmodel, UI_Cvar_VariableString("ui_opponentModel"));
-		team[0] = '\0';
 
 		memset(&info2, 0, sizeof(playerInfo_t));
 		viewangles[YAW] = 180 - 10;
 		viewangles[PITCH] = 0;
 		viewangles[ROLL] = 0;
 		VectorClear(moveangles);
-		UI_PlayerInfo_SetModel(&info2, model, headmodel, "");
+		UI_PlayerInfo_SetModel(&info2, model, headmodel);
 		UI_PlayerInfo_SetInfo(&info2, LEGS_IDLE, TORSO_STAND, viewangles, vec3_origin, WP_MACHINEGUN, qfalse);
-		UI_RegisterClientModelname(&info2, model, headmodel, team);
+		UI_RegisterClientModelname(&info2, model, headmodel);
 		updateOpponentModel = qfalse;
 	}
 
@@ -2826,15 +2804,6 @@ static qboolean UI_GameType_HandleKey(int flags, float *special, int key, qboole
 			{
 				ui_gameType.integer = 3;
 			}
-		}
-
-		if(uiInfo.gameTypes[ui_gameType.integer].gtEnum == GT_TOURNAMENT)
-		{
-			trap_Cvar_Set("ui_Q3Model", "1");
-		}
-		else
-		{
-			trap_Cvar_Set("ui_Q3Model", "0");
 		}
 
 		trap_Cvar_Set("ui_gameType", va("%d", ui_gameType.integer));
@@ -4447,18 +4416,17 @@ static int UI_MapCountByGameType(qboolean singlePlayer)
 	return c;
 }
 
-qboolean UI_hasSkinForBase(const char *base, const char *team)
+static qboolean UI_hasSkinForBase(const char *base)
 {
 	char            test[1024];
 
-	Com_sprintf(test, sizeof(test), "models/players/%s/%s/lower_default.skin", base, team);
-
+	Com_sprintf(test, sizeof(test), "models/players/%s/lower_default.skin", base);
 	if(trap_FS_FOpenFile(test, 0, FS_READ))
 	{
 		return qtrue;
 	}
-	Com_sprintf(test, sizeof(test), "models/players/characters/%s/%s/lower_default.skin", base, team);
-
+	
+	Com_sprintf(test, sizeof(test), "models/players/characters/%s/lower_default.skin", base);
 	if(trap_FS_FOpenFile(test, 0, FS_READ))
 	{
 		return qtrue;
@@ -4484,7 +4452,7 @@ static int UI_HeadCountByTeam()
 			uiInfo.characterList[i].reference = 0;
 			for(j = 0; j < uiInfo.teamCount; j++)
 			{
-				if(UI_hasSkinForBase(uiInfo.characterList[i].base, uiInfo.teamList[j].teamName))
+				if(UI_hasSkinForBase(uiInfo.characterList[i].base))
 				{
 					uiInfo.characterList[i].reference |= (1 << j);
 				}
@@ -5178,10 +5146,6 @@ static int UI_FeederCount(float feederID)
 	{
 		return UI_HeadCountByTeam();
 	}
-	else if(feederID == FEEDER_Q3HEADS)
-	{
-		return uiInfo.q3HeadCount;
-	}
 	else if(feederID == FEEDER_CINEMATICS)
 	{
 		return uiInfo.movieCount;
@@ -5320,13 +5284,6 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
 		int             actual;
 
 		return UI_SelectedHead(index, &actual);
-	}
-	else if(feederID == FEEDER_Q3HEADS)
-	{
-		if(index >= 0 && index < uiInfo.q3HeadCount)
-		{
-			return uiInfo.q3HeadNames[index];
-		}
 	}
 	else if(feederID == FEEDER_MAPS || feederID == FEEDER_ALLMAPS)
 	{
@@ -5492,13 +5449,6 @@ static qhandle_t UI_FeederItemImage(float feederID, int index)
 			return uiInfo.characterList[index].headImage;
 		}
 	}
-	else if(feederID == FEEDER_Q3HEADS)
-	{
-		if(index >= 0 && index < uiInfo.q3HeadCount)
-		{
-			return uiInfo.q3HeadIcons[index];
-		}
-	}
 	else if(feederID == FEEDER_ALLMAPS || feederID == FEEDER_MAPS)
 	{
 		int             actual;
@@ -5529,17 +5479,8 @@ static void UI_FeederSelection(float feederID, int index)
 		index = actual;
 		if(index >= 0 && index < uiInfo.characterCount)
 		{
-			trap_Cvar_Set("team_model", va("%s", uiInfo.characterList[index].base));
-			trap_Cvar_Set("team_headmodel", va("*%s", uiInfo.characterList[index].name));
-			updateModel = qtrue;
-		}
-	}
-	else if(feederID == FEEDER_Q3HEADS)
-	{
-		if(index >= 0 && index < uiInfo.q3HeadCount)
-		{
-			trap_Cvar_Set("model", uiInfo.q3HeadNames[index]);
-			trap_Cvar_Set("headmodel", uiInfo.q3HeadNames[index]);
+			trap_Cvar_Set("model", va("%s", uiInfo.characterList[index].base));
+			trap_Cvar_Set("headmodel", va("*%s", uiInfo.characterList[index].name));
 			updateModel = qtrue;
 		}
 	}
@@ -5753,8 +5694,7 @@ static qboolean Character_Parse(char **p)
 			}
 
 			uiInfo.characterList[uiInfo.characterCount].headImage = -1;
-			uiInfo.characterList[uiInfo.characterCount].imageName =
-				String_Alloc(va("models/players/heads/%s/icon_default.tga", uiInfo.characterList[uiInfo.characterCount].name));
+			uiInfo.characterList[uiInfo.characterCount].imageName = String_Alloc(va("models/players/%s/icon_default.tga", uiInfo.characterList[uiInfo.characterCount].name));
 
 			if(tempStr && (!Q_stricmp(tempStr, "female")))
 			{
@@ -5762,7 +5702,7 @@ static qboolean Character_Parse(char **p)
 			}
 			else if(tempStr && (!Q_stricmp(tempStr, "male")))
 			{
-				uiInfo.characterList[uiInfo.characterCount].base = String_Alloc(va("James"));
+				uiInfo.characterList[uiInfo.characterCount].base = String_Alloc(va("Visor"));
 			}
 			else
 			{
@@ -5771,7 +5711,8 @@ static qboolean Character_Parse(char **p)
 
 			Com_Printf("Loaded %s character %s.\n", uiInfo.characterList[uiInfo.characterCount].base,
 					   uiInfo.characterList[uiInfo.characterCount].name);
-			if(uiInfo.characterCount < MAX_HEADS)
+			
+			if(uiInfo.characterCount < MAX_CHARACTERS)
 			{
 				uiInfo.characterCount++;
 			}
@@ -5829,6 +5770,7 @@ static qboolean Alias_Parse(char **p)
 
 			Com_Printf("Loaded character alias %s using character ai %s.\n", uiInfo.aliasList[uiInfo.aliasCount].name,
 					   uiInfo.aliasList[uiInfo.aliasCount].ai);
+			
 			if(uiInfo.aliasCount < MAX_ALIASES)
 			{
 				uiInfo.aliasCount++;
@@ -5861,8 +5803,6 @@ static void UI_ParseTeamInfo(const char *teamFile)
 	char           *p;
 	char           *buff = NULL;
 
-	//static int mode = 0; TTimo: unused
-
 	buff = GetMenuBuffer(teamFile);
 	if(!buff)
 	{
@@ -5886,7 +5826,6 @@ static void UI_ParseTeamInfo(const char *teamFile)
 
 		if(Q_stricmp(token, "teams") == 0)
 		{
-
 			if(Team_Parse(&p))
 			{
 				continue;
@@ -6234,6 +6173,7 @@ static void UI_RunCinematicFrame(int handle)
 PlayerModel_BuildList
 =================
 */
+/*
 static void UI_BuildQ3Model_List(void)
 {
 	int             numdirs;
@@ -6306,7 +6246,7 @@ static void UI_BuildQ3Model_List(void)
 	}
 
 }
-
+*/
 
 
 /*
@@ -6442,7 +6382,7 @@ void _UI_Init(qboolean inGameLoad)
 	trap_LAN_LoadCachedServers();
 	UI_LoadBestScores(uiInfo.mapList[ui_currentMap.integer].mapLoadName, uiInfo.gameTypes[ui_gameType.integer].gtEnum);
 
-	UI_BuildQ3Model_List();
+	//UI_BuildQ3Model_List();
 	UI_LoadBots();
 
 	// sets defaults for ui temp cvars
@@ -7065,7 +7005,6 @@ vmCvar_t        ui_fragLimit;
 vmCvar_t        ui_smallFont;
 vmCvar_t        ui_bigFont;
 vmCvar_t        ui_findPlayer;
-vmCvar_t        ui_Q3Model;
 vmCvar_t        ui_hudFiles;
 vmCvar_t        ui_recordSPDemo;
 vmCvar_t        ui_realCaptureLimit;
@@ -7186,7 +7125,6 @@ static cvarTable_t cvarTable[] = {
 	{&ui_smallFont, "ui_smallFont", "0.25", CVAR_ARCHIVE},
 	{&ui_bigFont, "ui_bigFont", "0.4", CVAR_ARCHIVE},
 	{&ui_findPlayer, "ui_findPlayer", "Visor", CVAR_ARCHIVE},
-	{&ui_Q3Model, "ui_q3model", "0", CVAR_ARCHIVE},
 	{&ui_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
 	{&ui_recordSPDemo, "ui_recordSPDemo", "0", CVAR_ARCHIVE},
 	{&ui_teamArenaFirstRun, "ui_teamArenaFirstRun", "0", CVAR_ARCHIVE},

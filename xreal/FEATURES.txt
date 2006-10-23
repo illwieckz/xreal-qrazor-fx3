@@ -68,6 +68,7 @@ code/renderer
   1 = simple bloom with diamond filter only
   2 = strong bloom with combined gauss and diamond filters
 - rotoscope cartoon post process effect
+- reactivated TrueType font support using FreeType
 
 code/q3_ui
 - lighting mode game option

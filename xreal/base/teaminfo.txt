@@ -10,31 +10,27 @@
 // "asset name_metal" - metal logo for ui
 // "asset name_name" - graphic represenation of the name
 //
-teams {
-  { "Crusaders" "ui/assets/crusaders"  "Janet" "James" "Bradamante" "Furioso" "Aria"  }
-  { "Pagans"  "ui/assets/pagans" "James" "Janet" "Enforcer" "Aria" "Deadeye" }
-  { "Stroggs" "ui/assets/stroggs" "Janet" "James" "Icarus" "Gladiator" "Paracyte" }
+teams
+{
+  { "Crusaders" "ui/assets/crusaders"  "Visor" "Gorre" "Reaper" "Treznor" "Shark" }
+  { "Pagans"  "ui/assets/pagans" "Visor" "Gorre" "Reaper" "Treznor" "Shark" }
+  { "Stroggs" "ui/assets/stroggs" "Visor" "Gorre" "Reaper" "Treznor" "Shark" }
 }
 
 
 // character name ( used for display and head derivation ), sex
-characters {
-  { "James"  "male" }
-  { "Janet"  "female" }
+characters
+{
+  { "Visor"  "male" }
 }
 
-aliases {
-	{ "Bradamante"			"Janet"		"d"			}
-	{ "Furioso"			"James"	"a"				}
-	{ "Aria"			"Janet" 	"o"			  	}
-	{ "Deadeye"			"James"		"d"				}
-	{ "Enforcer"			"Janet"	"d"			}
-	{ "Icarus"			"James"		"o"		}
-	{ "Gammy"			"Janet"		"a"			}
-	{ "Gladiator"			"Janet"		"d"				}
-	{ "Paracyte"			"James"	"a"			}
-	{ "James"			"James"	"a"			}
-	{ "Janet"			"Janet"	"a"			}
+aliases
+{
+	{ "Visor"			"Visor"		"a"		}
+	{ "Gorre"			"Visor"		"a"		}
+	{ "Reaper"			"Visor"		"a"		}
+	{ "Treznor"			"Visor"		"a"		}
+	{ "Shark"			"Visor"		"a"		}
 }
 
 
