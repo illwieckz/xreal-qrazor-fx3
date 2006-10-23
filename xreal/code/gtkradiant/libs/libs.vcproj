@@ -319,6 +319,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\xml\xmltextags.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\xml\xmltextags.h"
+				>
+			</File>
+			<File
 				RelativePath=".\xml\xmlwriter.cpp"
 				>
 			</File>
